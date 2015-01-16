@@ -17,3 +17,7 @@ The foundation of a library enabling microservices is based around the following
 - Server - an ability to define handlers and serve requests 
 - Client - an ability to make requests to another service
 - Discovery - a mechanism by which to discover other services
+
+## Resources
+
+[A microservices primer by Martin Fowler](http://martinfowler.com/articles/microservices.html)
