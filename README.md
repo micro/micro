@@ -6,6 +6,14 @@ Microservices is an architecture pattern used to decompose a single large applic
 
 The concept of microservices is not new, this is the reimagination of service orientied architecture but with an approach more holistically aligned with unix processes and pipes. For those of us with extensive experience in this field we're somewhat biased and feel this is an incredibly beneficial approach to system design at large and developer productivity.
 
-The goal of **Micro** is to try introduce the concept of microservices to the developer community at large and start a conversation around a protocol of sorts. Hopefully this will allow us to come to a consensus on requirements and begin writing libraries in every language so this architecture pattern can be used by anyone and everyone.
+The goal of **Micro** is to try introduce the concept of microservices to the developer community and start a conversation around a protocol of sorts. Hopefully this will allow us to come to a consensus on requirements and begin writing libraries in every language so this architecture pattern can be used by anyone and everyone.
 
 It's still early days but a proof of concept library has been started in Go which can be found at [github.com/asim/go-micro](https://github.com/asim/go-micro)
+
+## Requirements
+
+The foundation of a library enabling microservices is based around the following requirements:
+
+- Server - an ability to define handlers and serve requests 
+- Client - an ability to make requests to another service
+- Discovery - a mechanism by which to discover other services
