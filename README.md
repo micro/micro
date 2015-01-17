@@ -20,4 +20,5 @@ The foundation of a library enabling microservices is based around the following
 
 ## Resources
 
-[A microservices primer by Martin Fowler](http://martinfowler.com/articles/microservices.html)
+[Microservices](http://martinfowler.com/articles/microservices.html) by Martin Fowler
+[Microservices: Decomposing Applications for Deployability and Scalability](http://www.slideshare.net/chris.e.richardson/microservices-decomposing-applications-for-deployability-and-scalability-jax) by Chris Richardson (Slides)
