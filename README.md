@@ -57,3 +57,5 @@ discovery.List() - List all servers
 [Microservices](http://martinfowler.com/articles/microservices.html) by Martin Fowler
 
 [Microservices: Decomposing Applications for Deployability and Scalability](http://www.slideshare.net/chris.e.richardson/microservices-decomposing-applications-for-deployability-and-scalability-jax) by Chris Richardson (Slides)
+
+[A Journey into a Microservice World](https://speakerdeck.com/mattheath/a-journey-into-a-microservice-world) by Matt Heath
