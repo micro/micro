@@ -55,7 +55,9 @@ discovery.List() - List all servers
 
 ## Current Tools
 [go-micro](https://github.com/asim/go-micro) - A client/service library based on http-rpc protobuf
+
 [micro-api](https://github.com/asim/micro-api) - A lightweight proxy for Micro based services
+
 [micro-mq](https://github.com/asim/micro-mq) - A simple experimental pub/sub service for testing.
 
 ## Example Services
