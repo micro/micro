@@ -52,6 +52,15 @@ discovery.Deregister(name, hostname, ...) - Deregister a server
 discovery.Get(name) - Get the details for a server
 discovery.List() - List all servers
 ```
+
+## Current Tools
+[go-micro](https://github.com/asim/go-micro) - A client/service library based on http-rpc protobuf
+[micro-api](https://github.com/asim/micro-api) - A lightweight proxy for Micro based services
+[micro-mq](https://github.com/asim/micro-mq) - A simple experimental pub/sub service for testing.
+
+## Example Services
+[geo-srv](https://github.com/asim/geo-srv) - A go-micro based geolocation tracking service using hailocab/go-geoindex
+
 ## Resources
 
 [Microservices](http://martinfowler.com/articles/microservices.html) by Martin Fowler
