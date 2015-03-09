@@ -63,10 +63,16 @@ discovery.List() - List all servers
 ## Example Services
 [geo-srv](https://github.com/asim/geo-srv) - A go-micro based geolocation tracking service using hailocab/go-geoindex
 
-## Resources
+## Reading
 
+### Hailo on Microservices
+[A Journey into Microservices](https://sudo.hailoapp.com/services/2015/03/09/journey-into-a-microservice-world-part-1/)
+
+[A Journey into a Microservice World](https://speakerdeck.com/mattheath/a-journey-into-a-microservice-world) by Matt Heath (Slides)
+
+### Extra Reading
 [Microservices](http://martinfowler.com/articles/microservices.html) by Martin Fowler
 
 [Microservices: Decomposing Applications for Deployability and Scalability](http://www.slideshare.net/chris.e.richardson/microservices-decomposing-applications-for-deployability-and-scalability-jax) by Chris Richardson (Slides)
 
-[A Journey into a Microservice World](https://speakerdeck.com/mattheath/a-journey-into-a-microservice-world) by Matt Heath
+
