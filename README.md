@@ -7,11 +7,14 @@ The goal of **Micro** is to provide a toolchain for microservice development and
 
 ## Current Tools
 [go-micro](https://github.com/asim/go-micro) - A client/service library based on http-rpc protobuf
+
 [micro-api](https://github.com/asim/micro-api) - A lightweight gateway/proxy for Micro based services
+
 [micro-mq](https://github.com/asim/micro-mq) - A simple experimental pub/sub service for testing.
 
 ## Example Services
 [geo-srv](https://github.com/asim/geo-srv) - A go-micro based geolocation tracking service using hailocab/go-geoindex
+
 [template](https://github.com/asim/go-micro/tree/master/template) - A template Go service
 
 ## About Microservices
