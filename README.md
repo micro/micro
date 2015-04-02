@@ -1,16 +1,27 @@
 # Micro
-Home for a microservices protocol and suite of language agnostic tooling
 
-## Premise
+Micro is a suite of libraries and tools for developing and running microservices.
+
+# Overview
+The goal of **Micro** is to provide a toolchain for microservice development and management. At the core, micro is simple and accessible enough that anyone can easily get started writing microservices. As you scale to hundreds of services, micro will provide the fundamental tools required to manage a microservice environment.
+
+## Current Tools
+[go-micro](https://github.com/asim/go-micro) - A client/service library based on http-rpc protobuf
+[micro-api](https://github.com/asim/micro-api) - A lightweight gateway/proxy for Micro based services
+[micro-mq](https://github.com/asim/micro-mq) - A simple experimental pub/sub service for testing.
+
+## Example Services
+[geo-srv](https://github.com/asim/geo-srv) - A go-micro based geolocation tracking service using hailocab/go-geoindex
+[template](https://github.com/asim/go-micro/tree/master/template) - A template Go service
+
+## About Microservices
 Microservices is an architecture pattern used to decompose a single large application in to a smaller suite of services. Generally the goal is to create light weight services of 1000 lines of code or less. Each service alone provides a particular focused solution or set of solutions. These small services can be used as the foundational building blocks in the creation of a larger system.
 
 The concept of microservices is not new, this is the reimagination of service orientied architecture but with an approach more holistically aligned with unix processes and pipes. For those of us with extensive experience in this field we're somewhat biased and feel this is an incredibly beneficial approach to system design at large and developer productivity.
 
-The goal of **Micro** is to try introduce the concept of microservices to the developer community and start a conversation around a protocol of sorts. Hopefully this will allow us to come to a consensus on requirements and begin writing libraries in every language so this architecture pattern can be used by anyone and everyone.
+Learn more about Microservices by watching Martin Fowler's presentation [here](https://www.youtube.com/watch?v=wgdBVIX9ifA) or his blog post [here](http://martinfowler.com/articles/microservices.html).
 
-It's still early days but a proof of concept library has been started in Go which can be found at [github.com/asim/go-micro](https://github.com/asim/go-micro)
-
-## Requirements
+## Microservice Requirements
 
 The foundation of a library enabling microservices is based around the following requirements:
 
@@ -53,26 +64,15 @@ discovery.Get(name) - Get the details for a server
 discovery.List() - List all servers
 ```
 
-## Current Tools
-[go-micro](https://github.com/asim/go-micro) - A client/service library based on http-rpc protobuf
-
-[micro-api](https://github.com/asim/micro-api) - A lightweight proxy for Micro based services
-
-[micro-mq](https://github.com/asim/micro-mq) - A simple experimental pub/sub service for testing.
-
-## Example Services
-[geo-srv](https://github.com/asim/geo-srv) - A go-micro based geolocation tracking service using hailocab/go-geoindex
-
-## Reading
+## Resources
 
 ### Hailo on Microservices
 [A Journey into Microservices](https://sudo.hailoapp.com/services/2015/03/09/journey-into-a-microservice-world-part-1/)
 
 [A Journey into a Microservice World](https://speakerdeck.com/mattheath/a-journey-into-a-microservice-world) by Matt Heath (Slides)
 
-### Extra Reading
 [Microservices](http://martinfowler.com/articles/microservices.html) by Martin Fowler
 
 [Microservices: Decomposing Applications for Deployability and Scalability](http://www.slideshare.net/chris.e.richardson/microservices-decomposing-applications-for-deployability-and-scalability-jax) by Chris Richardson (Slides)
 
-
+[4 reasons why microservices resonate](http://radar.oreilly.com/2015/04/4-reasons-why-microservices-resonate.html) by Neal Ford
