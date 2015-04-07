@@ -8,9 +8,7 @@ The goal of **Micro** is to provide a toolchain for microservice development and
 ## Current Tools
 [go-micro](https://github.com/asim/go-micro) - A client/service library based on http-rpc protobuf
 
-[microsh](https://github.com/asim/microsh) - A command line tool for micro (work in progress)
-
-[micro-api](https://github.com/asim/micro-api) - A lightweight gateway/proxy for Micro based services (work in progress)
+[micro](https://github.com/asim/micro) - A command line tool and lightweight API for micro based services 
 
 [micro-mq](https://github.com/asim/micro-mq) - A simple experimental pub/sub service for testing.
 
