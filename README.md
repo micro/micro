@@ -6,9 +6,11 @@ Micro is a suite of libraries and tools for developing and running microservices
 The goal of **Micro** is to provide a toolchain for microservice development and management. At the core, micro is simple and accessible enough that anyone can easily get started writing microservices. As you scale to hundreds of services, micro will provide the fundamental tools required to manage a microservice environment.
 
 ## Current Tools
-[go-micro](https://github.com/asim/go-micro) - A client/service library based on http-rpc protobuf
+[go-micro](https://github.com/asim/go-micro) - A microservices client/server library based on http/rpc protobuf
 
-[micro](https://github.com/asim/micro) - A command line tool and lightweight API for micro based services 
+micro [api](https://github.com/asim/micro/tree/master/api) - A lightweight gateway/proxy for Micro based services
+
+micro [cli](https://github.com/asim/micro/tree/master/cli) - A command line tool for micro
 
 [micro-mq](https://github.com/asim/micro-mq) - A simple experimental pub/sub service for testing.
 
