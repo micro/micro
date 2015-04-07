@@ -17,7 +17,7 @@ The goal of **Micro** is to provide a toolchain for microservice development and
 ## Example Services
 [geo-srv](https://github.com/asim/geo-srv) - A go-micro based geolocation tracking service using hailocab/go-geoindex
 
-[template](https://github.com/asim/go-micro/tree/master/template) - A template Go service
+[greeter](https://github.com/asim/micro/tree/master/examples/greeter) - A greeter Go service
 
 ## About Microservices
 Microservices is an architecture pattern used to decompose a single large application in to a smaller suite of services. Generally the goal is to create light weight services of 1000 lines of code or less. Each service alone provides a particular focused solution or set of solutions. These small services can be used as the foundational building blocks in the creation of a larger system.
