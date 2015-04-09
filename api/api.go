@@ -75,7 +75,7 @@ func (s *ApiServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	case "application/json":
 		b, err := ioutil.ReadAll(r.Body)
 		if err != nil {
-			e := errors.BadRequest("io.myodc.platform.server", err.Error())
+			e := errors.BadRequest("go.micro.api", err.Error())
 			w.WriteHeader(400)
 			w.Write([]byte(e.Error()))
 			return
@@ -84,7 +84,7 @@ func (s *ApiServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		var body map[string]interface{}
 		err = json.Unmarshal(b, &body)
 		if err != nil {
-			e := errors.BadRequest("io.myodc.platform.server", err.Error())
+			e := errors.BadRequest("go.micro.api", err.Error())
 			w.WriteHeader(400)
 			w.Write([]byte(e.Error()))
 			return

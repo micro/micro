@@ -32,7 +32,7 @@ func registryCommands() []cli.Command {
 		},
 		{
 			Name:  "get",
-			Usage: "get item from registry",
+			Usage: "Get item from registry",
 			Subcommands: []cli.Command{
 				{
 					Name:  "service",
