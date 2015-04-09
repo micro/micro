@@ -6,20 +6,15 @@ Micro is a suite of libraries and tools for developing and running microservices
 The goal of **Micro** is to provide a toolchain for microservice development and management. At the core, micro is simple and accessible enough that anyone can easily get started writing microservices. As you scale to hundreds of services, micro will provide the fundamental tools required to manage a microservice environment.
 
 ## Current Tools
-[go-micro](https://github.com/asim/go-micro) - A microservices client/server library based on http/rpc protobuf
-
-[api](https://github.com/asim/micro/tree/master/api) - A lightweight gateway/proxy for Micro based services
-
-[cli](https://github.com/asim/micro/tree/master/cli) - A command line tool for micro
-
-[sidecar](https://github.com/asim/micro/tree/master/sic) - Integrate any application into the Micro ecosystem
-
-[micro-mq](https://github.com/asim/micro-mq) - A simple experimental pub/sub service for testing.
+- [go-micro](https://github.com/asim/go-micro) - A microservices client/server library based on http/rpc protobuf
+- [api](https://github.com/asim/micro/tree/master/api) - A lightweight gateway/proxy for Micro based services
+- [cli](https://github.com/asim/micro/tree/master/cli) - A command line tool for micro
+- [sidecar](https://github.com/asim/micro/tree/master/sic) - Integrate any application into the Micro ecosystem
+- [micro-mq](https://github.com/asim/micro-mq) - A simple experimental pub/sub service for testing.
 
 ## Example Services
-[geo-srv](https://github.com/asim/geo-srv) - A go-micro based geolocation tracking service using hailocab/go-geoindex
-
-[greeter](https://github.com/asim/micro/tree/master/examples/greeter) - A greeter Go service
+- [geo-srv](https://github.com/asim/geo-srv) - A go-micro based geolocation tracking service using hailocab/go-geoindex
+- [greeter](https://github.com/asim/micro/tree/master/examples/greeter) - A greeter Go service
 
 ## About Microservices
 Microservices is an architecture pattern used to decompose a single large application in to a smaller suite of services. Generally the goal is to create light weight services of 1000 lines of code or less. Each service alone provides a particular focused solution or set of solutions. These small services can be used as the foundational building blocks in the creation of a larger system.
@@ -73,12 +68,8 @@ discovery.List() - List all servers
 
 ## Resources
 
-[A Journey into Microservices](https://sudo.hailoapp.com/services/2015/03/09/journey-into-a-microservice-world-part-1/)
-
-[A Journey into a Microservice World](https://speakerdeck.com/mattheath/a-journey-into-a-microservice-world) by Matt Heath (Slides)
-
-[Microservices](http://martinfowler.com/articles/microservices.html) by Martin Fowler
-
-[Microservices: Decomposing Applications for Deployability and Scalability](http://www.slideshare.net/chris.e.richardson/microservices-decomposing-applications-for-deployability-and-scalability-jax) by Chris Richardson (Slides)
-
-[4 reasons why microservices resonate](http://radar.oreilly.com/2015/04/4-reasons-why-microservices-resonate.html) by Neal Ford
+- [A Journey into Microservices](https://sudo.hailoapp.com/services/2015/03/09/journey-into-a-microservice-world-part-1/)
+- [A Journey into a Microservice World](https://speakerdeck.com/mattheath/a-journey-into-a-microservice-world) by Matt Heath (Slides)
+- [Microservices](http://martinfowler.com/articles/microservices.html) by Martin Fowler
+- [Microservices: Decomposing Applications for Deployability and Scalability](http://www.slideshare.net/chris.e.richardson/microservices-decomposing-applications-for-deployability-and-scalability-jax) by Chris Richardson (Slides)
+- [4 reasons why microservices resonate](http://radar.oreilly.com/2015/04/4-reasons-why-microservices-resonate.html) by Neal Ford
