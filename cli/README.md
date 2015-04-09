@@ -67,3 +67,10 @@ I0407 23:14:28.347481   22506 server.go:90] Starting server go.micro.api id go.m
 I0407 23:14:28.347570   22506 rpc_server.go:187] Listening on [::]:54120
 I0407 23:14:28.347609   22506 server.go:76] Registering go.micro.api-75184b9f-dd73-11e4-937f-68a86d0d36b6
 ```
+
+### Run the SideCar
+```shell
+micro sidecar --server_name=foo --server_address=127.0.0.1:9090 --healthcheck_url=http://127.0.0.1:9090/_status/health
+I0409 21:25:12.817687   27939 sic.go:182] Registering foo-86857602-def6-11e4-99f5-68a86d0d36b6
+I0409 21:25:12.844155   27939 sic.go:186] Starting sidecar healthchecker
+```
