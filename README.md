@@ -10,7 +10,6 @@ The goal of **Micro** is to provide a toolchain for microservice development and
 - [api](https://github.com/asim/micro/tree/master/api) - A lightweight gateway/proxy for Micro based services
 - [cli](https://github.com/asim/micro/tree/master/cli) - A command line tool for micro
 - [sidecar](https://github.com/asim/micro/tree/master/sic) - Integrate any application into the Micro ecosystem
-- [micro-mq](https://github.com/asim/micro-mq) - A simple experimental pub/sub service for testing.
 
 ## Example Services
 - [geo-srv](https://github.com/asim/geo-srv) - A go-micro based geolocation tracking service using hailocab/go-geoindex
