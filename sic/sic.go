@@ -164,6 +164,8 @@ func (s *Sidecar) serve() {
 
 	http.HandleFunc("/rpc", rpcHandler)
 
+	http.HandleFunc("/broker", brokerHandler)
+
 	if err := http.ListenAndServe(Address, nil); err != nil {
 		log.Fatal(err)
 		os.Exit(1)

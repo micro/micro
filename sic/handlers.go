@@ -5,10 +5,35 @@ import (
 	"io/ioutil"
 	"net/http"
 	"strconv"
+	"sync"
+	"time"
 
+	"github.com/asim/go-micro/broker"
 	"github.com/asim/go-micro/client"
 	"github.com/asim/go-micro/errors"
 	log "github.com/golang/glog"
+	"github.com/gorilla/websocket"
+)
+
+const (
+	pingTime      = (readDeadline * 9) / 10
+	readLimit     = 16384
+	readDeadline  = 60 * time.Second
+	writeDeadline = 10 * time.Second
+)
+
+type conn struct {
+	topic string
+	ws    *websocket.Conn
+}
+
+var (
+	once sync.Once
+
+	upgrader = websocket.Upgrader{
+		ReadBufferSize:  1024,
+		WriteBufferSize: 1024,
+	}
 )
 
 func rpcHandler(w http.ResponseWriter, r *http.Request) {
@@ -72,4 +97,92 @@ func rpcHandler(w http.ResponseWriter, r *http.Request) {
 	b, _ := json.Marshal(response)
 	w.Header().Set("Content-Length", strconv.Itoa(len(b)))
 	w.Write(b)
+}
+
+func brokerHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != "GET" {
+		http.Error(w, "Method not allowed", 405)
+		return
+	}
+
+	r.ParseForm()
+	topic := r.Form.Get("topic")
+	if len(topic) == 0 {
+		http.Error(w, "Topic not specified", 400)
+		return
+	}
+
+	ws, err := upgrader.Upgrade(w, r, nil)
+	if err != nil {
+		log.Error(err.Error())
+		return
+	}
+
+	once.Do(func() {
+		broker.Init()
+		broker.Connect()
+	})
+
+	c := &conn{
+		topic: topic,
+		ws:    ws,
+	}
+
+	go c.writeLoop()
+	c.readLoop()
+}
+
+func (c *conn) readLoop() {
+	defer func() {
+		c.ws.Close()
+	}()
+
+	c.ws.SetReadLimit(readLimit)
+	c.ws.SetReadDeadline(time.Now().Add(readDeadline))
+	c.ws.SetPongHandler(func(string) error {
+		c.ws.SetReadDeadline(time.Now().Add(readDeadline))
+		return nil
+	})
+
+	for {
+		_, message, err := c.ws.ReadMessage()
+		if err != nil {
+			return
+		}
+		broker.Publish(c.topic, message)
+	}
+}
+
+func (c *conn) write(mType int, data []byte) error {
+	c.ws.SetWriteDeadline(time.Now().Add(writeDeadline))
+	return c.ws.WriteMessage(mType, data)
+}
+
+func (c *conn) writeLoop() {
+	ticker := time.NewTicker(pingTime)
+
+	subscriber, err := broker.Subscribe(c.topic, func(msg *broker.Message) {
+		b, err := json.Marshal(msg)
+		if err != nil {
+			return
+		}
+		c.write(websocket.TextMessage, b)
+	})
+
+	defer func() {
+		subscriber.Unsubscribe()
+		ticker.Stop()
+		c.ws.Close()
+	}()
+
+	if err != nil {
+		log.Error(err.Error())
+		return
+	}
+
+	for _ = range ticker.C {
+		if err := c.write(websocket.PingMessage, []byte{}); err != nil {
+			return
+		}
+	}
 }
