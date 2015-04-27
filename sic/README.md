@@ -80,7 +80,7 @@ $ curl -d 'service=go.micro.service.template' -d 'method=Example.Call' -d 'reque
 Connect to the micro pub/sub broker via a websocket interface
 
 ```go
-c, _, _ := websocket.DefaultDialer.Dial(fmt.Sprintf("ws://127.0.0.1:8081/broker?topic=foo", mqServer, topic), make(http.Header))
+c, _, _ := websocket.DefaultDialer.Dial("ws://127.0.0.1:8081/broker?topic=foo", make(http.Header))
 
 go func() {
 	for {
