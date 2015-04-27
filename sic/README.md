@@ -11,6 +11,7 @@ It is similar to Netflix's sidecar called [Prana](https://github.com/Netflix/Pra
 - Health checking of services
 - HTTP API and load balancing requests
 - Access to basic key/value store
+- PubSub via WebSockets
 
 ## Getting Started
 
@@ -72,4 +73,32 @@ Query micro services via the http rpc api.
 ```shell
 $ curl -d 'service=go.micro.service.template' -d 'method=Example.Call' -d 'request={"name": "John"}' http://127.0.0.1:8081/rpc
 {"msg":"go.micro.service.template-c5718d29-da2a-11e4-be11-68a86d0d36b6: Hello John"}
+```
+
+### PubSub via WebSockets
+
+Connect to the micro pub/sub broker via a websocket interface
+
+```go
+c, _, _ := websocket.DefaultDialer.Dial(fmt.Sprintf("ws://127.0.0.1:8081/broker?topic=foo", mqServer, topic), make(http.Header))
+
+go func() {
+	for {
+		_, p, err := c.ReadMessage()
+		if err != nil {
+			return
+		}
+		var msg *broker.Message
+		json.Unmarshal(p, &msg)
+		fmt.Println(msg.Data)
+	}
+}()
+
+ticker := time.NewTicker(time.Second)
+
+for _ = range ticker.C {
+	if err := c.WriteMessage(1, []byte(`hello world`)); err != nil {
+		return
+	}
+}
 ```
