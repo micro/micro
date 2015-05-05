@@ -1,13 +1,13 @@
 # Micro CLI
 
-This is a CLI for the microservices toolchain [Micro](https://github.com/asim/micro). 
+This is a CLI for the microservices toolchain [Micro](https://github.com/myodc/micro). 
 
 ## Getting Started
 
 ### Install
 
 ```shell
-$ go get github.com/asim/micro
+$ go get github.com/myodc/micro
 ```
 
 ### Usage

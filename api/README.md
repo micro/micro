@@ -1,12 +1,12 @@
 # Micro API
 
-This is a lightweight proxy for [Micro](https://github.com/asim/micro) based microservices. It conforms to the [API Gateway](http://microservices.io/patterns/apigateway.html) pattern and can be used in conjuction with [go-micro](https://github.com/asim/go-micro) based apps or any future language implementation of the [Micro](https://github.com/asim/micro) toolchain.
+This is a lightweight proxy for [Micro](https://github.com/myodc/micro) based microservices. It conforms to the [API Gateway](http://microservices.io/patterns/apigateway.html) pattern and can be used in conjuction with [go-micro](https://github.com/myodc/go-micro) based apps or any future language implementation of the [Micro](https://github.com/myodc/micro) toolchain.
 
 Currently a work in progress.
 
 ### Run API
 ```bash
-$ go get github.com/asim/micro
+$ go get github.com/myodc/micro
 $ micro api
 I0308 18:55:50.196418   93745 rpc_server.go:156] Rpc handler /_rpc
 I0308 18:55:50.196581   93745 server.go:97] API Rpc handler /rpc
@@ -18,9 +18,9 @@ I0308 18:55:50.196816   93745 server.go:76] Registering go.micro.api-bcee5e02-c5
 
 ### Testing API
 
-Let's start the template [go-micro](https://github.com/asim/go-micro) based service.
+Let's start the template [go-micro](https://github.com/myodc/go-micro) based service.
 ```bash
-$ go get github.com/asim/go-micro/template
+$ go get github.com/myodc/go-micro/template
 $ $GOPATH/bin/template 
 I0308 18:58:15.297623   93764 rpc_server.go:156] Rpc handler /_rpc
 I0308 18:58:15.297759   93764 server.go:90] Starting server go.micro.service.template id go.micro.service.template-136b13f0-c5c5-11e4-a290-68a86d0d36b6

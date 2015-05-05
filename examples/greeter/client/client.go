@@ -4,8 +4,8 @@ import (
 	"fmt"
 
 	"code.google.com/p/goprotobuf/proto"
-	"github.com/asim/go-micro/client"
-	hello "github.com/asim/micro/examples/greeter/server/proto/hello"
+	"github.com/myodc/go-micro/client"
+	hello "github.com/myodc/micro/examples/greeter/server/proto/hello"
 )
 
 func main() {

@@ -3,9 +3,9 @@ package cli
 import (
 	"fmt"
 
-	"github.com/asim/go-micro/registry"
-	"github.com/asim/go-micro/store"
 	"github.com/codegangsta/cli"
+	"github.com/myodc/go-micro/registry"
+	"github.com/myodc/go-micro/store"
 )
 
 func registryCommands() []cli.Command {

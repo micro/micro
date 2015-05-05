@@ -4,10 +4,10 @@ import (
 	"code.google.com/p/go.net/context"
 	"code.google.com/p/goprotobuf/proto"
 
-	"github.com/asim/go-micro/cmd"
-	"github.com/asim/go-micro/server"
-	hello "github.com/asim/micro/examples/greeter/server/proto/hello"
 	log "github.com/golang/glog"
+	"github.com/myodc/go-micro/cmd"
+	"github.com/myodc/go-micro/server"
+	hello "github.com/myodc/micro/examples/greeter/server/proto/hello"
 )
 
 type Say struct{}

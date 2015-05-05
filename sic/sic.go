@@ -12,10 +12,10 @@ import (
 	"time"
 
 	"code.google.com/p/go-uuid/uuid"
-	"github.com/asim/go-micro/registry"
-	"github.com/asim/go-micro/store"
 	"github.com/codegangsta/cli"
 	log "github.com/golang/glog"
+	"github.com/myodc/go-micro/registry"
+	"github.com/myodc/go-micro/store"
 )
 
 var (

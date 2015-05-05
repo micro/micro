@@ -8,11 +8,11 @@ import (
 	"strconv"
 	"sync"
 
-	"github.com/asim/go-micro/client"
-	"github.com/asim/go-micro/errors"
-	"github.com/asim/go-micro/server"
 	"github.com/codegangsta/cli"
 	log "github.com/golang/glog"
+	"github.com/myodc/go-micro/client"
+	"github.com/myodc/go-micro/errors"
+	"github.com/myodc/go-micro/server"
 )
 
 type ApiServer struct {

@@ -8,11 +8,11 @@ import (
 	"sync"
 	"time"
 
-	"github.com/asim/go-micro/broker"
-	"github.com/asim/go-micro/client"
-	"github.com/asim/go-micro/errors"
 	log "github.com/golang/glog"
 	"github.com/gorilla/websocket"
+	"github.com/myodc/go-micro/broker"
+	"github.com/myodc/go-micro/client"
+	"github.com/myodc/go-micro/errors"
 )
 
 const (

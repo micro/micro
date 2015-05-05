@@ -1,11 +1,11 @@
 package main
 
 import (
-	"github.com/asim/go-micro/cmd"
-	"github.com/asim/micro/api"
-	"github.com/asim/micro/cli"
-	"github.com/asim/micro/sic"
 	ccli "github.com/codegangsta/cli"
+	"github.com/myodc/go-micro/cmd"
+	"github.com/myodc/micro/api"
+	"github.com/myodc/micro/cli"
+	"github.com/myodc/micro/sic"
 )
 
 func main() {
