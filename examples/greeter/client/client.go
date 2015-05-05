@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 
-	"code.google.com/p/goprotobuf/proto"
+	"github.com/golang/protobuf/proto"
 	"github.com/myodc/go-micro/client"
 	hello "github.com/myodc/micro/examples/greeter/server/proto/hello"
 )

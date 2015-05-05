@@ -2,7 +2,7 @@ package main
 
 import (
 	"code.google.com/p/go.net/context"
-	"code.google.com/p/goprotobuf/proto"
+	"github.com/golang/protobuf/proto"
 
 	log "github.com/golang/glog"
 	"github.com/myodc/go-micro/cmd"
