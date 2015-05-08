@@ -22,8 +22,11 @@ type ApiServer struct {
 }
 
 var (
-	Address = ":8080"
-	RpcPath = "/rpc"
+	Address            = ":8080"
+	RpcPath            = "/rpc"
+	HttpPath           = "/"
+	Namespace          = "go.micro.api"
+	CustomHeaderPrefix = "X-Micro-"
 )
 
 func run() {
@@ -125,6 +128,7 @@ func (s *ApiServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 func (s *ApiServer) Init() error {
 	log.Infof("API Rpc handler %s", RpcPath)
 	http.Handle(RpcPath, s)
+	http.HandleFunc(HttpPath, restHandler)
 	return nil
 }
 

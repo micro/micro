@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 
-	"github.com/golang/protobuf/proto"
 	"github.com/myodc/go-micro/client"
 	hello "github.com/myodc/micro/examples/greeter/server/proto/hello"
 )
@@ -11,7 +10,7 @@ import (
 func main() {
 	// Create new request to service go.micro.service.go-template, method Example.Call
 	req := client.NewRequest("go.micro.srv.greeter", "Say.Hello", &hello.Request{
-		Name: proto.String("John"),
+		Name: "John",
 	})
 
 	// Set arbitrary headers
@@ -26,5 +25,5 @@ func main() {
 		return
 	}
 
-	fmt.Println(rsp.GetMsg())
+	fmt.Println(rsp.Msg)
 }

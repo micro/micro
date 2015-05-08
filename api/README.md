@@ -40,3 +40,21 @@ Alternatively let's try 'Content-Type: application/json'
 $ curl -H 'Content-Type: application/json' -d '{"service": "go.micro.service.template", "method": "Example.Call", "request": {"name": "Asim Aslam"}}' http://localhost:8080/rpc
 {"msg":"go.micro.service.template-7752615b-c5c5-11e4-a90f-68a86d0d36b6: Hello Asim Aslam"}
 ```
+
+### Testing using REST based API Services
+
+Micro allows you to handle REST based paths using rpc by providing built in handling for API Services. An API service is like any other 
+micro service except each method signature takes an *api.Request and *api.Response which can be found in 
+[github.com/myodc/micro/api/proto](https://github.com/myodc/micro/tree/master/api/proto).
+
+The default namespace for these services are: go.micro.api
+
+Translation of URLs are as follows:
+
+/foo/bar => service: go.micro.api.foo method: Foo.Bar
+
+/foo/bar/baz => service: go.micro.api.foo method: Bar.Baz
+
+/foo/bar/baz/cat => service: go.micro.api.foo.bar method: Baz.Cat
+
+A working example can be found here [Greeter Service](https://github.com/myodc/micro/tree/master/examples/greeter)

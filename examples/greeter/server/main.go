@@ -2,7 +2,6 @@ package main
 
 import (
 	"code.google.com/p/go.net/context"
-	"github.com/golang/protobuf/proto"
 
 	log "github.com/golang/glog"
 	"github.com/myodc/go-micro/cmd"
@@ -15,7 +14,7 @@ type Say struct{}
 func (s *Say) Hello(ctx context.Context, req *hello.Request, rsp *hello.Response) error {
 	log.Info("Received Say.Hello request")
 
-	rsp.Msg = proto.String(server.Id + ": Hello " + req.GetName())
+	rsp.Msg = server.Id + ": Hello " + req.Name
 
 	return nil
 }
