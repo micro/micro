@@ -28,13 +28,22 @@ COMMANDS:
    api		Run the micro API
    registry	Query registry
    store	Query store
+   query	Query service
    list		List items in registry
-   get		get item from registry
+   get		Get item from registry
+   sidecar	Run the micro sidecar
    help, h	Shows a list of commands or help for one command
    
 GLOBAL OPTIONS:
-   --help, -h		show help
-   --version, -v	print the version
+   --server_address ":0"	Bind address for the server. 127.0.0.1:8080 [$MICRO_SERVER_ADDRESS]
+   --broker "http"		Broker for pub/sub. http, nats, etc [$MICRO_BROKER]
+   --broker_address 		Comma-separated list of broker addresses [$MICRO_BROKER_ADDRESS]
+   --registry "consul"		Registry for discovery. kubernetes, consul, etc [$MICRO_REGISTRY]
+   --registry_address 		Comma-separated list of registry addresses [$MICRO_REGISTRY_ADDRESS]
+   --store "consul"		Store used as a basic key/value store using consul, memcached, etc [$MICRO_STORE]
+   --store_address 		Comma-separated list of store addresses [$MICRO_STORE_ADDRESS]
+   --help, -h			show help
+   --version, -v		print the version
 ```
 
 ### List Services
