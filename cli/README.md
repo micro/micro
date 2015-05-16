@@ -51,6 +51,14 @@ go.micro.service.template
 go.micro.service.template-c5718d29-da2a-11e4-be11-68a86d0d36b6	[::]	60728
 ```
 
+### Query Service
+```shell
+$ micro query go.micro.service.template Example.Call '{"name": "John"}'
+{
+	"msg": "go.micro.service.template-5c3b2801-fc1b-11e4-9f62-68a86d0d36b6: Hello John"
+}
+```
+
 ### Get Item from Store
 ```shell
 $ micro store get foo

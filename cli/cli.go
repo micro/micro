@@ -1,11 +1,13 @@
 package cli
 
 import (
+	"encoding/json"
 	"fmt"
-
 	"github.com/codegangsta/cli"
+	"github.com/myodc/go-micro/client"
 	"github.com/myodc/go-micro/registry"
 	"github.com/myodc/go-micro/store"
+	"strings"
 )
 
 func registryCommands() []cli.Command {
@@ -104,6 +106,29 @@ func Commands() []cli.Command {
 			Name:        "store",
 			Usage:       "Query store",
 			Subcommands: storeCommands(),
+		},
+		{
+			Name:  "query",
+			Usage: "Query service",
+			Action: func(c *cli.Context) {
+				if len(c.Args()) < 2 {
+					fmt.Println("require service and method")
+					return
+				}
+				service := c.Args()[0]
+				method := c.Args()[1]
+				var request map[string]interface{}
+				var response map[string]interface{}
+				json.Unmarshal([]byte(strings.Join(c.Args()[2:], " ")), &request)
+				req := client.NewJsonRequest(service, method, request)
+				err := client.Call(req, &response)
+				if err != nil {
+					fmt.Printf("error calling %s.%s: %v\n", service, method, err)
+					return
+				}
+				b, _ := json.MarshalIndent(response, "", "\t")
+				fmt.Println(string(b))
+			},
 		},
 	}
 
