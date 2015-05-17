@@ -15,6 +15,54 @@ The goal of **Micro** is to provide a toolchain for microservice development and
 - [geo-srv](https://github.com/myodc/geo-srv) - A go-micro based geolocation tracking service using hailocab/go-geoindex
 - [greeter](https://github.com/myodc/micro/tree/master/examples/greeter) - A greeter Go service
 
+## Getting Started
+
+### Install
+
+```shell
+$ go get github.com/myodc/micro
+```
+
+### Usage
+```shell
+$ micro
+NAME:
+   micro - A microservices toolchain
+
+USAGE:
+   micro [global options] command [command options] [arguments...]
+
+VERSION:
+   0.0.1
+
+AUTHOR(S): 
+   
+COMMANDS:
+   api          Run the micro API
+   registry     Query registry
+   store        Query store
+   query        Query service
+   list         List items in registry
+   get          Get item from registry
+   sidecar      Run the micro sidecar
+   help, h      Shows a list of commands or help for one command
+   
+GLOBAL OPTIONS:
+   --server_address ":0"        Bind address for the server. 127.0.0.1:8080 [$MICRO_SERVER_ADDRESS]
+   --broker "http"              Broker for pub/sub. http, nats, etc [$MICRO_BROKER]
+   --broker_address             Comma-separated list of broker addresses [$MICRO_BROKER_ADDRESS]
+   --registry "consul"          Registry for discovery. kubernetes, consul, etc [$MICRO_REGISTRY]
+   --registry_address           Comma-separated list of registry addresses [$MICRO_REGISTRY_ADDRESS]
+   --store "consul"             Store used as a basic key/value store using consul, memcached, etc [$MICRO_STORE]
+   --store_address              Comma-separated list of store addresses [$MICRO_STORE_ADDRESS]
+   --help, -h                   show help
+   --version, -v                print the version
+```
+
+Read more on how to use Micro [here](https://github.com/myodc/micro/tree/master/cli)
+
+Learn how to write and run a microservice using Go-Micro [here](https://github.com/myodc/go-micro)
+
 ## About Microservices
 Microservices is an architecture pattern used to decompose a single large application in to a smaller suite of services. Generally the goal is to create light weight services of 1000 lines of code or less. Each service alone provides a particular focused solution or set of solutions. These small services can be used as the foundational building blocks in the creation of a larger system.
 
