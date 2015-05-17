@@ -16,7 +16,7 @@ Learn more about myodc in our [Intro](http://myodc.io/2015/05/01/introduction/) 
 - CLI
 - Sidecar - for non Go native apps
 
-## Current Tools
+## Libraries & Tools
 - [go-micro](https://github.com/myodc/go-micro) - A microservices client/server library based on http/rpc protobuf
 - [api](https://github.com/myodc/micro/tree/master/api) - A lightweight gateway/proxy for Micro based services
 - [cli](https://github.com/myodc/micro/tree/master/cli) - A command line tool for micro
