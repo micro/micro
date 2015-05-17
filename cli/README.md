@@ -29,7 +29,7 @@ COMMANDS:
    registry	Query registry
    store	Query store
    query	Query service
-   health	Query the health of a service
+   health       Query the health of a service
    list		List items in registry
    get		Get item from registry
    sidecar	Run the micro sidecar
