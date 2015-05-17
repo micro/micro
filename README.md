@@ -13,6 +13,7 @@ The goal of **Micro** is to provide a toolchain for microservice development and
 
 ## Example Services
 - [geo-srv](https://github.com/myodc/geo-srv) - A go-micro based geolocation tracking service using hailocab/go-geoindex
+- [geo-api](https://github.com/myodc/geo-api) - A HTTP API handler for geo location tracking and search
 - [greeter](https://github.com/myodc/micro/tree/master/examples/greeter) - A greeter Go service
 
 ## Getting Started
