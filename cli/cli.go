@@ -3,11 +3,15 @@ package cli
 import (
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
+	"net/http"
+	"strings"
+
 	"github.com/codegangsta/cli"
 	"github.com/myodc/go-micro/client"
 	"github.com/myodc/go-micro/registry"
+	"github.com/myodc/go-micro/server"
 	"github.com/myodc/go-micro/store"
-	"strings"
 )
 
 func registryCommands() []cli.Command {
@@ -109,7 +113,7 @@ func Commands() []cli.Command {
 		},
 		{
 			Name:  "query",
-			Usage: "Query service",
+			Usage: "Query a service method using rpc",
 			Action: func(c *cli.Context) {
 				if len(c.Args()) < 2 {
 					fmt.Println("require service and method")
@@ -128,6 +132,38 @@ func Commands() []cli.Command {
 				}
 				b, _ := json.MarshalIndent(response, "", "\t")
 				fmt.Println(string(b))
+			},
+		},
+		{
+			Name:  "health",
+			Usage: "Query the health of a service",
+			Action: func(c *cli.Context) {
+				if !c.Args().Present() {
+					fmt.Println("require service name")
+					return
+				}
+				service, err := registry.GetService(c.Args().First())
+				if err != nil {
+					fmt.Printf("error querying registry: %v", err)
+					return
+				}
+				fmt.Println("node\t\taddress:port\t\tstatus")
+				for _, node := range service.Nodes() {
+					url := fmt.Sprintf("http://%s:%d%s", node.Address(), node.Port(), server.HealthPath)
+					rsp, err := http.Get(url)
+					var status string
+					if err != nil {
+						status = err.Error()
+					} else {
+						b, err := ioutil.ReadAll(rsp.Body)
+						if err != nil {
+							status = err.Error()
+						} else {
+							status = string(b)
+						}
+					}
+					fmt.Printf("%s\t\t%s:%d\t\t%s\n", node.Id(), node.Address(), node.Port(), status)
+				}
 			},
 		},
 	}
