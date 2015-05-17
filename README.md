@@ -7,6 +7,15 @@ The goal of **Micro** is to provide a toolchain for microservice development and
 
 Learn more about myodc in our [Intro](http://myodc.io/2015/05/01/introduction/) blog post and more on [Micro](http://myodc.io/2015/05/10/micro/) in the follow up.
 
+## Features
+- Discovery
+- Client/Server
+- Pub/Sub
+- Key/Value store
+- API Gateway
+- CLI
+- Sidecar - for non Go native apps
+
 ## Current Tools
 - [go-micro](https://github.com/myodc/go-micro) - A microservices client/server library based on http/rpc protobuf
 - [api](https://github.com/myodc/micro/tree/master/api) - A lightweight gateway/proxy for Micro based services
