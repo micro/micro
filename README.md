@@ -1,6 +1,6 @@
 # Micro
 
-Micro is a suite of libraries and tools for developing and running microservices.
+Micro is **a microservices toolchain** consisting of a suite of libraries and tools to write and run microservices.
 
 Checkout [**go-micro**](https://github.com/myodc/go-micro) if you want to start writing services now.
 
