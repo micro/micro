@@ -5,6 +5,8 @@ Micro is a suite of libraries and tools for developing and running microservices
 # Overview
 The goal of **Micro** is to provide a toolchain for microservice development and management. At the core, micro is simple and accessible enough that anyone can easily get started writing microservices. As you scale to hundreds of services, micro will provide the fundamental tools required to manage a microservice environment.
 
+Learn more about myodc in our [Intro](http://myodc.io/2015/05/01/introduction/) blog post and more on [Micro](http://myodc.io/2015/05/10/micro/) in the follow up.
+
 ## Current Tools
 - [go-micro](https://github.com/myodc/go-micro) - A microservices client/server library based on http/rpc protobuf
 - [api](https://github.com/myodc/micro/tree/master/api) - A lightweight gateway/proxy for Micro based services
