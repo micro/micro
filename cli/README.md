@@ -29,6 +29,7 @@ COMMANDS:
    registry	Query registry
    store	Query store
    query	Query service
+   health	Query the health of a service
    list		List items in registry
    get		Get item from registry
    sidecar	Run the micro sidecar
@@ -66,6 +67,13 @@ $ micro query go.micro.service.template Example.Call '{"name": "John"}'
 {
 	"msg": "go.micro.service.template-5c3b2801-fc1b-11e4-9f62-68a86d0d36b6: Hello John"
 }
+```
+
+### Query Service Health
+```shell
+$ micro health go.micro.service.template
+node		address:port		status
+go.micro.service.template-5c3b2801-fc1b-11e4-9f62-68a86d0d36b6		[::]:64388		ok
 ```
 
 ### Get Item from Store
