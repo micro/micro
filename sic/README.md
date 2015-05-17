@@ -35,7 +35,13 @@ $ micro sidecar --server_name=foo --server_address=127.0.0.1:9090
 
 ```shell
 curl http://127.0.0.1:8081/registry?service=go.micro.service.template
-{"name":"go.micro.service.template","nodes":[{"id":"go.micro.service.template-c5718d29-da2a-11e4-be11-68a86d0d36b6","address":"[::]","port":60728}]}
+{
+	"name":"go.micro.service.template",
+	"nodes":[{
+		"id":"go.micro.service.template-c5718d29-da2a-11e4-be11-68a86d0d36b6",
+		"address":"[::]","port":60728
+	}]
+}
 ```
 
 ### Healthchecking
@@ -43,7 +49,8 @@ curl http://127.0.0.1:8081/registry?service=go.micro.service.template
 Start micro sidecar with "--healthcheck_url=" to enable the healthchecker
 
 ```shell
-$ micro sidecar --server_name=foo --server_address=127.0.0.1:9090 --healthcheck_url=http://127.0.0.1:9090/_status/health
+$ micro sidecar --server_name=foo --server_address=127.0.0.1:9090 \
+	--healthcheck_url=http://127.0.0.1:9090/_status/health
 I0409 20:45:53.430312   27577 sic.go:182] Registering foo-08378009-def1-11e4-a015-68a86d0d36b6
 ***I0409 20:45:53.437452   27577 sic.go:186] Starting sidecar healthchecker***
 ```
@@ -71,7 +78,9 @@ $ curl -XDELETE http://127.0.0.1:8081/store?key=foo
 Query micro services via the http rpc api.
 
 ```shell
-$ curl -d 'service=go.micro.service.template' -d 'method=Example.Call' -d 'request={"name": "John"}' http://127.0.0.1:8081/rpc
+$ curl  -d 'service=go.micro.service.template' \
+	-d 'method=Example.Call' \
+	-d 'request={"name": "John"}' http://127.0.0.1:8081/rpc
 {"msg":"go.micro.service.template-c5718d29-da2a-11e4-be11-68a86d0d36b6: Hello John"}
 ```
 
