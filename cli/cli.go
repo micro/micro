@@ -3,14 +3,12 @@ package cli
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
-	"net/http"
 	"strings"
 
 	"github.com/codegangsta/cli"
 	"github.com/myodc/go-micro/client"
+	"github.com/myodc/go-micro/proto/health"
 	"github.com/myodc/go-micro/registry"
-	"github.com/myodc/go-micro/server"
 	"github.com/myodc/go-micro/store"
 )
 
@@ -148,19 +146,19 @@ func Commands() []cli.Command {
 					return
 				}
 				fmt.Println("node\t\taddress:port\t\tstatus")
+				req := client.NewRequest(service.Name(), "Debug.Health", &health.Request{})
 				for _, node := range service.Nodes() {
-					url := fmt.Sprintf("http://%s:%d%s", node.Address(), node.Port(), server.HealthPath)
-					rsp, err := http.Get(url)
+					address := node.Address()
+					if node.Port() > 0 {
+						address = fmt.Sprintf("%s:%d", address, node.Port())
+					}
+					rsp := &health.Response{}
+					err := client.CallRemote(address, "", req, rsp)
 					var status string
 					if err != nil {
 						status = err.Error()
 					} else {
-						b, err := ioutil.ReadAll(rsp.Body)
-						if err != nil {
-							status = err.Error()
-						} else {
-							status = string(b)
-						}
+						status = rsp.Status
 					}
 					fmt.Printf("%s\t\t%s:%d\t\t%s\n", node.Id(), node.Address(), node.Port(), status)
 				}
