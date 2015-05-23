@@ -51,8 +51,8 @@ Start micro sidecar with "--healthcheck_url=" to enable the healthchecker
 ```shell
 $ micro sidecar --server_name=foo --server_address=127.0.0.1:9090 \
 	--healthcheck_url=http://127.0.0.1:9090/_status/health
-I0409 20:45:53.430312   27577 sic.go:182] Registering foo-08378009-def1-11e4-a015-68a86d0d36b6
-***I0409 20:45:53.437452   27577 sic.go:186] Starting sidecar healthchecker***
+I0523 12:25:36.229536   85658 sic.go:184] Registering foo-6ebf29c0-013e-11e5-b55f-68a86d0d36b6
+I0523 12:25:36.241680   85658 sic.go:188] Starting sidecar healthchecker
 ```
 
 ### Query basic key/value store

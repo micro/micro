@@ -8,12 +8,11 @@ Currently a work in progress.
 ```bash
 $ go get github.com/myodc/micro
 $ micro api
-I0308 18:55:50.196418   93745 rpc_server.go:156] Rpc handler /_rpc
-I0308 18:55:50.196581   93745 server.go:97] API Rpc handler /rpc
-I0308 18:55:50.196672   93745 server.go:108] Listening on [::]:8080
-I0308 18:55:50.196707   93745 server.go:90] Starting server go.micro.api id go.micro.api-bcee5e02-c5c4-11e4-a534-68a86d0d36b6
-I0308 18:55:50.196782   93745 rpc_server.go:187] Listening on [::]:64983
-I0308 18:55:50.196816   93745 server.go:76] Registering go.micro.api-bcee5e02-c5c4-11e4-a534-68a86d0d36b6
+I0523 12:23:23.413940   81384 api.go:131] API Rpc handler /rpc
+I0523 12:23:23.414238   81384 api.go:143] Listening on [::]:8080
+I0523 12:23:23.414272   81384 server.go:113] Starting server go.micro.api id go.micro.api-1f951765-013e-11e5-9273-68a86d0d36b6
+I0523 12:23:23.414355   81384 rpc_server.go:112] Listening on [::]:51938
+I0523 12:23:23.414399   81384 server.go:95] Registering node: go.micro.api-1f951765-013e-11e5-9273-68a86d0d36b6
 ```
 
 ### Testing API
@@ -22,23 +21,22 @@ Let's start the template [go-micro](https://github.com/myodc/go-micro) based ser
 ```bash
 $ go get github.com/myodc/go-micro/template
 $ $GOPATH/bin/template 
-I0308 18:58:15.297623   93764 rpc_server.go:156] Rpc handler /_rpc
-I0308 18:58:15.297759   93764 server.go:90] Starting server go.micro.service.template id go.micro.service.template-136b13f0-c5c5-11e4-a290-68a86d0d36b6
-I0308 18:58:15.297863   93764 rpc_server.go:187] Listening on [::]:65013
-I0308 18:58:15.297898   93764 server.go:76] Registering go.micro.service.template-136b13f0-c5c5-11e4-a290-68a86d0d36b6
+I0523 12:21:09.506998   77096 server.go:113] Starting server go.micro.service.template id go.micro.service.template-cfc481fc-013d-11e5-bcdc-68a86d0d36b6
+I0523 12:21:09.507281   77096 rpc_server.go:112] Listening on [::]:51868
+I0523 12:21:09.507329   77096 server.go:95] Registering node: go.micro.service.template-cfc481fc-013d-11e5-bcdc-68a86d0d36b6
 ```
 
 The template service has a handler registered called Example with a method named Call. 
 Now let's query this through the API. 
 ```bash
 $ curl -d 'service=go.micro.service.template' -d 'method=Example.Call' -d 'request={"name": "Asim Aslam"}' http://localhost:8080/rpc
-{"msg":"go.micro.service.template-e4fc9d93-c5c5-11e4-93bf-68a86d0d36b6: Hello Asim Aslam"}
+{"msg":"go.micro.service.template-cfc481fc-013d-11e5-bcdc-68a86d0d36b6: Hello Asim Aslam"}
 ```
 
 Alternatively let's try 'Content-Type: application/json'
 ```bash
 $ curl -H 'Content-Type: application/json' -d '{"service": "go.micro.service.template", "method": "Example.Call", "request": {"name": "Asim Aslam"}}' http://localhost:8080/rpc
-{"msg":"go.micro.service.template-7752615b-c5c5-11e4-a90f-68a86d0d36b6: Hello Asim Aslam"}
+{"msg":"go.micro.service.template-cfc481fc-013d-11e5-bcdc-68a86d0d36b6: Hello Asim Aslam"}
 ```
 
 ### Testing using REST based API Services
