@@ -30,7 +30,7 @@ func (s *Say) Hello(ctx context.Context, req *api.Request, rsp *api.Response) er
 
 	response := &hello.Response{}
 
-	if err := client.Call(request, response); err != nil {
+	if err := client.Call(ctx, request, response); err != nil {
 		return err
 	}
 

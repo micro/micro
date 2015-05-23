@@ -4,7 +4,10 @@ import (
 	"fmt"
 
 	"github.com/myodc/go-micro/client"
+	c "github.com/myodc/go-micro/context"
 	hello "github.com/myodc/micro/examples/greeter/server/proto/hello"
+
+	"golang.org/x/net/context"
 )
 
 func main() {
@@ -13,14 +16,16 @@ func main() {
 		Name: "John",
 	})
 
-	// Set arbitrary headers
-	req.Headers().Set("X-User-Id", "john")
-	req.Headers().Set("X-From-Id", "script")
+	// Set arbitrary headers in context
+	ctx := c.WithMetaData(context.Background(), map[string]string{
+		"X-User-Id": "john",
+		"X-From-Id": "script",
+	})
 
 	rsp := &hello.Response{}
 
 	// Call service
-	if err := client.Call(req, rsp); err != nil {
+	if err := client.Call(ctx, req, rsp); err != nil {
 		fmt.Println(err)
 		return
 	}

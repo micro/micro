@@ -13,6 +13,8 @@ import (
 	"github.com/myodc/go-micro/broker"
 	"github.com/myodc/go-micro/client"
 	"github.com/myodc/go-micro/errors"
+
+	"golang.org/x/net/context"
 )
 
 const (
@@ -80,7 +82,7 @@ func rpcHandler(w http.ResponseWriter, r *http.Request) {
 
 	var response map[string]interface{}
 	req := client.NewJsonRequest(service, method, request)
-	err := client.Call(req, &response)
+	err := client.Call(context.Background(), req, &response)
 	if err != nil {
 		log.Errorf("Error calling %s.%s: %v", service, method, err)
 		ce := errors.Parse(err.Error())

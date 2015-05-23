@@ -13,6 +13,8 @@ import (
 	"github.com/myodc/go-micro/client"
 	"github.com/myodc/go-micro/errors"
 	"github.com/myodc/go-micro/server"
+
+	"golang.org/x/net/context"
 )
 
 type ApiServer struct {
@@ -106,7 +108,7 @@ func (s *ApiServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	log.Infof("API Request: /rpc service: %s, method: %s", service, method)
 	var response map[string]interface{}
 	req := client.NewJsonRequest(service, method, request)
-	err := client.Call(req, &response)
+	err := client.Call(context.Background(), req, &response)
 	if err != nil {
 		log.Errorf("Error calling %s.%s: %v", service, method, err)
 		ce := errors.Parse(err.Error())

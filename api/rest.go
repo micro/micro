@@ -11,6 +11,8 @@ import (
 	"github.com/myodc/go-micro/client"
 	"github.com/myodc/go-micro/errors"
 	api "github.com/myodc/micro/api/proto"
+
+	"golang.org/x/net/context"
 )
 
 // Translates /foo/bar/zool into api service go.micro.api.foo method Bar.Zool
@@ -111,7 +113,7 @@ func restHandler(w http.ResponseWriter, r *http.Request) {
 	service, method := pathToReceiver(r.URL.Path)
 	req := client.NewRequest(service, method, request)
 	rsp := &api.Response{}
-	if err := client.Call(req, rsp); err != nil {
+	if err := client.Call(context.Background(), req, rsp); err != nil {
 		w.Header().Set("Content-Type", "application/json")
 		ce := errors.Parse(err.Error())
 		switch ce.Code {

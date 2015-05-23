@@ -10,6 +10,8 @@ import (
 	"github.com/myodc/go-micro/proto/health"
 	"github.com/myodc/go-micro/registry"
 	"github.com/myodc/go-micro/store"
+
+	"golang.org/x/net/context"
 )
 
 func registryCommands() []cli.Command {
@@ -123,7 +125,7 @@ func Commands() []cli.Command {
 				var response map[string]interface{}
 				json.Unmarshal([]byte(strings.Join(c.Args()[2:], " ")), &request)
 				req := client.NewJsonRequest(service, method, request)
-				err := client.Call(req, &response)
+				err := client.Call(context.Background(), req, &response)
 				if err != nil {
 					fmt.Printf("error calling %s.%s: %v\n", service, method, err)
 					return
@@ -153,7 +155,7 @@ func Commands() []cli.Command {
 						address = fmt.Sprintf("%s:%d", address, node.Port())
 					}
 					rsp := &health.Response{}
-					err := client.CallRemote(address, "", req, rsp)
+					err := client.CallRemote(context.Background(), address, req, rsp)
 					var status string
 					if err != nil {
 						status = err.Error()
