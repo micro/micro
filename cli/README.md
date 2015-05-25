@@ -22,14 +22,11 @@ USAGE:
 VERSION:
    0.0.1
 
-AUTHOR(S): 
-   
 COMMANDS:
    api		Run the micro API
    registry	Query registry
-   store	Query store
-   query	Query service
-   health       Query the health of a service
+   query	Query a service method using rpc
+   health	Query the health of a service
    list		List items in registry
    get		Get item from registry
    sidecar	Run the micro sidecar
@@ -41,8 +38,8 @@ GLOBAL OPTIONS:
    --broker_address 		Comma-separated list of broker addresses [$MICRO_BROKER_ADDRESS]
    --registry "consul"		Registry for discovery. kubernetes, consul, etc [$MICRO_REGISTRY]
    --registry_address 		Comma-separated list of registry addresses [$MICRO_REGISTRY_ADDRESS]
-   --store "consul"		Store used as a basic key/value store using consul, memcached, etc [$MICRO_STORE]
-   --store_address 		Comma-separated list of store addresses [$MICRO_STORE_ADDRESS]
+   --transport "http"		Transport mechanism used; http, rabbitmq, etc [$MICRO_TRANSPORT]
+   --transport_address 		Comma-separated list of transport addresses [$MICRO_TRANSPORT_ADDRESS]
    --help, -h			show help
    --version, -v		print the version
 ```
@@ -74,12 +71,6 @@ $ micro query go.micro.service.template Example.Call '{"name": "John"}'
 $ micro health go.micro.service.template
 node		address:port		status
 go.micro.service.template-5c3b2801-fc1b-11e4-9f62-68a86d0d36b6		[::]:64388		ok
-```
-
-### Get Item from Store
-```shell
-$ micro store get foo
-bar
 ```
 
 ### Run the API

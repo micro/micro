@@ -10,7 +10,6 @@ It is similar to Netflix's sidecar called [Prana](https://github.com/Netflix/Pra
 - Host discovery of other services
 - Health checking of services
 - HTTP API and load balancing requests
-- Access to basic key/value store
 - PubSub via WebSockets
 
 ## Getting Started
@@ -53,24 +52,6 @@ $ micro sidecar --server_name=foo --server_address=127.0.0.1:9090 \
 	--healthcheck_url=http://127.0.0.1:9090/_status/health
 I0523 12:25:36.229536   85658 sic.go:184] Registering foo-6ebf29c0-013e-11e5-b55f-68a86d0d36b6
 I0523 12:25:36.241680   85658 sic.go:188] Starting sidecar healthchecker
-```
-
-### Query basic key/value store
-
-Put item
-```shell
-$ curl -d 'key=foo' -d 'value=bar' http://127.0.0.1:8081/store
-```
-
-Get item
-```shell
-$ curl http://127.0.0.1:8081/store?key=foo
-bar
-```
-
-Del
-```shell
-$ curl -XDELETE http://127.0.0.1:8081/store?key=foo
 ```
 
 ### HTTP RPC API

@@ -15,7 +15,6 @@ import (
 	"github.com/codegangsta/cli"
 	log "github.com/golang/glog"
 	"github.com/myodc/go-micro/registry"
-	"github.com/myodc/go-micro/store"
 )
 
 var (
@@ -126,40 +125,6 @@ func (s *Sidecar) serve() {
 		w.Header().Set("Content-Type", "application/json")
 		w.Header().Set("Content-Length", strconv.Itoa(len(b)))
 		w.Write(b)
-	})
-
-	http.HandleFunc("/store", func(w http.ResponseWriter, r *http.Request) {
-		r.ParseForm()
-		key := r.Form.Get("key")
-		value := r.Form.Get("value")
-
-		if len(key) == 0 {
-			http.Error(w, "Require key", 400)
-			return
-		}
-
-		switch r.Method {
-		case "GET":
-			item, err := store.Get(key)
-			if err != nil {
-				http.Error(w, err.Error(), 500)
-				return
-			}
-			w.Header().Set("Content-Type", "application/json")
-			w.Header().Set("Content-Length", strconv.Itoa(len(item.Value())))
-			w.Write(item.Value())
-		case "DELETE":
-			if err := store.Del(key); err != nil {
-				http.Error(w, err.Error(), 500)
-			}
-		case "PUT", "POST":
-			item := store.NewItem(key, []byte(value))
-			if err := store.Put(item); err != nil {
-				http.Error(w, err.Error(), 500)
-			}
-		default:
-			http.Error(w, "Unsupported method", 400)
-		}
 	})
 
 	http.HandleFunc("/rpc", rpcHandler)

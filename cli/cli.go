@@ -9,7 +9,6 @@ import (
 	"github.com/myodc/go-micro/client"
 	"github.com/myodc/go-micro/proto/health"
 	"github.com/myodc/go-micro/registry"
-	"github.com/myodc/go-micro/store"
 
 	"golang.org/x/net/context"
 )
@@ -64,52 +63,12 @@ func registryCommands() []cli.Command {
 	}
 }
 
-func storeCommands() []cli.Command {
-	return []cli.Command{
-		{
-			Name:  "get",
-			Usage: "Get item from store",
-			Action: func(c *cli.Context) {
-				if !c.Args().Present() {
-					fmt.Println("Key required")
-					return
-				}
-				item, err := store.Get(c.Args().First())
-				if err != nil {
-					fmt.Println(err.Error())
-					return
-				}
-				fmt.Println(string(item.Value()))
-			},
-		},
-		{
-			Name:  "del",
-			Usage: "Delete item from store",
-			Action: func(c *cli.Context) {
-				if !c.Args().Present() {
-					fmt.Println("Key required")
-					return
-				}
-				if err := store.Del(c.Args().First()); err != nil {
-					fmt.Println(err.Error())
-					return
-				}
-			},
-		},
-	}
-}
-
 func Commands() []cli.Command {
 	commands := []cli.Command{
 		{
 			Name:        "registry",
 			Usage:       "Query registry",
 			Subcommands: registryCommands(),
-		},
-		{
-			Name:        "store",
-			Usage:       "Query store",
-			Subcommands: storeCommands(),
 		},
 		{
 			Name:  "query",
