@@ -29,7 +29,7 @@ func registryCommands() []cli.Command {
 							return
 						}
 						for _, service := range rsp {
-							fmt.Println(service.Name())
+							fmt.Println(service.Name)
 						}
 					},
 				},
@@ -52,9 +52,9 @@ func registryCommands() []cli.Command {
 							fmt.Println(err.Error())
 							return
 						}
-						fmt.Printf("%s\n\n", service.Name())
-						for _, node := range service.Nodes() {
-							fmt.Printf("%s\t%s\t%d\n", node.Id(), node.Address(), node.Port())
+						fmt.Printf("%s\n\n", service.Name)
+						for _, node := range service.Nodes {
+							fmt.Printf("%s\t%s\t%d\n", node.Id, node.Address, node.Port)
 						}
 					},
 				},
@@ -107,11 +107,11 @@ func Commands() []cli.Command {
 					return
 				}
 				fmt.Println("node\t\taddress:port\t\tstatus")
-				req := client.NewRequest(service.Name(), "Debug.Health", &health.Request{})
-				for _, node := range service.Nodes() {
-					address := node.Address()
-					if node.Port() > 0 {
-						address = fmt.Sprintf("%s:%d", address, node.Port())
+				req := client.NewRequest(service.Name, "Debug.Health", &health.Request{})
+				for _, node := range service.Nodes {
+					address := node.Address
+					if node.Port > 0 {
+						address = fmt.Sprintf("%s:%d", address, node.Port)
 					}
 					rsp := &health.Response{}
 					err := client.CallRemote(context.Background(), address, req, rsp)
@@ -121,7 +121,7 @@ func Commands() []cli.Command {
 					} else {
 						status = rsp.Status
 					}
-					fmt.Printf("%s\t\t%s:%d\t\t%s\n", node.Id(), node.Address(), node.Port(), status)
+					fmt.Printf("%s\t\t%s:%d\t\t%s\n", node.Id, node.Address, node.Port, status)
 				}
 			},
 		},

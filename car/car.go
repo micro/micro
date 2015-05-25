@@ -27,17 +27,6 @@ type Sidecar struct {
 	hcUrl   string
 }
 
-type Service struct {
-	Name  string  `json:"name"`
-	Nodes []*Node `json:"nodes"`
-}
-
-type Node struct {
-	Id      string `json:"id"`
-	Address string `json:"address"`
-	Port    int    `json:"port"`
-}
-
 func run(name, address, hcUrl string) {
 	sc := New(name, address, hcUrl)
 	if err := sc.Run(); err != nil {
@@ -60,7 +49,7 @@ func (s *Sidecar) hc() (int, error) {
 	return 200, nil
 }
 
-func (s *Sidecar) hcLoop(service registry.Service, exitCh chan bool) {
+func (s *Sidecar) hcLoop(service *registry.Service, exitCh chan bool) {
 	tick := time.NewTicker(time.Second * 30)
 	registered := true
 
@@ -69,11 +58,11 @@ func (s *Sidecar) hcLoop(service registry.Service, exitCh chan bool) {
 		case <-tick.C:
 			_, err := s.hc()
 			if err != nil && registered {
-				log.Infof("Healthcheck error. Deregistering %v", service.Nodes()[0].Id())
+				log.Infof("Healthcheck error. Deregistering %v", service.Nodes[0].Id)
 				registry.Deregister(service)
 				registered = false
 			} else if err == nil && !registered {
-				log.Infof("Healthcheck success. Registering %v", service.Nodes()[0].Id())
+				log.Infof("Healthcheck success. Registering %v", service.Nodes[0].Id)
 				registry.Register(service)
 				registered = true
 			}
@@ -107,17 +96,7 @@ func (s *Sidecar) serve() {
 			http.Error(w, "Service not found", 404)
 			return
 		}
-		srv := &Service{
-			Name: s.Name(),
-		}
-		for _, node := range s.Nodes() {
-			srv.Nodes = append(srv.Nodes, &Node{
-				Id:      node.Id(),
-				Address: node.Address(),
-				Port:    node.Port(),
-			})
-		}
-		b, err := json.Marshal(srv)
+		b, err := json.Marshal(s)
 		if err != nil {
 			http.Error(w, err.Error(), 500)
 			return
@@ -143,10 +122,18 @@ func (s *Sidecar) Run() error {
 	port, _ := strconv.Atoi(parts[len(parts)-1])
 
 	id := s.name + "-" + uuid.NewUUID().String()
-	node := registry.NewNode(id, host, port)
-	service := registry.NewService(s.name, node)
+	node := &registry.Node{
+		Id:      id,
+		Address: host,
+		Port:    port,
+	}
 
-	log.Infof("Registering %s", node.Id())
+	service := &registry.Service{
+		Name:  s.name,
+		Nodes: []*registry.Node{node},
+	}
+
+	log.Infof("Registering %s", node.Id)
 	registry.Register(service)
 
 	if len(s.hcUrl) > 0 {
@@ -164,7 +151,7 @@ func (s *Sidecar) Run() error {
 	signal.Notify(ch, syscall.SIGTERM, syscall.SIGINT, syscall.SIGKILL)
 	log.Infof("Received signal %s", <-ch)
 
-	log.Infof("Deregistering %s", node.Id())
+	log.Infof("Deregistering %s", node.Id)
 	registry.Deregister(service)
 	return nil
 }
