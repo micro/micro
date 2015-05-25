@@ -7,8 +7,8 @@ import (
 
 	"github.com/codegangsta/cli"
 	"github.com/myodc/go-micro/client"
-	"github.com/myodc/go-micro/proto/health"
 	"github.com/myodc/go-micro/registry"
+	"github.com/myodc/go-micro/server/proto/health"
 
 	"golang.org/x/net/context"
 )
