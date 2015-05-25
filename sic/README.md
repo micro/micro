@@ -33,11 +33,11 @@ $ micro sidecar --server_name=foo --server_address=127.0.0.1:9090
 ### Host Discovery
 
 ```shell
-curl http://127.0.0.1:8081/registry?service=go.micro.service.template
+curl http://127.0.0.1:8081/registry?service=go.micro.srv.example
 {
-	"name":"go.micro.service.template",
+	"name":"go.micro.srv.example",
 	"nodes":[{
-		"id":"go.micro.service.template-c5718d29-da2a-11e4-be11-68a86d0d36b6",
+		"id":"go.micro.srv.example-c5718d29-da2a-11e4-be11-68a86d0d36b6",
 		"address":"[::]","port":60728
 	}]
 }
@@ -59,10 +59,10 @@ I0523 12:25:36.241680   85658 sic.go:188] Starting sidecar healthchecker
 Query micro services via the http rpc api.
 
 ```shell
-$ curl  -d 'service=go.micro.service.template' \
+$ curl  -d 'service=go.micro.srv.example' \
 	-d 'method=Example.Call' \
 	-d 'request={"name": "John"}' http://127.0.0.1:8081/rpc
-{"msg":"go.micro.service.template-c5718d29-da2a-11e4-be11-68a86d0d36b6: Hello John"}
+{"msg":"go.micro.srv.example-c5718d29-da2a-11e4-be11-68a86d0d36b6: Hello John"}
 ```
 
 ### PubSub via WebSockets

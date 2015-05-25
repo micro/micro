@@ -11,7 +11,7 @@ import (
 )
 
 func main() {
-	// Create new request to service go.micro.service.go-template, method Example.Call
+	// Create new request to service go.micro.srv.greeter, method Say.Hello
 	req := client.NewRequest("go.micro.srv.greeter", "Say.Hello", &hello.Request{
 		Name: "John",
 	})

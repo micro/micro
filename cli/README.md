@@ -47,30 +47,30 @@ GLOBAL OPTIONS:
 ### List Services
 ```shell
 $ micro list services
-go.micro.service.template
+go.micro.srv.example
 ```
 
 ### Get Service
 ```shell
-$ micro get service go.micro.service.template
-go.micro.service.template
+$ micro get service go.micro.srv.example
+go.micro.srv.example
 
-go.micro.service.template-c5718d29-da2a-11e4-be11-68a86d0d36b6	[::]	60728
+go.micro.srv.example-fccbb6fb-0301-11e5-9f1f-68a86d0d36b6	[::]	62421
 ```
 
 ### Query Service
 ```shell
-$ micro query go.micro.service.template Example.Call '{"name": "John"}'
+$ micro query go.micro.srv.example Example.Call '{"name": "John"}'
 {
-	"msg": "go.micro.service.template-5c3b2801-fc1b-11e4-9f62-68a86d0d36b6: Hello John"
+	"msg": "go.micro.srv.example-fccbb6fb-0301-11e5-9f1f-68a86d0d36b6: Hello John"
 }
 ```
 
 ### Query Service Health
 ```shell
-$ micro health go.micro.service.template
+$ micro health go.micro.sv.example
 node		address:port		status
-go.micro.service.template-5c3b2801-fc1b-11e4-9f62-68a86d0d36b6		[::]:64388		ok
+go.micro.srv.example-fccbb6fb-0301-11e5-9f1f-68a86d0d36b6		[::]:62421		ok
 ```
 
 ### Run the API

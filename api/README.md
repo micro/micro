@@ -17,26 +17,26 @@ I0523 12:23:23.414399   81384 server.go:95] Registering node: go.micro.api-1f951
 
 ### Testing API
 
-Let's start the template [go-micro](https://github.com/myodc/go-micro) based service.
+Let's start the example [go-micro](https://github.com/myodc/go-micro) based server.
 ```bash
-$ go get github.com/myodc/go-micro/template
-$ $GOPATH/bin/template 
-I0523 12:21:09.506998   77096 server.go:113] Starting server go.micro.service.template id go.micro.service.template-cfc481fc-013d-11e5-bcdc-68a86d0d36b6
-I0523 12:21:09.507281   77096 rpc_server.go:112] Listening on [::]:51868
-I0523 12:21:09.507329   77096 server.go:95] Registering node: go.micro.service.template-cfc481fc-013d-11e5-bcdc-68a86d0d36b6
+$ go get github.com/myodc/go-micro/examples/server
+$ $GOPATH/bin/server 
+I0525 18:17:57.574457   84421 server.go:117] Starting server go.micro.srv.example id go.micro.srv.example-fccbb6fb-0301-11e5-9f1f-68a86d0d36b6
+I0525 18:17:57.574748   84421 rpc_server.go:126] Listening on [::]:62421
+I0525 18:17:57.574779   84421 server.go:99] Registering node: go.micro.srv.example-fccbb6fb-0301-11e5-9f1f-68a86d0d36b6
 ```
 
-The template service has a handler registered called Example with a method named Call. 
+The example server has a handler registered called Example with a method named Call. 
 Now let's query this through the API. 
 ```bash
-$ curl -d 'service=go.micro.service.template' -d 'method=Example.Call' -d 'request={"name": "Asim Aslam"}' http://localhost:8080/rpc
-{"msg":"go.micro.service.template-cfc481fc-013d-11e5-bcdc-68a86d0d36b6: Hello Asim Aslam"}
+$ curl -d 'service=go.micro.srv.example' -d 'method=Example.Call' -d 'request={"name": "Asim Aslam"}' http://localhost:8080/rpc
+{"msg":"go.micro.srv.example-fccbb6fb-0301-11e5-9f1f-68a86d0d36b6: Hello Asim Aslam"}
 ```
 
 Alternatively let's try 'Content-Type: application/json'
 ```bash
-$ curl -H 'Content-Type: application/json' -d '{"service": "go.micro.service.template", "method": "Example.Call", "request": {"name": "Asim Aslam"}}' http://localhost:8080/rpc
-{"msg":"go.micro.service.template-cfc481fc-013d-11e5-bcdc-68a86d0d36b6: Hello Asim Aslam"}
+$ curl -H 'Content-Type: application/json' -d '{"service": "go.micro.srv.example", "method": "Example.Call", "request": {"name": "Asim Aslam"}}' http://localhost:8080/rpc
+{"msg":"go.micro.srv.example-fccbb6fb-0301-11e5-9f1f-68a86d0d36b6: Hello Asim Aslam"}
 ```
 
 ### Testing using REST based API Services
