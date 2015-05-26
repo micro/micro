@@ -47,10 +47,10 @@ func main() {
 	// optionally setup command line usage
 	cmd.Init()
 
-	server.Name = "go.micro.api.greeter"
-
 	// Initialise Server
-	server.Init()
+	server.Init(
+		server.Name("go.micro.api.greeter"),
+	)
 
 	// Register Handlers
 	server.Register(

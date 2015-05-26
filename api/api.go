@@ -32,10 +32,10 @@ var (
 )
 
 func run() {
-	server.Name = "go.micro.api"
-
 	// Initialise Server
-	server.Init()
+	server.Init(
+		server.Name("go.micro.api"),
+	)
 
 	// Init API
 	api := New(Address)

@@ -53,8 +53,13 @@ func registryCommands() []cli.Command {
 							return
 						}
 						fmt.Printf("%s\n\n", service.Name)
+						fmt.Println("Id\tAddress\tPort\tMetadata")
 						for _, node := range service.Nodes {
-							fmt.Printf("%s\t%s\t%d\n", node.Id, node.Address, node.Port)
+							var meta []string
+							for k, v := range node.Metadata {
+								meta = append(meta, k+"="+v)
+							}
+							fmt.Printf("%s\t%s\t%d\t%s\n", node.Id, node.Address, node.Port, strings.Join(meta, ","))
 						}
 					},
 				},

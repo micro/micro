@@ -14,7 +14,7 @@ type Say struct{}
 func (s *Say) Hello(ctx context.Context, req *hello.Request, rsp *hello.Response) error {
 	log.Info("Received Say.Hello request")
 
-	rsp.Msg = server.Id + ": Hello " + req.Name
+	rsp.Msg = server.Config().Id() + ": Hello " + req.Name
 
 	return nil
 }
@@ -23,10 +23,10 @@ func main() {
 	// optionally setup command line usage
 	cmd.Init()
 
-	server.Name = "go.micro.srv.greeter"
-
 	// Initialise Server
-	server.Init()
+	server.Init(
+		server.Name("go.micro.srv.greeter"),
+	)
 
 	// Register Handlers
 	server.Register(
