@@ -86,6 +86,6 @@ I0523 12:23:23.414399   81384 server.go:95] Registering node: go.micro.api-1f951
 ### Run the SideCar
 ```shell
 micro sidecar --server_name=foo --server_address=127.0.0.1:9090 --healthcheck_url=http://127.0.0.1:9090/_status/health
-I0523 12:25:36.229536   85658 sic.go:184] Registering foo-6ebf29c0-013e-11e5-b55f-68a86d0d36b6
-I0523 12:25:36.241680   85658 sic.go:188] Starting sidecar healthchecker
+I0523 12:25:36.229536   85658 car.go:184] Registering foo-6ebf29c0-013e-11e5-b55f-68a86d0d36b6
+I0523 12:25:36.241680   85658 car.go:188] Starting sidecar healthchecker
 ```

@@ -28,7 +28,7 @@ Learn more about myodc in our [Intro](http://myodc.io/2015/05/01/introduction/) 
 - [go-micro](https://github.com/myodc/go-micro) - A microservices client/server library based on http/rpc protobuf
 - [api](https://github.com/myodc/micro/tree/master/api) - A lightweight gateway/proxy for Micro based services
 - [cli](https://github.com/myodc/micro/tree/master/cli) - A command line tool for micro
-- [sidecar](https://github.com/myodc/micro/tree/master/sic) - Integrate any application into the Micro ecosystem
+- [sidecar](https://github.com/myodc/micro/tree/master/car) - Integrate any application into the Micro ecosystem
 
 ## Example Services
 - [geo-srv](https://github.com/myodc/geo-srv) - A go-micro based geolocation tracking service using hailocab/go-geoindex
