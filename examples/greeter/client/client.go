@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/myodc/go-micro/client"
+	"github.com/myodc/go-micro/cmd"
 	c "github.com/myodc/go-micro/context"
 	hello "github.com/myodc/micro/examples/greeter/server/proto/hello"
 
@@ -11,6 +12,8 @@ import (
 )
 
 func main() {
+	cmd.Init()
+
 	// Create new request to service go.micro.srv.greeter, method Say.Hello
 	req := client.NewRequest("go.micro.srv.greeter", "Say.Hello", &hello.Request{
 		Name: "John",
