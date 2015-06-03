@@ -29,8 +29,8 @@ func main() {
 	)
 
 	// Register Handlers
-	server.Register(
-		server.NewReceiver(
+	server.Handle(
+		server.NewHandler(
 			new(Say),
 		),
 	)
