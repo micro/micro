@@ -151,7 +151,7 @@ func (c *conn) readLoop() {
 		if err != nil {
 			return
 		}
-		broker.Publish(context.Background(), c.topic, message)
+		broker.Publish(c.topic, &broker.Message{Body:message})
 	}
 }
 
@@ -163,7 +163,7 @@ func (c *conn) write(mType int, data []byte) error {
 func (c *conn) writeLoop() {
 	ticker := time.NewTicker(pingTime)
 
-	subscriber, err := broker.Subscribe(c.topic, func(ctx context.Context, msg *broker.Message) {
+	subscriber, err := broker.Subscribe(c.topic, func(msg *broker.Message) {
 		b, err := json.Marshal(msg)
 		if err != nil {
 			return
