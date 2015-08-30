@@ -12,7 +12,7 @@ func main() {
 	app := ccli.NewApp()
 	app.Name = "micro"
 	app.Usage = "A microservices toolchain"
-	app.Version = "0.0.1"
+	app.HideVersion = true
 	app.Commands = append(app.Commands, api.Commands()...)
 	app.Commands = append(app.Commands, cli.Commands()...)
 	app.Commands = append(app.Commands, car.Commands()...)
