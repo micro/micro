@@ -151,7 +151,7 @@ func (c *conn) readLoop() {
 		if err != nil {
 			return
 		}
-		broker.Publish(c.topic, &broker.Message{Body:message})
+		broker.Publish(c.topic, &broker.Message{Body: message})
 	}
 }
 
