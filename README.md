@@ -49,10 +49,10 @@ NAME:
 
 USAGE:
    micro [global options] command [command options] [arguments...]
-
+   
 VERSION:
-   0.0.1
-
+   0.0.0
+   
 COMMANDS:
    api		Run the micro API
    registry	Query registry
@@ -61,18 +61,28 @@ COMMANDS:
    list		List items in registry
    get		Get item from registry
    sidecar	Run the micro sidecar
+   web		Run the micro web app
    help, h	Shows a list of commands or help for one command
    
 GLOBAL OPTIONS:
-   --server_address ":0"	Bind address for the server. 127.0.0.1:8080 [$MICRO_SERVER_ADDRESS]
-   --broker "http"		Broker for pub/sub. http, nats, etc [$MICRO_BROKER]
-   --broker_address 		Comma-separated list of broker addresses [$MICRO_BROKER_ADDRESS]
-   --registry "consul"		Registry for discovery. kubernetes, consul, etc [$MICRO_REGISTRY]
-   --registry_address 		Comma-separated list of registry addresses [$MICRO_REGISTRY_ADDRESS]
-   --transport "http"		Transport mechanism used; http, rabbitmq, etc [$MICRO_TRANSPORT]
-   --transport_address 		Comma-separated list of transport addresses [$MICRO_TRANSPORT_ADDRESS]
-   --help, -h			show help
-   --version, -v		print the version
+   --server_name 								Name of the server. go.micro.srv.example [$MICRO_SERVER_NAME]
+   --server_id 									Id of the server. Auto-generated if not specified [$MICRO_SERVER_ID]
+   --server_address ":0"							Bind address for the server. 127.0.0.1:8080 [$MICRO_SERVER_ADDRESS]
+   --server_metadata [--server_metadata option --server_metadata option]	A list of key-value pairs defining metadata. version=1.0.0 [$MICRO_SERVER_METADATA]
+   --broker "http"								Broker for pub/sub. http, nats, etc [$MICRO_BROKER]
+   --broker_address 								Comma-separated list of broker addresses [$MICRO_BROKER_ADDRESS]
+   --registry "consul"								Registry for discovery. kubernetes, consul, etc [$MICRO_REGISTRY]
+   --registry_address 								Comma-separated list of registry addresses [$MICRO_REGISTRY_ADDRESS]
+   --transport "http"								Transport mechanism used; http, rabbitmq, etc [$MICRO_TRANSPORT]
+   --transport_address 								Comma-separated list of transport addresses [$MICRO_TRANSPORT_ADDRESS]
+   --logtostderr								log to standard error instead of files
+   --alsologtostderr								log to standard error as well as files
+   --log_dir 									log files will be written to this directory instead of the default temporary directory
+   --stderrthreshold 								logs at or above this threshold go to stderr
+   -v 										log level for V logs
+   --vmodule 									comma-separated list of pattern=N settings for file-filtered logging
+   --log_backtrace_at 								when logging hits line file:N, emit a stack trace
+   --help, -h	
 ```
 
 Read more on how to use Micro [here](https://github.com/myodc/micro/tree/master/cli)
