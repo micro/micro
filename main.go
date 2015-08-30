@@ -6,6 +6,7 @@ import (
 	"github.com/myodc/micro/api"
 	"github.com/myodc/micro/car"
 	"github.com/myodc/micro/cli"
+	"github.com/myodc/micro/web"
 )
 
 func main() {
@@ -16,6 +17,7 @@ func main() {
 	app.Commands = append(app.Commands, api.Commands()...)
 	app.Commands = append(app.Commands, cli.Commands()...)
 	app.Commands = append(app.Commands, car.Commands()...)
+	app.Commands = append(app.Commands, web.Commands()...)
 	app.Flags = cmd.Flags
 	app.Before = cmd.Setup
 	app.RunAndExitOnError()
