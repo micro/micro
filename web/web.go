@@ -19,6 +19,28 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func registryHandler(w http.ResponseWriter, r *http.Request) {
+	r.ParseForm()
+	service := r.Form.Get("service")
+	if len(service) > 0 {
+		s, err := registry.GetService(service)
+		if err != nil {
+			http.Error(w, "Error occurred:"+err.Error(), 500)
+			return
+		}
+
+		t, err := template.New("service").Parse(serviceTemplate)
+		if err != nil {
+			http.Error(w, "Error occurred:"+err.Error(), 500)
+			return
+		}
+
+		if err := t.ExecuteTemplate(w, "T", s); err != nil {
+			http.Error(w, "Error occurred:"+err.Error(), 500)
+			return
+		}
+		return
+	}
+
 	services, err := registry.ListServices()
 	if err != nil {
 		http.Error(w, "Error occurred:"+err.Error(), 500)
