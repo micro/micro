@@ -14,6 +14,7 @@ The goal of **Micro** is to provide a toolchain for microservice development and
 - Pub/Sub
 - API Gateway
 - CLI
+- Web UI
 - Sidecar - for non Go native apps
 
 ## Future Features
@@ -27,6 +28,7 @@ The goal of **Micro** is to provide a toolchain for microservice development and
 - [go-micro](https://github.com/myodc/go-micro) - A microservices client/server library based on http/rpc protobuf
 - [api](https://github.com/myodc/micro/tree/master/api) - A lightweight gateway/proxy for Micro based services
 - [cli](https://github.com/myodc/micro/tree/master/cli) - A command line tool for micro
+- [web](https://github.com/myodc/micro/tree/master/web) - A simple web UI to observe micro services
 - [sidecar](https://github.com/myodc/micro/tree/master/car) - Integrate any application into the Micro ecosystem
 
 ## Example Services
