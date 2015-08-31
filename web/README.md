@@ -1,11 +1,6 @@
 # Micro Web
 
-A Web UI for Micro
-
-<img src="https://github.com/myodc/micro/blob/master/web/web2.png">
-<p/>
-<img src="https://github.com/myodc/micro/blob/master/web/web1.png">
-
+A ultra simplistic 90s style web UI to view services
 
 ## Run Web UI
 ```bash
@@ -14,3 +9,7 @@ $ micro web
 ```
 
 Browse to localhost:8082
+
+<img src="https://github.com/myodc/micro/blob/master/web/web2.png">
+
+<img src="https://github.com/myodc/micro/blob/master/web/web1.png">
