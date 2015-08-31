@@ -2,10 +2,10 @@
 
 A Web UI for Micro
 
-<img src="https://github.com/myodc/micro/blob/master/web/web1.png" width=350px>
+<img src="https://github.com/myodc/micro/blob/master/web/web1.png">
 
 
-<img src="https://github.com/myodc/micro/blob/master/web/web2.png" width=350px>
+<img src="https://github.com/myodc/micro/blob/master/web/web2.png">
 
 ## Run Web UI
 ```bash
