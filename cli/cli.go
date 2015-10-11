@@ -13,6 +13,46 @@ import (
 	"golang.org/x/net/context"
 )
 
+func formatEndpoint(v *registry.Value, r int) string {
+	if len(v.Values) == 0 {
+		fparts := []string{"\n", "{", "\n", "\t", "%s %s", "\n", "}"}
+		if r > 0 {
+			fparts = []string{"\n", "\t", "%s %s"}
+			for i := 0; i < r; i++ {
+				fparts[1] += "\t"
+			}
+		}
+		return fmt.Sprintf(strings.Join(fparts, ""), strings.ToLower(v.Name), v.Type)
+	}
+
+	fparts := []string{"\n", "{", "\n", "\t", "%s %s", " {", "\n", "", "\n", "\t", "}", "\n", "}"}
+	i := 7
+
+	if r > 0 {
+		fparts = []string{"\n", "\t", "%s %s", " {", "\n", "\t", "\n", "\t", "}"}
+		i = 5
+	}
+
+	var app string
+	for j := 0; j < r; j++ {
+		if r > 0 {
+			fparts[1] += "\t"
+			fparts[7] += "\t"
+		}
+		app += "\t"
+	}
+	app += "\t%s"
+
+	vals := []interface{}{strings.ToLower(v.Name), v.Type}
+
+	for _, val := range v.Values {
+		fparts[i] += app
+		vals = append(vals, formatEndpoint(val, r+1))
+	}
+
+	return fmt.Sprintf(strings.Join(fparts, ""), vals...)
+}
+
 func registryCommands() []cli.Command {
 	return []cli.Command{
 		{
@@ -60,6 +100,26 @@ func registryCommands() []cli.Command {
 								meta = append(meta, k+"="+v)
 							}
 							fmt.Printf("%s\t%s\t%d\t%s\n", node.Id, node.Address, node.Port, strings.Join(meta, ","))
+						}
+
+						for _, e := range service.Endpoints {
+							var request, response string
+							var meta []string
+							for k, v := range e.Metadata {
+								meta = append(meta, k+"="+v)
+							}
+							if e.Request != nil && len(e.Request.Values) > 0 {
+								request = formatEndpoint(e.Request.Values[0], 0)
+							} else {
+								request = " {}"
+							}
+							if e.Response != nil && len(e.Response.Values) > 0 {
+								response = formatEndpoint(e.Response.Values[0], 0)
+							} else {
+								response = " {}"
+							}
+							fmt.Printf("\nEndpoint: %s\nMetadata: %s\n", e.Name, strings.Join(meta, ","))
+							fmt.Printf("Request:%s\nResponse:%s\n", request, response)
 						}
 					},
 				},
