@@ -66,13 +66,24 @@ var (
 			<thead>
 			<tbody>
 				{{range .Nodes}}
-				<td>{{.Id}}</td>
-				<td>{{.Address}}</td>
-				<td>{{.Port}}</td>
-				<td>{{ range $key, $value := .Metadata }}{{$key}}={{$value}} {{end}}</td>
+				<tr>
+					<td>{{.Id}}</td>
+					<td>{{.Address}}</td>
+					<td>{{.Port}}</td>
+					<td>{{ range $key, $value := .Metadata }}{{$key}}={{$value}} {{end}}</td>
+				</tr>
 				{{end}}
 			</tbody>
 		</table>
+		<h4>Endpoints</h4>
+		{{range .Endpoints}}
+			Name: {{.Name}}</br>
+			Metadata: {{ range $key, $value := .Metadata }}{{$key}}={{$value}} {{end}}</br>
+			Request:</br>
+			<pre>{{format .Request}}</pre>
+			Response:</br>
+			<pre>{{format .Response}}</pre>
+		{{end}}
 	</body>
 </html>
 {{end}}
