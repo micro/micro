@@ -43,6 +43,33 @@ curl http://127.0.0.1:8081/registry?service=go.micro.srv.example
 }
 ```
 
+### Register/Deregister a service
+Register
+```shell
+curl -H 'Content-Type: application/json' http://127.0.0.1:8081/registry -d 
+{
+	"Name": "foo.bar",
+	"Nodes": [{
+		"Port": 9091,
+		"Address": "127.0.0.1",
+		"Id": "foo.bar-017da09a-734f-11e5-8136-68a86d0d36b6"
+	}]
+}
+```
+
+Deregister
+```shell
+curl -X "DELETE" -H 'Content-Type: application/json' http://127.0.0.1:8081/registry -d 
+{
+	"Name": "foo.bar",
+	"Nodes": [{
+		"Port": 9091,
+		"Address": "127.0.0.1",
+		"Id": "foo.bar-017da09a-734f-11e5-8136-68a86d0d36b6"
+	}]
+}
+```
+
 ### Healthchecking
 
 Start micro sidecar with "--healthcheck_url=" to enable the healthchecker
