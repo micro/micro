@@ -13,6 +13,7 @@ import (
 	"github.com/myodc/go-micro/broker"
 	"github.com/myodc/go-micro/client"
 	"github.com/myodc/go-micro/errors"
+	"github.com/myodc/go-micro/registry"
 
 	"golang.org/x/net/context"
 )
@@ -37,6 +38,76 @@ var (
 		WriteBufferSize: 1024,
 	}
 )
+
+func addService(w http.ResponseWriter, r *http.Request) {
+	r.ParseForm()
+	b, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		http.Error(w, err.Error(), 500)
+		return
+	}
+	defer r.Body.Close()
+
+	var service *registry.Service
+	err = json.Unmarshal(b, &service)
+	if err != nil {
+		http.Error(w, err.Error(), 500)
+		return
+	}
+	err = registry.Register(service)
+	if err != nil {
+		http.Error(w, err.Error(), 500)
+		return
+	}
+}
+
+func delService(w http.ResponseWriter, r *http.Request) {
+	r.ParseForm()
+	b, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		http.Error(w, err.Error(), 500)
+		return
+	}
+	defer r.Body.Close()
+
+	var service *registry.Service
+	err = json.Unmarshal(b, &service)
+	if err != nil {
+		http.Error(w, err.Error(), 500)
+		return
+	}
+	err = registry.Deregister(service)
+	if err != nil {
+		http.Error(w, err.Error(), 500)
+		return
+	}
+}
+
+func getService(w http.ResponseWriter, r *http.Request) {
+	r.ParseForm()
+	service := r.Form.Get("service")
+	if len(service) == 0 {
+		http.Error(w, "Require service", 400)
+		return
+	}
+	s, err := registry.GetService(service)
+	if err != nil {
+		http.Error(w, err.Error(), 500)
+		return
+	}
+	if s == nil || len(s.Name) == 0 {
+		http.Error(w, "Service not found", 404)
+		return
+	}
+	b, err := json.Marshal(s)
+	if err != nil {
+		http.Error(w, err.Error(), 500)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Content-Length", strconv.Itoa(len(b)))
+	w.Write(b)
+}
 
 func rpcHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "POST" {

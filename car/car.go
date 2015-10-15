@@ -1,7 +1,6 @@
 package car
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"os"
@@ -27,11 +26,15 @@ type Sidecar struct {
 	hcUrl   string
 }
 
-func run(name, address, hcUrl string) {
+func run() {
+	sc := New("", "", "")
+	sc.serve()
+}
+
+func runApp(name, address, hcUrl string) {
 	sc := New(name, address, hcUrl)
-	if err := sc.Run(); err != nil {
-		log.Fatal(err)
-	}
+	go sc.serve()
+	sc.run()
 }
 
 func (s *Sidecar) hc() (int, error) {
@@ -81,42 +84,28 @@ func (s *Sidecar) serve() {
 	})
 
 	http.HandleFunc("/registry", func(w http.ResponseWriter, r *http.Request) {
-		r.ParseForm()
-		service := r.Form.Get("service")
-		if len(service) == 0 {
-			http.Error(w, "Require service", 400)
-			return
+		switch r.Method {
+		case "GET":
+			getService(w, r)
+		case "POST":
+			addService(w, r)
+		case "DELETE":
+			delService(w, r)
 		}
-		s, err := registry.GetService(service)
-		if err != nil {
-			http.Error(w, err.Error(), 500)
-			return
-		}
-		if s == nil {
-			http.Error(w, "Service not found", 404)
-			return
-		}
-		b, err := json.Marshal(s)
-		if err != nil {
-			http.Error(w, err.Error(), 500)
-			return
-		}
-		w.Header().Set("Content-Type", "application/json")
-		w.Header().Set("Content-Length", strconv.Itoa(len(b)))
-		w.Write(b)
 	})
 
 	http.HandleFunc("/rpc", rpcHandler)
 
 	http.HandleFunc("/broker", brokerHandler)
 
+	log.Infof("Listening on %s", Address)
 	if err := http.ListenAndServe(Address, nil); err != nil {
 		log.Fatal(err)
 		os.Exit(1)
 	}
 }
 
-func (s *Sidecar) Run() error {
+func (s *Sidecar) run() {
 	parts := strings.Split(s.address, ":")
 	host := strings.Join(parts[:len(parts)-1], ":")
 	port, _ := strconv.Atoi(parts[len(parts)-1])
@@ -145,15 +134,9 @@ func (s *Sidecar) Run() error {
 		}()
 	}
 
-	go s.serve()
-
 	ch := make(chan os.Signal, 1)
 	signal.Notify(ch, syscall.SIGTERM, syscall.SIGINT, syscall.SIGKILL)
-	log.Infof("Received signal %s", <-ch)
-
-	log.Infof("Deregistering %s", node.Id)
-	registry.Deregister(service)
-	return nil
+	<-ch
 }
 
 func New(name, address, hcUrl string) *Sidecar {
@@ -188,6 +171,11 @@ func Commands() []cli.Command {
 				address := c.String("server_address")
 				hcUrl := c.String("healthcheck_url")
 
+				if len(name) == 0 && len(address) == 0 {
+					run()
+					return
+				}
+
 				if len(name) == 0 {
 					fmt.Println("Require server name")
 					return
@@ -198,7 +186,7 @@ func Commands() []cli.Command {
 					return
 				}
 
-				run(name, address, hcUrl)
+				runApp(name, address, hcUrl)
 			},
 		},
 	}
