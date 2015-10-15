@@ -24,7 +24,13 @@ $ go get github.com/myodc/micro
 
 The micro sidecar runs on port 8081 by default.
 
-Start the sidecar. Specify your app server name and address.
+Starting the sidecar 
+
+```shell
+$ micro sidecar
+```
+
+Optionally specify app server name and address if you want to auto register an app on startup.
 
 ```shell
 $ micro sidecar --server_name=foo --server_address=127.0.0.1:9090
