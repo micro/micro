@@ -7,7 +7,7 @@ require 'json-rpc-objects/response'
 # This speaks directly to the service go.micro.srv.greeter
 
 # set the host to the running go.micro.srv.greeter service
-uri = URI("http://localhost:51999")
+uri = URI("http://localhost:8080")
 method = "Say.Hello"
 request = {:name => "John"}
 
