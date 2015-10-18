@@ -4,6 +4,8 @@ Micro is a microservices toolkit. It simplifies writing and running distributed 
 
 Checkout [**go-micro**](https://github.com/myodc/go-micro) if you want to start writing services now.
 
+Examples of how to write a service in ruby or python can be found in [here](https://github.com/myodc/micro/tree/master/examples/greeter)
+
 # Overview
 The goal of **Micro** is to provide a toolchain for microservice development and management. At the core, micro is simple and accessible enough that anyone can easily get started writing microservices. As you scale to hundreds of services, micro will provide the fundamental tools required to manage a microservice environment.
 
