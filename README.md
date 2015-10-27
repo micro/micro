@@ -1,4 +1,4 @@
-# Micro
+# Micro [![GoDoc](https://godoc.org/github.com/myodc/micro?status.svg)](https://godoc.org/github.com/myodc/micro) [![Travis CI](https://travis-ci.org/myodc/micro.svg?branch=master)](https://travis-ci.org/myodc/micro)
 
 Micro is a microservices toolkit. It simplifies writing and running distributed applications.
 
