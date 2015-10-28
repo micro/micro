@@ -46,11 +46,77 @@ The goal of **Micro** is to provide a toolchain for microservice development and
 $ go get github.com/myodc/micro
 ```
 
+Or via Docker
+
 ```shell
 docker pull myodc/micro
 ```
 
+### Quick start
+
+Run consul (default discovery mechanism)
+```
+$ go get github.com/hashicorp/consul
+$ consul agent -server -bootstrap-expect 1 -data-dir /tmp/consul
+```
+
+Run the greeter example app
+```shell
+$ go get github.com/myodc/micro/examples/greeter/server
+$ server
+```
+
+List services
+```shell
+$ micro list services
+consul
+go.micro.srv.greeter
+```
+
+Get Service
+```shell
+$ micro get service go.micro.srv.greeter
+go.micro.srv.greeter
+
+Id	Address	Port	Metadata
+go.micro.srv.greeter-154a6487-7d7e-11e5-882a-34363b77bace	[::]	57067	
+
+Endpoint: Say.Hello
+Metadata: stream=false
+Request:
+{
+	name string
+}
+Response:
+{
+	msg string
+}
+
+Endpoint: Debug.Health
+Metadata: stream=false
+Request: {}
+Response:
+{
+	status string
+}
+```
+
+Query service
+```shell
+$ micro query go.micro.srv.greeter Say.Hello '{"name": "John"}'
+{
+	"msg": "go.micro.srv.greeter-154a6487-7d7e-11e5-882a-34363b77bace: Hello John"
+}
+
+```
+
+Read more on how to use Micro [here](https://github.com/myodc/micro/tree/master/cli)
+
+Learn how to write and run a microservice using Go-Micro [here](https://github.com/myodc/go-micro)
+
+
 ### Usage
+
 ```shell
 NAME:
    micro - A microservices toolchain
@@ -92,10 +158,6 @@ GLOBAL OPTIONS:
    --log_backtrace_at 								when logging hits line file:N, emit a stack trace
    --help, -h	
 ```
-
-Read more on how to use Micro [here](https://github.com/myodc/micro/tree/master/cli)
-
-Learn how to write and run a microservice using Go-Micro [here](https://github.com/myodc/go-micro)
 
 ## About Microservices
 Microservices is an architecture pattern used to decompose a single large application in to a smaller suite of services. Generally the goal is to create light weight services of 1000 lines of code or less. Each service alone provides a particular focused solution or set of solutions. These small services can be used as the foundational building blocks in the creation of a larger system.
