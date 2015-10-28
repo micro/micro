@@ -46,6 +46,10 @@ The goal of **Micro** is to provide a toolchain for microservice development and
 $ go get github.com/myodc/micro
 ```
 
+```shell
+docker pull myodc/micro
+```
+
 ### Usage
 ```shell
 NAME:
