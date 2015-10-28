@@ -49,7 +49,7 @@ $ go get github.com/myodc/micro
 Or via Docker
 
 ```shell
-docker pull myodc/micro
+$ docker pull myodc/micro
 ```
 
 ### Quick start
