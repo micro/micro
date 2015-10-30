@@ -11,4 +11,7 @@ $ micro web
 Browse to localhost:8082
 
 <img src="https://github.com/myodc/micro/blob/master/web/web1.png">
+-
 <img src="https://github.com/myodc/micro/blob/master/web/web2.png">
+-
+<img src="https://github.com/myodc/micro/blob/master/web/web3.png">
