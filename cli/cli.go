@@ -92,17 +92,25 @@ func registryCommands() []cli.Command {
 							fmt.Println(err.Error())
 							return
 						}
-						fmt.Printf("%s\n\n", service.Name)
-						fmt.Println("Id\tAddress\tPort\tMetadata")
-						for _, node := range service.Nodes {
-							var meta []string
-							for k, v := range node.Metadata {
-								meta = append(meta, k+"="+v)
-							}
-							fmt.Printf("%s\t%s\t%d\t%s\n", node.Id, node.Address, node.Port, strings.Join(meta, ","))
+						if len(service) == 0 {
+							fmt.Println("Service not found")
+							return
 						}
 
-						for _, e := range service.Endpoints {
+						fmt.Printf("service  %s\n", service[0].Name)
+						for _, serv := range service {
+							fmt.Println("\nversion ", serv.Version)
+							fmt.Println("\nId\tAddress\tPort\tMetadata")
+							for _, node := range serv.Nodes {
+								var meta []string
+								for k, v := range node.Metadata {
+									meta = append(meta, k+"="+v)
+								}
+								fmt.Printf("%s\t%s\t%d\t%s\n", node.Id, node.Address, node.Port, strings.Join(meta, ","))
+							}
+						}
+
+						for _, e := range service[0].Endpoints {
 							var request, response string
 							var meta []string
 							for k, v := range e.Metadata {
@@ -168,25 +176,33 @@ func Commands() []cli.Command {
 				}
 				service, err := registry.GetService(c.Args().First())
 				if err != nil {
-					fmt.Printf("error querying registry: %v", err)
+					fmt.Println(err.Error())
 					return
 				}
-				fmt.Println("node\t\taddress:port\t\tstatus")
-				req := client.NewRequest(service.Name, "Debug.Health", &health.Request{})
-				for _, node := range service.Nodes {
-					address := node.Address
-					if node.Port > 0 {
-						address = fmt.Sprintf("%s:%d", address, node.Port)
+				if service == nil || len(service) == 0 {
+					fmt.Println("Service not found")
+					return
+				}
+				req := client.NewRequest(service[0].Name, "Debug.Health", &health.Request{})
+				fmt.Printf("service  %s\n\n", service[0].Name)
+				for _, serv := range service {
+					fmt.Println("\nversion ", serv.Version)
+					fmt.Println("\nnode\t\taddress:port\t\tstatus")
+					for _, node := range serv.Nodes {
+						address := node.Address
+						if node.Port > 0 {
+							address = fmt.Sprintf("%s:%d", address, node.Port)
+						}
+						rsp := &health.Response{}
+						err := client.CallRemote(context.Background(), address, req, rsp)
+						var status string
+						if err != nil {
+							status = err.Error()
+						} else {
+							status = rsp.Status
+						}
+						fmt.Printf("%s\t\t%s:%d\t\t%s\n", node.Id, node.Address, node.Port, status)
 					}
-					rsp := &health.Response{}
-					err := client.CallRemote(context.Background(), address, req, rsp)
-					var status string
-					if err != nil {
-						status = err.Error()
-					} else {
-						status = rsp.Status
-					}
-					fmt.Printf("%s\t\t%s:%d\t\t%s\n", node.Id, node.Address, node.Port, status)
 				}
 			},
 		},

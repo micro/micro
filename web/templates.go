@@ -121,8 +121,10 @@ var (
 	</head>
 	<body>
 		<h1>Micro Web</h1>
-		<h3>Service {{.Name}}</h3>
+		<h3>Service {{with $svc := index . 0}}{{$svc.Name}}{{end}}</h3>
 		<h4>Nodes</h4>
+		{{range .}}
+		<h5>Version {{.Version}}</h5>
 		<table>
 			<thead>
 				<td>Id</td>
@@ -141,14 +143,16 @@ var (
 				{{end}}
 			</tbody>
 		</table>
+		{{end}}
 		<h4>Endpoints</h4>
-		{{range .Endpoints}}
+		{{with $svc := index . 0}}{{range $svc.Endpoints}}
 			Name: {{.Name}}</br>
 			Metadata: {{ range $key, $value := .Metadata }}{{$key}}={{$value}} {{end}}</br>
 			Request:</br>
 			<pre>{{format .Request}}</pre>
 			Response:</br>
 			<pre>{{format .Response}}</pre>
+		{{end}}
 		{{end}}
 	</body>
 </html>

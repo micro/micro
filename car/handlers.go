@@ -95,7 +95,7 @@ func getService(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), 500)
 		return
 	}
-	if s == nil || len(s.Name) == 0 {
+	if s == nil || len(s) == 0 || len(s[0].Name) == 0 {
 		http.Error(w, "Service not found", 404)
 		return
 	}
