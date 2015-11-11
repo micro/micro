@@ -3,6 +3,7 @@ package cli
 import (
 	"encoding/json"
 	"fmt"
+	"sort"
 	"strings"
 
 	"github.com/codegangsta/cli"
@@ -68,7 +69,9 @@ func registryCommands() []cli.Command {
 							fmt.Println(err.Error())
 							return
 						}
-						for _, service := range rsp {
+						ss := sortedServices{rsp}
+						sort.Sort(ss)
+						for _, service := range ss.services {
 							fmt.Println(service.Name)
 						}
 					},
