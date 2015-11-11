@@ -12,22 +12,18 @@ Examples of how to write a service in ruby or python can be found in [here](http
 # Overview
 The goal of **Micro** is to provide a toolchain for microservice development and management. At the core, micro is simple and accessible enough that anyone can easily get started writing microservices. As you scale to hundreds of services, micro will provide the fundamental tools required to manage a microservice environment.
 
-
 ## Features
-- Discovery
-- Client/Server
-- Pub/Sub
-- API Gateway
-- CLI
-- Web UI
-- Sidecar - for non Go native apps
 
-## Libraries & Tools
-- [go-micro](https://github.com/myodc/go-micro) - A microservices client/server library based on http/rpc protobuf
-- [api](https://github.com/myodc/micro/tree/master/api) - A lightweight gateway/proxy for Micro based services
-- [cli](https://github.com/myodc/micro/tree/master/cli) - A command line tool for micro
-- [web](https://github.com/myodc/micro/tree/master/web) - A simple web UI to observe micro services
-- [sidecar](https://github.com/myodc/micro/tree/master/car) - Integrate any application into the Micro ecosystem
+Feature		|	Description
+------		|	-------
+[Discovery](https://github.com/myodc/go-micro/tree/master/registry) | Find running services
+[Client](https://github.com/myodc/go-micro/tree/master/client) | Query services via RPC
+[Server](https://github.com/myodc/go-micro/tree/master/server) | Listen and serve RPC requests
+[Pub/Sub](https://github.com/myodc/go-micro/tree/master/broker) | Publish and subscribe to events
+[API Gateway](https://github.com/myodc/micro/tree/master/api) | Lightweight gateway/proxy. Convert http requests to rpc
+[CLI](https://github.com/myodc/micro/tree/master/cli) | Command line interface
+[Sidecar](https://github.com/myodc/micro/tree/master/car) | Integrate any application into the Micro ecosystem
+[Web UI](https://github.com/myodc/micro/tree/master/web) | Simple 90s style dashboard to view and query services
 
 ## Example Services
 - [geo-srv](https://github.com/myodc/geo-srv) - A go-micro based geolocation tracking service using hailocab/go-geoindex
@@ -215,10 +211,4 @@ discovery.List() - List all servers
 
 ## Roadmap & Future work
 
-Features to be included as services
-- Config
-- Routing
-- Monitoring
-- Tracing
-- Logging
-
+[go-platform](https://github.com/myodc/go-platform)
