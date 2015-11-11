@@ -16,10 +16,10 @@ The goal of **Micro** is to provide a toolchain for microservice development and
 
 Feature		|	Description
 ------		|	-------
-[Discovery](https://github.com/myodc/go-micro/tree/master/registry) | Find running services
-[Client](https://github.com/myodc/go-micro/tree/master/client) | Query services via RPC
-[Server](https://github.com/myodc/go-micro/tree/master/server) | Listen and serve RPC requests
-[Pub/Sub](https://github.com/myodc/go-micro/tree/master/broker) | Publish and subscribe to events
+[Discovery](https://godoc.org/github.com/myodc/go-micro/registry) | Find running services
+[Client](https://godoc.org/github.com/myodc/go-micro/client) | Query services via RPC
+[Server](https://godoc.org/github.com/myodc/go-micro/server) | Listen and serve RPC requests
+[Pub/Sub](https://godoc.org/github.com/myodc/go-micro/broker) | Publish and subscribe to events
 [API Gateway](https://github.com/myodc/micro/tree/master/api) | Lightweight gateway/proxy. Convert http requests to rpc
 [CLI](https://github.com/myodc/micro/tree/master/cli) | Command line interface
 [Sidecar](https://github.com/myodc/micro/tree/master/car) | Integrate any application into the Micro ecosystem
