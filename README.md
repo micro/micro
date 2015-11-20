@@ -1,10 +1,10 @@
-# Micro [![GoDoc](https://godoc.org/github.com/myodc/micro?status.svg)](https://godoc.org/github.com/myodc/micro) [![Travis CI](https://travis-ci.org/myodc/micro.svg?branch=master)](https://travis-ci.org/myodc/micro)
+# Micro [![GoDoc](https://godoc.org/github.com/micro/micro?status.svg)](https://godoc.org/github.com/micro/micro) [![Travis CI](https://travis-ci.org/micro/micro.svg?branch=master)](https://travis-ci.org/micro/micro)
 
 Micro is a microservices toolkit. It simplifies writing and running distributed applications.
 
-Checkout [**go-micro**](https://github.com/myodc/go-micro) if you want to start writing services now.
+Checkout [**go-micro**](https://github.com/micro/go-micro) if you want to start writing services now.
 
-Examples of how to write a service in ruby or python can be found in [here](https://github.com/myodc/micro/tree/master/examples/greeter)
+Examples of how to write a service in ruby or python can be found in [here](https://github.com/micro/micro/tree/master/examples/greeter)
 
 - [Mailing List](https://groups.google.com/forum/#!forum/micro-services) 
 - [Slack](https://micro-services.slack.com) : [auto-invite](http://micro-invites.herokuapp.com/)
@@ -16,32 +16,32 @@ The goal of **Micro** is to provide a toolchain for microservice development and
 
 Feature		|	Description
 ------		|	-------
-[Discovery](https://godoc.org/github.com/myodc/go-micro/registry) | Find running services
-[Client](https://godoc.org/github.com/myodc/go-micro/client) | Query services via RPC
-[Server](https://godoc.org/github.com/myodc/go-micro/server) | Listen and serve RPC requests
-[Pub/Sub](https://godoc.org/github.com/myodc/go-micro/broker) | Publish and subscribe to events
-[API Gateway](https://github.com/myodc/micro/tree/master/api) | Lightweight gateway/proxy. Convert http requests to rpc
-[CLI](https://github.com/myodc/micro/tree/master/cli) | Command line interface
-[Sidecar](https://github.com/myodc/micro/tree/master/car) | Integrate any application into the Micro ecosystem
-[Web UI](https://github.com/myodc/micro/tree/master/web) | Simple 90s style dashboard to view and query services
+[Discovery](https://godoc.org/github.com/micro/go-micro/registry) | Find running services
+[Client](https://godoc.org/github.com/micro/go-micro/client) | Query services via RPC
+[Server](https://godoc.org/github.com/micro/go-micro/server) | Listen and serve RPC requests
+[Pub/Sub](https://godoc.org/github.com/micro/go-micro/broker) | Publish and subscribe to events
+[API Gateway](https://github.com/micro/micro/tree/master/api) | Lightweight gateway/proxy. Convert http requests to rpc
+[CLI](https://github.com/micro/micro/tree/master/cli) | Command line interface
+[Sidecar](https://github.com/micro/micro/tree/master/car) | Integrate any application into the Micro ecosystem
+[Web UI](https://github.com/micro/micro/tree/master/web) | Simple 90s style dashboard to view and query services
 
 ## Example Services
-- [geo-srv](https://github.com/myodc/geo-srv) - A go-micro based geolocation tracking service using hailocab/go-geoindex
-- [geo-api](https://github.com/myodc/geo-api) - A HTTP API handler for geo location tracking and search
-- [greeter](https://github.com/myodc/micro/tree/master/examples/greeter) - Greeter client/server examples in Go, ruby and python
+- [geo-srv](https://github.com/micro/geo-srv) - A go-micro based geolocation tracking service using hailocab/go-geoindex
+- [geo-api](https://github.com/micro/geo-api) - A HTTP API handler for geo location tracking and search
+- [greeter](https://github.com/micro/micro/tree/master/examples/greeter) - Greeter client/server examples in Go, ruby and python
 
 ## Getting Started
 
 ### Install
 
 ```shell
-$ go get github.com/myodc/micro
+$ go get github.com/micro/micro
 ```
 
 Or via Docker
 
 ```shell
-$ docker pull myodc/micro
+$ docker pull micro/micro
 ```
 
 ### Quick start
@@ -54,7 +54,7 @@ $ consul agent -server -bootstrap-expect 1 -data-dir /tmp/consul
 
 Run the greeter example app
 ```shell
-$ go get github.com/myodc/micro/examples/greeter/server
+$ go get github.com/micro/micro/examples/greeter/server
 $ server
 ```
 
@@ -102,9 +102,9 @@ $ micro query go.micro.srv.greeter Say.Hello '{"name": "John"}'
 
 ```
 
-Read more on how to use Micro [here](https://github.com/myodc/micro/tree/master/cli)
+Read more on how to use Micro [here](https://github.com/micro/micro/tree/master/cli)
 
-Learn how to write and run a microservice using Go-Micro [here](https://github.com/myodc/go-micro)
+Learn how to write and run a microservice using Go-Micro [here](https://github.com/micro/go-micro)
 
 
 ### Usage
@@ -211,4 +211,4 @@ discovery.List() - List all servers
 
 ## Roadmap & Future work
 
-[go-platform](https://github.com/myodc/go-platform)
+[go-platform](https://github.com/micro/go-platform)

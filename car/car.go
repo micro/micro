@@ -13,7 +13,7 @@ import (
 	"code.google.com/p/go-uuid/uuid"
 	"github.com/codegangsta/cli"
 	log "github.com/golang/glog"
-	"github.com/myodc/go-micro/registry"
+	"github.com/micro/go-micro/registry"
 )
 
 var (

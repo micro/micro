@@ -10,9 +10,9 @@ import (
 
 	"github.com/codegangsta/cli"
 	log "github.com/golang/glog"
-	"github.com/myodc/go-micro/client"
-	"github.com/myodc/go-micro/errors"
-	"github.com/myodc/go-micro/server"
+	"github.com/micro/go-micro/client"
+	"github.com/micro/go-micro/errors"
+	"github.com/micro/go-micro/server"
 
 	"golang.org/x/net/context"
 )

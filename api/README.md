@@ -1,12 +1,12 @@
 # Micro API
 
-This is a lightweight proxy for [Micro](https://github.com/myodc/micro) based microservices. It conforms to the [API Gateway](http://microservices.io/patterns/apigateway.html) pattern and can be used in conjuction with [go-micro](https://github.com/myodc/go-micro) based apps or any future language implementation of the [Micro](https://github.com/myodc/micro) toolchain.
+This is a lightweight proxy for [Micro](https://github.com/micro/micro) based microservices. It conforms to the [API Gateway](http://microservices.io/patterns/apigateway.html) pattern and can be used in conjuction with [go-micro](https://github.com/micro/go-micro) based apps or any future language implementation of the [Micro](https://github.com/micro/micro) toolchain.
 
 Currently a work in progress.
 
 ### Run API
 ```bash
-$ go get github.com/myodc/micro
+$ go get github.com/micro/micro
 $ micro api
 I0523 12:23:23.413940   81384 api.go:131] API Rpc handler /rpc
 I0523 12:23:23.414238   81384 api.go:143] Listening on [::]:8080
@@ -17,9 +17,9 @@ I0523 12:23:23.414399   81384 server.go:95] Registering node: go.micro.api-1f951
 
 ### Testing API
 
-Let's start the example [go-micro](https://github.com/myodc/go-micro) based server.
+Let's start the example [go-micro](https://github.com/micro/go-micro) based server.
 ```bash
-$ go get github.com/myodc/go-micro/examples/server
+$ go get github.com/micro/go-micro/examples/server
 $ $GOPATH/bin/server 
 I0525 18:17:57.574457   84421 server.go:117] Starting server go.micro.srv.example id go.micro.srv.example-fccbb6fb-0301-11e5-9f1f-68a86d0d36b6
 I0525 18:17:57.574748   84421 rpc_server.go:126] Listening on [::]:62421
@@ -43,7 +43,7 @@ $ curl -H 'Content-Type: application/json' -d '{"service": "go.micro.srv.example
 
 Micro allows you to handle REST based paths using rpc by providing built in handling for API Services. An API service is like any other 
 micro service except each method signature takes an *api.Request and *api.Response which can be found in 
-[github.com/myodc/micro/api/proto](https://github.com/myodc/micro/tree/master/api/proto).
+[github.com/micro/micro/api/proto](https://github.com/micro/micro/tree/master/api/proto).
 
 The default namespace for these services are: go.micro.api
 
@@ -55,4 +55,4 @@ Translation of URLs are as follows:
 
 /foo/bar/baz/cat => service: go.micro.api.foo.bar method: Baz.Cat
 
-A working example can be found here [Greeter Service](https://github.com/myodc/micro/tree/master/examples/greeter)
+A working example can be found here [Greeter Service](https://github.com/micro/micro/tree/master/examples/greeter)

@@ -4,9 +4,9 @@ import (
 	"code.google.com/p/go.net/context"
 
 	log "github.com/golang/glog"
-	"github.com/myodc/go-micro/cmd"
-	"github.com/myodc/go-micro/server"
-	hello "github.com/myodc/micro/examples/greeter/server/proto/hello"
+	"github.com/micro/go-micro/cmd"
+	"github.com/micro/go-micro/server"
+	hello "github.com/micro/micro/examples/greeter/server/proto/hello"
 )
 
 type Say struct{}

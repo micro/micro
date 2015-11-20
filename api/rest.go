@@ -8,9 +8,9 @@ import (
 	"path"
 	"strings"
 
-	"github.com/myodc/go-micro/client"
-	"github.com/myodc/go-micro/errors"
-	api "github.com/myodc/micro/api/proto"
+	"github.com/micro/go-micro/client"
+	"github.com/micro/go-micro/errors"
+	api "github.com/micro/micro/api/proto"
 
 	"golang.org/x/net/context"
 )

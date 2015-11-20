@@ -3,10 +3,10 @@ package main
 import (
 	"fmt"
 
-	"github.com/myodc/go-micro/client"
-	"github.com/myodc/go-micro/cmd"
-	c "github.com/myodc/go-micro/context"
-	hello "github.com/myodc/micro/examples/greeter/server/proto/hello"
+	"github.com/micro/go-micro/client"
+	"github.com/micro/go-micro/cmd"
+	c "github.com/micro/go-micro/context"
+	hello "github.com/micro/micro/examples/greeter/server/proto/hello"
 
 	"golang.org/x/net/context"
 )

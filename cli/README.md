@@ -1,13 +1,13 @@
 # Micro CLI
 
-This is a CLI for the microservices toolchain [Micro](https://github.com/myodc/micro). 
+This is a CLI for the microservices toolchain [Micro](https://github.com/micro/micro). 
 
 ## Getting Started
 
 ### Install
 
 ```shell
-$ go get github.com/myodc/micro
+$ go get github.com/micro/micro
 ```
 
 ### Usage

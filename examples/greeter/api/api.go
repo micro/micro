@@ -6,12 +6,12 @@ import (
 	"strings"
 
 	log "github.com/golang/glog"
-	"github.com/myodc/go-micro/client"
-	"github.com/myodc/go-micro/cmd"
-	"github.com/myodc/go-micro/errors"
-	"github.com/myodc/go-micro/server"
-	api "github.com/myodc/micro/api/proto"
-	hello "github.com/myodc/micro/examples/greeter/server/proto/hello"
+	"github.com/micro/go-micro/client"
+	"github.com/micro/go-micro/cmd"
+	"github.com/micro/go-micro/errors"
+	"github.com/micro/go-micro/server"
+	api "github.com/micro/micro/api/proto"
+	hello "github.com/micro/micro/examples/greeter/server/proto/hello"
 )
 
 type Say struct{}

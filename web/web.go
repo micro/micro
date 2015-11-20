@@ -11,9 +11,9 @@ import (
 
 	"github.com/codegangsta/cli"
 	log "github.com/golang/glog"
-	"github.com/myodc/go-micro/client"
-	"github.com/myodc/go-micro/errors"
-	"github.com/myodc/go-micro/registry"
+	"github.com/micro/go-micro/client"
+	"github.com/micro/go-micro/errors"
+	"github.com/micro/go-micro/registry"
 
 	"golang.org/x/net/context"
 )

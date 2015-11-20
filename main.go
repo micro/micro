@@ -2,11 +2,11 @@ package main
 
 import (
 	ccli "github.com/codegangsta/cli"
-	"github.com/myodc/go-micro/cmd"
-	"github.com/myodc/micro/api"
-	"github.com/myodc/micro/car"
-	"github.com/myodc/micro/cli"
-	"github.com/myodc/micro/web"
+	"github.com/micro/go-micro/cmd"
+	"github.com/micro/micro/api"
+	"github.com/micro/micro/car"
+	"github.com/micro/micro/cli"
+	"github.com/micro/micro/web"
 )
 
 func main() {

@@ -17,7 +17,7 @@ It is similar to Netflix's sidecar called [Prana](https://github.com/Netflix/Pra
 ### Install
 
 ```shell
-$ go get github.com/myodc/micro
+$ go get github.com/micro/micro
 ```
 
 ### Run

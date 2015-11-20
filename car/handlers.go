@@ -10,10 +10,10 @@ import (
 
 	log "github.com/golang/glog"
 	"github.com/gorilla/websocket"
-	"github.com/myodc/go-micro/broker"
-	"github.com/myodc/go-micro/client"
-	"github.com/myodc/go-micro/errors"
-	"github.com/myodc/go-micro/registry"
+	"github.com/micro/go-micro/broker"
+	"github.com/micro/go-micro/client"
+	"github.com/micro/go-micro/errors"
+	"github.com/micro/go-micro/registry"
 
 	"golang.org/x/net/context"
 )

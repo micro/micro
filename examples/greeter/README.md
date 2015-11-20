@@ -29,7 +29,7 @@ go.micro.srv.greeter-c2770c77-013e-11e5-b4d6-68a86d0d36b6: Hello John
 ### REST Micro API usage
 
 You can also construct REST based requests via an API service and the Micro API. REST based API service handlers take 
-*api.Request and *api.Response types which can be found in [github.com/myodc/micro/api/proto](https://github.com/myodc/micro/tree/master/api/proto)
+*api.Request and *api.Response types which can be found in [github.com/micro/micro/api/proto](https://github.com/micro/micro/tree/master/api/proto)
 
 Run the API Service
 ```

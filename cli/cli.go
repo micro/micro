@@ -7,9 +7,9 @@ import (
 	"strings"
 
 	"github.com/codegangsta/cli"
-	"github.com/myodc/go-micro/client"
-	"github.com/myodc/go-micro/registry"
-	"github.com/myodc/go-micro/server/proto/health"
+	"github.com/micro/go-micro/client"
+	"github.com/micro/go-micro/registry"
+	"github.com/micro/go-micro/server/proto/health"
 
 	"golang.org/x/net/context"
 )
