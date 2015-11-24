@@ -41,7 +41,7 @@ $ go get github.com/micro/micro
 Or via Docker
 
 ```shell
-$ docker pull micro/micro
+$ docker pull microhq/micro
 ```
 
 ### Quick start
