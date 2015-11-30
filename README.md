@@ -31,7 +31,7 @@ The go platform provides higher level libraries and services that can be integra
 Things like tracing, monitoring, dynamic configuration, etc. Again, pluggable like go-micro.
 
 ### Go Plugins
-[link](https://github.com/micro/go-platform)
+[link](https://github.com/micro/go-plugins)
 
 By default Micro will only support 1 or 2 implementations of each interface. Go plugins provides a place for the 
 community to provide their implementations of the interfaces. Registries built on top of kubernetes, zookeeper, etc. 
