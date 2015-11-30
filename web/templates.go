@@ -124,8 +124,8 @@ var (
 `
 
 	serviceTemplate = `
+{{define "title"}}Service {{with $svc := index . 0}}{{$svc.Name}}{{end}}{{end}}
 {{define "content"}}
-	<h3>Service {{with $svc := index . 0}}{{$svc.Name}}{{end}}</h3>
 	<h4>Nodes</h4>
 	{{range .}}
 	<h5>Version {{.Version}}</h5>
