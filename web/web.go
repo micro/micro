@@ -70,12 +70,13 @@ func formatEndpoint(v *registry.Value, r int) string {
 }
 
 func indexHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprint(w, indexTemplate)
+	render(w, r, indexTemplate, nil)
 }
 
 func registryHandler(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 	svc := r.Form.Get("service")
+
 	if len(svc) > 0 {
 		s, err := registry.GetService(svc)
 		if err != nil {
@@ -83,18 +84,20 @@ func registryHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		t, err := template.New("service").Funcs(template.FuncMap{
-			"format": format,
-		}).Parse(serviceTemplate)
-		if err != nil {
-			http.Error(w, "Error occurred:"+err.Error(), 500)
+		if r.Header.Get("Content-Type") == "application/json" {
+			b, err := json.Marshal(map[string]interface{}{
+				"services": s,
+			})
+			if err != nil {
+				http.Error(w, "Error occurred:"+err.Error(), 500)
+				return
+			}
+			w.Header().Set("Content-Type", "application/json")
+			w.Write(b)
 			return
 		}
 
-		if err := t.ExecuteTemplate(w, "T", s); err != nil {
-			http.Error(w, "Error occurred:"+err.Error(), 500)
-			return
-		}
+		render(w, r, serviceTemplate, s)
 		return
 	}
 
@@ -104,29 +107,24 @@ func registryHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	t, err := template.New("registry").Parse(registryTemplate)
-	if err != nil {
-		http.Error(w, "Error occurred:"+err.Error(), 500)
+	if r.Header.Get("Content-Type") == "application/json" {
+		b, err := json.Marshal(map[string]interface{}{
+			"services": services,
+		})
+		if err != nil {
+			http.Error(w, "Error occurred:"+err.Error(), 500)
+			return
+		}
+		w.Header().Set("Content-Type", "application/json")
+		w.Write(b)
 		return
 	}
 
-	if err := t.ExecuteTemplate(w, "T", services); err != nil {
-		http.Error(w, "Error occurred:"+err.Error(), 500)
-		return
-	}
+	render(w, r, registryTemplate, services)
 }
 
 func queryHandler(w http.ResponseWriter, r *http.Request) {
-	t, err := template.New("query").Parse(queryTemplate)
-	if err != nil {
-		http.Error(w, "Error occurred:"+err.Error(), 500)
-		return
-	}
-
-	if err := t.ExecuteTemplate(w, "T", nil); err != nil {
-		http.Error(w, "Error occurred:"+err.Error(), 500)
-		return
-	}
+	render(w, r, queryTemplate, nil)
 }
 
 func rpcHandler(w http.ResponseWriter, r *http.Request) {
@@ -190,6 +188,24 @@ func rpcHandler(w http.ResponseWriter, r *http.Request) {
 	b, _ := json.Marshal(response)
 	w.Header().Set("Content-Length", strconv.Itoa(len(b)))
 	w.Write(b)
+}
+
+func render(w http.ResponseWriter, r *http.Request, tmpl string, data interface{}) {
+	t, err := template.New("template").Funcs(template.FuncMap{
+		"format": format,
+	}).Parse(layoutTemplate)
+	if err != nil {
+		http.Error(w, "Error occurred:"+err.Error(), 500)
+		return
+	}
+	t, err = t.Parse(tmpl)
+	if err != nil {
+		http.Error(w, "Error occurred:"+err.Error(), 500)
+		return
+	}
+	if err := t.ExecuteTemplate(w, "layout", data); err != nil {
+		http.Error(w, "Error occurred:"+err.Error(), 500)
+	}
 }
 
 func run() {

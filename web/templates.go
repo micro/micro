@@ -1,161 +1,175 @@
 package web
 
 var (
-	indexTemplate = `
+	layoutTemplate = `
+{{define "layout"}}
 <html>
 	<head>
 		<title>Micro Web</title>
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
 		<style>
-			html {
-				font-family: helvetica;
-			}
+		{{ template "style" . }}
 		</style>
 	</head>
 	<body>
-		<h1>Micro Web</h1>
-		<h3><a href="registry">Registry</a></h3>
-		<h3><a href="query">Query</a></h3>
-	</body>
-</html>
-`
-	queryTemplate = `
-{{define "T"}}
-<html>
-	<head>
-		<title>Micro Web</title>
-		<style>
-			html {
-				font-family: helvetica;
-			}
-			div {
-				width: 45%;
-				display: inline-block;
-				height: 100%;
-			}
-			input, textarea {
-				width: 100%;
-			}
-			#pre {
-				float: right;
-			}
-			pre {
-				word-wrap: break-word;
-				padding: 10px;
-				border: 1px solid;
-			}
-		</style>
-	</head>
-	<body>
-		<h1>Micro Web</h1>
-		<h3>Query</h3>
-		<div>
-			<form id="query-form" onsubmit="return query();">
-				<p><input type=text name=service id=service placeholder=service /></p>
-				<p><input type=text name=method id=method placeholder=method /></p>
-				<p><textarea name=request id=request rows=30></textarea></p>
-				<p><button>Go!</button></p>
-			</form>
-		</div>
-		<div id="pre">
-			<pre id="response"></pre>
-		</div>
-		<script>
-			function query() {
-				var req = new XMLHttpRequest()
-				req.onreadystatechange = function() {
-					if (req.readyState == 4 && req.status == 200) {
-						document.getElementById("response").innerText = JSON.stringify(JSON.parse(req.responseText), null, 2);
-						console.log(req.responseText);
-					}
-				}
-				var request = {
-					"service": document.forms[0].elements["service"].value,
-					"method": document.forms[0].elements["method"].value,
-					"request": JSON.parse(document.forms[0].elements["request"].value)
-				}
-				req.open("POST", "/rpc", true);
-				req.setRequestHeader("Content-type","application/json");				
-				req.send(JSON.stringify(request));
-
-				return false;
-			};	
-		</script>
+	  <nav class="navbar navbar-inverse">
+	    <div class="container">
+	      <div class="navbar-header">
+		<a class="navbar-brand" href="/">Micro</a>
+	      </div>
+	    </div>
+	  </nav>
+          <div class="container">
+            <div class="row">
+	      <div class="col-sm-3">
+                <h4>&nbsp;</h4>
+	        <ul class="list-group">
+	          <li class="list-group-item"><a href="/">Home</a></li>
+	          <li class="list-group-item"><a href="registry">Registry</a></li>
+	          <li class="list-group-item"><a href="query">Query</a></li>
+	        </ul>
+	      </div>
+	      <div class="col-sm-9">
+	        <h1 class="page-header">{{ template "title" . }}</h1>
+                {{ template "content" . }}
+              </div>
+            </div>
+          </div>
+	  <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+	  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+	  {{template "script" . }}
 	</body>
 </html>
 {{end}}
+{{ define "style" }}{{end}}
+{{ define "script" }}{{end}}
+{{ define "title" }}{{end}}
+`
+
+	indexTemplate = `
+{{define "title"}}Welcome to Micro Web{{end}}
+{{define "content"}}
+<div>
+	<h3>There's not much to see here yet, check out the registry</h3>
+</div>
+{{end}}
+`
+	queryTemplate = `
+{{define "title"}}Query{{end}}
+{{define "style"}}
+	pre {
+		word-wrap: break-word;
+	}
+{{end}}
+{{define "content"}}
+<div class="row">
+	<div class="col-sm-5">
+		<form id="query-form" onsubmit="return query();">
+			<div class="form-group">
+				<label for="service">Service</label>
+				<input class="form-control" type=text name=service id=service />
+			</div>
+			<div class="form-group">
+				<label for="method">Method</label>
+				<input class="form-control" type=text name=method id=method />
+			</div>
+			<div class="form-group">
+				<label for="request">Request</label>
+				<textarea class="form-control" name=request id=request rows=15></textarea>
+			</div>
+			<div class="form-group">
+				<button class="btn btn-default">Go!</button>
+			</div>
+		</form>
+	</div>
+	<div class="col-sm-7">
+		<p><b>Response</b></p>
+		<pre id="response"></pre>
+	</div>
+</div>
+{{end}}
+{{define "script"}}
+	<script>
+		function query() {
+			var req = new XMLHttpRequest()
+			req.onreadystatechange = function() {
+				if (req.readyState == 4 && req.status == 200) {
+					document.getElementById("response").innerText = JSON.stringify(JSON.parse(req.responseText), null, 2);
+					console.log(req.responseText);
+				}
+			}
+			var request = {
+				"service": document.forms[0].elements["service"].value,
+				"method": document.forms[0].elements["method"].value,
+				"request": JSON.parse(document.forms[0].elements["request"].value)
+			}
+			req.open("POST", "/rpc", true);
+			req.setRequestHeader("Content-type","application/json");				
+			req.send(JSON.stringify(request));
+
+			return false;
+		};	
+	</script>
+{{end}}
 `
 	registryTemplate = `
-{{define "T"}}
-<html>
-	<head>
-		<title>Micro Web</title>
-		<style>
-			html {
-				font-family: helvetica;
-			}
-		</style>
-	</head>
-	<body>
-		<h1>Micro Web</h1>
-		<h3>Registry</h3>
-		<ul>
-			{{range .}}
-			<li><a href="registry?service={{.Name}}">{{.Name}}</a></li>
-			{{end}}
-		</ul>
-	</body>
-</html>
+{{define "title"}}Registry{{end}}
+{{define "content"}}
+	<ul class="list-group">
+		{{range .}}
+		<li class="list-group-item"><a href="registry?service={{.Name}}">{{.Name}}</a></li>
+		{{end}}
+	</ul>
 {{end}}
 `
 
 	serviceTemplate = `
-{{define "T"}}
-<html>
-	<head>
-		<title>Micro Web</title>
-		<style>
-			html {
-				font-family: helvetica;
-			}
-		</style>
-	</head>
-	<body>
-		<h1>Micro Web</h1>
-		<h3>Service {{with $svc := index . 0}}{{$svc.Name}}{{end}}</h3>
-		<h4>Nodes</h4>
-		{{range .}}
-		<h5>Version {{.Version}}</h5>
-		<table>
-			<thead>
-				<td>Id</td>
-				<td>Address</td>
-				<td>Port</td>
-				<td>Metadata</td>
-			<thead>
+{{define "content"}}
+	<h3>Service {{with $svc := index . 0}}{{$svc.Name}}{{end}}</h3>
+	<h4>Nodes</h4>
+	{{range .}}
+	<h5>Version {{.Version}}</h5>
+	<table class="table table-bordered table-striped">
+		<thead>
+			<th>Id</th>
+			<th>Address</th>
+			<th>Port</th>
+			<th>Metadata</th>
+		<thead>
+		<tbody>
+			{{range .Nodes}}
+			<tr>
+				<td>{{.Id}}</td>
+				<td>{{.Address}}</td>
+				<td>{{.Port}}</td>
+				<td>{{ range $key, $value := .Metadata }}{{$key}}={{$value}} {{end}}</td>
+			</tr>
+			{{end}}
+		</tbody>
+	</table>
+	{{end}}
+	<h4>Endpoints</h4>
+	<hr/>
+	{{with $svc := index . 0}}{{range $svc.Endpoints}}
+		<h4>{{.Name}}</h4>
+		<table class="table table-bordered">
 			<tbody>
-				{{range .Nodes}}
 				<tr>
-					<td>{{.Id}}</td>
-					<td>{{.Address}}</td>
-					<td>{{.Port}}</td>
+					<th class="col-sm-2" scope="row">Metadata</th>
 					<td>{{ range $key, $value := .Metadata }}{{$key}}={{$value}} {{end}}</td>
 				</tr>
-				{{end}}
+				<tr>
+					<th class="col-sm-2" scope="row">Request</th>
+					<td><pre>{{format .Request}}</pre></td>
+				</tr>
+				<tr>
+					<th class="col-sm-2" scope="row">Response</th>
+					<td><pre>{{format .Response}}</pre></td>
+				</tr>
 			</tbody>
 		</table>
-		{{end}}
-		<h4>Endpoints</h4>
-		{{with $svc := index . 0}}{{range $svc.Endpoints}}
-			Name: {{.Name}}</br>
-			Metadata: {{ range $key, $value := .Metadata }}{{$key}}={{$value}} {{end}}</br>
-			Request:</br>
-			<pre>{{format .Request}}</pre>
-			Response:</br>
-			<pre>{{format .Response}}</pre>
-		{{end}}
-		{{end}}
-	</body>
-</html>
+	{{end}}
+	{{end}}
 {{end}}
 
 `
