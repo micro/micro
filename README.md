@@ -181,6 +181,14 @@ GLOBAL OPTIONS:
    --help, -h	
 ```
 
+### Built in Web UI
+
+<img src="https://github.com/micro/micro/blob/master/web/web1.png">
+-
+<img src="https://github.com/micro/micro/blob/master/web/web2.png">
+-
+<img src="https://github.com/micro/micro/blob/master/web/web3.png">
+
 ## About Microservices
 Microservices is an architecture pattern used to decompose a single large application in to a smaller suite of services. Generally the goal is to create light weight services of 1000 lines of code or less. Each service alone provides a particular focused solution or set of solutions. These small services can be used as the foundational building blocks in the creation of a larger system.
 
