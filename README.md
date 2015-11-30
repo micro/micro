@@ -9,8 +9,38 @@ Examples of how to write a service in ruby or python can be found in [here](http
 - [Mailing List](https://groups.google.com/forum/#!forum/micro-services) 
 - [Slack](https://micro-services.slack.com) : [auto-invite](http://micro-invites.herokuapp.com/)
 
+Checkout the [roadmap](https://github.com/micro/micro/wiki/Roadmap)
+
 # Overview
-The goal of **Micro** is to provide a toolchain for microservice development and management. At the core, micro is simple and accessible enough that anyone can easily get started writing microservices. As you scale to hundreds of services, micro will provide the fundamental tools required to manage a microservice environment.
+The goal of **Micro** is to provide a toolkit for microservice development and management. At the core, micro is simple and accessible enough that anyone can easily get started writing microservices. As you scale to hundreds of services, micro will provide the fundamental tools required to manage a microservice environment.
+
+### Micro
+[link](https://github.com/micro/micro)
+
+Micro itself is the overarching toolkit and ecosystem
+
+### Go Micro
+[link](https://github.com/micro/go-micro)
+
+A pluggable Go framework for writing RPC based microservices. Go micro can be used standalone but fits into the bigger Micro ecosystem.
+
+### Go Platform
+[link](https://github.com/micro/go-platform)
+
+The go platform provides higher level libraries and services that can be integrated into a go-micro service. 
+Things like tracing, monitoring, dynamic configuration, etc. Again, pluggable like go-micro.
+
+### Go Plugins
+[link](https://github.com/micro/go-platform)
+
+By default Micro will only support 1 or 2 implementations of each interface. Go plugins provides a place for the 
+community to provide their implementations of the interfaces. Registries built on top of kubernetes, zookeeper, etc. 
+Transport using http2, broker using kafka, etc.
+
+### micro-services.co
+[link](https://micro-services.co)
+
+A place to share **micro** services. 
 
 ## Features
 
@@ -209,6 +239,3 @@ discovery.List() - List all servers
 - [Microservices: Decomposing Applications for Deployability and Scalability](http://www.slideshare.net/chris.e.richardson/microservices-decomposing-applications-for-deployability-and-scalability-jax) by Chris Richardson (Slides)
 - [4 reasons why microservices resonate](http://radar.oreilly.com/2015/04/4-reasons-why-microservices-resonate.html) by Neal Ford
 
-## Roadmap & Future work
-
-[go-platform](https://github.com/micro/go-platform)
