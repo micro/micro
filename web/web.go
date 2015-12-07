@@ -23,6 +23,13 @@ var (
 	Address = ":8082"
 )
 
+type server struct{}
+
+func (s *server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	http.DefaultServeMux.ServeHTTP(w, r)
+}
+
 func format(v *registry.Value) string {
 	if v == nil || len(v.Values) == 0 {
 		return "{}"
@@ -210,7 +217,7 @@ func run() {
 	http.HandleFunc("/rpc", rpcHandler)
 	http.HandleFunc("/query", queryHandler)
 
-	if err := http.ListenAndServe(Address, nil); err != nil {
+	if err := http.ListenAndServe(Address, &server{}); err != nil {
 		log.Fatal(err)
 	}
 }
