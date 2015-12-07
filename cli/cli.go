@@ -10,46 +10,38 @@ import (
 	"github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/registry"
 	"github.com/micro/go-micro/server/proto/health"
+	"github.com/serenize/snaker"
 
 	"golang.org/x/net/context"
 )
 
 func formatEndpoint(v *registry.Value, r int) string {
+	// default format is tabbed plus the value plus new line
+	fparts := []string{"", "%s %s", "\n"}
+	for i := 0; i < r+1; i++ {
+		fparts[0] += "\t"
+	}
+	// its just a primitive of sorts so return
 	if len(v.Values) == 0 {
-		fparts := []string{"\n", "{", "\n", "\t", "%s %s", "\n", "}"}
-		if r > 0 {
-			fparts = []string{"\n", "\t", "%s %s"}
-			for i := 0; i < r; i++ {
-				fparts[1] += "\t"
-			}
-		}
-		return fmt.Sprintf(strings.Join(fparts, ""), strings.ToLower(v.Name), v.Type)
+		return fmt.Sprintf(strings.Join(fparts, ""), snaker.CamelToSnake(v.Name), v.Type)
 	}
 
-	fparts := []string{"\n", "{", "\n", "\t", "%s %s", " {", "\n", "", "\n", "\t", "}", "\n", "}"}
-	i := 7
+	// this thing has more things, it's complex
+	fparts[1] += " {"
 
-	if r > 0 {
-		fparts = []string{"\n", "\t", "%s %s", " {", "\n", "\t", "\n", "\t", "}"}
-		i = 5
-	}
-
-	var app string
-	for j := 0; j < r; j++ {
-		if r > 0 {
-			fparts[1] += "\t"
-			fparts[7] += "\t"
-		}
-		app += "\t"
-	}
-	app += "\t%s"
-
-	vals := []interface{}{strings.ToLower(v.Name), v.Type}
+	vals := []interface{}{snaker.CamelToSnake(v.Name), v.Type}
 
 	for _, val := range v.Values {
-		fparts[i] += app
+		fparts = append(fparts, "%s")
 		vals = append(vals, formatEndpoint(val, r+1))
 	}
+
+	// at the end
+	l := len(fparts) - 1
+	for i := 0; i < r+1; i++ {
+		fparts[l] += "\t"
+	}
+	fparts = append(fparts, "}\n")
 
 	return fmt.Sprintf(strings.Join(fparts, ""), vals...)
 }
@@ -120,17 +112,25 @@ func registryCommands() []cli.Command {
 								meta = append(meta, k+"="+v)
 							}
 							if e.Request != nil && len(e.Request.Values) > 0 {
-								request = formatEndpoint(e.Request.Values[0], 0)
+								request = "{\n"
+								for _, v := range e.Request.Values {
+									request += formatEndpoint(v, 0)
+								}
+								request += "}"
 							} else {
-								request = " {}"
+								request = "{}"
 							}
 							if e.Response != nil && len(e.Response.Values) > 0 {
-								response = formatEndpoint(e.Response.Values[0], 0)
+								response = "{\n"
+								for _, v := range e.Response.Values {
+									response += formatEndpoint(v, 0)
+								}
+								response += "}"
 							} else {
-								response = " {}"
+								response = "{}"
 							}
 							fmt.Printf("\nEndpoint: %s\nMetadata: %s\n", e.Name, strings.Join(meta, ","))
-							fmt.Printf("Request:%s\nResponse:%s\n", request, response)
+							fmt.Printf("Request: %s\n\nResponse: %s\n", request, response)
 						}
 					},
 				},

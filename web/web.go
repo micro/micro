@@ -14,6 +14,7 @@ import (
 	"github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/errors"
 	"github.com/micro/go-micro/registry"
+	"github.com/serenize/snaker"
 
 	"golang.org/x/net/context"
 )
@@ -26,45 +27,40 @@ func format(v *registry.Value) string {
 	if v == nil || len(v.Values) == 0 {
 		return "{}"
 	}
-	return formatEndpoint(v.Values[0], 0)
+	var f []string
+	for _, k := range v.Values {
+		f = append(f, formatEndpoint(k, 0))
+	}
+	return fmt.Sprintf("{\n%s}", strings.Join(f, ""))
 }
 
 func formatEndpoint(v *registry.Value, r int) string {
+	// default format is tabbed plus the value plus new line
+	fparts := []string{"", "%s %s", "\n"}
+	for i := 0; i < r+1; i++ {
+		fparts[0] += "\t"
+	}
+	// its just a primitive of sorts so return
 	if len(v.Values) == 0 {
-		fparts := []string{"\n", "{", "\n", "\t", "%s %s", "\n", "}"}
-		if r > 0 {
-			fparts = []string{"\n", "\t", "%s %s"}
-			for i := 0; i < r; i++ {
-				fparts[1] += "\t"
-			}
-		}
-		return fmt.Sprintf(strings.Join(fparts, ""), strings.ToLower(v.Name), v.Type)
+		return fmt.Sprintf(strings.Join(fparts, ""), snaker.CamelToSnake(v.Name), v.Type)
 	}
 
-	fparts := []string{"\n", "{", "\n", "\t", "%s %s", " {", "\n", "", "\n", "\t", "}", "\n", "}"}
-	i := 7
+	// this thing has more things, it's complex
+	fparts[1] += " {"
 
-	if r > 0 {
-		fparts = []string{"\n", "\t", "%s %s", " {", "\n", "\t", "\n", "\t", "}"}
-		i = 5
-	}
-
-	var app string
-	for j := 0; j < r; j++ {
-		if r > 0 {
-			fparts[1] += "\t"
-			fparts[7] += "\t"
-		}
-		app += "\t"
-	}
-	app += "\t%s"
-
-	vals := []interface{}{strings.ToLower(v.Name), v.Type}
+	vals := []interface{}{snaker.CamelToSnake(v.Name), v.Type}
 
 	for _, val := range v.Values {
-		fparts[i] += app
+		fparts = append(fparts, "%s")
 		vals = append(vals, formatEndpoint(val, r+1))
 	}
+
+	// at the end
+	l := len(fparts) - 1
+	for i := 0; i < r+1; i++ {
+		fparts[l] += "\t"
+	}
+	fparts = append(fparts, "}\n")
 
 	return fmt.Sprintf(strings.Join(fparts, ""), vals...)
 }
