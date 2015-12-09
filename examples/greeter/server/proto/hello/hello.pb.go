@@ -60,7 +60,7 @@ var _ server.Option
 // Client API for Say service
 
 type SayClient interface {
-	Hello(ctx context.Context, in *Request) (*Response, error)
+	Hello(ctx context.Context, in *Request, opts ...client.CallOption) (*Response, error)
 }
 
 type sayClient struct {
@@ -81,10 +81,10 @@ func NewSayClient(serviceName string, c client.Client) SayClient {
 	}
 }
 
-func (c *sayClient) Hello(ctx context.Context, in *Request) (*Response, error) {
+func (c *sayClient) Hello(ctx context.Context, in *Request, opts ...client.CallOption) (*Response, error) {
 	req := c.c.NewRequest(c.serviceName, "Say.Hello", in)
 	out := new(Response)
-	err := c.c.Call(ctx, req, out)
+	err := c.c.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
 	}
