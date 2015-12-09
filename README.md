@@ -36,8 +36,7 @@ Feature		|	Description
 [Go-micro](https://github.com/micro/go-micro) is a pluggable Go framework for writing RPC based microservices. Go micro can be used standalone but fits into the bigger Micro ecosystem.
 
 ### Go Platform
-The [go-platform](https://github.com/micro/go-platform) provides higher level libraries and services that can be integrated into a go-micro service. 
-Things like tracing, monitoring, dynamic configuration, etc. Again, pluggable like go-micro.
+[Go-platform](https://github.com/micro/go-platform) provides higher level libraries and services that can be integrated into a go-micro service. Things like tracing, monitoring, dynamic configuration, etc. Again, pluggable like go-micro.
 
 ### Go Plugins
 [Go-plugins](https://github.com/micro/go-plugins) provides a place for the community to provide their implementations of the interfaces. 
