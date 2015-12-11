@@ -71,6 +71,56 @@ func registryCommands() []cli.Command {
 			},
 		},
 		{
+			Name:  "register",
+			Usage: "Register an item in the registry",
+			Subcommands: []cli.Command{
+				{
+					Name:  "service",
+					Usage: "Register a service with JSON definition",
+					Action: func(c *cli.Context) {
+						if len(c.Args()) != 1 {
+							fmt.Println("require service definition")
+							return
+						}
+						var service *registry.Service
+						if err := json.Unmarshal([]byte(c.Args().First()), &service); err != nil {
+							fmt.Println(err.Error())
+							return
+						}
+						if err := registry.Register(service); err != nil {
+							fmt.Println(err.Error())
+							return
+						}
+					},
+				},
+			},
+		},
+		{
+			Name:  "deregister",
+			Usage: "Deregister an item in the registry",
+			Subcommands: []cli.Command{
+				{
+					Name:  "service",
+					Usage: "Deregister a service with JSON definition",
+					Action: func(c *cli.Context) {
+						if len(c.Args()) != 1 {
+							fmt.Println("require service definition")
+							return
+						}
+						var service *registry.Service
+						if err := json.Unmarshal([]byte(c.Args().First()), &service); err != nil {
+							fmt.Println(err.Error())
+							return
+						}
+						if err := registry.Deregister(service); err != nil {
+							fmt.Println(err.Error())
+							return
+						}
+					},
+				},
+			},
+		},
+		{
 			Name:  "get",
 			Usage: "Get item from registry",
 			Subcommands: []cli.Command{

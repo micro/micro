@@ -73,6 +73,23 @@ node		address:port		status
 go.micro.srv.example-fccbb6fb-0301-11e5-9f1f-68a86d0d36b6		[::]:62421		ok
 ```
 
+### Register/Deregister with the CLI
+```shell
+$ micro register service '{"name": "foo", "version": "bar", "nodes": [{"id": "foo-1", "address": "127.0.0.1", "port": 8080}]}'
+
+$ micro get service foo
+service  foo
+
+version  bar
+
+Id    Address    Port    Metadata
+foo-1    127.0.0.1    8080
+
+$ micro deregister service '{"name": "foo", "version": "bar", "nodes": [{"id": "foo-1", "address": "127.0.0.1", "port": 8080}]}'
+$ micro get service foo
+Service not found
+```
+
 ### Run the API
 ```shell
 $ micro api
