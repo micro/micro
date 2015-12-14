@@ -1,7 +1,7 @@
 # Micro - a microservices ecosystem
 The goal of **Micro** is to provide an ecosystem of tools and services for microservice development and management. At the core, the toolkit is simple and accessible enough that anyone can easily get started writing microservices. As you scale to hundreds of services, micro will provide the fundamental tools required to manage a microservice environment.
 
-Checkout the [roadmap](https://github.com/micro/micro/wiki/Roadmap) to see where it's all going.
+Checkout the [roadmap](roadmap.md) to see where it's all going.
 
 # Overview
 
