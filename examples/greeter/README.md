@@ -49,8 +49,15 @@ I0523 12:23:23.414355   81384 rpc_server.go:112] Listening on [::]:51938
 I0523 12:23:23.414399   81384 server.go:95] Registering node: go.micro.api-1f951765-013e-11e5-9273-68a86d0d36b6
 ```
 
-Test via Curl
+Test API via Curl
 ```
 curl http://localhost:8080/greeter/say/hello?name=John
 {"message":"go.micro.srv.greeter-c2770c77-013e-11e5-b4d6-68a86d0d36b6: Hello John"}
 ```
+
+Test RPC via Curl
+```
+curl -d 'service=go.micro.srv.greeter' -d 'method=Say.Hello' -d 'request={"name": "john"}' http://localhost:8080/rpc
+{"msg":"go.micro.srv.greeter-c2770c77-013e-11e5-b4d6-68a86d0d36b6: Hello john"}
+```
+
