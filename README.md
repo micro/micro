@@ -15,6 +15,16 @@ Checkout the [roadmap](https://github.com/micro/micro/wiki/Roadmap)
 The goal of **Micro** is to provide a toolkit for microservice development and management. At the core, micro is simple and accessible enough that anyone can easily get started writing microservices. As you scale to hundreds of services, micro will provide the fundamental tools required to manage a microservice environment.
 
 ![Micro](https://github.com/micro/micro/blob/master/doc/micro.png)
+-
+
+![Overview1](https://github.com/micro/micro/blob/master/doc/overview1.png)
+-
+
+![Overview2](https://github.com/micro/micro/blob/master/doc/overview2.png)
+-
+
+![Overview3](https://github.com/micro/micro/blob/master/doc/overview3.png)
+-
 
 ## Features
 
