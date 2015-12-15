@@ -17,15 +17,6 @@ The goal of **Micro** is to provide a toolkit for microservice development and m
 ![Micro](https://github.com/micro/micro/blob/master/doc/micro.png)
 -
 
-![Overview1](https://github.com/micro/micro/blob/master/doc/overview1.png)
--
-
-![Overview2](https://github.com/micro/micro/blob/master/doc/overview2.png)
--
-
-![Overview3](https://github.com/micro/micro/blob/master/doc/overview3.png)
--
-
 ## Features
 
 Feature		|	Description
@@ -38,6 +29,17 @@ Feature		|	Description
 [CLI](https://github.com/micro/micro/tree/master/cli) | Command line interface
 [Sidecar](https://github.com/micro/micro/tree/master/car) | Integrate any application into the Micro ecosystem
 [Web UI](https://github.com/micro/micro/tree/master/web) | Simple 90s style dashboard to view and query services
+
+## Architecture
+
+![Overview1](https://github.com/micro/micro/blob/master/doc/overview1.png)
+-
+
+![Overview2](https://github.com/micro/micro/blob/master/doc/overview2.png)
+-
+
+![Overview3](https://github.com/micro/micro/blob/master/doc/overview3.png)
+-
 
 ## Projects
 
