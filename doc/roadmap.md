@@ -55,6 +55,9 @@ The micro ecosystem is rapidly growing but there's still a lot to do.
   * Cleanup send/receive semantics - is it concurrent?
 6. Codec
   * Improve codec interface
+7. Bidirectional streaming
+  [ ] Client
+  [ ] Server
 
 ## [Go Platform](https://github.com/micro/go-platform)
 
