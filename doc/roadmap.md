@@ -56,8 +56,10 @@ The micro ecosystem is rapidly growing but there's still a lot to do.
 6. Codec
   * Improve codec interface
 7. Bidirectional streaming
-  [ ] Client
-  [ ] Server
+  [x] Client
+  [x] Server
+  [x] Code generation for streaming interface
+  [x] Examples
 
 ## [Go Platform](https://github.com/micro/go-platform)
 
