@@ -98,7 +98,15 @@ type SayHandler interface {
 }
 
 func RegisterSayHandler(s server.Server, hdlr SayHandler) {
-	s.Handle(s.NewHandler(hdlr))
+	s.Handle(s.NewHandler(&sayHandler{hdlr}))
+}
+
+type sayHandler struct {
+	SayHandler
+}
+
+func (h *sayHandler) Hello(ctx context.Context, in *Request, out *Response) error {
+	return h.SayHandler.Hello(ctx, in, out)
 }
 
 var fileDescriptor0 = []byte{
