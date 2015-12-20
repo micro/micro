@@ -41,6 +41,7 @@ The micro ecosystem is rapidly growing but there's still a lot to do.
   * [x] Experimental generator [github.com/micro/protobuf](https://github.com/micro/protobuf)
   * [x] Example usage
     * [Client](https://github.com/micro/go-micro/tree/master/examples/client/codegen)
+    * [Server](https://github.com/micro/go-micro/tree/master/examples/server/codegen)
   * [x] Server side generator
   * [ ] Stable interface
 3. Registry
