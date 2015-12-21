@@ -30,18 +30,20 @@ The micro ecosystem is rapidly growing but there's still a lot to do.
 
 ## [Go Micro](https://github.com/micro/go-micro)
 
+* [ ] Top level initialisation
+
 1. Middleware/Wrappers
   * [x] [Server](https://github.com/micro/go-micro/blob/master/server/server_wrapper.go)
   * [x] [Client](https://github.com/micro/go-micro/blob/master/client/client_wrapper.go)
   * [x] Example implementations
-    * [Client](https://github.com/micro/go-micro/tree/master/examples/client/wrapper)
-    * [Server](https://github.com/micro/go-micro/blob/master/examples/server/main.go#L12L28)
+    * [x] [Client](https://github.com/micro/go-micro/tree/master/examples/client/wrapper)
+    * [x] [Server](https://github.com/micro/go-micro/blob/master/examples/server/main.go#L12L28)
   * [ ] Plugins e.g. trace, monitoring, logging
 2. Code generation
   * [x] Experimental generator [github.com/micro/protobuf](https://github.com/micro/protobuf)
   * [x] Example usage
-    * [Client](https://github.com/micro/go-micro/tree/master/examples/client/codegen)
-    * [Server](https://github.com/micro/go-micro/tree/master/examples/server/codegen)
+    * [x] [Client](https://github.com/micro/go-micro/tree/master/examples/client/codegen)
+    * [x] [Server](https://github.com/micro/go-micro/tree/master/examples/server/codegen)
   * [x] Server side generator
   * [ ] Stable interface
 3. Registry
@@ -49,13 +51,14 @@ The micro ecosystem is rapidly growing but there's still a lot to do.
   * [ ] Healthchecking function to renew registry lease
   * [x] Service/Node filters - known as a [Selector](https://github.com/micro/go-micro/blob/master/selector)
   * [x] Fix the watch code to return a channel with updates rather than store in memory
+  * [x] Add timeout option for querying
 4. Broker
-  * Support acking of messages
-  * Support concurrency with options
+  * [ ] Support acking of messages
+  * [ ] Support concurrency with options
 5. Transport
-  * Cleanup send/receive semantics - is it concurrent?
+  * [ ] Cleanup send/receive semantics - is it concurrent?
 6. Codec
-  * Improve codec interface
+  * [ ] Improve codec interface
 7. Bidirectional streaming
   * [x] Client
   * [x] Server
@@ -75,6 +78,9 @@ Overview
   * [ ] Heartbeating the registry
 2. Routing
   * [ ] MPLS style label based routing 
+  * [ ] Circuit breakers
+  * [ ] Rate limiting
+  * [ ] Weighted loadbalancing
 3. Key-Value
   * [x] Implement interface
   * [x] Memcache implementation
