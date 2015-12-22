@@ -6,24 +6,32 @@ import (
 	"html/template"
 	"io/ioutil"
 	"net/http"
+	"net/http/httputil"
+	"regexp"
 	"strconv"
 	"strings"
 
 	"github.com/codegangsta/cli"
 	log "github.com/golang/glog"
+	"github.com/gorilla/mux"
 	"github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/errors"
 	"github.com/micro/go-micro/registry"
+	"github.com/micro/go-micro/selector"
 	"github.com/serenize/snaker"
 
 	"golang.org/x/net/context"
 )
 
 var (
-	Address = ":8082"
+	re        = regexp.MustCompile("^[a-zA-Z0-9]+$")
+	Address   = ":8082"
+	Namespace = "go.micro.web"
 )
 
-type server struct{}
+type server struct {
+	*mux.Router
+}
 
 func (s *server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if origin := r.Header.Get("Origin"); origin != "" {
@@ -37,7 +45,37 @@ func (s *server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	http.DefaultServeMux.ServeHTTP(w, r)
+	s.Router.ServeHTTP(w, r)
+}
+
+func (s *server) proxy() http.Handler {
+	sel := selector.NewSelector(
+		selector.Registry(registry.DefaultRegistry),
+	)
+
+	director := func(r *http.Request) {
+		parts := strings.Split(r.URL.Path, "/")
+		if len(parts) < 2 {
+			return
+		}
+		if !re.MatchString(parts[1]) {
+			return
+		}
+		next, err := sel.Select(Namespace + "." + parts[1])
+		if err != nil {
+			return
+		}
+		r.URL.Scheme = "http"
+		s, err := next()
+		if err != nil {
+			return
+		}
+		r.URL.Host = fmt.Sprintf("%s:%d", s.Address, s.Port)
+		r.URL.Path = "/" + strings.Join(parts[2:], "/")
+	}
+	return &httputil.ReverseProxy{
+		Director: director,
+	}
 }
 
 func format(v *registry.Value) string {
@@ -222,12 +260,15 @@ func render(w http.ResponseWriter, r *http.Request, tmpl string, data interface{
 }
 
 func run() {
-	http.HandleFunc("/", indexHandler)
-	http.HandleFunc("/registry", registryHandler)
-	http.HandleFunc("/rpc", rpcHandler)
-	http.HandleFunc("/query", queryHandler)
+	r := mux.NewRouter()
+	s := &server{r}
+	s.HandleFunc("/", indexHandler)
+	s.HandleFunc("/registry", registryHandler)
+	s.HandleFunc("/rpc", rpcHandler)
+	s.HandleFunc("/query", queryHandler)
+	s.PathPrefix("/{service:[a-zA-Z0-9]+}").Handler(s.proxy())
 
-	if err := http.ListenAndServe(Address, &server{}); err != nil {
+	if err := http.ListenAndServe(Address, s); err != nil {
 		log.Fatal(err)
 	}
 }
