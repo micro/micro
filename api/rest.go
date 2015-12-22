@@ -84,7 +84,7 @@ func requestToProto(r *http.Request) (*api.Request, error) {
 
 	// Pass through custom headers
 	for key, vals := range r.Header {
-		if !strings.HasPrefix(key, CustomHeaderPrefix) {
+		if !strings.HasPrefix(key, HeaderPrefix) {
 			continue
 		}
 		header, ok := req.Header[key]

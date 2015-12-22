@@ -24,11 +24,11 @@ type ApiServer struct {
 }
 
 var (
-	Address            = ":8080"
-	RpcPath            = "/rpc"
-	HttpPath           = "/"
-	Namespace          = "go.micro.api"
-	CustomHeaderPrefix = "X-Micro-"
+	Address      = ":8080"
+	RpcPath      = "/rpc"
+	HttpPath     = "/"
+	Namespace    = "go.micro.api"
+	HeaderPrefix = "X-Micro-"
 )
 
 func run() {
