@@ -10,7 +10,7 @@ import (
 	"syscall"
 	"time"
 
-	"code.google.com/p/go-uuid/uuid"
+	"github.com/pborman/uuid"
 	"github.com/codegangsta/cli"
 	log "github.com/golang/glog"
 	"github.com/micro/go-micro/registry"
