@@ -53,7 +53,8 @@ The micro ecosystem is rapidly growing but there's still a lot to do.
   * [x] Fix the watch code to return a channel with updates rather than store in memory
   * [x] Add timeout option for querying
 4. Broker
-  * [ ] Support acking of messages
+  * [x] Support distributed queuing
+  * [x] Support acking of messages
   * [ ] Support concurrency with options
 5. Transport
   * [ ] Cleanup send/receive semantics - is it concurrent?
