@@ -234,12 +234,12 @@ func (c *conn) write(mType int, data []byte) error {
 func (c *conn) writeLoop() {
 	ticker := time.NewTicker(pingTime)
 
-	subscriber, err := broker.Subscribe(c.topic, func(msg *broker.Message) {
-		b, err := json.Marshal(msg)
+	subscriber, err := broker.Subscribe(c.topic, func(p broker.Publication) error {
+		b, err := json.Marshal(p.Message())
 		if err != nil {
-			return
+			return nil
 		}
-		c.write(websocket.TextMessage, b)
+		return c.write(websocket.TextMessage, b)
 	})
 
 	defer func() {

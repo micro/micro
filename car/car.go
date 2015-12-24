@@ -10,10 +10,10 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/pborman/uuid"
 	"github.com/codegangsta/cli"
 	log "github.com/golang/glog"
 	"github.com/micro/go-micro/registry"
+	"github.com/pborman/uuid"
 )
 
 var (
