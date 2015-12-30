@@ -5,7 +5,7 @@ The micro ecosystem is rapidly growing but there's still a lot to do.
 ## [Micro](https://github.com/micro/micro)
 
 1. API
-  * Allow requests directly to RPC services via path (/greeter/say/hello => service: greeter method: Say.Hello)  
+  * [x] Allow requests directly to RPC services via path (/greeter/say/hello => service: greeter method: Say.Hello)  
   * Allow REST requests to RPC based services
   * Make the choice a flag/env var
   * Configurable hostnames
@@ -13,7 +13,7 @@ The micro ecosystem is rapidly growing but there's still a lot to do.
   * Support label based routing
   * Support weighted load balancing
 2. Web
-  * Proxy requests to "web" micro services
+  * [x] Proxy requests to "web" micro services
   * List "web" micro services on home screen
   * CLI interface in Web UI
 3. Sidecar
@@ -47,17 +47,17 @@ The micro ecosystem is rapidly growing but there's still a lot to do.
   * [x] Server side generator
   * [ ] Stable interface
 3. Registry
-  * [ ] Support Service TTLs on registration so services can be automatically removed
-  * [ ] Healthchecking function to renew registry lease
+  * [x] Support Service TTLs on registration so services can be automatically removed
+  * [x] Healthchecking function to renew registry lease
   * [x] Service/Node filters - known as a [Selector](https://github.com/micro/go-micro/blob/master/selector)
   * [x] Fix the watch code to return a channel with updates rather than store in memory
   * [x] Add timeout option for querying
 4. Broker
   * [x] Support distributed queuing
   * [x] Support acking of messages
-  * [ ] Support concurrency with options
+  * [x] Support concurrency with options
 5. Transport
-  * [ ] Cleanup send/receive semantics - is it concurrent?
+  * [x] Cleanup send/receive semantics - is it concurrent?
 6. Codec
   * [ ] Improve codec interface
 7. Bidirectional streaming
@@ -72,11 +72,11 @@ Overview
   * [ ] Define the interfaces for every package
   * [ ] Provide documentation for go-platform's usage
   * [ ] Provide easy initialisation and wrapping for go-micro client/server
-  * [ ] Implement trace and monitoring first
+  * [x] Implement trace and monitoring first
 
 1. Discovery
-  * [ ] In memory catching using registry watch
-  * [ ] Heartbeating the registry
+  * [x] In memory catching using registry watch
+  * [x] Heartbeating the registry
 2. Routing
   * [ ] MPLS style label based routing 
   * [ ] Circuit breakers
@@ -88,11 +88,11 @@ Overview
   * [x] Redis contribution
   * [x] In memory implement
 4. Trace
-  * [ ] Implement interface
-  * [ ] Pub/Sub based tracing
+  * [x] Implement interface
+  * [x] Pub/Sub based tracing
 5. Monitor
-  * [ ] Implement interface
-  * [ ] Custom healthcheck types
+  * [x] Implement interface
+  * [x] Custom healthcheck types
 
 ## [Go Plugins](https://github.com/micro/go-plugins)
 
