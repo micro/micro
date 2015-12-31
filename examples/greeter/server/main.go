@@ -14,7 +14,7 @@ type Say struct{}
 func (s *Say) Hello(ctx context.Context, req *hello.Request, rsp *hello.Response) error {
 	log.Info("Received Say.Hello request")
 
-	rsp.Msg = server.Config().Id() + ": Hello " + req.Name
+	rsp.Msg = server.DefaultOptions().Id + ": Hello " + req.Name
 
 	return nil
 }
