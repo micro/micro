@@ -10,8 +10,8 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/codegangsta/cli"
 	log "github.com/golang/glog"
+	"github.com/micro/cli"
 	"github.com/micro/go-micro/registry"
 	"github.com/pborman/uuid"
 )

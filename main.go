@@ -1,7 +1,7 @@
 package main
 
 import (
-	ccli "github.com/codegangsta/cli"
+	ccli "github.com/micro/cli"
 	"github.com/micro/go-micro/cmd"
 	"github.com/micro/micro/api"
 	"github.com/micro/micro/car"
@@ -10,15 +10,16 @@ import (
 )
 
 func main() {
-	app := ccli.NewApp()
-	app.Name = "micro"
-	app.Usage = "A microservices toolchain"
-	app.HideVersion = true
+	micro := cmd.NewCmd(
+		cmd.Name("micro"),
+		cmd.Description("A microservices toolchain"),
+		cmd.Version("latest"),
+	)
+	app := micro.App()
 	app.Commands = append(app.Commands, api.Commands()...)
 	app.Commands = append(app.Commands, cli.Commands()...)
 	app.Commands = append(app.Commands, car.Commands()...)
 	app.Commands = append(app.Commands, web.Commands()...)
-	app.Flags = cmd.Flags
-	app.Before = cmd.Setup
-	app.RunAndExitOnError()
+	app.Action = func(context *ccli.Context) { ccli.ShowAppHelp(context) }
+	micro.Init()
 }

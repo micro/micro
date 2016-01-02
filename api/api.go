@@ -8,8 +8,8 @@ import (
 	"strconv"
 	"sync"
 
-	"github.com/codegangsta/cli"
 	log "github.com/golang/glog"
+	"github.com/micro/cli"
 	"github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/errors"
 	"github.com/micro/go-micro/server"

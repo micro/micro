@@ -6,7 +6,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/codegangsta/cli"
+	"github.com/micro/cli"
 	"github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/registry"
 	"github.com/micro/go-micro/server/proto/health"

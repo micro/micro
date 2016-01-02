@@ -11,9 +11,9 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/codegangsta/cli"
 	log "github.com/golang/glog"
 	"github.com/gorilla/mux"
+	"github.com/micro/cli"
 	"github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/errors"
 	"github.com/micro/go-micro/registry"
