@@ -98,14 +98,14 @@ type SayHandler interface {
 }
 
 func RegisterSayHandler(s server.Server, hdlr SayHandler) {
-	s.Handle(s.NewHandler(&sayHandler{hdlr}))
+	s.Handle(s.NewHandler(&Say{hdlr}))
 }
 
-type sayHandler struct {
+type Say struct {
 	SayHandler
 }
 
-func (h *sayHandler) Hello(ctx context.Context, in *Request, out *Response) error {
+func (h *Say) Hello(ctx context.Context, in *Request, out *Response) error {
 	return h.SayHandler.Hello(ctx, in, out)
 }
 

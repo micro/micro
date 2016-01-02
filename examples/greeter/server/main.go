@@ -1,42 +1,34 @@
 package main
 
 import (
-	"code.google.com/p/go.net/context"
-
 	log "github.com/golang/glog"
-	"github.com/micro/go-micro/cmd"
-	"github.com/micro/go-micro/server"
+	"github.com/micro/go-micro"
 	hello "github.com/micro/micro/examples/greeter/server/proto/hello"
+
+	"golang.org/x/net/context"
 )
 
 type Say struct{}
 
 func (s *Say) Hello(ctx context.Context, req *hello.Request, rsp *hello.Response) error {
 	log.Info("Received Say.Hello request")
-
-	rsp.Msg = server.DefaultOptions().Id + ": Hello " + req.Name
-
+	rsp.Msg = "Hello " + req.Name
 	return nil
 }
 
 func main() {
-	// optionally setup command line usage
-	cmd.Init()
-
-	// Initialise Server
-	server.Init(
-		server.Name("go.micro.srv.greeter"),
+	service := micro.NewService(
+		micro.Name("go.micro.srv.greeter"),
 	)
+
+	// optionally setup command line usage
+	service.Init()
 
 	// Register Handlers
-	server.Handle(
-		server.NewHandler(
-			new(Say),
-		),
-	)
+	hello.RegisterSayHandler(service.Server(), new(Say))
 
 	// Run server
-	if err := server.Run(); err != nil {
+	if err := service.Run(); err != nil {
 		log.Fatal(err)
 	}
 }
