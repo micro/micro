@@ -30,7 +30,7 @@ The micro ecosystem is rapidly growing but there's still a lot to do.
 
 ## [Go Micro](https://github.com/micro/go-micro)
 
-* [ ] Top level initialisation
+* [x] Top level initialisation
 
 1. Middleware/Wrappers
   * [x] [Server](https://github.com/micro/go-micro/blob/master/server/server_wrapper.go)
