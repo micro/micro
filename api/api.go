@@ -1,26 +1,20 @@
 package api
 
 import (
-	"encoding/json"
-	"io/ioutil"
-	"net"
-	"net/http"
-	"strconv"
-	"sync"
-
 	log "github.com/golang/glog"
 	"github.com/micro/cli"
-	"github.com/micro/go-micro/client"
-	"github.com/micro/go-micro/errors"
-	"github.com/micro/go-micro/server"
-
-	"golang.org/x/net/context"
+	"github.com/micro/go-micro"
 )
 
-type ApiServer struct {
-	mtx     sync.RWMutex
-	address string
-	exit    chan chan error
+// API interface represents our API server.
+// It should provide the facility to server HTTP requests,
+// forward on to the appropriate services and return a
+// response.
+type API interface {
+	Address() string
+	Init() error
+	Start() error
+	Stop() error
 }
 
 var (
@@ -32,14 +26,14 @@ var (
 )
 
 func run() {
-	// Initialise Server
-	server.Init(
-		server.Name("go.micro.api"),
-	)
-
 	// Init API
 	api := New(Address)
 	api.Init()
+
+	// Initialise Server
+	service := micro.NewService(
+		micro.Name("go.micro.api"),
+	)
 
 	// Start API
 	if err := api.Start(); err != nil {
@@ -47,7 +41,7 @@ func run() {
 	}
 
 	// Run server
-	if err := server.Run(); err != nil {
+	if err := service.Run(); err != nil {
 		log.Fatal(err)
 	}
 
@@ -57,116 +51,8 @@ func run() {
 	}
 }
 
-func (s *ApiServer) Address() string {
-	s.mtx.RLock()
-	defer s.mtx.RUnlock()
-	return s.address
-}
-
-func (s *ApiServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	if r.Method != "POST" {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-	defer r.Body.Close()
-
-	var service, method string
-	var request interface{}
-
-	// response content type
-	w.Header().Set("Content-Type", "application/json")
-
-	switch r.Header.Get("Content-Type") {
-	case "application/json":
-		b, err := ioutil.ReadAll(r.Body)
-		if err != nil {
-			e := errors.BadRequest("go.micro.api", err.Error())
-			w.WriteHeader(400)
-			w.Write([]byte(e.Error()))
-			return
-		}
-
-		var body map[string]interface{}
-		err = json.Unmarshal(b, &body)
-		if err != nil {
-			e := errors.BadRequest("go.micro.api", err.Error())
-			w.WriteHeader(400)
-			w.Write([]byte(e.Error()))
-			return
-		}
-
-		service = body["service"].(string)
-		method = body["method"].(string)
-		request = body["request"]
-	default:
-		r.ParseForm()
-		service = r.Form.Get("service")
-		method = r.Form.Get("method")
-		json.Unmarshal([]byte(r.Form.Get("request")), &request)
-	}
-
-	log.Infof("API Request: /rpc service: %s, method: %s", service, method)
-	var response map[string]interface{}
-	req := client.NewJsonRequest(service, method, request)
-	err := client.Call(context.Background(), req, &response)
-	if err != nil {
-		log.Errorf("Error calling %s.%s: %v", service, method, err)
-		ce := errors.Parse(err.Error())
-		switch ce.Code {
-		case 0:
-			w.WriteHeader(500)
-		default:
-			w.WriteHeader(int(ce.Code))
-		}
-		w.Write([]byte(ce.Error()))
-		return
-	}
-
-	b, _ := json.Marshal(response)
-	w.Header().Set("Content-Length", strconv.Itoa(len(b)))
-	w.Write(b)
-}
-
-func (s *ApiServer) Init() error {
-	log.Infof("API Rpc handler %s", RpcPath)
-	http.Handle(RpcPath, s)
-	http.HandleFunc(HttpPath, restHandler)
-	return nil
-}
-
-func (s *ApiServer) Start() error {
-	l, err := net.Listen("tcp", s.address)
-	if err != nil {
-		return err
-	}
-
-	log.Infof("Listening on %s", l.Addr().String())
-
-	s.mtx.Lock()
-	s.address = l.Addr().String()
-	s.mtx.Unlock()
-
-	go http.Serve(l, nil)
-
-	go func() {
-		ch := <-s.exit
-		ch <- l.Close()
-	}()
-
-	return nil
-}
-
-func (s *ApiServer) Stop() error {
-	ch := make(chan error)
-	s.exit <- ch
-	return <-ch
-}
-
-func New(address string) *ApiServer {
-	return &ApiServer{
-		address: address,
-		exit:    make(chan chan error),
-	}
+func New(address string) API {
+	return newApiServer(address)
 }
 
 func Commands() []cli.Command {
