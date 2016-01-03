@@ -14,7 +14,7 @@ The micro ecosystem is rapidly growing but there's still a lot to do.
   * Support weighted load balancing
 2. Web
   * [x] Proxy requests to "web" micro services
-  * List "web" micro services on home screen
+  * [x] List "web" micro services on home screen
   * CLI interface in Web UI
 3. Sidecar
   * Raise awareness for non Go native app usage
