@@ -1,6 +1,11 @@
 # Micro Web
 
-A ultra simplistic 90s style web UI to view services
+Micro web provides a visual point of entry for the micro environment and should replicate 
+the features of the CLI.
+
+It also includes a reverse proxy to route requests to micro web 
+apps. /[name] will proxy to the service [namespace].[name]. The default namespace is 
+go.micro.web.
 
 ## Run Web UI
 ```bash

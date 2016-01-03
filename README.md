@@ -28,7 +28,7 @@ Feature		|	Description
 [API Gateway](https://github.com/micro/micro/tree/master/api) | Lightweight gateway/proxy. Convert http requests to rpc
 [CLI](https://github.com/micro/micro/tree/master/cli) | Command line interface
 [Sidecar](https://github.com/micro/micro/tree/master/car) | Integrate any application into the Micro ecosystem
-[Web UI](https://github.com/micro/micro/tree/master/web) | Simple 90s style dashboard to view and query services
+[Web UI/Proxy](https://github.com/micro/micro/tree/master/web) | A visual way to view, query and reverse proxy to services
 
 ## Architecture
 
@@ -152,7 +152,7 @@ USAGE:
    micro [global options] command [command options] [arguments...]
    
 VERSION:
-   0.0.0
+   latest
    
 COMMANDS:
    api		Run the micro API
@@ -160,6 +160,8 @@ COMMANDS:
    query	Query a service method using rpc
    health	Query the health of a service
    list		List items in registry
+   register	Register an item in the registry
+   deregister	Deregister an item in the registry
    get		Get item from registry
    sidecar	Run the micro sidecar
    web		Run the micro web app
@@ -167,14 +169,17 @@ COMMANDS:
    
 GLOBAL OPTIONS:
    --server_name 								Name of the server. go.micro.srv.example [$MICRO_SERVER_NAME]
+   --server_version 								Version of the server. 1.1.0 [$MICRO_SERVER_VERSION]
    --server_id 									Id of the server. Auto-generated if not specified [$MICRO_SERVER_ID]
-   --server_address ":0"							Bind address for the server. 127.0.0.1:8080 [$MICRO_SERVER_ADDRESS]
+   --server_address 								Bind address for the server. 127.0.0.1:8080 [$MICRO_SERVER_ADDRESS]
+   --server_advertise 								Used instead of the server_address when registering with discovery. 127.0.0.1:8080 [$MICRO_SERVER_ADVERTISE]
    --server_metadata [--server_metadata option --server_metadata option]	A list of key-value pairs defining metadata. version=1.0.0 [$MICRO_SERVER_METADATA]
-   --broker "http"								Broker for pub/sub. http, nats, etc [$MICRO_BROKER]
+   --broker 									Broker for pub/sub. http, nats, rabbitmq [$MICRO_BROKER]
    --broker_address 								Comma-separated list of broker addresses [$MICRO_BROKER_ADDRESS]
-   --registry "consul"								Registry for discovery. kubernetes, consul, etc [$MICRO_REGISTRY]
+   --registry 									Registry for discovery. memory, consul, etcd, kubernetes [$MICRO_REGISTRY]
    --registry_address 								Comma-separated list of registry addresses [$MICRO_REGISTRY_ADDRESS]
-   --transport "http"								Transport mechanism used; http, rabbitmq, etc [$MICRO_TRANSPORT]
+   --selector 									Selector used to pick nodes for querying. random, roundrobin, blacklist [$MICRO_SELECTOR]
+   --transport 									Transport mechanism used; http, rabbitmq, nats [$MICRO_TRANSPORT]
    --transport_address 								Comma-separated list of transport addresses [$MICRO_TRANSPORT_ADDRESS]
    --logtostderr								log to standard error instead of files
    --alsologtostderr								log to standard error as well as files
@@ -183,7 +188,9 @@ GLOBAL OPTIONS:
    -v 										log level for V logs
    --vmodule 									comma-separated list of pattern=N settings for file-filtered logging
    --log_backtrace_at 								when logging hits line file:N, emit a stack trace
-   --help, -h	
+   --help, -h									show help
+   --version									print the version
+   
 ```
 
 ### Built in Web UI
