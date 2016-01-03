@@ -9,8 +9,6 @@ Examples of how to write a service in ruby or python can be found in [here](http
 - [Mailing List](https://groups.google.com/forum/#!forum/micro-services) 
 - [Slack](https://micro-services.slack.com) : [auto-invite](http://micro-invites.herokuapp.com/)
 
-Checkout the [roadmap](https://github.com/micro/micro/wiki/Roadmap)
-
 # Overview
 The goal of **Micro** is to provide a toolkit for microservice development and management. At the core, micro is simple and accessible enough that anyone can easily get started writing microservices. As you scale to hundreds of services, micro will provide the fundamental tools required to manage a microservice environment.
 
