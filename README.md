@@ -28,7 +28,7 @@ Feature		|	Description
 [API Gateway](https://github.com/micro/micro/tree/master/api) | Lightweight gateway/proxy. Convert http requests to rpc
 [CLI](https://github.com/micro/micro/tree/master/cli) | Command line interface
 [Sidecar](https://github.com/micro/micro/tree/master/car) | Integrate any application into the Micro ecosystem
-[Web UI/Proxy](https://github.com/micro/micro/tree/master/web) | A visual way to view, query and reverse proxy to services
+[Web UI/Proxy](https://github.com/micro/micro/tree/master/web) | A visual way to view and query services
 
 ## Architecture
 
