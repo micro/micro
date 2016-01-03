@@ -49,9 +49,17 @@ var (
 	indexTemplate = `
 {{define "title"}}Welcome to Micro Web{{end}}
 {{define "content"}}
-<div>
-	<h3>There's not much to see here yet, check out the registry</h3>
-</div>
+	{{if .HasWebServices}}
+		<ul class="list-group">
+			{{range .WebServices}}
+			<li class="list-group-item"><a href="/{{.}}">{{.}}</a></li>
+			{{end}}
+		</ul>
+	{{else}}
+		<div class="alert alert-info" role="alert">
+			<strong>No web services found</strong>
+		</div>
+	{{end}}
 {{end}}
 `
 	queryTemplate = `

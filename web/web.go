@@ -121,7 +121,26 @@ func formatEndpoint(v *registry.Value, r int) string {
 }
 
 func indexHandler(w http.ResponseWriter, r *http.Request) {
-	render(w, r, indexTemplate, nil)
+	services, err := registry.ListServices()
+	if err != nil {
+		http.Error(w, "Error occurred:"+err.Error(), 500)
+		return
+	}
+
+	var webServices []string
+	for _, s := range services {
+		if strings.Index(s.Name, Namespace) == 0 {
+			webServices = append(webServices, strings.Replace(s.Name, Namespace+".", "", 1))
+		}
+	}
+
+	type templateData struct {
+		HasWebServices bool
+		WebServices    []string
+	}
+
+	data := templateData{len(webServices) > 0, webServices}
+	render(w, r, indexTemplate, data)
 }
 
 func registryHandler(w http.ResponseWriter, r *http.Request) {
