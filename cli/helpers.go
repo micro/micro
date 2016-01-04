@@ -7,7 +7,6 @@ import (
 	"strings"
 
 	"github.com/micro/cli"
-	"github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/cmd"
 	"github.com/micro/go-micro/registry"
 	"github.com/micro/go-micro/server/proto/health"
@@ -159,8 +158,8 @@ func queryService(c *cli.Context) {
 	var request map[string]interface{}
 	var response map[string]interface{}
 	json.Unmarshal([]byte(strings.Join(c.Args()[2:], " ")), &request)
-	req := client.NewJsonRequest(service, method, request)
-	err := client.Call(context.Background(), req, &response)
+	req := (*cmd.DefaultOptions().Client).NewJsonRequest(service, method, request)
+	err := (*cmd.DefaultOptions().Client).Call(context.Background(), req, &response)
 	if err != nil {
 		fmt.Printf("error calling %s.%s: %v\n", service, method, err)
 		return
@@ -183,7 +182,7 @@ func queryHealth(c *cli.Context) {
 		fmt.Println("Service not found")
 		return
 	}
-	req := client.NewRequest(service[0].Name, "Debug.Health", &health.Request{})
+	req := (*cmd.DefaultOptions().Client).NewRequest(service[0].Name, "Debug.Health", &health.Request{})
 	fmt.Printf("service  %s\n\n", service[0].Name)
 	for _, serv := range service {
 		fmt.Println("\nversion ", serv.Version)
@@ -194,7 +193,7 @@ func queryHealth(c *cli.Context) {
 				address = fmt.Sprintf("%s:%d", address, node.Port)
 			}
 			rsp := &health.Response{}
-			err := client.CallRemote(context.Background(), address, req, rsp)
+			err := (*cmd.DefaultOptions().Client).CallRemote(context.Background(), address, req, rsp)
 			var status string
 			if err != nil {
 				status = err.Error()

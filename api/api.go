@@ -25,7 +25,7 @@ var (
 	HeaderPrefix = "X-Micro-"
 )
 
-func run() {
+func run(ctx *cli.Context) {
 	// Init API
 	api := New(Address)
 	api.Init()
@@ -58,11 +58,9 @@ func New(address string) API {
 func Commands() []cli.Command {
 	return []cli.Command{
 		{
-			Name:  "api",
-			Usage: "Run the micro API",
-			Action: func(c *cli.Context) {
-				run()
-			},
+			Name:   "api",
+			Usage:  "Run the micro API",
+			Action: run,
 		},
 	}
 }
