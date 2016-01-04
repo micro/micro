@@ -287,6 +287,8 @@ func run() {
 	s.HandleFunc("/query", queryHandler)
 	s.PathPrefix("/{service:[a-zA-Z0-9]+}").Handler(s.proxy())
 
+	log.Infof("Listening on %s", Address)
+
 	if err := http.ListenAndServe(Address, s); err != nil {
 		log.Fatal(err)
 	}
