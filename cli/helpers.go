@@ -8,6 +8,7 @@ import (
 
 	"github.com/micro/cli"
 	"github.com/micro/go-micro/client"
+	"github.com/micro/go-micro/cmd"
 	"github.com/micro/go-micro/registry"
 	"github.com/micro/go-micro/server/proto/health"
 	"github.com/serenize/snaker"
@@ -47,7 +48,7 @@ func formatEndpoint(v *registry.Value, r int) string {
 }
 
 func listServices(c *cli.Context) {
-	rsp, err := registry.ListServices()
+	rsp, err := (*cmd.DefaultOptions().Registry).ListServices()
 	if err != nil {
 		fmt.Println(err.Error())
 		return
@@ -69,7 +70,7 @@ func registerService(c *cli.Context) {
 		fmt.Println(err.Error())
 		return
 	}
-	if err := registry.Register(service); err != nil {
+	if err := (*cmd.DefaultOptions().Registry).Register(service); err != nil {
 		fmt.Println(err.Error())
 		return
 	}
@@ -85,7 +86,7 @@ func deregisterService(c *cli.Context) {
 		fmt.Println(err.Error())
 		return
 	}
-	if err := registry.Deregister(service); err != nil {
+	if err := (*cmd.DefaultOptions().Registry).Deregister(service); err != nil {
 		fmt.Println(err.Error())
 		return
 	}
@@ -96,7 +97,7 @@ func getService(c *cli.Context) {
 		fmt.Println("Service required")
 		return
 	}
-	service, err := registry.GetService(c.Args().First())
+	service, err := (*cmd.DefaultOptions().Registry).GetService(c.Args().First())
 	if err != nil {
 		fmt.Println(err.Error())
 		return
@@ -173,7 +174,7 @@ func queryHealth(c *cli.Context) {
 		fmt.Println("require service name")
 		return
 	}
-	service, err := registry.GetService(c.Args().First())
+	service, err := (*cmd.DefaultOptions().Registry).GetService(c.Args().First())
 	if err != nil {
 		fmt.Println(err.Error())
 		return

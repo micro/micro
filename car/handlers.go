@@ -11,7 +11,7 @@ import (
 	log "github.com/golang/glog"
 	"github.com/gorilla/websocket"
 	"github.com/micro/go-micro/broker"
-	"github.com/micro/go-micro/client"
+	"github.com/micro/go-micro/cmd"
 	"github.com/micro/go-micro/errors"
 	"github.com/micro/go-micro/registry"
 
@@ -54,7 +54,7 @@ func addService(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), 500)
 		return
 	}
-	err = registry.Register(service)
+	err = (*cmd.DefaultOptions().Registry).Register(service)
 	if err != nil {
 		http.Error(w, err.Error(), 500)
 		return
@@ -76,7 +76,7 @@ func delService(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), 500)
 		return
 	}
-	err = registry.Deregister(service)
+	err = (*cmd.DefaultOptions().Registry).Deregister(service)
 	if err != nil {
 		http.Error(w, err.Error(), 500)
 		return
@@ -90,7 +90,7 @@ func getService(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Require service", 400)
 		return
 	}
-	s, err := registry.GetService(service)
+	s, err := (*cmd.DefaultOptions().Registry).GetService(service)
 	if err != nil {
 		http.Error(w, err.Error(), 500)
 		return
@@ -152,8 +152,8 @@ func rpcHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var response map[string]interface{}
-	req := client.NewJsonRequest(service, method, request)
-	err := client.Call(context.Background(), req, &response)
+	req := (*cmd.DefaultOptions().Client).NewJsonRequest(service, method, request)
+	err := (*cmd.DefaultOptions().Client).Call(context.Background(), req, &response)
 	if err != nil {
 		log.Errorf("Error calling %s.%s: %v", service, method, err)
 		ce := errors.Parse(err.Error())
@@ -192,8 +192,8 @@ func brokerHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	once.Do(func() {
-		broker.Init()
-		broker.Connect()
+		(*cmd.DefaultOptions().Broker).Init()
+		(*cmd.DefaultOptions().Broker).Connect()
 	})
 
 	c := &conn{
@@ -222,7 +222,7 @@ func (c *conn) readLoop() {
 		if err != nil {
 			return
 		}
-		broker.Publish(c.topic, &broker.Message{Body: message})
+		(*cmd.DefaultOptions().Broker).Publish(c.topic, &broker.Message{Body: message})
 	}
 }
 
@@ -234,7 +234,7 @@ func (c *conn) write(mType int, data []byte) error {
 func (c *conn) writeLoop() {
 	ticker := time.NewTicker(pingTime)
 
-	subscriber, err := broker.Subscribe(c.topic, func(p broker.Publication) error {
+	subscriber, err := (*cmd.DefaultOptions().Broker).Subscribe(c.topic, func(p broker.Publication) error {
 		b, err := json.Marshal(p.Message())
 		if err != nil {
 			return nil

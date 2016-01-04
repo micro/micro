@@ -12,6 +12,7 @@ import (
 
 	log "github.com/golang/glog"
 	"github.com/micro/cli"
+	"github.com/micro/go-micro/cmd"
 	"github.com/micro/go-micro/registry"
 	"github.com/pborman/uuid"
 )
@@ -62,11 +63,11 @@ func (s *Sidecar) hcLoop(service *registry.Service, exitCh chan bool) {
 			_, err := s.hc()
 			if err != nil && registered {
 				log.Infof("Healthcheck error. Deregistering %v", service.Nodes[0].Id)
-				registry.Deregister(service)
+				(*cmd.DefaultOptions().Registry).Deregister(service)
 				registered = false
 			} else if err == nil && !registered {
 				log.Infof("Healthcheck success. Registering %v", service.Nodes[0].Id)
-				registry.Register(service)
+				(*cmd.DefaultOptions().Registry).Register(service)
 				registered = true
 			}
 		case <-exitCh:
@@ -123,7 +124,7 @@ func (s *Sidecar) run() {
 	}
 
 	log.Infof("Registering %s", node.Id)
-	registry.Register(service)
+	(*cmd.DefaultOptions().Registry).Register(service)
 
 	if len(s.hcUrl) > 0 {
 		log.Info("Starting sidecar healthchecker")

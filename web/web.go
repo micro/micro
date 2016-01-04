@@ -14,7 +14,7 @@ import (
 	log "github.com/golang/glog"
 	"github.com/gorilla/mux"
 	"github.com/micro/cli"
-	"github.com/micro/go-micro/client"
+	"github.com/micro/go-micro/cmd"
 	"github.com/micro/go-micro/errors"
 	"github.com/micro/go-micro/registry"
 	"github.com/micro/go-micro/selector"
@@ -50,7 +50,7 @@ func (s *server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 func (s *server) proxy() http.Handler {
 	sel := selector.NewSelector(
-		selector.Registry(registry.DefaultRegistry),
+		selector.Registry((*cmd.DefaultOptions().Registry)),
 	)
 
 	director := func(r *http.Request) {
@@ -121,7 +121,7 @@ func formatEndpoint(v *registry.Value, r int) string {
 }
 
 func indexHandler(w http.ResponseWriter, r *http.Request) {
-	services, err := registry.ListServices()
+	services, err := (*cmd.DefaultOptions().Registry).ListServices()
 	if err != nil {
 		http.Error(w, "Error occurred:"+err.Error(), 500)
 		return
@@ -148,7 +148,7 @@ func registryHandler(w http.ResponseWriter, r *http.Request) {
 	svc := r.Form.Get("service")
 
 	if len(svc) > 0 {
-		s, err := registry.GetService(svc)
+		s, err := (*cmd.DefaultOptions().Registry).GetService(svc)
 		if err != nil {
 			http.Error(w, "Error occurred:"+err.Error(), 500)
 			return
@@ -171,7 +171,7 @@ func registryHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	services, err := registry.ListServices()
+	services, err := (*cmd.DefaultOptions().Registry).ListServices()
 	if err != nil {
 		http.Error(w, "Error occurred:"+err.Error(), 500)
 		return
@@ -240,8 +240,8 @@ func rpcHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var response map[string]interface{}
-	req := client.NewJsonRequest(service, method, request)
-	err := client.Call(context.Background(), req, &response)
+	req := (*cmd.DefaultOptions().Client).NewJsonRequest(service, method, request)
+	err := (*cmd.DefaultOptions().Client).Call(context.Background(), req, &response)
 	if err != nil {
 		log.Errorf("Error calling %s.%s: %v", service, method, err)
 		ce := errors.Parse(err.Error())

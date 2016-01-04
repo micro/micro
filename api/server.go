@@ -9,7 +9,7 @@ import (
 	"sync"
 
 	log "github.com/golang/glog"
-	"github.com/micro/go-micro/client"
+	"github.com/micro/go-micro/cmd"
 	"github.com/micro/go-micro/errors"
 
 	"golang.org/x/net/context"
@@ -78,8 +78,8 @@ func (s *ApiServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	log.Infof("API Request: /rpc service: %s, method: %s", service, method)
 	var response map[string]interface{}
-	req := client.NewJsonRequest(service, method, request)
-	err := client.Call(context.Background(), req, &response)
+	req := (*cmd.DefaultOptions().Client).NewJsonRequest(service, method, request)
+	err := (*cmd.DefaultOptions().Client).Call(context.Background(), req, &response)
 	if err != nil {
 		log.Errorf("Error calling %s.%s: %v", service, method, err)
 		ce := errors.Parse(err.Error())

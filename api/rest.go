@@ -8,7 +8,7 @@ import (
 	"path"
 	"strings"
 
-	"github.com/micro/go-micro/client"
+	"github.com/micro/go-micro/cmd"
 	"github.com/micro/go-micro/errors"
 	api "github.com/micro/micro/api/proto"
 
@@ -111,9 +111,9 @@ func restHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	service, method := pathToReceiver(r.URL.Path)
-	req := client.NewRequest(service, method, request)
+	req := (*cmd.DefaultOptions().Client).NewRequest(service, method, request)
 	rsp := &api.Response{}
-	if err := client.Call(context.Background(), req, rsp); err != nil {
+	if err := (*cmd.DefaultOptions().Client).Call(context.Background(), req, rsp); err != nil {
 		w.Header().Set("Content-Type", "application/json")
 		ce := errors.Parse(err.Error())
 		switch ce.Code {

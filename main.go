@@ -45,13 +45,7 @@ func setup(app *ccli.App) {
 }
 
 func main() {
-	micro := cmd.NewCmd(
-		cmd.Name("micro"),
-		cmd.Description("A microservices toolkit"),
-		cmd.Version("latest"),
-	)
-
-	app := micro.App()
+	app := cmd.App()
 	app.Commands = append(app.Commands, api.Commands()...)
 	app.Commands = append(app.Commands, cli.Commands()...)
 	app.Commands = append(app.Commands, car.Commands()...)
@@ -59,5 +53,10 @@ func main() {
 	app.Action = func(context *ccli.Context) { ccli.ShowAppHelp(context) }
 
 	setup(app)
-	micro.Init()
+
+	cmd.Init(
+		cmd.Name("micro"),
+		cmd.Description("A microservices toolkit"),
+		cmd.Version("latest"),
+	)
 }
