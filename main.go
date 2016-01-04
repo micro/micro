@@ -47,7 +47,7 @@ func setup(app *ccli.App) {
 func main() {
 	micro := cmd.NewCmd(
 		cmd.Name("micro"),
-		cmd.Description("A microservices toolchain"),
+		cmd.Description("A microservices toolkit"),
 		cmd.Version("latest"),
 	)
 
