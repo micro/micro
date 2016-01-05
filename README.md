@@ -61,7 +61,6 @@ top of kubernetes, zookeeper, etc. Transport using http2, broker using kafka, et
 ## Example Services
 Project		|	Description
 -----		|	------
-
 [greeter](https://github.com/micro/micro/tree/master/examples/greeter)	|	A greeter service (includes Go, Ruby, Python examples)
 [geo-srv](https://github.com/micro/geo-srv)	|	Geolocation tracking service using hailocab/go-geoindex
 [geo-api](https://github.com/micro/geo-api)	|	A HTTP API handler for geo location tracking and search
