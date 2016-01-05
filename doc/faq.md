@@ -19,3 +19,21 @@ You can find a guide to getting started writing apps [**here**](https://github.c
 Once you have an app running you can use the [**CLI**](https://github.com/micro/micro/tree/master/cli) to query it and also the [**Web UI**](https://github.com/micro/micro/tree/master/web).
 
 There's also docker images on [Docker Hub](https://hub.docker.com/r/microhq/).
+
+## Can I use something besides Consul?
+
+Yes! The registry for service discovery is completely pluggable as is every other package. Consul was used as the default due to its features and simplicity.
+
+As an example. If you would like to use etcd, import the plugin and set the command line flags on your binary.
+
+```go
+import (
+	_ "github.com/micro/go-plugins/registry/etcd"
+)
+```
+
+```shell
+my_service --registry=etcd --registry_address=127.0.0.1:2379
+```
+
+
