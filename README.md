@@ -44,6 +44,12 @@ Project		|	Description
 [twitter-srv](https://github.com/micro/twitter-srv)	|	A microservice for the twitter API
 [user-srv](https://github.com/micro/user-srv)	|	A microservice for user management and authentication
 
+## Community Contributions
+
+Project		|	Description
+-----		|	------
+[Micro Dashboard](https://github.com/Margatroid/micro-dashboard)	|	Dashboard for microservices toolchain micro
+
 ## Architecture
 
 ![Overview1](https://github.com/micro/micro/blob/master/doc/overview1.png)
