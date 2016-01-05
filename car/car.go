@@ -14,6 +14,7 @@ import (
 	"github.com/micro/cli"
 	"github.com/micro/go-micro/cmd"
 	"github.com/micro/go-micro/registry"
+	"github.com/micro/micro/internal/handler"
 	"github.com/pborman/uuid"
 )
 
@@ -26,6 +27,13 @@ type Sidecar struct {
 	address string
 	hcUrl   string
 }
+
+var (
+	BrokerPath   = "/broker"
+	HealthPath   = "/health"
+	RegistryPath = "/registry"
+	RPCPath      = "/rpc"
+)
 
 func run() {
 	sc := New("", "", "")
@@ -77,27 +85,22 @@ func (s *Sidecar) hcLoop(service *registry.Service, exitCh chan bool) {
 }
 
 func (s *Sidecar) serve() {
-	http.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
+	log.Infof("Registering Health handler at %s", HealthPath)
+	http.HandleFunc(HealthPath, func(w http.ResponseWriter, r *http.Request) {
 		if c, err := s.hc(); err != nil {
 			http.Error(w, err.Error(), c)
 			return
 		}
 	})
 
-	http.HandleFunc("/registry", func(w http.ResponseWriter, r *http.Request) {
-		switch r.Method {
-		case "GET":
-			getService(w, r)
-		case "POST":
-			addService(w, r)
-		case "DELETE":
-			delService(w, r)
-		}
-	})
+	log.Infof("Registering Registry handler at %s", RegistryPath)
+	http.HandleFunc(RegistryPath, handler.Registry)
 
-	http.HandleFunc("/rpc", rpcHandler)
+	log.Infof("Registering RPC handler at %s", RPCPath)
+	http.HandleFunc(RPCPath, handler.RPC)
 
-	http.HandleFunc("/broker", brokerHandler)
+	log.Infof("Registering Broker handler at %s", BrokerPath)
+	http.HandleFunc(BrokerPath, handler.Broker)
 
 	log.Infof("Listening on %s", Address)
 	if err := http.ListenAndServe(Address, nil); err != nil {

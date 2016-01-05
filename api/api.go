@@ -1,9 +1,12 @@
 package api
 
 import (
+	"net/http"
+
 	log "github.com/golang/glog"
 	"github.com/micro/cli"
 	"github.com/micro/go-micro"
+	"github.com/micro/micro/internal/handler"
 )
 
 // API interface represents our API server.
@@ -13,14 +16,15 @@ import (
 type API interface {
 	Address() string
 	Init() error
+	Handle(path string, handler http.Handler)
 	Start() error
 	Stop() error
 }
 
 var (
 	Address      = ":8080"
-	RpcPath      = "/rpc"
-	HttpPath     = "/"
+	RPCPath      = "/rpc"
+	APIPath      = "/"
 	Namespace    = "go.micro.api"
 	HeaderPrefix = "X-Micro-"
 )
@@ -29,6 +33,11 @@ func run(ctx *cli.Context) {
 	// Init API
 	api := New(Address)
 	api.Init()
+
+	log.Infof("Registering RPC Handler at %s", RPCPath)
+	api.Handle(RPCPath, http.HandlerFunc(handler.RPC))
+	log.Infof("Registering API Handler at %s", APIPath)
+	api.Handle(APIPath, http.HandlerFunc(restHandler))
 
 	// Initialise Server
 	service := micro.NewService(

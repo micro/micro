@@ -4,23 +4,19 @@ import (
 	"encoding/json"
 	"fmt"
 	"html/template"
-	"io/ioutil"
 	"net/http"
 	"net/http/httputil"
 	"regexp"
-	"strconv"
 	"strings"
 
 	log "github.com/golang/glog"
 	"github.com/gorilla/mux"
 	"github.com/micro/cli"
 	"github.com/micro/go-micro/cmd"
-	"github.com/micro/go-micro/errors"
 	"github.com/micro/go-micro/registry"
 	"github.com/micro/go-micro/selector"
+	"github.com/micro/micro/internal/handler"
 	"github.com/serenize/snaker"
-
-	"golang.org/x/net/context"
 )
 
 var (
@@ -197,69 +193,6 @@ func queryHandler(w http.ResponseWriter, r *http.Request) {
 	render(w, r, queryTemplate, nil)
 }
 
-func rpcHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method != "POST" {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-	defer r.Body.Close()
-
-	var service, method string
-	var request interface{}
-
-	// response content type
-	w.Header().Set("Content-Type", "application/json")
-
-	switch r.Header.Get("Content-Type") {
-	case "application/json":
-		b, err := ioutil.ReadAll(r.Body)
-		if err != nil {
-			e := errors.BadRequest("go.micro.api", err.Error())
-			w.WriteHeader(400)
-			w.Write([]byte(e.Error()))
-			return
-		}
-
-		var body map[string]interface{}
-		err = json.Unmarshal(b, &body)
-		if err != nil {
-			e := errors.BadRequest("go.micro.api", err.Error())
-			w.WriteHeader(400)
-			w.Write([]byte(e.Error()))
-			return
-		}
-
-		service = body["service"].(string)
-		method = body["method"].(string)
-		request = body["request"]
-	default:
-		r.ParseForm()
-		service = r.Form.Get("service")
-		method = r.Form.Get("method")
-		json.Unmarshal([]byte(r.Form.Get("request")), &request)
-	}
-
-	var response map[string]interface{}
-	req := (*cmd.DefaultOptions().Client).NewJsonRequest(service, method, request)
-	err := (*cmd.DefaultOptions().Client).Call(context.Background(), req, &response)
-	if err != nil {
-		log.Errorf("Error calling %s.%s: %v", service, method, err)
-		ce := errors.Parse(err.Error())
-		switch ce.Code {
-		case 0:
-			w.WriteHeader(500)
-		default:
-			w.WriteHeader(int(ce.Code))
-		}
-		w.Write([]byte(ce.Error()))
-		return
-	}
-
-	b, _ := json.Marshal(response)
-	w.Header().Set("Content-Length", strconv.Itoa(len(b)))
-	w.Write(b)
-}
-
 func render(w http.ResponseWriter, r *http.Request, tmpl string, data interface{}) {
 	t, err := template.New("template").Funcs(template.FuncMap{
 		"format": format,
@@ -281,11 +214,11 @@ func render(w http.ResponseWriter, r *http.Request, tmpl string, data interface{
 func run() {
 	r := mux.NewRouter()
 	s := &server{r}
-	s.HandleFunc("/", indexHandler)
 	s.HandleFunc("/registry", registryHandler)
-	s.HandleFunc("/rpc", rpcHandler)
+	s.HandleFunc("/rpc", handler.RPC)
 	s.HandleFunc("/query", queryHandler)
 	s.PathPrefix("/{service:[a-zA-Z0-9]+}").Handler(s.proxy())
+	s.HandleFunc("/", indexHandler)
 
 	log.Infof("Listening on %s", Address)
 
