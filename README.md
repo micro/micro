@@ -28,6 +28,22 @@ Feature		|	Description
 [Sidecar](https://github.com/micro/micro/tree/master/car) | Integrate any application into the Micro ecosystem
 [Web UI/Proxy](https://github.com/micro/micro/tree/master/web) | A visual way to view and query services
 
+## Example Services
+Project		|	Description
+-----		|	------
+[greeter](https://github.com/micro/micro/tree/master/examples/greeter)	|	A greeter service (includes Go, Ruby, Python examples)
+[geo-srv](https://github.com/micro/geo-srv)	|	Geolocation tracking service using hailocab/go-geoindex
+[geo-api](https://github.com/micro/geo-api)	|	A HTTP API handler for geo location tracking and search
+[discovery-srv](https://github.com/micro/discovery-srv)	|	A discovery in the micro platform
+[geocode-srv](https://github.com/micro/geocode-srv)	|	A geocoding service using the Google Geocoding API
+[hailo-srv](https://github.com/micro/hailo-srv)	|	A service for the hailo taxi service developer api
+[monitoring-srv](https://github.com/micro/monitoring-srv)	|	A monitoring service for Micro services
+[place-srv](https://github.com/micro/place-srv)	|	A microservice to store and retrieve places (includes Google Place Search API)
+[slack-srv](https://github.com/micro/slack-srv)	|	The slack bot API as a go-micro RPC service
+[trace-srv](https://github.com/micro/trace-srv)	|	A distributed tracing microservice in the realm of dapper, zipkin, etc
+[twitter-srv](https://github.com/micro/twitter-srv)	|	A microservice for the twitter API
+[user-srv](https://github.com/micro/user-srv)	|	A microservice for user management and authentication
+
 ## Architecture
 
 ![Overview1](https://github.com/micro/micro/blob/master/doc/overview1.png)
@@ -58,25 +74,21 @@ top of kubernetes, zookeeper, etc. Transport using http2, broker using kafka, et
 ### micro-services.co
 [Micro-services.co](https://micro-services.co) is a place to share **micro** services. 
 
-## Example Services
-Project		|	Description
------		|	------
-[greeter](https://github.com/micro/micro/tree/master/examples/greeter)	|	A greeter service (includes Go, Ruby, Python examples)
-[geo-srv](https://github.com/micro/geo-srv)	|	Geolocation tracking service using hailocab/go-geoindex
-[geo-api](https://github.com/micro/geo-api)	|	A HTTP API handler for geo location tracking and search
-[discovery-srv](https://github.com/micro/discovery-srv)	|	A discovery in the micro platform
-[geocode-srv](https://github.com/micro/geocode-srv)	|	A geocoding service using the Google Geocoding API
-[hailo-srv](https://github.com/micro/hailo-srv)	|	A service for the hailo taxi service developer api
-[monitoring-srv](https://github.com/micro/monitoring-srv)	|	A monitoring service for Micro services
-[place-srv](https://github.com/micro/place-srv)	|	A microservice to store and retrieve places (includes Google Place Search API)
-[slack-srv](https://github.com/micro/slack-srv)	|	The slack bot API as a go-micro RPC service
-[trace-srv](https://github.com/micro/trace-srv)	|	A distributed tracing microservice in the realm of dapper, zipkin, etc
-[twitter-srv](https://github.com/micro/twitter-srv)	|	A microservice for the twitter API
-[user-srv](https://github.com/micro/user-srv)	|	A microservice for user management and authentication
+### Built in Web UI
+
+<img src="https://github.com/micro/micro/blob/master/web/web1.png">
+-
+<img src="https://github.com/micro/micro/blob/master/web/web2.png">
+-
+<img src="https://github.com/micro/micro/blob/master/web/web3.png">
 
 ## Getting Started
 
-### Install
+### Writing a service
+
+Learn how to write and run a microservice using [**go-micro**](https://github.com/micro/go-micro)
+
+### Install Micro
 
 ```shell
 $ go get github.com/micro/micro
@@ -146,10 +158,7 @@ $ micro query go.micro.srv.greeter Say.Hello '{"name": "John"}'
 
 ```
 
-Read more on how to use Micro [here](https://github.com/micro/micro/tree/master/cli)
-
-Learn how to write and run a microservice using Go-Micro [here](https://github.com/micro/go-micro)
-
+Read more on how to use the Micro [CLI](https://github.com/micro/micro/tree/master/cli)
 
 ### Usage
 
@@ -201,14 +210,6 @@ GLOBAL OPTIONS:
    --version									print the version
    
 ```
-
-### Built in Web UI
-
-<img src="https://github.com/micro/micro/blob/master/web/web1.png">
--
-<img src="https://github.com/micro/micro/blob/master/web/web2.png">
--
-<img src="https://github.com/micro/micro/blob/master/web/web3.png">
 
 ## About Microservices
 Microservices is an architecture pattern used to decompose a single large application in to a smaller suite of services. Generally the goal is to create light weight services of 1000 lines of code or less. Each service alone provides a particular focused solution or set of solutions. These small services can be used as the foundational building blocks in the creation of a larger system.
