@@ -9,7 +9,7 @@ import (
 	"github.com/micro/cli"
 	"github.com/micro/go-micro/cmd"
 	"github.com/micro/go-micro/registry"
-	"github.com/micro/go-micro/server/proto/health"
+	proto "github.com/micro/go-micro/server/debug/proto"
 	"github.com/serenize/snaker"
 
 	"golang.org/x/net/context"
@@ -182,7 +182,7 @@ func queryHealth(c *cli.Context) {
 		fmt.Println("Service not found")
 		return
 	}
-	req := (*cmd.DefaultOptions().Client).NewRequest(service[0].Name, "Debug.Health", &health.Request{})
+	req := (*cmd.DefaultOptions().Client).NewRequest(service[0].Name, "Debug.Health", &proto.HealthRequest{})
 	fmt.Printf("service  %s\n\n", service[0].Name)
 	for _, serv := range service {
 		fmt.Println("\nversion ", serv.Version)
@@ -192,7 +192,7 @@ func queryHealth(c *cli.Context) {
 			if node.Port > 0 {
 				address = fmt.Sprintf("%s:%d", address, node.Port)
 			}
-			rsp := &health.Response{}
+			rsp := &proto.HealthResponse{}
 			err := (*cmd.DefaultOptions().Client).CallRemote(context.Background(), address, req, rsp)
 			var status string
 			if err != nil {
