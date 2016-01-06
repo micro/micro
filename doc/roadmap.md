@@ -6,20 +6,26 @@ The micro ecosystem is rapidly growing but there's still a lot to do.
 
 1. API
   * [x] Allow requests directly to RPC services via path (/greeter/say/hello => service: greeter method: Say.Hello)  
-  * Allow REST requests to RPC based services
-  * Make the choice a flag/env var
-  * Configurable hostnames
-  * Configurable namespace for services
-  * Support label based routing
-  * Support weighted load balancing
+  * [ ] Allow REST requests to RPC based services
+  * [ ] Make the choice a flag/env var
+  * [ ] Configurable hostnames
+  * [ ] Configurable namespace for services
+  * [ ] Support label based routing
+  * [ ] Support weighted load balancing
+  * Google GFE like semantics
 2. Web
   * [x] Proxy requests to "web" micro services
   * [x] List "web" micro services on home screen
   * CLI interface in Web UI
 3. Sidecar
-  * Raise awareness for non Go native app usage
-  * Make it work with multiple transports
-4. Examples
+  * [ ] Raise awareness for non Go native app usage
+  * [ ] Make it work with multiple transports
+4. CLI
+  * [ ] Allow connecting through the API or Web where private network isn't available
+5. Dependencies
+  * [ ] Create dependency management config for services
+  * [ ] Allow push/pull from micro-services.co
+6. Examples
   * [x] greeter client/server {ruby, python, go}
   * [x] go-micro/examples
   * [x] code generation example
@@ -58,9 +64,7 @@ The micro ecosystem is rapidly growing but there's still a lot to do.
   * [x] Support concurrency with options
 5. Transport
   * [x] Cleanup send/receive semantics - is it concurrent?
-6. Codec
-  * [ ] Improve codec interface
-7. Bidirectional streaming
+6. Bidirectional streaming
   * [x] Client
   * [x] Server
   * [x] Code generation for streaming interface
@@ -82,6 +86,7 @@ Overview
   * [ ] Circuit breakers
   * [ ] Rate limiting
   * [ ] Weighted loadbalancing
+  * Google GSLB style semantics
 3. Key-Value
   * [x] Implement interface
   * [x] Memcache implementation
@@ -90,19 +95,43 @@ Overview
 4. Trace
   * [x] Implement interface
   * [x] Pub/Sub based tracing
+  * [ ] Timing endpoints for trace service
 5. Monitor
   * [x] Implement interface
   * [x] Custom healthcheck types
+  * [ ] Add stats/status publications
+  * [ ] Monitor the health of services
+6. Config
+  * [ ] Implement interface
+7. Auth
+  * [ ] Implement interface
+8. Logging
+  * [ ] Implement interface
 
 ## [Go Plugins](https://github.com/micro/go-plugins)
 
-1. Provide more example implementations.
-2. Improve auto loading of plugins
+1. [x] Provide more example implementations.
+2. [ ] Improve auto loading of plugins
+
+## Dashboards
+
+Create simple OSS dashboards for each platform service
+
+ * [ ] Discovery
+ * [ ] Monitoring
+ * [ ] Tracing
+ * [ ] Logging
+ * [ ] Config
+ * [ ] Auth
+ * [ ] Routing
+ * [ ] API
+ * [ ] Metrics
+ * [ ] Events
 
 ## [micro-services.co](https://micro-services.co)
 
 Currently invite only
 
-1. Let more users in
-2. Cleanup UI
-3. Build services to share on the site {user, login, geo, etc}
+1. [ ] Let more users in
+2. [ ] Cleanup UI
+3. [x] Build services to share on the site {user, login, geo, etc}
