@@ -267,6 +267,10 @@ discovery.Get(name) - Get the details for a server
 discovery.List() - List all servers
 ```
 
+### Microservices? What are they even good for?
+
+![Micro On-Demand](https://github.com/micro/micro/blob/master/doc/ondemand.png)
+
 ## Resources
 
 - [A Journey into Microservices](https://sudo.hailoapp.com/services/2015/03/09/journey-into-a-microservice-world-part-1/)
