@@ -103,7 +103,7 @@ Overview
   * [ ] Add stats/status publications
   * [ ] Monitor the health of services
 6. Config
-  * [ ] Implement interface
+  * [x] Implement interface
 7. Auth
   * [ ] Implement interface
 8. Logging
@@ -128,6 +128,19 @@ Create simple OSS dashboards for each platform service
  * [ ] API
  * [ ] Metrics
  * [ ] Events
+
+## Platform Services
+
+Implement version 1s
+* [x] [Discovery](https://github.com/micro/discovery-srv)
+* [x] [Monitoring](https://github.com/micro/monitor-srv)
+* [x] [Trace](https://github.com/micro/trace-srv)
+* [x] [Config](https://github.com/micro/config-srv)
+* [ ] Auth
+* [ ] Event
+* [ ] Metrics
+* [ ] Logging
+* [ ] Router
 
 ## [micro-services.co](https://micro-services.co)
 
