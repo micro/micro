@@ -105,7 +105,7 @@ Overview
 6. Config
   * [x] Implement interface
 7. Auth
-  * [ ] Implement interface
+  * [x] Implement interface
 8. Logging
   * [ ] Implement interface
 
@@ -136,7 +136,7 @@ Implement version 1s
 * [x] [Monitoring](https://github.com/micro/monitor-srv)
 * [x] [Trace](https://github.com/micro/trace-srv)
 * [x] [Config](https://github.com/micro/config-srv)
-* [ ] Auth
+* [x] Auth
 * [ ] Event
 * [ ] Metrics
 * [ ] Logging
