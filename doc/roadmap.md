@@ -64,12 +64,15 @@ The micro ecosystem is rapidly growing but there's still a lot to do.
   * [x] Support concurrency with options
 5. Transport
   * [x] Cleanup send/receive semantics - is it concurrent?
-  * [ ] Add TLS support
 6. Bidirectional streaming
   * [x] Client
   * [x] Server
   * [x] Code generation for streaming interface
   * [x] Examples
+7. TLS Support
+  * [x] Registry
+  * [x] Broker
+  * [x] Transport
 
 ## [Go Platform](https://github.com/micro/go-platform)
 
