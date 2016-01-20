@@ -110,7 +110,7 @@ Overview
 7. Auth
   * [x] Implement interface
 8. Logging
-  * [ ] Implement interface
+  * [x] Implement interface
 
 ## [Go Plugins](https://github.com/micro/go-plugins)
 
