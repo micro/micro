@@ -66,6 +66,11 @@ func Commands() []cli.Command {
 			Action: queryService,
 		},
 		{
+			Name:   "stream",
+			Usage:  "Query a service method using streaming rpc",
+			Action: streamService,
+		},
+		{
 			Name:   "health",
 			Usage:  "Query the health of a service",
 			Action: queryHealth,

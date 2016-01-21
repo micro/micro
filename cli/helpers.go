@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"sort"
 	"strings"
+	"time"
 
 	"github.com/micro/cli"
 	"github.com/micro/go-micro/cmd"
@@ -166,6 +167,42 @@ func queryService(c *cli.Context) {
 	}
 	b, _ := json.MarshalIndent(response, "", "\t")
 	fmt.Println(string(b))
+}
+
+func streamService(c *cli.Context) {
+	if len(c.Args()) < 2 {
+		fmt.Println("require service and method")
+		return
+	}
+	service := c.Args()[0]
+	method := c.Args()[1]
+	var request map[string]interface{}
+	json.Unmarshal([]byte(strings.Join(c.Args()[2:], " ")), &request)
+	req := (*cmd.DefaultOptions().Client).NewJsonRequest(service, method, request)
+	stream, err := (*cmd.DefaultOptions().Client).Stream(context.Background(), req)
+	if err != nil {
+		fmt.Printf("error calling %s.%s: %v\n", service, method, err)
+		return
+	}
+
+	if err := stream.Send(request); err != nil {
+		fmt.Printf("error sending to %s.%s: %v\n", service, method, err)
+		return
+	}
+
+	for {
+		var response map[string]interface{}
+		if err := stream.Recv(&response); err != nil {
+			fmt.Printf("error receiving from %s.%s: %v\n", service, method, err)
+			return
+		}
+
+		b, _ := json.MarshalIndent(response, "", "\t")
+		fmt.Println(string(b))
+
+		// artificial delay
+		time.Sleep(time.Millisecond * 10)
+	}
 }
 
 func queryHealth(c *cli.Context) {
