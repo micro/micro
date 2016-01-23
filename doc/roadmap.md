@@ -111,6 +111,8 @@ Overview
   * [x] Implement interface
 8. Logging
   * [x] Implement interface
+9. Event
+  * [x] Implement interface (sparse)
 
 ## [Go Plugins](https://github.com/micro/go-plugins)
 
@@ -140,7 +142,7 @@ Implement version 1s
 * [x] [Trace](https://github.com/micro/trace-srv)
 * [x] [Config](https://github.com/micro/config-srv)
 * [x] Auth
-* [ ] Event
+* [x] Event
 * [ ] Metrics
 * [ ] Logging
 * [ ] Router
