@@ -141,8 +141,8 @@ Implement version 1s
 * [x] [Monitoring](https://github.com/micro/monitor-srv)
 * [x] [Trace](https://github.com/micro/trace-srv)
 * [x] [Config](https://github.com/micro/config-srv)
-* [x] Auth
-* [x] Event
+* [x] [Auth](https://github.com/micro/auth-srv)
+* [x] [Event](https://github.com/micro/event-srv)
 * [ ] Metrics
 * [ ] Logging
 * [ ] Router
