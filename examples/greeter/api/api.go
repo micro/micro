@@ -1,7 +1,6 @@
 package main
 
 import (
-	"code.google.com/p/go.net/context"
 	"encoding/json"
 	"strings"
 
@@ -12,6 +11,8 @@ import (
 	"github.com/micro/go-micro/server"
 	api "github.com/micro/micro/api/proto"
 	hello "github.com/micro/micro/examples/greeter/server/proto/hello"
+
+	"golang.org/x/net/context"
 )
 
 type Say struct{}
