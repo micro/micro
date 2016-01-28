@@ -5,7 +5,7 @@ import (
 
 	"github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/cmd"
-	c "github.com/micro/go-micro/context"
+	"github.com/micro/go-micro/metadata"
 	hello "github.com/micro/micro/examples/greeter/server/proto/hello"
 
 	"golang.org/x/net/context"
@@ -20,7 +20,7 @@ func main() {
 	})
 
 	// Set arbitrary headers in context
-	ctx := c.WithMetadata(context.Background(), map[string]string{
+	ctx := metadata.NewContext(context.Background(), map[string]string{
 		"X-User-Id": "john",
 		"X-From-Id": "script",
 	})

@@ -1,6 +1,8 @@
 package main
 
 import (
+	"time"
+
 	log "github.com/golang/glog"
 	"github.com/micro/go-micro"
 	hello "github.com/micro/micro/examples/greeter/server/proto/hello"
@@ -19,6 +21,8 @@ func (s *Say) Hello(ctx context.Context, req *hello.Request, rsp *hello.Response
 func main() {
 	service := micro.NewService(
 		micro.Name("go.micro.srv.greeter"),
+		micro.RegisterTTL(time.Second*10),
+		micro.RegisterInterval(time.Second*20),
 	)
 
 	// optionally setup command line usage
