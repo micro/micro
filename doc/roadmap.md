@@ -113,6 +113,8 @@ Overview
   * [x] Implement interface
 9. Event
   * [x] Implement interface (sparse)
+10. Metrics
+  * [x] Implement interface
 
 ## [Go Plugins](https://github.com/micro/go-plugins)
 
