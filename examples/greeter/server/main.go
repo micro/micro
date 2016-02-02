@@ -21,8 +21,8 @@ func (s *Say) Hello(ctx context.Context, req *hello.Request, rsp *hello.Response
 func main() {
 	service := micro.NewService(
 		micro.Name("go.micro.srv.greeter"),
-		micro.RegisterTTL(time.Second*10),
-		micro.RegisterInterval(time.Second*20),
+		micro.RegisterTTL(time.Second*30),
+		micro.RegisterInterval(time.Second*10),
 	)
 
 	// optionally setup command line usage
