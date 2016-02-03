@@ -86,7 +86,7 @@ Overview
   * [x] In memory catching using registry watch
   * [x] Heartbeating the registry
 2. Routing
-  * [ ] MPLS style label based routing 
+  * [x] label based routing 
   * [ ] Circuit breakers
   * [ ] Rate limiting
   * [ ] Weighted loadbalancing
@@ -147,7 +147,7 @@ Implement version 1s
 * [x] [Event](https://github.com/micro/event-srv)
 * [ ] Metrics
 * [ ] Logging
-* [ ] Router
+* [x] Router
 
 ## [micro-services.co](https://micro-services.co)
 
