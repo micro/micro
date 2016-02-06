@@ -50,7 +50,7 @@ Project		|	Description
 -----		|	------
 [Micro Dashboard](https://github.com/Margatroid/micro-dashboard)	|	Dashboard for microservices toolchain micro
 
-## Projects
+## Micro Ecosystem
 
 ### Micro
 [Micro](https://github.com/micro/micro) itself is the overarching toolkit and ecosystem
