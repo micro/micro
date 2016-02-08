@@ -76,7 +76,6 @@ func (s *server) proxy() http.Handler {
 			return
 		}
 
-		//
 		r.Header.Set(BasePathHeader, "/"+parts[1])
 		r.URL.Host = fmt.Sprintf("%s:%d", s.Address, s.Port)
 		r.URL.Path = "/" + strings.Join(parts[2:], "/")
