@@ -20,9 +20,18 @@ import (
 )
 
 var (
-	re        = regexp.MustCompile("^[a-zA-Z0-9]+$")
-	Address   = ":8082"
+	re = regexp.MustCompile("^[a-zA-Z0-9]+$")
+	// Default address to bind to
+	Address = ":8082"
+	// The namespace to serve
+	// Example:
+	// Namespace + /[Service]/foo/bar
+	// Host: Namespace.Service Endpoint: /foo/bar
 	Namespace = "go.micro.web"
+	// Base path sent to web service.
+	// This is stripped from the request path
+	// Allows the web service to define absolute paths
+	BasePathHeader = "X-Micro-Web-Base-Path"
 )
 
 type server struct {
@@ -66,6 +75,9 @@ func (s *server) proxy() http.Handler {
 		if err != nil {
 			return
 		}
+
+		//
+		r.Header.Set(BasePathHeader, "/"+parts[1])
 		r.URL.Host = fmt.Sprintf("%s:%d", s.Address, s.Port)
 		r.URL.Path = "/" + strings.Join(parts[2:], "/")
 	}
