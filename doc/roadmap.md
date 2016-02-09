@@ -77,7 +77,7 @@ The micro ecosystem is rapidly growing but there's still a lot to do.
 ## [Go Platform](https://github.com/micro/go-platform)
 
 Overview
-  * [ ] Define the interfaces for every package
+  * [x] Define the interfaces for every package
   * [ ] Provide documentation for go-platform's usage
   * [ ] Provide easy initialisation and wrapping for go-micro client/server
   * [x] Implement trace and monitoring first
