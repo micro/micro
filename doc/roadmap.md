@@ -44,14 +44,14 @@ The micro ecosystem is rapidly growing but there's still a lot to do.
   * [x] Example implementations
     * [x] [Client](https://github.com/micro/go-micro/tree/master/examples/client/wrapper)
     * [x] [Server](https://github.com/micro/go-micro/blob/master/examples/server/main.go#L12L28)
-  * [ ] Plugins e.g. trace, monitoring, logging
+  * [x] Plugins e.g. trace, monitoring, logging
 2. Code generation
   * [x] Experimental generator [github.com/micro/protobuf](https://github.com/micro/protobuf)
   * [x] Example usage
     * [x] [Client](https://github.com/micro/go-micro/tree/master/examples/client/codegen)
     * [x] [Server](https://github.com/micro/go-micro/tree/master/examples/server/codegen)
   * [x] Server side generator
-  * [ ] Stable interface
+  * [x] Stable interface
 3. Registry
   * [x] Support Service TTLs on registration so services can be automatically removed
   * [x] Healthchecking function to renew registry lease
@@ -78,7 +78,7 @@ The micro ecosystem is rapidly growing but there's still a lot to do.
 
 Overview
   * [x] Define the interfaces for every package
-  * [ ] Provide documentation for go-platform's usage
+  * [x] Provide documentation for go-platform's usage
   * [ ] Provide easy initialisation and wrapping for go-micro client/server
   * [x] Implement trace and monitoring first
 
@@ -89,7 +89,7 @@ Overview
   * [x] label based routing 
   * [ ] Circuit breakers
   * [ ] Rate limiting
-  * [ ] Weighted loadbalancing
+  * [x] Weighted loadbalancing
   * Google GSLB style semantics
 3. Key-Value
   * [x] Implement interface
@@ -103,7 +103,7 @@ Overview
 5. Monitor
   * [x] Implement interface
   * [x] Custom healthcheck types
-  * [ ] Add stats/status publications
+  * [x] Add stats/status publications
   * [ ] Monitor the health of services
 6. Config
   * [x] Implement interface
@@ -148,4 +148,5 @@ Implement version 1s
 * [ ] Metrics
 * [ ] Logging
 * [x] Router
+
 
