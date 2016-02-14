@@ -44,5 +44,3 @@ Features:
 By default Micro will only support 1 or 2 implementations of each interface. Registries built on 
 top of kubernetes, zookeeper, etc. Transport using http2, broker using kafka, etc.
 
-### micro-services.co
-[Micro-services.co](https://micro-services.co) is a place to share **micro** services. 

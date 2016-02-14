@@ -149,10 +149,3 @@ Implement version 1s
 * [ ] Logging
 * [x] Router
 
-## [micro-services.co](https://micro-services.co)
-
-Currently invite only
-
-1. [ ] Let more users in
-2. [ ] Cleanup UI
-3. [x] Build services to share on the site {user, login, geo, etc}
