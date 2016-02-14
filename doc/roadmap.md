@@ -125,16 +125,16 @@ Overview
 
 Create simple OSS dashboards for each platform service
 
- * [ ] Discovery
- * [ ] Monitoring
- * [ ] Tracing
+ * [x] Discovery
+ * [x] Monitoring
+ * [x] Tracing
  * [ ] Logging
  * [ ] Config
  * [ ] Auth
  * [ ] Routing
  * [ ] API
  * [ ] Metrics
- * [ ] Events
+ * [x] Events
 
 ## Platform Services
 
