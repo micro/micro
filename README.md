@@ -108,7 +108,7 @@ $ docker pull microhq/micro
 Run consul (default discovery mechanism)
 ```
 $ go get github.com/hashicorp/consul
-$ consul agent -server -bootstrap-expect 1 -data-dir /tmp/consul
+$ consul agent -dev -advertise=127.0.0.1
 ```
 
 Run the greeter example app
