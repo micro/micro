@@ -26,6 +26,16 @@ func setup(app *ccli.App) {
 			Usage:  "Set the web UI address e.g 0.0.0.0:8082",
 			EnvVar: "MICRO_WEB_ADDRESS",
 		},
+		ccli.IntFlag{
+			Name:   "register_ttl",
+			EnvVar: "MICRO_REGISTER_TTL",
+			Usage:  "Register TTL in seconds",
+		},
+		ccli.IntFlag{
+			Name:   "register_interval",
+			EnvVar: "MICRO_REGISTER_INTERVAL",
+			Usage:  "Register interval in seconds",
+		},
 	)
 
 	before := app.Before

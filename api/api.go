@@ -2,6 +2,7 @@ package api
 
 import (
 	"net/http"
+	"time"
 
 	log "github.com/golang/glog"
 	"github.com/micro/cli"
@@ -42,6 +43,12 @@ func run(ctx *cli.Context) {
 	// Initialise Server
 	service := micro.NewService(
 		micro.Name("go.micro.api"),
+		micro.RegisterTTL(
+			time.Duration(ctx.GlobalInt("register_ttl"))*time.Second,
+		),
+		micro.RegisterInterval(
+			time.Duration(ctx.GlobalInt("register_interval"))*time.Second,
+		),
 	)
 
 	// Start API
