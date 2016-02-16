@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"net/http/httputil"
 	"regexp"
+	"sort"
 	"strings"
 
 	log "github.com/golang/glog"
@@ -161,6 +162,11 @@ func registryHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
+		if len(s) == 0 {
+			http.Error(w, "Not found", 404)
+			return
+		}
+
 		if r.Header.Get("Content-Type") == "application/json" {
 			b, err := json.Marshal(map[string]interface{}{
 				"services": s,
@@ -183,6 +189,8 @@ func registryHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Error occurred:"+err.Error(), 500)
 		return
 	}
+
+	sort.Sort(sortedServices{services})
 
 	if r.Header.Get("Content-Type") == "application/json" {
 		b, err := json.Marshal(map[string]interface{}{
