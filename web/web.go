@@ -142,6 +142,8 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	sort.Strings(webServices)
+
 	type templateData struct {
 		HasWebServices bool
 		WebServices    []string
