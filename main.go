@@ -12,6 +12,11 @@ import (
 func setup(app *ccli.App) {
 	app.Flags = append(app.Flags,
 		ccli.StringFlag{
+			Name:   "proxy_address",
+			Usage:  "Proxy requests via the HTTP address specified",
+			EnvVar: "MICRO_PROXY_ADDRESS",
+		},
+		ccli.StringFlag{
 			Name:   "api_address",
 			Usage:  "Set the api address e.g 0.0.0.0:8080",
 			EnvVar: "MICRO_API_ADDRESS",

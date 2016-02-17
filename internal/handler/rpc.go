@@ -21,7 +21,7 @@ func RPC(w http.ResponseWriter, r *http.Request) {
 	}
 	defer r.Body.Close()
 
-	var service, method string
+	var service, method, address string
 	var request interface{}
 
 	// response content type
@@ -46,9 +46,27 @@ func RPC(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		service = body["service"].(string)
-		method = body["method"].(string)
-		request = body["request"]
+		var ok bool
+
+		service, ok = body["service"].(string)
+		if !ok {
+			e := errors.BadRequest("go.micro.rpc", "invalid service")
+			w.WriteHeader(400)
+			w.Write([]byte(e.Error()))
+			return
+		}
+
+		method, ok = body["method"].(string)
+		if !ok {
+			e := errors.BadRequest("go.micro.rpc", "invalid method")
+			w.WriteHeader(400)
+			w.Write([]byte(e.Error()))
+			return
+		}
+
+		address, _ = body["address"].(string)
+		req, _ := body["request"].(string)
+		json.Unmarshal([]byte(req), &request)
 	default:
 		r.ParseForm()
 		service = r.Form.Get("service")
@@ -57,8 +75,15 @@ func RPC(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var response map[string]interface{}
+	var err error
 	req := (*cmd.DefaultOptions().Client).NewJsonRequest(service, method, request)
-	err := (*cmd.DefaultOptions().Client).Call(context.Background(), req, &response)
+
+	// remote call
+	if len(address) > 0 {
+		err = (*cmd.DefaultOptions().Client).Call(context.Background(), req, &response)
+	} else {
+		err = (*cmd.DefaultOptions().Client).CallRemote(context.Background(), address, req, &response)
+	}
 	if err != nil {
 		ce := errors.Parse(err.Error())
 		switch ce.Code {
