@@ -1,6 +1,6 @@
 # Micro SideCar
 
-The sidecar provides features to integrate any application into the Micro ecosystem.
+The sidecar provides a HTTP interface to integrate any application into the Micro ecosystem.
 
 It is similar to Netflix's sidecar called [Prana](https://github.com/Netflix/Prana)
 
@@ -124,4 +124,13 @@ for _ = range ticker.C {
 		return
 	}
 }
+```
+
+### Proxy CLI requests
+
+The sidecar also acts as a proxy for the CLI
+
+```shell
+$ micro --proxy_address=127.0.0.1:8081 list services
+go.micro.srv.greeter
 ```
