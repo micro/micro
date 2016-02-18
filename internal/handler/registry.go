@@ -57,24 +57,32 @@ func delService(w http.ResponseWriter, r *http.Request) {
 func getService(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 	service := r.Form.Get("service")
+
+	var s []*registry.Service
+	var err error
+
 	if len(service) == 0 {
-		http.Error(w, "Require service", 400)
-		return
+		s, err = (*cmd.DefaultOptions().Registry).ListServices()
+	} else {
+		s, err = (*cmd.DefaultOptions().Registry).GetService(service)
 	}
-	s, err := (*cmd.DefaultOptions().Registry).GetService(service)
+
 	if err != nil {
 		http.Error(w, err.Error(), 500)
 		return
 	}
-	if s == nil || len(s) == 0 || len(s[0].Name) == 0 {
+
+	if s == nil || (len(service) > 0 && (len(s) == 0 || len(s[0].Name) == 0)) {
 		http.Error(w, "Service not found", 404)
 		return
 	}
+
 	b, err := json.Marshal(s)
 	if err != nil {
 		http.Error(w, err.Error(), 500)
 		return
 	}
+
 	w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("Content-Length", strconv.Itoa(len(b)))
 	w.Write(b)
