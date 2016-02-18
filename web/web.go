@@ -1,6 +1,7 @@
 package web
 
 import (
+	"crypto/tls"
 	"encoding/json"
 	"fmt"
 	"html/template"
@@ -9,14 +10,17 @@ import (
 	"regexp"
 	"sort"
 	"strings"
+	"time"
 
 	log "github.com/golang/glog"
 	"github.com/gorilla/mux"
 	"github.com/micro/cli"
+	"github.com/micro/go-micro"
 	"github.com/micro/go-micro/cmd"
 	"github.com/micro/go-micro/registry"
 	"github.com/micro/go-micro/selector"
 	"github.com/micro/micro/internal/handler"
+	"github.com/micro/micro/internal/server"
 	"github.com/serenize/snaker"
 )
 
@@ -35,11 +39,11 @@ var (
 	BasePathHeader = "X-Micro-Web-Base-Path"
 )
 
-type server struct {
+type srv struct {
 	*mux.Router
 }
 
-func (s *server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (s *srv) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if origin := r.Header.Get("Origin"); origin != "" {
 		w.Header().Set("Access-Control-Allow-Origin", origin)
 	}
@@ -54,7 +58,7 @@ func (s *server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	s.Router.ServeHTTP(w, r)
 }
 
-func (s *server) proxy() http.Handler {
+func (s *srv) proxy() http.Handler {
 	sel := selector.NewSelector(
 		selector.Registry((*cmd.DefaultOptions().Registry)),
 	)
@@ -137,7 +141,7 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 
 	var webServices []string
 	for _, s := range services {
-		if strings.Index(s.Name, Namespace) == 0 {
+		if strings.Index(s.Name, Namespace) == 0 && len(strings.TrimPrefix(s.Name, Namespace)) > 0 {
 			webServices = append(webServices, strings.Replace(s.Name, Namespace+".", "", 1))
 		}
 	}
@@ -232,18 +236,63 @@ func render(w http.ResponseWriter, r *http.Request, tmpl string, data interface{
 	}
 }
 
-func run() {
+func run(ctx *cli.Context) {
 	r := mux.NewRouter()
-	s := &server{r}
+	s := &srv{r}
 	s.HandleFunc("/registry", registryHandler)
 	s.HandleFunc("/rpc", handler.RPC)
 	s.HandleFunc("/query", queryHandler)
 	s.PathPrefix("/{service:[a-zA-Z0-9]+}").Handler(s.proxy())
 	s.HandleFunc("/", indexHandler)
 
-	log.Infof("Listening on %s", Address)
+	var opts []server.Option
 
-	if err := http.ListenAndServe(Address, s); err != nil {
+	if ctx.GlobalBool("enable_tls") {
+		cert := ctx.GlobalString("tls_cert_file")
+		key := ctx.GlobalString("tls_key_file")
+
+		if len(cert) > 0 && len(key) > 0 {
+			certs, err := tls.LoadX509KeyPair(cert, key)
+			if err != nil {
+				fmt.Println(err.Error())
+				return
+			}
+			config := &tls.Config{
+				Certificates: []tls.Certificate{certs},
+			}
+			opts = append(opts, server.EnableTLS(true))
+			opts = append(opts, server.TLSConfig(config))
+		} else {
+			fmt.Println("Enable TLS specified without certificate and key files")
+			return
+		}
+	}
+
+	srv := server.NewServer(Address)
+	srv.Init(opts...)
+	srv.Handle("/", s)
+
+	// Initialise Server
+	service := micro.NewService(
+		micro.Name("go.micro.web"),
+		micro.RegisterTTL(
+			time.Duration(ctx.GlobalInt("register_ttl"))*time.Second,
+		),
+		micro.RegisterInterval(
+			time.Duration(ctx.GlobalInt("register_interval"))*time.Second,
+		),
+	)
+
+	if err := srv.Start(); err != nil {
+		log.Fatal(err)
+	}
+
+	// Run server
+	if err := service.Run(); err != nil {
+		log.Fatal(err)
+	}
+
+	if err := srv.Stop(); err != nil {
 		log.Fatal(err)
 	}
 }
@@ -254,7 +303,7 @@ func Commands() []cli.Command {
 			Name:  "web",
 			Usage: "Run the micro web app",
 			Action: func(c *cli.Context) {
-				run()
+				run(c)
 			},
 		},
 	}
