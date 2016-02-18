@@ -80,9 +80,9 @@ func RPC(w http.ResponseWriter, r *http.Request) {
 
 	// remote call
 	if len(address) > 0 {
-		err = (*cmd.DefaultOptions().Client).Call(context.Background(), req, &response)
-	} else {
 		err = (*cmd.DefaultOptions().Client).CallRemote(context.Background(), address, req, &response)
+	} else {
+		err = (*cmd.DefaultOptions().Client).Call(context.Background(), req, &response)
 	}
 	if err != nil {
 		ce := errors.Parse(err.Error())
