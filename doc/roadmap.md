@@ -5,7 +5,8 @@ The micro ecosystem is rapidly growing but there's still a lot to do.
 ## [Micro](https://github.com/micro/micro)
 
 1. API
-  * [x] Allow requests directly to RPC services via path (/greeter/say/hello => service: greeter method: Say.Hello)  
+  * [x] Allow requests directly to RPC services via path (/greeter/say/hello => service: greeter method: Say.Hello)
+  * [x] TLS Support
   * [ ] Allow REST requests to RPC based services
   * [ ] Make the choice a flag/env var
   * [ ] Configurable hostnames
@@ -16,8 +17,10 @@ The micro ecosystem is rapidly growing but there's still a lot to do.
 2. Web
   * [x] Proxy requests to "web" micro services
   * [x] List "web" micro services on home screen
-  * CLI interface in Web UI
+  * [x] TLS Support
+  * [ ] CLI interface in Web UI
 3. Sidecar
+  * [x] TLS Support
   * [ ] Raise awareness for non Go native app usage
   * [ ] Make it work with multiple transports
 4. CLI
