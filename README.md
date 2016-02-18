@@ -25,7 +25,7 @@ Feature		|	Description
 [Pub/Sub](https://godoc.org/github.com/micro/go-micro/broker) | Publish and subscribe to events
 [API Gateway](https://github.com/micro/micro/tree/master/api) | Lightweight gateway/proxy. Convert http requests to rpc
 [CLI](https://github.com/micro/micro/tree/master/cli) | Command line interface
-[Sidecar](https://github.com/micro/micro/tree/master/car) | Integrate any application into the Micro ecosystem
+[Sidecar](https://github.com/micro/micro/tree/master/car) | HTTP proxy for non Go-micro apps
 [Web UI/Proxy](https://github.com/micro/micro/tree/master/web) | A visual way to view and query services
 
 ## Example Services
