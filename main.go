@@ -16,6 +16,21 @@ func setup(app *ccli.App) {
 			Usage:  "Proxy requests via the HTTP address specified",
 			EnvVar: "MICRO_PROXY_ADDRESS",
 		},
+		ccli.BoolFlag{
+			Name:   "enable_tls",
+			Usage:  "Enable TLS",
+			EnvVar: "MICRO_ENABLE_TLS",
+		},
+		ccli.StringFlag{
+			Name:   "tls_cert_file",
+			Usage:  "TLS Certificate file",
+			EnvVar: "MICRO_TLS_CERT_File",
+		},
+		ccli.StringFlag{
+			Name:   "tls_key_file",
+			Usage:  "TLS Key file",
+			EnvVar: "MICRO_TLS_KEY_File",
+		},
 		ccli.StringFlag{
 			Name:   "api_address",
 			Usage:  "Set the api address e.g 0.0.0.0:8080",

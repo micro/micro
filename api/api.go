@@ -1,6 +1,8 @@
 package api
 
 import (
+	"crypto/tls"
+	"fmt"
 	"net/http"
 	"time"
 
@@ -8,19 +10,8 @@ import (
 	"github.com/micro/cli"
 	"github.com/micro/go-micro"
 	"github.com/micro/micro/internal/handler"
+	"github.com/micro/micro/internal/server"
 )
-
-// API interface represents our API server.
-// It should provide the facility to server HTTP requests,
-// forward on to the appropriate services and return a
-// response.
-type API interface {
-	Address() string
-	Init() error
-	Handle(path string, handler http.Handler)
-	Start() error
-	Stop() error
-}
 
 var (
 	Address      = ":8080"
@@ -32,8 +23,31 @@ var (
 
 func run(ctx *cli.Context) {
 	// Init API
-	api := New(Address)
-	api.Init()
+	var opts []server.Option
+
+	if ctx.GlobalBool("enable_tls") {
+		cert := ctx.GlobalString("tls_cert_file")
+		key := ctx.GlobalString("tls_key_file")
+
+		if len(cert) > 0 && len(key) > 0 {
+			certs, err := tls.LoadX509KeyPair(cert, key)
+			if err != nil {
+				fmt.Println(err.Error())
+				return
+			}
+			config := &tls.Config{
+				Certificates: []tls.Certificate{certs},
+			}
+			opts = append(opts, server.EnableTLS(true))
+			opts = append(opts, server.TLSConfig(config))
+		} else {
+			fmt.Println("Enable TLS specified without certificate and key files")
+			return
+		}
+	}
+
+	api := server.NewServer(Address)
+	api.Init(opts...)
 
 	log.Infof("Registering RPC Handler at %s", RPCPath)
 	api.Handle(RPCPath, http.HandlerFunc(handler.RPC))
@@ -67,8 +81,8 @@ func run(ctx *cli.Context) {
 	}
 }
 
-func New(address string) API {
-	return newApiServer(address)
+func New(address string) server.Server {
+	return server.NewServer(address)
 }
 
 func Commands() []cli.Command {
