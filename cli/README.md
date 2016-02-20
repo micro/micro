@@ -106,3 +106,12 @@ micro sidecar --server_name=foo --server_address=127.0.0.1:9090 --healthcheck_ur
 I0523 12:25:36.229536   85658 car.go:184] Registering foo-6ebf29c0-013e-11e5-b55f-68a86d0d36b6
 I0523 12:25:36.241680   85658 car.go:188] Starting sidecar healthchecker
 ```
+
+### Proxy CLI via Sidecar
+
+The sidecar can be used as a proxy for remote environments. 
+
+```shell
+$ micro --proxy_address=proxy.micro.pm list services
+go.micro.srv.example
+```

@@ -55,6 +55,11 @@ Project		|	Description
 ### Micro
 [Micro](https://github.com/micro/micro) is a toolkit which provides a built in API Gateway, Web Proxy, CLI and Sidecar (for non Micro apps).
 
+### Platform
+
+The platform is a complete runtime for managing microservices at scale. Where Micro provides the core essentials, the platform goes a step 
+further and addresses every requirement for large scale distributed system deployments. 
+
 ### Go Micro
 [Go-micro](https://github.com/micro/go-micro) is a pluggable Go framework for writing RPC based microservices. Go micro can be used standalone but fits into the bigger Micro ecosystem.
 
