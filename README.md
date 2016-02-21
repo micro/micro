@@ -15,18 +15,78 @@ The goal of **Micro** is to provide a toolkit for microservice development and m
 ![Micro](https://github.com/micro/micro/blob/master/doc/micro.png)
 -
 
-## Features
+## The Ecosystem
+
+The overarching project [github.com/micro](https://github.com/micro) is a microservice ecosystem which consists of a number of tools and libraries. Each of which can either be used totally independently, plugged into your architecture or combined as a whole to provide a completely distributed systems platform.
+
+It currently consists of the following.
+
+### [Go Micro](https://github.com/micro/go-micro)
+A pluggable Go client framework for writing microservices.
+
+Feature		|	Description
+-------		|	-----------
+[Registry](https://godoc.org/github.com/micro/go-micro/registry)	|	Service discovery
+[Client](https://godoc.org/github.com/micro/go-micro/client)	|	RPC Client
+[Codec](https://godoc.org/github.com/micro/go-micro/codec)	|	Request/Response Encoding
+[Selector](https://godoc.org/github.com/micro/go-micro/selector)	|	Load balancing 
+[Server](https://godoc.org/github.com/micro/go-micro/server)	|	RPC Server
+[Broker](https://godoc.org/github.com/micro/go-micro/broker)	|	Asynchronous Messaging
+[Transport](https://godoc.org/github.com/micro/go-micro/transport)	|	Synchronous Messaging
+
+### [Micro](https://github.com/micro/micro)
+Entry points into the runtime.
 
 Feature		|	Description
 ------		|	-------
-[Discovery](https://godoc.org/github.com/micro/go-micro/registry) | Find running services
-[Client](https://godoc.org/github.com/micro/go-micro/client) | Query services via RPC
-[Server](https://godoc.org/github.com/micro/go-micro/server) | Listen and serve RPC requests
-[Pub/Sub](https://godoc.org/github.com/micro/go-micro/broker) | Publish and subscribe to events
 [API Gateway](https://github.com/micro/micro/tree/master/api) | Lightweight gateway/proxy. Convert http requests to rpc
 [CLI](https://github.com/micro/micro/tree/master/cli) | Command line interface
 [Sidecar](https://github.com/micro/micro/tree/master/car) | HTTP proxy for non Go-micro apps
 [Web UI/Proxy](https://github.com/micro/micro/tree/master/web) | A visual way to view and query services
+
+### [Go Platform](https://github.com/micro/go-platform)
+Libraries to integrate into distributed systems.
+
+Feature     |   Description
+-------     |   ---------
+[auth](https://godoc.org/github.com/micro/go-platform/auth)	|   authentication and authorisation for users and services
+[config](https://godoc.org/github.com/micro/go-platform/config)	|   dynamic configuration which is namespaced and versioned
+[db](https://godoc.org/github.com/micro/go-platform/db)		| distributed database abstraction
+[discovery](https://godoc.org/github.com/micro/go-platform/discovery)	|   extends the go-micro registry to add heartbeating, etc
+[event](https://godoc.org/github.com/micro/go-platform/event)	|	platform event publication, subscription and aggregation 
+[kv](https://godoc.org/github.com/micro/go-platform/kv)		|   simply key value layered on memcached, etcd, consul 
+[log](https://godoc.org/github.com/micro/go-platform/log)	|	structured logging to stdout, logstash, fluentd, pubsub
+[monitor](https://godoc.org/github.com/micro/go-platform/monitor)	|   add custom healthchecks measured with distributed systems in mind
+[metrics](https://godoc.org/github.com/micro/go-platform/metrics)	|   instrumentation and collation of counters
+[router](https://godoc.org/github.com/micro/go-platform/router)	|	global circuit breaking, load balancing, A/B testing
+[sync](https://godoc.org/github.com/micro/go-platform/sync)	|	distributed locking, leadership election, etc
+[trace](https://godoc.org/github.com/micro/go-platform/trace)	|	distributed tracing of request/response
+
+### [Platform](https://github.com/micro/platform)
+
+A complete runtime for managing microservices at scale. Where Micro provides the core essentials, the platform goes a step further and addresses every requirement for large scale distributed system deployments. 
+
+Feature		|	Description
+------------	|	-------------
+[Auth](https://github.com/micro/auth-srv)	|	Authentication and authorization (Oauth2)
+[Config](https://github.com/micro/config-srv)	|	Dynamic configuration
+[DB Proxy](https://github.com/micro/db-srv)	|	RPC based database proxy
+[Discovery](https://github.com/micro/discovery-srv)	|	Service discovery read layer cache
+[Events](https://github.com/micro/event-srv)	|	Platform event aggregation
+[Monitoring](https://github.com/micro/monitor-srv)	|	Monitoring for Status, Stats and Healthchecks
+[Routing](https://github.com/micro/router-srv)	|	Global service load balancing
+[Tracing](https://github.com/micro/trace-srv)	|	Distributed tracing
+
+### [Go Plugins](https://github.com/micro/go-plugins)
+Plugins for go-micro and go-platform contributed by the community. Examples could include; registries built on top of Kubernetes, Zookeeper, etc. Transport using HTTP2, Zeromq, etc. Broker using Kafka, AWS SQS, etc.
+
+Example plugins
+
+Plugin	|	Description
+-----	|	------
+[NATS](https://godoc.org/github.com/micro/go-plugins/transport/nats)	|	Synchronous transport with the NATS message bus
+[Etcd](https://godoc.org/github.com/micro/go-plugins/registry/etcd)	|	Service discovery using etcd
+[BSON-RPC](https://godoc.org/github.com/micro/go-plugins/codec/bsonrpc)	|	Request/Response encoding using bson-rpc
 
 ## Example Services
 Project		|	Description
@@ -49,27 +109,6 @@ Project		|	Description
 Project		|	Description
 -----		|	------
 [Micro Dashboard](https://github.com/Margatroid/micro-dashboard)	|	Dashboard for microservices toolchain micro
-
-## Micro Ecosystem
-
-### Micro
-[Micro](https://github.com/micro/micro) is a toolkit which provides a built in API Gateway, Web Proxy, CLI and Sidecar (for non Micro apps).
-
-### Platform
-
-The platform is a complete runtime for managing microservices at scale. Where Micro provides the core essentials, the platform goes a step 
-further and addresses every requirement for large scale distributed system deployments. 
-
-### Go Micro
-[Go-micro](https://github.com/micro/go-micro) is a pluggable Go framework for writing RPC based microservices. Go micro can be used standalone but fits into the bigger Micro ecosystem.
-
-### Go Platform
-[Go-platform](https://github.com/micro/go-platform) provides higher level libraries and services that can be integrated into a go-micro service. Things like tracing, monitoring, dynamic configuration, etc. Again, pluggable like go-micro.
-
-### Go Plugins
-[Go-plugins](https://github.com/micro/go-plugins) provides a place for the community to provide their implementations of the interfaces. 
-By default Micro will only support 1 or 2 implementations of each interface. Registries built on 
-top of kubernetes, zookeeper, etc. Transport using http2, broker using kafka, etc.
 
 ## Architecture
 
@@ -284,3 +323,4 @@ discovery.List() - List all servers
 ## Roadmap
 
 [![Roadmap](https://img.shields.io/badge/roadmap-in%20progress-lightgrey.svg)](https://github.com/micro/micro/wiki/Roadmap)
+
