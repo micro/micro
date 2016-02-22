@@ -85,9 +85,16 @@ func (s *srv) proxy() http.Handler {
 		r.URL.Host = fmt.Sprintf("%s:%d", s.Address, s.Port)
 		r.URL.Path = "/" + strings.Join(parts[2:], "/")
 	}
-	return &httputil.ReverseProxy{
+
+	return &proxy{
+		Default:  &httputil.ReverseProxy{Director: director},
 		Director: director,
 	}
+	/*
+		return &httputil.ReverseProxy{
+			Director: director,
+		}
+	*/
 }
 
 func format(v *registry.Value) string {
