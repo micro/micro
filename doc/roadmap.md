@@ -18,6 +18,7 @@ The micro ecosystem is rapidly growing but there's still a lot to do.
   * [x] Proxy requests to "web" micro services
   * [x] List "web" micro services on home screen
   * [x] TLS Support
+  * [x] Web Sockets
   * [ ] CLI interface in Web UI
 3. Sidecar
   * [x] TLS Support
