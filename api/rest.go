@@ -54,6 +54,8 @@ func requestToProto(r *http.Request) (*api.Request, error) {
 
 	switch ct {
 	case "application/x-www-form-urlencoded":
+		// expect form vals
+	default:
 		data, _ := ioutil.ReadAll(r.Body)
 		req.Body = string(data)
 	}
