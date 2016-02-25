@@ -56,6 +56,16 @@ func setup(app *ccli.App) {
 			EnvVar: "MICRO_REGISTER_INTERVAL",
 			Usage:  "Register interval in seconds",
 		},
+		ccli.StringFlag{
+			Name:   "api_namespace",
+			Usage:  "Set the namespace used by the API e.g. com.example.api",
+			EnvVar: "MICRO_API_NAMESPACE",
+		},
+		ccli.StringFlag{
+			Name:   "web_namespace",
+			Usage:  "Set the namespace used by the Web proxy e.g. com.example.web",
+			EnvVar: "MICRO_WEB_NAMESPACE",
+		},
 	)
 
 	before := app.Before
@@ -69,6 +79,12 @@ func setup(app *ccli.App) {
 		}
 		if len(ctx.String("web_address")) > 0 {
 			web.Address = ctx.String("web_address")
+		}
+		if len(ctx.String("api_namespace")) > 0 {
+			api.Namespace = ctx.String("api_namespace")
+		}
+		if len(ctx.String("web_namespace")) > 0 {
+			web.Namespace = ctx.String("web_namespace")
 		}
 		return before(ctx)
 	}
