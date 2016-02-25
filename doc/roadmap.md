@@ -7,6 +7,7 @@ The micro ecosystem is rapidly growing but there's still a lot to do.
 1. API
   * [x] Allow requests directly to RPC services via path (/greeter/say/hello => service: greeter method: Say.Hello)
   * [x] TLS Support
+  * [x] Allow namespace to be set via flags
   * [ ] Allow REST requests to RPC based services
   * [ ] Make the choice a flag/env var
   * [ ] Configurable hostnames
@@ -19,12 +20,14 @@ The micro ecosystem is rapidly growing but there's still a lot to do.
   * [x] List "web" micro services on home screen
   * [x] TLS Support
   * [x] Web Sockets
+  * [x] Allow namespace to be set via flags
   * [ ] CLI interface in Web UI
 3. Sidecar
   * [x] TLS Support
   * [ ] Raise awareness for non Go native app usage
   * [ ] Make it work with multiple transports
 4. CLI
+  * [x] Support querying via proxying the sidecar
   * [ ] Allow connecting through the API or Web where private network isn't available
 5. Dependencies
   * [ ] Create dependency management config for services
