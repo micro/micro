@@ -21,6 +21,27 @@ var (
 	HeaderPrefix = "X-Micro-"
 )
 
+type srv struct {
+	*http.ServeMux
+}
+
+func (s *srv) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	// We should allow the origin to be configured
+	if origin := r.Header.Get("Origin"); origin != "" {
+		w.Header().Set("Access-Control-Allow-Origin", origin)
+	}
+
+	w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token")
+	w.Header().Set("Access-Control-Allow-Credentials", "true")
+
+	if r.Method == "OPTIONS" {
+		return
+	}
+
+	s.ServeMux.ServeHTTP(w, r)
+}
+
 func run(ctx *cli.Context) {
 	// Init API
 	var opts []server.Option
@@ -46,13 +67,17 @@ func run(ctx *cli.Context) {
 		}
 	}
 
+	// create the router
+	r := http.NewServeMux()
+	log.Infof("Registering RPC Handler at %s", RPCPath)
+	r.HandleFunc(RPCPath, handler.RPC)
+	log.Infof("Registering API Handler at %s", APIPath)
+	r.HandleFunc(APIPath, restHandler)
+
+	// create the server
 	api := server.NewServer(Address)
 	api.Init(opts...)
-
-	log.Infof("Registering RPC Handler at %s", RPCPath)
-	api.Handle(RPCPath, http.HandlerFunc(handler.RPC))
-	log.Infof("Registering API Handler at %s", APIPath)
-	api.Handle(APIPath, http.HandlerFunc(restHandler))
+	api.Handle("/", &srv{r})
 
 	// Initialise Server
 	service := micro.NewService(

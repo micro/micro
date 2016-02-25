@@ -44,6 +44,7 @@ type srv struct {
 }
 
 func (s *srv) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	// We should allow the origin to be configured
 	if origin := r.Header.Get("Origin"); origin != "" {
 		w.Header().Set("Access-Control-Allow-Origin", origin)
 	}
