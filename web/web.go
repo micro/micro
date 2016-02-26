@@ -140,6 +140,10 @@ func formatEndpoint(v *registry.Value, r int) string {
 	return fmt.Sprintf(strings.Join(fparts, ""), vals...)
 }
 
+func faviconHandler(w http.ResponseWriter, r *http.Request) {
+	return
+}
+
 func indexHandler(w http.ResponseWriter, r *http.Request) {
 	services, err := (*cmd.DefaultOptions().Registry).ListServices()
 	if err != nil {
@@ -250,6 +254,7 @@ func run(ctx *cli.Context) {
 	s.HandleFunc("/registry", registryHandler)
 	s.HandleFunc("/rpc", handler.RPC)
 	s.HandleFunc("/query", queryHandler)
+	s.HandleFunc("/favicon.ico", faviconHandler)
 	s.PathPrefix("/{service:[a-zA-Z0-9]+}").Handler(s.proxy())
 	s.HandleFunc("/", indexHandler)
 
