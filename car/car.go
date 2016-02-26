@@ -33,6 +33,7 @@ var (
 	HealthPath   = "/health"
 	RegistryPath = "/registry"
 	RPCPath      = "/rpc"
+	CORS         = map[string]bool{"*": true}
 )
 
 func run(ctx *cli.Context, car *Sidecar) {

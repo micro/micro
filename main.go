@@ -1,6 +1,8 @@
 package main
 
 import (
+	"strings"
+
 	ccli "github.com/micro/cli"
 	"github.com/micro/go-micro/cmd"
 	"github.com/micro/micro/api"
@@ -66,6 +68,21 @@ func setup(app *ccli.App) {
 			Usage:  "Set the namespace used by the Web proxy e.g. com.example.web",
 			EnvVar: "MICRO_WEB_NAMESPACE",
 		},
+		ccli.StringFlag{
+			Name:   "api_cors",
+			Usage:  "Comma separated whitelist of allowed origins for CORS",
+			EnvVar: "MICRO_API_CORS",
+		},
+		ccli.StringFlag{
+			Name:   "web_cors",
+			Usage:  "Comma separated whitelist of allowed origins for CORS",
+			EnvVar: "MICRO_WEB_CORS",
+		},
+		ccli.StringFlag{
+			Name:   "sidecar_cors",
+			Usage:  "Comma separated whitelist of allowed origins for CORS",
+			EnvVar: "MICRO_SIDECAR_CORS",
+		},
 	)
 
 	before := app.Before
@@ -86,6 +103,26 @@ func setup(app *ccli.App) {
 		if len(ctx.String("web_namespace")) > 0 {
 			web.Namespace = ctx.String("web_namespace")
 		}
+
+		// origin comma separated string to map
+		fn := func(s string) map[string]bool {
+			origins := make(map[string]bool)
+			for _, origin := range strings.Split(s, ",") {
+				origins[origin] = true
+			}
+			return origins
+		}
+
+		if len(ctx.String("api_cors")) > 0 {
+			api.CORS = fn(ctx.String("api_cors"))
+		}
+		if len(ctx.String("sidecar_cors")) > 0 {
+			car.CORS = fn(ctx.String("sidecar_cors"))
+		}
+		if len(ctx.String("web_cors")) > 0 {
+			web.CORS = fn(ctx.String("web_cors"))
+		}
+
 		return before(ctx)
 	}
 }

@@ -19,6 +19,7 @@ var (
 	APIPath      = "/"
 	Namespace    = "go.micro.api"
 	HeaderPrefix = "X-Micro-"
+	CORS         = map[string]bool{"*": true}
 )
 
 type srv struct {
@@ -26,8 +27,9 @@ type srv struct {
 }
 
 func (s *srv) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	// We should allow the origin to be configured
-	if origin := r.Header.Get("Origin"); origin != "" {
+	if origin := r.Header.Get("Origin"); CORS[origin] {
+		w.Header().Set("Access-Control-Allow-Origin", origin)
+	} else if len(origin) > 0 && CORS["*"] {
 		w.Header().Set("Access-Control-Allow-Origin", origin)
 	}
 

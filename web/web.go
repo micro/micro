@@ -37,6 +37,8 @@ var (
 	// This is stripped from the request path
 	// Allows the web service to define absolute paths
 	BasePathHeader = "X-Micro-Web-Base-Path"
+
+	CORS = map[string]bool{"*": true}
 )
 
 type srv struct {
@@ -44,10 +46,12 @@ type srv struct {
 }
 
 func (s *srv) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	// We should allow the origin to be configured
-	if origin := r.Header.Get("Origin"); origin != "" {
+	if origin := r.Header.Get("Origin"); CORS[origin] {
+		w.Header().Set("Access-Control-Allow-Origin", origin)
+	} else if len(origin) > 0 && CORS["*"] {
 		w.Header().Set("Access-Control-Allow-Origin", origin)
 	}
+
 	w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
 	w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token")
 	w.Header().Set("Access-Control-Allow-Credentials", "true")
