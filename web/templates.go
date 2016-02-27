@@ -156,9 +156,12 @@ var (
 		</tbody>
 	</table>
 	{{end}}
+	{{with $svc := index . 0}}
+	{{if $svc.Endpoints}}
 	<h4>Endpoints</h4>
 	<hr/>
-	{{with $svc := index . 0}}{{range $svc.Endpoints}}
+	{{end}}
+	{{range $svc.Endpoints}}
 		<h4>{{.Name}}</h4>
 		<table class="table table-bordered">
 			<tbody>
