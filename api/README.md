@@ -4,10 +4,18 @@ This is a lightweight proxy for [Micro](https://github.com/micro/micro) based mi
 
 Currently a work in progress.
 
-### Run API
+## Getting started
+
+### Install the api
+
 ```bash
-$ go get github.com/micro/micro
-$ micro api
+go get github.com/micro/micro
+```
+
+### Run the API
+
+```bash
+micro --logtostderr api
 I0523 12:23:23.413940   81384 api.go:131] API Rpc handler /rpc
 I0523 12:23:23.414238   81384 api.go:143] Listening on [::]:8080
 I0523 12:23:23.414272   81384 server.go:113] Starting server go.micro.api id go.micro.api-1f951765-013e-11e5-9273-68a86d0d36b6
@@ -15,7 +23,24 @@ I0523 12:23:23.414355   81384 rpc_server.go:112] Listening on [::]:51938
 I0523 12:23:23.414399   81384 server.go:95] Registering node: go.micro.api-1f951765-013e-11e5-9273-68a86d0d36b6
 ```
 
-### Testing API
+### Serve Secure TLS
+
+The API supports serving securely with TLS certificates
+
+```bash
+micro --enable_tls --tls_cert_file=/path/to/cert --tls_key_file=/path/to/key api
+```
+
+### Set Namespace
+
+The API defaults to serving the namespace **go.micro.api**. The combination of namespace and request path 
+are used to resolve an API service and method to send the query to. 
+
+```bash
+micro --api_namespace=com.example.api
+```
+
+## Testing API
 
 Let's start the example [go-micro](https://github.com/micro/go-micro) based server.
 ```bash
@@ -39,7 +64,7 @@ $ curl -H 'Content-Type: application/json' -d '{"service": "go.micro.srv.example
 {"msg":"go.micro.srv.example-fccbb6fb-0301-11e5-9f1f-68a86d0d36b6: Hello Asim Aslam"}
 ```
 
-### Testing using REST based API Services
+## Testing using REST based API Services
 
 Micro allows you to handle REST based paths using rpc by providing built in handling for API Services. An API service is like any other 
 micro service except each method signature takes an *api.Request and *api.Response which can be found in 

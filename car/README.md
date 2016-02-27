@@ -17,7 +17,7 @@ It is similar to Netflix's sidecar called [Prana](https://github.com/Netflix/Pra
 ### Install
 
 ```shell
-$ go get github.com/micro/micro
+go get github.com/micro/micro
 ```
 
 ### Run
@@ -27,13 +27,21 @@ The micro sidecar runs on port 8081 by default.
 Starting the sidecar 
 
 ```shell
-$ micro sidecar
+micro sidecar
 ```
 
 Optionally specify app server name and address if you want to auto register an app on startup.
 
 ```shell
-$ micro sidecar --server_name=foo --server_address=127.0.0.1:9090
+micro sidecar --server_name=foo --server_address=127.0.0.1:9090
+```
+
+### Serve Secure TLS
+
+The Sidecar supports serving securely with TLS certificates
+
+```bash
+micro --enable_tls --tls_cert_file=/path/to/cert --tls_key_file=/path/to/key sidecar
 ```
 
 ### Host Discovery
