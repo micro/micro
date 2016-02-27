@@ -8,6 +8,7 @@ The micro ecosystem is rapidly growing but there's still a lot to do.
   * [x] Allow requests directly to RPC services via path (/greeter/say/hello => service: greeter method: Say.Hello)
   * [x] TLS Support
   * [x] Allow namespace to be set via flags
+  * [x] Apache log format
   * [ ] Allow REST requests to RPC based services
   * [ ] Make the choice a flag/env var
   * [ ] Configurable hostnames
@@ -21,9 +22,11 @@ The micro ecosystem is rapidly growing but there's still a lot to do.
   * [x] TLS Support
   * [x] Web Sockets
   * [x] Allow namespace to be set via flags
+  * [x] Apache log format
   * [ ] CLI interface in Web UI
 3. Sidecar
   * [x] TLS Support
+  * [x] Apache log format
   * [ ] Raise awareness for non Go native app usage
   * [ ] Make it work with multiple transports
 4. CLI
