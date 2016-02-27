@@ -47,7 +47,7 @@ var (
 `
 
 	indexTemplate = `
-{{define "title"}}Welcome to Micro Web{{end}}
+{{define "title"}}Welcome to the Micro Web{{end}}
 {{define "content"}}
 	{{if .HasWebServices}}
 		<ul class="list-group">
@@ -63,7 +63,7 @@ var (
 {{end}}
 `
 	queryTemplate = `
-{{define "title"}}Query{{end}}
+{{define "title"}}Query a Service{{end}}
 {{define "style"}}
 	pre {
 		word-wrap: break-word;
@@ -75,15 +75,15 @@ var (
 		<form id="query-form" onsubmit="return query();">
 			<div class="form-group">
 				<label for="service">Service</label>
-				<input class="form-control" type=text name=service id=service />
+				<input class="form-control" type=text name=service id=service placeholder="Service Name" />
 			</div>
 			<div class="form-group">
 				<label for="method">Method</label>
-				<input class="form-control" type=text name=method id=method />
+				<input class="form-control" type=text name=method id=method placeholder="Method" />
 			</div>
 			<div class="form-group">
 				<label for="request">Request</label>
-				<textarea class="form-control" name=request id=request rows=15></textarea>
+				<textarea class="form-control" name=request id=request rows=8>{}</textarea>
 			</div>
 			<div class="form-group">
 				<button class="btn btn-default">Go!</button>
@@ -92,7 +92,7 @@ var (
 	</div>
 	<div class="col-sm-7">
 		<p><b>Response</b></p>
-		<pre id="response"></pre>
+		<pre id="response">{}</pre>
 	</div>
 </div>
 {{end}}
