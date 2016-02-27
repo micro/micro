@@ -21,11 +21,15 @@ func (p *proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// the websocket path
-
 	req := new(http.Request)
 	*req = *r
 	p.Director(req)
 	host := req.URL.Host
+
+	if len(host) == 0 {
+		http.Error(w, "invalid host", 500)
+		return
+	}
 
 	// connect to the backend host
 	conn, err := net.Dial("tcp", host)
@@ -77,13 +81,9 @@ func isWebSocket(r *http.Request) bool {
 		return false
 	}
 
-	if !contains("Connection", "upgrade") {
-		return false
+	if contains("Connection", "upgrade") && contains("Upgrade", "websocket") {
+		return true
 	}
 
-	if !contains("Upgrade", "websocket") {
-		return false
-	}
-
-	return true
+	return false
 }

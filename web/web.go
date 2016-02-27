@@ -69,20 +69,30 @@ func (s *srv) proxy() http.Handler {
 	)
 
 	director := func(r *http.Request) {
+		kill := func() {
+			r.URL.Host = ""
+			r.URL.Path = ""
+			r.URL.Scheme = ""
+		}
+
 		parts := strings.Split(r.URL.Path, "/")
 		if len(parts) < 2 {
+			kill()
 			return
 		}
 		if !re.MatchString(parts[1]) {
+			kill()
 			return
 		}
 		next, err := sel.Select(Namespace + "." + parts[1])
 		if err != nil {
+			kill()
 			return
 		}
 		r.URL.Scheme = "http"
 		s, err := next()
 		if err != nil {
+			kill()
 			return
 		}
 
