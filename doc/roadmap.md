@@ -166,3 +166,8 @@ Implement version 1s
 * [x] [Micro on Kubernetes](https://github.com/micro/kubernetes)
 * [ ] Micro Docker Compose
 * [ ] Platform Docker Compose
+
+## Demo
+* [x] [Web](http://web.micro.pm)
+* [x] [API](http://api.micro.pm)
+* [x] [Sidecar](http://proxy.micro.pm) 
