@@ -30,6 +30,7 @@ type counter struct {
 	Timestamp int64 `json:"timestamp"`
 	// counters
 	Status map[string]int `json:"status_codes"`
+	Total  int            `json:"total_reqs"`
 }
 
 var (
@@ -88,12 +89,8 @@ func (s *stats) run() {
 func (s *stats) Record(c string, t int) {
 	s.Lock()
 	counter := s.Counters[len(s.Counters)-1]
-	if cnt, ok := counter.Status[c]; ok {
-		cnt++
-		counter.Status[c] = cnt
-	} else {
-		counter.Status[c] += t
-	}
+	counter.Status[c] += t
+	counter.Total += t
 	s.Counters[len(s.Counters)-1] = counter
 	s.Unlock()
 }
