@@ -83,6 +83,11 @@ func setup(app *ccli.App) {
 			Usage:  "Comma separated whitelist of allowed origins for CORS",
 			EnvVar: "MICRO_SIDECAR_CORS",
 		},
+		ccli.BoolFlag{
+			Name:   "stats",
+			Usage:  "Enable stats",
+			EnvVar: "MICRO_STATS",
+		},
 	)
 
 	before := app.Before

@@ -9,6 +9,13 @@ type Option func(o *Options)
 type Options struct {
 	EnableTLS bool
 	TLSConfig *tls.Config
+	Stats     string
+}
+
+func EnableStats(path string) Option {
+	return func(o *Options) {
+		o.Stats = path
+	}
 }
 
 func EnableTLS(b bool) Option {
