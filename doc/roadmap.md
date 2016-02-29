@@ -9,7 +9,7 @@ The micro ecosystem is rapidly growing but there's still a lot to do.
   * [x] TLS Support
   * [x] Allow namespace to be set via flags
   * [x] Apache log format
-  * [ ] Stats page
+  * [x] Stats page
   * [ ] Allow REST requests to RPC based services
   * [ ] Make the choice a flag/env var
   * [ ] Configurable hostnames
@@ -24,12 +24,12 @@ The micro ecosystem is rapidly growing but there's still a lot to do.
   * [x] Web Sockets
   * [x] Allow namespace to be set via flags
   * [x] Apache log format
-  * [ ] Stats page
+  * [x] Stats page
   * [ ] CLI interface in Web UI
 3. Sidecar
   * [x] TLS Support
   * [x] Apache log format
-  * [ ] Stats page
+  * [x] Stats page
   * [ ] Raise awareness for non Go native app usage
   * [ ] Make it work with multiple transports
 4. CLI
