@@ -298,6 +298,10 @@ func run(ctx *cli.Context) {
 		}
 	}
 
+	if ctx.GlobalBool("enable_stats") {
+		opts = append(opts, server.EnableStats("/stats"))
+	}
+
 	srv := server.NewServer(Address)
 	srv.Init(opts...)
 	srv.Handle("/", s)

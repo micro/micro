@@ -9,6 +9,7 @@ import (
 
 	log "github.com/golang/glog"
 	"github.com/gorilla/handlers"
+	"github.com/micro/micro/internal/stats"
 )
 
 type Server interface {
@@ -67,15 +68,32 @@ func (s *server) Start() error {
 		return err
 	}
 
+	var h http.Handler
+	exit := make(chan bool)
+
+	// enable stats
+	if len(s.opts.Stats) > 0 {
+		st := stats.New(s.opts.Stats, s.mux)
+		h = st
+		go func() {
+			st.Start()
+			<-exit
+			st.Stop()
+		}()
+	} else {
+		h = s.mux
+	}
+
 	log.Infof("Listening on %s", l.Addr().String())
 
 	s.mtx.Lock()
 	s.address = l.Addr().String()
 	s.mtx.Unlock()
 
-	go http.Serve(l, s.mux)
+	go http.Serve(l, h)
 
 	go func() {
+		close(exit)
 		ch := <-s.exit
 		ch <- l.Close()
 	}()

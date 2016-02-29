@@ -13,11 +13,6 @@ import (
 
 func setup(app *ccli.App) {
 	app.Flags = append(app.Flags,
-		ccli.StringFlag{
-			Name:   "proxy_address",
-			Usage:  "Proxy requests via the HTTP address specified",
-			EnvVar: "MICRO_PROXY_ADDRESS",
-		},
 		ccli.BoolFlag{
 			Name:   "enable_tls",
 			Usage:  "Enable TLS",
@@ -37,6 +32,11 @@ func setup(app *ccli.App) {
 			Name:   "api_address",
 			Usage:  "Set the api address e.g 0.0.0.0:8080",
 			EnvVar: "MICRO_API_ADDRESS",
+		},
+		ccli.StringFlag{
+			Name:   "proxy_address",
+			Usage:  "Proxy requests via the HTTP address specified",
+			EnvVar: "MICRO_PROXY_ADDRESS",
 		},
 		ccli.StringFlag{
 			Name:   "sidecar_address",
@@ -82,6 +82,11 @@ func setup(app *ccli.App) {
 			Name:   "sidecar_cors",
 			Usage:  "Comma separated whitelist of allowed origins for CORS",
 			EnvVar: "MICRO_SIDECAR_CORS",
+		},
+		ccli.BoolFlag{
+			Name:   "enable_stats",
+			Usage:  "Enable stats",
+			EnvVar: "MICRO_ENABLE_STATS",
 		},
 	)
 

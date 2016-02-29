@@ -69,6 +69,10 @@ func run(ctx *cli.Context) {
 		}
 	}
 
+	if ctx.GlobalBool("enable_stats") {
+		opts = append(opts, server.EnableStats("/stats"))
+	}
+
 	// create the router
 	r := http.NewServeMux()
 	log.Infof("Registering RPC Handler at %s", RPCPath)

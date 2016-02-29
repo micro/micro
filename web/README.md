@@ -38,6 +38,16 @@ are used to resolve a service to reverse proxy for.
 micro --web_namespace=com.example.web
 ```
 
+## Stats
+
+You can enable a stats dashboard via the `--enable_stats` flag. It will be exposed on /stats.
+
+```shell
+micro --enable_stats web
+```
+
+<img src="https://github.com/micro/micro/blob/master/doc/stats.png">
+
 ## Screenshots
 
 <img src="https://github.com/micro/micro/blob/master/web/web1.png">

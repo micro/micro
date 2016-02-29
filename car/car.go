@@ -60,6 +60,10 @@ func run(ctx *cli.Context, car *Sidecar) {
 		}
 	}
 
+	if ctx.GlobalBool("enable_stats") {
+		opts = append(opts, server.EnableStats("/stats"))
+	}
+
 	// new server
 	srv := server.NewServer(Address)
 	srv.Init(opts...)

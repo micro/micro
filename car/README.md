@@ -142,3 +142,13 @@ The sidecar also acts as a proxy for the CLI
 $ micro --proxy_address=127.0.0.1:8081 list services
 go.micro.srv.greeter
 ```
+
+## Stats Dashboard
+
+You can enable a stats dashboard via the `--enable_stats` flag. It will be exposed on /stats.
+
+```shell
+micro --enable_stats sidecar
+```
+
+<img src="https://github.com/micro/micro/blob/master/doc/stats.png">

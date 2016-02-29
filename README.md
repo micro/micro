@@ -129,6 +129,8 @@ Project		|	Description
 <img src="https://github.com/micro/micro/blob/master/web/web2.png">
 -
 <img src="https://github.com/micro/micro/blob/master/web/web3.png">
+-
+<img src="https://github.com/micro/micro/blob/master/doc/stats.png">
 
 ## Getting Started
 
