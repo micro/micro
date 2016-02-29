@@ -81,3 +81,16 @@ Translation of URLs are as follows:
 /foo/bar/baz/cat => service: go.micro.api.foo.bar method: Baz.Cat
 
 A working example can be found here [Greeter Service](https://github.com/micro/micro/tree/master/examples/greeter)
+
+## Stats Dashboard
+
+You can enable a stats dashboard via the `--enable_stats` flag. It will be exposed on /stats.
+
+```shell
+micro --enable_stats api
+```
+
+<img src="https://github.com/micro/micro/blob/master/doc/stats.png">
+
+
+
