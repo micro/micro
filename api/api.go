@@ -69,8 +69,8 @@ func run(ctx *cli.Context) {
 		}
 	}
 
-	if ctx.GlobalBool("stats") {
-		opts = append(opts, server.EnableStats("/stats.json"))
+	if ctx.GlobalBool("enable_stats") {
+		opts = append(opts, server.EnableStats("/stats"))
 	}
 
 	// create the router

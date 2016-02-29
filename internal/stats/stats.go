@@ -3,6 +3,7 @@ package stats
 import (
 	"encoding/json"
 	"fmt"
+	"html/template"
 	"net/http"
 	"runtime"
 	"sync"
@@ -40,16 +41,39 @@ var (
 	total = 24
 )
 
-func (s *stats) handler(w http.ResponseWriter, r *http.Request) {
-	s.RLock()
-	b, err := json.Marshal(s)
-	s.RUnlock()
+func render(w http.ResponseWriter, r *http.Request, tmpl string, data interface{}) {
+	t, err := template.New("template").Funcs(template.FuncMap{
+	//		"format": format,
+	}).Parse(layoutTemplate)
 	if err != nil {
-		http.Error(w, err.Error(), 500)
+		http.Error(w, "Error occurred:"+err.Error(), 500)
 		return
 	}
-	w.Header().Set("Content-Type", "application/json")
-	w.Write(b)
+	t, err = t.Parse(tmpl)
+	if err != nil {
+		http.Error(w, "Error occurred:"+err.Error(), 500)
+		return
+	}
+	if err := t.ExecuteTemplate(w, "layout", data); err != nil {
+		http.Error(w, "Error occurred:"+err.Error(), 500)
+	}
+}
+
+func (s *stats) handler(w http.ResponseWriter, r *http.Request) {
+	if ct := r.Header.Get("Content-Type"); ct == "application/json" {
+		s.RLock()
+		b, err := json.Marshal(s)
+		s.RUnlock()
+		if err != nil {
+			http.Error(w, err.Error(), 500)
+			return
+		}
+		w.Header().Set("Content-Type", ct)
+		w.Write(b)
+		return
+	}
+
+	render(w, r, statsTemplate, nil)
 }
 
 func (s *stats) run() {

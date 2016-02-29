@@ -60,8 +60,8 @@ func run(ctx *cli.Context, car *Sidecar) {
 		}
 	}
 
-	if ctx.GlobalBool("stats") {
-		opts = append(opts, server.EnableStats("/stats.json"))
+	if ctx.GlobalBool("enable_stats") {
+		opts = append(opts, server.EnableStats("/stats"))
 	}
 
 	// new server
