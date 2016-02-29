@@ -162,4 +162,7 @@ Implement version 1s
 * [ ] Logging
 * [x] Router
 
-
+## Deployment
+* [x] [Micro on Kubernetes](https://github.com/micro/kubernetes)
+* [ ] Micro Docker Compose
+* [ ] Platform Docker Compose
