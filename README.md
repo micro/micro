@@ -214,7 +214,7 @@ Read more on how to use the Micro [CLI](https://github.com/micro/micro/tree/mast
 
 ```shell
 NAME:
-   micro - A microservices toolchain
+   micro - A microservices toolkit
 
 USAGE:
    micro [global options] command [command options] [arguments...]
@@ -226,6 +226,7 @@ COMMANDS:
    api		Run the micro API
    registry	Query registry
    query	Query a service method using rpc
+   stream	Query a service method using streaming rpc
    health	Query the health of a service
    list		List items in registry
    register	Register an item in the registry
@@ -256,8 +257,22 @@ GLOBAL OPTIONS:
    -v 										log level for V logs
    --vmodule 									comma-separated list of pattern=N settings for file-filtered logging
    --log_backtrace_at 								when logging hits line file:N, emit a stack trace
+   --enable_tls									Enable TLS [$MICRO_ENABLE_TLS]
+   --tls_cert_file 								TLS Certificate file [$MICRO_TLS_CERT_File]
+   --tls_key_file 								TLS Key file [$MICRO_TLS_KEY_File]
+   --api_address 								Set the api address e.g 0.0.0.0:8080 [$MICRO_API_ADDRESS]
+   --proxy_address 								Proxy requests via the HTTP address specified [$MICRO_PROXY_ADDRESS]
+   --sidecar_address 								Set the sidecar address e.g 0.0.0.0:8081 [$MICRO_SIDECAR_ADDRESS]
+   --web_address 								Set the web UI address e.g 0.0.0.0:8082 [$MICRO_WEB_ADDRESS]
+   --register_ttl "0"								Register TTL in seconds [$MICRO_REGISTER_TTL]
+   --register_interval "0"							Register interval in seconds [$MICRO_REGISTER_INTERVAL]
+   --api_namespace 								Set the namespace used by the API e.g. com.example.api [$MICRO_API_NAMESPACE]
+   --web_namespace 								Set the namespace used by the Web proxy e.g. com.example.web [$MICRO_WEB_NAMESPACE]
+   --api_cors 									Comma separated whitelist of allowed origins for CORS [$MICRO_API_CORS]
+   --web_cors 									Comma separated whitelist of allowed origins for CORS [$MICRO_WEB_CORS]
+   --sidecar_cors 								Comma separated whitelist of allowed origins for CORS [$MICRO_SIDECAR_CORS]
+   --enable_stats								Enable stats [$MICRO_ENABLE_STATS]
    --help, -h									show help
-   --version									print the version
    
 ```
 
