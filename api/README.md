@@ -5,13 +5,12 @@ This is a lightweight proxy for [Micro](https://github.com/micro/micro) based mi
 The API serves requests in two ways.
 
 1. /rpc
-	Sends requests directly to backend services using JSON
-	
-	Expects params: service, method, request.
+	- Sends requests directly to backend services using JSON
+	- Expects params: service, method, request.
 2. /[service]/[method]
-	The path is used to resolve service and method. 
-	Requests are sent to a special type of API service which takes the request api.Request and response api.Response. 
-	Definitions can be found at [micro/api/proto](https://github.com/micro/micro/tree/master/api/proto)
+	- The path is used to resolve service and method. 
+	- Requests are sent to a special type of API service which takes the request api.Request and response api.Response. 
+	- Definitions can be found at [micro/api/proto](https://github.com/micro/micro/tree/master/api/proto)
 
 
 
@@ -94,7 +93,7 @@ The default namespace for these services are **go.micro.api** but you can set yo
 Translation of URLs are as follows:
 
 Path	|	Service	|	Method
-----	|	----
+----	|	----	|	----
 /foo/bar	|	go.micro.api.foo	|	Foo.Bar
 /foo/bar/baz	|	go.micro.api.foo	|	Bar.Baz
 /foo/bar/baz/cat	|	go.micro.api.foo.bar	|	Baz.Cat
