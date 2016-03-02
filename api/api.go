@@ -11,6 +11,7 @@ import (
 	"github.com/micro/go-micro"
 	"github.com/micro/micro/internal/handler"
 	"github.com/micro/micro/internal/server"
+	"github.com/micro/micro/internal/stats"
 )
 
 var (
@@ -69,10 +70,6 @@ func run(ctx *cli.Context) {
 		}
 	}
 
-	if ctx.GlobalBool("enable_stats") {
-		opts = append(opts, server.EnableStats("/stats"))
-	}
-
 	// create the router
 	r := http.NewServeMux()
 	log.Infof("Registering RPC Handler at %s", RPCPath)
@@ -80,10 +77,21 @@ func run(ctx *cli.Context) {
 	log.Infof("Registering API Handler at %s", APIPath)
 	r.HandleFunc(APIPath, restHandler)
 
+	s := &srv{r}
+	var h http.Handler = s
+
+	if ctx.GlobalBool("enable_stats") {
+		st := stats.New()
+		s.HandleFunc("/stats", st.StatsHandler)
+		h = st.ServeHTTP(s)
+		st.Start()
+		defer st.Stop()
+	}
+
 	// create the server
 	api := server.NewServer(Address)
 	api.Init(opts...)
-	api.Handle("/", &srv{r})
+	api.Handle("/", h)
 
 	// Initialise Server
 	service := micro.NewService(

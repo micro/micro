@@ -11,8 +11,6 @@ import (
 )
 
 type stats struct {
-	mux *http.ServeMux
-
 	sync.RWMutex
 
 	Started int64  `json:"started"`
@@ -59,23 +57,6 @@ func render(w http.ResponseWriter, r *http.Request, tmpl string, data interface{
 	}
 }
 
-func (s *stats) handler(w http.ResponseWriter, r *http.Request) {
-	if ct := r.Header.Get("Content-Type"); ct == "application/json" {
-		s.RLock()
-		b, err := json.Marshal(s)
-		s.RUnlock()
-		if err != nil {
-			http.Error(w, err.Error(), 500)
-			return
-		}
-		w.Header().Set("Content-Type", ct)
-		w.Write(b)
-		return
-	}
-
-	render(w, r, statsTemplate, nil)
-}
-
 func (s *stats) run() {
 	t := time.NewTicker(window)
 	w := 0
@@ -119,23 +100,43 @@ func (s *stats) Record(c string, t int) {
 	s.Unlock()
 }
 
-func (s *stats) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	var code string
-	rw := &writer{w, 200}
-	s.mux.ServeHTTP(rw, r)
+func (s *stats) ServeHTTP(h http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		var code string
+		rw := &writer{w, 200}
 
-	switch {
-	case rw.status >= 500:
-		code = "50x"
-	case rw.status >= 400:
-		code = "40x"
-	case rw.status >= 300:
-		code = "30x"
-	case rw.status >= 200:
-		code = "20x"
+		h.ServeHTTP(w, r)
+
+		switch {
+		case rw.status >= 500:
+			code = "50x"
+		case rw.status >= 400:
+			code = "40x"
+		case rw.status >= 300:
+			code = "30x"
+		case rw.status >= 200:
+			code = "20x"
+		}
+
+		s.Record(code, 1)
+	})
+}
+
+func (s *stats) StatsHandler(w http.ResponseWriter, r *http.Request) {
+	if ct := r.Header.Get("Content-Type"); ct == "application/json" {
+		s.RLock()
+		b, err := json.Marshal(s)
+		s.RUnlock()
+		if err != nil {
+			http.Error(w, err.Error(), 500)
+			return
+		}
+		w.Header().Set("Content-Type", ct)
+		w.Write(b)
+		return
 	}
 
-	s.Record(code, 1)
+	render(w, r, statsTemplate, nil)
 }
 
 func (s *stats) Start() error {
@@ -165,12 +166,11 @@ func (s *stats) Stop() error {
 	return nil
 }
 
-func New(p string, m *http.ServeMux) *stats {
+func New() *stats {
 	var mstat runtime.MemStats
 	runtime.ReadMemStats(&mstat)
 
-	s := &stats{
-		mux:     m,
+	return &stats{
 		Threads: runtime.NumGoroutine(),
 		Memory:  fmt.Sprintf("%.2fmb", float64(mstat.Alloc)/float64(1024*1024)),
 		GC:      fmt.Sprintf("%.3fms", float64(mstat.PauseTotalNs)/(1000*1000)),
@@ -181,7 +181,4 @@ func New(p string, m *http.ServeMux) *stats {
 			},
 		},
 	}
-
-	m.HandleFunc(p, s.handler)
-	return s
 }

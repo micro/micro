@@ -21,6 +21,7 @@ import (
 	"github.com/micro/go-micro/selector"
 	"github.com/micro/micro/internal/handler"
 	"github.com/micro/micro/internal/server"
+	"github.com/micro/micro/internal/stats"
 	"github.com/serenize/snaker"
 )
 
@@ -108,11 +109,6 @@ func (s *srv) proxy() http.Handler {
 		Default:  &httputil.ReverseProxy{Director: director},
 		Director: director,
 	}
-	/*
-		return &httputil.ReverseProxy{
-			Director: director,
-		}
-	*/
 }
 
 func format(v *registry.Value) string {
@@ -266,8 +262,19 @@ func render(w http.ResponseWriter, r *http.Request, tmpl string, data interface{
 }
 
 func run(ctx *cli.Context) {
+	var h http.Handler
 	r := mux.NewRouter()
 	s := &srv{r}
+	h = s
+
+	if ctx.GlobalBool("enable_stats") {
+		st := stats.New()
+		s.HandleFunc("/stats", st.StatsHandler)
+		h = st.ServeHTTP(s)
+		st.Start()
+		defer st.Stop()
+	}
+
 	s.HandleFunc("/registry", registryHandler)
 	s.HandleFunc("/rpc", handler.RPC)
 	s.HandleFunc("/query", queryHandler)
@@ -298,13 +305,9 @@ func run(ctx *cli.Context) {
 		}
 	}
 
-	if ctx.GlobalBool("enable_stats") {
-		opts = append(opts, server.EnableStats("/stats"))
-	}
-
 	srv := server.NewServer(Address)
 	srv.Init(opts...)
-	srv.Handle("/", s)
+	srv.Handle("/", h)
 
 	// Initialise Server
 	service := micro.NewService(

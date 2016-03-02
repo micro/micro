@@ -15,6 +15,7 @@ import (
 	"github.com/micro/go-micro/registry"
 	"github.com/micro/micro/internal/handler"
 	"github.com/micro/micro/internal/server"
+	"github.com/micro/micro/internal/stats"
 	"github.com/pborman/uuid"
 )
 
@@ -60,9 +61,7 @@ func run(ctx *cli.Context, car *Sidecar) {
 		}
 	}
 
-	if ctx.GlobalBool("enable_stats") {
-		opts = append(opts, server.EnableStats("/stats"))
-	}
+	r := http.NewServeMux()
 
 	// new server
 	srv := server.NewServer(Address)
@@ -71,7 +70,7 @@ func run(ctx *cli.Context, car *Sidecar) {
 	// register handlers
 	if car != nil {
 		log.Infof("Registering Health handler at %s", HealthPath)
-		srv.Handle(HealthPath, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		r.Handle(HealthPath, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			if c, err := car.hc(); err != nil {
 				http.Error(w, err.Error(), c)
 				return
@@ -80,13 +79,25 @@ func run(ctx *cli.Context, car *Sidecar) {
 	}
 
 	log.Infof("Registering Registry handler at %s", RegistryPath)
-	srv.Handle(RegistryPath, http.HandlerFunc(handler.Registry))
+	r.Handle(RegistryPath, http.HandlerFunc(handler.Registry))
 
 	log.Infof("Registering RPC handler at %s", RPCPath)
-	srv.Handle(RPCPath, http.HandlerFunc(handler.RPC))
+	r.Handle(RPCPath, http.HandlerFunc(handler.RPC))
 
 	log.Infof("Registering Broker handler at %s", BrokerPath)
-	srv.Handle(BrokerPath, http.HandlerFunc(handler.Broker))
+	r.Handle(BrokerPath, http.HandlerFunc(handler.Broker))
+
+	var h http.Handler = r
+
+	if ctx.GlobalBool("enable_stats") {
+		st := stats.New()
+		r.Handle("/stats", http.HandlerFunc(st.StatsHandler))
+		h = st.ServeHTTP(r)
+		st.Start()
+		defer st.Stop()
+	}
+
+	srv.Handle("/", h)
 
 	// Initialise Server
 	service := micro.NewService(
