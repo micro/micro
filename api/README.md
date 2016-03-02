@@ -2,7 +2,19 @@
 
 This is a lightweight proxy for [Micro](https://github.com/micro/micro) based microservices. It conforms to the [API Gateway](http://microservices.io/patterns/apigateway.html) pattern and can be used in conjuction with [go-micro](https://github.com/micro/go-micro) based apps or any future language implementation of the [Micro](https://github.com/micro/micro) toolchain.
 
-Currently a work in progress.
+The API serves requests in two ways.
+
+1. /rpc
+	Sends requests directly to backend services using JSON
+	
+	Expects params: service, method, request.
+2. /[service]/[method]
+	The path is used to resolve service and method. 
+	Requests are sent to a special type of API service which takes the request api.Request and response api.Response. 
+	Definitions can be found at [micro/api/proto](https://github.com/micro/micro/tree/master/api/proto)
+
+
+
 
 ## Getting started
 
@@ -54,31 +66,38 @@ I0525 18:17:57.574779   84421 server.go:99] Registering node: go.micro.srv.examp
 The example server has a handler registered called Example with a method named Call. 
 Now let's query this through the API. 
 ```bash
-$ curl -d 'service=go.micro.srv.example' -d 'method=Example.Call' -d 'request={"name": "Asim Aslam"}' http://localhost:8080/rpc
+$ curl -d 'service=go.micro.srv.example' \
+	-d 'method=Example.Call' \
+	-d 'request={"name": "Asim Aslam"}' \
+	http://localhost:8080/rpc
+
 {"msg":"go.micro.srv.example-fccbb6fb-0301-11e5-9f1f-68a86d0d36b6: Hello Asim Aslam"}
 ```
 
 Alternatively let's try 'Content-Type: application/json'
 ```bash
-$ curl -H 'Content-Type: application/json' -d '{"service": "go.micro.srv.example", "method": "Example.Call", "request": {"name": "Asim Aslam"}}' http://localhost:8080/rpc
+$ curl -H 'Content-Type: application/json' \
+	-d '{"service": "go.micro.srv.example", "method": "Example.Call", "request": {"name": "Asim Aslam"}}' \
+	http://localhost:8080/rpc
+
 {"msg":"go.micro.srv.example-fccbb6fb-0301-11e5-9f1f-68a86d0d36b6: Hello Asim Aslam"}
 ```
 
-## Testing using REST based API Services
+## Testing path resolution using API Services
 
-Micro allows you to handle REST based paths using rpc by providing built in handling for API Services. An API service is like any other 
+Micro allows you resolve HTTP Paths at the edge as individual API Services. An API service is like any other 
 micro service except each method signature takes an *api.Request and *api.Response which can be found in 
 [github.com/micro/micro/api/proto](https://github.com/micro/micro/tree/master/api/proto).
 
-The default namespace for these services are: go.micro.api
+The default namespace for these services are **go.micro.api** but you can set your own namespace via `--api_namespace`.
 
 Translation of URLs are as follows:
 
-/foo/bar => service: go.micro.api.foo method: Foo.Bar
-
-/foo/bar/baz => service: go.micro.api.foo method: Bar.Baz
-
-/foo/bar/baz/cat => service: go.micro.api.foo.bar method: Baz.Cat
+Path	|	Service	|	Method
+----	|	----
+/foo/bar	|	go.micro.api.foo	|	Foo.Bar
+/foo/bar/baz	|	go.micro.api.foo	|	Bar.Baz
+/foo/bar/baz/cat	|	go.micro.api.foo.bar	|	Baz.Cat
 
 A working example can be found here [Greeter Service](https://github.com/micro/micro/tree/master/examples/greeter)
 
