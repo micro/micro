@@ -98,6 +98,16 @@ Path	|	Service	|	Method
 /foo/bar/baz	|	go.micro.api.foo	|	Bar.Baz
 /foo/bar/baz/cat	|	go.micro.api.foo.bar	|	Baz.Cat
 
+Versioned API URLs can easily be mapped to service names:
+
+Path	|	Service	|	Method
+----	|	----	|	----
+/foo/bar	|	go.micro.api.foo	|	Foo.Bar
+/v1/foo/bar	|	go.micro.api.v1.foo	|	Foo.Bar
+/v1/foo/bar/baz	|	go.micro.api.v1.foo	|	Bar.Baz
+/v2/foo/bar	|	go.micro.api.v2.foo	|	Foo.Bar
+/v2/foo/bar/baz	|	go.micro.api.v2.foo	|	Bar.Baz
+
 A working example can be found here [Greeter Service](https://github.com/micro/micro/tree/master/examples/greeter)
 
 ## Stats Dashboard
