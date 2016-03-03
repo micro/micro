@@ -1,4 +1,4 @@
-registry:
+consul:
   command: -server -bootstrap -rejoin 
   image: progrium/consul:latest
   hostname: "registry"
@@ -11,20 +11,20 @@ api:
   command: --registry_address=registry:8500 --register_interval=5 --register_ttl=10 --logtostderr api
   build: .
   links:
-  - registry
+  - consul
   ports:
   - "8080:8080"
 sidecar:
   command: --registry_address=registry:8500 --register_interval=5 --register_ttl=10 --logtostderr sidecar
   build: .
   links:
-  - registry
+  - consul
   ports:
   - "8081:8081"
 web:
   command: --registry_address=registry:8500 --register_interval=5 --register_ttl=10 --logtostderr web
   build: .
   links:
-  - registry
+  - consul
   ports:
   - "8082:8082"
