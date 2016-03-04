@@ -24,7 +24,7 @@ some reason like constructing URLs.
 Example translation
 
 Path	|	Service	|	Service Path	|	Header: X-Micro-Web-Base-Path
----	|	---	|	---
+---	|	---	|	---	|	---
 /foo	|	go.micro.web.foo	|	/	|	/foo
 /foo/bar	|	go.micro.web.foo	|	/bar	|	/foo
 
