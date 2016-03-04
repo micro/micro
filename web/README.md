@@ -3,9 +3,31 @@
 Micro web provides a visual point of entry for the micro environment and should replicate 
 the features of the CLI.
 
-It also includes a reverse proxy to route requests to micro web 
-apps. /[name] will proxy to the service [namespace].[name]. The default namespace is 
-go.micro.web.
+## Features
+
+Feature	|	Description
+---	|	---
+UI	|	A dashboard to view and query running services
+Proxy	|	A reverse proxy to micro web services (includes websocket support)
+
+### Proxy
+
+Micro Web has a built in HTTP reverse proxy for micro web apps. This essentially allows you 
+to treat web applications as first class citizens in a microservices environment. The proxy 
+will use /[service] along with the namespace (default: go.micro.web) to lookup the service 
+in service discovery. It composes service name as [namespace].[name]. 
+
+The proxy will strip /[service] forwarded the rest of the path to the web app. It will also 
+set the header "X-Micro-Web-Base-Path" to the stripped path incase you need to use it for 
+some reason like constructing URLs.
+
+Example translation
+
+Path	|	Service	|	Service Path	|	Header: X-Micro-Web-Base-Path
+---	|	---	|	---
+/foo	|	go.micro.web.foo	|	/	|	/foo
+/foo/bar	|	go.micro.web.foo	|	/bar	|	/foo
+
 
 ## Getting Started
 
