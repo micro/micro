@@ -93,7 +93,7 @@ func isWebSocket(r *http.Request) bool {
 	return false
 }
 
-func Proxy(ns string) http.Handler {
+func Proxy(ns string, ws bool) http.Handler {
 	sel := selector.NewSelector(
 		selector.Registry((*cmd.DefaultOptions().Registry)),
 	)
@@ -134,8 +134,15 @@ func Proxy(ns string) http.Handler {
 		r.URL.Scheme = "http"
 	}
 
+	dr := &httputil.ReverseProxy{Director: director}
+
+	// disable web sockets
+	if !ws {
+		return dr
+	}
+
 	return &proxy{
-		Default:  &httputil.ReverseProxy{Director: director},
+		Default:  dr,
 		Director: director,
 	}
 }

@@ -81,7 +81,7 @@ func run(ctx *cli.Context) {
 	switch ctx.GlobalString("api_translator") {
 	case "proxy":
 		log.Infof("Registering API Proxy Handler at %s", ProxyPath)
-		r.PathPrefix(ProxyPath).Handler(handler.Proxy(Namespace))
+		r.PathPrefix(ProxyPath).Handler(handler.Proxy(Namespace, false))
 	default:
 		log.Infof("Registering API Handler at %s", APIPath)
 		r.HandleFunc(APIPath, restHandler)
