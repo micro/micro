@@ -117,12 +117,11 @@ You can serve a RESTful API by using the API as a proxy and implementing RESTful
 An example of a REST API service can be found at [greeter/api/go-restful](https://github.com/micro/micro/tree/master/examples/greeter/api/go-restful).
 
 Starting the API with `--api_translator=proxy` will reverse proxy requests to backend services within the served API namespace (default: go.micro.api). 
-The /[service] prefix is stripped with web services but with the API we preserve it, so you'll receive the full PATH for the request.
 
 Example
 
 Path	|	Service	|	Service Path
----	|	---
+---	|	---	|	---
 /greeter	|	go.micro.api.greeter	|	/greeter
 /greeter/:name	|	go.micro.api.greeter	|	/greeter/:name
 
