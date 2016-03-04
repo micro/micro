@@ -2,7 +2,7 @@
 
 This is a lightweight proxy for [Micro](https://github.com/micro/micro) based microservices. It conforms to the [API Gateway](http://microservices.io/patterns/apigateway.html) pattern and can be used in conjuction with [go-micro](https://github.com/micro/go-micro) based apps or any future language implementation of the [Micro](https://github.com/micro/micro) toolchain.
 
-The API serves requests in two ways.
+The API serves requests in three ways.
 
 1. /rpc
 	- Sends requests directly to backend services using JSON
@@ -12,8 +12,9 @@ The API serves requests in two ways.
 	- Requests are sent to a special type of API service which takes the request api.Request and response api.Response. 
 	- Definitions can be found at [micro/api/proto](https://github.com/micro/micro/tree/master/api/proto)
 
-
-
+3. /[service] proxy set via `--api_translator=proxy`
+	- The request will be reverse proxied to the served resolved by the first element in the path
+	- This allows REST to be implemented behind the API
 
 ## Getting started
 
@@ -109,6 +110,22 @@ Path	|	Service	|	Method
 /v2/foo/bar/baz	|	go.micro.api.v2.foo	|	Bar.Baz
 
 A working example can be found here [Greeter Service](https://github.com/micro/micro/tree/master/examples/greeter)
+
+## Using REST
+
+You can serve a RESTful API by using the API as a proxy and implementing RESTful paths with libraries such as [go-restful](https://github.com/emicklei/go-restful). 
+An example of a REST API service can be found at [greeter/api/go-restful](https://github.com/micro/micro/tree/master/examples/greeter/api/go-restful).
+
+Starting the API with `--api_translator=proxy` will reverse proxy requests to backend services within the served API namespace (default: go.micro.api). 
+The /[service] prefix is stripped with web services but with the API we preserve it, so you'll receive the full PATH for the request.
+
+Example
+
+Path	|	Service	|	Service Path
+---	|	---
+/greeter	|	go.micro.api.greeter	|	/greeter
+/greeter/:name	|	go.micro.api.greeter	|	/greeter/:name
+
 
 ## Stats Dashboard
 

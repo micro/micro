@@ -59,6 +59,11 @@ func setup(app *ccli.App) {
 			Usage:  "Register interval in seconds",
 		},
 		ccli.StringFlag{
+			Name:   "api_translator",
+			Usage:  "Specify the request translator to be used mapping to backend services. e.g api, proxy",
+			EnvVar: "MICRO_API_TRANSLATOR",
+		},
+		ccli.StringFlag{
 			Name:   "api_namespace",
 			Usage:  "Set the namespace used by the API e.g. com.example.api",
 			EnvVar: "MICRO_API_NAMESPACE",
