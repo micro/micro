@@ -7,6 +7,7 @@ import (
 	"time"
 
 	log "github.com/golang/glog"
+	"github.com/gorilla/mux"
 	"github.com/micro/cli"
 	"github.com/micro/go-micro"
 	"github.com/micro/micro/internal/handler"
@@ -18,13 +19,14 @@ var (
 	Address      = ":8080"
 	RPCPath      = "/rpc"
 	APIPath      = "/"
+	ProxyPath    = "/{service:[a-zA-Z0-9]+}"
 	Namespace    = "go.micro.api"
 	HeaderPrefix = "X-Micro-"
 	CORS         = map[string]bool{"*": true}
 )
 
 type srv struct {
-	*http.ServeMux
+	*mux.Router
 }
 
 func (s *srv) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -42,7 +44,7 @@ func (s *srv) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	s.ServeMux.ServeHTTP(w, r)
+	s.Router.ServeHTTP(w, r)
 }
 
 func run(ctx *cli.Context) {
@@ -71,21 +73,28 @@ func run(ctx *cli.Context) {
 	}
 
 	// create the router
-	r := http.NewServeMux()
-	log.Infof("Registering RPC Handler at %s", RPCPath)
-	r.HandleFunc(RPCPath, handler.RPC)
-	log.Infof("Registering API Handler at %s", APIPath)
-	r.HandleFunc(APIPath, restHandler)
-
+	r := mux.NewRouter()
 	s := &srv{r}
 	var h http.Handler = s
 
 	if ctx.GlobalBool("enable_stats") {
 		st := stats.New()
-		s.HandleFunc("/stats", st.StatsHandler)
+		r.HandleFunc("/stats", st.StatsHandler)
 		h = st.ServeHTTP(s)
 		st.Start()
 		defer st.Stop()
+	}
+
+	log.Infof("Registering RPC Handler at %s", RPCPath)
+	r.HandleFunc(RPCPath, handler.RPC)
+
+	switch ctx.GlobalString("api_handler") {
+	case "proxy":
+		log.Infof("Registering API Proxy Handler at %s", ProxyPath)
+		r.PathPrefix(ProxyPath).Handler(handler.Proxy(Namespace, false))
+	default:
+		log.Infof("Registering API Handler at %s", APIPath)
+		r.PathPrefix(APIPath).HandlerFunc(apiHandler)
 	}
 
 	// create the server

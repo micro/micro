@@ -59,6 +59,11 @@ func setup(app *ccli.App) {
 			Usage:  "Register interval in seconds",
 		},
 		ccli.StringFlag{
+			Name:   "api_handler",
+			Usage:  "Specify the request handler to be used for mapping HTTP requests to services. e.g api, proxy",
+			EnvVar: "MICRO_API_HANDLER",
+		},
+		ccli.StringFlag{
 			Name:   "api_namespace",
 			Usage:  "Set the namespace used by the API e.g. com.example.api",
 			EnvVar: "MICRO_API_NAMESPACE",
