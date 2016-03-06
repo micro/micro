@@ -102,7 +102,7 @@ func requestToProto(r *http.Request) (*api.Request, error) {
 	return req, nil
 }
 
-func restHandler(w http.ResponseWriter, r *http.Request) {
+func apiHandler(w http.ResponseWriter, r *http.Request) {
 	request, err := requestToProto(r)
 	if err != nil {
 		er := errors.InternalServerError("go.micro.api", err.Error())

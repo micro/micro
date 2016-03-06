@@ -94,7 +94,7 @@ func run(ctx *cli.Context) {
 		r.PathPrefix(ProxyPath).Handler(handler.Proxy(Namespace, false))
 	default:
 		log.Infof("Registering API Handler at %s", APIPath)
-		r.PathPrefix(APIPath).HandlerFunc(restHandler)
+		r.PathPrefix(APIPath).HandlerFunc(apiHandler)
 	}
 
 	// create the server
