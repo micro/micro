@@ -23,7 +23,7 @@ The overarching project [github.com/micro](https://github.com/micro) is a micros
 It currently consists of the following.
 
 ### [Go Micro](https://github.com/micro/go-micro)
-A pluggable Go client framework for writing microservices.
+A pluggable Go client framework for writing microservices. Go-micro can be used standalone and should be the starting point for writing applications.
 
 Feature		|	Description
 -------		|	-----------
@@ -36,7 +36,7 @@ Feature		|	Description
 [Transport](https://godoc.org/github.com/micro/go-micro/transport)	|	Synchronous Messaging
 
 ### [Micro](https://github.com/micro/micro)
-Entry points into the runtime.
+Entry points into the runtime. Used to manage the public facing aspect of your architecture, creating fixed entry points and interacting with services.
 
 Feature		|	Description
 ------		|	-------
@@ -46,7 +46,7 @@ Feature		|	Description
 [Web UI/Proxy](https://github.com/micro/micro/tree/master/web) | A visual way to view and query services
 
 ### [Go Platform](https://github.com/micro/go-platform)
-Libraries to integrate into distributed systems.
+Libraries to integrate into distributed systems. Go-platform provides client side interfaces to the wider requirements of a microservice platform.
 
 Feature     |   Description
 -------     |   ---------
