@@ -12,7 +12,7 @@ The API serves requests in three ways.
 	- Requests are sent to a special type of API service which takes the request api.Request and response api.Response. 
 	- Definitions can be found at [micro/api/proto](https://github.com/micro/micro/tree/master/api/proto)
 
-3. /[service] proxy set via `--api_translator=proxy`
+3. /[service] proxy set via `--api_handler=proxy`
 	- The request will be reverse proxied to the served resolved by the first element in the path
 	- This allows REST to be implemented behind the API
 
@@ -116,7 +116,7 @@ A working example can be found here [Greeter Service](https://github.com/micro/m
 You can serve a RESTful API by using the API as a proxy and implementing RESTful paths with libraries such as [go-restful](https://github.com/emicklei/go-restful). 
 An example of a REST API service can be found at [greeter/api/go-restful](https://github.com/micro/micro/tree/master/examples/greeter/api/go-restful).
 
-Starting the API with `--api_translator=proxy` will reverse proxy requests to backend services within the served API namespace (default: go.micro.api). 
+Starting the API with `--api_handler=proxy` will reverse proxy requests to backend services within the served API namespace (default: go.micro.api). 
 
 Example
 

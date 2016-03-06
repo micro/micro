@@ -74,28 +74,27 @@ func run(ctx *cli.Context) {
 
 	// create the router
 	r := mux.NewRouter()
-
-	log.Infof("Registering RPC Handler at %s", RPCPath)
-	r.HandleFunc(RPCPath, handler.RPC)
-
-	switch ctx.GlobalString("api_translator") {
-	case "proxy":
-		log.Infof("Registering API Proxy Handler at %s", ProxyPath)
-		r.PathPrefix(ProxyPath).Handler(handler.Proxy(Namespace, false))
-	default:
-		log.Infof("Registering API Handler at %s", APIPath)
-		r.HandleFunc(APIPath, restHandler)
-	}
-
 	s := &srv{r}
 	var h http.Handler = s
 
 	if ctx.GlobalBool("enable_stats") {
 		st := stats.New()
-		s.HandleFunc("/stats", st.StatsHandler)
+		r.HandleFunc("/stats", st.StatsHandler)
 		h = st.ServeHTTP(s)
 		st.Start()
 		defer st.Stop()
+	}
+
+	log.Infof("Registering RPC Handler at %s", RPCPath)
+	r.HandleFunc(RPCPath, handler.RPC)
+
+	switch ctx.GlobalString("api_handler") {
+	case "proxy":
+		log.Infof("Registering API Proxy Handler at %s", ProxyPath)
+		r.PathPrefix(ProxyPath).Handler(handler.Proxy(Namespace, false))
+	default:
+		log.Infof("Registering API Handler at %s", APIPath)
+		r.PathPrefix(APIPath).HandlerFunc(restHandler)
 	}
 
 	// create the server
