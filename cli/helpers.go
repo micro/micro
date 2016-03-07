@@ -283,7 +283,7 @@ func queryService(c *cli.Context) {
 		request = map[string]interface{}{
 			"service": service,
 			"method":  method,
-			"request": []byte(strings.Join(c.Args()[2:], " ")),
+			"request": strings.Join(c.Args()[2:], " "),
 		}
 
 		b, err := json.Marshal(request)
