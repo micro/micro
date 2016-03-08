@@ -138,16 +138,16 @@ Overview
 
 Create simple OSS dashboards for each platform service
 
+ * [x] [Config](https://github.com/micro/config-web)
  * [x] [Discovery](https://github.com/micro/discovery-web)
+ * [x] [Events](https://github.com/micro/event-web)
  * [x] [Monitoring](https://github.com/micro/monitor-web)
  * [x] [Tracing](https://github.com/micro/trace-web)
  * [ ] Logging
- * [x] Config
  * [ ] Auth
  * [ ] Routing
  * [ ] API
  * [ ] Metrics
- * [x] [Events](https://github.com/micro/event-web)
 
 ## Platform Services
 
