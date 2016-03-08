@@ -10,10 +10,10 @@ The micro ecosystem is rapidly growing but there's still a lot to do.
   * [x] Allow namespace to be set via flags
   * [x] Apache log format
   * [x] Stats page
-  * [ ] Allow REST requests to RPC based services
-  * [ ] Make the choice a flag/env var
+  * [x] Allow REST requests to RPC based services
+  * [x] Make the choice a flag/env var
   * [ ] Configurable hostnames
-  * [ ] Configurable namespace for services
+  * [x] Configurable namespace for services
   * [ ] Support label based routing
   * [ ] Support weighted load balancing
   * Google GFE like semantics
@@ -164,7 +164,7 @@ Implement version 1s
 
 ## Deployment
 * [x] [Micro on Kubernetes](https://github.com/micro/kubernetes)
-* [ ] Micro Docker Compose
+* [x] Micro Docker Compose
 * [ ] Platform Docker Compose
 
 ## Demo
