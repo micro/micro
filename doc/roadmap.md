@@ -142,7 +142,7 @@ Create simple OSS dashboards for each platform service
  * [x] [Monitoring](https://github.com/micro/monitor-web)
  * [x] [Tracing](https://github.com/micro/trace-web)
  * [ ] Logging
- * [ ] Config
+ * [x] Config
  * [ ] Auth
  * [ ] Routing
  * [ ] API
