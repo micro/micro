@@ -28,6 +28,7 @@ Path	|	Service	|	Service Path	|	Header: X-Micro-Web-Base-Path
 /foo	|	go.micro.web.foo	|	/	|	/foo
 /foo/bar	|	go.micro.web.foo	|	/bar	|	/foo
 
+Note: The web proxy speaks to services using HTTP. There is no ability to switch out transport.
 
 ## Getting Started
 

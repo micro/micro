@@ -138,6 +138,8 @@ Path	|	Service	|	Service Path
 /greeter/:name	|	go.micro.api.greeter	|	/greeter/:name
 
 
+Note: Using this method means directly speaking HTTP with the backend service. This eliminates the ability to switch transports.
+
 ## Stats Dashboard
 
 You can enable a stats dashboard via the `--enable_stats` flag. It will be exposed on /stats.
