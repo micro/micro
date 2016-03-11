@@ -53,16 +53,6 @@ func RPC(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		if len(body.Service) == 0 {
-			badRequest("invalid service")
-			return
-		}
-
-		if len(body.Method) == 0 {
-			badRequest("invalid method")
-			return
-		}
-
 		service = body.Service
 		method = body.Method
 		address = body.Address
@@ -80,7 +70,20 @@ func RPC(w http.ResponseWriter, r *http.Request) {
 		r.ParseForm()
 		service = r.Form.Get("service")
 		method = r.Form.Get("method")
-		json.Unmarshal([]byte(r.Form.Get("request")), &request)
+		if err := json.Unmarshal([]byte(r.Form.Get("request")), &request); err != nil {
+			badRequest("while decoding request string: " + err.Error())
+			return
+		}
+	}
+
+	if len(service) == 0 {
+		badRequest("invalid service")
+		return
+	}
+
+	if len(method) == 0 {
+		badRequest("invalid method")
+		return
 	}
 
 	var response map[string]interface{}
