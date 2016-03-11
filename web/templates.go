@@ -75,11 +75,22 @@ var (
 		<form id="query-form" onsubmit="return query();">
 			<div class="form-group">
 				<label for="service">Service</label>
-				<input class="form-control" type=text name=service id=service placeholder="Service Name" />
+				<ul class="list-group">
+					<select class="form-control" type=text name=service id=service> 
+					<option disabled selected> -- select a service -- </option>
+					{{range $key, $value := .}}
+					<option class = "list-group-item" value="{{$key.Name}}">{{$key.Name}}</option>
+					{{end}}
+					</select>
+				</ul>
 			</div>
 			<div class="form-group">
 				<label for="method">Method</label>
-				<input class="form-control" type=text name=method id=method placeholder="Method" />
+				<ul class="list-group">
+					<select class="form-control" type=text name=method id=method>
+					<option disabled selected> -- select a method -- </option>
+					</select>
+				</ul>
 			</div>
 			<div class="form-group">
 				<label for="request">Request</label>
@@ -97,6 +108,32 @@ var (
 </div>
 {{end}}
 {{define "script"}}
+	<script>
+		$(document).ready(function(){
+			//Function executes on change of first select option field 
+			$("#service").change(function(){
+				var select = $("#service option:selected").val();
+
+				$("#method").empty();
+				$("#method").append("<option disabled selected> -- select a method -- </option>");
+				var s_map = {};
+				{{ range $service, $methods := . }}
+				var m_list = [];
+				{{range $index, $element := $methods}}
+				m_list[{{$index}}] = {{$element.Name}}
+				{{end}}
+				s_map[{{$service.Name}}] = m_list
+				{{ end }}
+				if (select in s_map) {
+				var service_methods = s_map[select]
+				var len = service_methods.length;
+					for(var i = 0; i < len; i++) {
+						$("#method").append("<option value=\""+service_methods[i]+"\">"+service_methods[i]+"</option>");	
+					}
+				}
+			});
+		});
+	</script>
 	<script>
 		function query() {
 			var req = new XMLHttpRequest()
