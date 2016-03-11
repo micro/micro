@@ -21,6 +21,12 @@ func RPC(w http.ResponseWriter, r *http.Request) {
 	}
 	defer r.Body.Close()
 
+	badRequest := func(description string) {
+		e := errors.BadRequest("go.micro.rpc", description)
+		w.WriteHeader(400)
+		w.Write([]byte(e.Error()))
+	}
+
 	var service, method, address string
 	var request interface{}
 
@@ -31,47 +37,53 @@ func RPC(w http.ResponseWriter, r *http.Request) {
 	case "application/json":
 		b, err := ioutil.ReadAll(r.Body)
 		if err != nil {
-			e := errors.BadRequest("go.micro.rpc", err.Error())
-			w.WriteHeader(400)
-			w.Write([]byte(e.Error()))
+			badRequest(err.Error())
 			return
 		}
 
-		var body map[string]interface{}
-		err = json.Unmarshal(b, &body)
-		if err != nil {
-			e := errors.BadRequest("go.micro.rpc", err.Error())
-			w.WriteHeader(400)
-			w.Write([]byte(e.Error()))
+		var body struct {
+			Service string
+			Method  string
+			Address string
+			Request interface{}
+		}
+
+		if err = json.Unmarshal(b, &body); err != nil {
+			badRequest(err.Error())
 			return
 		}
 
-		var ok bool
+		service = body.Service
+		method = body.Method
+		address = body.Address
 
-		service, ok = body["service"].(string)
-		if !ok {
-			e := errors.BadRequest("go.micro.rpc", "invalid service")
-			w.WriteHeader(400)
-			w.Write([]byte(e.Error()))
-			return
+		if reqString, ok := body.Request.(string); ok {
+			// for backwards compatibility also accept JSON request objects wrapped as strings...
+			if err = json.Unmarshal([]byte(reqString), &request); err != nil {
+				badRequest("while decoding request string: " + err.Error())
+				return
+			}
+		} else {
+			request = body.Request
 		}
-
-		method, ok = body["method"].(string)
-		if !ok {
-			e := errors.BadRequest("go.micro.rpc", "invalid method")
-			w.WriteHeader(400)
-			w.Write([]byte(e.Error()))
-			return
-		}
-
-		address, _ = body["address"].(string)
-		req, _ := body["request"].(string)
-		json.Unmarshal([]byte(req), &request)
 	default:
 		r.ParseForm()
 		service = r.Form.Get("service")
 		method = r.Form.Get("method")
-		json.Unmarshal([]byte(r.Form.Get("request")), &request)
+		if err := json.Unmarshal([]byte(r.Form.Get("request")), &request); err != nil {
+			badRequest("while decoding request string: " + err.Error())
+			return
+		}
+	}
+
+	if len(service) == 0 {
+		badRequest("invalid service")
+		return
+	}
+
+	if len(method) == 0 {
+		badRequest("invalid method")
+		return
 	}
 
 	var response map[string]interface{}
