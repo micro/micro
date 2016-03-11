@@ -21,6 +21,12 @@ func RPC(w http.ResponseWriter, r *http.Request) {
 	}
 	defer r.Body.Close()
 
+	badRequest := func(description string) {
+		e := errors.BadRequest("go.micro.rpc", description)
+		w.WriteHeader(400)
+		w.Write([]byte(e.Error()))
+	}
+
 	var service, method, address string
 	var request interface{}
 
@@ -31,42 +37,45 @@ func RPC(w http.ResponseWriter, r *http.Request) {
 	case "application/json":
 		b, err := ioutil.ReadAll(r.Body)
 		if err != nil {
-			e := errors.BadRequest("go.micro.rpc", err.Error())
-			w.WriteHeader(400)
-			w.Write([]byte(e.Error()))
+			badRequest(err.Error())
 			return
 		}
 
-		var body map[string]interface{}
-		err = json.Unmarshal(b, &body)
-		if err != nil {
-			e := errors.BadRequest("go.micro.rpc", err.Error())
-			w.WriteHeader(400)
-			w.Write([]byte(e.Error()))
+		var body struct {
+			Service string
+			Method  string
+			Address string
+			Request interface{}
+		}
+
+		if err = json.Unmarshal(b, &body); err != nil {
+			badRequest(err.Error())
 			return
 		}
 
-		var ok bool
-
-		service, ok = body["service"].(string)
-		if !ok {
-			e := errors.BadRequest("go.micro.rpc", "invalid service")
-			w.WriteHeader(400)
-			w.Write([]byte(e.Error()))
+		if len(body.Service) == 0 {
+			badRequest("invalid service")
 			return
 		}
 
-		method, ok = body["method"].(string)
-		if !ok {
-			e := errors.BadRequest("go.micro.rpc", "invalid method")
-			w.WriteHeader(400)
-			w.Write([]byte(e.Error()))
+		if len(body.Method) == 0 {
+			badRequest("invalid method")
 			return
 		}
 
-		address, _ = body["address"].(string)
-		req, _ := body["request"].(string)
-		json.Unmarshal([]byte(req), &request)
+		service = body.Service
+		method = body.Method
+		address = body.Address
+
+		if reqString, ok := body.Request.(string); ok {
+			// for backwards compatibility also accept JSON request objects wrapped as strings...
+			if err = json.Unmarshal([]byte(reqString), &request); err != nil {
+				badRequest("while decoding request string: " + err.Error())
+				return
+			}
+		} else {
+			request = body.Request
+		}
 	default:
 		r.ParseForm()
 		service = r.Form.Get("service")
