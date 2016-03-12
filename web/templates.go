@@ -93,6 +93,12 @@ var (
 				</ul>
 			</div>
 			<div class="form-group">
+				<label for="othermethod">Other Method</label>
+				<ul class="list-group">
+					<input class="form-control" type=text name=othermethod id=othermethod disabled placeholder="Method"/>
+				</ul>
+			</div>
+			<div class="form-group">
 				<label for="request">Request</label>
 				<textarea class="form-control" name=request id=request rows=8>{}</textarea>
 			</div>
@@ -113,7 +119,8 @@ var (
 			//Function executes on change of first select option field 
 			$("#service").change(function(){
 				var select = $("#service option:selected").val();
-
+				$("#othermethod").attr("disabled", true);
+				$('#othermethod').val('');
 				$("#method").empty();
 				$("#method").append("<option disabled selected> -- select a method -- </option>");
 				var s_map = {};
@@ -131,6 +138,18 @@ var (
 						$("#method").append("<option value=\""+serviceMethods[i]+"\">"+serviceMethods[i]+"</option>");	
 					}
 				}
+				$("#method").append("<option value=\"other\">other</option>");
+			});
+			//Function executes on change of second select option field 
+			$("#method").change(function(){
+				var select = $("#method option:selected").val();
+				if (select == "other") {
+					$("#othermethod").attr("disabled", false);
+				} else {
+					$("#othermethod").attr("disabled", true);
+					$('#othermethod').val('');
+				}
+
 			});
 		});
 	</script>
@@ -143,9 +162,13 @@ var (
 					console.log(req.responseText);
 				}
 			}
+			var method = document.forms[0].elements["method"].value
+			if (!($('#othermethod').prop('disabled'))) {
+				method = document.forms[0].elements["othermethod"].value
+			}
 			var request = {
 				"service": document.forms[0].elements["service"].value,
-				"method": document.forms[0].elements["method"].value,
+				"method": method,
 				"request": JSON.parse(document.forms[0].elements["request"].value)
 			}
 			req.open("POST", "/rpc", true);
