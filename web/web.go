@@ -240,7 +240,39 @@ func registryHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func queryHandler(w http.ResponseWriter, r *http.Request) {
-	render(w, r, queryTemplate, nil)
+
+	services, err := (*cmd.DefaultOptions().Registry).ListServices()
+	if err != nil {
+		http.Error(w, "Error occurred:"+err.Error(), 500)
+		return
+	}
+
+	sort.Sort(sortedServices{services})
+
+	servicesMap := make(map[string][]registry.Endpoint, len(services))
+	for _, service := range services {
+		s, _ := (*cmd.DefaultOptions().Registry).GetService(service.Name)
+		endpointsArray := make([]registry.Endpoint, len(s[0].Endpoints))
+		for pos, endpoint := range s[0].Endpoints {
+			endpointsArray[pos] = *endpoint
+		}
+		servicesMap[service.Name] = endpointsArray
+	}
+
+	if r.Header.Get("Content-Type") == "application/json" {
+		b, err := json.Marshal(map[string]interface{}{
+			"services": services,
+		})
+		if err != nil {
+			http.Error(w, "Error occurred:"+err.Error(), 500)
+			return
+		}
+		w.Header().Set("Content-Type", "application/json")
+		w.Write(b)
+		return
+	}
+
+	render(w, r, queryTemplate, servicesMap)
 }
 
 func render(w http.ResponseWriter, r *http.Request, tmpl string, data interface{}) {

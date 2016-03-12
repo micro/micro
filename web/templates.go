@@ -75,11 +75,28 @@ var (
 		<form id="query-form" onsubmit="return query();">
 			<div class="form-group">
 				<label for="service">Service</label>
-				<input class="form-control" type=text name=service id=service placeholder="Service Name" />
+				<ul class="list-group">
+					<select class="form-control" type=text name=service id=service> 
+					<option disabled selected> -- select a service -- </option>
+					{{range $key, $value := .}}
+					<option class = "list-group-item" value="{{$key}}">{{$key}}</option>
+					{{end}}
+					</select>
+				</ul>
 			</div>
 			<div class="form-group">
 				<label for="method">Method</label>
-				<input class="form-control" type=text name=method id=method placeholder="Method" />
+				<ul class="list-group">
+					<select class="form-control" type=text name=method id=method>
+					<option disabled selected> -- select a method -- </option>
+					</select>
+				</ul>
+			</div>
+			<div class="form-group">
+				<label for="othermethod">Other Method</label>
+				<ul class="list-group">
+					<input class="form-control" type=text name=othermethod id=othermethod disabled placeholder="Method"/>
+				</ul>
 			</div>
 			<div class="form-group">
 				<label for="request">Request</label>
@@ -98,6 +115,45 @@ var (
 {{end}}
 {{define "script"}}
 	<script>
+		$(document).ready(function(){
+			//Function executes on change of first select option field 
+			$("#service").change(function(){
+				var select = $("#service option:selected").val();
+				$("#othermethod").attr("disabled", true);
+				$('#othermethod').val('');
+				$("#method").empty();
+				$("#method").append("<option disabled selected> -- select a method -- </option>");
+				var s_map = {};
+				{{ range $service, $methods := . }}
+				var m_list = [];
+				{{range $index, $element := $methods}}
+				m_list[{{$index}}] = {{$element.Name}}
+				{{end}}
+				s_map[{{$service}}] = m_list
+				{{ end }}
+				if (select in s_map) {
+				var serviceMethods = s_map[select]
+				var len = serviceMethods.length;
+					for(var i = 0; i < len; i++) {
+						$("#method").append("<option value=\""+serviceMethods[i]+"\">"+serviceMethods[i]+"</option>");	
+					}
+				}
+				$("#method").append("<option value=\"other\"> - Other</option>");
+			});
+			//Function executes on change of second select option field 
+			$("#method").change(function(){
+				var select = $("#method option:selected").val();
+				if (select == "other") {
+					$("#othermethod").attr("disabled", false);
+				} else {
+					$("#othermethod").attr("disabled", true);
+					$('#othermethod').val('');
+				}
+
+			});
+		});
+	</script>
+	<script>
 		function query() {
 			var req = new XMLHttpRequest()
 			req.onreadystatechange = function() {
@@ -106,9 +162,13 @@ var (
 					console.log(req.responseText);
 				}
 			}
+			var method = document.forms[0].elements["method"].value
+			if (!($('#othermethod').prop('disabled'))) {
+				method = document.forms[0].elements["othermethod"].value
+			}
 			var request = {
 				"service": document.forms[0].elements["service"].value,
-				"method": document.forms[0].elements["method"].value,
+				"method": method,
 				"request": JSON.parse(document.forms[0].elements["request"].value)
 			}
 			req.open("POST", "/rpc", true);
