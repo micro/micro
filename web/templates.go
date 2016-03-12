@@ -79,7 +79,7 @@ var (
 					<select class="form-control" type=text name=service id=service> 
 					<option disabled selected> -- select a service -- </option>
 					{{range $key, $value := .}}
-					<option class = "list-group-item" value="{{$key.Name}}">{{$key.Name}}</option>
+					<option class = "list-group-item" value="{{$key}}">{{$key}}</option>
 					{{end}}
 					</select>
 				</ul>
@@ -122,13 +122,13 @@ var (
 				{{range $index, $element := $methods}}
 				m_list[{{$index}}] = {{$element.Name}}
 				{{end}}
-				s_map[{{$service.Name}}] = m_list
+				s_map[{{$service}}] = m_list
 				{{ end }}
 				if (select in s_map) {
-				var service_methods = s_map[select]
-				var len = service_methods.length;
+				var serviceMethods = s_map[select]
+				var len = serviceMethods.length;
 					for(var i = 0; i < len; i++) {
-						$("#method").append("<option value=\""+service_methods[i]+"\">"+service_methods[i]+"</option>");	
+						$("#method").append("<option value=\""+serviceMethods[i]+"\">"+serviceMethods[i]+"</option>");	
 					}
 				}
 			});
