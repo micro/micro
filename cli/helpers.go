@@ -276,6 +276,13 @@ func queryService(c *cli.Context) {
 	}
 	service := c.Args()[0]
 	method := c.Args()[1]
+	req := strings.Join(c.Args()[2:], " ")
+
+	// empty request
+	if len(req) == 0 {
+		req = `{}`
+	}
+
 	var request map[string]interface{}
 	var response map[string]interface{}
 
@@ -283,7 +290,7 @@ func queryService(c *cli.Context) {
 		request = map[string]interface{}{
 			"service": service,
 			"method":  method,
-			"request": strings.Join(c.Args()[2:], " "),
+			"request": req,
 		}
 
 		b, err := json.Marshal(request)
@@ -298,7 +305,7 @@ func queryService(c *cli.Context) {
 		}
 
 	} else {
-		json.Unmarshal([]byte(strings.Join(c.Args()[2:], " ")), &request)
+		json.Unmarshal([]byte(req), &request)
 
 		req := (*cmd.DefaultOptions().Client).NewJsonRequest(service, method, request)
 		err := (*cmd.DefaultOptions().Client).Call(context.Background(), req, &response)
