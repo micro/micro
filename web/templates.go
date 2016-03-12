@@ -138,7 +138,7 @@ var (
 						$("#method").append("<option value=\""+serviceMethods[i]+"\">"+serviceMethods[i]+"</option>");	
 					}
 				}
-				$("#method").append("<option value=\"other\">other</option>");
+				$("#method").append("<option value=\"other\"> - Other</option>");
 			});
 			//Function executes on change of second select option field 
 			$("#method").change(function(){
