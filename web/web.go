@@ -249,14 +249,10 @@ func queryHandler(w http.ResponseWriter, r *http.Request) {
 
 	sort.Sort(sortedServices{services})
 
-	servicesMap := make(map[string][]registry.Endpoint, len(services))
+	serviceMap := make(map[string][]*registry.Endpoint)
 	for _, service := range services {
 		s, _ := (*cmd.DefaultOptions().Registry).GetService(service.Name)
-		endpointsArray := make([]registry.Endpoint, len(s[0].Endpoints))
-		for pos, endpoint := range s[0].Endpoints {
-			endpointsArray[pos] = *endpoint
-		}
-		servicesMap[service.Name] = endpointsArray
+		serviceMap[service.Name] = s[0].Endpoints
 	}
 
 	if r.Header.Get("Content-Type") == "application/json" {
@@ -272,7 +268,7 @@ func queryHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	render(w, r, queryTemplate, servicesMap)
+	render(w, r, queryTemplate, serviceMap)
 }
 
 func render(w http.ResponseWriter, r *http.Request, tmpl string, data interface{}) {
