@@ -12,6 +12,13 @@ import (
 	"golang.org/x/net/context"
 )
 
+type rpcRequest struct {
+	Service string
+	Method  string
+	Address string
+	Request interface{}
+}
+
 // RPC Handler passes on a JSON or form encoded RPC request to
 // a service.
 func RPC(w http.ResponseWriter, r *http.Request) {
@@ -41,37 +48,31 @@ func RPC(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		var body struct {
-			Service string
-			Method  string
-			Address string
-			Request interface{}
-		}
+		var rpcReq rpcRequest
 
-		if err = json.Unmarshal(b, &body); err != nil {
+		if err = json.Unmarshal(b, &rpcReq); err != nil {
 			badRequest(err.Error())
 			return
 		}
 
-		service = body.Service
-		method = body.Method
-		address = body.Address
+		service = rpcReq.Service
+		method = rpcReq.Method
+		address = rpcReq.Address
+		request = rpcReq.Request
 
-		if reqString, ok := body.Request.(string); ok {
-			// for backwards compatibility also accept JSON request objects wrapped as strings...
-			if err = json.Unmarshal([]byte(reqString), &request); err != nil {
-				badRequest("while decoding request string: " + err.Error())
+		// JSON as string
+		if req, ok := rpcReq.Request.(string); ok {
+			if err = json.Unmarshal([]byte(req), &request); err != nil {
+				badRequest("error decoding request string: " + err.Error())
 				return
 			}
-		} else {
-			request = body.Request
 		}
 	default:
 		r.ParseForm()
 		service = r.Form.Get("service")
 		method = r.Form.Get("method")
 		if err := json.Unmarshal([]byte(r.Form.Get("request")), &request); err != nil {
-			badRequest("while decoding request string: " + err.Error())
+			badRequest("error decoding request string: " + err.Error())
 			return
 		}
 	}
