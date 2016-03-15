@@ -8,21 +8,21 @@ consul:
   - "8500:8500"
   - "8600:53/udp"
 api:
-  command: --registry_address=registry:8500 --register_interval=5 --register_ttl=10 --logtostderr api
+  command: --registry_address=registry:8500 --register_interval=5 --register_ttl=10 api
   build: .
   links:
   - consul
   ports:
   - "8080:8080"
 sidecar:
-  command: --registry_address=registry:8500 --register_interval=5 --register_ttl=10 --logtostderr sidecar
+  command: --registry_address=registry:8500 --register_interval=5 --register_ttl=10 sidecar
   build: .
   links:
   - consul
   ports:
   - "8081:8081"
 web:
-  command: --registry_address=registry:8500 --register_interval=5 --register_ttl=10 --logtostderr web
+  command: --registry_address=registry:8500 --register_interval=5 --register_ttl=10 web
   build: .
   links:
   - consul
