@@ -2,12 +2,12 @@ package server
 
 import (
 	"crypto/tls"
+	"log"
 	"net"
 	"net/http"
 	"os"
 	"sync"
 
-	log "github.com/golang/glog"
 	"github.com/gorilla/handlers"
 )
 
@@ -67,7 +67,7 @@ func (s *server) Start() error {
 		return err
 	}
 
-	log.Infof("Listening on %s", l.Addr().String())
+	log.Printf("Listening on %s", l.Addr().String())
 
 	s.mtx.Lock()
 	s.address = l.Addr().String()

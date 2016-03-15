@@ -2,9 +2,9 @@ package main
 
 import (
 	"encoding/json"
+	"log"
 	"strings"
 
-	log "github.com/golang/glog"
 	"github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/cmd"
 	"github.com/micro/go-micro/errors"
@@ -18,7 +18,7 @@ import (
 type Say struct{}
 
 func (s *Say) Hello(ctx context.Context, req *api.Request, rsp *api.Response) error {
-	log.Info("Received Say.Hello API request")
+	log.Print("Received Say.Hello API request")
 
 	name, ok := req.Get["name"]
 	if !ok || len(name.Values) == 0 {

@@ -250,13 +250,6 @@ GLOBAL OPTIONS:
    --selector 									Selector used to pick nodes for querying. random, roundrobin, blacklist [$MICRO_SELECTOR]
    --transport 									Transport mechanism used; http, rabbitmq, nats [$MICRO_TRANSPORT]
    --transport_address 								Comma-separated list of transport addresses [$MICRO_TRANSPORT_ADDRESS]
-   --logtostderr								log to standard error instead of files
-   --alsologtostderr								log to standard error as well as files
-   --log_dir 									log files will be written to this directory instead of the default temporary directory
-   --stderrthreshold 								logs at or above this threshold go to stderr
-   -v 										log level for V logs
-   --vmodule 									comma-separated list of pattern=N settings for file-filtered logging
-   --log_backtrace_at 								when logging hits line file:N, emit a stack trace
    --enable_tls									Enable TLS [$MICRO_ENABLE_TLS]
    --tls_cert_file 								TLS Certificate file [$MICRO_TLS_CERT_File]
    --tls_key_file 								TLS Key file [$MICRO_TLS_KEY_File]
@@ -266,6 +259,7 @@ GLOBAL OPTIONS:
    --web_address 								Set the web UI address e.g 0.0.0.0:8082 [$MICRO_WEB_ADDRESS]
    --register_ttl "0"								Register TTL in seconds [$MICRO_REGISTER_TTL]
    --register_interval "0"							Register interval in seconds [$MICRO_REGISTER_INTERVAL]
+   --api_handler 								Specify the request handler to be used for mapping HTTP requests to services. e.g api, proxy [$MICRO_API_HANDLER]
    --api_namespace 								Set the namespace used by the API e.g. com.example.api [$MICRO_API_NAMESPACE]
    --web_namespace 								Set the namespace used by the Web proxy e.g. com.example.web [$MICRO_WEB_NAMESPACE]
    --api_cors 									Comma separated whitelist of allowed origins for CORS [$MICRO_API_CORS]
@@ -273,7 +267,6 @@ GLOBAL OPTIONS:
    --sidecar_cors 								Comma separated whitelist of allowed origins for CORS [$MICRO_SIDECAR_CORS]
    --enable_stats								Enable stats [$MICRO_ENABLE_STATS]
    --help, -h									show help
-   
 ```
 
 ## About Microservices

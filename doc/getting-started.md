@@ -187,7 +187,8 @@ if err := server.Run(); err != nil {
 package main
 
 import (
-	log "github.com/golang/glog"
+	"log"
+
 	"github.com/micro/go-micro/server"
 	hello "github.com/micro/micro/examples/greeter/server/proto/hello"
 	"golang.org/x/net/context"
@@ -196,7 +197,7 @@ import (
 type Say struct{}
 
 func (s *Say) Hello(ctx context.Context, req *hello.Request, rsp *hello.Response) error {
-	log.Info("Received Say.Hello request")
+	log.Print("Received Say.Hello request")
 	rsp.Msg = server.Config().Id() + ": Hello " + req.Name
 	return nil
 }

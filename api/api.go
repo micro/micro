@@ -3,10 +3,10 @@ package api
 import (
 	"crypto/tls"
 	"fmt"
+	"log"
 	"net/http"
 	"time"
 
-	log "github.com/golang/glog"
 	"github.com/gorilla/mux"
 	"github.com/micro/cli"
 	"github.com/micro/go-micro"
@@ -85,15 +85,15 @@ func run(ctx *cli.Context) {
 		defer st.Stop()
 	}
 
-	log.Infof("Registering RPC Handler at %s", RPCPath)
+	log.Printf("Registering RPC Handler at %s", RPCPath)
 	r.HandleFunc(RPCPath, handler.RPC)
 
 	switch ctx.GlobalString("api_handler") {
 	case "proxy":
-		log.Infof("Registering API Proxy Handler at %s", ProxyPath)
+		log.Printf("Registering API Proxy Handler at %s", ProxyPath)
 		r.PathPrefix(ProxyPath).Handler(handler.Proxy(Namespace, false))
 	default:
-		log.Infof("Registering API Handler at %s", APIPath)
+		log.Printf("Registering API Handler at %s", APIPath)
 		r.PathPrefix(APIPath).HandlerFunc(apiHandler)
 	}
 

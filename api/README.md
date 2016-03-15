@@ -29,12 +29,13 @@ go get github.com/micro/micro
 ### Run the API
 
 ```bash
-micro --logtostderr api
-I0523 12:23:23.413940   81384 api.go:131] API Rpc handler /rpc
-I0523 12:23:23.414238   81384 api.go:143] Listening on [::]:8080
-I0523 12:23:23.414272   81384 server.go:113] Starting server go.micro.api id go.micro.api-1f951765-013e-11e5-9273-68a86d0d36b6
-I0523 12:23:23.414355   81384 rpc_server.go:112] Listening on [::]:51938
-I0523 12:23:23.414399   81384 server.go:95] Registering node: go.micro.api-1f951765-013e-11e5-9273-68a86d0d36b6
+micro api
+2016/03/15 20:53:19 Registering RPC Handler at /rpc
+2016/03/15 20:53:19 Registering API Handler at /
+2016/03/15 20:53:19 Listening on [::]:8080
+2016/03/15 20:53:19 Listening on [::]:60971
+2016/03/15 20:53:19 Broker Listening on [::]:60972
+2016/03/15 20:53:19 Registering node: go.micro.api-f2ffeebf-eaef-11e5-817c-68a86d0d36b6
 ```
 
 ### Serve Secure TLS

@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"html/template"
+	"log"
 	"net/http"
 	"net/http/httputil"
 	"regexp"
@@ -12,7 +13,6 @@ import (
 	"strings"
 	"time"
 
-	log "github.com/golang/glog"
 	"github.com/gorilla/mux"
 	"github.com/micro/cli"
 	"github.com/micro/go-micro"

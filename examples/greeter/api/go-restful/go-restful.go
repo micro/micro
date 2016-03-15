@@ -1,8 +1,9 @@
 package main
 
 import (
+	"log"
+
 	"github.com/emicklei/go-restful"
-	log "github.com/golang/glog"
 
 	"github.com/micro/go-micro/client"
 	"github.com/micro/go-web"
@@ -18,14 +19,14 @@ var (
 )
 
 func (s *Say) Anything(req *restful.Request, rsp *restful.Response) {
-	log.Info("Received Say.Anything API request")
+	log.Print("Received Say.Anything API request")
 	rsp.WriteEntity(map[string]string{
 		"message": "Hi, this is the Greeter API",
 	})
 }
 
 func (s *Say) Hello(req *restful.Request, rsp *restful.Response) {
-	log.Info("Received Say.Hello API request")
+	log.Print("Received Say.Hello API request")
 
 	name := req.PathParameter("name")
 

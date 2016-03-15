@@ -3,12 +3,12 @@ package car
 import (
 	"crypto/tls"
 	"fmt"
+	"log"
 	"net/http"
 	"strconv"
 	"strings"
 	"time"
 
-	log "github.com/golang/glog"
 	"github.com/micro/cli"
 	"github.com/micro/go-micro"
 	"github.com/micro/go-micro/cmd"
@@ -69,7 +69,7 @@ func run(ctx *cli.Context, car *Sidecar) {
 
 	// register handlers
 	if car != nil {
-		log.Infof("Registering Health handler at %s", HealthPath)
+		log.Printf("Registering Health handler at %s", HealthPath)
 		r.Handle(HealthPath, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			if c, err := car.hc(); err != nil {
 				http.Error(w, err.Error(), c)
@@ -78,13 +78,13 @@ func run(ctx *cli.Context, car *Sidecar) {
 		}))
 	}
 
-	log.Infof("Registering Registry handler at %s", RegistryPath)
+	log.Printf("Registering Registry handler at %s", RegistryPath)
 	r.Handle(RegistryPath, http.HandlerFunc(handler.Registry))
 
-	log.Infof("Registering RPC handler at %s", RPCPath)
+	log.Printf("Registering RPC handler at %s", RPCPath)
 	r.Handle(RPCPath, http.HandlerFunc(handler.RPC))
 
-	log.Infof("Registering Broker handler at %s", BrokerPath)
+	log.Printf("Registering Broker handler at %s", BrokerPath)
 	r.Handle(BrokerPath, http.HandlerFunc(handler.Broker))
 
 	var h http.Handler = r
@@ -148,11 +148,11 @@ func (s *Sidecar) hcLoop(service *registry.Service, exitCh chan bool) {
 		case <-tick.C:
 			_, err := s.hc()
 			if err != nil && registered {
-				log.Infof("Healthcheck error. Deregistering %v", service.Nodes[0].Id)
+				log.Printf("Healthcheck error. Deregistering %v", service.Nodes[0].Id)
 				(*cmd.DefaultOptions().Registry).Deregister(service)
 				registered = false
 			} else if err == nil && !registered {
-				log.Infof("Healthcheck success. Registering %v", service.Nodes[0].Id)
+				log.Printf("Healthcheck success. Registering %v", service.Nodes[0].Id)
 				(*cmd.DefaultOptions().Registry).Register(service)
 				registered = true
 			}
@@ -180,14 +180,14 @@ func (s *Sidecar) run(exit chan bool) {
 		Nodes: []*registry.Node{node},
 	}
 
-	log.Infof("Registering %s", node.Id)
+	log.Printf("Registering %s", node.Id)
 	(*cmd.DefaultOptions().Registry).Register(service)
 
 	if len(s.hcUrl) == 0 {
 		return
 	}
 
-	log.Info("Starting sidecar healthchecker")
+	log.Print("Starting sidecar healthchecker")
 	go s.hcLoop(service, exit)
 	<-exit
 }
