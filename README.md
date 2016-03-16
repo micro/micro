@@ -16,7 +16,7 @@ The goal of **Micro** is to provide a toolkit for microservice development and m
 ![Micro](https://github.com/micro/micro/blob/master/doc/micro.png)
 -
 
-# TLDR
+## TLDR
 
 1. [Go-micro](https://github.com/micro/go-micro) is a pluggable library to write services.
 2. Consul is the default service discovery mechanism. It can be switched out using [go-plugins](https://github.com/micro/go-plugins).
