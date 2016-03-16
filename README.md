@@ -10,14 +10,6 @@ Examples of how to write a service in ruby or python can be found in [here](http
 - [Slack](https://micro-services.slack.com) : [auto-invite](http://micro-invites.herokuapp.com/)
 - [Twitter](https://twitter.com/microhq)
 
-# TLDR
-
-1. [Go-micro](https://github.com/micro/go-micro) is a pluggable library to write services.
-2. Consul is the default service discovery mechanism. It can be switched out using [go-plugins](https://github.com/micro/go-plugins).
-3. The [Micro CLI](https://github.com/micro/micro/tree/master/cli) lets you interact with services via the command line.
-4. The [Sidecar](https://github.com/micro/micro/tree/master/car) is a HTTP interface for non-Go applications.
-5. [Go-platform](https://github.com/micro/go-platform) is a pluggable library for a microservices platform.
-
 # Overview
 The goal of **Micro** is to provide a toolkit for microservice development and management. At the core, micro is simple and accessible enough that anyone can easily get started writing microservices. As you scale to hundreds of services, micro will provide the fundamental tools required to manage a microservice environment.
 
