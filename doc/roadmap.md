@@ -34,7 +34,8 @@ The micro ecosystem is rapidly growing but there's still a lot to do.
   * [ ] Make it work with multiple transports
 4. CLI
   * [x] Support querying via proxying the sidecar
-  * [ ] Allow connecting through the API or Web where private network isn't available
+  * [x] Allow connecting through the API or Web where private network isn't available
+    - Done via the [Sidecar](https://github.com/micro/micro/tree/master/car#proxy-cli-requests)
 5. Dependencies
   * [ ] Create dependency management config for services
   * [ ] Allow push/pull from micro-services.co
@@ -92,17 +93,17 @@ The micro ecosystem is rapidly growing but there's still a lot to do.
 Overview
   * [x] Define the interfaces for every package
   * [x] Provide documentation for go-platform's usage
-  * [ ] Provide easy initialisation and wrapping for go-micro client/server
   * [x] Implement trace and monitoring first
+  * [ ] Provide easy initialisation and wrapping for go-micro client/server
 
 1. Discovery
   * [x] In memory catching using registry watch
   * [x] Heartbeating the registry
 2. Routing
   * [x] label based routing 
+  * [x] Weighted loadbalancing
   * [ ] Circuit breakers
   * [ ] Rate limiting
-  * [x] Weighted loadbalancing
   * Google GSLB style semantics
 3. Key-Value
   * [x] Implement interface
@@ -143,9 +144,9 @@ Create simple OSS dashboards for each platform service
  * [x] [Events](https://github.com/micro/event-web)
  * [x] [Monitoring](https://github.com/micro/monitor-web)
  * [x] [Tracing](https://github.com/micro/trace-web)
+ * [x] [Routing](https://github.com/micro/router-web)
  * [ ] Logging
  * [ ] Auth
- * [x] [Routing](https://github.com/micro/router-web)
  * [ ] API
  * [ ] Metrics
 
