@@ -6,6 +6,7 @@ import (
 	"mime"
 	"net/http"
 	"path"
+	"regexp"
 	"strings"
 
 	"github.com/micro/go-micro/cmd"
@@ -15,6 +16,10 @@ import (
 	"golang.org/x/net/context"
 )
 
+var (
+	versionRe = regexp.MustCompilePOSIX("^v[0-9]+$")
+)
+
 // Translates /foo/bar/zool into api service go.micro.api.foo method Bar.Zool
 // Translates /foo/bar into api service go.micro.api.foo method Foo.Bar
 func pathToReceiver(p string) (string, string) {
@@ -22,12 +27,25 @@ func pathToReceiver(p string) (string, string) {
 	p = strings.TrimPrefix(p, "/")
 	parts := strings.Split(p, "/")
 
+	// If we've got two or less parts
+	// Use first part as service
+	// Use all parts as method
 	if len(parts) <= 2 {
 		service := Namespace + "." + strings.Join(parts[:len(parts)-1], ".")
 		method := strings.Title(strings.Join(parts, "."))
 		return service, method
 	}
 
+	// Treat /v[0-9]+ as versioning where we have 3 parts
+	// /v1/foo/bar => service: v1.foo method: Foo.bar
+	if len(parts) == 3 && versionRe.Match([]byte(parts[0])) {
+		service := Namespace + "." + strings.Join(parts[:len(parts)-1], ".")
+		method := strings.Title(strings.Join(parts[len(parts)-2:], "."))
+		return service, method
+	}
+
+	// Service is everything minus last two parts
+	// Method is the last two parts
 	service := Namespace + "." + strings.Join(parts[:len(parts)-2], ".")
 	method := strings.Title(strings.Join(parts[len(parts)-2:], "."))
 	return service, method
@@ -94,7 +112,7 @@ func requestToProto(r *http.Request) (*api.Request, error) {
 			header = &api.Pair{
 				Key: key,
 			}
-			req.Post[key] = header
+			req.Header[key] = header
 		}
 		header.Values = vals
 	}
