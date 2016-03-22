@@ -3,7 +3,6 @@ package api
 import (
 	"net/http"
 	"net/url"
-	"strings"
 	"testing"
 )
 
@@ -71,7 +70,7 @@ func TestRequestToProto(t *testing.T) {
 		&http.Request{
 			Method: "GET",
 			Header: http.Header{
-				HeaderPrefix + "Header": []string{"test"},
+				"Header": []string{"test"},
 			},
 			URL: &url.URL{
 				Scheme:   "http",
@@ -94,9 +93,6 @@ func TestRequestToProto(t *testing.T) {
 			t.Fatalf("Expected method %s got %s", d.Method, p.Method)
 		}
 		for k, v := range d.Header {
-			if !strings.HasPrefix(k, HeaderPrefix) {
-				continue
-			}
 			if val, ok := p.Header[k]; !ok {
 				t.Fatalf("Expected header %s", k)
 			} else {
