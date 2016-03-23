@@ -101,6 +101,11 @@ func RPC(w http.ResponseWriter, r *http.Request) {
 		ce := errors.Parse(err.Error())
 		switch ce.Code {
 		case 0:
+			// assuming it's totally screwed
+			ce.Code = 500
+			ce.Id = "go.micro.rpc"
+			ce.Status = http.StatusText(500)
+			ce.Detail = "error during request: " + ce.Detail
 			w.WriteHeader(500)
 		default:
 			w.WriteHeader(int(ce.Code))
