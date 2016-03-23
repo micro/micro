@@ -8,8 +8,7 @@ import (
 
 	"github.com/micro/go-micro/cmd"
 	"github.com/micro/go-micro/errors"
-
-	"golang.org/x/net/context"
+	"github.com/micro/micro/internal/helper"
 )
 
 type rpcRequest struct {
@@ -87,15 +86,19 @@ func RPC(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// create request/response
 	var response map[string]interface{}
 	var err error
 	req := (*cmd.DefaultOptions().Client).NewJsonRequest(service, method, request)
 
+	// create context
+	ctx := helper.RequestToContext(r)
+
 	// remote call
 	if len(address) > 0 {
-		err = (*cmd.DefaultOptions().Client).CallRemote(context.Background(), address, req, &response)
+		err = (*cmd.DefaultOptions().Client).CallRemote(ctx, address, req, &response)
 	} else {
-		err = (*cmd.DefaultOptions().Client).Call(context.Background(), req, &response)
+		err = (*cmd.DefaultOptions().Client).Call(ctx, req, &response)
 	}
 	if err != nil {
 		ce := errors.Parse(err.Error())

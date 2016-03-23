@@ -12,8 +12,7 @@ import (
 	"github.com/micro/go-micro/cmd"
 	"github.com/micro/go-micro/errors"
 	api "github.com/micro/micro/api/proto"
-
-	"golang.org/x/net/context"
+	"github.com/micro/micro/internal/helper"
 )
 
 var (
@@ -126,10 +125,17 @@ func apiHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// get service and method
 	service, method := pathToReceiver(r.URL.Path)
+
+	// create request and response
 	req := (*cmd.DefaultOptions().Client).NewRequest(service, method, request)
 	rsp := &api.Response{}
-	if err := (*cmd.DefaultOptions().Client).Call(context.Background(), req, rsp); err != nil {
+
+	// create the context from headers
+	ctx := helper.RequestToContext(r)
+
+	if err := (*cmd.DefaultOptions().Client).Call(ctx, req, rsp); err != nil {
 		w.Header().Set("Content-Type", "application/json")
 		ce := errors.Parse(err.Error())
 		switch ce.Code {
