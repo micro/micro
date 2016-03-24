@@ -77,6 +77,12 @@ func requestToProto(r *http.Request) (*api.Request, error) {
 		req.Body = string(data)
 	}
 
+	// Host is stripped from net/http Headers so let's add it
+	req.Header["Host"] = &api.Pair{
+		Key:    "Host",
+		Values: []string{r.Host},
+	}
+
 	// Get data
 	for key, vals := range r.URL.Query() {
 		header, ok := req.Get[key]
