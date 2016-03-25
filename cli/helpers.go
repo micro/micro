@@ -6,68 +6,16 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	"sort"
 	"strings"
 	"time"
 
 	"github.com/micro/cli"
 	"github.com/micro/go-micro/cmd"
 	"github.com/micro/go-micro/registry"
-	proto "github.com/micro/go-micro/server/debug/proto"
-	"github.com/serenize/snaker"
+	"github.com/micro/micro/internal/command"
 
 	"golang.org/x/net/context"
 )
-
-func formatEndpoint(v *registry.Value, r int) string {
-	// default format is tabbed plus the value plus new line
-	fparts := []string{"", "%s %s", "\n"}
-	for i := 0; i < r+1; i++ {
-		fparts[0] += "\t"
-	}
-	// its just a primitive of sorts so return
-	if len(v.Values) == 0 {
-		return fmt.Sprintf(strings.Join(fparts, ""), snaker.CamelToSnake(v.Name), v.Type)
-	}
-
-	// this thing has more things, it's complex
-	fparts[1] += " {"
-
-	vals := []interface{}{snaker.CamelToSnake(v.Name), v.Type}
-
-	for _, val := range v.Values {
-		fparts = append(fparts, "%s")
-		vals = append(vals, formatEndpoint(val, r+1))
-	}
-
-	// at the end
-	l := len(fparts) - 1
-	for i := 0; i < r+1; i++ {
-		fparts[l] += "\t"
-	}
-	fparts = append(fparts, "}\n")
-
-	return fmt.Sprintf(strings.Join(fparts, ""), vals...)
-}
-
-func get(url string, v interface{}) error {
-	if !strings.HasPrefix(url, "http") && !strings.HasPrefix(url, "https") {
-		url = "http://" + url
-	}
-
-	rsp, err := http.Get(url)
-	if err != nil {
-		return err
-	}
-	defer rsp.Body.Close()
-
-	b, err := ioutil.ReadAll(rsp.Body)
-	if err != nil {
-		return err
-	}
-
-	return json.Unmarshal(b, v)
-}
 
 func post(url string, b []byte, v interface{}) error {
 	if !strings.HasPrefix(url, "http") && !strings.HasPrefix(url, "https") {
@@ -127,28 +75,12 @@ func del(url string, b []byte, v interface{}) error {
 }
 
 func listServices(c *cli.Context) {
-	var rsp []*registry.Service
-	var err error
-
-	if p := c.GlobalString("proxy_address"); len(p) > 0 {
-		if err := get(p+"/registry", &rsp); err != nil {
-			fmt.Println(err.Error())
-			return
-		}
-	} else {
-		rsp, err = (*cmd.DefaultOptions().Registry).ListServices()
-		if err != nil {
-			fmt.Println(err.Error())
-			return
-		}
+	rsp, err := command.ListServices(c)
+	if err != nil {
+		fmt.Println(err)
+		return
 	}
-
-	ss := sortedServices{rsp}
-	sort.Sort(ss)
-
-	for _, service := range ss.services {
-		fmt.Println(service.Name)
-	}
+	fmt.Println(string(rsp))
 }
 
 func registerService(c *cli.Context) {
@@ -201,122 +133,21 @@ func deregisterService(c *cli.Context) {
 }
 
 func getService(c *cli.Context) {
-	if !c.Args().Present() {
-		fmt.Println("Service required")
-		return
-	}
-
-	var service []*registry.Service
-	var err error
-
-	if p := c.GlobalString("proxy_address"); len(p) > 0 {
-		if err := get(p+"/registry?service="+c.Args().First(), &service); err != nil {
-			fmt.Println(err.Error())
-			return
-		}
-	} else {
-		service, err = (*cmd.DefaultOptions().Registry).GetService(c.Args().First())
-	}
-
+	rsp, err := command.GetService(c, c.Args())
 	if err != nil {
-		fmt.Println(err.Error())
+		fmt.Println(err)
 		return
 	}
-	if len(service) == 0 {
-		fmt.Println("Service not found")
-		return
-	}
-
-	fmt.Printf("service  %s\n", service[0].Name)
-	for _, serv := range service {
-		fmt.Println("\nversion ", serv.Version)
-		fmt.Println("\nId\tAddress\tPort\tMetadata")
-		for _, node := range serv.Nodes {
-			var meta []string
-			for k, v := range node.Metadata {
-				meta = append(meta, k+"="+v)
-			}
-			fmt.Printf("%s\t%s\t%d\t%s\n", node.Id, node.Address, node.Port, strings.Join(meta, ","))
-		}
-	}
-
-	for _, e := range service[0].Endpoints {
-		var request, response string
-		var meta []string
-		for k, v := range e.Metadata {
-			meta = append(meta, k+"="+v)
-		}
-		if e.Request != nil && len(e.Request.Values) > 0 {
-			request = "{\n"
-			for _, v := range e.Request.Values {
-				request += formatEndpoint(v, 0)
-			}
-			request += "}"
-		} else {
-			request = "{}"
-		}
-		if e.Response != nil && len(e.Response.Values) > 0 {
-			response = "{\n"
-			for _, v := range e.Response.Values {
-				response += formatEndpoint(v, 0)
-			}
-			response += "}"
-		} else {
-			response = "{}"
-		}
-		fmt.Printf("\nEndpoint: %s\nMetadata: %s\n", e.Name, strings.Join(meta, ","))
-		fmt.Printf("Request: %s\n\nResponse: %s\n", request, response)
-	}
+	fmt.Println(string(rsp))
 }
 
 func queryService(c *cli.Context) {
-	if len(c.Args()) < 2 {
-		fmt.Println("require service and method")
+	rsp, err := command.QueryService(c, c.Args())
+	if err != nil {
+		fmt.Println(err)
 		return
 	}
-	service := c.Args()[0]
-	method := c.Args()[1]
-	req := strings.Join(c.Args()[2:], " ")
-
-	// empty request
-	if len(req) == 0 {
-		req = `{}`
-	}
-
-	var request map[string]interface{}
-	var response map[string]interface{}
-
-	if p := c.GlobalString("proxy_address"); len(p) > 0 {
-		request = map[string]interface{}{
-			"service": service,
-			"method":  method,
-			"request": req,
-		}
-
-		b, err := json.Marshal(request)
-		if err != nil {
-			fmt.Println(err.Error())
-			return
-		}
-
-		if err := post(p+"/rpc", b, &response); err != nil {
-			fmt.Println(err.Error())
-			return
-		}
-
-	} else {
-		json.Unmarshal([]byte(req), &request)
-
-		req := (*cmd.DefaultOptions().Client).NewJsonRequest(service, method, request)
-		err := (*cmd.DefaultOptions().Client).Call(context.Background(), req, &response)
-		if err != nil {
-			fmt.Printf("error calling %s.%s: %v\n", service, method, err)
-			return
-		}
-	}
-
-	b, _ := json.MarshalIndent(response, "", "\t")
-	fmt.Println(string(b))
+	fmt.Println(string(rsp))
 }
 
 // TODO: stream via HTTP
@@ -357,70 +188,10 @@ func streamService(c *cli.Context) {
 }
 
 func queryHealth(c *cli.Context) {
-	if !c.Args().Present() {
-		fmt.Println("require service name")
-		return
-	}
-	service, err := (*cmd.DefaultOptions().Registry).GetService(c.Args().First())
+	rsp, err := command.QueryHealth(c, c.Args())
 	if err != nil {
-		fmt.Println(err.Error())
+		fmt.Println(err)
 		return
 	}
-	if service == nil || len(service) == 0 {
-		fmt.Println("Service not found")
-		return
-	}
-
-	req := (*cmd.DefaultOptions().Client).NewRequest(service[0].Name, "Debug.Health", &proto.HealthRequest{})
-
-	// print things
-	fmt.Printf("service  %s\n\n", service[0].Name)
-
-	for _, serv := range service {
-		// print things
-		fmt.Println("\nversion ", serv.Version)
-		fmt.Println("\nnode\t\taddress:port\t\tstatus")
-
-		// query health for every node
-		for _, node := range serv.Nodes {
-			address := node.Address
-			if node.Port > 0 {
-				address = fmt.Sprintf("%s:%d", address, node.Port)
-			}
-			rsp := &proto.HealthResponse{}
-
-			var err error
-
-			if p := c.GlobalString("proxy_address"); len(p) > 0 {
-				// call using proxy
-				request := map[string]interface{}{
-					"service": service[0].Name,
-					"method":  "Debug.Health",
-					"address": address,
-				}
-
-				b, err := json.Marshal(request)
-				if err != nil {
-					fmt.Println(err.Error())
-					return
-				}
-
-				if err := post(p+"/rpc", b, &rsp); err != nil {
-					fmt.Println(err.Error())
-					return
-				}
-			} else {
-				// call using client
-				err = (*cmd.DefaultOptions().Client).CallRemote(context.Background(), address, req, rsp)
-			}
-
-			var status string
-			if err != nil {
-				status = err.Error()
-			} else {
-				status = rsp.Status
-			}
-			fmt.Printf("%s\t\t%s:%d\t\t%s\n", node.Id, node.Address, node.Port, status)
-		}
-	}
+	fmt.Println(string(rsp))
 }

@@ -9,19 +9,49 @@ import (
 	"time"
 
 	"github.com/micro/cli"
+	"github.com/micro/micro/bot/command"
 	"github.com/micro/micro/bot/input"
 	_ "github.com/micro/micro/bot/input/slack"
 )
 
 type bot struct {
-	inputs []input.Input
-	exit   chan bool
+	inputs   []input.Input
+	commands []command.Command
+	exit     chan bool
 }
 
-func newBot(inputs []input.Input) *bot {
+var (
+	commands = map[string]func(*cli.Context) command.Command{
+		"hello":  command.Hello,
+		"ping":   command.Ping,
+		"list":   command.List,
+		"get":    command.Get,
+		"health": command.Health,
+		"query":  command.Query,
+	}
+)
+
+func help(commands []command.Command) command.Command {
+	usage := "help"
+	desc := "Displays help for all known commands"
+
+	return command.NewCommand("help", usage, desc, func(args ...string) ([]byte, error) {
+		var response []string
+		for _, cmd := range commands {
+			response = append(response, fmt.Sprintf("%s - %s", cmd.Usage(), cmd.Description()))
+		}
+		return []byte(strings.Join(response, "\n")), nil
+	})
+}
+
+func newBot(inputs []input.Input, commands []command.Command) *bot {
+	// generate help command
+	commands = append(commands, help(commands))
+
 	return &bot{
-		inputs: inputs,
-		exit:   make(chan bool),
+		inputs:   inputs,
+		commands: commands,
+		exit:     make(chan bool),
 	}
 }
 
@@ -58,15 +88,29 @@ func (b *bot) run(io input.Input) error {
 			if err := c.Recv(&ev); err != nil {
 				return err
 			}
-			fmt.Println("received", ev)
+			// TODO: do something with this
+			fmt.Println("received %+v", ev)
 		}
 	}
 }
 
 func (b *bot) start() {
 	fmt.Println("[bot] starting")
+	/*
+		for _, io := range b.inputs {
+			go b.loop(io)
+		}
+	*/
+
+	// register commands
 	for _, io := range b.inputs {
-		go b.loop(io)
+		for _, cmd := range b.commands {
+			fmt.Printf("[bot] registering %s command with %s\n", cmd.Name(), io.String())
+			if err := io.Process(cmd); err != nil {
+				fmt.Println(err)
+				os.Exit(1)
+			}
+		}
 	}
 }
 
@@ -88,6 +132,12 @@ func run(ctx *cli.Context) {
 	}
 
 	var ios []input.Input
+	var cmds []command.Command
+
+	// create commands
+	for _, cmd := range commands {
+		cmds = append(cmds, cmd(ctx))
+	}
 
 	// Parse inputs
 	for _, io := range inputs {
@@ -115,7 +165,7 @@ func run(ctx *cli.Context) {
 	}
 
 	// Start bot
-	b := newBot(ios)
+	b := newBot(ios, cmds)
 	b.start()
 
 	// Exit on kill signal

@@ -2,6 +2,7 @@ package input
 
 import (
 	"github.com/micro/cli"
+	"github.com/micro/micro/bot/command"
 )
 
 type EventType string
@@ -30,8 +31,10 @@ type Input interface {
 	// Initialise input using cli context
 	Init(*cli.Context) error
 	// Connect to the input to
-	// sendd and receive events
+	// send and receive events
 	Connect() (Conn, error)
+	// Register a command
+	Process(command.Command) error
 	// Start the input
 	Start() error
 	// Stop the input
