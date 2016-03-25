@@ -1,78 +1,17 @@
 package cli
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
-	"net/http"
 	"strings"
 	"time"
 
 	"github.com/micro/cli"
 	"github.com/micro/go-micro/cmd"
-	"github.com/micro/go-micro/registry"
 	"github.com/micro/micro/internal/command"
 
 	"golang.org/x/net/context"
 )
-
-func post(url string, b []byte, v interface{}) error {
-	if !strings.HasPrefix(url, "http") && !strings.HasPrefix(url, "https") {
-		url = "http://" + url
-	}
-
-	buf := bytes.NewBuffer(b)
-	defer buf.Reset()
-
-	rsp, err := http.Post(url, "application/json", buf)
-	if err != nil {
-		return err
-	}
-	defer rsp.Body.Close()
-
-	bu, err := ioutil.ReadAll(rsp.Body)
-	if err != nil {
-		return err
-	}
-
-	if v == nil {
-		return nil
-	}
-
-	return json.Unmarshal(bu, v)
-}
-
-func del(url string, b []byte, v interface{}) error {
-	if !strings.HasPrefix(url, "http") && !strings.HasPrefix(url, "https") {
-		url = "http://" + url
-	}
-
-	buf := bytes.NewBuffer(b)
-	defer buf.Reset()
-
-	req, err := http.NewRequest("DELETE", url, buf)
-	if err != nil {
-		return err
-	}
-
-	rsp, err := http.DefaultClient.Do(req)
-	if err != nil {
-		return err
-	}
-	defer rsp.Body.Close()
-
-	bu, err := ioutil.ReadAll(rsp.Body)
-	if err != nil {
-		return err
-	}
-
-	if v == nil {
-		return nil
-	}
-
-	return json.Unmarshal(bu, v)
-}
 
 func listServices(c *cli.Context) {
 	rsp, err := command.ListServices(c)
@@ -84,52 +23,21 @@ func listServices(c *cli.Context) {
 }
 
 func registerService(c *cli.Context) {
-	if len(c.Args()) != 1 {
-		fmt.Println("require service definition")
+	rsp, err := command.RegisterService(c, c.Args())
+	if err != nil {
+		fmt.Println(err)
 		return
 	}
-
-	if p := c.GlobalString("proxy_address"); len(p) > 0 {
-		if err := post(p+"/registry", []byte(c.Args().First()), nil); err != nil {
-			fmt.Println(err.Error())
-		}
-		return
-	}
-
-	var service *registry.Service
-
-	if err := json.Unmarshal([]byte(c.Args().First()), &service); err != nil {
-		fmt.Println(err.Error())
-		return
-	}
-
-	if err := (*cmd.DefaultOptions().Registry).Register(service); err != nil {
-		fmt.Println(err.Error())
-	}
+	fmt.Println(string(rsp))
 }
 
 func deregisterService(c *cli.Context) {
-	if len(c.Args()) != 1 {
-		fmt.Println("require service definition")
+	rsp, err := command.DeregisterService(c, c.Args())
+	if err != nil {
+		fmt.Println(err)
 		return
 	}
-
-	if p := c.GlobalString("proxy_address"); len(p) > 0 {
-		if err := del(p+"/registry", []byte(c.Args().First()), nil); err != nil {
-			fmt.Println(err.Error())
-		}
-		return
-	}
-
-	var service *registry.Service
-	if err := json.Unmarshal([]byte(c.Args().First()), &service); err != nil {
-		fmt.Println(err.Error())
-		return
-	}
-	if err := (*cmd.DefaultOptions().Registry).Deregister(service); err != nil {
-		fmt.Println(err.Error())
-		return
-	}
+	fmt.Println(string(rsp))
 }
 
 func getService(c *cli.Context) {

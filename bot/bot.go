@@ -22,12 +22,14 @@ type bot struct {
 
 var (
 	commands = map[string]func(*cli.Context) command.Command{
-		"hello":  command.Hello,
-		"ping":   command.Ping,
-		"list":   command.List,
-		"get":    command.Get,
-		"health": command.Health,
-		"query":  command.Query,
+		"hello":      command.Hello,
+		"ping":       command.Ping,
+		"list":       command.List,
+		"get":        command.Get,
+		"health":     command.Health,
+		"query":      command.Query,
+		"register":   command.Register,
+		"deregister": command.Deregister,
 	}
 )
 

@@ -52,6 +52,37 @@ func formatEndpoint(v *registry.Value, r int) string {
 	return fmt.Sprintf(strings.Join(fparts, ""), vals...)
 }
 
+func del(url string, b []byte, v interface{}) error {
+	if !strings.HasPrefix(url, "http") && !strings.HasPrefix(url, "https") {
+		url = "http://" + url
+	}
+
+	buf := bytes.NewBuffer(b)
+	defer buf.Reset()
+
+	req, err := http.NewRequest("DELETE", url, buf)
+	if err != nil {
+		return err
+	}
+
+	rsp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return err
+	}
+	defer rsp.Body.Close()
+
+	bu, err := ioutil.ReadAll(rsp.Body)
+	if err != nil {
+		return err
+	}
+
+	if v == nil {
+		return nil
+	}
+
+	return json.Unmarshal(bu, v)
+}
+
 func get(url string, v interface{}) error {
 	if !strings.HasPrefix(url, "http") && !strings.HasPrefix(url, "https") {
 		url = "http://" + url
@@ -95,6 +126,60 @@ func post(url string, b []byte, v interface{}) error {
 	}
 
 	return json.Unmarshal(bu, v)
+}
+
+func RegisterService(c *cli.Context, args []string) ([]byte, error) {
+	if len(args) == 0 {
+		return nil, errors.New("require service definition")
+	}
+
+	req := strings.Join(args, " ")
+
+	if p := c.GlobalString("proxy_address"); len(p) > 0 {
+		if err := post(p+"/registry", []byte(req), nil); err != nil {
+			return nil, err
+		}
+		return []byte("ok"), nil
+	}
+
+	var service *registry.Service
+
+	if err := json.Unmarshal([]byte(req), &service); err != nil {
+		return nil, err
+	}
+
+	if err := (*cmd.DefaultOptions().Registry).Register(service); err != nil {
+		return nil, err
+	}
+
+	return []byte("ok"), nil
+}
+
+func DeregisterService(c *cli.Context, args []string) ([]byte, error) {
+	if len(args) == 0 {
+		return nil, errors.New("require service definition")
+	}
+
+	req := strings.Join(args, " ")
+
+	if p := c.GlobalString("proxy_address"); len(p) > 0 {
+		if err := del(p+"/registry", []byte(req), nil); err != nil {
+			return nil, err
+		}
+		return []byte("ok"), nil
+	}
+
+	var service *registry.Service
+
+	if err := json.Unmarshal([]byte(req), &service); err != nil {
+		return nil, err
+	}
+
+	if err := (*cmd.DefaultOptions().Registry).Deregister(service); err != nil {
+		return nil, err
+	}
+
+	return []byte("ok"), nil
 }
 
 func GetService(c *cli.Context, args []string) ([]byte, error) {

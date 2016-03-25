@@ -117,3 +117,53 @@ func Query(ctx *cli.Context) Command {
 		return rsp, nil
 	})
 }
+
+// Register registers a service
+func Register(ctx *cli.Context) Command {
+	usage := "register service [definition]"
+	desc := "Registers a service"
+
+	return NewCommand("register", usage, desc, func(args ...string) ([]byte, error) {
+		if len(args) < 2 {
+			return []byte("register what?"), nil
+		}
+		switch args[1] {
+		case "service":
+			if len(args) < 3 {
+				return []byte("require service definition"), nil
+			}
+			rsp, err := command.RegisterService(ctx, args[2:])
+			if err != nil {
+				return nil, err
+			}
+			return rsp, nil
+		default:
+			return []byte("unknown command...\nsupported commands: \nregister service [definition]"), nil
+		}
+	})
+}
+
+// Deregister registers a service
+func Deregister(ctx *cli.Context) Command {
+	usage := "deregister service [definition]"
+	desc := "Deregisters a service"
+
+	return NewCommand("deregister", usage, desc, func(args ...string) ([]byte, error) {
+		if len(args) < 2 {
+			return []byte("deregister what?"), nil
+		}
+		switch args[1] {
+		case "service":
+			if len(args) < 3 {
+				return []byte("require service definition"), nil
+			}
+			rsp, err := command.DeregisterService(ctx, args[2:])
+			if err != nil {
+				return nil, err
+			}
+			return rsp, nil
+		default:
+			return []byte("unknown command...\nsupported commands: \nderegister service [definition]"), nil
+		}
+	})
+}
