@@ -2,13 +2,13 @@ package bot
 
 import (
 	"fmt"
+	"log"
 	"os"
-	"os/signal"
 	"strings"
-	"syscall"
 	"time"
 
 	"github.com/micro/cli"
+	"github.com/micro/go-micro"
 	"github.com/micro/micro/bot/command"
 	"github.com/micro/micro/bot/input"
 	_ "github.com/micro/micro/bot/input/slack"
@@ -170,10 +170,20 @@ func run(ctx *cli.Context) {
 	b := newBot(ios, cmds)
 	b.start()
 
-	// Exit on kill signal
-	ch := make(chan os.Signal, 1)
-	signal.Notify(ch, syscall.SIGTERM, syscall.SIGINT, syscall.SIGKILL)
-	fmt.Println(<-ch)
+	service := micro.NewService(
+		micro.Name("go.micro.bot"),
+		micro.RegisterTTL(
+			time.Duration(ctx.GlobalInt("register_ttl"))*time.Second,
+		),
+		micro.RegisterInterval(
+			time.Duration(ctx.GlobalInt("register_interval"))*time.Second,
+		),
+	)
+
+	// Run server
+	if err := service.Run(); err != nil {
+		log.Fatal(err)
+	}
 
 	// Stop bot
 	b.stop()
