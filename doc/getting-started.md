@@ -2,6 +2,8 @@
 
 This is a guide to getting started with go-micro.
 
+If you prefer a higher level overview of the toolkit first, checkout the introductory blog post [https://blog.micro.mu/2016/03/20/micro.html](https://blog.micro.mu/2016/03/20/micro.html).
+
 ## Writing a service
 
 The [server](https://godoc.org/github.com/micro/go-micro/server) package is the main component used to build a 

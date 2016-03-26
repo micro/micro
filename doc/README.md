@@ -5,7 +5,7 @@ Checkout the [roadmap](roadmap.md) to see where it's all going.
 
 # Overview
 
-Below are the libraries and services that encompass the micro ecosystem.
+Below are the libraries and services that encompass the micro ecosystem. If you want a more detailed overview of Micro, checkout the introductory blog post [https://blog.micro.mu/2016/03/20/micro.html](https://blog.micro.mu/2016/03/20/micro.html).
 
 ### Micro
 [Micro](https://github.com/micro/micro) itself is the overarching toolkit and ecosystem
