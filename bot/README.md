@@ -7,9 +7,9 @@ It mimics the functions of the CLI via messaging.
 
 - Slack
 
-## Usage
+## Getting Started
 
-### Run
+### Run the bot
 
 ```shell
 $ micro bot --inputs=slack --slack_token=SLACK_TOKEN
