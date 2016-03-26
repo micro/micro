@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"sort"
 	"strings"
 	"time"
 
@@ -36,6 +37,8 @@ var (
 func help(commands []command.Command) command.Command {
 	usage := "help"
 	desc := "Displays help for all known commands"
+
+	sort.Sort(sortedCommands{commands})
 
 	return command.NewCommand("help", usage, desc, func(args ...string) ([]byte, error) {
 		var response []string
