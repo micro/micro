@@ -113,15 +113,15 @@ func (p *slackInput) run(auth *slack.AuthTestResponse) {
 					if err != nil {
 						text := fmt.Sprintf("@%s: error executing command: %v", name, err)
 						rtm.SendMessage(rtm.NewOutgoingMessage(text, ev.Channel))
+					} else {
+						text := fmt.Sprintf("@%s: %s", name, string(rsp))
+
+						if len(name) == 0 || strings.HasPrefix(ev.Channel, "D") {
+							text = string(rsp)
+						}
+
+						rtm.SendMessage(rtm.NewOutgoingMessage(text, ev.Channel))
 					}
-
-					text := fmt.Sprintf("@%s: %s", name, string(rsp))
-
-					if len(name) == 0 || strings.HasPrefix(ev.Channel, "D") {
-						text = string(rsp)
-					}
-
-					rtm.SendMessage(rtm.NewOutgoingMessage(text, ev.Channel))
 				}
 				p.ctx.RUnlock()
 			case *slack.InvalidAuthEvent:
@@ -180,7 +180,12 @@ func (p *slackInput) Connect() (input.Conn, error) {
 	go func() {
 		select {
 		case <-p.exit:
-			close(exit)
+			select {
+			case <-exit:
+				return
+			default:
+				close(exit)
+			}
 		case <-exit:
 		}
 

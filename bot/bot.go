@@ -10,8 +10,10 @@ import (
 
 	"github.com/micro/cli"
 	"github.com/micro/go-micro"
+
 	"github.com/micro/micro/bot/command"
 	"github.com/micro/micro/bot/input"
+	_ "github.com/micro/micro/bot/input/hipchat"
 	_ "github.com/micro/micro/bot/input/slack"
 )
 
@@ -41,7 +43,7 @@ func help(commands []command.Command) command.Command {
 	sort.Sort(sortedCommands{commands})
 
 	return command.NewCommand("help", usage, desc, func(args ...string) ([]byte, error) {
-		var response []string
+		response := []string{"\n"}
 		for _, cmd := range commands {
 			response = append(response, fmt.Sprintf("%s - %s", cmd.Usage(), cmd.Description()))
 		}
