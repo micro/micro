@@ -9,6 +9,7 @@ import (
 	"github.com/nlopes/slack"
 )
 
+// Satisfies the input.Conn interface
 type slackConn struct {
 	auth *slack.AuthTestResponse
 	rtm  *slack.RTM
@@ -37,10 +38,12 @@ func (s *slackConn) Recv(event *input.Event) error {
 		case e := <-s.rtm.IncomingEvents:
 			switch ev := e.Data.(type) {
 			case *slack.MessageEvent:
+				// only accept type message?
 				if ev.Type != "message" {
 					continue
 				}
 
+				// only accept DMs or messages to me?
 				switch {
 				case strings.HasPrefix(ev.Channel, "D"):
 				case strings.HasPrefix(ev.Text, s.auth.User):
@@ -53,7 +56,7 @@ func (s *slackConn) Recv(event *input.Event) error {
 					event.Meta = make(map[string]interface{})
 				}
 
-				//fmt.Printf("Received message to me %+v", ev)
+				// fill in the blanks
 				event.Type = input.TextEvent
 				event.Data = []byte(ev.Text)
 				event.Meta["reply"] = ev

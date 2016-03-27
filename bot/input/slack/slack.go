@@ -31,11 +31,81 @@ func init() {
 	input.Inputs["slack"] = NewInput()
 }
 
+func (s *slackInput) exec(ev *slack.MessageEvent, rtm *slack.RTM, args []string, name string) {
+	s.ctx.RLock()
+	defer s.ctx.RUnlock()
+
+	// no args, bail out
+	if len(args) == 0 {
+		return
+	}
+
+	for _, cmd := range s.cmds {
+		if args[0] != cmd.Name() {
+			continue
+		}
+
+		rsp, err := cmd.Exec(args...)
+		if err != nil {
+			text := fmt.Sprintf("@%s: error executing command: %v", name, err)
+			rtm.SendMessage(rtm.NewOutgoingMessage(text, ev.Channel))
+			return
+		}
+
+		text := fmt.Sprintf("@%s: %s", name, string(rsp))
+
+		if len(name) == 0 || strings.HasPrefix(ev.Channel, "D") {
+			text = string(rsp)
+		}
+
+		rtm.SendMessage(rtm.NewOutgoingMessage(text, ev.Channel))
+	}
+}
+
+func (s *slackInput) process(ev *slack.MessageEvent, rtm *slack.RTM, auth *slack.AuthTestResponse, name string) {
+	if ev.Type != "message" {
+		return
+	}
+
+	if len(ev.Text) == 0 {
+		return
+	}
+
+	// don't process self
+	if ev.User == auth.User {
+		return
+	}
+
+	// only process the following
+	switch {
+	case strings.HasPrefix(ev.Channel, "D"):
+	case strings.HasPrefix(ev.Text, auth.User):
+	case strings.HasPrefix(ev.Text, fmt.Sprintf("<@%s>", auth.UserID)):
+	default:
+		return
+	}
+
+	var args []string
+
+	// setup the args
+	switch {
+	case strings.HasPrefix(ev.Text, auth.User):
+		args = strings.Split(ev.Text, " ")[1:]
+	case strings.HasPrefix(ev.Text, fmt.Sprintf("<@%s>", auth.UserID)):
+		args = strings.Split(ev.Text, " ")[1:]
+	default:
+		args = strings.Split(ev.Text, " ")
+	}
+
+	s.exec(ev, rtm, args, name)
+}
+
 func (p *slackInput) run(auth *slack.AuthTestResponse) {
 	rtm := p.api.NewRTM()
 	go rtm.ManageConnection()
 	defer rtm.Disconnect()
 
+	// func retrieves user names and maps to IDs
 	fn := func() map[string]string {
 		names := make(map[string]string)
 		users, err := rtm.Client.GetUsers()
@@ -50,7 +120,10 @@ func (p *slackInput) run(auth *slack.AuthTestResponse) {
 		return names
 	}
 
+	// get names
 	names := fn()
+
+	// update names ticker
 	t := time.NewTicker(time.Minute)
 	defer t.Stop()
 
@@ -63,67 +136,7 @@ func (p *slackInput) run(auth *slack.AuthTestResponse) {
 		case e := <-rtm.IncomingEvents:
 			switch ev := e.Data.(type) {
 			case *slack.MessageEvent:
-				if ev.Type != "message" {
-					continue
-				}
-
-				if len(ev.Text) == 0 {
-					continue
-				}
-
-				// don't process self
-				if ev.User == auth.User {
-					continue
-				}
-
-				// only process the following
-				switch {
-				case strings.HasPrefix(ev.Channel, "D"):
-				case strings.HasPrefix(ev.Text, auth.User):
-				case strings.HasPrefix(ev.Text, fmt.Sprintf("<@%s>", auth.UserID)):
-				default:
-					continue
-				}
-
-				var args []string
-
-				// setup the args
-				switch {
-				case strings.HasPrefix(ev.Text, auth.User):
-					args = strings.Split(ev.Text, " ")[1:]
-				case strings.HasPrefix(ev.Text, fmt.Sprintf("<@%s>", auth.UserID)):
-					args = strings.Split(ev.Text, " ")[1:]
-				default:
-					args = strings.Split(ev.Text, " ")
-				}
-
-				if len(args) == 0 {
-					continue
-				}
-
-				p.ctx.RLock()
-				for _, cmd := range p.cmds {
-					if args[0] != cmd.Name() {
-						continue
-					}
-
-					name := names[ev.User]
-
-					rsp, err := cmd.Exec(args...)
-					if err != nil {
-						text := fmt.Sprintf("@%s: error executing command: %v", name, err)
-						rtm.SendMessage(rtm.NewOutgoingMessage(text, ev.Channel))
-					} else {
-						text := fmt.Sprintf("@%s: %s", name, string(rsp))
-
-						if len(name) == 0 || strings.HasPrefix(ev.Channel, "D") {
-							text = string(rsp)
-						}
-
-						rtm.SendMessage(rtm.NewOutgoingMessage(text, ev.Channel))
-					}
-				}
-				p.ctx.RUnlock()
+				p.process(ev, rtm, auth, names[ev.User])
 			case *slack.InvalidAuthEvent:
 				return
 			}
