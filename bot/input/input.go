@@ -2,7 +2,6 @@ package input
 
 import (
 	"github.com/micro/cli"
-	"github.com/micro/micro/bot/command"
 )
 
 type EventType string
@@ -18,6 +17,8 @@ var (
 // Event is the unit sent and received
 type Event struct {
 	Type EventType
+	From string
+	To   string
 	Data []byte
 	Meta map[string]interface{}
 }
@@ -30,11 +31,8 @@ type Input interface {
 	Flags() []cli.Flag
 	// Initialise input using cli context
 	Init(*cli.Context) error
-	// Connect to the input to
-	// send and receive events
-	Connect() (Conn, error)
-	// Register a command
-	Process(command.Command) error
+	// Stream events from the input
+	Stream() (Conn, error)
 	// Start the input
 	Start() error
 	// Stop the input

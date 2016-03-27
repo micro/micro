@@ -13,7 +13,7 @@ func (s sortedCommands) Len() int {
 }
 
 func (s sortedCommands) Less(i, j int) bool {
-	return s.commands[i].Name() < s.commands[j].Name()
+	return s.commands[i].String() < s.commands[j].String()
 }
 
 func (s sortedCommands) Swap(i, j int) {

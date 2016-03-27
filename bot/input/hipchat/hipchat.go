@@ -2,16 +2,11 @@ package hipchat
 
 import (
 	"errors"
-	"fmt"
-	"strings"
 	"sync"
-	"time"
 
 	"github.com/micro/cli"
-	"github.com/micro/micro/bot/command"
-	"github.com/micro/micro/bot/input"
-
 	"github.com/micro/hipchat"
+	"github.com/micro/micro/bot/input"
 )
 
 type hipchatInput struct {
@@ -25,183 +20,10 @@ type hipchatInput struct {
 	exit    chan bool
 
 	client *hipchat.Client
-
-	ctx  sync.RWMutex
-	cmds map[string]command.Command
 }
 
 func init() {
 	input.Inputs["hipchat"] = NewInput()
-}
-
-func (h *hipchatInput) exec(args []string) (string, error) {
-	h.ctx.RLock()
-	defer h.ctx.RUnlock()
-
-	for _, cmd := range h.cmds {
-		if args[0] != cmd.Name() {
-			continue
-		}
-
-		rsp, err := cmd.Exec(args...)
-		if err != nil {
-			return "", err
-		}
-
-		return string(rsp), nil
-	}
-
-	return "", nil
-}
-
-func (h *hipchatInput) run() {
-	t := time.NewTicker(time.Minute)
-	defer t.Stop()
-
-	h.client.RequestUsers()
-
-	names := make(map[string]*hipchat.User)
-	messages := h.client.Messages()
-	users := h.client.Users()
-
-	fn := func(users []*hipchat.User) map[string]*hipchat.User {
-		names := make(map[string]*hipchat.User)
-		for _, user := range users {
-			names[user.Id] = user
-		}
-		return names
-	}
-
-	// get users
-	names = fn(<-users)
-
-	// now we chat
-	h.client.Status("chat")
-	me := names[h.client.Id].MentionName
-
-	// join rooms
-	h.client.RequestRooms()
-	for _, room := range <-h.client.Rooms() {
-		h.client.Join(room.Id, strings.Title(me))
-	}
-
-	for {
-		select {
-		case <-h.exit:
-			return
-		case <-t.C:
-			h.client.RequestUsers()
-		case u := <-users:
-			names = fn(u)
-		case msg := <-messages:
-			args := strings.Split(msg.Body, " ")
-
-			switch msg.Type {
-			// this is a Room
-			case "groupchat":
-				// no args
-				if len(args) < 2 {
-					continue
-				}
-
-				// get first arg and check if its us
-				name := strings.ToLower(args[0])
-				args = args[1:]
-
-				// is it for us?
-				switch {
-				case strings.HasPrefix(name, "@"+me), strings.HasPrefix(name, me):
-				default:
-					continue
-				}
-
-				// parse from
-				parts := strings.Split(msg.From, "/")
-				// from channel
-				from := parts[0]
-
-				// from user
-				var user string
-				if len(parts) > 1 {
-					for _, u := range names {
-						if u.Name == parts[len(parts)-1] {
-							user = "@" + u.MentionName
-						}
-					}
-				}
-
-				// execute command
-				rsp, err := h.exec(args)
-				if err != nil {
-					text := fmt.Sprintf("error executing command: %v", err)
-					if len(user) > 0 {
-						text = fmt.Sprintf("%s: %s", user, text)
-					}
-					h.client.Say(from, user, text)
-					continue
-				}
-
-				// don't respond if no response
-				if len(rsp) == 0 {
-					continue
-				}
-
-				// format response
-				text := fmt.Sprintf("%s: %s", user, rsp)
-				if len(user) == 0 {
-					text = rsp
-				}
-
-				// send response
-				h.client.Say(from, user, text)
-			// this is a DM
-			case "chat":
-				// no args
-				if len(args) < 1 {
-					continue
-				}
-
-				// get first arg and check if its us
-				name := strings.ToLower(args[0])
-
-				// parse from
-				parts := strings.Split(msg.From, "|")
-				// from channel
-				from := strings.Split(parts[0], "/")[0]
-
-				// is it for us?
-				switch {
-				case strings.HasPrefix(name, "@"+me), strings.HasPrefix(name, me):
-					args = args[1:]
-				}
-
-				// execute command
-				rsp, err := h.exec(args)
-				if err != nil {
-					text := fmt.Sprintf("error executing command: %v", err)
-					h.client.Say(from, "", text)
-					continue
-				}
-
-				// if there's no output, don't respond
-				if len(rsp) == 0 {
-					continue
-				}
-
-				// send private message
-				h.client.PM(from, "", rsp)
-			// this is an Invite
-			case "join_groupchat":
-				h.client.Join(msg.From, strings.Title(me))
-				// TODO: save rooms we're in
-			// we just don't know
-			default:
-				if h.debug {
-					fmt.Printf("[bot][hipchat] unknown message received %+v\n", msg)
-				}
-			}
-		}
-	}
 }
 
 func (h *hipchatInput) Flags() []cli.Flag {
@@ -252,7 +74,7 @@ func (h *hipchatInput) Init(ctx *cli.Context) error {
 	return nil
 }
 
-func (h *hipchatInput) Connect() (input.Conn, error) {
+func (h *hipchatInput) Stream() (input.Conn, error) {
 	h.Lock()
 	defer h.Unlock()
 
@@ -267,40 +89,7 @@ func (h *hipchatInput) Connect() (input.Conn, error) {
 		return nil, err
 	}
 
-	exit := make(chan bool)
-
-	go func() {
-		select {
-		case <-h.exit:
-			select {
-			case <-exit:
-				return
-			default:
-				close(exit)
-			}
-		case <-exit:
-			return
-		}
-
-		c.Close()
-	}()
-
-	return &hipchatConn{
-		exit:   exit,
-		client: c,
-	}, nil
-}
-
-func (h *hipchatInput) Process(cmd command.Command) error {
-	h.ctx.Lock()
-	defer h.ctx.Unlock()
-
-	if _, ok := h.cmds[cmd.Name()]; ok {
-		return errors.New("Command with name " + cmd.Name() + " already exists")
-	}
-
-	h.cmds[cmd.Name()] = cmd
-	return nil
+	return newConn(c), nil
 }
 
 func (h *hipchatInput) Start() error {
@@ -324,7 +113,6 @@ func (h *hipchatInput) Start() error {
 	h.client = c
 	h.exit = make(chan bool)
 	h.running = true
-	go h.run()
 
 	return nil
 }
@@ -347,7 +135,5 @@ func (h *hipchatInput) String() string {
 }
 
 func NewInput() input.Input {
-	return &hipchatInput{
-		cmds: make(map[string]command.Command),
-	}
+	return &hipchatInput{}
 }

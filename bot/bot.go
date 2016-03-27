@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"regexp"
 	"sort"
 	"strings"
 	"time"
@@ -18,29 +19,37 @@ import (
 )
 
 type bot struct {
-	inputs   []input.Input
-	commands []command.Command
+	inputs   map[string]input.Input
+	commands map[string]command.Command
 	exit     chan bool
+	ctx      *cli.Context
 }
 
 var (
+	// map pattern:command
 	commands = map[string]func(*cli.Context) command.Command{
-		"hello":      command.Hello,
-		"ping":       command.Ping,
-		"list":       command.List,
-		"get":        command.Get,
-		"health":     command.Health,
-		"query":      command.Query,
-		"register":   command.Register,
-		"deregister": command.Deregister,
+		"^hello$":      command.Hello,
+		"^ping$":       command.Ping,
+		"^list ":       command.List,
+		"^get ":        command.Get,
+		"^health ":     command.Health,
+		"^query ":      command.Query,
+		"^register ":   command.Register,
+		"^deregister ": command.Deregister,
 	}
 )
 
-func help(commands []command.Command) command.Command {
+func help(commands map[string]command.Command) command.Command {
 	usage := "help"
 	desc := "Displays help for all known commands"
 
-	sort.Sort(sortedCommands{commands})
+	var cmds []command.Command
+
+	for _, cmd := range commands {
+		cmds = append(cmds, cmd)
+	}
+
+	sort.Sort(sortedCommands{cmds})
 
 	return command.NewCommand("help", usage, desc, func(args ...string) ([]byte, error) {
 		response := []string{"\n"}
@@ -51,27 +60,29 @@ func help(commands []command.Command) command.Command {
 	})
 }
 
-func newBot(inputs []input.Input, commands []command.Command) *bot {
+func newBot(ctx *cli.Context, inputs map[string]input.Input, commands map[string]command.Command) *bot {
 	// generate help command
-	commands = append(commands, help(commands))
+	commands["^help$"] = help(commands)
 
 	return &bot{
 		inputs:   inputs,
 		commands: commands,
 		exit:     make(chan bool),
+		ctx:      ctx,
 	}
 }
 
 func (b *bot) loop(io input.Input) {
-	fmt.Println("[bot] starting", io.String(), "loop")
+	fmt.Println("[bot][loop] starting", io.String())
 
 	for {
 		select {
 		case <-b.exit:
+			fmt.Println("[bot][loop] exiting", io.String())
 			return
 		default:
 			if err := b.run(io); err != nil {
-				fmt.Println(err)
+				fmt.Println("[bot][loop] error", err)
 				time.Sleep(time.Second)
 			}
 		}
@@ -79,9 +90,9 @@ func (b *bot) loop(io input.Input) {
 }
 
 func (b *bot) run(io input.Input) error {
-	fmt.Println("[bot] connecting to", io.String())
+	fmt.Println("[bot][loop] connecting to", io.String())
 
-	c, err := io.Connect()
+	c, err := io.Stream()
 	if err != nil {
 		return err
 	}
@@ -89,40 +100,84 @@ func (b *bot) run(io input.Input) error {
 	for {
 		select {
 		case <-b.exit:
+			fmt.Println("[bot][loop] closing", io.String())
 			return c.Close()
 		default:
-			var ev input.Event
-			if err := c.Recv(&ev); err != nil {
+			var recvEv input.Event
+			// receive input
+			if err := c.Recv(&recvEv); err != nil {
 				return err
 			}
-			// TODO: do something with this
-			fmt.Println("received %+v", ev)
+
+			// only process TextEvent
+			if recvEv.Type != input.TextEvent {
+				continue
+			}
+
+			// process command
+			for pattern, cmd := range b.commands {
+				// skip if it doesn't match
+				if m, err := regexp.Match(pattern, recvEv.Data); err != nil || !m {
+					continue
+				}
+
+				// matched, exec command
+				args := strings.Split(string(recvEv.Data), " ")
+				rsp, err := cmd.Exec(args...)
+				if err != nil {
+					rsp = []byte("error executing cmd: " + err.Error())
+				}
+
+				// send response
+				if err := c.Send(&input.Event{
+					Meta: recvEv.Meta,
+					From: recvEv.To,
+					To:   recvEv.From,
+					Type: input.TextEvent,
+					Data: rsp,
+				}); err != nil {
+					return err
+				}
+
+				// done
+				break
+			}
 		}
 	}
 }
 
 func (b *bot) start() {
 	fmt.Println("[bot] starting")
-	/*
-		for _, io := range b.inputs {
-			go b.loop(io)
-		}
-	*/
 
-	// register commands
+	// Start inputs
 	for _, io := range b.inputs {
-		for _, cmd := range b.commands {
-			fmt.Printf("[bot] registering %s command with %s\n", cmd.Name(), io.String())
-			if err := io.Process(cmd); err != nil {
-				fmt.Println(err)
-				os.Exit(1)
-			}
+		fmt.Println("[bot] starting input", io.String())
+
+		if err := io.Init(b.ctx); err != nil {
+			fmt.Println(err)
+			os.Exit(1)
 		}
+
+		if err := io.Start(); err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+
+		go b.loop(io)
 	}
 }
 
 func (b *bot) stop() {
+	fmt.Println("[bot] stopping")
 	close(b.exit)
+
+	// Stop inputs
+	for _, io := range b.inputs {
+		fmt.Println("[bot] stopping input", io.String())
+		if err := io.Stop(); err != nil {
+			fmt.Println(err)
+		}
+	}
 }
 
 func run(ctx *cli.Context) {
@@ -138,12 +193,12 @@ func run(ctx *cli.Context) {
 		os.Exit(1)
 	}
 
-	var ios []input.Input
-	var cmds []command.Command
+	ios := make(map[string]input.Input)
+	cmds := make(map[string]command.Command)
 
 	// create commands
-	for _, cmd := range commands {
-		cmds = append(cmds, cmd(ctx))
+	for pattern, cmd := range commands {
+		cmds[pattern] = cmd(ctx)
 	}
 
 	// Parse inputs
@@ -153,26 +208,11 @@ func run(ctx *cli.Context) {
 			fmt.Printf("[bot] input %s not found\n", i)
 			os.Exit(1)
 		}
-		ios = append(ios, i)
-	}
-
-	// Start inputs
-	for _, io := range ios {
-		fmt.Println("[bot] starting input", io.String())
-
-		if err := io.Init(ctx); err != nil {
-			fmt.Println(err)
-			os.Exit(1)
-		}
-
-		if err := io.Start(); err != nil {
-			fmt.Println(err)
-			os.Exit(1)
-		}
+		ios[io] = i
 	}
 
 	// Start bot
-	b := newBot(ios, cmds)
+	b := newBot(ctx, ios, cmds)
 	b.start()
 
 	service := micro.NewService(
@@ -193,13 +233,6 @@ func run(ctx *cli.Context) {
 	// Stop bot
 	b.stop()
 
-	// Stop inputs
-	for _, io := range ios {
-		fmt.Println("[bot] stopping input", io.String())
-		if err := io.Stop(); err != nil {
-			fmt.Println(err)
-		}
-	}
 }
 
 func Commands() []cli.Command {
