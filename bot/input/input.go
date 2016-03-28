@@ -41,6 +41,10 @@ type Input interface {
 	String() string
 }
 
+// Conn interface provides a way to
+// send and receive events. Send and
+// Recv both block until succeeding
+// or failing.
 type Conn interface {
 	Close() error
 	Recv(*Event) error
