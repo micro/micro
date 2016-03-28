@@ -2,23 +2,22 @@ package command
 
 import (
 	"strings"
+	"time"
 
 	"github.com/micro/cli"
 	"github.com/micro/micro/internal/command"
 )
 
-// Laws of robotics
-func ThreeLaws(ctx *cli.Context) Command {
-	usage := "the three laws"
-	desc := "Returns the three laws of robotics"
+// Echo returns the same message
+func Echo(ctx *cli.Context) Command {
+	usage := "echo [text]"
+	desc := "Returns the [text]"
 
-	return NewCommand("the three laws", usage, desc, func(args ...string) ([]byte, error) {
-		laws := []string{
-			"1. A robot may not injure a human being or, through inaction, allow a human being to come to harm.",
-			"2. A robot must obey the orders given it by human beings except where such orders would conflict with the First Law.",
-			"3. A robot must protect its own existence as long as such protection does not conflict with the First or Second Laws.",
+	return NewCommand("time", usage, desc, func(args ...string) ([]byte, error) {
+		if len(args) < 2 {
+			return []byte("echo what?"), nil
 		}
-		return []byte("\n" + strings.Join(laws, "\n")), nil
+		return []byte(strings.Join(args[1:], " ")), nil
 	})
 }
 
@@ -180,5 +179,31 @@ func Deregister(ctx *cli.Context) Command {
 		default:
 			return []byte("unknown command...\nsupported commands: \nderegister service [definition]"), nil
 		}
+	})
+}
+
+// Laws of robotics
+func ThreeLaws(ctx *cli.Context) Command {
+	usage := "the three laws"
+	desc := "Returns the three laws of robotics"
+
+	return NewCommand("the three laws", usage, desc, func(args ...string) ([]byte, error) {
+		laws := []string{
+			"1. A robot may not injure a human being or, through inaction, allow a human being to come to harm.",
+			"2. A robot must obey the orders given it by human beings except where such orders would conflict with the First Law.",
+			"3. A robot must protect its own existence as long as such protection does not conflict with the First or Second Laws.",
+		}
+		return []byte("\n" + strings.Join(laws, "\n")), nil
+	})
+}
+
+// Time returns the time
+func Time(ctx *cli.Context) Command {
+	usage := "time"
+	desc := "Returns the server time"
+
+	return NewCommand("time", usage, desc, func(args ...string) ([]byte, error) {
+		t := time.Now().Format(time.RFC1123)
+		return []byte("Server time is: " + t), nil
 	})
 }

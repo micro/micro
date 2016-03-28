@@ -28,6 +28,8 @@ type bot struct {
 var (
 	// map pattern:command
 	commands = map[string]func(*cli.Context) command.Command{
+		"^echo ":                             command.Echo,
+		"^time$":                             command.Time,
 		"^hello$":                            command.Hello,
 		"^ping$":                             command.Ping,
 		"^list ":                             command.List,
