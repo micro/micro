@@ -1,6 +1,8 @@
 package command
 
 var (
+	// Commmands keyed by golang/regexp patterns
+	// regexp.Match(key, input) is used to match
 	Commands = map[string]Command{}
 )
 

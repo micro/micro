@@ -11,6 +11,8 @@ const (
 )
 
 var (
+	// Inputs keyed by name
+	// Example slack or hipchat
 	Inputs = map[string]Input{}
 )
 
