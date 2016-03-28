@@ -7,6 +7,21 @@ import (
 	"github.com/micro/micro/internal/command"
 )
 
+// Laws of robotics
+func ThreeLaws(ctx *cli.Context) Command {
+	usage := "the three laws"
+	desc := "Returns the three laws of robotics"
+
+	return NewCommand("the three laws", usage, desc, func(args ...string) ([]byte, error) {
+		laws := []string{
+			"1. A robot may not injure a human being or, through inaction, allow a human being to come to harm.",
+			"2. A robot must obey the orders given it by human beings except where such orders would conflict with the First Law.",
+			"3. A robot must protect its own existence as long as such protection does not conflict with the First or Second Laws.",
+		}
+		return []byte("\n" + strings.Join(laws, "\n")), nil
+	})
+}
+
 // Hello returns a greeting
 func Hello(ctx *cli.Context) Command {
 	usage := "hello"

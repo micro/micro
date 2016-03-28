@@ -28,14 +28,15 @@ type bot struct {
 var (
 	// map pattern:command
 	commands = map[string]func(*cli.Context) command.Command{
-		"^hello$":      command.Hello,
-		"^ping$":       command.Ping,
-		"^list ":       command.List,
-		"^get ":        command.Get,
-		"^health ":     command.Health,
-		"^query ":      command.Query,
-		"^register ":   command.Register,
-		"^deregister ": command.Deregister,
+		"^hello$":                            command.Hello,
+		"^ping$":                             command.Ping,
+		"^list ":                             command.List,
+		"^get ":                              command.Get,
+		"^health ":                           command.Health,
+		"^query ":                            command.Query,
+		"^register ":                         command.Register,
+		"^deregister ":                       command.Deregister,
+		"^(the )?three laws( of robotics)?$": command.ThreeLaws,
 	}
 )
 
