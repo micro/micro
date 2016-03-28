@@ -108,6 +108,7 @@ VERSION:
    
 COMMANDS:
    api		Run the micro API
+   bot		Run the micro bot
    registry	Query registry
    query	Query a service method using rpc
    stream	Query a service method using streaming rpc
@@ -183,6 +184,7 @@ Feature		|	Description
 [CLI](https://github.com/micro/micro/tree/master/cli) | Command line interface
 [Sidecar](https://github.com/micro/micro/tree/master/car) | HTTP proxy for non Go-micro apps
 [Web UI/Proxy](https://github.com/micro/micro/tree/master/web) | A visual way to view and query services
+[Bot](https://github.com/micro/micro/tree/master/bot) | A bot that sits inside Slack, HipChat, etc for ChatOps
 
 ### Go Platform
 
