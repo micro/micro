@@ -55,7 +55,7 @@ Commands are functions executed by the bot based on text based pattern matching.
 
 ### Write a Command
 
-```golang
+```go
 import "github.com/micro/micro/bot/command"
 
 func Ping() command.Command {
@@ -72,7 +72,7 @@ func Ping() command.Command {
 
 Add the command to the Commands map with a pattern key that can be matched by golang/regexp.Match
 
-```golang
+```go
 import "github.com/micro/micro/bot/command"
 
 func init() {
@@ -85,7 +85,7 @@ func init() {
 Drop a link to your command into the top level dir
 
 link_command.go:
-```golang
+```go
 import _ "path/to/import"
 ```
 
@@ -99,7 +99,7 @@ New inputs can be added in the following way.
 
 Write an input that satisfies the Input interface.
 
-```golang
+```go
 type Input interface {
 	// Provide cli flags
 	Flags() []cli.Flag
@@ -120,7 +120,7 @@ type Input interface {
 
 Add the input to the Inputs map.
 
-```golang
+```go
 import "github.com/micro/micro/bot/input"
 
 func init() {
@@ -133,6 +133,6 @@ func init() {
 Drop a link to your input into the top level dir
 
 link_input.go:
-```golang
+```go
 import _ "path/to/import"
 ```
