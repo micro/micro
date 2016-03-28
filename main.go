@@ -6,6 +6,7 @@ import (
 	ccli "github.com/micro/cli"
 	"github.com/micro/go-micro/cmd"
 	"github.com/micro/micro/api"
+	"github.com/micro/micro/bot"
 	"github.com/micro/micro/car"
 	"github.com/micro/micro/cli"
 	"github.com/micro/micro/web"
@@ -140,6 +141,7 @@ func setup(app *ccli.App) {
 func main() {
 	app := cmd.App()
 	app.Commands = append(app.Commands, api.Commands()...)
+	app.Commands = append(app.Commands, bot.Commands()...)
 	app.Commands = append(app.Commands, cli.Commands()...)
 	app.Commands = append(app.Commands, car.Commands()...)
 	app.Commands = append(app.Commands, web.Commands()...)
