@@ -61,7 +61,7 @@ func Ping() command.Command {
 	usage := "ping"
 	description := "Returns pong"
 
-	return NewCommand("ping", usage, desc, func(args ...string) ([]byte, error) {
+	return command.NewCommand("ping", usage, desc, func(args ...string) ([]byte, error) {
 		return []byte("pong"), nil
 	})
 }
