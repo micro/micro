@@ -56,7 +56,7 @@ func help(commands map[string]command.Command) command.Command {
 
 	return command.NewCommand("help", usage, desc, func(args ...string) ([]byte, error) {
 		response := []string{"\n"}
-		for _, cmd := range commands {
+		for _, cmd := range cmds {
 			response = append(response, fmt.Sprintf("%s - %s", cmd.Usage(), cmd.Description()))
 		}
 		return []byte(strings.Join(response, "\n")), nil

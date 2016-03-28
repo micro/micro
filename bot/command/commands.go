@@ -13,7 +13,7 @@ func Echo(ctx *cli.Context) Command {
 	usage := "echo [text]"
 	desc := "Returns the [text]"
 
-	return NewCommand("time", usage, desc, func(args ...string) ([]byte, error) {
+	return NewCommand("echo", usage, desc, func(args ...string) ([]byte, error) {
 		if len(args) < 2 {
 			return []byte("echo what?"), nil
 		}
