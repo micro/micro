@@ -48,3 +48,91 @@ list services - Returns a list of registered services
 get service [name] - Returns a registered service
 health [service] - Returns health of a service
 ```
+
+## Adding new Commands
+
+Commands are functions executed by the bot based on text based pattern matching.
+
+### Write a Command
+
+```golang
+import "github.com/micro/micro/bot/command"
+
+func Ping() command.Command {
+	usage := "ping"
+	description := "Returns pong"
+
+	return NewCommand("ping", usage, desc, func(args ...string) ([]byte, error) {
+		return []byte("pong"), nil
+	})
+}
+```
+
+### Register the command
+
+Add the command to the Commands map with a pattern key that can be matched by golang/regexp.Match
+
+```golang
+import "github.com/micro/micro/bot/command"
+
+func init() {
+	command.Commands["^ping$"] = Ping()
+}
+```
+
+### Link the Command
+
+Drop a link to your command into the top level dir
+
+link_command.go:
+```golang
+import _ "path/to/import"
+```
+
+## Adding new Inputs
+
+Inputs are plugins for communication e.g Slack, HipChat, XMPP, IRC, SMTP, etc, etc. 
+
+New inputs can be added in the following way.
+
+### Write an Input
+
+Write an input that satisfies the Input interface.
+
+```golang
+type Input interface {
+	// Provide cli flags
+	Flags() []cli.Flag
+	// Initialise input using cli context
+	Init(*cli.Context) error
+	// Stream events from the input
+	Stream() (Conn, error)
+	// Start the input
+	Start() error
+	// Stop the input
+	Stop() error
+	// name of the input
+	String() string
+}
+```
+
+### Register the input
+
+Add the input to the Inputs map.
+
+```golang
+import "github.com/micro/micro/bot/input"
+
+func init() {
+	input.Inputs["name"] = MyInput
+}
+```
+
+### Link the input
+
+Drop a link to your input into the top level dir
+
+link_input.go:
+```golang
+import _ "path/to/import"
+```
