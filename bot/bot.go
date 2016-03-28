@@ -76,16 +76,16 @@ func newBot(ctx *cli.Context, inputs map[string]input.Input, commands map[string
 }
 
 func (b *bot) loop(io input.Input) {
-	fmt.Println("[bot][loop] starting", io.String())
+	log.Println("[bot][loop] starting", io.String())
 
 	for {
 		select {
 		case <-b.exit:
-			fmt.Println("[bot][loop] exiting", io.String())
+			log.Println("[bot][loop] exiting", io.String())
 			return
 		default:
 			if err := b.run(io); err != nil {
-				fmt.Println("[bot][loop] error", err)
+				log.Println("[bot][loop] error", err)
 				time.Sleep(time.Second)
 			}
 		}
@@ -93,7 +93,7 @@ func (b *bot) loop(io input.Input) {
 }
 
 func (b *bot) run(io input.Input) error {
-	fmt.Println("[bot][loop] connecting to", io.String())
+	log.Println("[bot][loop] connecting to", io.String())
 
 	c, err := io.Stream()
 	if err != nil {
@@ -103,7 +103,7 @@ func (b *bot) run(io input.Input) error {
 	for {
 		select {
 		case <-b.exit:
-			fmt.Println("[bot][loop] closing", io.String())
+			log.Println("[bot][loop] closing", io.String())
 			return c.Close()
 		default:
 			var recvEv input.Event
@@ -149,50 +149,52 @@ func (b *bot) run(io input.Input) error {
 	}
 }
 
-func (b *bot) start() {
-	fmt.Println("[bot] starting")
+func (b *bot) start() error {
+	log.Println("[bot] starting")
 
 	// Start inputs
 	for _, io := range b.inputs {
-		fmt.Println("[bot] starting input", io.String())
+		log.Println("[bot] starting input", io.String())
 
 		if err := io.Init(b.ctx); err != nil {
-			fmt.Println(err)
-			os.Exit(1)
+			return err
 		}
 
 		if err := io.Start(); err != nil {
-			fmt.Println(err)
-			os.Exit(1)
+			return err
 		}
 
 		go b.loop(io)
 	}
+
+	return nil
 }
 
-func (b *bot) stop() {
-	fmt.Println("[bot] stopping")
+func (b *bot) stop() error {
+	log.Println("[bot] stopping")
 	close(b.exit)
 
 	// Stop inputs
 	for _, io := range b.inputs {
-		fmt.Println("[bot] stopping input", io.String())
+		log.Println("[bot] stopping input", io.String())
 		if err := io.Stop(); err != nil {
-			fmt.Println(err)
+			log.Println("[bot]", err)
 		}
 	}
+
+	return nil
 }
 
 func run(ctx *cli.Context) {
 	// Parse flags
 	if len(ctx.String("inputs")) == 0 {
-		fmt.Println("[bot] no inputs specified")
+		log.Println("[bot] no inputs specified")
 		os.Exit(1)
 	}
 
 	inputs := strings.Split(ctx.String("inputs"), ",")
 	if len(inputs) == 0 {
-		fmt.Println("[bot] no inputs specified")
+		log.Println("[bot] no inputs specified")
 		os.Exit(1)
 	}
 
@@ -208,7 +210,7 @@ func run(ctx *cli.Context) {
 	for _, io := range inputs {
 		i, ok := input.Inputs[io]
 		if !ok {
-			fmt.Printf("[bot] input %s not found\n", i)
+			log.Printf("[bot] input %s not found\n", i)
 			os.Exit(1)
 		}
 		ios[io] = i
@@ -216,8 +218,13 @@ func run(ctx *cli.Context) {
 
 	// Start bot
 	b := newBot(ctx, ios, cmds)
-	b.start()
 
+	if err := b.start(); err != nil {
+		log.Println("error starting bot", err)
+		os.Exit(1)
+	}
+
+	// setup service
 	service := micro.NewService(
 		micro.Name("go.micro.bot"),
 		micro.RegisterTTL(
@@ -234,8 +241,9 @@ func run(ctx *cli.Context) {
 	}
 
 	// Stop bot
-	b.stop()
-
+	if err := b.stop(); err != nil {
+		log.Println("error stopping bot", err)
+	}
 }
 
 func Commands() []cli.Command {
