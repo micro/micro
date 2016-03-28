@@ -13,7 +13,7 @@ type Command interface {
 	Usage() string
 	// Description of the command
 	Description() string
-	// Name of the command; used to match the command
+	// Name of the command
 	String() string
 }
 
