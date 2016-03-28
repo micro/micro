@@ -35,12 +35,16 @@ $ micro bot --inputs=hipchat,slack --slack_token=SLACK_TOKEN --hipchat_username=
 In slack
 ```shell
 $ micro help
+register service [definition] - Registers a service
+the three laws - Returns the three laws of robotics
+time - Returns the server time
 ping - Returns pong
+query [service] [method] [request] - Returns the response for a service query
+echo [text] - Returns the [text]
+deregister service [definition] - Deregisters a service
+help - Displays help for all known commands
+hello - Returns a greeting
 list services - Returns a list of registered services
 get service [name] - Returns a registered service
 health [service] - Returns health of a service
-query [service] [method] [request] - Returns the response for a service query
-register service [definition] - Registers a service
-deregister service [definition] - Deregisters a service
-hello - Returns a greeting
 ```
