@@ -201,9 +201,19 @@ func run(ctx *cli.Context) {
 	ios := make(map[string]input.Input)
 	cmds := make(map[string]command.Command)
 
-	// create commands
+	// create built in commands
 	for pattern, cmd := range commands {
 		cmds[pattern] = cmd(ctx)
+	}
+
+	// take other commands
+	for pattern, cmd := range command.Commands {
+		if c, ok := cmds[pattern]; ok {
+			log.Printf("[bot] command %s already registered for pattern %s\n", c.String(), pattern)
+			continue
+		}
+		// register command
+		cmds[pattern] = cmd
 	}
 
 	// Parse inputs
