@@ -2,9 +2,9 @@ package handler
 
 import (
 	"encoding/json"
-	"io/ioutil"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/micro/go-micro/cmd"
 	"github.com/micro/go-micro/errors"
@@ -41,15 +41,12 @@ func RPC(w http.ResponseWriter, r *http.Request) {
 
 	switch r.Header.Get("Content-Type") {
 	case "application/json":
-		b, err := ioutil.ReadAll(r.Body)
-		if err != nil {
-			badRequest(err.Error())
-			return
-		}
-
 		var rpcReq rpcRequest
 
-		if err = json.Unmarshal(b, &rpcReq); err != nil {
+		d := json.NewDecoder(r.Body)
+		d.UseNumber()
+
+		if err := d.Decode(&rpcReq); err != nil {
 			badRequest(err.Error())
 			return
 		}
@@ -61,7 +58,10 @@ func RPC(w http.ResponseWriter, r *http.Request) {
 
 		// JSON as string
 		if req, ok := rpcReq.Request.(string); ok {
-			if err = json.Unmarshal([]byte(req), &request); err != nil {
+			d := json.NewDecoder(strings.NewReader(req))
+			d.UseNumber()
+
+			if err := d.Decode(&request); err != nil {
 				badRequest("error decoding request string: " + err.Error())
 				return
 			}
@@ -70,7 +70,11 @@ func RPC(w http.ResponseWriter, r *http.Request) {
 		r.ParseForm()
 		service = r.Form.Get("service")
 		method = r.Form.Get("method")
-		if err := json.Unmarshal([]byte(r.Form.Get("request")), &request); err != nil {
+
+		d := json.NewDecoder(strings.NewReader(r.Form.Get("request")))
+		d.UseNumber()
+
+		if err := d.Decode(&request); err != nil {
 			badRequest("error decoding request string: " + err.Error())
 			return
 		}

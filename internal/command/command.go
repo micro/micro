@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io/ioutil"
 	"net/http"
 	"sort"
 	"strings"
@@ -71,16 +70,13 @@ func del(url string, b []byte, v interface{}) error {
 	}
 	defer rsp.Body.Close()
 
-	bu, err := ioutil.ReadAll(rsp.Body)
-	if err != nil {
-		return err
-	}
-
 	if v == nil {
 		return nil
 	}
 
-	return json.Unmarshal(bu, v)
+	d := json.NewDecoder(rsp.Body)
+	d.UseNumber()
+	return d.Decode(v)
 }
 
 func get(url string, v interface{}) error {
@@ -94,12 +90,9 @@ func get(url string, v interface{}) error {
 	}
 	defer rsp.Body.Close()
 
-	b, err := ioutil.ReadAll(rsp.Body)
-	if err != nil {
-		return err
-	}
-
-	return json.Unmarshal(b, v)
+	d := json.NewDecoder(rsp.Body)
+	d.UseNumber()
+	return d.Decode(v)
 }
 
 func post(url string, b []byte, v interface{}) error {
@@ -116,16 +109,13 @@ func post(url string, b []byte, v interface{}) error {
 	}
 	defer rsp.Body.Close()
 
-	bu, err := ioutil.ReadAll(rsp.Body)
-	if err != nil {
-		return err
-	}
-
 	if v == nil {
 		return nil
 	}
 
-	return json.Unmarshal(bu, v)
+	d := json.NewDecoder(rsp.Body)
+	d.UseNumber()
+	return d.Decode(v)
 }
 
 func RegisterService(c *cli.Context, args []string) ([]byte, error) {
@@ -144,7 +134,10 @@ func RegisterService(c *cli.Context, args []string) ([]byte, error) {
 
 	var service *registry.Service
 
-	if err := json.Unmarshal([]byte(req), &service); err != nil {
+	d := json.NewDecoder(strings.NewReader(req))
+	d.UseNumber()
+
+	if err := d.Decode(&service); err != nil {
 		return nil, err
 	}
 
@@ -171,7 +164,10 @@ func DeregisterService(c *cli.Context, args []string) ([]byte, error) {
 
 	var service *registry.Service
 
-	if err := json.Unmarshal([]byte(req), &service); err != nil {
+	d := json.NewDecoder(strings.NewReader(req))
+	d.UseNumber()
+
+	if err := d.Decode(&service); err != nil {
 		return nil, err
 	}
 
@@ -317,10 +313,15 @@ func QueryService(c *cli.Context, args []string) ([]byte, error) {
 		}
 
 	} else {
-		json.Unmarshal([]byte(req), &request)
+		d := json.NewDecoder(strings.NewReader(req))
+		d.UseNumber()
 
-		req := (*cmd.DefaultOptions().Client).NewJsonRequest(service, method, request)
-		err := (*cmd.DefaultOptions().Client).Call(context.Background(), req, &response)
+		if err := d.Decode(&request); err != nil {
+			return nil, err
+		}
+
+		creq := (*cmd.DefaultOptions().Client).NewJsonRequest(service, method, request)
+		err := (*cmd.DefaultOptions().Client).Call(context.Background(), creq, &response)
 		if err != nil {
 			return nil, fmt.Errorf("error calling %s.%s: %v\n", service, method, err)
 		}
