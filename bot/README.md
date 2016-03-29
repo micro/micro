@@ -10,9 +10,13 @@ It mimics the functions of the CLI via messaging.
 
 ## Getting Started
 
-### Run the bot
+### Install Micro
 
-Run with slack
+```go
+go get github.com/micro/micro
+```
+
+### Run with Slack
 
 ```shell
 $ micro bot --inputs=slack --slack_token=SLACK_TOKEN
@@ -21,7 +25,7 @@ $ micro bot --inputs=slack --slack_token=SLACK_TOKEN
 <img src="https://github.com/micro/micro/blob/master/bot/slack.png">
 -
 
-Run with HipChat
+### Run with HipChat
 
 ```shell
 $ micro bot --inputs=hipchat --hipchat_username=XMPP_USER --hipchat_password=XMPP_PASSWORD
