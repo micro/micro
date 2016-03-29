@@ -18,11 +18,17 @@ Run with slack
 $ micro bot --inputs=slack --slack_token=SLACK_TOKEN
 ```
 
+<img src="https://github.com/micro/micro/blob/master/bot/slack.png">
+-
+
 Run with HipChat
 
 ```shell
 $ micro bot --inputs=hipchat --hipchat_username=XMPP_USER --hipchat_password=XMPP_PASSWORD
 ```
+
+<img src="https://github.com/micro/micro/blob/master/bot/hipchat.png">
+-
 
 Use multiple inputs by specifying a comma separated list
 
