@@ -266,13 +266,22 @@ Project		|	Description
 ![Overview3](https://github.com/micro/micro/blob/master/doc/overview3.png)
 -
 
-### Built in Web UI
+### Bot
+
+ChatOps as a first class citizen in the Micro world
+
+<img src="https://github.com/micro/micro/blob/master/bot/slack.png">
+
+### Dashboard
 
 <img src="https://github.com/micro/micro/blob/master/web/web1.png">
+
 -
 <img src="https://github.com/micro/micro/blob/master/web/web2.png">
+
 -
 <img src="https://github.com/micro/micro/blob/master/web/web3.png">
+
 -
 <img src="https://github.com/micro/micro/blob/master/doc/stats.png">
 
