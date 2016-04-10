@@ -6,6 +6,7 @@ import (
 	"net"
 	"net/http"
 	"net/http/httputil"
+	"net/url"
 	"regexp"
 	"strings"
 
@@ -14,22 +15,65 @@ import (
 )
 
 type proxy struct {
-	Default  *httputil.ReverseProxy
-	Director func(r *http.Request)
+	Selector  selector.Selector
+	Namespace string
+
+	regex     *regexp.Regexp
+	wsEnabled bool
 }
 
 func (p *proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	if !isWebSocket(r) {
-		// the usual path
-		p.Default.ServeHTTP(w, r)
+	serviceHost, err := p.serviceHostForRequest(r)
+
+	if err != nil {
+		w.WriteHeader(500)
 		return
 	}
 
+	if len(serviceHost) == 0 {
+		w.WriteHeader(404)
+		return
+	}
+
+	if isWebSocket(r) && p.wsEnabled {
+		p.serveWebSocket(serviceHost, w, r)
+		return
+	}
+
+	rpURL, err := url.Parse(serviceHost)
+	if err != nil {
+		w.WriteHeader(500)
+		return
+	}
+
+	httputil.NewSingleHostReverseProxy(rpURL).ServeHTTP(w, r)
+}
+
+func (p *proxy) serviceHostForRequest(r *http.Request) (string, error) {
+	parts := strings.Split(r.URL.Path, "/")
+	if len(parts) < 2 {
+		return "", nil
+	}
+	if !p.regex.MatchString(parts[1]) {
+		return "", nil
+	}
+	next, err := p.Selector.Select(p.Namespace + "." + parts[1])
+	if err != nil {
+		return "", nil
+	}
+
+	s, err := next()
+	if err != nil {
+		return "", nil
+	}
+
+	return fmt.Sprintf("http://%s:%d", s.Address, s.Port), nil
+}
+
+func (p *proxy) serveWebSocket(host string, w http.ResponseWriter, r *http.Request) {
 	// the websocket path
 	req := new(http.Request)
 	*req = *r
-	p.Director(req)
-	host := req.URL.Host
 
 	if len(host) == 0 {
 		http.Error(w, "invalid host", 500)
@@ -94,55 +138,13 @@ func isWebSocket(r *http.Request) bool {
 }
 
 func Proxy(ns string, ws bool) http.Handler {
-	sel := selector.NewSelector(
-		selector.Registry((*cmd.DefaultOptions().Registry)),
-	)
-
-	re := regexp.MustCompile("^[a-zA-Z0-9]+$")
-
-	director := func(r *http.Request) {
-		kill := func() {
-			r.URL.Host = ""
-			r.URL.Path = ""
-			r.URL.Scheme = ""
-			r.Host = ""
-			r.RequestURI = ""
-		}
-
-		parts := strings.Split(r.URL.Path, "/")
-		if len(parts) < 2 {
-			kill()
-			return
-		}
-		if !re.MatchString(parts[1]) {
-			kill()
-			return
-		}
-		next, err := sel.Select(ns + "." + parts[1])
-		if err != nil {
-			kill()
-			return
-		}
-
-		s, err := next()
-		if err != nil {
-			kill()
-			return
-		}
-
-		r.URL.Host = fmt.Sprintf("%s:%d", s.Address, s.Port)
-		r.URL.Scheme = "http"
-	}
-
-	dr := &httputil.ReverseProxy{Director: director}
-
-	// disable web sockets
-	if !ws {
-		return dr
-	}
-
 	return &proxy{
-		Default:  dr,
-		Director: director,
+		Namespace: ns,
+		Selector: selector.NewSelector(
+			selector.Registry((*cmd.DefaultOptions().Registry)),
+		),
+
+		regex:     regexp.MustCompile("^[a-zA-Z0-9]+$"),
+		wsEnabled: ws,
 	}
 }
