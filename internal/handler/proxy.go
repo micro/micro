@@ -18,45 +18,47 @@ type proxy struct {
 	Selector  selector.Selector
 	Namespace string
 
-	regex     *regexp.Regexp
-	wsEnabled bool
+	re *regexp.Regexp
+	ws bool
 }
 
 func (p *proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	serviceHost, err := p.serviceHostForRequest(r)
-
+	service, err := p.getService(r)
 	if err != nil {
 		w.WriteHeader(500)
 		return
 	}
 
-	if len(serviceHost) == 0 {
+	if len(service) == 0 {
 		w.WriteHeader(404)
 		return
 	}
 
-	if isWebSocket(r) && p.wsEnabled {
-		p.serveWebSocket(serviceHost, w, r)
+	if isWebSocket(r) && p.ws {
+		p.serveWebSocket(service, w, r)
 		return
 	}
 
-	rpURL, err := url.Parse(serviceHost)
+	rp, err := url.Parse(service)
 	if err != nil {
 		w.WriteHeader(500)
 		return
 	}
 
-	httputil.NewSingleHostReverseProxy(rpURL).ServeHTTP(w, r)
+	httputil.NewSingleHostReverseProxy(rp).ServeHTTP(w, r)
 }
 
-func (p *proxy) serviceHostForRequest(r *http.Request) (string, error) {
+// getService returns the service for this request from the selector
+func (p *proxy) getService(r *http.Request) (string, error) {
 	parts := strings.Split(r.URL.Path, "/")
 	if len(parts) < 2 {
 		return "", nil
 	}
-	if !p.regex.MatchString(parts[1]) {
+
+	if !p.re.MatchString(parts[1]) {
 		return "", nil
 	}
+
 	next, err := p.Selector.Select(p.Namespace + "." + parts[1])
 	if err != nil {
 		return "", nil
@@ -70,8 +72,8 @@ func (p *proxy) serviceHostForRequest(r *http.Request) (string, error) {
 	return fmt.Sprintf("http://%s:%d", s.Address, s.Port), nil
 }
 
+// serveWebSocket used to serve a web socket proxied connection
 func (p *proxy) serveWebSocket(host string, w http.ResponseWriter, r *http.Request) {
-	// the websocket path
 	req := new(http.Request)
 	*req = *r
 
@@ -137,14 +139,14 @@ func isWebSocket(r *http.Request) bool {
 	return false
 }
 
+// Proxy is a reverse proxy used by the micro web and api
 func Proxy(ns string, ws bool) http.Handler {
 	return &proxy{
 		Namespace: ns,
 		Selector: selector.NewSelector(
 			selector.Registry((*cmd.DefaultOptions().Registry)),
 		),
-
-		regex:     regexp.MustCompile("^[a-zA-Z0-9]+$"),
-		wsEnabled: ws,
+		re: regexp.MustCompile("^[a-zA-Z0-9]+$"),
+		ws: ws,
 	}
 }
