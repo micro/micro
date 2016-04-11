@@ -2,6 +2,11 @@
 
 This is a lightweight proxy for [Micro](https://github.com/micro/micro) based microservices. It conforms to the [API Gateway](http://microservices.io/patterns/apigateway.html) pattern and can be used in conjuction with [go-micro](https://github.com/micro/go-micro) based apps or any future language implementation of the [Micro](https://github.com/micro/micro) toolkit.
 
+<p align="center">
+  <img src="api.png" />
+</p>
+
+
 ## Handlers
 
 The API handles requests in three ways.
