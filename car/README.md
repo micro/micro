@@ -4,6 +4,10 @@ The sidecar provides a HTTP interface to integrate any application into the Micr
 
 It is similar to Netflix's sidecar called [Prana](https://github.com/Netflix/Prana)
 
+<p align="center">
+  <img src="sidecar.png" />
+</p>
+
 ## Features
 
 - Registration with discovery system
@@ -11,10 +15,6 @@ It is similar to Netflix's sidecar called [Prana](https://github.com/Netflix/Pra
 - Health checking of services
 - HTTP API and load balancing requests
 - PubSub via WebSockets
-
-<p align="center">
-  <img src="sidecar.png" />
-</p>
 
 ## Getting Started
 
