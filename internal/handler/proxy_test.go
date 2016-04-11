@@ -52,12 +52,8 @@ func TestProxyHandler(t *testing.T) {
 		w.Write([]byte(`you got served`))
 	})
 
-	// start http test server
-	go func() {
-		if err := http.Serve(l, m); err != nil {
-			t.Fatal(err)
-		}
-	}()
+	// start http test serve
+	go http.Serve(l, m)
 
 	// create new request and writer
 	w := httptest.NewRecorder()
