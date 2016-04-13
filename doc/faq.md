@@ -36,4 +36,24 @@ import (
 my_service --registry=etcd --registry_address=127.0.0.1:2379
 ```
 
+## What's the different between API, Web and SRV services?
 
+<img src="https://github.com/micro/micro/blob/master/doc/arch.png" />
+
+As part of the micro toolkit we attempt to define a set of design patterns for a scalable architecture by separating the concerns of the API, Web dashboards and backend services (SRV).
+
+### API Services
+
+API services are served by the micro api with the default namespace go.micro.api. The micro api conforms to the API gateway pattern. 
+
+Learn more about it [here](https://github.com/micro/micro/tree/master/api)
+
+### Web Services
+
+Web services are served by the micro web with the default namespace go.micro.web. We believe in web apps as first class citizens in the microservice world therefor building web dashboards as microservices. The micro web is a reverse proxy and will forward HTTP requests to the appropriate web apps based on path to service resolution. 
+
+Learn more about it [here](https://github.com/micro/micro/tree/master/web)
+
+## SRV services
+
+SRV services are basically standard RPC services, the usual kind of service you would write. We usually call them RPC or backend services as they should mainly be part of the backend architecture and never be public facing. By default we use the namespace go.micro.srv for these but you should use your domain com.example.srv. 
