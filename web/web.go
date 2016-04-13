@@ -251,7 +251,13 @@ func queryHandler(w http.ResponseWriter, r *http.Request) {
 
 	serviceMap := make(map[string][]*registry.Endpoint)
 	for _, service := range services {
-		s, _ := (*cmd.DefaultOptions().Registry).GetService(service.Name)
+		s, err := (*cmd.DefaultOptions().Registry).GetService(service.Name)
+		if err != nil {
+			continue
+		}
+		if len(s) == 0 {
+			continue
+		}
 		serviceMap[service.Name] = s[0].Endpoints
 	}
 
