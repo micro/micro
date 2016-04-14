@@ -3,6 +3,10 @@
 Micro web provides a visual point of entry for the micro environment and should replicate 
 the features of the CLI.
 
+<p align="center">
+  <img src="web.png" />
+</p>
+
 ## Features
 
 Feature	|	Description
