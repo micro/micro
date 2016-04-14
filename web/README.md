@@ -1,7 +1,7 @@
 # Micro Web
 
-Micro web provides a visual point of entry for the micro environment and should replicate 
-the features of the CLI.
+Micro web provides a dashboard to view and query services as well as a reverse proxy to serve micro web applications. 
+We believe in web apps as first class citizens in a microservice world.
 
 <p align="center">
   <img src="web.png" />
