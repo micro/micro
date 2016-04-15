@@ -199,6 +199,14 @@ Project		|	Description
 
 [![Roadmap](https://img.shields.io/badge/roadmap-in%20progress-lightgrey.svg)](https://github.com/micro/micro/wiki/Roadmap)
 
-## LICENSE
+## License
 
 Apache 2.0
+
+## Contributing
+
+1. Join the Slack to discuss
+2. Look at existing coding style
+3. Submit PR
+4. ?
+5. Profit
