@@ -24,4 +24,6 @@ type Plugin interface {
 	// handler so it can be wrapped to create
 	// a call chain.
 	Handle(http.Handler) http.Handler
+	// Name of the plugin
+	String() string
 }
