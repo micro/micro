@@ -36,6 +36,12 @@ import (
 my_service --registry=etcd --registry_address=127.0.0.1:2379
 ```
 
+## Where can I run Micro?
+
+Micro is runtime agnostic. You can run it anywhere you like. On bare metal, on AWS, Google Cloud. On your favourite container orchestration system like Mesos or Kubernetes.
+
+In fact there's a demo of Micro on Kubernetes. Check out the repo at [github.com/micro/kubernetes](https://github.com/micro/kubernetes) and the live demo at [web.micro.pm](http://web.micro.pm).
+
 ## What's the different between API, Web and SRV services?
 
 <img src="https://github.com/micro/micro/blob/master/doc/arch.png" />
