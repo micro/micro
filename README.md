@@ -12,21 +12,26 @@ check out the [Mailing List](https://groups.google.com/forum/#!forum/micro-servi
 # Overview
 The goal of **Micro** is to provide a toolkit for microservice development and management. At the core, micro is simple and accessible enough that anyone can easily get started writing microservices. As you scale to hundreds of services, micro will provide the fundamental tools required to manage a microservice environment.
 
-**Go Micro** is a pluggable RPC framework for writing microservices in Go. It provides libraries for 
+## Go Micro
+A pluggable RPC framework for writing microservices in Go. It provides libraries for 
 service discovery, client side load balancing, encoding, synchronous and asynchronous communication.
 
-**Micro API** is an API Gateway that serves HTTP and routes requests to appropriate micro services. 
+## API
+An API Gateway that serves HTTP and routes requests to appropriate micro services. 
 It acts as a single entry point and can either be used as a reverse proxy or translate HTTP requests to RPC.
 
-**Micro Web** is a web dashboard and reverse proxy for micro web applications. We believe that 
+## Web
+A web dashboard and reverse proxy for micro web applications. We believe that 
 web apps should be built as microservices and therefore treated as a first class citizen in a microservice world. It behaves much the like the API 
 reverse proxy but also includes support for web sockets.
 
-**Micro Sidecar** provides all the features of go-micro as a HTTP service. While we love Go and 
+## Sidecar
+The Sidecar provides all the features of go-micro as a HTTP service. While we love Go and 
 believe it's a great language to build microservices, you may also want to use other languages, so the Sidecar provides a way to integrate 
 your other apps into the Micro world.
 
-**Micro CLI** is a straight forward command line interface to interact with your micro services. 
+## CLI
+A straight forward command line interface to interact with your micro services. 
 It also allows you to leverage the Sidecar as a proxy where you may not want to directly connect to the service registry.
 
 ## Getting Started
