@@ -25,7 +25,7 @@ The micro ecosystem is rapidly growing but there's still a lot to do.
   * [x] Allow namespace to be set via flags
   * [x] Apache log format
   * [x] Stats page
-  * [ ] CLI interface in Web UI
+  * [x] CLI interface in Web UI
 3. [Sidecar](https://github.com/micro/micro/tree/master/car)
   * [x] TLS Support
   * [x] Apache log format
