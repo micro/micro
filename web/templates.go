@@ -272,12 +272,9 @@ jQuery(function($, undefined) {
 	    case "help":
 		term.echo(
 			"COMMANDS:\n" +
-			"    registry    Query registry\n" + 
 			"    query       Query a service method using rpc\n" +
 			"    health      Query the health of a service\n" +
 			"    list        List items in registry\n" +
-			"    register    Register an item in the registry\n" +
-			"    deregister  Deregister an item in the registry\n" +
 			"    get         Get item from registry\n");
 		break;
 	    case "list":
@@ -355,6 +352,60 @@ jQuery(function($, undefined) {
 		    })
 		  },
 		});
+
+		break;
+	    case "health":
+		if (args.length < 2) {
+		    term.echo("USAGE:\n    health [service]");
+		    return;
+		}
+
+		$.ajax({
+		  dataType: "json",
+		  contentType: "application/json",
+		  url: "registry?service="+args[1],
+		  data: {},
+		  success: function(data) {
+			
+		    term.echo("service\t"+args[1]);
+		    term.echo(" ");
+
+		    for (i = 0; i < data.services.length; i++) {
+			var service = data.services[i];
+
+			term.echo("\nversion "+service.version);
+			term.echo(" ");
+			term.echo("Id\tAddress:Port\tMetadata\n");
+
+			for (j = 0; j < service.nodes.length; j++) {
+			    var node = service.nodes[j];
+
+			    $.ajax({
+				  method: "POST",
+				  dataType: "json",
+				  contentType: "application/json",
+				  url: "rpc",
+				  data: JSON.stringify({
+					"service": service.name,
+					"method": "Debug.Health",
+					"request": {},
+					"address": node.address + ":" + node.port,
+				  }),
+				  success: function(data) {
+			    		term.echo(node.id + "\t" + node.address + ":" + node.port + "\t" + data.status);
+				  },
+				  error: function(xhr) {
+			    		term.echo(node.id + "\t" + node.address + ":" + node.port + "\t" + xhr.status);
+				  },
+			    });
+
+			}
+
+			term.echo(" ");
+		    }
+		  },
+		});
+
 
 		break;
 	    case "query":
