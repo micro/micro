@@ -266,16 +266,16 @@ jQuery(function($, undefined) {
 	    return;
         }
 
+	var help = "COMMANDS:\n" +
+	"    query       Query a service method using rpc\n" +
+	"    health      Query the health of a service\n" +
+	"    list        List items in registry\n" +
+	"    get         Get item from registry\n";
         try {
 	    args = command.split(" ");
 	    switch (args[0]) {
 	    case "help":
-		term.echo(
-			"COMMANDS:\n" +
-			"    query       Query a service method using rpc\n" +
-			"    health      Query the health of a service\n" +
-			"    list        List items in registry\n" +
-			"    get         Get item from registry\n");
+		term.echo(help);
 		break;
 	    case "list":
 		if (args.length == 1 || args[1] != "services") {
@@ -434,6 +434,7 @@ jQuery(function($, undefined) {
 		break;
 	    default:
 		term.echo(command +": command not found");
+		term.echo(help);
 	    }
         } catch(e) {
 	    term.error(new String(e));
