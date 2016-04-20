@@ -82,4 +82,6 @@ micro --enable_stats web
 <img src="https://github.com/micro/micro/blob/master/web/web2.png">
 -
 <img src="https://github.com/micro/micro/blob/master/web/web3.png">
+-
+<img src="https://github.com/micro/micro/blob/master/web/web4.png">
 
