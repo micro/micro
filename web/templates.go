@@ -10,6 +10,7 @@ var (
 		<style>
 		{{ template "style" . }}
 		</style>
+		{{ template "head" . }}
 	</head>
 	<body>
 	  <nav class="navbar navbar-inverse">
@@ -25,6 +26,7 @@ var (
                 <h4>&nbsp;</h4>
 	        <ul class="list-group">
 	          <li class="list-group-item"><a href="/">Home</a></li>
+	          <li class="list-group-item"><a href="cli">CLI</a></li>
 	          <li class="list-group-item"><a href="registry">Registry</a></li>
 	          <li class="list-group-item"><a href="query">Query</a></li>
 	        </ul>
@@ -42,12 +44,13 @@ var (
 </html>
 {{end}}
 {{ define "style" }}{{end}}
+{{ define "head" }}{{end}}
 {{ define "script" }}{{end}}
 {{ define "title" }}{{end}}
 `
 
 	indexTemplate = `
-{{define "title"}}Welcome to the Micro Web{{end}}
+{{define "title"}}Micro Web{{end}}
 {{define "content"}}
 	{{if .HasWebServices}}
 		<ul class="list-group">
@@ -243,5 +246,206 @@ var (
 	{{end}}
 {{end}}
 
+`
+
+	cliTemplate = `
+{{define "head"}}
+<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/jquery.terminal/0.9.3/css/jquery.terminal.min.css">
+{{end}}
+{{define "title"}}CLI{{end}}
+{{define "content"}}
+<div id="shell"></div>
+{{end}}
+{{define "script"}}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.terminal/0.9.3/js/jquery.terminal.min.js"></script>
+<script type="text/javascript">
+jQuery(function($, undefined) {
+    $('#shell').terminal(function(command, term) {
+        if (command == '') {
+            term.echo('');
+	    return;
+        }
+
+	var help = "COMMANDS:\n" +
+	"    query       Query a service method using rpc\n" +
+	"    health      Query the health of a service\n" +
+	"    list        List items in registry\n" +
+	"    get         Get item from registry\n";
+        try {
+	    args = command.split(" ");
+	    switch (args[0]) {
+	    case "help":
+		term.echo(help);
+		break;
+	    case "list":
+		if (args.length == 1 || args[1] != "services") {
+		    term.echo("COMMANDS:\n    services    List services in registry\n");
+		    return;
+		}
+		$.ajax({
+		  dataType: "json",
+		  contentType: "application/json",
+		  url: "registry",
+		  data: {},
+		  success: function(data) {
+		    var services = [];
+		    for (i = 0; i < data.services.length; i++) {
+			services.push(data.services[i].name);
+		    }
+		    term.echo(services.join("\n"));
+		  },
+		});
+		break;
+	    case "get":
+		if (args.length < 3 || args[1] != "service") {
+		    term.echo("COMMANDS:\n    service    Get service from registry\n");
+		    return;
+		}
+
+		$.ajax({
+		  dataType: "json",
+		  contentType: "application/json",
+		  url: "registry?service="+args[2],
+		  data: {},
+		  success: function(data) {
+		    if (data.services.length == 0) {
+			return
+		    }
+
+		    term.echo("service\t"+args[2]);
+		    term.echo(" ");
+
+		    var eps = {};
+
+		    for (i = 0; i < data.services.length; i++) {
+			var service = data.services[i];
+			term.echo("\nversion "+service.version);
+			term.echo(" ");
+			term.echo("Id\tAddress\t\Port\tMetadata\n");
+			for (j = 0; j < service.nodes.length; j++) {
+			    var node = service.nodes[j];
+			    var metadata = [];
+			    $.each(node.metadata, function(key, val) {
+				metadata.push(key+"="+val);
+			    });
+			    term.echo(node.id + "\t" + node.address + "\t" + node.port + "\t" + metadata.join(","));
+			}
+			term.echo(" ");
+
+			for (k = 0; k < service.endpoints.length; k++) {
+			    if (eps[service.endpoints[k].name] == undefined) {
+				eps[service.endpoints[k].name] = service.endpoints[k];
+			    }
+			}
+		    }
+
+
+		    $.each(eps, function(key, ep) {
+			term.echo("Endpoint: "+key);
+			var metadata = [];
+			$.each(ep.metadata, function(mkey, val) {
+			    metadata.push(mkey+"="+val);
+			});
+			term.echo("Metadata: "+metadata.join(","));
+		
+			// TODO: add request-response endpoints	
+		    })
+		  },
+		});
+
+		break;
+	    case "health":
+		if (args.length < 2) {
+		    term.echo("USAGE:\n    health [service]");
+		    return;
+		}
+
+		$.ajax({
+		  dataType: "json",
+		  contentType: "application/json",
+		  url: "registry?service="+args[1],
+		  data: {},
+		  success: function(data) {
+			
+		    term.echo("service\t"+args[1]);
+		    term.echo(" ");
+
+		    for (i = 0; i < data.services.length; i++) {
+			var service = data.services[i];
+
+			term.echo("\nversion "+service.version);
+			term.echo(" ");
+			term.echo("Id\tAddress:Port\tMetadata\n");
+
+			for (j = 0; j < service.nodes.length; j++) {
+			    var node = service.nodes[j];
+
+			    $.ajax({
+				  method: "POST",
+				  dataType: "json",
+				  contentType: "application/json",
+				  url: "rpc",
+				  data: JSON.stringify({
+					"service": service.name,
+					"method": "Debug.Health",
+					"request": {},
+					"address": node.address + ":" + node.port,
+				  }),
+				  success: function(data) {
+			    		term.echo(node.id + "\t" + node.address + ":" + node.port + "\t" + data.status);
+				  },
+				  error: function(xhr) {
+			    		term.echo(node.id + "\t" + node.address + ":" + node.port + "\t" + xhr.status);
+				  },
+			    });
+
+			}
+
+			term.echo(" ");
+		    }
+		  },
+		});
+
+
+		break;
+	    case "query":
+		if (args.length < 3) {
+		    term.echo("USAGE:\n    query [service] [method] [request]");
+		    return;
+		}
+
+		var request = "{}"
+
+		if (args.length > 3) {
+			request = args.slice(3).join(" ");
+		}		
+
+		$.ajax({
+		  method: "POST",
+		  dataType: "json",
+		  contentType: "application/json",
+		  url: "rpc",
+		  data: JSON.stringify({"service": args[1], "method": args[2], "request": request}),
+		  success: function(data) {
+		    term.echo(JSON.stringify(data, null, 2));
+		  },
+		});
+		
+		break;
+	    default:
+		term.echo(command +": command not found");
+		term.echo(help);
+	    }
+        } catch(e) {
+	    term.error(new String(e));
+        }
+    }, {
+        greetings: '',
+        name: 'micro_cli',
+        height: 400,
+        prompt: 'micro:~$ '});
+});
+</script>
+{{end}}
 `
 )
