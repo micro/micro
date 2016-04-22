@@ -39,11 +39,13 @@ func RPC(w http.ResponseWriter, r *http.Request) {
 	// response content type
 	w.Header().Set("Content-Type", "application/json")
 
-	// Remove parameters from Content-Type (like `application/json; charset=UTF-8`)
 	ct := r.Header.Get("Content-Type")
+
+	// Strip charset from Content-Type (like `application/json; charset=UTF-8`)
 	if idx := strings.IndexRune(ct, ';'); idx >= 0 {
 		ct = ct[:idx]
 	}
+
 	switch ct {
 	case "application/json":
 		var rpcReq rpcRequest
