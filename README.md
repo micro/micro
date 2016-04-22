@@ -34,6 +34,7 @@ It also allows you to leverage the Sidecar as a proxy where you may not want to 
 ### Writing a service
 
 Learn how to write and run a microservice using [**go-micro**](https://github.com/micro/go-micro). 
+
 Read the [Getting Started](https://github.com/micro/micro/wiki/Getting-Started) guide or the blog post on 
 [Writing microservices with Go-Micro](https://blog.micro.mu/2016/03/28/go-micro.html).
 
