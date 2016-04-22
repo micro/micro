@@ -1,21 +1,21 @@
 syntax = "proto3";
 
 message Pair {
-	optional string key = 1;
+	string key = 1;
 	repeated string values = 2;
 }
 
 message Request {
-        optional string method = 1;
-        optional string path = 2;
+        string method = 1;
+        string path = 2;
         map<string, Pair> header = 3;
         map<string, Pair> get = 4;
         map<string, Pair> post = 5;
-        optional string body = 6;  // raw request body; if not application/x-www-form-urlencoded
+        string body = 6;  // raw request body; if not application/x-www-form-urlencoded
 }
 
 message Response {
-        optional int32 statusCode = 1;
+        int32 statusCode = 1;
         map<string, Pair> header = 2;
-        optional string body = 3;
+        string body = 3;
 }
