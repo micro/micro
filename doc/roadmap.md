@@ -92,6 +92,14 @@ The micro ecosystem is rapidly growing but there's still a lot to do.
   * [x] Registry
   * [x] Broker
   * [x] Transport
+8. Selector
+  * [x] [Random](https://github.com/micro/go-micro/tree/master/selector/random)
+  * [x] [Round Robin](https://github.com/micro/go-micro/tree/master/selector/roundrobin)
+  * [x] [Blacklist](https://github.com/micro/go-micro/tree/master/selector/blacklist)
+9. Select Filters
+  * [x] [Label](https://godoc.org/github.com/micro/go-micro/selector#FilterLabel)
+  * [x] [Version](https://godoc.org/github.com/micro/go-micro/selector#FilterVersion)
+  * [x] [Endpoint](https://godoc.org/github.com/micro/go-micro/selector#FilterEndpoint)
 
 ## [Go Platform](https://github.com/micro/go-platform)
 
@@ -139,6 +147,21 @@ Overview
 
 1. [x] Provide more example implementations.
 2. [ ] Improve auto loading of plugins
+
+1. Registry
+  * [x] [etcd](https://godoc.org/github.com/micro/go-plugins/registry/etcd)
+  * [x] [nats](https://godoc.org/github.com/micro/go-plugins/registry/nats)
+  * [x] [eureka](https://godoc.org/github.com/micro/go-plugins/registry/eureka)
+  * [x] [memory](https://godoc.org/github.com/micro/go-plugins/registry/memory)
+2. Transport
+  * [x] [nats](https://godoc.org/github.com/micro/go-plugins/transport/nats)
+  * [x] [rabbitmq](https://godoc.org/github.com/micro/go-plugins/transport/rabbitmq)
+3. Broker
+  * [x] [nats](https://godoc.org/github.com/micro/go-plugins/broker/nats)
+  * [x] [nsq](https://godoc.org/github.com/micro/go-plugins/broker/nsq)
+  * [x] [rabbitmq](https://godoc.org/github.com/micro/go-plugins/broker/rabbitmq)
+  * [x] [kafka](https://godoc.org/github.com/micro/go-plugins/broker/kafka)
+  * [x] [googlepubsub](https://godoc.org/github.com/micro/go-plugins/broker/googlepubsub)
 
 ## [Platform](https://github.com/micro/platform)
 
