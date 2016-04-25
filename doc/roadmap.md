@@ -81,6 +81,7 @@ The micro ecosystem is rapidly growing but there's still a lot to do.
   * [x] Support distributed queuing
   * [x] Support acking of messages
   * [x] Support concurrency with options
+  * [x] [MQTT](https://godoc.org/github.com/micro/go-micro/broker/mqtt)
 5. Transport
   * [x] Cleanup send/receive semantics - is it concurrent?
 6. Bidirectional streaming
