@@ -212,6 +212,10 @@ Project		|	Description
 -----		|	------
 [Micro Dashboard](https://github.com/Margatroid/micro-dashboard)	|	Dashboard for microservices toolchain micro
 
+## Sponsors
+
+<a href="https://www.sixt.com"><img src="sixt_logo.png" width=150px height="auto" /></a>
+
 ## Roadmap
 
 [![Roadmap](https://img.shields.io/badge/roadmap-in%20progress-lightgrey.svg)](https://github.com/micro/micro/wiki/Roadmap)
