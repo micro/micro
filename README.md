@@ -214,7 +214,7 @@ Project		|	Description
 
 ## Sponsors
 
-<a href="https://www.sixt.com"><img src="sixt_logo.png" width=150px height="auto" /></a>
+<a href="https://www.sixt.com"><img src="https://micro.mu/sixt_logo.png" width=150px height="auto" /></a>
 
 ## Roadmap
 
