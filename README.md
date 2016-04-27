@@ -29,6 +29,9 @@ your other apps into the Micro world.
 **CLI** - A straight forward command line interface to interact with your micro services. 
 It also allows you to leverage the Sidecar as a proxy where you may not want to directly connect to the service registry.
 
+**Bot** A Hubot style bot that sits inside your microservices platform and can be interacted with via Slack, HipChat, XMPP, etc. 
+It provides the features of the CLI via messaging. Additional commands can be added to automate common ops tasks.
+
 ## Getting Started
 
 ### Writing a service
