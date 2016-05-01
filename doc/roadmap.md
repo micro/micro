@@ -150,6 +150,8 @@ Overview
 2. [ ] Improve auto loading of plugins
 
 1. Registry
+  * [x] [consul](https://godoc.org/github.com/micro/go-micro/registry/consul)
+  * [x] [mdns](https://godoc.org/github.com/micro/go-micro/registry/mdns)
   * [x] [etcd](https://godoc.org/github.com/micro/go-plugins/registry/etcd)
   * [x] [nats](https://godoc.org/github.com/micro/go-plugins/registry/nats)
   * [x] [eureka](https://godoc.org/github.com/micro/go-plugins/registry/eureka)
