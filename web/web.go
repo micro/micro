@@ -1,7 +1,6 @@
 package web
 
 import (
-	"crypto/tls"
 	"encoding/json"
 	"fmt"
 	"html/template"
@@ -20,6 +19,7 @@ import (
 	"github.com/micro/go-micro/registry"
 	"github.com/micro/go-micro/selector"
 	"github.com/micro/micro/internal/handler"
+	"github.com/micro/micro/internal/helper"
 	"github.com/micro/micro/internal/server"
 	"github.com/micro/micro/internal/stats"
 	"github.com/serenize/snaker"
@@ -324,24 +324,14 @@ func run(ctx *cli.Context) {
 	var opts []server.Option
 
 	if ctx.GlobalBool("enable_tls") {
-		cert := ctx.GlobalString("tls_cert_file")
-		key := ctx.GlobalString("tls_key_file")
-
-		if len(cert) > 0 && len(key) > 0 {
-			certs, err := tls.LoadX509KeyPair(cert, key)
-			if err != nil {
-				fmt.Println(err.Error())
-				return
-			}
-			config := &tls.Config{
-				Certificates: []tls.Certificate{certs},
-			}
-			opts = append(opts, server.EnableTLS(true))
-			opts = append(opts, server.TLSConfig(config))
-		} else {
-			fmt.Println("Enable TLS specified without certificate and key files")
+		config, err := helper.TLSConfig(ctx)
+		if err != nil {
+			fmt.Println(err.Error())
 			return
 		}
+
+		opts = append(opts, server.EnableTLS(true))
+		opts = append(opts, server.TLSConfig(config))
 	}
 
 	srv := server.NewServer(Address)
