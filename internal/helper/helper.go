@@ -2,7 +2,9 @@ package helper
 
 import (
 	"crypto/tls"
+	"crypto/x509"
 	"errors"
+	"io/ioutil"
 	"net/http"
 	"strings"
 
@@ -24,11 +26,28 @@ func RequestToContext(r *http.Request) context.Context {
 func TLSConfig(ctx *cli.Context) (*tls.Config, error) {
 	cert := ctx.GlobalString("tls_cert_file")
 	key := ctx.GlobalString("tls_key_file")
+	ca := ctx.GlobalString("tls_client_ca_file")
 
 	if len(cert) > 0 && len(key) > 0 {
 		certs, err := tls.LoadX509KeyPair(cert, key)
 		if err != nil {
 			return nil, err
+		}
+
+		if len(ca) > 0 {
+			caCert, err := ioutil.ReadFile(ca)
+			if err != nil {
+				return nil, err
+			}
+
+			caCertPool := x509.NewCertPool()
+			caCertPool.AppendCertsFromPEM(caCert)
+
+			return &tls.Config{
+				Certificates: []tls.Certificate{certs},
+				ClientCAs:    caCertPool,
+				ClientAuth:   tls.RequireAndVerifyClientCert,
+			}, nil
 		}
 
 		return &tls.Config{
