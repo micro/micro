@@ -22,12 +22,17 @@ func setup(app *ccli.App) {
 		ccli.StringFlag{
 			Name:   "tls_cert_file",
 			Usage:  "TLS Certificate file",
-			EnvVar: "MICRO_TLS_CERT_File",
+			EnvVar: "MICRO_TLS_CERT_FILE",
 		},
 		ccli.StringFlag{
 			Name:   "tls_key_file",
 			Usage:  "TLS Key file",
-			EnvVar: "MICRO_TLS_KEY_File",
+			EnvVar: "MICRO_TLS_KEY_FILE",
+		},
+		ccli.StringFlag{
+			Name:   "tls_client_ca_file",
+			Usage:  "TLS CA file to verify clients against",
+			EnvVar: "MICRO_TLS_CLIENT_CA_FILE",
 		},
 		ccli.StringFlag{
 			Name:   "api_address",
