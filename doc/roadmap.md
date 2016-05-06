@@ -155,7 +155,7 @@ Overview
   * [x] [etcd](https://godoc.org/github.com/micro/go-plugins/registry/etcd)
   * [x] [nats](https://godoc.org/github.com/micro/go-plugins/registry/nats)
   * [x] [eureka](https://godoc.org/github.com/micro/go-plugins/registry/eureka)
-  * [x] [memory](https://godoc.org/github.com/micro/go-plugins/registry/memory)
+  * [x] [gossip](https://godoc.org/github.com/micro/go-plugins/registry/gossip)
 2. Transport
   * [x] [nats](https://godoc.org/github.com/micro/go-plugins/transport/nats)
   * [x] [rabbitmq](https://godoc.org/github.com/micro/go-plugins/transport/rabbitmq)
