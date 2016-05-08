@@ -19,20 +19,38 @@ environment.
 
 ### API
 
-The API acts as a gateway or proxy to enable a single entry point for accessing micro services. It should be run on 
-the edge of your infrastructure. It converts HTTP requests to RPC and forwards to the appropriate service.
+The API acts as a gateway or proxy to enable a single entry point for accessing micro services. It should be run on the edge of your infrastructure. It converts HTTP requests to RPC and forwards to the appropriate service.
+
+<p align="center">
+  <img src="https://github.com/micro/micro/blob/master/api/api.png" />
+</p>
 
 ### Web UI
 
-The UI is a web version of go-micro allowing visual interaction into an environmet. In the future it will be a way 
-of aggregating micro web services also. It includes a way to proxy to web apps. /[name] will route to a 
+The UI is a web version of go-micro allowing visual interaction into an environmet. In the future it will be a way of aggregating micro web services also. It includes a way to proxy to web apps. /[name] will route to a 
 a service in the registry. The Web UI adds Prefix of "go.micro.web." (which can be configured) to the name, looks 
 it up in the registry and then reverse proxies to it.
+
+<p align="center">
+  <img src="https://github.com/micro/micro/blob/master/web/web.png" />
+</p>
 
 ### Sidecar
 
 The sidecar is a HTTP Interface version of go-micro. It's a way of integrating non-Go appications into a micro 
 environment. 
+
+<p align="center">
+  <img src="https://github.com/micro/micro/blob/master/car/sidecar.png" />
+</p>
+
+### Bot
+
+Bot A Hubot style bot that sits inside your microservices platform and can be interacted with via Slack, HipChat, XMPP, etc. It provides the features of the CLI via messaging. Additional commands can be added to automate common ops tasks.
+
+<p align="center">
+  <img src="https://github.com/micro/micro/blob/master/bot/bot.png" />
+</p>
 
 ## Overview
 
@@ -49,6 +67,10 @@ the service.
 ![Overview3](https://github.com/micro/micro/blob/master/doc/overview3.png)
 
 ## Go Micro
+
+<p align="center">
+  <img src="https://github.com/micro/go-micro/blob/master/go-micro.png" />
+</p>
 
 ### Registry
 
