@@ -234,3 +234,6 @@ Apache 2.0
 3. Submit PR
 4. ?
 5. Profit
+
+We're looking for implementations equivalent to [go-micro](https://github.com/micro/go-micro) in different languages. 
+Come join the Slack to discuss.
