@@ -2,6 +2,13 @@
 
 An example Go service running with go-micro
 
+## What's here?
+
+- **Server** - an RPC greeter service
+- **Client** - an RPC client that calls the service once
+- **Api** - examples of RPC API and RESTful API
+- **Web** - how to use go-web to write web services
+
 ### Prerequisites
 
 Install Consul
