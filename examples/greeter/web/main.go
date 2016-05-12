@@ -14,7 +14,7 @@ import (
 
 func main() {
 	service := web.NewService(
-		web.Name("go.micro.web.helloworld"),
+		web.Name("go.micro.web.greeter"),
 	)
 
 	service.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
