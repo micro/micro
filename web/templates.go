@@ -16,23 +16,24 @@ var (
 	  <nav class="navbar navbar-inverse">
 	    <div class="container">
 	      <div class="navbar-header">
-		<a class="navbar-brand" href="/">Micro</a>
+		<a class="navbar-brand" href="/">&nbsp;Micro</a>
 	      </div>
+	      {{if .StatsURL}}<p class="navbar-text navbar-right"><a href="{{.StatsURL}}" class="navbar-link">Stats</a></p>{{end}}
 	    </div>
 	  </nav>
           <div class="container">
             <div class="row">
 	      <div class="col-sm-3">
-                <h4>&nbsp;</h4>
-	        <ul class="list-group">
-	          <li class="list-group-item"><a href="/">Home</a></li>
-	          <li class="list-group-item"><a href="cli">CLI</a></li>
-	          <li class="list-group-item"><a href="registry">Registry</a></li>
-	          <li class="list-group-item"><a href="query">Query</a></li>
+	        <ul class="nav nav-pills nav-stacked">
+                  <li><a href="" class="h4">{{ template "title" . }}</a></li>
+	          <li><a href="/">Home</a></li>
+	          <li><a href="cli">CLI</a></li>
+	          <li><a href="registry">Registry</a></li>
+	          <li><a href="query">Query</a></li>
 	        </ul>
 	      </div>
 	      <div class="col-sm-9">
-	        <h1 class="page-header">{{ template "title" . }}</h1>
+                <h3>{{ template "heading" . }}</h3>
                 {{ template "content" . }}
               </div>
             </div>
@@ -47,17 +48,18 @@ var (
 {{ define "head" }}{{end}}
 {{ define "script" }}{{end}}
 {{ define "title" }}{{end}}
+{{ define "heading" }}&nbsp;{{end}}
 `
 
 	indexTemplate = `
-{{define "title"}}Micro Web{{end}}
+{{define "title"}}Web{{end}}
 {{define "content"}}
-	{{if .HasWebServices}}
-		<ul class="list-group">
-			{{range .WebServices}}
-			<li class="list-group-item"><a href="/{{.}}">{{.}}</a></li>
+	{{if .Results.HasWebServices}}
+		<div class="list-group">
+			{{range .Results.WebServices}}
+			<a href="/{{.}}" class="list-group-item">{{.}}</a>
 			{{end}}
-		</ul>
+		</div>
 	{{else}}
 		<div class="alert alert-info" role="alert">
 			<strong>No web services found</strong>
@@ -66,7 +68,7 @@ var (
 {{end}}
 `
 	queryTemplate = `
-{{define "title"}}Query a Service{{end}}
+{{define "title"}}Query{{end}}
 {{define "style"}}
 	pre {
 		word-wrap: break-word;
@@ -81,7 +83,7 @@ var (
 				<ul class="list-group">
 					<select class="form-control" type=text name=service id=service> 
 					<option disabled selected> -- select a service -- </option>
-					{{range $key, $value := .}}
+					{{range $key, $value := .Results}}
 					<option class = "list-group-item" value="{{$key}}">{{$key}}</option>
 					{{end}}
 					</select>
@@ -127,7 +129,7 @@ var (
 				$("#method").empty();
 				$("#method").append("<option disabled selected> -- select a method -- </option>");
 				var s_map = {};
-				{{ range $service, $methods := . }}
+				{{ range $service, $methods := .Results }}
 				var m_list = [];
 				{{range $index, $element := $methods}}
 				m_list[{{$index}}] = {{$element.Name}}
@@ -186,19 +188,21 @@ var (
 	registryTemplate = `
 {{define "title"}}Registry{{end}}
 {{define "content"}}
-	<ul class="list-group">
-		{{range .}}
-		<li class="list-group-item"><a href="registry?service={{.Name}}">{{.Name}}</a></li>
+	<div class="list-group">
+		{{range .Results}}
+		<a href="registry?service={{.Name}}" class="list-group-item">{{.Name}}</a>
 		{{end}}
-	</ul>
+	</div>
 {{end}}
 `
 
 	serviceTemplate = `
-{{define "title"}}Service {{with $svc := index . 0}}{{$svc.Name}}{{end}}{{end}}
+{{define "title"}}Service{{end}}
+{{define "heading"}}{{with $svc := index .Results 0}}{{$svc.Name}}{{end}}{{end}}
 {{define "content"}}
+	<hr>
 	<h4>Nodes</h4>
-	{{range .}}
+	{{range .Results}}
 	<h5>Version {{.Version}}</h5>
 	<table class="table table-bordered table-striped">
 		<thead>
@@ -219,7 +223,7 @@ var (
 		</tbody>
 	</table>
 	{{end}}
-	{{with $svc := index . 0}}
+	{{with $svc := index .Results 0}}
 	{{if $svc.Endpoints}}
 	<h4>Endpoints</h4>
 	<hr/>
