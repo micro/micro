@@ -25,7 +25,7 @@ var (
             <div class="row">
 	      <div class="col-sm-3">
 	        <ul class="nav nav-pills nav-stacked">
-                  <li><a href="" class="h4">{{ template "title" . }}</a></li>
+                  <li class="active"><a href="" class="h4">{{ template "title" . }}</a></li>
 	          <li><a href="/">Home</a></li>
 	          <li><a href="cli">CLI</a></li>
 	          <li><a href="registry">Registry</a></li>
