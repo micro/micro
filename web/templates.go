@@ -55,9 +55,9 @@ var (
 {{define "title"}}Web{{end}}
 {{define "content"}}
 	{{if .Results.HasWebServices}}
-		<div class="list-group">
+		<div>
 			{{range .Results.WebServices}}
-			<a href="/{{.}}" class="list-group-item">{{.}}</a>
+			<a href="/{{.}}" class="btn btn-default btn-lg" style="margin: 5px 3px 5px 3px;">{{.}}</a>
 			{{end}}
 		</div>
 	{{else}}
@@ -188,9 +188,9 @@ var (
 	registryTemplate = `
 {{define "title"}}Registry{{end}}
 {{define "content"}}
-	<div class="list-group">
+	<div>
 		{{range .Results}}
-		<a href="registry?service={{.Name}}" class="list-group-item">{{.Name}}</a>
+		<a href="registry?service={{.Name}}" class="btn btn-default btn-lg" style="margin: 5px 3px 5px 3px;">{{.Name}}</a>
 		{{end}}
 	</div>
 {{end}}
