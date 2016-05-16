@@ -39,7 +39,7 @@ var (
 	// Allows the web service to define absolute paths
 	BasePathHeader = "X-Micro-Web-Base-Path"
 	// CORS specifies the hosts to allow for CORS
-	CORS = map[string]bool{"*": true}
+	CORS     = map[string]bool{"*": true}
 	statsURL string
 )
 
@@ -298,7 +298,7 @@ func render(w http.ResponseWriter, r *http.Request, tmpl string, data interface{
 
 	if err := t.ExecuteTemplate(w, "layout", map[string]interface{}{
 		"StatsURL": statsURL,
-		"Results": data,
+		"Results":  data,
 	}); err != nil {
 		http.Error(w, "Error occurred:"+err.Error(), 500)
 	}
