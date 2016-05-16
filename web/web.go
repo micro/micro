@@ -1,7 +1,6 @@
 package web
 
 import (
-	"crypto/tls"
 	"encoding/json"
 	"fmt"
 	"html/template"
@@ -20,6 +19,7 @@ import (
 	"github.com/micro/go-micro/registry"
 	"github.com/micro/go-micro/selector"
 	"github.com/micro/micro/internal/handler"
+	"github.com/micro/micro/internal/helper"
 	"github.com/micro/micro/internal/server"
 	"github.com/micro/micro/internal/stats"
 	"github.com/serenize/snaker"
@@ -38,8 +38,9 @@ var (
 	// This is stripped from the request path
 	// Allows the web service to define absolute paths
 	BasePathHeader = "X-Micro-Web-Base-Path"
-
+	// CORS specifies the hosts to allow for CORS
 	CORS = map[string]bool{"*": true}
+	statsURL string
 )
 
 type srv struct {
@@ -103,6 +104,7 @@ func (s *srv) proxy() http.Handler {
 		r.URL.Host = fmt.Sprintf("%s:%d", s.Address, s.Port)
 		r.URL.Path = "/" + strings.Join(parts[2:], "/")
 		r.URL.Scheme = "http"
+		r.Host = r.URL.Host
 	}
 
 	return &proxy{
@@ -244,7 +246,6 @@ func registryHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func queryHandler(w http.ResponseWriter, r *http.Request) {
-
 	services, err := (*cmd.DefaultOptions().Registry).ListServices()
 	if err != nil {
 		http.Error(w, "Error occurred:"+err.Error(), 500)
@@ -294,7 +295,11 @@ func render(w http.ResponseWriter, r *http.Request, tmpl string, data interface{
 		http.Error(w, "Error occurred:"+err.Error(), 500)
 		return
 	}
-	if err := t.ExecuteTemplate(w, "layout", data); err != nil {
+
+	if err := t.ExecuteTemplate(w, "layout", map[string]interface{}{
+		"StatsURL": statsURL,
+		"Results": data,
+	}); err != nil {
 		http.Error(w, "Error occurred:"+err.Error(), 500)
 	}
 }
@@ -306,6 +311,7 @@ func run(ctx *cli.Context) {
 	h = s
 
 	if ctx.GlobalBool("enable_stats") {
+		statsURL = "/stats"
 		st := stats.New()
 		s.HandleFunc("/stats", st.StatsHandler)
 		h = st.ServeHTTP(s)
@@ -324,24 +330,14 @@ func run(ctx *cli.Context) {
 	var opts []server.Option
 
 	if ctx.GlobalBool("enable_tls") {
-		cert := ctx.GlobalString("tls_cert_file")
-		key := ctx.GlobalString("tls_key_file")
-
-		if len(cert) > 0 && len(key) > 0 {
-			certs, err := tls.LoadX509KeyPair(cert, key)
-			if err != nil {
-				fmt.Println(err.Error())
-				return
-			}
-			config := &tls.Config{
-				Certificates: []tls.Certificate{certs},
-			}
-			opts = append(opts, server.EnableTLS(true))
-			opts = append(opts, server.TLSConfig(config))
-		} else {
-			fmt.Println("Enable TLS specified without certificate and key files")
+		config, err := helper.TLSConfig(ctx)
+		if err != nil {
+			fmt.Println(err.Error())
 			return
 		}
+
+		opts = append(opts, server.EnableTLS(true))
+		opts = append(opts, server.TLSConfig(config))
 	}
 
 	srv := server.NewServer(Address)
