@@ -294,7 +294,7 @@ func QueryService(c *cli.Context, args []string) ([]byte, error) {
 	}
 
 	var request map[string]interface{}
-	var response map[string]interface{}
+	var response json.RawMessage
 
 	if p := c.GlobalString("proxy_address"); len(p) > 0 {
 		request = map[string]interface{}{
@@ -327,7 +327,12 @@ func QueryService(c *cli.Context, args []string) ([]byte, error) {
 		}
 	}
 
-	return json.MarshalIndent(response, "", "\t")
+	var out bytes.Buffer
+	defer out.Reset()
+	if err := json.Indent(&out, response, "", "\t"); err != nil {
+		return nil, err
+	}
+	return out.Bytes(), nil
 }
 
 func QueryHealth(c *cli.Context, args []string) ([]byte, error) {
