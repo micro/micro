@@ -21,6 +21,8 @@ const (
 
 type conn struct {
 	topic string
+	queue string
+	exit  chan bool
 	ws    *websocket.Conn
 }
 
@@ -35,6 +37,7 @@ var (
 
 func (c *conn) readLoop() {
 	defer func() {
+		close(c.exit)
 		c.ws.Close()
 	}()
 
@@ -62,13 +65,19 @@ func (c *conn) write(mType int, data []byte) error {
 func (c *conn) writeLoop() {
 	ticker := time.NewTicker(pingTime)
 
+	var opts []broker.SubscribeOption
+
+	if len(c.queue) > 0 {
+		opts = append(opts, broker.Queue(c.queue))
+	}
+
 	subscriber, err := (*cmd.DefaultOptions().Broker).Subscribe(c.topic, func(p broker.Publication) error {
 		b, err := json.Marshal(p.Message())
 		if err != nil {
 			return nil
 		}
 		return c.write(websocket.TextMessage, b)
-	})
+	}, opts...)
 
 	defer func() {
 		subscriber.Unsubscribe()
@@ -81,8 +90,13 @@ func (c *conn) writeLoop() {
 		return
 	}
 
-	for _ = range ticker.C {
-		if err := c.write(websocket.PingMessage, []byte{}); err != nil {
+	for {
+		select {
+		case <-ticker.C:
+			if err := c.write(websocket.PingMessage, []byte{}); err != nil {
+				return
+			}
+		case <-c.exit:
 			return
 		}
 	}
@@ -100,6 +114,7 @@ func Broker(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Topic not specified", 400)
 		return
 	}
+	queue := r.Form.Get("queue")
 
 	ws, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
@@ -114,6 +129,8 @@ func Broker(w http.ResponseWriter, r *http.Request) {
 
 	c := &conn{
 		topic: topic,
+		queue: queue,
+		exit:  make(chan bool),
 		ws:    ws,
 	}
 
