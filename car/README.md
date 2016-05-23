@@ -10,11 +10,14 @@ It is similar to Netflix's sidecar called [Prana](https://github.com/Netflix/Pra
 
 ## Features
 
-- Registration with discovery system
-- Host discovery of other services
-- Health checking of services
-- HTTP API and load balancing requests
-- PubSub via WebSockets
+The sidecar has all the features of [go-micro](https://github.com/micro/go-micro). Here are the most relevant.
+
+- Service registration and discovery
+- Broker PubSub via WebSockets
+- Healthchecking of services
+- JSON RPC via HTTP API.
+- Load balancing, retries, timeouts
+- Stats UI
 
 ## Getting Started
 
