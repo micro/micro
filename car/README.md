@@ -64,6 +64,10 @@ curl http://127.0.0.1:8081/registry?service=go.micro.srv.example
 ### Register/Deregister a service
 Register
 ```shell
+// specify ttl as a param to expire the registration
+// units ns|us|ms|s|m|h
+// http://127.0.0.1:8081/registry?ttl=10s
+
 curl -H 'Content-Type: application/json' http://127.0.0.1:8081/registry -d 
 {
 	"Name": "foo.bar",
@@ -116,6 +120,9 @@ Connect to the micro pub/sub broker via a websocket interface
 
 ```go
 c, _, _ := websocket.DefaultDialer.Dial("ws://127.0.0.1:8081/broker?topic=foo", make(http.Header))
+
+// optionally specify "queue=[queue name]" param to distribute traffic amongst subscribers
+// websocket.DefaultDialer.Dial("ws://127.0.0.1:8081/broker?topic=foo&queue=group-1", make(http.Header))
 
 go func() {
 	for {

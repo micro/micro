@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/micro/go-micro/cmd"
 	"github.com/micro/go-micro/registry"
@@ -19,13 +20,23 @@ func addService(w http.ResponseWriter, r *http.Request) {
 	}
 	defer r.Body.Close()
 
+	var opts []registry.RegisterOption
+
+	// parse ttl
+	if ttl := r.Form.Get("ttl"); len(ttl) > 0 {
+		d, err := time.ParseDuration(ttl)
+		if err != nil {
+			opts = append(opts, registry.RegisterTTL(d))
+		}
+	}
+
 	var service *registry.Service
 	err = json.Unmarshal(b, &service)
 	if err != nil {
 		http.Error(w, err.Error(), 500)
 		return
 	}
-	err = (*cmd.DefaultOptions().Registry).Register(service)
+	err = (*cmd.DefaultOptions().Registry).Register(service, opts...)
 	if err != nil {
 		http.Error(w, err.Error(), 500)
 		return
