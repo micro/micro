@@ -5,7 +5,7 @@ The sidecar provides a HTTP interface to integrate any application into the Micr
 It is similar to Netflix's sidecar called [Prana](https://github.com/Netflix/Prana)
 
 <p align="center">
-  <img src="sidecar.png" />
+  <img src="architecture.png" />
 </p>
 
 ## Features
