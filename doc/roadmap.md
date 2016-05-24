@@ -1,5 +1,3 @@
-# Roadmap Overview
-
 The micro ecosystem is rapidly growing but there's still a lot to do.
 
 ## [Micro](https://github.com/micro/micro)

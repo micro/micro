@@ -1,5 +1,3 @@
-# FAQ
-
 ## What is Micro?
 
 Micro is a set of tools and libraries to help simplify microservice development and management. It currently consists of **3** components:
