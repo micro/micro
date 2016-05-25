@@ -19,11 +19,11 @@ type config struct {
 	Type string
 	// go.micro.srv.foo
 	FQDN string
-	// Full path to dir
+	// github.com/micro/foo
 	Dir string
-	// Go Dir
+	// $GOPATH/src/github.com/micro/foo
 	GoDir string
-	// GOPATH
+	// $GOPATH
 	GoPath string
 	// Files
 	Files []file
