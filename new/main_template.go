@@ -1,8 +1,7 @@
 package new
 
 var (
-	srvMainTemplate = `
-package main
+	srvMainTemplate = `package main
 
 import (
 	"log"
@@ -17,7 +16,7 @@ import (
 func main() {
 	// New Service
 	service := micro.NewService(
-		micro.Name("{{.Name}}"),
+		micro.Name("{{.FQDN}}"),
 		micro.Version("latest"),
 	)
 
@@ -27,12 +26,12 @@ func main() {
 
 	// Register Struct as Subscriber
 	service.Server().Subscribe(
-		service.Server().NewSubscriber("topic.{{.Name}}", new(subscriber.Example)),
+		service.Server().NewSubscriber("topic.{{.FQDN}}", new(subscriber.Example)),
 	)
 
 	// Register Function as Subscriber
 	service.Server().Subscribe(
-		service.Server().NewSubscriber("topic.{{.Name}}", subscriber.Handler),
+		service.Server().NewSubscriber("topic.{{.FQDN}}", subscriber.Handler),
 	)
 
 	// Run service

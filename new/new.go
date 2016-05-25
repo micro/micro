@@ -11,56 +11,87 @@ import (
 )
 
 type config struct {
-	Name   string
-	Dir    string
-	Main   string
-	Docker string
+	// foo
+	Alias string
+	// go.micro
+	Namespace string
+	// api, srv, web
+	Type string
+	// go.micro.srv.foo
+	FQDN string
+	// Full path to dir
+	Dir string
+	// Go Dir
+	GoDir string
+	// GOPATH
+	GoPath string
+	// Files
+	Files []file
+	// Comments
+	Comments []string
 }
 
-func create(c config) error {
-	// check if dir exists
-	if _, err := os.Stat(c.Dir); !os.IsNotExist(err) {
-		return fmt.Errorf("%s already exists", c.Dir)
+type file struct {
+	Path string
+	Tmpl string
+}
+
+func write(c config, file, tmpl string) error {
+	fn := template.FuncMap{
+		"title": strings.Title,
 	}
 
-	fmt.Println("creating service", c.Name)
-
-	// create all required dirs
-	for _, d := range []string{c.Dir, c.Dir + "/handler", c.Dir + "/proto/example"} {
-		fmt.Println("creating", d)
-		if err := os.MkdirAll(d, 0755); err != nil {
-			return err
-		}
-	}
-
-	// write main.go
-
-	fmt.Println("creating", c.Dir+"/main.go")
-	f, err := os.Create(c.Dir + "/main.go")
+	fmt.Println("creating", file)
+	f, err := os.Create(file)
 	if err != nil {
 		return err
 	}
 	defer f.Close()
 
-	t, err := template.New("main").Parse(c.Main)
+	t, err := template.New("f").Funcs(fn).Parse(tmpl)
 	if err != nil {
 		return err
 	}
 
-	if err := t.Execute(f, c); err != nil {
-		return err
+	return t.Execute(f, c)
+}
+
+func create(c config) error {
+	// check if dir exists
+	if _, err := os.Stat(c.GoDir); !os.IsNotExist(err) {
+		return fmt.Errorf("%s already exists", c.GoDir)
 	}
 
-	// write README
+	fmt.Println("creating service", c.FQDN)
 
-	// write Dockerfile
+	// write the files
+	for _, file := range c.Files {
+		f := path.Join(c.GoDir, file.Path)
+		dir := path.Dir(f)
+
+		if _, err := os.Stat(dir); os.IsNotExist(err) {
+			fmt.Println("creating", dir)
+			if err := os.MkdirAll(dir, 0755); err != nil {
+				return err
+			}
+		}
+
+		if err := write(c, f, file.Tmpl); err != nil {
+			return err
+		}
+	}
+
+	for _, comment := range c.Comments {
+		fmt.Println(comment)
+	}
 
 	return nil
 }
 
 func run(ctx *cli.Context) {
 	namespace := ctx.String("namespace")
-	name := ctx.String("name")
+	alias := ctx.String("alias")
+	fqdn := ctx.String("fqdn")
 	atype := ctx.String("type")
 	dir := ctx.Args().First()
 
@@ -94,13 +125,17 @@ func run(ctx *cli.Context) {
 		return
 	}
 
-	p := strings.Split(goPath, ":")[0]
-	dir = path.Join(p, "src", path.Clean(dir))
+	goPath = strings.Split(goPath, ":")[0]
+	goDir := path.Join(goPath, "src", path.Clean(dir))
 	parts := strings.Split(dir, "/")
 
-	// if name not specified create it from namespace.type.dir
-	if len(name) == 0 {
-		name = strings.Join([]string{namespace, atype, parts[len(parts)-1]}, ".")
+	if len(alias) == 0 {
+		// set as last part
+		alias = parts[len(parts)-1]
+	}
+
+	if len(fqdn) == 0 {
+		fqdn = strings.Join([]string{namespace, atype, alias}, ".")
 	}
 
 	var c config
@@ -109,10 +144,28 @@ func run(ctx *cli.Context) {
 	case "srv":
 		// create srv config
 		c = config{
-			Name:   name,
-			Dir:    dir,
-			Main:   srvMainTemplate,
-			Docker: srvDockerTemplate,
+			Alias:     alias,
+			Namespace: namespace,
+			Type:      atype,
+			FQDN:      fqdn,
+			Dir:       dir,
+			GoDir:     goDir,
+			GoPath:    goPath,
+			Files: []file{
+				{"main.go", srvMainTemplate},
+				{"handler/example.go", srvHandlerTemplate},
+				{"subscriber/example.go", srvSubscriberTemplate},
+				{"proto/example/example.proto", srvProtoTemplate},
+				{"Dockerfile", srvDockerTemplate},
+				{"README.md", readmeTemplate},
+			},
+			Comments: []string{
+				"\ndownload protobuf for micro:\n",
+				"go get github.com/micro/protobuf/{proto,protoc-gen-go}",
+				"\ncompile the proto file example.proto:\n",
+				fmt.Sprintf("protoc -I%s \\\n\t--go_out=plugins=micro:%s \\\n\t%s\n",
+					goPath+"/src", goPath+"/src", goDir+"/proto/example/example.proto"),
+			},
 		}
 	default:
 		fmt.Println("Unknown type", atype)
@@ -123,10 +176,6 @@ func run(ctx *cli.Context) {
 		fmt.Println(err)
 		return
 	}
-
-	// create proto/example/example.proto
-	// create proto/example/example.pb.go
-	// create handler/example.go
 }
 
 func Commands() []cli.Command {
@@ -146,8 +195,12 @@ func Commands() []cli.Command {
 					Value: "srv",
 				},
 				cli.StringFlag{
-					Name:  "name",
-					Usage: "Name of service e.g com.example.srv.service (defaults to namespace.type.[args[len(args)-1])",
+					Name:  "fqdn",
+					Usage: "FQDN of service e.g com.example.srv.service (defaults to namespace.type.alias)",
+				},
+				cli.StringFlag{
+					Name:  "alias",
+					Usage: "Alias is the short name used as part of combined name if specified",
 				},
 			},
 			Action: func(c *cli.Context) {

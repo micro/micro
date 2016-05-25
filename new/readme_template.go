@@ -1,10 +1,11 @@
 package new
 
 var (
-	readmeTemplate = `
-# {{.Name}} Service
+	readmeTemplate = `# {{title .Alias}} Service
 
-This is the {{.Name}} service. It's of type {{.Type}} with namespace {{.Namespace}}
+This is the {{title .Alias}} service with fqdn {{.FQDN}}.
+
+## Getting Started
 
 ### Prerequisites
 
@@ -17,9 +18,22 @@ Run Consul
 $ consul agent -dev -advertise=127.0.0.1
 ` + "```" +
 		`
-Run Service
+
+### Run Service
+
 ` + "```" +
 		`
 $ go run main.go
+` + "```" +
+		`
+
+### Building a container
+
+If you would like to build the docker container do the following
+` + "```" +
+		`
+CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -ldflags '-w' -o {{.Alias}}-{{.Type}} ./main.go
+docker build -t {{.Alias}}-{{.Type}} .
+
 ` + "```"
 )
