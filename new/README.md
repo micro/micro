@@ -1,4 +1,4 @@
-# Micro New [service]
+# Micro New [Service]
 
 Micro New is basically a way to generate a boilerplate template. That's it.
 
