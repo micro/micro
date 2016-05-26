@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path"
+	"path/filepath"
 	"strings"
 	"text/template"
 
@@ -66,7 +67,7 @@ func create(c config) error {
 
 	// write the files
 	for _, file := range c.Files {
-		f := path.Join(c.GoDir, file.Path)
+		f := filepath.Join(c.GoDir, file.Path)
 		dir := path.Dir(f)
 
 		if _, err := os.Stat(dir); os.IsNotExist(err) {
@@ -126,12 +127,11 @@ func run(ctx *cli.Context) {
 	}
 
 	goPath = strings.Split(goPath, ":")[0]
-	goDir := path.Join(goPath, "src", path.Clean(dir))
-	parts := strings.Split(dir, "/")
+	goDir := filepath.Join(goPath, "src", path.Clean(dir))
 
 	if len(alias) == 0 {
 		// set as last part
-		alias = parts[len(parts)-1]
+		alias = filepath.Base(dir)
 	}
 
 	if len(fqdn) == 0 {
