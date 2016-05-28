@@ -1,5 +1,7 @@
 syntax = "proto3";
 
+package go.micro.api;
+
 message Pair {
 	string key = 1;
 	repeated string values = 2;
