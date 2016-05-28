@@ -1,9 +1,6 @@
-package new
+syntax = "proto3";
 
-var (
-	srvProtoTemplate = `syntax = "proto3";
-
-package {{.FQDN}};
+package go.micro.srv.template;
 
 service Example {
 	rpc Call(Request) returns (Response) {}
@@ -38,16 +35,3 @@ message Ping {
 message Pong {
 	int64 stroke = 1;
 }
-`
-
-	apiProtoTemplate = `syntax = "proto3";
-
-package {{.FQDN}};
-
-import "github.com/micro/micro/api/proto/api.proto";
-
-service Example {
-	rpc Call(api.Request) returns (api.Response) {}
-}
-`
-)

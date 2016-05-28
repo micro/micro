@@ -167,6 +167,32 @@ func run(ctx *cli.Context) {
 					goPath+"/src", goPath+"/src", goDir+"/proto/example/example.proto"),
 			},
 		}
+	case "api":
+		// create api config
+		c = config{
+			Alias:     alias,
+			Namespace: namespace,
+			Type:      atype,
+			FQDN:      fqdn,
+			Dir:       dir,
+			GoDir:     goDir,
+			GoPath:    goPath,
+			Files: []file{
+				{"main.go", apiMainTemplate},
+				{"client/example.go", apiWrapperTemplate},
+				{"handler/example.go", apiHandlerTemplate},
+				{"proto/example/example.proto", apiProtoTemplate},
+				{"Dockerfile", srvDockerTemplate},
+				{"README.md", readmeTemplate},
+			},
+			Comments: []string{
+				"\ndownload protobuf for micro:\n",
+				"go get github.com/micro/protobuf/{proto,protoc-gen-go}",
+				"\ncompile the proto file example.proto:\n",
+				fmt.Sprintf("protoc -I%s \\\n\t--go_out=plugins=micro:%s \\\n\t%s\n",
+					goPath+"/src", goPath+"/src", goDir+"/proto/example/example.proto"),
+			},
+		}
 	default:
 		fmt.Println("Unknown type", atype)
 		return
