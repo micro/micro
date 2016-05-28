@@ -103,3 +103,12 @@ func queryHealth(c *cli.Context) {
 	}
 	fmt.Println(string(rsp))
 }
+
+func queryStats(c *cli.Context) {
+	rsp, err := command.QueryStats(c, c.Args())
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	fmt.Println(string(rsp))
+}
