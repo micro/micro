@@ -4,9 +4,9 @@ import (
 	"encoding/json"
 	"log"
 
-	"github.com/micro/micro/examples/template/api/client"
 	"github.com/micro/go-micro/errors"
 	api "github.com/micro/micro/api/proto"
+	"github.com/micro/micro/examples/template/api/client"
 	example "github.com/micro/micro/examples/template/srv/proto/example"
 
 	"golang.org/x/net/context"

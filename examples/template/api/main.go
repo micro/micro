@@ -4,8 +4,8 @@ import (
 	"log"
 
 	"github.com/micro/go-micro"
-	"github.com/micro/micro/examples/template/api/handler"
 	"github.com/micro/micro/examples/template/api/client"
+	"github.com/micro/micro/examples/template/api/handler"
 
 	example "github.com/micro/micro/examples/template/api/proto/example"
 )

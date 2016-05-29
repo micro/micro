@@ -1,7 +1,7 @@
 package new
 
 var (
-	readmeTemplate = `# {{title .Alias}} Service
+	readmeTemplate = `# {{title .Alias}} {{title .Type}}
 
 This is the {{title .Alias}} service with fqdn {{.FQDN}}.
 

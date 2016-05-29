@@ -8,7 +8,7 @@ import (
 	"golang.org/x/net/context"
 )
 
-type exampleKey struct {}
+type exampleKey struct{}
 
 // FromContext retrieves the client from the Context
 func ExampleFromContext(ctx context.Context) (example.ExampleClient, bool) {

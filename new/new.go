@@ -193,6 +193,25 @@ func run(ctx *cli.Context) {
 					goPath+"/src", goPath+"/src", goDir+"/proto/example/example.proto"),
 			},
 		}
+	case "web":
+		// create srv config
+		c = config{
+			Alias:     alias,
+			Namespace: namespace,
+			Type:      atype,
+			FQDN:      fqdn,
+			Dir:       dir,
+			GoDir:     goDir,
+			GoPath:    goPath,
+			Files: []file{
+				{"main.go", webMainTemplate},
+				{"handler/handler.go", webHandlerTemplate},
+				{"html/index.html", webHtmlTemplate},
+				{"Dockerfile", webDockerTemplate},
+				{"README.md", readmeTemplate},
+			},
+			Comments: []string{},
+		}
 	default:
 		fmt.Println("Unknown type", atype)
 		return

@@ -1,4 +1,4 @@
-# Template Service
+# Template Srv
 
 This is the Template service with fqdn go.micro.srv.template.
 
