@@ -106,6 +106,9 @@ The micro ecosystem is rapidly growing but there's still a lot to do.
   * [x] [Endpoint](https://godoc.org/github.com/micro/go-micro/selector#FilterEndpoint)
 10. Resiliency
   * [x] Add timeout and retry logic based on adrian cockcroft's ideas [here](http://www.slideshare.net/adriancockcroft/whats-missing-microservices-meetup-at-cisco)
+11. Debug
+  * [x] Health
+  * [x] Stats
 
 ## [Go Platform](https://github.com/micro/go-platform)
 
