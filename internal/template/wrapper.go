@@ -1,7 +1,7 @@
-package new
+package template
 
 var (
-	apiWrapperTemplate = `package client
+	WrapperAPI = `package client
 
 import (
 	"github.com/micro/go-micro"

@@ -9,6 +9,7 @@ import (
 	"text/template"
 
 	"github.com/micro/cli"
+	tmpl "github.com/micro/micro/internal/template"
 )
 
 type config struct {
@@ -152,12 +153,12 @@ func run(ctx *cli.Context) {
 			GoDir:     goDir,
 			GoPath:    goPath,
 			Files: []file{
-				{"main.go", srvMainTemplate},
-				{"handler/example.go", srvHandlerTemplate},
-				{"subscriber/example.go", srvSubscriberTemplate},
-				{"proto/example/example.proto", srvProtoTemplate},
-				{"Dockerfile", srvDockerTemplate},
-				{"README.md", readmeTemplate},
+				{"main.go", tmpl.MainSRV},
+				{"handler/example.go", tmpl.HandlerSRV},
+				{"subscriber/example.go", tmpl.SubscriberSRV},
+				{"proto/example/example.proto", tmpl.ProtoSRV},
+				{"Dockerfile", tmpl.DockerSRV},
+				{"README.md", tmpl.Readme},
 			},
 			Comments: []string{
 				"\ndownload protobuf for micro:\n",
@@ -178,12 +179,12 @@ func run(ctx *cli.Context) {
 			GoDir:     goDir,
 			GoPath:    goPath,
 			Files: []file{
-				{"main.go", apiMainTemplate},
-				{"client/example.go", apiWrapperTemplate},
-				{"handler/example.go", apiHandlerTemplate},
-				{"proto/example/example.proto", apiProtoTemplate},
-				{"Dockerfile", srvDockerTemplate},
-				{"README.md", readmeTemplate},
+				{"main.go", tmpl.MainAPI},
+				{"client/example.go", tmpl.WrapperAPI},
+				{"handler/example.go", tmpl.HandlerAPI},
+				{"proto/example/example.proto", tmpl.ProtoAPI},
+				{"Dockerfile", tmpl.DockerSRV},
+				{"README.md", tmpl.Readme},
 			},
 			Comments: []string{
 				"\ndownload protobuf for micro:\n",
@@ -204,11 +205,11 @@ func run(ctx *cli.Context) {
 			GoDir:     goDir,
 			GoPath:    goPath,
 			Files: []file{
-				{"main.go", webMainTemplate},
-				{"handler/handler.go", webHandlerTemplate},
-				{"html/index.html", webHtmlTemplate},
-				{"Dockerfile", webDockerTemplate},
-				{"README.md", readmeTemplate},
+				{"main.go", tmpl.MainWEB},
+				{"handler/handler.go", tmpl.HandlerWEB},
+				{"html/index.html", tmpl.HTMLWEB},
+				{"Dockerfile", tmpl.DockerWEB},
+				{"README.md", tmpl.Readme},
 			},
 			Comments: []string{},
 		}

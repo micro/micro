@@ -1,7 +1,7 @@
-package new
+package template
 
 var (
-	srvHandlerTemplate = `package handler
+	HandlerSRV = `package handler
 
 import (
 	"log"
@@ -50,7 +50,7 @@ func (e *Example) PingPong(ctx context.Context, stream example.Example_PingPongS
 }
 `
 
-	srvSubscriberTemplate = `package subscriber
+	SubscriberSRV = `package subscriber
 
 import (
 	"log"
@@ -72,7 +72,7 @@ func Handler(ctx context.Context, msg *example.Message) error {
 }
 `
 
-	apiHandlerTemplate = `package handler
+	HandlerAPI = `package handler
 
 import (
 	"encoding/json"
@@ -125,7 +125,7 @@ func (e *Example) Call(ctx context.Context, req *api.Request, rsp *api.Response)
 }
 `
 
-	webHandlerTemplate = `package handler
+	HandlerWEB = `package handler
 
 import (
 	"encoding/json"

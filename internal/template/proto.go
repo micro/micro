@@ -1,7 +1,7 @@
-package new
+package template
 
 var (
-	srvProtoTemplate = `syntax = "proto3";
+	ProtoSRV = `syntax = "proto3";
 
 package {{.FQDN}};
 
@@ -40,7 +40,7 @@ message Pong {
 }
 `
 
-	apiProtoTemplate = `syntax = "proto3";
+	ProtoAPI = `syntax = "proto3";
 
 package {{.FQDN}};
 

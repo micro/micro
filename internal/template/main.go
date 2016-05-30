@@ -1,7 +1,7 @@
-package new
+package template
 
 var (
-	srvMainTemplate = `package main
+	MainSRV = `package main
 
 import (
 	"log"
@@ -43,7 +43,7 @@ func main() {
 	}
 }
 `
-	apiMainTemplate = `package main
+	MainAPI = `package main
 
 import (
 	"log"
@@ -77,7 +77,7 @@ func main() {
 	}
 }
 `
-	webMainTemplate = `package main
+	MainWEB = `package main
 
 import (
         "log"

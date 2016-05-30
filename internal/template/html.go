@@ -1,7 +1,7 @@
-package new
+package template
 
 var (
-	webHtmlTemplate = `<!DOCTYPE html>
+	HTMLWEB = `<!DOCTYPE html>
 <html>
     <head>
         <title>{{title .Alias}} {{title .Type}}</title>

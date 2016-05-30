@@ -1,12 +1,12 @@
-package new
+package template
 
 var (
-	srvDockerTemplate = `FROM alpine:3.2
+	DockerSRV = `FROM alpine:3.2
 ADD {{.Alias}}-{{.Type}} /{{.Alias}}-{{.Type}}
 ENTRYPOINT [ "/{{.Alias}}-{{.Type}}" ]
 `
 
-	webDockerTemplate = `FROM alpine:3.2
+	DockerWEB = `FROM alpine:3.2
 ADD html /html
 ADD {{.Alias}}-{{.Type}} /{{.Alias}}-{{.Type}}
 WORKDIR /

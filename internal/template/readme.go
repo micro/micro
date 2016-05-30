@@ -1,7 +1,7 @@
-package new
+package template
 
 var (
-	readmeTemplate = `# {{title .Alias}} {{title .Type}}
+	Readme = `# {{title .Alias}} {{title .Type}}
 
 This is the {{title .Alias}} service with fqdn {{.FQDN}}.
 
