@@ -20,12 +20,12 @@ type Plugin interface {
 	Flags() []cli.Flag
 	// Sub-commands
 	Commands() []cli.Command
+	// Handle is the middleware handler for HTTP requests. We pass in
+	// the existing handler so it can be wrapped to create a call chain.
+	Handler() Handler
 	// Init called when command line args are parsed.
 	// The initialised cli.Context is passed in.
 	Init(*cli.Context) error
-	// Handle is the middleware handler for HTTP requests. We pass in
-	// the existing handler so it can be wrapped to create a call chain.
-	Handle(http.Handler) http.Handler
 	// Name of the plugin
 	String() string
 }
