@@ -29,4 +29,11 @@ type Plugin interface {
 	// Name of the plugin
 	String() string
 }
+
+// Manager is the plugin manager which stores plugins and allows them to be retrieved.
+// This is used by all the components of micro.
+type Manager interface {
+        Plugins() map[string]Plugin
+        Register(name string, plugin Plugin) error
+}
 ```
