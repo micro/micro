@@ -72,12 +72,6 @@ func run(ctx *cli.Context) {
 	s := &srv{r}
 	var h http.Handler = s
 
-	// reverse wrap handler
-	plugins := Plugins()
-	for i := len(plugins); i > 0; i-- {
-		h = plugins[i-1].Handle(h)
-	}
-
 	if ctx.GlobalBool("enable_stats") {
 		st := stats.New()
 		r.HandleFunc("/stats", st.StatsHandler)
@@ -96,6 +90,12 @@ func run(ctx *cli.Context) {
 	default:
 		log.Printf("Registering API Handler at %s", APIPath)
 		r.PathPrefix(APIPath).HandlerFunc(apiHandler)
+	}
+
+	// reverse wrap handler
+	plugins := Plugins()
+	for i := len(plugins); i > 0; i-- {
+		h = plugins[i-1].Handler()(h)
 	}
 
 	// create the server

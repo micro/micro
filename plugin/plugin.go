@@ -1,9 +1,7 @@
 package plugin
 
 import (
-	"fmt"
 	"net/http"
-	"sync"
 
 	"github.com/micro/cli"
 )
@@ -15,12 +13,12 @@ type Plugin interface {
 	Flags() []cli.Flag
 	// Sub-commands
 	Commands() []cli.Command
+	// Handle is the middleware handler for HTTP requests. We pass in
+	// the existing handler so it can be wrapped to create a call chain.
+	Handler() Handler
 	// Init called when command line args are parsed.
 	// The initialised cli.Context is passed in.
 	Init(*cli.Context) error
-	// Handle is the middleware handler for HTTP requests. We pass in
-	// the existing handler so it can be wrapped to create a call chain.
-	Handle(http.Handler) http.Handler
 	// Name of the plugin
 	String() string
 }
@@ -32,42 +30,57 @@ type Manager interface {
 	Register(Plugin) error
 }
 
-type manager struct {
-	sync.Mutex
-	plugins    []Plugin
-	registered map[string]bool
+// Handler is the plugin middleware handler which wraps an existing http.Handler passed in.
+// Its the responsibility of the Handler to call the next http.Handler in the chain.
+type Handler func(http.Handler) http.Handler
+
+type plugin struct {
+	opts    Options
+	init    func(ctx *cli.Context) error
+	handler Handler
 }
 
-var (
-	// global plugin manager
-	defaultManager = newManager()
-)
+func (p *plugin) Flags() []cli.Flag {
+	return p.opts.Flags
+}
 
-func newManager() *manager {
-	return &manager{
-		registered: make(map[string]bool),
+func (p *plugin) Commands() []cli.Command {
+	return p.opts.Commands
+}
+
+func (p *plugin) Handler() Handler {
+	return p.handler
+}
+
+func (p *plugin) Init(ctx *cli.Context) error {
+	return p.opts.Init(ctx)
+}
+
+func (p *plugin) String() string {
+	return p.opts.Name
+}
+
+func newPlugin(opts ...Option) Plugin {
+	options := Options{
+		Name: "default",
+		Init: func(ctx *cli.Context) error { return nil },
 	}
-}
 
-func (m *manager) Plugins() []Plugin {
-	m.Lock()
-	defer m.Unlock()
-	return m.plugins
-}
-
-func (m *manager) Register(plugin Plugin) error {
-	m.Lock()
-	defer m.Unlock()
-
-	name := plugin.String()
-
-	if m.registered[name] {
-		return fmt.Errorf("Plugin with name %s already registered", name)
+	for _, o := range opts {
+		o(&options)
 	}
 
-	m.registered[name] = true
-	m.plugins = append(m.plugins, plugin)
-	return nil
+	handler := func(hdlr http.Handler) http.Handler {
+		for _, h := range options.Handlers {
+			hdlr = h(hdlr)
+		}
+		return hdlr
+	}
+
+	return &plugin{
+		opts:    options,
+		handler: handler,
+	}
 }
 
 // Plugins lists the global plugins
@@ -83,4 +96,9 @@ func Register(plugin Plugin) error {
 // NewManager creates a new plugin manager
 func NewManager() Manager {
 	return newManager()
+}
+
+// NewPlugin makes it easy to create a new plugin
+func NewPlugin(opts ...Option) Plugin {
+	return newPlugin(opts...)
 }

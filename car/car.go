@@ -95,7 +95,7 @@ func run(ctx *cli.Context, car *Sidecar) {
 	// reverse wrap handler
 	plugins := Plugins()
 	for i := len(plugins); i > 0; i-- {
-		h = plugins[i-1].Handle(h)
+		h = plugins[i-1].Handler()(h)
 	}
 
 	srv.Handle("/", h)
