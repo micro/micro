@@ -38,6 +38,7 @@ type manager struct {
 }
 
 var (
+	// global plugin manager
 	defaultManager = newManager()
 )
 
@@ -65,14 +66,17 @@ func (m *manager) Register(name string, plugin Plugin) error {
 	return nil
 }
 
+// Plugins lists the global plugins
 func Plugins() map[string]Plugin {
 	return defaultManager.Plugins()
 }
 
+// Register registers a global plugins
 func Register(name string, plugin Plugin) error {
 	return defaultManager.Register(name, plugin)
 }
 
+// NewManager creates a new plugin manager
 func NewManager() Manager {
 	return newManager()
 }
