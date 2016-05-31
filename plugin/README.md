@@ -1,7 +1,7 @@
 # Plugins
 
 Plugins are a way of integrating external code into the Micro toolkit. This is completely separate to go-micro plugins. 
-Using plugins here allows you to add additional flags, commandsand HTTP handlers to the toolkit. 
+Using plugins here allows you to add additional flags, commands and HTTP handlers to the toolkit. 
 
 ## How it works
 
