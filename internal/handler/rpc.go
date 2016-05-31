@@ -98,7 +98,7 @@ func RPC(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// create request/response
-	var response map[string]interface{}
+	var response json.RawMessage
 	var err error
 	req := (*cmd.DefaultOptions().Client).NewJsonRequest(service, method, request)
 
@@ -128,7 +128,7 @@ func RPC(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	b, _ := json.Marshal(response)
+	b, _ := response.MarshalJSON()
 	w.Header().Set("Content-Length", strconv.Itoa(len(b)))
 	w.Write(b)
 }

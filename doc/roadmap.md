@@ -1,5 +1,3 @@
-# Roadmap Overview
-
 The micro ecosystem is rapidly growing but there's still a lot to do.
 
 ## [Micro](https://github.com/micro/micro)
@@ -12,10 +10,11 @@ The micro ecosystem is rapidly growing but there's still a lot to do.
   * [x] Stats page
   * [x] Allow REST requests to RPC based services
   * [x] Make the choice a flag/env var
-  * [ ] Configurable hostnames
   * [x] Configurable namespace for services
+  * [ ] Configurable hostnames
   * [ ] Support label based routing
   * [ ] Support weighted load balancing
+  * [ ] HTTP Middleware/Plugins
   * Google GFE like semantics
 2. [Web](https://github.com/micro/micro/tree/master/web)
   * [x] Proxy requests to "web" micro services
@@ -26,6 +25,7 @@ The micro ecosystem is rapidly growing but there's still a lot to do.
   * [x] Apache log format
   * [x] Stats page
   * [x] CLI interface in Web UI
+  * [ ] Configurable hostnames
 3. [Sidecar](https://github.com/micro/micro/tree/master/car)
   * [x] TLS Support
   * [x] Apache log format
@@ -41,9 +41,12 @@ The micro ecosystem is rapidly growing but there's still a lot to do.
   * [x] Feature parity with CLI
   * [x] Slack input
   * [x] Hipchat input
+  * [ ] IMAP input
+  * [ ] Broker input
+  * [ ] Stream interface
 5. Dependencies
   * [ ] Create dependency management config for services
-  * [ ] Allow push/pull from micro-services.co
+  * [ ] Allow push/pull from micro.mu
 6. Examples
   * [x] [greeter](https://github.com/micro/micro/tree/master/examples/greeter) client/server {ruby, python, go}
   * [x] [go-micro/examples](https://github.com/micro/go-micro/tree/master/examples)
@@ -101,6 +104,11 @@ The micro ecosystem is rapidly growing but there's still a lot to do.
   * [x] [Label](https://godoc.org/github.com/micro/go-micro/selector#FilterLabel)
   * [x] [Version](https://godoc.org/github.com/micro/go-micro/selector#FilterVersion)
   * [x] [Endpoint](https://godoc.org/github.com/micro/go-micro/selector#FilterEndpoint)
+10. Resiliency
+  * [x] Add timeout and retry logic based on adrian cockcroft's ideas [here](http://www.slideshare.net/adriancockcroft/whats-missing-microservices-meetup-at-cisco)
+11. Debug
+  * [x] Health
+  * [x] Stats
 
 ## [Go Platform](https://github.com/micro/go-platform)
 
@@ -108,46 +116,46 @@ Overview
   * [x] Define the interfaces for every package
   * [x] Provide documentation for go-platform's usage
   * [x] Implement trace and monitoring first
-  * [ ] Provide easy initialisation and wrapping for go-micro client/server
+  * [x] Provide easy initialisation and wrapping for go-micro client/server
 
-1. Discovery
+1. [Discovery](https://godoc.org/github.com/micro/go-platform/discovery)
   * [x] In memory catching using registry watch
   * [x] Heartbeating the registry
-2. Routing
+2. [Routing](https://godoc.org/github.com/micro/go-platform/router)
   * [x] label based routing 
   * [x] Weighted loadbalancing
   * [ ] Circuit breakers
   * [ ] Rate limiting
   * Google GSLB style semantics
-3. Key-Value
+3. [Key-Value](https://godoc.org/github.com/micro/go-platform/kv)
   * [x] Implement interface
   * [x] Memcache implementation
   * [x] Redis contribution
   * [x] In memory implement
-4. Trace
+4. [Trace](https://godoc.org/github.com/micro/go-platform/trace)
   * [x] Implement interface
   * [x] Pub/Sub based tracing
   * [ ] Timing endpoints for trace service
-5. Monitor
+5. [Monitor](https://godoc.org/github.com/micro/go-platform/monitor)
   * [x] Implement interface
   * [x] Custom healthcheck types
   * [x] Add stats/status publications
   * [ ] Monitor the health of services
-6. Config
+6. [Config](https://godoc.org/github.com/micro/go-platform/config)
   * [x] Implement interface
-7. Auth
+7. [Auth](https://godoc.org/github.com/micro/go-platform/auth)
   * [x] Implement interface
-8. Logging
+8. [Logging](https://godoc.org/github.com/micro/go-platform/log)
   * [x] Implement interface
-9. Event
+9. [Event](https://godoc.org/github.com/micro/go-platform/event)
   * [x] Implement interface (sparse)
-10. Metrics
+10. [Metrics](https://godoc.org/github.com/micro/go-platform/metrics)
   * [x] Implement interface
 
 ## [Go Plugins](https://github.com/micro/go-plugins)
 
-1. [x] Provide more example implementations.
-2. [ ] Improve auto loading of plugins
+  * [x] Provide more example implementations
+  * [ ] Improve auto loading of plugins
 
 1. Registry
   * [x] [consul](https://godoc.org/github.com/micro/go-micro/registry/consul)
@@ -168,6 +176,9 @@ Overview
 
 ## [Platform](https://github.com/micro/platform)
 
+TODO:
+  * [ ] implement IAM policies  
+
 ### Dashboards
 
 Create simple OSS dashboards for each platform service
@@ -185,7 +196,7 @@ Create simple OSS dashboards for each platform service
 
 ### Services
 
-Implement version 1s
+Version 1. (Asim's definition of version 1)
 * [x] [Discovery](https://github.com/micro/discovery-srv)
 * [x] [Monitoring](https://github.com/micro/monitor-srv)
 * [x] [Trace](https://github.com/micro/trace-srv)
@@ -193,15 +204,19 @@ Implement version 1s
 * [x] [Auth](https://github.com/micro/auth-srv)
 * [x] [Event](https://github.com/micro/event-srv)
 * [x] [Router](https://github.com/micro/router-srv)
+* [x] [KV](https://github.com/micro/kv-srv)
 * [ ] Metrics
 * [ ] Logging
+* [ ] Sync
 
-## Deployment
+## Deployments
 * [x] [Micro on Kubernetes](https://github.com/micro/kubernetes)
 * [x] Micro Docker Compose
 * [ ] Platform Docker Compose
+* [ ] Logistics/On-Demand Example
+* [ ] Micro on Nomad
 
-## Demo
+## Demos
 * [x] [Web](http://web.micro.pm)
 * [x] [API](http://api.micro.pm)
 * [x] [Sidecar](http://proxy.micro.pm) 

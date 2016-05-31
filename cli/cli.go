@@ -75,6 +75,11 @@ func Commands() []cli.Command {
 			Usage:  "Query the health of a service",
 			Action: queryHealth,
 		},
+		{
+			Name:   "stats",
+			Usage:  "Query the stats of a service",
+			Action: queryStats,
+		},
 	}
 
 	return append(commands, registryCommands()...)

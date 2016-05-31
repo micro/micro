@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"sort"
 	"strings"
+	"time"
 
 	"github.com/micro/cli"
 	"github.com/micro/go-micro/cmd"
@@ -294,7 +295,7 @@ func QueryService(c *cli.Context, args []string) ([]byte, error) {
 	}
 
 	var request map[string]interface{}
-	var response map[string]interface{}
+	var response json.RawMessage
 
 	if p := c.GlobalString("proxy_address"); len(p) > 0 {
 		request = map[string]interface{}{
@@ -327,7 +328,12 @@ func QueryService(c *cli.Context, args []string) ([]byte, error) {
 		}
 	}
 
-	return json.MarshalIndent(response, "", "\t")
+	var out bytes.Buffer
+	defer out.Reset()
+	if err := json.Indent(&out, response, "", "\t"); err != nil {
+		return nil, err
+	}
+	return out.Bytes(), nil
 }
 
 func QueryHealth(c *cli.Context, args []string) ([]byte, error) {
@@ -394,6 +400,81 @@ func QueryHealth(c *cli.Context, args []string) ([]byte, error) {
 				status = rsp.Status
 			}
 			output = append(output, fmt.Sprintf("%s\t\t%s:%d\t\t%s", node.Id, node.Address, node.Port, status))
+		}
+	}
+
+	return []byte(strings.Join(output, "\n")), nil
+}
+
+func QueryStats(c *cli.Context, args []string) ([]byte, error) {
+	if len(args) == 0 {
+		return nil, errors.New("require service name")
+	}
+
+	service, err := (*cmd.DefaultOptions().Registry).GetService(args[0])
+	if err != nil {
+		return nil, err
+	}
+
+	if service == nil || len(service) == 0 {
+		return nil, errors.New("Service not found")
+	}
+
+	req := (*cmd.DefaultOptions().Client).NewRequest(service[0].Name, "Debug.Stats", &proto.StatsRequest{})
+
+	var output []string
+
+	// print things
+	output = append(output, "service  "+service[0].Name)
+
+	for _, serv := range service {
+		// print things
+		output = append(output, "\nversion "+serv.Version)
+		output = append(output, "\nnode\t\taddress:port\t\tstarted\tuptime\tmemory\tthreads\tgc")
+
+		// query health for every node
+		for _, node := range serv.Nodes {
+			address := node.Address
+			if node.Port > 0 {
+				address = fmt.Sprintf("%s:%d", address, node.Port)
+			}
+			rsp := &proto.StatsResponse{}
+
+			var err error
+
+			if p := c.GlobalString("proxy_address"); len(p) > 0 {
+				// call using proxy
+				request := map[string]interface{}{
+					"service": service[0].Name,
+					"method":  "Debug.Stats",
+					"address": address,
+				}
+
+				b, err := json.Marshal(request)
+				if err != nil {
+					return nil, err
+				}
+
+				if err := post(p+"/rpc", b, &rsp); err != nil {
+					return nil, err
+				}
+			} else {
+				// call using client
+				err = (*cmd.DefaultOptions().Client).CallRemote(context.Background(), address, req, rsp)
+			}
+
+			var started, uptime, memory, gc string
+			if err == nil {
+				started = time.Unix(int64(rsp.Started), 0).Format("Jan 2 15:04:05")
+				uptime = fmt.Sprintf("%v", time.Duration(rsp.Uptime)*time.Second)
+				memory = fmt.Sprintf("%.2fmb", float64(rsp.Memory)/(1024.0*1024.0))
+				gc = fmt.Sprintf("%v", time.Duration(rsp.Gc))
+			}
+
+			line := fmt.Sprintf("%s\t\t%s:%d\t\t%s\t%s\t%s\t%d\t%s",
+				node.Id, node.Address, node.Port, started, uptime, memory, rsp.Threads, gc)
+
+			output = append(output, line)
 		}
 	}
 

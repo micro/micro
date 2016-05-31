@@ -1,13 +1,10 @@
-# Architecture
+This section should explain more about how micro is constructed, how the various libraries/repos relate to each other and how they should be used.
 
-This section should explain more about how micro is constructed, how the various libraries/repos relate to each other 
-and how they should be used.
+Check out the blog post on architecture [https://blog.micro.mu/2016/04/18/micro-architecture.html](https://blog.micro.mu/2016/04/18/micro-architecture.html)
 
 ## Micro
 
-Micro is an ecosystem of tools and libraries to simplify developing microservices. By using go-micro you can essentially 
-create microservices that are discoverable, can query and be queried via RPC and publish/subscribe events. The wider 
-toolset provides everything necessary to run a platform.
+Micro is an ecosystem of tools and libraries to simplify developing microservices. By using go-micro you can essentially create microservices that are discoverable, can query and be queried via RPC and publish/subscribe events. The wider toolset provides everything necessary to run a platform.
 
 ![Micro](https://github.com/micro/micro/blob/master/doc/micro.png)
 -
@@ -41,7 +38,7 @@ The sidecar is a HTTP Interface version of go-micro. It's a way of integrating n
 environment. 
 
 <p align="center">
-  <img src="https://github.com/micro/micro/blob/master/car/sidecar.png" />
+  <img src="https://github.com/micro/micro/blob/master/car/architecture.png" />
 </p>
 
 ### Bot
