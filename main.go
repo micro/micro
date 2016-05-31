@@ -10,6 +10,7 @@ import (
 	"github.com/micro/micro/car"
 	"github.com/micro/micro/cli"
 	"github.com/micro/micro/new"
+	"github.com/micro/micro/plugin"
 	"github.com/micro/micro/web"
 )
 
@@ -102,6 +103,18 @@ func setup(app *ccli.App) {
 		},
 	)
 
+	plugins := plugin.Plugins()
+
+	for _, p := range plugins {
+		if flags := p.Flags(); len(flags) > 0 {
+			app.Flags = append(app.Flags, flags...)
+		}
+
+		if cmds := p.Commands(); len(cmds) > 0 {
+			app.Commands = append(app.Commands, cmds...)
+		}
+	}
+
 	before := app.Before
 
 	app.Before = func(ctx *ccli.Context) error {
@@ -138,6 +151,10 @@ func setup(app *ccli.App) {
 		}
 		if len(ctx.String("web_cors")) > 0 {
 			web.CORS = fn(ctx.String("web_cors"))
+		}
+
+		for _, p := range plugins {
+			p.Init(ctx)
 		}
 
 		return before(ctx)

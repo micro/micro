@@ -38,6 +38,11 @@ var (
 )
 
 func run(ctx *cli.Context, car *Sidecar) {
+	// Init plugins
+	for _, p := range Plugins() {
+		p.Init(ctx)
+	}
+
 	var opts []server.Option
 
 	if ctx.GlobalBool("enable_tls") {
@@ -85,6 +90,12 @@ func run(ctx *cli.Context, car *Sidecar) {
 		h = st.ServeHTTP(r)
 		st.Start()
 		defer st.Stop()
+	}
+
+	// reverse wrap handler
+	plugins := Plugins()
+	for i := len(plugins); i > 0; i-- {
+		h = plugins[i-1].Handler()(h)
 	}
 
 	srv.Handle("/", h)
@@ -191,57 +202,67 @@ func New(name, address, hcUrl string) *Sidecar {
 }
 
 func Commands() []cli.Command {
-	return []cli.Command{
-		{
-			Name:  "sidecar",
-			Usage: "Run the micro sidecar",
-			Flags: []cli.Flag{
-				cli.StringFlag{
-					Name:  "server_name",
-					Usage: "Server name of the app",
-				},
-				cli.StringFlag{
-					Name:  "server_address",
-					Usage: "Server address and port of the app",
-				},
-				cli.StringFlag{
-					Name:  "healthcheck_url",
-					Usage: "URL to check health of the app",
-				},
+	command := cli.Command{
+		Name:  "sidecar",
+		Usage: "Run the micro sidecar",
+		Flags: []cli.Flag{
+			cli.StringFlag{
+				Name:  "server_name",
+				Usage: "Server name of the app",
 			},
-			Action: func(c *cli.Context) {
-				name := c.String("server_name")
-				address := c.String("server_address")
-				hcUrl := c.String("healthcheck_url")
-
-				if len(name) == 0 && len(address) == 0 {
-					run(c, nil)
-					return
-				}
-
-				if len(name) == 0 {
-					fmt.Println("Require server name")
-					return
-				}
-
-				if len(address) == 0 {
-					fmt.Println("Require server address")
-					return
-				}
-
-				// exit chan
-				exit := make(chan bool)
-
-				// start the healthchecker
-				car := New(name, address, hcUrl)
-				go car.run(exit)
-
-				// run the server
-				run(c, car)
-
-				// kill healthchecker
-				close(exit)
+			cli.StringFlag{
+				Name:  "server_address",
+				Usage: "Server address and port of the app",
+			},
+			cli.StringFlag{
+				Name:  "healthcheck_url",
+				Usage: "URL to check health of the app",
 			},
 		},
+		Action: func(c *cli.Context) {
+			name := c.String("server_name")
+			address := c.String("server_address")
+			hcUrl := c.String("healthcheck_url")
+
+			if len(name) == 0 && len(address) == 0 {
+				run(c, nil)
+				return
+			}
+
+			if len(name) == 0 {
+				fmt.Println("Require server name")
+				return
+			}
+
+			if len(address) == 0 {
+				fmt.Println("Require server address")
+				return
+			}
+
+			// exit chan
+			exit := make(chan bool)
+
+			// start the healthchecker
+			car := New(name, address, hcUrl)
+			go car.run(exit)
+
+			// run the server
+			run(c, car)
+
+			// kill healthchecker
+			close(exit)
+		},
 	}
+
+	for _, p := range Plugins() {
+		if cmds := p.Commands(); len(cmds) > 0 {
+			command.Subcommands = append(command.Subcommands, cmds...)
+		}
+
+		if flags := p.Flags(); len(flags) > 0 {
+			command.Flags = append(command.Flags, flags...)
+		}
+	}
+
+	return []cli.Command{command}
 }
