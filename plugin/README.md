@@ -37,3 +37,46 @@ type Manager interface {
         Register(name string, plugin Plugin) error
 }
 ```
+
+## How to use it
+
+Here's a simple example of a plugin that adds a flag and then prints the value
+
+### The plugin
+
+Create a plugin.go file in the top level dir
+
+```go
+package main
+
+import (
+	"log"
+	"github.com/micro/cli"
+	"github.com/micro/micro/plugin"
+)
+
+func init() {
+	plugin.Register(plugin.NewPlugin(
+		plugin.WithName("example"),
+		plugin.WithFlag(cli.StringFlag{
+			Name:   "example_flag",
+			Usage:  "This is an example plugin flag",
+			EnvVar: "EXAMPLE_FLAG",
+			Value: "avalue",
+		}),
+		plugin.WithInit(func(ctx *cli.Context) error {
+			log.Println("Got value for example_flag", ctx.String("example_flag"))
+			return nil
+		}),
+	))
+}
+```
+
+### Building the code
+
+Simply build micro with the plugin
+
+```shell
+go build -o micro ./main.go ./plugin.go
+```
+
