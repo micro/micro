@@ -48,6 +48,11 @@ func (s *srv) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func run(ctx *cli.Context) {
+	// Init plugins
+	for _, p := range Plugins() {
+		p.Init(ctx)
+	}
+
 	// Init API
 	var opts []server.Option
 
@@ -66,6 +71,12 @@ func run(ctx *cli.Context) {
 	r := mux.NewRouter()
 	s := &srv{r}
 	var h http.Handler = s
+
+	// reverse wrap handler
+	plugins := Plugins()
+	for i := len(plugins); i > 0; i-- {
+		h = plugins[i-1].Handle(h)
+	}
 
 	if ctx.GlobalBool("enable_stats") {
 		st := stats.New()
@@ -124,11 +135,21 @@ func New(address string) server.Server {
 }
 
 func Commands() []cli.Command {
-	return []cli.Command{
-		{
-			Name:   "api",
-			Usage:  "Run the micro API",
-			Action: run,
-		},
+	command := cli.Command{
+		Name:   "api",
+		Usage:  "Run the micro API",
+		Action: run,
 	}
+
+	for _, p := range Plugins() {
+		if cmds := p.Commands(); len(cmds) > 0 {
+			command.Subcommands = append(command.Subcommands, cmds...)
+		}
+
+		if flags := p.Flags(); len(flags) > 0 {
+			command.Flags = append(command.Flags, flags...)
+		}
+	}
+
+	return []cli.Command{command}
 }

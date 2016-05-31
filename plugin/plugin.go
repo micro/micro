@@ -28,13 +28,14 @@ type Plugin interface {
 // Manager is the plugin manager which stores plugins and allows them to be retrieved.
 // This is used by all the components of micro.
 type Manager interface {
-	Plugins() map[string]Plugin
-	Register(name string, plugin Plugin) error
+	Plugins() []Plugin
+	Register(Plugin) error
 }
 
 type manager struct {
 	sync.Mutex
-	plugins map[string]Plugin
+	plugins    []Plugin
+	registered map[string]bool
 }
 
 var (
@@ -44,43 +45,39 @@ var (
 
 func newManager() *manager {
 	return &manager{
-		plugins: make(map[string]Plugin),
+		registered: make(map[string]bool),
 	}
 }
 
-func (m *manager) Plugins() map[string]Plugin {
+func (m *manager) Plugins() []Plugin {
 	m.Lock()
 	defer m.Unlock()
-
-	plugins := make(map[string]Plugin)
-
-	for k, v := range m.plugins {
-		plugins[k] = v
-	}
-
-	return plugins
+	return m.plugins
 }
 
-func (m *manager) Register(name string, plugin Plugin) error {
+func (m *manager) Register(plugin Plugin) error {
 	m.Lock()
 	defer m.Unlock()
 
-	if _, ok := m.plugins[name]; ok {
+	name := plugin.String()
+
+	if m.registered[name] {
 		return fmt.Errorf("Plugin with name %s already registered", name)
 	}
 
-	m.plugins[name] = plugin
+	m.registered[name] = true
+	m.plugins = append(m.plugins, plugin)
 	return nil
 }
 
 // Plugins lists the global plugins
-func Plugins() map[string]Plugin {
+func Plugins() []Plugin {
 	return defaultManager.Plugins()
 }
 
 // Register registers a global plugins
-func Register(name string, plugin Plugin) error {
-	return defaultManager.Register(name, plugin)
+func Register(plugin Plugin) error {
+	return defaultManager.Register(plugin)
 }
 
 // NewManager creates a new plugin manager

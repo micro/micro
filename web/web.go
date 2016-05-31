@@ -305,6 +305,11 @@ func render(w http.ResponseWriter, r *http.Request, tmpl string, data interface{
 }
 
 func run(ctx *cli.Context) {
+	// Init plugins
+	for _, p := range Plugins() {
+		p.Init(ctx)
+	}
+
 	var h http.Handler
 	r := mux.NewRouter()
 	s := &srv{r}
@@ -340,6 +345,12 @@ func run(ctx *cli.Context) {
 		opts = append(opts, server.TLSConfig(config))
 	}
 
+	// reverse wrap handler
+	plugins := Plugins()
+	for i := len(plugins); i > 0; i-- {
+		h = plugins[i-1].Handle(h)
+	}
+
 	srv := server.NewServer(Address)
 	srv.Init(opts...)
 	srv.Handle("/", h)
@@ -370,13 +381,23 @@ func run(ctx *cli.Context) {
 }
 
 func Commands() []cli.Command {
-	return []cli.Command{
-		{
-			Name:  "web",
-			Usage: "Run the micro web app",
-			Action: func(c *cli.Context) {
-				run(c)
-			},
+	command := cli.Command{
+		Name:  "web",
+		Usage: "Run the micro web app",
+		Action: func(c *cli.Context) {
+			run(c)
 		},
 	}
+
+	for _, p := range Plugins() {
+		if cmds := p.Commands(); len(cmds) > 0 {
+			command.Subcommands = append(command.Subcommands, cmds...)
+		}
+
+		if flags := p.Flags(); len(flags) > 0 {
+			command.Flags = append(command.Flags, flags...)
+		}
+	}
+
+	return []cli.Command{command}
 }
