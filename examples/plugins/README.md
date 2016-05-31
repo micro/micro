@@ -9,6 +9,10 @@ logging, tracing, etc.
 
 Here's a simple example of a plugin that adds a flag and then prints the value
 
+### The plugin
+
+Create a plugin.go file in the top level dir
+
 ```go
 package main
 
@@ -33,4 +37,12 @@ func init() {
 		}),
 	))
 }
+```
+
+### Building the code
+
+Simply build micro with the plugin
+
+```shell
+go build -o micro ./main.go ./plugin.go
 ```
