@@ -9,7 +9,7 @@ logging, tracing, etc.
 
 Here's a simple example of a plugin that adds a flag and then prints the value
 
-```
+```go
 package main
 
 import (
