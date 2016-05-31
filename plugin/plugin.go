@@ -51,7 +51,14 @@ func newManager() *manager {
 func (m *manager) Plugins() map[string]Plugin {
 	m.Lock()
 	defer m.Unlock()
-	return m.plugins
+
+	plugins := make(map[string]Plugin)
+
+	for k, v := range m.plugins {
+		plugins[k] = v
+	}
+
+	return plugins
 }
 
 func (m *manager) Register(name string, plugin Plugin) error {
