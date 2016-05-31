@@ -36,6 +36,10 @@ type Manager interface {
         Plugins() map[string]Plugin
         Register(name string, plugin Plugin) error
 }
+
+// Handler is the plugin middleware handler which wraps an existing http.Handler passed in.
+// Its the responsibility of the Handler to call the next http.Handler in the chain.
+type Handler func(http.Handler) http.Handler
 ```
 
 ## How to use it
