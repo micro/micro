@@ -10,12 +10,11 @@ The micro ecosystem is rapidly growing but there's still a lot to do.
   * [x] Stats page
   * [x] Allow REST requests to RPC based services
   * [x] Make the choice a flag/env var
+  * [x] HTTP Middleware/Plugins
   * [x] Configurable namespace for services
   * [ ] Configurable hostnames
   * [ ] Support label based routing
   * [ ] Support weighted load balancing
-  * [ ] HTTP Middleware/Plugins
-  * Google GFE like semantics
 2. [Web](https://github.com/micro/micro/tree/master/web)
   * [x] Proxy requests to "web" micro services
   * [x] List "web" micro services on home screen
