@@ -28,11 +28,9 @@ type RPC struct {
 // If no services are given, requests to all services are allowed .
 func NewRPCWithWhitelist(services ...string) *RPC {
 	rpc := new(RPC)
-	if len(services) > 0 {
-		rpc.whitelist = make(map[string]bool)
-		for _, service := range services {
-			rpc.whitelist[service] = true
-		}
+	rpc.whitelist = make(map[string]bool)
+	for _, service := range services {
+		rpc.whitelist[service] = true
 	}
 	return rpc
 }
