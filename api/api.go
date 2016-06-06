@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/gorilla/mux"
@@ -80,8 +81,12 @@ func run(ctx *cli.Context) {
 		defer st.Stop()
 	}
 
+	var whitelistServices []string
+	if whitelist := ctx.GlobalString("api_rpc_whitelist"); len(whitelist) > 0 {
+		whitelistServices = strings.Split(whitelist, ",")
+	}
 	log.Printf("Registering RPC Handler at %s", RPCPath)
-	r.HandleFunc(RPCPath, handler.RPC)
+	r.Handle(RPCPath, handler.NewRPCWithWhitelist(whitelistServices...))
 
 	switch ctx.GlobalString("api_handler") {
 	case "proxy":

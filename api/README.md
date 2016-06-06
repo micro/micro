@@ -60,6 +60,14 @@ are used to resolve an API service and method to send the query to.
 micro --api_namespace=com.example.api
 ```
 
+### Whitelist Services
+
+If you don't want all services to be accessible via the RPC endpoint, specify a list of allowed services:
+
+```bash
+micro --api_rpc_whitelist=com.example.service.foo,com.example.service.bar
+```
+
 ## Testing API
 
 ### Run the example app

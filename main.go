@@ -67,6 +67,11 @@ func setup(app *ccli.App) {
 			Usage:  "Register interval in seconds",
 		},
 		ccli.StringFlag{
+			Name:   "api_rpc_whitelist",
+			Usage:  "Comma separated whitelist of allowed services for RPC calls",
+			EnvVar: "MICRO_API_RPC_WHITELIST",
+		},
+		ccli.StringFlag{
 			Name:   "api_handler",
 			Usage:  "Specify the request handler to be used for mapping HTTP requests to services. e.g api, proxy",
 			EnvVar: "MICRO_API_HANDLER",
