@@ -269,16 +269,16 @@ func Commands() []cli.Command {
 		},
 	}
 
+	// setup input flags
+	for _, input := range input.Inputs {
+		flags = append(flags, input.Flags()...)
+	}
+
 	command := cli.Command{
 		Name:   "bot",
 		Usage:  "Run the micro bot",
 		Flags:  flags,
 		Action: run,
-	}
-
-	// setup input flags
-	for _, input := range input.Inputs {
-		flags = append(flags, input.Flags()...)
 	}
 
 	for _, p := range Plugins() {
