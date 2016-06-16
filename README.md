@@ -230,7 +230,7 @@ Apache 2.0
 
 ## Contributing
 
-1. Join the Slack to discuss
+1. [Join](http://slack.micro.mu/) the Slack to discuss
 2. Look at existing coding style
 3. Submit PR
 4. ?
