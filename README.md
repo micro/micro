@@ -63,6 +63,8 @@ $ go get github.com/hashicorp/consul
 $ consul agent -dev -advertise=127.0.0.1
 ```
 
+Alternatively you can use multicast DNS with the built in MDNS registry. Just pass `--registry=mdns` to the below commands e.g. `server --registry=mdns` or `micro --registry=mdns list services`.
+
 Run the greeter example app
 ```shell
 $ go get github.com/micro/micro/examples/greeter/server
