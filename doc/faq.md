@@ -30,6 +30,8 @@ There's also docker images on [Docker Hub](https://hub.docker.com/r/microhq/).
 
 Yes! The registry for service discovery is completely pluggable as is every other package. Consul was used as the default due to its features and simplicity.
 
+### Using etcd
+
 As an example. If you would like to use etcd, import the plugin and set the command line flags on your binary.
 
 ```go
@@ -41,6 +43,10 @@ import (
 ```shell
 my_service --registry=etcd --registry_address=127.0.0.1:2379
 ```
+
+### Zero Dependency MDNS
+
+Alternatively we can use multicast DNS with the built in MDNS registry for a zero dependency configuration. Just pass `--registry=mdns` to your application on startup.
 
 ## Where can I run Micro?
 
