@@ -69,6 +69,9 @@ Run the greeter example app
 ```shell
 $ go get github.com/micro/micro/examples/greeter/server
 $ server
+2016/06/20 03:03:39 Listening on [::]:62525
+2016/06/20 03:03:39 Broker Listening on [::]:62526
+2016/06/20 03:03:39 Registering node: go.micro.srv.greeter-34c55534-368b-11e6-b732-68a86d0d36b6
 ```
 
 List services
@@ -81,28 +84,22 @@ go.micro.srv.greeter
 Get Service
 ```shell
 $ micro get service go.micro.srv.greeter
-go.micro.srv.greeter
+service  go.micro.srv.greeter
+
+version 1.0.0
 
 Id	Address	Port	Metadata
-go.micro.srv.greeter-154a6487-7d7e-11e5-882a-34363b77bace	[::]	57067	
+go.micro.srv.greeter-34c55534-368b-11e6-b732-68a86d0d36b6	192.168.1.66	62525	server=rpc,registry=consul,transport=http,broker=http
 
 Endpoint: Say.Hello
 Metadata: stream=false
-Request:
-{
+
+Request: {
 	name string
 }
-Response:
-{
-	msg string
-}
 
-Endpoint: Debug.Health
-Metadata: stream=false
-Request: {}
-Response:
-{
-	status string
+Response: {
+	msg string
 }
 ```
 
@@ -110,9 +107,8 @@ Query service
 ```shell
 $ micro query go.micro.srv.greeter Say.Hello '{"name": "John"}'
 {
-	"msg": "go.micro.srv.greeter-154a6487-7d7e-11e5-882a-34363b77bace: Hello John"
+	"msg": "Hello John"
 }
-
 ```
 
 Read more on how to use the Micro [CLI](https://github.com/micro/micro/tree/master/cli)
