@@ -91,6 +91,8 @@ jQuery(function($, undefined) {
 {{end}}
 {{define "content"}}
 <div class="row">
+  <div class="panel panel-default">
+    <div class="panel-body">
 	<div class="col-sm-5">
 		<form id="query-form" onsubmit="return query();">
 			<div class="form-group">
@@ -123,7 +125,7 @@ jQuery(function($, undefined) {
 				<textarea class="form-control" name=request id=request rows=8>{}</textarea>
 			</div>
 			<div class="form-group">
-				<button class="btn btn-default">Go!</button>
+				<button class="btn btn-default">Execute</button>
 			</div>
 		</form>
 	</div>
@@ -131,6 +133,8 @@ jQuery(function($, undefined) {
 		<p><b>Response</b></p>
 		<pre id="response" style="min-height: 405px;">{}</pre>
 	</div>
+    </div>
+  </div>
 </div>
 {{end}}
 {{define "script"}}
