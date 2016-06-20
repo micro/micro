@@ -16,7 +16,7 @@ var (
 	  <nav class="navbar navbar-inverse">
 	    <div class="container">
 	      <div class="navbar-header">
-		<a class="navbar-brand" href="/">&nbsp;Micro</a>
+		<a class="navbar-brand" href="/">&nbsp;<b>[M] Micro</b></a>
 	      </div>
 	      {{if .StatsURL}}<p class="navbar-text navbar-right"><a href="{{.StatsURL}}" class="navbar-link">Stats</a></p>{{end}}
 	    </div>
@@ -129,7 +129,7 @@ jQuery(function($, undefined) {
 	</div>
 	<div class="col-sm-7">
 		<p><b>Response</b></p>
-		<pre id="response">{}</pre>
+		<pre id="response" style="min-height: 405px;">{}</pre>
 	</div>
 </div>
 {{end}}
