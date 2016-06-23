@@ -16,7 +16,7 @@ var (
 	  <nav class="navbar navbar-inverse">
 	    <div class="container">
 	      <div class="navbar-header">
-		<a class="navbar-brand" href="/">&nbsp;<b>[M] Micro</b></a>
+		<a class="navbar-brand" href="/">&nbsp;<b>Micro</b></a>
 	      </div>
 	      {{if .StatsURL}}<p class="navbar-text navbar-right"><a href="{{.StatsURL}}" class="navbar-link">Stats</a></p>{{end}}
 	    </div>
