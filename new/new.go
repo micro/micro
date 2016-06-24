@@ -5,6 +5,7 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"text/template"
 
@@ -127,7 +128,11 @@ func run(ctx *cli.Context) {
 		return
 	}
 
-	goPath = strings.Split(goPath, ":")[0]
+	// attempt to split path if not windows
+	if runtime.GOOS != "windows" {
+		goPath = strings.Split(goPath, ":")[0]
+	}
+
 	goDir := filepath.Join(goPath, "src", path.Clean(dir))
 
 	if len(alias) == 0 {
