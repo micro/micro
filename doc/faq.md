@@ -10,11 +10,11 @@ There are also other libraries also like [go-plugins](https://github.com/micro/g
 
 ## Who's using Micro?
 
-There's a [Users](https://github.com/micro/micro/wiki/Users) page with a list of companies using Micro. Many more are also using it but not yet publicly listed.
+There's a [Users](https://github.com/micro/micro/wiki/Users) page with a list of companies using Micro. Many more are also using it but not yet publicly listed. Feel free to add your company if you're using Micro.
 
-## Is there a community?
+## Where is the community?
 
-Yes! There's a slack community with hundreds of members. You can invite yourself [here](http://slack.micro.mu/).
+There's a slack community with hundreds of members. You can invite yourself [here](http://slack.micro.mu/).
 
 ## How do I use Micro?
 
@@ -75,6 +75,17 @@ Learn more about it [here](https://github.com/micro/micro/tree/master/web)
 ### SRV services
 
 SRV services are basically standard RPC services, the usual kind of service you would write. We usually call them RPC or backend services as they should mainly be part of the backend architecture and never be public facing. By default we use the namespace go.micro.srv for these but you should use your domain com.example.srv. 
+
+## How performant is it?
+
+Performance is not a current focus of Micro. While code is written to be optimal and avoid overhead, not much time is spent on benchmarks. Comparisons to net/http or other web frameworks make no sense. Micro provides higher level requirements for microservices that include service discovery, load balancing, message encoding, etc. To compare you would need to add all these features in.
+
+If you're still concerned with performance. The simplest way to extract the most value is simply by running with the following flags:
+
+```
+--selector=cache # enables in memory caching of discovered nodes
+--client_pool_size=10 # enables the client side connection pool
+```
 
 ## Where Can I Learn More?
 
