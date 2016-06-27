@@ -40,10 +40,6 @@ func (s *srv) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization")
 	w.Header().Set("Access-Control-Allow-Credentials", "true")
 
-	if r.Method == "OPTIONS" {
-		return
-	}
-
 	s.Router.ServeHTTP(w, r)
 }
 
