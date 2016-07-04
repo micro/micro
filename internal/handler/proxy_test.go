@@ -13,9 +13,8 @@ import (
 	rmock "github.com/micro/go-micro/registry/mock"
 )
 
-func TestProxyHandler(t *testing.T) {
+func testProxy(t *testing.T, path, service string) {
 	r := rmock.NewRegistry()
-
 	cmd.DefaultCmd = cmd.NewCmd(cmd.Registry(&r))
 
 	l, err := net.Listen("tcp", "127.0.0.1:0")
@@ -33,10 +32,10 @@ func TestProxyHandler(t *testing.T) {
 	port, _ = strconv.Atoi(parts[1])
 
 	s := &registry.Service{
-		Name: "go.micro.api.test",
+		Name: service,
 		Nodes: []*registry.Node{
 			&registry.Node{
-				Id:      "1",
+				Id:      service + "-1",
 				Address: host,
 				Port:    port,
 			},
@@ -48,7 +47,7 @@ func TestProxyHandler(t *testing.T) {
 
 	// setup the test handler
 	m := http.NewServeMux()
-	m.HandleFunc("/test/foo", func(w http.ResponseWriter, r *http.Request) {
+	m.HandleFunc(path, func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte(`you got served`))
 	})
 
@@ -57,7 +56,7 @@ func TestProxyHandler(t *testing.T) {
 
 	// create new request and writer
 	w := httptest.NewRecorder()
-	req, err := http.NewRequest("POST", "/test/foo", nil)
+	req, err := http.NewRequest("POST", path, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -74,5 +73,33 @@ func TestProxyHandler(t *testing.T) {
 
 	if w.Body.String() != "you got served" {
 		t.Fatal("Expected body: you got served. Got: %s", w.Body.String())
+	}
+}
+
+func TestProxyHandler(t *testing.T) {
+	testData := []struct {
+		path    string
+		service string
+	}{
+		{
+			"/test/foo",
+			"go.micro.api.test",
+		},
+		{
+			"/test/foo/baz",
+			"go.micro.api.test",
+		},
+		{
+			"/v1/foo",
+			"go.micro.api.v1.foo",
+		},
+		{
+			"/v1/foo/bar",
+			"go.micro.api.v1.foo",
+		},
+	}
+
+	for _, d := range testData {
+		testProxy(t, d.path, d.service)
 	}
 }

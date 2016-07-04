@@ -22,6 +22,10 @@ type proxy struct {
 	ws bool
 }
 
+var (
+	versionRe = regexp.MustCompilePOSIX("^v[0-9]+$")
+)
+
 func (p *proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	service, err := p.getService(r)
 	if err != nil {
@@ -55,15 +59,37 @@ func (p *proxy) getService(r *http.Request) (string, error) {
 		return "", nil
 	}
 
-	if !p.re.MatchString(parts[1]) {
+	var service string
+	var alias string
+
+	// /[service]/methods
+	if len(parts) > 2 {
+		// /v1/[service]
+		if versionRe.MatchString(parts[1]) {
+			service = parts[1] + "." + parts[2]
+			alias = parts[2]
+		} else {
+			service = parts[1]
+			alias = parts[1]
+		}
+		// /[service]
+	} else {
+		service = parts[1]
+		alias = parts[1]
+	}
+
+	// check service name is valid
+	if !p.re.MatchString(alias) {
 		return "", nil
 	}
 
-	next, err := p.Selector.Select(p.Namespace + "." + parts[1])
+	// get the service
+	next, err := p.Selector.Select(p.Namespace + "." + service)
 	if err != nil {
 		return "", nil
 	}
 
+	// get the next node
 	s, err := next()
 	if err != nil {
 		return "", nil
