@@ -97,6 +97,14 @@ func TestProxyHandler(t *testing.T) {
 			"/v1/foo/bar",
 			"go.micro.api.v1.foo",
 		},
+		{
+			"/v2/baz",
+			"go.micro.api.v2.baz",
+		},
+		{
+			"/v2/baz/bar",
+			"go.micro.api.v2.baz",
+		},
 	}
 
 	for _, d := range testData {
