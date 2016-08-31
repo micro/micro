@@ -25,7 +25,7 @@ func addService(w http.ResponseWriter, r *http.Request) {
 	// parse ttl
 	if ttl := r.Form.Get("ttl"); len(ttl) > 0 {
 		d, err := time.ParseDuration(ttl)
-		if err != nil {
+		if err == nil {
 			opts = append(opts, registry.RegisterTTL(d))
 		}
 	}
