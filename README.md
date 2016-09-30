@@ -23,9 +23,9 @@ It acts as a single entry point and can either be used as a reverse proxy or tra
 web apps should be built as microservices and therefore treated as a first class citizen in a microservice world. It behaves much the like the API 
 reverse proxy but also includes support for web sockets.
 
-**Sidecar** - The Sidecar provides all the features of go-micro as a HTTP service. While we love Go and 
+**Sidecar** - The Sidecar is a language agnostic RPC Proxy which provides all the features of go-micro as a HTTP endpoints. While we love Go and 
 believe it's a great language to build microservices, you may also want to use other languages, so the Sidecar provides a way to integrate 
-your other apps into the Micro world.
+your other apps into the Micro world. It can be used as a standalone way to build fault tolerant microservices.
 
 **CLI** - A straight forward command line interface to interact with your micro services. 
 It also allows you to leverage the Sidecar as a proxy where you may not want to directly connect to the service registry.

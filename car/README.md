@@ -1,8 +1,8 @@
 # Micro SideCar
 
-The sidecar provides a HTTP interface to integrate any application into the Micro ecosystem.
+The sidecar is a language agnostic RPC proxy which provides HTTP endpoints to integrate any application into the Micro ecosystem.
 
-It is similar to Netflix's sidecar called [Prana](https://github.com/Netflix/Prana)
+It is similar to Netflix's sidecar [Prana](https://github.com/Netflix/Prana) or Buoyant's RPC Proxy [Linkerd](https://linkerd.io).
 
 <p align="center">
   <img src="architecture.png" />
