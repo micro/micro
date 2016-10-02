@@ -13,7 +13,9 @@ check out the [Mailing List](https://groups.google.com/forum/#!forum/microhq).
 # Overview
 The goal of **Micro** is to provide a toolkit for microservice development and management. At the core, micro is simple and accessible enough that anyone can easily get started writing microservices. As you scale to hundreds of services, micro will provide the fundamental tools required to manage a microservice environment.
 
-![Overview](https://github.com/micro/micro/blob/master/doc/overview.png)
+<p align="center">
+  <img src="https://github.com/micro/micro/blob/master/doc/overview.png" />
+</p>
 
 ## Components
 
