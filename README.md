@@ -17,8 +17,6 @@ The goal of **Micro** is to provide a toolkit for microservice development and m
   <img src="https://github.com/micro/micro/blob/master/doc/overview.png" />
 </p>
 
-## Components
-
 The toolkit is composed of the following components:
 
 **Go Micro** - A pluggable RPC framework for writing microservices in Go. It provides libraries for 
