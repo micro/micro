@@ -119,33 +119,6 @@ $ micro query go.micro.srv.greeter Say.Hello '{"name": "John"}'
 
 Read more on how to use the Micro [CLI](https://github.com/micro/micro/tree/master/cli)
 
-## The Ecosystem
-
-The overarching project [github.com/micro](https://github.com/micro) is a microservice ecosystem which consists of a number of tools and libraries. Each of which can either be used totally independently, plugged into your architecture or combined as a whole to provide a completely distributed systems platform.
-
-It currently consists of the following.
-
-### Go Micro
-
-[Go-micro](https://github.com/micro/go-micro) is a pluggable Go client framework for writing microservices. Go-micro can be used standalone and should be the starting point for writing applications.
-
-### Micro
-
-[Micro](https://github.com/micro/micro) provides entry points into a running system with an API Gateway, Web UI, HTTP Sidecar and CLI. Micro can be used to manage the public facing aspect of your services and will normally run at the edge of your infrastructure.
-
-### Go OS
-
-[Go-OS](https://github.com/micro/go-os) provides pluggable libraries for integrating with higher level requirements for microservices. 
-It mainly integrates functionality for distributed systems at scale. It includes authentication, monitoring, distributed tracing, dynamic configuration and much more.
-
-### Micro OS
-
-[Micro OS](https://github.com/micro/os) is a microservice operating system. Where the Micro toolkit provides the core essentials, Micro OS goes a step further and addresses every requirement for large scale distributed systems. 
-
-### Go Plugins
-
-[Go Plugins](https://github.com/micro/go-plugins) provides plugins for go-micro and go-os contributed by the community. Examples could include; circuit breakers, rate limiting. Registries built on top of Kubernetes, Zookeeper, etc. Transport using HTTP2, Zeromq, etc. Broker using Kafka, AWS SQS, etc.
-
 ## Community Contributions
 
 Project		|	Description
