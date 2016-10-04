@@ -133,18 +133,18 @@ It currently consists of the following.
 
 [Micro](https://github.com/micro/micro) provides entry points into a running system with an API Gateway, Web UI, HTTP Sidecar and CLI. Micro can be used to manage the public facing aspect of your services and will normally run at the edge of your infrastructure.
 
-### Go Platform
+### Go OS
 
-[Go-platform](https://github.com/micro/go-platform) provides pluggable libraries for integrating with higher level requirements for microservices. 
+[Go-OS](https://github.com/micro/go-os) provides pluggable libraries for integrating with higher level requirements for microservices. 
 It mainly integrates functionality for distributed systems at scale. It includes authentication, monitoring, distributed tracing, dynamic configuration and much more.
 
-### Platform
+### Micro OS
 
-[Platform](https://github.com/micro/platform) is a complete runtime for managing microservices at scale. Where Micro provides the core essentials, the platform goes a step further and addresses every requirement for large scale distributed system deployments. 
+[Micro OS](https://github.com/micro/os) is a microservice operating system. Where the Micro toolkit provides the core essentials, Micro OS goes a step further and addresses every requirement for large scale distributed systems. 
 
 ### Go Plugins
 
-[Go Plugins](https://github.com/micro/go-plugins) provides plugins for go-micro and go-platform contributed by the community. Examples could include; circuit breakers, rate limiting. Registries built on top of Kubernetes, Zookeeper, etc. Transport using HTTP2, Zeromq, etc. Broker using Kafka, AWS SQS, etc.
+[Go Plugins](https://github.com/micro/go-plugins) provides plugins for go-micro and go-os contributed by the community. Examples could include; circuit breakers, rate limiting. Registries built on top of Kubernetes, Zookeeper, etc. Transport using HTTP2, Zeromq, etc. Broker using Kafka, AWS SQS, etc.
 
 ## Community Contributions
 

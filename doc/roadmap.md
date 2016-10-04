@@ -109,46 +109,46 @@ The micro ecosystem is rapidly growing but there's still a lot to do.
   * [x] Health
   * [x] Stats
 
-## [Go Platform](https://github.com/micro/go-platform)
+## [Go OS](https://github.com/micro/go-os)
 
 Overview
   * [x] Define the interfaces for every package
-  * [x] Provide documentation for go-platform's usage
+  * [x] Provide documentation for go-os's usage
   * [x] Implement trace and monitoring first
   * [x] Provide easy initialisation and wrapping for go-micro client/server
 
-1. [Discovery](https://godoc.org/github.com/micro/go-platform/discovery)
+1. [Discovery](https://godoc.org/github.com/micro/go-os/discovery)
   * [x] In memory catching using registry watch
   * [x] Heartbeating the registry
-2. [Routing](https://godoc.org/github.com/micro/go-platform/router)
+2. [Routing](https://godoc.org/github.com/micro/go-os/router)
   * [x] label based routing 
   * [x] Weighted loadbalancing
   * [ ] Circuit breakers
   * [ ] Rate limiting
   * Google GSLB style semantics
-3. [Key-Value](https://godoc.org/github.com/micro/go-platform/kv)
+3. [Key-Value](https://godoc.org/github.com/micro/go-os/kv)
   * [x] Implement interface
   * [x] Memcache implementation
   * [x] Redis contribution
   * [x] In memory implement
-4. [Trace](https://godoc.org/github.com/micro/go-platform/trace)
+4. [Trace](https://godoc.org/github.com/micro/go-os/trace)
   * [x] Implement interface
   * [x] Pub/Sub based tracing
   * [ ] Timing endpoints for trace service
-5. [Monitor](https://godoc.org/github.com/micro/go-platform/monitor)
+5. [Monitor](https://godoc.org/github.com/micro/go-os/monitor)
   * [x] Implement interface
   * [x] Custom healthcheck types
   * [x] Add stats/status publications
   * [ ] Monitor the health of services
-6. [Config](https://godoc.org/github.com/micro/go-platform/config)
+6. [Config](https://godoc.org/github.com/micro/go-os/config)
   * [x] Implement interface
-7. [Auth](https://godoc.org/github.com/micro/go-platform/auth)
+7. [Auth](https://godoc.org/github.com/micro/go-os/auth)
   * [x] Implement interface
-8. [Logging](https://godoc.org/github.com/micro/go-platform/log)
+8. [Logging](https://godoc.org/github.com/micro/go-os/log)
   * [x] Implement interface
-9. [Event](https://godoc.org/github.com/micro/go-platform/event)
+9. [Event](https://godoc.org/github.com/micro/go-os/event)
   * [x] Implement interface (sparse)
-10. [Metrics](https://godoc.org/github.com/micro/go-platform/metrics)
+10. [Metrics](https://godoc.org/github.com/micro/go-os/metrics)
   * [x] Implement interface
 
 ## [Go Plugins](https://github.com/micro/go-plugins)
@@ -173,14 +173,14 @@ Overview
   * [x] [kafka](https://godoc.org/github.com/micro/go-plugins/broker/kafka)
   * [x] [googlepubsub](https://godoc.org/github.com/micro/go-plugins/broker/googlepubsub)
 
-## [Platform](https://github.com/micro/platform)
+## [Micro OS](https://github.com/micro/os)
 
 TODO:
   * [ ] implement IAM policies  
 
 ### Dashboards
 
-Create simple OSS dashboards for each platform service
+Create simple OSS dashboards for each Micro OS service
 
  * [x] [Config](https://github.com/micro/config-web)
  * [x] [Discovery](https://github.com/micro/discovery-web)
@@ -211,7 +211,7 @@ Version 1. (Asim's definition of version 1)
 ## Deployments
 * [x] [Micro on Kubernetes](https://github.com/micro/kubernetes)
 * [x] Micro Docker Compose
-* [ ] Platform Docker Compose
+* [ ] Micro OS Docker Compose
 * [ ] Logistics/On-Demand Example
 * [ ] Micro on Nomad
 

@@ -101,9 +101,9 @@ provides retries, timeouts, use of context, etc.
 
 The server is an interface to build a running microservice. It provides a way of serving RPC requests. 
 
-## Go Platform
+## Go OS
 
-This is a microservice platform library built to be used with micro/go-micro. 
+This is a microservice operating system library built to be used with micro/go-micro. 
 It provides all of the fundamental tooling required to run and manage 
 a microservice environment. It's pluggable just like go-micro. It will be 
 especially vital for anything above 20+ services and preferred by 
@@ -112,9 +112,9 @@ continue to use go-micro.
 
 ### How does it work?
 
-The go-platform is a client side interface for the fundamentals of a microservice platform. Each package connects to 
+The go-os is a client side interface for the fundamentals of a microservice OS. Each package connects to 
 a service which handles that feature. Everything is an interface and pluggable which means you can choose how to 
-architect your platform. Micro however provides a "platform" implementation backed by it's own services by default.
+architect your platform. Micro OS provides a default implementation backed by it's own services.
 
 Each package can be used independently or integrated using go-micro client and handler wrappers.
 
@@ -122,7 +122,7 @@ Each package can be used independently or integrated using go-micro client and h
 
 Auth addresses authentication and authorization of services and users. The default implementation is Oauth2 with an additional policy 
 engine coming soon. This is the best way to authenticate users and service to service calls using a centralised 
-authority. Security is a first class citizen in a microservice platform.
+authority. Security is a first class citizen in a microservice OS.
 
 ### Config 
 
@@ -135,7 +135,7 @@ configuration required by your services. It can be reloaded without needing to r
 
 The DB interface is an experiment CRUD interface to simplify database access and management. The amount of CRUD boilerplate 
 written and rewritten in a microservice world is immense. By offloading this to a backend service and using RPC, we 
-eliminate much of that and speed up development. The platform implementation includes pluggable backends such as mysql, 
+eliminate much of that and speed up development. The Micro OS implementation includes pluggable backends such as mysql, 
 cassandra, elasticsearch and utilises the registry to lookup which nodes databases are assigned to. 
 
 This is purely experimental at this point based on some ideas from how Google, Facebook and Twitte do database management 
@@ -149,7 +149,7 @@ architecture whereby we split the read and write layers of discovery into separa
 
 ### Event
 
-The event package provides a way to send platform events and essentially create an event stream and record of all that's 
+The event package provides a way to send events and essentially create an event stream and record of all that's 
 happening in your microservice environment. On the backend an event service aggregates the records and allows you to 
 subscribe to a specific set of events. An event driven architecture is a powerful concept in a microservice environment 
 and must be addressed adequately. At scale it's essential for correlating events within a distributed system e.g 
@@ -205,7 +205,7 @@ way of tracking the lifetime of a request. The interface utilises client and ser
 
 ## Go Plugins
 
-Go plugins is a place to share implementations of the go-micro and go-platform interfaces. 
+Go plugins is a place to share implementations of the go-micro and go-os interfaces. 
 
 ## Code Generation
 

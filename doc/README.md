@@ -54,29 +54,29 @@ Feature		|	Description
 [Sidecar](https://github.com/micro/micro/tree/master/car) | HTTP proxy for non Go-micro apps
 [Web UI/Proxy](https://github.com/micro/micro/tree/master/web) | A visual way to view and query services
 
-### Go Platform
+### Go OS
 
-[Go-platform](https://github.com/micro/go-platform) provides pluggable libraries for integrating with higher level requirements for microservices. 
+[Go-OS](https://github.com/micro/go-os) provides pluggable libraries for integrating with higher level requirements for microservices. 
 It mainly integrates functionality for distributed systems.
 
 Feature     |   Description
 -------     |   ---------
-[auth](https://godoc.org/github.com/micro/go-platform/auth)	|   authentication and authorisation for users and services
-[config](https://godoc.org/github.com/micro/go-platform/config)	|   dynamic configuration which is namespaced and versioned
-[db](https://godoc.org/github.com/micro/go-platform/db)		| distributed database abstraction
-[discovery](https://godoc.org/github.com/micro/go-platform/discovery)	|   extends the go-micro registry to add heartbeating, etc
-[event](https://godoc.org/github.com/micro/go-platform/event)	|	platform event publication, subscription and aggregation 
-[kv](https://godoc.org/github.com/micro/go-platform/kv)		|   simply key value layered on memcached, etcd, consul 
-[log](https://godoc.org/github.com/micro/go-platform/log)	|	structured logging to stdout, logstash, fluentd, pubsub
-[monitor](https://godoc.org/github.com/micro/go-platform/monitor)	|   add custom healthchecks measured with distributed systems in mind
-[metrics](https://godoc.org/github.com/micro/go-platform/metrics)	|   instrumentation and collation of counters
-[router](https://godoc.org/github.com/micro/go-platform/router)	|	global circuit breaking, load balancing, A/B testing
-[sync](https://godoc.org/github.com/micro/go-platform/sync)	|	distributed locking, leadership election, etc
-[trace](https://godoc.org/github.com/micro/go-platform/trace)	|	distributed tracing of request/response
+[auth](https://godoc.org/github.com/micro/go-os/auth)	|   authentication and authorisation for users and services
+[config](https://godoc.org/github.com/micro/go-os/config)	|   dynamic configuration which is namespaced and versioned
+[db](https://godoc.org/github.com/micro/go-os/db)		| distributed database abstraction
+[discovery](https://godoc.org/github.com/micro/go-os/discovery)	|   extends the go-micro registry to add heartbeating, etc
+[event](https://godoc.org/github.com/micro/go-os/event)	|	event publication, subscription and aggregation 
+[kv](https://godoc.org/github.com/micro/go-os/kv)		|   simply key value layered on memcached, etcd, consul 
+[log](https://godoc.org/github.com/micro/go-os/log)	|	structured logging to stdout, logstash, fluentd, pubsub
+[monitor](https://godoc.org/github.com/micro/go-os/monitor)	|   add custom healthchecks measured with distributed systems in mind
+[metrics](https://godoc.org/github.com/micro/go-os/metrics)	|   instrumentation and collation of counters
+[router](https://godoc.org/github.com/micro/go-os/router)	|	global circuit breaking, load balancing, A/B testing
+[sync](https://godoc.org/github.com/micro/go-os/sync)	|	distributed locking, leadership election, etc
+[trace](https://godoc.org/github.com/micro/go-os/trace)	|	distributed tracing of request/response
 
-### Platform
+### Micro OS
 
-[Platform](https://github.com/micro/platform) is a complete runtime for managing microservices at scale. Where Micro provides the core essentials, the platform goes a step further and addresses every requirement for large scale distributed system deployments. 
+[Micro OS](https://github.com/micro/os) is a complete runtime for managing microservices at scale. Where Micro provides the core essentials, Micro OS goes a step further and addresses every requirement for large scale distributed systems. 
 
 Feature		|	Description
 ------------	|	-------------
@@ -84,14 +84,14 @@ Feature		|	Description
 [Config](https://github.com/micro/config-srv)	|	Dynamic configuration
 [DB Proxy](https://github.com/micro/db-srv)	|	RPC based database proxy
 [Discovery](https://github.com/micro/discovery-srv)	|	Service discovery read layer cache
-[Events](https://github.com/micro/event-srv)	|	Platform event aggregation
+[Events](https://github.com/micro/event-srv)	|	Event aggregation
 [Monitoring](https://github.com/micro/monitor-srv)	|	Monitoring for Status, Stats and Healthchecks
 [Routing](https://github.com/micro/router-srv)	|	Global service load balancing
 [Tracing](https://github.com/micro/trace-srv)	|	Distributed tracing
 
 ### Go Plugins
 
-[Go Plugins](https://github.com/micro/go-plugins) provides plugins for go-micro and go-platform contributed by the community. Examples could include; circuit breakers, rate limiting. Registries built on top of Kubernetes, Zookeeper, etc. Transport using HTTP2, Zeromq, etc. Broker using Kafka, AWS SQS, etc.
+[Go Plugins](https://github.com/micro/go-plugins) provides plugins for go-micro and go-os contributed by the community. Examples could include; circuit breakers, rate limiting. Registries built on top of Kubernetes, Zookeeper, etc. Transport using HTTP2, Zeromq, etc. Broker using Kafka, AWS SQS, etc.
 
 Example plugins
 
@@ -107,7 +107,7 @@ Project		|	Description
 [greeter](https://github.com/micro/micro/tree/master/examples/greeter)	|	A greeter service (includes Go, Ruby, Python examples)
 [geo-srv](https://github.com/micro/geo-srv)	|	Geolocation tracking service using hailocab/go-geoindex
 [geo-api](https://github.com/micro/geo-api)	|	A HTTP API handler for geo location tracking and search
-[discovery-srv](https://github.com/micro/discovery-srv)	|	A discovery in the micro platform
+[discovery-srv](https://github.com/micro/discovery-srv)	|	A discovery in the micro OS
 [geocode-srv](https://github.com/micro/geocode-srv)	|	A geocoding service using the Google Geocoding API
 [hailo-srv](https://github.com/micro/hailo-srv)	|	A service for the hailo taxi service developer api
 [monitor-srv](https://github.com/micro/monitor-srv)	|	A monitoring service for Micro services
