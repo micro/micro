@@ -20,6 +20,7 @@ const (
 )
 
 type conn struct {
+	cType string
 	topic string
 	queue string
 	exit  chan bool
@@ -33,6 +34,8 @@ var (
 		ReadBufferSize:  1024,
 		WriteBufferSize: 1024,
 	}
+
+	contentType = "application/json"
 )
 
 func (c *conn) readLoop() {
@@ -53,7 +56,10 @@ func (c *conn) readLoop() {
 		if err != nil {
 			return
 		}
-		(*cmd.DefaultOptions().Broker).Publish(c.topic, &broker.Message{Body: message})
+		(*cmd.DefaultOptions().Broker).Publish(c.topic, &broker.Message{
+			Header: map[string]string{"Content-Type": c.cType},
+			Body:   message,
+		})
 	}
 }
 
@@ -127,7 +133,13 @@ func Broker(w http.ResponseWriter, r *http.Request) {
 		(*cmd.DefaultOptions().Broker).Connect()
 	})
 
+	cType := r.Header.Get("Content-Type")
+	if len(cType) == 0 {
+		cType = contentType
+	}
+
 	c := &conn{
+		cType: cType,
 		topic: topic,
 		queue: queue,
 		exit:  make(chan bool),
