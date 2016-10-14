@@ -35,7 +35,7 @@ var (
 		WriteBufferSize: 1024,
 	}
 
-	contentType = "application/json"
+	contentType = "text/plain"
 )
 
 func (c *conn) readLoop() {
