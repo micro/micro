@@ -1,5 +1,6 @@
 # Summary
 
+* [Features](features.md)
 * [Roadmap](roadmap.md)
 * [Architecture](architecture.md)
 * [Getting Started](getting-started.md)
