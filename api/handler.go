@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"mime"
+	"net"
 	"net/http"
 	"path"
 	"regexp"
@@ -75,6 +76,19 @@ func requestToProto(r *http.Request) (*api.Request, error) {
 	default:
 		data, _ := ioutil.ReadAll(r.Body)
 		req.Body = string(data)
+	}
+
+	// Set X-Forwarded-For if it does not exist
+	if ip, _, err := net.SplitHostPort(r.RemoteAddr); err == nil {
+		if prior, ok := r.Header["X-Forwarded-For"]; ok {
+			ip = strings.Join(prior, ", ") + ", " + ip
+		}
+
+		// Set the header
+		req.Header["X-Forwarded-For"] = &api.Pair{
+			Key:    "X-Forwarded-For",
+			Values: []string{ip},
+		}
 	}
 
 	// Host is stripped from net/http Headers so let's add it
