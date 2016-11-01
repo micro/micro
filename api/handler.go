@@ -207,20 +207,19 @@ func rpcHandler(w http.ResponseWriter, r *http.Request) {
 		// response content type
 		w.Header().Set("Content-Type", "application/json")
 
-		var request interface{}
-		d := json.NewDecoder(r.Body)
-		d.UseNumber()
-
-		// decode request; can we avoid this?
-		if err := d.Decode(&request); err != nil {
+		// get request
+		br, err := ioutil.ReadAll(r.Body)
+		if err != nil {
 			e := errors.InternalServerError("go.micro.api", err.Error())
 			http.Error(w, e.Error(), 500)
 			return
 		}
+		// use as raw json
+		request := json.RawMessage(br)
 
 		// create request/response
 		var response json.RawMessage
-		req := (*cmd.DefaultOptions().Client).NewJsonRequest(service, method, request)
+		req := (*cmd.DefaultOptions().Client).NewJsonRequest(service, method, &request)
 
 		// create context
 		ctx := helper.RequestToContext(r)
