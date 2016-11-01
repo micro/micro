@@ -11,17 +11,25 @@ This is a lightweight proxy for [Micro](https://github.com/micro/micro) based mi
 
 The API handles requests in three ways.
 
-1. /rpc
-	- Sends requests directly to backend services using JSON
-	- Expects params: service, method, request.
-2. /[service]/[method]
-	- The path is used to resolve service and method. 
+1. Default Handler: /[service]/[method]
+	- The path is used to resolve service and method.
 	- Requests are handled via API services which take the request api.Request and response api.Response types. 
 	- Definitions for the Request/Response can be found at [micro/api/proto](https://github.com/micro/micro/tree/master/api/proto)
 
-3. /[service] reverse proxy set via `--api_handler=proxy`
+2. RPC Handler: /[service]/[method]
+	- An alternative to the default handler which uses the go-micro client to forward the request body as an RPC request.
+	- Allows API handlers to be defined with concrete Go types.
+	- Useful where you do not need full control of headers or request/response.
+	- Can be used to run a single layer of backend services rather than additional API services.
+	- set via `--api_handler=rpc`
+
+3. Reverse Proxy: /[service]
 	- The request will be reverse proxied to the service resolved by the first element in the path
 	- This allows REST to be implemented behind the API
+	- set via `--api_handler=proxy`
+4. /rpc
+	- Sends requests directly to backend services using JSON
+	- Expects params: `service`, `method`, `request`, optionally accepts `address` to target a specific host
 
 ## Getting started
 
@@ -96,6 +104,15 @@ $ curl -H 'Content-Type: application/json' \
 
 {"msg":"go.micro.srv.example-fccbb6fb-0301-11e5-9f1f-68a86d0d36b6: Hello Asim Aslam"}
 ```
+
+Or if the API is set with `--api_handler=rpc` and `--api_namespace=go.micro.srv`
+
+```bash
+$ curl -H 'Content-Type: application/json' -d '{"name": "Asim Aslam"}' http://localhost:8080/example/call
+
+{"msg":"go.micro.srv.example-fccbb6fb-0301-11e5-9f1f-68a86d0d36b6: Hello Asim Aslam"}
+```
+
 
 ## API HTTP request translation
 
