@@ -27,7 +27,7 @@ Listening on [::]:64738
 
 Test the index
 ```
-curl -H 'Content-Type: application/json' -d '{"name": "Asim"}' http://localhost:8080/greeter/say/hello
+curl -H 'Content-Type: application/json' -d '{"name": "Asim"}' http://localhost:8080/greeter/hello
 {
   "msg": "Hello Asim"
 }
