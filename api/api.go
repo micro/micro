@@ -84,11 +84,14 @@ func run(ctx *cli.Context) {
 	r.HandleFunc(RPCPath, handler.RPC)
 
 	switch ctx.GlobalString("api_handler") {
+	case "rpc":
+		log.Printf("Registering API RPC Handler at %s", APIPath)
+		r.PathPrefix(APIPath).HandlerFunc(rpcHandler)
 	case "proxy":
 		log.Printf("Registering API Proxy Handler at %s", ProxyPath)
 		r.PathPrefix(ProxyPath).Handler(handler.Proxy(Namespace, false))
 	default:
-		log.Printf("Registering API Handler at %s", APIPath)
+		log.Printf("Registering API Default Handler at %s", APIPath)
 		r.PathPrefix(APIPath).HandlerFunc(apiHandler)
 	}
 

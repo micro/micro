@@ -1,6 +1,7 @@
 package api
 
 import (
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"mime"
@@ -8,6 +9,7 @@ import (
 	"net/http"
 	"path"
 	"regexp"
+	"strconv"
 	"strings"
 
 	"github.com/micro/go-micro/cmd"
@@ -135,6 +137,7 @@ func requestToProto(r *http.Request) (*api.Request, error) {
 	return req, nil
 }
 
+// apiHandler is the default handler which takes api.Request and returns api.Response
 func apiHandler(w http.ResponseWriter, r *http.Request) {
 	request, err := requestToProto(r)
 	if err != nil {
@@ -180,4 +183,71 @@ func apiHandler(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(int(rsp.StatusCode))
 	w.Write([]byte(rsp.Body))
+}
+
+// rpcHandler is an alternative handler which passes through an RPC request without modification
+func rpcHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != "POST" {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	defer r.Body.Close()
+
+	// get service/method
+	service, method := pathToReceiver(r.URL.Path)
+	ct := r.Header.Get("Content-Type")
+
+	// Strip charset from Content-Type (like `application/json; charset=UTF-8`)
+	if idx := strings.IndexRune(ct, ';'); idx >= 0 {
+		ct = ct[:idx]
+	}
+
+	switch ct {
+	case "application/json":
+		// response content type
+		w.Header().Set("Content-Type", "application/json")
+
+		var request interface{}
+		d := json.NewDecoder(r.Body)
+		d.UseNumber()
+
+		// decode request; can we avoid this?
+		if err := d.Decode(&request); err != nil {
+			e := errors.InternalServerError("go.micro.api", err.Error())
+			http.Error(w, e.Error(), 500)
+			return
+		}
+
+		// create request/response
+		var response json.RawMessage
+		req := (*cmd.DefaultOptions().Client).NewJsonRequest(service, method, request)
+
+		// create context
+		ctx := helper.RequestToContext(r)
+
+		// make the call
+		if err := (*cmd.DefaultOptions().Client).Call(ctx, req, &response); err != nil {
+			ce := errors.Parse(err.Error())
+			switch ce.Code {
+			case 0:
+				// assuming it's totally screwed
+				ce.Code = 500
+				ce.Id = "go.micro.api"
+				ce.Status = http.StatusText(500)
+				ce.Detail = "error during request: " + ce.Detail
+				w.WriteHeader(500)
+			default:
+				w.WriteHeader(int(ce.Code))
+			}
+			w.Write([]byte(ce.Error()))
+			return
+		}
+
+		b, _ := response.MarshalJSON()
+		w.Header().Set("Content-Length", strconv.Itoa(len(b)))
+		w.Write(b)
+	default:
+		http.Error(w, "unknown content-type", 500)
+		return
+	}
 }
