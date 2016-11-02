@@ -22,6 +22,7 @@ import (
 	"github.com/micro/micro/internal/helper"
 	"github.com/micro/micro/internal/server"
 	"github.com/micro/micro/internal/stats"
+	"github.com/micro/micro/plugin"
 	"github.com/serenize/snaker"
 )
 
@@ -346,7 +347,7 @@ func run(ctx *cli.Context) {
 	}
 
 	// reverse wrap handler
-	plugins := Plugins()
+	plugins := append(Plugins(), plugin.Plugins()...)
 	for i := len(plugins); i > 0; i-- {
 		h = plugins[i-1].Handler()(h)
 	}
