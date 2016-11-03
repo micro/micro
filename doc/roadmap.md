@@ -1,5 +1,5 @@
 Current focus (Nov 2016)
 
-- [ ] grpc server
+- [x] grpc server
 - [ ] http2 transport
 
