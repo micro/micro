@@ -7,3 +7,4 @@ Nov 2016
 Dec 2016
 
 - [ ] Demos
+- [ ] Configurable Encoders for Broker/Transport
