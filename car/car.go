@@ -21,10 +21,6 @@ import (
 	"github.com/pborman/uuid"
 )
 
-var (
-	Address = ":8081"
-)
-
 type Sidecar struct {
 	name    string
 	address string
@@ -36,6 +32,7 @@ type srv struct {
 }
 
 var (
+	Address      = ":8081"
 	BrokerPath   = "/broker"
 	HealthPath   = "/health"
 	RegistryPath = "/registry"
