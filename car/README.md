@@ -1,4 +1,4 @@
-# Micro SideCar
+# Micro Sidecar
 
 The sidecar is a language agnostic RPC proxy which provides HTTP endpoints to integrate any application into the Micro ecosystem.
 
