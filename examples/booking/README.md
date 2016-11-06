@@ -1,6 +1,6 @@
 # Booking.com Example
 
-This is @harlow's [go-micro-services](https://github.com/harlow/go-micro-services) example converted to use Micro.
+This is [@harlow](https://github.com/harlow)'s [go-micro-services](https://github.com/harlow/go-micro-services) example converted to use Micro.
 
 His README (with required changes):
 
