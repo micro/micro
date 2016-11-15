@@ -3,7 +3,7 @@
 The micro toolkit supports plugins for the binary itself. These are separate from go-micro plugins.
 
 Plugins can be used to add flags, commands and middleware handlers. An example would be authentication, 
-logging, tracing, etc.
+logging, tracing, etc. Existing plugins can be found in [go-plugins/micro](https://github.com/micro/go-plugins/tree/master/micro).
 
 ## A simple example
 
