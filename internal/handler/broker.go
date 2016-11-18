@@ -24,7 +24,9 @@ type conn struct {
 	topic string
 	queue string
 	exit  chan bool
-	ws    *websocket.Conn
+
+	sync.Mutex
+	ws *websocket.Conn
 }
 
 var (
@@ -64,8 +66,11 @@ func (c *conn) readLoop() {
 }
 
 func (c *conn) write(mType int, data []byte) error {
+	c.Lock()
 	c.ws.SetWriteDeadline(time.Now().Add(writeDeadline))
-	return c.ws.WriteMessage(mType, data)
+	err := c.ws.WriteMessage(mType, data)
+	c.Unlock()
+	return err
 }
 
 func (c *conn) writeLoop() {
