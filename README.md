@@ -1,7 +1,7 @@
 # Micro [![License](https://img.shields.io/:license-apache-blue.svg)](https://opensource.org/licenses/Apache-2.0) [![GoDoc](https://godoc.org/github.com/micro/micro?status.svg)](https://godoc.org/github.com/micro/micro) [![Travis CI](https://travis-ci.org/micro/micro.svg?branch=master)](https://travis-ci.org/micro/micro) [![Roadmap](https://img.shields.io/badge/roadmap-in%20progress-lightgrey.svg)](https://github.com/micro/micro/wiki/Roadmap) [![Go Report Card](https://goreportcard.com/badge/micro/micro)](https://goreportcard.com/report/github.com/micro/micro)
 
 
-Micro is a **microservice** toolkit. It simplifies writing and running distributed systems.
+Micro is a **microservice** toolkit. It's purpose is to simplify distributed systems development.
 
 Check out [**go-micro**](https://github.com/micro/go-micro) if you want to start writing services in Go now. Examples of how to write services in other languages can be found in [examples/greeter](https://github.com/micro/micro/tree/master/examples/greeter).
 
@@ -25,7 +25,7 @@ It acts as a single entry point and can either be used as a reverse proxy or tra
 web apps should be built as microservices and therefore treated as a first class citizen in a microservice world. It behaves much the like the API 
 reverse proxy but also includes support for web sockets.
 
-**Sidecar** - The Sidecar is a language agnostic RPC Proxy which provides all the features of go-micro as a HTTP endpoints. While we love Go and 
+**Sidecar** - A language agnostic RPC proxy which provides all the features of go-micro as a HTTP endpoints. While we love Go and 
 believe it's a great language to build microservices, you may also want to use other languages, so the Sidecar provides a way to integrate 
 your other apps into the Micro world. It can be used as a standalone way to build fault tolerant microservices.
 
