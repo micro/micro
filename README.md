@@ -115,23 +115,15 @@ $ micro query go.micro.srv.greeter Say.Hello '{"name": "John"}'
 
 Read more on how to use the Micro [CLI](https://github.com/micro/micro/tree/master/cli)
 
+## Sponsors
+
+<a href="https://www.sixt.com"><img src="https://micro.mu/sixt_logo.png" width=150px height="auto" /></a>
+
 ## Community Contributions
 
 Project		|	Description
 -----		|	------
 [Micro Dashboard](https://github.com/Margatroid/micro-dashboard)	|	Dashboard for microservices toolchain micro
-
-## Sponsors
-
-<a href="https://www.sixt.com"><img src="https://micro.mu/sixt_logo.png" width=150px height="auto" /></a>
-
-## Roadmap
-
-[![Roadmap](https://img.shields.io/badge/roadmap-in%20progress-lightgrey.svg)](https://github.com/micro/micro/wiki/Roadmap)
-
-## License
-
-Apache 2.0
 
 ## Contributing
 
@@ -141,5 +133,3 @@ Apache 2.0
 4. ?
 5. Profit
 
-We're looking for implementations equivalent to [go-micro](https://github.com/micro/go-micro) in different languages. 
-Come join the Slack to discuss.
