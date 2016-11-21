@@ -40,14 +40,34 @@ var (
 	contentType = "text/plain"
 )
 
+func (c *conn) close() {
+	select {
+	case <-c.exit:
+		return
+	default:
+		close(c.exit)
+	}
+}
+
 func (c *conn) readLoop() {
 	defer func() {
-		close(c.exit)
+		c.close()
 		c.ws.Close()
 	}()
 
+	// set read limit/deadline
 	c.ws.SetReadLimit(readLimit)
 	c.ws.SetReadDeadline(time.Now().Add(readDeadline))
+
+	// set close handler
+	ch := c.ws.CloseHandler()
+	c.ws.SetCloseHandler(func(code int, text string) error {
+		err := ch(code, text)
+		c.close()
+		return err
+	})
+
+	// set pong handler
 	c.ws.SetPongHandler(func(string) error {
 		c.ws.SetReadDeadline(time.Now().Add(readDeadline))
 		return nil
