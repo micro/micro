@@ -97,11 +97,12 @@ curl -X "DELETE" -H 'Content-Type: application/json' http://127.0.0.1:8081/regis
 
 ### Healthchecking
 
-Start micro sidecar with "--healthcheck_url=" to enable the healthchecker
+Start micro sidecar with "--healthcheck_url=" to enable the healthchecker. The sidecar will register the service, 
+periodically make a HTTP requests to the healthcheck url, and deregister if a non-200 response is returned.
 
 ```shell
 $ micro sidecar --server_name=foo --server_address=127.0.0.1:9090 \
-	--healthcheck_url=http://127.0.0.1:9090/_status/health
+	--healthcheck_url=http://127.0.0.1:9090/health
 I0523 12:25:36.229536   85658 car.go:184] Registering foo-6ebf29c0-013e-11e5-b55f-68a86d0d36b6
 I0523 12:25:36.241680   85658 car.go:188] Starting sidecar healthchecker
 ```
