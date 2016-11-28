@@ -8,6 +8,7 @@ Dec 2016
 
 - [ ] Update Kubernetes Deployment
 - [ ] Configurable Encoders for Broker/Transport
+- [ ] Proto generate publisher/subscriber helpers
 
 Long Term:
 - [ ] http2 transport
