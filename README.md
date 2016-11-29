@@ -7,7 +7,7 @@ Check out [**go-micro**](https://github.com/micro/go-micro) if you want to start
 
 Learn more about Micro in the introductory blog post [https://blog.micro.mu/2016/03/20/micro.html](https://blog.micro.mu/2016/03/20/micro.html) or watch the talk from the [Golang UK Conf 2016](https://www.youtube.com/watch?v=xspaDovwk34).
 
-Follow us on Twitter at [@MicroHQ](https://twitter.com/microhq), join the [Slack](https://micro-services.slack.com) community [here](http://micro-invites.herokuapp.com/) or 
+Follow us on Twitter at [@MicroHQ](https://twitter.com/microhq), join the [Slack](https://micro-services.slack.com) community [here](http://slack.micro.mu/) or 
 check out the [Mailing List](https://groups.google.com/forum/#!forum/microhq).
 
 # Overview
