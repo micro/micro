@@ -22,7 +22,7 @@ The API handles requests in three ways.
 	- Allows API handlers to be defined with concrete Go types.
 	- Useful where you do not need full control of headers or request/response.
 	- Can be used to run a single layer of backend services rather than additional API services.
-	- Supported content-type `application/json` and `application/proto`.
+	- Supported content-type `application/json` and `application/protobuf`.
 	- Set via `--api_handler=rpc`
 3. Reverse Proxy: /[service]
 	- The request will be reverse proxied to the service resolved by the first element in the path

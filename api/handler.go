@@ -246,7 +246,7 @@ func rpcHandler(w http.ResponseWriter, r *http.Request) {
 		b, _ := response.MarshalJSON()
 		w.Header().Set("Content-Length", strconv.Itoa(len(b)))
 		w.Write(b)
-	case "application/proto":
+	case "application/proto", "application/protobuf":
 		// get request
 		br, err := ioutil.ReadAll(r.Body)
 		if err != nil {
@@ -260,7 +260,7 @@ func rpcHandler(w http.ResponseWriter, r *http.Request) {
 
 		// create request/response
 		response := &proto.Message{}
-		req := (*cmd.DefaultOptions().Client).NewRequest(service, method, request)
+		req := (*cmd.DefaultOptions().Client).NewProtoRequest(service, method, request)
 
 		// create context
 		ctx := helper.RequestToContext(r)
@@ -287,7 +287,7 @@ func rpcHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		b, _ := response.Marshal()
-		w.Header().Set("Content-Type", "application/proto")
+		w.Header().Set("Content-Type", r.Header.Get("Content-Type"))
 		w.Header().Set("Content-Length", strconv.Itoa(len(b)))
 		w.Write(b)
 	default:

@@ -16,7 +16,7 @@ func main() {
 		return
 	}
 
-	r, err := http.Post("http://localhost:8080/greeter/hello", "application/proto", bytes.NewReader(req))
+	r, err := http.Post("http://localhost:8080/greeter/hello", "application/protobuf", bytes.NewReader(req))
 	if err != nil {
 		fmt.Println(err)
 		return
