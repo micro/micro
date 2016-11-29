@@ -15,6 +15,7 @@ import (
 	"github.com/micro/go-micro/cmd"
 	"github.com/micro/go-micro/errors"
 	api "github.com/micro/micro/api/proto"
+	proto "github.com/micro/micro/internal/handler/proto"
 	"github.com/micro/micro/internal/helper"
 )
 
@@ -243,6 +244,50 @@ func rpcHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		b, _ := response.MarshalJSON()
+		w.Header().Set("Content-Length", strconv.Itoa(len(b)))
+		w.Write(b)
+	case "application/proto":
+		// get request
+		br, err := ioutil.ReadAll(r.Body)
+		if err != nil {
+			e := errors.InternalServerError("go.micro.api", err.Error())
+			http.Error(w, e.Error(), 500)
+			return
+		}
+
+		// use as raw proto
+		request := proto.NewMessage(br)
+
+		// create request/response
+		response := &proto.Message{}
+		req := (*cmd.DefaultOptions().Client).NewRequest(service, method, request)
+
+		// create context
+		ctx := helper.RequestToContext(r)
+
+		// make the call
+		if err := (*cmd.DefaultOptions().Client).Call(ctx, req, response); err != nil {
+			ce := errors.Parse(err.Error())
+			switch ce.Code {
+			case 0:
+				// assuming it's totally screwed
+				ce.Code = 500
+				ce.Id = "go.micro.api"
+				ce.Status = http.StatusText(500)
+				ce.Detail = "error during request: " + ce.Detail
+				w.WriteHeader(500)
+			default:
+				w.WriteHeader(int(ce.Code))
+			}
+
+			// response content type
+			w.Header().Set("Content-Type", "application/json")
+			w.Write([]byte(ce.Error()))
+			return
+		}
+
+		b, _ := response.Marshal()
+		w.Header().Set("Content-Type", "application/proto")
 		w.Header().Set("Content-Length", strconv.Itoa(len(b)))
 		w.Write(b)
 	default:
