@@ -77,6 +77,7 @@ func RPC(w http.ResponseWriter, r *http.Request) {
 		r.ParseForm()
 		service = r.Form.Get("service")
 		method = r.Form.Get("method")
+		address = r.Form.Get("address")
 
 		d := json.NewDecoder(strings.NewReader(r.Form.Get("request")))
 		d.UseNumber()
