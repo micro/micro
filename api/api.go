@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/gorilla/mux"
@@ -18,6 +19,7 @@ import (
 
 var (
 	Address      = ":8080"
+	Handler      = "api"
 	RPCPath      = "/rpc"
 	APIPath      = "/"
 	ProxyPath    = "/{service:[a-zA-Z0-9]+}"
@@ -49,6 +51,23 @@ func (s *srv) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func run(ctx *cli.Context) {
+	if len(ctx.String("address")) > 0 {
+		Address = ctx.String("address")
+	}
+	if len(ctx.String("handler")) > 0 {
+		Handler = ctx.String("handler")
+	}
+	if len(ctx.String("namespace")) > 0 {
+		Namespace = ctx.String("namespace")
+	}
+	if len(ctx.String("cors")) > 0 {
+		origins := make(map[string]bool)
+		for _, origin := range strings.Split(ctx.String("cors"), ",") {
+			origins[origin] = true
+		}
+		CORS = origins
+	}
+
 	// Init plugins
 	for _, p := range Plugins() {
 		p.Init(ctx)
@@ -84,7 +103,7 @@ func run(ctx *cli.Context) {
 	log.Printf("Registering RPC Handler at %s", RPCPath)
 	r.HandleFunc(RPCPath, handler.RPC)
 
-	switch ctx.GlobalString("api_handler") {
+	switch Handler {
 	case "rpc":
 		log.Printf("Registering API RPC Handler at %s", APIPath)
 		r.PathPrefix(APIPath).HandlerFunc(rpcHandler)
@@ -134,15 +153,33 @@ func run(ctx *cli.Context) {
 	}
 }
 
-func New(address string) server.Server {
-	return server.NewServer(address)
-}
-
 func Commands() []cli.Command {
 	command := cli.Command{
 		Name:   "api",
 		Usage:  "Run the micro API",
 		Action: run,
+		Flags: []cli.Flag{
+			cli.StringFlag{
+				Name:   "address",
+				Usage:  "Set the api address e.g 0.0.0.0:8080",
+				EnvVar: "MICRO_API_ADDRESS",
+			},
+			cli.StringFlag{
+				Name:   "handler",
+				Usage:  "Specify the request handler to be used for mapping HTTP requests to services. e.g api, proxy, rpc",
+				EnvVar: "MICRO_API_HANDLER",
+			},
+			cli.StringFlag{
+				Name:   "namespace",
+				Usage:  "Set the namespace used by the API e.g. com.example.api",
+				EnvVar: "MICRO_API_NAMESPACE",
+			},
+			cli.StringFlag{
+				Name:   "cors",
+				Usage:  "Comma separated whitelist of allowed origins for CORS",
+				EnvVar: "MICRO_API_CORS",
+			},
+		},
 	}
 
 	for _, p := range Plugins() {

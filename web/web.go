@@ -306,6 +306,20 @@ func render(w http.ResponseWriter, r *http.Request, tmpl string, data interface{
 }
 
 func run(ctx *cli.Context) {
+	if len(ctx.String("address")) > 0 {
+		Address = ctx.String("address")
+	}
+	if len(ctx.String("namespace")) > 0 {
+		Namespace = ctx.String("namespace")
+	}
+	if len(ctx.String("cors")) > 0 {
+		origins := make(map[string]bool)
+		for _, origin := range strings.Split(ctx.String("cors"), ",") {
+			origins[origin] = true
+		}
+		CORS = origins
+	}
+
 	// Init plugins
 	for _, p := range Plugins() {
 		p.Init(ctx)
@@ -387,6 +401,23 @@ func Commands() []cli.Command {
 		Usage: "Run the micro web app",
 		Action: func(c *cli.Context) {
 			run(c)
+		},
+		Flags: []cli.Flag{
+			cli.StringFlag{
+				Name:   "address",
+				Usage:  "Set the web UI address e.g 0.0.0.0:8082",
+				EnvVar: "MICRO_WEB_ADDRESS",
+			},
+			cli.StringFlag{
+				Name:   "namespace",
+				Usage:  "Set the namespace used by the Web proxy e.g. com.example.web",
+				EnvVar: "MICRO_WEB_NAMESPACE",
+			},
+			cli.StringFlag{
+				Name:   "cors",
+				Usage:  "Comma separated whitelist of allowed origins for CORS",
+				EnvVar: "MICRO_WEB_CORS",
+			},
 		},
 	}
 

@@ -118,6 +118,9 @@ func setup(app *ccli.App) {
 	before := app.Before
 
 	app.Before = func(ctx *ccli.Context) error {
+		if len(ctx.String("api_handler")) > 0 {
+			api.Handler = ctx.String("api_handler")
+		}
 		if len(ctx.String("api_address")) > 0 {
 			api.Address = ctx.String("api_address")
 		}

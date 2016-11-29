@@ -23,11 +23,11 @@ The API handles requests in three ways.
 	- Useful where you do not need full control of headers or request/response.
 	- Can be used to run a single layer of backend services rather than additional API services.
 	- Supported content-type `application/json` and `application/protobuf`.
-	- Set via `--api_handler=rpc`
+	- Set via `--handler=rpc`
 3. Reverse Proxy: /[service]
 	- The request will be reverse proxied to the service resolved by the first element in the path
 	- This allows REST to be implemented behind the API
-	- Set via `--api_handler=proxy`
+	- Set via `--handler=proxy`
 4. /rpc
 	- Sends requests directly to backend services using JSON
 	- Expects params: `service`, `method`, `request`, optionally accepts `address` to target a specific host
@@ -66,7 +66,7 @@ The API defaults to serving the namespace **go.micro.api**. The combination of n
 are used to resolve an API service and method to send the query to. 
 
 ```bash
-micro --api_namespace=com.example.api
+micro api --namespace=com.example.api
 ```
 
 ## Testing API
@@ -106,7 +106,7 @@ $ curl -H 'Content-Type: application/json' \
 {"msg":"go.micro.srv.example-fccbb6fb-0301-11e5-9f1f-68a86d0d36b6: Hello Asim Aslam"}
 ```
 
-Or if the API is set with `--api_handler=rpc` and `--api_namespace=go.micro.srv`
+Or if the API is set with `--handler=rpc` and `--namespace=go.micro.srv`
 
 ```bash
 $ curl -H 'Content-Type: application/json' -d '{"name": "Asim Aslam"}' http://localhost:8080/example/call
@@ -125,7 +125,7 @@ The http.Request is deconstructed by the API into an api.Request and forwarded o
 The api.Response is then constructed into a http.Response and returned to the client. The path of the request 
 along with a namespace, is used to determine the backend service and method to call.
 
-The default namespace for these services are **go.micro.api** but you can set your own namespace via `--api_namespace`.
+The default namespace for these services are **go.micro.api** but you can set your own namespace via `--namespace`.
 
 Translation of URLs are as follows:
 
@@ -152,7 +152,7 @@ A working example can be found here [Greeter Service](https://github.com/micro/m
 You can serve a RESTful API by using the API as a proxy and implementing RESTful paths with libraries such as [go-restful](https://github.com/emicklei/go-restful). 
 An example of a REST API service can be found at [greeter/api/go-restful](https://github.com/micro/micro/tree/master/examples/greeter/api/go-restful).
 
-Starting the API with `--api_handler=proxy` will reverse proxy requests to backend services within the served API namespace (default: go.micro.api). 
+Starting the API with `--handler=proxy` will reverse proxy requests to backend services within the served API namespace (default: go.micro.api). 
 
 Example
 

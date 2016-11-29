@@ -21,7 +21,7 @@ import (
 	"github.com/pborman/uuid"
 )
 
-type Sidecar struct {
+type sidecar struct {
 	name    string
 	address string
 	hcUrl   string
@@ -58,7 +58,26 @@ func (s *srv) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	s.Router.ServeHTTP(w, r)
 }
 
-func run(ctx *cli.Context, car *Sidecar) {
+func newSidecar(name, address, hcUrl string) *sidecar {
+	return &sidecar{
+		name:    name,
+		address: address,
+		hcUrl:   hcUrl,
+	}
+}
+
+func run(ctx *cli.Context, car *sidecar) {
+	if len(ctx.String("address")) > 0 {
+		Address = ctx.String("address")
+	}
+	if len(ctx.String("cors")) > 0 {
+		origins := make(map[string]bool)
+		for _, origin := range strings.Split(ctx.String("cors"), ",") {
+			origins[origin] = true
+		}
+		CORS = origins
+	}
+
 	// Init plugins
 	for _, p := range Plugins() {
 		p.Init(ctx)
@@ -147,7 +166,7 @@ func run(ctx *cli.Context, car *Sidecar) {
 	}
 }
 
-func (s *Sidecar) hc() (int, error) {
+func (s *sidecar) hc() (int, error) {
 	if len(s.hcUrl) == 0 {
 		return 200, nil
 	}
@@ -162,7 +181,7 @@ func (s *Sidecar) hc() (int, error) {
 	return 200, nil
 }
 
-func (s *Sidecar) hcLoop(service *registry.Service, exitCh chan bool) {
+func (s *sidecar) hcLoop(service *registry.Service, exitCh chan bool) {
 	tick := time.NewTicker(time.Second * 30)
 	registered := true
 
@@ -186,7 +205,7 @@ func (s *Sidecar) hcLoop(service *registry.Service, exitCh chan bool) {
 }
 
 // run healthchecker
-func (s *Sidecar) run(exit chan bool) {
+func (s *sidecar) run(exit chan bool) {
 	parts := strings.Split(s.address, ":")
 	host := strings.Join(parts[:len(parts)-1], ":")
 	port, _ := strconv.Atoi(parts[len(parts)-1])
@@ -215,19 +234,21 @@ func (s *Sidecar) run(exit chan bool) {
 	<-exit
 }
 
-func New(name, address, hcUrl string) *Sidecar {
-	return &Sidecar{
-		name:    name,
-		address: address,
-		hcUrl:   hcUrl,
-	}
-}
-
 func Commands() []cli.Command {
 	command := cli.Command{
 		Name:  "sidecar",
 		Usage: "Run the micro sidecar",
 		Flags: []cli.Flag{
+			cli.StringFlag{
+				Name:   "address",
+				Usage:  "Set the sidecar address e.g 0.0.0.0:8081",
+				EnvVar: "MICRO_SIDECAR_ADDRESS",
+			},
+			cli.StringFlag{
+				Name:   "cors",
+				Usage:  "Comma separated whitelist of allowed origins for CORS",
+				EnvVar: "MICRO_SIDECAR_CORS",
+			},
 			cli.StringFlag{
 				Name:  "server_name",
 				Usage: "Server name of the app",
@@ -265,7 +286,7 @@ func Commands() []cli.Command {
 			exit := make(chan bool)
 
 			// start the healthchecker
-			car := New(name, address, hcUrl)
+			car := newSidecar(name, address, hcUrl)
 			go car.run(exit)
 
 			// run the server

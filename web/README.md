@@ -62,7 +62,7 @@ The Web defaults to serving the namespace **go.micro.web**. The combination of n
 are used to resolve a service to reverse proxy for.
 
 ```bash
-micro --web_namespace=com.example.web
+micro web --namespace=com.example.web
 ```
 
 ## Stats
