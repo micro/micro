@@ -39,7 +39,7 @@ var (
 	RegistryPath = "/registry"
 	RPCPath      = "/rpc"
 	CORS         = map[string]bool{"*": true}
-	Namespace    string
+	Namespace    = "go.micro.srv"
 )
 
 func (s *srv) ServeHTTP(w http.ResponseWriter, r *http.Request) {
