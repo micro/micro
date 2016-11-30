@@ -22,10 +22,6 @@ type proxy struct {
 	ws bool
 }
 
-var (
-	versionRe = regexp.MustCompilePOSIX("^v[0-9]+$")
-)
-
 func (p *proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	service, err := p.getService(r)
 	if err != nil {

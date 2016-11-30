@@ -1,4 +1,4 @@
-package api
+package handler
 
 import (
 	"net/http"
@@ -7,6 +7,8 @@ import (
 )
 
 func TestPathToReceiver(t *testing.T) {
+	namespace := "go.micro.api"
+
 	testData := []struct {
 		path    string
 		service string
@@ -14,48 +16,48 @@ func TestPathToReceiver(t *testing.T) {
 	}{
 		{
 			"/foo/bar",
-			Namespace + ".foo",
+			namespace + ".foo",
 			"Foo.Bar",
 		},
 		{
 			"/foo/foo/bar",
-			Namespace + ".foo",
+			namespace + ".foo",
 			"Foo.Bar",
 		},
 		{
 			"/foo/bar/baz",
-			Namespace + ".foo",
+			namespace + ".foo",
 			"Bar.Baz",
 		},
 		{
 			"/foo/bar/baz/cat",
-			Namespace + ".foo.bar",
+			namespace + ".foo.bar",
 			"Baz.Cat",
 		},
 		{
 			"/foo/bar/baz/cat/car",
-			Namespace + ".foo.bar.baz",
+			namespace + ".foo.bar.baz",
 			"Cat.Car",
 		},
 		{
 			"/v1/foo/bar",
-			Namespace + ".v1.foo",
+			namespace + ".v1.foo",
 			"Foo.Bar",
 		},
 		{
 			"/v1/foo/bar/baz",
-			Namespace + ".v1.foo",
+			namespace + ".v1.foo",
 			"Bar.Baz",
 		},
 		{
 			"/v1/foo/bar/baz/cat",
-			Namespace + ".v1.foo.bar",
+			namespace + ".v1.foo.bar",
 			"Baz.Cat",
 		},
 	}
 
 	for _, d := range testData {
-		s, m := pathToReceiver(d.path)
+		s, m := pathToReceiver(namespace, d.path)
 		if d.service != s {
 			t.Fatalf("Expected service: %s for path: %s got: %s", d.service, d.path, s)
 		}

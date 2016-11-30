@@ -33,11 +33,13 @@ type srv struct {
 
 var (
 	Address      = ":8081"
+	RootPath     = "/"
 	BrokerPath   = "/broker"
 	HealthPath   = "/health"
 	RegistryPath = "/registry"
 	RPCPath      = "/rpc"
 	CORS         = map[string]bool{"*": true}
+	Namespace    string
 )
 
 func (s *srv) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -77,6 +79,9 @@ func run(ctx *cli.Context, car *sidecar) {
 		}
 		CORS = origins
 	}
+	if len(ctx.String("namespace")) > 0 {
+		Namespace = ctx.String("namespace")
+	}
 
 	// Init plugins
 	for _, p := range Plugins() {
@@ -113,6 +118,9 @@ func run(ctx *cli.Context, car *sidecar) {
 			}
 		}))
 	}
+
+	log.Printf("Registering Root Handler at %s", RootPath)
+	r.PathPrefix(RootPath).Handler(handler.RPCX(Namespace))
 
 	log.Printf("Registering Registry handler at %s", RegistryPath)
 	r.Handle(RegistryPath, http.HandlerFunc(handler.Registry))
@@ -248,6 +256,11 @@ func Commands() []cli.Command {
 				Name:   "cors",
 				Usage:  "Comma separated whitelist of allowed origins for CORS",
 				EnvVar: "MICRO_SIDECAR_CORS",
+			},
+			cli.StringFlag{
+				Name:   "namespace",
+				Usage:  "Set the namespace used by the sidecar e.g. com.example.srv",
+				EnvVar: "MICRO_SIDECAR_NAMESPACE",
 			},
 			cli.StringFlag{
 				Name:  "server_name",

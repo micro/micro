@@ -106,13 +106,13 @@ func run(ctx *cli.Context) {
 	switch Handler {
 	case "rpc":
 		log.Printf("Registering API RPC Handler at %s", APIPath)
-		r.PathPrefix(APIPath).HandlerFunc(rpcHandler)
+		r.PathPrefix(APIPath).Handler(handler.RPCX(Namespace))
 	case "proxy":
 		log.Printf("Registering API Proxy Handler at %s", ProxyPath)
 		r.PathPrefix(ProxyPath).Handler(handler.Proxy(Namespace, false))
 	default:
 		log.Printf("Registering API Default Handler at %s", APIPath)
-		r.PathPrefix(APIPath).HandlerFunc(apiHandler)
+		r.PathPrefix(APIPath).Handler(handler.API(Namespace))
 	}
 
 	// reverse wrap handler
