@@ -7,7 +7,7 @@ import (
 	"net/http"
 
 	"github.com/golang/protobuf/proto"
-	hello "github.com/micro/micro/examples/greeter/api/rpc/proto/hello"
+	hello "github.com/micro/micro/examples/greeter/server/proto/hello"
 )
 
 func main() {
@@ -17,7 +17,7 @@ func main() {
 		return
 	}
 
-	r, err := http.Post("http://localhost:8080/greeter/hello", "application/protobuf", bytes.NewReader(req))
+	r, err := http.Post("http://localhost:8081/greeter/say/hello", "application/protobuf", bytes.NewReader(req))
 	if err != nil {
 		fmt.Println(err)
 		return
