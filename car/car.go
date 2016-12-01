@@ -119,9 +119,6 @@ func run(ctx *cli.Context, car *sidecar) {
 		}))
 	}
 
-	log.Printf("Registering Root Handler at %s", RootPath)
-	r.PathPrefix(RootPath).Handler(handler.RPCX(Namespace))
-
 	log.Printf("Registering Registry handler at %s", RegistryPath)
 	r.Handle(RegistryPath, http.HandlerFunc(handler.Registry))
 
@@ -130,6 +127,9 @@ func run(ctx *cli.Context, car *sidecar) {
 
 	log.Printf("Registering Broker handler at %s", BrokerPath)
 	r.Handle(BrokerPath, http.HandlerFunc(handler.Broker))
+
+	log.Printf("Registering Root Handler at %s", RootPath)
+	r.PathPrefix(RootPath).Handler(handler.RPCX(Namespace))
 
 	var h http.Handler = s
 
