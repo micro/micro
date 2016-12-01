@@ -12,6 +12,7 @@ import (
 
 	"github.com/micro/go-micro/cmd"
 	"github.com/micro/go-micro/selector"
+	"github.com/micro/go-micro/selector/cache"
 )
 
 type proxy struct {
@@ -165,7 +166,7 @@ func isWebSocket(r *http.Request) bool {
 func Proxy(ns string, ws bool) http.Handler {
 	return &proxy{
 		Namespace: ns,
-		Selector: selector.NewSelector(
+		Selector: cache.NewSelector(
 			selector.Registry((*cmd.DefaultOptions().Registry)),
 		),
 		re: regexp.MustCompile("^[a-zA-Z0-9]+$"),
