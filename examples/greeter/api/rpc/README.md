@@ -1,13 +1,13 @@
 # RPC API Example
 
-This is an example of using an RPC based API when the api handler is set with `--api_handler=rpc`
+This is an example of using an RPC based API when the api handler is set with `--handler=rpc`
 
 ## Getting Started
 
 ### Run the Micro API
 
 ```
-$ micro --api_handler=rpc api
+$ micro api --handler=rpc
 ```
 
 ### Run the Greeter Service
