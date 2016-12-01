@@ -77,6 +77,11 @@ func setup(app *ccli.App) {
 			EnvVar: "MICRO_API_NAMESPACE",
 		},
 		ccli.StringFlag{
+			Name:   "sidecar_namespace",
+			Usage:  "Set the namespace used by the Sidecar e.g. com.example.srv",
+			EnvVar: "MICRO_SIDECAR_NAMESPACE",
+		},
+		ccli.StringFlag{
 			Name:   "web_namespace",
 			Usage:  "Set the namespace used by the Web proxy e.g. com.example.web",
 			EnvVar: "MICRO_WEB_NAMESPACE",
@@ -132,6 +137,9 @@ func setup(app *ccli.App) {
 		}
 		if len(ctx.String("api_namespace")) > 0 {
 			api.Namespace = ctx.String("api_namespace")
+		}
+		if len(ctx.String("sidecar_namespace")) > 0 {
+			car.Namespace = ctx.String("sidecar_namespace")
 		}
 		if len(ctx.String("web_namespace")) > 0 {
 			web.Namespace = ctx.String("web_namespace")

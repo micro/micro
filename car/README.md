@@ -15,7 +15,7 @@ The sidecar has all the features of [go-micro](https://github.com/micro/go-micro
 - Service registration and discovery
 - Broker PubSub via WebSockets
 - Healthchecking of services
-- JSON RPC via HTTP API.
+- RPC via HTTP API
 - Load balancing, retries, timeouts
 - Stats UI
 
@@ -51,7 +51,7 @@ The Sidecar supports serving securely with TLS certificates
 micro --enable_tls --tls_cert_file=/path/to/cert --tls_key_file=/path/to/key sidecar
 ```
 
-### Host Discovery
+### Service Discovery
 
 ```shell
 curl http://127.0.0.1:8081/registry?service=go.micro.srv.example
@@ -64,8 +64,8 @@ curl http://127.0.0.1:8081/registry?service=go.micro.srv.example
 }
 ```
 
-### Register/Deregister a service
-Register
+### Register a service
+
 ```shell
 // specify ttl as a param to expire the registration
 // units ns|us|ms|s|m|h
@@ -82,7 +82,8 @@ curl -H 'Content-Type: application/json' http://127.0.0.1:8081/registry -d
 }
 ```
 
-Deregister
+### Deregister a service
+
 ```shell
 curl -X "DELETE" -H 'Content-Type: application/json' http://127.0.0.1:8081/registry -d 
 {
@@ -95,13 +96,17 @@ curl -X "DELETE" -H 'Content-Type: application/json' http://127.0.0.1:8081/regis
 }
 ```
 
-### Healthchecking
+### Auto Healthcheck
 
-Start micro sidecar with "--healthcheck_url=" to enable the healthchecker. The sidecar will register the service, 
-periodically make a HTTP requests to the healthcheck url, and deregister if a non-200 response is returned.
+Start micro sidecar with "--healthcheck_url=" to enable the healthchecker
+
+It does the following:
+- Automatic service registration
+- Periodic HTTP healthchecking
+- Deregistration on non-200 response
 
 ```shell
-$ micro sidecar --server_name=foo --server_address=127.0.0.1:9090 \
+micro sidecar --server_name=foo --server_address=127.0.0.1:9090 \
 	--healthcheck_url=http://127.0.0.1:9090/health
 I0523 12:25:36.229536   85658 car.go:184] Registering foo-6ebf29c0-013e-11e5-b55f-68a86d0d36b6
 I0523 12:25:36.241680   85658 car.go:188] Starting sidecar healthchecker
@@ -109,14 +114,48 @@ I0523 12:25:36.241680   85658 car.go:188] Starting sidecar healthchecker
 
 ### HTTP RPC API
 
-Query micro services via the http rpc api.
+Query micro services via the http rpc api using json or protobuf
 
+**Using /rpc endpoint**
 ```shell
-$ curl  -d 'service=go.micro.srv.example' \
+curl -d 'service=go.micro.srv.example' \
 	-d 'method=Example.Call' \
 	-d 'request={"name": "John"}' http://127.0.0.1:8081/rpc
+
 {"msg":"go.micro.srv.example-c5718d29-da2a-11e4-be11-68a86d0d36b6: Hello John"}
 ```
+
+**Using /[service]/[method]**
+
+```shell
+curl -H 'Content-Type: application/json' -d '{"name": "John"}' http://127.0.0.1:8081/example/call
+
+{"msg":"go.micro.srv.example-c5718d29-da2a-11e4-be11-68a86d0d36b6: Hello John"}
+```
+
+Default namespace of services called are **go.micro.srv**.
+
+### RPC Path Translation
+
+Path translation operates the same as the micro API
+
+Translation of URLs are as follows:
+
+Path	|	Service	|	Method
+----	|	----	|	----
+/foo/bar	|	go.micro.srv.foo	|	Foo.Bar
+/foo/bar/baz	|	go.micro.srv.foo	|	Bar.Baz
+/foo/bar/baz/cat	|	go.micro.srv.foo.bar	|	Baz.Cat
+
+Versioned API URLs can easily be mapped to service names:
+
+Path	|	Service	|	Method
+----	|	----	|	----
+/foo/bar	|	go.micro.srv.foo	|	Foo.Bar
+/v1/foo/bar	|	go.micro.srv.v1.foo	|	Foo.Bar
+/v1/foo/bar/baz	|	go.micro.srv.v1.foo	|	Bar.Baz
+/v2/foo/bar	|	go.micro.srv.v2.foo	|	Foo.Bar
+/v2/foo/bar/baz	|	go.micro.srv.v2.foo	|	Bar.Baz
 
 ### PubSub via WebSockets
 
@@ -151,7 +190,7 @@ for _ = range ticker.C {
 
 ### Proxy CLI requests
 
-The sidecar also acts as a proxy for the CLI
+The sidecar also acts as a proxy for the CLI to access remote environments
 
 ```shell
 $ micro --proxy_address=127.0.0.1:8081 list services
@@ -160,7 +199,7 @@ go.micro.srv.greeter
 
 ## Stats Dashboard
 
-You can enable a stats dashboard via the `--enable_stats` flag. It will be exposed on /stats.
+Enable a stats dashboard via the `--enable_stats` flag. It will be exposed on /stats.
 
 ```shell
 micro --enable_stats sidecar
