@@ -340,7 +340,7 @@ func run(ctx *cli.Context) {
 	}
 
 	s.HandleFunc("/registry", registryHandler)
-	s.HandleFunc("/rpc", handler.RPC)
+	s.Handle("/rpc", new(handler.RPC))
 	s.HandleFunc("/cli", cliHandler)
 	s.HandleFunc("/query", queryHandler)
 	s.HandleFunc("/favicon.ico", faviconHandler)

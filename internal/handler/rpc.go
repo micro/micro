@@ -20,7 +20,22 @@ type rpcRequest struct {
 
 // RPC Handler passes on a JSON or form encoded RPC request to
 // a service.
-func RPC(w http.ResponseWriter, r *http.Request) {
+type RPC struct {
+	whitelist map[string]bool
+}
+
+// NewRPCWithWhitelist returns a new RPC handler with whitelisted services.
+// If no services are given, requests to all services are allowed .
+func NewRPCWithWhitelist(services ...string) *RPC {
+	rpc := new(RPC)
+	rpc.whitelist = make(map[string]bool)
+	for _, service := range services {
+		rpc.whitelist[service] = true
+	}
+	return rpc
+}
+
+func (rpc *RPC) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "POST" {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
@@ -90,6 +105,12 @@ func RPC(w http.ResponseWriter, r *http.Request) {
 
 	if len(service) == 0 {
 		badRequest("invalid service")
+		return
+	}
+	if rpc.whitelist != nil && !rpc.whitelist[service] {
+		e := errors.Forbidden("go.micro.rpc", "forbidden")
+		w.WriteHeader(403)
+		w.Write([]byte(e.Error()))
 		return
 	}
 

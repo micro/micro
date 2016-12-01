@@ -69,29 +69,61 @@ func TestRPCHandler(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	w := httptest.NewRecorder()
+	rpc := NewRPCWithWhitelist("test")
 
-	request := map[string]string{
-		"service": "test",
-		"method":  "TestHandler.Exec",
-		"request": "{}",
+	testCases := []struct {
+		service string
+		method  string
+		request string
+		status  int
+	}{
+		{
+			service: "test",
+			method:  "TestHandler.Exec",
+			request: "{}",
+			status:  200,
+		},
+		{
+			service: "restricted",
+			method:  "TestHandler.Exec",
+			request: "{}",
+			status:  403,
+		},
 	}
 
-	rb, err := json.Marshal(request)
-	if err != nil {
-		t.Fatal(err)
+	for i, testCase := range testCases {
+		w := httptest.NewRecorder()
+
+		request := map[string]string{
+			"service": testCase.service,
+			"method":  testCase.method,
+			"request": testCase.request,
+		}
+
+		rb, err := json.Marshal(request)
+		if err != nil {
+			t.Errorf("test case %d: %s", i+1, err)
+			continue
+		}
+
+		b := bytes.NewBuffer(rb)
+
+		req, err := http.NewRequest("POST", "/rpc", b)
+		if err != nil {
+			t.Errorf("test case %d: %s", i+1, err)
+			continue
+		}
+		req.Header.Set("Content-Type", "application/json")
+		req.Header.Set("Foo", "Bar")
+
+		rpc.ServeHTTP(w, req)
+
+		if w.Code != testCase.status {
+			t.Errorf("test case %d: expected %d response got %d %s",
+				i+1, testCase.status, w.Code, w.Body.String())
+			continue
+		}
 	}
-
-	b := bytes.NewBuffer(rb)
-
-	req, err := http.NewRequest("POST", "/rpc", b)
-	if err != nil {
-		t.Fatal(err)
-	}
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Foo", "Bar")
-
-	RPC(w, req)
 
 	if err := server.Deregister(); err != nil {
 		t.Fatal(err)
@@ -100,9 +132,4 @@ func TestRPCHandler(t *testing.T) {
 	if err := server.Stop(); err != nil {
 		t.Fatal(err)
 	}
-
-	if w.Code != 200 {
-		t.Fatalf("Expected 200 response got %d %s", w.Code, w.Body.String())
-	}
-
 }

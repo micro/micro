@@ -126,7 +126,7 @@ func run(ctx *cli.Context, car *sidecar) {
 	r.Handle(RegistryPath, http.HandlerFunc(handler.Registry))
 
 	log.Printf("Registering RPC handler at %s", RPCPath)
-	r.Handle(RPCPath, http.HandlerFunc(handler.RPC))
+	r.Handle(RPCPath, new(handler.RPC))
 
 	log.Printf("Registering Broker handler at %s", BrokerPath)
 	r.Handle(BrokerPath, http.HandlerFunc(handler.Broker))
