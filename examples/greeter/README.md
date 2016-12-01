@@ -9,15 +9,15 @@ An example Go service running with go-micro
 - **Api** - examples of RPC API and RESTful API
 - **Web** - how to use go-web to write web services
 
-### Prerequisites
+## Prerequisites
 
 Service discovery is required either running Consul as the default or MDNS for zero dependencies. You can also use plugins from [micro/plugins](https://github.com/micro/go-plugins).
 
-**MDNS**
+### MDNS
 
 To use MDNS just add the flag `--registry=mdns` on the command line.
 
-**Consul**
+### Consul
 
 Install Consul
 [https://www.consul.io/intro/getting-started/install.html](https://www.consul.io/intro/getting-started/install.html)
@@ -27,7 +27,7 @@ Run Consul
 $ consul agent -dev -advertise=127.0.0.1
 ```
 
-### Run Service
+## Run Service
 
 Start go.micro.srv.greeter
 ```shell
@@ -37,7 +37,7 @@ I0523 12:27:56.685890   90096 rpc_server.go:112] Listening on [::]:52019
 I0523 12:27:56.685931   90096 server.go:95] Registering node: go.micro.srv.greeter-c2770c77-013e-11e5-b4d6-68a86d0d36b6
 ```
 
-### Client
+## Client
 
 Call go.micro.srv.greeter via client
 ```shell
@@ -47,7 +47,7 @@ go.micro.srv.greeter-c2770c77-013e-11e5-b4d6-68a86d0d36b6: Hello John
 
 Examples of client usage via other languages can be found in the client directory.
 
-### API
+## API
 
 HTTP based requests can be made via the micro API. Micro logically separates API services from backend services. By default the micro API 
 accepts HTTP requests and converts to *api.Request and *api.Response types. Find them here [micro/api/proto](https://github.com/micro/micro/tree/master/api/proto).
@@ -78,7 +78,7 @@ curl http://localhost:8080/greeter/say/hello?name=John
 
 Examples of other API handlers can be found in the API directory.
 
-### Sidecar
+## Sidecar
 
 The sidecar is a language agnostic RPC proxy.
 
@@ -103,7 +103,7 @@ curl -H 'Content-Type: application/json' -d '{"name": "john"}' http://localhost:
 
 The sidecar provides all the features of go-micro as a HTTP API. Learn more at [micro/car](https://github.com/micro/micro/tree/master/car).
 
-### Web Usage
+## Web
 
 The micro web is a web dashboard and reverse proxy to run web apps as microservices.
 
