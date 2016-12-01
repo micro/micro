@@ -15,4 +15,4 @@ Long Term:
 - [ ] http2 transport
 - [ ] Metadata API handler
 - [ ] Let's Encrypt support
-- [ ] Sidecar RPC / handler and full proxy
+- [x] Sidecar RPC / handler and full proxy
