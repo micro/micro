@@ -11,20 +11,20 @@ This is a lightweight proxy for [Micro](https://github.com/micro/micro) based mi
 
 The API handles requests in three ways.
 
-1. Default Handler: /[service]/[method]
+1. API Handler: /[service]/[method]	Request/Response: api.Request/api.Response
 	- The path is used to resolve service and method.
 	- Requests are handled via API services which take the request api.Request and response api.Response types. 
 	- Definitions for the Request/Response can be found at [micro/api/proto](https://github.com/micro/micro/tree/master/api/proto)
 	- The content type of the request/response body can be anything.
 	- The default handler
-2. RPC Handler: /[service]/[method
+2. RPC Handler: /[service]/[method]	Request/Response: json/protobuf
 	- An alternative to the default handler which uses the go-micro client to forward the request body as an RPC request.
 	- Allows API handlers to be defined with concrete Go types.
 	- Useful where you do not need full control of headers or request/response.
 	- Can be used to run a single layer of backend services rather than additional API services.
 	- Supported content-type `application/json` and `application/protobuf`.
 	- Set via `--handler=rpc`
-3. Reverse Proxy: /[service]
+3. Reverse Proxy: /[service]		Request/Response: http
 	- The request will be reverse proxied to the service resolved by the first element in the path
 	- This allows REST to be implemented behind the API
 	- Set via `--handler=proxy`
