@@ -1,6 +1,6 @@
 # Micro Sidecar
 
-The sidecar is a language agnostic RPC proxy to build highly availably and fault tolerant microservices.
+The sidecar is a language agnostic RPC proxy to build highly available and fault tolerant microservices.
 
 It is similar to Netflix's sidecar [Prana](https://github.com/Netflix/Prana) or Buoyant's RPC Proxy [Linkerd](https://linkerd.io).
 
