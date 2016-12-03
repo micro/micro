@@ -30,10 +30,12 @@ The API handles requests in three ways.
 	- Request/Response: http
 	- The request will be reverse proxied to the service resolved by the first element in the path
 	- This allows REST to be implemented behind the API
-	- Set via `--handler=proxy`
-4. /rpc
-	- Sends requests directly to backend services using JSON
+	- Set via `--handler=proxy`.
+
+
+Alternatively use the /rpc send requests directly to backend services using JSON 
 	- Expects params: `service`, `method`, `request`, optionally accepts `address` to target a specific host
+	- `curl -d 'service=go.micro.srv.greeter' -d 'method=Say.Hello' -d 'request={"name": "Bob"}' http://localhost:8080/rpc`
 
 ## Getting started
 
