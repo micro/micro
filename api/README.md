@@ -35,7 +35,7 @@ The API handles requests in three ways.
 
 Alternatively use the /rpc send requests directly to backend services using JSON 
 - Expects params: `service`, `method`, `request`, optionally accepts `address` to target a specific host
-- `curl -d 'service=go.micro.srv.greeter' -d 'method=Say.Hello' -d 'request={"name": "Bob"}' http://localhost:8080/rpc`
+- ```curl -d 'service=go.micro.srv.greeter' -d 'method=Say.Hello' -d 'request={"name": "Bob"}' http://localhost:8080/rpc```
 
 ## Getting started
 
