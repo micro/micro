@@ -117,7 +117,7 @@ Read more on how to use the Micro [CLI](https://github.com/micro/micro/tree/mast
 
 ## Sponsors
 
-<a href="https://www.sixt.com"><img src="https://micro.mu/sixt_logo.png" width=150px height="auto" /></a>
+<a href="https://blog.micro.mu/2016/04/25/announcing-sixt-sponsorship.html"><img src="https://micro.mu/sixt_logo.png" width=150px height="auto" /></a>
 
 ## Community Contributions
 
