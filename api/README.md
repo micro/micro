@@ -37,86 +37,81 @@ The API handles requests in three ways.
 
 ## Getting started
 
-### Install the api
+### Install
 
-```bash
+```shell
 go get github.com/micro/micro
 ```
 
-### Run the API
+### Run
 
-```bash
+```shell
 micro api
-2016/03/15 20:53:19 Registering RPC Handler at /rpc
-2016/03/15 20:53:19 Registering API Handler at /
-2016/03/15 20:53:19 Listening on [::]:8080
-2016/03/15 20:53:19 Listening on [::]:60971
-2016/03/15 20:53:19 Broker Listening on [::]:60972
-2016/03/15 20:53:19 Registering node: go.micro.api-f2ffeebf-eaef-11e5-817c-68a86d0d36b6
 ```
 
 ### Serve Secure TLS
 
 The API supports serving securely with TLS certificates
 
-```bash
+```shell
 micro --enable_tls --tls_cert_file=/path/to/cert --tls_key_file=/path/to/key api
 ```
 
 ### Set Namespace
 
 The API defaults to serving the namespace **go.micro.api**. The combination of namespace and request path 
-are used to resolve an API service and method to send the query to. 
+are used to resolve an API service and method to send the query to.
 
-```bash
+```shell
 micro api --namespace=com.example.api
 ```
 
-## Testing API
+## API
 
-### Run the example app
+### Run Services
 
-Let's start the example [go-micro](https://github.com/micro/go-micro) based server.
+Start the backend service go.micro.srv.greeter
 
-```bash
-$ go get github.com/micro/go-micro/examples/server
-$ $GOPATH/bin/server 
-I0525 18:17:57.574457   84421 server.go:117] Starting server go.micro.srv.example id go.micro.srv.example-fccbb6fb-0301-11e5-9f1f-68a86d0d36b6
-I0525 18:17:57.574748   84421 rpc_server.go:126] Listening on [::]:62421
-I0525 18:17:57.574779   84421 server.go:99] Registering node: go.micro.srv.example-fccbb6fb-0301-11e5-9f1f-68a86d0d36b6
+```shell
+go run examples/greeter/server/main.go 
 ```
 
-### Query RPC via curl
+Start the API service go.micro.api.greeter
 
-The example server has a handler registered called Example with a method named Call. Now let's query this through the API.
+```shell
+go run examples/greeter/api/api.go
+```
 
-```bash
-$ curl -d 'service=go.micro.srv.example' \
-	-d 'method=Example.Call' \
+### Query
+
+Make a HTTP call through the API
+
+```shell
+curl "http://localhost:8080/greeter/say/hello?name=Asim+Aslam"
+
+{"message":"Hello Asim Aslam"}
+```
+
+Make an RPC call to the backend service directly via the /rpc endpoint
+
+```shell
+curl -d 'service=go.micro.srv.greeter' \
+	-d 'method=Say.Hello' \
 	-d 'request={"name": "Asim Aslam"}' \
 	http://localhost:8080/rpc
 
-{"msg":"go.micro.srv.example-fccbb6fb-0301-11e5-9f1f-68a86d0d36b6: Hello Asim Aslam"}
+{"msg":"Hello Asim Aslam"}
 ```
 
-Alternatively let's try 'Content-Type: application/json'
+Using 'Content-Type: application/json'
 
-```bash
+```shell
 $ curl -H 'Content-Type: application/json' \
-	-d '{"service": "go.micro.srv.example", "method": "Example.Call", "request": {"name": "Asim Aslam"}}' \
+	-d '{"service": "go.micro.srv.greeter", "method": "Say.Hello", "request": {"name": "Asim Aslam"}}' \
 	http://localhost:8080/rpc
 
-{"msg":"go.micro.srv.example-fccbb6fb-0301-11e5-9f1f-68a86d0d36b6: Hello Asim Aslam"}
+{"msg":"Hello Asim Aslam"}
 ```
-
-Or if the API is set with `--handler=rpc` and `--namespace=go.micro.srv`
-
-```bash
-$ curl -H 'Content-Type: application/json' -d '{"name": "Asim Aslam"}' http://localhost:8080/example/call
-
-{"msg":"go.micro.srv.example-fccbb6fb-0301-11e5-9f1f-68a86d0d36b6: Hello Asim Aslam"}
-```
-
 
 ## API HTTP request translation
 
