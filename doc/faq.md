@@ -1,12 +1,13 @@
 ## What is Micro?
 
-Micro is a set of tools and libraries to help simplify microservice development and management. It currently consists of **3** components:
+Micro is a toolkit to help simplify microservices development. 
 
-- **micro** - The overarching toolkit containing a CLI, Web UI, API and Sidecar (http interface to the core).
-- **go-micro** - A pluggable Go library which provides the fundamentals for writing a microservice; service discovery, client/server communication, pub/sub, etc.
-- **go-os** - A feature rich higher level pluggable Go library that sits on top of go-micro to provide a wider range of requirements for a microservice environment; tracing, monitoring, metrics, authentication, key-value, routing, etc.
+It currently consists of a couple components:
 
-There are also other libraries also like [go-plugins](https://github.com/micro/go-plugins) for implementations of each package in go-micro or go-os and [protobuf](https://github.com/micro/protobuf), a fork of golang/protobuf, which provides experimental code generation for go-micro
+- **go-micro** - A pluggable Go library for writing a microservice; service discovery, client/server rpc, pub/sub, etc.
+- **micro** - The overarching toolkit containing a CLI, Web UI, API and Sidecar (http interface for go-micro).
+
+There are also other libraries also like [go-plugins](https://github.com/micro/go-plugins) for implementations of each package in go-micro or go-platform and [protobuf](https://github.com/micro/protobuf), a fork of golang/protobuf, which provides experimental code generation for go-micro
 
 ## Who's using Micro?
 
@@ -86,6 +87,10 @@ If you're still concerned with performance. The simplest way to extract the most
 --selector=cache # enables in memory caching of discovered nodes
 --client_pool_size=10 # enables the client side connection pool
 ```
+
+## Does Micro support gRPC?
+
+Yes. There are plugins for a transport, client and server in [micro/go-plugins](https://github.com/micro/go-plugins). If you want a quick start just use [micro/go-grpc](https://github.com/micro/go-grpc).
 
 ## Where Can I Learn More?
 
