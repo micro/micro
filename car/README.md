@@ -1,6 +1,6 @@
 # Micro Sidecar
 
-The sidecar is a language agnostic RPC proxy which provides HTTP endpoints to integrate any application into the Micro ecosystem.
+The sidecar is a language agnostic RPC proxy to build highly availably and fault tolerant microservices.
 
 It is similar to Netflix's sidecar [Prana](https://github.com/Netflix/Prana) or Buoyant's RPC Proxy [Linkerd](https://linkerd.io).
 
@@ -51,6 +51,31 @@ The Sidecar supports serving securely with TLS certificates
 micro --enable_tls --tls_cert_file=/path/to/cert --tls_key_file=/path/to/key sidecar
 ```
 
+### Auto Healthcheck
+
+Start micro sidecar with "--healthcheck_url=" to enable the healthchecker
+
+It does the following:
+- Automatic service registration
+- Periodic HTTP healthchecking
+- Deregistration on non-200 response
+
+```shell
+micro sidecar --server_name=foo --server_address=127.0.0.1:9090 \
+	--healthcheck_url=http://127.0.0.1:9090/health
+I0523 12:25:36.229536   85658 car.go:184] Registering foo-6ebf29c0-013e-11e5-b55f-68a86d0d36b6
+I0523 12:25:36.241680   85658 car.go:188] Starting sidecar healthchecker
+```
+
+## API
+
+```
+- /[service]/[method]
+- /broker
+- /registry
+- /rpc
+```
+
 ### Service Discovery
 
 ```shell
@@ -96,25 +121,9 @@ curl -X "DELETE" -H 'Content-Type: application/json' http://127.0.0.1:8081/regis
 }
 ```
 
-### Auto Healthcheck
+### RPC Call
 
-Start micro sidecar with "--healthcheck_url=" to enable the healthchecker
-
-It does the following:
-- Automatic service registration
-- Periodic HTTP healthchecking
-- Deregistration on non-200 response
-
-```shell
-micro sidecar --server_name=foo --server_address=127.0.0.1:9090 \
-	--healthcheck_url=http://127.0.0.1:9090/health
-I0523 12:25:36.229536   85658 car.go:184] Registering foo-6ebf29c0-013e-11e5-b55f-68a86d0d36b6
-I0523 12:25:36.241680   85658 car.go:188] Starting sidecar healthchecker
-```
-
-### HTTP RPC API
-
-Query micro services via the http rpc api using json or protobuf
+Query micro services using json or protobuf
 
 **Using /rpc endpoint**
 ```shell
@@ -188,7 +197,7 @@ for _ = range ticker.C {
 }
 ```
 
-### Proxy CLI requests
+## Proxy CLI
 
 The sidecar also acts as a proxy for the CLI to access remote environments
 
