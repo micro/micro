@@ -197,7 +197,7 @@ for _ = range ticker.C {
 }
 ```
 
-## Proxy CLI
+## CLI Proxy
 
 The sidecar also acts as a proxy for the CLI to access remote environments
 
