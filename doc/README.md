@@ -1,4 +1,6 @@
-The goal of **Micro** is to provide an ecosystem of tools and services for microservice development and management. At the core, the toolkit is simple and accessible enough that anyone can easily get started writing microservices. As you scale to hundreds of services, micro will provide the fundamental tools required to manage a microservice environment.
+# Docs
+
+Micro is a microservice toolkit. It's purpose is to simplify distributed systems development. 
 
 Checkout the [roadmap](roadmap.md) to see where it's all going.
 
@@ -26,4 +28,4 @@ It also allows you to leverage the Sidecar as a proxy where you may not want to 
 **Bot** A Hubot style bot that sits inside your microservices platform and can be interacted with via Slack, HipChat, XMPP, etc. 
 It provides the features of the CLI via messaging. Additional commands can be added to automate common ops tasks.
 
-
+View the [summary](summary.md) to navigate the docs.
