@@ -1,3 +1,5 @@
+# FAQ
+
 ## What is Micro?
 
 Micro is a toolkit to help simplify microservices development. 

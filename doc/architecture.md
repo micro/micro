@@ -1,3 +1,5 @@
+# Architecture
+
 This section should explain more about how micro is constructed, how the various libraries/repos relate to each other and how they should be used.
 
 Check out the blog post on architecture [https://blog.micro.mu/2016/04/18/micro-architecture.html](https://blog.micro.mu/2016/04/18/micro-architecture.html)

@@ -1,3 +1,5 @@
+# Users
+
 If you're using Micro, feel free to add your company
 
 ### Companies
