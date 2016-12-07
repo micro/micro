@@ -6,3 +6,4 @@
 * [Getting Started](getting-started.md)
 * [Resources](resources.md)
 * [FAQ](faq.md)
+* [Users](users.md)

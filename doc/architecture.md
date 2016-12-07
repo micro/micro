@@ -51,13 +51,13 @@ Below is an overview of how services within a micro environment interact. Each t
 request, it will lookup the service name within the registry then directly send a request to an instance of 
 the service.
 
-![Overview1](https://github.com/micro/micro/blob/master/doc/overview1.png)
+![Overview1](overview1.png)
 -
 
-![Overview2](https://github.com/micro/micro/blob/master/doc/overview2.png)
+![Overview2](overview2.png)
 -
 
-![Overview3](https://github.com/micro/micro/blob/master/doc/overview3.png)
+![Overview3](overview3.png)
 
 ## Go Micro
 

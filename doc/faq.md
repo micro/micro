@@ -11,7 +11,7 @@ There are also other libraries also like [go-plugins](https://github.com/micro/g
 
 ## Who's using Micro?
 
-There's a [Users](https://github.com/micro/micro/wiki/Users) page with a list of companies using Micro. Many more are also using it but not yet publicly listed. Feel free to add your company if you're using Micro.
+There's a [Users](users.md) page with a list of companies using Micro. Many more are also using it but not yet publicly listed. Feel free to add your company if you're using Micro.
 
 ## Where is the community?
 
@@ -21,7 +21,7 @@ There's a slack community with hundreds of members. You can invite yourself [her
 
 You can start by writing a microservice with [**go-micro**](https://github.com/micro/go-micro) or playing with the example [**greeter**](https://github.com/micro/micro/tree/master/examples/greeter) app. The greeter also demonstrates how to integrate non-Go applications. Micro uses proto-rpc and json-rpc by default, libraries are available for both protocols in most languages.
 
-You can find a guide to getting started writing apps [**here**](https://github.com/micro/micro/blob/master/doc/getting-started.md) and a shorter version in the go-micro [readme](https://github.com/micro/go-micro).
+You can find a guide to getting started writing apps [**here**](getting-started.md) and a shorter version in the go-micro [readme](https://github.com/micro/go-micro).
 
 Once you have an app running you can use the [**CLI**](https://github.com/micro/micro/tree/master/cli) to query it and also the [**Web UI**](https://github.com/micro/micro/tree/master/web).
 
@@ -57,7 +57,7 @@ In fact there's a demo of Micro on Kubernetes. Check out the repo at [github.com
 
 ## What's the different between API, Web and SRV services?
 
-<img src="https://github.com/micro/micro/blob/master/doc/arch.png" />
+<img src="arch.png" />
 
 As part of the micro toolkit we attempt to define a set of design patterns for a scalable architecture by separating the concerns of the API, Web dashboards and backend services (SRV).
 
