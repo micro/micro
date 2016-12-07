@@ -7,7 +7,8 @@ Nov 2016
 Dec 2016
 
 - [ ] Update Kubernetes Deployment
-- [ ] Configurable Encoders for Broker/Transport
+- [x] AWS X-Ray support
+- [x] Configurable Encoders for Broker/Transport
 - [ ] Proto generate publisher/subscriber helpers
 - [ ] DB Library
 
