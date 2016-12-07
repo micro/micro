@@ -4,6 +4,8 @@ Micro is a microservice toolkit. It's purpose is to simplify distributed systems
 
 Checkout the [roadmap](roadmap.md) to see where it's all going.
 
+View the [summary](SUMMARY.md) to navigate the docs.
+
 # Overview
 
 Here's a further breakdown of the main toolkit.
@@ -28,4 +30,4 @@ It also allows you to leverage the Sidecar as a proxy where you may not want to 
 **Bot** A Hubot style bot that sits inside your microservices platform and can be interacted with via Slack, HipChat, XMPP, etc. 
 It provides the features of the CLI via messaging. Additional commands can be added to automate common ops tasks.
 
-View the [summary](summary.md) to navigate the docs.
+
