@@ -49,33 +49,34 @@ Read the [Getting Started](https://github.com/micro/micro/blob/master/doc/gettin
 ### Install Micro
 
 ```shell
-$ go get github.com/micro/micro
+go get github.com/micro/micro
 ```
 
 Or via Docker
 
 ```shell
-$ docker pull microhq/micro
+docker pull microhq/micro
 ```
 
 ### Quick start
 
-We need service discovery, so let's spin up Consul (default discovery mechanism; checkout [go-plugins](https://github.com/micro/go-plugins) to switch it out).
+We need service discovery, so let's spin up Consul (the default); checkout [go-plugins](https://github.com/micro/go-plugins) to swap it out).
 
+Install consul
 ```
-$ go get github.com/hashicorp/consul
-$ consul agent -dev -advertise=127.0.0.1
+brew install consul
+```
+
+Run consul
+```
+consul agent -dev -advertise=127.0.0.1
 ```
 
 Alternatively we can use multicast DNS with the built in MDNS registry for a zero dependency configuration. Just pass `--registry=mdns` to the below commands e.g. `server --registry=mdns` or `micro --registry=mdns list services`.
 
-Run the greeter example app
+Run the greeter service
 ```shell
-$ go get github.com/micro/micro/examples/greeter/server
-$ server
-2016/06/20 03:03:39 Listening on [::]:62525
-2016/06/20 03:03:39 Broker Listening on [::]:62526
-2016/06/20 03:03:39 Registering node: go.micro.srv.greeter-34c55534-368b-11e6-b732-68a86d0d36b6
+go run github.com/micro/micro/examples/greeter/server/main.go
 ```
 
 List services
