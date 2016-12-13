@@ -1,6 +1,6 @@
 # Micro New [Service]
 
-Micro New is basically a way to generate a boilerplate template. That's it.
+The **micro new** command is a quick way to generate boilerplate templates for micro services.
 
 ## Usage
 
@@ -13,7 +13,8 @@ micro new github.com/micro/foo
 Here it is in action
 
 ```
-$ micro new github.com/micro/foo
+micro new github.com/micro/foo
+
 creating service go.micro.srv.foo
 creating /Users/asim/checkouts/src/github.com/micro/foo
 creating /Users/asim/checkouts/src/github.com/micro/foo/main.go
@@ -43,7 +44,7 @@ protoc -I/Users/asim/checkouts/src \
 Specify more options such as namespace, type, fqdn and alias
 
 ```
-$ micro new --fqdn com.example.srv.foo github.com/micro/foo
+micro new --fqdn com.example.srv.foo github.com/micro/foo
 ```
 
 ### Help

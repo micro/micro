@@ -1,6 +1,6 @@
 # Micro Bot
 
-The micro bot is a bot that sits inside your microservices platform which you can interact with via Slack, HipChat, XMPP, etc. 
+The **micro bot** is a bot that sits inside your microservices environment which you can interact with via Slack, HipChat, XMPP, etc. 
 It mimics the functions of the CLI via messaging.
 
 <p align="center">
@@ -23,7 +23,7 @@ go get github.com/micro/micro
 ### Run with Slack
 
 ```shell
-$ micro bot --inputs=slack --slack_token=SLACK_TOKEN
+micro bot --inputs=slack --slack_token=SLACK_TOKEN
 ```
 
 <img src="https://github.com/micro/micro/blob/master/bot/slack.png">
@@ -32,7 +32,7 @@ $ micro bot --inputs=slack --slack_token=SLACK_TOKEN
 ### Run with HipChat
 
 ```shell
-$ micro bot --inputs=hipchat --hipchat_username=XMPP_USER --hipchat_password=XMPP_PASSWORD
+micro bot --inputs=hipchat --hipchat_username=XMPP_USER --hipchat_password=XMPP_PASSWORD
 ```
 
 <img src="https://github.com/micro/micro/blob/master/bot/hipchat.png">
@@ -41,14 +41,15 @@ $ micro bot --inputs=hipchat --hipchat_username=XMPP_USER --hipchat_password=XMP
 Use multiple inputs by specifying a comma separated list
 
 ```shell
-$ micro bot --inputs=hipchat,slack --slack_token=SLACK_TOKEN --hipchat_username=XMPP_USER --hipchat_password=XMPP_PASSWORD
+micro bot --inputs=hipchat,slack --slack_token=SLACK_TOKEN --hipchat_username=XMPP_USER --hipchat_password=XMPP_PASSWORD
 ```
 
 ### Help
 
 In slack
 ```shell
-$ micro help
+micro help
+
 deregister service [definition] - Deregisters a service
 echo [text] - Returns the [text]
 get service [name] - Returns a registered service

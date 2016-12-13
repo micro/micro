@@ -1,6 +1,6 @@
 # Micro Web
 
-Micro web provides a dashboard to view and query services as well as a reverse proxy to serve micro web applications. 
+The **micro web** provides a dashboard to view and query services as well as a reverse proxy to serve micro web applications. 
 We believe in web apps as first class citizens in a microservice world.
 
 <p align="center">
@@ -21,8 +21,8 @@ to treat web applications as first class citizens in a microservices environment
 will use /[service] along with the namespace (default: go.micro.web) to lookup the service 
 in service discovery. It composes service name as [namespace].[name]. 
 
-The proxy will strip /[service] forwarded the rest of the path to the web app. It will also 
-set the header "X-Micro-Web-Base-Path" to the stripped path incase you need to use it for 
+The proxy will strip /[service] from the request and forward the rest of the URL Path to the web app. It will also 
+set the header "X-Micro-Web-Base-Path" to the removed path incase you need to use it for 
 some reason like constructing URLs.
 
 Example translation
