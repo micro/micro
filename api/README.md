@@ -3,7 +3,7 @@
 The **micro api** is a lightweight proxy for [micro](https://github.com/micro/micro) based microservices. It conforms to the [API Gateway](http://microservices.io/patterns/apigateway.html) pattern and can be used in conjuction with [go-micro](https://github.com/micro/go-micro) based apps or any future language implementation of the [micro](https://github.com/micro/micro) toolkit.
 
 <p align="center">
-  <img src="api.png" />
+  <img src="https://github.com/micro/micro/tree/master/doc/images/api.png" />
 </p>
 
 
@@ -172,7 +172,7 @@ You can enable a stats dashboard via the `--enable_stats` flag. It will be expos
 micro --enable_stats api
 ```
 
-<img src="https://github.com/micro/micro/blob/master/doc/stats.png">
+<img src="https://github.com/micro/micro/blob/master/doc/images/stats.png">
 
 
 

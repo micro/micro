@@ -36,5 +36,5 @@ It also allows you to leverage the Sidecar as a proxy where you may not want to 
 It provides the features of the CLI via messaging. Additional commands can be added to automate common ops tasks.
 
 <p align="center">
-  <img src="overview.png" />
+  <img src="images/overview.png" />
 </p>

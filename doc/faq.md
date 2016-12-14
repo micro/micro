@@ -59,7 +59,7 @@ In fact there's a demo of Micro on Kubernetes. Check out the repo at [github.com
 
 ## What's the different between API, Web and SRV services?
 
-<img src="arch.png" />
+<img src="images/arch.png" />
 
 As part of the micro toolkit we attempt to define a set of design patterns for a scalable architecture by separating the concerns of the API, Web dashboards and backend services (SRV).
 
