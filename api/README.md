@@ -172,7 +172,7 @@ You can enable a stats dashboard via the `--enable_stats` flag. It will be expos
 micro --enable_stats api
 ```
 
-<img src="https://github.com/micro/micro/blob/master/doc/images/stats.png">
+<img src="https://raw.githubusercontent.com/micro/micro/master/doc/images/stats.png">
 
 
 

@@ -17,7 +17,7 @@ The Micro CLI is a command line version of go-micro which provides a way of obse
 The API acts as a gateway or proxy to enable a single entry point for accessing micro services. It should be run on the edge of your infrastructure. It converts HTTP requests to RPC and forwards to the appropriate service.
 
 <p align="center">
-  <img src="https://github.com/micro/micro/blob/master/doc/images/api.png" />
+  <img src="https://raw.githubusercontent.com/micro/micro/master/doc/images/api.png" />
 </p>
 
 ### Web UI
@@ -27,7 +27,7 @@ a service in the registry. The Web UI adds Prefix of "go.micro.web." (which can 
 it up in the registry and then reverse proxies to it.
 
 <p align="center">
-  <img src="https://github.com/micro/micro/blob/master/doc/images/web.png" />
+  <img src="https://raw.githubusercontent.com/micro/micro/master/doc/images/web.png" />
 </p>
 
 ### Sidecar
@@ -36,7 +36,7 @@ The sidecar is a HTTP Interface version of go-micro. It's a way of integrating n
 environment. 
 
 <p align="center">
-  <img src="https://github.com/micro/micro/blob/master/doc/images/car.png" />
+  <img src="https://raw.githubusercontent.com/micro/micro/master/doc/images/car.png" />
 </p>
 
 ### Bot
@@ -44,7 +44,7 @@ environment.
 Bot A Hubot style bot that sits inside your microservices platform and can be interacted with via Slack, HipChat, XMPP, etc. It provides the features of the CLI via messaging. Additional commands can be added to automate common ops tasks.
 
 <p align="center">
-  <img src="https://github.com/micro/micro/blob/master/doc/images/bot.png" />
+  <img src="https://raw.githubusercontent.com/micro/micro/master/doc/images/bot.png" />
 </p>
 
 ## Overview
