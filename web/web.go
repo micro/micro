@@ -1,3 +1,4 @@
+// Package web is a web dashboard and reverse proxy for micro web apps
 package web
 
 import (

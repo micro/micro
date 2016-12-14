@@ -1,3 +1,4 @@
+// Package bot is a Hubot style bot that sits a microservice environment
 package bot
 
 import (

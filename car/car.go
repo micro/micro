@@ -1,3 +1,4 @@
+// Package car is a language agnostic rpc proxy
 package car
 
 import (

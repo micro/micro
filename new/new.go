@@ -1,3 +1,4 @@
+// Package new generates micro service templates
 package new
 
 import (

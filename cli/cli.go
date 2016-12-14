@@ -1,3 +1,4 @@
+// Package cli is a command line interface
 package cli
 
 import (

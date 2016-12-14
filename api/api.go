@@ -1,3 +1,4 @@
+// Package api is an API Gateway
 package api
 
 import (
