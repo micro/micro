@@ -111,48 +111,6 @@ The micro ecosystem is rapidly growing but there's still a lot to do.
   * [x] Health
   * [x] Stats
 
-## [Go OS](https://github.com/micro/go-os)
-
-Overview
-  * [x] Define the interfaces for every package
-  * [x] Provide documentation for go-os's usage
-  * [x] Implement trace and monitoring first
-  * [x] Provide easy initialisation and wrapping for go-micro client/server
-
-1. [Discovery](https://godoc.org/github.com/micro/go-os/discovery)
-  * [x] In memory catching using registry watch
-  * [x] Heartbeating the registry
-2. [Routing](https://godoc.org/github.com/micro/go-os/router)
-  * [x] label based routing 
-  * [x] Weighted loadbalancing
-  * [ ] Circuit breakers
-  * [ ] Rate limiting
-  * Google GSLB style semantics
-3. [Key-Value](https://godoc.org/github.com/micro/go-os/kv)
-  * [x] Implement interface
-  * [x] Memcache implementation
-  * [x] Redis contribution
-  * [x] In memory implement
-4. [Trace](https://godoc.org/github.com/micro/go-os/trace)
-  * [x] Implement interface
-  * [x] Pub/Sub based tracing
-  * [ ] Timing endpoints for trace service
-5. [Monitor](https://godoc.org/github.com/micro/go-os/monitor)
-  * [x] Implement interface
-  * [x] Custom healthcheck types
-  * [x] Add stats/status publications
-  * [ ] Monitor the health of services
-6. [Config](https://godoc.org/github.com/micro/go-os/config)
-  * [x] Implement interface
-7. [Auth](https://godoc.org/github.com/micro/go-os/auth)
-  * [x] Implement interface
-8. [Logging](https://godoc.org/github.com/micro/go-os/log)
-  * [x] Implement interface
-9. [Event](https://godoc.org/github.com/micro/go-os/event)
-  * [x] Implement interface (sparse)
-10. [Metrics](https://godoc.org/github.com/micro/go-os/metrics)
-  * [x] Implement interface
-
 ## [Go Plugins](https://github.com/micro/go-plugins)
 
   * [x] Provide more example implementations
@@ -161,61 +119,36 @@ Overview
 1. Registry
   * [x] [consul](https://godoc.org/github.com/micro/go-micro/registry/consul)
   * [x] [mdns](https://godoc.org/github.com/micro/go-micro/registry/mdns)
+  * [x] [eureke](https://godoc.org/github.com/micro/go-plugins/registry/eureka)
   * [x] [etcd](https://godoc.org/github.com/micro/go-plugins/registry/etcd)
+  * [x] [etcdv3](https://godoc.org/github.com/micro/go-plugins/registry/etcdv3)
   * [x] [nats](https://godoc.org/github.com/micro/go-plugins/registry/nats)
   * [x] [eureka](https://godoc.org/github.com/micro/go-plugins/registry/eureka)
   * [x] [gossip](https://godoc.org/github.com/micro/go-plugins/registry/gossip)
+  * [x] [kubernetes](https://godoc.org/github.com/micro/go-plugins/registry/kubernetes)
+  * [x] [zookeeper](https://godoc.org/github.com/micro/go-plugins/registry/zookeeper)
+
 2. Transport
+  * [x] [http](https://github.com/micro/go-micro/tree/master/transport/http)
   * [x] [nats](https://godoc.org/github.com/micro/go-plugins/transport/nats)
+  * [x] [tcp](https://godoc.org/github.com/micro/go-plugins/transport/tcp)
+  * [x] [grpc](https://godoc.org/github.com/micro/go-plugins/transport/grpc)
   * [x] [rabbitmq](https://godoc.org/github.com/micro/go-plugins/transport/rabbitmq)
 3. Broker
   * [x] [nats](https://godoc.org/github.com/micro/go-plugins/broker/nats)
   * [x] [nsq](https://godoc.org/github.com/micro/go-plugins/broker/nsq)
-  * [x] [rabbitmq](https://godoc.org/github.com/micro/go-plugins/broker/rabbitmq)
+  * [x] [mqtt](https://godoc.org/github.com/micro/go-plugins/broker/mqtt)
   * [x] [kafka](https://godoc.org/github.com/micro/go-plugins/broker/kafka)
+  * [x] [rabbitmq](https://godoc.org/github.com/micro/go-plugins/broker/rabbitmq)
   * [x] [googlepubsub](https://godoc.org/github.com/micro/go-plugins/broker/googlepubsub)
-
-## [Micro OS](https://github.com/micro/os)
-
-TODO:
-  * [ ] implement IAM policies  
-
-### Dashboards
-
-Create simple OSS dashboards for each Micro OS service
-
- * [x] [Config](https://github.com/micro/config-web)
- * [x] [Discovery](https://github.com/micro/discovery-web)
- * [x] [Events](https://github.com/micro/event-web)
- * [x] [Monitoring](https://github.com/micro/monitor-web)
- * [x] [Tracing](https://github.com/micro/trace-web)
- * [x] [Routing](https://github.com/micro/router-web)
- * [ ] Logging
- * [ ] Auth
- * [ ] API
- * [ ] Metrics
-
-### Services
-
-Version 1. (Asim's definition of version 1)
-* [x] [Discovery](https://github.com/micro/discovery-srv)
-* [x] [Monitoring](https://github.com/micro/monitor-srv)
-* [x] [Trace](https://github.com/micro/trace-srv)
-* [x] [Config](https://github.com/micro/config-srv)
-* [x] [Auth](https://github.com/micro/auth-srv)
-* [x] [Event](https://github.com/micro/event-srv)
-* [x] [Router](https://github.com/micro/router-srv)
-* [x] [KV](https://github.com/micro/kv-srv)
-* [ ] Metrics
-* [ ] Logging
-* [ ] Sync
+4. Client
+  * [x] [grpc](https://github.com/micro/go-plugins/tree/master/client/grpc)
+5. Server
+  * [x] [grpc](https://github.com/micro/go-plugins/tree/master/server/grpc)
 
 ## Deployments
-* [x] [Micro on Kubernetes](https://github.com/micro/kubernetes)
-* [x] Micro Docker Compose
-* [ ] Micro OS Docker Compose
-* [ ] Logistics/On-Demand Example
-* [ ] Micro on Nomad
+* [x] [Kubernetes](https://github.com/micro/kubernetes)
+* [x] [Docker Compose](https://github.com/micro/micro/blob/master/.compose.yml)
 
 ## Demos
 * [x] [Web](http://web.micro.pm)
