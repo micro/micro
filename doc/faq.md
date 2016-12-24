@@ -55,7 +55,7 @@ Alternatively we can use multicast DNS with the built in MDNS registry for a zer
 
 Micro is runtime agnostic. You can run it anywhere you like. On bare metal, on AWS, Google Cloud. On your favourite container orchestration system like Mesos or Kubernetes.
 
-In fact there's a demo of Micro on Kubernetes. Check out the repo at [github.com/micro/kubernetes](https://github.com/micro/kubernetes) and the live demo at [web.micro.pm](http://web.micro.pm).
+In fact there's demo config for Micro on Kubernetes. Check out the repo at [github.com/micro/kubernetes](https://github.com/micro/kubernetes)
 
 ## What's the different between API, Web and SRV services?
 

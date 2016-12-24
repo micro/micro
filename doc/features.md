@@ -150,7 +150,3 @@ The micro ecosystem is rapidly growing but there's still a lot to do.
 * [x] [Kubernetes](https://github.com/micro/kubernetes)
 * [x] [Docker Compose](https://github.com/micro/micro/blob/master/.compose.yml)
 
-## Demos
-* [x] [Web](http://web.micro.pm)
-* [x] [API](http://api.micro.pm)
-* [x] [Sidecar](http://proxy.micro.pm) 
