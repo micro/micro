@@ -76,7 +76,7 @@ Alternatively we can use multicast DNS with the built in MDNS registry for a zer
 
 Run the greeter service
 ```shell
-go run github.com/micro/micro/examples/greeter/server/main.go
+go run examples/greeter/server/main.go
 ```
 
 List services
@@ -116,11 +116,7 @@ $ micro query go.micro.srv.greeter Say.Hello '{"name": "John"}'
 }
 ```
 
-Read more on how to use the Micro [CLI](https://github.com/micro/micro/tree/master/cli)
-
-## Sponsors
-
-<a href="https://blog.micro.mu/2016/04/25/announcing-sixt-sponsorship.html"><img src="https://micro.mu/sixt_logo.png" width=150px height="auto" /></a>
+Read the [docs](https://github.com/micro/micro/tree/master/doc) to learn more.
 
 ## Community Contributions
 
@@ -128,11 +124,9 @@ Project		|	Description
 -----		|	------
 [Micro Dashboard](https://github.com/Margatroid/micro-dashboard)	|	Dashboard for microservices toolchain micro
 
-## Contributing
+## Sponsors
 
-1. [Join](http://slack.micro.mu/) the Slack to discuss
-2. Look at existing coding style
-3. Submit PR
-4. ?
-5. Profit
+Open source development of Micro is sponsored by Sixt
+
+<a href="https://blog.micro.mu/2016/04/25/announcing-sixt-sponsorship.html"><img src="https://micro.mu/sixt_logo.png" width=150px height="auto" /></a>
 
