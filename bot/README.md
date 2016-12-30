@@ -11,6 +11,7 @@ It mimics the functions of the CLI via messaging.
 
 - Slack
 - HipChat
+- Discord
 
 ## Getting Started
 
@@ -36,6 +37,26 @@ micro bot --inputs=hipchat --hipchat_username=XMPP_USER --hipchat_password=XMPP_
 ```
 
 <img src="https://raw.githubusercontent.com/micro/micro/master/doc/images/hipchat.png">
+-
+
+### Run with Discord
+
+Basic: 
+```shell
+micro bot --inputs=discord --discord_token="Bot TOKEN"
+```
+
+With Prefix: (it also accepts mentions as prefix)
+```shell
+micro bot --inputs=discord --discord_token="Bot TOKEN" --discord_prefix="micro "
+```
+
+With Prefix & Whitelist: (only whitelisted users will be able to run any commands, seperated by `,`)
+```shell
+micro bot --inputs=discord --discord_token="Bot TOKEN" --discord_prefix="micro " --discord_whitelist=USERID,ANOTHERUSERID
+```
+
+<img src="https://raw.githubusercontent.com/micro/micro/master/doc/images/discord.png">
 -
 
 Use multiple inputs by specifying a comma separated list

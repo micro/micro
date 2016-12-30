@@ -15,6 +15,7 @@ import (
 
 	"github.com/micro/micro/bot/command"
 	"github.com/micro/micro/bot/input"
+	_ "github.com/micro/micro/bot/input/discord"
 	_ "github.com/micro/micro/bot/input/hipchat"
 	_ "github.com/micro/micro/bot/input/slack"
 )
