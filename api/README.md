@@ -150,7 +150,7 @@ A working example can be found here [Greeter Service](https://github.com/micro/m
 ## Using REST
 
 You can serve a RESTful API by using the API as a proxy and implementing RESTful paths with libraries such as [go-restful](https://github.com/emicklei/go-restful). 
-An example of a REST API service can be found at [greeter/api/go-restful](https://github.com/micro/micro/tree/master/examples/greeter/api/go-restful).
+An example of a REST API service can be found at [greeter/api/rest](https://github.com/micro/micro/tree/master/examples/greeter/api/rest).
 
 Starting the API with `--handler=proxy` will reverse proxy requests to backend services within the served API namespace (default: go.micro.api). 
 
