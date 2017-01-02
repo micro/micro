@@ -17,6 +17,16 @@ Run sidecar with http proxy handler
 micro sidecar --handler=proxy
 ```
 
+Run server
+```
+{python, ruby} {http, rpc}_server.{py, rb}
+```
+
+Run client
+```
+{python, ruby} {http, rpc}_client.{py, rb}
+```
+
 ## Examples
 
 Each language directory {python, ruby, ...} contains examples for the following:
