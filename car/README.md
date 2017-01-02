@@ -8,6 +8,8 @@ It is similar to Netflix's sidecar [Prana](https://github.com/Netflix/Prana) or 
   <img src="https://raw.githubusercontent.com/micro/micro/master/doc/images/car.png" />
 </p>
 
+Example usage in many languages can be found at [examples/sidecar](https://github.com/micro/micro/tree/master/examples/sidecar)
+
 ## Features
 
 The sidecar has all the features of [go-micro](https://github.com/micro/go-micro). Here are the most relevant.
