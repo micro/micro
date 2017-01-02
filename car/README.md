@@ -74,20 +74,9 @@ micro sidecar --server_name=foo --server_address=127.0.0.1:9090 \
 - /rpc
 ```
 
-### Service Discovery
+### /Registry
 
-```shell
-curl http://127.0.0.1:8081/registry?service=go.micro.srv.example
-{
-	"name":"go.micro.srv.example",
-	"nodes":[{
-		"id":"go.micro.srv.example-c5718d29-da2a-11e4-be11-68a86d0d36b6",
-		"address":"[::]","port":60728
-	}]
-}
-```
-
-### Register Service
+**Register Service**
 
 ```shell
 // specify ttl as a param to expire the registration
@@ -105,7 +94,7 @@ curl -H 'Content-Type: application/json' http://127.0.0.1:8081/registry -d
 }
 ```
 
-### Deregister Service
+**Deregister Service**
 
 ```shell
 curl -X "DELETE" -H 'Content-Type: application/json' http://127.0.0.1:8081/registry -d 
@@ -115,6 +104,19 @@ curl -X "DELETE" -H 'Content-Type: application/json' http://127.0.0.1:8081/regis
 		"Port": 9091,
 		"Address": "127.0.0.1",
 		"Id": "foo.bar-017da09a-734f-11e5-8136-68a86d0d36b6"
+	}]
+}
+```
+
+**Get Service**
+
+```shell
+curl http://127.0.0.1:8081/registry?service=go.micro.srv.example
+{
+	"name":"go.micro.srv.example",
+	"nodes":[{
+		"id":"go.micro.srv.example-c5718d29-da2a-11e4-be11-68a86d0d36b6",
+		"address":"[::]","port":60728
 	}]
 }
 ```
@@ -155,11 +157,11 @@ micro sidecar --handler=proxy
 
 The first element in the url path will be used along with the namespace as the service to route to.
 
-### RPC Path Translation
+### RPC Path Mapping
 
-Path translation operates the same as the micro API
+Path mapping operates the same as the micro API
 
-Translation of URLs are as follows:
+Mapping of URLs are as follows:
 
 Path	|	Service	|	Method
 ----	|	----	|	----
@@ -178,9 +180,9 @@ Path	|	Service	|	Method
 /v2/foo/bar/baz	|	go.micro.srv.v2.foo	|	Bar.Baz
 
 
-### PubSub via WebSockets
+### /Broker
 
-Connect to the micro pub/sub broker via a websocket interface
+Connect to the micro broker via websockets
 
 ```go
 c, _, _ := websocket.DefaultDialer.Dial("ws://127.0.0.1:8081/broker?topic=foo", make(http.Header))
