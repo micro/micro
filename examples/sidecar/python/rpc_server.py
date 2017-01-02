@@ -18,7 +18,7 @@ service = {
 
 @Request.application
 def application(request):
-    dispatcher["Say.Hello"] = lambda s: "hello " + s["name"]
+    dispatcher["Say.Hello"] = lambda s: "Hello " + s["name"] + "!"
     response = JSONRPCResponseManager.handle(request.data, dispatcher)
     return Response(response.json, mimetype='application/json')
 

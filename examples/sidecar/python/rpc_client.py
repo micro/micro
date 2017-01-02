@@ -3,7 +3,7 @@ import json
 import sidecar
 
 def main():
-    response = sidecar.rpc_call("go.micro.srv.greeter", "Say.Hello", {"name": "John"})
+    response = sidecar.rpc_call("/greeter/say/hello", {"name": "John"})
     print response
 
 if __name__ == "__main__":
