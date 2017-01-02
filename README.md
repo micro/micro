@@ -3,7 +3,7 @@
 
 Micro is a **microservice** toolkit. Its purpose is to simplify distributed systems development.
 
-Check out [**go-micro**](https://github.com/micro/go-micro) if you want to start writing services in Go now. Examples of how to write services in other languages can be found in [examples/greeter](https://github.com/micro/micro/tree/master/examples/greeter).
+Check out [**go-micro**](https://github.com/micro/go-micro) if you want to start writing services in Go now. Examples of how to use micro with other lanagues can be found in [examples/sidecar](https://github.com/micro/micro/tree/master/examples/sidecar).
 
 Learn more about Micro in the introductory blog post [https://blog.micro.mu/2016/03/20/micro.html](https://blog.micro.mu/2016/03/20/micro.html) or watch the talk from the [Golang UK Conf 2016](https://www.youtube.com/watch?v=xspaDovwk34).
 
