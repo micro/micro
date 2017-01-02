@@ -143,6 +143,18 @@ curl -d 'service=go.micro.srv.example' \
 {"msg":"Hello John"}
 ```
 
+### Proxy Handler
+
+Like the api and web servers, the sidecar can provide a full http proxy.
+
+Enable proxy handler on the command line
+
+```shell
+micro sidecar --handler=proxy
+```
+
+The first element in the url path will be used along with the namespace as the service to route to.
+
 ### RPC Path Translation
 
 Path translation operates the same as the micro API
@@ -165,18 +177,6 @@ Path	|	Service	|	Method
 /v2/foo/bar	|	go.micro.srv.v2.foo	|	Foo.Bar
 /v2/foo/bar/baz	|	go.micro.srv.v2.foo	|	Bar.Baz
 
-
-### Proxy Handler
-
-Like the api and web servers, the sidecar can provide a full http proxy.
-
-Enable proxy handler on the command line
-
-```shell
-micro sidecar --handler=proxy
-```
-
-The first element in the url path will be used along with the namespace as the service to route to.
 
 ### PubSub via WebSockets
 
