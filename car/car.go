@@ -34,7 +34,9 @@ type srv struct {
 
 var (
 	Address      = ":8081"
+	Handler      = "rpc"
 	RootPath     = "/"
+	ProxyPath    = "/{service:[a-zA-Z0-9]+}"
 	BrokerPath   = "/broker"
 	HealthPath   = "/health"
 	RegistryPath = "/registry"
@@ -79,6 +81,9 @@ func run(ctx *cli.Context, car *sidecar) {
 			origins[origin] = true
 		}
 		CORS = origins
+	}
+	if len(ctx.String("handler")) > 0 {
+		Handler = ctx.String("handler")
 	}
 	if len(ctx.String("namespace")) > 0 {
 		Namespace = ctx.String("namespace")
@@ -129,8 +134,15 @@ func run(ctx *cli.Context, car *sidecar) {
 	log.Printf("Registering Broker handler at %s", BrokerPath)
 	r.Handle(BrokerPath, http.HandlerFunc(handler.Broker))
 
-	log.Printf("Registering Root Handler at %s", RootPath)
-	r.PathPrefix(RootPath).Handler(handler.RPCX(Namespace))
+	switch Handler {
+	case "proxy":
+		log.Printf("Registering Proxy Handler at %s", ProxyPath)
+		r.PathPrefix(ProxyPath).Handler(handler.Proxy(Namespace, false))
+	// rpc
+	default:
+		log.Printf("Registering Root Handler at %s", RootPath)
+		r.PathPrefix(RootPath).Handler(handler.RPCX(Namespace))
+	}
 
 	var h http.Handler = s
 
@@ -257,6 +269,11 @@ func Commands() []cli.Command {
 				Name:   "cors",
 				Usage:  "Comma separated whitelist of allowed origins for CORS",
 				EnvVar: "MICRO_SIDECAR_CORS",
+			},
+			cli.StringFlag{
+				Name:   "handler",
+				Usage:  "Specify the request handler to be used for mapping HTTP requests to services; {proxy, rpc}",
+				EnvVar: "MICRO_SIDECAR_HANDLER",
 			},
 			cli.StringFlag{
 				Name:   "namespace",

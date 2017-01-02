@@ -111,8 +111,9 @@ func run(ctx *cli.Context) {
 	case "proxy":
 		log.Printf("Registering API Proxy Handler at %s", ProxyPath)
 		r.PathPrefix(ProxyPath).Handler(handler.Proxy(Namespace, false))
+	// api
 	default:
-		log.Printf("Registering API Default Handler at %s", APIPath)
+		log.Printf("Registering API Request Handler at %s", APIPath)
 		r.PathPrefix(APIPath).Handler(handler.API(Namespace))
 	}
 
@@ -167,7 +168,7 @@ func Commands() []cli.Command {
 			},
 			cli.StringFlag{
 				Name:   "handler",
-				Usage:  "Specify the request handler to be used for mapping HTTP requests to services. e.g api, proxy, rpc",
+				Usage:  "Specify the request handler to be used for mapping HTTP requests to services; {api, proxy, rpc}",
 				EnvVar: "MICRO_API_HANDLER",
 			},
 			cli.StringFlag{

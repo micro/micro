@@ -68,13 +68,18 @@ func setup(app *ccli.App) {
 		},
 		ccli.StringFlag{
 			Name:   "api_handler",
-			Usage:  "Specify the request handler to be used for mapping HTTP requests to services. e.g api, proxy",
+			Usage:  "Specify the request handler to be used for mapping HTTP requests to services; {api, proxy, rpc}",
 			EnvVar: "MICRO_API_HANDLER",
 		},
 		ccli.StringFlag{
 			Name:   "api_namespace",
 			Usage:  "Set the namespace used by the API e.g. com.example.api",
 			EnvVar: "MICRO_API_NAMESPACE",
+		},
+		ccli.StringFlag{
+			Name:   "sidecar_handler",
+			Usage:  "Specify the request handler to be used for mapping HTTP requests to services; {proxy, rpc}",
+			EnvVar: "MICRO_SIDECAR_HANDLER",
 		},
 		ccli.StringFlag{
 			Name:   "sidecar_namespace",
@@ -137,6 +142,9 @@ func setup(app *ccli.App) {
 		}
 		if len(ctx.String("api_namespace")) > 0 {
 			api.Namespace = ctx.String("api_namespace")
+		}
+		if len(ctx.String("sidecar_handler")) > 0 {
+			car.Handler = ctx.String("sidecar_handler")
 		}
 		if len(ctx.String("sidecar_namespace")) > 0 {
 			car.Namespace = ctx.String("sidecar_namespace")

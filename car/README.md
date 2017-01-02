@@ -1,6 +1,6 @@
 # Micro Sidecar
 
-The **micro sidecar** is a language agnostic RPC proxy to build highly available and fault tolerant microservices.
+The **micro sidecar** is a language agnostic proxy for building highly available and fault tolerant microservices.
 
 It is similar to Netflix's sidecar [Prana](https://github.com/Netflix/Prana) or Buoyant's RPC Proxy [Linkerd](https://linkerd.io).
 
@@ -15,7 +15,7 @@ The sidecar has all the features of [go-micro](https://github.com/micro/go-micro
 - Service registration and discovery
 - Broker PubSub via WebSockets
 - Healthchecking of services
-- RPC via HTTP API
+- RPC or HTTP handler
 - Load balancing, retries, timeouts
 - Stats UI
 
@@ -87,7 +87,7 @@ curl http://127.0.0.1:8081/registry?service=go.micro.srv.example
 }
 ```
 
-### Register a service
+### Register Service
 
 ```shell
 // specify ttl as a param to expire the registration
@@ -105,7 +105,7 @@ curl -H 'Content-Type: application/json' http://127.0.0.1:8081/registry -d
 }
 ```
 
-### Deregister a service
+### Deregister Service
 
 ```shell
 curl -X "DELETE" -H 'Content-Type: application/json' http://127.0.0.1:8081/registry -d 
@@ -119,28 +119,29 @@ curl -X "DELETE" -H 'Content-Type: application/json' http://127.0.0.1:8081/regis
 }
 ```
 
-### RPC Call
+### RPC Handler
 
-Query micro services using json or protobuf
+Query micro services using json or protobuf. Requests to the backend will be made using the go-micro RPC client.
+
+**Using /[service]/[method]**
+
+Default namespace of services called are **go.micro.srv**
+
+```shell
+curl -H 'Content-Type: application/json' -d '{"name": "John"}' http://127.0.0.1:8081/example/call
+
+{"msg":"Hello John"}
+```
 
 **Using /rpc endpoint**
+
 ```shell
 curl -d 'service=go.micro.srv.example' \
 	-d 'method=Example.Call' \
 	-d 'request={"name": "John"}' http://127.0.0.1:8081/rpc
 
-{"msg":"go.micro.srv.example-c5718d29-da2a-11e4-be11-68a86d0d36b6: Hello John"}
+{"msg":"Hello John"}
 ```
-
-**Using /[service]/[method]**
-
-```shell
-curl -H 'Content-Type: application/json' -d '{"name": "John"}' http://127.0.0.1:8081/example/call
-
-{"msg":"go.micro.srv.example-c5718d29-da2a-11e4-be11-68a86d0d36b6: Hello John"}
-```
-
-Default namespace of services called are **go.micro.srv**.
 
 ### RPC Path Translation
 
@@ -163,6 +164,19 @@ Path	|	Service	|	Method
 /v1/foo/bar/baz	|	go.micro.srv.v1.foo	|	Bar.Baz
 /v2/foo/bar	|	go.micro.srv.v2.foo	|	Foo.Bar
 /v2/foo/bar/baz	|	go.micro.srv.v2.foo	|	Bar.Baz
+
+
+### Proxy Handler
+
+Like the api and web servers, the sidecar can provide a full http proxy.
+
+Enable proxy handler on the command line
+
+```shell
+micro sidecar --handler=proxy
+```
+
+The first element in the url path will be used along with the namespace as the service to route to.
 
 ### PubSub via WebSockets
 
