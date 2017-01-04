@@ -2,6 +2,8 @@
 
 Micro is a pluggable toolkit and framework. The internal features can be swapped out with any [go-plugins](https://github.com/micro/go-plugins).
 
+To learn about the toolkit plugin API go to [micro/plugin](https://github.com/micro/micro/tree/master/plugin).
+
 ## Usage
 
 Plugins can be added to go-micro in the following ways. By doing so they'll be available to set via command line args or environment variables.
