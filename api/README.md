@@ -90,8 +90,6 @@ Make a HTTP call
 
 ```shell
 curl "http://localhost:8080/greeter/say/hello?name=Asim+Aslam"
-
-{"message":"Hello Asim Aslam"}
 ```
 
 Make an RPC call via the /rpc
@@ -101,8 +99,6 @@ curl -d 'service=go.micro.srv.greeter' \
 	-d 'method=Say.Hello' \
 	-d 'request={"name": "Asim Aslam"}' \
 	http://localhost:8080/rpc
-
-{"msg":"Hello Asim Aslam"}
 ```
 
 Make an RPC call via /rpc with content-type set to json
@@ -111,8 +107,6 @@ Make an RPC call via /rpc with content-type set to json
 $ curl -H 'Content-Type: application/json' \
 	-d '{"service": "go.micro.srv.greeter", "method": "Say.Hello", "request": {"name": "Asim Aslam"}}' \
 	http://localhost:8080/rpc
-
-{"msg":"Hello Asim Aslam"}
 ```
 
 ## API Request Mapping
