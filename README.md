@@ -135,6 +135,9 @@ import (
 
 Build binary
 ```shell
+// For local use
+go build -i -o micro ./main.go ./plugins.go
+// For docker image
 CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -ldflags '-w' -i -o micro ./main.go ./plugins.go
 ```
 
