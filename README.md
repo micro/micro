@@ -118,12 +118,6 @@ $ micro query go.micro.srv.greeter Say.Hello '{"name": "John"}'
 
 Read the [docs](https://github.com/micro/micro/tree/master/doc) to learn more.
 
-## Community Contributions
-
-Project		|	Description
------		|	------
-[Micro Dashboard](https://github.com/Margatroid/micro-dashboard)	|	Dashboard for microservices toolchain micro
-
 ## Build with plugins
 
 If you want to integrate plugins simply link them in a separate file and rebuild
@@ -148,6 +142,12 @@ Flag usage of plugins
 ```shell
 micro --registry=etcdv3 --transport=nats --broker=kafka
 ```
+
+## Community Contributions
+
+Project		|	Description
+-----		|	------
+[Micro Dashboard](https://github.com/Margatroid/micro-dashboard)	|	Dashboard for microservices toolchain micro
 
 ## Sponsors
 
