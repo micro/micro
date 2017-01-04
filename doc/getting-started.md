@@ -6,59 +6,113 @@ If you prefer a higher level overview of the toolkit first, checkout the introdu
 
 ## Writing a service
 
-The [server](https://godoc.org/github.com/micro/go-micro/server) package is the main component used to build a 
-server. A default server is initialised for convenience. 
-
-### Initialisation
-The server can be initialised before usage. All the available init options can be found [here](https://godoc.org/github.com/micro/go-micro/server#Option).
+The top level [Service](https://godoc.org/github.com/micro/go-micro#Service) interface is the main component for 
+building a service. It wraps all the underlying packages of Go Micro into a single convenient interface.
 
 ```go
-import "github.com/micro/go-micro/server"
+type Service interface {
+    Init(...Option)
+    Options() Options
+    Client() client.Client
+    Server() server.Server
+    Run() error
+    String() string
+}
+```
 
-server.Init(
-	server.Name("go.micro.srv.greeter"),
-	server.Version("1.0.0"),
+### 1. Initialisation
+
+A service is created like so using `micro.NewService`.
+
+```go
+import "github.com/micro/go-micro"
+
+service := micro.NewService() 
+```
+
+Options can be passed in during creation.
+
+```go
+service := micro.NewService(
+        micro.Name("greeter"),
+        micro.Version("latest"),
 )
 ```
 
-### Defining the service and request/response
+All the available options can be found [here](https://godoc.org/github.com/micro/go-micro#Option).
 
-By default go-micro uses protobuf to define the service and request/response types. This is a very convenient way to strictly define the API. 
+Go Micro also provides a way to set command line flags using `micro.Flags`.
 
-Here's an example definition:
+```go
+import (
+        "github.com/micro/cli"
+        "github.com/micro/go-micro"
+)
 
-hello.proto
+service := micro.NewService(
+        micro.Flags(
+                cli.StringFlag{
+                        Name:  "environment",
+                        Usage: "The environment",
+                },
+        )
+)
+```
+
+To parse flags use `service.Init`. Additionally access flags use the `micro.Action` option.
+
+```go
+service.Init(
+        micro.Action(func(c *cli.Context) {
+                env := c.StringFlag("environment")
+                if len(env) > 0 {
+                        fmt.Println("Environment set to", env)
+                }
+        }),
+)
+```
+
+Go Micro provides predefined flags which are set and parsed if `service.Init` is called. See all the flags 
+[here](https://godoc.org/github.com/micro/go-micro/cmd#pkg-variables).
+
+###### 2. Defining the API
+
+We use protobuf files to define the service API interface. This is a very convenient way to strictly define the API and 
+provide concrete types for both the server and a client.
+
+Here's an example definition.
+
+greeter.proto
+
 ```
 syntax = "proto3";
 
-package go.micro.srv.greeter;
-
-service Say {
-	rpc Hello(Request) returns (Response) {}
+service Greeter {
+	rpc Hello(HelloRequest) returns (HelloResponse) {}
 }
 
-message Request {
+message HelloRequest {
 	string name = 1;
 }
 
-message Response {
-	string msg = 1;
+message HelloResponse {
+	string greeting = 2;
 }
 ```
 
-As you can see we're defining a service handler called Say with the method Hello which takes the parameter Request type and returns Response.
+Here we're defining a service handler called Greeter with the method Hello which takes the parameter HelloRequest type and returns HelloResponse.
+
+###### 3. Generate the API interface
 
 We use protoc and protoc-gen-go to generate the concrete go implementation for this definition.
 
-```shell
-protoc --go_out=. hello.proto
-```
-
-Go-micro has experimental code generation support which provides client stub methods to reduce boiler plate code. This can be used in the following way. It uses a fork of [github.com/golang/protobuf](https://github.com/golang/protobuf).
+Go-micro uses code generation to provide client stub methods to reduce boiler plate code much like gRPC. It's done via a protobuf plugin 
+which requires a fork of [golang/protobuf](https://github.com/golang/protobuf) that can be found here 
+[github.com/micro/protobuf](github.com/micro/protobuf).
 
 ```shell
-go get github.com/micro/protobuf
-protoc --go_out=plugins=micro:. hello.proto
+go get github.com/micro/protobuf/{proto,protoc-gen-go}
+protoc --go_out=plugins=micro:. greeter.proto
 ```
 
 The types generated can now be imported and used within a **handler** for a server or the client when making a request.
@@ -66,41 +120,41 @@ The types generated can now be imported and used within a **handler** for a serv
 Here's part of the generated code.
 
 ```go
-type Request struct {
+type HelloRequest struct {
 	Name string `protobuf:"bytes,1,opt,name=name" json:"name,omitempty"`
 }
 
-type Response struct {
-	Msg string `protobuf:"bytes,1,opt,name=msg" json:"msg,omitempty"`
+type HelloResponse struct {
+	Greeting string `protobuf:"bytes,2,opt,name=greeting" json:"greeting,omitempty"`
 }
 
-// Client API for Say service
+// Client API for Greeter service
 
-type SayClient interface {
-	Hello(ctx context.Context, in *Request, opts ...client.CallOption) (*Response, error)
+type GreeterClient interface {
+	Hello(ctx context.Context, in *HelloRequest, opts ...client.CallOption) (*HelloResponse, error)
 }
 
-type sayClient struct {
+type greeterClient struct {
 	c           client.Client
 	serviceName string
 }
 
-func NewSayClient(serviceName string, c client.Client) SayClient {
+func NewGreeterClient(serviceName string, c client.Client) GreeterClient {
 	if c == nil {
 		c = client.NewClient()
 	}
 	if len(serviceName) == 0 {
-		serviceName = "go.micro.srv.greeter"
+		serviceName = "greeter"
 	}
-	return &sayClient{
+	return &greeterClient{
 		c:           c,
 		serviceName: serviceName,
 	}
 }
 
-func (c *sayClient) Hello(ctx context.Context, in *Request, opts ...client.CallOption) (*Response, error) {
-	req := c.c.NewRequest(c.serviceName, "Say.Hello", in)
-	out := new(Response)
+func (c *greeterClient) Hello(ctx context.Context, in *HelloRequest, opts ...client.CallOption) (*HelloResponse, error) {
+	req := c.c.NewRequest(c.serviceName, "Greeter.Hello", in)
+	out := new(HelloResponse)
 	err := c.c.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
@@ -108,187 +162,134 @@ func (c *sayClient) Hello(ctx context.Context, in *Request, opts ...client.CallO
 	return out, nil
 }
 
-// Server API for Say service
+// Server API for Greeter service
 
-type SayHandler interface {
-	Hello(context.Context, *Request, *Response) error
+type GreeterHandler interface {
+	Hello(context.Context, *HelloRequest, *HelloResponse) error
 }
 
-func RegisterSayHandler(s server.Server, hdlr SayHandler) {
-	s.Handle(s.NewHandler(hdlr))
+func RegisterGreeterHandler(s server.Server, hdlr GreeterHandler) {
+	s.Handle(s.NewHandler(&Greeter{hdlr}))
 }
 ```
 
-### Handlers
-The server requires **handlers** to be registered to serve requests. A handler is an public object with public methods which conform to the signature `func(ctx context.Context, req interface{}, rsp interface{}) error`.
+###### 4. Implement the handler
 
-A **streaming** handler maintains a connection with the client and can stream back multiple responses. It has the signature `func(ctx context.Context, req interface{}, rsp func(interface{}) error) error`.
+The server requires **handlers** to be registered to serve requests. A handler is an public type with public methods 
+which conform to the signature `func(ctx context.Context, req interface{}, rsp interface{}) error`.
 
-Example handler:
+As you can see above, a handler signature for the Greeter interface looks like so.
 
 ```go
-import (
-	hello "github.com/micro/micro/examples/greeter/server/proto/hello"
-)
+type GreeterHandler interface {
+        Hello(context.Context, *HelloRequest, *HelloResponse) error
+}
+```
 
-type Say struct{}
+Here's an implementation of the Greeter handler.
 
-func (s *Say) Hello(ctx context.Context, req *hello.Request, rsp *hello.Response) error {
-	rsp.Msg = "Hello " + req.Name
+```go
+import proto "github.com/micro/micro/examples/service/proto"
+
+type Greeter struct{}
+
+func (g *Greeter) Hello(ctx context.Context, req *proto.HelloRequest, rsp *proto.HelloResponse) error {
+	rsp.Greeting = "Hello " + req.Name
 	return nil
 }
 ```
 
-Example streaming handler:
-```go
-import (
-	hello "github.com/micro/micro/examples/greeter/server/proto/hello"
+
+The handler is registered with your service much like a http.Handler.
+
+```
+service := micro.NewService(
+	micro.Name("greeter"),
 )
 
-type Say struct{}
-
-func (s *Say) StreamHello(ctx context.Context, req *hello.Request, rspFn func(*hello.Response) error) error {
-	i := 0
-	for {
-		i++
-		if err := rspFn(&rsp{Msg: "Hello " + req.Name + " response: " + i}); err != nil {
-			break
-		}
-	}
-	return nil
-}
+proto.RegisterGreeterHandler(service.Server(), new(Greeter))
 ```
 
-Registration of the handler
-```
-func main() {
-	server.Handle(
-		server.NewHandler(
-			new(Say), // Create new instance of Say struct
-		),
-	)
-}
-```
+You can also create a bidirectional streaming handler but we'll leave that for another day.
 
-### Running the server
+###### 5. Running the service
 
-The server can be started by calling `server.Start()`. This causes the service to bind to the address in the config (which defaults to a random all interfaces and a random port) and listen for requests.
+The service can be run by calling `server.Run`. This causes the service to bind to the address in the config 
+(which defaults to the first RFC1918 interface found and a random port) and listen for requests.
 
-Alternatively `server.Run()` can be called which also registers the service with the **registry** providing service name resolution and discovery.
+This will additionally Register the service with the registry on start and Deregister when issued a kill signal.
 
-Starting the server
 ```go
-if err := server.Run(); err != nil {
+if err := service.Run(); err != nil {
 	log.Fatal(err)
 }
 ```
 
-### Complete Example
+###### 6. The complete service
+<br>
+greeter.go
 
 ```go
 package main
 
 import (
-	"log"
+        "log"
 
-	"github.com/micro/go-micro/server"
-	hello "github.com/micro/micro/examples/greeter/server/proto/hello"
-	"golang.org/x/net/context"
+        "github.com/micro/go-micro"
+        proto "github.com/micro/go-micro/examples/service/proto"
+
+        "golang.org/x/net/context"
 )
 
-type Say struct{}
+type Greeter struct{}
 
-func (s *Say) Hello(ctx context.Context, req *hello.Request, rsp *hello.Response) error {
-	log.Print("Received Say.Hello request")
-	rsp.Msg = server.Config().Id() + ": Hello " + req.Name
-	return nil
+func (g *Greeter) Hello(ctx context.Context, req *proto.HelloRequest, rsp *proto.HelloResponse) error {
+        rsp.Greeting = "Hello " + req.Name
+        return nil
 }
 
 func main() {
-	// Initialise Server
-	server.Init(
-		server.Name("go.micro.srv.greeter"),
-	)
+        service := micro.NewService(
+                micro.Name("greeter"),
+                micro.Version("latest"),
+        )
 
-	// Register Handlers
-	server.Handle(
-		server.NewHandler(
-			new(Say),
-		),
-	)
+        service.Init()
 
-	// Run server
-	if err := server.Run(); err != nil {
-		log.Fatal(err)
-	}
+        proto.RegisterGreeterHandler(service.Server(), new(Greeter))
+
+        if err := service.Run(); err != nil {
+                log.Fatal(err)
+        }
 }
 ```
 
-Note: The registry/discovery system is required when using server.Run() since it's used for service name resolution. Read more about that in the go-micro [README](https://github.com/micro/go-micro).
+Note. The service discovery mechanism will need to be running so the service can register to be discovered by clients and 
+other services. A quick getting started for that is [here](https://github.com/micro/go-micro#getting-started).
 
-## Writing a Client
+###### Writing a Client
 
-The [client](https://godoc.org/github.com/micro/go-micro/client) package is used to query services. As with the server, a default client is initialised for convenience.
+The [client](https://godoc.org/github.com/micro/go-micro/client) package is used to query services. When you create a 
+Service, a Client is included which matches the initialised packages used by the server.
 
-Querying the above service is as simple as this.
+Querying the above service is as simple as the following.
 
 ```go
-package main
+// create the greeter client using the service name and client
+greeter := proto.NewGreeterClient("greeter", service.Client())
 
-import (
-	"fmt"
-
-	"github.com/micro/go-micro/client"
-	hello "github.com/micro/micro/examples/greeter/server/proto/hello"
-
-	"golang.org/x/net/context"
-)
-
-func main() {
-	req := client.NewRequest("go.micro.srv.greeter", "Say.Hello", &hello.Request{
-		Name: "John",
-	})
-
-	rsp := &hello.Response{}
-
-	// Call service
-	if err := client.Call(ctx, req, rsp); err != nil {
-		fmt.Println(err)
-		return
-	}
-
-	fmt.Println(rsp.Msg)
+// request the Hello method on the Greeter handler
+rsp, err := greeter.Hello(context.TODO(), &proto.HelloRequest{
+	Name: "John",
+})
+if err != nil {
+	fmt.Println(err)
+	return
 }
+
+fmt.Println(rsp.Greeter)
 ```
 
-We can also use the generated client stub methods.
+`proto.NewGreeterClient` takes the service name and the client used for making requests.
 
-```go
-package main
-
-import (
-	"fmt"
-
-	"github.com/micro/go-micro/client"
-	hello "github.com/micro/micro/examples/greeter/server/proto/hello"
-
-	"golang.org/x/net/context"
-)
-
-func main() {
-	// use the generated client stub
-	cl := hello.NewSayClient("go.micro.srv.greeter", client.DefaultClient)
-
-	rsp, err := cl.Hello(ctx, &hello.Request{
-		Name: "John",
-	})
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-
-	fmt.Println(rsp.Msg)
-}
-```
-
-Note: again here the client is internally using the registry for service name resolution. You can alternatively use `client.CallRemote` or `client.StreamRemote` to directly call a specific address:port. 
+The full example is can be found at [go-micro/examples/service](https://github.com/micro/go-micro/tree/master/examples/service).
