@@ -86,7 +86,7 @@ go run examples/greeter/api/api.go
 
 ### Query
 
-Make a HTTP call through the API
+Make a HTTP call
 
 ```shell
 curl "http://localhost:8080/greeter/say/hello?name=Asim+Aslam"
@@ -94,7 +94,7 @@ curl "http://localhost:8080/greeter/say/hello?name=Asim+Aslam"
 {"message":"Hello Asim Aslam"}
 ```
 
-Make an RPC call to the backend service directly via the /rpc endpoint
+Make an RPC call via the /rpc
 
 ```shell
 curl -d 'service=go.micro.srv.greeter' \
@@ -105,7 +105,7 @@ curl -d 'service=go.micro.srv.greeter' \
 {"msg":"Hello Asim Aslam"}
 ```
 
-Using 'Content-Type: application/json'
+Make an RPC call via /rpc with content-type set to json
 
 ```shell
 $ curl -H 'Content-Type: application/json' \
@@ -115,9 +115,9 @@ $ curl -H 'Content-Type: application/json' \
 {"msg":"Hello Asim Aslam"}
 ```
 
-## API HTTP request translation
+## API Request Mapping
 
-Micro allows you resolve HTTP Paths at the edge to individual API Services. An API service is like any other 
+Micro allows you resolve HTTP URL Paths at the edge to individual API Services. An API service is like any other 
 micro service except each method signature takes an *api.Request and *api.Response type which can be found in 
 [github.com/micro/micro/api/proto](https://github.com/micro/micro/tree/master/api/proto).
 
@@ -127,7 +127,7 @@ along with a namespace, is used to determine the backend service and method to c
 
 The default namespace for these services are **go.micro.api** but you can set your own namespace via `--namespace`.
 
-Translation of URLs are as follows:
+URLs are mapped as follows:
 
 Path	|	Service	|	Method
 ----	|	----	|	----
