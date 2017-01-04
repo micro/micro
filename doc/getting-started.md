@@ -75,7 +75,7 @@ service.Init(
 Go Micro provides predefined flags which are set and parsed if `service.Init` is called. See all the flags 
 [here](https://godoc.org/github.com/micro/go-micro/cmd#pkg-variables).
 
-###### 2. Defining the API
+### 2. Defining the API
 
 We use protobuf files to define the service API interface. This is a very convenient way to strictly define the API and 
 provide concrete types for both the server and a client.
@@ -102,7 +102,7 @@ message HelloResponse {
 
 Here we're defining a service handler called Greeter with the method Hello which takes the parameter HelloRequest type and returns HelloResponse.
 
-###### 3. Generate the API interface
+### 3. Generate the API interface
 
 We use protoc and protoc-gen-go to generate the concrete go implementation for this definition.
 
@@ -173,7 +173,7 @@ func RegisterGreeterHandler(s server.Server, hdlr GreeterHandler) {
 }
 ```
 
-###### 4. Implement the handler
+### 4. Implement the handler
 
 The server requires **handlers** to be registered to serve requests. A handler is an public type with public methods 
 which conform to the signature `func(ctx context.Context, req interface{}, rsp interface{}) error`.
@@ -212,7 +212,7 @@ proto.RegisterGreeterHandler(service.Server(), new(Greeter))
 
 You can also create a bidirectional streaming handler but we'll leave that for another day.
 
-###### 5. Running the service
+### 5. Running the service
 
 The service can be run by calling `server.Run`. This causes the service to bind to the address in the config 
 (which defaults to the first RFC1918 interface found and a random port) and listen for requests.
@@ -225,7 +225,7 @@ if err := service.Run(); err != nil {
 }
 ```
 
-###### 6. The complete service
+### 6. The complete service
 <br>
 greeter.go
 
@@ -267,7 +267,7 @@ func main() {
 Note. The service discovery mechanism will need to be running so the service can register to be discovered by clients and 
 other services. A quick getting started for that is [here](https://github.com/micro/go-micro#getting-started).
 
-###### Writing a Client
+## Writing a Client
 
 The [client](https://godoc.org/github.com/micro/go-micro/client) package is used to query services. When you create a 
 Service, a Client is included which matches the initialised packages used by the server.
