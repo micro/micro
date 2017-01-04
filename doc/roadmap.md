@@ -14,7 +14,7 @@ Dec 2016
 - [ ] Proto generate publisher/subscriber helpers [#3](https://github.com/micro/protobuf/pull/3)
 - [ ] DB Library (in progress)
 
-Jan 2016
+Jan 2017
 - [ ] DB Library
 
 Long Term:
