@@ -124,6 +124,31 @@ Project		|	Description
 -----		|	------
 [Micro Dashboard](https://github.com/Margatroid/micro-dashboard)	|	Dashboard for microservices toolchain micro
 
+## Build with plugins
+
+If you want to integrate plugins simply link them in a separate file and rebuild
+
+Create a plugins.go file
+```go
+import (
+	// etcd v3 registry
+	_ "github.com/micro/go-plugins/registry/etcdv3"
+	// nats transport
+	_ "github.com/micro/go-plugins/transport/nats"
+	// kafka broker
+	_ "github.com/micro/go-plugins/broker/kafka"
+```
+
+Build binary
+```shell
+CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -ldflags '-w' -i -o micro ./main.go ./plugins.go
+```
+
+Flag usage of plugins
+```shell
+micro --registry=etcdv3 --transport=nats --broker=kafka
+```
+
 ## Sponsors
 
 Open source development of Micro is sponsored by Sixt

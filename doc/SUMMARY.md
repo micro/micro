@@ -8,6 +8,7 @@
   - [CLI](https://github.com/micro/micro/blob/master/cli/README.md)
   - [Bot](https://github.com/micro/micro/blob/master/bot/README.md)
   - [New](https://github.com/micro/micro/blob/master/new/README.md)
+* [Plugins](plugins.md)
 * [FAQ](faq.md)
 * [Features](features.md)
 * [Users](users.md)

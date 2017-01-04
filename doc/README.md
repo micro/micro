@@ -38,3 +38,5 @@ It provides the features of the CLI via messaging. Additional commands can be ad
 <p align="center">
   <img src="images/overview.png" />
 </p>
+
+Go to the [summary](SUMMARY.md)
