@@ -7,9 +7,9 @@ This directory contains examples for using the sidecar with various languages.
 
 ## Usage
 
-### Discovery 
+### Run Discovery 
 
-Run Consul
+Use Consul
 
 ```
 brew install consul
@@ -19,9 +19,9 @@ brew install consul
 consul agent -dev
 ```
 
-Alternative run sidecar with `--registry=mdns` for multicast dns and zero dependencies.
+Alternatively run sidecar with `--registry=mdns` for multicast dns and zero dependencies.
 
-### Sidecar
+### Run Sidecar
 
 ```
 micro sidecar
