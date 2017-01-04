@@ -7,15 +7,32 @@ This directory contains examples for using the sidecar with various languages.
 
 ## Usage
 
-Run sidecar
+### Discovery 
+
+Run Consul
+
+```
+brew install consul
+```
+
+```
+consul agent -dev
+```
+
+Alternative run sidecar with `--registry=mdns` for multicast dns and zero dependencies.
+
+### Sidecar
+
 ```
 micro sidecar
 ```
 
-Run sidecar with http proxy handler
+Or with http proxy handler
 ```
 micro sidecar --handler=proxy
 ```
+
+### Service
 
 Run server
 ```
