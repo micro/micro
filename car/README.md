@@ -133,8 +133,6 @@ Default namespace of services called are **go.micro.srv**
 
 ```shell
 curl -H 'Content-Type: application/json' -d '{"name": "John"}' http://127.0.0.1:8081/example/call
-
-{"msg":"Hello John"}
 ```
 
 **Using /rpc endpoint**
@@ -143,8 +141,6 @@ curl -H 'Content-Type: application/json' -d '{"name": "John"}' http://127.0.0.1:
 curl -d 'service=go.micro.srv.example' \
 	-d 'method=Example.Call' \
 	-d 'request={"name": "John"}' http://127.0.0.1:8081/rpc
-
-{"msg":"Hello John"}
 ```
 
 ### Proxy Handler
@@ -159,9 +155,9 @@ micro sidecar --handler=proxy
 
 The first element in the url path will be used along with the namespace as the service to route to.
 
-### RPC Path Mapping
+### RPC Request Mapping
 
-Path mapping operates the same as the micro API
+URL Path mapping is the same as the micro API
 
 Mapping of URLs are as follows:
 
