@@ -49,7 +49,7 @@ The micro ecosystem is rapidly growing but there's still a lot to do.
   * [ ] Create dependency management config for services
   * [ ] Allow push/pull from micro.mu
 6. Examples
-  * [x] [greeter](https://github.com/micro/micro/tree/master/examples/greeter) client/server {ruby, python, go}
+  * [x] [greeter](https://github.com/micro/examples/tree/master/greeter) client/server {ruby, python, go}
   * [x] [go-micro/examples](https://github.com/micro/go-micro/tree/master/examples)
   * [x] [pub sub](https://github.com/micro/go-micro/tree/master/examples/pubsub)
   * [x] code generation example

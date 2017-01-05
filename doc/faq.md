@@ -21,7 +21,7 @@ There's a slack community with hundreds of members. You can invite yourself [her
 
 ## How do I use Micro?
 
-You can start by writing a microservice with [**go-micro**](https://github.com/micro/go-micro) or playing with the example [**greeter**](https://github.com/micro/micro/tree/master/examples/greeter) app. The greeter also demonstrates how to integrate non-Go applications. Micro uses proto-rpc and json-rpc by default, libraries are available for both protocols in most languages.
+You can start by writing a microservice with [**go-micro**](https://github.com/micro/go-micro) or playing with the example [**greeter**](https://github.com/micro/examples/tree/master/greeter) app. The greeter also demonstrates how to integrate non-Go applications. Micro uses proto-rpc and json-rpc by default, libraries are available for both protocols in most languages.
 
 You can find a guide to getting started writing apps [**here**](getting-started.md) and a shorter version in the go-micro [readme](https://github.com/micro/go-micro).
 
