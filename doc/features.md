@@ -50,8 +50,8 @@ The micro ecosystem is rapidly growing but there's still a lot to do.
   * [ ] Allow push/pull from micro.mu
 6. Examples
   * [x] [greeter](https://github.com/micro/examples/tree/master/greeter) client/server {ruby, python, go}
-  * [x] [go-micro/examples](https://github.com/micro/go-micro/tree/master/examples)
-  * [x] [pub sub](https://github.com/micro/go-micro/tree/master/examples/pubsub)
+  * [x] [go-micro/examples](https://github.com/micro/examples/tree/master)
+  * [x] [pub sub](https://github.com/micro/examples/tree/master/pubsub)
   * [x] code generation example
   * [x] geo service and api
   * [x] slack bot API service
@@ -65,14 +65,14 @@ The micro ecosystem is rapidly growing but there's still a lot to do.
   * [x] [Server](https://github.com/micro/go-micro/blob/master/server/server_wrapper.go)
   * [x] [Client](https://github.com/micro/go-micro/blob/master/client/client_wrapper.go)
   * [x] Example implementations
-    * [x] [Client](https://github.com/micro/go-micro/tree/master/examples/client/wrapper)
+    * [x] [Client](https://github.com/micro/examples/tree/master/client/wrapper)
     * [x] [Server](https://github.com/micro/go-micro/blob/master/examples/server/main.go#L12L28)
   * [x] Plugins e.g. trace, monitoring, logging
 2. Code generation
   * [x] Experimental generator [github.com/micro/protobuf](https://github.com/micro/protobuf)
   * [x] Example usage
-    * [x] [Client](https://github.com/micro/go-micro/tree/master/examples/client/codegen)
-    * [x] [Server](https://github.com/micro/go-micro/tree/master/examples/server/codegen)
+    * [x] [Client](https://github.com/micro/examples/tree/master/client/codegen)
+    * [x] [Server](https://github.com/micro/examples/tree/master/server/codegen)
   * [x] Server side generator
   * [x] Stable interface
 3. Registry

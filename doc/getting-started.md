@@ -236,7 +236,7 @@ import (
         "log"
 
         "github.com/micro/go-micro"
-        proto "github.com/micro/go-micro/examples/service/proto"
+        proto "github.com/micro/examples/service/proto"
 
         "golang.org/x/net/context"
 )
@@ -292,4 +292,4 @@ fmt.Println(rsp.Greeter)
 
 `proto.NewGreeterClient` takes the service name and the client used for making requests.
 
-The full example is can be found at [go-micro/examples/service](https://github.com/micro/go-micro/tree/master/examples/service).
+The full example is can be found at [go-micro/examples/service](https://github.com/micro/examples/tree/master/service).
