@@ -189,7 +189,7 @@ type GreeterHandler interface {
 Here's an implementation of the Greeter handler.
 
 ```go
-import proto "github.com/micro/micro/examples/service/proto"
+import proto "github.com/micro/examples/service/proto"
 
 type Greeter struct{}
 

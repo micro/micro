@@ -6,7 +6,7 @@ var (
 import (
 	"github.com/micro/go-micro"
 	"github.com/micro/go-micro/server"
-	example "github.com/micro/micro/examples/template/srv/proto/example"
+	example "github.com/micro/examples/template/srv/proto/example"
 
 	"golang.org/x/net/context"
 )

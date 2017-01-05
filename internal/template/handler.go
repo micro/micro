@@ -81,7 +81,7 @@ import (
 	"{{.Dir}}/client"
 	"github.com/micro/go-micro/errors"
 	api "github.com/micro/micro/api/proto"
-	example "github.com/micro/micro/examples/template/srv/proto/example"
+	example "github.com/micro/examples/template/srv/proto/example"
 
 	"golang.org/x/net/context"
 )
@@ -133,7 +133,7 @@ import (
 	"time"
 
 	"github.com/micro/go-micro/client"
-	example "github.com/micro/micro/examples/template/srv/proto/example"
+	example "github.com/micro/examples/template/srv/proto/example"
 
 	"golang.org/x/net/context"
 )
