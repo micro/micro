@@ -66,7 +66,7 @@ The micro ecosystem is rapidly growing but there's still a lot to do.
   * [x] [Client](https://github.com/micro/go-micro/blob/master/client/client_wrapper.go)
   * [x] Example implementations
     * [x] [Client](https://github.com/micro/examples/tree/master/client/wrapper)
-    * [x] [Server](https://github.com/micro/go-micro/blob/master/examples/server/main.go#L12L28)
+    * [x] [Server](https://github.com/micro/examples/blob/master/server/main.go#L12L28)
   * [x] Plugins e.g. trace, monitoring, logging
 2. Code generation
   * [x] Experimental generator [github.com/micro/protobuf](https://github.com/micro/protobuf)
