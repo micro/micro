@@ -76,16 +76,10 @@ Or we can use multicast DNS for zero dependency discovery
 
 Pass `--registry=mdns` to the below commands e.g `micro --registry=mdns list services`
 
-Get the greeter service
-
-```shell
-go get github.com/micro/examples/greeter/srv
-```
-
 Run the greeter service
 
 ```shell
-srv
+go get github.com/micro/examples/greeter/srv && srv
 ```
 
 List services
