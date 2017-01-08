@@ -72,9 +72,9 @@ Run consul
 consul agent -dev -advertise=127.0.0.1
 ```
 
-Alternatively we can use multicast DNS for a zero dependency discovery. 
+Or we can use multicast DNS for zero dependency discovery
 
-Pass `--registry=mdns` to the below commands e.g. `server --registry=mdns` or `micro --registry=mdns list services`.
+Pass `--registry=mdns` to the below commands e.g `micro --registry=mdns list services`
 
 Get the greeter service
 
