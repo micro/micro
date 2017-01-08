@@ -60,7 +60,7 @@ docker pull microhq/micro
 
 ### Quick start
 
-We need service discovery, so let's spin up Consul (the default); checkout [go-plugins](https://github.com/micro/go-plugins) to swap it out).
+We need service discovery, so let's spin up Consul (the default); checkout [go-plugins](https://github.com/micro/go-plugins) to swap it out.
 
 Install consul
 ```
@@ -72,11 +72,20 @@ Run consul
 consul agent -dev -advertise=127.0.0.1
 ```
 
-Alternatively we can use multicast DNS with the built in MDNS registry for a zero dependency configuration. Just pass `--registry=mdns` to the below commands e.g. `server --registry=mdns` or `micro --registry=mdns list services`.
+Alternatively we can use multicast DNS for a zero dependency discovery. 
+
+Pass `--registry=mdns` to the below commands e.g. `server --registry=mdns` or `micro --registry=mdns list services`.
+
+Get the greeter service
+
+```shell
+go get github.com/micro/examples/greeter/srv
+```
 
 Run the greeter service
+
 ```shell
-go run examples/greeter/server/main.go
+srv
 ```
 
 List services
