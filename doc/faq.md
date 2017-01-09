@@ -9,7 +9,7 @@ It currently consists of a couple components:
 - **go-micro** - A pluggable Go library for writing a microservice; service discovery, client/server rpc, pub/sub, etc.
 - **micro** - The overarching toolkit containing a CLI, Web UI, API and Sidecar (http interface for go-micro).
 
-There are also other libraries also like [go-plugins](https://github.com/micro/go-plugins) for implementations of each package in go-micro or go-platform and [protobuf](https://github.com/micro/protobuf), a fork of golang/protobuf, which provides experimental code generation for go-micro
+There are also other libraries like [go-plugins](https://github.com/micro/go-plugins) for implementations of each package in go-micro and [protobuf](https://github.com/micro/protobuf), a fork of golang/protobuf, which provides experimental code generation for go-micro
 
 ## Who's using Micro?
 
@@ -44,7 +44,7 @@ import (
 ```
 
 ```shell
-my_service --registry=etcd --registry_address=127.0.0.1:2379
+service --registry=etcd --registry_address=127.0.0.1:2379
 ```
 
 ### Zero Dependency MDNS
@@ -57,7 +57,7 @@ Micro is runtime agnostic. You can run it anywhere you like. On bare metal, on A
 
 In fact there's demo config for Micro on Kubernetes. Check out the repo at [github.com/micro/kubernetes](https://github.com/micro/kubernetes)
 
-## What's the different between API, Web and SRV services?
+## What's the difference between API, Web and SRV services?
 
 <img src="images/arch.png" />
 
