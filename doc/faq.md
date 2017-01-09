@@ -92,7 +92,9 @@ If you're still concerned with performance. The simplest way to extract the most
 
 ## Does Micro support gRPC?
 
-Yes. There are plugins for a transport, client and server in [micro/go-plugins](https://github.com/micro/go-plugins). If you want a quick start just use [micro/go-grpc](https://github.com/micro/go-grpc).
+Yes. There are plugins for a transport, client and server in [micro/go-plugins](https://github.com/micro/go-plugins). 
+
+If you want a quick start just use [micro/go-grpc](https://github.com/micro/go-grpc).
 
 ## Where Can I Learn More?
 
