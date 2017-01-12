@@ -15,24 +15,27 @@ var (
 	<body>
 	  <nav class="navbar navbar-inverse">
 	    <div class="container">
-	      <div class="navbar-header">
-		<a class="navbar-brand" href="/">&nbsp;<b>Micro</b></a>
-	      </div>
-	      {{if .StatsURL}}<p class="navbar-text navbar-right"><a href="{{.StatsURL}}" class="navbar-link">Stats</a></p>{{end}}
+              <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navBar">
+                  <span class="icon-bar"></span>
+                  <span class="icon-bar"></span>
+                  <span class="icon-bar"></span> 
+                </button>
+                <a class="navbar-brand" href="/">Micro</a>
+              </div>
+              <div class="collapse navbar-collapse" id="navBar">
+	        <ul class="nav navbar-nav navbar-right">
+	          <li><a href="cli">CLI</a></li>
+	          <li><a href="registry">Registry</a></li>
+	          <li><a href="query">Query</a></li>
+	          {{if .StatsURL}}<li><a href="{{.StatsURL}}" class="navbar-link">Stats</a></li>{{end}}
+	        </ul>
+              </div>
 	    </div>
 	  </nav>
           <div class="container">
             <div class="row">
-	      <div class="col-sm-3">
-	        <ul class="nav nav-pills nav-stacked">
-                  <li class="active"><a href="" class="h4">{{ template "title" . }}</a></li>
-	          <li><a href="/">Home</a></li>
-	          <li><a href="cli">CLI</a></li>
-	          <li><a href="registry">Registry</a></li>
-	          <li><a href="query">Query</a></li>
-	        </ul>
-	      </div>
-	      <div class="col-sm-9">
+	      <div class="col-sm-12">
                 {{ template "heading" . }}
                 {{ template "content" . }}
               </div>
