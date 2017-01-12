@@ -5,7 +5,7 @@ The **micro sidecar** is a language agnostic proxy for building highly available
 It is similar to Netflix's sidecar [Prana](https://github.com/Netflix/Prana) or Buoyant's RPC Proxy [Linkerd](https://linkerd.io).
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/micro/micro/master/doc/images/car.png" />
+  <img src="https://github.com/micro/docs/blob/master/images/car.png" />
 </p>
 
 Example usage in many languages can be found at [examples/sidecar](https://github.com/micro/examples/tree/master/sidecar)
@@ -226,4 +226,4 @@ Enable a stats dashboard via the `--enable_stats` flag. It will be exposed on /s
 micro --enable_stats sidecar
 ```
 
-<img src="https://raw.githubusercontent.com/micro/micro/master/doc/images/stats.png">
+<img src="https://github.com/micro/docs/blob/master/images/stats.png">

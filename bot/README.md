@@ -4,7 +4,7 @@ The **micro bot** is a bot that sits inside your microservices environment which
 It mimics the functions of the CLI via messaging.
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/micro/micro/master/doc/images/bot.png" />
+  <img src="https://github.com/micro/docs/blob/master/images/bot.png" />
 </p>
 
 ## Supported Inputs
@@ -26,7 +26,7 @@ go get github.com/micro/micro
 micro bot --inputs=slack --slack_token=SLACK_TOKEN
 ```
 
-<img src="https://raw.githubusercontent.com/micro/micro/master/doc/images/slack.png">
+<img src="https://github.com/micro/docs/blob/master/images/slack.png">
 -
 
 ### Run with HipChat
@@ -35,7 +35,7 @@ micro bot --inputs=slack --slack_token=SLACK_TOKEN
 micro bot --inputs=hipchat --hipchat_username=XMPP_USER --hipchat_password=XMPP_PASSWORD
 ```
 
-<img src="https://raw.githubusercontent.com/micro/micro/master/doc/images/hipchat.png">
+<img src="https://github.com/micro/docs/blob/master/images/hipchat.png">
 -
 
 Use multiple inputs by specifying a comma separated list

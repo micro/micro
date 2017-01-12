@@ -4,7 +4,7 @@ The **micro web** provides a dashboard to view and query services as well as a r
 We believe in web apps as first class citizens in a microservice world.
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/micro/micro/master/doc/images/web.png" />
+  <img src="https://github.com/micro/docs/blob/master/images/web.png" />
 </p>
 
 ## Features
@@ -73,15 +73,15 @@ You can enable a stats dashboard via the `--enable_stats` flag. It will be expos
 micro --enable_stats web
 ```
 
-<img src="https://raw.githubusercontent.com/micro/micro/master/doc/images/stats.png">
+<img src="https://github.com/micro/docs/blob/master/images/stats.png">
 
 ## Screenshots
 
-<img src="https://raw.githubusercontent.com/micro/micro/master/doc/images/web1.png">
+<img src="https://github.com/micro/docs/blob/master/images/web1.png">
 -
-<img src="https://raw.githubusercontent.com/micro/micro/master/doc/images/web2.png">
+<img src="https://github.com/micro/docs/blob/master/images/web2.png">
 -
-<img src="https://raw.githubusercontent.com/micro/micro/master/doc/images/web3.png">
+<img src="https://github.com/micro/docs/blob/master/images/web3.png">
 -
-<img src="https://raw.githubusercontent.com/micro/micro/master/doc/images/web4.png">
+<img src="https://github.com/micro/docs/blob/master/images/web4.png">
 
