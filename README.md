@@ -35,7 +35,7 @@ It also allows you to leverage the Sidecar as a proxy where you may not want to 
 - **Bot** - A Hubot style bot that sits inside your microservices platform and can be interacted with via Slack, HipChat, XMPP, etc. 
 It provides the features of the CLI via messaging. Additional commands can be added to automate common ops tasks.
 
-Read the [docs](https://github.com/micro/docs) for more details.
+Read the [docs](https://github.com/micro/docs) for more details on the toolkit.
 
 ## Getting Started
 
@@ -58,23 +58,26 @@ Or via Docker
 docker pull microhq/micro
 ```
 
-### Quick start
+### Dependencies
 
 We need service discovery, so let's spin up Consul (the default); checkout [go-plugins](https://github.com/micro/go-plugins) to swap it out.
 
-Install consul
-```
+Mac OS
+```shell
 brew install consul
+consul agent -dev
 ```
 
-Run consul
-```
-consul agent -dev -advertise=127.0.0.1
+Docker
+```shell
+docker run consul
 ```
 
 Or we can use multicast DNS for zero dependency discovery
 
 Pass `--registry=mdns` to the below commands e.g `micro --registry=mdns list services`
+
+### Try CLI
 
 Run the greeter service
 
@@ -119,7 +122,7 @@ $ micro query go.micro.srv.greeter Say.Hello '{"name": "John"}'
 }
 ```
 
-Read the [docs](https://github.com/micro/docs) to learn more.
+Read the [docs](https://github.com/micro/docs) to learn more about entire toolkit.
 
 ## Build with plugins
 
