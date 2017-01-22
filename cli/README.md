@@ -1,4 +1,4 @@
-# Micro CLI
+# micro cli
 
 The **micro cli** is a command line interface for the microservices toolkit [micro](https://github.com/micro/micro). 
 

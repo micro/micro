@@ -1,4 +1,4 @@
-# Micro API
+# micro api
 
 The **micro api** is a lightweight proxy for [micro](https://github.com/micro/micro) based microservices. It conforms to the [API Gateway](http://microservices.io/patterns/apigateway.html) pattern and can be used in conjuction with [go-micro](https://github.com/micro/go-micro) based apps or any future language implementation of the [micro](https://github.com/micro/micro) toolkit.
 

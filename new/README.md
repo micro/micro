@@ -1,4 +1,4 @@
-# Micro New [Service]
+# micro new [service]
 
 The **micro new** command is a quick way to generate boilerplate templates for micro services.
 

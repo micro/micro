@@ -1,4 +1,4 @@
-# Micro Sidecar
+# micro sidecar
 
 The **micro sidecar** is a language agnostic proxy for building highly available and fault tolerant microservices.
 
