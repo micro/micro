@@ -33,6 +33,7 @@ type srv struct {
 }
 
 var (
+	ServerName   = "go.micro.sidecar"
 	Address      = ":8081"
 	Handler      = "rpc"
 	RootPath     = "/"
@@ -72,6 +73,9 @@ func newSidecar(name, address, hcUrl string) *sidecar {
 }
 
 func run(ctx *cli.Context, car *sidecar) {
+	if len(ctx.GlobalString("server_name")) > 0 {
+		ServerName = ctx.GlobalString("server_name")
+	}
 	if len(ctx.String("address")) > 0 {
 		Address = ctx.String("address")
 	}
@@ -164,7 +168,7 @@ func run(ctx *cli.Context, car *sidecar) {
 
 	// Initialise Server
 	service := micro.NewService(
-		micro.Name("go.micro.sidecar"),
+		micro.Name(ServerName),
 		micro.RegisterTTL(
 			time.Duration(ctx.GlobalInt("register_ttl"))*time.Second,
 		),

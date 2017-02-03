@@ -19,6 +19,7 @@ import (
 )
 
 var (
+	ServerName   = "go.micro.api"
 	Address      = ":8080"
 	Handler      = "api"
 	RPCPath      = "/rpc"
@@ -52,6 +53,9 @@ func (s *srv) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func run(ctx *cli.Context) {
+	if len(ctx.GlobalString("server_name")) > 0 {
+		ServerName = ctx.GlobalString("server_name")
+	}
 	if len(ctx.String("address")) > 0 {
 		Address = ctx.String("address")
 	}
@@ -130,7 +134,7 @@ func run(ctx *cli.Context) {
 
 	// Initialise Server
 	service := micro.NewService(
-		micro.Name("go.micro.api"),
+		micro.Name(ServerName),
 		micro.RegisterTTL(
 			time.Duration(ctx.GlobalInt("register_ttl"))*time.Second,
 		),
