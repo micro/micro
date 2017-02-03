@@ -28,7 +28,7 @@ type bot struct {
 
 var (
 	// Default server name
-	ServerName = "go.micro.bot"
+	Name = "go.micro.bot"
 	// map pattern:command
 	commands = map[string]func(*cli.Context) command.Command{
 		"^echo ":                             command.Echo,
@@ -195,7 +195,7 @@ func run(ctx *cli.Context) {
 	}
 
 	if len(ctx.GlobalString("server_name")) > 0 {
-		ServerName = ctx.GlobalString("server_name")
+		Name = ctx.GlobalString("server_name")
 	}
 
 	// Parse flags
@@ -248,7 +248,7 @@ func run(ctx *cli.Context) {
 
 	// setup service
 	service := micro.NewService(
-		micro.Name(ServerName),
+		micro.Name(Name),
 		micro.RegisterTTL(
 			time.Duration(ctx.GlobalInt("register_ttl"))*time.Second,
 		),

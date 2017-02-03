@@ -31,7 +31,7 @@ import (
 var (
 	re = regexp.MustCompile("^[a-zA-Z0-9]+$")
 	// Default server name
-	ServerName = "go.micro.web"
+	Name = "go.micro.web"
 	// Default address to bind to
 	Address = ":8082"
 	// The namespace to serve
@@ -311,7 +311,7 @@ func render(w http.ResponseWriter, r *http.Request, tmpl string, data interface{
 
 func run(ctx *cli.Context) {
 	if len(ctx.GlobalString("server_name")) > 0 {
-		ServerName = ctx.GlobalString("server_name")
+		Name = ctx.GlobalString("server_name")
 	}
 	if len(ctx.String("address")) > 0 {
 		Address = ctx.String("address")
@@ -379,7 +379,7 @@ func run(ctx *cli.Context) {
 
 	// Initialise Server
 	service := micro.NewService(
-		micro.Name(ServerName),
+		micro.Name(Name),
 		micro.RegisterTTL(
 			time.Duration(ctx.GlobalInt("register_ttl"))*time.Second,
 		),
