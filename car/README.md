@@ -76,7 +76,7 @@ micro sidecar --server_name=foo --server_address=127.0.0.1:9090 \
 	--healthcheck_url=http://127.0.0.1:9090/health
 ```
 
-### /Registry
+### Registry
 
 **Register Service**
 
@@ -178,7 +178,7 @@ Path	|	Service	|	Method
 /v2/foo/bar/baz	|	go.micro.srv.v2.foo	|	Bar.Baz
 
 
-### /Broker
+### Broker
 
 Connect to the micro broker via websockets
 
