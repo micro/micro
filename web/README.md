@@ -7,6 +7,14 @@ We believe in web apps as first class citizens in a microservice world.
   <img src="https://github.com/micro/docs/blob/master/images/web.png" />
 </p>
 
+## API
+
+```
+- / (UI)
+- /[service]
+- /rpc
+```
+
 ## Features
 
 Feature	|	Description

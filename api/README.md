@@ -6,10 +6,16 @@ The **micro api** is a lightweight proxy for [micro](https://github.com/micro/mi
   <img src="https://github.com/micro/docs/blob/master/images/api.png" />
 </p>
 
+## API
+
+```
+- /[service]/[method]
+- /rpc
+```
 
 ## Handlers
 
-The API handles requests in three ways.
+The API has three types of configurable request handlers.
 
 1. API Handler: /[service]/[method]
 	- Request/Response: api.Request/api.Response
@@ -32,10 +38,15 @@ The API handles requests in three ways.
 	- This allows REST to be implemented behind the API
 	- Set via `--handler=proxy`.
 
-
-Alternatively use the /rpc send requests directly to backend services using JSON 
+Alternatively use the /rpc endpoint to speak to any service directly
 - Expects params: `service`, `method`, `request`, optionally accepts `address` to target a specific host
-- ```curl -d 'service=go.micro.srv.greeter' -d 'method=Say.Hello' -d 'request={"name": "Bob"}' http://localhost:8080/rpc```
+
+```
+curl -d 'service=go.micro.srv.greeter' \
+	-d 'method=Say.Hello' \
+	-d 'request={"name": "Bob"}' \
+	http://localhost:8080/rpc
+```
 
 ## Getting started
 
@@ -70,12 +81,14 @@ micro api --namespace=com.example.api
 
 ## API
 
-### Run Services
+Below is an example of querying a service through the API
+
+### Run Example
 
 Start the backend service go.micro.srv.greeter
 
 ```shell
-go run examples/greeter/server/main.go 
+go run examples/greeter/srv/main.go 
 ```
 
 Start the API service go.micro.api.greeter

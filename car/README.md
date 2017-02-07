@@ -10,6 +10,15 @@ It is similar to Netflix's sidecar [Prana](https://github.com/Netflix/Prana) or 
 
 Example usage in many languages can be found at [examples/sidecar](https://github.com/micro/examples/tree/master/sidecar)
 
+## API
+
+```
+- /[service]/[method]
+- /broker
+- /registry
+- /rpc
+```
+
 ## Features
 
 The sidecar has all the features of [go-micro](https://github.com/micro/go-micro). Here are the most relevant.
@@ -65,15 +74,6 @@ It does the following:
 ```shell
 micro sidecar --server_name=foo --server_address=127.0.0.1:9090 \
 	--healthcheck_url=http://127.0.0.1:9090/health
-```
-
-## API
-
-```
-- /[service]/[method]
-- /broker
-- /registry
-- /rpc
 ```
 
 ### /Registry
