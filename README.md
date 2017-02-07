@@ -3,7 +3,7 @@
 
 Micro is a **microservice** toolkit. Its purpose is to simplify distributed systems development.
 
-Check out [**go-micro**](https://github.com/micro/go-micro) if you want to start writing services in Go now. Examples of how to use micro with other languages can be found in [examples/sidecar](https://github.com/micro/examples/tree/master/sidecar).
+Check out [**go-micro**](https://github.com/micro/go-micro) if you want to start writing services in Go now or [**java-micro**](https://github.com/Sixt/java-micro) for Java. Examples of how to use micro with other languages can be found in [examples/sidecar](https://github.com/micro/examples/tree/master/sidecar).
 
 Learn more about Micro in the introductory blog post [https://blog.micro.mu/2016/03/20/micro.html](https://blog.micro.mu/2016/03/20/micro.html) or watch the talk from the [Golang UK Conf 2016](https://www.youtube.com/watch?v=xspaDovwk34).
 
@@ -158,6 +158,7 @@ micro --registry=etcdv3 --transport=nats --broker=kafka
 Project		|	Description
 -----		|	------
 [Micro Dashboard](https://github.com/Margatroid/micro-dashboard)	|	Dashboard for microservices toolchain micro
+[Java-Micro](https://github.com/Sixt/java-micro)	|	A micro compatible java framework for microservices
 
 ## Sponsors
 
