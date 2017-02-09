@@ -1,4 +1,4 @@
-# Micro [![License](https://img.shields.io/:license-apache-blue.svg)](https://opensource.org/licenses/Apache-2.0) [![GoDoc](https://godoc.org/github.com/micro/micro?status.svg)](https://godoc.org/github.com/micro/micro) [![Travis CI](https://travis-ci.org/micro/micro.svg?branch=master)](https://travis-ci.org/micro/micro) [![Roadmap](https://img.shields.io/badge/roadmap-in%20progress-lightgrey.svg)](https://github.com/micro/docs/blob/master/roadmap.md) [![Go Report Card](https://goreportcard.com/badge/micro/micro)](https://goreportcard.com/report/github.com/micro/micro)
+# Micro [![License](https://img.shields.io/:license-apache-blue.svg)](https://opensource.org/licenses/Apache-2.0) [![GoDoc](https://godoc.org/github.com/micro/micro?status.svg)](https://godoc.org/github.com/micro/micro) [![Travis CI](https://travis-ci.org/micro/micro.svg?branch=master)](https://travis-ci.org/micro/micro) [![Go Report Card](https://goreportcard.com/badge/micro/micro)](https://goreportcard.com/report/github.com/micro/micro)
 
 
 Micro is a **microservice** toolkit. Its purpose is to simplify distributed systems development.
@@ -34,7 +34,7 @@ It also allows you to leverage the Sidecar as a proxy where you may not want to 
 - **Bot** - A Hubot style bot that sits inside your microservices platform and can be interacted with via Slack, HipChat, XMPP, etc. 
 It provides the features of the CLI via messaging. Additional commands can be added to automate common ops tasks.
 
-Read the [docs](https://github.com/micro/docs) for more details on the toolkit.
+Read the [docs](https://micro.mu/docs) for more details on the toolkit.
 
 ## Getting Started
 
@@ -42,7 +42,7 @@ Read the [docs](https://github.com/micro/docs) for more details on the toolkit.
 
 Learn how to write and run a microservice using [**go-micro**](https://github.com/micro/go-micro). 
 
-Read the [Getting Started](https://github.com/micro/docs/blob/master/getting-started.md) guide or the blog post on 
+Read the [Getting Started](https://micro.mu/docs/writing-a-go-service.html) guide or the blog post on 
 [Writing microservices with Go-Micro](https://blog.micro.mu/2016/03/28/go-micro.html).
 
 ### Install Micro
@@ -121,7 +121,7 @@ $ micro query go.micro.srv.greeter Say.Hello '{"name": "John"}'
 }
 ```
 
-Read the [docs](https://github.com/micro/docs) to learn more about entire toolkit.
+Read the [docs](https://micro.mu/docs) to learn more about entire toolkit.
 
 ## Build with plugins
 
