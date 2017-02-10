@@ -34,7 +34,9 @@ It also allows you to leverage the Sidecar as a proxy where you may not want to 
 - **Bot** - A Hubot style bot that sits inside your microservices platform and can be interacted with via Slack, HipChat, XMPP, etc. 
 It provides the features of the CLI via messaging. Additional commands can be added to automate common ops tasks.
 
-Read the [docs](https://micro.mu/docs) for more details on the toolkit.
+## Docs
+
+For more detailed information on the architecture, installation and use of the toolkit checkout the [docs](https://micro.mu/docs).
 
 ## Getting Started
 
