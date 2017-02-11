@@ -5,7 +5,7 @@ Micro is a **microservice** toolkit. Its purpose is to simplify distributed syst
 
 Check out [**go-micro**](https://github.com/micro/go-micro) if you want to start writing services in Go now or [**java-micro**](https://github.com/Sixt/java-micro) for Java. Examples of how to use micro with other languages can be found in [examples/sidecar](https://github.com/micro/examples/tree/master/sidecar).
 
-Learn more about Micro in the introductory blog post [https://blog.micro.mu/2016/03/20/micro.html](https://blog.micro.mu/2016/03/20/micro.html) or watch the talk from the [Golang UK Conf 2016](https://www.youtube.com/watch?v=xspaDovwk34).
+Learn more about Micro in the introductory blog post [https://micro.mu/blog/2016/03/20/micro.html](https://micro.mu/blog/2016/03/20/micro.html) or watch the talk from the [Golang UK Conf 2016](https://www.youtube.com/watch?v=xspaDovwk34).
 
 Follow us on Twitter at [@MicroHQ](https://twitter.com/microhq), join the [Slack](https://micro-services.slack.com) community [here](http://slack.micro.mu/) or 
 check out the [Mailing List](https://groups.google.com/forum/#!forum/microhq).
@@ -45,7 +45,7 @@ For more detailed information on the architecture, installation and use of the t
 Learn how to write and run a microservice using [**go-micro**](https://github.com/micro/go-micro). 
 
 Read the [Getting Started](https://micro.mu/docs/writing-a-go-service.html) guide or the blog post on 
-[Writing microservices with Go-Micro](https://blog.micro.mu/2016/03/28/go-micro.html).
+[Writing microservices with Go-Micro](https://micro.mu/blog/2016/03/28/go-micro.html).
 
 ### Install Micro
 
@@ -166,5 +166,5 @@ Project		|	Description
 
 Open source development of Micro is sponsored by Sixt
 
-<a href="https://blog.micro.mu/2016/04/25/announcing-sixt-sponsorship.html"><img src="https://micro.mu/sixt_logo.png" width=150px height="auto" /></a>
+<a href="https://micro.mu/blog/2016/04/25/announcing-sixt-sponsorship.html"><img src="https://micro.mu/sixt_logo.png" width=150px height="auto" /></a>
 
