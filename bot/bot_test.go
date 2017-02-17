@@ -10,6 +10,9 @@ import (
 	"github.com/micro/cli"
 	"github.com/micro/micro/bot/command"
 	"github.com/micro/micro/bot/input"
+
+	"github.com/micro/go-micro"
+	"github.com/micro/go-micro/registry/mock"
 )
 
 type testInput struct {
@@ -100,7 +103,11 @@ func TestBot(t *testing.T) {
 		}),
 	}
 
-	bot := newBot(ctx, inputs, commands)
+	service := micro.NewService(
+		micro.Registry(mock.NewRegistry()),
+	)
+
+	bot := newBot(ctx, inputs, commands, service)
 
 	if err := bot.start(); err != nil {
 		t.Fatal(err)

@@ -150,3 +150,95 @@ link_input.go:
 ```go
 import _ "path/to/import"
 ```
+
+## Commands as Services
+
+The micro bot supports the ability to create commands as microservices. 
+
+### How does it work?
+
+The bot watches the service registry for services with it's namespace. The default namespace is `go.micro.bot`. 
+Any service within this namespace will automatically be added to the list of available commands. When a command 
+is executed, the bot will call the service with method `Command.Exec`. It also expects the method `Command.Help` 
+to exist for usage info.
+
+
+The service interface is as follows and can be found at [micro/bot/proto](https://github.com/micro/micro/blob/master/bot/proto/bot.proto)
+
+```
+syntax = "proto3";
+
+package go.micro.bot;
+
+service Command {
+	rpc Help(HelpRequest) returns (HelpResponse) {};
+	rpc Exec(ExecRequest) returns (ExecResponse) {};
+}
+
+message HelpRequest {
+}
+
+message HelpResponse {
+	string usage = 1;
+	string description = 2;
+}
+
+message ExecRequest {
+	repeated string args = 1;
+}
+
+message ExecResponse {
+	bytes result = 1;
+	string error = 2;
+}
+```
+
+### Example
+
+Here's an example echo command as a microservice
+
+```go
+package main
+
+import (
+	"fmt"
+	"strings"
+
+	"github.com/micro/go-micro"
+	"golang.org/x/net/context"
+
+	proto "github.com/micro/micro/bot/proto"
+)
+
+type Command struct{}
+
+// Help returns the command usage
+func (c *Command) Help(ctx context.Context, req *proto.HelpRequest, rsp *proto.HelpResponse) error {
+	// Usage should include the name of the command
+	rsp.Usage = "echo"
+	rsp.Description = "This is an example bot command as a micro service which echos the message"
+	return nil
+}
+
+// Exec executes the command
+func (c *Command) Exec(ctx context.Context, req *proto.ExecRequest, rsp *proto.ExecResponse) error {
+	rsp.Result = []byte(strings.Join(req.Args, " "))
+	// rsp.Error could be set to return an error instead
+	// the function error would only be used for service level issues
+	return nil
+}
+
+func main() {
+	service := micro.NewService(
+		micro.Name("go.micro.bot.echo"),
+	)
+
+	service.Init()
+
+	proto.RegisterCommandHandler(service.Server(), new(Command))
+
+	if err := service.Run(); err != nil {
+		fmt.Println(err)
+	}
+}
+```

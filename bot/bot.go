@@ -8,6 +8,7 @@ import (
 	"regexp"
 	"sort"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/micro/cli"
@@ -17,18 +18,28 @@ import (
 	"github.com/micro/micro/bot/input"
 	_ "github.com/micro/micro/bot/input/hipchat"
 	_ "github.com/micro/micro/bot/input/slack"
+
+	proto "github.com/micro/micro/bot/proto"
+
+	"golang.org/x/net/context"
 )
 
 type bot struct {
+	exit    chan bool
+	ctx     *cli.Context
+	service micro.Service
+
+	sync.RWMutex
 	inputs   map[string]input.Input
 	commands map[string]command.Command
-	exit     chan bool
-	ctx      *cli.Context
+	services map[string]string
 }
 
 var (
 	// Default server name
 	Name = "go.micro.bot"
+	// Namespace for commands
+	Namespace = "go.micro.bot"
 	// map pattern:command
 	commands = map[string]func(*cli.Context) command.Command{
 		"^echo ":                             command.Echo,
@@ -45,7 +56,7 @@ var (
 	}
 )
 
-func help(commands map[string]command.Command) command.Command {
+func help(commands map[string]command.Command, serviceCommands []string) command.Command {
 	usage := "help"
 	desc := "Displays help for all known commands"
 
@@ -62,19 +73,21 @@ func help(commands map[string]command.Command) command.Command {
 		for _, cmd := range cmds {
 			response = append(response, fmt.Sprintf("%s - %s", cmd.Usage(), cmd.Description()))
 		}
+		response = append(response, serviceCommands...)
 		return []byte(strings.Join(response, "\n")), nil
 	})
 }
 
-func newBot(ctx *cli.Context, inputs map[string]input.Input, commands map[string]command.Command) *bot {
-	// generate help command
-	commands["^help$"] = help(commands)
+func newBot(ctx *cli.Context, inputs map[string]input.Input, commands map[string]command.Command, service micro.Service) *bot {
+	commands["^help$"] = help(commands, nil)
 
 	return &bot{
-		inputs:   inputs,
-		commands: commands,
-		exit:     make(chan bool),
 		ctx:      ctx,
+		exit:     make(chan bool),
+		service:  service,
+		commands: commands,
+		inputs:   inputs,
+		services: make(map[string]string),
 	}
 }
 
@@ -93,6 +106,74 @@ func (b *bot) loop(io input.Input) {
 			}
 		}
 	}
+}
+
+func (b *bot) process(c input.Conn, ev input.Event) error {
+	args := strings.Split(string(ev.Data), " ")
+	if len(args) == 0 {
+		return nil
+	}
+
+	b.RLock()
+	defer b.RUnlock()
+
+	// try built in command
+	for pattern, cmd := range b.commands {
+		// skip if it doesn't match
+		if m, err := regexp.Match(pattern, ev.Data); err != nil || !m {
+			continue
+		}
+
+		// matched, exec command
+		rsp, err := cmd.Exec(args...)
+		if err != nil {
+			rsp = []byte("error executing cmd: " + err.Error())
+		}
+
+		// send response
+		return c.Send(&input.Event{
+			Meta: ev.Meta,
+			From: ev.To,
+			To:   ev.From,
+			Type: input.TextEvent,
+			Data: rsp,
+		})
+	}
+
+	// no built in match
+	// try service commands
+	service := Namespace + "." + args[0]
+
+	// is there a service for the command?
+	if _, ok := b.services[service]; !ok {
+		return nil
+	}
+
+	// make service request
+	req := b.service.Client().NewRequest(service, "Command.Exec", &proto.ExecRequest{
+		Args: args,
+	})
+	rsp := &proto.ExecResponse{}
+
+	var response []byte
+
+	// call service
+	if err := b.service.Client().Call(context.Background(), req, rsp); err != nil {
+		response = []byte("error executing cmd: " + err.Error())
+	} else if len(rsp.Error) > 0 {
+		response = []byte("error executing cmd: " + rsp.Error)
+	} else {
+		response = rsp.Result
+	}
+
+	// send response
+	return c.Send(&input.Event{
+		Meta: ev.Meta,
+		From: ev.To,
+		To:   ev.From,
+		Type: input.TextEvent,
+		Data: response,
+	})
 }
 
 func (b *bot) run(io input.Input) error {
@@ -120,33 +201,12 @@ func (b *bot) run(io input.Input) error {
 				continue
 			}
 
-			// process command
-			for pattern, cmd := range b.commands {
-				// skip if it doesn't match
-				if m, err := regexp.Match(pattern, recvEv.Data); err != nil || !m {
-					continue
-				}
+			if len(recvEv.Data) == 0 {
+				continue
+			}
 
-				// matched, exec command
-				args := strings.Split(string(recvEv.Data), " ")
-				rsp, err := cmd.Exec(args...)
-				if err != nil {
-					rsp = []byte("error executing cmd: " + err.Error())
-				}
-
-				// send response
-				if err := c.Send(&input.Event{
-					Meta: recvEv.Meta,
-					From: recvEv.To,
-					To:   recvEv.From,
-					Type: input.TextEvent,
-					Data: rsp,
-				}); err != nil {
-					return err
-				}
-
-				// done
-				break
+			if err := b.process(c, recvEv); err != nil {
+				return err
 			}
 		}
 	}
@@ -170,6 +230,9 @@ func (b *bot) start() error {
 		go b.loop(io)
 	}
 
+	// start watcher
+	go b.watch()
+
 	return nil
 }
 
@@ -188,6 +251,103 @@ func (b *bot) stop() error {
 	return nil
 }
 
+func (b *bot) watch() {
+	commands := map[string]command.Command{}
+	services := map[string]string{}
+
+	// copy commands
+	b.RLock()
+	for k, v := range b.commands {
+		commands[k] = v
+	}
+	b.RUnlock()
+
+	// getHelp retries usage and description from bot service commands
+	getHelp := func(service string) (string, error) {
+		// is within namespace?
+		if !strings.HasPrefix(service, Namespace) {
+			return "", fmt.Errorf("%s not within namespace", service)
+		}
+
+		if p := strings.TrimPrefix(service, Namespace); len(p) == 0 {
+			return "", fmt.Errorf("%s not a service", service)
+		}
+
+		// get command help
+		req := b.service.Client().NewRequest(service, "Command.Help", &proto.HelpRequest{})
+		rsp := &proto.HelpResponse{}
+
+		err := b.service.Client().Call(context.Background(), req, rsp)
+		if err != nil {
+			return "", err
+		}
+
+		return fmt.Sprintf("%s - %s", rsp.Usage, rsp.Description), nil
+	}
+
+	serviceList, err := b.service.Client().Options().Registry.ListServices()
+	if err != nil {
+		// log error?
+		return
+	}
+
+	var serviceCommands []string
+
+	// create service commands
+	for _, service := range serviceList {
+		h, err := getHelp(service.Name)
+		if err != nil {
+			continue
+		}
+		services[service.Name] = h
+		serviceCommands = append(serviceCommands, h)
+	}
+
+	b.Lock()
+	b.commands["^help$"] = help(commands, serviceCommands)
+	b.services = services
+	b.Unlock()
+
+	w, err := b.service.Client().Options().Registry.Watch()
+	if err != nil {
+		// log error?
+		return
+	}
+
+	go func() {
+		<-b.exit
+		w.Stop()
+	}()
+
+	// watch for changes to services
+	for {
+		res, err := w.Next()
+		if err != nil {
+			return
+		}
+
+		if res.Action == "delete" {
+			delete(services, res.Service.Name)
+		} else {
+			h, err := getHelp(res.Service.Name)
+			if err != nil {
+				continue
+			}
+			services[res.Service.Name] = h
+		}
+
+		var serviceCommands []string
+		for _, v := range services {
+			serviceCommands = append(serviceCommands, v)
+		}
+
+		b.Lock()
+		b.commands["^help$"] = help(commands, serviceCommands)
+		b.services = services
+		b.Unlock()
+	}
+}
+
 func run(ctx *cli.Context) {
 	// Init plugins
 	for _, p := range Plugins() {
@@ -196,6 +356,10 @@ func run(ctx *cli.Context) {
 
 	if len(ctx.GlobalString("server_name")) > 0 {
 		Name = ctx.GlobalString("server_name")
+	}
+
+	if len(ctx.String("namespace")) > 0 {
+		Namespace = ctx.String("namespace")
 	}
 
 	// Parse flags
@@ -238,14 +402,6 @@ func run(ctx *cli.Context) {
 		ios[io] = i
 	}
 
-	// Start bot
-	b := newBot(ctx, ios, cmds)
-
-	if err := b.start(); err != nil {
-		log.Println("error starting bot", err)
-		os.Exit(1)
-	}
-
 	// setup service
 	service := micro.NewService(
 		micro.Name(Name),
@@ -256,6 +412,14 @@ func run(ctx *cli.Context) {
 			time.Duration(ctx.GlobalInt("register_interval"))*time.Second,
 		),
 	)
+
+	// Start bot
+	b := newBot(ctx, ios, cmds, service)
+
+	if err := b.start(); err != nil {
+		log.Println("error starting bot", err)
+		os.Exit(1)
+	}
 
 	// Run server
 	if err := service.Run(); err != nil {
@@ -273,6 +437,11 @@ func Commands() []cli.Command {
 		cli.StringFlag{
 			Name:  "inputs",
 			Usage: "Inputs to load on startup",
+		},
+		cli.StringFlag{
+			Name:   "namespace",
+			Usage:  "Set the namespace used by the bot to find commands e.g. com.example.bot",
+			EnvVar: "MICRO_BOT_NAMESPACE",
 		},
 	}
 
