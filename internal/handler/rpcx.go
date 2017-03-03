@@ -122,7 +122,7 @@ func (h *rpcxHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Length", strconv.Itoa(len(b)))
 		w.Write(b)
 	default:
-		http.Error(w, "unknown content-type", 500)
+		http.Error(w, "unsupported content-type", 500)
 		return
 	}
 }
