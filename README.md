@@ -71,7 +71,7 @@ consul agent -dev
 
 Docker
 ```shell
-docker run consul
+docker run -d -p 8500:8500 --name=consul consul agent -server -bootstrap -client=0.0.0.0
 ```
 
 Or we can use multicast DNS for zero dependency discovery
