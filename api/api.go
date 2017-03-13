@@ -10,6 +10,8 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/micro/cli"
+	"github.com/micro/go-api"
+	"github.com/micro/go-api/router"
 	"github.com/micro/go-micro"
 	"github.com/micro/micro/internal/handler"
 	"github.com/micro/micro/internal/helper"
@@ -21,7 +23,7 @@ import (
 var (
 	Name         = "go.micro.api"
 	Address      = ":8080"
-	Handler      = "api"
+	Handler      = string(api.Default)
 	RPCPath      = "/rpc"
 	APIPath      = "/"
 	ProxyPath    = "/{service:[a-zA-Z0-9]+}"
@@ -111,14 +113,19 @@ func run(ctx *cli.Context) {
 	switch Handler {
 	case "rpc":
 		log.Printf("Registering API RPC Handler at %s", APIPath)
-		r.PathPrefix(APIPath).Handler(handler.RPCX(Namespace))
+		rt := router.NewRouter(router.WithNamespace(Namespace), router.WithHandler(api.Rpc))
+		r.PathPrefix(APIPath).Handler(handler.RPCX(rt, nil))
 	case "proxy":
 		log.Printf("Registering API Proxy Handler at %s", ProxyPath)
-		r.PathPrefix(ProxyPath).Handler(handler.Proxy(Namespace, false))
-	// api
-	default:
+		rt := router.NewRouter(router.WithNamespace(Namespace), router.WithHandler(api.Proxy))
+		r.PathPrefix(ProxyPath).Handler(handler.Proxy(rt, nil, false))
+	case "api":
 		log.Printf("Registering API Request Handler at %s", APIPath)
-		r.PathPrefix(APIPath).Handler(handler.API(Namespace))
+		rt := router.NewRouter(router.WithNamespace(Namespace), router.WithHandler(api.Api))
+		r.PathPrefix(APIPath).Handler(handler.API(rt, nil))
+	default:
+		log.Printf("Registering API Default Handler at %s", APIPath)
+		r.PathPrefix(APIPath).Handler(handler.Meta(Namespace))
 	}
 
 	// reverse wrap handler

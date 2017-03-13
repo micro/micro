@@ -11,6 +11,8 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/micro/cli"
+	"github.com/micro/go-api"
+	"github.com/micro/go-api/router"
 	"github.com/micro/go-micro"
 	"github.com/micro/go-micro/cmd"
 	"github.com/micro/go-micro/registry"
@@ -141,11 +143,13 @@ func run(ctx *cli.Context, car *sidecar) {
 	switch Handler {
 	case "proxy":
 		log.Printf("Registering Proxy Handler at %s", ProxyPath)
-		r.PathPrefix(ProxyPath).Handler(handler.Proxy(Namespace, false))
+		rt := router.NewRouter(router.WithNamespace(Namespace), router.WithHandler(api.Proxy))
+		r.PathPrefix(ProxyPath).Handler(handler.Proxy(rt, nil, false))
 	// rpc
 	default:
 		log.Printf("Registering Root Handler at %s", RootPath)
-		r.PathPrefix(RootPath).Handler(handler.RPCX(Namespace))
+		rt := router.NewRouter(router.WithNamespace(Namespace), router.WithHandler(api.Rpc))
+		r.PathPrefix(RootPath).Handler(handler.RPCX(rt, nil))
 	}
 
 	var h http.Handler = s
