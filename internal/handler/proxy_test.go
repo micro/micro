@@ -64,9 +64,7 @@ func testProxy(t *testing.T, path, service string) {
 	}
 
 	// initialise the handler
-	rt := router.NewRouter(
-		"go.micro.api", api.Proxy,
-	)
+	rt := router.NewRouter(router.WithHandler(api.Proxy))
 
 	p := Proxy(rt, nil, false)
 
