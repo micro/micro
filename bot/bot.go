@@ -18,6 +18,7 @@ import (
 	"github.com/micro/micro/bot/input"
 	_ "github.com/micro/micro/bot/input/hipchat"
 	_ "github.com/micro/micro/bot/input/slack"
+	_ "github.com/micro/micro/bot/input/telegram"
 
 	proto "github.com/micro/micro/bot/proto"
 
