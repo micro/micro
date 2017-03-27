@@ -70,7 +70,7 @@ Commands are functions executed by the bot based on text based pattern matching.
 ### Write a Command
 
 ```go
-import "github.com/micro/micro/bot/command"
+import "github.com/micro/go-bot/command"
 
 func Ping() command.Command {
 	usage := "ping"
@@ -87,20 +87,24 @@ func Ping() command.Command {
 Add the command to the Commands map with a pattern key that can be matched by golang/regexp.Match
 
 ```go
-import "github.com/micro/micro/bot/command"
+import "github.com/micro/go-bot/command"
 
 func init() {
 	command.Commands["^ping$"] = Ping()
 }
 ```
 
-### Link the Command
+### Rebuild Micro
 
-Drop a link to your command into the top level dir
+Build binary
+```shell
+cd github.com/micro/micro
 
-link_command.go:
-```go
-import _ "path/to/import"
+// For local use
+go build -i -o micro ./main.go
+
+// For docker image
+CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -ldflags '-w' -i -o micro ./main.go
 ```
 
 ## Adding new Inputs
@@ -135,20 +139,24 @@ type Input interface {
 Add the input to the Inputs map.
 
 ```go
-import "github.com/micro/micro/bot/input"
+import "github.com/micro/go-bot/input"
 
 func init() {
 	input.Inputs["name"] = MyInput
 }
 ```
 
-### Link the input
+### Rebuild Micro
 
-Drop a link to your input into the top level dir
+Build binary
+```shell
+cd github.com/micro/micro
 
-link_input.go:
-```go
-import _ "path/to/import"
+// For local use
+go build -i -o micro ./main.go
+
+// For docker image
+CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -ldflags '-w' -i -o micro ./main.go
 ```
 
 ## Commands as Services
@@ -163,7 +171,7 @@ is executed, the bot will call the service with method `Command.Exec`. It also e
 to exist for usage info.
 
 
-The service interface is as follows and can be found at [micro/bot/proto](https://github.com/micro/micro/blob/master/bot/proto/bot.proto)
+The service interface is as follows and can be found at [go-bot/proto](https://github.com/micro/go-bot/blob/master/proto/bot.proto)
 
 ```
 syntax = "proto3";
@@ -207,7 +215,7 @@ import (
 	"github.com/micro/go-micro"
 	"golang.org/x/net/context"
 
-	proto "github.com/micro/micro/bot/proto"
+	proto "github.com/micro/go-bot/proto"
 )
 
 type Command struct{}

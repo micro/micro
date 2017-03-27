@@ -14,12 +14,13 @@ import (
 	"github.com/micro/cli"
 	"github.com/micro/go-micro"
 
-	"github.com/micro/micro/bot/command"
-	"github.com/micro/micro/bot/input"
-	_ "github.com/micro/micro/bot/input/hipchat"
-	_ "github.com/micro/micro/bot/input/slack"
+	"github.com/micro/go-bot/command"
+	"github.com/micro/go-bot/input"
+	_ "github.com/micro/go-bot/input/hipchat"
+	_ "github.com/micro/go-bot/input/slack"
+	botc "github.com/micro/micro/internal/command/bot"
 
-	proto "github.com/micro/micro/bot/proto"
+	proto "github.com/micro/go-bot/proto"
 
 	"golang.org/x/net/context"
 )
@@ -42,17 +43,17 @@ var (
 	Namespace = "go.micro.bot"
 	// map pattern:command
 	commands = map[string]func(*cli.Context) command.Command{
-		"^echo ":                             command.Echo,
-		"^time$":                             command.Time,
-		"^hello$":                            command.Hello,
-		"^ping$":                             command.Ping,
-		"^list ":                             command.List,
-		"^get ":                              command.Get,
-		"^health ":                           command.Health,
-		"^query ":                            command.Query,
-		"^register ":                         command.Register,
-		"^deregister ":                       command.Deregister,
-		"^(the )?three laws( of robotics)?$": command.ThreeLaws,
+		"^echo ":                             botc.Echo,
+		"^time$":                             botc.Time,
+		"^hello$":                            botc.Hello,
+		"^ping$":                             botc.Ping,
+		"^list ":                             botc.List,
+		"^get ":                              botc.Get,
+		"^health ":                           botc.Health,
+		"^query ":                            botc.Query,
+		"^register ":                         botc.Register,
+		"^deregister ":                       botc.Deregister,
+		"^(the )?three laws( of robotics)?$": botc.ThreeLaws,
 	}
 )
 
