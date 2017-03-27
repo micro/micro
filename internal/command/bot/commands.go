@@ -6,7 +6,7 @@ import (
 
 	"github.com/micro/cli"
 	"github.com/micro/go-bot/command"
-	clicommand "github.com/micro/micro/internal/command"
+	clic "github.com/micro/micro/internal/command/cli"
 )
 
 // Echo returns the same message
@@ -56,7 +56,7 @@ func Get(ctx *cli.Context) command.Command {
 			if len(args) < 3 {
 				return []byte("require service name"), nil
 			}
-			rsp, err := clicommand.GetService(ctx, args[2:])
+			rsp, err := clic.GetService(ctx, args[2:])
 			if err != nil {
 				return nil, err
 			}
@@ -76,7 +76,7 @@ func Health(ctx *cli.Context) command.Command {
 		if len(args) < 2 {
 			return []byte("health of what?"), nil
 		}
-		rsp, err := clicommand.QueryHealth(ctx, args[1:])
+		rsp, err := clic.QueryHealth(ctx, args[1:])
 		if err != nil {
 			return nil, err
 		}
@@ -95,7 +95,7 @@ func List(ctx *cli.Context) command.Command {
 		}
 		switch args[1] {
 		case "services":
-			rsp, err := clicommand.ListServices(ctx)
+			rsp, err := clic.ListServices(ctx)
 			if err != nil {
 				return nil, err
 			}
@@ -125,7 +125,7 @@ func Query(ctx *cli.Context) command.Command {
 			return []byte("query what?"), nil
 		}
 
-		rsp, err := clicommand.QueryService(ctx, cargs[1:])
+		rsp, err := clic.QueryService(ctx, cargs[1:])
 		if err != nil {
 			return nil, err
 		}
@@ -147,7 +147,7 @@ func Register(ctx *cli.Context) command.Command {
 			if len(args) < 3 {
 				return []byte("require service definition"), nil
 			}
-			rsp, err := clicommand.RegisterService(ctx, args[2:])
+			rsp, err := clic.RegisterService(ctx, args[2:])
 			if err != nil {
 				return nil, err
 			}
@@ -172,7 +172,7 @@ func Deregister(ctx *cli.Context) command.Command {
 			if len(args) < 3 {
 				return []byte("require service definition"), nil
 			}
-			rsp, err := clicommand.DeregisterService(ctx, args[2:])
+			rsp, err := clic.DeregisterService(ctx, args[2:])
 			if err != nil {
 				return nil, err
 			}
