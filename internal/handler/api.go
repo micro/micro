@@ -12,7 +12,7 @@ import (
 
 	"github.com/micro/go-micro/cmd"
 	"github.com/micro/go-micro/errors"
-	api "github.com/micro/micro/api/proto"
+	api "github.com/micro/go-api/proto"
 	"github.com/micro/micro/internal/helper"
 )
 
