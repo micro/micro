@@ -51,7 +51,7 @@ func (s *server) Init(opts ...Option) error {
 }
 
 func (s *server) Handle(path string, handler http.Handler) {
-	s.mux.Handle(path, handlers.CombinedLoggingHandler(os.Stderr, handler))
+	s.mux.Handle(path, handlers.CombinedLoggingHandler(os.Stdout, handler))
 }
 
 func (s *server) Start() error {
