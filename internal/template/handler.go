@@ -80,7 +80,7 @@ import (
 
 	"{{.Dir}}/client"
 	"github.com/micro/go-micro/errors"
-	api "github.com/micro/micro/api/proto"
+	api "github.com/micro/go-api/proto"
 	example "github.com/micro/examples/template/srv/proto/example"
 
 	"golang.org/x/net/context"

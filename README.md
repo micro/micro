@@ -50,7 +50,7 @@ Read the [Getting Started](https://micro.mu/docs/writing-a-go-service.html) guid
 ### Install Micro
 
 ```shell
-go get github.com/micro/micro
+go get -u github.com/micro/micro
 ```
 
 Or via Docker

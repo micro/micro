@@ -24,7 +24,7 @@ The API has three types of configurable request handlers.
 	- Request/Response: api.Request/api.Response
 	- The path is used to resolve service and method.
 	- Requests are handled via API services which take the request api.Request and response api.Response types. 
-	- Definitions for the Request/Response can be found at [micro/api/proto](https://github.com/micro/micro/tree/master/api/proto)
+	- Definitions for the Request/Response can be found at [go-api/proto](https://github.com/micro/go-api/blob/master/proto/api.proto)
 	- The content type of the request/response body can be anything.
 	- The default fallback handler where routes are not available.
 	- Set via `--handler=api`
@@ -130,7 +130,7 @@ $ curl -H 'Content-Type: application/json' \
 
 Micro allows you resolve HTTP URL Paths at the edge to individual API Services. An API service is like any other 
 micro service except each method signature takes an *api.Request and *api.Response type which can be found in 
-[github.com/micro/micro/api/proto](https://github.com/micro/micro/tree/master/api/proto).
+[github.com/micro/go-api/proto](https://github.com/micro/go-api/blob/master/proto/api.proto).
 
 The http.Request is deconstructed by the API into an api.Request and forwarded on to a backend API service. 
 The api.Response is then constructed into a http.Response and returned to the client. The path of the request 

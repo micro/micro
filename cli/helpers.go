@@ -8,13 +8,13 @@ import (
 
 	"github.com/micro/cli"
 	"github.com/micro/go-micro/cmd"
-	"github.com/micro/micro/internal/command"
+	clic "github.com/micro/micro/internal/command/cli"
 
 	"golang.org/x/net/context"
 )
 
 func listServices(c *cli.Context) {
-	rsp, err := command.ListServices(c)
+	rsp, err := clic.ListServices(c)
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -23,7 +23,7 @@ func listServices(c *cli.Context) {
 }
 
 func registerService(c *cli.Context) {
-	rsp, err := command.RegisterService(c, c.Args())
+	rsp, err := clic.RegisterService(c, c.Args())
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -32,7 +32,7 @@ func registerService(c *cli.Context) {
 }
 
 func deregisterService(c *cli.Context) {
-	rsp, err := command.DeregisterService(c, c.Args())
+	rsp, err := clic.DeregisterService(c, c.Args())
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -41,7 +41,7 @@ func deregisterService(c *cli.Context) {
 }
 
 func getService(c *cli.Context) {
-	rsp, err := command.GetService(c, c.Args())
+	rsp, err := clic.GetService(c, c.Args())
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -50,7 +50,7 @@ func getService(c *cli.Context) {
 }
 
 func queryService(c *cli.Context) {
-	rsp, err := command.QueryService(c, c.Args())
+	rsp, err := clic.QueryService(c, c.Args())
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -96,7 +96,7 @@ func streamService(c *cli.Context) {
 }
 
 func queryHealth(c *cli.Context) {
-	rsp, err := command.QueryHealth(c, c.Args())
+	rsp, err := clic.QueryHealth(c, c.Args())
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -105,7 +105,7 @@ func queryHealth(c *cli.Context) {
 }
 
 func queryStats(c *cli.Context) {
-	rsp, err := command.QueryStats(c, c.Args())
+	rsp, err := clic.QueryStats(c, c.Args())
 	if err != nil {
 		fmt.Println(err)
 		return

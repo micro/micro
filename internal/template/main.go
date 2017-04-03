@@ -24,10 +24,14 @@ func main() {
 	example.RegisterExampleHandler(service.Server(), new(handler.Example))
 
 	// Register Struct as Subscriber
-	example.RegisterSubscriber("topic.{{.FQDN}}", service.Server(), new(subscriber.Example))
+	service.Server().Subscribe(
+		service.Server().NewSubscriber("topic.{{.FQDN}}", new(subscriber.Example)),
+	)
 
 	// Register Function as Subscriber
-	example.RegisterSubscriber("topic.{{.FQDN}}", service.Server(), subscriber.Handler)
+	service.Server().Subscribe(
+		service.Server().NewSubscriber("topic.{{.FQDN}}", subscriber.Handler),
+	)
 
 	// Initialise service
 	service.Init()
