@@ -7,32 +7,64 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/micro/go-api"
+	"github.com/micro/go-api/router"
+	"github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/cmd"
 	"github.com/micro/go-micro/errors"
+	"github.com/micro/go-micro/selector"
 	proto "github.com/micro/micro/internal/handler/proto"
 	"github.com/micro/micro/internal/helper"
 )
 
 type rpcxHandler struct {
-	Namespace string
+	r router.Router
+	s *api.Service
 }
 
 // RPCX Handler is an alternative handler which passes through an RPC request without modification
 func (h *rpcxHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	if r.Method != "POST" {
+	defer r.Body.Close()
+	var service *api.Service
+
+	if h.r != nil {
+		// try get service from router
+		s, err := h.r.Route(r)
+		if err != nil {
+			er := errors.InternalServerError("go.micro.api", err.Error())
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(500)
+			w.Write([]byte(er.Error()))
+			return
+		}
+		service = s
+	} else if h.s != nil {
+		// we were given the service
+		service = h.s
+	} else {
+		// we have no way of routing the request
+		er := errors.InternalServerError("go.micro.api", "no route found")
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(500)
+		w.Write([]byte(er.Error()))
+		return
+	}
+
+	// only allow post when we have the router
+	if h.r != nil && r.Method != "POST" {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
-	defer r.Body.Close()
 
-	// get service/method
-	service, method := pathToReceiver(h.Namespace, r.URL.Path)
 	ct := r.Header.Get("Content-Type")
 
 	// Strip charset from Content-Type (like `application/json; charset=UTF-8`)
 	if idx := strings.IndexRune(ct, ';'); idx >= 0 {
 		ct = ct[:idx]
 	}
+
+	// create strategy
+	so := selector.WithStrategy(strategy(service.Services))
 
 	switch ct {
 	case "application/json":
@@ -51,13 +83,13 @@ func (h *rpcxHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 		// create request/response
 		var response json.RawMessage
-		req := (*cmd.DefaultOptions().Client).NewJsonRequest(service, method, &request)
+		req := (*cmd.DefaultOptions().Client).NewJsonRequest(service.Name, service.Endpoint.Name, &request)
 
 		// create context
 		ctx := helper.RequestToContext(r)
 
 		// make the call
-		if err := (*cmd.DefaultOptions().Client).Call(ctx, req, &response); err != nil {
+		if err := (*cmd.DefaultOptions().Client).Call(ctx, req, &response, client.WithSelectOption(so)); err != nil {
 			ce := errors.Parse(err.Error())
 			switch ce.Code {
 			case 0:
@@ -91,13 +123,13 @@ func (h *rpcxHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 		// create request/response
 		response := &proto.Message{}
-		req := (*cmd.DefaultOptions().Client).NewProtoRequest(service, method, request)
+		req := (*cmd.DefaultOptions().Client).NewProtoRequest(service.Name, service.Endpoint.Name, request)
 
 		// create context
 		ctx := helper.RequestToContext(r)
 
 		// make the call
-		if err := (*cmd.DefaultOptions().Client).Call(ctx, req, response); err != nil {
+		if err := (*cmd.DefaultOptions().Client).Call(ctx, req, response, client.WithSelectOption(so)); err != nil {
 			ce := errors.Parse(err.Error())
 			switch ce.Code {
 			case 0:
@@ -127,8 +159,9 @@ func (h *rpcxHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func RPCX(namespace string) http.Handler {
+func RPCX(r router.Router, s *api.Service) http.Handler {
 	return &rpcxHandler{
-		Namespace: namespace,
+		r: r,
+		s: s,
 	}
 }

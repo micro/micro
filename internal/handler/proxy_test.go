@@ -8,6 +8,8 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/micro/go-api"
+	"github.com/micro/go-api/router"
 	"github.com/micro/go-micro/cmd"
 	"github.com/micro/go-micro/registry"
 	rmock "github.com/micro/go-micro/registry/mock"
@@ -62,7 +64,9 @@ func testProxy(t *testing.T, path, service string) {
 	}
 
 	// initialise the handler
-	p := Proxy("go.micro.api", false)
+	rt := router.NewRouter(router.WithHandler(api.Proxy))
+
+	p := Proxy(rt, nil, false)
 
 	// execute the handler
 	p.ServeHTTP(w, req)

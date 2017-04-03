@@ -15,6 +15,9 @@ The **micro api** is a lightweight proxy for [micro](https://github.com/micro/mi
 
 ## Handlers
 
+The default handler uses endpoint metadata from the registry to determine service routes. If a route match is not found it will 
+fallback to the API handler. You can configure routes on registration using the [go-api](https://github.com/micro/go-api).
+
 The API has three types of configurable request handlers.
 
 1. API Handler: /[service]/[method]
@@ -23,7 +26,8 @@ The API has three types of configurable request handlers.
 	- Requests are handled via API services which take the request api.Request and response api.Response types. 
 	- Definitions for the Request/Response can be found at [go-api/proto](https://github.com/micro/go-api/blob/master/proto/api.proto)
 	- The content type of the request/response body can be anything.
-	- The default handler
+	- The default fallback handler where routes are not available.
+	- Set via `--handler=api`
 2. RPC Handler: /[service]/[method]
 	- Request/Response: json/protobuf
 	- An alternative to the default handler which uses the go-micro client to forward the request body as an RPC request.

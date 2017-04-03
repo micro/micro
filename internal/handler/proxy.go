@@ -1,25 +1,23 @@
 package handler
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"net"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
-	"regexp"
 	"strings"
 
-	"github.com/micro/go-micro/cmd"
+	"github.com/micro/go-api"
+	"github.com/micro/go-api/router"
 	"github.com/micro/go-micro/selector"
-	"github.com/micro/go-micro/selector/cache"
 )
 
 type proxy struct {
-	Selector  selector.Selector
-	Namespace string
-
-	re *regexp.Regexp
+	r  router.Router
+	s  *api.Service
 	ws bool
 }
 
@@ -51,40 +49,25 @@ func (p *proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 // getService returns the service for this request from the selector
 func (p *proxy) getService(r *http.Request) (string, error) {
-	parts := strings.Split(r.URL.Path, "/")
-	if len(parts) < 2 {
-		return "", nil
-	}
+	var service *api.Service
 
-	var service string
-	var alias string
-
-	// /[service]/methods
-	if len(parts) > 2 {
-		// /v1/[service]
-		if versionRe.MatchString(parts[1]) {
-			service = parts[1] + "." + parts[2]
-			alias = parts[2]
-		} else {
-			service = parts[1]
-			alias = parts[1]
+	if p.r != nil {
+		// try get service from router
+		s, err := p.r.Route(r)
+		if err != nil {
+			return "", err
 		}
-		// /[service]
+		service = s
+	} else if p.s != nil {
+		// we were given the service
+		service = p.s
 	} else {
-		service = parts[1]
-		alias = parts[1]
+		// we have no way of routing the request
+		return "", errors.New("no route found")
 	}
 
-	// check service name is valid
-	if !p.re.MatchString(alias) {
-		return "", nil
-	}
-
-	// get the service
-	next, err := p.Selector.Select(p.Namespace + "." + service)
-	if err != nil {
-		return "", nil
-	}
+	// create a random selector
+	next := selector.Random(service.Services)
 
 	// get the next node
 	s, err := next()
@@ -163,13 +146,10 @@ func isWebSocket(r *http.Request) bool {
 }
 
 // Proxy is a reverse proxy used by the micro web and api
-func Proxy(ns string, ws bool) http.Handler {
+func Proxy(r router.Router, s *api.Service, ws bool) http.Handler {
 	return &proxy{
-		Namespace: ns,
-		Selector: cache.NewSelector(
-			selector.Registry((*cmd.DefaultOptions().Registry)),
-		),
-		re: regexp.MustCompile("^[a-zA-Z0-9]+$"),
+		r:  r,
+		s:  s,
 		ws: ws,
 	}
 }
