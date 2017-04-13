@@ -186,8 +186,14 @@ jQuery(function($, undefined) {
 			req.onreadystatechange = function() {
 				if (req.readyState == 4 && req.status == 200) {
 					document.getElementById("response").innerText = JSON.stringify(JSON.parse(req.responseText), null, 2);
-					console.log(req.responseText);
+				} else if (req.responseText.slice(0, 1) == "{") {
+					document.getElementById("response").innerText = JSON.stringify(JSON.parse(req.responseText), null, 2);
+				} else if (req.responseText.length > 0) {
+					document.getElementById("response").innerText = req.responseText;
+				} else {
+					document.getElementById("response").innerText = "Request error " + req.status;
 				}
+				console.log(req.responseText);
 			}
 			var method = document.forms[0].elements["method"].value
 			if (!($('#othermethod').prop('disabled'))) {
