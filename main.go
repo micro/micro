@@ -11,6 +11,7 @@ import (
 	"github.com/micro/micro/cli"
 	"github.com/micro/micro/new"
 	"github.com/micro/micro/plugin"
+	"github.com/micro/micro/run"
 	"github.com/micro/micro/web"
 )
 
@@ -187,6 +188,7 @@ func main() {
 	app.Commands = append(app.Commands, cli.Commands()...)
 	app.Commands = append(app.Commands, car.Commands()...)
 	app.Commands = append(app.Commands, new.Commands()...)
+	app.Commands = append(app.Commands, run.Commands()...)
 	app.Commands = append(app.Commands, web.Commands()...)
 	app.Action = func(context *ccli.Context) { ccli.ShowAppHelp(context) }
 

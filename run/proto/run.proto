@@ -1,0 +1,65 @@
+syntax = "proto3";
+
+package go.micro.run;
+
+service Run {
+	rpc Fetch(FetchRequest) returns (FetchResponse) {};
+	rpc Build(BuildRequest) returns (BuildResponse) {};
+	rpc Exec(ExecRequest) returns (ExecResponse) {};
+	rpc Kill(KillRequest) returns (KillResponse) {};
+	rpc Wait(WaitRequest) returns (stream WaitResponse) {};
+}
+
+message Source {
+	string url = 1;
+	string dir = 2;
+}
+
+message Binary {
+	string path = 1;
+	Source source = 2;
+}
+
+message Process {
+	string id = 1;
+	Binary binary = 2;
+}
+
+message FetchRequest {
+	string url = 1;
+}
+
+message FetchResponse {
+	Source source = 1;
+}
+
+message BuildRequest {
+	Source source = 1;
+}
+
+message BuildResponse {
+	Binary binary = 1;
+}
+
+message ExecRequest {
+	Binary binary = 1;
+}
+
+message ExecResponse {
+	Process process = 1;
+}
+
+message KillRequest {
+	Process process = 1;
+}
+
+message KillResponse {
+}
+
+message WaitRequest {
+	Process process = 1;
+}
+
+message WaitResponse {
+	string error = 1;
+}
