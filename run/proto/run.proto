@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package go.micro.run;
 
-service Run {
+service Runtime {
 	rpc Fetch(FetchRequest) returns (FetchResponse) {};
 	rpc Build(BuildRequest) returns (BuildResponse) {};
 	rpc Exec(ExecRequest) returns (ExecResponse) {};

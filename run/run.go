@@ -3,15 +3,15 @@ package run
 
 import (
 	"fmt"
-//	"log"
-//	"time"
+	"log"
+	"time"
 
 	"github.com/micro/cli"
-//	"github.com/micro/go-micro"
+	"github.com/micro/go-micro"
 
 	"github.com/micro/go-run/runtime"
 	"github.com/micro/go-run/runtime/go"
-//	proto "github.com/micro/micro/run/proto"
+	proto "github.com/micro/micro/run/proto"
 )
 
 var (
@@ -33,14 +33,13 @@ func run(ctx *cli.Context) {
 	// micro run github.com/my/service
 	// args: github.com/my/service
 	if len(ctx.Args()) > 0 {
-		// look for flag to loop run 
+		// look for flag to loop run
 		if err := runtime.Run(r, ctx.Args().First()); err != nil {
 			fmt.Println(err)
 		}
 		return
 	}
 
-/*
 	// Initialise Server
 	service := micro.NewService(
 		micro.Name(Name),
@@ -52,13 +51,12 @@ func run(ctx *cli.Context) {
 		),
 	)
 
-	proto.RegisterRuntimeHandler(service.Server(), new(handler))
+	proto.RegisterRuntimeHandler(service.Server(), &handler{r})
 
 	// Run server
 	if err := service.Run(); err != nil {
 		log.Fatal(err)
 	}
-*/
 }
 
 func Commands() []cli.Command {
