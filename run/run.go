@@ -33,7 +33,12 @@ func run(ctx *cli.Context) {
 	// micro run github.com/my/service
 	// args: github.com/my/service
 	if len(ctx.Args()) > 0 {
-		// look for flag to loop run
+		// Notes to self:
+		// 1. look for flag to loop run cycle infinitely
+		// 2. look for flag to defer execution to go.micro.run service
+		// 3. look for daemonize flag
+		// 4. look for flag to defer update
+
 		if err := runtime.Run(r, ctx.Args().First()); err != nil {
 			fmt.Println(err)
 		}
