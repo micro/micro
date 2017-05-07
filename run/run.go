@@ -75,10 +75,10 @@ func runc(ctx *cli.Context) {
 	// args: github.com/my/service
 	if len(ctx.Args()) > 0 {
 		// Notes to self:
-		// 1. look for flag to loop run cycle infinitely
+		// 1. Done: look for flag to loop run cycle infinitely
 		// 2. look for flag to defer execution to go.micro.run service
 		// 3. look for daemonize flag
-		// 4. look for flag to defer update
+		// 4. Done: look for flag to defer update
 
 		// manage the process
 		re := ctx.Bool("r")
