@@ -9,7 +9,7 @@ import (
 	"github.com/micro/cli"
 	"github.com/micro/go-micro"
 
-	grun "github.com/micro/go-run"
+	"github.com/micro/go-run"
 	"github.com/micro/go-run/runtime/go"
 	proto "github.com/micro/micro/run/proto"
 )
@@ -18,10 +18,10 @@ var (
 	Name = "go.micro.run"
 )
 
-func manage(r grun.Runtime, url string) error {
+func manage(r run.Runtime, url string, re, u bool) error {
 	// get the source
 	log.Printf("fetching %s\n", url)
-	src, err := r.Fetch(url)
+	src, err := r.Fetch(url, run.Update(u))
 	if err != nil {
 		return err
 	}
@@ -33,19 +33,33 @@ func manage(r grun.Runtime, url string) error {
 		return err
 	}
 
-	// execute the binary
-	log.Printf("executing %s\n", url)
-	proc, err := r.Exec(bin)
-	if err != nil {
-		return err
-	}
+	for {
+		// execute the binary
+		log.Printf("executing %s\n", url)
+		proc, err := r.Exec(bin)
+		if err != nil {
+			return err
+		}
 
-	// wait till exit
-	log.Printf("running %s\n", url)
-	return r.Wait(proc)
+		// wait till exit
+		log.Printf("running %s\n", url)
+
+		// bail if not restarting
+		if !re {
+			return r.Wait(proc)
+		}
+
+		// log error since we manage the cycle
+		if err := r.Wait(proc); err != nil {
+			log.Printf("exited with err %v\n", err)
+		}
+
+		// cruft log
+		log.Printf("restarting %s\n", url)
+	}
 }
 
-func run(ctx *cli.Context) {
+func runc(ctx *cli.Context) {
 	if len(ctx.GlobalString("server_name")) > 0 {
 		Name = ctx.GlobalString("server_name")
 	}
@@ -66,9 +80,15 @@ func run(ctx *cli.Context) {
 		// 3. look for daemonize flag
 		// 4. look for flag to defer update
 
-		if err := manage(r, ctx.Args().First()); err != nil {
+		// manage the process
+		re := ctx.Bool("r")
+		up := ctx.Bool("u")
+
+		if err := manage(r, ctx.Args().First(), re, up); err != nil {
 			fmt.Println(err)
 		}
+
+		// its a cli command, return
 		return
 	}
 
@@ -95,7 +115,17 @@ func Commands() []cli.Command {
 	command := cli.Command{
 		Name:   "run",
 		Usage:  "Run the micro runtime",
-		Action: run,
+		Action: runc,
+		Flags: []cli.Flag{
+			cli.BoolFlag{
+				Name:  "r",
+				Usage: "Restart if dies. Default: false",
+			},
+			cli.BoolFlag{
+				Name:  "u",
+				Usage: "Update the source. Default: false",
+			},
+		},
 	}
 
 	for _, p := range Plugins() {
