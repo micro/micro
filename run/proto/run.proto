@@ -12,6 +12,8 @@ service Runtime {
 
 service Service {
 	rpc Run(RunRequest) returns (RunResponse) {};
+	rpc Stop(StopRequest) returns (StopResponse) {};
+	rpc Status(StatusRequest) returns (StatusResponse) {};
 }
 
 message Source {
@@ -69,6 +71,8 @@ message WaitResponse {
 	string error = 1;
 }
 
+// Service methods
+
 message RunRequest {
 	string url = 1;
 	bool restart = 2;
@@ -76,4 +80,20 @@ message RunRequest {
 }
 
 message RunResponse {
+	string id = 1;
+}
+
+message StopRequest {
+	string id = 1;
+}
+
+message StopResponse {
+}
+
+message StatusRequest {
+	string id = 1;
+}
+
+message StatusResponse {
+	string info = 1;
 }

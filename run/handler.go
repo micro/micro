@@ -13,7 +13,7 @@ type runtimeHandler struct {
 }
 
 type serviceHandler struct {
-	r gorun.Runtime
+	m *manager
 }
 
 func (h *runtimeHandler) Fetch(ctx context.Context, req *proto.FetchRequest, rsp *proto.FetchResponse) error {
@@ -142,6 +142,31 @@ func (h *serviceHandler) Run(ctx context.Context, req *proto.RunRequest, rsp *pr
 
 	// TODO: should return stream?
 	// TODO: find a way to stop this?
-	go manage(h.r, req.Url, req.Restart, req.Update)
+	rsp.Id = h.m.Run(req.Url, req.Restart, req.Update)
+	return nil
+}
+
+func (h *serviceHandler) Status(ctx context.Context, req *proto.StatusRequest, rsp *proto.StatusResponse) error {
+	if len(req.Id) == 0 {
+		return errors.BadRequest(Name+".status", "id is blank")
+	}
+
+	info, err := h.m.Status(req.Id)
+	if err != nil {
+		return errors.InternalServerError(Name+".status", err.Error())
+	}
+	rsp.Info = info
+	return nil
+}
+
+func (h *serviceHandler) Stop(ctx context.Context, req *proto.StopRequest, rsp *proto.StopResponse) error {
+	if len(req.Id) == 0 {
+		return errors.BadRequest(Name+".stop", "id is blank")
+	}
+
+	if err := h.m.Stop(req.Id); err != nil {
+		return errors.InternalServerError(Name+".stop", err.Error())
+	}
+
 	return nil
 }

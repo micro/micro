@@ -79,19 +79,33 @@ func runc(ctx *cli.Context) {
 	if len(ctx.Args()) > 0 {
 		// Notes to self:
 		// 1. Done: look for flag to loop run cycle infinitely
-		// 2. look for flag to defer execution to go.micro.run service
+		// 2. Done: look for flag to defer execution to go.micro.run service
 		// 3. look for daemonize flag
 		// 4. Done: look for flag to defer update
 
+		ki := ctx.Bool("k")
 		re := ctx.Bool("r")
 		up := ctx.Bool("u")
 		xe := ctx.Bool("x")
+
+		// kill a service
+		if ki {
+			// call runtime manager service
+			cl := proto.NewServiceClient(Name, client.DefaultClient)
+			_, err := cl.Stop(context.TODO(), &proto.StopRequest{
+				Id: ctx.Args().First(),
+			})
+			if err != nil {
+				fmt.Println(err)
+			}
+			return
+		}
 
 		// defer to service
 		if xe {
 			// call runtime manager service
 			cl := proto.NewServiceClient(Name, client.DefaultClient)
-			_, err := cl.Run(context.TODO(), &proto.RunRequest{
+			rsp, err := cl.Run(context.TODO(), &proto.RunRequest{
 				Url:     ctx.Args().First(),
 				Restart: re,
 				Update:  up,
@@ -99,6 +113,7 @@ func runc(ctx *cli.Context) {
 			if err != nil {
 				fmt.Println(err)
 			}
+			fmt.Println(rsp.Id)
 			return
 		}
 
@@ -122,8 +137,10 @@ func runc(ctx *cli.Context) {
 		),
 	)
 
+	m := newManager(r)
+
 	proto.RegisterRuntimeHandler(service.Server(), &runtimeHandler{r})
-	proto.RegisterServiceHandler(service.Server(), &serviceHandler{r})
+	proto.RegisterServiceHandler(service.Server(), &serviceHandler{m})
 
 	// Run server
 	if err := service.Run(); err != nil {
@@ -148,6 +165,10 @@ func Commands() []cli.Command {
 			cli.BoolFlag{
 				Name:  "x",
 				Usage: "Defer run to service. Default: false",
+			},
+			cli.BoolFlag{
+				Name:  "k",
+				Usage: "Kill a service with uuid",
 			},
 		},
 	}
