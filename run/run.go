@@ -9,7 +9,7 @@ import (
 	"github.com/micro/cli"
 	"github.com/micro/go-micro"
 
-	"github.com/micro/go-run/runtime"
+	grun "github.com/micro/go-run"
 	"github.com/micro/go-run/runtime/go"
 	proto "github.com/micro/micro/run/proto"
 )
@@ -17,6 +17,33 @@ import (
 var (
 	Name = "go.micro.run"
 )
+
+func manage(r grun.Runtime, url string) error {
+	// get the source
+	log.Printf("fetching %s\n", url)
+	src, err := r.Fetch(url)
+	if err != nil {
+		return err
+	}
+
+	// build the binary
+	log.Printf("building %s\n", url)
+	bin, err := r.Build(src)
+	if err != nil {
+		return err
+	}
+
+	// execute the binary
+	log.Printf("executing %s\n", url)
+	proc, err := r.Exec(bin)
+	if err != nil {
+		return err
+	}
+
+	// wait till exit
+	log.Printf("running %s\n", url)
+	return r.Wait(proc)
+}
 
 func run(ctx *cli.Context) {
 	if len(ctx.GlobalString("server_name")) > 0 {
@@ -39,7 +66,7 @@ func run(ctx *cli.Context) {
 		// 3. look for daemonize flag
 		// 4. look for flag to defer update
 
-		if err := runtime.Run(r, ctx.Args().First()); err != nil {
+		if err := manage(r, ctx.Args().First()); err != nil {
 			fmt.Println(err)
 		}
 		return
