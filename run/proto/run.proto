@@ -27,6 +27,7 @@ message Process {
 
 message FetchRequest {
 	string url = 1;
+	bool update = 2;
 }
 
 message FetchResponse {

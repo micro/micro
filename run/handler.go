@@ -16,7 +16,7 @@ func (h *handler) Fetch(ctx context.Context, req *proto.FetchRequest, rsp *proto
 	if len(req.Url) == 0 {
 		return errors.BadRequest(Name+".fetch", "url is blank")
 	}
-	src, err := h.r.Fetch(req.Url)
+	src, err := h.r.Fetch(req.Url, gorun.Update(req.Update))
 	if err != nil {
 		return errors.InternalServerError(Name+".fetch", err.Error())
 	}
