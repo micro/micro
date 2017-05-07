@@ -8,10 +8,13 @@ import (
 
 	"github.com/micro/cli"
 	"github.com/micro/go-micro"
+	"github.com/micro/go-micro/client"
 
 	"github.com/micro/go-run"
 	"github.com/micro/go-run/runtime/go"
 	proto "github.com/micro/micro/run/proto"
+
+	"golang.org/x/net/context"
 )
 
 var (
@@ -80,10 +83,26 @@ func runc(ctx *cli.Context) {
 		// 3. look for daemonize flag
 		// 4. Done: look for flag to defer update
 
-		// manage the process
 		re := ctx.Bool("r")
 		up := ctx.Bool("u")
+		xe := ctx.Bool("x")
 
+		// defer to service
+		if xe {
+			// call runtime manager service
+			cl := proto.NewServiceClient(Name, client.DefaultClient)
+			_, err := cl.Run(context.TODO(), &proto.RunRequest{
+				Url:     ctx.Args().First(),
+				Restart: re,
+				Update:  up,
+			})
+			if err != nil {
+				fmt.Println(err)
+			}
+			return
+		}
+
+		// manage the process locally
 		if err := manage(r, ctx.Args().First(), re, up); err != nil {
 			fmt.Println(err)
 		}
@@ -103,7 +122,8 @@ func runc(ctx *cli.Context) {
 		),
 	)
 
-	proto.RegisterRuntimeHandler(service.Server(), &handler{r})
+	proto.RegisterRuntimeHandler(service.Server(), &runtimeHandler{r})
+	proto.RegisterServiceHandler(service.Server(), &serviceHandler{r})
 
 	// Run server
 	if err := service.Run(); err != nil {
@@ -124,6 +144,10 @@ func Commands() []cli.Command {
 			cli.BoolFlag{
 				Name:  "u",
 				Usage: "Update the source. Default: false",
+			},
+			cli.BoolFlag{
+				Name:  "x",
+				Usage: "Defer run to service. Default: false",
 			},
 		},
 	}

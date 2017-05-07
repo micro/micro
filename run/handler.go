@@ -8,11 +8,15 @@ import (
 	proto "github.com/micro/micro/run/proto"
 )
 
-type handler struct {
+type runtimeHandler struct {
 	r gorun.Runtime
 }
 
-func (h *handler) Fetch(ctx context.Context, req *proto.FetchRequest, rsp *proto.FetchResponse) error {
+type serviceHandler struct {
+	r gorun.Runtime
+}
+
+func (h *runtimeHandler) Fetch(ctx context.Context, req *proto.FetchRequest, rsp *proto.FetchResponse) error {
 	if len(req.Url) == 0 {
 		return errors.BadRequest(Name+".fetch", "url is blank")
 	}
@@ -27,7 +31,7 @@ func (h *handler) Fetch(ctx context.Context, req *proto.FetchRequest, rsp *proto
 	return nil
 }
 
-func (h *handler) Build(ctx context.Context, req *proto.BuildRequest, rsp *proto.BuildResponse) error {
+func (h *runtimeHandler) Build(ctx context.Context, req *proto.BuildRequest, rsp *proto.BuildResponse) error {
 	if req.Source == nil {
 		return errors.BadRequest(Name+".build", "source is nil")
 	}
@@ -45,7 +49,7 @@ func (h *handler) Build(ctx context.Context, req *proto.BuildRequest, rsp *proto
 	return nil
 }
 
-func (h *handler) Exec(ctx context.Context, req *proto.ExecRequest, rsp *proto.ExecResponse) error {
+func (h *runtimeHandler) Exec(ctx context.Context, req *proto.ExecRequest, rsp *proto.ExecResponse) error {
 	if req.Binary == nil {
 		return errors.BadRequest(Name+".exec", "binary is nil")
 	}
@@ -69,7 +73,7 @@ func (h *handler) Exec(ctx context.Context, req *proto.ExecRequest, rsp *proto.E
 	return nil
 }
 
-func (h *handler) Kill(ctx context.Context, req *proto.KillRequest, rsp *proto.KillResponse) error {
+func (h *runtimeHandler) Kill(ctx context.Context, req *proto.KillRequest, rsp *proto.KillResponse) error {
 	if req.Process == nil {
 		return errors.BadRequest(Name+".kill", "process is nil")
 	}
@@ -98,7 +102,7 @@ func (h *handler) Kill(ctx context.Context, req *proto.KillRequest, rsp *proto.K
 	return nil
 }
 
-func (h *handler) Wait(ctx context.Context, req *proto.WaitRequest, stream proto.Runtime_WaitStream) error {
+func (h *runtimeHandler) Wait(ctx context.Context, req *proto.WaitRequest, stream proto.Runtime_WaitStream) error {
 	if req.Process == nil {
 		return errors.BadRequest(Name+".wait", "process is nil")
 	}
@@ -128,5 +132,16 @@ func (h *handler) Wait(ctx context.Context, req *proto.WaitRequest, stream proto
 		}
 	}
 
+	return nil
+}
+
+func (h *serviceHandler) Run(ctx context.Context, req *proto.RunRequest, rsp *proto.RunResponse) error {
+	if len(req.Url) == 0 {
+		return errors.BadRequest(Name+".run", "url is blank")
+	}
+
+	// TODO: should return stream?
+	// TODO: find a way to stop this?
+	go manage(h.r, req.Url, req.Restart, req.Update)
 	return nil
 }
