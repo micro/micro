@@ -80,18 +80,17 @@ message RunRequest {
 }
 
 message RunResponse {
-	string id = 1;
 }
 
 message StopRequest {
-	string id = 1;
+	string url = 1;
 }
 
 message StopResponse {
 }
 
 message StatusRequest {
-	string id = 1;
+	string url = 1;
 }
 
 message StatusResponse {

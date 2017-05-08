@@ -84,6 +84,7 @@ func runc(ctx *cli.Context) {
 		// 4. Done: look for flag to defer update
 
 		ki := ctx.Bool("k")
+		st := ctx.Bool("s")
 		re := ctx.Bool("r")
 		up := ctx.Bool("u")
 		xe := ctx.Bool("x")
@@ -93,7 +94,7 @@ func runc(ctx *cli.Context) {
 			// call runtime manager service
 			cl := proto.NewServiceClient(Name, client.DefaultClient)
 			_, err := cl.Stop(context.TODO(), &proto.StopRequest{
-				Id: ctx.Args().First(),
+				Url: ctx.Args().First(),
 			})
 			if err != nil {
 				fmt.Println(err)
@@ -101,11 +102,25 @@ func runc(ctx *cli.Context) {
 			return
 		}
 
+		// get status
+		if st {
+			// call runtime manager service
+			cl := proto.NewServiceClient(Name, client.DefaultClient)
+			rsp, err := cl.Status(context.TODO(), &proto.StatusRequest{
+				Url: ctx.Args().First(),
+			})
+			if err != nil {
+				fmt.Println(err)
+			}
+			fmt.Println(rsp.Info)
+			return
+		}
+
 		// defer to service
 		if xe {
 			// call runtime manager service
 			cl := proto.NewServiceClient(Name, client.DefaultClient)
-			rsp, err := cl.Run(context.TODO(), &proto.RunRequest{
+			_, err := cl.Run(context.TODO(), &proto.RunRequest{
 				Url:     ctx.Args().First(),
 				Restart: re,
 				Update:  up,
@@ -113,7 +128,6 @@ func runc(ctx *cli.Context) {
 			if err != nil {
 				fmt.Println(err)
 			}
-			fmt.Println(rsp.Id)
 			return
 		}
 
@@ -155,6 +169,10 @@ func Commands() []cli.Command {
 		Action: runc,
 		Flags: []cli.Flag{
 			cli.BoolFlag{
+				Name:  "k",
+				Usage: "Kill service",
+			},
+			cli.BoolFlag{
 				Name:  "r",
 				Usage: "Restart if dies. Default: false",
 			},
@@ -167,8 +185,8 @@ func Commands() []cli.Command {
 				Usage: "Defer run to service. Default: false",
 			},
 			cli.BoolFlag{
-				Name:  "k",
-				Usage: "Kill a service with uuid",
+				Name:  "s",
+				Usage: "Get service status",
 			},
 		},
 	}

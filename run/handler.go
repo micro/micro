@@ -141,17 +141,16 @@ func (h *serviceHandler) Run(ctx context.Context, req *proto.RunRequest, rsp *pr
 	}
 
 	// TODO: should return stream?
-	// TODO: find a way to stop this?
-	rsp.Id = h.m.Run(req.Url, req.Restart, req.Update)
+	go h.m.Run(req.Url, req.Restart, req.Update)
 	return nil
 }
 
 func (h *serviceHandler) Status(ctx context.Context, req *proto.StatusRequest, rsp *proto.StatusResponse) error {
-	if len(req.Id) == 0 {
-		return errors.BadRequest(Name+".status", "id is blank")
+	if len(req.Url) == 0 {
+		return errors.BadRequest(Name+".status", "url is blank")
 	}
 
-	info, err := h.m.Status(req.Id)
+	info, err := h.m.Status(req.Url)
 	if err != nil {
 		return errors.InternalServerError(Name+".status", err.Error())
 	}
@@ -160,11 +159,11 @@ func (h *serviceHandler) Status(ctx context.Context, req *proto.StatusRequest, r
 }
 
 func (h *serviceHandler) Stop(ctx context.Context, req *proto.StopRequest, rsp *proto.StopResponse) error {
-	if len(req.Id) == 0 {
-		return errors.BadRequest(Name+".stop", "id is blank")
+	if len(req.Url) == 0 {
+		return errors.BadRequest(Name+".stop", "url is blank")
 	}
 
-	if err := h.m.Stop(req.Id); err != nil {
+	if err := h.m.Stop(req.Url); err != nil {
 		return errors.InternalServerError(Name+".stop", err.Error())
 	}
 

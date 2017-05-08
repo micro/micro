@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/micro/go-run"
-	"github.com/pborman/uuid"
 )
 
 type manager struct {
@@ -30,9 +29,9 @@ func (m *manager) run() {
 
 	for _ = range t.C {
 		m.Lock()
-		for id, s := range m.services {
+		for url, s := range m.services {
 			// only process stopped
-			if !(s.info == "stopped" || strings.HasPrefix(s.info, "error")) {
+			if s.running() {
 				continue
 			}
 
@@ -41,18 +40,18 @@ func (m *manager) run() {
 
 			// delete stopped older than 10 minutes
 			if t.Seconds() > 900 {
-				delete(m.services, id)
+				delete(m.services, url)
 			}
 		}
 		m.Unlock()
 	}
 }
 
-func (m *manager) update(uid, info string) error {
+func (m *manager) update(url, info string) error {
 	m.Lock()
 	defer m.Unlock()
 
-	srv, ok := m.services[uid]
+	srv, ok := m.services[url]
 	if !ok {
 		return errors.New("does not exist")
 	}
@@ -60,118 +59,119 @@ func (m *manager) update(uid, info string) error {
 	return srv.update(info)
 }
 
-func (m *manager) setProc(uid string, proc *run.Process) {
+func (m *manager) setProc(url string, proc *run.Process) {
 	m.Lock()
 	defer m.Unlock()
 
-	if srv, ok := m.services[uid]; ok {
+	if srv, ok := m.services[url]; ok {
 		srv.process = proc
 	}
 }
 
-func (m *manager) Run(url string, re, u bool) string {
-	uid := uuid.NewUUID().String()
-
-	// save id
+func (m *manager) Run(url string, re, u bool) {
 	m.Lock()
-	m.services[uid] = &service{
+
+	// already exists?
+	if s, ok := m.services[url]; ok && s.running() {
+		m.Unlock()
+		return
+	}
+
+	// rewrite
+	m.services[url] = &service{
 		exit: make(chan bool),
 		info: "pre-fetch",
 	}
+
 	m.Unlock()
 
-	go func() {
-		// get the source
-		if err := m.update(uid, "fetching"); err != nil {
+	// get the source
+	if err := m.update(url, "fetching"); err != nil {
+		return
+	}
+
+	src, err := m.runtime.Fetch(url, run.Update(u))
+	if err != nil {
+		m.update(url, "error:"+err.Error())
+		return
+	}
+
+	// build the binary
+	if err := m.update(url, "building"); err != nil {
+		return
+	}
+
+	bin, err := m.runtime.Build(src)
+	if err != nil {
+		m.update(url, "error:"+err.Error())
+		return
+	}
+
+	for {
+		// execute the binary
+		if err := m.update(url, "executing"); err != nil {
 			return
 		}
 
-		src, err := m.runtime.Fetch(url, run.Update(u))
+		proc, err := m.runtime.Exec(bin)
 		if err != nil {
-			m.update(uid, "error:"+err.Error())
+			m.update(url, "error:"+err.Error())
 			return
 		}
 
-		// build the binary
-		if err := m.update(uid, "building"); err != nil {
+		// set service process
+		m.setProc(url, proc)
+
+		// wait till exit
+		if err := m.update(url, "running"); err != nil {
 			return
 		}
 
-		bin, err := m.runtime.Build(src)
-		if err != nil {
-			m.update(uid, "error:"+err.Error())
-			return
-		}
-
-		for {
-			// execute the binary
-			if err := m.update(uid, "executing"); err != nil {
-				return
-			}
-
-			proc, err := m.runtime.Exec(bin)
-			if err != nil {
-				m.update(uid, "error:"+err.Error())
-				return
-			}
-
-			// set service process
-			m.setProc(uid, proc)
-
-			// wait till exit
-			if err := m.update(uid, "running"); err != nil {
-				return
-			}
-
-			// bail if not restarting
-			if !re {
-				if err := m.runtime.Wait(proc); err != nil {
-					m.update(uid, "error:"+err.Error())
-				}
-				return
-			}
-
-			// log error since we manage the cycle
+		// bail if not restarting
+		if !re {
 			if err := m.runtime.Wait(proc); err != nil {
-				if err := m.update(uid, "error:"+err.Error()); err != nil {
-					return
-				}
+				m.update(url, "error:"+err.Error())
 			}
+			return
+		}
 
-			// log restart
-			if err := m.update(uid, "restarting"); err != nil {
+		// log error since we manage the cycle
+		if err := m.runtime.Wait(proc); err != nil {
+			if err := m.update(url, "error:"+err.Error()); err != nil {
 				return
 			}
 		}
 
-	}()
-
-	return uid
+		// log restart
+		if err := m.update(url, "restarting"); err != nil {
+			return
+		}
+	}
 }
 
-func (m *manager) Status(id string) (string, error) {
+func (m *manager) Status(url string) (string, error) {
 	m.RLock()
 	defer m.RUnlock()
 
-	srv, ok := m.services[id]
+	srv, ok := m.services[url]
 	if !ok {
-		return "", errors.New(id + " does not exist")
+		return "", errors.New(url + " does not exist")
 	}
 
 	return srv.info, nil
 }
 
-func (m *manager) Stop(id string) error {
+func (m *manager) Stop(url string) error {
 	m.Lock()
 	defer m.Unlock()
 
-	srv, ok := m.services[id]
+	srv, ok := m.services[url]
 	if !ok {
-		return errors.New(id + " does not exist")
+		return errors.New(url + " does not exist")
 	}
 
 	// check if its already stopped
-	if srv.info == "stopped" {
+	if !srv.running() {
 		return nil
 	}
 	// kill
@@ -183,6 +183,10 @@ func (m *manager) Stop(id string) error {
 	srv.stop()
 
 	return nil
+}
+
+func (s *service) running() bool {
+	return !(s.info == "stopped" || strings.HasPrefix(s.info, "error"))
 }
 
 func (s *service) update(msg string) error {

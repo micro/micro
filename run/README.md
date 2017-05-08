@@ -18,7 +18,7 @@ micro run -r github.com/service/foo
 # update source on fetch
 micro run -u github.com/service/foo
 # kill a service
-micro run -k uuid
+micro run -k=uuid github.com/service/foo
 ```
 
 ## Usage
