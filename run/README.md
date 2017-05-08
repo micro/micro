@@ -17,8 +17,10 @@ micro run -x github.com/service/foo
 micro run -r github.com/service/foo
 # update source on fetch
 micro run -u github.com/service/foo
+# get status
+micro run -s github.com/service/foo
 # kill a service
-micro run -k=uuid github.com/service/foo
+micro run -k github.com/service/foo
 ```
 
 ## Usage
@@ -31,9 +33,10 @@ USAGE:
    micro run [command options] [arguments...]
 
 OPTIONS:
+   -k	Kill service
    -r	Restart if dies. Default: false
    -u	Update the source. Default: false
    -x	Defer run to service. Default: false
-   -k	Kill a service with uuid
+   -s	Get service status
    
 ```
