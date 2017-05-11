@@ -40,3 +40,13 @@ OPTIONS:
    -s	Get service status
    
 ```
+
+## TODO
+
+- [ ] Accept args and env vars to service 
+- [ ] Add Service interface to [go-run](https://github.com/micro/go-run)
+- [ ] Support configurable runtimes beyond Go
+- [ ] Rebuild with plugins
+- [ ] Daemonization?
+- [ ] Watch memory consumption and kill?
+- [ ] Chroot the process?
