@@ -4,6 +4,8 @@ The **micro run** command manages the lifecycle of a microservice. It fetches th
 It's a simple tool which can be used for local development. If no arguments are specified micro run operates as a service 
 which can manage other services.
 
+Note: The default runtime (Go) requires the Go binary in PATH and GOPATH to be set.
+
 ## Overview
 
 Run
