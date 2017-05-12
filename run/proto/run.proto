@@ -1,0 +1,98 @@
+syntax = "proto3";
+
+package go.micro.run;
+
+service Runtime {
+	rpc Fetch(FetchRequest) returns (FetchResponse) {};
+	rpc Build(BuildRequest) returns (BuildResponse) {};
+	rpc Exec(ExecRequest) returns (ExecResponse) {};
+	rpc Kill(KillRequest) returns (KillResponse) {};
+	rpc Wait(WaitRequest) returns (stream WaitResponse) {};
+}
+
+service Service {
+	rpc Run(RunRequest) returns (RunResponse) {};
+	rpc Stop(StopRequest) returns (StopResponse) {};
+	rpc Status(StatusRequest) returns (StatusResponse) {};
+}
+
+message Source {
+	string url = 1;
+	string dir = 2;
+}
+
+message Binary {
+	string path = 1;
+	Source source = 2;
+}
+
+message Process {
+	string id = 1;
+	Binary binary = 2;
+}
+
+message FetchRequest {
+	string url = 1;
+	bool update = 2;
+}
+
+message FetchResponse {
+	Source source = 1;
+}
+
+message BuildRequest {
+	Source source = 1;
+}
+
+message BuildResponse {
+	Binary binary = 1;
+}
+
+message ExecRequest {
+	Binary binary = 1;
+}
+
+message ExecResponse {
+	Process process = 1;
+}
+
+message KillRequest {
+	Process process = 1;
+}
+
+message KillResponse {
+}
+
+message WaitRequest {
+	Process process = 1;
+}
+
+message WaitResponse {
+	string error = 1;
+}
+
+// Service methods
+
+message RunRequest {
+	string url = 1;
+	bool restart = 2;
+	bool update = 3;
+}
+
+message RunResponse {
+}
+
+message StopRequest {
+	string url = 1;
+}
+
+message StopResponse {
+}
+
+message StatusRequest {
+	string url = 1;
+}
+
+message StatusResponse {
+	string info = 1;
+}
