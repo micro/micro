@@ -6,39 +6,39 @@ which can manage other services.
 
 ## Overview
 
+Run
 ```
-# fetch, build, execute
 micro run github.com/service/foo
 ```
 
+Status
 ```
-# run service manager
-micro run
-```
-
-```
-# defer to service manager
-micro run -x github.com/service/foo
-```
-
-```
-# restart on death
-micro run -r github.com/service/foo
-```
-
-```
-# update source on fetch
-micro run -u github.com/service/foo
-```
-
-```
-# get status
 micro run -s github.com/service/foo
 ```
 
+Kill
 ```
-# kill a service
 micro run -k github.com/service/foo
+```
+
+Run service manager
+```
+micro run
+```
+
+Defer run to service manager
+```
+micro run -x github.com/service/foo
+```
+
+Run and restart on death
+```
+micro run -r github.com/service/foo
+```
+
+Run and update source on fetch
+```
+micro run -u github.com/service/foo
 ```
 
 ## Usage
