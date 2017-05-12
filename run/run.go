@@ -152,9 +152,19 @@ func runc(ctx *cli.Context) {
 	)
 
 	m := newManager(r)
+	prun := micro.NewPublisher(Name+".run", service.Client())
+	pstop := micro.NewPublisher(Name+".stop", service.Client())
 
+	// handlers
 	proto.RegisterRuntimeHandler(service.Server(), &runtimeHandler{r})
-	proto.RegisterServiceHandler(service.Server(), &serviceHandler{m})
+	proto.RegisterServiceHandler(service.Server(), &serviceHandler{m, prun, pstop})
+
+	// subscribers
+	sb := &subHandler{m}
+	// run commands
+	micro.RegisterSubscriber(Name+".run", service.Server(), sb.Run)
+	// stop commands
+	micro.RegisterSubscriber(Name+".stop", service.Server(), sb.Stop)
 
 	// Run server
 	if err := service.Run(); err != nil {

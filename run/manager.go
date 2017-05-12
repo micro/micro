@@ -24,6 +24,15 @@ type service struct {
 	process *run.Process
 }
 
+func newManager(r run.Runtime) *manager {
+	m := &manager{
+		runtime:  r,
+		services: make(map[string]*service),
+	}
+	go m.run()
+	return m
+}
+
 func (m *manager) run() {
 	t := time.NewTicker(time.Minute)
 
@@ -68,6 +77,7 @@ func (m *manager) setProc(url string, proc *run.Process) {
 	}
 }
 
+// Run runs a service
 func (m *manager) Run(url string, re, u bool) {
 	m.Lock()
 
@@ -149,6 +159,7 @@ func (m *manager) Run(url string, re, u bool) {
 	}
 }
 
+// Status retrieves the status of a service
 func (m *manager) Status(url string) (string, error) {
 	m.RLock()
 	defer m.RUnlock()
@@ -161,6 +172,7 @@ func (m *manager) Status(url string) (string, error) {
 	return srv.info, nil
 }
 
+// Stop stops a service
 func (m *manager) Stop(url string) error {
 	m.Lock()
 	defer m.Unlock()
@@ -209,13 +221,4 @@ func (s *service) stop() {
 		s.info = "stopped"
 		s.updated = time.Now()
 	}
-}
-
-func newManager(r run.Runtime) *manager {
-	m := &manager{
-		runtime:  r,
-		services: make(map[string]*service),
-	}
-	go m.run()
-	return m
 }

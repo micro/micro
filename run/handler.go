@@ -1,6 +1,7 @@
 package run
 
 import (
+	"github.com/micro/go-micro"
 	"github.com/micro/go-micro/errors"
 	gorun "github.com/micro/go-run"
 	"golang.org/x/net/context"
@@ -13,7 +14,9 @@ type runtimeHandler struct {
 }
 
 type serviceHandler struct {
-	m *manager
+	m     *manager
+	prun  micro.Publisher
+	pstop micro.Publisher
 }
 
 func (h *runtimeHandler) Fetch(ctx context.Context, req *proto.FetchRequest, rsp *proto.FetchResponse) error {
@@ -142,6 +145,10 @@ func (h *serviceHandler) Run(ctx context.Context, req *proto.RunRequest, rsp *pr
 
 	// TODO: should return stream?
 	go h.m.Run(req.Url, req.Restart, req.Update)
+
+	// publish run event
+	h.prun.Publish(ctx, req)
+
 	return nil
 }
 
@@ -163,9 +170,11 @@ func (h *serviceHandler) Stop(ctx context.Context, req *proto.StopRequest, rsp *
 		return errors.BadRequest(Name+".stop", "url is blank")
 	}
 
-	if err := h.m.Stop(req.Url); err != nil {
-		return errors.InternalServerError(Name+".stop", err.Error())
-	}
+	// TODO: return the error?
+	h.m.Stop(req.Url)
+
+	// publish stop event
+	h.pstop.Publish(ctx, req)
 
 	return nil
 }
