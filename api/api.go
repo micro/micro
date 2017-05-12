@@ -3,7 +3,7 @@ package api
 
 import (
 	"fmt"
-	"log"
+	"github.com/micro/go-log"
 	"net/http"
 	"strings"
 	"time"
@@ -107,24 +107,24 @@ func run(ctx *cli.Context) {
 		defer st.Stop()
 	}
 
-	log.Printf("Registering RPC Handler at %s", RPCPath)
+	log.Logf("Registering RPC Handler at %s", RPCPath)
 	r.HandleFunc(RPCPath, handler.RPC)
 
 	switch Handler {
 	case "rpc":
-		log.Printf("Registering API RPC Handler at %s", APIPath)
+		log.Logf("Registering API RPC Handler at %s", APIPath)
 		rt := router.NewRouter(router.WithNamespace(Namespace), router.WithHandler(api.Rpc))
 		r.PathPrefix(APIPath).Handler(handler.RPCX(rt, nil))
 	case "proxy":
-		log.Printf("Registering API Proxy Handler at %s", ProxyPath)
+		log.Logf("Registering API Proxy Handler at %s", ProxyPath)
 		rt := router.NewRouter(router.WithNamespace(Namespace), router.WithHandler(api.Proxy))
 		r.PathPrefix(ProxyPath).Handler(handler.Proxy(rt, nil, false))
 	case "api":
-		log.Printf("Registering API Request Handler at %s", APIPath)
+		log.Logf("Registering API Request Handler at %s", APIPath)
 		rt := router.NewRouter(router.WithNamespace(Namespace), router.WithHandler(api.Api))
 		r.PathPrefix(APIPath).Handler(handler.API(rt, nil))
 	default:
-		log.Printf("Registering API Default Handler at %s", APIPath)
+		log.Logf("Registering API Default Handler at %s", APIPath)
 		r.PathPrefix(APIPath).Handler(handler.Meta(Namespace))
 	}
 

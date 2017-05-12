@@ -3,7 +3,7 @@ package car
 
 import (
 	"fmt"
-	"log"
+	"github.com/micro/go-log"
 	"net/http"
 	"strconv"
 	"strings"
@@ -122,7 +122,7 @@ func run(ctx *cli.Context, car *sidecar) {
 
 	// register handlers
 	if car != nil {
-		log.Printf("Registering Health handler at %s", HealthPath)
+		log.Logf("Registering Health handler at %s", HealthPath)
 		r.Handle(HealthPath, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			if c, err := car.hc(); err != nil {
 				http.Error(w, err.Error(), c)
@@ -131,23 +131,23 @@ func run(ctx *cli.Context, car *sidecar) {
 		}))
 	}
 
-	log.Printf("Registering Registry handler at %s", RegistryPath)
+	log.Logf("Registering Registry handler at %s", RegistryPath)
 	r.Handle(RegistryPath, http.HandlerFunc(handler.Registry))
 
-	log.Printf("Registering RPC handler at %s", RPCPath)
+	log.Logf("Registering RPC handler at %s", RPCPath)
 	r.Handle(RPCPath, http.HandlerFunc(handler.RPC))
 
-	log.Printf("Registering Broker handler at %s", BrokerPath)
+	log.Logf("Registering Broker handler at %s", BrokerPath)
 	r.Handle(BrokerPath, http.HandlerFunc(handler.Broker))
 
 	switch Handler {
 	case "proxy":
-		log.Printf("Registering Proxy Handler at %s", ProxyPath)
+		log.Logf("Registering Proxy Handler at %s", ProxyPath)
 		rt := router.NewRouter(router.WithNamespace(Namespace), router.WithHandler(api.Proxy))
 		r.PathPrefix(ProxyPath).Handler(handler.Proxy(rt, nil, false))
 	// rpc
 	default:
-		log.Printf("Registering Root Handler at %s", RootPath)
+		log.Logf("Registering Root Handler at %s", RootPath)
 		rt := router.NewRouter(router.WithNamespace(Namespace), router.WithHandler(api.Rpc))
 		r.PathPrefix(RootPath).Handler(handler.RPCX(rt, nil))
 	}
@@ -219,11 +219,11 @@ func (s *sidecar) hcLoop(service *registry.Service, exitCh chan bool) {
 		case <-tick.C:
 			_, err := s.hc()
 			if err != nil && registered {
-				log.Printf("Healthcheck error. Deregistering %v", service.Nodes[0].Id)
+				log.Logf("Healthcheck error. Deregistering %v", service.Nodes[0].Id)
 				(*cmd.DefaultOptions().Registry).Deregister(service)
 				registered = false
 			} else if err == nil && !registered {
-				log.Printf("Healthcheck success. Registering %v", service.Nodes[0].Id)
+				log.Logf("Healthcheck success. Registering %v", service.Nodes[0].Id)
 				(*cmd.DefaultOptions().Registry).Register(service)
 				registered = true
 			}
@@ -251,14 +251,14 @@ func (s *sidecar) run(exit chan bool) {
 		Nodes: []*registry.Node{node},
 	}
 
-	log.Printf("Registering %s", node.Id)
+	log.Logf("Registering %s", node.Id)
 	(*cmd.DefaultOptions().Registry).Register(service)
 
 	if len(s.hcUrl) == 0 {
 		return
 	}
 
-	log.Print("Starting sidecar healthchecker")
+	log.Log("Starting sidecar healthchecker")
 	go s.hcLoop(service, exit)
 	<-exit
 }

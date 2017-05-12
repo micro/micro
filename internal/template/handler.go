@@ -4,7 +4,7 @@ var (
 	HandlerSRV = `package handler
 
 import (
-	"log"
+	"github.com/micro/go-log"
 
 	example "{{.Dir}}/proto/example"
 	"golang.org/x/net/context"
@@ -21,10 +21,10 @@ func (e *Example) Call(ctx context.Context, req *example.Request, rsp *example.R
 
 // Stream is a server side stream handler called via client.Stream or the generated client code
 func (e *Example) Stream(ctx context.Context, req *example.StreamingRequest, stream example.Example_StreamStream) error {
-	log.Printf("Received Example.Stream request with count: %d", req.Count)
+	log.Logf("Received Example.Stream request with count: %d", req.Count)
 
 	for i := 0; i < int(req.Count); i++ {
-		log.Printf("Responding: %d", i)
+		log.Logf("Responding: %d", i)
 		if err := stream.Send(&example.StreamingResponse{
 			Count: int64(i),
 		}); err != nil {
@@ -42,7 +42,7 @@ func (e *Example) PingPong(ctx context.Context, stream example.Example_PingPongS
 		if err != nil {
 			return err
 		}
-		log.Printf("Got ping %v", req.Stroke)
+		log.Logf("Got ping %v", req.Stroke)
 		if err := stream.Send(&example.Pong{Stroke: req.Stroke}); err != nil {
 			return err
 		}
@@ -53,7 +53,7 @@ func (e *Example) PingPong(ctx context.Context, stream example.Example_PingPongS
 	SubscriberSRV = `package subscriber
 
 import (
-	"log"
+	"github.com/micro/go-log"
 
 	example "{{.Dir}}/proto/example"
 	"golang.org/x/net/context"
@@ -76,7 +76,7 @@ func Handler(ctx context.Context, msg *example.Message) error {
 
 import (
 	"encoding/json"
-	"log"
+	"github.com/micro/go-log"
 
 	"{{.Dir}}/client"
 	"github.com/micro/go-micro/errors"

@@ -4,7 +4,7 @@ var (
 	MainSRV = `package main
 
 import (
-	"log"
+	"github.com/micro/go-log"
 
 	"github.com/micro/go-micro"
 	"{{.Dir}}/handler"
@@ -45,7 +45,7 @@ func main() {
 	MainAPI = `package main
 
 import (
-	"log"
+	"github.com/micro/go-log"
 
 	"github.com/micro/go-micro"
 	"{{.Dir}}/handler"
@@ -79,7 +79,7 @@ func main() {
 	MainWEB = `package main
 
 import (
-        "log"
+        "github.com/micro/go-log"
 	"net/http"
 
         "github.com/micro/go-web"

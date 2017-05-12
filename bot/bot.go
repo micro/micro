@@ -3,7 +3,7 @@ package bot
 
 import (
 	"fmt"
-	"log"
+	"github.com/micro/go-log"
 	"os"
 	"regexp"
 	"sort"
@@ -93,16 +93,16 @@ func newBot(ctx *cli.Context, inputs map[string]input.Input, commands map[string
 }
 
 func (b *bot) loop(io input.Input) {
-	log.Println("[bot][loop] starting", io.String())
+	log.Logf("[bot][loop] starting %s", io.String())
 
 	for {
 		select {
 		case <-b.exit:
-			log.Println("[bot][loop] exiting", io.String())
+			log.Logf("[bot][loop] exiting %s", io.String())
 			return
 		default:
 			if err := b.run(io); err != nil {
-				log.Println("[bot][loop] error", err)
+				log.Logf("[bot][loop] error %v", err)
 				time.Sleep(time.Second)
 			}
 		}
@@ -178,7 +178,7 @@ func (b *bot) process(c input.Conn, ev input.Event) error {
 }
 
 func (b *bot) run(io input.Input) error {
-	log.Println("[bot][loop] connecting to", io.String())
+	log.Logf("[bot][loop] connecting to %s", io.String())
 
 	c, err := io.Stream()
 	if err != nil {
@@ -188,7 +188,7 @@ func (b *bot) run(io input.Input) error {
 	for {
 		select {
 		case <-b.exit:
-			log.Println("[bot][loop] closing", io.String())
+			log.Logf("[bot][loop] closing %s", io.String())
 			return c.Close()
 		default:
 			var recvEv input.Event
@@ -214,11 +214,11 @@ func (b *bot) run(io input.Input) error {
 }
 
 func (b *bot) start() error {
-	log.Println("[bot] starting")
+	log.Log("[bot] starting")
 
 	// Start inputs
 	for _, io := range b.inputs {
-		log.Println("[bot] starting input", io.String())
+		log.Logf("[bot] starting input %s", io.String())
 
 		if err := io.Init(b.ctx); err != nil {
 			return err
@@ -238,14 +238,14 @@ func (b *bot) start() error {
 }
 
 func (b *bot) stop() error {
-	log.Println("[bot] stopping")
+	log.Log("[bot] stopping")
 	close(b.exit)
 
 	// Stop inputs
 	for _, io := range b.inputs {
-		log.Println("[bot] stopping input", io.String())
+		log.Logf("[bot] stopping input %s", io.String())
 		if err := io.Stop(); err != nil {
-			log.Println("[bot]", err)
+			log.Logf("[bot] %v", err)
 		}
 	}
 
@@ -365,14 +365,12 @@ func run(ctx *cli.Context) {
 
 	// Parse flags
 	if len(ctx.String("inputs")) == 0 {
-		log.Println("[bot] no inputs specified")
-		os.Exit(1)
+		log.Fatal("[bot] no inputs specified")
 	}
 
 	inputs := strings.Split(ctx.String("inputs"), ",")
 	if len(inputs) == 0 {
-		log.Println("[bot] no inputs specified")
-		os.Exit(1)
+		log.Fatal("[bot] no inputs specified")
 	}
 
 	ios := make(map[string]input.Input)
@@ -386,7 +384,7 @@ func run(ctx *cli.Context) {
 	// take other commands
 	for pattern, cmd := range command.Commands {
 		if c, ok := cmds[pattern]; ok {
-			log.Printf("[bot] command %s already registered for pattern %s\n", c.String(), pattern)
+			log.Logf("[bot] command %s already registered for pattern %s\n", c.String(), pattern)
 			continue
 		}
 		// register command
@@ -397,7 +395,7 @@ func run(ctx *cli.Context) {
 	for _, io := range inputs {
 		i, ok := input.Inputs[io]
 		if !ok {
-			log.Printf("[bot] input %s not found\n", i)
+			log.Logf("[bot] input %s not found\n", i)
 			os.Exit(1)
 		}
 		ios[io] = i
@@ -418,7 +416,7 @@ func run(ctx *cli.Context) {
 	b := newBot(ctx, ios, cmds, service)
 
 	if err := b.start(); err != nil {
-		log.Println("error starting bot", err)
+		log.Logf("error starting bot %v", err)
 		os.Exit(1)
 	}
 
@@ -429,7 +427,7 @@ func run(ctx *cli.Context) {
 
 	// Stop bot
 	if err := b.stop(); err != nil {
-		log.Println("error stopping bot", err)
+		log.Logf("error stopping bot %v", err)
 	}
 }
 

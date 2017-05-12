@@ -2,7 +2,7 @@ package handler
 
 import (
 	"encoding/json"
-	"log"
+	"github.com/micro/go-log"
 	"net/http"
 	"sync"
 	"time"
@@ -117,7 +117,7 @@ func (c *conn) writeLoop() {
 	}()
 
 	if err != nil {
-		log.Print(err.Error())
+		log.Log(err.Error())
 		return
 	}
 
@@ -149,7 +149,7 @@ func Broker(w http.ResponseWriter, r *http.Request) {
 
 	ws, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
-		log.Print(err.Error())
+		log.Log(err.Error())
 		return
 	}
 

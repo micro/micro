@@ -4,8 +4,8 @@ package web
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/micro/go-log"
 	"html/template"
-	"log"
 	"net/http"
 	"net/http/httputil"
 	"regexp"

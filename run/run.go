@@ -3,7 +3,7 @@ package run
 
 import (
 	"fmt"
-	"log"
+	"github.com/micro/go-log"
 	"time"
 
 	"github.com/micro/cli"
@@ -23,14 +23,14 @@ var (
 
 func manage(r run.Runtime, url string, re, u bool) error {
 	// get the source
-	log.Printf("fetching %s\n", url)
+	log.Logf("fetching %s\n", url)
 	src, err := r.Fetch(url, run.Update(u))
 	if err != nil {
 		return err
 	}
 
 	// build the binary
-	log.Printf("building %s\n", url)
+	log.Logf("building %s\n", url)
 	bin, err := r.Build(src)
 	if err != nil {
 		return err
@@ -38,14 +38,14 @@ func manage(r run.Runtime, url string, re, u bool) error {
 
 	for {
 		// execute the binary
-		log.Printf("executing %s\n", url)
+		log.Logf("executing %s\n", url)
 		proc, err := r.Exec(bin)
 		if err != nil {
 			return err
 		}
 
 		// wait till exit
-		log.Printf("running %s\n", url)
+		log.Logf("running %s\n", url)
 
 		// bail if not restarting
 		if !re {
@@ -54,11 +54,11 @@ func manage(r run.Runtime, url string, re, u bool) error {
 
 		// log error since we manage the cycle
 		if err := r.Wait(proc); err != nil {
-			log.Printf("exited with err %v\n", err)
+			log.Logf("exited with err %v\n", err)
 		}
 
 		// cruft log
-		log.Printf("restarting %s\n", url)
+		log.Logf("restarting %s\n", url)
 	}
 }
 
