@@ -62,7 +62,7 @@ func (m *manager) update(url, info string) error {
 
 	srv, ok := m.services[url]
 	if !ok {
-		return errors.New("does not exist")
+		return nil
 	}
 
 	return srv.update(info)
@@ -166,7 +166,7 @@ func (m *manager) Status(url string) (string, error) {
 
 	srv, ok := m.services[url]
 	if !ok {
-		return "", errors.New(url + " does not exist")
+		return "does not exist", nil
 	}
 
 	return srv.info, nil
@@ -179,7 +179,7 @@ func (m *manager) Stop(url string) error {
 
 	srv, ok := m.services[url]
 	if !ok {
-		return errors.New(url + " does not exist")
+		return nil
 	}
 
 	// check if its already stopped

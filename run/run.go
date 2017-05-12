@@ -111,6 +111,7 @@ func runc(ctx *cli.Context) {
 			})
 			if err != nil {
 				fmt.Println(err)
+				return
 			}
 			fmt.Println(rsp.Info)
 			return
