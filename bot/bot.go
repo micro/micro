@@ -3,7 +3,6 @@ package bot
 
 import (
 	"fmt"
-	"github.com/micro/go-log"
 	"os"
 	"regexp"
 	"sort"
@@ -18,6 +17,7 @@ import (
 	"github.com/micro/go-bot/input"
 	_ "github.com/micro/go-bot/input/hipchat"
 	_ "github.com/micro/go-bot/input/slack"
+	"github.com/micro/go-log"
 	botc "github.com/micro/micro/internal/command/bot"
 
 	proto "github.com/micro/go-bot/proto"

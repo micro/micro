@@ -4,7 +4,6 @@ package web
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/micro/go-log"
 	"html/template"
 	"net/http"
 	"net/http/httputil"
@@ -15,6 +14,7 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/micro/cli"
+	"github.com/micro/go-log"
 	"github.com/micro/go-micro"
 	"github.com/micro/go-micro/cmd"
 	"github.com/micro/go-micro/registry"

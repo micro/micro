@@ -2,12 +2,12 @@ package handler
 
 import (
 	"encoding/json"
-	"github.com/micro/go-log"
 	"net/http"
 	"sync"
 	"time"
 
 	"github.com/gorilla/websocket"
+	"github.com/micro/go-log"
 	"github.com/micro/go-micro/broker"
 	"github.com/micro/go-micro/cmd"
 )

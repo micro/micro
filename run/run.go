@@ -3,10 +3,10 @@ package run
 
 import (
 	"fmt"
-	"github.com/micro/go-log"
 	"time"
 
 	"github.com/micro/cli"
+	"github.com/micro/go-log"
 	"github.com/micro/go-micro"
 	"github.com/micro/go-micro/client"
 

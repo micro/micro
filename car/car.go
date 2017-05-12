@@ -3,7 +3,6 @@ package car
 
 import (
 	"fmt"
-	"github.com/micro/go-log"
 	"net/http"
 	"strconv"
 	"strings"
@@ -13,6 +12,7 @@ import (
 	"github.com/micro/cli"
 	"github.com/micro/go-api"
 	"github.com/micro/go-api/router"
+	"github.com/micro/go-log"
 	"github.com/micro/go-micro"
 	"github.com/micro/go-micro/cmd"
 	"github.com/micro/go-micro/registry"

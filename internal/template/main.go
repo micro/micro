@@ -5,7 +5,6 @@ var (
 
 import (
 	"github.com/micro/go-log"
-
 	"github.com/micro/go-micro"
 	"{{.Dir}}/handler"
 	"{{.Dir}}/subscriber"

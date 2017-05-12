@@ -2,13 +2,13 @@ package server
 
 import (
 	"crypto/tls"
-	"github.com/micro/go-log"
 	"net"
 	"net/http"
 	"os"
 	"sync"
 
 	"github.com/gorilla/handlers"
+	"github.com/micro/go-log"
 )
 
 type Server interface {
