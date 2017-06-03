@@ -269,7 +269,7 @@ func Commands() []cli.Command {
 				},
 				cli.StringFlag{
 					Name:  "type",
-					Usage: "Type of service e.g api, srv, web",
+					Usage: "Type of service e.g api, fnc, srv, web",
 					Value: "srv",
 				},
 				cli.StringFlag{
