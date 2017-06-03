@@ -1,6 +1,27 @@
 package template
 
 var (
+	ProtoFNC = `syntax = "proto3";
+
+package {{.FQDN}};
+
+service Example {
+	rpc Call(Request) returns (Response) {}
+}
+
+message Message {
+	string say = 1;
+}
+
+message Request {
+	string name = 1;
+}
+
+message Response {
+	string msg = 1;
+}
+`
+
 	ProtoSRV = `syntax = "proto3";
 
 package {{.FQDN}};

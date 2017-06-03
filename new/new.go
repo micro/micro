@@ -19,7 +19,7 @@ type config struct {
 	Alias string
 	// go.micro
 	Namespace string
-	// api, srv, web
+	// api, srv, web, fnc
 	Type string
 	// go.micro.srv.foo
 	FQDN string
@@ -148,6 +148,32 @@ func run(ctx *cli.Context) {
 	var c config
 
 	switch atype {
+	case "fnc":
+		// create srv config
+		c = config{
+			Alias:     alias,
+			Namespace: namespace,
+			Type:      atype,
+			FQDN:      fqdn,
+			Dir:       dir,
+			GoDir:     goDir,
+			GoPath:    goPath,
+			Files: []file{
+				{"main.go", tmpl.MainFNC},
+				{"handler/example.go", tmpl.HandlerFNC},
+				{"subscriber/example.go", tmpl.SubscriberFNC},
+				{"proto/example.proto", tmpl.ProtoFNC},
+				{"Dockerfile", tmpl.DockerFNC},
+				{"README.md", tmpl.ReadmeFNC},
+			},
+			Comments: []string{
+				"\ndownload protobuf for micro:\n",
+				"go get github.com/micro/protobuf/{proto,protoc-gen-go}",
+				"\ncompile the proto file example.proto:\n",
+				fmt.Sprintf("protoc -I%s \\\n\t--go_out=plugins=micro:%s \\\n\t%s\n",
+					goPath+"/src", goPath+"/src", goDir+"/proto/example.proto"),
+			},
+		}
 	case "srv":
 		// create srv config
 		c = config{

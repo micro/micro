@@ -1,6 +1,22 @@
 package template
 
 var (
+	HandlerFNC = `package handler
+
+import (
+	example "{{.Dir}}/proto/example"
+	"golang.org/x/net/context"
+)
+
+type Example struct{}
+
+// Call is a single request handler called via client.Call or the generated client code
+func (e *Example) Call(ctx context.Context, req *example.Request, rsp *example.Response) error {
+	rsp.Msg = "Hello " + req.Name
+	return nil
+}
+`
+
 	HandlerSRV = `package handler
 
 import (
@@ -47,6 +63,23 @@ func (e *Example) PingPong(ctx context.Context, stream example.Example_PingPongS
 			return err
 		}
 	}
+}
+`
+
+	SubscriberFNC = `package subscriber
+
+import (
+	"github.com/micro/go-log"
+
+	example "{{.Dir}}/proto/example"
+	"golang.org/x/net/context"
+)
+
+type Example struct{}
+
+func (e *Example) Handle(ctx context.Context, msg *example.Message) error {
+	log.Print("Handler Received message: ", msg.Say)
+	return nil
 }
 `
 

@@ -1,6 +1,40 @@
 package template
 
 var (
+	MainFNC = `package main
+
+import (
+	"github.com/micro/go-log"
+	"github.com/micro/go-micro"
+	"{{.Dir}}/handler"
+	"{{.Dir}}/subscriber"
+
+	example "{{.Dir}}/proto/example"
+)
+
+func main() {
+	// New Service
+	function := micro.NewFunction(
+		micro.Name("{{.FQDN}}"),
+		micro.Version("latest"),
+	)
+
+	// Register Handler
+	function.Handle(new(handler.Example))
+
+	// Register Struct as Subscriber
+	function.Subscribe("topic.{{.FQDN}}", new(subscriber.Example)),
+
+	// Initialise function
+	function.Init()
+
+	// Run service
+	if err := function.Run(); err != nil {
+		log.Fatal(err)
+	}
+}
+`
+
 	MainSRV = `package main
 
 import (

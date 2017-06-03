@@ -1,6 +1,11 @@
 package template
 
 var (
+	DockerFNC = `FROM alpine:3.2
+ADD {{.Alias}}-{{.Type}} /{{.Alias}}-{{.Type}}
+ENTRYPOINT [ "/{{.Alias}}-{{.Type}}" ]
+`
+
 	DockerSRV = `FROM alpine:3.2
 ADD {{.Alias}}-{{.Type}} /{{.Alias}}-{{.Type}}
 ENTRYPOINT [ "/{{.Alias}}-{{.Type}}" ]
