@@ -80,7 +80,7 @@ The API defaults to serving the namespace **go.micro.api**. The combination of n
 are used to resolve an API service and method to send the query to.
 
 ```shell
-micro api --namespace=com.example.api
+micro api --api_namespace=com.example.api
 ```
 
 ## API
@@ -136,7 +136,7 @@ The http.Request is deconstructed by the API into an api.Request and forwarded o
 The api.Response is then constructed into a http.Response and returned to the client. The path of the request 
 along with a namespace, is used to determine the backend service and method to call.
 
-The default namespace for these services are **go.micro.api** but you can set your own namespace via `--namespace`.
+The default namespace for these services are **go.micro.api** but you can set your own namespace via `--api_namespace`.
 
 URLs are mapped as follows:
 
