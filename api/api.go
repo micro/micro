@@ -148,6 +148,7 @@ func run(ctx *cli.Context) {
 		micro.RegisterInterval(
 			time.Duration(ctx.GlobalInt("register_interval"))*time.Second,
 		),
+		micro.WrapClient(ProxyClientWrap()),
 	)
 
 	// Start API
