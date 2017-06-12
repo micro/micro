@@ -15,6 +15,12 @@ import (
 	"github.com/micro/micro/web"
 )
 
+var (
+	name = "micro"
+	description = "A microservices toolkit"
+	version = "0.1.0"
+)
+
 func setup(app *ccli.App) {
 	app.Flags = append(app.Flags,
 		ccli.BoolFlag{
@@ -195,8 +201,8 @@ func main() {
 	setup(app)
 
 	cmd.Init(
-		cmd.Name("micro"),
-		cmd.Description("A microservices toolkit"),
-		cmd.Version("latest"),
+		cmd.Name(name),
+		cmd.Description(description),
+		cmd.Version(version),
 	)
 }
