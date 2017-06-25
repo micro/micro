@@ -162,7 +162,7 @@ func run(ctx *cli.Context) {
 				{"main.go", tmpl.MainFNC},
 				{"handler/example.go", tmpl.HandlerFNC},
 				{"subscriber/example.go", tmpl.SubscriberFNC},
-				{"proto/example.proto", tmpl.ProtoFNC},
+				{"proto/example/example.proto", tmpl.ProtoFNC},
 				{"Dockerfile", tmpl.DockerFNC},
 				{"README.md", tmpl.ReadmeFNC},
 			},
@@ -171,7 +171,7 @@ func run(ctx *cli.Context) {
 				"go get github.com/micro/protobuf/{proto,protoc-gen-go}",
 				"\ncompile the proto file example.proto:\n",
 				fmt.Sprintf("protoc -I%s \\\n\t--go_out=plugins=micro:%s \\\n\t%s\n",
-					goPath+"/src", goPath+"/src", goDir+"/proto/example.proto"),
+					goPath+"/src", goPath+"/src", goDir+"/proto/example/example.proto"),
 			},
 		}
 	case "srv":

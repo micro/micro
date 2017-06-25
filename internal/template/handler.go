@@ -30,7 +30,7 @@ type Example struct{}
 
 // Call is a single request handler called via client.Call or the generated client code
 func (e *Example) Call(ctx context.Context, req *example.Request, rsp *example.Response) error {
-	log.Print("Received Example.Call request")
+	log.Log("Received Example.Call request")
 	rsp.Msg = "Hello " + req.Name
 	return nil
 }
@@ -78,7 +78,7 @@ import (
 type Example struct{}
 
 func (e *Example) Handle(ctx context.Context, msg *example.Message) error {
-	log.Print("Handler Received message: ", msg.Say)
+	log.Log("Handler Received message: ", msg.Say)
 	return nil
 }
 `
@@ -95,12 +95,12 @@ import (
 type Example struct{}
 
 func (e *Example) Handle(ctx context.Context, msg *example.Message) error {
-	log.Print("Handler Received message: ", msg.Say)
+	log.Log("Handler Received message: ", msg.Say)
 	return nil
 }
 
 func Handler(ctx context.Context, msg *example.Message) error {
-	log.Print("Function Received message: ", msg.Say)
+	log.Log("Function Received message: ", msg.Say)
 	return nil
 }
 `
@@ -133,7 +133,7 @@ func extractValue(pair *api.Pair) string {
 
 // Example.Call is called by the API as /{{.Alias}}/example/call with post body {"name": "foo"}
 func (e *Example) Call(ctx context.Context, req *api.Request, rsp *api.Response) error {
-	log.Print("Received Example.Call request")
+	log.Log("Received Example.Call request")
 
 	// extract the client from the context
 	exampleClient, ok := client.ExampleFromContext(ctx)
