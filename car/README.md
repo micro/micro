@@ -1,8 +1,11 @@
 # micro sidecar
 
-The **micro sidecar** is a language agnostic proxy for building highly available and fault tolerant microservices.
+The **micro sidecar** is a service mesh for building highly available and fault tolerant microservices.
 
-It is similar to Netflix's sidecar [Prana](https://github.com/Netflix/Prana) or Buoyant's RPC Proxy [Linkerd](https://linkerd.io).
+It is similar to Netflix's sidecar [Prana](https://github.com/Netflix/Prana), Buoyant's RPC Proxy [Linkerd](https://linkerd.io) 
+or Lyft's [Envoy](https://lyft.github.io/envoy/).
+
+The micro sidecar builds on [go-micro](https://github.com/micro/go-micro) with the same defaults and pluggability.
 
 <p align="center">
   <img src="https://github.com/micro/docs/blob/master/images/car.png" />
@@ -11,6 +14,8 @@ It is similar to Netflix's sidecar [Prana](https://github.com/Netflix/Prana) or 
 Example usage in many languages can be found at [examples/sidecar](https://github.com/micro/examples/tree/master/sidecar)
 
 ## API
+
+The sidecar has the following HTTP api
 
 ```
 - /[service]/[method]
@@ -24,11 +29,12 @@ Example usage in many languages can be found at [examples/sidecar](https://githu
 The sidecar has all the features of [go-micro](https://github.com/micro/go-micro). Here are the most relevant.
 
 - Service registration and discovery
-- Broker PubSub via WebSockets
+- Broker messaging via websockets
 - Healthchecking of services
 - RPC or HTTP handler
 - Load balancing, retries, timeouts
 - Stats UI
+- Pluggable via go-micro
 
 ## Getting Started
 
@@ -38,9 +44,18 @@ The sidecar has all the features of [go-micro](https://github.com/micro/go-micro
 go get github.com/micro/micro
 ```
 
+### Deps
+
+The sidecar uses go-micro which means it has one default dependency, consul for service discovery.
+
+```
+brew install consul
+consul agent -dev
+```
+
 ### Run
 
-The micro sidecar runs on port 8081 by default.
+The micro sidecar runs on port 8081 by default. 
 
 Starting the sidecar 
 
