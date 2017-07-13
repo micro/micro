@@ -2,7 +2,9 @@ package handler
 
 import (
 	"encoding/json"
+	"io/ioutil"
 	"net/http"
+	"strings"
 	"sync"
 	"time"
 
@@ -134,17 +136,56 @@ func (c *conn) writeLoop() {
 }
 
 func Broker(w http.ResponseWriter, r *http.Request) {
+	// Setup the broker
+	once.Do(func() {
+		(*cmd.DefaultOptions().Broker).Init()
+		(*cmd.DefaultOptions().Broker).Connect()
+	})
+
+	// Parse
+	r.ParseForm()
+	topic := r.Form.Get("topic")
+
+	// Can't do anything without a topic
+	if len(topic) == 0 {
+		http.Error(w, "Topic not specified", 400)
+		return
+	}
+
+	// Post assumed to be Publish
+	if r.Method == "POST" {
+		// Create a broker message
+		msg := &broker.Message{
+			Header: make(map[string]string),
+		}
+
+		// Set header
+		for k, v := range r.Header {
+			msg.Header[k] = strings.Join(v, ", ")
+		}
+
+		// Read body
+		b, err := ioutil.ReadAll(r.Body)
+		if err != nil {
+			http.Error(w, err.Error(), 500)
+			return
+		}
+
+		// Set body
+		msg.Body = b
+
+		// Publish
+		(*cmd.DefaultOptions().Broker).Publish(topic, msg)
+		return
+	}
+
+	// now back to our regularly scheduled programming
+
 	if r.Method != "GET" {
 		http.Error(w, "Method not allowed", 405)
 		return
 	}
 
-	r.ParseForm()
-	topic := r.Form.Get("topic")
-	if len(topic) == 0 {
-		http.Error(w, "Topic not specified", 400)
-		return
-	}
 	queue := r.Form.Get("queue")
 
 	ws, err := upgrader.Upgrade(w, r, nil)
@@ -152,11 +193,6 @@ func Broker(w http.ResponseWriter, r *http.Request) {
 		log.Log(err.Error())
 		return
 	}
-
-	once.Do(func() {
-		(*cmd.DefaultOptions().Broker).Init()
-		(*cmd.DefaultOptions().Broker).Connect()
-	})
 
 	cType := r.Header.Get("Content-Type")
 	if len(cType) == 0 {
