@@ -212,22 +212,20 @@ conn, _, _ := websocket.DefaultDialer.Dial("ws://127.0.0.1:8081/broker?topic=foo
 // optionally specify "queue=[queue name]" param to distribute traffic amongst subscribers
 // websocket.DefaultDialer.Dial("ws://127.0.0.1:8081/broker?topic=foo&queue=group-1", make(http.Header))
 
-go func() {
-	for {
-		// Read message
-		_, p, err := conn.ReadMessage()
-		if err != nil {
-			return
-		}
-
-		// Unmarshal into broker.Message
-		var msg *broker.Message
-		json.Unmarshal(p, &msg)
-
-		// Print message body
-		fmt.Println(msg.Body)
+for {
+	// Read message
+	_, p, err := conn.ReadMessage()
+	if err != nil {
+		return
 	}
-}()
+
+	// Unmarshal into broker.Message
+	var msg *broker.Message
+	json.Unmarshal(p, &msg)
+
+	// Print message body
+	fmt.Println(msg.Body)
+}
 ```
 
 ## CLI Proxy
