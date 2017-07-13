@@ -116,6 +116,16 @@ func run(ctx *cli.Context, car *sidecar) {
 	r := mux.NewRouter()
 	s := &srv{r}
 
+	var h http.Handler = s
+
+	if ctx.GlobalBool("enable_stats") {
+		st := stats.New()
+		r.Handle("/stats", http.HandlerFunc(st.StatsHandler))
+		h = st.ServeHTTP(r)
+		st.Start()
+		defer st.Stop()
+	}
+
 	// new server
 	srv := server.NewServer(Address)
 	srv.Init(opts...)
@@ -150,16 +160,6 @@ func run(ctx *cli.Context, car *sidecar) {
 		log.Logf("Registering Root Handler at %s", RootPath)
 		rt := router.NewRouter(router.WithNamespace(Namespace), router.WithHandler(api.Rpc))
 		r.PathPrefix(RootPath).Handler(handler.RPCX(rt, nil))
-	}
-
-	var h http.Handler = s
-
-	if ctx.GlobalBool("enable_stats") {
-		st := stats.New()
-		r.Handle("/stats", http.HandlerFunc(st.StatsHandler))
-		h = st.ServeHTTP(r)
-		st.Start()
-		defer st.Stop()
 	}
 
 	// reverse wrap handler
