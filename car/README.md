@@ -91,9 +91,9 @@ micro sidecar --server_name=foo --server_address=127.0.0.1:9090 \
 	--healthcheck_url=http://127.0.0.1:9090/health
 ```
 
-### Registry
+## Registry
 
-**Register Service**
+### Register Service
 
 ```shell
 // specify ttl as a param to expire the registration
@@ -111,7 +111,7 @@ curl -H 'Content-Type: application/json' http://127.0.0.1:8081/registry -d
 }
 ```
 
-**Deregister Service**
+### Deregister Service
 
 ```shell
 curl -X "DELETE" -H 'Content-Type: application/json' http://127.0.0.1:8081/registry -d 
@@ -125,7 +125,7 @@ curl -X "DELETE" -H 'Content-Type: application/json' http://127.0.0.1:8081/regis
 }
 ```
 
-**Get Service**
+### Get Service
 
 ```shell
 curl http://127.0.0.1:8081/registry?service=go.micro.srv.example
@@ -138,7 +138,9 @@ curl http://127.0.0.1:8081/registry?service=go.micro.srv.example
 }
 ```
 
-### RPC Handler
+## Handlers
+
+### RPC
 
 Query micro services using json or protobuf. Requests to the backend will be made using the go-micro RPC client.
 
@@ -158,7 +160,7 @@ curl -d 'service=go.micro.srv.example' \
 	-d 'request={"name": "John"}' http://127.0.0.1:8081/rpc
 ```
 
-### Proxy Handler
+### Proxy
 
 Like the api and web servers, the sidecar can provide a full http proxy.
 
@@ -170,7 +172,7 @@ micro sidecar --handler=proxy
 
 The first element in the url path will be used along with the namespace as the service to route to.
 
-### RPC Request Mapping
+## Request Mapping
 
 URL Path mapping is the same as the micro API
 
@@ -193,9 +195,9 @@ Path	|	Service	|	Method
 /v2/foo/bar/baz	|	go.micro.srv.v2.foo	|	Bar.Baz
 
 
-### Broker
+## Broker
 
-Publish
+### Publish
 
 ```
 curl -XPOST \
@@ -204,7 +206,7 @@ curl -XPOST \
 	"http://localhost:8081/broker?topic=foo"
 ```
 
-Subscribe
+### Subscribe
 
 ```go
 conn, _, _ := websocket.DefaultDialer.Dial("ws://127.0.0.1:8081/broker?topic=foo", make(http.Header))
