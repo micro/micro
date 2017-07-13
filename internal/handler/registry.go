@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/gorilla/websocket"
 	"github.com/micro/go-micro/cmd"
 	"github.com/micro/go-micro/registry"
 )
@@ -73,6 +74,22 @@ func getService(w http.ResponseWriter, r *http.Request) {
 	var err error
 
 	if len(service) == 0 {
+		//
+		upgrade := r.Header.Get("Upgrade")
+		connect := r.Header.Get("Connection")
+
+		// watch if websockets
+		if upgrade == "websocket" && connect == "Upgrade" {
+			rw, err := (*cmd.DefaultOptions().Registry).Watch()
+			if err != nil {
+				http.Error(w, err.Error(), 500)
+				return
+			}
+			watch(rw, w, r)
+			return
+		}
+
+		// otherwise list services
 		s, err = (*cmd.DefaultOptions().Registry).ListServices()
 	} else {
 		s, err = (*cmd.DefaultOptions().Registry).GetService(service)
@@ -97,6 +114,56 @@ func getService(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("Content-Length", strconv.Itoa(len(b)))
 	w.Write(b)
+}
+
+func ping(ws *websocket.Conn, exit chan bool) {
+	ticker := time.NewTicker(pingTime)
+
+	for {
+		select {
+		case <-ticker.C:
+			ws.SetWriteDeadline(time.Now().Add(writeDeadline))
+			err := ws.WriteMessage(websocket.PingMessage, []byte{})
+			if err != nil {
+				return
+			}
+		case <-exit:
+			return
+		}
+	}
+}
+
+func watch(rw registry.Watcher, w http.ResponseWriter, r *http.Request) {
+	ws, err := upgrader.Upgrade(w, r, nil)
+	if err != nil {
+		http.Error(w, err.Error(), 500)
+		return
+	}
+
+	// we need an exit chan
+	exit := make(chan bool)
+
+	defer func() {
+		close(exit)
+	}()
+
+	// ping the socket
+	go ping(ws, exit)
+
+	for {
+		// get next result
+		r, err := rw.Next()
+		if err != nil {
+			http.Error(w, err.Error(), 500)
+			return
+		}
+
+		// write to client
+		ws.SetWriteDeadline(time.Now().Add(writeDeadline))
+		if err := ws.WriteJSON(r); err != nil {
+			return
+		}
+	}
 }
 
 func Registry(w http.ResponseWriter, r *http.Request) {
