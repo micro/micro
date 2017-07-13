@@ -195,33 +195,39 @@ Path	|	Service	|	Method
 
 ### Broker
 
-Connect to the micro broker via websockets
+Publish
+
+```
+curl -XPOST \
+	-H "Timestamp: 1499951537" \
+	-d "Hello World!" \
+	"http://localhost:8081/broker?topic=foo"
+```
+
+Subscribe
 
 ```go
-c, _, _ := websocket.DefaultDialer.Dial("ws://127.0.0.1:8081/broker?topic=foo", make(http.Header))
+conn, _, _ := websocket.DefaultDialer.Dial("ws://127.0.0.1:8081/broker?topic=foo", make(http.Header))
 
 // optionally specify "queue=[queue name]" param to distribute traffic amongst subscribers
 // websocket.DefaultDialer.Dial("ws://127.0.0.1:8081/broker?topic=foo&queue=group-1", make(http.Header))
 
 go func() {
 	for {
-		_, p, err := c.ReadMessage()
+		// Read message
+		_, p, err := conn.ReadMessage()
 		if err != nil {
 			return
 		}
+
+		// Unmarshal into broker.Message
 		var msg *broker.Message
 		json.Unmarshal(p, &msg)
-		fmt.Println(msg.Data)
+
+		// Print message body
+		fmt.Println(msg.Body)
 	}
 }()
-
-ticker := time.NewTicker(time.Second)
-
-for _ = range ticker.C {
-	if err := c.WriteMessage(1, []byte(`hello world`)); err != nil {
-		return
-	}
-}
 ```
 
 ## CLI Proxy
