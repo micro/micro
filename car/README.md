@@ -28,11 +28,11 @@ The sidecar has the following HTTP api
 
 The sidecar has all the features of [go-micro](https://github.com/micro/go-micro). Here are the most relevant.
 
-- Service registration and discovery
-- Broker messaging via websockets
-- Healthchecking of services
-- RPC or HTTP handler
+- Service Discovery
+- Message Broker
+- RPC and Proxy Handlers
 - Load balancing, retries, timeouts
+- Healthchecking
 - Stats UI
 - Pluggable via go-micro
 
