@@ -107,6 +107,23 @@ func run(ctx *cli.Context) {
 		defer st.Stop()
 	}
 
+	if len(ctx.String("health_endpoint")) > 0 {
+		he := ctx.String("health_endpoint")
+		var healthEndpoint string
+		if he[0:1] == "/" {
+			healthEndpoint = he
+		} else {
+			healthEndpoint = "/" + he
+		}
+		log.Logf("Registering health check endpoint at %s", healthEndpoint)
+
+		r.HandleFunc(healthEndpoint, func(w http.ResponseWriter, r *http.Request) {
+			w.Header().Set("content-type", "text/html")
+			w.WriteHeader(http.StatusOK)
+			w.Write([]byte("<h1>&#128077;</h1>"))
+		})
+	}
+
 	log.Logf("Registering RPC Handler at %s", RPCPath)
 	r.HandleFunc(RPCPath, handler.RPC)
 
@@ -191,6 +208,11 @@ func Commands() []cli.Command {
 				Name:   "cors",
 				Usage:  "Comma separated whitelist of allowed origins for CORS",
 				EnvVar: "MICRO_API_CORS",
+			},
+			cli.StringFlag{
+				Name:   "health_endpoint",
+				Usage:  "Specify the endpoint that can be used for health checks; e.g. /health",
+				EnvVar: "MICRO_API_HEALTH_ENDPOINT",
 			},
 		},
 	}
