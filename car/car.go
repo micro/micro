@@ -148,7 +148,7 @@ func run(ctx *cli.Context, car *sidecar) {
 	r.Handle(RPCPath, http.HandlerFunc(handler.RPC))
 
 	log.Logf("Registering Broker handler at %s", BrokerPath)
-	r.Handle(BrokerPath, http.HandlerFunc(handler.Broker))
+	r.Handle(BrokerPath, handler.Broker(CORS))
 
 	switch Handler {
 	case "proxy":

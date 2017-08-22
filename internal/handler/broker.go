@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
+	"net/url"
 	"strings"
 	"sync"
 	"time"
@@ -21,6 +22,10 @@ const (
 	writeDeadline = 10 * time.Second
 )
 
+type brokerHandler struct {
+	u websocket.Upgrader
+}
+
 type conn struct {
 	cType string
 	topic string
@@ -32,15 +37,21 @@ type conn struct {
 }
 
 var (
-	once sync.Once
-
-	upgrader = websocket.Upgrader{
-		ReadBufferSize:  1024,
-		WriteBufferSize: 1024,
-	}
-
+	once        sync.Once
 	contentType = "text/plain"
 )
+
+func checkOrigin(r *http.Request) bool {
+	origin := r.Header["Origin"]
+	if len(origin) == 0 {
+		return true
+	}
+	u, err := url.Parse(origin[0])
+	if err != nil {
+		return false
+	}
+	return u.Host == r.Host
+}
 
 func (c *conn) close() {
 	select {
@@ -135,7 +146,7 @@ func (c *conn) writeLoop() {
 	}
 }
 
-func Broker(w http.ResponseWriter, r *http.Request) {
+func (b *brokerHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// Setup the broker
 	once.Do(func() {
 		(*cmd.DefaultOptions().Broker).Init()
@@ -188,7 +199,7 @@ func Broker(w http.ResponseWriter, r *http.Request) {
 
 	queue := r.Form.Get("queue")
 
-	ws, err := upgrader.Upgrade(w, r, nil)
+	ws, err := b.u.Upgrade(w, r, nil)
 	if err != nil {
 		log.Log(err.Error())
 		return
@@ -209,4 +220,24 @@ func Broker(w http.ResponseWriter, r *http.Request) {
 
 	go c.writeLoop()
 	c.readLoop()
+}
+
+func Broker(cors map[string]bool) http.Handler {
+	return &brokerHandler{
+		u: websocket.Upgrader{
+			CheckOrigin: func(r *http.Request) bool {
+				if origin := r.Header.Get("Origin"); cors[origin] {
+					return true
+				} else if len(origin) > 0 && cors["*"] {
+					return true
+				} else if checkOrigin(r) {
+					return true
+				}
+				return false
+			},
+			ReadBufferSize:  1024,
+			WriteBufferSize: 1024,
+		},
+	}
+
 }

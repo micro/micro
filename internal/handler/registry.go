@@ -134,6 +134,11 @@ func ping(ws *websocket.Conn, exit chan bool) {
 }
 
 func watch(rw registry.Watcher, w http.ResponseWriter, r *http.Request) {
+	upgrader := websocket.Upgrader{
+		ReadBufferSize:  1024,
+		WriteBufferSize: 1024,
+	}
+
 	ws, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		http.Error(w, err.Error(), 500)
