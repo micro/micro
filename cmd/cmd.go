@@ -24,23 +24,33 @@ var (
 func setup(app *ccli.App) {
 	app.Flags = append(app.Flags,
 		ccli.BoolFlag{
+			Name:   "enable_acme",
+			Usage:  "Enables ACME support via Let's Encrypt. ACME hosts should also be specified.",
+			EnvVar: "MICRO_ENABLE_ACME",
+		},
+		ccli.StringFlag{
+			Name:   "acme_hosts",
+			Usage:  "Comma separated list of hostnames to manage ACME certs for",
+			EnvVar: "MICRO_ACME_HOSTS",
+		},
+		ccli.BoolFlag{
 			Name:   "enable_tls",
-			Usage:  "Enable TLS",
+			Usage:  "Enable TLS support. Expects cert and key file to be specified",
 			EnvVar: "MICRO_ENABLE_TLS",
 		},
 		ccli.StringFlag{
 			Name:   "tls_cert_file",
-			Usage:  "TLS Certificate file",
+			Usage:  "Path to the TLS Certificate file",
 			EnvVar: "MICRO_TLS_CERT_FILE",
 		},
 		ccli.StringFlag{
 			Name:   "tls_key_file",
-			Usage:  "TLS Key file",
+			Usage:  "Path to the TLS Key file",
 			EnvVar: "MICRO_TLS_KEY_FILE",
 		},
 		ccli.StringFlag{
 			Name:   "tls_client_ca_file",
-			Usage:  "TLS CA file to verify clients against",
+			Usage:  "Path to the TLS CA file to verify clients against",
 			EnvVar: "MICRO_TLS_CLIENT_CA_FILE",
 		},
 		ccli.StringFlag{
