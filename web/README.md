@@ -56,6 +56,20 @@ micro web
 ```
 Browse to localhost:8082
 
+### ACME via Let's Encrypt
+
+Serve securely by default using ACME via letsencrypt 
+
+```
+micro --enable_acme api
+```
+
+Optionally specify a host whitelist
+
+```
+micro --enable_acme --acme_hosts=example.com,api.example.com api
+```
+
 ### Serve Secure TLS
 
 The Web proxy supports serving securely with TLS certificates
