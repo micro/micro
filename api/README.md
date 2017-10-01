@@ -66,6 +66,20 @@ go get github.com/micro/micro
 micro api
 ```
 
+### ACME via Let's Encrypt
+
+Serve securely by default using ACME via letsencrypt
+
+```
+micro --enable_acme api
+```
+
+Optionally specify a host whitelist
+
+```
+micro --enable_acme --acme_hosts=example.com,api.example.com api
+```
+
 ### Serve Secure TLS
 
 The API supports serving securely with TLS certificates

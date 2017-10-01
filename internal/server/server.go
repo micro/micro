@@ -9,6 +9,8 @@ import (
 
 	"github.com/gorilla/handlers"
 	"github.com/micro/go-log"
+
+	"golang.org/x/crypto/acme/autocert"
 )
 
 type Server interface {
@@ -58,9 +60,13 @@ func (s *server) Start() error {
 	var l net.Listener
 	var err error
 
-	if s.opts.EnableTLS && s.opts.TLSConfig != nil {
+	if s.opts.EnableACME {
+		// should we check the address to make sure its using :443?
+		l = autocert.NewListener(s.opts.ACMEHosts...)
+	} else if s.opts.EnableTLS && s.opts.TLSConfig != nil {
 		l, err = tls.Listen("tcp", s.address, s.opts.TLSConfig)
 	} else {
+		// otherwise plain listen
 		l, err = net.Listen("tcp", s.address)
 	}
 	if err != nil {
@@ -73,7 +79,11 @@ func (s *server) Start() error {
 	s.address = l.Addr().String()
 	s.mtx.Unlock()
 
-	go http.Serve(l, s.mux)
+	go func() {
+		if err := http.Serve(l, s.mux); err != nil {
+			log.Fatal(err)
+		}
+	}()
 
 	go func() {
 		ch := <-s.exit

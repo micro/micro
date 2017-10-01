@@ -7,8 +7,22 @@ import (
 type Option func(o *Options)
 
 type Options struct {
-	EnableTLS bool
-	TLSConfig *tls.Config
+	EnableACME bool
+	EnableTLS  bool
+	ACMEHosts  []string
+	TLSConfig  *tls.Config
+}
+
+func ACMEHosts(hosts ...string) Option {
+	return func(o *Options) {
+		o.ACMEHosts = hosts
+	}
+}
+
+func EnableACME(b bool) Option {
+	return func(o *Options) {
+		o.EnableACME = b
+	}
 }
 
 func EnableTLS(b bool) Option {
