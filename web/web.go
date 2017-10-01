@@ -357,7 +357,7 @@ func run(ctx *cli.Context) {
 	var opts []server.Option
 
 	if ctx.GlobalBool("enable_acme") {
-		hosts := strings.Split(ctx.String("acme_hosts"), ",")
+		hosts := helper.ACMEHosts(ctx)
 		opts = append(opts, server.EnableACME(true))
 		opts = append(opts, server.ACMEHosts(hosts...))
 	} else if ctx.GlobalBool("enable_tls") {
