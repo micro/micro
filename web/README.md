@@ -61,13 +61,13 @@ Browse to localhost:8082
 Serve securely by default using ACME via letsencrypt 
 
 ```
-micro --enable_acme api
+micro --enable_acme web
 ```
 
 Optionally specify a host whitelist
 
 ```
-micro --enable_acme --acme_hosts=example.com,api.example.com api
+micro --enable_acme --acme_hosts=example.com,api.example.com web
 ```
 
 ### Serve Secure TLS

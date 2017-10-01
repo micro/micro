@@ -74,13 +74,13 @@ micro sidecar --server_name=foo --server_address=127.0.0.1:9090
 Serve securely by default using ACME via letsencrypt 
 
 ```
-micro --enable_acme api
+micro --enable_acme sidecar
 ```
 
 Optionally specify a host whitelist
 
 ```
-micro --enable_acme --acme_hosts=example.com,api.example.com api
+micro --enable_acme --acme_hosts=example.com,api.example.com sidecar
 ```
 
 ### Serve Secure TLS
