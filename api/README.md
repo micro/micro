@@ -67,6 +67,14 @@ curl -d 'service=go.micro.srv.greeter' \
 	http://localhost:8080/rpc
 ```
 
+Find working examples in [github.com/micro/examples/api](https://github.com/micro/examples/tree/master/api)
+
+### API Handler Request/Response Proto
+
+The API Handler which is also the default handler expects services to use specific request and response protos, available 
+at [go-api/proto](https://github.com/micro/go-api/blob/master/proto/api.proto). This allows the micro api to deconstruct 
+a HTTP request into RPC and back to HTTP.
+
 ## Getting started
 
 ### Install
@@ -114,15 +122,25 @@ micro api --namespace=com.example.api
 
 ## Examples
 
-Below is an example of querying a service through the API
+Here we have an example of a 3 tier architecture
+
+- micro api (localhost:8080) - serving as the http entry point
+- api service (go.micro.api.greeter) - serving a public facing api
+- backend service (go.micro.srv.greeter) - internally scoped service
+
+The full working example is [here](https://github.com/micro/examples/tree/master/greeter)
+
+### Run Example
+
+Prereq: Ensure you are running service discovery e.g consul agent -dev
+
+Get examples
 
 ```
 git clone https://github.com/micro/examples
 ```
 
-### Run Example
-
-Start the backend service go.micro.srv.greeter
+Start the service go.micro.srv.greeter
 
 ```shell
 go run examples/greeter/srv/main.go
@@ -134,15 +152,23 @@ Start the API service go.micro.api.greeter
 go run examples/greeter/api/api.go
 ```
 
+Start the micro api
+
+```
+micro api
+```
+
 ### Query
 
-Make a HTTP call
+Make a HTTP call via the micro api
 
 ```shell
 curl "http://localhost:8080/greeter/say/hello?name=Asim+Aslam"
 ```
 
-Make an RPC call via the /rpc
+The HTTP path /greeter/say/hello maps to service go.micro.api.greeter method Say.Hello
+
+Bypass the api service and call the backend directly via /rpc
 
 ```shell
 curl -d 'service=go.micro.srv.greeter' \
@@ -151,7 +177,7 @@ curl -d 'service=go.micro.srv.greeter' \
 	http://localhost:8080/rpc
 ```
 
-Make an RPC call via /rpc with content-type set to json
+Make the same call entirely as JSON
 
 ```shell
 $ curl -H 'Content-Type: application/json' \
@@ -159,17 +185,18 @@ $ curl -H 'Content-Type: application/json' \
 	http://localhost:8080/rpc
 ```
 
-## API Request Mapping
+## Request Mapping
 
-Micro allows you resolve HTTP URL Paths at the edge to individual API Services. An API service is like any other 
-micro service except each method signature takes an *api.Request and *api.Response type which can be found in 
-[github.com/micro/go-api/proto](https://github.com/micro/go-api/blob/master/proto/api.proto).
+Micro dynamically routes to services using a fixed namespace and the HTTP path.
 
-The http.Request is deconstructed by the API into an api.Request and forwarded on to a backend API service. 
-The api.Response is then constructed into a http.Response and returned to the client. The path of the request 
-along with a namespace, is used to determine the backend service and method to call.
+The default namespace for these services is **go.micro.api** but the namespace can be set via the `--namespace` flag. 
 
-The default namespace for these services are **go.micro.api** but you can set your own namespace via `--namespace`.
+### API per Service
+
+We promote a pattern of creating an API service per backend service for public facing traffic. This logically separates the concerns 
+of serving an API frontend and backend services. 
+
+### RPC Mapping
 
 URLs are mapped as follows:
 
@@ -189,34 +216,28 @@ Path	|	Service	|	Method
 /v2/foo/bar	|	go.micro.api.v2.foo	|	Foo.Bar
 /v2/foo/bar/baz	|	go.micro.api.v2.foo	|	Bar.Baz
 
-A working example can be found here [Greeter Service](https://github.com/micro/examples/tree/master/greeter)
+### REST Mapping
 
-## Using REST
-
-You can serve a RESTful API by using the API as a proxy and implementing RESTful paths with libraries such as [go-restful](https://github.com/emicklei/go-restful). 
+You can serve a RESTful API by using the API as a reverse proxy and implementing RESTful paths with libraries such as [go-restful](https://github.com/emicklei/go-restful). 
 An example of a REST API service can be found at [greeter/api/rest](https://github.com/micro/examples/tree/master/greeter/api/rest).
 
-Starting the API with `--handler=proxy` will reverse proxy requests to backend services within the served API namespace (default: go.micro.api). 
-
-Example
+Running the micro api with `--handler=proxy` will reverse proxy requests to services  within the API namespace.
 
 Path	|	Service	|	Service Path
 ---	|	---	|	---
+/foo/bar	|	go.micro.api.foo	|	/foo/bar
 /greeter	|	go.micro.api.greeter	|	/greeter
 /greeter/:name	|	go.micro.api.greeter	|	/greeter/:name
 
-
-Note: Using this method means directly speaking HTTP with the backend service. This eliminates the ability to switch transports.
+Using this handler means speaking HTTP directly with the backend service, ignoring any go-micro transport plugins.
 
 ## Stats Dashboard
 
-You can enable a stats dashboard via the `--enable_stats` flag. It will be exposed on /stats.
+Enable a stats dashboard via the `--enable_stats` flag. It will be exposed on /stats.
 
 ```shell
 micro --enable_stats api
 ```
 
 <img src="https://github.com/micro/docs/blob/master/images/stats.png">
-
-
 
