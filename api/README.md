@@ -1,19 +1,30 @@
 # micro api
 
-The **micro api** is a lightweight proxy for [micro](https://github.com/micro/micro) based microservices. It conforms to the [API Gateway](http://microservices.io/patterns/apigateway.html) pattern and can be used in conjuction with [go-micro](https://github.com/micro/go-micro) based apps or any future language implementation of the [micro](https://github.com/micro/micro) toolkit.
+The **micro api** is an API gateway for microservices. Use the API gateway [pattern](http://microservices.io/patterns/apigateway.html) to provide a 
+single entry point for your services. The micro api serves HTTP and dynamically routes to the appropriate backend service.
 
 <p align="center">
   <img src="https://github.com/micro/docs/blob/master/images/api.png" />
 </p>
 
+The micro api builds on [go-micro](https://github.com/micro/go-micro), leveraging it for service discovery, load balancing, encoding and 
+RPC based communication. Requests to the API are served over HTTP and internally routed via RPC. Because the micro api uses go-micro internally, 
+this also makes it pluggable, so feel free to switch out consul service discovery for the kubernetes api or RPC for gRPC.
+
 ## API
 
+The micro api provides the following HTTP api
+
 ```
-- /[service]/[method]
-- /rpc
+- /[service]/[method]	# HTTP paths are dynamically mapped to services
+- /rpc			# Explicitly call a backend service by name and method
 ```
 
+See below for examples
+
 ## Handlers
+
+Handlers are HTTP handlers which manage request routing.
 
 The default handler uses endpoint metadata from the registry to determine service routes. If a route match is not found it will 
 fallback to the API handler. You can configure routes on registration using the [go-api](https://github.com/micro/go-api).
@@ -97,16 +108,20 @@ are used to resolve an API service and method to send the query to.
 micro api --namespace=com.example.api
 ```
 
-## API
+## Examples
 
 Below is an example of querying a service through the API
+
+```
+git clone https://github.com/micro/examples
+```
 
 ### Run Example
 
 Start the backend service go.micro.srv.greeter
 
 ```shell
-go run examples/greeter/srv/main.go 
+go run examples/greeter/srv/main.go
 ```
 
 Start the API service go.micro.api.greeter
