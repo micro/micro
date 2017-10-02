@@ -7,9 +7,13 @@ single entry point for your services. The micro api serves HTTP and dynamically 
   <img src="https://github.com/micro/docs/blob/master/images/api.png" />
 </p>
 
+## How it works
+
 The micro api builds on [go-micro](https://github.com/micro/go-micro), leveraging it for service discovery, load balancing, encoding and 
-RPC based communication. Requests to the API are served over HTTP and internally routed via RPC. Because the micro api uses go-micro internally, 
-this also makes it pluggable, so feel free to switch out consul service discovery for the kubernetes api or RPC for gRPC.
+RPC based communication. Requests to the API are served over HTTP and internally routed via RPC. 
+
+Because the micro api uses go-micro internally, this also makes it pluggable, so feel free to switch out consul service discovery for the 
+kubernetes api or RPC for gRPC.
 
 ## API
 
