@@ -137,9 +137,9 @@ Output
 }
 ```
 
-### Run the api
+Now let's test out the micro api
 
-Let's test out the micro api
+### Run the api
 
 Run the greeter API. An API service logically separates frontends from backends.
 
