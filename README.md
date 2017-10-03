@@ -35,10 +35,9 @@ For more detailed information on the architecture, installation and use of the t
 
 ### Writing a service
 
-Learn how to write and run a microservice using [**go-micro**](https://github.com/micro/go-micro). 
+Learn how to write and run microservices using [**go-micro**](https://github.com/micro/go-micro). 
 
-Read the [Getting Started](https://micro.mu/docs/writing-a-go-service.html) guide or the blog post on 
-[Writing microservices with Go-Micro](https://micro.mu/blog/2016/03/28/go-micro.html).
+Read the [getting Started](https://micro.mu/docs/writing-a-go-service.html) guide for more details.
 
 ### Install Micro
 
