@@ -124,7 +124,7 @@ Response: {
 
 ### Query service
 
-Make an RPC query via the CLI. The query is sent in json. Go-micro comes with json and protobuf support out of the box.
+Make an RPC query via the CLI. The query is sent in json. We support json and protobuf out of the box.
 
 ```shell
 micro query go.micro.srv.greeter Say.Hello '{"name": "John"}'
