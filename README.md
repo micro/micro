@@ -53,41 +53,56 @@ docker pull microhq/micro
 
 ### Dependencies
 
-We need service discovery, so let's spin up Consul (the default); checkout [go-plugins](https://github.com/micro/go-plugins) to swap it out.
+Service discovery is the only dependency of the toolkit and go-micro. We use consul as the default.
 
-Mac OS
+Checkout [go-plugins](https://github.com/micro/go-plugins) to swap out consul or any other plugins.
+
+On Mac OS
 ```shell
 brew install consul
 consul agent -dev
 ```
 
-Docker
-```shell
-docker run -d -p 8500:8500 --name=consul consul agent -server -bootstrap -client=0.0.0.0
-```
-
-Or we can use multicast DNS for zero dependency discovery
+For zero dependency service discovery use the built in multicast DNS plugin.
 
 Pass `--registry=mdns` to the below commands e.g `micro --registry=mdns list services`
 
-### Try CLI
+## Example
 
-Run the greeter service
+Let's test out the CLI
+
+### Run a service
+
+This is a greeter service written with go-micro. Make sure you're running service discovery.
 
 ```shell
 go get github.com/micro/examples/greeter/srv && srv
 ```
 
-List services
+### List services
+
+Each service registers with discovery so we should be able to find it.
+
 ```shell
-$ micro list services
+micro list services
+```
+
+Output
+```
 consul
 go.micro.srv.greeter
 ```
 
-Get Service
+### Get Service
+
+Each service has a unique id, address and metadata.
+
 ```shell
-$ micro get service go.micro.srv.greeter
+micro get service go.micro.srv.greeter
+```
+
+Output
+```
 service  go.micro.srv.greeter
 
 version 1.0.0
@@ -107,15 +122,57 @@ Response: {
 }
 ```
 
-Query service
+### Query service
+
+Make an RPC query via the CLI. The query is sent in json. Go-micro comes with json and protobuf support out of the box.
+
 ```shell
-$ micro query go.micro.srv.greeter Say.Hello '{"name": "John"}'
+micro query go.micro.srv.greeter Say.Hello '{"name": "John"}'
+```
+
+Output
+```
 {
 	"msg": "Hello John"
 }
 ```
 
-Read the [docs](https://micro.mu/docs) to learn more about entire toolkit.
+### Run the api
+
+Let's test out the micro api
+
+Run the greeter API. An API service logically separates frontends from backends.
+
+```
+go get github.com/micro/examples/greeter/api && api
+```
+
+### Run the micro api
+
+The micro api is a single HTTP entry point which dynamically routes to rpc services.
+
+```
+micro api
+```
+
+### Call via API
+
+Replicating the CLI call as a HTTP call
+
+```
+curl http://localhost:8080/greeter/say/hello?name=John
+```
+
+Output
+```
+{"message":"Hello John"}
+```
+
+To learn more read the following micro content
+
+- [Docs](https://micro.mu/docs) - documentation and guides
+- [Toolkit](https://micro.mu/blog/2016/03/20/micro.html) - intro blog post about the toolkit 
+- [Architecture & Design Patterns](https://micro.mu/blog/2016/04/18/micro-architecture.html) - details on micro patterns
 
 ## Build with plugins
 
