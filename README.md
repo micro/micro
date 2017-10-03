@@ -168,12 +168,6 @@ Output
 {"message":"Hello John"}
 ```
 
-To learn more read the following micro content
-
-- [Docs](https://micro.mu/docs) - documentation and guides
-- [Toolkit](https://micro.mu/blog/2016/03/20/micro.html) - intro blog post about the toolkit 
-- [Architecture & Design Patterns](https://micro.mu/blog/2016/04/18/micro-architecture.html) - details on micro patterns
-
 ## Build with plugins
 
 If you want to integrate plugins simply link them in a separate file and rebuild
@@ -203,6 +197,14 @@ Flag usage of plugins
 ```shell
 micro --registry=etcdv3 --transport=nats --broker=kafka
 ```
+
+## Learn more
+
+To learn more read the following micro content
+
+- [Docs](https://micro.mu/docs) - documentation and guides
+- [Toolkit](https://micro.mu/blog/2016/03/20/micro.html) - intro blog post about the toolkit 
+- [Architecture & Design Patterns](https://micro.mu/blog/2016/04/18/micro-architecture.html) - details on micro patterns
 
 ## Community Contributions
 
