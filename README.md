@@ -7,32 +7,25 @@ Check out [**go-micro**](https://github.com/micro/go-micro) if you want to start
 
 Learn more about Micro in the introductory blog post [https://micro.mu/blog/2016/03/20/micro.html](https://micro.mu/blog/2016/03/20/micro.html) or watch the talk from the [Golang UK Conf 2016](https://www.youtube.com/watch?v=xspaDovwk34).
 
-Follow us on Twitter at [@MicroHQ](https://twitter.com/microhq), join the [Slack](https://micro-services.slack.com) community [here](http://slack.micro.mu/) or 
-check out the [Mailing List](https://groups.google.com/forum/#!forum/microhq).
+Follow us on Twitter at [@MicroHQ](https://twitter.com/microhq) or join us on [Slack](http://slack.micro.mu/).
 
 # Overview
-The goal of **Micro** is to simplify distributed systems development. At the core micro should be accessible enough to anyone who wants to get started writing microservices. As you scale to hundreds of services, micro will provide the necessary tooling to manage a microservice environment.
+The goal of **Micro** is to simplify distributed systems development. Micro makes writing microservices accessible to everyone, and as you scale, micro will provide the necessary tooling to manage a microservice environment.
 
 The toolkit is composed of the following components:
 
-- **Go Micro** - A pluggable RPC framework for writing microservices in Go. It provides libraries for 
-service discovery, client side load balancing, encoding, synchronous and asynchronous communication.
+- **Go Micro** - A pluggable RPC framework for writing microservices in Go.
 
-- **Sidecar** - A service mesh with all the features of go-micro as HTTP endpoints. While Go is a great language for building microservices, 
-you may want to use different languages. The sidecar gives you a language agnostic and opinionated proxy server for microservices.
+- **Sidecar** - A go-micro proxy. All the features of go-micro over HTTP.
 
-- **API** - An API Gateway that serves HTTP and routes requests to appropriate micro services. 
-It acts as a single entry point and can either be used as a reverse proxy or translate HTTP requests to RPC.
+- **API** - An API Gateway. A single HTTP entry point. Dynamically routing HTTP requests to RPC services.
 
-- **Web** - A web dashboard and reverse proxy for micro web applications. We believe that 
-web apps should be built as microservices and therefore treated as a first class citizen in a microservice world. It behaves much the like the API 
-reverse proxy but also includes support for web sockets.
+- **Web** - A web UI for exploring. Plus a reverse proxy for web apps! Build your web apps as micro services.
 
-- **CLI** - A straight forward command line interface to interact with your micro services. 
-It also allows you to leverage the Sidecar as a proxy where you may not want to directly connect to the service registry.
+- **CLI** - A command line interface. Interact with your micro services. 
 
-- **Bot** - A Hubot style bot that sits inside your microservices platform and can be interacted with via Slack, HipChat, XMPP, etc. 
-It provides the features of the CLI via messaging. Additional commands can be added to automate common ops tasks.
+- **Bot** - A bot for slack and hipchat. CLI equivalent via messaging.
+
 
 ## Docs
 
