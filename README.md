@@ -159,6 +159,9 @@ micro api
 
 Replicating the CLI call as a HTTP call
 
+The micro api has a default namespace of go.micro.api. This combined with /greeter gives us the service name of go.micro.api.greeter. /say/hello is our 
+method name Say.Hello. For more on this look at the [request mapping](https://micro.mu/docs/api.html#request-mapping) doc.
+
 ```
 curl http://localhost:8080/greeter/say/hello?name=John
 ```
