@@ -72,7 +72,21 @@ func runc(ctx *cli.Context) {
 		p.Init(ctx)
 	}
 
+	// Initialise Server
+	service := micro.NewService(
+		micro.Name(Name),
+		micro.RegisterTTL(
+			time.Duration(ctx.GlobalInt("register_ttl"))*time.Second,
+		),
+		micro.RegisterInterval(
+			time.Duration(ctx.GlobalInt("register_interval"))*time.Second,
+		),
+	)
+
 	r := gorun.NewRuntime()
+	m := newManager(r)
+	prun := micro.NewPublisher(Name+".run", service.Client())
+	pstop := micro.NewPublisher(Name+".stop", service.Client())
 
 	// micro run github.com/my/service
 	// args: github.com/my/service
@@ -132,29 +146,16 @@ func runc(ctx *cli.Context) {
 			return
 		}
 
-		// manage the process locally
-		if err := manage(r, ctx.Args().First(), re, up); err != nil {
-			fmt.Println(err)
-		}
+		// TODO: should return stream?
+		go m.Run(ctx.Args().First(), re, up)
 
-		// its a cli command, return
-		return
+		// publish run event
+		go prun.Publish(context.TODO(), &proto.RunRequest{
+			Url:     ctx.Args().First(),
+			Restart: re,
+			Update:  up,
+		})
 	}
-
-	// Initialise Server
-	service := micro.NewService(
-		micro.Name(Name),
-		micro.RegisterTTL(
-			time.Duration(ctx.GlobalInt("register_ttl"))*time.Second,
-		),
-		micro.RegisterInterval(
-			time.Duration(ctx.GlobalInt("register_interval"))*time.Second,
-		),
-	)
-
-	m := newManager(r)
-	prun := micro.NewPublisher(Name+".run", service.Client())
-	pstop := micro.NewPublisher(Name+".stop", service.Client())
 
 	// handlers
 	proto.RegisterRuntimeHandler(service.Server(), &runtimeHandler{r})
