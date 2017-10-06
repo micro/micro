@@ -225,6 +225,7 @@ Running the micro api with `--handler=proxy` will reverse proxy requests to serv
 
 Path	|	Service	|	Service Path
 ---	|	---	|	---
+/foo	|	go.micro.api.foo	|	/foo
 /foo/bar	|	go.micro.api.foo	|	/foo/bar
 /greeter	|	go.micro.api.greeter	|	/greeter
 /greeter/:name	|	go.micro.api.greeter	|	/greeter/:name
