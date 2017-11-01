@@ -128,6 +128,18 @@ jQuery(function($, undefined) {
 				<textarea class="form-control" name=request id=request rows=8>{}</textarea>
 			</div>
 			<div class="form-group">
+				<label for="request">Organisation ID</label>
+				<ul class="list-group">
+					<input class="form-control" type=text name=organisationId id=organisationId value="ORG-6018DB2C-21"/>
+				</ul>
+			</div>
+			<div class="form-group">
+				<label for="request">User ID</label>
+				<ul class="list-group">
+				  <input class="form-control" type=text name=userId id=userId value="USR-F43A8430-1E"/>
+				</ul>
+			</div>
+			<div class="form-group">
 				<button class="btn btn-default">Execute</button>
 			</div>
 		</form>
@@ -202,7 +214,9 @@ jQuery(function($, undefined) {
 			var request = {
 				"service": document.forms[0].elements["service"].value,
 				"method": method,
-				"request": JSON.parse(document.forms[0].elements["request"].value)
+				"request": JSON.parse(document.forms[0].elements["request"].value),
+				"organisationId": document.forms[0].elements["organisationId"].value,
+				"userId": document.forms[0].elements["userId"].value,
 			}
 			req.open("POST", "/rpc", true);
 			req.setRequestHeader("Content-type","application/json");				
