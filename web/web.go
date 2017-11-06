@@ -26,6 +26,7 @@ import (
 	"github.com/micro/micro/internal/stats"
 	"github.com/micro/micro/plugin"
 	"github.com/serenize/snaker"
+	"github.com/Jeffail/gabs"
 )
 
 var (
@@ -259,7 +260,12 @@ func queryHandler(w http.ResponseWriter, r *http.Request) {
 
 	sort.Sort(sortedServices{services})
 
-	serviceMap := make(map[string][]*registry.Endpoint)
+	type endpointResult struct {
+		Endpoint    *registry.Endpoint
+		RequestJSON string
+	}
+
+	serviceMap := make(map[string][]*endpointResult)
 	for _, service := range services {
 		s, err := (*cmd.DefaultOptions().Registry).GetService(service.Name)
 		if err != nil {
@@ -268,7 +274,14 @@ func queryHandler(w http.ResponseWriter, r *http.Request) {
 		if len(s) == 0 {
 			continue
 		}
-		serviceMap[service.Name] = s[0].Endpoints
+		endpointResults := []*endpointResult{}
+		for _, ep := range s[0].Endpoints {
+			endpointResults = append(endpointResults, &endpointResult{
+				Endpoint: ep,
+				RequestJSON: "tbc",
+			})
+		}
+		serviceMap[service.Name] = endpointResults
 	}
 
 	if r.Header.Get("Content-Type") == "application/json" {
@@ -282,6 +295,42 @@ func queryHandler(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		w.Write(b)
 		return
+	}
+
+	for serviceName, endpoints := range serviceMap {
+		for endpointName, ep := range endpoints {
+			jsonObj := gabs.New()
+
+			var printvals = func (vals []*registry.Value, levels []string) {}
+			printvals = func (vals []*registry.Value, levels []string) {
+				for _, val := range vals {
+					if val.Name == "createdAt" ||
+						val.Name == "updatedAt" ||
+						val.Name == "deletedAt" ||
+						val.Name == "createdOn" ||
+						val.Name == "updatedOn" ||
+						val.Name == "deletedOn" ||
+						val.Name == "dateCreated" ||
+						val.Name == "dateUpdated" ||
+						val.Name == "dateDeleted" ||
+						val.Name == "includes" {
+							continue
+					}
+
+					ls := levels
+					ls = append(ls, strings.ToLower(val.Name[0:1]) + val.Name[1:])
+
+					if len(val.Values) > 0 {
+						printvals(val.Values, ls)
+					} else {
+						jsonObj.Set("", ls...)
+					}
+				}
+			}
+
+			printvals(ep.Endpoint.Request.Values, []string{})
+			serviceMap[serviceName][endpointName].RequestJSON = jsonObj.StringIndent("", "  ")
+		}
 	}
 
 	render(w, r, queryTemplate, serviceMap)

@@ -155,6 +155,13 @@ jQuery(function($, undefined) {
 {{define "script"}}
 	<script>
 		$(document).ready(function(){
+			var methodToJSONMap = {}
+{{ range $service, $methods := .Results }}
+{{ range $index, $element := $methods }}
+			methodToJSONMap[{{$element.Endpoint.Name}}] = {{$element.RequestJSON}}
+{{ end }}
+{{ end }}
+
 			//Function executes on change of first select option field 
 			$("#service").change(function(){
 				var select = $("#service option:selected").val();
@@ -163,10 +170,11 @@ jQuery(function($, undefined) {
 				$("#method").empty();
 				$("#method").append("<option disabled selected> -- select a method -- </option>");
 				var s_map = {};
+				var r_map = {};
 				{{ range $service, $methods := .Results }}
 				var m_list = [];
 				{{range $index, $element := $methods}}
-				m_list[{{$index}}] = {{$element.Name}}
+				m_list[{{$index}}] = {{$element.Endpoint.Name}}
 				{{end}}
 				s_map[{{$service}}] = m_list
 				{{ end }}
@@ -188,6 +196,9 @@ jQuery(function($, undefined) {
 					$("#othermethod").attr("disabled", true);
 					$('#othermethod').val('');
 				}
+
+				console.log('selecting request json for:', select)
+				$('#request').val(methodToJSONMap[select])
 
 			});
 		});
