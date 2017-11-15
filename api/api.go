@@ -11,11 +11,11 @@ import (
 	"github.com/micro/cli"
 	"github.com/micro/go-api"
 	"github.com/micro/go-api/router"
+	"github.com/micro/go-api/server"
 	"github.com/micro/go-log"
 	"github.com/micro/go-micro"
 	"github.com/micro/micro/internal/handler"
 	"github.com/micro/micro/internal/helper"
-	"github.com/micro/micro/internal/server"
 	"github.com/micro/micro/internal/stats"
 	"github.com/micro/micro/plugin"
 )

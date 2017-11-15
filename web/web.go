@@ -14,6 +14,7 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/micro/cli"
+	"github.com/micro/go-api/server"
 	"github.com/micro/go-log"
 	"github.com/micro/go-micro"
 	"github.com/micro/go-micro/cmd"
@@ -22,7 +23,6 @@ import (
 	"github.com/micro/go-micro/selector/cache"
 	"github.com/micro/micro/internal/handler"
 	"github.com/micro/micro/internal/helper"
-	"github.com/micro/micro/internal/server"
 	"github.com/micro/micro/internal/stats"
 	"github.com/micro/micro/plugin"
 	"github.com/serenize/snaker"
