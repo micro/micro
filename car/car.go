@@ -293,16 +293,19 @@ func Commands() []cli.Command {
 				EnvVar: "MICRO_SIDECAR_NAMESPACE",
 			},
 			cli.StringFlag{
-				Name:  "server_name",
-				Usage: "Server name of the app",
+				Name:   "server_name",
+				Usage:  "Server name of the app",
+				EnvVar: "MICRO_SIDECAR_SERVER_NAME",
 			},
 			cli.StringFlag{
-				Name:  "server_address",
-				Usage: "Server address and port of the app",
+				Name:   "server_address",
+				Usage:  "Server address and port of the app",
+				EnvVar: "MICRO_SIDECAR_SERVER_ADDRESS",
 			},
 			cli.StringFlag{
-				Name:  "healthcheck_url",
-				Usage: "URL to check health of the app",
+				Name:   "healthcheck_url",
+				Usage:  "URL to check health of the app",
+				EnvVar: "MICRO_SIDECAR_HEALTHCHECK_URL",
 			},
 		},
 		Action: func(c *cli.Context) {
