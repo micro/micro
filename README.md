@@ -14,10 +14,6 @@ The goal of **Micro** is to simplify distributed systems development. Micro make
 
 The toolkit is composed of the following components:
 
-- **Go Micro** - A pluggable RPC framework for writing microservices in Go.
-
-- **Sidecar** - A go-micro proxy. All the features of go-micro over HTTP.
-
 - **API** - An API Gateway. A single HTTP entry point. Dynamically routing HTTP requests to RPC services.
 
 - **Web** - A web UI for exploring. Plus a reverse proxy for web apps! Build your web apps as micro services.
@@ -26,6 +22,7 @@ The toolkit is composed of the following components:
 
 - **Bot** - A bot for slack and hipchat. CLI equivalent via messaging.
 
+- **Sidecar** - A go-micro proxy. All the features of go-micro over HTTP.
 
 ## Docs
 
