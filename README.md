@@ -16,7 +16,7 @@ The toolkit is composed of the following components:
 
 - **API** - An API Gateway. A single HTTP entry point. Dynamically routing HTTP requests to RPC services.
 
-- **Web** - A web UI for exploring. Plus a reverse proxy for web apps! Build your web apps as micro services.
+- **Web** - A UI and Web Gateway. Build your web apps as micro services.
 
 - **CLI** - A command line interface. Interact with your micro services. 
 
