@@ -30,6 +30,12 @@ For more detailed information on the architecture, installation and use of the t
 
 ## Getting Started
 
+- [Writing a Service](#writing-a-service)
+- [Install Micro](#install-micro)
+- [Dependencies](#dependencies)
+- [Example usage](#example)
+- [Build with plugins](#build-with-plugins)
+
 ### Writing a service
 
 Learn how to write and run microservices using [**go-micro**](https://github.com/micro/go-micro). 
