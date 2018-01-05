@@ -4,6 +4,8 @@ import (
 	"net/http"
 
 	"github.com/micro/go-api"
+	"github.com/micro/go-api/handler"
+	"github.com/micro/go-api/handler/event"
 	"github.com/micro/go-api/router"
 	"github.com/micro/go-micro/errors"
 )
@@ -29,6 +31,12 @@ func (m *metaHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// rpcx handler
 	case api.Rpc:
 		RPCX(nil, service).ServeHTTP(w, r)
+	// event handler
+	case api.Event:
+		ev := event.NewHandler(
+			handler.WithNamespace(m.r.Options().Namespace),
+		)
+		ev.ServeHTTP(w, r)
 	// api handler
 	case api.Api:
 		API(nil, service).ServeHTTP(w, r)

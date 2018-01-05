@@ -10,6 +10,8 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/micro/cli"
 	"github.com/micro/go-api"
+	ahandler "github.com/micro/go-api/handler"
+	"github.com/micro/go-api/handler/event"
 	"github.com/micro/go-api/router"
 	"github.com/micro/go-api/server"
 	"github.com/micro/go-log"
@@ -127,6 +129,11 @@ func run(ctx *cli.Context) {
 		log.Logf("Registering API Request Handler at %s", APIPath)
 		rt := router.NewRouter(router.WithNamespace(Namespace), router.WithHandler(api.Api))
 		r.PathPrefix(APIPath).Handler(handler.API(rt, nil))
+	case "event":
+		log.Logf("Registering API Event Handler at %s", APIPath)
+		rt := router.NewRouter(router.WithNamespace(Namespace), router.WithHandler(api.Event))
+		ev := event.NewHandler(ahandler.WithNamespace(Namespace), ahandler.WithRouter(rt))
+		r.PathPrefix(APIPath).Handler(ev)
 	default:
 		log.Logf("Registering API Default Handler at %s", APIPath)
 		r.PathPrefix(APIPath).Handler(handler.Meta(Namespace))
