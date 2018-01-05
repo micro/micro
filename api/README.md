@@ -55,7 +55,11 @@ The API has three types of configurable request handlers.
 	- Request/Response: http
 	- The request will be reverse proxied to the service resolved by the first element in the path
 	- This allows REST to be implemented behind the API
-	- Set via `--handler=proxy`.
+	- Set via `--handler=proxy`
+4. Event Handler: /[topic]/[event]
+	- Async handler publishes request to message broker as an event
+	- Request is formatted as [go-api/proto.Event](https://github.com/micro/go-api/blob/master/proto/api.proto#L28L39)
+	- Set via `--handler=event`
 
 Alternatively use the /rpc endpoint to speak to any service directly
 - Expects params: `service`, `method`, `request`, optionally accepts `address` to target a specific host
