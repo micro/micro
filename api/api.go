@@ -190,7 +190,7 @@ func Commands() []cli.Command {
 			},
 			cli.StringFlag{
 				Name:   "handler",
-				Usage:  "Specify the request handler to be used for mapping HTTP requests to services; {api, proxy, rpc}",
+				Usage:  "Specify the request handler to be used for mapping HTTP requests to services; {api, proxy, rpc, event}",
 				EnvVar: "MICRO_API_HANDLER",
 			},
 			cli.StringFlag{
