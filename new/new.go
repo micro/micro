@@ -71,7 +71,7 @@ func create(c config) error {
 	// write the files
 	for _, file := range c.Files {
 		f := filepath.Join(c.GoDir, file.Path)
-		dir := path.Dir(f)
+		dir := filepath.Dir(f)
 
 		if _, err := os.Stat(dir); os.IsNotExist(err) {
 			fmt.Println("creating", dir)
