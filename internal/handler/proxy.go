@@ -38,6 +38,7 @@ func (p *proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	service = "http://" + service
 	rp, err := url.Parse(service)
 	if err != nil {
 		w.WriteHeader(500)
@@ -75,7 +76,7 @@ func (p *proxy) getService(r *http.Request) (string, error) {
 		return "", nil
 	}
 
-	return fmt.Sprintf("http://%s:%d", s.Address, s.Port), nil
+	return fmt.Sprintf("%s:%d", s.Address, s.Port), nil
 }
 
 // serveWebSocket used to serve a web socket proxied connection
