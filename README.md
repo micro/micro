@@ -14,15 +14,15 @@ The goal of **Micro** is to simplify distributed systems development. Micro make
 
 The toolkit is composed of the following components:
 
-- **API** - An API Gateway. A single HTTP entry point. Dynamically routing HTTP requests to RPC services.
+- [`**API**`](https://github.com/micro/micro/tree/master/api) - An API Gateway. A single HTTP entry point. Dynamically routing HTTP requests to RPC services.
 
-- **Web** - A UI and Web Gateway. Build your web apps as micro services.
+- [`**Web**`](https://github.com/micro/micro/tree/master/web) - A UI and Web Gateway. Build your web apps as micro services.
 
-- **CLI** - A command line interface. Interact with your micro services. 
+- [`**CLI**`](https://github.com/micro/micro/tree/master/cli) - A command line interface. Interact with your micro services. 
 
-- **Bot** - A bot for slack and hipchat. CLI equivalent via messaging.
+- [`**Bot**`](https://github.com/micro/micro/tree/master/bot) - A bot for slack and hipchat. CLI equivalent via messaging.
 
-- **Sidecar** - A go-micro proxy. All the features of go-micro over HTTP.
+- [`**Sidecar**`](https://github.com/micro/micro/tree/master/car) - A go-micro proxy. All the features of go-micro over HTTP.
 
 ## Docs
 
