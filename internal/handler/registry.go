@@ -80,7 +80,7 @@ func getService(w http.ResponseWriter, r *http.Request) {
 
 		// watch if websockets
 		if upgrade == "websocket" && connect == "Upgrade" {
-			rw, err := (*cmd.DefaultOptions().Registry).Watch()
+			rw, err := (*cmd.DefaultOptions().Registry).Watch(registry.WatchService(service))
 			if err != nil {
 				http.Error(w, err.Error(), 500)
 				return
