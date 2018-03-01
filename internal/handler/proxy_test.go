@@ -76,7 +76,7 @@ func testProxy(t *testing.T, path, service string) {
 	}
 
 	if w.Body.String() != "you got served" {
-		t.Fatal("Expected body: you got served. Got: %s", w.Body.String())
+		t.Fatalf("Expected body: you got served. Got: %s", w.Body.String())
 	}
 }
 

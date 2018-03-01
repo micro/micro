@@ -38,7 +38,7 @@ func TestRequestToProto(t *testing.T) {
 				t.Fatalf("Expected header %s", k)
 			} else {
 				if val.Values[0] != v[0] {
-					t.Fatal("Expected val %s, got %s", val.Values[0], v[0])
+					t.Fatalf("Expected val %s, got %s", val.Values[0], v[0])
 				}
 			}
 		}
