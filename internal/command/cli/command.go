@@ -207,8 +207,11 @@ func GetService(c *cli.Context, args []string) ([]byte, error) {
 	output = append(output, "service  "+service[0].Name)
 
 	for _, serv := range service {
-		output = append(output, "\nversion "+serv.Version)
-		output = append(output, "\nId\tAddress\tPort\tMetadata")
+		if len(serv.Version) > 0 {
+			output = append(output, "\nversion "+serv.Version)
+		}
+
+		output = append(output, "\nID\tAddress\tPort\tMetadata")
 		for _, node := range serv.Nodes {
 			var meta []string
 			for k, v := range node.Metadata {
