@@ -2,6 +2,7 @@ package cli
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -17,8 +18,6 @@ import (
 	proto "github.com/micro/go-micro/server/debug/proto"
 
 	"github.com/serenize/snaker"
-
-	"golang.org/x/net/context"
 )
 
 func formatEndpoint(v *registry.Value, r int) string {

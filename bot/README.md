@@ -209,11 +209,11 @@ Here's an example echo command as a microservice
 package main
 
 import (
+	"context"
 	"fmt"
 	"strings"
 
 	"github.com/micro/go-micro"
-	"golang.org/x/net/context"
 
 	proto "github.com/micro/go-bot/proto"
 )

@@ -1,10 +1,11 @@
 package run
 
 import (
+	"context"
+
 	"github.com/micro/go-micro"
 	"github.com/micro/go-micro/errors"
 	gorun "github.com/micro/go-run"
-	"golang.org/x/net/context"
 
 	proto "github.com/micro/micro/run/proto"
 )

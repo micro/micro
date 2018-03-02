@@ -2,6 +2,7 @@
 package run
 
 import (
+	"context"
 	"fmt"
 	"time"
 
@@ -13,8 +14,6 @@ import (
 	"github.com/micro/go-run"
 	"github.com/micro/go-run/runtime/go"
 	proto "github.com/micro/micro/run/proto"
-
-	"golang.org/x/net/context"
 )
 
 var (

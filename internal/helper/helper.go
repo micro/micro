@@ -1,6 +1,7 @@
 package helper
 
 import (
+	"context"
 	"crypto/tls"
 	"crypto/x509"
 	"errors"
@@ -10,8 +11,6 @@ import (
 
 	"github.com/micro/cli"
 	"github.com/micro/go-micro/metadata"
-
-	"golang.org/x/net/context"
 )
 
 func ACMEHosts(ctx *cli.Context) []string {

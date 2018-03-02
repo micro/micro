@@ -2,6 +2,7 @@
 package bot
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"regexp"
@@ -21,8 +22,6 @@ import (
 	botc "github.com/micro/micro/internal/command/bot"
 
 	proto "github.com/micro/go-bot/proto"
-
-	"golang.org/x/net/context"
 )
 
 type bot struct {

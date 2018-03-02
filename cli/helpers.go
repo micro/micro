@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"strings"
@@ -9,8 +10,6 @@ import (
 	"github.com/micro/cli"
 	"github.com/micro/go-micro/cmd"
 	clic "github.com/micro/micro/internal/command/cli"
-
-	"golang.org/x/net/context"
 )
 
 func listServices(c *cli.Context) {
