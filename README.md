@@ -26,7 +26,7 @@ The toolkit is composed of the following features:
 
 - [**`run`**](https://github.com/micro/micro/tree/master/run) - Runtime manager. Fetch, build and run from source in one command.
 
-- [**`Sidecar`**](https://github.com/micro/micro/tree/master/car) - A go-micro proxy. All the features of go-micro over HTTP.
+- [**`sidecar`**](https://github.com/micro/micro/tree/master/car) - A go-micro proxy. All the features of go-micro over HTTP.
 
 ## Docs
 
