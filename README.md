@@ -12,15 +12,19 @@ Follow us on Twitter at [@MicroHQ](https://twitter.com/microhq) or join us on [S
 # Overview
 The goal of **Micro** is to simplify distributed systems development. Micro makes writing microservices accessible to everyone, and as you scale, micro will provide the necessary tooling to manage a microservice environment.
 
-The toolkit is composed of the following components:
+The toolkit is composed of the following features:
 
-- [**`API`**](https://github.com/micro/micro/tree/master/api) - An API Gateway. A single HTTP entry point. Dynamically routing HTTP requests to RPC services.
+- [**`api`**](https://github.com/micro/micro/tree/master/api) - An API Gateway. A single HTTP entry point. Dynamically routing HTTP requests to RPC services.
 
-- [**`Web`**](https://github.com/micro/micro/tree/master/web) - A UI and Web Gateway. Build your web apps as micro services.
+- [**`web`**](https://github.com/micro/micro/tree/master/web) - A UI and Web Gateway. Build your web apps as micro services.
 
-- [**`CLI`**](https://github.com/micro/micro/tree/master/cli) - A command line interface. Interact with your micro services. 
+- [**`cli`**](https://github.com/micro/micro/tree/master/cli) - A command line interface. Interact with your micro services. 
 
-- [**`Bot`**](https://github.com/micro/micro/tree/master/bot) - A bot for slack and hipchat. CLI equivalent via messaging.
+- [**`bot`**](https://github.com/micro/micro/tree/master/bot) - A bot for slack and hipchat. CLI equivalent via messaging.
+
+- [**`new`**](https://github.com/micro/micro/tree/master/new) - New template generation for services.
+
+- [**`run`**](https://github.com/micro/micro/tree/master/run) - Runtime manager. Fetch, build and run from source in one command.
 
 - [**`Sidecar`**](https://github.com/micro/micro/tree/master/car) - A go-micro proxy. All the features of go-micro over HTTP.
 
