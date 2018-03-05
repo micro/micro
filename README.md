@@ -246,6 +246,4 @@ Open source development of Micro is sponsored by Sixt
 
 <a href="https://micro.mu/blog/2016/04/25/announcing-sixt-sponsorship.html"><img src="https://micro.mu/sixt_logo.png" width=150px height="auto" /></a>
 
-## Learn More
-
 
