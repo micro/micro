@@ -80,10 +80,10 @@ Multicast DNS is built in for zero dependency service discovery.
 Pass `--registry=mdns` or set the env var `MICRO_REGISTRY=mdns` for any command
 
 ```
+## Use flag
 micro --registry=mdns list services
-```
 
-```
+## Use env var
 MICRO_REGISTRY=mdns micro list services`
 ```
 
