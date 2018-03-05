@@ -62,9 +62,8 @@ docker pull microhq/micro
 
 Service discovery is the only dependency of the micro toolkit. Consul is set as the default.
 
-Micro uses the [go-micro](https://github.com/micro/go-micro) registry for service discovery. This is a pluggable interface. 
-
-Checkout [go-plugins](https://github.com/micro/go-plugins) to swap out consul.
+Internally micro uses the [go-micro](https://github.com/micro/go-micro) registry for service discovery. This allows the toolkit to leverage 
+go-micro plugins. Checkout [go-plugins](https://github.com/micro/go-plugins) to swap out consul.
 
 ### Consul
 
