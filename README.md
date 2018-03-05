@@ -16,13 +16,13 @@ Micro builds on [go-micro](https://github.com/micro/go-micro), making it a plugg
 
 The toolkit is composed of the following features:
 
-- [**`api`**](https://github.com/micro/micro/tree/master/api) - An API Gateway. A single HTTP entry point. Dynamically routing HTTP requests to RPC services.
+- [**`api`**](https://github.com/micro/micro/tree/master/api) - API Gateway. A single HTTP entry point. Dynamic routing using service discovery.
 
-- [**`web`**](https://github.com/micro/micro/tree/master/web) - A UI and Web Gateway. Build your web apps as micro services.
+- [**`web`**](https://github.com/micro/micro/tree/master/web) - Web Gateway and dashboard. Build web apps as microservices.
 
-- [**`cli`**](https://github.com/micro/micro/tree/master/cli) - A command line interface. Interact with your micro services. 
+- [**`cli`**](https://github.com/micro/micro/tree/master/cli) - Command line interface. Describe, query and interact directly from the terminal. 
 
-- [**`bot`**](https://github.com/micro/micro/tree/master/bot) - A bot for slack and hipchat. CLI equivalent via messaging.
+- [**`bot`**](https://github.com/micro/micro/tree/master/bot) - Slack and hipchat bot. The CLI via messaging.
 
 - [**`new`**](https://github.com/micro/micro/tree/master/new) - New template generation for services.
 
