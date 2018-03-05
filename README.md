@@ -210,19 +210,19 @@ import (
 
 Build binary
 ```shell
-// For local use
+# For local use
 go build -i -o micro ./main.go ./plugins.go
 
-// For docker image
+# For docker image
 CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -ldflags '-w' -i -o micro ./main.go ./plugins.go
 ```
 
 Enable with flags or env vars
 ```shell
-## flags
+# flags
 micro --registry=etcdv3 --transport=nats --broker=kafka [command]
 
-## env vars
+# env vars
 MICRO_REGISTRY=etcdv3 MICRO_TRANSPORT=nats MICRO_BROKER=kafka micro [command]
 ```
 
