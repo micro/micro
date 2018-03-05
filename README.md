@@ -219,6 +219,10 @@ CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -ldflags '-w' -i -o micr
 
 Enable with flags or env vars
 ```shell
+## flags
+micro --registry=etcdv3 --transport=nats --broker=kafka [command]
+
+## env vars
 MICRO_REGISTRY=etcdv3 MICRO_TRANSPORT=nats MICRO_BROKER=kafka micro [command]
 ```
 
