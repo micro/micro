@@ -192,9 +192,9 @@ Output
 
 Look at the [api doc](https://micro.mu/docs/api.html) for more info.
 
-## Build with plugins
+## Plugins
 
-If you want to integrate plugins simply link them in a separate file and rebuild
+Integrate go-micro plugins by simply linking them in a separate file
 
 Create a plugins.go file
 ```go
@@ -217,9 +217,12 @@ go build -i -o micro ./main.go ./plugins.go
 CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -ldflags '-w' -i -o micro ./main.go ./plugins.go
 ```
 
-Flag usage of plugins
+Enable with flags or env vars
 ```shell
-micro --registry=etcdv3 --transport=nats --broker=kafka
+MICRO_REGISTRY=etcdv3 \
+MICRO_TRANSPORT=nats \
+MICRO_BROKER=kafka \
+micro [command]
 ```
 
 ## Learn more
@@ -233,12 +236,14 @@ To learn more read the following micro content
 - [Twitter](https://twitter.com/microhq) - follow us on Twitter
 - [Slack](http://slack.micro.mu/) - join the slack community (1000+ members)
 
-## Community Contributions
+## Community Projects
 
 Project		|	Description
 -----		|	------
-[Micro Dashboard](https://github.com/Margatroid/micro-dashboard)	|	Dashboard for microservices toolchain micro
-[Ja-Micro](https://github.com/Sixt/ja-micro)	|	A micro compatible java framework for microservices
+[Dashboard](https://github.com/Margatroid/micro-dashboard)	|	A react based micro dashboard
+[Ja-micro](https://github.com/Sixt/ja-micro)	|	A micro compatible java framework
+
+Explore other projects at [micro.mu/explore](https://micro.mu/explore/)
 
 ## Sponsors
 
