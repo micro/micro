@@ -38,7 +38,7 @@ For more detailed information on the architecture, installation and use of the t
 
 - [Writing a Service](#writing-a-service)
 - [Install Micro](#install-micro)
-- [Dependencies](#dependencies)
+- [Service Discovery](#service-discovery)
 - [Example usage](#example)
 - [Build with plugins](#build-with-plugins)
 
@@ -58,11 +58,12 @@ Or via Docker
 docker pull microhq/micro
 ```
 
-## Dependencies
+## Service Discovery
 
-Service discovery is the only dependency of the toolkit and go-micro. We use consul as the default.
+Service discovery is the only dependency of the micro toolkit. Consul is the default discovery plugin.
 
-Checkout [go-plugins](https://github.com/micro/go-plugins) to swap out consul or any other plugins.
+Micro service discovery uses [go-micro](https://github.com/micro/go-micro) plugins. Checkout [go-plugins](https://github.com/micro/go-plugins) to 
+swap out consul.
 
 ### Consul
 
