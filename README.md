@@ -1,16 +1,18 @@
 # Micro [![License](https://img.shields.io/:license-apache-blue.svg)](https://opensource.org/licenses/Apache-2.0) [![GoDoc](https://godoc.org/github.com/micro/micro?status.svg)](https://godoc.org/github.com/micro/micro) [![Travis CI](https://travis-ci.org/micro/micro.svg?branch=master)](https://travis-ci.org/micro/micro) [![Go Report Card](https://goreportcard.com/badge/micro/micro)](https://goreportcard.com/report/github.com/micro/micro)
 
+Micro is a toolkit for cloud-native development.
 
-Micro is a **microservice** toolkit. Its purpose is to simplify distributed systems development.
-
-Check out [**go-micro**](https://github.com/micro/go-micro) if you want to start writing services in Go now or [**ja-micro**](https://github.com/Sixt/ja-micro) for Java. Examples of how to use micro with other languages can be found in [examples/sidecar](https://github.com/micro/examples/tree/master/sidecar).
-
-Learn more about Micro in the introductory blog post [https://micro.mu/blog/2016/03/20/micro.html](https://micro.mu/blog/2016/03/20/micro.html) or watch the talk from the [Golang UK Conf 2016](https://www.youtube.com/watch?v=xspaDovwk34).
-
-Follow us on Twitter at [@MicroHQ](https://twitter.com/microhq) or join us on [Slack](http://slack.micro.mu/).
+Use [**go-micro**](https://github.com/micro/go-micro) to write services in Go or [**ja-micro**](https://github.com/Sixt/ja-micro) for Java.
 
 # Overview
-The goal of **Micro** is to simplify distributed systems development. Micro makes writing microservices accessible to everyone, and as you scale, micro will provide the necessary tooling to manage a microservice environment.
+
+Micro addresses the key requirements for building cloud-native systems. It takes the microservice architecture pattern and transforms it into 
+a set of tools which act as the building blocks for scalable platforms. Micro hides the complexity of distributed systems and provides 
+well understood concepts to developers.
+
+Micro builds on [go-micro](https://github.com/micro/go-micro), making it a pluggable toolkit.
+
+## Features
 
 The toolkit is composed of the following features:
 
@@ -40,13 +42,11 @@ For more detailed information on the architecture, installation and use of the t
 - [Example usage](#example)
 - [Build with plugins](#build-with-plugins)
 
-### Writing a service
+## Writing a service
 
-Learn how to write and run microservices using [**go-micro**](https://github.com/micro/go-micro). 
+See [**go-micro**](https://github.com/micro/go-micro) to start writing services.
 
-Read the [getting started](https://micro.mu/docs/writing-a-go-service.html) guide for more details.
-
-### Install Micro
+## Install Micro
 
 ```shell
 go get -u github.com/micro/micro
@@ -58,11 +58,13 @@ Or via Docker
 docker pull microhq/micro
 ```
 
-### Dependencies
+## Dependencies
 
 Service discovery is the only dependency of the toolkit and go-micro. We use consul as the default.
 
 Checkout [go-plugins](https://github.com/micro/go-plugins) to swap out consul or any other plugins.
+
+### Consul
 
 On Mac OS
 ```shell
@@ -70,9 +72,19 @@ brew install consul
 consul agent -dev
 ```
 
-For zero dependency service discovery use the built in multicast DNS plugin.
+### mDNS
 
-Pass `--registry=mdns` to the below commands e.g `micro --registry=mdns list services`
+Multicast DNS is built in for zero dependency service discovery.
+
+Pass `--registry=mdns` or set the env var `MICRO_REGISTRY=mdns` for any command
+
+```
+micro --registry=mdns list services
+```
+
+```
+MICRO_REGISTRY=mdns micro list services`
+```
 
 ## Example
 
@@ -216,6 +228,9 @@ To learn more read the following micro content
 - [Docs](https://micro.mu/docs) - documentation and guides
 - [Toolkit](https://micro.mu/blog/2016/03/20/micro.html) - intro blog post about the toolkit 
 - [Architecture & Design Patterns](https://micro.mu/blog/2016/04/18/micro-architecture.html) - details on micro patterns
+- [Presentation](https://www.youtube.com/watch?v=xspaDovwk34) - Golang UK Conf 2016
+- [Twitter](https://twitter.com/microhq) - follow us on Twitter
+- [Slack](http://slack.micro.mu/) - join the slack community (1000+ members)
 
 ## Community Contributions
 
@@ -229,4 +244,7 @@ Project		|	Description
 Open source development of Micro is sponsored by Sixt
 
 <a href="https://micro.mu/blog/2016/04/25/announcing-sixt-sponsorship.html"><img src="https://micro.mu/sixt_logo.png" width=150px height="auto" /></a>
+
+## Learn More
+
 
