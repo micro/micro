@@ -1,19 +1,19 @@
 # micro api
 
 The **micro api** is an API gateway for microservices. Use the API gateway [pattern](http://microservices.io/patterns/apigateway.html) to provide a 
-single entry point for your services. The micro api serves HTTP and dynamically routes to the appropriate backend service.
+single entry point for your services. The micro api serves HTTP and dynamically routes to the appropriate backend using service discovery.
 
 <p align="center">
   <img src="https://github.com/micro/docs/blob/master/images/api.png" />
 </p>
 
-## How it works
+## Overview
 
-The micro api builds on [go-micro](https://github.com/micro/go-micro), leveraging it for service discovery, load balancing, encoding and 
-RPC based communication. Requests to the API are served over HTTP and internally routed via RPC. 
+The micro api is a HTTP api. Requests to the API are served over HTTP and internally routed via RPC. It builds on 
+[go-micro](https://github.com/micro/go-micro), leveraging it for service discovery, load balancing, encoding and RPC based communication.
 
-Because the micro api uses go-micro internally, this also makes it pluggable, so feel free to switch out consul service discovery for the 
-kubernetes api or RPC for gRPC.
+Because the micro api uses go-micro internally, this also makes it pluggable. See [go-plugins](https://github.com/micro/go-plugins) for 
+support for gRPC, kubernetes, etcd, nats, rabbitmq and more.
 
 ## API
 
@@ -33,58 +33,88 @@ Handlers are HTTP handlers which manage request routing.
 The default handler uses endpoint metadata from the registry to determine service routes. If a route match is not found it will 
 fallback to the API handler. You can configure routes on registration using the [go-api](https://github.com/micro/go-api).
 
-The API has three types of configurable request handlers.
+The API has the following configurable request handlers.
 
-1. API Handler: /[service]/[method]
-	- Request/Response: api.Request/api.Response
-	- The path is used to resolve service and method.
-	- Requests are handled via API services which take the request api.Request and response api.Response types. 
-	- Definitions for the Request/Response can be found at [go-api/proto](https://github.com/micro/go-api/blob/master/proto/api.proto)
-	- The content type of the request/response body can be anything.
-	- The default fallback handler where routes are not available.
-	- Set via `--handler=api`
-2. RPC Handler: /[service]/[method]
-	- Request/Response: json/protobuf
-	- An alternative to the default handler which uses the go-micro client to forward the request body as an RPC request.
-	- Allows API handlers to be defined with concrete Go types.
-	- Useful where you do not need full control of headers or request/response.
-	- Can be used to run a single layer of backend services rather than additional API services.
-	- Supported content-type `application/json` and `application/protobuf`.
-	- Set via `--handler=rpc`
-3. Reverse Proxy: /[service]
-	- Request/Response: http
-	- The request will be reverse proxied to the service resolved by the first element in the path
-	- This allows REST to be implemented behind the API
-	- Set via `--handler=proxy`
-4. Event Handler: /[topic]/[event]
-	- Async handler publishes request to message broker as an event
-	- Request is formatted as [go-api/proto.Event](https://github.com/micro/go-api/blob/master/proto/api.proto#L28L39)
-	- Set via `--handler=event`
+- [`api`](#api-handler) - Handles any HTTP request. Gives full control over the http request/response via RPC.
+- [`rpc`](#rpc-handler) - Handles json and protobuf POST requests. Forwards as RPC.
+- [`proxy`](#proxy-handler) - Handles HTTP and forwards as a reverse proxy.
+- [`event`](#event-handler) -  Handles any HTTP request and publishes to a message bus.
 
-Alternatively use the /rpc endpoint to speak to any service directly
-- Expects params: `service`, `method`, `request`, optionally accepts `address` to target a specific host
+Optionally bypass the handlers with the [`/rpc`](#rpc-endpoint) endpoint
+
+### API Handler
+
+The API handler is the default handler. It serves any HTTP requests and forwards on as an RPC request with a specific format.
+
+- Content-Type: Any
+- Body: Any
+- Forward Format: [api.Request](https://github.com/micro/go-api/blob/master/proto/api.proto#L11)/[api.Response](https://github.com/micro/go-api/blob/master/proto/api.proto#L21)
+- Path: `/[service]/[method]`
+- Resolver: Path is used to resolve service and method
+- Configure: Flag `--handler=api` or env var `MICRO_HANDLER=api`
+- The default handler when no handler is specified
+
+### RPC Handler
+
+The RPC handler serves json or protobuf HTTP POST requests and forwards as an RPC request.
+
+- Content-Type: `application/json` or `application/protobuf`
+- Body: JSON or Protobuf
+- Forward Format: json-rpc or proto-rpc based on content
+- Path: `/[service]/[method]`
+- Resolver: Path is used to resolve service and method
+- Configure: Flag `--handler=rpc` or env var `MICRO_HANDLER=rpc`
+
+### Proxy Handler
+
+The proxy handler is a http reserve proxy with built in service discovery.
+
+- Content-Type: Any
+- Body: Any
+- Forward Format: HTTP Reverse proxy
+- Path: `/[service]`
+- Resolver: Path is used to resolve service name
+- Configure: Flag `--handler=proxy` or env var `MICRO_HANDLER=proxy`
+- REST can be implemented behind the API as microservices
+
+### Event Handler
+
+The event handler serves HTTP and forwards the request as a message over a message bus using the go-micro broker.
+
+- Content-Type: Any
+- Body: Any
+- Forward Format: Request is formatted as [go-api/proto.Event](https://github.com/micro/go-api/blob/master/proto/api.proto#L28L39) 
+- Path: `/[topic]/[event]`
+- Resolver: Path is used to resolve topic and event name
+- Configure: Flag `--handler=event` or env var `MICRO_HANDLER=event`
+
+### RPC endpoint
+
+The /rpc endpoint let's you bypass the main handler to speak to any service directly
+
+- Request Params
+  * `service` - sets the service name
+  * `method` - sets the service method
+  * `request` - the request body
+  * `address` - optionally specify host address to target
+
+Example call:
 
 ```
 curl -d 'service=go.micro.srv.greeter' \
-	-d 'method=Say.Hello' \
-	-d 'request={"name": "Bob"}' \
-	http://localhost:8080/rpc
+     -d 'method=Say.Hello' \
+     -d 'request={"name": "Bob"}' \
+     http://localhost:8080/rpc
 ```
 
 Find working examples in [github.com/micro/examples/api](https://github.com/micro/examples/tree/master/api)
-
-### API Handler Request/Response Proto
-
-The API Handler which is also the default handler expects services to use specific request and response protos, available 
-at [go-api/proto](https://github.com/micro/go-api/blob/master/proto/api.proto). This allows the micro api to deconstruct 
-a HTTP request into RPC and back to HTTP.
 
 ## Getting started
 
 ### Install
 
 ```shell
-go get github.com/micro/micro
+go get -u github.com/micro/micro
 ```
 
 ### Run
