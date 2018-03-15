@@ -108,7 +108,7 @@ micro api
 Make a HTTP call via the micro api
 
 ```shell
-curl "http://localhost:8080/greeter/say/hello?name=Asim+Aslam"
+curl "http://localhost:8080/greeter/say/hello?name=John"
 ```
 
 The HTTP path /greeter/say/hello maps to service go.micro.api.greeter method Say.Hello
@@ -118,7 +118,7 @@ Bypass the api service and call the backend directly via /rpc
 ```shell
 curl -d 'service=go.micro.srv.greeter' \
      -d 'method=Say.Hello' \
-     -d 'request={"name": "Asim Aslam"}' \
+     -d 'request={"name": "John"}' \
      http://localhost:8080/rpc
 ```
 
@@ -126,7 +126,7 @@ Make the same call entirely as JSON
 
 ```shell
 curl -H 'Content-Type: application/json' \
-     -d '{"service": "go.micro.srv.greeter", "method": "Say.Hello", "request": {"name": "Asim Aslam"}}' \
+     -d '{"service": "go.micro.srv.greeter", "method": "Say.Hello", "request": {"name": "John"}}' \
      http://localhost:8080/rpc
 ```
 
