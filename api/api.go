@@ -12,6 +12,7 @@ import (
 	"github.com/micro/go-api"
 	ahandler "github.com/micro/go-api/handler"
 	"github.com/micro/go-api/handler/event"
+	"github.com/micro/go-api/handler/web"
 	"github.com/micro/go-api/router"
 	"github.com/micro/go-api/server"
 	"github.com/micro/go-log"
@@ -113,6 +114,18 @@ func run(ctx *cli.Context) {
 		defer st.Stop()
 	}
 
+	// initialise service
+	service := micro.NewService(
+		micro.Name(Name),
+		micro.RegisterTTL(
+			time.Duration(ctx.GlobalInt("register_ttl"))*time.Second,
+		),
+		micro.RegisterInterval(
+			time.Duration(ctx.GlobalInt("register_interval"))*time.Second,
+		),
+	)
+
+	// register rpc handler
 	log.Logf("Registering RPC Handler at %s", RPCPath)
 	r.HandleFunc(RPCPath, handler.RPC)
 
@@ -134,6 +147,15 @@ func run(ctx *cli.Context) {
 		rt := router.NewRouter(router.WithNamespace(Namespace), router.WithHandler(api.Event))
 		ev := event.NewHandler(ahandler.WithNamespace(Namespace), ahandler.WithRouter(rt))
 		r.PathPrefix(APIPath).Handler(ev)
+	case "web":
+		log.Logf("Registering API Web Handler at %s", APIPath)
+		rt := router.NewRouter(router.WithNamespace(Namespace), router.WithHandler(api.Web))
+		w := web.NewHandler(
+			ahandler.WithNamespace(Namespace),
+			ahandler.WithRouter(rt),
+			ahandler.WithService(service),
+		)
+		r.PathPrefix(APIPath).Handler(w)
 	default:
 		log.Logf("Registering API Default Handler at %s", APIPath)
 		r.PathPrefix(APIPath).Handler(handler.Meta(Namespace))
@@ -149,17 +171,6 @@ func run(ctx *cli.Context) {
 	api := server.NewServer(Address)
 	api.Init(opts...)
 	api.Handle("/", h)
-
-	// Initialise Server
-	service := micro.NewService(
-		micro.Name(Name),
-		micro.RegisterTTL(
-			time.Duration(ctx.GlobalInt("register_ttl"))*time.Second,
-		),
-		micro.RegisterInterval(
-			time.Duration(ctx.GlobalInt("register_interval"))*time.Second,
-		),
-	)
 
 	// Start API
 	if err := api.Start(); err != nil {
