@@ -23,15 +23,16 @@ import (
 )
 
 var (
-	Name         = "go.micro.api"
-	Address      = ":8080"
-	Handler      = string(api.Default)
-	RPCPath      = "/rpc"
-	APIPath      = "/"
-	ProxyPath    = "/{service:[a-zA-Z0-9]+}"
-	Namespace    = "go.micro.api"
-	HeaderPrefix = "X-Micro-"
-	CORS         = map[string]bool{"*": true}
+	Name           = "go.micro.api"
+	Address        = ":8080"
+	Handler        = string(api.Default)
+	RPCPath        = "/rpc"
+	APIPath        = "/"
+	ProxyPath      = "/{service:[a-zA-Z0-9]+}"
+	Namespace      = "go.micro.api"
+	HeaderPrefix   = "X-Micro-"
+	CORS           = map[string]bool{"*": true}
+	AllowWebsocket = false
 )
 
 type srv struct {
@@ -68,6 +69,9 @@ func run(ctx *cli.Context) {
 	}
 	if len(ctx.String("namespace")) > 0 {
 		Namespace = ctx.String("namespace")
+	}
+	if len(ctx.String("allow_websocket")) > 0 {
+		AllowWebsocket = ctx.Bool("allow_websocket")
 	}
 	if len(ctx.String("cors")) > 0 {
 		origins := make(map[string]bool)
@@ -124,7 +128,7 @@ func run(ctx *cli.Context) {
 	case "proxy":
 		log.Logf("Registering API Proxy Handler at %s", ProxyPath)
 		rt := router.NewRouter(router.WithNamespace(Namespace), router.WithHandler(api.Proxy))
-		r.PathPrefix(ProxyPath).Handler(handler.Proxy(rt, nil, false))
+		r.PathPrefix(ProxyPath).Handler(handler.Proxy(rt, nil, AllowWebsocket))
 	case "api":
 		log.Logf("Registering API Request Handler at %s", APIPath)
 		rt := router.NewRouter(router.WithNamespace(Namespace), router.WithHandler(api.Api))
@@ -202,6 +206,11 @@ func Commands() []cli.Command {
 				Name:   "cors",
 				Usage:  "Comma separated whitelist of allowed origins for CORS",
 				EnvVar: "MICRO_API_CORS",
+			},
+			cli.StringFlag{
+				Name:   "allow_websocket",
+				Usage:  "Allow websocket forwarding to services",
+				EnvVar: "MICRO_API_WEBSOCKET",
 			},
 		},
 	}
