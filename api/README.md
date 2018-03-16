@@ -154,6 +154,7 @@ The API has the following configurable request handlers.
 - [`rpc`](#rpc-handler) - Handles json and protobuf POST requests. Forwards as RPC.
 - [`proxy`](#proxy-handler) - Handles HTTP and forwards as a reverse proxy.
 - [`event`](#event-handler) -  Handles any HTTP request and publishes to a message bus.
+- [`web`](#web-handler) - HTTP reverse proxy which includes web sockets.
 
 Optionally bypass the handlers with the [`/rpc`](#rpc-endpoint) endpoint
 
@@ -202,6 +203,18 @@ The event handler serves HTTP and forwards the request as a message over a messa
 - Path: `/[topic]/[event]`
 - Resolver: Path is used to resolve topic and event name
 - Configure: Flag `--handler=event` or env var `MICRO_API_HANDLER=event`
+
+### Web Handler
+
+The web handler is a http reserve proxy with built in service discovery and web socket support.
+
+- Content-Type: Any
+- Body: Any
+- Forward Format: HTTP Reverse proxy including web sockets
+- Path: `/[service]`
+- Resolver: Path is used to resolve service name
+- Configure: Flag `--handler=web` or env var `MICRO_API_HANDLER=web`
+- Info: Path /[service] is stripped from the path when forwarded and set in the `X-Micro-Web-Base-Path` header
 
 ### RPC endpoint
 
