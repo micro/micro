@@ -166,7 +166,7 @@ The API handler is the default handler. It serves any HTTP requests and forwards
 - Forward Format: [api.Request](https://github.com/micro/go-api/blob/master/proto/api.proto#L11)/[api.Response](https://github.com/micro/go-api/blob/master/proto/api.proto#L21)
 - Path: `/[service]/[method]`
 - Resolver: Path is used to resolve service and method
-- Configure: Flag `--handler=api` or env var `MICRO_HANDLER=api`
+- Configure: Flag `--handler=api` or env var `MICRO_API_HANDLER=api`
 - The default handler when no handler is specified
 
 ### RPC Handler
@@ -178,7 +178,7 @@ The RPC handler serves json or protobuf HTTP POST requests and forwards as an RP
 - Forward Format: json-rpc or proto-rpc based on content
 - Path: `/[service]/[method]`
 - Resolver: Path is used to resolve service and method
-- Configure: Flag `--handler=rpc` or env var `MICRO_HANDLER=rpc`
+- Configure: Flag `--handler=rpc` or env var `MICRO_API_HANDLER=rpc`
 
 ### Proxy Handler
 
@@ -189,7 +189,7 @@ The proxy handler is a http reserve proxy with built in service discovery.
 - Forward Format: HTTP Reverse proxy
 - Path: `/[service]`
 - Resolver: Path is used to resolve service name
-- Configure: Flag `--handler=proxy` or env var `MICRO_HANDLER=proxy`
+- Configure: Flag `--handler=proxy` or env var `MICRO_API_HANDLER=proxy`
 - REST can be implemented behind the API as microservices
 
 ### Event Handler
@@ -201,7 +201,7 @@ The event handler serves HTTP and forwards the request as a message over a messa
 - Forward Format: Request is formatted as [go-api/proto.Event](https://github.com/micro/go-api/blob/master/proto/api.proto#L28L39) 
 - Path: `/[topic]/[event]`
 - Resolver: Path is used to resolve topic and event name
-- Configure: Flag `--handler=event` or env var `MICRO_HANDLER=event`
+- Configure: Flag `--handler=event` or env var `MICRO_API_HANDLER=event`
 
 ### RPC endpoint
 
