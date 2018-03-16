@@ -26,10 +26,6 @@ The toolkit is composed of the following features:
 
 - [**`new`**](https://github.com/micro/micro/tree/master/new) - New template generation for services.
 
-- [**`run`**](https://github.com/micro/micro/tree/master/run) - Runtime manager. Fetch, build and run from source in one command.
-
-- [**`sidecar`**](https://github.com/micro/micro/tree/master/car) - A HTTP based sidecar for your service in any language.
-
 ## Docs
 
 For more detailed information on the architecture, installation and use of the toolkit checkout the [docs](https://micro.mu/docs).
