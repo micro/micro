@@ -134,8 +134,8 @@ func run(ctx *cli.Context) {
 		log.Logf("Registering API RPC Handler at %s", APIPath)
 		rt := router.NewRouter(router.WithNamespace(Namespace), router.WithHandler(api.Rpc))
 		r.PathPrefix(APIPath).Handler(handler.RPCX(rt, nil))
-	case "proxy":
-		log.Logf("Registering API Proxy Handler at %s", ProxyPath)
+	case "http", "proxy":
+		log.Logf("Registering API HTTP Handler at %s", ProxyPath)
 		rt := router.NewRouter(router.WithNamespace(Namespace), router.WithHandler(api.Proxy))
 		r.PathPrefix(ProxyPath).Handler(handler.Proxy(rt, nil, false))
 	case "api":
@@ -201,7 +201,7 @@ func Commands() []cli.Command {
 			},
 			cli.StringFlag{
 				Name:   "handler",
-				Usage:  "Specify the request handler to be used for mapping HTTP requests to services; {api, proxy, rpc, event}",
+				Usage:  "Specify the request handler to be used for mapping HTTP requests to services; {api, event, http, rpc}",
 				EnvVar: "MICRO_API_HANDLER",
 			},
 			cli.StringFlag{
