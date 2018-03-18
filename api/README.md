@@ -152,9 +152,9 @@ The API has the following configurable request handlers.
 
 - [`api`](#api-handler) - Handles any HTTP request. Gives full control over the http request/response via RPC.
 - [`event`](#event-handler) -  Handles any HTTP request and publishes to a message bus.
-- [`http`](#http-handler) - Handles HTTP and forwards as a reverse proxy.
+- [`http`](#http-handler) - Handles any HTTP request and forwards as a reverse proxy.
 - [`rpc`](#rpc-handler) - Handles json and protobuf POST requests. Forwards as RPC.
-- [`web`](#web-handler) - HTTP reverse proxy which includes web sockets.
+- [`web`](#web-handler) - The HTTP handler with web socket support included.
 
 Optionally bypass the handlers with the [`/rpc`](#rpc-endpoint) endpoint
 
