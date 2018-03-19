@@ -6,10 +6,14 @@ import (
 	"github.com/micro/go-api"
 	"github.com/micro/go-api/handler"
 	"github.com/micro/go-api/handler/event"
-	ahttp "github.com/micro/go-api/handler/http"
-	"github.com/micro/go-api/handler/web"
 	"github.com/micro/go-api/router"
 	"github.com/micro/go-micro/errors"
+
+	// TODO: only import handler package
+	aapi "github.com/micro/go-api/handler/api"
+	ahttp "github.com/micro/go-api/handler/http"
+	arpc "github.com/micro/go-api/handler/rpc"
+	aweb "github.com/micro/go-api/handler/web"
 )
 
 type metaHandler struct {
@@ -26,15 +30,17 @@ func (m *metaHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// TODO: don't do this ffs
 	switch service.Endpoint.Handler {
+	// web socket handler
 	case api.Web:
-		web.WithService(service).ServeHTTP(w, r)
+		aweb.WithService(service).ServeHTTP(w, r)
 	// proxy handler
 	case api.Proxy, api.Http:
 		ahttp.WithService(service).ServeHTTP(w, r)
 	// rpcx handler
 	case api.Rpc:
-		RPCX(nil, service).ServeHTTP(w, r)
+		arpc.WithService(service).ServeHTTP(w, r)
 	// event handler
 	case api.Event:
 		ev := event.NewHandler(
@@ -43,10 +49,10 @@ func (m *metaHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		ev.ServeHTTP(w, r)
 	// api handler
 	case api.Api:
-		API(nil, service).ServeHTTP(w, r)
+		aapi.WithService(service).ServeHTTP(w, r)
 	// default handler: api
 	default:
-		API(nil, service).ServeHTTP(w, r)
+		aapi.WithService(service).ServeHTTP(w, r)
 	}
 }
 

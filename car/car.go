@@ -24,8 +24,10 @@ import (
 	"github.com/pborman/uuid"
 
 	ahandler "github.com/micro/go-api/handler"
+	abroker "github.com/micro/go-api/handler/broker"
 	ahttp "github.com/micro/go-api/handler/http"
 	aregistry "github.com/micro/go-api/handler/registry"
+	arpc "github.com/micro/go-api/handler/rpc"
 	aweb "github.com/micro/go-api/handler/web"
 )
 
@@ -168,7 +170,11 @@ func run(ctx *cli.Context, car *sidecar) {
 	r.Handle(RPCPath, http.HandlerFunc(handler.RPC))
 
 	log.Logf("Registering Broker handler at %s", BrokerPath)
-	r.Handle(BrokerPath, handler.Broker(CORS))
+	br := abroker.NewHandler(
+		ahandler.WithNamespace(Namespace),
+		ahandler.WithService(service),
+	)
+	r.Handle(BrokerPath, br)
 
 	switch Handler {
 	case "http", "proxy":
@@ -193,7 +199,12 @@ func run(ctx *cli.Context, car *sidecar) {
 	default:
 		log.Logf("Registering Root Handler at %s", RootPath)
 		rt := router.NewRouter(router.WithNamespace(Namespace), router.WithHandler(api.Rpc))
-		r.PathPrefix(RootPath).Handler(handler.RPCX(rt, nil))
+		rp := arpc.NewHandler(
+			ahandler.WithNamespace(Namespace),
+			ahandler.WithRouter(rt),
+			ahandler.WithService(service),
+		)
+		r.PathPrefix(RootPath).Handler(rp)
 	}
 
 	// reverse wrap handler
