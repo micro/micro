@@ -26,7 +26,7 @@ func (m *metaHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	switch service.Endpoint.Handler {
 	// proxy handler
-	case api.Proxy:
+	case api.Proxy, api.Http:
 		Proxy(nil, service, false).ServeHTTP(w, r)
 	// rpcx handler
 	case api.Rpc:
