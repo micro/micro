@@ -159,13 +159,13 @@ func Commands() []cli.Command {
 		Flags: []cli.Flag{
 			cli.StringFlag{
 				Name:   "address",
-				Usage:  "Set the sidecar address e.g 0.0.0.0:8081",
-				EnvVar: "MICRO_SIDECAR_ADDRESS",
+				Usage:  "Set the proxy address e.g 0.0.0.0:8081",
+				EnvVar: "MICRO_PROXY_ADDRESS",
 			},
 			cli.StringFlag{
 				Name:   "cors",
 				Usage:  "Comma separated whitelist of allowed origins for CORS",
-				EnvVar: "MICRO_SIDECAR_CORS",
+				EnvVar: "MICRO_PROXY_CORS",
 			},
 		},
 		Action: run,
