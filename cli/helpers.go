@@ -48,8 +48,8 @@ func getService(c *cli.Context) {
 	fmt.Println(string(rsp))
 }
 
-func queryService(c *cli.Context) {
-	rsp, err := clic.QueryService(c, c.Args())
+func callService(c *cli.Context) {
+	rsp, err := clic.CallService(c, c.Args())
 	if err != nil {
 		fmt.Println(err)
 		return

@@ -25,7 +25,7 @@ COMMANDS:
    api		Run the micro API
    bot		Run the micro bot
    registry	Query registry
-   query	Query a service method using rpc
+   call		Call a service
    stream	Query a service method using streaming rpc
    health	Query the health of a service
    list		List items in registry
@@ -85,9 +85,9 @@ go.micro.srv.example
 go.micro.srv.example-fccbb6fb-0301-11e5-9f1f-68a86d0d36b6	[::]	62421
 ```
 
-### Query Service
+### Call Service
 ```shell
-micro query go.micro.srv.example Example.Call '{"name": "John"}'
+micro call go.micro.srv.example Example.Call '{"name": "John"}'
 
 {
 	"msg": "go.micro.srv.example-fccbb6fb-0301-11e5-9f1f-68a86d0d36b6: Hello John"

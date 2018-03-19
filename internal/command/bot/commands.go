@@ -106,12 +106,12 @@ func List(ctx *cli.Context) command.Command {
 	})
 }
 
-// Query returns a service query
-func Query(ctx *cli.Context) command.Command {
-	usage := "query [service] [method] [request]"
-	desc := "Returns the response for a service query"
+// Call returns a service call
+func Call(ctx *cli.Context) command.Command {
+	usage := "call [service] [method] [request]"
+	desc := "Returns the response for a service call"
 
-	return command.NewCommand("query", usage, desc, func(args ...string) ([]byte, error) {
+	return command.NewCommand("call", usage, desc, func(args ...string) ([]byte, error) {
 		var cargs []string
 
 		for _, arg := range args {
@@ -122,10 +122,10 @@ func Query(ctx *cli.Context) command.Command {
 		}
 
 		if len(cargs) < 2 {
-			return []byte("query what?"), nil
+			return []byte("call what?"), nil
 		}
 
-		rsp, err := clic.QueryService(ctx, cargs[1:])
+		rsp, err := clic.CallService(ctx, cargs[1:])
 		if err != nil {
 			return nil, err
 		}

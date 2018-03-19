@@ -57,7 +57,7 @@ health [service] - Returns health of a service
 hello - Returns a greeting
 list services - Returns a list of registered services
 ping - Returns pong
-query [service] [method] [request] - Returns the response for a service query
+call [service] [method] [request] - Returns the response for a service call
 register service [definition] - Registers a service
 the three laws - Returns the three laws of robotics
 time - Returns the server time

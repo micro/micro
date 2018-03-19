@@ -62,13 +62,18 @@ func Commands() []cli.Command {
 			Subcommands: registryCommands(),
 		},
 		{
+			Name:   "call",
+			Usage:  "Call a service or function",
+			Action: callService,
+		},
+		{
 			Name:   "query",
-			Usage:  "Query a service method using rpc",
-			Action: queryService,
+			Usage:  "Deprecated: Use call instead",
+			Action: callService,
 		},
 		{
 			Name:   "stream",
-			Usage:  "Query a service method using streaming rpc",
+			Usage:  "Create a service or function stream",
 			Action: streamService,
 		},
 		{

@@ -278,7 +278,7 @@ func ListServices(c *cli.Context) ([]byte, error) {
 	return []byte(strings.Join(services, "\n")), nil
 }
 
-func QueryService(c *cli.Context, args []string) ([]byte, error) {
+func CallService(c *cli.Context, args []string) ([]byte, error) {
 	if len(args) < 2 {
 		return nil, errors.New("require service and method")
 	}

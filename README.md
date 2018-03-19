@@ -138,12 +138,12 @@ Response: {
 }
 ```
 
-### Query service
+### Call service
 
-Make an RPC query via the CLI. The query is sent in json. We support json and protobuf out of the box.
+Make an RPC call via the CLI. The query is sent in json. We support json and protobuf out of the box.
 
 ```shell
-micro query go.micro.srv.greeter Say.Hello '{"name": "John"}'
+micro call go.micro.srv.greeter Say.Hello '{"name": "John"}'
 ```
 
 Output
