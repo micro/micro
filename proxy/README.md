@@ -33,9 +33,9 @@ consul agent -dev
 
 ### Run
 
-The micro sidecar runs on port 8081 by default. 
+The micro proxy runs on port 8081 by default. 
 
-Starting the sidecar 
+Start the proxy
 
 ```shell
 micro proxy
