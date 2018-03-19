@@ -22,6 +22,11 @@ import (
 	"github.com/micro/micro/internal/stats"
 	"github.com/micro/micro/plugin"
 	"github.com/pborman/uuid"
+
+	ahandler "github.com/micro/go-api/handler"
+	ahttp "github.com/micro/go-api/handler/http"
+	aregistry "github.com/micro/go-api/handler/registry"
+	aweb "github.com/micro/go-api/handler/web"
 )
 
 type sidecar struct {
@@ -145,8 +150,19 @@ func run(ctx *cli.Context, car *sidecar) {
 		}))
 	}
 
+	// Initialise Server
+	service := micro.NewService(
+		micro.Name(Name),
+		micro.RegisterTTL(
+			time.Duration(ctx.GlobalInt("register_ttl"))*time.Second,
+		),
+		micro.RegisterInterval(
+			time.Duration(ctx.GlobalInt("register_interval"))*time.Second,
+		),
+	)
+
 	log.Logf("Registering Registry handler at %s", RegistryPath)
-	r.Handle(RegistryPath, http.HandlerFunc(handler.Registry))
+	r.Handle(RegistryPath, aregistry.NewHandler(ahandler.WithService(service)))
 
 	log.Logf("Registering RPC handler at %s", RPCPath)
 	r.Handle(RPCPath, http.HandlerFunc(handler.RPC))
@@ -155,10 +171,24 @@ func run(ctx *cli.Context, car *sidecar) {
 	r.Handle(BrokerPath, handler.Broker(CORS))
 
 	switch Handler {
-	case "proxy":
-		log.Logf("Registering Proxy Handler at %s", ProxyPath)
-		rt := router.NewRouter(router.WithNamespace(Namespace), router.WithHandler(api.Proxy))
-		r.PathPrefix(ProxyPath).Handler(handler.Proxy(rt, nil, false))
+	case "http", "proxy":
+		log.Logf("Registering API HTTP Handler at %s", ProxyPath)
+		rt := router.NewRouter(router.WithNamespace(Namespace), router.WithHandler(api.Http))
+		ht := ahttp.NewHandler(
+			ahandler.WithNamespace(Namespace),
+			ahandler.WithRouter(rt),
+			ahandler.WithService(service),
+		)
+		r.PathPrefix(ProxyPath).Handler(ht)
+	case "web":
+		log.Logf("Registering API Web Handler at %s", ProxyPath)
+		rt := router.NewRouter(router.WithNamespace(Namespace), router.WithHandler(api.Web))
+		w := aweb.NewHandler(
+			ahandler.WithNamespace(Namespace),
+			ahandler.WithRouter(rt),
+			ahandler.WithService(service),
+		)
+		r.PathPrefix(ProxyPath).Handler(w)
 	// rpc
 	default:
 		log.Logf("Registering Root Handler at %s", RootPath)
@@ -173,17 +203,6 @@ func run(ctx *cli.Context, car *sidecar) {
 	}
 
 	srv.Handle("/", h)
-
-	// Initialise Server
-	service := micro.NewService(
-		micro.Name(Name),
-		micro.RegisterTTL(
-			time.Duration(ctx.GlobalInt("register_ttl"))*time.Second,
-		),
-		micro.RegisterInterval(
-			time.Duration(ctx.GlobalInt("register_interval"))*time.Second,
-		),
-	)
 
 	if err := srv.Start(); err != nil {
 		log.Fatal(err)

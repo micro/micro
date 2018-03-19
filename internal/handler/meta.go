@@ -6,6 +6,8 @@ import (
 	"github.com/micro/go-api"
 	"github.com/micro/go-api/handler"
 	"github.com/micro/go-api/handler/event"
+	ahttp "github.com/micro/go-api/handler/http"
+	"github.com/micro/go-api/handler/web"
 	"github.com/micro/go-api/router"
 	"github.com/micro/go-micro/errors"
 )
@@ -25,9 +27,11 @@ func (m *metaHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	switch service.Endpoint.Handler {
+	case api.Web:
+		web.WithService(service).ServeHTTP(w, r)
 	// proxy handler
 	case api.Proxy, api.Http:
-		Proxy(nil, service, false).ServeHTTP(w, r)
+		ahttp.WithService(service).ServeHTTP(w, r)
 	// rpcx handler
 	case api.Rpc:
 		RPCX(nil, service).ServeHTTP(w, r)

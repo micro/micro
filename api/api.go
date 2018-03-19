@@ -12,6 +12,7 @@ import (
 	"github.com/micro/go-api"
 	ahandler "github.com/micro/go-api/handler"
 	"github.com/micro/go-api/handler/event"
+	ahttp "github.com/micro/go-api/handler/http"
 	"github.com/micro/go-api/handler/web"
 	"github.com/micro/go-api/router"
 	"github.com/micro/go-api/server"
@@ -134,10 +135,6 @@ func run(ctx *cli.Context) {
 		log.Logf("Registering API RPC Handler at %s", APIPath)
 		rt := router.NewRouter(router.WithNamespace(Namespace), router.WithHandler(api.Rpc))
 		r.PathPrefix(APIPath).Handler(handler.RPCX(rt, nil))
-	case "http", "proxy":
-		log.Logf("Registering API HTTP Handler at %s", ProxyPath)
-		rt := router.NewRouter(router.WithNamespace(Namespace), router.WithHandler(api.Proxy))
-		r.PathPrefix(ProxyPath).Handler(handler.Proxy(rt, nil, false))
 	case "api":
 		log.Logf("Registering API Request Handler at %s", APIPath)
 		rt := router.NewRouter(router.WithNamespace(Namespace), router.WithHandler(api.Api))
@@ -147,6 +144,15 @@ func run(ctx *cli.Context) {
 		rt := router.NewRouter(router.WithNamespace(Namespace), router.WithHandler(api.Event))
 		ev := event.NewHandler(ahandler.WithNamespace(Namespace), ahandler.WithRouter(rt))
 		r.PathPrefix(APIPath).Handler(ev)
+	case "http", "proxy":
+		log.Logf("Registering API HTTP Handler at %s", ProxyPath)
+		rt := router.NewRouter(router.WithNamespace(Namespace), router.WithHandler(api.Http))
+		ht := ahttp.NewHandler(
+			ahandler.WithNamespace(Namespace),
+			ahandler.WithRouter(rt),
+			ahandler.WithService(service),
+		)
+		r.PathPrefix(ProxyPath).Handler(ht)
 	case "web":
 		log.Logf("Registering API Web Handler at %s", APIPath)
 		rt := router.NewRouter(router.WithNamespace(Namespace), router.WithHandler(api.Web))

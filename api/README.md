@@ -214,7 +214,6 @@ The web handler is a http reserve proxy with built in service discovery and web 
 - Path: `/[service]`
 - Resolver: Path is used to resolve service name
 - Configure: Flag `--handler=web` or env var `MICRO_API_HANDLER=web`
-- Info: Path /[service] is stripped from the path when forwarded and set in the `X-Micro-Web-Base-Path` header
 
 ### RPC endpoint
 
