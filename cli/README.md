@@ -1,6 +1,6 @@
 # micro cli
 
-The **micro cli** is a command line interface for the microservices toolkit [micro](https://github.com/micro/micro). 
+The **micro cli** is a command line interface for the cloud-native toolkit [micro](https://github.com/micro/micro). 
 
 ## Getting Started
 
@@ -13,7 +13,7 @@ go get github.com/micro/micro
 ### Usage
 ```shell
 NAME:
-   micro - A microservices toolkit
+   micro - A cloud-native toolkit
 
 USAGE:
    micro [global options] command [command options] [arguments...]

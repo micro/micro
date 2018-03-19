@@ -17,7 +17,7 @@ import (
 
 var (
 	name        = "micro"
-	description = "A microservices toolkit"
+	description = "A cloud-native toolkit"
 	version     = "0.7.1"
 )
 
