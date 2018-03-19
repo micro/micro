@@ -2,8 +2,6 @@
 
 Micro is a toolkit for cloud-native development.
 
-Use [**go-micro**](https://github.com/micro/go-micro) to write services in Go or [**ja-micro**](https://github.com/Sixt/ja-micro) for Java.
-
 # Overview
 
 Micro addresses the key requirements for building cloud-native systems. It takes the microservice architecture pattern and transforms it into 
