@@ -1,4 +1,4 @@
-package car
+package proxy
 
 import (
 	"fmt"

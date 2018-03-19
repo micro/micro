@@ -7,10 +7,10 @@ import (
 	"github.com/micro/go-micro/cmd"
 	"github.com/micro/micro/api"
 	"github.com/micro/micro/bot"
-	"github.com/micro/micro/car"
 	"github.com/micro/micro/cli"
 	"github.com/micro/micro/new"
 	"github.com/micro/micro/plugin"
+	"github.com/micro/micro/proxy"
 	"github.com/micro/micro/run"
 	"github.com/micro/micro/web"
 )
@@ -64,11 +64,6 @@ func setup(app *ccli.App) {
 			EnvVar: "MICRO_PROXY_ADDRESS",
 		},
 		ccli.StringFlag{
-			Name:   "sidecar_address",
-			Usage:  "Set the sidecar address e.g 0.0.0.0:8081",
-			EnvVar: "MICRO_SIDECAR_ADDRESS",
-		},
-		ccli.StringFlag{
 			Name:   "web_address",
 			Usage:  "Set the web UI address e.g 0.0.0.0:8082",
 			EnvVar: "MICRO_WEB_ADDRESS",
@@ -94,16 +89,6 @@ func setup(app *ccli.App) {
 			EnvVar: "MICRO_API_NAMESPACE",
 		},
 		ccli.StringFlag{
-			Name:   "sidecar_handler",
-			Usage:  "Specify the request handler to be used for mapping HTTP requests to services; {proxy, rpc}",
-			EnvVar: "MICRO_SIDECAR_HANDLER",
-		},
-		ccli.StringFlag{
-			Name:   "sidecar_namespace",
-			Usage:  "Set the namespace used by the Sidecar e.g. com.example.srv",
-			EnvVar: "MICRO_SIDECAR_NAMESPACE",
-		},
-		ccli.StringFlag{
 			Name:   "web_namespace",
 			Usage:  "Set the namespace used by the Web proxy e.g. com.example.web",
 			EnvVar: "MICRO_WEB_NAMESPACE",
@@ -119,9 +104,9 @@ func setup(app *ccli.App) {
 			EnvVar: "MICRO_WEB_CORS",
 		},
 		ccli.StringFlag{
-			Name:   "sidecar_cors",
+			Name:   "proxy_cors",
 			Usage:  "Comma separated whitelist of allowed origins for CORS",
-			EnvVar: "MICRO_SIDECAR_CORS",
+			EnvVar: "MICRO_PROXY_CORS",
 		},
 		ccli.BoolFlag{
 			Name:   "enable_stats",
@@ -151,20 +136,14 @@ func setup(app *ccli.App) {
 		if len(ctx.String("api_address")) > 0 {
 			api.Address = ctx.String("api_address")
 		}
-		if len(ctx.String("sidecar_address")) > 0 {
-			car.Address = ctx.String("sidecar_address")
+		if len(ctx.String("proxy_address")) > 0 {
+			proxy.Address = ctx.String("proxy_address")
 		}
 		if len(ctx.String("web_address")) > 0 {
 			web.Address = ctx.String("web_address")
 		}
 		if len(ctx.String("api_namespace")) > 0 {
 			api.Namespace = ctx.String("api_namespace")
-		}
-		if len(ctx.String("sidecar_handler")) > 0 {
-			car.Handler = ctx.String("sidecar_handler")
-		}
-		if len(ctx.String("sidecar_namespace")) > 0 {
-			car.Namespace = ctx.String("sidecar_namespace")
 		}
 		if len(ctx.String("web_namespace")) > 0 {
 			web.Namespace = ctx.String("web_namespace")
@@ -182,8 +161,8 @@ func setup(app *ccli.App) {
 		if len(ctx.String("api_cors")) > 0 {
 			api.CORS = fn(ctx.String("api_cors"))
 		}
-		if len(ctx.String("sidecar_cors")) > 0 {
-			car.CORS = fn(ctx.String("sidecar_cors"))
+		if len(ctx.String("proxy_cors")) > 0 {
+			proxy.CORS = fn(ctx.String("proxy_cors"))
 		}
 		if len(ctx.String("web_cors")) > 0 {
 			web.CORS = fn(ctx.String("web_cors"))
@@ -202,7 +181,7 @@ func Init() {
 	app.Commands = append(app.Commands, api.Commands()...)
 	app.Commands = append(app.Commands, bot.Commands()...)
 	app.Commands = append(app.Commands, cli.Commands()...)
-	app.Commands = append(app.Commands, car.Commands()...)
+	app.Commands = append(app.Commands, proxy.Commands()...)
 	app.Commands = append(app.Commands, new.Commands()...)
 	app.Commands = append(app.Commands, run.Commands()...)
 	app.Commands = append(app.Commands, web.Commands()...)

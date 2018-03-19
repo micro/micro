@@ -22,19 +22,22 @@ VERSION:
    latest
    
 COMMANDS:
-   api		Run the micro API
-   bot		Run the micro bot
-   registry	Query registry
-   call		Call a service
-   stream	Query a service method using streaming rpc
-   health	Query the health of a service
-   list		List items in registry
-   register	Register an item in the registry
-   deregister	Deregister an item in the registry
-   get		Get item from registry
-   sidecar	Run the micro sidecar
-   web		Run the micro web app
-   help, h	Shows a list of commands or help for one command
+    api		Run the micro API
+    bot		Run the micro bot
+    registry	Query registry
+    call	Call a service or function
+    query	Deprecated: Use call instead
+    stream	Create a service or function stream
+    health	Query the health of a service
+    stats	Query the stats of a service
+    list	List items in registry
+    register	Register an item in the registry
+    deregister	Deregister an item in the registry
+    get		Get item from registry
+    proxy	Run the micro proxy
+    new		Create a new micro service by specifying a directory path relative to your $GOPATH
+    run		Run the micro runtime
+    web		Run the micro web app
    
 GLOBAL OPTIONS:
    --server_name 								Name of the server. go.micro.srv.example [$MICRO_SERVER_NAME]
@@ -72,8 +75,6 @@ GLOBAL OPTIONS:
 ### List Services
 ```shell
 micro list services
-
-go.micro.srv.example
 ```
 
 ### Get Service
@@ -128,22 +129,10 @@ micro get service foo
 Service not found
 ```
 
-### Run the API
-```shell
-micro api
-```
+### Proxy CLI
 
-### Run the SideCar
-```shell
-micro sidecar --server_name=foo --server_address=127.0.0.1:9090 --healthcheck_url=http://127.0.0.1:9090/_status/health
-```
-
-### Proxy CLI via Sidecar
-
-The sidecar can be used as a proxy for remote environments. 
+Proxy remote environments using the micro proxy
 
 ```shell
-micro --proxy_address=proxy.micro.pm list services
-
-go.micro.srv.example
+MICRO_PROXY_ADDRESS=proxy.micro.pm micro list services
 ```

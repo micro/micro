@@ -26,6 +26,8 @@ The toolkit is composed of the following features:
 
 - [**`new`**](https://github.com/micro/micro/tree/master/new) - New template generation for services.
 
+- [**`proxy`**](https://github.com/micro/micro/tree/master/proxy) - A proxy for remote environments.
+
 ## Docs
 
 For more detailed information on the architecture, installation and use of the toolkit checkout the [docs](https://micro.mu/docs).
