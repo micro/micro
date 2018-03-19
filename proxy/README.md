@@ -60,10 +60,10 @@ MICRO_ENABLE_ACME=true MICRO_ACME_HOSTS=example.com,api.example.com micro proxy
 To use the proxy with the CLI specify it's address
 
 ```shell
-MICRO_PROXY_ADDRESS=127.0.0.1:8081 list services
+MICRO_PROXY_ADDRESS=127.0.0.1:8081 micro list services
 ```
 
 ```
-MICRO_PROXY_ADDRESS=127.0.0.1:8081 call greeter Say.Hello '{"name": "john"}'
+MICRO_PROXY_ADDRESS=127.0.0.1:8081 micro call greeter Say.Hello '{"name": "john"}'
 ```
 
