@@ -250,7 +250,7 @@ func registryHandler(w http.ResponseWriter, r *http.Request) {
 	render(w, r, registryTemplate, services)
 }
 
-func queryHandler(w http.ResponseWriter, r *http.Request) {
+func callHandler(w http.ResponseWriter, r *http.Request) {
 	services, err := (*cmd.DefaultOptions().Registry).ListServices()
 	if err != nil {
 		http.Error(w, "Error occurred:"+err.Error(), 500)
@@ -284,7 +284,7 @@ func queryHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	render(w, r, queryTemplate, serviceMap)
+	render(w, r, callTemplate, serviceMap)
 }
 
 func render(w http.ResponseWriter, r *http.Request, tmpl string, data interface{}) {
@@ -349,7 +349,7 @@ func run(ctx *cli.Context) {
 	s.HandleFunc("/registry", registryHandler)
 	s.HandleFunc("/rpc", handler.RPC)
 	s.HandleFunc("/cli", cliHandler)
-	s.HandleFunc("/query", queryHandler)
+	s.HandleFunc("/call", callHandler)
 	s.HandleFunc("/favicon.ico", faviconHandler)
 	s.PathPrefix("/{service:[a-zA-Z0-9]+}").Handler(s.proxy())
 	s.HandleFunc("/", indexHandler)
