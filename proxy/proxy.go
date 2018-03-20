@@ -54,12 +54,12 @@ func (s *srv) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func run(ctx *cli.Context) {
-        if len(ctx.GlobalString("server_name")) > 0 {
-                Name = ctx.GlobalString("server_name")
-        }
-        if len(ctx.String("address")) > 0 {
-                Address = ctx.String("address")
-        }
+	if len(ctx.GlobalString("server_name")) > 0 {
+		Name = ctx.GlobalString("server_name")
+	}
+	if len(ctx.String("address")) > 0 {
+		Address = ctx.String("address")
+	}
 	if len(ctx.String("cors")) > 0 {
 		origins := make(map[string]bool)
 		for _, origin := range strings.Split(ctx.String("cors"), ",") {
