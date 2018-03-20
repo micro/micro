@@ -17,6 +17,13 @@ support for gRPC, kubernetes, etcd, nats, rabbitmq and more.
 
 ## Getting started
 
+- [Install](#install)
+- [Run](#run)
+- [ACME](#acme)
+- [Examples](#examples)
+- [Handlers](#handlers)
+- [Resolver](#resolver)
+
 ### Install
 
 ```shell
@@ -29,7 +36,7 @@ go get -u github.com/micro/micro
 micro api
 ```
 
-### Use ACME 
+### ACME 
 
 Serve securely by default using ACME via letsencrypt
 
@@ -45,7 +52,7 @@ MICRO_ACME_HOSTS=example.com,api.example.com \
 micro api
 ```
 
-### Use TLS Certs
+### TLS Cert
 
 The API supports serving securely with TLS certificates
 
