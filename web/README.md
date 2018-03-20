@@ -1,7 +1,6 @@
 # micro web
 
-The **micro web** provides a dashboard to view and query services as well as a reverse proxy to serve micro web applications. 
-We believe in web apps as first class citizens in a microservice world.
+The **micro web** provides a dashboard to view and query services.
 
 <p align="center">
   <img src="https://github.com/micro/docs/blob/master/images/web.png" />
