@@ -299,5 +299,7 @@ URLS are resolved to topics and events as follows
 
 Path	|	Topic	|	Event Name
 ---	|	---	|	---
-/event	|	go.micro.api.event	|	event
-/user/login	|	go.micro.api.user	|	user.login
+/	|	go.micro.api	|	event
+/user	|	go.micro.api.user	|	user
+/user/login	|	go.micro.api.user	|	login
+/user/login/john	|	go.micro.api.user	| 	login.john
