@@ -252,6 +252,10 @@ The default namespace is `go.micro.api`. Set namespace via `--namespace` or `MIC
 
 The resolvers used are explained below.
 
+- [rpc](#rpc-resolver)
+- [http](#http-resolver)
+- [event](#event-resolver)
+
 ### RPC Resolver
 
 RPC services have a name (go.micro.api.greeter) and a method (Greeter.Hello).
@@ -287,3 +291,13 @@ Path	|	Service	|	Service Path
 /greeter	|	go.micro.api.greeter	|	/greeter
 /greeter/:name	|	go.micro.api.greeter	|	/greeter/:name
 
+### Event Resolver
+
+The micro api can be used as a pubsub gateway. The event handler uses the event resolver to publish events to topics.
+
+URLS are resolved to topics and events as follows
+
+Path	|	Topic	|	Event Name
+---	|	---	|	---
+/event	|	go.micro.api.event	|	event
+/user/login	|	go.micro.api.user	|	user.login
