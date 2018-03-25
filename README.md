@@ -71,6 +71,7 @@ Install and run consul
 ```shell
 # install
 brew install consul
+
 # run
 consul agent -dev
 ```
@@ -128,10 +129,10 @@ The command will output
 example/
 	Dockerfile	# A template docker file
 	README.md	# A readme with command used
-	handler		# Example rpc handler
+	handler/	# Example rpc handler
 	main.go		# The main Go program
-	proto		# Proto directory
-	subscriber	# Example pubsub Subscriber
+	proto/		# Protobuf directory
+	subscriber/	# Example pubsub Subscriber
 ```
 
 Compile the protobuf code using `protoc`
