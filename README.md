@@ -17,11 +17,11 @@ The toolkit is composed of the following features:
 
 - [**`api`**](https://github.com/micro/micro/tree/master/api) - API Gateway. A single HTTP entry point. Dynamic routing using service discovery.
 
-- [**`cli`**](https://github.com/micro/micro/tree/master/cli) - Command line interface. Describe, query and interact directly from the terminal. 
-
 - [**`bot`**](https://github.com/micro/micro/tree/master/bot) - Slack and hipchat bot. The CLI via messaging.
 
-- [**`new`**](https://github.com/micro/micro/tree/master/new) - New template generation for services.
+- [**`cli`**](https://github.com/micro/micro/tree/master/cli) - Command line interface. Describe, query and interact directly from the terminal. 
+
+- [**`new`**](https://github.com/micro/micro/tree/master/new) - Service template generation. Get started quickly.
 
 - [**`web`**](https://github.com/micro/micro/tree/master/web) - Web dashboard to interact via browser.
 
