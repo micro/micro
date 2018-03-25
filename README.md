@@ -1,14 +1,15 @@
 # Micro [![License](https://img.shields.io/:license-apache-blue.svg)](https://opensource.org/licenses/Apache-2.0) [![GoDoc](https://godoc.org/github.com/micro/micro?status.svg)](https://godoc.org/github.com/micro/micro) [![Travis CI](https://travis-ci.org/micro/micro.svg?branch=master)](https://travis-ci.org/micro/micro) [![Go Report Card](https://goreportcard.com/badge/micro/micro)](https://goreportcard.com/report/github.com/micro/micro)
 
-Micro is a toolkit for cloud-native development.
+Micro is a toolkit for cloud-native development. It helps you build future-proof application platforms and services.
 
 # Overview
 
 Micro addresses the key requirements for building cloud-native systems. It takes the microservice architecture pattern and transforms it into 
-a set of tools which act as the building blocks for scalable platforms. Micro hides the complexity of distributed systems and provides 
-well understood concepts to developers.
+a set of tools which act as the building blocks for scalable platforms. Micro deals with the complexity of distributed systems and provides 
+simple abstractions already understood by developers.
 
-Micro builds on [go-micro](https://github.com/micro/go-micro), making it a pluggable toolkit.
+Technology is constantly evolving. The infrastructure stack is always changing. Micro is a pluggable toolkit which addresses these issues. 
+Plug in any stack or underlying technology. Build future-proof systems using micro.
 
 ## Features
 
@@ -30,15 +31,11 @@ For more detailed information on the architecture, installation and use of the t
 
 ## Getting Started
 
-- [Writing a Service](#writing-a-service)
 - [Install Micro](#install-micro)
 - [Service Discovery](#service-discovery)
+- [Writing a Service](#writing-a-service)
 - [Example usage](#example)
 - [Build with plugins](#build-with-plugins)
-
-## Writing a service
-
-See [**go-micro**](https://github.com/micro/go-micro) to start writing services.
 
 ## Install Micro
 
@@ -80,6 +77,10 @@ micro --registry=mdns list services
 ## Use env var
 MICRO_REGISTRY=mdns micro list services`
 ```
+
+## Writing a service
+
+See [**go-micro**](https://github.com/micro/go-micro) to start writing services.
 
 ## Example
 
