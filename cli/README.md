@@ -4,13 +4,98 @@ The **micro cli** is a command line interface for the cloud-native toolkit [micr
 
 ## Getting Started
 
-### Install
+- [Install](#install)
+- [List Services](#list-services)
+- [Get Service](#get-service)
+- [Call Service](#call-service)
+- [Service Health](#service-health)
+- [Proxy Remote Environment](#proxy-remote-env)
+
+## Install
 
 ```shell
 go get github.com/micro/micro
 ```
 
-### Usage
+## Example Usage
+
+### List Services
+
+```shell
+micro list services
+```
+
+### Get Service
+
+```shell
+micro get service go.micro.srv.example
+```
+
+Output
+
+```
+go.micro.srv.example
+
+go.micro.srv.example-fccbb6fb-0301-11e5-9f1f-68a86d0d36b6	[::]	62421
+```
+
+### Call Service
+
+```shell
+micro call go.micro.srv.example Example.Call '{"name": "John"}'
+```
+
+Output
+```
+{
+	"msg": "go.micro.srv.example-fccbb6fb-0301-11e5-9f1f-68a86d0d36b6: Hello John"
+}
+```
+
+### Service Health
+
+```shell
+micro health go.micro.sv.example
+```
+
+Output
+
+```
+node		address:port		status
+go.micro.srv.example-fccbb6fb-0301-11e5-9f1f-68a86d0d36b6		[::]:62421		ok
+```
+
+### Register/Deregister
+
+```shell
+micro register service '{"name": "foo", "version": "bar", "nodes": [{"id": "foo-1", "address": "127.0.0.1", "port": 8080}]}'
+```
+
+```shell
+micro deregister service '{"name": "foo", "version": "bar", "nodes": [{"id": "foo-1", "address": "127.0.0.1", "port": 8080}]}'
+```
+
+## Proxy Remote Env
+
+Proxy remote environments using the `micro proxy`
+
+When developing against remote environments you may not have direct access to service discovery 
+which makes it difficult to use the CLI. The `micro proxy` provides a http proxy for such scenarios.
+
+Run the proxy in your remote environment
+
+```
+micro proxy
+```
+
+Set the env var `MICRO_PROXY_ADDRESS` so the cli knows to use the proxy
+
+```shell
+MICRO_PROXY_ADDRESS=staging.micro.mu:8081 micro list services
+```
+
+## Usage
+
 ```shell
 NAME:
    micro - A cloud-native toolkit
@@ -78,104 +163,4 @@ GLOBAL OPTIONS:
    --enable_stats								Enable stats [$MICRO_ENABLE_STATS]
    --help, -h									show help
    --version									print the version
-
-```
-
-### List Services
-
-```shell
-micro list services
-```
-
-### Get Service
-
-```shell
-micro get service go.micro.srv.example
-```
-
-Output
-
-```
-go.micro.srv.example
-
-go.micro.srv.example-fccbb6fb-0301-11e5-9f1f-68a86d0d36b6	[::]	62421
-```
-
-### Call Service
-
-```shell
-micro call go.micro.srv.example Example.Call '{"name": "John"}'
-```
-
-Output
-```
-{
-	"msg": "go.micro.srv.example-fccbb6fb-0301-11e5-9f1f-68a86d0d36b6: Hello John"
-}
-```
-
-### Query Service Health
-
-```shell
-micro health go.micro.sv.example
-```
-
-Output
-
-```
-node		address:port		status
-go.micro.srv.example-fccbb6fb-0301-11e5-9f1f-68a86d0d36b6		[::]:62421		ok
-```
-
-### Register/Deregister with the CLI
-
-```shell
-micro register service '{"name": "foo", "version": "bar", "nodes": [{"id": "foo-1", "address": "127.0.0.1", "port": 8080}]}'
-```
-
-```shell
-micro get service foo
-```
-
-Output
-
-```
-service  foo
-
-version  bar
-
-Id    Address    Port    Metadata
-foo-1    127.0.0.1    8080
-```
-
-```shell
-micro deregister service '{"name": "foo", "version": "bar", "nodes": [{"id": "foo-1", "address": "127.0.0.1", "port": 8080}]}'
-```
-
-```shell
-micro get service foo
-```
-
-Output
-```
-Service not found
-```
-
-### Proxy CLI
-
-Proxy remote environments using the `micro proxy`
-
-When developing against remote environments you may not have direct access to service discovery 
-which makes it difficult to use the CLI. The `micro proxy` provides a http proxy for such scenarios.
-
-Run the proxy in your remote environment
-
-```
-micro proxy
-```
-
-Set the env var `MICRO_PROXY_ADDRESS` so the cli knows to use the proxy
-
-```shell
-MICRO_PROXY_ADDRESS=staging.micro.mu:8081 micro list services
 ```
