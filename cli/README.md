@@ -131,8 +131,19 @@ Service not found
 
 ### Proxy CLI
 
-Proxy remote environments using the micro proxy
+Proxy remote environments using the `micro proxy`
+
+When developing against remote environments you may not have direct access to service discovery 
+which makes it difficult to use the CLI. The `micro proxy` provides a http proxy for such scenarios.
+
+Run the proxy in your remote environment
+
+```
+micro proxy
+```
+
+Set the env var `MICRO_PROXY_ADDRESS` so the cli knows to use the proxy
 
 ```shell
-MICRO_PROXY_ADDRESS=proxy.micro.pm micro list services
+MICRO_PROXY_ADDRESS=staging.micro.mu:8081 micro list services
 ```

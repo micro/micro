@@ -24,8 +24,6 @@ The toolkit is composed of the following features:
 
 - [**`web`**](https://github.com/micro/micro/tree/master/web) - Web dashboard to interact via browser.
 
-- [**`proxy`**](https://github.com/micro/micro/tree/master/proxy) - A cli proxy for remote environments.
-
 ## Docs
 
 For more detailed information on the architecture, installation and use of the toolkit checkout the [docs](https://micro.mu/docs).
