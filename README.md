@@ -51,19 +51,18 @@ docker pull microhq/micro
 
 ## Dependencies
 
+The micro toolkit has two dependencies: 
+
 - [Service Discovery](#service-discovery) - used for name resolution
 - [Protobuf](#protobuf) - used for code generation
 
-The micro toolkit has one dependency. Service discovery for name resolution.
-
-If you're writing go-micro services then you will also need to install protobuf.
-
 ## Service Discovery
 
-Service discovery is used for name resolution, routing and centralising metadata about applications.
+Service discovery is used for name resolution, routing and centralising metadata.
 
-Micro is built on the [go-micro](https://github.com/micro/go-micro) registry for service discovery. This allows the toolkit to leverage 
-go-micro plugins. Consul is the default registry. Checkout [go-plugins](https://github.com/micro/go-plugins) to swap out consul.
+Micro uses the [go-micro](https://github.com/micro/go-micro) registry for service discovery. Consul is the default registry. 
+
+See [go-plugins](https://github.com/micro/go-plugins) to swap out consul.
 
 ### Consul
 
@@ -92,7 +91,7 @@ MICRO_REGISTRY=mdns micro list services`
 
 ## Protobuf
 
-Protobuf is used for code generation to reduce the amount of boilerplate code written.
+Protobuf is used for code generation. It reduces the amount of boilerplate code needed to be written.
 
 ```
 # install protobuf
@@ -105,13 +104,17 @@ go get -u github/golang/protobuf/{proto,protoc-gen-go}
 go get -u github.com/micro/protoc-gen-micro
 ```
 
+See [protoc-gen-micro](https://github.com/micro/protoc-gen-micro) for more details.
+
 ## Writing a service
 
 Micro includes new template generation to speed up writing applications
 
-See `micro new --help` for details
+For full details on writing services see [**go-micro**](https://github.com/micro/go-micro).
 
 ### Generate template
+
+Here we'll quickly generate an example template using `micro new`
 
 Specify a path relative to $GOPATH
 
@@ -119,7 +122,17 @@ Specify a path relative to $GOPATH
 micro new github.com/micro/example
 ```
 
-### Compile protobuf
+The command will output
+
+```
+example/
+	Dockerfile	# A template docker file
+	README.md	# A readme with command used
+	handler		# Example rpc handler
+	main.go		# The main Go program
+	proto		# Proto directory
+	subscriber	# Example pubsub Subscriber
+```
 
 Compile the protobuf code using `protoc`
 
@@ -127,15 +140,11 @@ Compile the protobuf code using `protoc`
 protoc --proto_path=. --micro_out=. --go_out=. proto/example/example.proto
 ```
 
-### Run the service
-
-Run it like any other go application
+Now run it like any other go application
 
 ```
 go run main.go
 ```
-
-For full details on writing services see [**go-micro**](https://github.com/micro/go-micro).
 
 ## Example
 
@@ -246,13 +255,18 @@ Now let's test out the micro api
 
 The micro api is a http gateway which dynamically routes to backend services
 
+Let's run it so we can query the example service.
+
 ```
 MICRO_API_HANDLER=rpc \
 MICRO_API_NAMESPACE=go.micro.srv \ 
 micro api
 ```
 
-We've set the api handler and namespace here to route to a backend rpc service
+Some info:
+
+- `MICRO_API_HANDLER` sets the http handler
+- `MICRO_API_NAMESPACE` sets the service namespace
 
 ### Call API
 
