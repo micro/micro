@@ -289,16 +289,20 @@ Micro is built on [go-micro](https://github.com/micro/go-micro) making it a plug
 
 Go-micro provides abstractions for distributed systems infrastructure which can be swapped out.
 
-The features which are pluggable
+### Pluggable Features
+
+The micro features which are pluggable:
 
 - broker - pubsub message broker
 - registry - service discovery 
 - selector - client side load balancing
 - transport - request-response or bidirectional streaming
+- client - the client which manages the above features
+- server - the server which manages the above features
 
 Find plugins at [go-plugins](https://github.com/micro/go-plugins)
 
-### Using plugins
+### Using Plugins
 
 Integrate go-micro plugins by simply linking them in a separate file
 
@@ -314,7 +318,7 @@ import (
 )
 ```
 
-### Rebuilding binary
+### Building Binary
 
 Rebuild the micro binary using the Go toolchain
 
@@ -326,7 +330,7 @@ go build -i -o micro ./main.go ./plugins.go
 CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -ldflags '-w' -i -o micro ./main.go ./plugins.go
 ```
 
-### Enable plugins
+### Enable Plugins
 
 Enable the plugins with command line flags or env vars
 
