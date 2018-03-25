@@ -64,8 +64,6 @@ Service discovery is used for name resolution, routing and centralising metadata
 
 Micro uses the [go-micro](https://github.com/micro/go-micro) registry for service discovery. Consul is the default registry. 
 
-See [go-plugins](https://github.com/micro/go-plugins) to swap out consul.
-
 ### Consul
 
 Install and run consul
@@ -91,6 +89,8 @@ micro --registry=mdns list services
 # Use env var
 MICRO_REGISTRY=mdns micro list services`
 ```
+
+See [go-plugins](https://github.com/micro/go-plugins) for more service discovery plugins.
 
 ## Protobuf
 
@@ -258,7 +258,7 @@ Output
 
 Look at the [cli doc](https://micro.mu/docs/cli.html) for more info.
 
-Now let's test out the micro api
+Now let's test call the service via HTTP.
 
 ### Run API
 
