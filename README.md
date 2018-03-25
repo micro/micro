@@ -36,6 +36,8 @@ For more detailed information on the architecture, installation and use of the t
 - [Writing a Service](#writing-a-service)
 - [Example usage](#example)
 - [Plugins](#plugins)
+- [Learn More](#learn-more)
+- [Community Projects](#community-projects)
 
 ## Install Micro
 
@@ -150,6 +152,12 @@ go run main.go
 ## Example
 
 Now we have a running application using `micro new` template generation, let's test it out.
+
+- [List services](#list-services)
+- [Get service](#get-service)
+- [Call service](#call-service)
+- [Run API](#run-api)
+- [Call API](#call-api)
 
 ### List services
 
