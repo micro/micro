@@ -32,10 +32,10 @@ For more detailed information on the architecture, installation and use of the t
 ## Getting Started
 
 - [Install Micro](#install-micro)
-- [Service Discovery](#service-discovery)
+- [Dependencies](#dependencies)
 - [Writing a Service](#writing-a-service)
 - [Example usage](#example)
-- [Build with plugins](#build-with-plugins)
+- [Plugins](#plugins)
 
 ## Install Micro
 
@@ -49,50 +49,97 @@ Or via Docker
 docker pull microhq/micro
 ```
 
+## Dependencies
+
+- [Service Discovery](#service-discovery) - used for name resolution
+- [Protobuf](#protobuf) - used for code generation
+
+The micro toolkit has one dependency. Service discovery for name resolution.
+
+If you're writing go-micro services then you will also need to install protobuf.
+
 ## Service Discovery
 
-Service discovery is the only dependency of the micro toolkit. Consul is set as the default.
+Service discovery is used for name resolution, routing and centralising metadata about applications.
 
-Internally micro uses the [go-micro](https://github.com/micro/go-micro) registry for service discovery. This allows the toolkit to leverage 
-go-micro plugins. Checkout [go-plugins](https://github.com/micro/go-plugins) to swap out consul.
+Micro is built on the [go-micro](https://github.com/micro/go-micro) registry for service discovery. This allows the toolkit to leverage 
+go-micro plugins. Consul is the default registry. Checkout [go-plugins](https://github.com/micro/go-plugins) to swap out consul.
 
 ### Consul
 
-On Mac OS
+Install and run consul
+
 ```shell
+# install
 brew install consul
+# run
 consul agent -dev
 ```
 
 ### mDNS
 
-Multicast DNS is built in for zero dependency service discovery.
+Multicast DNS is an alternative built in registry for zero dependency service discovery.
 
 Pass `--registry=mdns` or set the env var `MICRO_REGISTRY=mdns` for any command
 
-```
-## Use flag
+```shell
+# Use flag
 micro --registry=mdns list services
 
-## Use env var
+# Use env var
 MICRO_REGISTRY=mdns micro list services`
+```
+
+## Protobuf
+
+Protobuf is used for code generation to reduce the amount of boilerplate code written.
+
+```
+# install protobuf
+brew install protobuf
+
+# install protoc-gen-go
+go get -u github/golang/protobuf/{proto,protoc-gen-go}
+
+# install protoc-gen-micro
+go get -u github.com/micro/protoc-gen-micro
 ```
 
 ## Writing a service
 
-See [**go-micro**](https://github.com/micro/go-micro) to start writing services.
+Micro includes new template generation to speed up writing applications
+
+See `micro new --help` for details
+
+### Generate template
+
+Specify a path relative to $GOPATH
+
+``` 
+micro new github.com/micro/example
+```
+
+### Compile protobuf
+
+Compile the protobuf code using `protoc`
+
+```
+protoc --proto_path=. --micro_out=. --go_out=. proto/example/example.proto
+```
+
+### Run the service
+
+Run it like any other go application
+
+```
+go run main.go
+```
+
+For full details on writing services see [**go-micro**](https://github.com/micro/go-micro).
 
 ## Example
 
-Let's test out the CLI
-
-### Run a service
-
-This is a greeter service written with go-micro. Make sure you're running service discovery.
-
-```shell
-go get github.com/micro/examples/greeter/srv && srv
-```
+Now we have a running application using `micro new` template generation, let's test it out.
 
 ### List services
 
@@ -105,27 +152,30 @@ micro list services
 Output
 ```
 consul
-go.micro.srv.greeter
+go.micro.srv.example
+topic:topic.go.micro.srv.example
 ```
+
+The example app has registered with the fully qualified domain name `go.micro.srv.example`
 
 ### Get Service
 
-Each service has a unique id, address and metadata.
+Each service registers with a unique id, address and metadata.
 
 ```shell
-micro get service go.micro.srv.greeter
+micro get service go.micro.srv.example
 ```
 
 Output
 ```
-service  go.micro.srv.greeter
+service  go.micro.srv.example
 
-version 1.0.0
+version latest
 
-Id	Address	Port	Metadata
-go.micro.srv.greeter-34c55534-368b-11e6-b732-68a86d0d36b6	192.168.1.66	62525	server=rpc,registry=consul,transport=http,broker=http
+ID	Address	Port	Metadata
+go.micro.srv.example-437d1277-303b-11e8-9be9-f40f242f6897	192.168.1.65	53545	transport=http,broker=http,server=rpc,registry=consul
 
-Endpoint: Say.Hello
+Endpoint: Example.Call
 Metadata: stream=false
 
 Request: {
@@ -135,14 +185,50 @@ Request: {
 Response: {
 	msg string
 }
+
+
+Endpoint: Example.PingPong
+Metadata: stream=true
+
+Request: {}
+
+Response: {}
+
+
+Endpoint: Example.Stream
+Metadata: stream=true
+
+Request: {}
+
+Response: {}
+
+
+Endpoint: Func
+Metadata: subscriber=true,topic=topic.go.micro.srv.example
+
+Request: {
+	say string
+}
+
+Response: {}
+
+
+Endpoint: Example.Handle
+Metadata: subscriber=true,topic=topic.go.micro.srv.example
+
+Request: {
+	say string
+}
+
+Response: {}
 ```
 
 ### Call service
 
-Make an RPC call via the CLI. The query is sent in json. We support json and protobuf out of the box.
+Make an RPC call via the CLI. The query is sent as json.
 
 ```shell
-micro call go.micro.srv.greeter Say.Hello '{"name": "John"}'
+micro call go.micro.srv.example Example.Call '{"name": "John"}'
 ```
 
 Output
@@ -156,38 +242,48 @@ Look at the [cli doc](https://micro.mu/docs/cli.html) for more info.
 
 Now let's test out the micro api
 
-### Run the api
+### Run API
 
-Run the greeter API. An API service logically separates frontends from backends.
-
-```
-go get github.com/micro/examples/greeter/api && api
-```
-
-### Run the micro api
-
-The micro api is a single HTTP entry point which dynamically routes to rpc services.
+The micro api is a http gateway which dynamically routes to backend services
 
 ```
+MICRO_API_HANDLER=rpc \
+MICRO_API_NAMESPACE=go.micro.srv \ 
 micro api
 ```
 
-### Call via API
+We've set the api handler and namespace here to route to a backend rpc service
 
-Replicating the CLI call as a HTTP call
+### Call API
 
+Make POST request to the api using json
 ```
-curl http://localhost:8080/greeter/say/hello?name=John
+curl -XPOST -H 'Content-Type: application/json' -d '{"name": "John"}' http://localhost:8080/example/call
 ```
 
 Output
 ```
-{"message":"Hello John"}
+{"msg":"Hello John"}
 ```
 
-Look at the [api doc](https://micro.mu/docs/api.html) for more info.
+See the [api doc](https://micro.mu/docs/api.html) for more info.
 
 ## Plugins
+
+Micro is built on [go-micro](https://github.com/micro/go-micro) making it a pluggable toolkit.
+
+Go-micro provides abstractions for distributed systems infrastructure which can be swapped out.
+
+The features which are pluggable
+
+- broker - pubsub message broker
+- registry - service discovery 
+- selector - client side load balancing
+- transport - request-response or bidirectional streaming
+
+Find plugins at [go-plugins](https://github.com/micro/go-plugins)
+
+### Using plugins
 
 Integrate go-micro plugins by simply linking them in a separate file
 
@@ -203,7 +299,10 @@ import (
 )
 ```
 
-Build binary
+### Rebuilding binary
+
+Rebuild the micro binary using the Go toolchain
+
 ```shell
 # For local use
 go build -i -o micro ./main.go ./plugins.go
@@ -212,7 +311,10 @@ go build -i -o micro ./main.go ./plugins.go
 CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -ldflags '-w' -i -o micro ./main.go ./plugins.go
 ```
 
-Enable with flags or env vars
+### Enable plugins
+
+Enable the plugins with command line flags or env vars
+
 ```shell
 # flags
 micro --registry=etcdv3 --transport=nats --broker=kafka [command]
