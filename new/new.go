@@ -190,7 +190,7 @@ func run(ctx *cli.Context) {
 				"go get -u github.com/micro/protoc-gen-micro",
 				"\ncompile the proto file example.proto:\n",
 				"cd " + goDir,
-				"protoc --proto_path=. --go_out=. --micro_out=. proto/example/example.proto",
+				"protoc --proto_path=. --go_out=. --micro_out=. proto/example/example.proto\n",
 			},
 		}
 	case "srv":
@@ -218,7 +218,7 @@ func run(ctx *cli.Context) {
 				"go get -u github.com/micro/protoc-gen-micro",
 				"\ncompile the proto file example.proto:\n",
 				"cd " + goDir,
-				"protoc --proto_path=. --go_out=. --micro_out=. proto/example/example.proto",
+				"protoc --proto_path=. --go_out=. --micro_out=. proto/example/example.proto\n",
 			},
 		}
 	case "api":
@@ -246,7 +246,7 @@ func run(ctx *cli.Context) {
 				"go get -u github.com/micro/protoc-gen-micro",
 				"\ncompile the proto file example.proto:\n",
 				"cd " + goDir,
-				"protoc --proto_path=. --go_out=. --micro_out=. proto/example/example.proto",
+				"protoc --proto_path=. --go_out=. --micro_out=. proto/example/example.proto\n",
 			},
 		}
 	case "web":

@@ -15,23 +15,25 @@ Here it is in action
 ```
 micro new github.com/micro/example
 
-creating service go.micro.srv.example
-creating /home/go/src/github.com/micro/example
-creating /home/go/src/github.com/micro/example/main.go
-creating /home/go/src/github.com/micro/example/handler
-creating /home/go/src/github.com/micro/example/handler/example.go
-creating /home/go/src/github.com/micro/example/subscriber
-creating /home/go/src/github.com/micro/example/subscriber/example.go
-creating /home/go/src/github.com/micro/example/proto/example
-creating /home/go/src/github.com/micro/example/proto/example/example.proto
-creating /home/go/src/github.com/micro/example/Dockerfile
-creating /home/go/src/github.com/micro/example/README.md
+Creating service go.micro.srv.example in /home/go/src/github.com/micro/example 
+
+.
+├── main.go
+├── handler
+│   └── example.go
+├── subscriber
+│   └── example.go
+├── proto/example
+│   └── example.proto
+├── Dockerfile
+└── README.md
+
 
 download protobuf for micro:
 
 brew install protobuf
-go get github.com/golang/protobuf/{proto,protoc-gen-go}
-go get github.com/micro/protoc-gen-micro
+go get -u github.com/golang/protobuf/{proto,protoc-gen-go}
+go get -u github.com/micro/protoc-gen-micro
 
 compile the proto file example.proto:
 
