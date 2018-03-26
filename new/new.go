@@ -66,7 +66,7 @@ func create(c config) error {
 		return fmt.Errorf("%s already exists", c.GoDir)
 	}
 
-	fmt.Println("Creating service", c.FQDN, "in", c.GoDir, "\n")
+	fmt.Printf("Creating service %s in %s\n\n", c.FQDN, c.GoDir)
 
 	t := treeprint.New()
 
