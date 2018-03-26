@@ -168,10 +168,12 @@ func run(ctx *cli.Context) {
 			},
 			Comments: []string{
 				"\ndownload protobuf for micro:\n",
-				"go get github.com/micro/protobuf/{proto,protoc-gen-go}",
+				"brew install protobuf",
+				"go get -u github.com/golang/protobuf/{proto,protoc-gen-go}",
+				"go get -u github.com/micro/protoc-gen-micro",
 				"\ncompile the proto file example.proto:\n",
-				fmt.Sprintf("protoc -I%s \\\n\t--go_out=plugins=micro:%s \\\n\t%s\n",
-					goPath+"/src", goPath+"/src", goDir+"/proto/example/example.proto"),
+				"cd " + goDir,
+				"protoc --proto_path=. --go_out=. --micro_out=. proto/example/example.proto",
 			},
 		}
 	case "srv":
@@ -194,10 +196,12 @@ func run(ctx *cli.Context) {
 			},
 			Comments: []string{
 				"\ndownload protobuf for micro:\n",
-				"go get github.com/micro/protobuf/{proto,protoc-gen-go}",
+				"brew install protobuf",
+				"go get -u github.com/golang/protobuf/{proto,protoc-gen-go}",
+				"go get -u github.com/micro/protoc-gen-micro",
 				"\ncompile the proto file example.proto:\n",
-				fmt.Sprintf("protoc -I%s \\\n\t--go_out=plugins=micro:%s \\\n\t%s\n",
-					goPath+"/src", goPath+"/src", goDir+"/proto/example/example.proto"),
+				"cd " + goDir,
+				"protoc --proto_path=. --go_out=. --micro_out=. proto/example/example.proto",
 			},
 		}
 	case "api":
@@ -220,10 +224,12 @@ func run(ctx *cli.Context) {
 			},
 			Comments: []string{
 				"\ndownload protobuf for micro:\n",
-				"go get github.com/micro/protobuf/{proto,protoc-gen-go}",
+				"brew install protobuf",
+				"go get -u github.com/golang/protobuf/{proto,protoc-gen-go}",
+				"go get -u github.com/micro/protoc-gen-micro",
 				"\ncompile the proto file example.proto:\n",
-				fmt.Sprintf("protoc -I%s \\\n\t--go_out=plugins=micro:%s \\\n\t%s\n",
-					goPath+"/src", goPath+"/src", goDir+"/proto/example/example.proto"),
+				"cd " + goDir,
+				"protoc --proto_path=. --go_out=. --micro_out=. proto/example/example.proto",
 			},
 		}
 	case "web":
