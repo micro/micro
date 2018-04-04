@@ -2,8 +2,64 @@
 package cli
 
 import (
+	"bufio"
+	"fmt"
+	"os"
+	"strings"
+
 	"github.com/micro/cli"
 )
+
+var (
+	prompt = "\nmicro> "
+
+	commands = map[string]*command{
+		"quit": &command{"quit", "Exit the CLI", quit},
+		"exit": &command{"exit", "Exit the CLI", quit},
+		"call": &command{"call", "Call a service", callService},
+	}
+)
+
+type command struct {
+	name  string
+	usage string
+	exec  func(*cli.Context, []string)
+}
+
+func runc(c *cli.Context) {
+	commands["help"] = &command{"help", "CLI usage", help}
+
+	scanner := bufio.NewScanner(os.Stdin)
+
+	for {
+		// micro>
+		fmt.Fprint(os.Stdout, prompt)
+
+		if !scanner.Scan() {
+			return
+		}
+
+		// get vals
+		args := scanner.Text()
+		args = strings.TrimSpace(args)
+
+		// skip no args
+		if len(args) == 0 {
+			continue
+		}
+
+		parts := strings.Split(args, " ")
+		if len(parts) == 0 {
+			continue
+		}
+
+		if cmd, ok := commands[parts[0]]; ok {
+			cmd.exec(c, parts[1:])
+		} else {
+			fmt.Fprint(os.Stdout, "unknown command")
+		}
+	}
+}
 
 func registryCommands() []cli.Command {
 	return []cli.Command{
@@ -14,7 +70,7 @@ func registryCommands() []cli.Command {
 				{
 					Name:   "services",
 					Usage:  "List services in registry",
-					Action: listServices,
+					Action: printer(listServices),
 				},
 			},
 		},
@@ -25,7 +81,7 @@ func registryCommands() []cli.Command {
 				{
 					Name:   "service",
 					Usage:  "Register a service with JSON definition",
-					Action: registerService,
+					Action: printer(registerService),
 				},
 			},
 		},
@@ -36,7 +92,7 @@ func registryCommands() []cli.Command {
 				{
 					Name:   "service",
 					Usage:  "Deregister a service with JSON definition",
-					Action: deregisterService,
+					Action: printer(deregisterService),
 				},
 			},
 		},
@@ -47,7 +103,7 @@ func registryCommands() []cli.Command {
 				{
 					Name:   "service",
 					Usage:  "Get service from registry",
-					Action: getService,
+					Action: printer(getService),
 				},
 			},
 		},
@@ -57,6 +113,11 @@ func registryCommands() []cli.Command {
 func Commands() []cli.Command {
 	commands := []cli.Command{
 		{
+			Name:   "cli",
+			Usage:  "Start the interactive cli",
+			Action: runc,
+		},
+		{
 			Name:        "registry",
 			Usage:       "Query registry",
 			Subcommands: registryCommands(),
@@ -64,27 +125,27 @@ func Commands() []cli.Command {
 		{
 			Name:   "call",
 			Usage:  "Call a service or function",
-			Action: callService,
+			Action: printer(callService),
 		},
 		{
 			Name:   "query",
 			Usage:  "Deprecated: Use call instead",
-			Action: callService,
+			Action: printer(callService),
 		},
 		{
 			Name:   "stream",
 			Usage:  "Create a service or function stream",
-			Action: streamService,
+			Action: printer(streamService),
 		},
 		{
 			Name:   "health",
 			Usage:  "Query the health of a service",
-			Action: queryHealth,
+			Action: printer(queryHealth),
 		},
 		{
 			Name:   "stats",
 			Usage:  "Query the stats of a service",
-			Action: queryStats,
+			Action: printer(queryStats),
 		},
 	}
 

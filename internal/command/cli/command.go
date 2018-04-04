@@ -326,7 +326,7 @@ func CallService(c *cli.Context, args []string) ([]byte, error) {
 		creq := (*cmd.DefaultOptions().Client).NewJsonRequest(service, method, request)
 		err := (*cmd.DefaultOptions().Client).Call(context.Background(), creq, &response)
 		if err != nil {
-			return nil, fmt.Errorf("error calling %s.%s: %v\n", service, method, err)
+			return nil, fmt.Errorf("error calling %s.%s: %v", service, method, err)
 		}
 	}
 
