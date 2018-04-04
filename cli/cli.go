@@ -14,13 +14,16 @@ var (
 	prompt = "\nmicro> "
 
 	commands = map[string]*command{
-		"quit": &command{"quit", "Exit the CLI", quit},
-		"exit": &command{"exit", "Exit the CLI", quit},
-		"call": &command{"call", "Call a service", callService},
-		"get": &command{"get", "Get service info", getService},
-		"stream": &command{"stream", "Stream a call to a service", streamService},
-		"health": &command{"health", "Get service health", queryHealth},
-		"stats": &command{"stats", "Get service stats", queryStats},
+		"quit":       &command{"quit", "Exit the CLI", quit},
+		"exit":       &command{"exit", "Exit the CLI", quit},
+		"call":       &command{"call", "Call a service", callService},
+		"list":       &command{"list", "List services", listServices},
+		"get":        &command{"get", "Get service info", getService},
+		"stream":     &command{"stream", "Stream a call to a service", streamService},
+		"health":     &command{"health", "Get service health", queryHealth},
+		"stats":      &command{"stats", "Get service stats", queryStats},
+		"register":   &command{"register", "Register a service", registerService},
+		"deregister": &command{"deregister", "Deregister a service", deregisterService},
 	}
 )
 
