@@ -17,6 +17,10 @@ var (
 		"quit": &command{"quit", "Exit the CLI", quit},
 		"exit": &command{"exit", "Exit the CLI", quit},
 		"call": &command{"call", "Call a service", callService},
+		"get": &command{"get", "Get service info", getService},
+		"stream": &command{"stream", "Stream a call to a service", streamService},
+		"health": &command{"health", "Get service health", queryHealth},
+		"stats": &command{"stats", "Get service stats", queryStats},
 	}
 )
 
