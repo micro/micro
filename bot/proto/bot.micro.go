@@ -20,9 +20,9 @@ import fmt "fmt"
 import math "math"
 
 import (
-	context "context"
 	client "github.com/micro/go-micro/client"
 	server "github.com/micro/go-micro/server"
+	context "context"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -43,30 +43,30 @@ var _ server.Option
 
 // Client API for Command service
 
-type CommandClient interface {
+type CommandService interface {
 	Help(ctx context.Context, in *HelpRequest, opts ...client.CallOption) (*HelpResponse, error)
 	Exec(ctx context.Context, in *ExecRequest, opts ...client.CallOption) (*ExecResponse, error)
 }
 
-type commandClient struct {
+type commandService struct {
 	c           client.Client
 	serviceName string
 }
 
-func NewCommandClient(serviceName string, c client.Client) CommandClient {
+func CommandServiceClient(serviceName string, c client.Client) CommandService {
 	if c == nil {
 		c = client.NewClient()
 	}
 	if len(serviceName) == 0 {
 		serviceName = "go.micro.bot"
 	}
-	return &commandClient{
+	return &commandService{
 		c:           c,
 		serviceName: serviceName,
 	}
 }
 
-func (c *commandClient) Help(ctx context.Context, in *HelpRequest, opts ...client.CallOption) (*HelpResponse, error) {
+func (c *commandService) Help(ctx context.Context, in *HelpRequest, opts ...client.CallOption) (*HelpResponse, error) {
 	req := c.c.NewRequest(c.serviceName, "Command.Help", in)
 	out := new(HelpResponse)
 	err := c.c.Call(ctx, req, out, opts...)
@@ -76,7 +76,7 @@ func (c *commandClient) Help(ctx context.Context, in *HelpRequest, opts ...clien
 	return out, nil
 }
 
-func (c *commandClient) Exec(ctx context.Context, in *ExecRequest, opts ...client.CallOption) (*ExecResponse, error) {
+func (c *commandService) Exec(ctx context.Context, in *ExecRequest, opts ...client.CallOption) (*ExecResponse, error) {
 	req := c.c.NewRequest(c.serviceName, "Command.Exec", in)
 	out := new(ExecResponse)
 	err := c.c.Call(ctx, req, out, opts...)

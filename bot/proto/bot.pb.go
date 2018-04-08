@@ -19,6 +19,11 @@ import proto "github.com/golang/protobuf/proto"
 import fmt "fmt"
 import math "math"
 
+import (
+	context "golang.org/x/net/context"
+	grpc "google.golang.org/grpc"
+)
+
 // Reference imports to suppress errors if they are not otherwise used.
 var _ = proto.Marshal
 var _ = fmt.Errorf
@@ -107,6 +112,111 @@ func init() {
 	proto.RegisterType((*HelpResponse)(nil), "go.micro.bot.HelpResponse")
 	proto.RegisterType((*ExecRequest)(nil), "go.micro.bot.ExecRequest")
 	proto.RegisterType((*ExecResponse)(nil), "go.micro.bot.ExecResponse")
+}
+
+// Reference imports to suppress errors if they are not otherwise used.
+var _ context.Context
+var _ grpc.ClientConn
+
+// This is a compile-time assertion to ensure that this generated file
+// is compatible with the grpc package it is being compiled against.
+const _ = grpc.SupportPackageIsVersion4
+
+// Client API for Command service
+
+type CommandClient interface {
+	Help(ctx context.Context, in *HelpRequest, opts ...grpc.CallOption) (*HelpResponse, error)
+	Exec(ctx context.Context, in *ExecRequest, opts ...grpc.CallOption) (*ExecResponse, error)
+}
+
+type commandClient struct {
+	cc *grpc.ClientConn
+}
+
+func NewCommandClient(cc *grpc.ClientConn) CommandClient {
+	return &commandClient{cc}
+}
+
+func (c *commandClient) Help(ctx context.Context, in *HelpRequest, opts ...grpc.CallOption) (*HelpResponse, error) {
+	out := new(HelpResponse)
+	err := grpc.Invoke(ctx, "/go.micro.bot.Command/Help", in, out, c.cc, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *commandClient) Exec(ctx context.Context, in *ExecRequest, opts ...grpc.CallOption) (*ExecResponse, error) {
+	out := new(ExecResponse)
+	err := grpc.Invoke(ctx, "/go.micro.bot.Command/Exec", in, out, c.cc, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// Server API for Command service
+
+type CommandServer interface {
+	Help(context.Context, *HelpRequest) (*HelpResponse, error)
+	Exec(context.Context, *ExecRequest) (*ExecResponse, error)
+}
+
+func RegisterCommandServer(s *grpc.Server, srv CommandServer) {
+	s.RegisterService(&_Command_serviceDesc, srv)
+}
+
+func _Command_Help_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(HelpRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CommandServer).Help(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/go.micro.bot.Command/Help",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CommandServer).Help(ctx, req.(*HelpRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Command_Exec_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ExecRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CommandServer).Exec(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/go.micro.bot.Command/Exec",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CommandServer).Exec(ctx, req.(*ExecRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+var _Command_serviceDesc = grpc.ServiceDesc{
+	ServiceName: "go.micro.bot.Command",
+	HandlerType: (*CommandServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "Help",
+			Handler:    _Command_Help_Handler,
+		},
+		{
+			MethodName: "Exec",
+			Handler:    _Command_Exec_Handler,
+		},
+	},
+	Streams:  []grpc.StreamDesc{},
+	Metadata: "github.com/micro/micro/bot/proto/bot.proto",
 }
 
 func init() { proto.RegisterFile("github.com/micro/micro/bot/proto/bot.proto", fileDescriptor0) }
