@@ -12,7 +12,7 @@ Run the bot inside your platform environment like any other service and interact
 
 - [Install](#install-micro)
 - [Inputs](#inputs)
-- [Commands](#help)
+- [Commands](#commands)
 - [Adding Commands](#adding-commands)
 - [Adding Inputs](#adding-inputs)
 - [Example](#example)
