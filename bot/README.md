@@ -11,9 +11,8 @@ Run the bot inside your platform environment like any other service and interact
 ## Getting Started
 
 - [Install](#install-micro)
-- [Slack Input](#slack-input)
-- [Hipchat Input](#hipchat-input)
-- [Help](#help)
+- [Inputs](#inputs)
+- [Commands](#help)
 - [Adding Commands](#adding-commands)
 - [Adding Inputs](#adding-inputs)
 - [Example](#example)
@@ -52,9 +51,14 @@ Use multiple inputs by specifying a comma separated list
 micro bot --inputs=hipchat,slack --slack_token=SLACK_TOKEN --hipchat_username=XMPP_USER --hipchat_password=XMPP_PASSWORD
 ```
 
-## Help
+## Commands
 
-In slack just type `@micro help`
+Commands are executable actions. Think of a CLI via messaging. 
+
+The bot commands can be extended. See the [example](#example).
+
+Type `@micro help` in slack to see a list of commands.
+
 ```shell
 micro help
 
