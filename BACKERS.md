@@ -8,13 +8,16 @@ If you'd like to join them please consider:
 - [Becoming a sponsor via Patreon](https://www.patreon.com/microhq)
 - [Making a one-time donation](https://micro.mu/#one-off-donation)
 
-## Enterprise Sponsors
+## Enterprise Sponsors ($5k+)
 
 <a href="https://micro.mu/blog/2016/04/25/announcing-sixt-sponsorship.html"><img src="https://micro.mu/sixt_logo.png" width=150px height="auto" /></a>
 
-## Backers
+## Generous Backers ($50)
 
 - Joseph Jacks
+
+## Backers
+
 - Brian Ketelsen
 - Ewan Valentine
 
