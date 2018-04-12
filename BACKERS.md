@@ -14,7 +14,7 @@ If you'd like to join them please consider:
 
 ## Backers
 
-- Brian Ketelsen
 - Joseph Jacks
+- Brian Ketelsen
 - Ewan Valentine
 
