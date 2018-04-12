@@ -37,7 +37,8 @@ For more detailed information on the architecture, installation and use of the t
 - [Example usage](#example)
 - [Plugins](#plugins)
 - [Learn More](#learn-more)
-- [Community Projects](#community-projects)
+- [Community](#community)
+- [Sponsors](#sponsors)
 
 ## Install Micro
 
@@ -361,7 +362,9 @@ To learn more read the following micro content
 - [Twitter](https://twitter.com/microhq) - follow us on Twitter
 - [Slack](http://slack.micro.mu/) - join the slack community (1000+ members)
 
-## Community Projects
+## Community
+
+See community contributions
 
 Project		|	Description
 -----		|	------
@@ -372,8 +375,8 @@ Explore other projects at [micro.mu/explore](https://micro.mu/explore/)
 
 ## Sponsors
 
-Open source development of Micro is sponsored by Sixt
+Sixt is an Enterprise Sponsor of Micro
 
 <a href="https://micro.mu/blog/2016/04/25/announcing-sixt-sponsorship.html"><img src="https://micro.mu/sixt_logo.png" width=150px height="auto" /></a>
 
-
+Become a sponsor by backing micro on [Patreon](https://www.patreon.com/microhq)
