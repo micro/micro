@@ -20,4 +20,4 @@ If you'd like to join them please consider:
 
 - Brian Ketelsen
 - Ewan Valentine
-
+- Stefan Hans
