@@ -31,6 +31,14 @@ func (p *proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// set x-forward-for
+	if clientIP, _, err := net.SplitHostPort(r.RemoteAddr); err == nil {
+		if ips, ok := req.Header["X-Forwarded-For"]; ok {
+			clientIP = strings.Join(ips, ", ") + ", " + clientIP
+		}
+		req.Header.Set("X-Forwarded-For", clientIP)
+	}
+
 	// connect to the backend host
 	conn, err := net.Dial("tcp", host)
 	if err != nil {
