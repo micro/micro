@@ -137,9 +137,9 @@ func Commands() []cli.Command {
 		{
 			Name:  "query",
 			Usage: "Deprecated: Use call instead",
-			Action: func(*cli.Context) func(*cli.Context) {
+			Action: func(c *cli.Context) {
 				fmt.Println("Deprecated. Use call instead")
-				return printer(callService)
+				printer(callService)(c)
 			},
 		},
 		{
