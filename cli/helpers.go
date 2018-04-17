@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/micro/cli"
+	"github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/cmd"
 	clic "github.com/micro/micro/internal/command/cli"
 )
@@ -76,7 +77,7 @@ func streamService(c *cli.Context, args []string) {
 	method := args[1]
 	var request map[string]interface{}
 	json.Unmarshal([]byte(strings.Join(args[2:], " ")), &request)
-	req := (*cmd.DefaultOptions().Client).NewJsonRequest(service, method, request)
+	req := (*cmd.DefaultOptions().Client).NewRequest(service, method, request, client.WithContentType("application/json"))
 	stream, err := (*cmd.DefaultOptions().Client).Stream(context.Background(), req)
 	if err != nil {
 		fmt.Printf("error calling %s.%s: %v", service, method, err)

@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/micro/cli"
+	"github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/cmd"
 	"github.com/micro/go-micro/registry"
 
@@ -323,7 +324,7 @@ func CallService(c *cli.Context, args []string) ([]byte, error) {
 			return nil, err
 		}
 
-		creq := (*cmd.DefaultOptions().Client).NewJsonRequest(service, method, request)
+		creq := (*cmd.DefaultOptions().Client).NewRequest(service, method, request, client.WithContentType("application/json"))
 		err := (*cmd.DefaultOptions().Client).Call(context.Background(), creq, &response)
 		if err != nil {
 			return nil, fmt.Errorf("error calling %s.%s: %v", service, method, err)
@@ -392,7 +393,12 @@ func QueryHealth(c *cli.Context, args []string) ([]byte, error) {
 				}
 			} else {
 				// call using client
-				err = (*cmd.DefaultOptions().Client).CallRemote(context.Background(), address, req, rsp)
+				err = (*cmd.DefaultOptions().Client).Call(
+					context.Background(),
+					req,
+					rsp,
+					client.WithAddress(address),
+				)
 			}
 
 			var status string
@@ -462,7 +468,12 @@ func QueryStats(c *cli.Context, args []string) ([]byte, error) {
 				}
 			} else {
 				// call using client
-				err = (*cmd.DefaultOptions().Client).CallRemote(context.Background(), address, req, rsp)
+				err = (*cmd.DefaultOptions().Client).Call(
+					context.Background(),
+					req,
+					rsp,
+					client.WithAddress(address),
+				)
 			}
 
 			var started, uptime, memory, gc string
