@@ -14,8 +14,8 @@ import (
 type exampleKey struct {}
 
 // FromContext retrieves the client from the Context
-func ExampleFromContext(ctx context.Context) (example.ExampleClient, bool) {
-	c, ok := ctx.Value(exampleKey{}).(example.ExampleClient)
+func ExampleFromContext(ctx context.Context) (example.ExampleService, bool) {
+	c, ok := ctx.Value(exampleKey{}).(example.ExampleService)
 	return c, ok
 }
 

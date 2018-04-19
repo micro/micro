@@ -181,6 +181,7 @@ func run(ctx *cli.Context) {
 				{"subscriber/example.go", tmpl.SubscriberFNC},
 				{"proto/example/example.proto", tmpl.ProtoFNC},
 				{"Dockerfile", tmpl.DockerFNC},
+				{"Makefile", tmpl.Makefile},
 				{"README.md", tmpl.ReadmeFNC},
 			},
 			Comments: []string{
@@ -209,6 +210,7 @@ func run(ctx *cli.Context) {
 				{"subscriber/example.go", tmpl.SubscriberSRV},
 				{"proto/example/example.proto", tmpl.ProtoSRV},
 				{"Dockerfile", tmpl.DockerSRV},
+				{"Makefile", tmpl.Makefile},
 				{"README.md", tmpl.Readme},
 			},
 			Comments: []string{
@@ -236,6 +238,7 @@ func run(ctx *cli.Context) {
 				{"client/example.go", tmpl.WrapperAPI},
 				{"handler/example.go", tmpl.HandlerAPI},
 				{"proto/example/example.proto", tmpl.ProtoAPI},
+				{"Makefile", tmpl.Makefile},
 				{"Dockerfile", tmpl.DockerSRV},
 				{"README.md", tmpl.Readme},
 			},
@@ -264,6 +267,7 @@ func run(ctx *cli.Context) {
 				{"handler/handler.go", tmpl.HandlerWEB},
 				{"html/index.html", tmpl.HTMLWEB},
 				{"Dockerfile", tmpl.DockerWEB},
+				{"Makefile", tmpl.Makefile},
 				{"README.md", tmpl.Readme},
 			},
 			Comments: []string{},
