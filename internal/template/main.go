@@ -21,7 +21,7 @@ func main() {
 	function.Handle(new(handler.Example))
 
 	// Register Struct as Subscriber
-	function.Subscribe("topic.{{.FQDN}}", new(subscriber.Example))
+	function.Subscribe("{{.FQDN}}", new(subscriber.Example))
 
 	// Initialise function
 	function.Init()
@@ -55,10 +55,10 @@ func main() {
 	example.RegisterExampleHandler(service.Server(), new(handler.Example))
 
 	// Register Struct as Subscriber
-	micro.RegisterSubscriber("topic.{{.FQDN}}", service.Server(), new(subscriber.Example))
+	micro.RegisterSubscriber("{{.FQDN}}", service.Server(), new(subscriber.Example))
 
 	// Register Function as Subscriber
-	micro.RegisterSubscriber("topic.{{.FQDN}}", service.Server(), subscriber.Handler)
+	micro.RegisterSubscriber("{{.FQDN}}", service.Server(), subscriber.Handler)
 
 	// Initialise service
 	service.Init()

@@ -12,6 +12,10 @@ If you'd like to join them please consider:
 
 <a href="https://micro.mu/blog/2016/04/25/announcing-sixt-sponsorship.html"><img src="https://micro.mu/sixt_logo.png" width=150px height="auto" /></a>
 
+## Platinum Sponsors ($1.5k)
+
+<a href="https://www.joinsavvy.com/en/"><img src="https://micro.mu/images/logos/savvy.svg" height="80px"></a>
+
 ## Gold Sponsors ($500)
 
 <a href="https://www.neds.com.au/"><img src="https://micro.mu/images/logos/neds.svg" height="60px"></a>
