@@ -17,7 +17,7 @@ import (
 var (
 	name        = "micro"
 	description = "A cloud-native toolkit"
-	version     = "0.9.0"
+	version     = "0.11.1"
 )
 
 func setup(app *ccli.App) {
