@@ -18,6 +18,8 @@ import (
 type config struct {
 	// foo
 	Alias string
+	// micro new example -type
+	Command string
 	// go.micro
 	Namespace string
 	// api, srv, web, fnc
@@ -34,7 +36,7 @@ type config struct {
 	Files []file
 	// Comments
 	Comments []string
-	// Plugins
+	// Plugins registry=etcd:broker=nats
 	Plugins []string
 }
 
@@ -134,6 +136,24 @@ func run(ctx *cli.Context) {
 		return
 	}
 
+	// set the command
+	command := fmt.Sprintf("micro new %s", dir)
+	if len(namespace) > 0 {
+		command += " --namespace=" + namespace
+	}
+	if len(alias) > 0 {
+		command += " --alias=" + alias
+	}
+	if len(fqdn) > 0 {
+		command += " --fqdn=" + fqdn
+	}
+	if len(atype) > 0 {
+		command += " --type=" + atype
+	}
+	if plugins := ctx.StringSlice("plugin"); len(plugins) > 0 {
+		command += " --plugin=" + strings.Join(plugins, ":")
+	}
+
 	// check if the path is absolute, we don't want this
 	// we want to a relative path so we can install in GOPATH
 	if path.IsAbs(dir) {
@@ -184,6 +204,7 @@ func run(ctx *cli.Context) {
 		// create srv config
 		c = config{
 			Alias:     alias,
+			Command:   command,
 			Namespace: namespace,
 			Type:      atype,
 			FQDN:      fqdn,
@@ -215,6 +236,7 @@ func run(ctx *cli.Context) {
 		// create srv config
 		c = config{
 			Alias:     alias,
+			Command:   command,
 			Namespace: namespace,
 			Type:      atype,
 			FQDN:      fqdn,
@@ -246,6 +268,7 @@ func run(ctx *cli.Context) {
 		// create api config
 		c = config{
 			Alias:     alias,
+			Command:   command,
 			Namespace: namespace,
 			Type:      atype,
 			FQDN:      fqdn,
@@ -277,6 +300,7 @@ func run(ctx *cli.Context) {
 		// create srv config
 		c = config{
 			Alias:     alias,
+			Command:   command,
 			Namespace: namespace,
 			Type:      atype,
 			FQDN:      fqdn,
