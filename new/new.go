@@ -34,6 +34,8 @@ type config struct {
 	Files []file
 	// Comments
 	Comments []string
+	// Plugins
+	Plugins []string
 }
 
 type file struct {
@@ -115,6 +117,7 @@ func run(ctx *cli.Context) {
 	fqdn := ctx.String("fqdn")
 	atype := ctx.String("type")
 	dir := ctx.Args().First()
+	var plugins []string
 
 	if len(dir) == 0 {
 		fmt.Println("specify service name")
@@ -162,6 +165,18 @@ func run(ctx *cli.Context) {
 		fqdn = strings.Join([]string{namespace, atype, alias}, ".")
 	}
 
+	for _, plugin := range ctx.StringSlice("plugin") {
+		// registry=etcd:broker=nats
+		for _, p := range strings.Split(plugin, ":") {
+			// registry=etcd
+			parts := strings.Split(p, "=")
+			if len(parts) < 2 {
+				continue
+			}
+			plugins = append(plugins, path.Join(parts...))
+		}
+	}
+
 	var c config
 
 	switch atype {
@@ -175,8 +190,10 @@ func run(ctx *cli.Context) {
 			Dir:       dir,
 			GoDir:     goDir,
 			GoPath:    goPath,
+			Plugins:   plugins,
 			Files: []file{
 				{"main.go", tmpl.MainFNC},
+				{"plugin.go", tmpl.Plugin},
 				{"handler/example.go", tmpl.HandlerFNC},
 				{"subscriber/example.go", tmpl.SubscriberFNC},
 				{"proto/example/example.proto", tmpl.ProtoFNC},
@@ -204,8 +221,10 @@ func run(ctx *cli.Context) {
 			Dir:       dir,
 			GoDir:     goDir,
 			GoPath:    goPath,
+			Plugins:   plugins,
 			Files: []file{
 				{"main.go", tmpl.MainSRV},
+				{"plugin.go", tmpl.Plugin},
 				{"handler/example.go", tmpl.HandlerSRV},
 				{"subscriber/example.go", tmpl.SubscriberSRV},
 				{"proto/example/example.proto", tmpl.ProtoSRV},
@@ -233,8 +252,10 @@ func run(ctx *cli.Context) {
 			Dir:       dir,
 			GoDir:     goDir,
 			GoPath:    goPath,
+			Plugins:   plugins,
 			Files: []file{
 				{"main.go", tmpl.MainAPI},
+				{"plugin.go", tmpl.Plugin},
 				{"client/example.go", tmpl.WrapperAPI},
 				{"handler/example.go", tmpl.HandlerAPI},
 				{"proto/example/example.proto", tmpl.ProtoAPI},
@@ -262,8 +283,10 @@ func run(ctx *cli.Context) {
 			Dir:       dir,
 			GoDir:     goDir,
 			GoPath:    goPath,
+			Plugins:   plugins,
 			Files: []file{
 				{"main.go", tmpl.MainWEB},
+				{"plugin.go", tmpl.Plugin},
 				{"handler/handler.go", tmpl.HandlerWEB},
 				{"html/index.html", tmpl.HTMLWEB},
 				{"Dockerfile", tmpl.DockerWEB},
@@ -306,6 +329,10 @@ func Commands() []cli.Command {
 				cli.StringFlag{
 					Name:  "alias",
 					Usage: "Alias is the short name used as part of combined name if specified",
+				},
+				cli.StringSliceFlag{
+					Name:  "plugin",
+					Usage: "Specify plugins e.g --plugin=registry=etcd:broker=nats or use flag multiple times",
 				},
 			},
 			Action: func(c *cli.Context) {

@@ -14,8 +14,8 @@ build: proto
 {{else}}
 build:
 {{end}}
-	go build -o {{.Alias}}-{{.Type}} main.go
-    
+	go build -o {{.Alias}}-{{.Type}} main.go plugin.go
+   
 test:
 	go test -v ./... -cover
 
