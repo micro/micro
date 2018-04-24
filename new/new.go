@@ -18,6 +18,8 @@ import (
 type config struct {
 	// foo
 	Alias string
+	// micro new example -type
+	Command string
 	// go.micro
 	Namespace string
 	// api, srv, web, fnc
@@ -34,6 +36,8 @@ type config struct {
 	Files []file
 	// Comments
 	Comments []string
+	// Plugins registry=etcd:broker=nats
+	Plugins []string
 }
 
 type file struct {
@@ -115,6 +119,7 @@ func run(ctx *cli.Context) {
 	fqdn := ctx.String("fqdn")
 	atype := ctx.String("type")
 	dir := ctx.Args().First()
+	var plugins []string
 
 	if len(dir) == 0 {
 		fmt.Println("specify service name")
@@ -129,6 +134,24 @@ func run(ctx *cli.Context) {
 	if len(atype) == 0 {
 		fmt.Println("type not defined")
 		return
+	}
+
+	// set the command
+	command := fmt.Sprintf("micro new %s", dir)
+	if len(namespace) > 0 {
+		command += " --namespace=" + namespace
+	}
+	if len(alias) > 0 {
+		command += " --alias=" + alias
+	}
+	if len(fqdn) > 0 {
+		command += " --fqdn=" + fqdn
+	}
+	if len(atype) > 0 {
+		command += " --type=" + atype
+	}
+	if plugins := ctx.StringSlice("plugin"); len(plugins) > 0 {
+		command += " --plugin=" + strings.Join(plugins, ":")
 	}
 
 	// check if the path is absolute, we don't want this
@@ -162,6 +185,18 @@ func run(ctx *cli.Context) {
 		fqdn = strings.Join([]string{namespace, atype, alias}, ".")
 	}
 
+	for _, plugin := range ctx.StringSlice("plugin") {
+		// registry=etcd:broker=nats
+		for _, p := range strings.Split(plugin, ":") {
+			// registry=etcd
+			parts := strings.Split(p, "=")
+			if len(parts) < 2 {
+				continue
+			}
+			plugins = append(plugins, path.Join(parts...))
+		}
+	}
+
 	var c config
 
 	switch atype {
@@ -169,14 +204,17 @@ func run(ctx *cli.Context) {
 		// create srv config
 		c = config{
 			Alias:     alias,
+			Command:   command,
 			Namespace: namespace,
 			Type:      atype,
 			FQDN:      fqdn,
 			Dir:       dir,
 			GoDir:     goDir,
 			GoPath:    goPath,
+			Plugins:   plugins,
 			Files: []file{
 				{"main.go", tmpl.MainFNC},
+				{"plugin.go", tmpl.Plugin},
 				{"handler/example.go", tmpl.HandlerFNC},
 				{"subscriber/example.go", tmpl.SubscriberFNC},
 				{"proto/example/example.proto", tmpl.ProtoFNC},
@@ -198,14 +236,17 @@ func run(ctx *cli.Context) {
 		// create srv config
 		c = config{
 			Alias:     alias,
+			Command:   command,
 			Namespace: namespace,
 			Type:      atype,
 			FQDN:      fqdn,
 			Dir:       dir,
 			GoDir:     goDir,
 			GoPath:    goPath,
+			Plugins:   plugins,
 			Files: []file{
 				{"main.go", tmpl.MainSRV},
+				{"plugin.go", tmpl.Plugin},
 				{"handler/example.go", tmpl.HandlerSRV},
 				{"subscriber/example.go", tmpl.SubscriberSRV},
 				{"proto/example/example.proto", tmpl.ProtoSRV},
@@ -227,14 +268,17 @@ func run(ctx *cli.Context) {
 		// create api config
 		c = config{
 			Alias:     alias,
+			Command:   command,
 			Namespace: namespace,
 			Type:      atype,
 			FQDN:      fqdn,
 			Dir:       dir,
 			GoDir:     goDir,
 			GoPath:    goPath,
+			Plugins:   plugins,
 			Files: []file{
 				{"main.go", tmpl.MainAPI},
+				{"plugin.go", tmpl.Plugin},
 				{"client/example.go", tmpl.WrapperAPI},
 				{"handler/example.go", tmpl.HandlerAPI},
 				{"proto/example/example.proto", tmpl.ProtoAPI},
@@ -256,14 +300,17 @@ func run(ctx *cli.Context) {
 		// create srv config
 		c = config{
 			Alias:     alias,
+			Command:   command,
 			Namespace: namespace,
 			Type:      atype,
 			FQDN:      fqdn,
 			Dir:       dir,
 			GoDir:     goDir,
 			GoPath:    goPath,
+			Plugins:   plugins,
 			Files: []file{
 				{"main.go", tmpl.MainWEB},
+				{"plugin.go", tmpl.Plugin},
 				{"handler/handler.go", tmpl.HandlerWEB},
 				{"html/index.html", tmpl.HTMLWEB},
 				{"Dockerfile", tmpl.DockerWEB},
@@ -306,6 +353,10 @@ func Commands() []cli.Command {
 				cli.StringFlag{
 					Name:  "alias",
 					Usage: "Alias is the short name used as part of combined name if specified",
+				},
+				cli.StringSliceFlag{
+					Name:  "plugin",
+					Usage: "Specify plugins e.g --plugin=registry=etcd:broker=nats or use flag multiple times",
 				},
 			},
 			Action: func(c *cli.Context) {

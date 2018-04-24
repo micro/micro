@@ -1,84 +1,121 @@
 package template
 
 var (
-	Readme = `# {{title .Alias}} {{title .Type}}
+	Readme = `# {{title .Alias}} Service
 
-This is the {{title .Alias}} service with fqdn {{.FQDN}}.
+This is the {{title .Alias}} service
+
+Generated with
+
+` + "```" +
+		`
+{{.Command}}
+` + "```" + `
 
 ## Getting Started
 
-### Prerequisites
+- [Configuration](#configuration)
+- [Dependencies](#dependencies)
+- [Usage](#usage)
 
-Install Consul
-[https://www.consul.io/intro/getting-started/install.html](https://www.consul.io/intro/getting-started/install.html)
+## Configuration
 
-Run Consul
+- FQDN: {{.FQDN}}
+- Type: {{.Type}}
+- Alias: {{.Alias}}
+
+## Dependencies
+
+Micro services depend on service discovery. The default is consul.
+
 ` + "```" +
 		`
-$ consul agent -dev -advertise=127.0.0.1
+# install consul
+brew install consul
+
+# run consul
+consul agent -dev
+` + "```" + `
+
+## Usage
+
+A Makefile is included for convenience
+
+Build the binary
+
 ` + "```" +
 		`
+make build
+` + "```" + `
 
-### Run Service
-
+Run the service
 ` + "```" +
 		`
-$ go run main.go
+./{{.Alias}}-{{.Type}}
+` + "```" + `
+
+Build a docker image
 ` + "```" +
 		`
-
-### Building a container
-
-If you would like to build the docker container do the following
-` + "```" +
-		`
-CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -ldflags '-w' -o {{.Alias}}-{{.Type}} ./main.go
-docker build -t {{.Alias}}-{{.Type}} .
-
+make docker
 ` + "```"
 
-	ReadmeFNC = `# {{title .Alias}} {{title .Type}}
+	ReadmeFNC = `# {{title .Alias}} Function
 
-This is the {{title .Alias}} function with fqdn {{.FQDN}}.
+This is the {{title .Alias}} function
+
+Generated with
+
+` + "```" +
+		`
+{{.Command}}
+` + "```" + `
 
 ## Getting Started
 
-### Service Discovery
+- [Configuration](#configuration)
+- [Dependencies](#dependencies)
+- [Usage](#usage)
 
-Install Consul
-[https://www.consul.io/intro/getting-started/install.html](https://www.consul.io/intro/getting-started/install.html)
+## Configuration
 
-Run Consul
-` + "```" +
-		`
-$ consul agent -dev
-` + "```" +
-		`
-### Micro Toolkit
+- FQDN: {{.FQDN}}
+- Type: {{.Type}}
+- Alias: {{.Alias}}
 
-Install Micro
+## Dependencies
 
-` + "```" +
-		`
-go get github.com/micro/micro
-` + "```" +
-		`
-
-### Run Function
+Micro functions depend on service discovery. The default is consul.
 
 ` + "```" +
 		`
-$ micro run -r {{.Dir}}
+# install consul
+brew install consul
+
+# run consul
+consul agent -dev
+` + "```" + `
+
+## Usage
+
+A Makefile is included for convenience
+
+Build the binary
+
 ` + "```" +
 		`
+make build
+` + "```" + `
 
-### Building a container
-
-If you would like to build the docker container do the following
+Run the function once
 ` + "```" +
 		`
-CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -ldflags '-w' -o {{.Alias}}-{{.Type}} ./main.go
-docker build -t {{.Alias}}-{{.Type}} .
+./{{.Alias}}-{{.Type}}
+` + "```" + `
 
+Build a docker image
+` + "```" +
+		`
+make docker
 ` + "```"
 )

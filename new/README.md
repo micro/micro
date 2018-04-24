@@ -49,18 +49,29 @@ Specify more options such as namespace, type, fqdn and alias
 micro new --fqdn io.foobar.srv.example github.com/micro/example
 ```
 
+## Plugins
+
+Specify micro plugins at time of creation.
+
+These must still be flagged on the command line when using the app.
+
+```
+micro new example --plugin=registry=etcd:broker=nats
+```
+
 ### Help
 
 ```
 NAME:
-   micro new - Create a new micro service
+   micro new - Create a new micro service by specifying a directory path relative to your $GOPATH
 
 USAGE:
    micro new [command options] [arguments...]
 
 OPTIONS:
-   --namespace "go.micro"	Namespace for the service e.g com.example
-   --type "srv"			Type of service e.g api, srv, web
-   --fqdn 			FQDN of service e.g com.example.srv.service (defaults to namespace.type.alias)
-   --alias 			Alias is the short name used as part of combined name if specified
+   --namespace "go.micro"			Namespace for the service e.g com.example
+   --type "srv"					Type of service e.g api, fnc, srv, web
+   --fqdn 					FQDN of service e.g com.example.srv.service (defaults to namespace.type.alias)
+   --alias 					Alias is the short name used as part of combined name if specified
+   --plugin [--plugin option --plugin option]	Specify plugins e.g --plugin=registry=etcd:broker=nats or use flag multiple times
 ```
