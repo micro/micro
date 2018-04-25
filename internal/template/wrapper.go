@@ -21,7 +21,7 @@ func ExampleFromContext(ctx context.Context) (example.ExampleService, bool) {
 
 // Client returns a wrapper for the ExampleClient
 func ExampleWrapper(service micro.Service) server.HandlerWrapper {
-	client := example.ExampleServiceClient("go.micro.srv.template", service.Client())
+	client := example.NewExampleService("go.micro.srv.template", service.Client())
 
 	return func(fn server.HandlerFunc) server.HandlerFunc {
 		return func(ctx context.Context, req server.Request, rsp interface{}) error {

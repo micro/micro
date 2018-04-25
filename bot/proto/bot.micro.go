@@ -53,7 +53,7 @@ type commandService struct {
 	serviceName string
 }
 
-func CommandServiceClient(serviceName string, c client.Client) CommandService {
+func NewCommandService(serviceName string, c client.Client) CommandService {
 	if c == nil {
 		c = client.NewClient()
 	}
@@ -94,17 +94,25 @@ type CommandHandler interface {
 }
 
 func RegisterCommandHandler(s server.Server, hdlr CommandHandler, opts ...server.HandlerOption) {
-	s.Handle(s.NewHandler(&Command{hdlr}, opts...))
+	type command interface {
+		Help(ctx context.Context, in *HelpRequest, out *HelpResponse) error
+		Exec(ctx context.Context, in *ExecRequest, out *ExecResponse) error
+	}
+	type Command struct {
+		command
+	}
+	h := &commandHandler{hdlr}
+	s.Handle(s.NewHandler(&Command{h}, opts...))
 }
 
-type Command struct {
+type commandHandler struct {
 	CommandHandler
 }
 
-func (h *Command) Help(ctx context.Context, in *HelpRequest, out *HelpResponse) error {
+func (h *commandHandler) Help(ctx context.Context, in *HelpRequest, out *HelpResponse) error {
 	return h.CommandHandler.Help(ctx, in, out)
 }
 
-func (h *Command) Exec(ctx context.Context, in *ExecRequest, out *ExecResponse) error {
+func (h *commandHandler) Exec(ctx context.Context, in *ExecRequest, out *ExecResponse) error {
 	return h.CommandHandler.Exec(ctx, in, out)
 }
