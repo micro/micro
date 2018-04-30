@@ -22,7 +22,6 @@ If you'd like to join them please consider:
 
 ## Generous Backers ($50)
 
-- Joey Clover
 - Joseph Jacks
 
 ## Backers
