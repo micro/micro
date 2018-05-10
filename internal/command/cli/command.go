@@ -279,6 +279,33 @@ func ListServices(c *cli.Context) ([]byte, error) {
 	return []byte(strings.Join(services, "\n")), nil
 }
 
+func Publish(c *cli.Context, args []string) error {
+	if len(args) < 2 {
+		return errors.New("require topic and message")
+	}
+	defer func() {
+		time.Sleep(time.Millisecond * 100)
+	}()
+	topic := args[0]
+	message := args[1]
+
+	cl := *cmd.DefaultOptions().Client
+	ct := func(o *client.MessageOptions) {
+		o.ContentType = "application/json"
+	}
+
+	d := json.NewDecoder(strings.NewReader(message))
+	d.UseNumber()
+
+	var msg map[string]interface{}
+	if err := d.Decode(&msg); err != nil {
+		return err
+	}
+
+	m := cl.NewMessage(topic, msg, ct)
+	return cl.Publish(context.Background(), m)
+}
+
 func CallService(c *cli.Context, args []string) ([]byte, error) {
 	if len(args) < 2 {
 		return nil, errors.New("require service and method")

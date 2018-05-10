@@ -104,6 +104,14 @@ func streamService(c *cli.Context, args []string) {
 	}
 }
 
+func publish(c *cli.Context, args []string) {
+	err := clic.Publish(c, args)
+	if err != nil {
+		fmt.Print(err)
+		return
+	}
+	fmt.Print("ok")
+}
 func queryHealth(c *cli.Context, args []string) {
 	rsp, err := clic.QueryHealth(c, args)
 	if err != nil {

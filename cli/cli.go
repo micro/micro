@@ -20,6 +20,7 @@ var (
 		"list":       &command{"list", "List services", listServices},
 		"get":        &command{"get", "Get service info", getService},
 		"stream":     &command{"stream", "Stream a call to a service", streamService},
+		"publish":    &command{"publish", "Publish a message to a topic", publish},
 		"health":     &command{"health", "Get service health", queryHealth},
 		"stats":      &command{"stats", "Get service stats", queryStats},
 		"register":   &command{"register", "Register a service", registerService},
@@ -146,6 +147,11 @@ func Commands() []cli.Command {
 			Name:   "stream",
 			Usage:  "Create a service or function stream",
 			Action: printer(streamService),
+		},
+		{
+			Name:   "publish",
+			Usage:  "Publish a message to a topic",
+			Action: printer(publish),
 		},
 		{
 			Name:   "health",
