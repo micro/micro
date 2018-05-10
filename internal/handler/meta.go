@@ -23,7 +23,7 @@ type metaHandler struct {
 func (m *metaHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	service, err := m.r.Route(r)
 	if err != nil {
-		er := errors.InternalServerError("go.micro.api", err.Error())
+		er := errors.InternalServerError(m.r.Options().Namespace, err.Error())
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(500)
 		w.Write([]byte(er.Error()))
