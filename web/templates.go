@@ -204,7 +204,7 @@ jQuery(function($, undefined) {
 				"method": method,
 				"request": JSON.parse(document.forms[0].elements["request"].value)
 			}
-			req.open("POST", "/rpc", true);
+			req.open("POST", {{.ApiAddress}}+"/rpc", true);
 			req.setRequestHeader("Content-type","application/json");				
 			req.send(JSON.stringify(request));
 
