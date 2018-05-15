@@ -34,6 +34,10 @@ var (
 	Name = "go.micro.web"
 	// Default address to bind to
 	Address = ":8082"
+
+	// Default api_address to call
+	ApiAddress = ":8080"
+
 	// The namespace to serve
 	// Example:
 	// Namespace + /[Service]/foo/bar
@@ -302,11 +306,29 @@ func render(w http.ResponseWriter, r *http.Request, tmpl string, data interface{
 	}
 
 	if err := t.ExecuteTemplate(w, "layout", map[string]interface{}{
-		"StatsURL": statsURL,
-		"Results":  data,
+		"StatsURL":   statsURL,
+		"Results":    data,
+		"ApiAddress": apiAddress(),
 	}); err != nil {
 		http.Error(w, "Error occurred:"+err.Error(), 500)
 	}
+}
+
+func apiAddress() string {
+	var host, port string
+	arr := strings.Split(ApiAddress, ":")
+	if len(arr) == 1 {
+		port = arr[0]
+	} else if len(arr) >= 2 {
+		host = arr[0]
+		port = arr[1]
+	}
+
+	if len(host) == 0 {
+		host = "localhost"
+	}
+
+	return "http://" + host + ":" + port
 }
 
 func run(ctx *cli.Context) {
@@ -316,9 +338,13 @@ func run(ctx *cli.Context) {
 	if len(ctx.String("address")) > 0 {
 		Address = ctx.String("address")
 	}
+	if len(ctx.String("api_address")) > 0 {
+		ApiAddress = ctx.String("api_address")
+	}
 	if len(ctx.String("namespace")) > 0 {
 		Namespace = ctx.String("namespace")
 	}
+
 	if len(ctx.String("cors")) > 0 {
 		origins := make(map[string]bool)
 		for _, origin := range strings.Split(ctx.String("cors"), ",") {
@@ -428,6 +454,11 @@ func Commands() []cli.Command {
 				Name:   "cors",
 				Usage:  "Comma separated whitelist of allowed origins for CORS",
 				EnvVar: "MICRO_WEB_CORS",
+			},
+			cli.StringFlag{
+				Name:   "api_address",
+				Usage:  "Set the api address e.g 0.0.0.0:8080",
+				EnvVar: "MICRO_WEB_API_ADDRESS",
 			},
 		},
 	}
