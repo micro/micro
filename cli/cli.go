@@ -2,11 +2,11 @@
 package cli
 
 import (
-	"bufio"
 	"fmt"
 	"os"
 	"strings"
 
+	"github.com/chzyer/readline"
 	"github.com/micro/cli"
 )
 
@@ -37,18 +37,20 @@ type command struct {
 func runc(c *cli.Context) {
 	commands["help"] = &command{"help", "CLI usage", help}
 
-	scanner := bufio.NewScanner(os.Stdin)
+	r, err := readline.New(prompt)
+	if err != nil {
+		fmt.Fprint(os.Stdout, err)
+		os.Exit(1)
+	}
+	defer r.Close()
 
 	for {
-		// micro>
-		fmt.Fprint(os.Stdout, prompt)
-
-		if !scanner.Scan() {
+		args, err := r.Readline()
+		if err != nil {
+			fmt.Fprint(os.Stdout, err)
 			return
 		}
 
-		// get vals
-		args := scanner.Text()
 		args = strings.TrimSpace(args)
 
 		// skip no args
@@ -64,12 +66,12 @@ func runc(c *cli.Context) {
 		if cmd, ok := commands[parts[0]]; ok {
 			rsp, err := cmd.exec(c, parts[1:])
 			if err != nil {
-				fmt.Fprintf(os.Stdout, "%v\n", err)
+				println(err.Error())
 				continue
 			}
-			fmt.Fprintf(os.Stdout, "%s\n", string(rsp))
+			println(string(rsp))
 		} else {
-			fmt.Fprint(os.Stdout, "unknown command\n")
+			println("unknown command")
 		}
 	}
 }
