@@ -9,14 +9,15 @@ import (
 	"github.com/micro/cli"
 )
 
-func quit(c *cli.Context, args []string) {
+func quit(c *cli.Context, args []string) ([]byte, error) {
 	os.Exit(0)
+	return nil, nil
 }
 
-func help(c *cli.Context, args []string) {
+func help(c *cli.Context, args []string) ([]byte, error) {
 	w := tabwriter.NewWriter(os.Stdout, 0, 8, 1, '\t', 0)
 
-	fmt.Fprintln(os.Stdout)
+	fmt.Fprintln(os.Stdout, "Commands:")
 
 	var keys []string
 	for k, _ := range commands {
@@ -30,4 +31,5 @@ func help(c *cli.Context, args []string) {
 	}
 
 	w.Flush()
+	return nil, nil
 }

@@ -11,7 +11,7 @@ import (
 )
 
 var (
-	prompt = "\nmicro> "
+	prompt = "micro> "
 
 	commands = map[string]*command{
 		"quit":       &command{"quit", "Exit the CLI", quit},
@@ -31,7 +31,7 @@ var (
 type command struct {
 	name  string
 	usage string
-	exec  func(*cli.Context, []string)
+	exec  exec
 }
 
 func runc(c *cli.Context) {
@@ -62,9 +62,14 @@ func runc(c *cli.Context) {
 		}
 
 		if cmd, ok := commands[parts[0]]; ok {
-			cmd.exec(c, parts[1:])
+			rsp, err := cmd.exec(c, parts[1:])
+			if err != nil {
+				fmt.Fprintf(os.Stdout, "%v\n", err)
+				continue
+			}
+			fmt.Fprintf(os.Stdout, "%s\n", string(rsp))
 		} else {
-			fmt.Fprint(os.Stdout, "unknown command")
+			fmt.Fprint(os.Stdout, "unknown command\n")
 		}
 	}
 }

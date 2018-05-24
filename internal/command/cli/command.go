@@ -181,7 +181,7 @@ func DeregisterService(c *cli.Context, args []string) ([]byte, error) {
 
 func GetService(c *cli.Context, args []string) ([]byte, error) {
 	if len(args) == 0 {
-		return nil, errors.New("service requested")
+		return nil, errors.New("service required")
 	}
 
 	var output []string

@@ -3,7 +3,9 @@ package cli
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
+	"os"
 	"strings"
 	"time"
 
@@ -13,65 +15,43 @@ import (
 	clic "github.com/micro/micro/internal/command/cli"
 )
 
-type helper func(*cli.Context, []string)
+type exec func(*cli.Context, []string) ([]byte, error)
 
-func printer(h helper) func(*cli.Context) {
+func printer(e exec) func(*cli.Context) {
 	return func(c *cli.Context) {
-		h(c, c.Args())
-		fmt.Printf("\n")
+		rsp, err := e(c, c.Args())
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+		fmt.Printf("%s\n", string(rsp))
 	}
 }
 
-func listServices(c *cli.Context, args []string) {
-	rsp, err := clic.ListServices(c)
-	if err != nil {
-		fmt.Print(err)
-		return
-	}
-	fmt.Print(string(rsp))
+func listServices(c *cli.Context, args []string) ([]byte, error) {
+	return clic.ListServices(c)
 }
 
-func registerService(c *cli.Context, args []string) {
-	rsp, err := clic.RegisterService(c, args)
-	if err != nil {
-		fmt.Print(err)
-		return
-	}
-	fmt.Print(string(rsp))
+func registerService(c *cli.Context, args []string) ([]byte, error) {
+	return clic.RegisterService(c, args)
 }
 
-func deregisterService(c *cli.Context, args []string) {
-	rsp, err := clic.DeregisterService(c, args)
-	if err != nil {
-		fmt.Print(err)
-		return
-	}
-	fmt.Print(string(rsp))
+func deregisterService(c *cli.Context, args []string) ([]byte, error) {
+	return clic.DeregisterService(c, args)
 }
 
-func getService(c *cli.Context, args []string) {
-	rsp, err := clic.GetService(c, args)
-	if err != nil {
-		fmt.Print(err)
-		return
-	}
-	fmt.Print(string(rsp))
+func getService(c *cli.Context, args []string) ([]byte, error) {
+	return clic.GetService(c, args)
 }
 
-func callService(c *cli.Context, args []string) {
-	rsp, err := clic.CallService(c, args)
-	if err != nil {
-		fmt.Print(err)
-		return
-	}
-	fmt.Print(string(rsp))
+func callService(c *cli.Context, args []string) ([]byte, error) {
+	return clic.CallService(c, args)
 }
 
 // TODO: stream via HTTP
-func streamService(c *cli.Context, args []string) {
+func streamService(c *cli.Context, args []string) ([]byte, error) {
 	if len(args) < 2 {
-		fmt.Print("require service and method")
-		return
+		return nil, errors.New("require service and method")
 	}
 	service := args[0]
 	method := args[1]
@@ -80,20 +60,17 @@ func streamService(c *cli.Context, args []string) {
 	req := (*cmd.DefaultOptions().Client).NewRequest(service, method, request, client.WithContentType("application/json"))
 	stream, err := (*cmd.DefaultOptions().Client).Stream(context.Background(), req)
 	if err != nil {
-		fmt.Printf("error calling %s.%s: %v", service, method, err)
-		return
+		return nil, fmt.Errorf("error calling %s.%s: %v", service, method, err)
 	}
 
 	if err := stream.Send(request); err != nil {
-		fmt.Printf("error sending to %s.%s: %v", service, method, err)
-		return
+		return nil, fmt.Errorf("error sending to %s.%s: %v", service, method, err)
 	}
 
 	for {
 		var response map[string]interface{}
 		if err := stream.Recv(&response); err != nil {
-			fmt.Printf("error receiving from %s.%s: %v", service, method, err)
-			return
+			return nil, fmt.Errorf("error receiving from %s.%s: %v", service, method, err)
 		}
 
 		b, _ := json.MarshalIndent(response, "", "\t")
@@ -102,30 +79,21 @@ func streamService(c *cli.Context, args []string) {
 		// artificial delay
 		time.Sleep(time.Millisecond * 10)
 	}
+
+	return nil, nil
 }
 
-func publish(c *cli.Context, args []string) {
-	err := clic.Publish(c, args)
-	if err != nil {
-		fmt.Print(err)
-		return
+func publish(c *cli.Context, args []string) ([]byte, error) {
+	if err := clic.Publish(c, args); err != nil {
+		return nil, err
 	}
-	fmt.Print("ok")
-}
-func queryHealth(c *cli.Context, args []string) {
-	rsp, err := clic.QueryHealth(c, args)
-	if err != nil {
-		fmt.Print(err)
-		return
-	}
-	fmt.Print(string(rsp))
+	return []byte(`ok`), nil
 }
 
-func queryStats(c *cli.Context, args []string) {
-	rsp, err := clic.QueryStats(c, args)
-	if err != nil {
-		fmt.Print(err)
-		return
-	}
-	fmt.Print(string(rsp))
+func queryHealth(c *cli.Context, args []string) ([]byte, error) {
+	return clic.QueryHealth(c, args)
+}
+
+func queryStats(c *cli.Context, args []string) ([]byte, error) {
+	return clic.QueryStats(c, args)
 }
