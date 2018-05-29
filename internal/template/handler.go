@@ -4,8 +4,9 @@ var (
 	HandlerFNC = `package handler
 
 import (
+	"context"
+
 	example "{{.Dir}}/proto/example"
-	"golang.org/x/net/context"
 )
 
 type Example struct{}
@@ -20,10 +21,11 @@ func (e *Example) Call(ctx context.Context, req *example.Request, rsp *example.R
 	HandlerSRV = `package handler
 
 import (
+	"context"
+
 	"github.com/micro/go-log"
 
 	example "{{.Dir}}/proto/example"
-	"golang.org/x/net/context"
 )
 
 type Example struct{}
@@ -69,10 +71,11 @@ func (e *Example) PingPong(ctx context.Context, stream example.Example_PingPongS
 	SubscriberFNC = `package subscriber
 
 import (
+	"context"
+
 	"github.com/micro/go-log"
 
 	example "{{.Dir}}/proto/example"
-	"golang.org/x/net/context"
 )
 
 type Example struct{}
@@ -86,10 +89,10 @@ func (e *Example) Handle(ctx context.Context, msg *example.Message) error {
 	SubscriberSRV = `package subscriber
 
 import (
+	"context"
 	"github.com/micro/go-log"
 
 	example "{{.Dir}}/proto/example"
-	"golang.org/x/net/context"
 )
 
 type Example struct{}
@@ -108,6 +111,7 @@ func Handler(ctx context.Context, msg *example.Message) error {
 	HandlerAPI = `package handler
 
 import (
+	"context"
 	"encoding/json"
 	"github.com/micro/go-log"
 
@@ -115,8 +119,6 @@ import (
 	"github.com/micro/go-micro/errors"
 	api "github.com/micro/go-api/proto"
 	example "github.com/micro/examples/template/srv/proto/example"
-
-	"golang.org/x/net/context"
 )
 
 type Example struct{}
@@ -161,14 +163,13 @@ func (e *Example) Call(ctx context.Context, req *api.Request, rsp *api.Response)
 	HandlerWEB = `package handler
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
 	"time"
 
 	"github.com/micro/go-micro/client"
 	example "github.com/micro/examples/template/srv/proto/example"
-
-	"golang.org/x/net/context"
 )
 
 func ExampleCall(w http.ResponseWriter, r *http.Request) {
@@ -180,7 +181,7 @@ func ExampleCall(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// call the backend service
-	exampleClient := example.NewExampleClient("go.micro.srv.template", client.DefaultClient)
+	exampleClient := example.NewExampleService("go.micro.srv.template", client.DefaultClient)
 	rsp, err := exampleClient.Call(context.TODO(), &example.Request{
 		Name: request["name"].(string),
 	})

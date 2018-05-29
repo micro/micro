@@ -17,14 +17,14 @@ func main() {
 		micro.Version("latest"),
 	)
 
+	// Initialise function
+	function.Init()
+
 	// Register Handler
 	function.Handle(new(handler.Example))
 
 	// Register Struct as Subscriber
-	function.Subscribe("topic.{{.FQDN}}", new(subscriber.Example))
-
-	// Initialise function
-	function.Init()
+	function.Subscribe("{{.FQDN}}", new(subscriber.Example))
 
 	// Run service
 	if err := function.Run(); err != nil {
@@ -51,17 +51,17 @@ func main() {
 		micro.Version("latest"),
 	)
 
+	// Initialise service
+	service.Init()
+
 	// Register Handler
 	example.RegisterExampleHandler(service.Server(), new(handler.Example))
 
 	// Register Struct as Subscriber
-	micro.RegisterSubscriber("topic.{{.FQDN}}", service.Server(), new(subscriber.Example))
+	micro.RegisterSubscriber("{{.FQDN}}", service.Server(), new(subscriber.Example))
 
 	// Register Function as Subscriber
-	micro.RegisterSubscriber("topic.{{.FQDN}}", service.Server(), subscriber.Handler)
-
-	// Initialise service
-	service.Init()
+	micro.RegisterSubscriber("{{.FQDN}}", service.Server(), subscriber.Handler)
 
 	// Run service
 	if err := service.Run(); err != nil {
@@ -88,14 +88,14 @@ func main() {
 		micro.Version("latest"),
 	)
 
-	// Register Handler
-	example.RegisterExampleHandler(service.Server(), new(handler.Example))
-
 	// Initialise service
 	service.Init(
 		// create wrap for the Example srv client
 		micro.WrapHandler(client.ExampleWrapper(service)),
 	)
+
+	// Register Handler
+	example.RegisterExampleHandler(service.Server(), new(handler.Example))
 
 	// Run service
 	if err := service.Run(); err != nil {
@@ -120,16 +120,16 @@ func main() {
                 web.Version("latest"),
         )
 
+	// initialise service
+        if err := service.Init(); err != nil {
+                log.Fatal(err)
+        }
+
 	// register html handler
 	service.Handle("/", http.FileServer(http.Dir("html")))
 
 	// register call handler
 	service.HandleFunc("/example/call", handler.ExampleCall)
-
-	// initialise service
-        if err := service.Init(); err != nil {
-                log.Fatal(err)
-        }
 
 	// run service
         if err := service.Run(); err != nil {

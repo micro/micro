@@ -1,4 +1,4 @@
-// Package web is a web dashboard and reverse proxy for micro web apps
+// Package web is a web dashboard
 package web
 
 import (
@@ -14,6 +14,7 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/micro/cli"
+	"github.com/micro/go-api/server"
 	"github.com/micro/go-log"
 	"github.com/micro/go-micro"
 	"github.com/micro/go-micro/cmd"
@@ -22,7 +23,6 @@ import (
 	"github.com/micro/go-micro/selector/cache"
 	"github.com/micro/micro/internal/handler"
 	"github.com/micro/micro/internal/helper"
-	"github.com/micro/micro/internal/server"
 	"github.com/micro/micro/internal/stats"
 	"github.com/micro/micro/plugin"
 	"github.com/serenize/snaker"
@@ -251,7 +251,7 @@ func registryHandler(w http.ResponseWriter, r *http.Request) {
 	render(w, r, registryTemplate, services)
 }
 
-func queryHandler(w http.ResponseWriter, r *http.Request) {
+func callHandler(w http.ResponseWriter, r *http.Request) {
 	services, err := (*cmd.DefaultOptions().Registry).ListServices()
 	if err != nil {
 		http.Error(w, "Error occurred:"+err.Error(), 500)
@@ -398,14 +398,18 @@ func run(ctx *cli.Context) {
 	s.HandleFunc("/registry", registryHandler)
 	s.HandleFunc("/rpc", handler.RPC)
 	s.HandleFunc("/cli", cliHandler)
-	s.HandleFunc("/query", queryHandler)
+	s.HandleFunc("/call", callHandler)
 	s.HandleFunc("/favicon.ico", faviconHandler)
 	s.PathPrefix("/{service:[a-zA-Z0-9]+}").Handler(s.proxy())
 	s.HandleFunc("/", indexHandler)
 
 	var opts []server.Option
 
-	if ctx.GlobalBool("enable_tls") {
+	if ctx.GlobalBool("enable_acme") {
+		hosts := helper.ACMEHosts(ctx)
+		opts = append(opts, server.EnableACME(true))
+		opts = append(opts, server.ACMEHosts(hosts...))
+	} else if ctx.GlobalBool("enable_tls") {
 		config, err := helper.TLSConfig(ctx)
 		if err != nil {
 			fmt.Println(err.Error())

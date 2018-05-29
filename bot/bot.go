@@ -2,6 +2,7 @@
 package bot
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"regexp"
@@ -21,8 +22,6 @@ import (
 	botc "github.com/micro/micro/internal/command/bot"
 
 	proto "github.com/micro/go-bot/proto"
-
-	"golang.org/x/net/context"
 )
 
 type bot struct {
@@ -50,7 +49,8 @@ var (
 		"^list ":                             botc.List,
 		"^get ":                              botc.Get,
 		"^health ":                           botc.Health,
-		"^query ":                            botc.Query,
+		"^call ":                             botc.Call,
+		"^query ":                            botc.Call,
 		"^register ":                         botc.Register,
 		"^deregister ":                       botc.Deregister,
 		"^(the )?three laws( of robotics)?$": botc.ThreeLaws,

@@ -6,6 +6,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/cmd"
 	"github.com/micro/go-micro/errors"
 	"github.com/micro/micro/internal/helper"
@@ -110,7 +111,7 @@ func RPC(w http.ResponseWriter, r *http.Request) {
 	// create request/response
 	var response json.RawMessage
 	var err error
-	req := (*cmd.DefaultOptions().Client).NewJsonRequest(service, method, request)
+	req := (*cmd.DefaultOptions().Client).NewRequest(service, method, request, client.WithContentType("application/json"))
 
 	// create context
 	ctx := helper.RequestToContext(r)
@@ -126,7 +127,7 @@ func RPC(w http.ResponseWriter, r *http.Request) {
 
 	// remote call
 	if len(address) > 0 {
-		err = (*cmd.DefaultOptions().Client).CallRemote(ctx, address, req, &response)
+		err = (*cmd.DefaultOptions().Client).Call(ctx, req, &response, client.WithAddress(address))
 	} else {
 		err = (*cmd.DefaultOptions().Client).Call(ctx, req, &response)
 	}

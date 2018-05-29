@@ -7,36 +7,38 @@ The **micro new** command is a quick way to generate boilerplate templates for m
 Create a new service by specifying a directory path relative to your $GOPATH
 
 ```
-micro new github.com/micro/foo
+micro new github.com/micro/example
 ```
 
 Here it is in action
 
 ```
-micro new github.com/micro/foo
+micro new github.com/micro/example
 
-creating service go.micro.srv.foo
-creating /Users/asim/checkouts/src/github.com/micro/foo
-creating /Users/asim/checkouts/src/github.com/micro/foo/main.go
-creating /Users/asim/checkouts/src/github.com/micro/foo/handler
-creating /Users/asim/checkouts/src/github.com/micro/foo/handler/example.go
-creating /Users/asim/checkouts/src/github.com/micro/foo/subscriber
-creating /Users/asim/checkouts/src/github.com/micro/foo/subscriber/example.go
-creating /Users/asim/checkouts/src/github.com/micro/foo/proto/example
-creating /Users/asim/checkouts/src/github.com/micro/foo/proto/example/example.proto
-creating /Users/asim/checkouts/src/github.com/micro/foo/Dockerfile
-creating /Users/asim/checkouts/src/github.com/micro/foo/README.md
+Creating service go.micro.srv.example in /home/go/src/github.com/micro/example 
+
+.
+├── main.go
+├── handler
+│   └── example.go
+├── subscriber
+│   └── example.go
+├── proto/example
+│   └── example.proto
+├── Dockerfile
+└── README.md
+
 
 download protobuf for micro:
 
-go get github.com/micro/protobuf/{proto,protoc-gen-go}
+brew install protobuf
+go get -u github.com/golang/protobuf/{proto,protoc-gen-go}
+go get -u github.com/micro/protoc-gen-micro
 
 compile the proto file example.proto:
 
-protoc -I/Users/asim/checkouts/src \
-	--go_out=plugins=micro:/Users/asim/checkouts/src \
-	/Users/asim/checkouts/src/github.com/micro/foo/proto/example/example.proto
-
+cd /home/go/src/github.com/micro/example
+protoc --proto_path=. --go_out=. --micro_out=. proto/example/example.proto
 ```
 
 ### Options
@@ -44,21 +46,32 @@ protoc -I/Users/asim/checkouts/src \
 Specify more options such as namespace, type, fqdn and alias
 
 ```
-micro new --fqdn com.example.srv.foo github.com/micro/foo
+micro new --fqdn io.foobar.srv.example github.com/micro/example
+```
+
+## Plugins
+
+Specify micro plugins at time of creation.
+
+These must still be flagged on the command line when using the app.
+
+```
+micro new example --plugin=registry=etcd:broker=nats
 ```
 
 ### Help
 
 ```
 NAME:
-   micro new - Create a new micro service
+   micro new - Create a new micro service by specifying a directory path relative to your $GOPATH
 
 USAGE:
    micro new [command options] [arguments...]
 
 OPTIONS:
-   --namespace "go.micro"	Namespace for the service e.g com.example
-   --type "srv"			Type of service e.g api, srv, web
-   --fqdn 			FQDN of service e.g com.example.srv.service (defaults to namespace.type.alias)
-   --alias 			Alias is the short name used as part of combined name if specified
+   --namespace "go.micro"			Namespace for the service e.g com.example
+   --type "srv"					Type of service e.g api, fnc, srv, web
+   --fqdn 					FQDN of service e.g com.example.srv.service (defaults to namespace.type.alias)
+   --alias 					Alias is the short name used as part of combined name if specified
+   --plugin [--plugin option --plugin option]	Specify plugins e.g --plugin=registry=etcd:broker=nats or use flag multiple times
 ```

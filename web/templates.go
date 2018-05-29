@@ -27,7 +27,7 @@ var (
 	        <ul class="nav navbar-nav navbar-right">
 	          <li><a href="cli">CLI</a></li>
 	          <li><a href="registry">Registry</a></li>
-	          <li><a href="query">Query</a></li>
+	          <li><a href="call">Call</a></li>
 	          {{if .StatsURL}}<li><a href="{{.StatsURL}}" class="navbar-link">Stats</a></li>{{end}}
 	        </ul>
               </div>
@@ -85,8 +85,8 @@ jQuery(function($, undefined) {
 </script>
 {{end}}
 `
-	queryTemplate = `
-{{define "title"}}Query{{end}}
+	callTemplate = `
+{{define "title"}}Call{{end}}
 {{define "style"}}
 	pre {
 		word-wrap: break-word;
@@ -97,7 +97,7 @@ jQuery(function($, undefined) {
   <div class="panel panel-default">
     <div class="panel-body">
 	<div class="col-sm-5">
-		<form id="query-form" onsubmit="return query();">
+		<form id="call-form" onsubmit="return call();">
 			<div class="form-group">
 				<label for="service">Service</label>
 				<ul class="list-group">
@@ -204,7 +204,7 @@ jQuery(function($, undefined) {
 		});
 	</script>
 	<script>
-		function query() {
+		function call() {
 			var req = new XMLHttpRequest()
 			req.onreadystatechange = function() {
 				if (req.readyState == 4 && req.status == 200) {
@@ -339,7 +339,7 @@ jQuery(function($, undefined) {
         }
 
 	var help = "COMMANDS:\n" +
-	"    query       Query a service method using rpc\n" +
+	"    call       Call a service method using rpc\n" +
 	"    health      Query the health of a service\n" +
 	"    list        List items in registry\n" +
 	"    get         Get item from registry\n";
@@ -480,9 +480,9 @@ jQuery(function($, undefined) {
 
 
 		break;
-	    case "query":
+	    case "call":
 		if (args.length < 3) {
-		    term.echo("USAGE:\n    query [service] [method] [request]");
+		    term.echo("USAGE:\n    call [service] [method] [request]");
 		    return;
 		}
 

@@ -2,6 +2,7 @@ package handler
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -14,8 +15,6 @@ import (
 	rmock "github.com/micro/go-micro/registry/mock"
 	"github.com/micro/go-micro/selector"
 	"github.com/micro/go-micro/server"
-
-	"golang.org/x/net/context"
 )
 
 type TestHandler struct {

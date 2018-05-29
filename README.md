@@ -1,38 +1,29 @@
 # Micro [![License](https://img.shields.io/:license-apache-blue.svg)](https://opensource.org/licenses/Apache-2.0) [![GoDoc](https://godoc.org/github.com/micro/micro?status.svg)](https://godoc.org/github.com/micro/micro) [![Travis CI](https://travis-ci.org/micro/micro.svg?branch=master)](https://travis-ci.org/micro/micro) [![Go Report Card](https://goreportcard.com/badge/micro/micro)](https://goreportcard.com/report/github.com/micro/micro)
 
-
-Micro is a **microservice** toolkit. Its purpose is to simplify distributed systems development.
-
-Check out [**go-micro**](https://github.com/micro/go-micro) if you want to start writing services in Go now or [**ja-micro**](https://github.com/Sixt/ja-micro) for Java. Examples of how to use micro with other languages can be found in [examples/sidecar](https://github.com/micro/examples/tree/master/sidecar).
-
-Learn more about Micro in the introductory blog post [https://micro.mu/blog/2016/03/20/micro.html](https://micro.mu/blog/2016/03/20/micro.html) or watch the talk from the [Golang UK Conf 2016](https://www.youtube.com/watch?v=xspaDovwk34).
-
-Follow us on Twitter at [@MicroHQ](https://twitter.com/microhq), join the [Slack](https://micro-services.slack.com) community [here](http://slack.micro.mu/) or 
-check out the [Mailing List](https://groups.google.com/forum/#!forum/microhq).
+Micro is a toolkit for cloud-native development. It helps you build future-proof application platforms and services.
 
 # Overview
-The goal of **Micro** is to simplify distributed systems development. At the core micro should be accessible enough to anyone who wants to get started writing microservices. As you scale to hundreds of services, micro will provide the necessary tooling to manage a microservice environment.
 
-The toolkit is composed of the following components:
+Micro addresses the key requirements for building cloud-native systems. It takes the microservice architecture pattern and transforms it into 
+a set of tools which act as the building blocks for scalable platforms. Micro deals with the complexity of distributed systems and provides 
+simple abstractions already understood by developers.
 
-- **Go Micro** - A pluggable RPC framework for writing microservices in Go. It provides libraries for 
-service discovery, client side load balancing, encoding, synchronous and asynchronous communication.
+Technology is constantly evolving. The infrastructure stack is always changing. Micro is a pluggable toolkit which addresses these issues. 
+Plug in any stack or underlying technology. Build future-proof systems using micro.
 
-- **Sidecar** - A service mesh with all the features of go-micro as HTTP endpoints. While Go is a great language for building microservices, 
-you may want to use different languages. The sidecar gives you a language agnostic and opinionated proxy server for microservices.
+## Features
 
-- **API** - An API Gateway that serves HTTP and routes requests to appropriate micro services. 
-It acts as a single entry point and can either be used as a reverse proxy or translate HTTP requests to RPC.
+The toolkit is composed of the following features:
 
-- **Web** - A web dashboard and reverse proxy for micro web applications. We believe that 
-web apps should be built as microservices and therefore treated as a first class citizen in a microservice world. It behaves much the like the API 
-reverse proxy but also includes support for web sockets.
+- [**`api`**](https://github.com/micro/micro/tree/master/api) - API Gateway. A single entry point with dynamic routing using service discovery.
 
-- **CLI** - A straight forward command line interface to interact with your micro services. 
-It also allows you to leverage the Sidecar as a proxy where you may not want to directly connect to the service registry.
+- [**`bot`**](https://github.com/micro/micro/tree/master/bot) - Slack and hipchat bot. CLI and ChatOps via messaging.
 
-- **Bot** - A Hubot style bot that sits inside your microservices platform and can be interacted with via Slack, HipChat, XMPP, etc. 
-It provides the features of the CLI via messaging. Additional commands can be added to automate common ops tasks.
+- [**`cli`**](https://github.com/micro/micro/tree/master/cli) - Command line interface. Describe, query and interact directly from the terminal. 
+
+- [**`new`**](https://github.com/micro/micro/tree/master/new) - Service template generation. Get started quickly.
+
+- [**`web`**](https://github.com/micro/micro/tree/master/web) - Web dashboard to interact via a browser.
 
 ## Docs
 
@@ -40,14 +31,16 @@ For more detailed information on the architecture, installation and use of the t
 
 ## Getting Started
 
-### Writing a service
+- [Install Micro](#install-micro)
+- [Dependencies](#dependencies)
+- [Writing a Service](#writing-a-service)
+- [Example usage](#example)
+- [Plugins](#plugins)
+- [Learn More](#learn-more)
+- [Community](#community)
+- [Sponsors](#sponsors)
 
-Learn how to write and run a microservice using [**go-micro**](https://github.com/micro/go-micro). 
-
-Read the [Getting Started](https://micro.mu/docs/writing-a-go-service.html) guide or the blog post on 
-[Writing microservices with Go-Micro](https://micro.mu/blog/2016/03/28/go-micro.html).
-
-### Install Micro
+## Install Micro
 
 ```shell
 go get -u github.com/micro/micro
@@ -59,51 +52,149 @@ Or via Docker
 docker pull microhq/micro
 ```
 
-### Dependencies
+## Dependencies
 
-We need service discovery, so let's spin up Consul (the default); checkout [go-plugins](https://github.com/micro/go-plugins) to swap it out.
+The micro toolkit has two dependencies: 
 
-Mac OS
+- [Service Discovery](#service-discovery) - used for name resolution
+- [Protobuf](#protobuf) - used for code generation
+
+## Service Discovery
+
+Service discovery is used for name resolution, routing and centralising metadata.
+
+Micro uses the [go-micro](https://github.com/micro/go-micro) registry for service discovery. Consul is the default registry. 
+
+### Consul
+
+Install and run consul
+
 ```shell
+# install
 brew install consul
+
+# run
 consul agent -dev
 ```
 
-Docker
+### mDNS
+
+Multicast DNS is an alternative built in registry for zero dependency service discovery.
+
+Pass `--registry=mdns` or set the env var `MICRO_REGISTRY=mdns` for any command
+
 ```shell
-docker run -d -p 8500:8500 --name=consul consul agent -server -bootstrap -client=0.0.0.0
+# Use flag
+micro --registry=mdns list services
+
+# Use env var
+MICRO_REGISTRY=mdns micro list services`
 ```
 
-Or we can use multicast DNS for zero dependency discovery
+See [go-plugins](https://github.com/micro/go-plugins) for more service discovery plugins.
 
-Pass `--registry=mdns` to the below commands e.g `micro --registry=mdns list services`
+## Protobuf
 
-### Try CLI
+Protobuf is used for code generation. It reduces the amount of boilerplate code needed to be written.
 
-Run the greeter service
+```
+# install protobuf
+brew install protobuf
 
-```shell
-go get github.com/micro/examples/greeter/srv && srv
+# install protoc-gen-go
+go get -u github.com/golang/protobuf/{proto,protoc-gen-go}
+
+# install protoc-gen-micro
+go get -u github.com/micro/protoc-gen-micro
 ```
 
-List services
+See [protoc-gen-micro](https://github.com/micro/protoc-gen-micro) for more details.
+
+## Writing a service
+
+Micro includes new template generation to speed up writing applications
+
+For full details on writing services see [**go-micro**](https://github.com/micro/go-micro).
+
+### Generate template
+
+Here we'll quickly generate an example template using `micro new`
+
+Specify a path relative to $GOPATH
+
+``` 
+micro new github.com/micro/example
+```
+
+The command will output
+
+```
+example/
+	Dockerfile	# A template docker file
+	README.md	# A readme with command used
+	handler/	# Example rpc handler
+	main.go		# The main Go program
+	proto/		# Protobuf directory
+	subscriber/	# Example pubsub Subscriber
+```
+
+Compile the protobuf code using `protoc`
+
+```
+protoc --proto_path=. --micro_out=. --go_out=. proto/example/example.proto
+```
+
+Now run it like any other go application
+
+```
+go run main.go
+```
+
+## Example
+
+Now we have a running application using `micro new` template generation, let's test it out.
+
+- [List services](#list-services)
+- [Get service](#get-service)
+- [Call service](#call-service)
+- [Run API](#run-api)
+- [Call API](#call-api)
+
+### List services
+
+Each service registers with discovery so we should be able to find it.
+
 ```shell
-$ micro list services
+micro list services
+```
+
+Output
+```
 consul
-go.micro.srv.greeter
+go.micro.srv.example
+topic:topic.go.micro.srv.example
 ```
 
-Get Service
+The example app has registered with the fully qualified domain name `go.micro.srv.example`
+
+### Get Service
+
+Each service registers with a unique id, address and metadata.
+
 ```shell
-$ micro get service go.micro.srv.greeter
-service  go.micro.srv.greeter
+micro get service go.micro.srv.example
+```
 
-version 1.0.0
+Output
+```
+service  go.micro.srv.example
 
-Id	Address	Port	Metadata
-go.micro.srv.greeter-34c55534-368b-11e6-b732-68a86d0d36b6	192.168.1.66	62525	server=rpc,registry=consul,transport=http,broker=http
+version latest
 
-Endpoint: Say.Hello
+ID	Address	Port	Metadata
+go.micro.srv.example-437d1277-303b-11e8-9be9-f40f242f6897	192.168.1.65	53545	transport=http,broker=http,server=rpc,registry=consul
+
+Endpoint: Example.Call
 Metadata: stream=false
 
 Request: {
@@ -113,21 +204,116 @@ Request: {
 Response: {
 	msg string
 }
+
+
+Endpoint: Example.PingPong
+Metadata: stream=true
+
+Request: {}
+
+Response: {}
+
+
+Endpoint: Example.Stream
+Metadata: stream=true
+
+Request: {}
+
+Response: {}
+
+
+Endpoint: Func
+Metadata: subscriber=true,topic=topic.go.micro.srv.example
+
+Request: {
+	say string
+}
+
+Response: {}
+
+
+Endpoint: Example.Handle
+Metadata: subscriber=true,topic=topic.go.micro.srv.example
+
+Request: {
+	say string
+}
+
+Response: {}
 ```
 
-Query service
+### Call service
+
+Make an RPC call via the CLI. The query is sent as json.
+
 ```shell
-$ micro query go.micro.srv.greeter Say.Hello '{"name": "John"}'
+micro call go.micro.srv.example Example.Call '{"name": "John"}'
+```
+
+Output
+```
 {
 	"msg": "Hello John"
 }
 ```
 
-Read the [docs](https://micro.mu/docs) to learn more about entire toolkit.
+Look at the [cli doc](https://micro.mu/docs/cli.html) for more info.
 
-## Build with plugins
+Now let's test call the service via HTTP.
 
-If you want to integrate plugins simply link them in a separate file and rebuild
+### Run API
+
+The micro api is a http gateway which dynamically routes to backend services
+
+Let's run it so we can query the example service.
+
+```
+MICRO_API_HANDLER=rpc \
+MICRO_API_NAMESPACE=go.micro.srv \ 
+micro api
+```
+
+Some info:
+
+- `MICRO_API_HANDLER` sets the http handler
+- `MICRO_API_NAMESPACE` sets the service namespace
+
+### Call API
+
+Make POST request to the api using json
+```
+curl -XPOST -H 'Content-Type: application/json' -d '{"name": "John"}' http://localhost:8080/example/call
+```
+
+Output
+```
+{"msg":"Hello John"}
+```
+
+See the [api doc](https://micro.mu/docs/api.html) for more info.
+
+## Plugins
+
+Micro is built on [go-micro](https://github.com/micro/go-micro) making it a pluggable toolkit.
+
+Go-micro provides abstractions for distributed systems infrastructure which can be swapped out.
+
+### Pluggable Features
+
+The micro features which are pluggable:
+
+- broker - pubsub message broker
+- registry - service discovery 
+- selector - client side load balancing
+- transport - request-response or bidirectional streaming
+- client - the client which manages the above features
+- server - the server which manages the above features
+
+Find plugins at [go-plugins](https://github.com/micro/go-plugins)
+
+### Using Plugins
+
+Integrate go-micro plugins by simply linking them in a separate file
 
 Create a plugins.go file
 ```go
@@ -141,30 +327,56 @@ import (
 )
 ```
 
-Build binary
+### Building Binary
+
+Rebuild the micro binary using the Go toolchain
+
 ```shell
-// For local use
+# For local use
 go build -i -o micro ./main.go ./plugins.go
 
-// For docker image
+# For docker image
 CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -ldflags '-w' -i -o micro ./main.go ./plugins.go
 ```
 
-Flag usage of plugins
+### Enable Plugins
+
+Enable the plugins with command line flags or env vars
+
 ```shell
-micro --registry=etcdv3 --transport=nats --broker=kafka
+# flags
+micro --registry=etcdv3 --transport=nats --broker=kafka [command]
+
+# env vars
+MICRO_REGISTRY=etcdv3 MICRO_TRANSPORT=nats MICRO_BROKER=kafka micro [command]
 ```
 
-## Community Contributions
+## Learn more
+
+To learn more read the following micro content
+
+- [Docs](https://micro.mu/docs) - documentation and guides
+- [Toolkit](https://micro.mu/blog/2016/03/20/micro.html) - intro blog post about the toolkit 
+- [Architecture & Design Patterns](https://micro.mu/blog/2016/04/18/micro-architecture.html) - details on micro patterns
+- [Presentation](https://www.youtube.com/watch?v=xspaDovwk34) - Golang UK Conf 2016
+- [Twitter](https://twitter.com/microhq) - follow us on Twitter
+- [Slack](http://slack.micro.mu/) - join the slack community (1000+ members)
+
+## Community
+
+See community contributions
 
 Project		|	Description
 -----		|	------
-[Micro Dashboard](https://github.com/Margatroid/micro-dashboard)	|	Dashboard for microservices toolchain micro
-[Ja-Micro](https://github.com/Sixt/ja-micro)	|	A micro compatible java framework for microservices
+[Dashboard](https://github.com/Margatroid/micro-dashboard)	|	A react based micro dashboard
+[Ja-micro](https://github.com/Sixt/ja-micro)	|	A micro compatible java framework
+
+Explore other projects at [micro.mu/explore](https://micro.mu/explore/)
 
 ## Sponsors
 
-Open source development of Micro is sponsored by Sixt
+Sixt is an Enterprise Sponsor of Micro
 
 <a href="https://micro.mu/blog/2016/04/25/announcing-sixt-sponsorship.html"><img src="https://micro.mu/sixt_logo.png" width=150px height="auto" /></a>
 
+Become a sponsor by backing micro on [Patreon](https://www.patreon.com/microhq). Finding existing backers in [BACKERS.md](BACKERS.md).

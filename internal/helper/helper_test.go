@@ -34,7 +34,7 @@ func TestRequestToContext(t *testing.T) {
 		}
 		for k, v := range d.expect {
 			if val := md[k]; val != v {
-				t.Fatal("Expected %s for key %s for expected md %+v, got md %+v", v, k, d.expect, md)
+				t.Fatalf("Expected %s for key %s for expected md %+v, got md %+v", v, k, d.expect, md)
 			}
 		}
 	}

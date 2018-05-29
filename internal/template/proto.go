@@ -68,7 +68,7 @@ package {{.FQDN}};
 import "github.com/micro/go-api/proto/api.proto";
 
 service Example {
-	rpc Call(api.Request) returns (api.Response) {}
+	rpc Call(go.api.Request) returns (go.api.Response) {}
 }
 `
 )

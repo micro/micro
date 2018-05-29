@@ -2,6 +2,7 @@ package cli
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -11,14 +12,13 @@ import (
 	"time"
 
 	"github.com/micro/cli"
+	"github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/cmd"
 	"github.com/micro/go-micro/registry"
 
 	proto "github.com/micro/go-micro/server/debug/proto"
 
 	"github.com/serenize/snaker"
-
-	"golang.org/x/net/context"
 )
 
 func formatEndpoint(v *registry.Value, r int) string {
@@ -181,7 +181,7 @@ func DeregisterService(c *cli.Context, args []string) ([]byte, error) {
 
 func GetService(c *cli.Context, args []string) ([]byte, error) {
 	if len(args) == 0 {
-		return nil, errors.New("service requested")
+		return nil, errors.New("service required")
 	}
 
 	var output []string
@@ -207,8 +207,11 @@ func GetService(c *cli.Context, args []string) ([]byte, error) {
 	output = append(output, "service  "+service[0].Name)
 
 	for _, serv := range service {
-		output = append(output, "\nversion "+serv.Version)
-		output = append(output, "\nId\tAddress\tPort\tMetadata")
+		if len(serv.Version) > 0 {
+			output = append(output, "\nversion "+serv.Version)
+		}
+
+		output = append(output, "\nID\tAddress\tPort\tMetadata")
 		for _, node := range serv.Nodes {
 			var meta []string
 			for k, v := range node.Metadata {
@@ -276,7 +279,34 @@ func ListServices(c *cli.Context) ([]byte, error) {
 	return []byte(strings.Join(services, "\n")), nil
 }
 
-func QueryService(c *cli.Context, args []string) ([]byte, error) {
+func Publish(c *cli.Context, args []string) error {
+	if len(args) < 2 {
+		return errors.New("require topic and message")
+	}
+	defer func() {
+		time.Sleep(time.Millisecond * 100)
+	}()
+	topic := args[0]
+	message := args[1]
+
+	cl := *cmd.DefaultOptions().Client
+	ct := func(o *client.MessageOptions) {
+		o.ContentType = "application/json"
+	}
+
+	d := json.NewDecoder(strings.NewReader(message))
+	d.UseNumber()
+
+	var msg map[string]interface{}
+	if err := d.Decode(&msg); err != nil {
+		return err
+	}
+
+	m := cl.NewMessage(topic, msg, ct)
+	return cl.Publish(context.Background(), m)
+}
+
+func CallService(c *cli.Context, args []string) ([]byte, error) {
 	if len(args) < 2 {
 		return nil, errors.New("require service and method")
 	}
@@ -321,10 +351,10 @@ func QueryService(c *cli.Context, args []string) ([]byte, error) {
 			return nil, err
 		}
 
-		creq := (*cmd.DefaultOptions().Client).NewJsonRequest(service, method, request)
+		creq := (*cmd.DefaultOptions().Client).NewRequest(service, method, request, client.WithContentType("application/json"))
 		err := (*cmd.DefaultOptions().Client).Call(context.Background(), creq, &response)
 		if err != nil {
-			return nil, fmt.Errorf("error calling %s.%s: %v\n", service, method, err)
+			return nil, fmt.Errorf("error calling %s.%s: %v", service, method, err)
 		}
 	}
 
@@ -390,7 +420,12 @@ func QueryHealth(c *cli.Context, args []string) ([]byte, error) {
 				}
 			} else {
 				// call using client
-				err = (*cmd.DefaultOptions().Client).CallRemote(context.Background(), address, req, rsp)
+				err = (*cmd.DefaultOptions().Client).Call(
+					context.Background(),
+					req,
+					rsp,
+					client.WithAddress(address),
+				)
 			}
 
 			var status string
@@ -460,7 +495,12 @@ func QueryStats(c *cli.Context, args []string) ([]byte, error) {
 				}
 			} else {
 				// call using client
-				err = (*cmd.DefaultOptions().Client).CallRemote(context.Background(), address, req, rsp)
+				err = (*cmd.DefaultOptions().Client).Call(
+					context.Background(),
+					req,
+					rsp,
+					client.WithAddress(address),
+				)
 			}
 
 			var started, uptime, memory, gc string

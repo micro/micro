@@ -1,6 +1,7 @@
 package helper
 
 import (
+	"context"
 	"crypto/tls"
 	"crypto/x509"
 	"errors"
@@ -10,9 +11,17 @@ import (
 
 	"github.com/micro/cli"
 	"github.com/micro/go-micro/metadata"
-
-	"golang.org/x/net/context"
 )
+
+func ACMEHosts(ctx *cli.Context) []string {
+	var hosts []string
+	for _, host := range strings.Split(ctx.String("acme_hosts"), ",") {
+		if len(host) > 0 {
+			hosts = append(hosts, host)
+		}
+	}
+	return hosts
+}
 
 func RequestToContext(r *http.Request) context.Context {
 	ctx := context.Background()

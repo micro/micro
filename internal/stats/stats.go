@@ -41,7 +41,7 @@ var (
 
 func render(w http.ResponseWriter, r *http.Request, tmpl string, data interface{}) {
 	t, err := template.New("template").Funcs(template.FuncMap{
-	//		"format": format,
+		//		"format": format,
 	}).Parse(layoutTemplate)
 	if err != nil {
 		http.Error(w, "Error occurred:"+err.Error(), 500)

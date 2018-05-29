@@ -10,12 +10,18 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/micro/cli"
 	"github.com/micro/go-api"
+	ahandler "github.com/micro/go-api/handler"
+	aapi "github.com/micro/go-api/handler/api"
+	"github.com/micro/go-api/handler/event"
+	ahttp "github.com/micro/go-api/handler/http"
+	arpc "github.com/micro/go-api/handler/rpc"
+	"github.com/micro/go-api/handler/web"
 	"github.com/micro/go-api/router"
+	"github.com/micro/go-api/server"
 	"github.com/micro/go-log"
 	"github.com/micro/go-micro"
 	"github.com/micro/micro/internal/handler"
 	"github.com/micro/micro/internal/helper"
-	"github.com/micro/micro/internal/server"
 	"github.com/micro/micro/internal/stats"
 	"github.com/micro/micro/plugin"
 )
@@ -83,7 +89,11 @@ func run(ctx *cli.Context) {
 	// Init API
 	var opts []server.Option
 
-	if ctx.GlobalBool("enable_tls") {
+	if ctx.GlobalBool("enable_acme") {
+		hosts := helper.ACMEHosts(ctx)
+		opts = append(opts, server.EnableACME(true))
+		opts = append(opts, server.ACMEHosts(hosts...))
+	} else if ctx.GlobalBool("enable_tls") {
 		config, err := helper.TLSConfig(ctx)
 		if err != nil {
 			fmt.Println(err.Error())
@@ -107,6 +117,18 @@ func run(ctx *cli.Context) {
 		defer st.Stop()
 	}
 
+	// initialise service
+	service := micro.NewService(
+		micro.Name(Name),
+		micro.RegisterTTL(
+			time.Duration(ctx.GlobalInt("register_ttl"))*time.Second,
+		),
+		micro.RegisterInterval(
+			time.Duration(ctx.GlobalInt("register_interval"))*time.Second,
+		),
+	)
+
+	// register rpc handler
 	log.Logf("Registering RPC Handler at %s", RPCPath)
 	r.HandleFunc(RPCPath, handler.RPC)
 
@@ -114,15 +136,44 @@ func run(ctx *cli.Context) {
 	case "rpc":
 		log.Logf("Registering API RPC Handler at %s", APIPath)
 		rt := router.NewRouter(router.WithNamespace(Namespace), router.WithHandler(api.Rpc))
-		r.PathPrefix(APIPath).Handler(handler.RPCX(rt, nil))
-	case "proxy":
-		log.Logf("Registering API Proxy Handler at %s", ProxyPath)
-		rt := router.NewRouter(router.WithNamespace(Namespace), router.WithHandler(api.Proxy))
-		r.PathPrefix(ProxyPath).Handler(handler.Proxy(rt, nil, false))
+		rp := arpc.NewHandler(
+			ahandler.WithNamespace(Namespace),
+			ahandler.WithRouter(rt),
+			ahandler.WithService(service),
+		)
+		r.PathPrefix(APIPath).Handler(rp)
 	case "api":
 		log.Logf("Registering API Request Handler at %s", APIPath)
 		rt := router.NewRouter(router.WithNamespace(Namespace), router.WithHandler(api.Api))
-		r.PathPrefix(APIPath).Handler(handler.API(rt, nil))
+		ap := aapi.NewHandler(
+			ahandler.WithNamespace(Namespace),
+			ahandler.WithRouter(rt),
+			ahandler.WithService(service),
+		)
+		r.PathPrefix(APIPath).Handler(ap)
+	case "event":
+		log.Logf("Registering API Event Handler at %s", APIPath)
+		rt := router.NewRouter(router.WithNamespace(Namespace), router.WithHandler(api.Event))
+		ev := event.NewHandler(ahandler.WithNamespace(Namespace), ahandler.WithRouter(rt))
+		r.PathPrefix(APIPath).Handler(ev)
+	case "http", "proxy":
+		log.Logf("Registering API HTTP Handler at %s", ProxyPath)
+		rt := router.NewRouter(router.WithNamespace(Namespace), router.WithHandler(api.Http))
+		ht := ahttp.NewHandler(
+			ahandler.WithNamespace(Namespace),
+			ahandler.WithRouter(rt),
+			ahandler.WithService(service),
+		)
+		r.PathPrefix(ProxyPath).Handler(ht)
+	case "web":
+		log.Logf("Registering API Web Handler at %s", APIPath)
+		rt := router.NewRouter(router.WithNamespace(Namespace), router.WithHandler(api.Web))
+		w := web.NewHandler(
+			ahandler.WithNamespace(Namespace),
+			ahandler.WithRouter(rt),
+			ahandler.WithService(service),
+		)
+		r.PathPrefix(APIPath).Handler(w)
 	default:
 		log.Logf("Registering API Default Handler at %s", APIPath)
 		r.PathPrefix(APIPath).Handler(handler.Meta(Namespace))
@@ -138,17 +189,6 @@ func run(ctx *cli.Context) {
 	api := server.NewServer(Address)
 	api.Init(opts...)
 	api.Handle("/", h)
-
-	// Initialise Server
-	service := micro.NewService(
-		micro.Name(Name),
-		micro.RegisterTTL(
-			time.Duration(ctx.GlobalInt("register_ttl"))*time.Second,
-		),
-		micro.RegisterInterval(
-			time.Duration(ctx.GlobalInt("register_interval"))*time.Second,
-		),
-	)
 
 	// Start API
 	if err := api.Start(); err != nil {
@@ -179,7 +219,7 @@ func Commands() []cli.Command {
 			},
 			cli.StringFlag{
 				Name:   "handler",
-				Usage:  "Specify the request handler to be used for mapping HTTP requests to services; {api, proxy, rpc}",
+				Usage:  "Specify the request handler to be used for mapping HTTP requests to services; {api, event, http, rpc}",
 				EnvVar: "MICRO_API_HANDLER",
 			},
 			cli.StringFlag{

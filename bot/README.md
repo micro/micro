@@ -1,26 +1,33 @@
 # micro bot
 
-The **micro bot** is a bot that sits inside your microservices environment which you can interact with via Slack, HipChat, XMPP, etc. 
-It mimics the functions of the CLI via messaging.
+The micro bot is a bot for ChatOps.
+
+Run the bot inside your platform environment like any other service and interact with it via slack, hipchat, xmpp, etc.
 
 <p align="center">
   <img src="https://github.com/micro/docs/blob/master/images/bot.png" />
 </p>
 
-## Supported Inputs
-
-- Slack
-- HipChat
-
 ## Getting Started
 
-### Install Micro
+- [Install](#install-micro)
+- [Inputs](#inputs)
+- [Commands](#commands)
+- [Adding Commands](#adding-commands)
+- [Adding Inputs](#adding-inputs)
+- [Example](#example)
+
+## Install Micro
 
 ```go
 go get github.com/micro/micro
 ```
 
-### Run with Slack
+## Inputs
+
+Inputs are services from which the bot can send and receive messages. This could be slack, hipchat, xmpp, irc, smtp, etc.
+
+### Slack Input
 
 ```shell
 micro bot --inputs=slack --slack_token=SLACK_TOKEN
@@ -29,7 +36,7 @@ micro bot --inputs=slack --slack_token=SLACK_TOKEN
 <img src="https://github.com/micro/docs/blob/master/images/slack.png">
 -
 
-### Run with HipChat
+### HipChat Input
 
 ```shell
 micro bot --inputs=hipchat --hipchat_username=XMPP_USER --hipchat_password=XMPP_PASSWORD
@@ -44,9 +51,14 @@ Use multiple inputs by specifying a comma separated list
 micro bot --inputs=hipchat,slack --slack_token=SLACK_TOKEN --hipchat_username=XMPP_USER --hipchat_password=XMPP_PASSWORD
 ```
 
-### Help
+## Commands
 
-In slack
+Commands are executable actions. Think of a CLI via messaging. 
+
+The bot commands can be extended. See the [example](#example).
+
+Type `@micro help` in slack to see a list of commands.
+
 ```shell
 micro help
 
@@ -57,13 +69,13 @@ health [service] - Returns health of a service
 hello - Returns a greeting
 list services - Returns a list of registered services
 ping - Returns pong
-query [service] [method] [request] - Returns the response for a service query
+call [service] [method] [request] - Returns the response for a service call
 register service [definition] - Registers a service
 the three laws - Returns the three laws of robotics
 time - Returns the server time
 ```
 
-## Adding new Commands
+## Adding Commands
 
 Commands are functions executed by the bot based on text based pattern matching.
 
@@ -107,7 +119,7 @@ go build -i -o micro ./main.go
 CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -ldflags '-w' -i -o micro ./main.go
 ```
 
-## Adding new Inputs
+## Adding Inputs
 
 Inputs are plugins for communication e.g Slack, HipChat, XMPP, IRC, SMTP, etc, etc. 
 
@@ -201,7 +213,7 @@ message ExecResponse {
 }
 ```
 
-### Example
+## Example
 
 Here's an example echo command as a microservice
 
@@ -209,11 +221,11 @@ Here's an example echo command as a microservice
 package main
 
 import (
+	"context"
 	"fmt"
 	"strings"
 
 	"github.com/micro/go-micro"
-	"golang.org/x/net/context"
 
 	proto "github.com/micro/go-bot/proto"
 )
