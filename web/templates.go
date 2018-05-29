@@ -128,6 +128,18 @@ jQuery(function($, undefined) {
 				<textarea class="form-control" name=request id=request rows=8>{}</textarea>
 			</div>
 			<div class="form-group">
+				<label for="request">Organisation ID</label>
+				<ul class="list-group">
+					<input class="form-control" type=text name=organisationId id=organisationId value="ORG-6018DB2C-21"/>
+				</ul>
+			</div>
+			<div class="form-group">
+				<label for="request">User ID</label>
+				<ul class="list-group">
+				  <input class="form-control" type=text name=userId id=userId value="USR-F43A8430-1E"/>
+				</ul>
+			</div>
+			<div class="form-group">
 				<button class="btn btn-default">Execute</button>
 			</div>
 		</form>
@@ -143,6 +155,13 @@ jQuery(function($, undefined) {
 {{define "script"}}
 	<script>
 		$(document).ready(function(){
+			var methodToJSONMap = {}
+{{ range $service, $methods := .Results }}
+{{ range $index, $element := $methods }}
+			methodToJSONMap[{{$element.Endpoint.Name}}] = {{$element.RequestJSON}}
+{{ end }}
+{{ end }}
+
 			//Function executes on change of first select option field 
 			$("#service").change(function(){
 				var select = $("#service option:selected").val();
@@ -151,10 +170,11 @@ jQuery(function($, undefined) {
 				$("#method").empty();
 				$("#method").append("<option disabled selected> -- select a method -- </option>");
 				var s_map = {};
+				var r_map = {};
 				{{ range $service, $methods := .Results }}
 				var m_list = [];
 				{{range $index, $element := $methods}}
-				m_list[{{$index}}] = {{$element.Name}}
+				m_list[{{$index}}] = {{$element.Endpoint.Name}}
 				{{end}}
 				s_map[{{$service}}] = m_list
 				{{ end }}
@@ -176,6 +196,9 @@ jQuery(function($, undefined) {
 					$("#othermethod").attr("disabled", true);
 					$('#othermethod').val('');
 				}
+
+				console.log('selecting request json for:', select)
+				$('#request').val(methodToJSONMap[select])
 
 			});
 		});
@@ -202,7 +225,9 @@ jQuery(function($, undefined) {
 			var request = {
 				"service": document.forms[0].elements["service"].value,
 				"method": method,
-				"request": JSON.parse(document.forms[0].elements["request"].value)
+				"request": JSON.parse(document.forms[0].elements["request"].value),
+				"organisationId": document.forms[0].elements["organisationId"].value,
+				"userId": document.forms[0].elements["userId"].value,
 			}
 			req.open("POST", "/rpc", true);
 			req.setRequestHeader("Content-type","application/json");				
