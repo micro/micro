@@ -165,8 +165,19 @@ func setup(app *ccli.App) {
 	}
 }
 
+// Init initalised the command line
 func Init() {
-	app := cmd.App()
+	Setup(cmd.App())
+
+	cmd.Init(
+		cmd.Name(name),
+		cmd.Description(description),
+		cmd.Version(version),
+	)
+}
+
+// Setup sets up a cli.App
+func Setup(app *ccli.App) {
 	app.Commands = append(app.Commands, api.Commands()...)
 	app.Commands = append(app.Commands, bot.Commands()...)
 	app.Commands = append(app.Commands, cli.Commands()...)
@@ -176,10 +187,4 @@ func Init() {
 	app.Action = func(context *ccli.Context) { ccli.ShowAppHelp(context) }
 
 	setup(app)
-
-	cmd.Init(
-		cmd.Name(name),
-		cmd.Description(description),
-		cmd.Version(version),
-	)
 }
