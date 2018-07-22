@@ -170,7 +170,9 @@ func run(ctx *cli.Context) {
 	}
 
 	// attempt to split path if not windows
-	if runtime.GOOS != "windows" {
+	if runtime.GOOS == "windows" {
+		goPath = strings.Split(goPath, ";")[0]
+	} else {
 		goPath = strings.Split(goPath, ":")[0]
 	}
 
