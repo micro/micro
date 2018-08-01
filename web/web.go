@@ -29,7 +29,7 @@ import (
 )
 
 var (
-	re = regexp.MustCompile("^[a-zA-Z0-9]+$")
+	re = regexp.MustCompile("^[a-zA-Z0-9]+([a-zA-Z0-9-]*[a-zA-Z0-9]*)?$")
 	// Default server name
 	Name = "go.micro.web"
 	// Default address to bind to
