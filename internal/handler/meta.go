@@ -3,7 +3,6 @@ package handler
 import (
 	"net/http"
 
-	"github.com/micro/go-api"
 	"github.com/micro/go-api/handler"
 	"github.com/micro/go-api/handler/event"
 	"github.com/micro/go-api/router"
@@ -33,22 +32,22 @@ func (m *metaHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// TODO: don't do this ffs
 	switch service.Endpoint.Handler {
 	// web socket handler
-	case api.Web:
+	case aweb.Handler:
 		aweb.WithService(service).ServeHTTP(w, r)
 	// proxy handler
-	case api.Proxy, api.Http:
+	case "proxy", ahttp.Handler:
 		ahttp.WithService(service).ServeHTTP(w, r)
 	// rpcx handler
-	case api.Rpc:
+	case arpc.Handler:
 		arpc.WithService(service).ServeHTTP(w, r)
 	// event handler
-	case api.Event:
+	case event.Handler:
 		ev := event.NewHandler(
 			handler.WithNamespace(m.r.Options().Namespace),
 		)
 		ev.ServeHTTP(w, r)
 	// api handler
-	case api.Api:
+	case aapi.Handler:
 		aapi.WithService(service).ServeHTTP(w, r)
 	// default handler: api
 	default:
