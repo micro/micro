@@ -69,7 +69,7 @@ The API makes use of namespaces to logically separate backend and public facing 
 are used to resolve service name/method. The default namespace is `go.micro.api`.
 
 ```shell
-MICRO_NAMESPACE=com.example.api micro api
+MICRO_API_NAMESPACE=com.example.api micro api
 ```
 
 ## Examples
@@ -248,7 +248,7 @@ Find working examples in [github.com/micro/examples/api](https://github.com/micr
 
 Micro dynamically routes to services using a namespace value and the HTTP path.
 
-The default namespace is `go.micro.api`. Set namespace via `--namespace` or `MICRO_NAMESPACE=`.
+The default namespace is `go.micro.api`. Set namespace via `--namespace` or `MICRO_API_NAMESPACE=`.
 
 The resolvers used are explained below.
 
