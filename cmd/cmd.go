@@ -161,7 +161,9 @@ func setup(app *ccli.App) {
 		}
 
 		for _, p := range plugins {
-			p.Init(ctx)
+			if err := p.Init(ctx); err != nil {
+				return err
+			}
 		}
 
 		return nil
