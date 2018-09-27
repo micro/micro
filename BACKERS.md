@@ -22,7 +22,5 @@ If you'd like to join them please consider:
 
 ## Backers
 
-- Brian Ketelsen
 - Ewan Valentine
 - Stefan Hans
-- Alexandre Roba
