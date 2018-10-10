@@ -10,6 +10,7 @@ import (
 	"github.com/micro/go-micro/cmd"
 	"github.com/micro/go-micro/errors"
 	"github.com/micro/micro/internal/helper"
+	"time"
 )
 
 type rpcRequest struct {
@@ -107,12 +108,21 @@ func RPC(w http.ResponseWriter, r *http.Request) {
 	// create context
 	ctx := helper.RequestToContext(r)
 
+	var opts []client.CallOption
+
+	timeout, _ := strconv.Atoi(r.Header.Get("Timeout"))
+	// set timeout
+	if timeout > 0 {
+		opts = append(opts, client.WithRequestTimeout(time.Duration(timeout)*time.Second))
+	}
+
 	// remote call
 	if len(address) > 0 {
-		err = (*cmd.DefaultOptions().Client).Call(ctx, req, &response, client.WithAddress(address))
-	} else {
-		err = (*cmd.DefaultOptions().Client).Call(ctx, req, &response)
+		opts = append(opts, client.WithAddress(address))
 	}
+
+	// remote call
+	err = (*cmd.DefaultOptions().Client).Call(ctx, req, &response, opts...)
 	if err != nil {
 		ce := errors.Parse(err.Error())
 		switch ce.Code {
