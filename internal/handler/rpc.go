@@ -5,12 +5,12 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/cmd"
 	"github.com/micro/go-micro/errors"
 	"github.com/micro/micro/internal/helper"
-	"time"
 )
 
 type rpcRequest struct {
