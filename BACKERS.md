@@ -24,5 +24,6 @@ If you'd like to join them please consider:
 
 - Brian Ketelsen
 - Ewan Valentine
+- Jo Lee
 - Stefan Hans
 - Sakti Dwi Cahyono
