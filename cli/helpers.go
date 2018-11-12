@@ -56,7 +56,10 @@ func streamService(c *cli.Context, args []string) ([]byte, error) {
 	service := args[0]
 	method := args[1]
 	var request map[string]interface{}
-	json.Unmarshal([]byte(strings.Join(args[2:], " ")), &request)
+	err := json.Unmarshal([]byte(strings.Join(args[2:], " ")), &request)
+	if err != nil {
+		return nil, err
+	}
 	req := (*cmd.DefaultOptions().Client).NewRequest(service, method, request, client.WithContentType("application/json"))
 	stream, err := (*cmd.DefaultOptions().Client).Stream(context.Background(), req)
 	if err != nil {
@@ -79,8 +82,6 @@ func streamService(c *cli.Context, args []string) ([]byte, error) {
 		// artificial delay
 		time.Sleep(time.Millisecond * 10)
 	}
-
-	return nil, nil
 }
 
 func publish(c *cli.Context, args []string) ([]byte, error) {
