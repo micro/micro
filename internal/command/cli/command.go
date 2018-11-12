@@ -376,7 +376,7 @@ func QueryHealth(c *cli.Context, args []string) ([]byte, error) {
 		return nil, err
 	}
 
-	if service == nil || len(service) == 0 {
+	if len(service) == 0 {
 		return nil, errors.New("Service not found")
 	}
 
@@ -451,7 +451,7 @@ func QueryStats(c *cli.Context, args []string) ([]byte, error) {
 		return nil, err
 	}
 
-	if service == nil || len(service) == 0 {
+	if len(service) == 0 {
 		return nil, errors.New("Service not found")
 	}
 
