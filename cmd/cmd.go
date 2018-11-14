@@ -170,7 +170,7 @@ func setup(app *ccli.App) {
 	}
 }
 
-// Init initalised the command line
+// Init initialised the command line
 func Init() {
 	Setup(cmd.App())
 
