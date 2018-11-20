@@ -49,9 +49,9 @@ func (m *metaHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// api handler
 	case aapi.Handler:
 		aapi.WithService(service).ServeHTTP(w, r)
-	// default handler: api
+	// default handler: rpc
 	default:
-		aapi.WithService(service).ServeHTTP(w, r)
+		arpc.WithService(service).ServeHTTP(w, r)
 	}
 }
 
