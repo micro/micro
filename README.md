@@ -28,7 +28,7 @@ The toolkit is composed of the following features:
 
 ## Getting Started
 
-For detailed information on the architecture, installation and use of the toolkit checkout the [docs](https://micro.mu/docs).
+See the [docs](https://micro.mu/docs) for detailed information on the architecture, installation and use of the toolkit.
 
 ## Sponsors
 
