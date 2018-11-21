@@ -15,15 +15,15 @@ Plug in any stack or underlying technology. Build future-proof systems using mic
 
 The toolkit is composed of the following features:
 
-- [**`api`**](https://github.com/micro/micro/tree/master/api) - API Gateway. A single entry point with dynamic routing using service discovery.
+- **`api`** - API Gateway. A single entry point with dynamic routing using service discovery.
 
-- [**`bot`**](https://github.com/micro/micro/tree/master/bot) - Slack bot enabling ChatOps. Manages your applications via messaging.
+- **`bot`** - Slack bot enabling ChatOps. Manages your applications via messaging.
 
-- [**`cli`**](https://github.com/micro/micro/tree/master/cli) - Command line interface. Describe, query and interact directly from the terminal. 
+- **`cli`** - Command line interface. Describe, query and interact directly from the terminal. 
 
-- [**`new`**](https://github.com/micro/micro/tree/master/new) - Service template generation. Get started quickly.
+- **`new`** - Service template generation. Get started quickly.
 
-- [**`web`**](https://github.com/micro/micro/tree/master/web) - Web dashboard to interact via the browser.
+- **`web`** - Web dashboard to interact via the browser.
 
 
 ## Getting Started
