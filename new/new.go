@@ -119,6 +119,7 @@ func run(ctx *cli.Context) {
 	fqdn := ctx.String("fqdn")
 	atype := ctx.String("type")
 	dir := ctx.Args().First()
+	useGoPath := ctx.Bool("gopath")
 	var plugins []string
 
 	if len(dir) == 0 {
@@ -161,22 +162,29 @@ func run(ctx *cli.Context) {
 		return
 	}
 
-	goPath := os.Getenv("GOPATH")
+	var goPath string
+	var goDir string
 
-	// don't know GOPATH, runaway....
-	if len(goPath) == 0 {
-		fmt.Println("unknown GOPATH")
-		return
-	}
+	// only set gopath if told to use it
+	if useGoPath {
+		goPath = os.Getenv("GOPATH")
 
-	// attempt to split path if not windows
-	if runtime.GOOS == "windows" {
-		goPath = strings.Split(goPath, ";")[0]
+		// don't know GOPATH, runaway....
+		if len(goPath) == 0 {
+			fmt.Println("unknown GOPATH")
+			return
+		}
+
+		// attempt to split path if not windows
+		if runtime.GOOS == "windows" {
+			goPath = strings.Split(goPath, ";")[0]
+		} else {
+			goPath = strings.Split(goPath, ":")[0]
+		}
+		goDir = filepath.Join(goPath, "src", path.Clean(dir))
 	} else {
-		goPath = strings.Split(goPath, ":")[0]
+		goDir = path.Clean(dir)
 	}
-
-	goDir := filepath.Join(goPath, "src", path.Clean(dir))
 
 	if len(alias) == 0 {
 		// set as last part
@@ -359,6 +367,10 @@ func Commands() []cli.Command {
 				cli.StringSliceFlag{
 					Name:  "plugin",
 					Usage: "Specify plugins e.g --plugin=registry=etcd:broker=nats or use flag multiple times",
+				},
+				cli.BoolTFlag{
+					Name:  "gopath",
+					Usage: "Create the service in the gopath. Defaults to true.",
 				},
 			},
 			Action: func(c *cli.Context) {
