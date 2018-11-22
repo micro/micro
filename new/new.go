@@ -120,6 +120,7 @@ func run(ctx *cli.Context) {
 	atype := ctx.String("type")
 	dir := ctx.Args().First()
 	useGoPath := ctx.Bool("gopath")
+	useGoModule := os.Getenv("GO111MODULE")
 	var plugins []string
 
 	if len(dir) == 0 {
@@ -332,6 +333,11 @@ func run(ctx *cli.Context) {
 	default:
 		fmt.Println("Unknown type", atype)
 		return
+	}
+
+	// set gomodule
+	if useGoModule == "on" || useGoModule == "auto" {
+		c.Files = append(c.Files, file{"go.mod", tmpl.Module})
 	}
 
 	if err := create(c); err != nil {
