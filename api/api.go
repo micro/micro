@@ -15,6 +15,11 @@ import (
 	ahttp "github.com/micro/go-api/handler/http"
 	arpc "github.com/micro/go-api/handler/rpc"
 	"github.com/micro/go-api/handler/web"
+	"github.com/micro/go-api/resolver"
+	"github.com/micro/go-api/resolver/grpc"
+	"github.com/micro/go-api/resolver/host"
+	rrmicro "github.com/micro/go-api/resolver/micro"
+	"github.com/micro/go-api/resolver/path"
 	"github.com/micro/go-api/router"
 	"github.com/micro/go-api/server"
 	"github.com/micro/go-log"
@@ -29,6 +34,7 @@ var (
 	Name         = "go.micro.api"
 	Address      = ":8080"
 	Handler      = "meta"
+	Resolver     = "micro"
 	RPCPath      = "/rpc"
 	APIPath      = "/"
 	ProxyPath    = "/{service:[a-zA-Z0-9]+}"
@@ -71,6 +77,9 @@ func run(ctx *cli.Context) {
 	}
 	if len(ctx.String("namespace")) > 0 {
 		Namespace = ctx.String("namespace")
+	}
+	if len(ctx.String("resolver")) > 0 {
+		Resolver = ctx.String("resolver")
 	}
 	if len(ctx.String("cors")) > 0 {
 		origins := make(map[string]bool)
@@ -131,10 +140,32 @@ func run(ctx *cli.Context) {
 	log.Logf("Registering RPC Handler at %s", RPCPath)
 	r.HandleFunc(RPCPath, handler.RPC)
 
+	// resolver options
+	ropts := []resolver.Option{
+		resolver.WithNamespace(Namespace),
+		resolver.WithHandler(Handler),
+	}
+
+	// default resolver
+	rr := rrmicro.NewResolver(ropts...)
+
+	switch Resolver {
+	case "host":
+		rr = host.NewResolver(ropts...)
+	case "path":
+		rr = path.NewResolver(ropts...)
+	case "grpc":
+		rr = grpc.NewResolver(ropts...)
+	}
+
 	switch Handler {
 	case "rpc":
 		log.Logf("Registering API RPC Handler at %s", APIPath)
-		rt := router.NewRouter(router.WithNamespace(Namespace), router.WithHandler(arpc.Handler))
+		rt := router.NewRouter(
+			router.WithNamespace(Namespace),
+			router.WithHandler(arpc.Handler),
+			router.WithResolver(rr),
+		)
 		rp := arpc.NewHandler(
 			ahandler.WithNamespace(Namespace),
 			ahandler.WithRouter(rt),
@@ -143,7 +174,11 @@ func run(ctx *cli.Context) {
 		r.PathPrefix(APIPath).Handler(rp)
 	case "api":
 		log.Logf("Registering API Request Handler at %s", APIPath)
-		rt := router.NewRouter(router.WithNamespace(Namespace), router.WithHandler(aapi.Handler))
+		rt := router.NewRouter(
+			router.WithNamespace(Namespace),
+			router.WithHandler(aapi.Handler),
+			router.WithResolver(rr),
+		)
 		ap := aapi.NewHandler(
 			ahandler.WithNamespace(Namespace),
 			ahandler.WithRouter(rt),
@@ -152,12 +187,20 @@ func run(ctx *cli.Context) {
 		r.PathPrefix(APIPath).Handler(ap)
 	case "event":
 		log.Logf("Registering API Event Handler at %s", APIPath)
-		rt := router.NewRouter(router.WithNamespace(Namespace), router.WithHandler(event.Handler))
+		rt := router.NewRouter(
+			router.WithNamespace(Namespace),
+			router.WithHandler(event.Handler),
+			router.WithResolver(rr),
+		)
 		ev := event.NewHandler(ahandler.WithNamespace(Namespace), ahandler.WithRouter(rt))
 		r.PathPrefix(APIPath).Handler(ev)
 	case "http", "proxy":
 		log.Logf("Registering API HTTP Handler at %s", ProxyPath)
-		rt := router.NewRouter(router.WithNamespace(Namespace), router.WithHandler(ahttp.Handler))
+		rt := router.NewRouter(
+			router.WithNamespace(Namespace),
+			router.WithHandler(ahttp.Handler),
+			router.WithResolver(rr),
+		)
 		ht := ahttp.NewHandler(
 			ahandler.WithNamespace(Namespace),
 			ahandler.WithRouter(rt),
@@ -166,7 +209,11 @@ func run(ctx *cli.Context) {
 		r.PathPrefix(ProxyPath).Handler(ht)
 	case "web":
 		log.Logf("Registering API Web Handler at %s", APIPath)
-		rt := router.NewRouter(router.WithNamespace(Namespace), router.WithHandler(web.Handler))
+		rt := router.NewRouter(
+			router.WithNamespace(Namespace),
+			router.WithHandler(web.Handler),
+			router.WithResolver(rr),
+		)
 		w := web.NewHandler(
 			ahandler.WithNamespace(Namespace),
 			ahandler.WithRouter(rt),
@@ -225,6 +272,11 @@ func Commands() []cli.Command {
 				Name:   "namespace",
 				Usage:  "Set the namespace used by the API e.g. com.example.api",
 				EnvVar: "MICRO_API_NAMESPACE",
+			},
+			cli.StringFlag{
+				Name:   "resolver",
+				Usage:  "Set the hostname resolver used by the API {host, path, grpc}",
+				EnvVar: "MICRO_API_RESOLVER",
 			},
 			cli.StringFlag{
 				Name:   "cors",
