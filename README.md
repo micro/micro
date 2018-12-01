@@ -17,15 +17,22 @@ Plug in any stack or underlying technology. Build future-proof systems using mic
 
 The toolkit is composed of the following features:
 
-- **`api`** - API Gateway. A single entry point with dynamic routing using service discovery.
+- **API Gateway:** A single entry point with dynamic request routing using service discovery. The API gateway allows you to build a scalable 
+microservice architecture on the backend and consolidate serving a public http api in one place. The micro api provides powerful routing 
+via discovery and pluggable handlers to serve http, grpc, websockets, publish events and more.
 
-- **`bot`** - Slack bot enabling ChatOps. Manages your applications via messaging.
+- **Slack bot:** A bot which runs on your platform and lets you manage your applications from Slack itself. The micro bot enables ChatOps 
+and gives you the ability to do everything with your team via messaging. It also includes ability to create slack commmands as services which 
+are discovered dynamically.
 
-- **`cli`** - Command line interface. Describe, query and interact directly from the terminal. 
+- **Command line interface:** A CLI to describe, query and interact directly with your platform and services from the terminal. The CLI 
+gives you all the commands you expect to understand what's happening with your micro services. It also includes an interactive mode.
 
-- **`new`** - Service template generation. Get started quickly.
+- **Service templates:** Generate new service templates to get started quickly. Micro provides predefined templates for writing micro services. 
+Always start in the same way, build identical services to be more productive.
 
-- **`web`** - Web dashboard to interact via the browser.
+- **Web Dashboard:** The web dashboard allows you to explore your services, describe their endpoints, the request and response formats and even 
+query them directly. The dashboard is also includes a built in CLI like experience for developers who want to drop into the terminal on the fly.
 
 
 ## Getting Started
