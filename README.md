@@ -18,7 +18,7 @@ Plug in any stack or underlying technology. Build future-proof systems using mic
 The toolkit is composed of the following features:
 
 - **API Gateway:** A single entry point with dynamic request routing using service discovery. The API gateway allows you to build a scalable 
-microservice architecture on the backend and consolidate serving a public http api in one place. The micro api provides powerful routing 
+microservice architecture on the backend and consolidate serving a public api on the frontend. The micro api provides powerful routing 
 via discovery and pluggable handlers to serve http, grpc, websockets, publish events and more.
 
 - **Slack bot:** A bot which runs on your platform and lets you manage your applications from Slack itself. The micro bot enables ChatOps 
