@@ -16,10 +16,6 @@ If you'd like to join them please consider:
 
 <a href="https://www.neds.com.au/"><img src="https://micro.mu/images/logos/neds.svg" height="60px"></a>
 
-## Generous Backers ($50)
-
-- Joseph Jacks
-
 ## Backers
 
 - Brian Ketelsen
