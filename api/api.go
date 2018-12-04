@@ -41,6 +41,7 @@ var (
 	Namespace    = "go.micro.api"
 	HeaderPrefix = "X-Micro-"
 	CORS         = map[string]bool{"*": true}
+	CorsHeaders = "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization"
 )
 
 type srv struct {
@@ -55,7 +56,7 @@ func (s *srv) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PATCH, PUT, DELETE")
-	w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization")
+	w.Header().Set("Access-Control-Allow-Headers", CorsHeaders)
 	w.Header().Set("Access-Control-Allow-Credentials", "true")
 
 	if r.Method == "OPTIONS" {
@@ -87,6 +88,9 @@ func run(ctx *cli.Context) {
 			origins[origin] = true
 		}
 		CORS = origins
+	}
+	if len(ctx.String("headers")) > 0 {
+		CorsHeaders += ", " + ctx.String("headers")
 	}
 
 	// Init plugins
@@ -282,6 +286,11 @@ func Commands() []cli.Command {
 				Name:   "cors",
 				Usage:  "Comma separated whitelist of allowed origins for CORS",
 				EnvVar: "MICRO_API_CORS",
+			},
+			cli.StringFlag{
+				Name:   "headers",
+				Usage:  "Comma separated custom header of allowed headers for Headers",
+				EnvVar: "MICRO_API_HEADERS",
 			},
 		},
 	}
