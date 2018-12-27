@@ -297,14 +297,14 @@ jQuery(function($, undefined) {
 
 	cliTemplate = `
 {{define "head"}}
-<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/jquery.terminal/0.9.3/css/jquery.terminal.min.css">
+<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/jquery.terminal/2.0.2/css/jquery.terminal.min.css">
 {{end}}
 {{define "title"}}CLI{{end}}
 {{define "content"}}
 <div id="shell"></div>
 {{end}}
 {{define "script"}}
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.terminal/0.9.3/js/jquery.terminal.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.terminal/2.0.2/js/jquery.terminal.min.js"></script>
 <script type="text/javascript">
 jQuery(function($, undefined) {
     $('#shell').terminal(function(command, term) {
