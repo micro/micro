@@ -20,7 +20,6 @@ import (
 	"github.com/micro/go-micro/cmd"
 	"github.com/micro/go-micro/registry"
 	"github.com/micro/go-micro/selector"
-	"github.com/micro/go-micro/selector/cache"
 	"github.com/micro/micro/internal/handler"
 	"github.com/micro/micro/internal/helper"
 	"github.com/micro/micro/internal/stats"
@@ -71,7 +70,7 @@ func (s *srv) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *srv) proxy() http.Handler {
-	sel := cache.NewSelector(
+	sel := selector.NewSelector(
 		selector.Registry((*cmd.DefaultOptions().Registry)),
 	)
 

@@ -119,9 +119,6 @@ func setup(app *ccli.App) {
 	before := app.Before
 
 	app.Before = func(ctx *ccli.Context) error {
-		if err := before(ctx); err != nil {
-			return err
-		}
 		if len(ctx.String("api_handler")) > 0 {
 			api.Handler = ctx.String("api_handler")
 		}
@@ -166,7 +163,8 @@ func setup(app *ccli.App) {
 			}
 		}
 
-		return nil
+		// now do previous before
+		return before(ctx)
 	}
 }
 
