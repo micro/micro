@@ -21,17 +21,17 @@ The toolkit is composed of the following features:
 microservice architecture on the backend and consolidate serving a public api on the frontend. The micro api provides powerful routing 
 via discovery and pluggable handlers to serve http, grpc, websockets, publish events and more.
 
-- **Command line interface:** A CLI to describe, query and interact directly with your platform and services from the terminal. The CLI 
+- **Interactive CLI:** A CLI to describe, query and interact directly with your platform and services from the terminal. The CLI 
 gives you all the commands you expect to understand what's happening with your micro services. It also includes an interactive mode.
 
 - **Web Dashboard:** The web dashboard allows you to explore your services, describe their endpoints, the request and response formats and even 
 query them directly. The dashboard is also includes a built in CLI like experience for developers who want to drop into the terminal on the fly.
 
-- **Slack bot:** A bot which runs on your platform and lets you manage your applications from Slack itself. The micro bot enables ChatOps 
+- **SlackOps Bot:** A bot which runs on your platform and lets you manage your applications from Slack itself. The micro bot enables ChatOps 
 and gives you the ability to do everything with your team via messaging. It also includes ability to create slack commmands as services which 
 are discovered dynamically.
 
-- **Service templates:** Generate new service templates to get started quickly. Micro provides predefined templates for writing micro services. 
+- **Service Templates:** Generate new service templates to get started quickly. Micro provides predefined templates for writing micro services. 
 Always start in the same way, build identical services to be more productive.
 
 
