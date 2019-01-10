@@ -51,29 +51,29 @@ func callService(c *cli.Context, args []string) ([]byte, error) {
 // TODO: stream via HTTP
 func streamService(c *cli.Context, args []string) ([]byte, error) {
 	if len(args) < 2 {
-		return nil, errors.New("require service and method")
+		return nil, errors.New("require service and endpoint")
 	}
 	service := args[0]
-	method := args[1]
+	endpoint := args[1]
 	var request map[string]interface{}
 	err := json.Unmarshal([]byte(strings.Join(args[2:], " ")), &request)
 	if err != nil {
 		return nil, err
 	}
-	req := (*cmd.DefaultOptions().Client).NewRequest(service, method, request, client.WithContentType("application/json"))
+	req := (*cmd.DefaultOptions().Client).NewRequest(service, endpoint, request, client.WithContentType("application/json"))
 	stream, err := (*cmd.DefaultOptions().Client).Stream(context.Background(), req)
 	if err != nil {
-		return nil, fmt.Errorf("error calling %s.%s: %v", service, method, err)
+		return nil, fmt.Errorf("error calling %s.%s: %v", service, endpoint, err)
 	}
 
 	if err := stream.Send(request); err != nil {
-		return nil, fmt.Errorf("error sending to %s.%s: %v", service, method, err)
+		return nil, fmt.Errorf("error sending to %s.%s: %v", service, endpoint, err)
 	}
 
 	for {
 		var response map[string]interface{}
 		if err := stream.Recv(&response); err != nil {
-			return nil, fmt.Errorf("error receiving from %s.%s: %v", service, method, err)
+			return nil, fmt.Errorf("error receiving from %s.%s: %v", service, endpoint, err)
 		}
 
 		b, _ := json.MarshalIndent(response, "", "\t")

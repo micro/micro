@@ -71,9 +71,9 @@ func TestRPCHandler(t *testing.T) {
 	w := httptest.NewRecorder()
 
 	request := map[string]string{
-		"service": "test",
-		"method":  "TestHandler.Exec",
-		"request": "{}",
+		"service":  "test",
+		"endpoint": "TestHandler.Exec",
+		"request":  "{}",
 	}
 
 	rb, err := json.Marshal(request)

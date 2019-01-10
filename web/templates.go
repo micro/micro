@@ -110,17 +110,17 @@ jQuery(function($, undefined) {
 				</ul>
 			</div>
 			<div class="form-group">
-				<label for="method">Method</label>
+				<label for="endpoint">Endpoint</label>
 				<ul class="list-group">
-					<select class="form-control" type=text name=method id=method>
-					<option disabled selected> -- select a method -- </option>
+					<select class="form-control" type=text name=endpoint id=endpoint>
+					<option disabled selected> -- select an endpoint -- </option>
 					</select>
 				</ul>
 			</div>
 			<div class="form-group">
-				<label for="othermethod">Other Method</label>
+				<label for="otherendpoint">Other Endpoint</label>
 				<ul class="list-group">
-					<input class="form-control" type=text name=othermethod id=othermethod disabled placeholder="Method"/>
+					<input class="form-control" type=text name=otherendpoint id=otherendpoint disabled placeholder="Endpoint"/>
 				</ul>
 			</div>
 			<div class="form-group">
@@ -146,35 +146,35 @@ jQuery(function($, undefined) {
 			//Function executes on change of first select option field 
 			$("#service").change(function(){
 				var select = $("#service option:selected").val();
-				$("#othermethod").attr("disabled", true);
-				$('#othermethod').val('');
-				$("#method").empty();
-				$("#method").append("<option disabled selected> -- select a method -- </option>");
+				$("#otherendpoint").attr("disabled", true);
+				$('#otherendpoint').val('');
+				$("#endpoint").empty();
+				$("#endpoint").append("<option disabled selected> -- select an endpoint -- </option>");
 				var s_map = {};
-				{{ range $service, $methods := .Results }}
+				{{ range $service, $endpoints := .Results }}
 				var m_list = [];
-				{{range $index, $element := $methods}}
+				{{range $index, $element := $endpoints}}
 				m_list[{{$index}}] = {{$element.Name}}
 				{{end}}
 				s_map[{{$service}}] = m_list
 				{{ end }}
 				if (select in s_map) {
-				var serviceMethods = s_map[select]
-				var len = serviceMethods.length;
+				var serviceEndpoints = s_map[select]
+				var len = serviceEndpoints.length;
 					for(var i = 0; i < len; i++) {
-						$("#method").append("<option value=\""+serviceMethods[i]+"\">"+serviceMethods[i]+"</option>");	
+						$("#endpoint").append("<option value=\""+serviceEndpoints[i]+"\">"+serviceEndpoints[i]+"</option>");	
 					}
 				}
-				$("#method").append("<option value=\"other\"> - Other</option>");
+				$("#endpoint").append("<option value=\"other\"> - Other</option>");
 			});
 			//Function executes on change of second select option field 
-			$("#method").change(function(){
-				var select = $("#method option:selected").val();
+			$("#endpoint").change(function(){
+				var select = $("#endpoint option:selected").val();
 				if (select == "other") {
-					$("#othermethod").attr("disabled", false);
+					$("#otherendpoint").attr("disabled", false);
 				} else {
-					$("#othermethod").attr("disabled", true);
-					$('#othermethod').val('');
+					$("#otherendpoint").attr("disabled", true);
+					$('#otherendpoint').val('');
 				}
 
 			});
@@ -195,13 +195,13 @@ jQuery(function($, undefined) {
 				}
 				console.log(req.responseText);
 			}
-			var method = document.forms[0].elements["method"].value
-			if (!($('#othermethod').prop('disabled'))) {
-				method = document.forms[0].elements["othermethod"].value
+			var endpoint = document.forms[0].elements["endpoint"].value
+			if (!($('#otherendpoint').prop('disabled'))) {
+				endpoint = document.forms[0].elements["otherendpoint"].value
 			}
 			var request = {
 				"service": document.forms[0].elements["service"].value,
-				"method": method,
+				"endpoint": endpoint,
 				"request": JSON.parse(document.forms[0].elements["request"].value)
 			}
 			req.open("POST", "/rpc", true);
@@ -314,7 +314,7 @@ jQuery(function($, undefined) {
         }
 
 	var help = "COMMANDS:\n" +
-	"    call       Call a service method using rpc\n" +
+	"    call       Call a service endpoint using rpc\n" +
 	"    health      Query the health of a service\n" +
 	"    list        List items in registry\n" +
 	"    get         Get item from registry\n";
@@ -428,13 +428,13 @@ jQuery(function($, undefined) {
 			    var node = service.nodes[j];
 
 			    $.ajax({
-				  method: "POST",
+				  endpoint: "POST",
 				  dataType: "json",
 				  contentType: "application/json",
 				  url: "rpc",
 				  data: JSON.stringify({
 					"service": service.name,
-					"method": "Debug.Health",
+					"endpoint": "Debug.Health",
 					"request": {},
 					"address": node.address + ":" + node.port,
 				  }),
@@ -457,7 +457,7 @@ jQuery(function($, undefined) {
 		break;
 	    case "call":
 		if (args.length < 3) {
-		    term.echo("USAGE:\n    call [service] [method] [request]");
+		    term.echo("USAGE:\n    call [service] [endpoint] [request]");
 		    return;
 		}
 
@@ -468,11 +468,11 @@ jQuery(function($, undefined) {
 		}		
 
 		$.ajax({
-		  method: "POST",
+		  endpoint: "POST",
 		  dataType: "json",
 		  contentType: "application/json",
 		  url: "rpc",
-		  data: JSON.stringify({"service": args[1], "method": args[2], "request": request}),
+		  data: JSON.stringify({"service": args[1], "endpoint": args[2], "request": request}),
 		  success: function(data) {
 		    term.echo(JSON.stringify(data, null, 2));
 		  },

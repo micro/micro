@@ -14,10 +14,11 @@ import (
 )
 
 type rpcRequest struct {
-	Service string
-	Method  string
-	Address string
-	Request interface{}
+	Service  string
+	Endpoint string
+	Method   string
+	Address  string
+	Request  interface{}
 }
 
 // RPC Handler passes on a JSON or form encoded RPC request to
@@ -35,7 +36,7 @@ func RPC(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte(e.Error()))
 	}
 
-	var service, method, address string
+	var service, endpoint, address string
 	var request interface{}
 
 	// response content type
@@ -61,9 +62,12 @@ func RPC(w http.ResponseWriter, r *http.Request) {
 		}
 
 		service = rpcReq.Service
-		method = rpcReq.Method
+		endpoint = rpcReq.Endpoint
 		address = rpcReq.Address
 		request = rpcReq.Request
+		if len(endpoint) == 0 {
+			endpoint = rpcReq.Method
+		}
 
 		// JSON as string
 		if req, ok := rpcReq.Request.(string); ok {
@@ -78,8 +82,11 @@ func RPC(w http.ResponseWriter, r *http.Request) {
 	default:
 		r.ParseForm()
 		service = r.Form.Get("service")
-		method = r.Form.Get("method")
+		endpoint = r.Form.Get("endpoint")
 		address = r.Form.Get("address")
+		if len(endpoint) == 0 {
+			endpoint = r.Form.Get("method")
+		}
 
 		d := json.NewDecoder(strings.NewReader(r.Form.Get("request")))
 		d.UseNumber()
@@ -95,15 +102,15 @@ func RPC(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if len(method) == 0 {
-		badRequest("invalid method")
+	if len(endpoint) == 0 {
+		badRequest("invalid endpoint")
 		return
 	}
 
 	// create request/response
 	var response json.RawMessage
 	var err error
-	req := (*cmd.DefaultOptions().Client).NewRequest(service, method, request, client.WithContentType("application/json"))
+	req := (*cmd.DefaultOptions().Client).NewRequest(service, endpoint, request, client.WithContentType("application/json"))
 
 	// create context
 	ctx := helper.RequestToContext(r)

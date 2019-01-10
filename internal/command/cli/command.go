@@ -308,12 +308,12 @@ func Publish(c *cli.Context, args []string) error {
 
 func CallService(c *cli.Context, args []string) ([]byte, error) {
 	if len(args) < 2 {
-		return nil, errors.New("require service and method")
+		return nil, errors.New("require service and endpoint")
 	}
 
-	var req, service, method string
+	var req, service, endpoint string
 	service = args[0]
-	method = args[1]
+	endpoint = args[1]
 
 	if len(args) > 2 {
 		req = strings.Join(args[2:], " ")
@@ -329,9 +329,9 @@ func CallService(c *cli.Context, args []string) ([]byte, error) {
 
 	if p := c.GlobalString("proxy_address"); len(p) > 0 {
 		request = map[string]interface{}{
-			"service": service,
-			"method":  method,
-			"request": req,
+			"service":  service,
+			"endpoint": endpoint,
+			"request":  req,
 		}
 
 		b, err := json.Marshal(request)
@@ -351,10 +351,10 @@ func CallService(c *cli.Context, args []string) ([]byte, error) {
 			return nil, err
 		}
 
-		creq := (*cmd.DefaultOptions().Client).NewRequest(service, method, request, client.WithContentType("application/json"))
+		creq := (*cmd.DefaultOptions().Client).NewRequest(service, endpoint, request, client.WithContentType("application/json"))
 		err := (*cmd.DefaultOptions().Client).Call(context.Background(), creq, &response)
 		if err != nil {
-			return nil, fmt.Errorf("error calling %s.%s: %v", service, method, err)
+			return nil, fmt.Errorf("error calling %s.%s: %v", service, endpoint, err)
 		}
 	}
 
@@ -405,9 +405,9 @@ func QueryHealth(c *cli.Context, args []string) ([]byte, error) {
 			if p := c.GlobalString("proxy_address"); len(p) > 0 {
 				// call using proxy
 				request := map[string]interface{}{
-					"service": service[0].Name,
-					"method":  "Debug.Health",
-					"address": address,
+					"service":  service[0].Name,
+					"endpoint": "Debug.Health",
+					"address":  address,
 				}
 
 				b, err := json.Marshal(request)
@@ -480,9 +480,9 @@ func QueryStats(c *cli.Context, args []string) ([]byte, error) {
 			if p := c.GlobalString("proxy_address"); len(p) > 0 {
 				// call using proxy
 				request := map[string]interface{}{
-					"service": service[0].Name,
-					"method":  "Debug.Stats",
-					"address": address,
+					"service":  service[0].Name,
+					"endpoint": "Debug.Stats",
+					"address":  address,
 				}
 
 				b, err := json.Marshal(request)

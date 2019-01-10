@@ -108,7 +108,7 @@ func List(ctx *cli.Context) command.Command {
 
 // Call returns a service call
 func Call(ctx *cli.Context) command.Command {
-	usage := "call [service] [method] [request]"
+	usage := "call [service] [endpoint] [request]"
 	desc := "Returns the response for a service call"
 
 	return command.NewCommand("call", usage, desc, func(args ...string) ([]byte, error) {
