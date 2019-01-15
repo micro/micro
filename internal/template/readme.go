@@ -26,7 +26,9 @@ Generated with
 
 ## Dependencies
 
-Micro services depend on service discovery. The default is consul.
+Micro services depend on service discovery. The default is multicast DNS, a zeroconf system.
+
+In the event you need a resilient multi-host setup we recommend consul.
 
 ` + "```" +
 		`
