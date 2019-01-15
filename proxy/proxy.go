@@ -4,7 +4,6 @@ package proxy
 import (
 	"fmt"
 	"net/http"
-	"strings"
 	"time"
 
 	"github.com/gorilla/mux"
@@ -12,6 +11,7 @@ import (
 	"github.com/micro/go-api/server"
 	"github.com/micro/go-log"
 	"github.com/micro/go-micro"
+	"github.com/micro/go-proxy/router/proxy"
 	"github.com/micro/micro/internal/handler"
 	"github.com/micro/micro/internal/helper"
 	"github.com/micro/micro/internal/stats"
@@ -27,31 +27,17 @@ type srv struct {
 }
 
 var (
-	Name         = "go.micro.proxy"
-	Address      = ":8081"
+	// Name of the proxy
+	Name = "go.micro.proxy"
+	// The http address of the proxy
+	Address = ":8081"
+	// The backend host to route to
+	Backend string
+	// The paths for http endpoints
 	BrokerPath   = "/broker"
 	RegistryPath = "/registry"
 	RPCPath      = "/rpc"
-	CORS         = map[string]bool{"*": true}
 )
-
-func (s *srv) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	if origin := r.Header.Get("Origin"); CORS[origin] {
-		w.Header().Set("Access-Control-Allow-Origin", origin)
-	} else if len(origin) > 0 && CORS["*"] {
-		w.Header().Set("Access-Control-Allow-Origin", origin)
-	}
-
-	w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
-	w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization")
-	w.Header().Set("Access-Control-Allow-Credentials", "true")
-
-	if r.Method == "OPTIONS" {
-		return
-	}
-
-	s.Router.ServeHTTP(w, r)
-}
 
 func run(ctx *cli.Context) {
 	if len(ctx.GlobalString("server_name")) > 0 {
@@ -60,12 +46,8 @@ func run(ctx *cli.Context) {
 	if len(ctx.String("address")) > 0 {
 		Address = ctx.String("address")
 	}
-	if len(ctx.String("cors")) > 0 {
-		origins := make(map[string]bool)
-		for _, origin := range strings.Split(ctx.String("cors"), ",") {
-			origins[origin] = true
-		}
-		CORS = origins
+	if len(ctx.String("backend")) > 0 {
+		Backend = ctx.String("backend")
 	}
 
 	// Init plugins
@@ -91,9 +73,7 @@ func run(ctx *cli.Context) {
 	}
 
 	r := mux.NewRouter()
-	s := &srv{r}
-
-	var h http.Handler = s
+	var h http.Handler = r
 
 	if ctx.GlobalBool("enable_stats") {
 		st := stats.New()
@@ -107,16 +87,24 @@ func run(ctx *cli.Context) {
 	srv := server.NewServer(Address)
 	srv.Init(opts...)
 
-	// Initialise Server
-	service := micro.NewService(
+	// service opts
+	srvOpts := []micro.Option{
 		micro.Name(Name),
 		micro.RegisterTTL(
-			time.Duration(ctx.GlobalInt("register_ttl"))*time.Second,
+			time.Duration(ctx.GlobalInt("register_ttl")) * time.Second,
 		),
 		micro.RegisterInterval(
-			time.Duration(ctx.GlobalInt("register_interval"))*time.Second,
+			time.Duration(ctx.GlobalInt("register_interval")) * time.Second,
 		),
-	)
+	}
+
+	// set backend
+	if len(Backend) > 0 {
+		srvOpts = append(srvOpts, proxy.WithBackend(Backend))
+	}
+
+	// Initialise Server
+	service := proxy.NewService(srvOpts...)
 
 	log.Logf("Registering Registry handler at %s", RegistryPath)
 	r.Handle(RegistryPath, aregistry.NewHandler(ahandler.WithService(service)))
@@ -159,13 +147,13 @@ func Commands() []cli.Command {
 		Flags: []cli.Flag{
 			cli.StringFlag{
 				Name:   "address",
-				Usage:  "Set the proxy address e.g 0.0.0.0:8081",
+				Usage:  "Set the proxy http address e.g 0.0.0.0:8081",
 				EnvVar: "MICRO_PROXY_ADDRESS",
 			},
 			cli.StringFlag{
-				Name:   "cors",
-				Usage:  "Comma separated whitelist of allowed origins for CORS",
-				EnvVar: "MICRO_PROXY_CORS",
+				Name:   "backend",
+				Usage:  "Set the backend to route to e.g greeter or localhost:9090",
+				EnvVar: "MICRO_PROXY_BACKEND",
 			},
 		},
 		Action: run,
