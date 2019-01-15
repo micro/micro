@@ -42,31 +42,11 @@ var (
 	// This is stripped from the request path
 	// Allows the web service to define absolute paths
 	BasePathHeader = "X-Micro-Web-Base-Path"
-	// CORS specifies the hosts to allow for CORS
-	CORS     = map[string]bool{"*": true}
-	statsURL string
+	statsURL       string
 )
 
 type srv struct {
 	*mux.Router
-}
-
-func (s *srv) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	if origin := r.Header.Get("Origin"); CORS[origin] {
-		w.Header().Set("Access-Control-Allow-Origin", origin)
-	} else if len(origin) > 0 && CORS["*"] {
-		w.Header().Set("Access-Control-Allow-Origin", origin)
-	}
-
-	w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
-	w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization")
-	w.Header().Set("Access-Control-Allow-Credentials", "true")
-
-	if r.Method == "OPTIONS" {
-		return
-	}
-
-	s.Router.ServeHTTP(w, r)
 }
 
 func (s *srv) proxy() http.Handler {
@@ -318,13 +298,6 @@ func run(ctx *cli.Context) {
 	if len(ctx.String("namespace")) > 0 {
 		Namespace = ctx.String("namespace")
 	}
-	if len(ctx.String("cors")) > 0 {
-		origins := make(map[string]bool)
-		for _, origin := range strings.Split(ctx.String("cors"), ",") {
-			origins[origin] = true
-		}
-		CORS = origins
-	}
 
 	// Init plugins
 	for _, p := range Plugins() {
@@ -422,11 +395,6 @@ func Commands() []cli.Command {
 				Name:   "namespace",
 				Usage:  "Set the namespace used by the Web proxy e.g. com.example.web",
 				EnvVar: "MICRO_WEB_NAMESPACE",
-			},
-			cli.StringFlag{
-				Name:   "cors",
-				Usage:  "Comma separated whitelist of allowed origins for CORS",
-				EnvVar: "MICRO_WEB_CORS",
 			},
 		},
 	}

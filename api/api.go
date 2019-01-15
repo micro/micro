@@ -4,7 +4,6 @@ package api
 import (
 	"fmt"
 	"net/http"
-	"strings"
 	"time"
 
 	"github.com/gorilla/mux"
@@ -40,30 +39,7 @@ var (
 	ProxyPath    = "/{service:[a-zA-Z0-9]+}"
 	Namespace    = "go.micro.api"
 	HeaderPrefix = "X-Micro-"
-	CORS         = map[string]bool{"*": true}
 )
-
-type srv struct {
-	*mux.Router
-}
-
-func (s *srv) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	if origin := r.Header.Get("Origin"); CORS[origin] {
-		w.Header().Set("Access-Control-Allow-Origin", origin)
-	} else if len(origin) > 0 && CORS["*"] {
-		w.Header().Set("Access-Control-Allow-Origin", origin)
-	}
-
-	w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PATCH, PUT, DELETE")
-	w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization")
-	w.Header().Set("Access-Control-Allow-Credentials", "true")
-
-	if r.Method == "OPTIONS" {
-		return
-	}
-
-	s.Router.ServeHTTP(w, r)
-}
 
 func run(ctx *cli.Context) {
 	if len(ctx.GlobalString("server_name")) > 0 {
@@ -80,13 +56,6 @@ func run(ctx *cli.Context) {
 	}
 	if len(ctx.String("resolver")) > 0 {
 		Resolver = ctx.String("resolver")
-	}
-	if len(ctx.String("cors")) > 0 {
-		origins := make(map[string]bool)
-		for _, origin := range strings.Split(ctx.String("cors"), ",") {
-			origins[origin] = true
-		}
-		CORS = origins
 	}
 
 	// Init plugins
@@ -113,14 +82,14 @@ func run(ctx *cli.Context) {
 	}
 
 	// create the router
+	var h http.Handler
 	r := mux.NewRouter()
-	s := &srv{r}
-	var h http.Handler = s
+	h = r
 
 	if ctx.GlobalBool("enable_stats") {
 		st := stats.New()
 		r.HandleFunc("/stats", st.StatsHandler)
-		h = st.ServeHTTP(s)
+		h = st.ServeHTTP(r)
 		st.Start()
 		defer st.Stop()
 	}
@@ -277,11 +246,6 @@ func Commands() []cli.Command {
 				Name:   "resolver",
 				Usage:  "Set the hostname resolver used by the API {host, path, grpc}",
 				EnvVar: "MICRO_API_RESOLVER",
-			},
-			cli.StringFlag{
-				Name:   "cors",
-				Usage:  "Comma separated whitelist of allowed origins for CORS",
-				EnvVar: "MICRO_API_CORS",
 			},
 		},
 	}
