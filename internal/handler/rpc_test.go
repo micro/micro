@@ -12,7 +12,7 @@ import (
 	"github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/cmd"
 	"github.com/micro/go-micro/metadata"
-	rmock "github.com/micro/go-micro/registry/mock"
+	"github.com/micro/go-micro/registry/memory"
 	"github.com/micro/go-micro/selector"
 	"github.com/micro/go-micro/server"
 )
@@ -44,7 +44,7 @@ func (t *TestHandler) Exec(ctx context.Context, req *TestRequest, rsp *TestRespo
 }
 
 func TestRPCHandler(t *testing.T) {
-	r := rmock.NewRegistry()
+	r := memory.NewRegistry()
 
 	(*cmd.DefaultOptions().Client).Init(
 		client.Registry(r),
