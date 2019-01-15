@@ -25,7 +25,8 @@ via discovery and pluggable handlers to serve http, grpc, websockets, publish ev
 gives you all the commands you expect to understand what's happening with your micro services. It also includes an interactive mode.
 
 - **Service Proxy:** A transparent proxy built on [Go Micro](https://github.com/micro/go-micro) and the [MUCP](https://github.com/micro/protocol) 
-protocol. Offload service discovery, load balancing, message encoding, middleware, transport and broker plugins to a single a location.
+protocol. Offload service discovery, load balancing, message encoding, middleware, transport and broker plugins to a single a location. 
+Run it standalone or alongside your service.
 
 - **Service Templates:** Generate new service templates to get started quickly. Micro provides predefined templates for writing micro services. 
 Always start in the same way, build identical services to be more productive.
