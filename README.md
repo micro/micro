@@ -25,7 +25,7 @@ via discovery and pluggable handlers to serve http, grpc, websockets, publish ev
 gives you all the commands you expect to understand what's happening with your micro services. It also includes an interactive mode.
 
 - **Service Proxy:** A transparent proxy built on [Go Micro](https://github.com/micro/go-micro) and the [MUCP](https://github.com/micro/protocol) 
-protocol. Offload service discovery, load balancing, message encoding, middleware, transport and broker plugins to a single a location. 
+protocol. Offload service discovery, load balancing, fault tolerance, message encoding, middleware, monitoring and more to a single a location. 
 Run it standalone or alongside your service.
 
 - **Service Templates:** Generate new service templates to get started quickly. Micro provides predefined templates for writing micro services. 
@@ -36,7 +36,7 @@ and gives you the ability to do everything with your team via messaging. It also
 are discovered dynamically.
 
 - **Web Dashboard:** The web dashboard allows you to explore your services, describe their endpoints, the request and response formats and even 
-query them directly. The dashboard is also includes a built in CLI like experience for developers who want to drop into the terminal on the fly.
+query them directly. The dashboard also includes a built in CLI like experience for developers who want to drop into the terminal on the fly.
 
 ## Getting Started
 
