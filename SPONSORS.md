@@ -1,4 +1,4 @@
-# Sponsors & Backers
+# Sponsors
 
 Micro is an open source ecosystem focused on simplifying cloud native development.
 
@@ -12,14 +12,15 @@ If you'd like to join them please consider:
 
 <a href="https://micro.mu/blog/2016/04/25/announcing-sixt-sponsorship.html"><img src="https://micro.mu/sixt_logo.png" width=150px height="auto" /></a>
 
-## Gold Sponsors ($500)
+## Platinum Sponsors ($500+)
 
 <a href="https://www.neds.com.au/"><img src="https://micro.mu/images/logos/neds.svg" height="60px"></a>
 
-## Backers
+## Sponsors
 
 - Brian Ketelsen
 - Ewan Valentine
 - Jo Lee
+- Joseph Jacks
 - Stefan Hans
 - Sakti Dwi Cahyono
