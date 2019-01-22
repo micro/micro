@@ -6,7 +6,6 @@ The development of micro is made possible by our sponsors and backers. We owe a 
 If you'd like to join them please consider:
 
 - [Becoming a sponsor via Patreon](https://www.patreon.com/microhq)
-- [Making a one-time donation](https://micro.mu/#one-off-donation)
 
 ## Enterprise Sponsors ($5k+)
 
