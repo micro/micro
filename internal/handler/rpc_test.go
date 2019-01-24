@@ -64,10 +64,6 @@ func TestRPCHandler(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if err := server.Register(); err != nil {
-		t.Fatal(err)
-	}
-
 	w := httptest.NewRecorder()
 
 	request := map[string]string{
@@ -91,10 +87,6 @@ func TestRPCHandler(t *testing.T) {
 	req.Header.Set("Foo", "Bar")
 
 	RPC(w, req)
-
-	if err := server.Deregister(); err != nil {
-		t.Fatal(err)
-	}
 
 	if err := server.Stop(); err != nil {
 		t.Fatal(err)
