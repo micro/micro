@@ -17,6 +17,7 @@ var (
 		"quit":       &command{"quit", "Exit the CLI", quit},
 		"exit":       &command{"exit", "Exit the CLI", quit},
 		"call":       &command{"call", "Call a service", callService},
+		"ls":         &command{"list", "List services", listServices},
 		"list":       &command{"list", "List services", listServices},
 		"get":        &command{"get", "Get service info", getService},
 		"stream":     &command{"stream", "Stream a call to a service", streamService},
@@ -36,6 +37,7 @@ type command struct {
 
 func runc(c *cli.Context) {
 	commands["help"] = &command{"help", "CLI usage", help}
+	commands["?"] = commands["help"]
 
 	r, err := readline.New(prompt)
 	if err != nil {
