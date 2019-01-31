@@ -95,10 +95,10 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	}
 
 	srvOpts = append(srvOpts, micro.Name(Name))
-	if i := time.Duration(c.GlobalInt("register_ttl")); i > 0 {
+	if i := time.Duration(ctx.GlobalInt("register_ttl")); i > 0 {
 		srvOpts = append(srvOpts, micro.RegisterTTL(i*time.Second))
 	}
-	if i := time.Duration(c.GlobalInt("register_interval")); i > 0 {
+	if i := time.Duration(ctx.GlobalInt("register_interval")); i > 0 {
 		srvOpts = append(srvOpts, micro.RegisterInterval(i*time.Second))
 	}
 
