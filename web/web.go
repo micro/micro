@@ -354,16 +354,13 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	srv.Handle("/", h)
 
 	// service opts
-	srvOpts = append(
-		srvOpts,
-		micro.Name(Name),
-		micro.RegisterTTL(
-			time.Duration(ctx.GlobalInt("register_ttl")) * time.Second,
-		),
-		micro.RegisterInterval(
-			time.Duration(ctx.GlobalInt("register_interval")) * time.Second,
-		),
-	)
+	srvOpts = append(srvOpts, micro.Name(Name))
+	if i := time.Duration(c.GlobalInt("register_ttl")); i > 0 {
+		srvOpts = append(srvOpts, micro.RegisterTTL(i*time.Second))
+	}
+	if i := time.Duration(c.GlobalInt("register_interval")); i > 0 {
+		srvOpts = append(srvOpts, micro.RegisterInterval(i*time.Second))
+	}
 
 	// Initialise Server
 	service := micro.NewService(srvOpts...)
