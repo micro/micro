@@ -134,6 +134,7 @@ func run(ctx *cli.Context) {
 			router.WithNamespace(Namespace),
 			router.WithHandler(arpc.Handler),
 			router.WithResolver(rr),
+			router.WithRegistry(service.Options().Registry),
 		)
 		rp := arpc.NewHandler(
 			ahandler.WithNamespace(Namespace),
@@ -147,6 +148,7 @@ func run(ctx *cli.Context) {
 			router.WithNamespace(Namespace),
 			router.WithHandler(aapi.Handler),
 			router.WithResolver(rr),
+			router.WithRegistry(service.Options().Registry),
 		)
 		ap := aapi.NewHandler(
 			ahandler.WithNamespace(Namespace),
@@ -160,8 +162,13 @@ func run(ctx *cli.Context) {
 			router.WithNamespace(Namespace),
 			router.WithHandler(event.Handler),
 			router.WithResolver(rr),
+			router.WithRegistry(service.Options().Registry),
 		)
-		ev := event.NewHandler(ahandler.WithNamespace(Namespace), ahandler.WithRouter(rt))
+		ev := event.NewHandler(
+			ahandler.WithNamespace(Namespace),
+			ahandler.WithRouter(rt),
+			ahandler.WithService(service),
+		)
 		r.PathPrefix(APIPath).Handler(ev)
 	case "http", "proxy":
 		log.Logf("Registering API HTTP Handler at %s", ProxyPath)
@@ -169,6 +176,7 @@ func run(ctx *cli.Context) {
 			router.WithNamespace(Namespace),
 			router.WithHandler(ahttp.Handler),
 			router.WithResolver(rr),
+			router.WithRegistry(service.Options().Registry),
 		)
 		ht := ahttp.NewHandler(
 			ahandler.WithNamespace(Namespace),
@@ -182,6 +190,7 @@ func run(ctx *cli.Context) {
 			router.WithNamespace(Namespace),
 			router.WithHandler(web.Handler),
 			router.WithResolver(rr),
+			router.WithRegistry(service.Options().Registry),
 		)
 		w := web.NewHandler(
 			ahandler.WithNamespace(Namespace),
@@ -191,7 +200,11 @@ func run(ctx *cli.Context) {
 		r.PathPrefix(APIPath).Handler(w)
 	default:
 		log.Logf("Registering API Default Handler at %s", APIPath)
-		r.PathPrefix(APIPath).Handler(handler.Meta(Namespace))
+		rt := router.NewRouter(
+			router.WithNamespace(Namespace),
+			router.WithRegistry(service.Options().Registry),
+		)
+		r.PathPrefix(APIPath).Handler(handler.Meta(service, rt))
 	}
 
 	// reverse wrap handler
