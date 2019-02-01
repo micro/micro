@@ -41,7 +41,7 @@ var (
 	HeaderPrefix = "X-Micro-"
 )
 
-func run(ctx *cli.Context) {
+func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	if len(ctx.GlobalString("server_name")) > 0 {
 		Name = ctx.GlobalString("server_name")
 	}
@@ -94,16 +94,16 @@ func run(ctx *cli.Context) {
 		defer st.Stop()
 	}
 
+	srvOpts = append(srvOpts, micro.Name(Name))
+	if i := time.Duration(ctx.GlobalInt("register_ttl")); i > 0 {
+		srvOpts = append(srvOpts, micro.RegisterTTL(i*time.Second))
+	}
+	if i := time.Duration(ctx.GlobalInt("register_interval")); i > 0 {
+		srvOpts = append(srvOpts, micro.RegisterInterval(i*time.Second))
+	}
+
 	// initialise service
-	service := micro.NewService(
-		micro.Name(Name),
-		micro.RegisterTTL(
-			time.Duration(ctx.GlobalInt("register_ttl"))*time.Second,
-		),
-		micro.RegisterInterval(
-			time.Duration(ctx.GlobalInt("register_interval"))*time.Second,
-		),
-	)
+	service := micro.NewService(srvOpts...)
 
 	// register rpc handler
 	log.Logf("Registering RPC Handler at %s", RPCPath)
@@ -234,11 +234,13 @@ func run(ctx *cli.Context) {
 	}
 }
 
-func Commands() []cli.Command {
+func Commands(options ...micro.Option) []cli.Command {
 	command := cli.Command{
 		Name:   "api",
 		Usage:  "Run the micro API",
-		Action: run,
+		Action: func(ctx *cli.Context) {
+			run(ctx, options...)
+		},
 		Flags: []cli.Flag{
 			cli.StringFlag{
 				Name:   "address",

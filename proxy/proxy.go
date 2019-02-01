@@ -39,7 +39,7 @@ var (
 	RPCPath      = "/rpc"
 )
 
-func run(ctx *cli.Context) {
+func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	if len(ctx.GlobalString("server_name")) > 0 {
 		Name = ctx.GlobalString("server_name")
 	}
@@ -88,14 +88,12 @@ func run(ctx *cli.Context) {
 	srv.Init(opts...)
 
 	// service opts
-	srvOpts := []micro.Option{
-		micro.Name(Name),
-		micro.RegisterTTL(
-			time.Duration(ctx.GlobalInt("register_ttl")) * time.Second,
-		),
-		micro.RegisterInterval(
-			time.Duration(ctx.GlobalInt("register_interval")) * time.Second,
-		),
+	srvOpts = append(srvOpts, micro.Name(Name))
+	if i := time.Duration(ctx.GlobalInt("register_ttl")); i > 0 {
+		srvOpts = append(srvOpts, micro.RegisterTTL(i*time.Second))
+	}
+	if i := time.Duration(ctx.GlobalInt("register_interval")); i > 0 {
+		srvOpts = append(srvOpts, micro.RegisterInterval(i*time.Second))
 	}
 
 	// set backend
@@ -140,7 +138,7 @@ func run(ctx *cli.Context) {
 	}
 }
 
-func Commands() []cli.Command {
+func Commands(options ...micro.Option) []cli.Command {
 	command := cli.Command{
 		Name:  "proxy",
 		Usage: "Run the micro proxy",
@@ -156,7 +154,9 @@ func Commands() []cli.Command {
 				EnvVar: "MICRO_PROXY_BACKEND",
 			},
 		},
-		Action: run,
+		Action: func(ctx *cli.Context) {
+			run(ctx, options...)
+		},
 	}
 
 	for _, p := range Plugins() {
