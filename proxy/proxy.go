@@ -143,7 +143,7 @@ func run(ctx *cli.Context) {
 func Commands() []cli.Command {
 	command := cli.Command{
 		Name:  "proxy",
-		Usage: "Run the micro proxy",
+		Usage: "Run the service proxy",
 		Flags: []cli.Flag{
 			cli.StringFlag{
 				Name:   "address",

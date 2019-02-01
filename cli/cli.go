@@ -140,7 +140,7 @@ func Commands() []cli.Command {
 	commands := []cli.Command{
 		{
 			Name:   "cli",
-			Usage:  "Start the interactive cli",
+			Usage:  "Run the interactive CLI",
 			Action: runc,
 		},
 		{
@@ -150,20 +150,12 @@ func Commands() []cli.Command {
 		},
 		{
 			Name:   "call",
-			Usage:  "Call a service or function",
+			Usage:  "Call a service",
 			Action: printer(callService),
 		},
 		{
-			Name:  "query",
-			Usage: "Deprecated: Use call instead",
-			Action: func(c *cli.Context) {
-				fmt.Println("Deprecated. Use call instead")
-				printer(callService)(c)
-			},
-		},
-		{
 			Name:   "stream",
-			Usage:  "Create a service or function stream",
+			Usage:  "Create a service stream",
 			Action: printer(streamService),
 		},
 		{

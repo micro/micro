@@ -381,7 +381,7 @@ func run(ctx *cli.Context) {
 func Commands() []cli.Command {
 	command := cli.Command{
 		Name:  "web",
-		Usage: "Run the micro web app",
+		Usage: "Run the web dashboard",
 		Action: func(c *cli.Context) {
 			run(c)
 		},

@@ -350,7 +350,7 @@ func Commands() []cli.Command {
 	return []cli.Command{
 		{
 			Name:  "new",
-			Usage: "Create a new micro service by specifying a directory path relative to your $GOPATH",
+			Usage: "Create a service template",
 			Flags: []cli.Flag{
 				cli.StringFlag{
 					Name:  "namespace",

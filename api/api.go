@@ -224,7 +224,7 @@ func run(ctx *cli.Context) {
 func Commands() []cli.Command {
 	command := cli.Command{
 		Name:   "api",
-		Usage:  "Run the micro API",
+		Usage:  "Run the api gateway",
 		Action: run,
 		Flags: []cli.Flag{
 			cli.StringFlag{

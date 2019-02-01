@@ -451,7 +451,7 @@ func Commands() []cli.Command {
 
 	command := cli.Command{
 		Name:   "bot",
-		Usage:  "Run the micro bot",
+		Usage:  "Run the chatops bot",
 		Flags:  flags,
 		Action: run,
 	}
