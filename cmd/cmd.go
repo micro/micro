@@ -2,6 +2,7 @@ package cmd
 
 import (
 	ccli "github.com/micro/cli"
+	"github.com/micro/go-micro"
 	"github.com/micro/go-micro/cmd"
 	"github.com/micro/micro/api"
 	"github.com/micro/micro/bot"
@@ -133,8 +134,8 @@ func setup(app *ccli.App) {
 }
 
 // Init initialised the command line
-func Init() {
-	Setup(cmd.App())
+func Init(options ...micro.Option) {
+	Setup(cmd.App(), options...)
 
 	cmd.Init(
 		cmd.Name(name),
@@ -144,13 +145,13 @@ func Init() {
 }
 
 // Setup sets up a cli.App
-func Setup(app *ccli.App) {
-	app.Commands = append(app.Commands, api.Commands()...)
+func Setup(app *ccli.App, options ...micro.Option) {
+	app.Commands = append(app.Commands, api.Commands(options...)...)
 	app.Commands = append(app.Commands, bot.Commands()...)
 	app.Commands = append(app.Commands, cli.Commands()...)
-	app.Commands = append(app.Commands, proxy.Commands()...)
+	app.Commands = append(app.Commands, proxy.Commands(options...)...)
 	app.Commands = append(app.Commands, new.Commands()...)
-	app.Commands = append(app.Commands, web.Commands()...)
+	app.Commands = append(app.Commands, web.Commands(options...)...)
 	app.Action = func(context *ccli.Context) { ccli.ShowAppHelp(context) }
 
 	setup(app)

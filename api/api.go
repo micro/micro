@@ -41,7 +41,7 @@ var (
 	HeaderPrefix = "X-Micro-"
 )
 
-func run(ctx *cli.Context) {
+func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	if len(ctx.GlobalString("server_name")) > 0 {
 		Name = ctx.GlobalString("server_name")
 	}
@@ -94,16 +94,16 @@ func run(ctx *cli.Context) {
 		defer st.Stop()
 	}
 
+	srvOpts = append(srvOpts, micro.Name(Name))
+	if i := time.Duration(ctx.GlobalInt("register_ttl")); i > 0 {
+		srvOpts = append(srvOpts, micro.RegisterTTL(i*time.Second))
+	}
+	if i := time.Duration(ctx.GlobalInt("register_interval")); i > 0 {
+		srvOpts = append(srvOpts, micro.RegisterInterval(i*time.Second))
+	}
+
 	// initialise service
-	service := micro.NewService(
-		micro.Name(Name),
-		micro.RegisterTTL(
-			time.Duration(ctx.GlobalInt("register_ttl"))*time.Second,
-		),
-		micro.RegisterInterval(
-			time.Duration(ctx.GlobalInt("register_interval"))*time.Second,
-		),
-	)
+	service := micro.NewService(srvOpts...)
 
 	// register rpc handler
 	log.Logf("Registering RPC Handler at %s", RPCPath)
@@ -134,6 +134,7 @@ func run(ctx *cli.Context) {
 			router.WithNamespace(Namespace),
 			router.WithHandler(arpc.Handler),
 			router.WithResolver(rr),
+			router.WithRegistry(service.Options().Registry),
 		)
 		rp := arpc.NewHandler(
 			ahandler.WithNamespace(Namespace),
@@ -147,6 +148,7 @@ func run(ctx *cli.Context) {
 			router.WithNamespace(Namespace),
 			router.WithHandler(aapi.Handler),
 			router.WithResolver(rr),
+			router.WithRegistry(service.Options().Registry),
 		)
 		ap := aapi.NewHandler(
 			ahandler.WithNamespace(Namespace),
@@ -160,8 +162,13 @@ func run(ctx *cli.Context) {
 			router.WithNamespace(Namespace),
 			router.WithHandler(event.Handler),
 			router.WithResolver(rr),
+			router.WithRegistry(service.Options().Registry),
 		)
-		ev := event.NewHandler(ahandler.WithNamespace(Namespace), ahandler.WithRouter(rt))
+		ev := event.NewHandler(
+			ahandler.WithNamespace(Namespace),
+			ahandler.WithRouter(rt),
+			ahandler.WithService(service),
+		)
 		r.PathPrefix(APIPath).Handler(ev)
 	case "http", "proxy":
 		log.Logf("Registering API HTTP Handler at %s", ProxyPath)
@@ -169,6 +176,7 @@ func run(ctx *cli.Context) {
 			router.WithNamespace(Namespace),
 			router.WithHandler(ahttp.Handler),
 			router.WithResolver(rr),
+			router.WithRegistry(service.Options().Registry),
 		)
 		ht := ahttp.NewHandler(
 			ahandler.WithNamespace(Namespace),
@@ -182,6 +190,7 @@ func run(ctx *cli.Context) {
 			router.WithNamespace(Namespace),
 			router.WithHandler(web.Handler),
 			router.WithResolver(rr),
+			router.WithRegistry(service.Options().Registry),
 		)
 		w := web.NewHandler(
 			ahandler.WithNamespace(Namespace),
@@ -191,7 +200,11 @@ func run(ctx *cli.Context) {
 		r.PathPrefix(APIPath).Handler(w)
 	default:
 		log.Logf("Registering API Default Handler at %s", APIPath)
-		r.PathPrefix(APIPath).Handler(handler.Meta(Namespace))
+		rt := router.NewRouter(
+			router.WithNamespace(Namespace),
+			router.WithRegistry(service.Options().Registry),
+		)
+		r.PathPrefix(APIPath).Handler(handler.Meta(service, rt))
 	}
 
 	// reverse wrap handler
@@ -221,11 +234,13 @@ func run(ctx *cli.Context) {
 	}
 }
 
-func Commands() []cli.Command {
+func Commands(options ...micro.Option) []cli.Command {
 	command := cli.Command{
-		Name:   "api",
-		Usage:  "Run the api gateway",
-		Action: run,
+		Name:  "api",
+		Usage: "Run the api gateway",
+		Action: func(ctx *cli.Context) {
+			run(ctx, options...)
+		},
 		Flags: []cli.Flag{
 			cli.StringFlag{
 				Name:   "address",
