@@ -9,9 +9,11 @@ import (
 	"runtime"
 	"strings"
 	"text/template"
+	"time"
 
 	"github.com/micro/cli"
 	tmpl "github.com/micro/micro/internal/template"
+	"github.com/micro/micro/internal/usage"
 	"github.com/xlab/treeprint"
 )
 
@@ -70,6 +72,17 @@ func create(c config) error {
 		return fmt.Errorf("%s already exists", c.GoDir)
 	}
 
+	// create usage report
+	u := usage.New("new")
+	// a single request/service
+	u.Metrics.Count["requests"] = uint64(1)
+	u.Metrics.Count["services"] = uint64(1)
+	// send report
+	go usage.Report(u)
+
+	// just wait
+	<-time.After(time.Millisecond * 250)
+
 	fmt.Printf("Creating service %s in %s\n\n", c.FQDN, c.GoDir)
 
 	t := treeprint.New()
@@ -109,6 +122,9 @@ func create(c config) error {
 	for _, comment := range c.Comments {
 		fmt.Println(comment)
 	}
+
+	// just wait
+	<-time.After(time.Millisecond * 250)
 
 	return nil
 }

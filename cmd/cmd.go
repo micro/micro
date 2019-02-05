@@ -11,6 +11,9 @@ import (
 	"github.com/micro/micro/plugin"
 	"github.com/micro/micro/proxy"
 	"github.com/micro/micro/web"
+
+	// include usage
+	_ "github.com/micro/micro/internal/usage"
 )
 
 var (
@@ -85,6 +88,11 @@ func setup(app *ccli.App) {
 			Name:   "enable_stats",
 			Usage:  "Enable stats",
 			EnvVar: "MICRO_ENABLE_STATS",
+		},
+		ccli.BoolTFlag{
+			Name:   "report_usage",
+			Usage:  "Report usage statistics",
+			EnvVar: "MICRO_REPORT_USAGE",
 		},
 	)
 
