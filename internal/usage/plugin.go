@@ -32,8 +32,12 @@ func Plugin() plugin.Plugin {
 				return nil
 			}
 
+			if len(os.Args) < 2 || len(os.Args[1]) == 0 {
+				return nil
+			}
+
 			// service name
-			service := c.Command.Name
+			service := os.Args[1]
 
 			// kick off the tracker
 			go func() {
