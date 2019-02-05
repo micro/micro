@@ -35,7 +35,7 @@ func (m *manager) Register(plugin Plugin) error {
 	name := plugin.String()
 
 	if m.registered[name] {
-		return fmt.Errorf("Plugin with name %s already registered", name)
+		return fmt.Errorf("plugin with name %s already registered", name)
 	}
 
 	m.registered[name] = true

@@ -28,12 +28,12 @@ type TestResponse struct{}
 func (t *TestHandler) Exec(ctx context.Context, req *TestRequest, rsp *TestResponse) error {
 	md, ok := metadata.FromContext(ctx)
 	if !ok {
-		return fmt.Errorf("Expected metadata got %t", ok)
+		return fmt.Errorf("expected metadata got %t", ok)
 	}
 
 	for k, v := range t.expect {
 		if val := md[k]; val != v {
-			return fmt.Errorf("Expected %s for key %s got %s", v, k, val)
+			return fmt.Errorf("expected %s for key %s got %s", v, k, val)
 		}
 	}
 
