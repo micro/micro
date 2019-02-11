@@ -11,7 +11,7 @@ import (
 	"github.com/micro/go-api/server"
 	"github.com/micro/go-log"
 	"github.com/micro/go-micro"
-	"github.com/micro/go-proxy/router/proxy"
+	"github.com/micro/go-proxy/router/mucp"
 	"github.com/micro/micro/internal/handler"
 	"github.com/micro/micro/internal/helper"
 	"github.com/micro/micro/internal/stats"
@@ -98,11 +98,11 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 
 	// set backend
 	if len(Backend) > 0 {
-		srvOpts = append(srvOpts, proxy.WithBackend(Backend))
+		srvOpts = append(srvOpts, mucp.WithBackend(Backend))
 	}
 
 	// Initialise Server
-	service := proxy.NewService(srvOpts...)
+	service := mucp.NewService(srvOpts...)
 
 	log.Logf("Registering Registry handler at %s", RegistryPath)
 	r.Handle(RegistryPath, aregistry.NewHandler(ahandler.WithService(service)))
