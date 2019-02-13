@@ -202,6 +202,7 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		log.Logf("Registering API Default Handler at %s", APIPath)
 		rt := router.NewRouter(
 			router.WithNamespace(Namespace),
+			router.WithResolver(rr),
 			router.WithRegistry(service.Options().Registry),
 		)
 		r.PathPrefix(APIPath).Handler(handler.Meta(service, rt))
