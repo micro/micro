@@ -21,6 +21,7 @@ import (
 	"github.com/micro/go-api/resolver/path"
 	"github.com/micro/go-api/router"
 	"github.com/micro/go-api/server"
+	httpapi "github.com/micro/go-api/server/http"
 	"github.com/micro/go-log"
 	"github.com/micro/go-micro"
 	"github.com/micro/micro/internal/handler"
@@ -215,7 +216,7 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	}
 
 	// create the server
-	api := server.NewServer(Address)
+	api := httpapi.NewServer(Address)
 	api.Init(opts...)
 	api.Handle("/", h)
 

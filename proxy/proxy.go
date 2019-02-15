@@ -9,6 +9,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/micro/cli"
 	"github.com/micro/go-api/server"
+	httpapi "github.com/micro/go-api/server/http"
 	"github.com/micro/go-log"
 	"github.com/micro/go-micro"
 	"github.com/micro/go-proxy/router/mucp"
@@ -84,7 +85,7 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	}
 
 	// new server
-	srv := server.NewServer(Address)
+	srv := httpapi.NewServer(Address)
 	srv.Init(opts...)
 
 	// service opts
