@@ -6,6 +6,7 @@ import (
 
 	"github.com/micro/cli"
 	"github.com/micro/go-micro"
+	"github.com/micro/go-micro/server"
 	"github.com/micro/go-proxy/router/http"
 	"github.com/micro/go-proxy/router/mucp"
 )
@@ -17,6 +18,8 @@ func run(ctx *cli.Context, opts ...micro.Option) {
 
 	if len(name) > 0 {
 		opts = append(opts, micro.Name(name))
+	} else {
+		name = server.DefaultName
 	}
 
 	if len(address) > 0 {
@@ -30,6 +33,7 @@ func run(ctx *cli.Context, opts ...micro.Option) {
 		}))
 	default:
 		opts = append(opts, mucp.WithRouter(&mucp.Router{
+			Name:    name,
 			Backend: endpoint,
 		}))
 	}
