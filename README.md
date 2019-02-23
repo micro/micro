@@ -10,7 +10,7 @@ simple abstractions already understood by developers.
 
 <img src="https://micro.mu/micro-diag.svg" />
 
-Technology is constantly evolving. The infrastructure stack is always changing. Micro is a pluggable toolkit which addresses these issues. 
+Technology is always evolving. The infrastructure stack is constantly changing. Micro is a pluggable toolkit which addresses these issues. 
 Plug in any stack or underlying technology. Build future-proof systems using micro.
 
 ## Features
