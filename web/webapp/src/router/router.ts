@@ -57,6 +57,12 @@ const router = new Router({
             meta: {breadcrumb: true},
             name: "Home",
             component: () => import(`@/views/home/Home.vue`)
+        },
+        {
+            path: "/cli",
+            meta: {breadcrumb: true},
+            name: "cli",
+            component: () => import(`@/views/cli/Cli.vue`)
         }
     ]
 });
