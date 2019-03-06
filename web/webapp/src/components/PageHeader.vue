@@ -36,7 +36,7 @@
 
                         if (child) {
                             let p = {
-                                text: item.title,
+                                text: this.$t("menu." + item.title),
                                 disabled: false,
                                 href: item.path
                             };
@@ -53,7 +53,7 @@
                     } else {
                         if (item.name === this.$route.name) {
                             let p = {
-                                text: item.title,
+                                text: this.$t("menu." + item.title),
                                 disabled: false,
                                 href: item.path
                             };
