@@ -1,8 +1,17 @@
-import {Endpoint, Node} from "@/store/modules/registry/types";
-
 const en = {
     message: {
         hello: 'hello world'
+    },
+    base: {
+        address: 'address',
+        endpoints: 'endpoints',
+        metadata: "metadata",
+        node: 'node',
+        nodes: 'nodes',
+        port: 'port',
+        serviceId: 'ID',
+        serviceName: 'name',
+        version: "version",
     },
     menu: {
         homePage: 'Home',
@@ -12,14 +21,8 @@ const en = {
     },
     table: {
         operation: 'operation',
-        registry: {
-            name: 'name',
-            version: 'version',
-            metadata: 'metadata',
-            endpoints: 'endpoints',
-            nodes: 'nodes'
-        }
-    }
+        registry: {}
+    },
 }
 
 export default en;

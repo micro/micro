@@ -49,7 +49,7 @@ const router = new Router({
             meta: {},
             name: "Root",
             redirect: {
-                name: "Registry.vue"
+                name: "registry"
             }
         },
         {

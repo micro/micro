@@ -13,7 +13,7 @@
         </v-card-title>
         <v-data-table
                 :headers="headers()"
-                :items="registries"
+                :items="services"
                 hide-actions
                 :loading="loading"
                 :search="search"
@@ -25,18 +25,15 @@
                 <td class="text-xs-center" border>{{ props.item.endpoints || '-' }}</td>
                 <td class="text-xs-center">{{ props.item.nodes || '-' }}</td>
                 <td class="justify-center layout px-0">
-                    <v-btn flat icon color="teal" @click="showDetail">
+                    <v-btn flat icon color="teal" @click="showDetail(props.item)">
                         <v-icon>list</v-icon>
                     </v-btn>
                 </td>
             </template>
-            <v-alert v-slot:no-results :value="true" color="error" icon="warning">
-                Your search for "{{ search }}" found no results.
-            </v-alert>
         </v-data-table>
 
-        <v-dialog width="60%" v-model="serviceDetailDialog">
-            <service-detail :me="currentService"></service-detail>
+        <v-dialog width="70%" scrollable v-model="serviceDetailDialog">
+            <service-detail :serviceDetail="serviceDetail"></service-detail>
         </v-dialog>
 
     </v-card>
@@ -61,19 +58,23 @@
 
         private serviceDetailDialog: boolean = false;
 
-        private currentService?: Service = null;
+        @State((state: state) => state.registry.services)
+        services?: Service[];
 
-        @State((state: state) => state.registry.registries)
-        registries?: Service[];
+        @State((state: state) => state.registry.serviceDetail)
+        serviceDetail?: Service[];
 
         @State((state: state) => state.registry.pageLoading)
         loading?: boolean;
 
-        @Action('getRegistries', {namespace})
-        getRegistries: any;
+        @Action('getServices', {namespace})
+        getServices: any;
+
+        @Action('getService', {namespace})
+        getService: any;
 
         created() {
-            this.getRegistries(this.search);
+            this.getServices(this.search);
         }
 
         mounted() {
@@ -83,20 +84,20 @@
         headers() {
             return [
                 {
-                    text: this.$t("table.registry.name"),
+                    text: this.$t("base.serviceName"),
                     sortable: false,
                     value: 'name'
                 },
-                {text: this.$t("table.registry.version"), sortable: false, value: 'version'},
-                {text: this.$t("table.registry.metadata"), sortable: false, value: 'metadata'},
-                {text: this.$t("table.registry.endpoints"), sortable: false, value: 'endpoints'},
-                {text: this.$t("table.registry.nodes"), sortable: false, value: 'nodes'},
+                {text: this.$t("base.version"), sortable: false, value: 'version'},
+                {text: this.$t("base.metadata"), sortable: false, value: 'metadata'},
+                {text: this.$t("base.endpoints"), sortable: false, value: 'endpoints'},
+                {text: this.$t("base.nodes"), sortable: false, value: 'nodes'},
                 {text: this.$t("table.operation"), sortable: false}
             ]
         }
 
-        showDetail(item) {
-            this.getRegistries(item.name);
+        showDetail(item: Service) {
+            this.getService(item.name);
             this.serviceDetailDialog = true
         }
     }

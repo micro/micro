@@ -4,6 +4,8 @@ package web
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/micro/micro/web/api/v1"
+	"github.com/micro/micro/web/common"
 	"html/template"
 	"net/http"
 	"net/http/httputil"
@@ -48,13 +50,6 @@ var (
 
 type srv struct {
 	*mux.Router
-}
-
-type Rsp struct {
-	Code    uint        `json:"code"`
-	Success bool        `json:"success"`
-	Data    interface{} `json:"data"`
-	error   interface{} `json:"error"`
 }
 
 func (s *srv) proxy() http.Handler {
@@ -219,7 +214,7 @@ func registryHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	sort.Sort(sortedServices{services})
+	sort.Sort(common.SortedServices{services})
 
 	if r.Header.Get("Content-Type") == "application/json" {
 		b, err := json.Marshal(map[string]interface{}{
@@ -237,58 +232,6 @@ func registryHandler(w http.ResponseWriter, r *http.Request) {
 	render(w, r, registryTemplate, services)
 }
 
-func registryHandlerV2(w http.ResponseWriter, r *http.Request) {
-	r.ParseForm()
-	svc := r.Form.Get("service")
-
-	if len(svc) > 0 {
-		s, err := (*cmd.DefaultOptions().Registry).GetService(svc)
-		if err != nil {
-			http.Error(w, "Error occurred:"+err.Error(), 500)
-			return
-		}
-
-		if len(s) == 0 {
-			http.Error(w, "Not found", 404)
-			return
-		}
-
-		rsp := &Rsp{
-			Data:    s,
-			Success: true,
-		}
-		b, err := json.Marshal(rsp)
-		if err != nil {
-			http.Error(w, "Error occurred:"+err.Error(), 500)
-			return
-		}
-		w.Header().Set("Content-Type", "application/json")
-		w.Write(b)
-		return
-	}
-
-	services, err := (*cmd.DefaultOptions().Registry).ListServices()
-	if err != nil {
-		http.Error(w, "Error occurred:"+err.Error(), 500)
-		return
-	}
-
-	sort.Sort(sortedServices{services})
-
-	rsp := &Rsp{
-		Data:    services,
-		Success: true,
-	}
-	b, err := json.Marshal(rsp)
-	if err != nil {
-		http.Error(w, "Error occurred:"+err.Error(), 500)
-		return
-	}
-	w.Header().Set("Content-Type", "application/json")
-	w.Write(b)
-	return
-}
-
 func callHandler(w http.ResponseWriter, r *http.Request) {
 	services, err := (*cmd.DefaultOptions().Registry).ListServices()
 	if err != nil {
@@ -296,7 +239,7 @@ func callHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	sort.Sort(sortedServices{services})
+	sort.Sort(common.SortedServices{services})
 
 	serviceMap := make(map[string][]*registry.Endpoint)
 	for _, service := range services {
@@ -378,8 +321,10 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		defer st.Stop()
 	}
 
+	apiV1 := v1.API{}
+	apiV1.InitV1Handler(s.Router)
+
 	s.HandleFunc("/registry", registryHandler)
-	s.HandleFunc("/v2/registry", registryHandlerV2)
 	s.HandleFunc("/rpc", handler.RPC)
 	s.HandleFunc("/cli", cliHandler)
 	s.HandleFunc("/call", callHandler)

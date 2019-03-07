@@ -27,6 +27,8 @@ export class Node {
 }
 
 export interface RegistryState {
-    registries: Service[];
+    services: Service[];
+    serviceDetail: Service[];
     pageLoading: boolean;
+    serviceDetailLoading: boolean;
 }
