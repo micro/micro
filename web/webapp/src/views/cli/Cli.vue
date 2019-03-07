@@ -15,7 +15,6 @@
     @Component({
         components: {}
     })
-
     export default class Cli extends Vue {
 
         private height: string = '500px';
@@ -43,11 +42,12 @@
 
         renderTerminal() {
 
+            // @ts-ignore
             if (!window.jQuery.terminal) {
                 setTimeout(this.renderTerminal, 500)
                 return
             }
-
+            // @ts-ignore
             jQuery(function ($, undefined) {
                 $('#shell').terminal(function (command, term) {
                     if (command == '') {
@@ -76,7 +76,7 @@
                                     contentType: "application/json",
                                     url: "registry",
                                     data: {},
-                                    success: function (data) {
+                                    success: function (data: any) {
                                         let services = [];
                                         for (let i = 0; i < data.services.length; i++) {
                                             services.push(data.services[i].name);
@@ -96,7 +96,7 @@
                                     contentType: "application/json",
                                     url: "registry?service=" + args[2],
                                     data: {},
-                                    success: function (data) {
+                                    success: function (data: any) {
                                         if (data.services.length == 0) {
                                             return
                                         }
@@ -104,7 +104,7 @@
                                         term.echo("service\t" + args[2]);
                                         term.echo(" ");
 
-                                        let eps = {};
+                                        let eps: any = {};
 
                                         for (let i = 0; i < data.services.length; i++) {
                                             var service = data.services[i];
@@ -112,8 +112,8 @@
                                             term.echo(" ");
                                             term.echo("Id\tAddress\tPort\tMetadata\n");
                                             for (let j = 0; j < service.nodes.length; j++) {
-                                                var node = service.nodes[j];
-                                                var metadata = [];
+                                                let node = service.nodes[j];
+                                                let metadata = [];
                                                 $.each(node.metadata, function (key, val) {
                                                     metadata.push(key + "=" + val);
                                                 });
@@ -129,10 +129,10 @@
                                         }
 
 
-                                        $.each(eps, function (key, ep) {
+                                        $.each(eps, function (key: any, ep: any) {
                                             term.echo("Endpoint: " + key);
                                             var metadata = [];
-                                            $.each(ep.metadata, function (mkey, val) {
+                                            $.each(ep.metadata, function (mkey: any, val: any) {
                                                 metadata.push(mkey + "=" + val);
                                             });
                                             term.echo("Metadata: " + metadata.join(","));
@@ -154,19 +154,19 @@
                                     contentType: "application/json",
                                     url: "registry?service=" + args[1],
                                     data: {},
-                                    success: function (data) {
+                                    success: function (data: any) {
 
                                         term.echo("service\t" + args[1]);
                                         term.echo(" ");
 
-                                        for (i = 0; i < data.services.length; i++) {
+                                        for (let i = 0; i < data.services.length; i++) {
                                             var service = data.services[i];
 
                                             term.echo("\nversion " + service.version);
                                             term.echo(" ");
                                             term.echo("Id\tAddress:Port\tMetadata\n");
 
-                                            for (j = 0; j < service.nodes.length; j++) {
+                                            for (let j = 0; j < service.nodes.length; j++) {
                                                 var node = service.nodes[j];
 
                                                 $.ajax({
@@ -180,10 +180,10 @@
                                                         "request": {},
                                                         "address": node.address + ":" + node.port,
                                                     }),
-                                                    success: function (data) {
+                                                    success: function (data: any) {
                                                         term.echo(node.id + "\t" + node.address + ":" + node.port + "\t" + data.status);
                                                     },
-                                                    error: function (xhr) {
+                                                    error: function (xhr: any) {
                                                         term.echo(node.id + "\t" + node.address + ":" + node.port + "\t" + xhr.status);
                                                     },
                                                 });
@@ -215,7 +215,7 @@
                                     contentType: "application/json",
                                     url: "rpc",
                                     data: JSON.stringify({"service": args[1], "endpoint": args[2], "request": request}),
-                                    success: function (data) {
+                                    success: function (data: any) {
                                         term.echo(JSON.stringify(data, null, 2));
                                     },
                                 });

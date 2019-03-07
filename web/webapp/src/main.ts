@@ -2,7 +2,7 @@ import Vue from "vue";
 import App from "./App.vue";
 import Vuetify from "vuetify";
 import router from "./router/router";
-import store from "./store/store";
+import store from "./store";
 import "font-awesome/css/font-awesome.css";
 import "./theme/default.styl";
 import VeeValidate from "vee-validate";

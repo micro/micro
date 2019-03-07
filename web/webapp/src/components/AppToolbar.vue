@@ -67,10 +67,10 @@
         }
 
         mounted() {
-            this.setDefaultLanguage(null)
+            this.setDefaultLanguage(Util.getCookieValue('locale'))
         }
 
-        setDefaultLanguage(lan) {
+        setDefaultLanguage(lan?: string) {
             if (lan && this.lanItems[lan]) {
                 this.currentLanFlag = this.lanItems[lan].flag
             } else {
@@ -78,7 +78,7 @@
             }
         }
 
-        changeLanguage(lan) {
+        changeLanguage(lan?: string) {
             this.$root.$emit('localeChange', lan)
             this.setDefaultLanguage(lan)
         }

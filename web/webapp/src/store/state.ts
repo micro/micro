@@ -1,13 +1,13 @@
-interface State {
+export interface State {
 }
 
 const state: State = {
     requestBizError: {
-        detail: "",
-        code: ""
+        detail: '',
+        code: '',
     },
     getLoading: false,
-    postLoading: false
+    postLoading: false,
 };
 
 export default state;

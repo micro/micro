@@ -28,7 +28,7 @@
                         href: "/"
                     }
                 ];
-                menu.forEach(item => {
+                menu.forEach((item: any) => {
                     if (item.items) {
                         let child = item.items.find(i => {
                             return i.component === this.$route.name;

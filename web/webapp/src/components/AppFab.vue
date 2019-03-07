@@ -25,7 +25,7 @@
             },
             toTop() {
                 this.$router.push({hash: ""});
-                this.$vuetify.goTo(0);
+               // this.$vuetify.goTo(0);
             }
         }
     };

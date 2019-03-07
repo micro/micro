@@ -49,13 +49,13 @@ const router = new Router({
             meta: {},
             name: "Root",
             redirect: {
-                name: "Home"
+                name: "Registry.vue"
             }
         },
         {
             path: "/home",
             meta: {breadcrumb: true},
-            name: "Home",
+            name: "home",
             component: () => import(`@/views/home/Home.vue`)
         },
         {
@@ -63,7 +63,20 @@ const router = new Router({
             meta: {breadcrumb: true},
             name: "cli",
             component: () => import(`@/views/cli/Cli.vue`)
-        }
+        },
+        {
+            path: "/registry",
+            meta: {breadcrumb: true},
+            name: "registry",
+            component: () => import(`@/views/registry/RegistryPage.vue`)
+        },
+        {
+            path: "/call",
+            meta: {breadcrumb: true},
+            name: "call",
+            component: () => import(`@/views/registry/RegistryPage.vue`)
+        },
+
     ]
 });
 // router gards

@@ -64,7 +64,7 @@
         }
 
         created() {
-            AppEvents.forEach(item => {
+            AppEvents.forEach((item: any) => {
                 this.$on(item.name, item.callback);
             });
         }
@@ -75,3 +75,7 @@
         }
     }
 </script>
+
+
+<style>
+</style>

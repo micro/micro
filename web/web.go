@@ -50,6 +50,13 @@ type srv struct {
 	*mux.Router
 }
 
+type Rsp struct {
+	Code    uint        `json:"code"`
+	Success bool        `json:"success"`
+	Data    interface{} `json:"data"`
+	error   interface{} `json:"error"`
+}
+
 func (s *srv) proxy() http.Handler {
 	sel := selector.NewSelector(
 		selector.Registry((*cmd.DefaultOptions().Registry)),
@@ -230,6 +237,58 @@ func registryHandler(w http.ResponseWriter, r *http.Request) {
 	render(w, r, registryTemplate, services)
 }
 
+func registryHandlerV2(w http.ResponseWriter, r *http.Request) {
+	r.ParseForm()
+	svc := r.Form.Get("service")
+
+	if len(svc) > 0 {
+		s, err := (*cmd.DefaultOptions().Registry).GetService(svc)
+		if err != nil {
+			http.Error(w, "Error occurred:"+err.Error(), 500)
+			return
+		}
+
+		if len(s) == 0 {
+			http.Error(w, "Not found", 404)
+			return
+		}
+
+		rsp := &Rsp{
+			Data:    s,
+			Success: true,
+		}
+		b, err := json.Marshal(rsp)
+		if err != nil {
+			http.Error(w, "Error occurred:"+err.Error(), 500)
+			return
+		}
+		w.Header().Set("Content-Type", "application/json")
+		w.Write(b)
+		return
+	}
+
+	services, err := (*cmd.DefaultOptions().Registry).ListServices()
+	if err != nil {
+		http.Error(w, "Error occurred:"+err.Error(), 500)
+		return
+	}
+
+	sort.Sort(sortedServices{services})
+
+	rsp := &Rsp{
+		Data:    services,
+		Success: true,
+	}
+	b, err := json.Marshal(rsp)
+	if err != nil {
+		http.Error(w, "Error occurred:"+err.Error(), 500)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(b)
+	return
+}
+
 func callHandler(w http.ResponseWriter, r *http.Request) {
 	services, err := (*cmd.DefaultOptions().Registry).ListServices()
 	if err != nil {
@@ -320,6 +379,7 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	}
 
 	s.HandleFunc("/registry", registryHandler)
+	s.HandleFunc("/v2/registry", registryHandlerV2)
 	s.HandleFunc("/rpc", handler.RPC)
 	s.HandleFunc("/cli", cliHandler)
 	s.HandleFunc("/call", callHandler)

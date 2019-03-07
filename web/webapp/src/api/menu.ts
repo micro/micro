@@ -14,12 +14,14 @@ const Menu = [
     {
         title: "registryInfo",
         component: "apps",
-        icon: "cloud"
+        icon: "cloud",
+        name: "registry"
     },
     {
         title: "callService",
         component: "apps",
-        icon: "train"
+        icon: "train",
+        name: "call"
     },
     {divider: true}
 ];

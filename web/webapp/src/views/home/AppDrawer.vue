@@ -69,6 +69,8 @@
 </template>
 <script lang="ts">
     import {Component, Prop, Vue} from "vue-property-decorator";
+
+    // @ts-ignore
     import VuePerfectScrollbar from "vue-perfect-scrollbar";
     import menu from "@/api/menu";
 
