@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"github.com/gorilla/mux"
 	"github.com/micro/go-micro/cmd"
+	"github.com/micro/go-micro/registry"
 	"github.com/micro/micro/web/common"
 	"net/http"
 	"sort"
@@ -17,13 +18,20 @@ type Rsp struct {
 	Error   interface{} `json:"error,omitempty"`
 }
 
-// API is handler of all api
+// API is handler of all API calls.
 type API struct {
+}
+
+// ServiceAPIDetail is the service api detail
+type ServiceAPIDetail struct {
+	Name      string               `json:"name,omitempty"`
+	Endpoints []*registry.Endpoint `json:"endpoints,omitempty"`
 }
 
 func (api *API) InitV1Handler(r *mux.Router) {
 	r.HandleFunc("/v1/services", api.services)
 	r.HandleFunc("/v1/service/{name}", api.service)
+	r.HandleFunc("/v1/service-details", api.serviceDetails)
 }
 
 func (api *API) services(w http.ResponseWriter, r *http.Request) {
@@ -37,6 +45,35 @@ func (api *API) services(w http.ResponseWriter, r *http.Request) {
 	sort.Sort(common.SortedServices{Services: services})
 
 	writeJsonData(w, services)
+	return
+}
+
+func (api *API) serviceDetails(w http.ResponseWriter, r *http.Request) {
+	services, err := (*cmd.DefaultOptions().Registry).ListServices()
+	if err != nil {
+		http.Error(w, "Error occurred:"+err.Error(), 500)
+		return
+	}
+
+	sort.Sort(common.SortedServices{Services: services})
+
+	serviceDetails := make([]*ServiceAPIDetail, 0)
+	for _, service := range services {
+		s, err := (*cmd.DefaultOptions().Registry).GetService(service.Name)
+		if err != nil {
+			continue
+		}
+		if len(s) == 0 {
+			continue
+		}
+
+		serviceDetails = append(serviceDetails, &ServiceAPIDetail{
+			Name:      service.Name,
+			Endpoints: s[0].Endpoints,
+		})
+	}
+
+	writeJsonData(w, serviceDetails)
 	return
 }
 
@@ -55,9 +92,6 @@ func (api *API) service(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		s[0].Nodes = append(s[0].Nodes, s[0].Nodes...)
-		s[0].Nodes = append(s[0].Nodes, s[0].Nodes...)
-		s[0].Nodes = append(s[0].Nodes, s[0].Nodes...)
 		writeJsonData(w, s)
 		return
 	}

@@ -53,10 +53,10 @@ const router = new Router({
             }
         },
         {
-            path: "/home",
+            path: "/call",
             meta: {breadcrumb: true},
-            name: "home",
-            component: () => import(`@/views/home/Home.vue`)
+            name: "call",
+            component: () => import(`@/views/call/Call.vue`)
         },
         {
             path: "/cli",
@@ -65,18 +65,17 @@ const router = new Router({
             component: () => import(`@/views/cli/Cli.vue`)
         },
         {
+            path: "/home",
+            meta: {breadcrumb: true},
+            name: "home",
+            component: () => import(`@/views/home/Home.vue`)
+        },
+        {
             path: "/registry",
             meta: {breadcrumb: true},
             name: "registry",
             component: () => import(`@/views/registry/RegistryPage.vue`)
-        },
-        {
-            path: "/call",
-            meta: {breadcrumb: true},
-            name: "call",
-            component: () => import(`@/views/registry/RegistryPage.vue`)
-        },
-
+        }
     ]
 });
 // router gards

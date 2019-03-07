@@ -20,10 +20,10 @@
         >
             <template v-slot:items="props">
                 <td>{{ props.item.name }}</td>
-                <td class="text-xs-center">{{ props.item.version || '-' }}</td>
-                <td class="text-xs-center">{{ props.item.metadata || '-' }}</td>
-                <td class="text-xs-center" border>{{ props.item.endpoints || '-' }}</td>
-                <td class="text-xs-center">{{ props.item.nodes || '-' }}</td>
+                <!-- <td class="text-xs-center">{{ props.item.version || '-' }}</td>
+                  <td class="text-xs-center">{{ props.item.metadata || '-' }}</td>
+                  <td class="text-xs-center" border>{{ props.item.endpoints || '-' }}</td>
+                  <td class="text-xs-center">{{ props.item.nodes || '-' }}</td>-->
                 <td class="justify-center layout px-0">
                     <v-btn flat icon color="teal" @click="showDetail(props.item)">
                         <v-icon>list</v-icon>
@@ -88,11 +88,11 @@
                     sortable: false,
                     value: 'name'
                 },
-                {text: this.$t("base.version"), sortable: false, value: 'version'},
-                {text: this.$t("base.metadata"), sortable: false, value: 'metadata'},
-                {text: this.$t("base.endpoints"), sortable: false, value: 'endpoints'},
-                {text: this.$t("base.nodes"), sortable: false, value: 'nodes'},
-                {text: this.$t("table.operation"), sortable: false}
+                /*   {text: this.$t("base.version"), sortable: false, align: 'center', value: 'version'},
+               {text: this.$t("base.metadata"), sortable: false, value: 'metadata'},
+                  {text: this.$t("base.endpoints"), sortable: false, value: 'endpoints'},
+                  {text: this.$t("base.nodes"), sortable: false, value: 'nodes'},*/
+                {text: this.$t("table.operation"), align: 'center', sortable: false}
             ]
         }
 

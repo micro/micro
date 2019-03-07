@@ -2,7 +2,7 @@ import Vue from 'vue';
 import Vuex from 'vuex';
 import state from './state';
 import registry from './modules/registry';
-
+import call from './modules/call';
 
 
 // index.js or main.js
@@ -22,6 +22,7 @@ export default new Vuex.Store({
         },
     },
     modules: {
-        registry
+        registry,
+        call
     },
 });

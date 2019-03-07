@@ -18,6 +18,7 @@
     "vue": "^2.5.17",
     "vue-class-component": "^6.3.2",
     "vue-i18n": "^8.8.2",
+    "vue-json-pretty": "^1.4.1",
     "vue-perfect-scrollbar": "^0.1.0",
     "vue-property-decorator": "^7.2.0",
     "vue-quill-editor": "^3.0.6",

@@ -1,30 +1,5 @@
-export class Service {
-    name!: string;
-    version?: string;
-    metadata?: string;
-    endpoints?: Endpoint[];
-    nodes?: Node[]
-}
+import {Service} from "@/store/basic/types";
 
-export class Value {
-    name!: string;
-    type?: string;
-    values?: Value[];
-}
-
-export class Endpoint {
-    name!: string;
-    request?: Value;
-    response?: Value;
-    metadata?: Map<string, string>;
-}
-
-export class Node {
-    id!: string;
-    address?: string
-    port?: number;
-    metadata?: Map<string, string>;
-}
 
 export interface RegistryState {
     services: Service[];
