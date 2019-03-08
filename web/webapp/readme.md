@@ -2,7 +2,29 @@
 
 Dashboard is the web front page of micro admin service.
 
-## install
+# Important
+
+Be different from the old version which used backend template to render html, new UI separate backend and frontend codes.
+It makes more easy to write frontend code and import modern UI framework like vue/vuetify, etc.
+
+So, when using our new UI, you should copy the dist [dir](./dist) to some path you want, and tell the **micro** command where it is. 
+
+```bash
+
+$ micro web --static-dir=/path/to/new/ui/dist/dir
+
+```
+
+or use the default dir **/usr/local/var/www/micro-web**:
+
+```bash
+$ cp -r dist /usr/local/var/www
+$ mv /usr/local/var/www/dist /usr/local/var/www/micro-web
+$ micro web
+
+```
+
+## Install
 
 ### npm modules
 
