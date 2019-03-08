@@ -6,10 +6,10 @@ import (
 	"fmt"
 	"github.com/micro/micro/web/api/v1"
 	"github.com/micro/micro/web/common"
-	"github.com/micro/util/go/lib/file"
 	"html/template"
 	"net/http"
 	"net/http/httputil"
+	"os"
 	"regexp"
 	"sort"
 	"strings"
@@ -305,8 +305,8 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	if len(ctx.String("static-dir")) > 0 {
 
 		// check static-dir existing
-		ok, _ := file.Exists(ctx.String("static-dir"))
-		if ok {
+		_, err := os.Stat(ctx.String("static-dir"))
+		if err == nil {
 			StaticDir = ctx.String("static-dir")
 		}
 	}
