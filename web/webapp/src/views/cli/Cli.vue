@@ -37,6 +37,7 @@
 
         renderTerminal() {
 
+            let that = this;
             // @ts-ignore
             if (!window.jQuery.terminal) {
                 setTimeout(this.renderTerminal, 500)
@@ -51,13 +52,17 @@
                     }
 
                     var help = "COMMANDS:\n" +
-                        "    call       Call a service endpoint using rpc\n" +
+                        "    exit        exit fullscreen\n" +
+                        "    call        Call a service endpoint using rpc\n" +
                         "    health      Query the health of a service\n" +
                         "    list        List items in registry\n" +
                         "    get         Get item from registry\n";
                     try {
                         let args = command.split(" ");
                         switch (args[0]) {
+                            case "exit":
+                                that.$xools.toggleFullScreen('shell')
+                                break;
                             case "help":
                                 term.echo(help);
                                 break;
@@ -239,7 +244,7 @@
 
 
         handleFullScreen() {
-
+            this.$xools.toggleFullScreen('shell')
         }
     }
 </script>

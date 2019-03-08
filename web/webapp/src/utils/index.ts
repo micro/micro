@@ -1,11 +1,23 @@
-const toggleFullScreen = () => {
+const toggleFullScreen = (divId?: string) => {
+
+
+    let docEl = null;
     let doc = window.document;
-    let docEl = doc.documentElement;
+
+    if (!divId) {
+        docEl = doc.documentElement;
+    } else {
+        docEl = document.getElementById(divId)
+    }
+
 
     // @ts-ignore
     let requestFullScreen = docEl.requestFullscreen || docEl.mozRequestFullScreen || docEl.webkitRequestFullScreen || docEl.msRequestFullscreen;
+
     // @ts-ignore
     let cancelFullScreen = doc.exitFullscreen || doc.mozCancelFullScreen || doc.webkitExitFullscreen || doc.msExitFullscreen;
+
+
     // @ts-ignore
     if (!doc.fullscreenElement && !doc.mozFullScreenElement && !doc.webkitFullscreenElement && !doc.msFullscreenElement) {
         requestFullScreen.call(docEl);
