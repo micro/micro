@@ -7,3 +7,7 @@ export function getServices() {
 export function getService(name: string) {
     return $axios.get(`/v1/service/${name}`);
 }
+
+export function getWebServices() {
+    return $axios.get(`/v1/web-services`);
+}

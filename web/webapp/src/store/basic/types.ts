@@ -22,7 +22,7 @@ export class Node {
 }
 
 export class Endpoint {
-    public name  ?: string;
+    public name !: string;
     public request ?: Value;
     public response ?: Value;
     public metadata ?: Map<string, string>;
@@ -32,4 +32,16 @@ export class Value {
     public name  ?: string
     public type  ?: string
     public values ?: Value[]
+}
+
+export default class Language {
+    public flag ?: string;
+    public title ?: string;
+    public lan ?: string;
+
+    constructor(flag: string, title: string, lan: string) {
+        this.flag = flag
+        this.title = title
+        this.lan = lan
+    }
 }

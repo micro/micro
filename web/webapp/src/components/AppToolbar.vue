@@ -49,8 +49,17 @@
     </v-toolbar>
 </template>
 <script lang="ts">
-    import Util from "@/utils";
-    import {Vue, Component, Watch, Prop} from "vue-property-decorator";
+    import {Vue, Component, Prop} from "vue-property-decorator";
+
+
+    import Language from '@/store/basic/types'
+
+    const languages: object =
+        {
+            'en': new Language('https://cdn.vuetifyjs.com/images/flags/us.png', 'English', 'en'),
+            'cn': new Language('https://cdn.vuetifyjs.com/images/flags/cn.png', '简体中文', 'cn')
+        }
+
 
     @Component({
         components: {}
@@ -61,24 +70,28 @@
 
         private currentLanFlag: string = '';
 
-        private lanItems = {
-            en: {flag: 'https://cdn.vuetifyjs.com/images/flags/us.png', title: 'English', lan: 'en'},
-            cn: {flag: 'https://cdn.vuetifyjs.com/images/flags/cn.png', title: '简体中文', lan: 'cn'}
-        }
+        private lanItems = languages;
 
         mounted() {
+
+            // @ts-ignore
             this.setDefaultLanguage(this.$xools.getCookieValue('locale'))
         }
 
-        setDefaultLanguage(lan?: string) {
+        setDefaultLanguage(lan: any) {
+
+            // @ts-ignore
             if (lan && this.lanItems[lan]) {
+                // @ts-ignore
                 this.currentLanFlag = this.lanItems[lan].flag
             } else {
-                this.currentLanFlag = this.lanItems.en.flag
+
+                // @ts-ignore
+                this.currentLanFlag = this.lanItems['en'].flag
             }
         }
 
-        changeLanguage(lan?: string) {
+        changeLanguage(lan: string) {
             this.$root.$emit('localeChange', lan)
             this.setDefaultLanguage(lan)
         }
@@ -89,6 +102,7 @@
         }
 
         handleFullScreen() {
+            // @ts-ignore
             this.$xools.toggleFullScreen();
         }
 

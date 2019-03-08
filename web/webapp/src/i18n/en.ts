@@ -7,6 +7,7 @@ const en = {
         endpoint: 'Endpoint',
         endpoints: 'Endpoints',
         metadata: "Metadata",
+        noDataText: "No data available",
         node: 'Node',
         nodes: 'Nodes',
         otherEndpoint: 'OtherEndpoint',
@@ -23,7 +24,8 @@ const en = {
         callService: 'Call'
     },
     rpc: {
-        copy: 'copy',
+        copy: 'Copy',
+        copySuccess: 'Copy success',
         formatJSON: 'Format',
         other: 'Other',
         inputJSONFormatString: 'Json format',

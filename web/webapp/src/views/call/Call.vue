@@ -110,6 +110,13 @@
                             </v-btn>
                         </v-card-title>
                         <v-card-text>
+                            <v-alert
+                                    :value="copySuccess"
+                                    type="success"
+                                    transition="scale-transition"
+                            >
+                                {{$t('rpc.copySuccess')}}
+                            </v-alert>
                             <div id="jsonResponseEditor" style="height: 500px" class="json-editor">
 
                             </div>
@@ -125,10 +132,9 @@
     import {Component, Vue, Watch} from "vue-property-decorator";
     import {State, Action} from 'vuex-class';
 
-    import state from '@/store/state';
     import {Endpoint, Service} from "@/store/basic/types";
 
-    // @ts-ingore
+    // @ts-ignore
     import JSONEditor from "jsoneditor"
     import "jsoneditor/dist/jsoneditor.css";
 
@@ -137,7 +143,9 @@
     @Component({components: {}})
     export default class Call extends Vue {
 
-        private currentEndpoints = [];
+        private currentEndpoints: any = null;
+
+        private copySuccess: boolean = false
 
         private service: Service = new Service();
         private endpoint: string = "";
@@ -153,18 +161,18 @@
         @Action('postServiceRequest', {namespace})
         postServiceRequest: any;
 
-        @State((state: state) => state.call.services)
+        @State(state => state.call.services)
         services?: Service[];
 
-        @State((state: state) => state.call.requestResult)
+        @State(state => state.call.requestResult)
         requestResult?: object;
 
-        @State((state: state) => state.call.requestLoading)
+        @State(state => state.call.requestLoading)
         requestLoading?: boolean;
 
 
         @Watch("requestResult")
-        resultChange(rr) {
+        resultChange(rr: any) {
             this.rspJSONEditor.set(rr)
             this.rspJSONEditor.expandAll();
         }
@@ -208,7 +216,15 @@
         }
 
         copyResult() {
-            this.$xools.copyTxt(JSON.stringify(this.rspJSONEditor.get(), null, 2))
+            let that = this
+            // @ts-ignore
+            this.copySuccess = this.$xools.copyTxt(JSON.stringify(this.rspJSONEditor.get(), null, 2),
+                function (success: boolean) {
+                    that.copySuccess = success
+                    setTimeout(() => {
+                        that.copySuccess = false
+                    }, 2000)
+                })
         }
 
         renderJSONEditor() {

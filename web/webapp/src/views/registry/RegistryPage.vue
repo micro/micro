@@ -43,9 +43,9 @@
     import {Component, Vue} from "vue-property-decorator";
     import {State, Action} from 'vuex-class';
 
-    import state from '@/store/state';
-    import {Service} from "@/store/modules/registry/types";
-    import ServiceDetail from "@/views/common/ServiceDetail"
+
+    import {Service} from "@/store/basic/types";
+    import ServiceDetail from "@/views/common/ServiceDetail.vue"
 
     const namespace: string = 'registry';
 
@@ -58,13 +58,13 @@
 
         private serviceDetailDialog: boolean = false;
 
-        @State((state: state) => state.registry.services)
+        @State(state => state.registry.services)
         services?: Service[];
 
-        @State((state: state) => state.registry.serviceDetail)
+        @State(state => state.registry.serviceDetail)
         serviceDetail?: Service[];
 
-        @State((state: state) => state.registry.pageLoading)
+        @State(state => state.registry.pageLoading)
         loading?: boolean;
 
         @Action('getServices', {namespace})

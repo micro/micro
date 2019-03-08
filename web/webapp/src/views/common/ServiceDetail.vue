@@ -96,7 +96,7 @@
 
 <script lang="ts">
     import {Component, Vue, Prop} from "vue-property-decorator";
-    import {Service} from "@/store/modules/registry/types";
+    import {Service} from "@/store/basic/types";
 
     // @ts-ignore
     import VuePerfectScrollbar from "vue-perfect-scrollbar";
@@ -107,14 +107,11 @@
     export default class ServiceDetail extends Vue {
 
         @Prop()
-        private serviceDetail: Service[];
+        private serviceDetail?: Service[];
 
         private dialog: boolean = false;
 
         private search: string = "";
-
-
-        private serviceDetail: Service;
 
 
         mounted() {

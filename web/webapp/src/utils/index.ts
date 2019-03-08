@@ -30,12 +30,11 @@ const setCookie = (a: string, v: string, days: number) => {
 }
 
 
-const copyTxt = (text: string) => {
+const copyTxt = (text: string, callback: Function) => {
 
     // @ts-ignore
     if (!navigator.clipboard) {
-        return fallbackCopyTextToClipboard(text);
-
+        return callback(fallbackCopyTextToClipboard(text))
     }
 
     let flag = false;
@@ -43,14 +42,12 @@ const copyTxt = (text: string) => {
     // @ts-ignore
     navigator.clipboard.writeText(text).then(
         function () {
-            flag = true
+            callback(true)
         },
         function () {
-            flag = false
+            callback(false)
         },
     );
-
-    return flag
 }
 
 let XTools = {}

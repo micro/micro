@@ -7,7 +7,7 @@
     </v-fab-transition>
 </template>
 
-<script lang="ts">
+<script>
     export default {
         name: "app-fab",
 
@@ -25,7 +25,7 @@
             },
             toTop() {
                 this.$router.push({hash: ""});
-               // this.$vuetify.goTo(0);
+                this.$vuetify.goTo(0);
             }
         }
     };

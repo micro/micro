@@ -38,7 +38,6 @@
     import AppFab from "@/components/AppFab.vue";
     import PageHeader from "@/components/PageHeader.vue";
     // import ThemeSettings from "@/components/ThemeSettings.vue";
-    import AppEvents from "./event";
 
     import {Vue, Component, Watch} from "vue-property-decorator";
 
@@ -64,9 +63,6 @@
         }
 
         created() {
-            AppEvents.forEach((item: any) => {
-                this.$on(item.name, item.callback);
-            });
         }
 
         openThemeSettings() {

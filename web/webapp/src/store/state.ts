@@ -1,13 +1,6 @@
 export interface State {
 }
 
-const state: State = {
-    requestBizError: {
-        detail: '',
-        code: '',
-    },
-    getLoading: false,
-    postLoading: false,
-};
+const state: State = {};
 
 export default state;

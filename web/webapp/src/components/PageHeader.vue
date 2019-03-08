@@ -10,7 +10,7 @@
     </v-layout>
 </template>
 
-<script lang="ts">
+<script>
     import menu from "@/api/menu";
 
     export default {
@@ -28,7 +28,7 @@
                         href: "/"
                     }
                 ];
-                menu.forEach((item: any) => {
+                menu.forEach((item) => {
                     if (item.items) {
                         let child = item.items.find(i => {
                             return i.component === this.$route.name;

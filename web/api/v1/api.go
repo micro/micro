@@ -16,6 +16,10 @@ import (
 	"time"
 )
 
+var (
+	staticDir = "/webapp/dist/"
+	Namespace = "go.micro.web"
+)
 // Rsp is the struct of api response
 type Rsp struct {
 	Code    uint        `json:"code,omitempty"`
@@ -43,10 +47,34 @@ type rpcRequest struct {
 }
 
 func (api *API) InitV1Handler(r *mux.Router) {
-	r.HandleFunc("/v1/services", api.services).Methods("GET")
-	r.HandleFunc("/v1/service/{name}", api.service).Methods("GET")
-	r.HandleFunc("/v1/service-details", api.serviceDetails).Methods("GET")
-	r.HandleFunc("/v1/rpc", api.rpc).Methods("POST")
+	r.HandleFunc("/api/v1/services", api.services).Methods("GET")
+	r.HandleFunc("/api/v1/service/{name}", api.service).Methods("GET")
+	r.HandleFunc("/api/v1/service-details", api.serviceDetails).Methods("GET")
+	r.HandleFunc("/api/v1/web-services", api.webServices).Methods("GET")
+	r.HandleFunc("/api/v1/rpc", api.rpc).Methods("POST")
+}
+
+func (api *API) webServices(w http.ResponseWriter, r *http.Request) {
+	services, err := (*cmd.DefaultOptions().Registry).ListServices()
+	if err != nil {
+		http.Error(w, "Error occurred:"+err.Error(), 500)
+		return
+	}
+
+	webServices := make([]*registry.Service, 0)
+	for _, s := range services {
+
+		if strings.Index(s.Name, Namespace) == 0 && len(strings.TrimPrefix(s.Name, Namespace)) > 0 {
+			s.Name = strings.Replace(s.Name, Namespace+".", "", 1)
+			webServices = append(webServices, s)
+		}
+	}
+
+	sort.Sort(common.SortedServices{Services: services})
+
+	writeJsonData(w, webServices)
+
+	return
 }
 
 func (api *API) services(w http.ResponseWriter, r *http.Request) {

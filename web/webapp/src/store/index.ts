@@ -1,8 +1,9 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
 import state from './state';
-import registry from './modules/registry';
+
 import call from './modules/call';
+import registry from './modules/registry';
 
 
 // index.js or main.js
@@ -18,11 +19,10 @@ export default new Vuex.Store({
     mutations: {},
     actions: {
         init: () => {
-            console.log(1);
         },
     },
     modules: {
+        call,
         registry,
-        call
     },
 });

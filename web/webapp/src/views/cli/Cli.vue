@@ -2,8 +2,15 @@
     <v-card
             class="mx-auto"
             max-width="90%"
+            :height="height"
     >
-        <v-card-text class="headline font-weight-bold">
+        <v-card-title class="pt-0 pb-0">
+            <v-spacer></v-spacer>
+            <v-btn icon @click="handleFullScreen">
+                <v-icon>fullscreen</v-icon>
+            </v-btn>
+        </v-card-title>
+        <v-card-text class="pt-0">
             <div id="shell"></div>
         </v-card-text>
     </v-card>
@@ -20,24 +27,12 @@
         private height: string = '500px';
 
         created() {
-            this.loadTerminalJsCss()
+
         }
 
         mounted() {
             this.height = (window.innerHeight * 0.8) + 'px'
             this.renderTerminal()
-        }
-
-        loadTerminalJsCss() {
-
-            let jQTerminalCss = document.createElement('link')
-            jQTerminalCss.setAttribute("rel", "stylesheet")
-            jQTerminalCss.setAttribute("href", "https://cdnjs.cloudflare.com/ajax/libs/jquery.terminal/2.0.2/css/jquery.terminal.min.css")
-            document.head.appendChild(jQTerminalCss)
-
-            let jQTerminalScript = document.createElement('script')
-            jQTerminalScript.setAttribute("src", "https://cdnjs.cloudflare.com/ajax/libs/jquery.terminal/2.0.2/js/jquery.terminal.min.js")
-            document.head.appendChild(jQTerminalScript)
         }
 
         renderTerminal() {
@@ -49,7 +44,7 @@
             }
             // @ts-ignore
             jQuery(function ($, undefined) {
-                $('#shell').terminal(function (command, term) {
+                $('#shell').terminal(function (command: any, term: any) {
                     if (command == '') {
                         term.echo('');
                         return;
@@ -113,10 +108,13 @@
                                             term.echo("Id\tAddress\tPort\tMetadata\n");
                                             for (let j = 0; j < service.nodes.length; j++) {
                                                 let node = service.nodes[j];
+                                                //@ts-ignore
                                                 let metadata = [];
-                                                $.each(node.metadata, function (key, val) {
+                                                $.each(node.metadata, function (key: any, val: any) {
                                                     metadata.push(key + "=" + val);
                                                 });
+
+                                                // @ts-ignore
                                                 term.echo(node.id + "\t" + node.address + "\t" + node.port + "\t" + metadata.join(","));
                                             }
                                             term.echo(" ");
@@ -131,10 +129,12 @@
 
                                         $.each(eps, function (key: any, ep: any) {
                                             term.echo("Endpoint: " + key);
-                                            var metadata = [];
+                                            // @ts-ignore
+                                            let metadata = [];
                                             $.each(ep.metadata, function (mkey: any, val: any) {
                                                 metadata.push(mkey + "=" + val);
                                             });
+                                            // @ts-ignore
                                             term.echo("Metadata: " + metadata.join(","));
 
                                             // TODO: add request-response endpoints
@@ -231,10 +231,15 @@
                 }, {
                     greetings: '',
                     name: 'micro_cli',
-                    height: 400,
+                    height: 500,
                     prompt: 'micro:~$ '
                 });
             });
+        }
+
+
+        handleFullScreen() {
+
         }
     }
 </script>
