@@ -7,7 +7,7 @@ Dashboard is the web front page of micro admin service.
 ### npm modules
 
 ```bash
-$npm install
+$ npm install
 ```
 
 ### initialize eslint(optional)
@@ -31,12 +31,12 @@ eslint-plugin-vue@latest eslint-config-eslint:recommended,plugin:vue/essential@l
 ## run
 
 ```bash
-$npm run serve
+$ npm run serve
 ```
 
 ## build
 
 ```bash
-$npm run build
+$ npm run build
 
 ```

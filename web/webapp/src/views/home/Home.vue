@@ -86,7 +86,7 @@
         }
 
         showDetail(item: Service) {
-            window.open("/" + item.name)
+            window.open("/proxy/" + item.name)
         }
     }
 </script>

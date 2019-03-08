@@ -10,6 +10,7 @@ const en = {
         noDataText: "No data available",
         node: 'Node',
         nodes: 'Nodes',
+        noResultsText: "No matching records found",
         otherEndpoint: 'OtherEndpoint',
         port: 'Port',
         service: 'Service',

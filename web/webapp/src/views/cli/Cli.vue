@@ -61,6 +61,7 @@
                         let args = command.split(" ");
                         switch (args[0]) {
                             case "exit":
+                                // @ts-ignore
                                 that.$xools.toggleFullScreen('shell')
                                 break;
                             case "help":
@@ -244,6 +245,7 @@
 
 
         handleFullScreen() {
+            // @ts-ignore
             this.$xools.toggleFullScreen('shell')
         }
     }

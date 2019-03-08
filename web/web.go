@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/micro/micro/web/api/v1"
 	"github.com/micro/micro/web/common"
+	"github.com/micro/util/go/lib/file"
 	"html/template"
 	"net/http"
 	"net/http/httputil"
@@ -23,7 +24,6 @@ import (
 	"github.com/micro/go-micro/cmd"
 	"github.com/micro/go-micro/registry"
 	"github.com/micro/go-micro/selector"
-	"github.com/micro/micro/internal/handler"
 	"github.com/micro/micro/internal/helper"
 	"github.com/micro/micro/internal/stats"
 	"github.com/micro/micro/plugin"
@@ -46,6 +46,7 @@ var (
 	// Allows the web service to define absolute paths
 	BasePathHeader = "X-Micro-Web-Base-Path"
 	statsURL       string
+	StaticDir      = "/usr/local/var/www/micro-web"
 )
 
 type srv struct {
@@ -66,7 +67,7 @@ func (s *srv) proxy() http.Handler {
 			r.RequestURI = ""
 		}
 
-		parts := strings.Split(r.URL.Path, "/")
+		parts := strings.Split(r.URL.Path, "/proxy/")
 		if len(parts) < 2 {
 			kill()
 			return
@@ -164,7 +165,6 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-
 	sort.Strings(webServices)
 
 	type templateData struct {
@@ -240,7 +240,7 @@ func callHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	sort.Sort(common.SortedServices{services})
+	sort.Sort(common.SortedServices{Services: services})
 
 	serviceMap := make(map[string][]*registry.Endpoint)
 	for _, service := range services {
@@ -302,6 +302,14 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	if len(ctx.String("namespace")) > 0 {
 		Namespace = ctx.String("namespace")
 	}
+	if len(ctx.String("static-dir")) > 0 {
+
+		// check static-dir existing
+		ok, _ := file.Exists(ctx.String("static-dir"))
+		if ok {
+			StaticDir = ctx.String("static-dir")
+		}
+	}
 
 	// Init plugins
 	for _, p := range Plugins() {
@@ -325,13 +333,9 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	apiV1 := v1.API{}
 	apiV1.InitV1Handler(s.Router)
 
-	s.HandleFunc("/registry", registryHandler)
-	s.HandleFunc("/rpc", handler.RPC)
-	s.HandleFunc("/cli", cliHandler)
-	s.HandleFunc("/call", callHandler)
 	s.HandleFunc("/favicon.ico", faviconHandler)
-	s.PathPrefix("/{service:[a-zA-Z0-9]+}").Handler(s.proxy())
-	s.HandleFunc("/", indexHandler)
+	s.PathPrefix("/proxy/{service:[a-zA-Z0-9]+}").Handler(s.proxy())
+	s.PathPrefix("/").Handler(http.FileServer(http.Dir(StaticDir)))
 
 	var opts []server.Option
 
@@ -403,6 +407,11 @@ func Commands(options ...micro.Option) []cli.Command {
 				Name:   "namespace",
 				Usage:  "Set the namespace used by the Web proxy e.g. com.example.web",
 				EnvVar: "MICRO_WEB_NAMESPACE",
+			},
+			cli.StringFlag{
+				Name:   "static-dir",
+				Usage:  "Set the static dir of micro web",
+				EnvVar: "MICRO_WEB_STATIC_DIR",
 			},
 		},
 	}

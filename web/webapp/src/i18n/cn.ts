@@ -10,6 +10,7 @@ const cn = {
         noDataText: "未查询到数据",
         node: '节点',
         nodes: '节点列表',
+        noResultsText: "无满足条件数据",
         otherEndpoint: '其它端口',
         port: '端口',
         service: '服务',
