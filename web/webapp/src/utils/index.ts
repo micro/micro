@@ -1,11 +1,3 @@
-const randomElement = (arr = []) => {
-    return arr[Math.floor(Math.random() * arr.length)];
-};
-
-const kebab = (str: string) => {
-    return (str || "").replace(/([a-z])([A-Z])/g, "$1-$2").toLowerCase();
-};
-
 const toggleFullScreen = () => {
     let doc = window.document;
     let docEl = doc.documentElement;
@@ -37,10 +29,77 @@ const setCookie = (a: string, v: string, days: number) => {
     document.cookie = a + "=" + (v || "") + expires + "; path=/";
 }
 
+
+const copyTxt = (text: string) => {
+
+    // @ts-ignore
+    if (!navigator.clipboard) {
+        return fallbackCopyTextToClipboard(text);
+
+    }
+
+    let flag = false;
+
+    // @ts-ignore
+    navigator.clipboard.writeText(text).then(
+        function () {
+            flag = true
+        },
+        function () {
+            flag = false
+        },
+    );
+
+    return flag
+}
+
+let XTools = {}
+
+// @ts-ignore
+XTools.install = function (Vue, options) {
+
+    let _xools = {
+        toggleFullScreen,
+        getCookieValue,
+        setCookie,
+        copyTxt
+    }
+
+    // add the instance method
+    if (!Vue.prototype.hasOwnProperty('$xools')) {
+        Object.defineProperty(Vue.prototype, '$xools', {
+            get: function get() {
+                return _xools;
+            },
+        });
+    }
+}
+
 export default {
-    randomElement,
-    toggleFullScreen,
-    kebab,
-    getCookieValue,
-    setCookie
+    XTools, Utils: {
+        toggleFullScreen,
+        getCookieValue,
+        setCookie,
+        copyTxt
+    }
 };
+
+
+function fallbackCopyTextToClipboard(text: string) {
+    let textArea = document.createElement('textarea');
+    textArea.value = text;
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+
+    let flag = false;
+    try {
+        document.execCommand('copy');
+        flag = true
+    } catch (err) {
+        flag = false
+    }
+
+    document.body.removeChild(textArea);
+    return flag;
+}

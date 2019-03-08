@@ -1,16 +1,18 @@
 <template>
-    <v-container fluid grid-list-md>
+    <v-container fluid grid-list-xl>
         <v-layout row wrap>
-            <v-flex d-flex xs12 sm6 md6>
+            <v-flex d-flex xs12 sm6 md5>
                 <v-layout row wrap>
                     <v-flex d-flex>
-                        <v-layout row wrap selectLayout>
+                        <v-layout row wrap>
                             <v-flex
                                     d-flex
                                     xs12
+                                    pt-0
+                                    pb-2
                             >
                                 <v-card>
-                                    <v-card-text>
+                                    <v-card-text class="pt-0 pb-0">
                                         <v-select
                                                 v-model="service"
                                                 :items="services"
@@ -26,9 +28,11 @@
                             <v-flex
                                     d-flex
                                     xs12
+                                    pt-0
+                                    pb-2
                             >
                                 <v-card>
-                                    <v-card-text>
+                                    <v-card-text class="pt-0 pb-0">
                                         <v-select
                                                 :model="endpoint"
                                                 :items="currentEndpoints"
@@ -44,9 +48,11 @@
                             <v-flex
                                     d-flex
                                     xs12
+                                    pt-0
+                                    pb-2
                             >
                                 <v-card>
-                                    <v-card-text>
+                                    <v-card-text class="pt-0 pb-0">
                                         <v-text-field
                                                 :disabled="endpoint != 'other'"
                                                 v-model="otherEndpoint"
@@ -56,50 +62,58 @@
                                     </v-card-text>
                                 </v-card>
                             </v-flex>
-                        </v-layout>
-                    </v-flex>
-                    <v-flex d-flex>
-                        <v-card>
-                            <v-card-text>
-                                <v-textarea
-                                        v-model="requestJSON"
-                                        height="300"
-                                        box
-                                        placeholder="{}"
-                                        :label="$t('rpc.request')"
+                            <v-flex d-flex codeFlex pt-0 pb-2>
+                                <v-card>
+                                    <v-card-title>
+                                        <span class="title font-weight-light">{{$t('rpc.request')}}</span>
+                                    </v-card-title>
+                                    <v-card-text>
+                                        <div id="jsonRequestEditor" style="height: 300px" class="json-editor">
 
-                                        :hint="$t('rpc.inputJSONFormatString')"
-                                ></v-textarea>
-                            </v-card-text>
-                            <v-card-actions>
-                                <v-btn
-                                        :disabled="!requestJSON"
-                                        flat
-                                        @click="formatRequestJSON"
-                                >
-                                    {{$t('rpc.formatJSON')}}
-                                </v-btn>
-                                <v-spacer></v-spacer>
-                                <v-btn
-                                        @click="postRequest"
-                                >
-                                    {{$t('rpc.postRequest')}}
-                                </v-btn>
-                            </v-card-actions>
-                        </v-card>
+                                        </div>
+                                    </v-card-text>
+                                </v-card>
+                            </v-flex>
+                        </v-layout>
                     </v-flex>
                 </v-layout>
             </v-flex>
-            <v-flex d-flex xs12 sm6 md6>
-                <v-card color="lighten-1" dark>
-                    <v-card-text>
-                        <v-textarea
-                                v-model="resultString"
-                                height="500"
+            <v-flex md1>
 
-                                box
-                                :label="$t('rpc.result')"
-                        ></v-textarea>
+                <v-btn
+                        small
+                        @click="formatRequestJSON"
+                >
+                    <span> {{$t('rpc.formatJSON')}}</span>
+                </v-btn>
+                <v-btn
+                        small
+                        @click="postRequest"
+                >
+                    <span>{{$t('rpc.postRequest')}}</span>
+                </v-btn>
+
+            </v-flex>
+            <v-flex d-flex xs12 sm6 md6 pt-0>
+                <v-card color="lighten-1">
+                    <v-card-text>
+                        <v-card-title>
+                            <span class="title font-weight-light">{{$t('rpc.result')}}</span>
+
+                            <v-spacer/>
+
+                            <v-btn
+                                    small
+                                    @click="copyResult"
+                            >
+                                <span> {{$t('rpc.copy')}}</span>
+                            </v-btn>
+                        </v-card-title>
+                        <v-card-text>
+                            <div id="jsonResponseEditor" style="height: 500px" class="json-editor">
+
+                            </div>
+                        </v-card-text>
                     </v-card-text>
                 </v-card>
             </v-flex>
@@ -114,6 +128,9 @@
     import state from '@/store/state';
     import {Endpoint, Service} from "@/store/basic/types";
 
+    // @ts-ingore
+    import JSONEditor from "jsoneditor"
+    import "jsoneditor/dist/jsoneditor.css";
 
     const namespace: string = 'call';
 
@@ -126,9 +143,9 @@
         private endpoint: string = "";
         private otherEndpoint: string = "";
 
-        private requestJSON: string = "{}";
+        private reqJSONEditor?: JSONEditor;
 
-        private resultString: string = ""
+        private rspJSONEditor?: JSONEditor;
 
         @Action('getServiceDetails', {namespace})
         getServiceDetails: any;
@@ -148,11 +165,8 @@
 
         @Watch("requestResult")
         resultChange(rr) {
-            try {
-                this.resultString = JSON.stringify(rr, null, 2)
-            } catch (e) {
-                this.resultString = rr
-            }
+            this.rspJSONEditor.set(rr)
+            this.rspJSONEditor.expandAll();
         }
 
         created() {
@@ -160,6 +174,7 @@
         }
 
         mounted() {
+            this.renderJSONEditor();
             this.getServiceDetails()
         }
 
@@ -172,7 +187,7 @@
 
             let postData = {
                 endpoint: endpoint,
-                request: JSON.parse(this.requestJSON),
+                request: JSON.stringify(this.reqJSONEditor.get()),
                 service: this.service.name
             }
 
@@ -192,20 +207,31 @@
             this.endpoint = endpoint.name
         }
 
-        formatRequestJSON() {
-            this.requestJSON = this.formatJSON(this.requestJSON)
+        copyResult() {
+            this.$xools.copyTxt(JSON.stringify(this.rspJSONEditor.get(), null, 2))
         }
 
-        formatJSON(str: string) {
-            return JSON.stringify(JSON.parse(str), null, 2);
+        renderJSONEditor() {
+            let containerReq = document.getElementById("jsonRequestEditor");
+            this.reqJSONEditor = new JSONEditor(containerReq, {mode: 'code', mainMenuBar: false});
+
+            let json = {};
+            this.reqJSONEditor.set(json)
+
+            let containerRsp = document.getElementById("jsonResponseEditor");
+            this.rspJSONEditor = new JSONEditor(containerRsp, {mode: 'tree', search: true});
+        }
+
+        formatRequestJSON() {
+            this.reqJSONEditor.format()
         }
     }
 </script>
 
 
 <style>
-    .selectLayout .v-card__text {
-        padding-bottom: 0;
-        padding-top: 0;
+
+    .codeFlex .v-card__text {
+        padding-bottom: 30px;
     }
 </style>

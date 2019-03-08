@@ -23,6 +23,7 @@ const cn = {
         callService: '服务调用'
     },
     rpc: {
+        copy: '复制',
         formatJSON: '格式化',
         inputJSONFormatString: '请输入JSON格式字符串',
         inputOtherEndpoint: '输入其它接口',

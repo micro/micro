@@ -23,10 +23,11 @@ const en = {
         callService: 'Call'
     },
     rpc: {
+        copy: 'copy',
         formatJSON: 'Format',
         other: 'Other',
-        inputJSONFormatString:'Json format',
-        inputOtherEndpoint: 'Input other endpoint',
+        inputJSONFormatString: 'Json format',
+        inputOtherEndpoint: 'Endpoint',
         request: 'Request',
         result: 'Result',
         postRequest: 'Request'

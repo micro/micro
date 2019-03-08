@@ -67,7 +67,7 @@
         }
 
         mounted() {
-            this.setDefaultLanguage(Util.getCookieValue('locale'))
+            this.setDefaultLanguage(this.$xools.getCookieValue('locale'))
         }
 
         setDefaultLanguage(lan?: string) {
@@ -89,9 +89,8 @@
         }
 
         handleFullScreen() {
-            Util.toggleFullScreen();
+            this.$xools.toggleFullScreen();
         }
-
 
     }
 </script>
