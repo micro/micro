@@ -25,9 +25,10 @@ const en = {
     rpc: {
         formatJSON: 'Format',
         other: 'Other',
-        inputJSONFormatString:'Please input string of json format',
-        inputOtherEndpoint: 'input other endpoint',
+        inputJSONFormatString:'Json format',
+        inputOtherEndpoint: 'Input other endpoint',
         request: 'Request',
+        result: 'Result',
         postRequest: 'Request'
     },
     table: {

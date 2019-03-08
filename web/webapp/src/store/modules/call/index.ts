@@ -1,9 +1,8 @@
 import {MutationTree, ActionTree} from 'vuex';
 import * as TYPES from '../../mutation-types';
 
-import {Service} from '@/store/basic/types';
 import {CallState} from './types';
-import {getServiceDetails} from '@/api/call';
+import {getServiceDetails, postServiceRequest} from '@/api/call';
 
 
 const namespaced: boolean = true;
@@ -11,7 +10,7 @@ const namespaced: boolean = true;
 const state: CallState = {
     requestLoading: false,
     services: [],
-    requestResult: new Map<string, Object>()
+    requestResult: {}
 }
 
 const mutations: MutationTree<any> = {
@@ -24,7 +23,7 @@ const mutations: MutationTree<any> = {
         state.requestLoading = loading
     },
 
-    [TYPES.SET_CALL_RESULT](state: CallState, result): void {
+    [TYPES.SET_CALL_RESULT](state: CallState, result: object): void {
         state.requestResult = result
     },
 
@@ -42,10 +41,10 @@ const actions: ActionTree<any, any> = {
         });
     },
 
-    async postServiceRequest({commit}, name: string) {
+    async postServiceRequest({commit}, req: object) {
 
         commit(TYPES.SET_CALL_LOADING, true);
-        const res: Ajax.AjaxResponse = await getServiceDetails();
+        const res: Ajax.AjaxResponse = await postServiceRequest(req);
         commit(TYPES.SET_CALL_RESULT, res.data);
     },
 };

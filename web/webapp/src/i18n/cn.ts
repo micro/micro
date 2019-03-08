@@ -27,6 +27,7 @@ const cn = {
         inputJSONFormatString: '请输入JSON格式字符串',
         inputOtherEndpoint: '输入其它接口',
         request: '请求',
+        result: '执行结果',
         other: '其它',
         postRequest: '请求'
 

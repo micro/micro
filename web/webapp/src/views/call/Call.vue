@@ -12,7 +12,7 @@
                                 <v-card>
                                     <v-card-text>
                                         <v-select
-                                                :model="service"
+                                                v-model="service"
                                                 :items="services"
                                                 item-text="name"
                                                 item-value="endpoints"
@@ -67,7 +67,7 @@
                                         box
                                         placeholder="{}"
                                         :label="$t('rpc.request')"
-                                        value=""
+
                                         :hint="$t('rpc.inputJSONFormatString')"
                                 ></v-textarea>
                             </v-card-text>
@@ -75,7 +75,7 @@
                                 <v-btn
                                         :disabled="!requestJSON"
                                         flat
-                                        @click="formatJSON"
+                                        @click="formatRequestJSON"
                                 >
                                     {{$t('rpc.formatJSON')}}
                                 </v-btn>
@@ -92,7 +92,15 @@
             </v-flex>
             <v-flex d-flex xs12 sm6 md6>
                 <v-card color="lighten-1" dark>
-                    <v-card-text placeholder="{}"></v-card-text>
+                    <v-card-text>
+                        <v-textarea
+                                v-model="resultString"
+                                height="500"
+
+                                box
+                                :label="$t('rpc.result')"
+                        ></v-textarea>
+                    </v-card-text>
                 </v-card>
             </v-flex>
         </v-layout>
@@ -100,41 +108,52 @@
 </template>
 
 <script lang="ts">
-    import {Component, Vue} from "vue-property-decorator";
+    import {Component, Vue, Watch} from "vue-property-decorator";
     import {State, Action} from 'vuex-class';
 
     import state from '@/store/state';
     import {Endpoint, Service} from "@/store/basic/types";
 
-    import VueJsonPretty from 'vue-json-pretty'
 
     const namespace: string = 'call';
 
-    @Component({components: {VueJsonPretty}})
+    @Component({components: {}})
     export default class Call extends Vue {
-
-        private lorem = `Lorem ipsum dolor sit amet, mel at clita quando. Te sit oratio vituperatoribus, nam ad ipsum
-        posidonium mediocritatem, explicari dissentiunt cu mea. Repudiare disputationi vim in, mollis iriure nec cu, alienum argumentum ius ad. Pri eu justo aeque torquatos.`;
-
-
-        private items = ['Foo', 'Bar', 'Fizz', 'Buzz'];
 
         private currentEndpoints = [];
 
-        private service: string = "";
+        private service: Service = new Service();
         private endpoint: string = "";
         private otherEndpoint: string = "";
 
-        private requestJSON: string = "";
+        private requestJSON: string = "{}";
+
+        private resultString: string = ""
 
         @Action('getServiceDetails', {namespace})
         getServiceDetails: any;
 
+        @Action('postServiceRequest', {namespace})
+        postServiceRequest: any;
+
         @State((state: state) => state.call.services)
         services?: Service[];
 
-        @State((state: state) => state.registry.pageLoading)
-        loading?: boolean;
+        @State((state: state) => state.call.requestResult)
+        requestResult?: object;
+
+        @State((state: state) => state.call.requestLoading)
+        requestLoading?: boolean;
+
+
+        @Watch("requestResult")
+        resultChange(rr) {
+            try {
+                this.resultString = JSON.stringify(rr, null, 2)
+            } catch (e) {
+                this.resultString = rr
+            }
+        }
 
         created() {
 
@@ -146,11 +165,18 @@
 
         postRequest() {
 
-            let postData = {
-                endpoint: "VideoService.AddVideo",
-                request: {},
-                service: "video-service"
+            let endpoint = this.endpoint;
+            if (endpoint == 'other') {
+                endpoint = this.otherEndpoint;
             }
+
+            let postData = {
+                endpoint: endpoint,
+                request: JSON.parse(this.requestJSON),
+                service: this.service.name
+            }
+
+            this.postServiceRequest(postData);
         }
 
         changeService(service: Service) {
@@ -166,8 +192,12 @@
             this.endpoint = endpoint.name
         }
 
-        formatJSON() {
-            this.requestJSON = JSON.stringify(JSON.parse(this.requestJSON), null, 2);
+        formatRequestJSON() {
+            this.requestJSON = this.formatJSON(this.requestJSON)
+        }
+
+        formatJSON(str: string) {
+            return JSON.stringify(JSON.parse(str), null, 2);
         }
     }
 </script>
