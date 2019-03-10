@@ -1,41 +1,39 @@
 # Micro Web Dashboard
 
-Dashboard is the web front page of micro admin service.
+Micro web is the dashboard for visualising and exploring services.
 
-# Important
 
-Be different from the old version which used backend template to render html, new UI separate backend and frontend codes.
-It makes more easy to write frontend code and import modern UI framework like vue/vuetify, etc.
+## Overview
 
-So, when using our new UI, you should copy the dist [dir](./dist) to some path you want, and tell the **micro** command where it is. 
+Run the micro web app like so
 
 ```bash
-
-$ micro web --static-dir=/path/to/new/ui/dist/dir
-
+micro web
 ```
 
-or use the default dir **/usr/local/var/www/micro-web**:
-
-```bash
-$ cp -r dist /usr/local/var/www
-$ mv /usr/local/var/www/dist /usr/local/var/www/micro-web
-$ micro web
+This assumes you are in the root dir of github.com/micro/micro. In the event you want to run from a different directory specify the 
+static dir path.
 
 ```
+micro web --static_dir=/path/to/new/ui/dist/dir
+```
 
-## Install
+The default location is ./web/webapp/dist
+
+## Development
+
+Micro web makes use of vuejs
 
 ### npm modules
 
 ```bash
-$ npm install
+npm install
 ```
 
 ### initialize eslint(optional)
 
 ```bash
-$ ./node_modules/.bin/eslint --init
+./node_modules/.bin/eslint --init
 
 ? How would you like to use ESLint? To check syntax and find problems
 ? What type of modules does your project use? JavaScript modules (import/export)
@@ -53,12 +51,12 @@ eslint-plugin-vue@latest eslint-config-eslint:recommended,plugin:vue/essential@l
 ## run
 
 ```bash
-$ npm run serve
+npm run serve
 ```
 
 ## build
 
 ```bash
-$ npm run build
-
+npm run build
 ```
+

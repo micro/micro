@@ -45,8 +45,10 @@ var (
 	// This is stripped from the request path
 	// Allows the web service to define absolute paths
 	BasePathHeader = "X-Micro-Web-Base-Path"
+	// path to the html directory
+	StaticDir      = "web/webapp/dist"
+
 	statsURL       string
-	StaticDir      = "/usr/local/var/www/micro-web"
 )
 
 type srv struct {
@@ -302,12 +304,11 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	if len(ctx.String("namespace")) > 0 {
 		Namespace = ctx.String("namespace")
 	}
-	if len(ctx.String("static-dir")) > 0 {
-
+	if len(ctx.String("static_dir")) > 0 {
 		// check static-dir existing
-		_, err := os.Stat(ctx.String("static-dir"))
+		_, err := os.Stat(ctx.String("static_dir"))
 		if err == nil {
-			StaticDir = ctx.String("static-dir")
+			StaticDir = ctx.String("static_dir")
 		}
 	}
 
@@ -409,7 +410,7 @@ func Commands(options ...micro.Option) []cli.Command {
 				EnvVar: "MICRO_WEB_NAMESPACE",
 			},
 			cli.StringFlag{
-				Name:   "static-dir",
+				Name:   "static_dir",
 				Usage:  "Set the static dir of micro web",
 				EnvVar: "MICRO_WEB_STATIC_DIR",
 			},
