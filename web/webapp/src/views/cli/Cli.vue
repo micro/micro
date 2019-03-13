@@ -176,14 +176,10 @@
                                                 var node = service.nodes[j];
 
                                                 $.ajax({
-                                                    endpoint: "POST",
                                                     dataType: "json",
-                                                    method: 'POST',
-                                                    url: "api/v1/rpc",
+                                                    url: "api/v1/health",
                                                     data: {
                                                         "service": service.name,
-                                                        "endpoint": "Debug.Health",
-                                                        "request": JSON.stringify({}),
                                                         "address": node.address + ":" + node.port,
                                                     },
                                                     success: function (data: any) {
