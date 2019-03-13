@@ -2,16 +2,12 @@
 package web
 
 import (
-	"encoding/json"
 	"fmt"
 	"github.com/micro/micro/web/api/v1"
-	"github.com/micro/micro/web/common"
-	"html/template"
 	"net/http"
 	"net/http/httputil"
 	"os"
 	"regexp"
-	"sort"
 	"strings"
 	"time"
 
@@ -149,151 +145,6 @@ func faviconHandler(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
-func cliHandler(w http.ResponseWriter, r *http.Request) {
-	render(w, r, cliTemplate, nil)
-}
-
-func indexHandler(w http.ResponseWriter, r *http.Request) {
-	services, err := (*cmd.DefaultOptions().Registry).ListServices()
-	if err != nil {
-		http.Error(w, "Error occurred:"+err.Error(), 500)
-		return
-	}
-
-	var webServices []string
-	for _, s := range services {
-		if strings.Index(s.Name, Namespace) == 0 && len(strings.TrimPrefix(s.Name, Namespace)) > 0 {
-			webServices = append(webServices, strings.Replace(s.Name, Namespace+".", "", 1))
-		}
-	}
-
-	sort.Strings(webServices)
-
-	type templateData struct {
-		HasWebServices bool
-		WebServices    []string
-	}
-
-	data := templateData{len(webServices) > 0, webServices}
-	render(w, r, indexTemplate, data)
-}
-
-func registryHandler(w http.ResponseWriter, r *http.Request) {
-	r.ParseForm()
-	svc := r.Form.Get("service")
-
-	if len(svc) > 0 {
-		s, err := (*cmd.DefaultOptions().Registry).GetService(svc)
-		if err != nil {
-			http.Error(w, "Error occurred:"+err.Error(), 500)
-			return
-		}
-
-		if len(s) == 0 {
-			http.Error(w, "Not found", 404)
-			return
-		}
-
-		if r.Header.Get("Content-Type") == "application/json" {
-			b, err := json.Marshal(map[string]interface{}{
-				"services": s,
-			})
-			if err != nil {
-				http.Error(w, "Error occurred:"+err.Error(), 500)
-				return
-			}
-			w.Header().Set("Content-Type", "application/json")
-			w.Write(b)
-			return
-		}
-
-		render(w, r, serviceTemplate, s)
-		return
-	}
-
-	services, err := (*cmd.DefaultOptions().Registry).ListServices()
-	if err != nil {
-		http.Error(w, "Error occurred:"+err.Error(), 500)
-		return
-	}
-
-	sort.Sort(common.SortedServices{services})
-
-	if r.Header.Get("Content-Type") == "application/json" {
-		b, err := json.Marshal(map[string]interface{}{
-			"services": services,
-		})
-		if err != nil {
-			http.Error(w, "Error occurred:"+err.Error(), 500)
-			return
-		}
-		w.Header().Set("Content-Type", "application/json")
-		w.Write(b)
-		return
-	}
-
-	render(w, r, registryTemplate, services)
-}
-
-func callHandler(w http.ResponseWriter, r *http.Request) {
-	services, err := (*cmd.DefaultOptions().Registry).ListServices()
-	if err != nil {
-		http.Error(w, "Error occurred:"+err.Error(), 500)
-		return
-	}
-
-	sort.Sort(common.SortedServices{Services: services})
-
-	serviceMap := make(map[string][]*registry.Endpoint)
-	for _, service := range services {
-		s, err := (*cmd.DefaultOptions().Registry).GetService(service.Name)
-		if err != nil {
-			continue
-		}
-		if len(s) == 0 {
-			continue
-		}
-		serviceMap[service.Name] = s[0].Endpoints
-	}
-
-	if r.Header.Get("Content-Type") == "application/json" {
-		b, err := json.Marshal(map[string]interface{}{
-			"services": services,
-		})
-		if err != nil {
-			http.Error(w, "Error occurred:"+err.Error(), 500)
-			return
-		}
-		w.Header().Set("Content-Type", "application/json")
-		w.Write(b)
-		return
-	}
-
-	render(w, r, callTemplate, serviceMap)
-}
-
-func render(w http.ResponseWriter, r *http.Request, tmpl string, data interface{}) {
-	t, err := template.New("template").Funcs(template.FuncMap{
-		"format": format,
-	}).Parse(layoutTemplate)
-	if err != nil {
-		http.Error(w, "Error occurred:"+err.Error(), 500)
-		return
-	}
-	t, err = t.Parse(tmpl)
-	if err != nil {
-		http.Error(w, "Error occurred:"+err.Error(), 500)
-		return
-	}
-
-	if err := t.ExecuteTemplate(w, "layout", map[string]interface{}{
-		"StatsURL": statsURL,
-		"Results":  data,
-	}); err != nil {
-		http.Error(w, "Error occurred:"+err.Error(), 500)
-	}
-}
-
 func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	if len(ctx.GlobalString("server_name")) > 0 {
 		Name = ctx.GlobalString("server_name")
@@ -335,7 +186,6 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	apiV1.InitV1Handler(s.Router)
 
 	s.HandleFunc("/favicon.ico", faviconHandler)
-	s.HandleFunc("/registry", registryHandler)
 	s.PathPrefix("/proxy/{service:[a-zA-Z0-9]+}").Handler(s.proxy())
 	s.PathPrefix("/").Handler(http.FileServer(http.Dir(StaticDir)))
 
