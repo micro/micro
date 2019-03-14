@@ -1,6 +1,7 @@
 package v1
 
 import (
+	"context"
 	"encoding/json"
 	"github.com/gorilla/mux"
 	"github.com/micro/go-micro/client"
@@ -20,6 +21,7 @@ var (
 	staticDir = "/webapp/dist/"
 	Namespace = "go.micro.web"
 )
+
 // Rsp is the struct of api response
 type Rsp struct {
 	Code    uint        `json:"code,omitempty"`
@@ -43,6 +45,7 @@ type rpcRequest struct {
 	Endpoint string
 	Method   string
 	Address  string
+	timeout  int
 	Request  interface{}
 }
 
@@ -52,6 +55,7 @@ func (api *API) InitV1Handler(r *mux.Router) {
 	r.HandleFunc("/api/v1/service-details", api.serviceDetails).Methods("GET")
 	r.HandleFunc("/api/v1/web-services", api.webServices).Methods("GET")
 	r.HandleFunc("/api/v1/rpc", api.rpc).Methods("POST")
+	r.HandleFunc("/api/v1/health", api.health).Methods("GET")
 }
 
 func (api *API) webServices(w http.ResponseWriter, r *http.Request) {
@@ -131,7 +135,7 @@ func (api *API) service(w http.ResponseWriter, r *http.Request) {
 		}
 
 		if len(s) == 0 {
-			writeError(w, "Service Are Not found")
+			writeError(w, "Service Is Not found")
 			return
 		}
 
@@ -143,108 +147,75 @@ func (api *API) service(w http.ResponseWriter, r *http.Request) {
 }
 
 func (api *API) rpc(w http.ResponseWriter, r *http.Request) {
-	if r.Method != "POST" {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+
+	defer r.Body.Close()
+	rpcReq := &rpcRequest{}
+
+	d := json.NewDecoder(r.Body)
+	d.UseNumber()
+
+	if err := d.Decode(&rpcReq); err != nil {
+		writeError(w, err.Error())
 		return
 	}
+
+	if len(rpcReq.Endpoint) == 0 {
+		rpcReq.Endpoint = rpcReq.Method
+	}
+
+	rpcReq.timeout, _ = strconv.Atoi(r.Header.Get("Timeout"))
+
+	rpc(w, helper.RequestToContext(r), rpcReq)
+}
+func (api *API) health(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 
-	badRequest := func(description string) {
-		e := errors.BadRequest("go.micro.rpc", description)
-		w.WriteHeader(400)
-		w.Write([]byte(e.Error()))
+	rpcReq := &rpcRequest{
+		Service:  r.URL.Query().Get("service"),
+		Endpoint: "Debug.Health",
+		Request:  "{}",
+		Address:  r.URL.Query().Get("address"),
 	}
 
-	var service, endpoint, address string
-	var request interface{}
+	rpc(w, helper.RequestToContext(r), rpcReq)
+}
 
-	// response content type
-	w.Header().Set("Content-Type", "application/json")
+func rpc(w http.ResponseWriter, ctx context.Context, rpcReq *rpcRequest) {
 
-	ct := r.Header.Get("Content-Type")
-
-	// Strip charset from Content-Type (like `application/json; charset=UTF-8`)
-	if idx := strings.IndexRune(ct, ';'); idx >= 0 {
-		ct = ct[:idx]
+	if len(rpcReq.Service) == 0 {
+		writeError(w, "Service Is Not found")
 	}
 
-	switch ct {
-	case "application/json":
-		var rpcReq rpcRequest
+	if len(rpcReq.Endpoint) == 0 {
+		writeError(w, "Endpoint Is Not found")
+	}
 
-		d := json.NewDecoder(r.Body)
+	// decode rpc request param body
+	if req, ok := rpcReq.Request.(string); ok {
+		d := json.NewDecoder(strings.NewReader(req))
 		d.UseNumber()
 
-		if err := d.Decode(&rpcReq); err != nil {
-			badRequest(err.Error())
+		if err := d.Decode(&rpcReq.Request); err != nil {
+			writeError(w, "error decoding request string: "+err.Error())
 			return
 		}
-
-		service = rpcReq.Service
-		endpoint = rpcReq.Endpoint
-		address = rpcReq.Address
-		request = rpcReq.Request
-		if len(endpoint) == 0 {
-			endpoint = rpcReq.Method
-		}
-
-		// JSON as string
-		if req, ok := rpcReq.Request.(string); ok {
-			d := json.NewDecoder(strings.NewReader(req))
-			d.UseNumber()
-
-			if err := d.Decode(&request); err != nil {
-				badRequest("error decoding request string: " + err.Error())
-				return
-			}
-		}
-	default:
-		r.ParseForm()
-		service = r.Form.Get("service")
-		endpoint = r.Form.Get("endpoint")
-		address = r.Form.Get("address")
-		if len(endpoint) == 0 {
-			endpoint = r.Form.Get("method")
-		}
-
-		d := json.NewDecoder(strings.NewReader(r.Form.Get("request")))
-		d.UseNumber()
-
-		if err := d.Decode(&request); err != nil {
-			badRequest("error decoding request string: " + err.Error())
-			return
-		}
-	}
-
-	if len(service) == 0 {
-		badRequest("invalid service")
-		return
-	}
-
-	if len(endpoint) == 0 {
-		badRequest("invalid endpoint")
-		return
 	}
 
 	// create request/response
 	var response json.RawMessage
 	var err error
-	req := (*cmd.DefaultOptions().Client).NewRequest(service, endpoint, request, client.WithContentType("application/json"))
-
-	// create context
-	ctx := helper.RequestToContext(r)
+	req := (*cmd.DefaultOptions().Client).NewRequest(rpcReq.Service, rpcReq.Endpoint, rpcReq.Request, client.WithContentType("application/json"))
 
 	var opts []client.CallOption
 
-	timeout, _ := strconv.Atoi(r.Header.Get("Timeout"))
 	// set timeout
-	if timeout > 0 {
-		opts = append(opts, client.WithRequestTimeout(time.Duration(timeout)*time.Second))
+	if rpcReq.timeout > 0 {
+		opts = append(opts, client.WithRequestTimeout(time.Duration(rpcReq.timeout)*time.Second))
 	}
 
 	// remote call
-	if len(address) > 0 {
-		opts = append(opts, client.WithAddress(address))
+	if len(rpcReq.Address) > 0 {
+		opts = append(opts, client.WithAddress(rpcReq.Address))
 	}
 
 	// remote call
