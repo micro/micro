@@ -15,7 +15,7 @@ Plug in any stack or underlying technology. Build future-proof systems using mic
 
 ## Features
 
-The toolkit is composed of the following features:
+The control plane is composed of the following features:
 
 - **API Gateway:** A single entry point with dynamic request routing using service discovery. The API gateway allows you to build a scalable 
 microservice architecture on the backend and consolidate serving a public api on the frontend. The micro api provides powerful routing 
