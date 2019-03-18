@@ -58,7 +58,7 @@
                         "    list        List items in registry\n" +
                         "    get         Get item from registry\n";
                     try {
-                        let args = command.trim().split(/\s+/)
+                        let args = command.split(" ");
                         switch (args[0]) {
                             case "exit":
                                 // @ts-ignore
@@ -75,12 +75,12 @@
                                 $.ajax({
                                     dataType: "json",
                                     contentType: "application/json",
-                                    url: "api/v1/services",
+                                    url: "registry",
                                     data: {},
                                     success: function (data: any) {
                                         let services = [];
-                                        for (let i = 0; i < data.data.length; i++) {
-                                            services.push(data.data[i].name);
+                                        for (let i = 0; i < data.services.length; i++) {
+                                            services.push(data.services[i].name);
                                         }
                                         term.echo(services.join("\n"));
                                     },
@@ -95,10 +95,10 @@
                                 $.ajax({
                                     dataType: "json",
                                     contentType: "application/json",
-                                    url: "api/v1/service/" + args[2],
+                                    url: "registry?service=" + args[2],
                                     data: {},
                                     success: function (data: any) {
-                                        if (data.data.length == 0) {
+                                        if (data.services.length == 0) {
                                             return
                                         }
 
@@ -107,8 +107,8 @@
 
                                         let eps: any = {};
 
-                                        for (let i = 0; i < data.data.length; i++) {
-                                            let service = data.data[i];
+                                        for (let i = 0; i < data.services.length; i++) {
+                                            var service = data.services[i];
                                             term.echo("\nversion " + service.version);
                                             term.echo(" ");
                                             term.echo("Id\tAddress\tPort\tMetadata\n");
@@ -125,7 +125,7 @@
                                             }
                                             term.echo(" ");
 
-                                            for (let k = 0; service.endpoints && k < service.endpoints.length; k++) {
+                                            for (let k = 0; k < service.endpoints.length; k++) {
                                                 if (eps[service.endpoints[k].name] == undefined) {
                                                     eps[service.endpoints[k].name] = service.endpoints[k];
                                                 }
@@ -158,35 +158,39 @@
                                 $.ajax({
                                     dataType: "json",
                                     contentType: "application/json",
-                                    url: "api/v1/service/" + args[1],
+                                    url: "registry?service=" + args[1],
                                     data: {},
                                     success: function (data: any) {
 
                                         term.echo("service\t" + args[1]);
                                         term.echo(" ");
 
-                                        for (let i = 0; i < data.data.length; i++) {
-                                            var service = data.data[i];
+                                        for (let i = 0; i < data.services.length; i++) {
+                                            var service = data.services[i];
 
                                             term.echo("\nversion " + service.version);
                                             term.echo(" ");
-                                            term.echo("Id\tAddress:Port\tStatus\n");
+                                            term.echo("Id\tAddress:Port\tMetadata\n");
 
                                             for (let j = 0; j < service.nodes.length; j++) {
                                                 var node = service.nodes[j];
 
                                                 $.ajax({
+                                                    endpoint: "POST",
                                                     dataType: "json",
-                                                    url: "api/v1/health",
-                                                    data: {
+                                                    contentType: "application/json",
+                                                    url: "rpc",
+                                                    data: JSON.stringify({
                                                         "service": service.name,
+                                                        "endpoint": "Debug.Health",
+                                                        "request": {},
                                                         "address": node.address + ":" + node.port,
-                                                    },
+                                                    }),
                                                     success: function (data: any) {
-                                                        term.echo(node.id + "\t" + node.address + ":" + node.port + "\t" + data.data.status);
+                                                        term.echo(node.id + "\t" + node.address + ":" + node.port + "\t" + data.status);
                                                     },
                                                     error: function (xhr: any) {
-                                                        term.echo(node.id + "\t" + node.address + ":" + node.port + "\t" + xhr.data.status);
+                                                        term.echo(node.id + "\t" + node.address + ":" + node.port + "\t" + xhr.status);
                                                     },
                                                 });
 
@@ -212,11 +216,10 @@
                                 }
 
                                 $.ajax({
-                                    method: 'post',
                                     endpoint: "POST",
                                     dataType: "json",
                                     contentType: "application/json",
-                                    url: "api/v1/rpc",
+                                    url: "rpc",
                                     data: JSON.stringify({"service": args[1], "endpoint": args[2], "request": request}),
                                     success: function (data: any) {
                                         term.echo(JSON.stringify(data, null, 2));
