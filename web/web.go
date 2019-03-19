@@ -401,14 +401,6 @@ func Commands(options ...micro.Option) []cli.Command {
 				Usage:  "Set the namespace used by the Web proxy e.g. com.example.web",
 				EnvVar: "MICRO_WEB_NAMESPACE",
 			},
-<<<<<<< HEAD
-			cli.StringFlag{
-				Name:   "static_dir",
-				Usage:  "Set the static dir of micro web",
-				EnvVar: "MICRO_WEB_STATIC_DIR",
-			},
-=======
->>>>>>> parent of d61675c... Merge pull request #241 from printfcoder/master
 		},
 	}
 
