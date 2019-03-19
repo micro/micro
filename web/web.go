@@ -43,9 +43,6 @@ var (
 	// This is stripped from the request path
 	// Allows the web service to define absolute paths
 	BasePathHeader = "X-Micro-Web-Base-Path"
-	// path to the html directory
-	StaticDir      = "web/webapp/dist"
-
 	statsURL       string
 )
 
