@@ -46,9 +46,9 @@ var (
 	// Allows the web service to define absolute paths
 	BasePathHeader = "X-Micro-Web-Base-Path"
 	// path to the html directory
-	StaticDir = "web/webapp/dist"
+	StaticDir      = "web/webapp/dist"
 
-	statsURL string
+	statsURL       string
 )
 
 type srv struct {
@@ -335,7 +335,6 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	apiV1.InitV1Handler(s.Router)
 
 	s.HandleFunc("/favicon.ico", faviconHandler)
-	s.HandleFunc("/registry", registryHandler)
 	s.PathPrefix("/proxy/{service:[a-zA-Z0-9]+}").Handler(s.proxy())
 	s.PathPrefix("/").Handler(http.FileServer(http.Dir(StaticDir)))
 
