@@ -85,11 +85,6 @@ func setup(app *ccli.App) {
 			Usage:  "Set the namespace used by the Web proxy e.g. com.example.web",
 			EnvVar: "MICRO_WEB_NAMESPACE",
 		},
-		ccli.StringFlag{
-			Name:   "web_static_dir",
-			Usage:  "Set the static dir of micro web",
-			EnvVar: "MICRO_WEB_STATIC_DIR",
-		},
 		ccli.BoolFlag{
 			Name:   "enable_stats",
 			Usage:  "Enable stats",
@@ -134,9 +129,6 @@ func setup(app *ccli.App) {
 		}
 		if len(ctx.String("web_namespace")) > 0 {
 			web.Namespace = ctx.String("web_namespace")
-		}
-		if len(ctx.String("web_static_dir")) > 0 {
-			web.StaticDir = ctx.String("web_static_dir")
 		}
 
 		for _, p := range plugins {

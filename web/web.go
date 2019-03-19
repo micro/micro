@@ -4,12 +4,9 @@ package web
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/micro/micro/web/api/v1"
-	"github.com/micro/micro/web/common"
 	"html/template"
 	"net/http"
 	"net/http/httputil"
-	"os"
 	"regexp"
 	"sort"
 	"strings"
@@ -24,6 +21,7 @@ import (
 	"github.com/micro/go-micro/cmd"
 	"github.com/micro/go-micro/registry"
 	"github.com/micro/go-micro/selector"
+	"github.com/micro/micro/internal/handler"
 	"github.com/micro/micro/internal/helper"
 	"github.com/micro/micro/internal/stats"
 	"github.com/micro/micro/plugin"
@@ -69,7 +67,7 @@ func (s *srv) proxy() http.Handler {
 			r.RequestURI = ""
 		}
 
-		parts := strings.Split(r.URL.Path, "/proxy/")
+		parts := strings.Split(r.URL.Path, "/")
 		if len(parts) < 2 {
 			kill()
 			return
@@ -217,7 +215,7 @@ func registryHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	sort.Sort(common.SortedServices{services})
+	sort.Sort(sortedServices{services})
 
 	if r.Header.Get("Content-Type") == "application/json" {
 		b, err := json.Marshal(map[string]interface{}{
@@ -242,7 +240,7 @@ func callHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	sort.Sort(common.SortedServices{Services: services})
+	sort.Sort(sortedServices{services})
 
 	serviceMap := make(map[string][]*registry.Endpoint)
 	for _, service := range services {
@@ -304,13 +302,6 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	if len(ctx.String("namespace")) > 0 {
 		Namespace = ctx.String("namespace")
 	}
-	if len(ctx.String("static_dir")) > 0 {
-		// check static-dir existing
-		_, err := os.Stat(ctx.String("static_dir"))
-		if err == nil {
-			StaticDir = ctx.String("static_dir")
-		}
-	}
 
 	// Init plugins
 	for _, p := range Plugins() {
@@ -331,12 +322,13 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		defer st.Stop()
 	}
 
-	apiV1 := v1.API{}
-	apiV1.InitV1Handler(s.Router)
-
+	s.HandleFunc("/registry", registryHandler)
+	s.HandleFunc("/rpc", handler.RPC)
+	s.HandleFunc("/cli", cliHandler)
+	s.HandleFunc("/call", callHandler)
 	s.HandleFunc("/favicon.ico", faviconHandler)
-	s.PathPrefix("/proxy/{service:[a-zA-Z0-9]+}").Handler(s.proxy())
-	s.PathPrefix("/").Handler(http.FileServer(http.Dir(StaticDir)))
+	s.PathPrefix("/{service:[a-zA-Z0-9]+}").Handler(s.proxy())
+	s.HandleFunc("/", indexHandler)
 
 	var opts []server.Option
 
@@ -409,11 +401,14 @@ func Commands(options ...micro.Option) []cli.Command {
 				Usage:  "Set the namespace used by the Web proxy e.g. com.example.web",
 				EnvVar: "MICRO_WEB_NAMESPACE",
 			},
+<<<<<<< HEAD
 			cli.StringFlag{
 				Name:   "static_dir",
 				Usage:  "Set the static dir of micro web",
 				EnvVar: "MICRO_WEB_STATIC_DIR",
 			},
+=======
+>>>>>>> parent of d61675c... Merge pull request #241 from printfcoder/master
 		},
 	}
 
