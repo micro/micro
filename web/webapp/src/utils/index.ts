@@ -31,6 +31,11 @@ const getCookieValue = (a: string) => {
     return b ? b.pop() : '';
 }
 
+const getDefaultLan = () => {
+    let locale = getCookieValue('locale')
+    return locale ? locale : 'en';
+}
+
 const setCookie = (a: string, v: string, days: number) => {
     let expires = "";
     if (days) {
@@ -70,6 +75,7 @@ XTools.install = function (Vue, options) {
     let _xools = {
         toggleFullScreen,
         getCookieValue,
+        getDefaultLan,
         setCookie,
         copyTxt
     }
@@ -88,6 +94,7 @@ export default {
     XTools, Utils: {
         toggleFullScreen,
         getCookieValue,
+        getDefaultLan,
         setCookie,
         copyTxt
     }

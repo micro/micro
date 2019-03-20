@@ -19,10 +19,11 @@ const cn = {
         version: "版本号",
     },
     menu: {
-        homePage: '主页',
+        callService: '服务调用',
         cliTerminal: 'cli终端',
+        homePage: '主页',
         registryInfo: '服务注册情况',
-        callService: '服务调用'
+        stats: '统计'
     },
     rpc: {
         copy: '复制',

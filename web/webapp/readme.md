@@ -60,3 +60,7 @@ npm run serve
 npm run build
 ```
 
+# Thanks
+
+## [Baidu eCharts](https://github.com/apache/incubator-echarts)
+## [vue-material-admin](https://github.com/tookit/vue-material-admin)

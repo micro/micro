@@ -8,6 +8,8 @@
   },
   "dependencies": {
     "axios": "^0.18.0",
+    "echarts": "^4.1.0",
+    "element-ui": "^2.6.1",
     "font-awesome": "^4.7.0",
     "jsoneditor": "^5.30.0",
     "lodash.truncate": "^4.4.2",
@@ -17,6 +19,7 @@
     "vee-validate": "^2.1.7",
     "vue": "^2.6.8",
     "vue-class-component": "^7.0.1",
+    "vue-echarts": "^4.0.1",
     "vue-i18n": "^8.9.0",
     "vue-json-pretty": "^1.4.1",
     "vue-perfect-scrollbar": "^0.1.0",

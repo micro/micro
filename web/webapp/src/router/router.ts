@@ -75,6 +75,12 @@ const router = new Router({
             meta: {breadcrumb: true},
             name: "registry",
             component: () => import(`@/views/registry/RegistryPage.vue`)
+        },
+        {
+            path: "/statistics",
+            meta: {breadcrumb: true},
+            name: "statistics",
+            component: () => import(`@/views/statistics/Statistics.vue`)
         }
     ]
 });

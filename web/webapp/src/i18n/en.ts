@@ -19,10 +19,11 @@ const en = {
         version: "Version",
     },
     menu: {
-        homePage: 'Home',
+        callService: 'Call',
         cliTerminal: 'CLI',
+        homePage: 'Home',
         registryInfo: 'Registry',
-        callService: 'Call'
+        stats: 'Stats'
     },
     rpc: {
         copy: 'Copy',

@@ -1,7 +1,7 @@
 <template>
     <v-navigation-drawer id="appDrawer" :mini-variant.sync="mini" fixed :dark="$vuetify.dark" app v-model="drawer"
                          width="260">
-        <v-toolbar color="primary darken-1" dark>
+        <v-toolbar color="#252531 darken-1" dark>
             <v-toolbar-title class="ml-0 pl-3">
                 <span class="hidden-sm-and-down">Micro</span>
             </v-toolbar-title>

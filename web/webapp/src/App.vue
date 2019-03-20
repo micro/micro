@@ -73,5 +73,8 @@
 </script>
 
 
-<style>
+<style scoped>
+    .page-wrapper {
+        padding-left: 20px;
+    }
 </style>

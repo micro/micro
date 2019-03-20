@@ -23,6 +23,12 @@ const Menu = [
         icon: "train",
         name: "call"
     },
+    {
+        title: "stats",
+        component: "apps",
+        icon: "bar_chart",
+        name: "statistics"
+    },
     {divider: true}
 ];
 // reorder menu
