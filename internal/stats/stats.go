@@ -6,6 +6,7 @@ import (
 	"html/template"
 	"net/http"
 	"runtime"
+	"strings"
 	"sync"
 	"time"
 )
@@ -91,10 +92,10 @@ func (s *stats) run() {
 	}
 }
 
-func (s *stats) Record(c string, t int) {
+func (s *stats) Record(code, serviceName, address string, t int) {
 	s.Lock()
 	counter := s.Counters[len(s.Counters)-1]
-	counter.Status[c] += t
+	counter.Status[code] += t
 	counter.Total += t
 	s.Counters[len(s.Counters)-1] = counter
 	s.Unlock()
@@ -118,7 +119,8 @@ func (s *stats) ServeHTTP(h http.Handler) http.Handler {
 			code = "20x"
 		}
 
-		s.Record(code, 1)
+		service, address := getServiceInfo(r)
+		s.Record(code, service, address, 1)
 	})
 }
 
@@ -181,4 +183,20 @@ func New() *stats {
 			},
 		},
 	}
+}
+
+func getServiceInfo(r *http.Request) (service, address string) {
+
+	requestURL := r.RequestURI
+	parts := strings.Split(requestURL, "/")
+
+	if len(parts) < 3 {
+		// ignore those not api calls
+		return
+	}
+
+	service = parts[1]
+	// endpoint = parts[2]
+	//address = r.ad
+	return
 }
