@@ -42,7 +42,7 @@
                             };
 
                             let c = {
-                                text: child.title,
+                                text: this.$t("menu." + child.title),
                                 disabled: false,
                                 href: child.path
                             };

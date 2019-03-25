@@ -7,7 +7,9 @@
                 <v-content style="height: 100%;">
                     <div class="page-wrapper">
                         <page-header v-if="$route.meta.breadcrumb"></page-header>
-                        <router-view></router-view>
+                        <keep-alive>
+                            <router-view></router-view>
+                        </keep-alive>
                     </div>
                 </v-content>
                 <!-- Go to top -->

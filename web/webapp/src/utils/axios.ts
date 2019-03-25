@@ -16,11 +16,9 @@ $axios.interceptors.request.use(
         if (error.error.code) {
             console.log(error.error.code);
         }
-        // 请求失败的处理
         return Promise.reject(error);
     }
 );
-
 
 $axios.interceptors.response.use(
     (response: any) => {
@@ -29,7 +27,7 @@ $axios.interceptors.response.use(
         if (
             response.status >= 200 &&
             response.status < 300 &&
-            response.data.success == true
+            response.data.success == true || response.status == 200
         ) {
             if (response.data) {
                 return response.data;
@@ -77,7 +75,15 @@ $axios.interceptors.response.use(
 
             return backoff.then(() => $axios(config));
         } else {
-            // console.log("err" + error);
+
+            debugger
+            if (error.response) {
+                // throw error;
+                return {
+                    success: false,
+                    detail: new Error(error.response.statusText || error.response.data && error.response.data.detail)
+                }
+            }
             return Promise.reject(error);
         }
     }

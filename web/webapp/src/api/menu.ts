@@ -25,9 +25,13 @@ const Menu = [
     },
     {
         title: "stats",
-        component: "apps",
+        component: "stats",
         icon: "bar_chart",
-        name: "statistics"
+        name: "statistics",
+        items: [
+            {name: 'apiStatistics', title: 'statsAPI', component: 'apiStatistics'},
+            {name: 'serviceStatistics', title: 'statsService', component: 'serviceStatistics'},
+        ]
     },
     {divider: true}
 ];

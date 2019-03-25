@@ -77,10 +77,16 @@ const router = new Router({
             component: () => import(`@/views/registry/RegistryPage.vue`)
         },
         {
-            path: "/statistics",
+            path: "/stats/api",
             meta: {breadcrumb: true},
-            name: "statistics",
-            component: () => import(`@/views/statistics/Statistics.vue`)
+            name: "apiStatistics",
+            component: () => import(`@/views/statistics/APIStatistics.vue`),
+        },
+        {
+            path: "/stats/service",
+            meta: {breadcrumb: true},
+            name: "serviceStatistics",
+            component: () => import(`@/views/statistics/ServiceStatistics.vue`),
         }
     ]
 });

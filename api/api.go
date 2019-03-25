@@ -3,7 +3,7 @@ package api
 
 import (
 	"fmt"
-	aserver "github.com/micro/go-micro/server"
+	"github.com/micro/go-micro/registry"
 	"net/http"
 	"time"
 
@@ -107,10 +107,10 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 
 	// metadata
 	srvOpts = append(srvOpts, micro.Metadata(map[string]string{
-		aserver.MetadataFieldNameServerAddress: Address,
-		aserver.MetadataFieldNameServerName:    Name,
-		aserver.MetadataFieldNameServerType:    aserver.MetadataServiceTypeAPIGateway,
-		"namespace":                            Namespace,
+		registry.MetadataFieldNameServerAddress: Address,
+		registry.MetadataFieldNameServerName:    Name,
+		registry.MetadataFieldNameServerType:    registry.MetadataServiceTypeAPIGateway,
+		"namespace":                             Namespace,
 	}))
 
 	// initialise service

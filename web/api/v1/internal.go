@@ -4,16 +4,12 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/micro/go-log"
 	"github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/cmd"
 	"github.com/micro/go-micro/errors"
-	"github.com/micro/go-micro/registry"
-	"github.com/micro/go-micro/selector"
 	"github.com/micro/micro/web/common"
 	"net/http"
 	"net/http/httputil"
-	"strconv"
 	"strings"
 	"time"
 )
@@ -81,9 +77,9 @@ func rpc(w http.ResponseWriter, ctx context.Context, rpcReq *rpcRequest) {
 }
 
 func apiProxy() http.Handler {
-	sel := selector.NewSelector(
+	/*sel := selector.NewSelector(
 		selector.Registry(*cmd.DefaultOptions().Registry),
-	)
+	)*/
 
 	director := func(r *http.Request) {
 		kill := func() {
@@ -101,8 +97,7 @@ func apiProxy() http.Handler {
 		}
 
 		address := r.URL.Query().Get("address")
-		portStr := r.URL.Query().Get("port")
-		port, err := strconv.Atoi(portStr)
+		/*port, err := strconv.Atoi(portStr)
 		if err != nil {
 			kill()
 			return
@@ -136,10 +131,11 @@ func apiProxy() http.Handler {
 			log.Logf("987")
 			kill()
 			return
-		}
+		}*/
 
 		r.Header.Set(common.BasePathHeader, "/v1/api-stats")
-		r.URL.Host = fmt.Sprintf("%s:%d", s.Address, port)
+		r.Header.Set("Content-Type", "application/json")
+		r.URL.Host = fmt.Sprintf("%s", address)
 		r.URL.Path = "/stats" + strings.Join(parts[2:], "/")
 		r.URL.Scheme = "http"
 		r.Host = r.URL.Host

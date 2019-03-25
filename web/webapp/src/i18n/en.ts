@@ -13,6 +13,7 @@ const en = {
         noResultsText: "No matching records found",
         otherEndpoint: 'OtherEndpoint',
         port: 'Port',
+        refresh: 'Refresh',
         service: 'Service',
         serviceId: 'ID',
         serviceName: 'Name',
@@ -23,7 +24,9 @@ const en = {
         cliTerminal: 'CLI',
         homePage: 'Home',
         registryInfo: 'Registry',
-        stats: 'Stats'
+        stats: 'Stats',
+        statsAPI: 'API Gateway Statistics',
+        statsService: 'Service Statistics',
     },
     rpc: {
         copy: 'Copy',

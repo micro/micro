@@ -1,3 +1,8 @@
+export class Error {
+    public detail ?: string
+    public code ?: string
+}
+
 export class Page<T> {
     public pageSize = 10;
     public pageNo = 1;

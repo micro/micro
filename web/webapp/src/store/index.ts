@@ -4,6 +4,8 @@ import state from './state';
 
 import call from './modules/call';
 import registry from './modules/registry';
+import servicesStats from './modules/stats/services';
+import apiStats from './modules/stats/api';
 
 
 // index.js or main.js
@@ -22,7 +24,9 @@ export default new Vuex.Store({
         },
     },
     modules: {
+        apiStats,
         call,
         registry,
+        servicesStats
     },
 });

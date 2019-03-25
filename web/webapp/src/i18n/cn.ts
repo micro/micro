@@ -13,6 +13,7 @@ const cn = {
         noResultsText: "无满足条件数据",
         otherEndpoint: '其它端口',
         port: '端口',
+        refresh: '刷新',
         service: '服务',
         serviceId: 'ID',
         serviceName: '服务名',
@@ -23,7 +24,9 @@ const cn = {
         cliTerminal: 'cli终端',
         homePage: '主页',
         registryInfo: '服务注册情况',
-        stats: '统计'
+        stats: '统计',
+        statsAPI: 'API网关统计',
+        statsService: '服务统计',
     },
     rpc: {
         copy: '复制',

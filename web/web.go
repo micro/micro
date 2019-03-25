@@ -4,6 +4,7 @@ package web
 import (
 	"fmt"
 	"github.com/micro/go-micro/cmd"
+	"github.com/micro/go-micro/registry"
 	"github.com/micro/go-micro/selector"
 	"github.com/micro/micro/web/api/v1"
 	"github.com/micro/micro/web/common"
@@ -184,6 +185,11 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	if i := time.Duration(ctx.GlobalInt("register_interval")); i > 0 {
 		srvOpts = append(srvOpts, micro.RegisterInterval(i*time.Second))
 	}
+
+	serviceMetadata := map[string]string{
+		registry.MetadataFieldNameServerType: registry.MetadataServiceTypeWebDashboard,
+	}
+	srvOpts = append(srvOpts, micro.Metadata(serviceMetadata))
 
 	// Initialise Server
 	service := micro.NewService(srvOpts...)

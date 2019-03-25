@@ -67,18 +67,29 @@ const copyTxt = (text: string, callback: Function) => {
     );
 }
 
+
+const secondsToHHMMSS = (secondsInput: number) => {
+    let hours = Math.floor(secondsInput / 3600);
+    secondsInput %= 3600;
+    let minutes = Math.floor(secondsInput / 60);
+    let seconds = secondsInput % 60;
+
+    return hours + ':' + (minutes < 10 ? '0' + minutes : minutes) + ':' + (seconds < 10 ? '0' + seconds : seconds)
+}
+
+let _xools = {
+    toggleFullScreen,
+    getCookieValue,
+    getDefaultLan,
+    secondsToHHMMSS,
+    setCookie,
+    copyTxt,
+}
+
 let XTools = {}
 
 // @ts-ignore
 XTools.install = function (Vue, options) {
-
-    let _xools = {
-        toggleFullScreen,
-        getCookieValue,
-        getDefaultLan,
-        setCookie,
-        copyTxt
-    }
 
     // add the instance method
     if (!Vue.prototype.hasOwnProperty('$xools')) {
@@ -91,13 +102,7 @@ XTools.install = function (Vue, options) {
 }
 
 export default {
-    XTools, Utils: {
-        toggleFullScreen,
-        getCookieValue,
-        getDefaultLan,
-        setCookie,
-        copyTxt
-    }
+    XTools, Utils: _xools
 };
 
 
