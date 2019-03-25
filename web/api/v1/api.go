@@ -1,25 +1,29 @@
 package v1
 
 import (
-	"context"
 	"encoding/json"
 	"github.com/gorilla/mux"
-	"github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/cmd"
-	"github.com/micro/go-micro/errors"
 	"github.com/micro/go-micro/registry"
+	"github.com/micro/go-micro/selector"
+	"github.com/micro/go-micro/server"
 	"github.com/micro/micro/internal/helper"
 	"github.com/micro/micro/web/common"
 	"net/http"
 	"sort"
 	"strconv"
 	"strings"
-	"time"
+	"sync"
 )
 
 var (
 	staticDir = "/webapp/dist/"
-	Namespace = "go.micro.web"
+
+	// The namespace to serve
+	// Example:
+	// Namespace + /[Service]/foo/bar
+	// Host: Namespace.Service Endpoint: /foo/bar
+	namespace = "go.micro.web"
 )
 
 // Rsp is the struct of api response
@@ -32,6 +36,7 @@ type Rsp struct {
 
 // API is handler of all API calls.
 type API struct {
+	sync.RWMutex
 }
 
 // serviceAPIDetail is the service api detail
@@ -49,11 +54,18 @@ type rpcRequest struct {
 	Request  interface{}
 }
 
-func (api *API) InitV1Handler(r *mux.Router) {
+func (api *API) InitV1Handler(r *mux.Router, ns string) {
+
+	api.Lock()
+	namespace = ns
+	api.Unlock()
+
 	r.HandleFunc("/api/v1/services", api.services).Methods("GET")
-	r.HandleFunc("/api/v1/service/{name:[a-zA-Z0-9]+}", api.service).Methods("GET")
+	r.HandleFunc("/api/v1/service/{name:[a-zA-Z0-9/.]+}", api.service).Methods("GET")
+	r.HandleFunc("/api/v1/api-gateway-services", api.apiGatewayServices).Methods("GET")
 	r.HandleFunc("/api/v1/service-details", api.serviceDetails).Methods("GET")
-	r.HandleFunc("/api/v1/stats/{name:[a-zA-Z0-9]+}", api.stats).Methods("GET")
+	r.HandleFunc("/api/v1/stats", api.stats).Methods("GET")
+	r.Path("/api/v1/api-stats").Handler(apiProxy()).Methods("GET")
 	r.HandleFunc("/api/v1/web-services", api.webServices).Methods("GET")
 	r.HandleFunc("/api/v1/rpc", api.rpc).Methods("POST")
 	r.HandleFunc("/api/v1/health", api.health).Methods("GET")
@@ -69,8 +81,8 @@ func (api *API) webServices(w http.ResponseWriter, r *http.Request) {
 	webServices := make([]*registry.Service, 0)
 	for _, s := range services {
 
-		if strings.Index(s.Name, Namespace) == 0 && len(strings.TrimPrefix(s.Name, Namespace)) > 0 {
-			s.Name = strings.Replace(s.Name, Namespace+".", "", 1)
+		if strings.Index(s.Name, namespace) == 0 && len(strings.TrimPrefix(s.Name, namespace)) > 0 {
+			s.Name = strings.Replace(s.Name, namespace+".", "", 1)
 			webServices = append(webServices, s)
 		}
 	}
@@ -147,6 +159,42 @@ func (api *API) service(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
+func (api *API) apiGatewayServices(w http.ResponseWriter, r *http.Request) {
+
+	services, err := (*cmd.DefaultOptions().Registry).ListServices()
+	if err != nil {
+		http.Error(w, "Error occurred:"+err.Error(), 500)
+		return
+	}
+
+	sel := selector.NewSelector(
+		selector.Registry(*cmd.DefaultOptions().Registry),
+	)
+
+	ret := make([]*registry.Service, 0)
+
+	for _, service := range services {
+
+		_, _ = sel.Select(service.Name, func(options *selector.SelectOptions) {
+
+			filter := func(services []*registry.Service) []*registry.Service {
+				for _, s := range services {
+					if s.Metadata[server.MetadataFieldNameServerType] == server.MetadataServiceTypeAPIGateway {
+						ret = append(ret, s)
+					}
+				}
+				return ret
+			}
+
+			options.Filters = append(options.Filters, filter)
+		})
+	}
+
+	writeJsonData(w, ret)
+	return
+
+}
+
 func (api *API) rpc(w http.ResponseWriter, r *http.Request) {
 
 	defer r.Body.Close()
@@ -181,4 +229,3 @@ func (api *API) health(w http.ResponseWriter, r *http.Request) {
 
 	rpc(w, helper.RequestToContext(r), rpcReq)
 }
-

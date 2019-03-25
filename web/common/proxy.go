@@ -1,19 +1,28 @@
-package web
+package common
 
 import (
 	"io"
 	"net"
 	"net/http"
 	"net/http/httputil"
+	"regexp"
 	"strings"
 )
 
-type proxy struct {
+var (
+	re = regexp.MustCompile("^[a-zA-Z0-9]+([a-zA-Z0-9-]*[a-zA-Z0-9]*)?$")
+	// Base path sent to web service.
+	// This is stripped from the request path
+	// Allows the web service to define absolute paths
+	BasePathHeader = "X-Micro-Web-Base-Path"
+)
+
+type Proxy struct {
 	Default  *httputil.ReverseProxy
 	Director func(r *http.Request)
 }
 
-func (p *proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (p *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if !isWebSocket(r) {
 		// the usual path
 		p.Default.ServeHTTP(w, r)

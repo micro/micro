@@ -3,10 +3,17 @@ package v1
 import (
 	"context"
 	"encoding/json"
+	"fmt"
+	"github.com/micro/go-log"
 	"github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/cmd"
 	"github.com/micro/go-micro/errors"
+	"github.com/micro/go-micro/registry"
+	"github.com/micro/go-micro/selector"
+	"github.com/micro/micro/web/common"
 	"net/http"
+	"net/http/httputil"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -15,10 +22,12 @@ func rpc(w http.ResponseWriter, ctx context.Context, rpcReq *rpcRequest) {
 
 	if len(rpcReq.Service) == 0 {
 		writeError(w, "Service Is Not found")
+		return
 	}
 
 	if len(rpcReq.Endpoint) == 0 {
 		writeError(w, "Endpoint Is Not found")
+		return
 	}
 
 	// decode rpc request param body
@@ -69,6 +78,77 @@ func rpc(w http.ResponseWriter, ctx context.Context, rpcReq *rpcRequest) {
 	}
 
 	writeJsonData(w, response)
+}
+
+func apiProxy() http.Handler {
+	sel := selector.NewSelector(
+		selector.Registry(*cmd.DefaultOptions().Registry),
+	)
+
+	director := func(r *http.Request) {
+		kill := func() {
+			r.URL.Host = ""
+			r.URL.Path = ""
+			r.URL.Scheme = ""
+			r.Host = ""
+			r.RequestURI = ""
+		}
+
+		parts := strings.Split(r.URL.Path, "/v1/api-stats")
+		if len(parts) < 2 {
+			kill()
+			return
+		}
+
+		address := r.URL.Query().Get("address")
+		portStr := r.URL.Query().Get("port")
+		port, err := strconv.Atoi(portStr)
+		if err != nil {
+			kill()
+			return
+		}
+
+		next, err := sel.Select(common.APINamespace, func(options *selector.SelectOptions) {
+
+			filter := func(services []*registry.Service) []*registry.Service {
+				ret := make([]*registry.Service, 0)
+				for _, s := range services {
+					for _, n := range s.Nodes {
+						if n.Address == address && n.Metadata["port"] == portStr {
+							ret = append(ret, s)
+						}
+					}
+				}
+				return ret
+			}
+
+			options.Filters = append(options.Filters, filter)
+		})
+
+		if err != nil {
+			log.Logf("789")
+			kill()
+			return
+		}
+
+		s, err := next()
+		if err != nil {
+			log.Logf("987")
+			kill()
+			return
+		}
+
+		r.Header.Set(common.BasePathHeader, "/v1/api-stats")
+		r.URL.Host = fmt.Sprintf("%s:%d", s.Address, port)
+		r.URL.Path = "/stats" + strings.Join(parts[2:], "/")
+		r.URL.Scheme = "http"
+		r.Host = r.URL.Host
+	}
+
+	return &common.Proxy{
+		Default:  &httputil.ReverseProxy{Director: director},
+		Director: director,
+	}
 }
 
 func writeJsonData(w http.ResponseWriter, data interface{}) {

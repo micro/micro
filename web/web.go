@@ -3,7 +3,10 @@ package web
 
 import (
 	"fmt"
+	"github.com/micro/go-micro/cmd"
+	"github.com/micro/go-micro/selector"
 	"github.com/micro/micro/web/api/v1"
+	"github.com/micro/micro/web/common"
 	"net/http"
 	"net/http/httputil"
 	"os"
@@ -17,13 +20,9 @@ import (
 	httpapi "github.com/micro/go-api/server/http"
 	"github.com/micro/go-log"
 	"github.com/micro/go-micro"
-	"github.com/micro/go-micro/cmd"
-	"github.com/micro/go-micro/registry"
-	"github.com/micro/go-micro/selector"
 	"github.com/micro/micro/internal/helper"
 	"github.com/micro/micro/internal/stats"
 	"github.com/micro/micro/plugin"
-	"github.com/serenize/snaker"
 )
 
 var (
@@ -32,15 +31,13 @@ var (
 	Name = "go.micro.web"
 	// Default address to bind to
 	Address = ":8082"
+
 	// The namespace to serve
 	// Example:
 	// Namespace + /[Service]/foo/bar
 	// Host: Namespace.Service Endpoint: /foo/bar
 	Namespace = "go.micro.web"
-	// Base path sent to web service.
-	// This is stripped from the request path
-	// Allows the web service to define absolute paths
-	BasePathHeader = "X-Micro-Web-Base-Path"
+
 	// path to the html directory
 	StaticDir = "web/webapp/dist"
 
@@ -86,59 +83,17 @@ func (s *srv) proxy() http.Handler {
 			return
 		}
 
-		r.Header.Set(BasePathHeader, "/"+parts[1])
+		r.Header.Set(common.BasePathHeader, "/"+parts[1])
 		r.URL.Host = fmt.Sprintf("%s:%d", s.Address, s.Port)
 		r.URL.Path = "/" + strings.Join(parts[2:], "/")
 		r.URL.Scheme = "http"
 		r.Host = r.URL.Host
 	}
 
-	return &proxy{
+	return &common.Proxy{
 		Default:  &httputil.ReverseProxy{Director: director},
 		Director: director,
 	}
-}
-
-func format(v *registry.Value) string {
-	if v == nil || len(v.Values) == 0 {
-		return "{}"
-	}
-	var f []string
-	for _, k := range v.Values {
-		f = append(f, formatEndpoint(k, 0))
-	}
-	return fmt.Sprintf("{\n%s}", strings.Join(f, ""))
-}
-
-func formatEndpoint(v *registry.Value, r int) string {
-	// default format is tabbed plus the value plus new line
-	fparts := []string{"", "%s %s", "\n"}
-	for i := 0; i < r+1; i++ {
-		fparts[0] += "\t"
-	}
-	// its just a primitive of sorts so return
-	if len(v.Values) == 0 {
-		return fmt.Sprintf(strings.Join(fparts, ""), snaker.CamelToSnake(v.Name), v.Type)
-	}
-
-	// this thing has more things, it's complex
-	fparts[1] += " {"
-
-	vals := []interface{}{snaker.CamelToSnake(v.Name), v.Type}
-
-	for _, val := range v.Values {
-		fparts = append(fparts, "%s")
-		vals = append(vals, formatEndpoint(val, r+1))
-	}
-
-	// at the end
-	l := len(fparts) - 1
-	for i := 0; i < r+1; i++ {
-		fparts[l] += "\t"
-	}
-	fparts = append(fparts, "}\n")
-
-	return fmt.Sprintf(strings.Join(fparts, ""), vals...)
 }
 
 func faviconHandler(w http.ResponseWriter, r *http.Request) {
@@ -155,6 +110,11 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	if len(ctx.String("namespace")) > 0 {
 		Namespace = ctx.String("namespace")
 	}
+
+	if len(ctx.String("api_namespace")) > 0 {
+		common.APINamespace = ctx.String("api_namespace")
+	}
+
 	if len(ctx.String("static_dir")) > 0 {
 		// check static-dir existing
 		_, err := os.Stat(ctx.String("static_dir"))
@@ -183,7 +143,7 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	}
 
 	apiV1 := v1.API{}
-	apiV1.InitV1Handler(s.Router)
+	apiV1.InitV1Handler(s.Router, Namespace)
 
 	s.HandleFunc("/favicon.ico", faviconHandler)
 	s.PathPrefix("/proxy/{service:[a-zA-Z0-9]+}").Handler(s.proxy())
