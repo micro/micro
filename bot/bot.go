@@ -50,7 +50,6 @@ var (
 		"^get ":                              botc.Get,
 		"^health ":                           botc.Health,
 		"^call ":                             botc.Call,
-		"^query ":                            botc.Call,
 		"^register ":                         botc.Register,
 		"^deregister ":                       botc.Deregister,
 		"^(the )?three laws( of robotics)?$": botc.ThreeLaws,
