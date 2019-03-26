@@ -4,7 +4,6 @@
                  :autoplay="false"
                  :arrow="serviceDetail.length < 2 ?'never':'always'"
     >
-
         <el-carousel-item
                 v-for="(item,i) in serviceDetail"
                 :key="i"
