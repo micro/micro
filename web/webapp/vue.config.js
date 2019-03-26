@@ -12,6 +12,11 @@ module.exports = {
                     '/': '/', // optional, it is just a placeholder of usage.
                 },
             },
+            '^/websocket': {
+                target: 'http://127.0.0.1:8080',
+                ws: true,
+                changeOrigin: true
+            }
         },
     },
     transpileDependencies: [

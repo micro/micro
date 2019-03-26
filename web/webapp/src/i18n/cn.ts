@@ -14,6 +14,7 @@ const cn = {
         otherEndpoint: '其它端口',
         port: '端口',
         refresh: '刷新',
+        search: '搜索',
         service: '服务',
         serviceId: 'ID',
         serviceName: '服务名',
@@ -39,6 +40,19 @@ const cn = {
         other: '其它',
         postRequest: '请求'
 
+    },
+    stats: {
+        '20x': '20x',
+        '30x': '30x',
+        '40x': '40x',
+        '50x': '50x',
+        gc: 'GC',
+        lastUpdated: "最后更新时间：",
+        memory: '占用内存',
+        started: '启动时间',
+        threads: '线程数',
+        total: '总计',
+        uptime: '运行时间',
     },
     table: {
         operation: '操作',

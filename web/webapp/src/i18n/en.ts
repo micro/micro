@@ -14,6 +14,7 @@ const en = {
         otherEndpoint: 'OtherEndpoint',
         port: 'Port',
         refresh: 'Refresh',
+        search: 'Search',
         service: 'Service',
         serviceId: 'ID',
         serviceName: 'Name',
@@ -39,8 +40,21 @@ const en = {
         result: 'Result',
         postRequest: 'Request'
     },
+    stats: {
+        '20x': '20x',
+        '30x': '30x',
+        '40x': '40x',
+        '50x': '50x',
+        gc: 'GC',
+        lastUpdated: "Last updated: ",
+        started: 'Started',
+        uptime: 'Uptime',
+        memory: 'Memory',
+        threads: 'Threads',
+        total: 'Total'
+    },
     table: {
-        operation: 'operation',
+        operation: 'Operation',
         registry: {}
     },
 }

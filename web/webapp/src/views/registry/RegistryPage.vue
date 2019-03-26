@@ -1,50 +1,79 @@
 <template>
-    <v-card>
-        <v-card-title>
-            Services
-            <v-spacer></v-spacer>
-            <v-text-field
-                    v-model="search"
-                    append-icon="search"
-                    label="Search"
-                    single-line
-                    hide-details
-            ></v-text-field>
-        </v-card-title>
-        <v-data-table
-                :headers="headers()"
-                :items="services"
-                hide-actions
-                :loading="loading"
-                :search="search"
-        >
-            <template v-slot:items="props">
-                <td>{{ props.item.name }}</td>
-                <!-- <td class="text-xs-center">{{ props.item.version || '-' }}</td>
-                  <td class="text-xs-center">{{ props.item.metadata || '-' }}</td>
-                  <td class="text-xs-center" border>{{ props.item.endpoints || '-' }}</td>
-                  <td class="text-xs-center">{{ props.item.nodes || '-' }}</td>-->
-                <td class="justify-center layout px-0">
-                    <v-btn flat icon color="teal" @click="showDetail(props.item)">
-                        <v-icon>list</v-icon>
-                    </v-btn>
-                </td>
-            </template>
-        </v-data-table>
 
-        <v-dialog width="70%" scrollable v-model="serviceDetailDialog">
+    <el-container v-loading="loading">
+        <el-header>
+            <el-card :height="60" :body-style="{ padding: '10px 10px 10px 20px'}">
+                <el-row>
+                    <el-col :span="4">
+                        <el-input v-model="search" :placeholder="$t('base.search')"/>
+                    </el-col>
+                    <el-col :span="3" style="float: right;">
+                        <el-button style="float: right;" @click="getServices">{{$t("base.refresh")}}
+                        </el-button>
+                    </el-col>
+                </el-row>
+            </el-card>
+        </el-header>
+
+        <el-container>
+            <el-table
+                    border
+                    :data="services.filter(searchFilter)">
+                <el-table-column
+                        :label="$t('base.serviceName')"
+                        align="center"
+                        prop="name">
+                </el-table-column>
+                <el-table-column
+                        :label="$t('base.nodes')"
+                        align="left"
+                        header-align="center"
+                        prop="nodes">
+                    <template slot-scope="scope">
+                        {{
+                        parseNodes(scope.row.nodes)
+                        }}
+                    </template>
+                </el-table-column>
+                <el-table-column
+                        :label="$t('table.operation')"
+                        align="center">
+                    <template slot-scope="scope">
+                        <el-button
+                                type="text"
+                                size="mini"
+                                @click="showDetail(scope.row)">Detail
+                        </el-button>
+                    </template>
+                </el-table-column>
+            </el-table>
+        </el-container>
+
+        <el-dialog width="70%" :title="detailTitle" :visible.sync="serviceDetailDialog">
             <service-detail :serviceDetail="serviceDetail"></service-detail>
-        </v-dialog>
-
-    </v-card>
+        </el-dialog>
+    </el-container>
 </template>
+
+<style scoped>
+    .el-header {
+        padding: 0 20px 0 0;
+        height: 70px !important;
+    }
+
+    .el-card__body {
+        padding: 10px 10px 10px 20px !important;
+    }
+
+</style>
 
 <script lang="ts">
     import {Component, Vue} from "vue-property-decorator";
     import {State, Action} from 'vuex-class';
 
 
-    import {Service} from "@/store/basic/types";
+    import {Service, Node} from "@/store/basic/types";
+    import {mergeAddressAndPort} from '@/store/basic/funcs'
     import ServiceDetail from "@/views/common/ServiceDetail.vue"
 
     const namespace: string = 'registry';
@@ -57,6 +86,8 @@
         private search: string = '';
 
         private serviceDetailDialog: boolean = false;
+
+        private detailTitle = ""
 
         @State(state => state.registry.services)
         services?: Service[];
@@ -74,29 +105,34 @@
         getService: any;
 
         created() {
-            this.getServices(this.search);
+            this.getServices();
         }
 
         mounted() {
 
         }
 
-        headers() {
-            return [
-                {
-                    text: this.$t("base.serviceName"),
-                    sortable: false,
-                    value: 'name'
-                },
-                /*   {text: this.$t("base.version"), sortable: false, align: 'center', value: 'version'},
-               {text: this.$t("base.metadata"), sortable: false, value: 'metadata'},
-                  {text: this.$t("base.endpoints"), sortable: false, value: 'endpoints'},
-                  {text: this.$t("base.nodes"), sortable: false, value: 'nodes'},*/
-                {text: this.$t("table.operation"), align: 'center', sortable: false}
-            ]
+        searchFilter(s: Service) {
+            return !this.search
+                || s.name.toLowerCase().includes(this.search.toLowerCase())
+                || this.parseNodes(s.nodes).includes(this.search.toLowerCase())
         }
 
+        parseNodes(nodes: Node[]) {
+
+            if (nodes) {
+                let nodesStr = [];
+                nodes.forEach(node => {
+                    nodesStr.push(mergeAddressAndPort(node.address, node.port))
+                })
+                return nodesStr.join(", ") + ' | ' + nodesStr.length
+            }
+            return '';
+        }
+
+
         showDetail(item: Service) {
+            this.detailTitle = item.name;
             this.getService(item.name);
             this.serviceDetailDialog = true
         }

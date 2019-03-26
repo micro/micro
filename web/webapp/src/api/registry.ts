@@ -15,3 +15,7 @@ export function getWebServices() {
 export function getAPIGatewayServices() {
     return $axios.get(`/v1/api-gateway-services`);
 }
+
+export function getMicroServices() {
+    return $axios.get(`/v1/micro-services`);
+}

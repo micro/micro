@@ -60,8 +60,11 @@ func (api *API) InitV1Handler(r *mux.Router, ns string) {
 	api.Unlock()
 
 	r.HandleFunc("/api/v1/services", api.services).Methods("GET")
+	r.HandleFunc("/api/v1/micro-services", api.microServices).Methods("GET")
+
 	r.HandleFunc("/api/v1/service/{name:[a-zA-Z0-9/.]+}", api.service).Methods("GET")
 	r.HandleFunc("/api/v1/api-gateway-services", api.apiGatewayServices).Methods("GET")
+
 	r.HandleFunc("/api/v1/service-details", api.serviceDetails).Methods("GET")
 	r.HandleFunc("/api/v1/stats", api.stats).Methods("GET")
 	r.Path("/api/v1/api-stats").Handler(apiProxy()).Methods("GET")
@@ -101,9 +104,57 @@ func (api *API) services(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	for _, service := range services {
+		ss, err := (*cmd.DefaultOptions().Registry).GetService(service.Name)
+		if err != nil {
+			continue
+		}
+		if len(ss) == 0 {
+			continue
+		}
+
+		for _, s := range ss {
+			service.Nodes = append(service.Nodes, s.Nodes...)
+		}
+
+	}
+
 	sort.Sort(common.SortedServices{Services: services})
 
 	writeJsonData(w, services)
+	return
+}
+
+func (api *API) microServices(w http.ResponseWriter, r *http.Request) {
+
+	services, err := (*cmd.DefaultOptions().Registry).ListServices()
+	if err != nil {
+		http.Error(w, "Error occurred:"+err.Error(), 500)
+		return
+	}
+
+	ret := make([]*registry.Service, 0)
+
+	for _, srv := range services {
+		temp, err := (*cmd.DefaultOptions().Registry).GetService(srv.Name)
+		if err != nil {
+			http.Error(w, "Error occurred:"+err.Error(), 500)
+			return
+		}
+
+		for _, s := range temp {
+			for _, n := range s.Nodes {
+				if n.Metadata["registry"] != "" {
+					ret = append(ret, s)
+					break
+				}
+			}
+		}
+	}
+
+	sort.Sort(common.SortedServices{Services: ret})
+
+	writeJsonData(w, ret)
 	return
 }
 

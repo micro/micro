@@ -48,7 +48,7 @@
                             <el-table-column
                                     width="100">
                                 <template slot-scope="scope">
-                                    <span class="rowName">{{scope.row.name}}</span>
+                                    <span class="rowName">{{$t('stats.' + scope.row.name)}}</span>
                                 </template>
                             </el-table-column>
                             <el-table-column>
@@ -70,7 +70,7 @@
                             <el-table-column
                                     width="100">
                                 <template slot-scope="scope">
-                                    <span class="rowName">{{scope.row.name}}</span>
+                                    <span class="rowName">{{$t('stats.' + scope.row.name)}}</span>
                                 </template>
                             </el-table-column>
                             <el-table-column
@@ -86,7 +86,7 @@
             <el-main style="padding-top: 0px">
                 <el-card>
                     <div>
-                        <span style="float: right">{{lastUpdateTime && lastUpdateTime.toLocaleTimeString()}}</span>
+                        <span style="float: right"> {{lastUpdateTime && ($t('stats.lastUpdated') + lastUpdateTime.toLocaleTimeString())}}</span>
                         <div style="height: 582px">
                             <v-chart :options="linearOptions" :autoresize="true"/>
                         </div>
@@ -163,7 +163,7 @@
 
         private infoItems = [
             {
-                name: "Started",
+                name: "started",
                 key: "started",
                 formatter: (date: number) => {
                     return new Date(date * 1000).toLocaleString()
@@ -171,7 +171,7 @@
                 value: "",
             },
             {
-                name: "Uptime",
+                name: "uptime",
                 key: "started",
                 value: "",
                 formatter: (date: number) => {
@@ -179,7 +179,7 @@
                 },
             },
             {
-                name: "Memory",
+                name: "memory",
                 key: "memory",
                 value: "",
                 formatter: (memory: number) => {
@@ -188,7 +188,7 @@
             },
 
             {
-                name: "Threads",
+                name: "threads",
                 key: "threads",
                 value: "",
                 formatter: (threads: number) => {
@@ -197,7 +197,7 @@
             },
 
             {
-                name: "GC",
+                name: "gc",
                 key: "gc_pause",
                 value: "",
                 formatter: (gc: number) => {
@@ -207,7 +207,7 @@
         ];
         private requestsItems = [
             {
-                name: "Total",
+                name: "total",
                 value: "",
             },
             {
@@ -229,7 +229,7 @@
         ]
 
         private requestTableData = {
-            "Total": 0,
+            "total": 0,
             "20x": 0,
             "30x": 0,
             "40x": 0,
@@ -354,7 +354,7 @@
 
         totalRequestTableData() {
             for (let key in this.requestTableData) {
-                this.requestTableData['Total'] += this.requestTableData[key]
+                this.requestTableData['total'] += this.requestTableData[key]
             }
         }
 

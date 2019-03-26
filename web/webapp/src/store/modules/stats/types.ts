@@ -28,8 +28,10 @@ export interface APIStatsState {
 
 export interface ServicesStatsState {
     services: Service[];
-    currentNodes: Node[],
-    nodeStats: Stats,
+    nodesStatsMap: Map<string, Stats>;
+    // key: node.ip+node.port
+    cardLoading: Map<string, boolean>;
+    cardLoadingChanged: boolean;
     pageLoading: boolean;
     xError: string;
 }

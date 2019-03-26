@@ -121,14 +121,12 @@ func apiProxy() http.Handler {
 		})
 
 		if err != nil {
-			log.Logf("789")
 			kill()
 			return
 		}
 
 		s, err := next()
 		if err != nil {
-			log.Logf("987")
 			kill()
 			return
 		}*/
