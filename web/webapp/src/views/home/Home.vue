@@ -1,40 +1,65 @@
 <template>
-    <v-card>
-        <v-card-title>
-            Services
-            <v-spacer></v-spacer>
-            <v-text-field
-                    v-model="search"
-                    append-icon="search"
-                    label="Search"
-                    single-line
-                    hide-details
-            ></v-text-field>
-        </v-card-title>
-        <v-data-table
-                :headers="headers()"
-                :items="webServices"
-                hide-actions
-                :loading="loading"
-                :no-data-text="$t('base.noDataText')"
-                :search="search"
-        >
-            <template v-slot:items="props">
-                <td>{{ props.item.name }}</td>
-                <!-- <td class="text-xs-center">{{ props.item.version || '-' }}</td>
-                  <td class="text-xs-center">{{ props.item.metadata || '-' }}</td>
-                  <td class="text-xs-center" border>{{ props.item.endpoints || '-' }}</td>
-                  <td class="text-xs-center">{{ props.item.nodes || '-' }}</td>-->
-                <td class="justify-center layout px-0">
-                    <v-btn flat icon color="teal" @click="showDetail(props.item)">
-                        <v-icon>open_in_browser</v-icon>
-                    </v-btn>
-                </td>
-            </template>
-        </v-data-table>
 
-    </v-card>
+    <el-container v-loading="loading">
+        <el-header>
+            <el-card :height="60" :body-style="{ padding: '10px 10px 10px 20px'}">
+                <el-row>
+                    <el-col :span="4">
+                        <el-input v-model="search" :placeholder="$t('base.search')"/>
+                    </el-col>
+                    <el-col :span="3" style="float: right;">
+                        <el-button style="float: right;" @click="getWebServices">{{$t("base.refresh")}}
+                        </el-button>
+                    </el-col>
+                </el-row>
+            </el-card>
+        </el-header>
+
+        <el-container>
+            <el-table
+                    v-loading="loading"
+                    :empty-text="$t('base.noDataText')"
+                    border
+                    :data="webServices.filter(searchFilter)"
+            >
+                <el-table-column
+                        :label="$t('base.serviceName')"
+                        align="center"
+                        prop="name">
+                </el-table-column>
+
+                <el-table-column
+                        :label="$t('table.operation')"
+                        align="center">
+                    <template slot-scope="scope">
+                        <el-button
+                                type="text"
+                                size="mini"
+                                @click="showDetail(scope.row)">Detail
+                        </el-button>
+                    </template>
+                </el-table-column>
+            </el-table>
+        </el-container>
+    </el-container>
+
 </template>
+
+<style scoped>
+
+    .el-container .el-container {
+        margin-right: 20px;
+    }
+
+    .el-header {
+        padding: 0 20px 0 0;
+        height: 70px !important;
+    }
+
+    .el-card__body {
+        padding: 10px 10px 10px 20px !important;
+    }
+</style>
 
 <script lang="ts">
     import {Component, Vue} from "vue-property-decorator";
@@ -70,19 +95,9 @@
 
         }
 
-        headers() {
-            return [
-                {
-                    text: this.$t("base.serviceName"),
-                    sortable: false,
-                    value: 'name'
-                },
-                /*   {text: this.$t("base.version"), sortable: false, align: 'center', value: 'version'},
-               {text: this.$t("base.metadata"), sortable: false, value: 'metadata'},
-                  {text: this.$t("base.endpoints"), sortable: false, value: 'endpoints'},
-                  {text: this.$t("base.nodes"), sortable: false, value: 'nodes'},*/
-                {text: this.$t("table.operation"), align: 'center', sortable: false}
-            ]
+        searchFilter(s: Service) {
+            return !this.search
+                || s.name.toLowerCase().includes(this.search.toLowerCase())
         }
 
         showDetail(item: Service) {

@@ -18,6 +18,7 @@
         <el-container>
             <el-table
                     border
+                    :empty-text="$t('base.noDataText')"
                     :data="services.filter(searchFilter)">
                 <el-table-column
                         :label="$t('base.serviceName')"
@@ -56,6 +57,11 @@
 </template>
 
 <style scoped>
+
+    .el-container .el-container {
+        margin-right: 20px;
+    }
+
     .el-header {
         padding: 0 20px 0 0;
         height: 70px !important;

@@ -94,9 +94,7 @@
                 </el-card>
             </el-main>
         </el-container>
-
     </el-container>
-
 </template>
 
 <style scoped>

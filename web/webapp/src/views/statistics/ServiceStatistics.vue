@@ -26,6 +26,7 @@
                             <el-table
                                     :data="infoItems"
                                     border
+                                    :empty-text="$t('base.noDataText')"
                                     :show-header="false"
                                     style="width: 100%">
                                 <el-table-column width="100">
