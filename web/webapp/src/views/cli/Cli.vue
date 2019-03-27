@@ -1,20 +1,39 @@
 <template>
-    <v-card
-            class="mx-auto"
-            max-width="90%"
-            :height="height"
-    >
-        <v-card-title class="pt-0 pb-0">
-            <v-spacer></v-spacer>
-            <v-btn icon @click="handleFullScreen">
-                <v-icon>fullscreen</v-icon>
-            </v-btn>
-        </v-card-title>
-        <v-card-text class="pt-0">
-            <div id="shell"></div>
-        </v-card-text>
-    </v-card>
+    <el-container>
+        <el-header>
+            <el-card :height="60" :body-style="{ padding: '10px 10px 10px 20px'}">
+                <el-row>
+                    <el-col :span="3" style="float: right;">
+                        <el-button style="float: right;" @click="handleFullScreen">
+                            <i class="el-icon-rank" ></i>
+                        </el-button>
+                    </el-col>
+                </el-row>
+            </el-card>
+        </el-header>
+
+        <el-container>
+            <div id="shell" style="width: 100%;"></div>
+        </el-container>
+    </el-container>
 </template>
+
+<style scoped>
+
+    .el-container .el-container {
+        margin-right: 20px;
+    }
+
+    .el-header {
+        padding: 0 20px 0 0;
+        height: 70px !important;
+    }
+
+    .el-card__body {
+        padding: 10px 10px 10px 20px !important;
+    }
+
+</style>
 
 <script lang="ts">
     import {Component, Vue} from "vue-property-decorator";
