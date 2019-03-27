@@ -1,5 +1,4 @@
 <template>
-
     <el-container v-loading="loading">
         <el-header>
             <el-card :height="60" :body-style="{ padding: '10px 10px 10px 20px'}">

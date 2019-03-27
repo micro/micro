@@ -13,7 +13,7 @@ const state: ServicesStatsState = {
     nodesStatsMap: new Map(),
     pageLoading: false,
     cardLoading: new Map(),
-    cardLoadingChanged: false,
+    cardLoadingChanged: '',
     xError: '',
 }
 
@@ -25,7 +25,6 @@ const mutations: MutationTree<any> = {
 
     [TYPES.SET_SERVICES_STATS_DATA_LOADING](state: ServicesStatsState, {address, loading}: { address: string, loading: boolean }): void {
         state.cardLoading.set(address, loading)
-        state.cardLoadingChanged = true
     },
 
     [TYPES.SET_SERVICES_STATS_SERVICES](state: ServicesStatsState, {services}): void {
@@ -36,6 +35,7 @@ const mutations: MutationTree<any> = {
     [TYPES.SET_SERVICES_STATS_NODE_STATS](state: ServicesStatsState, {address, stats}: { address: string, stats: Stats }): void {
         state.nodesStatsMap.set(address, stats)
         state.cardLoading.set(address, false)
+        state.cardLoadingChanged = new Date().toJSON()
     },
 
     [TYPES.SET_SERVICES_STATS_DATA_ERROR](state: ServicesStatsState, error: string): void {

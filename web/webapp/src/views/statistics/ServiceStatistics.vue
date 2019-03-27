@@ -1,5 +1,5 @@
 <template>
-    <div id="serviceStatsDiv">
+    <div id="serviceStatsDiv" style="padding-right: 20px">
         <el-row v-for="(s, i) in services" :key="i" style="padding-top: 10px;">
             <el-card class="box-card">
                 <div slot="header" class="clearfix">
@@ -36,17 +36,12 @@
                                 </el-table-column>
                                 <el-table-column>
                                     <template slot-scope="scope">
-                                        <span>{{
-                                            nodesStatsMap.get(mergeAddressAndPort(n.address, n.port))
-                                            &&
-                                            scope.row.formatter(nodesStatsMap.get(mergeAddressAndPort(n.address, n.port))[scope.row.key])
-                                            }}</span>
+                                        <span>{{cardLoadingChanged && parseNodeStats(n, scope.row.key, scope.row.formatter)}}</span>
                                     </template>
                                 </el-table-column>
                             </el-table>
                         </div>
                     </el-card>
-
                 </el-col>
             </el-card>
         </el-row>
@@ -95,6 +90,7 @@
 
         @State(state => state.servicesStats.nodesStatsMap)
         nodesStatsMap?: Map<string, Stats>;
+
 
         @State(state => state.servicesStats.pageLoading)
         pageLoading?: boolean;
@@ -192,6 +188,7 @@
         }
 
         parseNodeStats(n: Node, key: string, formatter: Function) {
+
             let address = this.mergeAddressAndPort(n.address, n.port)
             let stats = this.nodesStatsMap.get(address)
 
@@ -221,22 +218,24 @@
             this.loadNodesStats();
         }
 
+        /*
+            @Watch("cardLoadingChanged")
+            cardLoadingChangedHandler() {
 
-        @Watch("cardLoadingChanged")
-        cardLoadingChangedHandler() {
-            /*this.cardLoading.forEach((v, k) => {
-                let instance = this.cardLoadingInstance.get(k);
-                if (instance == null) {
-                    instance = Loading.service({target: document.getElementById(k + 'Card')})
-                    this.cardLoadingInstance.set(k, instance)
-                }
 
-                if (!v) {
-                    instance.close();
-                }
-            })*/
+            this.cardLoading.forEach((v, k) => {
+                    let instance = this.cardLoadingInstance.get(k);
+                    if (instance == null) {
+                        instance = Loading.service({target: document.getElementById(k + 'Card')})
+                        this.cardLoadingInstance.set(k, instance)
+                    }
 
-        }
+                    if (!v) {
+                        instance.close();
+                    }
+                })
+
+        }*/
 
         /*
                 @Watch("cardLoading")

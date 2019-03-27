@@ -31,7 +31,7 @@ export interface ServicesStatsState {
     nodesStatsMap: Map<string, Stats>;
     // key: node.ip+node.port
     cardLoading: Map<string, boolean>;
-    cardLoadingChanged: boolean;
+    cardLoadingChanged: string;
     pageLoading: boolean;
     xError: string;
 }
