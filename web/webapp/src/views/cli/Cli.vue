@@ -5,7 +5,7 @@
                 <el-row>
                     <el-col :span="3" style="float: right;">
                         <el-button style="float: right;" @click="handleFullScreen">
-                            <i class="el-icon-rank" ></i>
+                            <v-icon small>fullscreen</v-icon>
                         </el-button>
                     </el-col>
                 </el-row>
@@ -31,6 +31,10 @@
 
     .el-card__body {
         padding: 10px 10px 10px 20px !important;
+    }
+
+    .el-row .el-button.el-button--default {
+        padding: 11px;
     }
 
 </style>
