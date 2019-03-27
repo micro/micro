@@ -1,5 +1,7 @@
+/* eslint-disable */
 import axios from "axios";
 import config from "@/config";
+import {Error} from '@/store/basic/types'
 
 const baseURL = config.url.basicUrl;
 const $axios = axios.create({
@@ -14,6 +16,7 @@ $axios.interceptors.request.use(
     },
     (error: any) => {
         if (error.error.code) {
+
             console.log(error.error.code);
         }
         return Promise.reject(error);
@@ -76,14 +79,20 @@ $axios.interceptors.response.use(
             return backoff.then(() => $axios(config));
         } else {
 
-            debugger
-            if (error.response) {
-                // throw error;
+            if (error.response.data) {
                 return {
                     success: false,
-                    detail: new Error(error.response.statusText || error.response.data && error.response.data.detail)
+                    error: new Error(error.response.data.code, error.response.data.detail)
                 }
             }
+
+            if (error.code) {
+                return {
+                    success: false,
+                    error: new Error(error.code, error.detail)
+                }
+            }
+
             return Promise.reject(error);
         }
     }

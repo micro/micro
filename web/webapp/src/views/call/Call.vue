@@ -1,132 +1,119 @@
 <template>
-    <v-container fluid grid-list-xl>
-        <v-layout row wrap>
-            <v-flex d-flex xs12 sm6 md5>
-                <v-layout row wrap>
-                    <v-flex d-flex>
-                        <v-layout row wrap>
-                            <v-flex
-                                    d-flex
-                                    xs12
-                                    pt-0
-                                    pb-2
+    <el-container>
+        <el-row style="width: 100%">
+            <el-col :span="11">
+                <el-card :body-style="{ padding: '10px 10px 10px 20px'}">
+                    <el-form label-position="left" label-width="120px">
+                        <!-- <el-form-item :label="$t('base.service')">
+                             <el-select
+                                     v-model="service"
+                                     filterable
+                                     clearable
+                                     :placeholder="$t('base.service')"
+                                     @change="changeService"
+                             >
+                                 <el-option
+                                         v-for="(item, index) in services"
+                                         :key="index"
+                                         :label="item.name"
+                                         :value="item">
+                                 </el-option>
+                             </el-select>
+                         </el-form-item>-->
+                        <el-form-item :label="$t('base.service')">
+                            <el-select v-model="serviceName"
+                                       filterable
+                                       clearable
+                                       :placeholder="$t('base.service')"
+                                       @change="changeService"
                             >
-                                <v-card>
-                                    <v-card-text class="pt-0 pb-0">
-                                        <v-select
-                                                v-model="service"
-                                                :items="services"
-                                                item-text="name"
-                                                item-value="endpoints"
-                                                return-object
-                                                :label="$t('base.service')"
-                                                @change="changeService"
-                                        ></v-select>
-                                    </v-card-text>
-                                </v-card>
-                            </v-flex>
-                            <v-flex
-                                    d-flex
-                                    xs12
-                                    pt-0
-                                    pb-2
+                                <el-option
+                                        v-for="(item, index) in services"
+                                        :key="index"
+                                        :label="item.name"
+                                        :value="item.name">
+                                </el-option>
+                            </el-select>
+                        </el-form-item>
+                        <el-form-item :label="$t('base.endpoint')">
+                            <el-select
+                                    v-model="endpoint"
+                                    filterable
+                                    clearable
+                                    :placeholder="$t('base.endpoint')"
+                                    @change="changeEndpoint"
                             >
-                                <v-card>
-                                    <v-card-text class="pt-0 pb-0">
-                                        <v-select
-                                                :model="endpoint"
-                                                :items="currentEndpoints"
-                                                item-text="name"
-                                                return-object
-                                                :label="$t('base.endpoint')"
-                                                @change="changeEndpoint"
-                                        >
-                                        </v-select>
-                                    </v-card-text>
-                                </v-card>
-                            </v-flex>
-                            <v-flex
-                                    d-flex
-                                    xs12
-                                    pt-0
-                                    pb-2
-                            >
-                                <v-card>
-                                    <v-card-text class="pt-0 pb-0">
-                                        <v-text-field
-                                                :disabled="endpoint != 'other'"
-                                                v-model="otherEndpoint"
-                                                :label="$t('base.otherEndpoint')"
-                                                :placeholder="$t('rpc.inputOtherEndpoint')"
-                                        ></v-text-field>
-                                    </v-card-text>
-                                </v-card>
-                            </v-flex>
-                            <v-flex d-flex codeFlex pt-0 pb-2>
-                                <v-card>
-                                    <v-card-title>
-                                        <span class="title font-weight-light">{{$t('rpc.request')}}</span>
-                                    </v-card-title>
-                                    <v-card-text>
-                                        <div id="jsonRequestEditor" style="height: 300px" class="json-editor">
+                                <el-option
+                                        v-for="(item, index) in currentEndpoints"
+                                        :key="index"
+                                        :label="item.name"
+                                        :value="item">
+                                </el-option>
+                            </el-select>
+                        </el-form-item>
+                        <el-form-item :label="$t('base.otherEndpoint')">
+                            <el-input :disabled="endpoint != 'other'"
+                                      v-model="otherEndpoint"
+                                      :placeholder="$t('rpc.inputOtherEndpoint')"
+                            ></el-input>
+                        </el-form-item>
+                        <el-form-item :label="$t('rpc.request')">
+                            <div style="float: right">
+                                <el-col :span="12">
+                                    <el-button
+                                            size="small"
+                                            @click="formatRequestJSON"
+                                    >
+                                        <span> {{$t('rpc.formatJSON')}}</span>
+                                    </el-button>
+                                </el-col>
+                                <el-col :span="12">
+                                    <el-button
+                                            :disabled="!(serviceName && (endpoint && endpoint != 'other' || endpoint == 'other' && otherEndpoint))"
+                                            size="small"
+                                            @click="postRequest"
+                                    >
+                                        <span> {{$t('rpc.postRequest')}}</span>
+                                    </el-button>
+                                </el-col>
+                            </div>
+                        </el-form-item>
+                        <div id="jsonRequestEditor" style="height: 300px" class="json-editor">
+                        </div>
+                    </el-form>
+                </el-card>
+            </el-col>
+            <el-col :span="11" style="margin-left: 20px">
+                <el-card :body-style="{ padding: '10px 10px 10px 20px'}">
 
-                                        </div>
-                                    </v-card-text>
-                                </v-card>
-                            </v-flex>
-                        </v-layout>
-                    </v-flex>
-                </v-layout>
-            </v-flex>
-            <v-flex md1>
-
-                <v-btn
-                        small
-                        @click="formatRequestJSON"
-                >
-                    <span> {{$t('rpc.formatJSON')}}</span>
-                </v-btn>
-                <v-btn
-                        small
-                        @click="postRequest"
-                >
-                    <span>{{$t('rpc.postRequest')}}</span>
-                </v-btn>
-
-            </v-flex>
-            <v-flex d-flex xs12 sm6 md6 pt-0>
-                <v-card color="lighten-1">
-                    <v-card-text>
-                        <v-card-title>
-                            <span class="title font-weight-light">{{$t('rpc.result')}}</span>
-
-                            <v-spacer/>
-
-                            <v-btn
-                                    small
+                    <el-row>
+                        <el-col :span="12"><span class="title font-weight-light">{{$t('rpc.result')}}</span></el-col>
+                        <el-col :span="12">
+                            <el-button
+                                    size="small"
+                                    style="float:right"
                                     @click="copyResult"
                             >
                                 <span> {{$t('rpc.copy')}}</span>
-                            </v-btn>
-                        </v-card-title>
-                        <v-card-text>
-                            <v-alert
-                                    :value="copySuccess"
-                                    type="success"
-                                    transition="scale-transition"
-                            >
-                                {{$t('rpc.copySuccess')}}
-                            </v-alert>
-                            <div id="jsonResponseEditor" style="height: 500px" class="json-editor">
+                            </el-button>
+                        </el-col>
+                    </el-row>
+                    <v-card-text>
+                        <div id="jsonResponseEditor" style="height: 484px" class="json-editor">
 
-                            </div>
-                        </v-card-text>
+                        </div>
                     </v-card-text>
-                </v-card>
-            </v-flex>
-        </v-layout>
-    </v-container>
+                </el-card>
+            </el-col>
+        </el-row>
+    </el-container>
 </template>
+
+<style scoped>
+    .el-container {
+        margin-right: 20px;
+    }
+</style>
 
 <script lang="ts">
     import {Component, Vue, Watch} from "vue-property-decorator";
@@ -145,9 +132,8 @@
 
         private currentEndpoints: any = null;
 
-        private copySuccess: boolean = false
+        private serviceName?: string = "";
 
-        private service: Service = new Service();
         private endpoint: string = "";
         private otherEndpoint: string = "";
 
@@ -170,11 +156,14 @@
         @State(state => state.call.requestLoading)
         requestLoading?: boolean;
 
+        @State(state => state.call.xError)
+        error?: any;
+
 
         @Watch("requestResult")
         resultChange(rr: any) {
             this.rspJSONEditor.set(rr)
-            this.rspJSONEditor.expandAll();
+            // this.rspJSONEditor.expandAll();
         }
 
         created() {
@@ -196,19 +185,33 @@
             let postData = {
                 endpoint: endpoint,
                 request: JSON.stringify(this.reqJSONEditor.get()),
-                service: this.service.name
+                service: this.serviceName
             }
 
             this.postServiceRequest(postData);
         }
 
-        changeService(service: Service) {
-            if (service.endpoints) {
-                this.currentEndpoints = service.endpoints
-            } else {
-                this.currentEndpoints = []
-            }
-            this.currentEndpoints.push({name: 'other', value: -1})
+        changeService(serviceName: string) {
+
+            this.endpoint = null;
+            this.otherEndpoint = null;
+            this.currentEndpoints = []
+
+            this.services.forEach((s: Service, i: number) => {
+
+                if (s.name != serviceName) {
+                    return
+                }
+
+                if (s.endpoints) {
+                    this.currentEndpoints = s.endpoints
+                } else {
+                    this.currentEndpoints = []
+                }
+
+                this.currentEndpoints.push({name: 'other', value: -1})
+
+            })
         }
 
         changeEndpoint(endpoint: Endpoint) {
@@ -218,12 +221,13 @@
         copyResult() {
             let that = this
             // @ts-ignore
-            this.copySuccess = this.$xools.copyTxt(JSON.stringify(this.rspJSONEditor.get(), null, 2),
+            this.$xools.copyTxt(JSON.stringify(this.rspJSONEditor.get(), null, 2),
                 function (success: boolean) {
-                    that.copySuccess = success
-                    setTimeout(() => {
-                        that.copySuccess = false
-                    }, 2000)
+                    that.$message({
+                        // @ts-ignore
+                        message: that.$t('rpc.copySuccess'),
+                        type: 'success'
+                    });
                 })
         }
 
@@ -235,7 +239,7 @@
             this.reqJSONEditor.set(json)
 
             let containerRsp = document.getElementById("jsonResponseEditor");
-            this.rspJSONEditor = new JSONEditor(containerRsp, {mode: 'tree', search: true});
+            this.rspJSONEditor = new JSONEditor(containerRsp, {mode: 'code', mainMenuBar: false});
         }
 
         formatRequestJSON() {

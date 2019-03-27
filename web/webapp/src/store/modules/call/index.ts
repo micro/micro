@@ -10,7 +10,8 @@ const namespaced: boolean = true;
 const state: CallState = {
     requestLoading: false,
     services: [],
-    requestResult: {}
+    requestResult: {},
+    xError: null
 }
 
 const mutations: MutationTree<any> = {
@@ -25,6 +26,10 @@ const mutations: MutationTree<any> = {
 
     [TYPES.SET_CALL_RESULT](state: CallState, result: object): void {
         state.requestResult = result
+    },
+
+    [TYPES.SET_CALL_ERROR](state: CallState, error: object): void {
+        state.xError = error
     },
 
 };
@@ -45,7 +50,16 @@ const actions: ActionTree<any, any> = {
 
         commit(TYPES.SET_CALL_LOADING, true);
         const res: Ajax.AjaxResponse = await postServiceRequest(req);
-        commit(TYPES.SET_CALL_RESULT, res.data);
+
+        if (res.success) {
+            if (res.data.body) {
+                res.data.body = JSON.parse(res.data.body)
+            }
+
+            commit(TYPES.SET_CALL_RESULT, res);
+        } else {
+            commit(TYPES.SET_CALL_RESULT, res);
+        }
     },
 };
 

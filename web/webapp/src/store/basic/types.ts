@@ -1,6 +1,11 @@
 export class Error {
-    public detail ?: string
     public code ?: string
+    public detail ?: string
+
+    constructor(code ?: string, detail ?: string) {
+        this.detail = detail;
+        this.code = code;
+    }
 }
 
 export class Page<T> {

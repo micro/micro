@@ -3,7 +3,7 @@ import Vue from "vue";
 import '@/plugins/tools';
 import '@/plugins/vuetify';
 import i18n from '@/plugins/I18n';
-import '@/plugins/elementui';
+import {setLan} from '@/plugins/elementui';
 import '@/theme/style';
 
 import App from "./App.vue";
@@ -25,6 +25,7 @@ new Vue({
 }).$mount("#app")
     .$on('localeChange', (locale: string) => {
         i18n.locale = locale
+        setLan(locale)
         XTools.Utils.setCookie("locale", locale, 30)
     });
 
