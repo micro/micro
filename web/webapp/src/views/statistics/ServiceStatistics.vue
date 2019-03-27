@@ -119,6 +119,7 @@
                 name: "Uptime",
                 key: "uptime",
                 formatter: (uptime: number) => {
+                    // @ts-ignore
                     return this.$xools.secondsToHHMMSS(uptime)
                 },
             },
@@ -193,7 +194,9 @@
             let address = this.mergeAddressAndPort(n.address, n.port)
             let stats = this.nodesStatsMap.get(address)
 
+            // @ts-ignore
             if (stats && stats[key]) {
+                // @ts-ignore
                 return formatter(stats[key])
             }
         }

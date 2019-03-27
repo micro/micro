@@ -121,7 +121,7 @@
         parseNodes(nodes: Node[]) {
 
             if (nodes) {
-                let nodesStr = [];
+                let nodesStr: any[] = [];
                 nodes.forEach(node => {
                     nodesStr.push(mergeAddressAndPort(node.address, node.port))
                 })

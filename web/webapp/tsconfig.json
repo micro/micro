@@ -12,6 +12,7 @@
     "esModuleInterop": true,
     "strictNullChecks": false,
     "noImplicitThis": true,
+    "noImplicitAny": false,
     "allowSyntheticDefaultImports": true,
     "sourceMap": true,
     "baseUrl": ".",

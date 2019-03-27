@@ -7,6 +7,7 @@ import (
 	"github.com/micro/go-micro/registry"
 	"github.com/micro/go-micro/selector"
 	"github.com/micro/micro/internal/helper"
+	"github.com/micro/micro/internal/metadata"
 	"github.com/micro/micro/web/common"
 	"net/http"
 	"sort"
@@ -229,8 +230,11 @@ func (api *API) apiGatewayServices(w http.ResponseWriter, r *http.Request) {
 
 			filter := func(services []*registry.Service) []*registry.Service {
 				for _, s := range services {
-					if s.Metadata[registry.MetadataFieldNameServerType] == registry.MetadataServiceTypeAPIGateway {
-						ret = append(ret, s)
+					for _, n := range s.Nodes {
+						if n.Metadata[metadata.MetadataFieldNameServerType] == metadata.MetadataServiceTypeAPIGateway {
+							ret = append(ret, s)
+							break
+						}
 					}
 				}
 				return ret

@@ -175,6 +175,7 @@
                 key: "started",
                 value: "",
                 formatter: (date: number) => {
+                    // @ts-ignore
                     return this.$xools.secondsToHHMMSS(((new Date() - date * 1000) / 1000).toFixed(0))
                 },
             },
@@ -228,7 +229,7 @@
             },
         ]
 
-        private requestTableData = {
+        private requestTableData: any = {
             "total": 0,
             "20x": 0,
             "30x": 0,
@@ -292,10 +293,6 @@
 
         @State(state => state.apiStats.pageLoading)
         pageLoading?: boolean;
-
-
-        @State(state => state.apiStats.services)
-        services?: Service[];
 
         @State(state => state.apiStats.services)
         services?: Service[];
@@ -423,6 +420,7 @@
 
                         let _ = this.linearOptions.legend.data[idx]
                         // series
+                        // @ts-ignore
                         let _v = item.status_codes[_] ? item.status_codes[_] : 0
                         this.linearOptions.series[idx].data.push(_v)
                         this.requestTableData[_] += _v

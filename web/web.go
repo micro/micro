@@ -4,8 +4,8 @@ package web
 import (
 	"fmt"
 	"github.com/micro/go-micro/cmd"
-	"github.com/micro/go-micro/registry"
 	"github.com/micro/go-micro/selector"
+	"github.com/micro/micro/internal/metadata"
 	"github.com/micro/micro/web/api/v1"
 	"github.com/micro/micro/web/common"
 	"net/http"
@@ -187,7 +187,7 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	}
 
 	serviceMetadata := map[string]string{
-		registry.MetadataFieldNameServerType: registry.MetadataServiceTypeWebDashboard,
+		metadata.MetadataFieldNameServerType: metadata.MetadataServiceTypeWebDashboard,
 	}
 	srvOpts = append(srvOpts, micro.Metadata(serviceMetadata))
 
