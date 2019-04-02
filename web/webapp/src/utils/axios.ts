@@ -93,6 +93,13 @@ $axios.interceptors.response.use(
                 }
             }
 
+            if (error.response.status >= 499) {
+                return {
+                    success: false,
+                    error: new Error(error.response.status, error.response.statusText)
+                }
+            }
+
             return Promise.reject(error);
         }
     }

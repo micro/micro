@@ -52,11 +52,12 @@ const actions: ActionTree<any, any> = {
 
         commit(TYPES.SET_API_STATS_DATA_LOADING, true);
         const res: Ajax.AjaxResponse = await getAPIStats(name, address);
+
         // @ts-ignore
         if (res.counters) {
             commit(TYPES.SET_API_STATS_NODE_STATS, res);
         } else {
-            commit(TYPES.SET_API_STATS_DATA_ERROR, res);
+            commit(TYPES.SET_API_STATS_DATA_ERROR, res.error);
         }
     },
 };

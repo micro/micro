@@ -321,6 +321,9 @@
         changeService(name: string) {
             this.clean()
 
+            this.serviceNode = ""
+            this.nodes = []
+
             if (name) {
                 for (let i = 0; i < this.services.length; i++) {
                     if (this.services[i].name == name) {
@@ -391,7 +394,7 @@
             }
         }
 
-        @Watch("currentNodeStats")
+        @Watch("currentNodeStats", {immediate: true, deep: true})
         asyncData(data: Stats) {
 
             this.infoData.started = data.started
