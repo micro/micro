@@ -22,8 +22,6 @@ export function setLan(lan: string) {
         return
     }
 
-    debugger
-
     if (lan == 'cn') {
         locale.use(cnLocale)
         return
