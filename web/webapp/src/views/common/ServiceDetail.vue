@@ -17,7 +17,18 @@
                         <span>{{item.metadata}}</span>
                     </el-form-item>
                     <el-form-item :label="$t('base.endpoints')">
-                        <span>{{item.endpoints}}</span>
+                        <span>{{formatEndpoint(item.endpoints)}}</span>
+                        <el-popover
+                                placement="right"
+                                width="400"
+                                trigger="click">
+                            <el-input
+                                    type="textarea"
+                                    :autosize="{ minRows: 2, maxRows: 16 }"
+                                    :value="JSON.stringify(item.endpoints, null, 2)">
+                            </el-input>
+                            <el-button size="small" type="text" slot="reference">more</el-button>
+                        </el-popover>
                     </el-form-item>
                     <el-form-item :label="$t('base.nodes')">
                         <el-col :span="6" style="float: right;">
@@ -94,6 +105,16 @@
 
         mounted() {
 
+        }
+
+        formatEndpoint(endpoints: any) {
+
+            let endpointsStr = JSON.stringify(endpoints)
+
+            if (endpointsStr.length > 50) {
+                endpointsStr = endpointsStr.substr(0, 50) + '...'
+            }
+            return endpointsStr
         }
 
         searchFilter(n: Node) {
