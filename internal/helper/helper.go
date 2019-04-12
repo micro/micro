@@ -60,7 +60,7 @@ func TLSConfig(ctx *cli.Context) (*tls.Config, error) {
 		}
 
 		return &tls.Config{
-			Certificates: []tls.Certificate{certs},
+			Certificates: []tls.Certificate{certs}, NextProtos: []string{"h2", "http/1.1"},
 		}, nil
 	}
 
