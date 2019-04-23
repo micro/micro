@@ -50,16 +50,7 @@ const actions: ActionTree<any, any> = {
 
         commit(TYPES.SET_CALL_LOADING, true);
         const res: Ajax.AjaxResponse = await postServiceRequest(req);
-
-        if (res.success) {
-            if (res.data.body) {
-                res.data.body = JSON.parse(res.data.body)
-            }
-
-            commit(TYPES.SET_CALL_RESULT, res);
-        } else {
-            commit(TYPES.SET_CALL_RESULT, res);
-        }
+        commit(TYPES.SET_CALL_RESULT, res);
     },
 };
 

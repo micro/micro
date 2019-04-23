@@ -26,7 +26,6 @@ $axios.interceptors.request.use(
 $axios.interceptors.response.use(
     (response: any) => {
         // store.commit(TYPES.SET_USER_LOADING_GET_DONE);
-
         if (
             response.status >= 200 &&
             response.status < 300 &&

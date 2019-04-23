@@ -49,8 +49,8 @@
             </el-table>
         </el-container>
 
-        <el-dialog width="70%" :title="detailTitle" :visible.sync="serviceDetailDialog">
-            <service-detail :serviceDetail="serviceDetail"></service-detail>
+        <el-dialog width="70%" :title="detailTitle" :visible.sync="serviceDetailDialog" @close="destroyDetail">
+            <service-detail ref="detailDialog" :serviceDetail="serviceDetail" :key="detailBoxKey"></service-detail>
         </el-dialog>
     </el-container>
 </template>
@@ -70,6 +70,12 @@
         padding: 10px 10px 10px 20px !important;
     }
 
+</style>
+
+<style>
+    .el-dialog__body {
+        padding: 10px 10px 10px 10px !important;
+    }
 </style>
 
 <script lang="ts">
@@ -93,6 +99,8 @@
         private serviceDetailDialog: boolean = false;
 
         private detailTitle = ""
+
+        private detailBoxKey = 0
 
         @State(state => state.registry.services)
         services?: Service[];
@@ -135,6 +143,9 @@
             return '';
         }
 
+        destroyDetail() {
+            this.detailBoxKey = new Date().getTime()
+        }
 
         showDetail(item: Service) {
             this.detailTitle = item.name;

@@ -73,7 +73,8 @@ func rpc(w http.ResponseWriter, ctx context.Context, rpcReq *rpcRequest) {
 		return
 	}
 
-	writeJsonData(w, response)
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(response)
 }
 
 func apiProxy() http.Handler {
@@ -98,38 +99,38 @@ func apiProxy() http.Handler {
 
 		address := r.URL.Query().Get("address")
 		/*port, err := strconv.Atoi(portStr)
-		if err != nil {
-			kill()
-			return
-		}
+		  if err != nil {
+		  	kill()
+		  	return
+		  }
 
-		next, err := sel.Select(common.APINamespace, func(options *selector.SelectOptions) {
+		  next, err := sel.Select(common.APINamespace, func(options *selector.SelectOptions) {
 
-			filter := func(services []*registry.Service) []*registry.Service {
-				ret := make([]*registry.Service, 0)
-				for _, s := range services {
-					for _, n := range s.Nodes {
-						if n.Address == address && n.Metadata["port"] == portStr {
-							ret = append(ret, s)
-						}
-					}
-				}
-				return ret
-			}
+		  	filter := func(services []*registry.Service) []*registry.Service {
+		  		ret := make([]*registry.Service, 0)
+		  		for _, s := range services {
+		  			for _, n := range s.Nodes {
+		  				if n.Address == address && n.Metadata["port"] == portStr {
+		  					ret = append(ret, s)
+		  				}
+		  			}
+		  		}
+		  		return ret
+		  	}
 
-			options.Filters = append(options.Filters, filter)
-		})
+		  	options.Filters = append(options.Filters, filter)
+		  })
 
-		if err != nil {
-			kill()
-			return
-		}
+		  if err != nil {
+		  	kill()
+		  	return
+		  }
 
-		s, err := next()
-		if err != nil {
-			kill()
-			return
-		}*/
+		  s, err := next()
+		  if err != nil {
+		  	kill()
+		  	return
+		  }*/
 
 		r.Header.Set(common.BasePathHeader, "/v1/api-stats")
 		r.Header.Set("Content-Type", "application/json")

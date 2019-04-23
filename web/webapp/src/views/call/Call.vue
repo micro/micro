@@ -1,7 +1,7 @@
 <template>
     <el-container>
-        <el-row style="width: 100%">
-            <el-col :span="11">
+        <el-row type="flex" justify="space-around" style="width: 100%">
+            <el-col :span="12">
                 <el-card :body-style="{ padding: '10px 10px 10px 20px'}">
                     <el-form label-position="left" label-width="120px">
                         <!-- <el-form-item :label="$t('base.service')">
@@ -24,6 +24,7 @@
                             <el-select v-model="serviceName"
                                        filterable
                                        clearable
+                                       :disabled="callData && callData.specialModel"
                                        :placeholder="$t('base.service')"
                                        @change="changeService"
                             >
@@ -39,6 +40,7 @@
                             <el-select
                                     v-model="endpoint"
                                     filterable
+                                    :disabled="callData && callData.specialModel"
                                     clearable
                                     :placeholder="$t('base.endpoint')"
                                     @change="changeEndpoint"
@@ -46,8 +48,7 @@
                                 <el-option
                                         v-for="(item, index) in currentEndpoints"
                                         :key="index"
-                                        :label="item.name"
-                                        :value="item">
+                                        :value="item.name">
                                 </el-option>
                             </el-select>
                         </el-form-item>
@@ -83,7 +84,7 @@
                     </el-form>
                 </el-card>
             </el-col>
-            <el-col :span="11" style="margin-left: 20px">
+            <el-col :span="12" style="margin-left: 20px">
                 <el-card :body-style="{ padding: '10px 10px 10px 20px'}">
 
                     <el-row>
@@ -108,7 +109,6 @@
         </el-row>
     </el-container>
 </template>
-
 <style scoped>
     .el-container {
         margin-right: 20px;
@@ -116,10 +116,10 @@
 </style>
 
 <script lang="ts">
-    import {Component, Vue, Watch} from "vue-property-decorator";
-    import {State, Action} from 'vuex-class';
+    import {Component, Vue, Watch, Prop} from "vue-property-decorator";
+    import {State, Action,} from 'vuex-class';
 
-    import {Endpoint, Service} from "@/store/basic/types";
+    import {Endpoint, Service, Value} from "@/store/basic/types";
 
     // @ts-ignore
     import JSONEditor from "jsoneditor"
@@ -130,11 +130,15 @@
     @Component({components: {}})
     export default class Call extends Vue {
 
+        @Prop()
+        private callData: any;
+
         private currentEndpoints: any = null;
 
         private serviceName?: string = "";
 
         private endpoint: string = "";
+
         private otherEndpoint: string = "";
 
         private reqJSONEditor?: JSONEditor;
@@ -167,12 +171,16 @@
         }
 
         created() {
-
         }
 
         mounted() {
             this.renderJSONEditor();
             this.getServiceDetails()
+            if (this.callData && this.callData.specialModel) {
+                this.serviceName = this.callData.serviceName;
+                this.endpoint = this.callData.endpoint;
+                this.renderRequestJSON(this.endpoint, this.callData.endpoints)
+            }
         }
 
         postRequest() {
@@ -195,27 +203,67 @@
 
             this.endpoint = null;
             this.otherEndpoint = null;
-            this.currentEndpoints = []
+            this.currentEndpoints = [];
+            this.reqJSONEditor.set({});
 
             this.services.forEach((s: Service, i: number) => {
-
                 if (s.name != serviceName) {
                     return
                 }
-
                 if (s.endpoints) {
                     this.currentEndpoints = s.endpoints
                 } else {
                     this.currentEndpoints = []
                 }
-
-                this.currentEndpoints.push({name: 'other', value: -1})
-
             })
+
+            let hasOther = false
+            this.currentEndpoints.forEach((item: Endpoint) => {
+                if (item.name == "other") {
+                    hasOther = true;
+                }
+            });
+
+            if (!hasOther) {
+                this.currentEndpoints.push({name: 'other', value: -1})
+            }
         }
 
-        changeEndpoint(endpoint: Endpoint) {
-            this.endpoint = endpoint.name
+        changeEndpoint(endpoint: string) {
+            this.endpoint = endpoint
+            this.reqJSONEditor.set({});
+            // change request json
+
+            this.renderRequestJSON(endpoint, this.currentEndpoints)
+
+        }
+
+        renderRequestJSON(endpointName: string, endpoints: Endpoint[]) {
+            endpoints && endpoints.forEach((item: Endpoint) => {
+                if (item.name == endpointName) {
+                    let json = {}
+                    item.request.values.forEach((value: Value) => {
+
+                        let defaultValue;
+                        switch (value.type) {
+                            case 'int64':
+                            case 'int32':
+                            case 'int16':
+                            case 'int':
+                                defaultValue = 0
+                                break
+                            case 'string':
+                            default:
+                                defaultValue = ''
+                                break;
+                        }
+                        json[value.name] = defaultValue
+                    })
+
+                    this.reqJSONEditor.set(json)
+                    return
+                }
+            })
         }
 
         copyResult() {

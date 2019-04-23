@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/micro/go-api/handler"
@@ -30,6 +31,8 @@ func (m *metaHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte(er.Error()))
 		return
 	}
+
+	fmt.Println(service.Endpoint.Handler)
 
 	// TODO: don't do this ffs
 	switch service.Endpoint.Handler {

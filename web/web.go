@@ -187,7 +187,7 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	}
 
 	serviceMetadata := map[string]string{
-		metadata.MetadataFieldNameServerType: metadata.MetadataServiceTypeWebDashboard,
+		metadata.NameServerType: metadata.ServiceTypeWebDashboard,
 	}
 	srvOpts = append(srvOpts, micro.Metadata(serviceMetadata))
 

@@ -1,9 +1,9 @@
 package metadata
 
 const (
-	MetadataFieldNameServerType     = "server_type"
-	MetadataFieldNameServerAddress  = "server_address"
-	MetadataFieldNameServerName     = "server_name"
-	MetadataServiceTypeAPIGateway   = "api-gateway"
-	MetadataServiceTypeWebDashboard = "web-dashboard"
+	NameServerType          = "server_type"
+	FieldNameServerAddress  = "server_address"
+	FieldNameServerName     = "server_name"
+	ServiceTypeAPIGateway   = "api-gateway"
+	ServiceTypeWebDashboard = "web-dashboard"
 )

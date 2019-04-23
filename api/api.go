@@ -107,10 +107,10 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 
 	// metadata
 	srvOpts = append(srvOpts, micro.Metadata(map[string]string{
-		metadata.MetadataFieldNameServerAddress: Address,
-		metadata.MetadataFieldNameServerName:    Name,
-		metadata.MetadataFieldNameServerType:    metadata.MetadataServiceTypeAPIGateway,
-		"namespace":                             Namespace,
+		metadata.FieldNameServerAddress: Address,
+		metadata.FieldNameServerName:    Name,
+		metadata.NameServerType:         metadata.ServiceTypeAPIGateway,
+		"namespace":                     Namespace,
 	}))
 
 	// initialise service
