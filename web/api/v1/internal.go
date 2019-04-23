@@ -73,8 +73,12 @@ func rpc(w http.ResponseWriter, ctx context.Context, rpcReq *rpcRequest) {
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	w.Write(response)
+	if strings.Contains(rpcReq.URL, "/v1/rpc") {
+		w.Header().Set("Content-Type", "application/json")
+		w.Write(response)
+	} else {
+		writeJsonData(w, response)
+	}
 }
 
 func apiProxy() http.Handler {

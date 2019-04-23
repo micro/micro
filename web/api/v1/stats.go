@@ -13,6 +13,7 @@ func (api *API) stats(w http.ResponseWriter, r *http.Request) {
 		Service:  r.URL.Query().Get("service"),
 		Endpoint: "Debug.Stats",
 		Request:  "{}",
+		URL:      r.URL.Path,
 		Address:  r.URL.Query().Get("address"),
 	}
 

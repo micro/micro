@@ -22,7 +22,7 @@
                                     v-for="(item, index) in nodes"
                                     :key="index"
                                     :label="item.metadata.server_address"
-                                    :value="item.metadata.server_address">
+                                    :value="item.metadata.server_address.startsWith(':')? item.address + item.metadata.server_address: item.metadata.server_address">
                             </el-option>
                         </el-select>
                     </el-col>

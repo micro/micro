@@ -50,6 +50,7 @@ type rpcRequest struct {
 	Endpoint string
 	Method   string
 	Address  string
+	URL      string
 	timeout  int
 	Request  interface{}
 }
@@ -266,6 +267,7 @@ func (api *API) rpc(w http.ResponseWriter, r *http.Request) {
 	}
 
 	rpcReq.timeout, _ = strconv.Atoi(r.Header.Get("Timeout"))
+	rpcReq.URL = r.URL.Path
 
 	rpc(w, helper.RequestToContext(r), rpcReq)
 }
@@ -277,6 +279,7 @@ func (api *API) health(w http.ResponseWriter, r *http.Request) {
 		Service:  r.URL.Query().Get("service"),
 		Endpoint: "Debug.Health",
 		Request:  "{}",
+		URL:      r.URL.Path,
 		Address:  r.URL.Query().Get("address"),
 	}
 
