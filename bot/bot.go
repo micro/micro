@@ -433,8 +433,9 @@ func run(ctx *cli.Context) {
 func Commands() []cli.Command {
 	flags := []cli.Flag{
 		cli.StringFlag{
-			Name:  "inputs",
-			Usage: "Inputs to load on startup",
+			Name:   "inputs",
+			Usage:  "Inputs to load on startup",
+			EnvVar: "MICRO_BOT_INPUTS",
 		},
 		cli.StringFlag{
 			Name:   "namespace",
