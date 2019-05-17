@@ -7,7 +7,7 @@ GOPATH:=$(shell go env GOPATH)
 {{if ne .Type "web"}}
 .PHONY: proto
 proto:
-	protoc --proto_path=${GOPATH}/src:. --micro_out=. --go_out=. proto/example/example.proto
+	protoc --proto_path=${GOPATH}/src:. --micro_out=. --go_out=. proto/{{.Alias}}/{{.Alias}}.proto
 
 .PHONY: build
 build: proto

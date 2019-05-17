@@ -6,13 +6,13 @@ var (
 import (
 	"context"
 
-	example "{{.Dir}}/proto/example"
+	{{.Alias}} "{{.Dir}}/proto/{{.Alias}}"
 )
 
-type Example struct{}
+type {{title .Alias}} struct{}
 
 // Call is a single request handler called via client.Call or the generated client code
-func (e *Example) Call(ctx context.Context, req *example.Request, rsp *example.Response) error {
+func (e *{{title .Alias}}) Call(ctx context.Context, req *{{.Alias}}.Request, rsp *{{.Alias}}.Response) error {
 	rsp.Msg = "Hello " + req.Name
 	return nil
 }
@@ -25,25 +25,25 @@ import (
 
 	"github.com/micro/go-log"
 
-	example "{{.Dir}}/proto/example"
+	{{.Alias}} "{{.Dir}}/proto/{{.Alias}}"
 )
 
-type Example struct{}
+type {{title .Alias}} struct{}
 
 // Call is a single request handler called via client.Call or the generated client code
-func (e *Example) Call(ctx context.Context, req *example.Request, rsp *example.Response) error {
-	log.Log("Received Example.Call request")
+func (e *{{title .Alias}}) Call(ctx context.Context, req *{{.Alias}}.Request, rsp *{{.Alias}}.Response) error {
+	log.Log("Received {{title .Alias}}.Call request")
 	rsp.Msg = "Hello " + req.Name
 	return nil
 }
 
 // Stream is a server side stream handler called via client.Stream or the generated client code
-func (e *Example) Stream(ctx context.Context, req *example.StreamingRequest, stream example.Example_StreamStream) error {
-	log.Logf("Received Example.Stream request with count: %d", req.Count)
+func (e *{{title .Alias}}) Stream(ctx context.Context, req *{{.Alias}}.StreamingRequest, stream {{.Alias}}.{{title .Alias}}_StreamStream) error {
+	log.Logf("Received {{title .Alias}}.Stream request with count: %d", req.Count)
 
 	for i := 0; i < int(req.Count); i++ {
 		log.Logf("Responding: %d", i)
-		if err := stream.Send(&example.StreamingResponse{
+		if err := stream.Send(&{{.Alias}}.StreamingResponse{
 			Count: int64(i),
 		}); err != nil {
 			return err
@@ -54,14 +54,14 @@ func (e *Example) Stream(ctx context.Context, req *example.StreamingRequest, str
 }
 
 // PingPong is a bidirectional stream handler called via client.Stream or the generated client code
-func (e *Example) PingPong(ctx context.Context, stream example.Example_PingPongStream) error {
+func (e *{{title .Alias}}) PingPong(ctx context.Context, stream {{.Alias}}.{{title .Alias}}_PingPongStream) error {
 	for {
 		req, err := stream.Recv()
 		if err != nil {
 			return err
 		}
 		log.Logf("Got ping %v", req.Stroke)
-		if err := stream.Send(&example.Pong{Stroke: req.Stroke}); err != nil {
+		if err := stream.Send(&{{.Alias}}.Pong{Stroke: req.Stroke}); err != nil {
 			return err
 		}
 	}
@@ -75,12 +75,12 @@ import (
 
 	"github.com/micro/go-log"
 
-	example "{{.Dir}}/proto/example"
+	{{.Alias}} "{{.Dir}}/proto/{{.Alias}}"
 )
 
-type Example struct{}
+type {{title .Alias}} struct{}
 
-func (e *Example) Handle(ctx context.Context, msg *example.Message) error {
+func (e *{{title .Alias}}) Handle(ctx context.Context, msg *{{.Alias}}.Message) error {
 	log.Log("Handler Received message: ", msg.Say)
 	return nil
 }
@@ -92,17 +92,17 @@ import (
 	"context"
 	"github.com/micro/go-log"
 
-	example "{{.Dir}}/proto/example"
+	{{.Alias}} "{{.Dir}}/proto/{{.Alias}}"
 )
 
-type Example struct{}
+type {{title .Alias}} struct{}
 
-func (e *Example) Handle(ctx context.Context, msg *example.Message) error {
+func (e *{{title .Alias}}) Handle(ctx context.Context, msg *{{.Alias}}.Message) error {
 	log.Log("Handler Received message: ", msg.Say)
 	return nil
 }
 
-func Handler(ctx context.Context, msg *example.Message) error {
+func Handler(ctx context.Context, msg *{{.Alias}}.Message) error {
 	log.Log("Function Received message: ", msg.Say)
 	return nil
 }
@@ -118,10 +118,10 @@ import (
 	"{{.Dir}}/client"
 	"github.com/micro/go-micro/errors"
 	api "github.com/micro/go-api/proto"
-	example "github.com/micro/examples/template/srv/proto/example"
+	{{.Alias}} "path/to/service/proto/{{.Alias}}"
 )
 
-type Example struct{}
+type {{title .Alias}} struct{}
 
 func extractValue(pair *api.Pair) string {
 	if pair == nil {
@@ -133,22 +133,22 @@ func extractValue(pair *api.Pair) string {
 	return pair.Values[0]
 }
 
-// Example.Call is called by the API as /{{.Alias}}/example/call with post body {"name": "foo"}
-func (e *Example) Call(ctx context.Context, req *api.Request, rsp *api.Response) error {
-	log.Log("Received Example.Call request")
+// {{title .Alias}}.Call is called by the API as /{{.Alias}}/call with post body {"name": "foo"}
+func (e *{{title .Alias}}) Call(ctx context.Context, req *api.Request, rsp *api.Response) error {
+	log.Log("Received {{title .Alias}}.Call request")
 
 	// extract the client from the context
-	exampleClient, ok := client.ExampleFromContext(ctx)
+	{{.Alias}}Client, ok := client.{{title .Alias}}FromContext(ctx)
 	if !ok {
-		return errors.InternalServerError("{{.FQDN}}.example.call", "example client not found")
+		return errors.InternalServerError("{{.FQDN}}.{{.Alias}}.call", "{{.Alias}} client not found")
 	}
 
 	// make request
-	response, err := exampleClient.Call(ctx, &example.Request{
+	response, err := {{.Alias}}Client.Call(ctx, &{{.Alias}}.Request{
 		Name: extractValue(req.Post["name"]),
 	})
 	if err != nil {
-		return errors.InternalServerError("{{.FQDN}}.example.call", err.Error())
+		return errors.InternalServerError("{{.FQDN}}.{{.Alias}}.call", err.Error())
 	}
 
 	b, _ := json.Marshal(response)
@@ -169,10 +169,10 @@ import (
 	"time"
 
 	"github.com/micro/go-micro/client"
-	example "github.com/micro/examples/template/srv/proto/example"
+	{{.Alias}} "path/to/service/proto/{{.Alias}}"
 )
 
-func ExampleCall(w http.ResponseWriter, r *http.Request) {
+func {{title .Alias}}Call(w http.ResponseWriter, r *http.Request) {
 	// decode the incoming request as json
 	var request map[string]interface{}
 	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
@@ -181,8 +181,8 @@ func ExampleCall(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// call the backend service
-	exampleClient := example.NewExampleService("go.micro.srv.template", client.DefaultClient)
-	rsp, err := exampleClient.Call(context.TODO(), &example.Request{
+	{{.Alias}}Client := {{.Alias}}.New{{title .Alias}}Service("{{.Namespace}}.srv.{{.Alias}}", client.DefaultClient)
+	rsp, err := {{.Alias}}Client.Call(context.TODO(), &{{.Alias}}.Request{
 		Name: request["name"].(string),
 	})
 	if err != nil {

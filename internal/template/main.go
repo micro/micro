@@ -21,10 +21,10 @@ func main() {
 	function.Init()
 
 	// Register Handler
-	function.Handle(new(handler.Example))
+	function.Handle(new(handler.{{title .Alias}}))
 
 	// Register Struct as Subscriber
-	function.Subscribe("{{.FQDN}}", new(subscriber.Example))
+	function.Subscribe("{{.FQDN}}", new(subscriber.{{title .Alias}}))
 
 	// Run service
 	if err := function.Run(); err != nil {
@@ -41,7 +41,7 @@ import (
 	"{{.Dir}}/handler"
 	"{{.Dir}}/subscriber"
 
-	example "{{.Dir}}/proto/example"
+	{{.Alias}} "{{.Dir}}/proto/{{.Alias}}"
 )
 
 func main() {
@@ -55,10 +55,10 @@ func main() {
 	service.Init()
 
 	// Register Handler
-	example.RegisterExampleHandler(service.Server(), new(handler.Example))
+	{{.Alias}}.Register{{title .Alias}}Handler(service.Server(), new(handler.{{title .Alias}}))
 
 	// Register Struct as Subscriber
-	micro.RegisterSubscriber("{{.FQDN}}", service.Server(), new(subscriber.Example))
+	micro.RegisterSubscriber("{{.FQDN}}", service.Server(), new(subscriber.{{title .Alias}}))
 
 	// Register Function as Subscriber
 	micro.RegisterSubscriber("{{.FQDN}}", service.Server(), subscriber.Handler)
@@ -78,7 +78,7 @@ import (
 	"{{.Dir}}/handler"
 	"{{.Dir}}/client"
 
-	example "{{.Dir}}/proto/example"
+	{{.Alias}} "{{.Dir}}/proto/{{.Alias}}"
 )
 
 func main() {
@@ -90,12 +90,12 @@ func main() {
 
 	// Initialise service
 	service.Init(
-		// create wrap for the Example srv client
-		micro.WrapHandler(client.ExampleWrapper(service)),
+		// create wrap for the {{title .Alias}} srv client
+		micro.WrapHandler(client.{{title .Alias}}Wrapper(service)),
 	)
 
 	// Register Handler
-	example.RegisterExampleHandler(service.Server(), new(handler.Example))
+	{{.Alias}}.Register{{title .Alias}}Handler(service.Server(), new(handler.{{title .Alias}}))
 
 	// Run service
 	if err := service.Run(); err != nil {
@@ -129,7 +129,7 @@ func main() {
 	service.Handle("/", http.FileServer(http.Dir("html")))
 
 	// register call handler
-	service.HandleFunc("/example/call", handler.ExampleCall)
+	service.HandleFunc("/{{.Alias}}/call", handler.{{title .Alias}}Call)
 
 	// run service
         if err := service.Run(); err != nil {
