@@ -29,7 +29,7 @@ var (
                 <a class="navbar-brand logo" href="/">Micro</a>
               </div>
               <div class="collapse navbar-collapse" id="navBar">
-	        <ul class="nav navbar-nav navbar-right">
+	        <ul class="nav navbar-nav navbar-right" id="dev">
 	          <li><a href="cli">CLI</a></li>
 	          <li><a href="registry">Registry</a></li>
 	          <li><a href="call">Call</a></li>
@@ -49,6 +49,21 @@ var (
 	  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
 	  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
 	  {{template "script" . }}
+	  <script type="text/javascript">
+		function toggle(e) {
+		      var ev = window.event? event : e
+		      if (ev.keyCode == 80 && ev.ctrlKey && ev.shiftKey) {
+			var el = document.getElementById("dev");
+			if (el.style.display == "none") {
+			  el.style.display = "block";
+			} else {
+			  el.style.display = "none";
+			}
+		    }
+		}
+
+		document.onkeydown = toggle;
+	  </script>
 	</body>
 </html>
 {{end}}
