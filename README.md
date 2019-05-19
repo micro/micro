@@ -42,8 +42,3 @@ query them directly. The dashboard also includes a built in CLI like experience 
 
 See the [docs](https://micro.mu/docs/toolkit.html) for detailed information on the architecture, installation and use of the toolkit.
 
-## Sponsors
-
-Sixt is an Enterprise Sponsor of Micro
-
-<a href="https://micro.mu/blog/2016/04/25/announcing-sixt-sponsorship.html"><img src="https://micro.mu/sixt_logo.png" width=150px height="auto" /></a>
