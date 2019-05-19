@@ -206,6 +206,9 @@ func run(ctx *cli.Context) {
 	if len(alias) == 0 {
 		// set as last part
 		alias = filepath.Base(dir)
+		// strip hyphens
+		parts := strings.Split(alias, "-")
+		alias = parts[0]
 	}
 
 	if len(fqdn) == 0 {
@@ -242,9 +245,9 @@ func run(ctx *cli.Context) {
 			Files: []file{
 				{"main.go", tmpl.MainFNC},
 				{"plugin.go", tmpl.Plugin},
-				{"handler/example.go", tmpl.HandlerFNC},
-				{"subscriber/example.go", tmpl.SubscriberFNC},
-				{"proto/example/example.proto", tmpl.ProtoFNC},
+				{"handler/" + alias + ".go", tmpl.HandlerFNC},
+				{"subscriber/" + alias + ".go", tmpl.SubscriberFNC},
+				{"proto/" + alias + "/" + alias + ".proto", tmpl.ProtoFNC},
 				{"Dockerfile", tmpl.DockerFNC},
 				{"Makefile", tmpl.Makefile},
 				{"README.md", tmpl.ReadmeFNC},
@@ -254,9 +257,9 @@ func run(ctx *cli.Context) {
 				"brew install protobuf",
 				"go get -u github.com/golang/protobuf/{proto,protoc-gen-go}",
 				"go get -u github.com/micro/protoc-gen-micro",
-				"\ncompile the proto file example.proto:\n",
+				"\ncompile the proto file " + alias + ".proto:\n",
 				"cd " + goDir,
-				"protoc --proto_path=.:$GOPATH/src --go_out=. --micro_out=. proto/example/example.proto\n",
+				"protoc --proto_path=.:$GOPATH/src --go_out=. --micro_out=. proto/" + alias + "/" + alias + ".proto\n",
 			},
 		}
 	case "srv":
@@ -274,9 +277,9 @@ func run(ctx *cli.Context) {
 			Files: []file{
 				{"main.go", tmpl.MainSRV},
 				{"plugin.go", tmpl.Plugin},
-				{"handler/example.go", tmpl.HandlerSRV},
-				{"subscriber/example.go", tmpl.SubscriberSRV},
-				{"proto/example/example.proto", tmpl.ProtoSRV},
+				{"handler/" + alias + ".go", tmpl.HandlerSRV},
+				{"subscriber/" + alias + ".go", tmpl.SubscriberSRV},
+				{"proto/" + alias + "/" + alias + ".proto", tmpl.ProtoSRV},
 				{"Dockerfile", tmpl.DockerSRV},
 				{"Makefile", tmpl.Makefile},
 				{"README.md", tmpl.Readme},
@@ -286,9 +289,9 @@ func run(ctx *cli.Context) {
 				"brew install protobuf",
 				"go get -u github.com/golang/protobuf/{proto,protoc-gen-go}",
 				"go get -u github.com/micro/protoc-gen-micro",
-				"\ncompile the proto file example.proto:\n",
+				"\ncompile the proto file " + alias + ".proto:\n",
 				"cd " + goDir,
-				"protoc --proto_path=.:$GOPATH/src --go_out=. --micro_out=. proto/example/example.proto\n",
+				"protoc --proto_path=.:$GOPATH/src --go_out=. --micro_out=. proto/" + alias + "/" + alias + ".proto\n",
 			},
 		}
 	case "api":
@@ -306,9 +309,9 @@ func run(ctx *cli.Context) {
 			Files: []file{
 				{"main.go", tmpl.MainAPI},
 				{"plugin.go", tmpl.Plugin},
-				{"client/example.go", tmpl.WrapperAPI},
-				{"handler/example.go", tmpl.HandlerAPI},
-				{"proto/example/example.proto", tmpl.ProtoAPI},
+				{"client/" + alias + ".go", tmpl.WrapperAPI},
+				{"handler/" + alias + ".go", tmpl.HandlerAPI},
+				{"proto/" + alias + "/" + alias + ".proto", tmpl.ProtoAPI},
 				{"Makefile", tmpl.Makefile},
 				{"Dockerfile", tmpl.DockerSRV},
 				{"README.md", tmpl.Readme},
@@ -318,9 +321,9 @@ func run(ctx *cli.Context) {
 				"brew install protobuf",
 				"go get -u github.com/golang/protobuf/{proto,protoc-gen-go}",
 				"go get -u github.com/micro/protoc-gen-micro",
-				"\ncompile the proto file example.proto:\n",
+				"\ncompile the proto file " + alias + ".proto:\n",
 				"cd " + goDir,
-				"protoc --proto_path=.:$GOPATH/src --go_out=. --micro_out=. proto/example/example.proto\n",
+				"protoc --proto_path=.:$GOPATH/src --go_out=. --micro_out=. proto/" + alias + "/" + alias + ".proto\n",
 			},
 		}
 	case "web":

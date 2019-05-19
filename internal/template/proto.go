@@ -5,7 +5,7 @@ var (
 
 package {{.FQDN}};
 
-service Example {
+service {{title .Alias}} {
 	rpc Call(Request) returns (Response) {}
 }
 
@@ -26,7 +26,7 @@ message Response {
 
 package {{.FQDN}};
 
-service Example {
+service {{title .Alias}} {
 	rpc Call(Request) returns (Response) {}
 	rpc Stream(StreamingRequest) returns (stream StreamingResponse) {}
 	rpc PingPong(stream Ping) returns (stream Pong) {}
@@ -67,7 +67,7 @@ package {{.FQDN}};
 
 import "github.com/micro/go-api/proto/api.proto";
 
-service Example {
+service {{title .Alias}} {
 	rpc Call(go.api.Request) returns (go.api.Response) {}
 }
 `
