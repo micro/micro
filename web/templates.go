@@ -9,6 +9,10 @@ var (
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
 		<style>
+		  .navbar-inverse .navbar-brand { color: #F6F5F6; font-weight: bold; }
+		  .navbar-inverse { background-color: #252531; }
+		</style>
+		<style>
 		{{ template "style" . }}
 		</style>
 		{{ template "head" . }}
@@ -22,7 +26,7 @@ var (
                   <span class="icon-bar"></span>
                   <span class="icon-bar"></span> 
                 </button>
-                <a class="navbar-brand" href="/">Micro</a>
+                <a class="navbar-brand logo" href="/">Micro</a>
               </div>
               <div class="collapse navbar-collapse" id="navBar">
 	        <ul class="nav navbar-nav navbar-right">
