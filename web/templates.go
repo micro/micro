@@ -67,7 +67,7 @@ var (
 	</body>
 </html>
 {{end}}
-{{ define "style" }}{{end}}
+{{ define "style" }}.search, .service { border-radius: 50px; }{{end}}
 {{ define "head" }}{{end}}
 {{ define "script" }}{{end}}
 {{ define "title" }}{{end}}
@@ -81,7 +81,7 @@ var (
 	{{if .Results.HasWebServices}}
 		<div>
 			{{range .Results.WebServices}}
-			<a href="/{{.}}" data-filter={{.}} class="btn btn-default btn-lg" style="margin: 5px 3px 5px 3px;">{{.}}</a>
+			<a href="/{{.}}" data-filter={{.}} class="btn btn-default btn-lg service" style="margin: 5px 3px 5px 3px;">{{.}}</a>
 			{{end}}
 		</div>
 	{{else}}
@@ -239,7 +239,7 @@ jQuery(function($, undefined) {
 {{define "content"}}
 	<div>
 		{{range .Results}}
-		<a href="registry?service={{.Name}}" data-filter={{.Name}} class="btn btn-default btn-lg" style="margin: 5px 3px 5px 3px;">{{.Name}}</a>
+		<a href="registry?service={{.Name}}" data-filter={{.Name}} class="btn btn-default btn-lg service" style="margin: 5px 3px 5px 3px;">{{.Name}}</a>
 		{{end}}
 	</div>
 {{end}}
