@@ -40,5 +40,5 @@ query them directly. The dashboard also includes a built in CLI like experience 
 
 ## Getting Started
 
-See the [docs](https://micro.mu/docs/platform.html) for detailed information on the architecture, installation and use of the platform.
+See the [docs](https://micro.mu/docs/) for detailed information on the architecture, installation and use of the platform.
 
