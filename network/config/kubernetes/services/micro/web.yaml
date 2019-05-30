@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: default
+  name: micro-web
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: micro-web
+  template:
+    metadata:
+      labels:
+        name: micro-web
+    spec:
+      containers:
+      - name: web
+        env:
+        - name: MICRO_ENABLE_STATS
+          value: "true"
+        - name: MICRO_REGISTRY
+          value: "consul"
+        - name: MICRO_REGISTRY_ADDRESS
+          value: "consul-consul-server"
+        - name: MICRO_ENABLE_ACME
+          value: "true"
+        args:
+        - web
+        image: microhq/micro
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 443
+          name: web-port

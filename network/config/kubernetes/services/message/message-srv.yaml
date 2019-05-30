@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: default
+  name: message
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: message-srv
+  template:
+    metadata:
+      labels:
+        name: message-srv
+    spec:
+      containers:
+      - name: message
+        command: [
+          "/message-srv",
+          "--server_address=0.0.0.0:8080",
+          "--broker_address=0.0.0.0:10001"
+        ]
+        env:
+        - name: MICRO_REGISTRY
+          value: "consul"
+        - name: MICRO_REGISTRY_ADDRESS
+          value: "consul-consul-server"
+        - name: MICRO_SYNC_ADDRESS
+          value: "consul-consul-server"
+        image: microhq/message-srv
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8080
+          name: message-port
+      - name: health
+        command: [
+          "/health",
+          "--health_address=0.0.0.0:8081",
+          "--server_name=message",
+          "--server_address=0.0.0.0:8080"
+        ]
+        image: microhq/health
+        imagePullPolicy: Always
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8081
+          initialDelaySeconds: 3
+          periodSeconds: 3

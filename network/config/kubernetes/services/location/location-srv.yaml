@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: default
+  name: location
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: location-srv
+  template:
+    metadata:
+      labels:
+        name: location-srv
+    spec:
+      containers:
+      - name: location
+        command: [
+          "/location-srv",
+          "--server_address=0.0.0.0:8080",
+          "--broker_address=0.0.0.0:10001"
+        ]
+        env:
+        - name: MICRO_REGISTRY
+          value: "consul"
+        - name: MICRO_REGISTRY_ADDRESS
+          value: "consul-consul-server"
+        image: microhq/location-srv
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8080
+          name: location-port
+      - name: health
+        command: [
+          "/health",
+          "--health_address=0.0.0.0:8081",
+          "--server_name=location",
+          "--server_address=0.0.0.0:8080"
+        ]
+        image: microhq/health
+        imagePullPolicy: Always
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8081
+          initialDelaySeconds: 3
+          periodSeconds: 3

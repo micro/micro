@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: default
+  name: micro-bot
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: micro-bot
+  template:
+    metadata:
+      labels:
+        name: micro-bot
+    spec:
+      containers:
+        - name: bot
+          command: [
+            "/micro",
+            "bot",
+            "--inputs=slack"
+          ]
+          image: microhq/micro
+          imagePullPolicy: Always
+          env:
+          - name: MICRO_REGISTRY
+            value: "consul"
+          - name: MICRO_REGISTRY_ADDRESS
+            value: "consul-consul-server"
+          - name: MICRO_SLACK_TOKEN
+            valueFrom:
+              secretKeyRef:
+                name: micro-slack
+                key: token
+
+

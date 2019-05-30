@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: default
+  name: location-web
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: location-web
+  template:
+    metadata:
+      labels:
+        name: location-web
+    spec:
+      containers:
+        - name: location-web
+          command: [
+		    "/location-web"
+          ]
+          env:
+          - name: MICRO_REGISTRY
+            value: "consul"
+          - name: MICRO_REGISTRY_ADDRESS
+            value: "consul-consul-server"
+          image: microhq/location-web
+          imagePullPolicy: Always
+          ports:
+          - containerPort: 9090
+            name: web-port

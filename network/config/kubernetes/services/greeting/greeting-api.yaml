@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: default
+  name: greeting-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: greeting-api
+  template:
+    metadata:
+      labels:
+        name: greeting-api
+    spec:
+      containers:
+        - name: discovery
+          command: [
+		"/greeting-api",
+		"--server_address=0.0.0.0:9090",
+		"--broker_address=0.0.0.0:10001"
+	  ]
+          env:
+          - name: MICRO_REGISTRY
+            value: "consul"
+          - name: MICRO_REGISTRY_ADDRESS
+            value: "consul-consul-server"
+          image: microhq/greeting-api
+          imagePullPolicy: Always
+          ports:
+          - containerPort: 9090
+            name: api-port
