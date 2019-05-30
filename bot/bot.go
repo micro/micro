@@ -23,7 +23,6 @@ import (
 
 	// inputs
 	_ "github.com/micro/go-bot/input/discord"
-	_ "github.com/micro/go-bot/input/hipchat"
 	_ "github.com/micro/go-bot/input/slack"
 	_ "github.com/micro/go-bot/input/telegram"
 )
