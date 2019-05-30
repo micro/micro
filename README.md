@@ -1,6 +1,6 @@
 # Micro [![License](https://img.shields.io/:license-apache-blue.svg)](https://opensource.org/licenses/Apache-2.0) [![GoDoc](https://godoc.org/github.com/micro/micro?status.svg)](https://godoc.org/github.com/micro/micro) [![Travis CI](https://travis-ci.org/micro/micro.svg?branch=master)](https://travis-ci.org/micro/micro) [![Go Report Card](https://goreportcard.com/badge/micro/micro)](https://goreportcard.com/report/github.com/micro/micro)
 
-Micro is a toolkit for microservice development.
+Micro is a runtime for microservice development.
 
 # Overview
 
@@ -10,12 +10,12 @@ simple abstractions already understood by developers.
 
 <img src="https://micro.mu/micro-diag.svg" />
 
-Technology is always evolving. The infrastructure stack is constantly changing. Micro is a pluggable toolkit which addresses these issues. 
+Technology is always evolving. The infrastructure stack is constantly changing. Micro is a pluggable platform which addresses these issues. 
 Plug in any stack or underlying technology. Build future-proof systems using micro.
 
 ## Features
 
-The toolkit is composed of the following features:
+The runtime is composed of the following features:
 
 - **API Gateway:** A single entry point with dynamic request routing using service discovery. The API gateway allows you to build a scalable 
 microservice architecture on the backend and consolidate serving a public api on the frontend. The micro api provides powerful routing 
@@ -40,5 +40,5 @@ query them directly. The dashboard also includes a built in CLI like experience 
 
 ## Getting Started
 
-See the [docs](https://micro.mu/docs/toolkit.html) for detailed information on the architecture, installation and use of the toolkit.
+See the [docs](https://micro.mu/docs/platform.html) for detailed information on the architecture, installation and use of the platform.
 
