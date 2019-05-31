@@ -13,12 +13,6 @@ simple abstractions already understood by developers.
 Technology is always evolving. The infrastructure stack is constantly changing. Micro is a pluggable platform which addresses these issues. 
 Plug in any stack or underlying technology. Build future-proof systems using micro.
 
-## Install
-
-```
-go get -u github.com/micro/micro
-```
-
 ## Features
 
 The runtime is composed of the following features:
@@ -47,4 +41,10 @@ query them directly. The dashboard also includes a built in CLI like experience 
 ## Getting Started
 
 See the [docs](https://micro.mu/docs/) for detailed information on the architecture, installation and use of the platform.
+
+### Install
+
+```
+go get -u github.com/micro/micro
+```
 
