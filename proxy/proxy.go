@@ -10,7 +10,7 @@ import (
 	"github.com/micro/cli"
 	"github.com/micro/go-api/server"
 	httpapi "github.com/micro/go-api/server/http"
-	"github.com/micro/go-log"
+	"github.com/micro/go-micro/util/log"
 	"github.com/micro/go-micro"
 	"github.com/micro/go-proxy/router/mucp"
 	"github.com/micro/micro/internal/handler"

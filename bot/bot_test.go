@@ -8,8 +8,8 @@ import (
 	"time"
 
 	"github.com/micro/cli"
-	"github.com/micro/go-bot/command"
-	"github.com/micro/go-bot/input"
+	"github.com/micro/go-micro/agent/command"
+	"github.com/micro/go-micro/agent/input"
 
 	"github.com/micro/go-micro"
 	"github.com/micro/go-micro/registry/memory"

@@ -23,7 +23,7 @@ import (
 	regRouter "github.com/micro/go-api/router/registry"
 	"github.com/micro/go-api/server"
 	httpapi "github.com/micro/go-api/server/http"
-	"github.com/micro/go-log"
+	"github.com/micro/go-micro/util/log"
 	"github.com/micro/go-micro"
 	"github.com/micro/micro/internal/handler"
 	"github.com/micro/micro/internal/helper"

@@ -14,17 +14,17 @@ import (
 	"github.com/micro/cli"
 	"github.com/micro/go-micro"
 
-	"github.com/micro/go-bot/command"
-	"github.com/micro/go-bot/input"
-	"github.com/micro/go-log"
+	"github.com/micro/go-micro/agent/command"
+	"github.com/micro/go-micro/agent/input"
+	"github.com/micro/go-micro/util/log"
 	botc "github.com/micro/micro/internal/command/bot"
 
-	proto "github.com/micro/go-bot/proto"
+	proto "github.com/micro/go-micro/agent/proto"
 
 	// inputs
-	_ "github.com/micro/go-bot/input/discord"
-	_ "github.com/micro/go-bot/input/slack"
-	_ "github.com/micro/go-bot/input/telegram"
+	_ "github.com/micro/go-micro/agent/input/discord"
+	_ "github.com/micro/go-micro/agent/input/slack"
+	_ "github.com/micro/go-micro/agent/input/telegram"
 )
 
 type bot struct {
