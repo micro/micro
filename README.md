@@ -2,7 +2,7 @@
 
 Micro is a runtime for microservice development.
 
-# Overview
+## Overview
 
 Micro addresses the key requirements for building scalable systems. It takes the microservice architecture pattern and transforms it into 
 a set of tools which act as the building blocks of a platform. Micro deals with the complexity of distributed systems and provides 
@@ -12,6 +12,12 @@ simple abstractions already understood by developers.
 
 Technology is always evolving. The infrastructure stack is constantly changing. Micro is a pluggable platform which addresses these issues. 
 Plug in any stack or underlying technology. Build future-proof systems using micro.
+
+## Install
+
+```
+go get -u github.com/micro/micro
+```
 
 ## Features
 
