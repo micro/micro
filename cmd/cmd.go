@@ -20,7 +20,7 @@ import (
 var (
 	name        = "micro"
 	description = "A microservice runtime"
-	version     = "1.2.0"
+	version     = "1.4.0"
 )
 
 func setup(app *ccli.App) {

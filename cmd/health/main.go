@@ -5,10 +5,10 @@ import (
 	"net/http"
 
 	"github.com/micro/cli"
-	"github.com/micro/go-micro/util/log"
 	"github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/cmd"
 	proto "github.com/micro/go-micro/server/debug/proto"
+	"github.com/micro/go-micro/util/log"
 	"golang.org/x/net/context"
 )
 

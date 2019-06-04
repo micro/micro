@@ -6,9 +6,9 @@ import (
 
 	"github.com/micro/cli"
 	"github.com/micro/go-micro"
+	"github.com/micro/go-micro/proxy/router/http"
+	"github.com/micro/go-micro/proxy/router/mucp"
 	"github.com/micro/go-micro/server"
-	"github.com/micro/go-proxy/router/http"
-	"github.com/micro/go-proxy/router/mucp"
 )
 
 func run(ctx *cli.Context, opts ...micro.Option) {

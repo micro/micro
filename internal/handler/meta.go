@@ -3,17 +3,17 @@ package handler
 import (
 	"net/http"
 
-	"github.com/micro/go-api/handler"
-	"github.com/micro/go-api/handler/event"
-	"github.com/micro/go-api/router"
 	"github.com/micro/go-micro"
+	"github.com/micro/go-micro/api/handler"
+	"github.com/micro/go-micro/api/handler/event"
+	"github.com/micro/go-micro/api/router"
 	"github.com/micro/go-micro/errors"
 
 	// TODO: only import handler package
-	aapi "github.com/micro/go-api/handler/api"
-	ahttp "github.com/micro/go-api/handler/http"
-	arpc "github.com/micro/go-api/handler/rpc"
-	aweb "github.com/micro/go-api/handler/web"
+	aapi "github.com/micro/go-micro/api/handler/api"
+	ahttp "github.com/micro/go-micro/api/handler/http"
+	arpc "github.com/micro/go-micro/api/handler/rpc"
+	aweb "github.com/micro/go-micro/api/handler/web"
 )
 
 type metaHandler struct {

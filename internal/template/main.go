@@ -109,7 +109,7 @@ import (
         "github.com/micro/go-micro/util/log"
 	"net/http"
 
-        "github.com/micro/go-web"
+        "github.com/micro/go-micro/web"
         "{{.Dir}}/handler"
 )
 

@@ -117,7 +117,7 @@ import (
 
 	"{{.Dir}}/client"
 	"github.com/micro/go-micro/errors"
-	api "github.com/micro/go-api/proto"
+	api "github.com/micro/go-micro/api/proto"
 	{{.Alias}} "path/to/service/proto/{{.Alias}}"
 )
 
