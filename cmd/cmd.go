@@ -10,6 +10,7 @@ import (
 	"github.com/micro/micro/new"
 	"github.com/micro/micro/plugin"
 	"github.com/micro/micro/proxy"
+	"github.com/micro/micro/server"
 	"github.com/micro/micro/service"
 	"github.com/micro/micro/web"
 
@@ -71,6 +72,11 @@ func setup(app *ccli.App) {
 			EnvVar: "MICRO_WEB_ADDRESS",
 		},
 		ccli.StringFlag{
+			Name:   "network_address",
+			Usage:  "Set the micro network address e.g. :9093",
+			EnvVar: "MICRO_NETWORK_ADDRESS",
+		},
+		ccli.StringFlag{
 			Name:   "api_handler",
 			Usage:  "Specify the request handler to be used for mapping HTTP requests to services; {api, proxy, rpc}",
 			EnvVar: "MICRO_API_HANDLER",
@@ -124,6 +130,9 @@ func setup(app *ccli.App) {
 		if len(ctx.String("web_address")) > 0 {
 			web.Address = ctx.String("web_address")
 		}
+		if len(ctx.String("network_address")) > 0 {
+			server.Address = ctx.String("network_address")
+		}
 		if len(ctx.String("api_namespace")) > 0 {
 			api.Namespace = ctx.String("api_namespace")
 		}
@@ -159,6 +168,7 @@ func Setup(app *ccli.App, options ...micro.Option) {
 	app.Commands = append(app.Commands, bot.Commands()...)
 	app.Commands = append(app.Commands, cli.Commands()...)
 	app.Commands = append(app.Commands, proxy.Commands(options...)...)
+	app.Commands = append(app.Commands, server.Commands(options...)...)
 	app.Commands = append(app.Commands, service.Commands(options...)...)
 	app.Commands = append(app.Commands, new.Commands()...)
 	app.Commands = append(app.Commands, web.Commands(options...)...)
