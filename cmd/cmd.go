@@ -77,6 +77,11 @@ func setup(app *ccli.App) {
 			EnvVar: "MICRO_NETWORK_ADDRESS",
 		},
 		ccli.StringFlag{
+			Name:   "router_address",
+			Usage:  "Set the micro router address e.g. :9094",
+			EnvVar: "MICRO_ROUTER_ADDRESS",
+		},
+		ccli.StringFlag{
 			Name:   "api_handler",
 			Usage:  "Specify the request handler to be used for mapping HTTP requests to services; {api, proxy, rpc}",
 			EnvVar: "MICRO_API_HANDLER",
@@ -131,7 +136,10 @@ func setup(app *ccli.App) {
 			web.Address = ctx.String("web_address")
 		}
 		if len(ctx.String("network_address")) > 0 {
-			server.Address = ctx.String("network_address")
+			server.Network = ctx.String("network_address")
+		}
+		if len(ctx.String("router_address")) > 0 {
+			server.Router = ctx.String("router_address")
 		}
 		if len(ctx.String("api_namespace")) > 0 {
 			api.Namespace = ctx.String("api_namespace")

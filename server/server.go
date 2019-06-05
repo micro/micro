@@ -16,6 +16,8 @@ var (
 	Address = ":8083"
 	// Network address to bind to
 	Network = ":9093"
+	// Router address to bind to
+	Router = ":9094"
 )
 
 func run(ctx *cli.Context, srvOpts ...micro.Option) {
@@ -27,6 +29,9 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	}
 	if len(ctx.String("network")) > 0 {
 		Network = ctx.String("network")
+	}
+	if len(ctx.String("router")) > 0 {
+		Router = ctx.String("router")
 	}
 
 	// Init plugins
@@ -67,9 +72,19 @@ func Commands(options ...micro.Option) []cli.Command {
 		Usage: "Run the micro network server",
 		Flags: []cli.Flag{
 			cli.StringFlag{
+				Name:   "address",
+				Usage:  "Set the micro server address :8083",
+				EnvVar: "MICRO_SERVER_ADDRESS",
+			},
+			cli.StringFlag{
 				Name:   "network",
-				Usage:  "Set the micro network address 9093",
+				Usage:  "Set the micro network address :9093",
 				EnvVar: "MICRO_NETWORK_ADDRESS",
+			},
+			cli.StringFlag{
+				Name:   "router",
+				Usage:  "Set the micro router address :9094",
+				EnvVar: "MICRO_ROUTER_ADDRESS",
 			},
 		},
 		Action: func(ctx *cli.Context) {
