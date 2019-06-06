@@ -6,8 +6,8 @@ import (
 
 	"github.com/micro/cli"
 	"github.com/micro/go-micro"
-	"github.com/micro/go-micro/proxy/router/http"
-	"github.com/micro/go-micro/proxy/router/mucp"
+	"github.com/micro/go-micro/proxy/http"
+	"github.com/micro/go-micro/proxy/mucp"
 	"github.com/micro/go-micro/server"
 )
 

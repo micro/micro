@@ -11,7 +11,7 @@ import (
 	"github.com/micro/go-micro"
 	"github.com/micro/go-micro/api/server"
 	httpapi "github.com/micro/go-micro/api/server/http"
-	"github.com/micro/go-micro/proxy/router/mucp"
+	"github.com/micro/go-micro/proxy/mucp"
 	"github.com/micro/go-micro/util/log"
 	"github.com/micro/micro/internal/handler"
 	"github.com/micro/micro/internal/helper"
