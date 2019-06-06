@@ -8,9 +8,9 @@ Micro addresses the key requirements for building scalable systems. It takes the
 a set of tools which act as the building blocks of a platform. Micro deals with the complexity of distributed systems and provides 
 simple abstractions already understood by developers.
 
-<img src="https://micro.mu/micro-diag.svg" />
+<img src="https://micro.mu/runtime3.svg" />
 
-Technology is always evolving. The infrastructure stack is constantly changing. Micro is a pluggable platform which addresses these issues. 
+Technology is constantly evolving. The infrastructure stack is always changing. Micro is a pluggable platform which addresses these issues. 
 Plug in any stack or underlying technology. Build future-proof systems using micro.
 
 ## Features
