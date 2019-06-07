@@ -2,38 +2,24 @@
 package proxy
 
 import (
-	"fmt"
-	"net/http"
 	"time"
 
-	"github.com/gorilla/mux"
 	"github.com/micro/cli"
 	"github.com/micro/go-micro"
-	"github.com/micro/go-micro/api/server"
-	httpapi "github.com/micro/go-micro/api/server/http"
+	"github.com/micro/go-micro/options"
+	"github.com/micro/go-micro/proxy"
 	"github.com/micro/go-micro/proxy/mucp"
+	"github.com/micro/go-micro/server"
 	"github.com/micro/go-micro/util/log"
-	"github.com/micro/micro/internal/handler"
-	"github.com/micro/micro/internal/helper"
-	"github.com/micro/micro/internal/stats"
-	"github.com/micro/micro/plugin"
-
-	ahandler "github.com/micro/go-micro/api/handler"
-	abroker "github.com/micro/go-micro/api/handler/broker"
-	aregistry "github.com/micro/go-micro/api/handler/registry"
 )
 
 var (
 	// Name of the proxy
 	Name = "go.micro.proxy"
-	// The http address of the proxy
+	// The address of the proxy
 	Address = ":8081"
-	// The backend host to route to
-	Backend string
-	// The paths for http endpoints
-	BrokerPath   = "/broker"
-	RegistryPath = "/registry"
-	RPCPath      = "/rpc"
+	// The endpoint host to route to
+	Endpoint string
 )
 
 func run(ctx *cli.Context, srvOpts ...micro.Option) {
@@ -43,46 +29,14 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	if len(ctx.String("address")) > 0 {
 		Address = ctx.String("address")
 	}
-	if len(ctx.String("backend")) > 0 {
-		Backend = ctx.String("backend")
+	if len(ctx.String("endpoint")) > 0 {
+		Endpoint = ctx.String("endpoint")
 	}
 
 	// Init plugins
 	for _, p := range Plugins() {
 		p.Init(ctx)
 	}
-
-	var opts []server.Option
-
-	if ctx.GlobalBool("enable_acme") {
-		hosts := helper.ACMEHosts(ctx)
-		opts = append(opts, server.EnableACME(true))
-		opts = append(opts, server.ACMEHosts(hosts...))
-	} else if ctx.GlobalBool("enable_tls") {
-		config, err := helper.TLSConfig(ctx)
-		if err != nil {
-			fmt.Println(err.Error())
-			return
-		}
-
-		opts = append(opts, server.EnableTLS(true))
-		opts = append(opts, server.TLSConfig(config))
-	}
-
-	r := mux.NewRouter()
-	var h http.Handler = r
-
-	if ctx.GlobalBool("enable_stats") {
-		st := stats.New()
-		r.Handle("/stats", http.HandlerFunc(st.StatsHandler))
-		h = st.ServeHTTP(r)
-		st.Start()
-		defer st.Stop()
-	}
-
-	// new server
-	srv := httpapi.NewServer(Address)
-	srv.Init(opts...)
 
 	// service opts
 	srvOpts = append(srvOpts, micro.Name(Name))
@@ -93,44 +47,36 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		srvOpts = append(srvOpts, micro.RegisterInterval(i*time.Second))
 	}
 
-	// set backend
-	if len(Backend) > 0 {
-		srvOpts = append(srvOpts, mucp.WithBackend(Backend))
+	// set address
+	if len(Address) > 0 {
+		srvOpts = append(srvOpts, micro.Address(Address))
 	}
 
-	// Initialise Server
-	service := mucp.NewService(srvOpts...)
+	// set the context
+	var popts []options.Option
 
-	log.Logf("Registering Registry handler at %s", RegistryPath)
-	r.Handle(RegistryPath, aregistry.NewHandler(ahandler.WithService(service)))
+	// set endpoint
+	if len(Endpoint) > 0 {
+		popts = append(popts, proxy.WithEndpoint(Endpoint))
+	}
 
-	log.Logf("Registering RPC handler at %s", RPCPath)
-	r.Handle(RPCPath, http.HandlerFunc(handler.RPC))
+	// new proxy
+	p := mucp.NewProxy(popts...)
 
-	log.Logf("Registering Broker handler at %s", BrokerPath)
-	br := abroker.NewHandler(
-		ahandler.WithService(service),
+	// new service
+	service := micro.NewService(srvOpts...)
+
+	// set the router
+	service.Server().Init(
+		server.WithRouter(p),
 	)
-	r.Handle(BrokerPath, br)
 
-	// reverse wrap handler
-	plugins := append(Plugins(), plugin.Plugins()...)
-	for i := len(plugins); i > 0; i-- {
-		h = plugins[i-1].Handler()(h)
+	if len(Endpoint) > 0 {
+		log.Logf("Proxy [%s] Serving endpoint %s\n", p.String(), Endpoint)
 	}
 
-	srv.Handle("/", h)
-
-	if err := srv.Start(); err != nil {
-		log.Fatal(err)
-	}
-
-	// Run server
+	// Run internal service
 	if err := service.Run(); err != nil {
-		log.Fatal(err)
-	}
-
-	if err := srv.Stop(); err != nil {
 		log.Fatal(err)
 	}
 }
@@ -146,9 +92,9 @@ func Commands(options ...micro.Option) []cli.Command {
 				EnvVar: "MICRO_PROXY_ADDRESS",
 			},
 			cli.StringFlag{
-				Name:   "backend",
-				Usage:  "Set the backend to route to e.g greeter or localhost:9090",
-				EnvVar: "MICRO_PROXY_BACKEND",
+				Name:   "endpoint",
+				Usage:  "Set the endpoint to route to e.g greeter or localhost:9090",
+				EnvVar: "MICRO_PROXY_ENDPOINT",
 			},
 		},
 		Action: func(ctx *cli.Context) {
