@@ -1,12 +1,16 @@
 package server
 
 import (
-	"log"
+	"os"
+	"sync"
 	"time"
 
 	"github.com/micro/cli"
 	"github.com/micro/go-micro"
-	"github.com/micro/go-micro/server"
+	"github.com/micro/go-micro/router"
+	"github.com/micro/go-micro/transport"
+	"github.com/micro/go-micro/transport/grpc"
+	"github.com/micro/go-micro/util/log"
 )
 
 var (
@@ -20,7 +24,84 @@ var (
 	Router = ":9094"
 )
 
+type srv struct {
+	exit    chan struct{}
+	service micro.Service
+	router  router.Router
+	network transport.Transport
+	wg      *sync.WaitGroup
+}
+
+func newServer(s micro.Service, r router.Router) *srv {
+	// NOTE: this will end up being QUIC transport
+	// This is not used right now, but it will be in the future version.
+	n := grpc.NewTransport(transport.Addrs(Network))
+
+	return &srv{
+		exit:    make(chan struct{}),
+		service: s,
+		router:  r,
+		network: n,
+		wg:      &sync.WaitGroup{},
+	}
+}
+
+func (s *srv) start() error {
+	log.Log("[server] starting")
+
+	s.wg.Add(1)
+	go s.watch()
+
+	return nil
+}
+
+func (s *srv) watch() {
+	log.Logf("[server] starting local registry watcher")
+
+	defer s.wg.Done()
+	w, err := s.service.Client().Options().Registry.Watch()
+	if err != nil {
+		log.Logf("[server] failed to create registry watch: %v", err)
+		return
+	}
+
+	s.wg.Add(1)
+	go func() {
+		defer s.wg.Done()
+		<-s.exit
+		log.Logf("[server] stopping local registry watcher")
+		w.Stop()
+	}()
+
+	// watch for changes to services
+	for {
+		res, err := w.Next()
+		if err != nil {
+			log.Logf("error watchiing registry: %s", err)
+			return
+		}
+		log.Logf("Action: %s, Service: %s", res.Action, res.Service.Name)
+	}
+}
+
+func (s *srv) stop() error {
+	log.Log("[server] stopping")
+
+	// notify all goroutines to finish
+	close(s.exit)
+
+	// wait for all goroutines to finish
+	s.wg.Wait()
+
+	return nil
+}
+
 func run(ctx *cli.Context, srvOpts ...micro.Option) {
+	// Init plugins
+	for _, p := range Plugins() {
+		p.Init(ctx)
+	}
+
 	if len(ctx.GlobalString("server_name")) > 0 {
 		Name = ctx.GlobalString("server_name")
 	}
@@ -34,35 +115,37 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		Router = ctx.String("router")
 	}
 
-	// Init plugins
-	for _, p := range Plugins() {
-		p.Init(ctx)
-	}
-
-	// Initi Mciro server
-	var opts []server.Option
-	opts = append(opts, server.Address(Address))
-
-	// new server
-	srv := server.NewServer()
-	srv.Init(opts...)
-
-	// service opts
-	srvOpts = append(srvOpts, micro.Server(srv))
-	srvOpts = append(srvOpts, micro.Name(Name))
-	if i := time.Duration(ctx.GlobalInt("register_ttl")); i > 0 {
-		srvOpts = append(srvOpts, micro.RegisterTTL(i*time.Second))
-	}
-	if i := time.Duration(ctx.GlobalInt("register_interval")); i > 0 {
-		srvOpts = append(srvOpts, micro.RegisterInterval(i*time.Second))
-	}
-
 	// Initialise service
-	service := micro.NewService(srvOpts...)
+	service := micro.NewService(
+		micro.Name(Name),
+		micro.Address(Address),
+		micro.RegisterTTL(time.Duration(ctx.GlobalInt("register_ttl"))*time.Second),
+		micro.RegisterInterval(time.Duration(ctx.GlobalInt("register_interval"))*time.Second),
+	)
 
-	// Run server
+	// create new router
+	r := router.NewRouter(
+		router.Address(Router),
+		router.Network(Network),
+	)
+
+	// create new server and start it
+	s := newServer(service, r)
+
+	if err := s.start(); err != nil {
+		log.Logf("error starting server: %v", err)
+		os.Exit(1)
+	}
+
+	// Run service
 	if err := service.Run(); err != nil {
 		log.Fatal(err)
+	}
+
+	// stop the server
+	if err := s.stop(); err != nil {
+		log.Logf("error stopping server: %v", err)
+		os.Exit(1)
 	}
 }
 
