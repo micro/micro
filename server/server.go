@@ -77,10 +77,19 @@ func (s *srv) watch() {
 	for {
 		res, err := w.Next()
 		if err != nil {
-			log.Logf("error watchiing registry: %s", err)
+			// TODO: we should return dedicated STOP error
+			log.Logf("[server] error watchiing registry: %s", err)
 			return
 		}
-		log.Logf("Action: %s, Service: %s", res.Action, res.Service.Name)
+
+		switch res.Action {
+		case "create":
+			if len(res.Service.Nodes) > 0 {
+				log.Logf("Action: %s, Service: %v", res.Action, res.Service.Name)
+			}
+		case "delete":
+			log.Logf("Action: %s, Service: %v", res.Action, res.Service.Name)
+		}
 	}
 }
 
