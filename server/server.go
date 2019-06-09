@@ -79,7 +79,7 @@ func (s *srv) watch() {
 	for {
 		res, err := w.Next()
 		if err == registry.ErrWatcherStopped {
-			log.Logf("[server] watcher stopped")
+			log.Logf("[server] registry watcher stopped")
 			return
 		}
 
@@ -100,7 +100,7 @@ func (s *srv) watch() {
 }
 
 func (s *srv) stop() error {
-	log.Log("[server] stopping")
+	log.Log("[server] attempting to stop")
 
 	// notify all goroutines to finish
 	close(s.exit)
@@ -162,6 +162,8 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		log.Logf("error stopping server: %v", err)
 		os.Exit(1)
 	}
+
+	log.Logf("[server] successfully stopped")
 }
 
 func Commands(options ...micro.Option) []cli.Command {
