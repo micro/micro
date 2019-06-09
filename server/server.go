@@ -7,7 +7,9 @@ import (
 
 	"github.com/micro/cli"
 	"github.com/micro/go-micro"
+	"github.com/micro/go-micro/registry"
 	"github.com/micro/go-micro/router"
+	"github.com/micro/go-micro/server"
 	"github.com/micro/go-micro/transport"
 	"github.com/micro/go-micro/transport/grpc"
 	"github.com/micro/go-micro/util/log"
@@ -28,14 +30,14 @@ type srv struct {
 	exit    chan struct{}
 	service micro.Service
 	router  router.Router
-	network transport.Transport
+	network server.Server
 	wg      *sync.WaitGroup
 }
 
 func newServer(s micro.Service, r router.Router) *srv {
 	// NOTE: this will end up being QUIC transport
-	// This is not used right now, but it will be in the future version.
-	n := grpc.NewTransport(transport.Addrs(Network))
+	t := grpc.NewTransport(transport.Addrs(Network))
+	n := server.NewServer(server.Transport(t))
 
 	return &srv{
 		exit:    make(chan struct{}),
@@ -76,9 +78,13 @@ func (s *srv) watch() {
 	// watch for changes to services
 	for {
 		res, err := w.Next()
+		if err == registry.ErrWatcherStopped {
+			log.Logf("[server] watcher stopped")
+			return
+		}
+
 		if err != nil {
-			// TODO: we should return dedicated STOP error
-			log.Logf("[server] error watchiing registry: %s", err)
+			log.Logf("[server] error watching registry: %s", err)
 			return
 		}
 
