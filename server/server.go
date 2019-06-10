@@ -18,12 +18,12 @@ import (
 var (
 	// Name of the server
 	Name = "go.micro.server"
-	// Address to bind to
+	// Address to bind route microservices to
 	Address = ":8083"
+	// Router address to bind to for router gossip
+	Router = ":9094"
 	// Network address to bind to
 	Network = ":9093"
-	// Router address to bind to
-	Router = ":9094"
 )
 
 type srv struct {
@@ -49,7 +49,33 @@ func newServer(s micro.Service, r router.Router) *srv {
 }
 
 func (s *srv) start() error {
-	log.Log("[server] starting")
+	log.Log("[server] starting micro server")
+
+	// list all local services
+	services, err := s.service.Client().Options().Registry.ListServices()
+	if err != nil {
+		log.Logf("[server] failed to list local services: %v", err)
+		return err
+	}
+
+	// add services to routing table
+	for _, service := range services {
+		log.Logf("[server] adding route for local service %v", service)
+		// create new micro network route
+		r := router.NewRoute(
+			router.DestAddr(service.Name),
+			router.Hop(s.router),
+			router.Network("local"),
+			router.Metric(1),
+		)
+		// add new route to routing table
+		if err := s.router.Table().Add(r); err != nil {
+			log.Logf("[server] failed to add route to service: %v", service)
+		}
+	}
+
+	log.Logf("[server] router has started: \n%s", s.router)
+	log.Logf("[server] initial routing table: \n%s", s.router.Table())
 
 	s.wg.Add(1)
 	go s.watch()
@@ -140,8 +166,10 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 
 	// create new router
 	r := router.NewRouter(
-		router.Address(Router),
-		router.Network(Network),
+		router.ID(service.Server().Options().Id),
+		router.Address(Address),
+		router.GossipAddress(Router),
+		router.NetworkAddr(Network),
 	)
 
 	// create new server and start it
