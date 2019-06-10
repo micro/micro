@@ -114,7 +114,7 @@ jQuery(function($, undefined) {
 {{end}}
 {{define "content"}}
 <div class="row">
-  <div class="panel panel-default">
+  <div class="panel">
     <div class="panel-body">
 	<div class="col-sm-5">
 		<form id="call-form" onsubmit="return call();">
@@ -318,6 +318,16 @@ jQuery(function($, undefined) {
 	cliTemplate = `
 {{define "head"}}
 <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/jquery.terminal/2.0.2/css/jquery.terminal.min.css">
+<style type="text/css"> 
+  .terminal, .terminal .inverted, .terminal-output, .terminal-output>:not(.raw) div {
+    background-color: #fff;
+    color: #333;
+  }
+  .prompt, .cmd, .cmd div, .cmd .inverted, .cmd .cursor.blink, .cmd span, .terminal-output>:not(.raw) span:not(.token) {
+    background-color: #fff;
+    color: #333;
+  }
+</style>
 {{end}}
 {{define "title"}}CLI{{end}}
 {{define "content"}}
@@ -510,7 +520,7 @@ jQuery(function($, undefined) {
         greetings: '',
         name: 'micro_cli',
         height: 400,
-        prompt: 'micro:~$ '});
+        prompt: 'micro> '});
 });
 </script>
 {{end}}
