@@ -1,6 +1,7 @@
 package server
 
 import (
+	"fmt"
 	"os"
 	"sync"
 	"time"
@@ -54,8 +55,7 @@ func (s *srv) start() error {
 	// list all local services
 	services, err := s.service.Client().Options().Registry.ListServices()
 	if err != nil {
-		log.Logf("[server] failed to list local services: %v", err)
-		return err
+		return fmt.Errorf("failed to list local services: %v", err)
 	}
 
 	// add services to routing table
@@ -64,34 +64,40 @@ func (s *srv) start() error {
 		// create new micro network route
 		r := router.NewRoute(
 			router.DestAddr(service.Name),
-			router.Hop(s.router),
+			router.Gateway(s.router),
 			router.Network("local"),
 			router.Metric(1),
 		)
 		// add new route to routing table
 		if err := s.router.Table().Add(r); err != nil {
-			log.Logf("[server] failed to add route to service: %v", service)
+			log.Logf("[server] failed to add route for service: %v", service)
 		}
+	}
+
+	// start micor network router
+	if err := s.router.Start(); err != nil {
+		return fmt.Errorf("failed to start router: %v", err)
 	}
 
 	log.Logf("[server] router has started: \n%s", s.router)
 	log.Logf("[server] initial routing table: \n%s", s.router.Table())
 
+	// get local registry watcher
+	w, err := s.service.Client().Options().Registry.Watch()
+	if err != nil {
+		return fmt.Errorf("failed to create local registry watch: %v", err)
+	}
+
 	s.wg.Add(1)
-	go s.watch()
+	go s.watch(w)
 
 	return nil
 }
 
-func (s *srv) watch() {
+// watch local registry
+func (s *srv) watch(w registry.Watcher) {
 	log.Logf("[server] starting local registry watcher")
-
 	defer s.wg.Done()
-	w, err := s.service.Client().Options().Registry.Watch()
-	if err != nil {
-		log.Logf("[server] failed to create registry watch: %v", err)
-		return
-	}
 
 	s.wg.Add(1)
 	go func() {
@@ -114,25 +120,51 @@ func (s *srv) watch() {
 			return
 		}
 
+		log.Logf("[server] watcher action: %s, Service: %v", res.Action, res.Service.Name)
+		// create new route
+		r := router.NewRoute(
+			router.DestAddr(res.Service.Name),
+			router.Gateway(s.router),
+			router.Network("local"),
+			router.Metric(1),
+		)
+
 		switch res.Action {
 		case "create":
 			if len(res.Service.Nodes) > 0 {
-				log.Logf("Action: %s, Service: %v", res.Action, res.Service.Name)
+				log.Logf("[server] adding route for local service %v", res.Service.Name)
+				// add new route to routing table
+				if err := s.router.Table().Add(r); err != nil {
+					log.Logf("[server] failed to add route for service: %v", res.Service.Name)
+				}
 			}
 		case "delete":
-			log.Logf("Action: %s, Service: %v", res.Action, res.Service.Name)
+			log.Logf("[server] removing route for local service %v", res.Service.Name)
+			// delete route from routing table
+			if err := s.router.Table().Remove(r); err != nil {
+				log.Logf("[server] failed to remove route for service: %v", res.Service.Name)
+			}
 		}
 	}
 }
 
 func (s *srv) stop() error {
-	log.Log("[server] attempting to stop")
+	log.Log("[server] attempting to stop server")
 
 	// notify all goroutines to finish
 	close(s.exit)
 
 	// wait for all goroutines to finish
 	s.wg.Wait()
+
+	log.Log("[server] attempting to stop router")
+
+	// stop the router
+	if err := s.router.Stop(); err != nil {
+		return fmt.Errorf("failed to stop router: %v", err)
+	}
+
+	log.Log("[server] server successfully stopped")
 
 	return nil
 }
@@ -168,7 +200,7 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	r := router.NewRouter(
 		router.ID(service.Server().Options().Id),
 		router.Address(Address),
-		router.GossipAddress(Router),
+		router.GossipAddr(Router),
 		router.NetworkAddr(Network),
 	)
 
