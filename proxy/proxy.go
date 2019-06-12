@@ -3,12 +3,15 @@ package proxy
 
 import (
 	"time"
+	"strings"
 
 	"github.com/micro/cli"
 	"github.com/micro/go-micro"
 	"github.com/micro/go-micro/options"
 	"github.com/micro/go-micro/proxy"
 	"github.com/micro/go-micro/proxy/mucp"
+	"github.com/micro/go-micro/proxy/grpc"
+	"github.com/micro/go-micro/proxy/http"
 	"github.com/micro/go-micro/server"
 	"github.com/micro/go-micro/util/log"
 )
@@ -18,6 +21,8 @@ var (
 	Name = "go.micro.proxy"
 	// The address of the proxy
 	Address = ":8081"
+	// the proxy protocol
+	Protocol = "mucp"
 	// The endpoint host to route to
 	Endpoint string
 )
@@ -31,6 +36,9 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	}
 	if len(ctx.String("endpoint")) > 0 {
 		Endpoint = ctx.String("endpoint")
+	}
+	if len(ctx.String("protocol")) > 0 {
+		Protocol = ctx.String("protocol")
 	}
 
 	// Init plugins
@@ -55,13 +63,34 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	// set the context
 	var popts []options.Option
 
+	// new proxy
+	var p proxy.Proxy
+
 	// set endpoint
 	if len(Endpoint) > 0 {
 		popts = append(popts, proxy.WithEndpoint(Endpoint))
+
+		switch {
+		case strings.HasPrefix(Endpoint, "grpc://"):
+			p = grpc.NewProxy(popts...)
+		case strings.HasPrefix(Endpoint, "http://"):
+			p = http.NewProxy(popts...)
+		default:
+			p = mucp.NewProxy(popts...)
+		}
 	}
 
-	// new proxy
-	p := mucp.NewProxy(popts...)
+	// set based on protocol
+	if p == nil && len(Protocol) > 0 {
+		switch Protocol {
+		case "http":
+			p = http.NewProxy(popts...)
+		case "grpc":
+			p = grpc.NewProxy(popts...)
+		default:
+			p = mucp.NewProxy(popts...)
+		}
+	}
 
 	// new service
 	service := micro.NewService(srvOpts...)
@@ -90,6 +119,11 @@ func Commands(options ...micro.Option) []cli.Command {
 				Name:   "address",
 				Usage:  "Set the proxy http address e.g 0.0.0.0:8081",
 				EnvVar: "MICRO_PROXY_ADDRESS",
+			},
+			cli.StringFlag{
+				Name:   "protocol",
+				Usage:  "Set the protocol used for proxying e.g mucp, grpc, http",
+				EnvVar: "MICRO_PROXY_PROTOCOL",
 			},
 			cli.StringFlag{
 				Name:   "endpoint",
