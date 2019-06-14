@@ -50,3 +50,8 @@ See the [docs](https://micro.mu/docs/) for detailed information on the architect
 go get -u github.com/micro/micro
 ```
 
+### Create a service
+
+```
+micro new github.com/my/service
+```
