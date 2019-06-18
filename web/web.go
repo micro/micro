@@ -319,10 +319,10 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		defer st.Stop()
 	}
 
+	s.HandleFunc("/client", callHandler)
 	s.HandleFunc("/registry", registryHandler)
+	s.HandleFunc("/terminal", cliHandler)
 	s.HandleFunc("/rpc", handler.RPC)
-	s.HandleFunc("/cli", cliHandler)
-	s.HandleFunc("/call", callHandler)
 	s.HandleFunc("/favicon.ico", faviconHandler)
 	s.PathPrefix("/{service:[a-zA-Z0-9]+}").Handler(s.proxy())
 	s.HandleFunc("/", indexHandler)

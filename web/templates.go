@@ -30,9 +30,9 @@ var (
               </div>
               <div class="collapse navbar-collapse" id="navBar">
 	        <ul class="nav navbar-nav navbar-right" id="dev">
-	          <li><a href="cli">CLI</a></li>
+	          <li><a href="terminal">Terminal</a></li>
 	          <li><a href="registry">Registry</a></li>
-	          <li><a href="call">Call</a></li>
+	          <li><a href="client">Client</a></li>
 	          {{if .StatsURL}}<li><a href="{{.StatsURL}}" class="navbar-link">Stats</a></li>{{end}}
 	        </ul>
               </div>
