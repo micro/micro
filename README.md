@@ -30,7 +30,7 @@ fault tolerance, message encoding, middleware, monitoring and more to a single a
 - **Template Generation:** Create new service templates to get started quickly. Micro provides predefined templates for writing micro services. 
 Always start in the same way, build identical services to be more productive.
 
-- **SlackOps Bot:** A bot which runs on your platform and lets you manage your applications from Slack itself. The micro bot enables ChatOps 
+- **Slack Bot:** A bot which runs on your platform and lets you manage your applications from Slack itself. The micro bot enables ChatOps 
 and gives you the ability to do everything with your team via messaging. It also includes ability to create slack commmands as services which 
 are discovered dynamically.
 
