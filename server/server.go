@@ -3,6 +3,7 @@ package server
 import (
 	"fmt"
 	"os"
+	"sync"
 	"time"
 
 	"github.com/micro/cli"
@@ -20,9 +21,9 @@ var (
 	Name = "go.micro.server"
 	// Address is the router microservice bind address
 	Address = ":8083"
-	// Router is the router bind address a.k.a. gossip bind address
+	// Router is the router address a.k.a. gossip address
 	Router = ":9093"
-	// Network is the micro network bind address
+	// Network is the router network address
 	Network = ":9094"
 )
 
@@ -50,15 +51,7 @@ func newServer(s micro.Service, r router.Router) *srv {
 func (s *srv) start() error {
 	log.Log("[server] starting micro server")
 
-	// start the router
-	if err := s.router.Start(); err != nil {
-		return fmt.Errorf("failed to start router: %v", err)
-	}
-
-	log.Logf("[server] router successfully started: \n%s", s.router)
-	log.Logf("[server] initial routing table: \n%s", s.router.Table())
-
-	return nil
+	return s.router.Start()
 }
 
 // stop stops the micro server
@@ -106,25 +99,38 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	// create new router
 	r := router.NewRouter(
 		router.ID(service.Server().Options().Id),
-		router.Address(Address),
-		router.GossipAddress(Router),
-		router.NetworkAddress(Network),
-		router.LocalRegistry(service.Client().Options().Registry),
-		router.NetworkRegistry(gossip.NewRegistry(gossip.Address(Router), gossip.Advertise(Router))),
+		router.Address(Router),
+		router.Advertise(Network),
+		router.Registry(service.Client().Options().Registry),
+		router.Network(gossip.NewRegistry(gossip.Address(Router), gossip.Advertise(Router))),
 	)
 
 	// create new server and start it
 	s := newServer(service, r)
 
-	// start the server
-	if err := s.start(); err != nil {
-		log.Logf("[server] error starting server: %v", err)
-		os.Exit(1)
-	}
+	// channel to collect errors
+	errChan := make(chan error, 2)
 
-	// Run the server as a micro service
-	if err := service.Run(); err != nil {
-		log.Fatal(err)
+	// WaitGroup to track goroutines
+	var wg sync.WaitGroup
+
+	// Start the micro server
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		errChan <- s.start()
+	}()
+
+	// Start the micro server service
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		errChan <- service.Run()
+	}()
+
+	// we block here until either service or server fails
+	if err := <-errChan; err != nil {
+		log.Logf("[server] error running the server: %v", err)
 	}
 
 	// stop the server
@@ -132,6 +138,9 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		log.Logf("[server] error stopping server: %v", err)
 		os.Exit(1)
 	}
+
+	// wait for all the goroutines to stop
+	wg.Wait()
 
 	log.Logf("[server] successfully stopped")
 }
