@@ -2,17 +2,19 @@
 package proxy
 
 import (
-	"time"
 	"strings"
+	"time"
 
 	"github.com/micro/cli"
 	"github.com/micro/go-micro"
 	"github.com/micro/go-micro/config/options"
 	"github.com/micro/go-micro/proxy"
-	"github.com/micro/go-micro/proxy/mucp"
 	"github.com/micro/go-micro/proxy/grpc"
 	"github.com/micro/go-micro/proxy/http"
+	"github.com/micro/go-micro/proxy/mucp"
 	"github.com/micro/go-micro/server"
+	sgrpc "github.com/micro/go-micro/server/grpc"
+	smucp "github.com/micro/go-micro/server/mucp"
 	"github.com/micro/go-micro/util/log"
 )
 
@@ -65,17 +67,23 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 
 	// new proxy
 	var p proxy.Proxy
+	var s server.Server
 
 	// set endpoint
 	if len(Endpoint) > 0 {
-		popts = append(popts, proxy.WithEndpoint(Endpoint))
 
 		switch {
 		case strings.HasPrefix(Endpoint, "grpc://"):
+			ep := strings.TrimPrefix(Endpoint, "grpc://")
+			popts = append(popts, proxy.WithEndpoint(ep))
 			p = grpc.NewProxy(popts...)
 		case strings.HasPrefix(Endpoint, "http://"):
+			// TODO: strip prefix?
+			popts = append(popts, proxy.WithEndpoint(Endpoint))
 			p = http.NewProxy(popts...)
 		default:
+			// TODO: strip prefix?
+			popts = append(popts, proxy.WithEndpoint(Endpoint))
 			p = mucp.NewProxy(popts...)
 		}
 	}
@@ -85,11 +93,19 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		switch Protocol {
 		case "http":
 			p = http.NewProxy(popts...)
+			// TODO: http server
 		case "grpc":
 			p = grpc.NewProxy(popts...)
+			s = sgrpc.NewServer()
 		default:
 			p = mucp.NewProxy(popts...)
+			s = smucp.NewServer()
 		}
+	}
+
+	// prepend the server
+	if s != nil {
+		srvOpts = append([]micro.Option{micro.Server(s)}, srvOpts...)
 	}
 
 	// new service
