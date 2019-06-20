@@ -51,10 +51,10 @@ func newServer(s micro.Service, r router.Router) *srv {
 func (s *srv) start() error {
 	log.Log("[server] starting micro server")
 
-	return s.router.Start()
+	return s.router.Advertise()
 }
 
-// stop stops the micro server
+// stop stops the micro server.
 func (s *srv) stop() error {
 	log.Log("[server] attempting to stop server")
 
