@@ -9,7 +9,7 @@ import (
 	"github.com/micro/cli"
 	"github.com/micro/go-micro"
 	"github.com/micro/go-micro/registry/gossip"
-	"github.com/micro/go-micro/router"
+	"github.com/micro/go-micro/network/router"
 	"github.com/micro/go-micro/server"
 	"github.com/micro/go-micro/transport"
 	"github.com/micro/go-micro/transport/grpc"
