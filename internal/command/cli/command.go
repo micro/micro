@@ -13,7 +13,7 @@ import (
 
 	"github.com/micro/cli"
 	"github.com/micro/go-micro/client"
-	"github.com/micro/go-micro/cmd"
+	"github.com/micro/go-micro/config/cmd"
 	"github.com/micro/go-micro/registry"
 
 	proto "github.com/micro/go-micro/server/debug/proto"
