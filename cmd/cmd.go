@@ -10,6 +10,7 @@ import (
 	"github.com/micro/micro/new"
 	"github.com/micro/micro/plugin"
 	"github.com/micro/micro/proxy"
+	"github.com/micro/micro/router"
 	"github.com/micro/micro/server"
 	"github.com/micro/micro/service"
 	"github.com/micro/micro/web"
@@ -139,7 +140,7 @@ func setup(app *ccli.App) {
 			server.Network = ctx.String("network_address")
 		}
 		if len(ctx.String("router_address")) > 0 {
-			server.Router = ctx.String("router_address")
+			router.Router = ctx.String("router_address")
 		}
 		if len(ctx.String("api_namespace")) > 0 {
 			api.Namespace = ctx.String("api_namespace")
@@ -176,6 +177,7 @@ func Setup(app *ccli.App, options ...micro.Option) {
 	app.Commands = append(app.Commands, bot.Commands()...)
 	app.Commands = append(app.Commands, cli.Commands()...)
 	app.Commands = append(app.Commands, proxy.Commands(options...)...)
+	app.Commands = append(app.Commands, router.Commands(options...)...)
 	app.Commands = append(app.Commands, server.Commands(options...)...)
 	app.Commands = append(app.Commands, service.Commands(options...)...)
 	app.Commands = append(app.Commands, new.Commands()...)

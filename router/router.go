@@ -1,7 +1,6 @@
-package server
+package router
 
 import (
-	"fmt"
 	"os"
 	"sync"
 	"time"
@@ -9,63 +8,21 @@ import (
 	"github.com/micro/cli"
 	"github.com/micro/go-micro"
 	"github.com/micro/go-micro/network/router"
-	"github.com/micro/go-micro/server"
-	"github.com/micro/go-micro/transport"
-	"github.com/micro/go-micro/transport/grpc"
+	pb "github.com/micro/go-micro/network/router/proto"
 	"github.com/micro/go-micro/util/log"
+	"github.com/micro/micro/router/handler"
 )
 
 var (
-	// Name of the server microservice
-	Name = "go.micro.server"
+	// Name of the router microservice
+	Name = "go.micro.router"
 	// Address is the router microservice bind address
-	Address = ":8083"
-	// Router is the router address a.k.a. gossip address
-	Router = ":9094"
+	Address = ":8084"
+	// Router is the router bind address
+	Router = ":9093"
 	// Network is the router network id
 	Network = "local"
 )
-
-// srv is micro server
-type srv struct {
-	// router is micro router
-	router router.Router
-	// network is micro network server
-	network server.Server
-}
-
-// newServer creates new micro server and returns it
-func newServer(s micro.Service, r router.Router) *srv {
-	// NOTE: this will end up being QUIC transport once it gets stable
-	t := grpc.NewTransport(transport.Addrs(Network))
-	n := server.NewServer(server.Transport(t))
-
-	return &srv{
-		router:  r,
-		network: n,
-	}
-}
-
-// start starts the micro server.
-func (s *srv) start() error {
-	log.Log("[server] starting micro server")
-
-	return s.router.Advertise()
-}
-
-// stop stops the micro server.
-func (s *srv) stop() error {
-	log.Log("[server] attempting to stop server")
-
-	// stop the router
-	if err := s.router.Stop(); err != nil {
-		return fmt.Errorf("failed to stop router: %v", err)
-	}
-
-	log.Log("[server] router successfully stopped")
-
-	return nil
-}
 
 // run runs the micro server
 func run(ctx *cli.Context, srvOpts ...micro.Option) {
@@ -95,7 +52,6 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		micro.RegisterInterval(time.Duration(ctx.GlobalInt("register_interval"))*time.Second),
 	)
 
-	// create new router
 	r := router.NewRouter(
 		router.ID(service.Server().Options().Id),
 		router.Address(Router),
@@ -103,8 +59,11 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		router.Registry(service.Client().Options().Registry),
 	)
 
-	// create new server and start it
-	s := newServer(service, r)
+	// register router handler
+	pb.RegisterRouterHandler(
+		service.Server(),
+		&handler.Router{Router: r},
+	)
 
 	// channel to collect errors
 	errChan := make(chan error, 2)
@@ -116,7 +75,8 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		errChan <- s.start()
+		log.Log("[router] starting micro router")
+		errChan <- r.Advertise()
 	}()
 
 	// Start the micro server service
@@ -128,31 +88,28 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 
 	// we block here until either service or server fails
 	if err := <-errChan; err != nil {
-		log.Logf("[server] error running the server: %v", err)
+		log.Logf("[router] error running the router: %v", err)
 	}
 
+	log.Log("[router] attempting to stop the router")
+
 	// stop the server
-	if err := s.stop(); err != nil {
-		log.Logf("[server] error stopping server: %v", err)
+	if err := r.Stop(); err != nil {
+		log.Logf("[router] error stopping the router: %v", err)
 		os.Exit(1)
 	}
 
 	// wait for all the goroutines to stop
 	wg.Wait()
 
-	log.Logf("[server] successfully stopped")
+	log.Logf("[router] successfully stopped")
 }
 
 func Commands(options ...micro.Option) []cli.Command {
 	command := cli.Command{
-		Name:  "server",
-		Usage: "Run the micro network server",
+		Name:  "router",
+		Usage: "Run the micro network router",
 		Flags: []cli.Flag{
-			cli.StringFlag{
-				Name:   "address",
-				Usage:  "Set the micro server address :8083",
-				EnvVar: "MICRO_SERVER_ADDRESS",
-			},
 			cli.StringFlag{
 				Name:   "router",
 				Usage:  "Set the micro router address :9093",
@@ -160,7 +117,7 @@ func Commands(options ...micro.Option) []cli.Command {
 			},
 			cli.StringFlag{
 				Name:   "network",
-				Usage:  "Set the micro network id :local",
+				Usage:  "Set the micro network address: local",
 				EnvVar: "MICRO_NETWORK_ADDRESS",
 			},
 		},
