@@ -9,7 +9,6 @@ import (
 	"github.com/micro/cli"
 	"github.com/micro/go-micro"
 	"github.com/micro/go-micro/network/router"
-	"github.com/micro/go-micro/registry/gossip"
 	"github.com/micro/go-micro/server"
 	"github.com/micro/go-micro/transport"
 	"github.com/micro/go-micro/transport/grpc"
@@ -23,8 +22,8 @@ var (
 	Address = ":8083"
 	// Router is the router address a.k.a. gossip address
 	Router = ":9093"
-	// Network is the router network address
-	Network = ":9094"
+	// Network is the router network id
+	Network = "local"
 )
 
 // srv is micro server
@@ -100,9 +99,8 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	r := router.NewRouter(
 		router.ID(service.Server().Options().Id),
 		router.Address(Router),
-		router.Advertise(Network),
+		router.Network(Network),
 		router.Registry(service.Client().Options().Registry),
-		router.Network(gossip.NewRegistry(gossip.Address(Router), gossip.Advertise(Router))),
 	)
 
 	// create new server and start it
