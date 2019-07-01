@@ -59,7 +59,7 @@ func (s *srv) start() error {
 
 // stop stops the micro server.
 func (s *srv) stop() error {
-	log.Log("[server] attempting to stop server")
+	log.Log("[server] stopping server")
 
 	// stop the router
 	if err := s.router.Stop(); err != nil {
