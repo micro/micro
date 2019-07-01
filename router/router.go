@@ -2,7 +2,6 @@ package router
 
 import (
 	"os"
-	"sync"
 	"time"
 
 	"github.com/micro/cli"
@@ -18,9 +17,9 @@ var (
 	Name = "go.micro.router"
 	// Address is the router microservice bind address
 	Address = ":8084"
-	// Router is the router bind address
+	// Router is the router gossip bind address
 	Router = ":9093"
-	// Network is the router network id
+	// Network is the network id
 	Network = "local"
 )
 
@@ -43,6 +42,11 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	if len(ctx.String("network")) > 0 {
 		Network = ctx.String("network")
 	}
+	// default gateway address
+	var gateway string
+	if len(ctx.String("gateway")) > 0 {
+		gateway = ctx.String("gateway")
+	}
 
 	// Initialise service
 	service := micro.NewService(
@@ -57,6 +61,7 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		router.Address(Router),
 		router.Network(Network),
 		router.Registry(service.Client().Options().Registry),
+		router.Gateway(gateway),
 	)
 
 	// register router handler
@@ -65,42 +70,24 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		&handler.Router{Router: r},
 	)
 
-	// channel to collect errors
-	errChan := make(chan error, 2)
+	log.Log("[router] starting to advertise")
 
-	// WaitGroup to track goroutines
-	var wg sync.WaitGroup
-
-	// Start the micro server
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-		log.Log("[router] starting micro router")
-		errChan <- r.Advertise()
-	}()
-
-	// Start the micro server service
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-		errChan <- service.Run()
-	}()
-
-	// we block here until either service or server fails
-	if err := <-errChan; err != nil {
-		log.Logf("[router] error running the router: %v", err)
-	}
-
-	log.Log("[router] attempting to stop the router")
-
-	// stop the server
-	if err := r.Stop(); err != nil {
-		log.Logf("[router] error stopping the router: %v", err)
+	if _, err := r.Advertise(); err != nil {
+		log.Logf("[router] failed to start: %s", err)
 		os.Exit(1)
 	}
 
-	// wait for all the goroutines to stop
-	wg.Wait()
+	if err := service.Run(); err != nil {
+		log.Logf("[router] failed with error %s", err)
+		// TODO: we should probably stop the router here before bailing
+		os.Exit(1)
+	}
+
+	// stop the router
+	if err := r.Stop(); err != nil {
+		log.Logf("[router] failed to stop: %s", err)
+		os.Exit(1)
+	}
 
 	log.Logf("[router] successfully stopped")
 }
@@ -119,6 +106,11 @@ func Commands(options ...micro.Option) []cli.Command {
 				Name:   "network",
 				Usage:  "Set the micro network address: local",
 				EnvVar: "MICRO_NETWORK_ADDRESS",
+			},
+			cli.StringFlag{
+				Name:   "gateway",
+				Usage:  "Set the micro default gateway address :9094",
+				EnvVar: "MICRO_GATEWAY_ADDRESS",
 			},
 		},
 		Action: func(ctx *cli.Context) {
