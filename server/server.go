@@ -82,10 +82,10 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	if len(ctx.String("address")) > 0 {
 		Address = ctx.String("address")
 	}
-	if len(ctx.String("router")) > 0 {
+	if len(ctx.String("router_address")) > 0 {
 		Router = ctx.String("router")
 	}
-	if len(ctx.String("network")) > 0 {
+	if len(ctx.String("network_address")) > 0 {
 		Network = ctx.String("network")
 	}
 
@@ -141,12 +141,12 @@ func Commands(options ...micro.Option) []cli.Command {
 				EnvVar: "MICRO_SERVER_ADDRESS",
 			},
 			cli.StringFlag{
-				Name:   "router",
+				Name:   "router_address",
 				Usage:  "Set the micro router address :9093",
 				EnvVar: "MICRO_ROUTER_ADDRESS",
 			},
 			cli.StringFlag{
-				Name:   "network",
+				Name:   "network_address",
 				Usage:  "Set the micro network id :local",
 				EnvVar: "MICRO_NETWORK_ADDRESS",
 			},

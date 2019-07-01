@@ -36,15 +36,15 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	if len(ctx.String("address")) > 0 {
 		Address = ctx.String("address")
 	}
-	if len(ctx.String("router")) > 0 {
+	if len(ctx.String("router_address")) > 0 {
 		Router = ctx.String("router")
 	}
-	if len(ctx.String("network")) > 0 {
+	if len(ctx.String("network_address")) > 0 {
 		Network = ctx.String("network")
 	}
 	// default gateway address
 	var gateway string
-	if len(ctx.String("gateway")) > 0 {
+	if len(ctx.String("gateway_address")) > 0 {
 		gateway = ctx.String("gateway")
 	}
 
@@ -98,17 +98,17 @@ func Commands(options ...micro.Option) []cli.Command {
 		Usage: "Run the micro network router",
 		Flags: []cli.Flag{
 			cli.StringFlag{
-				Name:   "router",
+				Name:   "router_address",
 				Usage:  "Set the micro router address :9093",
 				EnvVar: "MICRO_ROUTER_ADDRESS",
 			},
 			cli.StringFlag{
-				Name:   "network",
+				Name:   "network_address",
 				Usage:  "Set the micro network address: local",
 				EnvVar: "MICRO_NETWORK_ADDRESS",
 			},
 			cli.StringFlag{
-				Name:   "gateway",
+				Name:   "gateway_address",
 				Usage:  "Set the micro default gateway address :9094",
 				EnvVar: "MICRO_GATEWAY_ADDRESS",
 			},
