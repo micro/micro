@@ -79,8 +79,13 @@ func setup(app *ccli.App) {
 		},
 		ccli.StringFlag{
 			Name:   "router_address",
-			Usage:  "Set the micro router address e.g. :9094",
+			Usage:  "Set the micro router address e.g. :9093",
 			EnvVar: "MICRO_ROUTER_ADDRESS",
+		},
+		ccli.StringFlag{
+			Name:   "gateway_address",
+			Usage:  "Set the micro default gateway address e.g. :9094",
+			EnvVar: "MICRO_GATEWAY_ADDRESS",
 		},
 		ccli.StringFlag{
 			Name:   "api_handler",
