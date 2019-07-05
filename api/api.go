@@ -25,6 +25,8 @@ import (
 	"github.com/micro/go-micro/api/server"
 	httpapi "github.com/micro/go-micro/api/server/http"
 	"github.com/micro/go-micro/util/log"
+	apiHandler "github.com/micro/micro/api/handler"
+	proto "github.com/micro/micro/api/proto"
 	"github.com/micro/micro/internal/handler"
 	"github.com/micro/micro/internal/helper"
 	"github.com/micro/micro/internal/stats"
@@ -106,6 +108,9 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 
 	// initialise service
 	service := micro.NewService(srvOpts...)
+
+	// register internal api handler
+	proto.RegisterAPIHandler(service.Server(), new(apiHandler.API))
 
 	// register rpc handler
 	log.Logf("Registering RPC Handler at %s", RPCPath)

@@ -2,6 +2,10 @@ syntax = "proto3";
 
 package go.micro.api;
 
+service API {
+	rpc Call(Request) returns (Response) {};
+}
+
 message Pair {
 	string key = 1;
 	repeated string values = 2;
@@ -13,12 +17,12 @@ message Request {
         map<string, Pair> header = 3;
         map<string, Pair> get = 4;
         map<string, Pair> post = 5;
-        string body = 6;  // raw request body; if not application/x-www-form-urlencoded
+        bytes body = 6;  // raw request body; if not application/x-www-form-urlencoded
 	string url = 7; // the full url
 }
 
 message Response {
         int32 statusCode = 1;
         map<string, Pair> header = 2;
-        string body = 3;
+        bytes body = 3;
 }
