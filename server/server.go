@@ -8,9 +8,9 @@ import (
 	"github.com/micro/cli"
 	"github.com/micro/go-micro"
 	"github.com/micro/go-micro/network/router"
-	"github.com/micro/go-micro/server"
 	"github.com/micro/go-micro/network/transport"
 	"github.com/micro/go-micro/network/transport/grpc"
+	"github.com/micro/go-micro/server"
 	"github.com/micro/go-micro/util/log"
 )
 

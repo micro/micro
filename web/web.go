@@ -86,7 +86,7 @@ func (s *srv) proxy() http.Handler {
 		}
 
 		r.Header.Set(BasePathHeader, "/"+parts[1])
-		r.URL.Host = fmt.Sprintf("%s:%d", s.Address, s.Port)
+		r.URL.Host = s.Address
 		r.URL.Path = "/" + strings.Join(parts[2:], "/")
 		r.URL.Scheme = "http"
 		r.Host = r.URL.Host

@@ -211,13 +211,13 @@ func GetService(c *cli.Context, args []string) ([]byte, error) {
 			output = append(output, "\nversion "+serv.Version)
 		}
 
-		output = append(output, "\nID\tAddress\tPort\tMetadata")
+		output = append(output, "\nID\tAddress\tMetadata")
 		for _, node := range serv.Nodes {
 			var meta []string
 			for k, v := range node.Metadata {
 				meta = append(meta, k+"="+v)
 			}
-			output = append(output, fmt.Sprintf("%s\t%s\t%d\t%s", node.Id, node.Address, node.Port, strings.Join(meta, ",")))
+			output = append(output, fmt.Sprintf("%s\t%s\t%s", node.Id, node.Address, strings.Join(meta, ",")))
 		}
 	}
 
@@ -395,9 +395,6 @@ func QueryHealth(c *cli.Context, args []string) ([]byte, error) {
 		// query health for every node
 		for _, node := range serv.Nodes {
 			address := node.Address
-			if node.Port > 0 {
-				address = fmt.Sprintf("%s:%d", address, node.Port)
-			}
 			rsp := &proto.HealthResponse{}
 
 			var err error
@@ -434,7 +431,7 @@ func QueryHealth(c *cli.Context, args []string) ([]byte, error) {
 			} else {
 				status = rsp.Status
 			}
-			output = append(output, fmt.Sprintf("%s\t\t%s:%d\t\t%s", node.Id, node.Address, node.Port, status))
+			output = append(output, fmt.Sprintf("%s\t\t%s\t\t%s", node.Id, node.Address, status))
 		}
 	}
 
@@ -470,9 +467,6 @@ func QueryStats(c *cli.Context, args []string) ([]byte, error) {
 		// query health for every node
 		for _, node := range serv.Nodes {
 			address := node.Address
-			if node.Port > 0 {
-				address = fmt.Sprintf("%s:%d", address, node.Port)
-			}
 			rsp := &proto.StatsResponse{}
 
 			var err error
@@ -511,8 +505,8 @@ func QueryStats(c *cli.Context, args []string) ([]byte, error) {
 				gc = fmt.Sprintf("%v", time.Duration(rsp.Gc))
 			}
 
-			line := fmt.Sprintf("%s\t\t%s:%d\t\t%s\t%s\t%s\t%d\t%s",
-				node.Id, node.Address, node.Port, started, uptime, memory, rsp.Threads, gc)
+			line := fmt.Sprintf("%s\t\t%s\t\t%s\t%s\t%s\t%d\t%s",
+				node.Id, node.Address, started, uptime, memory, rsp.Threads, gc)
 
 			output = append(output, line)
 		}

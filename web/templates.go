@@ -271,7 +271,6 @@ jQuery(function($, undefined) {
 		<thead>
 			<th>Id</th>
 			<th>Address</th>
-			<th>Port</th>
 			<th>Metadata</th>
 		<thead>
 		<tbody>
@@ -279,7 +278,6 @@ jQuery(function($, undefined) {
 			<tr>
 				<td>{{.Id}}</td>
 				<td>{{.Address}}</td>
-				<td>{{.Port}}</td>
 				<td>{{ range $key, $value := .Metadata }}{{$key}}={{$value}} {{end}}</td>
 			</tr>
 			{{end}}
@@ -398,14 +396,14 @@ jQuery(function($, undefined) {
 			var service = data.services[i];
 			term.echo("\nversion "+service.version);
 			term.echo(" ");
-			term.echo("Id\tAddress\t\Port\tMetadata\n");
+			term.echo("Id\tAddress\tMetadata\n");
 			for (j = 0; j < service.nodes.length; j++) {
 			    var node = service.nodes[j];
 			    var metadata = [];
 			    $.each(node.metadata, function(key, val) {
 				metadata.push(key+"="+val);
 			    });
-			    term.echo(node.id + "\t" + node.address + "\t" + node.port + "\t" + metadata.join(","));
+			    term.echo(node.id + "\t" + node.address + "\t" + metadata.join(","));
 			}
 			term.echo(" ");
 
@@ -452,7 +450,7 @@ jQuery(function($, undefined) {
 
 			term.echo("\nversion "+service.version);
 			term.echo(" ");
-			term.echo("Id\tAddress:Port\tMetadata\n");
+			term.echo("Id\tAddress\tMetadata\n");
 
 			for (j = 0; j < service.nodes.length; j++) {
 			    var node = service.nodes[j];
@@ -466,13 +464,13 @@ jQuery(function($, undefined) {
 					"service": service.name,
 					"endpoint": "Debug.Health",
 					"request": {},
-					"address": node.address + ":" + node.port,
+					"address": node.address,
 				  }),
 				  success: function(data) {
-			    		term.echo(node.id + "\t" + node.address + ":" + node.port + "\t" + data.status);
+			    		term.echo(node.id + "\t" + node.address + "\t" + data.status);
 				  },
 				  error: function(xhr) {
-			    		term.echo(node.id + "\t" + node.address + ":" + node.port + "\t" + xhr.status);
+			    		term.echo(node.id + "\t" + node.address + "\t" + xhr.status);
 				  },
 			    });
 
