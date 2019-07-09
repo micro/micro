@@ -15,7 +15,7 @@ type Router struct {
 
 func (r *Router) Lookup(ctx context.Context, req *pb.LookupRequest, resp *pb.LookupResponse) error {
 	query := table.NewQuery(
-		table.QueryDestination(req.Query.Destination),
+		table.QueryService(req.Query.Service),
 	)
 
 	routes, err := r.Router.Table().Lookup(query)
@@ -26,11 +26,12 @@ func (r *Router) Lookup(ctx context.Context, req *pb.LookupRequest, resp *pb.Loo
 	var respRoutes []*pb.Route
 	for _, route := range routes {
 		respRoute := &pb.Route{
-			Destination: route.Destination,
-			Gateway:     route.Gateway,
-			Router:      route.Router,
-			Network:     route.Network,
-			Metric:      int64(route.Metric),
+			Service: route.Service,
+			Address: route.Address,
+			Gateway: route.Gateway,
+			Network: route.Network,
+			Link:    route.Link,
+			Metric:  int64(route.Metric),
 		}
 		respRoutes = append(respRoutes, respRoute)
 	}
