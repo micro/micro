@@ -6,6 +6,7 @@ import (
 
 	"github.com/micro/go-micro/network/router"
 	pb "github.com/micro/go-micro/network/router/proto"
+	"github.com/micro/go-micro/network/router/table"
 )
 
 type Router struct {
@@ -13,8 +14,8 @@ type Router struct {
 }
 
 func (r *Router) Lookup(ctx context.Context, req *pb.LookupRequest, resp *pb.LookupResponse) error {
-	query := router.NewQuery(
-		router.QueryDestination(req.Query.Destination),
+	query := table.NewQuery(
+		table.QueryDestination(req.Query.Destination),
 	)
 
 	routes, err := r.Router.Table().Lookup(query)
