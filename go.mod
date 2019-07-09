@@ -9,7 +9,7 @@ require (
 	github.com/google/uuid v1.1.1
 	github.com/gorilla/mux v1.7.2
 	github.com/micro/cli v0.2.0
-	github.com/micro/go-micro v1.7.1-0.20190708071826-d3edad474ed7
+	github.com/micro/go-micro v1.7.1-0.20190709174126-0bf54c122f2c
 	github.com/serenize/snaker v0.0.0-20171204205717-a683aaf2d516
 	github.com/xlab/treeprint v0.0.0-20181112141820-a009c3971eca
 	go.etcd.io/etcd v3.3.13+incompatible // indirect
