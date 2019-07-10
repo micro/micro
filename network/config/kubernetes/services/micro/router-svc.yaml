@@ -1,0 +1,13 @@
+routerVersion: v1
+kind: Service
+metadata:
+  name: micro-router
+  namespace: default
+  labels:
+    name: micro-router
+spec:
+  ports:
+  - port: 8084
+    protocol: TCP
+  selector:
+    name: micro-router

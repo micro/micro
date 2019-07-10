@@ -1,0 +1,31 @@
+routerVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: default
+  name: micro-router
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: micro-router
+  template:
+    metadata:
+      labels:
+        name: micro-router
+    spec:
+      containers:
+      - name: router
+        env:
+        - name: MICRO_REGISTRY
+          value: "consul"
+        - name: MICRO_REGISTRY_ADDRESS
+          value: "consul-consul-server"
+        - name: MICRO_ENABLE_ACME
+          value: "true"
+        args:
+        - router
+        image: microhq/micro
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8084
+          name: router-port

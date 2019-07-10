@@ -1,0 +1,33 @@
+proxyVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: default
+  name: micro-proxy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: micro-proxy
+  template:
+    metadata:
+      labels:
+        name: micro-proxy
+    spec:
+      containers:
+      - name: proxy
+        env:
+        - name: MICRO_ROUTER
+          value: "go.micro.router"
+        - name: MICRO_REGISTRY
+          value: "consul"
+        - name: MICRO_REGISTRY_ADDRESS
+          value: "consul-consul-server"
+        - name: MICRO_ENABLE_ACME
+          value: "true"
+        args:
+        - proxy
+        image: microhq/micro
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8081
+          name: proxy-port
