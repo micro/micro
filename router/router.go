@@ -57,7 +57,7 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	)
 
 	r := router.NewRouter(
-		router.ID(service.Server().Options().Id),
+		router.Id(service.Server().Options().Id),
 		router.Address(Router),
 		router.Network(Network),
 		router.Registry(service.Client().Options().Registry),

@@ -18,7 +18,7 @@ func (r *Router) Lookup(ctx context.Context, req *pb.LookupRequest, resp *pb.Loo
 		table.QueryService(req.Query.Service),
 	)
 
-	routes, err := r.Router.Table().Lookup(query)
+	routes, err := r.Router.Lookup(query)
 	if err != nil {
 		return fmt.Errorf("failed to lookup routes: %s", err)
 	}

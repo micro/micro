@@ -8,9 +8,9 @@ import (
 	"github.com/micro/cli"
 	"github.com/micro/go-micro"
 	"github.com/micro/go-micro/network/router"
+	"github.com/micro/go-micro/server"
 	"github.com/micro/go-micro/transport"
 	"github.com/micro/go-micro/transport/grpc"
-	"github.com/micro/go-micro/server"
 	"github.com/micro/go-micro/util/log"
 )
 
@@ -99,7 +99,7 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 
 	// create new router
 	r := router.NewRouter(
-		router.ID(service.Server().Options().Id),
+		router.Id(service.Server().Options().Id),
 		router.Address(Router),
 		router.Network(Network),
 		router.Registry(service.Client().Options().Registry),
