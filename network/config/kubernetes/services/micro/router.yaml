@@ -4,7 +4,7 @@ metadata:
   namespace: default
   name: micro-router
 spec:
-  replicas: 1
+  replicas: 3
   selector:
     matchLabels:
       name: micro-router

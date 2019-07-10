@@ -16,6 +16,8 @@ spec:
       containers:
       - name: api
         env:
+        - name: MICRO_PROXY
+          value: "go.micro.api"
         - name: MICRO_ENABLE_STATS
           value: "true"
         - name: MICRO_REGISTRY

@@ -19,6 +19,8 @@ spec:
 		    "/location-web"
           ]
           env:
+          - name: MICRO_PROXY
+            value: "go.micro.proxy"
           - name: MICRO_REGISTRY
             value: "consul"
           - name: MICRO_REGISTRY_ADDRESS

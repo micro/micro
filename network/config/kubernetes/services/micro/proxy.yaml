@@ -4,7 +4,7 @@ metadata:
   namespace: default
   name: micro-proxy
 spec:
-  replicas: 1
+  replicas: 3
   selector:
     matchLabels:
       name: micro-proxy
