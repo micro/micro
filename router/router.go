@@ -9,9 +9,9 @@ import (
 
 	"github.com/micro/cli"
 	"github.com/micro/go-micro"
-	"github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/network/router"
 	pb "github.com/micro/go-micro/network/router/proto"
+	"github.com/micro/go-micro/network/router/table"
 	"github.com/micro/go-micro/util/log"
 	"github.com/micro/micro/router/handler"
 )
@@ -25,25 +25,84 @@ var (
 	Router = ":9093"
 	// Network is the network id
 	Network = "local"
-	// Topic is router events topic
-	Topic = "go.micro.router.events"
+	// Topic is router adverts topic
+	Topic = "go.micro.router.adverts"
 )
 
-// Pub publishes router events
-type Pub struct {
+// Sub processes router events
+type sub struct {
+	router router.Router
+}
+
+// Process processes router adverts
+func (s *sub) Process(ctx context.Context, advert *pb.Advert) error {
+	log.Logf("[router] received advert: %+v", advert)
+	if advert.Id == s.router.Options().Id {
+		log.Logf("[router] skipping advert")
+		return nil
+	}
+
+	for _, event := range advert.Events {
+		action := fmt.Sprintf("%s", table.EventType(event.Type))
+		route := table.Route{
+			Service: event.Route.Service,
+			Address: event.Route.Address,
+			Gateway: event.Route.Gateway,
+			Network: event.Route.Network,
+			Link:    event.Route.Link,
+			Metric:  int(event.Route.Metric),
+		}
+
+		switch action {
+		case "create":
+			if err := s.router.Create(route); err != nil && err != table.ErrDuplicateRoute {
+				return fmt.Errorf("failed adding route for service %s: %s", route.Service, err)
+			}
+		case "update":
+			if err := s.router.Update(route); err != nil && err != table.ErrDuplicateRoute {
+				return fmt.Errorf("failed updating route for service %s: %s", route.Service, err)
+			}
+		case "delete":
+			if err := s.router.Delete(route); err != nil && err != table.ErrRouteNotFound {
+				return fmt.Errorf("failed deleting route for service %s: %s", route.Service, err)
+			}
+		default:
+			return fmt.Errorf("failed to manage route for service %s. Unknown action: %s", route.Service, action)
+		}
+	}
+	return nil
+}
+
+// rtr is micro router
+type rtr struct {
+	// router is the micro router
+	router.Router
+	// publisher to publish router adverts
 	micro.Publisher
 }
 
-// NewPub creates new publisher and returns it
-func NewPub(topic string, client client.Client) *Pub {
-	return &Pub{
-		Publisher: micro.NewPublisher(Topic, client),
+// newRouter creates new micro router and returns it
+func newRouter(service micro.Service, router router.Router) *rtr {
+	s := &sub{
+		router: router,
+	}
+
+	// register subscriber
+	if err := micro.RegisterSubscriber(Topic, service.Server(), s); err != nil {
+		log.Logf("[router] failed to subscribe to adverts: %s", err)
+		os.Exit(1)
+	}
+
+	return &rtr{
+		Router:    router,
+		Publisher: micro.NewPublisher(Topic, service.Client()),
 	}
 }
 
-// PubEvents publishes advertised events
-func (p *Pub) PubEvents(ch <-chan *router.Advert) error {
+// PublishAdverts publishes adverts for other routers to consume
+func (r *rtr) PublishAdverts(ch <-chan *router.Advert) error {
 	for advert := range ch {
+		var events []*pb.Event
 		for _, event := range advert.Events {
 			route := &pb.Route{
 				Service: event.Route.Service,
@@ -53,29 +112,37 @@ func (p *Pub) PubEvents(ch <-chan *router.Advert) error {
 				Link:    event.Route.Link,
 				Metric:  int64(event.Route.Metric),
 			}
-			event := &pb.TableEvent{
+			e := &pb.Event{
 				Type:      pb.EventType(event.Type),
 				Timestamp: event.Timestamp.UnixNano(),
 				Route:     route,
 			}
+			events = append(events, e)
+		}
 
-			if err := p.Publish(context.Background(), event); err != nil {
-				log.Logf("[router] error publishing event: %v", err)
-				return fmt.Errorf("error publishing event: %v", err)
-			}
+		a := &pb.Advert{
+			Id:        r.Options().Id,
+			Type:      pb.AdvertType(advert.Type),
+			Timestamp: advert.Timestamp.UnixNano(),
+			Events:    events,
+		}
+
+		if err := r.Publish(context.Background(), a); err != nil {
+			log.Logf("[router] error publishing advert: %v", err)
+			return fmt.Errorf("error publishing advert: %v", err)
 		}
 	}
 
 	return nil
 }
 
-// Sub processes router events
-type Sub struct{}
+// stop stops the micro router
+func (r *rtr) Stop() error {
+	// stop the router
+	if err := r.Stop(); err != nil {
+		return fmt.Errorf("failed to stop router: %v", err)
+	}
 
-// Process advertised events
-func (s *Sub) Process(ctx context.Context, event *pb.TableEvent) error {
-	// TODO: filter the events which were originated by you
-	log.Logf("[router] Received event: %+v", event)
 	return nil
 }
 
@@ -126,20 +193,14 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		&handler.Router{Router: r},
 	)
 
+	// create new micro router and start advertising routes
+	rtr := newRouter(service, r)
+
 	log.Log("[router] starting to advertise")
 
-	advertChan, err := r.Advertise()
+	advertChan, err := rtr.Advertise()
 	if err != nil {
 		log.Logf("[router] failed to start: %s", err)
-		os.Exit(1)
-	}
-
-	// create event publisher
-	pub := NewPub(Topic, service.Client())
-
-	// register subscriber
-	if err := micro.RegisterSubscriber(Topic, service.Server(), new(Sub)); err != nil {
-		log.Logf("[router] failed to register subscriber: %s", err)
 		os.Exit(1)
 	}
 
@@ -150,7 +211,7 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		errChan <- pub.PubEvents(advertChan)
+		errChan <- rtr.PublishAdverts(advertChan)
 	}()
 
 	wg.Add(1)

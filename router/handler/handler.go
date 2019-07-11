@@ -9,10 +9,12 @@ import (
 	"github.com/micro/go-micro/network/router/table"
 )
 
+// Router implements router handler
 type Router struct {
 	Router router.Router
 }
 
+// Lookup looks up routes in the routing table and returns them
 func (r *Router) Lookup(ctx context.Context, req *pb.LookupRequest, resp *pb.LookupResponse) error {
 	query := table.NewQuery(
 		table.QueryService(req.Query.Service),
@@ -41,6 +43,7 @@ func (r *Router) Lookup(ctx context.Context, req *pb.LookupRequest, resp *pb.Loo
 	return nil
 }
 
+// List returns all routes in the routing table
 func (r *Router) List(ctx context.Context, req *pb.ListRequest, resp *pb.ListResponse) error {
 	routes, err := r.Router.List()
 	if err != nil {
@@ -65,10 +68,11 @@ func (r *Router) List(ctx context.Context, req *pb.ListRequest, resp *pb.ListRes
 	return nil
 }
 
+// Watch streans routing table events
 func (r *Router) Watch(ctx context.Context, req *pb.WatchRequest, stream pb.Router_WatchStream) error {
 	watcher, err := r.Router.Watch()
 	if err != nil {
-		return fmt.Errorf("failed creating routing table watcher: %v", err)
+		return fmt.Errorf("failed creating event watcher: %v", err)
 	}
 
 	defer stream.Close()
@@ -80,7 +84,7 @@ func (r *Router) Watch(ctx context.Context, req *pb.WatchRequest, stream pb.Rout
 		}
 
 		if err != nil {
-			return fmt.Errorf("error watching table: %s", err)
+			return fmt.Errorf("error watching events: %s", err)
 		}
 
 		route := &pb.Route{
@@ -92,7 +96,7 @@ func (r *Router) Watch(ctx context.Context, req *pb.WatchRequest, stream pb.Rout
 			Metric:  int64(event.Route.Metric),
 		}
 
-		tableEvent := &pb.TableEvent{
+		tableEvent := &pb.Event{
 			Type:      pb.EventType(event.Type),
 			Timestamp: event.Timestamp.UnixNano(),
 			Route:     route,
