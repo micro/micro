@@ -36,14 +36,14 @@ type sub struct {
 
 // Process processes router adverts
 func (s *sub) Process(ctx context.Context, advert *pb.Advert) error {
-	log.Logf("[router] received advert: %+v", advert)
+	log.Logf("[router] received advert from: %s", advert.Id)
 	if advert.Id == s.router.Options().Id {
 		log.Logf("[router] skipping advert")
 		return nil
 	}
 
+	var events []*table.Event
 	for _, event := range advert.Events {
-		action := fmt.Sprintf("%s", table.EventType(event.Type))
 		route := table.Route{
 			Service: event.Route.Service,
 			Address: event.Route.Address,
@@ -53,23 +53,27 @@ func (s *sub) Process(ctx context.Context, advert *pb.Advert) error {
 			Metric:  int(event.Route.Metric),
 		}
 
-		switch action {
-		case "create":
-			if err := s.router.Create(route); err != nil && err != table.ErrDuplicateRoute {
-				return fmt.Errorf("failed adding route for service %s: %s", route.Service, err)
-			}
-		case "update":
-			if err := s.router.Update(route); err != nil && err != table.ErrDuplicateRoute {
-				return fmt.Errorf("failed updating route for service %s: %s", route.Service, err)
-			}
-		case "delete":
-			if err := s.router.Delete(route); err != nil && err != table.ErrRouteNotFound {
-				return fmt.Errorf("failed deleting route for service %s: %s", route.Service, err)
-			}
-		default:
-			return fmt.Errorf("failed to manage route for service %s. Unknown action: %s", route.Service, action)
+		e := &table.Event{
+			Type:      table.EventType(event.Type),
+			Timestamp: time.Unix(0, advert.Timestamp),
+			Route:     route,
 		}
+
+		events = append(events, e)
 	}
+
+	a := &router.Advert{
+		Id:        advert.Id,
+		Type:      router.AdvertType(advert.Type),
+		Timestamp: time.Unix(0, advert.Timestamp),
+		TTL:       time.Duration(advert.Ttl),
+		Events:    events,
+	}
+
+	if err := s.router.Process(a); err != nil {
+		return fmt.Errorf("[router] failed processing advert: %s", err)
+	}
+
 	return nil
 }
 
