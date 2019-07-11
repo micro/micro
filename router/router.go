@@ -1,11 +1,15 @@
 package router
 
 import (
+	"context"
+	"fmt"
 	"os"
+	"sync"
 	"time"
 
 	"github.com/micro/cli"
 	"github.com/micro/go-micro"
+	"github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/network/router"
 	pb "github.com/micro/go-micro/network/router/proto"
 	"github.com/micro/go-micro/util/log"
@@ -21,7 +25,59 @@ var (
 	Router = ":9093"
 	// Network is the network id
 	Network = "local"
+	// Topic is router events topic
+	Topic = "go.micro.router.events"
 )
+
+// Pub publishes router events
+type Pub struct {
+	micro.Publisher
+}
+
+// NewPub creates new publisher and returns it
+func NewPub(topic string, client client.Client) *Pub {
+	return &Pub{
+		Publisher: micro.NewPublisher(Topic, client),
+	}
+}
+
+// PubEvents publishes advertised events
+func (p *Pub) PubEvents(ch <-chan *router.Advert) error {
+	for advert := range ch {
+		for _, event := range advert.Events {
+			route := &pb.Route{
+				Service: event.Route.Service,
+				Address: event.Route.Address,
+				Gateway: event.Route.Gateway,
+				Network: event.Route.Network,
+				Link:    event.Route.Link,
+				Metric:  int64(event.Route.Metric),
+			}
+			event := &pb.TableEvent{
+				Type:      pb.EventType(event.Type),
+				Timestamp: event.Timestamp.UnixNano(),
+				Route:     route,
+			}
+
+			if err := p.Publish(context.Background(), event); err != nil {
+				log.Logf("[router] error publishing event: %v", err)
+				return fmt.Errorf("error publishing event: %v", err)
+			}
+		}
+	}
+
+	return nil
+}
+
+// Sub processes router events
+type Sub struct{}
+
+// Process advertised events
+func (s *Sub) Process(ctx context.Context, event *pb.TableEvent) error {
+	// TODO: filter the events which were originated by you
+	log.Logf("[router] Received event: %+v", event)
+	return nil
+}
 
 // run runs the micro server
 func run(ctx *cli.Context, srvOpts ...micro.Option) {
@@ -72,22 +128,51 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 
 	log.Log("[router] starting to advertise")
 
-	if _, err := r.Advertise(); err != nil {
+	advertChan, err := r.Advertise()
+	if err != nil {
 		log.Logf("[router] failed to start: %s", err)
 		os.Exit(1)
 	}
 
-	if err := service.Run(); err != nil {
-		log.Logf("[router] failed with error %s", err)
-		// TODO: we should probably stop the router here before bailing
+	// create event publisher
+	pub := NewPub(Topic, service.Client())
+
+	// register subscriber
+	if err := micro.RegisterSubscriber(Topic, service.Server(), new(Sub)); err != nil {
+		log.Logf("[router] failed to register subscriber: %s", err)
 		os.Exit(1)
 	}
+
+	var wg sync.WaitGroup
+
+	errChan := make(chan error, 2)
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		errChan <- pub.PubEvents(advertChan)
+	}()
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		errChan <- service.Run()
+	}()
+
+	// we block here until either service or server fails
+	if err := <-errChan; err != nil {
+		log.Logf("[router] error running the router: %v", err)
+	}
+
+	log.Log("[router] attempting to stop the router")
 
 	// stop the router
 	if err := r.Stop(); err != nil {
 		log.Logf("[router] failed to stop: %s", err)
 		os.Exit(1)
 	}
+
+	wg.Wait()
 
 	log.Logf("[router] successfully stopped")
 }
