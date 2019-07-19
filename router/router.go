@@ -200,6 +200,11 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	// create new micro router and start advertising routes
 	rtr := newRouter(service, r)
 
+	if err := rtr.Run(); err != nil {
+		log.Logf("[router] error starting: %v", err)
+		os.Exit(1)
+	}
+
 	log.Log("[router] starting to advertise")
 
 	advertChan, err := rtr.Advertise()

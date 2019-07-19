@@ -50,7 +50,7 @@ func (s *srv) start() error {
 	log.Log("[server] starting micro server")
 
 	// start advertising the routes
-	if _, err := s.router.Advertise(); err != nil {
+	if err := s.router.Run(); err != nil {
 		return fmt.Errorf("failed to start router: %s", err)
 	}
 
