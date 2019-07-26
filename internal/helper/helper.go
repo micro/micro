@@ -56,6 +56,7 @@ func TLSConfig(ctx *cli.Context) (*tls.Config, error) {
 				Certificates: []tls.Certificate{certs},
 				ClientCAs:    caCertPool,
 				ClientAuth:   tls.RequireAndVerifyClientCert,
+				NextProtos: []string{"h2", "http/1.1"},
 			}, nil
 		}
 
