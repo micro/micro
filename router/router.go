@@ -193,7 +193,18 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	// register router handler
 	pb.RegisterRouterHandler(
 		service.Server(),
-		&handler.Router{Router: r},
+		&handler.Router{
+			Router:  r,
+			Adverts: micro.NewPublisher(Topic, service.Client()),
+		},
+	)
+
+	// register the table handler
+	pb.RegisterTableHandler(
+		service.Server(),
+		&handler.Table{
+			Router: r,
+		},
 	)
 
 	// create new micro router and start advertising routes
