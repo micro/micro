@@ -12,6 +12,7 @@ import (
 	"github.com/micro/go-micro/network/proxy/grpc"
 	"github.com/micro/go-micro/network/proxy/http"
 	"github.com/micro/go-micro/network/proxy/mucp"
+	"github.com/micro/go-micro/network/router"
 	"github.com/micro/go-micro/server"
 	sgrpc "github.com/micro/go-micro/server/grpc"
 	smucp "github.com/micro/go-micro/server/mucp"
@@ -65,13 +66,23 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	// set the context
 	var popts []options.Option
 
+	// new service
+	service := micro.NewService(srvOpts...)
+
+	// create new router
+	r := router.NewRouter(
+		router.Id(service.Server().Options().Id),
+		router.Registry(service.Client().Options().Registry),
+	)
+
+	popts = append(popts, proxy.WithRouter(r))
+
 	// new proxy
 	var p proxy.Proxy
 	var s server.Server
 
 	// set endpoint
 	if len(Endpoint) > 0 {
-
 		switch {
 		case strings.HasPrefix(Endpoint, "grpc://"):
 			ep := strings.TrimPrefix(Endpoint, "grpc://")
@@ -108,16 +119,13 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		srvOpts = append([]micro.Option{micro.Server(s)}, srvOpts...)
 	}
 
-	// new service
-	service := micro.NewService(srvOpts...)
-
 	// set the router
 	service.Server().Init(
 		server.WithRouter(p),
 	)
 
 	if len(Endpoint) > 0 {
-		log.Logf("Proxy [%s] Serving endpoint %s\n", p.String(), Endpoint)
+		log.Logf("[proxy] %s serving endpoint: %s", p.String(), Endpoint)
 	}
 
 	// Run internal service

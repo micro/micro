@@ -11,7 +11,6 @@ import (
 	"github.com/micro/go-micro"
 	"github.com/micro/go-micro/network/router"
 	pb "github.com/micro/go-micro/network/router/proto"
-	"github.com/micro/go-micro/network/router/table"
 	"github.com/micro/go-micro/util/log"
 	"github.com/micro/micro/router/handler"
 )
@@ -42,9 +41,9 @@ func (s *sub) Process(ctx context.Context, advert *pb.Advert) error {
 		return nil
 	}
 
-	var events []*table.Event
+	var events []*router.Event
 	for _, event := range advert.Events {
-		route := table.Route{
+		route := router.Route{
 			Service: event.Route.Service,
 			Address: event.Route.Address,
 			Gateway: event.Route.Gateway,
@@ -53,8 +52,8 @@ func (s *sub) Process(ctx context.Context, advert *pb.Advert) error {
 			Metric:  int(event.Route.Metric),
 		}
 
-		e := &table.Event{
-			Type:      table.EventType(event.Type),
+		e := &router.Event{
+			Type:      router.EventType(event.Type),
 			Timestamp: time.Unix(0, advert.Timestamp),
 			Route:     route,
 		}
