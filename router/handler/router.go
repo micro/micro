@@ -19,7 +19,6 @@ type Router struct {
 
 // Lookup looks up routes in the routing table and returns them
 func (r *Router) Lookup(ctx context.Context, req *pb.LookupRequest, resp *pb.LookupResponse) error {
-	fmt.Println("fuck you")
 	query := router.NewQuery(
 		router.QueryService(req.Query.Service),
 	)
