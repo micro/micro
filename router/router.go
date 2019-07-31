@@ -10,9 +10,9 @@ import (
 	"github.com/micro/cli"
 	"github.com/micro/go-micro"
 	"github.com/micro/go-micro/network/router"
+	"github.com/micro/go-micro/network/router/handler"
 	pb "github.com/micro/go-micro/network/router/proto"
 	"github.com/micro/go-micro/util/log"
-	"github.com/micro/micro/router/handler"
 )
 
 var (
@@ -195,7 +195,6 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		service.Server(),
 		&handler.Router{
 			Router:  r,
-			Adverts: micro.NewPublisher(Topic, service.Client()),
 		},
 	)
 
