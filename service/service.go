@@ -6,10 +6,10 @@ import (
 
 	"github.com/micro/cli"
 	"github.com/micro/go-micro"
-	"github.com/micro/go-micro/network/proxy"
-	"github.com/micro/go-micro/network/proxy/grpc"
-	"github.com/micro/go-micro/network/proxy/http"
-	"github.com/micro/go-micro/network/proxy/mucp"
+	"github.com/micro/go-micro/proxy"
+	"github.com/micro/go-micro/proxy/grpc"
+	"github.com/micro/go-micro/proxy/http"
+	"github.com/micro/go-micro/proxy/mucp"
 	"github.com/micro/go-micro/server"
 	"github.com/micro/go-micro/util/log"
 )

@@ -9,9 +9,9 @@ import (
 
 	"github.com/micro/cli"
 	"github.com/micro/go-micro"
-	"github.com/micro/go-micro/network/router"
-	"github.com/micro/go-micro/network/router/handler"
-	pb "github.com/micro/go-micro/network/router/proto"
+	"github.com/micro/go-micro/router"
+	"github.com/micro/go-micro/router/handler"
+	pb "github.com/micro/go-micro/router/proto"
 	"github.com/micro/go-micro/util/log"
 )
 
