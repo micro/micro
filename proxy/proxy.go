@@ -7,11 +7,13 @@ import (
 
 	"github.com/micro/cli"
 	"github.com/micro/go-micro"
+	"github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/config/options"
 	"github.com/micro/go-micro/proxy"
 	"github.com/micro/go-micro/proxy/grpc"
 	"github.com/micro/go-micro/proxy/http"
 	"github.com/micro/go-micro/proxy/mucp"
+	"github.com/micro/go-micro/registry"
 	"github.com/micro/go-micro/router"
 	rs "github.com/micro/go-micro/router/service"
 	"github.com/micro/go-micro/server"
@@ -67,30 +69,27 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	// set the context
 	var popts []options.Option
 
-	// new service
-	service := micro.NewService(srvOpts...)
-
 	// create new router
-	r := router.NewRouter(
-		router.Id(service.Server().Options().Id),
-		router.Registry(service.Client().Options().Registry),
-	)
+	var r router.Router
 
 	routerName := ctx.String("router")
 	routerAddr := ctx.String("router_address")
 
+	ropts := []router.Option{
+		router.Id(server.DefaultId),
+		router.Client(client.DefaultClient),
+		router.Address(routerAddr),
+		router.Registry(registry.DefaultRegistry),
+	}
+
 	// check if we need to use the router service
 	switch {
 	case routerName == "go.micro.router":
-		r = rs.NewRouter(
-			router.Client(service.Client()),
-			router.Address(routerAddr),
-		)
+		r = rs.NewRouter(ropts...)
 	case len(routerAddr) > 0:
-		r = rs.NewRouter(
-			router.Client(service.Client()),
-			router.Address(routerAddr),
-		)
+		r = rs.NewRouter(ropts...)
+	default:
+		r = router.NewRouter(ropts...)
 	}
 
 	popts = append(popts, proxy.WithRouter(r))
@@ -132,19 +131,24 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		}
 	}
 
+	if len(Endpoint) > 0 {
+		log.Logf("Proxy [%s] serving endpoint: %s", p.String(), Endpoint)
+	} else {
+		log.Logf("Proxy [%s] serving protocol: %s", p.String(), Protocol)
+	}
+
 	// prepend the server
 	if s != nil {
 		srvOpts = append([]micro.Option{micro.Server(s)}, srvOpts...)
 	}
 
+	// new service
+	service := micro.NewService(srvOpts...)
+
 	// set the router
 	service.Server().Init(
 		server.WithRouter(p),
 	)
-
-	if len(Endpoint) > 0 {
-		log.Logf("[proxy] %s serving endpoint: %s", p.String(), Endpoint)
-	}
 
 	// Run internal service
 	if err := service.Run(); err != nil {

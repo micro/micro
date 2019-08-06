@@ -194,7 +194,7 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	pb.RegisterRouterHandler(
 		service.Server(),
 		&handler.Router{
-			Router:  r,
+			Router: r,
 		},
 	)
 
