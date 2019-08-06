@@ -16,7 +16,7 @@ import (
 	"github.com/micro/go-micro/config/cmd"
 	"github.com/micro/go-micro/registry"
 
-	proto "github.com/micro/go-micro/server/debug/proto"
+	proto "github.com/micro/go-micro/debug/proto"
 
 	"github.com/serenize/snaker"
 )
