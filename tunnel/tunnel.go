@@ -2,6 +2,7 @@ package tunnel
 
 import (
 	"os"
+	"strings"
 	"time"
 
 	"github.com/micro/cli"
@@ -49,6 +50,10 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	if len(ctx.String("tunnel_address")) > 0 {
 		Tunnel = ctx.String("tunnel")
 	}
+	var nodes []string
+	if len(ctx.String("tunnel_nodes")) > 0 {
+		nodes = strings.Split(ctx.String("tunnel_nodes"), ",")
+	}
 	// default gateway address
 	var gateway string
 	if len(ctx.String("gateway_address")) > 0 {
@@ -75,6 +80,7 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	// create a tunnel
 	t := tun.NewTunnel(
 		tun.Address(Tunnel),
+		tun.Nodes(nodes...),
 	)
 
 	// create tunnel client with tunnel transport
@@ -165,6 +171,11 @@ func Commands(options ...micro.Option) []cli.Command {
 				Name:   "gateway_address",
 				Usage:  "Set the micro default gateway address :9094",
 				EnvVar: "MICRO_GATEWAY_ADDRESS",
+			},
+			cli.StringFlag{
+				Name:   "tunnel_nodes",
+				Usage:  "Set the micro tunnel nodes",
+				EnvVar: "MICRO_TUNNEL_NODES",
 			},
 		},
 		Action: func(ctx *cli.Context) {
