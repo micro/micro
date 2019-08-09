@@ -10,6 +10,7 @@ import (
 	"github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/config/options"
 	"github.com/micro/go-micro/proxy/mucp"
+	"github.com/micro/go-micro/registry/memory"
 	"github.com/micro/go-micro/router"
 	"github.com/micro/go-micro/server"
 	tun "github.com/micro/go-micro/tunnel"
@@ -121,10 +122,14 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		options.WithValue("proxy.client", tunSrvClient),
 	)
 
+	// create memory registry
+	memRegistry := memory.NewRegistry()
+
 	// local server
 	tunSrv := server.NewServer(
 		server.Transport(tunTransport),
 		server.WithRouter(tunProxy),
+		server.Registry(memRegistry),
 	)
 
 	var wg sync.WaitGroup
