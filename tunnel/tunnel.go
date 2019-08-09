@@ -113,6 +113,7 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 
 	// local server
 	tunSrv := server.NewServer(
+		server.Address(Tunnel),
 		server.Transport(tunTransport),
 		server.WithRouter(tunProxy),
 		server.Registry(memRegistry),
