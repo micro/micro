@@ -12,6 +12,7 @@ import (
 	"github.com/micro/go-micro/proxy/mucp"
 	"github.com/micro/go-micro/router"
 	"github.com/micro/go-micro/server"
+	trn "github.com/micro/go-micro/transport"
 	tun "github.com/micro/go-micro/tunnel"
 	"github.com/micro/go-micro/tunnel/transport"
 	"github.com/micro/go-micro/util/log"
@@ -31,6 +32,27 @@ var (
 	// Network is the network id
 	Network = "local"
 )
+
+func accept(l tun.Listener, exit chan struct{}) error {
+	for {
+		// accept a connection
+		c, err := l.Accept()
+		if err != nil {
+			return err
+		}
+
+		select {
+		case <-exit:
+			return nil
+		default:
+			m := new(trn.Message)
+			if err := c.Recv(m); err != nil {
+				return err
+			}
+			// TODO: do something with the message
+		}
+	}
+}
 
 // run runs the micro server
 func run(ctx *cli.Context, srvOpts ...micro.Option) {
@@ -87,9 +109,10 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 
 	// local tunnel router
 	r := router.NewRouter(
+		router.Id(service.Server().Options().Id),
+		router.Registry(service.Client().Options().Registry),
 		router.Address(Router),
 		router.Network(Network),
-		router.Registry(service.Client().Options().Registry),
 		router.Gateway(gateway),
 	)
 
@@ -119,7 +142,18 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 
 	var wg sync.WaitGroup
 
-	errChan := make(chan error, 1)
+	// error channel to collect errors and bail
+	errChan := make(chan error, 2)
+
+	// exit channelt o exit tunnel listener
+	exit := make(chan struct{})
+
+	// accept new tunnel connections
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		errChan <- accept(l, exit)
+	}()
 
 	wg.Add(1)
 	go func() {
@@ -134,12 +168,21 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 
 	log.Log("[tunnel] attempting to stop the tunnel")
 
-	// TODO: stop the router etc.
+	// close tunnel listener
+	close(exit)
+
+	if err := l.Close(); err != nil {
+		log.Logf("[tunnel] error closing the tunnel: %v", err)
+	}
+
+	// stop the router
+	if err := r.Stop(); err != nil {
+		log.Logf("[tunnel] error stopping tunnel router:%v", err)
+	}
 
 	wg.Wait()
 
 	log.Logf("[tunnel] successfully stopped")
-
 }
 
 func Commands(options ...micro.Option) []cli.Command {
