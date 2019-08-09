@@ -102,14 +102,9 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		options.WithValue("proxy.client", localSrvClient),
 	)
 
-	// local server
-	localSrv := server.NewServer(
-		server.WithRouter(localProxy),
-	)
-
 	// init server
-	service.Init(
-		micro.Server(localSrv),
+	service.Server().Init(
+		server.WithRouter(localProxy),
 	)
 
 	// local transport client
