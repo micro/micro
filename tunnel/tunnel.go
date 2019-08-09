@@ -9,6 +9,7 @@ import (
 	"github.com/micro/go-micro"
 	"github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/config/options"
+	"github.com/micro/go-micro/proxy"
 	"github.com/micro/go-micro/proxy/mucp"
 	"github.com/micro/go-micro/registry/memory"
 	"github.com/micro/go-micro/router"
@@ -19,16 +20,12 @@ import (
 )
 
 var (
-	// Name of the router microservice
+	// Name of the tunnel service
 	Name = "go.micro.tunnel"
-	// Address is the tunnel microservice bind address
+	// Address is the tunnel address
 	Address = ":9095"
-	// Tunnel is the tunnel bind address
+	// Tunnel is the name of the tunnel
 	Tunnel = ":9096"
-	// Router is the router gossip bind address
-	Router = ":9093"
-	// Network is the network id
-	Network = "local"
 )
 
 // run runs the micro server
@@ -44,28 +41,17 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	if len(ctx.String("address")) > 0 {
 		Address = ctx.String("address")
 	}
-	if len(ctx.String("tunnel_listen_address")) > 0 {
-		Tunnel = ctx.String("tunnel_listen_address")
+	if len(ctx.String("name")) > 0 {
+		Tunnel = ctx.String("name")
 	}
 	var nodes []string
-	if len(ctx.String("tunnel_nodes")) > 0 {
-		nodes = strings.Split(ctx.String("tunnel_nodes"), ",")
+	if len(ctx.String("nodes")) > 0 {
+		nodes = strings.Split(ctx.String("nodes"), ",")
 	}
-	if len(ctx.String("network_address")) > 0 {
-		Network = ctx.String("network_address")
-	}
-	// default gateway address
-	var gateway string
-	if len(ctx.String("gateway_address")) > 0 {
-		gateway = ctx.String("gateway")
-	}
-
-	log.Logf("Nodes: %v", nodes)
 
 	// Initialise service
 	service := micro.NewService(
 		micro.Name(Name),
-		micro.Address(Address),
 		micro.RegisterTTL(time.Duration(ctx.GlobalInt("register_ttl"))*time.Second),
 		micro.RegisterInterval(time.Duration(ctx.GlobalInt("register_interval"))*time.Second),
 	)
@@ -74,14 +60,11 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	r := router.NewRouter(
 		router.Id(service.Server().Options().Id),
 		router.Registry(service.Client().Options().Registry),
-		router.Address(Router),
-		router.Network(Network),
-		router.Gateway(gateway),
 	)
 
 	// create a tunnel
 	t := tun.NewTunnel(
-		tun.Address(Tunnel),
+		tun.Address(Address),
 		tun.Nodes(nodes...),
 	)
 
@@ -97,8 +80,9 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 
 	// local proxy
 	localProxy := mucp.NewProxy(
-		options.WithValue("proxy.router", r),
-		options.WithValue("proxy.client", localSrvClient),
+		proxy.WithRouter(r),
+		proxy.WithClient(localSrvClient),
+		proxy.WithEndpoint(Tunnel),
 	)
 
 	// init server
@@ -113,7 +97,7 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 
 	// local proxy
 	tunProxy := mucp.NewProxy(
-		options.WithValue("proxy.client", tunSrvClient),
+		proxy.WithClient(tunSrvClient),
 	)
 
 	// create memory registry
@@ -128,29 +112,29 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	)
 
 	if err := tunSrv.Start(); err != nil {
-		log.Logf("[tunnel] error starting tunnel server: %v", err)
+		log.Logf("Tunnel error starting tunnel server: %v", err)
 		os.Exit(1)
 	}
 
 	if err := service.Run(); err != nil {
-		log.Log("[tunnel] %s failed: %v", Name, err)
+		log.Log("Tunnel %s failed: %v", Name, err)
 	}
 
 	// stop the router
 	if err := r.Stop(); err != nil {
-		log.Logf("[tunnel] error stopping tunnel router: %v", err)
+		log.Logf("Tunnel error stopping tunnel router: %v", err)
 	}
 
 	// stop the server
 	if err := tunSrv.Stop(); err != nil {
-		log.Logf("[tunnel] error stopping tunnel server: %v", err)
+		log.Logf("Tunnel error stopping tunnel server: %v", err)
 	}
 
 	if err := t.Connect(); err != nil {
-		log.Logf("[tunnel] error stopping tunnel: %v", err)
+		log.Logf("Tunnel error stopping tunnel: %v", err)
 	}
 
-	log.Logf("[tunnel] stopped")
+	log.Logf("Tunnel stopped")
 }
 
 func Commands(options ...micro.Option) []cli.Command {
@@ -164,24 +148,14 @@ func Commands(options ...micro.Option) []cli.Command {
 				EnvVar: "MICRO_TUNNEL_ADDRESS",
 			},
 			cli.StringFlag{
-				Name:   "tunnel_listen_address",
-				Usage:  "Set the micro tunnel listen address :9096",
-				EnvVar: "MICRO_TUNNEL_ADDRESS",
+				Name:   "name",
+				Usage:  "Name of the tunnel used as the internal dial/listen address",
+				EnvVar: "MICRO_TUNNEL_NAME",
 			},
 			cli.StringFlag{
-				Name:   "tunnel_nodes",
+				Name:   "nodes",
 				Usage:  "Set the micro tunnel nodes",
 				EnvVar: "MICRO_TUNNEL_NODES",
-			},
-			cli.StringFlag{
-				Name:   "network_address",
-				Usage:  "Set the micro network address: local",
-				EnvVar: "MICRO_NETWORK_ADDRESS",
-			},
-			cli.StringFlag{
-				Name:   "gateway_address",
-				Usage:  "Set the micro default gateway address :9094",
-				EnvVar: "MICRO_GATEWAY_ADDRESS",
 			},
 		},
 		Action: func(ctx *cli.Context) {
