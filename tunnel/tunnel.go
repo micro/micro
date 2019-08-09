@@ -12,7 +12,6 @@ import (
 	"github.com/micro/go-micro/proxy/mucp"
 	"github.com/micro/go-micro/router"
 	"github.com/micro/go-micro/server"
-	trn "github.com/micro/go-micro/transport"
 	tun "github.com/micro/go-micro/tunnel"
 	"github.com/micro/go-micro/tunnel/transport"
 	"github.com/micro/go-micro/util/log"
@@ -32,27 +31,6 @@ var (
 	// Network is the network id
 	Network = "local"
 )
-
-func accept(l tun.Listener, exit chan struct{}) error {
-	for {
-		// accept a connection
-		c, err := l.Accept()
-		if err != nil {
-			return err
-		}
-
-		select {
-		case <-exit:
-			return nil
-		default:
-			m := new(trn.Message)
-			if err := c.Recv(m); err != nil {
-				return err
-			}
-			// TODO: do something with the message
-		}
-	}
-}
 
 // run runs the micro server
 func run(ctx *cli.Context, srvOpts ...micro.Option) {
@@ -90,15 +68,6 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		os.Exit(1)
 	}
 
-	// listen on tunnel
-	l, err := t.Listen(Channel)
-	if err != nil {
-		log.Logf("[tunnel] failed to listen: %s", err)
-		os.Exit(1)
-	}
-
-	// TODO: go accept tunnel connections
-
 	// Initialise service
 	service := micro.NewService(
 		micro.Name(Name),
@@ -117,17 +86,19 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	)
 
 	// create tunnel client with tunnel transport
-	tr := transport.NewTransport(
+	tunTransport := transport.NewTransport(
 		transport.WithTunnel(t),
 	)
-	c := client.NewClient(
-		client.Transport(tr),
+
+	// local server client talks to tunnel
+	localSrvClient := client.NewClient(
+		client.Transport(tunTransport),
 	)
 
 	// local proxy
 	localProxy := mucp.NewProxy(
 		options.WithValue("proxy.router", r),
-		options.WithValue("proxy.client", c),
+		options.WithValue("proxy.client", localSrvClient),
 	)
 
 	// local server
@@ -140,25 +111,37 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		micro.Server(localSrv),
 	)
 
+	// local transport client
+	tunSrvClient := client.NewClient(
+		client.Transport(service.Options().Transport),
+	)
+
+	// local proxy
+	tunProxy := mucp.NewProxy(
+		options.WithValue("proxy.client", tunSrvClient),
+	)
+
+	// local server
+	tunSrv := server.NewServer(
+		server.Transport(tunTransport),
+		server.WithRouter(tunProxy),
+	)
+
 	var wg sync.WaitGroup
 
 	// error channel to collect errors and bail
 	errChan := make(chan error, 2)
 
-	// exit channelt o exit tunnel listener
-	exit := make(chan struct{})
-
-	// accept new tunnel connections
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		errChan <- accept(l, exit)
+		errChan <- service.Run()
 	}()
 
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		errChan <- service.Run()
+		errChan <- tunSrv.Start()
 	}()
 
 	// we block here until either service or server fails
@@ -167,13 +150,6 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	}
 
 	log.Log("[tunnel] attempting to stop the tunnel")
-
-	// close tunnel listener
-	close(exit)
-
-	if err := l.Close(); err != nil {
-		log.Logf("[tunnel] error closing the tunnel: %v", err)
-	}
 
 	// stop the router
 	if err := r.Stop(); err != nil {
