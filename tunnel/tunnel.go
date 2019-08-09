@@ -41,24 +41,26 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	if len(ctx.GlobalString("server_name")) > 0 {
 		Name = ctx.GlobalString("server_name")
 	}
-	if len(ctx.String("network_address")) > 0 {
-		Network = ctx.String("network")
-	}
 	if len(ctx.String("address")) > 0 {
 		Address = ctx.String("address")
 	}
-	if len(ctx.String("tunnel_address")) > 0 {
-		Tunnel = ctx.String("tunnel")
+	if len(ctx.String("tunnel_listen_address")) > 0 {
+		Tunnel = ctx.String("tunnel_listen_address")
 	}
 	var nodes []string
 	if len(ctx.String("tunnel_nodes")) > 0 {
 		nodes = strings.Split(ctx.String("tunnel_nodes"), ",")
+	}
+	if len(ctx.String("network_address")) > 0 {
+		Network = ctx.String("network_address")
 	}
 	// default gateway address
 	var gateway string
 	if len(ctx.String("gateway_address")) > 0 {
 		gateway = ctx.String("gateway")
 	}
+
+	log.Logf("Nodes: %v", nodes)
 
 	// Initialise service
 	service := micro.NewService(
@@ -97,7 +99,6 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	localProxy := mucp.NewProxy(
 		options.WithValue("proxy.router", r),
 		options.WithValue("proxy.client", localSrvClient),
-		options.WithValue("proxy.endpoint", Tunnel),
 	)
 
 	// init server
@@ -158,9 +159,19 @@ func Commands(options ...micro.Option) []cli.Command {
 		Usage: "Run the micro network tunnel",
 		Flags: []cli.Flag{
 			cli.StringFlag{
-				Name:   "tunnel_address",
-				Usage:  "Set the micro tunnel address :9096",
+				Name:   "address",
+				Usage:  "Set the micro tunnel address :9095",
 				EnvVar: "MICRO_TUNNEL_ADDRESS",
+			},
+			cli.StringFlag{
+				Name:   "tunnel_listen_address",
+				Usage:  "Set the micro tunnel listen address :9096",
+				EnvVar: "MICRO_TUNNEL_ADDRESS",
+			},
+			cli.StringFlag{
+				Name:   "tunnel_nodes",
+				Usage:  "Set the micro tunnel nodes",
+				EnvVar: "MICRO_TUNNEL_NODES",
 			},
 			cli.StringFlag{
 				Name:   "network_address",
@@ -171,11 +182,6 @@ func Commands(options ...micro.Option) []cli.Command {
 				Name:   "gateway_address",
 				Usage:  "Set the micro default gateway address :9094",
 				EnvVar: "MICRO_GATEWAY_ADDRESS",
-			},
-			cli.StringFlag{
-				Name:   "tunnel_nodes",
-				Usage:  "Set the micro tunnel nodes",
-				EnvVar: "MICRO_TUNNEL_NODES",
 			},
 		},
 		Action: func(ctx *cli.Context) {
