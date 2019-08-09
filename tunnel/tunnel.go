@@ -2,7 +2,6 @@ package tunnel
 
 import (
 	"os"
-	"sync"
 	"time"
 
 	"github.com/micro/cli"
@@ -127,38 +126,30 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		server.Registry(memRegistry),
 	)
 
-	var wg sync.WaitGroup
-
-	// error channel to collect errors and bail
-	errChan := make(chan error, 2)
-
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-		errChan <- service.Run()
-	}()
-
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-		errChan <- tunSrv.Start()
-	}()
-
-	// we block here until either service or server fails
-	if err := <-errChan; err != nil {
-		log.Logf("[tunnel] error running the tunnel: %v", err)
+	if err := tunSrv.Start(); err != nil {
+		log.Logf("[tunnel] error starting tunnel server: %v", err)
+		os.Exit(1)
 	}
 
-	log.Log("[tunnel] attempting to stop the tunnel")
+	if err := service.Run(); err != nil {
+		log.Log("[tunnel] %s failed: %v", Name, err)
+	}
 
 	// stop the router
 	if err := r.Stop(); err != nil {
-		log.Logf("[tunnel] error stopping tunnel router:%v", err)
+		log.Logf("[tunnel] error stopping tunnel router: %v", err)
 	}
 
-	wg.Wait()
+	// stop the server
+	if err := tunSrv.Stop(); err != nil {
+		log.Logf("[tunnel] error stopping tunnel server: %v", err)
+	}
 
-	log.Logf("[tunnel] successfully stopped")
+	if err := t.Connect(); err != nil {
+		log.Logf("[tunnel] error stopping tunnel: %v", err)
+	}
+
+	log.Logf("[tunnel] stopped")
 }
 
 func Commands(options ...micro.Option) []cli.Command {
