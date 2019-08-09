@@ -14,6 +14,7 @@ import (
 	"github.com/micro/micro/router"
 	"github.com/micro/micro/server"
 	"github.com/micro/micro/service"
+	"github.com/micro/micro/tunnel"
 	"github.com/micro/micro/web"
 
 	// include usage
@@ -89,6 +90,11 @@ func setup(app *ccli.App) {
 			EnvVar: "MICRO_GATEWAY_ADDRESS",
 		},
 		ccli.StringFlag{
+			Name:   "tunnel_address",
+			Usage:  "Set the micro tunnel address e.g. :9096",
+			EnvVar: "MICRO_TUNNEL_ADDRESS",
+		},
+		ccli.StringFlag{
 			Name:   "api_handler",
 			Usage:  "Specify the request handler to be used for mapping HTTP requests to services; {api, proxy, rpc}",
 			EnvVar: "MICRO_API_HANDLER",
@@ -148,6 +154,9 @@ func setup(app *ccli.App) {
 		if len(ctx.String("router_address")) > 0 {
 			router.Router = ctx.String("router_address")
 		}
+		if len(ctx.String("tunnel_address")) > 0 {
+			tunnel.Address = ctx.String("tunnel_address")
+		}
 		if len(ctx.String("api_namespace")) > 0 {
 			api.Namespace = ctx.String("api_namespace")
 		}
@@ -185,6 +194,7 @@ func Setup(app *ccli.App, options ...micro.Option) {
 	app.Commands = append(app.Commands, proxy.Commands(options...)...)
 	app.Commands = append(app.Commands, monitor.Commands(options...)...)
 	app.Commands = append(app.Commands, router.Commands(options...)...)
+	app.Commands = append(app.Commands, tunnel.Commands(options...)...)
 	app.Commands = append(app.Commands, server.Commands(options...)...)
 	app.Commands = append(app.Commands, service.Commands(options...)...)
 	app.Commands = append(app.Commands, new.Commands()...)
