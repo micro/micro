@@ -155,7 +155,7 @@ func setup(app *ccli.App) {
 			router.Router = ctx.String("router_address")
 		}
 		if len(ctx.String("tunnel_address")) > 0 {
-			tunnel.Tunnel = ctx.String("tunnel_address")
+			tunnel.Address = ctx.String("tunnel_address")
 		}
 		if len(ctx.String("api_namespace")) > 0 {
 			api.Namespace = ctx.String("api_namespace")
