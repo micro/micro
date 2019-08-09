@@ -21,11 +21,9 @@ var (
 	// Name of the router microservice
 	Name = "go.micro.tunnel"
 	// Address is the tunnel microservice bind address
-	Address = ":8084"
+	Address = ":9095"
 	// Tunnel is the tunnel bind address
 	Tunnel = ":9096"
-	// Channel is the name of the tunnel session
-	Channel = "tunnel"
 	// Router is the router gossip bind address
 	Router = ":9093"
 	// Network is the network id
@@ -42,11 +40,11 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	if len(ctx.GlobalString("server_name")) > 0 {
 		Name = ctx.GlobalString("server_name")
 	}
-	if len(ctx.String("address")) > 0 {
-		Address = ctx.String("address")
-	}
 	if len(ctx.String("network_address")) > 0 {
 		Network = ctx.String("network")
+	}
+	if len(ctx.String("address")) > 0 {
+		Address = ctx.String("address")
 	}
 	if len(ctx.String("tunnel_address")) > 0 {
 		Tunnel = ctx.String("tunnel")
@@ -55,17 +53,6 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	var gateway string
 	if len(ctx.String("gateway_address")) > 0 {
 		gateway = ctx.String("gateway")
-	}
-
-	// create a tunnel
-	t := tun.NewTunnel(
-		tun.Address(Tunnel),
-	)
-
-	// connect the tunnel
-	if err := t.Connect(); err != nil {
-		log.Logf("[tunnel] failed to connect: %s", err)
-		os.Exit(1)
 	}
 
 	// Initialise service
@@ -83,6 +70,11 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		router.Address(Router),
 		router.Network(Network),
 		router.Gateway(gateway),
+	)
+
+	// create a tunnel
+	t := tun.NewTunnel(
+		tun.Address(Tunnel),
 	)
 
 	// create tunnel client with tunnel transport
