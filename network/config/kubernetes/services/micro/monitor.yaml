@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: default
+  name: micro-monitor
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: micro-monitor
+  template:
+    metadata:
+      labels:
+        name: micro-monitor
+    spec:
+      containers:
+        - name: monitor
+          command: [
+            "/micro",
+            "monitor",
+          ]
+          image: microhq/micro
+          imagePullPolicy: Always
+          env:
+          - name: MICRO_REGISTRY
+            value: "consul"
+          - name: MICRO_REGISTRY_ADDRESS
+            value: "consul-consul-server"
