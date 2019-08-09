@@ -8,7 +8,6 @@ import (
 	"github.com/micro/cli"
 	"github.com/micro/go-micro"
 	"github.com/micro/go-micro/client"
-	"github.com/micro/go-micro/config/options"
 	"github.com/micro/go-micro/proxy"
 	"github.com/micro/go-micro/proxy/mucp"
 	"github.com/micro/go-micro/registry/memory"
