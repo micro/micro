@@ -24,7 +24,7 @@ var (
 	// Address is the tunnel address
 	Address = ":9095"
 	// Tunnel is the name of the tunnel
-	Tunnel = ":9096"
+	Tunnel = "tun:0"
 )
 
 // run runs the micro server
@@ -66,6 +66,13 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		tun.Address(Address),
 		tun.Nodes(nodes...),
 	)
+
+	// start the tunnel
+	if err := t.Connect(); err != nil {
+		log.Logf("Tunnel error connecting: %v", err)
+	}
+
+	log.Logf("Tunnel [%s] listening on %s", Tunnel, Address)
 
 	// create tunnel client with tunnel transport
 	tunTransport := transport.NewTransport(
@@ -129,11 +136,9 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		log.Logf("Tunnel error stopping tunnel server: %v", err)
 	}
 
-	if err := t.Connect(); err != nil {
+	if err := t.Close(); err != nil {
 		log.Logf("Tunnel error stopping tunnel: %v", err)
 	}
-
-	log.Logf("Tunnel stopped")
 }
 
 func Commands(options ...micro.Option) []cli.Command {
