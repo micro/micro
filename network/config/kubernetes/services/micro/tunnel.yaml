@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: default
+  name: micro-tunnel
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      name: micro-tunnel
+  template:
+    metadata:
+      labels:
+        name: micro-tunnel
+    spec:
+      containers:
+      - name: tunnel
+        env:
+        - name: MICRO_REGISTRY
+          value: "consul"
+        - name: MICRO_REGISTRY_ADDRESS
+          value: "consul-consul-server"
+        args:
+        - tunnel
+        image: microhq/micro
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8083
+          name: tunnel-port
