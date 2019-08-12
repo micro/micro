@@ -16,6 +16,8 @@ spec:
       containers:
       - name: tunnel
         env:
+        - name: MICRO_LOG_LEVEL
+          value: "debug"
         - name: MICRO_REGISTRY
           value: "consul"
         - name: MICRO_REGISTRY_ADDRESS
