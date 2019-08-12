@@ -153,7 +153,7 @@ func Commands(options ...micro.Option) []cli.Command {
 		Flags: []cli.Flag{
 			cli.StringFlag{
 				Name:   "address",
-				Usage:  "Set the micro tunnel address :9095",
+				Usage:  "Set the micro tunnel address :8083",
 				EnvVar: "MICRO_TUNNEL_ADDRESS",
 			},
 			cli.StringFlag{
