@@ -40,12 +40,17 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	if len(ctx.String("address")) > 0 {
 		Address = ctx.String("address")
 	}
-	if len(ctx.String("name")) > 0 {
-		Tunnel = ctx.String("name")
+	if len(ctx.String("id")) > 0 {
+		Tunnel = ctx.String("id")
+		// We need host:port for the Endpoint value in the proxy
+		parts := strings.Split(Tunnel, ":")
+		if len(parts) == 1 {
+			Tunnel = Tunnel + ":0"
+		}
 	}
 	var nodes []string
-	if len(ctx.String("nodes")) > 0 {
-		nodes = strings.Split(ctx.String("nodes"), ",")
+	if len(ctx.String("server")) > 0 {
+		nodes = strings.Split(ctx.String("server"), ",")
 	}
 
 	// Initialise service
@@ -152,14 +157,14 @@ func Commands(options ...micro.Option) []cli.Command {
 				EnvVar: "MICRO_TUNNEL_ADDRESS",
 			},
 			cli.StringFlag{
-				Name:   "name",
-				Usage:  "Name of the tunnel used as the internal dial/listen address",
-				EnvVar: "MICRO_TUNNEL_NAME",
+				Name:   "id",
+				Usage:  "Id of the tunnel used as the internal dial/listen address.",
+				EnvVar: "MICRO_TUNNEL_ID",
 			},
 			cli.StringFlag{
-				Name:   "nodes",
-				Usage:  "Set the micro tunnel nodes",
-				EnvVar: "MICRO_TUNNEL_NODES",
+				Name:   "server",
+				Usage:  "Set the micro tunnel server address. This can be a comma separated list.",
+				EnvVar: "MICRO_TUNNEL_SERVER",
 			},
 		},
 		Action: func(ctx *cli.Context) {
