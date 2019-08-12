@@ -22,7 +22,7 @@ var (
 	// Name of the tunnel service
 	Name = "go.micro.tunnel"
 	// Address is the tunnel address
-	Address = ":9095"
+	Address = ":8083"
 	// Tunnel is the name of the tunnel
 	Tunnel = "tun:0"
 )
