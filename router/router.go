@@ -139,10 +139,20 @@ func (r *rtr) PublishAdverts(ch <-chan *router.Advert) error {
 	return nil
 }
 
-// stop stops the micro router
+// Start starts the micro router
+func (r *rtr) Start() error {
+	// start the router
+	if err := r.Router.Start(); err != nil {
+		return fmt.Errorf("failed to start router: %v", err)
+	}
+
+	return nil
+}
+
+// Stop stops the micro router
 func (r *rtr) Stop() error {
 	// stop the router
-	if err := r.Stop(); err != nil {
+	if err := r.Router.Stop(); err != nil {
 		return fmt.Errorf("failed to stop router: %v", err)
 	}
 
@@ -209,16 +219,28 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	// create new micro router and start advertising routes
 	rtr := newRouter(service, r)
 
-	log.Log("[router] starting to advertise")
+	log.Log("[router] starting micro router")
 
-	advertChan, err := rtr.Advertise()
-	if err != nil {
+	if err := rtr.Start(); err != nil {
 		log.Logf("[router] failed to start: %s", err)
 		os.Exit(1)
 	}
 
-	var wg sync.WaitGroup
+	log.Log("[router] starting to advertise")
 
+	advertChan, err := rtr.Advertise()
+	if err != nil {
+		log.Logf("[router] failed to advertise: %s", err)
+		log.Log("[router] attempting to stop the router")
+		if err := rtr.Stop(); err != nil {
+			log.Logf("[router] failed to stop: %s", err)
+			os.Exit(1)
+		}
+		os.Exit(1)
+	}
+
+	var wg sync.WaitGroup
+	// error channel to collect router errors
 	errChan := make(chan error, 2)
 
 	wg.Add(1)
