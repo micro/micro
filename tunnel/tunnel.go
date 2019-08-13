@@ -66,6 +66,12 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		router.Registry(service.Client().Options().Registry),
 	)
 
+	// start the router
+	if err := r.Start(); err != nil {
+		log.Logf("Tunnel error starting router: %s", err)
+		os.Exit(1)
+	}
+
 	// create a tunnel
 	t := tun.NewTunnel(
 		tun.Address(Address),
@@ -153,7 +159,7 @@ func Commands(options ...micro.Option) []cli.Command {
 		Flags: []cli.Flag{
 			cli.StringFlag{
 				Name:   "address",
-				Usage:  "Set the micro tunnel address :9095",
+				Usage:  "Set the micro tunnel address :8083",
 				EnvVar: "MICRO_TUNNEL_ADDRESS",
 			},
 			cli.StringFlag{

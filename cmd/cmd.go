@@ -81,7 +81,7 @@ func setup(app *ccli.App) {
 		},
 		ccli.StringFlag{
 			Name:   "router_address",
-			Usage:  "Set the micro router address e.g. :9093",
+			Usage:  "Set the micro router address e.g. :8084",
 			EnvVar: "MICRO_ROUTER_ADDRESS",
 		},
 		ccli.StringFlag{
@@ -91,7 +91,7 @@ func setup(app *ccli.App) {
 		},
 		ccli.StringFlag{
 			Name:   "tunnel_address",
-			Usage:  "Set the micro tunnel address e.g. :9096",
+			Usage:  "Set the micro tunnel address e.g. :8083",
 			EnvVar: "MICRO_TUNNEL_ADDRESS",
 		},
 		ccli.StringFlag{

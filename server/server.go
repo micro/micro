@@ -49,7 +49,10 @@ func newServer(s micro.Service, r router.Router) *srv {
 func (s *srv) start() error {
 	log.Log("[server] starting micro server")
 
-	// TODO: we will add other things to start here
+	// start the router
+	if err := s.router.Start(); err != nil {
+		return err
+	}
 
 	return nil
 }
