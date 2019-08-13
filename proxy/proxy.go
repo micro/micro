@@ -21,6 +21,7 @@ import (
 	sgrpc "github.com/micro/go-micro/server/grpc"
 	smucp "github.com/micro/go-micro/server/mucp"
 	"github.com/micro/go-micro/util/log"
+	"github.com/micro/go-micro/util/mux"
 )
 
 var (
@@ -152,9 +153,12 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	// new service
 	service := micro.NewService(srvOpts...)
 
+	// create a new proxy muxer which includes the debug handler
+	muxer := mux.New(Name, p)
+
 	// set the router
 	service.Server().Init(
-		server.WithRouter(p),
+		server.WithRouter(muxer),
 	)
 
 	// Run internal service

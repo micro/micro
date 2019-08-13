@@ -16,6 +16,7 @@ import (
 	tun "github.com/micro/go-micro/tunnel"
 	"github.com/micro/go-micro/tunnel/transport"
 	"github.com/micro/go-micro/util/log"
+	"github.com/micro/go-micro/util/mux"
 )
 
 var (
@@ -102,9 +103,12 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		proxy.WithEndpoint(Tunnel),
 	)
 
+	// create new muxer
+	muxer := mux.New(Name, localProxy)
+
 	// init server
 	service.Server().Init(
-		server.WithRouter(localProxy),
+		server.WithRouter(muxer),
 	)
 
 	// local transport client

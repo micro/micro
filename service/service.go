@@ -12,6 +12,7 @@ import (
 	"github.com/micro/go-micro/proxy/mucp"
 	"github.com/micro/go-micro/server"
 	"github.com/micro/go-micro/util/log"
+	"github.com/micro/go-micro/util/mux"
 )
 
 func run(ctx *cli.Context, opts ...micro.Option) {
@@ -47,9 +48,12 @@ func run(ctx *cli.Context, opts ...micro.Option) {
 	// new service
 	service := micro.NewService(opts...)
 
+	// create new muxer
+	muxer := mux.New(name, p)
+
 	// set the router
 	service.Server().Init(
-		server.WithRouter(p),
+		server.WithRouter(muxer),
 	)
 
 	// run service
