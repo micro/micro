@@ -2,6 +2,7 @@
 package proxy
 
 import (
+	"os"
 	"strings"
 	"time"
 
@@ -90,6 +91,12 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		r = rs.NewRouter(ropts...)
 	default:
 		r = router.NewRouter(ropts...)
+	}
+
+	// start the router
+	if err := r.Start(); err != nil {
+		log.Logf("Proxy error starting router: %s", err)
+		os.Exit(1)
 	}
 
 	popts = append(popts, proxy.WithRouter(r))
