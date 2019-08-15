@@ -41,6 +41,7 @@ var (
 	ProxyPath    = "/{service:[a-zA-Z0-9]+}"
 	Namespace    = "go.micro.api"
 	HeaderPrefix = "X-Micro-"
+	EnableRPC    = false
 )
 
 func run(ctx *cli.Context, srvOpts ...micro.Option) {
@@ -58,6 +59,9 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	}
 	if len(ctx.String("resolver")) > 0 {
 		Resolver = ctx.String("resolver")
+	}
+	if len(ctx.String("enable_rpc")) > 0 {
+		EnableRPC = ctx.Bool("enable_rpc")
 	}
 
 	// Init plugins
@@ -108,8 +112,10 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	service := micro.NewService(srvOpts...)
 
 	// register rpc handler
-	log.Logf("Registering RPC Handler at %s", RPCPath)
-	r.HandleFunc(RPCPath, handler.RPC)
+	if EnableRPC {
+		log.Logf("Registering RPC Handler at %s", RPCPath)
+		r.HandleFunc(RPCPath, handler.RPC)
+	}
 
 	// resolver options
 	ropts := []resolver.Option{
@@ -264,6 +270,11 @@ func Commands(options ...micro.Option) []cli.Command {
 				Name:   "resolver",
 				Usage:  "Set the hostname resolver used by the API {host, path, grpc}",
 				EnvVar: "MICRO_API_RESOLVER",
+			},
+			cli.BoolFlag{
+				Name:   "enable_rpc",
+				Usage:  "Enable call the backend directly via /rpc",
+				EnvVar: "MICRO_API_ENABLE_RPC",
 			},
 		},
 	}
