@@ -21,12 +21,12 @@ import (
 var (
 	// Name of the network service
 	Name = "go.micro.network"
-	// Address is the tunnel address
+	// Address is the network address
 	Address = ":8084"
-	// Tunnel is the name of the tunnel
+	// Tunnel is the name of the network tunnel
 	Tunnel = "tun:0"
-	// Resolver is network resolver
-	Resolver = "dns"
+	// Resolver is the network resolver
+	Resolver = "registry"
 )
 
 // run runs the micro server
@@ -108,7 +108,8 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	)
 
 	if err := service.Run(); err != nil {
-		log.Log("Network %s failed: %v", Name, err)
+		log.Logf("Network %s failed: %v", Name, err)
+		os.Exit(1)
 	}
 }
 
