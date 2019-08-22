@@ -2,6 +2,7 @@
 package network
 
 import (
+	"os"
 	"strings"
 	"time"
 
@@ -86,6 +87,11 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		network.Router(rtr),
 		network.Resolver(res),
 	)
+
+	if err := net.Connect(); err != nil {
+		log.Logf("Network failed to connect: %v", err)
+		os.Exit(1)
+	}
 
 	// Initialise service
 	service := micro.NewService(
