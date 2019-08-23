@@ -13,7 +13,10 @@ import (
 	"github.com/micro/go-micro/network/resolver/dns"
 	"github.com/micro/go-micro/network/resolver/http"
 	"github.com/micro/go-micro/network/resolver/registry"
+	"github.com/micro/go-micro/proxy"
+	"github.com/micro/go-micro/proxy/mucp"
 	"github.com/micro/go-micro/router"
+	"github.com/micro/go-micro/server"
 	"github.com/micro/go-micro/tunnel"
 	"github.com/micro/go-micro/util/log"
 )
@@ -23,8 +26,6 @@ var (
 	Name = "go.micro.network"
 	// Address is the network address
 	Address = ":8084"
-	// Tunnel is the name of the network tunnel
-	Tunnel = "tun:0"
 	// Resolver is the network resolver
 	Resolver = "registry"
 )
@@ -41,14 +42,6 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	}
 	if len(ctx.String("address")) > 0 {
 		Address = ctx.String("address")
-	}
-	if len(ctx.String("tunnel_id")) > 0 {
-		Tunnel = ctx.String("tunnel_id")
-		// We need host:port for the Endpoint value in the proxy
-		parts := strings.Split(Tunnel, ":")
-		if len(parts) == 1 {
-			Tunnel = Tunnel + ":0"
-		}
 	}
 	var nodes []string
 	if len(ctx.String("server")) > 0 {
@@ -93,12 +86,13 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		os.Exit(1)
 	}
 
+	log.Logf("Network [%s] listening on %s", Name, Address)
+
 	// Initialise service
 	service := micro.NewService(
 		micro.Name(Name),
 		micro.RegisterTTL(time.Duration(ctx.GlobalInt("register_ttl"))*time.Second),
 		micro.RegisterInterval(time.Duration(ctx.GlobalInt("register_interval"))*time.Second),
-		micro.Server(net.Server()),
 	)
 
 	// initialize router
@@ -106,6 +100,28 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		router.Id(service.Server().Options().Id),
 		router.Registry(service.Client().Options().Registry),
 	)
+
+	// local proxy
+	prx := mucp.NewProxy(
+		proxy.WithRouter(rtr),
+		proxy.WithClient(service.Client()),
+		proxy.WithLink("network", net.Client()),
+	)
+
+	// init server
+	service.Server().Init(
+		server.WithRouter(prx),
+	)
+
+	// local server
+	srv := server.NewServer(
+		server.WithRouter(prx),
+	)
+
+	//if err := srv.Start(); err != nil {
+	//	log.Logf("Network failed starting local server: %v", err)
+	//	os.Exit(1)
+	//}
 
 	if err := service.Run(); err != nil {
 		log.Logf("Network %s failed: %v", Name, err)
@@ -122,11 +138,6 @@ func Commands(options ...micro.Option) []cli.Command {
 				Name:   "address",
 				Usage:  "Set the micro network address :8084",
 				EnvVar: "MICRO_NETWORK_ADDRESS",
-			},
-			cli.StringFlag{
-				Name:   "tunnel_id",
-				Usage:  "Id of the tunnel used as the internal dial/listen address.",
-				EnvVar: "MICRO_TUNNEL_ID",
 			},
 			cli.StringFlag{
 				Name:   "server",
