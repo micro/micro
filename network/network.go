@@ -81,13 +81,6 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		network.Resolver(res),
 	)
 
-	if err := net.Connect(); err != nil {
-		log.Logf("Network failed to connect: %v", err)
-		os.Exit(1)
-	}
-
-	log.Logf("Network [%s] listening on %s", Name, Address)
-
 	// Initialise service
 	service := micro.NewService(
 		micro.Name(Name),
@@ -113,15 +106,12 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		server.WithRouter(prx),
 	)
 
-	// local server
-	srv := server.NewServer(
-		server.WithRouter(prx),
-	)
+	if err := net.Connect(); err != nil {
+		log.Logf("Network failed to connect: %v", err)
+		os.Exit(1)
+	}
 
-	//if err := srv.Start(); err != nil {
-	//	log.Logf("Network failed starting local server: %v", err)
-	//	os.Exit(1)
-	//}
+	log.Logf("Network [%s] listening on %s", Name, Address)
 
 	if err := service.Run(); err != nil {
 		log.Logf("Network %s failed: %v", Name, err)
