@@ -25,7 +25,7 @@ var (
 	// Name of the network service
 	Name = "go.micro.network"
 	// Address is the network address
-	Address = ":8084"
+	Address = ":8085"
 	// Resolver is the network resolver
 	Resolver = "registry"
 )
@@ -44,10 +44,9 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		Address = ctx.String("address")
 	}
 	var nodes []string
-	if len(ctx.String("server")) > 0 {
-		nodes = strings.Split(ctx.String("server"), ",")
+	if len(ctx.String("node")) > 0 {
+		nodes = strings.Split(ctx.String("node"), ",")
 	}
-
 	if len(ctx.String("resolver")) > 0 {
 		Resolver = ctx.String("resolver")
 	}
@@ -106,6 +105,12 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		server.WithRouter(prx),
 	)
 
+	// set network server to proxy
+	net.Server().Init(
+		server.WithRouter(prx),
+	)
+
+	// connect network
 	if err := net.Connect(); err != nil {
 		log.Logf("Network failed to connect: %v", err)
 		os.Exit(1)
@@ -126,13 +131,13 @@ func Commands(options ...micro.Option) []cli.Command {
 		Flags: []cli.Flag{
 			cli.StringFlag{
 				Name:   "address",
-				Usage:  "Set the micro network address :8084",
+				Usage:  "Set the micro network address :8085",
 				EnvVar: "MICRO_NETWORK_ADDRESS",
 			},
 			cli.StringFlag{
-				Name:   "server",
-				Usage:  "Set the micro network server address. This can be a comma separated list.",
-				EnvVar: "MICRO_NETWORK_SERVER",
+				Name:   "node",
+				Usage:  "Set the micro network server node address. This can be a comma separated list.",
+				EnvVar: "MICRO_NETWORK_NODE",
 			},
 			cli.StringFlag{
 				Name:   "resolver",
