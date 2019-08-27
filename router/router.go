@@ -22,8 +22,8 @@ var (
 	Address = ":8084"
 	// Router is the router gossip bind address
 	Router = ":9093"
-	// Network is the network id
-	Network = "local"
+	// Network is the network name
+	Network = router.DefaultNetwork
 	// Topic is router adverts topic
 	Topic = "go.micro.router.adverts"
 )
@@ -176,7 +176,7 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		Router = ctx.String("router")
 	}
 	if len(ctx.String("network_address")) > 0 {
-		Network = ctx.String("network")
+		Network = ctx.String("network_address")
 	}
 	// default gateway address
 	var gateway string
