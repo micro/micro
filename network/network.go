@@ -60,6 +60,13 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		res = &registry.Resolver{}
 	}
 
+	// Initialise service
+	service := micro.NewService(
+		micro.Name(Name),
+		micro.RegisterTTL(time.Duration(ctx.GlobalInt("register_ttl"))*time.Second),
+		micro.RegisterInterval(time.Duration(ctx.GlobalInt("register_interval"))*time.Second),
+	)
+
 	// create a tunnel
 	tun := tunnel.NewTunnel(
 		tunnel.Address(Address),
@@ -69,28 +76,18 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	// local tunnel router
 	rtr := router.NewRouter(
 		router.Network(Name),
+		router.Id(service.Server().Options().Id),
+		router.Registry(service.Client().Options().Registry),
 	)
 
 	// creaate new network
 	net := network.NewNetwork(
+		network.Id(service.Server().Options().Id),
 		network.Name(Name),
 		network.Address(Address),
 		network.Tunnel(tun),
 		network.Router(rtr),
 		network.Resolver(res),
-	)
-
-	// Initialise service
-	service := micro.NewService(
-		micro.Name(Name),
-		micro.RegisterTTL(time.Duration(ctx.GlobalInt("register_ttl"))*time.Second),
-		micro.RegisterInterval(time.Duration(ctx.GlobalInt("register_interval"))*time.Second),
-	)
-
-	// initialize router
-	rtr.Init(
-		router.Id(service.Server().Options().Id),
-		router.Registry(service.Client().Options().Registry),
 	)
 
 	// local proxy
