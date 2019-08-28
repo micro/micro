@@ -24,6 +24,8 @@ import (
 var (
 	// Name of the network service
 	Name = "go.micro.network"
+	// Name of the micro network
+	Network = "go.micro"
 	// Address is the network address
 	Address = ":8085"
 	// Resolver is the network resolver
@@ -42,6 +44,9 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	}
 	if len(ctx.String("address")) > 0 {
 		Address = ctx.String("address")
+	}
+	if len(ctx.String("network")) > 0 {
+		Network = ctx.String("network")
 	}
 	var nodes []string
 	if len(ctx.String("node")) > 0 {
@@ -75,7 +80,7 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 
 	// local tunnel router
 	rtr := router.NewRouter(
-		router.Network(Name),
+		router.Network(Network),
 		router.Id(service.Server().Options().Id),
 		router.Registry(service.Client().Options().Registry),
 	)
@@ -83,7 +88,7 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	// creaate new network
 	net := network.NewNetwork(
 		network.Id(service.Server().Options().Id),
-		network.Name(Name),
+		network.Name(Network),
 		network.Address(Address),
 		network.Tunnel(tun),
 		network.Router(rtr),
@@ -130,6 +135,11 @@ func Commands(options ...micro.Option) []cli.Command {
 				Name:   "address",
 				Usage:  "Set the micro network address :8085",
 				EnvVar: "MICRO_NETWORK_ADDRESS",
+			},
+			cli.StringFlag{
+				Name:   "network",
+				Usage:  "Set the micro network name: go.micro",
+				EnvVar: "MICRO_NETWORK",
 			},
 			cli.StringFlag{
 				Name:   "node",
