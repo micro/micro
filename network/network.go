@@ -90,6 +90,7 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		network.Id(service.Server().Options().Id),
 		network.Name(Network),
 		network.Address(Address),
+		network.Nodes(nodes...),
 		network.Tunnel(tun),
 		network.Router(rtr),
 		network.Resolver(res),
