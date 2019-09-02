@@ -10,7 +10,6 @@ import (
 	"github.com/micro/go-micro"
 	"github.com/micro/go-micro/network"
 	"github.com/micro/go-micro/network/handler"
-	pb "github.com/micro/go-micro/network/proto"
 	"github.com/micro/go-micro/network/resolver"
 	"github.com/micro/go-micro/network/resolver/dns"
 	"github.com/micro/go-micro/network/resolver/http"
@@ -21,6 +20,7 @@ import (
 	"github.com/micro/go-micro/server"
 	"github.com/micro/go-micro/tunnel"
 	"github.com/micro/go-micro/util/log"
+	"github.com/micro/go-micro/util/mux"
 )
 
 var (
@@ -105,22 +105,27 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		proxy.WithLink("network", net.Client()),
 	)
 
+	// create a handler
+	h := server.DefaultRouter.NewHandler(
+		&handler.Network{
+			Network: net,
+		},
+	)
+
+	// register the handler
+	server.DefaultRouter.Handle(h)
+
+	// create a new muxer
+	mux := mux.New(Name, prx)
+
 	// init server
 	service.Server().Init(
-		server.WithRouter(prx),
+		server.WithRouter(mux),
 	)
 
 	// set network server to proxy
 	net.Server().Init(
-		server.WithRouter(prx),
-	)
-
-	// register router handler
-	pb.RegisterNetworkHandler(
-		service.Server(),
-		&handler.Network{
-			Network: net,
-		},
+		server.WithRouter(mux),
 	)
 
 	// connect network
