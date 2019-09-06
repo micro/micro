@@ -2,6 +2,7 @@
 package network
 
 import (
+	"errors"
 	"os"
 	"strings"
 	"time"
@@ -133,16 +134,33 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		log.Logf("Network failed to connect: %v", err)
 		os.Exit(1)
 	}
-	// close on exit
-	defer net.Close()
+
+	// netClose hard exits if we have problems
+	netClose := func(net network.Network) error {
+		errChan := make(chan error, 1)
+
+		go func() {
+			errChan <- net.Close()
+		}()
+
+		select {
+		case err := <-errChan:
+			return err
+		case <-time.After(time.Second):
+			return errors.New("Network timeout closing")
+		}
+	}
 
 	log.Logf("Network [%s] listening on %s", Name, Address)
 
 	if err := service.Run(); err != nil {
 		log.Logf("Network %s failed: %v", Name, err)
-		net.Close()
+		netClose(net)
 		os.Exit(1)
 	}
+
+	// close the network
+	netClose(net)
 }
 
 func Commands(options ...micro.Option) []cli.Command {
