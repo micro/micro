@@ -87,7 +87,7 @@ func runc(c *cli.Context) {
 	}
 }
 
-func registryCommands() []cli.Command {
+func RegistryCommands() []cli.Command {
 	return []cli.Command{
 		{
 			Name:  "list",
@@ -144,11 +144,6 @@ func Commands() []cli.Command {
 			Action: runc,
 		},
 		{
-			Name:        "registry",
-			Usage:       "Query registry",
-			Subcommands: registryCommands(),
-		},
-		{
 			Name:   "call",
 			Usage:  "Call a service",
 			Action: printer(callService),
@@ -175,5 +170,5 @@ func Commands() []cli.Command {
 		},
 	}
 
-	return append(commands, registryCommands()...)
+	return append(commands, RegistryCommands()...)
 }

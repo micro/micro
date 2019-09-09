@@ -12,6 +12,7 @@ import (
 	"github.com/micro/micro/new"
 	"github.com/micro/micro/plugin"
 	"github.com/micro/micro/proxy"
+	"github.com/micro/micro/registry"
 	"github.com/micro/micro/router"
 	"github.com/micro/micro/server"
 	"github.com/micro/micro/service"
@@ -197,6 +198,7 @@ func Setup(app *ccli.App, options ...micro.Option) {
 	app.Commands = append(app.Commands, router.Commands(options...)...)
 	app.Commands = append(app.Commands, tunnel.Commands(options...)...)
 	app.Commands = append(app.Commands, network.Commands(options...)...)
+	app.Commands = append(app.Commands, registry.Commands(options...)...)
 	app.Commands = append(app.Commands, server.Commands(options...)...)
 	app.Commands = append(app.Commands, service.Commands(options...)...)
 	app.Commands = append(app.Commands, new.Commands()...)
