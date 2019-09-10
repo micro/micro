@@ -127,6 +127,7 @@ func Flags() plugin.Plugin {
 
 			for _, p := range plugins {
 				if err := load(p); err != nil {
+					log.Logf("Error loading plugin %s: %v", p, err)
 					return err
 				}
 				log.Logf("Loaded plugin %s\n", p)
