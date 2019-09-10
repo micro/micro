@@ -365,14 +365,14 @@ func run(ctx *cli.Context) {
 		Namespace = ctx.String("namespace")
 	}
 
-	// Parse flags
-	if len(ctx.String("inputs")) == 0 {
-		log.Fatal("[bot] no inputs specified")
-	}
+	// Parse inputs
+	var inputs []string
 
-	inputs := strings.Split(ctx.String("inputs"), ",")
-	if len(inputs) == 0 {
-		log.Fatal("[bot] no inputs specified")
+	parts := strings.Split(ctx.String("inputs"), ",")
+	for _, p := range parts {
+		if len(p) > 0 {
+			inputs = append(inputs, p)
+		}
 	}
 
 	ios := make(map[string]input.Input)
@@ -395,6 +395,9 @@ func run(ctx *cli.Context) {
 
 	// Parse inputs
 	for _, io := range inputs {
+		if len(io) == 0 {
+			continue
+		}
 		i, ok := input.Inputs[io]
 		if !ok {
 			log.Logf("[bot] input %s not found\n", i)
