@@ -11,6 +11,7 @@ import (
 	"github.com/micro/micro/network"
 	"github.com/micro/micro/new"
 	"github.com/micro/micro/plugin"
+	"github.com/micro/micro/plugin/build"
 	"github.com/micro/micro/proxy"
 	"github.com/micro/micro/registry"
 	"github.com/micro/micro/router"
@@ -28,6 +29,10 @@ var (
 	description = "A microservice runtime"
 	version     = "1.9.1"
 )
+
+func init() {
+	plugin.Register(build.Flags())
+}
 
 func setup(app *ccli.App) {
 	app.Flags = append(app.Flags,
@@ -190,6 +195,7 @@ func Init(options ...micro.Option) {
 
 // Setup sets up a cli.App
 func Setup(app *ccli.App, options ...micro.Option) {
+	// Add the various commands
 	app.Commands = append(app.Commands, api.Commands(options...)...)
 	app.Commands = append(app.Commands, bot.Commands()...)
 	app.Commands = append(app.Commands, cli.Commands()...)
@@ -202,6 +208,7 @@ func Setup(app *ccli.App, options ...micro.Option) {
 	app.Commands = append(app.Commands, server.Commands(options...)...)
 	app.Commands = append(app.Commands, service.Commands(options...)...)
 	app.Commands = append(app.Commands, new.Commands()...)
+	app.Commands = append(app.Commands, build.Commands()...)
 	app.Commands = append(app.Commands, web.Commands(options...)...)
 	app.Action = func(context *ccli.Context) { ccli.ShowAppHelp(context) }
 
