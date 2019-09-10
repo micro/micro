@@ -7,8 +7,8 @@ import (
 	"strings"
 
 	"github.com/micro/cli"
+	goplugin "github.com/micro/go-micro/plugin"
 	"github.com/micro/go-micro/util/log"
-	goplugin "github.com/micro/go-plugins"
 	"github.com/micro/micro/plugin"
 )
 
@@ -54,7 +54,7 @@ func build(ctx *cli.Context) {
 		out = filepath.Join(out, name+".so")
 	}
 
-	if err := goplugin.Build(out, &goplugin.Plugin{
+	if err := goplugin.Build(out, &goplugin.Config{
 		Name:    name,
 		Type:    typ,
 		Path:    path,
