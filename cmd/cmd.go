@@ -27,7 +27,7 @@ import (
 var (
 	name        = "micro"
 	description = "A microservice runtime"
-	version     = "1.9.1"
+	version     = "1.10.0"
 )
 
 func init() {
