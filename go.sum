@@ -206,6 +206,8 @@ github.com/micro/go-micro v1.9.2-0.20190909200546-04b31d374c36 h1:hGlRvtQke7tAE1
 github.com/micro/go-micro v1.9.2-0.20190909200546-04b31d374c36/go.mod h1:duT+Yo83/MnUMmRAeCDKaZdqwqpYJt70eHoEdPTZGmc=
 github.com/micro/go-micro v1.9.2-0.20190910123810-08c6f60b0fe1 h1:IVI+WdPWRjOdRAaTHXzWSchG7xkbBIEWEbYQNEVHfak=
 github.com/micro/go-micro v1.9.2-0.20190910123810-08c6f60b0fe1/go.mod h1:duT+Yo83/MnUMmRAeCDKaZdqwqpYJt70eHoEdPTZGmc=
+github.com/micro/go-micro v1.10.0 h1:yONX1kwA1Fp5www9X2ketIvtexboX4EhDjNaw9j30BA=
+github.com/micro/go-micro v1.10.0/go.mod h1:duT+Yo83/MnUMmRAeCDKaZdqwqpYJt70eHoEdPTZGmc=
 github.com/micro/mdns v0.3.0 h1:bYycYe+98AXR3s8Nq5qvt6C573uFTDPIYzJemWON0QE=
 github.com/micro/mdns v0.3.0/go.mod h1:KJ0dW7KmicXU2BV++qkLlmHYcVv7/hHnbtguSWt9Aoc=
 github.com/miekg/dns v1.0.14/go.mod h1:W1PPwlIAgtquWBMBEV9nkV9Cazfe8ScdGz/Lj7v3Nrg=
