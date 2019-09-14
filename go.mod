@@ -13,7 +13,7 @@ require (
 	github.com/lusis/go-slackbot v0.0.0-20180109053408-401027ccfef5 // indirect
 	github.com/lusis/slack-test v0.0.0-20190426140909-c40012f20018 // indirect
 	github.com/micro/cli v0.2.0
-	github.com/micro/go-micro v1.10.1-0.20190914050152-c8a675249d96
+	github.com/micro/go-micro v1.10.1-0.20190914150736-364c5a486180
 	github.com/nats-io/nats-server/v2 v2.0.4 // indirect
 	github.com/serenize/snaker v0.0.0-20171204205717-a683aaf2d516
 	github.com/xlab/treeprint v0.0.0-20181112141820-a009c3971eca
