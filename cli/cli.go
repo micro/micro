@@ -74,6 +74,12 @@ func runc(c *cli.Context) {
 			name = n
 		}
 
+		// break out on quit
+		switch name {
+		case "quit", "exit":
+			return
+		}
+
 		if cmd, ok := commands[name]; ok {
 			rsp, err := cmd.exec(c, parts[1:])
 			if err != nil {
@@ -85,6 +91,11 @@ func runc(c *cli.Context) {
 			println("unknown command")
 		}
 	}
+}
+
+// Boot the cli
+func Init(ctx *cli.Context) {
+	runc(ctx)
 }
 
 func RegistryCommands() []cli.Command {

@@ -6,9 +6,9 @@ import (
 
 	ccli "github.com/micro/cli"
 	"github.com/micro/go-micro"
-	"github.com/micro/go-micro/util/log"
 	"github.com/micro/go-micro/config/cmd"
 	"github.com/micro/go-micro/runtime"
+	"github.com/micro/go-micro/util/log"
 	"github.com/micro/micro/api"
 	"github.com/micro/micro/bot"
 	"github.com/micro/micro/cli"
@@ -241,14 +241,18 @@ func Setup(app *ccli.App, options ...micro.Option) {
 			})
 		}
 
-		log.Info("Starting micro")
+		log.Debug("Starting micro")
 
 		// start the runtime
-		if err := runtime.Start(); err != nil {
-			log.Fatal(err)
-		}
+		go runtime.Start()
 
-		log.Info("Shutting down")
+		// start the console
+		cli.Init(context)
+
+		log.Debug("Shutting down")
+		// stop all the things
+		runtime.Stop()
+
 	}
 
 	setup(app)
