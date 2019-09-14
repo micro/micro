@@ -222,6 +222,7 @@ func Setup(app *ccli.App, options ...micro.Option) {
 			"api",
 			"bot",
 			"web",
+			"monitor",
 			"network",
 			"proxy",
 			"router",
