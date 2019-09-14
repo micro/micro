@@ -1,9 +1,14 @@
 package cmd
 
 import (
+	"fmt"
+	"os"
+
 	ccli "github.com/micro/cli"
 	"github.com/micro/go-micro"
+	"github.com/micro/go-micro/util/log"
 	"github.com/micro/go-micro/config/cmd"
+	"github.com/micro/go-micro/runtime"
 	"github.com/micro/micro/api"
 	"github.com/micro/micro/bot"
 	"github.com/micro/micro/cli"
@@ -210,7 +215,40 @@ func Setup(app *ccli.App, options ...micro.Option) {
 	app.Commands = append(app.Commands, new.Commands()...)
 	app.Commands = append(app.Commands, build.Commands()...)
 	app.Commands = append(app.Commands, web.Commands(options...)...)
-	app.Action = func(context *ccli.Context) { ccli.ShowAppHelp(context) }
+
+	// boot micro
+	app.Action = func(context *ccli.Context) {
+		services := []string{
+			"api",
+			"bot",
+			"web",
+			"network",
+			"proxy",
+			"router",
+			"registry",
+			"tunnel",
+		}
+
+		for _, service := range services {
+			name := fmt.Sprintf("micro.%s", service)
+			exec := fmt.Sprintf("%s %s", os.Args[0], service)
+
+			// register the service
+			runtime.Create(&runtime.Service{
+				Name: name,
+				Exec: exec,
+			})
+		}
+
+		log.Info("Starting micro")
+
+		// start the runtime
+		if err := runtime.Start(); err != nil {
+			log.Fatal(err)
+		}
+
+		log.Info("Shutting down")
+	}
 
 	setup(app)
 }
