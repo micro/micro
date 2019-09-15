@@ -3,6 +3,8 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"os/signal"
+	"syscall"
 
 	ccli "github.com/micro/cli"
 	"github.com/micro/go-micro"
@@ -218,6 +220,8 @@ func Setup(app *ccli.App, options ...micro.Option) {
 
 	// boot micro
 	app.Action = func(context *ccli.Context) {
+		log.Info("Starting micro")
+
 		services := []string{
 			"api",
 			"bot",
@@ -241,18 +245,26 @@ func Setup(app *ccli.App, options ...micro.Option) {
 			})
 		}
 
-		log.Debug("Starting micro")
+		shutdown := make(chan os.Signal, 1)
+		signal.Notify(shutdown, syscall.SIGTERM, syscall.SIGINT, syscall.SIGQUIT)
+
+		go func() {
+			<-shutdown
+			log.Info("Shutdown signal received")
+			log.Info("Stopping micro")
+			// stop all the things
+			runtime.Stop()
+			os.Exit(0)
+		}()
 
 		// start the runtime
-		go runtime.Start()
+		if err := runtime.Start(); err != nil {
+			log.Fatal(err)
+		}
 
+		// TODO: should we launch the console?
 		// start the console
-		cli.Init(context)
-
-		log.Debug("Shutting down")
-		// stop all the things
-		runtime.Stop()
-
+		// cli.Init(context)
 	}
 
 	setup(app)
