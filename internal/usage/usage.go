@@ -32,6 +32,13 @@ var (
 func New(service string) *pb.Usage {
 	id := fmt.Sprintf("micro.%s.%s.%s", service, version.V, uuid.New().String())
 	srv := "micro." + service
+
+	if len(service) == 0 {
+		id = fmt.Sprintf("micro.%s.%s", version.V, uuid.New().String())
+		srv = "micro"
+	}
+
+	// hashed id
 	sum := sha256.Sum256([]byte(id))
 
 	return &pb.Usage{
