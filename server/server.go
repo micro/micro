@@ -18,7 +18,7 @@ var (
 	// Name of the server microservice
 	Name = "go.micro.server"
 	// Address is the router microservice bind address
-	Address = ":8083"
+	Address = ":8087"
 	// Router is the router address a.k.a. gossip address
 	Router = ":9093"
 	// Network is the router network id
