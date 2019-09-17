@@ -98,7 +98,6 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 
 	// local proxy
 	localProxy := mucp.NewProxy(
-		proxy.WithRouter(r),
 		proxy.WithClient(localSrvClient),
 		proxy.WithEndpoint(Tunnel),
 	)
@@ -118,6 +117,7 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 
 	// local proxy
 	tunProxy := mucp.NewProxy(
+		proxy.WithRouter(r),
 		proxy.WithClient(tunSrvClient),
 	)
 
