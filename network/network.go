@@ -31,6 +31,8 @@ var (
 	Network = "go.micro"
 	// Address is the network address
 	Address = ":8085"
+	// Set the advertise address
+	Advertise = ""
 	// Resolver is the network resolver
 	Resolver = "registry"
 )
@@ -47,6 +49,9 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	}
 	if len(ctx.String("address")) > 0 {
 		Address = ctx.String("address")
+	}
+	if len(ctx.String("advertise")) > 0 {
+		Advertise = ctx.String("advertise")
 	}
 	if len(ctx.String("network")) > 0 {
 		Network = ctx.String("network")
@@ -93,6 +98,7 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		network.Id(service.Server().Options().Id),
 		network.Name(Network),
 		network.Address(Address),
+		network.Advertise(Advertise),
 		network.Nodes(nodes...),
 		network.Tunnel(tun),
 		network.Router(rtr),
@@ -172,6 +178,11 @@ func Commands(options ...micro.Option) []cli.Command {
 				Name:   "address",
 				Usage:  "Set the micro network address :8085",
 				EnvVar: "MICRO_NETWORK_ADDRESS",
+			},
+			cli.StringFlag{
+				Name:   "advertise",
+				Usage:  "Set the micro network address to advertise",
+				EnvVar: "MICRO_NETWORK_ADVERTISE",
 			},
 			cli.StringFlag{
 				Name:   "network",
