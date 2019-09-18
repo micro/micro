@@ -1,5 +1,5 @@
 NAME=micro
-IMAGE_NAME=micro/$(NAME)
+IMAGE_NAME=microhq/$(NAME)
 TAG=$(shell git describe --abbrev=0 --tags)
 CGO_ENABLED=0
 
