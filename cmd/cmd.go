@@ -220,6 +220,11 @@ func Setup(app *ccli.App, options ...micro.Option) {
 
 	// boot micro
 	app.Action = func(context *ccli.Context) {
+		// Defaults
+
+		// set network resolver to http
+		os.Setenv("MICRO_NETWORK_RESOLVER", "http")
+
 		log.Info("Starting micro")
 
 		services := []string{
