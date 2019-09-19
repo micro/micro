@@ -108,7 +108,7 @@ func Run(ctx *cli.Context) {
 	// create endpoint
 	ep := &goapi.Endpoint{
 		Name:    "Network.Peers",
-		Path:    []string{"/network"},
+		Path:    []string{"^/network/?$"},
 		Method:  []string{"GET"},
 		Handler: "rpc",
 	}
