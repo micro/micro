@@ -87,6 +87,16 @@ func runc(c *cli.Context) {
 	}
 }
 
+func HealthCommands() []cli.Command {
+	return []cli.Command{
+		{
+			Name:   "check",
+			Usage:  "Query the health of a service",
+			Action: printer(queryHealth),
+		},
+	}
+}
+
 func NetworkCommands() []cli.Command {
 	return []cli.Command{
 		{
@@ -188,11 +198,6 @@ func Commands() []cli.Command {
 			Name:   "publish",
 			Usage:  "Publish a message to a topic",
 			Action: printer(publish),
-		},
-		{
-			Name:   "health",
-			Usage:  "Query the health of a service",
-			Action: printer(queryHealth),
 		},
 		{
 			Name:   "stats",
