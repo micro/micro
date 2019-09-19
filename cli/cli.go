@@ -100,6 +100,11 @@ func HealthCommands() []cli.Command {
 func NetworkCommands() []cli.Command {
 	return []cli.Command{
 		{
+			Name:   "graph",
+			Usage:  "Get the network graph",
+			Action: printer(networkGraph),
+		},
+		{
 			Name:  "list",
 			Usage: "List network peers and routes",
 			Subcommands: []cli.Command{
