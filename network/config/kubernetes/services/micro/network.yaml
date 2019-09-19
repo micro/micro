@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: default
+  name: micro-network
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      name: micro-network
+  template:
+    metadata:
+      labels:
+        name: micro-network
+    spec:
+      volumes:
+      - name: shared-data
+        emptyDir: {}
+      containers:
+      - name: network
+        env:
+        - name: MICRO_LOG_LEVEL
+          value: "debug"
+        - name: MICRO_REGISTRY
+          value: "consul"
+        - name: MICRO_REGISTRY_ADDRESS
+          value: "consul-consul-server"
+        - name: MICRO_NETWORK_SVC_NODE_PORT
+          value: "30038"
+        command: ['sh', '-c']
+        args:
+        - "export NODE_IP=$(cat /node_info/ip); /micro network --advertise=\"$NODE_IP:$MICRO_NETWORK_SVC_NODE_PORT\""
+        image: microhq/micro
+        imagePullPolicy: Always
+        volumeMounts:
+        - name: shared-data
+          mountPath: /node_info
+        ports:
+        - containerPort: 8085
+          name: network-port
+      initContainers:
+      - name: init-network-env
+        env:
+        - name: NODE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
+        image: microhq/curljq
+        imagePullPolicy: Always
+        volumeMounts:
+        - name: shared-data
+          mountPath: /node_info
+        command: ['sh', '-c']
+        args:
+        - "TOKEN=$(cat /var/run/secrets/kubernetes.io/serviceaccount/token); curl -k -X GET -H \"Authorization: Bearer $TOKEN\" https://$KUBERNETES_SERVICE_HOST/api/v1/nodes/$NODE_NAME | jq -r '.status.addresses[] | select (.type==\"ExternalIP\").address' > /node_info/ip"
