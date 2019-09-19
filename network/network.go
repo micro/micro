@@ -59,8 +59,8 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		Network = ctx.String("network")
 	}
 	var nodes []string
-	if len(ctx.String("node")) > 0 {
-		nodes = strings.Split(ctx.String("node"), ",")
+	if len(ctx.String("nodes")) > 0 {
+		nodes = strings.Split(ctx.String("nodes"), ",")
 	}
 	if len(ctx.String("resolver")) > 0 {
 		Resolver = ctx.String("resolver")
@@ -192,9 +192,9 @@ func Commands(options ...micro.Option) []cli.Command {
 				EnvVar: "MICRO_NETWORK",
 			},
 			cli.StringFlag{
-				Name:   "node",
-				Usage:  "Set the micro network server node address. This can be a comma separated list.",
-				EnvVar: "MICRO_NETWORK_NODE",
+				Name:   "nodes",
+				Usage:  "Set the micro network nodes to connect to. This can be a comma separated list.",
+				EnvVar: "MICRO_NETWORK_NODES",
 			},
 			cli.StringFlag{
 				Name:   "resolver",

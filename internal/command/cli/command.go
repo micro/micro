@@ -9,8 +9,8 @@ import (
 	"net/http"
 	"sort"
 	"strings"
-	"time"
 	"text/tabwriter"
+	"time"
 
 	"github.com/micro/cli"
 	"github.com/micro/go-micro/client"
@@ -233,7 +233,7 @@ func GetService(c *cli.Context, args []string) ([]byte, error) {
 	return []byte(strings.Join(output, "\n")), nil
 }
 
-func ListPeers(c *cli.Context) ([]byte, error) {
+func NetworkGraph(c *cli.Context) ([]byte, error) {
 	cli := *cmd.DefaultOptions().Client
 
 	var rsp map[string]interface{}
@@ -247,13 +247,50 @@ func ListPeers(c *cli.Context) ([]byte, error) {
 	return b, nil
 }
 
+func ListPeers(c *cli.Context) ([]byte, error) {
+	cli := *cmd.DefaultOptions().Client
+
+	var rsp map[string]interface{}
+
+	// TODO: change to list nodes
+	req := cli.NewRequest("go.micro.network", "Network.ListPeers", map[string]interface{}{}, client.WithContentType("application/json"))
+	err := cli.Call(context.TODO(), req, &rsp)
+	if err != nil {
+		return nil, err
+	}
+
+	// return if nil
+	if rsp["peers"] == nil {
+		return nil, nil
+	}
+
+	b := bytes.NewBuffer(nil)
+	w := tabwriter.NewWriter(b, 0, 0, 1, ' ', tabwriter.TabIndent)
+
+	fmt.Fprintf(w, "Id\tAddress\n\n")
+
+	// get nodes
+	nodes := rsp["peers"].(map[string]interface{})
+
+	// root node
+	node := nodes["node"].(map[string]interface{})
+	fmt.Fprintf(w, "%s\t%s\n", node["id"], node["address"])
+
+	if nodes["peers"] != nil {
+		for _, n := range nodes["peers"].(map[string]interface{}) {
+			node := n.(map[string]interface{})
+			fmt.Fprintf(w, "%s\t%s\n", node["id"], node["address"])
+		}
+	}
+
+	w.Flush()
+	return b.Bytes(), nil
+}
+
 func ListRoutes(c *cli.Context) ([]byte, error) {
 	cli := (*cmd.DefaultOptions().Client)
 
 	var rsp map[string]interface{}
-
-	b := bytes.NewBuffer(nil)
-	w := tabwriter.NewWriter(b, 0, 0, 1, ' ', tabwriter.TabIndent)
 
 	req := cli.NewRequest("go.micro.network", "Network.ListRoutes", map[string]interface{}{}, client.WithContentType("application/json"))
 	err := cli.Call(context.TODO(), req, &rsp)
@@ -264,6 +301,9 @@ func ListRoutes(c *cli.Context) ([]byte, error) {
 	if len(rsp) == 0 {
 		return []byte(``), nil
 	}
+
+	b := bytes.NewBuffer(nil)
+	w := tabwriter.NewWriter(b, 0, 0, 1, ' ', tabwriter.TabIndent)
 
 	routes := rsp["routes"].([]interface{})
 
