@@ -114,14 +114,7 @@ func Run(ctx *cli.Context) {
 	}
 
 	// register the handler
-	api.Server().Handle(
-		api.Server().NewHandler(
-			// handler
-			netHandler,
-			// endpoint
-			goapi.WithEndpoint(ep),
-		),
-	)
+	micro.RegisterHandler(api.Server(), netHandler, goapi.WithEndpoint(ep))
 
 	// run the api
 	api.Run()
