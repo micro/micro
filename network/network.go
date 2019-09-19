@@ -101,7 +101,7 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		network.Name(Network),
 		network.Address(Address),
 		network.Advertise(Advertise),
-		network.Nodes(nodes...),
+		network.Peers(nodes...),
 		network.Tunnel(tun),
 		network.Router(rtr),
 		network.Resolver(res),
