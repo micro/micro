@@ -17,7 +17,7 @@ var (
 		"quit":       &command{"quit", "Exit the CLI", quit},
 		"exit":       &command{"exit", "Exit the CLI", quit},
 		"call":       &command{"call", "Call a service", callService},
-		"list":       &command{"list", "List services", listServices},
+		"list":       &command{"list", "List services, peers or routes", list},
 		"get":        &command{"get", "Get service info", getService},
 		"stream":     &command{"stream", "Stream a call to a service", streamService},
 		"publish":    &command{"publish", "Publish a message to a topic", publish},
@@ -91,8 +91,18 @@ func RegistryCommands() []cli.Command {
 	return []cli.Command{
 		{
 			Name:  "list",
-			Usage: "List items in registry",
+			Usage: "List items in registry or network",
 			Subcommands: []cli.Command{
+				{
+					Name:   "peers",
+					Usage:  "List peers in the network",
+					Action: printer(listPeers),
+				},
+				{
+					Name:   "routes",
+					Usage:  "List network routes",
+					Action: printer(listRoutes),
+				},
 				{
 					Name:   "services",
 					Usage:  "List services in registry",

@@ -232,6 +232,34 @@ func GetService(c *cli.Context, args []string) ([]byte, error) {
 	return []byte(strings.Join(output, "\n")), nil
 }
 
+func ListPeers(c *cli.Context) ([]byte, error) {
+	cli := *cmd.DefaultOptions().Client
+
+	var rsp map[string]interface{}
+
+	req := cli.NewRequest("go.micro.network", "Network.ListPeers", map[string]interface{}{}, client.WithContentType("application/json"))
+	err := cli.Call(context.TODO(), req, &rsp)
+	if err != nil {
+		return nil, err
+	}
+	b, _ := json.MarshalIndent(rsp, "", "\t")
+	return b, nil
+}
+
+func ListRoutes(c *cli.Context) ([]byte, error) {
+	cli := (*cmd.DefaultOptions().Client)
+
+	var rsp map[string]interface{}
+
+	req := cli.NewRequest("go.micro.network", "Network.ListRoutes", map[string]interface{}{}, client.WithContentType("application/json"))
+	err := cli.Call(context.TODO(), req, &rsp)
+	if err != nil {
+		return nil, err
+	}
+	b, _ := json.MarshalIndent(rsp, "", "\t")
+	return b, nil
+}
+
 func ListServices(c *cli.Context) ([]byte, error) {
 	var rsp []*registry.Service
 	var err error
