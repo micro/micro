@@ -87,6 +87,27 @@ func runc(c *cli.Context) {
 	}
 }
 
+func NetworkCommands() []cli.Command {
+	return []cli.Command{
+		{
+			Name:  "list",
+			Usage: "List network peers and routes",
+			Subcommands: []cli.Command{
+				{
+					Name:   "peers",
+					Usage:  "List peers in the network",
+					Action: printer(listPeers),
+				},
+				{
+					Name:   "routes",
+					Usage:  "List network routes",
+					Action: printer(listRoutes),
+				},
+			},
+		},
+	}
+}
+
 func RegistryCommands() []cli.Command {
 	return []cli.Command{
 		{

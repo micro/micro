@@ -22,6 +22,7 @@ import (
 	"github.com/micro/go-micro/tunnel"
 	"github.com/micro/go-micro/util/log"
 	"github.com/micro/go-micro/util/mux"
+	mcli "github.com/micro/micro/cli"
 	"github.com/micro/micro/network/api"
 )
 
@@ -201,13 +202,13 @@ func Commands(options ...micro.Option) []cli.Command {
 				EnvVar: "MICRO_NETWORK_RESOLVER",
 			},
 		},
-		Subcommands: []cli.Command{{
+		Subcommands: append([]cli.Command{{
 			Name:        "api",
 			Description: "Run the network api",
 			Action: func(ctx *cli.Context) {
 				api.Run(ctx)
 			},
-		}},
+		}}, mcli.NetworkCommands()...),
 		Action: func(ctx *cli.Context) {
 			run(ctx, options...)
 		},
