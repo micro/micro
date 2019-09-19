@@ -10,6 +10,7 @@ import (
 	"sort"
 	"strings"
 	"time"
+	"text/tabwriter"
 
 	"github.com/micro/cli"
 	"github.com/micro/go-micro/client"
@@ -230,6 +231,66 @@ func GetService(c *cli.Context, args []string) ([]byte, error) {
 	}
 
 	return []byte(strings.Join(output, "\n")), nil
+}
+
+func ListPeers(c *cli.Context) ([]byte, error) {
+	cli := *cmd.DefaultOptions().Client
+
+	var rsp map[string]interface{}
+
+	req := cli.NewRequest("go.micro.network", "Network.ListPeers", map[string]interface{}{}, client.WithContentType("application/json"))
+	err := cli.Call(context.TODO(), req, &rsp)
+	if err != nil {
+		return nil, err
+	}
+	b, _ := json.MarshalIndent(rsp, "", "\t")
+	return b, nil
+}
+
+func ListRoutes(c *cli.Context) ([]byte, error) {
+	cli := (*cmd.DefaultOptions().Client)
+
+	var rsp map[string]interface{}
+
+	b := bytes.NewBuffer(nil)
+	w := tabwriter.NewWriter(b, 0, 0, 1, ' ', tabwriter.TabIndent)
+
+	req := cli.NewRequest("go.micro.network", "Network.ListRoutes", map[string]interface{}{}, client.WithContentType("application/json"))
+	err := cli.Call(context.TODO(), req, &rsp)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(rsp) == 0 {
+		return []byte(``), nil
+	}
+
+	routes := rsp["routes"].([]interface{})
+
+	fmt.Fprintf(w, "Service\tAddress\tGateway\tRouter\tNetwork\tMetric\tLink\n\n")
+
+	val := func(v interface{}) string {
+		if v == nil {
+			return ""
+		}
+		return v.(string)
+	}
+
+	for _, r := range routes {
+		route := r.(map[string]interface{})
+		service := route["service"]
+		address := route["address"]
+		gateway := val(route["gateway"])
+		router := route["router"]
+		network := route["network"]
+		metric := route["metric"]
+		link := route["link"]
+
+		fmt.Fprintf(w, "%s\t%s\t%s\t%s\t%s\t%.f\t%s\n", service, address, gateway, router, network, metric, link)
+	}
+
+	w.Flush()
+	return b.Bytes(), nil
 }
 
 func ListServices(c *cli.Context) ([]byte, error) {

@@ -28,6 +28,33 @@ func printer(e exec) func(*cli.Context) {
 	}
 }
 
+func list(c *cli.Context, args []string) ([]byte, error) {
+	// no args
+	if len(args) == 0 {
+		return clic.ListServices(c)
+	}
+
+	// check first arg
+	switch args[0] {
+	case "services":
+		return clic.ListServices(c)
+	case "peers":
+		return clic.ListPeers(c)
+	case "routes":
+		return clic.ListRoutes(c)
+	}
+
+	return nil, errors.New("unknown command")
+}
+
+func listPeers(c *cli.Context, args []string) ([]byte, error) {
+	return clic.ListPeers(c)
+}
+
+func listRoutes(c *cli.Context, args []string) ([]byte, error) {
+	return clic.ListRoutes(c)
+}
+
 func listServices(c *cli.Context, args []string) ([]byte, error) {
 	return clic.ListServices(c)
 }
