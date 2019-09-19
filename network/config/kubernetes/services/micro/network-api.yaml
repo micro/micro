@@ -16,12 +16,12 @@ spec:
       containers:
         - name: network-api
           command: [
-		"/micro",
-		"--server_address=0.0.0.0:9090",
-		"--broker_address=0.0.0.0:10001"
-		"network",
-		"api",
-	  ]
+                "/micro",
+                "--server_address=0.0.0.0:9090",
+                "--broker_address=0.0.0.0:10001"
+                "network",
+                "api",
+          ]
           env:
           - name: MICRO_PROXY
             value: "go.micro.proxy"
