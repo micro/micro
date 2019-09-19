@@ -95,12 +95,12 @@ func Run(ctx *cli.Context) {
 	netClient := pb.NewNetworkService("go.micro.network", api.Client())
 
 	// create new api network handler
-	netHandler := new(Network)
-	// set the net client
-	netHandler.client = netClient
-	// set the handler cache
-	netHandler.closed = make(chan bool)
-	netHandler.peers = make(map[string]string)
+	netHandler := &Network{
+		client: netClient,
+		closed: make(chan bool),
+		peers:  make(map[string]string),
+	}
+
 	// run the cache
 	go netHandler.cache()
 	defer netHandler.stop()
