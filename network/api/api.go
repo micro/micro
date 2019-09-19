@@ -64,6 +64,7 @@ func (n *Network) stop() {
 	}
 }
 
+// TODO: get remote IP and compare to peer list to order by nearest nodes
 func (n *Network) Peers(ctx context.Context, req *map[string]interface{}, rsp *map[string]interface{}) error {
 	n.mtx.RLock()
 	defer n.mtx.RUnlock()
