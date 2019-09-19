@@ -126,13 +126,6 @@ func RegisterService(c *cli.Context, args []string) ([]byte, error) {
 
 	req := strings.Join(args, " ")
 
-	if p := c.GlobalString("proxy_address"); len(p) > 0 {
-		if err := post(p+"/registry", []byte(req), nil); err != nil {
-			return nil, err
-		}
-		return []byte("ok"), nil
-	}
-
 	var service *registry.Service
 
 	d := json.NewDecoder(strings.NewReader(req))
@@ -155,13 +148,6 @@ func DeregisterService(c *cli.Context, args []string) ([]byte, error) {
 	}
 
 	req := strings.Join(args, " ")
-
-	if p := c.GlobalString("proxy_address"); len(p) > 0 {
-		if err := del(p+"/registry", []byte(req), nil); err != nil {
-			return nil, err
-		}
-		return []byte("ok"), nil
-	}
 
 	var service *registry.Service
 
@@ -188,14 +174,7 @@ func GetService(c *cli.Context, args []string) ([]byte, error) {
 	var service []*registry.Service
 	var err error
 
-	if p := c.GlobalString("proxy_address"); len(p) > 0 {
-		if err := get(p+"/registry?service="+args[0], &service); err != nil {
-			return nil, err
-		}
-	} else {
-		service, err = (*cmd.DefaultOptions().Registry).GetService(args[0])
-	}
-
+	service, err = (*cmd.DefaultOptions().Registry).GetService(args[0])
 	if err != nil {
 		return nil, err
 	}
@@ -257,15 +236,9 @@ func ListServices(c *cli.Context) ([]byte, error) {
 	var rsp []*registry.Service
 	var err error
 
-	if p := c.GlobalString("proxy_address"); len(p) > 0 {
-		if err := get(p+"/registry", &rsp); err != nil {
-			return nil, err
-		}
-	} else {
-		rsp, err = (*cmd.DefaultOptions().Registry).ListServices()
-		if err != nil {
-			return nil, err
-		}
+	rsp, err = (*cmd.DefaultOptions().Registry).ListServices()
+	if err != nil {
+		return nil, err
 	}
 
 	sort.Sort(sortedServices{rsp})
@@ -327,35 +300,17 @@ func CallService(c *cli.Context, args []string) ([]byte, error) {
 	var request map[string]interface{}
 	var response json.RawMessage
 
-	if p := c.GlobalString("proxy_address"); len(p) > 0 {
-		request = map[string]interface{}{
-			"service":  service,
-			"endpoint": endpoint,
-			"request":  req,
-		}
+	d := json.NewDecoder(strings.NewReader(req))
+	d.UseNumber()
 
-		b, err := json.Marshal(request)
-		if err != nil {
-			return nil, err
-		}
+	if err := d.Decode(&request); err != nil {
+		return nil, err
+	}
 
-		if err := post(p+"/rpc", b, &response); err != nil {
-			return nil, err
-		}
-
-	} else {
-		d := json.NewDecoder(strings.NewReader(req))
-		d.UseNumber()
-
-		if err := d.Decode(&request); err != nil {
-			return nil, err
-		}
-
-		creq := (*cmd.DefaultOptions().Client).NewRequest(service, endpoint, request, client.WithContentType("application/json"))
-		err := (*cmd.DefaultOptions().Client).Call(context.Background(), creq, &response)
-		if err != nil {
-			return nil, fmt.Errorf("error calling %s.%s: %v", service, endpoint, err)
-		}
+	creq := (*cmd.DefaultOptions().Client).NewRequest(service, endpoint, request, client.WithContentType("application/json"))
+	err := (*cmd.DefaultOptions().Client).Call(context.Background(), creq, &response)
+	if err != nil {
+		return nil, fmt.Errorf("error calling %s.%s: %v", service, endpoint, err)
 	}
 
 	var out bytes.Buffer
@@ -399,31 +354,13 @@ func QueryHealth(c *cli.Context, args []string) ([]byte, error) {
 
 			var err error
 
-			if p := c.GlobalString("proxy_address"); len(p) > 0 {
-				// call using proxy
-				request := map[string]interface{}{
-					"service":  service[0].Name,
-					"endpoint": "Debug.Health",
-					"address":  address,
-				}
-
-				b, err := json.Marshal(request)
-				if err != nil {
-					return nil, err
-				}
-
-				if err := post(p+"/rpc", b, &rsp); err != nil {
-					return nil, err
-				}
-			} else {
-				// call using client
-				err = (*cmd.DefaultOptions().Client).Call(
-					context.Background(),
-					req,
-					rsp,
-					client.WithAddress(address),
-				)
-			}
+			// call using client
+			err = (*cmd.DefaultOptions().Client).Call(
+				context.Background(),
+				req,
+				rsp,
+				client.WithAddress(address),
+			)
 
 			var status string
 			if err != nil {
@@ -471,31 +408,13 @@ func QueryStats(c *cli.Context, args []string) ([]byte, error) {
 
 			var err error
 
-			if p := c.GlobalString("proxy_address"); len(p) > 0 {
-				// call using proxy
-				request := map[string]interface{}{
-					"service":  service[0].Name,
-					"endpoint": "Debug.Stats",
-					"address":  address,
-				}
-
-				b, err := json.Marshal(request)
-				if err != nil {
-					return nil, err
-				}
-
-				if err := post(p+"/rpc", b, &rsp); err != nil {
-					return nil, err
-				}
-			} else {
-				// call using client
-				err = (*cmd.DefaultOptions().Client).Call(
-					context.Background(),
-					req,
-					rsp,
-					client.WithAddress(address),
-				)
-			}
+			// call using client
+			err = (*cmd.DefaultOptions().Client).Call(
+				context.Background(),
+				req,
+				rsp,
+				client.WithAddress(address),
+			)
 
 			var started, uptime, memory, gc string
 			if err == nil {
