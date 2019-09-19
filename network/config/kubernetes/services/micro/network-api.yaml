@@ -2,19 +2,19 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   namespace: default
-  name: network-api
+  name: micro-network-api
 spec:
   replicas: 1
   selector:
     matchLabels:
-      name: network-api
+      name: micro-network-api
   template:
     metadata:
       labels:
-        name: network-api
+        name: micro-network-api
     spec:
       containers:
-        - name: network-api
+        - name: micro-network-api
           command: [
                 "/micro",
                 "--server_address=0.0.0.0:9090",
