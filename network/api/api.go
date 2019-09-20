@@ -3,6 +3,9 @@ package api
 
 import (
 	"context"
+	"errors"
+	"net"
+	"strings"
 	"sync"
 	"time"
 
@@ -13,11 +16,43 @@ import (
 	"github.com/micro/go-micro/network/resolver"
 )
 
+var (
+	privateBlocks []*net.IPNet
+)
+
+func init() {
+	for _, b := range []string{"10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16", "100.64.0.0/10", "fd00::/8"} {
+		if _, block, err := net.ParseCIDR(b); err == nil {
+			privateBlocks = append(privateBlocks, block)
+		}
+	}
+}
+
+func isPrivateIP(ip net.IP) bool {
+	for _, priv := range privateBlocks {
+		if priv.Contains(ip) {
+			return true
+		}
+	}
+	return false
+}
+
 type Network struct {
 	client pb.NetworkService
 	closed chan bool
 	mtx    sync.RWMutex
 	peers  map[string]string
+}
+
+func (n *Network) getIP(addr string) (string, error) {
+	ip := net.ParseIP(addr)
+	if ip == nil || strings.HasPrefix(addr, "[::]") {
+		return "", errors.New("ip is blank")
+	}
+	if isPrivateIP(ip) {
+		return "", errors.New("private ip")
+	}
+	return addr, nil
 }
 
 func (n *Network) setCache() {
@@ -31,10 +66,17 @@ func (n *Network) setCache() {
 	n.mtx.Lock()
 	defer n.mtx.Unlock()
 
-	n.peers[rsp.Peers.Node.Id] = rsp.Peers.Node.Address
+	ip, err := n.getIP(rsp.Peers.Node.Address)
+	if err == nil {
+		n.peers[ip] = rsp.Peers.Node.Id
+	}
 
 	for _, peer := range rsp.Peers.Peers {
-		n.peers[peer.Node.Id] = peer.Node.Address
+		ip, err := n.getIP(peer.Node.Address)
+		if err != nil {
+			continue
+		}
+		n.peers[ip] = peer.Node.Id
 	}
 }
 
@@ -72,7 +114,7 @@ func (n *Network) Peers(ctx context.Context, req *map[string]interface{}, rsp *m
 	var peers []*resolver.Record
 
 	// make copy of peers
-	for _, peer := range n.peers {
+	for peer, _ := range n.peers {
 		peers = append(peers, &resolver.Record{Address: peer})
 	}
 
