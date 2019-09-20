@@ -204,6 +204,9 @@ jQuery(function($, undefined) {
 		function call() {
 			var req = new XMLHttpRequest()
 			req.onreadystatechange = function() {
+				if(req.readyState != 4) {
+					return
+				}
 				if (req.readyState == 4 && req.status == 200) {
 					document.getElementById("response").innerText = JSON.stringify(JSON.parse(req.responseText), null, 2);
 				} else if (req.responseText.slice(0, 1) == "{") {
