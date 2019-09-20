@@ -66,17 +66,28 @@ func (n *Network) setCache() {
 	n.mtx.Lock()
 	defer n.mtx.Unlock()
 
-	ip, err := n.getIP(rsp.Peers.Node.Address)
-	if err == nil {
-		n.peers[ip] = rsp.Peers.Node.Id
+	setPeers := func(peer *pb.Peer) {
+		ip, err := n.getIP(peer.Node.Address)
+		if err == nil {
+			n.peers[ip] = peer.Node.Id
+		}
+
+		for _, p := range peer.Peers {
+			ip, err := n.getIP(p.Node.Address)
+			if err != nil {
+				continue
+			}
+			n.peers[ip] = p.Node.Id
+		}
+
 	}
 
+	// set node 0
+	setPeers(rsp.Peers)
+
+	// set node peers depth 1
 	for _, peer := range rsp.Peers.Peers {
-		ip, err := n.getIP(peer.Node.Address)
-		if err != nil {
-			continue
-		}
-		n.peers[ip] = peer.Node.Id
+		setPeers(peer)
 	}
 }
 
