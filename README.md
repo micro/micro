@@ -52,7 +52,7 @@ query them directly. The dashboard also includes a built in CLI like experience 
 From source
 
 ```
-go get -u github.com/micro/micro
+go get github.com/micro/micro
 ```
 
 Docker image
