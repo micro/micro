@@ -53,12 +53,14 @@ See the [docs](https://micro.mu/docs/) for detailed information on the architect
 
 ### Install
 
+From source
+
 ```
 go get -u github.com/micro/micro
 ```
 
-### Create a service
+Docker image
 
 ```
-micro new github.com/my/service
+docker pull microhq/micro
 ```
