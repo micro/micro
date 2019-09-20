@@ -6,6 +6,8 @@ import (
 	"github.com/micro/go-micro"
 	"github.com/micro/go-micro/monitor"
 	"github.com/micro/go-micro/util/log"
+	"github.com/micro/micro/monitor/handler"
+	pb "github.com/micro/micro/monitor/proto"
 )
 
 var (
@@ -35,6 +37,9 @@ func run(ctx *cli.Context, opts ...micro.Option) {
 	service := micro.NewService(
 		micro.Name(Name),
 	)
+
+	// register monitoring handler
+	pb.RegisterMonitorHandler(service.Server(), &handler.Monitor{Monitor: m})
 
 	// run service
 	service.Run()
