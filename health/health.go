@@ -66,7 +66,7 @@ func Commands(options ...micro.Option) []cli.Command {
 		Usage: "Run the http healthchecking sidecar at /health",
 		Flags: []cli.Flag{
 			cli.StringFlag{
-				Name:   "address",
+				Name:   "health_address",
 				Usage:  "Set the address exposed for the http server e.g :8088",
 				EnvVar: "MICRO_HEALTH_ADDRESS",
 			},
