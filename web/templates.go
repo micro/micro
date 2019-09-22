@@ -153,7 +153,7 @@ jQuery(function($, undefined) {
 		</form>
 	</div>
 	<div class="col-sm-7">
-		<p><b>Response</b></p>
+		<p><b>Response</b><span class="pull-right"><a href="#" onclick="copyResponse()">Copy</a></p>
 		<pre id="response" style="min-height: 405px;">{}</pre>
 	</div>
     </div>
@@ -161,6 +161,20 @@ jQuery(function($, undefined) {
 </div>
 {{end}}
 {{define "script"}}
+	<script>
+		function copyResponse() {
+			var copyText = document.getElementById("response");
+			const textArea = document.createElement('textarea');
+			textArea.textContent = copyText.innerText;
+			textArea.style = "position: absolute; left: -1000px; top: -1000px";	
+			document.body.append(textArea);
+			textArea.select();
+			textArea.setSelectionRange(0, 99999);
+			document.execCommand("copy");
+			document.body.removeChild(textArea);
+			return false;
+		}
+	</script>
 	<script>
 		$(document).ready(function(){
 			//Function executes on change of first select option field 
