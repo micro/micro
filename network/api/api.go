@@ -14,6 +14,7 @@ import (
 	goapi "github.com/micro/go-micro/api"
 	pb "github.com/micro/go-micro/network/proto"
 	"github.com/micro/go-micro/network/resolver"
+	"github.com/micro/go-micro/util/log"
 )
 
 var (
@@ -40,18 +41,30 @@ func isPrivateIP(ip net.IP) bool {
 type Network struct {
 	client pb.NetworkService
 	closed chan bool
-	mtx    sync.RWMutex
-	peers  map[string]string
+
+	mtx   sync.RWMutex
+	peers map[string]string
 }
 
 func (n *Network) getIP(addr string) (string, error) {
-	ip := net.ParseIP(addr)
-	if ip == nil || strings.HasPrefix(addr, "[::]") {
+	if strings.HasPrefix(addr, "[::]") {
+		return "", errors.New("ip is loopback")
+	}
+
+	host, _, err := net.SplitHostPort(addr)
+	if err != nil {
+		return "", err
+	}
+
+	ip := net.ParseIP(host)
+	if ip == nil {
 		return "", errors.New("ip is blank")
 	}
+
 	if isPrivateIP(ip) {
 		return "", errors.New("private ip")
 	}
+
 	return addr, nil
 }
 
@@ -60,6 +73,7 @@ func (n *Network) setCache() {
 		Depth: uint32(1),
 	})
 	if err != nil {
+		log.Debugf("Failed to get peers: %v\n", err)
 		return
 	}
 
@@ -67,14 +81,20 @@ func (n *Network) setCache() {
 	defer n.mtx.Unlock()
 
 	setPeers := func(peer *pb.Peer) {
+		if peer == nil || peer.Node == nil {
+			return
+		}
 		ip, err := n.getIP(peer.Node.Address)
 		if err == nil {
 			n.peers[ip] = peer.Node.Id
+		} else {
+			log.Debugf("Error getting peer IP: %v %+v\n", err, peer.Node)
 		}
 
 		for _, p := range peer.Peers {
 			ip, err := n.getIP(p.Node.Address)
 			if err != nil {
+				log.Debugf("Error getting peer IP: %v %+v\n", err, p.Node)
 				continue
 			}
 			n.peers[ip] = p.Node.Id
@@ -89,6 +109,8 @@ func (n *Network) setCache() {
 	for _, peer := range rsp.Peers.Peers {
 		setPeers(peer)
 	}
+
+	log.Debugf("Set peers: %+v\n", n.peers)
 }
 
 func (n *Network) cache() {
