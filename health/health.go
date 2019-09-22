@@ -15,7 +15,7 @@ import (
 )
 
 var (
-	healthAddress = "127.0.0.1:8088"
+	healthAddress = "0.0.0.0:8088"
 	serverAddress string
 	serverName    string
 )
@@ -24,7 +24,7 @@ func run(ctx *cli.Context) {
 	serverName = ctx.String("check_service")
 	serverAddress = ctx.String("check_address")
 
-	if addr := ctx.String("health_address"); len(addr) > 0 {
+	if addr := ctx.String("address"); len(addr) > 0 {
 		healthAddress = addr
 	}
 
