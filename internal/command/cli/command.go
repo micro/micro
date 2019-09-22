@@ -120,6 +120,32 @@ func post(url string, b []byte, v interface{}) error {
 	return d.Decode(v)
 }
 
+func getPeers(v map[string]interface{}) map[string]string {
+	if v == nil {
+		return nil
+	}
+
+	peers := make(map[string]string)
+	node := v["node"].(map[string]interface{})
+	peers[node["id"].(string)] = node["address"].(string)
+
+	// return peers if nil
+	if v["peers"] == nil {
+		return peers
+	}
+
+	nodes := v["peers"].([]interface{})
+
+	for _, peer := range nodes {
+		p := getPeers(peer.(map[string]interface{}))
+		for id, address := range p {
+			peers[id] = address
+		}
+	}
+
+	return peers
+}
+
 func RegisterService(c *cli.Context, args []string) ([]byte, error) {
 	if len(args) == 0 {
 		return nil, errors.New("require service definition")
@@ -270,16 +296,13 @@ func ListPeers(c *cli.Context) ([]byte, error) {
 	fmt.Fprintf(w, "Id\tAddress\n\n")
 
 	// get nodes
-	nodes := rsp["peers"].(map[string]interface{})
 
-	// root node
-	node := nodes["node"].(map[string]interface{})
-	fmt.Fprintf(w, "%s\t%s\n", node["id"], node["address"])
+	if rsp["peers"] != nil {
+		peers := getPeers(rsp["peers"].(map[string]interface{}))
 
-	if nodes["peers"] != nil {
-		for _, n := range nodes["peers"].(map[string]interface{}) {
-			node := n.(map[string]interface{})
-			fmt.Fprintf(w, "%s\t%s\n", node["id"], node["address"])
+		// root node
+		for id, address := range peers {
+			fmt.Fprintf(w, "%s\t%s\n", id, address)
 		}
 	}
 
