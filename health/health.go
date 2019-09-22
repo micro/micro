@@ -15,7 +15,7 @@ import (
 )
 
 var (
-	healthAddress = "0.0.0.0:8088"
+	healthAddress = "127.0.0.1:8088"
 	serverAddress string
 	serverName    string
 )
