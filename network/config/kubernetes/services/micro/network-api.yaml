@@ -29,6 +29,10 @@ spec:
             value: "consul"
           - name: MICRO_REGISTRY_ADDRESS
             value: "consul-consul-server"
+          - name: MICRO_REGISTER_TTL
+            value: "60"
+          - name: MICRO_REGISTER_INTERVAL
+            value: "30"
           image: microhq/micro
           imagePullPolicy: Always
           ports:
