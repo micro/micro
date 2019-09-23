@@ -105,20 +105,14 @@ func NetworkCommands() []cli.Command {
 			Action: printer(networkGraph),
 		},
 		{
-			Name:  "list",
-			Usage: "List network peers and routes",
-			Subcommands: []cli.Command{
-				{
-					Name:   "peers",
-					Usage:  "List peers in the network",
-					Action: printer(listPeers),
-				},
-				{
-					Name:   "routes",
-					Usage:  "List network routes",
-					Action: printer(listRoutes),
-				},
-			},
+			Name:   "nodes",
+			Usage:  "List nodes in the network",
+			Action: printer(listNodes),
+		},
+		{
+			Name:   "routes",
+			Usage:  "List network routes",
+			Action: printer(listRoutes),
 		},
 	}
 }
@@ -130,9 +124,9 @@ func RegistryCommands() []cli.Command {
 			Usage: "List items in registry or network",
 			Subcommands: []cli.Command{
 				{
-					Name:   "peers",
-					Usage:  "List peers in the network",
-					Action: printer(listPeers),
+					Name:   "nodes",
+					Usage:  "List nodes in the network",
+					Action: printer(listNodes),
 				},
 				{
 					Name:   "routes",

@@ -51,7 +51,7 @@ func networkGraph(c *cli.Context, args []string) ([]byte, error) {
 	return clic.NetworkGraph(c)
 }
 
-func listPeers(c *cli.Context, args []string) ([]byte, error) {
+func listNodes(c *cli.Context, args []string) ([]byte, error) {
 	return clic.ListPeers(c)
 }
 
