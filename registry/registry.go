@@ -2,10 +2,16 @@
 package registry
 
 import (
+	"context"
+	"fmt"
+	"os"
+	"sync"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/micro/cli"
 	"github.com/micro/go-micro"
+	"github.com/micro/go-micro/registry"
 	"github.com/micro/go-micro/registry/handler"
 	pb "github.com/micro/go-micro/registry/proto"
 	"github.com/micro/go-micro/util/log"
@@ -17,7 +23,229 @@ var (
 	Name = "go.micro.registry"
 	// The address of the registry
 	Address = ":8000"
+	// Topic to publish registry events to
+	Topic = "go.micro.registry.events"
 )
+
+func ActionToEventType(action string) registry.EventType {
+	switch action {
+	case "create":
+		return registry.Create
+	case "delete":
+		return registry.Delete
+	default:
+		return registry.Update
+	}
+}
+
+// Sub processes registry events
+type sub struct {
+	// id is registry id
+	id string
+	// registry is service registry
+	registry registry.Registry
+}
+
+// Process processes registry events
+func (s *sub) Process(ctx context.Context, event *pb.Event) error {
+	log.Logf("[registry] received %s event from: %s", registry.EventType(event.Type), event.Id)
+	if event.Id == s.id {
+		log.Logf("[registry] skipping event")
+		return nil
+	}
+
+	var endpoints []*registry.Endpoint
+	for _, endpoint := range event.Service.Endpoints {
+		metadata := make(map[string]string)
+		for k, v := range endpoint.Metadata {
+			metadata[k] = v
+		}
+
+		req := &registry.Value{
+			Name: endpoint.Request.Name,
+			Type: endpoint.Request.Type,
+		}
+		resp := &registry.Value{
+			Name: endpoint.Response.Name,
+			Type: endpoint.Response.Type,
+		}
+
+		ep := &registry.Endpoint{
+			Name:     endpoint.Name,
+			Request:  req,
+			Response: resp,
+			Metadata: metadata,
+		}
+
+		endpoints = append(endpoints, ep)
+	}
+
+	var nodes []*registry.Node
+	for _, node := range event.Service.Nodes {
+		metadata := make(map[string]string)
+		for k, v := range node.Metadata {
+			metadata[k] = v
+		}
+
+		n := &registry.Node{
+			Id:       node.Id,
+			Address:  node.Address,
+			Metadata: metadata,
+		}
+
+		nodes = append(nodes, n)
+	}
+
+	metadata := make(map[string]string)
+	for k, v := range event.Service.Metadata {
+		metadata[k] = v
+	}
+
+	service := &registry.Service{
+		Name:      event.Service.Name,
+		Version:   event.Service.Version,
+		Metadata:  metadata,
+		Endpoints: endpoints,
+	}
+
+	switch registry.EventType(event.Type) {
+	case registry.Create, registry.Update:
+		if err := s.registry.Register(service); err != nil {
+			log.Logf("[registry] failed to register service: %s", service.Name)
+			return err
+		}
+	case registry.Delete:
+		if err := s.registry.Deregister(service); err != nil {
+			log.Logf("[registry] failed to deregister service: %s", service.Name)
+			return err
+		}
+	}
+
+	return nil
+}
+
+// reg is micro registry
+type reg struct {
+	// id is registry id
+	id string
+	// registry is micro registry
+	registry.Registry
+	// publisher to publish registry events
+	micro.Publisher
+}
+
+// newRegsitry creates new micro registry and returns it
+func newRegistry(service micro.Service, registry registry.Registry) *reg {
+	id := uuid.New().String()
+	s := &sub{
+		id:       id,
+		registry: registry,
+	}
+
+	// register subscriber
+	if err := micro.RegisterSubscriber(Topic, service.Server(), s); err != nil {
+		log.Logf("[registry] failed to subscribe to events: %s", err)
+		os.Exit(1)
+	}
+
+	return &reg{
+		id:        id,
+		Registry:  registry,
+		Publisher: micro.NewPublisher(Topic, service.Client()),
+	}
+}
+
+// Publish publishes registry events to other registries to consume
+func (r *reg) PublishEvents(w registry.Watcher) error {
+	defer w.Stop()
+
+	var watchErr error
+
+	for {
+		res, err := w.Next()
+		if err != nil {
+			if err != registry.ErrWatcherStopped {
+				watchErr = err
+			}
+			break
+		}
+
+		var endpoints []*pb.Endpoint
+		for _, endpoint := range res.Service.Endpoints {
+			metadata := make(map[string]string)
+			for k, v := range endpoint.Metadata {
+				metadata[k] = v
+			}
+
+			req := &pb.Value{}
+			resp := &pb.Value{}
+
+			if endpoint.Request != nil {
+				req.Name = endpoint.Request.Name
+				req.Type = endpoint.Request.Type
+			}
+
+			if endpoint.Response != nil {
+				req.Name = endpoint.Response.Name
+				req.Type = endpoint.Response.Type
+			}
+
+			ep := &pb.Endpoint{
+				Name:     endpoint.Name,
+				Request:  req,
+				Response: resp,
+				Metadata: metadata,
+			}
+
+			endpoints = append(endpoints, ep)
+		}
+
+		var nodes []*pb.Node
+		for _, node := range res.Service.Nodes {
+			metadata := make(map[string]string)
+			for k, v := range node.Metadata {
+				metadata[k] = v
+			}
+
+			n := &pb.Node{
+				Id:       node.Id,
+				Address:  node.Address,
+				Metadata: metadata,
+			}
+
+			nodes = append(nodes, n)
+		}
+
+		metadata := make(map[string]string)
+		for k, v := range res.Service.Metadata {
+			metadata[k] = v
+		}
+
+		service := &pb.Service{
+			Name:      res.Service.Name,
+			Version:   res.Service.Version,
+			Metadata:  metadata,
+			Endpoints: endpoints,
+			Nodes:     nodes,
+		}
+
+		// TODO: timestamp should be read from received event
+		// Right now registry.Result does not contain timestamp
+		event := &pb.Event{
+			Id:        r.id,
+			Type:      pb.EventType(ActionToEventType(res.Action)),
+			Timestamp: time.Now().UnixNano(),
+			Service:   service,
+		}
+
+		if err := r.Publish(context.Background(), event); err != nil {
+			log.Logf("[registry] error publishing event: %v", err)
+			return fmt.Errorf("error publishing event: %v", err)
+		}
+	}
+
+	return watchErr
+}
 
 func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	if len(ctx.GlobalString("server_name")) > 0 {
@@ -54,10 +282,47 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		Registry: service.Options().Registry,
 	})
 
-	// Run internal service
-	if err := service.Run(); err != nil {
-		log.Fatal(err)
+	reg := newRegistry(service, service.Options().Registry)
+
+	// create registry watcher
+	watcher, err := service.Options().Registry.Watch()
+	if err != nil {
+		log.Logf("[registry] failed creating watcher: %v", err)
+		os.Exit(1)
 	}
+
+	var wg sync.WaitGroup
+	// error channel to collect registry errors
+	errChan := make(chan error, 2)
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		errChan <- reg.PublishEvents(watcher)
+	}()
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		errChan <- service.Run()
+	}()
+
+	// we block here until either service or server fails
+	if err := <-errChan; err != nil {
+		log.Logf("[registry] error running the registry: %v", err)
+		if err != registry.ErrWatcherStopped {
+			watcher.Stop()
+			os.Exit(1)
+		}
+		os.Exit(1)
+	}
+
+	// stop registry watcher
+	watcher.Stop()
+
+	wg.Wait()
+
+	log.Logf("[registry] successfully stopped")
 }
 
 func Commands(options ...micro.Option) []cli.Command {
