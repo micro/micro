@@ -264,7 +264,7 @@ func NetworkGraph(c *cli.Context) ([]byte, error) {
 
 	var rsp map[string]interface{}
 
-	req := cli.NewRequest("go.micro.network", "Network.ListPeers", map[string]interface{}{}, client.WithContentType("application/json"))
+	req := cli.NewRequest("go.micro.network", "Network.Graph", map[string]interface{}{}, client.WithContentType("application/json"))
 	err := cli.Call(context.TODO(), req, &rsp)
 	if err != nil {
 		return nil, err
@@ -279,14 +279,14 @@ func ListPeers(c *cli.Context) ([]byte, error) {
 	var rsp map[string]interface{}
 
 	// TODO: change to list nodes
-	req := cli.NewRequest("go.micro.network", "Network.ListPeers", map[string]interface{}{}, client.WithContentType("application/json"))
+	req := cli.NewRequest("go.micro.network", "Network.Nodes", map[string]interface{}{}, client.WithContentType("application/json"))
 	err := cli.Call(context.TODO(), req, &rsp)
 	if err != nil {
 		return nil, err
 	}
 
 	// return if nil
-	if rsp["peers"] == nil {
+	if rsp["nodes"] == nil {
 		return nil, nil
 	}
 
@@ -297,12 +297,11 @@ func ListPeers(c *cli.Context) ([]byte, error) {
 
 	// get nodes
 
-	if rsp["peers"] != nil {
-		peers := getPeers(rsp["peers"].(map[string]interface{}))
-
+	if rsp["nodes"] != nil {
 		// root node
-		for id, address := range peers {
-			fmt.Fprintf(w, "%s\t%s\n", id, address)
+		for _, n := range rsp["nodes"].([]interface{}) {
+			node := n.(map[string]interface{})
+			fmt.Fprintf(w, "%s\t%s\n", node["id"], node["address"])
 		}
 	}
 
@@ -315,7 +314,7 @@ func ListRoutes(c *cli.Context) ([]byte, error) {
 
 	var rsp map[string]interface{}
 
-	req := cli.NewRequest("go.micro.network", "Network.ListRoutes", map[string]interface{}{}, client.WithContentType("application/json"))
+	req := cli.NewRequest("go.micro.network", "Network.Routes", map[string]interface{}{}, client.WithContentType("application/json"))
 	err := cli.Call(context.TODO(), req, &rsp)
 	if err != nil {
 		return nil, err

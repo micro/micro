@@ -43,7 +43,7 @@ type Network struct {
 	closed chan bool
 
 	mtx   sync.RWMutex
-	peers map[string]string
+	nodes map[string]string
 }
 
 func (n *Network) getIP(addr string) (string, error) {
@@ -69,11 +69,11 @@ func (n *Network) getIP(addr string) (string, error) {
 }
 
 func (n *Network) setCache() {
-	rsp, err := n.client.ListPeers(context.TODO(), &pb.PeerRequest{
+	rsp, err := n.client.Graph(context.TODO(), &pb.GraphRequest{
 		Depth: uint32(1),
 	})
 	if err != nil {
-		log.Debugf("Failed to get peers: %v\n", err)
+		log.Debugf("Failed to get nodes: %v\n", err)
 		return
 	}
 
@@ -86,7 +86,7 @@ func (n *Network) setCache() {
 		}
 		ip, err := n.getIP(peer.Node.Address)
 		if err == nil {
-			n.peers[ip] = peer.Node.Id
+			n.nodes[ip] = peer.Node.Id
 		} else {
 			log.Debugf("Error getting peer IP: %v %+v\n", err, peer.Node)
 		}
@@ -97,20 +97,20 @@ func (n *Network) setCache() {
 				log.Debugf("Error getting peer IP: %v %+v\n", err, p.Node)
 				continue
 			}
-			n.peers[ip] = p.Node.Id
+			n.nodes[ip] = p.Node.Id
 		}
 
 	}
 
 	// set node 0
-	setPeers(rsp.Peers)
+	setPeers(rsp.Root)
 
-	// set node peers depth 1
-	for _, peer := range rsp.Peers.Peers {
+	// set node nodes depth 1
+	for _, peer := range rsp.Root.Peers {
 		setPeers(peer)
 	}
 
-	log.Debugf("Set peers: %+v\n", n.peers)
+	log.Debugf("Set nodes: %+v\n", n.nodes)
 }
 
 func (n *Network) cache() {
@@ -140,24 +140,24 @@ func (n *Network) stop() {
 }
 
 // TODO: get remote IP and compare to peer list to order by nearest nodes
-func (n *Network) Peers(ctx context.Context, req *map[string]interface{}, rsp *map[string]interface{}) error {
+func (n *Network) Nodes(ctx context.Context, req *map[string]interface{}, rsp *map[string]interface{}) error {
 	n.mtx.RLock()
 	defer n.mtx.RUnlock()
 
-	var peers []*resolver.Record
+	var nodes []*resolver.Record
 
-	// make copy of peers
-	for peer, _ := range n.peers {
-		peers = append(peers, &resolver.Record{Address: peer})
+	// make copy of nodes
+	for node, _ := range n.nodes {
+		nodes = append(nodes, &resolver.Record{Address: node})
 	}
 
 	// make peer response
-	peerRsp := map[string]interface{}{
-		"peers": peers,
+	nodeRsp := map[string]interface{}{
+		"nodes": nodes,
 	}
 
 	// set peer response
-	*rsp = peerRsp
+	*rsp = nodeRsp
 	return nil
 }
 
@@ -174,7 +174,7 @@ func Run(ctx *cli.Context) {
 	netHandler := &Network{
 		client: netClient,
 		closed: make(chan bool),
-		peers:  make(map[string]string),
+		nodes:  make(map[string]string),
 	}
 
 	// run the cache
