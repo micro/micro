@@ -14,6 +14,7 @@ import (
 	"github.com/micro/go-micro/registry"
 	"github.com/micro/go-micro/registry/handler"
 	pb "github.com/micro/go-micro/registry/proto"
+	"github.com/micro/go-micro/registry/service"
 	"github.com/micro/go-micro/util/log"
 	rcli "github.com/micro/micro/cli"
 )
@@ -54,69 +55,18 @@ func (s *sub) Process(ctx context.Context, event *pb.Event) error {
 		return nil
 	}
 
-	var endpoints []*registry.Endpoint
-	for _, endpoint := range event.Service.Endpoints {
-		metadata := make(map[string]string)
-		for k, v := range endpoint.Metadata {
-			metadata[k] = v
-		}
-
-		req := &registry.Value{
-			Name: endpoint.Request.Name,
-			Type: endpoint.Request.Type,
-		}
-		resp := &registry.Value{
-			Name: endpoint.Response.Name,
-			Type: endpoint.Response.Type,
-		}
-
-		ep := &registry.Endpoint{
-			Name:     endpoint.Name,
-			Request:  req,
-			Response: resp,
-			Metadata: metadata,
-		}
-
-		endpoints = append(endpoints, ep)
-	}
-
-	var nodes []*registry.Node
-	for _, node := range event.Service.Nodes {
-		metadata := make(map[string]string)
-		for k, v := range node.Metadata {
-			metadata[k] = v
-		}
-
-		n := &registry.Node{
-			Id:       node.Id,
-			Address:  node.Address,
-			Metadata: metadata,
-		}
-
-		nodes = append(nodes, n)
-	}
-
-	metadata := make(map[string]string)
-	for k, v := range event.Service.Metadata {
-		metadata[k] = v
-	}
-
-	service := &registry.Service{
-		Name:      event.Service.Name,
-		Version:   event.Service.Version,
-		Metadata:  metadata,
-		Endpoints: endpoints,
-	}
+	// decode protobuf to registry.Service
+	svc := service.ToService(event.Service)
 
 	switch registry.EventType(event.Type) {
 	case registry.Create, registry.Update:
-		if err := s.registry.Register(service); err != nil {
-			log.Logf("[registry] failed to register service: %s", service.Name)
+		if err := s.registry.Register(svc); err != nil {
+			log.Logf("[registry] failed to register service: %s", svc.Name)
 			return err
 		}
 	case registry.Delete:
-		if err := s.registry.Deregister(service); err != nil {
-			log.Logf("[registry] failed to deregister service: %s", service.Name)
+		if err := s.registry.Deregister(svc); err != nil {
+			log.Logf("[registry] failed to deregister service: %s", svc.Name)
 			return err
 		}
 	}
@@ -170,64 +120,8 @@ func (r *reg) PublishEvents(w registry.Watcher) error {
 			break
 		}
 
-		var endpoints []*pb.Endpoint
-		for _, endpoint := range res.Service.Endpoints {
-			metadata := make(map[string]string)
-			for k, v := range endpoint.Metadata {
-				metadata[k] = v
-			}
-
-			req := &pb.Value{}
-			resp := &pb.Value{}
-
-			if endpoint.Request != nil {
-				req.Name = endpoint.Request.Name
-				req.Type = endpoint.Request.Type
-			}
-
-			if endpoint.Response != nil {
-				req.Name = endpoint.Response.Name
-				req.Type = endpoint.Response.Type
-			}
-
-			ep := &pb.Endpoint{
-				Name:     endpoint.Name,
-				Request:  req,
-				Response: resp,
-				Metadata: metadata,
-			}
-
-			endpoints = append(endpoints, ep)
-		}
-
-		var nodes []*pb.Node
-		for _, node := range res.Service.Nodes {
-			metadata := make(map[string]string)
-			for k, v := range node.Metadata {
-				metadata[k] = v
-			}
-
-			n := &pb.Node{
-				Id:       node.Id,
-				Address:  node.Address,
-				Metadata: metadata,
-			}
-
-			nodes = append(nodes, n)
-		}
-
-		metadata := make(map[string]string)
-		for k, v := range res.Service.Metadata {
-			metadata[k] = v
-		}
-
-		service := &pb.Service{
-			Name:      res.Service.Name,
-			Version:   res.Service.Version,
-			Metadata:  metadata,
-			Endpoints: endpoints,
-			Nodes:     nodes,
-		}
+		// encode *registry.Service into protobuf messag
+		svc := service.ToProto(res.Service)
 
 		// TODO: timestamp should be read from received event
 		// Right now registry.Result does not contain timestamp
@@ -235,7 +129,7 @@ func (r *reg) PublishEvents(w registry.Watcher) error {
 			Id:        r.id,
 			Type:      pb.EventType(ActionToEventType(res.Action)),
 			Timestamp: time.Now().UnixNano(),
-			Service:   service,
+			Service:   svc,
 		}
 
 		if err := r.Publish(context.Background(), event); err != nil {
