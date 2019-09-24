@@ -37,3 +37,10 @@ spec:
         ports:
         - containerPort: 443
           name: api-port
+        volumeMounts:
+        - name: micro-api-volume
+          mountPath: /root
+      volumes:
+      - name: micro-api-volume
+        persistentVolumeClaim:
+          claimName: micro-api-pvc

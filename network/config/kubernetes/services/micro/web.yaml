@@ -33,3 +33,10 @@ spec:
         ports:
         - containerPort: 443
           name: web-port
+        volumeMounts:
+        - name: micro-web-volume
+          mountPath: /root
+      volumes:
+      - name: micro-web-volume
+        persistentVolumeClaim:
+          claimName: micro-web-pvc
