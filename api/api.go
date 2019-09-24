@@ -100,6 +100,12 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		defer st.Stop()
 	}
 
+	// return version and list of services
+	r.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		response := fmt.Sprintf(`{"version": "%s"}`, ctx.App.Version)
+		w.Write([]byte(response))
+	})
+
 	srvOpts = append(srvOpts, micro.Name(Name))
 	if i := time.Duration(ctx.GlobalInt("register_ttl")); i > 0 {
 		srvOpts = append(srvOpts, micro.RegisterTTL(i*time.Second))
