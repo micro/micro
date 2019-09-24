@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: micro-network
+  namespace: default
+  labels:
+    name: micro-network
+spec:
+  type: NodePort
+  ports:
+  - port: 8085
+    protocol: UDP
+    nodePort: 30038
+  selector:
+    name: micro-network

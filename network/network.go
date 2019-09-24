@@ -22,6 +22,8 @@ import (
 	"github.com/micro/go-micro/tunnel"
 	"github.com/micro/go-micro/util/log"
 	"github.com/micro/go-micro/util/mux"
+	mcli "github.com/micro/micro/cli"
+	"github.com/micro/micro/network/api"
 )
 
 var (
@@ -57,8 +59,8 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		Network = ctx.String("network")
 	}
 	var nodes []string
-	if len(ctx.String("node")) > 0 {
-		nodes = strings.Split(ctx.String("node"), ",")
+	if len(ctx.String("nodes")) > 0 {
+		nodes = strings.Split(ctx.String("nodes"), ",")
 	}
 	if len(ctx.String("resolver")) > 0 {
 		Resolver = ctx.String("resolver")
@@ -99,7 +101,7 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		network.Name(Network),
 		network.Address(Address),
 		network.Advertise(Advertise),
-		network.Nodes(nodes...),
+		network.Peers(nodes...),
 		network.Tunnel(tun),
 		network.Router(rtr),
 		network.Resolver(res),
@@ -190,9 +192,9 @@ func Commands(options ...micro.Option) []cli.Command {
 				EnvVar: "MICRO_NETWORK",
 			},
 			cli.StringFlag{
-				Name:   "node",
-				Usage:  "Set the micro network server node address. This can be a comma separated list.",
-				EnvVar: "MICRO_NETWORK_NODE",
+				Name:   "nodes",
+				Usage:  "Set the micro network nodes to connect to. This can be a comma separated list.",
+				EnvVar: "MICRO_NETWORK_NODES",
 			},
 			cli.StringFlag{
 				Name:   "resolver",
@@ -200,6 +202,13 @@ func Commands(options ...micro.Option) []cli.Command {
 				EnvVar: "MICRO_NETWORK_RESOLVER",
 			},
 		},
+		Subcommands: append([]cli.Command{{
+			Name:        "api",
+			Description: "Run the network api",
+			Action: func(ctx *cli.Context) {
+				api.Run(ctx)
+			},
+		}}, mcli.NetworkCommands()...),
 		Action: func(ctx *cli.Context) {
 			run(ctx, options...)
 		},

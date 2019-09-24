@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package go.micro.monitor;
+
+service Monitor {
+	rpc Check(CheckRequest) returns (CheckResponse) {};
+}
+
+message CheckRequest {
+	string service = 1;
+}
+
+message CheckResponse {
+	string status = 1;
+}

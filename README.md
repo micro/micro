@@ -47,18 +47,21 @@ point tunnelling with a built-in proxy to query services in remote environments.
 - **Web Dashboard:** The web dashboard allows you to explore your services, describe their endpoints, the request and response formats and even 
 query them directly. The dashboard also includes a built in CLI like experience for developers who want to drop into the terminal on the fly.
 
+## Install
+
+From source
+
+```
+go get github.com/micro/micro
+```
+
+Docker image
+
+```
+docker pull microhq/micro
+```
+
 ## Getting Started
 
 See the [docs](https://micro.mu/docs/) for detailed information on the architecture, installation and use of the platform.
 
-### Install
-
-```
-go get -u github.com/micro/micro
-```
-
-### Create a service
-
-```
-micro new github.com/my/service
-```

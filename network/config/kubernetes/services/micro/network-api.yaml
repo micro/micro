@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: default
+  name: micro-network-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: micro-network-api
+  template:
+    metadata:
+      labels:
+        name: micro-network-api
+    spec:
+      containers:
+        - name: micro-network-api
+          command: [
+                "/micro",
+                "--server_address=0.0.0.0:9090",
+                "--broker_address=0.0.0.0:10001",
+                "network",
+                "api",
+          ]
+          env:
+          - name: MICRO_PROXY
+            value: "go.micro.proxy"
+          - name: MICRO_REGISTRY
+            value: "consul"
+          - name: MICRO_REGISTRY_ADDRESS
+            value: "consul-consul-server"
+          - name: MICRO_REGISTER_TTL
+            value: "60"
+          - name: MICRO_REGISTER_INTERVAL
+            value: "30"
+          image: microhq/micro
+          imagePullPolicy: Always
+          ports:
+          - containerPort: 9090
+            name: api-port

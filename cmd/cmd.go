@@ -14,6 +14,7 @@ import (
 	"github.com/micro/micro/api"
 	"github.com/micro/micro/bot"
 	"github.com/micro/micro/cli"
+	"github.com/micro/micro/health"
 	"github.com/micro/micro/monitor"
 	"github.com/micro/micro/network"
 	"github.com/micro/micro/new"
@@ -206,6 +207,7 @@ func Setup(app *ccli.App, options ...micro.Option) {
 	app.Commands = append(app.Commands, api.Commands(options...)...)
 	app.Commands = append(app.Commands, bot.Commands()...)
 	app.Commands = append(app.Commands, cli.Commands()...)
+	app.Commands = append(app.Commands, health.Commands(options...)...)
 	app.Commands = append(app.Commands, proxy.Commands(options...)...)
 	app.Commands = append(app.Commands, monitor.Commands(options...)...)
 	app.Commands = append(app.Commands, router.Commands(options...)...)
