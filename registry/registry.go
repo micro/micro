@@ -29,7 +29,7 @@ var (
 	// Topic to publish registry events to
 	Topic = "go.micro.registry.events"
 	// SyncTime defines time interval to periodically sync registries
-	SyncTime = 60 * time.Second
+	SyncTime = 5 * time.Second
 )
 
 func ActionToEventType(action string) registry.EventType {
@@ -189,6 +189,7 @@ func (r *reg) Sync(nodes []string) error {
 		case <-r.exit:
 			return nil
 		case <-sync.C:
+			log.Logf("[registry] syncing records")
 			if err := r.syncRecords(nodes); err != nil {
 				log.Logf("[registry] failed to sync registry records: %v", err)
 				continue
