@@ -5,12 +5,14 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"strings"
 	"sync"
 	"time"
 
 	"github.com/google/uuid"
 	"github.com/micro/cli"
 	"github.com/micro/go-micro"
+	"github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/registry"
 	"github.com/micro/go-micro/registry/handler"
 	pb "github.com/micro/go-micro/registry/proto"
@@ -26,6 +28,8 @@ var (
 	Address = ":8000"
 	// Topic to publish registry events to
 	Topic = "go.micro.registry.events"
+	// SyncTime defines time interval to periodically sync registries
+	SyncTime = 60 * time.Second
 )
 
 func ActionToEventType(action string) registry.EventType {
@@ -49,7 +53,7 @@ type sub struct {
 
 // Process processes registry events
 func (s *sub) Process(ctx context.Context, event *pb.Event) error {
-	log.Logf("[registry] received %s event from: %s", registry.EventType(event.Type), event.Id)
+	log.Logf("[registry] received %s event from: %s for: %s", registry.EventType(event.Type), event.Id, event.Service.Name)
 	if event.Id == s.id {
 		log.Logf("[registry] skipping event")
 		return nil
@@ -60,11 +64,13 @@ func (s *sub) Process(ctx context.Context, event *pb.Event) error {
 
 	switch registry.EventType(event.Type) {
 	case registry.Create, registry.Update:
+		log.Logf("[registry] registering service: %s", svc.Name)
 		if err := s.registry.Register(svc); err != nil {
 			log.Logf("[registry] failed to register service: %s", svc.Name)
 			return err
 		}
 	case registry.Delete:
+		log.Logf("[registry] deregistering service: %s", svc.Name)
 		if err := s.registry.Deregister(svc); err != nil {
 			log.Logf("[registry] failed to deregister service: %s", svc.Name)
 			return err
@@ -76,12 +82,14 @@ func (s *sub) Process(ctx context.Context, event *pb.Event) error {
 
 // reg is micro registry
 type reg struct {
-	// id is registry id
-	id string
 	// registry is micro registry
 	registry.Registry
-	// publisher to publish registry events
-	micro.Publisher
+	// id is registry id
+	id string
+	// client is service client
+	client client.Client
+	// exit stops the registry
+	exit chan bool
 }
 
 // newRegsitry creates new micro registry and returns it
@@ -99,9 +107,10 @@ func newRegistry(service micro.Service, registry registry.Registry) *reg {
 	}
 
 	return &reg{
-		id:        id,
-		Registry:  registry,
-		Publisher: micro.NewPublisher(Topic, service.Client()),
+		Registry: registry,
+		id:       id,
+		client:   service.Client(),
+		exit:     make(chan bool),
 	}
 }
 
@@ -109,6 +118,9 @@ func newRegistry(service micro.Service, registry registry.Registry) *reg {
 func (r *reg) PublishEvents(w registry.Watcher) error {
 	defer w.Stop()
 
+	// create a publisher
+	p := micro.NewPublisher(Topic, r.client)
+	// track watcher errors
 	var watchErr error
 
 	for {
@@ -132,13 +144,59 @@ func (r *reg) PublishEvents(w registry.Watcher) error {
 			Service:   svc,
 		}
 
-		if err := r.Publish(context.Background(), event); err != nil {
+		log.Logf("[registry] publishing event %s for action %s", event.Id, res.Action)
+
+		if err := p.Publish(context.Background(), event); err != nil {
 			log.Logf("[registry] error publishing event: %v", err)
 			return fmt.Errorf("error publishing event: %v", err)
 		}
 	}
 
 	return watchErr
+}
+
+func (r *reg) syncRecords(nodes []string) error {
+	if len(nodes) == 0 {
+		log.Logf("[rgistry] no nodes to sync with. skipping")
+		return nil
+	}
+
+	c := pb.NewRegistryService(Name, r.client)
+	resp, err := c.ListServices(context.Background(), &pb.ListRequest{}, client.WithAddress(nodes...))
+	if err != nil {
+		log.Logf("[registry] failed sync: %v", err)
+		return err
+	}
+
+	for _, pbService := range resp.Services {
+		svc := service.ToService(pbService)
+		log.Logf("[registry] registering service: %s", svc.Name)
+		if err := r.Register(svc); err != nil {
+			log.Logf("[registry] failed to register service: %v", svc.Name)
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (r *reg) Sync(nodes []string) error {
+	sync := time.NewTicker(SyncTime)
+	defer sync.Stop()
+
+	for {
+		select {
+		case <-r.exit:
+			return nil
+		case <-sync.C:
+			if err := r.syncRecords(nodes); err != nil {
+				log.Logf("[registry] failed to sync registry records: %v", err)
+				continue
+			}
+		}
+	}
+
+	return nil
 }
 
 func run(ctx *cli.Context, srvOpts ...micro.Option) {
@@ -161,6 +219,10 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	}
 	if i := time.Duration(ctx.GlobalInt("register_interval")); i > 0 {
 		srvOpts = append(srvOpts, micro.RegisterInterval(i*time.Second))
+	}
+	var nodes []string
+	if len(ctx.String("nodes")) > 0 {
+		nodes = strings.Split(ctx.String("nodes"), ",")
 	}
 
 	// set address
@@ -186,13 +248,18 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	}
 
 	var wg sync.WaitGroup
-	// error channel to collect registry errors
-	errChan := make(chan error, 2)
+	errChan := make(chan error, 3)
 
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
 		errChan <- reg.PublishEvents(watcher)
+	}()
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		errChan <- reg.Sync(nodes)
 	}()
 
 	wg.Add(1)
@@ -206,6 +273,7 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		log.Logf("[registry] error running the registry: %v", err)
 		if err != registry.ErrWatcherStopped {
 			watcher.Stop()
+			close(reg.exit)
 			os.Exit(1)
 		}
 		os.Exit(1)
@@ -213,6 +281,7 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 
 	// stop registry watcher
 	watcher.Stop()
+	close(reg.exit)
 
 	wg.Wait()
 
@@ -228,6 +297,11 @@ func Commands(options ...micro.Option) []cli.Command {
 				Name:   "address",
 				Usage:  "Set the registry http address e.g 0.0.0.0:8080",
 				EnvVar: "MICRO_REGISTRY_ADDRESS",
+			},
+			cli.StringFlag{
+				Name:   "nodes",
+				Usage:  "Set the micro registry nodes to connect to. This can be a comma separated list.",
+				EnvVar: "MICRO_REGISTRY_NODES",
 			},
 		},
 		Action: func(ctx *cli.Context) {
