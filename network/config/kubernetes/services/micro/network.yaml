@@ -1,10 +1,9 @@
 apiVersion: apps/v1
-kind: Deployment
+kind: DaemonSet
 metadata:
   namespace: default
   name: micro-network
 spec:
-  replicas: 3
   selector:
     matchLabels:
       name: micro-network
