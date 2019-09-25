@@ -106,6 +106,9 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		w.Write([]byte(response))
 	})
 
+	// strip favicon.ico
+	r.HandleFunc("/favicon.ico", func(w http.ResponseWriter, r *http.Request) {})
+
 	srvOpts = append(srvOpts, micro.Name(Name))
 	if i := time.Duration(ctx.GlobalInt("register_ttl")); i > 0 {
 		srvOpts = append(srvOpts, micro.RegisterTTL(i*time.Second))
