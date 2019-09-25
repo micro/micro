@@ -84,10 +84,6 @@ var (
 			<a href="/{{.}}" data-filter={{.}} class="btn btn-default btn-lg service" style="margin: 5px 3px 5px 3px;">{{.}}</a>
 			{{end}}
 		</div>
-	{{else}}
-		<div class="alert alert-info" role="alert">
-			<strong>No web services found</strong>
-		</div>
 	{{end}}
 {{end}}
 {{define "script"}}

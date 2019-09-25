@@ -151,8 +151,7 @@ func cliHandler(w http.ResponseWriter, r *http.Request) {
 func indexHandler(w http.ResponseWriter, r *http.Request) {
 	services, err := (*cmd.DefaultOptions().Registry).ListServices()
 	if err != nil {
-		http.Error(w, "Error occurred:"+err.Error(), 500)
-		return
+		log.Errorf("Error listing services: %v", err)
 	}
 
 	var webServices []string
@@ -208,8 +207,7 @@ func registryHandler(w http.ResponseWriter, r *http.Request) {
 
 	services, err := (*cmd.DefaultOptions().Registry).ListServices()
 	if err != nil {
-		http.Error(w, "Error occurred:"+err.Error(), 500)
-		return
+		log.Errorf("Error listing services: %v", err)
 	}
 
 	sort.Sort(sortedServices{services})
@@ -233,8 +231,7 @@ func registryHandler(w http.ResponseWriter, r *http.Request) {
 func callHandler(w http.ResponseWriter, r *http.Request) {
 	services, err := (*cmd.DefaultOptions().Registry).ListServices()
 	if err != nil {
-		http.Error(w, "Error occurred:"+err.Error(), 500)
-		return
+		log.Errorf("Error listing services: %v", err)
 	}
 
 	sort.Sort(sortedServices{services})
