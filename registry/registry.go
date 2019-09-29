@@ -146,9 +146,15 @@ func (r *reg) PublishEvents(w registry.Watcher) error {
 
 		log.Logf("[registry] publishing event %s for action %s", event.Id, res.Action)
 
-		if err := p.Publish(context.Background(), event); err != nil {
-			log.Logf("[registry] error publishing event: %v", err)
-			return fmt.Errorf("error publishing event: %v", err)
+		select {
+		case <-r.exit:
+			return nil
+		default:
+			ctx, _ := context.WithTimeout(context.Background(), 5*time.Second)
+			if err := p.Publish(ctx, event); err != nil {
+				log.Logf("[registry] error publishing event: %v", err)
+				return fmt.Errorf("error publishing event: %v", err)
+			}
 		}
 	}
 
@@ -157,7 +163,7 @@ func (r *reg) PublishEvents(w registry.Watcher) error {
 
 func (r *reg) syncRecords(nodes []string) error {
 	if len(nodes) == 0 {
-		log.Logf("[rgistry] no nodes to sync with. skipping")
+		log.Logf("[registry] no nodes to sync with. skipping")
 		return nil
 	}
 
