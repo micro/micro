@@ -273,7 +273,7 @@ func NetworkGraph(c *cli.Context) ([]byte, error) {
 	return b, nil
 }
 
-func ListPeers(c *cli.Context) ([]byte, error) {
+func NetworkNodes(c *cli.Context) ([]byte, error) {
 	cli := *cmd.DefaultOptions().Client
 
 	var rsp map[string]interface{}
@@ -309,7 +309,7 @@ func ListPeers(c *cli.Context) ([]byte, error) {
 	return b.Bytes(), nil
 }
 
-func ListRoutes(c *cli.Context) ([]byte, error) {
+func NetworkRoutes(c *cli.Context) ([]byte, error) {
 	cli := (*cmd.DefaultOptions().Client)
 
 	var rsp map[string]interface{}
@@ -353,6 +353,34 @@ func ListRoutes(c *cli.Context) ([]byte, error) {
 
 	w.Flush()
 	return b.Bytes(), nil
+}
+
+func NetworkServices(c *cli.Context) ([]byte, error) {
+	cli := (*cmd.DefaultOptions().Client)
+
+	var rsp map[string]interface{}
+
+	req := cli.NewRequest("go.micro.network", "Network.Services", map[string]interface{}{}, client.WithContentType("application/json"))
+	err := cli.Call(context.TODO(), req, &rsp)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(rsp) == 0 || rsp["services"] == nil {
+		return []byte(``), nil
+	}
+
+	rspSrv := rsp["services"].([]interface{})
+
+	var services []string
+
+	for _, service := range rspSrv {
+		services = append(services, service.(string))
+	}
+
+	sort.Strings(services)
+
+	return []byte(strings.Join(services, "\n")), nil
 }
 
 func ListServices(c *cli.Context) ([]byte, error) {

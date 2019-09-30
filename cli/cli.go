@@ -107,12 +107,17 @@ func NetworkCommands() []cli.Command {
 		{
 			Name:   "nodes",
 			Usage:  "List nodes in the network",
-			Action: printer(listNodes),
+			Action: printer(netNodes),
 		},
 		{
 			Name:   "routes",
 			Usage:  "List network routes",
-			Action: printer(listRoutes),
+			Action: printer(netRoutes),
+		},
+		{
+			Name:   "services",
+			Usage:  "List network services",
+			Action: printer(netServices),
 		},
 	}
 }
@@ -126,12 +131,12 @@ func RegistryCommands() []cli.Command {
 				{
 					Name:   "nodes",
 					Usage:  "List nodes in the network",
-					Action: printer(listNodes),
+					Action: printer(netNodes),
 				},
 				{
 					Name:   "routes",
 					Usage:  "List network routes",
-					Action: printer(listRoutes),
+					Action: printer(netRoutes),
 				},
 				{
 					Name:   "services",

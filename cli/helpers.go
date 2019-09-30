@@ -38,10 +38,10 @@ func list(c *cli.Context, args []string) ([]byte, error) {
 	switch args[0] {
 	case "services":
 		return clic.ListServices(c)
-	case "peers":
-		return clic.ListPeers(c)
+	case "nodes":
+		return clic.NetworkNodes(c)
 	case "routes":
-		return clic.ListRoutes(c)
+		return clic.NetworkRoutes(c)
 	}
 
 	return nil, errors.New("unknown command")
@@ -51,12 +51,16 @@ func networkGraph(c *cli.Context, args []string) ([]byte, error) {
 	return clic.NetworkGraph(c)
 }
 
-func listNodes(c *cli.Context, args []string) ([]byte, error) {
-	return clic.ListPeers(c)
+func netNodes(c *cli.Context, args []string) ([]byte, error) {
+	return clic.NetworkNodes(c)
 }
 
-func listRoutes(c *cli.Context, args []string) ([]byte, error) {
-	return clic.ListRoutes(c)
+func netRoutes(c *cli.Context, args []string) ([]byte, error) {
+	return clic.NetworkRoutes(c)
+}
+
+func netServices(c *cli.Context, args []string) ([]byte, error) {
+	return clic.NetworkServices(c)
 }
 
 func listServices(c *cli.Context, args []string) ([]byte, error) {
