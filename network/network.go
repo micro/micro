@@ -37,6 +37,8 @@ var (
 	Advertise = ""
 	// Resolver is the network resolver
 	Resolver = "registry"
+	// The tunnel token
+	Token = "micro"
 )
 
 // run runs the micro server
@@ -58,6 +60,10 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	if len(ctx.String("network")) > 0 {
 		Network = ctx.String("network")
 	}
+	if len(ctx.String("token")) > 0 {
+		Token = ctx.String("token")
+	}
+
 	var nodes []string
 	if len(ctx.String("nodes")) > 0 {
 		nodes = strings.Split(ctx.String("nodes"), ",")
@@ -86,6 +92,7 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	tun := tunnel.NewTunnel(
 		tunnel.Address(Address),
 		tunnel.Nodes(nodes...),
+		tunnel.Token(Token),
 	)
 
 	// local tunnel router
@@ -195,6 +202,11 @@ func Commands(options ...micro.Option) []cli.Command {
 				Name:   "nodes",
 				Usage:  "Set the micro network nodes to connect to. This can be a comma separated list.",
 				EnvVar: "MICRO_NETWORK_NODES",
+			},
+			cli.StringFlag{
+				Name:   "token",
+				Usage:  "Set the micro network token for authentication",
+				EnvVar: "MICRO_NETWORK_TOKEN",
 			},
 			cli.StringFlag{
 				Name:   "resolver",

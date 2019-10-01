@@ -26,6 +26,8 @@ var (
 	Address = ":8083"
 	// Tunnel is the name of the tunnel
 	Tunnel = "tun:0"
+	// The tunnel token
+	Token = "micro"
 )
 
 // run runs the micro server
@@ -40,6 +42,9 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	}
 	if len(ctx.String("address")) > 0 {
 		Address = ctx.String("address")
+	}
+	if len(ctx.String("token")) > 0 {
+		Token = ctx.String("token")
 	}
 	if len(ctx.String("id")) > 0 {
 		Tunnel = ctx.String("id")
@@ -77,6 +82,7 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	t := tun.NewTunnel(
 		tun.Address(Address),
 		tun.Nodes(nodes...),
+		tun.Token(Token),
 	)
 
 	// start the tunnel
@@ -175,6 +181,11 @@ func Commands(options ...micro.Option) []cli.Command {
 				Name:   "server",
 				Usage:  "Set the micro tunnel server address. This can be a comma separated list.",
 				EnvVar: "MICRO_TUNNEL_SERVER",
+			},
+			cli.StringFlag{
+				Name:   "token",
+				Usage:  "Set the micro tunnel token for authentication",
+				EnvVar: "MICRO_TUNNEL_TOKEN",
 			},
 		},
 		Action: func(ctx *cli.Context) {
