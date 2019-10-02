@@ -35,9 +35,9 @@ type sub struct {
 
 // Process processes router adverts
 func (s *sub) Process(ctx context.Context, advert *pb.Advert) error {
-	log.Logf("[router] received advert from: %s", advert.Id)
+	log.Debugf("[router] received advert from: %s", advert.Id)
 	if advert.Id == s.router.Options().Id {
-		log.Logf("[router] skipping advert")
+		log.Debug("[router] skipping advert")
 		return nil
 	}
 
@@ -131,7 +131,7 @@ func (r *rtr) PublishAdverts(ch <-chan *router.Advert) error {
 		}
 
 		if err := r.Publish(context.Background(), a); err != nil {
-			log.Logf("[router] error publishing advert: %v", err)
+			log.Debugf("[router] error publishing advert: %v", err)
 			return fmt.Errorf("error publishing advert: %v", err)
 		}
 	}
