@@ -9,6 +9,8 @@ import (
 	ccli "github.com/micro/cli"
 	"github.com/micro/go-micro"
 	"github.com/micro/go-micro/config/cmd"
+	"github.com/micro/go-micro/runtime"
+	"github.com/micro/go-micro/util/log"
 	"github.com/micro/micro/api"
 	"github.com/micro/micro/bot"
 	"github.com/micro/micro/cli"
@@ -25,8 +27,6 @@ import (
 	"github.com/micro/micro/service"
 	"github.com/micro/micro/tunnel"
 	"github.com/micro/micro/web"
-	"github.com/micro/go-micro/runtime"
-	"github.com/micro/go-micro/util/log"
 
 	// include usage
 	_ "github.com/micro/micro/internal/usage"
@@ -232,15 +232,15 @@ func Setup(app *ccli.App, options ...micro.Option) {
 		log.Info("Loading services")
 
 		services := []string{
-			"api",
-			"bot",
-			"web",
-			"monitor",
+			"registry",
 			"network",
+			"tunnel",
+			"monitor",
 			"proxy",
 			"router",
-			"registry",
-			"tunnel",
+			"api",
+			"web",
+			"bot",
 		}
 
 		for _, service := range services {
