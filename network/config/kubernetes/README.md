@@ -20,8 +20,8 @@
 
 3. Install `etcd` on DO/GCP/AWS
   - `helm repo update`
-  - `helm install stable/etcd-operator --version="0.10.0" --set customResources.createEtcdClusterCRD=true`
-  - read the docs [here](https://etcd.io/docs/v3.2.17/)
+  - `helm install stable/etcd-operator --version="0.10.0" --set customResources.createEtcdClusterCRD=true --set etcdCluster.version="3.3.15" --set etcdCluster.image.tag="v3.3.15"`
+  - read the docs [here](https://etcd.io/docs/v3.3.12/)
 
 4. Install Micro core on DO/GCP/AWS
   - kubectl apply -f ../kubernetes
