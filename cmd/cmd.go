@@ -1,6 +1,11 @@
 package cmd
 
 import (
+	"fmt"
+	"os"
+	"os/signal"
+	"syscall"
+
 	ccli "github.com/micro/cli"
 	"github.com/micro/go-micro"
 	"github.com/micro/go-micro/config/cmd"
@@ -20,6 +25,8 @@ import (
 	"github.com/micro/micro/service"
 	"github.com/micro/micro/tunnel"
 	"github.com/micro/micro/web"
+	"github.com/micro/go-micro/runtime"
+	"github.com/micro/go-micro/util/log"
 
 	// include usage
 	_ "github.com/micro/micro/internal/usage"
@@ -212,7 +219,79 @@ func Setup(app *ccli.App, options ...micro.Option) {
 	app.Commands = append(app.Commands, new.Commands()...)
 	app.Commands = append(app.Commands, build.Commands()...)
 	app.Commands = append(app.Commands, web.Commands(options...)...)
-	app.Action = func(context *ccli.Context) { ccli.ShowAppHelp(context) }
+
+	// boot micro
+	app.Action = func(context *ccli.Context) {
+		// Defaults
+
+		// set network resolver to http
+		env := os.Environ()
+		env = append(env, "MICRO_NETWORK_NODES=micro.mu:8085")
+		env = append(env, "MICRO_NETWORK_RESOLVER=http")
+
+		log.Info("Loading services")
+
+		services := []string{
+			"api",
+			"bot",
+			"web",
+			"monitor",
+			"network",
+			"proxy",
+			"router",
+			"registry",
+			"tunnel",
+		}
+
+		for _, service := range services {
+			name := fmt.Sprintf("micro.%s", service)
+			log.Infof("Registering %s\n", name)
+
+			args := []runtime.CreateOption{
+				runtime.WithCommand(os.Args[0], service),
+				runtime.WithEnv(env),
+				runtime.WithOutput(os.Stdout),
+			}
+
+			// register the service
+			runtime.Create(&runtime.Service{
+				Name: name,
+			}, args...)
+		}
+
+		shutdown := make(chan os.Signal, 1)
+		signal.Notify(shutdown, syscall.SIGTERM, syscall.SIGINT, syscall.SIGQUIT)
+
+		log.Info("Starting runtime")
+
+		// start the runtime
+		if err := runtime.Start(); err != nil {
+			log.Fatal(err)
+		}
+
+		log.Info("Runtime started")
+
+		// TODO: should we launch the console?
+		// start the console
+		// cli.Init(context)
+
+		select {
+		case <-shutdown:
+			log.Info("Shutdown signal received")
+			log.Info("Stopping runtime")
+		}
+
+		// stop all the things
+		if err := runtime.Stop(); err != nil {
+			log.Fatal(err)
+		}
+
+		log.Info("Runtime shutdown")
+
+		// exit success
+		os.Exit(0)
+
+	}
 
 	setup(app)
 }
