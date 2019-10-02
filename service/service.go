@@ -16,6 +16,8 @@ import (
 )
 
 func run(ctx *cli.Context, opts ...micro.Option) {
+	log.Name("service")
+
 	name := ctx.String("name")
 	address := ctx.String("address")
 	endpoint := ctx.String("endpoint")

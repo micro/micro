@@ -35,9 +35,9 @@ type sub struct {
 
 // Process processes router adverts
 func (s *sub) Process(ctx context.Context, advert *pb.Advert) error {
-	log.Debugf("[router] received advert from: %s", advert.Id)
+	log.Debugf("received advert from: %s", advert.Id)
 	if advert.Id == s.router.Options().Id {
-		log.Debug("[router] skipping advert")
+		log.Debug("skipping advert")
 		return nil
 	}
 
@@ -70,7 +70,7 @@ func (s *sub) Process(ctx context.Context, advert *pb.Advert) error {
 	}
 
 	if err := s.router.Process(a); err != nil {
-		return fmt.Errorf("[router] failed processing advert: %s", err)
+		return fmt.Errorf("failed processing advert: %s", err)
 	}
 
 	return nil
@@ -92,7 +92,7 @@ func newRouter(service micro.Service, router router.Router) *rtr {
 
 	// register subscriber
 	if err := micro.RegisterSubscriber(Topic, service.Server(), s); err != nil {
-		log.Logf("[router] failed to subscribe to adverts: %s", err)
+		log.Logf("failed to subscribe to adverts: %s", err)
 		os.Exit(1)
 	}
 
@@ -131,7 +131,7 @@ func (r *rtr) PublishAdverts(ch <-chan *router.Advert) error {
 		}
 
 		if err := r.Publish(context.Background(), a); err != nil {
-			log.Debugf("[router] error publishing advert: %v", err)
+			log.Debugf("error publishing advert: %v", err)
 			return fmt.Errorf("error publishing advert: %v", err)
 		}
 	}
@@ -161,6 +161,8 @@ func (r *rtr) Stop() error {
 
 // run runs the micro server
 func run(ctx *cli.Context, srvOpts ...micro.Option) {
+	log.Name("router")
+
 	// Init plugins
 	for _, p := range Plugins() {
 		p.Init(ctx)
@@ -219,21 +221,21 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	// create new micro router and start advertising routes
 	rtr := newRouter(service, r)
 
-	log.Log("[router] starting micro router")
+	log.Log("starting micro router")
 
 	if err := rtr.Start(); err != nil {
-		log.Logf("[router] failed to start: %s", err)
+		log.Logf("failed to start: %s", err)
 		os.Exit(1)
 	}
 
-	log.Log("[router] starting to advertise")
+	log.Log("starting to advertise")
 
 	advertChan, err := rtr.Advertise()
 	if err != nil {
-		log.Logf("[router] failed to advertise: %s", err)
-		log.Log("[router] attempting to stop the router")
+		log.Logf("failed to advertise: %s", err)
+		log.Log("attempting to stop the router")
 		if err := rtr.Stop(); err != nil {
-			log.Logf("[router] failed to stop: %s", err)
+			log.Logf("failed to stop: %s", err)
 			os.Exit(1)
 		}
 		os.Exit(1)
@@ -257,20 +259,20 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 
 	// we block here until either service or server fails
 	if err := <-errChan; err != nil {
-		log.Logf("[router] error running the router: %v", err)
+		log.Logf("error running the router: %v", err)
 	}
 
-	log.Log("[router] attempting to stop the router")
+	log.Log("attempting to stop the router")
 
 	// stop the router
 	if err := r.Stop(); err != nil {
-		log.Logf("[router] failed to stop: %s", err)
+		log.Logf("failed to stop: %s", err)
 		os.Exit(1)
 	}
 
 	wg.Wait()
 
-	log.Logf("[router] successfully stopped")
+	log.Logf("successfully stopped")
 }
 
 func Commands(options ...micro.Option) []cli.Command {

@@ -43,6 +43,8 @@ var (
 
 // run runs the micro server
 func run(ctx *cli.Context, srvOpts ...micro.Option) {
+	log.Name("network")
+
 	// Init plugins
 	for _, p := range Plugins() {
 		p.Init(ctx)

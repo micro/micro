@@ -222,6 +222,7 @@ func Setup(app *ccli.App, options ...micro.Option) {
 
 	// boot micro
 	app.Action = func(context *ccli.Context) {
+		log.Name("micro")
 		// Defaults
 
 		// set network resolver to http

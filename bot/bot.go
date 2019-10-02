@@ -95,16 +95,16 @@ func newBot(ctx *cli.Context, inputs map[string]input.Input, commands map[string
 }
 
 func (b *bot) loop(io input.Input) {
-	log.Logf("[bot][loop] starting %s", io.String())
+	log.Logf("[loop] starting %s", io.String())
 
 	for {
 		select {
 		case <-b.exit:
-			log.Logf("[bot][loop] exiting %s", io.String())
+			log.Logf("[loop] exiting %s", io.String())
 			return
 		default:
 			if err := b.run(io); err != nil {
-				log.Logf("[bot][loop] error %v", err)
+				log.Logf("[loop] error %v", err)
 				time.Sleep(time.Second)
 			}
 		}
@@ -180,7 +180,7 @@ func (b *bot) process(c input.Conn, ev input.Event) error {
 }
 
 func (b *bot) run(io input.Input) error {
-	log.Logf("[bot][loop] connecting to %s", io.String())
+	log.Logf("[loop] connecting to %s", io.String())
 
 	c, err := io.Stream()
 	if err != nil {
@@ -190,7 +190,7 @@ func (b *bot) run(io input.Input) error {
 	for {
 		select {
 		case <-b.exit:
-			log.Logf("[bot][loop] closing %s", io.String())
+			log.Logf("[loop] closing %s", io.String())
 			return c.Close()
 		default:
 			var recvEv input.Event
@@ -216,11 +216,11 @@ func (b *bot) run(io input.Input) error {
 }
 
 func (b *bot) start() error {
-	log.Log("[bot] starting")
+	log.Log("starting")
 
 	// Start inputs
 	for _, io := range b.inputs {
-		log.Logf("[bot] starting input %s", io.String())
+		log.Logf("starting input %s", io.String())
 
 		if err := io.Init(b.ctx); err != nil {
 			return err
@@ -240,14 +240,14 @@ func (b *bot) start() error {
 }
 
 func (b *bot) stop() error {
-	log.Log("[bot] stopping")
+	log.Log("stopping")
 	close(b.exit)
 
 	// Stop inputs
 	for _, io := range b.inputs {
-		log.Logf("[bot] stopping input %s", io.String())
+		log.Logf("stopping input %s", io.String())
 		if err := io.Stop(); err != nil {
-			log.Logf("[bot] %v", err)
+			log.Logf("%v", err)
 		}
 	}
 
@@ -352,6 +352,8 @@ func (b *bot) watch() {
 }
 
 func run(ctx *cli.Context) {
+	log.Name("bot")
+
 	// Init plugins
 	for _, p := range Plugins() {
 		p.Init(ctx)
@@ -386,7 +388,7 @@ func run(ctx *cli.Context) {
 	// take other commands
 	for pattern, cmd := range command.Commands {
 		if c, ok := cmds[pattern]; ok {
-			log.Logf("[bot] command %s already registered for pattern %s\n", c.String(), pattern)
+			log.Logf("command %s already registered for pattern %s\n", c.String(), pattern)
 			continue
 		}
 		// register command
@@ -400,7 +402,7 @@ func run(ctx *cli.Context) {
 		}
 		i, ok := input.Inputs[io]
 		if !ok {
-			log.Logf("[bot] input %s not found\n", i)
+			log.Logf("input %s not found\n", i)
 			os.Exit(1)
 		}
 		ios[io] = i

@@ -21,6 +21,8 @@ var (
 )
 
 func run(ctx *cli.Context) {
+	log.Name("health")
+
 	serverName = ctx.String("check_service")
 	serverAddress = ctx.String("check_address")
 
