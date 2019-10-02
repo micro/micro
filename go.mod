@@ -8,9 +8,9 @@ require (
 	github.com/google/uuid v1.1.1
 	github.com/gorilla/mux v1.7.3
 	github.com/micro/cli v0.2.0
-	github.com/micro/go-micro v1.11.1-0.20191001180929-e8a53610f17b
+	github.com/micro/go-micro v1.11.1-0.20191002142707-519e8a72131c
 	github.com/serenize/snaker v0.0.0-20171204205717-a683aaf2d516
 	github.com/xlab/treeprint v0.0.0-20181112141820-a009c3971eca
-	golang.org/x/net v0.0.0-20190724013045-ca1201d0de80
-	google.golang.org/grpc v1.22.1
+	golang.org/x/net v0.0.0-20190930134127-c5a3c61f89f3
+	google.golang.org/grpc v1.24.0
 )
