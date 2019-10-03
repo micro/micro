@@ -23,6 +23,10 @@ spec:
                 "api",
           ]
           env:
+          - name: MICRO_BROKER
+            value: "nats"
+          - name: MICRO_BROKER_ADDRESS
+            value: "nats-cluster"
           - name: MICRO_PROXY
             value: "go.micro.proxy"
           - name: MICRO_REGISTRY
