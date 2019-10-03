@@ -432,7 +432,7 @@ func Publish(c *cli.Context, args []string) error {
 
 func CallService(c *cli.Context, args []string) ([]byte, error) {
 	if len(args) < 2 {
-		return nil, errors.New("require service and endpoint")
+		return nil, errors.New(`require service and endpoint e.g micro call greeeter Say.Hello '{"name": "john"}'`)
 	}
 
 	var req, service, endpoint string

@@ -22,9 +22,9 @@ spec:
           - name: MICRO_PROXY
             value: "go.micro.proxy"
           - name: MICRO_REGISTRY
-            value: "consul"
+            value: "etcd"
           - name: MICRO_REGISTRY_ADDRESS
-            value: "consul-consul-server"
+            value: "etcd-cluster-client"
           image: microhq/location-web
           imagePullPolicy: Always
           ports:

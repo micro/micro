@@ -22,9 +22,9 @@ spec:
 	  ]
           env:
           - name: MICRO_REGISTRY
-            value: "consul"
+            value: "etcd"
           - name: MICRO_REGISTRY_ADDRESS
-            value: "consul-consul-server"
+            value: "etcd-cluster-client"
           image: microhq/message-api
           imagePullPolicy: Always
           ports:

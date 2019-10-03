@@ -190,7 +190,7 @@ func Commands() []cli.Command {
 		},
 		{
 			Name:   "call",
-			Usage:  "Call a service",
+			Usage:  "Call a service e.g micro call greeter Say.Hello '{\"name\": \"John\"}",
 			Action: printer(callService),
 		},
 		{

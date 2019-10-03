@@ -26,9 +26,9 @@ spec:
           - name: MICRO_PROXY
             value: "go.micro.proxy"
           - name: MICRO_REGISTRY
-            value: "consul"
+            value: "etcd"
           - name: MICRO_REGISTRY_ADDRESS
-            value: "consul-consul-server"
+            value: "etcd-cluster-client"
           - name: MICRO_REGISTER_TTL
             value: "60"
           - name: MICRO_REGISTER_INTERVAL
