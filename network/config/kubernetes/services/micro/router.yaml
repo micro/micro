@@ -17,9 +17,9 @@ spec:
       - name: router
         env:
         - name: MICRO_REGISTRY
-          value: "consul"
+          value: "etcd"
         - name: MICRO_REGISTRY_ADDRESS
-          value: "consul-consul-server"
+          value: "etcd-cluster-client"
         - name: MICRO_ENABLE_ACME
           value: "true"
         args:
