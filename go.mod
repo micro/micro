@@ -8,7 +8,7 @@ require (
 	github.com/google/uuid v1.1.1
 	github.com/gorilla/mux v1.7.3
 	github.com/micro/cli v0.2.0
-	github.com/micro/go-micro v1.11.1-0.20191003164211-d5658ab0b080
+	github.com/micro/go-micro v1.11.1-0.20191003173554-3c6b6553fb82
 	github.com/serenize/snaker v0.0.0-20171204205717-a683aaf2d516
 	github.com/xlab/treeprint v0.0.0-20181112141820-a009c3971eca
 	golang.org/x/net v0.0.0-20190930134127-c5a3c61f89f3
