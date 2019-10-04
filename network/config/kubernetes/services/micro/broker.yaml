@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: default
+  name: micro-broker
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      name: micro-broker
+  template:
+    metadata:
+      labels:
+        name: micro-broker
+    spec:
+      containers:
+      - name: broker
+        env:
+        - name: MICRO_BROKER
+          value: "nats"
+        - name: MICRO_BROKER_ADDRESS
+          value: "nats-cluster"
+        - name: MICRO_REGISTRY
+          value: "etcd"
+        - name: MICRO_REGISTRY_ADDRESS
+          value: "etcd-cluster-client"
+        args:
+        - broker
+        image: microhq/micro
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8001
+          name: broker-port
