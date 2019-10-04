@@ -18,6 +18,8 @@ spec:
       containers:
       - name: network
         env:
+        - name: MICRO_LOG_LEVEL
+          value: "debug"
         - name: MICRO_BROKER
           value: "nats"
         - name: MICRO_BROKER_ADDRESS
