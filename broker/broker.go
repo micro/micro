@@ -68,8 +68,8 @@ func Commands(options ...micro.Option) []cli.Command {
 		Flags: []cli.Flag{
 			cli.StringFlag{
 				Name:   "address",
-				Usage:  "Set the broker http address e.g 0.0.0.0:8080",
-				EnvVar: "MICRO_BROKER_ADDRESS",
+				Usage:  "Set the broker http address e.g 0.0.0.0:8001",
+				EnvVar: "MICRO_SERVER_ADDRESS",
 			},
 		},
 		Action: func(ctx *cli.Context) {
