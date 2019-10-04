@@ -277,7 +277,7 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 
 	// we block here until either service or server fails
 	if err := <-errChan; err != nil {
-		log.Debugf("[registry] error running the registry: %v", err)
+		log.Logf("[registry] error running the registry: %v", err)
 		if err != registry.ErrWatcherStopped {
 			watcher.Stop()
 			close(reg.exit)
@@ -302,8 +302,8 @@ func Commands(options ...micro.Option) []cli.Command {
 		Flags: []cli.Flag{
 			cli.StringFlag{
 				Name:   "address",
-				Usage:  "Set the registry http address e.g 0.0.0.0:8080",
-				EnvVar: "MICRO_REGISTRY_ADDRESS",
+				Usage:  "Set the registry http address e.g 0.0.0.0:8000",
+				EnvVar: "MICRO_SERVER_ADDRESS",
 			},
 			cli.StringFlag{
 				Name:   "nodes",
