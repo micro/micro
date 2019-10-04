@@ -30,4 +30,4 @@ spec:
         imagePullPolicy: Always
         ports:
         - containerPort: 8000
-          name: router-port
+          name: registry-port
