@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: default
+  name: micro-registry
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      name: micro-registry
+  template:
+    metadata:
+      labels:
+        name: micro-registry
+    spec:
+      containers:
+      - name: registry
+        env:
+        - name: MICRO_REGISTRY
+          value: "etcd"
+        - name: MICRO_REGISTRY_ADDRESS
+          value: "etcd-cluster-client"
+        args:
+        - registry
+        image: microhq/micro
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8000
+          name: router-port
