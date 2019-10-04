@@ -9,7 +9,6 @@ import (
 	"net/http"
 	"sort"
 	"strings"
-	"text/tabwriter"
 	"time"
 
 	"github.com/micro/cli"
@@ -19,6 +18,7 @@ import (
 
 	proto "github.com/micro/go-micro/debug/proto"
 
+	"github.com/olekukonko/tablewriter"
 	"github.com/serenize/snaker"
 )
 
@@ -291,9 +291,8 @@ func NetworkNodes(c *cli.Context) ([]byte, error) {
 	}
 
 	b := bytes.NewBuffer(nil)
-	w := tabwriter.NewWriter(b, 0, 0, 1, ' ', tabwriter.TabIndent)
-
-	fmt.Fprintf(w, "Id\tAddress\n\n")
+	table := tablewriter.NewWriter(b)
+	table.SetHeader([]string{"ID", "ADDRESS"})
 
 	// get nodes
 
@@ -301,11 +300,17 @@ func NetworkNodes(c *cli.Context) ([]byte, error) {
 		// root node
 		for _, n := range rsp["nodes"].([]interface{}) {
 			node := n.(map[string]interface{})
-			fmt.Fprintf(w, "%s\t%s\n", node["id"], node["address"])
+			strEntry := []string{
+				fmt.Sprintf("%s", node["id"]),
+				fmt.Sprintf("%s", node["address"]),
+			}
+			table.Append(strEntry)
 		}
 	}
 
-	w.Flush()
+	// render table into b
+	table.Render()
+
 	return b.Bytes(), nil
 }
 
@@ -325,11 +330,10 @@ func NetworkRoutes(c *cli.Context) ([]byte, error) {
 	}
 
 	b := bytes.NewBuffer(nil)
-	w := tabwriter.NewWriter(b, 0, 0, 1, ' ', tabwriter.TabIndent)
+	table := tablewriter.NewWriter(b)
+	table.SetHeader([]string{"SERVICE", "ADDRESS", "GATEWAY", "ROUTER", "NETWORK", "METRIC", "LINK"})
 
 	routes := rsp["routes"].([]interface{})
-
-	fmt.Fprintf(w, "Service\tAddress\tGateway\tRouter\tNetwork\tMetric\tLink\n\n")
 
 	val := func(v interface{}) string {
 		if v == nil {
@@ -348,10 +352,21 @@ func NetworkRoutes(c *cli.Context) ([]byte, error) {
 		metric := route["metric"]
 		link := route["link"]
 
-		fmt.Fprintf(w, "%s\t%s\t%s\t%s\t%s\t%.f\t%s\n", service, address, gateway, router, network, metric, link)
+		strEntry := []string{
+			fmt.Sprintf("%s", service),
+			fmt.Sprintf("%s", address),
+			fmt.Sprintf("%s", gateway),
+			fmt.Sprintf("%s", router),
+			fmt.Sprintf("%s", network),
+			fmt.Sprintf("%.f", metric),
+			fmt.Sprintf("%s", link),
+		}
+		table.Append(strEntry)
 	}
 
-	w.Flush()
+	// render table into b
+	table.Render()
+
 	return b.Bytes(), nil
 }
 
