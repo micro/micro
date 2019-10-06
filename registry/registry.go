@@ -16,6 +16,7 @@ import (
 	"github.com/micro/go-micro/registry/handler"
 	pb "github.com/micro/go-micro/registry/proto"
 	"github.com/micro/go-micro/registry/service"
+	"github.com/micro/go-micro/util/backoff"
 	"github.com/micro/go-micro/util/log"
 	rcli "github.com/micro/micro/cli"
 )
@@ -279,6 +280,8 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	errChan := make(chan error, 3)
 
 	go func() {
+		var i int
+
 		// loop creating the watcher until exit
 		for {
 			select {
@@ -287,8 +290,21 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 				return
 			default:
 				if err := reg.PublishEvents(service.Options().Registry); err != nil {
-					log.Debugf("[registry] failed creating watcher: %v", err)
+					sleep := backoff.Do(i)
+
+					log.Debugf("[registry] failed to publish events: %v backing off for %v", err, sleep)
+
+					// backoff for a period of time
+					time.Sleep(sleep)
+
+					// reset the counter
+					if i > 3 {
+						i = 0
+					}
 				}
+
+				// update the counter
+				i++
 			}
 		}
 	}()
