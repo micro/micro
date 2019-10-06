@@ -304,8 +304,8 @@ func Commands(options ...micro.Option) []cli.Command {
 		Flags: []cli.Flag{
 			cli.StringFlag{
 				Name:   "address",
-				Usage:  "Set the registry http address e.g 0.0.0.0:8080",
-				EnvVar: "MICRO_REGISTRY_ADDRESS",
+				Usage:  "Set the registry http address e.g 0.0.0.0:8000",
+				EnvVar: "MICRO_SERVER_ADDRESS",
 			},
 			cli.StringFlag{
 				Name:   "nodes",

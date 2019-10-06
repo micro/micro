@@ -2,19 +2,19 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   namespace: default
-  name: micro-tunnel
+  name: micro-registry
 spec:
   replicas: 3
   selector:
     matchLabels:
-      name: micro-tunnel
+      name: micro-registry
   template:
     metadata:
       labels:
-        name: micro-tunnel
+        name: micro-registry
     spec:
       containers:
-      - name: tunnel
+      - name: registry
         env:
         - name: MICRO_BROKER
           value: "nats"
@@ -25,9 +25,9 @@ spec:
         - name: MICRO_REGISTRY_ADDRESS
           value: "etcd-cluster-client"
         args:
-        - tunnel
+        - registry
         image: microhq/micro
         imagePullPolicy: Always
         ports:
-        - containerPort: 8083
-          name: tunnel-port
+        - containerPort: 8000
+          name: registry-port
