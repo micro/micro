@@ -9,7 +9,7 @@ require (
 	github.com/gorilla/mux v1.7.3
 	github.com/mattn/go-runewidth v0.0.4 // indirect
 	github.com/micro/cli v0.2.0
-	github.com/micro/go-micro v1.11.1-0.20191004162329-6fe9f2a958ce
+	github.com/micro/go-micro v1.11.1-0.20191006090338-68a3fc799660
 	github.com/olekukonko/tablewriter v0.0.1
 	github.com/serenize/snaker v0.0.0-20171204205717-a683aaf2d516
 	github.com/xlab/treeprint v0.0.0-20181112141820-a009c3971eca

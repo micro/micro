@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"os"
 	"strings"
-	"sync"
 	"time"
 
 	"github.com/google/uuid"
@@ -17,6 +16,7 @@ import (
 	"github.com/micro/go-micro/registry/handler"
 	pb "github.com/micro/go-micro/registry/proto"
 	"github.com/micro/go-micro/registry/service"
+	"github.com/micro/go-micro/util/backoff"
 	"github.com/micro/go-micro/util/log"
 	rcli "github.com/micro/micro/cli"
 )
@@ -59,13 +59,28 @@ func (s *sub) Process(ctx context.Context, event *pb.Event) error {
 		return nil
 	}
 
+	// no service
+	if event.Service == nil {
+		return nil
+	}
+
 	// decode protobuf to registry.Service
 	svc := service.ToService(event.Service)
+
+	// default ttl to 1 minute
+	ttl := time.Minute
+
+	// set ttl if it exists
+	if opts := event.Service.Options; opts != nil {
+		if opts.Ttl > 0 {
+			ttl = time.Duration(opts.Ttl) * time.Second
+		}
+	}
 
 	switch registry.EventType(event.Type) {
 	case registry.Create, registry.Update:
 		log.Debugf("[registry] registering service: %s", svc.Name)
-		if err := s.registry.Register(svc); err != nil {
+		if err := s.registry.Register(svc, registry.RegisterTTL(ttl)); err != nil {
 			log.Debugf("[registry] failed to register service: %s", svc.Name)
 			return err
 		}
@@ -115,7 +130,12 @@ func newRegistry(service micro.Service, registry registry.Registry) *reg {
 }
 
 // Publish publishes registry events to other registries to consume
-func (r *reg) PublishEvents(w registry.Watcher) error {
+func (r *reg) PublishEvents(reg registry.Registry) error {
+	// create registry watcher
+	w, err := reg.Watch()
+	if err != nil {
+		return err
+	}
 	defer w.Stop()
 
 	// create a publisher
@@ -167,6 +187,8 @@ func (r *reg) syncRecords(nodes []string) error {
 		return nil
 	}
 
+	log.Debugf("[registry] syncing records from %v", nodes)
+
 	c := pb.NewRegistryService(Name, r.client)
 	resp, err := c.ListServices(context.Background(), &pb.ListRequest{}, client.WithAddress(nodes...))
 	if err != nil {
@@ -175,9 +197,19 @@ func (r *reg) syncRecords(nodes []string) error {
 	}
 
 	for _, pbService := range resp.Services {
+		// default ttl to 1 minute
+		ttl := time.Minute
+
+		// set ttl if it exists
+		if opts := pbService.Options; opts != nil {
+			if opts.Ttl > 0 {
+				ttl = time.Duration(opts.Ttl) * time.Second
+			}
+		}
+
 		svc := service.ToService(pbService)
 		log.Debugf("[registry] registering service: %s", svc.Name)
-		if err := r.Register(svc); err != nil {
+		if err := r.Register(svc, registry.RegisterTTL(ttl)); err != nil {
 			log.Debugf("[registry] failed to register service: %v", svc.Name)
 			return err
 		}
@@ -195,10 +227,8 @@ func (r *reg) Sync(nodes []string) error {
 		case <-r.exit:
 			return nil
 		case <-sync.C:
-			log.Debugf("[registry] syncing records")
 			if err := r.syncRecords(nodes); err != nil {
 				log.Debugf("[registry] failed to sync registry records: %v", err)
-				continue
 			}
 		}
 	}
@@ -247,50 +277,57 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 
 	reg := newRegistry(service, service.Options().Registry)
 
-	// create registry watcher
-	watcher, err := service.Options().Registry.Watch()
-	if err != nil {
-		log.Debugf("[registry] failed creating watcher: %v", err)
-		os.Exit(1)
-	}
-
-	var wg sync.WaitGroup
 	errChan := make(chan error, 3)
 
-	wg.Add(1)
 	go func() {
-		defer wg.Done()
-		errChan <- reg.PublishEvents(watcher)
+		var i int
+
+		// loop creating the watcher until exit
+		for {
+			select {
+			case <-reg.exit:
+				errChan <- nil
+				return
+			default:
+				if err := reg.PublishEvents(service.Options().Registry); err != nil {
+					sleep := backoff.Do(i)
+
+					log.Debugf("[registry] failed to publish events: %v backing off for %v", err, sleep)
+
+					// backoff for a period of time
+					time.Sleep(sleep)
+
+					// reset the counter
+					if i > 3 {
+						i = 0
+					}
+				}
+
+				// update the counter
+				i++
+			}
+		}
 	}()
 
-	wg.Add(1)
 	go func() {
-		defer wg.Done()
 		errChan <- reg.Sync(nodes)
 	}()
 
-	wg.Add(1)
 	go func() {
-		defer wg.Done()
-		errChan <- service.Run()
-	}()
-
-	// we block here until either service or server fails
-	if err := <-errChan; err != nil {
-		log.Logf("[registry] error running the registry: %v", err)
-		if err != registry.ErrWatcherStopped {
-			watcher.Stop()
-			close(reg.exit)
+		// we block here until either service or server fails
+		if err := <-errChan; err != nil {
+			log.Logf("[registry] error running the registry: %v", err)
 			os.Exit(1)
 		}
-		os.Exit(1)
+	}()
+
+	// run the service inline
+	if err := service.Run(); err != nil {
+		errChan <- err
 	}
 
-	// stop registry watcher
-	watcher.Stop()
+	// stop everything
 	close(reg.exit)
-
-	wg.Wait()
 
 	log.Debugf("[registry] successfully stopped")
 }
