@@ -18,11 +18,14 @@ spec:
           command: [
                 "/micro",
                 "--server_address=0.0.0.0:9090",
-                "--broker_address=0.0.0.0:10001",
                 "network",
                 "api",
           ]
           env:
+          - name: MICRO_BROKER
+            value: "nats"
+          - name: MICRO_BROKER_ADDRESS
+            value: "nats-cluster"
           - name: MICRO_PROXY
             value: "go.micro.proxy"
           - name: MICRO_REGISTRY

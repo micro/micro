@@ -23,6 +23,11 @@
   - `helm install stable/etcd-operator --version="0.10.0" --set customResources.createEtcdClusterCRD=true --set etcdCluster.version="3.3.15" --set etcdCluster.image.tag="v3.3.15"`
   - read the docs [here](https://etcd.io/docs/v3.3.12/)
 
+4. Install `nats` on DO/GCP/AWS
+ - `kubectl apply -f https://github.com/nats-io/nats-operator/releases/latest/download/00-prereqs.yaml`
+ - `kubectl apply -f https://github.com/nats-io/nats-operator/releases/latest/download/10-deployment.yaml`
+ - `kubectl apply -f services/infra/nats.yaml`
+
 4. Install Micro core on DO/GCP/AWS
   - kubectl apply -f ../kubernetes
   - Create external load balancers https://www.digitalocean.com/docs/kubernetes/how-to/add-load-balancers/
