@@ -13,8 +13,8 @@ import (
 	"github.com/micro/go-micro/util/log"
 	"github.com/micro/micro/api"
 	"github.com/micro/micro/bot"
-	"github.com/micro/micro/cli"
 	"github.com/micro/micro/broker"
+	"github.com/micro/micro/cli"
 	"github.com/micro/micro/health"
 	"github.com/micro/micro/monitor"
 	"github.com/micro/micro/network"
@@ -235,15 +235,16 @@ func Setup(app *ccli.App, options ...micro.Option) {
 		log.Info("Loading services")
 
 		services := []string{
-			"registry",
-			"network",
-			"tunnel",
-			"monitor",
-			"proxy",
-			"router",
-			"api",
-			"web",
-			"bot",
+			"registry", // :8000
+			"broker",   // :8001
+			"tunnel",   // :8083
+			"router",   // :8084
+			"network",  // :8085
+			"proxy",    // :8081
+			"monitor",  // :????
+			"api",      // :8080
+			"web",      // :8082
+			"bot",      // :????
 		}
 
 		for _, service := range services {
