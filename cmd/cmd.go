@@ -91,6 +91,11 @@ func setup(app *ccli.App) {
 			EnvVar: "MICRO_WEB_ADDRESS",
 		},
 		ccli.StringFlag{
+			Name:   "network",
+			Usage:  "Set the micro network name: local, go.micro",
+			EnvVar: "MICRO_NETWORK",
+		},
+		ccli.StringFlag{
 			Name:   "network_address",
 			Usage:  "Set the micro network address e.g. :9093",
 			EnvVar: "MICRO_NETWORK_ADDRESS",
@@ -225,14 +230,27 @@ func Setup(app *ccli.App, options ...micro.Option) {
 	// boot micro
 	app.Action = func(context *ccli.Context) {
 		log.Name("micro")
-		// Defaults
 
-		// set network resolver to http
+		// get the network flag
+		network := context.GlobalString("network")
+
+		// pass through the environment
+		// TODO: perhaps don't do this
 		env := os.Environ()
-		env = append(env, "MICRO_NETWORK_NODES=micro.mu:8085")
-		env = append(env, "MICRO_NETWORK_RESOLVER=http")
 
-		log.Info("Loading services")
+		switch network {
+		case "local":
+			// no op for now
+			log.Info("Setting local network")
+		default:
+			log.Info("Setting global network")
+			// set the seed node
+			env = append(env, "MICRO_NETWORK_NODES=micro.mu:8085")
+			// set the resolver to use https://micro.mu/network
+			env = append(env, "MICRO_NETWORK_RESOLVER=http")
+		}
+
+		log.Info("Loading core services")
 
 		services := []string{
 			"registry", // :8000
@@ -248,7 +266,7 @@ func Setup(app *ccli.App, options ...micro.Option) {
 		}
 
 		for _, service := range services {
-			name := fmt.Sprintf("micro.%s", service)
+			name := fmt.Sprintf("go.micro.%s", service)
 			log.Infof("Registering %s\n", name)
 
 			args := []runtime.CreateOption{
@@ -266,14 +284,14 @@ func Setup(app *ccli.App, options ...micro.Option) {
 		shutdown := make(chan os.Signal, 1)
 		signal.Notify(shutdown, syscall.SIGTERM, syscall.SIGINT, syscall.SIGQUIT)
 
-		log.Info("Starting runtime")
+		log.Info("Starting service runtime")
 
 		// start the runtime
 		if err := runtime.Start(); err != nil {
 			log.Fatal(err)
 		}
 
-		log.Info("Runtime started")
+		log.Info("Service runtime started")
 
 		// TODO: should we launch the console?
 		// start the console
@@ -282,7 +300,7 @@ func Setup(app *ccli.App, options ...micro.Option) {
 		select {
 		case <-shutdown:
 			log.Info("Shutdown signal received")
-			log.Info("Stopping runtime")
+			log.Info("Stopping service runtime")
 		}
 
 		// stop all the things
@@ -290,7 +308,7 @@ func Setup(app *ccli.App, options ...micro.Option) {
 			log.Fatal(err)
 		}
 
-		log.Info("Runtime shutdown")
+		log.Info("Service runtime shutdown")
 
 		// exit success
 		os.Exit(0)
