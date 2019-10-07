@@ -39,3 +39,10 @@
 
 6. Accessing particular `etcd` node directly
   - `kubectl exec -it ETCD_NODE_POD_NAME -- /bin/sh`
+
+## Ports
+
+- API - 443 (UDP)
+- Web - 443 (UDP)
+- Network - 8085 (UDP) 
+- Tunnel - 8083 (UDP)
