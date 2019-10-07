@@ -53,11 +53,12 @@ type sub struct {
 
 // Process processes registry events
 func (s *sub) Process(ctx context.Context, event *pb.Event) error {
-	log.Debugf("received %s event from: %s for: %s", registry.EventType(event.Type), event.Id, event.Service.Name)
 	if event.Id == s.id {
-		log.Debugf("skipping event")
+		log.Debugf("skipping own %s event: %s for: %s", registry.EventType(event.Type), event.Id, event.Service.Name)
 		return nil
 	}
+
+	log.Debugf("received %s event from: %s for: %s", registry.EventType(event.Type), event.Id, event.Service.Name)
 
 	// no service
 	if event.Service == nil {
@@ -183,7 +184,7 @@ func (r *reg) PublishEvents(reg registry.Registry) error {
 
 func (r *reg) syncRecords(nodes []string) error {
 	if len(nodes) == 0 {
-		log.Debugf("no nodes to sync with. skipping")
+		log.Tracef("no nodes to sync with...skipping")
 		return nil
 	}
 
