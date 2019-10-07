@@ -1,13 +1,20 @@
 package cmd
 
 import (
+	"fmt"
+	"os"
+	"os/signal"
+	"syscall"
+
 	ccli "github.com/micro/cli"
 	"github.com/micro/go-micro"
 	"github.com/micro/go-micro/config/cmd"
+	"github.com/micro/go-micro/runtime"
+	"github.com/micro/go-micro/util/log"
 	"github.com/micro/micro/api"
 	"github.com/micro/micro/bot"
-	"github.com/micro/micro/cli"
 	"github.com/micro/micro/broker"
+	"github.com/micro/micro/cli"
 	"github.com/micro/micro/health"
 	"github.com/micro/micro/monitor"
 	"github.com/micro/micro/network"
@@ -82,6 +89,11 @@ func setup(app *ccli.App) {
 			Name:   "web_address",
 			Usage:  "Set the web UI address e.g 0.0.0.0:8082",
 			EnvVar: "MICRO_WEB_ADDRESS",
+		},
+		ccli.StringFlag{
+			Name:   "network",
+			Usage:  "Set the micro network name: local, go.micro",
+			EnvVar: "MICRO_NETWORK",
 		},
 		ccli.StringFlag{
 			Name:   "network_address",
@@ -214,7 +226,94 @@ func Setup(app *ccli.App, options ...micro.Option) {
 	app.Commands = append(app.Commands, new.Commands()...)
 	app.Commands = append(app.Commands, build.Commands()...)
 	app.Commands = append(app.Commands, web.Commands(options...)...)
-	app.Action = func(context *ccli.Context) { ccli.ShowAppHelp(context) }
+
+	// boot micro
+	app.Action = func(context *ccli.Context) {
+		log.Name("micro")
+
+		// get the network flag
+		network := context.GlobalString("network")
+
+		// pass through the environment
+		// TODO: perhaps don't do this
+		env := os.Environ()
+
+		switch network {
+		case "local":
+			// no op for now
+			log.Info("Setting local network")
+		default:
+			log.Info("Setting global network")
+			// set the seed node
+			env = append(env, "MICRO_NETWORK_NODES=micro.mu:8085")
+			// set the resolver to use https://micro.mu/network
+			env = append(env, "MICRO_NETWORK_RESOLVER=http")
+		}
+
+		log.Info("Loading core services")
+
+		services := []string{
+			"registry", // :8000
+			"broker",   // :8001
+			"tunnel",   // :8083
+			"router",   // :8084
+			"network",  // :8085
+			"proxy",    // :8081
+			"monitor",  // :????
+			"api",      // :8080
+			"web",      // :8082
+			"bot",      // :????
+		}
+
+		for _, service := range services {
+			name := fmt.Sprintf("go.micro.%s", service)
+			log.Infof("Registering %s\n", name)
+
+			args := []runtime.CreateOption{
+				runtime.WithCommand(os.Args[0], service),
+				runtime.WithEnv(env),
+				runtime.WithOutput(os.Stdout),
+			}
+
+			// register the service
+			runtime.Create(&runtime.Service{
+				Name: name,
+			}, args...)
+		}
+
+		shutdown := make(chan os.Signal, 1)
+		signal.Notify(shutdown, syscall.SIGTERM, syscall.SIGINT, syscall.SIGQUIT)
+
+		log.Info("Starting service runtime")
+
+		// start the runtime
+		if err := runtime.Start(); err != nil {
+			log.Fatal(err)
+		}
+
+		log.Info("Service runtime started")
+
+		// TODO: should we launch the console?
+		// start the console
+		// cli.Init(context)
+
+		select {
+		case <-shutdown:
+			log.Info("Shutdown signal received")
+			log.Info("Stopping service runtime")
+		}
+
+		// stop all the things
+		if err := runtime.Stop(); err != nil {
+			log.Fatal(err)
+		}
+
+		log.Info("Service runtime shutdown")
+
+		// exit success
+		os.Exit(0)
+
+	}
 
 	setup(app)
 }

@@ -36,6 +36,8 @@ var (
 )
 
 func run(ctx *cli.Context, srvOpts ...micro.Option) {
+	log.Name("proxy")
+
 	if len(ctx.GlobalString("server_name")) > 0 {
 		Name = ctx.GlobalString("server_name")
 	}

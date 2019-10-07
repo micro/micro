@@ -287,6 +287,8 @@ func render(w http.ResponseWriter, r *http.Request, tmpl string, data interface{
 }
 
 func run(ctx *cli.Context, srvOpts ...micro.Option) {
+	log.Name("web")
+
 	if len(ctx.GlobalString("server_name")) > 0 {
 		Name = ctx.GlobalString("server_name")
 	}

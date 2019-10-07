@@ -32,12 +32,12 @@ func Plugin() plugin.Plugin {
 				return nil
 			}
 
-			if len(c.Args()) < 1 || len(c.Args()[0]) == 0 {
-				return nil
-			}
+			var service string
 
-			// service name
-			service := c.Args()[0]
+			// set service name
+			if len(c.Args()) > 0 && len(c.Args()[0]) > 0 {
+				service = c.Args()[0]
+			}
 
 			// kick off the tracker
 			go func() {
@@ -59,6 +59,7 @@ func Plugin() plugin.Plugin {
 					atomic.StoreUint64(&requests, 0)
 
 					// set metrics
+					u.Metrics.Count["instances"] = uint64(1)
 					u.Metrics.Count["requests"] = reqs
 					u.Metrics.Count["services"] = srvs
 

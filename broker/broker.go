@@ -6,9 +6,9 @@ import (
 
 	"github.com/micro/cli"
 	"github.com/micro/go-micro"
-	"github.com/micro/go-micro/util/log"
 	"github.com/micro/go-micro/broker/service/handler"
 	pb "github.com/micro/go-micro/broker/service/proto"
+	"github.com/micro/go-micro/util/log"
 	rcli "github.com/micro/micro/cli"
 )
 

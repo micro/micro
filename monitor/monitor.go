@@ -15,6 +15,8 @@ var (
 )
 
 func run(ctx *cli.Context, opts ...micro.Option) {
+	log.Name("monitor")
+
 	// create a new monitor
 	m := monitor.NewMonitor()
 	if err := m.Run(); err != nil {

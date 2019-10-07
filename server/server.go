@@ -47,7 +47,7 @@ func newServer(s micro.Service, r router.Router) *srv {
 
 // start starts the micro server.
 func (s *srv) start() error {
-	log.Log("[server] starting micro server")
+	log.Log("starting micro server")
 
 	// start the router
 	if err := s.router.Start(); err != nil {
@@ -59,7 +59,7 @@ func (s *srv) start() error {
 
 // stop stops the micro server.
 func (s *srv) stop() error {
-	log.Log("[server] stopping server")
+	log.Log("stopping server")
 
 	// stop the router
 	if err := s.router.Stop(); err != nil {
@@ -71,6 +71,8 @@ func (s *srv) stop() error {
 
 // run runs the micro server
 func run(ctx *cli.Context, srvOpts ...micro.Option) {
+	log.Name("server")
+
 	// Init plugins
 	for _, p := range Plugins() {
 		p.Init(ctx)
@@ -109,25 +111,25 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	s := newServer(service, r)
 
 	if err := s.start(); err != nil {
-		log.Log("[server] failed to start: %s", err)
+		log.Log("failed to start: %s", err)
 		os.Exit(1)
 	}
 
-	log.Log("[server] successfully started")
+	log.Log("successfully started")
 
 	if err := service.Run(); err != nil {
-		log.Logf("[server] failed with error %s", err)
+		log.Logf("failed with error %s", err)
 		// TODO: we should probably stop the router here before bailing
 		os.Exit(1)
 	}
 
 	// stop the server
 	if err := s.stop(); err != nil {
-		log.Logf("[server] failed to stop: %v", err)
+		log.Logf("failed to stop: %v", err)
 		os.Exit(1)
 	}
 
-	log.Logf("[server] successfully stopped")
+	log.Logf("successfully stopped")
 }
 
 func Commands(options ...micro.Option) []cli.Command {
