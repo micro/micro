@@ -46,3 +46,11 @@
 - Web - 443 (UDP)
 - Network - 8085 (UDP) 
 - Tunnel - 8083 (UDP)
+
+## DNS Records
+
+- micro.mu -> seed node
+- api.micro.mu -> micro api
+- web.micro.mu -> micro web
+- tunnel.micro.mu -> micro tunnel
+- network.micro.mu -> micro network
