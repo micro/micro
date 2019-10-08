@@ -244,8 +244,6 @@ func Setup(app *ccli.App, options ...micro.Option) {
 			log.Info("Setting local network")
 		default:
 			log.Info("Setting global network")
-			// set the seed node
-			env = append(env, "MICRO_NETWORK_NODES=micro.mu:8085")
 			// set the resolver to use https://micro.mu/network
 			env = append(env, "MICRO_NETWORK_RESOLVER=http")
 		}
