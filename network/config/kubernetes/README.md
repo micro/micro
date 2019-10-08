@@ -10,7 +10,7 @@
 
 ## Steps
 
-1. Spin up managed k8s on DO/GCP/AWS
+1. Spin up managed k8s on DO/[GCP](gcloud.md)/AWS
 
 2. Setup local env
   - Install `kubectl` https://kubernetes.io/docs/tasks/tools/install-kubectl/
