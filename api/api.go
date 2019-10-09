@@ -23,6 +23,7 @@ import (
 	"github.com/micro/go-micro/api/router"
 	regRouter "github.com/micro/go-micro/api/router/registry"
 	"github.com/micro/go-micro/api/server"
+	"github.com/micro/go-micro/api/server/acme/autocert"
 	httpapi "github.com/micro/go-micro/api/server/http"
 	"github.com/micro/go-micro/util/log"
 	"github.com/micro/micro/internal/handler"
@@ -42,6 +43,7 @@ var (
 	Namespace    = "go.micro.api"
 	HeaderPrefix = "X-Micro-"
 	EnableRPC    = false
+	ACMEProvider = "autocert"
 )
 
 func run(ctx *cli.Context, srvOpts ...micro.Option) {
@@ -65,6 +67,9 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	if len(ctx.String("enable_rpc")) > 0 {
 		EnableRPC = ctx.Bool("enable_rpc")
 	}
+	if len(ctx.GlobalString("acme_provider")) > 0 {
+		ACMEProvider = ctx.GlobalString("acme_provider")
+	}
 
 	// Init plugins
 	for _, p := range Plugins() {
@@ -78,6 +83,12 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		hosts := helper.ACMEHosts(ctx)
 		opts = append(opts, server.EnableACME(true))
 		opts = append(opts, server.ACMEHosts(hosts...))
+		switch ACMEProvider {
+		case "autocert":
+			opts = append(opts, server.ACMEProvider(autocert.New()))
+		default:
+			log.Fatalf("%s is not a valid ACME provider\n", ACMEProvider)
+		}
 	} else if ctx.GlobalBool("enable_tls") {
 		config, err := helper.TLSConfig(ctx)
 		if err != nil {

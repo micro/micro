@@ -55,6 +55,11 @@ func setup(app *ccli.App) {
 			Usage:  "Comma separated list of hostnames to manage ACME certs for",
 			EnvVar: "MICRO_ACME_HOSTS",
 		},
+		ccli.StringFlag{
+			Name:   "acme_provider",
+			Usage:  "The provider that will be used to communicate with Let's Encrypt. Valid options: autocert",
+			EnvVar: "MICRO_ACME_PROVIDER",
+		},
 		ccli.BoolFlag{
 			Name:   "enable_tls",
 			Usage:  "Enable TLS support. Expects cert and key file to be specified",
