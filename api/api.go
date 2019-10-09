@@ -42,6 +42,7 @@ var (
 	Namespace    = "go.micro.api"
 	HeaderPrefix = "X-Micro-"
 	EnableRPC    = false
+	ACMELibrary  = "none"
 )
 
 func run(ctx *cli.Context, srvOpts ...micro.Option) {
@@ -65,6 +66,9 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	if len(ctx.String("enable_rpc")) > 0 {
 		EnableRPC = ctx.Bool("enable_rpc")
 	}
+	if len(ctx.String("acme_library")) > 0 {
+		ACMELibrary = ctx.String("acme_library")
+	}
 
 	// Init plugins
 	for _, p := range Plugins() {
@@ -74,9 +78,9 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	// Init API
 	var opts []server.Option
 
-	if ctx.GlobalBool("enable_acme") {
+	if ACMELibrary != "none" {
 		hosts := helper.ACMEHosts(ctx)
-		opts = append(opts, server.EnableACME(true))
+		opts = append(opts, server.ACMELibrary(ACMELibrary))
 		opts = append(opts, server.ACMEHosts(hosts...))
 	} else if ctx.GlobalBool("enable_tls") {
 		config, err := helper.TLSConfig(ctx)
