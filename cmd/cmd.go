@@ -45,10 +45,10 @@ func init() {
 
 func setup(app *ccli.App) {
 	app.Flags = append(app.Flags,
-		ccli.BoolFlag{
-			Name:   "enable_acme",
-			Usage:  "Enables ACME support via Let's Encrypt. ACME hosts should also be specified.",
-			EnvVar: "MICRO_ENABLE_ACME",
+		ccli.StringFlag{
+			Name:   "acme_library",
+			Usage:  "ACME support via Let's Encrypt. ACME hosts should also be specified. Supported values are none, certauto",
+			EnvVar: "MICRO_ACME_LIBRARY",
 		},
 		ccli.StringFlag{
 			Name:   "acme_hosts",
