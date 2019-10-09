@@ -113,6 +113,28 @@ func NetworkCommands() []cli.Command {
 			Name:   "routes",
 			Usage:  "List network routes",
 			Action: printer(netRoutes),
+			Flags: []cli.Flag{
+				cli.StringFlag{
+					Name:  "service",
+					Usage: "Filter by service",
+				},
+				cli.StringFlag{
+					Name:  "address",
+					Usage: "Filter by address",
+				},
+				cli.StringFlag{
+					Name:  "gateway",
+					Usage: "Filter by gateway",
+				},
+				cli.StringFlag{
+					Name:  "router",
+					Usage: "Filter by router",
+				},
+				cli.StringFlag{
+					Name:  "network",
+					Usage: "Filter by network",
+				},
+			},
 		},
 		{
 			Name:   "services",

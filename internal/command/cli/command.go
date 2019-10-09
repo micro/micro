@@ -317,9 +317,21 @@ func NetworkNodes(c *cli.Context) ([]byte, error) {
 func NetworkRoutes(c *cli.Context) ([]byte, error) {
 	cli := (*cmd.DefaultOptions().Client)
 
+	query := map[string]string{}
+
+	for _, filter := range []string{"service", "address", "gateway", "router", "network"} {
+		if v := c.String(filter); len(v) > 0 {
+			query[filter] = v
+		}
+	}
+
+	request := map[string]interface{}{
+		"query": query,
+	}
+
 	var rsp map[string]interface{}
 
-	req := cli.NewRequest("go.micro.network", "Network.Routes", map[string]interface{}{}, client.WithContentType("application/json"))
+	req := cli.NewRequest("go.micro.network", "Network.Routes", request, client.WithContentType("application/json"))
 	err := cli.Call(context.TODO(), req, &rsp)
 	if err != nil {
 		return nil, err
