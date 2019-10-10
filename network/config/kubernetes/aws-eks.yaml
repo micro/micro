@@ -1,0 +1,16 @@
+---
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+
+metadata:
+  name: micro-cn
+  region: ap-east-1
+  version: "1.14"
+
+nodeGroups:
+  - name: micro-cn-workers-1
+    instanceType: m5.large
+    desiredCapacity: 3
+    iam:
+      withAddonPolicies:
+        ebs: true
