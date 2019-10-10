@@ -10,6 +10,7 @@ import (
 	"regexp"
 	"sort"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/gorilla/mux"
@@ -20,6 +21,7 @@ import (
 	"github.com/micro/go-micro/client/selector"
 	"github.com/micro/go-micro/config/cmd"
 	"github.com/micro/go-micro/registry"
+	"github.com/micro/go-micro/registry/cache"
 	"github.com/micro/go-micro/util/log"
 	"github.com/micro/micro/internal/handler"
 	"github.com/micro/micro/internal/helper"
@@ -48,11 +50,73 @@ var (
 
 type srv struct {
 	*mux.Router
+	// registry we use
+	registry registry.Registry
+}
+
+type reg struct {
+	registry.Registry
+
+	sync.Mutex
+	lastPull time.Time
+	services []*registry.Service
+}
+
+func (r *reg) watch() {
+Loop:
+	for {
+		// get a watcher
+		w, err := r.Registry.Watch()
+		if err != nil {
+			time.Sleep(time.Second)
+			continue
+		}
+
+		// loop results
+		for {
+			_, err := w.Next()
+			if err != nil {
+				w.Stop()
+				time.Sleep(time.Second)
+				goto Loop
+			}
+
+			// next pull will be from the registry
+			r.Lock()
+			r.lastPull = time.Time{}
+			r.Unlock()
+		}
+	}
+}
+
+func (r *reg) ListServices() ([]*registry.Service, error) {
+	r.Lock()
+	defer r.Unlock()
+
+	if r.lastPull.IsZero() || time.Since(r.lastPull) > time.Minute {
+		// pull the services
+		s, err := r.Registry.ListServices()
+		if err != nil {
+			// return stale entries if they exist
+			if len(r.services) > 0 {
+				return r.services, nil
+			}
+			// otherwise return an error
+			return nil, err
+		}
+		// cache it
+		r.services = s
+		r.lastPull = time.Now()
+		return s, nil
+	}
+
+	// return the cached list
+	return r.services, nil
 }
 
 func (s *srv) proxy() http.Handler {
 	sel := selector.NewSelector(
-		selector.Registry((*cmd.DefaultOptions().Registry)),
+		selector.Registry(s.registry),
 	)
 
 	director := func(r *http.Request) {
@@ -144,12 +208,12 @@ func faviconHandler(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
-func cliHandler(w http.ResponseWriter, r *http.Request) {
+func (s *srv) cliHandler(w http.ResponseWriter, r *http.Request) {
 	render(w, r, cliTemplate, nil)
 }
 
-func indexHandler(w http.ResponseWriter, r *http.Request) {
-	services, err := (*cmd.DefaultOptions().Registry).ListServices()
+func (s *srv) indexHandler(w http.ResponseWriter, r *http.Request) {
+	services, err := s.registry.ListServices()
 	if err != nil {
 		log.Errorf("Error listing services: %v", err)
 	}
@@ -172,12 +236,12 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 	render(w, r, indexTemplate, data)
 }
 
-func registryHandler(w http.ResponseWriter, r *http.Request) {
+func (s *srv) registryHandler(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 	svc := r.Form.Get("service")
 
 	if len(svc) > 0 {
-		s, err := (*cmd.DefaultOptions().Registry).GetService(svc)
+		s, err := s.registry.GetService(svc)
 		if err != nil {
 			http.Error(w, "Error occurred:"+err.Error(), 500)
 			return
@@ -205,7 +269,7 @@ func registryHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	services, err := (*cmd.DefaultOptions().Registry).ListServices()
+	services, err := s.registry.ListServices()
 	if err != nil {
 		log.Errorf("Error listing services: %v", err)
 	}
@@ -228,8 +292,8 @@ func registryHandler(w http.ResponseWriter, r *http.Request) {
 	render(w, r, registryTemplate, services)
 }
 
-func callHandler(w http.ResponseWriter, r *http.Request) {
-	services, err := (*cmd.DefaultOptions().Registry).ListServices()
+func (s *srv) callHandler(w http.ResponseWriter, r *http.Request) {
+	services, err := s.registry.ListServices()
 	if err != nil {
 		log.Errorf("Error listing services: %v", err)
 	}
@@ -238,7 +302,7 @@ func callHandler(w http.ResponseWriter, r *http.Request) {
 
 	serviceMap := make(map[string][]*registry.Endpoint)
 	for _, service := range services {
-		s, err := (*cmd.DefaultOptions().Registry).GetService(service.Name)
+		s, err := s.registry.GetService(service.Name)
 		if err != nil {
 			continue
 		}
@@ -304,9 +368,18 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		p.Init(ctx)
 	}
 
+	// use the caching registry
+	cache := cache.New((*cmd.DefaultOptions().Registry))
+	reg := &reg{Registry: cache}
+
+	// start the watcher
+	go reg.watch()
+
 	var h http.Handler
-	r := mux.NewRouter()
-	s := &srv{r}
+	s := &srv{
+		Router:   mux.NewRouter(),
+		registry: reg,
+	}
 	h = s
 
 	if ctx.GlobalBool("enable_stats") {
@@ -318,13 +391,13 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		defer st.Stop()
 	}
 
-	s.HandleFunc("/client", callHandler)
-	s.HandleFunc("/registry", registryHandler)
-	s.HandleFunc("/terminal", cliHandler)
+	s.HandleFunc("/client", s.callHandler)
+	s.HandleFunc("/registry", s.registryHandler)
+	s.HandleFunc("/terminal", s.cliHandler)
 	s.HandleFunc("/rpc", handler.RPC)
 	s.HandleFunc("/favicon.ico", faviconHandler)
 	s.PathPrefix("/{service:[a-zA-Z0-9]+}").Handler(s.proxy())
-	s.HandleFunc("/", indexHandler)
+	s.HandleFunc("/", s.indexHandler)
 
 	var opts []server.Option
 
