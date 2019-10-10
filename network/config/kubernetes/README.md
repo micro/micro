@@ -54,3 +54,7 @@
 - web.micro.mu -> micro web
 - tunnel.micro.mu -> micro tunnel
 - network.micro.mu -> micro network
+
+## Healing Etcd
+
+- `helm upgrade [release-name] --set etcdCluster.size=3 --set etcdCluster.image.tag="v3.3.15" --set customResources.createEtcdClusterCRD=truestable/etcd-operator`
