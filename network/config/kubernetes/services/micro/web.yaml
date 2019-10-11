@@ -20,8 +20,6 @@ spec:
           value: "nats"
         - name: MICRO_BROKER_ADDRESS
           value: "nats-cluster"
-        - name: MICRO_PROXY
-          value: "go.micro.proxy"
         - name: MICRO_ENABLE_STATS
           value: "true"
         - name: MICRO_REGISTRY
