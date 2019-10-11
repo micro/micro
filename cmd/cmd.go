@@ -26,6 +26,7 @@ import (
 	"github.com/micro/micro/router"
 	"github.com/micro/micro/server"
 	"github.com/micro/micro/service"
+	"github.com/micro/micro/store"
 	"github.com/micro/micro/tunnel"
 	"github.com/micro/micro/web"
 
@@ -228,6 +229,7 @@ func Setup(app *ccli.App, options ...micro.Option) {
 	app.Commands = append(app.Commands, registry.Commands(options...)...)
 	app.Commands = append(app.Commands, server.Commands(options...)...)
 	app.Commands = append(app.Commands, service.Commands(options...)...)
+	app.Commands = append(app.Commands, store.Commands(options...)...)
 	app.Commands = append(app.Commands, new.Commands()...)
 	app.Commands = append(app.Commands, build.Commands()...)
 	app.Commands = append(app.Commands, web.Commands(options...)...)
@@ -258,11 +260,12 @@ func Setup(app *ccli.App, options ...micro.Option) {
 		services := []string{
 			"registry", // :8000
 			"broker",   // :8001
+			"store",   // :8002
 			"tunnel",   // :8083
 			"router",   // :8084
 			"network",  // :8085
-			"proxy",    // :8081
 			"monitor",  // :????
+			"proxy",    // :8081
 			"api",      // :8080
 			"web",      // :8082
 			"bot",      // :????
