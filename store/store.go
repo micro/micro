@@ -5,9 +5,9 @@ import (
 
 	"github.com/micro/cli"
 	"github.com/micro/go-micro"
+	"github.com/micro/go-micro/store/memory"
 	"github.com/micro/go-micro/store/service/handler"
 	pb "github.com/micro/go-micro/store/service/proto"
-	"github.com/micro/go-micro/store/memory"
 	"github.com/micro/go-micro/util/log"
 )
 
