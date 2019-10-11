@@ -260,7 +260,7 @@ func Setup(app *ccli.App, options ...micro.Option) {
 		services := []string{
 			"registry", // :8000
 			"broker",   // :8001
-			"store",   // :8002
+			"store",    // :8002
 			"tunnel",   // :8083
 			"router",   // :8084
 			"network",  // :8085
