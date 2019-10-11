@@ -17,6 +17,7 @@ import (
 	"github.com/micro/cli"
 	"github.com/micro/go-micro"
 	"github.com/micro/go-micro/api/server"
+	"github.com/micro/go-micro/api/server/acme/autocert"
 	httpapi "github.com/micro/go-micro/api/server/http"
 	"github.com/micro/go-micro/client/selector"
 	"github.com/micro/go-micro/config/cmd"
@@ -46,6 +47,7 @@ var (
 	// Allows the web service to define absolute paths
 	BasePathHeader = "X-Micro-Web-Base-Path"
 	statsURL       string
+	ACMEProvider   = "autocert"
 )
 
 type srv struct {
@@ -401,10 +403,19 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 
 	var opts []server.Option
 
+	if len(ctx.GlobalString("acme_provider")) > 0 {
+		ACMEProvider = ctx.GlobalString("acme_provider")
+	}
 	if ctx.GlobalBool("enable_acme") {
 		hosts := helper.ACMEHosts(ctx)
 		opts = append(opts, server.EnableACME(true))
 		opts = append(opts, server.ACMEHosts(hosts...))
+		switch ACMEProvider {
+		case "autocert":
+			opts = append(opts, server.ACMEProvider(autocert.New()))
+		default:
+			log.Fatalf("%s is not a valid ACME provider\n", ACMEProvider)
+		}
 	} else if ctx.GlobalBool("enable_tls") {
 		config, err := helper.TLSConfig(ctx)
 		if err != nil {
