@@ -106,8 +106,17 @@ func (r *reg) ListServices() ([]*registry.Service, error) {
 			// otherwise return an error
 			return nil, err
 		}
+		// collapse the list
+		serviceMap := make(map[string]*registry.Service)
+		for _, service := range s {
+			serviceMap[service.Name] = service
+		}
+		var services []*registry.Service
+		for _, service := range serviceMap {
+			services = append(services, service)
+		}
 		// cache it
-		r.services = s
+		r.services = services
 		r.lastPull = time.Now()
 		return s, nil
 	}
@@ -304,6 +313,11 @@ func (s *srv) callHandler(w http.ResponseWriter, r *http.Request) {
 
 	serviceMap := make(map[string][]*registry.Endpoint)
 	for _, service := range services {
+		if len(service.Endpoints) > 0 {
+			serviceMap[service.Name] = service.Endpoints
+			continue
+		}
+		// lookup the endpoints otherwise
 		s, err := s.registry.GetService(service.Name)
 		if err != nil {
 			continue
