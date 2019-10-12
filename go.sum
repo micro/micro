@@ -166,6 +166,8 @@ github.com/kr/text v0.1.0/go.mod h1:4Jbv+DJW3UT/LiOwJeYQe1efqtUx/iVham/4vfdArNI=
 github.com/leodido/go-urn v1.1.0/go.mod h1:+cyI34gQWZcE1eQU7NVgKkkzdXDQHr1dBMtdAPozLkw=
 github.com/lucas-clemente/quic-go v0.12.0 h1:TRbvZ6F++sofeGbh+Z2IIyIOhl8KyGnYuA06g2yrHdI=
 github.com/lucas-clemente/quic-go v0.12.0/go.mod h1:UXJJPE4RfFef/xPO5wQm0tITK8gNfqwTxjbE7s3Vb8s=
+github.com/lucas-clemente/quic-go v0.12.1 h1:BPITli+6KnKogtTxBk2aS4okr5dUHz2LtIDAP1b8UL4=
+github.com/lucas-clemente/quic-go v0.12.1/go.mod h1:UXJJPE4RfFef/xPO5wQm0tITK8gNfqwTxjbE7s3Vb8s=
 github.com/marten-seemann/qpack v0.1.0/go.mod h1:LFt1NU/Ptjip0C2CPkhimBz5CGE3WGDAUWqna+CNTrI=
 github.com/marten-seemann/qtls v0.3.2 h1:O7awy4bHEzSX/K3h+fZig3/Vo03s/RxlxgsAk9sYamI=
 github.com/marten-seemann/qtls v0.3.2/go.mod h1:xzjG7avBwGGbdZ8dTGxlBnLArsVKLvwmjgmPuiQEcYk=
@@ -181,6 +183,8 @@ github.com/micro/go-micro v1.11.0 h1:yQBuxjk0JXU5XNbNMZq417JJzXmcniu1KQ7qpqAhtk8
 github.com/micro/go-micro v1.11.0/go.mod h1:IFNDLkidhgnolhx+r3Lmx73XGNFgiZ7qM7l+rg8MnU0=
 github.com/micro/go-micro v1.11.1 h1:WMc4NXlrLrHBMZb7vgCS4q9SZty0LCY8d8Tc3SeaY7s=
 github.com/micro/go-micro v1.11.1/go.mod h1:IFNDLkidhgnolhx+r3Lmx73XGNFgiZ7qM7l+rg8MnU0=
+github.com/micro/go-micro v1.11.3 h1:5RIqqxcl6d0666q3AIxzd7FIJW5RMLkWgOUyh4h6t2k=
+github.com/micro/go-micro v1.11.3/go.mod h1:qXziryz9F733LhfMKCCKVS9hF0oFwzBBj8aj5n99Tog=
 github.com/micro/mdns v0.3.0 h1:bYycYe+98AXR3s8Nq5qvt6C573uFTDPIYzJemWON0QE=
 github.com/micro/mdns v0.3.0/go.mod h1:KJ0dW7KmicXU2BV++qkLlmHYcVv7/hHnbtguSWt9Aoc=
 github.com/miekg/dns v1.0.14/go.mod h1:W1PPwlIAgtquWBMBEV9nkV9Cazfe8ScdGz/Lj7v3Nrg=
