@@ -61,7 +61,14 @@ Docker image
 docker pull microhq/micro
 ```
 
+
 ## Getting Started
+
+Boot the entire system locally
+
+```
+micro
+```
 
 See the [docs](https://micro.mu/docs/) for detailed information on the architecture, installation and use of the platform.
 
