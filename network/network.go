@@ -10,7 +10,7 @@ import (
 	"github.com/micro/cli"
 	"github.com/micro/go-micro"
 	"github.com/micro/go-micro/network"
-	"github.com/micro/go-micro/network/handler"
+	"github.com/micro/go-micro/network/service/handler"
 	"github.com/micro/go-micro/network/resolver"
 	"github.com/micro/go-micro/network/resolver/dns"
 	"github.com/micro/go-micro/network/resolver/http"

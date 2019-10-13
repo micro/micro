@@ -259,6 +259,34 @@ func GetService(c *cli.Context, args []string) ([]byte, error) {
 	return []byte(strings.Join(output, "\n")), nil
 }
 
+func NetworkConnect(c *cli.Context, args []string) ([]byte, error) {
+	if len(args) == 0 {
+		return nil, nil
+	}
+
+	cli := *cmd.DefaultOptions().Client
+
+	request := map[string]interface{}{
+		"nodes": []interface{}{
+			map[string]interface{}{
+				"address": args[0],
+			},
+		},
+	}
+
+	var rsp map[string]interface{}
+
+	req := cli.NewRequest("go.micro.network", "Network.Connect", request, client.WithContentType("application/json"))
+	err := cli.Call(context.TODO(), req, &rsp)
+	if err != nil {
+		return nil, err
+	}
+
+	b, _ := json.MarshalIndent(rsp, "", "\t")
+	return b, nil
+}
+
+
 func NetworkGraph(c *cli.Context) ([]byte, error) {
 	cli := *cmd.DefaultOptions().Client
 
