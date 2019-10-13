@@ -100,6 +100,11 @@ func HealthCommands() []cli.Command {
 func NetworkCommands() []cli.Command {
 	return []cli.Command{
 		{
+			Name:   "connect",
+			Usage:  "Connect to the network. Specify nodes e.g connect ip:port",
+			Action: printer(networkConnect),
+		},
+		{
 			Name:   "graph",
 			Usage:  "Get the network graph",
 			Action: printer(networkGraph),

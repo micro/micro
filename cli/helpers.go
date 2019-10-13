@@ -47,6 +47,10 @@ func list(c *cli.Context, args []string) ([]byte, error) {
 	return nil, errors.New("unknown command")
 }
 
+func networkConnect(c *cli.Context, args []string) ([]byte, error) {
+	return clic.NetworkConnect(c, args)
+}
+
 func networkGraph(c *cli.Context, args []string) ([]byte, error) {
 	return clic.NetworkGraph(c)
 }
