@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/go-acme/lego/v3/providers/dns/cloudflare"
 	"github.com/gorilla/mux"
 	"github.com/micro/cli"
 	"github.com/micro/go-micro"
@@ -23,7 +24,9 @@ import (
 	"github.com/micro/go-micro/api/router"
 	regRouter "github.com/micro/go-micro/api/router/registry"
 	"github.com/micro/go-micro/api/server"
+	"github.com/micro/go-micro/api/server/acme"
 	"github.com/micro/go-micro/api/server/acme/autocert"
+	"github.com/micro/go-micro/api/server/acme/certmagic"
 	httpapi "github.com/micro/go-micro/api/server/http"
 	"github.com/micro/go-micro/util/log"
 	"github.com/micro/micro/internal/handler"
@@ -33,17 +36,19 @@ import (
 )
 
 var (
-	Name         = "go.micro.api"
-	Address      = ":8080"
-	Handler      = "meta"
-	Resolver     = "micro"
-	RPCPath      = "/rpc"
-	APIPath      = "/"
-	ProxyPath    = "/{service:[a-zA-Z0-9]+}"
-	Namespace    = "go.micro.api"
-	HeaderPrefix = "X-Micro-"
-	EnableRPC    = false
-	ACMEProvider = "autocert"
+	Name                  = "go.micro.api"
+	Address               = ":8080"
+	Handler               = "meta"
+	Resolver              = "micro"
+	RPCPath               = "/rpc"
+	APIPath               = "/"
+	ProxyPath             = "/{service:[a-zA-Z0-9]+}"
+	Namespace             = "go.micro.api"
+	HeaderPrefix          = "X-Micro-"
+	EnableRPC             = false
+	ACMEProvider          = "autocert"
+	ACMEChallengeProvider = "cloudflare"
+	ACMECA                = acme.LetsEncryptProductionCA
 )
 
 func run(ctx *cli.Context, srvOpts ...micro.Option) {
@@ -70,6 +75,12 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	if len(ctx.GlobalString("acme_provider")) > 0 {
 		ACMEProvider = ctx.GlobalString("acme_provider")
 	}
+	if len(ctx.GlobalString("")) > 0 {
+		ACMEChallengeProvider = ctx.GlobalString("acme_challenge_provider")
+	}
+	if len(ctx.GlobalString("acme_ca")) > 0 {
+		ACMECA = ctx.GlobalString("acme_ca")
+	}
 
 	// Init plugins
 	for _, p := range Plugins() {
@@ -86,6 +97,25 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		switch ACMEProvider {
 		case "autocert":
 			opts = append(opts, server.ACMEProvider(autocert.New()))
+		case "certmagic":
+			if ACMEChallengeProvider != "cloudflare" {
+				log.Fatal("The only implemented DNS challenge provider is cloudflare")
+			}
+			if len(ctx.GlobalString("cloudflare_dns_api_token")) == 0 {
+				log.Fatal("Cloudflare DNS API token must be set")
+			}
+			config := cloudflare.NewDefaultConfig()
+			config.AuthToken = ctx.GlobalString("cloudflare_dns_api_token")
+			config.ZoneToken = ctx.GlobalString("cloudflare_zone_api_token")
+			provider, err := cloudflare.NewDNSProviderConfig(config)
+			if err != nil {
+				log.Fatalf("Cloudflare: %s\n, ", err.Error())
+			}
+			opts = append(opts,
+				server.ACMEProvider(
+					certmagic.New(acme.AcceptToS(true), acme.CA(ACMECA), acme.ChallengeProvider(provider)),
+				),
+			)
 		default:
 			log.Fatalf("%s is not a valid ACME provider\n", ACMEProvider)
 		}

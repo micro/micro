@@ -13,11 +13,14 @@ import (
 	"sync"
 	"time"
 
+	"github.com/go-acme/lego/v3/providers/dns/cloudflare"
 	"github.com/gorilla/mux"
 	"github.com/micro/cli"
 	"github.com/micro/go-micro"
 	"github.com/micro/go-micro/api/server"
+	"github.com/micro/go-micro/api/server/acme"
 	"github.com/micro/go-micro/api/server/acme/autocert"
+	"github.com/micro/go-micro/api/server/acme/certmagic"
 	httpapi "github.com/micro/go-micro/api/server/http"
 	"github.com/micro/go-micro/client/selector"
 	"github.com/micro/go-micro/config/cmd"
@@ -45,9 +48,11 @@ var (
 	// Base path sent to web service.
 	// This is stripped from the request path
 	// Allows the web service to define absolute paths
-	BasePathHeader = "X-Micro-Web-Base-Path"
-	statsURL       string
-	ACMEProvider   = "autocert"
+	BasePathHeader        = "X-Micro-Web-Base-Path"
+	statsURL              string
+	ACMEProvider          = "autocert"
+	ACMEChallengeProvider = "cloudflare"
+	ACMECA                = acme.LetsEncryptProductionCA
 )
 
 type srv struct {
@@ -427,6 +432,25 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		switch ACMEProvider {
 		case "autocert":
 			opts = append(opts, server.ACMEProvider(autocert.New()))
+		case "certmagic":
+			if ACMEChallengeProvider != "cloudflare" {
+				log.Fatal("The only implemented DNS challenge provider is cloudflare")
+			}
+			if len(ctx.GlobalString("cloudflare_dns_api_token")) == 0 {
+				log.Fatal("Cloudflare DNS API token must be set")
+			}
+			config := cloudflare.NewDefaultConfig()
+			config.AuthToken = ctx.GlobalString("cloudflare_dns_api_token")
+			config.ZoneToken = ctx.GlobalString("cloudflare_zone_api_token")
+			provider, err := cloudflare.NewDNSProviderConfig(config)
+			if err != nil {
+				log.Fatalf("Cloudflare: %s\n, ", err.Error())
+			}
+			opts = append(opts,
+				server.ACMEProvider(
+					certmagic.New(acme.AcceptToS(true), acme.CA(ACMECA), acme.ChallengeProvider(provider)),
+				),
+			)
 		default:
 			log.Fatalf("%s is not a valid ACME provider\n", ACMEProvider)
 		}
