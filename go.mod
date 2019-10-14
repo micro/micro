@@ -8,6 +8,7 @@ require (
 	github.com/chzyer/test v0.0.0-20180213035817-a1ea475d72b1 // indirect
 	github.com/coreos/bbolt v1.3.3 // indirect
 	github.com/coreos/go-semver v0.3.0 // indirect
+	github.com/go-acme/lego/v3 v3.1.0
 	github.com/go-telegram-bot-api/telegram-bot-api v4.6.4+incompatible // indirect
 	github.com/golang/groupcache v0.0.0-20191002201903-404acd9df4cc // indirect
 	github.com/golang/protobuf v1.3.2
@@ -18,7 +19,7 @@ require (
 	github.com/grpc-ecosystem/grpc-gateway v1.11.3 // indirect
 	github.com/jonboulle/clockwork v0.1.0 // indirect
 	github.com/micro/cli v0.2.0
-	github.com/micro/go-micro v1.11.1-0.20191013174011-b701da6d691d
+	github.com/micro/go-micro v1.11.1-0.20191014111055-1cea2f5bbafa
 	github.com/nats-io/nats-server/v2 v2.1.0 // indirect
 	github.com/olekukonko/tablewriter v0.0.1
 	github.com/prometheus/client_model v0.0.0-20190812154241-14fe0d1b01d4 // indirect

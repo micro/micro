@@ -58,8 +58,28 @@ func setup(app *ccli.App) {
 		},
 		ccli.StringFlag{
 			Name:   "acme_provider",
-			Usage:  "The provider that will be used to communicate with Let's Encrypt. Valid options: autocert",
+			Usage:  "The provider that will be used to communicate with Let's Encrypt. Valid options: autocert, certmagic",
 			EnvVar: "MICRO_ACME_PROVIDER",
+		},
+		ccli.StringFlag{
+			Name:   "acme_ca",
+			Usage:  "If using certmagic, you can optionally change the CA (e.g. to use the Let's Encrypt staging CA for testing",
+			EnvVar: "MICRO_ACME_CA",
+		},
+		ccli.StringFlag{
+			Name:   "acme_challenge_provider",
+			Usage:  "The DNS challenge solver. Valid options: cloudflare",
+			EnvVar: "MICRO_ACME_CHALLENGE_PROVIDER",
+		},
+		ccli.StringFlag{
+			Name:   "cloudflare_dns_api_token",
+			Usage:  "Cloudflare DNS API token, should be spoked to Zone:Read and DNS:Edit",
+			EnvVar: "MICRO_CLOUDFLARE_DNS_API_TOKEN",
+		},
+		ccli.StringFlag{
+			Name:   "cloudflare_zone_api_token",
+			Usage:  "Cloudflare Zone API token, if you've split Zone:Read and DNS:Edit across multiple tokens (optional)",
+			EnvVar: "MICRO_CLOUDFLARE_ZONE_API_TOKEN",
 		},
 		ccli.BoolFlag{
 			Name:   "enable_tls",
