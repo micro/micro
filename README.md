@@ -79,6 +79,9 @@ micro api
 # web dashboard
 micro web
 
+# generate a service
+micro new service
+
 # list services
 micro list services
 ```
