@@ -89,7 +89,7 @@ micro list services
 micro call go.micro.srv.example Example.Call '{"name": "John"}'
 ```
 
-### Network
+## Use the network
 
 The micro network is a shared global services network actively in development.
 
@@ -115,7 +115,7 @@ micro network routes
 micro network graph
 ```
 
-### Usage
+## Usage
 
 See all the options
 
