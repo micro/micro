@@ -73,10 +73,10 @@ micro
 Run the api, web ui, etc individually
 
 ```
-# api gateway
+# api gateway (port 8080)
 micro api
 
-# web dashboard
+# web dashboard (port 8082)
 micro web
 
 # generate a service
