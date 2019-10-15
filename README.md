@@ -70,23 +70,23 @@ Boot the entire system and connect to the network
 micro
 ```
 
-Run the api, web ui, etc individually
+Create a service
 
 ```
-# api gateway (port 8080)
-micro api
+# enable go modules
+export GO111MODULE=on
 
-# web dashboard (port 8082)
-micro web
+# generate a service (follow instructions in output)
+micro new example
 
-# generate a service
-micro new service
+# run the service
+go run example/main.go
 
 # list services
 micro list services
 
 # call a service
-micro call service Debug.Health
+micro call go.micro.srv.example Example.Call '{"name": "John"}'
 ```
 
 Proxy service calls through the network
