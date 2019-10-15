@@ -81,7 +81,7 @@ micro web
 
 # list services
 micro list services
-``
+```
 
 See all the options
 
