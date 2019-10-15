@@ -209,8 +209,6 @@ func setup(app *ccli.App) {
 func buildVersion() string {
 	microVersion := version
 
-	fmt.Printf("GitTag: %s\n", GitTag)
-
 	if GitTag != "" {
 		microVersion = GitTag
 	}
