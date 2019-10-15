@@ -70,7 +70,7 @@ Boot the entire system and connect to the network
 micro
 ```
 
-Create a service
+### Create a service
 
 ```
 # enable go modules
@@ -88,6 +88,10 @@ micro list services
 # call a service
 micro call go.micro.srv.example Example.Call '{"name": "John"}'
 ```
+
+### Network
+
+The micro network is a shared global services network actively in development.
 
 Proxy service calls through the network
 
@@ -110,6 +114,8 @@ micro network routes
 # Peer graph
 micro network graph
 ```
+
+### Usage
 
 See all the options
 
