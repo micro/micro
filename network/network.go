@@ -10,11 +10,11 @@ import (
 	"github.com/micro/cli"
 	"github.com/micro/go-micro"
 	"github.com/micro/go-micro/network"
-	"github.com/micro/go-micro/network/service/handler"
 	"github.com/micro/go-micro/network/resolver"
 	"github.com/micro/go-micro/network/resolver/dns"
 	"github.com/micro/go-micro/network/resolver/http"
 	"github.com/micro/go-micro/network/resolver/registry"
+	"github.com/micro/go-micro/network/service/handler"
 	"github.com/micro/go-micro/proxy"
 	"github.com/micro/go-micro/proxy/mucp"
 	"github.com/micro/go-micro/router"
@@ -44,6 +44,11 @@ var (
 // run runs the micro server
 func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	log.Name("network")
+
+	if len(ctx.Args()) > 0 {
+		cli.ShowSubcommandHelp(ctx)
+		os.Exit(1)
+	}
 
 	// Init plugins
 	for _, p := range Plugins() {
@@ -218,6 +223,7 @@ func Commands(options ...micro.Option) []cli.Command {
 		},
 		Subcommands: append([]cli.Command{{
 			Name:        "api",
+			Usage:       "Run the network api",
 			Description: "Run the network api",
 			Action: func(ctx *cli.Context) {
 				api.Run(ctx)
