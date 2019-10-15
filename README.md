@@ -84,6 +84,15 @@ micro new service
 
 # list services
 micro list services
+
+# call a service
+micro call service Debug.Health
+```
+
+Proxy service calls through the network
+
+```
+export MICRO_PROXY=go.micro.network
 ```
 
 See all the options
