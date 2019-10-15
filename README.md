@@ -64,10 +64,29 @@ docker pull microhq/micro
 
 ## Getting Started
 
-Boot the entire system locally
+Boot the entire system and connect to the network
 
 ```
 micro
+```
+
+Run the api, web ui, etc individually
+
+```
+# api gateway
+micro api
+
+# web dashboard
+micro web
+
+# list services
+micro list services
+``
+
+See all the options
+
+```
+micro --help
 ```
 
 See the [docs](https://micro.mu/docs/) for detailed information on the architecture, installation and use of the platform.
