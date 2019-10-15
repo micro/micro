@@ -95,6 +95,22 @@ Proxy service calls through the network
 export MICRO_PROXY=go.micro.network
 ```
 
+View network services, routes, nodes
+
+```
+# List nodes
+micro network nodes
+
+# List services
+micro network services
+
+# List routes
+micro network routes
+
+# Peer graph
+micro network graph
+```
+
 See all the options
 
 ```
