@@ -26,7 +26,7 @@ spec:
           value: "etcd-cluster-client"
         args:
         - tunnel
-        image: microhq/micro
+        image: micro/micro
         imagePullPolicy: Always
         ports:
         - containerPort: 8083

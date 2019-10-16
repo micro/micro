@@ -28,7 +28,7 @@ spec:
           value: "etcd-cluster-client"
         args:
         - broker
-        image: microhq/micro
+        image: micro/micro
         imagePullPolicy: Always
         ports:
         - containerPort: 8001

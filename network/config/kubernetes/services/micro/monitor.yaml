@@ -19,7 +19,7 @@ spec:
             "/micro",
             "monitor",
           ]
-          image: microhq/micro
+          image: micro/micro
           imagePullPolicy: Always
           env:
           - name: MICRO_BROKER

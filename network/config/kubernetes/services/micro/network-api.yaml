@@ -36,7 +36,7 @@ spec:
             value: "60"
           - name: MICRO_REGISTER_INTERVAL
             value: "30"
-          image: microhq/micro
+          image: micro/micro
           imagePullPolicy: Always
           ports:
           - containerPort: 9090
