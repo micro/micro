@@ -35,6 +35,10 @@ import (
 )
 
 var (
+	GitCommit string
+	GitTag    string
+	BuildDate string
+
 	name        = "micro"
 	description = "A microservice runtime"
 	version     = "1.11.0"
@@ -202,6 +206,24 @@ func setup(app *ccli.App) {
 	}
 }
 
+func buildVersion() string {
+	microVersion := version
+
+	if GitTag != "" {
+		microVersion = GitTag
+	}
+
+	if GitCommit != "" {
+		microVersion += fmt.Sprintf(" (%s)", GitCommit)
+	}
+
+	if BuildDate != "" {
+		microVersion += fmt.Sprintf(" (%s)", BuildDate)
+	}
+
+	return microVersion
+}
+
 // Init initialised the command line
 func Init(options ...micro.Option) {
 	Setup(cmd.App(), options...)
@@ -209,7 +231,7 @@ func Init(options ...micro.Option) {
 	cmd.Init(
 		cmd.Name(name),
 		cmd.Description(description),
-		cmd.Version(version),
+		cmd.Version(buildVersion()),
 	)
 }
 
