@@ -33,7 +33,7 @@ spec:
         command: ['sh', '-c']
         args:
         - "export NODE_IP=$(cat /node_info/ip); /micro network --advertise=\"$NODE_IP:$MICRO_NETWORK_SVC_NODE_PORT\""
-        image: microhq/micro
+        image: micro/micro
         imagePullPolicy: Always
         volumeMounts:
         - name: shared-data
