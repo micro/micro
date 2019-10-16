@@ -58,16 +58,69 @@ go get github.com/micro/micro
 Docker image
 
 ```
-docker pull microhq/micro
+docker pull micro/micro
 ```
 
 
 ## Getting Started
 
-Boot the entire system locally
+Boot the entire system and connect to the network
 
 ```
 micro
+```
+
+### Create a service
+
+```
+# enable go modules
+export GO111MODULE=on
+
+# generate a service (follow instructions in output)
+micro new example
+
+# run the service
+go run example/main.go
+
+# list services
+micro list services
+
+# call a service
+micro call go.micro.srv.example Example.Call '{"name": "John"}'
+```
+
+## Use the network
+
+The micro network is a shared global services network actively in development.
+
+Proxy service calls through the network
+
+```
+export MICRO_PROXY=go.micro.network
+```
+
+View network services, routes, nodes
+
+```
+# List nodes
+micro network nodes
+
+# List services
+micro network services
+
+# List routes
+micro network routes
+
+# Peer graph
+micro network graph
+```
+
+## Usage
+
+See all the options
+
+```
+micro --help
 ```
 
 See the [docs](https://micro.mu/docs/) for detailed information on the architecture, installation and use of the platform.
