@@ -58,7 +58,7 @@ go get github.com/micro/micro
 Docker image
 
 ```
-docker pull microhq/micro
+docker pull micro/micro
 ```
 
 
