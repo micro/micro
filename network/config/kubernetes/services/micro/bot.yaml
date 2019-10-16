@@ -20,7 +20,7 @@ spec:
             "bot",
             "--inputs=slack"
           ]
-          image: microhq/micro
+          image: micro/micro
           imagePullPolicy: Always
           env:
           - name: MICRO_BROKER
