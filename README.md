@@ -17,9 +17,12 @@ Plug in any stack or underlying technology. Build future-proof systems using mic
 
 The runtime is composed of the following features:
 
-- **api**: An api gateway. A single entry point with dynamic request routing using service discovery. The API gateway allows you to build a scalable 
+- **api:** An api gateway. A single entry point with dynamic request routing using service discovery. The API gateway allows you to build a scalable 
 microservice architecture on the backend and consolidate serving a public api on the frontend. The micro api provides powerful routing 
 via discovery and pluggable handlers to serve http, grpc, websockets, publish events and more.
+
+- **broker:** A message broker allowing for async messaging. Microservices are event driven architectures and should provide messaging as a first 
+class citizen. Notify other services of events without needing to worry about a response.
 
 - **bot:** A slackbot which runs on your platform and lets you manage your applications from Slack itself. The micro bot enables ChatOps 
 and gives you the ability to do everything with your team via messaging. It also includes ability to create slack commands as services which 
@@ -37,6 +40,9 @@ Always start in the same way, build identical services to be more productive.
 
 - **proxy:** A transparent service proxy built on [Go Micro](https://github.com/micro/go-micro). Offload service discovery, load balancing, 
 fault tolerance, message encoding, middleware, monitoring and more to a single a location. Run it standalone or alongside your service.
+
+- **store:** State is a fundamental requirement of any system. We provide a key-value store to provide simple storage of state which can be shared 
+between services or offload long term to keep microservices stateless and horizontally scalable.
 
 - **tunnel:** A network tunnel to get access to services in any environment without the need for a vpn. The micro tunnel provides point to 
 point tunnelling with a built-in proxy to query services in remote environments. Query production systems from your local laptop. 
