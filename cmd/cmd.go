@@ -214,11 +214,11 @@ func buildVersion() string {
 	}
 
 	if GitCommit != "" {
-		microVersion += fmt.Sprintf(" (%s)", GitCommit)
+		microVersion += fmt.Sprintf("-%s", GitCommit)
 	}
 
 	if BuildDate != "" {
-		microVersion += fmt.Sprintf(" (%s)", BuildDate)
+		microVersion += fmt.Sprintf("-%s", BuildDate)
 	}
 
 	return microVersion
