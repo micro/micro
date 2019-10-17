@@ -7,22 +7,29 @@ import (
 	"html/template"
 	"net/http"
 	"net/http/httputil"
+	"os"
 	"regexp"
 	"sort"
 	"strings"
 	"sync"
 	"time"
 
+	"github.com/go-acme/lego/v3/providers/dns/cloudflare"
 	"github.com/gorilla/mux"
 	"github.com/micro/cli"
 	"github.com/micro/go-micro"
 	"github.com/micro/go-micro/api/server"
+	"github.com/micro/go-micro/api/server/acme"
 	"github.com/micro/go-micro/api/server/acme/autocert"
+	"github.com/micro/go-micro/api/server/acme/certmagic"
 	httpapi "github.com/micro/go-micro/api/server/http"
 	"github.com/micro/go-micro/client/selector"
 	"github.com/micro/go-micro/config/cmd"
+	"github.com/micro/go-micro/config/options"
 	"github.com/micro/go-micro/registry"
 	"github.com/micro/go-micro/registry/cache"
+	cstore "github.com/micro/go-micro/store/cloudflare"
+	"github.com/micro/go-micro/sync/lock/memory"
 	"github.com/micro/go-micro/util/log"
 	"github.com/micro/micro/internal/handler"
 	"github.com/micro/micro/internal/helper"
@@ -45,9 +52,11 @@ var (
 	// Base path sent to web service.
 	// This is stripped from the request path
 	// Allows the web service to define absolute paths
-	BasePathHeader = "X-Micro-Web-Base-Path"
-	statsURL       string
-	ACMEProvider   = "autocert"
+	BasePathHeader        = "X-Micro-Web-Base-Path"
+	statsURL              string
+	ACMEProvider          = "autocert"
+	ACMEChallengeProvider = "cloudflare"
+	ACMECA                = acme.LetsEncryptProductionCA
 )
 
 type srv struct {
@@ -427,6 +436,49 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		switch ACMEProvider {
 		case "autocert":
 			opts = append(opts, server.ACMEProvider(autocert.New()))
+		case "certmagic":
+			if ACMEChallengeProvider != "cloudflare" {
+				log.Fatal("The only implemented DNS challenge provider is cloudflare")
+			}
+			apiToken, accountID := os.Getenv("CF_API_TOKEN"), os.Getenv("CF_ACCOUNT_ID")
+			kvID := os.Getenv("KV_NAMESPACE_ID")
+			if len(apiToken) == 0 || len(accountID) == 0 {
+				log.Fatal("env variables CF_API_TOKEN and CF_ACCOUNT_ID must be set")
+			}
+			if len(kvID) == 0 {
+				log.Fatal("env var KV_NAMESPACE_ID must be set to your cloudflare workers KV namespace ID")
+			}
+
+			cloudflareStore, err := cstore.New(
+				options.WithValue("CF_API_TOKEN", apiToken),
+				options.WithValue("CF_ACCOUNT_ID", accountID),
+				options.WithValue("KV_NAMESPACE_ID", kvID),
+			)
+			if err != nil {
+				log.Fatal(err.Error())
+			}
+			storage := certmagic.NewStorage(
+				memory.NewLock(),
+				cloudflareStore,
+			)
+			config := cloudflare.NewDefaultConfig()
+			config.AuthToken = apiToken
+			config.ZoneToken = apiToken
+			challengeProvider, err := cloudflare.NewDNSProviderConfig(config)
+			if err != nil {
+				log.Fatal(err.Error())
+			}
+
+			opts = append(opts,
+				server.ACMEProvider(
+					certmagic.New(
+						acme.AcceptToS(true),
+						acme.CA(ACMECA),
+						acme.Cache(storage),
+						acme.ChallengeProvider(challengeProvider),
+					),
+				),
+			)
 		default:
 			log.Fatalf("%s is not a valid ACME provider\n", ACMEProvider)
 		}

@@ -62,7 +62,7 @@ func setup(app *ccli.App) {
 		},
 		ccli.StringFlag{
 			Name:   "acme_provider",
-			Usage:  "The provider that will be used to communicate with Let's Encrypt. Valid options: autocert",
+			Usage:  "The provider that will be used to communicate with Let's Encrypt. Valid options: autocert, certmagic",
 			EnvVar: "MICRO_ACME_PROVIDER",
 		},
 		ccli.BoolFlag{

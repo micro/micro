@@ -15,7 +15,7 @@ import (
 
 func ACMEHosts(ctx *cli.Context) []string {
 	var hosts []string
-	for _, host := range strings.Split(ctx.String("acme_hosts"), ",") {
+	for _, host := range strings.Split(ctx.GlobalString("acme_hosts"), ",") {
 		if len(host) > 0 {
 			hosts = append(hosts, host)
 		}
