@@ -41,6 +41,9 @@ Always start in the same way, build identical services to be more productive.
 - **proxy:** A transparent service proxy built on [Go Micro](https://github.com/micro/go-micro). Offload service discovery, load balancing, 
 fault tolerance, message encoding, middleware, monitoring and more to a single a location. Run it standalone or alongside your service.
 
+- **registry:** The registry provides service discovery to locate other services, store feature rich metadata and endpoint information. It's a 
+service explorer which lets you centrally and dynamically store this info at runtime.
+
 - **store:** State is a fundamental requirement of any system. We provide a key-value store to provide simple storage of state which can be shared 
 between services or offload long term to keep microservices stateless and horizontally scalable.
 
