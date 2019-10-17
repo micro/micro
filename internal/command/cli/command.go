@@ -459,7 +459,7 @@ func ListServices(c *cli.Context) ([]byte, error) {
 
 func Publish(c *cli.Context, args []string) error {
 	if len(args) < 2 {
-		return errors.New("require topic and message")
+		return errors.New("require topic and message e.g micro publish event '{\"hello\": \"world\"}'")
 	}
 	defer func() {
 		time.Sleep(time.Millisecond * 100)
