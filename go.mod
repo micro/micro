@@ -11,7 +11,7 @@ require (
 	github.com/gorilla/mux v1.7.3
 	github.com/grpc-ecosystem/grpc-gateway v1.11.3 // indirect
 	github.com/micro/cli v0.2.0
-	github.com/micro/go-micro v1.11.1-0.20191015151438-b1d5dc20fa75
+	github.com/micro/go-micro v1.12.0
 	github.com/olekukonko/tablewriter v0.0.1
 	github.com/prometheus/client_model v0.0.0-20190812154241-14fe0d1b01d4 // indirect
 	github.com/serenize/snaker v0.0.0-20171204205717-a683aaf2d516
