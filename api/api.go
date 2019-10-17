@@ -4,9 +4,9 @@ package api
 import (
 	"fmt"
 	"net/http"
+	"os"
 	"time"
 
-	"github.com/go-acme/lego/v3/providers/dns/cloudflare"
 	"github.com/gorilla/mux"
 	"github.com/micro/cli"
 	"github.com/micro/go-micro"
@@ -75,12 +75,6 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	if len(ctx.GlobalString("acme_provider")) > 0 {
 		ACMEProvider = ctx.GlobalString("acme_provider")
 	}
-	if len(ctx.GlobalString("")) > 0 {
-		ACMEChallengeProvider = ctx.GlobalString("acme_challenge_provider")
-	}
-	if len(ctx.GlobalString("acme_ca")) > 0 {
-		ACMECA = ctx.GlobalString("acme_ca")
-	}
 
 	// Init plugins
 	for _, p := range Plugins() {
@@ -101,19 +95,18 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 			if ACMEChallengeProvider != "cloudflare" {
 				log.Fatal("The only implemented DNS challenge provider is cloudflare")
 			}
-			if len(ctx.GlobalString("cloudflare_dns_api_token")) == 0 {
-				log.Fatal("Cloudflare DNS API token must be set")
+			apiToken, accountID := os.Getenv("CF_API_TOKEN"), os.Getenv("CF_ACCOUNT_ID")
+			kvID := os.Getenv("KV_NAMESPACE_ID")
+			if len(apiToken) == 0 || len(accountID) == 0 {
+				log.Fatal("env variables CF_API_TOKEN and CF_ACCOUNT_ID must be set")
 			}
-			config := cloudflare.NewDefaultConfig()
-			config.AuthToken = ctx.GlobalString("cloudflare_dns_api_token")
-			config.ZoneToken = ctx.GlobalString("cloudflare_zone_api_token")
-			provider, err := cloudflare.NewDNSProviderConfig(config)
-			if err != nil {
-				log.Fatalf("Cloudflare: %s\n, ", err.Error())
+			if len(kvID) == 0 {
+				log.Fatal("env var KV_NAMESPACE_ID must be set to your cloudflare workers KV namespace ID")
 			}
+
 			opts = append(opts,
 				server.ACMEProvider(
-					certmagic.New(acme.AcceptToS(true), acme.CA(ACMECA), acme.ChallengeProvider(provider)),
+					certmagic.New(acme.AcceptToS(true), acme.CA(ACMECA)),
 				),
 			)
 		default:

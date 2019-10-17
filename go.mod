@@ -8,6 +8,7 @@ require (
 	github.com/armon/go-metrics v0.0.0-20190430140413-ec5e00d3c878 // indirect
 	github.com/armon/go-radix v1.0.0 // indirect
 	github.com/chzyer/readline v0.0.0-20180603132655-2972be24d48e
+	github.com/cloudflare/cloudflare-go v0.10.4
 	github.com/containerd/continuity v0.0.0-20190426062206-aaeac12a7ffc // indirect
 	github.com/go-acme/lego/v3 v3.1.0
 	github.com/go-kit/kit v0.9.0 // indirect
