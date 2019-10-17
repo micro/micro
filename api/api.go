@@ -7,6 +7,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/go-acme/lego/v3/providers/dns/cloudflare"
 	"github.com/gorilla/mux"
 	"github.com/micro/cli"
 	"github.com/micro/go-micro"
@@ -28,6 +29,9 @@ import (
 	"github.com/micro/go-micro/api/server/acme/autocert"
 	"github.com/micro/go-micro/api/server/acme/certmagic"
 	httpapi "github.com/micro/go-micro/api/server/http"
+	"github.com/micro/go-micro/config/options"
+	cstore "github.com/micro/go-micro/store/cloudflare"
+	"github.com/micro/go-micro/sync/lock/memory"
 	"github.com/micro/go-micro/util/log"
 	"github.com/micro/micro/internal/handler"
 	"github.com/micro/micro/internal/helper"
@@ -104,9 +108,34 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 				log.Fatal("env var KV_NAMESPACE_ID must be set to your cloudflare workers KV namespace ID")
 			}
 
+			cloudflareStore, err := cstore.New(
+				options.WithValue("CF_API_TOKEN", apiToken),
+				options.WithValue("CF_ACCOUNT_ID", accountID),
+				options.WithValue("KV_NAMESPACE_ID", kvID),
+			)
+			if err != nil {
+				log.Fatal(err.Error())
+			}
+			storage := certmagic.NewStorage(
+				memory.NewLock(),
+				cloudflareStore,
+			)
+			config := cloudflare.NewDefaultConfig()
+			config.AuthToken = apiToken
+			config.ZoneToken = apiToken
+			challengeProvider, err := cloudflare.NewDNSProviderConfig(config)
+			if err != nil {
+				log.Fatal(err.Error())
+			}
+
 			opts = append(opts,
 				server.ACMEProvider(
-					certmagic.New(acme.AcceptToS(true), acme.CA(ACMECA)),
+					certmagic.New(
+						acme.AcceptToS(true),
+						acme.CA(ACMECA),
+						acme.Cache(storage),
+						acme.ChallengeProvider(challengeProvider),
+					),
 				),
 			)
 		default:
