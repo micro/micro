@@ -286,7 +286,6 @@ func NetworkConnect(c *cli.Context, args []string) ([]byte, error) {
 	return b, nil
 }
 
-
 func NetworkGraph(c *cli.Context) ([]byte, error) {
 	cli := *cmd.DefaultOptions().Client
 

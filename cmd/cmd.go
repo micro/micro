@@ -260,6 +260,11 @@ func Setup(app *ccli.App, options ...micro.Option) {
 	app.Action = func(context *ccli.Context) {
 		log.Name("micro")
 
+		if len(context.Args()) > 0 {
+			ccli.ShowSubcommandHelp(context)
+			os.Exit(1)
+		}
+
 		// get the network flag
 		network := context.GlobalString("network")
 
