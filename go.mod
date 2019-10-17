@@ -28,7 +28,7 @@ require (
 	github.com/kisielk/errcheck v1.2.0 // indirect
 	github.com/mattn/go-colorable v0.1.2 // indirect
 	github.com/micro/cli v0.2.0
-	github.com/micro/go-micro v1.11.1-0.20191015151438-b1d5dc20fa75
+	github.com/micro/go-micro v1.12.1-0.20191017154233-0da9dff077ec
 	github.com/mitchellh/gox v1.0.1 // indirect
 	github.com/mwitkow/go-conntrack v0.0.0-20190716064945-2f068394615f // indirect
 	github.com/olekukonko/tablewriter v0.0.1
