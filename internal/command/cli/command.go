@@ -286,6 +286,51 @@ func NetworkConnect(c *cli.Context, args []string) ([]byte, error) {
 	return b, nil
 }
 
+func NetworkConnections(c *cli.Context) ([]byte, error) {
+	cli := *cmd.DefaultOptions().Client
+
+	request := map[string]interface{}{
+		"depth": 1,
+	}
+
+	var rsp map[string]interface{}
+
+	req := cli.NewRequest("go.micro.network", "Network.Graph", request, client.WithContentType("application/json"))
+	err := cli.Call(context.TODO(), req, &rsp)
+	if err != nil {
+		return nil, err
+	}
+
+	if rsp["root"] == nil {
+		return nil, nil
+	}
+
+	peers := rsp["root"].(map[string]interface{})["peers"]
+
+	if peers == nil {
+		return nil, nil
+	}
+
+	b := bytes.NewBuffer(nil)
+	table := tablewriter.NewWriter(b)
+	table.SetHeader([]string{"NODE", "ADDRESS"})
+
+	// root node
+	for _, n := range peers.([]interface{}) {
+		node := n.(map[string]interface{})["node"].(map[string]interface{})
+		strEntry := []string{
+			fmt.Sprintf("%s", node["id"]),
+			fmt.Sprintf("%s", node["address"]),
+		}
+		table.Append(strEntry)
+	}
+
+	// render table into b
+	table.Render()
+
+	return b.Bytes(), nil
+}
+
 func NetworkGraph(c *cli.Context) ([]byte, error) {
 	cli := *cmd.DefaultOptions().Client
 
@@ -296,6 +341,7 @@ func NetworkGraph(c *cli.Context) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	b, _ := json.MarshalIndent(rsp, "", "\t")
 	return b, nil
 }

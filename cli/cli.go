@@ -101,8 +101,13 @@ func NetworkCommands() []cli.Command {
 	return []cli.Command{
 		{
 			Name:   "connect",
-			Usage:  "Connect to the network. Specify nodes e.g connect ip:port",
+			Usage:  "connect to the network. specify nodes e.g connect ip:port",
 			Action: printer(networkConnect),
+		},
+		{
+			Name:   "connections",
+			Usage:  "List the immediate connections to the network",
+			Action: printer(networkConnections),
 		},
 		{
 			Name:   "graph",
