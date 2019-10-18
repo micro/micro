@@ -1,0 +1,46 @@
+project_name: micro
+env:
+  - GO111MODULE=on
+before:
+  hooks:
+    - go mod download
+builds:
+- binary: micro
+  env:
+    - CGO_ENABLED=0
+  ldflags: -w -X github.com/micro/micro/cmd.GitCommit={{ .ShortCommit }} -X github.com/micro/micro/cmd.GitTag={{ .Tag }} -X github.com/micro/micro/cmd.BuildDate={{ .Timestamp }}
+  goos:
+    - linux
+    - darwin
+    - windows
+  goarch:
+    - amd64
+    - arm
+    - arm64
+  goarm:
+    - 7
+archives:
+- replacements:
+    darwin: darwin
+    linux: linux
+    windows: windows
+    amd64: x86_64
+    arm: arm
+    arm64: arm64
+  format: tar.gz
+  format_overrides:
+  - goos: windows
+    format: zip
+  files:
+    - LICENSE
+    - README.md
+checksum:
+  name_template: 'checksums.txt'
+snapshot:
+  name_template: "{{ .Tag }}-next"
+changelog:
+  sort: asc
+  filters:
+    exclude:
+    - '^docs:'
+    - '^test:'
