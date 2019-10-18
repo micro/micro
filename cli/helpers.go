@@ -51,6 +51,10 @@ func networkConnect(c *cli.Context, args []string) ([]byte, error) {
 	return clic.NetworkConnect(c, args)
 }
 
+func networkConnections(c *cli.Context, args []string) ([]byte, error) {
+	return clic.NetworkConnections(c)
+}
+
 func networkGraph(c *cli.Context, args []string) ([]byte, error) {
 	return clic.NetworkGraph(c)
 }
