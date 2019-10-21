@@ -1,6 +1,9 @@
 project_name: micro
-env:
-  - GO111MODULE=on
+release:
+  github:
+    owner: micro
+    name: micro
+  name_template: 'Release {{.Tag}}'
 before:
   hooks:
     - go mod download
@@ -8,23 +11,25 @@ builds:
 - binary: micro
   env:
     - CGO_ENABLED=0
+    - GO111MODULE=on
   ldflags: -w -X github.com/micro/micro/cmd.GitCommit={{ .ShortCommit }} -X github.com/micro/micro/cmd.GitTag={{ .Tag }} -X github.com/micro/micro/cmd.BuildDate={{ .Timestamp }}
   goos:
-    - linux
-    - darwin
-    - windows
+  - linux
+  - darwin
+  - windows
   goarch:
-    - amd64
-    - arm
-    - arm64
+  - amd64
+  - arm
+  - arm64
   goarm:
-    - 7
+  - 7
 archives:
-- replacements:
+- name_template: '{{.ProjectName}}-{{.Tag}}-{{.Os}}-{{.Arch}}{{if .Arm}}{{.Arm}}{{end}}'
+  replacements:
     darwin: darwin
     linux: linux
     windows: windows
-    amd64: x86_64
+    amd64: amd64
     arm: arm
     arm64: arm64
   format: tar.gz
@@ -36,6 +41,7 @@ archives:
     - README.md
 checksum:
   name_template: 'checksums.txt'
+  algorithm: sha256
 snapshot:
   name_template: "{{ .Tag }}-next"
 changelog:
