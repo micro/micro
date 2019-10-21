@@ -109,7 +109,7 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		router.Registry(service.Client().Options().Registry),
 	)
 
-	// creaate new network
+	// create new network
 	net := network.NewNetwork(
 		network.Id(service.Server().Options().Id),
 		network.Name(Network),
