@@ -75,8 +75,11 @@ docker pull micro/micro
 Latest release binaries
 
 ```
-# Mac OS or Linux
+# MacOS
 curl -fsSL https://micro.mu/install.sh | /bin/bash
+
+# Linux
+wget -q https://micro.mu/install.sh -O - | /bin/bash
 
 # Windows
 powershell -Command "iwr -useb https://micro.mu/install.ps1 | iex"
