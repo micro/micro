@@ -26,7 +26,7 @@ getSystemInfo() {
     echo "Getting system information"
     case $ARCH in
         armv7*)
-                ARCH="arm";;
+                ARCH="arm7";;
         aarch64)
                 ARCH="arm64";;
         x86_64)
