@@ -108,8 +108,8 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 			}
 
                         cloudflareStore := cfstore.NewStore(
-                                cfstore.ApiToken(apiToken),
-                                cfstore.AccountID(accountID),
+                                cfstore.Token(apiToken),
+                                cfstore.Account(accountID),
                                 cfstore.Namespace(kvID),
                         )
 			storage := certmagic.NewStorage(
