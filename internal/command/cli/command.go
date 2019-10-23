@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"math"
 	"net/http"
 	"sort"
 	"strings"
@@ -436,6 +437,11 @@ func NetworkRoutes(c *cli.Context) ([]byte, error) {
 		network := route["network"]
 		metric := route["metric"]
 		link := route["link"]
+
+		// set max int64 metric to infinity
+		if f, ok := metric.(float64); ok && f == float64(math.MaxInt64) {
+			metric = "∞"
+		}
 
 		strEntry := []string{
 			fmt.Sprintf("%s", service),
