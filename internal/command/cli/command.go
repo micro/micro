@@ -327,6 +327,7 @@ func NetworkConnections(c *cli.Context) ([]byte, error) {
 	}
 
 	// render table into b
+	table.SetAlignment(tablewriter.ALIGN_RIGHT)
 	table.Render()
 
 	return b.Bytes(), nil
@@ -383,6 +384,7 @@ func NetworkNodes(c *cli.Context) ([]byte, error) {
 	}
 
 	// render table into b
+	table.SetAlignment(tablewriter.ALIGN_RIGHT)
 	table.Render()
 
 	return b.Bytes(), nil
@@ -458,6 +460,7 @@ func NetworkRoutes(c *cli.Context) ([]byte, error) {
 	}
 
 	// render table into b
+	table.SetAlignment(tablewriter.ALIGN_RIGHT)
 	table.Render()
 
 	return b.Bytes(), nil
