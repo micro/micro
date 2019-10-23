@@ -1,0 +1,12 @@
+[Unit]
+Description=Micro
+After=network.target
+
+[Service]
+TimeoutStartSec=0
+ExecStart=/usr/local/bin/micro
+Restart=on-failure
+RestartSec=5s
+
+[Install]
+WantedBy=multi-user.target
