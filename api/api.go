@@ -29,8 +29,7 @@ import (
 	"github.com/micro/go-micro/api/server/acme/autocert"
 	"github.com/micro/go-micro/api/server/acme/certmagic"
 	httpapi "github.com/micro/go-micro/api/server/http"
-	"github.com/micro/go-micro/config/options"
-	cstore "github.com/micro/go-micro/store/cloudflare"
+	cfstore "github.com/micro/go-micro/store/cloudflare"
 	"github.com/micro/go-micro/sync/lock/memory"
 	"github.com/micro/go-micro/util/log"
 	"github.com/micro/micro/internal/handler"
@@ -108,11 +107,11 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 				log.Fatal("env var KV_NAMESPACE_ID must be set to your cloudflare workers KV namespace ID")
 			}
 
-			cloudflareStore, err := cstore.New(
-				options.WithValue("CF_API_TOKEN", apiToken),
-				options.WithValue("CF_ACCOUNT_ID", accountID),
-				options.WithValue("KV_NAMESPACE_ID", kvID),
-			)
+                        cloudflareStore, err := cfstore.NewStore(
+                                cfstore.ApiToken(apiToken),
+                                cfstore.AccountID(accountID),
+                                cfstore.Namespace(kvID),
+                        )
 			if err != nil {
 				log.Fatal(err.Error())
 			}
