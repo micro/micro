@@ -32,6 +32,25 @@ spec:
           value: "30"
         - name: MICRO_ENABLE_ACME
           value: "true"
+        - name: MICRO_ACME_PROVIDER
+          value: certmagic
+        - name: MICRO_ACME_HOSTS
+          value: '*.micro.mu,*.cloud.micro.mu,micro.mu'
+        - name: CF_API_TOKEN
+          valueFrom:
+            secretKeyRef:
+              key: CF_API_TOKEN
+              name: cloudflare-credentials
+        - name: CF_ACCOUNT_ID
+          valueFrom:
+            secretKeyRef:
+              key: CF_ACCOUNT_ID
+              name: cloudflare-credentials
+        - name: KV_NAMESPACE_ID
+          valueFrom:
+            secretKeyRef:
+              key: KV_NAMESPACE_ID
+              name: cloudflare-credentials
         args:
         - api
         image: micro/micro
@@ -39,10 +58,3 @@ spec:
         ports:
         - containerPort: 443
           name: api-port
-        volumeMounts:
-        - name: micro-api-volume
-          mountPath: /root
-      volumes:
-      - name: micro-api-volume
-        persistentVolumeClaim:
-          claimName: micro-api-pvc
