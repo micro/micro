@@ -49,7 +49,7 @@ func (s *sub) Process(ctx context.Context, advert *pb.Advert) error {
 			Gateway: event.Route.Gateway,
 			Network: event.Route.Network,
 			Link:    event.Route.Link,
-			Metric:  int(event.Route.Metric),
+			Metric:  event.Route.Metric,
 		}
 
 		e := &router.Event{
