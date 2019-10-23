@@ -435,12 +435,14 @@ func NetworkRoutes(c *cli.Context) ([]byte, error) {
 		gateway := val(route["gateway"])
 		router := route["router"]
 		network := route["network"]
-		metric := route["metric"]
 		link := route["link"]
+		metric := route["metric"]
 
 		// set max int64 metric to infinity
 		if f, ok := metric.(float64); ok && f == float64(math.MaxInt64) {
 			metric = "∞"
+		} else {
+			metric = fmt.Sprintf("%.f", route["metric"])
 		}
 
 		strEntry := []string{
@@ -449,7 +451,7 @@ func NetworkRoutes(c *cli.Context) ([]byte, error) {
 			fmt.Sprintf("%s", gateway),
 			fmt.Sprintf("%s", router),
 			fmt.Sprintf("%s", network),
-			fmt.Sprintf("%.f", metric),
+			fmt.Sprintf("%s", metric),
 			fmt.Sprintf("%s", link),
 		}
 		table.Append(strEntry)
