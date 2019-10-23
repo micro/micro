@@ -107,14 +107,11 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 				log.Fatal("env var KV_NAMESPACE_ID must be set to your cloudflare workers KV namespace ID")
 			}
 
-                        cloudflareStore, err := cfstore.NewStore(
+                        cloudflareStore := cfstore.NewStore(
                                 cfstore.ApiToken(apiToken),
                                 cfstore.AccountID(accountID),
                                 cfstore.Namespace(kvID),
                         )
-			if err != nil {
-				log.Fatal(err.Error())
-			}
 			storage := certmagic.NewStorage(
 				memory.NewLock(),
 				cloudflareStore,
