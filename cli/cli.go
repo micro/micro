@@ -224,16 +224,37 @@ func Commands() []cli.Command {
 			Name:   "call",
 			Usage:  "Call a service e.g micro call greeter Say.Hello '{\"name\": \"John\"}",
 			Action: printer(callService),
+			Flags: []cli.Flag{
+				cli.StringSliceFlag{
+					Name:   "metadata",
+					Usage:  "A list of key-value pairs to be forwarded as metadata",
+					EnvVar: "MICRO_METADATA",
+				},
+			},
 		},
 		{
 			Name:   "stream",
 			Usage:  "Create a service stream",
 			Action: printer(streamService),
+			Flags: []cli.Flag{
+				cli.StringSliceFlag{
+					Name:   "metadata",
+					Usage:  "A list of key-value pairs to be forwarded as metadata",
+					EnvVar: "MICRO_METADATA",
+				},
+			},
 		},
 		{
 			Name:   "publish",
 			Usage:  "Publish a message to a topic",
 			Action: printer(publish),
+			Flags: []cli.Flag{
+				cli.StringSliceFlag{
+					Name:   "metadata",
+					Usage:  "A list of key-value pairs to be forwarded as metadata",
+					EnvVar: "MICRO_METADATA",
+				},
+			},
 		},
 		{
 			Name:   "stats",

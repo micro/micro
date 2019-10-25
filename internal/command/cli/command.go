@@ -15,6 +15,7 @@ import (
 	"github.com/micro/cli"
 	"github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/config/cmd"
+	"github.com/micro/go-micro/metadata"
 	"github.com/micro/go-micro/registry"
 
 	proto "github.com/micro/go-micro/debug/proto"
@@ -145,6 +146,25 @@ func getPeers(v map[string]interface{}) map[string]string {
 	}
 
 	return peers
+}
+
+func callContext(c *cli.Context) context.Context {
+	callMD := make(map[string]string)
+
+	for _, md := range c.StringSlice("metadata") {
+		parts := strings.Split(md, "=")
+		if len(parts) < 2 {
+			continue
+		}
+
+		key := parts[0]
+		val := strings.Join(parts[1:], "=")
+
+		// set the key/val
+		callMD[key] = val
+	}
+
+	return metadata.NewContext(context.Background(), callMD)
 }
 
 func RegisterService(c *cli.Context, args []string) ([]byte, error) {
@@ -537,8 +557,9 @@ func Publish(c *cli.Context, args []string) error {
 		return err
 	}
 
+	ctx := callContext(c)
 	m := cl.NewMessage(topic, msg, ct)
-	return cl.Publish(context.Background(), m)
+	return cl.Publish(ctx, m)
 }
 
 func CallService(c *cli.Context, args []string) ([]byte, error) {
@@ -569,8 +590,9 @@ func CallService(c *cli.Context, args []string) ([]byte, error) {
 		return nil, err
 	}
 
+	ctx := callContext(c)
 	creq := (*cmd.DefaultOptions().Client).NewRequest(service, endpoint, request, client.WithContentType("application/json"))
-	err := (*cmd.DefaultOptions().Client).Call(context.Background(), creq, &response)
+	err := (*cmd.DefaultOptions().Client).Call(ctx, creq, &response)
 	if err != nil {
 		return nil, fmt.Errorf("error calling %s.%s: %v", service, endpoint, err)
 	}
