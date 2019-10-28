@@ -14,7 +14,7 @@ require (
 	github.com/google/uuid v1.1.1
 	github.com/gorilla/mux v1.7.3
 	github.com/micro/cli v0.2.0
-	github.com/micro/go-micro v1.14.1-0.20191025221256-1f626a55ed15
+	github.com/micro/go-micro v1.14.1-0.20191028153146-d89256d8d57b
 	github.com/olekukonko/tablewriter v0.0.1
 	github.com/onsi/ginkgo v1.8.0 // indirect
 	github.com/onsi/gomega v1.5.0 // indirect
