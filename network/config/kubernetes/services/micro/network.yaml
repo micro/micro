@@ -28,6 +28,8 @@ spec:
           value: "etcd"
         - name: MICRO_REGISTRY_ADDRESS
           value: "etcd-cluster-client"
+        - name: MICRO_NETWORK_NODES
+          value: "go.micro.mu:8085"
         - name: MICRO_NETWORK_SVC_NODE_PORT
           value: "30038"
         command: ['sh', '-c']
