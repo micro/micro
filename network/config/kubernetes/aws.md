@@ -73,6 +73,30 @@ This takes a while, go and get coffee. If it failed for some reason delete the s
 
 Once you're successfully up, go to the ClusterSharedNodeSecurityGroup in EC2 -> Security groups and allow all UDP traffic in (TODO: lock down to only the ports we require.)
 
+You can also grant other people access to your cluster.
+
+Edit the configmap `aws-auth` in the `kube-system` namespace:
+
+```shell
+kubectl edit configmap -n kube-system aws-auth
+```
+
+add people to the `mapUsers:` block:
+
+```yaml
+  mapUsers: |
+    - userarn: arn:aws:iam::555555555555:user/someone
+      username: someone
+      groups:
+      - system:masters
+```
+
+They can then log in with the aws-cli:
+
+```shell
+aws eks get-token --cluster-name mycluster
+```
+
 ## Install Micro Prerequisites
 
 Install helm, e.g.
