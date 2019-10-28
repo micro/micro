@@ -102,7 +102,7 @@ func (n *Network) setCache() {
 		}
 		ip, err := n.getIP(peer.Node.Address)
 		if err == nil {
-			peers[ip] = peer.Node.Id
+			peers[peer.Node.Id] = ip
 		} else {
 			log.Debugf("Error getting peer IP: %v %+v\n", err, peer.Node)
 		}
@@ -113,7 +113,7 @@ func (n *Network) setCache() {
 				log.Debugf("Error getting peer IP: %v %+v\n", err, p.Node)
 				continue
 			}
-			peers[ip] = p.Node.Id
+			peers[p.Node.Id] = ip
 		}
 
 	}
@@ -141,31 +141,20 @@ func (n *Network) setCache() {
 			continue
 		}
 
-		// skip routes without a public ip
-		ip, err := n.getIP(route.Gateway)
-		if err != nil {
-			continue
-		}
-
 		// find in the peer graph
-		id, ok := peers[ip]
+		ip, ok := peers[route.Router]
 		if !ok {
 			continue
 		}
 
-		// only get peers where the router id matches
-		if route.Router != id {
-			continue
-		}
-
-		// skip already saved routes
-		if _, ok := nodes[ip+route.Network]; ok {
+		// skip already saved routes with better metric
+		if n, ok := nodes[ip+route.Network]; ok && n.metric < route.Metric {
 			continue
 		}
 
 		// add as gateway + network
 		nodes[ip+route.Network] = &node{
-			id:      id,
+			id:      route.Router,
 			address: ip,
 			network: route.Network,
 			metric:  route.Metric,
