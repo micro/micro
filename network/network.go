@@ -10,6 +10,7 @@ import (
 	"github.com/micro/cli"
 	"github.com/micro/go-micro"
 	"github.com/micro/go-micro/network"
+	netdns "github.com/micro/micro/network/dns"
 	"github.com/micro/go-micro/network/resolver"
 	"github.com/micro/go-micro/network/resolver/dns"
 	"github.com/micro/go-micro/network/resolver/http"
@@ -221,14 +222,24 @@ func Commands(options ...micro.Option) []cli.Command {
 				EnvVar: "MICRO_NETWORK_RESOLVER",
 			},
 		},
-		Subcommands: append([]cli.Command{{
-			Name:        "api",
-			Usage:       "Run the network api",
-			Description: "Run the network api",
-			Action: func(ctx *cli.Context) {
-				api.Run(ctx)
+		Subcommands: append([]cli.Command{
+			{
+				Name:        "api",
+				Usage:       "Run the network api",
+				Description: "Run the network api",
+				Action: func(ctx *cli.Context) {
+					api.Run(ctx)
+				},
 			},
-		}}, mcli.NetworkCommands()...),
+			{
+				Name:        "dns",
+				Usage:       "Start a DNS resolver service that registers core nodes in DNS",
+				Description: "Start a DNS resolver service that registers core nodes in DNS",
+				Action: func(ctx *cli.Context) {
+					netdns.Run(ctx)
+				},
+			},
+		}, mcli.NetworkCommands()...),
 		Action: func(ctx *cli.Context) {
 			run(ctx, options...)
 		},
