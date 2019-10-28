@@ -472,6 +472,7 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 						acme.CA(ACMECA),
 						acme.Cache(storage),
 						acme.ChallengeProvider(challengeProvider),
+						acme.OnDemand(false),
 					),
 				),
 			)
