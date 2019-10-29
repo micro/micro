@@ -261,6 +261,7 @@ func Commands(options ...micro.Option) []cli.Command {
 				Action: func(ctx *cli.Context) {
 					netdns.Run(ctx)
 				},
+				Subcommands: mcli.NetworkDNSCommands(),
 			},
 		}, mcli.NetworkCommands()...),
 		Action: func(ctx *cli.Context) {

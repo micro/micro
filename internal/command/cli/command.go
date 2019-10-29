@@ -20,6 +20,8 @@ import (
 
 	proto "github.com/micro/go-micro/debug/proto"
 
+	dns "github.com/micro/micro/network/dns/proto/dns"
+
 	"github.com/olekukonko/tablewriter"
 	"github.com/serenize/snaker"
 )
@@ -512,6 +514,94 @@ func NetworkServices(c *cli.Context) ([]byte, error) {
 	sort.Strings(services)
 
 	return []byte(strings.Join(services, "\n")), nil
+}
+
+func NetworkDNSAdvertise(c *cli.Context) ([]byte, error) {
+	err := networkDNSHelper("Dns.Advertise", c.String("address"), c.String("domain"), c.String("token"))
+	if err != nil {
+		return []byte(``), err
+	}
+	return []byte("Registered " + c.String("domain") + ": " + c.String("address")), nil
+}
+
+func NetworkDNSRemove(c *cli.Context) ([]byte, error) {
+	err := networkDNSHelper("Dns.Remove", c.String("address"), c.String("domain"), c.String("token"))
+	if err != nil {
+		return []byte(``), err
+	}
+	return []byte("Removed " + c.String("domain") + ": " + c.String("address")), nil
+}
+
+func NetworkDNSResolve(c *cli.Context) ([]byte, error) {
+	request := make(map[string]interface{})
+	request["name"] = c.String("domain")
+	request["type"] = c.String("type")
+
+	cli := (*cmd.DefaultOptions().Client)
+	req := cli.NewRequest("go.micro.network.dns", "Dns.Resolve", request, client.WithContentType("application/json"))
+	var rsp map[string][]*dns.Record
+	err := cli.Call(
+		metadata.NewContext(context.Background(), map[string]string{
+			"Authorization": "Bearer " + c.String("token"),
+		}),
+		req,
+		&rsp,
+	)
+	if err != nil {
+		return []byte(``), err
+	}
+
+	rawRecords, ok := rsp["records"]
+	if !ok {
+		return []byte(``), errors.New("Response did not contain any records")
+	}
+	var resolved []string
+	for _, r := range rawRecords {
+		resolved = append(resolved, r.Value)
+	}
+
+	return []byte(strings.Join(resolved, "\n")), nil
+}
+
+func networkDNSHelper(action, address, domain, token string) error {
+	request := map[string]interface{}{
+		"records": []*dns.Record{},
+	}
+
+	if strings.Count(address, ":") > 1 {
+		request["records"] = []*dns.Record{
+			&dns.Record{
+				Type:  "AAAA",
+				Name:  domain,
+				Value: address,
+				Ttl:   1,
+			},
+		}
+	} else {
+		request["records"] = []*dns.Record{
+			&dns.Record{
+				Type:  "A",
+				Name:  domain,
+				Value: address,
+				Ttl:   1,
+			},
+		}
+	}
+
+	cli := (*cmd.DefaultOptions().Client)
+	req := cli.NewRequest("go.micro.network.dns", action, request, client.WithContentType("application/json"))
+	var rsp map[string]interface{}
+	err := cli.Call(
+		metadata.NewContext(context.Background(), map[string]string{
+			"Authorization": "Bearer " + token,
+		}),
+		req,
+		&rsp,
+	)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func ListServices(c *cli.Context) ([]byte, error) {
