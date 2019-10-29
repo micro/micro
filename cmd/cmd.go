@@ -31,6 +31,8 @@ import (
 	"github.com/micro/micro/web"
 
 	// include usage
+
+	"github.com/micro/micro/internal/update"
 	_ "github.com/micro/micro/internal/usage"
 )
 
@@ -144,6 +146,11 @@ func setup(app *ccli.App) {
 			Name:   "enable_stats",
 			Usage:  "Enable stats",
 			EnvVar: "MICRO_ENABLE_STATS",
+		},
+		ccli.BoolFlag{
+			Name:   "auto_update",
+			Usage:  "Enable automatic updates",
+			EnvVar: "MICRO_AUTO_UPDATE",
 		},
 		ccli.BoolTFlag{
 			Name:   "report_usage",
@@ -298,20 +305,34 @@ func Setup(app *ccli.App, options ...micro.Option) {
 			"bot",      // :????
 		}
 
+		// create new micro runtime
+		muRuntime := cmd.DefaultCmd.Options().Runtime
+
+		// Use default update notifier
+		if context.GlobalBool("auto_update") {
+			options := []runtime.Option{
+				runtime.WithNotifier(update.NewNotifier(BuildDate)),
+			}
+			(*muRuntime).Init(options...)
+		}
+
 		for _, service := range services {
 			name := fmt.Sprintf("go.micro.%s", service)
 			log.Infof("Registering %s\n", name)
 
+			// runtime based on environment we run the service in
 			args := []runtime.CreateOption{
 				runtime.WithCommand(os.Args[0], service),
 				runtime.WithEnv(env),
 				runtime.WithOutput(os.Stdout),
 			}
 
-			// register the service
-			runtime.Create(&runtime.Service{
-				Name: name,
-			}, args...)
+			// NOTE: we use BuildDate right now to check for the latest release
+			muService := &runtime.Service{Name: name, Version: BuildDate}
+			if err := (*muRuntime).Create(muService, args...); err != nil {
+				log.Errorf("Failed to create runtime enviroment: %v", err)
+				return
+			}
 		}
 
 		shutdown := make(chan os.Signal, 1)
@@ -320,7 +341,7 @@ func Setup(app *ccli.App, options ...micro.Option) {
 		log.Info("Starting service runtime")
 
 		// start the runtime
-		if err := runtime.Start(); err != nil {
+		if err := (*muRuntime).Start(); err != nil {
 			log.Fatal(err)
 		}
 
@@ -337,7 +358,7 @@ func Setup(app *ccli.App, options ...micro.Option) {
 		}
 
 		// stop all the things
-		if err := runtime.Stop(); err != nil {
+		if err := (*muRuntime).Stop(); err != nil {
 			log.Fatal(err)
 		}
 
@@ -345,7 +366,6 @@ func Setup(app *ccli.App, options ...micro.Option) {
 
 		// exit success
 		os.Exit(0)
-
 	}
 
 	setup(app)

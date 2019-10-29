@@ -30,4 +30,5 @@ coverage.out
 
 # ignore locally built binaries
 micro
+!micro/
 dist
