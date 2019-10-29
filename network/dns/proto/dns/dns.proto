@@ -18,6 +18,8 @@ message Record {
 	string type = 3;
 	// MX and SRV records have priority
 	uint32 priority = 4;
+	// TTL
+	uint32 ttl = 5;
 }
 
 message AdvertiseRequest {

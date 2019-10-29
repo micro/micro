@@ -12,22 +12,19 @@ import (
 
 // Run is the entrypoint for network/dns
 func Run(c *cli.Context) {
-	service := micro.NewService(
+	dnsService := micro.NewService(
 		micro.Name("go.micro.network.dns"),
 		micro.Version("latest"),
 	)
-
-	// Initialise service
-	service.Init()
 
 	// Create handler
 	h := handler.New()
 
 	// Register Handler
-	dns.RegisterDnsHandler(service.Server(), h)
+	dns.RegisterDnsHandler(dnsService.Server(), h)
 
 	// Run service
-	if err := service.Run(); err != nil {
+	if err := dnsService.Run(); err != nil {
 		log.Fatal(err)
 	}
 
