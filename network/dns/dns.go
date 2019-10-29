@@ -8,16 +8,29 @@ import (
 
 	"github.com/micro/micro/network/dns/handler"
 	dns "github.com/micro/micro/network/dns/proto/dns"
+	"github.com/micro/micro/network/dns/provider/cloudflare"
 )
 
 // Run is the entrypoint for network/dns
 func Run(c *cli.Context) {
+
+	if c.String("provider") != "cloudflare" {
+		log.Fatal("The only implemented DNS provider is cloudflare")
+	}
+
 	dnsService := micro.NewService(
 		micro.Name("go.micro.network.dns"),
 	)
 
 	// Create handler
-	h := handler.New()
+	provider, err := cloudflare.New(c.String("api-token"), c.String("zone-id"))
+	if err != nil {
+		log.Fatal(err)
+	}
+	h := handler.New(
+		provider,
+		c.String("authorization"),
+	)
 
 	// Register Handler
 	dns.RegisterDnsHandler(dnsService.Server(), h)

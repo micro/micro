@@ -2,13 +2,13 @@
 package handler
 
 import (
-	"github.com/micro/micro/network/dns/provider/cloudflare"
+	"github.com/micro/micro/network/dns/provider"
 )
 
 // New returns a new handler
-func New() *DNS {
-	provider, _ := cloudflare.New()
+func New(provider provider.Provider, authorization string) *DNS {
 	return &DNS{
-		provider: provider,
+		provider:    provider,
+		bearerToken: authorization,
 	}
 }

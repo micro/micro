@@ -10,7 +10,6 @@ import (
 	"github.com/micro/cli"
 	"github.com/micro/go-micro"
 	"github.com/micro/go-micro/network"
-	netdns "github.com/micro/micro/network/dns"
 	"github.com/micro/go-micro/network/resolver"
 	"github.com/micro/go-micro/network/resolver/dns"
 	"github.com/micro/go-micro/network/resolver/http"
@@ -25,6 +24,7 @@ import (
 	"github.com/micro/go-micro/util/mux"
 	mcli "github.com/micro/micro/cli"
 	"github.com/micro/micro/network/api"
+	netdns "github.com/micro/micro/network/dns"
 )
 
 var (
@@ -235,6 +235,29 @@ func Commands(options ...micro.Option) []cli.Command {
 				Name:        "dns",
 				Usage:       "Start a DNS resolver service that registers core nodes in DNS",
 				Description: "Start a DNS resolver service that registers core nodes in DNS",
+				Flags: []cli.Flag{
+					cli.StringFlag{
+						Name:   "provider",
+						Usage:  "The DNS provider to use. Currently, only cloudflare is implemented",
+						EnvVar: "MICRO_NETWORK_DNS_PROVIDER",
+						Value:  "cloudflare",
+					},
+					cli.StringFlag{
+						Name:   "api-token",
+						Usage:  "The provider's API Token.",
+						EnvVar: "MICRO_NETWORK_DNS_API_TOKEN",
+					},
+					cli.StringFlag{
+						Name:   "zone-id",
+						Usage:  "The provider's Zone ID.",
+						EnvVar: "MICRO_NETWORK_DNS_ZONE_ID",
+					},
+					cli.StringFlag{
+						Name:   "authorization",
+						Usage:  "Shared secret that must be presented to the service to authorize requests.",
+						EnvVar: "MICRO_NETWORK_DNS_AUTHORIZATION",
+					},
+				},
 				Action: func(ctx *cli.Context) {
 					netdns.Run(ctx)
 				},
