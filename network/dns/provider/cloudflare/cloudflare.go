@@ -51,18 +51,24 @@ func (cf *cfProvider) Advertise(records ...*dns.Record) error {
 }
 
 func (cf *cfProvider) Remove(records ...*dns.Record) error {
-	existing := make(map[string]cloudflare.DNSRecord)
+	existing := make(map[string]map[string]cloudflare.DNSRecord)
 	existingRecords, err := cf.api.DNSRecords(cf.zoneID, cloudflare.DNSRecord{})
 	if err != nil {
 		return err
 	}
 	for _, e := range existingRecords {
-		existing[e.Name] = e
+		if _, found := existing[e.Name]; !found {
+			existing[e.Name] = make(map[string]cloudflare.DNSRecord)
+		}
+		existing[e.Name][e.Content] = e
 	}
 	for _, r := range records {
-		toDelete, found := existing[r.Name]
-		if !found {
+		if _, found := existing[r.Name]; !found {
 			return errors.New("Record " + r.Name + " could not be deleted as it doesn't exist")
+		}
+		toDelete, found := existing[r.Name][r.Value]
+		if !found {
+			return errors.New("Record " + r.Name + " with address " + r.Value + " could not be deleted as it doesn't exist")
 		}
 		err := cf.api.DeleteDNSRecord(cf.zoneID, toDelete.ID)
 		if err != nil {

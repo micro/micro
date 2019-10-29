@@ -71,6 +71,18 @@ func netServices(c *cli.Context, args []string) ([]byte, error) {
 	return clic.NetworkServices(c)
 }
 
+func netDNSAdvertise(c *cli.Context, args []string) ([]byte, error) {
+	return clic.NetworkDNSAdvertise(c)
+}
+
+func netDNSRemove(c *cli.Context, args []string) ([]byte, error) {
+	return clic.NetworkDNSRemove(c)
+}
+
+func netDNSResolve(c *cli.Context, args []string) ([]byte, error) {
+	return clic.NetworkDNSResolve(c)
+}
+
 func listServices(c *cli.Context, args []string) ([]byte, error) {
 	return clic.ListServices(c)
 }
