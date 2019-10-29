@@ -14,7 +14,6 @@ import (
 func Run(c *cli.Context) {
 	dnsService := micro.NewService(
 		micro.Name("go.micro.network.dns"),
-		micro.Version("latest"),
 	)
 
 	// Create handler
