@@ -13,8 +13,8 @@ import (
 
 // DNS handles incoming gRPC requests
 type DNS struct {
-	provider  provider.Provider
-	authToken string
+	provider    provider.Provider
+	bearerToken string
 }
 
 // Advertise adds records of network nodes to DNS
@@ -54,12 +54,12 @@ func (d *DNS) validateMetadata(ctx context.Context) error {
 	if !ok {
 		return errors.New("Denied: error getting request metadata")
 	}
-	token, found := md["authtoken"]
+	token, found := md["Authoriztion"]
 	if !found {
-		return errors.New("Denied: authtoken metadata not provided")
+		return errors.New("Denied: Authorization metadata not provided")
 	}
-	if token != d.authToken {
-		return errors.New("Denied: authtoken metadata is not valid")
+	if token != d.bearerToken {
+		return errors.New("Denied: Authorization metadata is not valid")
 	}
 	return nil
 }
