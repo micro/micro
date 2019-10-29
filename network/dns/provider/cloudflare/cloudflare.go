@@ -21,15 +21,15 @@ type cfProvider struct {
 }
 
 // New returns a configured cloudflare DNS provider
-func New() (provider.Provider, error) {
-	api, err := cloudflare.NewWithAPIToken("token")
+func New(apiToken, zoneID string) (provider.Provider, error) {
+	api, err := cloudflare.NewWithAPIToken(apiToken)
 	if err != nil {
 		return nil, err
 	}
 
 	return &cfProvider{
 		api:    api,
-		zoneID: "zoneid",
+		zoneID: zoneID,
 	}, nil
 }
 
@@ -40,6 +40,7 @@ func (cf *cfProvider) Advertise(records ...*dns.Record) error {
 			Content:  r.GetValue(),
 			Type:     r.GetType(),
 			Priority: int(r.GetPriority()),
+			TTL:      1,
 		})
 		if err != nil {
 			return err
