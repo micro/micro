@@ -214,7 +214,7 @@ func NetworkDNSCommands() []cli.Command {
 				},
 				cli.StringFlag{
 					Name:   "type",
-					Usage:  "Domain name to remove",
+					Usage:  "Domain name type to resolve",
 					EnvVar: "MICRO_NETWORK_DNS_RESOLVE_TYPE",
 					Value:  "A",
 				},
