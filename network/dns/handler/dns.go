@@ -54,11 +54,11 @@ func (d *DNS) validateMetadata(ctx context.Context) error {
 	if !ok {
 		return errors.New("Denied: error getting request metadata")
 	}
-	token, found := md["Authoriztion"]
+	token, found := md["Authorization"]
 	if !found {
 		return errors.New("Denied: Authorization metadata not provided")
 	}
-	if token != d.bearerToken {
+	if token != "Bearer "+d.bearerToken {
 		return errors.New("Denied: Authorization metadata is not valid")
 	}
 	return nil

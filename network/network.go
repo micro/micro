@@ -253,9 +253,9 @@ func Commands(options ...micro.Option) []cli.Command {
 						EnvVar: "MICRO_NETWORK_DNS_ZONE_ID",
 					},
 					cli.StringFlag{
-						Name:   "authorization",
+						Name:   "token",
 						Usage:  "Shared secret that must be presented to the service to authorize requests.",
-						EnvVar: "MICRO_NETWORK_DNS_AUTHORIZATION",
+						EnvVar: "MICRO_NETWORK_DNS_TOKEN",
 					},
 				},
 				Action: func(ctx *cli.Context) {

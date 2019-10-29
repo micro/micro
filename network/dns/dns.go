@@ -29,7 +29,7 @@ func Run(c *cli.Context) {
 	}
 	h := handler.New(
 		provider,
-		c.String("authorization"),
+		c.String("token"),
 	)
 
 	// Register Handler

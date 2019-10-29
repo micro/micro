@@ -6,9 +6,9 @@ import (
 )
 
 // New returns a new handler
-func New(provider provider.Provider, authorization string) *DNS {
+func New(provider provider.Provider, token string) *DNS {
 	return &DNS{
 		provider:    provider,
-		bearerToken: authorization,
+		bearerToken: token,
 	}
 }
