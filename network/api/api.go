@@ -56,7 +56,7 @@ type Network struct {
 	nodes map[string]*node
 }
 
-func (n *Network) getIP(addr string) (string, error) {
+func getIP(addr string) (string, error) {
 	if strings.HasPrefix(addr, "[::]") {
 		return "", errors.New("ip is loopback")
 	}
@@ -78,10 +78,23 @@ func (n *Network) getIP(addr string) (string, error) {
 	return addr, nil
 }
 
+func setPeers(peer *pb.Peer, peers map[string]string) {
+	if peer == nil || peer.Node == nil {
+		return
+	}
+	ip, err := getIP(peer.Node.Address)
+	if err == nil {
+		peers[peer.Node.Id] = ip
+	} else {
+		log.Debugf("Error getting peer IP: %v %+v\n", err, peer.Node)
+	}
+	for _, p := range peer.Peers {
+		setPeers(p, peers)
+	}
+}
+
 func (n *Network) setCache() {
-	rsp, err := n.client.Graph(context.TODO(), &pb.GraphRequest{
-		Depth: uint32(1),
-	})
+	rsp, err := n.client.Graph(context.TODO(), &pb.GraphRequest{})
 	if err != nil {
 		log.Debugf("Failed to get nodes: %v\n", err)
 		return
@@ -96,35 +109,8 @@ func (n *Network) setCache() {
 	// create a map of the peers
 	peers := make(map[string]string)
 
-	setPeers := func(peer *pb.Peer) {
-		if peer == nil || peer.Node == nil {
-			return
-		}
-		ip, err := n.getIP(peer.Node.Address)
-		if err == nil {
-			peers[peer.Node.Id] = ip
-		} else {
-			log.Debugf("Error getting peer IP: %v %+v\n", err, peer.Node)
-		}
-
-		for _, p := range peer.Peers {
-			ip, err := n.getIP(p.Node.Address)
-			if err != nil {
-				log.Debugf("Error getting peer IP: %v %+v\n", err, p.Node)
-				continue
-			}
-			peers[p.Node.Id] = ip
-		}
-
-	}
-
 	// set node 0
-	setPeers(rsp.Root)
-
-	// set node nodes depth 1
-	for _, peer := range rsp.Root.Peers {
-		setPeers(peer)
-	}
+	setPeers(rsp.Root, peers)
 
 	// don't proceed without peers
 	if len(peers) == 0 {
