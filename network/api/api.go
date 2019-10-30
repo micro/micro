@@ -122,19 +122,14 @@ func (n *Network) setCache() {
 	nodes := make(map[string]*node)
 
 	for _, route := range routesRsp.Routes {
-		// skip routes without a gateway
-		if len(route.Gateway) == 0 {
-			continue
-		}
-
 		// find in the peer graph
 		ip, ok := peers[route.Router]
 		if !ok {
 			continue
 		}
 
-		// TODO: route.Gateway and ip may not match so lookup the gateway
-		if ip != route.Gateway {
+		// skip routes that don't match in peer ip list
+		if ip != route.Gateway && ip != route.Address {
 			continue
 		}
 
