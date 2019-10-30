@@ -133,6 +133,11 @@ func (n *Network) setCache() {
 			continue
 		}
 
+		// TODO: route.Gateway and ip may not match so lookup the gateway
+		if ip != route.Gateway {
+			continue
+		}
+
 		// skip already saved routes with better metric
 		if n, ok := nodes[ip+route.Network]; ok && n.metric < route.Metric {
 			continue
