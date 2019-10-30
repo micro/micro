@@ -308,6 +308,11 @@ func Commands() []cli.Command {
 			},
 		},
 		{
+			Name:   "services",
+			Usage:  "List the services in the network",
+			Action: printer(netServices),
+		},
+		{
 			Name:   "stream",
 			Usage:  "Create a service stream",
 			Action: printer(streamService),
