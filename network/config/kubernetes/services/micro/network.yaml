@@ -39,6 +39,13 @@ spec:
             secretKeyRef:
               key: DNS_SHARED_SECRET
               name: dns-shared-secret
+        - name: MICRO_NETWORK_DNS_ADVERTISE_TOKEN
+          valueFrom:
+            secretKeyRef:
+              key: DNS_SHARED_SECRET
+              name: dns-shared-secret
+        - name: MICRO_NETWORK_DNS_ADVERTISE_DOMAIN
+          value: "network.micro.mu"
         command: ['sh', '-c']
         args:
         - "export NODE_IP=$(cat /node_info/ip); /micro network --advertise=\"$NODE_IP:$MICRO_NETWORK_SVC_NODE_PORT\""
@@ -57,6 +64,12 @@ spec:
               - /bin/sh
               - -c
               - /micro network dns remove --address $(cat /node_info/ip)
+          postStart:
+            exec:
+              command:
+              - /bin/sh
+              - -c
+              - /micro network dns advertise --address $(cat /node_info/ip)
       initContainers:
       - name: init-network-env
         env:
@@ -72,34 +85,4 @@ spec:
         command: ['sh', '-c']
         args:
         - "TOKEN=$(cat /var/run/secrets/kubernetes.io/serviceaccount/token); curl -k -X GET -H \"Authorization: Bearer $TOKEN\" https://$KUBERNETES_SERVICE_HOST/api/v1/nodes/$NODE_NAME | jq -r '.status.addresses[] | select (.type==\"ExternalIP\").address' > /node_info/ip"
-      - name: advertise-self
-        env:
-        - name: MICRO_LOG_LEVEL
-          value: "debug"
-        - name: MICRO_BROKER
-          value: "nats"
-        - name: MICRO_BROKER_ADDRESS
-          value: "nats-cluster"
-        - name: MICRO_REGISTRY
-          value: "etcd"
-        - name: MICRO_REGISTRY_ADDRESS
-          value: "etcd-cluster-client"
-        - name: MICRO_NETWORK_DNS_ADVERTISE_TOKEN
-          valueFrom:
-            secretKeyRef:
-              key: DNS_SHARED_SECRET
-              name: dns-shared-secret
-        - name: MICRO_NETWORK_DNS_ADVERTISE_DOMAIN
-          value: "network.micro.mu"
-        image: micro/micro
-        imagePullPolicy: Always
-        command:
-        - sh
-        - -c
-        args:
-        - "/micro network dns advertise --address $(cat /node_info/ip)"
-        volumeMounts:
-        - name: shared-data
-          mountPath: /node_info
-
 
