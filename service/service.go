@@ -2,6 +2,7 @@
 package service
 
 import (
+	"os"
 	"strings"
 
 	"github.com/micro/cli"
@@ -10,6 +11,7 @@ import (
 	"github.com/micro/go-micro/proxy/grpc"
 	"github.com/micro/go-micro/proxy/http"
 	"github.com/micro/go-micro/proxy/mucp"
+	"github.com/micro/go-micro/runtime"
 	"github.com/micro/go-micro/server"
 	"github.com/micro/go-micro/util/log"
 	"github.com/micro/go-micro/util/mux"
@@ -43,6 +45,30 @@ func run(ctx *cli.Context, opts ...micro.Option) {
 		p = http.NewProxy(proxy.WithEndpoint(endpoint))
 	default:
 		p = mucp.NewProxy(proxy.WithEndpoint(endpoint))
+	}
+
+	// run the service if asked to
+	if len(ctx.Args()) > 0 {
+		args := []runtime.CreateOption{
+			runtime.WithCommand(ctx.Args()[0], ctx.Args()[1:]...),
+			runtime.WithOutput(os.Stdout),
+		}
+
+		// register the service
+		runtime.Create(&runtime.Service{
+			Name: name,
+		}, args...)
+
+		// start the runtime
+		runtime.Start()
+
+		// stop the runtime
+		defer func() {
+			runtime.Delete(&runtime.Service{
+				Name: name,
+			})
+			runtime.Stop()
+		}()
 	}
 
 	log.Logf("Service [%s] Serving %s at endpoint %s\n", p.String(), name, endpoint)
