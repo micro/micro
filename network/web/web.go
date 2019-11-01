@@ -33,10 +33,17 @@ func Run(ctx *cli.Context) {
 	c := *cmd.DefaultOptions().Client
 	client := pb.NewNetworkService("go.micro.network", c)
 
-	// create the web service
-	service := web.NewService(
+	opts := []web.Option{
 		web.Name("go.micro.web.network"),
-	)
+	}
+
+	address := ctx.GlobalString("server_address")
+	if len(address) > 0 {
+		opts = append(opts, web.Address(address))
+	}
+
+	// create the web service
+	service := web.NewService(opts...)
 
 	// return some data
 	service.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
