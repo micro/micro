@@ -197,34 +197,34 @@ func validUser(w http.ResponseWriter, r *http.Request) error {
 		return fmt.Errorf("email is blank")
 	}
 
-/*
-	TODO: replace validation of the user 
-	uri, err := url.Parse("http://localhost:9091/verify/email?email=" + email)
-	if err != nil {
-		return err
-	}
+	/*
+		TODO: replace validation of the user
+		uri, err := url.Parse("http://localhost:9091/verify/email?email=" + email)
+		if err != nil {
+			return err
+		}
 
-	req, err := http.NewRequest("POST", uri.String(), nil)
-	if err != nil {
-		return err
-	}
+		req, err := http.NewRequest("POST", uri.String(), nil)
+		if err != nil {
+			return err
+		}
 
-	req.SetBasicAuth(user, pass)
-	req.Header.Set("X-Micro-Token", aToken)
+		req.SetBasicAuth(user, pass)
+		req.Header.Set("X-Micro-Token", aToken)
 
-	rsp, err := http.DefaultClient.Do(req)
-	if err != nil {
-		return err
-	}
-	defer rsp.Body.Close()
-	b, err := ioutil.ReadAll(rsp.Body)
-	if err != nil {
-		return err
-	}
-	if rsp.StatusCode != 200 {
-		return fmt.Errorf(strings.TrimSpace(string(b)))
-	}
-*/
+		rsp, err := http.DefaultClient.Do(req)
+		if err != nil {
+			return err
+		}
+		defer rsp.Body.Close()
+		b, err := ioutil.ReadAll(rsp.Body)
+		if err != nil {
+			return err
+		}
+		if rsp.StatusCode != 200 {
+			return fmt.Errorf(strings.TrimSpace(string(b)))
+		}
+	*/
 
 	return nil
 }

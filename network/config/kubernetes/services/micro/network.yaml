@@ -29,9 +29,23 @@ spec:
         - name: MICRO_REGISTRY_ADDRESS
           value: "etcd-cluster-client"
         - name: MICRO_NETWORK_NODES
-          value: "go.micro.mu:8085"
+          value: "network.micro.mu:30038"
         - name: MICRO_NETWORK_SVC_NODE_PORT
           value: "30038"
+        - name: MICRO_NETWORK_DNS_REMOVE_DOMAIN
+          value: "network.micro.mu"
+        - name: MICRO_NETWORK_DNS_REMOVE_TOKEN
+          valueFrom:
+            secretKeyRef:
+              key: DNS_SHARED_SECRET
+              name: dns-shared-secret
+        - name: MICRO_NETWORK_DNS_ADVERTISE_TOKEN
+          valueFrom:
+            secretKeyRef:
+              key: DNS_SHARED_SECRET
+              name: dns-shared-secret
+        - name: MICRO_NETWORK_DNS_ADVERTISE_DOMAIN
+          value: "network.micro.mu"
         command: ['sh', '-c']
         args:
         - "export NODE_IP=$(cat /node_info/ip); /micro network --advertise=\"$NODE_IP:$MICRO_NETWORK_SVC_NODE_PORT\""
@@ -43,6 +57,19 @@ spec:
         ports:
         - containerPort: 8085
           name: network-port
+        lifecycle:
+          preStop:
+            exec:
+              command:
+              - /bin/sh
+              - -c
+              - /micro network dns remove --address $(cat /node_info/ip)
+          postStart:
+            exec:
+              command:
+              - /bin/sh
+              - -c
+              - /micro network dns advertise --address $(cat /node_info/ip)
       initContainers:
       - name: init-network-env
         env:
@@ -58,3 +85,4 @@ spec:
         command: ['sh', '-c']
         args:
         - "TOKEN=$(cat /var/run/secrets/kubernetes.io/serviceaccount/token); curl -k -X GET -H \"Authorization: Bearer $TOKEN\" https://$KUBERNETES_SERVICE_HOST/api/v1/nodes/$NODE_NAME | jq -r '.status.addresses[] | select (.type==\"ExternalIP\").address' > /node_info/ip"
+

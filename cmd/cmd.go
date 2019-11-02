@@ -27,6 +27,7 @@ import (
 	"github.com/micro/micro/server"
 	"github.com/micro/micro/service"
 	"github.com/micro/micro/store"
+	"github.com/micro/micro/token"
 	"github.com/micro/micro/tunnel"
 	"github.com/micro/micro/web"
 
@@ -259,6 +260,7 @@ func Setup(app *ccli.App, options ...micro.Option) {
 	app.Commands = append(app.Commands, server.Commands(options...)...)
 	app.Commands = append(app.Commands, service.Commands(options...)...)
 	app.Commands = append(app.Commands, store.Commands(options...)...)
+	app.Commands = append(app.Commands, token.Commands()...)
 	app.Commands = append(app.Commands, new.Commands()...)
 	app.Commands = append(app.Commands, build.Commands()...)
 	app.Commands = append(app.Commands, web.Commands(options...)...)

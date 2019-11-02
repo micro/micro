@@ -1,30 +1,41 @@
-consul:
-  command: -server -bootstrap -rejoin 
-  image: progrium/consul:latest
-  hostname: "registry"
-  ports:
-  - "8300:8300"
-  - "8400:8400"
-  - "8500:8500"
-  - "8600:53/udp"
-api:
-  command: --registry_address=registry:8500 --register_interval=5 --register_ttl=10 api
-  build: .
-  links:
-  - consul
-  ports:
-  - "8080:8080"
-sidecar:
-  command: --registry_address=registry:8500 --register_interval=5 --register_ttl=10 proxy
-  build: .
-  links:
-  - consul
-  ports:
-  - "8081:8081"
-web:
-  command: --registry_address=registry:8500 --register_interval=5 --register_ttl=10 web
-  build: .
-  links:
-  - consul
-  ports:
-  - "8082:8082"
+on: "3.7"
+
+services:
+  etcd:
+    image: 'bitnami/etcd:latest'
+    environment:
+      - ALLOW_NONE_AUTHENTICATION=yes
+      - ETCD_ADVERTISE_CLIENT_URLS=http://etcd:2379
+    ports:
+      - 2379:2379
+      - 2380:2380
+    networks:
+      - micro-net
+  api:
+    command: --registry=etcd --registry_address=etcd:2379 api --address=0.0.0.0:8080
+    image: micro/micro
+    ports:
+      - "8080:8080"
+    networks:
+      - micro-net
+
+  proxy:
+    command: --registry=etcd --registry_address=etcd:2379 --address=0.0.0.0:8081
+    image: micro/micro
+    ports:
+      - "8081:8081"
+    networks:
+      - micro-net
+  web:
+    deploy:
+      replicas: 3
+    command:  --registry=etcd --registry_address=etcd:2379 --address=0.0.0.0:8082
+    image: micro/micro
+    ports:
+      - "8082:8082"
+    networks:
+      - micro-net
+
+networks:
+  micro-net:
+    external: true
