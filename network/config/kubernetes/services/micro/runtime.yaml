@@ -1,0 +1,71 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: micro-runtime
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: micro-runtime
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - pods
+  verbs:
+  - create
+  - update
+  - delete
+  - list
+  - patch
+  - watch
+- apiGroups:
+  - "apps"
+  resources:
+  - deployments
+  verbs:
+  - create
+  - update
+  - delete
+  - list
+  - patch
+  - watch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: micro-runtime
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: micro-runtime
+subjects:
+- kind: ServiceAccount
+  name: micro-runtime
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: default
+  name: micro-runtime
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: micro-runtime
+  template:
+    metadata:
+      labels:
+        name: micro-runtime
+    spec:
+      serviceAccountName: micro-runtime
+      containers:
+      - name: runtime
+        env:
+        - name: MICRO_RUNTIME
+          value: "kubernetes"
+        - name: MICRO_AUTO_UPDATE
+          value: "true"
+        args:
+        image: micro/micro
+        imagePullPolicy: Always
