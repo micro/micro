@@ -54,20 +54,22 @@ func run(ctx *cli.Context, opts ...micro.Option) {
 			runtime.WithOutput(os.Stdout),
 		}
 
+		r := runtime.NewRuntime()
+
 		// register the service
-		runtime.Create(&runtime.Service{
+		r.Create(&runtime.Service{
 			Name: name,
 		}, args...)
 
 		// start the runtime
-		runtime.Start()
+		r.Start()
 
 		// stop the runtime
 		defer func() {
-			runtime.Delete(&runtime.Service{
+			r.Delete(&runtime.Service{
 				Name: name,
 			})
-			runtime.Stop()
+			r.Stop()
 		}()
 	}
 
