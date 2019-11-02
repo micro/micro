@@ -1,12 +1,12 @@
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: micro-runtime
+  name: micro-init
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: micro-runtime
+  name: micro-init
 rules:
 - apiGroups:
   - ""
@@ -34,47 +34,38 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
-  name: micro-runtime
+  name: micro-init
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: micro-runtime
+  name: micro-init
 subjects:
 - kind: ServiceAccount
-  name: micro-runtime
+  name: micro-init
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   namespace: default
-  name: micro-runtime
+  name: micro-init
 spec:
   replicas: 1
   selector:
     matchLabels:
-      name: micro-runtime
+      name: micro-init
   template:
     metadata:
       labels:
-        name: micro-runtime
+        name: micro-init
     spec:
-      serviceAccountName: micro-runtime
+      serviceAccountName: micro-init
       containers:
-      - name: runtime
+      - name: init
         env:
-        - name: MICRO_BROKER
-          value: "nats"
-        - name: MICRO_BROKER_ADDRESS
-          value: "nats-cluster"
-        - name: MICRO_REGISTRY
-          value: "etcd"
-        - name: MICRO_REGISTRY_ADDRESS
-          value: "etcd-cluster-client"
         - name: MICRO_RUNTIME
           value: "kubernetes"
         - name: MICRO_AUTO_UPDATE
           value: "true"
         args:
-        - runtime
         image: micro/micro
         imagePullPolicy: Always
