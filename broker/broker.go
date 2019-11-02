@@ -9,7 +9,6 @@ import (
 	"github.com/micro/go-micro/broker/service/handler"
 	pb "github.com/micro/go-micro/broker/service/proto"
 	"github.com/micro/go-micro/util/log"
-	rcli "github.com/micro/micro/cli"
 )
 
 var (
@@ -75,7 +74,6 @@ func Commands(options ...micro.Option) []cli.Command {
 		Action: func(ctx *cli.Context) {
 			run(ctx, options...)
 		},
-		Subcommands: rcli.RegistryCommands(),
 	}
 
 	for _, p := range Plugins() {

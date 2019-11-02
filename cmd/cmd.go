@@ -9,7 +9,7 @@ import (
 	ccli "github.com/micro/cli"
 	"github.com/micro/go-micro"
 	"github.com/micro/go-micro/config/cmd"
-	"github.com/micro/go-micro/runtime"
+	gorun "github.com/micro/go-micro/runtime"
 	"github.com/micro/go-micro/util/log"
 	"github.com/micro/micro/api"
 	"github.com/micro/micro/bot"
@@ -24,6 +24,7 @@ import (
 	"github.com/micro/micro/proxy"
 	"github.com/micro/micro/registry"
 	"github.com/micro/micro/router"
+	"github.com/micro/micro/runtime"
 	"github.com/micro/micro/server"
 	"github.com/micro/micro/service"
 	"github.com/micro/micro/store"
@@ -257,6 +258,7 @@ func Setup(app *ccli.App, options ...micro.Option) {
 	app.Commands = append(app.Commands, tunnel.Commands(options...)...)
 	app.Commands = append(app.Commands, network.Commands(options...)...)
 	app.Commands = append(app.Commands, registry.Commands(options...)...)
+	app.Commands = append(app.Commands, runtime.Commands(options...)...)
 	app.Commands = append(app.Commands, server.Commands(options...)...)
 	app.Commands = append(app.Commands, service.Commands(options...)...)
 	app.Commands = append(app.Commands, store.Commands(options...)...)
@@ -294,12 +296,13 @@ func Setup(app *ccli.App, options ...micro.Option) {
 		log.Info("Loading core services")
 
 		services := []string{
+			"network",  // :8085
+			"runtime",  // :8088
 			"registry", // :8000
 			"broker",   // :8001
 			"store",    // :8002
 			"tunnel",   // :8083
 			"router",   // :8084
-			"network",  // :8085
 			"monitor",  // :????
 			"proxy",    // :8081
 			"api",      // :8080
@@ -312,8 +315,8 @@ func Setup(app *ccli.App, options ...micro.Option) {
 
 		// Use default update notifier
 		if context.GlobalBool("auto_update") {
-			options := []runtime.Option{
-				runtime.WithNotifier(update.NewNotifier(BuildDate)),
+			options := []gorun.Option{
+				gorun.WithNotifier(update.NewNotifier(BuildDate)),
 			}
 			(*muRuntime).Init(options...)
 		}
@@ -323,14 +326,14 @@ func Setup(app *ccli.App, options ...micro.Option) {
 			log.Infof("Registering %s\n", name)
 
 			// runtime based on environment we run the service in
-			args := []runtime.CreateOption{
-				runtime.WithCommand(os.Args[0], service),
-				runtime.WithEnv(env),
-				runtime.WithOutput(os.Stdout),
+			args := []gorun.CreateOption{
+				gorun.WithCommand(os.Args[0], service),
+				gorun.WithEnv(env),
+				gorun.WithOutput(os.Stdout),
 			}
 
 			// NOTE: we use BuildDate right now to check for the latest release
-			muService := &runtime.Service{Name: name, Version: BuildDate}
+			muService := &gorun.Service{Name: name, Version: BuildDate}
 			if err := (*muRuntime).Create(muService, args...); err != nil {
 				log.Errorf("Failed to create runtime enviroment: %v", err)
 				return
