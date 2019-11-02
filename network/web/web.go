@@ -4,6 +4,7 @@ package web
 import (
 	"context"
 	"fmt"
+	"net"
 	"net/http"
 	"sort"
 	"strings"
@@ -47,6 +48,13 @@ func Run(ctx *cli.Context) {
 
 	// return some data
 	service.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		// lookup the network
+		ips, _ := net.LookupHost("network.micro.mu")
+		coreMap := make(map[string]bool)
+		for _, ip := range ips {
+			coreMap[ip+":30038"] = true
+		}
+
 		var graph *pb.Peer
 		// get the network graph
 		rsp, err := client.Graph(context.Background(), &pb.GraphRequest{})
@@ -57,16 +65,29 @@ func Run(ctx *cli.Context) {
 		// set the root
 		graph = rsp.Root
 
+		var coreout []string
 		var output []string
 		for id, address := range toMap(graph, nil) {
+			if _, ok := coreMap[address]; ok {
+				coreout = append(coreout, id+"\t"+address)
+				continue
+			}
 			output = append(output, id+"\t"+address)
 		}
 
 		// sort output
+		sort.Strings(coreout)
 		sort.Strings(output)
 
 		// write output
-		heading := fmt.Sprintf("Nodes: %d\tRoot: %s\n\n", len(output), graph.Node.Id)
+		core := len(coreout)
+		dev := len(output)
+		heading := fmt.Sprintf("Nodes: %d\tRoot: %s\n\n", core+dev, graph.Node.Id)
+		w.Write([]byte(heading))
+		heading = fmt.Sprintf("Core: %d\tLocale: %s\n\n", core, "network.micro.mu")
+		w.Write([]byte(heading))
+		w.Write([]byte(strings.Join(coreout, "\n")))
+		heading = fmt.Sprintf("\n\nDev: %d\tLocale: %s\n\n", dev, "global")
 		w.Write([]byte(heading))
 		w.Write([]byte(strings.Join(output, "\n")))
 	})
