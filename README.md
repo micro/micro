@@ -93,12 +93,6 @@ Boot the entire system and connect to the network
 micro
 ```
 
-Run without connecting to the network
-
-```
-micro --network=local
-```
-
 ### Create a service
 
 ```
