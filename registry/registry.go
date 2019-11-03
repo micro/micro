@@ -54,7 +54,7 @@ type sub struct {
 // Process processes registry events
 func (s *sub) Process(ctx context.Context, event *pb.Event) error {
 	if event.Id == s.id {
-		log.Debugf("skipping own %s event: %s for: %s", registry.EventType(event.Type), event.Id, event.Service.Name)
+		log.Tracef("skipping own %s event: %s for: %s", registry.EventType(event.Type), event.Id, event.Service.Name)
 		return nil
 	}
 
