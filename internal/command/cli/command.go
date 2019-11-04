@@ -517,19 +517,19 @@ func NetworkServices(c *cli.Context) ([]byte, error) {
 }
 
 func NetworkDNSAdvertise(c *cli.Context) ([]byte, error) {
-	err := networkDNSHelper("Dns.Advertise", c.String("address"), c.String("domain"), c.String("token"))
+	err := networkDNSHelper("Dns.Advertise", c.GlobalString("dns-address"), c.GlobalString("dns-domain"), c.GlobalString("dns-token"))
 	if err != nil {
 		return []byte(``), err
 	}
-	return []byte("Registered " + c.String("domain") + ": " + c.String("address")), nil
+	return []byte("Registered " + c.GlobalString("dns-domain") + ": " + c.String("dns-address")), nil
 }
 
 func NetworkDNSRemove(c *cli.Context) ([]byte, error) {
-	err := networkDNSHelper("Dns.Remove", c.String("address"), c.String("domain"), c.String("token"))
+	err := networkDNSHelper("Dns.Remove", c.GlobalString("dns-address"), c.GlobalString("dns-domain"), c.GlobalString("dns-token"))
 	if err != nil {
 		return []byte(``), err
 	}
-	return []byte("Removed " + c.String("domain") + ": " + c.String("address")), nil
+	return []byte("Removed " + c.GlobalString("dns-domain") + ": " + c.GlobalString("dns-address")), nil
 }
 
 func NetworkDNSResolve(c *cli.Context) ([]byte, error) {
@@ -542,7 +542,7 @@ func NetworkDNSResolve(c *cli.Context) ([]byte, error) {
 	var rsp map[string][]*dns.Record
 	err := cli.Call(
 		metadata.NewContext(context.Background(), map[string]string{
-			"Authorization": "Bearer " + c.String("token"),
+			"Authorization": "Bearer " + c.GlobalString("dns-token"),
 		}),
 		req,
 		&rsp,

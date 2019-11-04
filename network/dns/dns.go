@@ -23,13 +23,13 @@ func Run(c *cli.Context) {
 	)
 
 	// Create handler
-	provider, err := cloudflare.New(c.String("api-token"), c.String("zone-id"))
+	provider, err := cloudflare.New(c.String("dns-api-token"), c.String("dns-zone-id"))
 	if err != nil {
 		log.Fatal(err)
 	}
 	h := handler.New(
 		provider,
-		c.String("token"),
+		c.String("dns-token"),
 	)
 
 	// Register Handler

@@ -158,49 +158,13 @@ func NetworkCommands() []cli.Command {
 func NetworkDNSCommands() []cli.Command {
 	return []cli.Command{
 		{
-			Name:  "advertise",
-			Usage: "Advertise a new node to the network",
-			Flags: []cli.Flag{
-				cli.StringFlag{
-					Name:   "address",
-					Usage:  "Address to register for the specified domain",
-					EnvVar: "MICRO_NETWORK_DNS_ADVERTISE_ADDRESS",
-				},
-				cli.StringFlag{
-					Name:   "domain",
-					Usage:  "Domain name to register",
-					EnvVar: "MICRO_NETWORK_DNS_ADVERTISE_DOMAIN",
-					Value:  "network.micro.mu",
-				},
-				cli.StringFlag{
-					Name:   "token",
-					Usage:  "Bearer token for the go.micro.network.dns service",
-					EnvVar: "MICRO_NETWORK_DNS_ADVERTISE_TOKEN",
-				},
-			},
+			Name:   "advertise",
+			Usage:  "Advertise a new node to the network",
 			Action: printer(netDNSAdvertise),
 		},
 		{
-			Name:  "remove",
-			Usage: "Remove a node's record'",
-			Flags: []cli.Flag{
-				cli.StringFlag{
-					Name:   "address",
-					Usage:  "Address to register for the specified domain",
-					EnvVar: "MICRO_NETWORK_DNS_REMOVE_ADDRESS",
-				},
-				cli.StringFlag{
-					Name:   "domain",
-					Usage:  "Domain name to remove",
-					EnvVar: "MICRO_NETWORK_DNS_REMOVE_DOMAIN",
-					Value:  "network.micro.mu",
-				},
-				cli.StringFlag{
-					Name:   "token",
-					Usage:  "Bearer token for the go.micro.network.dns service",
-					EnvVar: "MICRO_NETWORK_DNS_REMOVE_TOKEN",
-				},
-			},
+			Name:   "remove",
+			Usage:  "Remove a node's record'",
 			Action: printer(netDNSRemove),
 		},
 		{
@@ -208,21 +172,10 @@ func NetworkDNSCommands() []cli.Command {
 			Usage: "Remove a record'",
 			Flags: []cli.Flag{
 				cli.StringFlag{
-					Name:   "domain",
-					Usage:  "Domain name to resolve",
-					EnvVar: "MICRO_NETWORK_DNS_RESOLVE_DOMAIN",
-					Value:  "network.micro.mu",
-				},
-				cli.StringFlag{
 					Name:   "type",
 					Usage:  "Domain name type to resolve",
 					EnvVar: "MICRO_NETWORK_DNS_RESOLVE_TYPE",
 					Value:  "A",
-				},
-				cli.StringFlag{
-					Name:   "token",
-					Usage:  "Bearer token for the go.micro.network.dns service",
-					EnvVar: "MICRO_NETWORK_DNS_RESOLVE_TOKEN",
 				},
 			},
 			Action: printer(netDNSResolve),

@@ -238,25 +238,36 @@ func Commands(options ...micro.Option) []cli.Command {
 				Description: "Start a DNS resolver service that registers core nodes in DNS",
 				Flags: []cli.Flag{
 					cli.StringFlag{
-						Name:   "provider",
+						Name:   "dns-provider",
 						Usage:  "The DNS provider to use. Currently, only cloudflare is implemented",
 						EnvVar: "MICRO_NETWORK_DNS_PROVIDER",
 						Value:  "cloudflare",
 					},
 					cli.StringFlag{
-						Name:   "api-token",
+						Name:   "dns-api-token",
 						Usage:  "The provider's API Token.",
 						EnvVar: "MICRO_NETWORK_DNS_API_TOKEN",
 					},
 					cli.StringFlag{
-						Name:   "zone-id",
+						Name:   "dns-zone-id",
 						Usage:  "The provider's Zone ID.",
 						EnvVar: "MICRO_NETWORK_DNS_ZONE_ID",
 					},
 					cli.StringFlag{
-						Name:   "token",
+						Name:   "dns-token",
 						Usage:  "Shared secret that must be presented to the service to authorize requests.",
 						EnvVar: "MICRO_NETWORK_DNS_TOKEN",
+					},
+					cli.StringFlag{
+						Name:   "dns-address",
+						Usage:  "The record to register under dns-domain",
+						EnvVar: "MICRO_NETWORK_DNS_ADDRESS",
+					},
+					cli.StringFlag{
+						Name:   "dns-domain",
+						Usage:  "The domain that records should be registered under for core network full mesh discovery",
+						EnvVar: "MICRO_NETWORK_DNS_DOMAIN",
+						Value:  "network.micro.mu",
 					},
 				},
 				Action: func(ctx *cli.Context) {
