@@ -546,6 +546,7 @@ func NetworkDNSResolve(c *cli.Context) ([]byte, error) {
 		}),
 		req,
 		&rsp,
+		client.WithRetries(3),
 	)
 	if err != nil {
 		return []byte(``), err
@@ -597,6 +598,7 @@ func networkDNSHelper(action, address, domain, token string) error {
 		}),
 		req,
 		&rsp,
+		client.WithRetries(3),
 	)
 	if err != nil {
 		return err
