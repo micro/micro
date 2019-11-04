@@ -32,19 +32,12 @@ spec:
           value: "network.micro.mu:30038"
         - name: MICRO_NETWORK_SVC_NODE_PORT
           value: "30038"
-        - name: MICRO_NETWORK_DNS_REMOVE_DOMAIN
-          value: "network.micro.mu"
-        - name: MICRO_NETWORK_DNS_REMOVE_TOKEN
+        - name: MICRO_NETWORK_DNS_TOKEN
           valueFrom:
             secretKeyRef:
               key: DNS_SHARED_SECRET
               name: dns-shared-secret
-        - name: MICRO_NETWORK_DNS_ADVERTISE_TOKEN
-          valueFrom:
-            secretKeyRef:
-              key: DNS_SHARED_SECRET
-              name: dns-shared-secret
-        - name: MICRO_NETWORK_DNS_ADVERTISE_DOMAIN
+        - name: MICRO_NETWORK_DNS_DOMAIN
           value: "network.micro.mu"
         command: ['sh', '-c']
         args:
