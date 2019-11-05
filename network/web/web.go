@@ -4,6 +4,7 @@ package web
 import (
 	"context"
 	"fmt"
+	"math"
 	"net"
 	"net/http"
 	"sort"
@@ -108,10 +109,15 @@ func Run(ctx *cli.Context) {
 		wr.Init(w, 0, 8, 2, ' ', 0)
 
 		for _, route := range rsp.Routes {
+			metric := fmt.Sprintf("%d", route.Metric)
+			if route.Metric >= math.MaxInt64 || route.Metric < 0 {
+				metric = "∞"
+			}
+
 			// service address gateway router network link
-			val := fmt.Sprintf("%s\t%s\t%s\t%s\t%s\t%s",
+			val := fmt.Sprintf("%s\t%s\t%s\t%s\t%s\t%s\t%s",
 				route.Service, route.Address, route.Gateway,
-				route.Router, route.Network, route.Link)
+				route.Router, route.Network, route.Link, metric)
 			output = append(output, val)
 		}
 
