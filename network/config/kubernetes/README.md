@@ -18,7 +18,10 @@ Check the [GCP](gcloud.md) or [AWS](aws.md) docs for specific instructions. Or:
   - Install `kubectl` https://kubernetes.io/docs/tasks/tools/install-kubectl/
   - Install `kubectx` https://github.com/ahmetb/kubectx
   - Install `helm` https://github.com/helm/helm
-    * See [this](https://github.com/helm/helm/blob/master/docs/rbac.md)
+    * See [this](https://helm.sh/docs/using_helm/#tiller-namespaces-and-rbac)
+    * `kubectl -n kube-system create serviceaccount tiller`
+    * `kubectl create clusterrolebinding tiller --clusterrole cluster-admin --serviceaccount=kube-system:tiller`
+    * `helm init --service-account=tiller`
 
 3. Install `etcd`
   - `helm repo update`
@@ -28,7 +31,7 @@ Check the [GCP](gcloud.md) or [AWS](aws.md) docs for specific instructions. Or:
 4. Install `nats`
  - `kubectl apply -f https://github.com/nats-io/nats-operator/releases/latest/download/00-prereqs.yaml`
  - `kubectl apply -f https://github.com/nats-io/nats-operator/releases/latest/download/10-deployment.yaml`
- - `kubectl apply -f services/infra/nats.yaml`
+ - `kubectl apply -f network/config/kubernetes/services/infra/nats.yaml`
 
 4. Install Micro core
   - kubectl apply -f ../kubernetes
@@ -46,7 +49,7 @@ Check the [GCP](gcloud.md) or [AWS](aws.md) docs for specific instructions. Or:
 
 - API - 443 (UDP)
 - Web - 443 (UDP)
-- Network - 8085 (UDP) 
+- Network - 8085 (UDP)
 - Tunnel - 8083 (UDP)
 
 ## DNS Records

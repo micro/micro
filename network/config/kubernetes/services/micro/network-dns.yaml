@@ -3,7 +3,8 @@ kind: Deployment
 metadata:
   namespace: default
   name: micro-network-dns
-  micro: service
+  labels:
+    micro: service
 spec:
   replicas: 2
   selector:

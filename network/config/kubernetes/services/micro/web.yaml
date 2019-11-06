@@ -3,6 +3,8 @@ kind: Deployment
 metadata:
   namespace: default
   name: micro-web
+  labels:
+    micro: service
 spec:
   replicas: 1
   selector:

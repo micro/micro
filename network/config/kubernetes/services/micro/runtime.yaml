@@ -48,7 +48,8 @@ kind: Deployment
 metadata:
   namespace: default
   name: micro-runtime
-  micro: service
+  labels:
+    micro: service
 spec:
   replicas: 1
   selector:
