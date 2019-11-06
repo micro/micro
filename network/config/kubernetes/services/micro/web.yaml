@@ -8,10 +8,12 @@ spec:
   selector:
     matchLabels:
       name: micro-web
+      micro: service
   template:
     metadata:
       labels:
         name: micro-web
+        micro: service
     spec:
       containers:
       - name: web

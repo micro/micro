@@ -5,6 +5,7 @@ metadata:
   namespace: default
   labels:
     name: micro-web
+    micro: service
 spec:
   ports:
   - name: https
@@ -12,4 +13,5 @@ spec:
     targetPort: 443
   selector:
     name: micro-web
+    micro: service
   type: LoadBalancer

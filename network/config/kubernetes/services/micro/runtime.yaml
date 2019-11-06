@@ -48,15 +48,18 @@ kind: Deployment
 metadata:
   namespace: default
   name: micro-runtime
+  micro: service
 spec:
   replicas: 1
   selector:
     matchLabels:
       name: micro-runtime
+      micro: service
   template:
     metadata:
       labels:
         name: micro-runtime
+        micro: service
     spec:
       serviceAccountName: micro-runtime
       containers:

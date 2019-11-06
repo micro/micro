@@ -3,15 +3,19 @@ kind: Deployment
 metadata:
   namespace: default
   name: micro-network-web
+  micro: service
 spec:
   replicas: 1
   selector:
     matchLabels:
       name: micro-network-web
+      micro: service
   template:
     metadata:
       labels:
         name: micro-network-web
+        micro: service
+  template:
     spec:
       containers:
         - name: micro-network-web

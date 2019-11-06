@@ -3,15 +3,18 @@ kind: Deployment
 metadata:
   namespace: default
   name: micro-broker
+  micro: service
 spec:
   replicas: 3
   selector:
     matchLabels:
       name: micro-broker
+      micro: service
   template:
     metadata:
       labels:
         name: micro-broker
+        micro: service
     spec:
       containers:
       - name: broker

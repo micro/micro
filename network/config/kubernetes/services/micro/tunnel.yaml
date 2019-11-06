@@ -3,15 +3,18 @@ kind: Deployment
 metadata:
   namespace: default
   name: micro-tunnel
+  micro: service
 spec:
   replicas: 3
   selector:
     matchLabels:
       name: micro-tunnel
+      micro: service
   template:
     metadata:
       labels:
         name: micro-tunnel
+        micro: service
     spec:
       containers:
       - name: tunnel

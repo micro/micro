@@ -5,6 +5,7 @@ metadata:
   namespace: default
   labels:
     name: micro-network
+    micro: service
 spec:
   type: NodePort
   ports:
@@ -13,3 +14,4 @@ spec:
     nodePort: 30038
   selector:
     name: micro-network
+    micro: service

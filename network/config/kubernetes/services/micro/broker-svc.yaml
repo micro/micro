@@ -5,9 +5,11 @@ metadata:
   namespace: default
   labels:
     name: micro-broker
+    micro: service
 spec:
   ports:
   - port: 8001
     protocol: TCP
   selector:
     name: micro-broker
+    micro: service
