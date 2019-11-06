@@ -5,9 +5,11 @@ metadata:
   namespace: default
   labels:
     name: micro-router
+    micro: service
 spec:
   ports:
   - port: 8084
     protocol: TCP
   selector:
     name: micro-router
+    micro: service

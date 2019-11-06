@@ -48,15 +48,18 @@ kind: Deployment
 metadata:
   namespace: default
   name: micro-init
+  micro: service
 spec:
   replicas: 1
   selector:
     matchLabels:
       name: micro-init
+      micro: service
   template:
     metadata:
       labels:
         name: micro-init
+        micro: service
     spec:
       serviceAccountName: micro-init
       containers:

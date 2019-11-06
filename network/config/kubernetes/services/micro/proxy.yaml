@@ -8,10 +8,12 @@ spec:
   selector:
     matchLabels:
       name: micro-proxy
+      micro: service
   template:
     metadata:
       labels:
         name: micro-proxy
+        micro: service
     spec:
       containers:
       - name: proxy

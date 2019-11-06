@@ -3,15 +3,18 @@ kind: Deployment
 metadata:
   namespace: default
   name: micro-registry
+  micro: service
 spec:
   replicas: 3
   selector:
     matchLabels:
       name: micro-registry
+      micro: service
   template:
     metadata:
       labels:
         name: micro-registry
+        micro: service
     spec:
       containers:
       - name: registry

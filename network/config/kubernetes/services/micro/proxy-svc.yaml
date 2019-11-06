@@ -5,9 +5,11 @@ metadata:
   namespace: default
   labels:
     name: micro-proxy
+    micro: service
 spec:
   ports:
   - port: 8081
     protocol: TCP
   selector:
     name: micro-proxy
+    micro: service
