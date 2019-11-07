@@ -3,15 +3,19 @@ kind: Deployment
 metadata:
   namespace: default
   name: micro-monitor
+  labels:
+    micro: service
 spec:
   replicas: 1
   selector:
     matchLabels:
       name: micro-monitor
+      micro: service
   template:
     metadata:
       labels:
         name: micro-monitor
+        micro: service
     spec:
       containers:
         - name: monitor

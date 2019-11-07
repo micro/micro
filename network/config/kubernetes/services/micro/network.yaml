@@ -3,14 +3,19 @@ kind: DaemonSet
 metadata:
   namespace: default
   name: micro-network
+  labels:
+    micro: service
 spec:
   selector:
     matchLabels:
       name: micro-network
+      micro: service
   template:
     metadata:
       labels:
         name: micro-network
+        micro: service
+  template:
     spec:
       volumes:
       - name: shared-data

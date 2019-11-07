@@ -3,15 +3,19 @@ kind: Deployment
 metadata:
   namespace: default
   name: micro-router
+  labels:
+    micro: service
 spec:
   replicas: 3
   selector:
     matchLabels:
       name: micro-router
+      micro: service
   template:
     metadata:
       labels:
         name: micro-router
+        micro: service
     spec:
       containers:
       - name: router

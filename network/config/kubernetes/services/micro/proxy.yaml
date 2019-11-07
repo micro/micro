@@ -3,15 +3,19 @@ kind: Deployment
 metadata:
   namespace: default
   name: micro-proxy
+  labels:
+    micro: service
 spec:
   replicas: 3
   selector:
     matchLabels:
       name: micro-proxy
+      micro: service
   template:
     metadata:
       labels:
         name: micro-proxy
+        micro: service
     spec:
       containers:
       - name: proxy
