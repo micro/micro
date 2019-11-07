@@ -3,6 +3,8 @@ kind: Deployment
 metadata:
   namespace: default
   name: micro-monitor
+  labels:
+    micro: service
 spec:
   replicas: 1
   selector:

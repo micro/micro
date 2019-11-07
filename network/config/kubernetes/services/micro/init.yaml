@@ -48,7 +48,8 @@ kind: Deployment
 metadata:
   namespace: default
   name: micro-init
-  micro: service
+  labels:
+    micro: service
 spec:
   replicas: 1
   selector:
@@ -69,6 +70,8 @@ spec:
           value: "kubernetes"
         - name: MICRO_AUTO_UPDATE
           value: "true"
+        - name: MICRO_LOG_LEVEL
+          value: "debug"
         args:
         image: micro/micro
         imagePullPolicy: Always

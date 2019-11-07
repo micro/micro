@@ -3,6 +3,8 @@ kind: Deployment
 metadata:
   namespace: default
   name: micro-proxy
+  labels:
+    micro: service
 spec:
   replicas: 3
   selector:

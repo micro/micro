@@ -3,7 +3,8 @@ kind: DaemonSet
 metadata:
   namespace: default
   name: micro-network
-  micro: service
+  labels:
+    micro: service
 spec:
   selector:
     matchLabels:
