@@ -24,13 +24,6 @@ via discovery and pluggable handlers to serve http, grpc, websockets, publish ev
 - **broker:** A message broker allowing for async messaging. Microservices are event driven architectures and should provide messaging as a first
 class citizen. Notify other services of events without needing to worry about a response.
 
-- **bot:** A slackbot which runs on your platform and lets you manage your applications from Slack itself. The micro bot enables ChatOps
-and gives you the ability to do everything with your team via messaging. It also includes ability to create slack commands as services which
-are discovered dynamically.
-
-- **cli:** An interactive CLI to describe, query and interact directly with your platform and services from the terminal. The CLI
-gives you all the commands you expect to understand what's happening with your micro services. It also includes an interactive mode.
-
 - **network:** Build multi-cloud networks with the micro network service. Simply drop-in and connect the network services across any environment
 and create a single flat network to route globally. The micro network dynamically builds routes based on your local registry in each datacenter
 ensuring queries are routed based on locality.
@@ -46,9 +39,6 @@ service explorer which lets you centrally and dynamically store this info at run
 
 - **store:** State is a fundamental requirement of any system. We provide a key-value store to provide simple storage of state which can be shared
 between services or offload long term to keep microservices stateless and horizontally scalable.
-
-- **tunnel:** A network tunnel to get access to services in any environment without the need for a vpn. The micro tunnel provides point to
-point tunnelling with a built-in proxy to query services in remote environments. Query production systems from your local laptop.
 
 - **web:** The web dashboard allows you to explore your services, describe their endpoints, the request and response formats and even
 query them directly. The dashboard also includes a built in CLI like experience for developers who want to drop into the terminal on the fly.
