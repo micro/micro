@@ -45,6 +45,8 @@ spec:
           value: "etcd"
         - name: MICRO_REGISTRY_ADDRESS
           value: "etcd-cluster-client"
+        - name: MICRO_SERVER_ADDRESS
+          value: "0.0.0.0:8080"
         - name: MICRO_NETWORK_NODES
           value: "network.micro.mu:30038"
         - name: MICRO_NETWORK_SVC_NODE_PORT
@@ -72,6 +74,8 @@ spec:
         - name: shared-data
           mountPath: /node_info
         ports:
+        - containerPort: 8080
+          name: service-port
         - containerPort: 8085
           name: network-port
         lifecycle:

@@ -11,7 +11,12 @@ spec:
   ports:
   - port: 8085
     protocol: UDP
+    name: network
     nodePort: 30038
+  - port: 8080
+    protocol: TCP
+    name: service
+    nodePort: 30080
   selector:
     name: micro-network
     micro: service
