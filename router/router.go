@@ -20,8 +20,6 @@ var (
 	Name = "go.micro.router"
 	// Address is the router microservice bind address
 	Address = ":8084"
-	// Router is the router gossip bind address
-	Router = ":9093"
 	// Network is the network name
 	Network = router.DefaultNetwork
 	// Topic is router adverts topic
@@ -174,15 +172,12 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	if len(ctx.String("address")) > 0 {
 		Address = ctx.String("address")
 	}
-	if len(ctx.String("router_address")) > 0 {
-		Router = ctx.String("router")
-	}
-	if len(ctx.String("network_address")) > 0 {
-		Network = ctx.String("network_address")
+	if len(ctx.String("network")) > 0 {
+		Network = ctx.String("network")
 	}
 	// default gateway address
 	var gateway string
-	if len(ctx.String("gateway_address")) > 0 {
+	if len(ctx.String("gateway")) > 0 {
 		gateway = ctx.String("gateway")
 	}
 
@@ -196,7 +191,7 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 
 	r := router.NewRouter(
 		router.Id(service.Server().Options().Id),
-		router.Address(Router),
+		router.Address(service.Server().Options().Id),
 		router.Network(Network),
 		router.Registry(service.Client().Options().Registry),
 		router.Gateway(gateway),
@@ -281,18 +276,18 @@ func Commands(options ...micro.Option) []cli.Command {
 		Usage: "Run the micro network router",
 		Flags: []cli.Flag{
 			cli.StringFlag{
-				Name:   "router_address",
+				Name:   "address",
 				Usage:  "Set the micro router address :9093",
-				EnvVar: "MICRO_ROUTER_ADDRESS",
+				EnvVar: "MICRO_SERVER_ADDRESS",
 			},
 			cli.StringFlag{
-				Name:   "network_address",
-				Usage:  "Set the micro network address: local",
-				EnvVar: "MICRO_NETWORK_ADDRESS",
+				Name:   "network",
+				Usage:  "Set the micro network name: local",
+				EnvVar: "MICRO_NETWORK_NAME",
 			},
 			cli.StringFlag{
-				Name:   "gateway_address",
-				Usage:  "Set the micro default gateway address :9094",
+				Name:   "gateway",
+				Usage:  "Set the micro default gateway address. Defaults to none.",
 				EnvVar: "MICRO_GATEWAY_ADDRESS",
 			},
 		},
