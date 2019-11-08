@@ -196,7 +196,7 @@ func setup(app *ccli.App) {
 			server.Network = ctx.String("network_address")
 		}
 		if len(ctx.String("router_address")) > 0 {
-			router.Router = ctx.String("router_address")
+			router.Address = ctx.String("router_address")
 		}
 		if len(ctx.String("tunnel_address")) > 0 {
 			tunnel.Address = ctx.String("tunnel_address")
