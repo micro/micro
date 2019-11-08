@@ -301,6 +301,11 @@ func Commands() []cli.Command {
 			Usage:  "Call a service e.g micro call greeter Say.Hello '{\"name\": \"John\"}",
 			Action: printer(callService),
 			Flags: []cli.Flag{
+				cli.StringFlag{
+					Name:   "output, o",
+					Usage:  "Set the output format; json (default), raw, string",
+					EnvVar: "MICRO_OUTPUT",
+				},
 				cli.StringSliceFlag{
 					Name:   "metadata",
 					Usage:  "A list of key-value pairs to be forwarded as metadata",

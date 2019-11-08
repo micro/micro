@@ -14,6 +14,7 @@ import (
 
 	"github.com/micro/cli"
 	"github.com/micro/go-micro/client"
+	cbytes "github.com/micro/go-micro/codec/bytes"
 	"github.com/micro/go-micro/config/cmd"
 	"github.com/micro/go-micro/metadata"
 	"github.com/micro/go-micro/registry"
@@ -673,7 +674,7 @@ func CallService(c *cli.Context, args []string) ([]byte, error) {
 	}
 
 	var request map[string]interface{}
-	var response json.RawMessage
+	var response []byte
 
 	d := json.NewDecoder(strings.NewReader(req))
 	d.UseNumber()
@@ -684,17 +685,33 @@ func CallService(c *cli.Context, args []string) ([]byte, error) {
 
 	ctx := callContext(c)
 	creq := (*cmd.DefaultOptions().Client).NewRequest(service, endpoint, request, client.WithContentType("application/json"))
-	err := (*cmd.DefaultOptions().Client).Call(ctx, creq, &response)
+
+	var err error
+	output := c.String("output")
+	if output == "raw" {
+		rsp := cbytes.Frame{}
+		err = (*cmd.DefaultOptions().Client).Call(ctx, creq, &rsp)
+		// set the raw output
+		response = rsp.Data
+	} else {
+		var rsp json.RawMessage
+		err = (*cmd.DefaultOptions().Client).Call(ctx, creq, &rsp)
+		// set the response
+		if err == nil {
+			var out bytes.Buffer
+			defer out.Reset()
+			if err := json.Indent(&out, rsp, "", "\t"); err != nil {
+				return nil, err
+			}
+			response = out.Bytes()
+		}
+	}
+
 	if err != nil {
 		return nil, fmt.Errorf("error calling %s.%s: %v", service, endpoint, err)
 	}
 
-	var out bytes.Buffer
-	defer out.Reset()
-	if err := json.Indent(&out, response, "", "\t"); err != nil {
-		return nil, err
-	}
-	return out.Bytes(), nil
+	return response, nil
 }
 
 func QueryHealth(c *cli.Context, args []string) ([]byte, error) {
