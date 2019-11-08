@@ -13,10 +13,23 @@ spec:
     protocol: UDP
     name: network
     nodePort: 30038
+  selector:
+    name: micro-network
+    micro: service
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: micro-gateway
+  namespace: default
+  labels:
+    name: micro-gateway
+    micro: service
+spec:
+  ports:
   - port: 8080
     protocol: TCP
     name: service
-    nodePort: 30080
   selector:
     name: micro-network
     micro: service

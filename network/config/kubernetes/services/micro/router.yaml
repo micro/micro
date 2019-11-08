@@ -25,7 +25,7 @@ spec:
         - name: MICRO_BROKER_ADDRESS
           value: "nats-cluster"
         - name: MICRO_GATEWAY_ADDRESS
-          value: "micro-network:8080"
+          value: "micro-gateway:8080"
         - name: MICRO_REGISTRY
           value: "etcd"
         - name: MICRO_REGISTRY_ADDRESS
