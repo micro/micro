@@ -55,6 +55,10 @@ func init() {
 func setup(app *ccli.App) {
 	app.Flags = append(app.Flags,
 		ccli.BoolFlag{
+			Name:   "local",
+			Usage:  "Enable local only development",
+		},
+		ccli.BoolFlag{
 			Name:   "enable_acme",
 			Usage:  "Enables ACME support via Let's Encrypt. ACME hosts should also be specified.",
 			EnvVar: "MICRO_ENABLE_ACME",
@@ -278,16 +282,16 @@ func Setup(app *ccli.App, options ...micro.Option) {
 
 		// get the network flag
 		network := context.GlobalString("network")
+		local := context.GlobalBool("local")
 
 		// pass through the environment
 		// TODO: perhaps don't do this
 		env := os.Environ()
 
-		switch network {
-		case "local":
+		if network == "local" || local {
 			// no op for now
 			log.Info("Setting local network")
-		default:
+		} else {
 			log.Info("Setting global network")
 			// set the resolver to use https://micro.mu/network
 			env = append(env, "MICRO_NETWORK_RESOLVER=http")

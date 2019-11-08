@@ -77,10 +77,10 @@ powershell -Command "iwr -useb https://micro.mu/install.ps1 | iex"
 
 ## Getting Started
 
-Boot the entire system and connect to the network
+Boot the entire development environment locally
 
 ```
-micro
+micro --local
 ```
 
 ### Create a service
@@ -106,6 +106,12 @@ micro call go.micro.srv.example Example.Call '{"name": "John"}'
 
 The micro network is a shared global services network actively in [development](https://github.com/micro/development/blob/master/network.md).
 
+Start micro
+
+``` 
+micro
+```
+
 Proxy service calls through the network
 
 ```
@@ -115,11 +121,11 @@ export MICRO_PROXY=go.micro.network
 View network services, routes, nodes
 
 ```
+# List services
+micro services
+
 # List nodes
 micro network nodes
-
-# List services
-micro network services
 
 # List routes
 micro network routes
