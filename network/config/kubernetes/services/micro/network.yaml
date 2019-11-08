@@ -1,11 +1,12 @@
 apiVersion: apps/v1
-kind: DaemonSet
+kind: Deployment
 metadata:
   namespace: default
   name: micro-network
   labels:
     micro: service
 spec:
+  replicas: 3
   selector:
     matchLabels:
       name: micro-network
@@ -15,8 +16,19 @@ spec:
       labels:
         name: micro-network
         micro: service
-  template:
     spec:
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: name
+                  operator: In
+                  values:
+                  - micro-network
+              topologyKey: "kubernetes.io/hostname"
       volumes:
       - name: shared-data
         emptyDir: {}
