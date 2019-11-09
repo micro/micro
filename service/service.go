@@ -14,7 +14,8 @@ import (
 	"github.com/micro/go-micro/runtime"
 	"github.com/micro/go-micro/server"
 	"github.com/micro/go-micro/util/log"
-	"github.com/micro/go-micro/util/mux"
+	"github.com/micro/micro/service/handler/exec"
+	"github.com/micro/micro/service/handler/file"
 )
 
 func run(ctx *cli.Context, opts ...micro.Option) {
@@ -58,9 +59,16 @@ func run(ctx *cli.Context, opts ...micro.Option) {
 
 	switch {
 	case strings.HasPrefix(endpoint, "grpc"):
+		endpoint = strings.TrimPrefix(endpoint, "grpc://")
 		p = grpc.NewProxy(proxy.WithEndpoint(endpoint))
 	case strings.HasPrefix(endpoint, "http"):
 		p = http.NewProxy(proxy.WithEndpoint(endpoint))
+	case strings.HasPrefix(endpoint, "file"):
+		endpoint = strings.TrimPrefix(endpoint, "file://")
+		p = file.NewProxy(proxy.WithEndpoint(endpoint))
+	case strings.HasPrefix(endpoint, "exec"):
+		endpoint = strings.TrimPrefix(endpoint, "exec://")
+		p = exec.NewProxy(proxy.WithEndpoint(endpoint))
 	default:
 		p = mucp.NewProxy(proxy.WithEndpoint(endpoint))
 	}
@@ -72,15 +80,16 @@ func run(ctx *cli.Context, opts ...micro.Option) {
 			runtime.WithOutput(os.Stdout),
 		}
 
+		// create new local runtime
 		r := runtime.NewRuntime()
+
+		// start the runtime
+		r.Start()
 
 		// register the service
 		r.Create(&runtime.Service{
 			Name: name,
 		}, args...)
-
-		// start the runtime
-		r.Start()
 
 		// stop the runtime
 		defer func() {
@@ -97,11 +106,11 @@ func run(ctx *cli.Context, opts ...micro.Option) {
 	service := micro.NewService(opts...)
 
 	// create new muxer
-	muxer := mux.New(name, p)
+	//	muxer := mux.New(name, p)
 
 	// set the router
 	service.Server().Init(
-		server.WithRouter(muxer),
+		server.WithRouter(p),
 	)
 
 	// run service
@@ -120,6 +129,7 @@ func Commands(options ...micro.Option) []cli.Command {
 				Name:   "name",
 				Usage:  "Name of the service",
 				EnvVar: "MICRO_SERVICE_NAME",
+				Value:  "service",
 			},
 			cli.StringFlag{
 				Name:   "address",
@@ -128,7 +138,7 @@ func Commands(options ...micro.Option) []cli.Command {
 			},
 			cli.StringFlag{
 				Name:   "endpoint",
-				Usage:  "The local service endpoint. Defaults to localhost:9090",
+				Usage:  "The local service endpoint (Defaults to localhost:9090); {http, grpc, file, exec}://path-or-address e.g http://localhost:9090",
 				EnvVar: "MICRO_SERVICE_ENDPOINT",
 			},
 			cli.StringSliceFlag{

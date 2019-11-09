@@ -303,7 +303,7 @@ func Commands() []cli.Command {
 			Flags: []cli.Flag{
 				cli.StringFlag{
 					Name:   "output, o",
-					Usage:  "Set the output format; json (default), raw, string",
+					Usage:  "Set the output format; json (default), raw",
 					EnvVar: "MICRO_OUTPUT",
 				},
 				cli.StringSliceFlag{
@@ -323,6 +323,11 @@ func Commands() []cli.Command {
 			Usage:  "Create a service stream",
 			Action: printer(streamService),
 			Flags: []cli.Flag{
+				cli.StringFlag{
+					Name:   "output, o",
+					Usage:  "Set the output format; json (default), raw",
+					EnvVar: "MICRO_OUTPUT",
+				},
 				cli.StringSliceFlag{
 					Name:   "metadata",
 					Usage:  "A list of key-value pairs to be forwarded as metadata",
