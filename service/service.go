@@ -24,6 +24,24 @@ func run(ctx *cli.Context, opts ...micro.Option) {
 	address := ctx.String("address")
 	endpoint := ctx.String("endpoint")
 
+	metadata := make(map[string]string)
+	for _, md := range ctx.StringSlice("metadata") {
+		parts := strings.Split(md, "=")
+		if len(parts) < 2 {
+			continue
+		}
+
+		key := parts[0]
+		val := strings.Join(parts[1:], "=")
+
+		// set the key/val
+		metadata[key] = val
+	}
+
+	if len(metadata) > 0 {
+		opts = append(opts, micro.Metadata(metadata))
+	}
+
 	if len(name) > 0 {
 		opts = append(opts, micro.Name(name))
 	}
@@ -112,6 +130,11 @@ func Commands(options ...micro.Option) []cli.Command {
 				Name:   "endpoint",
 				Usage:  "The local service endpoint. Defaults to localhost:9090",
 				EnvVar: "MICRO_SERVICE_ENDPOINT",
+			},
+			cli.StringSliceFlag{
+				Name:   "metadata",
+				Usage:  "Add metadata as key-value pairs describing the service e.g owner=john@example.com",
+				EnvVar: "MICRO_SERVICE_METADATA",
 			},
 		},
 	}
