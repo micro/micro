@@ -13,6 +13,8 @@ simple abstractions already understood by developers.
 Technology is constantly evolving. The infrastructure stack is always changing. Micro is a pluggable platform which addresses these issues.
 Plug in any stack or underlying technology. Build future-proof systems using micro.
 
+Follow us on [Twitter](https://twitter.com/microhq) or join the [Slack](https://micro.mu/slack) community.
+
 ## Features
 
 The runtime is composed of the following features:
