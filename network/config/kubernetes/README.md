@@ -62,4 +62,4 @@ Check the [GCP](gcloud.md) or [AWS](aws.md) docs for specific instructions. Or:
 
 ## Healing Etcd
 
-- `helm upgrade [release-name] stable/etcd-operator --set etcdCluster.size=3 --set etcdCluster.image.tag="v3.3.15" --set customResources.createEtcdClusterCRD=truestable/etcd-operator`
+- `helm upgrade [release-name] stable/etcd-operator --set etcdCluster.size=3 --set etcdCluster.image.tag="v3.4.2" --set customResources.createEtcdClusterCRD=truestable/etcd-operator`
