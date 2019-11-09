@@ -53,31 +53,46 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	service.Run()
 }
 
+func runService(ctx *cli.Context) {
+
+}
+
 func Commands(options ...micro.Option) []cli.Command {
-	command := cli.Command{
-		Name:  "runtime",
-		Usage: "Run the micro runtime",
-		Flags: []cli.Flag{
-			cli.StringFlag{
-				Name:   "address",
-				Usage:  "Set the registry http address e.g 0.0.0.0:8000",
-				EnvVar: "MICRO_SERVER_ADDRESS",
+	command := []cli.Command{
+		{
+			Name:  "runtime",
+			Usage: "Run the micro runtime",
+			Flags: []cli.Flag{
+				cli.StringFlag{
+					Name:   "address",
+					Usage:  "Set the registry http address e.g 0.0.0.0:8000",
+					EnvVar: "MICRO_SERVER_ADDRESS",
+				},
+			},
+			Action: func(ctx *cli.Context) {
+				run(ctx, options...)
 			},
 		},
-		Action: func(ctx *cli.Context) {
-			run(ctx, options...)
+		{
+			Name:        "run",
+			Usage:       "micro run [service] [version] [exec command]",
+			Description: "Run a service",
+			Flags:       []cli.Flag{},
+			Action: func(ctx *cli.Context) {
+				runService(ctx)
+			},
 		},
 	}
 
 	for _, p := range Plugins() {
 		if cmds := p.Commands(); len(cmds) > 0 {
-			command.Subcommands = append(command.Subcommands, cmds...)
+			command[0].Subcommands = append(command[0].Subcommands, cmds...)
 		}
 
 		if flags := p.Flags(); len(flags) > 0 {
-			command.Flags = append(command.Flags, flags...)
+			command[0].Flags = append(command[0].Flags, flags...)
 		}
 	}
 
-	return []cli.Command{command}
+	return command
 }

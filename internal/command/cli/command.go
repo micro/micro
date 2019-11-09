@@ -276,7 +276,13 @@ func GetService(c *cli.Context, args []string) ([]byte, error) {
 			response = "{}"
 		}
 
-		output = append(output, fmt.Sprintf("\nEndpoint: %s\nMetadata: %s\n", e.Name, strings.Join(meta, ",")))
+		output = append(output, fmt.Sprintf("\nEndpoint: %s\n", e.Name))
+
+		// set metadata if exists
+		if len(meta) > 0 {
+			output = append(output, fmt.Sprintf("Metadata: %s\n", strings.Join(meta, ",")))
+		}
+
 		output = append(output, fmt.Sprintf("Request: %s\n\nResponse: %s\n", request, response))
 	}
 
