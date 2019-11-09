@@ -14,6 +14,8 @@ import (
 	"github.com/micro/go-micro/runtime"
 	"github.com/micro/go-micro/server"
 	"github.com/micro/go-micro/util/log"
+	"github.com/micro/micro/service/handler/exec"
+	"github.com/micro/micro/service/handler/file"
 )
 
 func run(ctx *cli.Context, opts ...micro.Option) {
@@ -43,6 +45,12 @@ func run(ctx *cli.Context, opts ...micro.Option) {
 		p = grpc.NewProxy(proxy.WithEndpoint(endpoint))
 	case strings.HasPrefix(endpoint, "http"):
 		p = http.NewProxy(proxy.WithEndpoint(endpoint))
+	case strings.HasPrefix(endpoint, "file"):
+		endpoint = strings.TrimPrefix(endpoint, "file://")
+		p = file.NewProxy(proxy.WithEndpoint(endpoint))
+	case strings.HasPrefix(endpoint, "exec"):
+		endpoint = strings.TrimPrefix(endpoint, "exec://")
+		p = exec.NewProxy(proxy.WithEndpoint(endpoint))
 	default:
 		p = mucp.NewProxy(proxy.WithEndpoint(endpoint))
 	}
@@ -112,7 +120,7 @@ func Commands(options ...micro.Option) []cli.Command {
 			},
 			cli.StringFlag{
 				Name:   "endpoint",
-				Usage:  "The local service endpoint. Defaults to localhost:9090",
+				Usage:  "The local service endpoint (Defaults to localhost:9090); {http, grpc, file, exec}://path-or-address e.g http://localhost:9090",
 				EnvVar: "MICRO_SERVICE_ENDPOINT",
 			},
 		},
