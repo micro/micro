@@ -53,10 +53,6 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	service.Run()
 }
 
-func runService(ctx *cli.Context) {
-
-}
-
 func Commands(options ...micro.Option) []cli.Command {
 	command := []cli.Command{
 		{
@@ -71,15 +67,6 @@ func Commands(options ...micro.Option) []cli.Command {
 			},
 			Action: func(ctx *cli.Context) {
 				run(ctx, options...)
-			},
-		},
-		{
-			Name:        "run",
-			Usage:       "micro run [service] [version] [exec command]",
-			Description: "Run a service",
-			Flags:       []cli.Flag{},
-			Action: func(ctx *cli.Context) {
-				runService(ctx)
 			},
 		},
 	}
