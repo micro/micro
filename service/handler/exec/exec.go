@@ -51,16 +51,14 @@ func (p *Proxy) ServeRequest(ctx context.Context, req server.Request, rsp server
 	}
 
 	for {
-		/* Read the body if we're writing the file
 		// get data
-		body, err := req.Read()
+		_, err := req.Read()
 		if err == io.EOF {
 			return nil
 		}
 		if err != nil {
 			return err
 		}
-		*/
 
 		// get the header
 		hdr := req.Header()
