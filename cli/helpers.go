@@ -7,10 +7,10 @@ import (
 	"fmt"
 	"os"
 	"strings"
-	"time"
 
 	"github.com/micro/cli"
 	"github.com/micro/go-micro/client"
+	cbytes "github.com/micro/go-micro/codec/bytes"
 	"github.com/micro/go-micro/config/cmd"
 	clic "github.com/micro/micro/internal/command/cli"
 )
@@ -111,10 +111,10 @@ func streamService(c *cli.Context, args []string) ([]byte, error) {
 	service := args[0]
 	endpoint := args[1]
 	var request map[string]interface{}
-	err := json.Unmarshal([]byte(strings.Join(args[2:], " ")), &request)
-	if err != nil {
-		return nil, err
-	}
+
+	// ignore error
+	json.Unmarshal([]byte(strings.Join(args[2:], " ")), &request)
+
 	req := (*cmd.DefaultOptions().Client).NewRequest(service, endpoint, request, client.WithContentType("application/json"))
 	stream, err := (*cmd.DefaultOptions().Client).Stream(context.Background(), req)
 	if err != nil {
@@ -125,17 +125,23 @@ func streamService(c *cli.Context, args []string) ([]byte, error) {
 		return nil, fmt.Errorf("error sending to %s.%s: %v", service, endpoint, err)
 	}
 
+	output := c.String("output")
+
 	for {
-		var response map[string]interface{}
-		if err := stream.Recv(&response); err != nil {
-			return nil, fmt.Errorf("error receiving from %s.%s: %v", service, endpoint, err)
+		if output == "raw" {
+			rsp := cbytes.Frame{}
+			if err := stream.Recv(&rsp); err != nil {
+				return nil, fmt.Errorf("error receiving from %s.%s: %v", service, endpoint, err)
+			}
+			fmt.Print(string(rsp.Data))
+		} else {
+			var response map[string]interface{}
+			if err := stream.Recv(&response); err != nil {
+				return nil, fmt.Errorf("error receiving from %s.%s: %v", service, endpoint, err)
+			}
+			b, _ := json.MarshalIndent(response, "", "\t")
+			fmt.Print(string(b))
 		}
-
-		b, _ := json.MarshalIndent(response, "", "\t")
-		fmt.Print(string(b))
-
-		// artificial delay
-		time.Sleep(time.Millisecond * 10)
 	}
 }
 
