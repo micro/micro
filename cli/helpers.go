@@ -24,7 +24,7 @@ func printer(e exec) func(*cli.Context) {
 			fmt.Println(err)
 			os.Exit(1)
 		}
-		fmt.Printf("%s\n", string(rsp))
+		fmt.Printf("%s", string(rsp))
 	}
 }
 
