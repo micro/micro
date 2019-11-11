@@ -28,15 +28,15 @@ Generated with
 
 Micro services depend on service discovery. The default is multicast DNS, a zeroconf system.
 
-In the event you need a resilient multi-host setup we recommend consul.
+In the event you need a resilient multi-host setup we recommend etcd.
 
 ` + "```" +
 		`
-# install consul
-brew install consul
+# install etcd
+brew install etcd
 
-# run consul
-consul agent -dev
+# run etcd
+etcd
 ` + "```" + `
 
 ## Usage
@@ -87,15 +87,15 @@ Generated with
 
 ## Dependencies
 
-Micro functions depend on service discovery. The default is consul.
+Micro functions depend on service discovery. The default is etcd.
 
 ` + "```" +
 		`
-# install consul
-brew install consul
+# install etcd
+brew install etcd
 
-# run consul
-consul agent -dev
+# run etcd
+etcd
 ` + "```" + `
 
 ## Usage
