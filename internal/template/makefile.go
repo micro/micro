@@ -15,7 +15,7 @@ build: proto
 .PHONY: build
 build:
 {{end}}
-	go build -o {{.Alias}}-{{.Type}} main.go plugin.go
+	go build -o {{.Alias}}-{{.Type}} *.go
 
 .PHONY: test
 test:
@@ -24,5 +24,9 @@ test:
 .PHONY: docker
 docker:
 	docker build . -t {{.Alias}}-{{.Type}}:latest
+`
+
+	GenerateFile = `package main
+//go:generate make proto
 `
 )
