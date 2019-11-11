@@ -692,16 +692,21 @@ func CallService(c *cli.Context, args []string) ([]byte, error) {
 	ctx := callContext(c)
 	creq := (*cmd.DefaultOptions().Client).NewRequest(service, endpoint, request, client.WithContentType("application/json"))
 
+	var opts []client.CallOption
+
+	if addr := c.String("address"); len(addr) > 0 {
+		opts = append(opts, client.WithAddress(addr))
+	}
+
 	var err error
-	output := c.String("output")
-	if output == "raw" {
+	if output := c.String("output"); output == "raw" {
 		rsp := cbytes.Frame{}
-		err = (*cmd.DefaultOptions().Client).Call(ctx, creq, &rsp)
+		err = (*cmd.DefaultOptions().Client).Call(ctx, creq, &rsp, opts...)
 		// set the raw output
 		response = rsp.Data
 	} else {
 		var rsp json.RawMessage
-		err = (*cmd.DefaultOptions().Client).Call(ctx, creq, &rsp)
+		err = (*cmd.DefaultOptions().Client).Call(ctx, creq, &rsp, opts...)
 		// set the response
 		if err == nil {
 			var out bytes.Buffer
@@ -725,6 +730,24 @@ func QueryHealth(c *cli.Context, args []string) ([]byte, error) {
 		return nil, errors.New("require service name")
 	}
 
+	req := (*cmd.DefaultOptions().Client).NewRequest(args[0], "Debug.Health", &proto.HealthRequest{})
+
+	// if the address is specified then we just call it
+	if addr := c.String("address"); len(addr) > 0 {
+		rsp := &proto.HealthResponse{}
+		err := (*cmd.DefaultOptions().Client).Call(
+			context.Background(),
+			req,
+			rsp,
+			client.WithAddress(addr),
+		)
+		if err != nil {
+			return nil, err
+		}
+		return []byte(rsp.Status), nil
+	}
+
+	// otherwise get the service and call each instance individually
 	service, err := (*cmd.DefaultOptions().Registry).GetService(args[0])
 	if err != nil {
 		return nil, err
@@ -733,8 +756,6 @@ func QueryHealth(c *cli.Context, args []string) ([]byte, error) {
 	if len(service) == 0 {
 		return nil, errors.New("Service not found")
 	}
-
-	req := (*cmd.DefaultOptions().Client).NewRequest(service[0].Name, "Debug.Health", &proto.HealthRequest{})
 
 	var output []string
 
