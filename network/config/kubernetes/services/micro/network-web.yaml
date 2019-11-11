@@ -16,7 +16,6 @@ spec:
       labels:
         name: micro-network-web
         micro: service
-  template:
     spec:
       containers:
         - name: micro-network-web
