@@ -6,11 +6,15 @@ metadata:
   labels:
     micro: service
 spec:
-  replicas: 1
+  replicas: 3
   selector:
     matchLabels:
       name: micro-api
       micro: service
+  strategy:
+    rollingUpdate:
+      maxSurge: 0
+      maxUnavailable: 1
   template:
     metadata:
       labels:

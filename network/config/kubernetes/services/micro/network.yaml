@@ -11,6 +11,10 @@ spec:
     matchLabels:
       name: micro-network
       micro: service
+  strategy:
+    rollingUpdate:
+      maxSurge: 0
+      maxUnavailable: 1
   template:
     metadata:
       labels:
