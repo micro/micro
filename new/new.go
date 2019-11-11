@@ -244,6 +244,7 @@ func run(ctx *cli.Context) {
 			Plugins:   plugins,
 			Files: []file{
 				{"main.go", tmpl.MainFNC},
+				{"generate.go", tmpl.GenerateFile},
 				{"plugin.go", tmpl.Plugin},
 				{"handler/" + alias + ".go", tmpl.HandlerFNC},
 				{"subscriber/" + alias + ".go", tmpl.SubscriberFNC},
@@ -276,6 +277,7 @@ func run(ctx *cli.Context) {
 			Plugins:   plugins,
 			Files: []file{
 				{"main.go", tmpl.MainSRV},
+				{"generate.go", tmpl.GenerateFile},
 				{"plugin.go", tmpl.Plugin},
 				{"handler/" + alias + ".go", tmpl.HandlerSRV},
 				{"subscriber/" + alias + ".go", tmpl.SubscriberSRV},
@@ -308,6 +310,7 @@ func run(ctx *cli.Context) {
 			Plugins:   plugins,
 			Files: []file{
 				{"main.go", tmpl.MainAPI},
+				{"generate.go", tmpl.GenerateFile},
 				{"plugin.go", tmpl.Plugin},
 				{"client/" + alias + ".go", tmpl.WrapperAPI},
 				{"handler/" + alias + ".go", tmpl.HandlerAPI},
