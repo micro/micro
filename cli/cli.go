@@ -94,6 +94,13 @@ func HealthCommands() []cli.Command {
 			Name:   "check",
 			Usage:  "Query the health of a service",
 			Action: printer(queryHealth),
+			Flags: []cli.Flag{
+				cli.StringFlag{
+					Name:   "address",
+					Usage:  "Set the address of the service instance to call",
+					EnvVar: "MICRO_ADDRESS",
+				},
+			},
 		},
 	}
 }
@@ -301,6 +308,11 @@ func Commands() []cli.Command {
 			Usage:  "Call a service e.g micro call greeter Say.Hello '{\"name\": \"John\"}",
 			Action: printer(callService),
 			Flags: []cli.Flag{
+				cli.StringFlag{
+					Name:   "address",
+					Usage:  "Set the address of the service instance to call",
+					EnvVar: "MICRO_ADDRESS",
+				},
 				cli.StringFlag{
 					Name:   "output, o",
 					Usage:  "Set the output format; json (default), raw",
