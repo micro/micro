@@ -181,6 +181,19 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		gateway = ctx.String("gateway")
 	}
 
+	// advertise the best routes
+	strategy := router.AdvertiseBest
+	if a := ctx.String("advertise_strategy"); len(a) > 0 {
+		switch a {
+		case "all":
+			strategy = router.AdvertiseAll
+		case "local":
+			strategy = router.AdvertiseLocal
+		case "none":
+			strategy = router.AdvertiseNone
+		}
+	}
+
 	// Initialise service
 	service := micro.NewService(
 		micro.Name(Name),
@@ -195,6 +208,7 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		router.Network(Network),
 		router.Registry(service.Client().Options().Registry),
 		router.Gateway(gateway),
+		router.Advertise(strategy),
 	)
 
 	// register router handler
@@ -289,6 +303,11 @@ func Commands(options ...micro.Option) []cli.Command {
 				Name:   "gateway",
 				Usage:  "Set the micro default gateway address. Defaults to none.",
 				EnvVar: "MICRO_GATEWAY_ADDRESS",
+			},
+			cli.StringFlag{
+				Name:   "advertise_strategy",
+				Usage:  "Set the advertise strategy; all, best, local, none",
+				EnvVar: "MICRO_ROUTER_ADVERTISE_STRATEGY",
 			},
 		},
 		Action: func(ctx *cli.Context) {

@@ -90,6 +90,19 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		res = &registry.Resolver{}
 	}
 
+	// advertise the best routes
+	strategy := router.AdvertiseBest
+	if a := ctx.String("advertise_strategy"); len(a) > 0 {
+		switch a {
+		case "all":
+			strategy = router.AdvertiseAll
+		case "local":
+			strategy = router.AdvertiseLocal
+		case "none":
+			strategy = router.AdvertiseNone
+		}
+	}
+
 	// Initialise service
 	service := micro.NewService(
 		micro.Name(Name),
@@ -109,6 +122,7 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		router.Network(Network),
 		router.Id(service.Server().Options().Id),
 		router.Registry(service.Client().Options().Registry),
+		router.Advertise(strategy),
 	)
 
 	// create new network
@@ -221,6 +235,11 @@ func Commands(options ...micro.Option) []cli.Command {
 				Name:   "resolver",
 				Usage:  "Set the micro network resolver. This can be a comma separated list.",
 				EnvVar: "MICRO_NETWORK_RESOLVER",
+			},
+			cli.StringFlag{
+				Name:   "advertise_strategy",
+				Usage:  "Set the route advertise strategy; all, best, local, none",
+				EnvVar: "MICRO_NETWORK_ADVERTISE_STRATEGY",
 			},
 		},
 		Subcommands: append([]cli.Command{
