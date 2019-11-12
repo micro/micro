@@ -87,7 +87,7 @@ func (cf *cfProvider) Resolve(name, recordType string) ([]*dns.Record, error) {
 	}
 	m := new(miekdns.Msg)
 	m.SetQuestion(miekdns.Fqdn(name), dnstype)
-	r, err := miekdns.ExchangeContext(ctx, m, "8.8.8.8:53")
+	r, err := miekdns.ExchangeContext(ctx, m, "1.0.0.1:53")
 	if err != nil {
 		return nil, err
 	}
