@@ -2,12 +2,21 @@
 package runtime
 
 import (
+	"fmt"
+	"os"
+	"os/signal"
+	"path/filepath"
+	"syscall"
+	"time"
+
 	"github.com/micro/cli"
 	"github.com/micro/go-micro"
 	"github.com/micro/go-micro/config/cmd"
+	"github.com/micro/go-micro/runtime"
 	"github.com/micro/go-micro/runtime/service/handler"
 	pb "github.com/micro/go-micro/runtime/service/proto"
 	"github.com/micro/go-micro/util/log"
+	"github.com/micro/micro/runtime/notifier"
 )
 
 var (
@@ -16,6 +25,77 @@ var (
 	// Address of the runtime
 	Address = ":8088"
 )
+
+func runService(ctx *cli.Context, srvOpts ...micro.Option) {
+	log.Name("runtime")
+
+	// Init plugins
+	for _, p := range Plugins() {
+		p.Init(ctx)
+	}
+
+	if len(ctx.Args()) == 0 || ctx.Args()[0] != "service" {
+		log.Fatal("Require usage: micro run service --name example --version latest (optional: --source /path/to/source)")
+	}
+
+	// get the args
+	name := ctx.String("name")
+	version := ctx.String("version")
+	source := ctx.String("source")
+
+	if len(name) == 0 {
+		log.Fatal("Require usage: micro run service --name example --version latest")
+	}
+
+	// get the default runtime
+	r := runtime.DefaultRuntime
+
+	// specifier the notifier
+	r.Init(runtime.WithNotifier(notifier.New(name, version, source)))
+
+	// start the rutime
+	r.Start()
+	defer r.Stop()
+
+	// change to the directory of the source
+	// TODO: in future
+	if len(source) > 0 {
+		dir := filepath.Dir(source)
+		if err := os.Chdir(dir); err != nil {
+			log.Fatalf("Could not change to directory %s: %v", dir, err)
+		}
+	}
+
+	log.Logf("Starting service: %s version: %s", name, version)
+
+	service := &runtime.Service{
+		Name:    name,
+		Version: fmt.Sprintf("%d", time.Now().Unix()),
+		Exec:    "go run main.go",
+	}
+
+	// runtime based on environment we run the service in
+	args := []runtime.CreateOption{
+		runtime.WithOutput(os.Stdout),
+	}
+
+	// run the service
+	if err := r.Create(service, args...); err != nil {
+		log.Fatal(err)
+	}
+
+	shutdown := make(chan os.Signal, 1)
+	signal.Notify(shutdown, syscall.SIGTERM, syscall.SIGINT, syscall.SIGQUIT)
+
+	// wait for shutdown
+	<-shutdown
+
+	log.Logf("Stopping service")
+
+	if err := r.Delete(service); err != nil {
+		log.Fatal(err)
+	}
+}
 
 func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	log.Name("runtime")
@@ -67,6 +147,35 @@ func Commands(options ...micro.Option) []cli.Command {
 			},
 			Action: func(ctx *cli.Context) {
 				run(ctx, options...)
+			},
+		},
+		{
+			Name:  "run",
+			Usage: "Run a service e.g micro run service version",
+			Flags: []cli.Flag{
+				cli.StringFlag{
+					Name:  "name",
+					Usage: "Set the name of the service to run",
+					Value: "service",
+				},
+				cli.StringFlag{
+					Name:  "version",
+					Usage: "Set the version of the service to run",
+					Value: "latest",
+				},
+				cli.StringFlag{
+					Name:  "source",
+					Usage: "Set the source location of the service e.g /path/to/source",
+					Value: ".",
+				},
+				// TODO: change to BoolFlag
+				cli.BoolTFlag{
+					Name:  "local",
+					Usage: "Set to run the service local",
+				},
+			},
+			Action: func(ctx *cli.Context) {
+				runService(ctx, options...)
 			},
 		},
 	}
