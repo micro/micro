@@ -95,12 +95,3 @@ kubectl apply -f services/infra/nats.yaml
 ```shell
 kubectl apply -f services/micro
 ```
-
-# TODO:
-
-Work out what the firewall rules are to get the micro network running:
-
-```bash
-# Turn off the firewall
-gcloud compute firewall-rules create inter-instance-communication --network micro-test --allow tcp,udp,icmp --source-ranges 0.0.0.0/0
-```
