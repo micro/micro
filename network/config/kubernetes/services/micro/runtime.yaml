@@ -84,5 +84,5 @@ spec:
         command:
         - /micro
         - runtime
-        image: gyre007/micro
+        image: micro/micro
         imagePullPolicy: Always
