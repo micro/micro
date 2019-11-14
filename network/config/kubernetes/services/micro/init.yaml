@@ -68,10 +68,9 @@ spec:
         env:
         - name: MICRO_RUNTIME
           value: "kubernetes"
-        - name: MICRO_AUTO_UPDATE
-          value: "true"
         - name: MICRO_LOG_LEVEL
           value: "debug"
         args:
+        - init
         image: micro/micro
         imagePullPolicy: Always
