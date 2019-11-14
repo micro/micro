@@ -117,6 +117,14 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		srvOpts = append(srvOpts, micro.Address(Address))
 	}
 
+	muRuntime := *cmd.DefaultCmd.Options().Runtime
+
+	// start the runtime
+	if err := muRuntime.Start(); err != nil {
+		log.Logf("failed to start: %s", err)
+		os.Exit(1)
+	}
+
 	// append name
 	srvOpts = append(srvOpts, micro.Name(Name))
 
@@ -126,11 +134,21 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	// register the runtime handler
 	pb.RegisterRuntimeHandler(service.Server(), &handler.Runtime{
 		// using the mdns runtime
-		Runtime: *cmd.DefaultCmd.Options().Runtime,
+		Runtime: muRuntime,
 	})
 
-	// run the service
-	service.Run()
+	// start runtime service
+	if err := service.Run(); err != nil {
+		log.Logf("error running service: %v", err)
+	}
+
+	// stop the runtime
+	if err := muRuntime.Stop(); err != nil {
+		log.Logf("failed to stop: %s", err)
+		os.Exit(1)
+	}
+
+	log.Logf("successfully stopped")
 }
 
 func Commands(options ...micro.Option) []cli.Command {

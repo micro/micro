@@ -12,6 +12,7 @@ rules:
   - ""
   resources:
   - pods
+  - services
   verbs:
   - create
   - update
@@ -78,7 +79,10 @@ spec:
           value: "kubernetes"
         - name: MICRO_AUTO_UPDATE
           value: "true"
-        args:
+        - name: MICRO_LOG_LEVEL
+          value: "debug"
+        command:
+        - /micro
         - runtime
         image: micro/micro
         imagePullPolicy: Always
