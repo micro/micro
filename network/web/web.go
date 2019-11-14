@@ -2,6 +2,7 @@
 package web
 
 import (
+	"bytes"
 	"context"
 	"fmt"
 	"math"
@@ -10,6 +11,7 @@ import (
 	"sort"
 	"strings"
 	"text/tabwriter"
+	"text/template"
 
 	"github.com/micro/cli"
 	"github.com/micro/go-micro/config/cmd"
@@ -47,6 +49,9 @@ func Run(ctx *cli.Context) {
 	// create the web service
 	service := web.NewService(opts...)
 
+	// template
+	t := template.Must(template.New("layout").Parse(templateFile))
+
 	// return some data
 	service.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		// lookup the network
@@ -83,14 +88,19 @@ func Run(ctx *cli.Context) {
 		// write output
 		core := len(coreout)
 		dev := len(output)
-		heading := fmt.Sprintf("Nodes: %d\tRoot: %s\n\n", core+dev, graph.Node.Id)
-		w.Write([]byte(heading))
-		heading = fmt.Sprintf("Core: %d\tLocale: %s\n\n", core, "network.micro.mu")
-		w.Write([]byte(heading))
-		w.Write([]byte(strings.Join(coreout, "\n")))
-		heading = fmt.Sprintf("\n\nDev: %d\tLocale: %s\n\n", dev, "global")
-		w.Write([]byte(heading))
-		w.Write([]byte(strings.Join(output, "\n")))
+
+		b := bytes.NewBuffer(nil)
+
+		heading := fmt.Sprintf("<p>Nodes: %d\tRoot: %s</p>", core+dev, graph.Node.Id)
+		b.Write([]byte(heading))
+		heading = fmt.Sprintf("<p>Core: %d\tLocale: %s</p>", core, "network.micro.mu")
+		b.Write([]byte(heading))
+		b.Write([]byte(strings.Join(coreout, "<br>")))
+		heading = fmt.Sprintf("<p>Dev: %d\tLocale: %s<p>", dev, "global")
+		b.Write([]byte(heading))
+		b.Write([]byte(strings.Join(output, "<br>")))
+
+		t.Execute(w, string(b.Bytes()))
 	})
 
 	service.HandleFunc("/routes", func(w http.ResponseWriter, r *http.Request) {
@@ -99,9 +109,6 @@ func Run(ctx *cli.Context) {
 		if err != nil {
 			return
 		}
-
-		heading := fmt.Sprintf("Routes: %d\n\n", len(rsp.Routes))
-		w.Write([]byte(heading))
 
 		var output []string
 
@@ -115,7 +122,7 @@ func Run(ctx *cli.Context) {
 			}
 
 			// service address gateway router network link
-			val := fmt.Sprintf("%s\t%s\t%s\t%s\t%s\t%s\t%s",
+			val := fmt.Sprintf("<td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td>",
 				route.Service, route.Address, route.Gateway,
 				route.Router, route.Network, route.Link, metric)
 			output = append(output, val)
@@ -124,8 +131,12 @@ func Run(ctx *cli.Context) {
 		// sort output
 		sort.Strings(output)
 
-		wr.Write([]byte(strings.Join(output, "\n")))
-		wr.Flush()
+		b := bytes.NewBuffer(nil)
+		heading := fmt.Sprintf("<p>Routes: %d<p>", len(rsp.Routes))
+		b.Write([]byte(heading))
+		b.Write([]byte("<table><tr>"))
+		b.Write([]byte(strings.Join(output, "</tr><tr>")))
+		t.Execute(w, string(b.Bytes())+"</tr></table>")
 	})
 
 	service.HandleFunc("/services", func(w http.ResponseWriter, r *http.Request) {
@@ -134,9 +145,6 @@ func Run(ctx *cli.Context) {
 		if err != nil {
 			return
 		}
-
-		heading := fmt.Sprintf("Services: %d\n\n", len(rsp.Services))
-		w.Write([]byte(heading))
 
 		var output []string
 
@@ -150,8 +158,11 @@ func Run(ctx *cli.Context) {
 		// sort output
 		sort.Strings(output)
 
-		wr.Write([]byte(strings.Join(output, "\n")))
-		wr.Flush()
+		b := bytes.NewBuffer(nil)
+		heading := fmt.Sprintf("<p>Services: %d</p>", len(rsp.Services))
+		b.Write([]byte(heading))
+		b.Write([]byte(strings.Join(output, "<br>")))
+		t.Execute(w, string(b.Bytes()))
 	})
 
 	// run the service
