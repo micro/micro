@@ -128,6 +128,32 @@ func Run(ctx *cli.Context) {
 		wr.Flush()
 	})
 
+	service.HandleFunc("/services", func(w http.ResponseWriter, r *http.Request) {
+		// get the network graph
+		rsp, err := client.Services(context.Background(), &pb.ServicesRequest{})
+		if err != nil {
+			return
+		}
+
+		heading := fmt.Sprintf("Services: %d\n\n", len(rsp.Services))
+		w.Write([]byte(heading))
+
+		var output []string
+
+		wr := new(tabwriter.Writer)
+		wr.Init(w, 0, 8, 2, ' ', 0)
+
+		for _, service := range rsp.Services {
+			output = append(output, service)
+		}
+
+		// sort output
+		sort.Strings(output)
+
+		wr.Write([]byte(strings.Join(output, "\n")))
+		wr.Flush()
+	})
+
 	// run the service
 	service.Run()
 }
