@@ -50,15 +50,18 @@ Again, make a note of the appID and Password that you get back from the azure cl
 Then create the cluster
 
 ```shell
-aks-engine deploy --subscription-id <subscription uuid> \
+export SUBSCRIPTION_ID=<subscription uuid>
+export CLIENT_ID=<appID>
+export CLIENT_SECRET=<password>
+aks-engine deploy --subscription-id $SUBSCRIPTION_ID \
     --resource-group micro-cloud-k8s \
     --dns-prefix micro-ap \
     --location eastasia \
     --api-model azure-aks.json \
-    --client-id <appID> \
-    --client-secret <password> \
-    --set servicePrincipalProfile.clientID "<appID>" \
-    --set servicePrincipalProfile.secret "<password>" \
+    --client-id "$CLIENT_ID" \
+    --client-secret "$CLIENT_SECRET" \
+    --set servicePrincipalProfile.clientID "$CLIENT_ID" \
+    --set servicePrincipalProfile.secret "$CLIENT_SECRET" \
     --force-overwrite
 ```
 
