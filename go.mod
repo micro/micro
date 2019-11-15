@@ -16,10 +16,9 @@ require (
 	github.com/gorilla/mux v1.7.3
 	github.com/hako/branca v0.0.0-20180808000428-10b799466ada
 	github.com/micro/cli v0.2.0
-	github.com/micro/go-micro v1.16.1-0.20191115082005-a91b3f3e8b1a
+	github.com/micro/go-micro v1.16.1-0.20191115134140-97c1300f5320
 	github.com/miekg/dns v1.1.22
 	github.com/olekukonko/tablewriter v0.0.2
-	github.com/oxtoacart/bpool v0.0.0-20190530202638-03653db5a59c // indirect
 	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/pborman/uuid v1.2.0
 	github.com/pkg/errors v0.8.1
