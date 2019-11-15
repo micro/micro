@@ -48,7 +48,7 @@ func runService(ctx *cli.Context, srvOpts ...micro.Option) {
 	}
 
 	// get the default runtime
-	r := runtime.DefaultRuntime
+	r := *cmd.DefaultCmd.Options().Runtime
 
 	// specifier the notifier
 	r.Init(runtime.WithNotifier(notifier.New(name, version, source)))
@@ -94,6 +94,69 @@ func runService(ctx *cli.Context, srvOpts ...micro.Option) {
 
 	if err := r.Delete(service); err != nil {
 		log.Fatal(err)
+	}
+}
+
+func killService(ctx *cli.Context, srvOpts ...micro.Option) {
+	// get the default runtime
+	r := *cmd.DefaultCmd.Options().Runtime
+
+	// we expect `micro run service`
+	if len(ctx.Args()) == 0 || ctx.Args()[0] != "service" {
+		log.Fatal("Require usage: micro run service --name example --version latest (optional: --source /path/to/source)")
+	}
+
+	// get the args
+	name := ctx.String("name")
+	version := ctx.String("version")
+
+	if len(name) == 0 {
+		log.Fatal("Require usage: micro run service --name example --version latest")
+	}
+
+	// delete the service
+	r.Delete(&runtime.Service{
+		Name:    name,
+		Version: version,
+	})
+
+	// TODO: should we wait or confirm the death?
+	// Also how does this operate on local services
+}
+
+func getService(ctx *cli.Context, srvOpts ...micro.Option) {
+	// get the default runtime
+	r := *cmd.DefaultCmd.Options().Runtime
+
+	// we expect `micro run service`
+	if len(ctx.Args()) == 0 || ctx.Args()[0] != "service" {
+		log.Fatal("Require usage: micro run service --name example --version latest (optional: --source /path/to/source)")
+	}
+
+	// get the args
+	name := ctx.String("name")
+	version := ctx.String("version")
+
+	if len(name) == 0 {
+		log.Fatal("Require usage: micro run service --name example --version latest")
+	}
+
+	// delete the service
+	services, err := r.Get(name, runtime.WithVersion(version))
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	if len(services) == 0 {
+		fmt.Println("service not running")
+		return
+	}
+
+	// TODO: eh ... forgot how we actually print things
+	for _, service := range services {
+		fmt.Printf("Service: %s\tversion: %s\n", service.Name, service.Version)
+		fmt.Printf("Source: %s\n\n", service.Source)
+		// TODO: running status?
 	}
 }
 
@@ -151,6 +214,32 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	log.Logf("successfully stopped")
 }
 
+// Flags is shared flags so we don't have to continually re-add
+func Flags() []cli.Flag {
+	return []cli.Flag{
+		cli.StringFlag{
+			Name:  "name",
+			Usage: "Set the name of the service to run",
+			Value: "service",
+		},
+		cli.StringFlag{
+			Name:  "version",
+			Usage: "Set the version of the service to run",
+			Value: "latest",
+		},
+		cli.StringFlag{
+			Name:  "source",
+			Usage: "Set the source location of the service e.g /path/to/source",
+			Value: ".",
+		},
+		// TODO: change to BoolFlag
+		cli.BoolTFlag{
+			Name:  "local",
+			Usage: "Set to run the service local",
+		},
+	}
+}
+
 func Commands(options ...micro.Option) []cli.Command {
 	command := []cli.Command{
 		{
@@ -168,32 +257,30 @@ func Commands(options ...micro.Option) []cli.Command {
 			},
 		},
 		{
+			// In future we'll also have `micro run [x]` hence `micro run service` requiring "service"
 			Name:  "run",
 			Usage: "Run a service e.g micro run service version",
-			Flags: []cli.Flag{
-				cli.StringFlag{
-					Name:  "name",
-					Usage: "Set the name of the service to run",
-					Value: "service",
-				},
-				cli.StringFlag{
-					Name:  "version",
-					Usage: "Set the version of the service to run",
-					Value: "latest",
-				},
-				cli.StringFlag{
-					Name:  "source",
-					Usage: "Set the source location of the service e.g /path/to/source",
-					Value: ".",
-				},
-				// TODO: change to BoolFlag
-				cli.BoolTFlag{
-					Name:  "local",
-					Usage: "Set to run the service local",
-				},
-			},
+			Flags: Flags(),
 			Action: func(ctx *cli.Context) {
 				runService(ctx, options...)
+			},
+		},
+		{
+			Name:  "kill",
+			Usage: "Kill removes a running service e.g micro kill service",
+			Flags: Flags(),
+			Action: func(ctx *cli.Context) {
+				killService(ctx, options...)
+			},
+		},
+		{
+			// TODO rename this as its sort of non-intuitve `micro status service` maybe `micro get status`?
+			// `micro get service` is already taken by the registry but maybe it should return status as well?
+			Name:  "status",
+			Usage: "Status returns the status of a service",
+			Flags: Flags(),
+			Action: func(ctx *cli.Context) {
+				getService(ctx, options...)
 			},
 		},
 	}
