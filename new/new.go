@@ -10,6 +10,7 @@ import (
 	"strings"
 	"text/template"
 	"time"
+	"go/build"
 
 	"github.com/micro/cli"
 	tmpl "github.com/micro/micro/internal/template"
@@ -184,7 +185,7 @@ func run(ctx *cli.Context) {
 
 	// only set gopath if told to use it
 	if useGoPath {
-		goPath = os.Getenv("GOPATH")
+		goPath = build.Default.GOPATH
 
 		// don't know GOPATH, runaway....
 		if len(goPath) == 0 {
