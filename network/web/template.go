@@ -76,6 +76,8 @@ var (
     <canvas id="graph"></canvas>
   </div>
   <script type="text/javascript">
+	Chart.defaults.scale.gridLines.display = false;
+	Chart.defaults.scale.ticks.display = false;
 	var ctx = document.getElementById('graph').getContext('2d');
 	var chart = new Chart(ctx, {
 	    type: 'radar',
@@ -93,7 +95,9 @@ var (
 		}{{if $label}},{{end}}{{end}}
 		]
 	    },
-	    options: {legend: {display: false}}
+	    options: {
+		legend: { display: false }
+	    }
 	});
   </script>
 </body>
