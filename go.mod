@@ -4,7 +4,9 @@ go 1.13
 
 require (
 	github.com/boltdb/bolt v1.3.1
+	github.com/chzyer/logex v1.1.10 // indirect
 	github.com/chzyer/readline v0.0.0-20180603132655-2972be24d48e
+	github.com/chzyer/test v0.0.0-20180213035817-a1ea475d72b1 // indirect
 	github.com/cloudflare/cloudflare-go v0.10.8
 	github.com/eknkc/basex v1.0.0 // indirect
 	github.com/fsnotify/fsnotify v1.4.7
@@ -16,7 +18,7 @@ require (
 	github.com/gorilla/mux v1.7.3
 	github.com/hako/branca v0.0.0-20180808000428-10b799466ada
 	github.com/micro/cli v0.2.0
-	github.com/micro/go-micro v1.16.1-0.20191115134140-97c1300f5320
+	github.com/micro/go-micro v1.16.1-0.20191120145442-11d81221cc90
 	github.com/miekg/dns v1.1.22
 	github.com/olekukonko/tablewriter v0.0.2
 	github.com/patrickmn/go-cache v2.1.0+incompatible
