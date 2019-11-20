@@ -67,7 +67,7 @@ var (
 	</body>
 </html>
 {{end}}
-{{ define "style" }}.search, .service { border-radius: 50px; }{{end}}
+{{ define "style" }}.search, .service { border-radius: 100px; }; {{end}}
 {{ define "head" }}{{end}}
 {{ define "script" }}{{end}}
 {{ define "title" }}{{end}}
@@ -81,7 +81,12 @@ var (
 	{{if .Results.HasWebServices}}
 		<div>
 			{{range .Results.WebServices}}
-			<a href="/{{.}}" data-filter={{.}} class="btn btn-default btn-lg service" style="margin: 5px 3px 5px 3px;">{{.}}</a>
+			<div style="display: inline-block; margin: 10px;">
+			<a href="/{{.Name}}" data-filter={{.Name}} class="btn btn-default btn-lg service" style="margin: 5px 3px 5px 3px; padding: 20px;">
+			  <span style="padding: 5px; max-width: 80px; display: block;"><img src="{{.Icon}}" style="width: 100%; height: auto;"/></span>
+			  {{.Name}}
+			</a>
+			</div>
 			{{end}}
 		</div>
 	{{end}}

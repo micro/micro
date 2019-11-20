@@ -56,6 +56,9 @@ var (
 	ACMEProvider          = "autocert"
 	ACMEChallengeProvider = "cloudflare"
 	ACMECA                = acme.LetsEncryptProductionCA
+
+	// A placeholder icon
+	DefaultIcon = "https://micro.mu/circle.png"
 )
 
 type srv struct {
@@ -237,18 +240,44 @@ func (s *srv) indexHandler(w http.ResponseWriter, r *http.Request) {
 		log.Errorf("Error listing services: %v", err)
 	}
 
-	var webServices []string
-	for _, s := range services {
-		if strings.Index(s.Name, Namespace) == 0 && len(strings.TrimPrefix(s.Name, Namespace)) > 0 {
-			webServices = append(webServices, strings.Replace(s.Name, Namespace+".", "", 1))
+	type webService struct {
+		Name string
+		Icon string
+	}
+
+	var webServices []webService
+	for _, srv := range services {
+		if len(srv.Nodes) == 0 {
+			srvs, _ := s.registry.GetService(srv.Name)
+			if len(srvs) == 0 {
+				continue
+			}
+			srv = srvs[0]
+		}
+
+		if len(srv.Nodes) == 0 {
+			continue
+		}
+
+		if strings.Index(srv.Name, Namespace) == 0 && len(strings.TrimPrefix(srv.Name, Namespace)) > 0 {
+			icon := DefaultIcon
+
+			if ico := srv.Nodes[0].Metadata["icon"]; len(ico) > 0 {
+				icon = ico
+			}
+
+			webServices = append(webServices, webService{
+				Name: strings.Replace(srv.Name, Namespace+".", "", 1),
+				Icon: icon,
+			})
 		}
 	}
 
-	sort.Strings(webServices)
+	sort.Slice(webServices, func(i, j int) bool { return webServices[i].Name < webServices[j].Name })
 
 	type templateData struct {
 		HasWebServices bool
-		WebServices    []string
+		WebServices    []webService
 	}
 
 	data := templateData{len(webServices) > 0, webServices}
