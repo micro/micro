@@ -6,6 +6,7 @@ import (
 	"os"
 	"os/signal"
 	"path/filepath"
+	"strings"
 	"syscall"
 	"time"
 
@@ -13,10 +14,20 @@ import (
 	"github.com/micro/go-micro"
 	"github.com/micro/go-micro/config/cmd"
 	"github.com/micro/go-micro/runtime"
+	rs "github.com/micro/go-micro/runtime/service"
 	"github.com/micro/go-micro/runtime/service/handler"
 	pb "github.com/micro/go-micro/runtime/service/proto"
 	"github.com/micro/go-micro/util/log"
 	"github.com/micro/micro/runtime/notifier"
+)
+
+const (
+	// RunUsage message for the run command
+	RunUsage = "Required usage: micro run service --name example --version latest --source go/package/import/path"
+	// KillUsage message for the kill command
+	KillUsage = "Require usage: micro kill service --name example (optional: --version latest)"
+	// Getusage message for micro get command
+	GetUsage = "Require usage: micro get service --name example (optional: --version latest)"
 )
 
 var (
@@ -25,6 +36,17 @@ var (
 	// Address of the runtime
 	Address = ":8088"
 )
+
+func defaultEnv() []string {
+	var env []string
+	for _, evar := range os.Environ() {
+		if strings.HasPrefix(evar, "MICRO_") {
+			env = append(env, evar)
+		}
+	}
+
+	return env
+}
 
 func runService(ctx *cli.Context, srvOpts ...micro.Option) {
 	log.Name("runtime")
@@ -35,121 +57,165 @@ func runService(ctx *cli.Context, srvOpts ...micro.Option) {
 	}
 
 	if len(ctx.Args()) == 0 || ctx.Args()[0] != "service" {
-		log.Fatal("Require usage: micro run service --name example --version latest (optional: --source /path/to/source)")
+		log.Fatal(RunUsage)
 	}
 
 	// get the args
 	name := ctx.String("name")
 	version := ctx.String("version")
 	source := ctx.String("source")
+	env := ctx.StringSlice("env")
+	local := ctx.Bool("local")
 
+	// must specify service name
 	if len(name) == 0 {
-		log.Fatal("Require usage: micro run service --name example --version latest")
+		log.Fatal(RunUsage)
 	}
 
-	// get the default runtime
-	r := *cmd.DefaultCmd.Options().Runtime
-
-	// specifier the notifier
-	r.Init(runtime.WithNotifier(notifier.New(name, version, source)))
-
-	// start the rutime
-	r.Start()
-	defer r.Stop()
-
-	// change to the directory of the source
-	// TODO: in future
-	if len(source) > 0 {
-		dir := filepath.Dir(source)
-		if err := os.Chdir(dir); err != nil {
-			log.Fatalf("Could not change to directory %s: %v", dir, err)
+	var r runtime.Runtime
+	var exec []string
+	switch local {
+	case true:
+		r = *cmd.DefaultCmd.Options().Runtime
+		// NOTE: When in local mode, we consider source to be
+		// the filesystem path to the source of the service
+		if len(source) > 0 {
+			dir := filepath.Dir(source)
+			if err := os.Chdir(dir); err != nil {
+				log.Fatalf("Could not change to directory %s: %v", dir, err)
+			}
 		}
+		exec = []string{"go", "run", "main.go"}
+	default:
+		r = rs.NewRuntime()
+		// you must provide the service source import path
+		if len(source) == 0 {
+			log.Fatal(RunUsage)
+		}
+		// NOTE: we consider source in default mode
+		// to be the import path of the service
+		exec = []string{"go", "run", source}
 	}
 
-	log.Logf("Starting service: %s version: %s", name, version)
+	// specify the runtime notifier
+	if err := r.Init(runtime.WithNotifier(notifier.New(name, version, source))); err != nil {
+		log.Fatalf("Could not start notifier: %v", err)
+	}
+
+	// start the local runtime
+	if err := r.Start(); err != nil {
+		log.Fatalf("Could not start: %v", err)
+	}
 
 	service := &runtime.Service{
 		Name:    name,
 		Version: fmt.Sprintf("%d", time.Now().Unix()),
-		Exec:    "go run main.go",
+		Exec:    exec,
+	}
+
+	// default environment
+	environment := defaultEnv()
+	// add environment variable passed in via cli
+	for _, evar := range env {
+		for _, e := range strings.Split(evar, ",") {
+			if len(e) > 0 {
+				environment = append(environment, strings.TrimSpace(e))
+			}
+		}
 	}
 
 	// runtime based on environment we run the service in
-	args := []runtime.CreateOption{
+	// TODO: how will this work with runtime service
+	opts := []runtime.CreateOption{
 		runtime.WithOutput(os.Stdout),
+		runtime.WithEnv(environment),
 	}
 
 	// run the service
-	if err := r.Create(service, args...); err != nil {
+	if err := r.Create(service, opts...); err != nil {
 		log.Fatal(err)
 	}
 
-	shutdown := make(chan os.Signal, 1)
-	signal.Notify(shutdown, syscall.SIGTERM, syscall.SIGINT, syscall.SIGQUIT)
+	// if in local mode register signal handlers
+	if local {
+		shutdown := make(chan os.Signal, 1)
+		signal.Notify(shutdown, syscall.SIGTERM, syscall.SIGINT, syscall.SIGQUIT)
 
-	// wait for shutdown
-	<-shutdown
+		// wait for shutdown
+		<-shutdown
 
-	log.Logf("Stopping service")
+		log.Logf("Stopping service")
+
+		// delete service from runtime
+		if err := r.Delete(service); err != nil {
+			log.Fatal(err)
+		}
+
+		if err := r.Stop(); err != nil {
+			log.Fatal(err)
+		}
+	}
+}
+
+func killService(ctx *cli.Context, srvOpts ...micro.Option) {
+	// we expect `micro run service`
+	if len(ctx.Args()) == 0 || ctx.Args()[0] != "service" {
+		log.Fatal(KillUsage)
+	}
+
+	// get the args
+	name := ctx.String("name")
+	version := ctx.String("version")
+	local := ctx.Bool("local")
+
+	if len(name) == 0 {
+		log.Fatal(KillUsage)
+	}
+
+	var r runtime.Runtime
+	switch local {
+	case true:
+		r = *cmd.DefaultCmd.Options().Runtime
+	default:
+		r = rs.NewRuntime()
+	}
+
+	service := &runtime.Service{
+		Name:    name,
+		Version: version,
+	}
 
 	if err := r.Delete(service); err != nil {
 		log.Fatal(err)
 	}
 }
 
-func killService(ctx *cli.Context, srvOpts ...micro.Option) {
-	// get the default runtime
-	r := *cmd.DefaultCmd.Options().Runtime
-
-	// we expect `micro run service`
-	if len(ctx.Args()) == 0 || ctx.Args()[0] != "service" {
-		log.Fatal("Require usage: micro run service --name example --version latest (optional: --source /path/to/source)")
-	}
-
-	// get the args
-	name := ctx.String("name")
-	version := ctx.String("version")
-
-	if len(name) == 0 {
-		log.Fatal("Require usage: micro run service --name example --version latest")
-	}
-
-	// delete the service
-	r.Delete(&runtime.Service{
-		Name:    name,
-		Version: version,
-	})
-
-	// TODO: should we wait or confirm the death?
-	// Also how does this operate on local services
-}
-
 func getService(ctx *cli.Context, srvOpts ...micro.Option) {
-	// get the default runtime
-	r := *cmd.DefaultCmd.Options().Runtime
-
 	// we expect `micro run service`
 	if len(ctx.Args()) == 0 || ctx.Args()[0] != "service" {
-		log.Fatal("Require usage: micro run service --name example --version latest (optional: --source /path/to/source)")
+		log.Fatal(GetUsage)
 	}
 
 	// get the args
 	name := ctx.String("name")
 	version := ctx.String("version")
+	local := ctx.Bool("local")
 
 	if len(name) == 0 {
-		log.Fatal("Require usage: micro run service --name example --version latest")
+		log.Fatal(GetUsage)
 	}
 
-	// delete the service
+	var r runtime.Runtime
+	switch local {
+	case true:
+		r = *cmd.DefaultCmd.Options().Runtime
+	default:
+		r = rs.NewRuntime()
+	}
+
 	services, err := r.Get(name, runtime.WithVersion(version))
 	if err != nil {
 		log.Fatal(err)
-	}
-
-	if len(services) == 0 {
-		fmt.Println("service not running")
-		return
 	}
 
 	// TODO: eh ... forgot how we actually print things
@@ -180,6 +246,7 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		srvOpts = append(srvOpts, micro.Address(Address))
 	}
 
+	// create runtime
 	muRuntime := *cmd.DefaultCmd.Options().Runtime
 
 	// start the runtime
@@ -229,13 +296,15 @@ func Flags() []cli.Flag {
 		},
 		cli.StringFlag{
 			Name:  "source",
-			Usage: "Set the source location of the service e.g /path/to/source",
-			Value: ".",
+			Usage: "Set the source url of the service e.g /path/to/source",
 		},
-		// TODO: change to BoolFlag
-		cli.BoolTFlag{
+		cli.BoolFlag{
 			Name:  "local",
-			Usage: "Set to run the service local",
+			Usage: "Set to run the service from local path",
+		},
+		cli.StringSliceFlag{
+			Name:  "env",
+			Usage: "Set the environment variables e.g. foo=bar",
 		},
 	}
 }
@@ -248,7 +317,7 @@ func Commands(options ...micro.Option) []cli.Command {
 			Flags: []cli.Flag{
 				cli.StringFlag{
 					Name:   "address",
-					Usage:  "Set the registry http address e.g 0.0.0.0:8000",
+					Usage:  "Set the registry http address e.g 0.0.0.0:8088",
 					EnvVar: "MICRO_SERVER_ADDRESS",
 				},
 			},
@@ -274,10 +343,8 @@ func Commands(options ...micro.Option) []cli.Command {
 			},
 		},
 		{
-			// TODO rename this as its sort of non-intuitve `micro status service` maybe `micro get status`?
-			// `micro get service` is already taken by the registry but maybe it should return status as well?
-			Name:  "status",
-			Usage: "Status returns the status of a service",
+			Name:  "get",
+			Usage: "Get returns the status of a service",
 			Flags: Flags(),
 			Action: func(ctx *cli.Context) {
 				getService(ctx, options...)
