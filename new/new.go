@@ -3,6 +3,7 @@ package new
 
 import (
 	"fmt"
+	"go/build"
 	"os"
 	"path"
 	"path/filepath"
@@ -10,7 +11,6 @@ import (
 	"strings"
 	"text/template"
 	"time"
-	"go/build"
 
 	"github.com/micro/cli"
 	tmpl "github.com/micro/micro/internal/template"
