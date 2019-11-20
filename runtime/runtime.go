@@ -6,6 +6,7 @@ import (
 	"os"
 	"os/signal"
 	"path/filepath"
+	"strings"
 	"syscall"
 	"time"
 
@@ -38,10 +39,9 @@ var (
 
 func defaultEnv() []string {
 	var env []string
-	for _, evar := range []string{"MICRO_BROKER", "MICRO_BROKER_ADDRESS", "MICRO_REGISTRY", "MICRO_REGISTRY_ADDRESS"} {
-		val := os.Getenv(evar)
-		if len(val) > 0 {
-			env = append(env, evar+"="+val)
+	for _, evar := range os.Environ() {
+		if strings.HasPrefix(evar, "MICRO_") {
+			env = append(env, evar)
 		}
 	}
 
@@ -64,6 +64,7 @@ func runService(ctx *cli.Context, srvOpts ...micro.Option) {
 	name := ctx.String("name")
 	version := ctx.String("version")
 	source := ctx.String("source")
+	env := ctx.StringSlice("env")
 	local := ctx.Bool("local")
 
 	// must specify service name
@@ -112,10 +113,22 @@ func runService(ctx *cli.Context, srvOpts ...micro.Option) {
 		Exec:    exec,
 	}
 
+	// default environment
+	environment := defaultEnv()
+	// add environment variable passed in via cli
+	for _, evar := range env {
+		for _, e := range strings.Split(evar, ",") {
+			if len(e) > 0 {
+				environment = append(environment, strings.TrimSpace(e))
+			}
+		}
+	}
+
 	// runtime based on environment we run the service in
 	// TODO: how will this work with runtime service
 	opts := []runtime.CreateOption{
 		runtime.WithOutput(os.Stdout),
+		runtime.WithEnv(environment),
 	}
 
 	// run the service
@@ -288,6 +301,10 @@ func Flags() []cli.Flag {
 		cli.BoolFlag{
 			Name:  "local",
 			Usage: "Set to run the service from local path",
+		},
+		cli.StringSliceFlag{
+			Name:  "env",
+			Usage: "Set the environment variables e.g. foo=bar",
 		},
 	}
 }
