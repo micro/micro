@@ -8,7 +8,6 @@ import (
 	"path/filepath"
 	"strings"
 	"syscall"
-	"time"
 
 	"github.com/micro/cli"
 	"github.com/micro/go-micro"
@@ -74,6 +73,7 @@ func runService(ctx *cli.Context, srvOpts ...micro.Option) {
 
 	var r runtime.Runtime
 	var exec []string
+
 	switch local {
 	case true:
 		r = *cmd.DefaultCmd.Options().Runtime
@@ -88,12 +88,13 @@ func runService(ctx *cli.Context, srvOpts ...micro.Option) {
 		exec = []string{"go", "run", "main.go"}
 	default:
 		r = rs.NewRuntime()
-		// you must provide the service source import path
+		// NOTE: we consider source in default mode
+		// to be the canonical Go module import path
+		// if source is empty, we bail as this can
+		// lead to a potential K8s API object creation DDOS
 		if len(source) == 0 {
 			log.Fatal(RunUsage)
 		}
-		// NOTE: we consider source in default mode
-		// to be the import path of the service
 		exec = []string{"go", "run", source}
 	}
 
@@ -109,7 +110,8 @@ func runService(ctx *cli.Context, srvOpts ...micro.Option) {
 
 	service := &runtime.Service{
 		Name:    name,
-		Version: fmt.Sprintf("%d", time.Now().Unix()),
+		Source:  source,
+		Version: version,
 		Exec:    exec,
 	}
 
@@ -130,6 +132,8 @@ func runService(ctx *cli.Context, srvOpts ...micro.Option) {
 		runtime.WithOutput(os.Stdout),
 		runtime.WithEnv(environment),
 	}
+
+	log.Debugf("Attempting to start service: %v", service)
 
 	// run the service
 	if err := r.Create(service, opts...); err != nil {
