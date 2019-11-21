@@ -195,19 +195,10 @@ func killService(ctx *cli.Context, srvOpts ...micro.Option) {
 }
 
 func getService(ctx *cli.Context, srvOpts ...micro.Option) {
-	// we expect `micro run service`
-	if len(ctx.Args()) == 0 || ctx.Args()[0] != "service" {
-		log.Fatal(GetUsage)
-	}
-
 	// get the args
 	name := ctx.String("name")
 	version := ctx.String("version")
 	local := ctx.Bool("local")
-
-	if len(name) == 0 {
-		log.Fatal(GetUsage)
-	}
 
 	var r runtime.Runtime
 	switch local {
@@ -217,15 +208,36 @@ func getService(ctx *cli.Context, srvOpts ...micro.Option) {
 		r = rs.NewRuntime()
 	}
 
-	services, err := r.Get(name, runtime.WithVersion(version))
-	if err != nil {
-		log.Fatal(err)
+	var list bool
+	if len(ctx.Args()) > 0 && ctx.Args()[0] != "service" {
+		list = true
+	}
+
+	var services []*runtime.Service
+	var err error
+
+	switch list {
+	case true:
+		// list all running services
+		services, err = r.List()
+		if err != nil {
+			log.Fatal(err)
+		}
+	default:
+		if len(name) == 0 {
+			log.Fatal(GetUsage)
+		}
+		// query runtime for named service status
+		services, err = r.Get(name, runtime.WithVersion(version))
+		if err != nil {
+			log.Fatal(err)
+		}
+
 	}
 
 	// TODO: eh ... forgot how we actually print things
 	for _, service := range services {
-		fmt.Printf("Service: %s\tversion: %s\n", service.Name, service.Version)
-		fmt.Printf("Source: %s\n\n", service.Source)
+		fmt.Printf("Service: %s\tversion: %s\tSource: %s\n", service.Name, service.Version, service.Source)
 		// TODO: running status?
 	}
 }
@@ -347,8 +359,8 @@ func Commands(options ...micro.Option) []cli.Command {
 			},
 		},
 		{
-			Name:  "get",
-			Usage: "Get returns the status of a service",
+			Name:  "ps",
+			Usage: "PS returns status of a running service or lists all running services e.g. micro ps",
 			Flags: Flags(),
 			Action: func(ctx *cli.Context) {
 				getService(ctx, options...)
