@@ -55,6 +55,9 @@ Go Micro abstracts away the complexity of distributed systems and provides simpl
 From source
 
 ```
+# enable go modules
+export GO111MODULE=on
+
 go get github.com/micro/micro
 ```
 
