@@ -71,7 +71,6 @@ func runService(ctx *cli.Context, srvOpts ...micro.Option) {
 		log.Fatal(RunUsage)
 	}
 
-	gorun := "main.go"
 	var r runtime.Runtime
 	var exec []string
 
@@ -86,15 +85,17 @@ func runService(ctx *cli.Context, srvOpts ...micro.Option) {
 				log.Fatalf("Could not change to directory %s: %v", dir, err)
 			}
 		}
-		exec = []string{"go", "run", gorun}
+		exec = []string{"go", "run", "main.go"}
 	default:
 		r = rs.NewRuntime()
 		// NOTE: we consider source in default mode
 		// to be the canonical Go module import path
-		if len(source) > 0 {
-			gorun = source
+		// if source is empty, we bail as this can
+		// lead to a potential K8s API object creation DDOS
+		if len(source) == 0 {
+			log.Fatal(RunUsage)
 		}
-		exec = []string{"go", "run", gorun}
+		exec = []string{"go", "run", source}
 	}
 
 	// specify the runtime notifier
