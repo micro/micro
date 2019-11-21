@@ -55,7 +55,7 @@ Go Micro abstracts away the complexity of distributed systems and provides simpl
 From source
 
 ```
-go get github.com/micro/micro
+GO111MODULE=on go get github.com/micro/micro
 ```
 
 Docker image
