@@ -16,6 +16,8 @@ import (
 	"github.com/micro/go-micro/proxy/mucp"
 	"github.com/micro/go-micro/registry"
 	"github.com/micro/go-micro/router"
+	bmem "github.com/micro/go-micro/broker/memory"
+	rmem "github.com/micro/go-micro/registry/memory"
 	rs "github.com/micro/go-micro/router/service"
 	"github.com/micro/go-micro/server"
 	sgrpc "github.com/micro/go-micro/server/grpc"
@@ -63,11 +65,6 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	}
 	if i := time.Duration(ctx.GlobalInt("register_interval")); i > 0 {
 		srvOpts = append(srvOpts, micro.RegisterInterval(i*time.Second))
-	}
-
-	// set address
-	if len(Address) > 0 {
-		srvOpts = append(srvOpts, micro.Address(Address))
 	}
 
 	// set the context
@@ -163,8 +160,30 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		server.WithRouter(muxer),
 	)
 
+	// gen the straight up http server
+	// set address
+	srv := server.NewServer(
+		server.Address(Address),
+		// reset registry to memory
+		server.Registry(rmem.NewRegistry()),
+		// reset broker to memory
+		server.Broker(bmem.NewBroker()),
+		// hande it the router
+		server.WithRouter(p),
+	)
+
+	// Start the server
+	if err := srv.Start(); err != nil {
+		log.Fatal(err)
+	}
+
 	// Run internal service
 	if err := service.Run(); err != nil {
+		log.Fatal(err)
+	}
+
+	// Stop the server
+	if err := srv.Stop(); err != nil {
 		log.Fatal(err)
 	}
 }
