@@ -244,6 +244,11 @@ func getService(ctx *cli.Context, srvOpts ...micro.Option) {
 		return m
 	}
 
+	// don't do anything if there's no services
+	if len(services) == 0 {
+		return
+	}
+
 	writer := tabwriter.NewWriter(os.Stdout, 0, 8, 1, '\t', tabwriter.AlignRight)
 	fmt.Fprintln(writer, "NAME\tVERSION\tSOURCE\tSTATUS\tBUILD\tMETADATA")
 	for _, service := range services {
