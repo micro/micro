@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 	"strings"
 	"syscall"
+	"text/tabwriter"
 
 	"github.com/micro/cli"
 	"github.com/micro/go-micro"
@@ -26,7 +27,7 @@ const (
 	// KillUsage message for the kill command
 	KillUsage = "Require usage: micro kill service --name example (optional: --version latest)"
 	// Getusage message for micro get command
-	GetUsage = "Require usage: micro get service --name example (optional: --version latest)"
+	GetUsage = "Require usage: micro ps service --name example (optional: --version latest)"
 )
 
 var (
@@ -109,10 +110,11 @@ func runService(ctx *cli.Context, srvOpts ...micro.Option) {
 	}
 
 	service := &runtime.Service{
-		Name:    name,
-		Source:  source,
-		Version: version,
-		Exec:    exec,
+		Name:     name,
+		Source:   source,
+		Version:  version,
+		Exec:     exec,
+		Metadata: make(map[string]string),
 	}
 
 	// default environment
@@ -195,19 +197,10 @@ func killService(ctx *cli.Context, srvOpts ...micro.Option) {
 }
 
 func getService(ctx *cli.Context, srvOpts ...micro.Option) {
-	// we expect `micro run service`
-	if len(ctx.Args()) == 0 || ctx.Args()[0] != "service" {
-		log.Fatal(GetUsage)
-	}
-
 	// get the args
 	name := ctx.String("name")
 	version := ctx.String("version")
 	local := ctx.Bool("local")
-
-	if len(name) == 0 {
-		log.Fatal(GetUsage)
-	}
 
 	var r runtime.Runtime
 	switch local {
@@ -217,17 +210,52 @@ func getService(ctx *cli.Context, srvOpts ...micro.Option) {
 		r = rs.NewRuntime()
 	}
 
-	services, err := r.Get(name, runtime.WithVersion(version))
-	if err != nil {
-		log.Fatal(err)
+	var list bool
+	if len(ctx.Args()) == 0 || ctx.Args()[1] != "service" {
+		list = true
 	}
 
-	// TODO: eh ... forgot how we actually print things
-	for _, service := range services {
-		fmt.Printf("Service: %s\tversion: %s\n", service.Name, service.Version)
-		fmt.Printf("Source: %s\n\n", service.Source)
-		// TODO: running status?
+	var services []*runtime.Service
+	var err error
+
+	switch list {
+	case true:
+		// list all running services
+		services, err = r.List()
+		if err != nil {
+			log.Fatal(err)
+		}
+	default:
+		if len(name) == 0 {
+			log.Fatal(GetUsage)
+		}
+		// query runtime for named service status
+		services, err = r.Get(name, runtime.WithVersion(version))
+		if err != nil {
+			log.Fatal(err)
+		}
 	}
+
+	// make sure we return UNKNOWN when empty string is supplied
+	parse := func(m string) string {
+		if len(m) == 0 {
+			return "UNKNOWN"
+		}
+		return m
+	}
+
+	writer := tabwriter.NewWriter(os.Stdout, 0, 8, 1, '\t', tabwriter.AlignRight)
+	fmt.Fprintln(writer, "NAME\tVERSION\tSOURCE\tSTATUS\tBUILD\tMETADATA")
+	for _, service := range services {
+		fmt.Fprintf(writer, "%s\t%s\t%s\t%s\t%s\t%s\n",
+			service.Name,
+			parse(service.Version),
+			parse(service.Source),
+			parse(service.Metadata["status"]),
+			parse(service.Metadata["build"]),
+			fmt.Sprintf("owner=%s,group=%s", parse(service.Metadata["owner"]), parse(service.Metadata["group"])))
+	}
+	writer.Flush()
 }
 
 func run(ctx *cli.Context, srvOpts ...micro.Option) {
@@ -291,7 +319,6 @@ func Flags() []cli.Flag {
 		cli.StringFlag{
 			Name:  "name",
 			Usage: "Set the name of the service to run",
-			Value: "service",
 		},
 		cli.StringFlag{
 			Name:  "version",
@@ -347,8 +374,8 @@ func Commands(options ...micro.Option) []cli.Command {
 			},
 		},
 		{
-			Name:  "get",
-			Usage: "Get returns the status of a service",
+			Name:  "ps",
+			Usage: "Ps returns status of a running service or lists all running services e.g. micro ps",
 			Flags: Flags(),
 			Action: func(ctx *cli.Context) {
 				getService(ctx, options...)
