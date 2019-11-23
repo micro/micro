@@ -89,10 +89,9 @@ func (p *Proxy) ServeRequest(ctx context.Context, req server.Request, rsp server
 		}
 	}
 
-	return nil
 }
 
-// NewFileProxy returns a router which sends requests to a single file
+//NewSingleHostProxy returns a router which sends requests to a single file
 func NewSingleHostProxy(url string) proxy.Proxy {
 	return &Proxy{
 		Endpoint: url,
