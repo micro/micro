@@ -15,6 +15,7 @@ import (
 	"github.com/micro/go-micro/server"
 )
 
+//Proxy for a proxy instance
 type Proxy struct {
 	options.Options
 
@@ -44,6 +45,7 @@ func getEndpoint(hdr map[string]string) string {
 	return ""
 }
 
+//SendRequest currrent just return error.
 func (p *Proxy) SendRequest(ctx context.Context, req client.Request, rsp client.Response) error {
 	return errors.InternalServerError("go.micro.proxy.http", "SendRequest is unsupported")
 }
@@ -100,10 +102,9 @@ func (p *Proxy) ServeRequest(ctx context.Context, req server.Request, rsp server
 		}
 	}
 
-	return nil
 }
 
-// NewFileProxy returns a router which sends requests to a single file
+//NewSingleHostProxy returns a Proxy which stand for a endpoint.
 func NewSingleHostProxy(url string) proxy.Proxy {
 	return &Proxy{
 		Endpoint: url,
