@@ -163,6 +163,12 @@ func setup(app *ccli.App) {
 			Usage:  "Report usage statistics",
 			EnvVar: "MICRO_REPORT_USAGE",
 		},
+		ccli.StringFlag{
+			Name:   "namespace",
+			Usage:  "Set the micro service namespace",
+			EnvVar: "MICRO_NAMESPACE",
+			Value:  "go.micro",
+		},
 	)
 
 	plugins := plugin.Plugins()
@@ -336,7 +342,11 @@ func Setup(app *ccli.App, options ...micro.Option) {
 		}
 
 		for _, service := range services {
-			name := fmt.Sprintf("go.micro.%s", service)
+			name = service
+			if namespace := context.GlobalString("namespace"); len(namespace) > 0 {
+				name = fmt.Sprintf("%s.%s", namespace, service)
+			}
+
 			log.Infof("Registering %s\n", name)
 
 			// runtime based on environment we run the service in
