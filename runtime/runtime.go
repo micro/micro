@@ -230,7 +230,7 @@ func getService(ctx *cli.Context, srvOpts ...micro.Option) {
 			log.Fatal(GetUsage)
 		}
 		// query runtime for named service status
-		services, err = r.Get(name, runtime.WithVersion(version))
+		services, err = r.Read(name, runtime.WithVersion(version))
 		if err != nil {
 			log.Fatal(err)
 		}

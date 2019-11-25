@@ -66,6 +66,8 @@ spec:
       containers:
       - name: init
         env:
+        - name: MICRO_NAMESPACE
+          value: "micro"
         - name: MICRO_RUNTIME
           value: "kubernetes"
         - name: MICRO_LOG_LEVEL
