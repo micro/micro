@@ -107,7 +107,7 @@ micro list services
 micro call go.micro.srv.example Example.Call '{"name": "John"}'
 ```
 
-### Use the network
+### Share services
 
 The micro network is a shared global services network actively in [development](https://github.com/micro/development/blob/master/network.md).
 

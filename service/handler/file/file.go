@@ -14,6 +14,7 @@ import (
 	"github.com/micro/go-micro/server"
 )
 
+//Proxy for a proxy instance
 type Proxy struct {
 	options.Options
 
@@ -99,10 +100,9 @@ func (p *Proxy) ServeRequest(ctx context.Context, req server.Request, rsp server
 		}
 	}
 
-	return nil
 }
 
-// NewFileProxy returns a router which sends requests to a single file
+//NewSingleHostProxy returns a Proxy which stand for a endpoint.
 func NewSingleHostProxy(url string) proxy.Proxy {
 	return &Proxy{
 		Endpoint: url,
