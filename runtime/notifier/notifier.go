@@ -3,7 +3,6 @@ package notifier
 
 import (
 	"errors"
-	"fmt"
 	"path/filepath"
 	"sync"
 	"time"
@@ -38,7 +37,6 @@ func (n *notifier) run() {
 				Type:      runtime.Update,
 				Timestamp: time.Now(),
 				Service:   n.service,
-				Version:   fmt.Sprintf("%d", time.Now().Unix()),
 			}:
 			default:
 				// bail out
