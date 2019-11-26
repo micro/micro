@@ -84,6 +84,18 @@ func Flags() []cli.Flag {
 			Usage: "Set the version of the service to debug",
 			Value: "latest",
 		},
+		cli.BoolFlag{
+			Name:  "stream",
+			Usage: "Set to stream logs continuously",
+		},
+		cli.StringFlag{
+			Name:  "since",
+			Usage: "Set to the relative time from which to show the logs for",
+		},
+		cli.IntFlag{
+			Name:  "count",
+			Usage: "Set to query the last number of log events",
+		},
 	}
 }
 
