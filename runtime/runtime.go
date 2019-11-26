@@ -87,7 +87,13 @@ func runService(ctx *cli.Context, srvOpts ...micro.Option) {
 			}
 		}
 		exec = []string{"go", "run", "main.go"}
+
+		// specify the runtime notifier to update wiht local file changes
+		if err := r.Init(runtime.WithNotifier(notifier.New(name, version, source))); err != nil {
+			log.Fatalf("Could not start notifier: %v", err)
+		}
 	default:
+		// new service runtime
 		r = rs.NewRuntime()
 		// NOTE: we consider source in default mode
 		// to be the canonical Go module import path
@@ -97,11 +103,6 @@ func runService(ctx *cli.Context, srvOpts ...micro.Option) {
 			log.Fatal(RunUsage)
 		}
 		exec = []string{"go", "run", source}
-	}
-
-	// specify the runtime notifier
-	if err := r.Init(runtime.WithNotifier(notifier.New(name, version, source))); err != nil {
-		log.Fatalf("Could not start notifier: %v", err)
 	}
 
 	// start the local runtime
