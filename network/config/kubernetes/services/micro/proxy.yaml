@@ -5,6 +5,7 @@ metadata:
   name: micro-proxy
   labels:
     micro: service
+    name: micro-proxy
 spec:
   replicas: 3
   selector:

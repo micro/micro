@@ -5,6 +5,7 @@ metadata:
   name: micro-router
   labels:
     micro: service
+    name: micro-router
 spec:
   replicas: 3
   selector:

@@ -50,6 +50,7 @@ metadata:
   name: micro-init
   labels:
     micro: service
+    name: micro-init
 spec:
   replicas: 1
   selector:

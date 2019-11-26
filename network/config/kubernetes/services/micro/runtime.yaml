@@ -51,6 +51,7 @@ metadata:
   name: micro-runtime
   labels:
     micro: service
+    name: micro-runtime
 spec:
   replicas: 1
   selector:

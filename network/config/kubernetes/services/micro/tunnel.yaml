@@ -5,6 +5,7 @@ metadata:
   name: micro-tunnel
   labels:
     micro: service
+    name: micro-tunnel
 spec:
   replicas: 3
   selector:

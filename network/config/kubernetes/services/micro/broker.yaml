@@ -5,6 +5,7 @@ metadata:
   name: micro-broker
   labels:
     micro: service
+    name: micro-broker
 spec:
   replicas: 3
   selector:

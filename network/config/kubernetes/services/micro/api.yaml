@@ -5,6 +5,7 @@ metadata:
   name: micro-api
   labels:
     micro: service
+    name: micro-api
 spec:
   replicas: 3
   selector:

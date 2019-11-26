@@ -5,6 +5,7 @@ metadata:
   name: micro-registry
   labels:
     micro: service
+    name: micro-registry
 spec:
   replicas: 3
   selector:

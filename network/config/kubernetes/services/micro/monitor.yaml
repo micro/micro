@@ -5,6 +5,7 @@ metadata:
   name: micro-monitor
   labels:
     micro: service
+    name: micro-monitor
 spec:
   replicas: 1
   selector:

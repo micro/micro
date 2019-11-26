@@ -5,6 +5,7 @@ metadata:
   name: micro-web
   labels:
     micro: service
+    name: micro-web
 spec:
   replicas: 1
   selector:
