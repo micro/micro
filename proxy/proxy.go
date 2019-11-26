@@ -8,6 +8,7 @@ import (
 
 	"github.com/micro/cli"
 	"github.com/micro/go-micro"
+	bmem "github.com/micro/go-micro/broker/memory"
 	"github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/config/options"
 	"github.com/micro/go-micro/proxy"
@@ -15,9 +16,8 @@ import (
 	"github.com/micro/go-micro/proxy/http"
 	"github.com/micro/go-micro/proxy/mucp"
 	"github.com/micro/go-micro/registry"
-	"github.com/micro/go-micro/router"
-	bmem "github.com/micro/go-micro/broker/memory"
 	rmem "github.com/micro/go-micro/registry/memory"
+	"github.com/micro/go-micro/router"
 	rs "github.com/micro/go-micro/router/service"
 	"github.com/micro/go-micro/server"
 	sgrpc "github.com/micro/go-micro/server/grpc"
