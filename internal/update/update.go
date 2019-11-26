@@ -2,7 +2,6 @@ package update
 
 import (
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/url"
@@ -39,7 +38,7 @@ type notifier struct {
 	// poll time to check for updates
 	tick time.Duration
 	// version is current version
-	version string
+	version time.Time
 	// events is notifications channel
 	events chan runtime.Event
 	// indicates if we're running
@@ -49,12 +48,22 @@ type notifier struct {
 }
 
 // NewNotifier returns new runtime notifier
-func NewNotifier(version string) runtime.Notifier {
+func NewNotifier(buildDate string) runtime.Notifier {
+	// convert the build date to a time.Time value
+	timestamp, err := strconv.ParseInt(buildDate, 10, 64)
+	if err != nil {
+		timestamp = time.Now().Unix()
+	}
+
+	// the current version
+	version := time.Unix(timestamp, 0)
+
+	// return a new notifier
 	return newNotifier(DefaultURL, DefaultTick, version)
 }
 
 // NewHTTP creates HTTP poller and returns it
-func newNotifier(url string, tick time.Duration, version string) *notifier {
+func newNotifier(url string, tick time.Duration, version time.Time) *notifier {
 	return &notifier{
 		url:     url,
 		tick:    tick,
@@ -121,22 +130,22 @@ func (h *notifier) run() {
 				log.Debugf("Notifier error parsing build time: %v", err)
 				continue
 			}
-			buildTimeStamp, err := strconv.ParseInt(h.version, 10, 64)
-			if err != nil {
-				log.Debugf("Notifier failed to parse build time: %v", err)
+
+			// if the latest build is newer than the current emit Update event
+			if !buildTime.After(h.version) {
 				continue
 			}
-			muBuild := time.Unix(buildTimeStamp, 0)
-			// if the latest build is newer than the current emit Update event
-			if buildTime.After(muBuild) {
-				version := fmt.Sprintf("%d", buildTime.Unix())
-				h.events <- runtime.Event{
-					Type:      runtime.Update,
-					Timestamp: time.Now(),
-					Version:   version,
-				}
-				h.version = version
+
+			// fire the event
+			h.events <- runtime.Event{
+				// new update
+				Type: runtime.Update,
+				// timestamp of the update
+				Timestamp: buildTime,
 			}
+
+			// set the build time
+			h.version = buildTime
 		}
 	}
 }
