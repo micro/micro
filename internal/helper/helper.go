@@ -68,8 +68,12 @@ func TLSConfig(ctx *cli.Context) (*tls.Config, error) {
 	return nil, errors.New("TLS certificate and key files not specified")
 }
 
-func ServeOptions(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Access-Control-Allow-Origin", "*")
+func ServeCORS(w http.ResponseWriter, r *http.Request) {
+	if origin := r.Header.Get("Origin"); len(origin) > 0 {
+		w.Header().Set("Access-Control-Allow-Origin", origin)
+	} else {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+	}
 	w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
 	w.Header().Set("Access-Control-Allow-Headers", "Accept, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization")
 }

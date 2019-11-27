@@ -164,8 +164,9 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 
 	// return version and list of services
 	r.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		helper.ServeCORS(w, r)
+
 		if r.Method == "OPTIONS" {
-			helper.ServeOptions(w, r)
 			return
 		}
 

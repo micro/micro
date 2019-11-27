@@ -235,8 +235,9 @@ func (s *srv) cliHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *srv) indexHandler(w http.ResponseWriter, r *http.Request) {
+	helper.ServeCORS(w, r)
+
 	if r.Method == "OPTIONS" {
-		helper.ServeOptions(w, r)
 		return
 	}
 
