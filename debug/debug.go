@@ -2,11 +2,18 @@
 package debug
 
 import (
+	"fmt"
+	"time"
+
 	"github.com/micro/cli"
 	"github.com/micro/go-micro"
-	"github.com/micro/go-micro/debug/handler"
-	pb "github.com/micro/go-micro/debug/proto"
-	"github.com/micro/go-micro/util/log"
+	"github.com/micro/go-micro/debug/log"
+	dbg "github.com/micro/go-micro/debug/service"
+)
+
+const (
+	// LogsUsage message for logs command
+	LogsUsage = "Required usage: micro logs --name example"
 )
 
 var (
@@ -23,6 +30,39 @@ func getLogs(ctx *cli.Context, srvOpts ...micro.Option) {
 	for _, p := range Plugins() {
 		p.Init(ctx)
 	}
+
+	// get the args
+	name := ctx.String("name")
+	since := ctx.String("since")
+	count := ctx.Int("count")
+
+	// must specify service name
+	if len(name) == 0 {
+		log.Fatal(LogsUsage)
+	}
+
+	service := dbg.NewDebug(name)
+
+	var options []log.ReadOption
+
+	// TODO: Since should be time.Duration
+	readSince, err := time.Parse(time.RFC3339, since)
+	if err == nil {
+		options = append(options, log.Since(readSince))
+	}
+
+	if count > 0 {
+		options = append(options, log.Count(count))
+	}
+
+	logs, err := service.Logs(options...)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	for record := range logs {
+		fmt.Printf("%v\n", record)
+	}
 }
 
 func getStats(ctx *cli.Context, srvOpts ...micro.Option) {
@@ -32,6 +72,8 @@ func getStats(ctx *cli.Context, srvOpts ...micro.Option) {
 	for _, p := range Plugins() {
 		p.Init(ctx)
 	}
+
+	// TODO: implement this cruft
 }
 
 func run(ctx *cli.Context, srvOpts ...micro.Option) {
@@ -60,16 +102,17 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	// new service
 	service := micro.NewService(srvOpts...)
 
-	pb.RegisterDebugHandler(service.Server(),
-		handler.DefaultHandler,
-	)
+	// TODO: figure out this shit; DefaultHandler is registered
+	//pb.RegisterDebugHandler(service.Server(),
+	//	handler.DefaultHandler,
+	//)
 
 	// start debug service
 	if err := service.Run(); err != nil {
-		log.Logf("error running service: %v", err)
+		log.Errorf("error running service: %v", err)
 	}
 
-	log.Logf("successfully stopped")
+	log.Infof("successfully stopped")
 }
 
 // Flags is shared flags so we don't have to continually re-add
