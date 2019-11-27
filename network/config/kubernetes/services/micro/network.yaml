@@ -5,7 +5,7 @@ metadata:
   name: micro-network
   labels:
     micro: service
-    name; micro-network
+    name: micro-network
 spec:
   replicas: 3
   selector:
