@@ -69,11 +69,19 @@ func TLSConfig(ctx *cli.Context) (*tls.Config, error) {
 }
 
 func ServeCORS(w http.ResponseWriter, r *http.Request) {
-	if origin := r.Header.Get("Origin"); len(origin) > 0 {
-		w.Header().Set("Access-Control-Allow-Origin", origin)
-	} else {
-		w.Header().Set("Access-Control-Allow-Origin", "*")
+	set := func(w http.ResponseWriter, k, v string) {
+		if v := w.Header().Get(k); len(v) > 0 {
+			return
+		}
+		w.Header().Set(k, v)
 	}
-	w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
-	w.Header().Set("Access-Control-Allow-Headers", "Accept, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization")
+
+	if origin := r.Header.Get("Origin"); len(origin) > 0 {
+		set(w, "Access-Control-Allow-Origin", origin)
+	} else {
+		set(w, "Access-Control-Allow-Origin", "*")
+	}
+
+	set(w, "Access-Control-Allow-Methods", "POST, PATCH, GET, OPTIONS, PUT, DELETE")
+	set(w, "Access-Control-Allow-Headers", "Accept, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization")
 }
