@@ -164,6 +164,11 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 
 	// return version and list of services
 	r.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == "OPTIONS" {
+			helper.ServeOptions(w, r)
+			return
+		}
+
 		response := fmt.Sprintf(`{"version": "%s"}`, ctx.App.Version)
 		w.Write([]byte(response))
 	})

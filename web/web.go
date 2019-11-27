@@ -235,6 +235,11 @@ func (s *srv) cliHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *srv) indexHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "OPTIONS" {
+		helper.ServeOptions(w, r)
+		return
+	}
+
 	services, err := s.registry.ListServices()
 	if err != nil {
 		log.Errorf("Error listing services: %v", err)
