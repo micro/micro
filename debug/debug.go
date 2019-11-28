@@ -35,6 +35,7 @@ func getLogs(ctx *cli.Context, srvOpts ...micro.Option) {
 	name := ctx.String("name")
 	since := ctx.String("since")
 	count := ctx.Int("count")
+	stream := ctx.Bool("stream")
 
 	// must specify service name
 	if len(name) == 0 {
@@ -53,6 +54,10 @@ func getLogs(ctx *cli.Context, srvOpts ...micro.Option) {
 
 	if count > 0 {
 		options = append(options, log.Count(count))
+	}
+
+	if stream {
+		options = append(options, log.Stream(stream))
 	}
 
 	logs, err := service.Logs(options...)
@@ -102,7 +107,7 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	// new service
 	service := micro.NewService(srvOpts...)
 
-	// TODO: figure out this shit;
+	// TODO: implement debug service for k8s cruft
 
 	// start debug service
 	if err := service.Run(); err != nil {
