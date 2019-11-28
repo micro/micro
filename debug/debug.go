@@ -45,9 +45,9 @@ func getLogs(ctx *cli.Context, srvOpts ...micro.Option) {
 
 	var options []log.ReadOption
 
-	// TODO: Since should be time.Duration
-	readSince, err := time.Parse(time.RFC3339, since)
+	d, err := time.ParseDuration(since)
 	if err == nil {
+		readSince := time.Now().Add(-d)
 		options = append(options, log.Since(readSince))
 	}
 
@@ -102,10 +102,7 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	// new service
 	service := micro.NewService(srvOpts...)
 
-	// TODO: figure out this shit; DefaultHandler is registered
-	//pb.RegisterDebugHandler(service.Server(),
-	//	handler.DefaultHandler,
-	//)
+	// TODO: figure out this shit;
 
 	// start debug service
 	if err := service.Run(); err != nil {
@@ -133,7 +130,7 @@ func Flags() []cli.Flag {
 		},
 		cli.StringFlag{
 			Name:  "since",
-			Usage: "Set to the relative time from which to show the logs for",
+			Usage: "Set to the relative time from which to show the logs for e.g. 1h",
 		},
 		cli.IntFlag{
 			Name:  "count",
