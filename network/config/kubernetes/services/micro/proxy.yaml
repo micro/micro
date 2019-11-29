@@ -4,19 +4,19 @@ metadata:
   namespace: default
   name: micro-proxy
   labels:
-    micro: service
+    micro: runtime
     name: micro-proxy
 spec:
   replicas: 3
   selector:
     matchLabels:
       name: micro-proxy
-      micro: service
+      micro: runtime
   template:
     metadata:
       labels:
         name: micro-proxy
-        micro: service
+        micro: runtime
     spec:
       containers:
       - name: proxy

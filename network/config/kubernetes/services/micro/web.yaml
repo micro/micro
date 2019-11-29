@@ -4,19 +4,19 @@ metadata:
   namespace: default
   name: micro-web
   labels:
-    micro: service
+    micro: runtime
     name: micro-web
 spec:
   replicas: 1
   selector:
     matchLabels:
       name: micro-web
-      micro: service
+      micro: runtime
   template:
     metadata:
       labels:
         name: micro-web
-        micro: service
+        micro: runtime
     spec:
       containers:
       - name: web

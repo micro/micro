@@ -4,19 +4,19 @@ metadata:
   namespace: default
   name: micro-monitor
   labels:
-    micro: service
+    micro: runtime
     name: micro-monitor
 spec:
   replicas: 1
   selector:
     matchLabels:
       name: micro-monitor
-      micro: service
+      micro: runtime
   template:
     metadata:
       labels:
         name: micro-monitor
-        micro: service
+        micro: runtime
     spec:
       containers:
         - name: monitor

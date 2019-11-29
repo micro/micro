@@ -4,14 +4,14 @@ metadata:
   namespace: default
   name: micro-network
   labels:
-    micro: service
+    micro: runtime
     name: micro-network
 spec:
   replicas: 3
   selector:
     matchLabels:
       name: micro-network
-      micro: service
+      micro: runtime
   strategy:
     rollingUpdate:
       maxSurge: 0
@@ -20,7 +20,7 @@ spec:
     metadata:
       labels:
         name: micro-network
-        micro: service
+        micro: runtime
     spec:
       affinity:
         podAntiAffinity:

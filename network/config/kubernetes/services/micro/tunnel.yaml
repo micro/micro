@@ -4,19 +4,19 @@ metadata:
   namespace: default
   name: micro-tunnel
   labels:
-    micro: service
+    micro: runtime
     name: micro-tunnel
 spec:
   replicas: 3
   selector:
     matchLabels:
       name: micro-tunnel
-      micro: service
+      micro: runtime
   template:
     metadata:
       labels:
         name: micro-tunnel
-        micro: service
+        micro: runtime
     spec:
       containers:
       - name: tunnel

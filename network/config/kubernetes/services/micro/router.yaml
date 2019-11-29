@@ -4,19 +4,19 @@ metadata:
   namespace: default
   name: micro-router
   labels:
-    micro: service
+    micro: runtime
     name: micro-router
 spec:
   replicas: 3
   selector:
     matchLabels:
       name: micro-router
-      micro: service
+      micro: runtime
   template:
     metadata:
       labels:
         name: micro-router
-        micro: service
+        micro: runtime
     spec:
       containers:
       - name: router
