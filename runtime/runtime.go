@@ -214,7 +214,7 @@ func getService(ctx *cli.Context, srvOpts ...micro.Option) {
 
 	var list bool
 
-	if len(ctx.Args()) == 0 || ctx.Args()[1] != "service" {
+	if len(ctx.Args()) == 0 || ctx.Args()[0] != "service" {
 		list = true
 	}
 
