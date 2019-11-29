@@ -6,6 +6,12 @@ metadata:
   labels:
     micro: runtime
     name: micro-registry
+  annotations:
+    name: "go.micro.registry"
+    version: "latest"
+    source: "github.com/micro.micro"
+    owner: "micro"
+    group: "micro"
 spec:
   replicas: 3
   selector:

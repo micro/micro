@@ -6,6 +6,12 @@ metadata:
   labels:
     micro: runtime
     name: micro-bot
+  annotations:
+    name: "go.micro.bot"
+    version: "latest"
+    source: "github.com/micro.micro"
+    owner: "micro"
+    group: "micro"
 spec:
   replicas: 1
   selector:

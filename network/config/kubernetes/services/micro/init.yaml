@@ -51,6 +51,12 @@ metadata:
   labels:
     micro: runtime
     name: micro-init
+  annotations:
+    name: "go.micro.init"
+    version: "latest"
+    source: "github.com/micro.micro"
+    owner: "micro"
+    group: "micro"
 spec:
   replicas: 1
   selector:

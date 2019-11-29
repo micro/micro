@@ -6,6 +6,12 @@ metadata:
   labels:
     micro: runtime
     name: micro-api
+  annotations:
+    name: "go.micro.api"
+    version: "latest"
+    source: "github.com/micro.micro"
+    owner: "micro"
+    group: "micro"
 spec:
   replicas: 3
   selector:
