@@ -50,19 +50,19 @@ metadata:
   namespace: default
   name: micro-runtime
   labels:
-    micro: service
+    micro: runtime
     name: micro-runtime
 spec:
   replicas: 1
   selector:
     matchLabels:
       name: micro-runtime
-      micro: service
+      micro: runtime
   template:
     metadata:
       labels:
         name: micro-runtime
-        micro: service
+        micro: runtime
     spec:
       serviceAccountName: micro-runtime
       containers:

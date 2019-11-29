@@ -4,19 +4,19 @@ metadata:
   namespace: default
   name: micro-broker
   labels:
-    micro: service
+    micro: runtime
     name: micro-broker
 spec:
   replicas: 3
   selector:
     matchLabels:
       name: micro-broker
-      micro: service
+      micro: runtime
   template:
     metadata:
       labels:
         name: micro-broker
-        micro: service
+        micro: runtime
     spec:
       containers:
       - name: broker

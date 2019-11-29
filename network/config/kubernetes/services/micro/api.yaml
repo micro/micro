@@ -4,14 +4,14 @@ metadata:
   namespace: default
   name: micro-api
   labels:
-    micro: service
+    micro: runtime
     name: micro-api
 spec:
   replicas: 3
   selector:
     matchLabels:
       name: micro-api
-      micro: service
+      micro: runtime
   strategy:
     rollingUpdate:
       maxSurge: 0
@@ -20,7 +20,7 @@ spec:
     metadata:
       labels:
         name: micro-api
-        micro: service
+        micro: runtime
     spec:
       containers:
       - name: api

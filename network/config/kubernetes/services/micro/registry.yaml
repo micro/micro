@@ -4,19 +4,19 @@ metadata:
   namespace: default
   name: micro-registry
   labels:
-    micro: service
+    micro: runtime
     name: micro-registry
 spec:
   replicas: 3
   selector:
     matchLabels:
       name: micro-registry
-      micro: service
+      micro: runtime
   template:
     metadata:
       labels:
         name: micro-registry
-        micro: service
+        micro: runtime
     spec:
       containers:
       - name: registry
