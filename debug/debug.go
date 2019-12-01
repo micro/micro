@@ -70,17 +70,6 @@ func getLogs(ctx *cli.Context, srvOpts ...micro.Option) {
 	}
 }
 
-func getStats(ctx *cli.Context, srvOpts ...micro.Option) {
-	log.Name("debug")
-
-	// Init plugins
-	for _, p := range Plugins() {
-		p.Init(ctx)
-	}
-
-	// TODO: implement this cruft
-}
-
 func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	log.Name("debug")
 
@@ -166,14 +155,6 @@ func Commands(options ...micro.Option) []cli.Command {
 			Flags: Flags(),
 			Action: func(ctx *cli.Context) {
 				getLogs(ctx, options...)
-			},
-		},
-		{
-			Name:  "stats",
-			Usage: "Get stats for a service",
-			Flags: Flags(),
-			Action: func(ctx *cli.Context) {
-				getStats(ctx, options...)
 			},
 		},
 	}
