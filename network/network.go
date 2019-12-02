@@ -122,6 +122,7 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		tunnel.Nodes(nodes...),
 		tunnel.Token(Token),
 	}
+
 	if ctx.GlobalBool("enable_tls") {
 		config, err := helper.TLSConfig(ctx)
 		if err != nil {
@@ -134,6 +135,8 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 			quic.NewTransport(transport.TLSConfig(config)),
 		))
 	}
+
+	gateway := ctx.String("gateway")
 	tun := tunnel.NewTunnel(tunOpts...)
 
 	// local tunnel router
@@ -142,6 +145,7 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		router.Id(service.Server().Options().Id),
 		router.Registry(service.Client().Options().Registry),
 		router.Advertise(strategy),
+		router.Gateway(gateway),
 	)
 
 	// create new network
@@ -234,6 +238,11 @@ func Commands(options ...micro.Option) []cli.Command {
 				Name:   "advertise",
 				Usage:  "Set the micro network address to advertise",
 				EnvVar: "MICRO_NETWORK_ADVERTISE",
+			},
+			cli.StringFlag{
+				Name:   "gateway",
+				Usage:  "Set the default gateway",
+				EnvVar: "MICRO_NETWORK_GATEWAY",
 			},
 			cli.StringFlag{
 				Name:   "network",
