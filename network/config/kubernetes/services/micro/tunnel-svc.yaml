@@ -5,7 +5,7 @@ metadata:
   namespace: default
   labels:
     name: micro-tunnel
-    micro: service
+    micro: runtime
 spec:
   type: NodePort
   ports:
@@ -14,4 +14,4 @@ spec:
     nodePort: 30036
   selector:
     name: micro-tunnel
-    micro: service
+    micro: runtime

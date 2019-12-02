@@ -114,7 +114,6 @@ func runService(ctx *cli.Context, srvOpts ...micro.Option) {
 		Name:     name,
 		Source:   source,
 		Version:  version,
-		Exec:     exec,
 		Metadata: make(map[string]string),
 	}
 
@@ -132,6 +131,7 @@ func runService(ctx *cli.Context, srvOpts ...micro.Option) {
 	// runtime based on environment we run the service in
 	// TODO: how will this work with runtime service
 	opts := []runtime.CreateOption{
+		runtime.WithCommand(exec...),
 		runtime.WithOutput(os.Stdout),
 		runtime.WithEnv(environment),
 	}
@@ -202,6 +202,7 @@ func getService(ctx *cli.Context, srvOpts ...micro.Option) {
 	name := ctx.String("name")
 	version := ctx.String("version")
 	local := ctx.Bool("local")
+	runType := ctx.Bool("runtime")
 
 	var r runtime.Runtime
 	switch local {
@@ -212,35 +213,55 @@ func getService(ctx *cli.Context, srvOpts ...micro.Option) {
 	}
 
 	var list bool
-	if len(ctx.Args()) == 0 || ctx.Args()[1] != "service" {
+
+	if len(ctx.Args()) == 0 || ctx.Args()[0] != "service" {
 		list = true
 	}
 
 	var services []*runtime.Service
 	var err error
 
+	// return a list of services
 	switch list {
 	case true:
-		// list all running services
-		services, err = r.List()
-		if err != nil {
-			log.Fatal(err)
+		// return the runtiem services
+		if runType {
+			services, err = r.Read(runtime.ReadType("runtime"))
+		} else {
+			// list all running services
+			services, err = r.List()
 		}
+	// return one service
 	default:
+		// check if service name was passed in
 		if len(name) == 0 {
 			log.Fatal(GetUsage)
 		}
-		// query runtime for named service status
-		services, err = r.Read(name, runtime.WithVersion(version))
-		if err != nil {
-			log.Fatal(err)
+
+		// get service with name and version
+		opts := []runtime.ReadOption{
+			runtime.ReadService(name),
+			runtime.ReadVersion(version),
 		}
+
+		// return the runtime services
+		if runType {
+			opts = append(opts, runtime.ReadType("runtime"))
+		}
+
+		// read the service
+		services, err = r.Read(opts...)
+	}
+
+	// check the error
+	if err != nil {
+		log.Fatal(err)
 	}
 
 	// make sure we return UNKNOWN when empty string is supplied
 	parse := func(m string) string {
 		if len(m) == 0 {
-			return "UNKNOWN"
+			return "n/a"
 		}
 		return m
 	}
@@ -342,6 +363,10 @@ func Flags() []cli.Flag {
 		cli.StringSliceFlag{
 			Name:  "env",
 			Usage: "Set the environment variables e.g. foo=bar",
+		},
+		cli.BoolFlag{
+			Name:  "runtime",
+			Usage: "Return the runtime services",
 		},
 	}
 }

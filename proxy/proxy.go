@@ -104,6 +104,7 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	// new proxy
 	var p proxy.Proxy
 	var s server.Server
+	var srv server.Server
 
 	// set endpoint
 	if len(Endpoint) > 0 {
@@ -132,9 +133,27 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		case "grpc":
 			p = grpc.NewProxy(popts...)
 			s = sgrpc.NewServer()
+			srv = sgrpc.NewServer(
+				server.Address(Address),
+				// reset registry to memory
+				server.Registry(rmem.NewRegistry()),
+				// reset broker to memory
+				server.Broker(bmem.NewBroker()),
+				// hande it the router
+				server.WithRouter(p),
+			)
 		default:
 			p = mucp.NewProxy(popts...)
 			s = smucp.NewServer()
+			srv = server.NewServer(
+				server.Address(Address),
+				// reset registry to memory
+				server.Registry(rmem.NewRegistry()),
+				// reset broker to memory
+				server.Broker(bmem.NewBroker()),
+				// hande it the router
+				server.WithRouter(p),
+			)
 		}
 	}
 
@@ -158,18 +177,6 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	// set the router
 	service.Server().Init(
 		server.WithRouter(muxer),
-	)
-
-	// gen the straight up http server
-	// set address
-	srv := server.NewServer(
-		server.Address(Address),
-		// reset registry to memory
-		server.Registry(rmem.NewRegistry()),
-		// reset broker to memory
-		server.Broker(bmem.NewBroker()),
-		// hande it the router
-		server.WithRouter(p),
 	)
 
 	// Start the server

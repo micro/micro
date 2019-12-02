@@ -104,28 +104,34 @@ type reg struct {
 	id string
 	// client is service client
 	client client.Client
+	// nodes to sync with
+	nodes []string
 	// exit stops the registry
 	exit chan bool
 }
 
 // newRegsitry creates new micro registry and returns it
-func newRegistry(service micro.Service, registry registry.Registry) *reg {
+func newRegistry(service micro.Service, registry registry.Registry, nodes []string) *reg {
 	id := uuid.New().String()
-	s := &sub{
-		id:       id,
-		registry: registry,
-	}
-
 	// register subscriber
-	if err := micro.RegisterSubscriber(Topic, service.Server(), s); err != nil {
-		log.Debugf("failed to subscribe to events: %s", err)
-		os.Exit(1)
-	}
+	// disabled until we understand broadcast storms better
+	/*
+		s := &sub{
+			id:       id,
+			registry: registry,
+		}
+
+		if err := micro.RegisterSubscriber(Topic, service.Server(), s); err != nil {
+			log.Debugf("failed to subscribe to events: %s", err)
+			os.Exit(1)
+		}
+	*/
 
 	return &reg{
 		Registry: registry,
 		id:       id,
 		client:   service.Client(),
+		nodes:    nodes,
 		exit:     make(chan bool),
 	}
 }
@@ -219,7 +225,7 @@ func (r *reg) syncRecords(nodes []string) error {
 	return nil
 }
 
-func (r *reg) Sync(nodes []string) error {
+func (r *reg) Sync() error {
 	sync := time.NewTicker(SyncTime)
 	defer sync.Stop()
 
@@ -228,13 +234,50 @@ func (r *reg) Sync(nodes []string) error {
 		case <-r.exit:
 			return nil
 		case <-sync.C:
-			if err := r.syncRecords(nodes); err != nil {
+			if err := r.syncRecords(r.nodes); err != nil {
 				log.Debugf("failed to sync registry records: %v", err)
 			}
 		}
 	}
 
 	return nil
+}
+
+func runManager(reg *reg, errChan chan error) {
+	go func() {
+		var i int
+
+		// loop creating the watcher until exit
+		for {
+			select {
+			case <-reg.exit:
+				errChan <- nil
+				return
+			default:
+				if err := reg.PublishEvents(reg.Registry); err != nil {
+					sleep := backoff.Do(i)
+
+					log.Debugf("failed to publish events: %v backing off for %v", err, sleep)
+
+					// backoff for a period of time
+					time.Sleep(sleep)
+
+					// reset the counter
+					if i > 3 {
+						i = 0
+					}
+				}
+
+				// update the counter
+				i++
+			}
+		}
+	}()
+
+	go func() {
+		errChan <- reg.Sync()
+	}()
+
 }
 
 func run(ctx *cli.Context, srvOpts ...micro.Option) {
@@ -278,43 +321,12 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		Registry: service.Options().Registry,
 	})
 
-	reg := newRegistry(service, service.Options().Registry)
-
+	reg := newRegistry(service, service.Options().Registry, nodes)
 	errChan := make(chan error, 3)
 
-	go func() {
-		var i int
-
-		// loop creating the watcher until exit
-		for {
-			select {
-			case <-reg.exit:
-				errChan <- nil
-				return
-			default:
-				if err := reg.PublishEvents(service.Options().Registry); err != nil {
-					sleep := backoff.Do(i)
-
-					log.Debugf("failed to publish events: %v backing off for %v", err, sleep)
-
-					// backoff for a period of time
-					time.Sleep(sleep)
-
-					// reset the counter
-					if i > 3 {
-						i = 0
-					}
-				}
-
-				// update the counter
-				i++
-			}
-		}
-	}()
-
-	go func() {
-		errChan <- reg.Sync(nodes)
-	}()
+	// kickoff the registry manager
+	// disabled until we understand broadcast storms better
+	// runManager(reg, errChan)
 
 	go func() {
 		// we block here until either service or server fails

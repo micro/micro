@@ -15,6 +15,7 @@ import (
 	"github.com/micro/micro/bot"
 	"github.com/micro/micro/broker"
 	"github.com/micro/micro/cli"
+	"github.com/micro/micro/debug"
 	"github.com/micro/micro/health"
 	"github.com/micro/micro/monitor"
 	"github.com/micro/micro/network"
@@ -45,7 +46,7 @@ var (
 
 	name        = "micro"
 	description = "A microservice runtime"
-	version     = "1.17.0"
+	version     = "1.17.1"
 )
 
 func init() {
@@ -269,6 +270,7 @@ func Setup(app *ccli.App, options ...micro.Option) {
 	app.Commands = append(app.Commands, network.Commands(options...)...)
 	app.Commands = append(app.Commands, registry.Commands(options...)...)
 	app.Commands = append(app.Commands, runtime.Commands(options...)...)
+	app.Commands = append(app.Commands, debug.Commands(options...)...)
 	app.Commands = append(app.Commands, server.Commands(options...)...)
 	app.Commands = append(app.Commands, service.Commands(options...)...)
 	app.Commands = append(app.Commands, store.Commands(options...)...)

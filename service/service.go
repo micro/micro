@@ -76,7 +76,7 @@ func run(ctx *cli.Context, opts ...micro.Option) {
 	// run the service if asked to
 	if len(ctx.Args()) > 0 {
 		args := []runtime.CreateOption{
-			runtime.WithCommand(ctx.Args()[0], ctx.Args()[1:]...),
+			runtime.WithCommand(ctx.Args()...),
 			runtime.WithOutput(os.Stdout),
 		}
 

@@ -4,14 +4,20 @@ metadata:
   namespace: default
   name: micro-api
   labels:
-    micro: service
+    micro: runtime
     name: micro-api
+  annotations:
+    name: "go.micro.api"
+    version: "latest"
+    source: "github.com/micro.micro"
+    owner: "micro"
+    group: "micro"
 spec:
   replicas: 3
   selector:
     matchLabels:
       name: micro-api
-      micro: service
+      micro: runtime
   strategy:
     rollingUpdate:
       maxSurge: 0
@@ -20,7 +26,7 @@ spec:
     metadata:
       labels:
         name: micro-api
-        micro: service
+        micro: runtime
     spec:
       containers:
       - name: api

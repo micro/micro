@@ -5,11 +5,11 @@ metadata:
   namespace: default
   labels:
     name: micro-registry
-    micro: service
+    micro: runtime
 spec:
   ports:
   - port: 8000
     protocol: TCP
   selector:
     name: micro-registry
-    micro: service
+    micro: runtime
