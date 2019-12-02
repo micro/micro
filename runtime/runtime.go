@@ -6,6 +6,7 @@ import (
 	"os"
 	"os/signal"
 	"path/filepath"
+	"sort"
 	"strings"
 	"syscall"
 	"text/tabwriter"
@@ -270,6 +271,8 @@ func getService(ctx *cli.Context, srvOpts ...micro.Option) {
 	if len(services) == 0 {
 		return
 	}
+
+	sort.Slice(services, func(i, j int) bool { return services[i].Name < services[j].Name })
 
 	writer := tabwriter.NewWriter(os.Stdout, 0, 8, 1, '\t', tabwriter.AlignRight)
 	fmt.Fprintln(writer, "NAME\tVERSION\tSOURCE\tSTATUS\tBUILD\tMETADATA")
