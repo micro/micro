@@ -54,7 +54,7 @@ metadata:
   annotations:
     name: "go.micro.init"
     version: "latest"
-    source: "github.com/micro.micro"
+    source: "github.com/micro/micro"
     owner: "micro"
     group: "micro"
 spec:

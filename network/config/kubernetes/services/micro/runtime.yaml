@@ -55,7 +55,7 @@ metadata:
   annotations:
     name: "go.micro.runtime"
     version: "latest"
-    source: "github.com/micro.micro"
+    source: "github.com/micro/micro"
     owner: "micro"
     group: "micro"
 spec:
