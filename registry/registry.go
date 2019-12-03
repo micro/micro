@@ -177,7 +177,8 @@ func (r *reg) PublishEvents(reg registry.Registry) error {
 		case <-r.exit:
 			return nil
 		default:
-			ctx, _ := context.WithTimeout(context.Background(), 5*time.Second)
+			ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+			defer cancel()
 			if err := p.Publish(ctx, event); err != nil {
 				log.Debugf("error publishing event: %v", err)
 				return fmt.Errorf("error publishing event: %v", err)
@@ -239,8 +240,6 @@ func (r *reg) Sync() error {
 			}
 		}
 	}
-
-	return nil
 }
 
 func runManager(reg *reg, errChan chan error) {
