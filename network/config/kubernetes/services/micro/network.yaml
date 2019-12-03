@@ -91,6 +91,7 @@ spec:
           name: service-port
         - containerPort: 8085
           name: network-port
+          protocol: UDP
         lifecycle:
           preStop:
             exec:
