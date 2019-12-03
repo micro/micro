@@ -63,7 +63,13 @@ func initCommand(context *cli.Context) {
 		os.Exit(1)
 	}
 
+	// services to manage
 	services := []string{
+		// network services
+		"network.api",
+		"network.dns",
+		"network.web",
+		// runtime services
 		"network",  // :8085
 		"runtime",  // :8088
 		"registry", // :8000
@@ -76,6 +82,7 @@ func initCommand(context *cli.Context) {
 		"api",      // :8080
 		"web",      // :8082
 		"bot",      // :????
+		"init",     // no port, manage self
 	}
 
 	// get the service prefix
@@ -96,9 +103,11 @@ func initCommand(context *cli.Context) {
 	// individual events for each service
 	options := []gorun.Option{
 		gorun.WithNotifier(wrapped),
+		gorun.WithType("runtime"),
 	}
 	(*muRuntime).Init(options...)
 
+	// used to signal when to shutdown
 	shutdown := make(chan os.Signal, 1)
 	signal.Notify(shutdown, syscall.SIGTERM, syscall.SIGINT, syscall.SIGQUIT)
 

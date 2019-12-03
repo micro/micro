@@ -4,13 +4,20 @@ metadata:
   namespace: default
   name: micro-network
   labels:
-    micro: service
+    micro: runtime
+    name: micro-network
+  annotations:
+    name: "go.micro.network"
+    version: "latest"
+    source: "github.com/micro/micro"
+    owner: "micro"
+    group: "micro"
 spec:
   replicas: 3
   selector:
     matchLabels:
       name: micro-network
-      micro: service
+      micro: runtime
   strategy:
     rollingUpdate:
       maxSurge: 0
@@ -19,7 +26,7 @@ spec:
     metadata:
       labels:
         name: micro-network
-        micro: service
+        micro: runtime
     spec:
       affinity:
         podAntiAffinity:
@@ -39,6 +46,8 @@ spec:
       containers:
       - name: network
         env:
+        - name: MICRO_NETWORK_TOKEN
+          value: "micro.mu"
         - name: MICRO_LOG_LEVEL
           value: "debug"
         - name: MICRO_BROKER
@@ -82,6 +91,7 @@ spec:
           name: service-port
         - containerPort: 8085
           name: network-port
+          protocol: UDP
         lifecycle:
           preStop:
             exec:

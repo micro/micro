@@ -49,18 +49,25 @@ metadata:
   namespace: default
   name: micro-init
   labels:
-    micro: service
+    micro: runtime
+    name: micro-init
+  annotations:
+    name: "go.micro.init"
+    version: "latest"
+    source: "github.com/micro/micro"
+    owner: "micro"
+    group: "micro"
 spec:
   replicas: 1
   selector:
     matchLabels:
       name: micro-init
-      micro: service
+      micro: runtime
   template:
     metadata:
       labels:
         name: micro-init
-        micro: service
+        micro: runtime
     spec:
       serviceAccountName: micro-init
       containers:

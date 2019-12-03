@@ -5,7 +5,7 @@ metadata:
   namespace: default
   labels:
     name: micro-api
-    micro: service
+    micro: runtime
 spec:
   ports:
   - name: https
@@ -13,5 +13,5 @@ spec:
     targetPort: 443
   selector:
     name: micro-api
-    micro: service
+    micro: runtime
   type: LoadBalancer

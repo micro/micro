@@ -4,18 +4,25 @@ metadata:
   namespace: default
   name: micro-tunnel
   labels:
-    micro: service
+    micro: runtime
+    name: micro-tunnel
+  annotations:
+    name: "go.micro.tunnel"
+    version: "latest"
+    source: "github.com/micro/micro"
+    owner: "micro"
+    group: "micro"
 spec:
-  replicas: 3
+  replicas: 1
   selector:
     matchLabels:
       name: micro-tunnel
-      micro: service
+      micro: runtime
   template:
     metadata:
       labels:
         name: micro-tunnel
-        micro: service
+        micro: runtime
     spec:
       containers:
       - name: tunnel

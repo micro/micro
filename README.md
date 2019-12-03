@@ -107,38 +107,6 @@ micro list services
 micro call go.micro.srv.example Example.Call '{"name": "John"}'
 ```
 
-### Share services
-
-The micro network is a shared global services network actively in [development](https://github.com/micro/development/blob/master/network.md).
-
-Start micro
-
-``` 
-micro
-```
-
-Proxy service calls through the network
-
-```
-export MICRO_PROXY=go.micro.network
-```
-
-View network services, routes, nodes
-
-```
-# List services
-micro services
-
-# List nodes
-micro network nodes
-
-# List routes
-micro network routes
-
-# Peer graph
-micro network graph
-```
-
 ## Usage
 
 See all the options

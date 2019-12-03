@@ -182,11 +182,14 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	}
 
 	// advertise the best routes
-	strategy := router.AdvertiseBest
+	strategy := router.AdvertiseLocal
+
 	if a := ctx.String("advertise_strategy"); len(a) > 0 {
 		switch a {
 		case "all":
 			strategy = router.AdvertiseAll
+		case "best":
+			strategy = router.AdvertiseBest
 		case "local":
 			strategy = router.AdvertiseLocal
 		case "none":

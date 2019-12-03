@@ -23,6 +23,7 @@ var (
   </style>
 </head>
 <body>
+  <h1>Network</h1>
   <div id="head">
     <ul class="nav">
       <li><a href="/network/graph">Graph</a></li>
@@ -64,6 +65,7 @@ var (
   </style>
 </head>
 <body>
+  <h1>Network</h1>
   <div id="head">
     <ul class="nav">
       <li><a href="/network/graph">Graph</a></li>
