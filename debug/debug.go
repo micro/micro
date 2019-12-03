@@ -134,6 +134,7 @@ func Flags() []cli.Flag {
 	}
 }
 
+// Commands populates the debug commands
 func Commands(options ...micro.Option) []cli.Command {
 	command := []cli.Command{
 		{
@@ -153,6 +154,14 @@ func Commands(options ...micro.Option) []cli.Command {
 				cli.Command{
 					Name:  "web",
 					Usage: "Start the debug web dashboard",
+					Flags: []cli.Flag{
+						cli.StringFlag{
+							Name:   "netdata_url",
+							Usage:  "The Full URL to the netdata server",
+							EnvVar: "MICRO_NETDATA_URL",
+							Value:  "http://localhost:19999",
+						},
+					},
 					Action: func(c *cli.Context) {
 						web.Run(c)
 					},

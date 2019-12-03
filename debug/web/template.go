@@ -1,39 +1,65 @@
 package web
 
-const dashboard = `<!DOCTYPE html>
+import "html/template"
+
+var dashboardTemplate *template.Template
+
+const dashboardText = `<!DOCTYPE html>
 <html lang="en">
 <head>
+    <title>Micro Debug.Stats</title>
+    <meta name="application-name" content="netdata">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <meta charset="utf-8">
-    <title>Micro Web Debug.Stats</title>
-    <meta name="application-name" content="netdata">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 </head>
-<script type="text/javascript" src="dashboard.js?v20190902-0"></script>
 <body>
+<div class="container-fluid">
+<h1>Micro Debug.Stats <div data-netdata="system.cpu" data-chart-library="sparkline" data-height="30" data-after="-600" data-sparkline-linecolor="#888"></div></h1>
 
-<div style="width: 100%; text-align: center;">
-    <div data-netdata="netdata.server_cpu"
-            data-dimensions="user"
-            data-chart-library="gauge"
-            data-width="150px"
-            data-after="-60"
-            data-points="60"
-            data-title="Yes! Realtime!"
-            data-units="I am alive!"
-            data-colors="#FF5555"
-            ></div>
-    <br/>
-    <div data-netdata="netdata.server_cpu"
-            data-dimensions="user"
-            data-chart-library="dygraph"
-            data-dygraph-theme="sparkline"
-            data-width="200px"
-            data-height="30px"
-            data-after="-60"
-            data-points="60"
-            data-colors="#FF5555"
-            ></div>
+<div style="width: 33%; display: inline-block;">
+    <div data-netdata="go_micro_services.micro_service_memory"
+        data-chart-library="dygraph"
+        data-width="100%"
+        data-height="300"
+        data-after="-600"
+        ></div>
+</div>
+
+<div style="width: 33%; display: inline-block;">
+    <div data-netdata="go_micro_services.micro_service_threads"
+        data-chart-library="dygraph"
+        data-width="100%"
+        data-height="300"
+        data-after="-600"
+        ></div>
+</div>
+
+<div style="width: 33%; display: inline-block;">
+    <div data-netdata="go_micro_services.micro_service_gcrate"
+        data-chart-library="dygraph"
+        data-width="100%"
+        data-height="300"
+        data-after="-600"
+        ></div>
+</div>
+
+<br />
+
+<div style="width: 33%; display: inline-block;">
+    <div data-netdata="go_micro_services.micro_service_uptime"
+        data-chart-library="dygraph"
+        data-width="100%"
+        data-height="300"
+        data-after="-600"
+        ></div>
+</div>
+
 </div>
 </body>
 </html>
+<script type="text/javascript" src="dashboard.js?v20190902-0"></script>
 `
