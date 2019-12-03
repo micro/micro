@@ -31,7 +31,7 @@ func Run(ctx *cli.Context) {
 		opts = append(opts, web.Address(address))
 	}
 
-	u, err := url.Parse("http://localhost:19999")
+	u, err := url.Parse(ctx.String("netdata_url"))
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "%s\n", err.Error())
 		return
