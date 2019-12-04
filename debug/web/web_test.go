@@ -8,7 +8,7 @@ import (
 
 // Compile the template
 func TestTemplate(t *testing.T) {
-	dashboardTemplate, err := template.New("dashboard").Parse(dashboardText)
+	dashboardTemplate, err := template.New("dashboard").Parse(dashboardHTML)
 	if err != nil {
 		t.Error(err.Error())
 	}

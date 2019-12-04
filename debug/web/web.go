@@ -15,7 +15,7 @@ import (
 
 // Run starts go.micro.web.debug
 func Run(ctx *cli.Context) {
-	dashboardTemplate = template.Must(template.New("dashboard").Parse(dashboardText))
+	dashboardTemplate = template.Must(template.New("dashboard").Parse(dashboardHTML))
 
 	opts := []web.Option{
 		web.Name("go.micro.web.debug"),
