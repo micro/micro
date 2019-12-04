@@ -10,12 +10,12 @@ var (
 	defaultManager = plugin.NewManager()
 )
 
-// Plugins lists the sidecar plugins
+// Plugins lists the debug plugins
 func Plugins() []plugin.Plugin {
 	return defaultManager.Plugins()
 }
 
-// Register registers an sidecar plugin
+// Register registers a debug plugin
 func Register(pl plugin.Plugin) error {
 	for _, p := range plugin.Plugins() {
 		if p.String() == pl.String() {

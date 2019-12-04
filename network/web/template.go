@@ -1,7 +1,7 @@
 package web
 
 var (
-	templateFile = `
+	templateFile = `<!DOCTYPE html>
 <html>
 <head>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -39,7 +39,7 @@ var (
 </html>
 `
 
-	graphTemplate = `
+	graphTemplate = `<!DOCTYPE html>
 <html>
 <head>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
