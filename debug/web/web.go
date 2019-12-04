@@ -10,16 +10,11 @@ import (
 	"os"
 
 	"github.com/micro/cli"
-	//"github.com/micro/go-micro/config/cmd"
-	//pb "github.com/micro/go-micro/network/proto"
 	"github.com/micro/go-micro/web"
 )
 
 // Run starts go.micro.web.debug
 func Run(ctx *cli.Context) {
-	//c := *cmd.DefaultOptions().Client
-	//client := pb.NewNetworkService("go.micro.network", c)
-
 	dashboardTemplate = template.Must(template.New("dashboard").Parse(dashboardText))
 
 	opts := []web.Option{
