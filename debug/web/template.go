@@ -23,20 +23,11 @@ var (
     html {
       font-family: 'Source Code Pro', monospace;
     }
-    .nav {
-      margin-bottom: 10px;
-      padding: 0;
-    }
-    .nav li {
-      display: inline-block;
-    }
     table td {
       padding-right: 5px;
     }
-    .graphs {
-      position: relative;
-      margin: 0 auto;
-      max-width: 1000px;
+    #graphs {
+      text-align: center;
     }
     .graph {
       width: 500px;
@@ -45,16 +36,11 @@ var (
     }
   </style>
 </head>
-<body>
+<body style="font-family: 'Source Code Pro', monospace; margin: 10px;">
   <h1>Debug</h1>
-
-  <div id="head">
-    <ul class="nav">
-      <li><a href="/debug/">Stats</a></li>
-    </ul>
-  </div>
+  <p>&nbsp;</p>
   <div id="content">
-	<div data-netdata="system.cpu" data-chart-library="sparkline" data-height="30" data-after="-600" data-sparkline-linecolor="#888"></div>
+      <div data-netdata="system.cpu" data-chart-library="sparkline" data-height="30" data-after="-600" data-sparkline-linecolor="#888"></div>
       <div id="graphs">
         <p>&nbsp;</p>
 	<div class="graph">
