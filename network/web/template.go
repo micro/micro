@@ -10,6 +10,9 @@ var (
     html {
       font-family: 'Source Code Pro', monospace;
     }
+    body {
+      margin: 10px;
+    }
     .nav {
       margin-bottom: 10px;
       padding: 0;
@@ -23,7 +26,9 @@ var (
   </style>
 </head>
 <body>
-  <h1>Network</h1>
+  <h1 style="vertical-align: middle; font-weight: 500;">
+    <a href="/"><img src="https://micro.mu/logo.png" height=50px width=auto style="vertical-align: middle;" /></a> Network
+  </h1>
   <div id="head">
     <ul class="nav">
       <li><a href="/network/graph">Graph</a></li>
@@ -65,7 +70,9 @@ var (
   </style>
 </head>
 <body>
-  <h1>Network</h1>
+  <h1 style="vertical-align: middle; font-weight: 500;">
+    <a href="/"><img src="https://micro.mu/logo.png" height=50px width=auto style="vertical-align: middle;" /></a> Network
+  </h1>
   <div id="head">
     <ul class="nav">
       <li><a href="/network/graph">Graph</a></li>

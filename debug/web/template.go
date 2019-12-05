@@ -37,7 +37,9 @@ var (
   </style>
 </head>
 <body style="font-family: 'Source Code Pro', monospace; margin: 10px;">
-  <h1>Debug</h1>
+  <h1 style="vertical-align: middle;">
+    <a href="/"><img src="https://micro.mu/logo.png" height=50px width=auto /></a> Debug
+  </h1>
   <p>&nbsp;</p>
   <div id="content">
       <div data-netdata="system.cpu" data-chart-library="sparkline" data-height="30" data-after="-600" data-sparkline-linecolor="#888"></div>
