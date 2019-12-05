@@ -61,7 +61,7 @@ func getLogs(ctx *cli.Context, srvOpts ...micro.Option) {
 		options = append(options, log.Stream(stream))
 	}
 
-	logs, err := service.Logs(options...)
+	logs, err := service.Log(options...)
 	if err != nil {
 		log.Fatal(err)
 	}
