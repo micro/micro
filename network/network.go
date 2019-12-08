@@ -119,7 +119,6 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	// create a tunnel
 	tunOpts := []tunnel.Option{
 		tunnel.Address(Address),
-		tunnel.Nodes(nodes...),
 		tunnel.Token(Token),
 	}
 
