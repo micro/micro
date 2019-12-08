@@ -119,7 +119,6 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	// create a tunnel
 	tunOpts := []tunnel.Option{
 		tunnel.Address(Address),
-		tunnel.Nodes(nodes...),
 		tunnel.Token(Token),
 	}
 
@@ -154,7 +153,7 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		network.Name(Network),
 		network.Address(Address),
 		network.Advertise(Advertise),
-		network.Peers(nodes...),
+		network.Nodes(nodes...),
 		network.Tunnel(tun),
 		network.Router(rtr),
 		network.Resolver(res),
