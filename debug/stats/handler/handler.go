@@ -43,7 +43,9 @@ type Stats struct {
 
 // Read returns gets a snapshot of all current stats
 func (s *Stats) Read(ctx context.Context, req *stats.ReadRequest, rsp *stats.ReadResponse) error {
+	s.RLock()
 	rsp.Stats = s.snapshots
+	s.RUnlock()
 	return nil
 }
 
