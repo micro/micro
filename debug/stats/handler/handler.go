@@ -167,18 +167,24 @@ func (s *Stats) scrape() {
 	// Call each node of each service in goroutines
 	var wg sync.WaitGroup
 
+	protocol := s.client.String()
+	transport := s.client.Options().Transport.String()
+
 	for _, svc := range services {
 
 		// Ignore nodeless and non mucp services
 		if len(svc.Nodes) == 0 {
 			continue
 		}
-		if svc.Nodes[0].Metadata["protocol"] != "mucp" {
-			continue
-		}
-
 		// Call every node
 		for _, node := range svc.Nodes {
+			if node.Metadata["protocol"] != protocol {
+				continue
+			}
+			if node.Metadata["transport"] != transport {
+				continue
+			}
+
 			go func(st *Stats, service *registry.Service, node *registry.Node) {
 				wg.Add(1)
 				defer wg.Done()
@@ -187,10 +193,10 @@ func (s *Stats) scrape() {
 				ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 				defer cancel()
 
-				req := s.client.NewRequest(svc.Name, "Debug.Stats", &debug.StatsRequest{})
+				req := s.client.NewRequest(service.Name, "Debug.Stats", &debug.StatsRequest{})
 				rsp := new(debug.StatsResponse)
 				if err := s.client.Call(ctx, req, rsp, client.WithAddress(node.Address)); err != nil {
-					log.Errorf("Error calling %s@%s (%s)", svc.Name, node.Address, err.Error())
+					log.Errorf("Error calling %s@%s (%s)", service.Name, node.Address, err.Error())
 					return
 				}
 
