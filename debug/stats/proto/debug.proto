@@ -28,8 +28,8 @@ message Snapshot {
 	int64 started = 2;
 	// Uptime in seconds
 	uint64 uptime = 3;
-	// Heap allocated in bytes
-	uint64 heap_allocated = 4;
+	// Heap allocated in bytes (TODO: change to resident set size)
+	uint64 memory = 4;
 	// Number of Goroutines
 	uint64 threads = 5;
 	// GC Pause total in ns
@@ -49,7 +49,7 @@ message ReadResponse {
 
 message StreamRequest {
 	// If set, only return services matching the filter
-	Service filter = 1;
+	Service service = 1;
 	// If set, only return services matching the namespace
 	string namespace = 2;
 }
