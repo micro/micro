@@ -33,7 +33,7 @@ message Snapshot {
 	// Number of Goroutines
 	uint64 threads = 5;
 	// GC Pause total in ns
-	uint64 gc_pause_total = 6;
+	uint64 gc = 6;
 }
 
 message ReadRequest {

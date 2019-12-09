@@ -179,11 +179,11 @@ func (s *Stats) scrape() {
 							Id: node.Address,
 						},
 					},
-					Started:      int64(rsp.Started),
-					Uptime:       rsp.Uptime,
-					Memory:       rsp.Memory,
-					Threads:      rsp.Threads,
-					GcPauseTotal: rsp.Gc,
+					Started: int64(rsp.Started),
+					Uptime:  rsp.Uptime,
+					Memory:  rsp.Memory,
+					Threads: rsp.Threads,
+					Gc:      rsp.Gc,
 				}
 				s.Lock()
 				s.next = append(s.next, &snap)
