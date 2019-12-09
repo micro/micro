@@ -9,6 +9,7 @@ import (
 	"github.com/micro/go-micro"
 	"github.com/micro/go-micro/debug/log"
 	dbg "github.com/micro/go-micro/debug/service"
+	"github.com/micro/micro/debug/stats"
 	"github.com/micro/micro/debug/web"
 )
 
@@ -164,6 +165,13 @@ func Commands(options ...micro.Option) []cli.Command {
 					},
 					Action: func(c *cli.Context) {
 						web.Run(c)
+					},
+				},
+				cli.Command{
+					Name:  "stats",
+					Usage: "Start the debug stats scraper",
+					Action: func(c *cli.Context) {
+						stats.Run(c)
 					},
 				},
 			},
