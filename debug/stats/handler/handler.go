@@ -32,19 +32,43 @@ func New(done <-chan bool) (*Stats, error) {
 
 // Stats is the Debug.Stats handler
 type Stats struct {
-	registry  registry.Registry
-	client    client.Client
-	snapshots []*stats.Snapshot
-	next      []*stats.Snapshot
-	cached    []*registry.Service
+	registry registry.Registry
+	client   client.Client
+
 	sync.RWMutex
+	snapshots []*stats.Snapshot
+	cached    []*registry.Service
 }
 
 // Read returns gets a snapshot of all current stats
 func (s *Stats) Read(ctx context.Context, req *stats.ReadRequest, rsp *stats.ReadResponse) error {
+	if req.Service == nil {
+		s.RLock()
+		rsp.Stats = s.snapshots
+		s.RUnlock()
+		return nil
+	}
+
+	filter := func(a, b string) bool {
+		if len(b) == 0 {
+			return true
+		}
+		return a == b
+	}
+
 	s.RLock()
-	rsp.Stats = s.snapshots
+	for _, s := range s.snapshots {
+		if !filter(s.Service.Name, req.Service.Name) {
+			continue
+		}
+		if !filter(s.Service.Version, req.Service.Version) {
+			continue
+		}
+		// append snapshot
+		rsp.Stats = append(rsp.Stats, s)
+	}
 	s.RUnlock()
+
 	return nil
 }
 
@@ -137,12 +161,12 @@ func (s *Stats) scrape() {
 	s.RUnlock()
 
 	// Start building the next list of snapshots
-	s.Lock()
-	s.next = make([]*stats.Snapshot, 0)
-	s.Unlock()
+	var mtx sync.Mutex
+	next := make([]*stats.Snapshot, 0)
 
 	// Call each node of each service in goroutines
 	var wg sync.WaitGroup
+
 	for _, svc := range services {
 
 		// Ignore nodeless and non mucp services
@@ -171,12 +195,13 @@ func (s *Stats) scrape() {
 				}
 
 				// Append the new snapshot
-				snap := stats.Snapshot{
+				snap := &stats.Snapshot{
 					Service: &stats.Service{
 						Name:    service.Name,
 						Version: service.Version,
 						Node: &stats.Node{
-							Id: node.Address,
+							Id:      node.Id,
+							Address: node.Address,
 						},
 					},
 					Started: int64(rsp.Started),
@@ -185,9 +210,11 @@ func (s *Stats) scrape() {
 					Threads: rsp.Threads,
 					Gc:      rsp.Gc,
 				}
-				s.Lock()
-				s.next = append(s.next, &snap)
-				s.Unlock()
+
+				mtx.Lock()
+				next = append(next, snap)
+				mtx.Unlock()
+
 			}(s, svc, node)
 		}
 	}
@@ -195,6 +222,6 @@ func (s *Stats) scrape() {
 
 	// Swap in the snapshots
 	s.Lock()
-	s.snapshots = s.next
+	s.snapshots = next
 	s.Unlock()
 }
