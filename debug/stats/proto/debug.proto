@@ -5,6 +5,7 @@ package go.micro.debug.stats;
 // Stats retrieves a snapshot of the Debug.Stats data for services
 service Stats {
     rpc Read(ReadRequest) returns (ReadResponse);
+    rpc Write(WriteRequest) returns (WriteResponse);
     rpc Stream(StreamRequest) returns (stream StreamResponse);
 }
 
@@ -46,6 +47,15 @@ message ReadRequest {
 message ReadResponse {
 	repeated Snapshot stats = 1;
 }
+
+message WriteRequest {
+	// If set, only return services matching the filter
+	Service service = 1;
+	// snapshot to write
+	Snapshot stats = 2;
+}
+
+message WriteResponse {}
 
 message StreamRequest {
 	// If set, only return services matching the filter

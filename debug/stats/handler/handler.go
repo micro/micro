@@ -48,6 +48,10 @@ func (s *Stats) Read(ctx context.Context, req *stats.ReadRequest, rsp *stats.Rea
 	return nil
 }
 
+func (s *Stats) Write(ctx context.Context, req *stats.WriteRequest, rsp *stats.WriteResponse) error {
+	return errors.New("Not Implemented")
+}
+
 // Stream starts streaming stats
 func (s *Stats) Stream(ctx context.Context, req *stats.StreamRequest, rsp stats.Stats_StreamStream) error {
 	return errors.New("Not Implemented")
