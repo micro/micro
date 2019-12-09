@@ -8,9 +8,16 @@ var (
 		<title>Micro Web</title>
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+		<link href="https://fonts.googleapis.com/css?family=Source+Code+Pro&display=swap" rel="stylesheet">
 		<style>
-		  .navbar-inverse .navbar-brand { color: #F6F5F6; font-weight: bold; }
-		  .navbar-inverse { background-color: #252531; }
+		  html, body {
+		    font-family: 'Source Code Pro', monospace;
+		  }
+		  html a { color: #333333; }
+		  .navbar .navbar-brand { color: #333333; font-weight: bold; font-size: 2.0em; }
+		  .navbar-brand img { display: inline; }
+		  #navBar, .navbar-toggle { margin-top: 15px; }
+		  .icon-bar { background-color: #333333; }
 		</style>
 		<style>
 		{{ template "style" . }}
@@ -18,7 +25,7 @@ var (
 		{{ template "head" . }}
 	</head>
 	<body>
-	  <nav class="navbar navbar-inverse">
+	  <nav class="navbar">
 	    <div class="container">
               <div class="navbar-header">
                 <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navBar">
@@ -26,7 +33,7 @@ var (
                   <span class="icon-bar"></span>
                   <span class="icon-bar"></span> 
                 </button>
-                <a class="navbar-brand logo" href="/">Micro</a>
+                <a class="navbar-brand logo" href="/"><img src="https://micro.mu/logo.png" height=50px width=auto /> Micro</a>
               </div>
               <div class="collapse navbar-collapse" id="navBar">
 	        <ul class="nav navbar-nav navbar-right" id="dev">
