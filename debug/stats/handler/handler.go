@@ -26,8 +26,9 @@ func New() (*Stats, error) {
 	if err := s.scan(); err != nil {
 		return nil, err
 	}
-
-	s.Start()
+	done := make(chan bool)
+	s.Start(done)
+	defer close(done)
 	return s, nil
 }
 
@@ -56,8 +57,7 @@ func (s *Stats) Stream(ctx context.Context, req *stats.StreamRequest, rsp stats.
 
 // Start Starts scraping other services
 // close the returned channel to stop scraping
-func (s *Stats) Start() chan<- bool {
-	done := make(chan bool)
+func (s *Stats) Start(done <-chan bool) {
 	go func(s *Stats) {
 		for {
 			select {
@@ -81,7 +81,6 @@ func (s *Stats) Start() chan<- bool {
 			}
 		}
 	}(s)
-	return done
 }
 
 func (s *Stats) scan() error {
