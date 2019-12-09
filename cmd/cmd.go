@@ -335,6 +335,7 @@ func Setup(app *ccli.App, options ...micro.Option) {
 			"tunnel",   // :8083
 			"router",   // :8084
 			"monitor",  // :????
+			"debug",    // :????
 			"proxy",    // :8081
 			"api",      // :8080
 			"web",      // :8082
