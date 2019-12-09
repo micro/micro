@@ -12,7 +12,6 @@ import (
 
 // Run is the entrypoint for debug/stats
 func Run(c *cli.Context) {
-
 	statsService := micro.NewService(
 		micro.Name("go.micro.debug.stats"),
 	)
