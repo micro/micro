@@ -12,7 +12,7 @@ import (
 
 // Run is the entrypoint for debug/stats
 func Run(c *cli.Context) {
-	statsService := micro.NewService(
+	service := micro.NewService(
 		micro.Name("go.micro.debug.stats"),
 	)
 
@@ -25,10 +25,10 @@ func Run(c *cli.Context) {
 	}
 
 	// Register Handler
-	stats.RegisterStatsHandler(statsService.Server(), h)
+	stats.RegisterStatsHandler(service.Server(), h)
 
 	// Run service
-	if err := statsService.Run(); err != nil {
+	if err := service.Run(); err != nil {
 		log.Fatal(err)
 	}
 }
