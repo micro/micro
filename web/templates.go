@@ -83,15 +83,24 @@ var (
 
 	indexTemplate = `
 {{define "heading"}}<h4><input class="form-control input-lg search" type=text placeholder="Search"/></h4>{{end}}
+{{define "style" }}
+.service {
+	margin: 5px 3px 5px 3px;
+	padding: 20px;
+	text-align: center;
+	display: block;
+}
+.search { border-radius: 100px; }
+{{end}}
 {{define "title"}}Web{{end}}
 {{define "content"}}
 	{{if .Results.HasWebServices}}
 		<div>
 			{{range .Results.WebServices}}
-			<div style="display: inline-block; margin: 10px;">
-			<a href="/{{.Name}}/" data-filter={{.Name}} class="btn btn-default btn-lg service" style="margin: 5px 3px 5px 3px; padding: 20px;">
-			  <span style="padding: 5px; max-width: 80px; display: block;"><img src="{{.Icon}}" style="width: 100%; height: auto;"/></span>
-			  {{.Name}}
+			<div style="display: inline-block; max-width: 150px; vertical-align: top;">
+			<a href="/{{.Name}}/" data-filter={{.Name}} class="service">
+			  <div style="padding: 5px; max-width: 80px; display: block; margin: 0 auto;"><img src="{{.Icon}}" style="width: 100%; height: auto;"/></div>
+			  <div>{{.Name}}</div>
 			</a>
 			</div>
 			{{end}}
