@@ -154,8 +154,8 @@ func (s *Stats) scrape() {
 		}
 
 		// Call every node
-		for i := range svc.Nodes {
-			go func(st *Stats, service *registry.Service, index int) {
+		for _, node := range svc.Nodes {
+			go func(st *Stats, service *registry.Service, node *registry.Node) {
 				wg.Add(1)
 				defer wg.Done()
 
@@ -165,8 +165,8 @@ func (s *Stats) scrape() {
 
 				req := s.client.NewRequest(svc.Name, "Debug.Stats", &debug.StatsRequest{})
 				rsp := new(debug.StatsResponse)
-				if err := s.client.Call(ctx, req, rsp, client.WithAddress(svc.Nodes[index].Address)); err != nil {
-					log.Errorf("Error calling %s@%s (%s)", svc.Name, svc.Nodes[index].Address, err.Error())
+				if err := s.client.Call(ctx, req, rsp, client.WithAddress(node.Address)); err != nil {
+					log.Errorf("Error calling %s@%s (%s)", svc.Name, node.Address, err.Error())
 					return
 				}
 
@@ -176,7 +176,7 @@ func (s *Stats) scrape() {
 						Name:    service.Name,
 						Version: service.Version,
 						Node: &stats.Node{
-							Id: svc.Nodes[index].Address,
+							Id: node.Address,
 						},
 					},
 					Started:       int64(rsp.Started),
@@ -188,7 +188,7 @@ func (s *Stats) scrape() {
 				s.Lock()
 				s.next = append(s.next, &snap)
 				s.Unlock()
-			}(s, svc, i)
+			}(s, svc, node)
 		}
 	}
 	wg.Wait()
