@@ -53,8 +53,7 @@ func (s *Stats) Stream(ctx context.Context, req *stats.StreamRequest, rsp stats.
 	return errors.New("Not Implemented")
 }
 
-// Start Starts scraping other services
-// close the returned channel to stop scraping
+// Start Starts scraping other services until the provided channel is closed
 func (s *Stats) Start(done <-chan bool) {
 	go func(s *Stats) {
 		for {
