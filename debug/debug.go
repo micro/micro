@@ -10,6 +10,8 @@ import (
 	"github.com/micro/go-micro/debug/log"
 	dbg "github.com/micro/go-micro/debug/service"
 	"github.com/micro/micro/debug/stats"
+	statshandler "github.com/micro/micro/debug/stats/handler"
+	statsproto "github.com/micro/micro/debug/stats/proto"
 	"github.com/micro/micro/debug/web"
 )
 
@@ -98,6 +100,12 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	// new service
 	service := micro.NewService(srvOpts...)
 
+	sh, err := statshandler.New()
+	if err != nil {
+		log.Fatal(err)
+	}
+	statsproto.RegisterStatsHandler(service.Server(), sh)
+
 	// TODO: implement debug service for k8s cruft
 
 	// start debug service
@@ -108,8 +116,8 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	log.Infof("successfully stopped")
 }
 
-// Flags is shared flags so we don't have to continually re-add
-func Flags() []cli.Flag {
+// logFlags is shared flags so we don't have to continually re-add
+func logFlags() []cli.Flag {
 	return []cli.Flag{
 		cli.StringFlag{
 			Name:  "name",
@@ -179,7 +187,7 @@ func Commands(options ...micro.Option) []cli.Command {
 		{
 			Name:  "logs",
 			Usage: "Get logs for a service",
-			Flags: Flags(),
+			Flags: logFlags(),
 			Action: func(ctx *cli.Context) {
 				getLogs(ctx, options...)
 			},
