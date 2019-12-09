@@ -9,9 +9,11 @@ import (
 	"github.com/micro/go-micro"
 	"github.com/micro/go-micro/debug/log"
 	dbg "github.com/micro/go-micro/debug/service"
+	logHandler "github.com/micro/micro/debug/log/handler"
+	pblog "github.com/micro/micro/debug/log/proto"
 	"github.com/micro/micro/debug/stats"
 	statshandler "github.com/micro/micro/debug/stats/handler"
-	statsproto "github.com/micro/micro/debug/stats/proto"
+	pbstats "github.com/micro/micro/debug/stats/proto"
 	"github.com/micro/micro/debug/web"
 )
 
@@ -102,11 +104,17 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 
 	done := make(chan bool)
 	defer close(done)
-	sh, err := statshandler.New(done)
+
+	statsHandler, err := statshandler.New(done)
 	if err != nil {
 		log.Fatal(err)
 	}
-	statsproto.RegisterStatsHandler(service.Server(), sh)
+
+	// Register the stats handler
+	pbstats.RegisterStatsHandler(service.Server(), statsHandler)
+
+	// Register the logs handler
+	pblog.RegisterLogHandler(service.Server(), new(logHandler.Log))
 
 	// TODO: implement debug service for k8s cruft
 
