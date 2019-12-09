@@ -62,7 +62,7 @@ func (s *Stats) Start() chan<- bool {
 		for {
 			select {
 			case <-done:
-				break
+				return
 			default:
 				s.scrape()
 				time.Sleep(time.Second)
@@ -75,7 +75,7 @@ func (s *Stats) Start() chan<- bool {
 			select {
 			case <-done:
 				rescan.Stop()
-				break
+				return
 			case <-rescan.C:
 				s.scan()
 			}
