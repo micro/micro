@@ -41,8 +41,6 @@ message Snapshot {
 message ReadRequest {
 	// If set, only return services matching the filter
 	Service service = 1;
-	// If set, only return services matching the namespace
-	string namespace = 2;
 }
 
 message ReadResponse {
