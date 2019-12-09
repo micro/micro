@@ -29,5 +29,4 @@ func Run(c *cli.Context) {
 	if err := statsService.Run(); err != nil {
 		log.Fatal(err)
 	}
-
 }

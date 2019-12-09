@@ -18,7 +18,7 @@ message Service {
 
 // Node describes a single instance of a service.
 message Node {
-    string id = 1;
+	string id = 1;
 }
 
 // Snapshot is a snapshot of Debug.Stats from a particular service when called.
@@ -31,29 +31,29 @@ message Snapshot {
 	// Heap allocated in bytes
 	uint64 heap_allocated = 4;
 	// Number of Goroutines
-    uint64 threads = 5;
-    // GC Pause total in ns
+	uint64 threads = 5;
+	// GC Pause total in ns
 	uint64 gc_pause_total = 6;
 }
 
 message ReadRequest {
-    // If set, only return services matching the filter
-    Service filter = 1;
-    // If set, only return services matching the namespace
-    string namespace = 2;
+	// If set, only return services matching the filter
+	Service filter = 1;
+	// If set, only return services matching the namespace
+	string namespace = 2;
 }
 
 message ReadResponse {
-    repeated Snapshot stats = 1;
+	repeated Snapshot stats = 1;
 }
 
 message StreamRequest {
-    // If set, only return services matching the filter
-    Service filter = 1;
-    // If set, only return services matching the namespace
-    string namespace = 2;
+	// If set, only return services matching the filter
+	Service filter = 1;
+	// If set, only return services matching the namespace
+	string namespace = 2;
 }
 
 message StreamResponse {
-    repeated Snapshot stats = 1;
+	repeated Snapshot stats = 1;
 }
