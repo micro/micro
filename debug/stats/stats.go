@@ -17,7 +17,9 @@ func Run(c *cli.Context) {
 	)
 
 	// Create handler
-	h, err := handler.New()
+	done := make(chan bool)
+	defer close(done)
+	h, err := handler.New(done)
 	if err != nil {
 		log.Fatal(err)
 	}

@@ -100,7 +100,9 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	// new service
 	service := micro.NewService(srvOpts...)
 
-	sh, err := statshandler.New()
+	done := make(chan bool)
+	defer close(done)
+	sh, err := statshandler.New(done)
 	if err != nil {
 		log.Fatal(err)
 	}

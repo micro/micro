@@ -17,7 +17,7 @@ import (
 )
 
 // New initialises and returns a new Stats service handler
-func New() (*Stats, error) {
+func New(done <-chan bool) (*Stats, error) {
 	s := &Stats{
 		registry: cache.New(*cmd.DefaultOptions().Registry),
 		client:   *cmd.DefaultOptions().Client,
@@ -26,9 +26,7 @@ func New() (*Stats, error) {
 	if err := s.scan(); err != nil {
 		return nil, err
 	}
-	done := make(chan bool)
 	s.Start(done)
-	defer close(done)
 	return s, nil
 }
 
