@@ -1,0 +1,59 @@
+syntax = "proto3";
+
+package go.micro.debug.stats;
+
+// Stats retrieves a snapshot of the Debug.Stats data for services
+service Stats {
+    rpc Read(ReadRequest) returns (ReadResponse);
+    rpc Stream(StreamRequest) returns (stream StreamResponse);
+}
+
+// Service describes a service running in the micro network.
+message Service {
+    // Service name, e.g. go.micro.service.greeter
+    string name = 1;
+    string version = 2;
+    Node node = 3;
+}
+
+// Node describes a single instance of a service.
+message Node {
+	string id = 1;
+}
+
+// Snapshot is a snapshot of Debug.Stats from a particular service when called.
+message Snapshot {
+	Service service = 1;
+	// Unix timestamp, e.g. 1575561487
+	int64 started = 2;
+	// Uptime in seconds
+	uint64 uptime = 3;
+	// Heap allocated in bytes (TODO: change to resident set size)
+	uint64 memory = 4;
+	// Number of Goroutines
+	uint64 threads = 5;
+	// GC Pause total in ns
+	uint64 gc = 6;
+}
+
+message ReadRequest {
+	// If set, only return services matching the filter
+	Service service = 1;
+	// If set, only return services matching the namespace
+	string namespace = 2;
+}
+
+message ReadResponse {
+	repeated Snapshot stats = 1;
+}
+
+message StreamRequest {
+	// If set, only return services matching the filter
+	Service service = 1;
+	// If set, only return services matching the namespace
+	string namespace = 2;
+}
+
+message StreamResponse {
+	repeated Snapshot stats = 1;
+}
