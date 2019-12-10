@@ -296,12 +296,18 @@ jQuery(function($, undefined) {
 	serviceTemplate = `
 {{define "title"}}Service{{end}}
 {{define "heading"}}<h3>{{with $svc := index .Results 0}}{{$svc.Name}}{{end}}</h3>{{end}}
+{{define "style"}}
+.table>tbody>tr>th, .table>tbody>tr>td {
+    border-top: none;
+}
+pre {border: 0}
+{{end}}
 {{define "content"}}
 	<hr>
 	<h4>Nodes</h4>
 	{{range .Results}}
 	<h5>Version {{.Version}}</h5>
-	<table class="table table-bordered table-striped">
+	<table class="table">
 		<thead>
 			<th>Id</th>
 			<th>Address</th>
@@ -325,12 +331,14 @@ jQuery(function($, undefined) {
 	{{end}}
 	{{range $svc.Endpoints}}
 		<h4>{{.Name}}</h4>
-		<table class="table table-bordered">
+		<table class="table">
 			<tbody>
+				{{if .Metadata}}
 				<tr>
 					<th class="col-sm-2" scope="row">Metadata</th>
 					<td>{{ range $key, $value := .Metadata }}{{$key}}={{$value}} {{end}}</td>
 				</tr>
+				{{end}}
 				<tr>
 					<th class="col-sm-2" scope="row">Request</th>
 					<td><pre>{{format .Request}}</pre></td>
