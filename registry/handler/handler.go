@@ -4,15 +4,50 @@ import (
 	"context"
 	"time"
 
+	"github.com/micro/go-micro"
 	"github.com/micro/go-micro/errors"
 	"github.com/micro/go-micro/registry"
 	"github.com/micro/go-micro/registry/service"
 	pb "github.com/micro/go-micro/registry/service/proto"
+	"github.com/micro/go-micro/util/log"
 )
 
 type Registry struct {
+	// service id
+	Id string
+	// the publisher
+	Publisher micro.Publisher
 	// internal registry
 	Registry registry.Registry
+}
+
+func ActionToEventType(action string) registry.EventType {
+	switch action {
+	case "create":
+		return registry.Create
+	case "delete":
+		return registry.Delete
+	default:
+		return registry.Update
+	}
+}
+
+func (r *Registry) publishEvent(action string, service *pb.Service) error {
+	// TODO: timestamp should be read from received event
+	// Right now registry.Result does not contain timestamp
+	event := &pb.Event{
+		Id:        r.Id,
+		Type:      pb.EventType(ActionToEventType(action)),
+		Timestamp: time.Now().UnixNano(),
+		Service:   service,
+	}
+
+	log.Debugf("publishing event %s for action %s", event.Id, action)
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	return r.Publisher.Publish(ctx, event)
 }
 
 func (r *Registry) GetService(ctx context.Context, req *pb.GetRequest, rsp *pb.GetResponse) error {
@@ -38,6 +73,9 @@ func (r *Registry) Register(ctx context.Context, req *pb.Service, rsp *pb.EmptyR
 		return errors.InternalServerError("go.micro.registry", err.Error())
 	}
 
+	// publish the event
+	go r.publishEvent("create", req)
+
 	return nil
 }
 
@@ -46,6 +84,10 @@ func (r *Registry) Deregister(ctx context.Context, req *pb.Service, rsp *pb.Empt
 	if err != nil {
 		return errors.InternalServerError("go.micro.registry", err.Error())
 	}
+
+	// publish the event
+	go r.publishEvent("delete", req)
+
 	return nil
 }
 
