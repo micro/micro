@@ -68,26 +68,31 @@ func runService(ctx *cli.Context, srvOpts ...micro.Option) {
 	env := ctx.StringSlice("env")
 	local := ctx.Bool("local")
 
-	// must specify service name
-	if len(name) == 0 {
-		log.Fatal(RunUsage)
-	}
-
 	var r runtime.Runtime
 	var exec []string
 
+	// must specify service name
+	if len(name) == 0 {
+		if len(source) > 0 {
+			name = filepath.Base(source)
+		} else {
+			cwd, _ := os.Getwd()
+			name = filepath.Base(cwd)
+		}
+	}
+
+	// local usage specified
 	switch local {
 	case true:
 		r = *cmd.DefaultCmd.Options().Runtime
 		// NOTE: When in local mode, we consider source to be
 		// the filesystem path to the source of the service
 		if len(source) > 0 {
-			dir := filepath.Dir(source)
-			if err := os.Chdir(dir); err != nil {
-				log.Fatalf("Could not change to directory %s: %v", dir, err)
+			if err := os.Chdir(source); err != nil {
+				log.Fatalf("Failed to change directory to %s: %v", source, err)
 			}
 		}
-		exec = []string{"go", "run", "main.go"}
+		exec = []string{"go", "run", "."}
 
 		// specify the runtime notifier to update wiht local file changes
 		if err := r.Init(runtime.WithNotifier(notifier.New(name, version, source))); err != nil {
@@ -288,7 +293,7 @@ func getService(ctx *cli.Context, srvOpts ...micro.Option) {
 	writer.Flush()
 }
 
-func run(ctx *cli.Context, srvOpts ...micro.Option) {
+func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 	log.Name("runtime")
 
 	// Init plugins
@@ -387,7 +392,7 @@ func Commands(options ...micro.Option) []cli.Command {
 				},
 			},
 			Action: func(ctx *cli.Context) {
-				run(ctx, options...)
+				Run(ctx, options...)
 			},
 		},
 		{
