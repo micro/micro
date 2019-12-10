@@ -98,7 +98,7 @@ export GO111MODULE=on
 micro new example
 
 # run the service
-go run example/main.go
+micro run example --local
 
 # list services
 micro list services

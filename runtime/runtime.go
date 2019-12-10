@@ -57,7 +57,8 @@ func runService(ctx *cli.Context, srvOpts ...micro.Option) {
 		p.Init(ctx)
 	}
 
-	if len(ctx.Args()) == 0 || ctx.Args()[0] != "service" {
+	// we need some args to run
+	if len(ctx.Args()) == 0 {
 		log.Fatal(RunUsage)
 	}
 
@@ -67,6 +68,12 @@ func runService(ctx *cli.Context, srvOpts ...micro.Option) {
 	source := ctx.String("source")
 	env := ctx.StringSlice("env")
 	local := ctx.Bool("local")
+
+	// "service" is a reserved keyword
+	// but otherwise assume anything else is source
+	if v := ctx.Args()[0]; v != "service" {
+		source = v
+	}
 
 	var r runtime.Runtime
 	var exec []string
