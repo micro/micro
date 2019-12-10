@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: default
+  name: micro-debug-web
+  labels:
+    micro: runtime
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: micro-debug-web
+      micro: runtime
+  template:
+    metadata:
+      labels:
+        name: micro-debug-web
+        micro: runtime
+    spec:
+      containers:
+      - name: micro-debug-web
+        env:
+        - name: MICRO_LOG_LEVEL
+          value: "debug"
+        - name: MICRO_BROKER
+          value: "nats"
+        - name: MICRO_BROKER_ADDRESS
+          value: "nats-cluster"
+        - name: MICRO_REGISTRY
+          value: "etcd"
+        - name: MICRO_REGISTRY_ADDRESS
+          value: "etcd-cluster-client"
+        - name: MICRO_NETDATA_URL
+          value: "http://netdata:19999"
+        image: micro/micro
+        imagePullPolicy: Always
+        command:
+        - /micro
+        - debug
+        - web
