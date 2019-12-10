@@ -300,7 +300,7 @@ jQuery(function($, undefined) {
 .table>tbody>tr>th, .table>tbody>tr>td {
     border-top: none;
 }
-pre {border: 0, padding: 20px;}
+pre {border: 0; padding: 20px;}
 {{end}}
 {{define "content"}}
 	<hr>
