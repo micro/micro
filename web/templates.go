@@ -359,6 +359,7 @@ jQuery(function($, undefined) {
     background-color: #fff;
     color: #333;
   }
+  .terminal { padding: 0; }
 </style>
 {{end}}
 {{define "title"}}CLI{{end}}
@@ -552,7 +553,7 @@ jQuery(function($, undefined) {
         greetings: '',
         name: 'micro_cli',
         height: 400,
-        prompt: 'micro> '});
+        prompt: '$ '});
 });
 </script>
 {{end}}
