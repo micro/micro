@@ -37,9 +37,9 @@ var (
               </div>
               <div class="collapse navbar-collapse" id="navBar">
 	        <ul class="nav navbar-nav navbar-right" id="dev">
-	          <li><a href="terminal">Terminal</a></li>
-	          <li><a href="registry">Registry</a></li>
-	          <li><a href="client">Client</a></li>
+	          <li><a href="/terminal">Terminal</a></li>
+	          <li><a href="/registry">Registry</a></li>
+	          <li><a href="/client">Client</a></li>
 	          {{if .StatsURL}}<li><a href="{{.StatsURL}}" class="navbar-link">Stats</a></li>{{end}}
 	        </ul>
               </div>
@@ -273,7 +273,7 @@ jQuery(function($, undefined) {
 {{define "content"}}
 	<div>
 		{{range .Results}}
-		<a href="registry?service={{.Name}}" data-filter={{.Name}} class="btn btn-default btn-lg service" style="margin: 5px 3px 5px 3px;">{{.Name}}</a>
+		<a href="registry/service/{{.Name}}" data-filter={{.Name}} class="btn btn-default btn-lg service" style="margin: 5px 3px 5px 3px;">{{.Name}}</a>
 		{{end}}
 	</div>
 {{end}}
@@ -300,7 +300,7 @@ jQuery(function($, undefined) {
 .table>tbody>tr>th, .table>tbody>tr>td {
     border-top: none;
 }
-pre {border: 0}
+pre {border: 0, padding: 20px;}
 {{end}}
 {{define "content"}}
 	<hr>
