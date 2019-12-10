@@ -15,7 +15,6 @@ import (
 	"github.com/micro/go-micro/network/resolver/dns"
 	"github.com/micro/go-micro/network/resolver/http"
 	"github.com/micro/go-micro/network/resolver/registry"
-	"github.com/micro/go-micro/network/service/handler"
 	"github.com/micro/go-micro/proxy"
 	"github.com/micro/go-micro/proxy/mucp"
 	"github.com/micro/go-micro/router"
@@ -29,6 +28,7 @@ import (
 	"github.com/micro/micro/internal/helper"
 	"github.com/micro/micro/network/api"
 	netdns "github.com/micro/micro/network/dns"
+	"github.com/micro/micro/network/handler"
 	"github.com/micro/micro/network/web"
 )
 

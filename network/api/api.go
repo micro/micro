@@ -14,8 +14,8 @@ import (
 	"github.com/micro/go-micro"
 	goapi "github.com/micro/go-micro/api"
 	"github.com/micro/go-micro/network"
-	pb "github.com/micro/go-micro/network/proto"
 	"github.com/micro/go-micro/network/resolver"
+	pb "github.com/micro/go-micro/network/service/proto"
 	"github.com/micro/go-micro/util/log"
 )
 

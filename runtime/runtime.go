@@ -16,9 +16,9 @@ import (
 	"github.com/micro/go-micro/config/cmd"
 	"github.com/micro/go-micro/runtime"
 	rs "github.com/micro/go-micro/runtime/service"
-	"github.com/micro/go-micro/runtime/service/handler"
 	pb "github.com/micro/go-micro/runtime/service/proto"
 	"github.com/micro/go-micro/util/log"
+	"github.com/micro/micro/runtime/handler"
 	"github.com/micro/micro/runtime/notifier"
 )
 

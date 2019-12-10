@@ -10,9 +10,9 @@ import (
 	"github.com/micro/cli"
 	"github.com/micro/go-micro"
 	"github.com/micro/go-micro/router"
-	"github.com/micro/go-micro/router/handler"
-	pb "github.com/micro/go-micro/router/proto"
+	pb "github.com/micro/go-micro/router/service/proto"
 	"github.com/micro/go-micro/util/log"
+	"github.com/micro/micro/router/handler"
 )
 
 var (
