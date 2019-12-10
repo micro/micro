@@ -16,7 +16,7 @@ import (
 
 	"github.com/micro/cli"
 	"github.com/micro/go-micro/config/cmd"
-	pb "github.com/micro/go-micro/network/proto"
+	pb "github.com/micro/go-micro/network/service/proto"
 	"github.com/micro/go-micro/web"
 )
 
