@@ -69,6 +69,7 @@ func initCommand(context *cli.Context) {
 		"network.api",
 		"network.dns",
 		"network.web",
+		"debug.web",
 		// runtime services
 		"network",  // :8085
 		"runtime",  // :8088
