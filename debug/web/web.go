@@ -8,6 +8,7 @@ import (
 	"net/http/httputil"
 	"net/url"
 	"os"
+	"strings"
 
 	"github.com/gorilla/mux"
 	"github.com/micro/cli"
@@ -40,10 +41,6 @@ func Run(ctx *cli.Context) {
 	wrapper := &netdataWrapper{
 		netdataproxy: netdata.ServeHTTP,
 	}
-	r.HandleFunc("/infra", wrapper.proxyNetdata)
-
-	// opts = append(opts, web.Handler(r))
-
 	service := web.NewService(opts...)
 	service.HandleFunc("/dashboard.js", netdata.ServeHTTP)
 	service.HandleFunc("/dashboard.css", netdata.ServeHTTP)
@@ -56,6 +53,8 @@ func Run(ctx *cli.Context) {
 	service.HandleFunc("/css/", netdata.ServeHTTP)
 	service.HandleFunc("/api/", netdata.ServeHTTP)
 	service.HandleFunc("/", r.ServeHTTP)
+	service.HandleFunc("/infra", http.RedirectHandler("/debug/infra/", http.StatusTemporaryRedirect).ServeHTTP)
+	service.HandleFunc("/infra/", wrapper.proxyNetdata)
 
 	service.Run()
 }
@@ -73,6 +72,6 @@ type netdataWrapper struct {
 }
 
 func (n *netdataWrapper) proxyNetdata(w http.ResponseWriter, r *http.Request) {
-	r.URL.Path = "/"
+	r.URL.Path = strings.TrimPrefix(r.URL.Path, "/infra")
 	n.netdataproxy(w, r)
 }
