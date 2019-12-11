@@ -9,6 +9,7 @@ import (
 	"github.com/micro/go-micro"
 	"github.com/micro/go-micro/debug/log"
 	dbg "github.com/micro/go-micro/debug/service"
+	ulog "github.com/micro/go-micro/util/log"
 	logHandler "github.com/micro/micro/debug/log/handler"
 	pblog "github.com/micro/micro/debug/log/proto"
 	"github.com/micro/micro/debug/stats"
@@ -30,7 +31,7 @@ var (
 )
 
 func getLogs(ctx *cli.Context, srvOpts ...micro.Option) {
-	log.Name("debug")
+	ulog.Name("debug")
 
 	// Init plugins
 	for _, p := range Plugins() {
@@ -45,7 +46,7 @@ func getLogs(ctx *cli.Context, srvOpts ...micro.Option) {
 
 	// must specify service name
 	if len(name) == 0 {
-		log.Fatal(LogsUsage)
+		ulog.Fatal(LogsUsage)
 	}
 
 	service := dbg.NewDebug(name)
@@ -68,7 +69,7 @@ func getLogs(ctx *cli.Context, srvOpts ...micro.Option) {
 
 	logs, err := service.Log(options...)
 	if err != nil {
-		log.Fatal(err)
+		ulog.Fatal(err)
 	}
 
 	for record := range logs {
@@ -77,7 +78,7 @@ func getLogs(ctx *cli.Context, srvOpts ...micro.Option) {
 }
 
 func run(ctx *cli.Context, srvOpts ...micro.Option) {
-	log.Name("debug")
+	ulog.Name("debug")
 
 	// Init plugins
 	for _, p := range Plugins() {
@@ -107,7 +108,7 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 
 	statsHandler, err := statshandler.New(done)
 	if err != nil {
-		log.Fatal(err)
+		ulog.Fatal(err)
 	}
 
 	// Register the stats handler
@@ -120,10 +121,8 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 
 	// start debug service
 	if err := service.Run(); err != nil {
-		log.Errorf("error running service: %v", err)
+		ulog.Errorf("error running service: %v", err)
 	}
-
-	log.Infof("successfully stopped")
 }
 
 // logFlags is shared flags so we don't have to continually re-add
