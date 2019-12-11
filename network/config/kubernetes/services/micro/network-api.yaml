@@ -5,6 +5,7 @@ metadata:
   name: micro-network-api
   labels:
     micro: runtime
+    name: micro-network-api
 spec:
   replicas: 1
   selector:

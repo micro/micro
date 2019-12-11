@@ -5,6 +5,7 @@ metadata:
   name: micro-network-web
   labels:
     micro: runtime
+    name: micro-network-web
 spec:
   replicas: 1
   selector:

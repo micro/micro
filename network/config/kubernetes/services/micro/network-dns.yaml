@@ -5,6 +5,7 @@ metadata:
   name: micro-network-dns
   labels:
     micro: runtime
+    name: micro-network-dns
 spec:
   replicas: 2
   selector:

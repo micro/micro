@@ -5,6 +5,7 @@ metadata:
   name: micro-debug-web
   labels:
     micro: runtime
+    name: micro-debug-web
 spec:
   replicas: 1
   selector:
