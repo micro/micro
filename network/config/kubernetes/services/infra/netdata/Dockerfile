@@ -5,6 +5,7 @@ WORKDIR /tmp/build
 RUN git clone https://github.com/jakexks/go.d.plugin
 WORKDIR /tmp/build/go.d.plugin
 RUN git checkout gomicro
+ENV CGO_ENABLED 0
 RUN go build ./cmd/godplugin
 
 FROM netdata/netdata:latest
