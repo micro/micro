@@ -37,6 +37,7 @@ func Run(ctx *cli.Context) {
 
 	r := mux.NewRouter()
 	r.HandleFunc("/", renderDashboard)
+	r.HandleFunc("/service/{service}", renderServiceDashboard)
 
 	wrapper := &netdataWrapper{
 		netdataproxy: netdata.ServeHTTP,
@@ -64,6 +65,17 @@ func renderDashboard(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusNotFound)
 	} else {
 		dashboardTemplate.Execute(w, nil)
+	}
+}
+
+func renderServiceDashboard(w http.ResponseWriter, r *http.Request) {
+	v := mux.Vars(r)
+	service, found := v["service"]
+	if !found {
+		w.WriteHeader(http.StatusNotFound)
+		fmt.Fprintf(w, "Service not found\n")
+	} else {
+		dashboardTemplate.Execute(w, struct{ Service string }{Service: strings.ReplaceAll(service, ".", "_")})
 	}
 }
 

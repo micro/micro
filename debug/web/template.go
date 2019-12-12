@@ -47,44 +47,48 @@ var (
       -->
       <div id="graphs">
         <p>&nbsp;</p>
-	<div class="graph">
-	    <div data-netdata="go_micro_services.micro_service_memory"
-		data-chart-library="dygraph"
-		data-width="100%"
-		data-height="300"
-		data-after="-600"
-		></div>
-	</div>
+  <div class="graph">
+      <div data-netdata="go_micro_services.micro_service_memory"
+    data-chart-library="dygraph"
+    data-width="100%"
+    data-height="300"
+    data-after="-600"{{ if .Service }}
+    data-dimensions="{{.Service}}*"{{end}}
+    ></div>
+  </div>
 
-	<div class="graph">
-	    <div data-netdata="go_micro_services.micro_service_threads"
-		data-chart-library="dygraph"
-		data-width="100%"
-		data-height="300"
-		data-after="-600"
-		></div>
-	</div>
+  <div class="graph">
+      <div data-netdata="go_micro_services.micro_service_threads"
+    data-chart-library="dygraph"
+    data-width="100%"
+    data-height="300"
+    data-after="-600"{{ if .Service }}
+    data-dimensions="{{.Service}}*"{{end}}
+    ></div>
+  </div>
 
-	<div class="graph">
-	    <div data-netdata="go_micro_services.micro_service_gcrate"
-		data-chart-library="dygraph"
-		data-width="100%"
-		data-height="300"
-		data-after="-600"
-		></div>
-	</div>
+  <div class="graph">
+      <div data-netdata="go_micro_services.micro_service_gcrate"
+    data-chart-library="dygraph"
+    data-width="100%"
+    data-height="300"
+    data-after="-600"{{ if .Service }}
+    data-dimensions="{{.Service}}*"{{end}}
+    ></div>
+  </div>
 
-	<div class="graph">
-	    <div data-netdata="go_micro_services.micro_service_uptime"
-		data-chart-library="dygraph"
-		data-width="100%"
-		data-height="300"
-		data-after="-600"
-		></div>
-	</div>
+  <div class="graph">
+      <div data-netdata="go_micro_services.micro_service_uptime"
+    data-chart-library="dygraph"
+    data-width="100%"
+    data-height="300"
+    data-after="-600"{{ if .Service }}
+    data-dimensions="{{.Service}}*"{{end}}
+    ></div>
+  </div>
     </div>
   </div>
-  <script type="text/javascript" src="dashboard.js?v20190902-0"></script>
+  <script type="text/javascript" src="/debug/dashboard.js?v20190902-0"></script>
 </body>
 </html>
 `
