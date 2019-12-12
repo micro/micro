@@ -20,6 +20,7 @@ require (
 	github.com/micro/cli v0.2.0
 	github.com/micro/go-micro v1.18.1-0.20191210140505-8da77a3ddc8e
 	github.com/miekg/dns v1.1.22
+	github.com/netdata/go-orchestrator v0.0.0-20190905093727-c793edba0e8f
 	github.com/olekukonko/tablewriter v0.0.2
 	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/pborman/uuid v1.2.0
