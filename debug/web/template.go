@@ -42,7 +42,9 @@ var (
   </h1>
   <p>&nbsp;</p>
   <div id="content">
+      <!--
       <div data-netdata="system.cpu" data-chart-library="sparkline" data-height="30" data-after="-600" data-sparkline-linecolor="#888"></div>
+      -->
       <div id="graphs">
         <p>&nbsp;</p>
 	<div class="graph">
