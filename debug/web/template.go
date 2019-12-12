@@ -54,6 +54,7 @@ var (
     data-height="300"
     data-after="-600"{{ if .Service }}
     data-dimensions="{{.Service}}*"{{end}}
+    data-title="Memory Usage"
     ></div>
   </div>
 
@@ -64,6 +65,7 @@ var (
     data-height="300"
     data-after="-600"{{ if .Service }}
     data-dimensions="{{.Service}}*"{{end}}
+    data-title="Go Routines"
     ></div>
   </div>
 
@@ -74,6 +76,7 @@ var (
     data-height="300"
     data-after="-600"{{ if .Service }}
     data-dimensions="{{.Service}}*"{{end}}
+    data-title="GC Pause"
     ></div>
   </div>
 
@@ -84,6 +87,7 @@ var (
     data-height="300"
     data-after="-600"{{ if .Service }}
     data-dimensions="{{.Service}}*"{{end}}
+    data-title="Uptime"
     ></div>
   </div>
     </div>
