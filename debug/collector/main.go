@@ -4,9 +4,9 @@ import (
 	"os"
 	"path"
 
-	microplugin "github.com/micro/micro/debug/collector/micro"
 	"github.com/micro/go-micro"
 	"github.com/micro/go-micro/util/log"
+	microplugin "github.com/micro/micro/debug/collector/micro"
 
 	"github.com/netdata/go-orchestrator"
 	"github.com/netdata/go-orchestrator/cli"
@@ -56,4 +56,3 @@ func main() {
 
 	netdata.Serve()
 }
-

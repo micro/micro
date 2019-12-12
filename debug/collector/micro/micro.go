@@ -2,6 +2,7 @@ package micro
 
 import (
 	"context"
+	"fmt"
 	"sort"
 	"strconv"
 	"strings"
@@ -127,6 +128,7 @@ func (m *Micro) Collect() map[string]int64 {
 
 func (m *Micro) updateCharts(snapshots []*stats.Snapshot) error {
 	sort.Sort(sortableSnapshot(snapshots))
+
 	getIndex := func(s *stats.Snapshot) string {
 		if _, found := m.indexes[s.Service.Name]; !found {
 			m.indexes[s.Service.Name] = make(map[string]bool)
@@ -134,31 +136,41 @@ func (m *Micro) updateCharts(snapshots []*stats.Snapshot) error {
 		m.indexes[s.Service.Name][key(s)] = true
 		return strconv.Itoa(len(m.indexes[s.Service.Name]))
 	}
+
 	m.Lock()
 	defer m.Unlock()
+
 	for _, snap := range snapshots {
 		svc := key(snap)
+
 		if _, found := m.services[svc]; !found {
 			m.services[svc] = true
+
 			for _, ch := range charts {
+				name := strings.TrimPrefix(snap.Service.Name, "go.micro.")
+				name = fmt.Sprintf("%s.%s", name, getIndex(snap))
+				id := fmt.Sprintf("%s_%s", svc, ch.ID)
+
 				if ch.ID == chartServiceGCRate {
 					ch.AddDim(&module.Dim{
-						ID:   svc + "_" + ch.ID,
-						Name: strings.TrimPrefix(strings.ReplaceAll(snap.Service.Name, ".", "_"), "go_micro_") + getIndex(snap),
+						ID:   id,
+						Name: name,
 						Algo: module.Incremental,
 					})
 				} else {
 					ch.AddDim(&module.Dim{
-						ID:   svc + "_" + ch.ID,
-						Name: strings.TrimPrefix(strings.ReplaceAll(snap.Service.Name, ".", "_"), "go_micro_") + getIndex(snap),
+						ID:   id,
+						Name: name,
 						Algo: module.Absolute,
 					})
 				}
-				m.Logger.Debug("Added dimension" + svc + "_" + ch.ID)
+
+				m.Logger.Debug("Added dimension" + id)
 				ch.MarkNotCreated()
 			}
 		}
 	}
+
 	return nil
 }
 
@@ -204,4 +216,3 @@ func (s sortableSnapshot) Swap(i, j int) { s[i], s[j] = s[j], s[i] }
 func (s sortableSnapshot) Less(i, j int) bool {
 	return s[i].Service.Node.Id+s[i].Service.Version < s[j].Service.Node.Id+s[j].Service.Version
 }
-
