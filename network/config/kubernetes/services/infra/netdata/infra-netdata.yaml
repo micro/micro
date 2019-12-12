@@ -69,6 +69,10 @@ data:
         proc = no
         idlejitter = no
         diskspace = no
+        micro.d = yes
+      [plugin:micro.d]
+        command options = --registry=etcd --registry_address=etcd-cluster-client
+
   stream:     |
       [B8E09BDC-AEE6-4A5C-8688-16B2D2024D9A]
         enabled = yes
