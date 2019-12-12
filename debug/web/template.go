@@ -46,7 +46,6 @@ var (
       <div data-netdata="system.cpu" data-chart-library="sparkline" data-height="30" data-after="-600" data-sparkline-linecolor="#888"></div>
       -->
       <div id="graphs">
-        <p>&nbsp;</p>
   <div class="graph">
       <div data-netdata="go_micro_services.micro_service_memory"
     data-chart-library="dygraph"
