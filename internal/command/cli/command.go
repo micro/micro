@@ -459,6 +459,8 @@ func NetworkRoutes(c *cli.Context) ([]byte, error) {
 		return v.(string)
 	}
 
+	var sortedRoutes [][]string
+
 	for _, r := range routes {
 		route := r.(map[string]interface{})
 		service := route["service"]
@@ -476,7 +478,7 @@ func NetworkRoutes(c *cli.Context) ([]byte, error) {
 			metric = fmt.Sprintf("%.f", route["metric"])
 		}
 
-		strEntry := []string{
+		sortedRoutes = append(sortedRoutes, []string{
 			fmt.Sprintf("%s", service),
 			fmt.Sprintf("%s", address),
 			fmt.Sprintf("%s", gateway),
@@ -484,10 +486,12 @@ func NetworkRoutes(c *cli.Context) ([]byte, error) {
 			fmt.Sprintf("%s", network),
 			fmt.Sprintf("%s", metric),
 			fmt.Sprintf("%s", link),
-		}
-		table.Append(strEntry)
+		})
 	}
 
+	sort.Slice(sortedRoutes, func(i, j int) bool { return sortedRoutes[i][0] < sortedRoutes[j][0] })
+
+	table.AppendBulk(sortedRoutes)
 	// render table into b
 	table.SetAlignment(tablewriter.ALIGN_LEFT)
 	table.Render()
