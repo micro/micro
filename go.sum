@@ -322,6 +322,8 @@ github.com/micro/go-micro v1.18.1-0.20191210115406-8289dbabc438 h1:5F7QoALYmi7Z5
 github.com/micro/go-micro v1.18.1-0.20191210115406-8289dbabc438/go.mod h1:4D/DPbgeSPSe9E0UEFVVYaUwEUoN4QpVVfqbSu3gbQc=
 github.com/micro/go-micro v1.18.1-0.20191210140505-8da77a3ddc8e h1:J3Am0csYEZbSuhDZ2tCNbGpUTtIZjJKjDU3s6Un8BKg=
 github.com/micro/go-micro v1.18.1-0.20191210140505-8da77a3ddc8e/go.mod h1:4D/DPbgeSPSe9E0UEFVVYaUwEUoN4QpVVfqbSu3gbQc=
+github.com/micro/go-micro v1.18.1-0.20191213153403-64e438a8d414 h1:X88bmtXOA6CrDDMbY9sil3slxyeyL5/FiTTJR+gWfmk=
+github.com/micro/go-micro v1.18.1-0.20191213153403-64e438a8d414/go.mod h1:25gcXnPREpbAT1CxQdBDNWTmWMW0FhGZYX734mZlm2w=
 github.com/micro/mdns v0.3.0 h1:bYycYe+98AXR3s8Nq5qvt6C573uFTDPIYzJemWON0QE=
 github.com/micro/mdns v0.3.0/go.mod h1:KJ0dW7KmicXU2BV++qkLlmHYcVv7/hHnbtguSWt9Aoc=
 github.com/micro/protoc-gen-micro v1.0.0/go.mod h1:C8ij4DJhapBmypcT00AXdb0cZ675/3PqUO02buWWqbE=
