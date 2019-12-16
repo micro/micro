@@ -25,6 +25,10 @@ type Store struct {
 }
 
 func (s *Store) get(ctx context.Context) (store.Store, error) {
+	// lock (might be a race)
+	s.Lock()
+	defer s.Unlock()
+
 	md, ok := metadata.FromContext(ctx)
 	if !ok {
 		return s.Default, nil
@@ -37,18 +41,11 @@ func (s *Store) get(ctx context.Context) (store.Store, error) {
 		return s.Default, nil
 	}
 
-	s.RLock()
-	str, ok := s.Stores[namespace+prefix]
+	str, ok := s.Stores[namespace+":"+prefix]
 	// got it
 	if ok {
-		s.RUnlock()
 		return str, nil
 	}
-	s.RUnlock()
-
-	// lock (might be a race)
-	s.Lock()
-	defer s.Unlock()
 
 	// create a new store
 
@@ -59,7 +56,7 @@ func (s *Store) get(ctx context.Context) (store.Store, error) {
 	}
 
 	// save store
-	s.Stores[namespace+prefix] = st
+	s.Stores[namespace+":"+prefix] = st
 
 	return st, nil
 }
