@@ -173,7 +173,7 @@ func (m *Micro) updateCharts(snapshots []*stats.Snapshot) error {
 				idx := m.getIndex(snap)
 				prefix := strings.TrimPrefix(snap.Service.Name, "go.micro.")
 				name := fmt.Sprintf("%s.%s", prefix, idx)
-				id := fmt.Sprintf("%s_%s_%s", prefix, idx, ch.ID)
+				id := fmt.Sprintf("%s_%s_%s", format(prefix), idx, ch.ID)
 
 				if ch.ID == chartServiceGCRate {
 					ch.AddDim(&module.Dim{
@@ -240,9 +240,7 @@ func (m *Micro) collect(ctx context.Context) error {
 }
 
 func format(v string) string {
-	v = strings.ReplaceAll(v, ".", "_")
-	v = strings.ReplaceAll(v, "-", "_")
-	return v
+	return strings.ReplaceAll(v, ".", "_")
 }
 
 func key(s *stats.Snapshot) string {

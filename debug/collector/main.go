@@ -30,7 +30,9 @@ func main() {
 		micro.Version("latest"),
 	)
 
-	os.Args = append(os.Args[:1], os.Args[2:]...)
+	if len(os.Args) > 1 {
+		os.Args = append(os.Args[:1], os.Args[2:]...)
+	}
 
 	// Initialise service
 	service.Init()
