@@ -155,11 +155,17 @@ func (m *Micro) updateCharts(snapshots []*stats.Snapshot) error {
 		delete(m.services, instance)
 		// delete from saved indexes
 		instances, ok := m.indexes[service]
-		if ok {
+		if !ok {
 			// delete the specific instance
 			delete(instances, instance)
 			// save the instances
 			m.indexes[service] = instances
+		}
+
+		// remove the dims
+		for _, ch := range charts {
+			id := fmt.Sprintf("%s_%s", instance, ch.ID)
+			ch.MarkDimRemove(id, true)
 		}
 	}
 
@@ -168,12 +174,12 @@ func (m *Micro) updateCharts(snapshots []*stats.Snapshot) error {
 
 		if _, found := m.services[instance]; !found {
 			m.services[instance] = true
+			idx := m.getIndex(snap)
 
 			for _, ch := range charts {
-				idx := m.getIndex(snap)
 				prefix := strings.TrimPrefix(snap.Service.Name, "go.micro.")
 				name := fmt.Sprintf("%s.%s", prefix, idx)
-				id := fmt.Sprintf("%s_%s_%s", format(prefix), idx, ch.ID)
+				id := fmt.Sprintf("%s_%s", key(snap), ch.ID)
 
 				if ch.ID == chartServiceGCRate {
 					ch.AddDim(&module.Dim{
@@ -226,8 +232,7 @@ func (m *Micro) collect(ctx context.Context) error {
 	// Populate metrics map
 	m.Lock()
 	for _, s := range rsp.Stats {
-		prefix := strings.TrimPrefix(s.Service.Name, "go.micro.")
-		k := fmt.Sprintf("%s_%s", format(prefix), m.getIndex(s))
+		k := fmt.Sprintf("%s", key(s))
 		m.metrics[k+"_"+chartServiceStarted] = int64(s.Started)
 		m.metrics[k+"_"+chartServiceUptime] = int64(s.Uptime)
 		m.metrics[k+"_"+chartServiceMemory] = int64(s.Memory)
@@ -245,7 +250,7 @@ func format(v string) string {
 
 func key(s *stats.Snapshot) string {
 	// TODO: use version but in our indexing this fails
-	return format(s.Service.Node.Id)
+	return format(s.Service.Node.Id+s.Service.Version)
 }
 
 type sortableSnapshot []*stats.Snapshot
