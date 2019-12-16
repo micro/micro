@@ -94,12 +94,14 @@ func runService(ctx *cli.Context, srvOpts ...micro.Option) {
 		r = *cmd.DefaultCmd.Options().Runtime
 		// NOTE: When in local mode, we consider source to be
 		// the filesystem path to the source of the service
+		exec = []string{"go", "run", "."}
+
 		if len(source) > 0 {
+			// dir doesn't exist so pull
 			if err := os.Chdir(source); err != nil {
-				log.Fatalf("Failed to change directory to %s: %v", source, err)
+				exec[2] = source
 			}
 		}
-		exec = []string{"go", "run", "."}
 
 		// specify the runtime notifier to update wiht local file changes
 		if err := r.Init(runtime.WithNotifier(notifier.New(name, version, source))); err != nil {

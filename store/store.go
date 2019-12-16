@@ -6,14 +6,13 @@ import (
 
 	"github.com/micro/cli"
 	"github.com/micro/go-micro"
-	"github.com/micro/go-micro/config/options"
 	"github.com/micro/go-micro/store"
 	pb "github.com/micro/go-micro/store/service/proto"
 	"github.com/micro/go-micro/util/log"
 	"github.com/micro/micro/store/handler"
 
+	"github.com/micro/go-micro/store/cockroach"
 	"github.com/micro/go-micro/store/memory"
-	"github.com/micro/go-micro/store/postgresql"
 )
 
 var (
@@ -63,7 +62,7 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		micro.RegisterInterval(time.Duration(ctx.GlobalInt("register_interval"))*time.Second),
 	)
 
-	opts := []options.Option{store.Nodes(Nodes...)}
+	opts := []store.Option{store.Nodes(Nodes...)}
 	if len(Namespace) > 0 {
 		opts = append(opts, store.Namespace(Namespace))
 	}
@@ -81,24 +80,19 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		// set the default store
 		storeHandler.Default = memory.NewStore(opts...)
 		// set the new store initialiser
-		storeHandler.New = func(namespace string, prefix string) (store.Store, error) {
+		storeHandler.New = func(namespace string, prefix string) store.Store {
 			// return a new memory store
 			return memory.NewStore(
 				store.Namespace(namespace),
 				store.Prefix(prefix),
-			), nil
+			)
 		}
-	case "postgresql":
+	case "cockroach":
 		// set the default store
-		opts = append(opts, options.WithValue("store.sql.driver", "postgres"))
-		if s, err := postgresql.New(opts...); err != nil {
-			log.Fatal(err)
-		} else {
-			storeHandler.Default = s
-		}
+		storeHandler.Default = cockroach.New(opts...)
 		// set the new store initialiser
-		storeHandler.New = func(namespace string, prefix string) (store.Store, error) {
-			return postgresql.New(
+		storeHandler.New = func(namespace string, prefix string) store.Store {
+			return cockroach.New(
 				store.Nodes(Nodes...),
 				store.Namespace(namespace),
 				store.Prefix(prefix),

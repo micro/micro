@@ -10,7 +10,6 @@ import (
 	"github.com/micro/go-micro"
 	bmem "github.com/micro/go-micro/broker/memory"
 	"github.com/micro/go-micro/client"
-	"github.com/micro/go-micro/config/options"
 	"github.com/micro/go-micro/proxy"
 	"github.com/micro/go-micro/proxy/grpc"
 	"github.com/micro/go-micro/proxy/http"
@@ -68,7 +67,7 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	}
 
 	// set the context
-	var popts []options.Option
+	var popts []proxy.Option
 
 	// create new router
 	var r router.Router
