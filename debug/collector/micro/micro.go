@@ -246,7 +246,8 @@ func format(v string) string {
 }
 
 func key(s *stats.Snapshot) string {
-	return format(s.Service.Node.Id + s.Service.Version)
+	// TODO: use version but in our indexing this fails
+	return format(s.Service.Node.Id)
 }
 
 type sortableSnapshot []*stats.Snapshot
