@@ -99,7 +99,7 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 			)
 		}
 	default:
-		log.Fatalf("%s is not an implemented store")
+		log.Fatalf("%s is not an implemented store", Backend)
 	}
 
 	pb.RegisterStoreHandler(service.Server(), storeHandler)
