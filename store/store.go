@@ -27,6 +27,8 @@ var (
 	Nodes = []string{"localhost"}
 	// Namespace is passed to the underlying backend if set.
 	Namespace = ""
+	// Prefix is passed to the underlying backend if set.
+	Prefix = ""
 )
 
 // run runs the micro server
@@ -65,6 +67,9 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	opts := []options.Option{store.Nodes(Nodes...)}
 	if len(Namespace) > 0 {
 		opts = append(opts, store.Namespace(Namespace))
+	}
+	if len(Prefix) > 0 {
+		opts = append(opts, store.Prefix(Prefix))
 	}
 
 	switch Backend {
@@ -115,6 +120,11 @@ func Commands(options ...micro.Option) []cli.Command {
 				Name:   "namespace",
 				Usage:  "Namespace to pass to the store backend",
 				EnvVar: "MICRO_STORE_NAMESPACE",
+			},
+			cli.StringFlag{
+				Name:   "prefix",
+				Usage:  "Key prefix to pass to the store backend",
+				EnvVar: "MICRO_STORE_PREFIX",
 			},
 		},
 		Action: func(ctx *cli.Context) {
