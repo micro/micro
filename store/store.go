@@ -63,7 +63,6 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		micro.RegisterInterval(time.Duration(ctx.GlobalInt("register_interval"))*time.Second),
 	)
 
-	newStore := &handler.Store{}
 	opts := []options.Option{store.Nodes(Nodes...)}
 	if len(Namespace) > 0 {
 		opts = append(opts, store.Namespace(Namespace))
@@ -72,21 +71,44 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		opts = append(opts, store.Prefix(Prefix))
 	}
 
+	// the store handler
+	storeHandler := &handler.Store{
+		Stores: make(map[string]store.Store),
+	}
+
 	switch Backend {
 	case "memory":
-		newStore.Store = memory.NewStore(opts...)
+		// set the default store
+		storeHandler.Default = memory.NewStore(opts...)
+		// set the new store initialiser
+		storeHandler.New = func(namespace string, prefix string) (store.Store, error) {
+			// return a new memory store
+			return memory.NewStore(
+				store.Namespace(namespace),
+				store.Prefix(prefix),
+			), nil
+		}
 	case "postgresql":
+		// set the default store
 		opts = append(opts, options.WithValue("store.sql.driver", "postgres"))
 		if s, err := postgresql.New(opts...); err != nil {
 			log.Fatal(err)
 		} else {
-			newStore.Store = s
+			storeHandler.Default = s
+		}
+		// set the new store initialiser
+		storeHandler.New = func(namespace string, prefix string) (store.Store, error) {
+			return postgresql.New(
+				store.Nodes(Nodes...),
+				store.Namespace(namespace),
+				store.Prefix(prefix),
+			)
 		}
 	default:
 		log.Fatalf("%s is not an implemented store")
 	}
 
-	pb.RegisterStoreHandler(service.Server(), newStore)
+	pb.RegisterStoreHandler(service.Server(), storeHandler)
 
 	// start the service
 	if err := service.Run(); err != nil {
