@@ -210,7 +210,7 @@ func (m *Micro) getIndex(s *stats.Snapshot) string {
 		m.indexes[s.Service.Name] = make(map[string]bool)
 	}
 	m.indexes[s.Service.Name][key(s)] = true
-	return strconv.Itoa(len(m.indexes[s.Service.Name]))
+	return strconv.Itoa(len(m.indexes[s.Service.Name])-1)
 }
 
 // Collect contacts the Debug service to retrieve snapshots of stats
