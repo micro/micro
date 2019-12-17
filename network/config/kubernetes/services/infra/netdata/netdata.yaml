@@ -112,6 +112,8 @@ data:
         memory mode = none
       [health]
         enabled = no
+      [plugins]
+        micro.d = no
   stream:     |
       [stream]
         enabled = yes
