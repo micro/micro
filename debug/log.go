@@ -6,7 +6,6 @@ import (
 
 	"github.com/micro/cli"
 	"github.com/micro/go-micro"
-	"github.com/micro/go-micro/debug/log"
 	"github.com/micro/go-micro/debug/service"
 	ulog "github.com/micro/go-micro/util/log"
 )
@@ -26,31 +25,21 @@ func getLogs(ctx *cli.Context, srvOpts ...micro.Option) {
 	}
 
 	// initialise a new service log
-	// TODO: allow "--log_source"
+	// TODO: allow "--source" e.g. kubernetes
 	service := service.NewClient(name)
 
-	var options []log.ReadOption
-
+	var readSince time.Time
 	d, err := time.ParseDuration(since)
 	if err == nil {
-		readSince := time.Now().Add(-d)
-		options = append(options, log.Since(readSince))
+		readSince = time.Now().Add(-d)
 	}
 
-	if count > 0 {
-		options = append(options, log.Count(count))
-	}
-
-	if stream {
-		options = append(options, log.Stream(stream))
-	}
-
-	logs, err := service.Log(options...)
+	logs, err := service.Log(readSince, count, stream)
 	if err != nil {
 		ulog.Fatal(err)
 	}
 
-	for record := range logs {
+	for record := range logs.Chan() {
 		fmt.Printf("%v\n", record)
 	}
 }
