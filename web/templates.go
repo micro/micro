@@ -127,6 +127,10 @@ jQuery(function($, undefined) {
 {{define "style"}}
 	pre {
 		word-wrap: break-word;
+		border: 0;
+	}
+	.form-control {
+		border: 1px solid whitesmoke;
 	}
 {{end}}
 {{define "content"}}
@@ -165,13 +169,13 @@ jQuery(function($, undefined) {
 				<textarea class="form-control" name=request id=request rows=8>{}</textarea>
 			</div>
 			<div class="form-group">
-				<button class="btn btn-default">Execute</button>
+				<button class="btn btn-default" style="border-color: whitesmoke;">Execute</button>
 			</div>
 		</form>
 	</div>
 	<div class="col-sm-7">
 		<p><b>Response</b><span class="pull-right"><a href="#" onclick="copyResponse()">Copy</a></p>
-		<pre id="response" style="min-height: 405px;">{}</pre>
+		<pre id="response" style="min-height: 405px; border: 0;">{}</pre>
 	</div>
     </div>
   </div>
@@ -253,10 +257,20 @@ jQuery(function($, undefined) {
 			if (!($('#otherendpoint').prop('disabled'))) {
 				endpoint = document.forms[0].elements["otherendpoint"].value
 			}
+
+			var reqBody;
+
+			try {
+				reqBody = JSON.parse([0].elements["request"].value);
+			} catch(e) {
+				document.getElementById("response").innerText = "Invalid request: " + e.message;
+				return false;
+			}
+
 			var request = {
 				"service": document.forms[0].elements["service"].value,
 				"endpoint": endpoint,
-				"request": JSON.parse(document.forms[0].elements["request"].value)
+				"request": request
 			}
 			req.open("POST", "/rpc", true);
 			req.setRequestHeader("Content-type","application/json");				
