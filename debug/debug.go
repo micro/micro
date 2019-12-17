@@ -4,6 +4,8 @@ package debug
 import (
 	"github.com/micro/cli"
 	"github.com/micro/go-micro"
+	"github.com/micro/go-micro/debug/log"
+	dservice "github.com/micro/go-micro/debug/service"
 	ulog "github.com/micro/go-micro/util/log"
 	logHandler "github.com/micro/micro/debug/log/handler"
 	pblog "github.com/micro/micro/debug/log/proto"
@@ -45,6 +47,36 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 		srvOpts = append(srvOpts, micro.Address(Address))
 	}
 
+	// TODO: parse out --log_source
+	// if kubernetes then .. go-micro/debug/log/kubernetes.New
+
+	// default log initialiser
+	newLog := func(service string) log.Log {
+		// service log calls the actual service for the log
+		return dservice.NewLog(
+			// log with service name
+			log.Name(service),
+		)
+	}
+
+	source := ctx.String("log")
+	switch source {
+	case "service":
+		newLog = func(service string) log.Log {
+			return dservice.NewLog(
+				log.Name(service),
+			)
+		}
+		/*
+			case "kubernetes":
+				newLog := func(service string) log.Log {
+					return kubernetes.NewLog(
+						log.Name(service),
+					)
+				}
+		*/
+	}
+
 	// append name
 	srvOpts = append(srvOpts, micro.Name(Name))
 
@@ -56,16 +88,25 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 		close(done)
 	}()
 
+	// stats handler
 	statsHandler, err := statshandler.New(done)
 	if err != nil {
 		ulog.Fatal(err)
+	}
+
+	// log handler
+	lgHandler := &logHandler.Log{
+		// create the log map
+		Logs: make(map[string]log.Log),
+		// Create the new func
+		New: newLog,
 	}
 
 	// Register the stats handler
 	pbstats.RegisterStatsHandler(service.Server(), statsHandler)
 
 	// Register the logs handler
-	pblog.RegisterLogHandler(service.Server(), new(logHandler.Log))
+	pblog.RegisterLogHandler(service.Server(), lgHandler)
 
 	// TODO: implement debug service for k8s cruft
 
@@ -86,6 +127,11 @@ func Commands(options ...micro.Option) []cli.Command {
 					Name:   "address",
 					Usage:  "Set the registry http address e.g 0.0.0.0:8089",
 					EnvVar: "MICRO_SERVER_ADDRESS",
+				},
+				cli.StringFlag{
+					Name:   "log",
+					Usage:  "Specify the log source to use e.g service, kubernetes",
+					EnvVar: "MICRO_DEBUG_LOG",
 				},
 			},
 			Action: func(ctx *cli.Context) {

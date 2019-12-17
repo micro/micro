@@ -7,7 +7,7 @@ import (
 	"github.com/micro/cli"
 	"github.com/micro/go-micro"
 	"github.com/micro/go-micro/debug/log"
-	dbg "github.com/micro/go-micro/debug/service"
+	"github.com/micro/go-micro/debug/service"
 	ulog "github.com/micro/go-micro/util/log"
 )
 
@@ -25,7 +25,9 @@ func getLogs(ctx *cli.Context, srvOpts ...micro.Option) {
 		ulog.Fatal(LogsUsage)
 	}
 
-	service := dbg.NewDebug(name)
+	// initialise a new service log
+	// TODO: allow "--log_source"
+	service := service.NewClient(name)
 
 	var options []log.ReadOption
 
