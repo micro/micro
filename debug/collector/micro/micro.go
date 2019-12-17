@@ -210,7 +210,7 @@ func (m *Micro) getIndex(s *stats.Snapshot) string {
 		m.indexes[s.Service.Name] = make(map[string]bool)
 	}
 	m.indexes[s.Service.Name][key(s)] = true
-	return strconv.Itoa(len(m.indexes[s.Service.Name])-1)
+	return strconv.Itoa(len(m.indexes[s.Service.Name]) - 1)
 }
 
 // Collect contacts the Debug service to retrieve snapshots of stats
@@ -250,7 +250,7 @@ func format(v string) string {
 
 func key(s *stats.Snapshot) string {
 	// TODO: use version but in our indexing this fails
-	return format(s.Service.Node.Id+s.Service.Version)
+	return format(s.Service.Node.Id + s.Service.Version)
 }
 
 type sortableSnapshot []*stats.Snapshot
