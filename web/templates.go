@@ -18,6 +18,7 @@ var (
 		  .navbar-brand img { display: inline; }
 		  #navBar, .navbar-toggle { margin-top: 15px; }
 		  .icon-bar { background-color: #333333; }
+		  .nav>li>a:focus, .nav>li>a:hover { background-color: white; }
 		</style>
 		<style>
 		{{ template "style" . }}
