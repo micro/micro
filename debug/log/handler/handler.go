@@ -34,7 +34,10 @@ func (l *Log) Read(ctx context.Context, req *pb.ReadRequest, rsp *pb.ReadRespons
 	}
 
 	// TODO: specify how many log records to read
-	records := serviceLog.Read()
+	records, err := serviceLog.Read()
+	if err != nil {
+		return err
+	}
 
 	// append to records
 	for _, rec := range records {
