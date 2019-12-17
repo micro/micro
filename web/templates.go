@@ -271,11 +271,12 @@ jQuery(function($, undefined) {
 {{define "heading"}}<h4><input class="form-control input-lg search" type=text placeholder="Search"/></h4>{{end}}
 {{define "title"}}Registry{{end}}
 {{define "content"}}
-	<div>
-		{{range .Results}}
-		<a href="registry/service/{{.Name}}" data-filter={{.Name}} class="btn btn-default btn-lg service" style="margin: 5px 3px 5px 3px;">{{.Name}}</a>
-		{{end}}
+	<p style="margin: 0;">&nbsp;</p>
+	{{range .Results}}
+	<div style="margin: 5px 5px 5px 15px;">
+	    <a href="registry/service/{{.Name}}" data-filter={{.Name}} class="service">{{.Name}}</a>
 	</div>
+	{{end}}
 {{end}}
 {{define "script"}}
 <script type="text/javascript">
