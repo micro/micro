@@ -95,4 +95,37 @@ var (
 </body>
 </html>
 `
+
+	logTemplate = `
+<html lang="en">
+<head>
+    <title>Micro Debug | Log</title>
+    <meta name="application-name" content="netdata">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link href="https://fonts.googleapis.com/css?family=Source+Code+Pro&display=swap" rel="stylesheet">
+  <style>
+    html {
+      font-family: 'Source Code Pro', monospace;
+    }
+    
+  </style>
+</head>
+<body style="font-family: 'Source Code Pro', monospace; margin: 10px;">
+  <h1 style="vertical-align: middle; font-weight: 500;">
+    <a href="/"><img src="https://micro.mu/logo.png" height=50px width=auto style="vertical-align: middle;"/></a> Debug Log
+  </h1>
+  <p>&nbsp;</p>
+  <div id="content">
+    {{ range $index, $el := .Records }}
+    <div>{{.Value}}</div>
+    {{end}}
+  </div>
+</body>
+</html>
+`
 )

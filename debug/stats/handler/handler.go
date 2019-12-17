@@ -6,10 +6,10 @@ import (
 	"sync"
 	"time"
 
-	"github.com/micro/go-micro/errors"
 	"github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/config/cmd"
 	debug "github.com/micro/go-micro/debug/service/proto"
+	"github.com/micro/go-micro/errors"
 	"github.com/micro/go-micro/registry"
 	"github.com/micro/go-micro/registry/cache"
 	"github.com/micro/go-micro/util/log"

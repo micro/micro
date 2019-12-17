@@ -2,6 +2,7 @@
 package web
 
 import (
+	"context"
 	"fmt"
 	"html/template"
 	"net/http"
@@ -12,7 +13,9 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/micro/cli"
+	"github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/web"
+	logpb "github.com/micro/micro/debug/log/proto"
 )
 
 // Run starts go.micro.web.debug
@@ -37,12 +40,18 @@ func Run(ctx *cli.Context) {
 
 	r := mux.NewRouter()
 	r.HandleFunc("/", renderDashboard)
+
+	// renders the per service debug dashboard
 	r.HandleFunc("/service/{service}", renderServiceDashboard)
+	// endpoint for logs
+	r.HandleFunc("/log/{service}", logDashboard)
 
 	wrapper := &netdataWrapper{
 		netdataproxy: netdata.ServeHTTP,
 	}
 	service := web.NewService(opts...)
+
+	// endpoints required for displaying stats and metrics
 	service.HandleFunc("/dashboard.js", netdata.ServeHTTP)
 	service.HandleFunc("/dashboard.css", netdata.ServeHTTP)
 	service.HandleFunc("/dashboard.slate.css", netdata.ServeHTTP)
@@ -54,6 +63,8 @@ func Run(ctx *cli.Context) {
 	service.HandleFunc("/css/", netdata.ServeHTTP)
 	service.HandleFunc("/api/", netdata.ServeHTTP)
 	service.HandleFunc("/", r.ServeHTTP)
+
+	// endpoints for infrastructure
 	service.HandleFunc("/infra", http.RedirectHandler("/debug/infra/", http.StatusTemporaryRedirect).ServeHTTP)
 	service.HandleFunc("/infra/", wrapper.proxyNetdata)
 
@@ -68,15 +79,43 @@ func renderDashboard(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func logDashboard(w http.ResponseWriter, r *http.Request) {
+	v := mux.Vars(r)
+	service, ok := v["service"]
+	if !ok {
+		w.WriteHeader(http.StatusNotFound)
+		fmt.Fprintf(w, "Service not found\n")
+		return
+	}
+	// get the logs
+	c := logpb.NewLogService("go.micro.debug", client.DefaultClient)
+
+	// TODO: ability to stream
+	logs, err := c.Read(context.TODO(), &logpb.ReadRequest{
+		Service: service,
+	})
+	if err != nil {
+		http.Error(w, err.Error(), 500)
+		return
+	}
+
+	t := template.Must(template.New("logs").Parse(logTemplate))
+	t.Execute(w, logs)
+}
+
 func renderServiceDashboard(w http.ResponseWriter, r *http.Request) {
 	v := mux.Vars(r)
 	service, found := v["service"]
 	if !found {
 		w.WriteHeader(http.StatusNotFound)
 		fmt.Fprintf(w, "Service not found\n")
-	} else {
-		dashboardTemplate.Execute(w, struct{ Service string }{Service: strings.ReplaceAll(service, ".", "_")})
+		return
 	}
+
+	// execute the dashboad template
+	dashboardTemplate.Execute(w, struct{ Service string }{
+		Service: strings.ReplaceAll(service, ".", "_"),
+	})
 }
 
 type netdataWrapper struct {
