@@ -8,14 +8,13 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/micro/go-micro/config/options"
 	"github.com/micro/go-micro/errors"
 	"github.com/micro/go-micro/proxy"
 	"github.com/micro/go-micro/server"
 )
 
 type Proxy struct {
-	options.Options
+	options proxy.Options
 
 	// The file or directory to read from
 	Endpoint string
@@ -90,6 +89,10 @@ func (p *Proxy) ServeRequest(ctx context.Context, req server.Request, rsp server
 
 }
 
+func (p *Proxy) String() string {
+	return "exec"
+}
+
 //NewSingleHostProxy returns a router which sends requests to a single file
 func NewSingleHostProxy(url string) proxy.Proxy {
 	return &Proxy{
@@ -98,16 +101,13 @@ func NewSingleHostProxy(url string) proxy.Proxy {
 }
 
 // NewProxy returns a new proxy which will execute a script, binary or anything
-func NewProxy(opts ...options.Option) proxy.Proxy {
-	p := new(Proxy)
-	p.Options = options.NewOptions(opts...)
-	p.Options.Init(options.WithString("exec"))
-
-	// get endpoint
-	ep, ok := p.Options.Values().Get("proxy.endpoint")
-	if ok {
-		p.Endpoint = ep.(string)
+func NewProxy(opts ...proxy.Option) proxy.Proxy {
+	var options proxy.Options
+	for _, o := range opts {
+		o(&options)
 	}
+	p := new(Proxy)
+	p.Endpoint = options.Endpoint
 
 	return p
 }

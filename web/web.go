@@ -291,8 +291,8 @@ func (s *srv) indexHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *srv) registryHandler(w http.ResponseWriter, r *http.Request) {
-	r.ParseForm()
-	svc := r.Form.Get("service")
+	vars := mux.Vars(r)
+	svc := vars["name"]
 
 	if len(svc) > 0 {
 		s, err := s.registry.GetService(svc)
@@ -452,6 +452,7 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 
 	s.HandleFunc("/client", s.callHandler)
 	s.HandleFunc("/registry", s.registryHandler)
+	s.HandleFunc("/registry/service/{name}", s.registryHandler)
 	s.HandleFunc("/terminal", s.cliHandler)
 	s.HandleFunc("/rpc", handler.RPC)
 	s.HandleFunc("/favicon.ico", faviconHandler)

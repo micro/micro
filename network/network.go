@@ -3,6 +3,7 @@ package network
 
 import (
 	"errors"
+	"fmt"
 	"os"
 	"strings"
 	"time"
@@ -14,17 +15,20 @@ import (
 	"github.com/micro/go-micro/network/resolver/dns"
 	"github.com/micro/go-micro/network/resolver/http"
 	"github.com/micro/go-micro/network/resolver/registry"
-	"github.com/micro/go-micro/network/service/handler"
 	"github.com/micro/go-micro/proxy"
 	"github.com/micro/go-micro/proxy/mucp"
 	"github.com/micro/go-micro/router"
 	"github.com/micro/go-micro/server"
+	"github.com/micro/go-micro/transport"
+	"github.com/micro/go-micro/transport/quic"
 	"github.com/micro/go-micro/tunnel"
 	"github.com/micro/go-micro/util/log"
 	"github.com/micro/go-micro/util/mux"
 	mcli "github.com/micro/micro/cli"
+	"github.com/micro/micro/internal/helper"
 	"github.com/micro/micro/network/api"
 	netdns "github.com/micro/micro/network/dns"
+	"github.com/micro/micro/network/handler"
 	"github.com/micro/micro/network/web"
 )
 
@@ -91,11 +95,13 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	}
 
 	// advertise the best routes
-	strategy := router.AdvertiseBest
+	strategy := router.AdvertiseLocal
 	if a := ctx.String("advertise_strategy"); len(a) > 0 {
 		switch a {
 		case "all":
 			strategy = router.AdvertiseAll
+		case "best":
+			strategy = router.AdvertiseBest
 		case "local":
 			strategy = router.AdvertiseLocal
 		case "none":
@@ -111,11 +117,26 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	)
 
 	// create a tunnel
-	tun := tunnel.NewTunnel(
+	tunOpts := []tunnel.Option{
 		tunnel.Address(Address),
-		tunnel.Nodes(nodes...),
 		tunnel.Token(Token),
-	)
+	}
+
+	if ctx.GlobalBool("enable_tls") {
+		config, err := helper.TLSConfig(ctx)
+		if err != nil {
+			fmt.Println(err.Error())
+			return
+		}
+		config.InsecureSkipVerify = true
+
+		tunOpts = append(tunOpts, tunnel.Transport(
+			quic.NewTransport(transport.TLSConfig(config)),
+		))
+	}
+
+	gateway := ctx.String("gateway")
+	tun := tunnel.NewTunnel(tunOpts...)
 
 	// local tunnel router
 	rtr := router.NewRouter(
@@ -123,6 +144,7 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		router.Id(service.Server().Options().Id),
 		router.Registry(service.Client().Options().Registry),
 		router.Advertise(strategy),
+		router.Gateway(gateway),
 	)
 
 	// create new network
@@ -131,7 +153,7 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		network.Name(Network),
 		network.Address(Address),
 		network.Advertise(Advertise),
-		network.Peers(nodes...),
+		network.Nodes(nodes...),
 		network.Tunnel(tun),
 		network.Router(rtr),
 		network.Resolver(res),
@@ -215,6 +237,11 @@ func Commands(options ...micro.Option) []cli.Command {
 				Name:   "advertise",
 				Usage:  "Set the micro network address to advertise",
 				EnvVar: "MICRO_NETWORK_ADVERTISE",
+			},
+			cli.StringFlag{
+				Name:   "gateway",
+				Usage:  "Set the default gateway",
+				EnvVar: "MICRO_NETWORK_GATEWAY",
 			},
 			cli.StringFlag{
 				Name:   "network",

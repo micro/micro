@@ -6,6 +6,7 @@ import (
 	"os"
 	"os/signal"
 	"path/filepath"
+	"sort"
 	"strings"
 	"syscall"
 	"text/tabwriter"
@@ -15,9 +16,9 @@ import (
 	"github.com/micro/go-micro/config/cmd"
 	"github.com/micro/go-micro/runtime"
 	rs "github.com/micro/go-micro/runtime/service"
-	"github.com/micro/go-micro/runtime/service/handler"
 	pb "github.com/micro/go-micro/runtime/service/proto"
 	"github.com/micro/go-micro/util/log"
+	"github.com/micro/micro/runtime/handler"
 	"github.com/micro/micro/runtime/notifier"
 )
 
@@ -56,7 +57,8 @@ func runService(ctx *cli.Context, srvOpts ...micro.Option) {
 		p.Init(ctx)
 	}
 
-	if len(ctx.Args()) == 0 || ctx.Args()[0] != "service" {
+	// we need some args to run
+	if len(ctx.Args()) == 0 {
 		log.Fatal(RunUsage)
 	}
 
@@ -67,26 +69,39 @@ func runService(ctx *cli.Context, srvOpts ...micro.Option) {
 	env := ctx.StringSlice("env")
 	local := ctx.Bool("local")
 
-	// must specify service name
-	if len(name) == 0 {
-		log.Fatal(RunUsage)
+	// "service" is a reserved keyword
+	// but otherwise assume anything else is source
+	if v := ctx.Args()[0]; v != "service" {
+		source = v
 	}
 
 	var r runtime.Runtime
 	var exec []string
 
+	// must specify service name
+	if len(name) == 0 {
+		if len(source) > 0 {
+			name = filepath.Base(source)
+		} else {
+			cwd, _ := os.Getwd()
+			name = filepath.Base(cwd)
+		}
+	}
+
+	// local usage specified
 	switch local {
 	case true:
 		r = *cmd.DefaultCmd.Options().Runtime
 		// NOTE: When in local mode, we consider source to be
 		// the filesystem path to the source of the service
+		exec = []string{"go", "run", "."}
+
 		if len(source) > 0 {
-			dir := filepath.Dir(source)
-			if err := os.Chdir(dir); err != nil {
-				log.Fatalf("Could not change to directory %s: %v", dir, err)
+			// dir doesn't exist so pull
+			if err := os.Chdir(source); err != nil {
+				exec[2] = source
 			}
 		}
-		exec = []string{"go", "run", "main.go"}
 
 		// specify the runtime notifier to update wiht local file changes
 		if err := r.Init(runtime.WithNotifier(notifier.New(name, version, source))); err != nil {
@@ -114,7 +129,6 @@ func runService(ctx *cli.Context, srvOpts ...micro.Option) {
 		Name:     name,
 		Source:   source,
 		Version:  version,
-		Exec:     exec,
 		Metadata: make(map[string]string),
 	}
 
@@ -132,6 +146,7 @@ func runService(ctx *cli.Context, srvOpts ...micro.Option) {
 	// runtime based on environment we run the service in
 	// TODO: how will this work with runtime service
 	opts := []runtime.CreateOption{
+		runtime.WithCommand(exec...),
 		runtime.WithOutput(os.Stdout),
 		runtime.WithEnv(environment),
 	}
@@ -202,6 +217,7 @@ func getService(ctx *cli.Context, srvOpts ...micro.Option) {
 	name := ctx.String("name")
 	version := ctx.String("version")
 	local := ctx.Bool("local")
+	runType := ctx.Bool("runtime")
 
 	var r runtime.Runtime
 	switch local {
@@ -212,35 +228,55 @@ func getService(ctx *cli.Context, srvOpts ...micro.Option) {
 	}
 
 	var list bool
-	if len(ctx.Args()) == 0 || ctx.Args()[1] != "service" {
+
+	if len(ctx.Args()) == 0 || ctx.Args()[0] != "service" {
 		list = true
 	}
 
 	var services []*runtime.Service
 	var err error
 
+	// return a list of services
 	switch list {
 	case true:
-		// list all running services
-		services, err = r.List()
-		if err != nil {
-			log.Fatal(err)
+		// return the runtiem services
+		if runType {
+			services, err = r.Read(runtime.ReadType("runtime"))
+		} else {
+			// list all running services
+			services, err = r.List()
 		}
+	// return one service
 	default:
+		// check if service name was passed in
 		if len(name) == 0 {
 			log.Fatal(GetUsage)
 		}
-		// query runtime for named service status
-		services, err = r.Read(name, runtime.WithVersion(version))
-		if err != nil {
-			log.Fatal(err)
+
+		// get service with name and version
+		opts := []runtime.ReadOption{
+			runtime.ReadService(name),
+			runtime.ReadVersion(version),
 		}
+
+		// return the runtime services
+		if runType {
+			opts = append(opts, runtime.ReadType("runtime"))
+		}
+
+		// read the service
+		services, err = r.Read(opts...)
+	}
+
+	// check the error
+	if err != nil {
+		log.Fatal(err)
 	}
 
 	// make sure we return UNKNOWN when empty string is supplied
 	parse := func(m string) string {
 		if len(m) == 0 {
-			return "UNKNOWN"
+			return "n/a"
 		}
 		return m
 	}
@@ -249,6 +285,8 @@ func getService(ctx *cli.Context, srvOpts ...micro.Option) {
 	if len(services) == 0 {
 		return
 	}
+
+	sort.Slice(services, func(i, j int) bool { return services[i].Name < services[j].Name })
 
 	writer := tabwriter.NewWriter(os.Stdout, 0, 8, 1, '\t', tabwriter.AlignRight)
 	fmt.Fprintln(writer, "NAME\tVERSION\tSOURCE\tSTATUS\tBUILD\tMETADATA")
@@ -264,7 +302,7 @@ func getService(ctx *cli.Context, srvOpts ...micro.Option) {
 	writer.Flush()
 }
 
-func run(ctx *cli.Context, srvOpts ...micro.Option) {
+func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 	log.Name("runtime")
 
 	// Init plugins
@@ -343,6 +381,10 @@ func Flags() []cli.Flag {
 			Name:  "env",
 			Usage: "Set the environment variables e.g. foo=bar",
 		},
+		cli.BoolFlag{
+			Name:  "runtime",
+			Usage: "Return the runtime services",
+		},
 	}
 }
 
@@ -359,7 +401,7 @@ func Commands(options ...micro.Option) []cli.Command {
 				},
 			},
 			Action: func(ctx *cli.Context) {
-				run(ctx, options...)
+				Run(ctx, options...)
 			},
 		},
 		{

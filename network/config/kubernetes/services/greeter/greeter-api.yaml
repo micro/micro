@@ -2,22 +2,24 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   namespace: default
-  name: greeting-web
+  name: greeter-api
 spec:
   replicas: 1
   selector:
     matchLabels:
-      name: greeting-web
+      name: greeter-api
   template:
     metadata:
       labels:
-        name: greeting-web
+        name: greeter-api
     spec:
       containers:
-        - name: greeting-web
+        - name: discovery
           command: [
-		    "/greeting-web"
-          ]
+		"/greeter-api",
+		"--server_address=0.0.0.0:9090",
+		"--broker_address=0.0.0.0:10001"
+	  ]
           env:
           - name: MICRO_PROXY
             value: "go.micro.proxy"
@@ -25,8 +27,8 @@ spec:
             value: "etcd"
           - name: MICRO_REGISTRY_ADDRESS
             value: "etcd-cluster-client"
-          image: microhq/greeting-web
+          image: microhq/greeter-api
           imagePullPolicy: Always
           ports:
           - containerPort: 9090
-            name: web-port
+            name: api-port

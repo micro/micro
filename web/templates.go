@@ -8,9 +8,17 @@ var (
 		<title>Micro Web</title>
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+		<link href="https://fonts.googleapis.com/css?family=Source+Code+Pro&display=swap" rel="stylesheet">
 		<style>
-		  .navbar-inverse .navbar-brand { color: #F6F5F6; font-weight: bold; }
-		  .navbar-inverse { background-color: #252531; }
+		  html, body {
+		    font-family: 'Source Code Pro', monospace;
+		  }
+		  html a { color: #333333; }
+		  .navbar .navbar-brand { color: #333333; font-weight: bold; font-size: 2.0em; }
+		  .navbar-brand img { display: inline; }
+		  #navBar, .navbar-toggle { margin-top: 15px; }
+		  .icon-bar { background-color: #333333; }
+		  .nav>li>a:focus, .nav>li>a:hover { background-color: white; }
 		</style>
 		<style>
 		{{ template "style" . }}
@@ -18,7 +26,7 @@ var (
 		{{ template "head" . }}
 	</head>
 	<body>
-	  <nav class="navbar navbar-inverse">
+	  <nav class="navbar">
 	    <div class="container">
               <div class="navbar-header">
                 <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navBar">
@@ -26,13 +34,13 @@ var (
                   <span class="icon-bar"></span>
                   <span class="icon-bar"></span> 
                 </button>
-                <a class="navbar-brand logo" href="/">Micro</a>
+                <a class="navbar-brand logo" href="/"><img src="https://micro.mu/logo.png" height=50px width=auto /> Micro</a>
               </div>
               <div class="collapse navbar-collapse" id="navBar">
 	        <ul class="nav navbar-nav navbar-right" id="dev">
-	          <li><a href="terminal">Terminal</a></li>
-	          <li><a href="registry">Registry</a></li>
-	          <li><a href="client">Client</a></li>
+	          <li><a href="/terminal">Terminal</a></li>
+	          <li><a href="/registry">Registry</a></li>
+	          <li><a href="/client">Client</a></li>
 	          {{if .StatsURL}}<li><a href="{{.StatsURL}}" class="navbar-link">Stats</a></li>{{end}}
 	        </ul>
               </div>
@@ -76,15 +84,24 @@ var (
 
 	indexTemplate = `
 {{define "heading"}}<h4><input class="form-control input-lg search" type=text placeholder="Search"/></h4>{{end}}
+{{define "style" }}
+.service {
+	margin: 5px 3px 5px 3px;
+	padding: 20px;
+	text-align: center;
+	display: block;
+}
+.search { border-radius: 100px; }
+{{end}}
 {{define "title"}}Web{{end}}
 {{define "content"}}
 	{{if .Results.HasWebServices}}
 		<div>
 			{{range .Results.WebServices}}
-			<div style="display: inline-block; margin: 10px;">
-			<a href="/{{.Name}}" data-filter={{.Name}} class="btn btn-default btn-lg service" style="margin: 5px 3px 5px 3px; padding: 20px;">
-			  <span style="padding: 5px; max-width: 80px; display: block;"><img src="{{.Icon}}" style="width: 100%; height: auto;"/></span>
-			  {{.Name}}
+			<div style="display: inline-block; max-width: 150px; vertical-align: top;">
+			<a href="/{{.Name}}/" data-filter={{.Name}} class="service">
+			  <div style="padding: 5px; max-width: 80px; display: block; margin: 0 auto;"><img src="{{.Icon}}" style="width: 100%; height: auto;"/></div>
+			  <div>{{.Name}}</div>
 			</a>
 			</div>
 			{{end}}
@@ -111,6 +128,10 @@ jQuery(function($, undefined) {
 {{define "style"}}
 	pre {
 		word-wrap: break-word;
+		border: 0;
+	}
+	.form-control {
+		border: 1px solid whitesmoke;
 	}
 {{end}}
 {{define "content"}}
@@ -149,13 +170,13 @@ jQuery(function($, undefined) {
 				<textarea class="form-control" name=request id=request rows=8>{}</textarea>
 			</div>
 			<div class="form-group">
-				<button class="btn btn-default">Execute</button>
+				<button class="btn btn-default" style="border-color: whitesmoke;">Execute</button>
 			</div>
 		</form>
 	</div>
 	<div class="col-sm-7">
 		<p><b>Response</b><span class="pull-right"><a href="#" onclick="copyResponse()">Copy</a></p>
-		<pre id="response" style="min-height: 405px;">{}</pre>
+		<pre id="response" style="min-height: 405px; border: 0;">{}</pre>
 	</div>
     </div>
   </div>
@@ -237,10 +258,20 @@ jQuery(function($, undefined) {
 			if (!($('#otherendpoint').prop('disabled'))) {
 				endpoint = document.forms[0].elements["otherendpoint"].value
 			}
+
+			var reqBody;
+
+			try {
+				reqBody = JSON.parse([0].elements["request"].value);
+			} catch(e) {
+				document.getElementById("response").innerText = "Invalid request: " + e.message;
+				return false;
+			}
+
 			var request = {
 				"service": document.forms[0].elements["service"].value,
 				"endpoint": endpoint,
-				"request": JSON.parse(document.forms[0].elements["request"].value)
+				"request": request
 			}
 			req.open("POST", "/rpc", true);
 			req.setRequestHeader("Content-type","application/json");				
@@ -255,11 +286,12 @@ jQuery(function($, undefined) {
 {{define "heading"}}<h4><input class="form-control input-lg search" type=text placeholder="Search"/></h4>{{end}}
 {{define "title"}}Registry{{end}}
 {{define "content"}}
-	<div>
-		{{range .Results}}
-		<a href="registry?service={{.Name}}" data-filter={{.Name}} class="btn btn-default btn-lg service" style="margin: 5px 3px 5px 3px;">{{.Name}}</a>
-		{{end}}
+	<p style="margin: 0;">&nbsp;</p>
+	{{range .Results}}
+	<div style="margin: 5px 5px 5px 15px;">
+	    <a href="registry/service/{{.Name}}" data-filter={{.Name}} class="service">{{.Name}}</a>
 	</div>
+	{{end}}
 {{end}}
 {{define "script"}}
 <script type="text/javascript">
@@ -280,12 +312,18 @@ jQuery(function($, undefined) {
 	serviceTemplate = `
 {{define "title"}}Service{{end}}
 {{define "heading"}}<h3>{{with $svc := index .Results 0}}{{$svc.Name}}{{end}}</h3>{{end}}
+{{define "style"}}
+.table>tbody>tr>th, .table>tbody>tr>td {
+    border-top: none;
+}
+pre {border: 0; padding: 20px;}
+{{end}}
 {{define "content"}}
 	<hr>
 	<h4>Nodes</h4>
 	{{range .Results}}
 	<h5>Version {{.Version}}</h5>
-	<table class="table table-bordered table-striped">
+	<table class="table">
 		<thead>
 			<th>Id</th>
 			<th>Address</th>
@@ -309,12 +347,14 @@ jQuery(function($, undefined) {
 	{{end}}
 	{{range $svc.Endpoints}}
 		<h4>{{.Name}}</h4>
-		<table class="table table-bordered">
+		<table class="table">
 			<tbody>
+				{{if .Metadata}}
 				<tr>
 					<th class="col-sm-2" scope="row">Metadata</th>
 					<td>{{ range $key, $value := .Metadata }}{{$key}}={{$value}} {{end}}</td>
 				</tr>
+				{{end}}
 				<tr>
 					<th class="col-sm-2" scope="row">Request</th>
 					<td><pre>{{format .Request}}</pre></td>
@@ -343,6 +383,7 @@ jQuery(function($, undefined) {
     background-color: #fff;
     color: #333;
   }
+  .terminal { padding: 0; }
 </style>
 {{end}}
 {{define "title"}}CLI{{end}}
@@ -536,7 +577,7 @@ jQuery(function($, undefined) {
         greetings: '',
         name: 'micro_cli',
         height: 400,
-        prompt: 'micro> '});
+        prompt: '$ '});
 });
 </script>
 {{end}}

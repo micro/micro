@@ -50,19 +50,25 @@ metadata:
   namespace: default
   name: micro-runtime
   labels:
-    micro: service
+    micro: runtime
     name: micro-runtime
+  annotations:
+    name: "go.micro.runtime"
+    version: "latest"
+    source: "github.com/micro/micro"
+    owner: "micro"
+    group: "micro"
 spec:
   replicas: 1
   selector:
     matchLabels:
       name: micro-runtime
-      micro: service
+      micro: runtime
   template:
     metadata:
       labels:
         name: micro-runtime
-        micro: service
+        micro: runtime
     spec:
       serviceAccountName: micro-runtime
       containers:

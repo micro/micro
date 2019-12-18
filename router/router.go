@@ -10,9 +10,9 @@ import (
 	"github.com/micro/cli"
 	"github.com/micro/go-micro"
 	"github.com/micro/go-micro/router"
-	"github.com/micro/go-micro/router/handler"
-	pb "github.com/micro/go-micro/router/proto"
+	pb "github.com/micro/go-micro/router/service/proto"
 	"github.com/micro/go-micro/util/log"
+	"github.com/micro/micro/router/handler"
 )
 
 var (
@@ -182,11 +182,14 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	}
 
 	// advertise the best routes
-	strategy := router.AdvertiseBest
+	strategy := router.AdvertiseLocal
+
 	if a := ctx.String("advertise_strategy"); len(a) > 0 {
 		switch a {
 		case "all":
 			strategy = router.AdvertiseAll
+		case "best":
+			strategy = router.AdvertiseBest
 		case "local":
 			strategy = router.AdvertiseLocal
 		case "none":

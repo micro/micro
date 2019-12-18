@@ -15,6 +15,7 @@ import (
 	"github.com/micro/micro/bot"
 	"github.com/micro/micro/broker"
 	"github.com/micro/micro/cli"
+	"github.com/micro/micro/debug"
 	"github.com/micro/micro/health"
 	"github.com/micro/micro/monitor"
 	"github.com/micro/micro/network"
@@ -45,7 +46,7 @@ var (
 
 	name        = "micro"
 	description = "A microservice runtime"
-	version     = "1.17.1"
+	version     = "1.18.0"
 )
 
 func init() {
@@ -269,6 +270,7 @@ func Setup(app *ccli.App, options ...micro.Option) {
 	app.Commands = append(app.Commands, network.Commands(options...)...)
 	app.Commands = append(app.Commands, registry.Commands(options...)...)
 	app.Commands = append(app.Commands, runtime.Commands(options...)...)
+	app.Commands = append(app.Commands, debug.Commands(options...)...)
 	app.Commands = append(app.Commands, server.Commands(options...)...)
 	app.Commands = append(app.Commands, service.Commands(options...)...)
 	app.Commands = append(app.Commands, store.Commands(options...)...)
@@ -309,8 +311,17 @@ func Setup(app *ccli.App, options ...micro.Option) {
 			log.Info("Setting local network")
 		} else {
 			log.Info("Setting global network")
-			// set the resolver to use https://micro.mu/network
-			env = append(env, "MICRO_NETWORK_RESOLVER=http")
+
+			if v := os.Getenv("MICRO_NETWORK_RESOLVER"); len(v) == 0 {
+				// set the resolver to use https://micro.mu/network
+				env = append(env, "MICRO_NETWORK_RESOLVER=http")
+				log.Log("Setting default network resolver")
+			}
+			if v := os.Getenv("MICRO_NETWORK_TOKEN"); len(v) == 0 {
+				// set the network token
+				env = append(env, "MICRO_NETWORK_TOKEN=micro.mu")
+				log.Log("Setting default network token")
+			}
 		}
 
 		log.Info("Loading core services")
@@ -324,6 +335,7 @@ func Setup(app *ccli.App, options ...micro.Option) {
 			"tunnel",   // :8083
 			"router",   // :8084
 			"monitor",  // :????
+			"debug",    // :????
 			"proxy",    // :8081
 			"api",      // :8080
 			"web",      // :8082
