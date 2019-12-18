@@ -122,7 +122,7 @@ var (
   <p>&nbsp;</p>
   <div id="content">
     {{ range $index, $el := .Records }}
-    <div>{{.Value}}</div>
+    <div>{{.}}</div>
     {{end}}
   </div>
 </body>

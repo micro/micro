@@ -44,7 +44,7 @@ func (l *Log) Read(ctx context.Context, req *pb.ReadRequest, rsp *pb.ReadRespons
 		rsp.Records = append(rsp.Records, &pb.Record{
 			Timestamp: rec.Timestamp.Unix(),
 			Metadata:  rec.Metadata,
-			Value:     rec.Value.(string),
+			Message:   rec.Message.(string),
 		})
 	}
 

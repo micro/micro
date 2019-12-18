@@ -1,6 +1,7 @@
 package debug
 
 import (
+	"encoding/json"
 	"fmt"
 	"time"
 
@@ -49,17 +50,14 @@ func getLog(ctx *cli.Context, srvOpts ...micro.Option) {
 		ulog.Fatal(err)
 	}
 
-	var json bool
-	switch ctx.String("output") {
-	case "json":
-		json = true
-	}
-
+	output := ctx.String("output")
 	for record := range logs.Chan() {
-		if json {
-			fmt.Printf("%v\n", record)
-		} else {
-			fmt.Printf("%v\n", record.Value)
+		switch output {
+		case "json":
+			b, _ := json.Marshal(record)
+			fmt.Printf("%v\n", string(b))
+		default:
+			fmt.Printf("%v\n", record.Message)
 		}
 	}
 }

@@ -11,6 +11,7 @@ import (
 	proto "github.com/micro/go-micro/debug/service/proto"
 	"github.com/micro/go-micro/util/log"
 	mcli "github.com/micro/micro/cli"
+	qcli "github.com/micro/micro/internal/command/cli"
 	"golang.org/x/net/context"
 )
 
@@ -20,8 +21,14 @@ var (
 	serverName    string
 )
 
-func run(ctx *cli.Context) {
+func Run(ctx *cli.Context) {
 	log.Name("health")
+
+	// just check service health
+	if len(ctx.Args()) > 0 {
+		mcli.Print(qcli.QueryHealth)(ctx)
+		return
+	}
 
 	serverName = ctx.String("check_service")
 	serverAddress = ctx.String("check_address")
@@ -65,7 +72,7 @@ func run(ctx *cli.Context) {
 func Commands(options ...micro.Option) []cli.Command {
 	command := cli.Command{
 		Name:  "health",
-		Usage: "Run the http healthchecking sidecar at /health",
+		Usage: "Check the health of a service",
 		Flags: []cli.Flag{
 			cli.StringFlag{
 				Name:   "address",
@@ -83,9 +90,8 @@ func Commands(options ...micro.Option) []cli.Command {
 				EnvVar: "MICRO_HEALTH_CHECK_ADDRESS",
 			},
 		},
-		Subcommands: mcli.HealthCommands(),
 		Action: func(ctx *cli.Context) {
-			run(ctx)
+			Run(ctx)
 		},
 	}
 

@@ -9,10 +9,10 @@ service Log {
 message Record {
         // timestamp of log record
         int64 timestamp = 1;
-        // record value
-        string value = 2;
         // record metadata
-        map<string,string> metadata = 3;
+        map<string,string> metadata = 2;
+        // record value
+        string message = 3;
 }
 
 message ReadRequest {

@@ -17,7 +17,7 @@ import (
 
 type exec func(*cli.Context, []string) ([]byte, error)
 
-func printer(e exec) func(*cli.Context) {
+func Print(e exec) func(*cli.Context) {
 	return func(c *cli.Context) {
 		rsp, err := e(c, c.Args())
 		if err != nil {

@@ -88,49 +88,32 @@ func runc(c *cli.Context) {
 	}
 }
 
-func HealthCommands() []cli.Command {
-	return []cli.Command{
-		{
-			Name:   "check",
-			Usage:  "Query the health of a service",
-			Action: printer(queryHealth),
-			Flags: []cli.Flag{
-				cli.StringFlag{
-					Name:   "address",
-					Usage:  "Set the address of the service instance to call",
-					EnvVar: "MICRO_ADDRESS",
-				},
-			},
-		},
-	}
-}
-
 func NetworkCommands() []cli.Command {
 	return []cli.Command{
 		{
 			Name:   "connect",
 			Usage:  "connect to the network. specify nodes e.g connect ip:port",
-			Action: printer(networkConnect),
+			Action: Print(networkConnect),
 		},
 		{
 			Name:   "connections",
 			Usage:  "List the immediate connections to the network",
-			Action: printer(networkConnections),
+			Action: Print(networkConnections),
 		},
 		{
 			Name:   "graph",
 			Usage:  "Get the network graph",
-			Action: printer(networkGraph),
+			Action: Print(networkGraph),
 		},
 		{
 			Name:   "nodes",
 			Usage:  "List nodes in the network",
-			Action: printer(netNodes),
+			Action: Print(netNodes),
 		},
 		{
 			Name:   "routes",
 			Usage:  "List network routes",
-			Action: printer(netRoutes),
+			Action: Print(netRoutes),
 			Flags: []cli.Flag{
 				cli.StringFlag{
 					Name:  "service",
@@ -157,7 +140,7 @@ func NetworkCommands() []cli.Command {
 		{
 			Name:   "services",
 			Usage:  "List network services",
-			Action: printer(netServices),
+			Action: Print(netServices),
 		},
 	}
 }
@@ -185,7 +168,7 @@ func NetworkDNSCommands() []cli.Command {
 					EnvVar: "MICRO_NETWORK_DNS_ADVERTISE_TOKEN",
 				},
 			},
-			Action: printer(netDNSAdvertise),
+			Action: Print(netDNSAdvertise),
 		},
 		{
 			Name:  "remove",
@@ -208,7 +191,7 @@ func NetworkDNSCommands() []cli.Command {
 					EnvVar: "MICRO_NETWORK_DNS_REMOVE_TOKEN",
 				},
 			},
-			Action: printer(netDNSRemove),
+			Action: Print(netDNSRemove),
 		},
 		{
 			Name:  "resolve",
@@ -232,7 +215,7 @@ func NetworkDNSCommands() []cli.Command {
 					EnvVar: "MICRO_NETWORK_DNS_RESOLVE_TOKEN",
 				},
 			},
-			Action: printer(netDNSResolve),
+			Action: Print(netDNSResolve),
 		},
 	}
 }
@@ -246,17 +229,17 @@ func RegistryCommands() []cli.Command {
 				{
 					Name:   "nodes",
 					Usage:  "List nodes in the network",
-					Action: printer(netNodes),
+					Action: Print(netNodes),
 				},
 				{
 					Name:   "routes",
 					Usage:  "List network routes",
-					Action: printer(netRoutes),
+					Action: Print(netRoutes),
 				},
 				{
 					Name:   "services",
 					Usage:  "List services in registry",
-					Action: printer(listServices),
+					Action: Print(listServices),
 				},
 			},
 		},
@@ -267,7 +250,7 @@ func RegistryCommands() []cli.Command {
 				{
 					Name:   "service",
 					Usage:  "Register a service with JSON definition",
-					Action: printer(registerService),
+					Action: Print(registerService),
 				},
 			},
 		},
@@ -278,7 +261,7 @@ func RegistryCommands() []cli.Command {
 				{
 					Name:   "service",
 					Usage:  "Deregister a service with JSON definition",
-					Action: printer(deregisterService),
+					Action: Print(deregisterService),
 				},
 			},
 		},
@@ -289,7 +272,7 @@ func RegistryCommands() []cli.Command {
 				{
 					Name:   "service",
 					Usage:  "Get service from registry",
-					Action: printer(getService),
+					Action: Print(getService),
 				},
 			},
 		},
@@ -306,7 +289,7 @@ func Commands() []cli.Command {
 		{
 			Name:   "call",
 			Usage:  "Call a service e.g micro call greeter Say.Hello '{\"name\": \"John\"}",
-			Action: printer(callService),
+			Action: Print(callService),
 			Flags: []cli.Flag{
 				cli.StringFlag{
 					Name:   "address",
@@ -328,12 +311,12 @@ func Commands() []cli.Command {
 		{
 			Name:   "services",
 			Usage:  "List the services in the network",
-			Action: printer(netServices),
+			Action: Print(netServices),
 		},
 		{
 			Name:   "stream",
 			Usage:  "Create a service stream",
-			Action: printer(streamService),
+			Action: Print(streamService),
 			Flags: []cli.Flag{
 				cli.StringFlag{
 					Name:   "output, o",
@@ -350,7 +333,7 @@ func Commands() []cli.Command {
 		{
 			Name:   "publish",
 			Usage:  "Publish a message to a topic",
-			Action: printer(publish),
+			Action: Print(publish),
 			Flags: []cli.Flag{
 				cli.StringSliceFlag{
 					Name:   "metadata",
@@ -362,7 +345,7 @@ func Commands() []cli.Command {
 		{
 			Name:   "stats",
 			Usage:  "Query the stats of a service",
-			Action: printer(queryStats),
+			Action: Print(queryStats),
 		},
 	}
 
