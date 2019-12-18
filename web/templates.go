@@ -262,7 +262,7 @@ jQuery(function($, undefined) {
 			var reqBody;
 
 			try {
-				reqBody = JSON.parse([0].elements["request"].value);
+				reqBody = JSON.parse(document.forms[0].elements["request"].value);
 			} catch(e) {
 				document.getElementById("response").innerText = "Invalid request: " + e.message;
 				return false;
@@ -271,7 +271,7 @@ jQuery(function($, undefined) {
 			var request = {
 				"service": document.forms[0].elements["service"].value,
 				"endpoint": endpoint,
-				"request": request
+				"request": reqBody
 			}
 			req.open("POST", "/rpc", true);
 			req.setRequestHeader("Content-type","application/json");				
