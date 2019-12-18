@@ -120,11 +120,17 @@ var (
     <a href="/"><img src="https://micro.mu/logo.png" height=50px width=auto style="vertical-align: middle;"/></a> Debug Log
   </h1>
   <p>&nbsp;</p>
-  <div id="content">
+  <div id="content" style="height: calc(100% - 120px); overflow: scroll;">
     {{ range $index, $el := .Records }}
     <div>{{.}}</div>
     {{end}}
   </div>
+<script type="text/javascript">
+    window.onload=function () {
+         var objDiv = document.getElementById("content");
+         objDiv.scrollTop = objDiv.scrollHeight;
+    }
+</script>
 </body>
 </html>
 `
