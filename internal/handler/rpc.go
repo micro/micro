@@ -24,6 +24,12 @@ type rpcRequest struct {
 // RPC Handler passes on a JSON or form encoded RPC request to
 // a service.
 func RPC(w http.ResponseWriter, r *http.Request) {
+
+	if r.Method == "OPTIONS" {
+		helper.ServeCORS(w, r)
+		return
+	}
+
 	if r.Method != "POST" {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
