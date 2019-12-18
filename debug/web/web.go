@@ -42,7 +42,7 @@ func Run(ctx *cli.Context) {
 	r.HandleFunc("/", renderDashboard)
 
 	// renders the per service debug dashboard
-	r.HandleFunc("/service/{service}", renderServiceDashboard)
+	r.HandleFunc("/stats/{service}", statsDashboard)
 	// endpoint for logs
 	r.HandleFunc("/log/{service}", logDashboard)
 
@@ -100,10 +100,18 @@ func logDashboard(w http.ResponseWriter, r *http.Request) {
 	}
 
 	t := template.Must(template.New("logs").Parse(logTemplate))
-	t.Execute(w, logs)
+
+	t.Execute(w, struct {
+		Name    string
+		Records []*logpb.Record
+	}{
+		Name:    service,
+		Records: logs.Records,
+	})
 }
 
-func renderServiceDashboard(w http.ResponseWriter, r *http.Request) {
+// statsDashboard renders the dashboard for services stats
+func statsDashboard(w http.ResponseWriter, r *http.Request) {
 	v := mux.Vars(r)
 	service, found := v["service"]
 	if !found {
@@ -113,7 +121,8 @@ func renderServiceDashboard(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// execute the dashboad template
-	dashboardTemplate.Execute(w, struct{ Service string }{
+	dashboardTemplate.Execute(w, struct{ Name, Service string }{
+		Name:    service,
 		Service: strings.ReplaceAll(service, ".", "_"),
 	})
 }

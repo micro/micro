@@ -62,14 +62,14 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 				log.Name(service),
 			)
 		}
-/*
-	case "kubernetes":
-		newLog := func(service string) log.Log {
-			return kubernetes.NewLog(
-				log.Name(service),
-			)
-		}
-*/
+		/*
+			case "kubernetes":
+				newLog := func(service string) log.Log {
+					return kubernetes.NewLog(
+						log.Name(service),
+					)
+				}
+		*/
 	}
 
 	// append name
@@ -127,7 +127,7 @@ func Commands(options ...micro.Option) []cli.Command {
 					Name:   "log",
 					Usage:  "Specify the log source to use e.g service, kubernetes",
 					EnvVar: "MICRO_DEBUG_LOG",
-					Value: "service",
+					Value:  "service",
 				},
 			},
 			Action: func(ctx *cli.Context) {

@@ -215,13 +215,13 @@ func (s *Stats) scrape() {
 							Address: node.Address,
 						},
 					},
-					Started: int64(rsp.Started),
-					Uptime:  rsp.Uptime,
-					Memory:  rsp.Memory,
-					Threads: rsp.Threads,
-					Gc:      rsp.Gc,
+					Started:  int64(rsp.Started),
+					Uptime:   rsp.Uptime,
+					Memory:   rsp.Memory,
+					Threads:  rsp.Threads,
+					Gc:       rsp.Gc,
 					Requests: rsp.Requests,
-					Errors: rsp.Errors,
+					Errors:   rsp.Errors,
 				}
 
 				mtx.Lock()

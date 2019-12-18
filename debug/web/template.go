@@ -40,7 +40,7 @@ var (
   <h1 style="vertical-align: middle;">
     <a href="/"><img src="https://micro.mu/logo.png" height=50px width=auto /></a> Debug
   </h1>
-  <p>&nbsp;</p>
+  <p>{{if .Name}}Service: {{.Name}}{{else}}&nbsp;{{end}}</p>
   <div id="content">
       <!--
       <div data-netdata="system.cpu" data-chart-library="sparkline" data-height="30" data-after="-600" data-sparkline-linecolor="#888"></div>
@@ -142,7 +142,7 @@ var (
   <h1 style="vertical-align: middle; font-weight: 500;">
     <a href="/"><img src="https://micro.mu/logo.png" height=50px width=auto style="vertical-align: middle;"/></a> Debug Log
   </h1>
-  <p>&nbsp;</p>
+  <p>{{if .Name}}Service: {{.Name}}{{else}}&nbsp;{{end}}</p>
   <div id="content" style="height: calc(100% - 120px); overflow: scroll;">
     {{ range $index, $el := .Records }}
     <div>{{.}}</div>
