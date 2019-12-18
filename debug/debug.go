@@ -15,11 +15,6 @@ import (
 	"github.com/micro/micro/debug/web"
 )
 
-const (
-	// LogsUsage message for logs command
-	LogsUsage = "Required usage: micro logs --name example"
-)
-
 var (
 	// Name of the service
 	Name = "go.micro.debug"
@@ -163,11 +158,11 @@ func Commands(options ...micro.Option) []cli.Command {
 			},
 		},
 		{
-			Name:  "logs",
+			Name:  "log",
 			Usage: "Get logs for a service",
 			Flags: logFlags(),
 			Action: func(ctx *cli.Context) {
-				getLogs(ctx, options...)
+				getLog(ctx, options...)
 			},
 		},
 	}

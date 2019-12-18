@@ -77,6 +77,7 @@ github.com/coreos/bbolt v1.3.3/go.mod h1:iRUV2dpdMOn7Bo10OQBFzIJO9kkE559Wcmn+qkE
 github.com/coreos/etcd v3.3.17+incompatible h1:f/Z3EoDSx1yjaIjLQGo1diYUlQYSBrrAQ5vP8NjwXwo=
 github.com/coreos/etcd v3.3.17+incompatible/go.mod h1:uF7uidLiAD3TWHmW31ZFd/JWoc32PjwdhPthX9715RE=
 github.com/coreos/go-semver v0.3.0/go.mod h1:nnelYz7RCh+5ahJtPPxZlU+153eP4D4r3EedlOD2RNk=
+github.com/coreos/go-systemd v0.0.0-20190321100706-95778dfbb74e h1:Wf6HqHfScWJN9/ZjdUKyjop4mf3Qdd+1TvvltAvM3m8=
 github.com/coreos/go-systemd v0.0.0-20190321100706-95778dfbb74e/go.mod h1:F5haX7vjVVG0kc13fIWeqUViNPyEJxv/OmvnBo0Yme4=
 github.com/coreos/go-systemd v0.0.0-20190719114852-fd7a80b32e1f h1:JOrtw2xFKzlg+cbHpyrpLDmnN1HqhBfnX7WDiW7eG2c=
 github.com/coreos/go-systemd v0.0.0-20190719114852-fd7a80b32e1f/go.mod h1:F5haX7vjVVG0kc13fIWeqUViNPyEJxv/OmvnBo0Yme4=
@@ -127,6 +128,8 @@ github.com/go-ini/ini v1.44.0/go.mod h1:ByCAeIL28uOIIG0E3PJtZPDL8WnHpFKFOtgjp+3I
 github.com/go-kit/kit v0.8.0/go.mod h1:xBxKIO96dXMWWy0MnWVtmwkA9/13aqxPnvrjFYMA2as=
 github.com/go-log/log v0.1.0 h1:wudGTNsiGzrD5ZjgIkVZ517ugi2XRe9Q/xRCzwEO4/U=
 github.com/go-log/log v0.1.0/go.mod h1:4mBwpdRMFLiuXZDCwU2lKQFsoSCo72j3HqBK9d81N2M=
+github.com/go-log/log v0.2.0 h1:z8i91GBudxD5L3RmF0KVpetCbcGWAV7q1Tw1eRwQM9Q=
+github.com/go-log/log v0.2.0/go.mod h1:xzCnwajcues/6w7lne3yK2QU7DBPW7kqbgPGG5AF65U=
 github.com/go-logfmt/logfmt v0.3.0/go.mod h1:Qt1PoO58o5twSAckw1HlFXLmHsOX5/0LbT9GBnD5lWE=
 github.com/go-logfmt/logfmt v0.4.0/go.mod h1:3RMwSq7FuexP4Kalkev3ejPJsZTpXXBr9+V4qmtdjCk=
 github.com/go-playground/locales v0.12.1/go.mod h1:IUMDtCfWo/w/mtMfIE/IG2K+Ey3ygWanZIBtBW0W2TM=
@@ -271,6 +274,10 @@ github.com/micro/go-micro v1.18.1-0.20191217161320-91e057440d27 h1:Neya1wGdBt7pn
 github.com/micro/go-micro v1.18.1-0.20191217161320-91e057440d27/go.mod h1:25gcXnPREpbAT1CxQdBDNWTmWMW0FhGZYX734mZlm2w=
 github.com/micro/go-micro v1.18.1-0.20191217170513-50d5c6402b1e h1:daV51GkbvJp4NSHi4C8CCLpuPQ7uG+RbGVriglTnmoE=
 github.com/micro/go-micro v1.18.1-0.20191217170513-50d5c6402b1e/go.mod h1:25gcXnPREpbAT1CxQdBDNWTmWMW0FhGZYX734mZlm2w=
+github.com/micro/go-micro v1.18.1-0.20191217181732-c61e12d5ee04 h1:vzxxnwLpzmIHLaJaNnvzn53bSwdQD5o14zbydXpvXJc=
+github.com/micro/go-micro v1.18.1-0.20191217181732-c61e12d5ee04/go.mod h1:25gcXnPREpbAT1CxQdBDNWTmWMW0FhGZYX734mZlm2w=
+github.com/micro/go-micro v1.18.1-0.20191218151920-a82af19d43c2 h1:22CPP6RcF/nv2eXWmLSlveDGjTMcv00RSxygcaXDjY4=
+github.com/micro/go-micro v1.18.1-0.20191218151920-a82af19d43c2/go.mod h1:U7LdQYw/itph4esq1sPT6dx0EywPomGKGrjoPcgkMAo=
 github.com/micro/mdns v0.3.0 h1:bYycYe+98AXR3s8Nq5qvt6C573uFTDPIYzJemWON0QE=
 github.com/micro/mdns v0.3.0/go.mod h1:KJ0dW7KmicXU2BV++qkLlmHYcVv7/hHnbtguSWt9Aoc=
 github.com/micro/protoc-gen-micro v1.0.0/go.mod h1:C8ij4DJhapBmypcT00AXdb0cZ675/3PqUO02buWWqbE=

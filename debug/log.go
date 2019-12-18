@@ -10,18 +10,28 @@ import (
 	ulog "github.com/micro/go-micro/util/log"
 )
 
-func getLogs(ctx *cli.Context, srvOpts ...micro.Option) {
+const (
+	// logUsage message for logs command
+	logUsage = "Required usage: micro log example"
+)
+
+func getLog(ctx *cli.Context, srvOpts ...micro.Option) {
 	ulog.Name("debug")
 
 	// get the args
-	name := ctx.String("name")
 	since := ctx.String("since")
 	count := ctx.Int("count")
 	stream := ctx.Bool("stream")
 
+	if len(ctx.Args()) == 0 {
+		ulog.Fatal("Require service name")
+	}
+
+	name := ctx.Args()[0]
+
 	// must specify service name
 	if len(name) == 0 {
-		ulog.Fatal(LogsUsage)
+		ulog.Fatal(logUsage)
 	}
 
 	// initialise a new service log
@@ -39,8 +49,18 @@ func getLogs(ctx *cli.Context, srvOpts ...micro.Option) {
 		ulog.Fatal(err)
 	}
 
+	var json bool
+	switch ctx.String("output") {
+	case "json":
+		json = true
+	}
+
 	for record := range logs.Chan() {
-		fmt.Printf("%v\n", record)
+		if json {
+			fmt.Printf("%v\n", record)
+		} else {
+			fmt.Printf("%v\n", record.Value)
+		}
 	}
 }
 
@@ -48,17 +68,16 @@ func getLogs(ctx *cli.Context, srvOpts ...micro.Option) {
 func logFlags() []cli.Flag {
 	return []cli.Flag{
 		cli.StringFlag{
-			Name:  "name",
-			Usage: "Set the name of the service to debug",
-		},
-		cli.StringFlag{
 			Name:  "version",
 			Usage: "Set the version of the service to debug",
-			Value: "latest",
 		},
-		cli.BoolFlag{
+		cli.StringFlag{
+			Name:  "output, o",
+			Usage: "Set the output format e.g json, text",
+		},
+		cli.BoolTFlag{
 			Name:  "stream",
-			Usage: "Set to stream logs continuously",
+			Usage: "Set to stream logs continuously (default: true)",
 		},
 		cli.StringFlag{
 			Name:  "since",
