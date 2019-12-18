@@ -10,7 +10,7 @@ import (
 	"github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/config/cmd"
 	"github.com/micro/go-micro/errors"
-	"github.com/micro/micro/internal/helper" 
+	"github.com/micro/micro/internal/helper"
 )
 
 type rpcRequest struct {
@@ -25,7 +25,7 @@ type rpcRequest struct {
 // a service.
 func RPC(w http.ResponseWriter, r *http.Request) {
 
-	if r.Method = "OPTIONS" {
+	if r.Method == "OPTIONS" {
 		helper.ServeCORS(w, r)
 		return
 	}
