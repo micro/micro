@@ -47,6 +47,28 @@ var (
       -->
       <div id="graphs">
   <div class="graph">
+      <div data-netdata="go_micro_services.micro_service_requests"
+    data-chart-library="dygraph"
+    data-width="100%"
+    data-height="300"
+    data-after="-600"{{ if .Service }}
+    data-dimensions="{{.Service}}*"{{end}}
+    data-title="Requests"
+    ></div>
+  </div>
+
+  <div class="graph">
+      <div data-netdata="go_micro_services.micro_service_errors"
+    data-chart-library="dygraph"
+    data-width="100%"
+    data-height="300"
+    data-after="-600"{{ if .Service }}
+    data-dimensions="{{.Service}}*"{{end}}
+    data-title="Errors"
+    ></div>
+  </div>
+
+  <div class="graph">
       <div data-netdata="go_micro_services.micro_service_memory"
     data-chart-library="dygraph"
     data-width="100%"
@@ -89,6 +111,7 @@ var (
     data-title="Uptime"
     ></div>
   </div>
+ 
     </div>
   </div>
   <script type="text/javascript" src="/debug/dashboard.js?v20190902-0"></script>

@@ -220,6 +220,8 @@ func (s *Stats) scrape() {
 					Memory:  rsp.Memory,
 					Threads: rsp.Threads,
 					Gc:      rsp.Gc,
+					Requests: rsp.Requests,
+					Errors: rsp.Errors,
 				}
 
 				mtx.Lock()

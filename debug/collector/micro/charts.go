@@ -10,12 +10,14 @@ type (
 )
 
 const (
-	chartServiceStarted = "micro_service_started"
-	chartServiceUptime  = "micro_service_uptime"
-	chartServiceMemory  = "micro_service_memory"
-	chartServiceThreads = "micro_service_threads"
-	chartServiceGC      = "micro_service_gc"
-	chartServiceGCRate  = "micro_service_gcrate"
+	chartServiceStarted  = "micro_service_started"
+	chartServiceUptime   = "micro_service_uptime"
+	chartServiceMemory   = "micro_service_memory"
+	chartServiceThreads  = "micro_service_threads"
+	chartServiceGC       = "micro_service_gc"
+	chartServiceGCRate   = "micro_service_gcrate"
+	chartServiceRequests = "micro_service_requests"
+	chartServiceErrors   = "micro_service_errors"
 )
 
 var charts = Charts{
@@ -60,6 +62,20 @@ var charts = Charts{
 		Units: "ns/s",
 		Fam:   "gc",
 		Ctx:   "micro.service.gcrate",
+	},
+	{
+		ID:    chartServiceRequests,
+		Title: "Requests",
+		Units: "req/s",
+		Fam:   "requests",
+		Ctx:   "micro.service.requests",
+	},
+	{
+		ID:    chartServiceErrors,
+		Title: "Errors",
+		Units: "req/s",
+		Fam:   "errors",
+		Ctx:   "micro.service.errors",
 	},
 	// TODO: debug_metrics when design is finalised.
 }

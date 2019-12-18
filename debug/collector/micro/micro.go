@@ -181,13 +181,15 @@ func (m *Micro) updateCharts(snapshots []*stats.Snapshot) error {
 				name := fmt.Sprintf("%s.%s", prefix, idx)
 				id := fmt.Sprintf("%s_%s", key(snap), ch.ID)
 
-				if ch.ID == chartServiceGCRate {
+				switch ch.ID {
+				// rate charts for gc, requests, errors
+				case chartServiceGCRate, chartServiceRequests, chartServiceErrors:
 					ch.AddDim(&module.Dim{
 						ID:   id,
 						Name: name,
 						Algo: module.Incremental,
 					})
-				} else {
+				default:
 					ch.AddDim(&module.Dim{
 						ID:   id,
 						Name: name,
@@ -239,6 +241,8 @@ func (m *Micro) collect(ctx context.Context) error {
 		m.metrics[k+"_"+chartServiceThreads] = int64(s.Threads)
 		m.metrics[k+"_"+chartServiceGC] = int64(s.Gc)
 		m.metrics[k+"_"+chartServiceGCRate] = int64(s.Gc)
+		m.metrics[k+"_"+chartServiceRequests] = int64(s.Requests)
+		m.metrics[k+"_"+chartServiceErrors] = int64(s.Errors)
 	}
 	m.Unlock()
 	return nil
