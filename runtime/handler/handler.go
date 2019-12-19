@@ -2,63 +2,22 @@ package handler
 
 import (
 	"context"
+	"time"
 
+	"github.com/micro/go-micro"
 	"github.com/micro/go-micro/errors"
 	"github.com/micro/go-micro/runtime"
 	pb "github.com/micro/go-micro/runtime/service/proto"
+	"github.com/micro/go-micro/store"
 )
 
 type Runtime struct {
+	// The runtime used to manage services
 	Runtime runtime.Runtime
-}
-
-func toProto(s *runtime.Service) *pb.Service {
-	return &pb.Service{
-		Name:     s.Name,
-		Version:  s.Version,
-		Source:   s.Source,
-		Metadata: s.Metadata,
-	}
-}
-
-func toService(s *pb.Service) *runtime.Service {
-	return &runtime.Service{
-		Name:     s.Name,
-		Version:  s.Version,
-		Source:   s.Source,
-		Metadata: s.Metadata,
-	}
-}
-
-func toCreateOptions(opts *pb.CreateOptions) []runtime.CreateOption {
-	options := []runtime.CreateOption{}
-	// command options
-	if len(opts.Command) > 0 {
-		options = append(options, runtime.WithCommand(opts.Command...))
-	}
-	// env options
-	if len(opts.Env) > 0 {
-		options = append(options, runtime.WithEnv(opts.Env))
-	}
-
-	// TODO: output options
-
-	return options
-}
-
-func toReadOptions(opts *pb.ReadOptions) []runtime.ReadOption {
-	options := []runtime.ReadOption{}
-	if len(opts.Service) > 0 {
-		options = append(options, runtime.ReadService(opts.Service))
-	}
-	if len(opts.Version) > 0 {
-		options = append(options, runtime.ReadVersion(opts.Version))
-	}
-	if len(opts.Type) > 0 {
-		options = append(options, runtime.ReadType(opts.Type))
-	}
-
-	return options
+	// The store used to find out what to run
+	Store store.Store
+	// The client used to publish events
+	Client micro.Publisher
 }
 
 func (r *Runtime) Create(ctx context.Context, req *pb.CreateRequest, rsp *pb.CreateResponse) error {
@@ -76,6 +35,14 @@ func (r *Runtime) Create(ctx context.Context, req *pb.CreateRequest, rsp *pb.Cre
 	if err != nil {
 		return errors.InternalServerError("go.micro.runtime", err.Error())
 	}
+
+	// publish the delete event
+	r.Client.Publish(ctx, &pb.Event{
+		Type:      "create",
+		Timestamp: time.Now().Unix(),
+		Service:   req.Service.Name,
+		Version:   req.Service.Version,
+	})
 
 	return nil
 }
@@ -110,6 +77,14 @@ func (r *Runtime) Update(ctx context.Context, req *pb.UpdateRequest, rsp *pb.Upd
 		return errors.InternalServerError("go.micro.runtime", err.Error())
 	}
 
+	// publish the delete event
+	r.Client.Publish(ctx, &pb.Event{
+		Type:      "update",
+		Timestamp: time.Now().Unix(),
+		Service:   req.Service.Name,
+		Version:   req.Service.Version,
+	})
+
 	return nil
 }
 
@@ -124,6 +99,14 @@ func (r *Runtime) Delete(ctx context.Context, req *pb.DeleteRequest, rsp *pb.Del
 	if err != nil {
 		return errors.InternalServerError("go.micro.runtime", err.Error())
 	}
+
+	// publish the delete event
+	r.Client.Publish(ctx, &pb.Event{
+		Type:      "delete",
+		Timestamp: time.Now().Unix(),
+		Service:   req.Service.Name,
+		Version:   req.Service.Version,
+	})
 
 	return nil
 }

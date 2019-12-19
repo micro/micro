@@ -359,7 +359,7 @@ func Setup(app *ccli.App, options ...micro.Option) {
 				name = fmt.Sprintf("%s.%s", namespace, service)
 			}
 
-			log.Infof("Registering %s\n", name)
+			log.Infof("Registering %s", name)
 
 			// runtime based on environment we run the service in
 			args := []gorun.CreateOption{

@@ -25,14 +25,16 @@ func getLog(ctx *cli.Context, srvOpts ...micro.Option) {
 	stream := ctx.Bool("stream")
 
 	if len(ctx.Args()) == 0 {
-		ulog.Fatal("Require service name")
+		fmt.Println("Require service name")
+		return
 	}
 
 	name := ctx.Args()[0]
 
 	// must specify service name
 	if len(name) == 0 {
-		ulog.Fatal(logUsage)
+		fmt.Println(logUsage)
+		return
 	}
 
 	// initialise a new service log
@@ -47,7 +49,8 @@ func getLog(ctx *cli.Context, srvOpts ...micro.Option) {
 
 	logs, err := service.Log(readSince, count, stream)
 	if err != nil {
-		ulog.Fatal(err)
+		fmt.Println(err)
+		return
 	}
 
 	output := ctx.String("output")
