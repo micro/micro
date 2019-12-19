@@ -70,8 +70,6 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 		log.Logf("failed to stop: %s", err)
 		os.Exit(1)
 	}
-
-	log.Logf("successfully stopped")
 }
 
 // Flags is shared flags so we don't have to continually re-add
