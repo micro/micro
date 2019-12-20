@@ -56,6 +56,8 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 
 	// register the runtime handler
 	pb.RegisterRuntimeHandler(service.Server(), &handler.Runtime{
+		// Client to publish events
+		Client: micro.NewEvent("go.micro.runtime.events", service.Client()),
 		// using the mdns runtime
 		Runtime: muRuntime,
 	})
