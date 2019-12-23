@@ -5,6 +5,7 @@ import (
 	"github.com/micro/cli"
 	"github.com/micro/go-micro"
 	"github.com/micro/go-micro/debug/log"
+	"github.com/micro/go-micro/debug/log/kubernetes"
 	dservice "github.com/micro/go-micro/debug/service"
 	ulog "github.com/micro/go-micro/util/log"
 	logHandler "github.com/micro/micro/debug/log/handler"
@@ -62,14 +63,12 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 				log.Name(service),
 			)
 		}
-		/*
-			case "kubernetes":
-				newLog := func(service string) log.Log {
-					return kubernetes.NewLog(
-						log.Name(service),
-					)
-				}
-		*/
+	case "kubernetes":
+		newLog = func(service string) log.Log {
+			return kubernetes.NewLog(
+				log.Name(service),
+			)
+		}
 	}
 
 	// append name

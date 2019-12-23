@@ -16,7 +16,7 @@ require (
 	github.com/gorilla/mux v1.7.3
 	github.com/hako/branca v0.0.0-20180808000428-10b799466ada
 	github.com/micro/cli v0.2.0
-	github.com/micro/go-micro v1.18.1-0.20191219182522-ae12fd1021f7
+	github.com/micro/go-micro v1.18.1-0.20191223084953-81e20160f562
 	github.com/miekg/dns v1.1.25
 	github.com/netdata/go-orchestrator v0.0.0-20190905093727-c793edba0e8f
 	github.com/olekukonko/tablewriter v0.0.4
