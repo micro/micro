@@ -86,7 +86,7 @@ var (
     data-height="300"
     data-after="-600"{{ if .Service }}
     data-dimensions="{{.Service}}*"{{end}}
-    data-title="Go Routines"
+    data-title="Concurrency"
     ></div>
   </div>
 
@@ -97,7 +97,7 @@ var (
     data-height="300"
     data-after="-600"{{ if .Service }}
     data-dimensions="{{.Service}}*"{{end}}
-    data-title="GC Pause"
+    data-title="Garbage Collection"
     ></div>
   </div>
 
