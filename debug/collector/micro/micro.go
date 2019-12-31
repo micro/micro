@@ -31,20 +31,14 @@ type Config struct{}
 // }
 
 // New creates the micro module with default values
-func New() *Micro {
+func New(c client.Client) *Micro {
 	return &Micro{
 		Config:   Config{},
 		services: make(map[string]bool),
 		indexes:  make(map[string]map[string]bool),
 		metrics:  make(map[string]int64),
-		client:   client.DefaultClient,
+		client:   c,
 	}
-}
-
-// WithClient sets the micro client
-func (m *Micro) WithClient(c client.Client) *Micro {
-	m.client = c
-	return m
 }
 
 // Register Registers with the orchestrator
