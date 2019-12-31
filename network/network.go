@@ -211,10 +211,10 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		}
 	}
 
-	log.Logf("Network [%s] listening on %s", Name, Address)
+	log.Logf("Network [%s] listening on %s", Network, Address)
 
 	if err := service.Run(); err != nil {
-		log.Logf("Network %s failed: %v", Name, err)
+		log.Logf("Network %s failed: %v", Network, err)
 		netClose(net)
 		os.Exit(1)
 	}

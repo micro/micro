@@ -31,7 +31,7 @@ var (
 	// The address of the proxy
 	Address = ":8081"
 	// the proxy protocol
-	Protocol = "mucp"
+	Protocol = "grpc"
 	// The endpoint host to route to
 	Endpoint string
 )
@@ -129,10 +129,10 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		case "http":
 			p = http.NewProxy(popts...)
 			// TODO: http server
-		case "grpc":
-			p = grpc.NewProxy(popts...)
-			s = sgrpc.NewServer()
-			srv = sgrpc.NewServer(
+		case "mucp":
+			p = mucp.NewProxy(popts...)
+			s = smucp.NewServer()
+			srv = server.NewServer(
 				server.Address(Address),
 				// reset registry to memory
 				server.Registry(rmem.NewRegistry()),
@@ -143,8 +143,10 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 			)
 		default:
 			p = mucp.NewProxy(popts...)
-			s = smucp.NewServer()
-			srv = server.NewServer(
+			// no need for this
+			// p = grpc.NewProxy(popts...)
+			s = sgrpc.NewServer()
+			srv = sgrpc.NewServer(
 				server.Address(Address),
 				// reset registry to memory
 				server.Registry(rmem.NewRegistry()),

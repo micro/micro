@@ -72,8 +72,11 @@ func runService(ctx *cli.Context, srvOpts ...micro.Option) {
 		if len(source) > 0 {
 			name = filepath.Base(source)
 		} else {
+			// set name
 			cwd, _ := os.Getwd()
 			name = filepath.Base(cwd)
+			// set local
+			local = true
 		}
 	}
 
