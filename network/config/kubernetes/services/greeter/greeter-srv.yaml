@@ -17,10 +17,14 @@ spec:
       - name: greeter
         command: [
           "/greeter-srv",
-          "--server_address=0.0.0.0:8080",
-          "--broker_address=0.0.0.0:10001"
         ]
         env:
+        - name: MICRO_SERVER
+          value: "grpc"
+        - name: MICRO_SERVER_NAME
+          value: "go.micro.srv.greeter"
+        - name: MICRO_SERVER_ADDRESS
+          value: "0.0.0.0:8080"
         - name: MICRO_REGISTRY
           value: "etcd"
         - name: MICRO_REGISTRY_ADDRESS

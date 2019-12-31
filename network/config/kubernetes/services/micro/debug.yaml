@@ -5,6 +5,14 @@ metadata:
   name: micro-debug
   labels:
     micro: runtime
+    name: micro-debug
+  annotations:
+    name: "go.micro.debug"
+    version: "latest"
+    source: "github.com/micro/micro"
+    owner: "micro"
+    group: "micro"
+spec:
 spec:
   replicas: 1
   selector:
