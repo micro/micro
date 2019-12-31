@@ -173,7 +173,6 @@ func (s *Stats) scrape() {
 	var wg sync.WaitGroup
 
 	protocol := s.client.String()
-	transport := s.client.Options().Transport.String()
 
 	for _, svc := range services {
 		// Ignore nodeless and non mucp services
@@ -183,9 +182,6 @@ func (s *Stats) scrape() {
 		// Call every node
 		for _, node := range svc.Nodes {
 			if node.Metadata["protocol"] != protocol {
-				continue
-			}
-			if node.Metadata["transport"] != transport {
 				continue
 			}
 
