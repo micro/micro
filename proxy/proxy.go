@@ -10,6 +10,7 @@ import (
 	"github.com/micro/go-micro"
 	bmem "github.com/micro/go-micro/broker/memory"
 	"github.com/micro/go-micro/client"
+	mucli "github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/proxy"
 	"github.com/micro/go-micro/proxy/grpc"
 	"github.com/micro/go-micro/proxy/http"
@@ -20,7 +21,6 @@ import (
 	rs "github.com/micro/go-micro/router/service"
 	"github.com/micro/go-micro/server"
 	sgrpc "github.com/micro/go-micro/server/grpc"
-	smucp "github.com/micro/go-micro/server/mucp"
 	"github.com/micro/go-micro/util/log"
 	"github.com/micro/go-micro/util/mux"
 )
@@ -102,7 +102,6 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 
 	// new proxy
 	var p proxy.Proxy
-	var s server.Server
 	var srv server.Server
 
 	// set endpoint
@@ -130,8 +129,9 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 			p = http.NewProxy(popts...)
 			// TODO: http server
 		case "mucp":
+			popts = append(popts, proxy.WithClient(mucli.NewClient()))
 			p = mucp.NewProxy(popts...)
-			s = smucp.NewServer()
+
 			srv = server.NewServer(
 				server.Address(Address),
 				// reset registry to memory
@@ -143,9 +143,7 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 			)
 		default:
 			p = mucp.NewProxy(popts...)
-			// no need for this
-			// p = grpc.NewProxy(popts...)
-			s = sgrpc.NewServer()
+
 			srv = sgrpc.NewServer(
 				server.Address(Address),
 				// reset registry to memory
@@ -164,11 +162,6 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		log.Logf("Proxy [%s] serving protocol: %s", p.String(), Protocol)
 	}
 
-	// prepend the server
-	if s != nil {
-		srvOpts = append([]micro.Option{micro.Server(s)}, srvOpts...)
-	}
-
 	// new service
 	service := micro.NewService(srvOpts...)
 
@@ -180,7 +173,7 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		server.WithRouter(muxer),
 	)
 
-	// Start the server
+	// Start the proxy server
 	if err := srv.Start(); err != nil {
 		log.Fatal(err)
 	}
