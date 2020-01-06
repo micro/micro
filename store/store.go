@@ -89,10 +89,10 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		}
 	case "cockroach":
 		// set the default store
-		storeHandler.Default = cockroach.New(opts...)
+		storeHandler.Default = cockroach.NewStore(opts...)
 		// set the new store initialiser
 		storeHandler.New = func(namespace string, prefix string) store.Store {
-			return cockroach.New(
+			return cockroach.NewStore(
 				store.Nodes(Nodes...),
 				store.Namespace(namespace),
 				store.Prefix(prefix),
