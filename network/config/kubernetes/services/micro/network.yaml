@@ -63,7 +63,7 @@ spec:
         - name: MICRO_SERVER_ADDRESS
           value: "0.0.0.0:8080"
         - name: MICRO_NETWORK_NODES
-          value: "network.micro.mu:30038"
+          value: "network.micro.mu"
         - name: MICRO_NETWORK_SVC_NODE_PORT
           value: "8085"
         - name: MICRO_NETWORK_DNS_REMOVE_DOMAIN
