@@ -90,7 +90,7 @@ func Run(ctx *cli.Context) {
 		ips, _ := net.LookupHost("network.micro.mu")
 		coreMap := make(map[string]bool)
 		for _, ip := range ips {
-			coreMap[ip+":30038"] = true
+			coreMap[ip+":8085"] = true
 		}
 
 		var graph *pb.Peer
@@ -176,7 +176,7 @@ func Run(ctx *cli.Context) {
 		// range over the graph and build the data set for each
 		for address, nodes := range nodeGraph {
 			data := make([]string, len(coreNodes))
-			address = strings.TrimSuffix(address, ":30038")
+			address = strings.TrimSuffix(address, ":8085")
 
 			// set all zeros
 			for i := 0; i < len(coreNodes); i++ {
@@ -191,7 +191,7 @@ func Run(ctx *cli.Context) {
 
 			// walk all the
 			for _, node := range nodes {
-				node = strings.TrimSuffix(node, ":30038")
+				node = strings.TrimSuffix(node, ":8085")
 
 				// skip self
 				if node == address {
