@@ -312,10 +312,10 @@ func Setup(app *ccli.App, options ...micro.Option) {
 		} else {
 			log.Info("Setting global network")
 
-			if v := os.Getenv("MICRO_NETWORK_RESOLVER"); len(v) == 0 {
+			if v := os.Getenv("MICRO_NETWORK_NODES"); len(v) == 0 {
 				// set the resolver to use https://micro.mu/network
-				env = append(env, "MICRO_NETWORK_RESOLVER=http")
-				log.Log("Setting default network resolver")
+				env = append(env, "MICRO_NETWORK_NODES=network.micro.mu")
+				log.Log("Setting default network micro.mu")
 			}
 			if v := os.Getenv("MICRO_NETWORK_TOKEN"); len(v) == 0 {
 				// set the network token
