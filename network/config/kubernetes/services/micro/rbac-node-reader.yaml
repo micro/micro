@@ -5,7 +5,7 @@ metadata:
   name: node-reader
 rules:
 - apiGroups: [""]
-  resources: ["nodes"]
+  resources: ["nodes", "services"]
   verbs: ["get", "watch", "list"]
 
 ---

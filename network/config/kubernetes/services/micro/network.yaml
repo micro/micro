@@ -63,9 +63,9 @@ spec:
         - name: MICRO_SERVER_ADDRESS
           value: "0.0.0.0:8080"
         - name: MICRO_NETWORK_NODES
-          value: "network.micro.mu:30038"
+          value: "network.micro.mu"
         - name: MICRO_NETWORK_SVC_NODE_PORT
-          value: "30038"
+          value: "8085"
         - name: MICRO_NETWORK_DNS_REMOVE_DOMAIN
           value: "network.micro.mu"
         - name: MICRO_NETWORK_DNS_REMOVE_TOKEN
@@ -94,26 +94,13 @@ spec:
         - containerPort: 8085
           name: network-port
           protocol: UDP
-        lifecycle:
-          preStop:
-            exec:
-              command:
-              - /bin/sh
-              - -c
-              - /micro network dns remove --address $(cat /node_info/ip)
-          postStart:
-            exec:
-              command:
-              - /bin/sh
-              - -c
-              - /micro network dns advertise --address $(cat /node_info/ip)
       initContainers:
       - name: init-network-env
         env:
-        - name: NODE_NAME
+        - name: POD_NAMESPACE
           valueFrom:
             fieldRef:
-              fieldPath: spec.nodeName
+              fieldPath: metadata.namespace
         image: microhq/curljq
         imagePullPolicy: Always
         volumeMounts:
@@ -121,5 +108,5 @@ spec:
           mountPath: /node_info
         command: ['sh', '-c']
         args:
-        - "TOKEN=$(cat /var/run/secrets/kubernetes.io/serviceaccount/token); curl -k -X GET -H \"Authorization: Bearer $TOKEN\" https://$KUBERNETES_SERVICE_HOST/api/v1/nodes/$NODE_NAME | jq -r '.status.addresses[] | select (.type==\"ExternalIP\").address' > /node_info/ip"
+        - "TOKEN=$(cat /var/run/secrets/kubernetes.io/serviceaccount/token); curl -k -X GET -H \"Authorization: Bearer $TOKEN\" https://$KUBERNETES_SERVICE_HOST/api/v1/namespaces/$POD_NAMESPACE/services/micro-network | jq -r 'if .status.loadBalancer.ingress[0].hostname != null then .status.loadBalancer.ingress[0].hostname else .status.loadBalancer.ingress[0].ip end' > /node_info/ip"
 
