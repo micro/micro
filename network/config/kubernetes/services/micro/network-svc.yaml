@@ -7,12 +7,12 @@ metadata:
     name: micro-network
     micro: runtime
 spec:
-  type: NodePort
+  type: LoadBalancer
   ports:
   - port: 8085
     protocol: UDP
     name: network
-    nodePort: 30038
+    targetPort: 8085
   selector:
     name: micro-network
     micro: runtime

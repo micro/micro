@@ -27,8 +27,7 @@
         "count": 3,
         "vmSize": "Standard_A2_v2",
         "availabilityProfile": "VirtualMachineScaleSets",
-        "availabilityZones": ["1", "2", "3"],
-        "enableVMSSNodePublicIP": true
+        "availabilityZones": ["1", "2", "3"]
       }
     ],
     "linuxProfile": {
