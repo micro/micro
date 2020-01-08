@@ -9,6 +9,7 @@ import (
 	"math"
 	"net/http"
 	"sort"
+	"strconv"
 	"strings"
 	"time"
 
@@ -471,11 +472,13 @@ func NetworkRoutes(c *cli.Context) ([]byte, error) {
 		link := route["link"]
 		metric := route["metric"]
 
+		metInt, _ := strconv.ParseInt(route["metric"].(string), 10, 64)
+
 		// set max int64 metric to infinity
-		if f, ok := metric.(float64); ok && f == float64(math.MaxInt64) {
+		if metInt == math.MaxInt64 {
 			metric = "∞"
 		} else {
-			metric = fmt.Sprintf("%.f", route["metric"])
+			metric = fmt.Sprintf("%d", metInt)
 		}
 
 		sortedRoutes = append(sortedRoutes, []string{
