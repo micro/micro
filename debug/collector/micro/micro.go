@@ -19,17 +19,6 @@ import (
 // Config is the go-micro collector configuration
 type Config struct{}
 
-// func init() {
-// 	creator := module.Creator{
-// 		Defaults: module.Defaults{
-// 			Disabled: false,
-// 		},
-// 		Create: func() module.Module { return New() },
-// 	}
-
-// 	module.Register("go_micro_services", creator)
-// }
-
 // New creates the micro module with default values
 func New(c client.Client) *Micro {
 	return &Micro{
@@ -160,6 +149,7 @@ func (m *Micro) updateCharts(snapshots []*stats.Snapshot) error {
 		for _, ch := range charts {
 			id := fmt.Sprintf("%s_%s", instance, ch.ID)
 			ch.MarkDimRemove(id, true)
+			ch.MarkNotCreated()
 		}
 	}
 
