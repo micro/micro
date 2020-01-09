@@ -64,10 +64,16 @@ func (s *Store) Read(ctx context.Context, req *pb.ReadRequest, rsp *pb.ReadRespo
 		return err
 	}
 
-	vals, err := st.Read(req.Keys...)
+	var opts []store.ReadOption
+	if req.Options != nil && req.Options.Prefix {
+		opts = append(opts, store.ReadPrefix())
+	}
+
+	vals, err := st.Read(req.Key, opts...)
 	if err != nil {
 		return errors.InternalServerError("go.micro.store", err.Error())
 	}
+
 	for _, val := range vals {
 		rsp.Records = append(rsp.Records, &pb.Record{
 			Key:    val.Key,
@@ -85,19 +91,20 @@ func (s *Store) Write(ctx context.Context, req *pb.WriteRequest, rsp *pb.WriteRe
 		return err
 	}
 
-	records := make([]*store.Record, 0, len(req.Records))
-
-	for _, record := range req.Records {
-		records = append(records, &store.Record{
-			Key:    record.Key,
-			Value:  record.Value,
-			Expiry: time.Duration(record.Expiry) * time.Second,
-		})
+	if req.Record == nil {
+		return errors.BadRequest("go.micro.store", "no record specified")
 	}
 
-	if err := st.Write(records...); err != nil {
+	record := &store.Record{
+		Key:    req.Record.Key,
+		Value:  req.Record.Value,
+		Expiry: time.Duration(req.Record.Expiry) * time.Second,
+	}
+
+	if err := st.Write(record); err != nil {
 		return errors.InternalServerError("go.micro.store", err.Error())
 	}
+
 	return nil
 }
 
@@ -107,7 +114,7 @@ func (s *Store) Delete(ctx context.Context, req *pb.DeleteRequest, rsp *pb.Delet
 	if err != nil {
 		return err
 	}
-	if err := st.Delete(req.Keys...); err != nil {
+	if err := st.Delete(req.Key); err != nil {
 		return errors.InternalServerError("go.micro.store", err.Error())
 	}
 	return nil
@@ -120,13 +127,7 @@ func (s *Store) List(ctx context.Context, req *pb.ListRequest, stream pb.Store_L
 		return err
 	}
 
-	var vals []*store.Record
-
-	if len(req.Key) > 0 {
-		vals, err = st.Read(req.Key)
-	} else {
-		vals, err = st.List()
-	}
+	vals, err := st.List()
 	if err != nil {
 		return errors.InternalServerError("go.micro.store", err.Error())
 	}
