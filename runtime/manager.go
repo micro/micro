@@ -2,9 +2,11 @@ package runtime
 
 import (
 	"encoding/json"
+	"strings"
 	"sync"
 	"time"
 
+	"github.com/micro/cli"
 	"github.com/micro/go-micro/runtime"
 	"github.com/micro/go-micro/store"
 	"github.com/micro/go-micro/util/log"
@@ -20,6 +22,9 @@ type manager struct {
 
 	running bool
 	exit    chan bool
+	// env to inject into the service
+	// TODO: use profiles not env vars
+	env []string
 }
 
 var (
@@ -33,6 +38,15 @@ func (m *manager) Init(opts ...runtime.Option) error {
 func (m *manager) Create(s *runtime.Service, opts ...runtime.CreateOption) error {
 	m.Lock()
 	defer m.Unlock()
+
+	// we need to parse options to get the env vars
+	var options runtime.CreateOptions
+	for _, o := range opts {
+		o(&options)
+	}
+
+	// setup the runtime env
+	opts = append(opts, runtime.WithEnv(append(options.Env, m.env...)))
 
 	if s.Metadata == nil {
 		s.Metadata = make(map[string]string)
@@ -296,10 +310,19 @@ func (m *manager) Stop() error {
 	return nil
 }
 
-func newManager(r runtime.Runtime, s store.Store) *manager {
+func newManager(ctx *cli.Context, r runtime.Runtime, s store.Store) *manager {
+	var env []string
+	// peel out the env
+	for _, ev := range ctx.StringSlice("env") {
+		for _, val := range strings.Split(ev, ",") {
+			env = append(env, strings.TrimSpace(val))
+		}
+	}
+
 	return &manager{
 		Runtime:  r,
 		Store:    s,
+		env:      env,
 		services: make(map[string]*runtime.Service),
 		exit:     make(chan bool),
 	}

@@ -47,7 +47,7 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 	muStore := *cmd.DefaultCmd.Options().Store
 
 	// create a new runtime manager
-	manager := newManager(muRuntime, muStore)
+	manager := newManager(ctx, muRuntime, muStore)
 
 	// start the manager
 	if err := manager.Start(); err != nil {
