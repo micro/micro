@@ -125,43 +125,57 @@ func (m *Micro) updateCharts(snapshots []*stats.Snapshot) error {
 		})
 	}
 
-	// Create / remove chart dimensions based on the previous state.
+	// Check for any services that we used to have that disappeared
 	m.Lock()
 	defer m.Unlock()
-	processedServices := make(map[string]bool)
-	for newKey, newServices := range newServices {
-		if oldServices, found := m.services[newKey]; found {
-			// existing service, make sure the dimensions match what we currently have
-			oldDims, newDims := len(oldServices), len(m.services[newKey])
-			if oldDims != newDims {
-				for _, ch := range m.charts {
-					for i, svc := range oldServices {
-						switch ch.ID {
-						case chartServiceGCRate, chartServiceRequests, chartServiceErrors:
-							ch.MarkDimRemove(fmt.Sprintf("%s_%d_%s", key(svc.Service), i, ch.ID), true)
-						default:
-							ch.MarkDimRemove(fmt.Sprintf("%s_%d_%s", key(svc.Service), i, ch.ID), true)
-						}
+	for oldService := range m.services {
+		if oldServices, found := newServices[oldService]; !found {
+			// Service was in old map, isn't in new map, so remove the dimensions for it.
+			for _, ch := range m.charts {
+				for i, svc := range oldServices {
+					id := fmt.Sprintf("%s_%d_%s", key(svc.Service), i, ch.ID)
+					if ch.HasDim(id) {
+						ch.MarkDimRemove(id, true)
 						ch.MarkNotCreated()
 					}
 				}
+			}
+		}
+	}
 
-				// create as many dimensions as we have
-				for _, ch := range m.charts {
-					for i, svc := range newServices {
-						prefix := strings.TrimPrefix(key(svc.Service), "go_micro_")
+	// Create / remove chart dimensions based on the previous state.
+	for newKey, newServices := range newServices {
+		if oldServices, found := m.services[newKey]; found {
+			// existing service, make sure the dimensions match what we currently have
+			if len(newServices) < len(oldServices) {
+				// Fewer Services, delete the trailing dimensions
+				for len(newServices) < len(oldServices) {
+					for _, ch := range m.charts {
+						idx := len(oldServices) - 1
+						id := fmt.Sprintf("%s_%d_%s", key(oldServices[idx].Service), idx, ch.ID)
+						if ch.HasDim(id) {
+							ch.MarkDimRemove(id, true)
+						}
+					}
+					oldServices = oldServices[:len(oldServices)-1]
+				}
+			} else if len(newServices) > len(oldServices) {
+				// More services, grow the dimensions
+				for idx := len(oldServices); idx <= len(newServices); idx++ {
+					for _, ch := range m.charts {
+						name := strings.TrimPrefix(key(newServices[0].Service), "go_micro_")
 						switch ch.ID {
 						case chartServiceGCRate, chartServiceRequests, chartServiceErrors:
 							ch.AddDim(&module.Dim{
 								Algo: module.Incremental,
-								ID:   fmt.Sprintf("%s_%d_%s", key(svc.Service), i, ch.ID),
-								Name: fmt.Sprintf("%s.%d", prefix, i),
+								ID:   fmt.Sprintf("%s_%d_%s", key(newServices[0].Service), idx, ch.ID),
+								Name: fmt.Sprintf("%s.%d", name, idx),
 							})
 						default:
 							ch.AddDim(&module.Dim{
 								Algo: module.Absolute,
-								ID:   fmt.Sprintf("%s_%d_%s", key(svc.Service), i, ch.ID),
-								Name: fmt.Sprintf("%s.%d", prefix, i),
+								ID:   fmt.Sprintf("%s_%d_%s", key(newServices[0].Service), idx, ch.ID),
+								Name: fmt.Sprintf("%s.%d", name, idx),
 							})
 						}
 						ch.MarkNotCreated()
@@ -172,43 +186,28 @@ func (m *Micro) updateCharts(snapshots []*stats.Snapshot) error {
 			// create as many dimensions as we have
 			for _, ch := range m.charts {
 				for i, svc := range newServices {
-					prefix := strings.TrimPrefix(key(svc.Service), "go_micro_")
+					name := strings.TrimPrefix(key(svc.Service), "go_micro_")
 					switch ch.ID {
 					case chartServiceGCRate, chartServiceRequests, chartServiceErrors:
 						ch.AddDim(&module.Dim{
 							Algo: module.Incremental,
 							ID:   fmt.Sprintf("%s_%d_%s", key(svc.Service), i, ch.ID),
-							Name: fmt.Sprintf("%s.%d", prefix, i),
+							Name: fmt.Sprintf("%s.%d", name, i),
 						})
 					default:
 						ch.AddDim(&module.Dim{
 							Algo: module.Absolute,
 							ID:   fmt.Sprintf("%s_%d_%s", key(svc.Service), i, ch.ID),
-							Name: fmt.Sprintf("%s.%d", prefix, i),
+							Name: fmt.Sprintf("%s.%d", name, i),
 						})
 					}
 					ch.MarkNotCreated()
 				}
 			}
 		}
-		processedServices[newKey] = true
 	}
-	for k := range m.services {
-		if _, processed := processedServices[k]; !processed {
-			for _, ch := range m.charts {
-				for i, svc := range m.services[k] {
-					switch ch.ID {
-					case chartServiceGCRate, chartServiceRequests, chartServiceErrors:
-						ch.MarkDimRemove(fmt.Sprintf("%s_%d_%s", key(svc.Service), i, ch.ID), true)
-					default:
-						ch.MarkDimRemove(fmt.Sprintf("%s_%d_%s", key(svc.Service), i, ch.ID), true)
-					}
-					ch.MarkNotCreated()
-				}
-			}
 
-		}
-	}
+	// swap in the new services, then return (m.Unlock was deferred)
 	m.services = newServices
 	return nil
 }
