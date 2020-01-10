@@ -129,10 +129,10 @@ func (m *Micro) updateCharts(snapshots []*stats.Snapshot) error {
 	m.Lock()
 	defer m.Unlock()
 	for oldService := range m.services {
-		if oldServices, found := newServices[oldService]; !found {
+		if _, found := newServices[oldService]; !found {
 			// Service was in old map, isn't in new map, so remove the dimensions for it.
 			for _, ch := range m.charts {
-				for i, svc := range oldServices {
+				for i, svc := range m.services[oldService] {
 					id := fmt.Sprintf("%s_%d_%s", key(svc.Service), i, ch.ID)
 					if ch.HasDim(id) {
 						ch.MarkDimRemove(id, true)
