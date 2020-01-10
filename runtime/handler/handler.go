@@ -8,14 +8,11 @@ import (
 	"github.com/micro/go-micro/errors"
 	"github.com/micro/go-micro/runtime"
 	pb "github.com/micro/go-micro/runtime/service/proto"
-	"github.com/micro/go-micro/store"
 )
 
 type Runtime struct {
 	// The runtime used to manage services
 	Runtime runtime.Runtime
-	// The store used to find out what to run
-	Store store.Store
 	// The client used to publish events
 	Client micro.Publisher
 }
@@ -49,6 +46,7 @@ func (r *Runtime) Create(ctx context.Context, req *pb.CreateRequest, rsp *pb.Cre
 
 func (r *Runtime) Read(ctx context.Context, req *pb.ReadRequest, rsp *pb.ReadResponse) error {
 	var options []runtime.ReadOption
+
 	if req.Options != nil {
 		options = toReadOptions(req.Options)
 	}

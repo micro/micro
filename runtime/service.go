@@ -21,11 +21,11 @@ import (
 
 const (
 	// RunUsage message for the run command
-	RunUsage = "Required usage: micro run service --name example --version latest --source go/package/import/path"
+	RunUsage = "Required usage: micro run github.com/my/service [--name service --version latest]"
 	// KillUsage message for the kill command
-	KillUsage = "Require usage: micro kill service --name example (optional: --version latest)"
+	KillUsage = "Require usage: micro kill [service] [version]"
 	// Getusage message for micro get command
-	GetUsage = "Require usage: micro ps service --name example (optional: --version latest)"
+	GetUsage = "Require usage: micro ps [service] [version]"
 )
 
 func defaultEnv() []string {
@@ -45,18 +45,18 @@ func runService(ctx *cli.Context, srvOpts ...micro.Option) {
 		p.Init(ctx)
 	}
 
-	// we need some args to run
-	if len(ctx.Args()) == 0 {
-		fmt.Println(RunUsage)
-		return
-	}
-
 	// get the args
 	name := ctx.String("name")
 	version := ctx.String("version")
 	source := ctx.String("source")
 	env := ctx.StringSlice("env")
 	local := ctx.Bool("local")
+
+	// we need some args to run
+	if len(ctx.Args()) == 0 {
+		fmt.Println(RunUsage)
+		return
+	}
 
 	// "service" is a reserved keyword
 	// but otherwise assume anything else is source
@@ -174,16 +174,18 @@ func runService(ctx *cli.Context, srvOpts ...micro.Option) {
 }
 
 func killService(ctx *cli.Context, srvOpts ...micro.Option) {
-	// we expect `micro run service`
-	if len(ctx.Args()) == 0 || ctx.Args()[0] != "service" {
-		fmt.Println(KillUsage)
-		return
-	}
-
 	// get the args
 	name := ctx.String("name")
 	version := ctx.String("version")
 	local := ctx.Bool("local")
+
+	if len(ctx.Args()) > 0 {
+		// set name to first arg
+		name = ctx.Args()[0]
+		if len(ctx.Args()) > 1 {
+			version = ctx.Args()[1]
+		}
+	}
 
 	if len(name) == 0 {
 		fmt.Println(KillUsage)
@@ -226,8 +228,16 @@ func getService(ctx *cli.Context, srvOpts ...micro.Option) {
 
 	var list bool
 
-	if len(ctx.Args()) == 0 || ctx.Args()[0] != "service" {
+	// zero args so list all
+	if len(ctx.Args()) == 0 {
 		list = true
+	} else {
+		// set name as first arg
+		name = ctx.Args()[0]
+		// set version as second arg
+		if len(ctx.Args()) > 1 {
+			version = ctx.Args()[1]
+		}
 	}
 
 	var services []*runtime.Service
@@ -290,11 +300,16 @@ func getService(ctx *cli.Context, srvOpts ...micro.Option) {
 	writer := tabwriter.NewWriter(os.Stdout, 0, 8, 1, '\t', tabwriter.AlignRight)
 	fmt.Fprintln(writer, "NAME\tVERSION\tSOURCE\tSTATUS\tBUILD\tMETADATA")
 	for _, service := range services {
+		status := parse(service.Metadata["status"])
+		if status == "error" {
+			status = service.Metadata["error"]
+		}
+
 		fmt.Fprintf(writer, "%s\t%s\t%s\t%s\t%s\t%s\n",
 			service.Name,
 			parse(service.Version),
 			parse(service.Source),
-			parse(service.Metadata["status"]),
+			status,
 			parse(service.Metadata["build"]),
 			fmt.Sprintf("owner=%s,group=%s", parse(service.Metadata["owner"]), parse(service.Metadata["group"])))
 	}
