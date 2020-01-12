@@ -44,7 +44,8 @@ func Init(opts ...Option) error {
 		opt(&options)
 	}
 
-	return dbMap[options.DBName].Init(options)
+	db = dbMap[options.DBName]
+	return db.Init(options)
 }
 
 func Create(ch *proto.Change) error {
