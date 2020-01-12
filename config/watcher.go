@@ -43,3 +43,16 @@ func (w *watcher) Stop() error {
 
 	return nil
 }
+
+// Watch created by a client RPC request
+func Watch(id string) (*watcher, error) {
+	mtx.Lock()
+	w := &watcher{
+		id:   id,
+		exit: make(chan bool),
+		next: make(chan *proto.WatchResponse),
+	}
+	watchers[id] = append(watchers[id], w)
+	mtx.Unlock()
+	return w, nil
+}

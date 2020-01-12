@@ -12,8 +12,6 @@ import (
 )
 
 var (
-	Url = "root:@(127.0.0.1:3306)/config?charset=utf8&parseTime=true&loc=Asia%2FShanghai"
-
 	changeQ = map[string]string{
 		"read": `SELECT id, author, comment, timestamp, changeset_timestamp, changeset_checksum, changeset_data, changeset_format, changeset_source 
 				from %s.%s where id = ? limit 1`,
@@ -57,11 +55,11 @@ func init() {
 	db.Register(new(mysql))
 }
 
-func (m *mysql) Init() error {
+func (m *mysql) Init(opts db.Options) error {
 	var d *sql.DB
 	var err error
 
-	parts := strings.Split(Url, "/")
+	parts := strings.Split(opts.Url, "/")
 	if len(parts) != 2 {
 		return errors.New("Invalid database url ")
 	}
@@ -71,7 +69,7 @@ func (m *mysql) Init() error {
 	}
 
 	var paramParts []string
-	if strings.Contains(Url, "?") {
+	if strings.Contains(opts.Url, "?") {
 		paramParts = strings.Split(parts[1], "?")
 		parts[1] = paramParts[0]
 		paramParts = paramParts[1:]
@@ -87,7 +85,7 @@ func (m *mysql) Init() error {
 		return err
 	}
 	d.Close()
-	if d, err = sql.Open("mysql", Url); err != nil {
+	if d, err = sql.Open("mysql", opts.Url); err != nil {
 		return err
 	}
 	if _, err = d.Exec(changeSchema); err != nil {

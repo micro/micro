@@ -15,6 +15,7 @@ import (
 	"github.com/micro/micro/bot"
 	"github.com/micro/micro/broker"
 	"github.com/micro/micro/cli"
+	"github.com/micro/micro/config"
 	"github.com/micro/micro/debug"
 	"github.com/micro/micro/health"
 	"github.com/micro/micro/monitor"
@@ -278,6 +279,7 @@ func Setup(app *ccli.App, options ...micro.Option) {
 	app.Commands = append(app.Commands, new.Commands()...)
 	app.Commands = append(app.Commands, build.Commands()...)
 	app.Commands = append(app.Commands, web.Commands(options...)...)
+	app.Commands = append(app.Commands, config.Commands(options...)...)
 
 	// add the init command for our internal operator
 	app.Commands = append(app.Commands, ccli.Command{
@@ -340,6 +342,7 @@ func Setup(app *ccli.App, options ...micro.Option) {
 			"api",      // :8080
 			"web",      // :8082
 			"bot",      // :????
+			"config",   // 8803
 		}
 
 		// create new micro runtime

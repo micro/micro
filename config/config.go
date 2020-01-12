@@ -1,23 +1,19 @@
 package config
 
 import (
-	"context"
 	"sync"
-	"time"
 
 	"github.com/micro/cli"
 	"github.com/micro/go-micro"
-	"github.com/micro/go-micro/client"
-	cr "github.com/micro/go-micro/config/reader"
 	"github.com/micro/go-micro/config/reader/json"
-	"github.com/micro/go-micro/config/source"
 	"github.com/micro/go-micro/util/log"
 	"github.com/micro/micro/config/db"
+	_ "github.com/micro/micro/config/db/mysql"
 	proto "github.com/micro/micro/config/proto/config"
 )
 
 var (
-	Namespace   = "go.micro.srv.config"
+	Name        = "go.micro.srv.config"
 	DatabaseURL = "root:123@(127.0.0.1:3306)/config?charset=utf8&parseTime=true&loc=Asia%2FShanghai"
 	DB          = "mysql"
 
@@ -30,49 +26,10 @@ var (
 	watchers = make(map[string][]*watcher)
 )
 
-func Merge(ch ...*source.ChangeSet) (*source.ChangeSet, error) {
-	return reader.Merge(ch...)
-}
-
-func Values(ch *source.ChangeSet) (cr.Values, error) {
-	return reader.Values(ch)
-}
-
-// Watch created by a client RPC request
-func Watch(id string) (*watcher, error) {
-	mtx.Lock()
-	w := &watcher{
-		id:   id,
-		exit: make(chan bool),
-		next: make(chan *proto.WatchResponse),
-	}
-	watchers[id] = append(watchers[id], w)
-	mtx.Unlock()
-	return w, nil
-}
-
-// Used as a subscriber between config services for events
-func Watcher(ctx context.Context, ch *proto.WatchResponse) error {
-	mtx.RLock()
-	for _, sub := range watchers[ch.Id] {
-		select {
-		case sub.next <- ch:
-		case <-time.After(time.Millisecond * 100):
-		}
-	}
-	mtx.RUnlock()
-	return nil
-}
-
-// Publish a change
-func Publish(ctx context.Context, ch *proto.WatchResponse) error {
-	req := client.NewMessage(WatchTopic, ch)
-	return client.Publish(ctx, req)
-}
-
 func run(c *cli.Context, srvOpts ...micro.Option) {
-	service := micro.NewService(srvOpts...)
-	service.Init()
+	if len(c.GlobalString("server_name")) > 0 {
+		Name = c.GlobalString("server_name")
+	}
 
 	if len(c.String("database_url")) > 0 {
 		DatabaseURL = c.String("database_url")
@@ -82,11 +39,21 @@ func run(c *cli.Context, srvOpts ...micro.Option) {
 		DB = c.String("database")
 	}
 
+	if len(c.String("watch_topic")) > 0 {
+		WatchTopic = c.String("watch_topic")
+	}
+
+	srvOpts = append(srvOpts, micro.Name(Name))
+
+	service := micro.NewService(srvOpts...)
 	proto.RegisterConfigHandler(service.Server(), new(Config))
 
 	_ = service.Server().Subscribe(service.Server().NewSubscriber(WatchTopic, Watcher))
 
-	if err := db.Init(DB); err != nil {
+	if err := db.Init(
+		db.WithDBName(DB),
+		db.WithUrl(DatabaseURL),
+	); err != nil {
 		log.Fatalf("micro config init database error: %s", err)
 	}
 
@@ -106,7 +73,7 @@ func Commands(options ...micro.Option) []cli.Command {
 			cli.StringFlag{
 				Name:   "namespace",
 				Usage:  "Set the namespace used by the Config Service e.g. go.micro.srv.config",
-				EnvVar: "MICRO_API_NAMESPACE",
+				EnvVar: "MICRO_CONFIG_NAMESPACE",
 			},
 			cli.StringFlag{
 				Name:   "database_url",

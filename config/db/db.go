@@ -2,13 +2,14 @@ package db
 
 import (
 	"errors"
-	"github.com/micro/go-micro/util/log"
+	"sync"
 
+	"github.com/micro/go-micro/util/log"
 	proto "github.com/micro/micro/config/proto/config"
 )
 
 type DB interface {
-	Init() error
+	Init(Options) error
 	Create(*proto.Change) error
 	Read(id string) (*proto.Change, error)
 	Update(*proto.Change) error
@@ -21,19 +22,29 @@ type DB interface {
 var (
 	db          DB
 	dbMap       = map[string]DB{}
+	mux         sync.Mutex
 	ErrNotFound = errors.New("not found")
 )
 
 func Register(backend DB) {
+	mux.Lock()
+	defer mux.Unlock()
+
 	if dbMap[backend.String()] != nil {
-		dbMap[backend.String()] = backend
-	} else {
 		log.Fatalf("db is repeated: %s", backend.String())
 	}
+
+	dbMap[backend.String()] = backend
+	log.Logf("Register config db: %s", backend.String())
 }
 
-func Init(dbName string) error {
-	return dbMap[dbName].Init()
+func Init(opts ...Option) error {
+	options := Options{}
+	for _, opt := range opts {
+		opt(&options)
+	}
+
+	return dbMap[options.DBName].Init(options)
 }
 
 func Create(ch *proto.Change) error {
