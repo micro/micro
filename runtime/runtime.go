@@ -19,6 +19,7 @@ var (
 	Address = ":8088"
 )
 
+// Run the runtime service
 func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 	log.Name("runtime")
 
@@ -42,8 +43,14 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 	// create runtime
 	muRuntime := *cmd.DefaultCmd.Options().Runtime
 
-	// start the runtime
-	if err := muRuntime.Start(); err != nil {
+	// use default store
+	muStore := *cmd.DefaultCmd.Options().Store
+
+	// create a new runtime manager
+	manager := newManager(ctx, muRuntime, muStore)
+
+	// start the manager
+	if err := manager.Start(); err != nil {
 		log.Logf("failed to start: %s", err)
 		os.Exit(1)
 	}
@@ -58,8 +65,8 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 	pb.RegisterRuntimeHandler(service.Server(), &handler.Runtime{
 		// Client to publish events
 		Client: micro.NewEvent("go.micro.runtime.events", service.Client()),
-		// using the mdns runtime
-		Runtime: muRuntime,
+		// using the micro runtime
+		Runtime: manager,
 	})
 
 	// start runtime service
@@ -67,8 +74,8 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 		log.Logf("error running service: %v", err)
 	}
 
-	// stop the runtime
-	if err := muRuntime.Stop(); err != nil {
+	// stop the manager
+	if err := manager.Stop(); err != nil {
 		log.Logf("failed to stop: %s", err)
 		os.Exit(1)
 	}
@@ -115,6 +122,11 @@ func Commands(options ...micro.Option) []cli.Command {
 					Name:   "address",
 					Usage:  "Set the registry http address e.g 0.0.0.0:8088",
 					EnvVar: "MICRO_SERVER_ADDRESS",
+				},
+				cli.StringSliceFlag{
+					Name:   "env",
+					Usage:  "Set environment variables for all services e.g. foo=bar",
+					EnvVar: "MICRO_RUNTIME_ENV",
 				},
 			},
 			Action: func(ctx *cli.Context) {
