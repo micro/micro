@@ -7,11 +7,12 @@ import (
 	"time"
 
 	"github.com/micro/go-micro/client"
+	"github.com/micro/go-micro/client/grpc"
 	proto "github.com/micro/micro/config/proto/config"
 )
 
 var (
-	configSrv = proto.NewConfigService("go.micro.srv.config", client.DefaultClient)
+	configSrv = proto.NewConfigService("go.micro.srv.config", grpc.NewClient())
 )
 
 func TestCreate(t *testing.T) {
