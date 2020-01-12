@@ -39,23 +39,33 @@ func printKey(k string, v int64) {
 	fmt.Printf("micro %s:\t%.2f%s\n", k, c, u)
 }
 
+func years() [][]byte {
+	var years [][]byte
+
+	for _, year := range []string{"2019", "2020"} {
+		rsp, err := http.Get("https://micro.mu/usage?date=" + year)
+		if err != nil {
+			fmt.Println(err)
+			return nil
+		}
+		defer rsp.Body.Close()
+
+		b, err := ioutil.ReadAll(rsp.Body)
+		if err != nil {
+			fmt.Println(err)
+			return nil
+		}
+
+		years = append(years, b)
+	}
+
+	return years
+}
+
 func main() {
 	var cKey string
 	if len(os.Args) > 1 {
 		cKey = os.Args[1]
-	}
-
-	rsp, err := http.Get("https://micro.mu/usage?date=2019")
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	defer rsp.Body.Close()
-
-	b, err := ioutil.ReadAll(rsp.Body)
-	if err != nil {
-		fmt.Println(err)
-		return
 	}
 
 	var results map[string]Result
@@ -65,9 +75,18 @@ func main() {
 	//	daily := map[string]int64{}
 	monthly := map[string]int64{}
 
-	if err := json.Unmarshal(b, &results); err != nil {
-		fmt.Println(err)
-		return
+	// get all the results
+	for _, year := range years() {
+		var res map[string]Result
+
+		if err := json.Unmarshal(year, &results); err != nil {
+			fmt.Println(err)
+			return
+		}
+
+		for k, v := range res {
+			results[k] = v
+		}
 	}
 
 	for k, v := range results {
