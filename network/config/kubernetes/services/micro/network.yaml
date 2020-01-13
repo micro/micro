@@ -62,6 +62,8 @@ spec:
           value: "etcd-cluster-client"
         - name: MICRO_SERVER_ADDRESS
           value: "0.0.0.0:8080"
+        - name: MICRO_NETWORK_GATEWAY
+          value: "$(cat /node_info/ip):$MICRO_NETWORK_SVC_NODE_PORT"
         - name: MICRO_NETWORK_NODES
           value: "network.micro.mu"
         - name: MICRO_NETWORK_SVC_NODE_PORT
