@@ -82,7 +82,7 @@ spec:
           value: "network.micro.mu"
         command: ['sh', '-c']
         args:
-        - "export NODE_IP=$(cat /node_info/ip); /micro network --advertise=\"$NODE_IP:$MICRO_NETWORK_SVC_NODE_PORT\""
+        - "export ADDRESS=$(cat /node_info/ip):$MICRO_NETWORK_SVC_NODE_PORT; /micro network --gateway=\"$ADDRESS\" --advertise=\"$ADDRESS\""
         image: micro/micro
         imagePullPolicy: Always
         volumeMounts:
