@@ -4,8 +4,8 @@ import (
 	"errors"
 	"sync"
 
+	proto "github.com/micro/go-micro/config/source/mucp/proto"
 	"github.com/micro/go-micro/util/log"
-	proto "github.com/micro/micro/config/proto/config"
 )
 
 type DB interface {
@@ -14,8 +14,7 @@ type DB interface {
 	Read(id string) (*proto.Change, error)
 	Update(*proto.Change) error
 	Delete(*proto.Change) error
-	Search(id, author string, limit, offset int64) ([]*proto.Change, error)
-	AuditLog(from, to int64, limit, offset int64, reverse bool) ([]*proto.ChangeLog, error)
+	List(opts ListOptions) ([]*proto.Change, error)
 	String() string
 }
 
@@ -64,10 +63,6 @@ func Delete(ch *proto.Change) error {
 	return db.Delete(ch)
 }
 
-func Search(id, author string, limit, offset int64) ([]*proto.Change, error) {
-	return db.Search(id, author, limit, offset)
-}
-
-func AuditLog(from, to, limit, offset int64, reverse bool) ([]*proto.ChangeLog, error) {
-	return db.AuditLog(from, to, limit, offset, reverse)
+func List(opts ListOptions) ([]*proto.Change, error) {
+	return db.List(opts)
 }

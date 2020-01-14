@@ -6,10 +6,10 @@ import (
 	"github.com/micro/cli"
 	"github.com/micro/go-micro"
 	"github.com/micro/go-micro/config/reader/json"
+	proto "github.com/micro/go-micro/config/source/mucp/proto"
 	"github.com/micro/go-micro/util/log"
 	"github.com/micro/micro/config/db"
 	_ "github.com/micro/micro/config/db/mysql"
-	proto "github.com/micro/micro/config/proto/config"
 )
 
 var (
@@ -46,7 +46,7 @@ func run(c *cli.Context, srvOpts ...micro.Option) {
 	srvOpts = append(srvOpts, micro.Name(Name))
 
 	service := micro.NewService(srvOpts...)
-	proto.RegisterConfigHandler(service.Server(), new(Config))
+	proto.RegisterSourceHandler(service.Server(), new(Config))
 
 	_ = service.Server().Subscribe(service.Server().NewSubscriber(WatchTopic, Watcher))
 

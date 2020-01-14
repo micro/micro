@@ -7,13 +7,13 @@ import (
 	"github.com/micro/go-micro/client"
 	cr "github.com/micro/go-micro/config/reader"
 	"github.com/micro/go-micro/config/source"
-	proto "github.com/micro/micro/config/proto/config"
+	proto "github.com/micro/go-micro/config/source/mucp/proto"
 )
 
 // Used as a subscriber between config services for events
 func Watcher(ctx context.Context, ch *proto.WatchResponse) error {
 	mtx.RLock()
-	for _, sub := range watchers[ch.Id] {
+	for _, sub := range watchers[ch.Key] {
 		select {
 		case sub.next <- ch:
 		case <-time.After(time.Millisecond * 100):
