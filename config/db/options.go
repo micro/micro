@@ -18,3 +18,6 @@ func WithDBName(name string) Option {
 		options.DBName = name
 	}
 }
+
+type ListOptions struct {
+}

@@ -3,7 +3,7 @@ package config
 import (
 	"errors"
 
-	proto "github.com/micro/micro/config/proto/config"
+	proto "github.com/micro/go-micro/config/source/mucp/proto"
 )
 
 type watcher struct {
