@@ -118,7 +118,7 @@ func (c *Config) Update(ctx context.Context, req *proto.UpdateRequest, rsp *prot
 	var newChange *source.ChangeSet
 
 	// Set the change at a particular path
-	if len(req.Path) > 0 {
+	if len(req.Change.Path) > 0 {
 		// Unpack the data as a go type
 		var data interface{}
 		vals, err := Values(&source.ChangeSet{Data: req.Change.ChangeSet.Data, Format: ch.ChangeSet.Format})
@@ -194,7 +194,7 @@ func (c *Config) Delete(ctx context.Context, req *proto.DeleteRequest, rsp *prot
 		return err
 	}
 
-	if len(req.Change.Id) == 0 {
+	if len(req.Change.Key) == 0 {
 		err = errors.BadRequest("go.micro.srv.config.Delete", "invalid id")
 		log.Error(err)
 		return err
@@ -219,7 +219,7 @@ func (c *Config) Delete(ctx context.Context, req *proto.DeleteRequest, rsp *prot
 	// We've got a path. Let's update the required path
 
 	// Get the current change set
-	ch, err := db.Read(req.Change.Id)
+	ch, err := db.Read(req.Change.Key)
 	if err != nil {
 		err = errors.BadRequest("go.micro.srv.config.Delete", "read the old from db error: %s", err)
 		log.Error(err)
@@ -266,19 +266,19 @@ func (c *Config) Delete(ctx context.Context, req *proto.DeleteRequest, rsp *prot
 		return err
 	}
 
-	_ = Publish(ctx, &proto.WatchResponse{Id: req.Change.Id, ChangeSet: req.Change.ChangeSet})
+	_ = Publish(ctx, &proto.WatchResponse{Key: req.Change.Key, ChangeSet: req.Change.ChangeSet})
 
 	return nil
 }
 
-func (c *Config) Watch(ctx context.Context, req *proto.WatchRequest, stream proto.Config_WatchStream) (err error) {
-	if len(req.Id) == 0 {
+func (c *Config) Watch(ctx context.Context, req *proto.WatchRequest, stream proto.Source_WatchStream) (err error) {
+	if len(req.Key) == 0 {
 		err = errors.BadRequest("go.micro.srv.config.Watch", "invalid id")
 		log.Error(err)
 		return err
 	}
 
-	watch, err := Watch(req.Id)
+	watch, err := Watch(req.Key)
 	if err != nil {
 		err = errors.BadRequest("go.micro.srv.config.Watch", "watch error: %s", err)
 		log.Error(err)

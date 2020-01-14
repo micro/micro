@@ -89,7 +89,7 @@ func (m *mysql) Update(change *proto.Change) error {
 }
 
 func (m *mysql) List(opts db.ListOptions) ([]*proto.Change, error) {
-
+	return nil, nil
 }
 
 func (m *mysql) String() string {

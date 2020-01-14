@@ -13,11 +13,5 @@ func WithUrl(url string) Option {
 	}
 }
 
-func WithDBName(name string) Option {
-	return func(options *Options) {
-		options.DBName = name
-	}
-}
-
 type ListOptions struct {
 }
