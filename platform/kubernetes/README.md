@@ -26,7 +26,7 @@ We have dependencies to get started
 Check the [GCP](gcloud.md) or [AWS](aws.md) docs for specific instructions. Or:
 
 1. Spin up managed K8s somewhere
-
+  - In GKE we delete limit ranges `kubectl delete limitrange limits`
 2. Setup local env
   - Install `kubectl` https://kubernetes.io/docs/tasks/tools/install-kubectl/
   - Install `kubectx` https://github.com/ahmetb/kubectx

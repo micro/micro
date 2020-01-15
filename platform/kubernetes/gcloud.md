@@ -61,6 +61,15 @@ gcloud projects add-iam-policy-binding --member=user:jake@micro.mu --role=roles/
 
 You need IAM Security Admin permissions over your project to do this.
 
+## Limits
+
+We oversubscribe clusters and GKE enforces limits so delete them (TODO permanent deletion)
+
+```
+kubectl delete limitrange limits
+```
+
+
 ## Install Micro Prerequisites
 
 Install helm, e.g.
