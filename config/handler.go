@@ -1,11 +1,13 @@
 package config
 
 import (
+	"github.com/gogo/protobuf/proto"
+	"github.com/micro/go-micro/store"
 	"strings"
 	"time"
 
 	"github.com/micro/go-micro/config/source"
-	proto "github.com/micro/go-micro/config/source/mucp/proto"
+	mp "github.com/micro/go-micro/config/source/mucp/proto"
 	"github.com/micro/go-micro/errors"
 	"github.com/micro/go-micro/util/log"
 	"github.com/micro/micro/config/db"
@@ -14,7 +16,7 @@ import (
 
 type Config struct{}
 
-func (c *Config) Read(ctx context.Context, req *proto.ReadRequest, rsp *proto.ReadResponse) (err error) {
+func (c *Config) Read(ctx context.Context, req *mp.ReadRequest, rsp *mp.ReadResponse) (err error) {
 	if len(req.Key) == 0 {
 		err = errors.BadRequest("go.micro.config.Read", "invalid id")
 		log.Error(err)
@@ -27,23 +29,30 @@ func (c *Config) Read(ctx context.Context, req *proto.ReadRequest, rsp *proto.Re
 		log.Error(err)
 		return err
 	}
-	// Set response
-	rsp.Change = ch
+
+	// Unmarshal value
+	err = proto.Unmarshal(ch.Value, rsp.Change)
+	if err != nil {
+		err = errors.BadRequest("go.micro.config.Read", "unmarshal value error: %s", err)
+		log.Error(err)
+		return err
+	}
 
 	// if dont need path, we return all of the data
 	if len(req.Path) == 0 {
 		return nil
 	}
 
+	rcc := rsp.Change.ChangeSet
 	values, err := Values(&source.ChangeSet{
-		Timestamp: time.Unix(ch.ChangeSet.Timestamp, 0),
-		Data:      ch.ChangeSet.Data,
-		Checksum:  ch.ChangeSet.Checksum,
-		Format:    ch.ChangeSet.Format,
-		Source:    ch.ChangeSet.Source,
+		Timestamp: time.Unix(rcc.Timestamp, 0),
+		Data:      rcc.Data,
+		Checksum:  rcc.Checksum,
+		Format:    rcc.Format,
+		Source:    rcc.Source,
 	})
 	if err != nil {
-		err = errors.InternalServerError("go.micro.srv.config.Read", err.Error())
+		err = errors.InternalServerError("go.micro.config.Read", err.Error())
 		log.Error(err)
 		return err
 	}
@@ -56,7 +65,7 @@ func (c *Config) Read(ctx context.Context, req *proto.ReadRequest, rsp *proto.Re
 	return nil
 }
 
-func (c *Config) Create(ctx context.Context, req *proto.CreateRequest, rsp *proto.CreateResponse) (err error) {
+func (c *Config) Create(ctx context.Context, req *mp.CreateRequest, rsp *mp.CreateResponse) (err error) {
 	if req.Change == nil || req.Change.ChangeSet == nil {
 		err = errors.BadRequest("go.micro.config.Create", "invalid change")
 		log.Error(err)
@@ -71,18 +80,28 @@ func (c *Config) Create(ctx context.Context, req *proto.CreateRequest, rsp *prot
 
 	req.Change.ChangeSet.Timestamp = time.Now().Unix()
 
-	if err := db.Create(req.Change); err != nil {
+	record := &store.Record{}
+	record.Value, err = proto.Marshal(req.Change)
+	if err != nil {
+		err = errors.BadRequest("go.micro.config.Create", "marshal error: ", err)
+		log.Error(err)
+		return err
+	}
+
+	record.Key = req.Change.Key
+
+	if err := db.Create(record); err != nil {
 		err = errors.BadRequest("go.micro.config.Create", "create new into db error: ", err)
 		log.Error(err)
 		return err
 	}
 
-	_ = Publish(ctx, &proto.WatchResponse{Key: req.Change.Key, ChangeSet: req.Change.ChangeSet})
+	_ = Publish(ctx, &mp.WatchResponse{Key: req.Change.Key, ChangeSet: req.Change.ChangeSet})
 
 	return nil
 }
 
-func (c *Config) Update(ctx context.Context, req *proto.UpdateRequest, rsp *proto.UpdateResponse) (err error) {
+func (c *Config) Update(ctx context.Context, req *mp.UpdateRequest, rsp *mp.UpdateResponse) (err error) {
 	if req.Change == nil || req.Change.ChangeSet == nil {
 		err = errors.BadRequest("go.micro.config.Update", "invalid change")
 		log.Error(err)
@@ -98,21 +117,29 @@ func (c *Config) Update(ctx context.Context, req *proto.UpdateRequest, rsp *prot
 	req.Change.ChangeSet.Timestamp = time.Now().Unix()
 
 	// Get the current change set
-	ch, err := db.Read(req.Change.Key)
+	record, err := db.Read(req.Change.Key)
 	if err != nil {
 		err = errors.BadRequest("go.micro.config.Update", "read old value error: ", err)
 		log.Error(err)
 		return err
 	}
 
-	csFormat := ch.ChangeSet.Format
+	ch := &mp.Change{}
+	// Unmarshal value
+	err = proto.Unmarshal(record.Value, ch)
+	if err != nil {
+		err = errors.BadRequest("go.micro.config.Read", "unmarshal value error: %s", err)
+		log.Error(err)
+		return err
+	}
 
+	chc := ch.ChangeSet
 	change := &source.ChangeSet{
 		Timestamp: time.Unix(ch.ChangeSet.Timestamp, 0),
-		Data:      ch.ChangeSet.Data,
-		Checksum:  ch.ChangeSet.Checksum,
-		Source:    ch.ChangeSet.Source,
-		Format:    csFormat,
+		Data:      chc.Data,
+		Checksum:  chc.Checksum,
+		Source:    chc.Source,
+		Format:    chc.Format,
 	}
 
 	var newChange *source.ChangeSet
@@ -158,7 +185,7 @@ func (c *Config) Update(ctx context.Context, req *proto.UpdateRequest, rsp *prot
 			Data:      req.Change.ChangeSet.Data,
 			Checksum:  req.Change.ChangeSet.Checksum,
 			Source:    req.Change.ChangeSet.Source,
-			Format:    csFormat,
+			Format:    req.Change.ChangeSet.Format,
 		})
 		if err != nil {
 			err = errors.BadRequest("go.micro.srv.config.Update", "merge all error: ", err)
@@ -168,48 +195,55 @@ func (c *Config) Update(ctx context.Context, req *proto.UpdateRequest, rsp *prot
 	}
 
 	// update change set
-	req.Change.ChangeSet = &proto.ChangeSet{
+	req.Change.ChangeSet = &mp.ChangeSet{
 		Timestamp: newChange.Timestamp.Unix(),
 		Data:      newChange.Data,
 		Checksum:  newChange.Checksum,
 		Source:    newChange.Source,
-		Format:    csFormat,
+		Format:    newChange.Format,
 	}
 
-	if err := db.Update(req.Change); err != nil {
-		err = errors.BadRequest("go.micro.srv.config.Update", "update into db error: ", err)
+	record.Value, err = proto.Marshal(req.Change)
+	if err != nil {
+		err = errors.BadRequest("go.micro.config.Update", "marshal error: ", err)
 		log.Error(err)
 		return err
 	}
 
-	_ = Publish(ctx, &proto.WatchResponse{Key: req.Change.Key, ChangeSet: req.Change.ChangeSet})
+	if err := db.Update(record); err != nil {
+		err = errors.BadRequest("go.micro.config.Update", "update into db error: ", err)
+		log.Error(err)
+		return err
+	}
+
+	_ = Publish(ctx, &mp.WatchResponse{Key: req.Change.Key, ChangeSet: req.Change.ChangeSet})
 
 	return nil
 }
 
-func (c *Config) Delete(ctx context.Context, req *proto.DeleteRequest, rsp *proto.DeleteResponse) (err error) {
+func (c *Config) Delete(ctx context.Context, req *mp.DeleteRequest, rsp *mp.DeleteResponse) (err error) {
 	if req.Change == nil {
-		err = errors.BadRequest("go.micro.srv.config.Delete", "invalid change")
+		err = errors.BadRequest("go.micro.srv.Delete", "invalid change")
 		log.Error(err)
 		return err
 	}
 
 	if len(req.Change.Key) == 0 {
-		err = errors.BadRequest("go.micro.srv.config.Delete", "invalid id")
+		err = errors.BadRequest("go.micro.srv.Delete", "invalid id")
 		log.Error(err)
 		return err
 	}
 
 	if req.Change.ChangeSet == nil {
-		req.Change.ChangeSet = &proto.ChangeSet{}
+		req.Change.ChangeSet = &mp.ChangeSet{}
 	}
 
 	req.Change.ChangeSet.Timestamp = time.Now().Unix()
 
 	// We're going to delete the record as we have no path and no data
 	if len(req.Change.Path) == 0 {
-		if err := db.Delete(req.Change); err != nil {
-			err = errors.BadRequest("go.micro.srv.config.Delete", "delete from db error: %s", err)
+		if err := db.Delete(req.Change.Key); err != nil {
+			err = errors.BadRequest("go.micro.srv.Delete", "delete from db error: %s", err)
 			log.Error(err)
 			return err
 		}
@@ -219,9 +253,18 @@ func (c *Config) Delete(ctx context.Context, req *proto.DeleteRequest, rsp *prot
 	// We've got a path. Let's update the required path
 
 	// Get the current change set
-	ch, err := db.Read(req.Change.Key)
+	record, err := db.Read(req.Change.Key)
 	if err != nil {
-		err = errors.BadRequest("go.micro.srv.config.Delete", "read the old from db error: %s", err)
+		err = errors.BadRequest("go.micro.config.Update", "read old value error: ", err)
+		log.Error(err)
+		return err
+	}
+
+	ch := &mp.Change{}
+	// Unmarshal value
+	err = proto.Unmarshal(record.Value, ch)
+	if err != nil {
+		err = errors.BadRequest("go.micro.config.Read", "unmarshal value error: %s", err)
 		log.Error(err)
 		return err
 	}
@@ -235,7 +278,7 @@ func (c *Config) Delete(ctx context.Context, req *proto.DeleteRequest, rsp *prot
 		Format:    ch.ChangeSet.Format,
 	})
 	if err != nil {
-		err = errors.BadRequest("go.micro.srv.config.Delete", "Get the current config as values error: %s", err)
+		err = errors.BadRequest("go.micro.srv.Delete", "Get the current config as values error: %s", err)
 		log.Error(err)
 		return err
 	}
@@ -246,13 +289,13 @@ func (c *Config) Delete(ctx context.Context, req *proto.DeleteRequest, rsp *prot
 	// Create a change record from the values
 	change, err := Merge(&source.ChangeSet{Data: values.Bytes()})
 	if err != nil {
-		err = errors.BadRequest("go.micro.srv.config.Delete", "Create a change record from the values error: %s", err)
+		err = errors.BadRequest("go.micro.srv.Delete", "Create a change record from the values error: %s", err)
 		log.Error(err)
 		return err
 	}
 
 	// Update change set
-	req.Change.ChangeSet = &proto.ChangeSet{
+	req.Change.ChangeSet = &mp.ChangeSet{
 		Timestamp: change.Timestamp.Unix(),
 		Data:      change.Data,
 		Checksum:  change.Checksum,
@@ -260,27 +303,55 @@ func (c *Config) Delete(ctx context.Context, req *proto.DeleteRequest, rsp *prot
 		Source:    change.Source,
 	}
 
-	if err := db.Update(req.Change); err != nil {
-		err = errors.BadRequest("go.micro.srv.config.Delete", "update record set to db error: %s", err)
+	record.Value, err = proto.Marshal(req.Change)
+	if err != nil {
+		err = errors.BadRequest("go.micro.config.Update", "marshal error: ", err)
 		log.Error(err)
 		return err
 	}
 
-	_ = Publish(ctx, &proto.WatchResponse{Key: req.Change.Key, ChangeSet: req.Change.ChangeSet})
+	if err := db.Update(record); err != nil {
+		err = errors.BadRequest("go.micro.srv.Delete", "update record set to db error: %s", err)
+		log.Error(err)
+		return err
+	}
+
+	_ = Publish(ctx, &mp.WatchResponse{Key: req.Change.Key, ChangeSet: req.Change.ChangeSet})
 
 	return nil
 }
 
-func (c *Config) Watch(ctx context.Context, req *proto.WatchRequest, stream proto.Source_WatchStream) (err error) {
+func (c *Config) List(ctx context.Context, req *mp.ListRequest, rsp *mp.ListResponse) error {
+	list, err := db.List()
+	if err != nil {
+		err = errors.BadRequest("go.micro.config.List", "query value error: %s", err)
+		log.Error(err)
+		return err
+	}
+
+	for _, v := range list {
+
+	}
+	// Unmarshal value
+	err := proto.Unmarshal(list, &rsp.Configs)
+	if err != nil {
+		err = errors.BadRequest("go.micro.config.Read", "unmarshal value error: %s", err)
+		log.Error(err)
+		return err
+	}
+	return nil
+}
+
+func (c *Config) Watch(ctx context.Context, req *mp.WatchRequest, stream mp.Source_WatchStream) (err error) {
 	if len(req.Key) == 0 {
-		err = errors.BadRequest("go.micro.srv.config.Watch", "invalid id")
+		err = errors.BadRequest("go.micro.srv.Watch", "invalid id")
 		log.Error(err)
 		return err
 	}
 
 	watch, err := Watch(req.Key)
 	if err != nil {
-		err = errors.BadRequest("go.micro.srv.config.Watch", "watch error: %s", err)
+		err = errors.BadRequest("go.micro.srv.Watch", "watch error: %s", err)
 		log.Error(err)
 		return err
 	}
@@ -290,14 +361,14 @@ func (c *Config) Watch(ctx context.Context, req *proto.WatchRequest, stream prot
 		ch, err := watch.Next()
 		if err != nil {
 			_ = stream.Close()
-			err = errors.BadRequest("go.micro.srv.config.Watch", "listen the Next error: %s", err)
+			err = errors.BadRequest("go.micro.srv.Watch", "listen the Next error: %s", err)
 			log.Error(err)
 			return err
 		}
 
 		if err := stream.Send(ch); err != nil {
 			_ = stream.Close()
-			err = errors.BadRequest("go.micro.srv.config.Watch", "send the Change error: %s", err)
+			err = errors.BadRequest("go.micro.srv.Watch", "send the Change error: %s", err)
 			log.Error(err)
 			return err
 		}

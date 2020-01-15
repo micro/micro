@@ -23,7 +23,7 @@ import (
 
 	// inputs
 	_ "github.com/micro/go-micro/agent/input/discord"
-	_ "github.com/micro/go-micro/agent/input/slack"
+	//	_ "github.com/micro/go-micro/agent/input/slack"
 	_ "github.com/micro/go-micro/agent/input/telegram"
 )
 

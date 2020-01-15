@@ -4,19 +4,9 @@ import (
 	"errors"
 	"sync"
 
-	proto "github.com/micro/go-micro/config/source/mucp/proto"
+	"github.com/micro/go-micro/store"
 	"github.com/micro/go-micro/util/log"
 )
-
-type DB interface {
-	Init(Options) error
-	Create(*proto.Change) error
-	Read(id string) (*proto.Change, error)
-	Update(*proto.Change) error
-	Delete(*proto.Change) error
-	List(opts ListOptions) ([]*proto.Change, error)
-	String() string
-}
 
 var (
 	db          DB
@@ -24,6 +14,16 @@ var (
 	mux         sync.Mutex
 	ErrNotFound = errors.New("not found")
 )
+
+type DB interface {
+	Init(Options) error
+	Create(*store.Record) error
+	Read(key string) (*store.Record, error)
+	Update(*store.Record) error
+	Delete(key string) error
+	List(opts ...ListOption) ([]*store.Record, error)
+	String() string
+}
 
 func Register(backend DB) {
 	mux.Lock()
@@ -47,22 +47,22 @@ func Init(opts ...Option) error {
 	return db.Init(options)
 }
 
-func Create(ch *proto.Change) error {
+func Create(ch *store.Record) error {
 	return db.Create(ch)
 }
 
-func Read(id string) (*proto.Change, error) {
-	return db.Read(id)
+func Read(key string) (*store.Record, error) {
+	return db.Read(key)
 }
 
-func Update(ch *proto.Change) error {
+func Update(ch *store.Record) error {
 	return db.Update(ch)
 }
 
-func Delete(ch *proto.Change) error {
-	return db.Delete(ch)
+func Delete(key string) error {
+	return db.Delete(key)
 }
 
-func List(opts ListOptions) ([]*proto.Change, error) {
-	return db.List(opts)
+func List(opts ...ListOption) ([]*store.Record, error) {
+	return db.List(opts...)
 }

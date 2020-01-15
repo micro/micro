@@ -13,12 +13,10 @@ import (
 )
 
 var (
-	Name        = "go.micro.srv.config"
-	DatabaseURL = "root:123@(127.0.0.1:3306)/config?charset=utf8&parseTime=true&loc=Asia%2FShanghai"
-	DB          = "mysql"
+	Name       = "go.micro.config"
+	WatchTopic = "go.micro.config.events"
 
 	PathSplitter = "/"
-	WatchTopic   = "micro.config.watch"
 
 	// we now support json only
 	reader   = json.NewReader()
@@ -26,17 +24,9 @@ var (
 	watchers = make(map[string][]*watcher)
 )
 
-func run(c *cli.Context, srvOpts ...micro.Option) {
+func Run(c *cli.Context, srvOpts ...micro.Option) {
 	if len(c.GlobalString("server_name")) > 0 {
 		Name = c.GlobalString("server_name")
-	}
-
-	if len(c.String("database_url")) > 0 {
-		DatabaseURL = c.String("database_url")
-	}
-
-	if len(c.String("database")) > 0 {
-		DB = c.String("database")
 	}
 
 	if len(c.String("watch_topic")) > 0 {
@@ -51,14 +41,14 @@ func run(c *cli.Context, srvOpts ...micro.Option) {
 	_ = service.Server().Subscribe(service.Server().NewSubscriber(WatchTopic, Watcher))
 
 	if err := db.Init(
-		db.WithDBName(DB),
-		db.WithUrl(DatabaseURL),
+		db.WithDBName(c.String("database")),
+		db.WithUrl(c.String("database_url")),
 	); err != nil {
 		log.Fatalf("micro config init database error: %s", err)
 	}
 
 	if err := service.Run(); err != nil {
-		log.Fatalf("micro config run the service error: ", err)
+		log.Fatalf("micro config Run the service error: ", err)
 	}
 }
 
@@ -67,7 +57,7 @@ func Commands(options ...micro.Option) []cli.Command {
 		Name:  "config",
 		Usage: "Run the config server",
 		Action: func(c *cli.Context) {
-			run(c, options...)
+			Run(c, options...)
 		},
 		Flags: []cli.Flag{
 			cli.StringFlag{
@@ -83,7 +73,7 @@ func Commands(options ...micro.Option) []cli.Command {
 			cli.StringFlag{
 				Name:   "database",
 				EnvVar: "MICRO_CONFIG_DATABASE",
-				Usage:  "The database e.g mysql(default), postgresql, but now we only support mysql.",
+				Usage:  "The database e.g mysql(default), postgresql, but now we only support mysql and cockroach(pg).",
 				Value:  "mysql",
 			},
 			cli.StringFlag{
