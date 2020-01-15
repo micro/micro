@@ -12,4 +12,4 @@ You should be able to pick up and use the configuration here on kubernetes for a
 
 ## Getting Started
 
-For self hosting look at the [kubernetes] repo. To learn more about the M3O serverless platform see the [docs](https://micro.mu/docs/platform.html).
+For self hosting look at the [kubernetes](https://github.com/micro/micro/tree/master/platform/kubernetes) repo. To learn more about the M3O serverless platform see the [docs](https://micro.mu/docs/platform.html).
