@@ -30,9 +30,8 @@ require (
 	github.com/jonboulle/clockwork v0.1.0 // indirect
 	github.com/mattn/go-isatty v0.0.8 // indirect
 	github.com/micro/cli v0.2.0
-	github.com/micro/go-micro v1.18.1-0.20200110215436-f50a50eeb36a
+	github.com/micro/go-micro v1.18.1-0.20200114202832-7c7b0ced5fa0
 	github.com/miekg/dns v1.1.26
-	github.com/nats-io/nats-server/v2 v2.0.0 // indirect
 	github.com/netdata/go-orchestrator v0.0.0-20190905093727-c793edba0e8f
 	github.com/olekukonko/tablewriter v0.0.4
 	github.com/onsi/ginkgo v1.8.0 // indirect
