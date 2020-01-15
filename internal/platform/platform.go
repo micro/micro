@@ -1,3 +1,4 @@
+// Package platform manages the runtime services as a platform
 package platform
 
 import (

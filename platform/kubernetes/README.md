@@ -1,6 +1,19 @@
 # Kubernetes Deployment
 
+This repo serves as the kubernetes deployment for the platform.
+
+## Overview
+
+The platform consists of the following
+
+- **resource** - shared resources that must be run to support the platform
+- **control** - the control plane for management and single entity services
+- **runtime** - the micro runtime run ontop of the shared infra in all regions
+- **services** - adhoc services we run on the platform
+
 ## Dependencies
+
+We have dependencies to get started
 
 - Kubectl
 - Kubectx
@@ -8,7 +21,7 @@
 - Etcd
 - NATS
 
-## Steps
+## Usage
 
 Check the [GCP](gcloud.md) or [AWS](aws.md) docs for specific instructions. Or:
 

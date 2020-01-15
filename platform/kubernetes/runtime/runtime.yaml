@@ -88,6 +88,20 @@ spec:
           value: "true"
         - name: MICRO_LOG_LEVEL
           value: "debug"
+        - name: MICRO_STORE
+          value: "cloudflare"
+        - name: KV_NAMESPACE_ID
+          value: "runtime"
+        - name: CF_API_TOKEN
+          valueFrom:
+            secretKeyRef:
+              key: CF_API_TOKEN
+              name: cloudflare-credentials
+        - name: CF_ACCOUNT_ID
+          valueFrom:
+            secretKeyRef:
+              key: CF_ACCOUNT_ID
+              name: cloudflare-credentials
         command:
         - /micro
         - runtime
