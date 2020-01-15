@@ -2,6 +2,7 @@ package cockroach
 
 import (
 	"database/sql"
+
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/micro/go-micro/store"
 	pgStore "github.com/micro/go-micro/store/cockroach"
@@ -9,7 +10,7 @@ import (
 )
 
 var (
-	defaultUrl = "postgres://postgres:@localhost:5432/postgres"
+	defaultUrl = "postgres://postgres:@localhost:5432/postgres?sslmode=disable"
 )
 
 type cockroach struct {
@@ -25,7 +26,7 @@ func (m *cockroach) Init(opts db.Options) error {
 	var d *sql.DB
 	var err error
 
-	if opts.Url == "" {
+	if opts.Url != "" {
 		defaultUrl = opts.Url
 	}
 
@@ -72,7 +73,7 @@ func (m *cockroach) Update(record *store.Record) error {
 	return m.st.Write(record)
 }
 
-func (m *cockroach) List(opts db.ListOptions) ([]*store.Record, error) {
+func (m *cockroach) List(opts ...db.ListOption) ([]*store.Record, error) {
 	return m.st.List()
 }
 

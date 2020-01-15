@@ -6,13 +6,12 @@ import (
 	"testing"
 	"time"
 
-	"github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/client/grpc"
-	proto "github.com/micro/micro/config/proto/config"
+	mucp "github.com/micro/go-micro/config/source/mucp/proto"
 )
 
 var (
-	configSrv = proto.NewConfigService("go.micro.srv.config", grpc.NewClient())
+	configSrv = mucp.NewSourceService("go.micro.config", grpc.NewClient())
 )
 
 func TestCreate(t *testing.T) {
@@ -28,12 +27,10 @@ func TestCreate(t *testing.T) {
 	dataBytes, _ := json.Marshal(data)
 	t.Logf("[TestCreate] create data %s", dataBytes)
 
-	rsp, err := configSrv.Create(context.TODO(), &proto.CreateRequest{Change: &proto.Change{
-		Id:      "NAMESPACE:CONFIG",
-		Path:    "supported_phones",
-		Author:  "shuxian",
-		Comment: "create",
-		ChangeSet: &proto.ChangeSet{
+	rsp, err := configSrv.Create(context.TODO(), &mucp.CreateRequest{Change: &mucp.Change{
+		Key:  "NAMESPACE:CONFIG",
+		Path: "supported_phones",
+		ChangeSet: &mucp.ChangeSet{
 			Data:   dataBytes,
 			Format: "json",
 		},
@@ -47,8 +44,8 @@ func TestCreate(t *testing.T) {
 }
 
 func TestRead(t *testing.T) {
-	rsp, err := configSrv.Read(context.TODO(), &proto.ReadRequest{
-		Id: "NAMESPACE:CONFIG"})
+	rsp, err := configSrv.Read(context.TODO(), &mucp.ReadRequest{
+		Key: "NAMESPACE:CONFIG"})
 	if err != nil {
 		t.Errorf("[TestRead] read error %s", err)
 		return
@@ -58,8 +55,8 @@ func TestRead(t *testing.T) {
 }
 
 func TestReadAB(t *testing.T) {
-	rsp, err := configSrv.Read(context.TODO(), &proto.ReadRequest{
-		Id:   "NAMESPACE:CONFIG",
+	rsp, err := configSrv.Read(context.TODO(), &mucp.ReadRequest{
+		Key:  "NAMESPACE:CONFIG",
 		Path: "a/b",
 	})
 	if err != nil {
@@ -86,11 +83,9 @@ func TestUpdate(t *testing.T) {
 	dataBytes, _ := json.Marshal(data)
 	t.Logf("[TestUpdate] update data %s", dataBytes)
 
-	rsp, err := configSrv.Update(context.TODO(), &proto.UpdateRequest{Change: &proto.Change{
-		Id:      "NAMESPACE:CONFIG",
-		Author:  "shuxian",
-		Comment: "update",
-		ChangeSet: &proto.ChangeSet{
+	rsp, err := configSrv.Update(context.TODO(), &mucp.UpdateRequest{Change: &mucp.Change{
+		Key: "NAMESPACE:CONFIG",
+		ChangeSet: &mucp.ChangeSet{
 			Data:   dataBytes,
 			Format: "json",
 		},
@@ -114,12 +109,10 @@ func TestUpdateC(t *testing.T) {
 	dataBytes, _ := json.Marshal(data)
 	t.Logf("[TestUpdateC] update data %s", dataBytes)
 
-	rsp, err := configSrv.Update(context.TODO(), &proto.UpdateRequest{Change: &proto.Change{
-		Id:      "NAMESPACE:CONFIG",
-		Path:    "a/b/c",
-		Author:  "shuxian",
-		Comment: "update path c",
-		ChangeSet: &proto.ChangeSet{
+	rsp, err := configSrv.Update(context.TODO(), &mucp.UpdateRequest{Change: &mucp.Change{
+		Key:  "NAMESPACE:CONFIG",
+		Path: "a/b/c",
+		ChangeSet: &mucp.ChangeSet{
 			Data:   dataBytes,
 			Format: "json",
 		},
@@ -133,13 +126,9 @@ func TestUpdateC(t *testing.T) {
 }
 
 func TestDeleteD(t *testing.T) {
-	greeter := proto.NewConfigService("go.micro.srv.config", client.DefaultClient)
-
-	rsp, err := greeter.Delete(context.TODO(), &proto.DeleteRequest{Change: &proto.Change{
-		Id:      "NAMESPACE:CONFIG",
-		Path:    "a/b/c/d",
-		Author:  "shuxian",
-		Comment: "delete d",
+	rsp, err := configSrv.Delete(context.TODO(), &mucp.DeleteRequest{Change: &mucp.Change{
+		Key:  "NAMESPACE:CONFIG",
+		Path: "a/b/c/d",
 	}})
 	if err != nil {
 		t.Errorf("[TestDeleteD] delete error %s", err)
@@ -150,10 +139,8 @@ func TestDeleteD(t *testing.T) {
 }
 
 func TestDelete(t *testing.T) {
-	rsp, err := configSrv.Delete(context.TODO(), &proto.DeleteRequest{Change: &proto.Change{
-		Id:      "NAMESPACE:CONFIG",
-		Author:  "shuxian",
-		Comment: "delete",
+	rsp, err := configSrv.Delete(context.TODO(), &mucp.DeleteRequest{Change: &mucp.Change{
+		Key: "NAMESPACE:CONFIG",
 	}})
 	if err != nil {
 		t.Errorf("[TestDelete] delete error %s", err)
@@ -163,28 +150,13 @@ func TestDelete(t *testing.T) {
 	t.Logf("[TestDelete] delete result %s", rsp)
 }
 
-func TestSearch(t *testing.T) {
-	rsp, err := configSrv.Search(context.TODO(), &proto.SearchRequest{
-		Id:     "NAMESPACE:CONFIG",
-		Author: "shuxian",
-		Limit:  1,
-		Offset: 0,
-	})
-	if err != nil {
-		t.Errorf("[TestSearch] search error %s", err)
-		return
-	}
-
-	t.Logf("[TestSearch] search result %s", rsp)
-}
-
 func TestWatch(t *testing.T) {
 	var errCh chan error
 
 	// watch
 	go func() {
-		rsp, err := configSrv.Watch(context.TODO(), &proto.WatchRequest{
-			Id: "NAMESPACE:CONFIG",
+		rsp, err := configSrv.Watch(context.TODO(), &mucp.WatchRequest{
+			Key: "NAMESPACE:CONFIG",
 		})
 
 		if err != nil {
@@ -220,20 +192,4 @@ func TestWatch(t *testing.T) {
 		return
 	case <-time.After(5 * time.Second):
 	}
-}
-
-func TestAuditLog(t *testing.T) {
-	rsp, err := configSrv.AuditLog(context.TODO(), &proto.AuditLogRequest{
-		From:   1578757517,
-		To:     1578761783,
-		Limit:  5,
-		Offset: 0,
-	})
-
-	if err != nil {
-		t.Errorf("[TestAuditLog] query log error error %s", err)
-		return
-	}
-
-	t.Logf("[TestAuditLog] search result %s", rsp.Changes)
 }

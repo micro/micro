@@ -3,10 +3,10 @@ package mysql
 import (
 	"database/sql"
 	"errors"
-	"github.com/micro/go-micro/store"
 	"strings"
 
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/micro/go-micro/store"
 	"github.com/micro/micro/config/db"
 )
 
@@ -28,7 +28,7 @@ func (m *mysql) Init(opts db.Options) error {
 	var d *sql.DB
 	var err error
 
-	if opts.Url == "" {
+	if opts.Url != "" {
 		defaultUrl = opts.Url
 	}
 

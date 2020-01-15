@@ -330,15 +330,16 @@ func (c *Config) List(ctx context.Context, req *mp.ListRequest, rsp *mp.ListResp
 	}
 
 	for _, v := range list {
+		ch := &mp.Change{}
+		err := proto.Unmarshal(v.Value, ch)
+		if err != nil {
+			err = errors.BadRequest("go.micro.config.Read", "unmarshal value error: %s", err)
+			log.Error(err)
+			return err
+		}
+		rsp.Configs = append(rsp.Configs, ch)
+	}
 
-	}
-	// Unmarshal value
-	err := proto.Unmarshal(list, &rsp.Configs)
-	if err != nil {
-		err = errors.BadRequest("go.micro.config.Read", "unmarshal value error: %s", err)
-		log.Error(err)
-		return err
-	}
 	return nil
 }
 

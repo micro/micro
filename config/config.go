@@ -9,6 +9,7 @@ import (
 	proto "github.com/micro/go-micro/config/source/mucp/proto"
 	"github.com/micro/go-micro/util/log"
 	"github.com/micro/micro/config/db"
+	_ "github.com/micro/micro/config/db/cockroach"
 	_ "github.com/micro/micro/config/db/mysql"
 )
 
@@ -17,7 +18,7 @@ var (
 	WatchTopic = "go.micro.config.events"
 
 	PathSplitter = "/"
-
+	Database     = "cockroach"
 	// we now support json only
 	reader   = json.NewReader()
 	mtx      sync.RWMutex
@@ -33,6 +34,10 @@ func Run(c *cli.Context, srvOpts ...micro.Option) {
 		WatchTopic = c.String("watch_topic")
 	}
 
+	if len(c.String("database")) > 0 {
+		Database = c.String("database")
+	}
+
 	srvOpts = append(srvOpts, micro.Name(Name))
 
 	service := micro.NewService(srvOpts...)
@@ -41,9 +46,10 @@ func Run(c *cli.Context, srvOpts ...micro.Option) {
 	_ = service.Server().Subscribe(service.Server().NewSubscriber(WatchTopic, Watcher))
 
 	if err := db.Init(
-		db.WithDBName(c.String("database")),
+		db.WithDBName(Database),
 		db.WithUrl(c.String("database_url")),
-	); err != nil {
+	)
+		err != nil {
 		log.Fatalf("micro config init database error: %s", err)
 	}
 
@@ -74,7 +80,6 @@ func Commands(options ...micro.Option) []cli.Command {
 				Name:   "database",
 				EnvVar: "MICRO_CONFIG_DATABASE",
 				Usage:  "The database e.g mysql(default), postgresql, but now we only support mysql and cockroach(pg).",
-				Value:  "mysql",
 			},
 			cli.StringFlag{
 				Name:   "watch_topic",
