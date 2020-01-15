@@ -280,6 +280,8 @@ github.com/micro/go-micro v1.18.1-0.20200114202832-7c7b0ced5fa0 h1:2wuNkLOu0uc1R
 github.com/micro/go-micro v1.18.1-0.20200114202832-7c7b0ced5fa0/go.mod h1:1JEtfEpOyG2RXZannZA+LkwsKqwxLOI3eWeIDGVj1w8=
 github.com/micro/go-micro v1.18.1-0.20200115210258-b3e3dac97518 h1:fvdUjrnnNrXG1WI/ggN0+UDMwqm69dsrEljmMG9JloA=
 github.com/micro/go-micro v1.18.1-0.20200115210258-b3e3dac97518/go.mod h1:1JEtfEpOyG2RXZannZA+LkwsKqwxLOI3eWeIDGVj1w8=
+github.com/micro/go-micro v1.18.1-0.20200115212207-b32ebddf85e8 h1:15rtgeLW5egpctjIhQvaGetha3Pa2NtvZg72eJkSdJY=
+github.com/micro/go-micro v1.18.1-0.20200115212207-b32ebddf85e8/go.mod h1:pR2kgKCjYNRkHnu+6J4ANh0Dfc5/roi6fekyTOJhL8c=
 github.com/micro/mdns v0.3.0 h1:bYycYe+98AXR3s8Nq5qvt6C573uFTDPIYzJemWON0QE=
 github.com/micro/mdns v0.3.0/go.mod h1:KJ0dW7KmicXU2BV++qkLlmHYcVv7/hHnbtguSWt9Aoc=
 github.com/miekg/dns v1.1.3/go.mod h1:W1PPwlIAgtquWBMBEV9nkV9Cazfe8ScdGz/Lj7v3Nrg=
@@ -328,6 +330,8 @@ github.com/netdata/go-orchestrator v0.0.0-20190905093727-c793edba0e8f h1:jSzujNr
 github.com/netdata/go-orchestrator v0.0.0-20190905093727-c793edba0e8f/go.mod h1:ECF8anFVCt/TfTIWVPgPrNaYJXtAtpAOF62ugDbw41A=
 github.com/nlopes/slack v0.6.0 h1:jt0jxVQGhssx1Ib7naAOZEZcGdtIhTzkP0nopK0AsRA=
 github.com/nlopes/slack v0.6.0/go.mod h1:JzQ9m3PMAqcpeCam7UaHSuBuupz7CmpjehYMayT6YOk=
+github.com/nlopes/slack v0.6.1-0.20191106133607-d06c2a2b3249 h1:Pr5gZa2VcmktVwq0lyC39MsN5tz356vC/pQHKvq+QBo=
+github.com/nlopes/slack v0.6.1-0.20191106133607-d06c2a2b3249/go.mod h1:JzQ9m3PMAqcpeCam7UaHSuBuupz7CmpjehYMayT6YOk=
 github.com/nrdcg/auroradns v1.0.0/go.mod h1:6JPXKzIRzZzMqtTDgueIhTi6rFf1QvYE/HzqidhOhjw=
 github.com/nrdcg/goinwx v0.6.1/go.mod h1:XPiut7enlbEdntAqalBIqcYcTEVhpv/dKWgDCX2SwKQ=
 github.com/nrdcg/namesilo v0.2.1/go.mod h1:lwMvfQTyYq+BbjJd30ylEG4GPSS6PII0Tia4rRpRiyw=
