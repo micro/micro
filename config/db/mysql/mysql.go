@@ -3,19 +3,21 @@ package mysql
 import (
 	"database/sql"
 	"errors"
+	"github.com/micro/go-micro/store"
 	"strings"
 
 	_ "github.com/go-sql-driver/mysql"
-	proto "github.com/micro/go-micro/config/source/mucp/proto"
 	"github.com/micro/micro/config/db"
 )
 
 var (
-	st = map[string]*sql.Stmt{}
+	st         = map[string]*sql.Stmt{}
+	defaultUrl = "root:123@(127.0.0.1:3306)/config?charset=utf8&parseTime=true"
 )
 
 type mysql struct {
 	db *sql.DB
+	st store.Store
 }
 
 func init() {
@@ -26,7 +28,11 @@ func (m *mysql) Init(opts db.Options) error {
 	var d *sql.DB
 	var err error
 
-	parts := strings.Split(opts.Url, "/")
+	if opts.Url == "" {
+		defaultUrl = opts.Url
+	}
+
+	parts := strings.Split(defaultUrl, "/")
 	if len(parts) != 2 {
 		return errors.New("Invalid database url ")
 	}
@@ -36,7 +42,7 @@ func (m *mysql) Init(opts db.Options) error {
 	}
 
 	var paramParts []string
-	if strings.Contains(opts.Url, "?") {
+	if strings.Contains(defaultUrl, "?") {
 		paramParts = strings.Split(parts[1], "?")
 		parts[1] = paramParts[0]
 		paramParts = paramParts[1:]
@@ -53,7 +59,7 @@ func (m *mysql) Init(opts db.Options) error {
 	}
 	d.Close()
 
-	if d, err = sql.Open("mysql", opts.Url); err != nil {
+	if d, err = sql.Open("mysql", defaultUrl); err != nil {
 		return err
 	}
 	if _, err = d.Exec(changeSchema); err != nil {
@@ -65,31 +71,30 @@ func (m *mysql) Init(opts db.Options) error {
 	return nil
 }
 
-func (m *mysql) Create(change *proto.Change) error {
-
-	return nil
+func (m *mysql) Create(record *store.Record) error {
+	return m.st.Write(record)
 }
 
-func (m *mysql) Read(id string) (*proto.Change, error) {
-	if len(id) == 0 {
-		return nil, errors.New("Invalid trace id")
+func (m *mysql) Read(key string) (*store.Record, error) {
+	s, err := m.st.Read(key)
+	if err != nil {
+		return nil, err
 	}
 
-	return nil, nil
+	return s[0], nil
 }
 
-func (m *mysql) Delete(change *proto.Change) error {
-
-	return nil
+func (m *mysql) Delete(key string) error {
+	return m.st.Delete(key)
 }
 
-func (m *mysql) Update(change *proto.Change) error {
-
-	return nil
+func (m *mysql) Update(record *store.Record) error {
+	return m.st.Write(record)
 }
 
-func (m *mysql) List(opts db.ListOptions) ([]*proto.Change, error) {
-	return nil, nil
+func (m *mysql) List(opts ...db.ListOption) ([]*store.Record, error) {
+	// opts is just params holder
+	return m.st.List()
 }
 
 func (m *mysql) String() string {

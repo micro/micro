@@ -7,6 +7,12 @@ type Options struct {
 
 type Option func(*Options)
 
+func WithDBName(name string) Option {
+	return func(options *Options) {
+		options.DBName = name
+	}
+}
+
 func WithUrl(url string) Option {
 	return func(options *Options) {
 		options.Url = url
@@ -15,3 +21,5 @@ func WithUrl(url string) Option {
 
 type ListOptions struct {
 }
+
+type ListOption func(*Options)

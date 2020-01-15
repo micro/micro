@@ -2,10 +2,7 @@ package cockroach
 
 import (
 	"database/sql"
-	"errors"
-
 	_ "github.com/go-sql-driver/mysql"
-	proto "github.com/micro/go-micro/config/source/mucp/proto"
 	"github.com/micro/go-micro/store"
 	pgStore "github.com/micro/go-micro/store/cockroach"
 	"github.com/micro/micro/config/db"
@@ -54,35 +51,29 @@ func (m *cockroach) Init(opts db.Options) error {
 	return nil
 }
 
-func (m *cockroach) Create(change *proto.Change) error {
-	rd := &store.Record{
-		Key:   change.Key,
-		Value: change.ChangeSet.Data,
-	}
-	m.st.Write()
-	return nil
+func (m *cockroach) Create(record *store.Record) error {
+	return m.st.Write(record)
 }
 
-func (m *cockroach) Read(id string) (*proto.Change, error) {
-	if len(id) == 0 {
-		return nil, errors.New("Invalid trace id")
+func (m *cockroach) Read(key string) (*store.Record, error) {
+	s, err := m.st.Read(key)
+	if err != nil {
+		return nil, err
 	}
 
-	return nil, nil
+	return s[0], nil
 }
 
-func (m *cockroach) Delete(change *proto.Change) error {
-
-	return nil
+func (m *cockroach) Delete(key string) error {
+	return m.st.Delete(key)
 }
 
-func (m *cockroach) Update(change *proto.Change) error {
-
-	return nil
+func (m *cockroach) Update(record *store.Record) error {
+	return m.st.Write(record)
 }
 
-func (m *cockroach) List(opts db.ListOptions) ([]*proto.Change, error) {
-	return nil, nil
+func (m *cockroach) List(opts db.ListOptions) ([]*store.Record, error) {
+	return m.st.List()
 }
 
 func (m *cockroach) String() string {
