@@ -8,7 +8,7 @@ The platform consists of the following
 
 - **infra** - shared infrastructure dependencies that must run in every region
 - **control** - the control plane run only in DO
-- **runtime** - the micro runtime run ontop of the shared infra
+- **runtime** - the micro runtime run ontop of the shared infra in all regions
 - **services** - adhoc services we run on the platform
 
 ## Dependencies
