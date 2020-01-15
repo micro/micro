@@ -108,5 +108,5 @@ spec:
           mountPath: /node_info
         command: ['sh', '-c']
         args:
-        - "TOKEN=$(cat /var/run/secrets/kubernetes.io/serviceaccount/token); curl -k -X GET -H \"Authorization: Bearer $TOKEN\" https://$KUBERNETES_SERVICE_HOST/api/v1/namespaces/$POD_NAMESPACE/services/micro-network | jq -r 'if .status.loadBalancer.ingress[0].hostname != null then .status.loadBalancer.ingress[0].hostname else .status.loadBalancer.ingress[0].ip end' > /node_info/ip"
+        - "AWS_LB=18.163.89.7; TOKEN=$(cat /var/run/secrets/kubernetes.io/serviceaccount/token); IP=$(curl -k -X GET -H \"Authorization: Bearer $TOKEN\" https://$KUBERNETES_SERVICE_HOST/api/v1/namespaces/$POD_NAMESPACE/services/micro-network | jq -r 'if .status.loadBalancer.ingress[0].hostname != null then .status.loadBalancer.ingress[0].hostname else .status.loadBalancer.ingress[0].ip end'); if [ \"$IP\" == \"null\" ] || [ -z \"$IP\" ]; then IP=$AWS_LB; fi; echo $IP > /node_info/ip"
 
