@@ -8,7 +8,7 @@ The platform consists of the following
 
 - **resource** - shared resources that must be run to support the platform
 - **control** - the control plane for management and single entity services
-- **runtime** - the micro runtime run ontop of the shared infra in all regions
+- **network** - the micro runtime run ontop of the shared infra in all regions
 - **services** - adhoc services we run on the platform
 
 ## Dependencies
