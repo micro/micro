@@ -41,15 +41,6 @@ func (r *Router) Lookup(ctx context.Context, req *pb.LookupRequest, resp *pb.Loo
 	return nil
 }
 
-// Solicit triggers full routing table advertisement
-func (r *Router) Solicit(ctx context.Context, req *pb.Request, resp *pb.Response) error {
-	if err := r.Router.Solicit(); err != nil {
-		return err
-	}
-
-	return nil
-}
-
 // Advertise streams router advertisements
 func (r *Router) Advertise(ctx context.Context, req *pb.Request, stream pb.Router_AdvertiseStream) error {
 	advertChan, err := r.Router.Advertise()
