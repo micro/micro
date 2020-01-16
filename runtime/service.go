@@ -16,7 +16,7 @@ import (
 	"github.com/micro/go-micro/config/cmd"
 	"github.com/micro/go-micro/runtime"
 	rs "github.com/micro/go-micro/runtime/service"
-	"github.com/micro/micro/runtime/notifier"
+	"github.com/micro/micro/runtime/scheduler"
 )
 
 const (
@@ -95,9 +95,9 @@ func runService(ctx *cli.Context, srvOpts ...micro.Option) {
 			}
 		}
 
-		// specify the runtime notifier to update wiht local file changes
-		if err := r.Init(runtime.WithNotifier(notifier.New(name, version, source))); err != nil {
-			fmt.Printf("Could not start notifier: %v", err)
+		// specify the runtime scheduler to update wiht local file changes
+		if err := r.Init(runtime.WithScheduler(scheduler.New(name, version, source))); err != nil {
+			fmt.Printf("Could not start scheduler: %v", err)
 			return
 		}
 	default:

@@ -84,7 +84,7 @@ func (m *manager) Create(s *runtime.Service, opts ...runtime.CreateOption) error
 		return err
 	}
 
-	return err
+	return nil
 }
 
 func (m *manager) Read(opts ...runtime.ReadOption) ([]*runtime.Service, error) {

@@ -47,8 +47,8 @@ type notifier struct {
 	closed chan bool
 }
 
-// NewNotifier returns new runtime notifier
-func NewNotifier(buildDate string) runtime.Notifier {
+// NewScheduler returns new runtime notifier
+func NewScheduler(buildDate string) runtime.Scheduler {
 	// convert the build date to a time.Time value
 	timestamp, err := strconv.ParseInt(buildDate, 10, 64)
 	if err != nil {
@@ -59,11 +59,11 @@ func NewNotifier(buildDate string) runtime.Notifier {
 	version := time.Unix(timestamp, 0)
 
 	// return a new notifier
-	return newNotifier(DefaultURL, DefaultTick, version)
+	return newScheduler(DefaultURL, DefaultTick, version)
 }
 
 // NewHTTP creates HTTP poller and returns it
-func newNotifier(url string, tick time.Duration, version time.Time) *notifier {
+func newScheduler(url string, tick time.Duration, version time.Time) *notifier {
 	return &notifier{
 		url:     url,
 		tick:    tick,
@@ -82,26 +82,26 @@ func (h *notifier) poll() (*Build, error) {
 
 	rsp, err := http.Get(url.String())
 	if err != nil {
-		log.Debugf("Notifier error polling updates: %v", err)
+		log.Debugf("Scheduler error polling updates: %v", err)
 		return nil, err
 	}
 	defer rsp.Body.Close()
 
 	if rsp.StatusCode != 200 {
-		log.Debugf("Notifier error unexpected http response: %v", rsp.StatusCode)
+		log.Debugf("Scheduler error unexpected http response: %v", rsp.StatusCode)
 		return nil, err
 	}
 
 	b, err := ioutil.ReadAll(rsp.Body)
 	if err != nil {
-		log.Debugf("Notifier error reading http response: %v", err)
+		log.Debugf("Scheduler error reading http response: %v", err)
 		return nil, err
 	}
 
 	// encoding format is assumed to be json
 	var build *Build
 	if err := json.Unmarshal(b, &build); err != nil {
-		log.Debugf("Notifier error unmarshalling response: %v", err)
+		log.Debugf("Scheduler error unmarshalling response: %v", err)
 		return nil, err
 	}
 
@@ -118,16 +118,16 @@ func (h *notifier) run() {
 		case <-h.closed:
 			return
 		case <-t.C:
-			log.Debugf("Notifier polling for new update: %s", h.url)
+			log.Debugf("Scheduler polling for new update: %s", h.url)
 			resp, err := h.poll()
 			if err != nil {
-				log.Debugf("Notifier error polling for updates: %v", err)
+				log.Debugf("Scheduler error polling for updates: %v", err)
 				continue
 			}
 			// parse returned response to timestamp
 			buildTime, err := time.Parse(time.RFC3339, resp.Image)
 			if err != nil {
-				log.Debugf("Notifier error parsing build time: %v", err)
+				log.Debugf("Scheduler error parsing build time: %v", err)
 				continue
 			}
 

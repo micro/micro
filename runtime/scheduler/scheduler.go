@@ -1,5 +1,5 @@
-// Package notifier is a file server notifer
-package notifier
+// Package scheduler is a file server notifer
+package scheduler
 
 import (
 	"errors"
@@ -12,7 +12,7 @@ import (
 	"github.com/micro/go-micro/util/log"
 )
 
-type notifier struct {
+type scheduler struct {
 	service string
 	version string
 	path    string
@@ -26,7 +26,7 @@ type notifier struct {
 	exit     chan bool
 }
 
-func (n *notifier) run() {
+func (n *scheduler) run() {
 	for {
 		select {
 		case <-n.exit:
@@ -55,7 +55,7 @@ func (n *notifier) run() {
 	}
 }
 
-func (n *notifier) Notify() (<-chan runtime.Event, error) {
+func (n *scheduler) Notify() (<-chan runtime.Event, error) {
 	select {
 	case <-n.exit:
 		return nil, errors.New("closed")
@@ -69,7 +69,7 @@ func (n *notifier) Notify() (<-chan runtime.Event, error) {
 	return n.notify, nil
 }
 
-func (n *notifier) Close() error {
+func (n *scheduler) Close() error {
 	n.Lock()
 	defer n.Unlock()
 	select {
@@ -82,9 +82,9 @@ func (n *notifier) Close() error {
 	}
 }
 
-// New returns a new notifier which watches the source
-func New(service, version, source string) runtime.Notifier {
-	n := &notifier{
+// New returns a new scheduler which watches the source
+func New(service, version, source string) runtime.Scheduler {
+	n := &scheduler{
 		path:    filepath.Dir(source),
 		exit:    make(chan bool),
 		notify:  make(chan runtime.Event, 32),
