@@ -196,6 +196,10 @@ func (n *Network) Services(ctx context.Context, req *pbNet.ServicesRequest, resp
 	services := make(map[string]bool)
 
 	for _, route := range routes {
+		if route.Service == "*" {
+			continue
+		}
+
 		if _, ok := services[route.Service]; ok {
 			continue
 		}
