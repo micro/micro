@@ -30,7 +30,7 @@ require (
 	github.com/jonboulle/clockwork v0.1.0 // indirect
 	github.com/mattn/go-isatty v0.0.8 // indirect
 	github.com/micro/cli v0.2.0
-	github.com/micro/go-micro v1.18.1-0.20200116181726-ba125131998e
+	github.com/micro/go-micro v1.18.1-0.20200116200205-bac1bbfd97dc
 	github.com/miekg/dns v1.1.26
 	github.com/netdata/go-orchestrator v0.0.0-20190905093727-c793edba0e8f
 	github.com/olekukonko/tablewriter v0.0.4
@@ -55,5 +55,3 @@ require (
 	gopkg.in/olivere/elastic.v5 v5.0.83
 	sigs.k8s.io/yaml v1.1.0 // indirect
 )
-
-replace github.com/micro/go-micro => github.com/milosgajdos83/go-micro v1.6.1-0.20200116194310-7f9b3b555647
