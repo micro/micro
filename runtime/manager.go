@@ -2,6 +2,7 @@ package runtime
 
 import (
 	"encoding/json"
+	"errors"
 	"strings"
 	"sync"
 	"time"
@@ -18,7 +19,7 @@ type manager struct {
 
 	sync.RWMutex
 	// internal cache of services
-	services map[string]*runtime.Service
+	services map[string]*runtimeService
 
 	running bool
 	exit    chan bool
@@ -27,9 +28,19 @@ type manager struct {
 	env []string
 }
 
+// stored in store
+type runtimeService struct {
+	Service *runtime.Service       `json:"service"`
+	Options *runtime.CreateOptions `json:"options"`
+}
+
 var (
 	eventTick = time.Second * 10
 )
+
+func key(s *runtime.Service) string {
+	return s.Name + ":" + s.Version
+}
 
 func (m *manager) Init(opts ...runtime.Option) error {
 	return nil
@@ -52,35 +63,47 @@ func (m *manager) Create(s *runtime.Service, opts ...runtime.CreateOption) error
 		s.Metadata = make(map[string]string)
 	}
 
-	// set the initial status
-	s.Metadata["status"] = "started"
-
 	// make copy
 	cp := new(runtime.Service)
-	*cp = *s
+	cp.Name = s.Name
+	cp.Version = s.Version
+	cp.Source = s.Source
+	cp.Metadata = make(map[string]string)
+
 	for k, v := range s.Metadata {
 		cp.Metadata[k] = v
 	}
 
 	// create the service
-	err := m.Runtime.Create(cp, opts...)
-	if err != nil {
-		s.Metadata["status"] = "error"
-		s.Metadata["error"] = err.Error()
+	if err := m.Runtime.Create(cp, opts...); err != nil {
+		return err
+	}
+
+	// set the initial status
+	s.Metadata["status"] = "started"
+
+	// create service key
+	k := key(s)
+
+	rs := &runtimeService{
+		Service: s,
+		Options: &options,
 	}
 
 	// save
-	m.services[s.Name+s.Version] = s
+	m.services[k] = rs
 
 	// marshall the content
-	b, _ := json.Marshal(s)
+	b, err := json.Marshal(rs)
+	if err != nil {
+		return err
+	}
 
 	// save the record
-	err = m.Store.Write(&store.Record{
-		Key:   s.Name + s.Version,
+	if err := m.Store.Write(&store.Record{
+		Key:   k,
 		Value: b,
-	})
-	if err != nil {
+	}); err != nil {
 		return err
 	}
 
@@ -98,21 +121,21 @@ func (m *manager) Read(opts ...runtime.ReadOption) ([]*runtime.Service, error) {
 	m.RLock()
 	defer m.RUnlock()
 
-	for _, service := range m.services {
+	for _, rs := range m.services {
 		srv := options.Service
 		ver := options.Version
 
-		if len(srv) > 0 && service.Name != srv {
+		if len(srv) > 0 && rs.Service.Name != srv {
 			continue
 		}
 
-		if len(ver) > 0 && service.Version != ver {
+		if len(ver) > 0 && rs.Service.Version != ver {
 			continue
 		}
 
 		// TODO: service type options.Type
 		cp := new(runtime.Service)
-		*cp = *service
+		*cp = *rs.Service
 		services = append(services, cp)
 	}
 
@@ -125,12 +148,34 @@ func (m *manager) Update(s *runtime.Service) error {
 		return err
 	}
 
+	k := key(s)
+	// read the existing record
+	r, err := m.Store.Read(k)
+	if err != nil {
+		return err
+	}
+
+	if len(r) == 0 {
+		return errors.New("service not found")
+	}
+
+	var rs runtimeService
+	if err := json.Unmarshal(r[0].Value, &rs); err != nil {
+		return err
+	}
+	// set the service
+	rs.Service = s
+	// TODO: allow setting opts
+
 	// marshall the content
-	b, _ := json.Marshal(s)
+	b, err := json.Marshal(rs)
+	if err != nil {
+		return err
+	}
 
 	// save the record
 	return m.Store.Write(&store.Record{
-		Key:   s.Name + s.Version,
+		Key:   k,
 		Value: b,
 	})
 }
@@ -139,21 +184,23 @@ func (m *manager) Delete(s *runtime.Service) error {
 	m.Lock()
 	defer m.Unlock()
 
+	k := key(s)
+
 	// save local status
-	v, ok := m.services[s.Name+s.Version]
+	v, ok := m.services[k]
 	if ok {
-		v.Metadata["status"] = "stopping"
+		v.Service.Metadata["status"] = "stopping"
 	}
 
 	// delete from runtime
 	if err := m.Runtime.Delete(s); err != nil {
-		v.Metadata["status"] = "error"
-		v.Metadata["error"] = err.Error()
+		v.Service.Metadata["status"] = "error"
+		v.Service.Metadata["error"] = err.Error()
 		return err
 	}
 
 	// delete from store
-	return m.Store.Delete(s.Name + s.Version)
+	return m.Store.Delete(k)
 }
 
 func (m *manager) List() ([]*runtime.Service, error) {
@@ -164,7 +211,7 @@ func (m *manager) List() ([]*runtime.Service, error) {
 
 	for _, service := range m.services {
 		cp := new(runtime.Service)
-		*cp = *service
+		*cp = *service.Service
 		services = append(services, cp)
 	}
 
@@ -196,62 +243,97 @@ func (m *manager) run() {
 			running := make(map[string]*runtime.Service)
 
 			for _, service := range services {
-				running[service.Name+service.Version] = service
+				k := key(service)
+				running[k] = service
 			}
 
 			// create a map of services that should actually run
-			shouldRun := make(map[string]*runtime.Service)
+			shouldRun := make(map[string]*runtimeService)
 
 			// iterate through and see what we need to run
 			for _, record := range records {
 				// decode the record
-				var service *runtime.Service
-				if err := json.Unmarshal(record.Value, &service); err != nil {
+				var rs *runtimeService
+				if err := json.Unmarshal(record.Value, &rs); err != nil {
 					continue
 				}
 
 				// things to run
-				shouldRun[record.Key] = service
+				shouldRun[record.Key] = rs
 
 				// check if its already running
-				if v, ok := running[service.Name+service.Version]; ok {
-					// if the runtime status is different use that
-					if v.Metadata["status"] != service.Metadata["status"] {
-						service.Metadata["status"] = v.Metadata["status"]
+				if v, ok := running[record.Key]; ok {
+					log.Logf("%v %v", v.Metadata, rs.Service.Metadata)
+
+					// set the status
+					storeStatus := rs.Service.Metadata["status"]
+					runningStatus := v.Metadata["status"]
+
+					if storeStatus != "running" {
+						rs.Service.Metadata["status"] = "running"
+						// write the updated status
+						b, _ := json.Marshal(rs)
+						record.Value = b
+						// store the record
+						m.Store.Write(record)
+					} else if storeStatus != runningStatus {
+						log.Logf("Setting %v %v", v.Metadata, rs.Service.Metadata)
+						rs.Service.Metadata["status"] = v.Metadata["status"]
 						if len(v.Metadata["error"]) > 0 {
-							service.Metadata["error"] = v.Metadata["error"]
+							rs.Service.Metadata["error"] = v.Metadata["error"]
 						}
+						// write the updated status
+						b, _ := json.Marshal(rs)
+						record.Value = b
+						// store the record
+						m.Store.Write(record)
 					}
+
 					continue
 				}
 
+				opts := []runtime.CreateOption{
+					runtime.WithCommand(rs.Options.Command...),
+					runtime.WithEnv(rs.Options.Env),
+					runtime.CreateType(rs.Options.Type),
+				}
+
+				log.Logf("Creating service %s version %s source %s", rs.Service.Name, rs.Service.Version, rs.Service.Source)
+
+				// set the status to starting
+				rs.Service.Metadata["status"] = "starting"
+
 				// service does not exist so start it
-				if err := m.Runtime.Create(service); err != nil {
-					log.Logf("Erroring running %s: %v", service.Name, err)
+				if err := m.Runtime.Create(rs.Service, opts...); err != nil {
+					log.Logf("Erroring running %s: %v", rs.Service.Name, err)
 
 					// an error is already recorded
-					if len(service.Metadata["error"]) > 0 {
+					if rs.Service.Metadata["status"] == "error" {
 						continue
 					}
 
 					// save the error
-					service.Metadata["status"] = "error"
-					service.Metadata["error"] = err.Error()
-					b, _ := json.Marshal(service)
-					record.Value = b
-					// store the record
-					m.Store.Write(record)
+					rs.Service.Metadata["status"] = "error"
+					rs.Service.Metadata["error"] = err.Error()
 				}
+
+				// write the updated status
+				b, _ := json.Marshal(rs)
+				record.Value = b
+				// store the record
+				m.Store.Write(record)
 			}
 
 			// check what we need to stop from the running list
 			for _, service := range services {
+				k := key(service)
+
 				// check if it should be running
-				if _, ok := shouldRun[service.Name+service.Version]; ok {
+				if _, ok := shouldRun[k]; ok {
 					continue
 				}
 
-				log.Logf("Stopping service %s version %s", service.Name, service.Version)
+				log.Logf("Stopping %s", k)
 
 				// should not be running
 				m.Runtime.Delete(service)
@@ -323,7 +405,7 @@ func newManager(ctx *cli.Context, r runtime.Runtime, s store.Store) *manager {
 		Runtime:  r,
 		Store:    s,
 		env:      env,
-		services: make(map[string]*runtime.Service),
+		services: make(map[string]*runtimeService),
 		exit:     make(chan bool),
 	}
 }
