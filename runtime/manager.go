@@ -23,6 +23,8 @@ type manager struct {
 
 	running bool
 	exit    chan bool
+	// used to propagate events
+	events chan *event
 	// env to inject into the service
 	// TODO: use profiles not env vars
 	env []string
@@ -32,11 +34,35 @@ type manager struct {
 type runtimeService struct {
 	Service *runtime.Service       `json:"service"`
 	Options *runtime.CreateOptions `json:"options"`
+	Status  string                 `json:"status"`
+	Error   error                  `json:"error"`
+}
+
+type event struct {
+	Type    string
+	Service *runtime.Service
+	Options *runtime.CreateOptions
 }
 
 var (
 	eventTick = time.Second * 10
 )
+
+func copyService(s *runtimeService) *runtime.Service {
+	cp := new(runtime.Service)
+	cp.Name = s.Service.Name
+	cp.Version = s.Service.Version
+	cp.Source = s.Service.Source
+	cp.Metadata = make(map[string]string)
+	for k, v := range s.Service.Metadata {
+		cp.Metadata[k] = v
+	}
+	cp.Metadata["status"] = s.Status
+	if s.Error != nil {
+		cp.Metadata["error"] = s.Error.Error()
+	}
+	return cp
+}
 
 func key(s *runtime.Service) string {
 	return s.Name + ":" + s.Version
@@ -63,35 +89,24 @@ func (m *manager) Create(s *runtime.Service, opts ...runtime.CreateOption) error
 		s.Metadata = make(map[string]string)
 	}
 
-	// make copy
-	cp := new(runtime.Service)
-	cp.Name = s.Name
-	cp.Version = s.Version
-	cp.Source = s.Source
-	cp.Metadata = make(map[string]string)
-
-	for k, v := range s.Metadata {
-		cp.Metadata[k] = v
-	}
-
-	// create the service
-	if err := m.Runtime.Create(cp, opts...); err != nil {
-		return err
-	}
-
-	// set the initial status
-	s.Metadata["status"] = "started"
-
 	// create service key
 	k := key(s)
 
 	rs := &runtimeService{
 		Service: s,
 		Options: &options,
+		Status:  "starting",
 	}
 
-	// save
+	// save locally
 	m.services[k] = rs
+
+	// send event
+	m.events <- &event{
+		Type:    "create",
+		Service: s,
+		Options: &options,
+	}
 
 	// marshall the content
 	b, err := json.Marshal(rs)
@@ -100,14 +115,10 @@ func (m *manager) Create(s *runtime.Service, opts ...runtime.CreateOption) error
 	}
 
 	// save the record
-	if err := m.Store.Write(&store.Record{
+	return m.Store.Write(&store.Record{
 		Key:   k,
 		Value: b,
-	}); err != nil {
-		return err
-	}
-
-	return nil
+	})
 }
 
 func (m *manager) Read(opts ...runtime.ReadOption) ([]*runtime.Service, error) {
@@ -133,28 +144,26 @@ func (m *manager) Read(opts ...runtime.ReadOption) ([]*runtime.Service, error) {
 			continue
 		}
 
-		// TODO: service type options.Type
-		cp := new(runtime.Service)
-		*cp = *rs.Service
-		services = append(services, cp)
+		services = append(services, copyService(rs))
 	}
 
 	return services, nil
 }
 
 func (m *manager) Update(s *runtime.Service) error {
-	// create the service
-	if err := m.Runtime.Update(s); err != nil {
-		return err
-	}
+	m.Lock()
+	defer m.Unlock()
 
+	// create the key
 	k := key(s)
+
 	// read the existing record
 	r, err := m.Store.Read(k)
 	if err != nil {
 		return err
 	}
 
+	// no service
 	if len(r) == 0 {
 		return errors.New("service not found")
 	}
@@ -166,6 +175,24 @@ func (m *manager) Update(s *runtime.Service) error {
 	// set the service
 	rs.Service = s
 	// TODO: allow setting opts
+
+	// if not running then run it
+	evType := "update"
+
+	// check if it exists
+	if _, ok := m.services[k]; !ok {
+		// set starting status
+		rs.Status = "starting"
+		evType = "create"
+		m.services[k] = &rs
+	}
+
+	// fire an update
+	m.events <- &event{
+		Type:    evType,
+		Service: rs.Service,
+		Options: rs.Options,
+	}
 
 	// marshall the content
 	b, err := json.Marshal(rs)
@@ -188,15 +215,17 @@ func (m *manager) Delete(s *runtime.Service) error {
 
 	// save local status
 	v, ok := m.services[k]
-	if ok {
-		v.Service.Metadata["status"] = "stopping"
+	if !ok {
+		return nil
 	}
 
-	// delete from runtime
-	if err := m.Runtime.Delete(s); err != nil {
-		v.Service.Metadata["status"] = "error"
-		v.Service.Metadata["error"] = err.Error()
-		return err
+	// set status
+	v.Status = "stopping"
+
+	// send event
+	m.events <- &event{
+		Type:    "delete",
+		Service: v.Service,
 	}
 
 	// delete from store
@@ -210,9 +239,7 @@ func (m *manager) List() ([]*runtime.Service, error) {
 	services := make([]*runtime.Service, 0, len(m.services))
 
 	for _, service := range m.services {
-		cp := new(runtime.Service)
-		*cp = *service.Service
-		services = append(services, cp)
+		services = append(services, copyService(service))
 	}
 
 	return services, nil
@@ -263,32 +290,11 @@ func (m *manager) run() {
 
 				// check if its already running
 				if v, ok := running[record.Key]; ok {
-					log.Logf("%v %v", v.Metadata, rs.Service.Metadata)
-
-					// set the status
-					storeStatus := rs.Service.Metadata["status"]
-					runningStatus := v.Metadata["status"]
-
-					if storeStatus != "running" {
-						rs.Service.Metadata["status"] = "running"
-						// write the updated status
-						b, _ := json.Marshal(rs)
-						record.Value = b
-						// store the record
-						m.Store.Write(record)
-					} else if storeStatus != runningStatus {
-						log.Logf("Setting %v %v", v.Metadata, rs.Service.Metadata)
-						rs.Service.Metadata["status"] = v.Metadata["status"]
-						if len(v.Metadata["error"]) > 0 {
-							rs.Service.Metadata["error"] = v.Metadata["error"]
-						}
-						// write the updated status
-						b, _ := json.Marshal(rs)
-						record.Value = b
-						// store the record
-						m.Store.Write(record)
+					// TODO: have actual runtime status
+					rs.Status = v.Metadata["status"]
+					if e := v.Metadata["error"]; len(e) > 0 {
+						rs.Error = errors.New(e)
 					}
-
 					continue
 				}
 
@@ -301,27 +307,16 @@ func (m *manager) run() {
 				log.Logf("Creating service %s version %s source %s", rs.Service.Name, rs.Service.Version, rs.Service.Source)
 
 				// set the status to starting
-				rs.Service.Metadata["status"] = "starting"
+				rs.Status = "starting"
 
 				// service does not exist so start it
 				if err := m.Runtime.Create(rs.Service, opts...); err != nil {
 					log.Logf("Erroring running %s: %v", rs.Service.Name, err)
 
-					// an error is already recorded
-					if rs.Service.Metadata["status"] == "error" {
-						continue
-					}
-
 					// save the error
-					rs.Service.Metadata["status"] = "error"
-					rs.Service.Metadata["error"] = err.Error()
+					rs.Status = "error"
+					rs.Error = err
 				}
-
-				// write the updated status
-				b, _ := json.Marshal(rs)
-				record.Value = b
-				// store the record
-				m.Store.Write(record)
 			}
 
 			// check what we need to stop from the running list
@@ -341,6 +336,40 @@ func (m *manager) run() {
 
 			// save the current list of running things
 			m.services = shouldRun
+		case ev := <-m.events:
+			var err error
+
+			switch ev.Type {
+			case "delete":
+				log.Logf("Deleting %s %s", ev.Service.Name, ev.Service.Version)
+				err = m.Runtime.Delete(ev.Service)
+			case "update":
+				log.Logf("Updating %s %s", ev.Service.Name, ev.Service.Version)
+				err = m.Runtime.Update(ev.Service)
+			case "create":
+				opts := []runtime.CreateOption{
+					runtime.WithCommand(ev.Options.Command...),
+					runtime.WithEnv(ev.Options.Env),
+					runtime.CreateType(ev.Options.Type),
+				}
+
+				log.Logf("Creating %s %s", ev.Service.Name, ev.Service.Version)
+				err = m.Runtime.Create(ev.Service, opts...)
+			}
+
+			if err != nil {
+				log.Logf("Erroring executing event %s for %s: %v", ev.Type, ev.Service.Name, err)
+
+				// save the error
+				// hacking, its a pointer
+				m.Lock()
+				v, ok := m.services[key(ev.Service)]
+				if ok {
+					v.Status = "error"
+					v.Error = err
+				}
+				m.Unlock()
+			}
 		case <-m.exit:
 			return
 		}
@@ -407,5 +436,6 @@ func newManager(ctx *cli.Context, r runtime.Runtime, s store.Store) *manager {
 		env:      env,
 		services: make(map[string]*runtimeService),
 		exit:     make(chan bool),
+		events:   make(chan *event, 8),
 	}
 }
