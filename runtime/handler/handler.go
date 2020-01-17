@@ -8,6 +8,7 @@ import (
 	"github.com/micro/go-micro/errors"
 	"github.com/micro/go-micro/runtime"
 	pb "github.com/micro/go-micro/runtime/service/proto"
+	"github.com/micro/go-micro/util/log"
 )
 
 type Runtime struct {
@@ -28,8 +29,10 @@ func (r *Runtime) Create(ctx context.Context, req *pb.CreateRequest, rsp *pb.Cre
 	}
 
 	service := toService(req.Service)
-	err := r.Runtime.Create(service, options...)
-	if err != nil {
+
+	log.Logf("Creating service %s version %s source %s", service.Name, service.Version, service.Source)
+
+	if err := r.Runtime.Create(service, options...); err != nil {
 		return errors.InternalServerError("go.micro.runtime", err.Error())
 	}
 
@@ -70,8 +73,10 @@ func (r *Runtime) Update(ctx context.Context, req *pb.UpdateRequest, rsp *pb.Upd
 
 	// TODO: add opts
 	service := toService(req.Service)
-	err := r.Runtime.Update(service)
-	if err != nil {
+
+	log.Logf("Updating service %s version %s source %s", service.Name, service.Version, service.Source)
+
+	if err := r.Runtime.Update(service); err != nil {
 		return errors.InternalServerError("go.micro.runtime", err.Error())
 	}
 
@@ -93,8 +98,10 @@ func (r *Runtime) Delete(ctx context.Context, req *pb.DeleteRequest, rsp *pb.Del
 
 	// TODO: add opts
 	service := toService(req.Service)
-	err := r.Runtime.Delete(service)
-	if err != nil {
+
+	log.Logf("Deleting service %s version %s source %s", service.Name, service.Version, service.Source)
+
+	if err := r.Runtime.Delete(service); err != nil {
 		return errors.InternalServerError("go.micro.runtime", err.Error())
 	}
 

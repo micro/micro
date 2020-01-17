@@ -49,6 +49,8 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 	// create a new runtime manager
 	manager := newManager(ctx, muRuntime, muStore)
 
+	log.Logf("using store %s", muStore.String())
+
 	// start the manager
 	if err := manager.Start(); err != nil {
 		log.Logf("failed to start: %s", err)
