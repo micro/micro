@@ -145,7 +145,7 @@ func (r *Router) Watch(ctx context.Context, req *pb.WatchRequest, stream pb.Rout
 	if err != nil {
 		return errors.InternalServerError("go.micro.router", "failed creating event watcher: %v", err)
 	}
-
+	defer watcher.Stop()
 	defer stream.Close()
 
 	for {
