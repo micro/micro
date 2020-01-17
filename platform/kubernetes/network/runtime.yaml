@@ -90,8 +90,6 @@ spec:
           value: "debug"
         - name: MICRO_STORE
           value: "cloudflare"
-        - name: KV_NAMESPACE_ID
-          value: "runtime"
         - name: CF_API_TOKEN
           valueFrom:
             secretKeyRef:
@@ -101,6 +99,11 @@ spec:
           valueFrom:
             secretKeyRef:
               key: CF_ACCOUNT_ID
+              name: cloudflare-credentials
+        - name: KV_NAMESPACE_ID
+          valueFrom:
+            secretKeyRef:
+              key: KV_NAMESPACE_ID_RUNTIME
               name: cloudflare-credentials
         command:
         - /micro

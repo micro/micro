@@ -27,6 +27,8 @@ spec:
       containers:
       - name: router
         env:
+        - name: MICRO_LOG_LEVEL
+          value: "trace"
         - name: MICRO_BROKER
           value: "nats"
         - name: MICRO_BROKER_ADDRESS

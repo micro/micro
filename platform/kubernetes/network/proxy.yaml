@@ -13,7 +13,7 @@ metadata:
     owner: "micro"
     group: "micro"
 spec:
-  replicas: 3
+  replicas: 1
   selector:
     matchLabels:
       name: micro-proxy
@@ -27,6 +27,8 @@ spec:
       containers:
       - name: proxy
         env:
+        - name: MICRO_LOG_LEVEL
+          value: "trace"
         - name: MICRO_BROKER
           value: "nats"
         - name: MICRO_BROKER_ADDRESS
