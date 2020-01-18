@@ -11,6 +11,7 @@ import (
 	"github.com/micro/go-micro/runtime"
 	"github.com/micro/go-micro/store"
 	"github.com/micro/go-micro/util/log"
+	mprofile "github.com/micro/micro/runtime/profile"
 )
 
 type manager struct {
@@ -25,9 +26,9 @@ type manager struct {
 	exit    chan bool
 	// used to propagate events
 	events chan *event
-	// env to inject into the service
-	// TODO: use profiles not env vars
-	env []string
+
+	// a runtime profile to set for the service
+	profile []string
 }
 
 // stored in store
@@ -86,8 +87,33 @@ func (m *manager) Create(s *runtime.Service, opts ...runtime.CreateOption) error
 		o(&options)
 	}
 
+	setEnv := func(p []string, env map[string]string) {
+		for _, v := range env {
+			parts := strings.Split(v, "=")
+			if len(parts) <= 1 {
+				continue
+			}
+			env[parts[0]] = strings.Join(parts[1:], "=")
+		}
+	}
+
+	// overwrite any values
+	env := map[string]string{}
+
+	// set the env vars provided
+	setEnv(options.Env, env)
+
+	// override with vars from the profile
+	setEnv(m.profile, env)
+
+	// create a new env
+	var vars []string
+	for k, v := range env {
+		vars = append(vars, k+"="+v)
+	}
+
 	// setup the runtime env
-	opts = append(opts, runtime.WithEnv(append(options.Env, m.env...)))
+	opts = append(opts, runtime.WithEnv(vars))
 
 	if s.Metadata == nil {
 		s.Metadata = make(map[string]string)
@@ -430,18 +456,17 @@ func (m *manager) Stop() error {
 }
 
 func newManager(ctx *cli.Context, r runtime.Runtime, s store.Store) *manager {
-	var env []string
+	var profile []string
 	// peel out the env
-	for _, ev := range ctx.StringSlice("env") {
-		for _, val := range strings.Split(ev, ",") {
-			env = append(env, strings.TrimSpace(val))
-		}
+	switch ctx.String("profile") {
+	case "platform":
+		profile = mprofile.Platform()
 	}
 
 	return &manager{
 		Runtime:  r,
 		Store:    s,
-		env:      env,
+		profile:  profile,
 		services: make(map[string]*runtimeService),
 		exit:     make(chan bool),
 		events:   make(chan *event, 8),

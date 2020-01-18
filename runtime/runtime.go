@@ -125,10 +125,10 @@ func Commands(options ...micro.Option) []cli.Command {
 					Usage:  "Set the registry http address e.g 0.0.0.0:8088",
 					EnvVar: "MICRO_SERVER_ADDRESS",
 				},
-				cli.StringSliceFlag{
-					Name:   "env",
-					Usage:  "Set environment variables for all services e.g. foo=bar",
-					EnvVar: "MICRO_RUNTIME_ENV",
+				cli.StringFlag{
+					Name:   "profile",
+					Usage:  "Set the runtime profile to use for services e.g local, kubernetes, platform",
+					EnvVar: "MICRO_RUNTIME_PROFILE",
 				},
 			},
 			Action: func(ctx *cli.Context) {
@@ -138,7 +138,7 @@ func Commands(options ...micro.Option) []cli.Command {
 		{
 			// In future we'll also have `micro run [x]` hence `micro run service` requiring "service"
 			Name:  "run",
-			Usage: "Run a service e.g micro run service version",
+			Usage: RunUsage,
 			Flags: Flags(),
 			Action: func(ctx *cli.Context) {
 				runService(ctx, options...)
@@ -146,7 +146,7 @@ func Commands(options ...micro.Option) []cli.Command {
 		},
 		{
 			Name:  "kill",
-			Usage: "Kill removes a running service e.g micro kill service",
+			Usage: KillUsage,
 			Flags: Flags(),
 			Action: func(ctx *cli.Context) {
 				killService(ctx, options...)
@@ -154,7 +154,7 @@ func Commands(options ...micro.Option) []cli.Command {
 		},
 		{
 			Name:  "ps",
-			Usage: "Ps returns status of a running service or lists all running services e.g. micro ps",
+			Usage: GetUsage,
 			Flags: Flags(),
 			Action: func(ctx *cli.Context) {
 				getService(ctx, options...)
