@@ -18,6 +18,6 @@ func Platform() []string {
 		"MICRO_REGISTRY=service",
 		"MICRO_PROXY=go.micro.proxy",
 		// expects k8s service name
-		"MICRO_PROXY_ADDRESS=micro-proxy",
+		"MICRO_PROXY_ADDRESS=micro-proxy:8081",
 	}
 }
