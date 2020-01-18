@@ -68,6 +68,10 @@ func key(s *runtime.Service) string {
 	return s.Name + ":" + s.Version
 }
 
+func (m *manager) sendEvent(ev *event) {
+	m.events <- ev
+}
+
 func (m *manager) Init(opts ...runtime.Option) error {
 	return nil
 }
@@ -102,11 +106,11 @@ func (m *manager) Create(s *runtime.Service, opts ...runtime.CreateOption) error
 	m.services[k] = rs
 
 	// send event
-	m.events <- &event{
+	go m.sendEvent(&event{
 		Type:    "create",
 		Service: s,
 		Options: &options,
-	}
+	})
 
 	// marshall the content
 	b, err := json.Marshal(rs)
@@ -188,11 +192,11 @@ func (m *manager) Update(s *runtime.Service) error {
 	}
 
 	// fire an update
-	m.events <- &event{
+	go m.sendEvent(&event{
 		Type:    evType,
 		Service: rs.Service,
 		Options: rs.Options,
-	}
+	})
 
 	// marshall the content
 	b, err := json.Marshal(rs)
@@ -223,10 +227,10 @@ func (m *manager) Delete(s *runtime.Service) error {
 	v.Status = "stopping"
 
 	// send event
-	m.events <- &event{
+	go m.sendEvent(&event{
 		Type:    "delete",
 		Service: v.Service,
-	}
+	})
 
 	// delete from store
 	return m.Store.Delete(k)
@@ -257,12 +261,14 @@ func (m *manager) run() {
 			// list the keys from store
 			records, err := m.Store.List()
 			if err != nil {
+				log.Logf("Failed to list records from store: %v", err)
 				continue
 			}
 
 			// list whats already runnning
 			services, err := m.Runtime.List()
 			if err != nil {
+				log.Logf("Failed to list runtime services: %v", err)
 				continue
 			}
 
