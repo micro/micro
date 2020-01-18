@@ -4,6 +4,7 @@ metadata:
   namespace: default
   name: micro-store
   labels:
+    name: micro-store
     micro: runtime
 spec:
   replicas: 1
