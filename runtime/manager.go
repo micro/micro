@@ -87,34 +87,6 @@ func (m *manager) Create(s *runtime.Service, opts ...runtime.CreateOption) error
 		o(&options)
 	}
 
-	setEnv := func(p []string, env map[string]string) {
-		for _, v := range env {
-			parts := strings.Split(v, "=")
-			if len(parts) <= 1 {
-				continue
-			}
-			env[parts[0]] = strings.Join(parts[1:], "=")
-		}
-	}
-
-	// overwrite any values
-	env := map[string]string{}
-
-	// set the env vars provided
-	setEnv(options.Env, env)
-
-	// override with vars from the profile
-	setEnv(m.profile, env)
-
-	// create a new env
-	var vars []string
-	for k, v := range env {
-		vars = append(vars, k+"="+v)
-	}
-
-	// setup the runtime env
-	opts = append(opts, runtime.WithEnv(vars))
-
 	if s.Metadata == nil {
 		s.Metadata = make(map[string]string)
 	}
@@ -275,6 +247,36 @@ func (m *manager) List() ([]*runtime.Service, error) {
 	return services, nil
 }
 
+func (m *manager) runtimeEnv(options *runtime.CreateOptions) []string {
+	setEnv := func(p []string, env map[string]string) {
+		for _, v := range p {
+			parts := strings.Split(v, "=")
+			if len(parts) <= 1 {
+				continue
+			}
+			env[parts[0]] = strings.Join(parts[1:], "=")
+		}
+	}
+
+	// overwrite any values
+	env := map[string]string{}
+
+	// set the env vars provided
+	setEnv(options.Env, env)
+
+	// override with vars from the profile
+	setEnv(m.profile, env)
+
+	// create a new env
+	var vars []string
+	for k, v := range env {
+		vars = append(vars, k+"="+v)
+	}
+
+	// setup the runtime env
+	return vars
+}
+
 // TODO: watch events rather than poll
 func (m *manager) run() {
 	//
@@ -330,9 +332,13 @@ func (m *manager) run() {
 					continue
 				}
 
+				// generate the runtime environment
+				env := m.runtimeEnv(rs.Options)
+
+				// create a new set of options to use
 				opts := []runtime.CreateOption{
 					runtime.WithCommand(rs.Options.Command...),
-					runtime.WithEnv(rs.Options.Env),
+					runtime.WithEnv(env),
 					runtime.CreateType(rs.Options.Type),
 				}
 
