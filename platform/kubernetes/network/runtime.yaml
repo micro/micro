@@ -31,6 +31,14 @@ rules:
   - list
   - patch
   - watch
+- apiGroups:
+  - ""
+  resources:
+  - secrets
+  verbs:
+  - get
+  - watch
+  - list
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
@@ -105,8 +113,7 @@ spec:
             secretKeyRef:
               key: KV_NAMESPACE_ID_RUNTIME
               name: cloudflare-credentials
-        command:
-        - /micro
+        args:
         - runtime
         image: micro/micro
         imagePullPolicy: Always
