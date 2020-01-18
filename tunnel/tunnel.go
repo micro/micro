@@ -8,11 +8,13 @@ import (
 	"github.com/micro/cli"
 	"github.com/micro/go-micro"
 	"github.com/micro/go-micro/client"
+	cmucp "github.com/micro/go-micro/client/mucp"
 	"github.com/micro/go-micro/proxy"
 	"github.com/micro/go-micro/proxy/mucp"
 	"github.com/micro/go-micro/registry/memory"
 	"github.com/micro/go-micro/router"
 	"github.com/micro/go-micro/server"
+	smucp "github.com/micro/go-micro/server/mucp"
 	tun "github.com/micro/go-micro/tunnel"
 	"github.com/micro/go-micro/tunnel/transport"
 	"github.com/micro/go-micro/util/log"
@@ -100,7 +102,7 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	)
 
 	// local server client talks to tunnel
-	localSrvClient := client.NewClient(
+	localSrvClient := cmucp.NewClient(
 		client.Transport(tunTransport),
 	)
 
@@ -119,21 +121,21 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	)
 
 	// local transport client
-	tunSrvClient := client.NewClient(
+	service.Client().Init(
 		client.Transport(service.Options().Transport),
 	)
 
 	// local proxy
 	tunProxy := mucp.NewProxy(
 		proxy.WithRouter(r),
-		proxy.WithClient(tunSrvClient),
+		proxy.WithClient(service.Client()),
 	)
 
 	// create memory registry
 	memRegistry := memory.NewRegistry()
 
 	// local server
-	tunSrv := server.NewServer(
+	tunSrv := smucp.NewServer(
 		server.Address(Tunnel),
 		server.Transport(tunTransport),
 		server.WithRouter(tunProxy),

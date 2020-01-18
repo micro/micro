@@ -137,11 +137,12 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 
 	gateway := ctx.String("gateway")
 	tun := tunnel.NewTunnel(tunOpts...)
+	id := service.Server().Options().Id
 
 	// local tunnel router
 	rtr := router.NewRouter(
 		router.Network(Network),
-		router.Id(service.Server().Options().Id),
+		router.Id(id),
 		router.Registry(service.Client().Options().Registry),
 		router.Advertise(strategy),
 		router.Gateway(gateway),
@@ -149,7 +150,7 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 
 	// create new network
 	net := network.NewNetwork(
-		network.Id(service.Server().Options().Id),
+		network.Id(id),
 		network.Name(Network),
 		network.Address(Address),
 		network.Advertise(Advertise),
