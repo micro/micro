@@ -104,8 +104,8 @@ func Init(context *cli.Context) {
 	}
 
 	// create the combined list of services
-	initServices := append(services, dashboards...)
-	initServices = append(services, apis...)
+	initServices := append(dashboards, apis...)
+	initServices = append(initServices, services...)
 
 	// get the service prefix
 	if namespace := context.GlobalString("namespace"); len(namespace) > 0 {
