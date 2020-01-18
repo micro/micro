@@ -99,7 +99,7 @@ func (m *manager) Create(s *runtime.Service, opts ...runtime.CreateOption) error
 	rs := &runtimeService{
 		Service: s,
 		Options: &options,
-		Status:  "starting",
+		Status:  "started",
 	}
 
 	// save locally
@@ -186,7 +186,7 @@ func (m *manager) Update(s *runtime.Service) error {
 	// check if it exists
 	if _, ok := m.services[k]; !ok {
 		// set starting status
-		rs.Status = "starting"
+		rs.Status = "started"
 		evType = "create"
 		m.services[k] = &rs
 	}
@@ -224,7 +224,7 @@ func (m *manager) Delete(s *runtime.Service) error {
 	}
 
 	// set status
-	v.Status = "stopping"
+	v.Status = "stopped"
 
 	// send event
 	go m.sendEvent(&event{
@@ -313,15 +313,17 @@ func (m *manager) run() {
 				log.Logf("Creating service %s version %s source %s", rs.Service.Name, rs.Service.Version, rs.Service.Source)
 
 				// set the status to starting
-				rs.Status = "starting"
+				rs.Status = "started"
 
 				// service does not exist so start it
 				if err := m.Runtime.Create(rs.Service, opts...); err != nil {
-					log.Logf("Erroring running %s: %v", rs.Service.Name, err)
+					if err != runtime.ErrAlreadyExists {
+						log.Logf("Erroring running %s: %v", rs.Service.Name, err)
 
-					// save the error
-					rs.Status = "error"
-					rs.Error = err
+						// save the error
+						rs.Status = "error"
+						rs.Error = err
+					}
 				}
 			}
 
