@@ -387,9 +387,12 @@ func (m *manager) run() {
 				log.Logf("Updating %s %s", ev.Service.Name, ev.Service.Version)
 				err = m.Runtime.Update(ev.Service)
 			case "create":
+				// generate the runtime environment
+				env := m.runtimeEnv(ev.Options)
+
 				opts := []runtime.CreateOption{
 					runtime.WithCommand(ev.Options.Command...),
-					runtime.WithEnv(ev.Options.Env),
+					runtime.WithEnv(env),
 					runtime.CreateType(ev.Options.Type),
 				}
 
