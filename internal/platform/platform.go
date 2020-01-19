@@ -16,6 +16,10 @@ import (
 
 	"github.com/micro/micro/internal/update"
 	_ "github.com/micro/micro/internal/usage"
+
+	// import specific plugins
+	cfStore "github.com/micro/go-micro/store/cloudflare"
+	ckStore "github.com/micro/go-micro/store/cockroach"
 )
 
 var (
@@ -54,6 +58,11 @@ var (
 		"network.api",
 	}
 )
+
+func init() {
+	cmd.DefaultStores["cockroach"] = ckStore.NewStore
+	cmd.DefaultStores["cloudflare"] = cfStore.NewStore
+}
 
 type initScheduler struct {
 	gorun.Scheduler
