@@ -60,9 +60,6 @@ func main() {
 	// Register Struct as Subscriber
 	micro.RegisterSubscriber("{{.FQDN}}", service.Server(), new(subscriber.{{title .Alias}}))
 
-	// Register Function as Subscriber
-	micro.RegisterSubscriber("{{.FQDN}}", service.Server(), subscriber.Handler)
-
 	// Run service
 	if err := service.Run(); err != nil {
 		log.Fatal(err)

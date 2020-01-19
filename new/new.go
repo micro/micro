@@ -359,7 +359,7 @@ func run(ctx *cli.Context) {
 	}
 
 	// set gomodule
-	if useGoModule == "on" || useGoModule == "auto" {
+	if useGoModule != "off" {
 		c.Files = append(c.Files, file{"go.mod", tmpl.Module})
 	}
 
@@ -397,9 +397,9 @@ func Commands() []cli.Command {
 					Name:  "plugin",
 					Usage: "Specify plugins e.g --plugin=registry=etcd:broker=nats or use flag multiple times",
 				},
-				cli.BoolTFlag{
+				cli.BoolFlag{
 					Name:  "gopath",
-					Usage: "Create the service in the gopath. Defaults to true.",
+					Usage: "Create the service in the gopath.",
 				},
 			},
 			Action: func(c *cli.Context) {
