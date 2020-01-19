@@ -169,17 +169,15 @@ func Run(context *cli.Context) {
 	}
 
 	// get the network flag
-	network := context.GlobalString("network")
 	local := context.GlobalBool("local")
+	peer := context.GlobalBool("peer")
 
 	// pass through the environment
 	// TODO: perhaps don't do this
 	env := os.Environ()
 
-	if network == "local" || local {
-		// no op for now
-		log.Info("Setting local network")
-	} else {
+	// connect to the network if specified
+	if peer || !local {
 		log.Info("Setting global network")
 
 		if v := os.Getenv("MICRO_NETWORK_NODES"); len(v) == 0 {

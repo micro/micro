@@ -142,6 +142,29 @@ func NetworkCommands() []cli.Command {
 			Usage:  "List network services",
 			Action: Print(netServices),
 		},
+		// TODO: duplicates call. Move so we reuse same stuff.
+		{
+			Name:   "call",
+			Usage:  "Call a service e.g micro call greeter Say.Hello '{\"name\": \"John\"}",
+			Action: Print(netCall),
+			Flags: []cli.Flag{
+				cli.StringFlag{
+					Name:   "address",
+					Usage:  "Set the address of the service instance to call",
+					EnvVar: "MICRO_ADDRESS",
+				},
+				cli.StringFlag{
+					Name:   "output, o",
+					Usage:  "Set the output format; json (default), raw",
+					EnvVar: "MICRO_OUTPUT",
+				},
+				cli.StringSliceFlag{
+					Name:   "metadata",
+					Usage:  "A list of key-value pairs to be forwarded as metadata",
+					EnvVar: "MICRO_METADATA",
+				},
+			},
+		},
 	}
 }
 

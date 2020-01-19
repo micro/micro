@@ -103,6 +103,12 @@ func callService(c *cli.Context, args []string) ([]byte, error) {
 	return clic.CallService(c, args)
 }
 
+// netCall calls services through the network
+func netCall(c *cli.Context, args []string) ([]byte, error) {
+	os.Setenv("MICRO_PROXY", "go.micro.network")
+	return clic.CallService(c, args)
+}
+
 // TODO: stream via HTTP
 func streamService(c *cli.Context, args []string) ([]byte, error) {
 	if len(args) < 2 {

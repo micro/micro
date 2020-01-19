@@ -54,9 +54,13 @@ func init() {
 
 func setup(app *ccli.App) {
 	app.Flags = append(app.Flags,
-		ccli.BoolFlag{
+		ccli.BoolTFlag{
 			Name:  "local",
-			Usage: "Enable local only development",
+			Usage: "Enable local only development: Defaults to true.",
+		},
+		ccli.BoolFlag{
+			Name:  "peer",
+			Usage: "Peer with the global network to share services",
 		},
 		ccli.BoolFlag{
 			Name:   "enable_acme",
