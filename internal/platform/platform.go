@@ -18,6 +18,7 @@ import (
 	_ "github.com/micro/micro/internal/usage"
 
 	// import specific plugins
+	k8sRuntime "github.com/micro/go-micro/runtime/kubernetes"
 	cfStore "github.com/micro/go-micro/store/cloudflare"
 	ckStore "github.com/micro/go-micro/store/cockroach"
 )
@@ -60,6 +61,7 @@ var (
 )
 
 func init() {
+	cmd.DefaultRuntimes["kubernetes"] = k8sRuntime.NewRuntime
 	cmd.DefaultStores["cockroach"] = ckStore.NewStore
 	cmd.DefaultStores["cloudflare"] = cfStore.NewStore
 }
