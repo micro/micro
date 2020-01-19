@@ -397,7 +397,7 @@ func Commands() []cli.Command {
 					Name:  "plugin",
 					Usage: "Specify plugins e.g --plugin=registry=etcd:broker=nats or use flag multiple times",
 				},
-				cli.BoolFlag{
+				cli.BoolTFlag{
 					Name:  "gopath",
 					Usage: "Create the service in the gopath.",
 				},
