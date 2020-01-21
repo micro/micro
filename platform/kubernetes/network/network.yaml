@@ -13,7 +13,7 @@ metadata:
     owner: "micro"
     group: "micro"
 spec:
-  replicas: 3
+  replicas: 1
   selector:
     matchLabels:
       name: micro-network
