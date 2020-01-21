@@ -14,8 +14,7 @@ import (
 )
 
 var (
-	defaultUrl    = "postgres://postgres:@172.17.153.138:5432/postgres?search_path=public&sslmode=disable"
-	defaultSchema = "public"
+	defaultUrl    = "postgres://root:@127.0.0.1:26257/micro?search_path=config"
 )
 
 type cockroach struct {
