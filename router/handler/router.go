@@ -124,21 +124,6 @@ func (r *Router) Process(ctx context.Context, req *pb.Advert, rsp *pb.ProcessRes
 	return nil
 }
 
-// Status returns router status
-func (r *Router) Status(ctx context.Context, req *pb.Request, rsp *pb.StatusResponse) error {
-	status := r.Router.Status()
-
-	rsp.Status = &pb.Status{
-		Code: status.Code.String(),
-	}
-
-	if status.Error != nil {
-		rsp.Status.Error = status.Error.Error()
-	}
-
-	return nil
-}
-
 // Watch streans routing table events
 func (r *Router) Watch(ctx context.Context, req *pb.WatchRequest, stream pb.Router_WatchStream) error {
 	watcher, err := r.Router.Watch()
