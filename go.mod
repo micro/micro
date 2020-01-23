@@ -22,7 +22,7 @@ require (
 	github.com/hako/branca v0.0.0-20180808000428-10b799466ada
 	github.com/mattn/go-isatty v0.0.8 // indirect
 	github.com/micro/cli v0.2.0
-	github.com/micro/go-micro v1.18.1-0.20200123114406-77c2a021dab8
+	github.com/micro/go-micro v1.18.1-0.20200123124122-ae08e9c106dc
 	github.com/miekg/dns v1.1.27
 	github.com/netdata/go-orchestrator v0.0.0-20190905093727-c793edba0e8f
 	github.com/olekukonko/tablewriter v0.0.4
