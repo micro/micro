@@ -10,7 +10,6 @@ import (
 	_ "github.com/micro/micro/config/db/etcd"
 	_ "github.com/micro/micro/config/db/memory"
 	"github.com/micro/micro/config/handler"
-	"github.com/micro/protoc-gen-micro/plugin/micro"
 )
 
 var (
@@ -34,7 +33,7 @@ func Run(c *cli.Context, srvOpts ...micro.Option) {
 	srvOpts = append(srvOpts, micro.Name(Name))
 
 	service := micro.NewService(srvOpts...)
-	proto.RegisterServiceHandler(service.Server(), new(handler.Handler))
+	proto.RegisterConfigHandler(service.Server(), new(handler.Handler))
 
 	_ = service.Server().Subscribe(service.Server().NewSubscriber(handler.WatchTopic, handler.Watcher))
 

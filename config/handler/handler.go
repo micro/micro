@@ -359,7 +359,7 @@ func (c *Handler) List(ctx context.Context, req *mp.ListRequest, rsp *mp.ListRes
 	return nil
 }
 
-func (c *Handler) Watch(ctx context.Context, req *mp.WatchRequest, stream mp.Service_WatchStream) (err error) {
+func (c *Handler) Watch(ctx context.Context, req *mp.WatchRequest, stream mp.Config_WatchStream) (err error) {
 	defer func() {
 		if err != nil {
 			log.Error(err)

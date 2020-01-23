@@ -34,7 +34,6 @@ func Register(backend DB) {
 	}
 
 	dbMap[backend.String()] = backend
-	log.Logf("Register config db: %s", backend.String())
 }
 
 func Init(opts ...Option) error {

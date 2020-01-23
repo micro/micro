@@ -11,7 +11,7 @@ import (
 )
 
 var (
-	configSrv = proto.NewService("go.micro.config", grpc.NewClient())
+	configSrv = proto.NewConfigService("go.micro.config", grpc.NewClient())
 )
 
 func TestCreate(t *testing.T) {

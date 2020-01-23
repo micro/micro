@@ -5,7 +5,6 @@ import (
 	"net/url"
 	"strings"
 
-	_ "github.com/go-sql-driver/mysql"
 	"github.com/micro/go-micro/errors"
 	"github.com/micro/go-micro/store"
 	roachStore "github.com/micro/go-micro/store/cockroach"
@@ -14,7 +13,7 @@ import (
 )
 
 var (
-	defaultUrl    = "postgres://root:@127.0.0.1:26257/micro?search_path=config"
+	defaultUrl = "postgres://root:@127.0.0.1:26257/micro?search_path=config"
 )
 
 type cockroach struct {
