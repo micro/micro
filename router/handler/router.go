@@ -61,6 +61,7 @@ func (r *Router) Advertise(ctx context.Context, req *pb.Request, stream pb.Route
 				Metric:  event.Route.Metric,
 			}
 			e := &pb.Event{
+				Id:        event.Id,
 				Type:      pb.EventType(event.Type),
 				Timestamp: event.Timestamp.UnixNano(),
 				Route:     route,
@@ -103,6 +104,7 @@ func (r *Router) Process(ctx context.Context, req *pb.Advert, rsp *pb.ProcessRes
 		}
 
 		events[i] = &router.Event{
+			Id:        event.Id,
 			Type:      router.EventType(event.Type),
 			Timestamp: time.Unix(0, event.Timestamp),
 			Route:     route,
@@ -154,6 +156,7 @@ func (r *Router) Watch(ctx context.Context, req *pb.WatchRequest, stream pb.Rout
 		}
 
 		tableEvent := &pb.Event{
+			Id:        event.Id,
 			Type:      pb.EventType(event.Type),
 			Timestamp: event.Timestamp.UnixNano(),
 			Route:     route,
