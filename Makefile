@@ -14,8 +14,7 @@ vendor:
 	go mod vendor
 
 build:
-	go get
-	go build -a -installsuffix cgo -ldflags "-w ${LDFLAGS}" -o $(NAME) ./*.go
+	go build -a -installsuffix cgo -ldflags "-s -w ${LDFLAGS}" -o $(NAME)
 
 docker:
 	docker build -t $(IMAGE_NAME):$(IMAGE_TAG) .
