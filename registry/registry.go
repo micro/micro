@@ -5,7 +5,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/micro/cli"
+	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro"
 	"github.com/micro/go-micro/registry"
 	"github.com/micro/go-micro/registry/service"
@@ -80,8 +80,8 @@ func (s *subscriber) Process(ctx context.Context, event *pb.Event) error {
 func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 	log.Name("registry")
 
-	if len(ctx.GlobalString("server_name")) > 0 {
-		Name = ctx.GlobalString("server_name")
+	if len(ctx.String("server_name")) > 0 {
+		Name = ctx.String("server_name")
 	}
 	if len(ctx.String("address")) > 0 {
 		Address = ctx.String("address")
@@ -94,10 +94,10 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 
 	// service opts
 	srvOpts = append(srvOpts, micro.Name(Name))
-	if i := time.Duration(ctx.GlobalInt("register_ttl")); i > 0 {
+	if i := time.Duration(ctx.Int("register_ttl")); i > 0 {
 		srvOpts = append(srvOpts, micro.RegisterTTL(i*time.Second))
 	}
-	if i := time.Duration(ctx.GlobalInt("register_interval")); i > 0 {
+	if i := time.Duration(ctx.Int("register_interval")); i > 0 {
 		srvOpts = append(srvOpts, micro.RegisterInterval(i*time.Second))
 	}
 
@@ -138,19 +138,20 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 	}
 }
 
-func Commands(options ...micro.Option) []cli.Command {
-	command := cli.Command{
+func Commands(options ...micro.Option) []*cli.Command {
+	command := &cli.Command{
 		Name:  "registry",
 		Usage: "Run the service registry",
 		Flags: []cli.Flag{
-			cli.StringFlag{
-				Name:   "address",
-				Usage:  "Set the registry http address e.g 0.0.0.0:8000",
-				EnvVar: "MICRO_SERVER_ADDRESS",
+			&cli.StringFlag{
+				Name:    "address",
+				Usage:   "Set the registry http address e.g 0.0.0.0:8000",
+				EnvVars: []string{"MICRO_SERVER_ADDRESS"},
 			},
 		},
-		Action: func(ctx *cli.Context) {
+		Action: func(ctx *cli.Context) error {
 			Run(ctx, options...)
+			return nil
 		},
 		Subcommands: rcli.RegistryCommands(),
 	}
@@ -165,5 +166,5 @@ func Commands(options ...micro.Option) []cli.Command {
 		}
 	}
 
-	return []cli.Command{command}
+	return []*cli.Command{command}
 }

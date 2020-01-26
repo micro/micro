@@ -7,7 +7,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/micro/cli"
+	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro/runtime"
 	"github.com/micro/go-micro/store"
 	"github.com/micro/go-micro/util/log"

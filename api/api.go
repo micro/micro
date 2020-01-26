@@ -9,7 +9,7 @@ import (
 
 	"github.com/go-acme/lego/v3/providers/dns/cloudflare"
 	"github.com/gorilla/mux"
-	"github.com/micro/cli"
+	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro"
 	ahandler "github.com/micro/go-micro/api/handler"
 	aapi "github.com/micro/go-micro/api/handler/api"
@@ -57,8 +57,8 @@ var (
 func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	log.Name("api")
 
-	if len(ctx.GlobalString("server_name")) > 0 {
-		Name = ctx.GlobalString("server_name")
+	if len(ctx.String("server_name")) > 0 {
+		Name = ctx.String("server_name")
 	}
 	if len(ctx.String("address")) > 0 {
 		Address = ctx.String("address")
@@ -75,8 +75,8 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	if len(ctx.String("enable_rpc")) > 0 {
 		EnableRPC = ctx.Bool("enable_rpc")
 	}
-	if len(ctx.GlobalString("acme_provider")) > 0 {
-		ACMEProvider = ctx.GlobalString("acme_provider")
+	if len(ctx.String("acme_provider")) > 0 {
+		ACMEProvider = ctx.String("acme_provider")
 	}
 
 	// Init plugins
@@ -87,7 +87,7 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	// Init API
 	var opts []server.Option
 
-	if ctx.GlobalBool("enable_acme") {
+	if ctx.Bool("enable_acme") {
 		hosts := helper.ACMEHosts(ctx)
 		opts = append(opts, server.EnableACME(true))
 		opts = append(opts, server.ACMEHosts(hosts...))
@@ -138,7 +138,7 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		default:
 			log.Fatalf("%s is not a valid ACME provider\n", ACMEProvider)
 		}
-	} else if ctx.GlobalBool("enable_tls") {
+	} else if ctx.Bool("enable_tls") {
 		config, err := helper.TLSConfig(ctx)
 		if err != nil {
 			fmt.Println(err.Error())
@@ -154,7 +154,7 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	r := mux.NewRouter()
 	h = r
 
-	if ctx.GlobalBool("enable_stats") {
+	if ctx.Bool("enable_stats") {
 		st := stats.New()
 		r.HandleFunc("/stats", st.StatsHandler)
 		h = st.ServeHTTP(r)
@@ -178,10 +178,10 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	r.HandleFunc("/favicon.ico", func(w http.ResponseWriter, r *http.Request) {})
 
 	srvOpts = append(srvOpts, micro.Name(Name))
-	if i := time.Duration(ctx.GlobalInt("register_ttl")); i > 0 {
+	if i := time.Duration(ctx.Int("register_ttl")); i > 0 {
 		srvOpts = append(srvOpts, micro.RegisterTTL(i*time.Second))
 	}
-	if i := time.Duration(ctx.GlobalInt("register_interval")); i > 0 {
+	if i := time.Duration(ctx.Int("register_interval")); i > 0 {
 		srvOpts = append(srvOpts, micro.RegisterInterval(i*time.Second))
 	}
 
@@ -320,38 +320,39 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	}
 }
 
-func Commands(options ...micro.Option) []cli.Command {
-	command := cli.Command{
+func Commands(options ...micro.Option) []*cli.Command {
+	command := &cli.Command{
 		Name:  "api",
 		Usage: "Run the api gateway",
-		Action: func(ctx *cli.Context) {
+		Action: func(ctx *cli.Context) error {
 			run(ctx, options...)
+			return nil
 		},
 		Flags: []cli.Flag{
-			cli.StringFlag{
-				Name:   "address",
-				Usage:  "Set the api address e.g 0.0.0.0:8080",
-				EnvVar: "MICRO_API_ADDRESS",
+			&cli.StringFlag{
+				Name:    "address",
+				Usage:   "Set the api address e.g 0.0.0.0:8080",
+				EnvVars: []string{"MICRO_API_ADDRESS"},
 			},
-			cli.StringFlag{
-				Name:   "handler",
-				Usage:  "Specify the request handler to be used for mapping HTTP requests to services; {api, event, http, rpc}",
-				EnvVar: "MICRO_API_HANDLER",
+			&cli.StringFlag{
+				Name:    "handler",
+				Usage:   "Specify the request handler to be used for mapping HTTP requests to services; {api, event, http, rpc}",
+				EnvVars: []string{"MICRO_API_HANDLER"},
 			},
-			cli.StringFlag{
-				Name:   "namespace",
-				Usage:  "Set the namespace used by the API e.g. com.example.api",
-				EnvVar: "MICRO_API_NAMESPACE",
+			&cli.StringFlag{
+				Name:    "namespace",
+				Usage:   "Set the namespace used by the API e.g. com.example.api",
+				EnvVars: []string{"MICRO_API_NAMESPACE"},
 			},
-			cli.StringFlag{
-				Name:   "resolver",
-				Usage:  "Set the hostname resolver used by the API {host, path, grpc}",
-				EnvVar: "MICRO_API_RESOLVER",
+			&cli.StringFlag{
+				Name:    "resolver",
+				Usage:   "Set the hostname resolver used by the API {host, path, grpc}",
+				EnvVars: []string{"MICRO_API_RESOLVER"},
 			},
-			cli.BoolFlag{
-				Name:   "enable_rpc",
-				Usage:  "Enable call the backend directly via /rpc",
-				EnvVar: "MICRO_API_ENABLE_RPC",
+			&cli.BoolFlag{
+				Name:    "enable_rpc",
+				Usage:   "Enable call the backend directly via /rpc",
+				EnvVars: []string{"MICRO_API_ENABLE_RPC"},
 			},
 		},
 	}
@@ -366,5 +367,5 @@ func Commands(options ...micro.Option) []cli.Command {
 		}
 	}
 
-	return []cli.Command{command}
+	return []*cli.Command{command}
 }

@@ -4,7 +4,7 @@ package broker
 import (
 	"time"
 
-	"github.com/micro/cli"
+	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro"
 	pb "github.com/micro/go-micro/broker/service/proto"
 	"github.com/micro/go-micro/util/log"
@@ -21,8 +21,8 @@ var (
 func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	log.Name("broker")
 
-	if len(ctx.GlobalString("server_name")) > 0 {
-		Name = ctx.GlobalString("server_name")
+	if len(ctx.String("server_name")) > 0 {
+		Name = ctx.String("server_name")
 	}
 	if len(ctx.String("address")) > 0 {
 		Address = ctx.String("address")
@@ -35,10 +35,10 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 
 	// service opts
 	srvOpts = append(srvOpts, micro.Name(Name))
-	if i := time.Duration(ctx.GlobalInt("register_ttl")); i > 0 {
+	if i := time.Duration(ctx.Int("register_ttl")); i > 0 {
 		srvOpts = append(srvOpts, micro.RegisterTTL(i*time.Second))
 	}
-	if i := time.Duration(ctx.GlobalInt("register_interval")); i > 0 {
+	if i := time.Duration(ctx.Int("register_interval")); i > 0 {
 		srvOpts = append(srvOpts, micro.RegisterInterval(i*time.Second))
 	}
 
@@ -60,19 +60,20 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	service.Run()
 }
 
-func Commands(options ...micro.Option) []cli.Command {
-	command := cli.Command{
+func Commands(options ...micro.Option) []*cli.Command {
+	command := &cli.Command{
 		Name:  "broker",
 		Usage: "Run the message broker",
 		Flags: []cli.Flag{
-			cli.StringFlag{
-				Name:   "address",
-				Usage:  "Set the broker http address e.g 0.0.0.0:8001",
-				EnvVar: "MICRO_SERVER_ADDRESS",
+			&cli.StringFlag{
+				Name:    "address",
+				Usage:   "Set the broker http address e.g 0.0.0.0:8001",
+				EnvVars: []string{"MICRO_SERVER_ADDRESS"},
 			},
 		},
-		Action: func(ctx *cli.Context) {
+		Action: func(ctx *cli.Context) error {
 			run(ctx, options...)
+			return nil
 		},
 	}
 
@@ -86,5 +87,5 @@ func Commands(options ...micro.Option) []cli.Command {
 		}
 	}
 
-	return []cli.Command{command}
+	return []*cli.Command{command}
 }

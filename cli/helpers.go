@@ -8,7 +8,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/micro/cli"
+	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro/client"
 	cbytes "github.com/micro/go-micro/codec/bytes"
 	"github.com/micro/go-micro/config/cmd"
@@ -17,14 +17,15 @@ import (
 
 type exec func(*cli.Context, []string) ([]byte, error)
 
-func Print(e exec) func(*cli.Context) {
-	return func(c *cli.Context) {
-		rsp, err := e(c, c.Args())
+func Print(e exec) func(*cli.Context) error {
+	return func(c *cli.Context) error {
+		rsp, err := e(c, c.Args().Slice())
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
 		}
 		fmt.Printf("%s\n", string(rsp))
+		return nil
 	}
 }
 

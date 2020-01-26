@@ -1,14 +1,14 @@
 package plugin
 
 import (
-	"github.com/micro/cli"
+	"github.com/micro/cli/v2"
 )
 
 // Options are used as part of a new plugin
 type Options struct {
 	Name     string
 	Flags    []cli.Flag
-	Commands []cli.Command
+	Commands []*cli.Command
 	Handlers []Handler
 	Init     func(*cli.Context) error
 }
@@ -23,7 +23,7 @@ func WithFlag(flag ...cli.Flag) Option {
 }
 
 // WithCommand adds commands to a plugin
-func WithCommand(cmd ...cli.Command) Option {
+func WithCommand(cmd ...*cli.Command) Option {
 	return func(o *Options) {
 		o.Commands = append(o.Commands, cmd...)
 	}

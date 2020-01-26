@@ -14,7 +14,7 @@ import (
 	"text/tabwriter"
 	"text/template"
 
-	"github.com/micro/cli"
+	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro/config/cmd"
 	pb "github.com/micro/go-micro/network/service/proto"
 	"github.com/micro/go-micro/web"
@@ -69,7 +69,7 @@ func Run(ctx *cli.Context) {
 		web.Name("go.micro.web.network"),
 	}
 
-	address := ctx.GlobalString("server_address")
+	address := ctx.String("server_address")
 	if len(address) > 0 {
 		opts = append(opts, web.Address(address))
 	}

@@ -16,7 +16,7 @@ import (
 
 	"github.com/go-acme/lego/v3/providers/dns/cloudflare"
 	"github.com/gorilla/mux"
-	"github.com/micro/cli"
+	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro"
 	"github.com/micro/go-micro/api/server"
 	"github.com/micro/go-micro/api/server/acme"
@@ -412,8 +412,8 @@ func render(w http.ResponseWriter, r *http.Request, tmpl string, data interface{
 func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	log.Name("web")
 
-	if len(ctx.GlobalString("server_name")) > 0 {
-		Name = ctx.GlobalString("server_name")
+	if len(ctx.String("server_name")) > 0 {
+		Name = ctx.String("server_name")
 	}
 	if len(ctx.String("address")) > 0 {
 		Address = ctx.String("address")
@@ -441,7 +441,7 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	}
 	h = s
 
-	if ctx.GlobalBool("enable_stats") {
+	if ctx.Bool("enable_stats") {
 		statsURL = "/stats"
 		st := stats.New()
 		s.HandleFunc("/stats", st.StatsHandler)
@@ -461,10 +461,10 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 
 	var opts []server.Option
 
-	if len(ctx.GlobalString("acme_provider")) > 0 {
-		ACMEProvider = ctx.GlobalString("acme_provider")
+	if len(ctx.String("acme_provider")) > 0 {
+		ACMEProvider = ctx.String("acme_provider")
 	}
-	if ctx.GlobalBool("enable_acme") {
+	if ctx.Bool("enable_acme") {
 		hosts := helper.ACMEHosts(ctx)
 		opts = append(opts, server.EnableACME(true))
 		opts = append(opts, server.ACMEHosts(hosts...))
@@ -515,7 +515,7 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		default:
 			log.Fatalf("%s is not a valid ACME provider\n", ACMEProvider)
 		}
-	} else if ctx.GlobalBool("enable_tls") {
+	} else if ctx.Bool("enable_tls") {
 		config, err := helper.TLSConfig(ctx)
 		if err != nil {
 			fmt.Println(err.Error())
@@ -538,10 +538,10 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 
 	// service opts
 	srvOpts = append(srvOpts, micro.Name(Name))
-	if i := time.Duration(ctx.GlobalInt("register_ttl")); i > 0 {
+	if i := time.Duration(ctx.Int("register_ttl")); i > 0 {
 		srvOpts = append(srvOpts, micro.RegisterTTL(i*time.Second))
 	}
-	if i := time.Duration(ctx.GlobalInt("register_interval")); i > 0 {
+	if i := time.Duration(ctx.Int("register_interval")); i > 0 {
 		srvOpts = append(srvOpts, micro.RegisterInterval(i*time.Second))
 	}
 
@@ -562,23 +562,24 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	}
 }
 
-func Commands(options ...micro.Option) []cli.Command {
-	command := cli.Command{
+func Commands(options ...micro.Option) []*cli.Command {
+	command := &cli.Command{
 		Name:  "web",
 		Usage: "Run the web dashboard",
-		Action: func(c *cli.Context) {
+		Action: func(c *cli.Context) error {
 			run(c, options...)
+			return nil
 		},
 		Flags: []cli.Flag{
-			cli.StringFlag{
-				Name:   "address",
-				Usage:  "Set the web UI address e.g 0.0.0.0:8082",
-				EnvVar: "MICRO_WEB_ADDRESS",
+			&cli.StringFlag{
+				Name:    "address",
+				Usage:   "Set the web UI address e.g 0.0.0.0:8082",
+				EnvVars: []string{"MICRO_WEB_ADDRESS"},
 			},
-			cli.StringFlag{
-				Name:   "namespace",
-				Usage:  "Set the namespace used by the Web proxy e.g. com.example.web",
-				EnvVar: "MICRO_WEB_NAMESPACE",
+			&cli.StringFlag{
+				Name:    "namespace",
+				Usage:   "Set the namespace used by the Web proxy e.g. com.example.web",
+				EnvVars: []string{"MICRO_WEB_NAMESPACE"},
 			},
 		},
 	}
@@ -593,5 +594,5 @@ func Commands(options ...micro.Option) []cli.Command {
 		}
 	}
 
-	return []cli.Command{command}
+	return []*cli.Command{command}
 }

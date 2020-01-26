@@ -11,7 +11,7 @@ import (
 	"syscall"
 	"text/tabwriter"
 
-	"github.com/micro/cli"
+	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro"
 	"github.com/micro/go-micro/config/cmd"
 	"github.com/micro/go-micro/runtime"
@@ -53,14 +53,14 @@ func runService(ctx *cli.Context, srvOpts ...micro.Option) {
 	local := ctx.Bool("local")
 
 	// we need some args to run
-	if len(ctx.Args()) == 0 {
+	if ctx.Args().Len() == 0 {
 		fmt.Println(RunUsage)
 		return
 	}
 
 	// "service" is a reserved keyword
 	// but otherwise assume anything else is source
-	if v := ctx.Args()[0]; v != "service" {
+	if v := ctx.Args().Get(0); v != "service" {
 		source = v
 	}
 
@@ -179,11 +179,11 @@ func killService(ctx *cli.Context, srvOpts ...micro.Option) {
 	version := ctx.String("version")
 	local := ctx.Bool("local")
 
-	if len(ctx.Args()) > 0 {
+	if ctx.Args().Len() > 0 {
 		// set name to first arg
-		name = ctx.Args()[0]
-		if len(ctx.Args()) > 1 {
-			version = ctx.Args()[1]
+		name = ctx.Args().Get(0)
+		if ctx.Args().Len() > 1 {
+			version = ctx.Args().Get(1)
 		}
 	}
 
@@ -229,14 +229,14 @@ func getService(ctx *cli.Context, srvOpts ...micro.Option) {
 	var list bool
 
 	// zero args so list all
-	if len(ctx.Args()) == 0 {
+	if ctx.Args().Len() == 0 {
 		list = true
 	} else {
 		// set name as first arg
-		name = ctx.Args()[0]
+		name = ctx.Args().Get(0)
 		// set version as second arg
-		if len(ctx.Args()) > 1 {
-			version = ctx.Args()[1]
+		if ctx.Args().Len() > 1 {
+			version = ctx.Args().Get(1)
 		}
 	}
 

@@ -55,17 +55,17 @@ package main
 
 import (
 	"log"
-	"github.com/micro/cli"
+	"github.com/micro/cli/v2"
 	"github.com/micro/micro/plugin"
 )
 
 func init() {
 	plugin.Register(plugin.NewPlugin(
 		plugin.WithName("example"),
-		plugin.WithFlag(cli.StringFlag{
+		plugin.WithFlag(&cli.StringFlag{
 			Name:   "example_flag",
 			Usage:  "This is an example plugin flag",
-			EnvVar: "EXAMPLE_FLAG",
+			EnvVars: []string{"EXAMPLE_FLAG"},
 			Value: "avalue",
 		}),
 		plugin.WithInit(func(ctx *cli.Context) error {
