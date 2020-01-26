@@ -4,7 +4,7 @@ package runtime
 import (
 	"os"
 
-	"github.com/micro/cli"
+	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro"
 	"github.com/micro/go-micro/config/cmd"
 	pb "github.com/micro/go-micro/runtime/service/proto"
@@ -32,8 +32,8 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 		Address = ctx.String("address")
 	}
 
-	if len(ctx.GlobalString("server_name")) > 0 {
-		Name = ctx.GlobalString("server_name")
+	if len(ctx.String("server_name")) > 0 {
+		Name = ctx.String("server_name")
 	}
 
 	if len(Address) > 0 {
@@ -86,53 +86,54 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 // Flags is shared flags so we don't have to continually re-add
 func Flags() []cli.Flag {
 	return []cli.Flag{
-		cli.StringFlag{
+		&cli.StringFlag{
 			Name:  "name",
 			Usage: "Set the name of the service to run",
 		},
-		cli.StringFlag{
+		&cli.StringFlag{
 			Name:  "version",
 			Usage: "Set the version of the service to run",
 			Value: "latest",
 		},
-		cli.StringFlag{
+		&cli.StringFlag{
 			Name:  "source",
 			Usage: "Set the source url of the service e.g /path/to/source",
 		},
-		cli.BoolFlag{
+		&cli.BoolFlag{
 			Name:  "local",
 			Usage: "Set to run the service from local path",
 		},
-		cli.StringSliceFlag{
+		&cli.StringSliceFlag{
 			Name:  "env",
 			Usage: "Set the environment variables e.g. foo=bar",
 		},
-		cli.BoolFlag{
+		&cli.BoolFlag{
 			Name:  "runtime",
 			Usage: "Return the runtime services",
 		},
 	}
 }
 
-func Commands(options ...micro.Option) []cli.Command {
-	command := []cli.Command{
+func Commands(options ...micro.Option) []*cli.Command {
+	command := []*cli.Command{
 		{
 			Name:  "runtime",
 			Usage: "Run the micro runtime",
 			Flags: []cli.Flag{
-				cli.StringFlag{
-					Name:   "address",
-					Usage:  "Set the registry http address e.g 0.0.0.0:8088",
-					EnvVar: "MICRO_SERVER_ADDRESS",
+				&cli.StringFlag{
+					Name:    "address",
+					Usage:   "Set the registry http address e.g 0.0.0.0:8088",
+					EnvVars: []string{"MICRO_SERVER_ADDRESS"},
 				},
-				cli.StringFlag{
-					Name:   "profile",
-					Usage:  "Set the runtime profile to use for services e.g local, kubernetes, platform",
-					EnvVar: "MICRO_RUNTIME_PROFILE",
+				&cli.StringFlag{
+					Name:    "profile",
+					Usage:   "Set the runtime profile to use for services e.g local, kubernetes, platform",
+					EnvVars: []string{"MICRO_RUNTIME_PROFILE"},
 				},
 			},
-			Action: func(ctx *cli.Context) {
+			Action: func(ctx *cli.Context) error {
 				Run(ctx, options...)
+				return nil
 			},
 		},
 		{
@@ -140,24 +141,27 @@ func Commands(options ...micro.Option) []cli.Command {
 			Name:  "run",
 			Usage: RunUsage,
 			Flags: Flags(),
-			Action: func(ctx *cli.Context) {
+			Action: func(ctx *cli.Context) error {
 				runService(ctx, options...)
+				return nil
 			},
 		},
 		{
 			Name:  "kill",
 			Usage: KillUsage,
 			Flags: Flags(),
-			Action: func(ctx *cli.Context) {
+			Action: func(ctx *cli.Context) error {
 				killService(ctx, options...)
+				return nil
 			},
 		},
 		{
 			Name:  "ps",
 			Usage: GetUsage,
 			Flags: Flags(),
-			Action: func(ctx *cli.Context) {
+			Action: func(ctx *cli.Context) error {
 				getService(ctx, options...)
+				return nil
 			},
 		},
 	}

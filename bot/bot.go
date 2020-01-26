@@ -11,7 +11,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/micro/cli"
+	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro"
 
 	"github.com/micro/go-micro/agent/command"
@@ -351,7 +351,7 @@ func (b *bot) watch() {
 	}
 }
 
-func run(ctx *cli.Context) {
+func run(ctx *cli.Context) error {
 	log.Name("bot")
 
 	// Init plugins
@@ -359,8 +359,8 @@ func run(ctx *cli.Context) {
 		p.Init(ctx)
 	}
 
-	if len(ctx.GlobalString("server_name")) > 0 {
-		Name = ctx.GlobalString("server_name")
+	if len(ctx.String("server_name")) > 0 {
+		Name = ctx.String("server_name")
 	}
 
 	if len(ctx.String("namespace")) > 0 {
@@ -412,10 +412,10 @@ func run(ctx *cli.Context) {
 	service := micro.NewService(
 		micro.Name(Name),
 		micro.RegisterTTL(
-			time.Duration(ctx.GlobalInt("register_ttl"))*time.Second,
+			time.Duration(ctx.Int("register_ttl"))*time.Second,
 		),
 		micro.RegisterInterval(
-			time.Duration(ctx.GlobalInt("register_interval"))*time.Second,
+			time.Duration(ctx.Int("register_interval"))*time.Second,
 		),
 	)
 
@@ -436,19 +436,21 @@ func run(ctx *cli.Context) {
 	if err := b.stop(); err != nil {
 		log.Logf("error stopping bot %v", err)
 	}
+
+	return nil
 }
 
-func Commands() []cli.Command {
+func Commands() []*cli.Command {
 	flags := []cli.Flag{
-		cli.StringFlag{
-			Name:   "inputs",
-			Usage:  "Inputs to load on startup",
-			EnvVar: "MICRO_BOT_INPUTS",
+		&cli.StringFlag{
+			Name:    "inputs",
+			Usage:   "Inputs to load on startup",
+			EnvVars: []string{"MICRO_BOT_INPUTS"},
 		},
-		cli.StringFlag{
-			Name:   "namespace",
-			Usage:  "Set the namespace used by the bot to find commands e.g. com.example.bot",
-			EnvVar: "MICRO_BOT_NAMESPACE",
+		&cli.StringFlag{
+			Name:    "namespace",
+			Usage:   "Set the namespace used by the bot to find commands e.g. com.example.bot",
+			EnvVars: []string{"MICRO_BOT_NAMESPACE"},
 		},
 	}
 
@@ -457,7 +459,7 @@ func Commands() []cli.Command {
 		flags = append(flags, input.Flags()...)
 	}
 
-	command := cli.Command{
+	command := &cli.Command{
 		Name:   "bot",
 		Usage:  "Run the chatops bot",
 		Flags:  flags,
@@ -474,5 +476,5 @@ func Commands() []cli.Command {
 		}
 	}
 
-	return []cli.Command{command}
+	return []*cli.Command{command}
 }

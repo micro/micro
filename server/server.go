@@ -5,7 +5,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/micro/cli"
+	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro"
 	"github.com/micro/go-micro/router"
 	"github.com/micro/go-micro/server"
@@ -78,8 +78,8 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		p.Init(ctx)
 	}
 
-	if len(ctx.GlobalString("server_name")) > 0 {
-		Name = ctx.GlobalString("server_name")
+	if len(ctx.String("server_name")) > 0 {
+		Name = ctx.String("server_name")
 	}
 	if len(ctx.String("address")) > 0 {
 		Address = ctx.String("address")
@@ -95,8 +95,8 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	service := micro.NewService(
 		micro.Name(Name),
 		micro.Address(Address),
-		micro.RegisterTTL(time.Duration(ctx.GlobalInt("register_ttl"))*time.Second),
-		micro.RegisterInterval(time.Duration(ctx.GlobalInt("register_interval"))*time.Second),
+		micro.RegisterTTL(time.Duration(ctx.Int("register_ttl"))*time.Second),
+		micro.RegisterInterval(time.Duration(ctx.Int("register_interval"))*time.Second),
 	)
 
 	// create new router
@@ -132,29 +132,30 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	log.Logf("successfully stopped")
 }
 
-func Commands(options ...micro.Option) []cli.Command {
-	command := cli.Command{
+func Commands(options ...micro.Option) []*cli.Command {
+	command := &cli.Command{
 		Name:  "server",
 		Usage: "Run the micro network server",
 		Flags: []cli.Flag{
-			cli.StringFlag{
-				Name:   "address",
-				Usage:  "Set the micro server address :8083",
-				EnvVar: "MICRO_SERVER_ADDRESS",
+			&cli.StringFlag{
+				Name:    "address",
+				Usage:   "Set the micro server address :8083",
+				EnvVars: []string{"MICRO_SERVER_ADDRESS"},
 			},
-			cli.StringFlag{
-				Name:   "router_address",
-				Usage:  "Set the micro router address :9093",
-				EnvVar: "MICRO_ROUTER_ADDRESS",
+			&cli.StringFlag{
+				Name:    "router_address",
+				Usage:   "Set the micro router address :9093",
+				EnvVars: []string{"MICRO_ROUTER_ADDRESS"},
 			},
-			cli.StringFlag{
-				Name:   "network_address",
-				Usage:  "Set the micro network id :local",
-				EnvVar: "MICRO_NETWORK_ADDRESS",
+			&cli.StringFlag{
+				Name:    "network_address",
+				Usage:   "Set the micro network id :local",
+				EnvVars: []string{"MICRO_NETWORK_ADDRESS"},
 			},
 		},
-		Action: func(ctx *cli.Context) {
+		Action: func(ctx *cli.Context) error {
 			run(ctx, options...)
+			return nil
 		},
 	}
 
@@ -168,5 +169,5 @@ func Commands(options ...micro.Option) []cli.Command {
 		}
 	}
 
-	return []cli.Command{command}
+	return []*cli.Command{command}
 }

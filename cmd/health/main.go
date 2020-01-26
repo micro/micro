@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/micro/cli"
+	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/config/cmd"
 	proto "github.com/micro/go-micro/debug/service/proto"
@@ -20,15 +20,15 @@ var (
 
 func main() {
 	app := cmd.App()
-	app.Flags = append(app.Flags, cli.StringFlag{
+	app.Flags = append(app.Flags, &cli.StringFlag{
 		Name:        "health_address",
-		EnvVar:      "MICRO_HEALTH_ADDRESS",
+		EnvVars:     []string{"MICRO_HEALTH_ADDRESS"},
 		Usage:       "Address for the health checker. 127.0.0.1:8080",
 		Value:       "127.0.0.1:8080",
 		Destination: &healthAddress,
 	})
 
-	app.Action = func(c *cli.Context) {
+	app.Action = func(c *cli.Context) error {
 		serverName = c.String("server_name")
 		serverAddress = c.String("server_address")
 
@@ -45,6 +45,8 @@ func main() {
 		if len(serverAddress) == 0 {
 			log.Fatal("server address not set")
 		}
+
+		return nil
 	}
 
 	cmd.Init()

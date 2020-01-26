@@ -6,13 +6,13 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/micro/cli"
+	"github.com/micro/cli/v2"
 	goplugin "github.com/micro/go-micro/plugin"
 	"github.com/micro/go-micro/util/log"
 	"github.com/micro/micro/plugin"
 )
 
-func build(ctx *cli.Context) {
+func build(ctx *cli.Context) error {
 	name := ctx.String("name")
 	path := ctx.String("path")
 	newfn := ctx.String("func")
@@ -20,11 +20,13 @@ func build(ctx *cli.Context) {
 	out := ctx.String("output")
 
 	if len(name) == 0 {
+		// TODO return err
 		fmt.Println("specify --name of plugin")
 		os.Exit(1)
 	}
 
 	if len(typ) == 0 {
+		// TODO return err
 		fmt.Println("specify --type of plugin")
 		os.Exit(1)
 	}
@@ -60,37 +62,39 @@ func build(ctx *cli.Context) {
 		Path:    path,
 		NewFunc: newfn,
 	}); err != nil {
+		// TODO return err
 		fmt.Println(err)
 		os.Exit(1)
 	}
 
 	fmt.Printf("Plugin %s generated at %s\n", name, out)
+	return nil
 }
 
-func pluginCommands() []cli.Command {
-	return []cli.Command{
+func pluginCommands() []*cli.Command {
+	return []*cli.Command{
 		{
 			Name:   "build",
 			Usage:  "Build a micro plugin",
 			Action: build,
 			Flags: []cli.Flag{
-				cli.StringFlag{
+				&cli.StringFlag{
 					Name:  "name",
 					Usage: "Name of the plugin e.g rabbitmq",
 				},
-				cli.StringFlag{
+				&cli.StringFlag{
 					Name:  "type",
 					Usage: "Type of the plugin e.g broker",
 				},
-				cli.StringFlag{
+				&cli.StringFlag{
 					Name:  "path",
 					Usage: "Import path of the plugin",
 				},
-				cli.StringFlag{
+				&cli.StringFlag{
 					Name:  "func",
 					Usage: "New plugin function creator name e.g NewBroker",
 				},
-				cli.StringFlag{
+				&cli.StringFlag{
 					Name:  "output, o",
 					Usage: "Output dir or file for the plugin",
 				},
@@ -100,8 +104,8 @@ func pluginCommands() []cli.Command {
 }
 
 // Commands returns license commands
-func Commands() []cli.Command {
-	return []cli.Command{{
+func Commands() []*cli.Command {
+	return []*cli.Command{{
 		Name:        "plugin",
 		Usage:       "Plugin commands",
 		Subcommands: pluginCommands(),
@@ -113,10 +117,10 @@ func Flags() plugin.Plugin {
 	return plugin.NewPlugin(
 		plugin.WithName("plugin"),
 		plugin.WithFlag(
-			cli.StringSliceFlag{
-				Name:   "plugin",
-				EnvVar: "MICRO_PLUGIN",
-				Usage:  "Comma separated list of plugins e.g broker/rabbitmq, registry/etcd, micro/basic_auth, /path/to/plugin.so",
+			&cli.StringSliceFlag{
+				Name:    "plugin",
+				EnvVars: []string{"MICRO_PLUGIN"},
+				Usage:   "Comma separated list of plugins e.g broker/rabbitmq, registry/etcd, micro/basic_auth, /path/to/plugin.so",
 			},
 		),
 		plugin.WithInit(func(ctx *cli.Context) error {

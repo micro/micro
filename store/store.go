@@ -4,7 +4,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/micro/cli"
+	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro"
 	"github.com/micro/go-micro/store"
 	pb "github.com/micro/go-micro/store/service/proto"
@@ -39,8 +39,8 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		p.Init(ctx)
 	}
 
-	if len(ctx.GlobalString("server_name")) > 0 {
-		Name = ctx.GlobalString("server_name")
+	if len(ctx.String("server_name")) > 0 {
+		Name = ctx.String("server_name")
 	}
 	if len(ctx.String("address")) > 0 {
 		Address = ctx.String("address")
@@ -58,8 +58,8 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	// Initialise service
 	service := micro.NewService(
 		micro.Name(Name),
-		micro.RegisterTTL(time.Duration(ctx.GlobalInt("register_ttl"))*time.Second),
-		micro.RegisterInterval(time.Duration(ctx.GlobalInt("register_interval"))*time.Second),
+		micro.RegisterTTL(time.Duration(ctx.Int("register_ttl"))*time.Second),
+		micro.RegisterInterval(time.Duration(ctx.Int("register_interval"))*time.Second),
 	)
 
 	opts := []store.Option{store.Nodes(Nodes...)}
@@ -111,40 +111,41 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 }
 
 // Commands is the cli interface for the store service
-func Commands(options ...micro.Option) []cli.Command {
-	command := cli.Command{
+func Commands(options ...micro.Option) []*cli.Command {
+	command := &cli.Command{
 		Name:  "store",
 		Usage: "Run the micro store service",
 		Flags: []cli.Flag{
-			cli.StringFlag{
-				Name:   "address",
-				Usage:  "Set the micro tunnel address :8002",
-				EnvVar: "MICRO_SERVER_ADDRESS",
+			&cli.StringFlag{
+				Name:    "address",
+				Usage:   "Set the micro tunnel address :8002",
+				EnvVars: []string{"MICRO_SERVER_ADDRESS"},
 			},
-			cli.StringFlag{
-				Name:   "backend",
-				Usage:  "Set the backend for the micro store",
-				EnvVar: "MICRO_STORE_BACKEND",
-				Value:  "memory",
+			&cli.StringFlag{
+				Name:    "backend",
+				Usage:   "Set the backend for the micro store",
+				EnvVars: []string{"MICRO_STORE_BACKEND"},
+				Value:   "memory",
 			},
-			cli.StringFlag{
-				Name:   "nodes",
-				Usage:  "Comma separated list of Nodes to pass to the store backend",
-				EnvVar: "MICRO_STORE_NODES",
+			&cli.StringFlag{
+				Name:    "nodes",
+				Usage:   "Comma separated list of Nodes to pass to the store backend",
+				EnvVars: []string{"MICRO_STORE_NODES"},
 			},
-			cli.StringFlag{
-				Name:   "namespace",
-				Usage:  "Namespace to pass to the store backend",
-				EnvVar: "MICRO_STORE_NAMESPACE",
+			&cli.StringFlag{
+				Name:    "namespace",
+				Usage:   "Namespace to pass to the store backend",
+				EnvVars: []string{"MICRO_STORE_NAMESPACE"},
 			},
-			cli.StringFlag{
-				Name:   "prefix",
-				Usage:  "Key prefix to pass to the store backend",
-				EnvVar: "MICRO_STORE_PREFIX",
+			&cli.StringFlag{
+				Name:    "prefix",
+				Usage:   "Key prefix to pass to the store backend",
+				EnvVars: []string{"MICRO_STORE_PREFIX"},
 			},
 		},
-		Action: func(ctx *cli.Context) {
+		Action: func(ctx *cli.Context) error {
 			run(ctx, options...)
+			return nil
 		},
 	}
 
@@ -158,5 +159,5 @@ func Commands(options ...micro.Option) []cli.Command {
 		}
 	}
 
-	return []cli.Command{command}
+	return []*cli.Command{command}
 }

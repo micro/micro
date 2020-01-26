@@ -9,13 +9,13 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/micro/cli"
+	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro/metadata"
 )
 
 func ACMEHosts(ctx *cli.Context) []string {
 	var hosts []string
-	for _, host := range strings.Split(ctx.GlobalString("acme_hosts"), ",") {
+	for _, host := range strings.Split(ctx.String("acme_hosts"), ",") {
 		if len(host) > 0 {
 			hosts = append(hosts, host)
 		}
@@ -33,9 +33,9 @@ func RequestToContext(r *http.Request) context.Context {
 }
 
 func TLSConfig(ctx *cli.Context) (*tls.Config, error) {
-	cert := ctx.GlobalString("tls_cert_file")
-	key := ctx.GlobalString("tls_key_file")
-	ca := ctx.GlobalString("tls_client_ca_file")
+	cert := ctx.String("tls_cert_file")
+	key := ctx.String("tls_key_file")
+	ca := ctx.String("tls_client_ca_file")
 
 	if len(cert) > 0 && len(key) > 0 {
 		certs, err := tls.LoadX509KeyPair(cert, key)

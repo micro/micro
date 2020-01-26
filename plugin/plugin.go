@@ -3,7 +3,7 @@ package plugin
 import (
 	"net/http"
 
-	"github.com/micro/cli"
+	"github.com/micro/cli/v2"
 )
 
 // Plugin is the interface for plugins to micro. It differs from go-micro in that it's for
@@ -12,7 +12,7 @@ type Plugin interface {
 	// Global Flags
 	Flags() []cli.Flag
 	// Sub-commands
-	Commands() []cli.Command
+	Commands() []*cli.Command
 	// Handle is the middleware handler for HTTP requests. We pass in
 	// the existing handler so it can be wrapped to create a call chain.
 	Handler() Handler
@@ -44,7 +44,7 @@ func (p *plugin) Flags() []cli.Flag {
 	return p.opts.Flags
 }
 
-func (p *plugin) Commands() []cli.Command {
+func (p *plugin) Commands() []*cli.Command {
 	return p.opts.Commands
 }
 

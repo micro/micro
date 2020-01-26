@@ -7,7 +7,7 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/micro/cli"
+	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro/config/cmd"
 	gorun "github.com/micro/go-micro/runtime"
 	"github.com/micro/go-micro/util/log"
@@ -109,7 +109,7 @@ func initNotify(n gorun.Scheduler, services []string) gorun.Scheduler {
 func Init(context *cli.Context) {
 	log.Name("init")
 
-	if len(context.Args()) > 0 {
+	if context.Args().Len() > 0 {
 		cli.ShowSubcommandHelp(context)
 		os.Exit(1)
 	}
@@ -119,7 +119,7 @@ func Init(context *cli.Context) {
 	initServices = append(initServices, services...)
 
 	// get the service prefix
-	if namespace := context.GlobalString("namespace"); len(namespace) > 0 {
+	if namespace := context.String("namespace"); len(namespace) > 0 {
 		for i, service := range initServices {
 			initServices[i] = fmt.Sprintf("%s.%s", namespace, service)
 		}
@@ -171,17 +171,17 @@ func Init(context *cli.Context) {
 }
 
 // Run runs the entire platform
-func Run(context *cli.Context) {
+func Run(context *cli.Context) error {
 	log.Name("micro")
 
-	if len(context.Args()) > 0 {
+	if context.Args().Len() > 0 {
 		cli.ShowSubcommandHelp(context)
 		os.Exit(1)
 	}
 
 	// get the network flag
-	local := context.GlobalBool("local")
-	peer := context.GlobalBool("peer")
+	local := context.Bool("local")
+	peer := context.Bool("peer")
 
 	// pass through the environment
 	// TODO: perhaps don't do this
@@ -209,7 +209,7 @@ func Run(context *cli.Context) {
 	muRuntime := cmd.DefaultCmd.Options().Runtime
 
 	// Use default update notifier
-	if context.GlobalBool("auto_update") {
+	if context.Bool("auto_update") {
 		options := []gorun.Option{
 			gorun.WithScheduler(update.NewScheduler(Version)),
 		}
@@ -219,7 +219,7 @@ func Run(context *cli.Context) {
 	for _, service := range services {
 		name := service
 
-		if namespace := context.GlobalString("namespace"); len(namespace) > 0 {
+		if namespace := context.String("namespace"); len(namespace) > 0 {
 			name = fmt.Sprintf("%s.%s", namespace, service)
 		}
 
@@ -236,7 +236,7 @@ func Run(context *cli.Context) {
 		muService := &gorun.Service{Name: name, Version: Version}
 		if err := (*muRuntime).Create(muService, args...); err != nil {
 			log.Errorf("Failed to create runtime enviroment: %v", err)
-			return
+			return err
 		}
 	}
 
@@ -248,6 +248,7 @@ func Run(context *cli.Context) {
 	// start the runtime
 	if err := (*muRuntime).Start(); err != nil {
 		log.Fatal(err)
+		return err
 	}
 
 	log.Info("Service runtime started")
@@ -266,10 +267,12 @@ func Run(context *cli.Context) {
 	// stop all the things
 	if err := (*muRuntime).Stop(); err != nil {
 		log.Fatal(err)
+		return err
 	}
 
 	log.Info("Service runtime shutdown")
 
 	// exit success
 	os.Exit(0)
+	return nil
 }
