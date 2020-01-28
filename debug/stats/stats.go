@@ -2,7 +2,7 @@
 package stats
 
 import (
-	"github.com/micro/cli"
+	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro"
 	"github.com/micro/go-micro/util/log"
 

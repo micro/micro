@@ -20,62 +20,65 @@ const (
 	chartServiceErrors   = "micro_service_errors"
 )
 
-var charts = Charts{
-	{
-		ID:    chartServiceStarted,
-		Title: "Start Time",
-		Units: "timestamp",
-		Fam:   "uptime",
-		Ctx:   "micro.service.started",
-	},
-	{
-		ID:    chartServiceUptime,
-		Title: "Uptime",
-		Units: "seconds",
-		Fam:   "uptime",
-		Ctx:   "micro.service.uptime",
-	},
-	{
-		ID:    chartServiceMemory,
-		Title: "Heap Allocated",
-		Units: "B",
-		Fam:   "memory",
-		Ctx:   "micro.service.memory",
-	},
-	{
-		ID:    chartServiceThreads,
-		Title: "goroutines",
-		Units: "goroutines",
-		Fam:   "threads",
-		Ctx:   "micro.service.threads",
-	},
-	{
-		ID:    chartServiceGC,
-		Title: "Cumulative GC Pause Total",
-		Units: "nanoseconds",
-		Fam:   "gc",
-		Ctx:   "micro.service.gc",
-	},
-	{
-		ID:    chartServiceGCRate,
-		Title: "GC Pause rate",
-		Units: "ns/s",
-		Fam:   "gc",
-		Ctx:   "micro.service.gcrate",
-	},
-	{
-		ID:    chartServiceRequests,
-		Title: "Requests",
-		Units: "req/s",
-		Fam:   "requests",
-		Ctx:   "micro.service.requests",
-	},
-	{
-		ID:    chartServiceErrors,
-		Title: "Errors",
-		Units: "req/s",
-		Fam:   "errors",
-		Ctx:   "micro.service.errors",
-	},
-	// TODO: debug_metrics when design is finalised.
+// charts is the list of charts that will appear on our dashboard
+func charts() Charts {
+	return Charts{
+		{
+			ID:    chartServiceStarted,
+			Title: "Start Time",
+			Units: "timestamp",
+			Fam:   "uptime",
+			Ctx:   "micro.service.started",
+		},
+		{
+			ID:    chartServiceUptime,
+			Title: "Uptime",
+			Units: "seconds",
+			Fam:   "uptime",
+			Ctx:   "micro.service.uptime",
+		},
+		{
+			ID:    chartServiceMemory,
+			Title: "Heap Allocated",
+			Units: "B",
+			Fam:   "memory",
+			Ctx:   "micro.service.memory",
+		},
+		{
+			ID:    chartServiceThreads,
+			Title: "goroutines",
+			Units: "goroutines",
+			Fam:   "threads",
+			Ctx:   "micro.service.threads",
+		},
+		{
+			ID:    chartServiceGC,
+			Title: "Cumulative GC Pause Total",
+			Units: "nanoseconds",
+			Fam:   "gc",
+			Ctx:   "micro.service.gc",
+		},
+		{
+			ID:    chartServiceGCRate,
+			Title: "GC Pause rate",
+			Units: "ns/s",
+			Fam:   "gc",
+			Ctx:   "micro.service.gcrate",
+		},
+		{
+			ID:    chartServiceRequests,
+			Title: "Requests",
+			Units: "req/s",
+			Fam:   "requests",
+			Ctx:   "micro.service.requests",
+		},
+		{
+			ID:    chartServiceErrors,
+			Title: "Errors",
+			Units: "req/s",
+			Fam:   "errors",
+			Ctx:   "micro.service.errors",
+		},
+		// TODO: debug_metrics when design is finalised.
+	}
 }

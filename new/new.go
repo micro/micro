@@ -12,7 +12,7 @@ import (
 	"text/template"
 	"time"
 
-	"github.com/micro/cli"
+	"github.com/micro/cli/v2"
 	tmpl "github.com/micro/micro/internal/template"
 	"github.com/micro/micro/internal/usage"
 	"github.com/xlab/treeprint"
@@ -369,41 +369,43 @@ func run(ctx *cli.Context) {
 	}
 }
 
-func Commands() []cli.Command {
-	return []cli.Command{
+func Commands() []*cli.Command {
+	return []*cli.Command{
 		{
 			Name:  "new",
 			Usage: "Create a service template",
 			Flags: []cli.Flag{
-				cli.StringFlag{
+				&cli.StringFlag{
 					Name:  "namespace",
 					Usage: "Namespace for the service e.g com.example",
 					Value: "go.micro",
 				},
-				cli.StringFlag{
+				&cli.StringFlag{
 					Name:  "type",
 					Usage: "Type of service e.g api, fnc, srv, web",
 					Value: "srv",
 				},
-				cli.StringFlag{
+				&cli.StringFlag{
 					Name:  "fqdn",
 					Usage: "FQDN of service e.g com.example.srv.service (defaults to namespace.type.alias)",
 				},
-				cli.StringFlag{
+				&cli.StringFlag{
 					Name:  "alias",
 					Usage: "Alias is the short name used as part of combined name if specified",
 				},
-				cli.StringSliceFlag{
+				&cli.StringSliceFlag{
 					Name:  "plugin",
 					Usage: "Specify plugins e.g --plugin=registry=etcd:broker=nats or use flag multiple times",
 				},
-				cli.BoolTFlag{
+				&cli.BoolFlag{
 					Name:  "gopath",
 					Usage: "Create the service in the gopath.",
+					Value: true,
 				},
 			},
-			Action: func(c *cli.Context) {
+			Action: func(c *cli.Context) error {
 				run(c)
+				return nil
 			},
 		},
 	}

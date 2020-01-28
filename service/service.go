@@ -5,7 +5,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/micro/cli"
+	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro"
 	"github.com/micro/go-micro/proxy"
 	"github.com/micro/go-micro/proxy/grpc"
@@ -74,9 +74,9 @@ func run(ctx *cli.Context, opts ...micro.Option) {
 	}
 
 	// run the service if asked to
-	if len(ctx.Args()) > 0 {
+	if ctx.Args().Len() > 0 {
 		args := []runtime.CreateOption{
-			runtime.WithCommand(ctx.Args()...),
+			runtime.WithCommand(ctx.Args().Slice()...),
 			runtime.WithOutput(os.Stdout),
 		}
 
@@ -117,34 +117,35 @@ func run(ctx *cli.Context, opts ...micro.Option) {
 	service.Run()
 }
 
-func Commands(options ...micro.Option) []cli.Command {
-	command := cli.Command{
+func Commands(options ...micro.Option) []*cli.Command {
+	command := &cli.Command{
 		Name:  "service",
 		Usage: "Run a micro service",
-		Action: func(ctx *cli.Context) {
+		Action: func(ctx *cli.Context) error {
 			run(ctx, options...)
+			return nil
 		},
 		Flags: []cli.Flag{
-			cli.StringFlag{
-				Name:   "name",
-				Usage:  "Name of the service",
-				EnvVar: "MICRO_SERVICE_NAME",
-				Value:  "service",
+			&cli.StringFlag{
+				Name:    "name",
+				Usage:   "Name of the service",
+				EnvVars: []string{"MICRO_SERVICE_NAME"},
+				Value:   "service",
 			},
-			cli.StringFlag{
-				Name:   "address",
-				Usage:  "Address of the service",
-				EnvVar: "MICRO_SERVICE_ADDRESS",
+			&cli.StringFlag{
+				Name:    "address",
+				Usage:   "Address of the service",
+				EnvVars: []string{"MICRO_SERVICE_ADDRESS"},
 			},
-			cli.StringFlag{
-				Name:   "endpoint",
-				Usage:  "The local service endpoint (Defaults to localhost:9090); {http, grpc, file, exec}://path-or-address e.g http://localhost:9090",
-				EnvVar: "MICRO_SERVICE_ENDPOINT",
+			&cli.StringFlag{
+				Name:    "endpoint",
+				Usage:   "The local service endpoint (Defaults to localhost:9090); {http, grpc, file, exec}://path-or-address e.g http://localhost:9090",
+				EnvVars: []string{"MICRO_SERVICE_ENDPOINT"},
 			},
-			cli.StringSliceFlag{
-				Name:   "metadata",
-				Usage:  "Add metadata as key-value pairs describing the service e.g owner=john@example.com",
-				EnvVar: "MICRO_SERVICE_METADATA",
+			&cli.StringSliceFlag{
+				Name:    "metadata",
+				Usage:   "Add metadata as key-value pairs describing the service e.g owner=john@example.com",
+				EnvVars: []string{"MICRO_SERVICE_METADATA"},
 			},
 		},
 	}
@@ -159,5 +160,5 @@ func Commands(options ...micro.Option) []cli.Command {
 		}
 	}
 
-	return []cli.Command{command}
+	return []*cli.Command{command}
 }

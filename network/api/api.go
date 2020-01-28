@@ -10,7 +10,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/micro/cli"
+	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro"
 	goapi "github.com/micro/go-micro/api"
 	"github.com/micro/go-micro/network"

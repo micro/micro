@@ -9,7 +9,6 @@ require (
 	github.com/chzyer/test v0.0.0-20180213035817-a1ea475d72b1 // indirect
 	github.com/cloudflare/cloudflare-go v0.10.9
 	github.com/coreos/go-systemd v0.0.0-20190620071333-e64a0ec8b42a // indirect
-	github.com/decker502/dnspod-go v0.2.0 // indirect
 	github.com/eknkc/basex v1.0.0 // indirect
 	github.com/fsnotify/fsnotify v1.4.7
 	github.com/go-acme/lego/v3 v3.3.0
@@ -21,8 +20,8 @@ require (
 	github.com/grpc-ecosystem/grpc-gateway v1.9.2 // indirect
 	github.com/hako/branca v0.0.0-20180808000428-10b799466ada
 	github.com/mattn/go-isatty v0.0.8 // indirect
-	github.com/micro/cli v0.2.0
-	github.com/micro/go-micro v1.18.1-0.20200121150533-8b306780ee41
+	github.com/micro/cli/v2 v2.1.1
+	github.com/micro/go-micro v1.18.1-0.20200126191206-1108cc5e91fd
 	github.com/miekg/dns v1.1.27
 	github.com/netdata/go-orchestrator v0.0.0-20190905093727-c793edba0e8f
 	github.com/olekukonko/tablewriter v0.0.4

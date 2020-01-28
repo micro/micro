@@ -13,7 +13,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/micro/cli"
+	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro/client"
 	cbytes "github.com/micro/go-micro/codec/bytes"
 	"github.com/micro/go-micro/config/cmd"

@@ -7,7 +7,7 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/micro/cli"
+	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro/registry"
 	"github.com/micro/micro/plugin"
 )
@@ -27,7 +27,7 @@ func Plugin() plugin.Plugin {
 		plugin.WithName("usage"),
 		plugin.WithInit(func(c *cli.Context) error {
 			// only do if enabled
-			if !c.GlobalBool("report_usage") {
+			if !c.Bool("report_usage") {
 				os.Setenv("MICRO_REPORT_USAGE", "false")
 				return nil
 			}
@@ -35,8 +35,8 @@ func Plugin() plugin.Plugin {
 			var service string
 
 			// set service name
-			if len(c.Args()) > 0 && len(c.Args()[0]) > 0 {
-				service = c.Args()[0]
+			if c.Args().Len() > 0 && len(c.Args().Get(0)) > 0 {
+				service = c.Args().Get(0)
 			}
 
 			// kick off the tracker

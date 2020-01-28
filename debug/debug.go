@@ -2,7 +2,7 @@
 package debug
 
 import (
-	"github.com/micro/cli"
+	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro"
 	"github.com/micro/go-micro/debug/log"
 	"github.com/micro/go-micro/debug/log/kubernetes"
@@ -35,8 +35,8 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 		Address = ctx.String("address")
 	}
 
-	if len(ctx.GlobalString("server_name")) > 0 {
-		Name = ctx.GlobalString("server_name")
+	if len(ctx.String("server_name")) > 0 {
+		Name = ctx.String("server_name")
 	}
 
 	if len(Address) > 0 {
@@ -111,48 +111,51 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 }
 
 // Commands populates the debug commands
-func Commands(options ...micro.Option) []cli.Command {
-	command := []cli.Command{
+func Commands(options ...micro.Option) []*cli.Command {
+	command := []*cli.Command{
 		{
 			Name:  "debug",
 			Usage: "Run the micro debug service",
 			Flags: []cli.Flag{
-				cli.StringFlag{
-					Name:   "address",
-					Usage:  "Set the registry http address e.g 0.0.0.0:8089",
-					EnvVar: "MICRO_SERVER_ADDRESS",
+				&cli.StringFlag{
+					Name:    "address",
+					Usage:   "Set the registry http address e.g 0.0.0.0:8089",
+					EnvVars: []string{"MICRO_SERVER_ADDRESS"},
 				},
-				cli.StringFlag{
-					Name:   "log",
-					Usage:  "Specify the log source to use e.g service, kubernetes",
-					EnvVar: "MICRO_DEBUG_LOG",
-					Value:  "service",
+				&cli.StringFlag{
+					Name:    "log",
+					Usage:   "Specify the log source to use e.g service, kubernetes",
+					EnvVars: []string{"MICRO_DEBUG_LOG"},
+					Value:   "service",
 				},
 			},
-			Action: func(ctx *cli.Context) {
+			Action: func(ctx *cli.Context) error {
 				Run(ctx, options...)
+				return nil
 			},
-			Subcommands: []cli.Command{
-				cli.Command{
+			Subcommands: []*cli.Command{
+				&cli.Command{
 					Name:  "web",
 					Usage: "Start the debug web dashboard",
 					Flags: []cli.Flag{
-						cli.StringFlag{
-							Name:   "netdata_url",
-							Usage:  "The Full URL to the netdata server",
-							EnvVar: "MICRO_NETDATA_URL",
-							Value:  "http://localhost:19999",
+						&cli.StringFlag{
+							Name:    "netdata_url",
+							Usage:   "The Full URL to the netdata server",
+							EnvVars: []string{"MICRO_NETDATA_URL"},
+							Value:   "http://localhost:19999",
 						},
 					},
-					Action: func(c *cli.Context) {
+					Action: func(c *cli.Context) error {
 						web.Run(c)
+						return nil
 					},
 				},
-				cli.Command{
+				&cli.Command{
 					Name:  "stats",
 					Usage: "Start the debug stats scraper",
-					Action: func(c *cli.Context) {
+					Action: func(c *cli.Context) error {
 						stats.Run(c)
+						return nil
 					},
 				},
 			},
@@ -161,8 +164,9 @@ func Commands(options ...micro.Option) []cli.Command {
 			Name:  "log",
 			Usage: "Get logs for a service",
 			Flags: logFlags(),
-			Action: func(ctx *cli.Context) {
+			Action: func(ctx *cli.Context) error {
 				getLog(ctx, options...)
+				return nil
 			},
 		},
 	}

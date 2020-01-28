@@ -40,8 +40,10 @@ spec:
       containers:
       - name: network
         env:
+        - name: MICRO_NETWORK_TOKEN
+          value: "micro.mu"
         - name: MICRO_LOG_LEVEL
-          value: "debug"
+          value: "trace"
         - name: MICRO_BROKER
           value: "nats"
         - name: MICRO_BROKER_ADDRESS
@@ -54,8 +56,7 @@ spec:
           value: "0.0.0.0:8080"
         - name: MICRO_NETWORK_NODES
           value: "network.micro.mu"
-        command:
-        - /micro
+        args:
         - network
         image: micro/micro
         imagePullPolicy: Always
