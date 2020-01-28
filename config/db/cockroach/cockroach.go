@@ -2,18 +2,17 @@ package cockroach
 
 import (
 	"database/sql"
-	"net/url"
-	"strings"
-
 	"github.com/micro/go-micro/errors"
 	"github.com/micro/go-micro/store"
 	roachStore "github.com/micro/go-micro/store/cockroach"
 	"github.com/micro/go-micro/util/log"
 	"github.com/micro/micro/config/db"
+	"net/url"
 )
 
 var (
-	defaultUrl = "postgres://root:@127.0.0.1:26257/micro?search_path=config"
+	defaultUrl = "postgres://root:@127.0.0.1:26257?search_path=public"
+	table      = "configs"
 )
 
 type cockroach struct {
@@ -40,21 +39,20 @@ func (m *cockroach) Init(opts db.Options) error {
 	}
 
 	u, _ := url.Parse(defaultUrl)
-	parts := strings.Split(u.Path, "/")
-	if len(parts) != 2 {
-		err = errors.InternalServerError("go.micro.config.Init", "Invalid database url for cockroach: %s", u.Path)
-		return err
-	}
-
 	schema := u.Query().Get("search_path")
 	if len(schema) == 0 {
 		err = errors.InternalServerError("go.micro.config.Init", "needs a schema with search_path")
 		return err
 	}
 
+	if opts.Table != "" {
+		table = opts.Table
+	}
+
 	m.db = d
 	m.st = roachStore.NewStore(
-		store.Nodes(opts.Url),
+		store.Nodes(defaultUrl),
+		store.Prefix(table),
 		store.Namespace(schema))
 
 	return nil
