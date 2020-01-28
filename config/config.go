@@ -1,7 +1,7 @@
 package config
 
 import (
-	"github.com/micro/cli"
+	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro"
 	proto "github.com/micro/go-micro/config/source/service/proto"
 	"github.com/micro/go-micro/util/log"
@@ -18,8 +18,8 @@ var (
 )
 
 func Run(c *cli.Context, srvOpts ...micro.Option) {
-	if len(c.GlobalString("server_name")) > 0 {
-		Name = c.GlobalString("server_name")
+	if len(c.String("server_name")) > 0 {
+		Name = c.String("server_name")
 	}
 
 	if len(c.String("watch_topic")) > 0 {
@@ -49,33 +49,34 @@ func Run(c *cli.Context, srvOpts ...micro.Option) {
 	}
 }
 
-func Commands(options ...micro.Option) []cli.Command {
-	command := cli.Command{
+func Commands(options ...micro.Option) []*cli.Command {
+	command := &cli.Command{
 		Name:  "config",
 		Usage: "Run the config server",
-		Action: func(c *cli.Context) {
-			Run(c, options...)
+		Action: func(ctx *cli.Context) error {
+			Run(ctx, options...)
+			return nil
 		},
 		Flags: []cli.Flag{
-			cli.StringFlag{
-				Name:   "namespace",
-				Usage:  "Set the namespace used by the Config Service e.g. go.micro.srv.config",
-				EnvVar: "MICRO_CONFIG_NAMESPACE",
+			&cli.StringFlag{
+				Name:    "namespace",
+				EnvVars: []string{"MICRO_CONFIG_NAMESPACE"},
+				Usage:   "Set the namespace used by the Config Service e.g. go.micro.srv.config",
 			},
-			cli.StringFlag{
-				Name:   "database_url",
-				EnvVar: "MICRO_CONFIG_DATABASE_URL",
-				Usage:  "The database URL e.g root:123@(127.0.0.1:3306)/config?charset=utf8&parseTime=true&loc=Asia%2FShanghai",
+			&cli.StringFlag{
+				Name:    "database_url",
+				EnvVars: []string{"MICRO_CONFIG_DATABASE_URL"},
+				Usage:   "The database URL e.g root:123@(127.0.0.1:3306)/config?charset=utf8&parseTime=true&loc=Asia%2FShanghai",
 			},
-			cli.StringFlag{
-				Name:   "database",
-				EnvVar: "MICRO_CONFIG_DATABASE",
-				Usage:  "The database e.g mysql(default), postgresql, but now we only support mysql and cockroach(pg).",
+			&cli.StringFlag{
+				Name:    "database",
+				EnvVars: []string{"MICRO_CONFIG_DATABASE"},
+				Usage:   "The database e.g mysql(default), postgresql, but now we only support mysql and cockroach(pg).",
 			},
-			cli.StringFlag{
-				Name:   "watch_topic",
-				EnvVar: "MICRO_CONFIG_WATCH_TOPIC",
-				Usage:  "watch the change event.",
+			&cli.StringFlag{
+				Name:    "watch_topic",
+				EnvVars: []string{"MICRO_CONFIG_WATCH_TOPIC"},
+				Usage:   "watch the change event.",
 			},
 		},
 	}
@@ -90,5 +91,5 @@ func Commands(options ...micro.Option) []cli.Command {
 		}
 	}
 
-	return []cli.Command{command}
+	return []*cli.Command{command}
 }
