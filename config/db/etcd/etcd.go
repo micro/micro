@@ -1,10 +1,11 @@
 package etcd
 
 import (
+	"strings"
+
 	"github.com/micro/go-micro/store"
 	eStore "github.com/micro/go-micro/store/etcd"
 	"github.com/micro/micro/config/db"
-	"strings"
 )
 
 var (
