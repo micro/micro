@@ -187,6 +187,13 @@ func Run(context *cli.Context) error {
 	// TODO: perhaps don't do this
 	env := os.Environ()
 
+	// check either the peer or local flags are set
+	// otherwise just return the hel
+	if !peer && !local {
+		cli.ShowSubcommandHelp(context)
+		os.Exit(1)
+	}
+
 	// connect to the network if specified
 	if peer || !local {
 		log.Info("Setting global network")

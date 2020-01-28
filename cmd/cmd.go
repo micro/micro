@@ -57,7 +57,6 @@ func setup(app *ccli.App) {
 		&ccli.BoolFlag{
 			Name:  "local",
 			Usage: "Enable local only development: Defaults to true.",
-			Value: true,
 		},
 		&ccli.BoolFlag{
 			Name:  "peer",
