@@ -18,11 +18,11 @@ import (
 )
 
 // New initialises and returns a new Stats service handler
-func New(done <-chan bool, historySize int) (*Stats, error) {
+func New(done <-chan bool, windowSize int) (*Stats, error) {
 	s := &Stats{
 		registry:            cache.New(*cmd.DefaultOptions().Registry),
 		client:              *cmd.DefaultOptions().Client,
-		historicalSnapshots: ring.New(3600),
+		historicalSnapshots: ring.New(windowSize),
 	}
 
 	if err := s.scan(); err != nil {
