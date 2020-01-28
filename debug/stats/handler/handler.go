@@ -13,14 +13,16 @@ import (
 	"github.com/micro/go-micro/registry"
 	"github.com/micro/go-micro/registry/cache"
 	"github.com/micro/go-micro/util/log"
+	"github.com/micro/go-micro/util/ring"
 	stats "github.com/micro/micro/debug/stats/proto"
 )
 
 // New initialises and returns a new Stats service handler
-func New(done <-chan bool) (*Stats, error) {
+func New(done <-chan bool, historySize int) (*Stats, error) {
 	s := &Stats{
-		registry: cache.New(*cmd.DefaultOptions().Registry),
-		client:   *cmd.DefaultOptions().Client,
+		registry:            cache.New(*cmd.DefaultOptions().Registry),
+		client:              *cmd.DefaultOptions().Client,
+		historicalSnapshots: ring.New(3600),
 	}
 
 	if err := s.scan(); err != nil {
@@ -37,16 +39,29 @@ type Stats struct {
 	client   client.Client
 
 	sync.RWMutex
+	// current snapshots for each service
 	snapshots []*stats.Snapshot
-	cached    []*registry.Service
+	// historical snapshots from the start
+	historicalSnapshots *ring.Buffer
+	cached              []*registry.Service
 }
 
 // Read returns gets a snapshot of all current stats
 func (s *Stats) Read(ctx context.Context, req *stats.ReadRequest, rsp *stats.ReadResponse) error {
 	if req.Service == nil {
-		s.RLock()
-		rsp.Stats = s.snapshots
-		s.RUnlock()
+		func() {
+			s.RLock()
+			defer s.RUnlock()
+			if req.Past {
+				entries := s.historicalSnapshots.Get(3600)
+				rsp.Stats = []*stats.Snapshot{}
+				for _, entry := range entries {
+					rsp.Stats = append(rsp.Stats, entry.Value.([]*stats.Snapshot)...)
+				}
+			} else {
+				rsp.Stats = s.snapshots
+			}
+		}()
 		return nil
 	}
 
@@ -219,7 +234,8 @@ func (s *Stats) scrape() {
 					Requests: rsp.Requests,
 					Errors:   rsp.Errors,
 				}
-
+				timestamp := time.Now().Unix()
+				snap.Timestamp = uint64(timestamp)
 				mtx.Lock()
 				next = append(next, snap)
 				mtx.Unlock()
@@ -231,5 +247,6 @@ func (s *Stats) scrape() {
 	// Swap in the snapshots
 	s.Lock()
 	s.snapshots = next
+	s.historicalSnapshots.Put(next)
 	s.Unlock()
 }

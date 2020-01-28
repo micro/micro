@@ -83,7 +83,7 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 	}()
 
 	// stats handler
-	statsHandler, err := statshandler.New(done)
+	statsHandler, err := statshandler.New(done, ctx.Int("history_size"))
 	if err != nil {
 		ulog.Fatal(err)
 	}
@@ -127,6 +127,12 @@ func Commands(options ...micro.Option) []*cli.Command {
 					Usage:   "Specify the log source to use e.g service, kubernetes",
 					EnvVars: []string{"MICRO_DEBUG_LOG"},
 					Value:   "service",
+				},
+				&cli.IntFlag{
+					Name:    "history_size",
+					Usage:   "Specifies how many seconds of stats snapshots to retain in memory",
+					EnvVars: []string{"MICRO_DEBUG_STATS_HISTORY_SIZE"},
+					Value:   0,
 				},
 			},
 			Action: func(ctx *cli.Context) error {
