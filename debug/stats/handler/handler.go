@@ -48,43 +48,41 @@ type Stats struct {
 
 // Read returns gets a snapshot of all current stats
 func (s *Stats) Read(ctx context.Context, req *stats.ReadRequest, rsp *stats.ReadResponse) error {
-	if req.Service == nil {
-		func() {
-			s.RLock()
-			defer s.RUnlock()
-			if req.Past {
-				entries := s.historicalSnapshots.Get(3600)
-				rsp.Stats = []*stats.Snapshot{}
-				for _, entry := range entries {
-					rsp.Stats = append(rsp.Stats, entry.Value.([]*stats.Snapshot)...)
-				}
-			} else {
-				rsp.Stats = s.snapshots
+	allSnapshots := []*stats.Snapshot{}
+	func() {
+		s.RLock()
+		defer s.RUnlock()
+		if req.Past {
+			entries := s.historicalSnapshots.Get(3600)
+			for _, entry := range entries {
+				allSnapshots = append(allSnapshots, entry.Value.([]*stats.Snapshot)...)
 			}
-		}()
+		} else {
+			// Using an else since the latest snapshot is already in the ring buffer
+			allSnapshots = append(allSnapshots, s.snapshots...)
+		}
+	}()
+	if req.Service == nil {
+		rsp.Stats = allSnapshots
 		return nil
 	}
-
 	filter := func(a, b string) bool {
 		if len(b) == 0 {
 			return true
 		}
 		return a == b
 	}
-
-	s.RLock()
-	for _, s := range s.snapshots {
+	filteredSnapshots := []*stats.Snapshot{}
+	for _, s := range allSnapshots {
 		if !filter(s.Service.Name, req.Service.Name) {
 			continue
 		}
 		if !filter(s.Service.Version, req.Service.Version) {
 			continue
 		}
-		// append snapshot
-		rsp.Stats = append(rsp.Stats, s)
+		filteredSnapshots = append(filteredSnapshots, s)
 	}
-	s.RUnlock()
-
+	rsp.Stats = filteredSnapshots
 	return nil
 }
 
