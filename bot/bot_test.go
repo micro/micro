@@ -8,11 +8,11 @@ import (
 	"time"
 
 	"github.com/micro/cli/v2"
-	"github.com/micro/go-micro/agent/command"
-	"github.com/micro/go-micro/agent/input"
+	"github.com/micro/go-micro/v2/agent/command"
+	"github.com/micro/go-micro/v2/agent/input"
 
-	"github.com/micro/go-micro"
-	"github.com/micro/go-micro/registry/memory"
+	"github.com/micro/go-micro/v2"
+	"github.com/micro/go-micro/v2/registry/memory"
 )
 
 type testInput struct {

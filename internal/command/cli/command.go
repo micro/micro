@@ -14,15 +14,15 @@ import (
 	"time"
 
 	"github.com/micro/cli/v2"
-	"github.com/micro/go-micro/client"
-	cbytes "github.com/micro/go-micro/codec/bytes"
-	"github.com/micro/go-micro/config/cmd"
-	"github.com/micro/go-micro/metadata"
-	"github.com/micro/go-micro/registry"
+	"github.com/micro/go-micro/v2/client"
+	cbytes "github.com/micro/go-micro/v2/codec/bytes"
+	"github.com/micro/go-micro/v2/config/cmd"
+	"github.com/micro/go-micro/v2/metadata"
+	"github.com/micro/go-micro/v2/registry"
 
-	proto "github.com/micro/go-micro/debug/service/proto"
+	proto "github.com/micro/go-micro/v2/debug/service/proto"
 
-	dns "github.com/micro/micro/network/dns/proto/dns"
+	dns "github.com/micro/micro/v2/network/dns/proto/dns"
 
 	"github.com/olekukonko/tablewriter"
 	"github.com/serenize/snaker"

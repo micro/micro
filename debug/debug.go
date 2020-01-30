@@ -3,17 +3,17 @@ package debug
 
 import (
 	"github.com/micro/cli/v2"
-	"github.com/micro/go-micro"
-	"github.com/micro/go-micro/debug/log"
-	"github.com/micro/go-micro/debug/log/kubernetes"
-	dservice "github.com/micro/go-micro/debug/service"
-	ulog "github.com/micro/go-micro/util/log"
-	logHandler "github.com/micro/micro/debug/log/handler"
-	pblog "github.com/micro/micro/debug/log/proto"
-	"github.com/micro/micro/debug/stats"
-	statshandler "github.com/micro/micro/debug/stats/handler"
-	pbstats "github.com/micro/micro/debug/stats/proto"
-	"github.com/micro/micro/debug/web"
+	"github.com/micro/go-micro/v2"
+	"github.com/micro/go-micro/v2/debug/log"
+	"github.com/micro/go-micro/v2/debug/log/kubernetes"
+	dservice "github.com/micro/go-micro/v2/debug/service"
+	ulog "github.com/micro/go-micro/v2/util/log"
+	logHandler "github.com/micro/micro/v2/debug/log/handler"
+	pblog "github.com/micro/micro/v2/debug/log/proto"
+	"github.com/micro/micro/v2/debug/stats"
+	statshandler "github.com/micro/micro/v2/debug/stats/handler"
+	pbstats "github.com/micro/micro/v2/debug/stats/proto"
+	"github.com/micro/micro/v2/debug/web"
 )
 
 var (
@@ -83,7 +83,7 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 	}()
 
 	// stats handler
-	statsHandler, err := statshandler.New(done)
+	statsHandler, err := statshandler.New(done, ctx.Int("window"))
 	if err != nil {
 		ulog.Fatal(err)
 	}
@@ -127,6 +127,12 @@ func Commands(options ...micro.Option) []*cli.Command {
 					Usage:   "Specify the log source to use e.g service, kubernetes",
 					EnvVars: []string{"MICRO_DEBUG_LOG"},
 					Value:   "service",
+				},
+				&cli.IntFlag{
+					Name:    "window",
+					Usage:   "Specifies how many seconds of stats snapshots to retain in memory",
+					EnvVars: []string{"MICRO_DEBUG_WINDOW"},
+					Value:   0,
 				},
 			},
 			Action: func(ctx *cli.Context) error {

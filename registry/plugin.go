@@ -3,7 +3,7 @@ package registry
 import (
 	"fmt"
 
-	"github.com/micro/micro/plugin"
+	"github.com/micro/micro/v2/plugin"
 )
 
 var (

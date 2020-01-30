@@ -40,11 +40,16 @@ message Snapshot {
 	uint64 requests = 7;
 	// Total number of errors
 	uint64 errors = 8;
+	// Timestamp at the time of the taking of the snapshot, seconds since unix epoch
+	uint64 timestamp = 9;
 }
 
 message ReadRequest {
 	// If set, only return services matching the filter
 	Service service = 1;
+	// If false, only the current snapshots will be returned.
+	// If true, all historical snapshots in memory will be returned.
+	bool past = 2;
 }
 
 message ReadResponse {

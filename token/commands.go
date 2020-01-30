@@ -7,7 +7,7 @@ import (
 	"os"
 
 	"github.com/micro/cli/v2"
-	"github.com/micro/micro/internal/token"
+	"github.com/micro/micro/v2/internal/token"
 )
 
 func generate(ctx *cli.Context) error {

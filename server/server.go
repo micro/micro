@@ -6,12 +6,12 @@ import (
 	"time"
 
 	"github.com/micro/cli/v2"
-	"github.com/micro/go-micro"
-	"github.com/micro/go-micro/router"
-	"github.com/micro/go-micro/server"
-	"github.com/micro/go-micro/transport"
-	"github.com/micro/go-micro/transport/grpc"
-	"github.com/micro/go-micro/util/log"
+	"github.com/micro/go-micro/v2"
+	"github.com/micro/go-micro/v2/router"
+	"github.com/micro/go-micro/v2/server"
+	"github.com/micro/go-micro/v2/transport"
+	"github.com/micro/go-micro/v2/transport/grpc"
+	"github.com/micro/go-micro/v2/util/log"
 )
 
 var (

@@ -12,7 +12,7 @@ import (
 
 	"github.com/boltdb/bolt"
 	"github.com/gorilla/handlers"
-	"github.com/micro/micro/internal/token"
+	"github.com/micro/micro/v2/internal/token"
 	"github.com/patrickmn/go-cache"
 	"github.com/pquerna/otp"
 	"github.com/pquerna/otp/totp"
