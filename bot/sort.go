@@ -1,7 +1,7 @@
 package bot
 
 import (
-	"github.com/micro/go-micro/agent/command"
+	"github.com/micro/go-micro/v2/agent/command"
 )
 
 type sortedCommands struct {

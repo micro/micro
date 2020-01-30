@@ -2,7 +2,7 @@
 package provider
 
 import (
-	dns "github.com/micro/micro/network/dns/proto/dns"
+	dns "github.com/micro/micro/v2/network/dns/proto/dns"
 )
 
 // Provider is an interface for interacting with a DNS provider

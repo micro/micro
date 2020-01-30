@@ -9,10 +9,10 @@ import (
 	"strings"
 
 	"github.com/micro/cli/v2"
-	"github.com/micro/go-micro/client"
-	cbytes "github.com/micro/go-micro/codec/bytes"
-	"github.com/micro/go-micro/config/cmd"
-	clic "github.com/micro/micro/internal/command/cli"
+	"github.com/micro/go-micro/v2/client"
+	cbytes "github.com/micro/go-micro/v2/codec/bytes"
+	"github.com/micro/go-micro/v2/config/cmd"
+	clic "github.com/micro/micro/v2/internal/command/cli"
 )
 
 type exec func(*cli.Context, []string) ([]byte, error)

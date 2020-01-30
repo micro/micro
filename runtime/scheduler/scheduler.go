@@ -8,8 +8,8 @@ import (
 	"time"
 
 	"github.com/fsnotify/fsnotify"
-	"github.com/micro/go-micro/runtime"
-	"github.com/micro/go-micro/util/log"
+	"github.com/micro/go-micro/v2/runtime"
+	"github.com/micro/go-micro/v2/util/log"
 )
 
 type scheduler struct {

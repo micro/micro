@@ -3,11 +3,11 @@ package handler
 import (
 	"context"
 
-	"github.com/micro/go-micro/util/log"
+	"github.com/micro/go-micro/v2/util/log"
 
-	"github.com/micro/go-micro/metadata"
-	dns "github.com/micro/micro/network/dns/proto/dns"
-	"github.com/micro/micro/network/dns/provider"
+	"github.com/micro/go-micro/v2/metadata"
+	dns "github.com/micro/micro/v2/network/dns/proto/dns"
+	"github.com/micro/micro/v2/network/dns/provider"
 	"github.com/pkg/errors"
 )
 

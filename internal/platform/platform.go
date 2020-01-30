@@ -8,19 +8,19 @@ import (
 	"syscall"
 
 	"github.com/micro/cli/v2"
-	"github.com/micro/go-micro/config/cmd"
-	gorun "github.com/micro/go-micro/runtime"
-	"github.com/micro/go-micro/util/log"
+	"github.com/micro/go-micro/v2/config/cmd"
+	gorun "github.com/micro/go-micro/v2/runtime"
+	"github.com/micro/go-micro/v2/util/log"
 
 	// include usage
 
-	"github.com/micro/micro/internal/update"
-	_ "github.com/micro/micro/internal/usage"
+	"github.com/micro/micro/v2/internal/update"
+	_ "github.com/micro/micro/v2/internal/usage"
 
 	// import specific plugins
-	k8sRuntime "github.com/micro/go-micro/runtime/kubernetes"
-	cfStore "github.com/micro/go-micro/store/cloudflare"
-	ckStore "github.com/micro/go-micro/store/cockroach"
+	k8sRuntime "github.com/micro/go-micro/v2/runtime/kubernetes"
+	cfStore "github.com/micro/go-micro/v2/store/cloudflare"
+	ckStore "github.com/micro/go-micro/v2/store/cockroach"
 )
 
 var (

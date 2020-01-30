@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/micro/go-micro/plugin"
+	"github.com/micro/go-micro/v2/plugin"
 )
 
 func buildSo(soPath string, parts []string) error {
