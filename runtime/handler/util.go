@@ -1,8 +1,8 @@
 package handler
 
 import (
-	"github.com/micro/go-micro/runtime"
-	pb "github.com/micro/go-micro/runtime/service/proto"
+	"github.com/micro/go-micro/v2/runtime"
+	pb "github.com/micro/go-micro/v2/runtime/service/proto"
 )
 
 func toProto(s *runtime.Service) *pb.Service {

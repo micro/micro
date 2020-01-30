@@ -7,9 +7,9 @@ import (
 	"strings"
 
 	"github.com/micro/cli/v2"
-	goplugin "github.com/micro/go-micro/plugin"
-	"github.com/micro/go-micro/util/log"
-	"github.com/micro/micro/plugin"
+	goplugin "github.com/micro/go-micro/v2/plugin"
+	"github.com/micro/go-micro/v2/util/log"
+	"github.com/micro/micro/v2/plugin"
 )
 
 func build(ctx *cli.Context) error {

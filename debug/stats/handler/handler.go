@@ -6,15 +6,15 @@ import (
 	"sync"
 	"time"
 
-	"github.com/micro/go-micro/client"
-	"github.com/micro/go-micro/config/cmd"
-	debug "github.com/micro/go-micro/debug/service/proto"
-	"github.com/micro/go-micro/errors"
-	"github.com/micro/go-micro/registry"
-	"github.com/micro/go-micro/registry/cache"
-	"github.com/micro/go-micro/util/log"
-	"github.com/micro/go-micro/util/ring"
-	stats "github.com/micro/micro/debug/stats/proto"
+	"github.com/micro/go-micro/v2/client"
+	"github.com/micro/go-micro/v2/config/cmd"
+	debug "github.com/micro/go-micro/v2/debug/service/proto"
+	"github.com/micro/go-micro/v2/errors"
+	"github.com/micro/go-micro/v2/registry"
+	"github.com/micro/go-micro/v2/registry/cache"
+	"github.com/micro/go-micro/v2/util/log"
+	"github.com/micro/go-micro/v2/util/ring"
+	stats "github.com/micro/micro/v2/debug/stats/proto"
 )
 
 // New initialises and returns a new Stats service handler

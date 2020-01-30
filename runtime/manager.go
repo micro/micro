@@ -8,10 +8,10 @@ import (
 	"time"
 
 	"github.com/micro/cli/v2"
-	"github.com/micro/go-micro/runtime"
-	"github.com/micro/go-micro/store"
-	"github.com/micro/go-micro/util/log"
-	mprofile "github.com/micro/micro/runtime/profile"
+	"github.com/micro/go-micro/v2/runtime"
+	"github.com/micro/go-micro/v2/store"
+	"github.com/micro/go-micro/v2/util/log"
+	mprofile "github.com/micro/micro/v2/runtime/profile"
 )
 
 type manager struct {

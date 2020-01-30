@@ -3,11 +3,11 @@ package stats
 
 import (
 	"github.com/micro/cli/v2"
-	"github.com/micro/go-micro"
-	"github.com/micro/go-micro/util/log"
+	"github.com/micro/go-micro/v2"
+	"github.com/micro/go-micro/v2/util/log"
 
-	"github.com/micro/micro/debug/stats/handler"
-	stats "github.com/micro/micro/debug/stats/proto"
+	"github.com/micro/micro/v2/debug/stats/handler"
+	stats "github.com/micro/micro/v2/debug/stats/proto"
 )
 
 // Run is the entrypoint for debug/stats
