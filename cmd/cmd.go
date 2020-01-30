@@ -9,6 +9,7 @@ import (
 	"github.com/micro/micro/v2/api"
 	"github.com/micro/micro/v2/bot"
 	"github.com/micro/micro/v2/broker"
+  "github.com/micro/micro/v2/config"
 	"github.com/micro/micro/v2/cli"
 	"github.com/micro/micro/v2/debug"
 	"github.com/micro/micro/v2/health"
@@ -282,6 +283,7 @@ func Setup(app *ccli.App, options ...micro.Option) {
 	app.Commands = append(app.Commands, new.Commands()...)
 	app.Commands = append(app.Commands, build.Commands()...)
 	app.Commands = append(app.Commands, web.Commands(options...)...)
+	app.Commands = append(app.Commands, config.Commands(options...)...)
 
 	// add the init command for our internal operator
 	app.Commands = append(app.Commands, &ccli.Command{
