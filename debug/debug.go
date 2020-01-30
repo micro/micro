@@ -175,6 +175,14 @@ func Commands(options ...micro.Option) []*cli.Command {
 				return nil
 			},
 		},
+		{
+			Name:  "trace",
+			Usage: "Get tracing info from a service",
+			Action: func(ctx *cli.Context) error {
+				getTrace(ctx, options...)
+				return nil
+			},
+		},
 	}
 
 	for _, p := range Plugins() {

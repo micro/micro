@@ -28,6 +28,8 @@ spec:
       containers:
       - name: micro-debug
         env:
+        - name: MICRO_DEBUG_WINDOW
+          value: "3600"
         - name: MICRO_LOG_LEVEL
           value: "debug"
         - name: MICRO_BROKER
