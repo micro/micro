@@ -6,12 +6,12 @@ import (
 	"net/http"
 
 	"github.com/micro/cli/v2"
-	"github.com/micro/go-micro"
-	"github.com/micro/go-micro/client"
-	proto "github.com/micro/go-micro/debug/service/proto"
-	"github.com/micro/go-micro/util/log"
-	mcli "github.com/micro/micro/cli"
-	qcli "github.com/micro/micro/internal/command/cli"
+	"github.com/micro/go-micro/v2"
+	"github.com/micro/go-micro/v2/client"
+	proto "github.com/micro/go-micro/v2/debug/service/proto"
+	"github.com/micro/go-micro/v2/util/log"
+	mcli "github.com/micro/micro/v2/cli"
+	qcli "github.com/micro/micro/v2/internal/command/cli"
 	"golang.org/x/net/context"
 )
 

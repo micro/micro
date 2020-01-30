@@ -5,11 +5,11 @@ import (
 	"os"
 
 	"github.com/micro/cli/v2"
-	"github.com/micro/go-micro"
-	"github.com/micro/go-micro/config/cmd"
-	pb "github.com/micro/go-micro/runtime/service/proto"
-	"github.com/micro/go-micro/util/log"
-	"github.com/micro/micro/runtime/handler"
+	"github.com/micro/go-micro/v2"
+	"github.com/micro/go-micro/v2/config/cmd"
+	pb "github.com/micro/go-micro/v2/runtime/service/proto"
+	"github.com/micro/go-micro/v2/util/log"
+	"github.com/micro/micro/v2/runtime/handler"
 )
 
 var (

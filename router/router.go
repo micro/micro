@@ -8,11 +8,11 @@ import (
 	"time"
 
 	"github.com/micro/cli/v2"
-	"github.com/micro/go-micro"
-	"github.com/micro/go-micro/router"
-	pb "github.com/micro/go-micro/router/service/proto"
-	"github.com/micro/go-micro/util/log"
-	"github.com/micro/micro/router/handler"
+	"github.com/micro/go-micro/v2"
+	"github.com/micro/go-micro/v2/router"
+	pb "github.com/micro/go-micro/v2/router/service/proto"
+	"github.com/micro/go-micro/v2/util/log"
+	"github.com/micro/micro/v2/router/handler"
 )
 
 var (

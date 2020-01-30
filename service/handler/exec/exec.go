@@ -8,9 +8,9 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/micro/go-micro/errors"
-	"github.com/micro/go-micro/proxy"
-	"github.com/micro/go-micro/server"
+	"github.com/micro/go-micro/v2/errors"
+	"github.com/micro/go-micro/v2/proxy"
+	"github.com/micro/go-micro/v2/server"
 )
 
 type Proxy struct {

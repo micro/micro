@@ -5,14 +5,14 @@ import (
 	"time"
 
 	"github.com/micro/cli/v2"
-	"github.com/micro/go-micro"
-	"github.com/micro/go-micro/store"
-	pb "github.com/micro/go-micro/store/service/proto"
-	"github.com/micro/go-micro/util/log"
-	"github.com/micro/micro/store/handler"
+	"github.com/micro/go-micro/v2"
+	"github.com/micro/go-micro/v2/store"
+	pb "github.com/micro/go-micro/v2/store/service/proto"
+	"github.com/micro/go-micro/v2/util/log"
+	"github.com/micro/micro/v2/store/handler"
 
-	"github.com/micro/go-micro/store/cockroach"
-	"github.com/micro/go-micro/store/memory"
+	"github.com/micro/go-micro/v2/store/cockroach"
+	"github.com/micro/go-micro/v2/store/memory"
 )
 
 var (

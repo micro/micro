@@ -6,13 +6,13 @@ import (
 	"time"
 
 	"github.com/micro/cli/v2"
-	"github.com/micro/go-micro"
-	"github.com/micro/go-micro/registry"
-	"github.com/micro/go-micro/registry/service"
-	pb "github.com/micro/go-micro/registry/service/proto"
-	"github.com/micro/go-micro/util/log"
-	rcli "github.com/micro/micro/cli"
-	"github.com/micro/micro/registry/handler"
+	"github.com/micro/go-micro/v2"
+	"github.com/micro/go-micro/v2/registry"
+	"github.com/micro/go-micro/v2/registry/service"
+	pb "github.com/micro/go-micro/v2/registry/service/proto"
+	"github.com/micro/go-micro/v2/util/log"
+	rcli "github.com/micro/micro/v2/cli"
+	"github.com/micro/micro/v2/registry/handler"
 )
 
 var (

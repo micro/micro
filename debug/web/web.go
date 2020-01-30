@@ -13,9 +13,9 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/micro/cli/v2"
-	"github.com/micro/go-micro/client"
-	"github.com/micro/go-micro/web"
-	logpb "github.com/micro/micro/debug/log/proto"
+	"github.com/micro/go-micro/v2/client"
+	"github.com/micro/go-micro/v2/web"
+	logpb "github.com/micro/micro/v2/debug/log/proto"
 )
 
 // Run starts go.micro.web.debug
