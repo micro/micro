@@ -3,9 +3,9 @@ package etcd
 import (
 	"strings"
 
-	"github.com/micro/go-micro/store"
-	eStore "github.com/micro/go-micro/store/etcd"
-	"github.com/micro/micro/config/db"
+	"github.com/micro/go-micro/v2/store"
+	eStore "github.com/micro/go-micro/v2/store/etcd"
+	"github.com/micro/micro/v2/config/db"
 )
 
 var (

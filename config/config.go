@@ -2,14 +2,14 @@ package config
 
 import (
 	"github.com/micro/cli/v2"
-	"github.com/micro/go-micro"
-	proto "github.com/micro/go-micro/config/source/service/proto"
-	"github.com/micro/go-micro/util/log"
-	"github.com/micro/micro/config/db"
-	_ "github.com/micro/micro/config/db/cockroach"
-	_ "github.com/micro/micro/config/db/etcd"
-	_ "github.com/micro/micro/config/db/memory"
-	"github.com/micro/micro/config/handler"
+	"github.com/micro/go-micro/v2"
+	proto "github.com/micro/go-micro/v2/config/source/service/proto"
+	"github.com/micro/go-micro/v2/util/log"
+	"github.com/micro/micro/v2/config/db"
+	_ "github.com/micro/micro/v2/config/db/cockroach"
+	_ "github.com/micro/micro/v2/config/db/etcd"
+	_ "github.com/micro/micro/v2/config/db/memory"
+	"github.com/micro/micro/v2/config/handler"
 )
 
 var (

@@ -4,11 +4,11 @@ import (
 	"database/sql"
 	"net/url"
 
-	"github.com/micro/go-micro/errors"
-	"github.com/micro/go-micro/store"
-	roachStore "github.com/micro/go-micro/store/cockroach"
-	"github.com/micro/go-micro/util/log"
-	"github.com/micro/micro/config/db"
+	"github.com/micro/go-micro/v2/errors"
+	"github.com/micro/go-micro/v2/store"
+	roachStore "github.com/micro/go-micro/v2/store/cockroach"
+	"github.com/micro/go-micro/v2/util/log"
+	"github.com/micro/micro/v2/config/db"
 )
 
 var (

@@ -1,9 +1,9 @@
 package memory
 
 import (
-	"github.com/micro/go-micro/store"
-	mStore "github.com/micro/go-micro/store/memory"
-	"github.com/micro/micro/config/db"
+	"github.com/micro/go-micro/v2/store"
+	mStore "github.com/micro/go-micro/v2/store/memory"
+	"github.com/micro/micro/v2/config/db"
 )
 
 type memory struct {
