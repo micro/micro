@@ -41,7 +41,7 @@ var (
 
 	name        = "micro"
 	description = "A microservice runtime"
-	version     = "1.18.0"
+	version     = "2.0.0"
 )
 
 func init() {
