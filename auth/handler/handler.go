@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"context"
 	"encoding/gob"
-	"fmt"
 	"time"
 
 	"github.com/google/uuid"
@@ -35,18 +34,13 @@ type Handler struct {
 	store store.Store
 }
 
-// Generate creates a new service account in the store
+// Generate creates a new  account in the store
 func (h *Handler) Generate(ctx context.Context, req *pb.GenerateRequest, rsp *pb.GenerateResponse) error {
 	if req.Account == nil {
-		return errors.BadRequest("go.micro.auth", "service account required")
+		return errors.BadRequest("go.micro.auth", "account required")
 	}
-
-	parent := req.Account.Parent
-	if parent == nil {
-		return errors.BadRequest("go.micro.auth", "parent required")
-	}
-	if parent.Name == "" || parent.Type == "" {
-		return errors.BadRequest("go.micro.auth", "invalid parent")
+	if req.Account.Id == "" {
+		return errors.BadRequest("go.micro.auth", "account id required")
 	}
 
 	// generate the token
@@ -55,11 +49,10 @@ func (h *Handler) Generate(ctx context.Context, req *pb.GenerateRequest, rsp *pb
 		return err
 	}
 
-	// key for the store
-	key := fmt.Sprintf("%v/%v", prefixForResource(parent), token.String())
-
-	// construct the service account
+	// construct the account
 	sa := auth.Account{
+		Id:       req.Account.Id,
+		Token:    token.String(),
 		Created:  time.Now(),
 		Expiry:   time.Now().Add(Duration),
 		Metadata: req.Account.Metadata,
@@ -87,14 +80,14 @@ func (h *Handler) Generate(ctx context.Context, req *pb.GenerateRequest, rsp *pb
 
 	// write to the store
 	err = h.store.Write(&store.Record{
-		Key:    key,
+		Key:    token.String(),
 		Value:  buf.Bytes(),
 		Expiry: Duration,
 	})
 	if err != nil {
 		return err
 	}
-	log.Infof("Created service account: %v", key)
+	log.Infof("Created account: %v", token.String())
 
 	// encode the response
 	rsp.Account = &pb.Account{
@@ -108,7 +101,7 @@ func (h *Handler) Generate(ctx context.Context, req *pb.GenerateRequest, rsp *pb
 	return nil
 }
 
-// Validate retrieves a service account from the store
+// Validate retrieves a  account from the store
 func (h *Handler) Validate(ctx context.Context, req *pb.ValidateRequest, rsp *pb.ValidateResponse) error {
 	if req.Token == "" {
 		return errors.BadRequest("go.micro.auth", "token required")
@@ -147,11 +140,11 @@ func (h *Handler) Validate(ctx context.Context, req *pb.ValidateRequest, rsp *pb
 		}
 	}
 
-	log.Infof("Validated service account: %v", records[0].Key)
+	log.Infof("Validated account: %v", records[0].Key)
 	return nil
 }
 
-// Revoke deletes the service account
+// Revoke deletes the  account
 func (h *Handler) Revoke(ctx context.Context, req *pb.RevokeRequest, rsp *pb.RevokeResponse) error {
 	if req.Token == "" {
 		return errors.BadRequest("go.micro.auth", "token required")
@@ -161,17 +154,16 @@ func (h *Handler) Revoke(ctx context.Context, req *pb.RevokeRequest, rsp *pb.Rev
 	if err != nil {
 		return errors.InternalServerError("go.micro.auth", "error reading store")
 	}
+	if len(records) == 0 {
+		return errors.NotFound("go.micro.auth", "token not found")
+	}
+
 	for _, r := range records {
 		if err := h.store.Delete(r.Key); err != nil {
 			return errors.InternalServerError("go.micro.auth", "error deleting from store")
 		}
-		log.Infof("Revoked service account: %v", r.Key)
+		log.Infof("Revoked  account: %v", r.Key)
 	}
 
 	return nil
-}
-
-// prefixForResource is used is the store's key name, e.g. user/asim@micro.mu || service/go.micro.srv.auth
-func prefixForResource(r *pb.Resource) string {
-	return fmt.Sprintf("%v/%v", r.Type, r.Name)
 }
