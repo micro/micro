@@ -37,15 +37,15 @@ type Handler struct {
 
 // Generate creates a new service account in the store
 func (h *Handler) Generate(ctx context.Context, req *pb.GenerateRequest, rsp *pb.GenerateResponse) error {
-	if req.ServiceAccount == nil {
+	if req.Account == nil {
 		return errors.BadRequest("go.micro.auth", "service account required")
 	}
 
-	parent := req.ServiceAccount.Parent
+	parent := req.Account.Parent
 	if parent == nil {
 		return errors.BadRequest("go.micro.auth", "parent required")
 	}
-	if parent.Id == "" || parent.Type == "" {
+	if parent.Name == "" || parent.Type == "" {
 		return errors.BadRequest("go.micro.auth", "invalid parent")
 	}
 
@@ -59,20 +59,20 @@ func (h *Handler) Generate(ctx context.Context, req *pb.GenerateRequest, rsp *pb
 	key := fmt.Sprintf("%v/%v", prefixForResource(parent), token.String())
 
 	// construct the service account
-	sa := auth.ServiceAccount{
+	sa := auth.Account{
 		Created:  time.Now(),
 		Expiry:   time.Now().Add(Duration),
-		Metadata: req.ServiceAccount.Metadata,
+		Metadata: req.Account.Metadata,
 	}
 
 	// add the roles
-	sa.Roles = make([]*auth.Role, len(req.ServiceAccount.Roles))
-	for i, r := range req.ServiceAccount.Roles {
+	sa.Roles = make([]*auth.Role, len(req.Account.Roles))
+	for i, r := range req.Account.Roles {
 		sa.Roles[i] = &auth.Role{Name: r.Name}
 
 		if r.Resource != nil {
 			sa.Roles[i].Resource = &auth.Resource{
-				Id:   r.Resource.Id,
+				Name: r.Resource.Name,
 				Type: r.Resource.Type,
 			}
 		}
@@ -97,12 +97,12 @@ func (h *Handler) Generate(ctx context.Context, req *pb.GenerateRequest, rsp *pb
 	log.Infof("Created service account: %v", key)
 
 	// encode the response
-	rsp.ServiceAccount = &pb.ServiceAccount{
+	rsp.Account = &pb.Account{
 		Created:  sa.Created.Unix(),
 		Expiry:   sa.Expiry.Unix(),
 		Metadata: sa.Metadata,
 		Token:    token.String(),
-		Roles:    req.ServiceAccount.Roles,
+		Roles:    req.Account.Roles,
 	}
 
 	return nil
@@ -125,11 +125,11 @@ func (h *Handler) Validate(ctx context.Context, req *pb.ValidateRequest, rsp *pb
 	// decode the result
 	b := bytes.NewBuffer(records[0].Value)
 	decoder := gob.NewDecoder(b)
-	var sa auth.ServiceAccount
+	var sa auth.Account
 	err = decoder.Decode(&sa)
 
 	// encode the response
-	rsp.ServiceAccount = &pb.ServiceAccount{
+	rsp.Account = &pb.Account{
 		Created:  sa.Created.Unix(),
 		Expiry:   sa.Expiry.Unix(),
 		Metadata: sa.Metadata,
@@ -137,11 +137,11 @@ func (h *Handler) Validate(ctx context.Context, req *pb.ValidateRequest, rsp *pb
 		Roles:    make([]*pb.Role, len(sa.Roles)),
 	}
 	for i, r := range sa.Roles {
-		rsp.ServiceAccount.Roles[i] = &pb.Role{Name: r.Name}
+		rsp.Account.Roles[i] = &pb.Role{Name: r.Name}
 
 		if r.Resource != nil {
-			rsp.ServiceAccount.Roles[i].Resource = &pb.Resource{
-				Id:   r.Resource.Id,
+			rsp.Account.Roles[i].Resource = &pb.Resource{
+				Name: r.Resource.Name,
 				Type: r.Resource.Type,
 			}
 		}
@@ -173,5 +173,5 @@ func (h *Handler) Revoke(ctx context.Context, req *pb.RevokeRequest, rsp *pb.Rev
 
 // prefixForResource is used is the store's key name, e.g. user/asim@micro.mu || service/go.micro.srv.auth
 func prefixForResource(r *pb.Resource) string {
-	return fmt.Sprintf("%v/%v", r.Type, r.Id)
+	return fmt.Sprintf("%v/%v", r.Type, r.Name)
 }
