@@ -133,7 +133,7 @@ func (h *Handler) Validate(ctx context.Context, req *pb.ValidateRequest, rsp *pb
 		Created:  sa.Created.Unix(),
 		Expiry:   sa.Expiry.Unix(),
 		Metadata: sa.Metadata,
-		Token:    sa.Token,
+		Token:    req.Token,
 		Roles:    make([]*pb.Role, len(sa.Roles)),
 	}
 	for i, r := range sa.Roles {
