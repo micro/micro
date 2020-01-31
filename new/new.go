@@ -400,7 +400,6 @@ func Commands() []*cli.Command {
 				&cli.BoolFlag{
 					Name:  "gopath",
 					Usage: "Create the service in the gopath.",
-					Value: true,
 				},
 			},
 			Action: func(c *cli.Context) error {
