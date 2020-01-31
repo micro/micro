@@ -116,7 +116,7 @@ func (h *Handler) Validate(ctx context.Context, req *pb.ValidateRequest, rsp *pb
 
 	// lookup the record by token
 	records, err := h.store.Read(req.Token, store.ReadSuffix())
-	if err == store.ErrNotFound {
+	if err == store.ErrNotFound || len(records) == 0 {
 		return errors.Unauthorized("go.micro.auth", "invalid token")
 	} else if err != nil {
 		return errors.InternalServerError("go.micro.auth", "error reading store")
@@ -147,19 +147,17 @@ func (h *Handler) Validate(ctx context.Context, req *pb.ValidateRequest, rsp *pb
 		}
 	}
 
+	log.Infof("Validated service account: %v", records[0].Key)
 	return nil
 }
 
 // Revoke deletes the service account
 func (h *Handler) Revoke(ctx context.Context, req *pb.RevokeRequest, rsp *pb.RevokeResponse) error {
-	if req.ServiceAccount == nil {
-		return errors.BadRequest("go.micro.auth", "service account required")
-	}
-	if req.ServiceAccount.Token == "" {
+	if req.Token == "" {
 		return errors.BadRequest("go.micro.auth", "token required")
 	}
 
-	records, err := h.store.Read(req.ServiceAccount.Token, store.ReadSuffix())
+	records, err := h.store.Read(req.Token, store.ReadSuffix())
 	if err != nil {
 		return errors.InternalServerError("go.micro.auth", "error reading store")
 	}
@@ -167,6 +165,7 @@ func (h *Handler) Revoke(ctx context.Context, req *pb.RevokeRequest, rsp *pb.Rev
 		if err := h.store.Delete(r.Key); err != nil {
 			return errors.InternalServerError("go.micro.auth", "error deleting from store")
 		}
+		log.Infof("Revoked service account: %v", r.Key)
 	}
 
 	return nil
