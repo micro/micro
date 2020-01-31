@@ -26,8 +26,8 @@ func New() *Handler {
 }
 
 var (
-	// Duration is how long until the service account can no longer be used as auth
-	Duration = time.Hour * 24 * 365
+	// Duration the service account is valid for
+	Duration = time.Hour * 24
 )
 
 // Handler processes RPC calls
@@ -108,18 +108,67 @@ func (h *Handler) Generate(ctx context.Context, req *pb.GenerateRequest, rsp *pb
 	return nil
 }
 
-// Validate retrieves a token from the store
-func (h *Handler) Validate(ctx context.Context, req *pb.GenerateRequest, rsp *pb.GenerateResponse) error {
+// Validate retrieves a service account from the store
+func (h *Handler) Validate(ctx context.Context, req *pb.ValidateRequest, rsp *pb.ValidateResponse) error {
+	if req.Token == "" {
+		return errors.BadRequest("go.micro.auth", "token required")
+	}
+
+	// lookup the record by token
+	records, err := h.store.Read(req.Token, store.ReadSuffix())
+	if err == store.ErrNotFound {
+		return errors.Unauthorized("go.micro.auth", "invalid token")
+	} else if err != nil {
+		return errors.InternalServerError("go.micro.auth", "error reading store")
+	}
+
+	// decode the result
+	b := bytes.NewBuffer(records[0].Value)
+	decoder := gob.NewDecoder(b)
+	var sa auth.ServiceAccount
+	err = decoder.Decode(&sa)
+
+	// encode the response
+	rsp.ServiceAccount = &pb.ServiceAccount{
+		Created:  sa.Created.Unix(),
+		Expiry:   sa.Expiry.Unix(),
+		Metadata: sa.Metadata,
+		Token:    sa.Token,
+		Roles:    make([]*pb.Role, len(sa.Roles)),
+	}
+	for i, r := range sa.Roles {
+		rsp.ServiceAccount.Roles[i] = &pb.Role{Name: r.Name}
+
+		if r.Resource != nil {
+			rsp.ServiceAccount.Roles[i].Resource = &pb.Resource{
+				Id:   r.Resource.Id,
+				Type: r.Resource.Type,
+			}
+		}
+	}
+
 	return nil
 }
 
+// Revoke deletes the service account
 func (h *Handler) Revoke(ctx context.Context, req *pb.RevokeRequest, rsp *pb.RevokeResponse) error {
-	return nil
-}
-func (h *Handler) AddRole(ctx context.Context, req *pb.AddRoleRequest, rsp *pb.AddRoleResponse) error {
-	return nil
-}
-func (h *Handler) RemoveRole(ctx context.Context, req *pb.RemoveRoleRequest, rsp *pb.RemoveRoleResponse) error {
+	if req.ServiceAccount == nil {
+		return errors.BadRequest("go.micro.auth", "service account required")
+	}
+	if req.ServiceAccount.Token == "" {
+		return errors.BadRequest("go.micro.auth", "token required")
+	}
+
+	records, err := h.store.Read(req.ServiceAccount.Token, store.ReadSuffix())
+	if err != nil {
+		return errors.InternalServerError("go.micro.auth", "error reading store")
+	}
+	for _, r := range records {
+		if err := h.store.Delete(r.Key); err != nil {
+			return errors.InternalServerError("go.micro.auth", "error deleting from store")
+		}
+	}
+
 	return nil
 }
 
@@ -127,19 +176,3 @@ func (h *Handler) RemoveRole(ctx context.Context, req *pb.RemoveRoleRequest, rsp
 func prefixForResource(r *pb.Resource) string {
 	return fmt.Sprintf("%v/%v", r.Type, r.Id)
 }
-
-// // DEBUG
-// records, err := h.store.List()
-// if err != nil {
-// 	return err
-// }
-// for _, r := range records {
-// 	b := bytes.NewBuffer(r.Value)
-// 	d := gob.NewDecoder(b)
-// 	var f auth.ServiceAccount
-// 	err = d.Decode(&f)
-// 	if err == nil {
-// 		fmt.Println(r.Key)
-// 		fmt.Println(f)
-// 	}
-// }
