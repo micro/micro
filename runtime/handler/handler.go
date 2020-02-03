@@ -36,7 +36,7 @@ func (r *Runtime) Create(ctx context.Context, req *pb.CreateRequest, rsp *pb.Cre
 		return errors.InternalServerError("go.micro.runtime", err.Error())
 	}
 
-	// publish the delete event
+	// publish the create event
 	r.Client.Publish(ctx, &pb.Event{
 		Type:      "create",
 		Timestamp: time.Now().Unix(),
