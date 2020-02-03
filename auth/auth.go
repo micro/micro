@@ -2,9 +2,9 @@ package auth
 
 import (
 	"github.com/micro/cli/v2"
-	"github.com/micro/go-micro"
-	pb "github.com/micro/go-micro/auth/service/proto"
-	"github.com/micro/go-micro/util/log"
+	"github.com/micro/go-micro/v2"
+	pb "github.com/micro/go-micro/v2/auth/service/proto"
+	"github.com/micro/go-micro/v2/util/log"
 	"github.com/micro/micro/auth/handler"
 )
 

@@ -8,7 +8,6 @@ require (
 	github.com/chzyer/readline v0.0.0-20180603132655-2972be24d48e
 	github.com/chzyer/test v0.0.0-20180213035817-a1ea475d72b1 // indirect
 	github.com/cloudflare/cloudflare-go v0.10.9
-	github.com/coreos/go-systemd v0.0.0-20190620071333-e64a0ec8b42a // indirect
 	github.com/eknkc/basex v1.0.0 // indirect
 	github.com/fsnotify/fsnotify v1.4.7
 	github.com/go-acme/lego/v3 v3.3.0
@@ -22,6 +21,7 @@ require (
 	github.com/mattn/go-isatty v0.0.8 // indirect
 	github.com/micro/cli/v2 v2.1.1
 	github.com/micro/go-micro v1.18.1-0.20200126191206-1108cc5e91fd
+	github.com/micro/go-micro/v2 v2.0.0
 	github.com/miekg/dns v1.1.27
 	github.com/netdata/go-orchestrator v0.0.0-20190905093727-c793edba0e8f
 	github.com/olekukonko/tablewriter v0.0.4
@@ -41,4 +41,4 @@ require (
 	gopkg.in/olivere/elastic.v5 v5.0.83
 )
 
-replace github.com/micro/go-micro => ../go-micro
+replace github.com/micro/go-micro/v2 => ../go-micro

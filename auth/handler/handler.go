@@ -7,14 +7,14 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/micro/go-micro/auth"
-	"github.com/micro/go-micro/util/log"
+	"github.com/micro/go-micro/v2/auth"
+	"github.com/micro/go-micro/v2/util/log"
 
-	"github.com/micro/go-micro/config/cmd"
-	"github.com/micro/go-micro/errors"
-	"github.com/micro/go-micro/store"
+	"github.com/micro/go-micro/v2/config/cmd"
+	"github.com/micro/go-micro/v2/errors"
+	"github.com/micro/go-micro/v2/store"
 
-	pb "github.com/micro/go-micro/auth/service/proto"
+	pb "github.com/micro/go-micro/v2/auth/service/proto"
 )
 
 // New returns an instance of Handler
