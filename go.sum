@@ -290,6 +290,8 @@ github.com/micro/cli/v2 v2.1.1/go.mod h1:EguNh6DAoWKm9nmk+k/Rg0H3lQnDxqzu5x5srOt
 github.com/micro/go-micro v1.16.0/go.mod h1:A0F58bHLh2m0LAI9QyhvmbN8c1cxhAZo3cM6s+iDsrM=
 github.com/micro/go-micro v1.18.0 h1:gP70EZVHpJuUIT0YWth192JmlIci+qMOEByHm83XE9E=
 github.com/micro/go-micro v1.18.0/go.mod h1:klwUJL1gkdY1MHFyz+fFJXn52dKcty4hoe95Mp571AA=
+github.com/micro/go-micro/v2 v2.0.1-0.20200203082657-1b9cabd654bf h1:Nt4ST2cq9yW4ULK5UOKwZ8+7s2bLWGvB2L8RUXcLWS8=
+github.com/micro/go-micro/v2 v2.0.1-0.20200203082657-1b9cabd654bf/go.mod h1:M5P4zEaXCpRRdily/h0DZXJJKPjnKb3nq7g+liKK7KE=
 github.com/micro/mdns v0.3.0 h1:bYycYe+98AXR3s8Nq5qvt6C573uFTDPIYzJemWON0QE=
 github.com/micro/mdns v0.3.0/go.mod h1:KJ0dW7KmicXU2BV++qkLlmHYcVv7/hHnbtguSWt9Aoc=
 github.com/micro/micro v1.18.0 h1:v+xiQOXbT9xxotLwu1nJM81t4FbruBxZSSyIdhUfujM=
