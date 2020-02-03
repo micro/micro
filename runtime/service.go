@@ -12,11 +12,11 @@ import (
 	"text/tabwriter"
 
 	"github.com/micro/cli/v2"
-	"github.com/micro/go-micro"
-	"github.com/micro/go-micro/config/cmd"
-	"github.com/micro/go-micro/runtime"
-	rs "github.com/micro/go-micro/runtime/service"
-	"github.com/micro/micro/runtime/scheduler"
+	"github.com/micro/go-micro/v2"
+	"github.com/micro/go-micro/v2/config/cmd"
+	"github.com/micro/go-micro/v2/runtime"
+	rs "github.com/micro/go-micro/v2/runtime/service"
+	"github.com/micro/micro/v2/runtime/scheduler"
 )
 
 const (

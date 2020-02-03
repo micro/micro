@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: default
+  name: platform
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: platform
+  template:
+    metadata:
+      labels:
+        name: platform
+    spec:
+      containers:
+      - name: platform
+        args:
+        - web
+        env:
+        - name: FRONTEND_ADDRESS
+          value: "https://micro.mu/platform"
+        - name: MICRO_SERVER_ADDRESS
+          value: "0.0.0.0:8080"
+        - name: MICRO_BROKER
+          value: "nats"
+        - name: MICRO_BROKER_ADDRESS
+          value: "nats-cluster"
+        - name: MICRO_PROXY
+          value: "go.micro.proxy"
+        - name: MICRO_REGISTRY
+          value: "etcd"
+        - name: MICRO_REGISTRY_ADDRESS
+          value: "etcd-cluster-client"
+        - name: GITHUB_TEAM_ID
+          valueFrom:
+            secretKeyRef:
+              key: GITHUB_TEAM_ID
+              name: github-credentials
+        - name: GITHUB_OAUTH_CLIENT_ID
+          valueFrom:
+            secretKeyRef:
+              key: GITHUB_OAUTH_CLIENT_ID
+              name: github-credentials
+        - name: GITHUB_OAUTH_CLIENT_SECRET
+          valueFrom:
+            secretKeyRef:
+              key: GITHUB_OAUTH_CLIENT_SECRET
+              name: github-credentials
+        - name: GITHUB_OAUTH_REDIRECT_URL
+          valueFrom:
+            secretKeyRef:
+              key: GITHUB_OAUTH_REDIRECT_URL
+              name: github-credentials
+        image: micro/platform
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8080
+          name: http-port

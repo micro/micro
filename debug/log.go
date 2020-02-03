@@ -6,9 +6,9 @@ import (
 	"time"
 
 	"github.com/micro/cli/v2"
-	"github.com/micro/go-micro"
-	"github.com/micro/go-micro/debug/service"
-	ulog "github.com/micro/go-micro/util/log"
+	"github.com/micro/go-micro/v2"
+	"github.com/micro/go-micro/v2/debug/service"
+	ulog "github.com/micro/go-micro/v2/util/log"
 )
 
 const (

@@ -4,35 +4,36 @@ import (
 	"fmt"
 
 	ccli "github.com/micro/cli/v2"
-	"github.com/micro/go-micro"
-	"github.com/micro/go-micro/config/cmd"
-	"github.com/micro/micro/api"
-	"github.com/micro/micro/auth"
-	"github.com/micro/micro/bot"
-	"github.com/micro/micro/broker"
-	"github.com/micro/micro/cli"
-	"github.com/micro/micro/debug"
-	"github.com/micro/micro/health"
-	"github.com/micro/micro/monitor"
-	"github.com/micro/micro/network"
-	"github.com/micro/micro/new"
-	"github.com/micro/micro/plugin"
-	"github.com/micro/micro/plugin/build"
-	"github.com/micro/micro/proxy"
-	"github.com/micro/micro/registry"
-	"github.com/micro/micro/router"
-	"github.com/micro/micro/runtime"
-	"github.com/micro/micro/server"
-	"github.com/micro/micro/service"
-	"github.com/micro/micro/store"
-	"github.com/micro/micro/token"
-	"github.com/micro/micro/tunnel"
-	"github.com/micro/micro/web"
+	"github.com/micro/go-micro/v2"
+	"github.com/micro/go-micro/v2/config/cmd"
+	"github.com/micro/micro/v2/api"
+	"github.com/micro/micro/v2/auth"
+	"github.com/micro/micro/v2/bot"
+	"github.com/micro/micro/v2/broker"
+	"github.com/micro/micro/v2/cli"
+	"github.com/micro/micro/v2/config"
+	"github.com/micro/micro/v2/debug"
+	"github.com/micro/micro/v2/health"
+	"github.com/micro/micro/v2/monitor"
+	"github.com/micro/micro/v2/network"
+	"github.com/micro/micro/v2/new"
+	"github.com/micro/micro/v2/plugin"
+	"github.com/micro/micro/v2/plugin/build"
+	"github.com/micro/micro/v2/proxy"
+	"github.com/micro/micro/v2/registry"
+	"github.com/micro/micro/v2/router"
+	"github.com/micro/micro/v2/runtime"
+	"github.com/micro/micro/v2/server"
+	"github.com/micro/micro/v2/service"
+	"github.com/micro/micro/v2/store"
+	"github.com/micro/micro/v2/token"
+	"github.com/micro/micro/v2/tunnel"
+	"github.com/micro/micro/v2/web"
 
 	// include usage
 
-	"github.com/micro/micro/internal/platform"
-	_ "github.com/micro/micro/internal/usage"
+	"github.com/micro/micro/v2/internal/platform"
+	_ "github.com/micro/micro/v2/internal/usage"
 )
 
 var (
@@ -42,7 +43,7 @@ var (
 
 	name        = "micro"
 	description = "A microservice runtime"
-	version     = "1.18.0"
+	version     = "2.0.0"
 )
 
 func init() {
@@ -58,7 +59,6 @@ func setup(app *ccli.App) {
 		&ccli.BoolFlag{
 			Name:  "local",
 			Usage: "Enable local only development: Defaults to true.",
-			Value: true,
 		},
 		&ccli.BoolFlag{
 			Name:  "peer",
@@ -285,6 +285,7 @@ func Setup(app *ccli.App, options ...micro.Option) {
 	app.Commands = append(app.Commands, new.Commands()...)
 	app.Commands = append(app.Commands, build.Commands()...)
 	app.Commands = append(app.Commands, web.Commands(options...)...)
+	app.Commands = append(app.Commands, config.Commands(options...)...)
 
 	// add the init command for our internal operator
 	app.Commands = append(app.Commands, &ccli.Command{

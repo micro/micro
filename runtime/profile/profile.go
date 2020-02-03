@@ -16,6 +16,7 @@ func Platform() []string {
 	return []string{
 		"MICRO_BROKER=service",
 		"MICRO_REGISTRY=service",
+		"MICRO_STORE=service",
 		"MICRO_PROXY=go.micro.proxy",
 		// expects k8s service name
 		"MICRO_PROXY_ADDRESS=micro-proxy:8081",

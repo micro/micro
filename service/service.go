@@ -6,16 +6,16 @@ import (
 	"strings"
 
 	"github.com/micro/cli/v2"
-	"github.com/micro/go-micro"
-	"github.com/micro/go-micro/proxy"
-	"github.com/micro/go-micro/proxy/grpc"
-	"github.com/micro/go-micro/proxy/http"
-	"github.com/micro/go-micro/proxy/mucp"
-	"github.com/micro/go-micro/runtime"
-	"github.com/micro/go-micro/server"
-	"github.com/micro/go-micro/util/log"
-	"github.com/micro/micro/service/handler/exec"
-	"github.com/micro/micro/service/handler/file"
+	"github.com/micro/go-micro/v2"
+	"github.com/micro/go-micro/v2/proxy"
+	"github.com/micro/go-micro/v2/proxy/grpc"
+	"github.com/micro/go-micro/v2/proxy/http"
+	"github.com/micro/go-micro/v2/proxy/mucp"
+	"github.com/micro/go-micro/v2/runtime"
+	"github.com/micro/go-micro/v2/server"
+	"github.com/micro/go-micro/v2/util/log"
+	"github.com/micro/micro/v2/service/handler/exec"
+	"github.com/micro/micro/v2/service/handler/file"
 )
 
 func run(ctx *cli.Context, opts ...micro.Option) {

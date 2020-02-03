@@ -3,11 +3,11 @@ package monitor
 
 import (
 	"github.com/micro/cli/v2"
-	"github.com/micro/go-micro"
-	"github.com/micro/go-micro/monitor"
-	"github.com/micro/go-micro/util/log"
-	"github.com/micro/micro/monitor/handler"
-	pb "github.com/micro/micro/monitor/proto"
+	"github.com/micro/go-micro/v2"
+	"github.com/micro/go-micro/v2/monitor"
+	"github.com/micro/go-micro/v2/util/log"
+	"github.com/micro/micro/v2/monitor/handler"
+	pb "github.com/micro/micro/v2/monitor/proto"
 )
 
 var (

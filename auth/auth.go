@@ -5,7 +5,7 @@ import (
 	"github.com/micro/go-micro/v2"
 	pb "github.com/micro/go-micro/v2/auth/service/proto"
 	"github.com/micro/go-micro/v2/util/log"
-	"github.com/micro/micro/auth/handler"
+	"github.com/micro/micro/v2/auth/handler"
 )
 
 func run(ctx *cli.Context) error {

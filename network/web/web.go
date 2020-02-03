@@ -15,9 +15,9 @@ import (
 	"text/template"
 
 	"github.com/micro/cli/v2"
-	"github.com/micro/go-micro/config/cmd"
-	pb "github.com/micro/go-micro/network/service/proto"
-	"github.com/micro/go-micro/web"
+	"github.com/micro/go-micro/v2/config/cmd"
+	pb "github.com/micro/go-micro/v2/network/service/proto"
+	"github.com/micro/go-micro/v2/web"
 )
 
 func color() string {

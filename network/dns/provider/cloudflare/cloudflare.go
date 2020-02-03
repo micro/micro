@@ -10,9 +10,9 @@ import (
 	miekdns "github.com/miekg/dns"
 	"github.com/pkg/errors"
 
-	"github.com/micro/go-micro/util/log"
-	dns "github.com/micro/micro/network/dns/proto/dns"
-	"github.com/micro/micro/network/dns/provider"
+	"github.com/micro/go-micro/v2/util/log"
+	dns "github.com/micro/micro/v2/network/dns/proto/dns"
+	"github.com/micro/micro/v2/network/dns/provider"
 )
 
 type cfProvider struct {

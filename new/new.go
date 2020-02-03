@@ -13,8 +13,8 @@ import (
 	"time"
 
 	"github.com/micro/cli/v2"
-	tmpl "github.com/micro/micro/internal/template"
-	"github.com/micro/micro/internal/usage"
+	tmpl "github.com/micro/micro/v2/internal/template"
+	"github.com/micro/micro/v2/internal/usage"
 	"github.com/xlab/treeprint"
 )
 
@@ -35,6 +35,8 @@ type config struct {
 	GoDir string
 	// $GOPATH
 	GoPath string
+	// UseGoPath
+	UseGoPath bool
 	// Files
 	Files []file
 	// Comments
@@ -242,6 +244,7 @@ func run(ctx *cli.Context) {
 			Dir:       dir,
 			GoDir:     goDir,
 			GoPath:    goPath,
+			UseGoPath: useGoPath,
 			Plugins:   plugins,
 			Files: []file{
 				{"main.go", tmpl.MainFNC},
@@ -275,6 +278,7 @@ func run(ctx *cli.Context) {
 			Dir:       dir,
 			GoDir:     goDir,
 			GoPath:    goPath,
+			UseGoPath: useGoPath,
 			Plugins:   plugins,
 			Files: []file{
 				{"main.go", tmpl.MainSRV},
@@ -308,6 +312,7 @@ func run(ctx *cli.Context) {
 			Dir:       dir,
 			GoDir:     goDir,
 			GoPath:    goPath,
+			UseGoPath: useGoPath,
 			Plugins:   plugins,
 			Files: []file{
 				{"main.go", tmpl.MainAPI},
@@ -341,6 +346,7 @@ func run(ctx *cli.Context) {
 			Dir:       dir,
 			GoDir:     goDir,
 			GoPath:    goPath,
+			UseGoPath: useGoPath,
 			Plugins:   plugins,
 			Files: []file{
 				{"main.go", tmpl.MainWEB},
@@ -400,7 +406,6 @@ func Commands() []*cli.Command {
 				&cli.BoolFlag{
 					Name:  "gopath",
 					Usage: "Create the service in the gopath.",
-					Value: true,
 				},
 			},
 			Action: func(c *cli.Context) error {
