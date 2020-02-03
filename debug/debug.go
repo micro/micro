@@ -13,6 +13,8 @@ import (
 	"github.com/micro/micro/v2/debug/stats"
 	statshandler "github.com/micro/micro/v2/debug/stats/handler"
 	pbstats "github.com/micro/micro/v2/debug/stats/proto"
+	tracehandler "github.com/micro/micro/v2/debug/trace/handler"
+	pbtrace "github.com/micro/micro/v2/debug/trace/proto"
 	"github.com/micro/micro/v2/debug/web"
 )
 
@@ -87,6 +89,11 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 	if err != nil {
 		ulog.Fatal(err)
 	}
+	// stats handler
+	traceHandler, err := tracehandler.New(done, ctx.Int("window"))
+	if err != nil {
+		ulog.Fatal(err)
+	}
 
 	// log handler
 	lgHandler := &logHandler.Log{
@@ -98,6 +105,7 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 
 	// Register the stats handler
 	pbstats.RegisterStatsHandler(service.Server(), statsHandler)
+	pbtrace.RegisterTraceHandler(service.Server(), traceHandler)
 
 	// Register the logs handler
 	pblog.RegisterLogHandler(service.Server(), lgHandler)
