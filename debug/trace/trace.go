@@ -6,8 +6,8 @@ import (
 	"github.com/micro/go-micro/v2"
 	"github.com/micro/go-micro/v2/util/log"
 
-	stats "github.com/micro/micro/v2/debug/stats/proto"
 	"github.com/micro/micro/v2/debug/trace/handler"
+	trace "github.com/micro/micro/v2/debug/trace/proto"
 )
 
 // Run is the entrypoint for debug/stats
@@ -25,7 +25,7 @@ func Run(c *cli.Context) {
 	}
 
 	// Register Handler
-	stats.RegisterStatsHandler(service.Server(), h)
+	trace.RegisterTraceHandler(service.Server(), h)
 
 	// Run service
 	if err := service.Run(); err != nil {
