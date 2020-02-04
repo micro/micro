@@ -42,3 +42,10 @@ func (m *manager) Register(plugin Plugin) error {
 	m.plugins = append(m.plugins, plugin)
 	return nil
 }
+
+func (m *manager) isRegistered(plugin Plugin) bool {
+	m.Lock()
+	defer m.Unlock()
+
+	return m.registered[plugin.String()]
+}
