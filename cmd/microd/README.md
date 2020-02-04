@@ -19,6 +19,8 @@ Registry => /registry or /micro.Registry/...
 ...
 ```
 
+The http port will be 8080 and gRPC port 8081.
+
 ## Clients
 
 To start with:
