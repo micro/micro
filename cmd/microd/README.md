@@ -9,6 +9,16 @@ Micro and the go-micro framework has solved a number of problems for microservic
 too. The goal of `microd` is to act as a drop in solution for microservices development which a standard http 
 and gRPC api along with code generated libraries and a slim client layer on top.
 
+## Design
+
+Every go-micro interface will be provided as part of a http and grpc interface e.g.
+
+```
+Broker => /broker or /micro.Broker/...
+Registry => /registry or /micro.Registry/...
+...
+```
+
 ## Clients
 
 To start with:
