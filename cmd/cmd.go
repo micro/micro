@@ -7,6 +7,7 @@ import (
 	"github.com/micro/go-micro/v2"
 	"github.com/micro/go-micro/v2/config/cmd"
 	"github.com/micro/micro/v2/api"
+	"github.com/micro/micro/v2/auth"
 	"github.com/micro/micro/v2/bot"
 	"github.com/micro/micro/v2/broker"
 	"github.com/micro/micro/v2/cli"
@@ -264,6 +265,7 @@ func Init(options ...micro.Option) {
 func Setup(app *ccli.App, options ...micro.Option) {
 	// Add the various commands
 	app.Commands = append(app.Commands, api.Commands(options...)...)
+	app.Commands = append(app.Commands, auth.Commands()...)
 	app.Commands = append(app.Commands, bot.Commands()...)
 	app.Commands = append(app.Commands, cli.Commands()...)
 	app.Commands = append(app.Commands, broker.Commands(options...)...)

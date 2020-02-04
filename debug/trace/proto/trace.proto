@@ -1,0 +1,80 @@
+syntax = "proto3";
+
+package go.micro.debug.trace;
+
+// Stats retrieves a snapshot of the Debug.Stats data for services
+service Trace {
+    rpc Read(ReadRequest) returns (ReadResponse);
+	rpc Write(WriteRequest) returns (WriteResponse);
+    rpc Stream(StreamRequest) returns (stream StreamResponse);
+}
+
+// Service describes a service running in the micro network.
+message Service {
+    // Service name, e.g. go.micro.service.greeter
+    string name = 1;
+    string version = 2;
+    Node node = 3;
+}
+
+// Node describes a single instance of a service.
+message Node {
+	string id = 1;
+	string address = 2;
+}
+
+// Snapshot is a snapshot of Debug.Stats from a particular service when called.
+message Snapshot {
+	Service service = 1;
+	// Unix timestamp, e.g. 1575561487
+    repeated Span spans = 2;
+}
+
+message Span {
+	// the trace id
+	string trace = 1;
+	// id of the span
+	string id = 2;
+	// parent span
+	string parent = 3;
+	// name of the resource
+	string name = 4;
+	// time of start in nanoseconds
+	uint64 started = 5;
+	// duration of the execution in nanoseconds
+	uint64 duration = 6;
+	// associated metadata
+	map<string,string> metadata = 7;
+}
+
+message ReadRequest {
+	// If set, only return services matching the filter
+	Service service = 1;
+	// If false, only the current snapshots will be returned.
+	// If true, all historical snapshots in memory will be returned.
+	bool past = 2;
+}
+
+message ReadResponse {
+	repeated Snapshot trace = 1;
+}
+
+message WriteRequest {
+	// If set, only return services matching the filter
+	Service service = 1;
+	// snapshot to write
+	Snapshot stats = 2;
+}
+
+message WriteResponse {}
+
+message StreamRequest {
+	// If set, only return services matching the filter
+	Service service = 1;
+	// If set, only return services matching the namespace
+	string namespace = 2;
+}
+
+message StreamResponse {
+	repeated Snapshot stats = 1;
+}

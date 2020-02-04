@@ -35,6 +35,8 @@ type config struct {
 	GoDir string
 	// $GOPATH
 	GoPath string
+	// UseGoPath
+	UseGoPath bool
 	// Files
 	Files []file
 	// Comments
@@ -242,6 +244,7 @@ func run(ctx *cli.Context) {
 			Dir:       dir,
 			GoDir:     goDir,
 			GoPath:    goPath,
+			UseGoPath: useGoPath,
 			Plugins:   plugins,
 			Files: []file{
 				{"main.go", tmpl.MainFNC},
@@ -258,7 +261,7 @@ func run(ctx *cli.Context) {
 				"\ndownload protobuf for micro:\n",
 				"brew install protobuf",
 				"go get -u github.com/golang/protobuf/{proto,protoc-gen-go}",
-				"go get -u github.com/micro/protoc-gen-micro",
+				"go get -u github.com/micro/protoc-gen-micro/v2",
 				"\ncompile the proto file " + alias + ".proto:\n",
 				"cd " + goDir,
 				"protoc --proto_path=.:$GOPATH/src --go_out=. --micro_out=. proto/" + alias + "/" + alias + ".proto\n",
@@ -275,6 +278,7 @@ func run(ctx *cli.Context) {
 			Dir:       dir,
 			GoDir:     goDir,
 			GoPath:    goPath,
+			UseGoPath: useGoPath,
 			Plugins:   plugins,
 			Files: []file{
 				{"main.go", tmpl.MainSRV},
@@ -291,7 +295,7 @@ func run(ctx *cli.Context) {
 				"\ndownload protobuf for micro:\n",
 				"brew install protobuf",
 				"go get -u github.com/golang/protobuf/{proto,protoc-gen-go}",
-				"go get -u github.com/micro/protoc-gen-micro",
+				"go get -u github.com/micro/protoc-gen-micro/v2",
 				"\ncompile the proto file " + alias + ".proto:\n",
 				"cd " + goDir,
 				"protoc --proto_path=.:$GOPATH/src --go_out=. --micro_out=. proto/" + alias + "/" + alias + ".proto\n",
@@ -308,6 +312,7 @@ func run(ctx *cli.Context) {
 			Dir:       dir,
 			GoDir:     goDir,
 			GoPath:    goPath,
+			UseGoPath: useGoPath,
 			Plugins:   plugins,
 			Files: []file{
 				{"main.go", tmpl.MainAPI},
@@ -324,7 +329,7 @@ func run(ctx *cli.Context) {
 				"\ndownload protobuf for micro:\n",
 				"brew install protobuf",
 				"go get -u github.com/golang/protobuf/{proto,protoc-gen-go}",
-				"go get -u github.com/micro/protoc-gen-micro",
+				"go get -u github.com/micro/protoc-gen-micro/v2",
 				"\ncompile the proto file " + alias + ".proto:\n",
 				"cd " + goDir,
 				"protoc --proto_path=.:$GOPATH/src --go_out=. --micro_out=. proto/" + alias + "/" + alias + ".proto\n",
@@ -341,6 +346,7 @@ func run(ctx *cli.Context) {
 			Dir:       dir,
 			GoDir:     goDir,
 			GoPath:    goPath,
+			UseGoPath: useGoPath,
 			Plugins:   plugins,
 			Files: []file{
 				{"main.go", tmpl.MainWEB},

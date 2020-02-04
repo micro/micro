@@ -1,4 +1,4 @@
-package config
+package auth
 
 import (
 	"fmt"
@@ -10,12 +10,12 @@ var (
 	defaultManager = plugin.NewManager()
 )
 
-// Plugins lists the config plugins
+// Plugins lists the auth plugins
 func Plugins() []plugin.Plugin {
 	return defaultManager.Plugins()
 }
 
-// Register registers an config plugin
+// Register registers an auth plugin
 func Register(pl plugin.Plugin) error {
 	if plugin.IsRegistered(pl) {
 		return fmt.Errorf("%s registered globally", pl.String())
