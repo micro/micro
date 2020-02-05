@@ -93,6 +93,12 @@ func Register(plugin Plugin) error {
 	return defaultManager.Register(plugin)
 }
 
+// IsRegistered check plugin whether registered global.
+// Notice plugin is not check whether is nil
+func IsRegistered(plugin Plugin) bool {
+	return defaultManager.isRegistered(plugin)
+}
+
 // NewManager creates a new plugin manager
 func NewManager() Manager {
 	return newManager()
