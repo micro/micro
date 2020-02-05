@@ -1,16 +1,8 @@
 package handler
 
 import (
-	"fmt"
-	"strings"
-
 	"github.com/micro/go-micro/v2/runtime"
 	pb "github.com/micro/go-micro/v2/runtime/service/proto"
-)
-
-var (
-	validSources  = []string{"github.com"}
-	defaultSource = "github.com/micro/services"
 )
 
 func toProto(s *runtime.Service) *pb.Service {
@@ -23,17 +15,6 @@ func toProto(s *runtime.Service) *pb.Service {
 }
 
 func toService(s *pb.Service) *runtime.Service {
-	var srcProvided bool
-	for _, src := range validSources {
-		if strings.HasPrefix(s.Source, src) {
-			srcProvided = true
-			break
-		}
-	}
-	if !srcProvided {
-		s.Source = fmt.Sprintf("%v/%v", defaultSource, s.Source)
-	}
-
 	return &runtime.Service{
 		Name:     s.Name,
 		Version:  s.Version,
