@@ -80,7 +80,7 @@ func (r *Runtime) Update(ctx context.Context, req *pb.UpdateRequest, rsp *pb.Upd
 		return errors.InternalServerError("go.micro.runtime", err.Error())
 	}
 
-	// publish the delete event
+	// publish the update event
 	r.Client.Publish(ctx, &pb.Event{
 		Type:      "update",
 		Timestamp: time.Now().Unix(),

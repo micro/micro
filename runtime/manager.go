@@ -101,7 +101,7 @@ func (m *manager) Create(s *runtime.Service, opts ...runtime.CreateOption) error
 	rs := &runtimeService{
 		Service: s,
 		Options: &options,
-		Status:  "started",
+		Status:  "starting",
 	}
 
 	// save locally
