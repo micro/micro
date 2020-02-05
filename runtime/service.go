@@ -21,7 +21,7 @@ import (
 
 const (
 	// RunUsage message for the run command
-	RunUsage = "Required usage: micro run [service] [version] [--source github.com/micro/services --watch]"
+	RunUsage = "Required usage: micro run [service] [version] [--source github.com/micro/services]"
 	// KillUsage message for the kill command
 	KillUsage = "Require usage: micro kill [service] [version]"
 	// GetUsage message for micro get command
@@ -76,7 +76,7 @@ func runService(ctx *cli.Context, srvOpts ...micro.Option) {
 	}
 
 	source := ctx.String("source")
-	exec := []string{"go", "run", source}
+	exec := []string{"go", "run", filepath.Join(source, name)}
 
 	// Determine the filepath
 	fp := filepath.Join(os.Getenv("GOPATH"), "src", source, name)
@@ -151,30 +151,31 @@ func runService(ctx *cli.Context, srvOpts ...micro.Option) {
 }
 
 func killService(ctx *cli.Context, srvOpts ...micro.Option) {
-	// get the args
-	name := ctx.String("name")
-	version := ctx.String("version")
-	local := ctx.Bool("local")
-
-	if ctx.Args().Len() > 0 {
-		// set name to first arg
-		name = ctx.Args().Get(0)
-		if ctx.Args().Len() > 1 {
-			version = ctx.Args().Get(1)
-		}
-	}
-
-	if len(name) == 0 {
-		fmt.Println(KillUsage)
+	// we need some args to run
+	if ctx.Args().Len() == 0 {
+		fmt.Println(RunUsage)
 		return
 	}
 
+	// set and validate the name (arg 1)
+	name := ctx.Args().Get(0)
+	if strings.HasPrefix(name, ".") || strings.HasPrefix(name, "/") {
+		fmt.Println(RunUsage)
+		return
+	}
+
+	// set the version (arg 2, optional)
+	version := "latest"
+	if ctx.Args().Len() > 1 {
+		version = ctx.Args().Get(1)
+	}
+
 	var r runtime.Runtime
-	switch local {
-	case true:
-		r = *cmd.DefaultCmd.Options().Runtime
-	default:
+	if ctx.Bool("platform") {
 		r = rs.NewRuntime()
+		// TODO @BEN: Proxy to platform
+	} else {
+		r = *cmd.DefaultCmd.Options().Runtime
 	}
 
 	service := &runtime.Service{
@@ -189,18 +190,26 @@ func killService(ctx *cli.Context, srvOpts ...micro.Option) {
 }
 
 func getService(ctx *cli.Context, srvOpts ...micro.Option) {
-	// get the args
-	name := ctx.String("name")
-	version := ctx.String("version")
-	local := ctx.Bool("local")
 	runType := ctx.Bool("runtime")
 
+	// get and validate the name (arg 1, optional)
+	name := ctx.Args().Get(0)
+	if strings.HasPrefix(name, ".") || strings.HasPrefix(name, "/") {
+		return
+	}
+
+	// get the version (arg 2, optional)
+	version := "latest"
+	if ctx.Args().Len() > 1 {
+		version = ctx.Args().Get(1)
+	}
+
 	var r runtime.Runtime
-	switch local {
-	case true:
-		r = *cmd.DefaultCmd.Options().Runtime
-	default:
+	if ctx.Bool("platform") {
 		r = rs.NewRuntime()
+		// TODO @BEN: Proxy to platform
+	} else {
+		r = *cmd.DefaultCmd.Options().Runtime
 	}
 
 	var list bool
