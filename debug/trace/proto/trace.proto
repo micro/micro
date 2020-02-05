@@ -13,8 +13,8 @@ service Trace {
 message Service {
     // Service name, e.g. go.micro.service.greeter
     string name = 1;
-    string version = 2;
-    Node node = 3;
+	string version = 2;
+	Node node = 3;
 }
 
 // Node describes a single instance of a service.
@@ -23,8 +23,9 @@ message Node {
 	string address = 2;
 }
 
-// Snapshot is a snapshot of Debug.Stats from a particular service when called.
+// Snapshot is a snapshot of Trace.Read from a particular service when called.
 message Snapshot {
+	// Source of the service where the snapshot was collected from
 	Service service = 1;
 	// Unix timestamp, e.g. 1575561487
     repeated Span spans = 2;
@@ -56,7 +57,7 @@ message ReadRequest {
 }
 
 message ReadResponse {
-	repeated Snapshot trace = 1;
+	repeated Span spans = 1;
 }
 
 message WriteRequest {

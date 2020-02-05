@@ -19,7 +19,7 @@ func Run(c *cli.Context) {
 	// Create handler
 	done := make(chan bool)
 	defer close(done)
-	h, err := handler.New(done, c.Int("window"))
+	h, err := handler.New(done, c.Int("window"), service)
 	if err != nil {
 		log.Fatal(err)
 	}

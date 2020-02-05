@@ -6,6 +6,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/micro/go-micro/v2"
 	"github.com/micro/go-micro/v2/client"
 	"github.com/micro/go-micro/v2/config/cmd"
 	debug "github.com/micro/go-micro/v2/debug/service/proto"
@@ -15,14 +16,16 @@ import (
 	"github.com/micro/go-micro/v2/util/log"
 	"github.com/micro/go-micro/v2/util/ring"
 	stats "github.com/micro/micro/v2/debug/stats/proto"
+	mproto "github.com/micro/micro/v2/monitor/proto"
 )
 
 // New initialises and returns a new Stats service handler
-func New(done <-chan bool, windowSize int) (*Stats, error) {
+func New(done <-chan bool, windowSize int, service micro.Service) (*Stats, error) {
 	s := &Stats{
 		registry:            cache.New(*cmd.DefaultOptions().Registry),
 		client:              *cmd.DefaultOptions().Client,
 		historicalSnapshots: ring.New(windowSize),
+		service:             service,
 	}
 
 	if err := s.scan(); err != nil {
@@ -37,6 +40,7 @@ func New(done <-chan bool, windowSize int) (*Stats, error) {
 type Stats struct {
 	registry registry.Registry
 	client   client.Client
+	service  micro.Service
 
 	sync.RWMutex
 	// current snapshots for each service
@@ -49,6 +53,16 @@ type Stats struct {
 // Read returns gets a snapshot of all current stats
 func (s *Stats) Read(ctx context.Context, req *stats.ReadRequest, rsp *stats.ReadResponse) error {
 	allSnapshots := []*stats.Snapshot{}
+	// Below call is only here for testing purposes
+	go func() {
+		time.Sleep(2 * time.Second)
+		mreq := client.NewRequest("go.micro.monitor", "Check.Read", &mproto.CheckRequest{
+			Service: "go.micro.runtime",
+		})
+		mrsp := &mproto.CheckResponse{}
+		_ = s.service.Client().Call(ctx, mreq, mrsp)
+	}()
+
 	func() {
 		s.RLock()
 		defer s.RUnlock()

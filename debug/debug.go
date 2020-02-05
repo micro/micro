@@ -85,10 +85,11 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 	}()
 
 	// stats handler
-	statsHandler, err := statshandler.New(done, ctx.Int("window"))
+	statsHandler, err := statshandler.New(done, ctx.Int("window"), service)
 	if err != nil {
 		ulog.Fatal(err)
 	}
+
 	// stats handler
 	traceHandler, err := tracehandler.New(done, ctx.Int("window"))
 	if err != nil {
