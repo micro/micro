@@ -2,34 +2,31 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   namespace: default
-  name: micro-debug
+  name: micro-auth
   labels:
     micro: runtime
-    name: micro-debug
+    name: micro-auth
   annotations:
-    name: "go.micro.debug"
+    name: "go.micro.auth"
     version: "latest"
     source: "github.com/micro/micro"
     owner: "micro"
     group: "micro"
 spec:
-spec:
   replicas: 1
   selector:
     matchLabels:
-      name: micro-debug
+      name: micro-auth
       micro: runtime
   template:
     metadata:
       labels:
-        name: micro-debug
+        name: micro-auth
         micro: runtime
     spec:
       containers:
-      - name: micro-debug
+      - name: auth
         env:
-        - name: MICRO_DEBUG_WINDOW
-          value: "3600"
         - name: MICRO_LOG_LEVEL
           value: "debug"
         - name: MICRO_BROKER
@@ -40,15 +37,15 @@ spec:
           value: "etcd"
         - name: MICRO_REGISTRY_ADDRESS
           value: "etcd-cluster-client"
-        - name: MICRO_AUTH
-          value: jwt
-        - name: MICRO_AUTH_PUBLIC_KEY
+        - name: MICRO_AUTH_PRIVATE_KEY
           valueFrom:
             secretKeyRef:
               name: micro-keypair
-              key: public
+              key: private
+        args:
+        - auth
         image: micro/micro
         imagePullPolicy: Always
-        command:
-        - /micro
-        - debug
+        ports:
+        - containerPort: 8000
+          name: auth-port

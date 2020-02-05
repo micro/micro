@@ -41,6 +41,13 @@ spec:
             value: "60"
           - name: MICRO_REGISTER_INTERVAL
             value: "30"
+          - name: MICRO_AUTH
+            value: jwt
+          - name: MICRO_AUTH_PUBLIC_KEY
+            valueFrom:
+              secretKeyRef:
+                name: micro-keypair
+                key: public
           image: micro/micro
           imagePullPolicy: Always
           ports:

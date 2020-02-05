@@ -80,6 +80,13 @@ spec:
               name: dns-shared-secret
         - name: MICRO_NETWORK_DNS_ADVERTISE_DOMAIN
           value: "network.micro.mu"
+        - name: MICRO_AUTH
+          value: jwt
+        - name: MICRO_AUTH_PUBLIC_KEY
+          valueFrom:
+            secretKeyRef:
+              name: micro-keypair
+              key: public
         command: ['sh', '-c']
         args:
         - "export ADDRESS=\"$(cat /node_info/ip):$MICRO_NETWORK_SVC_NODE_PORT\"; /micro network --gateway=\"$ADDRESS\" --advertise=\"$ADDRESS\""
