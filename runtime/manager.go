@@ -73,6 +73,10 @@ func (m *manager) sendEvent(ev *event) {
 	m.events <- ev
 }
 
+func (m *manager) String() string {
+	return "manager"
+}
+
 func (m *manager) Init(opts ...runtime.Option) error {
 	return nil
 }
@@ -97,7 +101,7 @@ func (m *manager) Create(s *runtime.Service, opts ...runtime.CreateOption) error
 	rs := &runtimeService{
 		Service: s,
 		Options: &options,
-		Status:  "started",
+		Status:  "starting",
 	}
 
 	// save locally
@@ -342,15 +346,13 @@ func (m *manager) run() {
 					runtime.CreateType(rs.Options.Type),
 				}
 
-				log.Logf("Creating service %s version %s source %s", rs.Service.Name, rs.Service.Version, rs.Service.Source)
-
 				// set the status to starting
 				rs.Status = "started"
 
 				// service does not exist so start it
 				if err := m.Runtime.Create(rs.Service, opts...); err != nil {
 					if err != runtime.ErrAlreadyExists {
-						log.Logf("Erroring running %s: %v", rs.Service.Name, err)
+						log.Logf("Erroring running %s: %v", key(rs.Service), err)
 
 						// save the error
 						rs.Status = "error"
@@ -381,10 +383,10 @@ func (m *manager) run() {
 
 			switch ev.Type {
 			case "delete":
-				log.Logf("Deleting %s %s", ev.Service.Name, ev.Service.Version)
+				log.Logf("Procesing deletion event %s", key(ev.Service))
 				err = m.Runtime.Delete(ev.Service)
 			case "update":
-				log.Logf("Updating %s %s", ev.Service.Name, ev.Service.Version)
+				log.Logf("Processing update event %s", key(ev.Service))
 				err = m.Runtime.Update(ev.Service)
 			case "create":
 				// generate the runtime environment
@@ -396,7 +398,7 @@ func (m *manager) run() {
 					runtime.CreateType(ev.Options.Type),
 				}
 
-				log.Logf("Creating %s %s", ev.Service.Name, ev.Service.Version)
+				log.Logf("Processing create event %s", key(ev.Service))
 				err = m.Runtime.Create(ev.Service, opts...)
 			}
 

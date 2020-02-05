@@ -87,21 +87,14 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 func Flags() []cli.Flag {
 	return []cli.Flag{
 		&cli.StringFlag{
-			Name:  "name",
-			Usage: "Set the name of the service to run",
-		},
-		&cli.StringFlag{
-			Name:  "version",
-			Usage: "Set the version of the service to run",
-			Value: "latest",
-		},
-		&cli.StringFlag{
 			Name:  "source",
-			Usage: "Set the source url of the service e.g /path/to/source",
+			Usage: "Set the source url of the service e.g github.com/micro/services",
+			Value: "github.com/micro/services",
 		},
 		&cli.BoolFlag{
-			Name:  "local",
-			Usage: "Set to run the service from local path",
+			Name:  "platform",
+			Usage: "Connect to the platform",
+			Value: false,
 		},
 		&cli.StringSliceFlag{
 			Name:  "env",

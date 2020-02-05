@@ -36,7 +36,7 @@ func (r *Runtime) Create(ctx context.Context, req *pb.CreateRequest, rsp *pb.Cre
 		return errors.InternalServerError("go.micro.runtime", err.Error())
 	}
 
-	// publish the delete event
+	// publish the create event
 	r.Client.Publish(ctx, &pb.Event{
 		Type:      "create",
 		Timestamp: time.Now().Unix(),
@@ -80,7 +80,7 @@ func (r *Runtime) Update(ctx context.Context, req *pb.UpdateRequest, rsp *pb.Upd
 		return errors.InternalServerError("go.micro.runtime", err.Error())
 	}
 
-	// publish the delete event
+	// publish the update event
 	r.Client.Publish(ctx, &pb.Event{
 		Type:      "update",
 		Timestamp: time.Now().Unix(),
