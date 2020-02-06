@@ -70,7 +70,6 @@ func runService(ctx *cli.Context, srvOpts ...micro.Option) {
 	var r runtime.Runtime
 	if ctx.Bool("platform") {
 		r = rs.NewRuntime()
-		// TODO @BEN: Proxy to platform
 	} else {
 		r = *cmd.DefaultCmd.Options().Runtime
 	}
@@ -173,7 +172,6 @@ func killService(ctx *cli.Context, srvOpts ...micro.Option) {
 	var r runtime.Runtime
 	if ctx.Bool("platform") {
 		r = rs.NewRuntime()
-		// TODO @BEN: Proxy to platform
 	} else {
 		r = *cmd.DefaultCmd.Options().Runtime
 	}
@@ -207,7 +205,6 @@ func getService(ctx *cli.Context, srvOpts ...micro.Option) {
 	var r runtime.Runtime
 	if ctx.Bool("platform") {
 		r = rs.NewRuntime()
-		// TODO @BEN: Proxy to platform
 	} else {
 		r = *cmd.DefaultCmd.Options().Runtime
 	}
