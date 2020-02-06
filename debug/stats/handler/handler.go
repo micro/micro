@@ -16,7 +16,6 @@ import (
 	"github.com/micro/go-micro/v2/util/log"
 	"github.com/micro/go-micro/v2/util/ring"
 	stats "github.com/micro/micro/v2/debug/stats/proto"
-	mproto "github.com/micro/micro/v2/monitor/proto"
 )
 
 // New initialises and returns a new Stats service handler
@@ -53,15 +52,6 @@ type Stats struct {
 // Read returns gets a snapshot of all current stats
 func (s *Stats) Read(ctx context.Context, req *stats.ReadRequest, rsp *stats.ReadResponse) error {
 	allSnapshots := []*stats.Snapshot{}
-	// Below call is only here for testing purposes
-	go func() {
-		time.Sleep(2 * time.Second)
-		mreq := client.NewRequest("go.micro.monitor", "Check.Read", &mproto.CheckRequest{
-			Service: "go.micro.runtime",
-		})
-		mrsp := &mproto.CheckResponse{}
-		_ = s.service.Client().Call(ctx, mreq, mrsp)
-	}()
 
 	func() {
 		s.RLock()
