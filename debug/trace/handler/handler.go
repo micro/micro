@@ -117,8 +117,16 @@ func (s *Trace) Read(ctx context.Context, req *trace.ReadRequest, rsp *trace.Rea
 		rsp.Spans = dedupeSpans(snapshotsToSpans(allSnapshots))
 		return nil
 	}
-
-	rsp.Spans = filterServiceSpans(req.GetService().GetName(), allSnapshots)
+	spans := filterServiceSpans(req.GetService().GetName(), allSnapshots)
+	if req.GetLimit() == 0 {
+		rsp.Spans = spans
+	} else {
+		lim := req.GetLimit()
+		if lim >= int64(len(spans)) {
+			lim = int64(len(spans))
+		}
+		rsp.Spans = spans[0:lim]
+	}
 	return nil
 }
 

@@ -54,6 +54,8 @@ message ReadRequest {
 	// If false, only the current snapshots will be returned.
 	// If true, all historical snapshots in memory will be returned.
 	bool past = 2;
+	// Number of traces to return
+	int64 limit = 3;
 }
 
 message ReadResponse {
