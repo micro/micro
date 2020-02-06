@@ -3,6 +3,7 @@ package handler
 
 import (
 	"context"
+	"strings"
 	"sync"
 	"time"
 
@@ -46,6 +47,56 @@ type Trace struct {
 	cached              []*registry.Service
 }
 
+// Filters out all spans that are part of a trace that hits a given service.
+func filterServiceSpans(service string, snapshots []*trace.Snapshot) []*trace.Span {
+	// trace id -> span id -> span
+	groupByTrace := map[string]map[string]*trace.Span{}
+	for _, snapshot := range snapshots {
+		for _, span := range snapshot.GetSpans() {
+			_, ok := groupByTrace[span.GetTrace()]
+			if !ok {
+				groupByTrace[span.GetTrace()] = map[string]*trace.Span{}
+			}
+			groupByTrace[span.GetTrace()][span.GetId()] = span
+		}
+	}
+	ret := []*trace.Span{}
+	for _, spanMap := range groupByTrace {
+		spans := []*trace.Span{}
+		shouldAppend := false
+		for _, span := range spanMap {
+			spans = append(spans, span)
+			if strings.Contains(span.GetName(), service) {
+				shouldAppend = true
+			}
+			if shouldAppend {
+				ret = append(ret, spans...)
+			}
+		}
+	}
+	return ret
+}
+
+func dedupeSpans(spans []*trace.Span) []*trace.Span {
+	m := map[string]*trace.Span{}
+	for _, span := range spans {
+		m[span.GetId()] = span
+	}
+	ret := []*trace.Span{}
+	for _, span := range m {
+		ret = append(ret, span)
+	}
+	return ret
+}
+
+func snapshotsToSpans(snapshots []*trace.Snapshot) []*trace.Span {
+	ret := []*trace.Span{}
+	for _, snapshot := range snapshots {
+		ret = append(ret, snapshot.GetSpans()...)
+	}
+	return ret
+}
+
 // Read returns gets a snapshot of all current trace3
 func (s *Trace) Read(ctx context.Context, req *trace.ReadRequest, rsp *trace.ReadResponse) error {
 	allSnapshots := []*trace.Snapshot{}
@@ -63,26 +114,19 @@ func (s *Trace) Read(ctx context.Context, req *trace.ReadRequest, rsp *trace.Rea
 		}
 	}()
 	if req.Service == nil {
-		rsp.Trace = allSnapshots
+		rsp.Spans = dedupeSpans(snapshotsToSpans(allSnapshots))
 		return nil
 	}
-	filter := func(a, b string) bool {
-		if len(b) == 0 {
-			return true
+	spans := filterServiceSpans(req.GetService().GetName(), allSnapshots)
+	if req.GetLimit() == 0 {
+		rsp.Spans = spans
+	} else {
+		lim := req.GetLimit()
+		if lim >= int64(len(spans)) {
+			lim = int64(len(spans))
 		}
-		return a == b
+		rsp.Spans = spans[0:lim]
 	}
-	filteredSnapshots := []*trace.Snapshot{}
-	for _, s := range allSnapshots {
-		if !filter(s.Service.Name, req.Service.Name) {
-			continue
-		}
-		if !filter(s.Service.Version, req.Service.Version) {
-			continue
-		}
-		filteredSnapshots = append(filteredSnapshots, s)
-	}
-	rsp.Trace = filteredSnapshots
 	return nil
 }
 
@@ -104,7 +148,7 @@ func (s *Trace) Start(done <-chan bool) {
 				return
 			default:
 				s.scrape()
-				time.Sleep(time.Second)
+				time.Sleep(5 * time.Second)
 			}
 		}
 	}()
@@ -119,7 +163,7 @@ func (s *Trace) Start(done <-chan bool) {
 				return
 			case <-t.C:
 				if err := s.scan(); err != nil {
-					log.Debug(err)
+					log.Error(err)
 				}
 			}
 		}
@@ -212,7 +256,6 @@ func (s *Trace) scrape() {
 					log.Errorf("Error calling %s@%s (%s)", service.Name, node.Address, err.Error())
 					return
 				}
-
 				spans := []*trace.Span{}
 				for _, v := range rsp.GetSpans() {
 					spans = append(spans, &trace.Span{
