@@ -7,6 +7,7 @@ import (
 	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro/v2"
 	"github.com/micro/go-micro/v2/config/cmd"
+	"github.com/micro/go-micro/v2/runtime"
 	pb "github.com/micro/go-micro/v2/runtime/service/proto"
 	"github.com/micro/go-micro/v2/util/log"
 	"github.com/micro/micro/v2/runtime/handler"
@@ -45,6 +46,12 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 
 	// use default store
 	muStore := *cmd.DefaultCmd.Options().Store
+
+	// set the source
+	src := ctx.String("source")
+	if len(src) > 0 {
+		muRuntime.Init(runtime.WithSource(src))
+	}
 
 	// create a new runtime manager
 	manager := newManager(ctx, muRuntime, muStore)
@@ -122,6 +129,11 @@ func Commands(options ...micro.Option) []*cli.Command {
 					Name:    "profile",
 					Usage:   "Set the runtime profile to use for services e.g local, kubernetes, platform",
 					EnvVars: []string{"MICRO_RUNTIME_PROFILE"},
+				},
+				&cli.StringFlag{
+					Name:    "source",
+					Usage:   "Set the runtime source, e.g. micro/services",
+					EnvVars: []string{"MICRO_RUNTIME_SOURCE"},
 				},
 			},
 			Action: func(ctx *cli.Context) error {
