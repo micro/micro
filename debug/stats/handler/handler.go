@@ -6,7 +6,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/micro/go-micro/v2"
 	"github.com/micro/go-micro/v2/client"
 	"github.com/micro/go-micro/v2/config/cmd"
 	debug "github.com/micro/go-micro/v2/debug/service/proto"
@@ -19,12 +18,11 @@ import (
 )
 
 // New initialises and returns a new Stats service handler
-func New(done <-chan bool, windowSize int, service micro.Service) (*Stats, error) {
+func New(done <-chan bool, windowSize int) (*Stats, error) {
 	s := &Stats{
 		registry:            cache.New(*cmd.DefaultOptions().Registry),
 		client:              *cmd.DefaultOptions().Client,
 		historicalSnapshots: ring.New(windowSize),
-		service:             service,
 	}
 
 	if err := s.scan(); err != nil {
@@ -39,7 +37,6 @@ func New(done <-chan bool, windowSize int, service micro.Service) (*Stats, error
 type Stats struct {
 	registry registry.Registry
 	client   client.Client
-	service  micro.Service
 
 	sync.RWMutex
 	// current snapshots for each service
