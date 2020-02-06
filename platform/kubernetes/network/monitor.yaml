@@ -41,3 +41,10 @@ spec:
             value: "etcd"
           - name: MICRO_REGISTRY_ADDRESS
             value: "etcd-cluster-client"
+          - name: MICRO_AUTH
+            value: jwt
+          - name: MICRO_AUTH_PUBLIC_KEY
+            valueFrom:
+              secretKeyRef:
+                name: micro-keypair
+                key: public

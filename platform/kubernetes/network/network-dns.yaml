@@ -48,6 +48,13 @@ spec:
             secretKeyRef:
               key: DNS_SHARED_SECRET
               name: dns-shared-secret
+        - name: MICRO_AUTH
+          value: jwt
+        - name: MICRO_AUTH_PUBLIC_KEY
+          valueFrom:
+            secretKeyRef:
+              name: micro-keypair
+              key: public
         image: micro/micro
         imagePullPolicy: Always
         command:

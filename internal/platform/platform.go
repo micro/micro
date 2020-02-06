@@ -42,6 +42,7 @@ var (
 		"debug",    // :????
 		"proxy",    // :8081
 		"api",      // :8080
+		"auth",     // :8010
 		"web",      // :8082
 		"bot",      // :????
 		"init",     // no port, manage self

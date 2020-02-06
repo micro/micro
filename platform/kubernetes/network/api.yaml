@@ -66,6 +66,11 @@ spec:
             secretKeyRef:
               key: KV_NAMESPACE_ID
               name: cloudflare-credentials
+        - name: MICRO_AUTH_PUBLIC_KEY
+          valueFrom:
+            secretKeyRef:
+              name: micro-keypair
+              key: public
         args:
         - api
         image: micro/micro
