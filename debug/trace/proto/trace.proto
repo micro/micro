@@ -27,7 +27,7 @@ message Node {
 message Snapshot {
 	// Source of the service where the snapshot was collected from
 	Service service = 1;
-	// Unix timestamp, e.g. 1575561487
+	// Trace spans
     repeated Span spans = 2;
 }
 

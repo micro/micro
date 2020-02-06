@@ -48,7 +48,7 @@ type Trace struct {
 }
 
 // Filters out all spans that are part of a trace that hits a given service.
-func filterSpansHittingAService(service string, snapshots []*trace.Snapshot) []*trace.Span {
+func filterServiceSpans(service string, snapshots []*trace.Snapshot) []*trace.Span {
 	// trace id -> span id -> span
 	groupByTrace := map[string]map[string]*trace.Span{}
 	for _, snapshot := range snapshots {
@@ -118,7 +118,7 @@ func (s *Trace) Read(ctx context.Context, req *trace.ReadRequest, rsp *trace.Rea
 		return nil
 	}
 
-	rsp.Spans = filterSpansHittingAService(req.GetService().GetName(), allSnapshots)
+	rsp.Spans = filterServiceSpans(req.GetService().GetName(), allSnapshots)
 	return nil
 }
 
