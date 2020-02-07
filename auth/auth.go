@@ -33,9 +33,13 @@ func run(ctx *cli.Context) error {
 
 func Commands(srvOpts ...micro.Option) []*cli.Command {
 	command := &cli.Command{
-		Name:   "auth",
-		Usage:  "Run the auth service",
-		Action: run,
+		Name:  "auth",
+		Usage: "Run the auth service",
+		Action: func(ctx *cli.Context) error {
+			run(ctx)
+			return nil
+		},
+
 		Subcommands: append([]*cli.Command{
 			{
 				Name:        "api",
