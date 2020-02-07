@@ -18,8 +18,6 @@ var (
 	Name = "go.micro.runtime"
 	// Address of the runtime
 	Address = ":8088"
-	// Retries per service
-	Retries = 0
 )
 
 // Run the runtime service
