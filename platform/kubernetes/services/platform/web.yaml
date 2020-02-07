@@ -2,19 +2,19 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   namespace: default
-  name: platform
+  name: platform-web
 spec:
   replicas: 1
   selector:
     matchLabels:
-      name: platform
+      name: platform-web
   template:
     metadata:
       labels:
-        name: platform
+        name: platform-web
     spec:
       containers:
-      - name: platform
+      - name: platform-web
         args:
         - web
         env:
