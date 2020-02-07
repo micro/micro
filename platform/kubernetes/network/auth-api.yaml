@@ -55,6 +55,7 @@ spec:
           value: "etcd-cluster-client"
         args:
         - auth
+        - api
         image: micro/micro
         imagePullPolicy: Always
         ports:
