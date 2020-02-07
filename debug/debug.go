@@ -10,7 +10,6 @@ import (
 	ulog "github.com/micro/go-micro/v2/util/log"
 	logHandler "github.com/micro/micro/v2/debug/log/handler"
 	pblog "github.com/micro/micro/v2/debug/log/proto"
-	"github.com/micro/micro/v2/debug/stats"
 	statshandler "github.com/micro/micro/v2/debug/stats/handler"
 	pbstats "github.com/micro/micro/v2/debug/stats/proto"
 	tracehandler "github.com/micro/micro/v2/debug/trace/handler"
@@ -84,14 +83,17 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 		close(done)
 	}()
 
+	// create a service cache
+	c := newCache(done)
+
 	// stats handler
-	statsHandler, err := statshandler.New(done, ctx.Int("window"))
+	statsHandler, err := statshandler.New(done, ctx.Int("window"), c.services)
 	if err != nil {
 		ulog.Fatal(err)
 	}
 
 	// stats handler
-	traceHandler, err := tracehandler.New(done, ctx.Int("window"))
+	traceHandler, err := tracehandler.New(done, ctx.Int("window"), c.services)
 	if err != nil {
 		ulog.Fatal(err)
 	}
@@ -106,8 +108,8 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 
 	// Register the stats handler
 	pbstats.RegisterStatsHandler(service.Server(), statsHandler)
+	// register trace handler
 	pbtrace.RegisterTraceHandler(service.Server(), traceHandler)
-
 	// Register the logs handler
 	pblog.RegisterLogHandler(service.Server(), lgHandler)
 
@@ -141,7 +143,7 @@ func Commands(options ...micro.Option) []*cli.Command {
 					Name:    "window",
 					Usage:   "Specifies how many seconds of stats snapshots to retain in memory",
 					EnvVars: []string{"MICRO_DEBUG_WINDOW"},
-					Value:   0,
+					Value:   360,
 				},
 			},
 			Action: func(ctx *cli.Context) error {
@@ -162,14 +164,6 @@ func Commands(options ...micro.Option) []*cli.Command {
 					},
 					Action: func(c *cli.Context) error {
 						web.Run(c)
-						return nil
-					},
-				},
-				&cli.Command{
-					Name:  "stats",
-					Usage: "Start the debug stats scraper",
-					Action: func(c *cli.Context) error {
-						stats.Run(c)
 						return nil
 					},
 				},
