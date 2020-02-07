@@ -67,7 +67,7 @@ func Commands(srvOpts ...micro.Option) []*cli.Command {
 				},
 			},
 		}),
-    Flags: []cli.Flag{
+		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:    "address",
 				Usage:   "Set the auth http address e.g 0.0.0.0:8010",
