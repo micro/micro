@@ -123,7 +123,7 @@ func runService(ctx *cli.Context, srvOpts ...micro.Option) {
 		runtime.WithCommand(exec...),
 		runtime.WithOutput(os.Stdout),
 		runtime.WithEnv(environment),
-		runtime.WithRetires(retries),
+		runtime.WithRetries(retries),
 	}
 
 	// run the service
