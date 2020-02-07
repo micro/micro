@@ -15,6 +15,7 @@ func main() {
 	service := micro.NewService(
 		micro.Name("go.micro.api.auth"),
 		micro.Version("latest"),
+		micro.Address(":8011"),
 	)
 	service.Init()
 
