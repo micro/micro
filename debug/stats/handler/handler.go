@@ -20,9 +20,9 @@ import (
 // New initialises and returns a new Stats service handler
 func New(done <-chan bool, windowSize int) (*Stats, error) {
 	s := &Stats{
-		registry:            cache.New(*cmd.DefaultOptions().Registry),
-		client:              *cmd.DefaultOptions().Client,
-		historicalSnapshots: ring.New(windowSize),
+		registry:  cache.New(*cmd.DefaultOptions().Registry),
+		client:    *cmd.DefaultOptions().Client,
+		snapshots: ring.New(windowSize),
 	}
 
 	if err := s.scan(); err != nil {
@@ -39,27 +39,30 @@ type Stats struct {
 	client   client.Client
 
 	sync.RWMutex
-	// current snapshots for each service
-	snapshots []*stats.Snapshot
 	// historical snapshots from the start
-	historicalSnapshots *ring.Buffer
-	cached              []*registry.Service
+	snapshots *ring.Buffer
+	cached    []*registry.Service
 }
 
 // Read returns gets a snapshot of all current stats
 func (s *Stats) Read(ctx context.Context, req *stats.ReadRequest, rsp *stats.ReadResponse) error {
 	allSnapshots := []*stats.Snapshot{}
+
 	func() {
 		s.RLock()
 		defer s.RUnlock()
+
+		// get last snapshot
+		numEntries := 1
+
 		if req.Past {
-			entries := s.historicalSnapshots.Get(3600)
-			for _, entry := range entries {
-				allSnapshots = append(allSnapshots, entry.Value.([]*stats.Snapshot)...)
-			}
-		} else {
-			// Using an else since the latest snapshot is already in the ring buffer
-			allSnapshots = append(allSnapshots, s.snapshots...)
+			numEntries = -1
+		}
+
+		entries := s.snapshots.Get(numEntries)
+
+		for _, entry := range entries {
+			allSnapshots = append(allSnapshots, entry.Value.([]*stats.Snapshot)...)
 		}
 	}()
 	if req.Service == nil {
@@ -244,7 +247,6 @@ func (s *Stats) scrape() {
 
 	// Swap in the snapshots
 	s.Lock()
-	s.snapshots = next
-	s.historicalSnapshots.Put(next)
+	s.snapshots.Put(next)
 	s.Unlock()
 }
