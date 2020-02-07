@@ -5,6 +5,7 @@ import (
 	"github.com/micro/go-micro/v2"
 	pb "github.com/micro/go-micro/v2/auth/service/proto"
 	"github.com/micro/go-micro/v2/util/log"
+	"github.com/micro/micro/v2/auth/api"
 	"github.com/micro/micro/v2/auth/handler"
 )
 
@@ -30,11 +31,22 @@ func run(ctx *cli.Context) error {
 	return nil
 }
 
-func Commands() []*cli.Command {
+func Commands(srvOpts ...micro.Option) []*cli.Command {
 	command := &cli.Command{
 		Name:   "auth",
 		Usage:  "Run the auth service",
 		Action: run,
+		Subcommands: append([]*cli.Command{
+			{
+				Name:        "api",
+				Usage:       "Run the auth api",
+				Description: "Run the auth api",
+				Action: func(ctx *cli.Context) error {
+					api.Run(ctx, srvOpts...)
+					return nil
+				},
+			},
+		}),
 	}
 
 	for _, p := range Plugins() {
