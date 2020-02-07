@@ -4,15 +4,15 @@ package go.micro.debug.trace;
 
 // Stats retrieves a snapshot of the Debug.Stats data for services
 service Trace {
-    rpc Read(ReadRequest) returns (ReadResponse);
+	rpc Read(ReadRequest) returns (ReadResponse);
 	rpc Write(WriteRequest) returns (WriteResponse);
-    rpc Stream(StreamRequest) returns (stream StreamResponse);
+	rpc Stream(StreamRequest) returns (stream StreamResponse);
 }
 
 // Service describes a service running in the micro network.
 message Service {
-    // Service name, e.g. go.micro.service.greeter
-    string name = 1;
+	// Service name, e.g. go.micro.service.greeter
+	string name = 1;
 	string version = 2;
 	Node node = 3;
 }
@@ -28,7 +28,7 @@ message Snapshot {
 	// Source of the service where the snapshot was collected from
 	Service service = 1;
 	// Trace spans
-    repeated Span spans = 2;
+	repeated Span spans = 2;
 }
 
 message Span {
