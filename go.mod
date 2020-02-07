@@ -16,7 +16,7 @@ require (
 	github.com/gorilla/mux v1.7.3
 	github.com/hako/branca v0.0.0-20180808000428-10b799466ada
 	github.com/micro/cli/v2 v2.1.2-0.20200203150404-894195727d9c
-	github.com/micro/go-micro/v2 v2.0.1-0.20200207120241-fe7f5a4134c7
+	github.com/micro/go-micro/v2 v2.0.1-0.20200207140027-c7f075d157d3
 	github.com/miekg/dns v1.1.27
 	github.com/netdata/go-orchestrator v0.0.0-20190905093727-c793edba0e8f
 	github.com/olekukonko/tablewriter v0.0.4
@@ -29,6 +29,7 @@ require (
 	golang.org/x/net v0.0.0-20200114155413-6afb5195e5aa
 	golang.org/x/oauth2 v0.0.0-20191202225959-858c2ad4c8b6
 	google.golang.org/grpc v1.26.0
+	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect
 	gopkg.in/gomail.v2 v2.0.0-20160411212932-81ebce5c23df
 	gopkg.in/olivere/elastic.v5 v5.0.83
 )
