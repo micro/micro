@@ -30,6 +30,11 @@ const (
 	CannotWatch = "Cannot watch filesystem on this runtime"
 )
 
+var (
+	// DefaultRetries which should be attempted when starting a service
+	DefaultRetries = 3
+)
+
 func defaultEnv() []string {
 	var env []string
 	for _, evar := range os.Environ() {
@@ -108,11 +113,17 @@ func runService(ctx *cli.Context, srvOpts ...micro.Option) {
 		}
 	}
 
+	var retries = DefaultRetries
+	if ctx.IsSet("retries") {
+		retries = ctx.Int("retries")
+	}
+
 	// specify the options
 	opts := []runtime.CreateOption{
 		runtime.WithCommand(exec...),
 		runtime.WithOutput(os.Stdout),
 		runtime.WithEnv(environment),
+		runtime.WithRetries(retries),
 	}
 
 	// run the service
