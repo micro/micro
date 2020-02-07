@@ -18,6 +18,8 @@ var (
 	Name = "go.micro.runtime"
 	// Address of the runtime
 	Address = ":8088"
+	// Retries per service
+	Retries = 0
 )
 
 // Run the runtime service
@@ -43,15 +45,12 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 
 	// create runtime
 	muRuntime := *cmd.DefaultCmd.Options().Runtime
+	if ctx.IsSet("source") {
+		muRuntime.Init(runtime.WithSource(ctx.String("source")))
+	}
 
 	// use default store
 	muStore := *cmd.DefaultCmd.Options().Store
-
-	// set the source
-	src := ctx.String("source")
-	if len(src) > 0 {
-		muRuntime.Init(runtime.WithSource(src))
-	}
 
 	// create a new runtime manager
 	manager := newManager(ctx, muRuntime, muStore)
@@ -134,6 +133,11 @@ func Commands(options ...micro.Option) []*cli.Command {
 					Name:    "source",
 					Usage:   "Set the runtime source, e.g. micro/services",
 					EnvVars: []string{"MICRO_RUNTIME_SOURCE"},
+				},
+				&cli.IntFlag{
+					Name:    "retries",
+					Usage:   "Set the max retries per service",
+					EnvVars: []string{"MICRO_RUNTIME_RETRIES"},
 				},
 			},
 			Action: func(ctx *cli.Context) error {
