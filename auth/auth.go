@@ -9,7 +9,14 @@ import (
 	"github.com/micro/micro/v2/auth/handler"
 )
 
-func run(ctx *cli.Context) error {
+var (
+	// Name of the service
+	Name = "go.micro.auth"
+	// Address of the service
+	Address = ":8010"
+)
+
+func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	log.Name("auth")
 
 	// Init plugins
@@ -17,18 +24,27 @@ func run(ctx *cli.Context) error {
 		p.Init(ctx)
 	}
 
+	if len(ctx.String("address")) > 0 {
+		Address = ctx.String("address")
+	}
+	if len(Address) > 0 {
+		srvOpts = append(srvOpts, micro.Address(Address))
+	}
+
+	// Init plugins
+	for _, p := range Plugins() {
+		p.Init(ctx)
+	}
+
 	// setup service
-	service := micro.NewService(
-		micro.Name("go.micro.auth"),
-	)
+	srvOpts = append(srvOpts, micro.Name(Name))
+	service := micro.NewService(srvOpts...)
 
 	// run service
 	pb.RegisterAuthHandler(service.Server(), handler.New())
 	if err := service.Run(); err != nil {
 		log.Fatal(err)
 	}
-
-	return nil
 }
 
 func Commands(srvOpts ...micro.Option) []*cli.Command {
@@ -47,6 +63,13 @@ func Commands(srvOpts ...micro.Option) []*cli.Command {
 				},
 			},
 		}),
+    Flags: []cli.Flag{
+			&cli.StringFlag{
+				Name:    "address",
+				Usage:   "Set the auth http address e.g 0.0.0.0:8010",
+				EnvVars: []string{"MICRO_SERVER_ADDRESS"},
+			},
+		},
 	}
 
 	for _, p := range Plugins() {
