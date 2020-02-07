@@ -5,6 +5,7 @@ import (
 	"github.com/micro/go-micro/v2"
 	pb "github.com/micro/go-micro/v2/auth/service/proto"
 	"github.com/micro/go-micro/v2/util/log"
+	"github.com/micro/micro/v2/auth/api"
 	"github.com/micro/micro/v2/auth/handler"
 )
 
@@ -46,15 +47,27 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	}
 }
 
-func Commands(options ...micro.Option) []*cli.Command {
+func Commands(srvOpts ...micro.Option) []*cli.Command {
 	command := &cli.Command{
 		Name:  "auth",
 		Usage: "Run the auth service",
 		Action: func(ctx *cli.Context) error {
-			run(ctx, options...)
+			run(ctx)
 			return nil
 		},
-		Flags: []cli.Flag{
+
+		Subcommands: append([]*cli.Command{
+			{
+				Name:        "api",
+				Usage:       "Run the auth api",
+				Description: "Run the auth api",
+				Action: func(ctx *cli.Context) error {
+					api.Run(ctx, srvOpts...)
+					return nil
+				},
+			},
+		}),
+    Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:    "address",
 				Usage:   "Set the auth http address e.g 0.0.0.0:8010",
