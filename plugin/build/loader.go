@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/micro/go-micro/v2/plugin"
+	"golang.org/x/tools/go/packages"
 )
 
 func buildSo(soPath string, parts []string) error {
@@ -15,8 +16,14 @@ func buildSo(soPath string, parts []string) error {
 		return nil
 	}
 
+	path := filepath.Join(append([]string{"github.com/micro/go-plugins"}, parts...)...)
+	pkgs, err := packages.Load(&packages.Config{Mode: packages.NeedName}, path)
+	if err != nil {
+		return err
+	}
+
 	// name and things
-	name := parts[len(parts)-1]
+	name := pkgs[0].Name
 	// type of plugin
 	typ := parts[0]
 	// new func signature
@@ -31,7 +38,7 @@ func buildSo(soPath string, parts []string) error {
 	if err := plugin.Build(soPath, &plugin.Config{
 		Name:    name,
 		Type:    typ,
-		Path:    filepath.Join(append([]string{"github.com/micro/go-plugins"}, parts...)...),
+		Path:    path,
 		NewFunc: newfn,
 	}); err != nil {
 		return fmt.Errorf("Failed to build plugin %s: %v", name, err)
