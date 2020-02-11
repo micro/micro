@@ -72,7 +72,7 @@ func login(ctx *cli.Context) {
 	buff := bytes.NewBuffer(jsonStr)
 
 	// Execute the HTTP request
-	resp, err := http.Post("https://api.micro.mu/auth/Validate", "application/json", buff)
+	resp, err := http.Post("https://api.micro.mu/auth/validate", "application/json", buff)
 	if err != nil || resp.StatusCode != 200 {
 		fmt.Println("Invalid token. Visit https://micro.mu/platform to get a token.")
 		os.Exit(1)

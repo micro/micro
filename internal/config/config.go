@@ -11,9 +11,9 @@ import (
 )
 
 // FileName for micro config
-const FileName = ".micro.conf"
+const FileName = ".micro"
 
-// Get a value from the .micro.conf file
+// Get a value from the .micro file
 func Get(key string) (string, error) {
 	// get the filepath
 	fp, err := filePath()
@@ -39,7 +39,7 @@ func Get(key string) (string, error) {
 	return conf.Get(key).String(""), nil
 }
 
-// Set a value in the .micro.conf file
+// Set a value in the .micro file
 func Set(key, value string) error {
 	// get the filepath
 	fp, err := filePath()
