@@ -68,10 +68,6 @@ func netRoutes(c *cli.Context, args []string) ([]byte, error) {
 	return clic.NetworkRoutes(c)
 }
 
-func netServices(c *cli.Context, args []string) ([]byte, error) {
-	return clic.NetworkServices(c)
-}
-
 func netDNSAdvertise(c *cli.Context, args []string) ([]byte, error) {
 	return clic.NetworkDNSAdvertise(c)
 }

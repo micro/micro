@@ -19,7 +19,6 @@ var (
 		"call":       &command{"call", "Call a service", callService},
 		"list":       &command{"list", "List services, peers or routes", list},
 		"get":        &command{"get", "Get service info", getService},
-		"services":   &command{"services", "List services in the network", netServices},
 		"stream":     &command{"stream", "Stream a call to a service", streamService},
 		"publish":    &command{"publish", "Publish a message to a topic", publish},
 		"health":     &command{"health", "Get service health", queryHealth},
@@ -140,11 +139,6 @@ func NetworkCommands() []*cli.Command {
 					Usage: "Filter by network",
 				},
 			},
-		},
-		{
-			Name:   "services",
-			Usage:  "List network services",
-			Action: Print(netServices),
 		},
 		// TODO: duplicates call. Move so we reuse same stuff.
 		{
@@ -334,11 +328,6 @@ func Commands() []*cli.Command {
 					EnvVars: []string{"MICRO_METADATA"},
 				},
 			},
-		},
-		{
-			Name:   "services",
-			Usage:  "List the services in the network",
-			Action: Print(netServices),
 		},
 		{
 			Name:   "stream",
