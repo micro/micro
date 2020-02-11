@@ -163,6 +163,24 @@ func Commands(options ...micro.Option) []*cli.Command {
 			},
 		},
 		{
+			Name:  "update",
+			Usage: UpdateUsage,
+			Flags: Flags(),
+			Action: func(ctx *cli.Context) error {
+				updateService(ctx, options...)
+				return nil
+			},
+		},
+		{
+			Name:  "services",
+			Usage: ServicesUsage,
+			Flags: Flags(),
+			Action: func(ctx *cli.Context) error {
+				getService(ctx, options...)
+				return nil
+			},
+		},
+		{
 			Name:  "ps",
 			Usage: GetUsage,
 			Flags: Flags(),
