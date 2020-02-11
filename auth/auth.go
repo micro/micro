@@ -55,10 +55,6 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	}
 }
 
-type microConfig struct {
-	Token string `json:"token"`
-}
-
 // login using a token
 func login(ctx *cli.Context) {
 	if ctx.Args().Len() != 1 {
