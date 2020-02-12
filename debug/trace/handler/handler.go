@@ -236,6 +236,14 @@ func (s *Trace) scrape() {
 						continue
 					}
 
+					var typ trace.SpanType
+					switch v.GetType() {
+					case debug.SpanType_INBOUND:
+						typ = trace.SpanType_INBOUND
+					case debug.SpanType_OUTBOUND:
+						typ = trace.SpanType_OUTBOUND
+					}
+
 					spans = append(spans, &trace.Span{
 						Trace:    v.GetTrace(),
 						Id:       v.GetId(),
@@ -244,6 +252,7 @@ func (s *Trace) scrape() {
 						Started:  v.GetStarted(),
 						Duration: v.GetDuration(),
 						Metadata: v.GetMetadata(),
+						Type:     typ,
 					})
 				}
 
