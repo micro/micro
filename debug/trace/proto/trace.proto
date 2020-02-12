@@ -31,6 +31,11 @@ message Snapshot {
 	repeated Span spans = 2;
 }
 
+enum SpanType {
+    INBOUND = 0;
+    OUTBOUND = 1;
+}
+
 message Span {
 	// the trace id
 	string trace = 1;
@@ -46,6 +51,7 @@ message Span {
 	uint64 duration = 6;
 	// associated metadata
 	map<string,string> metadata = 7;
+	SpanType type = 8;
 }
 
 message ReadRequest {
