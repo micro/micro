@@ -21,6 +21,8 @@ spec:
       containers:
       - name: micro-store
         env:
+        - name: MICRO_SERVER_ADDRESS
+          value: "0.0.0.0:8082"
         - name: MICRO_LOG_LEVEL
           value: "debug"
         - name: MICRO_BROKER
@@ -40,3 +42,6 @@ spec:
         command:
         - /micro
         - store
+        ports:
+        - containerPort: 8082
+          name: service
