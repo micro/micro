@@ -55,6 +55,8 @@ spec:
           value: "etcd-cluster-client"
         - name: MICRO_AUTH
           value: "jwt"
+        - name: MICRO_AUTH_EXCLUDE
+          value: "Validate"
         - name: MICRO_AUTH_PUBLIC_KEY
           valueFrom:
             secretKeyRef:
