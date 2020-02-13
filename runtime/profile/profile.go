@@ -14,11 +14,14 @@ func Kubernetes() []string {
 // Platform is a platform profile
 func Platform() []string {
 	return []string{
-		"MICRO_BROKER=service",
-		"MICRO_REGISTRY=service",
+		"MICRO_AUTH=service",
 		"MICRO_STORE=service",
+		"MICRO_BROKER=service",
+		"MICRO_RUNTIME=service",
+		"MICRO_REGISTRY=service",
+		// micro proxy routes all requests
+		// and expects a k8s service name
 		"MICRO_PROXY=go.micro.proxy",
-		// expects k8s service name
 		"MICRO_PROXY_ADDRESS=micro-proxy:8081",
 	}
 }
