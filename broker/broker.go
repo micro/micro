@@ -50,6 +50,9 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	// new service
 	service := micro.NewService(srvOpts...)
 
+	// connect to the broker
+	service.Options().Broker.Connect()
+
 	// register the broker handler
 	pb.RegisterBrokerHandler(service.Server(), &handler.Broker{
 		// using the mdns broker
