@@ -2,12 +2,17 @@
 package proxy
 
 import (
+	"fmt"
 	"os"
 	"strings"
 	"time"
 
+	"github.com/go-acme/lego/v3/providers/dns/cloudflare"
 	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro/v2"
+	"github.com/micro/go-micro/v2/api/server/acme"
+	"github.com/micro/go-micro/v2/api/server/acme/autocert"
+	"github.com/micro/go-micro/v2/api/server/acme/certmagic"
 	bmem "github.com/micro/go-micro/v2/broker/memory"
 	"github.com/micro/go-micro/v2/client"
 	mucli "github.com/micro/go-micro/v2/client"
@@ -21,8 +26,11 @@ import (
 	rs "github.com/micro/go-micro/v2/router/service"
 	"github.com/micro/go-micro/v2/server"
 	sgrpc "github.com/micro/go-micro/v2/server/grpc"
+	cfstore "github.com/micro/go-micro/v2/store/cloudflare"
+	"github.com/micro/go-micro/v2/sync/lock/memory"
 	"github.com/micro/go-micro/v2/util/log"
 	"github.com/micro/go-micro/v2/util/mux"
+	"github.com/micro/micro/v2/internal/helper"
 )
 
 var (
@@ -34,6 +42,10 @@ var (
 	Protocol = "grpc"
 	// The endpoint host to route to
 	Endpoint string
+	// ACME (Cert management)
+	ACMEProvider          = "autocert"
+	ACMEChallengeProvider = "cloudflare"
+	ACMECA                = acme.LetsEncryptStagingCA
 )
 
 func run(ctx *cli.Context, srvOpts ...micro.Option) {
@@ -50,6 +62,9 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	}
 	if len(ctx.String("protocol")) > 0 {
 		Protocol = ctx.String("protocol")
+	}
+	if len(ctx.String("acme_provider")) > 0 {
+		ACMEProvider = ctx.String("acme_provider")
 	}
 
 	// Init plugins
@@ -122,7 +137,75 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		}
 	}
 
-	// set based on protocol
+	serverOpts := []server.Option{
+		server.Address(Address),
+		server.Registry(rmem.NewRegistry()),
+		server.Broker(bmem.NewBroker()),
+	}
+
+	if ctx.Bool("enable_acme") {
+		hosts := helper.ACMEHosts(ctx)
+		serverOpts = append(serverOpts, server.EnableACME(true))
+		serverOpts = append(serverOpts, server.ACMEHosts(hosts...))
+		switch ACMEProvider {
+		case "autocert":
+			serverOpts = append(serverOpts, server.ACMEProvider(autocert.New()))
+		case "certmagic":
+			if ACMEChallengeProvider != "cloudflare" {
+				log.Fatal("The only implemented DNS challenge provider is cloudflare")
+			}
+			apiToken, accountID := os.Getenv("CF_API_TOKEN"), os.Getenv("CF_ACCOUNT_ID")
+			kvID := os.Getenv("KV_NAMESPACE_ID")
+			if len(apiToken) == 0 || len(accountID) == 0 {
+				log.Fatal("env variables CF_API_TOKEN and CF_ACCOUNT_ID must be set")
+			}
+			if len(kvID) == 0 {
+				log.Fatal("env var KV_NAMESPACE_ID must be set to your cloudflare workers KV namespace ID")
+			}
+
+			cloudflareStore := cfstore.NewStore(
+				cfstore.Token(apiToken),
+				cfstore.Account(accountID),
+				cfstore.Namespace(kvID),
+			)
+			storage := certmagic.NewStorage(
+				memory.NewLock(),
+				cloudflareStore,
+			)
+			config := cloudflare.NewDefaultConfig()
+			config.AuthToken = apiToken
+			config.ZoneToken = apiToken
+			challengeProvider, err := cloudflare.NewDNSProviderConfig(config)
+			if err != nil {
+				log.Fatal(err.Error())
+			}
+
+			serverOpts = append(serverOpts,
+				server.ACMEProvider(
+					certmagic.New(
+						acme.AcceptToS(true),
+						acme.CA(ACMECA),
+						acme.Cache(storage),
+						acme.ChallengeProvider(challengeProvider),
+						acme.OnDemand(false),
+					),
+				),
+			)
+		default:
+			log.Fatalf("%s is not a valid ACME provider\n", ACMEProvider)
+		}
+	} else if ctx.Bool("enable_tls") {
+		config, err := helper.TLSConfig(ctx)
+		if err != nil {
+			fmt.Println(err.Error())
+			return
+		}
+
+		serverOpts = append(serverOpts, server.EnableTLS(true))
+		serverOpts = append(serverOpts, server.TLSConfig(config))
+	}
+
+	// set proxy
 	if p == nil && len(Protocol) > 0 {
 		switch Protocol {
 		case "http":
@@ -132,27 +215,13 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 			popts = append(popts, proxy.WithClient(mucli.NewClient()))
 			p = mucp.NewProxy(popts...)
 
-			srv = server.NewServer(
-				server.Address(Address),
-				// reset registry to memory
-				server.Registry(rmem.NewRegistry()),
-				// reset broker to memory
-				server.Broker(bmem.NewBroker()),
-				// hande it the router
-				server.WithRouter(p),
-			)
+			serverOpts = append(serverOpts, server.WithRouter(p))
+			srv = server.NewServer(serverOpts...)
 		default:
 			p = mucp.NewProxy(popts...)
 
-			srv = sgrpc.NewServer(
-				server.Address(Address),
-				// reset registry to memory
-				server.Registry(rmem.NewRegistry()),
-				// reset broker to memory
-				server.Broker(bmem.NewBroker()),
-				// hande it the router
-				server.WithRouter(p),
-			)
+			serverOpts = append(serverOpts, server.WithRouter(p))
+			srv = sgrpc.NewServer(serverOpts...)
 		}
 	}
 

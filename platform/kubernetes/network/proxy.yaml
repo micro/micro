@@ -41,6 +41,20 @@ spec:
           value: "etcd-cluster-client"
         - name: MICRO_ENABLE_ACME
           value: "true"
+        - name: MICRO_ACME_PROVIDER
+          value: certmagic
+        - name: MICRO_ACME_HOSTS
+          value: '*.micro.mu,*.cloud.micro.mu,micro.mu'
+        - name: CF_API_TOKEN
+          valueFrom:
+            secretKeyRef:
+              key: CF_API_TOKEN
+              name: cloudflare-credentials
+        - name: CF_ACCOUNT_ID
+          valueFrom:
+            secretKeyRef:
+              key: CF_ACCOUNT_ID
+              name: cloudflare-credentials
         args:
         - proxy
         image: micro/micro
