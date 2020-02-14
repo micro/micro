@@ -1,0 +1,75 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: default
+  name: micro-gateway
+  labels:
+    micro: runtime
+    name: micro-gateway
+  annotations:
+    name: "go.micro.gateway"
+    version: "latest"
+    source: "github.com/micro/micro"
+    owner: "micro"
+    group: "micro"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: micro-gateway
+      micro: runtime
+  # strategy:
+  #   rollingUpdate:
+  #     maxSurge: 0
+  #     maxUnavailable: 1
+  template:
+    metadata:
+      labels:
+        name: micro-gateway
+        micro: runtime
+    spec:
+      containers:
+      - name: gateway
+        env:
+        - name: MICRO_ENABLE_STATS
+          value: "true"
+        - name: MICRO_BROKER
+          value: "nats"
+        - name: MICRO_BROKER_ADDRESS
+          value: "nats-cluster"
+        - name: MICRO_REGISTRY
+          value: "etcd"
+        - name: MICRO_REGISTRY_ADDRESS
+          value: "etcd-cluster-client"
+        - name: MICRO_REGISTER_TTL
+          value: "60"
+        - name: MICRO_REGISTER_INTERVAL
+          value: "30"
+        - name: MICRO_ENABLE_ACME
+          value: "true"
+        - name: MICRO_ACME_PROVIDER
+          value: certmagic
+        - name: MICRO_ACME_HOSTS
+          value: '*.micro.mu,*.cloud.micro.mu,micro.mu'
+        - name: CF_API_TOKEN
+          valueFrom:
+            secretKeyRef:
+              key: CF_API_TOKEN
+              name: cloudflare-credentials
+        - name: CF_ACCOUNT_ID
+          valueFrom:
+            secretKeyRef:
+              key: CF_ACCOUNT_ID
+              name: cloudflare-credentials
+        - name: KV_NAMESPACE_ID
+          valueFrom:
+            secretKeyRef:
+              key: KV_NAMESPACE_ID
+              name: cloudflare-credentials
+        args:
+        - gateway
+        image: micro/micro
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 443
+          name: gateway-port
