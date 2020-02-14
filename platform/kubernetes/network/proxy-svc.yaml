@@ -8,8 +8,10 @@ metadata:
     micro: runtime
 spec:
   ports:
-  - port: 8081
-    protocol: TCP
+  - name: https
+    port: 443
+    targetPort: 443
   selector:
     name: micro-proxy
     micro: runtime
+  type: LoadBalancer
