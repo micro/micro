@@ -58,7 +58,7 @@ From source
 # enable go modules
 export GO111MODULE=on
 
-go get github.com/micro/micro
+go get github.com/micro/micro/v2
 ```
 
 Docker image
