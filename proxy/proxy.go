@@ -50,6 +50,10 @@ var (
 func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	log.Name("proxy")
 
+	// because MICRO_PROXY_ADDRESS is used internally by the go-micro/client
+	// we need to unset it so we don't end up calling ourselves infinitely
+	os.Unsetenv("MICRO_PROXY_ADDRESS")
+
 	if len(ctx.String("server_name")) > 0 {
 		Name = ctx.String("server_name")
 	}
