@@ -38,7 +38,7 @@ spec:
         - name: MICRO_BROKER_ADDRESS
           value: "nats-cluster"
         - name: MICRO_ROUTER
-          value: "go.micro.router"
+          value: "service"
         - name: MICRO_REGISTRY
           value: "etcd"
         - name: MICRO_REGISTRY_ADDRESS

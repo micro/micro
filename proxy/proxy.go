@@ -100,6 +100,8 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	switch {
 	case routerName == "go.micro.router":
 		r = rs.NewRouter(ropts...)
+	case routerName == "service":
+		r = rs.NewRouter(ropts...)
 	case len(routerAddr) > 0:
 		r = rs.NewRouter(ropts...)
 	default:
