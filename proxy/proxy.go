@@ -2,7 +2,6 @@
 package proxy
 
 import (
-	"fmt"
 	"os"
 	"strings"
 	"time"
@@ -143,13 +142,13 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		server.Broker(bmem.NewBroker()),
 	}
 
+	// enable acme will create a net.Listener which
 	if ctx.Bool("enable_acme") {
-		hosts := helper.ACMEHosts(ctx)
-		serverOpts = append(serverOpts, server.EnableACME(true))
-		serverOpts = append(serverOpts, server.ACMEHosts(hosts...))
+		var ap acme.Provider
+
 		switch ACMEProvider {
 		case "autocert":
-			serverOpts = append(serverOpts, server.ACMEProvider(autocert.New()))
+			ap = autocert.NewProvider()
 		case "certmagic":
 			if ACMEChallengeProvider != "cloudflare" {
 				log.Fatal("The only implemented DNS challenge provider is cloudflare")
@@ -180,28 +179,34 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 				log.Fatal(err.Error())
 			}
 
-			serverOpts = append(serverOpts,
-				server.ACMEProvider(
-					certmagic.New(
-						acme.AcceptToS(true),
-						acme.CA(ACMECA),
-						acme.Cache(storage),
-						acme.ChallengeProvider(challengeProvider),
-						acme.OnDemand(false),
-					),
-				),
+			// define the provider
+			ap = certmagic.NewProvider(
+				acme.AcceptToS(true),
+				acme.CA(ACMECA),
+				acme.Cache(storage),
+				acme.ChallengeProvider(challengeProvider),
+				acme.OnDemand(false),
 			)
 		default:
-			log.Fatalf("%s is not a valid ACME provider\n", ACMEProvider)
-		}
-	} else if ctx.Bool("enable_tls") {
-		config, err := helper.TLSConfig(ctx)
-		if err != nil {
-			fmt.Println(err.Error())
-			return
+			log.Fatalf("Unsupported acme provider: %s\n", ACMEProvider)
 		}
 
-		serverOpts = append(serverOpts, server.EnableTLS(true))
+		// generate the tls config
+		config, err := ap.TLSConfig(helper.ACMEHosts(ctx)...)
+		if err != nil {
+			log.Fatalf("Failed to generate acme tls config: %v", err)
+		}
+
+		// set the tls config
+		serverOpts = append(serverOpts, server.TLSConfig(config))
+		// enable tls will leverage tls certs and generate a tls.Config
+	} else if ctx.Bool("enable_tls") {
+		// get certificates from the context
+		config, err := helper.TLSConfig(ctx)
+		if err != nil {
+			log.Fatal(err)
+			return
+		}
 		serverOpts = append(serverOpts, server.TLSConfig(config))
 	}
 
