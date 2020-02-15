@@ -11,6 +11,9 @@ spec:
   - name: https
     port: 443
     targetPort: 443
+  - name: proxy
+    port: 8081
+    targetPort: 8081
   selector:
     name: micro-proxy
     micro: runtime
