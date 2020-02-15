@@ -22,5 +22,6 @@ func Platform() []string {
 		// and expects a k8s service name
 		"MICRO_PROXY=go.micro.proxy",
 		"MICRO_PROXY_ADDRESS=micro-proxy:8081",
+		"GOPROXY=http://athens-proxy",
 	}
 }

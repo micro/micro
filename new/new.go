@@ -256,6 +256,7 @@ func run(ctx *cli.Context) {
 				{"Dockerfile", tmpl.DockerFNC},
 				{"Makefile", tmpl.Makefile},
 				{"README.md", tmpl.ReadmeFNC},
+				{".gitignore", tmpl.GitIgnore},
 			},
 			Comments: []string{
 				"\ndownload protobuf for micro:\n",
@@ -290,6 +291,7 @@ func run(ctx *cli.Context) {
 				{"Dockerfile", tmpl.DockerSRV},
 				{"Makefile", tmpl.Makefile},
 				{"README.md", tmpl.Readme},
+				{".gitignore", tmpl.GitIgnore},
 			},
 			Comments: []string{
 				"\ndownload protobuf for micro:\n",
@@ -324,6 +326,7 @@ func run(ctx *cli.Context) {
 				{"Makefile", tmpl.Makefile},
 				{"Dockerfile", tmpl.DockerSRV},
 				{"README.md", tmpl.Readme},
+				{".gitignore", tmpl.GitIgnore},
 			},
 			Comments: []string{
 				"\ndownload protobuf for micro:\n",
@@ -356,6 +359,7 @@ func run(ctx *cli.Context) {
 				{"Dockerfile", tmpl.DockerWEB},
 				{"Makefile", tmpl.Makefile},
 				{"README.md", tmpl.Readme},
+				{".gitignore", tmpl.GitIgnore},
 			},
 			Comments: []string{},
 		}
