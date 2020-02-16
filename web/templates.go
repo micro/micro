@@ -180,7 +180,7 @@ jQuery(function($, undefined) {
 	</div>
 	<div class="col-sm-7">
 		<p><b>Response</b><span class="pull-right"><a href="#" onclick="copyResponse()">Copy</a></p>
-		<pre id="response" style="min-height: 405px; border: 0;">{}</pre>
+		<pre id="response" style="min-height: 405px; max-height: 405px; overflow: scroll; border: 0;">{}</pre>
 	</div>
     </div>
   </div>
