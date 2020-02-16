@@ -8,10 +8,10 @@ var (
 		<title>Micro Web</title>
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
-		<link href="https://fonts.googleapis.com/css?family=Source+Code+Pro&display=swap" rel="stylesheet">
+		<link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro&display=swap" rel="stylesheet">
 		<style>
 		  html, body {
-		    font-family: 'Source Code Pro', monospace;
+		    font-family: 'Source Sans Pro', sans-serif;
 		  }
 		  html a { color: #333333; }
 		  .navbar .navbar-brand { color: #333333; font-weight: bold; font-size: 2.0em; }
