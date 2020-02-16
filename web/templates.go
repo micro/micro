@@ -19,6 +19,11 @@ var (
 		  #navBar, .navbar-toggle { margin-top: 15px; }
 		  .icon-bar { background-color: #333333; }
 		  .nav>li>a:focus, .nav>li>a:hover { background-color: white; }
+                  .navbar-brand.logo {
+                        font-size: 3.0em;
+                        font-weight: 1000;
+                        font-family: medium-content-sans-serif-font,"Lucida Grande","Lucida Sans Unicode","Lucida Sans",Geneva,Arial,sans-serif;
+                  }
 		</style>
 		<style>
 		{{ template "style" . }}
