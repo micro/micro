@@ -230,10 +230,6 @@ func faviconHandler(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
-func (s *srv) cliHandler(w http.ResponseWriter, r *http.Request) {
-	render(w, r, cliTemplate, nil)
-}
-
 func (s *srv) indexHandler(w http.ResponseWriter, r *http.Request) {
 	helper.ServeCORS(w, r)
 
@@ -451,9 +447,8 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	}
 
 	s.HandleFunc("/client", s.callHandler)
-	s.HandleFunc("/registry", s.registryHandler)
-	s.HandleFunc("/registry/service/{name}", s.registryHandler)
-	s.HandleFunc("/terminal", s.cliHandler)
+	s.HandleFunc("/services", s.registryHandler)
+	s.HandleFunc("/service/{name}", s.registryHandler)
 	s.HandleFunc("/rpc", handler.RPC)
 	s.HandleFunc("/favicon.ico", faviconHandler)
 	s.PathPrefix("/{service:[a-zA-Z0-9]+}").Handler(s.proxy())
