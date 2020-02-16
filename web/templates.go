@@ -39,7 +39,7 @@ var (
                   <span class="icon-bar"></span>
                   <span class="icon-bar"></span> 
                 </button>
-                <a class="navbar-brand logo" href="/"><img src="https://micro.mu/logo.png" height=50px width=auto /> Micro</a>
+                <a class="navbar-brand logo" href="/"><img src="https://micro.mu/logo.png" height=50px width=auto style="margin-bottom: 5px;" /> Micro</a>
               </div>
               <div class="collapse navbar-collapse" id="navBar">
 	        <ul class="nav navbar-nav navbar-right" id="dev">
