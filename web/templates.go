@@ -8,10 +8,10 @@ var (
 		<title>Micro Web</title>
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
-		<link href="https://fonts.googleapis.com/css?family=Source+Code+Pro&display=swap" rel="stylesheet">
+		<link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro&display=swap" rel="stylesheet">
 		<style>
 		  html, body {
-		    font-family: 'Source Code Pro', monospace;
+		    font-family: 'Source Sans Pro', sans-serif;
 		  }
 		  html a { color: #333333; }
 		  .navbar .navbar-brand { color: #333333; font-weight: bold; font-size: 2.0em; }
@@ -19,6 +19,11 @@ var (
 		  #navBar, .navbar-toggle { margin-top: 15px; }
 		  .icon-bar { background-color: #333333; }
 		  .nav>li>a:focus, .nav>li>a:hover { background-color: white; }
+                  .navbar-brand.logo {
+                        font-size: 3.0em;
+                        font-weight: 1000;
+                        font-family: medium-content-sans-serif-font,"Lucida Grande","Lucida Sans Unicode","Lucida Sans",Geneva,Arial,sans-serif;
+                  }
 		</style>
 		<style>
 		{{ template "style" . }}
@@ -34,12 +39,12 @@ var (
                   <span class="icon-bar"></span>
                   <span class="icon-bar"></span> 
                 </button>
-                <a class="navbar-brand logo" href="/"><img src="https://micro.mu/logo.png" height=50px width=auto /> Micro</a>
+                <a class="navbar-brand logo" href="/"><img src="https://micro.mu/logo.png" height=50px width=auto style="margin-bottom: 5px;" /> Micro</a>
               </div>
               <div class="collapse navbar-collapse" id="navBar">
 	        <ul class="nav navbar-nav navbar-right" id="dev">
-	          <li><a href="/registry">Registry</a></li>
 	          <li><a href="/client">Client</a></li>
+	          <li><a href="/services">Services</a></li>
 	          {{if .StatsURL}}<li><a href="{{.StatsURL}}" class="navbar-link">Stats</a></li>{{end}}
 	        </ul>
               </div>
@@ -175,7 +180,7 @@ jQuery(function($, undefined) {
 	</div>
 	<div class="col-sm-7">
 		<p><b>Response</b><span class="pull-right"><a href="#" onclick="copyResponse()">Copy</a></p>
-		<pre id="response" style="min-height: 405px; border: 0;">{}</pre>
+		<pre id="response" style="min-height: 405px; max-height: 405px; overflow: scroll; border: 0;">{}</pre>
 	</div>
     </div>
   </div>
@@ -283,12 +288,12 @@ jQuery(function($, undefined) {
 `
 	registryTemplate = `
 {{define "heading"}}<h4><input class="form-control input-lg search" type=text placeholder="Search"/></h4>{{end}}
-{{define "title"}}Registry{{end}}
+{{define "title"}}Services{{end}}
 {{define "content"}}
 	<p style="margin: 0;">&nbsp;</p>
 	{{range .Results}}
 	<div style="margin: 5px 5px 5px 15px;">
-	    <a href="registry/service/{{.Name}}" data-filter={{.Name}} class="service">{{.Name}}</a>
+	    <a href="/service/{{.Name}}" data-filter={{.Name}} class="service">{{.Name}}</a>
 	</div>
 	{{end}}
 {{end}}
@@ -368,217 +373,5 @@ pre {border: 0; padding: 20px;}
 	{{end}}
 {{end}}
 
-`
-
-	cliTemplate = `
-{{define "head"}}
-<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/jquery.terminal/2.0.2/css/jquery.terminal.min.css">
-<style type="text/css"> 
-  .terminal, .terminal .inverted, .terminal-output, .terminal-output>:not(.raw) div {
-    background-color: #fff;
-    color: #333;
-  }
-  .prompt, .cmd, .cmd div, .cmd .inverted, .cmd .cursor.blink, .cmd span, .terminal-output>:not(.raw) span:not(.token) {
-    background-color: #fff;
-    color: #333;
-  }
-  .terminal { padding: 0; }
-</style>
-{{end}}
-{{define "title"}}CLI{{end}}
-{{define "content"}}
-<div id="shell"></div>
-{{end}}
-{{define "script"}}
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.terminal/2.0.2/js/jquery.terminal.min.js"></script>
-<script type="text/javascript">
-jQuery(function($, undefined) {
-    $('#shell').terminal(function(command, term) {
-        if (command == '') {
-            term.echo('');
-	    return;
-        }
-
-	var help = "COMMANDS:\n" +
-	"    call       Call a service endpoint using rpc\n" +
-	"    health      Query the health of a service\n" +
-	"    list        List items in registry\n" +
-	"    get         Get item from registry\n";
-        try {
-	    args = command.split(" ");
-	    switch (args[0]) {
-	    case "help":
-		term.echo(help);
-		break;
-	    case "list":
-		if (args.length == 1 || args[1] != "services") {
-		    term.echo("COMMANDS:\n    services    List services in registry\n");
-		    return;
-		}
-		$.ajax({
-		  dataType: "json",
-		  contentType: "application/json",
-		  url: "registry",
-		  data: {},
-		  success: function(data) {
-		    var services = [];
-		    for (i = 0; i < data.services.length; i++) {
-			services.push(data.services[i].name);
-		    }
-		    term.echo(services.join("\n"));
-		  },
-		});
-		break;
-	    case "get":
-		if (args.length < 3 || args[1] != "service") {
-		    term.echo("COMMANDS:\n    service    Get service from registry\n");
-		    return;
-		}
-
-		$.ajax({
-		  dataType: "json",
-		  contentType: "application/json",
-		  url: "registry?service="+args[2],
-		  data: {},
-		  success: function(data) {
-		    if (data.services.length == 0) {
-			return
-		    }
-
-		    term.echo("service\t"+args[2]);
-		    term.echo(" ");
-
-		    var eps = {};
-
-		    for (i = 0; i < data.services.length; i++) {
-			var service = data.services[i];
-			term.echo("\nversion "+service.version);
-			term.echo(" ");
-			term.echo("Id\tAddress\tMetadata\n");
-			for (j = 0; j < service.nodes.length; j++) {
-			    var node = service.nodes[j];
-			    var metadata = [];
-			    $.each(node.metadata, function(key, val) {
-				metadata.push(key+"="+val);
-			    });
-			    term.echo(node.id + "\t" + node.address + "\t" + metadata.join(","));
-			}
-			term.echo(" ");
-
-			for (k = 0; k < service.endpoints.length; k++) {
-			    if (eps[service.endpoints[k].name] == undefined) {
-				eps[service.endpoints[k].name] = service.endpoints[k];
-			    }
-			}
-		    }
-
-
-		    $.each(eps, function(key, ep) {
-			term.echo("Endpoint: "+key);
-			var metadata = [];
-			$.each(ep.metadata, function(mkey, val) {
-			    metadata.push(mkey+"="+val);
-			});
-			term.echo("Metadata: "+metadata.join(","));
-		
-			// TODO: add request-response endpoints	
-		    })
-		  },
-		});
-
-		break;
-	    case "health":
-		if (args.length < 2) {
-		    term.echo("USAGE:\n    health [service]");
-		    return;
-		}
-
-		$.ajax({
-		  dataType: "json",
-		  contentType: "application/json",
-		  url: "registry?service="+args[1],
-		  data: {},
-		  success: function(data) {
-			
-		    term.echo("service\t"+args[1]);
-		    term.echo(" ");
-
-		    for (i = 0; i < data.services.length; i++) {
-			var service = data.services[i];
-
-			term.echo("\nversion "+service.version);
-			term.echo(" ");
-			term.echo("Id\tAddress\tMetadata\n");
-
-			for (j = 0; j < service.nodes.length; j++) {
-			    var node = service.nodes[j];
-
-			    $.ajax({
-				  endpoint: "POST",
-				  dataType: "json",
-				  contentType: "application/json",
-				  url: "rpc",
-				  data: JSON.stringify({
-					"service": service.name,
-					"endpoint": "Debug.Health",
-					"request": {},
-					"address": node.address,
-				  }),
-				  success: function(data) {
-			    		term.echo(node.id + "\t" + node.address + "\t" + data.status);
-				  },
-				  error: function(xhr) {
-			    		term.echo(node.id + "\t" + node.address + "\t" + xhr.status);
-				  },
-			    });
-
-			}
-
-			term.echo(" ");
-		    }
-		  },
-		});
-
-
-		break;
-	    case "call":
-		if (args.length < 3) {
-		    term.echo("USAGE:\n    call [service] [endpoint] [request]");
-		    return;
-		}
-
-		var request = "{}"
-
-		if (args.length > 3) {
-			request = args.slice(3).join(" ");
-		}		
-
-		$.ajax({
-		  endpoint: "POST",
-		  dataType: "json",
-		  contentType: "application/json",
-		  url: "rpc",
-		  data: JSON.stringify({"service": args[1], "endpoint": args[2], "request": request}),
-		  success: function(data) {
-		    term.echo(JSON.stringify(data, null, 2));
-		  },
-		});
-		
-		break;
-	    default:
-		term.echo(command +": command not found");
-		term.echo(help);
-	    }
-        } catch(e) {
-	    term.error(new String(e));
-        }
-    }, {
-        greetings: '',
-        name: 'micro_cli',
-        height: 400,
-        prompt: '$ '});
-});
-</script>
-{{end}}
 `
 )
