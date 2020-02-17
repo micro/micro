@@ -93,7 +93,7 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		opts = append(opts, server.ACMEHosts(hosts...))
 		switch ACMEProvider {
 		case "autocert":
-			opts = append(opts, server.ACMEProvider(autocert.New()))
+			opts = append(opts, server.ACMEProvider(autocert.NewProvider()))
 		case "certmagic":
 			if ACMEChallengeProvider != "cloudflare" {
 				log.Fatal("The only implemented DNS challenge provider is cloudflare")
@@ -126,7 +126,7 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 
 			opts = append(opts,
 				server.ACMEProvider(
-					certmagic.New(
+					certmagic.NewProvider(
 						acme.AcceptToS(true),
 						acme.CA(ACMECA),
 						acme.Cache(storage),
