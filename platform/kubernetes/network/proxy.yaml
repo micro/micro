@@ -27,6 +27,10 @@ spec:
       containers:
       - name: proxy
         env:
+        - name: MICRO_PROXY_ADDRESS
+          value: "0.0.0.0:443"
+        - name: MICRO_SERVER_ADDRESS
+          value: "0.0.0.0:8081"
         - name: MICRO_LOG_LEVEL
           value: "trace"
         - name: MICRO_BROKER
@@ -34,17 +38,33 @@ spec:
         - name: MICRO_BROKER_ADDRESS
           value: "nats-cluster"
         - name: MICRO_ROUTER
-          value: "go.micro.router"
+          value: "service"
         - name: MICRO_REGISTRY
           value: "etcd"
         - name: MICRO_REGISTRY_ADDRESS
           value: "etcd-cluster-client"
         - name: MICRO_ENABLE_ACME
           value: "true"
+        - name: MICRO_ACME_PROVIDER
+          value: certmagic
+        - name: MICRO_ACME_HOSTS
+          value: '*.micro.mu,*.cloud.micro.mu,micro.mu'
+        - name: CF_API_TOKEN
+          valueFrom:
+            secretKeyRef:
+              key: CF_API_TOKEN
+              name: cloudflare-credentials
+        - name: CF_ACCOUNT_ID
+          valueFrom:
+            secretKeyRef:
+              key: CF_ACCOUNT_ID
+              name: cloudflare-credentials
         args:
         - proxy
         image: micro/micro
         imagePullPolicy: Always
         ports:
+        - containerPort: 443
+          name: https-port
         - containerPort: 8081
           name: proxy-port
