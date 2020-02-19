@@ -44,7 +44,7 @@ var (
 	// ACME (Cert management)
 	ACMEProvider          = "autocert"
 	ACMEChallengeProvider = "cloudflare"
-	ACMECA                = acme.LetsEncryptStagingCA
+	ACMECA                = acme.LetsEncryptProductionCA
 )
 
 func run(ctx *cli.Context, srvOpts ...micro.Option) {
