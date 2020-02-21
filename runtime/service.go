@@ -15,7 +15,7 @@ import (
 	"github.com/micro/go-micro/v2"
 	"github.com/micro/go-micro/v2/config/cmd"
 	"github.com/micro/go-micro/v2/runtime"
-	"github.com/micro/micro/v2/internal/runtime/platform"
+	srvRuntime "github.com/micro/go-micro/v2/runtime/service"
 	"github.com/micro/micro/v2/runtime/scheduler"
 )
 
@@ -50,6 +50,16 @@ func defaultEnv() []string {
 	return env
 }
 
+func runtimeFromContext(ctx *cli.Context) runtime.Runtime {
+	if ctx.Bool("platform") {
+		os.Setenv("MICRO_PROXY", "go.micro.network")
+		os.Setenv("MICRO_PROXY_ADDRESS", "proxy.micro.mu:443")
+		return srvRuntime.NewRuntime()
+	}
+
+	return *cmd.DefaultCmd.Options().Runtime
+}
+
 func runService(ctx *cli.Context, srvOpts ...micro.Option) {
 	// Init plugins
 	for _, p := range Plugins() {
@@ -75,13 +85,8 @@ func runService(ctx *cli.Context, srvOpts ...micro.Option) {
 		version = ctx.Args().Get(1)
 	}
 
-	// load the runtime. The default runtime is ignored if running on the platform
-	var r runtime.Runtime
-	if ctx.Bool("platform") {
-		r = platform.NewRuntime()
-	} else {
-		r = *cmd.DefaultCmd.Options().Runtime
-	}
+	// load the runtime
+	r := runtimeFromContext(ctx)
 
 	source := ctx.String("source")
 	exec := []string{"go", "run", filepath.Join(source, name)}
@@ -183,19 +188,12 @@ func killService(ctx *cli.Context, srvOpts ...micro.Option) {
 		version = ctx.Args().Get(1)
 	}
 
-	var r runtime.Runtime
-	if ctx.Bool("platform") {
-		r = platform.NewRuntime()
-	} else {
-		r = *cmd.DefaultCmd.Options().Runtime
-	}
-
 	service := &runtime.Service{
 		Name:    name,
 		Version: version,
 	}
 
-	if err := r.Delete(service); err != nil {
+	if err := runtimeFromContext(ctx).Delete(service); err != nil {
 		fmt.Println(err)
 		return
 	}
@@ -221,19 +219,12 @@ func updateService(ctx *cli.Context, srvOpts ...micro.Option) {
 		version = ctx.Args().Get(1)
 	}
 
-	var r runtime.Runtime
-	if ctx.Bool("platform") {
-		r = platform.NewRuntime()
-	} else {
-		r = *cmd.DefaultCmd.Options().Runtime
-	}
-
 	service := &runtime.Service{
 		Name:    name,
 		Version: version,
 	}
 
-	if err := r.Update(service); err != nil {
+	if err := runtimeFromContext(ctx).Update(service); err != nil {
 		fmt.Println(err)
 		return
 	}
@@ -254,13 +245,6 @@ func getService(ctx *cli.Context, srvOpts ...micro.Option) {
 		version = ctx.Args().Get(1)
 	}
 
-	var r runtime.Runtime
-	if ctx.Bool("platform") {
-		r = platform.NewRuntime()
-	} else {
-		r = *cmd.DefaultCmd.Options().Runtime
-	}
-
 	var list bool
 
 	// zero args so list all
@@ -277,6 +261,8 @@ func getService(ctx *cli.Context, srvOpts ...micro.Option) {
 
 	var services []*runtime.Service
 	var err error
+
+	r := runtimeFromContext(ctx)
 
 	// return a list of services
 	switch list {
