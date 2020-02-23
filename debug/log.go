@@ -8,7 +8,7 @@ import (
 	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro/v2"
 	"github.com/micro/go-micro/v2/debug/service"
-	ulog "github.com/micro/go-micro/v2/util/log"
+	log "github.com/micro/go-micro/v2/logger"
 )
 
 const (
@@ -17,7 +17,7 @@ const (
 )
 
 func getLog(ctx *cli.Context, srvOpts ...micro.Option) {
-	ulog.Name("debug")
+	log.Init(log.WithFields(map[string]interface{}{"service": "debug"}))
 
 	// get the args
 	since := ctx.String("since")

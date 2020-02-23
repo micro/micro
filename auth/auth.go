@@ -10,7 +10,7 @@ import (
 	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro/v2"
 	pb "github.com/micro/go-micro/v2/auth/service/proto"
-	"github.com/micro/go-micro/v2/util/log"
+	log "github.com/micro/go-micro/v2/logger"
 	"github.com/micro/micro/v2/auth/api"
 	"github.com/micro/micro/v2/auth/handler"
 	"github.com/micro/micro/v2/internal/config"
@@ -25,7 +25,7 @@ var (
 
 // run the auth service
 func run(ctx *cli.Context, srvOpts ...micro.Option) {
-	log.Name("auth")
+	log.Init(log.WithFields(map[string]interface{}{"service": "auth"}))
 
 	// Init plugins
 	for _, p := range Plugins() {

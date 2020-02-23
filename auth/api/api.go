@@ -3,7 +3,7 @@ package api
 import (
 	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro/v2"
-	"github.com/micro/go-micro/v2/util/log"
+	log "github.com/micro/go-micro/v2/logger"
 
 	pb "github.com/micro/micro/v2/auth/api/proto"
 )
@@ -17,7 +17,7 @@ var (
 
 // Run the micro auth api
 func Run(ctx *cli.Context, srvOpts ...micro.Option) {
-	log.Name("auth")
+	log.Init(log.WithFields(map[string]interface{}{"service": "auth"}))
 
 	service := micro.NewService(
 		micro.Name(Name),

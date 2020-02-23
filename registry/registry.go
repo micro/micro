@@ -7,10 +7,10 @@ import (
 
 	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro/v2"
+	log "github.com/micro/go-micro/v2/logger"
 	"github.com/micro/go-micro/v2/registry"
 	"github.com/micro/go-micro/v2/registry/service"
 	pb "github.com/micro/go-micro/v2/registry/service/proto"
-	"github.com/micro/go-micro/v2/util/log"
 	rcli "github.com/micro/micro/v2/cli"
 	"github.com/micro/micro/v2/registry/handler"
 )
@@ -78,7 +78,7 @@ func (s *subscriber) Process(ctx context.Context, event *pb.Event) error {
 }
 
 func Run(ctx *cli.Context, srvOpts ...micro.Option) {
-	log.Name("registry")
+	log.Init(log.WithFields(map[string]interface{}{"service": "registry"}))
 
 	if len(ctx.String("server_name")) > 0 {
 		Name = ctx.String("server_name")

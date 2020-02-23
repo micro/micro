@@ -5,9 +5,9 @@ import (
 	"time"
 
 	"github.com/micro/go-micro/v2/config/cmd"
+	log "github.com/micro/go-micro/v2/logger"
 	"github.com/micro/go-micro/v2/registry"
 	"github.com/micro/go-micro/v2/registry/cache"
-	"github.com/micro/go-micro/v2/util/log"
 )
 
 // Stats is the Debug.Stats handler

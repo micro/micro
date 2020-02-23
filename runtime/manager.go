@@ -8,9 +8,9 @@ import (
 	"time"
 
 	"github.com/micro/cli/v2"
+	log "github.com/micro/go-micro/v2/logger"
 	"github.com/micro/go-micro/v2/runtime"
 	"github.com/micro/go-micro/v2/store"
-	"github.com/micro/go-micro/v2/util/log"
 	mprofile "github.com/micro/micro/v2/runtime/profile"
 )
 
@@ -293,14 +293,14 @@ func (m *manager) run() {
 			// list the keys from store
 			records, err := m.Store.List()
 			if err != nil {
-				log.Logf("Failed to list records from store: %v", err)
+				log.Errorf("Failed to list records from store: %v", err)
 				continue
 			}
 
 			// list whats already runnning
 			services, err := m.Runtime.List()
 			if err != nil {
-				log.Logf("Failed to list runtime services: %v", err)
+				log.Errorf("Failed to list runtime services: %v", err)
 				continue
 			}
 
@@ -352,7 +352,7 @@ func (m *manager) run() {
 				// service does not exist so start it
 				if err := m.Runtime.Create(rs.Service, opts...); err != nil {
 					if err != runtime.ErrAlreadyExists {
-						log.Logf("Erroring running %s: %v", key(rs.Service), err)
+						log.Errorf("Error running %s: %v", key(rs.Service), err)
 
 						// save the error
 						rs.Status = "error"
@@ -370,7 +370,7 @@ func (m *manager) run() {
 					continue
 				}
 
-				log.Logf("Stopping %s", k)
+				log.Infof("Stopping %s", k)
 
 				// should not be running
 				m.Runtime.Delete(service)
@@ -383,10 +383,10 @@ func (m *manager) run() {
 
 			switch ev.Type {
 			case "delete":
-				log.Logf("Procesing deletion event %s", key(ev.Service))
+				log.Infof("Procesing deletion event %s", key(ev.Service))
 				err = m.Runtime.Delete(ev.Service)
 			case "update":
-				log.Logf("Processing update event %s", key(ev.Service))
+				log.Infof("Processing update event %s", key(ev.Service))
 				err = m.Runtime.Update(ev.Service)
 			case "create":
 				// generate the runtime environment
@@ -398,12 +398,12 @@ func (m *manager) run() {
 					runtime.CreateType(ev.Options.Type),
 				}
 
-				log.Logf("Processing create event %s", key(ev.Service))
+				log.Infof("Processing create event %s", key(ev.Service))
 				err = m.Runtime.Create(ev.Service, opts...)
 			}
 
 			if err != nil {
-				log.Logf("Erroring executing event %s for %s: %v", ev.Type, ev.Service.Name, err)
+				log.Errorf("Erroring executing event %s for %s: %v", ev.Type, ev.Service.Name, err)
 
 				// save the error
 				// hacking, its a pointer

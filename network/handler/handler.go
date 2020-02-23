@@ -5,11 +5,11 @@ import (
 	"context"
 
 	"github.com/micro/go-micro/v2/errors"
+	log "github.com/micro/go-micro/v2/logger"
 	"github.com/micro/go-micro/v2/network"
 	pbNet "github.com/micro/go-micro/v2/network/service/proto"
 	"github.com/micro/go-micro/v2/router"
 	pbRtr "github.com/micro/go-micro/v2/router/service/proto"
-	"github.com/micro/go-micro/v2/util/log"
 )
 
 // Network implements network handler

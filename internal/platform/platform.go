@@ -9,8 +9,8 @@ import (
 
 	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro/v2/config/cmd"
+	log "github.com/micro/go-micro/v2/logger"
 	gorun "github.com/micro/go-micro/v2/runtime"
-	"github.com/micro/go-micro/v2/util/log"
 
 	// include usage
 
@@ -108,7 +108,7 @@ func initNotify(n gorun.Scheduler, services []string) gorun.Scheduler {
 // Init is the `micro init` command which manages the lifecycle
 // of all the services. It does not start the services.
 func Init(context *cli.Context) {
-	log.Name("init")
+	log.Init(log.WithFields(map[string]interface{}{"service": "init"}))
 
 	if context.Args().Len() > 0 {
 		cli.ShowSubcommandHelp(context)
@@ -173,7 +173,7 @@ func Init(context *cli.Context) {
 
 // Run runs the entire platform
 func Run(context *cli.Context) error {
-	log.Name("micro")
+	log.Init(log.WithFields(map[string]interface{}{"service": "micro"}))
 
 	if context.Args().Len() > 0 {
 		cli.ShowSubcommandHelp(context)
@@ -202,12 +202,12 @@ func Run(context *cli.Context) error {
 		if v := os.Getenv("MICRO_NETWORK_NODES"); len(v) == 0 {
 			// set the resolver to use https://micro.mu/network
 			env = append(env, "MICRO_NETWORK_NODES=network.micro.mu")
-			log.Log("Setting default network micro.mu")
+			log.Info("Setting default network micro.mu")
 		}
 		if v := os.Getenv("MICRO_NETWORK_TOKEN"); len(v) == 0 {
 			// set the network token
 			env = append(env, "MICRO_NETWORK_TOKEN=micro.mu")
-			log.Log("Setting default network token")
+			log.Info("Setting default network token")
 		}
 	}
 
