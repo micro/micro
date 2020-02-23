@@ -7,8 +7,8 @@ import (
 	"strings"
 
 	"github.com/micro/cli/v2"
+	log "github.com/micro/go-micro/v2/logger"
 	goplugin "github.com/micro/go-micro/v2/plugin"
-	"github.com/micro/go-micro/v2/util/log"
 	"github.com/micro/micro/v2/plugin"
 )
 
@@ -131,10 +131,10 @@ func Flags() plugin.Plugin {
 
 			for _, p := range plugins {
 				if err := load(p); err != nil {
-					log.Logf("Error loading plugin %s: %v", p, err)
+					log.Errorf("Error loading plugin %s: %v", p, err)
 					return err
 				}
-				log.Logf("Loaded plugin %s\n", p)
+				log.Infof("Loaded plugin %s\n", p)
 			}
 
 			return nil

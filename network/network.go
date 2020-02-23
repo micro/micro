@@ -10,6 +10,7 @@ import (
 
 	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro/v2"
+	log "github.com/micro/go-micro/v2/logger"
 	"github.com/micro/go-micro/v2/network"
 	"github.com/micro/go-micro/v2/network/resolver"
 	"github.com/micro/go-micro/v2/network/resolver/dns"
@@ -22,7 +23,6 @@ import (
 	"github.com/micro/go-micro/v2/transport"
 	"github.com/micro/go-micro/v2/transport/quic"
 	"github.com/micro/go-micro/v2/tunnel"
-	"github.com/micro/go-micro/v2/util/log"
 	"github.com/micro/go-micro/v2/util/mux"
 	mcli "github.com/micro/micro/v2/cli"
 	"github.com/micro/micro/v2/internal/helper"
@@ -49,7 +49,7 @@ var (
 
 // run runs the micro server
 func run(ctx *cli.Context, srvOpts ...micro.Option) {
-	log.Name("network")
+	log.Info("network")
 
 	if ctx.Args().Len() > 0 {
 		cli.ShowSubcommandHelp(ctx)
@@ -192,7 +192,7 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 
 	// connect network
 	if err := net.Connect(); err != nil {
-		log.Logf("Network failed to connect: %v", err)
+		log.Errorf("Network failed to connect: %v", err)
 		os.Exit(1)
 	}
 
@@ -212,10 +212,10 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		}
 	}
 
-	log.Logf("Network [%s] listening on %s", Network, Address)
+	log.Infof("Network [%s] listening on %s", Network, Address)
 
 	if err := service.Run(); err != nil {
-		log.Logf("Network %s failed: %v", Network, err)
+		log.Errorf("Network %s failed: %v", Network, err)
 		netClose(net)
 		os.Exit(1)
 	}

@@ -13,10 +13,10 @@ import (
 	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro/v2"
 	goapi "github.com/micro/go-micro/v2/api"
+	log "github.com/micro/go-micro/v2/logger"
 	"github.com/micro/go-micro/v2/network"
 	"github.com/micro/go-micro/v2/network/resolver"
 	pb "github.com/micro/go-micro/v2/network/service/proto"
-	"github.com/micro/go-micro/v2/util/log"
 )
 
 var (

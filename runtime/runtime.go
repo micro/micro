@@ -7,9 +7,9 @@ import (
 	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro/v2"
 	"github.com/micro/go-micro/v2/config/cmd"
+	log "github.com/micro/go-micro/v2/logger"
 	"github.com/micro/go-micro/v2/runtime"
 	pb "github.com/micro/go-micro/v2/runtime/service/proto"
-	"github.com/micro/go-micro/v2/util/log"
 	"github.com/micro/micro/v2/runtime/handler"
 )
 
@@ -22,7 +22,7 @@ var (
 
 // Run the runtime service
 func Run(ctx *cli.Context, srvOpts ...micro.Option) {
-	log.Name("runtime")
+	log.Info("runtime")
 
 	// Init plugins
 	for _, p := range Plugins() {
@@ -53,11 +53,11 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 	// create a new runtime manager
 	manager := newManager(ctx, muRuntime, muStore)
 
-	log.Logf("using store %s", muStore.String())
+	log.Infof("using store %s", muStore.String())
 
 	// start the manager
 	if err := manager.Start(); err != nil {
-		log.Logf("failed to start: %s", err)
+		log.Errorf("failed to start: %s", err)
 		os.Exit(1)
 	}
 
@@ -77,12 +77,12 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 
 	// start runtime service
 	if err := service.Run(); err != nil {
-		log.Logf("error running service: %v", err)
+		log.Errorf("error running service: %v", err)
 	}
 
 	// stop the manager
 	if err := manager.Stop(); err != nil {
-		log.Logf("failed to stop: %s", err)
+		log.Errorf("failed to stop: %s", err)
 		os.Exit(1)
 	}
 }

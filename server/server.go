@@ -7,11 +7,11 @@ import (
 
 	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro/v2"
+	log "github.com/micro/go-micro/v2/logger"
 	"github.com/micro/go-micro/v2/router"
 	"github.com/micro/go-micro/v2/server"
 	"github.com/micro/go-micro/v2/transport"
 	"github.com/micro/go-micro/v2/transport/grpc"
-	"github.com/micro/go-micro/v2/util/log"
 )
 
 var (
@@ -47,7 +47,7 @@ func newServer(s micro.Service, r router.Router) *srv {
 
 // start starts the micro server.
 func (s *srv) start() error {
-	log.Log("starting micro server")
+	log.Info("starting micro server")
 
 	// start the router
 	if err := s.router.Start(); err != nil {
@@ -59,7 +59,7 @@ func (s *srv) start() error {
 
 // stop stops the micro server.
 func (s *srv) stop() error {
-	log.Log("stopping server")
+	log.Info("stopping server")
 
 	// stop the router
 	if err := s.router.Stop(); err != nil {
@@ -71,7 +71,7 @@ func (s *srv) stop() error {
 
 // run runs the micro server
 func run(ctx *cli.Context, srvOpts ...micro.Option) {
-	log.Name("server")
+	log.Info("server")
 
 	// Init plugins
 	for _, p := range Plugins() {
@@ -111,25 +111,25 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	s := newServer(service, r)
 
 	if err := s.start(); err != nil {
-		log.Log("failed to start: %s", err)
+		log.Errorf("failed to start: %s", err)
 		os.Exit(1)
 	}
 
-	log.Log("successfully started")
+	log.Info("successfully started")
 
 	if err := service.Run(); err != nil {
-		log.Logf("failed with error %s", err)
+		log.Errorf("failed with error %s", err)
 		// TODO: we should probably stop the router here before bailing
 		os.Exit(1)
 	}
 
 	// stop the server
 	if err := s.stop(); err != nil {
-		log.Logf("failed to stop: %v", err)
+		log.Errorf("failed to stop: %v", err)
 		os.Exit(1)
 	}
 
-	log.Logf("successfully stopped")
+	log.Info("successfully stopped")
 }
 
 func Commands(options ...micro.Option) []*cli.Command {

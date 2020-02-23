@@ -10,7 +10,7 @@ import (
 	miekdns "github.com/miekg/dns"
 	"github.com/pkg/errors"
 
-	"github.com/micro/go-micro/v2/util/log"
+	log "github.com/micro/go-micro/v2/logger"
 	dns "github.com/micro/micro/v2/network/dns/proto/dns"
 	"github.com/micro/micro/v2/network/dns/provider"
 )

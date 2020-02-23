@@ -7,7 +7,7 @@ import (
 	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro/v2"
 	pb "github.com/micro/go-micro/v2/broker/service/proto"
-	"github.com/micro/go-micro/v2/util/log"
+	log "github.com/micro/go-micro/v2/logger"
 	"github.com/micro/micro/v2/broker/handler"
 )
 
@@ -19,7 +19,7 @@ var (
 )
 
 func run(ctx *cli.Context, srvOpts ...micro.Option) {
-	log.Name("broker")
+	log.Info("broker")
 
 	if len(ctx.String("server_name")) > 0 {
 		Name = ctx.String("server_name")
