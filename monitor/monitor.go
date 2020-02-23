@@ -15,7 +15,7 @@ var (
 )
 
 func run(ctx *cli.Context, opts ...micro.Option) {
-	log.Info("monitor")
+	log.Init(log.WithFields(map[string]interface{}{"service": "monitor"}))
 
 	// create a new monitor
 	m := monitor.NewMonitor()

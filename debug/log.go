@@ -17,7 +17,7 @@ const (
 )
 
 func getLog(ctx *cli.Context, srvOpts ...micro.Option) {
-	log.Info("debug")
+	log.Init(log.WithFields(map[string]interface{}{"service": "debug"}))
 
 	// get the args
 	since := ctx.String("since")

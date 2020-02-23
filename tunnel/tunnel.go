@@ -34,7 +34,7 @@ var (
 
 // run runs the micro server
 func run(ctx *cli.Context, srvOpts ...micro.Option) {
-	log.Info("tunnel")
+	log.Init(log.WithFields(map[string]interface{}{"service": "tunnel"}))
 
 	// Init plugins
 	for _, p := range Plugins() {

@@ -406,7 +406,7 @@ func render(w http.ResponseWriter, r *http.Request, tmpl string, data interface{
 }
 
 func run(ctx *cli.Context, srvOpts ...micro.Option) {
-	log.Info("web")
+	log.Init(log.WithFields(map[string]interface{}{"service": "web"}))
 
 	if len(ctx.String("server_name")) > 0 {
 		Name = ctx.String("server_name")

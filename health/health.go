@@ -22,7 +22,7 @@ var (
 )
 
 func Run(ctx *cli.Context) {
-	log.Info("health")
+	log.Init(log.WithFields(map[string]interface{}{"service": "health"}))
 
 	// just check service health
 	if ctx.Args().Len() > 0 {

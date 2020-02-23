@@ -19,7 +19,7 @@ import (
 )
 
 func run(ctx *cli.Context, opts ...micro.Option) {
-	log.Info("service")
+	log.Init(log.WithFields(map[string]interface{}{"service": "service"}))
 
 	name := ctx.String("name")
 	address := ctx.String("address")

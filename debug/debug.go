@@ -25,7 +25,7 @@ var (
 )
 
 func Run(ctx *cli.Context, srvOpts ...micro.Option) {
-	ulog.Info("debug")
+	ulog.Init(ulog.WithFields(map[string]interface{}{"service": "debug"}))
 
 	// Init plugins
 	for _, p := range Plugins() {

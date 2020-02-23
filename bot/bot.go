@@ -352,7 +352,7 @@ func (b *bot) watch() {
 }
 
 func run(ctx *cli.Context) error {
-	log.Info("bot")
+	log.Init(log.WithFields(map[string]interface{}{"service": "bot"}))
 
 	// Init plugins
 	for _, p := range Plugins() {

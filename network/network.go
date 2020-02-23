@@ -49,7 +49,7 @@ var (
 
 // run runs the micro server
 func run(ctx *cli.Context, srvOpts ...micro.Option) {
-	log.Info("network")
+	log.Init(log.WithFields(map[string]interface{}{"service": "network"}))
 
 	if ctx.Args().Len() > 0 {
 		cli.ShowSubcommandHelp(ctx)

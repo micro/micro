@@ -71,7 +71,7 @@ func (s *srv) stop() error {
 
 // run runs the micro server
 func run(ctx *cli.Context, srvOpts ...micro.Option) {
-	log.Info("server")
+	log.Init(log.WithFields(map[string]interface{}{"service": "server"}))
 
 	// Init plugins
 	for _, p := range Plugins() {

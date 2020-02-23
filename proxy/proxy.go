@@ -48,7 +48,7 @@ var (
 )
 
 func run(ctx *cli.Context, srvOpts ...micro.Option) {
-	log.Info("proxy")
+	log.Init(log.WithFields(map[string]interface{}{"service": "proxy"}))
 
 	// because MICRO_PROXY_ADDRESS is used internally by the go-micro/client
 	// we need to unset it so we don't end up calling ourselves infinitely

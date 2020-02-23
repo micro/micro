@@ -108,7 +108,7 @@ func initNotify(n gorun.Scheduler, services []string) gorun.Scheduler {
 // Init is the `micro init` command which manages the lifecycle
 // of all the services. It does not start the services.
 func Init(context *cli.Context) {
-	log.Info("init")
+	log.Init(log.WithFields(map[string]interface{}{"service": "init"}))
 
 	if context.Args().Len() > 0 {
 		cli.ShowSubcommandHelp(context)
@@ -173,7 +173,7 @@ func Init(context *cli.Context) {
 
 // Run runs the entire platform
 func Run(context *cli.Context) error {
-	log.Info("micro")
+	log.Init(log.WithFields(map[string]interface{}{"service": "micro"}))
 
 	if context.Args().Len() > 0 {
 		cli.ShowSubcommandHelp(context)

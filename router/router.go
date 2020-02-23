@@ -159,7 +159,7 @@ func (r *rtr) Stop() error {
 
 // run runs the micro server
 func run(ctx *cli.Context, srvOpts ...micro.Option) {
-	log.Info("router")
+	log.Init(log.WithFields(map[string]interface{}{"service": "router"}))
 
 	// Init plugins
 	for _, p := range Plugins() {

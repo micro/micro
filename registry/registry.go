@@ -78,7 +78,7 @@ func (s *subscriber) Process(ctx context.Context, event *pb.Event) error {
 }
 
 func Run(ctx *cli.Context, srvOpts ...micro.Option) {
-	log.Info("registry")
+	log.Init(log.WithFields(map[string]interface{}{"service": "registry"}))
 
 	if len(ctx.String("server_name")) > 0 {
 		Name = ctx.String("server_name")

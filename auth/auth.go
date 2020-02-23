@@ -25,7 +25,7 @@ var (
 
 // run the auth service
 func run(ctx *cli.Context, srvOpts ...micro.Option) {
-	log.Info("auth")
+	log.Init(log.WithFields(map[string]interface{}{"service": "auth"}))
 
 	// Init plugins
 	for _, p := range Plugins() {

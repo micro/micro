@@ -55,7 +55,7 @@ var (
 )
 
 func run(ctx *cli.Context, srvOpts ...micro.Option) {
-	log.Info("api")
+	log.Init(log.WithFields(map[string]interface{}{"service": "api"}))
 
 	if len(ctx.String("server_name")) > 0 {
 		Name = ctx.String("server_name")

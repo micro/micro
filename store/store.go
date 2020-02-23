@@ -32,7 +32,7 @@ var (
 
 // run runs the micro server
 func run(ctx *cli.Context, srvOpts ...micro.Option) {
-	log.Info("store")
+	log.Init(log.WithFields(map[string]interface{}{"service": "store"}))
 
 	// Init plugins
 	for _, p := range Plugins() {

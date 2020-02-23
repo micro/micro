@@ -17,7 +17,7 @@ var (
 
 // Run the micro auth api
 func Run(ctx *cli.Context, srvOpts ...micro.Option) {
-	log.Info("auth")
+	log.Init(log.WithFields(map[string]interface{}{"service": "auth"}))
 
 	service := micro.NewService(
 		micro.Name(Name),
