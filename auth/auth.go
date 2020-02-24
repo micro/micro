@@ -11,9 +11,9 @@ import (
 	pb "github.com/micro/go-micro/v2/auth/service/proto"
 	"github.com/micro/go-micro/v2/config/cmd"
 	log "github.com/micro/go-micro/v2/logger"
+	"github.com/micro/go-micro/v2/util/config"
 	"github.com/micro/micro/v2/auth/api"
 	"github.com/micro/micro/v2/auth/handler"
-	"github.com/micro/micro/v2/internal/config"
 )
 
 var (
@@ -77,6 +77,9 @@ func login(ctx *cli.Context) {
 	acc, err := authFromContext(ctx).Validate(token)
 	if err != nil {
 		fmt.Println(err)
+		os.Exit(1)
+	} else if acc == nil {
+		fmt.Printf("[%v] did not generate an account\n", authFromContext(ctx).String())
 		os.Exit(1)
 	}
 
