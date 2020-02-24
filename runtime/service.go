@@ -52,7 +52,7 @@ func defaultEnv() []string {
 
 func runtimeFromContext(ctx *cli.Context) runtime.Runtime {
 	if ctx.Bool("platform") {
-		os.Setenv("MICRO_PROXY", "go.micro.network")
+		os.Setenv("MICRO_PROXY", "service")
 		os.Setenv("MICRO_PROXY_ADDRESS", "proxy.micro.mu:443")
 		return srvRuntime.NewRuntime()
 	}

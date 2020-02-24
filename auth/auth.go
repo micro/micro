@@ -57,7 +57,7 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 
 func authFromContext(ctx *cli.Context) auth.Auth {
 	if ctx.Bool("platform") {
-		os.Setenv("MICRO_PROXY", "go.micro.network")
+		os.Setenv("MICRO_PROXY", "service")
 		os.Setenv("MICRO_PROXY_ADDRESS", "proxy.micro.mu:443")
 		return srvAuth.NewAuth()
 	}
