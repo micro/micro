@@ -1,14 +1,10 @@
 package handler
 
 import (
-	"bytes"
 	"context"
-	"encoding/gob"
 	"time"
 
-	"github.com/google/uuid"
 	"github.com/micro/go-micro/v2/auth"
-	log "github.com/micro/go-micro/v2/logger"
 
 	"github.com/micro/go-micro/v2/config/cmd"
 	"github.com/micro/go-micro/v2/errors"
@@ -20,6 +16,7 @@ import (
 // New returns an instance of Handler
 func New() *Handler {
 	return &Handler{
+		auth:  *cmd.DefaultOptions().Auth,
 		store: *cmd.DefaultOptions().Store,
 	}
 }
@@ -32,6 +29,7 @@ var (
 // Handler processes RPC calls
 type Handler struct {
 	store store.Store
+	auth  auth.Auth
 }
 
 // Generate creates a new  account in the store
@@ -43,60 +41,36 @@ func (h *Handler) Generate(ctx context.Context, req *pb.GenerateRequest, rsp *pb
 		return errors.BadRequest("go.micro.auth", "account id required")
 	}
 
-	// generate the token
-	token, err := uuid.NewUUID()
-	if err != nil {
-		return err
+	opts := []auth.GenerateOption{}
+	if req.Account.Metadata != nil {
+		opts = append(opts, auth.Metadata(req.Account.Metadata))
 	}
+	if req.Account.Roles != nil {
+		roles := make([]*auth.Role, len(req.Account.Roles))
+		for i, r := range req.Account.Roles {
+			var resouce *auth.Resource
+			if r.Resource != nil {
+				resouce = &auth.Resource{
+					Name: r.Resource.Name,
+					Type: r.Resource.Type,
+				}
+			}
 
-	// construct the account
-	sa := auth.Account{
-		Id:       req.Account.Id,
-		Token:    token.String(),
-		Created:  time.Now(),
-		Expiry:   time.Now().Add(Duration),
-		Metadata: req.Account.Metadata,
-	}
-
-	// add the roles
-	sa.Roles = make([]*auth.Role, len(req.Account.Roles))
-	for i, r := range req.Account.Roles {
-		sa.Roles[i] = &auth.Role{Name: r.Name}
-
-		if r.Resource != nil {
-			sa.Roles[i].Resource = &auth.Resource{
-				Name: r.Resource.Name,
-				Type: r.Resource.Type,
+			roles[i] = &auth.Role{
+				Name:     r.Name,
+				Resource: resouce,
 			}
 		}
+		opts = append(opts, auth.Roles(roles))
 	}
 
-	// encode the data to bytes
-	buf := &bytes.Buffer{}
-	e := gob.NewEncoder(buf)
-	if err := e.Encode(sa); err != nil {
-		return err
-	}
-
-	// write to the store
-	err = h.store.Write(&store.Record{
-		Key:    token.String(),
-		Value:  buf.Bytes(),
-		Expiry: Duration,
-	})
+	acc, err := h.auth.Generate(req.Account.Id, opts...)
 	if err != nil {
 		return err
 	}
-	log.Infof("Created account: %v", token.String())
 
 	// encode the response
-	rsp.Account = &pb.Account{
-		Created:  sa.Created.Unix(),
-		Expiry:   sa.Expiry.Unix(),
-		Metadata: sa.Metadata,
-		Token:    token.String(),
-		Roles:    req.Account.Roles,
-	}
+	rsp.Account = serializeAccount(acc)
 
 	return nil
 }
@@ -107,40 +81,13 @@ func (h *Handler) Validate(ctx context.Context, req *pb.ValidateRequest, rsp *pb
 		return errors.BadRequest("go.micro.auth", "token required")
 	}
 
-	// lookup the record by token
-	records, err := h.store.Read(req.Token, store.ReadSuffix())
-	if err == store.ErrNotFound || len(records) == 0 {
-		return errors.Unauthorized("go.micro.auth", "invalid token")
-	} else if err != nil {
-		return errors.InternalServerError("go.micro.auth", "error reading store")
+	acc, err := h.auth.Validate(req.Token)
+	if err != nil {
+		return err
 	}
 
-	// decode the result
-	b := bytes.NewBuffer(records[0].Value)
-	decoder := gob.NewDecoder(b)
-	var sa auth.Account
-	err = decoder.Decode(&sa)
+	rsp.Account = serializeAccount(acc)
 
-	// encode the response
-	rsp.Account = &pb.Account{
-		Created:  sa.Created.Unix(),
-		Expiry:   sa.Expiry.Unix(),
-		Metadata: sa.Metadata,
-		Token:    req.Token,
-		Roles:    make([]*pb.Role, len(sa.Roles)),
-	}
-	for i, r := range sa.Roles {
-		rsp.Account.Roles[i] = &pb.Role{Name: r.Name}
-
-		if r.Resource != nil {
-			rsp.Account.Roles[i].Resource = &pb.Resource{
-				Name: r.Resource.Name,
-				Type: r.Resource.Type,
-			}
-		}
-	}
-
-	log.Infof("Validated account: %v", records[0].Key)
 	return nil
 }
 
@@ -150,20 +97,28 @@ func (h *Handler) Revoke(ctx context.Context, req *pb.RevokeRequest, rsp *pb.Rev
 		return errors.BadRequest("go.micro.auth", "token required")
 	}
 
-	records, err := h.store.Read(req.Token, store.ReadSuffix())
-	if err != nil {
-		return errors.InternalServerError("go.micro.auth", "error reading store")
-	}
-	if len(records) == 0 {
-		return errors.NotFound("go.micro.auth", "token not found")
+	return h.auth.Revoke(req.Token)
+}
+
+func serializeAccount(acc *auth.Account) *pb.Account {
+	res := &pb.Account{
+		Created:  acc.Created.Unix(),
+		Expiry:   acc.Expiry.Unix(),
+		Metadata: acc.Metadata,
+		Token:    acc.Token,
+		Roles:    make([]*pb.Role, len(acc.Roles)),
 	}
 
-	for _, r := range records {
-		if err := h.store.Delete(r.Key); err != nil {
-			return errors.InternalServerError("go.micro.auth", "error deleting from store")
+	for i, r := range acc.Roles {
+		res.Roles[i] = &pb.Role{Name: r.Name}
+
+		if r.Resource != nil {
+			res.Roles[i].Resource = &pb.Resource{
+				Name: r.Resource.Name,
+				Type: r.Resource.Type,
+			}
 		}
-		log.Infof("Revoked  account: %v", r.Key)
 	}
 
-	return nil
+	return res
 }
