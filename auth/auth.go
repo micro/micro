@@ -68,7 +68,7 @@ func authFromContext(ctx *cli.Context) auth.Auth {
 // login using a token
 func login(ctx *cli.Context) {
 	if ctx.Args().Len() != 1 {
-		fmt.Println("Usage: `micro login [token]. Visit https://micro.mu/platform to get a token.`")
+		fmt.Println("Usage: `micro login [token]`")
 		os.Exit(1)
 	}
 	token := ctx.Args().First()
