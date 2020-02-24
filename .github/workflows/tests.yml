@@ -1,5 +1,5 @@
 name: Run tests
-on: [push, pull_request]
+on: [push]
 
 jobs:
 
@@ -48,4 +48,3 @@ jobs:
         SLACK_TITLE: Tests Passed
         SLACK_USERNAME: GitHub Actions
         SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL }}
-
