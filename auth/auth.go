@@ -1,19 +1,19 @@
 package auth
 
 import (
-	"bytes"
-	"encoding/json"
 	"fmt"
-	"net/http"
 	"os"
 
 	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro/v2"
+	"github.com/micro/go-micro/v2/auth"
+	srvAuth "github.com/micro/go-micro/v2/auth/service"
 	pb "github.com/micro/go-micro/v2/auth/service/proto"
+	"github.com/micro/go-micro/v2/config/cmd"
 	log "github.com/micro/go-micro/v2/logger"
+	"github.com/micro/go-micro/v2/util/config"
 	"github.com/micro/micro/v2/auth/api"
 	"github.com/micro/micro/v2/auth/handler"
-	"github.com/micro/micro/v2/internal/config"
 )
 
 var (
@@ -55,6 +55,16 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	}
 }
 
+func authFromContext(ctx *cli.Context) auth.Auth {
+	if ctx.Bool("platform") {
+		os.Setenv("MICRO_PROXY", "service")
+		os.Setenv("MICRO_PROXY_ADDRESS", "proxy.micro.mu:443")
+		return srvAuth.NewAuth()
+	}
+
+	return *cmd.DefaultCmd.Options().Auth
+}
+
 // login using a token
 func login(ctx *cli.Context) {
 	if ctx.Args().Len() != 1 {
@@ -63,23 +73,18 @@ func login(ctx *cli.Context) {
 	}
 	token := ctx.Args().First()
 
-	// Construct the JSON for the HTTP request
-	jsonStr, err := json.Marshal(map[string]string{"token": token})
+	// Execute the request
+	acc, err := authFromContext(ctx).Validate(token)
 	if err != nil {
-		fmt.Println("Invalid token. Visit https://micro.mu/platform to get a token.")
+		fmt.Println(err)
 		os.Exit(1)
-	}
-	buff := bytes.NewBuffer(jsonStr)
-
-	// Execute the HTTP request
-	resp, err := http.Post("https://api.micro.mu/auth/validate", "application/json", buff)
-	if err != nil || resp.StatusCode != 200 {
-		fmt.Println("Invalid token. Visit https://micro.mu/platform to get a token.")
+	} else if acc == nil {
+		fmt.Printf("[%v] did not generate an account\n", authFromContext(ctx).String())
 		os.Exit(1)
 	}
 
 	// Store the token in micro config
-	if err := config.Set("token", token); err != nil {
+	if err := config.Set("token", acc.Token); err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
@@ -122,6 +127,13 @@ func Commands(srvOpts ...micro.Option) []*cli.Command {
 			Action: func(ctx *cli.Context) error {
 				login(ctx)
 				return nil
+			},
+			Flags: []cli.Flag{
+				&cli.BoolFlag{
+					Name:  "platform",
+					Usage: "Connect to the platform",
+					Value: false,
+				},
 			},
 		},
 	}
