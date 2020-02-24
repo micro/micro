@@ -93,7 +93,6 @@ func Flags() []cli.Flag {
 		&cli.StringFlag{
 			Name:  "source",
 			Usage: "Set the source url of the service e.g github.com/micro/services",
-			Value: "github.com/micro/services",
 		},
 		&cli.BoolFlag{
 			Name:  "platform",
