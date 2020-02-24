@@ -77,7 +77,6 @@ func login(ctx *cli.Context) {
 	acc, err := authFromContext(ctx).Validate(token)
 	if err != nil {
 		fmt.Println(err)
-		fmt.Println("Invalid token. Visit https://micro.mu/platform to get a token.")
 		os.Exit(1)
 	}
 
