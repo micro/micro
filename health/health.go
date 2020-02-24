@@ -9,7 +9,7 @@ import (
 	"github.com/micro/go-micro/v2"
 	"github.com/micro/go-micro/v2/client"
 	proto "github.com/micro/go-micro/v2/debug/service/proto"
-	"github.com/micro/go-micro/v2/util/log"
+	log "github.com/micro/go-micro/v2/logger"
 	mcli "github.com/micro/micro/v2/cli"
 	qcli "github.com/micro/micro/v2/internal/command/cli"
 	"golang.org/x/net/context"
@@ -22,7 +22,7 @@ var (
 )
 
 func Run(ctx *cli.Context) {
-	log.Name("health")
+	log.Init(log.WithFields(map[string]interface{}{"service": "health"}))
 
 	// just check service health
 	if ctx.Args().Len() > 0 {

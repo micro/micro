@@ -8,7 +8,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/micro/go-micro/v2/auth"
-	"github.com/micro/go-micro/v2/util/log"
+	log "github.com/micro/go-micro/v2/logger"
 
 	"github.com/micro/go-micro/v2/config/cmd"
 	"github.com/micro/go-micro/v2/errors"

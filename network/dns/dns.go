@@ -4,7 +4,7 @@ package dns
 import (
 	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro/v2"
-	"github.com/micro/go-micro/v2/util/log"
+	log "github.com/micro/go-micro/v2/logger"
 
 	"github.com/micro/micro/v2/network/dns/handler"
 	dns "github.com/micro/micro/v2/network/dns/proto/dns"

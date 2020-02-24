@@ -4,8 +4,8 @@ import (
 	"errors"
 	"sync"
 
+	log "github.com/micro/go-micro/v2/logger"
 	"github.com/micro/go-micro/v2/store"
-	"github.com/micro/go-micro/v2/util/log"
 )
 
 var (
@@ -43,7 +43,7 @@ func Init(opts ...Option) error {
 	}
 
 	db = dbMap[options.DBName]
-	log.Logf("Init config db: %s", options.DBName)
+	log.Infof("Init config db: %s", options.DBName)
 
 	return db.Init(options)
 }

@@ -15,6 +15,7 @@ import (
 	bmem "github.com/micro/go-micro/v2/broker/memory"
 	"github.com/micro/go-micro/v2/client"
 	mucli "github.com/micro/go-micro/v2/client"
+	log "github.com/micro/go-micro/v2/logger"
 	"github.com/micro/go-micro/v2/proxy"
 	"github.com/micro/go-micro/v2/proxy/grpc"
 	"github.com/micro/go-micro/v2/proxy/http"
@@ -27,7 +28,6 @@ import (
 	sgrpc "github.com/micro/go-micro/v2/server/grpc"
 	cfstore "github.com/micro/go-micro/v2/store/cloudflare"
 	"github.com/micro/go-micro/v2/sync/lock/memory"
-	"github.com/micro/go-micro/v2/util/log"
 	"github.com/micro/go-micro/v2/util/mux"
 	"github.com/micro/micro/v2/internal/helper"
 )
@@ -48,7 +48,7 @@ var (
 )
 
 func run(ctx *cli.Context, srvOpts ...micro.Option) {
-	log.Name("proxy")
+	log.Init(log.WithFields(map[string]interface{}{"service": "proxy"}))
 
 	// because MICRO_PROXY_ADDRESS is used internally by the go-micro/client
 	// we need to unset it so we don't end up calling ourselves infinitely
@@ -114,7 +114,7 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 
 	// start the router
 	if err := r.Start(); err != nil {
-		log.Logf("Proxy error starting router: %s", err)
+		log.Errorf("Proxy error starting router: %s", err)
 		os.Exit(1)
 	}
 
@@ -237,9 +237,9 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	}
 
 	if len(Endpoint) > 0 {
-		log.Logf("Proxy [%s] serving endpoint: %s", p.String(), Endpoint)
+		log.Infof("Proxy [%s] serving endpoint: %s", p.String(), Endpoint)
 	} else {
-		log.Logf("Proxy [%s] serving protocol: %s", p.String(), Protocol)
+		log.Infof("Proxy [%s] serving protocol: %s", p.String(), Protocol)
 	}
 
 	// new service

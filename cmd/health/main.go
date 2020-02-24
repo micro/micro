@@ -8,7 +8,7 @@ import (
 	"github.com/micro/go-micro/v2/client"
 	"github.com/micro/go-micro/v2/config/cmd"
 	proto "github.com/micro/go-micro/v2/debug/service/proto"
-	"github.com/micro/go-micro/v2/util/log"
+	log "github.com/micro/go-micro/v2/logger"
 	"golang.org/x/net/context"
 )
 

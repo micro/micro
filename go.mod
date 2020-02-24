@@ -28,7 +28,7 @@ require (
 	github.com/pquerna/otp v1.2.0
 	github.com/serenize/snaker v0.0.0-20171204205717-a683aaf2d516
 	github.com/xlab/treeprint v0.0.0-20181112141820-a009c3971eca
-	golang.org/x/net v0.0.0-20200114155413-6afb5195e5aa
+	golang.org/x/net v0.0.0-20200222125558-5a598a2470a0
 	golang.org/x/oauth2 v0.0.0-20191202225959-858c2ad4c8b6
 	golang.org/x/tools v0.0.0-20191216173652-a0e659d51361
 	google.golang.org/grpc v1.26.0

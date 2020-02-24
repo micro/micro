@@ -9,6 +9,7 @@ import (
 	"github.com/micro/go-micro/v2"
 	"github.com/micro/go-micro/v2/client"
 	cmucp "github.com/micro/go-micro/v2/client/mucp"
+	log "github.com/micro/go-micro/v2/logger"
 	"github.com/micro/go-micro/v2/proxy"
 	"github.com/micro/go-micro/v2/proxy/mucp"
 	"github.com/micro/go-micro/v2/registry/memory"
@@ -17,7 +18,6 @@ import (
 	smucp "github.com/micro/go-micro/v2/server/mucp"
 	tun "github.com/micro/go-micro/v2/tunnel"
 	"github.com/micro/go-micro/v2/tunnel/transport"
-	"github.com/micro/go-micro/v2/util/log"
 	"github.com/micro/go-micro/v2/util/mux"
 )
 
@@ -34,7 +34,7 @@ var (
 
 // run runs the micro server
 func run(ctx *cli.Context, srvOpts ...micro.Option) {
-	log.Name("tunnel")
+	log.Init(log.WithFields(map[string]interface{}{"service": "tunnel"}))
 
 	// Init plugins
 	for _, p := range Plugins() {
@@ -78,7 +78,7 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 
 	// start the router
 	if err := r.Start(); err != nil {
-		log.Logf("Tunnel error starting router: %s", err)
+		log.Errorf("Tunnel error starting router: %s", err)
 		os.Exit(1)
 	}
 
@@ -91,10 +91,10 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 
 	// start the tunnel
 	if err := t.Connect(); err != nil {
-		log.Logf("Tunnel error connecting: %v", err)
+		log.Errorf("Tunnel error connecting: %v", err)
 	}
 
-	log.Logf("Tunnel [%s] listening on %s", Tunnel, Address)
+	log.Infof("Tunnel [%s] listening on %s", Tunnel, Address)
 
 	// create tunnel client with tunnel transport
 	tunTransport := transport.NewTransport(
@@ -143,26 +143,26 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	)
 
 	if err := tunSrv.Start(); err != nil {
-		log.Logf("Tunnel error starting tunnel server: %v", err)
+		log.Errorf("Tunnel error starting tunnel server: %v", err)
 		os.Exit(1)
 	}
 
 	if err := service.Run(); err != nil {
-		log.Log("Tunnel %s failed: %v", Name, err)
+		log.Errorf("Tunnel %s failed: %v", Name, err)
 	}
 
 	// stop the router
 	if err := r.Stop(); err != nil {
-		log.Logf("Tunnel error stopping tunnel router: %v", err)
+		log.Errorf("Tunnel error stopping tunnel router: %v", err)
 	}
 
 	// stop the server
 	if err := tunSrv.Stop(); err != nil {
-		log.Logf("Tunnel error stopping tunnel server: %v", err)
+		log.Errorf("Tunnel error stopping tunnel server: %v", err)
 	}
 
 	if err := t.Close(); err != nil {
-		log.Logf("Tunnel error stopping tunnel: %v", err)
+		log.Errorf("Tunnel error stopping tunnel: %v", err)
 	}
 }
 
