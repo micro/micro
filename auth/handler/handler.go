@@ -75,13 +75,13 @@ func (h *Handler) Generate(ctx context.Context, req *pb.GenerateRequest, rsp *pb
 	return nil
 }
 
-// Validate retrieves a  account from the store
-func (h *Handler) Validate(ctx context.Context, req *pb.ValidateRequest, rsp *pb.ValidateResponse) error {
+// Verify retrieves a  account from the store
+func (h *Handler) Verify(ctx context.Context, req *pb.VerifyRequest, rsp *pb.VerifyResponse) error {
 	if req.Token == "" {
 		return errors.BadRequest("go.micro.auth", "token required")
 	}
 
-	acc, err := h.auth.Validate(req.Token)
+	acc, err := h.auth.Verify(req.Token)
 	if err != nil {
 		return err
 	}

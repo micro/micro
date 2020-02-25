@@ -3,11 +3,11 @@ syntax = "proto3";
 package go.micro.api.auth;
 
 service Auth {
-    rpc Validate(ValidateRequest) returns (ValidateResponse) {};
+    rpc Verify(VerifyRequest) returns (VerifyResponse) {};
 }
 
-message ValidateRequest {
+message VerifyRequest {
     string token = 1;
 }
 
-message ValidateResponse {}
+message VerifyResponse {}

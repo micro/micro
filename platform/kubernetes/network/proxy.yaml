@@ -67,7 +67,7 @@ spec:
         - name: MICRO_PROXY_AUTH
           value: "jwt"
         - name: MICRO_AUTH_EXCLUDE
-          value: "Auth.Validate"
+          value: "Auth.Verify"
         - name: MICRO_AUTH_PUBLIC_KEY
           valueFrom:
             secretKeyRef:
