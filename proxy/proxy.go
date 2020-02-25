@@ -15,6 +15,7 @@ import (
 	bmem "github.com/micro/go-micro/v2/broker/memory"
 	"github.com/micro/go-micro/v2/client"
 	mucli "github.com/micro/go-micro/v2/client"
+	"github.com/micro/go-micro/v2/config/cmd"
 	log "github.com/micro/go-micro/v2/logger"
 	"github.com/micro/go-micro/v2/proxy"
 	"github.com/micro/go-micro/v2/proxy/grpc"
@@ -216,6 +217,16 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		serverOpts = append(serverOpts, server.TLSConfig(config))
 	}
 
+	// set auth for server
+	if ctx.IsSet("auth") {
+		auth, ok := cmd.DefaultAuths[ctx.String("auth")]
+		if !ok {
+			log.Fatalf("%v is not a valid auth", ctx.String("auth"))
+			return
+		}
+		serverOpts = append(serverOpts, server.Auth(auth()))
+	}
+
 	// set proxy
 	if p == nil && len(Protocol) > 0 {
 		switch Protocol {
@@ -288,6 +299,11 @@ func Commands(options ...micro.Option) []*cli.Command {
 				Name:    "address",
 				Usage:   "Set the proxy http address e.g 0.0.0.0:8081",
 				EnvVars: []string{"MICRO_PROXY_ADDRESS"},
+			},
+			&cli.StringFlag{
+				Name:    "auth",
+				Usage:   "Set the proxy auth e.g jwt",
+				EnvVars: []string{"MICRO_PROXY_AUTH"},
 			},
 			&cli.StringFlag{
 				Name:    "protocol",
