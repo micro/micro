@@ -29,9 +29,9 @@ import (
 	"github.com/micro/go-micro/v2/api/server/acme/autocert"
 	"github.com/micro/go-micro/v2/api/server/acme/certmagic"
 	httpapi "github.com/micro/go-micro/v2/api/server/http"
+	log "github.com/micro/go-micro/v2/logger"
 	cfstore "github.com/micro/go-micro/v2/store/cloudflare"
 	"github.com/micro/go-micro/v2/sync/lock/memory"
-	"github.com/micro/go-micro/v2/util/log"
 	"github.com/micro/micro/v2/internal/handler"
 	"github.com/micro/micro/v2/internal/helper"
 	"github.com/micro/micro/v2/internal/stats"
@@ -55,7 +55,7 @@ var (
 )
 
 func run(ctx *cli.Context, srvOpts ...micro.Option) {
-	log.Name("api")
+	log.Init(log.WithFields(map[string]interface{}{"service": "api"}))
 
 	if len(ctx.String("server_name")) > 0 {
 		Name = ctx.String("server_name")
@@ -190,7 +190,7 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 
 	// register rpc handler
 	if EnableRPC {
-		log.Logf("Registering RPC Handler at %s", RPCPath)
+		log.Infof("Registering RPC Handler at %s", RPCPath)
 		r.HandleFunc(RPCPath, handler.RPC)
 	}
 
@@ -214,7 +214,7 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 
 	switch Handler {
 	case "rpc":
-		log.Logf("Registering API RPC Handler at %s", APIPath)
+		log.Infof("Registering API RPC Handler at %s", APIPath)
 		rt := regRouter.NewRouter(
 			router.WithNamespace(Namespace),
 			router.WithHandler(arpc.Handler),
@@ -228,7 +228,7 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		)
 		r.PathPrefix(APIPath).Handler(rp)
 	case "api":
-		log.Logf("Registering API Request Handler at %s", APIPath)
+		log.Infof("Registering API Request Handler at %s", APIPath)
 		rt := regRouter.NewRouter(
 			router.WithNamespace(Namespace),
 			router.WithHandler(aapi.Handler),
@@ -242,7 +242,7 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		)
 		r.PathPrefix(APIPath).Handler(ap)
 	case "event":
-		log.Logf("Registering API Event Handler at %s", APIPath)
+		log.Infof("Registering API Event Handler at %s", APIPath)
 		rt := regRouter.NewRouter(
 			router.WithNamespace(Namespace),
 			router.WithHandler(event.Handler),
@@ -256,7 +256,7 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		)
 		r.PathPrefix(APIPath).Handler(ev)
 	case "http", "proxy":
-		log.Logf("Registering API HTTP Handler at %s", ProxyPath)
+		log.Infof("Registering API HTTP Handler at %s", ProxyPath)
 		rt := regRouter.NewRouter(
 			router.WithNamespace(Namespace),
 			router.WithHandler(ahttp.Handler),
@@ -270,7 +270,7 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		)
 		r.PathPrefix(ProxyPath).Handler(ht)
 	case "web":
-		log.Logf("Registering API Web Handler at %s", APIPath)
+		log.Infof("Registering API Web Handler at %s", APIPath)
 		rt := regRouter.NewRouter(
 			router.WithNamespace(Namespace),
 			router.WithHandler(web.Handler),
@@ -284,7 +284,7 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		)
 		r.PathPrefix(APIPath).Handler(w)
 	default:
-		log.Logf("Registering API Default Handler at %s", APIPath)
+		log.Infof("Registering API Default Handler at %s", APIPath)
 		rt := regRouter.NewRouter(
 			router.WithNamespace(Namespace),
 			router.WithResolver(rr),

@@ -17,8 +17,8 @@ require (
 	github.com/gorilla/handlers v1.4.2
 	github.com/gorilla/mux v1.7.3
 	github.com/hako/branca v0.0.0-20180808000428-10b799466ada
-	github.com/micro/cli/v2 v2.1.2-0.20200203150404-894195727d9c
-	github.com/micro/go-micro/v2 v2.1.1-0.20200217092848-aa9a0a8d2332
+	github.com/micro/cli/v2 v2.1.2
+	github.com/micro/go-micro/v2 v2.1.2
 	github.com/miekg/dns v1.1.27
 	github.com/netdata/go-orchestrator v0.0.0-20190905093727-c793edba0e8f
 	github.com/olekukonko/tablewriter v0.0.4
@@ -28,7 +28,7 @@ require (
 	github.com/pquerna/otp v1.2.0
 	github.com/serenize/snaker v0.0.0-20171204205717-a683aaf2d516
 	github.com/xlab/treeprint v0.0.0-20181112141820-a009c3971eca
-	golang.org/x/net v0.0.0-20200114155413-6afb5195e5aa
+	golang.org/x/net v0.0.0-20200222125558-5a598a2470a0
 	golang.org/x/oauth2 v0.0.0-20191202225959-858c2ad4c8b6
 	golang.org/x/tools v0.0.0-20191216173652-a0e659d51361
 	google.golang.org/grpc v1.26.0

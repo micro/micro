@@ -9,9 +9,9 @@ import (
 
 	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro/v2"
+	log "github.com/micro/go-micro/v2/logger"
 	"github.com/micro/go-micro/v2/router"
 	pb "github.com/micro/go-micro/v2/router/service/proto"
-	"github.com/micro/go-micro/v2/util/log"
 	"github.com/micro/micro/v2/router/handler"
 )
 
@@ -90,7 +90,7 @@ func newRouter(service micro.Service, router router.Router) *rtr {
 
 	// register subscriber
 	if err := micro.RegisterSubscriber(Topic, service.Server(), s); err != nil {
-		log.Logf("failed to subscribe to adverts: %s", err)
+		log.Errorf("failed to subscribe to adverts: %s", err)
 		os.Exit(1)
 	}
 
@@ -159,7 +159,7 @@ func (r *rtr) Stop() error {
 
 // run runs the micro server
 func run(ctx *cli.Context, srvOpts ...micro.Option) {
-	log.Name("router")
+	log.Init(log.WithFields(map[string]interface{}{"service": "router"}))
 
 	// Init plugins
 	for _, p := range Plugins() {
@@ -233,21 +233,21 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	// create new micro router and start advertising routes
 	rtr := newRouter(service, r)
 
-	log.Log("starting micro router")
+	log.Info("starting micro router")
 
 	if err := rtr.Start(); err != nil {
-		log.Logf("failed to start: %s", err)
+		log.Errorf("failed to start: %s", err)
 		os.Exit(1)
 	}
 
-	log.Log("starting to advertise")
+	log.Info("starting to advertise")
 
 	advertChan, err := rtr.Advertise()
 	if err != nil {
-		log.Logf("failed to advertise: %s", err)
-		log.Log("attempting to stop the router")
+		log.Errorf("failed to advertise: %s", err)
+		log.Info("attempting to stop the router")
 		if err := rtr.Stop(); err != nil {
-			log.Logf("failed to stop: %s", err)
+			log.Errorf("failed to stop: %s", err)
 			os.Exit(1)
 		}
 		os.Exit(1)
@@ -271,20 +271,20 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 
 	// we block here until either service or server fails
 	if err := <-errChan; err != nil {
-		log.Logf("error running the router: %v", err)
+		log.Errorf("error running the router: %v", err)
 	}
 
-	log.Log("attempting to stop the router")
+	log.Info("attempting to stop the router")
 
 	// stop the router
 	if err := r.Stop(); err != nil {
-		log.Logf("failed to stop: %s", err)
+		log.Errorf("failed to stop: %s", err)
 		os.Exit(1)
 	}
 
 	wg.Wait()
 
-	log.Logf("successfully stopped")
+	log.Info("successfully stopped")
 }
 
 func Commands(options ...micro.Option) []*cli.Command {

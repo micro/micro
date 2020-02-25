@@ -23,7 +23,7 @@ func (e *{{title .Alias}}) Call(ctx context.Context, req *{{.Alias}}.Request, rs
 import (
 	"context"
 
-	"github.com/micro/go-micro/v2/util/log"
+	log "github.com/micro/go-micro/v2/logger"
 
 	{{.Alias}} "{{.Dir}}/proto/{{.Alias}}"
 )
@@ -32,17 +32,17 @@ type {{title .Alias}} struct{}
 
 // Call is a single request handler called via client.Call or the generated client code
 func (e *{{title .Alias}}) Call(ctx context.Context, req *{{.Alias}}.Request, rsp *{{.Alias}}.Response) error {
-	log.Log("Received {{title .Alias}}.Call request")
+	log.Info("Received {{title .Alias}}.Call request")
 	rsp.Msg = "Hello " + req.Name
 	return nil
 }
 
 // Stream is a server side stream handler called via client.Stream or the generated client code
 func (e *{{title .Alias}}) Stream(ctx context.Context, req *{{.Alias}}.StreamingRequest, stream {{.Alias}}.{{title .Alias}}_StreamStream) error {
-	log.Logf("Received {{title .Alias}}.Stream request with count: %d", req.Count)
+	log.Infof("Received {{title .Alias}}.Stream request with count: %d", req.Count)
 
 	for i := 0; i < int(req.Count); i++ {
-		log.Logf("Responding: %d", i)
+		log.Infof("Responding: %d", i)
 		if err := stream.Send(&{{.Alias}}.StreamingResponse{
 			Count: int64(i),
 		}); err != nil {
@@ -60,7 +60,7 @@ func (e *{{title .Alias}}) PingPong(ctx context.Context, stream {{.Alias}}.{{tit
 		if err != nil {
 			return err
 		}
-		log.Logf("Got ping %v", req.Stroke)
+		log.Infof("Got ping %v", req.Stroke)
 		if err := stream.Send(&{{.Alias}}.Pong{Stroke: req.Stroke}); err != nil {
 			return err
 		}
@@ -73,7 +73,7 @@ func (e *{{title .Alias}}) PingPong(ctx context.Context, stream {{.Alias}}.{{tit
 import (
 	"context"
 
-	"github.com/micro/go-micro/v2/util/log"
+	log "github.com/micro/go-micro/v2/logger"
 
 	{{.Alias}} "{{.Dir}}/proto/{{.Alias}}"
 )
@@ -81,7 +81,7 @@ import (
 type {{title .Alias}} struct{}
 
 func (e *{{title .Alias}}) Handle(ctx context.Context, msg *{{.Alias}}.Message) error {
-	log.Log("Handler Received message: ", msg.Say)
+	log.Info("Handler Received message: ", msg.Say)
 	return nil
 }
 `
@@ -90,7 +90,7 @@ func (e *{{title .Alias}}) Handle(ctx context.Context, msg *{{.Alias}}.Message) 
 
 import (
 	"context"
-	"github.com/micro/go-micro/v2/util/log"
+	log "github.com/micro/go-micro/v2/logger"
 
 	{{.Alias}} "{{.Dir}}/proto/{{.Alias}}"
 )
@@ -98,12 +98,12 @@ import (
 type {{title .Alias}} struct{}
 
 func (e *{{title .Alias}}) Handle(ctx context.Context, msg *{{.Alias}}.Message) error {
-	log.Log("Handler Received message: ", msg.Say)
+	log.Info("Handler Received message: ", msg.Say)
 	return nil
 }
 
 func Handler(ctx context.Context, msg *{{.Alias}}.Message) error {
-	log.Log("Function Received message: ", msg.Say)
+	log.Info("Function Received message: ", msg.Say)
 	return nil
 }
 `
@@ -113,7 +113,7 @@ func Handler(ctx context.Context, msg *{{.Alias}}.Message) error {
 import (
 	"context"
 	"encoding/json"
-	"github.com/micro/go-micro/v2/util/log"
+	log "github.com/micro/go-micro/v2/logger"
 
 	"{{.Dir}}/client"
 	"github.com/micro/go-micro/v2/errors"
@@ -135,7 +135,7 @@ func extractValue(pair *api.Pair) string {
 
 // {{title .Alias}}.Call is called by the API as /{{.Alias}}/call with post body {"name": "foo"}
 func (e *{{title .Alias}}) Call(ctx context.Context, req *api.Request, rsp *api.Response) error {
-	log.Log("Received {{title .Alias}}.Call request")
+	log.Info("Received {{title .Alias}}.Call request")
 
 	// extract the client from the context
 	{{.Alias}}Client, ok := client.{{title .Alias}}FromContext(ctx)

@@ -12,8 +12,8 @@ import (
 	"github.com/micro/go-micro/v2/config/source"
 	mp "github.com/micro/go-micro/v2/config/source/service/proto"
 	"github.com/micro/go-micro/v2/errors"
+	log "github.com/micro/go-micro/v2/logger"
 	"github.com/micro/go-micro/v2/store"
-	"github.com/micro/go-micro/v2/util/log"
 	"github.com/micro/micro/v2/config/db"
 	"golang.org/x/net/context"
 )

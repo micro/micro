@@ -4,7 +4,7 @@ import (
 	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro/v2"
 	proto "github.com/micro/go-micro/v2/config/source/service/proto"
-	"github.com/micro/go-micro/v2/util/log"
+	log "github.com/micro/go-micro/v2/logger"
 	"github.com/micro/micro/v2/config/db"
 	_ "github.com/micro/micro/v2/config/db/cockroach"
 	_ "github.com/micro/micro/v2/config/db/etcd"

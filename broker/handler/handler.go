@@ -6,7 +6,7 @@ import (
 	"github.com/micro/go-micro/v2/broker"
 	pb "github.com/micro/go-micro/v2/broker/service/proto"
 	"github.com/micro/go-micro/v2/errors"
-	"github.com/micro/go-micro/v2/util/log"
+	log "github.com/micro/go-micro/v2/logger"
 )
 
 type Broker struct {

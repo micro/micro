@@ -7,7 +7,7 @@ import (
 	"github.com/micro/go-micro/v2/debug/log"
 	"github.com/micro/go-micro/v2/debug/log/kubernetes"
 	dservice "github.com/micro/go-micro/v2/debug/service"
-	ulog "github.com/micro/go-micro/v2/util/log"
+	ulog "github.com/micro/go-micro/v2/logger"
 	logHandler "github.com/micro/micro/v2/debug/log/handler"
 	pblog "github.com/micro/micro/v2/debug/log/proto"
 	statshandler "github.com/micro/micro/v2/debug/stats/handler"
@@ -25,7 +25,7 @@ var (
 )
 
 func Run(ctx *cli.Context, srvOpts ...micro.Option) {
-	ulog.Name("debug")
+	ulog.Init(ulog.WithFields(map[string]interface{}{"service": "debug"}))
 
 	// Init plugins
 	for _, p := range Plugins() {
