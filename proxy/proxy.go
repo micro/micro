@@ -229,7 +229,7 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 
 		var authOpts []auth.Option
 		if ctx.IsSet("auth_exclude") {
-			authOpts = append(authOpts, auth.Excludes(ctx.StringSlice("auth_exclude")...))
+			authOpts = append(authOpts, auth.Exclude(ctx.StringSlice("auth_exclude")...))
 		}
 		if ctx.IsSet("auth_public_key") {
 			authOpts = append(authOpts, auth.PublicKey(ctx.String("auth_public_key")))

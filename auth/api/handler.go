@@ -19,12 +19,12 @@ func NewHandler(srv micro.Service) *Handler {
 	return &Handler{auth: auth.DefaultAuth}
 }
 
-// Validate gets a token and verifies it with the auth package
-func (h *Handler) Validate(ctx context.Context, req *pb.ValidateRequest, rsp *pb.ValidateResponse) error {
+// Verify gets a token and verifies it with the auth package
+func (h *Handler) Verify(ctx context.Context, req *pb.VerifyRequest, rsp *pb.VerifyResponse) error {
 	if len(req.Token) == 0 {
 		return errors.BadRequest("go.micro.api.auth", "token required")
 	}
 
-	_, err := h.auth.Validate(req.Token)
+	_, err := h.auth.Verify(req.Token)
 	return err
 }
