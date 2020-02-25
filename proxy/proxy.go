@@ -12,6 +12,7 @@ import (
 	"github.com/micro/go-micro/v2/api/server/acme"
 	"github.com/micro/go-micro/v2/api/server/acme/autocert"
 	"github.com/micro/go-micro/v2/api/server/acme/certmagic"
+	"github.com/micro/go-micro/v2/auth"
 	bmem "github.com/micro/go-micro/v2/broker/memory"
 	"github.com/micro/go-micro/v2/client"
 	mucli "github.com/micro/go-micro/v2/client"
@@ -30,6 +31,7 @@ import (
 	cfstore "github.com/micro/go-micro/v2/store/cloudflare"
 	"github.com/micro/go-micro/v2/sync/lock/memory"
 	"github.com/micro/go-micro/v2/util/mux"
+	"github.com/micro/go-micro/v2/util/wrapper"
 	"github.com/micro/micro/v2/internal/helper"
 )
 
@@ -217,14 +219,17 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		serverOpts = append(serverOpts, server.TLSConfig(config))
 	}
 
-	// set auth for server
+	// add auth wrapper to server
 	if ctx.IsSet("auth") {
-		auth, ok := cmd.DefaultAuths[ctx.String("auth")]
+		a, ok := cmd.DefaultAuths[ctx.String("auth")]
 		if !ok {
 			log.Fatalf("%v is not a valid auth", ctx.String("auth"))
 			return
 		}
-		serverOpts = append(serverOpts, server.Auth(auth()))
+
+		authFn := func() auth.Auth { return a() }
+		authOpt := server.WrapHandler(wrapper.AuthHandler(authFn))
+		serverOpts = append(serverOpts, authOpt)
 	}
 
 	// set proxy
