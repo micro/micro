@@ -12,9 +12,11 @@ import (
 	"github.com/micro/go-micro/v2/api/server/acme"
 	"github.com/micro/go-micro/v2/api/server/acme/autocert"
 	"github.com/micro/go-micro/v2/api/server/acme/certmagic"
+	"github.com/micro/go-micro/v2/auth"
 	bmem "github.com/micro/go-micro/v2/broker/memory"
 	"github.com/micro/go-micro/v2/client"
 	mucli "github.com/micro/go-micro/v2/client"
+	"github.com/micro/go-micro/v2/config/cmd"
 	log "github.com/micro/go-micro/v2/logger"
 	"github.com/micro/go-micro/v2/proxy"
 	"github.com/micro/go-micro/v2/proxy/grpc"
@@ -29,6 +31,7 @@ import (
 	cfstore "github.com/micro/go-micro/v2/store/cloudflare"
 	"github.com/micro/go-micro/v2/sync/lock/memory"
 	"github.com/micro/go-micro/v2/util/mux"
+	"github.com/micro/go-micro/v2/util/wrapper"
 	"github.com/micro/micro/v2/internal/helper"
 )
 
@@ -216,6 +219,30 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		serverOpts = append(serverOpts, server.TLSConfig(config))
 	}
 
+	// add auth wrapper to server
+	if ctx.IsSet("auth") {
+		a, ok := cmd.DefaultAuths[ctx.String("auth")]
+		if !ok {
+			log.Fatalf("%v is not a valid auth", ctx.String("auth"))
+			return
+		}
+
+		var authOpts []auth.Option
+		if ctx.IsSet("auth_exclude") {
+			authOpts = append(authOpts, auth.Excludes(ctx.StringSlice("auth_exclude")...))
+		}
+		if ctx.IsSet("auth_public_key") {
+			authOpts = append(authOpts, auth.PublicKey(ctx.String("auth_public_key")))
+		}
+		if ctx.IsSet("auth_private_key") {
+			authOpts = append(authOpts, auth.PublicKey(ctx.String("auth_private_key")))
+		}
+
+		authFn := func() auth.Auth { return a(authOpts...) }
+		authOpt := server.WrapHandler(wrapper.AuthHandler(authFn))
+		serverOpts = append(serverOpts, authOpt)
+	}
+
 	// set proxy
 	if p == nil && len(Protocol) > 0 {
 		switch Protocol {
@@ -298,6 +325,11 @@ func Commands(options ...micro.Option) []*cli.Command {
 				Name:    "endpoint",
 				Usage:   "Set the endpoint to route to e.g greeter or localhost:9090",
 				EnvVars: []string{"MICRO_PROXY_ENDPOINT"},
+			},
+			&cli.StringFlag{
+				Name:    "auth",
+				Usage:   "Set the proxy auth e.g jwt",
+				EnvVars: []string{"MICRO_PROXY_AUTH"},
 			},
 		},
 		Action: func(ctx *cli.Context) error {
