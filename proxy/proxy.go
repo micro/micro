@@ -227,7 +227,7 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 			return
 		}
 
-		authOpts := []auth.Option{}
+		var authOpts []auth.Option
 		if ctx.IsSet("auth_exclude") {
 			authOpts = append(authOpts, auth.Excludes(ctx.StringSlice("auth_exclude")...))
 		}
