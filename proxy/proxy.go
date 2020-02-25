@@ -227,7 +227,18 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 			return
 		}
 
-		authFn := func() auth.Auth { return a() }
+		authOpts := []auth.Option{}
+		if ctx.IsSet("auth_exclude") {
+			authOpts = append(authOpts, auth.Excludes(ctx.StringSlice("auth_exclude")...))
+		}
+		if ctx.IsSet("auth_public_key") {
+			authOpts = append(authOpts, auth.PublicKey(ctx.String("auth_public_key")))
+		}
+		if ctx.IsSet("auth_private_key") {
+			authOpts = append(authOpts, auth.PublicKey(ctx.String("auth_private_key")))
+		}
+
+		authFn := func() auth.Auth { return a(authOpts...) }
 		authOpt := server.WrapHandler(wrapper.AuthHandler(authFn))
 		serverOpts = append(serverOpts, authOpt)
 	}
@@ -306,11 +317,6 @@ func Commands(options ...micro.Option) []*cli.Command {
 				EnvVars: []string{"MICRO_PROXY_ADDRESS"},
 			},
 			&cli.StringFlag{
-				Name:    "auth",
-				Usage:   "Set the proxy auth e.g jwt",
-				EnvVars: []string{"MICRO_PROXY_AUTH"},
-			},
-			&cli.StringFlag{
 				Name:    "protocol",
 				Usage:   "Set the protocol used for proxying e.g mucp, grpc, http",
 				EnvVars: []string{"MICRO_PROXY_PROTOCOL"},
@@ -319,6 +325,11 @@ func Commands(options ...micro.Option) []*cli.Command {
 				Name:    "endpoint",
 				Usage:   "Set the endpoint to route to e.g greeter or localhost:9090",
 				EnvVars: []string{"MICRO_PROXY_ENDPOINT"},
+			},
+			&cli.StringFlag{
+				Name:    "auth",
+				Usage:   "Set the proxy auth e.g jwt",
+				EnvVars: []string{"MICRO_PROXY_AUTH"},
 			},
 		},
 		Action: func(ctx *cli.Context) error {
