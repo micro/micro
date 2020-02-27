@@ -84,7 +84,7 @@ func login(ctx *cli.Context) {
 	}
 
 	// Store the token in micro config
-	if err := config.Set("token", acc.Token); err != nil {
+	if err := config.Set("token", token); err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
