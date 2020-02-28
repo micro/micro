@@ -97,6 +97,10 @@ func getService(c *cli.Context, args []string) ([]byte, error) {
 }
 
 func callService(c *cli.Context, args []string) ([]byte, error) {
+	if c.Bool("platform") {
+		os.Setenv("MICRO_PROXY", "service")
+		os.Setenv("MICRO_PROXY_ADDRESS", "proxy.micro.mu:443")
+	}
 	return clic.CallService(c, args)
 }
 
