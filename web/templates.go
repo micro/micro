@@ -24,6 +24,21 @@ var (
                         font-weight: 1000;
                         font-family: medium-content-sans-serif-font,"Lucida Grande","Lucida Sans Unicode","Lucida Sans",Geneva,Arial,sans-serif;
                   }
+		 .search {
+		    position: relative;
+		    max-width: 600px;
+		    margin: 0 auto;
+		    border-radius: 0;
+		    border: 0;
+		    box-shadow: none;
+		    border-bottom: 1px solid whitesmoke;
+		 }
+		 .search:focus {
+		    border-color: transparent;
+		    outline: 0;
+		    box-shadow: none;
+		    border-bottom: 1px solid whitesmoke;
+	 	 }
 		</style>
 		<style>
 		{{ template "style" . }}
@@ -81,18 +96,6 @@ var (
 {{end}}
 {{ define "style" }}
 .service { border-radius: 100px; }
-.search {
-  border-radius: 0;
-  border: 0;
-  box-shadow: none;
-  border-bottom: 1px solid whitesmoke;
-}
-.search:focus {
-  border-color: transparent;
-  outline: 0;
-  box-shadow: none;
-  border-bottom: 1px solid whitesmoke;
-}
 {{end}}
 {{ define "head" }}{{end}}
 {{ define "script" }}{{end}}
@@ -103,18 +106,6 @@ var (
 	indexTemplate = `
 {{define "heading"}}<h4><input class="form-control input-lg search" type=text placeholder="Search" autofocus></h4>{{end}}
 {{define "style" }}
-.search {
-  border-radius: 0;
-  border: 0;
-  box-shadow: none;
-  border-bottom: 1px solid whitesmoke;
-}
-.search:focus {
-  border-color: transparent;
-  outline: 0;
-  box-shadow: none;
-  border-bottom: 1px solid whitesmoke;
-}
 .service {
 	margin: 5px 3px 5px 3px;
 	padding: 20px;
@@ -122,11 +113,16 @@ var (
 	display: block;
 }
 .search { border-radius: 100px; }
+.apps {
+  max-width: 600px;
+  text-align: center;
+  margin: 0 auto;
+}
 {{end}}
 {{define "title"}}Web{{end}}
 {{define "content"}}
 	{{if .Results.HasWebServices}}
-		<div>
+		<div class="apps">
 			{{range .Results.WebServices}}
 			<div style="display: inline-block; max-width: 150px; vertical-align: top;">
 			<a href="/{{.Name}}/" data-filter={{.Name}} class="service">
@@ -317,11 +313,13 @@ jQuery(function($, undefined) {
 {{define "title"}}Services{{end}}
 {{define "content"}}
 	<p style="margin: 0;">&nbsp;</p>
+        <div style="max-width: 600px; margin: 0 auto;">
 	{{range .Results}}
 	<div style="margin: 5px 5px 5px 15px;">
 	    <a href="/service/{{.Name}}" data-filter={{.Name}} class="service">{{.Name}}</a>
 	</div>
 	{{end}}
+        </div>
 {{end}}
 {{define "script"}}
 <script type="text/javascript">
