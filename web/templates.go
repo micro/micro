@@ -106,6 +106,18 @@ var (
 	indexTemplate = `
 {{define "heading"}}<h4><input class="form-control input-lg search" type=text placeholder="Search" autofocus></h4>{{end}}
 {{define "style" }}
+.search {
+  border-radius: 0;
+  border: 0;
+  box-shadow: none;
+  border-bottom: 1px solid whitesmoke;
+}
+.search:focus {
+  border-color: transparent;
+  outline: 0;
+  box-shadow: none;
+  border-bottom: 1px solid whitesmoke;
+}
 .service {
 	margin: 5px 3px 5px 3px;
 	padding: 20px;
