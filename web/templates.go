@@ -130,6 +130,11 @@ var (
   text-align: center;
   margin: 0 auto;
 }
+@media only screen and (max-width: 480px) {
+  .service {
+    padding: 10px;
+  }
+}
 {{end}}
 {{define "title"}}Web{{end}}
 {{define "content"}}
