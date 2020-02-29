@@ -120,7 +120,7 @@ var (
 }
 .service {
 	margin: 5px 3px 5px 3px;
-	padding: 20px;
+	padding: 5%;
 	text-align: center;
 	display: block;
 }
@@ -129,6 +129,11 @@ var (
   max-width: 600px;
   text-align: center;
   margin: 0 auto;
+}
+@media only screen and (max-width: 600px) {
+  .service {
+    padding: 10px;
+  }
 }
 {{end}}
 {{define "title"}}Web{{end}}
