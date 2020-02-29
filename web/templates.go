@@ -120,7 +120,7 @@ var (
 }
 .service {
 	margin: 5px 3px 5px 3px;
-	padding: 5%;
+	padding: 20px;
 	text-align: center;
 	display: block;
 }
