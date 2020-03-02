@@ -312,6 +312,10 @@ func Commands() []*cli.Command {
 			Usage:  "Call a service e.g micro call greeter Say.Hello '{\"name\": \"John\"}",
 			Action: Print(callService),
 			Flags: []cli.Flag{
+				&cli.BoolFlag{
+					Name:  "platform",
+					Usage: "Connect to the platform",
+				},
 				&cli.StringFlag{
 					Name:    "address",
 					Usage:   "Set the address of the service instance to call",
