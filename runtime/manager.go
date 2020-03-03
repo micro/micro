@@ -714,7 +714,7 @@ func (m *manager) Stop() error {
 func newManager(ctx *cli.Context, r runtime.Runtime, s store.Store) *manager {
 	var profile []string
 	// peel out the env
-	switch ctx.String("Profile") {
+	switch ctx.String("profile") {
 	case "platform":
 		profile = muProfile.Platform()
 	}
