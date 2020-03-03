@@ -3,32 +3,41 @@ package runtime
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"strings"
 	"sync"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/micro/cli/v2"
 	log "github.com/micro/go-micro/v2/logger"
 	"github.com/micro/go-micro/v2/runtime"
 	"github.com/micro/go-micro/v2/store"
-	mprofile "github.com/micro/micro/v2/runtime/profile"
+	muProfile "github.com/micro/micro/v2/runtime/profile"
 )
 
 type manager struct {
+	// Our own id
+	Id string
+	// the internal runtime aka local, kubernetes
 	Runtime runtime.Runtime
-	Store   store.Store
+	// the storage for what should be running
+	Store store.Store
+	// a runtime Profile to set for the service
+	Profile []string
 
 	sync.RWMutex
 	// internal cache of services
 	services map[string]*runtimeService
+	// internal cache of events
+	events map[string]*series
 
+	// process state
 	running bool
 	exit    chan bool
-	// used to propagate events
-	events chan *event
 
-	// a runtime profile to set for the service
-	profile []string
+	// used to propagate events
+	eventChan chan *event
 }
 
 // stored in store
@@ -39,14 +48,36 @@ type runtimeService struct {
 	Error   error                  `json:"error"`
 }
 
+// runtime event is single event in the store
+type runtimeEvent struct {
+	Id string `json:"id"`
+	// the event
+	Event *event `json:event`
+	// the last update
+	Timestamp time.Time `json:"timestamp"`
+}
+
+// event is a unique event generated when create/update/delete is called
 type event struct {
-	Type    string
-	Service *runtime.Service
-	Options *runtime.CreateOptions
+	Type    string                 `json:"type"`
+	Service *runtime.Service       `json:"service"`
+	Options *runtime.CreateOptions `json:options"`
+}
+
+// a timeseries of events
+type series struct {
+	// the timeseries id
+	Id string `json:"id"`
+	// the series of events
+	Events []*runtimeEvent `json:"events"`
 }
 
 var (
+	// TODO: if events are racy lower updateTick
+	// the time at which we check events
 	eventTick = time.Second * 10
+	// the time at which we read all records
+	updateTick = time.Second * 120
 )
 
 func copyService(s *runtimeService) *runtime.Service {
@@ -69,8 +100,374 @@ func key(s *runtime.Service) string {
 	return s.Name + ":" + s.Version
 }
 
-func (m *manager) sendEvent(ev *event) {
-	m.events <- ev
+func eventKey(id string) string {
+	// hour : id
+	return fmt.Sprintf("runtime:events:%d:%s", time.Now().Truncate(time.Hour).Unix(), id)
+}
+
+// read all the events from the store
+func (m *manager) readEvents() (map[string]*series, error) {
+	// read back all events for past hour
+	records, err := m.Store.Read(eventKey(""), store.ReadPrefix())
+	if err != nil {
+		return nil, err
+	}
+
+	// unmarshal our events
+	events := make(map[string]*series)
+
+	for _, record := range records {
+		var event *series
+
+		// dont care about the error
+		if err := json.Unmarshal(record.Value, &event); err != nil {
+			continue
+		}
+
+		events[event.Id] = event
+	}
+
+	return events, nil
+}
+
+// save events in the store
+func (m *manager) saveEvents(oldEvents *series, newEvents []*event) error {
+	// new event series
+	events := &series{Id: m.Id}
+
+	// apply old  events
+	if oldEvents != nil {
+		events.Events = oldEvents.Events
+	}
+
+	// append new events
+	for _, e := range newEvents {
+		events.Events = append(events.Events, &runtimeEvent{
+			Id:        uuid.New().String(),
+			Event:     e,
+			Timestamp: time.Now(),
+		})
+	}
+
+	// marshal the content
+	b, err := json.Marshal(events)
+	if err != nil {
+		return err
+	}
+
+	// save the record and expire after an hour
+	return m.Store.Write(&store.Record{
+		Key:    eventKey(m.Id),
+		Value:  b,
+		Expiry: time.Hour,
+	})
+}
+
+// sendEvents to be saved and processed
+func (m *manager) sendEvents(events ...*event) {
+	for _, ev := range events {
+		m.eventChan <- ev
+	}
+}
+
+// processEvent will execute an event immediately
+func (m *manager) processEvent(ev *event) {
+	// events to be process immediately
+	var err error
+
+	switch ev.Type {
+	case "delete":
+		log.Infof("Procesing deletion event %s", key(ev.Service))
+		err = m.Runtime.Delete(ev.Service)
+	case "update":
+		log.Infof("Processing update event %s", key(ev.Service))
+		err = m.Runtime.Update(ev.Service)
+	case "create":
+		// generate the runtime environment
+		env := m.runtimeEnv(ev.Options)
+
+		opts := []runtime.CreateOption{
+			runtime.WithCommand(ev.Options.Command...),
+			runtime.WithEnv(env),
+			runtime.CreateType(ev.Options.Type),
+		}
+
+		log.Infof("Processing create event %s", key(ev.Service))
+		err = m.Runtime.Create(ev.Service, opts...)
+	}
+
+	if err != nil {
+		log.Errorf("Erroring executing event %s for %s: %v", ev.Type, ev.Service.Name, err)
+
+		// save the error
+		// hacking, its a pointer
+		m.Lock()
+		v, ok := m.services[key(ev.Service)]
+		if ok {
+			v.Status = "error"
+			v.Error = err
+		}
+		m.Unlock()
+	}
+}
+
+// processEvents will read events and apply them
+// - pull events from the store
+// - grab past local events cached
+// - compare and apply
+func (m *manager) processEvents(newEvents []*event) error {
+	// TODO: retry event processing
+
+	// get the existing events
+	events, err := m.readEvents()
+	if err != nil {
+		log.Errorf("Failed to list events from store: %v", err)
+		return err
+	}
+
+	// save our events now for other to process
+	if err := m.saveEvents(events[m.Id], newEvents); err != nil {
+		log.Errorf("Failed to save events in store: %v", err)
+		return err
+	}
+
+	// lock the whole op
+	m.Lock()
+	defer m.Unlock()
+
+	// a set of events we're going to play
+	playEvents := make(map[string]*series)
+
+	// get existing events
+	pastEvents := m.events
+
+	// compare to new events
+	for _, s := range events {
+		// skip our own events
+		if s.Id == m.Id {
+			continue
+		}
+
+		// do we have an existing event series
+		past, ok := pastEvents[s.Id]
+		if !ok || past == nil || len(past.Events) == 0 {
+			// if not ok we need to apply all
+			playEvents[s.Id] = s
+			continue
+		}
+
+		// new set of events to play
+		var play []*runtimeEvent
+
+		// last event
+		last := past.Events[len(past.Events)-1]
+
+		// range the events from this guy
+		for _, ev := range s.Events {
+			// skip anything older than the previous past
+			if ev.Timestamp.Sub(last.Timestamp) <= time.Duration(0) {
+				continue
+			}
+
+			// skip that old event
+			if ev.Id == last.Id {
+				continue
+			}
+
+			// apply all other evenst
+			play = append(play, ev)
+		}
+
+		// save events to play from series
+		playEvents[s.Id] = &series{Id: s.Id, Events: play}
+	}
+
+	// play the events in the series
+	for _, series := range playEvents {
+		// play all the events
+		for _, ev := range series.Events {
+			go m.processEvent(ev.Event)
+		}
+	}
+
+	// save the played events
+	m.events = playEvents
+
+	return nil
+}
+
+// full refresh of the service list
+func (m *manager) processServices() error {
+	// list the keys from store
+	records, err := m.Store.List()
+	if err != nil {
+		log.Errorf("Failed to list records from store: %v", err)
+		return err
+	}
+
+	// list whats already runnning
+	// TODO: change to read service: prefix
+	services, err := m.Runtime.List()
+	if err != nil {
+		log.Errorf("Failed to list runtime services: %v", err)
+		return err
+	}
+
+	// generate service map of running things
+	running := make(map[string]*runtime.Service)
+
+	for _, service := range services {
+		k := key(service)
+		running[k] = service
+	}
+
+	// create a map of services that should actually run
+	shouldRun := make(map[string]*runtimeService)
+
+	// iterate through and see what we need to run
+	for _, record := range records {
+		// decode the record
+		var rs *runtimeService
+		if err := json.Unmarshal(record.Value, &rs); err != nil {
+			continue
+		}
+
+		// skip event records
+		if strings.HasPrefix(record.Key, "runtime:events:") {
+			continue
+		}
+
+		// things to run
+		shouldRun[record.Key] = rs
+
+		// check if its already running
+		if v, ok := running[record.Key]; ok {
+			// TODO: have actual runtime status
+			rs.Status = v.Metadata["status"]
+			if e := v.Metadata["error"]; len(e) > 0 {
+				rs.Error = errors.New(e)
+			}
+			continue
+		}
+
+		// generate the runtime environment
+		env := m.runtimeEnv(rs.Options)
+
+		// create a new set of options to use
+		opts := []runtime.CreateOption{
+			runtime.WithCommand(rs.Options.Command...),
+			runtime.WithEnv(env),
+			runtime.CreateType(rs.Options.Type),
+		}
+
+		// set the status to starting
+		rs.Status = "started"
+
+		// service does not exist so start it
+		if err := m.Runtime.Create(rs.Service, opts...); err != nil {
+			if err != runtime.ErrAlreadyExists {
+				log.Errorf("Error running %s: %v", key(rs.Service), err)
+
+				// save the error
+				rs.Status = "error"
+				rs.Error = err
+			}
+		}
+	}
+
+	// check what we need to stop from the running list
+	for _, service := range services {
+		k := key(service)
+
+		// check if it should be running
+		if _, ok := shouldRun[k]; ok {
+			continue
+		}
+
+		log.Infof("Stopping %s", k)
+
+		// should not be running
+		m.Runtime.Delete(service)
+	}
+
+	// save the current list of running things
+	m.Lock()
+	m.services = shouldRun
+	m.Unlock()
+
+	return nil
+}
+
+func (m *manager) runtimeEnv(options *runtime.CreateOptions) []string {
+	setEnv := func(p []string, env map[string]string) {
+		for _, v := range p {
+			parts := strings.Split(v, "=")
+			if len(parts) <= 1 {
+				continue
+			}
+			env[parts[0]] = strings.Join(parts[1:], "=")
+		}
+	}
+
+	// overwrite any values
+	env := map[string]string{}
+
+	// set the env vars provided
+	setEnv(options.Env, env)
+
+	// override with vars from the Profile
+	setEnv(m.Profile, env)
+
+	// create a new env
+	var vars []string
+	for k, v := range env {
+		vars = append(vars, k+"="+v)
+	}
+
+	// setup the runtime env
+	return vars
+}
+
+// TODO: watch events rather than poll
+func (m *manager) run() {
+	// when we publish, process and apply events
+	t1 := time.NewTicker(eventTick)
+	defer t1.Stop()
+
+	// when we do a full refresh of records
+	t2 := time.NewTicker(updateTick)
+	defer t2.Stop()
+
+	// save the existing set of events since on startup
+	// we dont want to apply deltas
+	m.Lock()
+	m.events, _ = m.readEvents()
+	m.Unlock()
+
+	// save existing services to run
+	m.processServices()
+
+	// batch events to save for other regions to read
+	var events []*event
+
+	for {
+		select {
+		case <-t1.C:
+			// save and apply events
+			if err := m.processEvents(events); err == nil {
+				// clear the batch
+				events = nil
+			}
+		case <-t2.C:
+			// checks services to run in the store
+			m.processServices()
+		case ev := <-m.eventChan:
+			// save an event
+			events = append(events, ev)
+		case <-m.exit:
+			return
+		}
+	}
 }
 
 func (m *manager) String() string {
@@ -107,12 +504,18 @@ func (m *manager) Create(s *runtime.Service, opts ...runtime.CreateOption) error
 	// save locally
 	m.services[k] = rs
 
-	// send event
-	go m.sendEvent(&event{
+	// create a new event
+	ev := &event{
 		Type:    "create",
 		Service: s,
 		Options: &options,
-	})
+	}
+
+	// send event
+	go m.sendEvents(ev)
+
+	// process the event immediately
+	go m.processEvent(ev)
 
 	// marshall the content
 	b, err := json.Marshal(rs)
@@ -193,12 +596,18 @@ func (m *manager) Update(s *runtime.Service) error {
 		m.services[k] = &rs
 	}
 
-	// fire an update
-	go m.sendEvent(&event{
+	// create event
+	ev := &event{
 		Type:    evType,
 		Service: rs.Service,
 		Options: rs.Options,
-	})
+	}
+
+	// fire an update
+	go m.sendEvents(ev)
+
+	// process the event immediately
+	go m.processEvent(ev)
 
 	// marshall the content
 	b, err := json.Marshal(rs)
@@ -228,11 +637,17 @@ func (m *manager) Delete(s *runtime.Service) error {
 	// set status
 	v.Status = "stopped"
 
-	// send event
-	go m.sendEvent(&event{
+	// create new event
+	ev := &event{
 		Type:    "delete",
 		Service: v.Service,
-	})
+	}
+
+	// fire an update
+	go m.sendEvents(ev)
+
+	// process the event immediately
+	go m.processEvent(ev)
 
 	// delete from store
 	return m.Store.Delete(k)
@@ -249,176 +664,6 @@ func (m *manager) List() ([]*runtime.Service, error) {
 	}
 
 	return services, nil
-}
-
-func (m *manager) runtimeEnv(options *runtime.CreateOptions) []string {
-	setEnv := func(p []string, env map[string]string) {
-		for _, v := range p {
-			parts := strings.Split(v, "=")
-			if len(parts) <= 1 {
-				continue
-			}
-			env[parts[0]] = strings.Join(parts[1:], "=")
-		}
-	}
-
-	// overwrite any values
-	env := map[string]string{}
-
-	// set the env vars provided
-	setEnv(options.Env, env)
-
-	// override with vars from the profile
-	setEnv(m.profile, env)
-
-	// create a new env
-	var vars []string
-	for k, v := range env {
-		vars = append(vars, k+"="+v)
-	}
-
-	// setup the runtime env
-	return vars
-}
-
-// TODO: watch events rather than poll
-func (m *manager) run() {
-	//
-	t := time.NewTicker(eventTick)
-	defer t.Stop()
-
-	for {
-		select {
-		case <-t.C:
-			// list the keys from store
-			records, err := m.Store.List()
-			if err != nil {
-				log.Errorf("Failed to list records from store: %v", err)
-				continue
-			}
-
-			// list whats already runnning
-			services, err := m.Runtime.List()
-			if err != nil {
-				log.Errorf("Failed to list runtime services: %v", err)
-				continue
-			}
-
-			// generate service map of running things
-			running := make(map[string]*runtime.Service)
-
-			for _, service := range services {
-				k := key(service)
-				running[k] = service
-			}
-
-			// create a map of services that should actually run
-			shouldRun := make(map[string]*runtimeService)
-
-			// iterate through and see what we need to run
-			for _, record := range records {
-				// decode the record
-				var rs *runtimeService
-				if err := json.Unmarshal(record.Value, &rs); err != nil {
-					continue
-				}
-
-				// things to run
-				shouldRun[record.Key] = rs
-
-				// check if its already running
-				if v, ok := running[record.Key]; ok {
-					// TODO: have actual runtime status
-					rs.Status = v.Metadata["status"]
-					if e := v.Metadata["error"]; len(e) > 0 {
-						rs.Error = errors.New(e)
-					}
-					continue
-				}
-
-				// generate the runtime environment
-				env := m.runtimeEnv(rs.Options)
-
-				// create a new set of options to use
-				opts := []runtime.CreateOption{
-					runtime.WithCommand(rs.Options.Command...),
-					runtime.WithEnv(env),
-					runtime.CreateType(rs.Options.Type),
-				}
-
-				// set the status to starting
-				rs.Status = "started"
-
-				// service does not exist so start it
-				if err := m.Runtime.Create(rs.Service, opts...); err != nil {
-					if err != runtime.ErrAlreadyExists {
-						log.Errorf("Error running %s: %v", key(rs.Service), err)
-
-						// save the error
-						rs.Status = "error"
-						rs.Error = err
-					}
-				}
-			}
-
-			// check what we need to stop from the running list
-			for _, service := range services {
-				k := key(service)
-
-				// check if it should be running
-				if _, ok := shouldRun[k]; ok {
-					continue
-				}
-
-				log.Infof("Stopping %s", k)
-
-				// should not be running
-				m.Runtime.Delete(service)
-			}
-
-			// save the current list of running things
-			m.services = shouldRun
-		case ev := <-m.events:
-			var err error
-
-			switch ev.Type {
-			case "delete":
-				log.Infof("Procesing deletion event %s", key(ev.Service))
-				err = m.Runtime.Delete(ev.Service)
-			case "update":
-				log.Infof("Processing update event %s", key(ev.Service))
-				err = m.Runtime.Update(ev.Service)
-			case "create":
-				// generate the runtime environment
-				env := m.runtimeEnv(ev.Options)
-
-				opts := []runtime.CreateOption{
-					runtime.WithCommand(ev.Options.Command...),
-					runtime.WithEnv(env),
-					runtime.CreateType(ev.Options.Type),
-				}
-
-				log.Infof("Processing create event %s", key(ev.Service))
-				err = m.Runtime.Create(ev.Service, opts...)
-			}
-
-			if err != nil {
-				log.Errorf("Erroring executing event %s for %s: %v", ev.Type, ev.Service.Name, err)
-
-				// save the error
-				// hacking, its a pointer
-				m.Lock()
-				v, ok := m.services[key(ev.Service)]
-				if ok {
-					v.Status = "error"
-					v.Error = err
-				}
-				m.Unlock()
-			}
-		case <-m.exit:
-			return
-		}
-	}
 }
 
 func (m *manager) Start() error {
@@ -471,15 +716,17 @@ func newManager(ctx *cli.Context, r runtime.Runtime, s store.Store) *manager {
 	// peel out the env
 	switch ctx.String("profile") {
 	case "platform":
-		profile = mprofile.Platform()
+		profile = muProfile.Platform()
 	}
 
 	return &manager{
-		Runtime:  r,
-		Store:    s,
-		profile:  profile,
-		services: make(map[string]*runtimeService),
-		exit:     make(chan bool),
-		events:   make(chan *event, 8),
+		Id:        uuid.New().String(),
+		Runtime:   r,
+		Store:     s,
+		Profile:   profile,
+		services:  make(map[string]*runtimeService),
+		events:    make(map[string]*series),
+		eventChan: make(chan *event, 64),
+		exit:      make(chan bool),
 	}
 }
