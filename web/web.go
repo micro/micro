@@ -483,7 +483,7 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 				cfstore.Token(apiToken),
 				cfstore.Account(accountID),
 				cfstore.Namespace(kvID),
-				cfstore.CacheTTL(60000000000), // 1 minute in ns
+				cfstore.CacheTTL(time.Minute),
 			)
 			storage := certmagic.NewStorage(
 				memory.NewLock(),
