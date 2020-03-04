@@ -209,6 +209,12 @@ jQuery(function($, undefined) {
 				</ul>
 			</div>
 			<div class="form-group">
+				<label for="auth-token">Auth Token</label>
+				<ul class="list-group">
+					<input class="form-control" type=text name=auth-token id=auth-token placeholder="Auth Token"/>
+				</ul>
+			</div>
+			<div class="form-group">
 				<label for="request">Request</label>
 				<textarea class="form-control" name=request id=request rows=8>{}</textarea>
 			</div>
@@ -318,6 +324,12 @@ jQuery(function($, undefined) {
 			}
 			req.open("POST", "/rpc", true);
 			req.setRequestHeader("Content-type","application/json");				
+
+			var authToken = document.forms[0].elements["auth-token"].value;
+			if(authToken.length > 0) {
+				req.setRequestHeader("Authorization","Bearer " + authToken);
+			}
+
 			req.send(JSON.stringify(request));
 
 			return false;
