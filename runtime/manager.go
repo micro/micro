@@ -75,9 +75,9 @@ type series struct {
 var (
 	// TODO: if events are racy lower updateTick
 	// the time at which we check events
-	eventTick = time.Second * 10
+	eventTick = time.Minute
 	// the time at which we read all records
-	updateTick = time.Second * 120
+	updateTick = time.Minute * 10
 )
 
 func copyService(s *runtimeService) *runtime.Service {
