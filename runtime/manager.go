@@ -159,7 +159,7 @@ func (m *manager) saveEvents(oldEvents *series, newEvents []*event) error {
 	return m.Store.Write(&store.Record{
 		Key:    eventKey(m.Id),
 		Value:  b,
-		Expiry: time.Hour,
+		Expiry: time.Minute * 10,
 	})
 }
 
