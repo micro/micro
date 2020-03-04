@@ -457,7 +457,7 @@ func (m *manager) run() {
 		select {
 		case <-t1.C:
 		case <-t1.C:
-			// jitter between 0 and 10 seconds
+			// jitter between 0 and 30 seconds
 			time.Sleep(jitter.Do(time.Second * 30))
 			// save and apply events
 			if err := m.processEvents(events); err == nil {
