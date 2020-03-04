@@ -13,6 +13,7 @@ import (
 	log "github.com/micro/go-micro/v2/logger"
 	"github.com/micro/go-micro/v2/runtime"
 	"github.com/micro/go-micro/v2/store"
+	"github.com/micro/go-micro/v2/util/jitter"
 	muProfile "github.com/micro/micro/v2/runtime/profile"
 )
 
@@ -455,12 +456,17 @@ func (m *manager) run() {
 	for {
 		select {
 		case <-t1.C:
+		case <-t1.C:
+			// jitter between 0 and 30 seconds
+			time.Sleep(jitter.Do(time.Second * 30))
 			// save and apply events
 			if err := m.processEvents(events); err == nil {
 				// clear the batch
 				events = nil
 			}
 		case <-t2.C:
+			// jitter between 0 and 1 minute
+			time.Sleep(jitter.Do(time.Minute))
 			// checks services to run in the store
 			m.processServices()
 		case ev := <-m.eventChan:
