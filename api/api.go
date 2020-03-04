@@ -149,6 +149,10 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		opts = append(opts, server.TLSConfig(config))
 	}
 
+	if ctx.Bool("enable_cors") {
+		opts = append(opts, server.EnableCORS(true))
+	}
+
 	// create the router
 	var h http.Handler
 	r := mux.NewRouter()
@@ -164,8 +168,6 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 
 	// return version and list of services
 	r.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		helper.ServeCORS(w, r)
-
 		if r.Method == "OPTIONS" {
 			return
 		}
@@ -353,6 +355,12 @@ func Commands(options ...micro.Option) []*cli.Command {
 				Name:    "enable_rpc",
 				Usage:   "Enable call the backend directly via /rpc",
 				EnvVars: []string{"MICRO_API_ENABLE_RPC"},
+			},
+			&cli.BoolFlag{
+				Name:    "enable_cors",
+				Usage:   "Enable CORS, allowing the API to be called by frontend applications",
+				EnvVars: []string{"MICRO_API_ENABLE_CORS"},
+				Value:   true,
 			},
 		},
 	}

@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/micro/go-micro/v2/api/server/cors"
 	"github.com/micro/go-micro/v2/client"
 	"github.com/micro/go-micro/v2/config/cmd"
 	"github.com/micro/go-micro/v2/errors"
@@ -26,7 +27,7 @@ type rpcRequest struct {
 func RPC(w http.ResponseWriter, r *http.Request) {
 
 	if r.Method == "OPTIONS" {
-		helper.ServeCORS(w, r)
+		cors.SetHeaders(w, r)
 		return
 	}
 
