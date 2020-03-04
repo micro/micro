@@ -22,6 +22,7 @@ import (
 	"github.com/micro/go-micro/v2/api/server/acme"
 	"github.com/micro/go-micro/v2/api/server/acme/autocert"
 	"github.com/micro/go-micro/v2/api/server/acme/certmagic"
+	"github.com/micro/go-micro/v2/api/server/cors"
 	httpapi "github.com/micro/go-micro/v2/api/server/http"
 	"github.com/micro/go-micro/v2/client/selector"
 	"github.com/micro/go-micro/v2/config/cmd"
@@ -231,7 +232,7 @@ func faviconHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *srv) indexHandler(w http.ResponseWriter, r *http.Request) {
-	helper.ServeCORS(w, r)
+	cors.SetHeaders(w, r)
 
 	if r.Method == "OPTIONS" {
 		return
