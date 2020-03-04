@@ -175,6 +175,8 @@ func (m *manager) processEvent(ev *event) {
 	// events to be process immediately
 	var err error
 
+	delete(ev.Service.Metadata, "status")
+	delete(ev.Service.Metadata, "error")
 	switch ev.Type {
 	case "delete":
 		log.Infof("Procesing deletion event %s", key(ev.Service))
