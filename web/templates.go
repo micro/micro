@@ -61,6 +61,7 @@ var (
 	          <li><a href="/client">Client</a></li>
 	          <li><a href="/services">Services</a></li>
 	          {{if .StatsURL}}<li><a href="{{.StatsURL}}" class="navbar-link">Stats</a></li>{{end}}
+	          {{if .LoginURL}}<li><a href="{{.LoginURL}}" class="navbar-link">Login</a></li>{{end}}
 	        </ul>
               </div>
 	    </div>
