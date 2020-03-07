@@ -54,6 +54,7 @@ var (
 	// Allows the web service to define absolute paths
 	BasePathHeader        = "X-Micro-Web-Base-Path"
 	statsURL              string
+	loginURL              string
 	ACMEProvider          = "autocert"
 	ACMEChallengeProvider = "cloudflare"
 	ACMECA                = acme.LetsEncryptProductionCA
@@ -384,6 +385,11 @@ func (s *srv) callHandler(w http.ResponseWriter, r *http.Request) {
 	render(w, r, callTemplate, serviceMap)
 }
 
+func (s *srv) loginHandler(w http.ResponseWriter, r *http.Request) {
+	r.URL.Path = "/auth"
+	s.proxy().ServeHTTP(w, r)
+}
+
 func render(w http.ResponseWriter, r *http.Request, tmpl string, data interface{}) {
 	t, err := template.New("template").Funcs(template.FuncMap{
 		"format": format,
@@ -399,6 +405,7 @@ func render(w http.ResponseWriter, r *http.Request, tmpl string, data interface{
 	}
 
 	if err := t.ExecuteTemplate(w, "layout", map[string]interface{}{
+		"LoginURL": loginURL,
 		"StatsURL": statsURL,
 		"Results":  data,
 	}); err != nil {
@@ -445,6 +452,11 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		h = st.ServeHTTP(s)
 		st.Start()
 		defer st.Stop()
+	}
+
+	if len(ctx.String("auth_login_url")) > 0 {
+		loginURL = ctx.String("auth_login_url")
+		s.HandleFunc(loginURL, s.loginHandler)
 	}
 
 	s.HandleFunc("/client", s.callHandler)
@@ -577,6 +589,12 @@ func Commands(options ...micro.Option) []*cli.Command {
 				Name:    "namespace",
 				Usage:   "Set the namespace used by the Web proxy e.g. com.example.web",
 				EnvVars: []string{"MICRO_WEB_NAMESPACE"},
+			},
+			&cli.StringFlag{
+				Name:    "auth_login_url",
+				EnvVars: []string{"MICRO_AUTH_LOGIN_URL"},
+				Usage:   "The relative URL where a user can login",
+				Value:   "/login",
 			},
 		},
 	}
