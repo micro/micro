@@ -592,8 +592,9 @@ func Commands(options ...micro.Option) []*cli.Command {
 			},
 			&cli.StringFlag{
 				Name:    "auth_login_url",
-				Usage:   "Set the login url used by the web dashboard",
 				EnvVars: []string{"MICRO_AUTH_LOGIN_URL"},
+				Usage:   "The relative URL where a user can login",
+				Value:   "/login",
 			},
 		},
 	}
