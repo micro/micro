@@ -130,10 +130,9 @@ func Commands(srvOpts ...micro.Option) []*cli.Command {
 					EnvVars: []string{"MICRO_SERVER_ADDRESS"},
 				},
 				&cli.StringFlag{
-					Name:     "auth_provider",
-					EnvVars:  []string{"MICRO_AUTH_PROVIDER"},
-					Usage:    "Auth provider enables account generation",
-					Required: true,
+					Name:    "auth_provider",
+					EnvVars: []string{"MICRO_AUTH_PROVIDER"},
+					Usage:   "Auth provider enables account generation",
 				},
 			},
 		},
