@@ -87,7 +87,7 @@ func main() {
 
 	// Initialise service
 	service.Init(
-		// create wrap for the {{title .Alias}} srv client
+		// create wrap for the {{title .Alias}} service client
 		micro.WrapHandler(client.{{title .Alias}}Wrapper(service)),
 	)
 

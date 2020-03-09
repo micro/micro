@@ -25,9 +25,9 @@ type config struct {
 	Command string
 	// go.micro
 	Namespace string
-	// api, srv, web, fnc
+	// api, service, web, function
 	Type string
-	// go.micro.srv.foo
+	// go.micro.service.foo
 	FQDN string
 	// github.com/micro/foo
 	Dir string
@@ -233,8 +233,8 @@ func run(ctx *cli.Context) {
 	var c config
 
 	switch atype {
-	case "fnc":
-		// create srv config
+	case "function":
+		// create service config
 		c = config{
 			Alias:     alias,
 			Command:   command,
@@ -268,8 +268,8 @@ func run(ctx *cli.Context) {
 				"protoc --proto_path=.:$GOPATH/src --go_out=. --micro_out=. proto/" + alias + "/" + alias + ".proto\n",
 			},
 		}
-	case "srv":
-		// create srv config
+	case "service":
+		// create service config
 		c = config{
 			Alias:     alias,
 			Command:   command,
@@ -339,7 +339,7 @@ func run(ctx *cli.Context) {
 			},
 		}
 	case "web":
-		// create srv config
+		// create service config
 		c = config{
 			Alias:     alias,
 			Command:   command,
@@ -392,12 +392,12 @@ func Commands() []*cli.Command {
 				},
 				&cli.StringFlag{
 					Name:  "type",
-					Usage: "Type of service e.g api, fnc, srv, web",
-					Value: "srv",
+					Usage: "Type of service e.g api, function, service, web",
+					Value: "service",
 				},
 				&cli.StringFlag{
 					Name:  "fqdn",
-					Usage: "FQDN of service e.g com.example.srv.service (defaults to namespace.type.alias)",
+					Usage: "FQDN of service e.g com.example.service.service (defaults to namespace.type.alias)",
 				},
 				&cli.StringFlag{
 					Name:  "alias",
