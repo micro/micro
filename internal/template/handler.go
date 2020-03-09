@@ -181,7 +181,7 @@ func {{title .Alias}}Call(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// call the backend service
-	{{.Alias}}Client := {{.Alias}}.New{{title .Alias}}Service("{{.Namespace}}.srv.{{.Alias}}", client.DefaultClient)
+	{{.Alias}}Client := {{.Alias}}.New{{title .Alias}}Service("{{.Namespace}}.service.{{.Alias}}", client.DefaultClient)
 	rsp, err := {{.Alias}}Client.Call(context.TODO(), &{{.Alias}}.Request{
 		Name: request["name"].(string),
 	})

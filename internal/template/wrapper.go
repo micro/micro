@@ -21,7 +21,7 @@ func {{title .Alias}}FromContext(ctx context.Context) ({{.Alias}}.{{title .Alias
 
 // Client returns a wrapper for the {{title .Alias}}Client
 func {{title .Alias}}Wrapper(service micro.Service) server.HandlerWrapper {
-	client := {{.Alias}}.New{{title .Alias}}Service("go.micro.srv.template", service.Client())
+	client := {{.Alias}}.New{{title .Alias}}Service("go.micro.service.template", service.Client())
 
 	return func(fn server.HandlerFunc) server.HandlerFunc {
 		return func(ctx context.Context, req server.Request, rsp interface{}) error {
