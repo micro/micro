@@ -2,7 +2,6 @@ package web
 
 import (
 	"net/http"
-	"strings"
 	"text/template"
 
 	"github.com/micro/cli/v2"
@@ -111,16 +110,10 @@ func (h handler) createBasicAccountHandler(w http.ResponseWriter, req *http.Requ
 		return
 	}
 
-	var domain string
-	if arr := strings.Split(req.Host, ":"); len(arr) > 0 {
-		domain = arr[0]
-	}
-
 	http.SetCookie(w, &http.Cookie{
 		Name:    auth.CookieName,
 		Value:   acc.Token,
 		Expires: acc.Expiry,
-		Domain:  domain,
 		Secure:  true,
 	})
 
