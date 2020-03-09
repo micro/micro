@@ -14,6 +14,7 @@ import (
 	"github.com/micro/go-micro/v2/util/config"
 	"github.com/micro/micro/v2/auth/api"
 	"github.com/micro/micro/v2/auth/handler"
+	"github.com/micro/micro/v2/auth/web"
 )
 
 var (
@@ -112,12 +113,26 @@ func Commands(srvOpts ...micro.Option) []*cli.Command {
 						return nil
 					},
 				},
+				{
+					Name:        "web",
+					Usage:       "Run the auth web",
+					Description: "Run the auth web",
+					Action: func(ctx *cli.Context) error {
+						web.Run(ctx, srvOpts...)
+						return nil
+					},
+				},
 			}),
 			Flags: []cli.Flag{
 				&cli.StringFlag{
 					Name:    "address",
 					Usage:   "Set the auth http address e.g 0.0.0.0:8010",
 					EnvVars: []string{"MICRO_SERVER_ADDRESS"},
+				},
+				&cli.StringFlag{
+					Name:    "auth_provider",
+					EnvVars: []string{"MICRO_AUTH_PROVIDER"},
+					Usage:   "Auth provider enables account generation",
 				},
 			},
 		},
