@@ -15,6 +15,8 @@ import (
 var (
 	// Name of the auth web
 	Name = "go.micro.web.auth"
+	// Address is the auth web address
+	Address = ":8012"
 )
 
 // Run the micro auth api
@@ -23,11 +25,15 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 
 	service := web.NewService(
 		web.Name(Name),
-		web.Address("127.0.0.1:5000"),
+		web.Address(Address),
 	)
 
 	h := handler{
 		auth: service.Options().Service.Options().Auth,
+	}
+
+	if h.auth.Options().Provider == nil {
+		log.Fatal("Auth provider is not set")
 	}
 
 	service.HandleFunc("/", h.indexHandler)
