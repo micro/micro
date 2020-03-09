@@ -34,7 +34,23 @@ spec:
         - name: MICRO_REGISTRY_ADDRESS
           value: "etcd-cluster-client"
         - name: MICRO_AUTH_PROVIDER
-          value: "basic"
+          value: "oauth"
+        - name: MICRO_AUTH_PROVIDER_SCOPE
+          value: "user:email+read:org"
+        - name: MICRO_AUTH_PROVIDER_REDIRECT
+          value: "https://web.micro.mu/v1/github/verify"
+        - name: MICRO_AUTH_PROVIDER_ENDPOINT
+          value: "https://github.com/login/oauth/authorize"
+        - name: MICRO_AUTH_PROVIDER_CLIENT_ID
+          valueFrom:
+            secretKeyRef:
+              name: github-credentials
+              key: GITHUB_OAUTH_CLIENT_ID
+        - name: MICRO_AUTH_PROVIDER_CLIENT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: github-credentials
+              key: GITHUB_OAUTH_CLIENT_SECRET
         - name: MICRO_AUTH
           value: "jwt"
         - name: MICRO_AUTH_PUBLIC_KEY
