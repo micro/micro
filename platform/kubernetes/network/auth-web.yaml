@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: default
+  name: micro-auth-web
+  labels:
+    micro: runtime
+    name: micro-auth-web
+  annotations:
+    name: "go.micro.web.auth"
+    version: "latest"
+    source: "github.com/micro/micro"
+    owner: "micro"
+    group: "micro"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: micro-auth-web
+      micro: runtime
+  template:
+    metadata:
+      labels:
+        name: micro-auth-web
+        micro: runtime
+    spec:
+      containers:
+      - name: micro-auth-web
+        env:
+        - name: MICRO_LOG_LEVEL
+          value: "debug"
+        - name: MICRO_REGISTRY
+          value: "etcd"
+        - name: MICRO_REGISTRY_ADDRESS
+          value: "etcd-cluster-client"
+        - name: MICRO_AUTH_PROVIDER
+          value: "basic"
+        - name: MICRO_AUTH
+          value: "jwt"
+        - name: MICRO_AUTH_PUBLIC_KEY
+          valueFrom:
+            secretKeyRef:
+              name: micro-keypair
+              key: public
+        - name: MICRO_AUTH_PRIVATE_KEY
+          valueFrom:
+            secretKeyRef:
+              name: micro-keypair
+              key: private
+        args:
+        - auth
+        - web
+        image: micro/micro
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8012
+          name: web-port
