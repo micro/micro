@@ -270,8 +270,12 @@ func (s *srv) indexHandler(w http.ResponseWriter, r *http.Request) {
 				icon = ico
 			}
 
+			name := strings.Replace(srv.Name, Namespace+".", "", 1)
+			name = strings.Replace(name, "-", " ", -1)
+			name = strings.Title(name)
+
 			webServices = append(webServices, webService{
-				Name: strings.Replace(srv.Name, Namespace+".", "", 1),
+				Name: name,
 				Icon: icon,
 			})
 		}
