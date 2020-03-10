@@ -145,7 +145,7 @@ var (
 			<div style="display: inline-block; max-width: 150px; vertical-align: top;">
 			<a href="/{{.Name}}/" data-filter={{.Name}} class="service">
 			  <div style="padding: 5px; max-width: 80px; display: block; margin: 0 auto;"><img src="{{.Icon}}" style="width: 100%; height: auto;"/></div>
-			  <div>{{.Name}}</div>
+			  <div>{{Title .Name}}</div>
 			</a>
 			</div>
 			{{end}}

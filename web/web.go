@@ -271,8 +271,6 @@ func (s *srv) indexHandler(w http.ResponseWriter, r *http.Request) {
 			}
 
 			name := strings.Replace(srv.Name, Namespace+".", "", 1)
-			name = strings.Replace(name, "-", " ", -1)
-			name = strings.Title(name)
 
 			webServices = append(webServices, webService{
 				Name: name,
@@ -397,6 +395,7 @@ func (s *srv) loginHandler(w http.ResponseWriter, r *http.Request) {
 func render(w http.ResponseWriter, r *http.Request, tmpl string, data interface{}) {
 	t, err := template.New("template").Funcs(template.FuncMap{
 		"format": format,
+		"Title":  strings.Title,
 	}).Parse(layoutTemplate)
 	if err != nil {
 		http.Error(w, "Error occurred:"+err.Error(), 500)
