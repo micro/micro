@@ -270,8 +270,10 @@ func (s *srv) indexHandler(w http.ResponseWriter, r *http.Request) {
 				icon = ico
 			}
 
+			name := strings.Replace(srv.Name, Namespace+".", "", 1)
+
 			webServices = append(webServices, webService{
-				Name: strings.Replace(srv.Name, Namespace+".", "", 1),
+				Name: name,
 				Icon: icon,
 			})
 		}
@@ -388,6 +390,7 @@ func (s *srv) callHandler(w http.ResponseWriter, r *http.Request) {
 func render(w http.ResponseWriter, r *http.Request, tmpl string, data interface{}) {
 	t, err := template.New("template").Funcs(template.FuncMap{
 		"format": format,
+		"Title":  strings.Title,
 	}).Parse(layoutTemplate)
 	if err != nil {
 		http.Error(w, "Error occurred:"+err.Error(), 500)
