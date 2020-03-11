@@ -1,16 +1,29 @@
 package db
 
+import (
+	"github.com/micro/go-micro/v2/store"
+)
+
 type Options struct {
-	Url    string
-	DBName string
-	Table  string
+	Url      string
+	Database string
+	Table    string
+	// Store
+	Store store.Store
 }
 
 type Option func(*Options)
 
-func WithDBName(name string) Option {
+func WithStore(st store.Store) Option {
+	return func(o *Options) {
+		o.Store = st
+	}
+}
+
+// WithDatabase sets which database store to use e.g memory, etc, cockroach, store
+func WithDatabase(name string) Option {
 	return func(options *Options) {
-		options.DBName = name
+		options.Database = name
 	}
 }
 
@@ -27,7 +40,6 @@ func WithUrl(url string) Option {
 	}
 }
 
-type ListOptions struct {
-}
+type ListOptions struct{}
 
 type ListOption func(*Options)
