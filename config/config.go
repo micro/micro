@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/base64"
 	"fmt"
+	"os"
 	"time"
 
 	"github.com/micro/cli/v2"
@@ -29,6 +30,13 @@ var (
 	// Default key
 	Namespace = "global"
 )
+
+func setPlatform(ctx *cli.Context) {
+	if ctx.Bool("platform") {
+		os.Setenv("MICRO_PROXY", "service")
+		os.Setenv("MICRO_PROXY_ADDRESS", "proxy.micro.mu:443")
+	}
+}
 
 func Run(c *cli.Context, srvOpts ...micro.Option) {
 	if len(c.String("server_name")) > 0 {
@@ -64,6 +72,8 @@ func Run(c *cli.Context, srvOpts ...micro.Option) {
 }
 
 func setConfig(ctx *cli.Context) error {
+	setPlatform(ctx)
+
 	pb := proto.NewConfigService("go.micro.config", *cmd.DefaultCmd.Options().Client)
 
 	args := ctx.Args()
@@ -102,6 +112,8 @@ func setConfig(ctx *cli.Context) error {
 }
 
 func getConfig(ctx *cli.Context) error {
+	setPlatform(ctx)
+
 	pb := proto.NewConfigService("go.micro.config", *cmd.DefaultCmd.Options().Client)
 
 	args := ctx.Args()
@@ -150,6 +162,8 @@ func getConfig(ctx *cli.Context) error {
 }
 
 func delConfig(ctx *cli.Context) error {
+	setPlatform(ctx)
+
 	pb := proto.NewConfigService("go.micro.config", *cmd.DefaultCmd.Options().Client)
 
 	args := ctx.Args()
@@ -192,16 +206,34 @@ func Commands(options ...micro.Option) []*cli.Command {
 				Name:   "set",
 				Usage:  "Set a key-val; micro config set key val",
 				Action: setConfig,
+				Flags: []cli.Flag{
+					&cli.BoolFlag{
+						Name:  "platform",
+						Usage: "Call through to the platform",
+					},
+				},
 			},
 			{
 				Name:   "get",
 				Usage:  "Get a value; micro config get key",
 				Action: getConfig,
+				Flags: []cli.Flag{
+					&cli.BoolFlag{
+						Name:  "platform",
+						Usage: "Call through to the platform",
+					},
+				},
 			},
 			{
 				Name:   "del",
 				Usage:  "Delete a value; micro config del key",
 				Action: delConfig,
+				Flags: []cli.Flag{
+					&cli.BoolFlag{
+						Name:  "platform",
+						Usage: "Call through to the platform",
+					},
+				},
 			},
 		},
 		Action: func(ctx *cli.Context) error {
