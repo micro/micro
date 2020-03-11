@@ -43,7 +43,11 @@ func Init(opts ...Option) error {
 		opt(&options)
 	}
 
-	db = dbMap[options.Database]
+	d, ok := dbMap[options.Database]
+	if !ok {
+		return errors.New(options.Database + " not registered")
+	}
+	db = d
 
 	// initialise db config
 	log.Infof("Init config options: %+v", options)

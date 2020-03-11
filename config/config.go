@@ -7,10 +7,13 @@ import (
 	proto "github.com/micro/go-micro/v2/config/source/service/proto"
 	log "github.com/micro/go-micro/v2/logger"
 	"github.com/micro/micro/v2/config/db"
+	"github.com/micro/micro/v2/config/handler"
+
+	// TODO: decruft to just use the store
 	_ "github.com/micro/micro/v2/config/db/cockroach"
 	_ "github.com/micro/micro/v2/config/db/etcd"
 	_ "github.com/micro/micro/v2/config/db/memory"
-	"github.com/micro/micro/v2/config/handler"
+	_ "github.com/micro/micro/v2/config/db/store"
 )
 
 var (
@@ -36,20 +39,20 @@ func Run(c *cli.Context, srvOpts ...micro.Option) {
 	srvOpts = append(srvOpts, micro.Name(Name))
 
 	service := micro.NewService(srvOpts...)
-	proto.RegisterConfigHandler(service.Server(), new(handler.Handler))
 
-	_ = service.Server().Subscribe(service.Server().NewSubscriber(handler.WatchTopic, handler.Watcher))
+	proto.RegisterConfigHandler(service.Server(), new(handler.Handler))
+	micro.RegisterSubscriber(handler.WatchTopic, service.Server(), handler.Watcher)
 
 	if err := db.Init(
 		db.WithDatabase(Database),
 		db.WithUrl(c.String("database_url")),
 		db.WithStore(*cmd.DefaultCmd.Options().Store),
 	); err != nil {
-		log.Fatalf("micro config init database error: %s", err)
+		log.Fatalf("config init database error: %s", err)
 	}
 
 	if err := service.Run(); err != nil {
-		log.Fatalf("micro config Run the service error: ", err)
+		log.Fatalf("config Run the service error: ", err)
 	}
 }
 

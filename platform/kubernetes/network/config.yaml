@@ -1,0 +1,62 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: default
+  name: micro-config
+  labels:
+    name: micro-config
+    micro: runtime
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: micro-config
+      micro: runtime
+  template:
+    metadata:
+      labels:
+        name: micro-config
+        micro: runtime
+    spec:
+      containers:
+      - name: micro-config
+        env:
+        - name: MICRO_SERVER_ADDRESS
+          value: "0.0.0.0:8080"
+        - name: MICRO_LOG_LEVEL
+          value: "debug"
+        - name: MICRO_BROKER
+          value: "nats"
+        - name: MICRO_BROKER_ADDRESS
+          value: "nats-cluster"
+        - name: MICRO_REGISTRY
+          value: "etcd"
+        - name: MICRO_REGISTRY_ADDRESS
+          value: "etcd-cluster-client"
+        - name: MICRO_CONFIG_DATABASE
+          value: "store"
+        - name: MICRO_STORE
+          value: "cloudflare"
+        - name: CF_API_TOKEN
+          valueFrom:
+            secretKeyRef:
+              key: CF_API_TOKEN
+              name: cloudflare-credentials
+        - name: CF_ACCOUNT_ID
+          valueFrom:
+            secretKeyRef:
+              key: CF_ACCOUNT_ID
+              name: cloudflare-credentials
+        - name: KV_NAMESPACE_ID
+          valueFrom:
+            secretKeyRef:
+              key: KV_NAMESPACE_ID_CONFIG
+              name: cloudflare-credentials
+        image: micro/micro
+        imagePullPolicy: Always
+        command:
+        - /micro
+        - config
+        ports:
+        - containerPort: 8080
+          name: service
