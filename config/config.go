@@ -3,6 +3,7 @@ package config
 import (
 	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro/v2"
+	"github.com/micro/go-micro/v2/config/cmd"
 	proto "github.com/micro/go-micro/v2/config/source/service/proto"
 	log "github.com/micro/go-micro/v2/logger"
 	"github.com/micro/micro/v2/config/db"
@@ -13,8 +14,10 @@ import (
 )
 
 var (
-	Name     = "go.micro.config"
-	Database = "memory"
+	// Service name
+	Name = "go.micro.config"
+	// Default database store
+	Database = "store"
 )
 
 func Run(c *cli.Context, srvOpts ...micro.Option) {
@@ -38,8 +41,9 @@ func Run(c *cli.Context, srvOpts ...micro.Option) {
 	_ = service.Server().Subscribe(service.Server().NewSubscriber(handler.WatchTopic, handler.Watcher))
 
 	if err := db.Init(
-		db.WithDBName(Database),
+		db.WithDatabase(Database),
 		db.WithUrl(c.String("database_url")),
+		db.WithStore(*cmd.DefaultCmd.Options().Store),
 	); err != nil {
 		log.Fatalf("micro config init database error: %s", err)
 	}
