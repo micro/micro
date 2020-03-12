@@ -147,7 +147,7 @@ func getConfig(ctx *cli.Context) error {
 	}
 
 	// don't do it
-	if len(rsp.Change.ChangeSet.Data) == 0 {
+	if v := rsp.Change.ChangeSet.Data; len(v) == 0 || string(v) == "null" {
 		return nil
 	}
 
