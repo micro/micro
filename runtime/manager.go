@@ -302,7 +302,7 @@ func (m *manager) processEvents(newEvents []*event) error {
 // full refresh of the service list
 func (m *manager) processServices() error {
 	// list the keys from store
-	records, err := m.Store.List()
+	records, err := m.Store.Read("", store.ReadPrefix())
 	if err != nil {
 		log.Errorf("Failed to list records from store: %v", err)
 		return err

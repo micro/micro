@@ -135,11 +135,7 @@ func (s *Store) List(ctx context.Context, req *pb.ListRequest, stream pb.Store_L
 
 	// TODO: batch sync
 	for _, val := range vals {
-		rsp.Records = append(rsp.Records, &pb.Record{
-			Key:    val.Key,
-			Value:  val.Value,
-			Expiry: int64(val.Expiry.Seconds()),
-		})
+		rsp.Keys = append(rsp.Keys, val)
 	}
 
 	err = stream.Send(rsp)
