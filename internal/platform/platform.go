@@ -31,6 +31,7 @@ var (
 	// list of services managed
 	services = []string{
 		// runtime services
+		"config",   // ????
 		"network",  // :8085
 		"runtime",  // :8088
 		"registry", // :8000
