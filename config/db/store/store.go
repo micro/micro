@@ -50,7 +50,7 @@ func (m *storeDB) Delete(key string) error {
 }
 
 func (m storeDB) List(opts ...db.ListOption) ([]*store.Record, error) {
-	return m.st.List()
+	return m.st.Read("", store.ReadPrefix())
 }
 
 func (m *storeDB) String() string {

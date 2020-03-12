@@ -51,7 +51,7 @@ func (m *etcd) Delete(key string) error {
 }
 
 func (m etcd) List(opts ...db.ListOption) ([]*store.Record, error) {
-	return m.st.List()
+	return m.st.Read("", store.ReadPrefix())
 }
 
 func (m *etcd) String() string {

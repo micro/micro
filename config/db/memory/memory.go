@@ -41,7 +41,7 @@ func (m *memory) Delete(key string) error {
 }
 
 func (m memory) List(opts ...db.ListOption) ([]*store.Record, error) {
-	return m.st.List()
+	return m.st.Read("", store.ReadPrefix())
 }
 
 func (m *memory) String() string {
