@@ -29,9 +29,25 @@ func toCreateOptions(opts *pb.CreateOptions) []runtime.CreateOption {
 	if len(opts.Command) > 0 {
 		options = append(options, runtime.WithCommand(opts.Command...))
 	}
+
+	// args for command
+	if len(opts.Args) > 0 {
+		options = append(options, runtime.WithArgs(opts.Args...))
+	}
+
 	// env options
 	if len(opts.Env) > 0 {
 		options = append(options, runtime.WithEnv(opts.Env))
+	}
+
+	// create specific type of service
+	if len(opts.Type) > 0 {
+		options = append(options, runtime.CreateType(opts.Type))
+	}
+
+	// use specific image
+	if len(opts.Image) > 0 {
+		options = append(options, runtime.CreateImage(opts.Image))
 	}
 
 	// TODO: output options
