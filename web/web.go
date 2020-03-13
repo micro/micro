@@ -24,6 +24,7 @@ import (
 	"github.com/micro/go-micro/v2/api/server/acme/certmagic"
 	"github.com/micro/go-micro/v2/api/server/cors"
 	httpapi "github.com/micro/go-micro/v2/api/server/http"
+	"github.com/micro/go-micro/v2/auth"
 	"github.com/micro/go-micro/v2/client/selector"
 	"github.com/micro/go-micro/v2/config/cmd"
 	log "github.com/micro/go-micro/v2/logger"
@@ -452,10 +453,6 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		defer st.Stop()
 	}
 
-	if len(ctx.String("auth_login_url")) > 0 {
-		loginURL = ctx.String("auth_login_url")
-	}
-
 	s.HandleFunc("/client", s.callHandler)
 	s.HandleFunc("/services", s.registryHandler)
 	s.HandleFunc("/service/{name}", s.registryHandler)
@@ -553,6 +550,12 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 
 	// Initialise Server
 	service := micro.NewService(srvOpts...)
+
+	// Setup auth redirect
+	if len(ctx.String("auth_login_url")) > 0 {
+		loginURL = ctx.String("auth_login_url")
+		service.Options().Auth.Init(auth.LoginURL(loginURL))
+	}
 
 	if err := srv.Start(); err != nil {
 		log.Fatal(err)
