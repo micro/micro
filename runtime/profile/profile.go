@@ -21,6 +21,7 @@ func Platform() []string {
 		"MICRO_RUNTIME=service",
 		"MICRO_STORE=service",
 		"MICRO_PROXY=service",
+		"MICRO_CONFIG=service",
 		// now set the addresses
 		"MICRO_BROKER_ADDRESS=micro-store:8001",
 		"MICRO_REGISTRY_ADDRESS=micro-registry:8000",
