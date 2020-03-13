@@ -33,6 +33,8 @@ const (
 var (
 	// DefaultRetries which should be attempted when starting a service
 	DefaultRetries = 3
+	// Image to specify if none is specified
+	Image = "docker.pkg.github.com/micro/services"
 )
 
 func defaultEnv() []string {
@@ -103,6 +105,12 @@ func runService(ctx *cli.Context, srvOpts ...micro.Option) {
 	var retries = DefaultRetries
 	if ctx.IsSet("retries") {
 		retries = ctx.Int("retries")
+	}
+
+	// set the image from our images if its the platform
+	if ctx.Bool("platform") && len(image) == 0 {
+		formattedName := strings.ReplaceAll(name, "/", "-")
+		image = fmt.Sprintf("%v/%v", Image, formattedName)
 	}
 
 	// specify the options
