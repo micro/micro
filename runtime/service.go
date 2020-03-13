@@ -4,11 +4,8 @@ package runtime
 import (
 	"fmt"
 	"os"
-	"os/signal"
-	"path/filepath"
 	"sort"
 	"strings"
-	"syscall"
 	"text/tabwriter"
 
 	"github.com/micro/cli/v2"
@@ -16,7 +13,6 @@ import (
 	"github.com/micro/go-micro/v2/config/cmd"
 	"github.com/micro/go-micro/v2/runtime"
 	srvRuntime "github.com/micro/go-micro/v2/runtime/service"
-	"github.com/micro/micro/v2/runtime/scheduler"
 )
 
 const (
@@ -37,6 +33,8 @@ const (
 var (
 	// DefaultRetries which should be attempted when starting a service
 	DefaultRetries = 3
+	// Image to specify if none is specified
+	Image = "docker.pkg.github.com/micro/services"
 )
 
 func defaultEnv() []string {
@@ -74,42 +72,24 @@ func runService(ctx *cli.Context, srvOpts ...micro.Option) {
 
 	// set and validate the name (arg 1)
 	name := ctx.Args().Get(0)
+	version := "latest"
+	source := ctx.String("source")
+	typ := ctx.String("type")
+	image := ctx.String("image")
+	command := strings.Split(ctx.String("command"), " ")
+	args := strings.Split(ctx.String("args"), " ")
+
+	// load the runtime
+	r := runtimeFromContext(ctx)
+
 	if strings.HasPrefix(name, ".") || strings.HasPrefix(name, "/") {
 		fmt.Println(RunUsage)
 		return
 	}
 
 	// set the version (arg 2, optional)
-	version := "latest"
 	if ctx.Args().Len() > 1 {
 		version = ctx.Args().Get(1)
-	}
-
-	// load the runtime
-	r := runtimeFromContext(ctx)
-
-	source := ctx.String("source")
-	exec := []string{"go", "run", filepath.Join(source, name)}
-
-	// Determine the filepath
-	fp := filepath.Join(os.Getenv("GOPATH"), "src", source, name)
-
-	// Find the filepath or `go run` will pull from git by default
-	if r.String() == "local" && os.Chdir(fp) == nil {
-		exec = []string{"go", "run", "."}
-
-		// watch the filesystem for changes
-		sched := scheduler.New(name, version, fp)
-		if err := r.Init(runtime.WithScheduler(sched)); err != nil {
-			fmt.Printf("Could not start scheduler: %v", err)
-			return
-		}
-	}
-
-	// start the runtimes
-	if err := r.Start(); err != nil {
-		fmt.Printf("Could not start: %v", err)
-		return
 	}
 
 	// add environment variable passed in via cli
@@ -127,12 +107,21 @@ func runService(ctx *cli.Context, srvOpts ...micro.Option) {
 		retries = ctx.Int("retries")
 	}
 
+	// set the image from our images if its the platform
+	if ctx.Bool("platform") && len(image) == 0 {
+		formattedName := strings.ReplaceAll(name, "/", "-")
+		image = fmt.Sprintf("%v/%v", Image, formattedName)
+	}
+
 	// specify the options
 	opts := []runtime.CreateOption{
-		runtime.WithCommand(exec...),
+		runtime.WithCommand(command...),
+		runtime.WithArgs(args...),
 		runtime.WithOutput(os.Stdout),
 		runtime.WithEnv(environment),
 		runtime.WithRetries(retries),
+		runtime.CreateImage(image),
+		runtime.CreateType(typ),
 	}
 
 	// run the service
@@ -142,29 +131,10 @@ func runService(ctx *cli.Context, srvOpts ...micro.Option) {
 		Version:  version,
 		Metadata: make(map[string]string),
 	}
+
 	if err := r.Create(service, opts...); err != nil {
 		fmt.Println(err)
 		return
-	}
-
-	// if local	 then register signal handlers
-	if r.String() == "local" {
-		shutdown := make(chan os.Signal, 1)
-		signal.Notify(shutdown, syscall.SIGTERM, syscall.SIGINT, syscall.SIGQUIT)
-
-		// wait for shutdown
-		<-shutdown
-
-		// delete service from runtime
-		if err := r.Delete(service); err != nil {
-			fmt.Println(err)
-			return
-		}
-
-		if err := r.Stop(); err != nil {
-			fmt.Println(err)
-			return
-		}
 	}
 }
 
@@ -231,38 +201,32 @@ func updateService(ctx *cli.Context, srvOpts ...micro.Option) {
 }
 
 func getService(ctx *cli.Context, srvOpts ...micro.Option) {
-	runType := ctx.Bool("runtime")
-
-	// get and validate the name (arg 1, optional)
 	name := ctx.Args().Get(0)
+	version := "latest"
+	runType := ctx.Bool("runtime")
+	typ := ctx.String("type")
+	r := runtimeFromContext(ctx)
+
 	if strings.HasPrefix(name, ".") || strings.HasPrefix(name, "/") {
+		fmt.Println(GetUsage)
 		return
 	}
 
-	// get the version (arg 2, optional)
-	version := "latest"
+	// set version as second arg
 	if ctx.Args().Len() > 1 {
 		version = ctx.Args().Get(1)
 	}
 
+	// should we list sevices
 	var list bool
 
 	// zero args so list all
 	if ctx.Args().Len() == 0 {
 		list = true
-	} else {
-		// set name as first arg
-		name = ctx.Args().Get(0)
-		// set version as second arg
-		if ctx.Args().Len() > 1 {
-			version = ctx.Args().Get(1)
-		}
 	}
 
-	var services []*runtime.Service
 	var err error
-
-	r := runtimeFromContext(ctx)
+	var services []*runtime.Service
 
 	// return a list of services
 	switch list {
@@ -291,6 +255,8 @@ func getService(ctx *cli.Context, srvOpts ...micro.Option) {
 		// return the runtime services
 		if runType {
 			opts = append(opts, runtime.ReadType("runtime"))
+		} else {
+			opts = append(opts, runtime.ReadType(typ))
 		}
 
 		// read the service
@@ -313,7 +279,6 @@ func getService(ctx *cli.Context, srvOpts ...micro.Option) {
 
 	// don't do anything if there's no services
 	if len(services) == 0 {
-		fmt.Println("No services found")
 		return
 	}
 
