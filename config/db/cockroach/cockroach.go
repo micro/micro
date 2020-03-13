@@ -81,7 +81,7 @@ func (m *cockroach) Update(record *store.Record) error {
 }
 
 func (m *cockroach) List(opts ...db.ListOption) ([]*store.Record, error) {
-	return m.st.List()
+	return m.st.Read("", store.ReadPrefix())
 }
 
 func (m *cockroach) String() string {
