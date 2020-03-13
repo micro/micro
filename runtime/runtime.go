@@ -94,6 +94,22 @@ func Flags() []cli.Flag {
 			Name:  "source",
 			Usage: "Set the source url of the service e.g github.com/micro/services",
 		},
+		&cli.StringFlag{
+			Name:  "image",
+			Usage: "Set the image to use for the container",
+		},
+		&cli.StringFlag{
+			Name:  "command",
+			Usage: "Command to exec",
+		},
+		&cli.StringFlag{
+			Name:  "args",
+			Usage: "Command args",
+		},
+		&cli.StringFlag{
+			Name:  "type",
+			Usage: "The type of service operate on",
+		},
 		&cli.BoolFlag{
 			Name:  "platform",
 			Usage: "Connect to the platform",
