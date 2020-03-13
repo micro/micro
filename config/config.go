@@ -96,7 +96,7 @@ func setConfig(ctx *cli.Context) error {
 			Path: key,
 			// The value
 			ChangeSet: &proto.ChangeSet{
-				Data:      []byte(val),
+				Data:      string(val),
 				Format:    "json",
 				Source:    "cli",
 				Timestamp: time.Now().Unix(),
