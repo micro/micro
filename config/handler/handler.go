@@ -18,7 +18,7 @@ import (
 )
 
 var (
-	PathSplitter = "/"
+	PathSplitter = "."
 	WatchTopic   = "go.micro.config.events"
 	watchers     = make(map[string][]*watcher)
 
