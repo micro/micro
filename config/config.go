@@ -2,7 +2,6 @@ package config
 
 import (
 	"context"
-	"encoding/base64"
 	"fmt"
 	"os"
 	"time"
@@ -151,12 +150,7 @@ func getConfig(ctx *cli.Context) error {
 		return nil
 	}
 
-	v, err := base64.StdEncoding.DecodeString(string(rsp.Change.ChangeSet.Data))
-	if err != nil {
-		fmt.Println(err)
-	}
-
-	fmt.Println("Value:", string(v))
+	fmt.Println("Value:", string(rsp.Change.ChangeSet.Data))
 
 	return nil
 }

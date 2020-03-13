@@ -2,6 +2,7 @@ package handler
 
 import (
 	"context"
+	"encoding/base64"
 	"encoding/json"
 	"strings"
 	"sync"
@@ -26,6 +27,14 @@ var (
 	reader = jr.NewReader()
 	mtx    sync.RWMutex
 )
+
+func decode(v []byte) []byte {
+	b, err := base64.StdEncoding.DecodeString(string(v))
+	if err != nil {
+		return v
+	}
+	return b
+}
 
 type Handler struct{}
 
@@ -56,7 +65,7 @@ func (c *Handler) Read(ctx context.Context, req *pb.ReadRequest, rsp *pb.ReadRes
 	// generate reader.Values from the changeset
 	values, err := values(&source.ChangeSet{
 		Timestamp: time.Unix(rc.Timestamp, 0),
-		Data:      rc.Data,
+		Data:      decode(rc.Data),
 		Checksum:  rc.Checksum,
 		Format:    rc.Format,
 		Source:    rc.Source,
@@ -69,7 +78,7 @@ func (c *Handler) Read(ctx context.Context, req *pb.ReadRequest, rsp *pb.ReadRes
 	parts := strings.Split(req.Path, PathSplitter)
 
 	// we just want to pass back bytes
-	rsp.Change.ChangeSet.Data = values.Get(parts...).Bytes()
+	rsp.Change.ChangeSet.Data = decode(values.Get(parts...).Bytes())
 
 	return nil
 }
@@ -96,7 +105,7 @@ func (c *Handler) Create(ctx context.Context, req *pb.CreateRequest, rsp *pb.Cre
 		// set the values
 		vals.Set(req.Change.ChangeSet.Data, parts...)
 		// change the changeset value
-		req.Change.ChangeSet.Data = vals.Bytes()
+		req.Change.ChangeSet.Data = decode(vals.Bytes())
 	}
 
 	req.Change.ChangeSet.Timestamp = time.Now().Unix()
@@ -159,7 +168,7 @@ func (c *Handler) Update(ctx context.Context, req *pb.UpdateRequest, rsp *pb.Upd
 	if oldCh.ChangeSet != nil {
 		changeSet = &source.ChangeSet{
 			Timestamp: time.Unix(oldCh.ChangeSet.Timestamp, 0),
-			Data:      oldCh.ChangeSet.Data,
+			Data:      decode(oldCh.ChangeSet.Data),
 			Checksum:  oldCh.ChangeSet.Checksum,
 			Source:    oldCh.ChangeSet.Source,
 			Format:    oldCh.ChangeSet.Format,
@@ -201,7 +210,7 @@ func (c *Handler) Update(ctx context.Context, req *pb.UpdateRequest, rsp *pb.Upd
 	// update change set
 	req.Change.ChangeSet = &pb.ChangeSet{
 		Timestamp: newChange.Timestamp.Unix(),
-		Data:      newChange.Data,
+		Data:      decode(newChange.Data),
 		Checksum:  newChange.Checksum,
 		Source:    newChange.Source,
 		Format:    newChange.Format,
@@ -261,7 +270,7 @@ func (c *Handler) Delete(ctx context.Context, req *pb.DeleteRequest, rsp *pb.Del
 	// Get the current config as values
 	values, err := values(&source.ChangeSet{
 		Timestamp: time.Unix(ch.ChangeSet.Timestamp, 0),
-		Data:      ch.ChangeSet.Data,
+		Data:      decode(ch.ChangeSet.Data),
 		Checksum:  ch.ChangeSet.Checksum,
 		Source:    ch.ChangeSet.Source,
 		Format:    ch.ChangeSet.Format,
@@ -274,7 +283,7 @@ func (c *Handler) Delete(ctx context.Context, req *pb.DeleteRequest, rsp *pb.Del
 	values.Del(strings.Split(req.Change.Path, PathSplitter)...)
 
 	// Create a change record from the values
-	change, err := merge(&source.ChangeSet{Data: values.Bytes()})
+	change, err := merge(&source.ChangeSet{Data: decode(values.Bytes())})
 	if err != nil {
 		return errors.BadRequest("go.micro.srv.Delete", "Create a change record from the values error: %v", err)
 	}
@@ -282,7 +291,7 @@ func (c *Handler) Delete(ctx context.Context, req *pb.DeleteRequest, rsp *pb.Del
 	// Update change set
 	req.Change.ChangeSet = &pb.ChangeSet{
 		Timestamp: change.Timestamp.Unix(),
-		Data:      change.Data,
+		Data:      decode(change.Data),
 		Checksum:  change.Checksum,
 		Format:    change.Format,
 		Source:    change.Source,
@@ -314,6 +323,9 @@ func (c *Handler) List(ctx context.Context, req *pb.ListRequest, rsp *pb.ListRes
 		if err != nil {
 			return errors.BadRequest("go.micro.config.Read", "unmarshal value error: %v", err)
 		}
+		if ch.ChangeSet != nil {
+			ch.ChangeSet.Data = decode(ch.ChangeSet.Data)
+		}
 		rsp.Values = append(rsp.Values, ch)
 	}
 
@@ -337,7 +349,9 @@ func (c *Handler) Watch(ctx context.Context, req *pb.WatchRequest, stream pb.Con
 			_ = stream.Close()
 			return errors.BadRequest("go.micro.srv.Watch", "listen the Next error: %v", err)
 		}
-
+		if ch.ChangeSet != nil {
+			ch.ChangeSet.Data = decode(ch.ChangeSet.Data)
+		}
 		if err := stream.Send(ch); err != nil {
 			_ = stream.Close()
 			return errors.BadRequest("go.micro.srv.Watch", "send the Change error: %v", err)
