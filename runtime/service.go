@@ -76,8 +76,8 @@ func runService(ctx *cli.Context, srvOpts ...micro.Option) {
 	source := ctx.String("source")
 	typ := ctx.String("type")
 	image := ctx.String("image")
-	command := strings.Split(ctx.String("command"), " ")
-	args := strings.Split(ctx.String("args"), " ")
+	command := strings.TrimSpace(ctx.String("command"))
+	args := strings.TrimSpace(ctx.String("args"))
 
 	// load the runtime
 	r := runtimeFromContext(ctx)
@@ -115,13 +115,19 @@ func runService(ctx *cli.Context, srvOpts ...micro.Option) {
 
 	// specify the options
 	opts := []runtime.CreateOption{
-		runtime.WithCommand(command...),
-		runtime.WithArgs(args...),
 		runtime.WithOutput(os.Stdout),
 		runtime.WithEnv(environment),
 		runtime.WithRetries(retries),
 		runtime.CreateImage(image),
 		runtime.CreateType(typ),
+	}
+
+	if len(command) > 0 {
+		opts = append(opts, runtime.WithCommand(strings.Split(command, " ")...))
+	}
+
+	if len(args) > 0 {
+		opts = append(opts, runtime.WithArgs(strings.Split(args, " ")...))
 	}
 
 	// run the service
