@@ -37,17 +37,6 @@ var (
 	Image = "docker.pkg.github.com/micro/services"
 )
 
-func defaultEnv() []string {
-	var env []string
-	for _, evar := range os.Environ() {
-		if strings.HasPrefix(evar, "MICRO_") {
-			env = append(env, evar)
-		}
-	}
-
-	return env
-}
-
 func runtimeFromContext(ctx *cli.Context) runtime.Runtime {
 	if ctx.Bool("platform") {
 		os.Setenv("MICRO_PROXY", "service")
@@ -93,7 +82,7 @@ func runService(ctx *cli.Context, srvOpts ...micro.Option) {
 	}
 
 	// add environment variable passed in via cli
-	environment := defaultEnv()
+	var environment []string
 	for _, evar := range ctx.StringSlice("env") {
 		for _, e := range strings.Split(evar, ",") {
 			if len(e) > 0 {
@@ -116,10 +105,13 @@ func runService(ctx *cli.Context, srvOpts ...micro.Option) {
 	// specify the options
 	opts := []runtime.CreateOption{
 		runtime.WithOutput(os.Stdout),
-		runtime.WithEnv(environment),
 		runtime.WithRetries(retries),
 		runtime.CreateImage(image),
 		runtime.CreateType(typ),
+	}
+
+	if len(environment) > 0 {
+		opts = append(opts, runtime.WithEnv(environment))
 	}
 
 	if len(command) > 0 {
