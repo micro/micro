@@ -191,8 +191,10 @@ func (m *manager) processEvent(ev *event) {
 
 		opts := []runtime.CreateOption{
 			runtime.WithCommand(ev.Options.Command...),
+			runtime.WithArgs(ev.Options.Args...),
 			runtime.WithEnv(env),
 			runtime.CreateType(ev.Options.Type),
+			runtime.CreateImage(ev.Options.Image),
 		}
 
 		log.Infof("Processing create event %s", key(ev.Service))
