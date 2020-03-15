@@ -71,7 +71,7 @@ func (s *Store) Read(ctx context.Context, req *pb.ReadRequest, rsp *pb.ReadRespo
 
 	vals, err := st.Read(req.Key, opts...)
 	if err == store.ErrNotFound {
-		return err
+		return errors.NotFound("go.micro.store", err.Error())
 	} else if err != nil {
 		return errors.InternalServerError("go.micro.store", err.Error())
 	}
@@ -117,7 +117,7 @@ func (s *Store) Delete(ctx context.Context, req *pb.DeleteRequest, rsp *pb.Delet
 		return err
 	}
 	if err := st.Delete(req.Key); err == store.ErrNotFound {
-		return err
+		return errors.NotFound("go.micro.store", err.Error())
 	} else if err != nil {
 		return errors.InternalServerError("go.micro.store", err.Error())
 	}
@@ -133,7 +133,7 @@ func (s *Store) List(ctx context.Context, req *pb.ListRequest, stream pb.Store_L
 
 	vals, err := st.List()
 	if err == store.ErrNotFound {
-		return err
+		return errors.NotFound("go.micro.store", err.Error())
 	} else if err != nil {
 		return errors.InternalServerError("go.micro.store", err.Error())
 	}
