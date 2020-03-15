@@ -66,7 +66,7 @@ var (
 	DefaultIcon = "https://micro.mu/circle.png"
 
 	// Host name the web dashboard is served on
-	Host string
+	Host, _ = os.Hostname()
 )
 
 type srv struct {
@@ -150,9 +150,23 @@ func (r *reg) ListServices() ([]*registry.Service, error) {
 
 // ServeHTTP serves the web dashboard and proxies where appropriate
 func (s *srv) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	if len(r.URL.Host) == 0 {
+		r.URL.Host = r.Host
+	}
+
+	if len(r.URL.Scheme) == 0 {
+		r.URL.Scheme = "http"
+	}
+
 	// no host means dashboard
 	host := r.URL.Hostname()
 	if len(host) == 0 {
+		s.Router.ServeHTTP(w, r)
+		return
+	}
+
+	// final check based on host set
+	if len(Host) > 0 && Host == host {
 		s.Router.ServeHTTP(w, r)
 		return
 	}
@@ -182,16 +196,12 @@ func (s *srv) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	// if a host has no subdomain serve dashboard
 	v, err := publicsuffix.EffectiveTLDPlusOne(host)
-	if err == nil && v == host {
+	if err != nil || v == host {
 		s.Router.ServeHTTP(w, r)
 		return
 	}
 
-	// final check based on host set
-	if Host == host {
-		s.Router.ServeHTTP(w, r)
-		return
-	}
+	fmt.Println("shit", host, ip, v, namespace)
 
 	// otherwise serve the proxy
 	s.prx.ServeHTTP(w, r)
