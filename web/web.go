@@ -140,9 +140,13 @@ func (r *reg) ListServices() ([]*registry.Service, error) {
 }
 
 func (s *srv) proxy() http.Handler {
-	sel := selector.NewSelector(
-		selector.Registry(s.registry),
-	)
+	// our internal resolver
+	res := &resolver{
+		Namespace: Namespace,
+		Selector: selector.NewSelector(
+			selector.Registry(s.registry),
+		),
+	}
 
 	director := func(r *http.Request) {
 		kill := func() {
@@ -153,32 +157,12 @@ func (s *srv) proxy() http.Handler {
 			r.RequestURI = ""
 		}
 
-		parts := strings.Split(r.URL.Path, "/")
-		if len(parts) < 2 {
+		// TODO: better error handling
+		if err := res.Resolve(r); err != nil {
+			fmt.Printf("Failed to resolve url: %v: %v\n", r.URL, err)
 			kill()
 			return
 		}
-		if !re.MatchString(parts[1]) {
-			kill()
-			return
-		}
-		next, err := sel.Select(Namespace + "." + parts[1])
-		if err != nil {
-			kill()
-			return
-		}
-
-		s, err := next()
-		if err != nil {
-			kill()
-			return
-		}
-
-		r.Header.Set(BasePathHeader, "/"+parts[1])
-		r.URL.Host = s.Address
-		r.URL.Path = "/" + strings.Join(parts[2:], "/")
-		r.URL.Scheme = "http"
-		r.Host = r.URL.Host
 	}
 
 	return &proxy{
