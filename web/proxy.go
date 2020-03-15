@@ -9,14 +9,16 @@ import (
 )
 
 type proxy struct {
-	Default  *httputil.ReverseProxy
+	// The default http reverse proxy
+	Router *httputil.ReverseProxy
+	// The director which picks the route
 	Director func(r *http.Request)
 }
 
 func (p *proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if !isWebSocket(r) {
 		// the usual path
-		p.Default.ServeHTTP(w, r)
+		p.Router.ServeHTTP(w, r)
 		return
 	}
 

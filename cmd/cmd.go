@@ -154,6 +154,11 @@ func setup(app *ccli.App) {
 			Usage:   "Set the namespace used by the Web proxy e.g. com.example.web",
 			EnvVars: []string{"MICRO_WEB_NAMESPACE"},
 		},
+		&ccli.StringFlag{
+			Name:    "web_url",
+			Usage:   "Set the host used for the web dashboard e.g web.example.com",
+			EnvVars: []string{"MICRO_WEB_HOST"},
+		},
 		&ccli.BoolFlag{
 			Name:    "enable_stats",
 			Usage:   "Enable stats",
@@ -219,6 +224,9 @@ func setup(app *ccli.App) {
 		}
 		if len(ctx.String("web_namespace")) > 0 {
 			web.Namespace = ctx.String("web_namespace")
+		}
+		if len(ctx.String("web_host")) > 0 {
+			web.Host = ctx.String("web_host")
 		}
 
 		for _, p := range plugins {
