@@ -334,17 +334,23 @@ func (c *Handler) Watch(ctx context.Context, req *pb.WatchRequest, stream pb.Con
 	}
 	defer watch.Stop()
 
+	go func() {
+		select {
+		case <-ctx.Done():
+			watch.Stop()
+			stream.Close()
+		}
+	}()
+
 	for {
 		ch, err := watch.Next()
 		if err != nil {
-			_ = stream.Close()
 			return errors.BadRequest("go.micro.srv.Watch", "listen the Next error: %v", err)
 		}
 		if ch.ChangeSet != nil {
 			ch.ChangeSet.Data = string(ch.ChangeSet.Data)
 		}
 		if err := stream.Send(ch); err != nil {
-			_ = stream.Close()
 			return errors.BadRequest("go.micro.srv.Watch", "send the Change error: %v", err)
 		}
 	}
