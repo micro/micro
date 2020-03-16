@@ -165,7 +165,7 @@ func (s *srv) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// final check based on host set
+	// check based on host set
 	if len(Host) > 0 && Host == host {
 		s.Router.ServeHTTP(w, r)
 		return
@@ -201,7 +201,11 @@ func (s *srv) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Println("shit", host, ip, v, namespace)
+	// now try resolve
+	if err := s.resolver.Resolve(r); err != nil {
+		s.Router.ServeHTTP(w, r)
+		return
+	}
 
 	// otherwise serve the proxy
 	s.prx.ServeHTTP(w, r)
@@ -515,8 +519,8 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	s.HandleFunc("/client", s.callHandler)
 	s.HandleFunc("/services", s.registryHandler)
 	s.HandleFunc("/service/{name}", s.registryHandler)
-	s.PathPrefix("/{service:[a-zA-Z0-9]+}").Handler(p)
 	s.HandleFunc("/rpc", handler.RPC)
+	s.PathPrefix("/{service:[a-zA-Z0-9]+}").Handler(p)
 	s.HandleFunc("/", s.indexHandler)
 
 	// insert the proxy
