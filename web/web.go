@@ -2,6 +2,7 @@
 package web
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"html/template"
@@ -165,7 +166,7 @@ func (s *srv) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// final check based on host set
+	// check based on host set
 	if len(Host) > 0 && Host == host {
 		s.Router.ServeHTTP(w, r)
 		return
@@ -201,10 +202,17 @@ func (s *srv) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Println("shit", host, ip, v, namespace)
+	// now try resolve
+	if err := s.resolver.Resolve(r); err != nil {
+		s.Router.ServeHTTP(w, r)
+		return
+	}
+
+	// mark as resolved
+	ctx := context.WithValue(r.Context(), "resolved", true)
 
 	// otherwise serve the proxy
-	s.prx.ServeHTTP(w, r)
+	s.prx.ServeHTTP(w, r.WithContext(ctx))
 }
 
 // proxy is a http reverse proxy
@@ -216,6 +224,12 @@ func (s *srv) proxy() *proxy {
 			r.URL.Scheme = ""
 			r.Host = ""
 			r.RequestURI = ""
+		}
+
+		// check if we're already resolved
+		v, ok := r.Context().Value("resolved").(bool)
+		if ok && v == true {
+			return
 		}
 
 		// TODO: better error handling
@@ -515,8 +529,8 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	s.HandleFunc("/client", s.callHandler)
 	s.HandleFunc("/services", s.registryHandler)
 	s.HandleFunc("/service/{name}", s.registryHandler)
-	s.PathPrefix("/{service:[a-zA-Z0-9]+}").Handler(p)
 	s.HandleFunc("/rpc", handler.RPC)
+	s.PathPrefix("/{service:[a-zA-Z0-9]+}").Handler(p)
 	s.HandleFunc("/", s.indexHandler)
 
 	// insert the proxy
