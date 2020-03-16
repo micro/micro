@@ -236,7 +236,8 @@ func Run(context *cli.Context) error {
 
 		// runtime based on environment we run the service in
 		args := []gorun.CreateOption{
-			gorun.WithCommand(os.Args[0], service),
+			gorun.WithCommand(os.Args[0]),
+			gorun.WithArgs(service),
 			gorun.WithEnv(env),
 			gorun.WithOutput(os.Stdout),
 		}
