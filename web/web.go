@@ -2,6 +2,7 @@
 package web
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"html/template"
@@ -66,7 +67,7 @@ var (
 	DefaultIcon = "https://micro.mu/circle.png"
 
 	// Host name the web dashboard is served on
-	Host string
+	Host, _ = os.Hostname()
 )
 
 type srv struct {
@@ -150,9 +151,23 @@ func (r *reg) ListServices() ([]*registry.Service, error) {
 
 // ServeHTTP serves the web dashboard and proxies where appropriate
 func (s *srv) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	if len(r.URL.Host) == 0 {
+		r.URL.Host = r.Host
+	}
+
+	if len(r.URL.Scheme) == 0 {
+		r.URL.Scheme = "http"
+	}
+
 	// no host means dashboard
 	host := r.URL.Hostname()
 	if len(host) == 0 {
+		s.Router.ServeHTTP(w, r)
+		return
+	}
+
+	// check based on host set
+	if len(Host) > 0 && Host == host {
 		s.Router.ServeHTTP(w, r)
 		return
 	}
@@ -182,19 +197,22 @@ func (s *srv) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	// if a host has no subdomain serve dashboard
 	v, err := publicsuffix.EffectiveTLDPlusOne(host)
-	if err == nil && v == host {
+	if err != nil || v == host {
 		s.Router.ServeHTTP(w, r)
 		return
 	}
 
-	// final check based on host set
-	if Host == host {
+	// now try resolve
+	if err := s.resolver.Resolve(r); err != nil {
 		s.Router.ServeHTTP(w, r)
 		return
 	}
+
+	// mark as resolved
+	ctx := context.WithValue(r.Context(), "resolved", true)
 
 	// otherwise serve the proxy
-	s.prx.ServeHTTP(w, r)
+	s.prx.ServeHTTP(w, r.WithContext(ctx))
 }
 
 // proxy is a http reverse proxy
@@ -206,6 +224,12 @@ func (s *srv) proxy() *proxy {
 			r.URL.Scheme = ""
 			r.Host = ""
 			r.RequestURI = ""
+		}
+
+		// check if we're already resolved
+		v, ok := r.Context().Value("resolved").(bool)
+		if ok && v == true {
+			return
 		}
 
 		// TODO: better error handling
@@ -505,8 +529,8 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	s.HandleFunc("/client", s.callHandler)
 	s.HandleFunc("/services", s.registryHandler)
 	s.HandleFunc("/service/{name}", s.registryHandler)
-	s.PathPrefix("/{service:[a-zA-Z0-9]+}").Handler(p)
 	s.HandleFunc("/rpc", handler.RPC)
+	s.PathPrefix("/{service:[a-zA-Z0-9]+}").Handler(p)
 	s.HandleFunc("/", s.indexHandler)
 
 	// insert the proxy
