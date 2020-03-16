@@ -2,9 +2,11 @@
 package web
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"html/template"
+	"net"
 	"net/http"
 	"net/http/httputil"
 	"os"
@@ -37,6 +39,7 @@ import (
 	"github.com/micro/micro/v2/internal/stats"
 	"github.com/micro/micro/v2/plugin"
 	"github.com/serenize/snaker"
+	"golang.org/x/net/publicsuffix"
 )
 
 var (
@@ -62,12 +65,19 @@ var (
 
 	// A placeholder icon
 	DefaultIcon = "https://micro.mu/circle.png"
+
+	// Host name the web dashboard is served on
+	Host, _ = os.Hostname()
 )
 
 type srv struct {
 	*mux.Router
 	// registry we use
 	registry registry.Registry
+	// the resolver
+	resolver *resolver
+	// the proxy server
+	prx *proxy
 }
 
 type reg struct {
@@ -139,11 +149,74 @@ func (r *reg) ListServices() ([]*registry.Service, error) {
 	return r.services, nil
 }
 
-func (s *srv) proxy() http.Handler {
-	sel := selector.NewSelector(
-		selector.Registry(s.registry),
-	)
+// ServeHTTP serves the web dashboard and proxies where appropriate
+func (s *srv) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	if len(r.URL.Host) == 0 {
+		r.URL.Host = r.Host
+	}
 
+	if len(r.URL.Scheme) == 0 {
+		r.URL.Scheme = "http"
+	}
+
+	// no host means dashboard
+	host := r.URL.Hostname()
+	if len(host) == 0 {
+		s.Router.ServeHTTP(w, r)
+		return
+	}
+
+	// check based on host set
+	if len(Host) > 0 && Host == host {
+		s.Router.ServeHTTP(w, r)
+		return
+	}
+
+	// an ip instead of hostname means dashboard
+	ip := net.ParseIP(host)
+	if ip != nil {
+		s.Router.ServeHTTP(w, r)
+		return
+	}
+
+	// namespace matching host means dashboard
+	parts := strings.Split(host, ".")
+	reverse(parts)
+	namespace := strings.Join(parts, ".")
+
+	// replace mu since we know its ours
+	if strings.HasPrefix(namespace, "mu.micro") {
+		namespace = strings.Replace(namespace, "mu.micro", "go.micro", 1)
+	}
+
+	// web dashboard if namespace matches
+	if namespace == Namespace {
+		s.Router.ServeHTTP(w, r)
+		return
+	}
+
+	// if a host has no subdomain serve dashboard
+	v, err := publicsuffix.EffectiveTLDPlusOne(host)
+	if err != nil || v == host {
+		s.Router.ServeHTTP(w, r)
+		return
+	}
+
+	// now try resolve
+	if err := s.resolver.Resolve(r); err != nil {
+		s.Router.ServeHTTP(w, r)
+		return
+	}
+
+	// mark as resolved
+	ctx := context.WithValue(r.Context(), "resolved", true)
+
+	// otherwise serve the proxy
+	s.prx.ServeHTTP(w, r.WithContext(ctx))
+}
+
+// proxy is a http reverse proxy
+func (s *srv) proxy() *proxy {
 	director := func(r *http.Request) {
 		kill := func() {
 			r.URL.Host = ""
@@ -153,36 +226,22 @@ func (s *srv) proxy() http.Handler {
 			r.RequestURI = ""
 		}
 
-		parts := strings.Split(r.URL.Path, "/")
-		if len(parts) < 2 {
-			kill()
-			return
-		}
-		if !re.MatchString(parts[1]) {
-			kill()
-			return
-		}
-		next, err := sel.Select(Namespace + "." + parts[1])
-		if err != nil {
-			kill()
+		// check if we're already resolved
+		v, ok := r.Context().Value("resolved").(bool)
+		if ok && v == true {
 			return
 		}
 
-		s, err := next()
-		if err != nil {
+		// TODO: better error handling
+		if err := s.resolver.Resolve(r); err != nil {
+			fmt.Printf("Failed to resolve url: %v: %v\n", r.URL, err)
 			kill()
 			return
 		}
-
-		r.Header.Set(BasePathHeader, "/"+parts[1])
-		r.URL.Host = s.Address
-		r.URL.Path = "/" + strings.Join(parts[2:], "/")
-		r.URL.Scheme = "http"
-		r.Host = r.URL.Host
 	}
 
 	return &proxy{
-		Default:  &httputil.ReverseProxy{Director: director},
+		Router:   &httputil.ReverseProxy{Director: director},
 		Director: director,
 	}
 }
@@ -437,11 +496,20 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	// start the watcher
 	go reg.watch()
 
-	var h http.Handler
 	s := &srv{
 		Router:   mux.NewRouter(),
 		registry: reg,
+		// our internal resolver
+		resolver: &resolver{
+			Namespace: Namespace,
+			Selector: selector.NewSelector(
+				selector.Registry(reg),
+			),
+		},
 	}
+
+	var h http.Handler
+	// set as the server
 	h = s
 
 	if ctx.Bool("enable_stats") {
@@ -453,13 +521,20 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		defer st.Stop()
 	}
 
+	// create the proxy
+	p := s.proxy()
+
+	// the web handler itself
+	s.HandleFunc("/favicon.ico", faviconHandler)
 	s.HandleFunc("/client", s.callHandler)
 	s.HandleFunc("/services", s.registryHandler)
 	s.HandleFunc("/service/{name}", s.registryHandler)
 	s.HandleFunc("/rpc", handler.RPC)
-	s.HandleFunc("/favicon.ico", faviconHandler)
-	s.PathPrefix("/{service:[a-zA-Z0-9]+}").Handler(s.proxy())
+	s.PathPrefix("/{service:[a-zA-Z0-9]+}").Handler(p)
 	s.HandleFunc("/", s.indexHandler)
+
+	// insert the proxy
+	s.prx = p
 
 	var opts []server.Option
 
