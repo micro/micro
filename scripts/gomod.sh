@@ -4,8 +4,9 @@ set -x
 
 ## Submit an update for go mod
 
-sed -i 's@github.com/micro/go-micro/v2 .*@github.com/micro/go-micro/v2 master@g' go.mod
+GOPROXY=direct go get github.com/micro/go-micro/v2@master
 go fmt
+go mod tidy
 git add go.mod
 git branch -D go-mod
 git branch go-mod
