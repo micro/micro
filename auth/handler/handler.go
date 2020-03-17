@@ -102,6 +102,7 @@ func (h *Handler) Revoke(ctx context.Context, req *pb.RevokeRequest, rsp *pb.Rev
 
 func serializeAccount(acc *auth.Account) *pb.Account {
 	res := &pb.Account{
+		Id:       acc.Id,
 		Created:  acc.Created.Unix(),
 		Expiry:   acc.Expiry.Unix(),
 		Metadata: acc.Metadata,
