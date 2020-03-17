@@ -12,7 +12,7 @@ builds:
   env:
     - CGO_ENABLED=0
     - GO111MODULE=on
-  ldflags: -s -w -X github.com/micro/micro/cmd.GitCommit={{ .ShortCommit }} -X github.com/micro/micro/cmd.GitTag={{ .Tag }} -X github.com/micro/micro/cmd.BuildDate={{ .Timestamp }}
+  ldflags: -s -w -X github.com/micro/micro/v2/cmd.GitCommit={{ .ShortCommit }} -X github.com/micro/micro/v2/cmd.GitTag={{ .Tag }} -X github.com/micro/micro/v2/cmd.BuildDate={{ .Timestamp }}
   goos:
   - linux
   - darwin
