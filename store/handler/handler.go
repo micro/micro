@@ -70,8 +70,10 @@ func (s *Store) Read(ctx context.Context, req *pb.ReadRequest, rsp *pb.ReadRespo
 	}
 
 	vals, err := st.Read(req.Key, opts...)
-	if err != nil {
-		return err
+	if err != nil && err == store.ErrNotFound {
+		return errors.NotFound("go.micro.store", err.Error())
+	} else if err != nil {
+		return errors.InternalServerError("go.micro.store", err.Error())
 	}
 
 	for _, val := range vals {
@@ -101,8 +103,11 @@ func (s *Store) Write(ctx context.Context, req *pb.WriteRequest, rsp *pb.WriteRe
 		Expiry: time.Duration(req.Record.Expiry) * time.Second,
 	}
 
-	if err := st.Write(record); err != nil {
-		return err
+	err = st.Write(record)
+	if err != nil && err == store.ErrNotFound {
+		return errors.NotFound("go.micro.store", err.Error())
+	} else if err != nil {
+		return errors.InternalServerError("go.micro.store", err.Error())
 	}
 
 	return nil
@@ -130,9 +135,12 @@ func (s *Store) List(ctx context.Context, req *pb.ListRequest, stream pb.Store_L
 	}
 
 	vals, err := st.List()
-	if err != nil {
-		return err
+	if err != nil && err == store.ErrNotFound {
+		return errors.NotFound("go.micro.store", err.Error())
+	} else if err != nil {
+		return errors.InternalServerError("go.micro.store", err.Error())
 	}
+
 	rsp := new(pb.ListResponse)
 
 	// TODO: batch sync
