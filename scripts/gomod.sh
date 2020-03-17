@@ -11,6 +11,7 @@ git add go.mod
 git branch -D go-mod
 git branch go-mod
 git checkout go-mod
+git pull origin master
 git add go.mod go.sum
 git commit -m "Update go.mod"
 git push origin go-mod
