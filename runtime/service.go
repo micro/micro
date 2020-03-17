@@ -35,6 +35,8 @@ var (
 	DefaultRetries = 3
 	// Image to specify if none is specified
 	Image = "docker.pkg.github.com/micro/services"
+	// Source where we get services from
+	Source = "github.com/micro/services"
 )
 
 func runtimeFromContext(ctx *cli.Context) runtime.Runtime {
@@ -100,6 +102,11 @@ func runService(ctx *cli.Context, srvOpts ...micro.Option) {
 	if ctx.Bool("platform") && len(image) == 0 {
 		formattedName := strings.ReplaceAll(name, "/", "-")
 		image = fmt.Sprintf("%v/%v", Image, formattedName)
+	}
+
+	// check the source is set
+	if ctx.Bool("platform") && len(source) == 0 {
+		source = Source
 	}
 
 	// specify the options
