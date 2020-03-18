@@ -347,6 +347,8 @@ func (m *manager) processServices() error {
 
 		// check if its already running
 		if v, ok := running[record.Key]; ok {
+			// replace service entry
+			rs.Service = v
 			// TODO: have actual runtime status
 			rs.Status = v.Metadata["status"]
 			if e := v.Metadata["error"]; len(e) > 0 {
