@@ -64,7 +64,7 @@ var (
 	ACMECA                = acme.LetsEncryptProductionCA
 
 	// A placeholder icon
-	DefaultIcon = "https://micro.mu/circle.png"
+	DefaultIcon = ""
 
 	// Host name the web dashboard is served on
 	Host, _ = os.Hostname()
