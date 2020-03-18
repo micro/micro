@@ -144,7 +144,11 @@ var (
 			{{range .Results.WebServices}}
 			<div style="display: inline-block; max-width: 150px; vertical-align: top;">
 			<a href="/{{.Name}}/" data-filter={{.Name}} class="service">
-			  <div style="padding: 5px; max-width: 80px; display: block; margin: 0 auto;"><img src="{{.Icon}}" style="width: 100%; height: auto;"/></div>
+			  <div style="padding: 5px; max-width: 80px; display: block; margin: 0 auto;">
+				{{if .Icon }}<img src="{{.Icon}}" style="width: 100%; height: auto;"/>{{else}}
+				<div class="icon" style="width: 100%; height: 100%; display: block;"></div>
+				{{end}}
+			  </div>
 			  <div>{{Title .Name}}</div>
 			</a>
 			</div>
@@ -154,6 +158,10 @@ var (
 {{end}}
 {{define "script"}}
 <script type="text/javascript">
+function color(){
+    return "hsla(" + ~~(360 * Math.random()) + "," + "70%,"+ "80%,1)"
+};
+
 jQuery(function($, undefined) {
 	var refs = $('a[data-filter]');
 	$('.search').on('keyup', function() {
@@ -163,7 +171,14 @@ jQuery(function($, undefined) {
 			return $(this).data('filter').search(val) >= 0
 		}).show();
 	});
+
+	$(document).ready(function() {
+		$(".icon").each(function() {
+			$(this).css("background-color", color());
+		});
+	})
 });
+
 </script>
 {{end}}
 `
