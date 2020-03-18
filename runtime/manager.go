@@ -74,6 +74,8 @@ type series struct {
 }
 
 var (
+	// status ticks for updating local service stauts
+	statusTick = time.Second * 10
 	// TODO: if events are racy lower updateTick
 	// the time at which we check events
 	eventTick = time.Minute
@@ -301,6 +303,28 @@ func (m *manager) processEvents(newEvents []*event) error {
 	return nil
 }
 
+func (m *manager) updateStatus() error {
+	services, err := m.Runtime.List()
+	if err != nil {
+		log.Errorf("Failed to list runtime services: %v", err)
+		return err
+	}
+
+	m.Lock()
+	defer m.Unlock()
+
+	for _, service := range services {
+		v, ok := m.services[key(service)]
+		if !ok {
+			continue
+		}
+		// update the status
+		v.Service.Metadata["status"] = service.Metadata["status"]
+	}
+
+	return nil
+}
+
 // full refresh of the service list
 func (m *manager) processServices() error {
 	// list the keys from store
@@ -363,8 +387,10 @@ func (m *manager) processServices() error {
 		// create a new set of options to use
 		opts := []runtime.CreateOption{
 			runtime.WithCommand(rs.Options.Command...),
+			runtime.WithArgs(rs.Options.Args...),
 			runtime.WithEnv(env),
 			runtime.CreateType(rs.Options.Type),
+			runtime.CreateImage(rs.Options.Image),
 		}
 
 		// set the status to starting
@@ -445,6 +471,10 @@ func (m *manager) run() {
 	t2 := time.NewTicker(updateTick)
 	defer t2.Stop()
 
+	// status tick for updating status
+	t3 := time.NewTicker(statusTick)
+	defer t3.Stop()
+
 	// save the existing set of events since on startup
 	// we dont want to apply deltas
 	m.Lock()
@@ -460,7 +490,6 @@ func (m *manager) run() {
 	for {
 		select {
 		case <-t1.C:
-		case <-t1.C:
 			// jitter between 0 and 30 seconds
 			time.Sleep(jitter.Do(time.Second * 30))
 			// save and apply events
@@ -473,6 +502,8 @@ func (m *manager) run() {
 			time.Sleep(jitter.Do(time.Minute))
 			// checks services to run in the store
 			m.processServices()
+		case <-t3.C:
+			m.updateStatus()
 		case ev := <-m.eventChan:
 			// save an event
 			events = append(events, ev)
@@ -648,6 +679,7 @@ func (m *manager) Delete(s *runtime.Service) error {
 
 	// set status
 	v.Status = "stopped"
+	v.Service.Metadata["status"] = "stopped"
 
 	// create new event
 	ev := &event{
