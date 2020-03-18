@@ -78,7 +78,7 @@ var (
 	// the time at which we check events
 	eventTick = time.Minute
 	// the time at which we read all records
-	updateTick = time.Minute * 10
+	updateTick = time.Minute * 5
 )
 
 func copyService(s *runtimeService) *runtime.Service {
