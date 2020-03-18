@@ -131,6 +131,13 @@ var (
   text-align: center;
   margin: 0 auto;
 }
+.icon {
+  width: 60px;
+  height: 60px;
+  display: block;
+  border-radius: 50px; 
+  border: 1px solid #333;
+}
 @media only screen and (max-width: 480px) {
   .service {
     padding: 10px;
@@ -146,7 +153,7 @@ var (
 			<a href="/{{.Name}}/" data-filter={{.Name}} class="service">
 			  <div style="padding: 5px; max-width: 80px; display: block; margin: 0 auto;">
 				{{if .Icon }}<img src="{{.Icon}}" style="width: 70px; height: auto;"/>{{else}}
-				<div class="icon" style="width: 60px; height: 60px; display: block; border-radius: 50px;"></div>
+				<div class="icon"></div>
 				{{end}}
 			  </div>
 			  <div>{{Title .Name}}</div>
