@@ -146,7 +146,7 @@ var (
 			<a href="/{{.Name}}/" data-filter={{.Name}} class="service">
 			  <div style="padding: 5px; max-width: 80px; display: block; margin: 0 auto;">
 				{{if .Icon }}<img src="{{.Icon}}" style="width: 100%; height: auto;"/>{{else}}
-				<div class="icon" style="width: 100%; height: 100%; display: block;"></div>
+				<div class="icon" style="width: 100%; height: 65px; display: block;"></div>
 				{{end}}
 			  </div>
 			  <div>{{Title .Name}}</div>
