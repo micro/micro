@@ -4,6 +4,8 @@ package runtime
 import (
 	"fmt"
 	"os"
+	"os/signal"
+	"path/filepath"
 	"sort"
 	"strings"
 	"text/tabwriter"
@@ -73,11 +75,6 @@ func runService(ctx *cli.Context, srvOpts ...micro.Option) {
 	// load the runtime
 	r := runtimeFromContext(ctx)
 
-	if strings.HasPrefix(name, ".") || strings.HasPrefix(name, "/") {
-		fmt.Println(RunUsage)
-		return
-	}
-
 	// set the version (arg 2, optional)
 	if ctx.Args().Len() > 1 {
 		version = ctx.Args().Get(1)
@@ -100,6 +97,11 @@ func runService(ctx *cli.Context, srvOpts ...micro.Option) {
 
 	// set the image from our images if its the platform
 	if ctx.Bool("platform") && len(image) == 0 {
+		if strings.HasPrefix(name, ".") || strings.HasPrefix(name, "/") {
+			fmt.Println(RunUsage)
+			return
+		}
+
 		formattedName := strings.ReplaceAll(name, "/", "-")
 		image = fmt.Sprintf("%v/%v", Image, formattedName)
 	}
@@ -129,6 +131,20 @@ func runService(ctx *cli.Context, srvOpts ...micro.Option) {
 		opts = append(opts, runtime.WithArgs(strings.Split(args, " ")...))
 	}
 
+	// don't pass through dotted names unless
+	if strings.HasPrefix(name, ".") || strings.HasPrefix(name, "/") {
+		if r.String() != "local" {
+			fmt.Println(RunUsage)
+			return
+		}
+		path, err := os.Getwd()
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		name = filepath.Base(path)
+	}
+
 	// run the service
 	service := &runtime.Service{
 		Name:     name,
@@ -140,6 +156,15 @@ func runService(ctx *cli.Context, srvOpts ...micro.Option) {
 	if err := r.Create(service, opts...); err != nil {
 		fmt.Println(err)
 		return
+	}
+
+	if r.String() == "local" {
+		// we need to wait
+		ch := make(chan os.Signal, 1)
+		signal.Notify(ch, os.Interrupt)
+		<-ch
+		// delete the service
+		r.Delete(service)
 	}
 }
 
@@ -297,12 +322,18 @@ func getService(ctx *cli.Context, srvOpts ...micro.Option) {
 			status = service.Metadata["error"]
 		}
 
+		// cut the commit down to first 7 characters
+		build := parse(service.Metadata["build"])
+		if len(build) > 7 {
+			build = build[:7]
+		}
+
 		fmt.Fprintf(writer, "%s\t%s\t%s\t%s\t%s\t%s\n",
 			service.Name,
 			parse(service.Version),
 			parse(service.Source),
 			status,
-			parse(service.Metadata["build"]),
+			build,
 			fmt.Sprintf("owner=%s,group=%s", parse(service.Metadata["owner"]), parse(service.Metadata["group"])))
 	}
 	writer.Flush()
