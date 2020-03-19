@@ -137,6 +137,7 @@ var (
   display: block;
   border-radius: 50px; 
   border: 1px solid #333;
+  background-color: whitesmoke;
 }
 @media only screen and (max-width: 480px) {
   .service {
@@ -165,10 +166,6 @@ var (
 {{end}}
 {{define "script"}}
 <script type="text/javascript">
-function color(){
-    return "hsla(" + ~~(360 * Math.random()) + "," + "70%,"+ "80%,1)"
-};
-
 jQuery(function($, undefined) {
 	var refs = $('a[data-filter]');
 	$('.search').on('keyup', function() {
@@ -178,12 +175,6 @@ jQuery(function($, undefined) {
 			return $(this).data('filter').search(val) >= 0
 		}).show();
 	});
-
-	$(document).ready(function() {
-		$(".icon").each(function() {
-			$(this).css("background-color", color());
-		});
-	})
 });
 
 </script>
