@@ -14,7 +14,8 @@ func Kubernetes() []string {
 // Platform is a platform profile
 func Platform() []string {
 	return []string{
-		// TODO: auth service, debug, monitor, etc
+		// TODO: debug, monitor, etc
+		"MICRO_AUTH=service",
 		"MICRO_BROKER=service",
 		"MICRO_REGISTRY=service",
 		"MICRO_ROUTER=service",

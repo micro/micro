@@ -139,9 +139,9 @@ var (
   border: 1px solid #333;
   background-color: whitesmoke;
 }
-@media only screen and (max-width: 480px) {
+@media only screen and (max-width: 500px) {
   .service {
-    padding: 10px;
+    padding: 5px;
   }
 }
 {{end}}
