@@ -119,10 +119,6 @@ func Flags() []cli.Flag {
 			Name:  "env",
 			Usage: "Set the environment variables e.g. foo=bar",
 		},
-		&cli.BoolFlag{
-			Name:  "runtime",
-			Usage: "Return the runtime services",
-		},
 	}
 }
 

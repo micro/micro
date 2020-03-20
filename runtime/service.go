@@ -9,6 +9,7 @@ import (
 	"sort"
 	"strings"
 	"text/tabwriter"
+	"time"
 
 	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro/v2"
@@ -40,6 +41,18 @@ var (
 	// Source where we get services from
 	Source = "github.com/micro/services"
 )
+
+// timeAgo returns the time passed
+func timeAgo(v string) string {
+	if len(v) == 0 {
+		return "unknown"
+	}
+	t, err := time.Parse(time.RFC3339, v)
+	if err != nil {
+		return v
+	}
+	return fmt.Sprintf("%v ago", time.Since(t).Truncate(time.Second))
+}
 
 func runtimeFromContext(ctx *cli.Context) runtime.Runtime {
 	if ctx.Bool("platform") {
@@ -233,7 +246,6 @@ func updateService(ctx *cli.Context, srvOpts ...micro.Option) {
 func getService(ctx *cli.Context, srvOpts ...micro.Option) {
 	name := ctx.Args().Get(0)
 	version := "latest"
-	runType := ctx.Bool("runtime")
 	typ := ctx.String("type")
 	r := runtimeFromContext(ctx)
 
@@ -261,9 +273,9 @@ func getService(ctx *cli.Context, srvOpts ...micro.Option) {
 	// return a list of services
 	switch list {
 	case true:
-		// return the runtiem services
-		if runType {
-			services, err = r.Read(runtime.ReadType("runtime"))
+		// return specific type listing
+		if len(typ) > 0 {
+			services, err = r.Read(runtime.ReadType(typ))
 		} else {
 			// list all running services
 			services, err = r.List()
@@ -283,9 +295,7 @@ func getService(ctx *cli.Context, srvOpts ...micro.Option) {
 		}
 
 		// return the runtime services
-		if runType {
-			opts = append(opts, runtime.ReadType("runtime"))
-		} else {
+		if len(typ) > 0 {
 			opts = append(opts, runtime.ReadType(typ))
 		}
 
@@ -315,7 +325,7 @@ func getService(ctx *cli.Context, srvOpts ...micro.Option) {
 	sort.Slice(services, func(i, j int) bool { return services[i].Name < services[j].Name })
 
 	writer := tabwriter.NewWriter(os.Stdout, 0, 8, 1, '\t', tabwriter.AlignRight)
-	fmt.Fprintln(writer, "NAME\tVERSION\tSOURCE\tSTATUS\tBUILD\tMETADATA")
+	fmt.Fprintln(writer, "NAME\tVERSION\tSOURCE\tSTATUS\tBUILD\tUPDATED\tMETADATA")
 	for _, service := range services {
 		status := parse(service.Metadata["status"])
 		if status == "error" {
@@ -328,12 +338,16 @@ func getService(ctx *cli.Context, srvOpts ...micro.Option) {
 			build = build[:7]
 		}
 
-		fmt.Fprintf(writer, "%s\t%s\t%s\t%s\t%s\t%s\n",
+		// parse when the service was started
+		updated := parse(timeAgo(service.Metadata["started"]))
+
+		fmt.Fprintf(writer, "%s\t%s\t%s\t%s\t%s\t%s\t%s\n",
 			service.Name,
 			parse(service.Version),
 			parse(service.Source),
 			status,
 			build,
+			updated,
 			fmt.Sprintf("owner=%s,group=%s", parse(service.Metadata["owner"]), parse(service.Metadata["group"])))
 	}
 	writer.Flush()
