@@ -600,12 +600,17 @@ func (m *manager) Read(opts ...runtime.ReadOption) ([]*runtime.Service, error) {
 	for _, rs := range m.services {
 		srv := options.Service
 		ver := options.Version
+		typ := options.Type
 
 		if len(srv) > 0 && rs.Service.Name != srv {
 			continue
 		}
 
 		if len(ver) > 0 && rs.Service.Version != ver {
+			continue
+		}
+
+		if len(typ) > 0 && rs.Service.Metadata["type"] != typ {
 			continue
 		}
 
