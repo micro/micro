@@ -64,9 +64,7 @@ func (h handler) indexHandler(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	if err := t.ExecuteTemplate(w, p.String(), map[string]interface{}{
-		"foo": "bar",
-	}); err != nil {
+	if err := t.ExecuteTemplate(w, p.String(), map[string]interface{}{}); err != nil {
 		http.Error(w, "Error occurred:"+err.Error(), http.StatusInternalServerError)
 	}
 }
@@ -111,9 +109,22 @@ func (h handler) createBasicAccountHandler(w http.ResponseWriter, req *http.Requ
 	}
 
 	http.SetCookie(w, &http.Cookie{
-		Name:    auth.CookieName,
-		Value:   acc.Token,
-		Expires: acc.Expiry,
+		Name:    auth.SecretCookieName,
+		Value:   acc.Secret.Token,
+		Expires: acc.Secret.Expiry,
+		Secure:  true,
+	})
+
+	tok, err := h.auth.Refresh(acc.Secret.Token)
+	if err != nil {
+		renderError(err.Error())
+		return
+	}
+
+	http.SetCookie(w, &http.Cookie{
+		Name:    auth.TokenCookieName,
+		Value:   tok.Token,
+		Expires: tok.Expiry,
 		Secure:  true,
 	})
 

@@ -25,6 +25,6 @@ func (h *Handler) Verify(ctx context.Context, req *pb.VerifyRequest, rsp *pb.Ver
 		return errors.BadRequest("go.micro.api.auth", "token required")
 	}
 
-	_, err := h.auth.Verify(req.Token)
+	_, err := h.auth.Inspect(req.Token)
 	return err
 }
