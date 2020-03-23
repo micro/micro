@@ -175,6 +175,18 @@ jQuery(function($, undefined) {
 			return $(this).data('filter').search(val) >= 0
 		}).show();
 	});
+
+	$('.search').on('keypress', function(e) {
+		if (e.which != 13) {
+			return;
+		}
+		$('.service').each(function() {
+			if ($(this).css('display') == "none") {
+				return;
+			}
+			window.location.href = $(this).attr('href');
+		})
+	});
 });
 
 </script>
