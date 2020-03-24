@@ -176,7 +176,7 @@ func (h *Handler) ListRules(ctx context.Context, req *pb.ListRulesRequest, rsp *
 	for _, rec := range recs {
 		var r *pb.Rule
 		if err := json.Unmarshal(rec.Value, &r); err != nil {
-			return errors.InternalServerError("go.micro.auth", "Error to unmarshaling json: %v", err)
+			return errors.InternalServerError("go.micro.auth", "Error to unmarshaling json: %v. Value: %v", err, string(rec.Value))
 		}
 		rsp.Rules = append(rsp.Rules, r)
 	}
