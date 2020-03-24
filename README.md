@@ -104,7 +104,7 @@ micro run example --local
 micro list services
 
 # call a service
-micro call go.micro.srv.example Example.Call '{"name": "John"}'
+micro call go.micro.service.example Example.Call '{"name": "John"}'
 ```
 
 ## Usage
