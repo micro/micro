@@ -85,7 +85,7 @@ func setConfig(ctx *cli.Context) error {
 	key := args.Get(0)
 	val := args.Get(1)
 
-	// TODO: allow the specifiying of a config.Key. This will be service name
+	// TODO: allow the specifying of a config.Key. This will be service name
 	// The actuall key-val set is a path e.g micro/accounts/key
 
 	_, err := pb.Update(context.TODO(), &proto.UpdateRequest{
@@ -128,7 +128,7 @@ func getConfig(ctx *cli.Context) error {
 		log.Fatal("key cannot be blank")
 	}
 
-	// TODO: allow the specifiying of a config.Key. This will be service name
+	// TODO: allow the specifying of a config.Key. This will be service name
 	// The actuall key-val set is a path e.g micro/accounts/key
 
 	rsp, err := pb.Read(context.TODO(), &proto.ReadRequest{
@@ -173,7 +173,7 @@ func delConfig(ctx *cli.Context) error {
 		log.Fatal("key cannot be blank")
 	}
 
-	// TODO: allow the specifiying of a config.Key. This will be service name
+	// TODO: allow the specifying of a config.Key. This will be service name
 	// The actuall key-val set is a path e.g micro/accounts/key
 
 	_, err := pb.Delete(context.TODO(), &proto.DeleteRequest{
