@@ -3,6 +3,7 @@ package web
 import (
 	"net/http"
 	"text/template"
+	"time"
 
 	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro/v2"
@@ -115,7 +116,7 @@ func (h handler) createBasicAccountHandler(w http.ResponseWriter, req *http.Requ
 		Secure:  true,
 	})
 
-	tok, err := h.auth.Refresh(acc.Secret.Token)
+	tok, err := h.auth.Refresh(acc.Secret.Token, auth.WithTokenExpiry(time.Hour*24))
 	if err != nil {
 		renderError(err.Error())
 		return
