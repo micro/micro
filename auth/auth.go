@@ -75,7 +75,7 @@ func login(ctx *cli.Context) {
 	token := ctx.Args().First()
 
 	// Execute the request
-	acc, err := authFromContext(ctx).Verify(token)
+	acc, err := authFromContext(ctx).Inspect(token)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
