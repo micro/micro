@@ -11,6 +11,7 @@ import (
 	pb "github.com/micro/go-micro/v2/auth/service/proto"
 	"github.com/micro/go-micro/v2/config/cmd"
 	log "github.com/micro/go-micro/v2/logger"
+	"github.com/micro/go-micro/v2/store"
 	"github.com/micro/go-micro/v2/util/config"
 	"github.com/micro/micro/v2/auth/api"
 	"github.com/micro/micro/v2/auth/handler"
@@ -44,6 +45,9 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	for _, p := range Plugins() {
 		p.Init(ctx)
 	}
+
+	// set store namespace
+	store.DefaultStore.Init(store.Namespace(Name))
 
 	// setup service
 	srvOpts = append(srvOpts, micro.Name(Name))
