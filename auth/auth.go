@@ -8,7 +8,8 @@ import (
 	"github.com/micro/go-micro/v2"
 	"github.com/micro/go-micro/v2/auth"
 	srvAuth "github.com/micro/go-micro/v2/auth/service"
-	pb "github.com/micro/go-micro/v2/auth/service/proto"
+	authPb "github.com/micro/go-micro/v2/auth/service/proto/auth"
+	rulePb "github.com/micro/go-micro/v2/auth/service/proto/rules"
 	"github.com/micro/go-micro/v2/auth/token"
 	"github.com/micro/go-micro/v2/auth/token/jwt"
 	"github.com/micro/go-micro/v2/config/cmd"
@@ -67,8 +68,11 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	srvOpts = append(srvOpts, micro.Name(Name))
 	service := micro.NewService(srvOpts...)
 
+	// register handlers
+	authPb.RegisterAuthHandler(service.Server(), h)
+	rulePb.RegisterRulesHandler(service.Server(), h)
+
 	// run service
-	pb.RegisterAuthHandler(service.Server(), h)
 	if err := service.Run(); err != nil {
 		log.Fatal(err)
 	}
