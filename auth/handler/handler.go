@@ -17,41 +17,34 @@ import (
 
 var joinKey = ":"
 
-// New returns an instance of Handler
-func New() *Handler {
-	h := &Handler{}
-	h.Init()
-	return h
-}
-
 // Handler processes RPC calls
 type Handler struct {
-	opts           auth.Options
-	secretProvider token.Provider
-	tokenProvider  token.Provider
+	Options        auth.Options
+	SecretProvider token.Provider
+	TokenProvider  token.Provider
 }
 
 // Init the auth
 func (h *Handler) Init(opts ...auth.Option) {
 	for _, o := range opts {
-		o(&h.opts)
+		o(&h.Options)
 	}
 
 	// use the default store as a fallback
-	if h.opts.Store == nil {
-		h.opts.Store = store.DefaultStore
+	if h.Options.Store == nil {
+		h.Options.Store = store.DefaultStore
 	}
 
 	// noop will not work for auth
-	if h.opts.Store.String() == "noop" {
-		h.opts.Store = memStore.NewStore()
+	if h.Options.Store.String() == "noop" {
+		h.Options.Store = memStore.NewStore()
 	}
 
-	if h.tokenProvider == nil {
-		h.tokenProvider = basic.NewTokenProvider(token.WithStore(h.opts.Store))
+	if h.TokenProvider == nil {
+		h.TokenProvider = basic.NewTokenProvider(token.WithStore(h.Options.Store))
 	}
-	if h.secretProvider == nil {
-		h.secretProvider = basic.NewTokenProvider(token.WithStore(h.opts.Store))
+	if h.SecretProvider == nil {
+		h.SecretProvider = basic.NewTokenProvider(token.WithStore(h.Options.Store))
 	}
 }
 
@@ -63,7 +56,7 @@ func (h *Handler) Generate(ctx context.Context, req *pb.GenerateRequest, rsp *pb
 		token.WithMetadata(req.Metadata),
 		token.WithRoles(req.Roles...),
 	}
-	secret, err := h.secretProvider.Generate(req.Id, secretOpts...)
+	secret, err := h.SecretProvider.Generate(req.Id, secretOpts...)
 	if err != nil {
 		return errors.InternalServerError("go.micro.auth", "Unable to generate secret: %v", err)
 	}
@@ -96,7 +89,7 @@ func (h *Handler) Grant(ctx context.Context, req *pb.GrantRequest, rsp *pb.Grant
 	}
 
 	// Write to the store
-	if err := h.opts.Store.Write(&store.Record{Key: key, Value: bytes}); err != nil {
+	if err := h.Options.Store.Write(&store.Record{Key: key, Value: bytes}); err != nil {
 		return errors.InternalServerError("go.micro.auth", "Unable to write to the store: %v", err)
 	}
 
@@ -114,7 +107,7 @@ func (h *Handler) Revoke(ctx context.Context, req *pb.RevokeRequest, rsp *pb.Rev
 	key := strings.Join(comps, joinKey)
 
 	// Delete the rule
-	err := h.opts.Store.Delete(key)
+	err := h.Options.Store.Delete(key)
 	if err == store.ErrNotFound {
 		return errors.BadRequest("go.micro.auth", "Rule not found")
 	} else if err != nil {
@@ -126,7 +119,7 @@ func (h *Handler) Revoke(ctx context.Context, req *pb.RevokeRequest, rsp *pb.Rev
 
 // Inspect a token and retrieve the account
 func (h *Handler) Inspect(ctx context.Context, req *pb.InspectRequest, rsp *pb.InspectResponse) error {
-	tok, err := h.tokenProvider.Inspect(req.Token)
+	tok, err := h.TokenProvider.Inspect(req.Token)
 	if err == token.ErrInvalidToken || err == token.ErrNotFound {
 		return errors.BadRequest("go.micro.auth", "Invalid token")
 	} else if err != nil {
@@ -143,14 +136,14 @@ func (h *Handler) Inspect(ctx context.Context, req *pb.InspectRequest, rsp *pb.I
 
 // Refresh a token using a secret
 func (h *Handler) Refresh(ctx context.Context, req *pb.RefreshRequest, rsp *pb.RefreshResponse) error {
-	sec, err := h.secretProvider.Inspect(req.Secret)
+	sec, err := h.SecretProvider.Inspect(req.Secret)
 	if err == token.ErrInvalidToken || err == token.ErrNotFound {
 		return errors.BadRequest("go.micro.auth", "Invalid token")
 	} else if err != nil {
 		return errors.InternalServerError("go.micro.auth", "Unable to inspect secret: %v", err)
 	}
 
-	tok, err := h.tokenProvider.Generate(sec.Subject,
+	tok, err := h.TokenProvider.Generate(sec.Subject,
 		token.WithExpiry(time.Duration(req.TokenExpiry)),
 		token.WithMetadata(sec.Metadata),
 		token.WithRoles(sec.Roles...),
@@ -166,7 +159,7 @@ func (h *Handler) Refresh(ctx context.Context, req *pb.RefreshRequest, rsp *pb.R
 // ListRules returns all the rules
 func (h *Handler) ListRules(ctx context.Context, req *pb.ListRulesRequest, rsp *pb.ListRulesResponse) error {
 	// get the records from the store
-	recs, err := h.opts.Store.Read("", store.ReadPrefix())
+	recs, err := h.Options.Store.Read("", store.ReadPrefix())
 	if err != nil {
 		return errors.InternalServerError("go.micro.auth", "Unable to read from store: %v", err)
 	}
