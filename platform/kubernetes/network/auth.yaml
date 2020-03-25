@@ -37,10 +37,12 @@ spec:
           value: "etcd"
         - name: MICRO_REGISTRY_ADDRESS
           value: "etcd-cluster-client"
-        - name: MICRO_AUTH
-          value: "jwt"
-        - name: MICRO_AUTH_EXCLUDE
-          value: "Auth.Verify,Auth.Generate,Auth.Revoke"
+        - name: MICRO_STORE
+          value: "cockroach"
+        - name: MICRO_STORE_ADDRESS
+          value: "postgres://root@cockroachdb-public:26257/?sslmode=disable"
+        - name: MICRO_STORE_NAMESPACE
+          value: "auth"
         - name: MICRO_AUTH_PUBLIC_KEY
           valueFrom:
             secretKeyRef:
