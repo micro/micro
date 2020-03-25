@@ -9,6 +9,8 @@ import (
 	"github.com/micro/go-micro/v2/auth"
 	srvAuth "github.com/micro/go-micro/v2/auth/service"
 	pb "github.com/micro/go-micro/v2/auth/service/proto"
+	"github.com/micro/go-micro/v2/auth/token"
+	"github.com/micro/go-micro/v2/auth/token/jwt"
 	"github.com/micro/go-micro/v2/config/cmd"
 	log "github.com/micro/go-micro/v2/logger"
 	"github.com/micro/go-micro/v2/store"
@@ -49,12 +51,24 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	// set store namespace
 	store.DefaultStore.Init(store.Namespace(Name))
 
+	// setup the handler
+	h := &handler.Handler{}
+	pubKey := ctx.String("auth_public_key")
+	privKey := ctx.String("auth_private_key")
+	if len(pubKey) > 0 || len(privKey) > 0 {
+		h.TokenProvider = jwt.NewTokenProvider(
+			token.WithPublicKey(pubKey),
+			token.WithPrivateKey(privKey),
+		)
+	}
+	h.Init()
+
 	// setup service
 	srvOpts = append(srvOpts, micro.Name(Name))
 	service := micro.NewService(srvOpts...)
 
 	// run service
-	pb.RegisterAuthHandler(service.Server(), handler.New())
+	pb.RegisterAuthHandler(service.Server(), h)
 	if err := service.Run(); err != nil {
 		log.Fatal(err)
 	}
@@ -137,6 +151,16 @@ func Commands(srvOpts ...micro.Option) []*cli.Command {
 					Name:    "auth_provider",
 					EnvVars: []string{"MICRO_AUTH_PROVIDER"},
 					Usage:   "Auth provider enables account generation",
+				},
+				&cli.StringFlag{
+					Name:    "auth_public_key",
+					EnvVars: []string{"MICRO_AUTH_PUBLIC_KEY"},
+					Usage:   "Public key for JWT auth (base64 encoded PEM)",
+				},
+				&cli.StringFlag{
+					Name:    "auth_private_key",
+					EnvVars: []string{"MICRO_AUTH_PRIVATE_KEY"},
+					Usage:   "Private key for JWT auth (base64 encoded PEM)",
 				},
 			},
 		},
