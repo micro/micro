@@ -52,7 +52,7 @@ func (h *Handler) Init(opts ...auth.Option) {
 func (h *Handler) Generate(ctx context.Context, req *pb.GenerateRequest, rsp *pb.GenerateResponse) error {
 	// Generate a long-lived secret
 	secretOpts := []token.GenerateOption{
-		token.WithExpiry(time.Duration(req.SecretExpiry)),
+		token.WithExpiry(time.Duration(req.SecretExpiry) * time.Second),
 		token.WithMetadata(req.Metadata),
 		token.WithRoles(req.Roles...),
 	}
@@ -144,7 +144,7 @@ func (h *Handler) Refresh(ctx context.Context, req *pb.RefreshRequest, rsp *pb.R
 	}
 
 	tok, err := h.TokenProvider.Generate(sec.Subject,
-		token.WithExpiry(time.Duration(req.TokenExpiry)),
+		token.WithExpiry(time.Duration(req.TokenExpiry)*time.Second),
 		token.WithMetadata(sec.Metadata),
 		token.WithRoles(sec.Roles...),
 	)
