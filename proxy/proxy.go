@@ -221,25 +221,19 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	}
 
 	// add auth wrapper to server
-	if ctx.IsSet("auth") {
-		a, ok := cmd.DefaultAuths[ctx.String("auth")]
-		if !ok {
-			log.Fatalf("%v is not a valid auth", ctx.String("auth"))
-			return
-		}
-
-		var authOpts []auth.Option
-		if ctx.IsSet("auth_public_key") {
-			authOpts = append(authOpts, auth.PublicKey(ctx.String("auth_public_key")))
-		}
-		if ctx.IsSet("auth_private_key") {
-			authOpts = append(authOpts, auth.PublicKey(ctx.String("auth_private_key")))
-		}
-
-		authFn := func() auth.Auth { return a(authOpts...) }
-		authOpt := server.WrapHandler(wrapper.AuthHandler(authFn))
-		serverOpts = append(serverOpts, authOpt)
+	var authOpts []auth.Option
+	if ctx.IsSet("auth_public_key") {
+		authOpts = append(authOpts, auth.PublicKey(ctx.String("auth_public_key")))
 	}
+	if ctx.IsSet("auth_private_key") {
+		authOpts = append(authOpts, auth.PublicKey(ctx.String("auth_private_key")))
+	}
+
+	a := *cmd.DefaultOptions().Auth
+	a.Init(authOpts...)
+	authFn := func() auth.Auth { return a }
+	authOpt := server.WrapHandler(wrapper.AuthHandler(authFn))
+	serverOpts = append(serverOpts, authOpt)
 
 	// set proxy
 	if p == nil && len(Protocol) > 0 {
