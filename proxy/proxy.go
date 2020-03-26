@@ -237,6 +237,7 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		}
 
 		authFn := func() auth.Auth { return a(authOpts...) }
+		authFn().Init(authOpts...) // Initialise the auth implementation
 		authOpt := server.WrapHandler(wrapper.AuthHandler(authFn))
 		serverOpts = append(serverOpts, authOpt)
 	}
