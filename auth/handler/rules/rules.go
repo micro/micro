@@ -1,17 +1,46 @@
-package handler
+package roles
 
 import (
 	"context"
 	"encoding/json"
 	"strings"
 
+	"github.com/micro/go-micro/v2/auth"
 	pb "github.com/micro/go-micro/v2/auth/service/proto/rules"
 	"github.com/micro/go-micro/v2/errors"
 	"github.com/micro/go-micro/v2/store"
+	memStore "github.com/micro/go-micro/v2/store/memory"
 )
 
+const (
+	joinKey     = ":"
+	storePrefix = "rules/"
+)
+
+// Rules processes RPC calls
+type Rules struct {
+	Options auth.Options
+}
+
+// Init the auth
+func (r *Rules) Init(opts ...auth.Option) {
+	for _, o := range opts {
+		o(&r.Options)
+	}
+
+	// use the default store as a fallback
+	if r.Options.Store == nil {
+		r.Options.Store = store.DefaultStore
+	}
+
+	// noop will not work for auth
+	if r.Options.Store.String() == "noop" {
+		r.Options.Store = memStore.NewStore()
+	}
+}
+
 // Create a role access to a resource
-func (h *Handler) Create(ctx context.Context, req *pb.CreateRequest, rsp *pb.CreateResponse) error {
+func (r *Rules) Create(ctx context.Context, req *pb.CreateRequest, rsp *pb.CreateResponse) error {
 	// Validate the request
 	if req.Resource == nil {
 		return errors.BadRequest("go.micro.auth", "Resource missing")
@@ -20,18 +49,24 @@ func (h *Handler) Create(ctx context.Context, req *pb.CreateRequest, rsp *pb.Cre
 		return errors.BadRequest("go.micro.auth", "Access missing")
 	}
 
-	// Construct the key
+	// Construct the rule
 	comps := []string{req.Resource.Type, req.Resource.Name, req.Resource.Endpoint, req.Role}
-	key := strings.Join(comps, joinKey)
+	rule := pb.Rule{
+		Id:       strings.Join(comps, joinKey),
+		Role:     req.Role,
+		Resource: req.Resource,
+		Access:   req.Access,
+	}
 
 	// Encode the rule
-	bytes, err := json.Marshal(pb.Rule{Role: req.Role, Resource: req.Resource})
+	bytes, err := json.Marshal(rule)
 	if err != nil {
 		return errors.InternalServerError("go.micro.auth", "Unable to marshal rule: %v", err)
 	}
 
 	// Write to the store
-	if err := h.Options.Store.Write(&store.Record{Key: key, Value: bytes}); err != nil {
+	key := storePrefix + rule.Id
+	if err := r.Options.Store.Write(&store.Record{Key: key, Value: bytes}); err != nil {
 		return errors.InternalServerError("go.micro.auth", "Unable to write to the store: %v", err)
 	}
 
@@ -39,7 +74,7 @@ func (h *Handler) Create(ctx context.Context, req *pb.CreateRequest, rsp *pb.Cre
 }
 
 // Delete a roles access to a resource
-func (h *Handler) Delete(ctx context.Context, req *pb.DeleteRequest, rsp *pb.DeleteResponse) error {
+func (r *Rules) Delete(ctx context.Context, req *pb.DeleteRequest, rsp *pb.DeleteResponse) error {
 	// Validate the request
 	if req.Resource == nil {
 		return errors.BadRequest("go.micro.auth", "Resource missing")
@@ -53,7 +88,7 @@ func (h *Handler) Delete(ctx context.Context, req *pb.DeleteRequest, rsp *pb.Del
 	key := strings.Join(comps, joinKey)
 
 	// Delete the rule
-	err := h.Options.Store.Delete(key)
+	err := r.Options.Store.Delete(storePrefix + key)
 	if err == store.ErrNotFound {
 		return errors.BadRequest("go.micro.auth", "Rule not found")
 	} else if err != nil {
@@ -64,9 +99,9 @@ func (h *Handler) Delete(ctx context.Context, req *pb.DeleteRequest, rsp *pb.Del
 }
 
 // List returns all the rules
-func (h *Handler) List(ctx context.Context, req *pb.ListRequest, rsp *pb.ListResponse) error {
+func (r *Rules) List(ctx context.Context, req *pb.ListRequest, rsp *pb.ListResponse) error {
 	// get the records from the store
-	recs, err := h.Options.Store.Read("", store.ReadPrefix())
+	recs, err := r.Options.Store.Read(storePrefix, store.ReadPrefix())
 	if err != nil {
 		return errors.InternalServerError("go.micro.auth", "Unable to read from store: %v", err)
 	}
@@ -78,7 +113,6 @@ func (h *Handler) List(ctx context.Context, req *pb.ListRequest, rsp *pb.ListRes
 		if err := json.Unmarshal(rec.Value, &r); err != nil {
 			return errors.InternalServerError("go.micro.auth", "Error to unmarshaling json: %v. Value: %v", err, string(rec.Value))
 		}
-		r.Id = rec.Key
 		rsp.Rules = append(rsp.Rules, r)
 	}
 

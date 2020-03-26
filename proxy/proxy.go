@@ -237,7 +237,7 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		}
 
 		authFn := func() auth.Auth { return a(authOpts...) }
-		authOpt := server.WrapHandler(wrapper.AuthHandler(authFn, "go.micro.proxy"))
+		authOpt := server.WrapHandler(wrapper.AuthHandler(authFn))
 		serverOpts = append(serverOpts, authOpt)
 	}
 
