@@ -63,9 +63,7 @@ spec:
               key: KV_NAMESPACE_ID
               name: cloudflare-credentials
         - name: MICRO_PROXY_AUTH
-          value: "jwt"
-        - name: MICRO_AUTH_EXCLUDE
-          value: "Auth.Verify"
+          value: "service"
         - name: MICRO_AUTH_PUBLIC_KEY
           valueFrom:
             secretKeyRef:
