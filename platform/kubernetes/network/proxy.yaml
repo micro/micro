@@ -37,8 +37,6 @@ spec:
           value: "nats"
         - name: MICRO_BROKER_ADDRESS
           value: "nats-cluster"
-        - name: MICRO_ROUTER
-          value: "service"
         - name: MICRO_REGISTRY
           value: "etcd"
         - name: MICRO_REGISTRY_ADDRESS
