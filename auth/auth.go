@@ -8,7 +8,9 @@ import (
 	"github.com/micro/go-micro/v2"
 	"github.com/micro/go-micro/v2/auth"
 	srvAuth "github.com/micro/go-micro/v2/auth/service"
-	pb "github.com/micro/go-micro/v2/auth/service/proto"
+	accPb "github.com/micro/go-micro/v2/auth/service/proto/accounts"
+	authPb "github.com/micro/go-micro/v2/auth/service/proto/auth"
+	rulePb "github.com/micro/go-micro/v2/auth/service/proto/rules"
 	"github.com/micro/go-micro/v2/auth/token"
 	"github.com/micro/go-micro/v2/auth/token/jwt"
 	"github.com/micro/go-micro/v2/config/cmd"
@@ -16,7 +18,9 @@ import (
 	"github.com/micro/go-micro/v2/store"
 	"github.com/micro/go-micro/v2/util/config"
 	"github.com/micro/micro/v2/auth/api"
-	"github.com/micro/micro/v2/auth/handler"
+	accountsHandler "github.com/micro/micro/v2/auth/handler/accounts"
+	authHandler "github.com/micro/micro/v2/auth/handler/auth"
+	rulesHandler "github.com/micro/micro/v2/auth/handler/rules"
 	"github.com/micro/micro/v2/auth/web"
 )
 
@@ -25,6 +29,76 @@ var (
 	Name = "go.micro.auth"
 	// Address of the service
 	Address = ":8010"
+	// ServiceFlags are provided to commands which run micro services
+	ServiceFlags = []cli.Flag{
+		&cli.StringFlag{
+			Name:    "address",
+			Usage:   "Set the auth http address e.g 0.0.0.0:8010",
+			EnvVars: []string{"MICRO_SERVER_ADDRESS"},
+		},
+		&cli.StringFlag{
+			Name:    "auth_provider",
+			EnvVars: []string{"MICRO_AUTH_PROVIDER"},
+			Usage:   "Auth provider enables account generation",
+		},
+		&cli.StringFlag{
+			Name:    "auth_public_key",
+			EnvVars: []string{"MICRO_AUTH_PUBLIC_KEY"},
+			Usage:   "Public key for JWT auth (base64 encoded PEM)",
+		},
+		&cli.StringFlag{
+			Name:    "auth_private_key",
+			EnvVars: []string{"MICRO_AUTH_PRIVATE_KEY"},
+			Usage:   "Private key for JWT auth (base64 encoded PEM)",
+		},
+	}
+	// RuleFlags are provided to commands which create or delete rules
+	RuleFlags = []cli.Flag{
+		&cli.StringFlag{
+			Name:     "role",
+			Usage:    "The role to amend, e.g. 'user' or '*' to represent all",
+			Required: true,
+		},
+		&cli.StringFlag{
+			Name:     "resource_type",
+			Usage:    "The type of resouce to amend, e.g. service",
+			Required: true,
+		},
+		&cli.StringFlag{
+			Name:     "resource_name",
+			Usage:    "The name of the resouce to amend, e.g. go.micro.auth",
+			Required: true,
+		},
+		&cli.StringFlag{
+			Name:  "resource_endpoint",
+			Usage: "The endpoint of the resouce to amend, e.g. Auth.Generate",
+			Value: "*",
+		},
+		&cli.StringFlag{
+			Name:     "access",
+			Usage:    "The access level, must be granted or denied",
+			Required: true,
+		},
+	}
+	// AccountFlags are provided to the create account command
+	AccountFlags = []cli.Flag{
+		&cli.StringFlag{
+			Name:     "id",
+			Usage:    "The account id",
+			Required: true,
+		},
+		&cli.StringSliceFlag{
+			Name:     "roles",
+			Usage:    "Comma seperated list of roles to give the account",
+			Required: true,
+		},
+	}
+	// PlatformFlag connects via proxy
+	PlatformFlag = &cli.BoolFlag{
+		Name:  "platform",
+		Usage: "Connect to the platform",
+		Value: false,
+	}
 )
 
 // run the auth service
@@ -51,24 +125,36 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	// set store namespace
 	store.DefaultStore.Init(store.Namespace(Name))
 
-	// setup the handler
-	h := &handler.Handler{}
+	// setup the handlers
+	authH := &authHandler.Auth{}
+	ruleH := &rulesHandler.Rules{}
+	accountH := &accountsHandler.Accounts{}
+
+	// setup the auth handler to use JWTs
 	pubKey := ctx.String("auth_public_key")
 	privKey := ctx.String("auth_private_key")
 	if len(pubKey) > 0 || len(privKey) > 0 {
-		h.TokenProvider = jwt.NewTokenProvider(
+		authH.TokenProvider = jwt.NewTokenProvider(
 			token.WithPublicKey(pubKey),
 			token.WithPrivateKey(privKey),
 		)
 	}
-	h.Init()
+
+	// set the handlers store
+	authH.Init(auth.Store(store.DefaultStore))
+	ruleH.Init(auth.Store(store.DefaultStore))
+	accountH.Init(auth.Store(store.DefaultStore))
 
 	// setup service
 	srvOpts = append(srvOpts, micro.Name(Name))
 	service := micro.NewService(srvOpts...)
 
+	// register handlers
+	authPb.RegisterAuthHandler(service.Server(), authH)
+	rulePb.RegisterRulesHandler(service.Server(), ruleH)
+	accPb.RegisterAccountsHandler(service.Server(), accountH)
+
 	// run service
-	pb.RegisterAuthHandler(service.Server(), h)
 	if err := service.Run(); err != nil {
 		log.Fatal(err)
 	}
@@ -126,6 +212,7 @@ func Commands(srvOpts ...micro.Option) []*cli.Command {
 					Name:        "api",
 					Usage:       "Run the auth api",
 					Description: "Run the auth api",
+					Flags:       ServiceFlags,
 					Action: func(ctx *cli.Context) error {
 						api.Run(ctx, srvOpts...)
 						return nil
@@ -135,34 +222,76 @@ func Commands(srvOpts ...micro.Option) []*cli.Command {
 					Name:        "web",
 					Usage:       "Run the auth web",
 					Description: "Run the auth web",
+					Flags:       append(ServiceFlags, PlatformFlag),
 					Action: func(ctx *cli.Context) error {
 						web.Run(ctx, srvOpts...)
 						return nil
 					},
 				},
+				&cli.Command{
+					Name:  "list",
+					Usage: "List auth resources",
+					Subcommands: append([]*cli.Command{
+						{
+							Name:  "rules",
+							Usage: "List auth rules",
+							Flags: []cli.Flag{PlatformFlag},
+							Action: func(ctx *cli.Context) error {
+								listRules(ctx)
+								return nil
+							},
+						},
+						{
+							Name:  "accounts",
+							Usage: "List auth accounts",
+							Flags: []cli.Flag{PlatformFlag},
+							Action: func(ctx *cli.Context) error {
+								listAccounts(ctx)
+								return nil
+							},
+						},
+					}),
+				},
+				&cli.Command{
+					Name:  "create",
+					Usage: "Create an auth resource",
+					Subcommands: append([]*cli.Command{
+						{
+							Name:  "rule",
+							Usage: "Create an auth rule",
+							Flags: append(RuleFlags, PlatformFlag),
+							Action: func(ctx *cli.Context) error {
+								createRule(ctx)
+								return nil
+							},
+						},
+						{
+							Name:  "account",
+							Usage: "Create an auth account",
+							Flags: append(AccountFlags, PlatformFlag),
+							Action: func(ctx *cli.Context) error {
+								createAccount(ctx)
+								return nil
+							},
+						},
+					}),
+				},
+				&cli.Command{
+					Name:  "delete",
+					Usage: "Delete a auth resource",
+					Subcommands: append([]*cli.Command{
+						{
+							Name:  "rule",
+							Usage: "Delete an auth rule",
+							Flags: append(RuleFlags, PlatformFlag),
+							Action: func(ctx *cli.Context) error {
+								deleteRule(ctx)
+								return nil
+							},
+						},
+					}),
+				},
 			}),
-			Flags: []cli.Flag{
-				&cli.StringFlag{
-					Name:    "address",
-					Usage:   "Set the auth http address e.g 0.0.0.0:8010",
-					EnvVars: []string{"MICRO_SERVER_ADDRESS"},
-				},
-				&cli.StringFlag{
-					Name:    "auth_provider",
-					EnvVars: []string{"MICRO_AUTH_PROVIDER"},
-					Usage:   "Auth provider enables account generation",
-				},
-				&cli.StringFlag{
-					Name:    "auth_public_key",
-					EnvVars: []string{"MICRO_AUTH_PUBLIC_KEY"},
-					Usage:   "Public key for JWT auth (base64 encoded PEM)",
-				},
-				&cli.StringFlag{
-					Name:    "auth_private_key",
-					EnvVars: []string{"MICRO_AUTH_PRIVATE_KEY"},
-					Usage:   "Private key for JWT auth (base64 encoded PEM)",
-				},
-			},
 		},
 		&cli.Command{
 			Name:  "login",
@@ -171,13 +300,7 @@ func Commands(srvOpts ...micro.Option) []*cli.Command {
 				login(ctx)
 				return nil
 			},
-			Flags: []cli.Flag{
-				&cli.BoolFlag{
-					Name:  "platform",
-					Usage: "Connect to the platform",
-					Value: false,
-				},
-			},
+			Flags: []cli.Flag{PlatformFlag},
 		},
 	}
 
