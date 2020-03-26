@@ -60,6 +60,10 @@ func networkGraph(c *cli.Context, args []string) ([]byte, error) {
 	return clic.NetworkGraph(c)
 }
 
+func networkServices(c *cli.Context, args []string) ([]byte, error) {
+	return clic.NetworkServices(c)
+}
+
 func netNodes(c *cli.Context, args []string) ([]byte, error) {
 	return clic.NetworkNodes(c)
 }
