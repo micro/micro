@@ -15,11 +15,19 @@ echo "Checking dependencies..."
 which protoc
 which protoc-gen-go
 
+MOD=Mgithub.com/micro/go-micro/api/proto/api.proto=github.com/micro/go-micro/v2/api/proto
+
 echo "Building protobuf code..."
 DIR=`pwd`
-SRCDIR=`cd $DIR && cd ../../.. && pwd`
+SRCDIR=$GOPATH/src
+
+echo "DIR $DIR"
+echo "SRCDIR $SRCDIR"
 find $DIR/proto -name '*.pb.go' -exec rm {} \;
+find $DIR/proto -name '*.micro.go' -exec rm {} \;
 find $DIR/proto -name '*.proto' -exec echo {} \;
-find $DIR/proto -name '*.proto' -exec protoc -I$SRCDIR --go_out=plugins=micro:${SRCDIR} {} \;
+find $DIR/proto -name '*.proto' -exec protoc --proto_path=$SRCDIR --micro_out=${MOD}:${SRCDIR} --go_out=${MOD}:${SRCDIR} {} \;
+#find $DIR/proto -name '*.proto' -exec protoc --proto_path=$SRCDIR --micro_out=${SRCDIR} --go_out=${SRCDIR} {} \;
+#find $DIR/proto -name '*.proto' -exec protoc --proto_path=$SRCDIR --micro_out=${SRCDIR}:${MOD} --go_out=plugins=grpc:${SRCDIR} {} \;
 
 echo "Complete"
