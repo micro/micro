@@ -17,6 +17,20 @@ which protoc-gen-go
 
 MOD=Mgithub.com/micro/go-micro/api/proto/api.proto=github.com/micro/go-micro/v2/api/proto
 
+# modify the proto paths
+function modify_paths() {
+	while read line; do
+		while read path; do 
+			m=`echo $path | sed -e 's@go-micro/@go-micro/v2/@g' -e 's@/[a-z]*\.proto$@@g'`
+			MOD="${MOD},M${path}=$m"
+		done < <(grep "github.com/micro/go-micro/.*\.proto" $line | sed -e 's/^import //g' -e 's/;$//g' -e 's/"//g')
+	done < <(find . -name "*.proto")
+}
+
+modify_paths
+echo Modes $MOD
+##Mgithub.com/micro/go-micro/api/proto/api.proto=github.com/micro/go-micro/v2/api/proto
+
 echo "Building protobuf code..."
 DIR=`pwd`
 SRCDIR=$GOPATH/src
