@@ -28,7 +28,7 @@ function modify_paths() {
 }
 
 modify_paths
-echo Modes $MOD
+echo Modifiers used: $MOD
 ##Mgithub.com/micro/go-micro/api/proto/api.proto=github.com/micro/go-micro/v2/api/proto
 
 echo "Building protobuf code..."
