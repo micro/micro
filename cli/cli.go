@@ -140,6 +140,11 @@ func NetworkCommands() []*cli.Command {
 				},
 			},
 		},
+		{
+			Name:   "services",
+			Usage:  "Get the network services",
+			Action: Print(networkServices),
+		},
 		// TODO: duplicates call. Move so we reuse same stuff.
 		{
 			Name:   "call",
