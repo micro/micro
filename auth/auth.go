@@ -93,6 +93,12 @@ var (
 			Required: true,
 		},
 	}
+	// PlatformFlag connects via proxy
+	PlatformFlag = &cli.BoolFlag{
+		Name:  "platform",
+		Usage: "Connect to the platform",
+		Value: false,
+	}
 )
 
 // run the auth service
@@ -201,13 +207,6 @@ func Commands(srvOpts ...micro.Option) []*cli.Command {
 				run(ctx)
 				return nil
 			},
-			Flags: []cli.Flag{
-				&cli.BoolFlag{
-					Name:  "platform",
-					Usage: "Connect to the platform",
-					Value: false,
-				},
-			},
 			Subcommands: append([]*cli.Command{
 				{
 					Name:        "api",
@@ -223,7 +222,7 @@ func Commands(srvOpts ...micro.Option) []*cli.Command {
 					Name:        "web",
 					Usage:       "Run the auth web",
 					Description: "Run the auth web",
-					Flags:       ServiceFlags,
+					Flags:       append(ServiceFlags, PlatformFlag),
 					Action: func(ctx *cli.Context) error {
 						web.Run(ctx, srvOpts...)
 						return nil
@@ -236,6 +235,7 @@ func Commands(srvOpts ...micro.Option) []*cli.Command {
 						{
 							Name:  "rules",
 							Usage: "List auth rules",
+							Flags: []cli.Flag{PlatformFlag},
 							Action: func(ctx *cli.Context) error {
 								listRules(ctx)
 								return nil
@@ -244,6 +244,7 @@ func Commands(srvOpts ...micro.Option) []*cli.Command {
 						{
 							Name:  "accounts",
 							Usage: "List auth accounts",
+							Flags: []cli.Flag{PlatformFlag},
 							Action: func(ctx *cli.Context) error {
 								listAccounts(ctx)
 								return nil
@@ -258,7 +259,7 @@ func Commands(srvOpts ...micro.Option) []*cli.Command {
 						{
 							Name:  "rule",
 							Usage: "Create an auth rule",
-							Flags: RuleFlags,
+							Flags: append(RuleFlags, PlatformFlag),
 							Action: func(ctx *cli.Context) error {
 								createRule(ctx)
 								return nil
@@ -267,7 +268,7 @@ func Commands(srvOpts ...micro.Option) []*cli.Command {
 						{
 							Name:  "account",
 							Usage: "Create an auth account",
-							Flags: AccountFlags,
+							Flags: append(AccountFlags, PlatformFlag),
 							Action: func(ctx *cli.Context) error {
 								createAccount(ctx)
 								return nil
@@ -282,7 +283,7 @@ func Commands(srvOpts ...micro.Option) []*cli.Command {
 						{
 							Name:  "rule",
 							Usage: "Delete an auth rule",
-							Flags: RuleFlags,
+							Flags: append(RuleFlags, PlatformFlag),
 							Action: func(ctx *cli.Context) error {
 								deleteRule(ctx)
 								return nil
@@ -299,13 +300,7 @@ func Commands(srvOpts ...micro.Option) []*cli.Command {
 				login(ctx)
 				return nil
 			},
-			Flags: []cli.Flag{
-				&cli.BoolFlag{
-					Name:  "platform",
-					Usage: "Connect to the platform",
-					Value: false,
-				},
-			},
+			Flags: []cli.Flag{PlatformFlag},
 		},
 	}
 
