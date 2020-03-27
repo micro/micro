@@ -27,7 +27,7 @@ spec:
       containers:
       - name: web
         env:
-        - name: MICRO_RESOLVER
+        - name: MICRO_WEB_RESOLVER
           value: "subdomain"
         - name: MICRO_BROKER
           value: "nats"
