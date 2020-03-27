@@ -10,6 +10,8 @@ import (
 )
 
 type resolver struct {
+	// Type of resolver e.g path, domain
+	Type string
 	// our internal namespace e.g go.micro.web
 	Namespace string
 	// selector to find services
@@ -43,7 +45,7 @@ func (r *resolver) Resolve(req *http.Request) error {
 	// go.micro.web => go.micro.web
 	// use path based resolution if hostname matches
 	// namespace or IP is not nil
-	if namespace == r.Namespace || localhost || len(host) == 0 || host == Host {
+	if r.Type == "path" || namespace == r.Namespace || localhost || len(host) == 0 || host == Host {
 		parts := strings.Split(req.URL.Path, "/")
 		if len(parts) < 2 {
 			return errors.New("unknown service")
