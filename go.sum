@@ -126,6 +126,8 @@ github.com/eknkc/basex v1.0.0/go.mod h1:k/F/exNEHFdbs3ZHuasoP2E7zeWwZblG84Y7Z59v
 github.com/emirpasic/gods v1.12.0/go.mod h1:YfzfFFoVP/catgzJb4IKIqXjX78Ha8FMSDh3ymbK86o=
 github.com/envoyproxy/go-control-plane v0.9.1-0.20191026205805-5f8ba28d4473/go.mod h1:YTl/9mNaCwkRvm6d1a2C3ymFceY/DCBVvsKhRF0iEA4=
 github.com/envoyproxy/protoc-gen-validate v0.1.0/go.mod h1:iSmxcyjqTsJpI2R4NaDN7+kN2VEUnK/pcBlmesArF7c=
+github.com/evanphx/json-patch/v5 v5.0.0 h1:dKTrUeykyQwKb/kx7Z+4ukDs6l+4L41HqG1XHnhX7WE=
+github.com/evanphx/json-patch/v5 v5.0.0/go.mod h1:G79N1coSVB93tBe7j6PhzjmR3/2VvlbKOFpnXhI9Bw4=
 github.com/exoscale/egoscale v0.18.1/go.mod h1:Z7OOdzzTOz1Q1PjQXumlz9Wn/CddH0zSYdCF3rnBKXE=
 github.com/fatih/structs v1.1.0/go.mod h1:9NiDSp5zOcgEDl+j00MP/WkGVPOlPRLejGD8Ga6PJ7M=
 github.com/flynn/go-shlex v0.0.0-20150515145356-3f9db97f8568/go.mod h1:xEzjJPgXI435gkrCt3MPfRiAkVrwSbHsst4LCFVfpJc=
@@ -297,6 +299,8 @@ github.com/micro/go-micro/v2 v2.3.1-0.20200326173528-c905df3be68a h1:0GoObwMubhV
 github.com/micro/go-micro/v2 v2.3.1-0.20200326173528-c905df3be68a/go.mod h1:BZ3q7pvyaKYl+U2s4l0RCYjcmOjNpgnjedbYYAS/E04=
 github.com/micro/go-micro/v2 v2.3.1-0.20200326180951-329bd09f93ec h1:H23aHP+CSkbHp+oMWQmFZR4X7+/aKkpkfnAydVf1OYo=
 github.com/micro/go-micro/v2 v2.3.1-0.20200326180951-329bd09f93ec/go.mod h1:BZ3q7pvyaKYl+U2s4l0RCYjcmOjNpgnjedbYYAS/E04=
+github.com/micro/go-micro/v2 v2.3.1-0.20200327113712-b60fde0e6418 h1:COHwtCG+2KZ0ZjQODknhGD/lYVJiH2sjmyauNO+i1pQ=
+github.com/micro/go-micro/v2 v2.3.1-0.20200327113712-b60fde0e6418/go.mod h1:F0TaoQxhlo1kguBC8UOupReB7HE67R2hj9EOjDRRHFM=
 github.com/micro/mdns v0.3.0 h1:bYycYe+98AXR3s8Nq5qvt6C573uFTDPIYzJemWON0QE=
 github.com/micro/mdns v0.3.0/go.mod h1:KJ0dW7KmicXU2BV++qkLlmHYcVv7/hHnbtguSWt9Aoc=
 github.com/miekg/dns v1.1.3/go.mod h1:W1PPwlIAgtquWBMBEV9nkV9Cazfe8ScdGz/Lj7v3Nrg=
