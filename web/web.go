@@ -78,6 +78,8 @@ type srv struct {
 	resolver *resolver
 	// the proxy server
 	prx *proxy
+	// auth service
+	auth auth.Auth
 }
 
 type reg struct {
@@ -347,7 +349,7 @@ func (s *srv) indexHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	data := templateData{len(webServices) > 0, webServices}
-	render(w, r, indexTemplate, data)
+	s.render(w, r, indexTemplate, data)
 }
 
 func (s *srv) registryHandler(w http.ResponseWriter, r *http.Request) {
@@ -355,13 +357,13 @@ func (s *srv) registryHandler(w http.ResponseWriter, r *http.Request) {
 	svc := vars["name"]
 
 	if len(svc) > 0 {
-		s, err := s.registry.GetService(svc)
+		sv, err := s.registry.GetService(svc)
 		if err != nil {
 			http.Error(w, "Error occurred:"+err.Error(), 500)
 			return
 		}
 
-		if len(s) == 0 {
+		if len(sv) == 0 {
 			http.Error(w, "Not found", 404)
 			return
 		}
@@ -379,7 +381,7 @@ func (s *srv) registryHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		render(w, r, serviceTemplate, s)
+		s.render(w, r, serviceTemplate, sv)
 		return
 	}
 
@@ -403,7 +405,7 @@ func (s *srv) registryHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	render(w, r, registryTemplate, services)
+	s.render(w, r, registryTemplate, services)
 }
 
 func (s *srv) callHandler(w http.ResponseWriter, r *http.Request) {
@@ -444,10 +446,10 @@ func (s *srv) callHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	render(w, r, callTemplate, serviceMap)
+	s.render(w, r, callTemplate, serviceMap)
 }
 
-func render(w http.ResponseWriter, r *http.Request, tmpl string, data interface{}) {
+func (s *srv) render(w http.ResponseWriter, r *http.Request, tmpl string, data interface{}) {
 	t, err := template.New("template").Funcs(template.FuncMap{
 		"format": format,
 		"Title":  strings.Title,
@@ -462,10 +464,20 @@ func render(w http.ResponseWriter, r *http.Request, tmpl string, data interface{
 		return
 	}
 
+	// If the user is logged in, render Account instead of Login
+	loginTitle := "Login"
+	if c, err := r.Cookie(auth.TokenCookieName); err == nil && c != nil {
+		token := strings.TrimPrefix(c.Value, auth.TokenCookieName+"=")
+		if _, err := s.auth.Inspect(token); err == nil {
+			loginTitle = "Account"
+		}
+	}
+
 	if err := t.ExecuteTemplate(w, "layout", map[string]interface{}{
-		"LoginURL": loginURL,
-		"StatsURL": statsURL,
-		"Results":  data,
+		"LoginTitle": loginTitle,
+		"LoginURL":   loginURL,
+		"StatsURL":   statsURL,
+		"Results":    data,
 	}); err != nil {
 		http.Error(w, "Error occurred:"+err.Error(), 500)
 	}
@@ -506,6 +518,7 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 				selector.Registry(reg),
 			),
 		},
+		auth: *cmd.DefaultOptions().Auth,
 	}
 
 	var h http.Handler
