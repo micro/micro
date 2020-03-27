@@ -29,7 +29,7 @@ spec:
       - name: micro-debug
         env:
         - name: MICRO_DEBUG_LOG
-          value: "kubernetes"
+          value: "service"
         - name: MICRO_DEBUG_WINDOW
           value: "600"
         - name: MICRO_LOG_LEVEL

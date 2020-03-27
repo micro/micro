@@ -345,7 +345,7 @@ func getService(ctx *cli.Context, srvOpts ...micro.Option) {
 			service.Name,
 			parse(service.Version),
 			parse(service.Source),
-			status,
+			strings.ToLower(status),
 			build,
 			updated,
 			fmt.Sprintf("owner=%s,group=%s", parse(service.Metadata["owner"]), parse(service.Metadata["group"])))
