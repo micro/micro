@@ -6,6 +6,7 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 
 	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro/v2/config/cmd"
@@ -92,6 +93,8 @@ func (i *initScheduler) Notify() (<-chan gorun.Event, error) {
 					Timestamp: ev.Timestamp,
 					Type:      ev.Type,
 				}
+				// slow roll the change
+				time.Sleep(time.Second)
 			}
 		}
 

@@ -235,6 +235,12 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	authOpt := server.WrapHandler(wrapper.AuthHandler(authFn))
 	serverOpts = append(serverOpts, authOpt)
 
+	a := *cmd.DefaultOptions().Auth
+	a.Init(authOpts...)
+	authFn := func() auth.Auth { return a }
+	authOpt := server.WrapHandler(wrapper.AuthHandler(authFn))
+	serverOpts = append(serverOpts, authOpt)
+
 	// set proxy
 	if p == nil && len(Protocol) > 0 {
 		switch Protocol {
