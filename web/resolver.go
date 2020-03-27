@@ -37,11 +37,13 @@ func (r *resolver) Resolve(req *http.Request) error {
 	parts := strings.Split(host, ".")
 	reverse(parts)
 	namespace := strings.Join(parts, ".")
+	// check if its localhost or an ip
+	localhost := (ip != nil || host == "localhost")
 
 	// go.micro.web => go.micro.web
 	// use path based resolution if hostname matches
 	// namespace or IP is not nil
-	if namespace == r.Namespace || ip != nil || len(host) == 0 || host == Host {
+	if namespace == r.Namespace || localhost || len(host) == 0 || host == Host {
 		parts := strings.Split(req.URL.Path, "/")
 		if len(parts) < 2 {
 			return errors.New("unknown service")
