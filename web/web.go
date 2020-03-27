@@ -53,6 +53,8 @@ var (
 	// Namespace + /[Service]/foo/bar
 	// Host: Namespace.Service Endpoint: /foo/bar
 	Namespace = "go.micro.web"
+	// Resolver used to resolve services
+	Resolver = "path"
 	// Base path sent to web service.
 	// This is stripped from the request path
 	// Allows the web service to define absolute paths
@@ -495,6 +497,9 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	if len(ctx.String("namespace")) > 0 {
 		Namespace = ctx.String("namespace")
 	}
+	if len(ctx.String("resolver")) > 0 {
+		Resolver = ctx.String("resolver")
+	}
 
 	// Init plugins
 	for _, p := range Plugins() {
@@ -513,6 +518,8 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		registry: reg,
 		// our internal resolver
 		resolver: &resolver{
+			// Default to type path
+			Type:      Resolver,
 			Namespace: Namespace,
 			Selector: selector.NewSelector(
 				selector.Registry(reg),
@@ -677,6 +684,11 @@ func Commands(options ...micro.Option) []*cli.Command {
 				Name:    "namespace",
 				Usage:   "Set the namespace used by the Web proxy e.g. com.example.web",
 				EnvVars: []string{"MICRO_WEB_NAMESPACE"},
+			},
+			&cli.StringFlag{
+				Name:    "resolver",
+				Usage:   "Set the resolver to route to services e.g path, domain",
+				EnvVars: []string{"MICRO_WEB_RESOLVER"},
 			},
 			&cli.StringFlag{
 				Name:    "auth_login_url",
