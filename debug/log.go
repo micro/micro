@@ -68,6 +68,10 @@ func getLog(ctx *cli.Context, srvOpts ...micro.Option) {
 // logFlags is shared flags so we don't have to continually re-add
 func logFlags() []cli.Flag {
 	return []cli.Flag{
+		&cli.BoolFlag{
+			Name:  "platform",
+			Usage: "Retrieve logs from the platform",
+		},
 		&cli.StringFlag{
 			Name:  "version",
 			Usage: "Set the version of the service to debug",
