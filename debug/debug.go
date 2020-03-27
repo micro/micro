@@ -2,6 +2,8 @@
 package debug
 
 import (
+	"os"
+
 	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro/v2"
 	"github.com/micro/go-micro/v2/debug/log"
@@ -23,6 +25,13 @@ var (
 	// Address of the service
 	Address = ":8089"
 )
+
+func setPlatform(ctx *cli.Context) {
+        if ctx.Bool("platform") {
+                os.Setenv("MICRO_PROXY", "service")
+                os.Setenv("MICRO_PROXY_ADDRESS", "proxy.micro.mu:443")
+        }
+}
 
 func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 	ulog.Init(ulog.WithFields(map[string]interface{}{"service": "debug"}))
@@ -174,6 +183,7 @@ func Commands(options ...micro.Option) []*cli.Command {
 			Usage: "Get logs for a service",
 			Flags: logFlags(),
 			Action: func(ctx *cli.Context) error {
+				setPlatform(ctx)
 				getLog(ctx, options...)
 				return nil
 			},
