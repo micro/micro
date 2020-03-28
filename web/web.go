@@ -87,12 +87,25 @@ type srv struct {
 type reg struct {
 	registry.Registry
 
-	sync.Mutex
+	sync.RWMutex
 	lastPull time.Time
 	services []*registry.Service
 }
 
 func (r *reg) watch() {
+	// update once
+	r.update()
+
+	// periodically update the service cache
+	go func() {
+		t := time.NewTicker(time.Minute)
+		defer t.Stop()
+
+		for _ = range t.C {
+			r.update()
+		}
+	}()
+
 Loop:
 	for {
 		// get a watcher
@@ -119,35 +132,34 @@ Loop:
 	}
 }
 
-func (r *reg) ListServices() ([]*registry.Service, error) {
+func (r *reg) update() {
+	// pull the services
+	s, err := r.Registry.ListServices()
+	if err != nil {
+		return
+	}
+
+	// collapse the list
+	serviceMap := make(map[string]*registry.Service)
+	for _, service := range s {
+		serviceMap[service.Name] = service
+	}
+	var services []*registry.Service
+	for _, service := range serviceMap {
+		services = append(services, service)
+	}
+
 	r.Lock()
 	defer r.Unlock()
 
-	if r.lastPull.IsZero() || time.Since(r.lastPull) > time.Minute {
-		// pull the services
-		s, err := r.Registry.ListServices()
-		if err != nil {
-			// return stale entries if they exist
-			if len(r.services) > 0 {
-				return r.services, nil
-			}
-			// otherwise return an error
-			return nil, err
-		}
-		// collapse the list
-		serviceMap := make(map[string]*registry.Service)
-		for _, service := range s {
-			serviceMap[service.Name] = service
-		}
-		var services []*registry.Service
-		for _, service := range serviceMap {
-			services = append(services, service)
-		}
-		// cache it
-		r.services = services
-		r.lastPull = time.Now()
-		return s, nil
-	}
+	// cache it
+	r.services = services
+	r.lastPull = time.Now()
+}
+
+func (r *reg) ListServices() ([]*registry.Service, error) {
+	r.RLock()
+	defer r.RUnlock()
 
 	// return the cached list
 	return r.services, nil
@@ -315,30 +327,10 @@ func (s *srv) indexHandler(w http.ResponseWriter, r *http.Request) {
 
 	var webServices []webService
 	for _, srv := range services {
-		if len(srv.Nodes) == 0 {
-			srvs, _ := s.registry.GetService(srv.Name)
-			if len(srvs) == 0 {
-				continue
-			}
-			srv = srvs[0]
-		}
-
-		if len(srv.Nodes) == 0 {
-			continue
-		}
-
 		if strings.Index(srv.Name, Namespace) == 0 && len(strings.TrimPrefix(srv.Name, Namespace)) > 0 {
-			icon := DefaultIcon
-
-			if ico := srv.Nodes[0].Metadata["icon"]; len(ico) > 0 {
-				icon = ico
-			}
-
-			name := strings.Replace(srv.Name, Namespace+".", "", 1)
-
 			webServices = append(webServices, webService{
-				Name: name,
-				Icon: icon,
+				Name: strings.Replace(srv.Name, Namespace+".", "", 1),
+				Icon: DefaultIcon,
 			})
 		}
 	}
