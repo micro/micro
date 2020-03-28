@@ -409,7 +409,25 @@ jQuery(function($, undefined) {
 .table>tbody>tr>th, .table>tbody>tr>td {
     border-top: none;
 }
+.endpoint {
+  cursor: pointer;
+}
 pre {border: 0; padding: 20px;}
+{{end}}
+{{define "script"}}
+<script type="text/javascript">
+  $('.endpoint').on('click', function() {
+	var val = $(this).parent().find("table");
+	var state = $(this).find(".state");
+	if (val.css('display') == 'none') {
+	  state.text("[-]");
+	  val.css('display', 'table');
+	} else {
+	  val.css('display', 'none');
+	  state.text("[+]");
+	}
+  });
+</script>
 {{end}}
 {{define "content"}}
 	<hr>
@@ -439,8 +457,9 @@ pre {border: 0; padding: 20px;}
 	<hr/>
 	{{end}}
 	{{range $svc.Endpoints}}
-		<h4>{{.Name}}</h4>
-		<table class="table">
+	<div>
+		<h4 class="endpoint"><span class="state">[+]</span> {{.Name}}</h4>
+		<table class="table" style="display: none;">
 			<tbody>
 				{{if .Metadata}}
 				<tr>
@@ -458,6 +477,7 @@ pre {border: 0; padding: 20px;}
 				</tr>
 			</tbody>
 		</table>
+	</div>
 	{{end}}
 	{{end}}
 {{end}}
