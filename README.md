@@ -82,7 +82,7 @@ powershell -Command "iwr -useb https://micro.mu/install.ps1 | iex"
 
 ## Getting Started
 
-Boot the entire development environment locally
+Boot the entire runtime environment locally
 
 ```
 micro server
