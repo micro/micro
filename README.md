@@ -8,7 +8,7 @@ Micro addresses the key requirements for building scalable systems in the cloud 
 architecture pattern and provides a set of services which act as the building blocks of a platform. Micro deals
 with the complexity of distributed systems and provides simpler programmable abstractions to build on.
 
-<img src="https://micro.mu/runtime01.svg?load" />
+<img src="https://micro.mu/runtime01.svg?load" style="width: 100%; height: auto;" />
 
 Technology is constantly evolving. The infrastructure stack is always changing. Micro is a platform which
 addresses these issues with a pluggable foundation and strongly defined apis to build on. Plug into any stack or cloud.
