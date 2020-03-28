@@ -412,6 +412,9 @@ jQuery(function($, undefined) {
 .endpoint {
   cursor: pointer;
 }
+.bold {
+  font-weight: bold;
+}
 pre {border: 0; padding: 20px;}
 {{end}}
 {{define "script"}}
@@ -431,9 +434,9 @@ pre {border: 0; padding: 20px;}
 {{end}}
 {{define "content"}}
 	<hr>
-	<h4>Nodes</h4>
+	<h4 class="bold">Nodes</h4>
 	{{range .Results}}
-	<h5>Version {{.Version}}</h5>
+	<h5>Version: {{.Version}}</h5>
 	<table class="table">
 		<thead>
 			<th>Id</th>
@@ -453,7 +456,7 @@ pre {border: 0; padding: 20px;}
 	{{end}}
 	{{with $svc := index .Results 0}}
 	{{if $svc.Endpoints}}
-	<h4>Endpoints</h4>
+	<h4 class="bold">Endpoints</h4>
 	<hr/>
 	{{end}}
 	{{range $svc.Endpoints}}
