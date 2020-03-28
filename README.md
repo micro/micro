@@ -85,7 +85,7 @@ powershell -Command "iwr -useb https://micro.mu/install.ps1 | iex"
 Boot the entire development environment locally
 
 ```
-micro --local
+micro server
 ```
 
 ### Create a service
