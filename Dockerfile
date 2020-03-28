@@ -1,8 +1,8 @@
 FROM golang:1.13-alpine as builder
-RUN apk --no-cache add make git gcc libtool musl-dev upx
+RUN apk --no-cache add make git gcc libtool musl-dev
 WORKDIR /
 COPY . /
-RUN make build && upx micro
+RUN make build
 
 FROM alpine:latest
 
