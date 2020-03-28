@@ -4,11 +4,11 @@ Micro is a microservices runtime environment for the Cloud.
 
 ## Overview
 
-Micro addresses the key requirements for building scalable systems in the cloud and beyond. It leverages the microservice
+Micro addresses the key requirements for building scalable systems in the Cloud and beyond. It leverages the microservices
 architecture pattern and provides a set of services which act as the building blocks of a platform. Micro deals
 with the complexity of distributed systems and provides simpler programmable abstractions to build on.
 
-<img src="https://micro.mu/runtime3.svg" />
+<img src="https://micro.mu/runtime01.svg?load" />
 
 Technology is constantly evolving. The infrastructure stack is always changing. Micro is a platform which
 addresses these issues with a pluggable foundation and strongly defined apis to build on. Plug into any stack or cloud.
@@ -82,10 +82,10 @@ powershell -Command "iwr -useb https://micro.mu/install.ps1 | iex"
 
 ## Getting Started
 
-Boot the entire development environment locally
+Boot the entire runtime environment locally
 
 ```
-micro --local
+micro server
 ```
 
 ### Create a service

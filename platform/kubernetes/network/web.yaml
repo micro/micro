@@ -27,6 +27,17 @@ spec:
       containers:
       - name: web
         env:
+        - name: MICRO_AUTH
+          value: "service"
+        - name: MICRO_AUTH_LOGIN_URL
+          value: "/account"
+        - name: MICRO_AUTH_PUBLIC_KEY
+          valueFrom:
+            secretKeyRef:
+              name: micro-keypair
+              key: public
+        - name: MICRO_WEB_RESOLVER
+          value: "subdomain"
         - name: MICRO_BROKER
           value: "nats"
         - name: MICRO_BROKER_ADDRESS
