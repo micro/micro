@@ -318,11 +318,6 @@ func Commands(options ...micro.Option) []*cli.Command {
 				Usage:   "Set the endpoint to route to e.g greeter or localhost:9090",
 				EnvVars: []string{"MICRO_PROXY_ENDPOINT"},
 			},
-			&cli.StringFlag{
-				Name:    "auth",
-				Usage:   "Set the proxy auth e.g jwt",
-				EnvVars: []string{"MICRO_PROXY_AUTH"},
-			},
 		},
 		Action: func(ctx *cli.Context) error {
 			run(ctx, options...)

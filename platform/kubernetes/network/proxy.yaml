@@ -62,7 +62,7 @@ spec:
             secretKeyRef:
               key: KV_NAMESPACE_ID
               name: cloudflare-credentials
-        - name: MICRO_PROXY_AUTH
+        - name: MICRO_AUTH
           value: "service"
         - name: MICRO_AUTH_PUBLIC_KEY
           valueFrom:
