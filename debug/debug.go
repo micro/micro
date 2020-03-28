@@ -27,10 +27,10 @@ var (
 )
 
 func setPlatform(ctx *cli.Context) {
-        if ctx.Bool("platform") {
-                os.Setenv("MICRO_PROXY", "service")
-                os.Setenv("MICRO_PROXY_ADDRESS", "proxy.micro.mu:443")
-        }
+	if ctx.Bool("platform") {
+		os.Setenv("MICRO_PROXY", "service")
+		os.Setenv("MICRO_PROXY_ADDRESS", "proxy.micro.mu:443")
+	}
 }
 
 func Run(ctx *cli.Context, srvOpts ...micro.Option) {
