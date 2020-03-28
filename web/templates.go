@@ -228,19 +228,19 @@ jQuery(function($, undefined) {
 					</select>
 				</ul>
 			</div>
-			<div class="form-group">
+			<div class="form-group other" style="display: none;">
 				<label for="otherendpoint">Other Endpoint</label>
 				<ul class="list-group">
-					<input class="form-control" type=text name=otherendpoint id=otherendpoint disabled placeholder="Endpoint"/>
+					<input class="form-control" type=text name=otherendpoint id=otherendpoint placeholder="Endpoint"/>
 				</ul>
 			</div>
 			<div class="form-group">
-				<label for="auth-token">Auth Token</label>
+			</div>
+			<div class="form-group">
+				<label for="metadata">Metadata</label>
 				<ul class="list-group">
-					<input class="form-control" type=text name=auth-token id=auth-token placeholder="Auth Token"/>
+					<input class="form-control" type=text name=metadata id=metadata placeholder="Metadata" value="{}"/>
 				</ul>
-			</div>
-			<div class="form-group">
 				<label for="request">Request</label>
 				<textarea class="form-control" name=request id=request rows=8>{}</textarea>
 			</div>
@@ -277,8 +277,6 @@ jQuery(function($, undefined) {
 			//Function executes on change of first select option field 
 			$("#service").change(function(){
 				var select = $("#service option:selected").val();
-				$("#otherendpoint").attr("disabled", true);
-				$('#otherendpoint').val('');
 				$("#endpoint").empty();
 				$("#endpoint").append("<option disabled selected> -- select an endpoint -- </option>");
 				var s_map = {};
@@ -290,20 +288,23 @@ jQuery(function($, undefined) {
 				s_map[{{$service}}] = m_list
 				{{ end }}
 				if (select in s_map) {
-				var serviceEndpoints = s_map[select]
-				var len = serviceEndpoints.length;
+					var serviceEndpoints = s_map[select]
+					var len = serviceEndpoints.length;
 					for(var i = 0; i < len; i++) {
 						$("#endpoint").append("<option value=\""+serviceEndpoints[i]+"\">"+serviceEndpoints[i]+"</option>");	
 					}
 				}
 				$("#endpoint").append("<option value=\"other\"> - Other</option>");
 			});
+
 			//Function executes on change of second select option field 
 			$("#endpoint").change(function(){
 				var select = $("#endpoint option:selected").val();
 				if (select == "other") {
+					$(".other").css('display', 'block');
 					$("#otherendpoint").attr("disabled", false);
 				} else {
+					$(".other").css('display', 'none');
 					$("#otherendpoint").attr("disabled", true);
 					$('#otherendpoint').val('');
 				}
@@ -335,9 +336,17 @@ jQuery(function($, undefined) {
 			}
 
 			var reqBody;
+			var headers;
 
 			try {
-				reqBody = JSON.parse(document.forms[0].elements["request"].value);
+				var md = document.forms[0].elements["metadata"].value;
+				var rq = document.forms[0].elements["request"].value
+				if (md.length > 0) {
+					headers = JSON.parse(md);
+				}
+				if (rq.length > 0) {
+					reqBody = JSON.parse(rq);
+				};
 			} catch(e) {
 				document.getElementById("response").innerText = "Invalid request: " + e.message;
 				return false;
@@ -349,11 +358,12 @@ jQuery(function($, undefined) {
 				"request": reqBody
 			}
 			req.open("POST", "/rpc", true);
-			req.setRequestHeader("Content-type","application/json");				
+			req.setRequestHeader("Content-type","application/json");
 
-			var authToken = document.forms[0].elements["auth-token"].value;
-			if(authToken.length > 0) {
-				req.setRequestHeader("Authorization","Bearer " + authToken);
+			if (headers != undefined) {
+				for (let [key, value] of Object.entries(headers)) {
+					req.setRequestHeader(key, value);
+				}
 			}
 
 			req.send(JSON.stringify(request));
