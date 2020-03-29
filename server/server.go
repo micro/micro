@@ -55,6 +55,10 @@ func Commands(options ...micro.Option) []*cli.Command {
 				Usage:   "Set the micro server address :10001",
 				EnvVars: []string{"MICRO_SERVER_ADDRESS"},
 			},
+			&cli.BoolFlag{
+				Name:  "peer",
+				Usage: "Peer with the global network to share services",
+			},
 		},
 		Action: func(ctx *cli.Context) error {
 			Run(ctx)

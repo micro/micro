@@ -61,10 +61,6 @@ func setup(app *ccli.App) {
 			Usage: "Enable local only development: Defaults to true.",
 		},
 		&ccli.BoolFlag{
-			Name:  "peer",
-			Usage: "Peer with the global network to share services",
-		},
-		&ccli.BoolFlag{
 			Name:    "enable_acme",
 			Usage:   "Enables ACME support via Let's Encrypt. ACME hosts should also be specified.",
 			EnvVars: []string{"MICRO_ENABLE_ACME"},
