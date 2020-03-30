@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: default
+  name: micro-web
+  labels:
+    micro: runtime
+    name: micro-web
+  annotations:
+    name: "go.micro.web"
+    version: "latest"
+    source: "github.com/micro/micro"
+    owner: "micro"
+    group: "micro"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: micro-web
+      micro: runtime
+  template:
+    metadata:
+      labels:
+        name: micro-web
+        micro: runtime
+    spec:
+      containers:
+      - name: web
+        env:
+        - name: MICRO_BROKER
+          value: "nats"
+        - name: MICRO_BROKER_ADDRESS
+          value: "nats-cluster"
+        - name: MICRO_REGISTRY
+          value: "etcd"
+        - name: MICRO_REGISTRY_ADDRESS
+          value: "etcd-cluster-client"
+        args:
+        - web
+        image: micro/micro
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8080
+          name: web-port

@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: default
+  name: micro-monitor
+  labels:
+    micro: runtime
+    name: micro-monitor
+  annotations:
+    name: "go.micro.monitor"
+    version: "latest"
+    source: "github.com/micro/micro"
+    owner: "micro"
+    group: "micro"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: micro-monitor
+      micro: runtime
+  template:
+    metadata:
+      labels:
+        name: micro-monitor
+        micro: runtime
+    spec:
+      containers:
+        - name: monitor
+          command: [
+            "/micro",
+            "monitor",
+          ]
+          image: micro/micro
+          imagePullPolicy: Always
+          env:
+          - name: MICRO_BROKER
+            value: "nats"
+          - name: MICRO_BROKER_ADDRESS
+            value: "nats-cluster"
+          - name: MICRO_REGISTRY
+            value: "etcd"
+          - name: MICRO_REGISTRY_ADDRESS
+            value: "etcd-cluster-client"

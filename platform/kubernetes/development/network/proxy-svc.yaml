@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: micro-proxy
+  namespace: default
+  labels:
+    name: micro-proxy
+    micro: runtime
+spec:
+  ports:
+  - name: proxy
+    port: 8081
+    targetPort: 8081
+  selector:
+    name: micro-proxy
+    micro: runtime
+  type: LoadBalancer

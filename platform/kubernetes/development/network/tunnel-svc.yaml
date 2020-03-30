@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: micro-tunnel
+  namespace: default
+  labels:
+    name: micro-tunnel
+    micro: runtime
+spec:
+  type: NodePort
+  ports:
+  - port: 8083
+    protocol: UDP
+    nodePort: 30036
+  selector:
+    name: micro-tunnel
+    micro: runtime
