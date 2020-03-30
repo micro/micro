@@ -30,7 +30,7 @@ spec:
         - name: MICRO_AUTH
           value: "service"
         - name: MICRO_AUTH_LOGIN_URL
-          value: "/account"
+          value: "https://account.micro.mu"
         - name: MICRO_AUTH_PUBLIC_KEY
           valueFrom:
             secretKeyRef:
