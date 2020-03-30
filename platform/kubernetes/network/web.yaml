@@ -51,7 +51,7 @@ spec:
         - name: MICRO_ACME_PROVIDER
           value: certmagic
         - name: MICRO_ACME_HOSTS
-          value: '*.micro.mu,*.cloud.micro.mu,micro.mu'
+          value: '*.m3o.app,*.micro.mu,*.cloud.micro.mu,micro.mu'
         - name: CF_API_TOKEN
           valueFrom:
             secretKeyRef:
