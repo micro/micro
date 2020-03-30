@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: default
+  name: micro-tunnel
+  labels:
+    micro: runtime
+    name: micro-tunnel
+  annotations:
+    name: "go.micro.tunnel"
+    version: "latest"
+    source: "github.com/micro/micro"
+    owner: "micro"
+    group: "micro"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: micro-tunnel
+      micro: runtime
+  template:
+    metadata:
+      labels:
+        name: micro-tunnel
+        micro: runtime
+    spec:
+      containers:
+      - name: tunnel
+        env:
+        - name: MICRO_BROKER
+          value: "nats"
+        - name: MICRO_BROKER_ADDRESS
+          value: "nats-cluster"
+        - name: MICRO_REGISTRY
+          value: "etcd"
+        - name: MICRO_REGISTRY_ADDRESS
+          value: "etcd-cluster-client"
+        args:
+        - tunnel
+        image: micro/micro
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8083
+          name: tunnel-port

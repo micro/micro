@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: micro-broker
+  namespace: default
+  labels:
+    name: micro-broker
+    micro: runtime
+spec:
+  ports:
+  - port: 8001
+    protocol: TCP
+  selector:
+    name: micro-broker
+    micro: runtime

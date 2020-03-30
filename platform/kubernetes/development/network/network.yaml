@@ -1,0 +1,112 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: default
+  name: micro-network
+  labels:
+    micro: runtime
+    name: micro-network
+  annotations:
+    name: "go.micro.network"
+    version: "latest"
+    source: "github.com/micro/micro"
+    owner: "micro"
+    group: "micro"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: micro-network
+      micro: runtime
+  strategy:
+    rollingUpdate:
+      maxSurge: 0
+      maxUnavailable: 1
+  template:
+    metadata:
+      labels:
+        name: micro-network
+        micro: runtime
+    spec:
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: name
+                  operator: In
+                  values:
+                  - micro-network
+              topologyKey: "kubernetes.io/hostname"
+      volumes:
+      - name: shared-data
+        emptyDir: {}
+      containers:
+      - name: network
+        env:
+        - name: MICRO_NETWORK_TOKEN
+          value: "micro.mu"
+        - name: MICRO_NETWORK_ADVERTISE_STRATEGY
+          value: "best"
+        - name: MICRO_LOG_LEVEL
+          value: "debug"
+        - name: MICRO_BROKER
+          value: "nats"
+        - name: MICRO_BROKER_ADDRESS
+          value: "nats-cluster"
+        - name: MICRO_REGISTRY
+          value: "etcd"
+        - name: MICRO_REGISTRY_ADDRESS
+          value: "etcd-cluster-client"
+        - name: MICRO_SERVER_ADDRESS
+          value: "0.0.0.0:8080"
+        - name: MICRO_NETWORK_NODES
+          value: "network.micro.mu"
+        - name: MICRO_NETWORK_SVC_NODE_PORT
+          value: "8085"
+        - name: MICRO_NETWORK_DNS_REMOVE_DOMAIN
+          value: "network.micro.mu"
+        - name: MICRO_NETWORK_DNS_REMOVE_TOKEN
+          valueFrom:
+            secretKeyRef:
+              key: DNS_SHARED_SECRET
+              name: dns-shared-secret
+        - name: MICRO_NETWORK_DNS_ADVERTISE_TOKEN
+          valueFrom:
+            secretKeyRef:
+              key: DNS_SHARED_SECRET
+              name: dns-shared-secret
+        - name: MICRO_NETWORK_DNS_ADVERTISE_DOMAIN
+          value: "network.micro.mu"
+        command: ['sh', '-c']
+        args:
+        - "export ADDRESS=\"$(cat /node_info/ip):$MICRO_NETWORK_SVC_NODE_PORT\"; /micro network --gateway=\"$ADDRESS\" --advertise=\"$ADDRESS\""
+        image: micro/micro
+        imagePullPolicy: Always
+        volumeMounts:
+        - name: shared-data
+          mountPath: /node_info
+        ports:
+        - containerPort: 8080
+          name: service-port
+        - containerPort: 8085
+          name: network-port
+          protocol: UDP
+      initContainers:
+      - name: init-network-env
+        env:
+        - name: POD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        image: microhq/curljq
+        imagePullPolicy: Always
+        volumeMounts:
+        - name: shared-data
+          mountPath: /node_info
+        command: ['sh', '-c']
+        args:
+        - "AWS_LB=18.163.89.7; TOKEN=$(cat /var/run/secrets/kubernetes.io/serviceaccount/token); IP=$(curl -k -X GET -H \"Authorization: Bearer $TOKEN\" https://$KUBERNETES_SERVICE_HOST/api/v1/namespaces/$POD_NAMESPACE/services/micro-network | jq -r 'if .status.loadBalancer.ingress[0].hostname != null then .status.loadBalancer.ingress[0].hostname else .status.loadBalancer.ingress[0].ip end'); if [ \"$IP\" == \"null\" ] || [ -z \"$IP\" ]; then IP=$AWS_LB; fi; echo $IP > /node_info/ip"
+

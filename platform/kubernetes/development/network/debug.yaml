@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: default
+  name: micro-debug
+  labels:
+    micro: runtime
+    name: micro-debug
+  annotations:
+    name: "go.micro.debug"
+    version: "latest"
+    source: "github.com/micro/micro"
+    owner: "micro"
+    group: "micro"
+spec:
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: micro-debug
+      micro: runtime
+  template:
+    metadata:
+      labels:
+        name: micro-debug
+        micro: runtime
+    spec:
+      containers:
+      - name: micro-debug
+        env:
+        - name: MICRO_DEBUG_LOG
+          value: "service"
+        - name: MICRO_DEBUG_WINDOW
+          value: "600"
+        - name: MICRO_LOG_LEVEL
+          value: "debug"
+        - name: MICRO_BROKER
+          value: "nats"
+        - name: MICRO_BROKER_ADDRESS
+          value: "nats-cluster"
+        - name: MICRO_REGISTRY
+          value: "etcd"
+        - name: MICRO_REGISTRY_ADDRESS
+          value: "etcd-cluster-client"
+        image: micro/micro
+        imagePullPolicy: Always
+        command:
+        - /micro
+        - debug
