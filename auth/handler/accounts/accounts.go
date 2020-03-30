@@ -5,8 +5,7 @@ import (
 	"encoding/json"
 
 	"github.com/micro/go-micro/v2/auth"
-	accPb "github.com/micro/go-micro/v2/auth/service/proto/accounts"
-	pb "github.com/micro/go-micro/v2/auth/service/proto/auth"
+	pb "github.com/micro/go-micro/v2/auth/service/proto"
 	"github.com/micro/go-micro/v2/errors"
 	"github.com/micro/go-micro/v2/store"
 	memStore "github.com/micro/go-micro/v2/store/memory"
@@ -39,7 +38,7 @@ func (a *Accounts) Init(opts ...auth.Option) {
 }
 
 // List returns all auth accounts
-func (a *Accounts) List(ctx context.Context, req *accPb.ListAccountsRequest, rsp *accPb.ListAccountsResponse) error {
+func (a *Accounts) List(ctx context.Context, req *pb.ListAccountsRequest, rsp *pb.ListAccountsResponse) error {
 	// get the records from the store
 	recs, err := a.Options.Store.Read(storePrefix, store.ReadPrefix())
 	if err != nil {

@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/micro/go-micro/v2/auth"
-	pb "github.com/micro/go-micro/v2/auth/service/proto/auth"
+	pb "github.com/micro/go-micro/v2/auth/service/proto"
 	"github.com/micro/go-micro/v2/auth/token"
 	"github.com/micro/go-micro/v2/auth/token/basic"
 	"github.com/micro/go-micro/v2/errors"
