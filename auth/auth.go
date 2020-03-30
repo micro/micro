@@ -8,9 +8,7 @@ import (
 	"github.com/micro/go-micro/v2"
 	"github.com/micro/go-micro/v2/auth"
 	srvAuth "github.com/micro/go-micro/v2/auth/service"
-	accPb "github.com/micro/go-micro/v2/auth/service/proto/accounts"
-	authPb "github.com/micro/go-micro/v2/auth/service/proto/auth"
-	rulePb "github.com/micro/go-micro/v2/auth/service/proto/rules"
+	pb "github.com/micro/go-micro/v2/auth/service/proto"
 	"github.com/micro/go-micro/v2/auth/token"
 	"github.com/micro/go-micro/v2/auth/token/jwt"
 	"github.com/micro/go-micro/v2/config/cmd"
@@ -150,9 +148,9 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	service := micro.NewService(srvOpts...)
 
 	// register handlers
-	authPb.RegisterAuthHandler(service.Server(), authH)
-	rulePb.RegisterRulesHandler(service.Server(), ruleH)
-	accPb.RegisterAccountsHandler(service.Server(), accountH)
+	pb.RegisterAuthHandler(service.Server(), authH)
+	pb.RegisterRulesHandler(service.Server(), ruleH)
+	pb.RegisterAccountsHandler(service.Server(), accountH)
 
 	// run service
 	if err := service.Run(); err != nil {
