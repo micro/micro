@@ -54,6 +54,7 @@ func (a *Auth) Generate(ctx context.Context, req *pb.GenerateRequest, rsp *pb.Ge
 	// Generate a long-lived secret
 	secretOpts := []token.GenerateOption{
 		token.WithExpiry(time.Duration(req.SecretExpiry) * time.Second),
+		token.WithNamespace(req.Namespace),
 		token.WithMetadata(req.Metadata),
 		token.WithRoles(req.Roles...),
 	}
@@ -64,10 +65,11 @@ func (a *Auth) Generate(ctx context.Context, req *pb.GenerateRequest, rsp *pb.Ge
 
 	// construct the account
 	acc := &pb.Account{
-		Id:       req.Id,
-		Metadata: req.Metadata,
-		Roles:    req.Roles,
-		Secret:   serializeToken(secret),
+		Id:        req.Id,
+		Metadata:  req.Metadata,
+		Roles:     req.Roles,
+		Namespace: req.Namespace,
+		Secret:    serializeToken(secret),
 	}
 
 	// marshal to json
@@ -97,9 +99,10 @@ func (a *Auth) Inspect(ctx context.Context, req *pb.InspectRequest, rsp *pb.Insp
 	}
 
 	rsp.Account = &pb.Account{
-		Id:       tok.Subject,
-		Roles:    tok.Roles,
-		Metadata: tok.Metadata,
+		Id:        tok.Subject,
+		Roles:     tok.Roles,
+		Metadata:  tok.Metadata,
+		Namespace: tok.Namespace,
 	}
 	return nil
 }
@@ -117,6 +120,7 @@ func (a *Auth) Refresh(ctx context.Context, req *pb.RefreshRequest, rsp *pb.Refr
 		token.WithExpiry(time.Duration(req.TokenExpiry)*time.Second),
 		token.WithMetadata(sec.Metadata),
 		token.WithRoles(sec.Roles...),
+		token.WithNamespace(sec.Namespace),
 	)
 	if err != nil {
 		return errors.InternalServerError("go.micro.auth", "Unable to generate token: %v", err)
@@ -133,21 +137,23 @@ func serializeAccount(a *auth.Account) *pb.Account {
 	}
 
 	return &pb.Account{
-		Id:       a.ID,
-		Roles:    a.Roles,
-		Metadata: a.Metadata,
-		Secret:   secret,
+		Id:        a.ID,
+		Roles:     a.Roles,
+		Metadata:  a.Metadata,
+		Namespace: a.Namespace,
+		Secret:    secret,
 	}
 }
 
 func serializeToken(t *auth.Token) *pb.Token {
 	return &pb.Token{
-		Token:    t.Token,
-		Type:     t.Type,
-		Created:  t.Created.Unix(),
-		Expiry:   t.Expiry.Unix(),
-		Subject:  t.Subject,
-		Roles:    t.Roles,
-		Metadata: t.Metadata,
+		Token:     t.Token,
+		Type:      t.Type,
+		Created:   t.Created.Unix(),
+		Expiry:    t.Expiry.Unix(),
+		Subject:   t.Subject,
+		Roles:     t.Roles,
+		Metadata:  t.Metadata,
+		Namespace: t.Namespace,
 	}
 }
