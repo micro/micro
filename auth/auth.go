@@ -3,6 +3,7 @@ package auth
 import (
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro/v2"
@@ -170,24 +171,39 @@ func authFromContext(ctx *cli.Context) auth.Auth {
 
 // login using a token
 func login(ctx *cli.Context) {
-	if ctx.Args().Len() != 1 {
-		fmt.Println("Usage: `micro login [token]`")
+	// check for the token flag
+	if tok := ctx.String("token"); len(tok) > 0 {
+		_, err := authFromContext(ctx).Inspect(tok)
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+
+		if err := config.Set(tok, "micro", "auth", "token"); err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+
+		fmt.Println("You have been logged in")
+		return
+	}
+
+	if ctx.Args().Len() != 2 {
+		fmt.Println("Usage: `micro login {id} {secret} OR micro login --token {token}`")
 		os.Exit(1)
 	}
-	token := ctx.Args().First()
+	id := ctx.Args().Get(0)
+	secret := ctx.Args().Get(1)
 
 	// Execute the request
-	acc, err := authFromContext(ctx).Inspect(token)
+	tok, err := authFromContext(ctx).Token(id, secret, auth.WithTokenExpiry(time.Hour*24))
 	if err != nil {
 		fmt.Println(err)
-		os.Exit(1)
-	} else if acc == nil {
-		fmt.Printf("[%v] did not generate an account\n", authFromContext(ctx).String())
 		os.Exit(1)
 	}
 
 	// Store the token in micro config
-	if err := config.Set("token", token); err != nil {
+	if err := config.Set(tok.Token, "micro", "auth", "token"); err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
@@ -298,7 +314,13 @@ func Commands(srvOpts ...micro.Option) []*cli.Command {
 				login(ctx)
 				return nil
 			},
-			Flags: []cli.Flag{PlatformFlag},
+			Flags: []cli.Flag{
+				PlatformFlag,
+				&cli.StringFlag{
+					Name:  "token",
+					Usage: "The token to set",
+				},
+			},
 		},
 	}
 
