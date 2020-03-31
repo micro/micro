@@ -133,11 +133,6 @@ func (r *Runtime) List(ctx context.Context, req *pb.ListRequest, rsp *pb.ListRes
 func (r *Runtime) Logs(ctx context.Context, req *pb.LogsRequest, stream pb.Runtime_LogsStream) error {
 	count := int(req.Count)
 	if req.Stream {
-		// TODO: we need to figure out how to close the log stream
-		// It seems like when a client disconnects,
-		// the connection stays open until some timeout expires
-		// or something like that; that means the map of streams
-		// might end up leaking memory if not cleaned up properly
 		logStream, err := r.Runtime.Logs(&runtime.Service{
 			Name: req.GetService(),
 		})
@@ -145,6 +140,7 @@ func (r *Runtime) Logs(ctx context.Context, req *pb.LogsRequest, stream pb.Runti
 			return err
 		}
 		defer logStream.Stop()
+		defer stream.Close()
 
 		counter := 0
 		for record := range logStream.Chan() {
