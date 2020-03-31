@@ -86,6 +86,11 @@ var (
 			Usage:    "The account id",
 			Required: true,
 		},
+		&cli.StringFlag{
+			Name:     "secret",
+			Usage:    "The account secret (password)",
+			Required: true,
+		},
 		&cli.StringSliceFlag{
 			Name:     "roles",
 			Usage:    "Comma seperated list of roles to give the account",
