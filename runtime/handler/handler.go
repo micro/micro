@@ -10,7 +10,6 @@ import (
 	log "github.com/micro/go-micro/v2/logger"
 	"github.com/micro/go-micro/v2/runtime"
 	pb "github.com/micro/go-micro/v2/runtime/service/proto"
-	"github.com/micro/go-micro/v2/server"
 )
 
 type Runtime struct {
@@ -131,11 +130,7 @@ func (r *Runtime) List(ctx context.Context, req *pb.ListRequest, rsp *pb.ListRes
 	return nil
 }
 
-func (r *Runtime) Logs(ctx context.Context, stream server.Stream) error {
-	req := new(pb.LogsRequest)
-	if err := stream.Recv(req); err != nil {
-		return err
-	}
+func (r *Runtime) Logs(ctx context.Context, req *pb.LogsRequest, stream pb.Runtime_LogsStream) error {
 	count := int(req.Count)
 
 	if req.Stream {
@@ -157,6 +152,7 @@ func (r *Runtime) Logs(ctx context.Context, stream server.Stream) error {
 			if counter > count {
 				return nil
 			}
+			log.Info("Sending record")
 			// send record
 			if err := stream.Send(&pb.LogRecord{
 				//Timestamp: record.Timestamp.Unix(),
