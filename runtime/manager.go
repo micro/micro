@@ -773,6 +773,10 @@ func (m *manager) Stop() error {
 	return nil
 }
 
+func (m *manager) Logs(s *runtime.Service) (runtime.LogStream, error) {
+	return nil, nil
+}
+
 func newManager(ctx *cli.Context, r runtime.Runtime, s store.Store) *manager {
 	var profile []string
 	// peel out the env

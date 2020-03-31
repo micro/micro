@@ -2,6 +2,7 @@ package handler
 
 import (
 	"context"
+	e "errors"
 	"time"
 
 	"github.com/micro/go-micro/v2"
@@ -9,6 +10,7 @@ import (
 	log "github.com/micro/go-micro/v2/logger"
 	"github.com/micro/go-micro/v2/runtime"
 	pb "github.com/micro/go-micro/v2/runtime/service/proto"
+	"github.com/micro/go-micro/v2/server"
 )
 
 type Runtime struct {
@@ -127,4 +129,48 @@ func (r *Runtime) List(ctx context.Context, req *pb.ListRequest, rsp *pb.ListRes
 	}
 
 	return nil
+}
+
+func (r *Runtime) Logs(ctx context.Context, stream server.Stream) error {
+	req := new(pb.LogsRequest)
+	if err := stream.Recv(req); err != nil {
+		return err
+	}
+	count := int(req.Count)
+
+	if req.Stream {
+		// TODO: we need to figure out how to close the log stream
+		// It seems like when a client disconnects,
+		// the connection stays open until some timeout expires
+		// or something like that; that means the map of streams
+		// might end up leaking memory if not cleaned up properly
+		logStream, err := r.Runtime.Logs(&runtime.Service{
+			Name: req.GetService(),
+		})
+		if err != nil {
+			return err
+		}
+		defer logStream.Stop()
+
+		counter := 0
+		for record := range logStream.Chan() {
+			if counter > count {
+				return nil
+			}
+			// send record
+			if err := stream.Send(&pb.LogRecord{
+				//Timestamp: record.Timestamp.Unix(),
+				Message: record.Log,
+			}); err != nil {
+				return err
+			}
+			counter++
+		}
+
+		// done streaming, return
+		return nil
+	}
+
+	// @todo implement this
+	return e.New("Not streaming logs is not implemented yet")
 }
