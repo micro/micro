@@ -149,10 +149,6 @@ func (r *Runtime) Logs(ctx context.Context, req *pb.LogsRequest, stream pb.Runti
 
 		counter := 0
 		for record := range logStream.Chan() {
-			if counter > count {
-				return nil
-			}
-			log.Info("Sending record")
 			// send record
 			if err := stream.Send(&pb.LogRecord{
 				//Timestamp: record.Timestamp.Unix(),
@@ -161,6 +157,9 @@ func (r *Runtime) Logs(ctx context.Context, req *pb.LogsRequest, stream pb.Runti
 				return err
 			}
 			counter++
+			if counter >= count {
+				return nil
+			}
 		}
 
 		// done streaming, return
