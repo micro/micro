@@ -132,7 +132,6 @@ func (r *Runtime) List(ctx context.Context, req *pb.ListRequest, rsp *pb.ListRes
 
 func (r *Runtime) Logs(ctx context.Context, req *pb.LogsRequest, stream pb.Runtime_LogsStream) error {
 	count := int(req.Count)
-
 	if req.Stream {
 		// TODO: we need to figure out how to close the log stream
 		// It seems like when a client disconnects,
