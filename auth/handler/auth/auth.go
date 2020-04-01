@@ -18,7 +18,7 @@ import (
 )
 
 const (
-	storePrefixAccounts      = "accounts/"
+	storePrefixAccounts      = "account/"
 	storePrefixRefreshTokens = "refresh/"
 )
 
@@ -55,8 +55,6 @@ func (a *Auth) Generate(ctx context.Context, req *pb.GenerateRequest, rsp *pb.Ge
 	// validate the request
 	if len(req.Id) == 0 {
 		return errors.BadRequest("go.micro.auth", "ID required")
-	} else if len(req.Secret) == 0 {
-		return errors.BadRequest("go.micro.auth", "Secret required")
 	}
 
 	// set the defaults

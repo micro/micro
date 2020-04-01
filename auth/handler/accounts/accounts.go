@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	storePrefix = "accounts/"
+	storePrefix = "account/"
 )
 
 // Accounts processes RPC calls
