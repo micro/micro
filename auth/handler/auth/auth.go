@@ -63,6 +63,9 @@ func (a *Auth) Generate(ctx context.Context, req *pb.GenerateRequest, rsp *pb.Ge
 	if len(req.Type) == 0 {
 		req.Type = "user"
 	}
+	if len(req.Secret) == 0 {
+		req.Secret = uuid.New().String()
+	}
 
 	// check the user does not already exist
 	key := storePrefixAccounts + req.Id
@@ -105,6 +108,7 @@ func (a *Auth) Generate(ctx context.Context, req *pb.GenerateRequest, rsp *pb.Ge
 
 	// return the account
 	rsp.Account = serializeAccount(acc)
+	rsp.Account.Secret = req.Secret // return unhashed secret
 	return nil
 }
 
@@ -242,10 +246,6 @@ func serializeToken(t *token.Token, refresh string) *pb.Token {
 }
 
 func hashSecret(s string) (string, error) {
-	if len(s) == 0 {
-		return "", nil
-	}
-
 	saltedBytes := []byte(s)
 	hashedBytes, err := bcrypt.GenerateFromPassword(saltedBytes, bcrypt.DefaultCost)
 	if err != nil {

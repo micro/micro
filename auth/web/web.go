@@ -103,7 +103,7 @@ func (h handler) createBasicAccountHandler(w http.ResponseWriter, req *http.Requ
 		return
 	}
 
-	_, err := h.auth.Generate(email, pass)
+	_, err := h.auth.Generate(email, auth.WithSecret(pass))
 	if err != nil {
 		renderError(err.Error())
 		return
