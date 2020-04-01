@@ -8,8 +8,7 @@ import (
 	"text/tabwriter"
 
 	"github.com/micro/cli/v2"
-	authPb "github.com/micro/go-micro/v2/auth/service/proto/auth"
-	pb "github.com/micro/go-micro/v2/auth/service/proto/rules"
+	pb "github.com/micro/go-micro/v2/auth/service/proto"
 	"github.com/micro/go-micro/v2/client"
 )
 
@@ -80,7 +79,7 @@ func constructRule(ctx *cli.Context) *pb.Rule {
 	return &pb.Rule{
 		Access: access,
 		Role:   ctx.String("role"),
-		Resource: &authPb.Resource{
+		Resource: &pb.Resource{
 			Type:     ctx.String("resource_type"),
 			Name:     ctx.String("resource_name"),
 			Endpoint: ctx.String("resource_endpoint"),

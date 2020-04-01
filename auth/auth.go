@@ -3,14 +3,14 @@ package auth
 import (
 	"fmt"
 	"os"
+	"strings"
+	"time"
 
 	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro/v2"
 	"github.com/micro/go-micro/v2/auth"
 	srvAuth "github.com/micro/go-micro/v2/auth/service"
-	accPb "github.com/micro/go-micro/v2/auth/service/proto/accounts"
-	authPb "github.com/micro/go-micro/v2/auth/service/proto/auth"
-	rulePb "github.com/micro/go-micro/v2/auth/service/proto/rules"
+	pb "github.com/micro/go-micro/v2/auth/service/proto"
 	"github.com/micro/go-micro/v2/auth/token"
 	"github.com/micro/go-micro/v2/auth/token/jwt"
 	"github.com/micro/go-micro/v2/config/cmd"
@@ -150,9 +150,9 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	service := micro.NewService(srvOpts...)
 
 	// register handlers
-	authPb.RegisterAuthHandler(service.Server(), authH)
-	rulePb.RegisterRulesHandler(service.Server(), ruleH)
-	accPb.RegisterAccountsHandler(service.Server(), accountH)
+	pb.RegisterAuthHandler(service.Server(), authH)
+	pb.RegisterRulesHandler(service.Server(), ruleH)
+	pb.RegisterAccountsHandler(service.Server(), accountH)
 
 	// run service
 	if err := service.Run(); err != nil {
@@ -172,30 +172,65 @@ func authFromContext(ctx *cli.Context) auth.Auth {
 
 // login using a token
 func login(ctx *cli.Context) {
-	if ctx.Args().Len() != 1 {
-		fmt.Println("Usage: `micro login [token]`")
+	// check for the token flag
+	if tok := ctx.String("token"); len(tok) > 0 {
+		_, err := authFromContext(ctx).Inspect(tok)
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+
+		if err := config.Set(tok, "micro", "auth", "token"); err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+
+		fmt.Println("You have been logged in")
+		return
+	}
+
+	if ctx.Args().Len() != 2 {
+		fmt.Println("Usage: `micro login {id} {secret} OR micro login --token {token}`")
 		os.Exit(1)
 	}
-	token := ctx.Args().First()
+	id := ctx.Args().Get(0)
+	secret := ctx.Args().Get(1)
 
 	// Execute the request
-	acc, err := authFromContext(ctx).Inspect(token)
+	tok, err := authFromContext(ctx).Token(id, secret, auth.WithTokenExpiry(time.Hour*24))
 	if err != nil {
 		fmt.Println(err)
-		os.Exit(1)
-	} else if acc == nil {
-		fmt.Printf("[%v] did not generate an account\n", authFromContext(ctx).String())
 		os.Exit(1)
 	}
 
 	// Store the token in micro config
-	if err := config.Set("token", token); err != nil {
+	if err := config.Set(tok.Token, "micro", "auth", "token"); err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
 
 	// Inform the user
 	fmt.Println("You have been logged in")
+}
+
+// whoami returns info about the logged in user
+func whoami(ctx *cli.Context) {
+	// Get the token from micro config
+	tok, err := config.Get("micro", "auth", "token")
+	if err != nil {
+		fmt.Println("You are not logged in")
+		os.Exit(1)
+	}
+
+	// Inspect the token
+	acc, err := authFromContext(ctx).Inspect(tok)
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+
+	fmt.Printf("ID: %v\n", acc.ID)
+	fmt.Printf("Roles: %v\n", strings.Join(acc.Roles, ", "))
 }
 
 func Commands(srvOpts ...micro.Option) []*cli.Command {
@@ -298,6 +333,21 @@ func Commands(srvOpts ...micro.Option) []*cli.Command {
 			Usage: "Login using a token",
 			Action: func(ctx *cli.Context) error {
 				login(ctx)
+				return nil
+			},
+			Flags: []cli.Flag{
+				PlatformFlag,
+				&cli.StringFlag{
+					Name:  "token",
+					Usage: "The token to set",
+				},
+			},
+		},
+		&cli.Command{
+			Name:  "whoami",
+			Usage: "Account information",
+			Action: func(ctx *cli.Context) error {
+				whoami(ctx)
 				return nil
 			},
 			Flags: []cli.Flag{PlatformFlag},

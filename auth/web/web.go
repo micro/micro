@@ -109,14 +109,7 @@ func (h handler) createBasicAccountHandler(w http.ResponseWriter, req *http.Requ
 		return
 	}
 
-	http.SetCookie(w, &http.Cookie{
-		Name:    auth.SecretCookieName,
-		Value:   acc.Secret.Token,
-		Expires: acc.Secret.Expiry,
-		Secure:  true,
-	})
-
-	tok, err := h.auth.Refresh(acc.Secret.Token, auth.WithTokenExpiry(time.Hour*24))
+	tok, err := h.auth.Token(acc.ID, acc.Secret, auth.WithTokenExpiry(time.Hour*24))
 	if err != nil {
 		renderError(err.Error())
 		return
