@@ -80,23 +80,27 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		// set the default store
 		storeHandler.Default = memory.NewStore(opts...)
 		// set the new store initialiser
-		storeHandler.New = func(namespace string, prefix string) store.Store {
+		storeHandler.New = func(namespace string, prefix string) (store.Store, error) {
 			// return a new memory store
 			return memory.NewStore(
 				store.Namespace(namespace),
 				store.Prefix(prefix),
-			)
+			), nil
 		}
 	case "cockroach":
 		// set the default store
 		storeHandler.Default = cockroach.NewStore(opts...)
 		// set the new store initialiser
-		storeHandler.New = func(namespace string, prefix string) store.Store {
-			return cockroach.NewStore(
+		storeHandler.New = func(namespace string, prefix string) (store.Store, error) {
+			storeDB := cockroach.NewStore(
 				store.Nodes(Nodes...),
 				store.Namespace(namespace),
 				store.Prefix(prefix),
 			)
+			if err := storeDB.Init(); err != nil {
+				return nil, err
+			}
+			return storeDB, nil
 		}
 	default:
 		log.Fatalf("%s is not an implemented store", Backend)
