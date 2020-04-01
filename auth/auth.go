@@ -201,14 +201,19 @@ func login(ctx *cli.Context) {
 	secret := ctx.Args().Get(1)
 
 	// Execute the request
-	tok, err := authFromContext(ctx).Token(id, secret, auth.WithTokenExpiry(time.Hour*24))
+	tok, err := authFromContext(ctx).Token(auth.WithCredentials(id, secret), auth.WithExpiry(time.Hour*24))
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
 
-	// Store the token in micro config
-	if err := config.Set(tok.Token, "micro", "auth", "token"); err != nil {
+	// Store the access token in micro config
+	if err := config.Set(tok.AccessToken, "micro", "auth", "token"); err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+	// Store the refresh token in micro config
+	if err := config.Set(tok.RefreshToken, "micro", "auth", "refresh-token"); err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}

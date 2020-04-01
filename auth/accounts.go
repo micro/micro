@@ -41,11 +41,8 @@ func createAccount(ctx *cli.Context) {
 	if len(ctx.StringSlice("roles")) > 0 {
 		options = append(options, auth.WithRoles(ctx.StringSlice("roles")...))
 	}
-	if len(ctx.String("secret")) > 0 {
-		options = append(options, auth.WithSecret(ctx.String("secret")))
-	}
 
-	_, err := authFromContext(ctx).Generate(ctx.String("id"), options...)
+	_, err := authFromContext(ctx).Generate(ctx.String("id"), ctx.String("secret"), options...)
 	if err != nil {
 		fmt.Printf("Error creating account: %v\n", err)
 		os.Exit(1)
