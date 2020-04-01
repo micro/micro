@@ -773,8 +773,8 @@ func (m *manager) Stop() error {
 	return nil
 }
 
-func (m *manager) Logs(s *runtime.Service) (runtime.LogStream, error) {
-	return m.Runtime.Logs(s)
+func (m *manager) Logs(s *runtime.Service, options ...runtime.LogsOption) (runtime.LogStream, error) {
+	return m.Runtime.Logs(s, options...)
 }
 
 func newManager(ctx *cli.Context, r runtime.Runtime, s store.Store) *manager {
