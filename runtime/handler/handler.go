@@ -128,3 +128,34 @@ func (r *Runtime) List(ctx context.Context, req *pb.ListRequest, rsp *pb.ListRes
 
 	return nil
 }
+
+func (r *Runtime) Logs(ctx context.Context, req *pb.LogsRequest, stream pb.Runtime_LogsStream) error {
+	opts := []runtime.LogsOption{}
+	if req.GetCount() > 0 {
+		opts = append(opts, runtime.LogsCount(req.GetCount()))
+	}
+	if req.GetStream() {
+		opts = append(opts, runtime.LogsStream(req.GetStream()))
+	}
+	logStream, err := r.Runtime.Logs(&runtime.Service{
+		Name: req.GetService(),
+	}, opts...)
+	if err != nil {
+		return err
+	}
+	defer logStream.Stop()
+	defer stream.Close()
+
+	for record := range logStream.Chan() {
+		// send record
+		if err := stream.Send(&pb.LogRecord{
+			//Timestamp: record.Timestamp.Unix(),
+			Message: record.Message,
+		}); err != nil {
+			return err
+		}
+	}
+
+	// done streaming, return
+	return nil
+}
