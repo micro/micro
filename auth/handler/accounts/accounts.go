@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	storePrefix = "accounts/"
+	storePrefix = "account/"
 )
 
 // Accounts processes RPC calls
@@ -46,14 +46,31 @@ func (a *Accounts) List(ctx context.Context, req *pb.ListAccountsRequest, rsp *p
 	}
 
 	// unmarshal the records
-	rsp.Accounts = make([]*pb.Account, 0, len(recs))
+	var accounts = make([]*auth.Account, 0, len(recs))
 	for _, rec := range recs {
-		var r *pb.Account
+		var r *auth.Account
 		if err := json.Unmarshal(rec.Value, &r); err != nil {
 			return errors.InternalServerError("go.micro.auth", "Error to unmarshaling json: %v. Value: %v", err, string(rec.Value))
 		}
-		rsp.Accounts = append(rsp.Accounts, r)
+		accounts = append(accounts, r)
+	}
+
+	// serialize the accounts
+	rsp.Accounts = make([]*pb.Account, 0, len(recs))
+	for _, a := range accounts {
+		rsp.Accounts = append(rsp.Accounts, serializeAccount(a))
 	}
 
 	return nil
+}
+
+func serializeAccount(a *auth.Account) *pb.Account {
+	return &pb.Account{
+		Id:        a.ID,
+		Type:      a.Type,
+		Roles:     a.Roles,
+		Provider:  a.Provider,
+		Metadata:  a.Metadata,
+		Namespace: a.Namespace,
+	}
 }
