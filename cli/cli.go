@@ -343,6 +343,10 @@ func Commands() []*cli.Command {
 			Usage:  "Create a service stream",
 			Action: Print(streamService),
 			Flags: []cli.Flag{
+				&cli.BoolFlag{
+					Name:  "platform",
+					Usage: "Connect to the platform",
+				},
 				&cli.StringFlag{
 					Name:    "output, o",
 					Usage:   "Set the output format; json (default), raw",
