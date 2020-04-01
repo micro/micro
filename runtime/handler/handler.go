@@ -2,7 +2,6 @@ package handler
 
 import (
 	"context"
-	e "errors"
 	"time"
 
 	"github.com/micro/go-micro/v2"
@@ -131,36 +130,32 @@ func (r *Runtime) List(ctx context.Context, req *pb.ListRequest, rsp *pb.ListRes
 }
 
 func (r *Runtime) Logs(ctx context.Context, req *pb.LogsRequest, stream pb.Runtime_LogsStream) error {
-	count := int(req.Count)
-	if req.Stream {
-		logStream, err := r.Runtime.Logs(&runtime.Service{
-			Name: req.GetService(),
-		})
-		if err != nil {
+	opts := []runtime.LogsOption{}
+	if req.GetCount() > 0 {
+		opts = append(opts, runtime.LogsCount(req.GetCount()))
+	}
+	if req.GetStream() {
+		opts = append(opts, runtime.LogsStream(req.GetStream()))
+	}
+	logStream, err := r.Runtime.Logs(&runtime.Service{
+		Name: req.GetService(),
+	}, opts...)
+	if err != nil {
+		return err
+	}
+	defer logStream.Stop()
+	defer stream.Close()
+
+	for record := range logStream.Chan() {
+		// send record
+		if err := stream.Send(&pb.LogRecord{
+			//Timestamp: record.Timestamp.Unix(),
+			Message: record.Message,
+		}); err != nil {
 			return err
 		}
-		defer logStream.Stop()
-		defer stream.Close()
-
-		counter := 0
-		for record := range logStream.Chan() {
-			// send record
-			if err := stream.Send(&pb.LogRecord{
-				//Timestamp: record.Timestamp.Unix(),
-				Message: record.Log,
-			}); err != nil {
-				return err
-			}
-			counter++
-			if counter >= count {
-				return nil
-			}
-		}
-
-		// done streaming, return
-		return nil
 	}
 
-	// @todo implement this
-	return e.New("Not streaming logs is not implemented yet")
+	// done streaming, return
+	return nil
 }
