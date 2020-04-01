@@ -136,7 +136,6 @@ var (
   height: 60px;
   display: block;
   border-radius: 50px; 
-  border: 1px solid #333;
   background-color: whitesmoke;
 }
 @media only screen and (max-width: 500px) {
