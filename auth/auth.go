@@ -3,6 +3,7 @@ package auth
 import (
 	"fmt"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/micro/cli/v2"
@@ -217,6 +218,26 @@ func login(ctx *cli.Context) {
 	fmt.Println("You have been logged in")
 }
 
+// whoami returns info about the logged in user
+func whoami(ctx *cli.Context) {
+	// Get the token from micro config
+	tok, err := config.Get("micro", "auth", "token")
+	if err != nil {
+		fmt.Println("You are not logged in")
+		os.Exit(1)
+	}
+
+	// Inspect the token
+	acc, err := authFromContext(ctx).Inspect(tok)
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+
+	fmt.Printf("ID: %v\n", acc.ID)
+	fmt.Printf("Roles: %v\n", strings.Join(acc.Roles, ", "))
+}
+
 func Commands(srvOpts ...micro.Option) []*cli.Command {
 	commands := []*cli.Command{
 		&cli.Command{
@@ -326,6 +347,15 @@ func Commands(srvOpts ...micro.Option) []*cli.Command {
 					Usage: "The token to set",
 				},
 			},
+		},
+		&cli.Command{
+			Name:  "whoami",
+			Usage: "Account information",
+			Action: func(ctx *cli.Context) error {
+				whoami(ctx)
+				return nil
+			},
+			Flags: []cli.Flag{PlatformFlag},
 		},
 	}
 
