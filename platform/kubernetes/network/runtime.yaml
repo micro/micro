@@ -35,6 +35,8 @@ rules:
   - ""
   resources:
   - secrets
+  - pods
+  - pods/logs
   verbs:
   - get
   - watch
