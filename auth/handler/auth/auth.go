@@ -191,14 +191,14 @@ func (a *Auth) setRefreshToken(id, token string) error {
 
 // get the refresh token for an accutn
 func (a *Auth) refreshTokenForAccount(id string) (string, error) {
-	keys, err := a.Options.Store.List(store.ListPrefix(storePrefixRefreshTokens + id + "/"))
+	recs, err := a.Options.Store.Read(storePrefixRefreshTokens+id+"/", store.ReadPrefix())
 	if err != nil {
 		return "", err
-	} else if len(keys) != 1 {
+	} else if len(recs) != 1 {
 		return "", store.ErrNotFound
 	}
 
-	comps := strings.Split(keys[0], "/")
+	comps := strings.Split(recs[0].Key, "/")
 	if len(comps) != 3 {
 		return "", store.ErrNotFound
 	}
