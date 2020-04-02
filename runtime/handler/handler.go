@@ -146,9 +146,13 @@ func (r *Runtime) Logs(ctx context.Context, req *pb.LogsRequest, stream pb.Runti
 	defer logStream.Stop()
 	defer stream.Close()
 
+	recordChan := logStream.Chan()
 	for {
 		select {
-		case record := <-logStream.Chan():
+		case record, ok := <-recordChan:
+			if !ok {
+				return logStream.Error()
+			}
 			// send record
 			if err := stream.Send(&pb.LogRecord{
 				//Timestamp: record.Timestamp.Unix(),
