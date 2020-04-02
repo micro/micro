@@ -64,6 +64,9 @@ func (a *Auth) Generate(ctx context.Context, req *pb.GenerateRequest, rsp *pb.Ge
 	if len(req.Secret) == 0 {
 		req.Secret = uuid.New().String()
 	}
+	if len(req.Namespace) == 0 {
+		req.Namespace = auth.DefaultNamespace
+	}
 
 	// check the user does not already exist
 	key := storePrefixAccounts + req.Id

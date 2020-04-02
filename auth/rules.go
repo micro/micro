@@ -24,9 +24,10 @@ func listRules(ctx *cli.Context) {
 	w := tabwriter.NewWriter(os.Stdout, 0, 8, 1, '\t', 0)
 	defer w.Flush()
 
-	fmt.Fprintln(w, strings.Join([]string{"Role", "Access", "ResourceType", "ResourceName", "ResourceEndpoint"}, "\t"))
+	fmt.Fprintln(w, strings.Join([]string{"Role", "Access", "Resource"}, "\t"))
 	for _, r := range rsp.Rules {
-		fmt.Fprintln(w, strings.Join([]string{r.Role, r.Access.String(), r.Resource.Type, r.Resource.Name, r.Resource.Endpoint}, "\t"))
+		res := strings.Join([]string{r.Resource.Namespace, r.Resource.Type, r.Resource.Name, r.Resource.Endpoint}, ":")
+		fmt.Fprintln(w, strings.Join([]string{r.Role, r.Access.String(), res}, "\t"))
 	}
 }
 
@@ -72,17 +73,23 @@ func constructRule(ctx *cli.Context) *pb.Rule {
 	case "denied":
 		access = pb.Access_DENIED
 	default:
-		fmt.Printf("Invalid access: %v, must be granted or denied", ctx.String("access"))
+		fmt.Printf("Invalid access: %v, must be granted or denied\n", ctx.String("access"))
 		os.Exit(1)
+	}
+
+	resComps := strings.Split(ctx.String("resource"), ":")
+	if len(resComps) != 4 {
+		fmt.Println("Invalid resource, must be in the format namespace:type:name:endpoint")
 	}
 
 	return &pb.Rule{
 		Access: access,
 		Role:   ctx.String("role"),
 		Resource: &pb.Resource{
-			Type:     ctx.String("resource_type"),
-			Name:     ctx.String("resource_name"),
-			Endpoint: ctx.String("resource_endpoint"),
+			Namespace: resComps[0],
+			Type:      resComps[1],
+			Name:      resComps[2],
+			Endpoint:  resComps[3],
 		},
 	}
 }
