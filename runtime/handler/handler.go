@@ -146,16 +146,22 @@ func (r *Runtime) Logs(ctx context.Context, req *pb.LogsRequest, stream pb.Runti
 	defer logStream.Stop()
 	defer stream.Close()
 
-	for record := range logStream.Chan() {
-		// send record
-		if err := stream.Send(&pb.LogRecord{
-			//Timestamp: record.Timestamp.Unix(),
-			Message: record.Message,
-		}); err != nil {
-			return err
+	recordChan := logStream.Chan()
+	for {
+		select {
+		case record, ok := <-recordChan:
+			if !ok {
+				return logStream.Error()
+			}
+			// send record
+			if err := stream.Send(&pb.LogRecord{
+				//Timestamp: record.Timestamp.Unix(),
+				Message: record.Message,
+			}); err != nil {
+				return err
+			}
+		case <-ctx.Done():
+			return nil
 		}
 	}
-
-	// done streaming, return
-	return nil
 }

@@ -3,12 +3,12 @@ package handler
 import (
 	"context"
 
-	"github.com/micro/go-micro/v2/monitor"
+	"github.com/micro/micro/v2/monitor/manager"
 	pb "github.com/micro/micro/v2/monitor/proto"
 )
 
 type Monitor struct {
-	Monitor monitor.Monitor
+	Monitor manager.Monitor
 }
 
 func (m *Monitor) Check(ctx context.Context, req *pb.CheckRequest, rsp *pb.CheckResponse) error {
