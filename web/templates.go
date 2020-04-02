@@ -144,6 +144,7 @@ var (
   background-color: #fcfcfc;
   color: #AFACBE;
   font-size: 36px;
+  font-weight: bold;
 }
 .apps .service:hover {
   text-decoration: none;
