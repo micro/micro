@@ -43,6 +43,9 @@ var (
 		    background-color: #fcfcfc;
 		    border: 1px solid whitesmoke;
 		 }
+		 .user {
+		    padding: 15px;
+		 }
 		</style>
 		<style>
 		{{ template "style" . }}
@@ -62,6 +65,7 @@ var (
               </div>
               <div class="collapse navbar-collapse" id="navBar">
 	        <ul class="nav navbar-nav navbar-right" id="dev">
+		  {{if gt (len .User) 0 }}<span class="user small">Logged in as: {{.User}}</span>{{end}}
 	          <li><a href="/client">Client</a></li>
 	          <li><a href="/services">Services</a></li>
 	          {{if .StatsURL}}<li><a href="{{.StatsURL}}" class="navbar-link">Stats</a></li>{{end}}

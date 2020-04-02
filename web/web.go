@@ -464,10 +464,13 @@ func (s *srv) render(w http.ResponseWriter, r *http.Request, tmpl string, data i
 
 	// If the user is logged in, render Account instead of Login
 	loginTitle := "Login"
+	user := ""
+
 	if c, err := r.Cookie(auth.TokenCookieName); err == nil && c != nil {
 		token := strings.TrimPrefix(c.Value, auth.TokenCookieName+"=")
-		if _, err := s.auth.Inspect(token); err == nil {
+		if acc, err := s.auth.Inspect(token); err == nil {
 			loginTitle = "Account"
+			user = acc.ID
 		}
 	}
 
@@ -476,6 +479,7 @@ func (s *srv) render(w http.ResponseWriter, r *http.Request, tmpl string, data i
 		"LoginURL":   loginURL,
 		"StatsURL":   statsURL,
 		"Results":    data,
+		"User":       user,
 	}); err != nil {
 		http.Error(w, "Error occurred:"+err.Error(), 500)
 	}
