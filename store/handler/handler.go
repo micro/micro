@@ -17,7 +17,7 @@ type Store struct {
 	Default store.Store
 
 	// Store initialiser
-	New func(string, string) store.Store
+	New func(string, string) (store.Store, error)
 
 	// Store map
 	sync.RWMutex
@@ -49,7 +49,10 @@ func (s *Store) get(ctx context.Context) (store.Store, error) {
 
 	// create a new store
 	// either namespace is not blank or prefix is not blank
-	st := s.New(namespace, prefix)
+	st, err := s.New(namespace, prefix)
+	if err != nil {
+		return nil, errors.InternalServerError("go.micro.store", "failed to setup store: %s", err.Error())
+	}
 
 	// save store
 	s.Stores[namespace+":"+prefix] = st

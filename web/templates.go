@@ -136,8 +136,8 @@ var (
   height: 60px;
   display: block;
   border-radius: 50px; 
-  border: 1px solid #333;
-  background-color: whitesmoke;
+  border: 2px solid whitesmoke;
+  background-color: #fcfcfc;
 }
 @media only screen and (max-width: 500px) {
   .service {
