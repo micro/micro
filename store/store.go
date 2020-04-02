@@ -9,6 +9,7 @@ import (
 	log "github.com/micro/go-micro/v2/logger"
 	"github.com/micro/go-micro/v2/store"
 	pb "github.com/micro/go-micro/v2/store/service/proto"
+	mcli "github.com/micro/micro/v2/cli"
 	"github.com/micro/micro/v2/store/handler"
 
 	"github.com/micro/go-micro/v2/store/cockroach"
@@ -151,6 +152,7 @@ func Commands(options ...micro.Option) []*cli.Command {
 			run(ctx, options...)
 			return nil
 		},
+		Subcommands: mcli.StoreCommands(),
 	}
 
 	for _, p := range Plugins() {
