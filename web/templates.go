@@ -39,6 +39,10 @@ var (
 		    box-shadow: none;
 		    border-bottom: 1px solid whitesmoke;
 	 	 }
+		 pre {
+		    background-color: #fcfcfc;
+		    border: 1px solid whitesmoke;
+		 }
 		</style>
 		<style>
 		{{ template "style" . }}
@@ -138,6 +142,12 @@ var (
   border-radius: 50px; 
   border: 2px solid whitesmoke;
   background-color: #fcfcfc;
+  color: #AFACBE;
+  font-size: 36px;
+}
+.apps .service:hover {
+  text-decoration: none;
+  font-weight: bold;
 }
 @media only screen and (max-width: 500px) {
   .service {
@@ -154,7 +164,7 @@ var (
 			<a href="/{{.Name}}/" data-filter={{.Name}} class="service">
 			  <div style="padding: 5px; max-width: 80px; display: block; margin: 0 auto;">
 				{{if .Icon }}<img src="{{.Icon}}" style="width: 70px; height: auto;"/>{{else}}
-				<div class="icon"></div>
+				<div class="icon">{{First .Name}}</div>
 				{{end}}
 			  </div>
 			  <div>{{Title .Name}}</div>
@@ -251,7 +261,7 @@ jQuery(function($, undefined) {
 	</div>
 	<div class="col-sm-7">
 		<p><b>Response</b><span class="pull-right"><a href="#" onclick="copyResponse()">Copy</a></p>
-		<pre id="response" style="min-height: 405px; max-height: 405px; overflow: scroll; border: 0;">{}</pre>
+		<pre id="response" style="min-height: 405px; max-height: 405px; overflow: scroll;">{}</pre>
 	</div>
     </div>
   </div>
@@ -415,7 +425,7 @@ jQuery(function($, undefined) {
 .bold {
   font-weight: bold;
 }
-pre {border: 0; padding: 20px;}
+pre {padding: 20px;}
 {{end}}
 {{define "script"}}
 <script type="text/javascript">
