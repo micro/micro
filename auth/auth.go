@@ -128,7 +128,7 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	}
 
 	// set store namespace
-	store.DefaultStore.Init(store.Namespace(Name))
+	store.DefaultStore.Init(store.Prefix(Name))
 
 	// setup the handlers
 	authH := &authHandler.Auth{}
