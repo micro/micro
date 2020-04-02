@@ -260,7 +260,7 @@ jQuery(function($, undefined) {
 				<textarea class="form-control" name=request id=request rows=8>{}</textarea>
 			</div>
 			<div class="form-group">
-				<button class="btn btn-default" style="border-color: whitesmoke;">Execute</button>
+				<button class="btn btn-default" style="border-color: whitesmoke;">Call</button>
 			</div>
 		</form>
 	</div>
