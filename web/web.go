@@ -65,9 +65,6 @@ var (
 	ACMEChallengeProvider = "cloudflare"
 	ACMECA                = acme.LetsEncryptProductionCA
 
-	// A placeholder icon
-	DefaultIcon = ""
-
 	// Host name the web dashboard is served on
 	Host, _ = os.Hostname()
 )
@@ -325,12 +322,13 @@ func (s *srv) indexHandler(w http.ResponseWriter, r *http.Request) {
 		Icon string
 	}
 
+	// TODO: lookup icon
+
 	var webServices []webService
 	for _, srv := range services {
 		if strings.Index(srv.Name, Namespace) == 0 && len(strings.TrimPrefix(srv.Name, Namespace)) > 0 {
 			webServices = append(webServices, webService{
 				Name: strings.Replace(srv.Name, Namespace+".", "", 1),
-				Icon: DefaultIcon,
 			})
 		}
 	}
@@ -447,6 +445,12 @@ func (s *srv) render(w http.ResponseWriter, r *http.Request, tmpl string, data i
 	t, err := template.New("template").Funcs(template.FuncMap{
 		"format": format,
 		"Title":  strings.Title,
+		"First": func(s string) string {
+			if len(s) == 0 {
+				return s
+			}
+			return strings.Title(string(s[0]))
+		},
 	}).Parse(layoutTemplate)
 	if err != nil {
 		http.Error(w, "Error occurred:"+err.Error(), 500)
@@ -460,10 +464,13 @@ func (s *srv) render(w http.ResponseWriter, r *http.Request, tmpl string, data i
 
 	// If the user is logged in, render Account instead of Login
 	loginTitle := "Login"
+	user := ""
+
 	if c, err := r.Cookie(auth.TokenCookieName); err == nil && c != nil {
 		token := strings.TrimPrefix(c.Value, auth.TokenCookieName+"=")
-		if _, err := s.auth.Inspect(token); err == nil {
+		if acc, err := s.auth.Inspect(token); err == nil {
 			loginTitle = "Account"
+			user = acc.ID
 		}
 	}
 
@@ -472,6 +479,7 @@ func (s *srv) render(w http.ResponseWriter, r *http.Request, tmpl string, data i
 		"LoginURL":   loginURL,
 		"StatsURL":   statsURL,
 		"Results":    data,
+		"User":       user,
 	}); err != nil {
 		http.Error(w, "Error occurred:"+err.Error(), 500)
 	}
