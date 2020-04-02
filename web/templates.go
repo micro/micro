@@ -146,6 +146,10 @@ var (
   font-size: 40px;
   font-weight: bold;
 }
+.icon:hover {
+  color: #23527c;
+  border: 2px solid #23527c;
+}
 .apps .service:hover {
   text-decoration: none;
   font-weight: bold;
