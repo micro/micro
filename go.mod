@@ -50,3 +50,5 @@ require (
 	gopkg.in/olivere/elastic.v5 v5.0.83
 	sigs.k8s.io/yaml v1.1.0 // indirect
 )
+
+replace github.com/micro/go-micro/v2 => ../go-micro

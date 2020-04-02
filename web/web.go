@@ -219,7 +219,7 @@ func (s *srv) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// now try resolve
-	if err := s.resolver.Resolve(r); err != nil {
+	if _, err := s.resolver.Resolve(r); err != nil {
 		s.Router.ServeHTTP(w, r)
 		return
 	}
@@ -249,7 +249,7 @@ func (s *srv) proxy() *proxy {
 		}
 
 		// TODO: better error handling
-		if err := s.resolver.Resolve(r); err != nil {
+		if _, err := s.resolver.Resolve(r); err != nil {
 			fmt.Printf("Failed to resolve url: %v: %v\n", r.URL, err)
 			kill()
 			return
@@ -622,7 +622,18 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		h = plugins[i-1].Handler()(h)
 	}
 
-	srv := httpapi.NewServer(Address)
+	// pass namespace and resolver through to the server as these are needed to perform auth
+	// TODO: DEBUG WHY WE HAVE TO PASS A NEW INSTANCE OF RESOLVER AND NOT A REFERENCE
+	// srv := httpapi.NewServer(Address, server.Namespace(Namespace), server.Resolver(s.resolver))
+	srv := httpapi.NewServer(Address, server.Namespace(Namespace), server.Resolver(&resolver{
+		// Default to type path
+		Type:      Resolver,
+		Namespace: Namespace,
+		Selector: selector.NewSelector(
+			selector.Registry(reg),
+		),
+	}))
+
 	srv.Init(opts...)
 	srv.Handle("/", h)
 
