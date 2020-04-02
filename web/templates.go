@@ -143,7 +143,7 @@ var (
   border: 2px solid whitesmoke;
   background-color: #fcfcfc;
   color: #AFACBE;
-  font-size: 36px;
+  font-size: 40px;
   font-weight: bold;
 }
 .apps .service:hover {
