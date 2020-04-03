@@ -26,7 +26,7 @@ require (
 	github.com/hako/branca v0.0.0-20180808000428-10b799466ada
 	github.com/jonboulle/clockwork v0.1.0 // indirect
 	github.com/micro/cli/v2 v2.1.2
-	github.com/micro/go-micro/v2 v2.4.1-0.20200402111635-2cafa289b6b7
+	github.com/micro/go-micro/v2 v2.4.1-0.20200403120726-ed6fe67880a4
 	github.com/miekg/dns v1.1.27
 	github.com/netdata/go-orchestrator v0.0.0-20190905093727-c793edba0e8f
 	github.com/olekukonko/tablewriter v0.0.4
@@ -50,5 +50,3 @@ require (
 	gopkg.in/olivere/elastic.v5 v5.0.83
 	sigs.k8s.io/yaml v1.1.0 // indirect
 )
-
-replace github.com/micro/go-micro/v2 => ../go-micro
