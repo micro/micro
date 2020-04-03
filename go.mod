@@ -26,7 +26,7 @@ require (
 	github.com/hako/branca v0.0.0-20180808000428-10b799466ada
 	github.com/jonboulle/clockwork v0.1.0 // indirect
 	github.com/micro/cli/v2 v2.1.2
-	github.com/micro/go-micro/v2 v2.4.1-0.20200403123750-41b746e43539
+	github.com/micro/go-micro/v2 v2.4.1-0.20200403131351-d8cca3173861
 	github.com/miekg/dns v1.1.27
 	github.com/netdata/go-orchestrator v0.0.0-20190905093727-c793edba0e8f
 	github.com/olekukonko/tablewriter v0.0.4
