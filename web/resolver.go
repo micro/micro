@@ -72,18 +72,12 @@ func (r *resolver) Resolve(req *http.Request) (*res.Endpoint, error) {
 			return nil, err
 		}
 
-		req.Header.Set(BasePathHeader, "/"+parts[1])
-		req.URL.Host = s.Address
-		req.URL.Path = "/" + strings.Join(parts[2:], "/")
-		req.URL.Scheme = "http"
-		req.Host = req.URL.Host
-
 		// we're done
 		return &res.Endpoint{
 			Name:   parts[1],
 			Method: req.Method,
-			Host:   req.URL.Host,
-			Path:   req.URL.Path,
+			Host:   s.Address,
+			Path:   "/" + strings.Join(parts[2:], "/"),
 		}, nil
 	}
 
@@ -145,16 +139,11 @@ func (r *resolver) Resolve(req *http.Request) (*res.Endpoint, error) {
 			return nil, err
 		}
 
-		req.Header.Set(BasePathHeader, "/")
-		req.URL.Host = s.Address
-		req.URL.Scheme = "http"
-		req.Host = req.URL.Host
-
 		// we're done
 		return &res.Endpoint{
 			Name:   alias,
 			Method: req.Method,
-			Host:   req.URL.Host,
+			Host:   s.Address,
 			Path:   req.URL.Path,
 		}, nil
 	}
