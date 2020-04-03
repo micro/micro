@@ -58,11 +58,13 @@ func (r *resolver) Resolve(req *http.Request) (*res.Endpoint, error) {
 		}
 
 		if !re.MatchString(parts[1]) {
-			return nil, errors.New("invalid path")
+			return nil, res.ErrInvalidPath
 		}
 
 		next, err := r.Selector.Select(r.Namespace + "." + parts[1])
-		if err != nil {
+		if err == selector.ErrNotFound {
+			return nil, res.ErrNotFound
+		} else if err != nil {
 			return nil, err
 		}
 
@@ -129,7 +131,9 @@ func (r *resolver) Resolve(req *http.Request) (*res.Endpoint, error) {
 
 		// get namespace + subdomain
 		next, err := r.Selector.Select(name)
-		if err != nil {
+		if err == selector.ErrNotFound {
+			return nil, res.ErrNotFound
+		} else if err != nil {
 			return nil, err
 		}
 
