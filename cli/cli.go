@@ -6,6 +6,8 @@ import (
 	"os"
 	"strings"
 
+	"github.com/micro/micro/v2/store/snapshot"
+
 	"github.com/chzyer/readline"
 	"github.com/micro/cli/v2"
 )
@@ -299,6 +301,35 @@ func RegistryCommands() []*cli.Command {
 					Name:   "service",
 					Usage:  "Get service from registry",
 					Action: Print(getService),
+				},
+			},
+		},
+	}
+}
+
+func StoreCommands() []*cli.Command {
+	return []*cli.Command{
+		{
+			Name:   "snapshot",
+			Usage:  "Back up a store",
+			Action: snapshot.Snapshot,
+			Flags: []cli.Flag{
+				&cli.StringFlag{
+					Name:  "destination",
+					Usage: "Backup destination",
+					Value: "file:///tmp/store-snapshot",
+				},
+			},
+		},
+		{
+			Name:   "restore",
+			Usage:  "restore a store snapshot",
+			Action: snapshot.Restore,
+			Flags: []cli.Flag{
+				&cli.StringFlag{
+					Name:  "source",
+					Usage: "Backup source",
+					Value: "file:///tmp/store-snapshot",
 				},
 			},
 		},
