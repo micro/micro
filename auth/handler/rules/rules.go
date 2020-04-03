@@ -84,7 +84,7 @@ func (r *Rules) Delete(ctx context.Context, req *pb.DeleteRequest, rsp *pb.Delet
 	}
 
 	// Construct the key
-	comps := []string{req.Resource.Type, req.Resource.Name, req.Resource.Endpoint, req.Role}
+	comps := []string{req.Resource.Namespace, req.Resource.Type, req.Resource.Name, req.Resource.Endpoint, req.Role}
 	key := strings.Join(comps, joinKey)
 
 	// Delete the rule
