@@ -2,7 +2,6 @@
 package web
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
 	"html/template"
@@ -230,11 +229,8 @@ func (s *srv) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// mark as resolved
-	ctx := context.WithValue(r.Context(), "resolved", true)
-
 	// otherwise serve the proxy
-	s.prx.ServeHTTP(w, r.WithContext(ctx))
+	s.prx.ServeHTTP(w, r)
 }
 
 // proxy is a http reverse proxy
@@ -246,12 +242,6 @@ func (s *srv) proxy() *proxy {
 			r.URL.Scheme = ""
 			r.Host = ""
 			r.RequestURI = ""
-		}
-
-		// check if we're already resolved
-		v, ok := r.Context().Value("resolved").(bool)
-		if ok && v == true {
-			return
 		}
 
 		// TODO: better error handling
