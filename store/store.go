@@ -52,8 +52,11 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	if len(ctx.String("nodes")) > 0 {
 		Nodes = strings.Split(ctx.String("nodes"), ",")
 	}
-	if len(ctx.String("namespace")) > 0 {
-		Namespace = ctx.String("namespace")
+	if len(ctx.String("database")) > 0 {
+		Namespace = ctx.String("database")
+	}
+	if len(ctx.String("table")) > 0 {
+		Prefix = ctx.String("table")
 	}
 
 	// Initialise service
@@ -65,10 +68,10 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 
 	opts := []store.Option{store.Nodes(Nodes...)}
 	if len(Namespace) > 0 {
-		opts = append(opts, store.Namespace(Namespace))
+		opts = append(opts, store.Database(Namespace))
 	}
 	if len(Prefix) > 0 {
-		opts = append(opts, store.Prefix(Prefix))
+		opts = append(opts, store.Table(Prefix))
 	}
 
 	// the store handler
@@ -84,8 +87,8 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		storeHandler.New = func(namespace string, prefix string) (store.Store, error) {
 			// return a new memory store
 			return memory.NewStore(
-				store.Namespace(namespace),
-				store.Prefix(prefix),
+				store.Database(namespace),
+				store.Table(prefix),
 			), nil
 		}
 	case "cockroach":
@@ -95,8 +98,8 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		storeHandler.New = func(namespace string, prefix string) (store.Store, error) {
 			storeDB := cockroach.NewStore(
 				store.Nodes(Nodes...),
-				store.Namespace(namespace),
-				store.Prefix(prefix),
+				store.Database(namespace),
+				store.Table(prefix),
 			)
 			if err := storeDB.Init(); err != nil {
 				return nil, err
@@ -138,14 +141,14 @@ func Commands(options ...micro.Option) []*cli.Command {
 				EnvVars: []string{"MICRO_STORE_NODES"},
 			},
 			&cli.StringFlag{
-				Name:    "namespace",
-				Usage:   "Namespace to pass to the store backend",
-				EnvVars: []string{"MICRO_STORE_NAMESPACE"},
+				Name:    "database",
+				Usage:   "Database option to pass to the store backend",
+				EnvVars: []string{"MICRO_STORE_DATABASE"},
 			},
 			&cli.StringFlag{
-				Name:    "prefix",
-				Usage:   "Key prefix to pass to the store backend",
-				EnvVars: []string{"MICRO_STORE_PREFIX"},
+				Name:    "table",
+				Usage:   "Table option to pass to the store backend",
+				EnvVars: []string{"MICRO_STORE_TABLE"},
 			},
 		},
 		Action: func(ctx *cli.Context) error {
