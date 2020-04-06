@@ -19,6 +19,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro/v2"
+	res "github.com/micro/go-micro/v2/api/resolver"
 	"github.com/micro/go-micro/v2/api/server"
 	"github.com/micro/go-micro/v2/api/server/acme"
 	"github.com/micro/go-micro/v2/api/server/acme/autocert"
@@ -217,20 +218,29 @@ func (s *srv) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// now try resolve
-	if endpoint, err := s.resolver.Resolve(r); err != nil {
-		r.Header.Set(BasePathHeader, "/"+endpoint.Name)
-		r.URL.Host = endpoint.Host
-		r.URL.Path = endpoint.Path
-		r.URL.Scheme = "http"
-		r.Host = r.URL.Host
-
-		s.Router.ServeHTTP(w, r)
-		return
+	// check to see if the endpoint was encoded in the request context
+	// by the auth wrapper
+	var endpoint *res.Endpoint
+	if val, ok := (r.Context().Value(res.Endpoint{})).(*res.Endpoint); ok {
+		endpoint = val
 	}
 
-	// otherwise serve the proxy
-	s.prx.ServeHTTP(w, r)
+	// fallback to the resolver and then the proxy. TODO: better error handling
+	if endpoint == nil {
+		endpoint, err = s.resolver.Resolve(r)
+		if err != nil {
+			s.prx.ServeHTTP(w, r)
+			return
+		}
+	}
+
+	r.Header.Set(BasePathHeader, "/"+endpoint.Name)
+	r.URL.Host = endpoint.Host
+	r.URL.Path = endpoint.Path
+	r.URL.Scheme = "http"
+	r.Host = r.URL.Host
+
+	s.Router.ServeHTTP(w, r)
 }
 
 // proxy is a http reverse proxy
@@ -244,12 +254,21 @@ func (s *srv) proxy() *proxy {
 			r.RequestURI = ""
 		}
 
+		// check to see if the endpoint was encoded in the request context
+		// by the auth wrapper
+		var endpoint *res.Endpoint
+		if val, ok := (r.Context().Value(res.Endpoint{})).(*res.Endpoint); ok {
+			endpoint = val
+		}
+
 		// TODO: better error handling
-		endpoint, err := s.resolver.Resolve(r)
-		if err != nil {
-			fmt.Printf("Failed to resolve url: %v: %v\n", r.URL, err)
-			kill()
-			return
+		var err error
+		if endpoint == nil {
+			if endpoint, err = s.resolver.Resolve(r); err != nil {
+				fmt.Printf("Failed to resolve url: %v: %v\n", r.URL, err)
+				kill()
+				return
+			}
 		}
 
 		r.Header.Set(BasePathHeader, "/"+endpoint.Name)
