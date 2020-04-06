@@ -175,6 +175,16 @@ func (s *srv) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// no host means dashboard
 	host := r.URL.Hostname()
 	if len(host) == 0 {
+		h, _, err := net.SplitHostPort(r.Host)
+		if err != nil && err.Error() == "missing port in address" {
+			host = r.Host
+		} else if err == nil {
+			host = h
+		}
+	}
+
+	// check again
+	if len(host) == 0 {
 		s.Router.ServeHTTP(w, r)
 		return
 	}
