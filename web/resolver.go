@@ -44,7 +44,7 @@ func (r *resolver) Resolve(req *http.Request) (*res.Endpoint, error) {
 	// split out ip
 	h, _, err := net.SplitHostPort(host)
 	if err != nil && err.Error() == "missing port in address" {
-		host = h
+		host = req.Host
 	} else if err == nil {
 		host = h
 	}
