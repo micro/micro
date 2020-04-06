@@ -60,24 +60,14 @@ var (
 			Required: true,
 		},
 		&cli.StringFlag{
-			Name:     "resource_type",
-			Usage:    "The type of resouce to amend, e.g. service",
+			Name:     "resource",
+			Usage:    "The resouce to amend in the format namespace:type:name:endpoint, e.g. micro:service:go.micro.auth:*",
 			Required: true,
 		},
 		&cli.StringFlag{
-			Name:     "resource_name",
-			Usage:    "The name of the resouce to amend, e.g. go.micro.auth",
-			Required: true,
-		},
-		&cli.StringFlag{
-			Name:  "resource_endpoint",
-			Usage: "The endpoint of the resouce to amend, e.g. Auth.Generate",
-			Value: "*",
-		},
-		&cli.StringFlag{
-			Name:     "access",
-			Usage:    "The access level, must be granted or denied",
-			Required: true,
+			Name:  "access",
+			Usage: "The access level, must be granted or denied",
+			Value: "granted",
 		},
 	}
 	// AccountFlags are provided to the create account command
@@ -93,9 +83,8 @@ var (
 			Required: true,
 		},
 		&cli.StringSliceFlag{
-			Name:     "roles",
-			Usage:    "Comma seperated list of roles to give the account",
-			Required: true,
+			Name:  "roles",
+			Usage: "Comma seperated list of roles to give the account",
 		},
 	}
 	// PlatformFlag connects via proxy
