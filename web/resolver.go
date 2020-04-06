@@ -51,14 +51,15 @@ func (r *resolver) Resolve(req *http.Request) (*res.Endpoint, error) {
 
 	// now try parse out ip
 	ip := net.ParseIP(host)
+	dm := host
 
 	// replace our suffix if it exists
 	if strings.HasSuffix(host, "micro.mu") {
-		host = strings.Replace(host, "micro.mu", "micro.go", 1)
+		dm = strings.Replace(host, "micro.mu", "micro.go", 1)
 	}
 
 	// split and reverse the host
-	parts := strings.Split(host, ".")
+	parts := strings.Split(dm, ".")
 	reverse(parts)
 	namespace := strings.Join(parts, ".")
 	// check if its localhost or an ip
@@ -110,8 +111,8 @@ func (r *resolver) Resolve(req *http.Request) (*res.Endpoint, error) {
 	var alias string
 
 	// check if suffix is web.micro.go in which case its subdomain + namespace
-	if strings.HasSuffix(host, rnamespace) {
-		subdomain := strings.TrimSuffix(host, "."+rnamespace)
+	if strings.HasSuffix(dm, rnamespace) {
+		subdomain := strings.TrimSuffix(dm, "."+rnamespace)
 		// split it
 		parts = strings.Split(subdomain, ".")
 		// reverse it
@@ -119,10 +120,6 @@ func (r *resolver) Resolve(req *http.Request) (*res.Endpoint, error) {
 		// turn it into an alias
 		alias = strings.Join(parts, ".")
 	} else {
-		// there's no web.micro.go
-		// it's likely something like foo.micro.mu
-		host := req.URL.Hostname()
-
 		// namespace does not match so we'll try check subdomain
 		domain, err := publicsuffix.EffectiveTLDPlusOne(host)
 		if err != nil {
