@@ -53,8 +53,8 @@ func (m *cockroach) Init(opts db.Options) error {
 	m.db = d
 	m.st = roachStore.NewStore(
 		store.Nodes(defaultUrl),
-		store.Prefix(table),
-		store.Namespace(schema))
+		store.Table(table),
+		store.Database(schema))
 
 	return nil
 }

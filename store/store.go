@@ -65,10 +65,10 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 
 	opts := []store.Option{store.Nodes(Nodes...)}
 	if len(Namespace) > 0 {
-		opts = append(opts, store.Namespace(Namespace))
+		opts = append(opts, store.Database(Namespace))
 	}
 	if len(Prefix) > 0 {
-		opts = append(opts, store.Prefix(Prefix))
+		opts = append(opts, store.Table(Prefix))
 	}
 
 	// the store handler
@@ -84,8 +84,8 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		storeHandler.New = func(namespace string, prefix string) (store.Store, error) {
 			// return a new memory store
 			return memory.NewStore(
-				store.Namespace(namespace),
-				store.Prefix(prefix),
+				store.Database(namespace),
+				store.Table(prefix),
 			), nil
 		}
 	case "cockroach":
@@ -95,8 +95,8 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		storeHandler.New = func(namespace string, prefix string) (store.Store, error) {
 			storeDB := cockroach.NewStore(
 				store.Nodes(Nodes...),
-				store.Namespace(namespace),
-				store.Prefix(prefix),
+				store.Database(namespace),
+				store.Table(prefix),
 			)
 			if err := storeDB.Init(); err != nil {
 				return nil, err
