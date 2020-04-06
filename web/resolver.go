@@ -2,11 +2,13 @@ package web
 
 import (
 	"errors"
-	"github.com/micro/go-micro/v2/client/selector"
-	"golang.org/x/net/publicsuffix"
 	"net"
 	"net/http"
 	"strings"
+
+	res "github.com/micro/go-micro/v2/api/resolver"
+	"github.com/micro/go-micro/v2/client/selector"
+	"golang.org/x/net/publicsuffix"
 )
 
 type resolver struct {
@@ -24,9 +26,13 @@ func reverse(s []string) {
 	}
 }
 
+func (r *resolver) String() string {
+	return "web/resolver"
+}
+
 // Resolve replaces the values of Host, Path, Scheme to calla backend service
 // It accounts for subdomains for service names based on namespace
-func (r *resolver) Resolve(req *http.Request) error {
+func (r *resolver) Resolve(req *http.Request) (*res.Endpoint, error) {
 	host := req.URL.Hostname()
 	ip := net.ParseIP(host)
 
@@ -48,32 +54,33 @@ func (r *resolver) Resolve(req *http.Request) error {
 	if r.Type == "path" || namespace == r.Namespace || localhost || len(host) == 0 || host == Host {
 		parts := strings.Split(req.URL.Path, "/")
 		if len(parts) < 2 {
-			return errors.New("unknown service")
+			return nil, errors.New("unknown service")
 		}
 
 		if !re.MatchString(parts[1]) {
-			return errors.New("invalid path")
+			return nil, res.ErrInvalidPath
 		}
 
 		next, err := r.Selector.Select(r.Namespace + "." + parts[1])
-		if err != nil {
-			return err
+		if err == selector.ErrNotFound {
+			return nil, res.ErrNotFound
+		} else if err != nil {
+			return nil, err
 		}
 
 		// TODO: better retry strategy
 		s, err := next()
 		if err != nil {
-			return err
+			return nil, err
 		}
 
-		req.Header.Set(BasePathHeader, "/"+parts[1])
-		req.URL.Host = s.Address
-		req.URL.Path = "/" + strings.Join(parts[2:], "/")
-		req.URL.Scheme = "http"
-		req.Host = req.URL.Host
-
 		// we're done
-		return nil
+		return &res.Endpoint{
+			Name:   parts[1],
+			Method: req.Method,
+			Host:   s.Address,
+			Path:   "/" + strings.Join(parts[2:], "/"),
+		}, nil
 	}
 
 	// reverse the namespace so we can check against the host
@@ -104,7 +111,7 @@ func (r *resolver) Resolve(req *http.Request) error {
 		domain, err := publicsuffix.EffectiveTLDPlusOne(host)
 		if err != nil {
 			// fallback
-			return err
+			return nil, err
 		}
 
 		// get the subdomain
@@ -124,24 +131,27 @@ func (r *resolver) Resolve(req *http.Request) error {
 
 		// get namespace + subdomain
 		next, err := r.Selector.Select(name)
-		if err != nil {
-			return err
+		if err == selector.ErrNotFound {
+			return nil, res.ErrNotFound
+		} else if err != nil {
+			return nil, err
 		}
 
 		// TODO: better retry strategy
 		s, err := next()
 		if err != nil {
-			return err
+			return nil, err
 		}
 
-		req.Header.Set(BasePathHeader, "/")
-		req.URL.Host = s.Address
-		req.URL.Scheme = "http"
-		req.Host = req.URL.Host
-
-		return nil
+		// we're done
+		return &res.Endpoint{
+			Name:   alias,
+			Method: req.Method,
+			Host:   s.Address,
+			Path:   req.URL.Path,
+		}, nil
 	}
 
 	// ugh
-	return errors.New("unknown host")
+	return nil, errors.New("unknown host")
 }
