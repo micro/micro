@@ -29,6 +29,7 @@ import (
 	"github.com/micro/go-micro/v2/api/server/acme/autocert"
 	"github.com/micro/go-micro/v2/api/server/acme/certmagic"
 	httpapi "github.com/micro/go-micro/v2/api/server/http"
+	"github.com/micro/go-micro/v2/auth"
 	log "github.com/micro/go-micro/v2/logger"
 	cfstore "github.com/micro/go-micro/v2/store/cloudflare"
 	"github.com/micro/go-micro/v2/sync/lock/memory"
@@ -46,7 +47,8 @@ var (
 	RPCPath               = "/rpc"
 	APIPath               = "/"
 	ProxyPath             = "/{service:[a-zA-Z0-9]+}"
-	Namespace             = "go.micro.api"
+	Namespace             = auth.DefaultNamespace
+	APINamespace          = "go.micro.api"
 	HeaderPrefix          = "X-Micro-"
 	EnableRPC             = false
 	ACMEProvider          = "autocert"
@@ -68,6 +70,9 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	}
 	if len(ctx.String("namespace")) > 0 {
 		Namespace = ctx.String("namespace")
+	}
+	if len(ctx.String("api_namespace")) > 0 {
+		APINamespace = ctx.String("api_namespace")
 	}
 	if len(ctx.String("resolver")) > 0 {
 		Resolver = ctx.String("resolver")
@@ -199,7 +204,7 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 
 	// resolver options
 	ropts := []resolver.Option{
-		resolver.WithNamespace(Namespace),
+		resolver.WithNamespace(APINamespace),
 		resolver.WithHandler(Handler),
 	}
 
@@ -219,13 +224,13 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	case "rpc":
 		log.Infof("Registering API RPC Handler at %s", APIPath)
 		rt := regRouter.NewRouter(
-			router.WithNamespace(Namespace),
+			router.WithNamespace(APINamespace),
 			router.WithHandler(arpc.Handler),
 			router.WithResolver(rr),
 			router.WithRegistry(service.Options().Registry),
 		)
 		rp := arpc.NewHandler(
-			ahandler.WithNamespace(Namespace),
+			ahandler.WithNamespace(APINamespace),
 			ahandler.WithRouter(rt),
 			ahandler.WithService(service),
 		)
@@ -233,13 +238,13 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	case "api":
 		log.Infof("Registering API Request Handler at %s", APIPath)
 		rt := regRouter.NewRouter(
-			router.WithNamespace(Namespace),
+			router.WithNamespace(APINamespace),
 			router.WithHandler(aapi.Handler),
 			router.WithResolver(rr),
 			router.WithRegistry(service.Options().Registry),
 		)
 		ap := aapi.NewHandler(
-			ahandler.WithNamespace(Namespace),
+			ahandler.WithNamespace(APINamespace),
 			ahandler.WithRouter(rt),
 			ahandler.WithService(service),
 		)
@@ -247,13 +252,13 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	case "event":
 		log.Infof("Registering API Event Handler at %s", APIPath)
 		rt := regRouter.NewRouter(
-			router.WithNamespace(Namespace),
+			router.WithNamespace(APINamespace),
 			router.WithHandler(event.Handler),
 			router.WithResolver(rr),
 			router.WithRegistry(service.Options().Registry),
 		)
 		ev := event.NewHandler(
-			ahandler.WithNamespace(Namespace),
+			ahandler.WithNamespace(APINamespace),
 			ahandler.WithRouter(rt),
 			ahandler.WithService(service),
 		)
@@ -261,13 +266,13 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	case "http", "proxy":
 		log.Infof("Registering API HTTP Handler at %s", ProxyPath)
 		rt := regRouter.NewRouter(
-			router.WithNamespace(Namespace),
+			router.WithNamespace(APINamespace),
 			router.WithHandler(ahttp.Handler),
 			router.WithResolver(rr),
 			router.WithRegistry(service.Options().Registry),
 		)
 		ht := ahttp.NewHandler(
-			ahandler.WithNamespace(Namespace),
+			ahandler.WithNamespace(APINamespace),
 			ahandler.WithRouter(rt),
 			ahandler.WithService(service),
 		)
@@ -275,13 +280,13 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	case "web":
 		log.Infof("Registering API Web Handler at %s", APIPath)
 		rt := regRouter.NewRouter(
-			router.WithNamespace(Namespace),
+			router.WithNamespace(APINamespace),
 			router.WithHandler(web.Handler),
 			router.WithResolver(rr),
 			router.WithRegistry(service.Options().Registry),
 		)
 		w := web.NewHandler(
-			ahandler.WithNamespace(Namespace),
+			ahandler.WithNamespace(APINamespace),
 			ahandler.WithRouter(rt),
 			ahandler.WithService(service),
 		)
@@ -289,7 +294,7 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	default:
 		log.Infof("Registering API Default Handler at %s", APIPath)
 		rt := regRouter.NewRouter(
-			router.WithNamespace(Namespace),
+			router.WithNamespace(APINamespace),
 			router.WithResolver(rr),
 			router.WithRegistry(service.Options().Registry),
 		)
@@ -303,7 +308,11 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	}
 
 	// create the server
-	api := httpapi.NewServer(Address, server.Namespace(Namespace), server.Resolver(rr))
+	api := httpapi.NewServer(Address,
+		server.Resolver(rr),
+		server.Namespace(Namespace),
+		server.ServiceNamespace(APINamespace))
+
 	api.Init(opts...)
 	api.Handle("/", h)
 
@@ -343,9 +352,14 @@ func Commands(options ...micro.Option) []*cli.Command {
 				EnvVars: []string{"MICRO_API_HANDLER"},
 			},
 			&cli.StringFlag{
-				Name:    "namespace",
-				Usage:   "Set the namespace used by the API e.g. com.example.api",
+				Name:    "api_namespace",
+				Usage:   "Set the service namespace used by the API e.g. com.example.api",
 				EnvVars: []string{"MICRO_API_NAMESPACE"},
+			},
+			&cli.StringFlag{
+				Name:    "namespace",
+				Usage:   "Set the namespace used by the API e.g. micro",
+				EnvVars: []string{"MICRO_NAMESPACE"},
 			},
 			&cli.StringFlag{
 				Name:    "resolver",

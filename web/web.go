@@ -48,11 +48,13 @@ var (
 	Name = "go.micro.web"
 	// Default address to bind to
 	Address = ":8082"
-	// The namespace to serve
+	// The web namespace to serve
 	// Example:
 	// Namespace + /[Service]/foo/bar
 	// Host: Namespace.Service Endpoint: /foo/bar
-	Namespace = "go.micro.web"
+	WebNamespace = "go.micro.web"
+	// Namespace, e.g. micro
+	Namespace = auth.DefaultNamespace
 	// Resolver used to resolve services
 	Resolver = "path"
 	// Base path sent to web service.
@@ -203,7 +205,7 @@ func (s *srv) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// web dashboard if namespace matches
-	if namespace == Namespace {
+	if namespace == WebNamespace {
 		s.Router.ServeHTTP(w, r)
 		return
 	}
@@ -348,9 +350,9 @@ func (s *srv) indexHandler(w http.ResponseWriter, r *http.Request) {
 
 	var webServices []webService
 	for _, srv := range services {
-		if strings.Index(srv.Name, Namespace) == 0 && len(strings.TrimPrefix(srv.Name, Namespace)) > 0 {
+		if strings.Index(srv.Name, WebNamespace) == 0 && len(strings.TrimPrefix(srv.Name, WebNamespace)) > 0 {
 			webServices = append(webServices, webService{
-				Name: strings.Replace(srv.Name, Namespace+".", "", 1),
+				Name: strings.Replace(srv.Name, WebNamespace+".", "", 1),
 			})
 		}
 	}
@@ -519,6 +521,9 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	if len(ctx.String("namespace")) > 0 {
 		Namespace = ctx.String("namespace")
 	}
+	if len(ctx.String("web_namespace")) > 0 {
+		WebNamespace = ctx.String("web_namespace")
+	}
 	if len(ctx.String("resolver")) > 0 {
 		Resolver = ctx.String("resolver")
 	}
@@ -542,7 +547,7 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		resolver: &resolver{
 			// Default to type path
 			Type:      Resolver,
-			Namespace: Namespace,
+			Namespace: WebNamespace,
 			Selector: selector.NewSelector(
 				selector.Registry(reg),
 			),
@@ -652,8 +657,12 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		h = plugins[i-1].Handler()(h)
 	}
 
-	// pass namespace and resolver through to the server as these are needed to perform auth
-	srv := httpapi.NewServer(Address, server.Namespace(Namespace), server.Resolver(s.resolver))
+	// pass namespace, service namespace and resolver through to the server as these are needed to perform auth
+	srv := httpapi.NewServer(Address,
+		server.Resolver(s.resolver),
+		server.Namespace(Namespace),
+		server.ServiceNamespace(WebNamespace))
+
 	srv.Init(opts...)
 	srv.Handle("/", h)
 
@@ -704,8 +713,8 @@ func Commands(options ...micro.Option) []*cli.Command {
 				EnvVars: []string{"MICRO_WEB_ADDRESS"},
 			},
 			&cli.StringFlag{
-				Name:    "namespace",
-				Usage:   "Set the namespace used by the Web proxy e.g. com.example.web",
+				Name:    "web_namespace",
+				Usage:   "Set the service namespace used by the Web proxy e.g. com.example.web",
 				EnvVars: []string{"MICRO_WEB_NAMESPACE"},
 			},
 			&cli.StringFlag{
