@@ -52,8 +52,11 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	if len(ctx.String("nodes")) > 0 {
 		Nodes = strings.Split(ctx.String("nodes"), ",")
 	}
-	if len(ctx.String("namespace")) > 0 {
-		Namespace = ctx.String("namespace")
+	if len(ctx.String("database")) > 0 {
+		Namespace = ctx.String("database")
+	}
+	if len(ctx.String("table")) > 0 {
+		Prefix = ctx.String("table")
 	}
 
 	// Initialise service
@@ -138,14 +141,14 @@ func Commands(options ...micro.Option) []*cli.Command {
 				EnvVars: []string{"MICRO_STORE_NODES"},
 			},
 			&cli.StringFlag{
-				Name:    "namespace",
-				Usage:   "Namespace to pass to the store backend",
-				EnvVars: []string{"MICRO_STORE_NAMESPACE"},
+				Name:    "database",
+				Usage:   "Database option to pass to the store backend",
+				EnvVars: []string{"MICRO_STORE_DATABASE"},
 			},
 			&cli.StringFlag{
-				Name:    "prefix",
-				Usage:   "Key prefix to pass to the store backend",
-				EnvVars: []string{"MICRO_STORE_PREFIX"},
+				Name:    "table",
+				Usage:   "Table option to pass to the store backend",
+				EnvVars: []string{"MICRO_STORE_TABLE"},
 			},
 		},
 		Action: func(ctx *cli.Context) error {
