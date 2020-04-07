@@ -78,6 +78,8 @@ type srv struct {
 	registry registry.Registry
 	// the resolver
 	resolver *resolver
+	// the namespace resolver
+	nsResolver res.NamespaceResolver
 	// the proxy server
 	prx *proxy
 	// auth service
@@ -344,11 +346,14 @@ func (s *srv) indexHandler(w http.ResponseWriter, r *http.Request) {
 
 	// TODO: lookup icon
 
+	// determine the namespace using the request
+	namespace := s.nsResolver.Resolve(r)
+
 	var webServices []webService
 	for _, srv := range services {
-		if strings.Index(srv.Name, FullNamespace) == 0 && len(strings.TrimPrefix(srv.Name, FullNamespace)) > 0 {
+		if strings.Index(srv.Name, namespace) == 0 && len(strings.TrimPrefix(srv.Name, namespace)) > 0 {
 			webServices = append(webServices, webService{
-				Name: strings.Replace(srv.Name, FullNamespace+".", "", 1),
+				Name: strings.Replace(srv.Name, namespace+".", "", 1),
 			})
 		}
 	}
@@ -556,6 +561,9 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		auth: *cmd.DefaultOptions().Auth,
 	}
 
+	// create the namespace resolver
+	s.nsResolver = nsResolver.NewNamespaceResolver(Type, Namespace)
+
 	var h http.Handler
 	// set as the server
 	h = s
@@ -658,13 +666,10 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		h = plugins[i-1].Handler()(h)
 	}
 
-	// create the namespace resolver
-	nsResolver := nsResolver.NewNamespaceResolver(Type, Namespace)
-
 	// create the service with the resolver and namespace resolver
 	srv := httpapi.NewServer(Address,
 		server.Resolver(s.resolver),
-		server.NamespaceResolver(nsResolver),
+		server.NamespaceResolver(s.nsResolver),
 	)
 
 	srv.Init(opts...)
