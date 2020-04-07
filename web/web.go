@@ -53,8 +53,9 @@ var (
 	// Example:
 	// Namespace + /[Service]/foo/bar
 	// Host: Namespace.Service Endpoint: /foo/bar
-	Namespace = "go.micro"
-	Type      = "api"
+	Namespace     = "go.micro"
+	Type          = "web"
+	FullNamespace = "go.micro.web"
 	// Resolver used to resolve services
 	Resolver = "path"
 	// Base path sent to web service.
@@ -215,7 +216,7 @@ func (s *srv) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// web dashboard if namespace matches
-	if namespace == Namespace {
+	if namespace == FullNamespace {
 		s.Router.ServeHTTP(w, r)
 		return
 	}
@@ -345,9 +346,9 @@ func (s *srv) indexHandler(w http.ResponseWriter, r *http.Request) {
 
 	var webServices []webService
 	for _, srv := range services {
-		if strings.Index(srv.Name, Namespace) == 0 && len(strings.TrimPrefix(srv.Name, Namespace)) > 0 {
+		if strings.Index(srv.Name, FullNamespace) == 0 && len(strings.TrimPrefix(srv.Name, FullNamespace)) > 0 {
 			webServices = append(webServices, webService{
-				Name: strings.Replace(srv.Name, Namespace+".", "", 1),
+				Name: strings.Replace(srv.Name, FullNamespace+".", "", 1),
 			})
 		}
 	}
@@ -525,8 +526,8 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		Namespace = strings.TrimSuffix(ctx.String("namespace"), "."+Type)
 	}
 
-	// fullNamespace has the format: "go.micro.web"
-	fullNamespace := Namespace + "." + Type
+	// FullNamespace has the format: "go.micro.web"
+	FullNamespace = Namespace + "." + Type
 
 	// Init plugins
 	for _, p := range Plugins() {
@@ -547,7 +548,7 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		resolver: &resolver{
 			// Default to type path
 			Type:      Resolver,
-			Namespace: fullNamespace,
+			Namespace: FullNamespace,
 			Selector: selector.NewSelector(
 				selector.Registry(reg),
 			),
