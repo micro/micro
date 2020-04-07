@@ -311,7 +311,7 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	api := httpapi.NewServer(Address,
 		server.Resolver(rr),
 		server.Namespace(Namespace),
-		server.ServiceNamespace(APINamespace))
+		server.ServicePrefix(APINamespace))
 
 	api.Init(opts...)
 	api.Handle("/", h)
