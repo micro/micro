@@ -783,6 +783,8 @@ func newManager(ctx *cli.Context, r runtime.Runtime, s store.Store) *manager {
 	switch ctx.String("profile") {
 	case "platform":
 		profile = muProfile.Platform()
+	case "server":
+		profile = muProfile.Server()
 	}
 
 	return &manager{

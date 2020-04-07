@@ -87,7 +87,10 @@ func Run(context *cli.Context) error {
 		cli.ShowSubcommandHelp(context)
 		os.Exit(1)
 	}
-
+	// set default profile
+	if len(context.String("profile")) == 0 {
+		context.Set("profile", "server")
+	}
 	// get the network flag
 	peer := context.Bool("peer")
 
