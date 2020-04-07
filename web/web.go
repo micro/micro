@@ -48,13 +48,11 @@ var (
 	Name = "go.micro.web"
 	// Default address to bind to
 	Address = ":8082"
-	// The web namespace to serve
+	// The namespace to serve
 	// Example:
 	// Namespace + /[Service]/foo/bar
 	// Host: Namespace.Service Endpoint: /foo/bar
-	WebNamespace = "go.micro.web"
-	// Namespace, e.g. micro
-	Namespace = auth.DefaultNamespace
+	Namespace = "go.micro.web"
 	// Resolver used to resolve services
 	Resolver = "path"
 	// Base path sent to web service.
@@ -215,7 +213,7 @@ func (s *srv) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// web dashboard if namespace matches
-	if namespace == WebNamespace {
+	if namespace == Namespace {
 		s.Router.ServeHTTP(w, r)
 		return
 	}
@@ -345,9 +343,9 @@ func (s *srv) indexHandler(w http.ResponseWriter, r *http.Request) {
 
 	var webServices []webService
 	for _, srv := range services {
-		if strings.Index(srv.Name, WebNamespace) == 0 && len(strings.TrimPrefix(srv.Name, WebNamespace)) > 0 {
+		if strings.Index(srv.Name, Namespace) == 0 && len(strings.TrimPrefix(srv.Name, Namespace)) > 0 {
 			webServices = append(webServices, webService{
-				Name: strings.Replace(srv.Name, WebNamespace+".", "", 1),
+				Name: strings.Replace(srv.Name, Namespace+".", "", 1),
 			})
 		}
 	}
@@ -517,7 +515,7 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		Namespace = ctx.String("namespace")
 	}
 	if len(ctx.String("web_namespace")) > 0 {
-		WebNamespace = ctx.String("web_namespace")
+		Namespace = ctx.String("web_namespace")
 	}
 	if len(ctx.String("resolver")) > 0 {
 		Resolver = ctx.String("resolver")
@@ -542,7 +540,7 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		resolver: &resolver{
 			// Default to type path
 			Type:      Resolver,
-			Namespace: WebNamespace,
+			Namespace: Namespace,
 			Selector: selector.NewSelector(
 				selector.Registry(reg),
 			),
@@ -655,8 +653,8 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	// pass namespace, service namespace and resolver through to the server as these are needed to perform auth
 	srv := httpapi.NewServer(Address,
 		server.Resolver(s.resolver),
-		server.Namespace(Namespace),
-		server.ServicePrefix(WebNamespace))
+		server.ServicePrefix(Namespace),
+		server.Namespace((*cmd.DefaultOptions().Auth).Options().Namespace))
 
 	srv.Init(opts...)
 	srv.Handle("/", h)
@@ -706,11 +704,6 @@ func Commands(options ...micro.Option) []*cli.Command {
 				Name:    "address",
 				Usage:   "Set the web UI address e.g 0.0.0.0:8082",
 				EnvVars: []string{"MICRO_WEB_ADDRESS"},
-			},
-			&cli.StringFlag{
-				Name:    "namespace",
-				Usage:   "Set the namespace used, e.g. micro",
-				EnvVars: []string{"MICRO_NAMESPACE"},
 			},
 			&cli.StringFlag{
 				Name:    "web_namespace",

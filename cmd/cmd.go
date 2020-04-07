@@ -171,12 +171,6 @@ func setup(app *ccli.App) {
 			EnvVars: []string{"MICRO_REPORT_USAGE"},
 			Value:   true,
 		},
-		&ccli.StringFlag{
-			Name:    "namespace",
-			Usage:   "Set the micro service namespace",
-			EnvVars: []string{"MICRO_NAMESPACE"},
-			Value:   "go.micro",
-		},
 	)
 
 	plugins := plugin.Plugins()
