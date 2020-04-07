@@ -33,9 +33,10 @@ import (
 	log "github.com/micro/go-micro/v2/logger"
 	cfstore "github.com/micro/go-micro/v2/store/cloudflare"
 	"github.com/micro/go-micro/v2/sync/lock/memory"
+	"github.com/micro/micro/v2/api/auth"
 	"github.com/micro/micro/v2/internal/handler"
 	"github.com/micro/micro/v2/internal/helper"
-	nsResolver "github.com/micro/micro/v2/internal/namespace/resolver"
+	"github.com/micro/micro/v2/internal/namespace"
 	"github.com/micro/micro/v2/internal/stats"
 	"github.com/micro/micro/v2/plugin"
 )
@@ -314,14 +315,12 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		h = plugins[i-1].Handler()(h)
 	}
 
-	// create the namespace resolver
-	nsResolver := nsResolver.NewNamespaceResolver(Type, Namespace)
+	// create the namespace resolver and the auth wrapper
+	nsResolver := namespace.NewResolver(Type, Namespace)
+	authWrapper := auth.Wrapper(rr, nsResolver)
 
 	// create the server
-	api := httpapi.NewServer(Address,
-		server.Resolver(rr),
-		server.NamespaceResolver(nsResolver),
-	)
+	api := httpapi.NewServer(Address, server.WrapHandler(authWrapper))
 
 	api.Init(opts...)
 	api.Handle("/", h)

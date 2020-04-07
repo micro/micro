@@ -1,20 +1,20 @@
-package resolver
+package namespace
 
 import (
 	"net"
 	"net/http"
 	"strings"
 
-	"github.com/micro/go-micro/v2/api/resolver"
 	"github.com/micro/go-micro/v2/auth"
 	"github.com/micro/go-micro/v2/logger"
 	"golang.org/x/net/publicsuffix"
 )
 
-func NewNamespaceResolver(srvType, namespace string) resolver.NamespaceResolver {
+func NewResolver(srvType, namespace string) *Resolver {
 	return &Resolver{srvType, namespace}
 }
 
+// Resolver determines the namespace for a request
 type Resolver struct {
 	srvType   string
 	namespace string

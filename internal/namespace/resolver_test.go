@@ -1,4 +1,4 @@
-package resolver
+package namespace
 
 import (
 	"net/http"
@@ -104,7 +104,7 @@ func TestResolve(t *testing.T) {
 
 	for _, tc := range tt {
 		t.Run(tc.Name, func(t *testing.T) {
-			r := NewNamespaceResolver(tc.ServiceType, tc.Namespace)
+			r := NewResolver(tc.ServiceType, tc.Namespace)
 			result := r.Resolve(&http.Request{URL: &url.URL{Host: tc.Host}})
 			if result != tc.Result {
 				t.Errorf("Expected namespace %v for host %v with service type %v and namespace %v, actually got %v", tc.Result, tc.Host, tc.ServiceType, tc.Namespace, result)

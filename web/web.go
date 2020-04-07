@@ -34,9 +34,10 @@ import (
 	"github.com/micro/go-micro/v2/registry/cache"
 	cfstore "github.com/micro/go-micro/v2/store/cloudflare"
 	"github.com/micro/go-micro/v2/sync/lock/memory"
+	apiAuth "github.com/micro/micro/v2/api/auth"
 	"github.com/micro/micro/v2/internal/handler"
 	"github.com/micro/micro/v2/internal/helper"
-	nsResolver "github.com/micro/micro/v2/internal/namespace/resolver"
+	"github.com/micro/micro/v2/internal/namespace"
 	"github.com/micro/micro/v2/internal/stats"
 	"github.com/micro/micro/v2/plugin"
 	"github.com/serenize/snaker"
@@ -79,7 +80,7 @@ type srv struct {
 	// the resolver
 	resolver *resolver
 	// the namespace resolver
-	nsResolver res.NamespaceResolver
+	nsResolver *namespace.Resolver
 	// the proxy server
 	prx *proxy
 	// auth service
@@ -561,9 +562,6 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		auth: *cmd.DefaultOptions().Auth,
 	}
 
-	// create the namespace resolver
-	s.nsResolver = nsResolver.NewNamespaceResolver(Type, Namespace)
-
 	var h http.Handler
 	// set as the server
 	h = s
@@ -666,11 +664,12 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		h = plugins[i-1].Handler()(h)
 	}
 
-	// create the service with the resolver and namespace resolver
-	srv := httpapi.NewServer(Address,
-		server.Resolver(s.resolver),
-		server.NamespaceResolver(s.nsResolver),
-	)
+	// create the namespace resolver and the auth wrapper
+	s.nsResolver = namespace.NewResolver(Type, Namespace)
+	authWrapper := apiAuth.Wrapper(s.resolver, s.nsResolver)
+
+	// create the service and add the auth wrapper
+	srv := httpapi.NewServer(Address, server.WrapHandler(authWrapper))
 
 	srv.Init(opts...)
 	srv.Handle("/", h)
