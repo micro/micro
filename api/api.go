@@ -67,8 +67,8 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	if len(ctx.String("handler")) > 0 {
 		Handler = ctx.String("handler")
 	}
-	if len(ctx.String("api_namespace")) > 0 {
-		Namespace = ctx.String("api_namespace")
+	if len(ctx.String("namespace")) > 0 {
+		Namespace = ctx.String("namespace")
 	}
 	if len(ctx.String("resolver")) > 0 {
 		Resolver = ctx.String("resolver")
@@ -348,7 +348,7 @@ func Commands(options ...micro.Option) []*cli.Command {
 				EnvVars: []string{"MICRO_API_HANDLER"},
 			},
 			&cli.StringFlag{
-				Name:    "api_namespace",
+				Name:    "namespace",
 				Usage:   "Set the service namespace used by the API e.g. com.example.api",
 				EnvVars: []string{"MICRO_API_NAMESPACE"},
 			},

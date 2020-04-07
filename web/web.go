@@ -514,9 +514,6 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	if len(ctx.String("namespace")) > 0 {
 		Namespace = ctx.String("namespace")
 	}
-	if len(ctx.String("web_namespace")) > 0 {
-		Namespace = ctx.String("web_namespace")
-	}
 	if len(ctx.String("resolver")) > 0 {
 		Resolver = ctx.String("resolver")
 	}
@@ -706,7 +703,7 @@ func Commands(options ...micro.Option) []*cli.Command {
 				EnvVars: []string{"MICRO_WEB_ADDRESS"},
 			},
 			&cli.StringFlag{
-				Name:    "web_namespace",
+				Name:    "namespace",
 				Usage:   "Set the service namespace used by the Web proxy e.g. com.example.web",
 				EnvVars: []string{"MICRO_WEB_NAMESPACE"},
 			},
