@@ -36,6 +36,7 @@ import (
 	"github.com/micro/go-micro/v2/sync/lock/memory"
 	"github.com/micro/micro/v2/internal/handler"
 	"github.com/micro/micro/v2/internal/helper"
+	nsResolver "github.com/micro/micro/v2/internal/namespace/resolver"
 	"github.com/micro/micro/v2/internal/stats"
 	"github.com/micro/micro/v2/plugin"
 	"github.com/serenize/snaker"
@@ -52,7 +53,8 @@ var (
 	// Example:
 	// Namespace + /[Service]/foo/bar
 	// Host: Namespace.Service Endpoint: /foo/bar
-	Namespace = "go.micro.web"
+	Namespace = "go.micro"
+	Type      = "api"
 	// Resolver used to resolve services
 	Resolver = "path"
 	// Base path sent to web service.
@@ -511,12 +513,20 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	if len(ctx.String("address")) > 0 {
 		Address = ctx.String("address")
 	}
-	if len(ctx.String("namespace")) > 0 {
-		Namespace = ctx.String("namespace")
-	}
 	if len(ctx.String("resolver")) > 0 {
 		Resolver = ctx.String("resolver")
 	}
+	if len(ctx.String("type")) > 0 {
+		Type = ctx.String("type")
+	}
+	if len(ctx.String("namespace")) > 0 {
+		// remove the service type from the namespace to allow for
+		// backwards compatability
+		Namespace = strings.TrimSuffix(ctx.String("namespace"), "."+Type)
+	}
+
+	// fullNamespace has the format: "go.micro.web"
+	fullNamespace := Namespace + "." + Type
 
 	// Init plugins
 	for _, p := range Plugins() {
@@ -537,7 +547,7 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		resolver: &resolver{
 			// Default to type path
 			Type:      Resolver,
-			Namespace: Namespace,
+			Namespace: fullNamespace,
 			Selector: selector.NewSelector(
 				selector.Registry(reg),
 			),
@@ -647,11 +657,14 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		h = plugins[i-1].Handler()(h)
 	}
 
-	// pass namespace, service namespace and resolver through to the server as these are needed to perform auth
+	// create the namespace resolver
+	nsResolver := nsResolver.NewNamespaceResolver(Type, Namespace)
+
+	// create the service with the resolver and namespace resolver
 	srv := httpapi.NewServer(Address,
 		server.Resolver(s.resolver),
-		server.ServicePrefix(Namespace),
-		server.Namespace((*cmd.DefaultOptions().Auth).Options().Namespace))
+		server.NamespaceResolver(nsResolver),
+	)
 
 	srv.Init(opts...)
 	srv.Handle("/", h)
