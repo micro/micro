@@ -717,7 +717,7 @@ func Commands(options ...micro.Option) []*cli.Command {
 			},
 			&cli.StringFlag{
 				Name:    "namespace",
-				Usage:   "Set the service namespace used by the Web proxy e.g. com.example.web",
+				Usage:   "Set the namespace used by the Web proxy e.g. com.example.web",
 				EnvVars: []string{"MICRO_WEB_NAMESPACE"},
 			},
 			&cli.StringFlag{
