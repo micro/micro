@@ -363,7 +363,7 @@ func Commands(options ...micro.Option) []*cli.Command {
 			},
 			&cli.StringFlag{
 				Name:    "namespace",
-				Usage:   "Set the service namespace used by the API e.g. com.example",
+				Usage:   "Set the namespace used by the API e.g. com.example",
 				EnvVars: []string{"MICRO_API_NAMESPACE"},
 			},
 			&cli.StringFlag{
