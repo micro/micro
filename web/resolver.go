@@ -30,9 +30,9 @@ func (r *resolver) String() string {
 	return "web/resolver"
 }
 
-// Resolve replaces the values of Host, Path, Scheme to calla backend service
-// It accounts for subdomains for service names based on namespace
-func (r *resolver) Resolve(req *http.Request) (*res.Endpoint, error) {
+// Info checks whether this is a web request.
+// It returns host, namespace and whether its internal
+func (r *resolver) Info(req *http.Request) (string, string, bool) {
 	// set to host
 	host := req.URL.Hostname()
 
@@ -49,24 +49,42 @@ func (r *resolver) Resolve(req *http.Request) (*res.Endpoint, error) {
 
 	// now try parse out ip
 	ip := net.ParseIP(host)
-	dm := host
+	dom := host
 
 	// replace our suffix if it exists
 	if strings.HasSuffix(host, "micro.mu") {
-		dm = strings.Replace(host, "micro.mu", "micro.go", 1)
+		dom = strings.Replace(host, "micro.mu", "micro.go", 1)
 	}
 
 	// split and reverse the host
-	parts := strings.Split(dm, ".")
+	parts := strings.Split(dom, ".")
 	reverse(parts)
 	namespace := strings.Join(parts, ".")
 	// check if its localhost or an ip
 	localhost := (ip != nil || host == "localhost")
 
+	// isWeb sets if its a web.micro.mu request
+	var isWeb bool
+
 	// go.micro.web => go.micro.web
 	// use path based resolution if hostname matches
 	// namespace or IP is not nil
 	if r.Type == "path" || namespace == r.Namespace || localhost || len(host) == 0 || host == Host {
+		isWeb = true
+	}
+
+	// is a subdomain request
+	return host, namespace, isWeb
+}
+
+// Resolve replaces the values of Host, Path, Scheme to calla backend service
+// It accounts for subdomains for service names based on namespace
+func (r *resolver) Resolve(req *http.Request) (*res.Endpoint, error) {
+	// get host, namespace and if its an internal request
+	host, namespace, webReq := r.Info(req)
+
+	// use path based resolution if its web dashboard related
+	if webReq {
 		parts := strings.Split(req.URL.Path, "/")
 		if len(parts) < 2 {
 			return nil, errors.New("unknown service")
@@ -98,21 +116,14 @@ func (r *resolver) Resolve(req *http.Request) (*res.Endpoint, error) {
 		}, nil
 	}
 
-	// reverse the namespace so we can check against the host
-	parts = strings.Split(r.Namespace, ".")
-	// reverse
-	reverse(parts)
-	// go.micro.web => web.micro.go
-	rnamespace := strings.Join(parts, ".")
-
 	// create an alias
 	var alias string
 
 	// check if suffix is web.micro.go in which case its subdomain + namespace
-	if strings.HasSuffix(dm, rnamespace) {
-		subdomain := strings.TrimSuffix(dm, "."+rnamespace)
+	if strings.HasPrefix(namespace, r.Namespace) {
+		subdomain := strings.TrimPrefix(namespace, r.Namespace+".")
 		// split it
-		parts = strings.Split(subdomain, ".")
+		parts := strings.Split(subdomain, ".")
 		// reverse it
 		reverse(parts)
 		// turn it into an alias
@@ -128,7 +139,7 @@ func (r *resolver) Resolve(req *http.Request) (*res.Endpoint, error) {
 		// get the subdomain
 		subdomain := strings.TrimSuffix(host, "."+domain)
 		// split it
-		parts = strings.Split(subdomain, ".")
+		parts := strings.Split(subdomain, ".")
 		// reverse it
 		reverse(parts)
 		// turn it into an alias
