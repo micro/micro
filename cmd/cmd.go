@@ -231,11 +231,14 @@ func setup(app *ccli.App) {
 			}
 		}
 
+		// now do previous before
+		if err := before(ctx); err != nil {
+			return err
+		}
+
 		// Explicitly set store table to App Name
 		store.Table = cmd.App().Name
-
-		// now do previous before
-		return before(ctx)
+		return nil
 	}
 }
 
