@@ -58,9 +58,10 @@ func TestWebResolver(t *testing.T) {
 		req := &http.Request{
 			Header: make(http.Header),
 			URL:    u,
+			Host:   u.Hostname(),
 		}
 		if endpoint, err := res.Resolve(req); err != nil {
-			t.Fatal(err)
+			t.Fatalf("Failed to resolve %v: %v", service, err)
 		} else if endpoint.Host != "127.0.0.1:8080" {
 			t.Fatalf("Failed to resolve %v", service.Host)
 		}

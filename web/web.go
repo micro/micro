@@ -177,6 +177,16 @@ func (s *srv) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// no host means dashboard
 	host := r.URL.Hostname()
 	if len(host) == 0 {
+		h, _, err := net.SplitHostPort(r.Host)
+		if err != nil && strings.Contains(err.Error(), "missing port in address") {
+			host = r.Host
+		} else if err == nil {
+			host = h
+		}
+	}
+
+	// check again
+	if len(host) == 0 {
 		s.Router.ServeHTTP(w, r)
 		return
 	}
@@ -217,29 +227,14 @@ func (s *srv) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// check to see if the endpoint was encoded in the request context
-	// by the auth wrapper
-	var endpoint *res.Endpoint
-	if val, ok := (r.Context().Value(res.Endpoint{})).(*res.Endpoint); ok {
-		endpoint = val
+	// check if its a web request
+	if _, _, isWeb := s.resolver.Info(r); isWeb {
+		s.Router.ServeHTTP(w, r)
+		return
 	}
 
-	// fallback to the resolver and then the proxy. TODO: better error handling
-	if endpoint == nil {
-		endpoint, err = s.resolver.Resolve(r)
-		if err != nil {
-			s.prx.ServeHTTP(w, r)
-			return
-		}
-	}
-
-	r.Header.Set(BasePathHeader, "/"+endpoint.Name)
-	r.URL.Host = endpoint.Host
-	r.URL.Path = endpoint.Path
-	r.URL.Scheme = "http"
-	r.Host = r.URL.Host
-
-	s.Router.ServeHTTP(w, r)
+	// otherwise serve the proxy
+	s.prx.ServeHTTP(w, r)
 }
 
 // proxy is a http reverse proxy
