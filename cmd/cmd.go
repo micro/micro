@@ -231,6 +231,9 @@ func setup(app *ccli.App) {
 			}
 		}
 
+		// Explicitly set store table to App Name
+		store.Table = cmd.App().Name
+
 		// now do previous before
 		return before(ctx)
 	}
