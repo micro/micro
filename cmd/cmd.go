@@ -232,7 +232,13 @@ func setup(app *ccli.App) {
 		}
 
 		// now do previous before
-		return before(ctx)
+		if err := before(ctx); err != nil {
+			return err
+		}
+
+		// Explicitly set store table to App Name
+		store.Table = cmd.App().Name
+		return nil
 	}
 }
 

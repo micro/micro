@@ -16,7 +16,7 @@ require (
 	github.com/gorilla/mux v1.7.3
 	github.com/hako/branca v0.0.0-20180808000428-10b799466ada
 	github.com/micro/cli/v2 v2.1.2
-	github.com/micro/go-micro/v2 v2.4.1-0.20200407144343-038b936ce982
+	github.com/micro/go-micro/v2 v2.4.1-0.20200407120005-71538adfdcb0
 	github.com/miekg/dns v1.1.27
 	github.com/netdata/go-orchestrator v0.0.0-20190905093727-c793edba0e8f
 	github.com/olekukonko/tablewriter v0.0.4
@@ -35,5 +35,3 @@ require (
 	gopkg.in/gomail.v2 v2.0.0-20160411212932-81ebce5c23df
 	gopkg.in/olivere/elastic.v5 v5.0.83
 )
-
-replace github.com/micro/go-micro/v2 => /home/crufter/code/src/github.com/micro/go-micro
