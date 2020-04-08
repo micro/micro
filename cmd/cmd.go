@@ -14,7 +14,6 @@ import (
 	"github.com/micro/micro/v2/config"
 	"github.com/micro/micro/v2/debug"
 	"github.com/micro/micro/v2/health"
-	"github.com/micro/micro/v2/monitor"
 	"github.com/micro/micro/v2/network"
 	"github.com/micro/micro/v2/new"
 	"github.com/micro/micro/v2/plugin"
@@ -172,12 +171,6 @@ func setup(app *ccli.App) {
 			EnvVars: []string{"MICRO_REPORT_USAGE"},
 			Value:   true,
 		},
-		&ccli.StringFlag{
-			Name:    "namespace",
-			Usage:   "Set the micro service namespace",
-			EnvVars: []string{"MICRO_NAMESPACE"},
-			Value:   "go.micro",
-		},
 	)
 
 	plugins := plugin.Plugins()
@@ -283,7 +276,6 @@ func Setup(app *ccli.App, options ...micro.Option) {
 	app.Commands = append(app.Commands, broker.Commands(options...)...)
 	app.Commands = append(app.Commands, health.Commands(options...)...)
 	app.Commands = append(app.Commands, proxy.Commands(options...)...)
-	app.Commands = append(app.Commands, monitor.Commands(options...)...)
 	app.Commands = append(app.Commands, router.Commands(options...)...)
 	app.Commands = append(app.Commands, tunnel.Commands(options...)...)
 	app.Commands = append(app.Commands, network.Commands(options...)...)

@@ -34,8 +34,10 @@ import (
 	"github.com/micro/go-micro/v2/registry/cache"
 	cfstore "github.com/micro/go-micro/v2/store/cloudflare"
 	"github.com/micro/go-micro/v2/sync/lock/memory"
+	apiAuth "github.com/micro/micro/v2/api/auth"
 	"github.com/micro/micro/v2/internal/handler"
 	"github.com/micro/micro/v2/internal/helper"
+	"github.com/micro/micro/v2/internal/namespace"
 	"github.com/micro/micro/v2/internal/stats"
 	"github.com/micro/micro/v2/plugin"
 	"github.com/serenize/snaker"
@@ -52,9 +54,9 @@ var (
 	// Example:
 	// Namespace + /[Service]/foo/bar
 	// Host: Namespace.Service Endpoint: /foo/bar
-	Namespace = "go.micro.web"
-	// Resolver used to resolve services
-	Resolver = "path"
+	Namespace = "go.micro"
+	Type      = "web"
+	Resolver  = "path"
 	// Base path sent to web service.
 	// This is stripped from the request path
 	// Allows the web service to define absolute paths
@@ -75,6 +77,8 @@ type srv struct {
 	registry registry.Registry
 	// the resolver
 	resolver *resolver
+	// the namespace resolver
+	nsResolver *namespace.Resolver
 	// the proxy server
 	prx *proxy
 	// auth service
@@ -213,7 +217,7 @@ func (s *srv) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// web dashboard if namespace matches
-	if namespace == Namespace {
+	if namespace == Namespace+"."+Type {
 		s.Router.ServeHTTP(w, r)
 		return
 	}
@@ -341,11 +345,14 @@ func (s *srv) indexHandler(w http.ResponseWriter, r *http.Request) {
 
 	// TODO: lookup icon
 
+	// determine the namespace using the request
+	namespace := s.nsResolver.Resolve(r)
+
 	var webServices []webService
 	for _, srv := range services {
-		if strings.Index(srv.Name, Namespace) == 0 && len(strings.TrimPrefix(srv.Name, Namespace)) > 0 {
+		if strings.Index(srv.Name, namespace) == 0 && len(strings.TrimPrefix(srv.Name, namespace)) > 0 {
 			webServices = append(webServices, webService{
-				Name: strings.Replace(srv.Name, Namespace+".", "", 1),
+				Name: strings.Replace(srv.Name, namespace+".", "", 1),
 			})
 		}
 	}
@@ -511,11 +518,16 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	if len(ctx.String("address")) > 0 {
 		Address = ctx.String("address")
 	}
-	if len(ctx.String("namespace")) > 0 {
-		Namespace = ctx.String("namespace")
-	}
 	if len(ctx.String("resolver")) > 0 {
 		Resolver = ctx.String("resolver")
+	}
+	if len(ctx.String("type")) > 0 {
+		Type = ctx.String("type")
+	}
+	if len(ctx.String("namespace")) > 0 {
+		// remove the service type from the namespace to allow for
+		// backwards compatability
+		Namespace = strings.TrimSuffix(ctx.String("namespace"), "."+Type)
 	}
 
 	// Init plugins
@@ -537,7 +549,7 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		resolver: &resolver{
 			// Default to type path
 			Type:      Resolver,
-			Namespace: Namespace,
+			Namespace: Namespace + "." + Type,
 			Selector: selector.NewSelector(
 				selector.Registry(reg),
 			),
@@ -647,8 +659,13 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		h = plugins[i-1].Handler()(h)
 	}
 
-	// pass namespace and resolver through to the server as these are needed to perform auth
-	srv := httpapi.NewServer(Address, server.Namespace(Namespace), server.Resolver(s.resolver))
+	// create the namespace resolver and the auth wrapper
+	s.nsResolver = namespace.NewResolver(Type, Namespace)
+	authWrapper := apiAuth.Wrapper(s.resolver, s.nsResolver)
+
+	// create the service and add the auth wrapper
+	srv := httpapi.NewServer(Address, server.WrapHandler(authWrapper))
+
 	srv.Init(opts...)
 	srv.Handle("/", h)
 
