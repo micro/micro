@@ -8,8 +8,8 @@ import (
 	k8sRuntime "github.com/micro/go-micro/v2/runtime/kubernetes"
 	cfStore "github.com/micro/go-micro/v2/store/cloudflare"
 	ckStore "github.com/micro/go-micro/v2/store/cockroach"
-	memStore "github.com/micro/go-micro/v2/store/file"
-	fileStore "github.com/micro/go-micro/v2/store/memory"
+	fileStore "github.com/micro/go-micro/v2/store/file"
+	memStore "github.com/micro/go-micro/v2/store/memory"
 )
 
 func init() {

@@ -254,7 +254,7 @@ func setup(app *ccli.App) {
 		// TODO: move this entire initialisation elsewhere
 		// maybe in service.Run so all things are configured
 		if len(opts) > 0 {
-			gostore.DefaultStore.Init(opts...)
+			(*cmd.DefaultCmd.Options().Store).Init(opts...)
 		}
 
 		return nil
