@@ -24,9 +24,9 @@ var (
 	// Nodes is passed to the underlying backend
 	Nodes = []string{"localhost"}
 	// Database is passed to the underlying backend if set.
-	Database = ""
+	Database = "micro"
 	// Table is passed to the underlying backend if set.
-	Table = ""
+	Table = "store"
 )
 
 // run runs the micro server

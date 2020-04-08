@@ -27,7 +27,6 @@ var (
 		"store",    // :8002
 		"tunnel",   // :8083
 		"router",   // :8084
-		"monitor",  // :????
 		"debug",    // :????
 		"proxy",    // :8081
 		"api",      // :8080
