@@ -231,7 +231,7 @@ func setup(app *ccli.App) {
 		}
 
 		// Explicitly set store table to App Name
-		store.Table = cmd.App().Name
+		store.Table = ctx.Args().Get(0)
 		gomicrostore.DefaultStore.Init(gomicrostore.Table(store.Table))
 		return nil
 	}

@@ -47,6 +47,7 @@ func (r *Rules) Init(opts ...auth.Option) {
 		return
 	}
 	if len(resp.GetRules()) > 0 {
+		log.Info("Rules exists. Skipping rule injection.")
 		return
 	}
 	log.Info("Generating default rules")
