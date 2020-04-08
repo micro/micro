@@ -22,6 +22,7 @@ import (
 	k8sRuntime "github.com/micro/go-micro/v2/runtime/kubernetes"
 	cfStore "github.com/micro/go-micro/v2/store/cloudflare"
 	ckStore "github.com/micro/go-micro/v2/store/cockroach"
+	fileStore "github.com/micro/go-micro/v2/store/file"
 )
 
 var (
@@ -66,6 +67,7 @@ func init() {
 	cmd.DefaultRuntimes["kubernetes"] = k8sRuntime.NewRuntime
 	cmd.DefaultStores["cockroach"] = ckStore.NewStore
 	cmd.DefaultStores["cloudflare"] = cfStore.NewStore
+	cmd.DefaultStores["file"] = fileStore.NewStore
 }
 
 type initScheduler struct {
