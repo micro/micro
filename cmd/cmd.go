@@ -101,7 +101,6 @@ func setup(app *ccli.App) {
 			Usage:   "Set the api address e.g 0.0.0.0:8080",
 			EnvVars: []string{"MICRO_API_ADDRESS"},
 		},
-		},
 		&ccli.StringFlag{
 			Name:    "namespace",
 			Usage:   "Set the micro service namespace",
