@@ -47,14 +47,14 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 	if len(ctx.String("store")) > 0 {
 		Backend = ctx.String("store")
 	}
-	if len(ctx.String("nodes")) > 0 {
-		Nodes = strings.Split(ctx.String("nodes"), ",")
+	if len(ctx.String("store_address")) > 0 {
+		Nodes = strings.Split(ctx.String("store_address"), ",")
 	}
-	if len(ctx.String("database")) > 0 {
-		Database = ctx.String("database")
+	if len(ctx.String("store_database")) > 0 {
+		Database = ctx.String("store_database")
 	}
-	if len(ctx.String("table")) > 0 {
-		Table = ctx.String("table")
+	if len(ctx.String("store_table")) > 0 {
+		Table = ctx.String("store_table")
 	}
 
 	// Initialise service
@@ -120,21 +120,6 @@ func Commands(options ...micro.Option) []*cli.Command {
 				Name:    "address",
 				Usage:   "Set the micro tunnel address :8002",
 				EnvVars: []string{"MICRO_SERVER_ADDRESS"},
-			},
-			&cli.StringFlag{
-				Name:    "nodes",
-				Usage:   "Comma separated list of Nodes to pass to the store backend",
-				EnvVars: []string{"MICRO_STORE_NODES"},
-			},
-			&cli.StringFlag{
-				Name:    "database",
-				Usage:   "Database option to pass to the store backend",
-				EnvVars: []string{"MICRO_STORE_DATABASE"},
-			},
-			&cli.StringFlag{
-				Name:    "table",
-				Usage:   "Table option to pass to the store backend",
-				EnvVars: []string{"MICRO_STORE_TABLE"},
 			},
 		},
 		Action: func(ctx *cli.Context) error {
