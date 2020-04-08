@@ -31,9 +31,10 @@ import (
 	"github.com/micro/micro/v2/web"
 
 	// include usage
-
 	"github.com/micro/micro/v2/internal/platform"
 	_ "github.com/micro/micro/v2/internal/usage"
+
+	gomicrostore "github.com/micro/go-micro/v2/store"
 )
 
 var (
@@ -238,6 +239,7 @@ func setup(app *ccli.App) {
 
 		// Explicitly set store table to App Name
 		store.Table = cmd.App().Name
+		gomicrostore.DefaultStore.Init(gomicrostore.Table(store.Table))
 		return nil
 	}
 }
