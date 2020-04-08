@@ -34,7 +34,7 @@ func (s *Store) get(ctx context.Context) (store.Store, error) {
 		return s.Default, nil
 	}
 
-	database, _ := md.Get("Micro-Namespace")
+	database, _ := md.Get("Micro-Database")
 	table, _ := md.Get("Micro-Table")
 
 	if len(database) == 0 {
