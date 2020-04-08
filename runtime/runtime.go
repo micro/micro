@@ -116,6 +116,11 @@ func Flags() []cli.Flag {
 			Usage: "Connect to the platform",
 			Value: false,
 		},
+		&cli.BoolFlag{
+			Name:  "server",
+			Usage: "Connect to local server",
+			Value: false,
+		},
 		&cli.StringSliceFlag{
 			Name:  "env",
 			Usage: "Set the environment variables e.g. foo=bar",
