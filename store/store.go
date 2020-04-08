@@ -17,18 +17,18 @@ import (
 )
 
 var (
-	// Name of the tunnel service
+	// Name of the store service
 	Name = "go.micro.store"
-	// Address is the tunnel address
+	// Address is the store address
 	Address = ":8002"
 	// Backend is the implementation of the store
 	Backend = "memory"
 	// Nodes is passed to the underlying backend
 	Nodes = []string{"localhost"}
-	// Namespace is passed to the underlying backend if set.
-	Namespace = ""
-	// Prefix is passed to the underlying backend if set.
-	Prefix = ""
+	// Database is passed to the underlying backend if set.
+	Database = ""
+	// Table is passed to the underlying backend if set.
+	Table = ""
 )
 
 // run runs the micro server
@@ -53,10 +53,10 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		Nodes = strings.Split(ctx.String("nodes"), ",")
 	}
 	if len(ctx.String("database")) > 0 {
-		Namespace = ctx.String("database")
+		Database = ctx.String("database")
 	}
 	if len(ctx.String("table")) > 0 {
-		Prefix = ctx.String("table")
+		Table = ctx.String("table")
 	}
 
 	// Initialise service
@@ -67,11 +67,11 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	)
 
 	opts := []store.Option{store.Nodes(Nodes...)}
-	if len(Namespace) > 0 {
-		opts = append(opts, store.Database(Namespace))
+	if len(Database) > 0 {
+		opts = append(opts, store.Database(Database))
 	}
-	if len(Prefix) > 0 {
-		opts = append(opts, store.Table(Prefix))
+	if len(Table) > 0 {
+		opts = append(opts, store.Table(Table))
 	}
 
 	// the store handler

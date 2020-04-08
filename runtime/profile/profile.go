@@ -6,6 +6,20 @@ func Local() []string {
 	return []string{}
 }
 
+// Server is a profile for running things through micro server
+// eg runtime config etc will use actual services.
+func Server() []string {
+	return []string{
+		"MICRO_AUTH=service",
+		"MICRO_BROKER=service",
+		"MICRO_REGISTRY=service",
+		"MICRO_ROUTER=service",
+		"MICRO_RUNTIME=service",
+		"MICRO_STORE=service",
+		"MICRO_PROXY=service",
+	}
+}
+
 // Kubernetes is a profile for kubernetes
 func Kubernetes() []string {
 	return []string{}

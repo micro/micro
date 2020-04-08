@@ -59,6 +59,11 @@ func Commands(options ...micro.Option) []*cli.Command {
 				Name:  "peer",
 				Usage: "Peer with the global network to share services",
 			},
+			&cli.StringFlag{
+				Name:    "profile",
+				Usage:   "Set the runtime profile to use for services e.g local, kubernetes, platform",
+				EnvVars: []string{"MICRO_RUNTIME_PROFILE"},
+			},
 		},
 		Action: func(ctx *cli.Context) error {
 			Run(ctx)
@@ -87,7 +92,10 @@ func Run(context *cli.Context) error {
 		cli.ShowSubcommandHelp(context)
 		os.Exit(1)
 	}
-
+	// set default profile
+	if len(context.String("profile")) == 0 {
+		context.Set("profile", "server")
+	}
 	// get the network flag
 	peer := context.Bool("peer")
 
@@ -124,6 +132,7 @@ func Run(context *cli.Context) error {
 		(*muRuntime).Init(options...)
 	}
 
+	env = append(env, "MICRO_RUNTIME_PROFILE="+context.String("profile"))
 	for _, service := range services {
 		name := service
 

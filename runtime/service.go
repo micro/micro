@@ -55,6 +55,11 @@ func timeAgo(v string) string {
 }
 
 func runtimeFromContext(ctx *cli.Context) runtime.Runtime {
+	if ctx.Bool("server") {
+		os.Setenv("MICRO_PROXY", "service")
+		os.Setenv("MICRO_PROXY_ADDRESS", "127.0.0.1:8081")
+		return srvRuntime.NewRuntime()
+	}
 	if ctx.Bool("platform") {
 		os.Setenv("MICRO_PROXY", "service")
 		os.Setenv("MICRO_PROXY_ADDRESS", "proxy.micro.mu:443")
