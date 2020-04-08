@@ -13,6 +13,7 @@ import (
 	"github.com/micro/micro/v2/store/handler"
 
 	"github.com/micro/go-micro/v2/store/cockroach"
+	"github.com/micro/go-micro/v2/store/file"
 	"github.com/micro/go-micro/v2/store/memory"
 )
 
@@ -80,26 +81,37 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	}
 
 	switch Backend {
+	case "file":
+		// set the default store
+		storeHandler.Default = file.NewStore(opts...)
+		// set the new store initialiser
+		storeHandler.New = func(database string, table string) (store.Store, error) {
+			// return a new memory store
+			return file.NewStore(
+				store.Database(database),
+				store.Table(table),
+			), nil
+		}
 	case "memory":
 		// set the default store
 		storeHandler.Default = memory.NewStore(opts...)
 		// set the new store initialiser
-		storeHandler.New = func(namespace string, prefix string) (store.Store, error) {
+		storeHandler.New = func(database string, table string) (store.Store, error) {
 			// return a new memory store
 			return memory.NewStore(
-				store.Database(namespace),
-				store.Table(prefix),
+				store.Database(database),
+				store.Table(table),
 			), nil
 		}
 	case "cockroach":
 		// set the default store
 		storeHandler.Default = cockroach.NewStore(opts...)
 		// set the new store initialiser
-		storeHandler.New = func(namespace string, prefix string) (store.Store, error) {
+		storeHandler.New = func(database string, table string) (store.Store, error) {
 			storeDB := cockroach.NewStore(
 				store.Nodes(Nodes...),
-				store.Database(namespace),
-				store.Table(prefix),
+				store.Database(database),
+				store.Table(table),
 			)
 			if err := storeDB.Init(); err != nil {
 				return nil, err

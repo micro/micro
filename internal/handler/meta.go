@@ -17,8 +17,8 @@ import (
 )
 
 type metaHandler struct {
-	s micro.Service
-	r router.Router
+	s  micro.Service
+	r  router.Router
 	ns string
 }
 
@@ -62,8 +62,8 @@ func (m *metaHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 // Meta is a http.Handler that routes based on endpoint metadata
 func Meta(s micro.Service, r router.Router, ns string) http.Handler {
 	return &metaHandler{
-		s: s,
-		r: r,
+		s:  s,
+		r:  r,
 		ns: ns,
 	}
 }
