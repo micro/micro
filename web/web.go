@@ -9,7 +9,6 @@ import (
 	"net/http"
 	"net/http/httputil"
 	"os"
-	"regexp"
 	"sort"
 	"strings"
 	"sync"
@@ -38,6 +37,7 @@ import (
 	"github.com/micro/micro/v2/internal/handler"
 	"github.com/micro/micro/v2/internal/helper"
 	"github.com/micro/micro/v2/internal/namespace"
+	"github.com/micro/micro/v2/internal/resolver/web"
 	"github.com/micro/micro/v2/internal/stats"
 	"github.com/micro/micro/v2/plugin"
 	"github.com/serenize/snaker"
@@ -45,7 +45,6 @@ import (
 )
 
 var (
-	re = regexp.MustCompile("^[a-zA-Z0-9]+([a-zA-Z0-9-]*[a-zA-Z0-9]*)?$")
 	// Default server name
 	Name = "go.micro.web"
 	// Default address to bind to
@@ -76,7 +75,7 @@ type srv struct {
 	// registry we use
 	registry registry.Registry
 	// the resolver
-	resolver *resolver
+	resolver *web.Resolver
 	// the namespace resolver
 	nsResolver *namespace.Resolver
 	// the proxy server
@@ -546,7 +545,7 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		Router:   mux.NewRouter(),
 		registry: reg,
 		// our internal resolver
-		resolver: &resolver{
+		resolver: &web.Resolver{
 			// Default to type path
 			Type:      Resolver,
 			Namespace: Namespace + "." + Type,
@@ -744,4 +743,10 @@ func Commands(options ...micro.Option) []*cli.Command {
 	}
 
 	return []*cli.Command{command}
+}
+
+func reverse(s []string) {
+	for i, j := 0, len(s)-1; i < j; i, j = i+1, j-1 {
+		s[i], s[j] = s[j], s[i]
+	}
 }

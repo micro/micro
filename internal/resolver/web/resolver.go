@@ -4,6 +4,8 @@ import (
 	"errors"
 	"net"
 	"net/http"
+	"os"
+	"regexp"
 	"strings"
 
 	res "github.com/micro/go-micro/v2/api/resolver"
@@ -11,7 +13,13 @@ import (
 	"golang.org/x/net/publicsuffix"
 )
 
-type resolver struct {
+var (
+	re = regexp.MustCompile("^[a-zA-Z0-9]+([a-zA-Z0-9-]*[a-zA-Z0-9]*)?$")
+	// Host name the web dashboard is served on
+	Host, _ = os.Hostname()
+)
+
+type Resolver struct {
 	// Type of resolver e.g path, domain
 	Type string
 	// our internal namespace e.g go.micro.web
@@ -26,13 +34,13 @@ func reverse(s []string) {
 	}
 }
 
-func (r *resolver) String() string {
+func (r *Resolver) String() string {
 	return "web/resolver"
 }
 
 // Info checks whether this is a web request.
 // It returns host, namespace and whether its internal
-func (r *resolver) Info(req *http.Request) (string, string, bool) {
+func (r *Resolver) Info(req *http.Request) (string, string, bool) {
 	// set to host
 	host := req.URL.Hostname()
 
@@ -79,7 +87,7 @@ func (r *resolver) Info(req *http.Request) (string, string, bool) {
 
 // Resolve replaces the values of Host, Path, Scheme to calla backend service
 // It accounts for subdomains for service names based on namespace
-func (r *resolver) Resolve(req *http.Request) (*res.Endpoint, error) {
+func (r *Resolver) Resolve(req *http.Request) (*res.Endpoint, error) {
 	// get host, namespace and if its an internal request
 	host, namespace, webReq := r.Info(req)
 

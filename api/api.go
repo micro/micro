@@ -21,7 +21,6 @@ import (
 	"github.com/micro/go-micro/v2/api/resolver"
 	"github.com/micro/go-micro/v2/api/resolver/grpc"
 	"github.com/micro/go-micro/v2/api/resolver/host"
-	rrmicro "github.com/micro/go-micro/v2/api/resolver/micro"
 	"github.com/micro/go-micro/v2/api/resolver/path"
 	"github.com/micro/go-micro/v2/api/router"
 	regRouter "github.com/micro/go-micro/v2/api/router/registry"
@@ -37,6 +36,7 @@ import (
 	"github.com/micro/micro/v2/internal/handler"
 	"github.com/micro/micro/v2/internal/helper"
 	"github.com/micro/micro/v2/internal/namespace"
+	rrmicro "github.com/micro/micro/v2/internal/resolver/api"
 	"github.com/micro/micro/v2/internal/stats"
 	"github.com/micro/micro/v2/plugin"
 )
