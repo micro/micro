@@ -57,6 +57,7 @@ func (r *Rules) Init(opts ...auth.Option) {
 			Type:      "*",
 			Endpoint:  "*",
 		},
+		Access: pb.Access_GRANTED,
 	}, &pb.CreateResponse{})
 	if err != nil {
 		log.Errorf("Error creating default rule in init: %v", err)
