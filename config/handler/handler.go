@@ -14,7 +14,6 @@ import (
 	pb "github.com/micro/go-micro/v2/config/source/service/proto"
 	"github.com/micro/go-micro/v2/errors"
 	"github.com/micro/go-micro/v2/store"
-	"github.com/micro/micro/v2/config/db"
 )
 
 var (
@@ -27,14 +26,16 @@ var (
 	mtx    sync.RWMutex
 )
 
-type Handler struct{}
+type Config struct {
+	Store store.Store
+}
 
-func (c *Handler) Read(ctx context.Context, req *pb.ReadRequest, rsp *pb.ReadResponse) error {
+func (c *Config) Read(ctx context.Context, req *pb.ReadRequest, rsp *pb.ReadResponse) error {
 	if len(req.Namespace) == 0 {
 		return errors.BadRequest("go.micro.config.Read", "invalid id")
 	}
 
-	ch, err := db.Read(req.Namespace)
+	ch, err := c.Store.Read(req.Namespace)
 	if err != nil {
 		return errors.BadRequest("go.micro.config.Read", "read error: %v: %v", err, req.Namespace)
 	}
@@ -42,7 +43,7 @@ func (c *Handler) Read(ctx context.Context, req *pb.ReadRequest, rsp *pb.ReadRes
 	rsp.Change = new(pb.Change)
 
 	// Unmarshal value
-	if err = json.Unmarshal(ch.Value, rsp.Change); err != nil {
+	if err = json.Unmarshal(ch[0].Value, rsp.Change); err != nil {
 		return errors.BadRequest("go.micro.config.Read", "unmarshal value error: %v", err)
 	}
 
@@ -74,7 +75,7 @@ func (c *Handler) Read(ctx context.Context, req *pb.ReadRequest, rsp *pb.ReadRes
 	return nil
 }
 
-func (c *Handler) Create(ctx context.Context, req *pb.CreateRequest, rsp *pb.CreateResponse) error {
+func (c *Config) Create(ctx context.Context, req *pb.CreateRequest, rsp *pb.CreateResponse) error {
 	if req.Change == nil || req.Change.ChangeSet == nil {
 		return errors.BadRequest("go.micro.config.Create", "invalid change")
 	}
@@ -111,7 +112,7 @@ func (c *Handler) Create(ctx context.Context, req *pb.CreateRequest, rsp *pb.Cre
 		return errors.BadRequest("go.micro.config.Create", "marshal error: %v", err)
 	}
 
-	if err := db.Create(record); err != nil {
+	if err := c.Store.Write(record); err != nil {
 		return errors.BadRequest("go.micro.config.Create", "create new into db error: %v", err)
 	}
 
@@ -120,7 +121,7 @@ func (c *Handler) Create(ctx context.Context, req *pb.CreateRequest, rsp *pb.Cre
 	return nil
 }
 
-func (c *Handler) Update(ctx context.Context, req *pb.UpdateRequest, rsp *pb.UpdateResponse) error {
+func (c *Config) Update(ctx context.Context, req *pb.UpdateRequest, rsp *pb.UpdateResponse) error {
 	if req.Change == nil || req.Change.ChangeSet == nil {
 		return errors.BadRequest("go.micro.config.Update", "invalid change")
 	}
@@ -135,7 +136,8 @@ func (c *Handler) Update(ctx context.Context, req *pb.UpdateRequest, rsp *pb.Upd
 	oldCh := &pb.Change{}
 
 	// Get the current change set
-	record, err := db.Read(req.Change.Namespace)
+	var record *store.Record
+	records, err := c.Store.Read(req.Change.Namespace)
 	if err != nil {
 		if err.Error() != "not found" {
 			return errors.BadRequest("go.micro.config.Update", "read old value error: %v", err)
@@ -145,9 +147,10 @@ func (c *Handler) Update(ctx context.Context, req *pb.UpdateRequest, rsp *pb.Upd
 		record.Key = req.Change.Namespace
 	} else {
 		// Unmarshal value
-		if err := json.Unmarshal(record.Value, oldCh); err != nil {
+		if err := json.Unmarshal(records[0].Value, oldCh); err != nil {
 			return errors.BadRequest("go.micro.config.Read", "unmarshal value error: %v", err)
 		}
+		record = records[0]
 	}
 
 	// generate a new base changeset
@@ -212,7 +215,7 @@ func (c *Handler) Update(ctx context.Context, req *pb.UpdateRequest, rsp *pb.Upd
 		return errors.BadRequest("go.micro.config.Update", "marshal error: %v", err)
 	}
 
-	if err := db.Update(record); err != nil {
+	if err := c.Store.Write(record); err != nil {
 		return errors.BadRequest("go.micro.config.Update", "update into db error: %v", err)
 	}
 
@@ -221,7 +224,7 @@ func (c *Handler) Update(ctx context.Context, req *pb.UpdateRequest, rsp *pb.Upd
 	return nil
 }
 
-func (c *Handler) Delete(ctx context.Context, req *pb.DeleteRequest, rsp *pb.DeleteResponse) error {
+func (c *Config) Delete(ctx context.Context, req *pb.DeleteRequest, rsp *pb.DeleteResponse) error {
 	if req.Change == nil {
 		return errors.BadRequest("go.micro.srv.Delete", "invalid change")
 	}
@@ -238,7 +241,7 @@ func (c *Handler) Delete(ctx context.Context, req *pb.DeleteRequest, rsp *pb.Del
 
 	// We're going to delete the record as we have no path and no data
 	if len(req.Change.Path) == 0 {
-		if err := db.Delete(req.Change.Namespace); err != nil {
+		if err := c.Store.Delete(req.Change.Namespace); err != nil {
 			return errors.BadRequest("go.micro.srv.Delete", "delete from db error: %v", err)
 		}
 		return nil
@@ -247,14 +250,14 @@ func (c *Handler) Delete(ctx context.Context, req *pb.DeleteRequest, rsp *pb.Del
 	// We've got a path. Let's update the required path
 
 	// Get the current change set
-	record, err := db.Read(req.Change.Namespace)
+	records, err := c.Store.Read(req.Change.Namespace)
 	if err != nil {
 		return errors.BadRequest("go.micro.config.Update", "read old value error: %v", err)
 	}
 
 	ch := &pb.Change{}
 	// Unmarshal value
-	if err := json.Unmarshal(record.Value, ch); err != nil {
+	if err := json.Unmarshal(records[0].Value, ch); err != nil {
 		return errors.BadRequest("go.micro.config.Read", "unmarshal value error: %v", err)
 	}
 
@@ -288,12 +291,12 @@ func (c *Handler) Delete(ctx context.Context, req *pb.DeleteRequest, rsp *pb.Del
 		Source:    change.Source,
 	}
 
-	record.Value, err = json.Marshal(req.Change)
+	records[0].Value, err = json.Marshal(req.Change)
 	if err != nil {
 		return errors.BadRequest("go.micro.config.Update", "marshal error: %v", err)
 	}
 
-	if err := db.Update(record); err != nil {
+	if err := c.Store.Write(records[0]); err != nil {
 		return errors.BadRequest("go.micro.srv.Delete", "update record set to db error: %v", err)
 	}
 
@@ -302,28 +305,34 @@ func (c *Handler) Delete(ctx context.Context, req *pb.DeleteRequest, rsp *pb.Del
 	return nil
 }
 
-func (c *Handler) List(ctx context.Context, req *pb.ListRequest, rsp *pb.ListResponse) (err error) {
-	list, err := db.List()
+func (c *Config) List(ctx context.Context, req *pb.ListRequest, rsp *pb.ListResponse) (err error) {
+	list, err := c.Store.List()
 	if err != nil {
 		return errors.BadRequest("go.micro.config.List", "query value error: %v", err)
 	}
 
 	for _, v := range list {
-		ch := &pb.Change{}
-		err := json.Unmarshal(v.Value, ch)
+		rec, err := c.Store.Read(v)
 		if err != nil {
+			return err
+		}
+
+		ch := &pb.Change{}
+		if err := json.Unmarshal(rec[0].Value, ch); err != nil {
 			return errors.BadRequest("go.micro.config.Read", "unmarshal value error: %v", err)
 		}
+
 		if ch.ChangeSet != nil {
 			ch.ChangeSet.Data = string(ch.ChangeSet.Data)
 		}
+
 		rsp.Values = append(rsp.Values, ch)
 	}
 
 	return nil
 }
 
-func (c *Handler) Watch(ctx context.Context, req *pb.WatchRequest, stream pb.Config_WatchStream) error {
+func (c *Config) Watch(ctx context.Context, req *pb.WatchRequest, stream pb.Config_WatchStream) error {
 	if len(req.Namespace) == 0 {
 		return errors.BadRequest("go.micro.srv.Watch", "invalid id")
 	}
