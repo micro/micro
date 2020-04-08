@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/go-acme/lego/v3/providers/dns/cloudflare"
@@ -32,8 +33,10 @@ import (
 	log "github.com/micro/go-micro/v2/logger"
 	cfstore "github.com/micro/go-micro/v2/store/cloudflare"
 	"github.com/micro/go-micro/v2/sync/lock/memory"
+	"github.com/micro/micro/v2/api/auth"
 	"github.com/micro/micro/v2/internal/handler"
 	"github.com/micro/micro/v2/internal/helper"
+	"github.com/micro/micro/v2/internal/namespace"
 	"github.com/micro/micro/v2/internal/stats"
 	"github.com/micro/micro/v2/plugin"
 )
@@ -46,7 +49,8 @@ var (
 	RPCPath               = "/rpc"
 	APIPath               = "/"
 	ProxyPath             = "/{service:[a-zA-Z0-9]+}"
-	Namespace             = "go.micro.api"
+	Namespace             = "go.micro"
+	Type                  = "api"
 	HeaderPrefix          = "X-Micro-"
 	EnableRPC             = false
 	ACMEProvider          = "autocert"
@@ -66,9 +70,6 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	if len(ctx.String("handler")) > 0 {
 		Handler = ctx.String("handler")
 	}
-	if len(ctx.String("namespace")) > 0 {
-		Namespace = ctx.String("namespace")
-	}
 	if len(ctx.String("resolver")) > 0 {
 		Resolver = ctx.String("resolver")
 	}
@@ -78,6 +79,18 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	if len(ctx.String("acme_provider")) > 0 {
 		ACMEProvider = ctx.String("acme_provider")
 	}
+	if len(ctx.String("type")) > 0 {
+		Type = ctx.String("type")
+	}
+	if len(ctx.String("namespace")) > 0 {
+		// remove the service type from the namespace to allow for
+		// backwards compatability
+		Namespace = strings.TrimSuffix(ctx.String("namespace"), "."+Type)
+	}
+
+	// fullNamespace has the format: "go.micro.api"
+	fullNamespace := Namespace + "." + Type
+	fmt.Printf("FullNamespace is %v\n", fullNamespace)
 
 	// Init plugins
 	for _, p := range Plugins() {
@@ -199,7 +212,7 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 
 	// resolver options
 	ropts := []resolver.Option{
-		resolver.WithNamespace(Namespace),
+		resolver.WithNamespace(fullNamespace),
 		resolver.WithHandler(Handler),
 	}
 
@@ -219,13 +232,13 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	case "rpc":
 		log.Infof("Registering API RPC Handler at %s", APIPath)
 		rt := regRouter.NewRouter(
-			router.WithNamespace(Namespace),
+			router.WithNamespace(fullNamespace),
 			router.WithHandler(arpc.Handler),
 			router.WithResolver(rr),
 			router.WithRegistry(service.Options().Registry),
 		)
 		rp := arpc.NewHandler(
-			ahandler.WithNamespace(Namespace),
+			ahandler.WithNamespace(fullNamespace),
 			ahandler.WithRouter(rt),
 			ahandler.WithService(service),
 		)
@@ -233,13 +246,13 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	case "api":
 		log.Infof("Registering API Request Handler at %s", APIPath)
 		rt := regRouter.NewRouter(
-			router.WithNamespace(Namespace),
+			router.WithNamespace(fullNamespace),
 			router.WithHandler(aapi.Handler),
 			router.WithResolver(rr),
 			router.WithRegistry(service.Options().Registry),
 		)
 		ap := aapi.NewHandler(
-			ahandler.WithNamespace(Namespace),
+			ahandler.WithNamespace(fullNamespace),
 			ahandler.WithRouter(rt),
 			ahandler.WithService(service),
 		)
@@ -247,13 +260,13 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	case "event":
 		log.Infof("Registering API Event Handler at %s", APIPath)
 		rt := regRouter.NewRouter(
-			router.WithNamespace(Namespace),
+			router.WithNamespace(fullNamespace),
 			router.WithHandler(event.Handler),
 			router.WithResolver(rr),
 			router.WithRegistry(service.Options().Registry),
 		)
 		ev := event.NewHandler(
-			ahandler.WithNamespace(Namespace),
+			ahandler.WithNamespace(fullNamespace),
 			ahandler.WithRouter(rt),
 			ahandler.WithService(service),
 		)
@@ -261,13 +274,13 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	case "http", "proxy":
 		log.Infof("Registering API HTTP Handler at %s", ProxyPath)
 		rt := regRouter.NewRouter(
-			router.WithNamespace(Namespace),
+			router.WithNamespace(fullNamespace),
 			router.WithHandler(ahttp.Handler),
 			router.WithResolver(rr),
 			router.WithRegistry(service.Options().Registry),
 		)
 		ht := ahttp.NewHandler(
-			ahandler.WithNamespace(Namespace),
+			ahandler.WithNamespace(fullNamespace),
 			ahandler.WithRouter(rt),
 			ahandler.WithService(service),
 		)
@@ -275,13 +288,13 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	case "web":
 		log.Infof("Registering API Web Handler at %s", APIPath)
 		rt := regRouter.NewRouter(
-			router.WithNamespace(Namespace),
+			router.WithNamespace(fullNamespace),
 			router.WithHandler(web.Handler),
 			router.WithResolver(rr),
 			router.WithRegistry(service.Options().Registry),
 		)
 		w := web.NewHandler(
-			ahandler.WithNamespace(Namespace),
+			ahandler.WithNamespace(fullNamespace),
 			ahandler.WithRouter(rt),
 			ahandler.WithService(service),
 		)
@@ -289,7 +302,7 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	default:
 		log.Infof("Registering API Default Handler at %s", APIPath)
 		rt := regRouter.NewRouter(
-			router.WithNamespace(Namespace),
+			router.WithNamespace(fullNamespace),
 			router.WithResolver(rr),
 			router.WithRegistry(service.Options().Registry),
 		)
@@ -302,8 +315,13 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		h = plugins[i-1].Handler()(h)
 	}
 
+	// create the namespace resolver and the auth wrapper
+	nsResolver := namespace.NewResolver(Type, Namespace)
+	authWrapper := auth.Wrapper(rr, nsResolver)
+
 	// create the server
-	api := httpapi.NewServer(Address, server.Namespace(Namespace), server.Resolver(rr))
+	api := httpapi.NewServer(Address, server.WrapHandler(authWrapper))
+
 	api.Init(opts...)
 	api.Handle("/", h)
 
@@ -344,8 +362,13 @@ func Commands(options ...micro.Option) []*cli.Command {
 			},
 			&cli.StringFlag{
 				Name:    "namespace",
-				Usage:   "Set the namespace used by the API e.g. com.example.api",
+				Usage:   "Set the namespace used by the API e.g. com.example",
 				EnvVars: []string{"MICRO_API_NAMESPACE"},
+			},
+			&cli.StringFlag{
+				Name:    "type",
+				Usage:   "Set the service type used by the API e.g. api",
+				EnvVars: []string{"MICRO_API_TYPE"},
 			},
 			&cli.StringFlag{
 				Name:    "resolver",
