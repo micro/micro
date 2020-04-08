@@ -59,6 +59,11 @@ func Commands(options ...micro.Option) []*cli.Command {
 				Name:  "peer",
 				Usage: "Peer with the global network to share services",
 			},
+			&cli.StringFlag{
+				Name:    "profile",
+				Usage:   "Set the runtime profile to use for services e.g local, kubernetes, platform",
+				EnvVars: []string{"MICRO_RUNTIME_PROFILE"},
+			},
 		},
 		Action: func(ctx *cli.Context) error {
 			Run(ctx)
@@ -136,10 +141,23 @@ func Run(context *cli.Context) error {
 
 		log.Infof("Registering %s", name)
 
+		flagsForServices := map[string][]string{
+			"runtime": []string{
+				"--profile=" + context.String("profile"),
+			},
+		}
+		flags := func(serviceName string) []string {
+			flags, ok := flagsForServices[serviceName]
+			ret := []string{serviceName}
+			if !ok {
+				return ret
+			}
+			return append(ret, flags...)
+		}
 		// runtime based on environment we run the service in
 		args := []gorun.CreateOption{
 			gorun.WithCommand(os.Args[0]),
-			gorun.WithArgs(service),
+			gorun.WithArgs(flags(service)...),
 			gorun.WithEnv(env),
 			gorun.WithOutput(os.Stdout),
 		}
