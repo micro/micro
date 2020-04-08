@@ -31,6 +31,7 @@ import (
 
 	// include usage
 	"github.com/micro/micro/v2/internal/platform"
+	_ "github.com/micro/micro/v2/internal/plugins"
 	_ "github.com/micro/micro/v2/internal/usage"
 
 	gomicrostore "github.com/micro/go-micro/v2/store"
