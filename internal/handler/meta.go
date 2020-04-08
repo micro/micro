@@ -19,12 +19,13 @@ import (
 type metaHandler struct {
 	s micro.Service
 	r router.Router
+	ns string
 }
 
 func (m *metaHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	service, err := m.r.Route(r)
 	if err != nil {
-		er := errors.InternalServerError(m.r.Options().Namespace, err.Error())
+		er := errors.InternalServerError(m.ns, err.Error())
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(500)
 		w.Write([]byte(er.Error()))
@@ -45,7 +46,7 @@ func (m *metaHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// event handler
 	case event.Handler:
 		ev := event.NewHandler(
-			handler.WithNamespace(m.r.Options().Namespace),
+			handler.WithNamespace(m.ns),
 			handler.WithService(m.s),
 		)
 		ev.ServeHTTP(w, r)
@@ -59,9 +60,10 @@ func (m *metaHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 // Meta is a http.Handler that routes based on endpoint metadata
-func Meta(s micro.Service, r router.Router) http.Handler {
+func Meta(s micro.Service, r router.Router, ns string) http.Handler {
 	return &metaHandler{
 		s: s,
 		r: r,
+		ns: ns,
 	}
 }

@@ -6,6 +6,7 @@ require (
 	github.com/boltdb/bolt v1.3.1
 	github.com/chzyer/readline v0.0.0-20180603132655-2972be24d48e
 	github.com/cloudflare/cloudflare-go v0.10.9
+	github.com/coreos/pkg v0.0.0-20180928190104-399ea9e2e55f // indirect
 	github.com/fsnotify/fsnotify v1.4.7
 	github.com/go-acme/lego/v3 v3.3.0
 	github.com/golang/protobuf v1.3.2
@@ -15,7 +16,7 @@ require (
 	github.com/gorilla/mux v1.7.3
 	github.com/hako/branca v0.0.0-20180808000428-10b799466ada
 	github.com/micro/cli/v2 v2.1.2
-	github.com/micro/go-micro/v2 v2.4.1-0.20200408124850-c5d085cff8ed
+	github.com/micro/go-micro/v2 v2.4.1-0.20200408143901-b2079669f71c
 	github.com/miekg/dns v1.1.27
 	github.com/netdata/go-orchestrator v0.0.0-20190905093727-c793edba0e8f
 	github.com/olekukonko/tablewriter v0.0.4
@@ -24,6 +25,7 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/pquerna/otp v1.2.0
 	github.com/serenize/snaker v0.0.0-20171204205717-a683aaf2d516
+	github.com/technoweenie/multipartstreamer v1.0.1 // indirect
 	github.com/xlab/treeprint v0.0.0-20181112141820-a009c3971eca
 	golang.org/x/crypto v0.0.0-20200221231518-2aa609cf4a9d
 	golang.org/x/net v0.0.0-20200222125558-5a598a2470a0
@@ -34,4 +36,4 @@ require (
 	gopkg.in/olivere/elastic.v5 v5.0.83
 )
 
-//replace github.com/micro/go-micro/v2 => /home/crufter/code/src/github.com/micro/go-micro
+replace github.com/micro/go-micro/v2 => /home/crufter/code/src/github.com/micro/go-micro
