@@ -27,7 +27,6 @@ var (
 		"store",    // :8002
 		"tunnel",   // :8083
 		"router",   // :8084
-		"monitor",  // :????
 		"debug",    // :????
 		"proxy",    // :8081
 		"api",      // :8080
@@ -149,6 +148,7 @@ func Run(context *cli.Context) error {
 			gorun.WithEnv(env),
 			gorun.WithOutput(os.Stdout),
 		}
+		log.Infof("command %v %v", os.Args[0], service)
 
 		// NOTE: we use Version right now to check for the latest release
 		muService := &gorun.Service{Name: name, Version: platform.Version}

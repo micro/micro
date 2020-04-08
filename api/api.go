@@ -90,7 +90,6 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 
 	// fullNamespace has the format: "go.micro.api"
 	fullNamespace := Namespace + "." + Type
-	fmt.Printf("FullNamespace is %v\n", fullNamespace)
 
 	// Init plugins
 	for _, p := range Plugins() {
