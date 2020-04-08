@@ -54,11 +54,9 @@ var (
 	// Example:
 	// Namespace + /[Service]/foo/bar
 	// Host: Namespace.Service Endpoint: /foo/bar
-	Namespace     = "go.micro"
-	Type          = "web"
-	FullNamespace = "go.micro.web"
-	// Resolver used to resolve services
-	Resolver = "path"
+	Namespace = "go.micro"
+	Type      = "web"
+	Resolver  = "path"
 	// Base path sent to web service.
 	// This is stripped from the request path
 	// Allows the web service to define absolute paths
@@ -219,7 +217,7 @@ func (s *srv) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// web dashboard if namespace matches
-	if namespace == FullNamespace {
+	if namespace == Namespace+"."+Type {
 		s.Router.ServeHTTP(w, r)
 		return
 	}
@@ -532,9 +530,6 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		Namespace = strings.TrimSuffix(ctx.String("namespace"), "."+Type)
 	}
 
-	// FullNamespace has the format: "go.micro.web"
-	FullNamespace = Namespace + "." + Type
-
 	// Init plugins
 	for _, p := range Plugins() {
 		p.Init(ctx)
@@ -554,7 +549,7 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		resolver: &resolver{
 			// Default to type path
 			Type:      Resolver,
-			Namespace: FullNamespace,
+			Namespace: Namespace + "." + Type,
 			Selector: selector.NewSelector(
 				selector.Registry(reg),
 			),
