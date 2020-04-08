@@ -23,6 +23,7 @@ var (
 // Run the runtime service
 func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 	log.Init(log.WithFields(map[string]interface{}{"service": "runtime"}))
+	ctx.Set("profile", os.Getenv("MICRO_RUNTIME_PROFILE"))
 
 	// Init plugins
 	for _, p := range Plugins() {
@@ -113,6 +114,11 @@ func Flags() []cli.Flag {
 		&cli.BoolFlag{
 			Name:  "platform",
 			Usage: "Connect to the platform",
+			Value: false,
+		},
+		&cli.BoolFlag{
+			Name:  "server",
+			Usage: "Connect to local server",
 			Value: false,
 		},
 		&cli.StringSliceFlag{
