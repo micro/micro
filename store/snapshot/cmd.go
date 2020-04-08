@@ -65,6 +65,9 @@ func Snapshot(ctx *cli.Context) error {
 // Restore is the entrypoint for micro store restore
 func Restore(ctx *cli.Context) error {
 	s, err := makeStore(ctx)
+	if err != nil {
+		return errors.Wrap(err, "couldn't construct a store")
+	}
 	log := logger.DefaultLogger
 	var rs Restorer
 	source := ctx.String("source")
