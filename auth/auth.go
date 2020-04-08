@@ -15,7 +15,6 @@ import (
 	"github.com/micro/go-micro/v2/auth/token/jwt"
 	"github.com/micro/go-micro/v2/config/cmd"
 	log "github.com/micro/go-micro/v2/logger"
-	"github.com/micro/go-micro/v2/store"
 	"github.com/micro/go-micro/v2/util/config"
 	"github.com/micro/micro/v2/auth/api"
 	accountsHandler "github.com/micro/micro/v2/auth/handler/accounts"
@@ -131,10 +130,12 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		)
 	}
 
+	st := *cmd.DefaultCmd.Options().Store
+
 	// set the handlers store
-	authH.Init(auth.Store(store.DefaultStore))
-	ruleH.Init(auth.Store(store.DefaultStore))
-	accountH.Init(auth.Store(store.DefaultStore))
+	authH.Init(auth.Store(st))
+	ruleH.Init(auth.Store(st))
+	accountH.Init(auth.Store(st))
 
 	// setup service
 	srvOpts = append(srvOpts, micro.Name(Name))
