@@ -116,9 +116,6 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		p.Init(ctx)
 	}
 
-	// set store Table
-	store.DefaultStore.Init(store.Table(Name))
-
 	// setup the handlers
 	authH := &authHandler.Auth{}
 	ruleH := &rulesHandler.Rules{}
