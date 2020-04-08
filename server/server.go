@@ -95,6 +95,9 @@ func Run(context *cli.Context) error {
 	if len(context.String("profile")) == 0 {
 		context.Set("profile", "server")
 	}
+	os.Setenv("MICRO_STORE", "file")
+	os.Setenv("MICRO_RUNTIME_PROFILE", context.String("profile"))
+
 	// get the network flag
 	peer := context.Bool("peer")
 
@@ -131,7 +134,6 @@ func Run(context *cli.Context) error {
 		(*muRuntime).Init(options...)
 	}
 
-	env = append(env, "MICRO_RUNTIME_PROFILE="+context.String("profile"))
 	for _, service := range services {
 		name := service
 
@@ -148,7 +150,6 @@ func Run(context *cli.Context) error {
 			gorun.WithEnv(env),
 			gorun.WithOutput(os.Stdout),
 		}
-		log.Infof("command %v %v", os.Args[0], service)
 
 		// NOTE: we use Version right now to check for the latest release
 		muService := &gorun.Service{Name: name, Version: platform.Version}
