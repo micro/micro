@@ -23,6 +23,7 @@ var (
 // Run the runtime service
 func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 	log.Init(log.WithFields(map[string]interface{}{"service": "runtime"}))
+	ctx.Set("profile", os.Getenv("MICRO_RUNTIME_PROFILE"))
 
 	// Init plugins
 	for _, p := range Plugins() {
