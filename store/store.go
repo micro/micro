@@ -77,8 +77,6 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 		Stores: make(map[string]store.Store),
 	}
 
-	//
-
 	// get from the existing list of stores
 	newStore, ok := cmd.DefaultStores[Backend]
 	if !ok {
