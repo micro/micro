@@ -6,10 +6,10 @@ import (
 	"os"
 	"strings"
 
-	"github.com/micro/micro/v2/store/snapshot"
+	"github.com/micro/cli/v2"
+	storecli "github.com/micro/micro/v2/store/cli"
 
 	"github.com/chzyer/readline"
-	"github.com/micro/cli/v2"
 )
 
 var (
@@ -312,8 +312,8 @@ func StoreCommands() []*cli.Command {
 		{
 			Name:   "snapshot",
 			Usage:  "Back up a store",
-			Action: snapshot.Snapshot,
-			Flags: append(snapshot.CommonFlags,
+			Action: storecli.Snapshot,
+			Flags: append(storecli.CommonFlags,
 				&cli.StringFlag{
 					Name:    "destination",
 					Usage:   "Backup destination",
@@ -323,10 +323,16 @@ func StoreCommands() []*cli.Command {
 			),
 		},
 		{
+			Name:   "sync",
+			Usage:  "Copy all records of one store into another store",
+			Action: storecli.Sync,
+			Flags:  storecli.SyncFlags,
+		},
+		{
 			Name:   "restore",
 			Usage:  "restore a store snapshot",
-			Action: snapshot.Restore,
-			Flags: append(snapshot.CommonFlags,
+			Action: storecli.Restore,
+			Flags: append(storecli.CommonFlags,
 				&cli.StringFlag{
 					Name:  "source",
 					Usage: "Backup source",
