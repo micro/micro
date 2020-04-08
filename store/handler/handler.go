@@ -34,28 +34,38 @@ func (s *Store) get(ctx context.Context) (store.Store, error) {
 		return s.Default, nil
 	}
 
-	namespace := md["Micro-Namespace"]
-	prefix := md["Micro-Prefix"]
+	database, _ := md.Get("Micro-Namespace")
+	table, _ := md.Get("Micro-Table")
 
-	if len(namespace) == 0 && len(prefix) == 0 {
+	if len(database) == 0 {
+		database = s.Default.Options().Database
+	}
+
+	if len(table) == 0 {
+		table = s.Default.Options().Table
+	}
+
+	// just use the default if nothing is specified
+	if len(database) == 0 && len(table) == 0 {
 		return s.Default, nil
 	}
 
-	str, ok := s.Stores[namespace+":"+prefix]
+	// attempt to get the database
+	str, ok := s.Stores[database+":"+table]
 	// got it
 	if ok {
 		return str, nil
 	}
 
 	// create a new store
-	// either namespace is not blank or prefix is not blank
-	st, err := s.New(namespace, prefix)
+	// either database is not blank or tabnle is not blank
+	st, err := s.New(database, table)
 	if err != nil {
 		return nil, errors.InternalServerError("go.micro.store", "failed to setup store: %s", err.Error())
 	}
 
 	// save store
-	s.Stores[namespace+":"+prefix] = st
+	s.Stores[database+":"+table] = st
 
 	return st, nil
 }
