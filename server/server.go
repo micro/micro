@@ -102,7 +102,7 @@ func Run(context *cli.Context) error {
 	// pass through the environment
 	// TODO: perhaps don't do this
 	env := os.Environ()
-	env = append(env, "MICRO_STORE_BACKEND=file")
+	env = append(env, "MICRO_STORE=file")
 	env = append(env, "MICRO_RUNTIME_PROFILE="+context.String("profile"))
 
 	// connect to the network if specified
