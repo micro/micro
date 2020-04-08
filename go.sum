@@ -301,10 +301,6 @@ github.com/mholt/certmagic v0.9.3/go.mod h1:nu8jbsbtwK4205EDH/ZUMTKsfYpJA1Q7MKXH
 github.com/micro/cli/v2 v2.1.2 h1:43J1lChg/rZCC1rvdqZNFSQDrGT7qfMrtp6/ztpIkEM=
 github.com/micro/cli/v2 v2.1.2/go.mod h1:EguNh6DAoWKm9nmk+k/Rg0H3lQnDxqzu5x5srOtGtYg=
 github.com/micro/go-micro/v2 v2.3.1-0.20200331090613-76ade7efd9b8/go.mod h1:lYuHYFPjY3QE9fdiy3F2awXcsXTdB68AwoY3RQ3dPN4=
-github.com/micro/go-micro/v2 v2.4.1-0.20200407095822-87cc4f273b5a h1:sGnCJG8Yr3U9bqkzOyxy+S/wZU5U5geeGQyAcfSQKO4=
-github.com/micro/go-micro/v2 v2.4.1-0.20200407095822-87cc4f273b5a/go.mod h1:OTd0tsLD9HD/V+rQ6bxr+E1lfz7ahlJ95X6b3AXTFLg=
-github.com/micro/go-micro/v2 v2.4.1-0.20200407115402-5bc988b87898 h1:i8MqcTZ0P6BCbLexKpOwF9s2kqz6NQqn9G+hUIot698=
-github.com/micro/go-micro/v2 v2.4.1-0.20200407115402-5bc988b87898/go.mod h1:QOk6oWfMYQTAvQG50oNk8BYV3CwZlS+e1AJTQNNhjos=
 github.com/micro/go-micro/v2 v2.4.1-0.20200407120005-71538adfdcb0 h1:GYdG1Yzx05Q3TkQzdpll0FjLzQatIgsv5EvW0Le88uE=
 github.com/micro/go-micro/v2 v2.4.1-0.20200407120005-71538adfdcb0/go.mod h1:QOk6oWfMYQTAvQG50oNk8BYV3CwZlS+e1AJTQNNhjos=
 github.com/micro/mdns v0.3.0 h1:bYycYe+98AXR3s8Nq5qvt6C573uFTDPIYzJemWON0QE=
@@ -460,6 +456,7 @@ github.com/xlab/treeprint v0.0.0-20181112141820-a009c3971eca h1:1CFlNzQhALwjS9mB
 github.com/xlab/treeprint v0.0.0-20181112141820-a009c3971eca/go.mod h1:ce1O1j6UtZfjr22oyGxGLbauSBp2YVXpARAosm7dHBg=
 go.etcd.io/bbolt v1.3.3 h1:MUGmc65QhB3pIlaQ5bB4LwqSj6GIonVJXpZiaKNyaKk=
 go.etcd.io/bbolt v1.3.3/go.mod h1:IbVyRI1SCnLcuJnV2u8VeU0CEYM7e686BmAb1XKL+uU=
+go.etcd.io/bbolt v1.3.4 h1:hi1bXHMVrlQh6WwxAy+qZCV/SYIlqo+Ushwdpa4tAKg=
 go.etcd.io/bbolt v1.3.4/go.mod h1:G5EMThwa9y8QZGBClrRx5EY+Yw9kAhnjy3bSjsnlVTQ=
 go.opencensus.io v0.20.1/go.mod h1:6WKK9ahsWS3RSO+PY9ZHZUfv2irvY6gN279GOPZjmmk=
 go.opencensus.io v0.20.2/go.mod h1:6WKK9ahsWS3RSO+PY9ZHZUfv2irvY6gN279GOPZjmmk=

@@ -5,13 +5,15 @@ import (
 
 	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro/v2/logger"
-	"github.com/micro/go-micro/v2/store"
 	"github.com/pkg/errors"
 )
 
 // Snapshot in the entrypoint for micro store snapshot
 func Snapshot(ctx *cli.Context) error {
-	s := store.DefaultStore
+	s, err := makeStore(ctx)
+	if err != nil {
+		return errors.Wrap(err, "couldn't construct a store")
+	}
 	log := logger.DefaultLogger
 	dest := ctx.String("destination")
 	var sn Snapshotter
@@ -62,7 +64,7 @@ func Snapshot(ctx *cli.Context) error {
 
 // Restore is the entrypoint for micro store restore
 func Restore(ctx *cli.Context) error {
-	s := store.DefaultStore
+	s, err := makeStore(ctx)
 	log := logger.DefaultLogger
 	var rs Restorer
 	source := ctx.String("source")
@@ -101,4 +103,29 @@ func Restore(ctx *cli.Context) error {
 	}
 	log.Logf(logger.DebugLevel, "Restored %d records", counter)
 	return nil
+}
+
+// CommonFlags are flags common to cli commands snapshot and restore
+var CommonFlags = []cli.Flag{
+	&cli.StringFlag{
+		Name:    "backend",
+		Usage:   "Set the backend for the micro store",
+		EnvVars: []string{"MICRO_STORE_BACKEND"},
+		Value:   "memory",
+	},
+	&cli.StringFlag{
+		Name:    "nodes",
+		Usage:   "Comma separated list of Nodes to pass to the store backend",
+		EnvVars: []string{"MICRO_STORE_NODES"},
+	},
+	&cli.StringFlag{
+		Name:    "database",
+		Usage:   "Database option to pass to the store backend",
+		EnvVars: []string{"MICRO_STORE_DATABASE"},
+	},
+	&cli.StringFlag{
+		Name:    "table",
+		Usage:   "Table option to pass to the store backend",
+		EnvVars: []string{"MICRO_STORE_TABLE"},
+	},
 }
