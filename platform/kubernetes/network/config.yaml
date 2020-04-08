@@ -37,6 +37,11 @@ spec:
           value: "store"
         - name: MICRO_STORE
           value: "cloudflare"
+        - name: MICRO_STORE_DATABASE
+          valueFrom:
+            secretKeyRef:
+              key: KV_NAMESPACE_ID_CONFIG
+              name: cloudflare-credentials
         - name: CF_API_TOKEN
           valueFrom:
             secretKeyRef:
