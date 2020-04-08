@@ -16,7 +16,6 @@ func Server() []string {
 		"MICRO_ROUTER=service",
 		"MICRO_RUNTIME=service",
 		"MICRO_STORE=service",
-		"MICRO_STORE_BACKEND=file",
 		"MICRO_PROXY=service",
 	}
 }

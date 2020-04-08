@@ -33,7 +33,6 @@ func (r *Rules) Init(opts ...auth.Option) {
 	if r.Options.Store == nil {
 		r.Options.Store = store.DefaultStore
 	}
-	log.Info(r.Options.Store.String())
 
 	// noop will not work for auth
 	if r.Options.Store.String() == "noop" {
