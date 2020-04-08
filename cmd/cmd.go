@@ -101,6 +101,13 @@ func setup(app *ccli.App) {
 			Usage:   "Set the api address e.g 0.0.0.0:8080",
 			EnvVars: []string{"MICRO_API_ADDRESS"},
 		},
+		},
+		&ccli.StringFlag{
+			Name:    "namespace",
+			Usage:   "Set the micro service namespace",
+			EnvVars: []string{"MICRO_NAMESPACE"},
+			Value:   "micro",
+		},
 		&ccli.StringFlag{
 			Name:    "proxy_address",
 			Usage:   "Proxy requests via the HTTP address specified",
