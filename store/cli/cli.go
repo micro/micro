@@ -2,6 +2,7 @@
 // for example:
 //   micro store snapshot
 //   micro store restore
+//   micro store sync
 package cli
 
 import (
