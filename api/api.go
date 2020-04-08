@@ -88,9 +88,8 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		Namespace = strings.TrimSuffix(ctx.String("namespace"), "."+Type)
 	}
 
-	// fullNamespace has the format: "go.micro.api"
-	fullNamespace := Namespace + "." + Type
-	fmt.Printf("FullNamespace is %v\n", fullNamespace)
+	// apiNamespace has the format: "go.micro.api"
+	apiNamespace := Namespace + "." + Type
 
 	// Init plugins
 	for _, p := range Plugins() {
@@ -212,7 +211,7 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 
 	// resolver options
 	ropts := []resolver.Option{
-		resolver.WithNamespace(fullNamespace),
+		resolver.WithNamespace(apiNamespace),
 		resolver.WithHandler(Handler),
 	}
 
@@ -232,13 +231,12 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	case "rpc":
 		log.Infof("Registering API RPC Handler at %s", APIPath)
 		rt := regRouter.NewRouter(
-			router.WithNamespace(fullNamespace),
 			router.WithHandler(arpc.Handler),
 			router.WithResolver(rr),
 			router.WithRegistry(service.Options().Registry),
 		)
 		rp := arpc.NewHandler(
-			ahandler.WithNamespace(fullNamespace),
+			ahandler.WithNamespace(apiNamespace),
 			ahandler.WithRouter(rt),
 			ahandler.WithService(service),
 		)
@@ -246,13 +244,12 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	case "api":
 		log.Infof("Registering API Request Handler at %s", APIPath)
 		rt := regRouter.NewRouter(
-			router.WithNamespace(fullNamespace),
 			router.WithHandler(aapi.Handler),
 			router.WithResolver(rr),
 			router.WithRegistry(service.Options().Registry),
 		)
 		ap := aapi.NewHandler(
-			ahandler.WithNamespace(fullNamespace),
+			ahandler.WithNamespace(apiNamespace),
 			ahandler.WithRouter(rt),
 			ahandler.WithService(service),
 		)
@@ -260,13 +257,12 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	case "event":
 		log.Infof("Registering API Event Handler at %s", APIPath)
 		rt := regRouter.NewRouter(
-			router.WithNamespace(fullNamespace),
 			router.WithHandler(event.Handler),
 			router.WithResolver(rr),
 			router.WithRegistry(service.Options().Registry),
 		)
 		ev := event.NewHandler(
-			ahandler.WithNamespace(fullNamespace),
+			ahandler.WithNamespace(apiNamespace),
 			ahandler.WithRouter(rt),
 			ahandler.WithService(service),
 		)
@@ -274,13 +270,12 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	case "http", "proxy":
 		log.Infof("Registering API HTTP Handler at %s", ProxyPath)
 		rt := regRouter.NewRouter(
-			router.WithNamespace(fullNamespace),
 			router.WithHandler(ahttp.Handler),
 			router.WithResolver(rr),
 			router.WithRegistry(service.Options().Registry),
 		)
 		ht := ahttp.NewHandler(
-			ahandler.WithNamespace(fullNamespace),
+			ahandler.WithNamespace(apiNamespace),
 			ahandler.WithRouter(rt),
 			ahandler.WithService(service),
 		)
@@ -288,13 +283,12 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	case "web":
 		log.Infof("Registering API Web Handler at %s", APIPath)
 		rt := regRouter.NewRouter(
-			router.WithNamespace(fullNamespace),
 			router.WithHandler(web.Handler),
 			router.WithResolver(rr),
 			router.WithRegistry(service.Options().Registry),
 		)
 		w := web.NewHandler(
-			ahandler.WithNamespace(fullNamespace),
+			ahandler.WithNamespace(apiNamespace),
 			ahandler.WithRouter(rt),
 			ahandler.WithService(service),
 		)
@@ -302,11 +296,10 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	default:
 		log.Infof("Registering API Default Handler at %s", APIPath)
 		rt := regRouter.NewRouter(
-			router.WithNamespace(fullNamespace),
 			router.WithResolver(rr),
 			router.WithRegistry(service.Options().Registry),
 		)
-		r.PathPrefix(APIPath).Handler(handler.Meta(service, rt))
+		r.PathPrefix(APIPath).Handler(handler.Meta(service, rt, apiNamespace))
 	}
 
 	// reverse wrap handler
