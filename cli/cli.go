@@ -313,25 +313,26 @@ func StoreCommands() []*cli.Command {
 			Name:   "snapshot",
 			Usage:  "Back up a store",
 			Action: snapshot.Snapshot,
-			Flags: []cli.Flag{
+			Flags: append(snapshot.CommonFlags,
 				&cli.StringFlag{
-					Name:  "destination",
-					Usage: "Backup destination",
-					Value: "file:///tmp/store-snapshot",
+					Name:    "destination",
+					Usage:   "Backup destination",
+					Value:   "file:///tmp/store-snapshot",
+					EnvVars: []string{"MICRO_SNAPSHOT_DESTINATION"},
 				},
-			},
+			),
 		},
 		{
 			Name:   "restore",
 			Usage:  "restore a store snapshot",
 			Action: snapshot.Restore,
-			Flags: []cli.Flag{
+			Flags: append(snapshot.CommonFlags,
 				&cli.StringFlag{
 					Name:  "source",
 					Usage: "Backup source",
 					Value: "file:///tmp/store-snapshot",
 				},
-			},
+			),
 		},
 	}
 }
