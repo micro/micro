@@ -29,6 +29,7 @@ require (
 	golang.org/x/net v0.0.0-20200222125558-5a598a2470a0
 	golang.org/x/oauth2 v0.0.0-20191202225959-858c2ad4c8b6
 	golang.org/x/tools v0.0.0-20191216173652-a0e659d51361
+	google.golang.org/appengine v1.6.1
 	google.golang.org/grpc v1.26.0
 	gopkg.in/gomail.v2 v2.0.0-20160411212932-81ebce5c23df
 	gopkg.in/olivere/elastic.v5 v5.0.83

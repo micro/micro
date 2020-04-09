@@ -14,6 +14,7 @@ import (
 	"github.com/micro/go-micro/v2/errors"
 	"github.com/micro/go-micro/v2/store"
 	memStore "github.com/micro/go-micro/v2/store/memory"
+	"github.com/micro/go-micro/v2/util/log"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -47,6 +48,25 @@ func (a *Auth) Init(opts ...auth.Option) {
 	// setup a token provider
 	if a.TokenProvider == nil {
 		a.TokenProvider = basic.NewTokenProvider(token.WithStore(a.Options.Store))
+	}
+
+	keys, err := a.Options.Store.List(store.ListPrefix(storePrefixAccounts), store.ListLimit(2))
+	if err != nil {
+		log.Errorf("Error listing accounts in init: %v", err)
+		return
+	}
+	if len(keys) > 0 {
+		log.Info("Accounts exists. Skipping account injection.")
+		return
+	}
+	log.Info("Generating default account")
+	resp := &pb.GenerateResponse{}
+	err = a.Generate(context.Background(), &pb.GenerateRequest{
+		Id:     "local@micro.mu",
+		Secret: "local",
+	}, resp)
+	if err != nil {
+		log.Errorf("Error creating default account in init: %v", err)
 	}
 }
 
