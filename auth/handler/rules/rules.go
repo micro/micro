@@ -53,7 +53,7 @@ func (r *Rules) Init(opts ...auth.Option) {
 	err = r.Create(context.Background(), &pb.CreateRequest{
 		Role: "*",
 		Resource: &pb.Resource{
-			Namespace: "micro",
+			Namespace: "*",
 			Name:      "*",
 			Type:      "*",
 			Endpoint:  "*",
