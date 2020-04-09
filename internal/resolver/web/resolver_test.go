@@ -29,19 +29,17 @@ func TestWebResolver(t *testing.T) {
 		Service string
 		Type    string
 	}{
-		{"web.micro.mu", "/", "go.micro.web", "domain"},
+		{"web.micro.mu", "/home", "go.micro.web.home", "domain"},
 		{"localhost:8082", "/foobar", "go.micro.web.foobar", "path"},
 		{"web.micro.mu", "/foobar", "go.micro.web.foobar", "path"},
 		{"127.0.0.1:8082", "/hello", "go.micro.web.hello", "path"},
 		{"foo.micro.mu", "/", "go.micro.web.foo", "domain"},
-		{"bar.micro.mu", "/", "go.micro.web.bar", "domain"},
-		{"foo.m3o.app", "/foo", "foo.bar", "domain"},
-		{"foo.m3o.app", "/v1/foo", "v1.foo.bar", "domain"},
+		{"foo.m3o.app", "/foo", "foo.foo", "domain"},
 		{"demo.m3o.app", "/bar", "go.micro.web.bar", "path"},
 	}
 
 	for _, service := range testCases {
-		t.Run(service.Host, func(t *testing.T) {
+		t.Run(service.Host+service.Path, func(t *testing.T) {
 			// set resolver type
 			res.Type = service.Type
 
