@@ -90,9 +90,8 @@ func (r *Resolver) Resolve(req *http.Request) (*res.Endpoint, error) {
 	// get host, namespace and if its an internal request
 	host, namespace, webReq := r.Info(req)
 
-	// use path based resolution if its web dashboard related. We always do
-	// path based resolution on non micro.mu domains.
-	if webReq || host == "web.micro.mu" {
+	// use path based resolution if its web dashboard related.
+	if webReq {
 		parts := strings.Split(req.URL.Path, "/")
 		if len(parts) < 2 {
 			return nil, errors.New("unknown service")
