@@ -62,7 +62,7 @@ func (r *Resolver) Info(req *http.Request) (string, string, bool) {
 	// go.micro.web => go.micro.web use path based resolution if
 	// explicitly set or the namespace matches the default namespace
 	// (indicating we're on a micro.mu host or in dev)
-	if r.Type == "path" && namespace != defaultNamespace {
+	if r.Type == "path" || namespace != defaultNamespace {
 		isWeb = true
 	}
 
