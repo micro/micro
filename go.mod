@@ -36,5 +36,3 @@ require (
 	gopkg.in/gomail.v2 v2.0.0-20160411212932-81ebce5c23df
 	gopkg.in/olivere/elastic.v5 v5.0.83
 )
-
-replace github.com/micro/go-micro/v2 => /home/crufter/code/src/github.com/micro/go-micro
