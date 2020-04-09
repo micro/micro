@@ -59,7 +59,7 @@ func (r *Resolver) Info(req *http.Request) (string, string, bool) {
 	// overide host if the namespace is go.micro.web, since
 	// this will also catch localhost & 127.0.0.1, resulting
 	// in a more consistent dev experience
-	if namespace == defaultNamespace {
+	if host == "localhost" || host == "127.0.0.1" {
 		host = "web.micro.mu"
 	}
 
@@ -72,6 +72,11 @@ func (r *Resolver) Info(req *http.Request) (string, string, bool) {
 	// we always resolve using path
 	if namespace != defaultNamespace {
 		return host, namespace, true
+	}
+
+	// check to see if this request is for a micro.mu subdomain
+	if host != "web.micro.mu" {
+		return host, namespace, false
 	}
 
 	// Check if the request is a top level path
@@ -87,7 +92,7 @@ func (r *Resolver) Resolve(req *http.Request) (*res.Endpoint, error) {
 
 	// use path based resolution if its web dashboard related. We always do
 	// path based resolution on non micro.mu domains.
-	if webReq || host == "web.micro.mu" || !strings.HasSuffix(host, "micro.mu") {
+	if webReq || host == "web.micro.mu" {
 		parts := strings.Split(req.URL.Path, "/")
 		if len(parts) < 2 {
 			return nil, errors.New("unknown service")
@@ -137,11 +142,6 @@ func (r *Resolver) Resolve(req *http.Request) (*res.Endpoint, error) {
 
 	// set name to lookup
 	name := defaultNamespace + "." + alias
-
-	// check for go.micro.web (render dashboard)
-	if namespace == defaultNamespace && alias == "web" {
-		name = defaultNamespace
-	}
 
 	// get namespace + subdomain
 	next, err := r.Selector.Select(name)
