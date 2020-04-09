@@ -63,15 +63,19 @@ func (r *Resolver) Info(req *http.Request) (string, string, bool) {
 		host = "web.micro.mu"
 	}
 
-	// isWeb sets if its a web.micro.mu request
-	var isWeb bool
-
-	// isRoot is true is the request is a top level path
-	isRoot := strings.Count(req.URL.Path, "/") == 1
-	if r.Type == "path" || (namespace == defaultNamespace && isRoot) {
-		isWeb = true
+	// if the type is path, always resolve using the path
+	if r.Type == "path" {
+		return host, namespace, true
 	}
 
+	// if the namespace is not the default (go.micro.web),
+	// we always resolve using path
+	if namespace != defaultNamespace {
+		return host, namespace, true
+	}
+
+	// Check if the request is a top level path
+	isWeb := strings.Count(req.URL.Path, "/") == 1
 	return host, namespace, isWeb
 }
 
@@ -81,8 +85,9 @@ func (r *Resolver) Resolve(req *http.Request) (*res.Endpoint, error) {
 	// get host, namespace and if its an internal request
 	host, namespace, webReq := r.Info(req)
 
-	// use path based resolution if its web dashboard related
-	if webReq && namespace != defaultNamespace || host == "web.micro.mu" {
+	// use path based resolution if its web dashboard related. We always do
+	// path based resolution on non micro.mu domains.
+	if webReq || host == "web.micro.mu" || !strings.HasSuffix(host, "micro.mu") {
 		parts := strings.Split(req.URL.Path, "/")
 		if len(parts) < 2 {
 			return nil, errors.New("unknown service")
