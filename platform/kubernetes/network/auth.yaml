@@ -41,8 +41,6 @@ spec:
           value: "cockroach"
         - name: MICRO_STORE_ADDRESS
           value: "postgres://root@cockroachdb-public:26257/?sslmode=disable"
-        - name: MICRO_STORE_DATABASE
-          value: "auth"
         - name: MICRO_AUTH_PUBLIC_KEY
           valueFrom:
             secretKeyRef:
