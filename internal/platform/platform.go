@@ -17,11 +17,6 @@ import (
 
 	"github.com/micro/micro/v2/internal/update"
 	_ "github.com/micro/micro/v2/internal/usage"
-
-	// import specific plugins
-	k8sRuntime "github.com/micro/go-micro/v2/runtime/kubernetes"
-	cfStore "github.com/micro/go-micro/v2/store/cloudflare"
-	ckStore "github.com/micro/go-micro/v2/store/cockroach"
 )
 
 var (
@@ -61,12 +56,6 @@ var (
 		"network.api",
 	}
 )
-
-func init() {
-	cmd.DefaultRuntimes["kubernetes"] = k8sRuntime.NewRuntime
-	cmd.DefaultStores["cockroach"] = ckStore.NewStore
-	cmd.DefaultStores["cloudflare"] = cfStore.NewStore
-}
 
 type initScheduler struct {
 	gorun.Scheduler

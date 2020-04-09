@@ -33,9 +33,9 @@ spec:
           value: "etcd"
         - name: MICRO_REGISTRY_ADDRESS
           value: "etcd-cluster-client"
-        - name: MICRO_STORE_BACKEND
+        - name: MICRO_STORE
           value: "cockroach"
-        - name: MICRO_STORE_NODES
+        - name: MICRO_STORE_ADDRESS
           value: "host=cockroachdb-public port=26257 sslmode=disable user=root"
         image: micro/micro
         imagePullPolicy: Always

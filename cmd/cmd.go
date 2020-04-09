@@ -31,9 +31,10 @@ import (
 
 	// include usage
 	"github.com/micro/micro/v2/internal/platform"
+	_ "github.com/micro/micro/v2/internal/plugins"
 	_ "github.com/micro/micro/v2/internal/usage"
 
-	gomicrostore "github.com/micro/go-micro/v2/store"
+	gostore "github.com/micro/go-micro/v2/store"
 )
 
 var (
@@ -99,6 +100,12 @@ func setup(app *ccli.App) {
 			Name:    "api_address",
 			Usage:   "Set the api address e.g 0.0.0.0:8080",
 			EnvVars: []string{"MICRO_API_ADDRESS"},
+		},
+		&ccli.StringFlag{
+			Name:    "namespace",
+			Usage:   "Set the micro service namespace",
+			EnvVars: []string{"MICRO_NAMESPACE"},
+			Value:   "micro",
 		},
 		&ccli.StringFlag{
 			Name:    "proxy_address",
@@ -230,9 +237,32 @@ func setup(app *ccli.App) {
 			return err
 		}
 
-		// Explicitly set store table to App Name
-		store.Table = cmd.App().Name
-		gomicrostore.DefaultStore.Init(gomicrostore.Table(store.Table))
+		var opts []gostore.Option
+
+		// the database is not overriden by flag then set it
+		if len(ctx.String("store_database")) == 0 {
+			opts = append(opts, gostore.Database(cmd.App().Name))
+		}
+
+		// if the table is not overriden by flag then set it
+		if len(ctx.String("store_table")) == 0 {
+			table := cmd.App().Name
+
+			// if an arg is specified use that as the name
+			// so each service has its own table preconfigured
+			if name := ctx.Args().First(); len(name) > 0 {
+				table = name
+			}
+
+			opts = append(opts, gostore.Table(table))
+		}
+
+		// TODO: move this entire initialisation elsewhere
+		// maybe in service.Run so all things are configured
+		if len(opts) > 0 {
+			(*cmd.DefaultCmd.Options().Store).Init(opts...)
+		}
+
 		return nil
 	}
 }

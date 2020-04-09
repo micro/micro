@@ -11,14 +11,7 @@ import (
 	"github.com/micro/go-micro/v2/config/cmd"
 	proto "github.com/micro/go-micro/v2/config/source/service/proto"
 	log "github.com/micro/go-micro/v2/logger"
-	"github.com/micro/micro/v2/config/db"
 	"github.com/micro/micro/v2/config/handler"
-
-	// TODO: decruft to just use the store
-	_ "github.com/micro/micro/v2/config/db/cockroach"
-	_ "github.com/micro/micro/v2/config/db/etcd"
-	_ "github.com/micro/micro/v2/config/db/memory"
-	_ "github.com/micro/micro/v2/config/db/store"
 )
 
 var (
@@ -46,24 +39,16 @@ func Run(c *cli.Context, srvOpts ...micro.Option) {
 		handler.WatchTopic = c.String("watch_topic")
 	}
 
-	if len(c.String("database")) > 0 {
-		Database = c.String("database")
-	}
-
 	srvOpts = append(srvOpts, micro.Name(Name))
 
 	service := micro.NewService(srvOpts...)
 
-	proto.RegisterConfigHandler(service.Server(), new(handler.Handler))
-	micro.RegisterSubscriber(handler.WatchTopic, service.Server(), handler.Watcher)
-
-	if err := db.Init(
-		db.WithDatabase(Database),
-		db.WithUrl(c.String("database_url")),
-		db.WithStore(*cmd.DefaultCmd.Options().Store),
-	); err != nil {
-		log.Fatalf("config init database error: %s", err)
+	h := &handler.Config{
+		Store: *cmd.DefaultCmd.Options().Store,
 	}
+
+	proto.RegisterConfigHandler(service.Server(), h)
+	micro.RegisterSubscriber(handler.WatchTopic, service.Server(), handler.Watcher)
 
 	if err := service.Run(); err != nil {
 		log.Fatalf("config Run the service error: ", err)
@@ -239,16 +224,6 @@ func Commands(options ...micro.Option) []*cli.Command {
 				Name:    "namespace",
 				EnvVars: []string{"MICRO_CONFIG_NAMESPACE"},
 				Usage:   "Set the namespace used by the Config Service e.g. go.micro.srv.config",
-			},
-			&cli.StringFlag{
-				Name:    "database_url",
-				EnvVars: []string{"MICRO_CONFIG_DATABASE_URL"},
-				Usage:   "The database URL e.g root:123@(127.0.0.1:3306)/config?charset=utf8&parseTime=true&loc=Asia%2FShanghai",
-			},
-			&cli.StringFlag{
-				Name:    "database",
-				EnvVars: []string{"MICRO_CONFIG_DATABASE"},
-				Usage:   "The database e.g mysql(default), postgresql, but now we only support mysql and cockroach(pg).",
 			},
 			&cli.StringFlag{
 				Name:    "watch_topic",
