@@ -12,6 +12,7 @@ import (
 	pb "github.com/micro/go-micro/v2/store/service/proto"
 	mcli "github.com/micro/micro/v2/cli"
 	"github.com/micro/micro/v2/store/handler"
+	"github.com/pkg/errors"
 )
 
 var (
@@ -88,9 +89,16 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 	// set the default store
 	storeHandler.Default = newStore(opts...)
 
+	// set the internal store
+	storeHandler.Internal = newStore(
+		store.Nodes(Nodes...),
+		store.Database(Database),
+		store.Table("internal"),
+	)
+
 	// set the new store initialiser
 	storeHandler.New = func(database string, table string) (store.Store, error) {
-		// return a new memory store
+		// return a new default store
 		v := newStore(
 			store.Nodes(Nodes...),
 			store.Database(database),
@@ -98,6 +106,19 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 		)
 		if err := v.Init(); err != nil {
 			return nil, err
+		}
+		// Record the new database and table in the internal store
+		if err := storeHandler.Internal.Write(&store.Record{
+			Key:   "databases/" + database,
+			Value: []byte{},
+		}); err != nil {
+			return nil, errors.Wrap(err, "micro store couldn't store new database in internal table")
+		}
+		if err := storeHandler.Internal.Write(&store.Record{
+			Key:   "tables/" + database + "/" + table,
+			Value: []byte{},
+		}); err != nil {
+			return nil, errors.Wrap(err, "micro store couldn't store new table in internal table")
 		}
 		return v, nil
 	}
