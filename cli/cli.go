@@ -369,6 +369,57 @@ func StoreCommands() []*cli.Command {
 				},
 			},
 		},
+		{
+			Name:      "read",
+			Usage:     "read a record from the store (MICRO_STORE)",
+			UsageText: `micro store read [options] key`,
+			Action:    storecli.Read,
+			Flags: []cli.Flag{
+				&cli.StringFlag{
+					Name:  "database",
+					Usage: "database to write to",
+					Value: "micro",
+				},
+				&cli.StringFlag{
+					Name:  "table",
+					Usage: "table to write to",
+					Value: "micro",
+				},
+				&cli.StringFlag{
+					Name:  "output",
+					Usage: "output format (json, table)",
+					Value: "table",
+				},
+				&cli.BoolFlag{
+					Name:  "prefix",
+					Usage: "read prefix",
+					Value: false,
+				},
+			},
+		},
+		{
+			Name:      "write",
+			Usage:     "write a record to the store (MICRO_STORE)",
+			UsageText: `micro store write [options] key value`,
+			Action:    storecli.Write,
+			Flags: []cli.Flag{
+				&cli.StringFlag{
+					Name:  "expiry",
+					Usage: "expiry in time.ParseDuration format",
+					Value: "",
+				},
+				&cli.StringFlag{
+					Name:  "database",
+					Usage: "database to write to",
+					Value: "micro",
+				},
+				&cli.StringFlag{
+					Name:  "table",
+					Usage: "table to write to",
+					Value: "micro",
+				},
+			},
+		},
 	}
 }
 

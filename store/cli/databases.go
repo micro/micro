@@ -21,12 +21,13 @@ func Databases(ctx *cli.Context) error {
 		return err
 	}
 	t := tablewriter.NewWriter(os.Stdout)
-	t.SetBorder(false)
+	t.SetBorders(tablewriter.Border{Left: true, Top: false, Right: true, Bottom: false})
+	t.SetCenterSeparator("|")
 	t.SetHeader([]string{"Databases"})
 	for _, table := range dbRsp.Databases {
 		t.Append([]string{table})
 	}
-	t.SetFooter([]string{fmt.Sprintf("%d rows", len(dbRsp.Databases))})
+	t.SetFooter([]string{fmt.Sprintf("total %d", len(dbRsp.Databases))})
 	t.Render()
 	return nil
 }
@@ -45,12 +46,13 @@ func Tables(ctx *cli.Context) error {
 		return err
 	}
 	t := tablewriter.NewWriter(os.Stdout)
-	t.SetBorder(false)
+	t.SetBorders(tablewriter.Border{Left: true, Top: false, Right: true, Bottom: false})
+	t.SetCenterSeparator("|")
 	t.SetHeader([]string{"Tables"})
 	for _, table := range tRsp.Tables {
 		t.Append([]string{table})
 	}
-	t.SetFooter([]string{fmt.Sprintf("%d rows", len(tRsp.Tables))})
+	t.SetFooter([]string{fmt.Sprintf("total %d", len(tRsp.Tables))})
 	t.Render()
 	return nil
 }

@@ -163,7 +163,7 @@ func (s *Store) Tables(ctx context.Context, req *pb.TablesRequest, rsp *pb.Table
 	}
 	rsp.Tables = make([]string, len(recs))
 	for i, r := range recs {
-		rsp.Tables[i] = strings.TrimPrefix(r.Key, "tables/"+"req.Database"+"/")
+		rsp.Tables[i] = strings.TrimPrefix(r.Key, "tables/"+req.Database+"/")
 	}
 	return nil
 }
