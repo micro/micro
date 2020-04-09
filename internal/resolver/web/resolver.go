@@ -88,39 +88,11 @@ func (r *Resolver) Info(req *http.Request) (string, string, bool) {
 // It accounts for subdomains for service names based on namespace
 func (r *Resolver) Resolve(req *http.Request) (*res.Endpoint, error) {
 	// get host, namespace and if its an internal request
-	host, namespace, webReq := r.Info(req)
+	host, _, webReq := r.Info(req)
 
 	// use path based resolution if its web dashboard related.
 	if webReq {
-		parts := strings.Split(req.URL.Path, "/")
-		if len(parts) < 2 {
-			return nil, errors.New("unknown service")
-		}
-
-		if !re.MatchString(parts[1]) {
-			return nil, res.ErrInvalidPath
-		}
-
-		next, err := r.Selector.Select(namespace + "." + parts[1])
-		if err == selector.ErrNotFound {
-			return nil, res.ErrNotFound
-		} else if err != nil {
-			return nil, err
-		}
-
-		// TODO: better retry strategy
-		s, err := next()
-		if err != nil {
-			return nil, err
-		}
-
-		// we're done
-		return &res.Endpoint{
-			Name:   parts[1],
-			Method: req.Method,
-			Host:   s.Address,
-			Path:   "/" + strings.Join(parts[2:], "/"),
-		}, nil
+		return r.resolveWithPath(req)
 	}
 
 	domain, err := publicsuffix.EffectiveTLDPlusOne(host)
@@ -145,7 +117,8 @@ func (r *Resolver) Resolve(req *http.Request) (*res.Endpoint, error) {
 	// get namespace + subdomain
 	next, err := r.Selector.Select(name)
 	if err == selector.ErrNotFound {
-		return nil, res.ErrNotFound
+		// fallback to path based
+		return r.resolveWithPath(req)
 	} else if err != nil {
 		return nil, err
 	}
@@ -162,5 +135,38 @@ func (r *Resolver) Resolve(req *http.Request) (*res.Endpoint, error) {
 		Method: req.Method,
 		Host:   s.Address,
 		Path:   req.URL.Path,
+	}, nil
+}
+
+func (r *Resolver) resolveWithPath(req *http.Request) (*res.Endpoint, error) {
+	parts := strings.Split(req.URL.Path, "/")
+	if len(parts) < 2 {
+		return nil, errors.New("unknown service")
+	}
+
+	if !re.MatchString(parts[1]) {
+		return nil, res.ErrInvalidPath
+	}
+
+	_, namespace, _ := r.Info(req)
+	next, err := r.Selector.Select(namespace + "." + parts[1])
+	if err == selector.ErrNotFound {
+		return nil, res.ErrNotFound
+	} else if err != nil {
+		return nil, err
+	}
+
+	// TODO: better retry strategy
+	s, err := next()
+	if err != nil {
+		return nil, err
+	}
+
+	// we're done
+	return &res.Endpoint{
+		Name:   parts[1],
+		Method: req.Method,
+		Host:   s.Address,
+		Path:   "/" + strings.Join(parts[2:], "/"),
 	}, nil
 }
