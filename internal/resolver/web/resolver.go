@@ -127,6 +127,11 @@ func (r *Resolver) Resolve(req *http.Request) (*res.Endpoint, error) {
 	// set name to lookup
 	name := defaultNamespace + "." + alias
 
+	// check for go.micro.web (render dashboard)
+	if namespace == defaultNamespace && alias == "web" {
+		name = defaultNamespace
+	}
+
 	// get namespace + subdomain
 	next, err := r.Selector.Select(name)
 	if err == selector.ErrNotFound {

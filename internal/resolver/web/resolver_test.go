@@ -29,6 +29,7 @@ func TestWebResolver(t *testing.T) {
 		Service string
 		Type    string
 	}{
+		{"web.micro.mu", "/", "go.micro.web", "domain"},
 		{"localhost:8082", "/foobar", "go.micro.web.foobar", "path"},
 		{"web.micro.mu", "/foobar", "go.micro.web.foobar", "path"},
 		{"127.0.0.1:8082", "/hello", "go.micro.web.hello", "path"},
