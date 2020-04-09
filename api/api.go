@@ -302,7 +302,7 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 			router.WithResolver(rr),
 			router.WithRegistry(service.Options().Registry),
 		)
-		r.PathPrefix(APIPath).Handler(handler.Meta(service, rt, apiNamespace))
+		r.PathPrefix(APIPath).Handler(handler.Meta(service, rt, nsResolver.Resolve))
 	}
 
 	// reverse wrap handler
