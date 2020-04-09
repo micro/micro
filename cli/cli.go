@@ -354,7 +354,7 @@ func StoreCommands() []*cli.Command {
 		},
 		{
 			Name:   "tables",
-			Usage:  "List all databases known to the store service",
+			Usage:  "List all tables in the specified database known to the store service",
 			Action: storecli.Tables,
 			Flags: []cli.Flag{
 				&cli.StringFlag{
