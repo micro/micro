@@ -85,6 +85,20 @@ func runService(ctx *cli.Context, srvOpts ...micro.Option) {
 	name := ctx.Args().Get(0)
 	version := "latest"
 	source := ctx.String("source")
+	// Set source here correctly per flag/environment to avoid
+	// issues down the line
+	if len(source) == 0 && !ctx.Bool("platform") {
+		// in the case of `micro run --server folder/folder1`,
+		// or `micro run folder/folder1`
+		// set the local absolute path to the package
+		path, err := os.Getwd()
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		source = filepath.Join(path, ctx.Args().Get(0))
+
+	}
 	typ := ctx.String("type")
 	image := ctx.String("image")
 	command := strings.TrimSpace(ctx.String("command"))

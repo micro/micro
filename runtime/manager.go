@@ -408,7 +408,6 @@ func (m *manager) processServices() error {
 
 		// set the status to starting
 		rs.Status = "started"
-
 		// service does not exist so start it
 		if err := m.Runtime.Create(rs.Service, opts...); err != nil {
 			if err != runtime.ErrAlreadyExists {
