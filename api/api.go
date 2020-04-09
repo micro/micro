@@ -21,7 +21,6 @@ import (
 	"github.com/micro/go-micro/v2/api/resolver"
 	"github.com/micro/go-micro/v2/api/resolver/grpc"
 	"github.com/micro/go-micro/v2/api/resolver/host"
-	rrmicro "github.com/micro/go-micro/v2/api/resolver/micro"
 	"github.com/micro/go-micro/v2/api/resolver/path"
 	"github.com/micro/go-micro/v2/api/router"
 	regRouter "github.com/micro/go-micro/v2/api/router/registry"
@@ -37,6 +36,7 @@ import (
 	"github.com/micro/micro/v2/internal/handler"
 	"github.com/micro/micro/v2/internal/helper"
 	"github.com/micro/micro/v2/internal/namespace"
+	rrmicro "github.com/micro/micro/v2/internal/resolver/api"
 	"github.com/micro/micro/v2/internal/stats"
 	"github.com/micro/micro/v2/plugin"
 )
@@ -209,9 +209,12 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		r.HandleFunc(RPCPath, handler.RPC)
 	}
 
+	// create the namespace resolver
+	nsResolver := namespace.NewResolver(Type, Namespace)
+
 	// resolver options
 	ropts := []resolver.Option{
-		resolver.WithNamespace(apiNamespace),
+		resolver.WithNamespace(nsResolver.Resolve),
 		resolver.WithHandler(Handler),
 	}
 
@@ -299,7 +302,7 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 			router.WithResolver(rr),
 			router.WithRegistry(service.Options().Registry),
 		)
-		r.PathPrefix(APIPath).Handler(handler.Meta(service, rt, apiNamespace))
+		r.PathPrefix(APIPath).Handler(handler.Meta(service, rt, nsResolver.Resolve))
 	}
 
 	// reverse wrap handler
@@ -308,11 +311,8 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		h = plugins[i-1].Handler()(h)
 	}
 
-	// create the namespace resolver and the auth wrapper
-	nsResolver := namespace.NewResolver(Type, Namespace)
+	// create the auth wrapper and the server
 	authWrapper := auth.Wrapper(rr, nsResolver)
-
-	// create the server
 	api := httpapi.NewServer(Address, server.WrapHandler(authWrapper))
 
 	api.Init(opts...)
