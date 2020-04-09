@@ -548,7 +548,7 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		resolver: &web.Resolver{
 			// Default to type path
 			Type:      Resolver,
-			Namespace: Namespace + "." + Type,
+			Namespace: namespace.NewResolver(Type, Namespace).Resolve,
 			Selector: selector.NewSelector(
 				selector.Registry(reg),
 			),

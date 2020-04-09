@@ -209,9 +209,12 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		r.HandleFunc(RPCPath, handler.RPC)
 	}
 
+	// create the namespace resolver
+	nsResolver := namespace.NewResolver(Type, Namespace)
+
 	// resolver options
 	ropts := []resolver.Option{
-		resolver.WithNamespace(apiNamespace),
+		resolver.WithNamespace(nsResolver.Resolve),
 		resolver.WithHandler(Handler),
 	}
 
@@ -308,11 +311,8 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		h = plugins[i-1].Handler()(h)
 	}
 
-	// create the namespace resolver and the auth wrapper
-	nsResolver := namespace.NewResolver(Type, Namespace)
+	// create the auth wrapper and the server
 	authWrapper := auth.Wrapper(rr, nsResolver)
-
-	// create the server
 	api := httpapi.NewServer(Address, server.WrapHandler(authWrapper))
 
 	api.Init(opts...)

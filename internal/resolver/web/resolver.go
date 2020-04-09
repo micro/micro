@@ -4,26 +4,25 @@ import (
 	"errors"
 	"net"
 	"net/http"
-	"os"
 	"regexp"
 	"strings"
 
 	res "github.com/micro/go-micro/v2/api/resolver"
+	"github.com/micro/go-micro/v2/auth"
 	"github.com/micro/go-micro/v2/client/selector"
 	"golang.org/x/net/publicsuffix"
 )
 
 var (
-	re = regexp.MustCompile("^[a-zA-Z0-9]+([a-zA-Z0-9-]*[a-zA-Z0-9]*)?$")
-	// Host name the web dashboard is served on
-	Host, _ = os.Hostname()
+	re               = regexp.MustCompile("^[a-zA-Z0-9]+([a-zA-Z0-9-]*[a-zA-Z0-9]*)?$")
+	defaultNamespace = auth.DefaultNamespace + ".web"
 )
 
 type Resolver struct {
 	// Type of resolver e.g path, domain
 	Type string
-	// our internal namespace e.g go.micro.web
-	Namespace string
+	// a function which returns the namespace of the request
+	Namespace func(*http.Request) string
 	// selector to find services
 	Selector selector.Selector
 }
@@ -50,38 +49,23 @@ func (r *Resolver) Info(req *http.Request) (string, string, bool) {
 	}
 
 	// split out ip
-	h, _, err := net.SplitHostPort(host)
-	if err == nil {
+	if h, _, err := net.SplitHostPort(host); err == nil {
 		host = h
 	}
 
-	// now try parse out ip
-	ip := net.ParseIP(host)
-	dom := host
-
-	// replace our suffix if it exists
-	if strings.HasSuffix(host, "micro.mu") {
-		dom = strings.Replace(host, "micro.mu", "micro.go", 1)
-	}
-
-	// split and reverse the host
-	parts := strings.Split(dom, ".")
-	reverse(parts)
-	namespace := strings.Join(parts, ".")
-	// check if its localhost or an ip
-	localhost := (ip != nil || host == "localhost")
+	// determine the namespace of the request
+	namespace := r.Namespace(req)
 
 	// isWeb sets if its a web.micro.mu request
 	var isWeb bool
 
-	// go.micro.web => go.micro.web
-	// use path based resolution if hostname matches
-	// namespace or IP is not nil
-	if r.Type == "path" || namespace == r.Namespace || localhost || len(host) == 0 || host == Host {
+	// go.micro.web => go.micro.web use path based resolution if
+	// explicitly set or the namespace matches the default namespace
+	// (indicating we're on a micro.mu host or in dev)
+	if r.Type == "path" && namespace != defaultNamespace {
 		isWeb = true
 	}
 
-	// is a subdomain request
 	return host, namespace, isWeb
 }
 
@@ -102,7 +86,7 @@ func (r *Resolver) Resolve(req *http.Request) (*res.Endpoint, error) {
 			return nil, res.ErrInvalidPath
 		}
 
-		next, err := r.Selector.Select(r.Namespace + "." + parts[1])
+		next, err := r.Selector.Select(namespace + "." + parts[1])
 		if err == selector.ErrNotFound {
 			return nil, res.ErrNotFound
 		} else if err != nil {
@@ -124,64 +108,44 @@ func (r *Resolver) Resolve(req *http.Request) (*res.Endpoint, error) {
 		}, nil
 	}
 
-	// create an alias
-	var alias string
-
-	// check if suffix is web.micro.go in which case its subdomain + namespace
-	if strings.HasPrefix(namespace, r.Namespace) {
-		subdomain := strings.TrimPrefix(namespace, r.Namespace+".")
-		// split it
-		parts := strings.Split(subdomain, ".")
-		// reverse it
-		reverse(parts)
-		// turn it into an alias
-		alias = strings.Join(parts, ".")
-	} else {
-		// namespace does not match so we'll try check subdomain
-		domain, err := publicsuffix.EffectiveTLDPlusOne(host)
-		if err != nil {
-			// fallback
-			return nil, err
-		}
-
-		// get the subdomain
-		subdomain := strings.TrimSuffix(host, "."+domain)
-		// split it
-		parts := strings.Split(subdomain, ".")
-		// reverse it
-		reverse(parts)
-		// turn it into an alias
-		alias = strings.Join(parts, ".")
+	domain, err := publicsuffix.EffectiveTLDPlusOne(host)
+	if err != nil {
+		return nil, err
 	}
 
-	// only one part
-	if len(alias) > 0 {
-		// set name to lookup
-		name := r.Namespace + "." + alias
+	// get and reverse the subdomain
+	subdomain := strings.TrimSuffix(host, "."+domain)
+	parts := strings.Split(subdomain, ".")
+	reverse(parts)
 
-		// get namespace + subdomain
-		next, err := r.Selector.Select(name)
-		if err == selector.ErrNotFound {
-			return nil, res.ErrNotFound
-		} else if err != nil {
-			return nil, err
-		}
-
-		// TODO: better retry strategy
-		s, err := next()
-		if err != nil {
-			return nil, err
-		}
-
-		// we're done
-		return &res.Endpoint{
-			Name:   alias,
-			Method: req.Method,
-			Host:   s.Address,
-			Path:   req.URL.Path,
-		}, nil
+	// turn it into an alias
+	alias := strings.Join(parts, ".")
+	if len(alias) == 0 {
+		return nil, errors.New("unknown host")
 	}
 
-	// ugh
-	return nil, errors.New("unknown host")
+	// set name to lookup
+	name := defaultNamespace + "." + alias
+
+	// get namespace + subdomain
+	next, err := r.Selector.Select(name)
+	if err == selector.ErrNotFound {
+		return nil, res.ErrNotFound
+	} else if err != nil {
+		return nil, err
+	}
+
+	// TODO: better retry strategy
+	s, err := next()
+	if err != nil {
+		return nil, err
+	}
+
+	// we're done
+	return &res.Endpoint{
+		Name:   alias,
+		Method: req.Method,
+		Host:   s.Address,
+		Path:   req.URL.Path,
+	}, nil
 }
