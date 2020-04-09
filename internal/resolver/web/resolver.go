@@ -56,16 +56,31 @@ func (r *Resolver) Info(req *http.Request) (string, string, bool) {
 	// determine the namespace of the request
 	namespace := r.Namespace(req)
 
-	// isWeb sets if its a web.micro.mu request
-	var isWeb bool
-
-	// go.micro.web => go.micro.web use path based resolution if
-	// explicitly set or the namespace matches the default namespace
-	// (indicating we're on a micro.mu host or in dev)
-	if r.Type == "path" || namespace != defaultNamespace {
-		isWeb = true
+	// overide host if the namespace is go.micro.web, since
+	// this will also catch localhost & 127.0.0.1, resulting
+	// in a more consistent dev experience
+	if host == "localhost" || host == "127.0.0.1" {
+		host = "web.micro.mu"
 	}
 
+	// if the type is path, always resolve using the path
+	if r.Type == "path" {
+		return host, namespace, true
+	}
+
+	// if the namespace is not the default (go.micro.web),
+	// we always resolve using path
+	if namespace != defaultNamespace {
+		return host, namespace, true
+	}
+
+	// check to see if this request is for a micro.mu subdomain
+	if host != "web.micro.mu" {
+		return host, namespace, false
+	}
+
+	// Check if the request is a top level path
+	isWeb := strings.Count(req.URL.Path, "/") == 1
 	return host, namespace, isWeb
 }
 
@@ -75,7 +90,7 @@ func (r *Resolver) Resolve(req *http.Request) (*res.Endpoint, error) {
 	// get host, namespace and if its an internal request
 	host, namespace, webReq := r.Info(req)
 
-	// use path based resolution if its web dashboard related
+	// use path based resolution if its web dashboard related.
 	if webReq {
 		parts := strings.Split(req.URL.Path, "/")
 		if len(parts) < 2 {
@@ -126,11 +141,6 @@ func (r *Resolver) Resolve(req *http.Request) (*res.Endpoint, error) {
 
 	// set name to lookup
 	name := defaultNamespace + "." + alias
-
-	// check for go.micro.web (render dashboard)
-	if namespace == defaultNamespace && alias == "web" {
-		name = defaultNamespace
-	}
 
 	// get namespace + subdomain
 	next, err := r.Selector.Select(name)
