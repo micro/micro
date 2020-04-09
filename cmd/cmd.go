@@ -237,11 +237,6 @@ func setup(app *ccli.App) {
 			return err
 		}
 
-<<<<<<< HEAD
-		// Explicitly set store table to App Name
-		store.Table = ctx.Args().Get(0)
-		gomicrostore.DefaultStore.Init(gomicrostore.Table(store.Table))
-=======
 		var opts []gostore.Option
 
 		// the database is not overriden by flag then set it
@@ -268,7 +263,6 @@ func setup(app *ccli.App) {
 			(*cmd.DefaultCmd.Options().Store).Init(opts...)
 		}
 
->>>>>>> master
 		return nil
 	}
 }
