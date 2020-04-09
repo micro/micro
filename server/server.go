@@ -95,12 +95,15 @@ func Run(context *cli.Context) error {
 	if len(context.String("profile")) == 0 {
 		context.Set("profile", "server")
 	}
+
 	// get the network flag
 	peer := context.Bool("peer")
 
 	// pass through the environment
 	// TODO: perhaps don't do this
 	env := os.Environ()
+	env = append(env, "MICRO_STORE=file")
+	env = append(env, "MICRO_RUNTIME_PROFILE="+context.String("profile"))
 
 	// connect to the network if specified
 	if peer {
@@ -131,7 +134,6 @@ func Run(context *cli.Context) error {
 		(*muRuntime).Init(options...)
 	}
 
-	env = append(env, "MICRO_RUNTIME_PROFILE="+context.String("profile"))
 	for _, service := range services {
 		name := service
 

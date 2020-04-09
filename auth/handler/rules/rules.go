@@ -10,6 +10,7 @@ import (
 	"github.com/micro/go-micro/v2/errors"
 	"github.com/micro/go-micro/v2/store"
 	memStore "github.com/micro/go-micro/v2/store/memory"
+	"github.com/micro/go-micro/v2/util/log"
 )
 
 const (
@@ -36,6 +37,31 @@ func (r *Rules) Init(opts ...auth.Option) {
 	// noop will not work for auth
 	if r.Options.Store.String() == "noop" {
 		r.Options.Store = memStore.NewStore()
+	}
+
+	resp := &pb.ListResponse{}
+	err := r.List(context.Background(), &pb.ListRequest{}, resp)
+	if err != nil {
+		log.Errorf("Error listing rules in init: %v", err)
+		return
+	}
+	if len(resp.GetRules()) > 0 {
+		log.Info("Rules exists. Skipping rule injection.")
+		return
+	}
+	log.Info("Generating default rules")
+	err = r.Create(context.Background(), &pb.CreateRequest{
+		Role: "*",
+		Resource: &pb.Resource{
+			Namespace: "*",
+			Name:      "*",
+			Type:      "*",
+			Endpoint:  "*",
+		},
+		Access: pb.Access_GRANTED,
+	}, &pb.CreateResponse{})
+	if err != nil {
+		log.Errorf("Error creating default rule in init: %v", err)
 	}
 }
 
