@@ -340,6 +340,35 @@ func StoreCommands() []*cli.Command {
 				},
 			),
 		},
+		{
+			Name:   "databases",
+			Usage:  "List all databases known to the store service",
+			Action: storecli.Databases,
+			Flags: []cli.Flag{
+				&cli.StringFlag{
+					Name:  "store",
+					Usage: "store service to call",
+					Value: "go.micro.store",
+				},
+			},
+		},
+		{
+			Name:   "tables",
+			Usage:  "List all databases known to the store service",
+			Action: storecli.Tables,
+			Flags: []cli.Flag{
+				&cli.StringFlag{
+					Name:  "store",
+					Usage: "store service to call",
+					Value: "go.micro.store",
+				},
+				&cli.StringFlag{
+					Name:  "database",
+					Usage: "database to list tables of",
+					Value: "micro",
+				},
+			},
+		},
 	}
 }
 
