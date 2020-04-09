@@ -62,8 +62,8 @@ func (a *Auth) Init(opts ...auth.Option) {
 	log.Info("Generating default account")
 	resp := &pb.GenerateResponse{}
 	err = a.Generate(context.Background(), &pb.GenerateRequest{
-		Id:     "local@micro.mu",
-		Secret: "local",
+		Id:     "admin",
+		Secret: "Password1",
 	}, resp)
 	if err != nil {
 		log.Errorf("Error creating default account in init: %v", err)
