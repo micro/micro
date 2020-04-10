@@ -41,6 +41,7 @@ import (
 	"github.com/micro/micro/v2/plugin"
 )
 
+//metadata for `micro api`
 var (
 	Name                  = "go.micro.api"
 	Address               = ":8080"

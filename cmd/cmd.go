@@ -38,6 +38,7 @@ import (
 	gostore "github.com/micro/go-micro/v2/store"
 )
 
+//Metadata of micro app
 var (
 	GitCommit string
 	GitTag    string
