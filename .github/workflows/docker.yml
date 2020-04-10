@@ -20,6 +20,7 @@ jobs:
       - name: Build and Push Docker Image                   
         uses: docker/build-push-action@v1
         with:                                               
-          name: micro/micro
+          repository: micro/micro
+          tags: latest
           username: ${{ secrets.DOCKER_USERNAME }}          
           password: ${{ secrets.DOCKER_PASSWORD }}          
