@@ -15,7 +15,7 @@ jobs:
         run: git fetch --depth=1 origin +refs/tags/*:refs/tags/*
 
       - name: Build and Push Docker Image                   
-        uses: elgohr/Publish-Docker-Github-Action@2.12      
+        uses: docker/build-push-action@v1
         with:                                               
           name: micro/go-micro                              
           username: ${{ secrets.DOCKER_USERNAME }}          
