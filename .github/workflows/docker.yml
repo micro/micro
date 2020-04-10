@@ -12,7 +12,7 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Fetch tags
-        run: git fetch --depth=1 origin +refs/tags/*:refs/tags/*
+        run: git fetch --unshallow --depth=1 origin +refs/tags/*:refs/tags/*
 
       - name: Build and Push Docker Image                   
         uses: docker/build-push-action@v1
