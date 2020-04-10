@@ -11,9 +11,10 @@ jobs:
   release:
     runs-on: ubuntu-latest
     steps:
-      -
-        name: Checkout
+      - name: Checkout
         uses: actions/checkout@v2
+      
+      - name: Fetch tags
         run: git fetch --depth=1 origin +refs/tags/*:refs/tags/*
       -
         name: Set up Go
