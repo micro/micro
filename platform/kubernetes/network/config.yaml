@@ -33,30 +33,10 @@ spec:
           value: "etcd"
         - name: MICRO_REGISTRY_ADDRESS
           value: "etcd-cluster-client"
-        - name: MICRO_CONFIG_DATABASE
-          value: "store"
         - name: MICRO_STORE
-          value: "cloudflare"
-        - name: MICRO_STORE_DATABASE
-          valueFrom:
-            secretKeyRef:
-              key: KV_NAMESPACE_ID_CONFIG
-              name: cloudflare-credentials
-        - name: CF_API_TOKEN
-          valueFrom:
-            secretKeyRef:
-              key: CF_API_TOKEN
-              name: cloudflare-credentials
-        - name: CF_ACCOUNT_ID
-          valueFrom:
-            secretKeyRef:
-              key: CF_ACCOUNT_ID
-              name: cloudflare-credentials
-        - name: KV_NAMESPACE_ID
-          valueFrom:
-            secretKeyRef:
-              key: KV_NAMESPACE_ID_CONFIG
-              name: cloudflare-credentials
+          value: "cockroach"
+        - name: MICRO_STORE_ADDRESS
+          value: "postgres://root@cockroachdb-public:26257/?sslmode=disable"
         image: micro/micro
         imagePullPolicy: Always
         command:
