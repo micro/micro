@@ -17,7 +17,7 @@ import (
 
 // Read gets something from the store
 func Read(ctx *cli.Context) error {
-	if err := initDB(ctx); err != nil {
+	if err := initStore(ctx); err != nil {
 		return err
 	}
 	if ctx.Args().Len() != 1 {
@@ -72,7 +72,7 @@ func Read(ctx *cli.Context) error {
 
 // Write puts something in the store.
 func Write(ctx *cli.Context) error {
-	if err := initDB(ctx); err != nil {
+	if err := initStore(ctx); err != nil {
 		return err
 	}
 	if ctx.Args().Len() < 2 {
@@ -96,7 +96,63 @@ func Write(ctx *cli.Context) error {
 	return nil
 }
 
-func initDB(ctx *cli.Context) error {
+// List retrieves keys
+func List(ctx *cli.Context) error {
+	if err := initStore(ctx); err != nil {
+		return err
+	}
+	var opts []store.ListOption
+	if ctx.Bool("prefix") {
+		opts = append(opts, store.ListPrefix(ctx.Args().First()))
+	}
+	if ctx.Uint("limit") != 0 {
+		opts = append(opts, store.ListLimit(ctx.Uint("limit")))
+	}
+	if ctx.Uint("offset") != 0 {
+		opts = append(opts, store.ListLimit(ctx.Uint("offset")))
+	}
+	keys, err := store.DefaultStore.List(opts...)
+	if err != nil {
+		return errors.Wrap(err, "couldn't list")
+	}
+	switch ctx.String("output") {
+	case "json":
+		jsonRecords, err := json.MarshalIndent(keys, "", "  ")
+		if err != nil {
+			return errors.Wrap(err, "failed marshalling JSON")
+		}
+		fmt.Printf("%s\n", string(jsonRecords))
+	case "table":
+		t := tablewriter.NewWriter(os.Stdout)
+		t.SetBorders(tablewriter.Border{Left: true, Top: false, Right: true, Bottom: false})
+		t.SetCenterSeparator("|")
+		t.SetHeader([]string{"Key"})
+		for _, k := range keys {
+			t.Append([]string{k})
+		}
+		t.SetFooter([]string{fmt.Sprintf("Total %d", len(keys))})
+		t.Render()
+	default:
+		return errors.Errorf("%s is not a valid output format", ctx.String("output"))
+	}
+	return nil
+}
+
+// Delete deletes keys
+func Delete(ctx *cli.Context) error {
+	if err := initStore(ctx); err != nil {
+		return err
+	}
+	if len(ctx.Args().Slice()) == 0 {
+		return errors.New("key is required")
+	}
+	if err := store.DefaultStore.Delete(ctx.Args().First()); err != nil {
+		return errors.Wrapf(err, "couldn't delete key %s", ctx.Args().First())
+	}
+	return nil
+}
+
+func initStore(ctx *cli.Context) error {
 	opts := []store.Option{}
 	if len(ctx.String("database")) > 0 {
 		opts = append(opts, store.Database(ctx.String("database")))
