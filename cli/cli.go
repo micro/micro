@@ -401,6 +401,42 @@ func StoreCommands() []*cli.Command {
 			},
 		},
 		{
+			Name:      "list",
+			Usage:     "list all keys from a store (MICRO_STORE)",
+			UsageText: `micro store list [options]`,
+			Action:    storecli.List,
+			Flags: []cli.Flag{
+				&cli.StringFlag{
+					Name:  "database",
+					Usage: "database to list from",
+					Value: "micro",
+				},
+				&cli.StringFlag{
+					Name:  "table",
+					Usage: "table to list from",
+					Value: "micro",
+				},
+				&cli.StringFlag{
+					Name:  "output",
+					Usage: "output format (json, table)",
+					Value: "table",
+				},
+				&cli.BoolFlag{
+					Name:  "prefix",
+					Usage: "list prefix",
+					Value: false,
+				},
+				&cli.UintFlag{
+					Name:  "limit",
+					Usage: "list limit",
+				},
+				&cli.UintFlag{
+					Name:  "offset",
+					Usage: "list offset",
+				},
+			},
+		},
+		{
 			Name:      "write",
 			Usage:     "write a record to the store (MICRO_STORE)",
 			UsageText: `micro store write [options] key value`,
@@ -419,6 +455,24 @@ func StoreCommands() []*cli.Command {
 				&cli.StringFlag{
 					Name:  "table",
 					Usage: "table to write to",
+					Value: "micro",
+				},
+			},
+		},
+		{
+			Name:      "delete",
+			Usage:     "delete a key from the store (MICRO_STORE)",
+			UsageText: `micro store delete [options] key`,
+			Action:    storecli.Delete,
+			Flags: []cli.Flag{
+				&cli.StringFlag{
+					Name:  "database",
+					Usage: "database to delete from",
+					Value: "micro",
+				},
+				&cli.StringFlag{
+					Name:  "table",
+					Usage: "table to delete from",
 					Value: "micro",
 				},
 			},
