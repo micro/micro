@@ -12,10 +12,14 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Fetch tags
-        run: git fetch --unshallow --depth=1 origin +refs/tags/*:refs/tags/*
+        run: git fetch --depth=1 origin +refs/tags/*:refs/tags/*
+
+      - name: Write tag
+        run: git describe --abbrev=0 --tags --always --match "v*" > tag
 
       - name: Build and Push Docker Image                   
         uses: docker/build-push-action@v1
         with:                                               
+          name: micro/micro
           username: ${{ secrets.DOCKER_USERNAME }}          
           password: ${{ secrets.DOCKER_PASSWORD }}          

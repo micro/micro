@@ -1,7 +1,11 @@
 NAME=micro
 IMAGE_NAME=micro/$(NAME)
 GIT_COMMIT=$(shell git rev-parse --short HEAD)
-GIT_TAG=$(shell git describe --abbrev=0 --tags --always --match "v*")
+ifeq (,$(wildcard ./tag))
+  GIT_TAG:=$(cat ./tag)
+else
+	GIT_TAG:=$(shell git describe --abbrev=0 --tags --always --match "v*")
+endif
 GIT_IMPORT=github.com/micro/micro/v2/cmd
 CGO_ENABLED=0
 BUILD_DATE=$(shell date +%s)
