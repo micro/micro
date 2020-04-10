@@ -11,47 +11,47 @@ import (
 	"github.com/pkg/errors"
 )
 
-// Restorer emits records from a go-micro store snapshot
-type Restorer interface {
-	// Init validates the RestorerOptions and returns an error if they are invalid.
-	// Init must be called before a Restorer is used
-	Init(opts ...RestorerOption) error
+// Restore emits records from a go-micro store snapshot
+type Restore interface {
+	// Init validates the RestoreOptions and returns an error if they are invalid.
+	// Init must be called before a Restore is used
+	Init(opts ...RestoreOption) error
 	// Start opens a channel over which records from the snapshot are retrieved.
 	// The channel will be closed when the entire snapshot has been read.
 	Start() (<-chan *store.Record, error)
 }
 
-// RestorerOptions configure a Restorer
-type RestorerOptions struct {
+// RestoreOptions configure a Restore
+type RestoreOptions struct {
 	Source string
 }
 
-// RestorerOption is an individual option
-type RestorerOption func(r *RestorerOptions)
+// RestoreOption is an individual option
+type RestoreOption func(r *RestoreOptions)
 
 // Source is the source URL of a snapshot, e.g. file:///path/to/file
-func Source(source string) RestorerOption {
-	return func(r *RestorerOptions) {
+func Source(source string) RestoreOption {
+	return func(r *RestoreOptions) {
 		r.Source = source
 	}
 }
 
-// FileRestorer reads records from a file
-type FileRestorer struct {
-	Options RestorerOptions
+// FileRestore reads records from a file
+type FileRestore struct {
+	Options RestoreOptions
 
 	path string
 }
 
-func NewFileRestorer(opts ...RestorerOption) Restorer {
-	r := &FileRestorer{}
+func NewFileRestore(opts ...RestoreOption) Restore {
+	r := &FileRestore{}
 	for _, o := range opts {
 		o(&r.Options)
 	}
 	return r
 }
 
-func (f *FileRestorer) Init(opts ...RestorerOption) error {
+func (f *FileRestore) Init(opts ...RestoreOption) error {
 	for _, o := range opts {
 		o(&f.Options)
 	}
@@ -67,7 +67,7 @@ func (f *FileRestorer) Init(opts ...RestorerOption) error {
 }
 
 // Start starts reading records from a file. The returned channel is closed when complete
-func (f *FileRestorer) Start() (<-chan *store.Record, error) {
+func (f *FileRestore) Start() (<-chan *store.Record, error) {
 	fi, err := os.Open(f.path)
 	if err != nil {
 		return nil, errors.Wrapf(err, "Couldn't open file %s", f.path)

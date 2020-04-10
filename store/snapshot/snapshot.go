@@ -11,11 +11,11 @@ import (
 	"github.com/pkg/errors"
 )
 
-// Snapshotter creates snapshots of a go-micro store
-type Snapshotter interface {
-	// Init validates the Snapshotter options and returns an error if they are invalid.
-	// Init must be called before the Snapshotter is used
-	Init(opts ...SnapshotterOption) error
+// Snapshot creates snapshots of a go-micro store
+type Snapshot interface {
+	// Init validates the Snapshot options and returns an error if they are invalid.
+	// Init must be called before the Snapshot is used
+	Init(opts ...SnapshotOption) error
 	// Start opens a channel that receives *store.Record, adding any incoming records to a backup
 	// close() the channel to commit the results.
 	Start() (chan<- *store.Record, error)
@@ -23,24 +23,24 @@ type Snapshotter interface {
 	Wait()
 }
 
-// SnapshotterOptions configure a snapshotter
-type SnapshotterOptions struct {
+// SnapshotOptions configure a snapshotter
+type SnapshotOptions struct {
 	Destination string
 }
 
-// SnapshotterOption is an individual option
-type SnapshotterOption func(s *SnapshotterOptions)
+// SnapshotOption is an individual option
+type SnapshotOption func(s *SnapshotOptions)
 
 // Destination is the URL to snapshot to, e.g. file:///path/to/file
-func Destination(dest string) SnapshotterOption {
-	return func(s *SnapshotterOptions) {
+func Destination(dest string) SnapshotOption {
+	return func(s *SnapshotOptions) {
 		s.Destination = dest
 	}
 }
 
-// FileSnapshotter backs up incoming records to a File
-type FileSnapshotter struct {
-	Options SnapshotterOptions
+// FileSnapshot backs up incoming records to a File
+type FileSnapshot struct {
+	Options SnapshotOptions
 
 	records chan *store.Record
 	path    string
@@ -49,9 +49,9 @@ type FileSnapshotter struct {
 	wg      *sync.WaitGroup
 }
 
-// NewFileSnapshotter returns a FileSnapshotter
-func NewFileSnapshotter(opts ...SnapshotterOption) Snapshotter {
-	f := &FileSnapshotter{wg: &sync.WaitGroup{}}
+// NewFileSnapshot returns a FileSnapshot
+func NewFileSnapshot(opts ...SnapshotOption) Snapshot {
+	f := &FileSnapshot{wg: &sync.WaitGroup{}}
 	for _, o := range opts {
 		o(&f.Options)
 	}
@@ -59,7 +59,7 @@ func NewFileSnapshotter(opts ...SnapshotterOption) Snapshotter {
 }
 
 // Init validates the options
-func (f *FileSnapshotter) Init(opts ...SnapshotterOption) error {
+func (f *FileSnapshot) Init(opts ...SnapshotOption) error {
 	for _, o := range opts {
 		o(&f.Options)
 	}
@@ -78,9 +78,9 @@ func (f *FileSnapshotter) Init(opts ...SnapshotterOption) error {
 }
 
 // Start opens a channel which recieves *store.Record and writes them to storage
-func (f *FileSnapshotter) Start() (chan<- *store.Record, error) {
+func (f *FileSnapshot) Start() (chan<- *store.Record, error) {
 	if f.records != nil || f.encoder != nil || f.file != nil {
-		return nil, errors.New("Snapshotter is already in use")
+		return nil, errors.New("Snapshot is already in use")
 	}
 	fi, err := os.OpenFile(f.path, os.O_CREATE|os.O_TRUNC|os.O_RDWR, 0o600)
 	if err != nil {
@@ -94,16 +94,16 @@ func (f *FileSnapshotter) Start() (chan<- *store.Record, error) {
 }
 
 // Wait waits for the snapshotter to commit the backups to persistent storage
-func (f *FileSnapshotter) Wait() {
+func (f *FileSnapshot) Wait() {
 	f.wg.Wait()
 }
 
-func (f *FileSnapshotter) receiveRecords(rec <-chan *store.Record) {
+func (f *FileSnapshot) receiveRecords(rec <-chan *store.Record) {
 	f.wg.Add(1)
 	for {
 		r, more := <-rec
 		if !more {
-			println("Stopping FileSnapshotter")
+			println("Stopping FileSnapshot")
 			f.file.Close()
 			f.encoder = nil
 			f.file = nil

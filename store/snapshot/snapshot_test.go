@@ -7,8 +7,8 @@ import (
 	"github.com/micro/go-micro/v2/store"
 )
 
-func TestFileSnapshotter(t *testing.T) {
-	f := NewFileSnapshotter(Destination("invalid"))
+func TestFileSnapshot(t *testing.T) {
+	f := NewFileSnapshot(Destination("invalid"))
 	if err := f.Init(); err == nil {
 		t.Error(err)
 	}
@@ -27,7 +27,7 @@ func TestFileSnapshotter(t *testing.T) {
 	close(recordChan)
 	f.Wait()
 
-	r := NewFileRestorer(Source("invalid"))
+	r := NewFileRestore(Source("invalid"))
 	if err := r.Init(); err == nil {
 		t.Error(err)
 	}
