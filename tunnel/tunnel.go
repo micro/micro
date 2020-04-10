@@ -28,7 +28,7 @@ var (
 	Address = ":8083"
 	// Tunnel is the name of the tunnel
 	Tunnel = "tun:0"
-	// The tunnel token
+	//Token of tunnel
 	Token = "micro"
 )
 
@@ -63,7 +63,7 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		nodes = strings.Split(ctx.String("server"), ",")
 	}
 
-	// Initialise service
+	// Initialize service
 	service := micro.NewService(
 		micro.Name(Name),
 		micro.RegisterTTL(time.Duration(ctx.Int("register_ttl"))*time.Second),
@@ -166,6 +166,7 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	}
 }
 
+//Commands for tunnel
 func Commands(options ...micro.Option) []*cli.Command {
 	command := &cli.Command{
 		Name:  "tunnel",

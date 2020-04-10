@@ -128,6 +128,7 @@ func Flags() []cli.Flag {
 	}
 }
 
+//Commands of micro runtime
 func Commands(options ...micro.Option) []*cli.Command {
 	command := []*cli.Command{
 		{

@@ -55,7 +55,7 @@ func (a authWrapper) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 
 	// Get the account using the token, fallback to a blank account
 	// since some endpoints can be unauthenticated, so the lack of an
-	// account doesn't necesserially mean a forbidden request
+	// account doesn't necessarily mean a forbidden request
 	acc, err := a.auth.Inspect(token)
 	if err != nil {
 		acc = &auth.Account{}

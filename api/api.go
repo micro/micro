@@ -200,7 +200,7 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		srvOpts = append(srvOpts, micro.RegisterInterval(i*time.Second))
 	}
 
-	// initialise service
+	// initialize service
 	service := micro.NewService(srvOpts...)
 
 	// register rpc handler

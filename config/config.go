@@ -71,7 +71,7 @@ func setConfig(ctx *cli.Context) error {
 	val := args.Get(1)
 
 	// TODO: allow the specifying of a config.Key. This will be service name
-	// The actuall key-val set is a path e.g micro/accounts/key
+	// The actual key-val set is a path e.g micro/accounts/key
 
 	_, err := pb.Update(context.TODO(), &proto.UpdateRequest{
 		Change: &proto.Change{
@@ -114,7 +114,7 @@ func getConfig(ctx *cli.Context) error {
 	}
 
 	// TODO: allow the specifying of a config.Key. This will be service name
-	// The actuall key-val set is a path e.g micro/accounts/key
+	// The actual key-val set is a path e.g micro/accounts/key
 
 	rsp, err := pb.Read(context.TODO(), &proto.ReadRequest{
 		// The global key,
@@ -159,7 +159,7 @@ func delConfig(ctx *cli.Context) error {
 	}
 
 	// TODO: allow the specifying of a config.Key. This will be service name
-	// The actuall key-val set is a path e.g micro/accounts/key
+	// The actual key-val set is a path e.g micro/accounts/key
 
 	_, err := pb.Delete(context.TODO(), &proto.DeleteRequest{
 		Change: &proto.Change{

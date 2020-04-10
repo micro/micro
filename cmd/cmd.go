@@ -31,6 +31,7 @@ import (
 
 	// include usage
 	"github.com/micro/micro/v2/internal/platform"
+	//import store plugins
 	_ "github.com/micro/micro/v2/internal/plugins"
 	_ "github.com/micro/micro/v2/internal/usage"
 
@@ -239,12 +240,12 @@ func setup(app *ccli.App) {
 
 		var opts []gostore.Option
 
-		// the database is not overriden by flag then set it
+		// the database is not overridden by flag then set it
 		if len(ctx.String("store_database")) == 0 {
 			opts = append(opts, gostore.Database(cmd.App().Name))
 		}
 
-		// if the table is not overriden by flag then set it
+		// if the table is not overridden by flag then set it
 		if len(ctx.String("store_table")) == 0 {
 			table := cmd.App().Name
 
@@ -257,7 +258,7 @@ func setup(app *ccli.App) {
 			opts = append(opts, gostore.Table(table))
 		}
 
-		// TODO: move this entire initialisation elsewhere
+		// TODO: move this entire initialization elsewhere
 		// maybe in service.Run so all things are configured
 		if len(opts) > 0 {
 			(*cmd.DefaultCmd.Options().Store).Init(opts...)
@@ -285,7 +286,7 @@ func buildVersion() string {
 	return microVersion
 }
 
-// Init initialised the command line
+// Init initialized the command line
 func Init(options ...micro.Option) {
 	Setup(cmd.App(), options...)
 

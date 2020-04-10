@@ -122,7 +122,7 @@ func (m *manager) readEvents() (map[string]*series, error) {
 	for _, record := range records {
 		var event *series
 
-		// dont care about the error
+		// don't care about the error
 		if err := json.Unmarshal(record.Value, &event); err != nil {
 			continue
 		}
@@ -182,7 +182,7 @@ func (m *manager) processEvent(ev *event) {
 	delete(ev.Service.Metadata, "error")
 	switch ev.Type {
 	case "delete":
-		log.Infof("Procesing deletion event %s", key(ev.Service))
+		log.Infof("Processing deletion event %s", key(ev.Service))
 		err = m.Runtime.Delete(ev.Service)
 	case "update":
 		log.Infof("Processing update event %s", key(ev.Service))
@@ -281,7 +281,7 @@ func (m *manager) processEvents(newEvents []*event) error {
 				continue
 			}
 
-			// apply all other evenst
+			// apply all other events
 			play = append(play, ev)
 		}
 
@@ -347,7 +347,7 @@ func (m *manager) processServices() error {
 		return err
 	}
 
-	// list whats already runnning
+	// list whats already running
 	// TODO: change to read service: prefix
 	services, err := m.Runtime.List()
 	if err != nil {
@@ -488,7 +488,7 @@ func (m *manager) run() {
 	defer t3.Stop()
 
 	// save the existing set of events since on startup
-	// we dont want to apply deltas
+	// we don't want to apply deltas
 	m.Lock()
 	m.events, _ = m.readEvents()
 	m.Unlock()
