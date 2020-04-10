@@ -17,6 +17,5 @@ jobs:
       - name: Build and Push Docker Image                   
         uses: docker/build-push-action@v1
         with:                                               
-          name: micro/go-micro                              
           username: ${{ secrets.DOCKER_USERNAME }}          
           password: ${{ secrets.DOCKER_PASSWORD }}          
