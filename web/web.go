@@ -102,7 +102,7 @@ func (r *reg) watch() {
 		t := time.NewTicker(time.Minute)
 		defer t.Stop()
 
-		for _ = range t.C {
+		for range t.C {
 			r.update()
 		}
 	}()

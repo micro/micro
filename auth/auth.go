@@ -233,7 +233,7 @@ func whoami(ctx *cli.Context) {
 //Commands for auth
 func Commands(srvOpts ...micro.Option) []*cli.Command {
 	commands := []*cli.Command{
-		&cli.Command{
+		{
 			Name:  "auth",
 			Usage: "Run the auth service",
 			Action: func(ctx *cli.Context) error {
@@ -261,7 +261,7 @@ func Commands(srvOpts ...micro.Option) []*cli.Command {
 						return nil
 					},
 				},
-				&cli.Command{
+				{
 					Name:  "list",
 					Usage: "List auth resources",
 					Subcommands: append([]*cli.Command{
@@ -285,7 +285,7 @@ func Commands(srvOpts ...micro.Option) []*cli.Command {
 						},
 					}),
 				},
-				&cli.Command{
+				{
 					Name:  "create",
 					Usage: "Create an auth resource",
 					Subcommands: append([]*cli.Command{
@@ -309,7 +309,7 @@ func Commands(srvOpts ...micro.Option) []*cli.Command {
 						},
 					}),
 				},
-				&cli.Command{
+				{
 					Name:  "delete",
 					Usage: "Delete a auth resource",
 					Subcommands: append([]*cli.Command{
@@ -326,7 +326,7 @@ func Commands(srvOpts ...micro.Option) []*cli.Command {
 				},
 			}),
 		},
-		&cli.Command{
+		{
 			Name:  "login",
 			Usage: "Login using a token",
 			Action: func(ctx *cli.Context) error {
@@ -341,7 +341,7 @@ func Commands(srvOpts ...micro.Option) []*cli.Command {
 				},
 			},
 		},
-		&cli.Command{
+		{
 			Name:  "whoami",
 			Usage: "Account information",
 			Action: func(ctx *cli.Context) error {
