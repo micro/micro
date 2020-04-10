@@ -60,7 +60,7 @@ var (
 		},
 		&cli.StringFlag{
 			Name:     "resource",
-			Usage:    "The resouce to amend in the format namespace:type:name:endpoint, e.g. micro:service:go.micro.auth:*",
+			Usage:    "The resource to amend in the format namespace:type:name:endpoint, e.g. micro:service:go.micro.auth:*",
 			Required: true,
 		},
 		&cli.StringFlag{
@@ -230,6 +230,7 @@ func whoami(ctx *cli.Context) {
 	fmt.Printf("Roles: %v\n", strings.Join(acc.Roles, ", "))
 }
 
+//Commands for auth
 func Commands(srvOpts ...micro.Option) []*cli.Command {
 	commands := []*cli.Command{
 		&cli.Command{

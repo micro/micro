@@ -93,6 +93,7 @@ func runc(c *cli.Context) error {
 	return nil
 }
 
+//NetworkCommands for network toplogy routing
 func NetworkCommands() []*cli.Command {
 	return []*cli.Command{
 		{
@@ -173,6 +174,7 @@ func NetworkCommands() []*cli.Command {
 	}
 }
 
+//NetworkDNSCommands for networking routing
 func NetworkDNSCommands() []*cli.Command {
 	return []*cli.Command{
 		{
@@ -307,6 +309,7 @@ func RegistryCommands() []*cli.Command {
 	}
 }
 
+//StoreCommands for data storing
 func StoreCommands() []*cli.Command {
 	return []*cli.Command{
 		{
@@ -423,6 +426,7 @@ func StoreCommands() []*cli.Command {
 	}
 }
 
+//Commands for micro calling action
 func Commands() []*cli.Command {
 	commands := []*cli.Command{
 		{
