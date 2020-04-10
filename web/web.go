@@ -44,6 +44,7 @@ import (
 	"golang.org/x/net/publicsuffix"
 )
 
+//Meta Fields of micro web
 var (
 	// Default server name
 	Name = "go.micro.web"
@@ -101,7 +102,7 @@ func (r *reg) watch() {
 		t := time.NewTicker(time.Minute)
 		defer t.Stop()
 
-		for _ = range t.C {
+		for range t.C {
 			r.update()
 		}
 	}()
@@ -677,7 +678,7 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		srvOpts = append(srvOpts, micro.RegisterInterval(i*time.Second))
 	}
 
-	// Initialise Server
+	// Initialize Server
 	service := micro.NewService(srvOpts...)
 
 	// Setup auth redirect
@@ -700,6 +701,7 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	}
 }
 
+//Commands for `micro web`
 func Commands(options ...micro.Option) []*cli.Command {
 	command := &cli.Command{
 		Name:  "web",

@@ -60,7 +60,7 @@ var (
 		},
 		&cli.StringFlag{
 			Name:     "resource",
-			Usage:    "The resouce to amend in the format namespace:type:name:endpoint, e.g. micro:service:go.micro.auth:*",
+			Usage:    "The resource to amend in the format namespace:type:name:endpoint, e.g. micro:service:go.micro.auth:*",
 			Required: true,
 		},
 		&cli.StringFlag{
@@ -230,9 +230,10 @@ func whoami(ctx *cli.Context) {
 	fmt.Printf("Roles: %v\n", strings.Join(acc.Roles, ", "))
 }
 
+//Commands for auth
 func Commands(srvOpts ...micro.Option) []*cli.Command {
 	commands := []*cli.Command{
-		&cli.Command{
+		{
 			Name:  "auth",
 			Usage: "Run the auth service",
 			Action: func(ctx *cli.Context) error {
@@ -260,7 +261,7 @@ func Commands(srvOpts ...micro.Option) []*cli.Command {
 						return nil
 					},
 				},
-				&cli.Command{
+				{
 					Name:  "list",
 					Usage: "List auth resources",
 					Subcommands: append([]*cli.Command{
@@ -284,7 +285,7 @@ func Commands(srvOpts ...micro.Option) []*cli.Command {
 						},
 					}),
 				},
-				&cli.Command{
+				{
 					Name:  "create",
 					Usage: "Create an auth resource",
 					Subcommands: append([]*cli.Command{
@@ -308,7 +309,7 @@ func Commands(srvOpts ...micro.Option) []*cli.Command {
 						},
 					}),
 				},
-				&cli.Command{
+				{
 					Name:  "delete",
 					Usage: "Delete a auth resource",
 					Subcommands: append([]*cli.Command{
@@ -325,7 +326,7 @@ func Commands(srvOpts ...micro.Option) []*cli.Command {
 				},
 			}),
 		},
-		&cli.Command{
+		{
 			Name:  "login",
 			Usage: "Login using a token",
 			Action: func(ctx *cli.Context) error {
@@ -340,7 +341,7 @@ func Commands(srvOpts ...micro.Option) []*cli.Command {
 				},
 			},
 		},
-		&cli.Command{
+		{
 			Name:  "whoami",
 			Usage: "Account information",
 			Action: func(ctx *cli.Context) error {

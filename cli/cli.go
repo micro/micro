@@ -16,17 +16,17 @@ var (
 	prompt = "micro> "
 
 	commands = map[string]*command{
-		"quit":       &command{"quit", "Exit the CLI", quit},
-		"exit":       &command{"exit", "Exit the CLI", quit},
-		"call":       &command{"call", "Call a service", callService},
-		"list":       &command{"list", "List services, peers or routes", list},
-		"get":        &command{"get", "Get service info", getService},
-		"stream":     &command{"stream", "Stream a call to a service", streamService},
-		"publish":    &command{"publish", "Publish a message to a topic", publish},
-		"health":     &command{"health", "Get service health", queryHealth},
-		"stats":      &command{"stats", "Get service stats", queryStats},
-		"register":   &command{"register", "Register a service", registerService},
-		"deregister": &command{"deregister", "Deregister a service", deregisterService},
+		"quit":       {"quit", "Exit the CLI", quit},
+		"exit":       {"exit", "Exit the CLI", quit},
+		"call":       {"call", "Call a service", callService},
+		"list":       {"list", "List services, peers or routes", list},
+		"get":        {"get", "Get service info", getService},
+		"stream":     {"stream", "Stream a call to a service", streamService},
+		"publish":    {"publish", "Publish a message to a topic", publish},
+		"health":     {"health", "Get service health", queryHealth},
+		"stats":      {"stats", "Get service stats", queryStats},
+		"register":   {"register", "Register a service", registerService},
+		"deregister": {"deregister", "Deregister a service", deregisterService},
 	}
 )
 
@@ -93,6 +93,7 @@ func runc(c *cli.Context) error {
 	return nil
 }
 
+//NetworkCommands for network toplogy routing
 func NetworkCommands() []*cli.Command {
 	return []*cli.Command{
 		{
@@ -173,6 +174,7 @@ func NetworkCommands() []*cli.Command {
 	}
 }
 
+//NetworkDNSCommands for networking routing
 func NetworkDNSCommands() []*cli.Command {
 	return []*cli.Command{
 		{
@@ -307,6 +309,7 @@ func RegistryCommands() []*cli.Command {
 	}
 }
 
+//StoreCommands for data storing
 func StoreCommands() []*cli.Command {
 	return []*cli.Command{
 		{
@@ -423,6 +426,7 @@ func StoreCommands() []*cli.Command {
 	}
 }
 
+//Commands for micro calling action
 func Commands() []*cli.Command {
 	commands := []*cli.Command{
 		{
