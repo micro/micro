@@ -2,9 +2,9 @@ NAME=micro
 IMAGE_NAME=micro/$(NAME)
 GIT_COMMIT=$(shell git rev-parse --short HEAD)
 ifeq (,$(wildcard ./tag))
-  GIT_TAG:=$(cat ./tag)
-else
 	GIT_TAG:=$(shell git describe --abbrev=0 --tags --always --match "v*")
+else
+  GIT_TAG:=$(shell cat ./tag)
 endif
 GIT_IMPORT=github.com/micro/micro/v2/cmd
 CGO_ENABLED=0
