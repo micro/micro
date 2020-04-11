@@ -4,7 +4,7 @@ Micro is a service runtime environment for the Cloud and beyond.
 
 ## Overview
 
-Micro addresses the key requirements for building scalable systems in the Cloud and beyond. It leverages the microservices
+Micro addresses the key requirements for building distributed systems in the Cloud and beyond. It leverages the microservices
 architecture pattern and provides a set of services which act as the building blocks of a platform. Micro deals
 with the complexity of distributed systems and provides simpler programmable abstractions to build on.
 
