@@ -12,7 +12,7 @@ import (
 	"github.com/go-acme/lego/v3/providers/dns/cloudflare"
 	"github.com/micro/go-micro/v2/api/server/acme"
 	cert "github.com/micro/go-micro/v2/api/server/acme/certmagic"
-	"github.com/micro/go-micro/v2/sync/lock/memory"
+	"github.com/micro/go-micro/v2/sync/memory"
 	cfstore "github.com/micro/micro/v2/internal/plugins/store/cloudflare"
 )
 
@@ -67,7 +67,7 @@ func TestStorageImplementation(t *testing.T) {
 		cfstore.Account(accountID),
 		cfstore.Namespace(kvID),
 	)
-	s := cert.NewStorage(memory.NewLock(), st)
+	s := cert.NewStorage(memory.NewSync(), st)
 
 	// Test Lock
 	if err := s.Lock("test"); err != nil {
@@ -199,7 +199,7 @@ func TestE2e(t *testing.T) {
 		t.Skip("No Cloudflare API keys available, skipping test")
 	}
 
-	testLock := memory.NewLock()
+	testLock := memory.NewSync()
 	testStore := cfstore.NewStore(
 		cfstore.Token(apiToken),
 		cfstore.Account(accountID),

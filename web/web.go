@@ -31,12 +31,12 @@ import (
 	log "github.com/micro/go-micro/v2/logger"
 	"github.com/micro/go-micro/v2/registry"
 	"github.com/micro/go-micro/v2/registry/cache"
-	cfstore "github.com/micro/go-micro/v2/store/cloudflare"
-	"github.com/micro/go-micro/v2/sync/lock/memory"
+	"github.com/micro/go-micro/v2/sync/memory"
 	apiAuth "github.com/micro/micro/v2/api/auth"
 	"github.com/micro/micro/v2/internal/handler"
 	"github.com/micro/micro/v2/internal/helper"
 	"github.com/micro/micro/v2/internal/namespace"
+	cfstore "github.com/micro/micro/v2/internal/plugins/store/cloudflare"
 	"github.com/micro/micro/v2/internal/resolver/web"
 	"github.com/micro/micro/v2/internal/stats"
 	"github.com/micro/micro/v2/plugin"
@@ -617,7 +617,7 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 				cfstore.CacheTTL(time.Minute),
 			)
 			storage := certmagic.NewStorage(
-				memory.NewLock(),
+				memory.NewSync(),
 				cloudflareStore,
 			)
 			config := cloudflare.NewDefaultConfig()
