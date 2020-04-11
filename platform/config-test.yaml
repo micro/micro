@@ -1,0 +1,17 @@
+platforms:
+- name: "micro"
+  domain: "mu.network"
+  gslb: "cloudflare"
+  kv: "cloudflare"
+  regions:
+  - provider: do
+    region: lon1
+    control:
+    - api
+    - bot
+    resource:
+    - cockroachdb
+    network:
+    - registry
+    - web
+    - store
