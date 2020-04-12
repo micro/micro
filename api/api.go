@@ -241,7 +241,7 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		rp := arpc.NewHandler(
 			ahandler.WithNamespace(apiNamespace),
 			ahandler.WithRouter(rt),
-			ahandler.WithService(service),
+			ahandler.WithClient(service.Client()),
 		)
 		r.PathPrefix(APIPath).Handler(rp)
 	case "api":
@@ -254,7 +254,7 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		ap := aapi.NewHandler(
 			ahandler.WithNamespace(apiNamespace),
 			ahandler.WithRouter(rt),
-			ahandler.WithService(service),
+			ahandler.WithClient(service.Client()),
 		)
 		r.PathPrefix(APIPath).Handler(ap)
 	case "event":
@@ -267,7 +267,7 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		ev := event.NewHandler(
 			ahandler.WithNamespace(apiNamespace),
 			ahandler.WithRouter(rt),
-			ahandler.WithService(service),
+			ahandler.WithClient(service.Client()),
 		)
 		r.PathPrefix(APIPath).Handler(ev)
 	case "http", "proxy":
@@ -280,7 +280,7 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		ht := ahttp.NewHandler(
 			ahandler.WithNamespace(apiNamespace),
 			ahandler.WithRouter(rt),
-			ahandler.WithService(service),
+			ahandler.WithClient(service.Client()),
 		)
 		r.PathPrefix(ProxyPath).Handler(ht)
 	case "web":
@@ -293,7 +293,7 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		w := web.NewHandler(
 			ahandler.WithNamespace(apiNamespace),
 			ahandler.WithRouter(rt),
-			ahandler.WithService(service),
+			ahandler.WithClient(service.Client()),
 		)
 		r.PathPrefix(APIPath).Handler(w)
 	default:
