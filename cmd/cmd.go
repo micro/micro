@@ -314,7 +314,6 @@ func Setup(app *ccli.App, options ...micro.Option) {
 	app.Commands = append(app.Commands, server.Commands(options...)...)
 	app.Commands = append(app.Commands, service.Commands(options...)...)
 	app.Commands = append(app.Commands, store.Commands(options...)...)
-	app.Commands = append(app.Commands, token.Commands()...)
 	app.Commands = append(app.Commands, new.Commands()...)
 	app.Commands = append(app.Commands, build.Commands()...)
 	app.Commands = append(app.Commands, web.Commands(options...)...)
