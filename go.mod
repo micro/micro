@@ -3,6 +3,7 @@ module github.com/micro/micro/v2
 go 1.13
 
 require (
+	github.com/aws/aws-sdk-go v1.23.0
 	github.com/boltdb/bolt v1.3.1
 	github.com/chzyer/logex v1.1.10 // indirect
 	github.com/chzyer/readline v0.0.0-20180603132655-2972be24d48e
@@ -28,6 +29,7 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/pquerna/otp v1.2.0
 	github.com/serenize/snaker v0.0.0-20171204205717-a683aaf2d516
+	github.com/spf13/viper v1.6.3
 	github.com/xlab/treeprint v0.0.0-20181112141820-a009c3971eca
 	golang.org/x/crypto v0.0.0-20200323165209-0ec3e9974c59
 	golang.org/x/net v0.0.0-20200222125558-5a598a2470a0

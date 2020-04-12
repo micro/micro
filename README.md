@@ -98,7 +98,7 @@ export GO111MODULE=on
 micro new example
 
 # run the service
-micro run example --local
+micro run --server example
 
 # list services
 micro list services
