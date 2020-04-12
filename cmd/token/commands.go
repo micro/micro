@@ -1,4 +1,4 @@
-package token
+package main
 
 import (
 	"bufio"
@@ -154,9 +154,5 @@ func tokenCommands() []*cli.Command {
 
 // Commands returns token commands
 func Commands() []*cli.Command {
-	return []*cli.Command{{
-		Name:        "token",
-		Usage:       "API token commands",
-		Subcommands: tokenCommands(),
-	}}
+	return tokenCommands()
 }

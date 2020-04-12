@@ -25,7 +25,6 @@ import (
 	"github.com/micro/micro/v2/server"
 	"github.com/micro/micro/v2/service"
 	"github.com/micro/micro/v2/store"
-	"github.com/micro/micro/v2/token"
 	"github.com/micro/micro/v2/tunnel"
 	"github.com/micro/micro/v2/web"
 

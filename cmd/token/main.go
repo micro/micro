@@ -12,6 +12,7 @@ import (
 
 	"github.com/boltdb/bolt"
 	"github.com/gorilla/handlers"
+	"github.com/micro/cli/v2"
 	"github.com/micro/micro/v2/internal/token"
 	"github.com/patrickmn/go-cache"
 	"github.com/pquerna/otp"
@@ -230,6 +231,13 @@ func validUser(w http.ResponseWriter, r *http.Request) error {
 }
 
 func main() {
+	if len(os.Args) > 1 {
+		c := cli.NewApp()
+		c.Commands = Commands()
+		c.Run(os.Args)
+		return
+	}
+
 	setup()
 
 	// requires email
