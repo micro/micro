@@ -55,9 +55,6 @@ Go Micro abstracts away the complexity of distributed systems and provides simpl
 From source
 
 ```
-# enable go modules
-export GO111MODULE=on
-
 go get github.com/micro/micro/v2
 ```
 
@@ -91,9 +88,6 @@ micro server
 ### Create a service
 
 ```
-# enable go modules
-export GO111MODULE=on
-
 # generate a service (follow instructions in output)
 micro new example
 
