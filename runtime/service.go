@@ -288,16 +288,14 @@ func getService(ctx *cli.Context, srvOpts ...micro.Option) {
 
 	var err error
 	var services []*runtime.Service
+	var readOpts []runtime.ReadOption
 
 	// return a list of services
 	switch list {
 	case true:
 		// return specific type listing
 		if len(typ) > 0 {
-			services, err = r.Read(runtime.ReadType(typ))
-		} else {
-			// list all running services
-			services, err = r.List()
+			readOpts = append(readOpts, runtime.ReadType(typ))
 		}
 	// return one service
 	default:
@@ -308,21 +306,20 @@ func getService(ctx *cli.Context, srvOpts ...micro.Option) {
 		}
 
 		// get service with name and version
-		opts := []runtime.ReadOption{
+		readOpts = []runtime.ReadOption{
 			runtime.ReadService(name),
 			runtime.ReadVersion(version),
 		}
 
 		// return the runtime services
 		if len(typ) > 0 {
-			opts = append(opts, runtime.ReadType(typ))
+			readOpts = append(readOpts, runtime.ReadType(typ))
 		}
 
-		// read the service
-		services, err = r.Read(opts...)
 	}
 
-	// check the error
+	// read the service
+	services, err = r.Read(readOpts...)
 	if err != nil {
 		fmt.Println(err)
 		return

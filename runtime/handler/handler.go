@@ -116,19 +116,6 @@ func (r *Runtime) Delete(ctx context.Context, req *pb.DeleteRequest, rsp *pb.Del
 	return nil
 }
 
-func (r *Runtime) List(ctx context.Context, req *pb.ListRequest, rsp *pb.ListResponse) error {
-	services, err := r.Runtime.List()
-	if err != nil {
-		return errors.InternalServerError("go.micro.runtime", err.Error())
-	}
-
-	for _, service := range services {
-		rsp.Services = append(rsp.Services, toProto(service))
-	}
-
-	return nil
-}
-
 func (r *Runtime) Logs(ctx context.Context, req *pb.LogsRequest, stream pb.Runtime_LogsStream) error {
 	opts := []runtime.LogsOption{}
 	if req.GetCount() > 0 {
