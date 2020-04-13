@@ -68,13 +68,13 @@ Latest release binaries
 
 ```
 # MacOS
-curl -fsSL https://micro.mu/install.sh | /bin/bash
+curl -fsSL https://raw.githubusercontent.com/micro/micro/master/scripts/install.sh | /bin/bash
 
 # Linux
-wget -q https://micro.mu/install.sh -O - | /bin/bash
+wget -q  https://raw.githubusercontent.com/micro/micro/master/scripts/install.sh -O - | /bin/bash
 
 # Windows
-powershell -Command "iwr -useb https://micro.mu/install.ps1 | iex"
+powershell -Command "iwr -useb https://raw.githubusercontent.com/micro/micro/master/scripts/install.ps1 | iex"
 ```
 
 ## Getting Started
