@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/micro/go-micro/v2"
+	"github.com/micro/go-micro/v2/auth"
 	"github.com/micro/go-micro/v2/errors"
 	log "github.com/micro/go-micro/v2/logger"
 	"github.com/micro/go-micro/v2/registry"
@@ -20,6 +21,8 @@ type Registry struct {
 	Publisher micro.Publisher
 	// internal registry
 	Registry registry.Registry
+	// auth to verify clients
+	Auth auth.Auth
 }
 
 func ActionToEventType(action string) registry.EventType {
@@ -53,7 +56,7 @@ func (r *Registry) publishEvent(action string, service *pb.Service) error {
 
 func (r *Registry) GetService(ctx context.Context, req *pb.GetRequest, rsp *pb.GetResponse) error {
 	// verify the context has access to read the service
-	if !canReadService(ctx, req.Service) {
+	if !r.canReadService(ctx, req.Service) {
 		return errors.Forbidden("go.micro.registry", "Cannot read service")
 	}
 
@@ -74,7 +77,7 @@ func (r *Registry) Register(ctx context.Context, req *pb.Service, rsp *pb.EmptyR
 	}
 
 	// verify the context has access to register the service
-	if !canWriteService(ctx, req.Name) {
+	if !r.canWriteService(ctx, req.Name) {
 		return errors.Forbidden("go.micro.registry", "Cannot register service")
 	}
 
@@ -97,7 +100,7 @@ func (r *Registry) Register(ctx context.Context, req *pb.Service, rsp *pb.EmptyR
 
 func (r *Registry) Deregister(ctx context.Context, req *pb.Service, rsp *pb.EmptyResponse) error {
 	// verify the context has access to deregister the service
-	if !canWriteService(ctx, req.Name) {
+	if !r.canWriteService(ctx, req.Name) {
 		return errors.Forbidden("go.micro.registry", "Cannot deregister service")
 	}
 
@@ -118,7 +121,7 @@ func (r *Registry) ListServices(ctx context.Context, req *pb.ListRequest, rsp *p
 		return errors.InternalServerError("go.micro.registry", err.Error())
 	}
 	for _, srv := range services {
-		if canReadService(ctx, srv.Name) {
+		if r.canReadService(ctx, srv.Name) {
 			rsp.Services = append(rsp.Services, service.ToProto(srv))
 		}
 	}
@@ -137,7 +140,7 @@ func (r *Registry) Watch(ctx context.Context, req *pb.WatchRequest, rsp pb.Regis
 		if err != nil {
 			return errors.InternalServerError("go.micro.registry", err.Error())
 		}
-		if !canReadService(ctx, next.Service.Name) {
+		if !r.canReadService(ctx, next.Service.Name) {
 			continue
 		}
 		err = rsp.Send(&pb.Result{
@@ -152,7 +155,12 @@ func (r *Registry) Watch(ctx context.Context, req *pb.WatchRequest, rsp pb.Regis
 
 // canReadService returns a boolean indicating is the context has
 // permission to read the service
-func canReadService(ctx context.Context, name string) bool {
+func (r *Registry) canReadService(ctx context.Context, name string) bool {
+	// allow all services is no auth is enabled
+	if r.Auth.String() == "noop" {
+		return true
+	}
+
 	ns, err := namespace.NamespaceFromService(name)
 	if err != nil {
 		// This should never happen as namespaces will be validated
@@ -175,7 +183,12 @@ func canReadService(ctx context.Context, name string) bool {
 
 // canReadService returns a boolean indicating is the context has
 // permission to write (amend) a service
-func canWriteService(ctx context.Context, name string) bool {
+func (r *Registry) canWriteService(ctx context.Context, name string) bool {
+	// allow all services is no auth is enabled
+	if r.Auth.String() == "noop" {
+		return true
+	}
+
 	ns, err := namespace.NamespaceFromService(name)
 
 	// the data in the registry is invalid, log an error and don't allow

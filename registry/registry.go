@@ -130,6 +130,7 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 		Id:        id,
 		Publisher: micro.NewPublisher(Topic, service.Client()),
 		Registry:  service.Options().Registry,
+		Auth:      service.Options().Auth,
 	})
 
 	// run the service
