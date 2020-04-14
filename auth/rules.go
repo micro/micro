@@ -95,10 +95,5 @@ func constructRule(ctx *cli.Context) *pb.Rule {
 }
 
 func rulesFromContext(ctx *cli.Context) pb.RulesService {
-	if ctx.Bool("platform") {
-		os.Setenv("MICRO_PROXY", "service")
-		os.Setenv("MICRO_PROXY_ADDRESS", "proxy.micro.mu:443")
-	}
-
 	return pb.NewRulesService("go.micro.auth", client.DefaultClient)
 }

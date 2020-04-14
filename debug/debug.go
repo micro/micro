@@ -10,6 +10,7 @@ import (
 	"github.com/micro/go-micro/v2/debug/log/kubernetes"
 	dservice "github.com/micro/go-micro/v2/debug/service"
 	ulog "github.com/micro/go-micro/v2/logger"
+	"github.com/micro/micro/v2/cli/util"
 	logHandler "github.com/micro/micro/v2/debug/log/handler"
 	pblog "github.com/micro/micro/v2/debug/log/proto"
 	statshandler "github.com/micro/micro/v2/debug/stats/handler"
@@ -25,13 +26,6 @@ var (
 	// Address of the service
 	Address = ":8089"
 )
-
-func setPlatform(ctx *cli.Context) {
-	if ctx.Bool("platform") {
-		os.Setenv("MICRO_PROXY", "service")
-		os.Setenv("MICRO_PROXY_ADDRESS", "proxy.micro.mu:443")
-	}
-}
 
 func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 	ulog.Init(ulog.WithFields(map[string]interface{}{"service": "debug"}))
@@ -132,6 +126,7 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 
 // Commands populates the debug commands
 func Commands(options ...micro.Option) []*cli.Command {
+	cliutil.SetupCommand()
 	command := []*cli.Command{
 		{
 			Name:  "debug",
@@ -183,7 +178,6 @@ func Commands(options ...micro.Option) []*cli.Command {
 			Usage: "Get logs for a service",
 			Flags: logFlags(),
 			Action: func(ctx *cli.Context) error {
-				setPlatform(ctx)
 				getLog(ctx, options...)
 				return nil
 			},
