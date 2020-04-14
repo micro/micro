@@ -17,7 +17,7 @@ var (
 	// DefaultTick defines how often we poll for updates
 	DefaultTick = 1 * time.Minute
 	// DefaultURL defines url to poll for updates
-	DefaultURL = "https://micro.mu/update"
+	DefaultURL = "https://api.micro.mu/update/info"
 )
 
 // Build is service build
