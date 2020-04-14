@@ -3,6 +3,7 @@ package handler
 import (
 	"context"
 	"io"
+	"strings"
 	"sync"
 	"time"
 
@@ -15,6 +16,9 @@ import (
 type Store struct {
 	// The default store
 	Default store.Store
+
+	// The internal store where databases and table information is kept
+	Internal store.Store
 
 	// Store initialiser
 	New func(string, string) (store.Store, error)
@@ -58,7 +62,7 @@ func (s *Store) get(ctx context.Context) (store.Store, error) {
 	}
 
 	// create a new store
-	// either database is not blank or tabnle is not blank
+	// either database is not blank or table is not blank
 	st, err := s.New(database, table)
 	if err != nil {
 		return nil, errors.InternalServerError("go.micro.store", "failed to setup store: %s", err.Error())
@@ -136,6 +140,30 @@ func (s *Store) Delete(ctx context.Context, req *pb.DeleteRequest, rsp *pb.Delet
 		return errors.NotFound("go.micro.store", err.Error())
 	} else if err != nil {
 		return errors.InternalServerError("go.micro.store", err.Error())
+	}
+	return nil
+}
+
+func (s *Store) Databases(ctx context.Context, req *pb.DatabasesRequest, rsp *pb.DatabasesResponse) error {
+	recs, err := s.Internal.Read("databases/", store.ReadPrefix())
+	if err != nil {
+		return errors.InternalServerError("go.micro.store", err.Error())
+	}
+	rsp.Databases = make([]string, len(recs))
+	for i, r := range recs {
+		rsp.Databases[i] = strings.TrimPrefix(r.Key, "databases/")
+	}
+	return nil
+}
+
+func (s *Store) Tables(ctx context.Context, req *pb.TablesRequest, rsp *pb.TablesResponse) error {
+	recs, err := s.Internal.Read("tables/"+req.Database+"/", store.ReadPrefix())
+	if err != nil {
+		return errors.InternalServerError("go.micro.store", err.Error())
+	}
+	rsp.Tables = make([]string, len(recs))
+	for i, r := range recs {
+		rsp.Tables[i] = strings.TrimPrefix(r.Key, "tables/"+req.Database+"/")
 	}
 	return nil
 }

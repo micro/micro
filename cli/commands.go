@@ -20,7 +20,7 @@ func help(c *cli.Context, args []string) ([]byte, error) {
 	fmt.Fprintln(os.Stdout, "Commands:")
 
 	var keys []string
-	for k, _ := range commands {
+	for k := range commands {
 		keys = append(keys, k)
 	}
 	sort.Strings(keys)

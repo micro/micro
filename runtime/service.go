@@ -85,6 +85,20 @@ func runService(ctx *cli.Context, srvOpts ...micro.Option) {
 	name := ctx.Args().Get(0)
 	version := "latest"
 	source := ctx.String("source")
+	// Set source here correctly per flag/environment to avoid
+	// issues down the line
+	if len(source) == 0 && !ctx.Bool("platform") {
+		// in the case of `micro run --server folder/folder1`,
+		// or `micro run folder/folder1`
+		// set the local absolute path to the package
+		path, err := os.Getwd()
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		source = filepath.Join(path, ctx.Args().Get(0))
+
+	}
 	typ := ctx.String("type")
 	image := ctx.String("image")
 	command := strings.TrimSpace(ctx.String("command"))
@@ -274,16 +288,14 @@ func getService(ctx *cli.Context, srvOpts ...micro.Option) {
 
 	var err error
 	var services []*runtime.Service
+	var readOpts []runtime.ReadOption
 
 	// return a list of services
 	switch list {
 	case true:
 		// return specific type listing
 		if len(typ) > 0 {
-			services, err = r.Read(runtime.ReadType(typ))
-		} else {
-			// list all running services
-			services, err = r.List()
+			readOpts = append(readOpts, runtime.ReadType(typ))
 		}
 	// return one service
 	default:
@@ -294,21 +306,20 @@ func getService(ctx *cli.Context, srvOpts ...micro.Option) {
 		}
 
 		// get service with name and version
-		opts := []runtime.ReadOption{
+		readOpts = []runtime.ReadOption{
 			runtime.ReadService(name),
 			runtime.ReadVersion(version),
 		}
 
 		// return the runtime services
 		if len(typ) > 0 {
-			opts = append(opts, runtime.ReadType(typ))
+			readOpts = append(readOpts, runtime.ReadType(typ))
 		}
 
-		// read the service
-		services, err = r.Read(opts...)
 	}
 
-	// check the error
+	// read the service
+	services, err = r.Read(readOpts...)
 	if err != nil {
 		fmt.Println(err)
 		return

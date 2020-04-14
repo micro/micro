@@ -16,7 +16,7 @@ func Restore(ctx *cli.Context) error {
 		return errors.Wrap(err, "couldn't construct a store")
 	}
 	log := logger.DefaultLogger
-	var rs snapshot.Restorer
+	var rs snapshot.Restore
 	source := ctx.String("source")
 
 	if len(source) == 0 {
@@ -28,7 +28,7 @@ func Restore(ctx *cli.Context) error {
 	}
 	switch u.Scheme {
 	case "file":
-		rs = snapshot.NewFileRestorer(snapshot.Source(source))
+		rs = snapshot.NewFileRestore(snapshot.Source(source))
 	default:
 		return errors.Errorf("unsupported source scheme: %s", u.Scheme)
 	}

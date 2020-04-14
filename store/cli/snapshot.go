@@ -17,7 +17,7 @@ func Snapshot(ctx *cli.Context) error {
 	}
 	log := logger.DefaultLogger
 	dest := ctx.String("destination")
-	var sn snapshot.Snapshotter
+	var sn snapshot.Snapshot
 
 	if len(dest) == 0 {
 		return errors.New("destination flag must be set")
@@ -28,7 +28,7 @@ func Snapshot(ctx *cli.Context) error {
 	}
 	switch u.Scheme {
 	case "file":
-		sn = snapshot.NewFileSnapshotter(snapshot.Destination(dest))
+		sn = snapshot.NewFileSnapshot(snapshot.Destination(dest))
 	default:
 		return errors.Errorf("unsupported destination scheme: %s", u.Scheme)
 	}

@@ -1,10 +1,10 @@
 # Micro [![License](https://img.shields.io/:license-apache-blue.svg)](https://opensource.org/licenses/Apache-2.0) [![GoDoc](https://godoc.org/github.com/micro/micro?status.svg)](https://godoc.org/github.com/micro/micro) [![Travis CI](https://travis-ci.org/micro/micro.svg?branch=master)](https://travis-ci.org/micro/micro) [![Go Report Card](https://goreportcard.com/badge/micro/micro)](https://goreportcard.com/report/github.com/micro/micro)
 
-Micro is a microservices runtime environment for the Cloud.
+Micro is a distributed systems runtime for the Cloud and beyond.
 
 ## Overview
 
-Micro addresses the key requirements for building scalable systems in the Cloud and beyond. It leverages the microservices
+Micro addresses the key requirements for building distributed systems in the Cloud and beyond. It leverages the microservices
 architecture pattern and provides a set of services which act as the building blocks of a platform. Micro deals
 with the complexity of distributed systems and provides simpler programmable abstractions to build on.
 
@@ -55,9 +55,6 @@ Go Micro abstracts away the complexity of distributed systems and provides simpl
 From source
 
 ```
-# enable go modules
-export GO111MODULE=on
-
 go get github.com/micro/micro/v2
 ```
 
@@ -71,13 +68,13 @@ Latest release binaries
 
 ```
 # MacOS
-curl -fsSL https://micro.mu/install.sh | /bin/bash
+curl -fsSL https://raw.githubusercontent.com/micro/micro/master/scripts/install.sh | /bin/bash
 
 # Linux
-wget -q https://micro.mu/install.sh -O - | /bin/bash
+wget -q  https://raw.githubusercontent.com/micro/micro/master/scripts/install.sh -O - | /bin/bash
 
 # Windows
-powershell -Command "iwr -useb https://micro.mu/install.ps1 | iex"
+powershell -Command "iwr -useb https://raw.githubusercontent.com/micro/micro/master/scripts/install.ps1 | iex"
 ```
 
 ## Getting Started
@@ -91,14 +88,11 @@ micro server
 ### Create a service
 
 ```
-# enable go modules
-export GO111MODULE=on
-
 # generate a service (follow instructions in output)
 micro new example
 
 # run the service
-micro run example --local
+micro run --server example
 
 # list services
 micro list services

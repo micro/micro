@@ -31,12 +31,12 @@ import (
 	log "github.com/micro/go-micro/v2/logger"
 	"github.com/micro/go-micro/v2/registry"
 	"github.com/micro/go-micro/v2/registry/cache"
-	cfstore "github.com/micro/go-micro/v2/store/cloudflare"
-	"github.com/micro/go-micro/v2/sync/lock/memory"
+	"github.com/micro/go-micro/v2/sync/memory"
 	apiAuth "github.com/micro/micro/v2/api/auth"
 	"github.com/micro/micro/v2/internal/handler"
 	"github.com/micro/micro/v2/internal/helper"
 	"github.com/micro/micro/v2/internal/namespace"
+	cfstore "github.com/micro/micro/v2/internal/plugins/store/cloudflare"
 	"github.com/micro/micro/v2/internal/resolver/web"
 	"github.com/micro/micro/v2/internal/stats"
 	"github.com/micro/micro/v2/plugin"
@@ -44,6 +44,7 @@ import (
 	"golang.org/x/net/publicsuffix"
 )
 
+//Meta Fields of micro web
 var (
 	// Default server name
 	Name = "go.micro.web"
@@ -101,7 +102,7 @@ func (r *reg) watch() {
 		t := time.NewTicker(time.Minute)
 		defer t.Stop()
 
-		for _ = range t.C {
+		for range t.C {
 			r.update()
 		}
 	}()
@@ -616,7 +617,7 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 				cfstore.CacheTTL(time.Minute),
 			)
 			storage := certmagic.NewStorage(
-				memory.NewLock(),
+				memory.NewSync(),
 				cloudflareStore,
 			)
 			config := cloudflare.NewDefaultConfig()
@@ -677,7 +678,7 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		srvOpts = append(srvOpts, micro.RegisterInterval(i*time.Second))
 	}
 
-	// Initialise Server
+	// Initialize Server
 	service := micro.NewService(srvOpts...)
 
 	// Setup auth redirect
@@ -700,6 +701,7 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	}
 }
 
+//Commands for `micro web`
 func Commands(options ...micro.Option) []*cli.Command {
 	command := &cli.Command{
 		Name:  "web",

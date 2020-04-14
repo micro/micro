@@ -5,10 +5,11 @@ import (
 	"github.com/micro/go-micro/v2/config/cmd"
 
 	// import specific plugins
-	cfStore "github.com/micro/go-micro/v2/store/cloudflare"
 	ckStore "github.com/micro/go-micro/v2/store/cockroach"
 	fileStore "github.com/micro/go-micro/v2/store/file"
 	memStore "github.com/micro/go-micro/v2/store/memory"
+	// we only use CF internally for certs
+	cfStore "github.com/micro/micro/v2/internal/plugins/store/cloudflare"
 )
 
 func init() {

@@ -304,7 +304,7 @@ func (m *manager) processEvents(newEvents []*event) error {
 }
 
 func (m *manager) updateStatus() error {
-	services, err := m.Runtime.List()
+	services, err := m.Runtime.Read()
 	if err != nil {
 		log.Errorf("Failed to list runtime services: %v", err)
 		return err
@@ -349,7 +349,7 @@ func (m *manager) processServices() error {
 
 	// list whats already runnning
 	// TODO: change to read service: prefix
-	services, err := m.Runtime.List()
+	services, err := m.Runtime.Read()
 	if err != nil {
 		log.Errorf("Failed to list runtime services: %v", err)
 		return err
@@ -408,7 +408,6 @@ func (m *manager) processServices() error {
 
 		// set the status to starting
 		rs.Status = "started"
-
 		// service does not exist so start it
 		if err := m.Runtime.Create(rs.Service, opts...); err != nil {
 			if err != runtime.ErrAlreadyExists {
@@ -713,19 +712,6 @@ func (m *manager) Delete(s *runtime.Service) error {
 
 	// delete from store
 	return m.Store.Delete(k)
-}
-
-func (m *manager) List() ([]*runtime.Service, error) {
-	m.RLock()
-	defer m.RUnlock()
-
-	services := make([]*runtime.Service, 0, len(m.services))
-
-	for _, service := range m.services {
-		services = append(services, copyService(service))
-	}
-
-	return services, nil
 }
 
 func (m *manager) Start() error {

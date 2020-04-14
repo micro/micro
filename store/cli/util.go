@@ -11,7 +11,7 @@ import (
 
 // makeStore is a helper function that creates a store for snapshot and restore
 func makeStore(ctx *cli.Context) (store.Store, error) {
-	builtinStore, err := getStore(ctx.String("backend"))
+	builtinStore, err := getStore(ctx.String("store"))
 	if err != nil {
 		return nil, errors.Wrap(err, "makeStore")
 	}
@@ -21,7 +21,7 @@ func makeStore(ctx *cli.Context) (store.Store, error) {
 		store.Table(ctx.String("table")),
 	)
 	if err := s.Init(); err != nil {
-		return nil, errors.Wrapf(err, "Couldn't init %s store", ctx.String("backend"))
+		return nil, errors.Wrapf(err, "Couldn't init %s store", ctx.String("store"))
 	}
 	return s, nil
 }

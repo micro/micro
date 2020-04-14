@@ -36,8 +36,6 @@ spec:
             secretKeyRef:
               name: micro-keypair
               key: public
-        - name: MICRO_WEB_NAMESPACE
-          value: "domain"
         - name: MICRO_WEB_RESOLVER
           value: "subdomain"
         - name: MICRO_BROKER
