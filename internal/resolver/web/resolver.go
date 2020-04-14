@@ -86,7 +86,7 @@ func (r *Resolver) Resolve(req *http.Request) (*res.Endpoint, error) {
 	host, _, webReq := r.Info(req)
 
 	// use path based resolution if its web dashboard related.
-	if webReq {
+	if webReq && !strings.HasSuffix(host, "micro.mu") {
 		return r.resolveWithPath(req)
 	}
 
