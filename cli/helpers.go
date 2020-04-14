@@ -12,6 +12,7 @@ import (
 	"github.com/micro/go-micro/v2/client"
 	cbytes "github.com/micro/go-micro/v2/codec/bytes"
 	"github.com/micro/go-micro/v2/config/cmd"
+	"github.com/micro/go-micro/v2/util/config"
 	clic "github.com/micro/micro/v2/internal/command/cli"
 )
 
@@ -24,7 +25,9 @@ func Print(e exec) func(*cli.Context) error {
 			fmt.Println(err)
 			os.Exit(1)
 		}
-		fmt.Printf("%s\n", string(rsp))
+		if len(rsp) > 0 {
+			fmt.Printf("%s\n", string(rsp))
+		}
 		return nil
 	}
 }
@@ -106,6 +109,18 @@ func callService(c *cli.Context, args []string) ([]byte, error) {
 		os.Setenv("MICRO_PROXY_ADDRESS", "proxy.micro.mu:443")
 	}
 	return clic.CallService(c, args)
+}
+
+func setEnv(c *cli.Context, args []string) ([]byte, error) {
+	if len(args) == 0 || len(args[0]) == 0 {
+		return nil, errors.New("Please supply a value")
+	}
+	return nil, config.Set(args[0], "env")
+}
+
+func getEnv(c *cli.Context, args []string) ([]byte, error) {
+	val, err := config.Get("env")
+	return []byte(val), err
 }
 
 // netCall calls services through the network

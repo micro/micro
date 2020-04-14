@@ -111,16 +111,6 @@ func Flags() []cli.Flag {
 			Name:  "type",
 			Usage: "The type of service operate on",
 		},
-		&cli.BoolFlag{
-			Name:  "platform",
-			Usage: "Connect to the platform",
-			Value: false,
-		},
-		&cli.BoolFlag{
-			Name:  "server",
-			Usage: "Connect to local server",
-			Value: false,
-		},
 		&cli.StringSliceFlag{
 			Name:  "env",
 			Usage: "Set the environment variables e.g. foo=bar",

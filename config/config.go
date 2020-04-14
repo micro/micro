@@ -72,7 +72,6 @@ func setConfig(ctx *cli.Context) error {
 
 	// TODO: allow the specifying of a config.Key. This will be service name
 	// The actuall key-val set is a path e.g micro/accounts/key
-
 	_, err := pb.Update(context.TODO(), &proto.UpdateRequest{
 		Change: &proto.Change{
 			// global key
