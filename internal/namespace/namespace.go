@@ -17,14 +17,23 @@ const (
 	// such as the store and broker operate within. Any service
 	// can read runtime services but writing is restricted.
 	RuntimeNamespace = "runtime"
+	// NamespaceKey is used to set/get the namespace from the
+	// context
+	NamespaceKey = "Micro-Namespace"
 )
 
 // NamespaceFromContext gets the namespace from the context
 func NamespaceFromContext(ctx context.Context) string {
-	if ns, ok := metadata.Get(ctx, auth.NamespaceKey); ok {
+	if ns, ok := metadata.Get(ctx, NamespaceKey); ok {
 		return ns
 	}
-	return DefaultNamespace
+
+	acc, err := auth.AccountFromContext(ctx)
+	if err != nil || acc == nil {
+		return DefaultNamespace
+	}
+
+	return acc.Namespace
 }
 
 var serviceTypes = []string{"api", "web", "service", "srv"}

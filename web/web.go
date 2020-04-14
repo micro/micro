@@ -158,7 +158,7 @@ func (r *reg) update() {
 	r.lastPull = time.Now()
 }
 
-func (r *reg) ListServices() ([]*registry.Service, error) {
+func (r *reg) ListServices(opts ...registry.ListOption) ([]*registry.Service, error) {
 	r.RLock()
 	defer r.RUnlock()
 
@@ -333,7 +333,7 @@ func (s *srv) indexHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	services, err := s.registry.ListServices()
+	services, err := s.registry.ListServices(registry.ListContext(r.Context()))
 	if err != nil {
 		log.Errorf("Error listing services: %v", err)
 	}
@@ -345,14 +345,20 @@ func (s *srv) indexHandler(w http.ResponseWriter, r *http.Request) {
 
 	// TODO: lookup icon
 
-	// determine the namespace using the request
-	namespace := s.nsResolver.Resolve(r)
+	// determine the namespace the request was made against
+	reqNs := namespace.NamespaceFromContext(r.Context())
 
 	var webServices []webService
 	for _, srv := range services {
-		if strings.Index(srv.Name, namespace) == 0 && len(strings.TrimPrefix(srv.Name, namespace)) > 0 {
+		// not a web app
+		if !strings.Contains(srv.Name, "web.") {
+			continue
+		}
+
+		srvNs, _ := namespace.NamespaceFromService(srv.Name)
+		if srvNs == reqNs {
 			webServices = append(webServices, webService{
-				Name: strings.Replace(srv.Name, namespace+".", "", 1),
+				Name: strings.Replace(srv.Name, srvNs+".web.", "", 1),
 			})
 		}
 	}
@@ -373,7 +379,7 @@ func (s *srv) registryHandler(w http.ResponseWriter, r *http.Request) {
 	svc := vars["name"]
 
 	if len(svc) > 0 {
-		sv, err := s.registry.GetService(svc)
+		sv, err := s.registry.GetService(svc, registry.GetContext(r.Context()))
 		if err != nil {
 			http.Error(w, "Error occurred:"+err.Error(), 500)
 			return
@@ -401,16 +407,29 @@ func (s *srv) registryHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	services, err := s.registry.ListServices()
+	services, err := s.registry.ListServices(registry.ListContext(r.Context()))
 	if err != nil {
 		log.Errorf("Error listing services: %v", err)
 	}
 
 	sort.Sort(sortedServices{services})
 
+	// get the namespace from the request
+	reqNs := namespace.NamespaceFromContext(r.Context())
+
+	// we're using a cache which means we can't filter when making the request
+	// to the registry, so filter in code
+	var filteredSrvs []*registry.Service
+	for _, service := range services {
+		srvNs, _ := namespace.NamespaceFromService(service.Name)
+		if srvNs == namespace.RuntimeNamespace || srvNs == reqNs {
+			filteredSrvs = append(filteredSrvs, service)
+		}
+	}
+
 	if r.Header.Get("Content-Type") == "application/json" {
 		b, err := json.Marshal(map[string]interface{}{
-			"services": services,
+			"services": filteredSrvs,
 		})
 		if err != nil {
 			http.Error(w, "Error occurred:"+err.Error(), 500)
@@ -421,25 +440,33 @@ func (s *srv) registryHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	s.render(w, r, registryTemplate, services)
+	s.render(w, r, registryTemplate, filteredSrvs)
 }
 
 func (s *srv) callHandler(w http.ResponseWriter, r *http.Request) {
-	services, err := s.registry.ListServices()
+	services, err := s.registry.ListServices(registry.ListContext(r.Context()))
 	if err != nil {
 		log.Errorf("Error listing services: %v", err)
 	}
+
+	// get the namespace from the request
+	reqNs := namespace.NamespaceFromContext(r.Context())
 
 	sort.Sort(sortedServices{services})
 
 	serviceMap := make(map[string][]*registry.Endpoint)
 	for _, service := range services {
+		srvNs, _ := namespace.NamespaceFromService(service.Name)
+		if srvNs != namespace.RuntimeNamespace && srvNs != reqNs {
+			continue
+		}
+
 		if len(service.Endpoints) > 0 {
 			serviceMap[service.Name] = service.Endpoints
 			continue
 		}
 		// lookup the endpoints otherwise
-		s, err := s.registry.GetService(service.Name)
+		s, err := s.registry.GetService(service.Name, registry.GetContext(r.Context()))
 		if err != nil {
 			continue
 		}
@@ -549,7 +576,7 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		resolver: &web.Resolver{
 			// Default to type path
 			Type:      Resolver,
-			Namespace: namespace.NewResolver(Type, Namespace).Resolve,
+			Namespace: namespace.NewResolver(Type, Namespace).ResolveWithType,
 			Selector: selector.NewSelector(
 				selector.Registry(reg),
 			),

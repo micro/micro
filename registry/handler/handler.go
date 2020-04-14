@@ -68,6 +68,11 @@ func (r *Registry) GetService(ctx context.Context, req *pb.GetRequest, rsp *pb.G
 }
 
 func (r *Registry) Register(ctx context.Context, req *pb.Service, rsp *pb.EmptyResponse) error {
+	// validate the name is valid
+	if _, err := namespace.NamespaceFromService(req.Name); err != nil {
+		return err
+	}
+
 	// verify the context has access to register the service
 	if !canWriteService(ctx, req.Name) {
 		return errors.Forbidden("go.micro.registry", "Cannot register service")
@@ -122,11 +127,6 @@ func (r *Registry) ListServices(ctx context.Context, req *pb.ListRequest, rsp *p
 }
 
 func (r *Registry) Watch(ctx context.Context, req *pb.WatchRequest, rsp pb.Registry_WatchStream) error {
-	// verify the context has access to watch the service
-	if !canReadService(ctx, req.Service) {
-		return errors.Forbidden("go.micro.registry", "Cannot read service")
-	}
-
 	watcher, err := r.Registry.Watch(registry.WatchService(req.Service))
 	if err != nil {
 		return errors.InternalServerError("go.micro.registry", err.Error())
@@ -136,6 +136,9 @@ func (r *Registry) Watch(ctx context.Context, req *pb.WatchRequest, rsp pb.Regis
 		next, err := watcher.Next()
 		if err != nil {
 			return errors.InternalServerError("go.micro.registry", err.Error())
+		}
+		if !canReadService(ctx, next.Service.Name) {
+			continue
 		}
 		err = rsp.Send(&pb.Result{
 			Action:  next.Action,
@@ -151,12 +154,9 @@ func (r *Registry) Watch(ctx context.Context, req *pb.WatchRequest, rsp pb.Regis
 // permission to read the service
 func canReadService(ctx context.Context, name string) bool {
 	ns, err := namespace.NamespaceFromService(name)
-
-	// the data in the registry is invalid, log an error and don't allow
-	// access. This should never happen as namespaces will be validated
-	// when services are registered.
 	if err != nil {
-		log.Warnf("Invalid service name in registry: %v", name)
+		// This should never happen as namespaces will be validated
+		log.Warnf("Invalid service name: %v", name)
 		return false
 	}
 
@@ -167,8 +167,10 @@ func canReadService(ctx context.Context, name string) bool {
 	}
 
 	// get the namespace from the context and compare this to the services
-	// namespace, if they match we allow access
-	return namespace.NamespaceFromContext(ctx) == ns
+	// namespace, if they match we allow access. We also allow the runtime
+	// services access to read any services (needed for micro web etc).
+	ctxNs := namespace.NamespaceFromContext(ctx)
+	return ctxNs == ns || ctxNs == namespace.RuntimeNamespace
 }
 
 // canReadService returns a boolean indicating is the context has
@@ -180,7 +182,7 @@ func canWriteService(ctx context.Context, name string) bool {
 	// access. This should never happen as namespaces will be validated
 	// when services are registered.
 	if err != nil {
-		log.Warnf("Invalid service name in registry: %v", name)
+		log.Warnf("Invalid service name: %v", name)
 		return false
 	}
 
