@@ -2,8 +2,6 @@
 package debug
 
 import (
-	"os"
-
 	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro/v2"
 	"github.com/micro/go-micro/v2/debug/log"
