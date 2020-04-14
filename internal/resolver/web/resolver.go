@@ -74,11 +74,6 @@ func (r *Resolver) Info(req *http.Request) (string, string, bool) {
 		return host, namespace, true
 	}
 
-	// check to see if this request is for a micro.mu subdomain
-	if host != "web.micro.mu" {
-		return host, namespace, false
-	}
-
 	// Check if the request is a top level path
 	isWeb := strings.Count(req.URL.Path, "/") == 1
 	return host, namespace, isWeb
@@ -91,7 +86,7 @@ func (r *Resolver) Resolve(req *http.Request) (*res.Endpoint, error) {
 	host, _, webReq := r.Info(req)
 
 	// use path based resolution if its web dashboard related.
-	if webReq {
+	if webReq && !strings.HasSuffix(host, "micro.mu") {
 		return r.resolveWithPath(req)
 	}
 
