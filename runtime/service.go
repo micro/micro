@@ -2,7 +2,6 @@
 package runtime
 
 import (
-	"errors"
 	"fmt"
 	"os"
 	"os/signal"
@@ -16,7 +15,6 @@ import (
 	"github.com/micro/go-micro/v2"
 	"github.com/micro/go-micro/v2/runtime"
 	srvRuntime "github.com/micro/go-micro/v2/runtime/service"
-	"github.com/micro/go-micro/v2/util/config"
 )
 
 const (
@@ -55,17 +53,8 @@ func timeAgo(v string) string {
 	return fmt.Sprintf("%v ago", time.Since(t).Truncate(time.Second))
 }
 
-func runtimeFromContext(ctx *cli.Context) (runtime.Runtime, error) {
-	env, err := config.Get("env")
-	if err != nil {
-		return nil, err
-	}
-	if len(env) == 0 {
-		return nil, errors.New("No env configured")
-	}
-	os.Setenv("MICRO_PROXY", "service")
-	os.Setenv("MICRO_PROXY_ADDRESS", env)
-	return srvRuntime.NewRuntime(), nil
+func runtimeFromContext(ctx *cli.Context) runtime.Runtime {
+	return srvRuntime.NewRuntime()
 }
 
 func runService(ctx *cli.Context, srvOpts ...micro.Option) {
@@ -106,11 +95,7 @@ func runService(ctx *cli.Context, srvOpts ...micro.Option) {
 	args := strings.TrimSpace(ctx.String("args"))
 
 	// load the runtime
-	r, err := runtimeFromContext(ctx)
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
+	r := runtimeFromContext(ctx)
 
 	// set the version (arg 2, optional)
 	if ctx.Args().Len() > 1 {
@@ -230,13 +215,7 @@ func killService(ctx *cli.Context, srvOpts ...micro.Option) {
 		Version: version,
 	}
 
-	r, err := runtimeFromContext(ctx)
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
-
-	if err := r.Delete(service); err != nil {
+	if err := runtimeFromContext(ctx).Delete(service); err != nil {
 		fmt.Println(err)
 		return
 	}
@@ -267,12 +246,7 @@ func updateService(ctx *cli.Context, srvOpts ...micro.Option) {
 		Version: version,
 	}
 
-	r, err := runtimeFromContext(ctx)
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
-	if err := r.Update(service); err != nil {
+	if err := runtimeFromContext(ctx).Update(service); err != nil {
 		fmt.Println(err)
 		return
 	}
@@ -282,11 +256,7 @@ func getService(ctx *cli.Context, srvOpts ...micro.Option) {
 	name := ctx.Args().Get(0)
 	version := "latest"
 	typ := ctx.String("type")
-	r, err := runtimeFromContext(ctx)
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
+	r := runtimeFromContext(ctx)
 
 	if strings.HasPrefix(name, ".") || strings.HasPrefix(name, "/") {
 		fmt.Println(GetUsage)
@@ -338,7 +308,7 @@ func getService(ctx *cli.Context, srvOpts ...micro.Option) {
 	}
 
 	// read the service
-	services, err = r.Read(readOpts...)
+	services, err := r.Read(readOpts...)
 	if err != nil {
 		fmt.Println(err)
 		return

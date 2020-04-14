@@ -10,6 +10,7 @@ import (
 	log "github.com/micro/go-micro/v2/logger"
 	"github.com/micro/go-micro/v2/runtime"
 	pb "github.com/micro/go-micro/v2/runtime/service/proto"
+	"github.com/micro/micro/v2/cli/util"
 	"github.com/micro/micro/v2/runtime/handler"
 )
 
@@ -119,6 +120,7 @@ func Flags() []cli.Flag {
 }
 
 func Commands(options ...micro.Option) []*cli.Command {
+	cliutil.SetupCommand()
 	command := []*cli.Command{
 		{
 			Name:  "runtime",
