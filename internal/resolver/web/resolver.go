@@ -80,6 +80,13 @@ func (r *Resolver) Info(req *http.Request) (string, string, bool) {
 		return host, namespace, false
 	}
 
+	// Check for services info path, also handled by micro web but
+	// not a top level path. TODO: Find a better way of detecting and
+	// handling the non-proxied paths.
+	if strings.HasPrefix(req.URL.Path, "/service/") {
+		return host, namespace, true
+	}
+
 	// Check if the request is a top level path
 	isWeb := strings.Count(req.URL.Path, "/") == 1
 	return host, namespace, isWeb
