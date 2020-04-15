@@ -10,7 +10,7 @@ import (
 	log "github.com/micro/go-micro/v2/logger"
 	"github.com/micro/go-micro/v2/runtime"
 	pb "github.com/micro/go-micro/v2/runtime/service/proto"
-	"github.com/micro/micro/v2/cli/util"
+	cliutil "github.com/micro/micro/v2/cli/util"
 	"github.com/micro/micro/v2/runtime/handler"
 )
 
@@ -156,6 +156,9 @@ func Commands(options ...micro.Option) []*cli.Command {
 			// In future we'll also have `micro run [x]` hence `micro run service` requiring "service"
 			Name:  "run",
 			Usage: RunUsage,
+			Description: `Examples:
+			micro run https://github.com/micro/services/tree/master/helloworld
+			micro run . # deploy local folder to your local micro server`,
 			Flags: Flags(),
 			Action: func(ctx *cli.Context) error {
 				runService(ctx, options...)

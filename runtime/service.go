@@ -19,7 +19,7 @@ import (
 
 const (
 	// RunUsage message for the run command
-	RunUsage = "Required usage: micro run [service] [version] [--source github.com/micro/services]"
+	RunUsage = "Required usage: micro run [source]"
 	// KillUsage message for the kill command
 	KillUsage = "Require usage: micro kill [service] [version]"
 	// UpdateUsage message for the update command
@@ -123,11 +123,6 @@ func runService(ctx *cli.Context, srvOpts ...micro.Option) {
 	var retries = DefaultRetries
 	if ctx.IsSet("retries") {
 		retries = ctx.Int("retries")
-	}
-
-	// check the source is set
-	if ctx.Bool("platform") && len(source) == 0 {
-		source = Source
 	}
 
 	// specify the options
