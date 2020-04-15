@@ -57,6 +57,33 @@ func runtimeFromContext(ctx *cli.Context) runtime.Runtime {
 	return srvRuntime.NewRuntime()
 }
 
+// exists returns whether the given file or directory exists
+func dirExists(path string) (bool, error) {
+	_, err := os.Stat(path)
+	if err == nil {
+		return true, nil
+	}
+	if os.IsNotExist(err) {
+		return false, nil
+	}
+	return true, err
+}
+
+// extractSource tries to determine wether the
+// passed in name (first arg to micro run)
+func extractSource(arg string) (string, error) {
+	path, err := os.Getwd()
+	if err != nil {
+		return "", err
+	}
+
+	dirPath := filepath.Join(path, arg)
+	if exists, err := dirExists(dirPath); err != nil && exists {
+		return dirPath, nil
+	}
+	return arg, nil
+}
+
 func runService(ctx *cli.Context, srvOpts ...micro.Option) {
 	// Init plugins
 	for _, p := range Plugins() {
@@ -69,24 +96,10 @@ func runService(ctx *cli.Context, srvOpts ...micro.Option) {
 		return
 	}
 
-	// set and validate the name (arg 1)
-	name := ctx.Args().Get(0)
-	version := "latest"
-	source := ctx.String("source")
-
-	// Set source here correctly per flag/environment to avoid
-	// issues down the line
-	if len(source) == 0 && !ctx.Bool("platform") {
-		// in the case of `micro run --server folder/folder1`,
-		// or `micro run folder/folder1`
-		// set the local absolute path to the package
-		path, err := os.Getwd()
-		if err != nil {
-			fmt.Println(err)
-			return
-		}
-		source = filepath.Join(path, ctx.Args().Get(0))
-
+	source, err := extractSource(ctx.Args().Get(0))
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
 	}
 
 	typ := ctx.String("type")
@@ -96,11 +109,6 @@ func runService(ctx *cli.Context, srvOpts ...micro.Option) {
 
 	// load the runtime
 	r := runtimeFromContext(ctx)
-
-	// set the version (arg 2, optional)
-	if ctx.Args().Len() > 1 {
-		version = ctx.Args().Get(1)
-	}
 
 	// add environment variable passed in via cli
 	var environment []string
@@ -115,17 +123,6 @@ func runService(ctx *cli.Context, srvOpts ...micro.Option) {
 	var retries = DefaultRetries
 	if ctx.IsSet("retries") {
 		retries = ctx.Int("retries")
-	}
-
-	// set the image from our images if its the platform
-	if ctx.Bool("platform") && len(image) == 0 {
-		if strings.HasPrefix(name, ".") || strings.HasPrefix(name, "/") {
-			fmt.Println(RunUsage)
-			return
-		}
-
-		formattedName := strings.ReplaceAll(name, "/", "-")
-		image = fmt.Sprintf("%v/%v", Image, formattedName)
 	}
 
 	// check the source is set
@@ -153,25 +150,11 @@ func runService(ctx *cli.Context, srvOpts ...micro.Option) {
 		opts = append(opts, runtime.WithArgs(strings.Split(args, " ")...))
 	}
 
-	// don't pass through dotted names unless
-	if strings.HasPrefix(name, ".") || strings.HasPrefix(name, "/") {
-		if r.String() != "local" {
-			fmt.Println(RunUsage)
-			return
-		}
-		path, err := os.Getwd()
-		if err != nil {
-			fmt.Println(err)
-			return
-		}
-		name = filepath.Base(path)
-	}
-
 	// run the service
 	service := &runtime.Service{
-		Name:     name,
+		Name:     "",
 		Source:   source,
-		Version:  version,
+		Version:  "",
 		Metadata: make(map[string]string),
 	}
 

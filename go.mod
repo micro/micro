@@ -13,6 +13,7 @@ require (
 	github.com/eknkc/basex v1.0.0 // indirect
 	github.com/fsnotify/fsnotify v1.4.7
 	github.com/go-acme/lego/v3 v3.3.0
+	github.com/go-git/go-git/v5 v5.0.0
 	github.com/golang/protobuf v1.3.5
 	github.com/google/go-github v17.0.0+incompatible
 	github.com/google/uuid v1.1.1
@@ -28,11 +29,12 @@ require (
 	github.com/pborman/uuid v1.2.0
 	github.com/pkg/errors v0.9.1
 	github.com/pquerna/otp v1.2.0
+	github.com/satori/go.uuid v1.2.0
 	github.com/serenize/snaker v0.0.0-20171204205717-a683aaf2d516
 	github.com/spf13/viper v1.6.3
 	github.com/xlab/treeprint v0.0.0-20181112141820-a009c3971eca
 	golang.org/x/crypto v0.0.0-20200323165209-0ec3e9974c59
-	golang.org/x/net v0.0.0-20200222125558-5a598a2470a0
+	golang.org/x/net v0.0.0-20200301022130-244492dfa37a
 	golang.org/x/oauth2 v0.0.0-20191202225959-858c2ad4c8b6
 	golang.org/x/tools v0.0.0-20191216173652-a0e659d51361
 	google.golang.org/grpc v1.26.0
