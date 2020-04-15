@@ -37,12 +37,20 @@ func (r *Runtime) Create(ctx context.Context, req *pb.CreateRequest, rsp *pb.Cre
 
 	service := toService(req.Service)
 
-	name, version, err := extractNameAndVersion(service.Source)
+	sourceInfo, err := extractSource(service.Source)
 	if err != nil {
 		return err
 	}
-	service.Name = name
-	service.Version = version
+	service.Name = sourceInfo.serviceName
+	service.Version = sourceInfo.serviceVersion
+	// non local source
+	if sourceInfo.githubURL != nil {
+		service.Source = sourceInfo.githubURL.folder
+	}
+	// This is needed to support local `micro server` execution of git urls
+	if r.Runtime.String() == "local" && sourceInfo.githubURL != nil {
+		service.Source = filepath.Join(sourceInfo.repoRoot, sourceInfo.githubURL.folder)
+	}
 
 	log.Infof("Creating service %s version %s source %s", service.Name, service.Version, service.Source)
 
@@ -62,7 +70,7 @@ func (r *Runtime) Create(ctx context.Context, req *pb.CreateRequest, rsp *pb.Cre
 }
 
 // exists returns whether the given file or directory exists
-func dirExists(path string) (bool, error) {
+func pathExists(path string) (bool, error) {
 	_, err := os.Stat(path)
 	if err == nil {
 		return true, nil
@@ -73,6 +81,9 @@ func dirExists(path string) (bool, error) {
 	return true, err
 }
 
+// parsedGithubURL represent
+// the strutured information we care about when
+// extracting the full provided github URL source
 type parsedGithubURL struct {
 	// for cloning purposes
 	repoAddress string
@@ -80,58 +91,124 @@ type parsedGithubURL struct {
 	folder string
 }
 
-func extractNameAndVersion(source string) (name, version string, err error) {
+// sourceInfo contains all information
+// that was extracted from a source.
+// for source examples see `micro run --help`
+type sourceInfo struct {
+	githubURL *parsedGithubURL
+	// repo root in local filesystem
+	repoRoot string
+	// local urls ie. micro run helloworld/web
+	// will not have github URLs but we need to pass
+	// the relative folder to the micro/services image still.
+	relativePath string
+	// name of service
+	serviceName string
+	// service version
+	serviceVersion string
+}
+
+// extractSource tries to gather as much information
+// as possible just from the source.
+// for source examples see `micro run --help`
+func extractSource(source string) (*sourceInfo, error) {
+	sinf := &sourceInfo{}
 	var mainFilePath string
-	local := false
-	if local, err = dirExists(source); err != nil && local {
+	if local, err := pathExists(source); err != nil && local {
 		// Local directories to be deployed are not expected
 		// to be in source control. @todo we could still try
 		// to detect source control if exists and take the commit hash
 		// from there.
-		version = "latest"
+		repoRoot, err := getRepoRoot(source)
+		if err != nil {
+			return nil, err
+		}
+		// is source controlled
+		if repoRoot != "" {
+			sinf.repoRoot = repoRoot
+			sinf.relativePath = strings.ReplaceAll(source, repoRoot+string(filepath.Separator), "")
+			repo, err := git.PlainOpen(repoRoot)
+			if err != nil {
+				return nil, err
+			}
+			var head *plumbing.Reference
+			head, err = repo.Head()
+			if err != nil {
+				return nil, err
+			}
+			sinf.serviceVersion = head.String()
+		}
+		// @todo think about non source controlled
+		// deploys. They will miss the needed relative path
+		sinf.serviceVersion = "latest"
 		mainFilePath = filepath.Join(source, "main.go")
 	} else {
-		dirify := strings.ReplaceAll(strings.ReplaceAll(source, "/", "-"), ":", "-")
-		repoDir := filepath.Join(os.TempDir(), dirify)
-		var parsed *parsedGithubURL
-		parsed, err = parseGithubURL(source)
+		parsed, err := parseGithubURL(source)
 		if err != nil {
-			return
+			return nil, err
 		}
-		exists := false
+		sinf.githubURL = parsed
+
+		dirifiedURL := strings.ReplaceAll(strings.ReplaceAll(parsed.repoAddress, "/", "-"), ":", "-")
+		repoDir := filepath.Join(os.TempDir(), dirifiedURL)
+
 		// Only clone if doesn't exist already.
 		// @todo implement pull and check out of correct version
 		// by parsing commit hash from the git URL.
-		if exists, err = dirExists(repoDir); err == nil && !exists {
+		if exists, err := pathExists(repoDir); err == nil && !exists {
 			_, err = git.PlainClone(repoDir, false, &git.CloneOptions{
 				URL:      parsed.repoAddress,
 				Progress: os.Stdout,
 			})
 			if err != nil {
-				return
+				return nil, err
 			}
 		}
-		var repo *git.Repository
-		repo, err = git.PlainOpen(repoDir)
+		repo, err := git.PlainOpen(repoDir)
 		if err != nil {
-			return
+			return nil, err
 		}
 		var head *plumbing.Reference
 		head, err = repo.Head()
 		if err != nil {
-			return
+			return nil, err
 		}
-		version = head.Hash().String()
+		sinf.repoRoot = repoDir
+		sinf.serviceVersion = head.Hash().String()
 		mainFilePath = filepath.Join(repoDir, parsed.folder, "main.go")
 	}
 
-	var fileContent []byte
-	fileContent, err = ioutil.ReadFile(mainFilePath)
+	fileContent, err := ioutil.ReadFile(mainFilePath)
 	if err != nil {
-		return
+		return nil, err
 	}
-	name = extractServiceName(fileContent)
-	return
+	sinf.serviceName = extractServiceName(fileContent)
+	return sinf, nil
+}
+
+// get repo root from full path
+// returns empty string and no error if not found
+func getRepoRoot(fullPath string) (string, error) {
+	// traverse parent directories
+	prev := fullPath
+	for {
+		current := prev
+		log.Infof("++", current)
+		exists, err := pathExists(filepath.Join(current, ".git"))
+		if err != nil {
+			return "", err
+		}
+		if exists {
+			return current, nil
+		}
+		prev = filepath.Dir(current)
+		// reached top level, see:
+		// https://play.golang.org/p/rDgVdk3suzb
+		if current == prev {
+			break
+		}
+	}
+	return "", nil
 }
 
 var nameExtractRegexp = regexp.MustCompile(`(micro\.Name\(")(.*)("\))`)

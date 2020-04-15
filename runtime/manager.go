@@ -526,7 +526,7 @@ func (m *manager) run() {
 }
 
 func (m *manager) String() string {
-	return "manager"
+	return m.Runtime.String()
 }
 
 func (m *manager) Init(opts ...runtime.Option) error {
