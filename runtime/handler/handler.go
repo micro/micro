@@ -10,12 +10,12 @@ import (
 	"time"
 
 	"github.com/go-git/go-git/v5"
+	"github.com/go-git/go-git/v5/plumbing"
 	"github.com/micro/go-micro/v2"
 	"github.com/micro/go-micro/v2/errors"
 	log "github.com/micro/go-micro/v2/logger"
 	"github.com/micro/go-micro/v2/runtime"
 	pb "github.com/micro/go-micro/v2/runtime/service/proto"
-	uuid "github.com/satori/go.uuid"
 )
 
 type Runtime struct {
@@ -62,7 +62,7 @@ func (r *Runtime) Create(ctx context.Context, req *pb.CreateRequest, rsp *pb.Cre
 }
 
 // exists returns whether the given file or directory exists
-func isLocal(path string) (bool, error) {
+func dirExists(path string) (bool, error) {
 	_, err := os.Stat(path)
 	if err == nil {
 		return true, nil
@@ -83,40 +83,53 @@ type parsedGithubURL struct {
 func extractNameAndVersion(source string) (name, version string, err error) {
 	// local directory path of either local or checked out
 	// service source code
-	var dirPath string
-	uid := uuid.NewV4().String()
+	var mainFilePath string
 	local := false
-	if local, err = isLocal(source); err != nil && local {
-		dirPath = source
+	if local, err = dirExists(source); err != nil && local {
+		version = "latest"
+		mainFilePath = filepath.Join(source, "main.go")
 	} else {
-		repoDir := filepath.Join(os.TempDir(), uid)
+		dirify := strings.ReplaceAll(strings.ReplaceAll(source, "/", "-"), ":", "-")
+		repoDir := filepath.Join(os.TempDir(), dirify)
 		var parsed *parsedGithubURL
 		parsed, err = parseGithubURL(source)
 		if err != nil {
 			return
 		}
-		_, err = git.PlainClone(repoDir, false, &git.CloneOptions{
-			URL:      parsed.repoAddress,
-			Progress: os.Stdout,
-		})
+		exists := false
+		// only clone if doesn't exist already,
+		// otherwise pull
+		// @todo implement pull and check out of correct version
+		if exists, err = dirExists(repoDir); err == nil && !exists {
+			_, err = git.PlainClone(repoDir, false, &git.CloneOptions{
+				URL:      parsed.repoAddress,
+				Progress: os.Stdout,
+			})
+			if err != nil {
+				return
+			}
+		}
+		var repo *git.Repository
+		// @todo this won't work with a subfolder
+		repo, err = git.PlainOpen(repoDir)
 		if err != nil {
 			return
 		}
-		dirPath = filepath.Join(repoDir, parsed.folder)
+		var head *plumbing.Reference
+		head, err = repo.Head()
+		if err != nil {
+			return
+		}
+		version = head.Hash().String()
+		mainFilePath = filepath.Join(repoDir, parsed.folder, "main.go")
 	}
-	repo, err := git.PlainOpen(dirPath)
+
+	var fileContent []byte
+	fileContent, err = ioutil.ReadFile(mainFilePath)
 	if err != nil {
 		return
 	}
-	head, err := repo.Head()
-	if err != nil {
-		return
-	}
-	version = head.Hash().String()
-	_, err = ioutil.ReadFile("/tmp/dat")
-	if err != nil {
-		return
-	}
+	name = extractServiceName(fileContent)
 	return
 }
 

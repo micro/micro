@@ -13,6 +13,7 @@ require (
 	github.com/eknkc/basex v1.0.0 // indirect
 	github.com/fsnotify/fsnotify v1.4.7
 	github.com/go-acme/lego/v3 v3.3.0
+	github.com/go-git/go-git v4.7.0+incompatible
 	github.com/go-git/go-git/v5 v5.0.0
 	github.com/golang/protobuf v1.3.5
 	github.com/google/go-github v17.0.0+incompatible
