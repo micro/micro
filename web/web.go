@@ -363,7 +363,7 @@ func (s *srv) indexHandler(w http.ResponseWriter, r *http.Request) {
 
 			link := fmt.Sprintf("/%v/", name)
 			if Resolver == "subdomain" && len(domain) > 0 {
-				link = fmt.Sprintf("%v://%v.%v", r.URL.Scheme, name, domain)
+				link = fmt.Sprintf("https://%v.%v", name, domain)
 			}
 
 			webServices = append(webServices, webService{Name: name, Link: link})
