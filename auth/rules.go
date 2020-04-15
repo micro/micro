@@ -24,10 +24,10 @@ func listRules(ctx *cli.Context) {
 	w := tabwriter.NewWriter(os.Stdout, 0, 8, 1, '\t', 0)
 	defer w.Flush()
 
-	fmt.Fprintln(w, strings.Join([]string{"Role", "Access", "Resource"}, "\t"))
+	fmt.Fprintln(w, strings.Join([]string{"Role", "Access", "Resource", "Priority"}, "\t"))
 	for _, r := range rsp.Rules {
 		res := strings.Join([]string{r.Resource.Namespace, r.Resource.Type, r.Resource.Name, r.Resource.Endpoint}, ":")
-		fmt.Fprintln(w, strings.Join([]string{r.Role, r.Access.String(), res}, "\t"))
+		fmt.Fprintln(w, strings.Join([]string{r.Role, r.Access.String(), res, fmt.Sprintf("%b", r.Priority)}, "\t"))
 	}
 }
 
@@ -39,6 +39,7 @@ func createRule(ctx *cli.Context) {
 		Role:     r.Role,
 		Access:   r.Access,
 		Resource: r.Resource,
+		Priority: r.Priority,
 	})
 	if err != nil {
 		fmt.Printf("Error creating rule: %v\n", err)
@@ -56,6 +57,7 @@ func deleteRule(ctx *cli.Context) {
 		Role:     r.Role,
 		Access:   r.Access,
 		Resource: r.Resource,
+		Priority: r.Priority,
 	})
 	if err != nil {
 		fmt.Printf("Error creating rule: %v\n", err)
@@ -83,8 +85,9 @@ func constructRule(ctx *cli.Context) *pb.Rule {
 	}
 
 	return &pb.Rule{
-		Access: access,
-		Role:   ctx.String("role"),
+		Access:   access,
+		Role:     ctx.String("role"),
+		Priority: int32(ctx.Int("priority")),
 		Resource: &pb.Resource{
 			Namespace: resComps[0],
 			Type:      resComps[1],
