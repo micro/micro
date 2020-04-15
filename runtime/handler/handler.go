@@ -81,11 +81,13 @@ type parsedGithubURL struct {
 }
 
 func extractNameAndVersion(source string) (name, version string, err error) {
-	// local directory path of either local or checked out
-	// service source code
 	var mainFilePath string
 	local := false
 	if local, err = dirExists(source); err != nil && local {
+		// Local directories to be deployed are not expected
+		// to be in source control. @todo we could still try
+		// to detect source control if exists and take the commit hash
+		// from there.
 		version = "latest"
 		mainFilePath = filepath.Join(source, "main.go")
 	} else {
@@ -97,9 +99,9 @@ func extractNameAndVersion(source string) (name, version string, err error) {
 			return
 		}
 		exists := false
-		// only clone if doesn't exist already,
-		// otherwise pull
+		// Only clone if doesn't exist already.
 		// @todo implement pull and check out of correct version
+		// by parsing commit hash from the git URL.
 		if exists, err = dirExists(repoDir); err == nil && !exists {
 			_, err = git.PlainClone(repoDir, false, &git.CloneOptions{
 				URL:      parsed.repoAddress,
@@ -110,7 +112,6 @@ func extractNameAndVersion(source string) (name, version string, err error) {
 			}
 		}
 		var repo *git.Repository
-		// @todo this won't work with a subfolder
 		repo, err = git.PlainOpen(repoDir)
 		if err != nil {
 			return
