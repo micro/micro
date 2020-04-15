@@ -74,7 +74,7 @@ func newScheduler(url string, tick time.Duration, version time.Time) *notifier {
 
 // Poll polls for updates and returns results
 func (h *notifier) poll() (*Build, error) {
-	// this should not return error, but lets make sure
+	// this should not return error, but lets make sure.
 	url, err := url.Parse(h.url)
 	if err != nil {
 		return nil, err
@@ -122,6 +122,10 @@ func (h *notifier) run() {
 			resp, err := h.poll()
 			if err != nil {
 				log.Debugf("Scheduler error polling for updates: %v", err)
+				continue
+			}
+			if resp == nil {
+				log.Debug("Poll response is empty")
 				continue
 			}
 			// parse returned response to timestamp

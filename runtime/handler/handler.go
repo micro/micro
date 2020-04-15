@@ -2,7 +2,6 @@ package handler
 
 import (
 	"context"
-	"fmt"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -37,32 +36,13 @@ func (r *Runtime) Create(ctx context.Context, req *pb.CreateRequest, rsp *pb.Cre
 	}
 
 	service := toService(req.Service)
-	// local directory path of either local or checked out
-	// service source code
-	var dirPath string
-	uid := uuid.NewV4().String()
-	if local, err := isLocal(service.Source); err != nil && local {
-		dirPath = service.Source
-	} else {
-		repoDir := filepath.Join(os.TempDir(), uid)
-		parsed, err := parseGithubURL(service.Source)
-		if err != nil {
-			return err
-		}
-		_, err = git.PlainClone(repoDir, false, &git.CloneOptions{
-			URL:      parsed.repoAddress,
-			Progress: os.Stdout,
-		})
-		if err != nil {
-			return err
-		}
-		dirPath = filepath.Join(repoDir, parsed.folder)
-	}
-	name, version, err := extractNameAndVersion(dirPath)
+
+	name, version, err := extractNameAndVersion(service.Source)
 	if err != nil {
 		return err
 	}
-	fmt.Println("name and version", name, version)
+	service.Name = name
+	service.Version = version
 
 	log.Infof("Creating service %s version %s source %s", service.Name, service.Version, service.Source)
 
@@ -100,7 +80,30 @@ type parsedGithubURL struct {
 	folder string
 }
 
-func extractNameAndVersion(dirPath string) (name, version string, err error) {
+func extractNameAndVersion(source string) (name, version string, err error) {
+	// local directory path of either local or checked out
+	// service source code
+	var dirPath string
+	uid := uuid.NewV4().String()
+	local := false
+	if local, err = isLocal(source); err != nil && local {
+		dirPath = source
+	} else {
+		repoDir := filepath.Join(os.TempDir(), uid)
+		var parsed *parsedGithubURL
+		parsed, err = parseGithubURL(source)
+		if err != nil {
+			return
+		}
+		_, err = git.PlainClone(repoDir, false, &git.CloneOptions{
+			URL:      parsed.repoAddress,
+			Progress: os.Stdout,
+		})
+		if err != nil {
+			return
+		}
+		dirPath = filepath.Join(repoDir, parsed.folder)
+	}
 	repo, err := git.PlainOpen(dirPath)
 	if err != nil {
 		return
