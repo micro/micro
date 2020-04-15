@@ -340,10 +340,12 @@ func (s *srv) indexHandler(w http.ResponseWriter, r *http.Request) {
 
 	type webService struct {
 		Name string
-		Icon string
+		Link string
+		Icon string // TODO: lookup icon
 	}
 
-	// TODO: lookup icon
+	// if the resolver is subdomain, we will need the domain
+	domain, _ := publicsuffix.EffectiveTLDPlusOne(r.URL.Hostname())
 
 	// determine the namespace the request was made against
 	reqNs := namespace.NamespaceFromContext(r.Context())
@@ -357,9 +359,14 @@ func (s *srv) indexHandler(w http.ResponseWriter, r *http.Request) {
 
 		srvNs, _ := namespace.NamespaceFromService(srv.Name)
 		if srvNs == reqNs {
-			webServices = append(webServices, webService{
-				Name: strings.Replace(srv.Name, srvNs+".web.", "", 1),
-			})
+			name := strings.Replace(srv.Name, srvNs+".web.", "", 1)
+
+			link := fmt.Sprintf("/%v/", name)
+			if Resolver == "subdomain" && len(domain) > 0 {
+				link = fmt.Sprintf("%v://%v.%v", r.URL.Scheme, name, domain)
+			}
+
+			webServices = append(webServices, webService{Name: name, Link: link})
 		}
 	}
 
