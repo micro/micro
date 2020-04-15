@@ -78,7 +78,7 @@ func extractSource(arg string) (string, error) {
 	}
 
 	dirPath := filepath.Join(path, arg)
-	if exists, err := dirExists(dirPath); err != nil && exists {
+	if exists, err := dirExists(dirPath); err == nil && exists {
 		return dirPath, nil
 	}
 	return arg, nil

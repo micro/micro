@@ -114,7 +114,8 @@ type sourceInfo struct {
 func extractSource(source string) (*sourceInfo, error) {
 	sinf := &sourceInfo{}
 	var mainFilePath string
-	if local, err := pathExists(source); err != nil && local {
+
+	if local, err := pathExists(source); err == nil && local {
 		// Local directories to be deployed are not expected
 		// to be in source control. @todo we could still try
 		// to detect source control if exists and take the commit hash
