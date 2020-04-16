@@ -18,7 +18,7 @@ func (b *Broker) Publish(ctx context.Context, req *pb.PublishRequest, rsp *pb.Em
 	ns := namespace.NamespaceFromContext(ctx)
 
 	log.Debugf("Publishing message to %s topic in the %v namespace", req.Topic, ns)
-	err := b.Broker.Publish(ns+"/"+req.Topic, &broker.Message{
+	err := b.Broker.Publish(ns+"."+req.Topic, &broker.Message{
 		Header: req.Message.Header,
 		Body:   req.Message.Body,
 	})
@@ -50,7 +50,7 @@ func (b *Broker) Subscribe(ctx context.Context, req *pb.SubscribeRequest, stream
 	}
 
 	log.Debugf("Subscribing to %s topic in namespace %v", req.Topic, ns)
-	sub, err := b.Broker.Subscribe(ns+"/"+req.Topic, handler, broker.Queue(ns+"/"+req.Queue))
+	sub, err := b.Broker.Subscribe(ns+"."+req.Topic, handler, broker.Queue(ns+"."+req.Queue))
 	if err != nil {
 		return errors.InternalServerError("go.micro.broker", err.Error())
 	}
