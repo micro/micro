@@ -330,13 +330,8 @@ func extractSource(source string) (*sourceInfo, error) {
 				Force:  true,
 			})
 		}
-		var head *plumbing.Reference
-		head, err = repo.Head()
-		if err != nil {
-			return nil, err
-		}
 		sinf.repoRoot = repoDir
-		sinf.serviceVersion = head.Hash().String()
+		sinf.serviceVersion = parsed.ref
 		mainFilePath = filepath.Join(repoDir, parsed.folder, "main.go")
 	}
 
