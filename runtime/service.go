@@ -21,9 +21,9 @@ const (
 	// RunUsage message for the run command
 	RunUsage = "Required usage: micro run [source]"
 	// KillUsage message for the kill command
-	KillUsage = "Require usage: micro kill [service] [version]"
+	KillUsage = "Require usage: micro kill [source]"
 	// UpdateUsage message for the update command
-	UpdateUsage = "Require usage: micro update [service] [version]"
+	UpdateUsage = "Require usage: micro update [source]"
 	// GetUsage message for micro get command
 	GetUsage = "Require usage: micro ps [service] [version]"
 	// ServicesUsage message for micro services command
@@ -147,9 +147,7 @@ func runService(ctx *cli.Context, srvOpts ...micro.Option) {
 
 	// run the service
 	service := &runtime.Service{
-		Name:     "",
 		Source:   source,
-		Version:  "",
 		Metadata: make(map[string]string),
 	}
 
@@ -175,22 +173,13 @@ func killService(ctx *cli.Context, srvOpts ...micro.Option) {
 		return
 	}
 
-	// set and validate the name (arg 1)
-	name := ctx.Args().Get(0)
-	if strings.HasPrefix(name, ".") || strings.HasPrefix(name, "/") {
-		fmt.Println(RunUsage)
-		return
+	source, err := extractSource(ctx.Args().Get(0))
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
 	}
-
-	// set the version (arg 2, optional)
-	version := "latest"
-	if ctx.Args().Len() > 1 {
-		version = ctx.Args().Get(1)
-	}
-
 	service := &runtime.Service{
-		Name:    name,
-		Version: version,
+		Source: source,
 	}
 
 	if err := runtimeFromContext(ctx).Delete(service); err != nil {
@@ -206,22 +195,13 @@ func updateService(ctx *cli.Context, srvOpts ...micro.Option) {
 		return
 	}
 
-	// set and validate the name (arg 1)
-	name := ctx.Args().Get(0)
-	if strings.HasPrefix(name, ".") || strings.HasPrefix(name, "/") {
-		fmt.Println(RunUsage)
-		return
+	source, err := extractSource(ctx.Args().Get(0))
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
 	}
-
-	// set the version (arg 2, optional)
-	version := "latest"
-	if ctx.Args().Len() > 1 {
-		version = ctx.Args().Get(1)
-	}
-
 	service := &runtime.Service{
-		Name:    name,
-		Version: version,
+		Source: source,
 	}
 
 	if err := runtimeFromContext(ctx).Update(service); err != nil {

@@ -135,7 +135,12 @@ func (r *Runtime) Delete(ctx context.Context, req *pb.DeleteRequest, rsp *pb.Del
 
 	// TODO: add opts
 	service := toService(req.Service)
-
+	sourceInfo, err := extractSource(service.Source)
+	if err != nil {
+		return err
+	}
+	service.Name = sourceInfo.serviceName
+	service.Version = sourceInfo.serviceVersion
 	log.Infof("Deleting service %s version %s source %s", service.Name, service.Version, service.Source)
 
 	if err := r.Runtime.Delete(service); err != nil {

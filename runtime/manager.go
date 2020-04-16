@@ -182,7 +182,7 @@ func (m *manager) processEvent(ev *event) {
 	delete(ev.Service.Metadata, "error")
 	switch ev.Type {
 	case "delete":
-		log.Infof("Procesing deletion event %s", key(ev.Service))
+		log.Infof("Processing deletion event %s", key(ev.Service))
 		err = m.Runtime.Delete(ev.Service)
 	case "update":
 		log.Infof("Processing update event %s", key(ev.Service))

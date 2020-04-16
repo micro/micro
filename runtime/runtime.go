@@ -157,9 +157,10 @@ func Commands(options ...micro.Option) []*cli.Command {
 			Name:  "run",
 			Usage: RunUsage,
 			Description: `Examples:
-			micro run https://github.com/micro/services/tree/master/helloworld
+			micro run github.com/micro/services/helloworld
 			micro run . # deploy local folder to your local micro server
-			micro run helloworld # translates to micro run https://github.com/micro/services/tree/master/helloworld`,
+			micro run helloworld # translates to micro run github.com/micro/services/helloworld
+			micro run helloworld@9342934e6180 # deploy certain version`,
 			Flags: Flags(),
 			Action: func(ctx *cli.Context) error {
 				runService(ctx, options...)
