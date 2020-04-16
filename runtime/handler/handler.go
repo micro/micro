@@ -2,6 +2,7 @@ package handler
 
 import (
 	"context"
+	errs "errors"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -333,6 +334,9 @@ func extractSource(source string) (*sourceInfo, error) {
 		return nil, err
 	}
 	sinf.serviceName = extractServiceName(fileContent)
+	if len(sinf.serviceName) == 0 {
+		return nil, errs.New("Can't find service name")
+	}
 	return sinf, nil
 }
 
@@ -361,7 +365,7 @@ func getRepoRoot(fullPath string) (string, error) {
 	return "", nil
 }
 
-var nameExtractRegexp = regexp.MustCompile(`(micro\.Name\(")(.*)("\))`)
+var nameExtractRegexp = regexp.MustCompile(`((micro|web)\.Name\(")(.*)("\))`)
 
 func extractServiceName(fileContent []byte) string {
 	hits := nameExtractRegexp.FindAll(fileContent, 1)
