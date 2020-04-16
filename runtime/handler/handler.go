@@ -258,20 +258,13 @@ func extractSource(source string) (*sourceInfo, error) {
 		if repoRoot != "" {
 			sinf.repoRoot = repoRoot
 			sinf.relativePath = strings.ReplaceAll(source, repoRoot+string(filepath.Separator), "")
-			repo, err := git.PlainOpen(repoRoot)
-			if err != nil {
-				return nil, err
-			}
-			var head *plumbing.Reference
-			head, err = repo.Head()
-			if err != nil {
-				return nil, err
-			}
-			sinf.serviceVersion = head.String()
+			// @ todo get current branch name instead of using latest
+			sinf.serviceVersion = "latest"
+		} else {
+			sinf.serviceVersion = "latest"
 		}
 		// @todo think about non source controlled
 		// deploys. They will miss the needed relative path
-		sinf.serviceVersion = "latest"
 		mainFilePath = filepath.Join(source, "main.go")
 	} else {
 		parsed, err := parseGithubURL(source)
