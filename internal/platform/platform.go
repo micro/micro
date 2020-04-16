@@ -193,7 +193,7 @@ func Run(context *cli.Context) error {
 
 		if v := os.Getenv("MICRO_NETWORK_NODES"); len(v) == 0 {
 			// set the resolver to use https://micro.mu/network
-			env = append(env, "MICRO_NETWORK_NODES=network.micro.mu")
+			env = append(env, "MICRO_NETWORK_RESOLVER=http")
 			log.Info("Setting default network micro.mu")
 		}
 		if v := os.Getenv("MICRO_NETWORK_TOKEN"); len(v) == 0 {
