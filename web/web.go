@@ -366,6 +366,11 @@ func (s *srv) indexHandler(w http.ResponseWriter, r *http.Request) {
 				link = fmt.Sprintf("https://%v.%v", name, domain)
 			}
 
+			// in the case of 3 letter things e.g m3o convert to M3O
+			if len(name) <= 3 && strings.ContainsAny(name, "012345789") {
+				name = strings.ToUpper(name)
+			}
+
 			webServices = append(webServices, webService{Name: name, Link: link})
 		}
 	}
