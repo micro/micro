@@ -7,6 +7,7 @@ import (
 	pb "github.com/micro/go-micro/v2/broker/service/proto"
 	"github.com/micro/go-micro/v2/errors"
 	log "github.com/micro/go-micro/v2/logger"
+	"github.com/micro/micro/v2/internal/namespace"
 )
 
 type Broker struct {
@@ -14,12 +15,14 @@ type Broker struct {
 }
 
 func (b *Broker) Publish(ctx context.Context, req *pb.PublishRequest, rsp *pb.Empty) error {
-	log.Debugf("Publishing message to %s topic", req.Topic)
-	err := b.Broker.Publish(req.Topic, &broker.Message{
+	ns := namespace.NamespaceFromContext(ctx)
+
+	log.Debugf("Publishing message to %s topic in the %v namespace", req.Topic, ns)
+	err := b.Broker.Publish(ns+"."+req.Topic, &broker.Message{
 		Header: req.Message.Header,
 		Body:   req.Message.Body,
 	})
-	log.Debugf("Published message to %s topic", req.Topic)
+	log.Debugf("Published message to %s topic in the %v namespace", req.Topic, ns)
 	if err != nil {
 		return errors.InternalServerError("go.micro.broker", err.Error())
 	}
@@ -27,6 +30,7 @@ func (b *Broker) Publish(ctx context.Context, req *pb.PublishRequest, rsp *pb.Em
 }
 
 func (b *Broker) Subscribe(ctx context.Context, req *pb.SubscribeRequest, stream pb.Broker_SubscribeStream) error {
+	ns := namespace.NamespaceFromContext(ctx)
 	errChan := make(chan error, 1)
 
 	// message handler to stream back messages from broker
@@ -45,13 +49,13 @@ func (b *Broker) Subscribe(ctx context.Context, req *pb.SubscribeRequest, stream
 		return nil
 	}
 
-	log.Debugf("Subscribing to %s topic", req.Topic)
-	sub, err := b.Broker.Subscribe(req.Topic, handler, broker.Queue(req.Queue))
+	log.Debugf("Subscribing to %s topic in namespace %v", req.Topic, ns)
+	sub, err := b.Broker.Subscribe(ns+"."+req.Topic, handler, broker.Queue(ns+"."+req.Queue))
 	if err != nil {
 		return errors.InternalServerError("go.micro.broker", err.Error())
 	}
 	defer func() {
-		log.Debugf("Unsubscribing from topic %s", req.Topic)
+		log.Debugf("Unsubscribing from topic %s in namespace %v", req.Topic, ns)
 		sub.Unsubscribe()
 	}()
 
