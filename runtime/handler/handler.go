@@ -89,6 +89,8 @@ type parsedGithubURL struct {
 	repoAddress string
 	// path of folder to repo root
 	folder string
+	// github ref
+	ref string
 }
 
 // sourceInfo contains all information
@@ -223,18 +225,24 @@ func extractServiceName(fileContent []byte) string {
 	return strings.Split(hit, "\"")[1]
 }
 
+// @todo rename, source is not an actual URL
+// but more like `go get`.
 func parseGithubURL(url string) (*parsedGithubURL, error) {
 	// If github is not present, we got a shorthand for `micro/services`
 	if !strings.Contains(url, "github.com") {
-		url = "https://github.com/micro/services/tree/master/" + url
+		url = "github.com/micro/services/" + url
 	}
-	parts := strings.Split(url, "tree/master")
-	ret := &parsedGithubURL{
-		repoAddress: parts[0][0 : len(parts[0])-1],
+	ret := &parsedGithubURL{}
+	refs := strings.Split(url, "@")
+	if len(refs) > 1 {
+		ret.ref = refs[1]
 	}
+	parts := strings.Split(refs[0], "/")
+	ret.repoAddress = "https://" + strings.Join(parts[0:3], "/")
 	if len(parts) > 1 {
-		ret.folder = parts[1][1:]
+		ret.folder = strings.Join(parts[3:], "/")
 	}
+
 	return ret, nil
 }
 
