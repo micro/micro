@@ -280,7 +280,7 @@ func extractSource(source string) (*sourceInfo, error) {
 		}
 		sinf.githubURL = parsed
 
-		dirifiedURL := strings.ReplaceAll(strings.ReplaceAll(parsed.repoAddress, "/", "-"), ":", "-")
+		dirifiedURL := dirifyRepo(parsed.repoAddress)
 		repoDir := filepath.Join(os.TempDir(), dirifiedURL)
 
 		// Only clone if doesn't exist already.
@@ -307,11 +307,12 @@ func extractSource(source string) (*sourceInfo, error) {
 		if err != nil && err != git.NoErrAlreadyUpToDate {
 			return nil, err
 		}
-		if len(parsed.ref) > 0 {
-			worktree, err := repo.Worktree()
-			if err != nil {
-				return nil, err
-			}
+		worktree, err := repo.Worktree()
+		if err != nil {
+			return nil, err
+		}
+		reference := plumbing.NewReferenceFromStrings("refname", parsed.ref)
+		if reference.Type() == plumbing.HashReference {
 			err = worktree.Checkout(&git.CheckoutOptions{
 				Hash:  plumbing.NewHash(parsed.ref),
 				Force: true,
@@ -319,6 +320,15 @@ func extractSource(source string) (*sourceInfo, error) {
 			if err != nil {
 				return nil, err
 			}
+		} else {
+			branch := parsed.ref
+			if parsed.ref == "latest" {
+				branch = "master"
+			}
+			worktree.Checkout(&git.CheckoutOptions{
+				Branch: plumbing.NewBranchReferenceName(branch),
+				Force:  true,
+			})
 		}
 		var head *plumbing.Reference
 		head, err = repo.Head()
@@ -381,11 +391,12 @@ func parseGithubURL(url string) (*parsedGithubURL, error) {
 	if !strings.Contains(url, "github.com") {
 		url = "github.com/micro/services/" + url
 	}
+	if !strings.Contains(url, "@") {
+		url += "@latest"
+	}
 	ret := &parsedGithubURL{}
 	refs := strings.Split(url, "@")
-	if len(refs) > 1 {
-		ret.ref = refs[1]
-	}
+	ret.ref = refs[1]
 	parts := strings.Split(refs[0], "/")
 	ret.repoAddress = "https://" + strings.Join(parts[0:3], "/")
 	if len(parts) > 1 {
@@ -393,4 +404,10 @@ func parseGithubURL(url string) (*parsedGithubURL, error) {
 	}
 
 	return ret, nil
+}
+
+func dirifyRepo(s string) string {
+	s = strings.ReplaceAll(s, "https://", "")
+	s = strings.ReplaceAll(s, "/", "-")
+	return s
 }

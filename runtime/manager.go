@@ -204,7 +204,7 @@ func (m *manager) processEvent(ev *event) {
 	}
 
 	if err != nil {
-		log.Errorf("Erroring executing event %s for %s: %v", ev.Type, ev.Service.Name, err)
+		log.Errorf("Error executing event %s for %s: %v", ev.Type, ev.Service.Name, err)
 
 		// save the error
 		// hacking, its a pointer

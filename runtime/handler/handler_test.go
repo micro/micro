@@ -16,6 +16,7 @@ func TestGithubExtract(t *testing.T) {
 			expected: &parsedGithubURL{
 				repoAddress: "https://github.com/micro/services",
 				folder:      "helloworld",
+				ref:         "latest",
 			},
 		},
 		{
@@ -23,6 +24,7 @@ func TestGithubExtract(t *testing.T) {
 			expected: &parsedGithubURL{
 				repoAddress: "https://github.com/micro/services",
 				folder:      "helloworld",
+				ref:         "latest",
 			},
 		},
 		{
@@ -31,6 +33,14 @@ func TestGithubExtract(t *testing.T) {
 				repoAddress: "https://github.com/micro/services",
 				folder:      "helloworld",
 				ref:         "v1.12.1",
+			},
+		},
+		{
+			url: "github.com/micro/services/helloworld@branchname",
+			expected: &parsedGithubURL{
+				repoAddress: "https://github.com/micro/services",
+				folder:      "helloworld",
+				ref:         "branchname",
 			},
 		},
 	}
