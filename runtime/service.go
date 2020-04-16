@@ -110,16 +110,6 @@ func runService(ctx *cli.Context, srvOpts ...micro.Option) {
 	// load the runtime
 	r := runtimeFromContext(ctx)
 
-	// add environment variable passed in via cli
-	var environment []string
-	for _, evar := range ctx.StringSlice("env") {
-		for _, e := range strings.Split(evar, ",") {
-			if len(e) > 0 {
-				environment = append(environment, strings.TrimSpace(e))
-			}
-		}
-	}
-
 	var retries = DefaultRetries
 	if ctx.IsSet("retries") {
 		retries = ctx.Int("retries")
@@ -131,6 +121,16 @@ func runService(ctx *cli.Context, srvOpts ...micro.Option) {
 		runtime.WithRetries(retries),
 		runtime.CreateImage(image),
 		runtime.CreateType(typ),
+	}
+
+	// add environment variable passed in via cli
+	var environment []string
+	for _, evar := range ctx.StringSlice("env") {
+		for _, e := range strings.Split(evar, ",") {
+			if len(e) > 0 {
+				environment = append(environment, strings.TrimSpace(e))
+			}
+		}
 	}
 
 	if len(environment) > 0 {
@@ -200,6 +200,7 @@ func updateService(ctx *cli.Context, srvOpts ...micro.Option) {
 		fmt.Println(err)
 		os.Exit(1)
 	}
+
 	service := &runtime.Service{
 		Source: source,
 	}
