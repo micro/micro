@@ -239,11 +239,9 @@ type sourceInfo struct {
 	serviceVersion string
 }
 
-// extractSource tries to gather as much information
-// as possible just from the source.
-// Also clones and checks out remote services from github
-// for the local runtime implementation which has no code available.
-// for source examples see `micro run --help`
+// extractSource does two things:
+// - downloads the source to get the service name from main.go
+// - downloads the source for the local runtime to have it (does not apply to non local)
 func extractSource(source string) (*sourceInfo, error) {
 	sinf := &sourceInfo{}
 	var mainFilePath string
@@ -284,6 +282,7 @@ func extractSource(source string) (*sourceInfo, error) {
 			_, err = git.PlainClone(repoDir, false, &git.CloneOptions{
 				URL:      parsed.repoAddress,
 				Progress: os.Stdout,
+				Depth:    1,
 			})
 			if err != nil {
 				return nil, err
@@ -302,6 +301,7 @@ func extractSource(source string) (*sourceInfo, error) {
 		err = remotes[0].Fetch(&git.FetchOptions{
 			RefSpecs: []config.RefSpec{"refs/*:refs/*", "HEAD:refs/heads/HEAD"},
 			Progress: os.Stdout,
+			Depth:    1,
 		})
 		if err != nil && err != git.NoErrAlreadyUpToDate {
 			return nil, err
@@ -327,8 +327,8 @@ func extractSource(source string) (*sourceInfo, error) {
 			if parsed.ref == "latest" {
 				branch = "master"
 			}
-			err := worktree.Checkout(&git.CheckoutOptions{
-				Branch: plumbing.NewBranchReferenceName(fmt.Sprintf("refs/heads/%s", branch)),
+			err = worktree.Checkout(&git.CheckoutOptions{
+				Branch: plumbing.NewBranchReferenceName(branch),
 				Force:  true,
 			})
 			if err != nil {
@@ -339,11 +339,11 @@ func extractSource(source string) (*sourceInfo, error) {
 		sinf.serviceVersion = parsed.ref
 		mainFilePath = filepath.Join(repoDir, parsed.folder, "main.go")
 	}
-
 	fileContent, err := ioutil.ReadFile(mainFilePath)
 	if err != nil {
-		return nil, err
+		return nil, errs.New(fmt.Sprintf("main.go file not found for service %v: %v", sinf.relativePath, err))
 	}
+
 	sinf.serviceName = extractServiceName(fileContent)
 	if len(sinf.serviceName) == 0 {
 		return nil, errs.New("Can't find service name")
@@ -358,7 +358,6 @@ func getRepoRoot(fullPath string) (string, error) {
 	prev := fullPath
 	for {
 		current := prev
-		log.Infof("++", current)
 		exists, err := pathExists(filepath.Join(current, ".git"))
 		if err != nil {
 			return "", err
