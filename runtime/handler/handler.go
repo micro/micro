@@ -11,14 +11,12 @@ import (
 	"strings"
 	"time"
 
-	"github.com/go-git/go-git/v5"
-	"github.com/go-git/go-git/v5/config"
-	"github.com/go-git/go-git/v5/plumbing"
 	"github.com/micro/go-micro/v2"
 	"github.com/micro/go-micro/v2/errors"
 	log "github.com/micro/go-micro/v2/logger"
 	"github.com/micro/go-micro/v2/runtime"
 	pb "github.com/micro/go-micro/v2/runtime/service/proto"
+	"github.com/micro/micro/v2/internal/git"
 )
 
 type Runtime struct {
@@ -271,73 +269,18 @@ func extractSource(source string) (*sourceInfo, error) {
 			return nil, err
 		}
 		sinf.githubURL = parsed
+		gitter := git.NewGitter(os.TempDir())
 
-		dirifiedURL := dirifyRepo(parsed.repoAddress)
-		repoDir := filepath.Join(os.TempDir(), dirifiedURL)
-
-		// Only clone if doesn't exist already.
-		// @todo implement pull and check out of correct version
-		// by parsing commit hash from the git URL.
-		if exists, err := pathExists(repoDir); err == nil && !exists {
-			_, err = git.PlainClone(repoDir, false, &git.CloneOptions{
-				URL:      parsed.repoAddress,
-				Progress: os.Stdout,
-				Depth:    1,
-			})
-			if err != nil {
-				return nil, err
-			}
-		}
-
-		repo, err := git.PlainOpen(repoDir)
-		if err != nil {
-			return nil, err
-		}
-		remotes, err := repo.Remotes()
+		// Always clone, it's idempotent and only clones if needed
+		err = gitter.Clone(parsed.repoAddress)
 		if err != nil {
 			return nil, err
 		}
 
-		err = remotes[0].Fetch(&git.FetchOptions{
-			RefSpecs: []config.RefSpec{"refs/*:refs/*", "HEAD:refs/heads/HEAD"},
-			Progress: os.Stdout,
-			Depth:    1,
-		})
-		if err != nil && err != git.NoErrAlreadyUpToDate {
-			return nil, err
-		}
-		worktree, err := repo.Worktree()
-		if err != nil {
-			return nil, err
-		}
-
-		isCommit := func(s string) bool {
-			return strings.ContainsAny(s, "0123456789") && len(s) == 40
-		}
-		if isCommit(parsed.ref) {
-			err = worktree.Checkout(&git.CheckoutOptions{
-				Hash:  plumbing.NewHash(parsed.ref),
-				Force: true,
-			})
-			if err != nil {
-				return nil, err
-			}
-		} else {
-			branch := parsed.ref
-			if parsed.ref == "latest" {
-				branch = "master"
-			}
-			err = worktree.Checkout(&git.CheckoutOptions{
-				Branch: plumbing.NewBranchReferenceName(branch),
-				Force:  true,
-			})
-			if err != nil {
-				return nil, err
-			}
-		}
-		sinf.repoRoot = repoDir
+		gitter.Checkout(parsed.repoAddress, parsed.ref)
+		sinf.repoRoot = gitter.RepoDir(parsed.repoAddress)
 		sinf.serviceVersion = parsed.ref
-		mainFilePath = filepath.Join(repoDir, parsed.folder, "main.go")
+		mainFilePath = filepath.Join(parsed.repoAddress, parsed.folder, "main.go")
 	}
 	fileContent, err := ioutil.ReadFile(mainFilePath)
 	if err != nil {
@@ -406,10 +349,4 @@ func parseGithubURL(url string) (*parsedGithubURL, error) {
 	}
 
 	return ret, nil
-}
-
-func dirifyRepo(s string) string {
-	s = strings.ReplaceAll(s, "https://", "")
-	s = strings.ReplaceAll(s, "/", "-")
-	return s
 }
