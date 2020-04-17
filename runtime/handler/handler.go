@@ -115,6 +115,7 @@ func (r *Runtime) Update(ctx context.Context, req *pb.UpdateRequest, rsp *pb.Upd
 	log.Infof("Updating service %s version %s source %s", service.Name, service.Version, service.Source)
 
 	if err := r.Runtime.Update(service); err != nil {
+		fmt.Println("----", err)
 		return errors.InternalServerError("go.micro.runtime", err.Error())
 	}
 
@@ -280,7 +281,7 @@ func extractSource(source string) (*sourceInfo, error) {
 		gitter.Checkout(parsed.repoAddress, parsed.ref)
 		sinf.repoRoot = gitter.RepoDir(parsed.repoAddress)
 		sinf.serviceVersion = parsed.ref
-		mainFilePath = filepath.Join(parsed.repoAddress, parsed.folder, "main.go")
+		mainFilePath = filepath.Join(sinf.repoRoot, parsed.folder, "main.go")
 	}
 	fileContent, err := ioutil.ReadFile(mainFilePath)
 	if err != nil {

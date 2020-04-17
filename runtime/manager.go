@@ -629,7 +629,7 @@ func (m *manager) Update(s *runtime.Service) error {
 	// read the existing record
 	r, err := m.Store.Read(k)
 	if err != nil {
-		return err
+		return fmt.Errorf("Service '%v' can't be read from store: %v", k, err)
 	}
 
 	// no service

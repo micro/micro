@@ -1,7 +1,6 @@
 package git
 
 import (
-	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -116,33 +115,30 @@ func (g binaryGitter) Clone(repo string) error {
 		return err
 	}
 	cmd.Dir = fold
-	out, err := cmd.Output()
+	_, err = cmd.Output()
 	if err != nil {
 		return err
 	}
-	fmt.Println(string(out))
 	return err
 }
 
 func (g binaryGitter) FetchAll(repo string) error {
 	cmd := exec.Command("git", "fetch", "--all")
 	cmd.Dir = filepath.Join(g.folder, dirifyRepo(repo))
-	out, err := cmd.Output()
+	_, err := cmd.Output()
 	if err != nil {
 		return err
 	}
-	fmt.Println(string(out))
 	return err
 }
 
 func (g binaryGitter) Checkout(repo, branchOrCommit string) error {
 	cmd := exec.Command("git", "checkout", "-f", branchOrCommit)
 	cmd.Dir = filepath.Join(g.folder, dirifyRepo(repo))
-	out, err := cmd.Output()
+	_, err := cmd.Output()
 	if err != nil {
 		return err
 	}
-	fmt.Println(out)
 	return nil
 }
 
