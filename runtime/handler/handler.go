@@ -3,6 +3,7 @@ package handler
 import (
 	"context"
 	"fmt"
+	"os"
 	"time"
 
 	"github.com/micro/go-micro/v2"
@@ -10,6 +11,7 @@ import (
 	log "github.com/micro/go-micro/v2/logger"
 	"github.com/micro/go-micro/v2/runtime"
 	pb "github.com/micro/go-micro/v2/runtime/service/proto"
+	"github.com/micro/micro/v2/internal/git"
 )
 
 type Runtime struct {
@@ -50,6 +52,11 @@ func (r *Runtime) Create(ctx context.Context, req *pb.CreateRequest, rsp *pb.Cre
 
 	service := toService(req.Service)
 
+	// @todo move this to runtime default
+	if err := r.checkoutSourceIfNeeded(service); err != nil {
+		return err
+	}
+
 	log.Infof("Creating service %s version %s source %s", service.Name, service.Version, service.Source)
 
 	if err := r.Runtime.Create(service, options...); err != nil {
@@ -67,6 +74,19 @@ func (r *Runtime) Create(ctx context.Context, req *pb.CreateRequest, rsp *pb.Cre
 	return nil
 }
 
+// @todo move this to runtime default
+func (r *Runtime) checkoutSourceIfNeeded(s *runtime.Service) error {
+	if r.Runtime.String() != "local" {
+		return nil
+	}
+	source, err := git.ParseSource(s.Source)
+	if err != nil {
+		return err
+	}
+	source.Ref = s.Version
+	return git.CheckoutSource(os.TempDir(), source)
+}
+
 func (r *Runtime) Update(ctx context.Context, req *pb.UpdateRequest, rsp *pb.UpdateResponse) error {
 	if req.Service == nil {
 		return errors.BadRequest("go.micro.runtime", "blank service")
@@ -74,6 +94,11 @@ func (r *Runtime) Update(ctx context.Context, req *pb.UpdateRequest, rsp *pb.Upd
 
 	// TODO: add opts
 	service := toService(req.Service)
+
+	// @todo move this to runtime default
+	if err := r.checkoutSourceIfNeeded(service); err != nil {
+		return err
+	}
 
 	log.Infof("Updating service %s version %s source %s", service.Name, service.Version, service.Source)
 

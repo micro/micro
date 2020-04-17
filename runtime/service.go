@@ -138,7 +138,7 @@ func runService(ctx *cli.Context, srvOpts ...micro.Option) {
 	// run the service
 	service := &runtime.Service{
 		Name:     source.RuntimeName(),
-		Source:   source.Full,
+		Source:   source.RuntimeSource(),
 		Version:  source.Ref,
 		Metadata: make(map[string]string),
 	}
@@ -177,7 +177,7 @@ func killService(ctx *cli.Context, srvOpts ...micro.Option) {
 	}
 	service := &runtime.Service{
 		Name:    source.RuntimeName(),
-		Source:  source.Full,
+		Source:  source.RuntimeSource(),
 		Version: source.Ref,
 	}
 

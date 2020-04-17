@@ -287,7 +287,7 @@ func ParseSourceLocal(workDir, source string) (*Source, error) {
 
 // Check out source for the local runtime server
 // folder is the folder to check out the source code to
-func CheckoutSource(folder string, source Source) error {
+func CheckoutSource(folder string, source *Source) error {
 	// if it's a local folder, do nothing
 	if exists, err := pathExists(source.FullPath); err == nil && exists {
 		return nil
