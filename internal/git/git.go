@@ -1,9 +1,11 @@
 package git
 
 import (
+	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"
+	"regexp"
 	"strings"
 
 	"github.com/go-git/go-git/v5"
@@ -174,4 +176,145 @@ func pathExists(path string) (bool, error) {
 		return false, nil
 	}
 	return true, err
+}
+
+// GetRepoRoot determines the repo root from a full path.
+// Returns empty string and no error if not found
+func GetRepoRoot(fullPath string) (string, error) {
+	// traverse parent directories
+	prev := fullPath
+	for {
+		current := prev
+		exists, err := pathExists(filepath.Join(current, ".git"))
+		if err != nil {
+			return "", err
+		}
+		if exists {
+			return current, nil
+		}
+		prev = filepath.Dir(current)
+		// reached top level, see:
+		// https://play.golang.org/p/rDgVdk3suzb
+		if current == prev {
+			break
+		}
+	}
+	return "", nil
+}
+
+const defaultRepo = "github.com/micro/services"
+
+// Source is not just git related @todo move
+type Source struct {
+	// is it a local folder intended for a local runtime?
+	Local bool
+	// absolute path to service folder in local mode
+	FullPath string
+	// path of folder to repo root
+	// be it local or github repo
+	Folder string
+	// github ref
+	Ref string
+	// for cloning purposes
+	// blank for local
+	Repo string
+	// dir to repo root
+	// blank for non local
+	LocalRepoRoot string
+}
+
+// Name to be passed to RPC call runtime.Create Update Delete
+// eg: `helloworld/api`, `crufter/myrepo/helloworld/api`, `localfolder`
+func (s *Source) RuntimeName() string {
+	if s.Repo == "github.com/micro/services" || s.Repo == "" {
+		return s.Folder
+	}
+	return fmt.Sprintf("%v/%v", strings.ReplaceAll(s.Repo, "github.com/", ""), s.Folder)
+}
+
+// Source to be passed to RPC call runtime.Create Update Delete
+// eg: `helloworld`, `github.com/crufter/myrepo/helloworld`, `/path/to/localrepo/localfolder`
+func (s *Source) RuntimeSource() string {
+	if s.Local {
+		return s.FullPath
+	}
+	if s.Repo == "github.com/micro/services" || s.Repo == "" {
+		return s.Folder
+	}
+	return fmt.Sprintf("%v/%v", s.Repo, s.Folder)
+}
+
+// ParseSource parses a `micro run/update/kill` source.
+func ParseSource(source string) (*Source, error) {
+	// If github is not present, we got a shorthand for `micro/services`
+	if !strings.Contains(source, "github.com") {
+		source = "github.com/micro/services/" + source
+	}
+	if !strings.Contains(source, "@") {
+		source += "@latest"
+	}
+	ret := &Source{}
+	refs := strings.Split(source, "@")
+	ret.Ref = refs[1]
+	parts := strings.Split(refs[0], "/")
+	ret.Repo = strings.Join(parts[0:3], "/")
+	if len(parts) > 1 {
+		ret.Folder = strings.Join(parts[3:], "/")
+	}
+
+	return ret, nil
+}
+
+// ParseSourceLocal detects and handles local pathes too
+func ParseSourceLocal(workDir, source string) (*Source, error) {
+	localFullPath := filepath.Join(workDir, source)
+	if exists, err := pathExists(localFullPath); err == nil && exists {
+		localRepoRoot, err := GetRepoRoot(localFullPath)
+		if err != nil {
+			return nil, err
+		}
+		folder := strings.ReplaceAll(localFullPath, localRepoRoot+string(filepath.Separator), "")
+		return &Source{
+			Local:         true,
+			Folder:        folder,
+			FullPath:      localFullPath,
+			LocalRepoRoot: localRepoRoot,
+			Ref:           "latest", // @todo consider extracting branch from git here
+		}, nil
+	}
+	return ParseSource(source)
+}
+
+// Check out source for the local runtime server
+// folder is the folder to check out the source code to
+func CheckoutSource(folder string, source Source) error {
+	// if it's a local folder, do nothing
+	if exists, err := pathExists(source.FullPath); err == nil && exists {
+		return nil
+	}
+	gitter := NewGitter(folder)
+	repo := source.Repo
+	if !strings.Contains(repo, "https://") {
+		repo = "https://" + repo
+	}
+	// Always clone, it's idempotent and only clones if needed
+	err := gitter.Clone(repo)
+	if err != nil {
+		return err
+	}
+
+	return gitter.Checkout(repo, source.Ref)
+}
+
+// code below is not used yet
+
+var nameExtractRegexp = regexp.MustCompile(`((micro|web)\.Name\(")(.*)("\))`)
+
+func extractServiceName(fileContent []byte) string {
+	hits := nameExtractRegexp.FindAll(fileContent, 1)
+	if len(hits) == 0 {
+		return ""
+	}
+	hit := string(hits[0])
+	return strings.Split(hit, "\"")[1]
 }

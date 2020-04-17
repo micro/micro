@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"os"
 	"os/signal"
-	"path/filepath"
 	"sort"
 	"strings"
 	"text/tabwriter"
@@ -15,6 +14,7 @@ import (
 	"github.com/micro/go-micro/v2"
 	"github.com/micro/go-micro/v2/runtime"
 	srvRuntime "github.com/micro/go-micro/v2/runtime/service"
+	"github.com/micro/micro/v2/internal/git"
 )
 
 const (
@@ -69,21 +69,6 @@ func dirExists(path string) (bool, error) {
 	return true, err
 }
 
-// extractSource tries to determine wether the
-// passed in name (first arg to micro run)
-func extractSource(arg string) (string, error) {
-	path, err := os.Getwd()
-	if err != nil {
-		return "", err
-	}
-
-	dirPath := filepath.Join(path, arg)
-	if exists, err := dirExists(dirPath); err == nil && exists {
-		return dirPath, nil
-	}
-	return arg, nil
-}
-
 func runService(ctx *cli.Context, srvOpts ...micro.Option) {
 	// Init plugins
 	for _, p := range Plugins() {
@@ -96,7 +81,12 @@ func runService(ctx *cli.Context, srvOpts ...micro.Option) {
 		return
 	}
 
-	source, err := extractSource(ctx.Args().Get(0))
+	wd, err := os.Getwd()
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+	source, err := git.ParseSourceLocal(wd, ctx.Args().Get(0))
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
@@ -147,7 +137,9 @@ func runService(ctx *cli.Context, srvOpts ...micro.Option) {
 
 	// run the service
 	service := &runtime.Service{
-		Source:   source,
+		Name:     source.RuntimeName(),
+		Source:   source.Full,
+		Version:  source.Ref,
 		Metadata: make(map[string]string),
 	}
 
@@ -173,13 +165,20 @@ func killService(ctx *cli.Context, srvOpts ...micro.Option) {
 		return
 	}
 
-	source, err := extractSource(ctx.Args().Get(0))
+	wd, err := os.Getwd()
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+	source, err := git.ParseSourceLocal(wd, ctx.Args().Get(0))
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
 	service := &runtime.Service{
-		Source: source,
+		Name:    source.RuntimeName(),
+		Source:  source.Full,
+		Version: source.Ref,
 	}
 
 	if err := runtimeFromContext(ctx).Delete(service); err != nil {
@@ -195,14 +194,21 @@ func updateService(ctx *cli.Context, srvOpts ...micro.Option) {
 		return
 	}
 
-	source, err := extractSource(ctx.Args().Get(0))
+	wd, err := os.Getwd()
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+	source, err := git.ParseSourceLocal(wd, ctx.Args().Get(0))
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
 
 	service := &runtime.Service{
-		Source: source,
+		Name:    source.RuntimeName(),
+		Source:  source.RuntimeSource(),
+		Version: source.Ref,
 	}
 
 	if err := runtimeFromContext(ctx).Update(service); err != nil {
