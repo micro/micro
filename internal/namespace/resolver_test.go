@@ -8,7 +8,7 @@ import (
 	"github.com/micro/go-micro/v2/auth"
 )
 
-func TestResolve(t *testing.T) {
+func TestResolveWithType(t *testing.T) {
 	tt := []struct {
 		Name        string
 		Namespace   string
@@ -105,7 +105,7 @@ func TestResolve(t *testing.T) {
 	for _, tc := range tt {
 		t.Run(tc.Name, func(t *testing.T) {
 			r := NewResolver(tc.ServiceType, tc.Namespace)
-			result := r.Resolve(&http.Request{URL: &url.URL{Host: tc.Host}})
+			result := r.ResolveWithType(&http.Request{URL: &url.URL{Host: tc.Host}})
 			if result != tc.Result {
 				t.Errorf("Expected namespace %v for host %v with service type %v and namespace %v, actually got %v", tc.Result, tc.Host, tc.ServiceType, tc.Namespace, result)
 			}

@@ -2,6 +2,8 @@ package cmd
 
 import (
 	"fmt"
+	"os"
+	"os/exec"
 
 	ccli "github.com/micro/cli/v2"
 	"github.com/micro/go-micro/v2"
@@ -331,7 +333,24 @@ func Setup(app *ccli.App, options ...micro.Option) {
 	})
 
 	// boot micro runtime
-	app.Action = func(c *ccli.Context) error { return ccli.ShowAppHelp(c) }
+	app.Action = func(c *ccli.Context) error {
+		if c.Args().Len() > 0 {
+			command := c.Args().First()
+
+			v, err := exec.LookPath(command)
+			if err != nil {
+				return ccli.ShowAppHelp(c)
+			}
+
+			// execute the command
+			ce := exec.Command(v, c.Args().Slice()[1:]...)
+			ce.Stdout = os.Stdout
+			ce.Stderr = os.Stderr
+			return ce.Run()
+		}
+
+		return ccli.ShowAppHelp(c)
+	}
 
 	setup(app)
 }

@@ -24,15 +24,15 @@ func (r Resolver) String() string {
 	return "internal/namespace"
 }
 
-func (r Resolver) Resolve(req *http.Request) string {
-	withTypeSuffix := func(ns string) string {
-		return ns + "." + r.srvType
-	}
+func (r Resolver) ResolveWithType(req *http.Request) string {
+	return r.Resolve(req) + "." + r.srvType
+}
 
+func (r Resolver) Resolve(req *http.Request) string {
 	// check to see what the provided namespace is, we only do
 	// domain mapping if the namespace is set to 'domain'
 	if r.namespace != "domain" {
-		return withTypeSuffix(r.namespace)
+		return r.namespace
 	}
 
 	// determine the host, e.g. dev.micro.mu:8080
@@ -47,25 +47,25 @@ func (r Resolver) Resolve(req *http.Request) string {
 
 	// check for an ip address
 	if net.ParseIP(host) != nil {
-		return withTypeSuffix(auth.DefaultNamespace)
+		return auth.DefaultNamespace
 	}
 
 	// check for dev enviroment
 	if host == "localhost" || host == "127.0.0.1" {
-		return withTypeSuffix(auth.DefaultNamespace)
+		return auth.DefaultNamespace
 	}
 
 	// extract the top level domain plus one (e.g. 'myapp.com')
 	domain, err := publicsuffix.EffectiveTLDPlusOne(host)
 	if err != nil {
 		logger.Debugf("Unable to extract domain from %v", host)
-		return withTypeSuffix(auth.DefaultNamespace)
+		return auth.DefaultNamespace
 	}
 
 	// check to see if the domain matches the host of micro.mu, in
 	// these cases we return the default namespace
 	if domain == host || domain == "micro.mu" {
-		return withTypeSuffix(auth.DefaultNamespace)
+		return auth.DefaultNamespace
 	}
 
 	// remove the domain from the host, leaving the subdomain
@@ -77,5 +77,5 @@ func (r Resolver) Resolve(req *http.Request) string {
 		opp := len(comps) - 1 - i
 		comps[i], comps[opp] = comps[opp], comps[i]
 	}
-	return withTypeSuffix(strings.Join(comps, "."))
+	return strings.Join(comps, ".")
 }

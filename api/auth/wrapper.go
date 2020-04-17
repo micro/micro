@@ -7,6 +7,8 @@ import (
 	"net/url"
 	"strings"
 
+	"github.com/micro/go-micro/v2/util/ctx"
+
 	"github.com/micro/go-micro/v2/api/resolver"
 	"github.com/micro/go-micro/v2/api/server"
 	"github.com/micro/go-micro/v2/auth"
@@ -35,8 +37,11 @@ type authWrapper struct {
 
 func (a authWrapper) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	// Determine the namespace and set it in the header
-	namespace := a.nsResolver.Resolve(req)
-	req.Header.Set(auth.NamespaceKey, namespace)
+	ns := a.nsResolver.Resolve(req)
+	req.Header.Set(namespace.NamespaceKey, ns)
+
+	// Set the metadata so we can access it in micro api / web
+	req = req.WithContext(ctx.FromRequest(req))
 
 	// Extract the token from the request
 	var token string
@@ -78,9 +83,9 @@ func (a authWrapper) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	}
 
 	// construct the resource name, e.g. home => go.micro.web.home
-	resName := namespace
+	resName := a.nsResolver.ResolveWithType(req)
 	if len(endpoint.Name) > 0 {
-		resName = namespace + "." + endpoint.Name
+		resName = resName + "." + endpoint.Name
 	}
 
 	// determine the resource path. there is an inconsistency in how resolvers
@@ -93,7 +98,7 @@ func (a authWrapper) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 
 	// Perform the verification check to see if the account has access to
 	// the resource they're requesting
-	res := &auth.Resource{Type: "service", Name: resName, Endpoint: resEndpoint, Namespace: namespace}
+	res := &auth.Resource{Type: "service", Name: resName, Endpoint: resEndpoint, Namespace: ns}
 	if err := a.auth.Verify(acc, res); err == nil {
 		// The account has the necessary permissions to access the resource
 		a.handler.ServeHTTP(w, req)

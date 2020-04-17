@@ -28,11 +28,11 @@ import (
 	rs "github.com/micro/go-micro/v2/router/service"
 	"github.com/micro/go-micro/v2/server"
 	sgrpc "github.com/micro/go-micro/v2/server/grpc"
+	"github.com/micro/go-micro/v2/store"
 	"github.com/micro/go-micro/v2/sync/memory"
 	"github.com/micro/go-micro/v2/util/mux"
 	"github.com/micro/go-micro/v2/util/wrapper"
 	"github.com/micro/micro/v2/internal/helper"
-	cfstore "github.com/micro/micro/v2/internal/plugins/store/cloudflare"
 )
 
 var (
@@ -162,25 +162,17 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 			if ACMEChallengeProvider != "cloudflare" {
 				log.Fatal("The only implemented DNS challenge provider is cloudflare")
 			}
-			apiToken, accountID := os.Getenv("CF_API_TOKEN"), os.Getenv("CF_ACCOUNT_ID")
-			kvID := os.Getenv("KV_NAMESPACE_ID")
-			if len(apiToken) == 0 || len(accountID) == 0 {
+
+			apiToken := os.Getenv("CF_API_TOKEN")
+			if len(apiToken) == 0 {
 				log.Fatal("env variables CF_API_TOKEN and CF_ACCOUNT_ID must be set")
 			}
-			if len(kvID) == 0 {
-				log.Fatal("env var KV_NAMESPACE_ID must be set to your cloudflare workers KV namespace ID")
-			}
 
-			cloudflareStore := cfstore.NewStore(
-				cfstore.Token(apiToken),
-				cfstore.Account(accountID),
-				cfstore.Namespace(kvID),
-				cfstore.CacheTTL(time.Minute),
-			)
 			storage := certmagic.NewStorage(
 				memory.NewSync(),
-				cloudflareStore,
+				store.DefaultStore,
 			)
+
 			config := cloudflare.NewDefaultConfig()
 			config.AuthToken = apiToken
 			config.ZoneToken = apiToken

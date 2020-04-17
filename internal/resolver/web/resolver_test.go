@@ -33,8 +33,8 @@ func TestWebResolver(t *testing.T) {
 		{"localhost:8082", "/foobar", "go.micro.web.foobar", "path"},
 		{"web.micro.mu", "/foobar", "go.micro.web.foobar", "path"},
 		{"127.0.0.1:8082", "/hello", "go.micro.web.hello", "path"},
-		{"foo.micro.mu", "/", "go.micro.web.foo", "domain"},
-		{"foo.m3o.app", "/foo", "foo.foo", "domain"},
+		{"account.micro.mu", "/", "go.micro.web.account", "domain"},
+		{"foo.m3o.app", "/bar", "foo.web.bar", "domain"},
 		{"demo.m3o.app", "/bar", "go.micro.web.bar", "path"},
 	}
 

@@ -8,14 +8,14 @@ import (
 	"strings"
 
 	res "github.com/micro/go-micro/v2/api/resolver"
-	"github.com/micro/go-micro/v2/auth"
 	"github.com/micro/go-micro/v2/client/selector"
+	"github.com/micro/micro/v2/internal/namespace"
 	"golang.org/x/net/publicsuffix"
 )
 
 var (
 	re               = regexp.MustCompile("^[a-zA-Z0-9]+([a-zA-Z0-9-]*[a-zA-Z0-9]*)?$")
-	defaultNamespace = auth.DefaultNamespace + ".web"
+	defaultNamespace = namespace.DefaultNamespace + ".web"
 )
 
 type Resolver struct {
@@ -74,9 +74,17 @@ func (r *Resolver) Info(req *http.Request) (string, string, bool) {
 		return host, namespace, true
 	}
 
-	// check to see if this request is for a micro.mu subdomain
-	if host != "web.micro.mu" {
+	// check for micro subdomains, we want to do subdomain routing
+	// on these if the subdomoain routing has been specified
+	if r.Type == "subdomain" && host != "web.micro.mu" && strings.HasSuffix(host, ".micro.mu") {
 		return host, namespace, false
+	}
+
+	// Check for services info path, also handled by micro web but
+	// not a top level path. TODO: Find a better way of detecting and
+	// handling the non-proxied paths.
+	if strings.HasPrefix(req.URL.Path, "/service/") {
+		return host, namespace, true
 	}
 
 	// Check if the request is a top level path
@@ -88,10 +96,10 @@ func (r *Resolver) Info(req *http.Request) (string, string, bool) {
 // It accounts for subdomains for service names based on namespace
 func (r *Resolver) Resolve(req *http.Request) (*res.Endpoint, error) {
 	// get host, namespace and if its an internal request
-	host, _, webReq := r.Info(req)
+	host, _, _ := r.Info(req)
 
-	// use path based resolution if its web dashboard related.
-	if webReq {
+	// check for micro web
+	if r.Type == "path" || host == "web.micro.mu" {
 		return r.resolveWithPath(req)
 	}
 
@@ -111,10 +119,18 @@ func (r *Resolver) Resolve(req *http.Request) (*res.Endpoint, error) {
 		return nil, errors.New("unknown host")
 	}
 
-	// set name to lookup
-	name := defaultNamespace + "." + alias
+	var name string
+	if strings.HasSuffix(host, ".micro.mu") {
+		// for micro.mu subdomains, we route foo.micro.mu/bar to
+		// go.micro.web.bar
+		name = defaultNamespace + "." + alias
+	} else if comps := strings.Split(req.URL.Path, "/"); len(comps) > 0 {
+		// for non micro.mu subdomains, we route foo.m3o.app/bar to
+		// foo.web.bar
+		name = alias + ".web." + comps[1]
+	}
 
-	// get namespace + subdomain
+	// find the service using the selector
 	next, err := r.Selector.Select(name)
 	if err == selector.ErrNotFound {
 		// fallback to path based

@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"sort"
 	"strings"
 	"text/tabwriter"
 
@@ -24,10 +25,21 @@ func listRules(ctx *cli.Context) {
 	w := tabwriter.NewWriter(os.Stdout, 0, 8, 1, '\t', 0)
 	defer w.Flush()
 
-	fmt.Fprintln(w, strings.Join([]string{"Role", "Access", "Resource"}, "\t"))
+	formatResource := func(r *pb.Resource) string {
+		return strings.Join([]string{r.Namespace, r.Type, r.Name, r.Endpoint}, ":")
+	}
+
+	// sort rules using resource name and priority to keep the list consistent
+	sort.Slice(rsp.Rules, func(i, j int) bool {
+		resI := formatResource(rsp.Rules[i].Resource) + string(rsp.Rules[i].Priority)
+		resJ := formatResource(rsp.Rules[j].Resource) + string(rsp.Rules[j].Priority)
+		return sort.StringsAreSorted([]string{resJ, resI})
+	})
+
+	fmt.Fprintln(w, strings.Join([]string{"Role", "Access", "Resource", "Priority"}, "\t"))
 	for _, r := range rsp.Rules {
-		res := strings.Join([]string{r.Resource.Namespace, r.Resource.Type, r.Resource.Name, r.Resource.Endpoint}, ":")
-		fmt.Fprintln(w, strings.Join([]string{r.Role, r.Access.String(), res}, "\t"))
+		res := formatResource(r.Resource)
+		fmt.Fprintln(w, strings.Join([]string{r.Role, r.Access.String(), res, fmt.Sprintf("%d", r.Priority)}, "\t"))
 	}
 }
 
@@ -39,6 +51,7 @@ func createRule(ctx *cli.Context) {
 		Role:     r.Role,
 		Access:   r.Access,
 		Resource: r.Resource,
+		Priority: r.Priority,
 	})
 	if err != nil {
 		fmt.Printf("Error creating rule: %v\n", err)
@@ -56,6 +69,7 @@ func deleteRule(ctx *cli.Context) {
 		Role:     r.Role,
 		Access:   r.Access,
 		Resource: r.Resource,
+		Priority: r.Priority,
 	})
 	if err != nil {
 		fmt.Printf("Error creating rule: %v\n", err)
@@ -83,8 +97,9 @@ func constructRule(ctx *cli.Context) *pb.Rule {
 	}
 
 	return &pb.Rule{
-		Access: access,
-		Role:   ctx.String("role"),
+		Access:   access,
+		Role:     ctx.String("role"),
+		Priority: int32(ctx.Int("priority")),
 		Resource: &pb.Resource{
 			Namespace: resComps[0],
 			Type:      resComps[1],

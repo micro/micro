@@ -31,12 +31,12 @@ import (
 	log "github.com/micro/go-micro/v2/logger"
 	"github.com/micro/go-micro/v2/registry"
 	"github.com/micro/go-micro/v2/registry/cache"
+	"github.com/micro/go-micro/v2/store"
 	"github.com/micro/go-micro/v2/sync/memory"
 	apiAuth "github.com/micro/micro/v2/api/auth"
 	"github.com/micro/micro/v2/internal/handler"
 	"github.com/micro/micro/v2/internal/helper"
 	"github.com/micro/micro/v2/internal/namespace"
-	cfstore "github.com/micro/micro/v2/internal/plugins/store/cloudflare"
 	"github.com/micro/micro/v2/internal/resolver/web"
 	"github.com/micro/micro/v2/internal/stats"
 	"github.com/micro/micro/v2/plugin"
@@ -158,7 +158,7 @@ func (r *reg) update() {
 	r.lastPull = time.Now()
 }
 
-func (r *reg) ListServices() ([]*registry.Service, error) {
+func (r *reg) ListServices(opts ...registry.ListOption) ([]*registry.Service, error) {
 	r.RLock()
 	defer r.RUnlock()
 
@@ -333,27 +333,45 @@ func (s *srv) indexHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	services, err := s.registry.ListServices()
+	services, err := s.registry.ListServices(registry.ListContext(r.Context()))
 	if err != nil {
 		log.Errorf("Error listing services: %v", err)
 	}
 
 	type webService struct {
 		Name string
-		Icon string
+		Link string
+		Icon string // TODO: lookup icon
 	}
 
-	// TODO: lookup icon
+	// if the resolver is subdomain, we will need the domain
+	domain, _ := publicsuffix.EffectiveTLDPlusOne(r.URL.Hostname())
 
-	// determine the namespace using the request
-	namespace := s.nsResolver.Resolve(r)
+	// determine the namespace the request was made against
+	reqNs := namespace.NamespaceFromContext(r.Context())
 
 	var webServices []webService
 	for _, srv := range services {
-		if strings.Index(srv.Name, namespace) == 0 && len(strings.TrimPrefix(srv.Name, namespace)) > 0 {
-			webServices = append(webServices, webService{
-				Name: strings.Replace(srv.Name, namespace+".", "", 1),
-			})
+		// not a web app
+		if !strings.Contains(srv.Name, "web.") {
+			continue
+		}
+
+		srvNs, _ := namespace.NamespaceFromService(srv.Name)
+		if srvNs == reqNs {
+			name := strings.Replace(srv.Name, srvNs+".web.", "", 1)
+
+			link := fmt.Sprintf("/%v/", name)
+			if Resolver == "subdomain" && len(domain) > 0 {
+				link = fmt.Sprintf("https://%v.%v", name, domain)
+			}
+
+			// in the case of 3 letter things e.g m3o convert to M3O
+			if len(name) <= 3 && strings.ContainsAny(name, "012345789") {
+				name = strings.ToUpper(name)
+			}
+
+			webServices = append(webServices, webService{Name: name, Link: link})
 		}
 	}
 
@@ -373,7 +391,7 @@ func (s *srv) registryHandler(w http.ResponseWriter, r *http.Request) {
 	svc := vars["name"]
 
 	if len(svc) > 0 {
-		sv, err := s.registry.GetService(svc)
+		sv, err := s.registry.GetService(svc, registry.GetContext(r.Context()))
 		if err != nil {
 			http.Error(w, "Error occurred:"+err.Error(), 500)
 			return
@@ -401,16 +419,29 @@ func (s *srv) registryHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	services, err := s.registry.ListServices()
+	services, err := s.registry.ListServices(registry.ListContext(r.Context()))
 	if err != nil {
 		log.Errorf("Error listing services: %v", err)
 	}
 
 	sort.Sort(sortedServices{services})
 
+	// get the namespace from the request
+	reqNs := namespace.NamespaceFromContext(r.Context())
+
+	// we're using a cache which means we can't filter when making the request
+	// to the registry, so filter in code
+	var filteredSrvs []*registry.Service
+	for _, service := range services {
+		srvNs, _ := namespace.NamespaceFromService(service.Name)
+		if srvNs == namespace.RuntimeNamespace || srvNs == reqNs {
+			filteredSrvs = append(filteredSrvs, service)
+		}
+	}
+
 	if r.Header.Get("Content-Type") == "application/json" {
 		b, err := json.Marshal(map[string]interface{}{
-			"services": services,
+			"services": filteredSrvs,
 		})
 		if err != nil {
 			http.Error(w, "Error occurred:"+err.Error(), 500)
@@ -421,25 +452,33 @@ func (s *srv) registryHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	s.render(w, r, registryTemplate, services)
+	s.render(w, r, registryTemplate, filteredSrvs)
 }
 
 func (s *srv) callHandler(w http.ResponseWriter, r *http.Request) {
-	services, err := s.registry.ListServices()
+	services, err := s.registry.ListServices(registry.ListContext(r.Context()))
 	if err != nil {
 		log.Errorf("Error listing services: %v", err)
 	}
+
+	// get the namespace from the request
+	reqNs := namespace.NamespaceFromContext(r.Context())
 
 	sort.Sort(sortedServices{services})
 
 	serviceMap := make(map[string][]*registry.Endpoint)
 	for _, service := range services {
+		srvNs, _ := namespace.NamespaceFromService(service.Name)
+		if srvNs != namespace.RuntimeNamespace && srvNs != reqNs {
+			continue
+		}
+
 		if len(service.Endpoints) > 0 {
 			serviceMap[service.Name] = service.Endpoints
 			continue
 		}
 		// lookup the endpoints otherwise
-		s, err := s.registry.GetService(service.Name)
+		s, err := s.registry.GetService(service.Name, registry.GetContext(r.Context()))
 		if err != nil {
 			continue
 		}
@@ -549,7 +588,7 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		resolver: &web.Resolver{
 			// Default to type path
 			Type:      Resolver,
-			Namespace: namespace.NewResolver(Type, Namespace).Resolve,
+			Namespace: namespace.NewResolver(Type, Namespace).ResolveWithType,
 			Selector: selector.NewSelector(
 				selector.Registry(reg),
 			),
@@ -598,28 +637,22 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		case "autocert":
 			opts = append(opts, server.ACMEProvider(autocert.NewProvider()))
 		case "certmagic":
+			// TODO: support multiple providers in internal/acme as a map
 			if ACMEChallengeProvider != "cloudflare" {
 				log.Fatal("The only implemented DNS challenge provider is cloudflare")
 			}
-			apiToken, accountID := os.Getenv("CF_API_TOKEN"), os.Getenv("CF_ACCOUNT_ID")
-			kvID := os.Getenv("KV_NAMESPACE_ID")
-			if len(apiToken) == 0 || len(accountID) == 0 {
+
+			apiToken := os.Getenv("CF_API_TOKEN")
+			if len(apiToken) == 0 {
 				log.Fatal("env variables CF_API_TOKEN and CF_ACCOUNT_ID must be set")
 			}
-			if len(kvID) == 0 {
-				log.Fatal("env var KV_NAMESPACE_ID must be set to your cloudflare workers KV namespace ID")
-			}
 
-			cloudflareStore := cfstore.NewStore(
-				cfstore.Token(apiToken),
-				cfstore.Account(accountID),
-				cfstore.Namespace(kvID),
-				cfstore.CacheTTL(time.Minute),
-			)
+			// create the store
 			storage := certmagic.NewStorage(
 				memory.NewSync(),
-				cloudflareStore,
+				store.DefaultStore,
 			)
+
 			config := cloudflare.NewDefaultConfig()
 			config.AuthToken = apiToken
 			config.ZoneToken = apiToken

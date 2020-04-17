@@ -51,7 +51,8 @@ func (r *Rules) Init(opts ...auth.Option) {
 	}
 	log.Info("Generating default rules")
 	err = r.Create(context.Background(), &pb.CreateRequest{
-		Role: "*",
+		Role:     "*",
+		Priority: 0,
 		Resource: &pb.Resource{
 			Namespace: "*",
 			Name:      "*",
@@ -76,12 +77,13 @@ func (r *Rules) Create(ctx context.Context, req *pb.CreateRequest, rsp *pb.Creat
 	}
 
 	// Construct the rule
-	comps := []string{req.Resource.Type, req.Resource.Name, req.Resource.Endpoint, req.Role}
+	comps := []string{req.Resource.Namespace, req.Resource.Type, req.Resource.Name, req.Resource.Endpoint, req.Role}
 	rule := pb.Rule{
 		Id:       strings.Join(comps, joinKey),
 		Role:     req.Role,
 		Resource: req.Resource,
 		Access:   req.Access,
+		Priority: req.Priority,
 	}
 
 	// Encode the rule

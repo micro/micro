@@ -69,6 +69,11 @@ var (
 			Usage: "The access level, must be granted or denied",
 			Value: "granted",
 		},
+		&cli.IntFlag{
+			Name:  "priority",
+			Usage: "The priority level, default is 0, the greater the number the higher the priority",
+			Value: 0,
+		},
 	}
 	// AccountFlags are provided to the create account command
 	AccountFlags = []cli.Flag{
