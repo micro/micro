@@ -659,20 +659,14 @@ func (m *manager) Update(s *runtime.Service, opts ...runtime.UpdateOption) error
 	rs.Service = s
 	// TODO: allow setting opts
 
-	// if not running then run it
-	evType := "update"
-
 	// check if it exists
 	if _, ok := m.services[k]; !ok {
-		// set starting status
-		rs.Status = "started"
-		evType = "create"
 		m.services[k] = &rs
 	}
 
 	// create event
 	ev := &event{
-		Type:    evType,
+		Type:    "update",
 		Service: rs.Service,
 		Options: rs.Options,
 	}
