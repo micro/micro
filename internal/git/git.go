@@ -62,6 +62,9 @@ func (g libGitter) FetchAll(repo string) error {
 }
 
 func (g libGitter) Checkout(repo, branchOrCommit string) error {
+	if branchOrCommit == "latest" {
+		branchOrCommit = "master"
+	}
 	repos, err := git.PlainOpen(filepath.Join(g.folder, dirifyRepo(repo)))
 	if err != nil {
 		return err
@@ -135,6 +138,9 @@ func (g binaryGitter) FetchAll(repo string) error {
 }
 
 func (g binaryGitter) Checkout(repo, branchOrCommit string) error {
+	if branchOrCommit == "latest" {
+		branchOrCommit = "master"
+	}
 	cmd := exec.Command("git", "checkout", "-f", branchOrCommit)
 	cmd.Dir = filepath.Join(g.folder, dirifyRepo(repo))
 	_, err := cmd.Output()
@@ -285,8 +291,9 @@ func ParseSourceLocal(workDir, source string) (*Source, error) {
 	return ParseSource(source)
 }
 
-// Check out source for the local runtime server
+// CheckoutSource for the local runtime server
 // folder is the folder to check out the source code to
+// Modifies source path to set it to checked out repo absolute path locally.
 func CheckoutSource(folder string, source *Source) error {
 	// if it's a local folder, do nothing
 	if exists, err := pathExists(source.FullPath); err == nil && exists {
@@ -302,7 +309,7 @@ func CheckoutSource(folder string, source *Source) error {
 	if err != nil {
 		return err
 	}
-
+	source.FullPath = filepath.Join(gitter.RepoDir(source.Repo), source.Folder)
 	return gitter.Checkout(repo, source.Ref)
 }
 

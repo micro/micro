@@ -2,7 +2,6 @@ package handler
 
 import (
 	"context"
-	"fmt"
 	"os"
 	"time"
 
@@ -84,7 +83,12 @@ func (r *Runtime) checkoutSourceIfNeeded(s *runtime.Service) error {
 		return err
 	}
 	source.Ref = s.Version
-	return git.CheckoutSource(os.TempDir(), source)
+	err = git.CheckoutSource(os.TempDir(), source)
+	if err != nil {
+		return err
+	}
+	s.Source = source.FullPath
+	return nil
 }
 
 func (r *Runtime) Update(ctx context.Context, req *pb.UpdateRequest, rsp *pb.UpdateResponse) error {
@@ -103,7 +107,6 @@ func (r *Runtime) Update(ctx context.Context, req *pb.UpdateRequest, rsp *pb.Upd
 	log.Infof("Updating service %s version %s source %s", service.Name, service.Version, service.Source)
 
 	if err := r.Runtime.Update(service); err != nil {
-		fmt.Println("----", err)
 		return errors.InternalServerError("go.micro.runtime", err.Error())
 	}
 
