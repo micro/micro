@@ -3,6 +3,7 @@ package handler
 import (
 	"context"
 	errs "errors"
+	"fmt"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -11,6 +12,7 @@ import (
 	"time"
 
 	"github.com/go-git/go-git/v5"
+	"github.com/go-git/go-git/v5/config"
 	"github.com/go-git/go-git/v5/plumbing"
 	"github.com/micro/go-micro/v2"
 	"github.com/micro/go-micro/v2/errors"
@@ -247,10 +249,8 @@ func extractSource(source string) (*sourceInfo, error) {
 	var mainFilePath string
 
 	if local, err := pathExists(source); err == nil && local {
-		// Local directories to be deployed are not expected
-		// to be in source control. @todo we could still try
-		// to detect source control if exists and take the commit hash
-		// from there.
+		// Local directories to be deployed are not required
+		// to be in source control
 		repoRoot, err := getRepoRoot(source)
 		if err != nil {
 			return nil, err
@@ -289,6 +289,7 @@ func extractSource(source string) (*sourceInfo, error) {
 				return nil, err
 			}
 		}
+
 		repo, err := git.PlainOpen(repoDir)
 		if err != nil {
 			return nil, err
@@ -297,7 +298,11 @@ func extractSource(source string) (*sourceInfo, error) {
 		if err != nil {
 			return nil, err
 		}
-		err = remotes[0].Fetch(&git.FetchOptions{})
+
+		err = remotes[0].Fetch(&git.FetchOptions{
+			RefSpecs: []config.RefSpec{"refs/*:refs/*", "HEAD:refs/heads/HEAD"},
+			Progress: os.Stdout,
+		})
 		if err != nil && err != git.NoErrAlreadyUpToDate {
 			return nil, err
 		}
@@ -305,8 +310,11 @@ func extractSource(source string) (*sourceInfo, error) {
 		if err != nil {
 			return nil, err
 		}
-		reference := plumbing.NewReferenceFromStrings("refname", parsed.ref)
-		if reference.Type() == plumbing.HashReference {
+
+		isCommit := func(s string) bool {
+			return strings.ContainsAny(s, "0123456789") && len(s) == 40
+		}
+		if isCommit(parsed.ref) {
 			err = worktree.Checkout(&git.CheckoutOptions{
 				Hash:  plumbing.NewHash(parsed.ref),
 				Force: true,
@@ -319,10 +327,13 @@ func extractSource(source string) (*sourceInfo, error) {
 			if parsed.ref == "latest" {
 				branch = "master"
 			}
-			worktree.Checkout(&git.CheckoutOptions{
-				Branch: plumbing.NewBranchReferenceName(branch),
+			err := worktree.Checkout(&git.CheckoutOptions{
+				Branch: plumbing.NewBranchReferenceName(fmt.Sprintf("refs/heads/%s", branch)),
 				Force:  true,
 			})
+			if err != nil {
+				return nil, err
+			}
 		}
 		sinf.repoRoot = repoDir
 		sinf.serviceVersion = parsed.ref
