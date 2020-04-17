@@ -9,6 +9,7 @@ import (
 	log "github.com/micro/go-micro/v2/logger"
 	"github.com/micro/go-micro/v2/runtime"
 	pb "github.com/micro/go-micro/v2/runtime/service/proto"
+	"github.com/micro/micro/v2/internal/namespace"
 )
 
 type Runtime struct {
@@ -23,11 +24,7 @@ func (r *Runtime) Create(ctx context.Context, req *pb.CreateRequest, rsp *pb.Cre
 		return errors.BadRequest("go.micro.runtime", "blank service")
 	}
 
-	var options []runtime.CreateOption
-	if req.Options != nil {
-		options = toCreateOptions(req.Options)
-	}
-
+	options := toCreateOptions(ctx, req.Options)
 	service := toService(req.Service)
 
 	log.Infof("Creating service %s version %s source %s", service.Name, service.Version, service.Source)
@@ -48,11 +45,7 @@ func (r *Runtime) Create(ctx context.Context, req *pb.CreateRequest, rsp *pb.Cre
 }
 
 func (r *Runtime) Read(ctx context.Context, req *pb.ReadRequest, rsp *pb.ReadResponse) error {
-	var options []runtime.ReadOption
-
-	if req.Options != nil {
-		options = toReadOptions(req.Options)
-	}
+	options := toReadOptions(ctx, req.Options)
 
 	services, err := r.Runtime.Read(options...)
 	if err != nil {
@@ -71,12 +64,12 @@ func (r *Runtime) Update(ctx context.Context, req *pb.UpdateRequest, rsp *pb.Upd
 		return errors.BadRequest("go.micro.runtime", "blank service")
 	}
 
-	// TODO: add opts
 	service := toService(req.Service)
+	options := toUpdateOptions(ctx)
 
 	log.Infof("Updating service %s version %s source %s", service.Name, service.Version, service.Source)
 
-	if err := r.Runtime.Update(service); err != nil {
+	if err := r.Runtime.Update(service, options...); err != nil {
 		return errors.InternalServerError("go.micro.runtime", err.Error())
 	}
 
@@ -96,12 +89,12 @@ func (r *Runtime) Delete(ctx context.Context, req *pb.DeleteRequest, rsp *pb.Del
 		return errors.BadRequest("go.micro.runtime", "blank service")
 	}
 
-	// TODO: add opts
 	service := toService(req.Service)
+	options := toDeleteOptions(ctx)
 
 	log.Infof("Deleting service %s version %s source %s", service.Name, service.Version, service.Source)
 
-	if err := r.Runtime.Delete(service); err != nil {
+	if err := r.Runtime.Delete(service, options...); err != nil {
 		return errors.InternalServerError("go.micro.runtime", err.Error())
 	}
 
@@ -117,7 +110,10 @@ func (r *Runtime) Delete(ctx context.Context, req *pb.DeleteRequest, rsp *pb.Del
 }
 
 func (r *Runtime) Logs(ctx context.Context, req *pb.LogsRequest, stream pb.Runtime_LogsStream) error {
-	opts := []runtime.LogsOption{}
+	opts := []runtime.LogsOption{
+		runtime.LogsNamespace(namespace.NamespaceFromContext(ctx)),
+	}
+
 	if req.GetCount() > 0 {
 		opts = append(opts, runtime.LogsCount(req.GetCount()))
 	}
