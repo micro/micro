@@ -41,5 +41,3 @@ require (
 	gopkg.in/olivere/elastic.v5 v5.0.83
 	gopkg.in/src-d/go-git.v4 v4.13.1
 )
-
-replace github.com/micro/go-micro/v2 => /home/crufter/code/src/github.com/micro/go-micro
