@@ -14,6 +14,7 @@ import (
 	"github.com/micro/go-micro/v2"
 	"github.com/micro/go-micro/v2/runtime"
 	srvRuntime "github.com/micro/go-micro/v2/runtime/service"
+	cliutil "github.com/micro/micro/v2/cli/util"
 	"github.com/micro/micro/v2/internal/git"
 )
 
@@ -103,6 +104,17 @@ func runService(ctx *cli.Context, srvOpts ...micro.Option) {
 	var retries = DefaultRetries
 	if ctx.IsSet("retries") {
 		retries = ctx.Int("retries")
+	}
+
+	if cliutil.IsPlatform() && len(image) == 0 {
+		if source.Local {
+			fmt.Println("Can't run local code on platform")
+			os.Exit(1)
+		}
+
+		formattedName := strings.ReplaceAll(source.Folder, "/", "-")
+		// eg. docker.pkg.github.com/micro/services/users-api
+		image = fmt.Sprintf("%v/%v", Image, formattedName)
 	}
 
 	// specify the options
