@@ -55,10 +55,5 @@ func createAccount(ctx *cli.Context) {
 }
 
 func accountsFromContext(ctx *cli.Context) pb.AccountsService {
-	if ctx.Bool("platform") {
-		os.Setenv("MICRO_PROXY", "service")
-		os.Setenv("MICRO_PROXY_ADDRESS", "proxy.micro.mu:443")
-	}
-
 	return pb.NewAccountsService("go.micro.auth", client.DefaultClient)
 }

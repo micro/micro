@@ -552,6 +552,25 @@ func Commands() []*cli.Command {
 			Usage:  "Query the stats of a service",
 			Action: Print(queryStats),
 		},
+		{
+			Name:   "env",
+			Usage:  "Get/set micro cli environment",
+			Action: Print(listEnvs),
+			Subcommands: []*cli.Command{
+				{
+					Name:   "get",
+					Action: Print(getEnv),
+				},
+				{
+					Name:   "set",
+					Action: Print(setEnv),
+				},
+				{
+					Name:   "add",
+					Action: Print(addEnv),
+				},
+			},
+		},
 	}
 
 	return append(commands, RegistryCommands()...)

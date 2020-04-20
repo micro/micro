@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"os"
 	"os/signal"
-	"path/filepath"
 	"sort"
 	"strings"
 	"text/tabwriter"
@@ -16,15 +15,17 @@ import (
 	"github.com/micro/go-micro/v2/config/cmd"
 	"github.com/micro/go-micro/v2/runtime"
 	srvRuntime "github.com/micro/go-micro/v2/runtime/service"
+	cliutil "github.com/micro/micro/v2/cli/util"
+	"github.com/micro/micro/v2/internal/git"
 )
 
 const (
 	// RunUsage message for the run command
-	RunUsage = "Required usage: micro run [service] [version] [--source github.com/micro/services]"
+	RunUsage = "Required usage: micro run [source]"
 	// KillUsage message for the kill command
-	KillUsage = "Require usage: micro kill [service] [version]"
+	KillUsage = "Require usage: micro kill [source]"
 	// UpdateUsage message for the update command
-	UpdateUsage = "Require usage: micro update [service] [version]"
+	UpdateUsage = "Require usage: micro update [source]"
 	// GetUsage message for micro get command
 	GetUsage = "Require usage: micro ps [service] [version]"
 	// ServicesUsage message for micro services command
@@ -55,18 +56,22 @@ func timeAgo(v string) string {
 }
 
 func runtimeFromContext(ctx *cli.Context) runtime.Runtime {
-	if ctx.Bool("server") {
-		os.Setenv("MICRO_PROXY", "service")
-		os.Setenv("MICRO_PROXY_ADDRESS", "127.0.0.1:8081")
-		return srvRuntime.NewRuntime()
+	if cliutil.IsLocal() {
+		return *cmd.DefaultCmd.Options().Runtime
 	}
-	if ctx.Bool("platform") {
-		os.Setenv("MICRO_PROXY", "service")
-		os.Setenv("MICRO_PROXY_ADDRESS", "proxy.micro.mu:443")
-		return srvRuntime.NewRuntime()
-	}
+	return srvRuntime.NewRuntime()
+}
 
-	return *cmd.DefaultCmd.Options().Runtime
+// exists returns whether the given file or directory exists
+func dirExists(path string) (bool, error) {
+	_, err := os.Stat(path)
+	if err == nil {
+		return true, nil
+	}
+	if os.IsNotExist(err) {
+		return false, nil
+	}
+	return true, err
 }
 
 func runService(ctx *cli.Context, srvOpts ...micro.Option) {
@@ -81,24 +86,17 @@ func runService(ctx *cli.Context, srvOpts ...micro.Option) {
 		return
 	}
 
-	// set and validate the name (arg 1)
-	name := ctx.Args().Get(0)
-	version := "latest"
-	source := ctx.String("source")
-	// Set source here correctly per flag/environment to avoid
-	// issues down the line
-	if len(source) == 0 && !ctx.Bool("platform") {
-		// in the case of `micro run --server folder/folder1`,
-		// or `micro run folder/folder1`
-		// set the local absolute path to the package
-		path, err := os.Getwd()
-		if err != nil {
-			fmt.Println(err)
-			return
-		}
-		source = filepath.Join(path, ctx.Args().Get(0))
-
+	wd, err := os.Getwd()
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
 	}
+	source, err := git.ParseSourceLocal(wd, ctx.Args().Get(0))
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+
 	typ := ctx.String("type")
 	image := ctx.String("image")
 	command := strings.TrimSpace(ctx.String("command"))
@@ -107,9 +105,28 @@ func runService(ctx *cli.Context, srvOpts ...micro.Option) {
 	// load the runtime
 	r := runtimeFromContext(ctx)
 
-	// set the version (arg 2, optional)
-	if ctx.Args().Len() > 1 {
-		version = ctx.Args().Get(1)
+	var retries = DefaultRetries
+	if ctx.IsSet("retries") {
+		retries = ctx.Int("retries")
+	}
+
+	if cliutil.IsPlatform() && len(image) == 0 {
+		if source.Local {
+			fmt.Println("Can't run local code on platform")
+			os.Exit(1)
+		}
+
+		formattedName := strings.ReplaceAll(source.Folder, "/", "-")
+		// eg. docker.pkg.github.com/micro/services/users-api
+		image = fmt.Sprintf("%v/%v", Image, formattedName)
+	}
+
+	// specify the options
+	opts := []runtime.CreateOption{
+		runtime.WithOutput(os.Stdout),
+		runtime.WithRetries(retries),
+		runtime.CreateImage(image),
+		runtime.CreateType(typ),
 	}
 
 	// add environment variable passed in via cli
@@ -120,35 +137,6 @@ func runService(ctx *cli.Context, srvOpts ...micro.Option) {
 				environment = append(environment, strings.TrimSpace(e))
 			}
 		}
-	}
-
-	var retries = DefaultRetries
-	if ctx.IsSet("retries") {
-		retries = ctx.Int("retries")
-	}
-
-	// set the image from our images if its the platform
-	if ctx.Bool("platform") && len(image) == 0 {
-		if strings.HasPrefix(name, ".") || strings.HasPrefix(name, "/") {
-			fmt.Println(RunUsage)
-			return
-		}
-
-		formattedName := strings.ReplaceAll(name, "/", "-")
-		image = fmt.Sprintf("%v/%v", Image, formattedName)
-	}
-
-	// check the source is set
-	if ctx.Bool("platform") && len(source) == 0 {
-		source = Source
-	}
-
-	// specify the options
-	opts := []runtime.CreateOption{
-		runtime.WithOutput(os.Stdout),
-		runtime.WithRetries(retries),
-		runtime.CreateImage(image),
-		runtime.CreateType(typ),
 	}
 
 	if len(environment) > 0 {
@@ -163,25 +151,11 @@ func runService(ctx *cli.Context, srvOpts ...micro.Option) {
 		opts = append(opts, runtime.WithArgs(strings.Split(args, " ")...))
 	}
 
-	// don't pass through dotted names unless
-	if strings.HasPrefix(name, ".") || strings.HasPrefix(name, "/") {
-		if r.String() != "local" {
-			fmt.Println(RunUsage)
-			return
-		}
-		path, err := os.Getwd()
-		if err != nil {
-			fmt.Println(err)
-			return
-		}
-		name = filepath.Base(path)
-	}
-
 	// run the service
 	service := &runtime.Service{
-		Name:     name,
-		Source:   source,
-		Version:  version,
+		Name:     source.RuntimeName(),
+		Source:   source.RuntimeSource(),
+		Version:  source.Ref,
 		Metadata: make(map[string]string),
 	}
 
@@ -207,22 +181,20 @@ func killService(ctx *cli.Context, srvOpts ...micro.Option) {
 		return
 	}
 
-	// set and validate the name (arg 1)
-	name := ctx.Args().Get(0)
-	if strings.HasPrefix(name, ".") || strings.HasPrefix(name, "/") {
-		fmt.Println(RunUsage)
-		return
+	wd, err := os.Getwd()
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
 	}
-
-	// set the version (arg 2, optional)
-	version := "latest"
-	if ctx.Args().Len() > 1 {
-		version = ctx.Args().Get(1)
+	source, err := git.ParseSourceLocal(wd, ctx.Args().Get(0))
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
 	}
-
 	service := &runtime.Service{
-		Name:    name,
-		Version: version,
+		Name:    source.RuntimeName(),
+		Source:  source.RuntimeSource(),
+		Version: source.Ref,
 	}
 
 	if err := runtimeFromContext(ctx).Delete(service); err != nil {
@@ -238,22 +210,21 @@ func updateService(ctx *cli.Context, srvOpts ...micro.Option) {
 		return
 	}
 
-	// set and validate the name (arg 1)
-	name := ctx.Args().Get(0)
-	if strings.HasPrefix(name, ".") || strings.HasPrefix(name, "/") {
-		fmt.Println(RunUsage)
-		return
+	wd, err := os.Getwd()
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
 	}
-
-	// set the version (arg 2, optional)
-	version := "latest"
-	if ctx.Args().Len() > 1 {
-		version = ctx.Args().Get(1)
+	source, err := git.ParseSourceLocal(wd, ctx.Args().Get(0))
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
 	}
 
 	service := &runtime.Service{
-		Name:    name,
-		Version: version,
+		Name:    source.RuntimeName(),
+		Source:  source.RuntimeSource(),
+		Version: source.Ref,
 	}
 
 	if err := runtimeFromContext(ctx).Update(service); err != nil {
@@ -286,7 +257,6 @@ func getService(ctx *cli.Context, srvOpts ...micro.Option) {
 		list = true
 	}
 
-	var err error
 	var services []*runtime.Service
 	var readOpts []runtime.ReadOption
 
@@ -319,7 +289,7 @@ func getService(ctx *cli.Context, srvOpts ...micro.Option) {
 	}
 
 	// read the service
-	services, err = r.Read(readOpts...)
+	services, err := r.Read(readOpts...)
 	if err != nil {
 		fmt.Println(err)
 		return

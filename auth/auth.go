@@ -21,6 +21,7 @@ import (
 	authHandler "github.com/micro/micro/v2/auth/handler/auth"
 	rulesHandler "github.com/micro/micro/v2/auth/handler/rules"
 	"github.com/micro/micro/v2/auth/web"
+	cliutil "github.com/micro/micro/v2/cli/util"
 )
 
 var (
@@ -158,13 +159,10 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 }
 
 func authFromContext(ctx *cli.Context) auth.Auth {
-	if ctx.Bool("platform") {
-		os.Setenv("MICRO_PROXY", "service")
-		os.Setenv("MICRO_PROXY_ADDRESS", "proxy.micro.mu:443")
-		return srvAuth.NewAuth()
+	if cliutil.IsLocal() {
+		return *cmd.DefaultCmd.Options().Auth
 	}
-
-	return *cmd.DefaultCmd.Options().Auth
+	return srvAuth.NewAuth()
 }
 
 // login using a token
@@ -237,6 +235,7 @@ func whoami(ctx *cli.Context) {
 
 //Commands for auth
 func Commands(srvOpts ...micro.Option) []*cli.Command {
+	cliutil.SetupCommand()
 	commands := []*cli.Command{
 		{
 			Name:  "auth",
