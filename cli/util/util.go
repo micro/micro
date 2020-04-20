@@ -111,7 +111,11 @@ func GetEnv() Env {
 	}
 
 	envs := getEnvs()
-	return envs[env]
+	envir, ok := envs[env]
+	if !ok {
+		return defaultEnvs[EnvLocal]
+	}
+	return envir
 }
 
 func GetEnvs() []Env {
