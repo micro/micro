@@ -78,7 +78,7 @@ func (r *Runtime) checkoutSourceIfNeeded(s *runtime.Service) error {
 	if r.Runtime.String() != "local" {
 		return nil
 	}
-	source, err := git.ParseSource(s.Source)
+	source, err := git.ParseSourceLocal("", s.Source)
 	if err != nil {
 		return err
 	}
