@@ -12,6 +12,7 @@ import (
 
 	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro/v2"
+	"github.com/micro/go-micro/v2/config/cmd"
 	"github.com/micro/go-micro/v2/runtime"
 	srvRuntime "github.com/micro/go-micro/v2/runtime/service"
 	cliutil "github.com/micro/micro/v2/cli/util"
@@ -55,6 +56,9 @@ func timeAgo(v string) string {
 }
 
 func runtimeFromContext(ctx *cli.Context) runtime.Runtime {
+	if cliutil.IsLocal() {
+		return *cmd.DefaultCmd.Options().Runtime
+	}
 	return srvRuntime.NewRuntime()
 }
 
