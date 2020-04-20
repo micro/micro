@@ -21,7 +21,7 @@ import (
 	authHandler "github.com/micro/micro/v2/auth/handler/auth"
 	rulesHandler "github.com/micro/micro/v2/auth/handler/rules"
 	"github.com/micro/micro/v2/auth/web"
-	"github.com/micro/micro/v2/cli/util"
+	cliutil "github.com/micro/micro/v2/cli/util"
 )
 
 var (
@@ -159,6 +159,9 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 }
 
 func authFromContext(ctx *cli.Context) auth.Auth {
+	if cliutil.IsLocal() {
+		return *cmd.DefaultCmd.Options().Auth
+	}
 	return srvAuth.NewAuth()
 }
 

@@ -12,7 +12,7 @@ import (
 	"github.com/micro/go-micro/v2/client"
 	cbytes "github.com/micro/go-micro/v2/codec/bytes"
 	"github.com/micro/go-micro/v2/config/cmd"
-	"github.com/micro/go-micro/v2/util/config"
+	cliutil "github.com/micro/micro/v2/cli/util"
 	clic "github.com/micro/micro/v2/internal/command/cli"
 )
 
@@ -104,23 +104,34 @@ func getService(c *cli.Context, args []string) ([]byte, error) {
 }
 
 func callService(c *cli.Context, args []string) ([]byte, error) {
-	if c.Bool("platform") {
-		os.Setenv("MICRO_PROXY", "service")
-		os.Setenv("MICRO_PROXY_ADDRESS", "proxy.micro.mu:443")
-	}
 	return clic.CallService(c, args)
 }
 
-func setEnv(c *cli.Context, args []string) ([]byte, error) {
-	if len(args) == 0 || len(args[0]) == 0 {
-		return nil, errors.New("Please supply a value")
-	}
-	return nil, config.Set(args[0], "env")
+func getEnv(c *cli.Context, args []string) ([]byte, error) {
+	env := cliutil.GetEnv()
+	return []byte(env.Name), nil
 }
 
-func getEnv(c *cli.Context, args []string) ([]byte, error) {
-	val, err := config.Get("env")
-	return []byte(val), err
+func setEnv(c *cli.Context, args []string) ([]byte, error) {
+	cliutil.SetEnv(args[0])
+	return nil, nil
+}
+
+func listEnvs(c *cli.Context, args []string) ([]byte, error) {
+	envs := cliutil.GetEnvs()
+	lines := []string{}
+	for _, env := range envs {
+		lines = append(lines, fmt.Sprintf("%v - %v", env.Name, env.ProxyAddress))
+	}
+	return []byte(strings.Join(lines, "\n")), nil
+}
+
+func addEnv(c *cli.Context, args []string) ([]byte, error) {
+	cliutil.AddEnv(cliutil.Env{
+		Name:         args[0],
+		ProxyAddress: args[1],
+	})
+	return nil, nil
 }
 
 // netCall calls services through the network
@@ -131,10 +142,6 @@ func netCall(c *cli.Context, args []string) ([]byte, error) {
 
 // TODO: stream via HTTP
 func streamService(c *cli.Context, args []string) ([]byte, error) {
-	if c.Bool("platform") {
-		os.Setenv("MICRO_PROXY", "service")
-		os.Setenv("MICRO_PROXY_ADDRESS", "proxy.micro.mu:443")
-	}
 	if len(args) < 2 {
 		return nil, errors.New("require service and endpoint")
 	}

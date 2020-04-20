@@ -553,16 +553,21 @@ func Commands() []*cli.Command {
 			Action: Print(queryStats),
 		},
 		{
-			Name:  "env",
-			Usage: "Get/set micro cli environment",
+			Name:   "env",
+			Usage:  "Get/set micro cli environment",
+			Action: Print(listEnvs),
 			Subcommands: []*cli.Command{
+				{
+					Name:   "get",
+					Action: Print(getEnv),
+				},
 				{
 					Name:   "set",
 					Action: Print(setEnv),
 				},
 				{
-					Name:   "get",
-					Action: Print(getEnv),
+					Name:   "add",
+					Action: Print(addEnv),
 				},
 			},
 		},

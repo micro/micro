@@ -109,12 +109,23 @@ func GetEnv() Env {
 		fmt.Println(err)
 		os.Exit(1)
 	}
+
 	envs := getEnvs()
 	return envs[env]
 }
 
-func GetEnvs() map[string]Env {
-	return GetEnvs()
+func GetEnvs() []Env {
+	envs := getEnvs()
+	ret := []Env{defaultEnvs[EnvLocal], defaultEnvs[EnvServer], defaultEnvs[EnvPlatform]}
+	nonDefaults := []Env{}
+	for _, env := range envs {
+		if _, isDefault := defaultEnvs[env.Name]; !isDefault {
+			nonDefaults = append(nonDefaults, env)
+		}
+	}
+	// @todo order nondefault envs alphabetically
+	ret = append(ret, nonDefaults...)
+	return ret
 }
 
 // SetEnv selects an environment to be used.
@@ -122,10 +133,10 @@ func SetEnv(envName string) {
 	envs := getEnvs()
 	_, ok := envs[envName]
 	if !ok {
-		fmt.Printf("Environment '%v' does not exist", envName)
+		fmt.Printf("Environment '%v' does not exist\n", envName)
 		os.Exit(1)
 	}
-	config.Get(envName, "env")
+	config.Set(envName, "env")
 }
 
 func IsLocal() bool {
