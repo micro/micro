@@ -1,9 +1,9 @@
-// Package cliutil contains methods used across
-// all cli commands
+// Package cliutil contains methods used across all cli commands
 // @todo: get rid of os.Exits and use errors instread
 package cliutil
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 
@@ -11,47 +11,131 @@ import (
 )
 
 const (
-	localAddress = "127.0.0.1:8081"
-	liveAddress  = "proxy.micro.mu:443"
+	// EnvLocal is a builtin environment, it means services launched
+	// with `micro run` will use default, zero dependency implementations for
+	// interfaces, like mdns for registry.
+	EnvLocal = "local"
+	// EnvServer is a builtin environment, it represents your local `micro server`
+	EnvServer = "server"
+	// EnvPlatform is a builtin environment, the One True Micro Live(tm) environment.
+	EnvPlatform = "platform"
 )
+
+const (
+	// localProxyAddress is the default proxy address for environment local
+	// local env does not use other services so talking about a proxy
+	localProxyAddress = "none"
+	// serverProxyAddress is the default proxy address for environment server
+	serverProxyAddress = "127.0.0.1:8081"
+	// platformProxyAddress is teh default proxy address for environment platform
+	platformProxyAddress = "proxy.micro.mu:443"
+)
+
+var defaultEnvs = map[string]Env{
+	EnvLocal: Env{
+		Name:         EnvLocal,
+		ProxyAddress: localProxyAddress,
+	},
+	EnvServer: Env{
+		Name:         EnvServer,
+		ProxyAddress: serverProxyAddress,
+	},
+	EnvPlatform: Env{
+		Name:         EnvPlatform,
+		ProxyAddress: platformProxyAddress,
+	},
+}
 
 // SetupCommand includes things that should run for each command.
 func SetupCommand() {
-	os.Setenv("MICRO_PROXY", "service")
-	env, err := config.Get("env")
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
-	if len(env) == 0 {
-		os.Setenv("MICRO_PROXY_ADDRESS", localAddress)
+	env := GetEnv()
+	if env.Name == EnvLocal {
+		// Not setting a proxy for local env
 		return
 	}
-	os.Setenv("MICRO_PROXY_ADDRESS", env)
+	// Set proxy for all envs apart from local
+	os.Setenv("MICRO_PROXY", "service")
+	os.Setenv("MICRO_PROXY_ADDRESS", env.ProxyAddress)
 }
 
-// IsLocal returns true if we are connected to the local micro server
+type Env struct {
+	Name         string
+	ProxyAddress string
+}
+
+func AddEnv(env Env) {
+	envs := getEnvs()
+	envs[env.Name] = env
+	setEnvs(envs)
+}
+
+func getEnvs() map[string]Env {
+	envsJSON, err := config.Get("envs")
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+	envs := map[string]Env{}
+	if len(envsJSON) > 0 {
+		err := json.Unmarshal([]byte(envsJSON), &envs)
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+	}
+	for k, v := range defaultEnvs {
+		envs[k] = v
+	}
+	return envs
+}
+
+func setEnvs(envs map[string]Env) {
+	envsJSON, err := json.Marshal(envs)
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+	err = config.Set(string(envsJSON), "envs")
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+}
+
+// GetEnv returns the current selected environment
+func GetEnv() Env {
+	env, err := config.Get("env")
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+	envs := getEnvs()
+	return envs[env]
+}
+
+func GetEnvs() map[string]Env {
+	return GetEnvs()
+}
+
+// SetEnv selects an environment to be used.
+func SetEnv(envName string) {
+	envs := getEnvs()
+	_, ok := envs[envName]
+	if !ok {
+		fmt.Printf("Environment '%v' does not exist", envName)
+		os.Exit(1)
+	}
+	config.Get(envName, "env")
+}
+
 func IsLocal() bool {
-	env, err := config.Get("env")
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
-	if len(env) == 0 {
-		return true
-	}
-	return env == localAddress
+	return GetEnv().Name == EnvLocal
 }
 
-// IsPlatform returns true if we are connected to the live platform
+func IsServer() bool {
+	return GetEnv().Name == EnvServer
+}
+
 func IsPlatform() bool {
-	env, err := config.Get("env")
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
-	if len(env) == 0 {
-		return false
-	}
-	return env == liveAddress
+	return GetEnv().Name == EnvPlatform
 }

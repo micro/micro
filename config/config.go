@@ -10,7 +10,7 @@ import (
 	"github.com/micro/go-micro/v2/config/cmd"
 	proto "github.com/micro/go-micro/v2/config/source/service/proto"
 	log "github.com/micro/go-micro/v2/logger"
-	"github.com/micro/micro/v2/cli/util"
+	cliutil "github.com/micro/micro/v2/cli/util"
 	"github.com/micro/micro/v2/config/handler"
 )
 
