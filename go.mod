@@ -18,7 +18,7 @@ require (
 	github.com/gorilla/handlers v1.4.2
 	github.com/gorilla/mux v1.7.3
 	github.com/micro/cli/v2 v2.1.2
-	github.com/micro/go-micro/v2 v2.5.1-0.20200420135429-7c31edd5f845
+	github.com/micro/go-micro/v2 v2.5.1-0.20200421145440-d7ecb58f6cf6
 	github.com/miekg/dns v1.1.27
 	github.com/netdata/go-orchestrator v0.0.0-20190905093727-c793edba0e8f
 	github.com/olekukonko/tablewriter v0.0.4
