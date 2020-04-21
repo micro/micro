@@ -15,5 +15,5 @@ jobs:
 
     - name: Test micro server
       run: |
-        go test --tags=integration ./tests
+        go test --tags=integration tests
         
