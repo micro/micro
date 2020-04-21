@@ -272,8 +272,14 @@ func ParseSource(source string) (*Source, error) {
 }
 
 // ParseSourceLocal detects and handles local pathes too
+// workdir should be used only from the CLI @todo better interface for this function
 func ParseSourceLocal(workDir, source string) (*Source, error) {
-	localFullPath := filepath.Join(workDir, source)
+	var localFullPath string
+	if len(workDir) > 0 {
+		localFullPath = filepath.Join(workDir, source)
+	} else {
+		localFullPath = source
+	}
 	if exists, err := pathExists(localFullPath); err == nil && exists {
 		localRepoRoot, err := GetRepoRoot(localFullPath)
 		if err != nil {
