@@ -24,5 +24,6 @@ jobs:
     - name: Test micro server
       working-directory: ./test
       run: |
+        export PATH=${PATH}:`go env GOPATH`/bin
         go test --tags=integration ./...
         
