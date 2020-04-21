@@ -4,6 +4,7 @@ package test
 
 import (
 	"encoding/json"
+	"errors"
 	"io/ioutil"
 	"os/exec"
 	"strings"
@@ -11,6 +12,27 @@ import (
 	"testing"
 	"time"
 )
+
+type cmdFunc func() ([]byte, error)
+
+func try(t *testing.T, f cmdFunc, maxTime time.Duration) {
+	elapsed := 0 * time.Millisecond
+	var outp []byte
+	var err error
+	for {
+		if elapsed > maxTime {
+			if err != nil {
+				t.Fatalf("Failed after %v - Error: %v, output: %v", elapsed, err, string(outp))
+			}
+		}
+		outp, err = f()
+		if err == nil {
+			return
+		}
+		time.Sleep(100 * time.Millisecond)
+		elapsed += 100 * time.Millisecond
+	}
+}
 
 type server struct {
 	cmd *exec.Cmd
@@ -33,7 +55,9 @@ func (s server) launch() {
 			s.t.Fatal(err)
 		}
 	}()
-	time.Sleep(1500 * time.Millisecond)
+	try(s.t, func() ([]byte, error) {
+		return exec.Command("micro", "call", "go.micro.runtime", "Runtime.Read", "{}").CombinedOutput()
+	}, 3000*time.Millisecond)
 }
 
 func (s server) close() {
@@ -42,7 +66,7 @@ func (s server) close() {
 	}
 }
 
-func TestMicroServerModeCall(t *testing.T) {
+func TestServerModeCall(t *testing.T) {
 	outp, err := exec.Command("micro", "env", "set", "server").CombinedOutput()
 	if err != nil {
 		t.Fatalf("Failed to set env to server, err: %v, output: %v", err, string(outp))
@@ -58,13 +82,17 @@ func TestMicroServerModeCall(t *testing.T) {
 	serv.launch()
 	defer serv.close()
 
-	outp, err = exec.Command("micro", "call", "go.micro.runtime", "Runtime.Read", "{}").CombinedOutput()
-	if err != nil {
-		t.Fatalf("Call to runtime read should succeed, err: %v, outp: %v", err, string(outp))
-	}
+	try(t, func() ([]byte, error) {
+		outp, err = exec.Command("micro", "call", "go.micro.runtime", "Runtime.Read", "{}").CombinedOutput()
+		if err != nil {
+			return outp, errors.New("Call to runtime read should succeed")
+		}
+		return outp, err
+	}, 2*time.Second)
+
 }
 
-func TestMicroRunLocalSource(t *testing.T) {
+func TestRunLocalSource(t *testing.T) {
 	serv := newServer(t)
 	serv.launch()
 	defer serv.close()
@@ -75,20 +103,23 @@ func TestMicroRunLocalSource(t *testing.T) {
 		t.Fatalf("micro run failure, output: %v", string(outp))
 	}
 
-	psCmd := exec.Command("micro", "ps")
-	outp, err = psCmd.CombinedOutput()
-	if err != nil {
-		t.Fatal(string(outp))
-	}
+	try(t, func() ([]byte, error) {
+		psCmd := exec.Command("micro", "ps")
+		outp, err = psCmd.CombinedOutput()
+		if err != nil {
+			return outp, err
+		}
 
-	// The started service should have the runtime name of "test/example-service",
-	// as the runtime name is the relative path inside a repo.
-	if !strings.Contains(string(outp), "test/example-service") {
-		t.Fatal(string(outp))
-	}
+		// The started service should have the runtime name of "test/example-service",
+		// as the runtime name is the relative path inside a repo.
+		if !strings.Contains(string(outp), "test/example-service") {
+			return outp, errors.New("Can't find example service in runtime")
+		}
+		return outp, err
+	}, 15*time.Second)
 }
 
-func TestMicroRunGithubSource(t *testing.T) {
+func TestRunGithubSource(t *testing.T) {
 	p, err := exec.LookPath("git")
 	if err != nil {
 		t.Fatal(err)
@@ -106,23 +137,19 @@ func TestMicroRunGithubSource(t *testing.T) {
 		t.Fatalf("micro run failure, output: %v", string(outp))
 	}
 
-	c := 0
-	for ; c < 10; c++ {
-		time.Sleep(500 * time.Millisecond)
-
+	try(t, func() ([]byte, error) {
 		psCmd := exec.Command("micro", "ps")
 		outp, err = psCmd.CombinedOutput()
 		if err != nil {
-			t.Fatal(string(outp))
+			return outp, err
 		}
 
-		if strings.Contains(string(outp), "helloworld") {
-			break
+		if !strings.Contains(string(outp), "helloworld") {
+			return outp, errors.New("Output should contain hello world")
 		}
-	}
-	if c >= 10 {
-		t.Fatal("Running from github source timed out")
-	}
+		return outp, nil
+	}, 5*time.Second)
+
 }
 
 func TestMicroRunLocalUpdateAndCall(t *testing.T) {
@@ -148,21 +175,22 @@ func TestMicroRunLocalUpdateAndCall(t *testing.T) {
 		t.Fatal(string(outp))
 	}
 
-	time.Sleep(3 * time.Second)
-
-	callCmd := exec.Command("micro", "call", "go.micro.service.example", "Example.Call", `{"name": "Joe"}`)
-	outp, err = callCmd.CombinedOutput()
-	if err != nil {
-		t.Fatal(string(outp))
-	}
-	rsp := map[string]string{}
-	err = json.Unmarshal(outp, &rsp)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if rsp["msg"] != "Hello Joe" {
-		t.Fatal(rsp)
-	}
+	try(t, func() ([]byte, error) {
+		callCmd := exec.Command("micro", "call", "go.micro.service.example", "Example.Call", `{"name": "Joe"}`)
+		outp, err := callCmd.CombinedOutput()
+		if err != nil {
+			return outp, err
+		}
+		rsp := map[string]string{}
+		err = json.Unmarshal(outp, &rsp)
+		if err != nil {
+			return outp, err
+		}
+		if rsp["msg"] != "Hello Joe" {
+			return outp, errors.New("Resonse is unexpected")
+		}
+		return outp, err
+	}, 10*time.Second)
 
 	replaceStringInFile(t, "./example-service/handler/handler.go", "Hello", "Hi")
 	defer func() {
@@ -176,21 +204,22 @@ func TestMicroRunLocalUpdateAndCall(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	time.Sleep(3 * time.Second)
-
-	callCmd = exec.Command("micro", "call", "go.micro.service.example", "Example.Call", `{"name": "Joe"}`)
-	outp, err = callCmd.CombinedOutput()
-	if err != nil {
-		t.Fatal(string(outp))
-	}
-	rsp = map[string]string{}
-	err = json.Unmarshal(outp, &rsp)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if rsp["msg"] != "Hi Joe" {
-		t.Fatal(rsp)
-	}
+	try(t, func() ([]byte, error) {
+		callCmd := exec.Command("micro", "call", "go.micro.service.example", "Example.Call", `{"name": "Joe"}`)
+		outp, err = callCmd.CombinedOutput()
+		if err != nil {
+			return outp, err
+		}
+		rsp := map[string]string{}
+		err = json.Unmarshal(outp, &rsp)
+		if err != nil {
+			return outp, err
+		}
+		if rsp["msg"] != "Hi Joe" {
+			return outp, errors.New("Response is not what's expected")
+		}
+		return outp, err
+	}, 10*time.Second)
 }
 
 func replaceStringInFile(t *testing.T, filepath string, original, newone string) {
