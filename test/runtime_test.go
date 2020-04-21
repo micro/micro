@@ -9,13 +9,33 @@ import (
 	"time"
 )
 
-func TestMicroServer(t *testing.T) {
-	serverCmd := exec.Command("micro ", "server")
+func TestMicroServerModeCall(t *testing.T) {
+	outp, err := exec.Command("micro", "set", "env", "server").CombinedOutput()
+	if err != nil {
+		t.Fatalf("Failed to set env to server: %v", string(outp))
+	}
+
+	callCmd := exec.Command("micro", "call", "go.micro.runtime", "Runtime.Read", "'{}'")
+	outp, err = callCmd.CombinedOutput()
+	if err == nil {
+		t.Fatalf("Call to server should fail, got no error, output: %v", string(outp))
+	}
+
+	serverCmd := exec.Command("micro", "server")
 	go func() {
 		if err := serverCmd.Start(); err != nil {
 			log.Fatal(err)
 		}
 	}()
-	defer serverCmd.Process.Kill()
-	time.Sleep(3 * time.Second)
+	defer func() {
+		if serverCmd.Process != nil {
+			serverCmd.Process.Kill()
+		}
+	}()
+	time.Sleep(4 * time.Second)
+
+	outp, err = exec.Command("micro", "call", "go.micro.runtime", "Runtime.Read", "{}").CombinedOutput()
+	if err != nil {
+		t.Fatalf("Call to runtime read should succeed, err: %v, outp: %v", err, string(outp))
+	}
 }
