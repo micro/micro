@@ -10,12 +10,12 @@ import (
 )
 
 func TestMicroServerModeCall(t *testing.T) {
-	outp, err := exec.Command("micro", "set", "env", "server").CombinedOutput()
+	outp, err := exec.Command("micro", "env", "set", "server").CombinedOutput()
 	if err != nil {
-		t.Fatalf("Failed to set env to server: %v", string(outp))
+		t.Fatalf("Failed to set env to server, err: %v, output: %v", err, string(outp))
 	}
 
-	callCmd := exec.Command("micro", "call", "go.micro.runtime", "Runtime.Read", "'{}'")
+	callCmd := exec.Command("micro", "call", "go.micro.runtime", "Runtime.Read", "{}")
 	outp, err = callCmd.CombinedOutput()
 	if err == nil {
 		t.Fatalf("Call to server should fail, got no error, output: %v", string(outp))
