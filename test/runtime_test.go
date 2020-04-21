@@ -5,19 +5,12 @@ package test
 import (
 	"log"
 	"os/exec"
+	"syscall"
 	"testing"
 	"time"
 )
 
-func setupTests(t *testing.T) {
-	cmd := "ps aux | grep micro | awk '{print $2}' | xargs kill"
-	exec.Command("bash", "-c", cmd).Output()
-	time.Sleep(100 * time.Millisecond)
-}
-
 func TestMicroServerModeCall(t *testing.T) {
-	setupTests(t)
-
 	outp, err := exec.Command("micro", "env", "set", "server").CombinedOutput()
 	if err != nil {
 		t.Fatalf("Failed to set env to server, err: %v, output: %v", err, string(outp))
@@ -37,7 +30,7 @@ func TestMicroServerModeCall(t *testing.T) {
 	}()
 	defer func() {
 		if serverCmd.Process != nil {
-			serverCmd.Process.Kill()
+			serverCmd.Process.Signal(syscall.SIGTERM)
 		}
 	}()
 	time.Sleep(4 * time.Second)
