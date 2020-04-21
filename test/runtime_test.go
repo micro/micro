@@ -33,7 +33,7 @@ func TestMicroServerModeCall(t *testing.T) {
 			serverCmd.Process.Signal(syscall.SIGTERM)
 		}
 	}()
-	time.Sleep(4 * time.Second)
+	time.Sleep(1500 * time.Millisecond)
 
 	outp, err = exec.Command("micro", "call", "go.micro.runtime", "Runtime.Read", "{}").CombinedOutput()
 	if err != nil {
