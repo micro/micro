@@ -16,6 +16,8 @@ type server struct {
 }
 
 func newServer(t *testing.T) server {
+	// @todo this is a dangerous move, should instead specify a branch new
+	// folder for tests and only nuke those
 	outp, err := exec.Command("rm", "-rf", "/tmp/micro/store").CombinedOutput()
 	if err != nil {
 		t.Fatal(string(outp))
@@ -60,7 +62,7 @@ func TestMicroServerModeCall(t *testing.T) {
 	}
 }
 
-func TestMicroRun(t *testing.T) {
+func TestMicroRunLocalSource(t *testing.T) {
 	serv := newServer(t)
 	serv.launch()
 	defer serv.close()
@@ -80,6 +82,30 @@ func TestMicroRun(t *testing.T) {
 	// The started service should have the runtime name of "test/example-service",
 	// as the runtime name is the relative path inside a repo.
 	if !strings.Contains(string(outp), "test/example-service") {
+		t.Fatal(string(outp))
+	}
+}
+
+func TestMicroRunGithubSource(t *testing.T) {
+	serv := newServer(t)
+	serv.launch()
+	defer serv.close()
+
+	runCmd := exec.Command("micro", "run", "helloworld")
+	outp, err := runCmd.CombinedOutput()
+	if err != nil {
+		t.Fatalf("micro run failure, output: %v", string(outp))
+	}
+
+	psCmd := exec.Command("micro", "ps")
+	outp, err = psCmd.CombinedOutput()
+	if err != nil {
+		t.Fatal(string(outp))
+	}
+
+	// The started service should have the runtime name of "test/example-service",
+	// as the runtime name is the relative path inside a repo.
+	if !strings.Contains(string(outp), "helloworld") {
 		t.Fatal(string(outp))
 	}
 }
