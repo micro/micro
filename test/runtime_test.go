@@ -87,6 +87,13 @@ func TestMicroRunLocalSource(t *testing.T) {
 }
 
 func TestMicroRunGithubSource(t *testing.T) {
+	p, err := exec.LookPath("git")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(p) == 0 {
+		t.Fatalf("Git is not available %v", p)
+	}
 	serv := newServer(t)
 	serv.launch()
 	defer serv.close()
@@ -97,15 +104,21 @@ func TestMicroRunGithubSource(t *testing.T) {
 		t.Fatalf("micro run failure, output: %v", string(outp))
 	}
 
-	psCmd := exec.Command("micro", "ps")
-	outp, err = psCmd.CombinedOutput()
-	if err != nil {
-		t.Fatal(string(outp))
-	}
+	c := 0
+	for ; c < 10; c++ {
+		time.Sleep(500 * time.Millisecond)
 
-	// The started service should have the runtime name of "test/example-service",
-	// as the runtime name is the relative path inside a repo.
-	if !strings.Contains(string(outp), "helloworld") {
-		t.Fatal(string(outp))
+		psCmd := exec.Command("micro", "ps")
+		outp, err = psCmd.CombinedOutput()
+		if err != nil {
+			t.Fatal(string(outp))
+		}
+
+		if strings.Contains(string(outp), "helloworld") {
+			break
+		}
+	}
+	if c >= 10 {
+		t.Fatal("Running from github source timed out")
 	}
 }
