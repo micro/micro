@@ -14,6 +14,7 @@ jobs:
       id: go
 
     - name: Test micro server
+      working-directory: ./test
       run: |
-        go test --tags=integration tests
+        go test --tags=integration ./...
         
