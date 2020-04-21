@@ -3,6 +3,8 @@
 package test
 
 import (
+	"encoding/json"
+	"io/ioutil"
 	"os/exec"
 	"strings"
 	"syscall"
@@ -31,7 +33,7 @@ func (s server) launch() {
 			s.t.Fatal(err)
 		}
 	}()
-	time.Sleep(1300 * time.Millisecond)
+	time.Sleep(1500 * time.Millisecond)
 }
 
 func (s server) close() {
@@ -120,5 +122,86 @@ func TestMicroRunGithubSource(t *testing.T) {
 	}
 	if c >= 10 {
 		t.Fatal("Running from github source timed out")
+	}
+}
+
+func TestMicroRunLocalUpdateAndCall(t *testing.T) {
+	serv := newServer(t)
+	serv.launch()
+	defer serv.close()
+
+	runCmd := exec.Command("micro", "run", "./example-service")
+	outp, err := runCmd.CombinedOutput()
+	if err != nil {
+		t.Fatalf("micro run failure, output: %v", string(outp))
+	}
+
+	psCmd := exec.Command("micro", "ps")
+	outp, err = psCmd.CombinedOutput()
+	if err != nil {
+		t.Fatal(string(outp))
+	}
+
+	// The started service should have the runtime name of "test/example-service",
+	// as the runtime name is the relative path inside a repo.
+	if !strings.Contains(string(outp), "test/example-service") {
+		t.Fatal(string(outp))
+	}
+
+	time.Sleep(3 * time.Second)
+
+	callCmd := exec.Command("micro", "call", "go.micro.service.example", "Example.Call", `{"name": "Joe"}`)
+	outp, err = callCmd.CombinedOutput()
+	if err != nil {
+		t.Fatal(string(outp))
+	}
+	rsp := map[string]string{}
+	err = json.Unmarshal(outp, &rsp)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if rsp["msg"] != "Hello Joe" {
+		t.Fatal(rsp)
+	}
+
+	replaceStringInFile(t, "./example-service/handler/handler.go", "Hello", "Hi")
+	defer func() {
+		// Change file back
+		replaceStringInFile(t, "./example-service/handler/handler.go", "Hi", "Hello")
+	}()
+
+	updateCmd := exec.Command("micro", "update", "./example-service")
+	outp, err = updateCmd.CombinedOutput()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	time.Sleep(3 * time.Second)
+
+	callCmd = exec.Command("micro", "call", "go.micro.service.example", "Example.Call", `{"name": "Joe"}`)
+	outp, err = callCmd.CombinedOutput()
+	if err != nil {
+		t.Fatal(string(outp))
+	}
+	rsp = map[string]string{}
+	err = json.Unmarshal(outp, &rsp)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if rsp["msg"] != "Hi Joe" {
+		t.Fatal(rsp)
+	}
+}
+
+func replaceStringInFile(t *testing.T, filepath string, original, newone string) {
+	input, err := ioutil.ReadFile(filepath)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	output := strings.ReplaceAll(string(input), original, newone)
+	err = ioutil.WriteFile(filepath, []byte(output), 0644)
+	if err != nil {
+		t.Fatal(err)
 	}
 }
