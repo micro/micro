@@ -1,6 +1,6 @@
 // +build integration
 
-package cli
+package tests
 
 import (
 	"testing"
