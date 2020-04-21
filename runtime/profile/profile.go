@@ -12,11 +12,11 @@ func Server() []string {
 	return []string{
 		"MICRO_AUTH=service",
 		"MICRO_BROKER=service",
+		"MICRO_NETWORK=service",
 		"MICRO_REGISTRY=service",
 		"MICRO_ROUTER=service",
 		"MICRO_RUNTIME=service",
 		"MICRO_STORE=service",
-		"MICRO_PROXY=service",
 	}
 }
 
@@ -31,16 +31,17 @@ func Platform() []string {
 		// TODO: debug, monitor, etc
 		"MICRO_AUTH=service",
 		"MICRO_BROKER=service",
+		"MICRO_CONFIG=service",
+		"MICRO_NETWORK=service",
 		"MICRO_REGISTRY=service",
 		"MICRO_ROUTER=service",
 		"MICRO_RUNTIME=service",
 		"MICRO_STORE=service",
-		"MICRO_PROXY=service",
-		"MICRO_CONFIG=service",
 		// now set the addresses
+		"MICRO_AUTH_ADDRESS=micro-auth:8010",
 		"MICRO_BROKER_ADDRESS=micro-store:8001",
+		"MICRO_NETWORK_ADDRESS=micro-network:8080",
 		"MICRO_REGISTRY_ADDRESS=micro-registry:8000",
-		"MICRO_PROXY_ADDRESS=micro-proxy:8081",
 		"MICRO_ROUTER_ADDRESS=micro-runtime:8084",
 		"MICRO_RUNTIME_ADDRESS=micro-runtime:8088",
 		"MICRO_STORE_ADDRESS=micro-store:8002",
