@@ -17,6 +17,10 @@ jobs:
     - name: Check out code
       uses: actions/checkout@v2 
 
+    - name: Install micro
+      run: |
+        go install
+
     - name: Test micro server
       working-directory: ./test
       run: |
