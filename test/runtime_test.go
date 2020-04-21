@@ -116,7 +116,7 @@ func TestRunLocalSource(t *testing.T) {
 			return outp, errors.New("Can't find example service in runtime")
 		}
 		return outp, err
-	}, 15*time.Second)
+	}, 30*time.Second)
 }
 
 func TestRunGithubSource(t *testing.T) {
@@ -194,7 +194,7 @@ func TestMicroRunLocalUpdateAndCall(t *testing.T) {
 			return outp, errors.New("can't find service in runtime")
 		}
 		return outp, err
-	}, 15*time.Second)
+	}, 30*time.Second)
 
 	try("Call example service", t, func() ([]byte, error) {
 		callCmd := exec.Command("micro", "call", "go.micro.service.example", "Example.Call", `{"name": "Joe"}`)
