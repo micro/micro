@@ -117,6 +117,17 @@ func TestRunLocalSource(t *testing.T) {
 		}
 		return outp, err
 	}, 30*time.Second)
+
+	try("Find go.micro.service.example in list", t, func() ([]byte, error) {
+		outp, err := exec.Command("micro", "list", "services").CombinedOutput()
+		if err != nil {
+			return outp, err
+		}
+		if !strings.Contains(string(outp), "go.micro.service.example") {
+			return outp, errors.New("Can't find example service in list")
+		}
+		return outp, err
+	}, 5*time.Second)
 }
 
 func TestRunGithubSource(t *testing.T) {
