@@ -46,7 +46,6 @@ var (
 
 	// list of web apps
 	dashboards = []string{
-		"network.web",
 		"debug.web",
 	}
 

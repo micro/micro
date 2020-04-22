@@ -29,7 +29,6 @@ import (
 	"github.com/micro/micro/v2/network/api"
 	netdns "github.com/micro/micro/v2/network/dns"
 	"github.com/micro/micro/v2/network/handler"
-	"github.com/micro/micro/v2/network/web"
 )
 
 var (
@@ -312,15 +311,6 @@ func Commands(options ...micro.Option) []*cli.Command {
 					return nil
 				},
 				Subcommands: mcli.NetworkDNSCommands(),
-			},
-			{
-				Name:        "web",
-				Usage:       "Run the network web dashboard",
-				Description: "Run the network web dashboard",
-				Action: func(ctx *cli.Context) error {
-					web.Run(ctx)
-					return nil
-				},
 			},
 		}, mcli.NetworkCommands()...),
 		Action: func(ctx *cli.Context) error {
