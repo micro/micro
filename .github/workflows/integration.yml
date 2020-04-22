@@ -25,5 +25,12 @@ jobs:
       working-directory: ./test
       run: |
         export PATH=${PATH}:`go env GOPATH`/bin
-        go test --tags=integration ./...
+        # Retry the test suite up to 5 times due to occasional flakes.
+        n=0
+        until [ $n -ge 5 ]
+        do
+          echo "Try $n" && go clean -testcache && go test --tags=integration  -failfast -v ./... && break  # substitute your command here
+          n=$[$n+1]
+          sleep 15
+        done
         
