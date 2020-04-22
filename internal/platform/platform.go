@@ -44,12 +44,6 @@ var (
 		"init",     // no port, manage self
 	}
 
-	// list of web apps
-	dashboards = []string{
-		"network.web",
-		"debug.web",
-	}
-
 	// list of apis
 	apis = []string{
 		"network.dns",
@@ -108,8 +102,7 @@ func Init(context *cli.Context) {
 	}
 
 	// create the combined list of services
-	initServices := append(dashboards, apis...)
-	initServices = append(initServices, services...)
+	initServices := append(services, apis...)
 
 	// get the service prefix
 	if namespace := context.String("namespace"); len(namespace) > 0 {

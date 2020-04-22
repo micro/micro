@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"strings"
+	"time"
 
 	"github.com/google/uuid"
 
@@ -197,7 +198,8 @@ func (a *Auth) Token(ctx context.Context, req *pb.TokenRequest, rsp *pb.TokenRes
 	}
 
 	// Generate a new access token
-	tok, err := a.TokenProvider.Generate(acc)
+	duration := time.Duration(req.TokenExpiry) * time.Second
+	tok, err := a.TokenProvider.Generate(acc, token.WithExpiry(duration))
 	if err != nil {
 		return errors.InternalServerError("go.micro.auth", "Unable to generate token: %v", err)
 	}
