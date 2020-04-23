@@ -145,7 +145,7 @@ func TestRunLocalSource(t *testing.T) {
 	}
 
 	try("Find test/example", t, func() ([]byte, error) {
-		psCmd := exec.Command("micro", "ps")
+		psCmd := exec.Command("micro", "status")
 		outp, err = psCmd.CombinedOutput()
 		if err != nil {
 			return outp, err
@@ -224,7 +224,7 @@ func TestRunGithubSource(t *testing.T) {
 	}
 
 	try("Find hello world", t, func() ([]byte, error) {
-		psCmd := exec.Command("micro", "ps")
+		psCmd := exec.Command("micro", "status")
 		outp, err = psCmd.CombinedOutput()
 		if err != nil {
 			return outp, err
@@ -267,8 +267,8 @@ func TestRunLocalUpdateAndCall(t *testing.T) {
 		t.Fatalf("micro run failure, output: %v", string(outp))
 	}
 
-	try("Finding example service with micro ps", t, func() ([]byte, error) {
-		psCmd := exec.Command("micro", "ps")
+	try("Finding example service with micro status", t, func() ([]byte, error) {
+		psCmd := exec.Command("micro", "status")
 		outp, err = psCmd.CombinedOutput()
 		if err != nil {
 			return outp, err
