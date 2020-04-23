@@ -26,9 +26,19 @@ func toService(s *pb.Service) *runtime.Service {
 	}
 }
 
+// getNamespace replaces the default auth namespace until we move
+// we wil replace go.micro with micro and move our default things there
+func getNamespace(ctx context.Context) string {
+	ns := namespace.FromContext(ctx)
+	if len(ns) == 0 || ns == "go.micro" {
+		return "default"
+	}
+	return ns
+}
+
 func toCreateOptions(ctx context.Context, opts *pb.CreateOptions) []runtime.CreateOption {
 	options := []runtime.CreateOption{
-		runtime.CreateNamespace(namespace.FromContext(ctx)),
+		runtime.CreateNamespace(getNamespace(ctx)),
 	}
 
 	// stop if no options were passed
@@ -73,7 +83,7 @@ func toCreateOptions(ctx context.Context, opts *pb.CreateOptions) []runtime.Crea
 
 func toReadOptions(ctx context.Context, opts *pb.ReadOptions) []runtime.ReadOption {
 	options := []runtime.ReadOption{
-		runtime.ReadNamespace(namespace.FromContext(ctx)),
+		runtime.ReadNamespace(getNamespace(ctx)),
 	}
 
 	// stop if no options were passed
@@ -96,18 +106,18 @@ func toReadOptions(ctx context.Context, opts *pb.ReadOptions) []runtime.ReadOpti
 
 func toUpdateOptions(ctx context.Context) []runtime.UpdateOption {
 	return []runtime.UpdateOption{
-		runtime.UpdateNamespace(namespace.FromContext(ctx)),
+		runtime.UpdateNamespace(getNamespace(ctx)),
 	}
 }
 
 func toDeleteOptions(ctx context.Context) []runtime.DeleteOption {
 	return []runtime.DeleteOption{
-		runtime.DeleteNamespace(namespace.FromContext(ctx)),
+		runtime.DeleteNamespace(getNamespace(ctx)),
 	}
 }
 
 func toLogsOptions(ctx context.Context) []runtime.LogsOption {
 	return []runtime.LogsOption{
-		runtime.LogsNamespace(namespace.FromContext(ctx)),
+		runtime.LogsNamespace(getNamespace(ctx)),
 	}
 }
