@@ -28,7 +28,7 @@ func toService(s *pb.Service) *runtime.Service {
 
 func toCreateOptions(ctx context.Context, opts *pb.CreateOptions) []runtime.CreateOption {
 	options := []runtime.CreateOption{
-		runtime.CreateNamespace(namespace.NamespaceFromContext(ctx)),
+		runtime.CreateNamespace(namespace.FromContext(ctx)),
 	}
 
 	// stop if no options were passed
@@ -61,6 +61,11 @@ func toCreateOptions(ctx context.Context, opts *pb.CreateOptions) []runtime.Crea
 		options = append(options, runtime.CreateImage(opts.Image))
 	}
 
+	// use image pull secrets
+	if len(opts.ImagePullSecrets) > 0 {
+		options = append(options, runtime.CreateImagePullSecret(opts.ImagePullSecrets...))
+	}
+
 	// TODO: output options
 
 	return options
@@ -68,7 +73,7 @@ func toCreateOptions(ctx context.Context, opts *pb.CreateOptions) []runtime.Crea
 
 func toReadOptions(ctx context.Context, opts *pb.ReadOptions) []runtime.ReadOption {
 	options := []runtime.ReadOption{
-		runtime.ReadNamespace(namespace.NamespaceFromContext(ctx)),
+		runtime.ReadNamespace(namespace.FromContext(ctx)),
 	}
 
 	// stop if no options were passed
@@ -91,18 +96,18 @@ func toReadOptions(ctx context.Context, opts *pb.ReadOptions) []runtime.ReadOpti
 
 func toUpdateOptions(ctx context.Context) []runtime.UpdateOption {
 	return []runtime.UpdateOption{
-		runtime.UpdateNamespace(namespace.NamespaceFromContext(ctx)),
+		runtime.UpdateNamespace(namespace.FromContext(ctx)),
 	}
 }
 
 func toDeleteOptions(ctx context.Context) []runtime.DeleteOption {
 	return []runtime.DeleteOption{
-		runtime.DeleteNamespace(namespace.NamespaceFromContext(ctx)),
+		runtime.DeleteNamespace(namespace.FromContext(ctx)),
 	}
 }
 
 func toLogsOptions(ctx context.Context) []runtime.LogsOption {
 	return []runtime.LogsOption{
-		runtime.LogsNamespace(namespace.NamespaceFromContext(ctx)),
+		runtime.LogsNamespace(namespace.FromContext(ctx)),
 	}
 }

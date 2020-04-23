@@ -22,8 +22,8 @@ const (
 	NamespaceKey = "Micro-Namespace"
 )
 
-// NamespaceFromContext gets the namespace from the context
-func NamespaceFromContext(ctx context.Context) string {
+// FromContext gets the namespace from the context
+func FromContext(ctx context.Context) string {
 	if ns, ok := metadata.Get(ctx, NamespaceKey); ok {
 		return ns
 	}
@@ -38,8 +38,8 @@ func NamespaceFromContext(ctx context.Context) string {
 
 var serviceTypes = []string{"api", "web", "service", "srv"}
 
-// NamespaceFromService returns the namespace the service belongs to
-func NamespaceFromService(name string) (string, error) {
+// FromService returns the namespace the service belongs to
+func FromService(name string) (string, error) {
 	// joinKey is the key used to seperate the components of the service
 	// name. '.' is the default, although '-' is also occasionally used.
 	joinKey := "."

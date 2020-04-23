@@ -15,7 +15,7 @@ type Broker struct {
 }
 
 func (b *Broker) Publish(ctx context.Context, req *pb.PublishRequest, rsp *pb.Empty) error {
-	ns := namespace.NamespaceFromContext(ctx)
+	ns := namespace.FromContext(ctx)
 
 	log.Debugf("Publishing message to %s topic in the %v namespace", req.Topic, ns)
 	err := b.Broker.Publish(ns+"."+req.Topic, &broker.Message{
@@ -30,7 +30,7 @@ func (b *Broker) Publish(ctx context.Context, req *pb.PublishRequest, rsp *pb.Em
 }
 
 func (b *Broker) Subscribe(ctx context.Context, req *pb.SubscribeRequest, stream pb.Broker_SubscribeStream) error {
-	ns := namespace.NamespaceFromContext(ctx)
+	ns := namespace.FromContext(ctx)
 	errChan := make(chan error, 1)
 
 	// message handler to stream back messages from broker

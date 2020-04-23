@@ -13,6 +13,7 @@ rules:
   resources:
   - pods
   - services
+  - namespaces
   verbs:
   - create
   - update
@@ -41,6 +42,19 @@ rules:
   - get
   - watch
   - list
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: micro-runtime
+subjects:
+- kind: ServiceAccount
+  name: micro-runtime
+  namespace: default
+roleRef:
+  kind: ClusterRole
+  name: micro-runtime
+  apiGroup: rbac.authorization.k8s.io
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
@@ -80,6 +94,7 @@ spec:
         name: micro-runtime
         micro: runtime
     spec:
+      serviceAccount: micro-runtime
       serviceAccountName: micro-runtime
       containers:
       - name: runtime

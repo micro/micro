@@ -6,7 +6,7 @@ import (
 	"github.com/micro/go-micro/v2/errors"
 )
 
-func TestNamespaceFromService(t *testing.T) {
+func TestFromService(t *testing.T) {
 	tt := []struct {
 		Name      string
 		Namespace string
@@ -23,7 +23,7 @@ func TestNamespaceFromService(t *testing.T) {
 
 	for _, tc := range tt {
 		t.Run(tc.Name, func(t *testing.T) {
-			ns, err := NamespaceFromService(tc.Name)
+			ns, err := FromService(tc.Name)
 			if ns != tc.Namespace {
 				t.Errorf("Expected '%v' namespace, got '%v'", tc.Namespace, ns)
 			}

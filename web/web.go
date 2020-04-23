@@ -348,7 +348,7 @@ func (s *srv) indexHandler(w http.ResponseWriter, r *http.Request) {
 	domain, _ := publicsuffix.EffectiveTLDPlusOne(r.URL.Hostname())
 
 	// determine the namespace the request was made against
-	reqNs := namespace.NamespaceFromContext(r.Context())
+	reqNs := namespace.FromContext(r.Context())
 
 	var webServices []webService
 	for _, srv := range services {
@@ -357,7 +357,7 @@ func (s *srv) indexHandler(w http.ResponseWriter, r *http.Request) {
 			continue
 		}
 
-		srvNs, _ := namespace.NamespaceFromService(srv.Name)
+		srvNs, _ := namespace.FromService(srv.Name)
 		if srvNs == reqNs {
 			name := strings.Replace(srv.Name, srvNs+".web.", "", 1)
 
@@ -427,13 +427,13 @@ func (s *srv) registryHandler(w http.ResponseWriter, r *http.Request) {
 	sort.Sort(sortedServices{services})
 
 	// get the namespace from the request
-	reqNs := namespace.NamespaceFromContext(r.Context())
+	reqNs := namespace.FromContext(r.Context())
 
 	// we're using a cache which means we can't filter when making the request
 	// to the registry, so filter in code
 	var filteredSrvs []*registry.Service
 	for _, service := range services {
-		srvNs, _ := namespace.NamespaceFromService(service.Name)
+		srvNs, _ := namespace.FromService(service.Name)
 		if srvNs == namespace.RuntimeNamespace || srvNs == reqNs {
 			filteredSrvs = append(filteredSrvs, service)
 		}
@@ -462,13 +462,13 @@ func (s *srv) callHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// get the namespace from the request
-	reqNs := namespace.NamespaceFromContext(r.Context())
+	reqNs := namespace.FromContext(r.Context())
 
 	sort.Sort(sortedServices{services})
 
 	serviceMap := make(map[string][]*registry.Endpoint)
 	for _, service := range services {
-		srvNs, _ := namespace.NamespaceFromService(service.Name)
+		srvNs, _ := namespace.FromService(service.Name)
 		if srvNs != namespace.RuntimeNamespace && srvNs != reqNs {
 			continue
 		}
