@@ -322,10 +322,8 @@ github.com/mholt/certmagic v0.9.3 h1:RmzuNJ5mpFplDbyS41z+gGgE/py24IX6m0nHZ0yNTQU
 github.com/mholt/certmagic v0.9.3/go.mod h1:nu8jbsbtwK4205EDH/ZUMTKsfYpJA1Q7MKXHfgTihNw=
 github.com/micro/cli/v2 v2.1.2 h1:43J1lChg/rZCC1rvdqZNFSQDrGT7qfMrtp6/ztpIkEM=
 github.com/micro/cli/v2 v2.1.2/go.mod h1:EguNh6DAoWKm9nmk+k/Rg0H3lQnDxqzu5x5srOtGtYg=
-github.com/micro/go-micro/v2 v2.5.1-0.20200423165309-986e3d3c35d0 h1:kn/qGwoAHHac7zBKRSZ5mHe+pMyg82ogDYEnYk5rNeY=
-github.com/micro/go-micro/v2 v2.5.1-0.20200423165309-986e3d3c35d0/go.mod h1:60HMKlDN4ShZDJRrlgdcAmkCWNhQbYv+CDG3r7iLE34=
-github.com/micro/go-micro/v2 v2.5.1-0.20200423171013-e0a651bfc3fd h1:FqfLxjfko8MXQWcycbaQusvCAvNYIvT5TkfjtQx9DuI=
-github.com/micro/go-micro/v2 v2.5.1-0.20200423171013-e0a651bfc3fd/go.mod h1:60HMKlDN4ShZDJRrlgdcAmkCWNhQbYv+CDG3r7iLE34=
+github.com/micro/go-micro/v2 v2.5.1-0.20200423171638-041d68b1ce79 h1:0/xRw4kKRcbTGb1xltotyxCAlKpMVzRMB0BVYMdFaZI=
+github.com/micro/go-micro/v2 v2.5.1-0.20200423171638-041d68b1ce79/go.mod h1:60HMKlDN4ShZDJRrlgdcAmkCWNhQbYv+CDG3r7iLE34=
 github.com/miekg/dns v1.1.15/go.mod h1:W1PPwlIAgtquWBMBEV9nkV9Cazfe8ScdGz/Lj7v3Nrg=
 github.com/miekg/dns v1.1.27 h1:aEH/kqUzUxGJ/UHcEKdJY+ugH6WEzsEBBSPa8zuy1aM=
 github.com/miekg/dns v1.1.27/go.mod h1:KNUDUusw/aVsxyTYZM1oqvCicbwhgbNgztCETuNZ7xM=
