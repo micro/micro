@@ -27,7 +27,7 @@ const (
 	// UpdateUsage message for the update command
 	UpdateUsage = "Require usage: micro update [source]"
 	// GetUsage message for micro get command
-	GetUsage = "Require usage: micro ps [service] [version]"
+	GetUsage = "Require usage: micro status [service] [version]"
 	// ServicesUsage message for micro services command
 	ServicesUsage = "Require usage: micro services"
 	// CannotWatch message for the run command

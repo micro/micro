@@ -195,7 +195,7 @@ func Commands(options ...micro.Option) []*cli.Command {
 			},
 		},
 		{
-			Name:  "ps",
+			Name:  "status",
 			Usage: GetUsage,
 			Flags: Flags(),
 			Action: func(ctx *cli.Context) error {
