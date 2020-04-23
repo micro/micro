@@ -66,6 +66,47 @@ func (s server) close() {
 	}
 }
 
+func TestNew(t *testing.T) {
+	defer func() {
+		exec.Command("rm", "-r", "./foobar").CombinedOutput()
+	}()
+	outp, err := exec.Command("micro", "new", "foobar").CombinedOutput()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(string(outp), "protoc") {
+		t.Fatalf("micro new lacks protobuf install instructions %v", string(outp))
+	}
+
+	lines := strings.Split(string(outp), "\n")
+	// executing install instructions
+	for _, line := range lines {
+		if strings.HasPrefix(line, "go get") {
+			parts := strings.Split(line, " ")
+			getOutp, getErr := exec.Command(parts[0], parts[1:]...).CombinedOutput()
+			if getErr != nil {
+				t.Fatal(string(getOutp))
+			}
+		}
+		if strings.HasPrefix(line, "protoc") {
+			parts := strings.Split(line, " ")
+			protocCmd := exec.Command(parts[0], parts[1:]...)
+			protocCmd.Dir = "./foobar"
+			pOutp, pErr := protocCmd.CombinedOutput()
+			if pErr != nil {
+				t.Fatal(string(pOutp))
+			}
+		}
+	}
+
+	buildCommand := exec.Command("go", "build")
+	buildCommand.Dir = "./foobar"
+	outp, err = buildCommand.CombinedOutput()
+	if err != nil {
+		t.Fatal(string(outp))
+	}
+}
+
 func TestServerModeCall(t *testing.T) {
 	outp, err := exec.Command("micro", "env", "set", "server").CombinedOutput()
 	if err != nil {
@@ -180,7 +221,7 @@ func TestRunGithubSource(t *testing.T) {
 
 }
 
-func TestMicroRunLocalUpdateAndCall(t *testing.T) {
+func TestRunLocalUpdateAndCall(t *testing.T) {
 	serv := newServer(t)
 	serv.launch()
 	defer serv.close()
