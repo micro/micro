@@ -11,6 +11,7 @@ import (
 	"github.com/micro/go-micro/v2/runtime"
 	pb "github.com/micro/go-micro/v2/runtime/service/proto"
 	"github.com/micro/micro/v2/internal/git"
+	"github.com/micro/micro/v2/internal/namespace"
 )
 
 type Runtime struct {
@@ -20,11 +21,29 @@ type Runtime struct {
 	Client micro.Publisher
 }
 
+// @todo move this to runtime default
+func (r *Runtime) checkoutSourceIfNeeded(s *runtime.Service) error {
+	if r.Runtime.String() != "local" {
+		return nil
+	}
+	source, err := git.ParseSourceLocal("", s.Source)
+	if err != nil {
+		return err
+	}
+	source.Ref = s.Version
+	err = git.CheckoutSource(os.TempDir(), source)
+	if err != nil {
+		return err
+	}
+	s.Source = source.FullPath
+	return nil
+}
+
 func (r *Runtime) Read(ctx context.Context, req *pb.ReadRequest, rsp *pb.ReadResponse) error {
 	var options []runtime.ReadOption
 
 	if req.Options != nil {
-		options = toReadOptions(req.Options)
+		options = toReadOptions(ctx, req.Options)
 	}
 
 	services, err := r.Runtime.Read(options...)
@@ -44,11 +63,7 @@ func (r *Runtime) Create(ctx context.Context, req *pb.CreateRequest, rsp *pb.Cre
 		return errors.BadRequest("go.micro.runtime", "blank service")
 	}
 
-	var options []runtime.CreateOption
-	if req.Options != nil {
-		options = toCreateOptions(req.Options)
-	}
-
+	options := toCreateOptions(ctx, req.Options)
 	service := toService(req.Service)
 
 	// @todo move this to runtime default
@@ -73,31 +88,13 @@ func (r *Runtime) Create(ctx context.Context, req *pb.CreateRequest, rsp *pb.Cre
 	return nil
 }
 
-// @todo move this to runtime default
-func (r *Runtime) checkoutSourceIfNeeded(s *runtime.Service) error {
-	if r.Runtime.String() != "local" {
-		return nil
-	}
-	source, err := git.ParseSourceLocal("", s.Source)
-	if err != nil {
-		return err
-	}
-	source.Ref = s.Version
-	err = git.CheckoutSource(os.TempDir(), source)
-	if err != nil {
-		return err
-	}
-	s.Source = source.FullPath
-	return nil
-}
-
 func (r *Runtime) Update(ctx context.Context, req *pb.UpdateRequest, rsp *pb.UpdateResponse) error {
 	if req.Service == nil {
 		return errors.BadRequest("go.micro.runtime", "blank service")
 	}
 
-	// TODO: add opts
 	service := toService(req.Service)
+	options := toUpdateOptions(ctx)
 
 	// @todo move this to runtime default
 	if err := r.checkoutSourceIfNeeded(service); err != nil {
@@ -106,7 +103,7 @@ func (r *Runtime) Update(ctx context.Context, req *pb.UpdateRequest, rsp *pb.Upd
 
 	log.Infof("Updating service %s version %s source %s", service.Name, service.Version, service.Source)
 
-	if err := r.Runtime.Update(service); err != nil {
+	if err := r.Runtime.Update(service, options...); err != nil {
 		return errors.InternalServerError("go.micro.runtime", err.Error())
 	}
 
@@ -126,11 +123,12 @@ func (r *Runtime) Delete(ctx context.Context, req *pb.DeleteRequest, rsp *pb.Del
 		return errors.BadRequest("go.micro.runtime", "blank service")
 	}
 
-	// TODO: add opts
 	service := toService(req.Service)
+	options := toDeleteOptions(ctx)
+
 	log.Infof("Deleting service %s version %s source %s", service.Name, service.Version, service.Source)
 
-	if err := r.Runtime.Delete(service); err != nil {
+	if err := r.Runtime.Delete(service, options...); err != nil {
 		return errors.InternalServerError("go.micro.runtime", err.Error())
 	}
 
@@ -146,7 +144,10 @@ func (r *Runtime) Delete(ctx context.Context, req *pb.DeleteRequest, rsp *pb.Del
 }
 
 func (r *Runtime) Logs(ctx context.Context, req *pb.LogsRequest, stream pb.Runtime_LogsStream) error {
-	opts := []runtime.LogsOption{}
+	opts := []runtime.LogsOption{
+		runtime.LogsNamespace(namespace.NamespaceFromContext(ctx)),
+	}
+
 	if req.GetCount() > 0 {
 		opts = append(opts, runtime.LogsCount(req.GetCount()))
 	}

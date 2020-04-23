@@ -1,8 +1,11 @@
 package handler
 
 import (
+	"context"
+
 	"github.com/micro/go-micro/v2/runtime"
 	pb "github.com/micro/go-micro/v2/runtime/service/proto"
+	"github.com/micro/micro/v2/internal/namespace"
 )
 
 func toProto(s *runtime.Service) *pb.Service {
@@ -23,8 +26,16 @@ func toService(s *pb.Service) *runtime.Service {
 	}
 }
 
-func toCreateOptions(opts *pb.CreateOptions) []runtime.CreateOption {
-	options := []runtime.CreateOption{}
+func toCreateOptions(ctx context.Context, opts *pb.CreateOptions) []runtime.CreateOption {
+	options := []runtime.CreateOption{
+		runtime.CreateNamespace(namespace.NamespaceFromContext(ctx)),
+	}
+
+	// stop if no options were passed
+	if opts == nil {
+		return options
+	}
+
 	// command options
 	if len(opts.Command) > 0 {
 		options = append(options, runtime.WithCommand(opts.Command...))
@@ -55,8 +66,16 @@ func toCreateOptions(opts *pb.CreateOptions) []runtime.CreateOption {
 	return options
 }
 
-func toReadOptions(opts *pb.ReadOptions) []runtime.ReadOption {
-	options := []runtime.ReadOption{}
+func toReadOptions(ctx context.Context, opts *pb.ReadOptions) []runtime.ReadOption {
+	options := []runtime.ReadOption{
+		runtime.ReadNamespace(namespace.NamespaceFromContext(ctx)),
+	}
+
+	// stop if no options were passed
+	if opts == nil {
+		return options
+	}
+
 	if len(opts.Service) > 0 {
 		options = append(options, runtime.ReadService(opts.Service))
 	}
@@ -68,4 +87,22 @@ func toReadOptions(opts *pb.ReadOptions) []runtime.ReadOption {
 	}
 
 	return options
+}
+
+func toUpdateOptions(ctx context.Context) []runtime.UpdateOption {
+	return []runtime.UpdateOption{
+		runtime.UpdateNamespace(namespace.NamespaceFromContext(ctx)),
+	}
+}
+
+func toDeleteOptions(ctx context.Context) []runtime.DeleteOption {
+	return []runtime.DeleteOption{
+		runtime.DeleteNamespace(namespace.NamespaceFromContext(ctx)),
+	}
+}
+
+func toLogsOptions(ctx context.Context) []runtime.LogsOption {
+	return []runtime.LogsOption{
+		runtime.LogsNamespace(namespace.NamespaceFromContext(ctx)),
+	}
 }
