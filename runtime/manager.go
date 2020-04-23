@@ -197,6 +197,7 @@ func (m *manager) processEvent(ev *event) {
 			runtime.WithEnv(env),
 			runtime.CreateType(ev.Options.Type),
 			runtime.CreateImage(ev.Options.Image),
+			runtime.CreateImagePullSecret(ev.Options.ImagePullSecrets...),
 		}
 
 		log.Infof("Processing create event %s", key(ev.Service))
