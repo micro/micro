@@ -394,6 +394,7 @@ func (m *manager) processServices() error {
 		if filter(service) {
 			continue
 		}
+
 		k := key(service)
 		running[k] = service
 	}
@@ -461,6 +462,10 @@ func (m *manager) processServices() error {
 
 	// check what we need to stop from the running list
 	for _, service := range services {
+		if filter(service) {
+			continue
+		}
+
 		k := key(service)
 
 		// check if it should be running
