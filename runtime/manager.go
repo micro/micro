@@ -115,6 +115,9 @@ func filter(s *runtime.Service) bool {
 	if s.Metadata["type"] == "runtime" {
 		return true
 	}
+	if s.Metadata["micro"] == "runtime" {
+		return true
+	}
 	return false
 }
 
