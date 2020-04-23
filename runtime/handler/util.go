@@ -26,9 +26,19 @@ func toService(s *pb.Service) *runtime.Service {
 	}
 }
 
+// getNamespace replaces the default auth namespace until we move
+// we wil replace go.micro with micro and move our default things there
+func getNamespace(ctx context.Context) string {
+	ns := namespace.FromContext(ctx)
+	if len(ns) == 0 || ns == "go.micro" {
+		return "default"
+	}
+	return ns
+}
+
 func toCreateOptions(ctx context.Context, opts *pb.CreateOptions) []runtime.CreateOption {
 	options := []runtime.CreateOption{
-		runtime.CreateNamespace(namespace.NamespaceFromContext(ctx)),
+		runtime.CreateNamespace(getNamespace(ctx)),
 	}
 
 	// stop if no options were passed
@@ -61,6 +71,11 @@ func toCreateOptions(ctx context.Context, opts *pb.CreateOptions) []runtime.Crea
 		options = append(options, runtime.CreateImage(opts.Image))
 	}
 
+	// use image pull secrets
+	if len(opts.ImagePullSecrets) > 0 {
+		options = append(options, runtime.CreateImagePullSecret(opts.ImagePullSecrets...))
+	}
+
 	// TODO: output options
 
 	return options
@@ -68,7 +83,7 @@ func toCreateOptions(ctx context.Context, opts *pb.CreateOptions) []runtime.Crea
 
 func toReadOptions(ctx context.Context, opts *pb.ReadOptions) []runtime.ReadOption {
 	options := []runtime.ReadOption{
-		runtime.ReadNamespace(namespace.NamespaceFromContext(ctx)),
+		runtime.ReadNamespace(getNamespace(ctx)),
 	}
 
 	// stop if no options were passed
@@ -91,18 +106,18 @@ func toReadOptions(ctx context.Context, opts *pb.ReadOptions) []runtime.ReadOpti
 
 func toUpdateOptions(ctx context.Context) []runtime.UpdateOption {
 	return []runtime.UpdateOption{
-		runtime.UpdateNamespace(namespace.NamespaceFromContext(ctx)),
+		runtime.UpdateNamespace(getNamespace(ctx)),
 	}
 }
 
 func toDeleteOptions(ctx context.Context) []runtime.DeleteOption {
 	return []runtime.DeleteOption{
-		runtime.DeleteNamespace(namespace.NamespaceFromContext(ctx)),
+		runtime.DeleteNamespace(getNamespace(ctx)),
 	}
 }
 
 func toLogsOptions(ctx context.Context) []runtime.LogsOption {
 	return []runtime.LogsOption{
-		runtime.LogsNamespace(namespace.NamespaceFromContext(ctx)),
+		runtime.LogsNamespace(getNamespace(ctx)),
 	}
 }

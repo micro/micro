@@ -115,7 +115,7 @@ func (r *Runtime) Delete(ctx context.Context, req *pb.DeleteRequest, rsp *pb.Del
 
 func (r *Runtime) Logs(ctx context.Context, req *pb.LogsRequest, stream pb.Runtime_LogsStream) error {
 	opts := []runtime.LogsOption{
-		runtime.LogsNamespace(namespace.NamespaceFromContext(ctx)),
+		runtime.LogsNamespace(namespace.FromContext(ctx)),
 	}
 
 	if req.GetCount() > 0 {
