@@ -15,7 +15,6 @@ import (
 	pbstats "github.com/micro/micro/v2/debug/stats/proto"
 	tracehandler "github.com/micro/micro/v2/debug/trace/handler"
 	pbtrace "github.com/micro/micro/v2/debug/trace/proto"
-	"github.com/micro/micro/v2/debug/web"
 )
 
 var (
@@ -151,24 +150,6 @@ func Commands(options ...micro.Option) []*cli.Command {
 			Action: func(ctx *cli.Context) error {
 				Run(ctx, options...)
 				return nil
-			},
-			Subcommands: []*cli.Command{
-				&cli.Command{
-					Name:  "web",
-					Usage: "Start the debug web dashboard",
-					Flags: []cli.Flag{
-						&cli.StringFlag{
-							Name:    "netdata_url",
-							Usage:   "The Full URL to the netdata server",
-							EnvVars: []string{"MICRO_NETDATA_URL"},
-							Value:   "http://localhost:19999",
-						},
-					},
-					Action: func(c *cli.Context) error {
-						web.Run(c)
-						return nil
-					},
-				},
 			},
 		},
 		{

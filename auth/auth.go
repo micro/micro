@@ -20,7 +20,6 @@ import (
 	accountsHandler "github.com/micro/micro/v2/auth/handler/accounts"
 	authHandler "github.com/micro/micro/v2/auth/handler/auth"
 	rulesHandler "github.com/micro/micro/v2/auth/handler/rules"
-	"github.com/micro/micro/v2/auth/web"
 	cliutil "github.com/micro/micro/v2/cli/util"
 )
 
@@ -252,16 +251,6 @@ func Commands(srvOpts ...micro.Option) []*cli.Command {
 					Flags:       ServiceFlags,
 					Action: func(ctx *cli.Context) error {
 						api.Run(ctx, srvOpts...)
-						return nil
-					},
-				},
-				{
-					Name:        "web",
-					Usage:       "Run the auth web",
-					Description: "Run the auth web",
-					Flags:       append(ServiceFlags, PlatformFlag),
-					Action: func(ctx *cli.Context) error {
-						web.Run(ctx, srvOpts...)
 						return nil
 					},
 				},
