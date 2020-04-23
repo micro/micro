@@ -2,14 +2,12 @@ package handler
 
 import (
 	"context"
-	"os"
 	"time"
 
 	"github.com/micro/go-micro/v2"
 	"github.com/micro/go-micro/v2/errors"
 	log "github.com/micro/go-micro/v2/logger"
 	"github.com/micro/go-micro/v2/runtime"
-	"github.com/micro/go-micro/v2/runtime/local/git"
 	pb "github.com/micro/go-micro/v2/runtime/service/proto"
 	"github.com/micro/micro/v2/internal/namespace"
 )
@@ -19,24 +17,6 @@ type Runtime struct {
 	Runtime runtime.Runtime
 	// The client used to publish events
 	Client micro.Publisher
-}
-
-// @todo move this to runtime default
-func (r *Runtime) checkoutSourceIfNeeded(s *runtime.Service) error {
-	if r.Runtime.String() != "local" {
-		return nil
-	}
-	source, err := git.ParseSourceLocal("", s.Source)
-	if err != nil {
-		return err
-	}
-	source.Ref = s.Version
-	err = git.CheckoutSource(os.TempDir(), source)
-	if err != nil {
-		return err
-	}
-	s.Source = source.FullPath
-	return nil
 }
 
 func (r *Runtime) Read(ctx context.Context, req *pb.ReadRequest, rsp *pb.ReadResponse) error {
@@ -66,11 +46,6 @@ func (r *Runtime) Create(ctx context.Context, req *pb.CreateRequest, rsp *pb.Cre
 	options := toCreateOptions(ctx, req.Options)
 	service := toService(req.Service)
 
-	// @todo move this to runtime default
-	if err := r.checkoutSourceIfNeeded(service); err != nil {
-		return err
-	}
-
 	log.Infof("Creating service %s version %s source %s", service.Name, service.Version, service.Source)
 
 	if err := r.Runtime.Create(service, options...); err != nil {
@@ -95,11 +70,6 @@ func (r *Runtime) Update(ctx context.Context, req *pb.UpdateRequest, rsp *pb.Upd
 
 	service := toService(req.Service)
 	options := toUpdateOptions(ctx)
-
-	// @todo move this to runtime default
-	if err := r.checkoutSourceIfNeeded(service); err != nil {
-		return err
-	}
 
 	log.Infof("Updating service %s version %s source %s", service.Name, service.Version, service.Source)
 
