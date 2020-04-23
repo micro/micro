@@ -16,7 +16,7 @@ import (
 	"github.com/micro/go-micro/v2/runtime"
 	srvRuntime "github.com/micro/go-micro/v2/runtime/service"
 	cliutil "github.com/micro/micro/v2/cli/util"
-	"github.com/micro/micro/v2/internal/git"
+	"github.com/micro/go-micro/v2/runtime/local/git"
 )
 
 const (
