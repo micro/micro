@@ -210,7 +210,10 @@ func (m *manager) processEvent(ev *event) {
 			runtime.CreateType(ev.Options.Type),
 			runtime.CreateImage(ev.Options.Image),
 			runtime.CreateImagePullSecret(ev.Options.ImagePullSecrets...),
-			runtime.CreateNamespace(ev.Options.Namespace),
+		}
+
+		if len(ev.Options.Namespace) > 0 {
+			opts = append(opts, runtime.CreateNamespace(ev.Options.Namespace))
 		}
 
 		log.Infof("Processing create event %s in namespace %v", key(ev.Service), ev.Options.Namespace)
