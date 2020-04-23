@@ -110,6 +110,14 @@ func eventKey(id string) string {
 	return fmt.Sprintf("runtime:events:%d:%s", time.Now().Truncate(time.Hour).Unix(), id)
 }
 
+func filter(s *runtime.Service) bool {
+	// skip core services
+	if s.Metadata["type"] == "runtime" {
+		return true
+	}
+	return false
+}
+
 // read all the events from the store
 func (m *manager) readEvents() (map[string]*series, error) {
 	// read back all events for past hour
@@ -334,6 +342,10 @@ func (m *manager) updateStatus() error {
 
 	// update running status
 	for _, service := range services {
+		if filter(service) {
+			continue
+		}
+
 		k := key(service)
 		// create running map
 		running[k] = service
@@ -376,6 +388,9 @@ func (m *manager) processServices() error {
 	running := make(map[string]*runtime.Service)
 
 	for _, service := range services {
+		if filter(service) {
+			continue
+		}
 		k := key(service)
 		running[k] = service
 	}
