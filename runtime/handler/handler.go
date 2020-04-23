@@ -2,6 +2,7 @@ package handler
 
 import (
 	"context"
+	"os"
 	"time"
 
 	"github.com/micro/go-micro/v2"
@@ -9,6 +10,7 @@ import (
 	log "github.com/micro/go-micro/v2/logger"
 	"github.com/micro/go-micro/v2/runtime"
 	pb "github.com/micro/go-micro/v2/runtime/service/proto"
+	"github.com/micro/micro/v2/internal/git"
 	"github.com/micro/micro/v2/internal/namespace"
 )
 
@@ -19,6 +21,43 @@ type Runtime struct {
 	Client micro.Publisher
 }
 
+// @todo move this to runtime default
+func (r *Runtime) checkoutSourceIfNeeded(s *runtime.Service) error {
+	if r.Runtime.String() != "local" {
+		return nil
+	}
+	source, err := git.ParseSourceLocal("", s.Source)
+	if err != nil {
+		return err
+	}
+	source.Ref = s.Version
+	err = git.CheckoutSource(os.TempDir(), source)
+	if err != nil {
+		return err
+	}
+	s.Source = source.FullPath
+	return nil
+}
+
+func (r *Runtime) Read(ctx context.Context, req *pb.ReadRequest, rsp *pb.ReadResponse) error {
+	var options []runtime.ReadOption
+
+	if req.Options != nil {
+		options = toReadOptions(req.Options)
+	}
+
+	services, err := r.Runtime.Read(options...)
+	if err != nil {
+		return errors.InternalServerError("go.micro.runtime", err.Error())
+	}
+
+	for _, service := range services {
+		rsp.Services = append(rsp.Services, toProto(service))
+	}
+
+	return nil
+}
+
 func (r *Runtime) Create(ctx context.Context, req *pb.CreateRequest, rsp *pb.CreateResponse) error {
 	if req.Service == nil {
 		return errors.BadRequest("go.micro.runtime", "blank service")
@@ -26,6 +65,11 @@ func (r *Runtime) Create(ctx context.Context, req *pb.CreateRequest, rsp *pb.Cre
 
 	options := toCreateOptions(ctx, req.Options)
 	service := toService(req.Service)
+
+	// @todo move this to runtime default
+	if err := r.checkoutSourceIfNeeded(service); err != nil {
+		return err
+	}
 
 	log.Infof("Creating service %s version %s source %s", service.Name, service.Version, service.Source)
 
@@ -44,21 +88,6 @@ func (r *Runtime) Create(ctx context.Context, req *pb.CreateRequest, rsp *pb.Cre
 	return nil
 }
 
-func (r *Runtime) Read(ctx context.Context, req *pb.ReadRequest, rsp *pb.ReadResponse) error {
-	options := toReadOptions(ctx, req.Options)
-
-	services, err := r.Runtime.Read(options...)
-	if err != nil {
-		return errors.InternalServerError("go.micro.runtime", err.Error())
-	}
-
-	for _, service := range services {
-		rsp.Services = append(rsp.Services, toProto(service))
-	}
-
-	return nil
-}
-
 func (r *Runtime) Update(ctx context.Context, req *pb.UpdateRequest, rsp *pb.UpdateResponse) error {
 	if req.Service == nil {
 		return errors.BadRequest("go.micro.runtime", "blank service")
@@ -66,6 +95,11 @@ func (r *Runtime) Update(ctx context.Context, req *pb.UpdateRequest, rsp *pb.Upd
 
 	service := toService(req.Service)
 	options := toUpdateOptions(ctx)
+
+	// @todo move this to runtime default
+	if err := r.checkoutSourceIfNeeded(service); err != nil {
+		return err
+	}
 
 	log.Infof("Updating service %s version %s source %s", service.Name, service.Version, service.Source)
 

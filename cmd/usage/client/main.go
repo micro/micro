@@ -43,7 +43,7 @@ func years() [][]byte {
 	var years [][]byte
 
 	for _, year := range []string{"2019", "2020"} {
-		rsp, err := http.Get("https://micro.mu/usage?date=" + year)
+		rsp, err := http.Get("https://go.micro.mu/usage?date=" + year)
 		if err != nil {
 			fmt.Println(err)
 			return nil

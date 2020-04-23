@@ -3,7 +3,6 @@ package config
 import (
 	"context"
 	"fmt"
-	"os"
 	"time"
 
 	"github.com/micro/cli/v2"
@@ -11,6 +10,7 @@ import (
 	"github.com/micro/go-micro/v2/config/cmd"
 	proto "github.com/micro/go-micro/v2/config/source/service/proto"
 	log "github.com/micro/go-micro/v2/logger"
+	cliutil "github.com/micro/micro/v2/cli/util"
 	"github.com/micro/micro/v2/config/handler"
 )
 
@@ -22,13 +22,6 @@ var (
 	// Default key
 	Namespace = "global"
 )
-
-func setPlatform(ctx *cli.Context) {
-	if ctx.Bool("platform") {
-		os.Setenv("MICRO_PROXY", "service")
-		os.Setenv("MICRO_PROXY_ADDRESS", "proxy.micro.mu:443")
-	}
-}
 
 func Run(c *cli.Context, srvOpts ...micro.Option) {
 	if len(c.String("server_name")) > 0 {
@@ -56,8 +49,6 @@ func Run(c *cli.Context, srvOpts ...micro.Option) {
 }
 
 func setConfig(ctx *cli.Context) error {
-	setPlatform(ctx)
-
 	pb := proto.NewConfigService("go.micro.config", *cmd.DefaultCmd.Options().Client)
 
 	args := ctx.Args()
@@ -72,7 +63,6 @@ func setConfig(ctx *cli.Context) error {
 
 	// TODO: allow the specifying of a config.Key. This will be service name
 	// The actuall key-val set is a path e.g micro/accounts/key
-
 	_, err := pb.Update(context.TODO(), &proto.UpdateRequest{
 		Change: &proto.Change{
 			// global key
@@ -96,8 +86,6 @@ func setConfig(ctx *cli.Context) error {
 }
 
 func getConfig(ctx *cli.Context) error {
-	setPlatform(ctx)
-
 	pb := proto.NewConfigService("go.micro.config", *cmd.DefaultCmd.Options().Client)
 
 	args := ctx.Args()
@@ -141,8 +129,6 @@ func getConfig(ctx *cli.Context) error {
 }
 
 func delConfig(ctx *cli.Context) error {
-	setPlatform(ctx)
-
 	pb := proto.NewConfigService("go.micro.config", *cmd.DefaultCmd.Options().Client)
 
 	args := ctx.Args()
@@ -177,6 +163,7 @@ func delConfig(ctx *cli.Context) error {
 }
 
 func Commands(options ...micro.Option) []*cli.Command {
+	cliutil.SetupCommand()
 	command := &cli.Command{
 		Name:  "config",
 		Usage: "Run the config server",

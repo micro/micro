@@ -18,6 +18,19 @@ import (
 	"github.com/xlab/treeprint"
 )
 
+func protoComments(goDir, alias string) []string {
+	return []string{
+		"\ndownload protobuf for micro:\n",
+		"brew install protobuf",
+		"go get -u github.com/golang/protobuf/proto",
+		"go get -u github.com/golang/protobuf/protoc-gen-go",
+		"go get github.com/micro/micro/v2/cmd/protoc-gen-micro",
+		"\ncompile the proto file " + alias + ".proto:\n",
+		"cd " + goDir,
+		"protoc --proto_path=.:$GOPATH/src --go_out=. --micro_out=. proto/" + alias + "/" + alias + ".proto\n",
+	}
+}
+
 type config struct {
 	// foo
 	Alias string
@@ -258,15 +271,7 @@ func run(ctx *cli.Context) {
 				{"README.md", tmpl.ReadmeFNC},
 				{".gitignore", tmpl.GitIgnore},
 			},
-			Comments: []string{
-				"\ndownload protobuf for micro:\n",
-				"brew install protobuf",
-				"go get -u github.com/golang/protobuf/{proto,protoc-gen-go}",
-				"go get -u github.com/micro/protoc-gen-micro/v2",
-				"\ncompile the proto file " + alias + ".proto:\n",
-				"cd " + goDir,
-				"protoc --proto_path=.:$GOPATH/src --go_out=. --micro_out=. proto/" + alias + "/" + alias + ".proto\n",
-			},
+			Comments: protoComments(goDir, alias),
 		}
 	case "service":
 		// create service config
@@ -293,15 +298,7 @@ func run(ctx *cli.Context) {
 				{"README.md", tmpl.Readme},
 				{".gitignore", tmpl.GitIgnore},
 			},
-			Comments: []string{
-				"\ndownload protobuf for micro:\n",
-				"brew install protobuf",
-				"go get -u github.com/golang/protobuf/{proto,protoc-gen-go}",
-				"go get -u github.com/micro/protoc-gen-micro/v2",
-				"\ncompile the proto file " + alias + ".proto:\n",
-				"cd " + goDir,
-				"protoc --proto_path=.:$GOPATH/src --go_out=. --micro_out=. proto/" + alias + "/" + alias + ".proto\n",
-			},
+			Comments: protoComments(goDir, alias),
 		}
 	case "api":
 		// create api config
@@ -328,15 +325,7 @@ func run(ctx *cli.Context) {
 				{"README.md", tmpl.Readme},
 				{".gitignore", tmpl.GitIgnore},
 			},
-			Comments: []string{
-				"\ndownload protobuf for micro:\n",
-				"brew install protobuf",
-				"go get -u github.com/golang/protobuf/{proto,protoc-gen-go}",
-				"go get -u github.com/micro/protoc-gen-micro/v2",
-				"\ncompile the proto file " + alias + ".proto:\n",
-				"cd " + goDir,
-				"protoc --proto_path=.:$GOPATH/src --go_out=. --micro_out=. proto/" + alias + "/" + alias + ".proto\n",
-			},
+			Comments: protoComments(goDir, alias),
 		}
 	case "web":
 		// create service config

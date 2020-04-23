@@ -10,6 +10,7 @@ import (
 	log "github.com/micro/go-micro/v2/logger"
 	"github.com/micro/go-micro/v2/runtime"
 	pb "github.com/micro/go-micro/v2/runtime/service/proto"
+	cliutil "github.com/micro/micro/v2/cli/util"
 	"github.com/micro/micro/v2/runtime/handler"
 )
 
@@ -111,16 +112,6 @@ func Flags() []cli.Flag {
 			Name:  "type",
 			Usage: "The type of service operate on",
 		},
-		&cli.BoolFlag{
-			Name:  "platform",
-			Usage: "Connect to the platform",
-			Value: false,
-		},
-		&cli.BoolFlag{
-			Name:  "server",
-			Usage: "Connect to local server",
-			Value: false,
-		},
 		&cli.StringSliceFlag{
 			Name:  "env",
 			Usage: "Set the environment variables e.g. foo=bar",
@@ -129,6 +120,7 @@ func Flags() []cli.Flag {
 }
 
 func Commands(options ...micro.Option) []*cli.Command {
+	cliutil.SetupCommand()
 	command := []*cli.Command{
 		{
 			Name:  "runtime",
@@ -164,6 +156,11 @@ func Commands(options ...micro.Option) []*cli.Command {
 			// In future we'll also have `micro run [x]` hence `micro run service` requiring "service"
 			Name:  "run",
 			Usage: RunUsage,
+			Description: `Examples:
+			micro run github.com/micro/services/helloworld
+			micro run . # deploy local folder to your local micro server
+			micro run helloworld # translates to micro run github.com/micro/services/helloworld
+			micro run helloworld@9342934e6180 # deploy certain version`,
 			Flags: Flags(),
 			Action: func(ctx *cli.Context) error {
 				runService(ctx, options...)

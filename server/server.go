@@ -3,8 +3,6 @@ package server
 import (
 	"fmt"
 	"os"
-	"os/signal"
-	"syscall"
 
 	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro/v2"
@@ -158,9 +156,6 @@ func Run(context *cli.Context) error {
 			return err
 		}
 	}
-
-	shutdown := make(chan os.Signal, 1)
-	signal.Notify(shutdown, syscall.SIGTERM, syscall.SIGINT, syscall.SIGQUIT)
 
 	log.Info("Starting service runtime")
 

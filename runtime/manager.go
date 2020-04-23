@@ -217,7 +217,7 @@ func (m *manager) processEvent(ev *event) {
 	}
 
 	if err != nil {
-		log.Errorf("Erroring executing event %s for %s: %v", ev.Type, ev.Service.Name, err)
+		log.Errorf("Error executing event %s for %s: %v", ev.Type, ev.Service.Name, err)
 
 		// save the error
 		// hacking, its a pointer
@@ -540,7 +540,7 @@ func (m *manager) run() {
 }
 
 func (m *manager) String() string {
-	return "manager"
+	return m.Runtime.String()
 }
 
 func (m *manager) Init(opts ...runtime.Option) error {
@@ -643,7 +643,7 @@ func (m *manager) Update(s *runtime.Service, opts ...runtime.UpdateOption) error
 	// read the existing record
 	r, err := m.Store.Read(k)
 	if err != nil {
-		return err
+		return fmt.Errorf("Service '%v' can't be read from store: %v", k, err)
 	}
 
 	// no service

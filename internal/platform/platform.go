@@ -5,13 +5,13 @@ import (
 	"fmt"
 	"os"
 	"os/signal"
-	"syscall"
 	"time"
 
 	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro/v2/config/cmd"
 	log "github.com/micro/go-micro/v2/logger"
 	gorun "github.com/micro/go-micro/v2/runtime"
+	signalutil "github.com/micro/go-micro/v2/util/signal"
 
 	// include usage
 
@@ -42,12 +42,6 @@ var (
 		"web",      // :8082
 		"bot",      // :????
 		"init",     // no port, manage self
-	}
-
-	// list of web apps
-	dashboards = []string{
-		"network.web",
-		"debug.web",
 	}
 
 	// list of apis
@@ -108,8 +102,7 @@ func Init(context *cli.Context) {
 	}
 
 	// create the combined list of services
-	initServices := append(dashboards, apis...)
-	initServices = append(initServices, services...)
+	initServices := append(services, apis...)
 
 	// get the service prefix
 	if namespace := context.String("namespace"); len(namespace) > 0 {
@@ -135,7 +128,7 @@ func Init(context *cli.Context) {
 
 	// used to signal when to shutdown
 	shutdown := make(chan os.Signal, 1)
-	signal.Notify(shutdown, syscall.SIGTERM, syscall.SIGINT, syscall.SIGQUIT)
+	signal.Notify(shutdown, signalutil.Shutdown()...)
 
 	log.Info("Starting service runtime")
 
@@ -242,7 +235,7 @@ func Run(context *cli.Context) error {
 	}
 
 	shutdown := make(chan os.Signal, 1)
-	signal.Notify(shutdown, syscall.SIGTERM, syscall.SIGINT, syscall.SIGQUIT)
+	signal.Notify(shutdown, signalutil.Shutdown()...)
 
 	log.Info("Starting service runtime")
 

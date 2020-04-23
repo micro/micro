@@ -7,29 +7,15 @@ metadata:
     name: micro-network
     micro: runtime
 spec:
-  type: LoadBalancer
   ports:
   - port: 8085
     protocol: UDP
-    name: network
+    name: network-udp
     targetPort: 8085
-  selector:
-    name: micro-network
-    micro: runtime
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: micro-gateway
-  namespace: default
-  labels:
-    name: micro-gateway
-    micro: runtime
-spec:
-  ports:
   - port: 8080
     protocol: TCP
-    name: service
+    name: network-tcp
+    targetPort: 8080
   selector:
     name: micro-network
     micro: runtime
