@@ -418,7 +418,10 @@ func (m *manager) processServices() error {
 			runtime.WithEnv(env),
 			runtime.CreateType(rs.Options.Type),
 			runtime.CreateImage(rs.Options.Image),
-			runtime.CreateNamespace(rs.Options.Namespace),
+		}
+
+		if len(rs.Options.Namespace) > 0 {
+			opts = append(opts, runtime.CreateNamespace(rs.Options.Namespace))
 		}
 
 		// set the status to starting
