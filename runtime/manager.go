@@ -111,6 +111,12 @@ func eventKey(id string) string {
 }
 
 func filter(s *runtime.Service) bool {
+	svc := strings.TrimSpace(s.Name)
+	ver := strings.TrimSpace(s.Version)
+	if len(svc) == 0 && len(ver) == 0 {
+		return true
+	}
+
 	// skip core services
 	if s.Metadata["type"] == "runtime" {
 		return true
