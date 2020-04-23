@@ -8,6 +8,8 @@ import (
 	"sync"
 	"time"
 
+	"github.com/micro/go-micro/v2/util/kubernetes/client"
+
 	"github.com/google/uuid"
 	"github.com/micro/cli/v2"
 	log "github.com/micro/go-micro/v2/logger"
@@ -182,11 +184,21 @@ func (m *manager) processEvent(ev *event) {
 	delete(ev.Service.Metadata, "error")
 	switch ev.Type {
 	case "delete":
-		log.Infof("Processing deletion event %s", key(ev.Service))
-		err = m.Runtime.Delete(ev.Service)
+		namespace := client.DefaultNamespace
+		if ev.Options != nil {
+			namespace = ev.Options.Namespace
+		}
+
+		log.Infof("Procesing deletion event %s in namespace %v", key(ev.Service), namespace)
+		err = m.Runtime.Delete(ev.Service, runtime.DeleteNamespace(namespace))
 	case "update":
-		log.Infof("Processing update event %s", key(ev.Service))
-		err = m.Runtime.Update(ev.Service)
+		namespace := client.DefaultNamespace
+		if ev.Options != nil {
+			namespace = ev.Options.Namespace
+		}
+
+		log.Infof("Processing update event %s in namespace %v", key(ev.Service), namespace)
+		err = m.Runtime.Update(ev.Service, runtime.UpdateNamespace(namespace))
 	case "create":
 		// generate the runtime environment
 		env := m.runtimeEnv(ev.Options)
@@ -198,9 +210,10 @@ func (m *manager) processEvent(ev *event) {
 			runtime.CreateType(ev.Options.Type),
 			runtime.CreateImage(ev.Options.Image),
 			runtime.CreateImagePullSecret(ev.Options.ImagePullSecrets...),
+			runtime.CreateNamespace(ev.Options.Namespace),
 		}
 
-		log.Infof("Processing create event %s", key(ev.Service))
+		log.Infof("Processing create event %s in namespace %v", key(ev.Service), ev.Options.Namespace)
 		err = m.Runtime.Create(ev.Service, opts...)
 	}
 
@@ -405,6 +418,7 @@ func (m *manager) processServices() error {
 			runtime.WithEnv(env),
 			runtime.CreateType(rs.Options.Type),
 			runtime.CreateImage(rs.Options.Image),
+			runtime.CreateNamespace(rs.Options.Namespace),
 		}
 
 		// set the status to starting
@@ -620,7 +634,7 @@ func (m *manager) Read(opts ...runtime.ReadOption) ([]*runtime.Service, error) {
 	return services, nil
 }
 
-func (m *manager) Update(s *runtime.Service) error {
+func (m *manager) Update(s *runtime.Service, opts ...runtime.UpdateOption) error {
 	m.Lock()
 	defer m.Unlock()
 
@@ -677,11 +691,16 @@ func (m *manager) Update(s *runtime.Service) error {
 	})
 }
 
-func (m *manager) Delete(s *runtime.Service) error {
+func (m *manager) Delete(s *runtime.Service, opts ...runtime.DeleteOption) error {
 	m.Lock()
 	defer m.Unlock()
 
 	k := key(s)
+
+	var options runtime.DeleteOptions
+	for _, o := range opts {
+		o(&options)
+	}
 
 	// save local status
 	v, ok := m.services[k]
@@ -697,6 +716,9 @@ func (m *manager) Delete(s *runtime.Service) error {
 	ev := &event{
 		Type:    "delete",
 		Service: v.Service,
+		Options: &runtime.CreateOptions{
+			Namespace: options.Namespace,
+		},
 	}
 
 	// fire an update
