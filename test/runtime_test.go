@@ -40,9 +40,14 @@ type server struct {
 }
 
 func newServer(t *testing.T) server {
+	outp, err := exec.Command("micro", "env", "set", "server").CombinedOutput()
+	if err != nil {
+		t.Fatalf("Failed to set env to server, err: %v, output: %v", err, string(outp))
+	}
+
 	// @todo this is a dangerous move, should instead specify a branch new
 	// folder for tests and only nuke those
-	outp, err := exec.Command("rm", "-rf", "/tmp/micro/store").CombinedOutput()
+	outp, err = exec.Command("rm", "-rf", "/tmp/micro/store").CombinedOutput()
 	if err != nil {
 		t.Fatal(string(outp))
 	}
@@ -75,7 +80,7 @@ func TestNew(t *testing.T) {
 		t.Fatal(err)
 	}
 	if !strings.Contains(string(outp), "protoc") {
-		t.Fatalf("micro new lacks protobuf install instructions %v", string(outp))
+		t.Fatalf("micro new lacks 	protobuf install instructions %v", string(outp))
 	}
 
 	lines := strings.Split(string(outp), "\n")
@@ -108,13 +113,8 @@ func TestNew(t *testing.T) {
 }
 
 func TestServerModeCall(t *testing.T) {
-	outp, err := exec.Command("micro", "env", "set", "server").CombinedOutput()
-	if err != nil {
-		t.Fatalf("Failed to set env to server, err: %v, output: %v", err, string(outp))
-	}
-
 	callCmd := exec.Command("micro", "call", "go.micro.runtime", "Runtime.Read", "{}")
-	outp, err = callCmd.CombinedOutput()
+	outp, err := callCmd.CombinedOutput()
 	if err == nil {
 		t.Fatalf("Call to server should fail, got no error, output: %v", string(outp))
 	}
@@ -169,6 +169,40 @@ func TestRunLocalSource(t *testing.T) {
 		}
 		return outp, err
 	}, 5*time.Second)
+}
+
+func TestLocalEnvRunGithubSource(t *testing.T) {
+	outp, err := exec.Command("micro", "env", "set", "local").CombinedOutput()
+	if err != nil {
+		t.Fatalf("Failed to set env to local, err: %v, output: %v", err, string(outp))
+	}
+	var cmd *exec.Cmd
+	go func() {
+		cmd = exec.Command("micro", "run", "location")
+		outp, err := cmd.CombinedOutput()
+		if err != nil {
+			t.Fatalf("micro run failure, output: %v", string(outp))
+		}
+	}()
+	time.Sleep(100 * time.Millisecond)
+	defer func() {
+		if cmd.Process != nil {
+			cmd.Process.Signal(syscall.SIGTERM)
+		}
+	}()
+
+	try("Find location", t, func() ([]byte, error) {
+		psCmd := exec.Command("micro", "list", "services")
+		outp, err := psCmd.CombinedOutput()
+		if err != nil {
+			return outp, err
+		}
+
+		if !strings.Contains(string(outp), "location") {
+			return outp, errors.New("Output should contain location")
+		}
+		return outp, nil
+	}, 30*time.Second)
 }
 
 func TestRunGithubSource(t *testing.T) {

@@ -14,9 +14,9 @@ import (
 	"github.com/micro/go-micro/v2"
 	"github.com/micro/go-micro/v2/config/cmd"
 	"github.com/micro/go-micro/v2/runtime"
+	"github.com/micro/go-micro/v2/runtime/local/git"
 	srvRuntime "github.com/micro/go-micro/v2/runtime/service"
 	cliutil "github.com/micro/micro/v2/cli/util"
-	"github.com/micro/go-micro/v2/runtime/local/git"
 )
 
 const (
@@ -234,16 +234,24 @@ func updateService(ctx *cli.Context, srvOpts ...micro.Option) {
 }
 
 func getService(ctx *cli.Context, srvOpts ...micro.Option) {
-	name := ctx.Args().Get(0)
+	name := ""
 	version := "latest"
 	typ := ctx.String("type")
 	r := runtimeFromContext(ctx)
 
-	if strings.HasPrefix(name, ".") || strings.HasPrefix(name, "/") {
-		fmt.Println(GetUsage)
-		return
+	if ctx.Args().Len() > 0 {
+		wd, err := os.Getwd()
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+		source, err := git.ParseSourceLocal(wd, ctx.Args().Get(0))
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+		name = source.RuntimeName()
 	}
-
 	// set version as second arg
 	if ctx.Args().Len() > 1 {
 		version = ctx.Args().Get(1)
