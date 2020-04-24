@@ -204,7 +204,7 @@ func Commands(options ...micro.Option) []*cli.Command {
 			},
 		},
 		{
-			Name:  "log",
+			Name:  "logs",
 			Usage: "Get logs for a service",
 			Flags: logFlags(),
 			Action: func(ctx *cli.Context) error {
