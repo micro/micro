@@ -144,7 +144,7 @@ func Commands(options ...micro.Option) []*cli.Command {
 					Name:    "window",
 					Usage:   "Specifies how many seconds of stats snapshots to retain in memory",
 					EnvVars: []string{"MICRO_DEBUG_WINDOW"},
-					Value:   360,
+					Value:   60,
 				},
 			},
 			Action: func(ctx *cli.Context) error {
