@@ -43,12 +43,6 @@ var (
 		"bot",      // :????
 		"init",     // no port, manage self
 	}
-
-	// list of apis
-	apis = []string{
-		"network.dns",
-		"network.api",
-	}
 )
 
 type initScheduler struct {
@@ -101,8 +95,8 @@ func Init(context *cli.Context) {
 		os.Exit(1)
 	}
 
-	// create the combined list of services
-	initServices := append(services, apis...)
+	// list of services to operate on
+	initServices := services
 
 	// get the service prefix
 	if namespace := context.String("namespace"); len(namespace) > 0 {
