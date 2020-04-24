@@ -17,6 +17,7 @@ require (
 	github.com/gorilla/handlers v1.4.2
 	github.com/gorilla/mux v1.7.3
 	github.com/micro/cli/v2 v2.1.2
+	github.com/micro/go-micro v1.18.0
 	github.com/micro/go-micro/v2 v2.5.1-0.20200423192048-d62ae23a9c30
 	github.com/miekg/dns v1.1.27
 	github.com/netdata/go-orchestrator v0.0.0-20190905093727-c793edba0e8f
@@ -32,3 +33,5 @@ require (
 	google.golang.org/genproto v0.0.0-20191216164720-4f79533eabd1
 	google.golang.org/grpc v1.26.0
 )
+
+replace github.com/micro/go-micro/v2 => /home/crufter/code/src/github.com/micro/go-micro

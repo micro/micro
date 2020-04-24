@@ -8,7 +8,7 @@ import (
 	"github.com/micro/go-micro/v2/debug/log/kubernetes"
 	dservice "github.com/micro/go-micro/v2/debug/service"
 	ulog "github.com/micro/go-micro/v2/logger"
-	"github.com/micro/micro/v2/cli/util"
+	cliutil "github.com/micro/micro/v2/cli/util"
 	logHandler "github.com/micro/micro/v2/debug/log/handler"
 	pblog "github.com/micro/micro/v2/debug/log/proto"
 	statshandler "github.com/micro/micro/v2/debug/stats/handler"
@@ -149,15 +149,6 @@ func Commands(options ...micro.Option) []*cli.Command {
 			},
 			Action: func(ctx *cli.Context) error {
 				Run(ctx, options...)
-				return nil
-			},
-		},
-		{
-			Name:  "log",
-			Usage: "Get logs for a service",
-			Flags: logFlags(),
-			Action: func(ctx *cli.Context) error {
-				getLog(ctx, options...)
 				return nil
 			},
 		},
