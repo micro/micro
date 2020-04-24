@@ -91,12 +91,6 @@ var (
 			Usage: "Comma seperated list of roles to give the account",
 		},
 	}
-	// PlatformFlag connects via proxy
-	PlatformFlag = &cli.BoolFlag{
-		Name:  "platform",
-		Usage: "Connect to the platform",
-		Value: false,
-	}
 )
 
 // run the auth service
@@ -261,7 +255,6 @@ func Commands(srvOpts ...micro.Option) []*cli.Command {
 						{
 							Name:  "rules",
 							Usage: "List auth rules",
-							Flags: []cli.Flag{PlatformFlag},
 							Action: func(ctx *cli.Context) error {
 								listRules(ctx)
 								return nil
@@ -270,7 +263,6 @@ func Commands(srvOpts ...micro.Option) []*cli.Command {
 						{
 							Name:  "accounts",
 							Usage: "List auth accounts",
-							Flags: []cli.Flag{PlatformFlag},
 							Action: func(ctx *cli.Context) error {
 								listAccounts(ctx)
 								return nil
@@ -285,7 +277,7 @@ func Commands(srvOpts ...micro.Option) []*cli.Command {
 						{
 							Name:  "rule",
 							Usage: "Create an auth rule",
-							Flags: append(RuleFlags, PlatformFlag),
+							Flags: append(RuleFlags),
 							Action: func(ctx *cli.Context) error {
 								createRule(ctx)
 								return nil
@@ -294,7 +286,7 @@ func Commands(srvOpts ...micro.Option) []*cli.Command {
 						{
 							Name:  "account",
 							Usage: "Create an auth account",
-							Flags: append(AccountFlags, PlatformFlag),
+							Flags: append(AccountFlags),
 							Action: func(ctx *cli.Context) error {
 								createAccount(ctx)
 								return nil
@@ -309,7 +301,7 @@ func Commands(srvOpts ...micro.Option) []*cli.Command {
 						{
 							Name:  "rule",
 							Usage: "Delete an auth rule",
-							Flags: append(RuleFlags, PlatformFlag),
+							Flags: RuleFlags,
 							Action: func(ctx *cli.Context) error {
 								deleteRule(ctx)
 								return nil
@@ -327,7 +319,6 @@ func Commands(srvOpts ...micro.Option) []*cli.Command {
 				return nil
 			},
 			Flags: []cli.Flag{
-				PlatformFlag,
 				&cli.StringFlag{
 					Name:  "token",
 					Usage: "The token to set",
@@ -341,7 +332,6 @@ func Commands(srvOpts ...micro.Option) []*cli.Command {
 				whoami(ctx)
 				return nil
 			},
-			Flags: []cli.Flag{PlatformFlag},
 		},
 	}
 
