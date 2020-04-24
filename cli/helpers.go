@@ -1,12 +1,14 @@
 package cli
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"os"
 	"strings"
+	"text/tabwriter"
 
 	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro/v2/client"
@@ -119,11 +121,23 @@ func setEnv(c *cli.Context, args []string) ([]byte, error) {
 
 func listEnvs(c *cli.Context, args []string) ([]byte, error) {
 	envs := cliutil.GetEnvs()
-	lines := []string{}
-	for _, env := range envs {
-		lines = append(lines, fmt.Sprintf("%v - %v", env.Name, env.ProxyAddress))
+	current := cliutil.GetEnv()
+
+	byt := bytes.NewBuffer([]byte{})
+
+	w := tabwriter.NewWriter(byt, 0, 0, 1, ' ', 0)
+	for i, env := range envs {
+		if i > 0 {
+			fmt.Fprintf(w, "\n")
+		}
+		prefix := " "
+		if env.Name == current.Name {
+			prefix = "*"
+		}
+		fmt.Fprintf(w, "%v %v \t %v", prefix, env.Name, env.ProxyAddress)
 	}
-	return []byte(strings.Join(lines, "\n")), nil
+	w.Flush()
+	return byt.Bytes(), nil
 }
 
 func addEnv(c *cli.Context, args []string) ([]byte, error) {
