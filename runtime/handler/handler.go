@@ -143,7 +143,8 @@ func (r *Runtime) Logs(ctx context.Context, req *pb.LogsRequest, stream pb.Runti
 			// send record
 			if err := stream.Send(&pb.LogRecord{
 				//Timestamp: record.Timestamp.Unix(),
-				Message: record.Message,
+				Metadata: record.Metadata,
+				Message:  record.Message,
 			}); err != nil {
 				return err
 			}

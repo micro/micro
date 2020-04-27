@@ -355,7 +355,7 @@ const (
 )
 
 func getLog(ctx *cli.Context, srvOpts ...micro.Option) {
-	log.Init(log.WithFields(map[string]interface{}{"service": "debug"}))
+	log.Init(log.WithFields(map[string]interface{}{"service": "runtime"}))
 
 	// get the argsr
 	//since := ctx.String("since")
@@ -393,13 +393,20 @@ func getLog(ctx *cli.Context, srvOpts ...micro.Option) {
 	}
 
 	output := ctx.String("output")
-	for record := range logs.Chan() {
-		switch output {
-		case "json":
-			b, _ := json.Marshal(record)
-			fmt.Printf("%v\n", string(b))
-		default:
-			fmt.Printf("%v\n", record.Message)
+	for {
+		select {
+		case record, ok := <-logs.Chan():
+			if !ok {
+				return
+			}
+			switch output {
+			case "json":
+				b, _ := json.Marshal(record)
+				fmt.Printf("%v\n", string(b))
+			default:
+				fmt.Printf("%v\n", record.Message)
+
+			}
 		}
 	}
 }
