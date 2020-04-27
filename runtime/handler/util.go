@@ -71,11 +71,6 @@ func toCreateOptions(ctx context.Context, opts *pb.CreateOptions) []runtime.Crea
 		options = append(options, runtime.CreateImage(opts.Image))
 	}
 
-	// use image pull secrets
-	if len(opts.ImagePullSecrets) > 0 {
-		options = append(options, runtime.CreateImagePullSecret(opts.ImagePullSecrets...))
-	}
-
 	// TODO: output options
 
 	return options
