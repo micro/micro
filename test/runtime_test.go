@@ -436,7 +436,7 @@ func TestExistingLogs(t *testing.T) {
 	}, 5*time.Second)
 
 	try("logspammer logs", t, func() ([]byte, error) {
-		psCmd := exec.Command("micro", "logs", "crufter-micro-services-logspammer")
+		psCmd := exec.Command("micro", "logs", "--count", "5", "crufter-micro-services-logspammer")
 		outp, err = psCmd.CombinedOutput()
 		if err != nil {
 			return outp, err

@@ -357,9 +357,14 @@ const (
 func getLog(ctx *cli.Context, srvOpts ...micro.Option) {
 	log.Init(log.WithFields(map[string]interface{}{"service": "runtime"}))
 
-	// get the argsr
-	//since := ctx.String("since")
-	//count := ctx.Int("count")
+	// get the args
+	options := []runtime.LogsOption{}
+	count := ctx.Int("count")
+	options = append(options, runtime.LogsStream(true))
+	if count > 0 {
+		options = append(options, runtime.LogsStream(false))
+		options = append(options, runtime.LogsCount(int64(count)))
+	}
 	//stream := ctx.Bool("stream")
 
 	if ctx.Args().Len() == 0 {
@@ -375,17 +380,17 @@ func getLog(ctx *cli.Context, srvOpts ...micro.Option) {
 		return
 	}
 
-	// initialise a new service log
-	// TODO: allow "--source" e.g. kubernetes
 	r := runtimeFromContext(ctx)
 
+	// @todo reintroduce since
+	//since := ctx.String("since")
 	//var readSince time.Time
 	//d, err := time.ParseDuration(since)
 	//if err == nil {
 	//	readSince = time.Now().Add(-d)
 	//}
 
-	logs, err := r.Logs(&runtime.Service{Name: name})
+	logs, err := r.Logs(&runtime.Service{Name: name}, options...)
 
 	if err != nil {
 		fmt.Println(err)
