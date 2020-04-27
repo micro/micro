@@ -20,6 +20,20 @@ func try(blockName string, t *testing.T, f cmdFunc, maxTime time.Duration) {
 	elapsed := 0 * time.Millisecond
 	var outp []byte
 	var err error
+	returned := false
+	go func() {
+		for {
+			if returned {
+				return
+			}
+			time.Sleep(100 * time.Millisecond)
+			if elapsed > maxTime {
+				// @todo for some reason t.Fatal did not take effect
+				panic(blockName + " timed out")
+			}
+			elapsed += 100 * time.Millisecond
+		}
+	}()
 	for {
 		if elapsed > maxTime {
 			if err != nil {
@@ -28,10 +42,10 @@ func try(blockName string, t *testing.T, f cmdFunc, maxTime time.Duration) {
 		}
 		outp, err = f()
 		if err == nil {
+			returned = true
 			return
 		}
 		time.Sleep(100 * time.Millisecond)
-		elapsed += 100 * time.Millisecond
 	}
 }
 
@@ -395,7 +409,44 @@ func TestStreamLogsAndThirdPartyRepo(t *testing.T) {
 	}
 
 	cmd.Wait()
+}
 
+func TestExistingLogs(t *testing.T) {
+	serv := newServer(t)
+	serv.launch()
+	defer serv.close()
+
+	runCmd := exec.Command("micro", "run", "github.com/crufter/micro-services/logspammer")
+	outp, err := runCmd.CombinedOutput()
+	if err != nil {
+		t.Fatalf("micro run failure, output: %v", string(outp))
+	}
+
+	try("Find logspammer", t, func() ([]byte, error) {
+		psCmd := exec.Command("micro", "status")
+		outp, err = psCmd.CombinedOutput()
+		if err != nil {
+			return outp, err
+		}
+
+		if !strings.Contains(string(outp), "logspammer") {
+			return outp, errors.New("Output should contain logspammer")
+		}
+		return outp, nil
+	}, 5*time.Second)
+
+	try("logspammer logs", t, func() ([]byte, error) {
+		psCmd := exec.Command("micro", "logs", "crufter-micro-services-logspammer")
+		outp, err = psCmd.CombinedOutput()
+		if err != nil {
+			return outp, err
+		}
+
+		if !strings.Contains(string(outp), "never stopping") {
+			return outp, errors.New("Output does not contain expected")
+		}
+		return outp, nil
+	}, 5*time.Second)
 }
 
 func replaceStringInFile(t *testing.T, filepath string, original, newone string) {
