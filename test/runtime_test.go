@@ -3,6 +3,7 @@
 package test
 
 import (
+	"bufio"
 	"encoding/json"
 	"errors"
 	"io/ioutil"
@@ -327,6 +328,74 @@ func TestRunLocalUpdateAndCall(t *testing.T) {
 		}
 		return outp, err
 	}, 15*time.Second)
+}
+
+func TestStreamLogsAndThirdPartyRepo(t *testing.T) {
+	serv := newServer(t)
+	serv.launch()
+	defer serv.close()
+
+	runCmd := exec.Command("micro", "run", "github.com/crufter/micro-services/logspammer")
+	outp, err := runCmd.CombinedOutput()
+	if err != nil {
+		t.Fatalf("micro run failure, output: %v", string(outp))
+	}
+
+	try("Find logspammer", t, func() ([]byte, error) {
+		psCmd := exec.Command("micro", "status")
+		outp, err = psCmd.CombinedOutput()
+		if err != nil {
+			return outp, err
+		}
+
+		if !strings.Contains(string(outp), "logspammer") {
+			return outp, errors.New("Output should contain logspammer")
+		}
+		return outp, nil
+	}, 5*time.Second)
+
+	// Test streaming logs
+	cmd := exec.Command("micro", "logs", "crufter-micro-services-logspammer")
+
+	stdout, _ := cmd.StdoutPipe()
+	cmd.Start()
+
+	lines := []string{}
+	start := time.Now()
+	go func() {
+		defer func() {
+			if cmd.Process != nil {
+				cmd.Process.Kill()
+			}
+		}()
+		for {
+			// The logspammer logs "Never stop never stopping!" every 2 seconds.
+			if time.Now().After(start.Add(time.Second * 4)) {
+				if len(lines) == 0 {
+					t.Fatal("No log lines streamed")
+				}
+				if strings.Contains(strings.Join(lines, " "), "never stopping") {
+					return
+				}
+
+				t.Fatal("Not found")
+			}
+			time.Sleep(500 * time.Millisecond)
+		}
+	}()
+
+	scanner := bufio.NewScanner(stdout)
+	scanner.Split(bufio.ScanWords)
+	for scanner.Scan() {
+		// We wan't to make sure the logs are new and streamed and not existing ones.
+		if time.Now().After(start.Add(500 * time.Millisecond)) {
+			m := scanner.Text()
+			lines = append(lines, m)
+		}
+	}
+
+	cmd.Wait()
+
 }
 
 func replaceStringInFile(t *testing.T, filepath string, original, newone string) {
