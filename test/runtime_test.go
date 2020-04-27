@@ -442,7 +442,7 @@ func TestExistingLogs(t *testing.T) {
 			return outp, err
 		}
 
-		if !strings.Contains(string(outp), "never stopping") {
+		if !strings.Contains(string(outp), "Listening on") || !strings.Contains(string(outp), "never stopping") {
 			return outp, errors.New("Output does not contain expected")
 		}
 		return outp, nil
