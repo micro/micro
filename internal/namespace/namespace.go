@@ -28,8 +28,8 @@ func FromContext(ctx context.Context) string {
 		return ns
 	}
 
-	acc, err := auth.AccountFromContext(ctx)
-	if err != nil || acc == nil {
+	acc, ok := auth.AccountFromContext(ctx)
+	if !ok || acc == nil {
 		return DefaultNamespace
 	}
 

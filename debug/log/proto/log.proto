@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+package go.micro.debug.log;
+
+service Log {
+	rpc Read(ReadRequest) returns (ReadResponse) {};
+}
+
+message Record {
+        // timestamp of log record
+        int64 timestamp = 1;
+        // record metadata
+        map<string,string> metadata = 2;
+        // record value
+        string message = 3;
+}
+
+message ReadRequest {
+	string service = 1;
+	string version = 2;
+}
+
+message ReadResponse {
+	repeated Record records = 1;
+}
