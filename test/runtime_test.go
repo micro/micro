@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"os/exec"
 	"strings"
@@ -372,6 +373,8 @@ func TestStreamLogsAndThirdPartyRepo(t *testing.T) {
 	cmd := exec.Command("micro", "logs", "-f", "crufter-micro-services-logspammer")
 
 	stdout, _ := cmd.StdoutPipe()
+	stderr, _ := cmd.StderrPipe()
+	reader := io.MultiReader(stdout, stderr)
 	err = cmd.Start()
 	if err != nil {
 		t.Fatal(err)
@@ -396,13 +399,13 @@ func TestStreamLogsAndThirdPartyRepo(t *testing.T) {
 				if strings.Contains(strings.Join(lines, " "), "never stopping") {
 					return
 				}
-				t.Fatal("Not found")
+				t.Fatalf("Expected values not found in output %v", strings.Join(lines, " "))
 			}
 			time.Sleep(500 * time.Millisecond)
 		}
 	}()
 
-	scanner := bufio.NewScanner(stdout)
+	scanner := bufio.NewScanner(reader)
 	scanner.Split(bufio.ScanWords)
 	for scanner.Scan() {
 		// We wan't to make sure the logs are new and streamed and not existing ones.
