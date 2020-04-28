@@ -172,7 +172,7 @@ func TestRunLocalSource(t *testing.T) {
 			return outp, errors.New("Can't find example service in runtime")
 		}
 		return outp, err
-	}, 30*time.Second)
+	}, 8*time.Second)
 
 	try("Find go.micro.service.example in list", t, func() ([]byte, error) {
 		outp, err := exec.Command("micro", "list", "services").CombinedOutput()
@@ -217,7 +217,7 @@ func TestLocalEnvRunGithubSource(t *testing.T) {
 			return outp, errors.New("Output should contain location")
 		}
 		return outp, nil
-	}, 30*time.Second)
+	}, 20*time.Second)
 }
 
 func TestRunGithubSource(t *testing.T) {
@@ -249,7 +249,7 @@ func TestRunGithubSource(t *testing.T) {
 			return outp, errors.New("Output should contain hello world")
 		}
 		return outp, nil
-	}, 30*time.Second)
+	}, 8*time.Second)
 
 	try("Call hello world", t, func() ([]byte, error) {
 		callCmd := exec.Command("micro", "call", "go.micro.service.helloworld", "Helloworld.Call", `{"name": "Joe"}`)
@@ -266,7 +266,7 @@ func TestRunGithubSource(t *testing.T) {
 			return outp, errors.New("Helloworld resonse is unexpected")
 		}
 		return outp, err
-	}, 15*time.Second)
+	}, 8*time.Second)
 
 }
 
@@ -312,7 +312,7 @@ func TestRunLocalUpdateAndCall(t *testing.T) {
 			return outp, errors.New("Resonse is unexpected")
 		}
 		return outp, err
-	}, 15*time.Second)
+	}, 8*time.Second)
 
 	replaceStringInFile(t, "./example-service/handler/handler.go", "Hello", "Hi")
 	defer func() {
@@ -341,7 +341,7 @@ func TestRunLocalUpdateAndCall(t *testing.T) {
 			return outp, errors.New("Response is not what's expected")
 		}
 		return outp, err
-	}, 15*time.Second)
+	}, 8*time.Second)
 }
 
 func TestStreamLogsAndThirdPartyRepo(t *testing.T) {
@@ -369,7 +369,7 @@ func TestStreamLogsAndThirdPartyRepo(t *testing.T) {
 	}, 5*time.Second)
 
 	// Test streaming logs
-	cmd := exec.Command("micro", "logs", "-f", "-n" "0", "crufter-micro-services-logspammer")
+	cmd := exec.Command("micro", "logs", "-f", "crufter-micro-services-logspammer")
 
 	stdout, _ := cmd.StdoutPipe()
 	cmd.Start()

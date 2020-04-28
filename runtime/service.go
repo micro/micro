@@ -375,8 +375,12 @@ func getLogs(ctx *cli.Context, srvOpts ...micro.Option) {
 	count := ctx.Int("lines")
 	if count > 0 {
 		options = append(options, runtime.LogsCount(int64(count)))
+	} else {
+		options = append(options, runtime.LogsCount(int64(15)))
 	}
+
 	follow := ctx.Bool("follow")
+
 	if follow {
 		options = append(options, runtime.LogsStream(follow))
 	}
@@ -395,7 +399,7 @@ func getLogs(ctx *cli.Context, srvOpts ...micro.Option) {
 
 	if err != nil {
 		fmt.Println(err)
-		return
+		os.Exit(1)
 	}
 
 	output := ctx.String("output")
@@ -425,21 +429,23 @@ func logFlags() []cli.Flag {
 			Usage: "Set the version of the service to debug",
 		},
 		&cli.StringFlag{
-			Name:  "output, o",
-			Usage: "Set the output format e.g json, text",
+			Name:    "output",
+			Aliases: []string{"o"},
+			Usage:   "Set the output format e.g json, text",
 		},
 		&cli.BoolFlag{
-			Name:  "follow, f",
-			Usage: "Set to stream logs continuously (default: true)",
-			Value: true,
+			Name:    "follow",
+			Aliases: []string{"f"},
+			Usage:   "Set to stream logs continuously (default: true)",
 		},
 		&cli.StringFlag{
 			Name:  "since",
 			Usage: "Set to the relative time from which to show the logs for e.g. 1h",
 		},
 		&cli.IntFlag{
-			Name:  "lines, n",
-			Usage: "Set to query the last number of log events",
+			Name:    "lines",
+			Aliases: []string{"n"},
+			Usage:   "Set to query the last number of log events",
 		},
 	}
 }
