@@ -342,6 +342,44 @@ func TestRunLocalUpdateAndCall(t *testing.T) {
 	}, 8*time.Second)
 }
 
+func TestExistingLogs(t *testing.T) {
+	serv := newServer(t)
+	serv.launch()
+	defer serv.close()
+
+	runCmd := exec.Command("micro", "run", "github.com/crufter/micro-services/logspammer")
+	outp, err := runCmd.CombinedOutput()
+	if err != nil {
+		t.Fatalf("micro run failure, output: %v", string(outp))
+	}
+
+	try("Find logspammer", t, func() ([]byte, error) {
+		psCmd := exec.Command("micro", "status")
+		outp, err = psCmd.CombinedOutput()
+		if err != nil {
+			return outp, err
+		}
+
+		if !strings.Contains(string(outp), "logspammer") {
+			return outp, errors.New("Output should contain logspammer")
+		}
+		return outp, nil
+	}, 5*time.Second)
+
+	try("logspammer logs", t, func() ([]byte, error) {
+		psCmd := exec.Command("micro", "logs", "-n", "5", "crufter-micro-services-logspammer")
+		outp, err = psCmd.CombinedOutput()
+		if err != nil {
+			return outp, err
+		}
+
+		if !strings.Contains(string(outp), "Listening on") || !strings.Contains(string(outp), "never stopping") {
+			return outp, errors.New("Output does not contain expected")
+		}
+		return outp, nil
+	}, 5*time.Second)
+}
+
 func TestStreamLogsAndThirdPartyRepo(t *testing.T) {
 	serv := newServer(t)
 	serv.launch()
@@ -392,44 +430,6 @@ func TestStreamLogsAndThirdPartyRepo(t *testing.T) {
 		t.Fatal(err)
 	}
 	time.Sleep(2 * time.Second)
-}
-
-func TestExistingLogs(t *testing.T) {
-	serv := newServer(t)
-	serv.launch()
-	defer serv.close()
-
-	runCmd := exec.Command("micro", "run", "github.com/crufter/micro-services/logspammer")
-	outp, err := runCmd.CombinedOutput()
-	if err != nil {
-		t.Fatalf("micro run failure, output: %v", string(outp))
-	}
-
-	try("Find logspammer", t, func() ([]byte, error) {
-		psCmd := exec.Command("micro", "status")
-		outp, err = psCmd.CombinedOutput()
-		if err != nil {
-			return outp, err
-		}
-
-		if !strings.Contains(string(outp), "logspammer") {
-			return outp, errors.New("Output should contain logspammer")
-		}
-		return outp, nil
-	}, 5*time.Second)
-
-	try("logspammer logs", t, func() ([]byte, error) {
-		psCmd := exec.Command("micro", "logs", "-n", "5", "crufter-micro-services-logspammer")
-		outp, err = psCmd.CombinedOutput()
-		if err != nil {
-			return outp, err
-		}
-
-		if !strings.Contains(string(outp), "Listening on") || !strings.Contains(string(outp), "never stopping") {
-			return outp, errors.New("Output does not contain expected")
-		}
-		return outp, nil
-	}, 5*time.Second)
 }
 
 func replaceStringInFile(t *testing.T, filepath string, original, newone string) {
