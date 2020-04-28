@@ -354,21 +354,10 @@ const (
 	logUsage = "Required usage: micro log example"
 )
 
-func getLog(ctx *cli.Context, srvOpts ...micro.Option) {
+func getLogs(ctx *cli.Context, srvOpts ...micro.Option) {
 	log.Init(log.WithFields(map[string]interface{}{"service": "runtime"}))
-
-	// get the args
-	options := []runtime.LogsOption{}
-	count := ctx.Int("count")
-	options = append(options, runtime.LogsStream(true))
-	if count > 0 {
-		options = append(options, runtime.LogsStream(false))
-		options = append(options, runtime.LogsCount(int64(count)))
-	}
-	//stream := ctx.Bool("stream")
-
 	if ctx.Args().Len() == 0 {
-		fmt.Println("Require service name")
+		fmt.Println("Service name is required")
 		return
 	}
 
@@ -378,6 +367,18 @@ func getLog(ctx *cli.Context, srvOpts ...micro.Option) {
 	if len(name) == 0 {
 		fmt.Println(logUsage)
 		return
+	}
+
+	// get the args
+	options := []runtime.LogsOption{}
+
+	count := ctx.Int("lines")
+	if count > 0 {
+		options = append(options, runtime.LogsCount(int64(count)))
+	}
+	follow := ctx.Bool("follow")
+	if follow {
+		options = append(options, runtime.LogsStream(follow))
 	}
 
 	r := runtimeFromContext(ctx)
@@ -428,7 +429,7 @@ func logFlags() []cli.Flag {
 			Usage: "Set the output format e.g json, text",
 		},
 		&cli.BoolFlag{
-			Name:  "stream",
+			Name:  "follow, f",
 			Usage: "Set to stream logs continuously (default: true)",
 			Value: true,
 		},
@@ -437,7 +438,7 @@ func logFlags() []cli.Flag {
 			Usage: "Set to the relative time from which to show the logs for e.g. 1h",
 		},
 		&cli.IntFlag{
-			Name:  "count",
+			Name:  "lines, n",
 			Usage: "Set to query the last number of log events",
 		},
 	}

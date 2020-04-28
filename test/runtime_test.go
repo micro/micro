@@ -369,7 +369,7 @@ func TestStreamLogsAndThirdPartyRepo(t *testing.T) {
 	}, 5*time.Second)
 
 	// Test streaming logs
-	cmd := exec.Command("micro", "logs", "crufter-micro-services-logspammer")
+	cmd := exec.Command("micro", "logs", "-f", "-n" "0", "crufter-micro-services-logspammer")
 
 	stdout, _ := cmd.StdoutPipe()
 	cmd.Start()
@@ -436,7 +436,7 @@ func TestExistingLogs(t *testing.T) {
 	}, 5*time.Second)
 
 	try("logspammer logs", t, func() ([]byte, error) {
-		psCmd := exec.Command("micro", "logs", "--count", "5", "crufter-micro-services-logspammer")
+		psCmd := exec.Command("micro", "logs", "-n", "5", "crufter-micro-services-logspammer")
 		outp, err = psCmd.CombinedOutput()
 		if err != nil {
 			return outp, err
