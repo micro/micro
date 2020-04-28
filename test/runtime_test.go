@@ -355,20 +355,28 @@ func TestExistingLogs(t *testing.T) {
 		t.Fatalf("micro run failure, output: %v", string(outp))
 	}
 
-	fmt.Println(string(outp), err)
 	try("Find logspammer", t, func() ([]byte, error) {
 		psCmd := exec.Command("micro", "status")
 		outp, err = psCmd.CombinedOutput()
 		if err != nil {
 			return outp, err
 		}
-
-		if !strings.Contains(string(outp), "logspammer") {
-			return outp, errors.New("Output should contain logspammer")
+		lines := strings.Split(string(outp), "\n")
+		any := false
+		for _, line := range lines {
+			if strings.Contains(line, "logspammer") && (strings.Contains(line, "started") || strings.Contains(line, "running")) {
+				any = true
+			}
 		}
-		return outp, nil
+		if !any {
+			return outp, errors.New("Can't find logspammer")
+		}
+		return outp, err
 	}, 10*time.Second)
+
 	outp, err = exec.Command("ls", "-alh", filepath.Join(os.TempDir(), "micro", "logs")).CombinedOutput()
+	fmt.Println(string(outp), err)
+
 	try("logspammer logs", t, func() ([]byte, error) {
 		psCmd := exec.Command("micro", "logs", "-n", "5", "crufter-micro-services-logspammer")
 		outp, err = psCmd.CombinedOutput()
