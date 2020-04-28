@@ -6,6 +6,7 @@ import (
 	"bufio"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"os/exec"
 	"strings"
@@ -29,7 +30,7 @@ func try(blockName string, t *testing.T, f cmdFunc, maxTime time.Duration) {
 			time.Sleep(100 * time.Millisecond)
 			if elapsed > maxTime {
 				// @todo for some reason t.Fatal did not take effect
-				panic(blockName + " timed out")
+				panic(fmt.Sprintf("%v timed out, last output: %v", blockName, string(outp)))
 			}
 			elapsed += 100 * time.Millisecond
 		}
