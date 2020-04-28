@@ -203,6 +203,15 @@ func Commands(options ...micro.Option) []*cli.Command {
 				return nil
 			},
 		},
+		{
+			Name:  "logs",
+			Usage: "Get logs for a service",
+			Flags: logFlags(),
+			Action: func(ctx *cli.Context) error {
+				getLogs(ctx, options...)
+				return nil
+			},
+		},
 	}
 
 	for _, p := range Plugins() {

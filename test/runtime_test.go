@@ -5,8 +5,11 @@ package test
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io/ioutil"
+	"os"
 	"os/exec"
+	"path/filepath"
 	"strings"
 	"syscall"
 	"testing"
@@ -19,6 +22,20 @@ func try(blockName string, t *testing.T, f cmdFunc, maxTime time.Duration) {
 	elapsed := 0 * time.Millisecond
 	var outp []byte
 	var err error
+	returned := false
+	go func() {
+		for {
+			if returned {
+				return
+			}
+			time.Sleep(100 * time.Millisecond)
+			if elapsed > maxTime {
+				// @todo for some reason t.Fatal did not take effect
+				panic(fmt.Sprintf("%v timed out, last output: %v", blockName, string(outp)))
+			}
+			elapsed += 100 * time.Millisecond
+		}
+	}()
 	for {
 		if elapsed > maxTime {
 			if err != nil {
@@ -27,10 +44,10 @@ func try(blockName string, t *testing.T, f cmdFunc, maxTime time.Duration) {
 		}
 		outp, err = f()
 		if err == nil {
+			returned = true
 			return
 		}
 		time.Sleep(100 * time.Millisecond)
-		elapsed += 100 * time.Millisecond
 	}
 }
 
@@ -62,7 +79,7 @@ func (s server) launch() {
 	}()
 	try("Calling micro server", s.t, func() ([]byte, error) {
 		return exec.Command("micro", "call", "go.micro.runtime", "Runtime.Read", "{}").CombinedOutput()
-	}, 3000*time.Millisecond)
+	}, 5000*time.Millisecond)
 }
 
 func (s server) close() {
@@ -157,7 +174,7 @@ func TestRunLocalSource(t *testing.T) {
 			return outp, errors.New("Can't find example service in runtime")
 		}
 		return outp, err
-	}, 30*time.Second)
+	}, 8*time.Second)
 
 	try("Find go.micro.service.example in list", t, func() ([]byte, error) {
 		outp, err := exec.Command("micro", "list", "services").CombinedOutput()
@@ -179,10 +196,8 @@ func TestLocalEnvRunGithubSource(t *testing.T) {
 	var cmd *exec.Cmd
 	go func() {
 		cmd = exec.Command("micro", "run", "location")
-		outp, err := cmd.CombinedOutput()
-		if err != nil {
-			t.Fatalf("micro run failure, output: %v", string(outp))
-		}
+		// fire and forget as this will run forever
+		cmd.CombinedOutput()
 	}()
 	time.Sleep(100 * time.Millisecond)
 	defer func() {
@@ -202,7 +217,7 @@ func TestLocalEnvRunGithubSource(t *testing.T) {
 			return outp, errors.New("Output should contain location")
 		}
 		return outp, nil
-	}, 30*time.Second)
+	}, 20*time.Second)
 }
 
 func TestRunGithubSource(t *testing.T) {
@@ -234,7 +249,7 @@ func TestRunGithubSource(t *testing.T) {
 			return outp, errors.New("Output should contain hello world")
 		}
 		return outp, nil
-	}, 30*time.Second)
+	}, 8*time.Second)
 
 	try("Call hello world", t, func() ([]byte, error) {
 		callCmd := exec.Command("micro", "call", "go.micro.service.helloworld", "Helloworld.Call", `{"name": "Joe"}`)
@@ -297,7 +312,7 @@ func TestRunLocalUpdateAndCall(t *testing.T) {
 			return outp, errors.New("Resonse is unexpected")
 		}
 		return outp, err
-	}, 15*time.Second)
+	}, 8*time.Second)
 
 	replaceStringInFile(t, "./example-service/handler/handler.go", "Hello", "Hi")
 	defer func() {
@@ -326,7 +341,111 @@ func TestRunLocalUpdateAndCall(t *testing.T) {
 			return outp, errors.New("Response is not what's expected")
 		}
 		return outp, err
-	}, 15*time.Second)
+	}, 8*time.Second)
+}
+
+// exists returns whether the given file or directory exists
+func exists(path string) (bool, error) {
+	_, err := os.Stat(path)
+	if err == nil {
+		return true, nil
+	}
+	if os.IsNotExist(err) {
+		return false, nil
+	}
+	return true, err
+}
+
+func TestExistingLogs(t *testing.T) {
+	serv := newServer(t)
+	serv.launch()
+	defer serv.close()
+
+	runCmd := exec.Command("micro", "run", "github.com/crufter/micro-services/logspammer")
+	outp, err := runCmd.CombinedOutput()
+	if err != nil {
+		t.Fatalf("micro run failure, output: %v", string(outp))
+	}
+
+	try("Find logspammer", t, func() ([]byte, error) {
+		ex, err := exists(filepath.Join(os.TempDir(), "micro", "logs", "crufter-micro-services-logspammer.log"))
+		if err != nil {
+			return nil, err
+		}
+		if !ex {
+			return nil, errors.New("Does not exist")
+		}
+		return nil, nil
+	}, 20*time.Second)
+
+	//outp, err = exec.Command("ls", "-alh", filepath.Join(os.TempDir(), "micro", "logs")).CombinedOutput()
+	//fmt.Println(string(outp), err)
+
+	try("logspammer logs", t, func() ([]byte, error) {
+		psCmd := exec.Command("micro", "logs", "-n", "5", "crufter/micro-services/logspammer")
+		outp, err = psCmd.CombinedOutput()
+		if err != nil {
+			return outp, err
+		}
+
+		if !strings.Contains(string(outp), "Listening on") || !strings.Contains(string(outp), "never stopping") {
+			return outp, errors.New("Output does not contain expected")
+		}
+		return outp, nil
+	}, 10*time.Second)
+}
+
+func TestStreamLogsAndThirdPartyRepo(t *testing.T) {
+	serv := newServer(t)
+	serv.launch()
+	defer serv.close()
+
+	runCmd := exec.Command("micro", "run", "github.com/crufter/micro-services/logspammer")
+	outp, err := runCmd.CombinedOutput()
+	if err != nil {
+		t.Fatalf("micro run failure, output: %v", string(outp))
+	}
+
+	try("Find logspammer", t, func() ([]byte, error) {
+		ex, err := exists(filepath.Join(os.TempDir(), "micro", "logs", "crufter-micro-services-logspammer.log"))
+		if err != nil {
+			return nil, err
+		}
+		if !ex {
+			return nil, errors.New("Does not exist")
+		}
+		return nil, nil
+	}, 20*time.Second)
+
+	// Test streaming logs
+	cmd := exec.Command("micro", "logs", "-n", "1", "-f", "crufter-micro-services-logspammer")
+
+	go func() {
+		outp, err := cmd.CombinedOutput()
+		if err != nil {
+			t.Log(err)
+		}
+		if len(outp) == 0 {
+			t.Fatal("No log lines streamed")
+		}
+		if !strings.Contains(string(outp), "never stopping") {
+			t.Fatalf("Unexpected logs: %v", string(outp))
+		}
+		// Logspammer logs every 2 seconds, so we need 2 different
+		now := time.Now()
+		stampA := now.Add(-2 * time.Second).Format("15:04:05")
+		stampB := now.Add(-1 * time.Second).Format("15:04:05")
+		if !strings.Contains(string(outp), stampA) && !strings.Contains(string(outp), stampB) {
+			t.Fatalf("Timestamp %v or %v not found in logs: %v", stampA, stampB, string(outp))
+		}
+	}()
+
+	time.Sleep(6 * time.Second)
+	err = cmd.Process.Kill()
+	if err != nil {
+		t.Fatal(err)
+	}
+	time.Sleep(2 * time.Second)
 }
 
 func replaceStringInFile(t *testing.T, filepath string, original, newone string) {

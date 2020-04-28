@@ -2,6 +2,7 @@
 package runtime
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 	"os/signal"
@@ -13,6 +14,7 @@ import (
 	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro/v2"
 	"github.com/micro/go-micro/v2/config/cmd"
+	log "github.com/micro/go-micro/v2/logger"
 	"github.com/micro/go-micro/v2/runtime"
 	"github.com/micro/go-micro/v2/runtime/local/git"
 	srvRuntime "github.com/micro/go-micro/v2/runtime/service"
@@ -341,4 +343,105 @@ func getService(ctx *cli.Context, srvOpts ...micro.Option) {
 			fmt.Sprintf("owner=%s,group=%s", parse(service.Metadata["owner"]), parse(service.Metadata["group"])))
 	}
 	writer.Flush()
+}
+
+const (
+	// logUsage message for logs command
+	logUsage = "Required usage: micro log example"
+)
+
+func getLogs(ctx *cli.Context, srvOpts ...micro.Option) {
+	log.Init(log.WithFields(map[string]interface{}{"service": "runtime"}))
+	if ctx.Args().Len() == 0 {
+		fmt.Println("Service name is required")
+		return
+	}
+
+	name := ctx.Args().Get(0)
+
+	// must specify service name
+	if len(name) == 0 {
+		fmt.Println(logUsage)
+		return
+	}
+
+	// get the args
+	options := []runtime.LogsOption{}
+
+	count := ctx.Int("lines")
+	if count > 0 {
+		options = append(options, runtime.LogsCount(int64(count)))
+	} else {
+		options = append(options, runtime.LogsCount(int64(15)))
+	}
+
+	follow := ctx.Bool("follow")
+
+	if follow {
+		options = append(options, runtime.LogsStream(follow))
+	}
+
+	r := runtimeFromContext(ctx)
+
+	// @todo reintroduce since
+	//since := ctx.String("since")
+	//var readSince time.Time
+	//d, err := time.ParseDuration(since)
+	//if err == nil {
+	//	readSince = time.Now().Add(-d)
+	//}
+
+	logs, err := r.Logs(&runtime.Service{Name: name}, options...)
+
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+
+	output := ctx.String("output")
+	for {
+		select {
+		case record, ok := <-logs.Chan():
+			if !ok {
+				return
+			}
+			switch output {
+			case "json":
+				b, _ := json.Marshal(record)
+				fmt.Printf("%v\n", string(b))
+			default:
+				fmt.Printf("%v\n", record.Message)
+
+			}
+		}
+	}
+}
+
+// logFlags is shared flags so we don't have to continually re-add
+func logFlags() []cli.Flag {
+	return []cli.Flag{
+		&cli.StringFlag{
+			Name:  "version",
+			Usage: "Set the version of the service to debug",
+		},
+		&cli.StringFlag{
+			Name:    "output",
+			Aliases: []string{"o"},
+			Usage:   "Set the output format e.g json, text",
+		},
+		&cli.BoolFlag{
+			Name:    "follow",
+			Aliases: []string{"f"},
+			Usage:   "Set to stream logs continuously (default: true)",
+		},
+		&cli.StringFlag{
+			Name:  "since",
+			Usage: "Set to the relative time from which to show the logs for e.g. 1h",
+		},
+		&cli.IntFlag{
+			Name:    "lines",
+			Aliases: []string{"n"},
+			Usage:   "Set to query the last number of log events",
+		},
+	}
 }

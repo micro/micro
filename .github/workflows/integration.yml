@@ -27,13 +27,12 @@ jobs:
     - name: Test micro server
       working-directory: ./test
       run: |
-        export PATH=${PATH}:`go env GOPATH`/bin
-        # Retry the test suite up to 5 times due to occasional flakes.
-        n=0
-        until [ $n -ge 5 ]
-        do
-          echo "Try $n" && go clean -testcache && go test --tags=integration  -failfast -v ./... && break  # substitute your command here
-          n=$[$n+1]
-          sleep 15
-        done
+        # # Retry the test suite up to 5 times due to occasional flakes.
+        # n=0
+        # until [ $n -ge 5 ]
+        # do
+          go clean -testcache && go test --tags=integration  -failfast -v ./...
+        #  n=$[$n+1]
+        #  sleep 15
+        # done
         
