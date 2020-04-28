@@ -7,7 +7,9 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
+	"os"
 	"os/exec"
+	"path/filepath"
 	"strings"
 	"syscall"
 	"testing"
@@ -352,7 +354,8 @@ func TestExistingLogs(t *testing.T) {
 	if err != nil {
 		t.Fatalf("micro run failure, output: %v", string(outp))
 	}
-
+	outp, err = exec.Command("ls", "-alh", filepath.Join(os.TempDir(), "micro", "logs")).CombinedOutput()
+	fmt.Println(string(outp), err)
 	try("Find logspammer", t, func() ([]byte, error) {
 		psCmd := exec.Command("micro", "status")
 		outp, err = psCmd.CombinedOutput()
