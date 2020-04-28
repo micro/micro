@@ -112,12 +112,8 @@ func runService(ctx *cli.Context, srvOpts ...micro.Option) {
 		retries = ctx.Int("retries")
 	}
 
-	if cliutil.IsPlatform() && len(image) == 0 {
-		if source.Local {
-			fmt.Println("Can't run local code on platform")
-			os.Exit(1)
-		}
-
+	// set the image if not specified
+	if len(image) == 0 {
 		formattedName := strings.ReplaceAll(source.Folder, "/", "-")
 		// eg. docker.pkg.github.com/micro/services/users-api
 		image = fmt.Sprintf("%v/%v", Image, formattedName)

@@ -33,7 +33,6 @@ var (
 		"registry", // :8000
 		"broker",   // :8001
 		"store",    // :8002
-		"tunnel",   // :8083
 		"router",   // :8084
 		"debug",    // :????
 		"proxy",    // :8081
@@ -42,12 +41,6 @@ var (
 		"web",      // :8082
 		"bot",      // :????
 		"init",     // no port, manage self
-	}
-
-	// list of apis
-	apis = []string{
-		"network.dns",
-		"network.api",
 	}
 )
 
@@ -101,8 +94,8 @@ func Init(context *cli.Context) {
 		os.Exit(1)
 	}
 
-	// create the combined list of services
-	initServices := append(services, apis...)
+	// list of services to operate on
+	initServices := services
 
 	// get the service prefix
 	if namespace := context.String("namespace"); len(namespace) > 0 {
