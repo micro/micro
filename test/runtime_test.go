@@ -377,7 +377,7 @@ func TestStreamLogsAndThirdPartyRepo(t *testing.T) {
 		t.Fatal(err)
 	}
 	var wg sync.WaitGroup
-	wg.Add(2)
+	wg.Add(1)
 	lines := []string{}
 	start := time.Now()
 	go func() {
@@ -413,7 +413,7 @@ func TestStreamLogsAndThirdPartyRepo(t *testing.T) {
 	}
 
 	cmd.Wait()
-	wg.Done()
+	wg.Wait()
 }
 
 func TestExistingLogs(t *testing.T) {
