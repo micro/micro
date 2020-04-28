@@ -344,6 +344,18 @@ func TestRunLocalUpdateAndCall(t *testing.T) {
 	}, 8*time.Second)
 }
 
+// exists returns whether the given file or directory exists
+func exists(path string) (bool, error) {
+	_, err := os.Stat(path)
+	if err == nil {
+		return true, nil
+	}
+	if os.IsNotExist(err) {
+		return false, nil
+	}
+	return true, err
+}
+
 func TestExistingLogs(t *testing.T) {
 	serv := newServer(t)
 	serv.launch()
@@ -356,29 +368,21 @@ func TestExistingLogs(t *testing.T) {
 	}
 
 	try("Find logspammer", t, func() ([]byte, error) {
-		psCmd := exec.Command("micro", "status")
-		outp, err = psCmd.CombinedOutput()
+		ex, err := exists(filepath.Join(os.TempDir(), "micro", "logs", "crufter-micro-services-logspammer.log"))
 		if err != nil {
-			return outp, err
+			return nil, err
 		}
-		lines := strings.Split(string(outp), "\n")
-		any := false
-		for _, line := range lines {
-			if strings.Contains(line, "logspammer") && (strings.Contains(line, "started") || strings.Contains(line, "running")) {
-				any = true
-			}
+		if !ex {
+			return nil, errors.New("Does not exist")
 		}
-		if !any {
-			return outp, errors.New("Can't find logspammer")
-		}
-		return outp, err
+		return nil, nil
 	}, 20*time.Second)
 
-	outp, err = exec.Command("ls", "-alh", filepath.Join(os.TempDir(), "micro", "logs")).CombinedOutput()
-	fmt.Println(string(outp), err)
+	//outp, err = exec.Command("ls", "-alh", filepath.Join(os.TempDir(), "micro", "logs")).CombinedOutput()
+	//fmt.Println(string(outp), err)
 
 	try("logspammer logs", t, func() ([]byte, error) {
-		psCmd := exec.Command("micro", "logs", "-n", "5", "crufter-micro-services-logspammer")
+		psCmd := exec.Command("micro", "logs", "-n", "5", "crufter/micro-services/logspammer")
 		outp, err = psCmd.CombinedOutput()
 		if err != nil {
 			return outp, err
@@ -388,7 +392,7 @@ func TestExistingLogs(t *testing.T) {
 			return outp, errors.New("Output does not contain expected")
 		}
 		return outp, nil
-	}, 5*time.Second)
+	}, 10*time.Second)
 }
 
 func TestStreamLogsAndThirdPartyRepo(t *testing.T) {
