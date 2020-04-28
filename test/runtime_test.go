@@ -418,7 +418,7 @@ func TestStreamLogsAndThirdPartyRepo(t *testing.T) {
 	}, 20*time.Second)
 
 	// Test streaming logs
-	cmd := exec.Command("micro", "logs", "-f", "crufter-micro-services-logspammer")
+	cmd := exec.Command("micro", "logs", "-n", "1", "-f", "crufter-micro-services-logspammer")
 
 	go func() {
 		outp, err := cmd.CombinedOutput()
@@ -431,13 +431,16 @@ func TestStreamLogsAndThirdPartyRepo(t *testing.T) {
 		if !strings.Contains(string(outp), "never stopping") {
 			t.Fatalf("Unexpected logs: %v", string(outp))
 		}
-		stamp := time.Now().Add(-2 * time.Second).Format("15:04:05")
-		if !strings.Contains(string(outp), stamp) {
-			t.Fatalf("Timestamp %v not found in logs: %v", stamp, string(outp))
+		// Logspammer logs every 2 seconds, so we need 2 different
+		now := time.Now()
+		stampA := now.Add(-2 * time.Second).Format("15:04:05")
+		stampB := now.Add(-1 * time.Second).Format("15:04:05")
+		if !strings.Contains(string(outp), stampA) && !strings.Contains(string(outp), stampB) {
+			t.Fatalf("Timestamp %v or %v not found in logs: %v", stampA, stampB, string(outp))
 		}
 	}()
 
-	time.Sleep(4 * time.Second)
+	time.Sleep(6 * time.Second)
 	err = cmd.Process.Kill()
 	if err != nil {
 		t.Fatal(err)
