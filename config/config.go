@@ -172,34 +172,16 @@ func Commands(options ...micro.Option) []*cli.Command {
 				Name:   "set",
 				Usage:  "Set a key-val; micro config set key val",
 				Action: setConfig,
-				Flags: []cli.Flag{
-					&cli.BoolFlag{
-						Name:  "platform",
-						Usage: "Call through to the platform",
-					},
-				},
 			},
 			{
 				Name:   "get",
 				Usage:  "Get a value; micro config get key",
 				Action: getConfig,
-				Flags: []cli.Flag{
-					&cli.BoolFlag{
-						Name:  "platform",
-						Usage: "Call through to the platform",
-					},
-				},
 			},
 			{
 				Name:   "del",
 				Usage:  "Delete a value; micro config del key",
 				Action: delConfig,
-				Flags: []cli.Flag{
-					&cli.BoolFlag{
-						Name:  "platform",
-						Usage: "Call through to the platform",
-					},
-				},
 			},
 		},
 		Action: func(ctx *cli.Context) error {

@@ -4,13 +4,8 @@ package debug
 import (
 	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro/v2"
-	"github.com/micro/go-micro/v2/debug/log"
-	"github.com/micro/go-micro/v2/debug/log/kubernetes"
-	dservice "github.com/micro/go-micro/v2/debug/service"
 	ulog "github.com/micro/go-micro/v2/logger"
-	"github.com/micro/micro/v2/cli/util"
-	logHandler "github.com/micro/micro/v2/debug/log/handler"
-	pblog "github.com/micro/micro/v2/debug/log/proto"
+	cliutil "github.com/micro/micro/v2/cli/util"
 	statshandler "github.com/micro/micro/v2/debug/stats/handler"
 	pbstats "github.com/micro/micro/v2/debug/stats/proto"
 	tracehandler "github.com/micro/micro/v2/debug/trace/handler"
@@ -44,34 +39,6 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 		srvOpts = append(srvOpts, micro.Address(Address))
 	}
 
-	// TODO: parse out --log_source
-	// if kubernetes then .. go-micro/debug/log/kubernetes.New
-
-	// default log initialiser
-	newLog := func(service string) log.Log {
-		// service log calls the actual service for the log
-		return dservice.NewLog(
-			// log with service name
-			log.Name(service),
-		)
-	}
-
-	source := ctx.String("log")
-	switch source {
-	case "service":
-		newLog = func(service string) log.Log {
-			return dservice.NewLog(
-				log.Name(service),
-			)
-		}
-	case "kubernetes":
-		newLog = func(service string) log.Log {
-			return kubernetes.NewLog(
-				log.Name(service),
-			)
-		}
-	}
-
 	// append name
 	srvOpts = append(srvOpts, micro.Name(Name))
 
@@ -98,20 +65,10 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 		ulog.Fatal(err)
 	}
 
-	// log handler
-	lgHandler := &logHandler.Log{
-		// create the log map
-		Logs: make(map[string]log.Log),
-		// Create the new func
-		New: newLog,
-	}
-
 	// Register the stats handler
 	pbstats.RegisterStatsHandler(service.Server(), statsHandler)
 	// register trace handler
 	pbtrace.RegisterTraceHandler(service.Server(), traceHandler)
-	// Register the logs handler
-	pblog.RegisterLogHandler(service.Server(), lgHandler)
 
 	// TODO: implement debug service for k8s cruft
 
@@ -134,12 +91,6 @@ func Commands(options ...micro.Option) []*cli.Command {
 					Usage:   "Set the registry http address e.g 0.0.0.0:8089",
 					EnvVars: []string{"MICRO_SERVER_ADDRESS"},
 				},
-				&cli.StringFlag{
-					Name:    "log",
-					Usage:   "Specify the log source to use e.g service, kubernetes",
-					EnvVars: []string{"MICRO_DEBUG_LOG"},
-					Value:   "service",
-				},
 				&cli.IntFlag{
 					Name:    "window",
 					Usage:   "Specifies how many seconds of stats snapshots to retain in memory",
@@ -149,15 +100,6 @@ func Commands(options ...micro.Option) []*cli.Command {
 			},
 			Action: func(ctx *cli.Context) error {
 				Run(ctx, options...)
-				return nil
-			},
-		},
-		{
-			Name:  "log",
-			Usage: "Get logs for a service",
-			Flags: logFlags(),
-			Action: func(ctx *cli.Context) error {
-				getLog(ctx, options...)
 				return nil
 			},
 		},
