@@ -10,6 +10,7 @@ import (
 	"io/ioutil"
 	"os/exec"
 	"strings"
+	"sync"
 	"syscall"
 	"testing"
 	"time"
@@ -375,7 +376,8 @@ func TestStreamLogsAndThirdPartyRepo(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-
+	var wg sync.WaitGroup
+	wg.Add(2)
 	lines := []string{}
 	start := time.Now()
 	go func() {
@@ -383,6 +385,7 @@ func TestStreamLogsAndThirdPartyRepo(t *testing.T) {
 			if cmd.Process != nil {
 				cmd.Process.Kill()
 			}
+			wg.Done()
 		}()
 		for {
 			// The logspammer logs "Never stop never stopping!" every 2 seconds.
@@ -410,6 +413,7 @@ func TestStreamLogsAndThirdPartyRepo(t *testing.T) {
 	}
 
 	cmd.Wait()
+	wg.Done()
 }
 
 func TestExistingLogs(t *testing.T) {
