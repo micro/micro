@@ -372,7 +372,7 @@ func TestExistingLogs(t *testing.T) {
 			return outp, errors.New("Can't find logspammer")
 		}
 		return outp, err
-	}, 10*time.Second)
+	}, 20*time.Second)
 
 	outp, err = exec.Command("ls", "-alh", filepath.Join(os.TempDir(), "micro", "logs")).CombinedOutput()
 	fmt.Println(string(outp), err)
@@ -408,12 +408,18 @@ func TestStreamLogsAndThirdPartyRepo(t *testing.T) {
 		if err != nil {
 			return outp, err
 		}
-
-		if !strings.Contains(string(outp), "logspammer") {
-			return outp, errors.New("Output should contain logspammer")
+		lines := strings.Split(string(outp), "\n")
+		any := false
+		for _, line := range lines {
+			if strings.Contains(line, "logspammer") && (strings.Contains(line, "started") || strings.Contains(line, "running")) {
+				any = true
+			}
 		}
-		return outp, nil
-	}, 5*time.Second)
+		if !any {
+			return outp, errors.New("Can't find logspammer")
+		}
+		return outp, err
+	}, 20*time.Second)
 
 	// Test streaming logs
 	cmd := exec.Command("micro", "logs", "-f", "crufter-micro-services-logspammer")
