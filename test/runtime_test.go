@@ -371,7 +371,10 @@ func TestStreamLogsAndThirdPartyRepo(t *testing.T) {
 	cmd := exec.Command("micro", "logs", "-f", "crufter-micro-services-logspammer")
 
 	stdout, _ := cmd.StdoutPipe()
-	cmd.Start()
+	err = cmd.Start()
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	lines := []string{}
 	start := time.Now()
@@ -390,7 +393,6 @@ func TestStreamLogsAndThirdPartyRepo(t *testing.T) {
 				if strings.Contains(strings.Join(lines, " "), "never stopping") {
 					return
 				}
-
 				t.Fatal("Not found")
 			}
 			time.Sleep(500 * time.Millisecond)
