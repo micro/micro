@@ -407,23 +407,15 @@ func TestStreamLogsAndThirdPartyRepo(t *testing.T) {
 	}
 
 	try("Find logspammer", t, func() ([]byte, error) {
-		psCmd := exec.Command("micro", "status")
-		outp, err = psCmd.CombinedOutput()
+		ex, err := exists(filepath.Join(os.TempDir(), "micro", "logs", "crufter-micro-services-logspammer.log"))
 		if err != nil {
-			return outp, err
+			return nil, err
 		}
-		lines := strings.Split(string(outp), "\n")
-		any := false
-		for _, line := range lines {
-			if strings.Contains(line, "logspammer") && (strings.Contains(line, "started") || strings.Contains(line, "running")) {
-				any = true
-			}
+		if !ex {
+			return nil, errors.New("Does not exist")
 		}
-		if !any {
-			return outp, errors.New("Can't find logspammer")
-		}
-		return outp, err
-	}, 30*time.Second)
+		return nil, nil
+	}, 20*time.Second)
 
 	// Test streaming logs
 	cmd := exec.Command("micro", "logs", "-f", "crufter-micro-services-logspammer")
