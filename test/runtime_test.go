@@ -3,15 +3,12 @@
 package test
 
 import (
-	"bufio"
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io"
 	"io/ioutil"
 	"os/exec"
 	"strings"
-	"sync"
 	"syscall"
 	"testing"
 	"time"
@@ -372,51 +369,26 @@ func TestStreamLogsAndThirdPartyRepo(t *testing.T) {
 	// Test streaming logs
 	cmd := exec.Command("micro", "logs", "-f", "crufter-micro-services-logspammer")
 
-	stdout, _ := cmd.StdoutPipe()
-	stderr, _ := cmd.StderrPipe()
-	reader := io.MultiReader(stdout, stderr)
-	err = cmd.Start()
-	if err != nil {
-		t.Fatal(err)
-	}
-	var wg sync.WaitGroup
-	wg.Add(1)
-	lines := []string{}
-	start := time.Now()
 	go func() {
-		defer func() {
-			if cmd.Process != nil {
-				cmd.Process.Kill()
-			}
-			wg.Done()
-		}()
-		for {
-			// The logspammer logs "Never stop never stopping!" every 2 seconds.
-			if time.Now().After(start.Add(time.Second * 4)) {
-				if len(lines) == 0 {
-					t.Fatal("No log lines streamed")
-				}
-				if strings.Contains(strings.Join(lines, " "), "never stopping") {
-					return
-				}
-				t.Fatalf("Expected values not found in output %v", strings.Join(lines, " "))
-			}
-			time.Sleep(500 * time.Millisecond)
+		outp, _ := cmd.CombinedOutput()
+		if len(outp) == 0 {
+			t.Fatal("No log lines streamed")
+		}
+		if !strings.Contains(string(outp), "never stopping") {
+			t.Fatalf("Unexpected logs: %v", string(outp))
+		}
+		stamp := time.Now().Add(-2 * time.Second).Format("15:04:05")
+		if !strings.Contains(string(outp), stamp) {
+			t.Fatalf("Timestamp %v not found in logs: %v", stamp, string(outp))
 		}
 	}()
 
-	scanner := bufio.NewScanner(reader)
-	scanner.Split(bufio.ScanWords)
-	for scanner.Scan() {
-		// We wan't to make sure the logs are new and streamed and not existing ones.
-		if time.Now().After(start.Add(500 * time.Millisecond)) {
-			m := scanner.Text()
-			lines = append(lines, m)
-		}
+	time.Sleep(4 * time.Second)
+	err = cmd.Process.Kill()
+	if err != nil {
+		t.Fatal(err)
 	}
-
-	cmd.Wait()
-	wg.Wait()
+	time.Sleep(2 * time.Second)
 }
 
 func TestExistingLogs(t *testing.T) {
