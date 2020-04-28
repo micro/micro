@@ -370,7 +370,10 @@ func TestStreamLogsAndThirdPartyRepo(t *testing.T) {
 	cmd := exec.Command("micro", "logs", "-f", "crufter-micro-services-logspammer")
 
 	go func() {
-		outp, _ := cmd.CombinedOutput()
+		outp, err := cmd.CombinedOutput()
+		if err != nil {
+			t.Log(err)
+		}
 		if len(outp) == 0 {
 			t.Fatal("No log lines streamed")
 		}
