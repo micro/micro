@@ -419,7 +419,7 @@ func TestStreamLogsAndThirdPartyRepo(t *testing.T) {
 			return outp, errors.New("Can't find logspammer")
 		}
 		return outp, err
-	}, 20*time.Second)
+	}, 30*time.Second)
 
 	// Test streaming logs
 	cmd := exec.Command("micro", "logs", "-f", "crufter-micro-services-logspammer")
