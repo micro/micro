@@ -194,10 +194,8 @@ func TestLocalEnvRunGithubSource(t *testing.T) {
 	var cmd *exec.Cmd
 	go func() {
 		cmd = exec.Command("micro", "run", "location")
-		outp, err := cmd.CombinedOutput()
-		if err != nil {
-			t.Fatalf("micro run failure, output: %v", string(outp))
-		}
+		// fire and forget as this will run forever
+		cmd.CombinedOutput()
 	}()
 	time.Sleep(100 * time.Millisecond)
 	defer func() {
