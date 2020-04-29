@@ -30,8 +30,8 @@ func Read(ctx *cli.Context) error {
 
 	records, err := store.DefaultStore.Read(ctx.Args().First(), opts...)
 	if err != nil {
-		if strings.Contains(err.Error(), "not found") {
-			return errors.New("not found")
+		if err.Error() == "not found" {
+			return err
 		}
 		return errors.Wrapf(err, "Couldn't read %s from store", ctx.Args().First())
 	}
