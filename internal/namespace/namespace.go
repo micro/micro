@@ -24,9 +24,8 @@ const (
 
 // FromContext gets the namespace from the context
 func FromContext(ctx context.Context) string {
-	// first check for the namespace of the account
-	acc, err := auth.AccountFromContext(ctx)
-	if err == nil || acc != nil {
+	// if there is an account, we use its namespace
+	if acc, ok := auth.AccountFromContext(ctx); ok {
 		return acc.Namespace
 	}
 
