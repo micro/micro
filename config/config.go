@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/micro/cli/v2"
@@ -115,6 +116,10 @@ func getConfig(ctx *cli.Context) error {
 		Path: key,
 	})
 	if err != nil {
+		if strings.Contains(err.Error(), "not found") {
+			fmt.Println("not found")
+			os.Exit(1)
+		}
 		fmt.Println(err)
 		os.Exit(1)
 	}
