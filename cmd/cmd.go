@@ -13,6 +13,7 @@ import (
 	"github.com/micro/micro/v2/bot"
 	"github.com/micro/micro/v2/broker"
 	"github.com/micro/micro/v2/cli"
+	cliutil "github.com/micro/micro/v2/cli/util"
 	"github.com/micro/micro/v2/config"
 	"github.com/micro/micro/v2/debug"
 	"github.com/micro/micro/v2/health"
@@ -31,6 +32,7 @@ import (
 	"github.com/micro/micro/v2/web"
 
 	// include usage
+
 	"github.com/micro/micro/v2/internal/platform"
 	_ "github.com/micro/micro/v2/internal/plugins"
 	"github.com/micro/micro/v2/internal/update"
@@ -203,6 +205,7 @@ func setup(app *ccli.App) {
 	before := app.Before
 
 	app.Before = func(ctx *ccli.Context) error {
+
 		if len(ctx.String("api_handler")) > 0 {
 			api.Handler = ctx.String("api_handler")
 		}
@@ -240,6 +243,7 @@ func setup(app *ccli.App) {
 			}
 		}
 
+		cliutil.SetupCommand(ctx)
 		// now do previous before
 		if err := before(ctx); err != nil {
 			return err

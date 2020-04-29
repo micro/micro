@@ -228,7 +228,6 @@ func whoami(ctx *cli.Context) {
 
 //Commands for auth
 func Commands(srvOpts ...micro.Option) []*cli.Command {
-	cliutil.SetupCommand()
 	commands := []*cli.Command{
 		{
 			Name:  "auth",
