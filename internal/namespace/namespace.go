@@ -24,16 +24,19 @@ const (
 
 // FromContext gets the namespace from the context
 func FromContext(ctx context.Context) string {
+	// first check for the namespace of the account
+	acc, err := auth.AccountFromContext(ctx)
+	if err == nil || acc != nil {
+		return acc.Namespace
+	}
+
+	// next check for the namespace key set by micro web or api
 	if ns, ok := metadata.Get(ctx, NamespaceKey); ok {
 		return ns
 	}
 
-	acc, err := auth.AccountFromContext(ctx)
-	if err != nil || acc == nil {
-		return DefaultNamespace
-	}
-
-	return acc.Namespace
+	// fallback to the default namespace
+	return DefaultNamespace
 }
 
 var serviceTypes = []string{"api", "web", "service", "srv"}
