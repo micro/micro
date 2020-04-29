@@ -125,12 +125,14 @@ func getConfig(ctx *cli.Context) error {
 	}
 
 	if rsp.Change == nil || rsp.Change.ChangeSet == nil {
-		return nil
+		fmt.Println("not found")
+		os.Exit(1)
 	}
 
 	// don't do it
 	if v := rsp.Change.ChangeSet.Data; len(v) == 0 || string(v) == "null" {
-		return nil
+		fmt.Println("not found")
+		os.Exit(1)
 	}
 
 	fmt.Println(string(rsp.Change.ChangeSet.Data))
