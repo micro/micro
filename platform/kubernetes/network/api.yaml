@@ -31,6 +31,13 @@ spec:
       containers:
       - name: api
         env:
+        - name: MICRO_AUTH
+          value: "service"
+        - name: MICRO_AUTH_PUBLIC_KEY
+          valueFrom:
+            secretKeyRef:
+              name: micro-keypair
+              key: public
         - name: MICRO_API_NAMESPACE
           value: "domain"
         - name: MICRO_ENABLE_STATS

@@ -27,6 +27,18 @@ spec:
       containers:
       - name: router
         env:
+        - name: MICRO_AUTH
+          value: "jwt"
+        - name: MICRO_AUTH_PUBLIC_KEY
+          valueFrom:
+            secretKeyRef:
+              name: micro-keypair
+              key: public
+        - name: MICRO_AUTH_PRIVATE_KEY
+          valueFrom:
+            secretKeyRef:
+              name: micro-keypair
+              key: private
         - name: MICRO_LOG_LEVEL
           value: "trace"
         - name: MICRO_BROKER
