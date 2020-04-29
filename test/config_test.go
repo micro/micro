@@ -3,8 +3,11 @@
 package test
 
 import (
+	"errors"
+	"fmt"
 	"os/exec"
 	"testing"
+	"time"
 )
 
 func TestConfig(t *testing.T) {
@@ -12,17 +15,20 @@ func TestConfig(t *testing.T) {
 	serv.launch()
 	defer serv.close()
 
-	getCmd := exec.Command("micro", "config", "get", "somekey")
-	outp, err := getCmd.CombinedOutput()
-	if err == nil {
-		t.Fatalf("Config get should fail: %v", string(outp))
-	}
-	if string(outp) != "not found\n" {
-		t.Fatalf("Expected 'not found\n', got: '%v'", string(outp))
-	}
+	try("Calling micro store read", t, func() ([]byte, error) {
+		getCmd := exec.Command("micro", "config", "get", "somekey")
+		outp, err := getCmd.CombinedOutput()
+		if err == nil {
+			return outp, errors.New("config gete should fail")
+		}
+		if string(outp) != "not found\n" {
+			return outp, fmt.Errorf("Output should be 'not found\n', got %v", string(outp))
+		}
+		return outp, nil
+	}, 5*time.Second)
 
 	setCmd := exec.Command("micro", "config", "set", "somekey", "val1")
-	outp, err = setCmd.CombinedOutput()
+	outp, err := setCmd.CombinedOutput()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -30,7 +36,7 @@ func TestConfig(t *testing.T) {
 		t.Fatalf("Expected no output, got: %v", string(outp))
 	}
 
-	getCmd = exec.Command("micro", "config", "get", "somekey")
+	getCmd := exec.Command("micro", "config", "get", "somekey")
 	outp, err = getCmd.CombinedOutput()
 	if err != nil {
 		t.Fatal(err)
