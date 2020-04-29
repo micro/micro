@@ -21,6 +21,18 @@ spec:
       containers:
       - name: micro-config
         env:
+        - name: MICRO_AUTH
+          value: "jwt"
+        - name: MICRO_AUTH_PUBLIC_KEY
+          valueFrom:
+            secretKeyRef:
+              name: micro-keypair
+              key: public
+        - name: MICRO_AUTH_PRIVATE_KEY
+          valueFrom:
+            secretKeyRef:
+              name: micro-keypair
+              key: private
         - name: MICRO_SERVER_ADDRESS
           value: "0.0.0.0:8080"
         - name: MICRO_LOG_LEVEL
