@@ -27,8 +27,12 @@ func Read(ctx *cli.Context) error {
 	if ctx.Bool("prefix") {
 		opts = append(opts, store.ReadPrefix())
 	}
+
 	records, err := store.DefaultStore.Read(ctx.Args().First(), opts...)
 	if err != nil {
+		if strings.Contains(err.Error(), "not found") {
+			return errors.New("not found")
+		}
 		return errors.Wrapf(err, "Couldn't read %s from store", ctx.Args().First())
 	}
 	switch ctx.String("output") {
@@ -92,7 +96,6 @@ func Write(ctx *cli.Context) error {
 	if err := store.DefaultStore.Write(record); err != nil {
 		return errors.Wrap(err, "couldn't write")
 	}
-	fmt.Fprintf(os.Stderr, "Wrote record %s to %s store\n", record.Key, store.DefaultStore.String())
 	return nil
 }
 

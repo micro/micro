@@ -6,8 +6,12 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"strings"
 
+	ccli "github.com/micro/cli/v2"
 	"github.com/micro/go-micro/v2/util/config"
+	"github.com/micro/micro/v2/internal/platform"
+	"github.com/micro/micro/v2/runtime/profile"
 )
 
 const (
@@ -46,16 +50,47 @@ var defaultEnvs = map[string]Env{
 	},
 }
 
+func isBuiltinService(command string) bool {
+	if command == "server" {
+		return true
+	}
+	for _, service := range platform.Services {
+		if command == service {
+			return true
+		}
+	}
+	return false
+}
+
 // SetupCommand includes things that should run for each command.
-func SetupCommand() {
+func SetupCommand(ctx *ccli.Context) {
+	if ctx.Args().Len() == 1 && isBuiltinService(ctx.Args().First()) {
+		return
+	}
+	toFlag := func(s string) string {
+		return strings.ToLower(strings.ReplaceAll(s, "MICRO_", ""))
+	}
+	setFlags := func(envars []string) {
+		for _, envar := range envars {
+			parts := strings.Split(envar, "=")
+			key := toFlag(parts[0])
+			ctx.Set(key, parts[1])
+		}
+	}
 	env := GetEnv()
-	if env.Name == EnvLocal {
+	switch env.Name {
+	case EnvServer:
+		setFlags(profile.Server())
+	case EnvPlatform:
+		setFlags(profile.Platform())
+	case EnvLocal:
 		// Not setting a proxy for local env
 		return
 	}
+
 	// Set proxy for all envs apart from local
-	os.Setenv("MICRO_PROXY", "service")
-	os.Setenv("MICRO_PROXY_ADDRESS", env.ProxyAddress)
+	ctx.Set("proxy", "service")
+	ctx.Set("proxy_address", env.ProxyAddress)
 }
 
 type Env struct {

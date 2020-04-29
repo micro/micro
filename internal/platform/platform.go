@@ -25,7 +25,7 @@ var (
 	Version string
 
 	// list of services managed
-	services = []string{
+	Services = []string{
 		// runtime services
 		"config",   // ????
 		"network",  // :8085
@@ -95,7 +95,7 @@ func Init(context *cli.Context) {
 	}
 
 	// list of services to operate on
-	initServices := services
+	initServices := Services
 
 	// get the service prefix
 	if namespace := context.String("namespace"); len(namespace) > 0 {
@@ -202,7 +202,7 @@ func Run(context *cli.Context) error {
 		(*muRuntime).Init(options...)
 	}
 
-	for _, service := range services {
+	for _, service := range Services {
 		name := service
 
 		if namespace := context.String("namespace"); len(namespace) > 0 {
