@@ -3,6 +3,8 @@ package config
 import (
 	"context"
 	"fmt"
+	"os"
+	"strings"
 	"time"
 
 	"github.com/micro/cli/v2"
@@ -54,7 +56,8 @@ func setConfig(ctx *cli.Context) error {
 	args := ctx.Args()
 
 	if args.Len() == 0 {
-		log.Fatal("Required usage; micro config set key val")
+		fmt.Println("Required usage: micro config set key val")
+		os.Exit(1)
 	}
 
 	// key val
@@ -79,7 +82,8 @@ func setConfig(ctx *cli.Context) error {
 		},
 	})
 	if err != nil {
-		log.Fatalf("Error setting key-val: %v", err)
+		fmt.Println(err)
+		os.Exit(1)
 	}
 
 	return nil
@@ -91,7 +95,8 @@ func getConfig(ctx *cli.Context) error {
 	args := ctx.Args()
 
 	if args.Len() == 0 {
-		log.Fatal("Required usage; micro config get key")
+		fmt.Println("Required usage: micro config get key")
+		os.Exit(1)
 	}
 
 	// key val
@@ -111,19 +116,26 @@ func getConfig(ctx *cli.Context) error {
 		Path: key,
 	})
 	if err != nil {
-		log.Fatalf("Error reading key-val: %v", err)
+		if strings.Contains(err.Error(), "not found") {
+			fmt.Println("not found")
+			os.Exit(1)
+		}
+		fmt.Println(err)
+		os.Exit(1)
 	}
 
 	if rsp.Change == nil || rsp.Change.ChangeSet == nil {
-		return nil
+		fmt.Println("not found")
+		os.Exit(1)
 	}
 
 	// don't do it
 	if v := rsp.Change.ChangeSet.Data; len(v) == 0 || string(v) == "null" {
-		return nil
+		fmt.Println("not found")
+		os.Exit(1)
 	}
 
-	fmt.Println("Value:", string(rsp.Change.ChangeSet.Data))
+	fmt.Println(string(rsp.Change.ChangeSet.Data))
 
 	return nil
 }
@@ -134,7 +146,8 @@ func delConfig(ctx *cli.Context) error {
 	args := ctx.Args()
 
 	if args.Len() == 0 {
-		log.Fatal("Required usage; micro config get key")
+		fmt.Println("Required usage: micro config get key")
+		os.Exit(1)
 	}
 
 	// key val
@@ -156,7 +169,8 @@ func delConfig(ctx *cli.Context) error {
 		},
 	})
 	if err != nil {
-		log.Fatalf("Error deleting key-val: %v", err)
+		fmt.Println(err)
+		os.Exit(1)
 	}
 
 	return nil
@@ -166,7 +180,7 @@ func Commands(options ...micro.Option) []*cli.Command {
 	cliutil.SetupCommand()
 	command := &cli.Command{
 		Name:  "config",
-		Usage: "Run the config server",
+		Usage: "Manage configuration values",
 		Subcommands: []*cli.Command{
 			{
 				Name:   "set",

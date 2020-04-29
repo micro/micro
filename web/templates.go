@@ -397,7 +397,7 @@ jQuery(function($, undefined) {
 {{define "title"}}Services{{end}}
 {{define "content"}}
 	<p style="margin: 0;">&nbsp;</p>
-        <div style="max-width: 600px; margin: 0 auto;">
+        <div style="max-width: 600px; margin: 0 auto; height: calc(100vh - 200px); overflow: scroll;">
 	{{range .Results}}
 	<div style="margin: 5px 5px 5px 15px;">
 	    <a href="/service/{{.Name}}" data-filter={{.Name}} class="service">{{.Name}}</a>

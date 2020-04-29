@@ -11,6 +11,7 @@ import (
 	"github.com/micro/go-micro/v2/metadata"
 	"github.com/micro/go-micro/v2/store"
 	pb "github.com/micro/go-micro/v2/store/service/proto"
+	"github.com/micro/micro/v2/internal/namespace"
 )
 
 type Store struct {
@@ -33,18 +34,36 @@ func (s *Store) get(ctx context.Context) (store.Store, error) {
 	s.Lock()
 	defer s.Unlock()
 
+	// get the namespace from context
+	ns := namespace.FromContext(ctx)
+	// we're using "micro" as the database"
+	// TODO: change default namespace to micro
+	if ns == "go.micro" {
+		ns = "micro"
+	}
+
+	// retrieve values from metadata
+	// TODO: switch to options
 	md, ok := metadata.FromContext(ctx)
 	if !ok {
 		return s.Default, nil
 	}
 
+	// TODO: should we process database passed in?
 	database, _ := md.Get("Micro-Database")
 	table, _ := md.Get("Micro-Table")
 
+	// set the database to the namespace
+	if len(ns) > 0 {
+		database = ns
+	}
+
+	// reset database to options if not set
 	if len(database) == 0 {
 		database = s.Default.Options().Database
 	}
 
+	// reset table to options if not set
 	if len(table) == 0 {
 		table = s.Default.Options().Table
 	}
