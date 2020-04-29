@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"text/tabwriter"
 	"time"
 	"unicode/utf8"
 
@@ -42,11 +43,9 @@ func Read(ctx *cli.Context) error {
 			return errors.Wrap(err, "failed marshalling JSON")
 		}
 		fmt.Printf("%s\n", string(jsonRecords))
-	case "table":
-		t := tablewriter.NewWriter(os.Stdout)
-		t.SetBorders(tablewriter.Border{Left: true, Top: false, Right: true, Bottom: false})
-		t.SetCenterSeparator("|")
-		t.SetHeader([]string{"Key", "Value", "Expiry"})
+	default:
+		w := tabwriter.NewWriter(os.Stdout, 0, 0, 1, ' ', 0)
+		fmt.Fprintf(w, "%v \t %v \t %v\n", "KEY", "VALUE", "EXPIRY")
 		for _, r := range records {
 			var key, value, expiry string
 			key = r.Key
@@ -64,12 +63,9 @@ func Read(ctx *cli.Context) error {
 			} else {
 				expiry = humanize.Time(time.Now().Add(r.Expiry))
 			}
-			t.Append([]string{key, value, expiry})
+			fmt.Fprintf(w, "%v \t %v \t %v\n", key, value, expiry)
 		}
-		t.SetFooter([]string{fmt.Sprintf("Total %d", len(records)), "", ""})
-		t.Render()
-	default:
-		return errors.Errorf("%s is not a valid output format", ctx.String("output"))
+		w.Flush()
 	}
 	return nil
 }
