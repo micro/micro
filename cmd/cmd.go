@@ -33,6 +33,7 @@ import (
 	// include usage
 	"github.com/micro/micro/v2/internal/platform"
 	_ "github.com/micro/micro/v2/internal/plugins"
+	"github.com/micro/micro/v2/internal/update"
 	_ "github.com/micro/micro/v2/internal/usage"
 
 	gostore "github.com/micro/go-micro/v2/store"
@@ -172,6 +173,12 @@ func setup(app *ccli.App) {
 			Name:    "auto_update",
 			Usage:   "Enable automatic updates",
 			EnvVars: []string{"MICRO_AUTO_UPDATE"},
+		},
+		&ccli.StringFlag{
+			Name:    "update_url",
+			Usage:   "Set the url to retrieve system updates from",
+			EnvVars: []string{"MICRO_UPDATE_URL"},
+			Value:   update.DefaultURL,
 		},
 		&ccli.BoolFlag{
 			Name:    "report_usage",

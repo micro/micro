@@ -104,11 +104,16 @@ func Init(context *cli.Context) {
 		}
 	}
 
+	updateURL := context.String("update_url")
+	if len(updateURL) == 0 {
+		updateURL = update.DefaultURL
+	}
+
 	// create new micro runtime
 	muRuntime := cmd.DefaultCmd.Options().Runtime
 
 	// Use default update notifier
-	notifier := update.NewScheduler(Version)
+	notifier := update.NewScheduler(updateURL, Version)
 	wrapped := initNotify(notifier, initServices)
 
 	// specify with a notifier that fires
@@ -196,8 +201,13 @@ func Run(context *cli.Context) error {
 
 	// Use default update notifier
 	if context.Bool("auto_update") {
+		updateURL := context.String("update_url")
+		if len(updateURL) == 0 {
+			updateURL = update.DefaultURL
+		}
+
 		options := []gorun.Option{
-			gorun.WithScheduler(update.NewScheduler(Version)),
+			gorun.WithScheduler(update.NewScheduler(updateURL, Version)),
 		}
 		(*muRuntime).Init(options...)
 	}

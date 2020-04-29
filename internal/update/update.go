@@ -48,7 +48,7 @@ type notifier struct {
 }
 
 // NewScheduler returns new runtime notifier
-func NewScheduler(buildDate string) runtime.Scheduler {
+func NewScheduler(updateURL, buildDate string) runtime.Scheduler {
 	// convert the build date to a time.Time value
 	timestamp, err := strconv.ParseInt(buildDate, 10, 64)
 	if err != nil {
@@ -59,7 +59,7 @@ func NewScheduler(buildDate string) runtime.Scheduler {
 	version := time.Unix(timestamp, 0)
 
 	// return a new notifier
-	return newScheduler(DefaultURL, DefaultTick, version)
+	return newScheduler(updateURL, DefaultTick, version)
 }
 
 // NewHTTP creates HTTP poller and returns it
