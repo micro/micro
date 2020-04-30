@@ -43,28 +43,34 @@ func Read(ctx *cli.Context) error {
 		}
 		fmt.Printf("%s\n", string(jsonRecords))
 	default:
-		w := tabwriter.NewWriter(os.Stdout, 0, 0, 1, ' ', 0)
-		fmt.Fprintf(w, "%v \t %v \t %v\n", "KEY", "VALUE", "EXPIRY")
-		for _, r := range records {
-			var key, value, expiry string
-			key = r.Key
-			if isPrintable(r.Value) {
-				value = string(r.Value)
-				if len(value) > 50 {
-					runes := []rune(value)
-					value = string(runes[:50]) + "..."
+		if ctx.Bool("verbose") {
+			w := tabwriter.NewWriter(os.Stdout, 0, 0, 1, ' ', 0)
+			fmt.Fprintf(w, "%v \t %v \t %v\n", "KEY", "VALUE", "EXPIRY")
+			for _, r := range records {
+				var key, value, expiry string
+				key = r.Key
+				if isPrintable(r.Value) {
+					value = string(r.Value)
+					if len(value) > 50 {
+						runes := []rune(value)
+						value = string(runes[:50]) + "..."
+					}
+				} else {
+					value = fmt.Sprintf("%#x", r.Value[:20])
 				}
-			} else {
-				value = fmt.Sprintf("%#x", r.Value[:20])
+				if r.Expiry == 0 {
+					expiry = "None"
+				} else {
+					expiry = humanize.Time(time.Now().Add(r.Expiry))
+				}
+				fmt.Fprintf(w, "%v \t %v \t %v\n", key, value, expiry)
 			}
-			if r.Expiry == 0 {
-				expiry = "None"
-			} else {
-				expiry = humanize.Time(time.Now().Add(r.Expiry))
-			}
-			fmt.Fprintf(w, "%v \t %v \t %v\n", key, value, expiry)
+			w.Flush()
+			return nil
 		}
-		w.Flush()
+		for _, r := range records {
+			fmt.Println(string(r.Value))
+		}
 	}
 	return nil
 }
@@ -121,11 +127,9 @@ func List(ctx *cli.Context) error {
 		}
 		fmt.Printf("%s\n", string(jsonRecords))
 	default:
-		w := tabwriter.NewWriter(os.Stdout, 0, 0, 1, ' ', 0)
 		for _, key := range keys {
-			fmt.Fprintf(w, "%v\n", key)
+			fmt.Println(key)
 		}
-		w.Flush()
 	}
 	return nil
 }

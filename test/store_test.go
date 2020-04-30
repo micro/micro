@@ -44,7 +44,7 @@ func TestStore(t *testing.T) {
 	if err != nil {
 		t.Fatal(string(outp))
 	}
-	if !strings.Contains(string(outp), "val1") {
+	if string(outp) != "val1\n" {
 		t.Fatalf("Expected 'val1\n', got: '%v'", string(outp))
 	}
 
@@ -96,6 +96,15 @@ func TestStore(t *testing.T) {
 	}
 
 	readCmd = exec.Command("micro", "store", "read", "--prefix", "somekey")
+	outp, err = readCmd.CombinedOutput()
+	if err != nil {
+		t.Fatalf("store prefix read not should fail: %v", string(outp))
+	}
+	if string(outp) != "val1\nval2\n" {
+		t.Fatalf("Expected output not present, got: '%v'", string(outp))
+	}
+
+	readCmd = exec.Command("micro", "store", "read", "-v", "--prefix", "somekey")
 	outp, err = readCmd.CombinedOutput()
 	if err != nil {
 		t.Fatalf("store prefix read not should fail: %v", string(outp))
