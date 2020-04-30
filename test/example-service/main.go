@@ -1,10 +1,11 @@
 package main
 
 import (
+	"example-service/handler"
+	example "example-service/proto"
+
 	"github.com/micro/go-micro/v2"
 	"github.com/micro/go-micro/v2/util/log"
-	"github.com/micro/micro/v2/test/example-service/handler"
-	example "github.com/micro/micro/v2/test/example-service/proto"
 )
 
 func main() {
