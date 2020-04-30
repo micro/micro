@@ -23,7 +23,6 @@ var (
 		"registry", // :8000
 		"broker",   // :8001
 		"store",    // :8002
-		"tunnel",   // :8083
 		"router",   // :8084
 		"debug",    // :????
 		"proxy",    // :8081
