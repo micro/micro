@@ -1,9 +1,6 @@
 package store
 
 import (
-	"strings"
-	"time"
-
 	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro/v2"
 	"github.com/micro/go-micro/v2/config/cmd"
@@ -20,14 +17,6 @@ var (
 	Name = "go.micro.store"
 	// Address is the store address
 	Address = ":8002"
-	// Backend is the implementation of the store
-	Backend = "memory"
-	// Nodes is passed to the underlying backend
-	Nodes = []string{"localhost"}
-	// Database is passed to the underlying backend if set.
-	Database = "micro"
-	// Table is passed to the underlying backend if set.
-	Table = "store"
 )
 
 // run runs the micro server
@@ -45,82 +34,50 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 	if len(ctx.String("address")) > 0 {
 		Address = ctx.String("address")
 	}
-	if len(ctx.String("store")) > 0 {
-		Backend = ctx.String("store")
-	}
-	if len(ctx.String("store_address")) > 0 {
-		Nodes = strings.Split(ctx.String("store_address"), ",")
-	}
-	if len(ctx.String("store_database")) > 0 {
-		Database = ctx.String("store_database")
-	}
-	if len(ctx.String("store_table")) > 0 {
-		Table = ctx.String("store_table")
-	}
 
 	// Initialise service
 	service := micro.NewService(
 		micro.Name(Name),
-		micro.RegisterTTL(time.Duration(ctx.Int("register_ttl"))*time.Second),
-		micro.RegisterInterval(time.Duration(ctx.Int("register_interval"))*time.Second),
 	)
-
-	opts := []store.Option{store.Nodes(Nodes...)}
-	if len(Database) > 0 {
-		opts = append(opts, store.Database(Database))
-	}
-	if len(Table) > 0 {
-		opts = append(opts, store.Table(Table))
-	}
 
 	// the store handler
 	storeHandler := &handler.Store{
-		Stores: make(map[string]store.Store),
+		Default: *cmd.DefaultOptions().Store,
+		Stores: make(map[string]bool),
 	}
 
-	// get from the existing list of stores
-	newStore, ok := cmd.DefaultStores[Backend]
-	if !ok {
-		log.Fatalf("%s is not an implemented store", Backend)
+	table := "store"
+	if v := ctx.String("store_table"); len(v) > 0 {
+		table = v
 	}
 
-	log.Infof("Initialising the [%s] store with opts: nodes=%v database=%v table=%v", Backend, Nodes, Database, Table)
-
-	// set the default store
-	storeHandler.Default = newStore(opts...)
-
-	// set the internal store
-	storeHandler.Internal = newStore(
-		store.Nodes(Nodes...),
-		store.Database(Database),
-		store.Table("internal"),
+	// set to store table
+	storeHandler.Default.Init(
+		store.Table(table),
 	)
+
+	backend := storeHandler.Default.String()
+	options := storeHandler.Default.Options()
+
+	log.Infof("Initialising the [%s] store with opts: %+v", backend, options)
 
 	// set the new store initialiser
 	storeHandler.New = func(database string, table string) (store.Store, error) {
-		// return a new default store
-		v := newStore(
-			store.Nodes(Nodes...),
-			store.Database(database),
-			store.Table(table),
-		)
-		if err := v.Init(); err != nil {
-			return nil, err
-		}
 		// Record the new database and table in the internal store
-		if err := storeHandler.Internal.Write(&store.Record{
+		if err := storeHandler.Default.Write(&store.Record{
 			Key:   "databases/" + database,
 			Value: []byte{},
-		}); err != nil {
+		}, store.WriteTo("micro", "internal")); err != nil {
 			return nil, errors.Wrap(err, "micro store couldn't store new database in internal table")
 		}
-		if err := storeHandler.Internal.Write(&store.Record{
+		if err := storeHandler.Default.Write(&store.Record{
 			Key:   "tables/" + database + "/" + table,
 			Value: []byte{},
-		}); err != nil {
+		}, store.WriteTo("micro", "internal")); err != nil {
 			return nil, errors.Wrap(err, "micro store couldn't store new table in internal table")
 		}
-		return v, nil
+
+		return storeHandler.Default, nil
 	}
 
 	pb.RegisterStoreHandler(service.Server(), storeHandler)
