@@ -12,7 +12,6 @@ import (
 	"github.com/dustin/go-humanize"
 	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro/v2/store"
-	"github.com/olekukonko/tablewriter"
 	"github.com/pkg/errors"
 )
 
@@ -21,7 +20,7 @@ func Read(ctx *cli.Context) error {
 	if err := initStore(ctx); err != nil {
 		return err
 	}
-	if ctx.Args().Len() != 1 {
+	if ctx.Args().Len() < 1 {
 		return errors.New("Key arg is required")
 	}
 	opts := []store.ReadOption{}
@@ -44,28 +43,34 @@ func Read(ctx *cli.Context) error {
 		}
 		fmt.Printf("%s\n", string(jsonRecords))
 	default:
-		w := tabwriter.NewWriter(os.Stdout, 0, 0, 1, ' ', 0)
-		fmt.Fprintf(w, "%v \t %v \t %v\n", "KEY", "VALUE", "EXPIRY")
-		for _, r := range records {
-			var key, value, expiry string
-			key = r.Key
-			if isPrintable(r.Value) {
-				value = string(r.Value)
-				if len(value) > 50 {
-					runes := []rune(value)
-					value = string(runes[:50]) + "..."
+		if ctx.Bool("verbose") {
+			w := tabwriter.NewWriter(os.Stdout, 0, 0, 1, ' ', 0)
+			fmt.Fprintf(w, "%v \t %v \t %v\n", "KEY", "VALUE", "EXPIRY")
+			for _, r := range records {
+				var key, value, expiry string
+				key = r.Key
+				if isPrintable(r.Value) {
+					value = string(r.Value)
+					if len(value) > 50 {
+						runes := []rune(value)
+						value = string(runes[:50]) + "..."
+					}
+				} else {
+					value = fmt.Sprintf("%#x", r.Value[:20])
 				}
-			} else {
-				value = fmt.Sprintf("%#x", r.Value[:20])
+				if r.Expiry == 0 {
+					expiry = "None"
+				} else {
+					expiry = humanize.Time(time.Now().Add(r.Expiry))
+				}
+				fmt.Fprintf(w, "%v \t %v \t %v\n", key, value, expiry)
 			}
-			if r.Expiry == 0 {
-				expiry = "None"
-			} else {
-				expiry = humanize.Time(time.Now().Add(r.Expiry))
-			}
-			fmt.Fprintf(w, "%v \t %v \t %v\n", key, value, expiry)
+			w.Flush()
+			return nil
 		}
-		w.Flush()
+		for _, r := range records {
+			fmt.Println(string(r.Value))
+		}
 	}
 	return nil
 }
@@ -121,18 +126,10 @@ func List(ctx *cli.Context) error {
 			return errors.Wrap(err, "failed marshalling JSON")
 		}
 		fmt.Printf("%s\n", string(jsonRecords))
-	case "table":
-		t := tablewriter.NewWriter(os.Stdout)
-		t.SetBorders(tablewriter.Border{Left: true, Top: false, Right: true, Bottom: false})
-		t.SetCenterSeparator("|")
-		t.SetHeader([]string{"Key"})
-		for _, k := range keys {
-			t.Append([]string{k})
-		}
-		t.SetFooter([]string{fmt.Sprintf("Total %d", len(keys))})
-		t.Render()
 	default:
-		return errors.Errorf("%s is not a valid output format", ctx.String("output"))
+		for _, key := range keys {
+			fmt.Println(key)
+		}
 	}
 	return nil
 }
