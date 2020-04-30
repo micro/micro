@@ -174,7 +174,7 @@ func TestRunLocalSource(t *testing.T) {
 			return outp, errors.New("Can't find example service in runtime")
 		}
 		return outp, err
-	}, 8*time.Second)
+	}, 12*time.Second)
 
 	try("Find go.micro.service.example in list", t, func() ([]byte, error) {
 		outp, err := exec.Command("micro", "list", "services").CombinedOutput()
