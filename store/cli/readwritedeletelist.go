@@ -12,7 +12,6 @@ import (
 	"github.com/dustin/go-humanize"
 	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro/v2/store"
-	"github.com/olekukonko/tablewriter"
 	"github.com/pkg/errors"
 )
 
@@ -21,7 +20,7 @@ func Read(ctx *cli.Context) error {
 	if err := initStore(ctx); err != nil {
 		return err
 	}
-	if ctx.Args().Len() != 1 {
+	if ctx.Args().Len() < 1 {
 		return errors.New("Key arg is required")
 	}
 	opts := []store.ReadOption{}
@@ -121,18 +120,12 @@ func List(ctx *cli.Context) error {
 			return errors.Wrap(err, "failed marshalling JSON")
 		}
 		fmt.Printf("%s\n", string(jsonRecords))
-	case "table":
-		t := tablewriter.NewWriter(os.Stdout)
-		t.SetBorders(tablewriter.Border{Left: true, Top: false, Right: true, Bottom: false})
-		t.SetCenterSeparator("|")
-		t.SetHeader([]string{"Key"})
-		for _, k := range keys {
-			t.Append([]string{k})
-		}
-		t.SetFooter([]string{fmt.Sprintf("Total %d", len(keys))})
-		t.Render()
 	default:
-		return errors.Errorf("%s is not a valid output format", ctx.String("output"))
+		w := tabwriter.NewWriter(os.Stdout, 0, 0, 1, ' ', 0)
+		for _, key := range keys {
+			fmt.Fprintf(w, "%v\n", key)
+		}
+		w.Flush()
 	}
 	return nil
 }
