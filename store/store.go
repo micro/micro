@@ -43,7 +43,7 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 	// the store handler
 	storeHandler := &handler.Store{
 		Default: *cmd.DefaultOptions().Store,
-		Stores: make(map[string]bool),
+		Stores:  make(map[string]bool),
 	}
 
 	table := "store"
