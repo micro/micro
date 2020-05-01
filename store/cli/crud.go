@@ -11,6 +11,7 @@ import (
 
 	"github.com/dustin/go-humanize"
 	"github.com/micro/cli/v2"
+	"github.com/micro/go-micro/v2/config/cmd"
 	"github.com/micro/go-micro/v2/store"
 	"github.com/pkg/errors"
 )
@@ -28,7 +29,8 @@ func Read(ctx *cli.Context) error {
 		opts = append(opts, store.ReadPrefix())
 	}
 
-	records, err := store.DefaultStore.Read(ctx.Args().First(), opts...)
+	store := *cmd.DefaultOptions().Store
+	records, err := store.Read(ctx.Args().First(), opts...)
 	if err != nil {
 		if err.Error() == "not found" {
 			return err
@@ -94,7 +96,9 @@ func Write(ctx *cli.Context) error {
 		}
 		record.Expiry = d
 	}
-	if err := store.DefaultStore.Write(record); err != nil {
+
+	store := *cmd.DefaultOptions().Store
+	if err := store.Write(record); err != nil {
 		return errors.Wrap(err, "couldn't write")
 	}
 	return nil
@@ -115,7 +119,8 @@ func List(ctx *cli.Context) error {
 	if ctx.Uint("offset") != 0 {
 		opts = append(opts, store.ListLimit(ctx.Uint("offset")))
 	}
-	keys, err := store.DefaultStore.List(opts...)
+	store := *cmd.DefaultOptions().Store
+	keys, err := store.List(opts...)
 	if err != nil {
 		return errors.Wrap(err, "couldn't list")
 	}
@@ -142,7 +147,8 @@ func Delete(ctx *cli.Context) error {
 	if len(ctx.Args().Slice()) == 0 {
 		return errors.New("key is required")
 	}
-	if err := store.DefaultStore.Delete(ctx.Args().First()); err != nil {
+	store := *cmd.DefaultOptions().Store
+	if err := store.Delete(ctx.Args().First()); err != nil {
 		return errors.Wrapf(err, "couldn't delete key %s", ctx.Args().First())
 	}
 	return nil
@@ -157,7 +163,8 @@ func initStore(ctx *cli.Context) error {
 		opts = append(opts, store.Table(ctx.String("table")))
 	}
 	if len(opts) > 0 {
-		if err := store.DefaultStore.Init(opts...); err != nil {
+		store := *cmd.DefaultOptions().Store
+		if err := store.Init(opts...); err != nil {
 			return errors.Wrap(err, "couldn't reinitialise store with options")
 		}
 	}
