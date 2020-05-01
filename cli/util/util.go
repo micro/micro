@@ -67,6 +67,10 @@ func SetupCommand(ctx *ccli.Context) {
 	if ctx.Args().Len() == 1 && isBuiltinService(ctx.Args().First()) {
 		return
 	}
+	if ctx.Args().Len() >= 1 && ctx.Args().First() == "env" {
+		return
+	}
+
 	toFlag := func(s string) string {
 		return strings.ToLower(strings.ReplaceAll(s, "MICRO_", ""))
 	}
