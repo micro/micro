@@ -70,7 +70,7 @@ func (s *Store) get(ctx context.Context, database, table string) (string, string
 
 	// just use the default if nothing is specified
 	if len(database) == 0 && len(table) == 0 {
-		return "", ""
+		return "micro", "store"
 	}
 
 	// attempt to get the database
