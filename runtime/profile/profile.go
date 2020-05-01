@@ -1,4 +1,6 @@
 // Package profile is for specific profiles
+// @todo this package is the definition of cruft and
+// should be rewritten in a more elegant way
 package profile
 
 // Local is a profile for local environments
@@ -12,7 +14,17 @@ func Server() []string {
 	return []string{
 		"MICRO_AUTH=service",
 		"MICRO_BROKER=service",
-		"MICRO_NETWORK=service",
+		"MICRO_REGISTRY=service",
+		"MICRO_ROUTER=service",
+		"MICRO_RUNTIME=service",
+		"MICRO_STORE=service",
+	}
+}
+
+func ServerCLI() []string {
+	return []string{
+		"MICRO_AUTH=service",
+		"MICRO_BROKER=service",
 		"MICRO_REGISTRY=service",
 		"MICRO_ROUTER=service",
 		"MICRO_RUNTIME=service",
@@ -47,5 +59,19 @@ func Platform() []string {
 		"MICRO_STORE_ADDRESS=micro-store:8002",
 		// set the athens proxy to speedup builds
 		"GOPROXY=http://athens-proxy",
+	}
+}
+
+// Platform is a platform profile
+func PlatformCLI() []string {
+	return []string{
+		// TODO: debug, monitor, etc
+		"MICRO_AUTH=service",
+		"MICRO_BROKER=service",
+		"MICRO_CONFIG=service",
+		"MICRO_REGISTRY=service",
+		"MICRO_ROUTER=service",
+		"MICRO_RUNTIME=service",
+		"MICRO_STORE=service",
 	}
 }

@@ -88,9 +88,9 @@ func SetupCommand(ctx *ccli.Context) {
 	env := GetEnv()
 	switch env.Name {
 	case EnvServer:
-		setFlags(profile.Server())
+		setFlags(profile.ServerCLI())
 	case EnvPlatform:
-		setFlags(profile.Platform())
+		setFlags(profile.PlatformCLI())
 	case EnvLocal:
 		// Not setting a proxy for local env
 		return
