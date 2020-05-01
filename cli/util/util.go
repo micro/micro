@@ -76,8 +76,12 @@ func SetupCommand(ctx *ccli.Context) {
 	}
 	setFlags := func(envars []string) {
 		for _, envar := range envars {
+			// setting both env and flags here
+			// as the proxy settings for example did not take effect
+			// with only flags
 			parts := strings.Split(envar, "=")
 			key := toFlag(parts[0])
+			os.Setenv(parts[0], parts[1])
 			ctx.Set(key, parts[1])
 		}
 	}
@@ -93,8 +97,7 @@ func SetupCommand(ctx *ccli.Context) {
 	}
 
 	// Set proxy for all envs apart from local
-	ctx.Set("proxy", "service")
-	ctx.Set("proxy_address", env.ProxyAddress)
+	setFlags([]string{"MICRO_PROXY=service", "MICRO_PROXY_ADDRESS=" + env.ProxyAddress})
 }
 
 type Env struct {
