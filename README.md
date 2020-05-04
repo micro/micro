@@ -4,11 +4,11 @@ Micro is a distributed systems runtime for the Cloud and beyond.
 
 ## Overview
 
-Micro addresses the key requirements for building distributed systems in the Cloud and beyond. It leverages the microservices
+Micro addresses the key requirements for building distributed systems. It leverages the microservices
 architecture pattern and provides a set of services which act as the building blocks of a platform. Micro deals
 with the complexity of distributed systems and provides simpler programmable abstractions to build on.
 
-<img src="https://micro.mu/images/runtime7.svg?load" />
+<img src="https://micro.mu/images/runtime10.svg" />
 
 Technology is constantly evolving. The infrastructure stack is always changing. Micro is a platform which
 addresses these issues with a pluggable foundation and strongly defined apis to build on. Plug into any stack or cloud.
@@ -91,8 +91,11 @@ micro server
 # generate a service (follow instructions in output)
 micro new example
 
+# set to use server
+micro env set server
+
 # run the service
-micro run --server example
+micro run example
 
 # list services
 micro list services
