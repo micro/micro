@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"os"
 	"strings"
-	"time"
 
 	"github.com/go-acme/lego/v3/providers/dns/cloudflare"
 	"github.com/gorilla/mux"
@@ -30,7 +29,6 @@ import (
 	"github.com/micro/go-micro/v2/api/server/acme/certmagic"
 	httpapi "github.com/micro/go-micro/v2/api/server/http"
 	log "github.com/micro/go-micro/v2/logger"
-	"github.com/micro/go-micro/v2/store"
 	"github.com/micro/go-micro/v2/sync/memory"
 	"github.com/micro/micro/v2/api/auth"
 	"github.com/micro/micro/v2/internal/handler"
@@ -58,7 +56,7 @@ var (
 	ACMECA                = acme.LetsEncryptProductionCA
 )
 
-func run(ctx *cli.Context, srvOpts ...micro.Option) {
+func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 	log.Init(log.WithFields(map[string]interface{}{"service": "api"}))
 
 	if len(ctx.String("server_name")) > 0 {
@@ -91,6 +89,12 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	// apiNamespace has the format: "go.micro.api"
 	apiNamespace := Namespace + "." + Type
 
+	// append name to opts
+	srvOpts = append(srvOpts, micro.Name(Name))
+
+	// initialise service
+	service := micro.NewService(srvOpts...)
+
 	// Init plugins
 	for _, p := range Plugins() {
 		p.Init(ctx)
@@ -118,7 +122,7 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 
 			storage := certmagic.NewStorage(
 				memory.NewSync(),
-				store.DefaultStore,
+				service.Options().Store,
 			)
 
 			config := cloudflare.NewDefaultConfig()
@@ -183,17 +187,6 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 
 	// strip favicon.ico
 	r.HandleFunc("/favicon.ico", func(w http.ResponseWriter, r *http.Request) {})
-
-	srvOpts = append(srvOpts, micro.Name(Name))
-	if i := time.Duration(ctx.Int("register_ttl")); i > 0 {
-		srvOpts = append(srvOpts, micro.RegisterTTL(i*time.Second))
-	}
-	if i := time.Duration(ctx.Int("register_interval")); i > 0 {
-		srvOpts = append(srvOpts, micro.RegisterInterval(i*time.Second))
-	}
-
-	// initialise service
-	service := micro.NewService(srvOpts...)
 
 	// register rpc handler
 	if EnableRPC {
@@ -331,7 +324,7 @@ func Commands(options ...micro.Option) []*cli.Command {
 		Name:  "api",
 		Usage: "Run the api gateway",
 		Action: func(ctx *cli.Context) error {
-			run(ctx, options...)
+			Run(ctx, options...)
 			return nil
 		},
 		Flags: []cli.Flag{

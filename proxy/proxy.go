@@ -4,7 +4,6 @@ package proxy
 import (
 	"os"
 	"strings"
-	"time"
 
 	"github.com/go-acme/lego/v3/providers/dns/cloudflare"
 	"github.com/micro/cli/v2"
@@ -28,7 +27,6 @@ import (
 	rs "github.com/micro/go-micro/v2/router/service"
 	"github.com/micro/go-micro/v2/server"
 	sgrpc "github.com/micro/go-micro/v2/server/grpc"
-	"github.com/micro/go-micro/v2/store"
 	"github.com/micro/go-micro/v2/sync/memory"
 	"github.com/micro/go-micro/v2/util/mux"
 	"github.com/micro/go-micro/v2/util/wrapper"
@@ -50,7 +48,7 @@ var (
 	ACMECA                = acme.LetsEncryptProductionCA
 )
 
-func run(ctx *cli.Context, srvOpts ...micro.Option) {
+func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 	log.Init(log.WithFields(map[string]interface{}{"service": "proxy"}))
 
 	// because MICRO_PROXY_ADDRESS is used internally by the go-micro/client
@@ -80,12 +78,9 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 
 	// service opts
 	srvOpts = append(srvOpts, micro.Name(Name))
-	if i := time.Duration(ctx.Int("register_ttl")); i > 0 {
-		srvOpts = append(srvOpts, micro.RegisterTTL(i*time.Second))
-	}
-	if i := time.Duration(ctx.Int("register_interval")); i > 0 {
-		srvOpts = append(srvOpts, micro.RegisterInterval(i*time.Second))
-	}
+
+	// new service
+	service := micro.NewService(srvOpts...)
 
 	// set the context
 	var popts []proxy.Option
@@ -170,7 +165,7 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 
 			storage := certmagic.NewStorage(
 				memory.NewSync(),
-				store.DefaultStore,
+				service.Options().Store,
 			)
 
 			config := cloudflare.NewDefaultConfig()
@@ -253,9 +248,6 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		log.Infof("Proxy [%s] serving protocol: %s", p.String(), Protocol)
 	}
 
-	// new service
-	service := micro.NewService(srvOpts...)
-
 	// create a new proxy muxer which includes the debug handler
 	muxer := mux.New(Name, p)
 
@@ -312,7 +304,7 @@ func Commands(options ...micro.Option) []*cli.Command {
 			},
 		},
 		Action: func(ctx *cli.Context) error {
-			run(ctx, options...)
+			Run(ctx, options...)
 			return nil
 		},
 	}
