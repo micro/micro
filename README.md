@@ -91,8 +91,11 @@ micro server
 # generate a service (follow instructions in output)
 micro new example
 
+# set to use server
+micro env set server
+
 # run the service
-micro run --server example
+micro run example
 
 # list services
 micro list services
