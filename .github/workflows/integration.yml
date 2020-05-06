@@ -30,5 +30,5 @@ jobs:
     - name: Test micro server
       working-directory: ./test
       run: |
-          go clean -testcache && go test --tags=integration  -failfast -v ./...
+          go clean -testcache && go test --tags=integration -v ./...
         
