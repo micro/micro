@@ -50,7 +50,7 @@ resource "kubernetes_deployment" "store" {
     name        = replace(local.store_name, ".", "-")
     namespace   = var.platform_namespace
     labels      = local.store_labels
-    annotations = merge(local.common_annotations, local.store_annotations)
+    annotations = local.store_annotations
   }
   spec {
     replicas = 1

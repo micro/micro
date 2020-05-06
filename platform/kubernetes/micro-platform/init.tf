@@ -50,7 +50,7 @@ resource "kubernetes_deployment" "init" {
     name        = replace(local.init_name, ".", "-")
     namespace   = var.platform_namespace
     labels      = local.init_labels
-    annotations = merge(local.common_annotations, local.init_annotations)
+    annotations = local.init_annotations
   }
   spec {
     replicas = 1

@@ -49,7 +49,7 @@ resource "kubernetes_deployment" "router" {
     name        = replace(local.router_name, ".", "-")
     namespace   = var.platform_namespace
     labels      = local.router_labels
-    annotations = merge(local.common_annotations, local.router_annotations)
+    annotations = local.router_annotations
   }
   spec {
     replicas = 1
@@ -115,7 +115,7 @@ resource "kubernetes_service" "router" {
     name        = replace(local.router_name, ".", "-")
     namespace   = var.platform_namespace
     labels      = local.router_labels
-    annotations = merge(local.common_annotations, local.router_annotations)
+    annotations = local.router_annotations
   }
   spec {
     port {

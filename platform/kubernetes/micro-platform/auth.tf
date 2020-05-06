@@ -49,7 +49,7 @@ resource "kubernetes_deployment" "auth" {
     name        = replace(local.auth_name, ".", "-")
     namespace   = var.platform_namespace
     labels      = local.auth_labels
-    annotations = merge(local.common_annotations, local.auth_annotations)
+    annotations = local.auth_annotations
   }
   spec {
     replicas = 1
@@ -133,7 +133,7 @@ resource "kubernetes_service" "auth" {
     name        = replace(local.auth_name, ".", "-")
     namespace   = var.platform_namespace
     labels      = local.auth_labels
-    annotations = merge(local.common_annotations, local.auth_annotations)
+    annotations = local.auth_annotations
   }
   spec {
     port {

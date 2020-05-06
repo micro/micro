@@ -58,7 +58,7 @@ resource "kubernetes_deployment" "api" {
     name        = replace(local.api_name, ".", "-")
     namespace   = var.platform_namespace
     labels      = local.api_labels
-    annotations = merge(local.common_annotations, local.api_annotations)
+    annotations =  local.api_annotations
   }
   spec {
     replicas = 1
@@ -139,7 +139,7 @@ resource "kubernetes_service" "api" {
     name        = replace(local.api_name, ".", "-")
     namespace   = var.platform_namespace
     labels      = local.api_labels
-    annotations = merge(local.common_annotations, local.api_annotations)
+    annotations = local.api_annotations
   }
   spec {
     port {

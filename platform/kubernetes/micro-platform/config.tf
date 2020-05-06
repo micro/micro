@@ -50,7 +50,7 @@ resource "kubernetes_deployment" "config" {
     name        = replace(local.config_name, ".", "-")
     namespace   = var.platform_namespace
     labels      = local.config_labels
-    annotations = merge(local.common_annotations, local.config_annotations)
+    annotations = local.config_annotations
   }
   spec {
     replicas = 1
@@ -116,7 +116,7 @@ resource "kubernetes_service" "config" {
     name        = replace(local.config_name, ".", "-")
     namespace   = var.platform_namespace
     labels      = local.config_labels
-    annotations = merge(local.common_annotations, local.config_annotations)
+    annotations = local.config_annotations
   }
   spec {
     port {

@@ -48,7 +48,7 @@ resource "kubernetes_deployment" "bot" {
     name        = replace(local.bot_name, ".", "-")
     namespace   = var.platform_namespace
     labels      = local.bot_labels
-    annotations = merge(local.common_annotations, local.bot_annotations)
+    annotations = local.bot_annotations
   }
   spec {
     replicas = 1

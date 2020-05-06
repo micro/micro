@@ -61,7 +61,7 @@ resource "kubernetes_deployment" "proxy" {
     name        = replace(local.proxy_name, ".", "-")
     namespace   = var.platform_namespace
     labels      = local.proxy_labels
-    annotations = merge(local.common_annotations, local.proxy_annotations)
+    annotations = local.proxy_annotations
   }
   spec {
     replicas = 1
@@ -155,7 +155,7 @@ resource "kubernetes_service" "proxy" {
     name        = replace(local.proxy_name, ".", "-")
     namespace   = var.platform_namespace
     labels      = local.proxy_labels
-    annotations = merge(local.common_annotations, local.proxy_annotations)
+    annotations = local.proxy_annotations
   }
   spec {
     port {

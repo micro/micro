@@ -50,7 +50,7 @@ resource "kubernetes_deployment" "debug" {
     name        = replace(local.debug_name, ".", "-")
     namespace   = var.platform_namespace
     labels      = local.debug_labels
-    annotations = merge(local.common_annotations, local.debug_annotations)
+    annotations = local.debug_annotations
   }
   spec {
     replicas = 1

@@ -49,7 +49,7 @@ resource "kubernetes_deployment" "registry" {
     name        = replace(local.registry_name, ".", "-")
     namespace   = var.platform_namespace
     labels      = local.registry_labels
-    annotations = merge(local.common_annotations, local.registry_annotations)
+    annotations = local.registry_annotations
   }
   spec {
     replicas = 1
@@ -115,7 +115,7 @@ resource "kubernetes_service" "registry" {
     name        = replace(local.registry_name, ".", "-")
     namespace   = var.platform_namespace
     labels      = local.registry_labels
-    annotations = merge(local.common_annotations, local.registry_annotations)
+    annotations = local.registry_annotations
   }
   spec {
     port {

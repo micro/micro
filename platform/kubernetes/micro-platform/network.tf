@@ -53,7 +53,7 @@ resource "kubernetes_deployment" "network" {
     name        = replace(local.network_name, ".", "-")
     namespace   = var.platform_namespace
     labels      = local.network_labels
-    annotations = merge(local.common_annotations, local.network_annotations)
+    annotations = local.network_annotations
   }
   spec {
     replicas = 1
@@ -124,7 +124,7 @@ resource "kubernetes_service" "network" {
     name        = replace(local.network_name, ".", "-")
     namespace   = var.platform_namespace
     labels      = local.network_labels
-    annotations = merge(local.common_annotations, local.network_annotations)
+    annotations = local.network_annotations
   }
   spec {
     port {

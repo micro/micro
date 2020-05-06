@@ -51,7 +51,7 @@ resource "kubernetes_deployment" "runtime" {
     name        = replace(local.runtime_name, ".", "-")
     namespace   = var.platform_namespace
     labels      = local.runtime_labels
-    annotations = merge(local.common_annotations, local.runtime_annotations)
+    annotations = local.runtime_annotations
   }
   spec {
     replicas = 1

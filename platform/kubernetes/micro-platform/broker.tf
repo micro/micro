@@ -49,7 +49,7 @@ resource "kubernetes_deployment" "broker" {
     name        = replace(local.broker_name, ".", "-")
     namespace   = var.platform_namespace
     labels      = local.broker_labels
-    annotations = merge(local.common_annotations, local.broker_annotations)
+    annotations = local.broker_annotations
   }
   spec {
     replicas = 1
@@ -115,7 +115,7 @@ resource "kubernetes_service" "broker" {
     name        = replace(local.broker_name, ".", "-")
     namespace   = var.platform_namespace
     labels      = local.broker_labels
-    annotations = merge(local.common_annotations, local.broker_annotations)
+    annotations = local.broker_annotations
   }
   spec {
     port {
