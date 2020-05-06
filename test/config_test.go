@@ -11,6 +11,7 @@ import (
 )
 
 func TestConfig(t *testing.T) {
+	t.Parallel()
 	serv := newServer(t)
 	serv.launch()
 	defer serv.close()

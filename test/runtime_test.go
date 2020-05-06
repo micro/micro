@@ -32,7 +32,7 @@ func try(blockName string, t *testing.T, f cmdFunc, maxTime time.Duration) {
 			time.Sleep(100 * time.Millisecond)
 			if elapsed > maxTime {
 				// @todo for some reason t.Fatal did not take effect
-				panic(fmt.Sprintf("%v timed out, last output: %v", blockName, string(outp)))
+				t.Fatal(fmt.Sprintf("%v timed out, last output: %v", blockName, string(outp)))
 			}
 			elapsed += 100 * time.Millisecond
 		}
@@ -93,6 +93,7 @@ func (s server) envFlag() string {
 }
 
 func TestNew(t *testing.T) {
+	t.Parallel()
 	defer func() {
 		exec.Command("rm", "-r", "./foobar").CombinedOutput()
 	}()
@@ -134,6 +135,7 @@ func TestNew(t *testing.T) {
 }
 
 func TestServerModeCall(t *testing.T) {
+	t.Parallel()
 	serv := newServer(t)
 
 	callCmd := exec.Command("micro", serv.envFlag(), "call", "go.micro.runtime", "Runtime.Read", "{}")
@@ -155,6 +157,7 @@ func TestServerModeCall(t *testing.T) {
 }
 
 func TestRunLocalSource(t *testing.T) {
+	t.Parallel()
 	serv := newServer(t)
 	serv.launch()
 	defer serv.close()
@@ -193,6 +196,7 @@ func TestRunLocalSource(t *testing.T) {
 }
 
 func TestLocalOutsideRepo(t *testing.T) {
+	t.Parallel()
 	serv := newServer(t)
 	serv.launch()
 	defer serv.close()
@@ -253,6 +257,7 @@ func TestLocalOutsideRepo(t *testing.T) {
 }
 
 func TestLocalEnvRunGithubSource(t *testing.T) {
+	t.Parallel()
 	outp, err := exec.Command("micro", "env", "set", "local").CombinedOutput()
 	if err != nil {
 		t.Fatalf("Failed to set env to local, err: %v, output: %v", err, string(outp))
@@ -285,6 +290,7 @@ func TestLocalEnvRunGithubSource(t *testing.T) {
 }
 
 func TestRunGithubSource(t *testing.T) {
+	t.Parallel()
 	p, err := exec.LookPath("git")
 	if err != nil {
 		t.Fatal(err)
@@ -335,6 +341,7 @@ func TestRunGithubSource(t *testing.T) {
 }
 
 func TestRunLocalUpdateAndCall(t *testing.T) {
+	t.Parallel()
 	serv := newServer(t)
 	serv.launch()
 	defer serv.close()
@@ -421,6 +428,7 @@ func exists(path string) (bool, error) {
 }
 
 func TestExistingLogs(t *testing.T) {
+	t.Parallel()
 	serv := newServer(t)
 	serv.launch()
 	defer serv.close()
@@ -460,6 +468,7 @@ func TestExistingLogs(t *testing.T) {
 }
 
 func TestStreamLogsAndThirdPartyRepo(t *testing.T) {
+	t.Parallel()
 	serv := newServer(t)
 	serv.launch()
 	defer serv.close()
