@@ -3,6 +3,8 @@
 package test
 
 import (
+	"encoding/json"
+	"errors"
 	"fmt"
 	"os/exec"
 	"strings"
@@ -56,7 +58,7 @@ func TestServerAuth(t *testing.T) {
 	runCmd := exec.Command("micro", "run", "helloworld")
 	_, err := runCmd.CombinedOutput()
 	if err != nil {
-		return t.Fatal(err)
+		t.Fatal(err)
 	}
 
 	try("Call hello world", t, func() ([]byte, error) {
@@ -75,4 +77,5 @@ func TestServerAuth(t *testing.T) {
 		}
 		return outp, err
 	}, 20*time.Second)
+
 }
