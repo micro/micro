@@ -16,7 +16,7 @@ func TestConfig(t *testing.T) {
 	defer serv.close()
 
 	try("Calling micro config read", t, func() ([]byte, error) {
-		getCmd := exec.Command("micro", "config", "get", "somekey")
+		getCmd := exec.Command("micro", serv.envFlag(), "config", "get", "somekey")
 		outp, err := getCmd.CombinedOutput()
 		if err == nil {
 			return outp, errors.New("config gete should fail")
@@ -31,7 +31,7 @@ func TestConfig(t *testing.T) {
 	// error log output that happens when the auth service is not yet available.
 
 	try("Calling micro config read", t, func() ([]byte, error) {
-		setCmd := exec.Command("micro", "config", "set", "somekey", "val1")
+		setCmd := exec.Command("micro", serv.envFlag(), "config", "set", "somekey", "val1")
 		outp, err := setCmd.CombinedOutput()
 		if err != nil {
 			return outp, err
@@ -42,7 +42,7 @@ func TestConfig(t *testing.T) {
 		return outp, err
 	}, 8*time.Second)
 
-	getCmd := exec.Command("micro", "config", "get", "somekey")
+	getCmd := exec.Command("micro", serv.envFlag(), "config", "get", "somekey")
 	outp, err := getCmd.CombinedOutput()
 	if err != nil {
 		t.Fatal(err)
@@ -51,7 +51,7 @@ func TestConfig(t *testing.T) {
 		t.Fatalf("Expected 'val1\n', got: '%v'", string(outp))
 	}
 
-	delCmd := exec.Command("micro", "config", "del", "somekey")
+	delCmd := exec.Command("micro", serv.envFlag(), "config", "del", "somekey")
 	outp, err = delCmd.CombinedOutput()
 	if err != nil {
 		t.Fatal(err)
@@ -60,7 +60,7 @@ func TestConfig(t *testing.T) {
 		t.Fatalf("Expected '', got: '%v'", string(outp))
 	}
 
-	getCmd = exec.Command("micro", "config", "get", "somekey")
+	getCmd = exec.Command("micro", serv.envFlag(), "config", "get", "somekey")
 	outp, err = getCmd.CombinedOutput()
 	if err == nil {
 		t.Fatalf("Config get should fail: %v", string(outp))
@@ -70,7 +70,7 @@ func TestConfig(t *testing.T) {
 	}
 
 	// Testing dot notation
-	setCmd := exec.Command("micro", "config", "set", "someotherkey.subkey", "otherval1")
+	setCmd := exec.Command("micro", serv.envFlag(), "config", "set", "someotherkey.subkey", "otherval1")
 	outp, err = setCmd.CombinedOutput()
 	if err != nil {
 		t.Fatal(err)
@@ -79,7 +79,7 @@ func TestConfig(t *testing.T) {
 		t.Fatalf("Expected no output, got: %v", string(outp))
 	}
 
-	getCmd = exec.Command("micro", "config", "get", "someotherkey.subkey")
+	getCmd = exec.Command("micro", serv.envFlag(), "config", "get", "someotherkey.subkey")
 	outp, err = getCmd.CombinedOutput()
 	if err != nil {
 		t.Fatal(string(outp))

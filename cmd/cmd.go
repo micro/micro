@@ -188,6 +188,12 @@ func setup(app *ccli.App) {
 			EnvVars: []string{"MICRO_REPORT_USAGE"},
 			Value:   true,
 		},
+		&ccli.StringFlag{
+			Name:    "env",
+			Aliases: []string{"e"},
+			Usage:   "Override environment",
+			EnvVars: []string{"MICRO_ENV"},
+		},
 	)
 
 	plugins := plugin.Plugins()

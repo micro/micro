@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
+	"math/rand"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -52,17 +53,22 @@ func try(blockName string, t *testing.T, f cmdFunc, maxTime time.Duration) {
 }
 
 type server struct {
-	cmd *exec.Cmd
-	t   *testing.T
+	cmd       *exec.Cmd
+	t         *testing.T
+	proxyPort int
 }
 
 func newServer(t *testing.T) server {
-	outp, err := exec.Command("micro", "env", "set", "server").CombinedOutput()
-	if err != nil {
-		t.Fatalf("Failed to set env to server, err: %v, output: %v", err, string(outp))
-	}
+	min := 8000
+	max := 60000
+	portnum := rand.Intn(max-min) + min
 
-	return server{cmd: exec.Command("docker", "run", "-p=8081:8081", "micro", "server"), t: t}
+	return server{
+		cmd: exec.Command("docker", "run",
+			fmt.Sprintf("-p=%v:8081", portnum), "micro", "server"),
+		t:         t,
+		proxyPort: portnum,
+	}
 }
 
 func (s server) launch() {
@@ -72,7 +78,7 @@ func (s server) launch() {
 		}
 	}()
 	try("Calling micro server", s.t, func() ([]byte, error) {
-		return exec.Command("micro", "call", "go.micro.runtime", "Runtime.Read", "{}").CombinedOutput()
+		return exec.Command("micro", s.envFlag(), "call", "go.micro.runtime", "Runtime.Read", "{}").CombinedOutput()
 	}, 5000*time.Millisecond)
 }
 
@@ -80,6 +86,10 @@ func (s server) close() {
 	if s.cmd.Process != nil {
 		s.cmd.Process.Signal(syscall.SIGTERM)
 	}
+}
+
+func (s server) envFlag() string {
+	return fmt.Sprintf("-env=127.0.0.1:%v", s.proxyPort)
 }
 
 func TestNew(t *testing.T) {
@@ -124,24 +134,24 @@ func TestNew(t *testing.T) {
 }
 
 func TestServerModeCall(t *testing.T) {
-	callCmd := exec.Command("micro", "call", "go.micro.runtime", "Runtime.Read", "{}")
+	serv := newServer(t)
+
+	callCmd := exec.Command("micro", serv.envFlag(), "call", "go.micro.runtime", "Runtime.Read", "{}")
 	outp, err := callCmd.CombinedOutput()
 	if err == nil {
 		t.Fatalf("Call to server should fail, got no error, output: %v", string(outp))
 	}
 
-	serv := newServer(t)
 	serv.launch()
 	defer serv.close()
 
 	try("Calling Runtime.Read", t, func() ([]byte, error) {
-		outp, err = exec.Command("micro", "call", "go.micro.runtime", "Runtime.Read", "{}").CombinedOutput()
+		outp, err = exec.Command("micro", serv.envFlag(), "call", "go.micro.runtime", "Runtime.Read", "{}").CombinedOutput()
 		if err != nil {
 			return outp, errors.New("Call to runtime read should succeed")
 		}
 		return outp, err
 	}, 2*time.Second)
-
 }
 
 func TestRunLocalSource(t *testing.T) {
@@ -149,14 +159,14 @@ func TestRunLocalSource(t *testing.T) {
 	serv.launch()
 	defer serv.close()
 
-	runCmd := exec.Command("micro", "run", "./example-service")
+	runCmd := exec.Command("micro", serv.envFlag(), "run", "./example-service")
 	outp, err := runCmd.CombinedOutput()
 	if err != nil {
 		t.Fatalf("micro run failure, output: %v", string(outp))
 	}
 
 	try("Find test/example", t, func() ([]byte, error) {
-		psCmd := exec.Command("micro", "status")
+		psCmd := exec.Command("micro", serv.envFlag(), "status")
 		outp, err = psCmd.CombinedOutput()
 		if err != nil {
 			return outp, err
@@ -171,7 +181,7 @@ func TestRunLocalSource(t *testing.T) {
 	}, 12*time.Second)
 
 	try("Find go.micro.service.example in list", t, func() ([]byte, error) {
-		outp, err := exec.Command("micro", "list", "services").CombinedOutput()
+		outp, err := exec.Command("micro", serv.envFlag(), "list", "services").CombinedOutput()
 		if err != nil {
 			return outp, err
 		}
@@ -203,7 +213,7 @@ func TestLocalOutsideRepo(t *testing.T) {
 		t.Fatal(string(outp))
 	}
 
-	runCmd := exec.Command("micro", "run", ".")
+	runCmd := exec.Command("micro", serv.envFlag(), "run", ".")
 	runCmd.Dir = folderPath
 	outp, err = runCmd.CombinedOutput()
 	if err != nil {
@@ -211,7 +221,7 @@ func TestLocalOutsideRepo(t *testing.T) {
 	}
 
 	try("Find "+dirname, t, func() ([]byte, error) {
-		psCmd := exec.Command("micro", "status")
+		psCmd := exec.Command("micro", serv.envFlag(), "status")
 		outp, err = psCmd.CombinedOutput()
 		if err != nil {
 			return outp, err
@@ -231,7 +241,7 @@ func TestLocalOutsideRepo(t *testing.T) {
 	}, 12*time.Second)
 
 	try("Find go.micro.service.example in list", t, func() ([]byte, error) {
-		outp, err := exec.Command("micro", "list", "services").CombinedOutput()
+		outp, err := exec.Command("micro", serv.envFlag(), "list", "services").CombinedOutput()
 		if err != nil {
 			return outp, err
 		}
@@ -286,14 +296,14 @@ func TestRunGithubSource(t *testing.T) {
 	serv.launch()
 	defer serv.close()
 
-	runCmd := exec.Command("micro", "run", "helloworld")
+	runCmd := exec.Command("micro", serv.envFlag(), "run", "helloworld")
 	outp, err := runCmd.CombinedOutput()
 	if err != nil {
 		t.Fatalf("micro run failure, output: %v", string(outp))
 	}
 
 	try("Find hello world", t, func() ([]byte, error) {
-		psCmd := exec.Command("micro", "status")
+		psCmd := exec.Command("micro", serv.envFlag(), "status")
 		outp, err = psCmd.CombinedOutput()
 		if err != nil {
 			return outp, err
@@ -306,7 +316,7 @@ func TestRunGithubSource(t *testing.T) {
 	}, 8*time.Second)
 
 	try("Call hello world", t, func() ([]byte, error) {
-		callCmd := exec.Command("micro", "call", "go.micro.service.helloworld", "Helloworld.Call", `{"name": "Joe"}`)
+		callCmd := exec.Command("micro", serv.envFlag(), "call", "go.micro.service.helloworld", "Helloworld.Call", `{"name": "Joe"}`)
 		outp, err := callCmd.CombinedOutput()
 		if err != nil {
 			return outp, err
@@ -330,14 +340,14 @@ func TestRunLocalUpdateAndCall(t *testing.T) {
 	defer serv.close()
 
 	// Run the example service
-	runCmd := exec.Command("micro", "run", "./example-service")
+	runCmd := exec.Command("micro", serv.envFlag(), "run", "./example-service")
 	outp, err := runCmd.CombinedOutput()
 	if err != nil {
 		t.Fatalf("micro run failure, output: %v", string(outp))
 	}
 
 	try("Finding example service with micro status", t, func() ([]byte, error) {
-		psCmd := exec.Command("micro", "status")
+		psCmd := exec.Command("micro", serv.envFlag(), "status")
 		outp, err = psCmd.CombinedOutput()
 		if err != nil {
 			return outp, err
@@ -352,7 +362,7 @@ func TestRunLocalUpdateAndCall(t *testing.T) {
 	}, 30*time.Second)
 
 	try("Call example service", t, func() ([]byte, error) {
-		callCmd := exec.Command("micro", "call", "go.micro.service.example", "Example.Call", `{"name": "Joe"}`)
+		callCmd := exec.Command("micro", serv.envFlag(), "call", "go.micro.service.example", "Example.Call", `{"name": "Joe"}`)
 		outp, err := callCmd.CombinedOutput()
 		if err != nil {
 			return outp, err
@@ -374,14 +384,14 @@ func TestRunLocalUpdateAndCall(t *testing.T) {
 		replaceStringInFile(t, "./example-service/handler/handler.go", "Hi", "Hello")
 	}()
 
-	updateCmd := exec.Command("micro", "update", "./example-service")
+	updateCmd := exec.Command("micro", serv.envFlag(), "update", "./example-service")
 	outp, err = updateCmd.CombinedOutput()
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	try("Call example service after modification", t, func() ([]byte, error) {
-		callCmd := exec.Command("micro", "call", "go.micro.service.example", "Example.Call", `{"name": "Joe"}`)
+		callCmd := exec.Command("micro", serv.envFlag(), "call", "go.micro.service.example", "Example.Call", `{"name": "Joe"}`)
 		outp, err = callCmd.CombinedOutput()
 		if err != nil {
 			return outp, err
@@ -415,7 +425,7 @@ func TestExistingLogs(t *testing.T) {
 	serv.launch()
 	defer serv.close()
 
-	runCmd := exec.Command("micro", "run", "github.com/crufter/micro-services/logspammer")
+	runCmd := exec.Command("micro", serv.envFlag(), "run", "github.com/crufter/micro-services/logspammer")
 	outp, err := runCmd.CombinedOutput()
 	if err != nil {
 		t.Fatalf("micro run failure, output: %v", string(outp))
@@ -436,7 +446,7 @@ func TestExistingLogs(t *testing.T) {
 	//fmt.Println(string(outp), err)
 
 	try("logspammer logs", t, func() ([]byte, error) {
-		psCmd := exec.Command("micro", "logs", "-n", "5", "crufter/micro-services/logspammer")
+		psCmd := exec.Command("micro", serv.envFlag(), "logs", "-n", "5", "crufter/micro-services/logspammer")
 		outp, err = psCmd.CombinedOutput()
 		if err != nil {
 			return outp, err
@@ -454,7 +464,7 @@ func TestStreamLogsAndThirdPartyRepo(t *testing.T) {
 	serv.launch()
 	defer serv.close()
 
-	runCmd := exec.Command("micro", "run", "github.com/crufter/micro-services/logspammer")
+	runCmd := exec.Command("micro", serv.envFlag(), "run", "github.com/crufter/micro-services/logspammer")
 	outp, err := runCmd.CombinedOutput()
 	if err != nil {
 		t.Fatalf("micro run failure, output: %v", string(outp))
@@ -472,7 +482,7 @@ func TestStreamLogsAndThirdPartyRepo(t *testing.T) {
 	}, 20*time.Second)
 
 	// Test streaming logs
-	cmd := exec.Command("micro", "logs", "-n", "1", "-f", "crufter-micro-services-logspammer")
+	cmd := exec.Command("micro", serv.envFlag(), "logs", "-n", "1", "-f", "crufter-micro-services-logspammer")
 
 	go func() {
 		outp, err := cmd.CombinedOutput()

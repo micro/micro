@@ -20,7 +20,7 @@ func TestServerAuth(t *testing.T) {
 	// Execute first command in read to wait for store service
 	// to start up
 	try("Calling micro auth list accounts", t, func() ([]byte, error) {
-		readCmd := exec.Command("micro", "auth", "list", "accounts")
+		readCmd := exec.Command("micro", serv.envFlag(), "auth", "list", "accounts")
 		outp, err := readCmd.CombinedOutput()
 		if err != nil {
 			return outp, err
@@ -32,7 +32,7 @@ func TestServerAuth(t *testing.T) {
 	}, 8*time.Second)
 
 	try("Calling micro auth list rules", t, func() ([]byte, error) {
-		readCmd := exec.Command("micro", "auth", "list", "rules")
+		readCmd := exec.Command("micro", serv.envFlag(), "auth", "list", "rules")
 		outp, err := readCmd.CombinedOutput()
 		if err != nil {
 			return outp, err
@@ -44,7 +44,7 @@ func TestServerAuth(t *testing.T) {
 	}, 8*time.Second)
 
 	try("Calling micro auth list rules", t, func() ([]byte, error) {
-		readCmd := exec.Command("micro", "auth", "list", "rules")
+		readCmd := exec.Command("micro", serv.envFlag(), "auth", "list", "rules")
 		outp, err := readCmd.CombinedOutput()
 		if err != nil {
 			return outp, err
@@ -55,14 +55,14 @@ func TestServerAuth(t *testing.T) {
 		return outp, nil
 	}, 8*time.Second)
 
-	runCmd := exec.Command("micro", "run", "helloworld")
+	runCmd := exec.Command("micro", serv.envFlag(), "run", "helloworld")
 	_, err := runCmd.CombinedOutput()
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	try("Call hello world", t, func() ([]byte, error) {
-		callCmd := exec.Command("micro", "call", "go.micro.service.helloworld", "Helloworld.Call", `{"name": "Joe"}`)
+		callCmd := exec.Command("micro", serv.envFlag(), "call", "go.micro.service.helloworld", "Helloworld.Call", `{"name": "Joe"}`)
 		outp, err := callCmd.CombinedOutput()
 		if err != nil {
 			return outp, err

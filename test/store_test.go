@@ -19,7 +19,7 @@ func TestStore(t *testing.T) {
 	// Execute first command in read to wait for store service
 	// to start up
 	try("Calling micro store read", t, func() ([]byte, error) {
-		readCmd := exec.Command("micro", "store", "read", "somekey")
+		readCmd := exec.Command("micro", serv.envFlag(), "store", "read", "somekey")
 		outp, err := readCmd.CombinedOutput()
 		if err == nil {
 			return outp, errors.New("store read should fail")
@@ -30,7 +30,7 @@ func TestStore(t *testing.T) {
 		return outp, nil
 	}, 8*time.Second)
 
-	writeCmd := exec.Command("micro", "store", "write", "somekey", "val1")
+	writeCmd := exec.Command("micro", serv.envFlag(), "store", "write", "somekey", "val1")
 	outp, err := writeCmd.CombinedOutput()
 	if err != nil {
 		t.Fatal(string(outp))
@@ -39,7 +39,7 @@ func TestStore(t *testing.T) {
 		t.Fatalf("Expected no output, got: %v", string(outp))
 	}
 
-	readCmd := exec.Command("micro", "store", "read", "somekey")
+	readCmd := exec.Command("micro", serv.envFlag(), "store", "read", "somekey")
 	outp, err = readCmd.CombinedOutput()
 	if err != nil {
 		t.Fatal(string(outp))
@@ -48,7 +48,7 @@ func TestStore(t *testing.T) {
 		t.Fatalf("Expected 'val1\n', got: '%v'", string(outp))
 	}
 
-	delCmd := exec.Command("micro", "store", "delete", "somekey")
+	delCmd := exec.Command("micro", serv.envFlag(), "store", "delete", "somekey")
 	outp, err = delCmd.CombinedOutput()
 	if err != nil {
 		t.Fatal(err)
@@ -57,7 +57,7 @@ func TestStore(t *testing.T) {
 		t.Fatalf("Expected '', got: '%v'", string(outp))
 	}
 
-	readCmd = exec.Command("micro", "store", "read", "somekey")
+	readCmd = exec.Command("micro", serv.envFlag(), "store", "read", "somekey")
 	outp, err = readCmd.CombinedOutput()
 	if err == nil {
 		t.Fatalf("store read should fail: %v", string(outp))
@@ -67,7 +67,7 @@ func TestStore(t *testing.T) {
 	}
 
 	// Test prefixes
-	writeCmd = exec.Command("micro", "store", "write", "somekey1", "val1")
+	writeCmd = exec.Command("micro", serv.envFlag(), "store", "write", "somekey1", "val1")
 	outp, err = writeCmd.CombinedOutput()
 	if err != nil {
 		t.Fatal(string(outp))
@@ -76,7 +76,7 @@ func TestStore(t *testing.T) {
 		t.Fatalf("Expected no output, got: %v", string(outp))
 	}
 
-	writeCmd = exec.Command("micro", "store", "write", "somekey2", "val2")
+	writeCmd = exec.Command("micro", serv.envFlag(), "store", "write", "somekey2", "val2")
 	outp, err = writeCmd.CombinedOutput()
 	if err != nil {
 		t.Fatal(string(outp))
@@ -86,7 +86,7 @@ func TestStore(t *testing.T) {
 	}
 
 	// Read exact key
-	readCmd = exec.Command("micro", "store", "read", "somekey")
+	readCmd = exec.Command("micro", serv.envFlag(), "store", "read", "somekey")
 	outp, err = readCmd.CombinedOutput()
 	if err == nil {
 		t.Fatalf("store read should fail: %v", string(outp))
@@ -95,7 +95,7 @@ func TestStore(t *testing.T) {
 		t.Fatalf("Expected 'not found\n', got: '%v'", string(outp))
 	}
 
-	readCmd = exec.Command("micro", "store", "read", "--prefix", "somekey")
+	readCmd = exec.Command("micro", serv.envFlag(), "store", "read", "--prefix", "somekey")
 	outp, err = readCmd.CombinedOutput()
 	if err != nil {
 		t.Fatalf("store prefix read not should fail: %v", string(outp))
@@ -104,7 +104,7 @@ func TestStore(t *testing.T) {
 		t.Fatalf("Expected output not present, got: '%v'", string(outp))
 	}
 
-	readCmd = exec.Command("micro", "store", "read", "-v", "--prefix", "somekey")
+	readCmd = exec.Command("micro", serv.envFlag(), "store", "read", "-v", "--prefix", "somekey")
 	outp, err = readCmd.CombinedOutput()
 	if err != nil {
 		t.Fatalf("store prefix read not should fail: %v", string(outp))
@@ -114,7 +114,7 @@ func TestStore(t *testing.T) {
 		t.Fatalf("Expected output not present, got: '%v'", string(outp))
 	}
 
-	listCmd := exec.Command("micro", "store", "list")
+	listCmd := exec.Command("micro", serv.envFlag(), "store", "list")
 	outp, err = listCmd.CombinedOutput()
 	if err != nil {
 		t.Fatalf("store list should not fail: %v", string(outp))
