@@ -74,6 +74,8 @@ func (s server) launch() {
 			s.t.Fatal(err)
 		}
 	}()
+	// @todo find a way to know everything is up and running
+	time.Sleep(7 * time.Second)
 	try("Calling micro server", s.t, func() ([]byte, error) {
 		return exec.Command("micro", s.envFlag(), "call", "go.micro.runtime", "Runtime.Read", "{}").CombinedOutput()
 	}, 5000*time.Millisecond)
