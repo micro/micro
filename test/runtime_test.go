@@ -64,7 +64,7 @@ func newServer(t *testing.T) server {
 
 	// @todo this is a dangerous move, should instead specify a branch new
 	// folder for tests and only nuke those
-	outp, err = exec.Command("rm", "-rf", "/tmp/micro/store").CombinedOutput()
+	outp, err = exec.Command("rm", "-rf", "/tmp/micro").CombinedOutput()
 	if err != nil {
 		t.Fatal(string(outp))
 	}
