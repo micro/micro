@@ -1,14 +1,22 @@
-FROM golang:1.13-alpine as builder
-RUN apk --no-cache add make git gcc libtool musl-dev
-WORKDIR /
-COPY . /
-RUN make build
-
 FROM alpine:latest
+RUN apk --no-cache add make git go gcc libtool musl-dev
+
+# Configure Go
+ENV GOROOT /usr/lib/go
+ENV GOPATH /go
+ENV PATH /go/bin:$PATH
+
+RUN mkdir -p ${GOPATH}/src ${GOPATH}/bin
+
+# Install Glide
+RUN go get -u github.com/Masterminds/glide/...
+
+COPY . /
+RUN make
+
 
 RUN apk add ca-certificates && \
     rm -rf /var/cache/apk/* /tmp/* && \
     [ ! -e /etc/nsswitch.conf ] && echo 'hosts: files dns' > /etc/nsswitch.conf
 
-COPY --from=builder /micro .
 ENTRYPOINT ["/micro"]

@@ -62,13 +62,7 @@ func newServer(t *testing.T) server {
 		t.Fatalf("Failed to set env to server, err: %v, output: %v", err, string(outp))
 	}
 
-	// @todo this is a dangerous move, should instead specify a branch new
-	// folder for tests and only nuke those
-	outp, err = exec.Command("rm", "-rf", "/tmp/micro").CombinedOutput()
-	if err != nil {
-		t.Fatal(string(outp))
-	}
-	return server{cmd: exec.Command("micro", "server"), t: t}
+	return server{cmd: exec.Command("docker", "run" "-p=8081:8081", "micro", "server"), t: t}
 }
 
 func (s server) launch() {
