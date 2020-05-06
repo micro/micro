@@ -317,7 +317,7 @@ func TestRunGithubSource(t *testing.T) {
 			return outp, errors.New("Output should contain hello world")
 		}
 		return outp, nil
-	}, 8*time.Second)
+	}, 20*time.Second)
 
 	try("Call hello world", t, func() ([]byte, error) {
 		callCmd := exec.Command("micro", serv.envFlag(), "call", "go.micro.service.helloworld", "Helloworld.Call", `{"name": "Joe"}`)
@@ -334,7 +334,7 @@ func TestRunGithubSource(t *testing.T) {
 			return outp, errors.New("Helloworld resonse is unexpected")
 		}
 		return outp, err
-	}, 15*time.Second)
+	}, 30*time.Second)
 
 }
 
