@@ -67,30 +67,37 @@ func SetupCommand(ctx *ccli.Context) {
 	if ctx.Args().Len() == 1 && isBuiltinService(ctx.Args().First()) {
 		return
 	}
+	if ctx.Args().Len() >= 1 && ctx.Args().First() == "env" {
+		return
+	}
+
 	toFlag := func(s string) string {
 		return strings.ToLower(strings.ReplaceAll(s, "MICRO_", ""))
 	}
 	setFlags := func(envars []string) {
 		for _, envar := range envars {
+			// setting both env and flags here
+			// as the proxy settings for example did not take effect
+			// with only flags
 			parts := strings.Split(envar, "=")
 			key := toFlag(parts[0])
+			os.Setenv(parts[0], parts[1])
 			ctx.Set(key, parts[1])
 		}
 	}
 	env := GetEnv()
 	switch env.Name {
 	case EnvServer:
-		setFlags(profile.Server())
+		setFlags(profile.ServerCLI())
 	case EnvPlatform:
-		setFlags(profile.Platform())
+		setFlags(profile.PlatformCLI())
 	case EnvLocal:
 		// Not setting a proxy for local env
 		return
 	}
 
 	// Set proxy for all envs apart from local
-	ctx.Set("proxy", "service")
-	ctx.Set("proxy_address", env.ProxyAddress)
+	setFlags([]string{"MICRO_PROXY=service", "MICRO_PROXY_ADDRESS=" + env.ProxyAddress})
 }
 
 type Env struct {

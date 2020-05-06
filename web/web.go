@@ -31,7 +31,6 @@ import (
 	log "github.com/micro/go-micro/v2/logger"
 	"github.com/micro/go-micro/v2/registry"
 	"github.com/micro/go-micro/v2/registry/cache"
-	"github.com/micro/go-micro/v2/store"
 	"github.com/micro/go-micro/v2/sync/memory"
 	apiAuth "github.com/micro/micro/v2/api/auth"
 	"github.com/micro/micro/v2/internal/handler"
@@ -574,6 +573,12 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		p.Init(ctx)
 	}
 
+	// service opts
+	srvOpts = append(srvOpts, micro.Name(Name))
+
+	// Initialize Server
+	service := micro.NewService(srvOpts...)
+
 	// use the caching registry
 	cache := cache.New((*cmd.DefaultOptions().Registry))
 	reg := &reg{Registry: cache}
@@ -650,7 +655,7 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 			// create the store
 			storage := certmagic.NewStorage(
 				memory.NewSync(),
-				store.DefaultStore,
+				service.Options().Store,
 			)
 
 			config := cloudflare.NewDefaultConfig()
@@ -701,18 +706,6 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 
 	srv.Init(opts...)
 	srv.Handle("/", h)
-
-	// service opts
-	srvOpts = append(srvOpts, micro.Name(Name))
-	if i := time.Duration(ctx.Int("register_ttl")); i > 0 {
-		srvOpts = append(srvOpts, micro.RegisterTTL(i*time.Second))
-	}
-	if i := time.Duration(ctx.Int("register_interval")); i > 0 {
-		srvOpts = append(srvOpts, micro.RegisterInterval(i*time.Second))
-	}
-
-	// Initialize Server
-	service := micro.NewService(srvOpts...)
 
 	// Setup auth redirect
 	if len(ctx.String("auth_login_url")) > 0 {

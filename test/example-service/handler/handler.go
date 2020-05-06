@@ -5,7 +5,7 @@ import (
 
 	"github.com/micro/go-micro/v2/util/log"
 
-	example "github.com/micro/micro/v2/test/example-service/proto"
+	example "example-service/proto"
 )
 
 type Example struct{}
