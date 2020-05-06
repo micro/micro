@@ -113,8 +113,8 @@ resource "kubernetes_service_account" "runtime" {
   metadata {
     name        = replace(local.runtime_name, ".", "-")
     namespace   = var.platform_namespace
-    labels      = local.init_labels
-    annotations = local.init_annotations
+    labels      = local.runtime_labels
+    annotations = local.runtime_annotations
   }
 }
 
