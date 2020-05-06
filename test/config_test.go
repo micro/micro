@@ -31,7 +31,7 @@ func TestConfig(t *testing.T) {
 	// This needs to be retried to the the "error listing rules"
 	// error log output that happens when the auth service is not yet available.
 
-	once("Calling micro config read", t, func() ([]byte, error) {
+	try("Calling micro config set", t, func() ([]byte, error) {
 		setCmd := exec.Command("micro", serv.envFlag(), "config", "set", "somekey", "val1")
 		outp, err := setCmd.CombinedOutput()
 		if err != nil {
@@ -41,7 +41,7 @@ func TestConfig(t *testing.T) {
 			return outp, fmt.Errorf("Expected no output, got: %v", string(outp))
 		}
 		return outp, err
-	})
+	}, 5*time.Second)
 
 	try("micro config get somekey", t, func() ([]byte, error) {
 		getCmd := exec.Command("micro", serv.envFlag(), "config", "get", "somekey")
@@ -73,7 +73,7 @@ func TestConfig(t *testing.T) {
 		if string(outp) != "not found\n" {
 			return outp, errors.New("Expected 'not found\n'")
 		}
-		return outp, err
+		return outp, nil
 	}, 8*time.Second)
 
 	// Testing dot notation

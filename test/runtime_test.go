@@ -21,35 +21,21 @@ import (
 type cmdFunc func() ([]byte, error)
 
 func try(blockName string, t *testing.T, f cmdFunc, maxTime time.Duration) {
-	elapsed := 0 * time.Millisecond
+	start := time.Now()
 	var outp []byte
 	var err error
-	returned := false
-	go func() {
-		for {
-			if returned {
-				return
-			}
-			time.Sleep(100 * time.Millisecond)
-			if elapsed > maxTime {
-				_, file, line, _ := runtime.Caller(2)
-				fname := filepath.Base(file)
-				t.Fatal(fmt.Sprintf("%v:%v, %v timed out, last output: %v", fname, line, blockName, string(outp)))
-			}
-			elapsed += 100 * time.Millisecond
-		}
-	}()
+
 	for {
-		if elapsed > maxTime {
+		if time.Since(start) > maxTime {
 			_, file, line, _ := runtime.Caller(1)
 			fname := filepath.Base(file)
 			if err != nil {
-				t.Fatalf("%v:%v, %v (failed after %v with '%v'), output: '%v'", fname, line, blockName, elapsed, err, string(outp))
+				t.Fatalf("%v:%v, %v (failed after %v with '%v'), output: '%v'", fname, line, blockName, time.Since(start), err, string(outp))
 			}
+			return
 		}
 		outp, err = f()
 		if err == nil {
-			returned = true
 			return
 		}
 		time.Sleep(100 * time.Millisecond)
