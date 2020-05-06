@@ -11,6 +11,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"syscall"
 	"testing"
@@ -31,16 +32,19 @@ func try(blockName string, t *testing.T, f cmdFunc, maxTime time.Duration) {
 			}
 			time.Sleep(100 * time.Millisecond)
 			if elapsed > maxTime {
-				// @todo for some reason t.Fatal did not take effect
-				t.Fatal(fmt.Sprintf("%v timed out, last output: %v", blockName, string(outp)))
+				_, file, line, _ := runtime.Caller(2)
+				fname := filepath.Base(file)
+				t.Fatal(fmt.Sprintf("%v:%v, %v timed out, last output: %v", fname, line, blockName, string(outp)))
 			}
 			elapsed += 100 * time.Millisecond
 		}
 	}()
 	for {
 		if elapsed > maxTime {
+			_, file, line, _ := runtime.Caller(1)
+			fname := filepath.Base(file)
 			if err != nil {
-				t.Fatalf("%v (failed after %v with '%v'), output: %v", blockName, elapsed, err, string(outp))
+				t.Fatalf("%v:%v, %v (failed after %v with '%v'), output: '%v'", fname, line, blockName, elapsed, err, string(outp))
 			}
 		}
 		outp, err = f()
@@ -49,6 +53,13 @@ func try(blockName string, t *testing.T, f cmdFunc, maxTime time.Duration) {
 			return
 		}
 		time.Sleep(100 * time.Millisecond)
+	}
+}
+
+func once(blockName string, t *testing.T, f cmdFunc) {
+	outp, err := f()
+	if err != nil {
+		t.Fatalf("%v with '%v', output: %v", blockName, err, string(outp))
 	}
 }
 
