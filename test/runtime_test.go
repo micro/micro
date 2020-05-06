@@ -62,7 +62,7 @@ func newServer(t *testing.T) server {
 		t.Fatalf("Failed to set env to server, err: %v, output: %v", err, string(outp))
 	}
 
-	return server{cmd: exec.Command("docker", "run" "-p=8081:8081", "micro", "server"), t: t}
+	return server{cmd: exec.Command("docker", "run", "-p=8081:8081", "micro", "server"), t: t}
 }
 
 func (s server) launch() {
