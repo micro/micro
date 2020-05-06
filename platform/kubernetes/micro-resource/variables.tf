@@ -42,24 +42,3 @@ variable "jaeger_image" {
   description = "Jaeger Tracing All in one image"
   default     = "jaegertracing/all-in-one"
 }
-
-variable "athens_image" {
-  description = "Athens Go Module Proxy image"
-  default     = "gomods/athens:v0.7.2"
-}
-
-variable "athens_storage" {
-  description = "Athens Go Mpdule Proxy Kubernetes storage request"
-  default     = "10Gi"
-}
-
-variable "nginx_ingress_image" {
-  description = "nginx ingress controller image"
-  default     = "quay.io/kubernetes-ingress-controller/nginx-ingress-controller:0.30.0"
-}
-
-variable "in_aws" {
-  description = "Are you deploying into an AWS Snowflake env?"
-  type        = bool
-  default     = false
-}

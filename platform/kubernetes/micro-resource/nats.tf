@@ -108,6 +108,7 @@ resource "kubernetes_stateful_set" "nats" {
         container {
           name  = "nats"
           image = var.nats_image
+          image_pull_policy = var.image_pull_policy
           dynamic "port" {
             for_each = local.nats_ports
             content {

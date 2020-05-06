@@ -87,6 +87,7 @@ resource "kubernetes_stateful_set" "etcd" {
         container {
           name  = "etcd"
           image = var.etcd_image
+          image_pull_policy = var.image_pull_policy
           command = [
             "/bin/sh",
             "-ecx",

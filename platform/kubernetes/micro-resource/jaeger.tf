@@ -28,6 +28,7 @@ resource "kubernetes_deployment" "jaeger" {
             value = "9411"
           }
           image = var.jaeger_image
+          image_pull_policy = var.image_pull_policy
           port {
             name           = "agent-zip-thrft"
             container_port = 5775
