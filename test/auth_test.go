@@ -3,8 +3,6 @@
 package test
 
 import (
-	"encoding/json"
-	"errors"
 	"fmt"
 	"os/exec"
 	"strings"
@@ -54,28 +52,5 @@ func TestServerAuth(t *testing.T) {
 		}
 		return outp, nil
 	}, 8*time.Second)
-
-	runCmd := exec.Command("micro", serv.envFlag(), "run", "helloworld")
-	_, err := runCmd.CombinedOutput()
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	try("Call hello world", t, func() ([]byte, error) {
-		callCmd := exec.Command("micro", serv.envFlag(), "call", "go.micro.service.helloworld", "Helloworld.Call", `{"name": "Joe"}`)
-		outp, err := callCmd.CombinedOutput()
-		if err != nil {
-			return outp, err
-		}
-		rsp := map[string]string{}
-		err = json.Unmarshal(outp, &rsp)
-		if err != nil {
-			return outp, err
-		}
-		if rsp["msg"] != "Hello Joe" {
-			return outp, errors.New("Helloworld resonse is unexpected")
-		}
-		return outp, err
-	}, 20*time.Second)
 
 }
