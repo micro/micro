@@ -75,10 +75,9 @@ func (s server) launch() {
 		}
 	}()
 	// @todo find a way to know everything is up and running
-	time.Sleep(7 * time.Second)
 	try("Calling micro server", s.t, func() ([]byte, error) {
 		return exec.Command("micro", s.envFlag(), "call", "go.micro.runtime", "Runtime.Read", "{}").CombinedOutput()
-	}, 5000*time.Millisecond)
+	}, 10000*time.Millisecond)
 }
 
 func (s server) close() {
@@ -414,18 +413,6 @@ func TestRunLocalUpdateAndCall(t *testing.T) {
 	}, 8*time.Second)
 }
 
-// exists returns whether the given file or directory exists
-func exists(path string) (bool, error) {
-	_, err := os.Stat(path)
-	if err == nil {
-		return true, nil
-	}
-	if os.IsNotExist(err) {
-		return false, nil
-	}
-	return true, err
-}
-
 func TestExistingLogs(t *testing.T) {
 	t.Parallel()
 	serv := newServer(t)
@@ -438,20 +425,6 @@ func TestExistingLogs(t *testing.T) {
 		t.Fatalf("micro run failure, output: %v", string(outp))
 	}
 
-	try("Find logspammer", t, func() ([]byte, error) {
-		ex, err := exists(filepath.Join(os.TempDir(), "micro", "logs", "crufter-micro-services-logspammer.log"))
-		if err != nil {
-			return nil, err
-		}
-		if !ex {
-			return nil, errors.New("Does not exist")
-		}
-		return nil, nil
-	}, 20*time.Second)
-
-	//outp, err = exec.Command("ls", "-alh", filepath.Join(os.TempDir(), "micro", "logs")).CombinedOutput()
-	//fmt.Println(string(outp), err)
-
 	try("logspammer logs", t, func() ([]byte, error) {
 		psCmd := exec.Command("micro", serv.envFlag(), "logs", "-n", "5", "crufter/micro-services/logspammer")
 		outp, err = psCmd.CombinedOutput()
@@ -463,7 +436,7 @@ func TestExistingLogs(t *testing.T) {
 			return outp, errors.New("Output does not contain expected")
 		}
 		return outp, nil
-	}, 10*time.Second)
+	}, 20*time.Second)
 }
 
 func TestStreamLogsAndThirdPartyRepo(t *testing.T) {
@@ -478,15 +451,17 @@ func TestStreamLogsAndThirdPartyRepo(t *testing.T) {
 		t.Fatalf("micro run failure, output: %v", string(outp))
 	}
 
-	try("Find logspammer", t, func() ([]byte, error) {
-		ex, err := exists(filepath.Join(os.TempDir(), "micro", "logs", "crufter-micro-services-logspammer.log"))
+	try("logspammer logs", t, func() ([]byte, error) {
+		psCmd := exec.Command("micro", serv.envFlag(), "logs", "-n", "5", "crufter/micro-services/logspammer")
+		outp, err = psCmd.CombinedOutput()
 		if err != nil {
-			return nil, err
+			return outp, err
 		}
-		if !ex {
-			return nil, errors.New("Does not exist")
+
+		if !strings.Contains(string(outp), "Listening on") || !strings.Contains(string(outp), "never stopping") {
+			return outp, errors.New("Output does not contain expected")
 		}
-		return nil, nil
+		return outp, nil
 	}, 20*time.Second)
 
 	// Test streaming logs
