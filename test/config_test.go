@@ -11,6 +11,10 @@ import (
 )
 
 func TestConfig(t *testing.T) {
+	trySuite(t, testConfig, 5)
+}
+
+func testConfig(t *t) {
 	t.Parallel()
 	serv := newServer(t)
 	serv.launch()

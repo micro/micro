@@ -12,6 +12,10 @@ import (
 )
 
 func TestStore(t *testing.T) {
+	trySuite(t, testStore, 5)
+}
+
+func testStore(t *t) {
 	t.Parallel()
 	serv := newServer(t)
 	serv.launch()

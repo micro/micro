@@ -11,6 +11,10 @@ import (
 )
 
 func TestServerAuth(t *testing.T) {
+	trySuite(t, testServerAuth, 5)
+}
+
+func testServerAuth(t *t) {
 	t.Parallel()
 	serv := newServer(t)
 	serv.launch()

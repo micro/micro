@@ -5,92 +5,21 @@ package test
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"io/ioutil"
-	"math/rand"
 	"os"
 	"os/exec"
 	"path/filepath"
-	"runtime"
 	"strings"
 	"syscall"
 	"testing"
 	"time"
 )
 
-type cmdFunc func() ([]byte, error)
-
-func try(blockName string, t *testing.T, f cmdFunc, maxTime time.Duration) {
-	start := time.Now()
-	var outp []byte
-	var err error
-
-	for {
-		if time.Since(start) > maxTime {
-			_, file, line, _ := runtime.Caller(1)
-			fname := filepath.Base(file)
-			if err != nil {
-				t.Fatalf("%v:%v, %v (failed after %v with '%v'), output: '%v'", fname, line, blockName, time.Since(start), err, string(outp))
-			}
-			return
-		}
-		outp, err = f()
-		if err == nil {
-			return
-		}
-		time.Sleep(100 * time.Millisecond)
-	}
-}
-
-func once(blockName string, t *testing.T, f cmdFunc) {
-	outp, err := f()
-	if err != nil {
-		t.Fatalf("%v with '%v', output: %v", blockName, err, string(outp))
-	}
-}
-
-type server struct {
-	cmd       *exec.Cmd
-	t         *testing.T
-	proxyPort int
-}
-
-func newServer(t *testing.T) server {
-	min := 8000
-	max := 60000
-	portnum := rand.Intn(max-min) + min
-
-	return server{
-		cmd: exec.Command("docker", "run",
-			fmt.Sprintf("-p=%v:8081", portnum), "micro", "server"),
-		t:         t,
-		proxyPort: portnum,
-	}
-}
-
-func (s server) launch() {
-	go func() {
-		if err := s.cmd.Start(); err != nil {
-			s.t.Fatal(err)
-		}
-	}()
-	// @todo find a way to know everything is up and running
-	try("Calling micro server", s.t, func() ([]byte, error) {
-		return exec.Command("micro", s.envFlag(), "call", "go.micro.runtime", "Runtime.Read", "{}").CombinedOutput()
-	}, 10000*time.Millisecond)
-}
-
-func (s server) close() {
-	if s.cmd.Process != nil {
-		s.cmd.Process.Signal(syscall.SIGTERM)
-	}
-}
-
-func (s server) envFlag() string {
-	return fmt.Sprintf("-env=127.0.0.1:%v", s.proxyPort)
-}
-
 func TestNew(t *testing.T) {
+	trySuite(t, testNew, 5)
+}
+
+func testNew(t *t) {
 	t.Parallel()
 	defer func() {
 		exec.Command("rm", "-r", "./foobar").CombinedOutput()
@@ -133,6 +62,10 @@ func TestNew(t *testing.T) {
 }
 
 func TestServerModeCall(t *testing.T) {
+	trySuite(t, testServerModeCall, 5)
+}
+
+func testServerModeCall(t *t) {
 	t.Parallel()
 	serv := newServer(t)
 
@@ -155,6 +88,10 @@ func TestServerModeCall(t *testing.T) {
 }
 
 func TestRunLocalSource(t *testing.T) {
+	trySuite(t, testRunLocalSource, 5)
+}
+
+func testRunLocalSource(t *t) {
 	t.Parallel()
 	serv := newServer(t)
 	serv.launch()
@@ -194,6 +131,10 @@ func TestRunLocalSource(t *testing.T) {
 }
 
 func TestLocalOutsideRepo(t *testing.T) {
+	trySuite(t, testLocalOutsideRepo, 5)
+}
+
+func testLocalOutsideRepo(t *t) {
 	t.Parallel()
 	serv := newServer(t)
 	serv.launch()
@@ -255,6 +196,10 @@ func TestLocalOutsideRepo(t *testing.T) {
 }
 
 func TestLocalEnvRunGithubSource(t *testing.T) {
+	trySuite(t, testLocalEnvRunGithubSource, 5)
+}
+
+func testLocalEnvRunGithubSource(t *t) {
 	t.Parallel()
 	outp, err := exec.Command("micro", "env", "set", "local").CombinedOutput()
 	if err != nil {
@@ -288,6 +233,10 @@ func TestLocalEnvRunGithubSource(t *testing.T) {
 }
 
 func TestRunGithubSource(t *testing.T) {
+	trySuite(t, testRunGithubSource, 5)
+}
+
+func testRunGithubSource(t *t) {
 	t.Parallel()
 	p, err := exec.LookPath("git")
 	if err != nil {
@@ -339,6 +288,10 @@ func TestRunGithubSource(t *testing.T) {
 }
 
 func TestRunLocalUpdateAndCall(t *testing.T) {
+	trySuite(t, testRunLocalUpdateAndCall, 5)
+}
+
+func testRunLocalUpdateAndCall(t *t) {
 	t.Parallel()
 	serv := newServer(t)
 	serv.launch()
@@ -414,6 +367,10 @@ func TestRunLocalUpdateAndCall(t *testing.T) {
 }
 
 func TestExistingLogs(t *testing.T) {
+	trySuite(t, testExistingLogs, 5)
+}
+
+func testExistingLogs(t *t) {
 	t.Parallel()
 	serv := newServer(t)
 	serv.launch()
@@ -440,6 +397,10 @@ func TestExistingLogs(t *testing.T) {
 }
 
 func TestStreamLogsAndThirdPartyRepo(t *testing.T) {
+	trySuite(t, testStreamLogsAndThirdPartyRepo, 5)
+}
+
+func testStreamLogsAndThirdPartyRepo(t *t) {
 	t.Parallel()
 	serv := newServer(t)
 	serv.launch()
@@ -497,7 +458,7 @@ func TestStreamLogsAndThirdPartyRepo(t *testing.T) {
 	time.Sleep(2 * time.Second)
 }
 
-func replaceStringInFile(t *testing.T, filepath string, original, newone string) {
+func replaceStringInFile(t *t, filepath string, original, newone string) {
 	input, err := ioutil.ReadFile(filepath)
 	if err != nil {
 		t.Fatal(err)
