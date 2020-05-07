@@ -90,7 +90,7 @@ func testServerModeCall(t *t) {
 			return outp, errors.New("Call to runtime read should succeed")
 		}
 		return outp, err
-	}, 2*time.Second)
+	}, 5*time.Second)
 }
 
 func TestRunLocalSource(t *testing.T) {
@@ -280,7 +280,7 @@ func testRunGithubSource(t *t) {
 			return outp, errors.New("Output should contain hello world")
 		}
 		return outp, nil
-	}, 20*time.Second)
+	}, 30*time.Second)
 
 	try("Call hello world", t, func() ([]byte, error) {
 		callCmd := exec.Command("micro", serv.envFlag(), "call", "go.micro.service.helloworld", "Helloworld.Call", `{"name": "Joe"}`)
