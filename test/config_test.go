@@ -63,9 +63,11 @@ func testConfig(t *t) {
 	outp, err := delCmd.CombinedOutput()
 	if err != nil {
 		t.Fatalf(string(outp))
+		return
 	}
 	if string(outp) != "" {
 		t.Fatalf("Expected '', got: '%v'", string(outp))
+		return
 	}
 
 	try("micro config get somekey", t, func() ([]byte, error) {
@@ -85,9 +87,11 @@ func testConfig(t *t) {
 	outp, err = setCmd.CombinedOutput()
 	if err != nil {
 		t.Fatal(err)
+		return
 	}
 	if string(outp) != "" {
 		t.Fatalf("Expected no output, got: %v", string(outp))
+		return
 	}
 
 	try("micro config get someotherkey.subkey", t, func() ([]byte, error) {

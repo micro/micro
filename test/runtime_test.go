@@ -27,9 +27,11 @@ func testNew(t *t) {
 	outp, err := exec.Command("micro", "new", "foobar").CombinedOutput()
 	if err != nil {
 		t.Fatal(err)
+		return
 	}
 	if !strings.Contains(string(outp), "protoc") {
 		t.Fatalf("micro new lacks 	protobuf install instructions %v", string(outp))
+		return
 	}
 
 	lines := strings.Split(string(outp), "\n")
@@ -40,6 +42,7 @@ func testNew(t *t) {
 			getOutp, getErr := exec.Command(parts[0], parts[1:]...).CombinedOutput()
 			if getErr != nil {
 				t.Fatal(string(getOutp))
+				return
 			}
 		}
 		if strings.HasPrefix(line, "protoc") {
@@ -49,6 +52,7 @@ func testNew(t *t) {
 			pOutp, pErr := protocCmd.CombinedOutput()
 			if pErr != nil {
 				t.Fatal(string(pOutp))
+				return
 			}
 		}
 	}
@@ -58,6 +62,7 @@ func testNew(t *t) {
 	outp, err = buildCommand.CombinedOutput()
 	if err != nil {
 		t.Fatal(string(outp))
+		return
 	}
 }
 
@@ -73,6 +78,7 @@ func testServerModeCall(t *t) {
 	outp, err := callCmd.CombinedOutput()
 	if err == nil {
 		t.Fatalf("Call to server should fail, got no error, output: %v", string(outp))
+		return
 	}
 
 	serv.launch()
@@ -101,6 +107,7 @@ func testRunLocalSource(t *t) {
 	outp, err := runCmd.CombinedOutput()
 	if err != nil {
 		t.Fatalf("micro run failure, output: %v", string(outp))
+		return
 	}
 
 	try("Find test/example", t, func() ([]byte, error) {
@@ -146,6 +153,7 @@ func testLocalOutsideRepo(t *t) {
 	err := os.MkdirAll(folderPath, 0777)
 	if err != nil {
 		t.Fatal(err)
+		return
 	}
 
 	// since copying a whole folder is rather involved and only Linux sources
@@ -154,6 +162,7 @@ func testLocalOutsideRepo(t *t) {
 	outp, err := exec.Command("cp", "-r", "example-service/.", folderPath).CombinedOutput()
 	if err != nil {
 		t.Fatal(string(outp))
+		return
 	}
 
 	runCmd := exec.Command("micro", serv.envFlag(), "run", ".")
@@ -161,6 +170,7 @@ func testLocalOutsideRepo(t *t) {
 	outp, err = runCmd.CombinedOutput()
 	if err != nil {
 		t.Fatalf("micro run failure, output: %v", string(outp))
+		return
 	}
 
 	try("Find "+dirname, t, func() ([]byte, error) {
@@ -204,6 +214,7 @@ func testLocalEnvRunGithubSource(t *t) {
 	outp, err := exec.Command("micro", "env", "set", "local").CombinedOutput()
 	if err != nil {
 		t.Fatalf("Failed to set env to local, err: %v, output: %v", err, string(outp))
+		return
 	}
 	var cmd *exec.Cmd
 	go func() {
@@ -241,9 +252,11 @@ func testRunGithubSource(t *t) {
 	p, err := exec.LookPath("git")
 	if err != nil {
 		t.Fatal(err)
+		return
 	}
 	if len(p) == 0 {
 		t.Fatalf("Git is not available %v", p)
+		return
 	}
 	serv := newServer(t)
 	serv.launch()
@@ -253,6 +266,7 @@ func testRunGithubSource(t *t) {
 	outp, err := runCmd.CombinedOutput()
 	if err != nil {
 		t.Fatalf("micro run failure, output: %v", string(outp))
+		return
 	}
 
 	try("Find hello world", t, func() ([]byte, error) {
@@ -302,6 +316,7 @@ func testRunLocalUpdateAndCall(t *t) {
 	outp, err := runCmd.CombinedOutput()
 	if err != nil {
 		t.Fatalf("micro run failure, output: %v", string(outp))
+		return
 	}
 
 	try("Finding example service with micro status", t, func() ([]byte, error) {
@@ -346,6 +361,7 @@ func testRunLocalUpdateAndCall(t *t) {
 	outp, err = updateCmd.CombinedOutput()
 	if err != nil {
 		t.Fatal(err)
+		return
 	}
 
 	try("Call example service after modification", t, func() ([]byte, error) {
@@ -380,6 +396,7 @@ func testExistingLogs(t *t) {
 	outp, err := runCmd.CombinedOutput()
 	if err != nil {
 		t.Fatalf("micro run failure, output: %v", string(outp))
+		return
 	}
 
 	try("logspammer logs", t, func() ([]byte, error) {
@@ -410,6 +427,7 @@ func testStreamLogsAndThirdPartyRepo(t *t) {
 	outp, err := runCmd.CombinedOutput()
 	if err != nil {
 		t.Fatalf("micro run failure, output: %v", string(outp))
+		return
 	}
 
 	try("logspammer logs", t, func() ([]byte, error) {
@@ -435,9 +453,11 @@ func testStreamLogsAndThirdPartyRepo(t *t) {
 		}
 		if len(outp) == 0 {
 			t.Fatal("No log lines streamed")
+			return
 		}
 		if !strings.Contains(string(outp), "never stopping") {
 			t.Fatalf("Unexpected logs: %v", string(outp))
+			return
 		}
 		// Logspammer logs every 2 seconds, so we need 2 different
 		now := time.Now()
@@ -447,6 +467,7 @@ func testStreamLogsAndThirdPartyRepo(t *t) {
 		stampB := now.Add(-1 * time.Second).Format("104:05")
 		if !strings.Contains(string(outp), stampA) && !strings.Contains(string(outp), stampB) {
 			t.Fatalf("Timestamp %v or %v not found in logs: %v", stampA, stampB, string(outp))
+			return
 		}
 	}()
 
@@ -454,6 +475,7 @@ func testStreamLogsAndThirdPartyRepo(t *t) {
 	err = cmd.Process.Kill()
 	if err != nil {
 		t.Fatal(err)
+		return
 	}
 	time.Sleep(2 * time.Second)
 }
@@ -462,11 +484,13 @@ func replaceStringInFile(t *t, filepath string, original, newone string) {
 	input, err := ioutil.ReadFile(filepath)
 	if err != nil {
 		t.Fatal(err)
+		return
 	}
 
 	output := strings.ReplaceAll(string(input), original, newone)
 	err = ioutil.WriteFile(filepath, []byte(output), 0644)
 	if err != nil {
 		t.Fatal(err)
+		return
 	}
 }
