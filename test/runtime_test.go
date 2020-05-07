@@ -230,7 +230,7 @@ func testLocalEnvRunGithubSource(t *t) {
 	}()
 
 	try("Find location", t, func() ([]byte, error) {
-		psCmd := exec.Command("micro", "list", "services")
+		psCmd := exec.Command("micro", "status")
 		outp, err := psCmd.CombinedOutput()
 		if err != nil {
 			return outp, err
