@@ -284,7 +284,7 @@ func TestLocalEnvRunGithubSource(t *testing.T) {
 			return outp, errors.New("Output should contain location")
 		}
 		return outp, nil
-	}, 20*time.Second)
+	}, 30*time.Second)
 }
 
 func TestRunGithubSource(t *testing.T) {
