@@ -72,6 +72,7 @@ func (s server) launch() {
 	try("Calling micro server", s.t, func() ([]byte, error) {
 		return exec.Command("micro", s.envFlag(), "call", "go.micro.runtime", "Runtime.Read", "{}").CombinedOutput()
 	}, 10000*time.Millisecond)
+	time.Sleep(5 * time.Second)
 }
 
 func (s server) close() {
