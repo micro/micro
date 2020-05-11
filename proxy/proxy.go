@@ -18,7 +18,7 @@ import (
 	"github.com/micro/go-micro/v2/config/cmd"
 	log "github.com/micro/go-micro/v2/logger"
 	"github.com/micro/go-micro/v2/proxy"
-	"github.com/micro/go-micro/v2/proxy/grpc"
+	//"github.com/micro/go-micro/v2/proxy/grpc"
 	"github.com/micro/go-micro/v2/proxy/http"
 	"github.com/micro/go-micro/v2/proxy/mucp"
 	"github.com/micro/go-micro/v2/registry"
@@ -116,10 +116,12 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 		os.Exit(1)
 	}
 
+	// append router to proxy opts
 	popts = append(popts, proxy.WithRouter(r))
 
 	// new proxy
 	var p proxy.Proxy
+	// setup the default server
 	var srv server.Server
 
 	// set endpoint
@@ -128,15 +130,15 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 		case strings.HasPrefix(Endpoint, "grpc://"):
 			ep := strings.TrimPrefix(Endpoint, "grpc://")
 			popts = append(popts, proxy.WithEndpoint(ep))
-			p = grpc.NewProxy(popts...)
+			Protocol = "grpc"
 		case strings.HasPrefix(Endpoint, "http://"):
 			// TODO: strip prefix?
 			popts = append(popts, proxy.WithEndpoint(Endpoint))
-			p = http.NewProxy(popts...)
+			Protocol = "http"
 		default:
 			// TODO: strip prefix?
 			popts = append(popts, proxy.WithEndpoint(Endpoint))
-			p = mucp.NewProxy(popts...)
+			Protocol = "mucp"
 		}
 	}
 
@@ -223,23 +225,23 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 	serverOpts = append(serverOpts, authOpt)
 
 	// set proxy
-	if p == nil && len(Protocol) > 0 {
-		switch Protocol {
-		case "http":
-			p = http.NewProxy(popts...)
-			// TODO: http server
-		case "mucp":
-			popts = append(popts, proxy.WithClient(mucli.NewClient()))
-			p = mucp.NewProxy(popts...)
+	switch Protocol {
+	case "http":
+		p = http.NewProxy(popts...)
+		serverOpts = append(serverOpts, server.WithRouter(p))
+		// TODO: http server
+		srv = server.NewServer(serverOpts...)
+	case "mucp":
+		popts = append(popts, proxy.WithClient(mucli.NewClient()))
+		p = mucp.NewProxy(popts...)
 
-			serverOpts = append(serverOpts, server.WithRouter(p))
-			srv = server.NewServer(serverOpts...)
-		default:
-			p = mucp.NewProxy(popts...)
+		serverOpts = append(serverOpts, server.WithRouter(p))
+		srv = server.NewServer(serverOpts...)
+	default:
+		p = mucp.NewProxy(popts...)
 
-			serverOpts = append(serverOpts, server.WithRouter(p))
-			srv = sgrpc.NewServer(serverOpts...)
-		}
+		serverOpts = append(serverOpts, server.WithRouter(p))
+		srv = sgrpc.NewServer(serverOpts...)
 	}
 
 	if len(Endpoint) > 0 {
