@@ -1,7 +1,6 @@
 package handler
 
 import (
-	e "errors"
 	"io"
 	"os"
 	"path/filepath"
@@ -10,7 +9,7 @@ import (
 	"github.com/micro/go-micro/errors"
 	"github.com/micro/go-micro/v2/logger"
 	"github.com/micro/go-micro/v2/server"
-	proto "github.com/micro/go-micro/v2/server/proto"
+	proto "github.com/micro/go-micro/v2/util/file/proto"
 	"golang.org/x/net/context"
 )
 
@@ -27,14 +26,6 @@ func NewHandler(readDir string) proto.ServerHandler {
 // RegisterHandler is a convenience method for registering a handler
 func RegisterHandler(s server.Server, readDir string) {
 	proto.RegisterServerHandler(s, NewHandler(readDir))
-}
-
-func (h *handler) Handle(context context.Context, req *proto.HandleRequest, rsp *proto.HandleResponse) error {
-	return e.New("server.Handler is not implemented")
-}
-
-func (h *handler) Subscribe(context context.Context, req *proto.SubscribeRequest, rsp *proto.SubscribeResponse) error {
-	return e.New("server.Subscribe is not implemented")
 }
 
 type handler struct {
