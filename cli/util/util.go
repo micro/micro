@@ -5,6 +5,7 @@ package cliutil
 import (
 	"encoding/json"
 	"fmt"
+	"net"
 	"os"
 	"strings"
 
@@ -32,7 +33,7 @@ const (
 	// serverProxyAddress is the default proxy address for environment server
 	serverProxyAddress = "127.0.0.1:8081"
 	// platformProxyAddress is teh default proxy address for environment platform
-	platformProxyAddress = "proxy.micro.mu:443"
+	platformProxyAddress = "proxy.micro.mu"
 )
 
 var defaultEnvs = map[string]Env{
@@ -157,6 +158,13 @@ func GetEnv() Env {
 	if !ok {
 		return defaultEnvs[EnvLocal]
 	}
+
+	// default to :443
+	if _, port, _ := net.SplitHostPort(envir.ProxyAddress); len(port) == 0 {
+		envir.ProxyAddress = net.JoinHostPort(envir.ProxyAddress, "443")
+	}
+	fmt.Println(envir.ProxyAddress)
+
 	return envir
 }
 
