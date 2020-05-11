@@ -9,7 +9,6 @@ import (
 	log "github.com/micro/go-micro/v2/logger"
 	"github.com/micro/go-micro/v2/runtime"
 	pb "github.com/micro/go-micro/v2/runtime/service/proto"
-	"github.com/micro/micro/v2/internal/namespace"
 )
 
 type Runtime struct {
@@ -69,7 +68,7 @@ func (r *Runtime) Update(ctx context.Context, req *pb.UpdateRequest, rsp *pb.Upd
 	}
 
 	service := toService(req.Service)
-	options := toUpdateOptions(ctx)
+	options := toUpdateOptions(ctx, req.Options)
 
 	log.Infof("Updating service %s version %s source %s", service.Name, service.Version, service.Source)
 
@@ -94,7 +93,7 @@ func (r *Runtime) Delete(ctx context.Context, req *pb.DeleteRequest, rsp *pb.Del
 	}
 
 	service := toService(req.Service)
-	options := toDeleteOptions(ctx)
+	options := toDeleteOptions(ctx, req.Options)
 
 	log.Infof("Deleting service %s version %s source %s", service.Name, service.Version, service.Source)
 
@@ -114,16 +113,16 @@ func (r *Runtime) Delete(ctx context.Context, req *pb.DeleteRequest, rsp *pb.Del
 }
 
 func (r *Runtime) Logs(ctx context.Context, req *pb.LogsRequest, stream pb.Runtime_LogsStream) error {
-	opts := []runtime.LogsOption{
-		runtime.LogsNamespace(namespace.FromContext(ctx)),
-	}
+	opts := toLogsOptions(ctx, req.Options)
 
+	// options passed in the request
 	if req.GetCount() > 0 {
 		opts = append(opts, runtime.LogsCount(req.GetCount()))
 	}
 	if req.GetStream() {
 		opts = append(opts, runtime.LogsStream(req.GetStream()))
 	}
+
 	logStream, err := r.Runtime.Logs(&runtime.Service{
 		Name: req.GetService(),
 	}, opts...)
