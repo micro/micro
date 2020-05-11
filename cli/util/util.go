@@ -163,7 +163,6 @@ func GetEnv() Env {
 	if _, port, _ := net.SplitHostPort(envir.ProxyAddress); len(port) == 0 {
 		envir.ProxyAddress = net.JoinHostPort(envir.ProxyAddress, "443")
 	}
-	fmt.Println(envir.ProxyAddress)
 
 	return envir
 }
