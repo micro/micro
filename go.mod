@@ -3,7 +3,6 @@ module github.com/micro/micro/v2
 go 1.13
 
 require (
-	github.com/asim/go-file v0.0.0-20180410142150-978f4a541c86
 	github.com/aws/aws-sdk-go v1.23.0
 	github.com/boltdb/bolt v1.3.1
 	github.com/chzyer/logex v1.1.10 // indirect
@@ -18,8 +17,7 @@ require (
 	github.com/gorilla/handlers v1.4.2
 	github.com/gorilla/mux v1.7.3
 	github.com/micro/cli/v2 v2.1.2
-	github.com/micro/go-micro v1.18.0
-	github.com/micro/go-micro/v2 v2.6.1-0.20200506095814-5387f73b5d8e
+	github.com/micro/go-micro/v2 v2.6.1-0.20200511120827-1eb63635b5c0
 	github.com/miekg/dns v1.1.27
 	github.com/netdata/go-orchestrator v0.0.0-20190905093727-c793edba0e8f
 	github.com/olekukonko/tablewriter v0.0.4
@@ -35,4 +33,4 @@ require (
 	google.golang.org/grpc v1.26.0
 )
 
-replace github.com/micro/go-micro/v2 => /home/crufter/code/src/github.com/micro/go-micro
+replace github.com/micro/go-micro/v2 => github.com/crufter/go-micro/v2 upload-local

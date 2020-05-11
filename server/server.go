@@ -10,9 +10,9 @@ import (
 	"github.com/micro/go-micro/v2/config/cmd"
 	log "github.com/micro/go-micro/v2/logger"
 	gorun "github.com/micro/go-micro/v2/runtime"
+	handler "github.com/micro/go-micro/v2/util/file"
 	"github.com/micro/micro/v2/internal/platform"
 	"github.com/micro/micro/v2/internal/update"
-	"github.com/micro/micro/v2/server/handler"
 )
 
 var (
@@ -183,7 +183,9 @@ func Run(context *cli.Context) error {
 	)
 
 	// @todo make this configurable
-	handler.RegisterHandler(server.Server(), filepath.Join(os.TempDir(), "uploads"))
+	uploadDir := filepath.Join(os.TempDir(), "micro", "uploads")
+	os.MkdirAll(uploadDir, 0777)
+	handler.RegisterHandler(server.Server(), uploadDir)
 	// start the server
 	server.Run()
 
