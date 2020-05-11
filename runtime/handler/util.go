@@ -3,6 +3,7 @@ package handler
 import (
 	"context"
 
+	"github.com/micro/go-micro/v2/auth"
 	"github.com/micro/go-micro/v2/runtime"
 	pb "github.com/micro/go-micro/v2/runtime/service/proto"
 	"github.com/micro/micro/v2/internal/namespace"
@@ -28,8 +29,18 @@ func toService(s *pb.Service) *runtime.Service {
 
 // getNamespace replaces the default auth namespace until we move
 // we wil replace go.micro with micro and move our default things there
-func getNamespace(ctx context.Context) string {
-	ns := namespace.FromContext(ctx)
+func getNamespace(ctx context.Context, optsNs string) string {
+	var ns string
+
+	// if the request options included a namespace and the account making
+	// the request is an admin, use the requested namespace.
+	if acc, ok := auth.AccountFromContext(ctx); ok && acc.HasRole("admin") && len(optsNs) > 0 {
+		ns = optsNs
+	} else {
+		ns = namespace.FromContext(ctx)
+	}
+
+	// go.micro is the default namespace
 	if len(ns) == 0 || ns == "go.micro" {
 		return "default"
 	}
@@ -37,13 +48,12 @@ func getNamespace(ctx context.Context) string {
 }
 
 func toCreateOptions(ctx context.Context, opts *pb.CreateOptions) []runtime.CreateOption {
-	options := []runtime.CreateOption{
-		runtime.CreateNamespace(getNamespace(ctx)),
+	if opts == nil {
+		opts = &pb.CreateOptions{}
 	}
 
-	// stop if no options were passed
-	if opts == nil {
-		return options
+	options := []runtime.CreateOption{
+		runtime.CreateNamespace(getNamespace(ctx, opts.Namespace)),
 	}
 
 	// command options
@@ -77,13 +87,12 @@ func toCreateOptions(ctx context.Context, opts *pb.CreateOptions) []runtime.Crea
 }
 
 func toReadOptions(ctx context.Context, opts *pb.ReadOptions) []runtime.ReadOption {
-	options := []runtime.ReadOption{
-		runtime.ReadNamespace(getNamespace(ctx)),
+	if opts == nil {
+		opts = &pb.ReadOptions{}
 	}
 
-	// stop if no options were passed
-	if opts == nil {
-		return options
+	options := []runtime.ReadOption{
+		runtime.ReadNamespace(getNamespace(ctx, opts.Namespace)),
 	}
 
 	if len(opts.Service) > 0 {
@@ -99,20 +108,32 @@ func toReadOptions(ctx context.Context, opts *pb.ReadOptions) []runtime.ReadOpti
 	return options
 }
 
-func toUpdateOptions(ctx context.Context) []runtime.UpdateOption {
+func toUpdateOptions(ctx context.Context, opts *pb.UpdateOptions) []runtime.UpdateOption {
+	if opts == nil {
+		opts = &pb.UpdateOptions{}
+	}
+
 	return []runtime.UpdateOption{
-		runtime.UpdateNamespace(getNamespace(ctx)),
+		runtime.UpdateNamespace(getNamespace(ctx, opts.Namespace)),
 	}
 }
 
-func toDeleteOptions(ctx context.Context) []runtime.DeleteOption {
+func toDeleteOptions(ctx context.Context, opts *pb.DeleteOptions) []runtime.DeleteOption {
+	if opts == nil {
+		opts = &pb.DeleteOptions{}
+	}
+
 	return []runtime.DeleteOption{
-		runtime.DeleteNamespace(getNamespace(ctx)),
+		runtime.DeleteNamespace(getNamespace(ctx, opts.Namespace)),
 	}
 }
 
-func toLogsOptions(ctx context.Context) []runtime.LogsOption {
+func toLogsOptions(ctx context.Context, opts *pb.LogsOptions) []runtime.LogsOption {
+	if opts == nil {
+		opts = &pb.LogsOptions{}
+	}
+
 	return []runtime.LogsOption{
-		runtime.LogsNamespace(getNamespace(ctx)),
+		runtime.LogsNamespace(getNamespace(ctx, opts.Namespace)),
 	}
 }
