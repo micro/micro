@@ -48,13 +48,12 @@ func getNamespace(ctx context.Context, optsNs string) string {
 }
 
 func toCreateOptions(ctx context.Context, opts *pb.CreateOptions) []runtime.CreateOption {
-	options := []runtime.CreateOption{
-		runtime.CreateNamespace(getNamespace(ctx, opts.Namespace)),
+	if opts == nil {
+		opts = &pb.CreateOptions{}
 	}
 
-	// stop if no options were passed
-	if opts == nil {
-		return options
+	options := []runtime.CreateOption{
+		runtime.CreateNamespace(getNamespace(ctx, opts.Namespace)),
 	}
 
 	// command options
@@ -88,13 +87,12 @@ func toCreateOptions(ctx context.Context, opts *pb.CreateOptions) []runtime.Crea
 }
 
 func toReadOptions(ctx context.Context, opts *pb.ReadOptions) []runtime.ReadOption {
-	options := []runtime.ReadOption{
-		runtime.ReadNamespace(getNamespace(ctx, opts.Namespace)),
+	if opts == nil {
+		opts = &pb.ReadOptions{}
 	}
 
-	// stop if no options were passed
-	if opts == nil {
-		return options
+	options := []runtime.ReadOption{
+		runtime.ReadNamespace(getNamespace(ctx, opts.Namespace)),
 	}
 
 	if len(opts.Service) > 0 {
@@ -111,18 +109,30 @@ func toReadOptions(ctx context.Context, opts *pb.ReadOptions) []runtime.ReadOpti
 }
 
 func toUpdateOptions(ctx context.Context, opts *pb.UpdateOptions) []runtime.UpdateOption {
+	if opts == nil {
+		opts = &pb.UpdateOptions{}
+	}
+
 	return []runtime.UpdateOption{
 		runtime.UpdateNamespace(getNamespace(ctx, opts.Namespace)),
 	}
 }
 
 func toDeleteOptions(ctx context.Context, opts *pb.DeleteOptions) []runtime.DeleteOption {
+	if opts == nil {
+		opts = &pb.DeleteOptions{}
+	}
+
 	return []runtime.DeleteOption{
 		runtime.DeleteNamespace(getNamespace(ctx, opts.Namespace)),
 	}
 }
 
 func toLogsOptions(ctx context.Context, opts *pb.LogsOptions) []runtime.LogsOption {
+	if opts == nil {
+		opts = &pb.LogsOptions{}
+	}
+
 	return []runtime.LogsOption{
 		runtime.LogsNamespace(getNamespace(ctx, opts.Namespace)),
 	}
