@@ -3,6 +3,7 @@ package server
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 
 	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro/v2"
@@ -11,6 +12,7 @@ import (
 	gorun "github.com/micro/go-micro/v2/runtime"
 	"github.com/micro/micro/v2/internal/platform"
 	"github.com/micro/micro/v2/internal/update"
+	"github.com/micro/micro/v2/server/handler"
 )
 
 var (
@@ -180,6 +182,8 @@ func Run(context *cli.Context) error {
 		micro.Address(Address),
 	)
 
+	// @todo make this configurable
+	handler.RegisterHandler(server.Server(), filepath.Join(os.TempDir(), "uploads"))
 	// start the server
 	server.Run()
 
