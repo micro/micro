@@ -34,6 +34,13 @@ spec:
           image: micro/micro
           imagePullPolicy: Always
           env:
+          - name: MICRO_AUTH
+            value: "service"
+          - name: MICRO_AUTH_PUBLIC_KEY
+            valueFrom:
+              secretKeyRef:
+                name: micro-keypair
+                key: public
           - name: MICRO_BROKER
             value: "nats"
           - name: MICRO_BROKER_ADDRESS
