@@ -8,8 +8,7 @@ ENV PATH /go/bin:$PATH
 
 RUN mkdir -p ${GOPATH}/src ${GOPATH}/bin
 
-COPY . /
-RUN make
+COPY ./micro /micro
 
 RUN apk add ca-certificates && \
     rm -rf /var/cache/apk/* /tmp/* && \

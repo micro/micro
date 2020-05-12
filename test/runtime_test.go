@@ -15,8 +15,10 @@ import (
 	"time"
 )
 
+const retryCount = 1
+
 func TestNew(t *testing.T) {
-	trySuite(t, testNew, 5)
+	trySuite(t, testNew, retryCount)
 }
 
 func testNew(t *t) {
@@ -67,7 +69,7 @@ func testNew(t *t) {
 }
 
 func TestServerModeCall(t *testing.T) {
-	trySuite(t, testServerModeCall, 5)
+	trySuite(t, testServerModeCall, retryCount)
 }
 
 func testServerModeCall(t *t) {
@@ -94,7 +96,7 @@ func testServerModeCall(t *t) {
 }
 
 func TestRunLocalSource(t *testing.T) {
-	trySuite(t, testRunLocalSource, 1)
+	trySuite(t, testRunLocalSource, retryCount)
 }
 
 func testRunLocalSource(t *t) {
@@ -138,7 +140,7 @@ func testRunLocalSource(t *t) {
 }
 
 func TestLocalOutsideRepo(t *testing.T) {
-	trySuite(t, testLocalOutsideRepo, 5)
+	trySuite(t, testLocalOutsideRepo, retryCount)
 }
 
 func testLocalOutsideRepo(t *t) {
@@ -206,7 +208,7 @@ func testLocalOutsideRepo(t *t) {
 }
 
 func TestLocalEnvRunGithubSource(t *testing.T) {
-	trySuite(t, testLocalEnvRunGithubSource, 5)
+	trySuite(t, testLocalEnvRunGithubSource, retryCount)
 }
 
 func testLocalEnvRunGithubSource(t *t) {
@@ -244,7 +246,7 @@ func testLocalEnvRunGithubSource(t *t) {
 }
 
 func TestRunGithubSource(t *testing.T) {
-	trySuite(t, testRunGithubSource, 5)
+	trySuite(t, testRunGithubSource, retryCount)
 }
 
 func testRunGithubSource(t *t) {
@@ -302,7 +304,7 @@ func testRunGithubSource(t *t) {
 }
 
 func TestRunLocalUpdateAndCall(t *testing.T) {
-	trySuite(t, testRunLocalUpdateAndCall, 1)
+	trySuite(t, testRunLocalUpdateAndCall, retryCount)
 }
 
 func testRunLocalUpdateAndCall(t *t) {
@@ -332,7 +334,7 @@ func testRunLocalUpdateAndCall(t *t) {
 			return outp, errors.New("can't find service in runtime")
 		}
 		return outp, err
-	}, 30*time.Second)
+	}, 15*time.Second)
 
 	try("Call example service", t, func() ([]byte, error) {
 		callCmd := exec.Command("micro", serv.envFlag(), "call", "go.micro.service.example", "Example.Call", `{"name": "Joe"}`)
@@ -383,7 +385,7 @@ func testRunLocalUpdateAndCall(t *t) {
 }
 
 func TestExistingLogs(t *testing.T) {
-	trySuite(t, testExistingLogs, 5)
+	trySuite(t, testExistingLogs, retryCount)
 }
 
 func testExistingLogs(t *t) {
@@ -414,7 +416,7 @@ func testExistingLogs(t *t) {
 }
 
 func TestStreamLogsAndThirdPartyRepo(t *testing.T) {
-	trySuite(t, testStreamLogsAndThirdPartyRepo, 5)
+	trySuite(t, testStreamLogsAndThirdPartyRepo, retryCount)
 }
 
 func testStreamLogsAndThirdPartyRepo(t *t) {
