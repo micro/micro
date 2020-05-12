@@ -15,8 +15,6 @@ import (
 	"time"
 )
 
-const retryCount = 1
-
 func TestNew(t *testing.T) {
 	trySuite(t, testNew, retryCount)
 }

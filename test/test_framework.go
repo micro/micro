@@ -12,6 +12,11 @@ import (
 	"time"
 )
 
+const (
+	retryCount = 1
+	isParallel = true
+)
+
 type cmdFunc func() ([]byte, error)
 
 // try is designed with command line executions in mind
@@ -88,7 +93,7 @@ func newServer(t *t) server {
 	exec.Command("docker", "rm", fname).CombinedOutput()
 
 	return server{
-		cmd: exec.Command("docker", "run", "--name", fname,
+		cmd: exec.Command("docker", "run", "--network", "alpine-net", "--name", fname,
 			fmt.Sprintf("-p=%v:8081", portnum), "micro", "server"),
 		t:         t,
 		proxyPort: portnum,
@@ -148,7 +153,7 @@ func (t *t) Fatalf(format string, values ...interface{}) {
 }
 
 func (t *t) Parallel() {
-	if t.counter == 0 {
+	if t.counter == 0 && isParallel {
 		t.t.Parallel()
 	}
 	t.counter++
