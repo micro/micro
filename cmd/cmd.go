@@ -13,6 +13,7 @@ import (
 	"github.com/micro/micro/v2/bot"
 	"github.com/micro/micro/v2/broker"
 	"github.com/micro/micro/v2/cli"
+	cliutil "github.com/micro/micro/v2/cli/util"
 	"github.com/micro/micro/v2/config"
 	"github.com/micro/micro/v2/debug"
 	"github.com/micro/micro/v2/health"
@@ -31,8 +32,10 @@ import (
 	"github.com/micro/micro/v2/web"
 
 	// include usage
+
 	"github.com/micro/micro/v2/internal/platform"
 	_ "github.com/micro/micro/v2/internal/plugins"
+	"github.com/micro/micro/v2/internal/update"
 	_ "github.com/micro/micro/v2/internal/usage"
 
 	gostore "github.com/micro/go-micro/v2/store"
@@ -174,6 +177,12 @@ func setup(app *ccli.App) {
 			Usage:   "Enable automatic updates",
 			EnvVars: []string{"MICRO_AUTO_UPDATE"},
 		},
+		&ccli.StringFlag{
+			Name:    "update_url",
+			Usage:   "Set the url to retrieve system updates from",
+			EnvVars: []string{"MICRO_UPDATE_URL"},
+			Value:   update.DefaultURL,
+		},
 		&ccli.BoolFlag{
 			Name:    "report_usage",
 			Usage:   "Report usage statistics",
@@ -197,6 +206,7 @@ func setup(app *ccli.App) {
 	before := app.Before
 
 	app.Before = func(ctx *ccli.Context) error {
+
 		if len(ctx.String("api_handler")) > 0 {
 			api.Handler = ctx.String("api_handler")
 		}
@@ -234,6 +244,7 @@ func setup(app *ccli.App) {
 			}
 		}
 
+		cliutil.SetupCommand(ctx)
 		// now do previous before
 		if err := before(ctx); err != nil {
 			return err

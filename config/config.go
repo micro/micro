@@ -12,7 +12,6 @@ import (
 	"github.com/micro/go-micro/v2/config/cmd"
 	proto "github.com/micro/go-micro/v2/config/source/service/proto"
 	log "github.com/micro/go-micro/v2/logger"
-	cliutil "github.com/micro/micro/v2/cli/util"
 	"github.com/micro/micro/v2/config/handler"
 )
 
@@ -177,7 +176,6 @@ func delConfig(ctx *cli.Context) error {
 }
 
 func Commands(options ...micro.Option) []*cli.Command {
-	cliutil.SetupCommand()
 	command := &cli.Command{
 		Name:  "config",
 		Usage: "Manage configuration values",

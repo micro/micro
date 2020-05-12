@@ -5,13 +5,14 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"text/tabwriter"
 	"time"
 	"unicode/utf8"
 
 	"github.com/dustin/go-humanize"
 	"github.com/micro/cli/v2"
+	"github.com/micro/go-micro/v2/config/cmd"
 	"github.com/micro/go-micro/v2/store"
-	"github.com/olekukonko/tablewriter"
 	"github.com/pkg/errors"
 )
 
@@ -20,15 +21,20 @@ func Read(ctx *cli.Context) error {
 	if err := initStore(ctx); err != nil {
 		return err
 	}
-	if ctx.Args().Len() != 1 {
+	if ctx.Args().Len() < 1 {
 		return errors.New("Key arg is required")
 	}
 	opts := []store.ReadOption{}
 	if ctx.Bool("prefix") {
 		opts = append(opts, store.ReadPrefix())
 	}
-	records, err := store.DefaultStore.Read(ctx.Args().First(), opts...)
+
+	store := *cmd.DefaultOptions().Store
+	records, err := store.Read(ctx.Args().First(), opts...)
 	if err != nil {
+		if err.Error() == "not found" {
+			return err
+		}
 		return errors.Wrapf(err, "Couldn't read %s from store", ctx.Args().First())
 	}
 	switch ctx.String("output") {
@@ -38,34 +44,35 @@ func Read(ctx *cli.Context) error {
 			return errors.Wrap(err, "failed marshalling JSON")
 		}
 		fmt.Printf("%s\n", string(jsonRecords))
-	case "table":
-		t := tablewriter.NewWriter(os.Stdout)
-		t.SetBorders(tablewriter.Border{Left: true, Top: false, Right: true, Bottom: false})
-		t.SetCenterSeparator("|")
-		t.SetHeader([]string{"Key", "Value", "Expiry"})
-		for _, r := range records {
-			var key, value, expiry string
-			key = r.Key
-			if isPrintable(r.Value) {
-				value = string(r.Value)
-				if len(value) > 50 {
-					runes := []rune(value)
-					value = string(runes[:50]) + "..."
-				}
-			} else {
-				value = fmt.Sprintf("%#x", r.Value[:20])
-			}
-			if r.Expiry == 0 {
-				expiry = "None"
-			} else {
-				expiry = humanize.Time(time.Now().Add(r.Expiry))
-			}
-			t.Append([]string{key, value, expiry})
-		}
-		t.SetFooter([]string{fmt.Sprintf("Total %d", len(records)), "", ""})
-		t.Render()
 	default:
-		return errors.Errorf("%s is not a valid output format", ctx.String("output"))
+		if ctx.Bool("verbose") {
+			w := tabwriter.NewWriter(os.Stdout, 0, 0, 1, ' ', 0)
+			fmt.Fprintf(w, "%v \t %v \t %v\n", "KEY", "VALUE", "EXPIRY")
+			for _, r := range records {
+				var key, value, expiry string
+				key = r.Key
+				if isPrintable(r.Value) {
+					value = string(r.Value)
+					if len(value) > 50 {
+						runes := []rune(value)
+						value = string(runes[:50]) + "..."
+					}
+				} else {
+					value = fmt.Sprintf("%#x", r.Value[:20])
+				}
+				if r.Expiry == 0 {
+					expiry = "None"
+				} else {
+					expiry = humanize.Time(time.Now().Add(r.Expiry))
+				}
+				fmt.Fprintf(w, "%v \t %v \t %v\n", key, value, expiry)
+			}
+			w.Flush()
+			return nil
+		}
+		for _, r := range records {
+			fmt.Println(string(r.Value))
+		}
 	}
 	return nil
 }
@@ -89,10 +96,11 @@ func Write(ctx *cli.Context) error {
 		}
 		record.Expiry = d
 	}
-	if err := store.DefaultStore.Write(record); err != nil {
+
+	store := *cmd.DefaultOptions().Store
+	if err := store.Write(record); err != nil {
 		return errors.Wrap(err, "couldn't write")
 	}
-	fmt.Fprintf(os.Stderr, "Wrote record %s to %s store\n", record.Key, store.DefaultStore.String())
 	return nil
 }
 
@@ -111,7 +119,8 @@ func List(ctx *cli.Context) error {
 	if ctx.Uint("offset") != 0 {
 		opts = append(opts, store.ListLimit(ctx.Uint("offset")))
 	}
-	keys, err := store.DefaultStore.List(opts...)
+	store := *cmd.DefaultOptions().Store
+	keys, err := store.List(opts...)
 	if err != nil {
 		return errors.Wrap(err, "couldn't list")
 	}
@@ -122,18 +131,10 @@ func List(ctx *cli.Context) error {
 			return errors.Wrap(err, "failed marshalling JSON")
 		}
 		fmt.Printf("%s\n", string(jsonRecords))
-	case "table":
-		t := tablewriter.NewWriter(os.Stdout)
-		t.SetBorders(tablewriter.Border{Left: true, Top: false, Right: true, Bottom: false})
-		t.SetCenterSeparator("|")
-		t.SetHeader([]string{"Key"})
-		for _, k := range keys {
-			t.Append([]string{k})
-		}
-		t.SetFooter([]string{fmt.Sprintf("Total %d", len(keys))})
-		t.Render()
 	default:
-		return errors.Errorf("%s is not a valid output format", ctx.String("output"))
+		for _, key := range keys {
+			fmt.Println(key)
+		}
 	}
 	return nil
 }
@@ -146,7 +147,8 @@ func Delete(ctx *cli.Context) error {
 	if len(ctx.Args().Slice()) == 0 {
 		return errors.New("key is required")
 	}
-	if err := store.DefaultStore.Delete(ctx.Args().First()); err != nil {
+	store := *cmd.DefaultOptions().Store
+	if err := store.Delete(ctx.Args().First()); err != nil {
 		return errors.Wrapf(err, "couldn't delete key %s", ctx.Args().First())
 	}
 	return nil
@@ -161,7 +163,8 @@ func initStore(ctx *cli.Context) error {
 		opts = append(opts, store.Table(ctx.String("table")))
 	}
 	if len(opts) > 0 {
-		if err := store.DefaultStore.Init(opts...); err != nil {
+		store := *cmd.DefaultOptions().Store
+		if err := store.Init(opts...); err != nil {
 			return errors.Wrap(err, "couldn't reinitialise store with options")
 		}
 	}

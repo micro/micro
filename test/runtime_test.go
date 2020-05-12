@@ -174,7 +174,7 @@ func TestRunLocalSource(t *testing.T) {
 			return outp, errors.New("Can't find example service in runtime")
 		}
 		return outp, err
-	}, 8*time.Second)
+	}, 12*time.Second)
 
 	try("Find go.micro.service.example in list", t, func() ([]byte, error) {
 		outp, err := exec.Command("micro", "list", "services").CombinedOutput()
@@ -186,6 +186,66 @@ func TestRunLocalSource(t *testing.T) {
 		}
 		return outp, err
 	}, 5*time.Second)
+}
+
+func TestLocalOutsideRepo(t *testing.T) {
+	serv := newServer(t)
+	serv.launch()
+	defer serv.close()
+
+	dirname := "last-dir-of-path"
+	folderPath := filepath.Join(os.TempDir(), dirname)
+
+	err := os.MkdirAll(folderPath, 0777)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// since copying a whole folder is rather involved and only Linux sources
+	// are available, see https://stackoverflow.com/questions/51779243/copy-a-folder-in-go
+	// we fall back to `cp`
+	outp, err := exec.Command("cp", "-r", "example-service/.", folderPath).CombinedOutput()
+	if err != nil {
+		t.Fatal(string(outp))
+	}
+
+	runCmd := exec.Command("micro", "run", ".")
+	runCmd.Dir = folderPath
+	outp, err = runCmd.CombinedOutput()
+	if err != nil {
+		t.Fatalf("micro run failure, output: %v", string(outp))
+	}
+
+	try("Find "+dirname, t, func() ([]byte, error) {
+		psCmd := exec.Command("micro", "status")
+		outp, err = psCmd.CombinedOutput()
+		if err != nil {
+			return outp, err
+		}
+
+		lines := strings.Split(string(outp), "\n")
+		found := false
+		for _, line := range lines {
+			if strings.HasPrefix(line, dirname) {
+				found = true
+			}
+		}
+		if !found {
+			return outp, errors.New("Can't find '" + dirname + "' in runtime")
+		}
+		return outp, err
+	}, 12*time.Second)
+
+	try("Find go.micro.service.example in list", t, func() ([]byte, error) {
+		outp, err := exec.Command("micro", "list", "services").CombinedOutput()
+		if err != nil {
+			return outp, err
+		}
+		if !strings.Contains(string(outp), "go.micro.service.example") {
+			return outp, errors.New("Can't find example service in list")
+		}
+		return outp, err
+	}, 12*time.Second)
 }
 
 func TestLocalEnvRunGithubSource(t *testing.T) {

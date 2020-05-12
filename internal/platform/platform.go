@@ -25,7 +25,7 @@ var (
 	Version string
 
 	// list of services managed
-	services = []string{
+	Services = []string{
 		// runtime services
 		"config",   // ????
 		"network",  // :8085
@@ -95,7 +95,7 @@ func Init(context *cli.Context) {
 	}
 
 	// list of services to operate on
-	initServices := services
+	initServices := Services
 
 	// get the service prefix
 	if namespace := context.String("namespace"); len(namespace) > 0 {
@@ -104,11 +104,16 @@ func Init(context *cli.Context) {
 		}
 	}
 
+	updateURL := context.String("update_url")
+	if len(updateURL) == 0 {
+		updateURL = update.DefaultURL
+	}
+
 	// create new micro runtime
 	muRuntime := cmd.DefaultCmd.Options().Runtime
 
 	// Use default update notifier
-	notifier := update.NewScheduler(Version)
+	notifier := update.NewScheduler(updateURL, Version)
 	wrapped := initNotify(notifier, initServices)
 
 	// specify with a notifier that fires
@@ -196,13 +201,18 @@ func Run(context *cli.Context) error {
 
 	// Use default update notifier
 	if context.Bool("auto_update") {
+		updateURL := context.String("update_url")
+		if len(updateURL) == 0 {
+			updateURL = update.DefaultURL
+		}
+
 		options := []gorun.Option{
-			gorun.WithScheduler(update.NewScheduler(Version)),
+			gorun.WithScheduler(update.NewScheduler(updateURL, Version)),
 		}
 		(*muRuntime).Init(options...)
 	}
 
-	for _, service := range services {
+	for _, service := range Services {
 		name := service
 
 		if namespace := context.String("namespace"); len(namespace) > 0 {

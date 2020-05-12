@@ -18,18 +18,17 @@ type Store struct {
 	// The default store
 	Default store.Store
 
-	// The internal store where databases and table information is kept
-	Internal store.Store
-
 	// Store initialiser
 	New func(string, string) (store.Store, error)
 
 	// Store map
 	sync.RWMutex
-	Stores map[string]store.Store
+
+	Stores map[string]bool
 }
 
-func (s *Store) get(ctx context.Context) (store.Store, error) {
+// TODO: remove this horrible bs
+func (s *Store) get(ctx context.Context, database, table string) (string, string) {
 	// lock (might be a race)
 	s.Lock()
 	defer s.Unlock()
@@ -44,14 +43,15 @@ func (s *Store) get(ctx context.Context) (store.Store, error) {
 
 	// retrieve values from metadata
 	// TODO: switch to options
-	md, ok := metadata.FromContext(ctx)
-	if !ok {
-		return s.Default, nil
+	if md, ok := metadata.FromContext(ctx); ok {
+		// TODO: remove this, its here only for legacy purposes
+		if v, ok := md.Get("Micro-Database"); ok && len(v) > 0 {
+			database = v
+		}
+		if v, ok := md.Get("Micro-Table"); ok && len(v) > 0 {
+			table = v
+		}
 	}
-
-	// TODO: should we process database passed in?
-	database, _ := md.Get("Micro-Database")
-	table, _ := md.Get("Micro-Table")
 
 	// set the database to the namespace
 	if len(ns) > 0 {
@@ -70,42 +70,43 @@ func (s *Store) get(ctx context.Context) (store.Store, error) {
 
 	// just use the default if nothing is specified
 	if len(database) == 0 && len(table) == 0 {
-		return s.Default, nil
+		return "micro", "store"
 	}
 
 	// attempt to get the database
-	str, ok := s.Stores[database+":"+table]
-	// got it
-	if ok {
-		return str, nil
-	}
-
-	// create a new store
-	// either database is not blank or table is not blank
-	st, err := s.New(database, table)
-	if err != nil {
-		return nil, errors.InternalServerError("go.micro.store", "failed to setup store: %s", err.Error())
+	_, ok := s.Stores[database+":"+table]
+	if !ok {
+		// set that we know about this database/table
+		s.New(database, table)
 	}
 
 	// save store
-	s.Stores[database+":"+table] = st
+	s.Stores[database+":"+table] = true
 
-	return st, nil
+	return database, table
 }
 
 func (s *Store) Read(ctx context.Context, req *pb.ReadRequest, rsp *pb.ReadResponse) error {
-	// get new store
-	st, err := s.get(ctx)
-	if err != nil {
-		return err
-	}
-
 	var opts []store.ReadOption
-	if req.Options != nil && req.Options.Prefix {
-		opts = append(opts, store.ReadPrefix())
+	var database, table string
+
+	if req.Options != nil {
+		if req.Options.Prefix {
+			opts = append(opts, store.ReadPrefix())
+		}
+		if db := req.Options.Database; len(db) > 0 {
+			database = db
+		}
+		if tb := req.Options.Table; len(tb) > 0 {
+			table = tb
+		}
 	}
 
-	vals, err := st.Read(req.Key, opts...)
+	// get new store
+	database, table = s.get(ctx, database, table)
+	opts = append(opts, store.ReadFrom(database, table))
+
+	vals, err := s.Default.Read(req.Key, opts...)
 	if err != nil && err == store.ErrNotFound {
 		return errors.NotFound("go.micro.store", err.Error())
 	} else if err != nil {
@@ -123,11 +124,19 @@ func (s *Store) Read(ctx context.Context, req *pb.ReadRequest, rsp *pb.ReadRespo
 }
 
 func (s *Store) Write(ctx context.Context, req *pb.WriteRequest, rsp *pb.WriteResponse) error {
-	// get new store
-	st, err := s.get(ctx)
-	if err != nil {
-		return err
+	var database, table string
+
+	if req.Options != nil {
+		if db := req.Options.Database; len(db) > 0 {
+			database = db
+		}
+		if tb := req.Options.Table; len(tb) > 0 {
+			table = tb
+		}
 	}
+
+	// get new store
+	database, table = s.get(ctx, database, table)
 
 	if req.Record == nil {
 		return errors.BadRequest("go.micro.store", "no record specified")
@@ -139,7 +148,10 @@ func (s *Store) Write(ctx context.Context, req *pb.WriteRequest, rsp *pb.WriteRe
 		Expiry: time.Duration(req.Record.Expiry) * time.Second,
 	}
 
-	err = st.Write(record)
+	var opts []store.WriteOption
+	opts = append(opts, store.WriteTo(database, table))
+
+	err := s.Default.Write(record, opts...)
 	if err != nil && err == store.ErrNotFound {
 		return errors.NotFound("go.micro.store", err.Error())
 	} else if err != nil {
@@ -150,12 +162,24 @@ func (s *Store) Write(ctx context.Context, req *pb.WriteRequest, rsp *pb.WriteRe
 }
 
 func (s *Store) Delete(ctx context.Context, req *pb.DeleteRequest, rsp *pb.DeleteResponse) error {
-	// get new store
-	st, err := s.get(ctx)
-	if err != nil {
-		return err
+	var database, table string
+
+	if req.Options != nil {
+		if db := req.Options.Database; len(db) > 0 {
+			database = db
+		}
+		if tb := req.Options.Table; len(tb) > 0 {
+			table = tb
+		}
 	}
-	if err := st.Delete(req.Key); err == store.ErrNotFound {
+
+	// get new store
+	database, table = s.get(ctx, database, table)
+
+	var opts []store.DeleteOption
+	opts = append(opts, store.DeleteFrom(database, table))
+
+	if err := s.Default.Delete(req.Key, opts...); err == store.ErrNotFound {
 		return errors.NotFound("go.micro.store", err.Error())
 	} else if err != nil {
 		return errors.InternalServerError("go.micro.store", err.Error())
@@ -163,8 +187,9 @@ func (s *Store) Delete(ctx context.Context, req *pb.DeleteRequest, rsp *pb.Delet
 	return nil
 }
 
+// TODO: lock down to admin?
 func (s *Store) Databases(ctx context.Context, req *pb.DatabasesRequest, rsp *pb.DatabasesResponse) error {
-	recs, err := s.Internal.Read("databases/", store.ReadPrefix())
+	recs, err := s.Default.Read("databases/", store.ReadPrefix(), store.ReadFrom("micro", "internal"))
 	if err != nil {
 		return errors.InternalServerError("go.micro.store", err.Error())
 	}
@@ -175,8 +200,9 @@ func (s *Store) Databases(ctx context.Context, req *pb.DatabasesRequest, rsp *pb
 	return nil
 }
 
+// TODO: lock down to admin?
 func (s *Store) Tables(ctx context.Context, req *pb.TablesRequest, rsp *pb.TablesResponse) error {
-	recs, err := s.Internal.Read("tables/"+req.Database+"/", store.ReadPrefix())
+	recs, err := s.Default.Read("tables/"+req.Database+"/", store.ReadPrefix(), store.ReadFrom("micro", "internal"))
 	if err != nil {
 		return errors.InternalServerError("go.micro.store", err.Error())
 	}
@@ -188,13 +214,24 @@ func (s *Store) Tables(ctx context.Context, req *pb.TablesRequest, rsp *pb.Table
 }
 
 func (s *Store) List(ctx context.Context, req *pb.ListRequest, stream pb.Store_ListStream) error {
-	// get new store
-	st, err := s.get(ctx)
-	if err != nil {
-		return err
+	var database, table string
+
+	if req.Options != nil {
+		if db := req.Options.Database; len(db) > 0 {
+			database = db
+		}
+		if tb := req.Options.Table; len(tb) > 0 {
+			table = tb
+		}
 	}
 
-	vals, err := st.List()
+	// get new store
+	database, table = s.get(ctx, database, table)
+
+	var opts []store.ListOption
+	opts = append(opts, store.ListFrom(database, table))
+
+	vals, err := s.Default.List(opts...)
 	if err != nil && err == store.ErrNotFound {
 		return errors.NotFound("go.micro.store", err.Error())
 	} else if err != nil {

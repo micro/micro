@@ -23,7 +23,6 @@ var (
 		"registry", // :8000
 		"broker",   // :8001
 		"store",    // :8002
-		"tunnel",   // :8083
 		"router",   // :8084
 		"debug",    // :????
 		"proxy",    // :8081
@@ -126,8 +125,13 @@ func Run(context *cli.Context) error {
 
 	// Use default update notifier
 	if context.Bool("auto_update") {
+		updateURL := context.String("update_url")
+		if len(updateURL) == 0 {
+			updateURL = update.DefaultURL
+		}
+
 		options := []gorun.Option{
-			gorun.WithScheduler(update.NewScheduler(platform.Version)),
+			gorun.WithScheduler(update.NewScheduler(updateURL, platform.Version)),
 		}
 		(*muRuntime).Init(options...)
 	}

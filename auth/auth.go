@@ -94,7 +94,7 @@ var (
 )
 
 // run the auth service
-func run(ctx *cli.Context, srvOpts ...micro.Option) {
+func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 	log.Init(log.WithFields(map[string]interface{}{"service": "auth"}))
 
 	// Init plugins
@@ -228,13 +228,12 @@ func whoami(ctx *cli.Context) {
 
 //Commands for auth
 func Commands(srvOpts ...micro.Option) []*cli.Command {
-	cliutil.SetupCommand()
 	commands := []*cli.Command{
 		{
 			Name:  "auth",
 			Usage: "Run the auth service",
 			Action: func(ctx *cli.Context) error {
-				run(ctx)
+				Run(ctx)
 				return nil
 			},
 			Subcommands: append([]*cli.Command{

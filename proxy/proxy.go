@@ -4,7 +4,6 @@ package proxy
 import (
 	"os"
 	"strings"
-	"time"
 
 	"github.com/go-acme/lego/v3/providers/dns/cloudflare"
 	"github.com/micro/cli/v2"
@@ -19,7 +18,7 @@ import (
 	"github.com/micro/go-micro/v2/config/cmd"
 	log "github.com/micro/go-micro/v2/logger"
 	"github.com/micro/go-micro/v2/proxy"
-	"github.com/micro/go-micro/v2/proxy/grpc"
+	//"github.com/micro/go-micro/v2/proxy/grpc"
 	"github.com/micro/go-micro/v2/proxy/http"
 	"github.com/micro/go-micro/v2/proxy/mucp"
 	"github.com/micro/go-micro/v2/registry"
@@ -28,7 +27,6 @@ import (
 	rs "github.com/micro/go-micro/v2/router/service"
 	"github.com/micro/go-micro/v2/server"
 	sgrpc "github.com/micro/go-micro/v2/server/grpc"
-	"github.com/micro/go-micro/v2/store"
 	"github.com/micro/go-micro/v2/sync/memory"
 	"github.com/micro/go-micro/v2/util/mux"
 	"github.com/micro/go-micro/v2/util/wrapper"
@@ -50,7 +48,7 @@ var (
 	ACMECA                = acme.LetsEncryptProductionCA
 )
 
-func run(ctx *cli.Context, srvOpts ...micro.Option) {
+func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 	log.Init(log.WithFields(map[string]interface{}{"service": "proxy"}))
 
 	// because MICRO_PROXY_ADDRESS is used internally by the go-micro/client
@@ -80,12 +78,9 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 
 	// service opts
 	srvOpts = append(srvOpts, micro.Name(Name))
-	if i := time.Duration(ctx.Int("register_ttl")); i > 0 {
-		srvOpts = append(srvOpts, micro.RegisterTTL(i*time.Second))
-	}
-	if i := time.Duration(ctx.Int("register_interval")); i > 0 {
-		srvOpts = append(srvOpts, micro.RegisterInterval(i*time.Second))
-	}
+
+	// new service
+	service := micro.NewService(srvOpts...)
 
 	// set the context
 	var popts []proxy.Option
@@ -121,10 +116,12 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		os.Exit(1)
 	}
 
+	// append router to proxy opts
 	popts = append(popts, proxy.WithRouter(r))
 
 	// new proxy
 	var p proxy.Proxy
+	// setup the default server
 	var srv server.Server
 
 	// set endpoint
@@ -133,15 +130,15 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 		case strings.HasPrefix(Endpoint, "grpc://"):
 			ep := strings.TrimPrefix(Endpoint, "grpc://")
 			popts = append(popts, proxy.WithEndpoint(ep))
-			p = grpc.NewProxy(popts...)
+			Protocol = "grpc"
 		case strings.HasPrefix(Endpoint, "http://"):
 			// TODO: strip prefix?
 			popts = append(popts, proxy.WithEndpoint(Endpoint))
-			p = http.NewProxy(popts...)
+			Protocol = "http"
 		default:
 			// TODO: strip prefix?
 			popts = append(popts, proxy.WithEndpoint(Endpoint))
-			p = mucp.NewProxy(popts...)
+			Protocol = "mucp"
 		}
 	}
 
@@ -170,7 +167,7 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 
 			storage := certmagic.NewStorage(
 				memory.NewSync(),
-				store.DefaultStore,
+				service.Options().Store,
 			)
 
 			config := cloudflare.NewDefaultConfig()
@@ -228,23 +225,23 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	serverOpts = append(serverOpts, authOpt)
 
 	// set proxy
-	if p == nil && len(Protocol) > 0 {
-		switch Protocol {
-		case "http":
-			p = http.NewProxy(popts...)
-			// TODO: http server
-		case "mucp":
-			popts = append(popts, proxy.WithClient(mucli.NewClient()))
-			p = mucp.NewProxy(popts...)
+	switch Protocol {
+	case "http":
+		p = http.NewProxy(popts...)
+		serverOpts = append(serverOpts, server.WithRouter(p))
+		// TODO: http server
+		srv = server.NewServer(serverOpts...)
+	case "mucp":
+		popts = append(popts, proxy.WithClient(mucli.NewClient()))
+		p = mucp.NewProxy(popts...)
 
-			serverOpts = append(serverOpts, server.WithRouter(p))
-			srv = server.NewServer(serverOpts...)
-		default:
-			p = mucp.NewProxy(popts...)
+		serverOpts = append(serverOpts, server.WithRouter(p))
+		srv = server.NewServer(serverOpts...)
+	default:
+		p = mucp.NewProxy(popts...)
 
-			serverOpts = append(serverOpts, server.WithRouter(p))
-			srv = sgrpc.NewServer(serverOpts...)
-		}
+		serverOpts = append(serverOpts, server.WithRouter(p))
+		srv = sgrpc.NewServer(serverOpts...)
 	}
 
 	if len(Endpoint) > 0 {
@@ -252,9 +249,6 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	} else {
 		log.Infof("Proxy [%s] serving protocol: %s", p.String(), Protocol)
 	}
-
-	// new service
-	service := micro.NewService(srvOpts...)
 
 	// create a new proxy muxer which includes the debug handler
 	muxer := mux.New(Name, p)
@@ -312,7 +306,7 @@ func Commands(options ...micro.Option) []*cli.Command {
 			},
 		},
 		Action: func(ctx *cli.Context) error {
-			run(ctx, options...)
+			Run(ctx, options...)
 			return nil
 		},
 	}

@@ -5,9 +5,14 @@ package cliutil
 import (
 	"encoding/json"
 	"fmt"
+	"net"
 	"os"
+	"strings"
 
+	ccli "github.com/micro/cli/v2"
 	"github.com/micro/go-micro/v2/util/config"
+	"github.com/micro/micro/v2/internal/platform"
+	"github.com/micro/micro/v2/runtime/profile"
 )
 
 const (
@@ -28,7 +33,7 @@ const (
 	// serverProxyAddress is the default proxy address for environment server
 	serverProxyAddress = "127.0.0.1:8081"
 	// platformProxyAddress is teh default proxy address for environment platform
-	platformProxyAddress = "proxy.micro.mu:443"
+	platformProxyAddress = "proxy.micro.mu"
 )
 
 var defaultEnvs = map[string]Env{
@@ -46,16 +51,54 @@ var defaultEnvs = map[string]Env{
 	},
 }
 
+func isBuiltinService(command string) bool {
+	if command == "server" {
+		return true
+	}
+	for _, service := range platform.Services {
+		if command == service {
+			return true
+		}
+	}
+	return false
+}
+
 // SetupCommand includes things that should run for each command.
-func SetupCommand() {
+func SetupCommand(ctx *ccli.Context) {
+	if ctx.Args().Len() == 1 && isBuiltinService(ctx.Args().First()) {
+		return
+	}
+	if ctx.Args().Len() >= 1 && ctx.Args().First() == "env" {
+		return
+	}
+
+	toFlag := func(s string) string {
+		return strings.ToLower(strings.ReplaceAll(s, "MICRO_", ""))
+	}
+	setFlags := func(envars []string) {
+		for _, envar := range envars {
+			// setting both env and flags here
+			// as the proxy settings for example did not take effect
+			// with only flags
+			parts := strings.Split(envar, "=")
+			key := toFlag(parts[0])
+			os.Setenv(parts[0], parts[1])
+			ctx.Set(key, parts[1])
+		}
+	}
 	env := GetEnv()
-	if env.Name == EnvLocal {
+	switch env.Name {
+	case EnvServer:
+		setFlags(profile.ServerCLI())
+	case EnvPlatform:
+		setFlags(profile.PlatformCLI())
+	case EnvLocal:
 		// Not setting a proxy for local env
 		return
 	}
+
 	// Set proxy for all envs apart from local
-	os.Setenv("MICRO_PROXY", "service")
-	os.Setenv("MICRO_PROXY_ADDRESS", env.ProxyAddress)
+	setFlags([]string{"MICRO_PROXY=service", "MICRO_PROXY_ADDRESS=" + env.ProxyAddress})
 }
 
 type Env struct {
@@ -115,6 +158,12 @@ func GetEnv() Env {
 	if !ok {
 		return defaultEnvs[EnvLocal]
 	}
+
+	// default to :443
+	if _, port, _ := net.SplitHostPort(envir.ProxyAddress); len(port) == 0 {
+		envir.ProxyAddress = net.JoinHostPort(envir.ProxyAddress, "443")
+	}
+
 	return envir
 }
 
