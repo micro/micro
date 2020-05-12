@@ -39,6 +39,7 @@ import (
 	_ "github.com/micro/micro/v2/internal/usage"
 
 	gostore "github.com/micro/go-micro/v2/store"
+	inauth "github.com/micro/micro/v2/internal/auth"
 )
 
 var (
@@ -279,6 +280,15 @@ func setup(app *ccli.App) {
 		// maybe in service.Run so all things are configured
 		if len(opts) > 0 {
 			(*cmd.DefaultCmd.Options().Store).Init(opts...)
+		}
+
+		// add the system rules
+		for role, resources := range inauth.SystemRules {
+			for _, res := range resources {
+				if err := (*cmd.DefaultCmd.Options().Auth).Grant(role, res); err != nil {
+					return err
+				}
+			}
 		}
 
 		return nil

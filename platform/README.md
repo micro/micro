@@ -1,31 +1,20 @@
 # Platform
 
-The micro platform is a fully managed platform for microservices development.
+This directory serves as platform bootstrapping for Micro.
 
 ## Overview
 
 The platform provides **Micro as a Service** as a fully managed solution. The platform is 
-bootstrapped onto Kubernetes on the major cloud providers, including load balancing and 
-dns management. This repository serves as the entrypoint and single location for all platform related source 
-code and documentation.
-
-The platform builds on the [Micro](https://github.com/micro/micro) runtime and includes the features defined below.
-
-## Features
-
-The features which will be included in the platform
-
-- **Cloud Automation** - Full terraform automation
-- **Kubernetes Native** - Built to run on Kubernetes
-- **Multi-Region** - Global deployments of the platform
-- **Multi-Cloud** - Deploy across multiple clouds
+bootstrapped onto Kubernetes on any major cloud provider, including load balancing and 
+dns management. This repository serves as the entrypoint and single location for all bootstrapping
+related source code and documentation.
 
 ## Usage
 
 Install the platform binary
 
 ```
-go get github.com/micro/platform
+go get github.com/micro/micro/cmd/platform
 ```
 
 To bootstrap the platform, create a [config.yaml](./config-test.yaml), and prepare a AWS S3 bucket

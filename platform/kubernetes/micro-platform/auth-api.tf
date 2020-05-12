@@ -71,6 +71,15 @@ resource "kubernetes_deployment" "auth_api" {
               value = env.value
             }
           }
+          env {
+            name = "MICRO_AUTH_PUBLIC_KEY"
+            value_from {
+              secret_key_ref {
+                name = kubernetes_secret.micro_keypair.metadata[0].name
+                key  = "public"
+              }
+            }
+          }
           args              = ["auth", "api"]
           image             = var.micro_image
           image_pull_policy = var.image_pull_policy
