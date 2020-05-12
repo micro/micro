@@ -17,6 +17,7 @@ locals {
     {
       "MICRO_DEBUG_LOG"    = "service"
       "MICRO_DEBUG_WINDOW" = "600"
+      "MICRO_AUTH"         = "jwt"
     }
   )
 }
@@ -69,6 +70,24 @@ resource "kubernetes_deployment" "debug" {
             content {
               name  = env.key
               value = env.value
+            }
+          }
+          env {
+            name = "MICRO_AUTH_PUBLIC_KEY"
+            value_from {
+              secret_key_ref {
+                name = kubernetes_secret.micro_keypair.metadata[0].name
+                key  = "public"
+              }
+            }
+          }
+          env {
+            name = "MICRO_AUTH_PRIVATE_KEY"
+            value_from {
+              secret_key_ref {
+                name = kubernetes_secret.micro_keypair.metadata[0].name
+                key  = "private"
+              }
             }
           }
           args              = ["debug"]

@@ -16,6 +16,7 @@ locals {
   auth_env = merge(
     local.common_env_vars,
     {
+      "MICRO_AUTH" = "jwt"
     }
   )
 }

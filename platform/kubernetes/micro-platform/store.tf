@@ -17,6 +17,7 @@ locals {
     local.common_env_vars,
     {
       "MICRO_SERVER_ADDRESS" = "0.0.0.0:${local.store_port}"
+      "MICRO_AUTH"           = "jwt"
     }
   )
 }
@@ -69,6 +70,24 @@ resource "kubernetes_deployment" "store" {
             content {
               name  = env.key
               value = env.value
+            }
+          }
+          env {
+            name = "MICRO_AUTH_PUBLIC_KEY"
+            value_from {
+              secret_key_ref {
+                name = kubernetes_secret.micro_keypair.metadata[0].name
+                key  = "public"
+              }
+            }
+          }
+          env {
+            name = "MICRO_AUTH_PRIVATE_KEY"
+            value_from {
+              secret_key_ref {
+                name = kubernetes_secret.micro_keypair.metadata[0].name
+                key  = "private"
+              }
             }
           }
           args              = ["store"]

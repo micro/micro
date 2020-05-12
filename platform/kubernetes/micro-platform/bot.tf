@@ -15,6 +15,7 @@ locals {
   bot_env = merge(
     local.common_env_vars,
     {
+      "MICRO_AUTH" = "SERVICE"
     }
   )
 }
@@ -75,6 +76,15 @@ resource "kubernetes_deployment" "bot" {
               secret_key_ref {
                 key  = "token"
                 name = kubernetes_secret.slack_token.metadata[0].name
+              }
+            }
+          }
+          env {
+            name = "MICRO_AUTH_PUBLIC_KEY"
+            value_from {
+              secret_key_ref {
+                name = kubernetes_secret.micro_keypair.metadata[0].name
+                key  = "public"
               }
             }
           }
