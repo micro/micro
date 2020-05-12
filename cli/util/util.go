@@ -98,7 +98,7 @@ func SetupCommand(ctx *ccli.Context) {
 	}
 
 	// Set proxy for all envs apart from local
-	setFlags([]string{"MICRO_PROXY=service", "MICRO_PROXY_ADDRESS=" + env.ProxyAddress})
+	setFlags([]string{"MICRO_PROXY=" + env.ProxyAddress})
 }
 
 type Env struct {
