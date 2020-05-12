@@ -25,7 +25,8 @@ jobs:
         go install
 
     - name: Build container
-      run: docker build . -t micro
+      run: |
+        bash build-local-docker.sh
 
     - name: Test micro server
       working-directory: ./test
