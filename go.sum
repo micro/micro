@@ -125,6 +125,8 @@ github.com/crufter/go-micro/v2 v2.0.0-20200512110135-1deb0af82819 h1:mWTZqWupt8D
 github.com/crufter/go-micro/v2 v2.0.0-20200512110135-1deb0af82819/go.mod h1:BRlmNLlanZ2hqlg3gbPEg4jhXROhFKDDbajeXsNZlVc=
 github.com/crufter/go-micro/v2 v2.0.0-20200512111226-d05e00b6ca9d h1:jDikJcajD5msHZexos0lV6CTCxxpJAITEsrU1m/4s3g=
 github.com/crufter/go-micro/v2 v2.0.0-20200512111226-d05e00b6ca9d/go.mod h1:BRlmNLlanZ2hqlg3gbPEg4jhXROhFKDDbajeXsNZlVc=
+github.com/crufter/go-micro/v2 v2.0.0-20200512123425-ee442f324d8e h1:xUPgksa/3iMhQygRy7cezDh8aYUY1DWd82Ut8OrxKuY=
+github.com/crufter/go-micro/v2 v2.0.0-20200512123425-ee442f324d8e/go.mod h1:BRlmNLlanZ2hqlg3gbPEg4jhXROhFKDDbajeXsNZlVc=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
