@@ -27,6 +27,13 @@ spec:
       containers:
       - name: proxy
         env:
+        - name: MICRO_AUTH
+          value: "service"
+        - name: MICRO_AUTH_PUBLIC_KEY
+          valueFrom:
+            secretKeyRef:
+              name: micro-keypair
+              key: public
         - name: MICRO_PROXY_ADDRESS
           value: "0.0.0.0:443"
         - name: MICRO_SERVER_ADDRESS
@@ -58,13 +65,6 @@ spec:
             secretKeyRef:
               key: CF_API_TOKEN
               name: cloudflare-credentials
-        - name: MICRO_AUTH
-          value: "service"
-        - name: MICRO_AUTH_PUBLIC_KEY
-          valueFrom:
-            secretKeyRef:
-              name: micro-keypair
-              key: public
         args:
         - proxy
         image: micro/micro
