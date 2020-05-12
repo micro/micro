@@ -16,6 +16,7 @@ locals {
   api_env = merge(
     local.common_env_vars,
     {
+      "MICRO_AUTH"           = "service"
       "MICRO_API_NAMESPACE"  = "domain",
       "MICRO_ENABLE_STATS"   = "true",
       "MICRO_ENABLE_ACME"    = "true",
@@ -58,7 +59,7 @@ resource "kubernetes_deployment" "api" {
     name        = replace(local.api_name, ".", "-")
     namespace   = var.platform_namespace
     labels      = local.api_labels
-    annotations =  local.api_annotations
+    annotations = local.api_annotations
   }
   spec {
     replicas = 1
@@ -91,6 +92,15 @@ resource "kubernetes_deployment" "api" {
               secret_key_ref {
                 key  = "CF_API_TOKEN"
                 name = kubernetes_secret.cloudflare_credentals.metadata[0].name
+              }
+            }
+          }
+          env {
+            name = "MICRO_AUTH_PUBLIC_KEY"
+            value_from {
+              secret_key_ref {
+                name = kubernetes_secret.micro_keypair.metadata[0].name
+                key  = "public"
               }
             }
           }
