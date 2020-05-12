@@ -221,7 +221,7 @@ func upload(source *git.Source) string {
 		fmt.Println(err)
 		os.Exit(1)
 	}
-	err = file.NewClient("go.micro.server", client.DefaultClient).Upload(uploadedFileName, path)
+	err = file.New("go.micro.server", client.DefaultClient).Upload(uploadedFileName, path)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)

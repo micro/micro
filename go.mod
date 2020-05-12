@@ -33,4 +33,6 @@ require (
 	google.golang.org/grpc v1.26.0
 )
 
-replace github.com/micro/go-micro/v2 => github.com/crufter/go-micro/v2 upload-local
+replace github.com/micro/go-micro/v2 => github.com/crufter/go-micro/v2 v2.0.0-20200512100009-dcd40a20d6b3
+
+//replace github.com/micro/go-micro/v2 => /home/crufter/code/src/github.com/micro/go-micro

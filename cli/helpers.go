@@ -220,6 +220,6 @@ func upload(ctx *cli.Context, args []string) ([]byte, error) {
 	filename := ctx.Args().Get(0)
 	localfile := ctx.Args().Get(1)
 
-	client := file.NewClient("go.micro.server", client.DefaultClient)
-	return nil, client.Upload(filename, localfile)
+	fileClient := file.New("go.micro.server", client.DefaultClient)
+	return nil, fileClient.Upload(filename, localfile)
 }

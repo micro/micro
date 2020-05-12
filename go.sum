@@ -121,6 +121,10 @@ github.com/cpuguy83/go-md2man/v2 v2.0.0 h1:EoUDS0afbrsXAZ9YQ9jdu/mZ2sXgT1/2yyNng
 github.com/cpuguy83/go-md2man/v2 v2.0.0/go.mod h1:maD7wRr/U5Z6m/iR4s+kqSMx2CaBsrgA7czyZG/E6dU=
 github.com/creack/pty v1.1.7/go.mod h1:lj5s0c3V2DBrqTV7llrYr5NG6My20zk30Fl46Y7DoTY=
 github.com/creack/pty v1.1.9/go.mod h1:oKZEueFk5CKHvIhNR5MUki03XCEU+Q6VDXinZuGJ33E=
+github.com/crufter/go-micro/v2 v2.0.0-20200511143842-1d3749a2f7f6 h1:5DjgWZhtPnaUjFYCzYLvYefA8E/NJzVAxxTQNh6wlvw=
+github.com/crufter/go-micro/v2 v2.0.0-20200511143842-1d3749a2f7f6/go.mod h1:BRlmNLlanZ2hqlg3gbPEg4jhXROhFKDDbajeXsNZlVc=
+github.com/crufter/go-micro/v2 v2.0.0-20200512100009-dcd40a20d6b3 h1:y96nw5K6e2+3PbX9/7lmPEOZi/mXh44j6Mzmh36e2BE=
+github.com/crufter/go-micro/v2 v2.0.0-20200512100009-dcd40a20d6b3/go.mod h1:BRlmNLlanZ2hqlg3gbPEg4jhXROhFKDDbajeXsNZlVc=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
@@ -365,6 +369,10 @@ github.com/micro/go-micro/v2 v2.6.1-0.20200506095814-5387f73b5d8e h1:EvjB9RKFavh
 github.com/micro/go-micro/v2 v2.6.1-0.20200506095814-5387f73b5d8e/go.mod h1:60HMKlDN4ShZDJRrlgdcAmkCWNhQbYv+CDG3r7iLE34=
 github.com/micro/go-micro/v2 v2.6.1-0.20200511105338-688228377bfe h1:E+rn7U1qOQgdNLXtatRQpcxGxKt2yNXbtKxbaEu6UvU=
 github.com/micro/go-micro/v2 v2.6.1-0.20200511105338-688228377bfe/go.mod h1:60HMKlDN4ShZDJRrlgdcAmkCWNhQbYv+CDG3r7iLE34=
+github.com/micro/mdns v0.3.0/go.mod h1:KJ0dW7KmicXU2BV++qkLlmHYcVv7/hHnbtguSWt9Aoc=
+github.com/micro/micro v1.18.0 h1:v+xiQOXbT9xxotLwu1nJM81t4FbruBxZSSyIdhUfujM=
+github.com/micro/protoc-gen-micro v1.0.0/go.mod h1:C8ij4DJhapBmypcT00AXdb0cZ675/3PqUO02buWWqbE=
+github.com/miekg/dns v1.1.3/go.mod h1:W1PPwlIAgtquWBMBEV9nkV9Cazfe8ScdGz/Lj7v3Nrg=
 github.com/miekg/dns v1.1.15/go.mod h1:W1PPwlIAgtquWBMBEV9nkV9Cazfe8ScdGz/Lj7v3Nrg=
 github.com/miekg/dns v1.1.22/go.mod h1:bPDLeHnStXmXAq1m/Ch/hvfNHr14JKNPMBo3VZKjuso=
 github.com/miekg/dns v1.1.27 h1:aEH/kqUzUxGJ/UHcEKdJY+ugH6WEzsEBBSPa8zuy1aM=

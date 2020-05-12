@@ -94,7 +94,7 @@ func testServerModeCall(t *t) {
 }
 
 func TestRunLocalSource(t *testing.T) {
-	trySuite(t, testRunLocalSource, 5)
+	trySuite(t, testRunLocalSource, 1)
 }
 
 func testRunLocalSource(t *t) {
@@ -134,7 +134,7 @@ func testRunLocalSource(t *t) {
 			return outp, errors.New("Can't find example service in list")
 		}
 		return outp, err
-	}, 5*time.Second)
+	}, 10*time.Second)
 }
 
 func TestLocalOutsideRepo(t *testing.T) {
@@ -302,7 +302,7 @@ func testRunGithubSource(t *t) {
 }
 
 func TestRunLocalUpdateAndCall(t *testing.T) {
-	trySuite(t, testRunLocalUpdateAndCall, 5)
+	trySuite(t, testRunLocalUpdateAndCall, 1)
 }
 
 func testRunLocalUpdateAndCall(t *t) {
@@ -346,7 +346,7 @@ func testRunLocalUpdateAndCall(t *t) {
 			return outp, err
 		}
 		if rsp["msg"] != "Hello Joe" {
-			return outp, errors.New("Resonse is unexpected")
+			return outp, errors.New("Response is unexpected")
 		}
 		return outp, err
 	}, 8*time.Second)
@@ -379,7 +379,7 @@ func testRunLocalUpdateAndCall(t *t) {
 			return outp, errors.New("Response is not what's expected")
 		}
 		return outp, err
-	}, 8*time.Second)
+	}, 20*time.Second)
 }
 
 func TestExistingLogs(t *testing.T) {
