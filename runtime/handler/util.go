@@ -1,7 +1,14 @@
 package handler
 
 import (
+	"archive/tar"
+	"bytes"
+	"compress/gzip"
 	"context"
+	"io"
+	"os"
+	"path/filepath"
+	"strings"
 
 	"github.com/micro/go-micro/v2/auth"
 	"github.com/micro/go-micro/v2/runtime"
@@ -136,4 +143,75 @@ func toLogsOptions(ctx context.Context, opts *pb.LogsOptions) []runtime.LogsOpti
 	return []runtime.LogsOption{
 		runtime.LogsNamespace(getNamespace(ctx, opts.Namespace)),
 	}
+}
+
+// taken from https://gist.github.com/mimoo/25fc9716e0f1353791f5908f94d6e726
+// likely should be in go micro
+
+func Compress(sourceFolderPath, destinationFilePath string) error {
+	// tar + gzip
+	var buf bytes.Buffer
+	_ = compress(sourceFolderPath, &buf)
+
+	// write the .tar.gzip
+	fileToWrite, err := os.OpenFile(destinationFilePath, os.O_CREATE|os.O_RDWR, 0666)
+	if err != nil {
+		return err
+	}
+	_, err = io.Copy(fileToWrite, &buf)
+	return err
+}
+
+func compress(src string, buf io.Writer) error {
+	// tar > gzip > buf
+	zr := gzip.NewWriter(buf)
+	tw := tar.NewWriter(zr)
+
+	// walk through every file in the folder
+	filepath.Walk(src, func(file string, fi os.FileInfo, err error) error {
+
+		// generate tar header
+		header, err := tar.FileInfoHeader(fi, file)
+		if err != nil {
+			return err
+		}
+
+		// must provide real name
+		// (see https://golang.org/src/archive/tar/common.go?#L626)
+
+		header.Name = filepath.ToSlash(strings.ReplaceAll(file, src+string(filepath.Separator), ""))
+		if header.Name == src {
+			return nil
+		}
+
+		// write header
+		if err := tw.WriteHeader(header); err != nil {
+			return err
+		}
+		if fi.IsDir() {
+			return nil
+		}
+		// if not a dir, write file content
+
+		data, err := os.Open(file)
+		if err != nil {
+			return err
+		}
+		if _, err := io.Copy(tw, data); err != nil {
+			return err
+		}
+
+		return nil
+	})
+
+	// produce tar
+	if err := tw.Close(); err != nil {
+		return err
+	}
+	// produce gzip
+	if err := zr.Close(); err != nil {
+		return err
+	}
+	//
+	return nil
 }

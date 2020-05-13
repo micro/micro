@@ -5,7 +5,6 @@ package test
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"io/ioutil"
 	"os"
 	"os/exec"
@@ -16,88 +15,23 @@ import (
 	"time"
 )
 
-type cmdFunc func() ([]byte, error)
-
-func try(blockName string, t *testing.T, f cmdFunc, maxTime time.Duration) {
-	elapsed := 0 * time.Millisecond
-	var outp []byte
-	var err error
-	returned := false
-	go func() {
-		for {
-			if returned {
-				return
-			}
-			time.Sleep(100 * time.Millisecond)
-			if elapsed > maxTime {
-				// @todo for some reason t.Fatal did not take effect
-				panic(fmt.Sprintf("%v timed out, last output: %v", blockName, string(outp)))
-			}
-			elapsed += 100 * time.Millisecond
-		}
-	}()
-	for {
-		if elapsed > maxTime {
-			if err != nil {
-				t.Fatalf("%v (failed after %v with '%v'), output: %v", blockName, elapsed, err, string(outp))
-			}
-		}
-		outp, err = f()
-		if err == nil {
-			returned = true
-			return
-		}
-		time.Sleep(100 * time.Millisecond)
-	}
-}
-
-type server struct {
-	cmd *exec.Cmd
-	t   *testing.T
-}
-
-func newServer(t *testing.T) server {
-	outp, err := exec.Command("micro", "env", "set", "server").CombinedOutput()
-	if err != nil {
-		t.Fatalf("Failed to set env to server, err: %v, output: %v", err, string(outp))
-	}
-
-	// @todo this is a dangerous move, should instead specify a branch new
-	// folder for tests and only nuke those
-	outp, err = exec.Command("rm", "-rf", "/tmp/micro/store").CombinedOutput()
-	if err != nil {
-		t.Fatal(string(outp))
-	}
-	return server{cmd: exec.Command("micro", "server"), t: t}
-}
-
-func (s server) launch() {
-	go func() {
-		if err := s.cmd.Start(); err != nil {
-			s.t.Fatal(err)
-		}
-	}()
-	try("Calling micro server", s.t, func() ([]byte, error) {
-		return exec.Command("micro", "call", "go.micro.runtime", "Runtime.Read", "{}").CombinedOutput()
-	}, 5000*time.Millisecond)
-}
-
-func (s server) close() {
-	if s.cmd.Process != nil {
-		s.cmd.Process.Signal(syscall.SIGTERM)
-	}
-}
-
 func TestNew(t *testing.T) {
+	trySuite(t, testNew, retryCount)
+}
+
+func testNew(t *t) {
+	t.Parallel()
 	defer func() {
 		exec.Command("rm", "-r", "./foobar").CombinedOutput()
 	}()
 	outp, err := exec.Command("micro", "new", "foobar").CombinedOutput()
 	if err != nil {
 		t.Fatal(err)
+		return
 	}
 	if !strings.Contains(string(outp), "protoc") {
 		t.Fatalf("micro new lacks 	protobuf install instructions %v", string(outp))
+		return
 	}
 
 	lines := strings.Split(string(outp), "\n")
@@ -108,6 +42,7 @@ func TestNew(t *testing.T) {
 			getOutp, getErr := exec.Command(parts[0], parts[1:]...).CombinedOutput()
 			if getErr != nil {
 				t.Fatal(string(getOutp))
+				return
 			}
 		}
 		if strings.HasPrefix(line, "protoc") {
@@ -117,6 +52,7 @@ func TestNew(t *testing.T) {
 			pOutp, pErr := protocCmd.CombinedOutput()
 			if pErr != nil {
 				t.Fatal(string(pOutp))
+				return
 			}
 		}
 	}
@@ -126,43 +62,56 @@ func TestNew(t *testing.T) {
 	outp, err = buildCommand.CombinedOutput()
 	if err != nil {
 		t.Fatal(string(outp))
+		return
 	}
 }
 
 func TestServerModeCall(t *testing.T) {
-	callCmd := exec.Command("micro", "call", "go.micro.runtime", "Runtime.Read", "{}")
+	trySuite(t, testServerModeCall, retryCount)
+}
+
+func testServerModeCall(t *t) {
+	t.Parallel()
+	serv := newServer(t)
+
+	callCmd := exec.Command("micro", serv.envFlag(), "call", "go.micro.runtime", "Runtime.Read", "{}")
 	outp, err := callCmd.CombinedOutput()
 	if err == nil {
 		t.Fatalf("Call to server should fail, got no error, output: %v", string(outp))
+		return
 	}
 
-	serv := newServer(t)
 	serv.launch()
 	defer serv.close()
 
 	try("Calling Runtime.Read", t, func() ([]byte, error) {
-		outp, err = exec.Command("micro", "call", "go.micro.runtime", "Runtime.Read", "{}").CombinedOutput()
+		outp, err = exec.Command("micro", serv.envFlag(), "call", "go.micro.runtime", "Runtime.Read", "{}").CombinedOutput()
 		if err != nil {
 			return outp, errors.New("Call to runtime read should succeed")
 		}
 		return outp, err
-	}, 2*time.Second)
-
+	}, 5*time.Second)
 }
 
 func TestRunLocalSource(t *testing.T) {
+	trySuite(t, testRunLocalSource, retryCount)
+}
+
+func testRunLocalSource(t *t) {
+	t.Parallel()
 	serv := newServer(t)
 	serv.launch()
 	defer serv.close()
 
-	runCmd := exec.Command("micro", "run", "./example-service")
+	runCmd := exec.Command("micro", serv.envFlag(), "run", "./example-service")
 	outp, err := runCmd.CombinedOutput()
 	if err != nil {
 		t.Fatalf("micro run failure, output: %v", string(outp))
+		return
 	}
 
 	try("Find test/example", t, func() ([]byte, error) {
-		psCmd := exec.Command("micro", "status")
+		psCmd := exec.Command("micro", serv.envFlag(), "status")
 		outp, err = psCmd.CombinedOutput()
 		if err != nil {
 			return outp, err
@@ -174,10 +123,10 @@ func TestRunLocalSource(t *testing.T) {
 			return outp, errors.New("Can't find example service in runtime")
 		}
 		return outp, err
-	}, 12*time.Second)
+	}, 15*time.Second)
 
 	try("Find go.micro.service.example in list", t, func() ([]byte, error) {
-		outp, err := exec.Command("micro", "list", "services").CombinedOutput()
+		outp, err := exec.Command("micro", serv.envFlag(), "list", "services").CombinedOutput()
 		if err != nil {
 			return outp, err
 		}
@@ -185,10 +134,15 @@ func TestRunLocalSource(t *testing.T) {
 			return outp, errors.New("Can't find example service in list")
 		}
 		return outp, err
-	}, 5*time.Second)
+	}, 50*time.Second)
 }
 
 func TestLocalOutsideRepo(t *testing.T) {
+	trySuite(t, testLocalOutsideRepo, retryCount)
+}
+
+func testLocalOutsideRepo(t *t) {
+	t.Parallel()
 	serv := newServer(t)
 	serv.launch()
 	defer serv.close()
@@ -199,6 +153,7 @@ func TestLocalOutsideRepo(t *testing.T) {
 	err := os.MkdirAll(folderPath, 0777)
 	if err != nil {
 		t.Fatal(err)
+		return
 	}
 
 	// since copying a whole folder is rather involved and only Linux sources
@@ -207,17 +162,19 @@ func TestLocalOutsideRepo(t *testing.T) {
 	outp, err := exec.Command("cp", "-r", "example-service/.", folderPath).CombinedOutput()
 	if err != nil {
 		t.Fatal(string(outp))
+		return
 	}
 
-	runCmd := exec.Command("micro", "run", ".")
+	runCmd := exec.Command("micro", serv.envFlag(), "run", ".")
 	runCmd.Dir = folderPath
 	outp, err = runCmd.CombinedOutput()
 	if err != nil {
 		t.Fatalf("micro run failure, output: %v", string(outp))
+		return
 	}
 
 	try("Find "+dirname, t, func() ([]byte, error) {
-		psCmd := exec.Command("micro", "status")
+		psCmd := exec.Command("micro", serv.envFlag(), "status")
 		outp, err = psCmd.CombinedOutput()
 		if err != nil {
 			return outp, err
@@ -237,7 +194,7 @@ func TestLocalOutsideRepo(t *testing.T) {
 	}, 12*time.Second)
 
 	try("Find go.micro.service.example in list", t, func() ([]byte, error) {
-		outp, err := exec.Command("micro", "list", "services").CombinedOutput()
+		outp, err := exec.Command("micro", serv.envFlag(), "list", "services").CombinedOutput()
 		if err != nil {
 			return outp, err
 		}
@@ -245,13 +202,19 @@ func TestLocalOutsideRepo(t *testing.T) {
 			return outp, errors.New("Can't find example service in list")
 		}
 		return outp, err
-	}, 12*time.Second)
+	}, 75*time.Second)
 }
 
 func TestLocalEnvRunGithubSource(t *testing.T) {
+	//trySuite(t, testLocalEnvRunGithubSource, retryCount)
+}
+
+func testLocalEnvRunGithubSource(t *t) {
+	t.Parallel()
 	outp, err := exec.Command("micro", "env", "set", "local").CombinedOutput()
 	if err != nil {
 		t.Fatalf("Failed to set env to local, err: %v, output: %v", err, string(outp))
+		return
 	}
 	var cmd *exec.Cmd
 	go func() {
@@ -267,7 +230,7 @@ func TestLocalEnvRunGithubSource(t *testing.T) {
 	}()
 
 	try("Find location", t, func() ([]byte, error) {
-		psCmd := exec.Command("micro", "list", "services")
+		psCmd := exec.Command("micro", "status")
 		outp, err := psCmd.CombinedOutput()
 		if err != nil {
 			return outp, err
@@ -277,29 +240,37 @@ func TestLocalEnvRunGithubSource(t *testing.T) {
 			return outp, errors.New("Output should contain location")
 		}
 		return outp, nil
-	}, 20*time.Second)
+	}, 30*time.Second)
 }
 
 func TestRunGithubSource(t *testing.T) {
+	trySuite(t, testRunGithubSource, retryCount)
+}
+
+func testRunGithubSource(t *t) {
+	t.Parallel()
 	p, err := exec.LookPath("git")
 	if err != nil {
 		t.Fatal(err)
+		return
 	}
 	if len(p) == 0 {
 		t.Fatalf("Git is not available %v", p)
+		return
 	}
 	serv := newServer(t)
 	serv.launch()
 	defer serv.close()
 
-	runCmd := exec.Command("micro", "run", "helloworld")
+	runCmd := exec.Command("micro", serv.envFlag(), "run", "helloworld")
 	outp, err := runCmd.CombinedOutput()
 	if err != nil {
 		t.Fatalf("micro run failure, output: %v", string(outp))
+		return
 	}
 
 	try("Find hello world", t, func() ([]byte, error) {
-		psCmd := exec.Command("micro", "status")
+		psCmd := exec.Command("micro", serv.envFlag(), "status")
 		outp, err = psCmd.CombinedOutput()
 		if err != nil {
 			return outp, err
@@ -309,10 +280,10 @@ func TestRunGithubSource(t *testing.T) {
 			return outp, errors.New("Output should contain hello world")
 		}
 		return outp, nil
-	}, 8*time.Second)
+	}, 20*time.Second)
 
 	try("Call hello world", t, func() ([]byte, error) {
-		callCmd := exec.Command("micro", "call", "go.micro.service.helloworld", "Helloworld.Call", `{"name": "Joe"}`)
+		callCmd := exec.Command("micro", serv.envFlag(), "call", "go.micro.service.helloworld", "Helloworld.Call", `{"name": "Joe"}`)
 		outp, err := callCmd.CombinedOutput()
 		if err != nil {
 			return outp, err
@@ -326,24 +297,30 @@ func TestRunGithubSource(t *testing.T) {
 			return outp, errors.New("Helloworld resonse is unexpected")
 		}
 		return outp, err
-	}, 15*time.Second)
+	}, 60*time.Second)
 
 }
 
 func TestRunLocalUpdateAndCall(t *testing.T) {
+	trySuite(t, testRunLocalUpdateAndCall, retryCount)
+}
+
+func testRunLocalUpdateAndCall(t *t) {
+	t.Parallel()
 	serv := newServer(t)
 	serv.launch()
 	defer serv.close()
 
 	// Run the example service
-	runCmd := exec.Command("micro", "run", "./example-service")
+	runCmd := exec.Command("micro", serv.envFlag(), "run", "./example-service")
 	outp, err := runCmd.CombinedOutput()
 	if err != nil {
 		t.Fatalf("micro run failure, output: %v", string(outp))
+		return
 	}
 
 	try("Finding example service with micro status", t, func() ([]byte, error) {
-		psCmd := exec.Command("micro", "status")
+		psCmd := exec.Command("micro", serv.envFlag(), "status")
 		outp, err = psCmd.CombinedOutput()
 		if err != nil {
 			return outp, err
@@ -355,10 +332,10 @@ func TestRunLocalUpdateAndCall(t *testing.T) {
 			return outp, errors.New("can't find service in runtime")
 		}
 		return outp, err
-	}, 30*time.Second)
+	}, 15*time.Second)
 
 	try("Call example service", t, func() ([]byte, error) {
-		callCmd := exec.Command("micro", "call", "go.micro.service.example", "Example.Call", `{"name": "Joe"}`)
+		callCmd := exec.Command("micro", serv.envFlag(), "call", "go.micro.service.example", "Example.Call", `{"name": "Joe"}`)
 		outp, err := callCmd.CombinedOutput()
 		if err != nil {
 			return outp, err
@@ -369,10 +346,10 @@ func TestRunLocalUpdateAndCall(t *testing.T) {
 			return outp, err
 		}
 		if rsp["msg"] != "Hello Joe" {
-			return outp, errors.New("Resonse is unexpected")
+			return outp, errors.New("Response is unexpected")
 		}
 		return outp, err
-	}, 8*time.Second)
+	}, 50*time.Second)
 
 	replaceStringInFile(t, "./example-service/handler/handler.go", "Hello", "Hi")
 	defer func() {
@@ -380,14 +357,15 @@ func TestRunLocalUpdateAndCall(t *testing.T) {
 		replaceStringInFile(t, "./example-service/handler/handler.go", "Hi", "Hello")
 	}()
 
-	updateCmd := exec.Command("micro", "update", "./example-service")
+	updateCmd := exec.Command("micro", serv.envFlag(), "update", "./example-service")
 	outp, err = updateCmd.CombinedOutput()
 	if err != nil {
 		t.Fatal(err)
+		return
 	}
 
 	try("Call example service after modification", t, func() ([]byte, error) {
-		callCmd := exec.Command("micro", "call", "go.micro.service.example", "Example.Call", `{"name": "Joe"}`)
+		callCmd := exec.Command("micro", serv.envFlag(), "call", "go.micro.service.example", "Example.Call", `{"name": "Joe"}`)
 		outp, err = callCmd.CombinedOutput()
 		if err != nil {
 			return outp, err
@@ -401,48 +379,28 @@ func TestRunLocalUpdateAndCall(t *testing.T) {
 			return outp, errors.New("Response is not what's expected")
 		}
 		return outp, err
-	}, 8*time.Second)
-}
-
-// exists returns whether the given file or directory exists
-func exists(path string) (bool, error) {
-	_, err := os.Stat(path)
-	if err == nil {
-		return true, nil
-	}
-	if os.IsNotExist(err) {
-		return false, nil
-	}
-	return true, err
+	}, 15*time.Second)
 }
 
 func TestExistingLogs(t *testing.T) {
+	trySuite(t, testExistingLogs, retryCount)
+}
+
+func testExistingLogs(t *t) {
+	t.Parallel()
 	serv := newServer(t)
 	serv.launch()
 	defer serv.close()
 
-	runCmd := exec.Command("micro", "run", "github.com/crufter/micro-services/logspammer")
+	runCmd := exec.Command("micro", serv.envFlag(), "run", "github.com/crufter/micro-services/logspammer")
 	outp, err := runCmd.CombinedOutput()
 	if err != nil {
 		t.Fatalf("micro run failure, output: %v", string(outp))
+		return
 	}
 
-	try("Find logspammer", t, func() ([]byte, error) {
-		ex, err := exists(filepath.Join(os.TempDir(), "micro", "logs", "crufter-micro-services-logspammer.log"))
-		if err != nil {
-			return nil, err
-		}
-		if !ex {
-			return nil, errors.New("Does not exist")
-		}
-		return nil, nil
-	}, 20*time.Second)
-
-	//outp, err = exec.Command("ls", "-alh", filepath.Join(os.TempDir(), "micro", "logs")).CombinedOutput()
-	//fmt.Println(string(outp), err)
-
 	try("logspammer logs", t, func() ([]byte, error) {
-		psCmd := exec.Command("micro", "logs", "-n", "5", "crufter/micro-services/logspammer")
+		psCmd := exec.Command("micro", serv.envFlag(), "logs", "-n", "5", "crufter/micro-services/logspammer")
 		outp, err = psCmd.CombinedOutput()
 		if err != nil {
 			return outp, err
@@ -452,33 +410,43 @@ func TestExistingLogs(t *testing.T) {
 			return outp, errors.New("Output does not contain expected")
 		}
 		return outp, nil
-	}, 10*time.Second)
+	}, 50*time.Second)
 }
 
 func TestStreamLogsAndThirdPartyRepo(t *testing.T) {
+	trySuite(t, testStreamLogsAndThirdPartyRepo, retryCount)
+}
+
+func testStreamLogsAndThirdPartyRepo(t *t) {
+	t.Parallel()
 	serv := newServer(t)
 	serv.launch()
 	defer serv.close()
 
-	runCmd := exec.Command("micro", "run", "github.com/crufter/micro-services/logspammer")
+	runCmd := exec.Command("micro", serv.envFlag(), "run", "github.com/crufter/micro-services/logspammer")
 	outp, err := runCmd.CombinedOutput()
 	if err != nil {
 		t.Fatalf("micro run failure, output: %v", string(outp))
+		return
 	}
 
-	try("Find logspammer", t, func() ([]byte, error) {
-		ex, err := exists(filepath.Join(os.TempDir(), "micro", "logs", "crufter-micro-services-logspammer.log"))
+	try("logspammer logs", t, func() ([]byte, error) {
+		psCmd := exec.Command("micro", serv.envFlag(), "logs", "-n", "5", "crufter/micro-services/logspammer")
+		outp, err = psCmd.CombinedOutput()
 		if err != nil {
-			return nil, err
+			return outp, err
 		}
-		if !ex {
-			return nil, errors.New("Does not exist")
+
+		if !strings.Contains(string(outp), "Listening on") || !strings.Contains(string(outp), "never stopping") {
+			return outp, errors.New("Output does not contain expected")
 		}
-		return nil, nil
-	}, 20*time.Second)
+		return outp, nil
+	}, 50*time.Second)
 
 	// Test streaming logs
-	cmd := exec.Command("micro", "logs", "-n", "1", "-f", "crufter-micro-services-logspammer")
+	cmd := exec.Command("micro", serv.envFlag(), "logs", "-n", "1", "-f", "crufter-micro-services-logspammer")
+
+	time.Sleep(7 * time.Second)
 
 	go func() {
 		outp, err := cmd.CombinedOutput()
@@ -487,36 +455,45 @@ func TestStreamLogsAndThirdPartyRepo(t *testing.T) {
 		}
 		if len(outp) == 0 {
 			t.Fatal("No log lines streamed")
+			return
 		}
 		if !strings.Contains(string(outp), "never stopping") {
 			t.Fatalf("Unexpected logs: %v", string(outp))
+			return
 		}
 		// Logspammer logs every 2 seconds, so we need 2 different
 		now := time.Now()
-		stampA := now.Add(-2 * time.Second).Format("15:04:05")
-		stampB := now.Add(-1 * time.Second).Format("15:04:05")
+		// leaving the hour here to fix a docker issue
+		// when the containers clock is a few hours behind
+		stampA := now.Add(-2 * time.Second).Format("04:05")
+		stampB := now.Add(-1 * time.Second).Format("04:05")
 		if !strings.Contains(string(outp), stampA) && !strings.Contains(string(outp), stampB) {
 			t.Fatalf("Timestamp %v or %v not found in logs: %v", stampA, stampB, string(outp))
+			return
 		}
 	}()
 
-	time.Sleep(6 * time.Second)
+	time.Sleep(7 * time.Second)
+
 	err = cmd.Process.Kill()
 	if err != nil {
 		t.Fatal(err)
+		return
 	}
 	time.Sleep(2 * time.Second)
 }
 
-func replaceStringInFile(t *testing.T, filepath string, original, newone string) {
+func replaceStringInFile(t *t, filepath string, original, newone string) {
 	input, err := ioutil.ReadFile(filepath)
 	if err != nil {
 		t.Fatal(err)
+		return
 	}
 
 	output := strings.ReplaceAll(string(input), original, newone)
 	err = ioutil.WriteFile(filepath, []byte(output), 0644)
 	if err != nil {
 		t.Fatal(err)
+		return
 	}
 }
