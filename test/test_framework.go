@@ -13,7 +13,7 @@ import (
 )
 
 const (
-	retryCount = 1
+	retryCount = 3
 	isParallel = true
 )
 
@@ -26,6 +26,9 @@ func try(blockName string, t *t, f cmdFunc, maxTime time.Duration) {
 	var err error
 
 	for {
+		if t.failed {
+			return
+		}
 		if time.Since(start) > maxTime {
 			_, file, line, _ := runtime.Caller(1)
 			fname := filepath.Base(file)
@@ -38,7 +41,7 @@ func try(blockName string, t *t, f cmdFunc, maxTime time.Duration) {
 		if err == nil {
 			return
 		}
-		time.Sleep(100 * time.Millisecond)
+		time.Sleep(1000 * time.Millisecond)
 	}
 }
 
@@ -50,9 +53,10 @@ func once(blockName string, t *testing.T, f cmdFunc) {
 }
 
 type server struct {
-	cmd       *exec.Cmd
-	t         *t
-	proxyPort int
+	cmd           *exec.Cmd
+	t             *t
+	proxyPort     int
+	containerName string
 }
 
 func getFrame(skipFrames int) runtime.Frame {
@@ -90,20 +94,22 @@ func newServer(t *t) server {
 	max := 60000
 	portnum := rand.Intn(max-min) + min
 	fname := strings.Split(myCaller(), ".")[2]
+	exec.Command("docker", "kill", fname).CombinedOutput()
 	exec.Command("docker", "rm", fname).CombinedOutput()
-
+	//fmt.Println("docker", "run", "--name", fname, fmt.Sprintf("-p=%v:8081", portnum), "micro", "server")
 	return server{
-		cmd: exec.Command("docker", "run", "--network", "alpine-net", "--name", fname,
+		cmd: exec.Command("docker", "run", "--name", fname,
 			fmt.Sprintf("-p=%v:8081", portnum), "micro", "server"),
-		t:         t,
-		proxyPort: portnum,
+		t:             t,
+		proxyPort:     portnum,
+		containerName: fname,
 	}
 }
 
 func (s server) launch() {
 	go func() {
 		if err := s.cmd.Start(); err != nil {
-			s.t.Fatal(err)
+			s.t.t.Fatal(err)
 		}
 	}()
 	// @todo find a way to know everything is up and running
@@ -114,17 +120,14 @@ func (s server) launch() {
 }
 
 func (s server) close() {
+	exec.Command("docker", "kill", s.containerName).CombinedOutput()
 	if s.cmd.Process != nil {
-		s.cmd.Process.Signal(syscall.SIGTERM)
+		s.cmd.Process.Signal(syscall.SIGKILL)
 	}
 }
 
 func (s server) envFlag() string {
 	return fmt.Sprintf("-env=127.0.0.1:%v", s.proxyPort)
-}
-
-func (s server) trySuite() {
-
 }
 
 type t struct {
@@ -171,6 +174,7 @@ func trySuite(t *testing.T, f func(t *t), times int) {
 		if !tee.failed {
 			return
 		}
+		tee.failed = false
 		time.Sleep(200 * time.Millisecond)
 	}
 	if tee.failed {
