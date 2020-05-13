@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"os/signal"
+	"path/filepath"
 	"sort"
 	"strings"
 	"text/tabwriter"
@@ -13,12 +14,15 @@ import (
 
 	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro/v2"
+	"github.com/micro/go-micro/v2/client"
 	"github.com/micro/go-micro/v2/config/cmd"
 	log "github.com/micro/go-micro/v2/logger"
 	"github.com/micro/go-micro/v2/runtime"
 	"github.com/micro/go-micro/v2/runtime/local/git"
 	srvRuntime "github.com/micro/go-micro/v2/runtime/service"
+	"github.com/micro/go-micro/v2/util/file"
 	cliutil "github.com/micro/micro/v2/cli/util"
+	"github.com/micro/micro/v2/runtime/handler"
 )
 
 const (
@@ -98,6 +102,10 @@ func runService(ctx *cli.Context, srvOpts ...micro.Option) {
 		fmt.Println(err)
 		os.Exit(1)
 	}
+	var newSource string
+	if source.Local {
+		newSource = upload(source)
+	}
 
 	typ := ctx.String("type")
 	image := ctx.String("image")
@@ -149,10 +157,14 @@ func runService(ctx *cli.Context, srvOpts ...micro.Option) {
 		opts = append(opts, runtime.WithArgs(strings.Split(args, " ")...))
 	}
 
+	runtimeSource := source.RuntimeSource()
+	if source.Local {
+		runtimeSource = newSource
+	}
 	// run the service
 	service := &runtime.Service{
 		Name:     source.RuntimeName(),
-		Source:   source.RuntimeSource(),
+		Source:   runtimeSource,
 		Version:  source.Ref,
 		Metadata: make(map[string]string),
 	}
@@ -201,6 +213,22 @@ func killService(ctx *cli.Context, srvOpts ...micro.Option) {
 	}
 }
 
+func upload(source *git.Source) string {
+	uploadedFileName := strings.ReplaceAll(source.Folder, string(filepath.Separator), "-") + ".tar.gz"
+	path := filepath.Join(os.TempDir(), uploadedFileName)
+	err := handler.Compress(source.FullPath, path)
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+	err = file.New("go.micro.server", client.DefaultClient).Upload(uploadedFileName, path)
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+	return uploadedFileName
+}
+
 func updateService(ctx *cli.Context, srvOpts ...micro.Option) {
 	// we need some args to run
 	if ctx.Args().Len() == 0 {
@@ -218,10 +246,18 @@ func updateService(ctx *cli.Context, srvOpts ...micro.Option) {
 		fmt.Println(err)
 		os.Exit(1)
 	}
+	var newSource string
+	if source.Local {
+		newSource = upload(source)
+	}
 
+	runtimeSource := source.RuntimeSource()
+	if source.Local {
+		runtimeSource = newSource
+	}
 	service := &runtime.Service{
 		Name:    source.RuntimeName(),
-		Source:  source.RuntimeSource(),
+		Source:  runtimeSource,
 		Version: source.Ref,
 	}
 

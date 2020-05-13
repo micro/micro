@@ -86,7 +86,19 @@ func SetupCommand(ctx *ccli.Context) {
 			ctx.Set(key, parts[1])
 		}
 	}
-	env := GetEnv()
+	var env Env
+	// @todo this override is needed for the tests where we connnect
+	// to different ad hoc environments. RETHINK THIS CRUFT
+	// Things to think about: these ad hoc overrides won't take effect `micro env`
+	// commands as they still use GetEnv and ilk.
+	if len(ctx.String("env")) > 0 {
+		env = Env{
+			ProxyAddress: ctx.String("env"),
+		}
+	} else {
+		env = GetEnv()
+	}
+
 	switch env.Name {
 	case EnvServer:
 		setFlags(profile.ServerCLI())
@@ -95,10 +107,13 @@ func SetupCommand(ctx *ccli.Context) {
 	case EnvLocal:
 		// Not setting a proxy for local env
 		return
+		// default case for ad hoc envs, see comments above about tests
+	default:
+		setFlags(profile.ServerCLI())
 	}
 
 	// Set proxy for all envs apart from local
-	setFlags([]string{"MICRO_PROXY=service", "MICRO_PROXY_ADDRESS=" + env.ProxyAddress})
+	setFlags([]string{"MICRO_PROXY=" + env.ProxyAddress})
 }
 
 type Env struct {
