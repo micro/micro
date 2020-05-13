@@ -171,11 +171,6 @@ func canReadService(ctx context.Context, srv *registry.Service) bool {
 		return true
 	}
 
-	// all users can read from the default namespace
-	if strings.HasPrefix(srv.Name, namespace.DefaultNamespace+nameSeperator) {
-		return true
-	}
-
 	// the service belongs to the contexts namespace
 	if strings.HasPrefix(srv.Name, namespace.FromContext(ctx)+nameSeperator) {
 		return true
@@ -189,7 +184,7 @@ func canReadService(ctx context.Context, srv *registry.Service) bool {
 const nameSeperator = "/"
 
 // withoutNamespace returns the service with the namespace stripped from
-// the name, e.g. 'default/go.micro.service.foo' => 'go.micro.service.foo'.
+// the name, e.g. 'bar/go.micro.service.foo' => 'go.micro.service.foo'.
 func withoutNamespace(srv registry.Service) *registry.Service {
 	comps := strings.Split(srv.Name, nameSeperator)
 	srv.Name = comps[len(comps)-1]
@@ -197,8 +192,14 @@ func withoutNamespace(srv registry.Service) *registry.Service {
 }
 
 // withNamespace returns the service with the namespace prefixed to the
-// name, e.g. 'go.micro.service.foo' => 'default/go.micro.service.foo'
+// name, e.g. 'go.micro.service.foo' => 'bar/go.micro.service.foo'
 func withNamespace(srv pb.Service, ns string) *pb.Service {
+	// if the namespace is the default, don't append anything since this
+	// means users not leveraging multi-tenancy won't experience any changes
+	if ns == namespace.DefaultNamespace {
+		return &srv
+	}
+
 	srv.Name = strings.Join([]string{ns, srv.Name}, nameSeperator)
 	return &srv
 }
