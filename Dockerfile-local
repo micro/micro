@@ -25,5 +25,5 @@ EXPOSE      2379 2380 4001 7001
 ADD         run-etcd.sh /bin/run.sh
 
 ENV MICRO_REGISTRY=etcd
-
+RUN go get -d github.com/micro/micro
 ENTRYPOINT ["sh", "/bin/run.sh"]

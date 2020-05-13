@@ -202,7 +202,7 @@ func testLocalOutsideRepo(t *t) {
 			return outp, errors.New("Can't find example service in list")
 		}
 		return outp, err
-	}, 50*time.Second)
+	}, 75*time.Second)
 }
 
 func TestLocalEnvRunGithubSource(t *testing.T) {
@@ -441,7 +441,7 @@ func testStreamLogsAndThirdPartyRepo(t *t) {
 			return outp, errors.New("Output does not contain expected")
 		}
 		return outp, nil
-	}, 35*time.Second)
+	}, 50*time.Second)
 
 	// Test streaming logs
 	cmd := exec.Command("micro", serv.envFlag(), "logs", "-n", "1", "-f", "crufter-micro-services-logspammer")
