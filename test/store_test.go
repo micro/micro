@@ -46,7 +46,7 @@ func testStore(t *t) {
 		return
 	}
 
-	readCmd := exec.Command("micro", serv.envFlag(), "store", "read", "somekey")
+	readCmd := exec.Command("micro", serv.envFlag(), "store", "read", "some1key")
 	outp, err = readCmd.CombinedOutput()
 	if err != nil {
 		t.Fatal(string(outp))
