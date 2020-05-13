@@ -150,7 +150,7 @@ func (s *Stats) scrape() {
 				req := s.client.NewRequest(service.Name, "Debug.Stats", &debug.StatsRequest{})
 				rsp := new(debug.StatsResponse)
 				if err := s.client.Call(ctx, req, rsp, client.WithAddress(node.Address)); err != nil {
-					log.Errorf("Error calling %s@%s (%s)", service.Name, node.Address, err.Error())
+					// Don't report an error to the user if stats can't be collected, just continue
 					return
 				}
 
