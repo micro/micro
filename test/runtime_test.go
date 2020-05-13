@@ -441,7 +441,7 @@ func testStreamLogsAndThirdPartyRepo(t *t) {
 			return outp, errors.New("Output does not contain expected")
 		}
 		return outp, nil
-	}, 25*time.Second)
+	}, 35*time.Second)
 
 	// Test streaming logs
 	cmd := exec.Command("micro", serv.envFlag(), "logs", "-n", "1", "-f", "crufter-micro-services-logspammer")
