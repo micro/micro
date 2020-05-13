@@ -466,7 +466,7 @@ func testStreamLogsAndThirdPartyRepo(t *t) {
 		// leaving the hour here to fix a docker issue
 		// when the containers clock is a few hours behind
 		stampA := now.Add(-2 * time.Second).Format("04:05")
-		stampB := now.Add(-1 * time.Second).Format("104:05")
+		stampB := now.Add(-1 * time.Second).Format("04:05")
 		if !strings.Contains(string(outp), stampA) && !strings.Contains(string(outp), stampB) {
 			t.Fatalf("Timestamp %v or %v not found in logs: %v", stampA, stampB, string(outp))
 			return
