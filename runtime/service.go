@@ -157,7 +157,7 @@ func runService(ctx *cli.Context, srvOpts ...micro.Option) {
 		opts = append(opts, runtime.WithArgs(strings.Split(args, " ")...))
 	}
 
-	runtimeSource := source.RuntimeName()
+	runtimeSource := source.RuntimeSource()
 	if source.Local {
 		runtimeSource = newSource
 	}
@@ -251,7 +251,7 @@ func updateService(ctx *cli.Context, srvOpts ...micro.Option) {
 		newSource = upload(source)
 	}
 
-	runtimeSource := source.RuntimeName()
+	runtimeSource := source.RuntimeSource()
 	if source.Local {
 		runtimeSource = newSource
 	}
