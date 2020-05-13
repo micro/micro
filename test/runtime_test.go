@@ -446,6 +446,8 @@ func testStreamLogsAndThirdPartyRepo(t *t) {
 	// Test streaming logs
 	cmd := exec.Command("micro", serv.envFlag(), "logs", "-n", "1", "-f", "crufter-micro-services-logspammer")
 
+	time.Sleep(7 * time.Second)
+
 	go func() {
 		outp, err := cmd.CombinedOutput()
 		if err != nil {
@@ -471,7 +473,8 @@ func testStreamLogsAndThirdPartyRepo(t *t) {
 		}
 	}()
 
-	time.Sleep(6 * time.Second)
+	time.Sleep(7 * time.Second)
+
 	err = cmd.Process.Kill()
 	if err != nil {
 		t.Fatal(err)
