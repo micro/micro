@@ -30,7 +30,6 @@ import (
 	"github.com/micro/go-micro/v2/config/cmd"
 	log "github.com/micro/go-micro/v2/logger"
 	"github.com/micro/go-micro/v2/registry"
-	"github.com/micro/go-micro/v2/registry/cache"
 	"github.com/micro/go-micro/v2/sync/memory"
 	apiAuth "github.com/micro/micro/v2/api/auth"
 	"github.com/micro/micro/v2/internal/handler"
@@ -90,79 +89,6 @@ type reg struct {
 	sync.RWMutex
 	lastPull time.Time
 	services []*registry.Service
-}
-
-func (r *reg) watch() {
-	// update once
-	r.update()
-
-	// periodically update the service cache
-	go func() {
-		t := time.NewTicker(time.Minute)
-		defer t.Stop()
-
-		for range t.C {
-			r.update()
-		}
-	}()
-
-Loop:
-	for {
-		// get a watcher
-		w, err := r.Registry.Watch()
-		if err != nil {
-			time.Sleep(time.Second)
-			continue
-		}
-
-		// loop results
-		for {
-			_, err := w.Next()
-			if err != nil {
-				w.Stop()
-				time.Sleep(time.Second)
-				goto Loop
-			}
-
-			// next pull will be from the registry
-			r.Lock()
-			r.lastPull = time.Time{}
-			r.Unlock()
-		}
-	}
-}
-
-func (r *reg) update() {
-	// pull the services
-	s, err := r.Registry.ListServices()
-	if err != nil {
-		return
-	}
-
-	// collapse the list
-	serviceMap := make(map[string]*registry.Service)
-	for _, service := range s {
-		serviceMap[service.Name] = service
-	}
-	var services []*registry.Service
-	for _, service := range serviceMap {
-		services = append(services, service)
-	}
-
-	r.Lock()
-	defer r.Unlock()
-
-	// cache it
-	r.services = services
-	r.lastPull = time.Now()
-}
-
-func (r *reg) ListServices(opts ...registry.ListOption) ([]*registry.Service, error) {
-	r.RLock()
-	defer r.RUnlock()
-
-	// return the cached list
-	return r.services, nil
 }
 
 // ServeHTTP serves the web dashboard and proxies where appropriate
@@ -550,12 +476,7 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	// Initialize Server
 	service := micro.NewService(srvOpts...)
 
-	// use the caching registry
-	cache := cache.New((*cmd.DefaultOptions().Registry))
-	reg := &reg{Registry: cache}
-
-	// start the watcher
-	go reg.watch()
+	reg := &reg{Registry: *cmd.DefaultOptions().Registry}
 
 	s := &srv{
 		Router:   mux.NewRouter(),
