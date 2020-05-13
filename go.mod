@@ -11,13 +11,13 @@ require (
 	github.com/cloudflare/cloudflare-go v0.10.9
 	github.com/dustin/go-humanize v1.0.0
 	github.com/fsnotify/fsnotify v1.4.7
-	github.com/go-acme/lego/v3 v3.3.0
+	github.com/go-acme/lego/v3 v3.4.0
 	github.com/golang/protobuf v1.4.1
 	github.com/google/uuid v1.1.1
 	github.com/gorilla/handlers v1.4.2
 	github.com/gorilla/mux v1.7.3
 	github.com/micro/cli/v2 v2.1.2
-	github.com/micro/go-micro/v2 v2.6.1-0.20200513100753-0fb4734e67e4
+	github.com/micro/go-micro/v2 v2.6.1-0.20200513163557-bba8c254d730
 	github.com/miekg/dns v1.1.27
 	github.com/netdata/go-orchestrator v0.0.0-20190905093727-c793edba0e8f
 	github.com/olekukonko/tablewriter v0.0.4
