@@ -2,6 +2,8 @@ package handler
 
 import (
 	"context"
+	"fmt"
+	"strings"
 	"time"
 
 	"github.com/micro/go-micro/v2"
@@ -54,41 +56,45 @@ func (r *Registry) publishEvent(action string, service *pb.Service) error {
 	return r.Publisher.Publish(ctx, event)
 }
 
+// GetService from the registry with the name requested
 func (r *Registry) GetService(ctx context.Context, req *pb.GetRequest, rsp *pb.GetResponse) error {
-	// verify the context has access to read the service
-	if !r.canReadService(ctx, req.Service) {
-		return errors.Forbidden("go.micro.registry", "Cannot read service")
-	}
-
-	services, err := r.Registry.GetService(req.Service)
+	// get the services in the requested namespace, e.g. the "foo" namespace. name
+	// includes the namespace as the prefix, e.g. 'foo/go.micro.service.bar'
+	name := namespace.FromContext(ctx) + service.NameSeperator + req.Service
+	services, err := r.Registry.GetService(name)
 	if err != nil {
 		return errors.InternalServerError("go.micro.registry", err.Error())
 	}
+
+	// get the services in the default namespace if this wasn't the namespace
+	// requested.
+	if namespace.FromContext(ctx) != namespace.DefaultNamespace {
+		name := namespace.DefaultNamespace + service.NameSeperator + req.Service
+		defaultServices, err := r.Registry.GetService(name)
+		if err != nil {
+			return errors.InternalServerError("go.micro.registry", err.Error())
+		}
+		services = append(services, defaultServices...)
+	}
+
+	// serialize the services. service.ToProto will remove the namespace from
+	// the service name so 'foo/go.micro.service.bar' will become just 'go.micro.service.bar'.
 	for _, srv := range services {
 		rsp.Services = append(rsp.Services, service.ToProto(srv))
 	}
 	return nil
 }
 
+// Register a service
 func (r *Registry) Register(ctx context.Context, req *pb.Service, rsp *pb.EmptyResponse) error {
-	// validate the name is valid
-	if _, err := namespace.FromService(req.Name); err != nil {
-		return err
-	}
-
-	// verify the context has access to register the service
-	if !r.canWriteService(ctx, req.Name) {
-		return errors.Forbidden("go.micro.registry", "Cannot register service")
-	}
-
 	var regOpts []registry.RegisterOption
 	if req.Options != nil {
 		ttl := time.Duration(req.Options.Ttl) * time.Second
 		regOpts = append(regOpts, registry.RegisterTTL(ttl))
 	}
 
-	err := r.Registry.Register(service.ToService(req), regOpts...)
-	if err != nil {
+	service := service.ToService(req, service.WithNamespace(namespace.FromContext(ctx)))
+	if err := r.Registry.Register(service, regOpts...); err != nil {
 		return errors.InternalServerError("go.micro.registry", err.Error())
 	}
 
@@ -98,14 +104,10 @@ func (r *Registry) Register(ctx context.Context, req *pb.Service, rsp *pb.EmptyR
 	return nil
 }
 
+// Deregister a service
 func (r *Registry) Deregister(ctx context.Context, req *pb.Service, rsp *pb.EmptyResponse) error {
-	// verify the context has access to deregister the service
-	if !r.canWriteService(ctx, req.Name) {
-		return errors.Forbidden("go.micro.registry", "Cannot deregister service")
-	}
-
-	err := r.Registry.Deregister(service.ToService(req))
-	if err != nil {
+	service := service.ToService(req, service.WithNamespace(namespace.FromContext(ctx)))
+	if err := r.Registry.Deregister(service); err != nil {
 		return errors.InternalServerError("go.micro.registry", err.Error())
 	}
 
@@ -115,20 +117,30 @@ func (r *Registry) Deregister(ctx context.Context, req *pb.Service, rsp *pb.Empt
 	return nil
 }
 
+// ListServices returns all the services
 func (r *Registry) ListServices(ctx context.Context, req *pb.ListRequest, rsp *pb.ListResponse) error {
+	fmt.Println(namespace.FromContext(ctx))
+
 	services, err := r.Registry.ListServices()
 	if err != nil {
 		return errors.InternalServerError("go.micro.registry", err.Error())
 	}
+
 	for _, srv := range services {
-		if r.canReadService(ctx, srv.Name) {
-			rsp.Services = append(rsp.Services, service.ToProto(srv))
+		// check to see if the service belongs to the defaut namespace
+		// or the contexts namespace. TODO: think about adding a prefix
+		//argument to ListServices
+		if !canReadService(ctx, srv) {
+			continue
 		}
+
+		rsp.Services = append(rsp.Services, service.ToProto(srv))
 	}
 
 	return nil
 }
 
+// Watch a service for changes
 func (r *Registry) Watch(ctx context.Context, req *pb.WatchRequest, rsp pb.Registry_WatchStream) error {
 	watcher, err := r.Registry.Watch(registry.WatchService(req.Service))
 	if err != nil {
@@ -140,9 +152,10 @@ func (r *Registry) Watch(ctx context.Context, req *pb.WatchRequest, rsp pb.Regis
 		if err != nil {
 			return errors.InternalServerError("go.micro.registry", err.Error())
 		}
-		if !r.canReadService(ctx, next.Service.Name) {
+		if !canReadService(ctx, next.Service) {
 			continue
 		}
+
 		err = rsp.Send(&pb.Result{
 			Action:  next.Action,
 			Service: service.ToProto(next.Service),
@@ -153,58 +166,18 @@ func (r *Registry) Watch(ctx context.Context, req *pb.WatchRequest, rsp pb.Regis
 	}
 }
 
-// canReadService returns a boolean indicating is the context has
-// permission to read the service
-func (r *Registry) canReadService(ctx context.Context, name string) bool {
-	// allow all services is no auth is enabled
-	if r.Auth.String() == "noop" {
+// canReadService is a helper function which returns a boolean indicating
+// if a context can read a service.
+func canReadService(ctx context.Context, srv *registry.Service) bool {
+	// all users can read from the default namespace
+	if strings.HasPrefix(srv.Name, namespace.DefaultNamespace+service.NameSeperator) {
 		return true
 	}
 
-	ns, err := namespace.FromService(name)
-	if err != nil {
-		// This should never happen as namespaces will be validated
-		log.Warnf("Invalid service name: %v", name)
-		return false
-	}
-
-	// always allow access to the default namespace (shared), as well
-	// as the runtime namespace.
-	if ns == namespace.DefaultNamespace || ns == namespace.RuntimeNamespace {
+	// the service belongs to the contexts namespace
+	if strings.HasPrefix(srv.Name, namespace.FromContext(ctx)+service.NameSeperator) {
 		return true
 	}
 
-	// get the namespace from the context and compare this to the services
-	// namespace, if they match we allow access. We also allow the runtime
-	// services access to read any services (needed for micro web etc).
-	ctxNs := namespace.FromContext(ctx)
-	return ctxNs == ns || ctxNs == namespace.RuntimeNamespace
-}
-
-// canReadService returns a boolean indicating is the context has
-// permission to write (amend) a service
-func (r *Registry) canWriteService(ctx context.Context, name string) bool {
-	// allow all services is no auth is enabled
-	if r.Auth.String() == "noop" {
-		return true
-	}
-
-	ns, err := namespace.FromService(name)
-
-	// the data in the registry is invalid, log an error and don't allow
-	// access. This should never happen as namespaces will be validated
-	// when services are registered.
-	if err != nil {
-		log.Warnf("Invalid service name: %v", name)
-		return false
-	}
-
-	// always allow access to the default namespace (shared)
-	if ns == namespace.DefaultNamespace {
-		return true
-	}
-
-	// get the namespace from the context and compare this to the services
-	// namespace, if they match we allow access
-	return namespace.FromContext(ctx) == ns
+	return false
 }

@@ -346,9 +346,6 @@ func (s *srv) indexHandler(w http.ResponseWriter, r *http.Request) {
 	// if the resolver is subdomain, we will need the domain
 	domain, _ := publicsuffix.EffectiveTLDPlusOne(r.URL.Hostname())
 
-	// determine the namespace the request was made against
-	reqNs := namespace.FromContext(r.Context())
-
 	var webServices []webService
 	for _, srv := range services {
 		// not a web app
@@ -356,22 +353,17 @@ func (s *srv) indexHandler(w http.ResponseWriter, r *http.Request) {
 			continue
 		}
 
-		srvNs, _ := namespace.FromService(srv.Name)
-		if srvNs == reqNs {
-			name := strings.Replace(srv.Name, srvNs+".web.", "", 1)
-
-			link := fmt.Sprintf("/%v/", name)
-			if Resolver == "subdomain" && len(domain) > 0 {
-				link = fmt.Sprintf("https://%v.%v", name, domain)
-			}
-
-			// in the case of 3 letter things e.g m3o convert to M3O
-			if len(name) <= 3 && strings.ContainsAny(name, "012345789") {
-				name = strings.ToUpper(name)
-			}
-
-			webServices = append(webServices, webService{Name: name, Link: link})
+		link := fmt.Sprintf("/%v/", srv.Name)
+		if Resolver == "subdomain" && len(domain) > 0 {
+			link = fmt.Sprintf("https://%v.%v", srv.Name, domain)
 		}
+
+		// in the case of 3 letter things e.g m3o convert to M3O
+		if len(srv.Name) <= 3 && strings.ContainsAny(srv.Name, "012345789") {
+			srv.Name = strings.ToUpper(srv.Name)
+		}
+
+		webServices = append(webServices, webService{Name: srv.Name, Link: link})
 	}
 
 	sort.Slice(webServices, func(i, j int) bool { return webServices[i].Name < webServices[j].Name })
@@ -425,22 +417,9 @@ func (s *srv) registryHandler(w http.ResponseWriter, r *http.Request) {
 
 	sort.Sort(sortedServices{services})
 
-	// get the namespace from the request
-	reqNs := namespace.FromContext(r.Context())
-
-	// we're using a cache which means we can't filter when making the request
-	// to the registry, so filter in code
-	var filteredSrvs []*registry.Service
-	for _, service := range services {
-		srvNs, _ := namespace.FromService(service.Name)
-		if srvNs == namespace.RuntimeNamespace || srvNs == reqNs {
-			filteredSrvs = append(filteredSrvs, service)
-		}
-	}
-
 	if r.Header.Get("Content-Type") == "application/json" {
 		b, err := json.Marshal(map[string]interface{}{
-			"services": filteredSrvs,
+			"services": services,
 		})
 		if err != nil {
 			http.Error(w, "Error occurred:"+err.Error(), 500)
@@ -451,7 +430,7 @@ func (s *srv) registryHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	s.render(w, r, registryTemplate, filteredSrvs)
+	s.render(w, r, registryTemplate, services)
 }
 
 func (s *srv) callHandler(w http.ResponseWriter, r *http.Request) {
@@ -460,18 +439,10 @@ func (s *srv) callHandler(w http.ResponseWriter, r *http.Request) {
 		log.Errorf("Error listing services: %v", err)
 	}
 
-	// get the namespace from the request
-	reqNs := namespace.FromContext(r.Context())
-
 	sort.Sort(sortedServices{services})
 
 	serviceMap := make(map[string][]*registry.Endpoint)
 	for _, service := range services {
-		srvNs, _ := namespace.FromService(service.Name)
-		if srvNs != namespace.RuntimeNamespace && srvNs != reqNs {
-			continue
-		}
-
 		if len(service.Endpoints) > 0 {
 			serviceMap[service.Name] = service.Endpoints
 			continue
