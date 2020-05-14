@@ -14,7 +14,6 @@ import (
 
 	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro/v2"
-	"github.com/micro/go-micro/v2/client"
 	"github.com/micro/go-micro/v2/config/cmd"
 	log "github.com/micro/go-micro/v2/logger"
 	"github.com/micro/go-micro/v2/runtime"
@@ -22,6 +21,7 @@ import (
 	srvRuntime "github.com/micro/go-micro/v2/runtime/service"
 	"github.com/micro/go-micro/v2/util/file"
 	cliutil "github.com/micro/micro/v2/cli/util"
+	"github.com/micro/micro/v2/internal/client"
 	"github.com/micro/micro/v2/runtime/handler"
 )
 
@@ -65,7 +65,7 @@ func runtimeFromContext(ctx *cli.Context) runtime.Runtime {
 	if cliutil.IsLocal() {
 		return *cmd.DefaultCmd.Options().Runtime
 	}
-	return srvRuntime.NewRuntime()
+	return srvRuntime.NewRuntime(runtime.WithClient(client.New()))
 }
 
 // exists returns whether the given file or directory exists
@@ -221,7 +221,7 @@ func upload(source *git.Source) string {
 		fmt.Println(err)
 		os.Exit(1)
 	}
-	err = file.New("go.micro.server", client.DefaultClient).Upload(uploadedFileName, path)
+	err = file.New("go.micro.server", client.New()).Upload(uploadedFileName, path)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
