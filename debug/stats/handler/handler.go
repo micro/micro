@@ -10,7 +10,6 @@ import (
 	"github.com/micro/go-micro/v2/config/cmd"
 	debug "github.com/micro/go-micro/v2/debug/service/proto"
 	"github.com/micro/go-micro/v2/errors"
-	log "github.com/micro/go-micro/v2/logger"
 	"github.com/micro/go-micro/v2/registry"
 	"github.com/micro/go-micro/v2/util/ring"
 	stats "github.com/micro/micro/v2/debug/stats/proto"
@@ -150,7 +149,7 @@ func (s *Stats) scrape() {
 				req := s.client.NewRequest(service.Name, "Debug.Stats", &debug.StatsRequest{})
 				rsp := new(debug.StatsResponse)
 				if err := s.client.Call(ctx, req, rsp, client.WithAddress(node.Address)); err != nil {
-					log.Errorf("Error calling %s@%s (%s)", service.Name, node.Address, err.Error())
+					// Don't report an error to the user if stats can't be collected, just continue
 					return
 				}
 
