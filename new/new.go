@@ -172,7 +172,7 @@ func run(ctx *cli.Context) {
 	}
 
 	// set the command
-	command := fmt.Sprintf("micro new %s", dir)
+	command := "micro new"
 	if len(namespace) > 0 {
 		command += " --namespace=" + namespace
 	}
@@ -188,6 +188,7 @@ func run(ctx *cli.Context) {
 	if plugins := ctx.StringSlice("plugin"); len(plugins) > 0 {
 		command += " --plugin=" + strings.Join(plugins, ":")
 	}
+	command += " " + dir
 
 	// check if the path is absolute, we don't want this
 	// we want to a relative path so we can install in GOPATH
