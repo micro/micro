@@ -32,7 +32,7 @@ RUN cd ${GOPATH}/src/example-service && go get && \
     go get github.com/micro/services/location && \
     go get github.com/micro/services/helloworld
 
-RUN go get github.com/crufter/micro-services/logspammer
+# RUN go get github.com/crufter/micro-services/logspammer
 
 COPY ./micro /micro
 
