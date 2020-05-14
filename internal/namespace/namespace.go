@@ -2,21 +2,14 @@ package namespace
 
 import (
 	"context"
-	"fmt"
-	"strings"
 
 	"github.com/micro/go-micro/v2/auth"
-	"github.com/micro/go-micro/v2/errors"
 	"github.com/micro/go-micro/v2/metadata"
 )
 
 const (
 	// TODO: Move default namespace out of go-micro
 	DefaultNamespace = auth.DefaultNamespace
-	// RuntimeNamespace is the namespace which runtime services
-	// such as the store and broker operate within. Any service
-	// can read runtime services but writing is restricted.
-	RuntimeNamespace = "runtime"
 	// NamespaceKey is used to set/get the namespace from the
 	// context
 	NamespaceKey = "Micro-Namespace"
@@ -24,74 +17,40 @@ const (
 
 // FromContext gets the namespace from the context
 func FromContext(ctx context.Context) string {
-	// if there is an account, we use its namespace
-	if acc, ok := auth.AccountFromContext(ctx); ok {
+	// get the namespace which is set at ingress by
+	// micro web / api / proxy etc
+	ns, _ := metadata.Get(ctx, NamespaceKey)
+
+	// get the account making the request. if there is
+	// no account then we return the namespace
+	acc, ok := auth.AccountFromContext(ctx)
+	if !ok && len(ns) > 0 {
+		return ns
+	} else if !ok {
+		return DefaultNamespace
+	}
+
+	// if no namespace was requested or it matches
+	// the accounts, return the accounts namespace
+	if len(ns) == 0 || ns == acc.Namespace {
 		return acc.Namespace
 	}
 
-	// next check for the namespace key set by micro web or api
-	if ns, ok := metadata.Get(ctx, NamespaceKey); ok {
+	// always allow access to the default namespace
+	if ns == DefaultNamespace {
 		return ns
 	}
 
-	// fallback to the default namespace
-	return DefaultNamespace
-}
-
-var serviceTypes = []string{"api", "web", "service", "srv"}
-
-// FromService returns the namespace the service belongs to
-func FromService(name string) (string, error) {
-	// joinKey is the key used to seperate the components of the service
-	// name. '.' is the default, although '-' is also occasionally used.
-	joinKey := "."
-	if strings.ContainsAny(name, "-") {
-		joinKey = "-"
+	// allow the runtime access to all namespaces.
+	// TODO: grant runtime services elevated privelages
+	// and validate them here instead of assuming all
+	// services in the default namespace are the runtime.
+	if acc.Namespace == DefaultNamespace {
+		return ns
 	}
 
-	// determine the type of service from the options in the serviceTypes
-	// slice.
-	var srvType string
-	for _, t := range serviceTypes {
-		// for when the srvType is in the middle of the name
-		if strings.Contains(name, fmt.Sprintf("%v%v%v", joinKey, t, joinKey)) {
-			srvType = t
-			break
-		}
-		// for when the srvType is the first element in the name
-		if strings.HasPrefix(name, fmt.Sprintf("%v%v", t, joinKey)) {
-			srvType = t
-			break
-		}
-	}
-
-	// check to see if the service is a runtime service. This is true if the
-	// namespace is the default namespace plus no serviceType was set.
-	if len(srvType) == 0 && strings.HasPrefix(name, DefaultNamespace) {
-		return RuntimeNamespace, nil
-	} else if len(srvType) == 0 {
-		return "", errors.BadRequest("go.micro.registry", "Missing service type in name")
-	}
-
-	// split the name into components and find the index of the srvType, since
-	// all parts before this are the namespace and all parts after it are the
-	// services alias.
-	comps := strings.Split(name, joinKey)
-	var typeIndex int
-	for i, c := range comps {
-		if c == srvType {
-			typeIndex = i
-			break
-		}
-	}
-
-	// validate the typeIndex is not zero, causing an out of range error. This
-	// would happen if no namespace is specified, in this case we use the default
-	// one
-	if typeIndex == 0 {
-		return DefaultNamespace, nil
-	}
-
-	// the namespace is the components before the type, joined by the joinKey
-	return strings.Join(comps[0:typeIndex], joinKey), nil
+	// a forbidden cross namespace request was made,
+	// return the accounts own namespace instead of
+	// the one requested
+	return acc.Namespace
 }

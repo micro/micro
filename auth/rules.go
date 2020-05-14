@@ -10,7 +10,7 @@ import (
 
 	"github.com/micro/cli/v2"
 	pb "github.com/micro/go-micro/v2/auth/service/proto"
-	"github.com/micro/go-micro/v2/client"
+	"github.com/micro/micro/v2/internal/client"
 )
 
 func listRules(ctx *cli.Context) {
@@ -110,5 +110,5 @@ func constructRule(ctx *cli.Context) *pb.Rule {
 }
 
 func rulesFromContext(ctx *cli.Context) pb.RulesService {
-	return pb.NewRulesService("go.micro.auth", client.DefaultClient)
+	return pb.NewRulesService("go.micro.auth", client.New())
 }

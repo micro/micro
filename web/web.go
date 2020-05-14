@@ -30,7 +30,6 @@ import (
 	"github.com/micro/go-micro/v2/config/cmd"
 	log "github.com/micro/go-micro/v2/logger"
 	"github.com/micro/go-micro/v2/registry"
-	"github.com/micro/go-micro/v2/registry/cache"
 	"github.com/micro/go-micro/v2/sync/memory"
 	apiAuth "github.com/micro/micro/v2/api/auth"
 	"github.com/micro/micro/v2/internal/handler"
@@ -90,79 +89,6 @@ type reg struct {
 	sync.RWMutex
 	lastPull time.Time
 	services []*registry.Service
-}
-
-func (r *reg) watch() {
-	// update once
-	r.update()
-
-	// periodically update the service cache
-	go func() {
-		t := time.NewTicker(time.Minute)
-		defer t.Stop()
-
-		for range t.C {
-			r.update()
-		}
-	}()
-
-Loop:
-	for {
-		// get a watcher
-		w, err := r.Registry.Watch()
-		if err != nil {
-			time.Sleep(time.Second)
-			continue
-		}
-
-		// loop results
-		for {
-			_, err := w.Next()
-			if err != nil {
-				w.Stop()
-				time.Sleep(time.Second)
-				goto Loop
-			}
-
-			// next pull will be from the registry
-			r.Lock()
-			r.lastPull = time.Time{}
-			r.Unlock()
-		}
-	}
-}
-
-func (r *reg) update() {
-	// pull the services
-	s, err := r.Registry.ListServices()
-	if err != nil {
-		return
-	}
-
-	// collapse the list
-	serviceMap := make(map[string]*registry.Service)
-	for _, service := range s {
-		serviceMap[service.Name] = service
-	}
-	var services []*registry.Service
-	for _, service := range serviceMap {
-		services = append(services, service)
-	}
-
-	r.Lock()
-	defer r.Unlock()
-
-	// cache it
-	r.services = services
-	r.lastPull = time.Now()
-}
-
-func (r *reg) ListServices(opts ...registry.ListOption) ([]*registry.Service, error) {
-	r.RLock()
-	defer r.RUnlock()
-
-	// return the cached list
-	return r.services, nil
 }
 
 // ServeHTTP serves the web dashboard and proxies where appropriate
@@ -346,9 +272,6 @@ func (s *srv) indexHandler(w http.ResponseWriter, r *http.Request) {
 	// if the resolver is subdomain, we will need the domain
 	domain, _ := publicsuffix.EffectiveTLDPlusOne(r.URL.Hostname())
 
-	// determine the namespace the request was made against
-	reqNs := namespace.FromContext(r.Context())
-
 	var webServices []webService
 	for _, srv := range services {
 		// not a web app
@@ -356,22 +279,17 @@ func (s *srv) indexHandler(w http.ResponseWriter, r *http.Request) {
 			continue
 		}
 
-		srvNs, _ := namespace.FromService(srv.Name)
-		if srvNs == reqNs {
-			name := strings.Replace(srv.Name, srvNs+".web.", "", 1)
-
-			link := fmt.Sprintf("/%v/", name)
-			if Resolver == "subdomain" && len(domain) > 0 {
-				link = fmt.Sprintf("https://%v.%v", name, domain)
-			}
-
-			// in the case of 3 letter things e.g m3o convert to M3O
-			if len(name) <= 3 && strings.ContainsAny(name, "012345789") {
-				name = strings.ToUpper(name)
-			}
-
-			webServices = append(webServices, webService{Name: name, Link: link})
+		link := fmt.Sprintf("/%v/", srv.Name)
+		if Resolver == "subdomain" && len(domain) > 0 {
+			link = fmt.Sprintf("https://%v.%v", srv.Name, domain)
 		}
+
+		// in the case of 3 letter things e.g m3o convert to M3O
+		if len(srv.Name) <= 3 && strings.ContainsAny(srv.Name, "012345789") {
+			srv.Name = strings.ToUpper(srv.Name)
+		}
+
+		webServices = append(webServices, webService{Name: srv.Name, Link: link})
 	}
 
 	sort.Slice(webServices, func(i, j int) bool { return webServices[i].Name < webServices[j].Name })
@@ -425,22 +343,9 @@ func (s *srv) registryHandler(w http.ResponseWriter, r *http.Request) {
 
 	sort.Sort(sortedServices{services})
 
-	// get the namespace from the request
-	reqNs := namespace.FromContext(r.Context())
-
-	// we're using a cache which means we can't filter when making the request
-	// to the registry, so filter in code
-	var filteredSrvs []*registry.Service
-	for _, service := range services {
-		srvNs, _ := namespace.FromService(service.Name)
-		if srvNs == namespace.RuntimeNamespace || srvNs == reqNs {
-			filteredSrvs = append(filteredSrvs, service)
-		}
-	}
-
 	if r.Header.Get("Content-Type") == "application/json" {
 		b, err := json.Marshal(map[string]interface{}{
-			"services": filteredSrvs,
+			"services": services,
 		})
 		if err != nil {
 			http.Error(w, "Error occurred:"+err.Error(), 500)
@@ -451,7 +356,7 @@ func (s *srv) registryHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	s.render(w, r, registryTemplate, filteredSrvs)
+	s.render(w, r, registryTemplate, services)
 }
 
 func (s *srv) callHandler(w http.ResponseWriter, r *http.Request) {
@@ -460,18 +365,10 @@ func (s *srv) callHandler(w http.ResponseWriter, r *http.Request) {
 		log.Errorf("Error listing services: %v", err)
 	}
 
-	// get the namespace from the request
-	reqNs := namespace.FromContext(r.Context())
-
 	sort.Sort(sortedServices{services})
 
 	serviceMap := make(map[string][]*registry.Endpoint)
 	for _, service := range services {
-		srvNs, _ := namespace.FromService(service.Name)
-		if srvNs != namespace.RuntimeNamespace && srvNs != reqNs {
-			continue
-		}
-
 		if len(service.Endpoints) > 0 {
 			serviceMap[service.Name] = service.Endpoints
 			continue
@@ -579,12 +476,7 @@ func run(ctx *cli.Context, srvOpts ...micro.Option) {
 	// Initialize Server
 	service := micro.NewService(srvOpts...)
 
-	// use the caching registry
-	cache := cache.New((*cmd.DefaultOptions().Registry))
-	reg := &reg{Registry: cache}
-
-	// start the watcher
-	go reg.watch()
+	reg := &reg{Registry: *cmd.DefaultOptions().Registry}
 
 	s := &srv{
 		Router:   mux.NewRouter(),

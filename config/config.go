@@ -13,6 +13,7 @@ import (
 	proto "github.com/micro/go-micro/v2/config/source/service/proto"
 	log "github.com/micro/go-micro/v2/logger"
 	"github.com/micro/micro/v2/config/handler"
+	"github.com/micro/micro/v2/internal/client"
 )
 
 var (
@@ -50,7 +51,7 @@ func Run(c *cli.Context, srvOpts ...micro.Option) {
 }
 
 func setConfig(ctx *cli.Context) error {
-	pb := proto.NewConfigService("go.micro.config", *cmd.DefaultCmd.Options().Client)
+	pb := proto.NewConfigService("go.micro.config", client.New())
 
 	args := ctx.Args()
 
@@ -89,7 +90,7 @@ func setConfig(ctx *cli.Context) error {
 }
 
 func getConfig(ctx *cli.Context) error {
-	pb := proto.NewConfigService("go.micro.config", *cmd.DefaultCmd.Options().Client)
+	pb := proto.NewConfigService("go.micro.config", client.New())
 
 	args := ctx.Args()
 
@@ -140,7 +141,7 @@ func getConfig(ctx *cli.Context) error {
 }
 
 func delConfig(ctx *cli.Context) error {
-	pb := proto.NewConfigService("go.micro.config", *cmd.DefaultCmd.Options().Client)
+	pb := proto.NewConfigService("go.micro.config", client.New())
 
 	args := ctx.Args()
 

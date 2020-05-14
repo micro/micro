@@ -282,11 +282,14 @@ func setup(app *ccli.App) {
 			(*cmd.DefaultCmd.Options().Store).Init(opts...)
 		}
 
-		// add the system rules
-		for role, resources := range inauth.SystemRules {
-			for _, res := range resources {
-				if err := (*cmd.DefaultCmd.Options().Auth).Grant(role, res); err != nil {
-					return err
+		// add the system rules if we're using the JWT implementation
+		// which doesn't have access to the rules in the auth service
+		if (*cmd.DefaultCmd.Options().Auth).String() == "jwt" {
+			for role, resources := range inauth.SystemRules {
+				for _, res := range resources {
+					if err := (*cmd.DefaultCmd.Options().Auth).Grant(role, res); err != nil {
+						return err
+					}
 				}
 			}
 		}
