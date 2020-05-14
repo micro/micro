@@ -191,14 +191,13 @@ func login(ctx *cli.Context) {
 		os.Exit(1)
 	}
 
-	envName := cliutil.GetEnv().Name
 	// Store the access token in micro config
-	if err := config.Set(tok.AccessToken, "micro", "envs", envName, "auth", "token"); err != nil {
+	if err := config.Set(tok.AccessToken, "micro", "auth", "token"); err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
 	// Store the refresh token in micro config
-	if err := config.Set(tok.RefreshToken, "micro", "envs", envName, "auth", "refresh-token"); err != nil {
+	if err := config.Set(tok.RefreshToken, "micro", "auth", "refresh-token"); err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
@@ -210,8 +209,7 @@ func login(ctx *cli.Context) {
 // whoami returns info about the logged in user
 func whoami(ctx *cli.Context) {
 	// Get the token from micro config
-	envName := cliutil.GetEnv().Name
-	tok, err := config.Get("micro", "envs", envName, "auth", "token")
+	tok, err := config.Get("micro", "auth", "token")
 	if err != nil {
 		fmt.Println("You are not logged in")
 		os.Exit(1)
