@@ -34,4 +34,4 @@ require (
 )
 
 // replace github.com/micro/go-micro/v2 => github.com/crufter/go-micro auth-cleanup
-replace github.com/micro/go-micro/v2 => /home/crufter/code/src/github.com/micro/go-micro
+//replace github.com/micro/go-micro/v2 => /home/crufter/code/src/github.com/micro/go-micro
