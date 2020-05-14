@@ -275,21 +275,23 @@ func (s *srv) indexHandler(w http.ResponseWriter, r *http.Request) {
 	var webServices []webService
 	for _, srv := range services {
 		// not a web app
-		if !strings.Contains(srv.Name, "web.") {
+		comps := strings.Split(srv.Name, ".web.")
+		if len(comps) == 1 {
 			continue
 		}
+		name := comps[1]
 
-		link := fmt.Sprintf("/%v/", srv.Name)
+		link := fmt.Sprintf("/%v/", name)
 		if Resolver == "subdomain" && len(domain) > 0 {
-			link = fmt.Sprintf("https://%v.%v", srv.Name, domain)
+			link = fmt.Sprintf("https://%v.%v", name, domain)
 		}
 
 		// in the case of 3 letter things e.g m3o convert to M3O
-		if len(srv.Name) <= 3 && strings.ContainsAny(srv.Name, "012345789") {
-			srv.Name = strings.ToUpper(srv.Name)
+		if len(name) <= 3 && strings.ContainsAny(name, "012345789") {
+			name = strings.ToUpper(name)
 		}
 
-		webServices = append(webServices, webService{Name: srv.Name, Link: link})
+		webServices = append(webServices, webService{Name: name, Link: link})
 	}
 
 	sort.Slice(webServices, func(i, j int) bool { return webServices[i].Name < webServices[j].Name })
