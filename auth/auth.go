@@ -15,12 +15,13 @@ import (
 	"github.com/micro/go-micro/v2/auth/token/jwt"
 	"github.com/micro/go-micro/v2/config/cmd"
 	log "github.com/micro/go-micro/v2/logger"
-	"github.com/micro/go-micro/v2/util/config"
 	"github.com/micro/micro/v2/auth/api"
 	accountsHandler "github.com/micro/micro/v2/auth/handler/accounts"
 	authHandler "github.com/micro/micro/v2/auth/handler/auth"
 	rulesHandler "github.com/micro/micro/v2/auth/handler/rules"
 	cliutil "github.com/micro/micro/v2/cli/util"
+	"github.com/micro/micro/v2/internal/client"
+	"github.com/micro/micro/v2/internal/config"
 )
 
 var (
@@ -155,7 +156,9 @@ func authFromContext(ctx *cli.Context) auth.Auth {
 	if cliutil.IsLocal() {
 		return *cmd.DefaultCmd.Options().Auth
 	}
-	return srvAuth.NewAuth()
+	return srvAuth.NewAuth(
+		auth.WithClient(client.New()),
+	)
 }
 
 // login using a token

@@ -16,6 +16,7 @@ var SystemRules = map[string][]*auth.Resource{
 	"*": {
 		&auth.Resource{Namespace: auth.DefaultNamespace, Type: "service", Name: "go.micro.auth", Endpoint: "Auth.Generate"},
 		&auth.Resource{Namespace: auth.DefaultNamespace, Type: "service", Name: "go.micro.auth", Endpoint: "Auth.Token"},
+		&auth.Resource{Namespace: auth.DefaultNamespace, Type: "service", Name: "go.micro.auth", Endpoint: "Auth.Inspect"},
 		&auth.Resource{Namespace: auth.DefaultNamespace, Type: "service", Name: "go.micro.registry", Endpoint: "Registry.GetService"},
 	},
 }

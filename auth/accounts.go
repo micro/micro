@@ -10,7 +10,7 @@ import (
 	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro/v2/auth"
 	pb "github.com/micro/go-micro/v2/auth/service/proto"
-	"github.com/micro/go-micro/v2/client"
+	"github.com/micro/micro/v2/internal/client"
 )
 
 func listAccounts(ctx *cli.Context) {
@@ -55,5 +55,5 @@ func createAccount(ctx *cli.Context) {
 }
 
 func accountsFromContext(ctx *cli.Context) pb.AccountsService {
-	return pb.NewAccountsService("go.micro.auth", client.DefaultClient)
+	return pb.NewAccountsService("go.micro.auth", client.New())
 }
