@@ -11,7 +11,7 @@ require (
 	github.com/cloudflare/cloudflare-go v0.10.9
 	github.com/dustin/go-humanize v1.0.0
 	github.com/fsnotify/fsnotify v1.4.7
-	github.com/go-acme/lego/v3 v3.3.0
+	github.com/go-acme/lego/v3 v3.4.0
 	github.com/golang/protobuf v1.4.1
 	github.com/google/uuid v1.1.1
 	github.com/gorilla/handlers v1.4.2
@@ -32,3 +32,6 @@ require (
 	google.golang.org/genproto v0.0.0-20191216164720-4f79533eabd1
 	google.golang.org/grpc v1.26.0
 )
+
+// replace github.com/micro/go-micro/v2 => github.com/crufter/go-micro auth-cleanup
+replace github.com/micro/go-micro/v2 => /home/crufter/code/src/github.com/micro/go-micro

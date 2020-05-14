@@ -24,7 +24,16 @@ EXPOSE      2379 2380 4001 7001
 ADD         scripts/run-etcd.sh /bin/run.sh
 
 ENV MICRO_REGISTRY=etcd
-RUN go get -d github.com/micro/micro
+
+COPY ./test/example-service ${GOPATH}/src/example-service
+
+# Speeding up tests by predownloading dependencies for services used.
+RUN cd ${GOPATH}/src/example-service && go get && \
+    go get github.com/micro/services/location && \
+    go get github.com/micro/services/helloworld
+
+# For some reason this fails...
+# RUN go get github.com/crufter/micro-services/logspammer
 
 COPY ./micro /micro
 
