@@ -23,9 +23,7 @@ The runtime is composed of the following features:
 
 Clients are entrypoints into the system. They enable access to your services through known access points.
 
-- **api:** An api gateway. A single entry point with dynamic request routing using service discovery. The API gateway allows you to build a scalable
-microservice architecture on the backend and consolidate serving a public api on the frontend. The micro api provides powerful routing
-via discovery and pluggable handlers to serve http, grpc, websockets, publish events and more.
+- **api:** An api gateway which acts as a single entry point for the frontend with dynamic request routing using service discovery. 
 
 - **bot:** A slack bot which enables you to query and interact with Micro directly from within slack. It's great for ChatOps.
 
@@ -34,7 +32,7 @@ via discovery and pluggable handlers to serve http, grpc, websockets, publish ev
 - **proxy:** An identity away proxy built which allows you to access remote environments without painful configuration or vpn.
 
 - **web:** The web dashboard allows you to explore your services, describe their endpoints, the request and response formats and even
-query them directly. The dashboard also includes a built in CLI like experience for developers who want to drop into the terminal on the fly.
+query them directly.
 
 ### Services
 
