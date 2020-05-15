@@ -33,7 +33,7 @@ module "bot_cert" {
 resource "kubernetes_secret" "bot_cert" {
   metadata {
     name        = "${replace(local.bot_name, ".", "-")}-cert"
-    namespace   = var.platform_namespace
+    namespace   = kubernetes_namespace.platform.id
     labels      = local.bot_labels
     annotations = local.bot_annotations
   }
@@ -47,7 +47,7 @@ resource "kubernetes_secret" "bot_cert" {
 resource "kubernetes_deployment" "bot" {
   metadata {
     name        = replace(local.bot_name, ".", "-")
-    namespace   = var.platform_namespace
+    namespace   = kubernetes_namespace.platform.id
     labels      = local.bot_labels
     annotations = local.bot_annotations
   }

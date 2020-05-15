@@ -34,7 +34,7 @@ module "init_cert" {
 resource "kubernetes_secret" "init_cert" {
   metadata {
     name        = "${replace(local.init_name, ".", "-")}-cert"
-    namespace   = var.platform_namespace
+    namespace   = kubernetes_namespace.platform.id
     labels      = local.init_labels
     annotations = local.init_annotations
   }
@@ -48,7 +48,7 @@ resource "kubernetes_secret" "init_cert" {
 resource "kubernetes_deployment" "init" {
   metadata {
     name        = replace(local.init_name, ".", "-")
-    namespace   = var.platform_namespace
+    namespace   = kubernetes_namespace.platform.id
     labels      = local.init_labels
     annotations = local.init_annotations
   }
@@ -111,7 +111,7 @@ resource "kubernetes_deployment" "init" {
 resource "kubernetes_service_account" "init" {
   metadata {
     name        = replace(local.init_name, ".", "-")
-    namespace   = var.platform_namespace
+    namespace   = kubernetes_namespace.platform.id
     labels      = local.init_labels
     annotations = local.init_annotations
   }
@@ -158,7 +158,7 @@ resource "kubernetes_cluster_role" "init" {
 resource "kubernetes_role_binding" "init" {
   metadata {
     name        = "${replace(local.init_name, ".", "-")}-${random_id.init.hex}"
-    namespace   = var.platform_namespace
+    namespace   = kubernetes_namespace.platform.id
     labels      = local.init_labels
     annotations = local.init_annotations
   }

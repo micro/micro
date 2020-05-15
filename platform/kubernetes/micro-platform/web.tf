@@ -45,7 +45,7 @@ module "web_cert" {
 resource "kubernetes_secret" "web_cert" {
   metadata {
     name        = "${replace(local.web_name, ".", "-")}-cert"
-    namespace   = var.platform_namespace
+    namespace   = kubernetes_namespace.platform.id
     labels      = local.web_labels
     annotations = local.web_annotations
   }
@@ -59,7 +59,7 @@ resource "kubernetes_secret" "web_cert" {
 resource "kubernetes_deployment" "web" {
   metadata {
     name        = replace(local.web_name, ".", "-")
-    namespace   = var.platform_namespace
+    namespace   = kubernetes_namespace.platform.id
     labels      = local.web_labels
     annotations = merge(local.common_annotations, local.web_annotations)
   }
@@ -149,7 +149,7 @@ resource "kubernetes_deployment" "web" {
 resource "kubernetes_service" "web" {
   metadata {
     name        = replace(local.web_name, ".", "-")
-    namespace   = var.platform_namespace
+    namespace   = kubernetes_namespace.platform.id
     labels      = local.web_labels
     annotations = merge(local.common_annotations, local.web_annotations)
   }
