@@ -34,12 +34,6 @@ variable "api_acme_hosts" {
   default     = "*.m3o.dev,m3o.dev"
 }
 
-variable "api_acme_hosts" {
-  type        = string
-  description = "Comma-separated ACME hosts for micro api"
-  default     = "*.m3o.dev,m3o.dev"
-}
-
 variable "proxy_acme_hosts" {
   type        = string
   description = "Comma-separated ACME hosts for micro proxy"

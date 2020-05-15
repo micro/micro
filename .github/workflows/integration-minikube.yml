@@ -18,13 +18,13 @@ jobs:
     - name: Interact with the cluster
       run: kubectl get nodes
 
-    - name: Apply resource terraform
+    - name: Apply resource tf files
       run: |
         cd platform/kubernetes/micro-resource
         export TF_VAR_resource_namespace=resource
         terraform init; terraform apply -auto-approve
 
-    - name: Apply resource platform
+    - name: Apply platform tf files
       run: |
         ssh-keygen -b 2048 -t rsa -f /tmp/sshkey -q -N ""
         cd platform/kubernetes/micro-platform
