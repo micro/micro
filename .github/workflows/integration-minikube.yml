@@ -1,4 +1,4 @@
-name: Run micro server integration tests
+name: Run micro server integration tests on minikube
 on: [push, pull_request]
 
 jobs:
@@ -17,6 +17,9 @@ jobs:
         github token: ${{ secrets.GITHUB_TOKEN }}
     - name: Interact with the cluster
       run: kubectl get nodes
+
+    - name: Apply resource terraform
+      run: cd platform/kubernetes/micro-resource; terraform init; terraform apply
 
     - name: Set up Go 1.13
       uses: actions/setup-go@v2
