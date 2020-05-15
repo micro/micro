@@ -21,8 +21,7 @@ import (
 	"github.com/micro/go-micro/v2/registry"
 
 	proto "github.com/micro/go-micro/v2/debug/service/proto"
-
-	dns "github.com/micro/micro/v2/network/dns/proto/dns"
+	dns "github.com/micro/micro/v2/service/network/dns/proto/dns"
 
 	"github.com/olekukonko/tablewriter"
 	"github.com/serenize/snaker"
