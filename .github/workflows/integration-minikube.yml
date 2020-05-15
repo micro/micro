@@ -9,12 +9,8 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v1
-    - name: Setup Minikube
-      uses: manusa/actions-setup-minikube@v1.0.2
-      with:
-        minikube version: 'v1.9.2'
-        kubernetes version: 'v1.18.2'
-        github token: ${{ secrets.GITHUB_TOKEN }}
+    - name: Setup Kind
+      uses: engineerd/setup-kind@v0.3.0
     - name: Interact with the cluster
       run: kubectl get nodes
 
