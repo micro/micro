@@ -11,6 +11,7 @@ import (
 	"github.com/micro/go-micro/v2/runtime"
 	pb "github.com/micro/go-micro/v2/runtime/service/proto"
 	"github.com/micro/micro/v2/service/runtime/handler"
+	runManager "github.com/micro/micro/v2/service/runtime/manager"
 )
 
 var (
@@ -48,13 +49,8 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 		muRuntime.Init(runtime.WithSource(ctx.String("source")))
 	}
 
-	// use default store
-	muStore := *cmd.DefaultCmd.Options().Store
-
 	// create a new runtime manager
-	manager := newManager(ctx, muRuntime, muStore)
-
-	log.Infof("using store %s", muStore.String())
+	manager := runManager.New(muRuntime)
 
 	// start the manager
 	if err := manager.Start(); err != nil {
