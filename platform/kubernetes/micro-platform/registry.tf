@@ -34,7 +34,7 @@ module "registry_cert" {
 resource "kubernetes_secret" "registry_cert" {
   metadata {
     name        = "${replace(local.registry_name, ".", "-")}-cert"
-    namespace   = var.platform_namespace
+    namespace   = kubernetes_namespace.platform.id
     labels      = local.registry_labels
     annotations = local.registry_annotations
   }
@@ -48,7 +48,7 @@ resource "kubernetes_secret" "registry_cert" {
 resource "kubernetes_deployment" "registry" {
   metadata {
     name        = replace(local.registry_name, ".", "-")
-    namespace   = var.platform_namespace
+    namespace   = kubernetes_namespace.platform.id
     labels      = local.registry_labels
     annotations = local.registry_annotations
   }
@@ -132,7 +132,7 @@ resource "kubernetes_deployment" "registry" {
 resource "kubernetes_service" "registry" {
   metadata {
     name        = replace(local.registry_name, ".", "-")
-    namespace   = var.platform_namespace
+    namespace   = kubernetes_namespace.platform.id
     labels      = local.registry_labels
     annotations = local.registry_annotations
   }

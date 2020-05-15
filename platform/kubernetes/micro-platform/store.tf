@@ -35,7 +35,7 @@ module "store_cert" {
 resource "kubernetes_secret" "store_cert" {
   metadata {
     name        = "${replace(local.store_name, ".", "-")}-cert"
-    namespace   = var.platform_namespace
+    namespace   = kubernetes_namespace.platform.id
     labels      = local.store_labels
     annotations = local.store_annotations
   }
@@ -49,7 +49,7 @@ resource "kubernetes_secret" "store_cert" {
 resource "kubernetes_deployment" "store" {
   metadata {
     name        = replace(local.store_name, ".", "-")
-    namespace   = var.platform_namespace
+    namespace   = kubernetes_namespace.platform.id
     labels      = local.store_labels
     annotations = local.store_annotations
   }
