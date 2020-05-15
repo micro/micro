@@ -34,7 +34,7 @@ module "broker_cert" {
 resource "kubernetes_secret" "broker_cert" {
   metadata {
     name        = "${replace(local.broker_name, ".", "-")}-cert"
-    namespace   = var.platform_namespace
+    namespace   = kubernetes_namespace.platform.id
     labels      = local.broker_labels
     annotations = local.broker_annotations
   }
@@ -48,7 +48,7 @@ resource "kubernetes_secret" "broker_cert" {
 resource "kubernetes_deployment" "broker" {
   metadata {
     name        = replace(local.broker_name, ".", "-")
-    namespace   = var.platform_namespace
+    namespace   = kubernetes_namespace.platform.id
     labels      = local.broker_labels
     annotations = local.broker_annotations
   }
@@ -132,7 +132,7 @@ resource "kubernetes_deployment" "broker" {
 resource "kubernetes_service" "broker" {
   metadata {
     name        = replace(local.broker_name, ".", "-")
-    namespace   = var.platform_namespace
+    namespace   = kubernetes_namespace.platform.id
     labels      = local.broker_labels
     annotations = local.broker_annotations
   }

@@ -35,7 +35,7 @@ module "config_cert" {
 resource "kubernetes_secret" "config_cert" {
   metadata {
     name        = "${replace(local.config_name, ".", "-")}-cert"
-    namespace   = var.platform_namespace
+    namespace   = kubernetes_namespace.platform.id
     labels      = local.config_labels
     annotations = local.config_annotations
   }
@@ -49,7 +49,7 @@ resource "kubernetes_secret" "config_cert" {
 resource "kubernetes_deployment" "config" {
   metadata {
     name        = replace(local.config_name, ".", "-")
-    namespace   = var.platform_namespace
+    namespace   = kubernetes_namespace.platform.id
     labels      = local.config_labels
     annotations = local.config_annotations
   }
@@ -133,7 +133,7 @@ resource "kubernetes_deployment" "config" {
 resource "kubernetes_service" "config" {
   metadata {
     name        = replace(local.config_name, ".", "-")
-    namespace   = var.platform_namespace
+    namespace   = kubernetes_namespace.platform.id
     labels      = local.config_labels
     annotations = local.config_annotations
   }

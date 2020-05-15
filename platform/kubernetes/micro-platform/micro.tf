@@ -23,14 +23,14 @@ locals {
 
 resource "kubernetes_namespace" "platform" {
   metadata {
-    name = var.platform_namespace
+    name = kubernetes_namespace.platform.id
   }
 }
 
 resource "kubernetes_secret" "cloudflare_credentals" {
   metadata {
     name        = "cloudflare-credentials"
-    namespace   = var.platform_namespace
+    namespace   = kubernetes_namespace.platform.id
     labels      = local.common_labels
     annotations = local.common_annotations
   }
@@ -42,7 +42,7 @@ resource "kubernetes_secret" "cloudflare_credentals" {
 resource "kubernetes_secret" "micro_keypair" {
   metadata {
     name        = "micro-keypair"
-    namespace   = var.platform_namespace
+    namespace   = kubernetes_namespace.platform.id
     labels      = local.common_labels
     annotations = local.common_annotations
   }
@@ -55,7 +55,7 @@ resource "kubernetes_secret" "micro_keypair" {
 resource "kubernetes_secret" "platform_ca" {
   metadata {
     name        = "platform-ca"
-    namespace   = var.platform_namespace
+    namespace   = kubernetes_namespace.platform.id
     labels      = local.common_labels
     annotations = local.common_annotations
   }
@@ -67,7 +67,7 @@ resource "kubernetes_secret" "platform_ca" {
 resource "kubernetes_secret" "slack_token" {
   metadata {
     name        = "micro-slack-token"
-    namespace   = var.platform_namespace
+    namespace   = kubernetes_namespace.platform.id
     labels      = local.common_labels
     annotations = local.common_annotations
   }

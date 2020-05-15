@@ -34,7 +34,7 @@ module "auth_cert" {
 resource "kubernetes_secret" "auth_cert" {
   metadata {
     name        = "${replace(local.auth_name, ".", "-")}-cert"
-    namespace   = var.platform_namespace
+    namespace   = kubernetes_namespace.platform.id
     labels      = local.auth_labels
     annotations = local.auth_annotations
   }
@@ -48,7 +48,7 @@ resource "kubernetes_secret" "auth_cert" {
 resource "kubernetes_deployment" "auth" {
   metadata {
     name        = replace(local.auth_name, ".", "-")
-    namespace   = var.platform_namespace
+    namespace   = kubernetes_namespace.platform.id
     labels      = local.auth_labels
     annotations = local.auth_annotations
   }
@@ -132,7 +132,7 @@ resource "kubernetes_deployment" "auth" {
 resource "kubernetes_service" "auth" {
   metadata {
     name        = replace(local.auth_name, ".", "-")
-    namespace   = var.platform_namespace
+    namespace   = kubernetes_namespace.platform.id
     labels      = local.auth_labels
     annotations = local.auth_annotations
   }

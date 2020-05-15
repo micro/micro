@@ -35,7 +35,7 @@ module "debug_cert" {
 resource "kubernetes_secret" "debug_cert" {
   metadata {
     name        = "${replace(local.debug_name, ".", "-")}-cert"
-    namespace   = var.platform_namespace
+    namespace   = kubernetes_namespace.platform.id
     labels      = local.debug_labels
     annotations = local.debug_annotations
   }
@@ -49,7 +49,7 @@ resource "kubernetes_secret" "debug_cert" {
 resource "kubernetes_deployment" "debug" {
   metadata {
     name        = replace(local.debug_name, ".", "-")
-    namespace   = var.platform_namespace
+    namespace   = kubernetes_namespace.platform.id
     labels      = local.debug_labels
     annotations = local.debug_annotations
   }
