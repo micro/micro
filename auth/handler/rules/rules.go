@@ -51,7 +51,7 @@ func (r *Rules) Init(opts ...auth.Option) {
 	}
 	log.Info("Generating default rules")
 	err = r.Create(context.Background(), &pb.CreateRequest{
-		Role:     "*",
+		Role:     "", // a blank role  allows public access
 		Priority: 0,
 		Resource: &pb.Resource{
 			Namespace: "*",
