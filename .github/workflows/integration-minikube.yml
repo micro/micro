@@ -29,7 +29,9 @@ jobs:
       run: |
         ssh-keygen -b 2048 -t rsa -f /tmp/sshkey -q -N ""
         cd platform/kubernetes/micro-platform
-        export TF_VAR_resource_namespace=platform TF_VAR_micro_auth_private=$(cat /tmp/sshkey | base64 -w0) TF_VAR_micro_auth_public=$(cat /tmp/sshkey.pub | base64 -w0)
+        export TF_VAR_resource_namespace=platform
+        export TF_VAR_micro_auth_private=$(cat /tmp/sshkey | base64 -w0)
+        export TF_VAR_micro_auth_public=$(cat /tmp/sshkey.pub | base64 -w0)
         terraform init; terraform apply -auto-approve
 
     - name: Set up Go 1.13
