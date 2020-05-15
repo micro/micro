@@ -19,7 +19,7 @@ jobs:
       run: kubectl get nodes
 
     - name: Apply resource terraform
-      run: cd platform/kubernetes/micro-resource; terraform init; export TF_VAR_resource_namespace=resource terraform apply -auto-approve
+      run: cd platform/kubernetes/micro-resource; export TF_VAR_resource_namespace=resource; terraform init; terraform apply -auto-approve
 
     - name: Set up Go 1.13
       uses: actions/setup-go@v2
