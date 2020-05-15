@@ -19,11 +19,7 @@ type Runtime struct {
 }
 
 func (r *Runtime) Read(ctx context.Context, req *pb.ReadRequest, rsp *pb.ReadResponse) error {
-	var options []runtime.ReadOption
-
-	if req.Options != nil {
-		options = toReadOptions(ctx, req.Options)
-	}
+	options := toReadOptions(ctx, req.Options)
 
 	services, err := r.Runtime.Read(options...)
 	if err != nil {
