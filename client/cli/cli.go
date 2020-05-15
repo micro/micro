@@ -7,7 +7,7 @@ import (
 	"strings"
 
 	"github.com/micro/cli/v2"
-	storecli "github.com/micro/micro/v2/store/cli"
+	storecli "github.com/micro/micro/v2/service/store/cli"
 
 	"github.com/chzyer/readline"
 )

@@ -20,9 +20,9 @@ import (
 	"github.com/micro/go-micro/v2/runtime/local/git"
 	srvRuntime "github.com/micro/go-micro/v2/runtime/service"
 	"github.com/micro/go-micro/v2/util/file"
-	cliutil "github.com/micro/micro/v2/cli/util"
+	cliutil "github.com/micro/micro/v2/client/cli/util"
 	"github.com/micro/micro/v2/internal/client"
-	"github.com/micro/micro/v2/runtime/handler"
+	"github.com/micro/micro/v2/service/runtime/handler"
 )
 
 const (

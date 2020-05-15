@@ -1,6 +1,6 @@
 // Package cliutil contains methods used across all cli commands
 // @todo: get rid of os.Exits and use errors instread
-package cliutil
+package util
 
 import (
 	"encoding/json"
@@ -12,7 +12,7 @@ import (
 	ccli "github.com/micro/cli/v2"
 	"github.com/micro/micro/v2/internal/config"
 	"github.com/micro/micro/v2/internal/platform"
-	"github.com/micro/micro/v2/runtime/profile"
+	"github.com/micro/micro/v2/service/runtime/profile"
 )
 
 const (

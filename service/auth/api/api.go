@@ -5,7 +5,7 @@ import (
 	"github.com/micro/go-micro/v2"
 	log "github.com/micro/go-micro/v2/logger"
 
-	pb "github.com/micro/micro/v2/auth/api/proto"
+	pb "github.com/micro/micro/v2/service/auth/api/proto"
 )
 
 var (

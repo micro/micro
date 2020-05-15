@@ -15,13 +15,13 @@ import (
 	"github.com/micro/go-micro/v2/auth/token/jwt"
 	"github.com/micro/go-micro/v2/config/cmd"
 	log "github.com/micro/go-micro/v2/logger"
-	"github.com/micro/micro/v2/auth/api"
-	accountsHandler "github.com/micro/micro/v2/auth/handler/accounts"
-	authHandler "github.com/micro/micro/v2/auth/handler/auth"
-	rulesHandler "github.com/micro/micro/v2/auth/handler/rules"
-	cliutil "github.com/micro/micro/v2/cli/util"
+	cliutil "github.com/micro/micro/v2/client/cli/util"
 	"github.com/micro/micro/v2/internal/client"
 	"github.com/micro/micro/v2/internal/config"
+	"github.com/micro/micro/v2/service/auth/api"
+	accountsHandler "github.com/micro/micro/v2/service/auth/handler/accounts"
+	authHandler "github.com/micro/micro/v2/service/auth/handler/auth"
+	rulesHandler "github.com/micro/micro/v2/service/auth/handler/rules"
 )
 
 var (

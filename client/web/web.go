@@ -31,7 +31,7 @@ import (
 	log "github.com/micro/go-micro/v2/logger"
 	"github.com/micro/go-micro/v2/registry"
 	"github.com/micro/go-micro/v2/sync/memory"
-	apiAuth "github.com/micro/micro/v2/api/auth"
+	apiAuth "github.com/micro/micro/v2/client/api/auth"
 	"github.com/micro/micro/v2/internal/handler"
 	"github.com/micro/micro/v2/internal/helper"
 	"github.com/micro/micro/v2/internal/namespace"

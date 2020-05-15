@@ -30,7 +30,7 @@ import (
 	httpapi "github.com/micro/go-micro/v2/api/server/http"
 	log "github.com/micro/go-micro/v2/logger"
 	"github.com/micro/go-micro/v2/sync/memory"
-	"github.com/micro/micro/v2/api/auth"
+	"github.com/micro/micro/v2/client/api/auth"
 	"github.com/micro/micro/v2/internal/handler"
 	"github.com/micro/micro/v2/internal/helper"
 	"github.com/micro/micro/v2/internal/namespace"

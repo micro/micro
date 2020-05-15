@@ -14,7 +14,7 @@ import (
 	log "github.com/micro/go-micro/v2/logger"
 	"github.com/micro/go-micro/v2/registry"
 	"github.com/micro/go-micro/v2/util/ring"
-	trace "github.com/micro/micro/v2/debug/trace/proto"
+	trace "github.com/micro/micro/v2/service/debug/trace/proto"
 )
 
 // New initialises and returns a new trace service handler

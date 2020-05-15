@@ -16,7 +16,7 @@ import (
 	"github.com/micro/go-micro/v2/runtime"
 	"github.com/micro/go-micro/v2/store"
 	"github.com/micro/go-micro/v2/util/jitter"
-	muProfile "github.com/micro/micro/v2/runtime/profile"
+	muProfile "github.com/micro/micro/v2/service/runtime/profile"
 )
 
 type manager struct {
