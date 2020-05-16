@@ -21,7 +21,7 @@ The runtime is composed of the following features:
 
 ### Clients
 
-Clients are entrypoints into the system. They enable access to your services through known access points.
+Clients are entrypoints into the system. They enable access to your services through well known entrypoints.
 
 - **api:** An api gateway which acts as a single entry point for the frontend with dynamic request routing using service discovery. 
 
