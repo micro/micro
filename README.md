@@ -31,7 +31,7 @@ Clients are entrypoints into the system. They enable access to your services thr
 
 - **proxy:** An identity away proxy which allows you to access remote environments without painful configuration or vpn.
 
-- **web:** The web dashboard allows you to explore your services, describe their endpoints, the request and response formats and even
+- **web:** A dashboard to explore services, describe their endpoints, the request and response formats and even
 query them directly.
 
 ### Services
