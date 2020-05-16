@@ -29,7 +29,7 @@ Clients are entrypoints into the system. They enable access to your services thr
 
 - **cli:** Access services via the terminal. Every good developer tool needs a CLI as a defacto standard for operating a system. 
 
-- **proxy:** An identity away proxy built which allows you to access remote environments without painful configuration or vpn.
+- **proxy:** An identity away proxy which allows you to access remote environments without painful configuration or vpn.
 
 - **web:** The web dashboard allows you to explore your services, describe their endpoints, the request and response formats and even
 query them directly.
