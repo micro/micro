@@ -56,7 +56,7 @@ The micro network dynamically builds a latency based routing table based on the 
 - **registry:** The registry provides service discovery to locate other services, store feature rich metadata and endpoint information. It's a
 service explorer which lets you centrally and dynamically store this info at runtime.
 
-- **runtime:** A service runtime which manages the lifecycle of your service, from source to running. The runtime service can natively locally 
+- **runtime:** A service runtime which manages the lifecycle of your service, from source to running. The runtime service can run natively locally 
 or on kubernetes, providing a seamless abstraction across both.
 
 - **store:** State is a fundamental requirement of any system. We provide a key-value store to provide simple storage of state which can be shared
