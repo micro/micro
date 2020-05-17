@@ -1,6 +1,7 @@
-# Warning! Dangerous integration tests
+# Integration tests
 
-**These tests nuke your local micro store!**
+**Warning: The tests will remove your local micro store!**
+
 Use it at your own risk.
 It's mainly intended to run in CI and not as part of your local workflow.
 
