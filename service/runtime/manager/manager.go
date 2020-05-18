@@ -53,10 +53,29 @@ func (m *manager) Read(opts ...runtime.ReadOption) ([]*runtime.Service, error) {
 	}
 
 	// query the store. TODO: query by type? (it isn't an attr of srv)
-	return m.readServices(options.Namespace, &runtime.Service{
+	srvs, err := m.readServices(options.Namespace, &runtime.Service{
 		Name:    options.Service,
 		Version: options.Version,
 	})
+	if err != nil {
+		return nil, err
+	}
+
+	// add the metadata to the service from the local runtime (e.g. status, err)
+	statuses, err := m.listStatuses(options.Namespace)
+	if err != nil {
+		return nil, err
+	}
+	for _, srv := range srvs {
+		md, ok := statuses[srv.Name+":"+srv.Version]
+		if !ok {
+			continue
+		}
+		srv.Metadata["status"] = md.Status
+		srv.Metadata["error"] = md.Error
+	}
+
+	return srvs, nil
 }
 
 // Update the service in place
@@ -119,7 +138,8 @@ func (m *manager) Start() error {
 	// watch events written to the store
 	go m.watchEvents()
 
-	// todo: periodically load the status of services from the runtime
+	// periodically load the status of services from the runtime
+	go m.watchStautes()
 
 	// todo: compare the store to the runtime incase we missed any events
 
@@ -148,9 +168,10 @@ type manager struct {
 	options Options
 	// running is true after Start is called
 	running bool
-	// eventsConsumed is a memory store which contains the
-	// ids of all events recently consumed by the manager
-	eventsConsumed store.Store
+	// cache is a memory store which is used to store any information we don't want to write to the
+	// global store, e.g. events consumed, service status / errors (these will change depending on the
+	// managed runtime and hence won't be the same globally).
+	cache store.Store
 }
 
 // New returns a manager for the runtime
@@ -167,8 +188,8 @@ func New(r runtime.Runtime, opts ...Option) runtime.Runtime {
 	}
 
 	return &manager{
-		Runtime:        r,
-		options:        options,
-		eventsConsumed: memory.NewStore(),
+		Runtime: r,
+		options: options,
+		cache:   memory.NewStore(),
 	}
 }

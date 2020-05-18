@@ -2,7 +2,6 @@ package manager
 
 import (
 	"encoding/json"
-	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -87,16 +86,18 @@ func (m *manager) watchEvents() {
 
 		// loop through every event
 		for _, key := range eventKeys {
-			m.processEvent(strings.TrimPrefix(key, eventPrefix))
+			m.processEvent(key)
 		}
 	}
 }
 
 // processEvent will take an event key, verify it hasn't been consumed
-// and then execute it
-func (m *manager) processEvent(id string) {
+// and then execute it. We pass the key and not the ID since the global
+// store and the memory store use the same key prefix so there is not point
+// stripping and then re-prefixing.
+func (m *manager) processEvent(key string) {
 	// check to see if the event has been processed before
-	if _, err := m.eventsConsumed.Read(id); err != store.ErrNotFound {
+	if _, err := m.cache.Read(key); err != store.ErrNotFound {
 		return
 	}
 
@@ -104,5 +105,5 @@ func (m *manager) processEvent(id string) {
 
 	// write to the store indicating the event has been consumed. We double
 	// the ttl to safely know the event will expire before this record
-	m.eventsConsumed.Write(&store.Record{Key: id, Expiry: eventTTL * 2})
+	m.cache.Write(&store.Record{Key: key, Expiry: eventTTL * 2})
 }

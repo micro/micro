@@ -2,6 +2,7 @@ package manager
 
 import (
 	"encoding/json"
+	"strings"
 
 	"github.com/micro/go-micro/v2/runtime"
 	"github.com/micro/go-micro/v2/store"
@@ -70,4 +71,36 @@ func (m *manager) readServices(namespace string, srv *runtime.Service) ([]*runti
 func (m *manager) deleteService(namespace string, srv *runtime.Service) error {
 	obj := &service{srv, &runtime.CreateOptions{Namespace: namespace}}
 	return m.options.Store.Delete(obj.Key())
+}
+
+// listNamespaces of the services in the store
+func (m *manager) listNamespaces() ([]string, error) {
+	keys, err := m.options.Store.List(store.ListPrefix(servicePrefix))
+	if err != nil {
+		return nil, err
+	}
+
+	namespaces := make([]string, 0, len(keys))
+	for _, key := range keys {
+		// key is formatted 'prefix/namespace/name:version'
+		if comps := strings.Split(key, "/"); len(comps) == 3 {
+			namespaces = append(namespaces, comps[1])
+		}
+	}
+
+	return unique(namespaces), nil
+}
+
+// unique is a helper method to filter a slice of strings
+// down to unique entries
+func unique(stringSlice []string) []string {
+	keys := make(map[string]bool)
+	list := []string{}
+	for _, entry := range stringSlice {
+		if _, value := keys[entry]; !value {
+			keys[entry] = true
+			list = append(list, entry)
+		}
+	}
+	return list
 }
