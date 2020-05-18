@@ -20,7 +20,7 @@ locals {
       "MICRO_PROXY_ADDRESS"  = "0.0.0.0:${local.proxy_https_port}",
       "MICRO_SERVER_ADDRESS" = "0.0.0.0:${local.proxy_port}"
       "MICRO_ENABLE_STATS"   = "true",
-      "MICRO_ENABLE_ACME"    = "true",
+      "MICRO_ENABLE_ACME"    = "false",
       "MICRO_ACME_PROVIDER"  = "certmagic",
       "MICRO_ACME_HOSTS"     = var.proxy_acme_hosts
       "MICRO_STORE"          = "service"
