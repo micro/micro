@@ -45,7 +45,7 @@ module "proxy_cert" {
 resource "kubernetes_secret" "proxy_cert" {
   metadata {
     name        = "${replace(local.proxy_name, ".", "-")}-cert"
-    namespace   = var.platform_namespace
+    namespace   = kubernetes_namespace.platform.id
     labels      = local.proxy_labels
     annotations = local.proxy_annotations
   }
@@ -59,7 +59,7 @@ resource "kubernetes_secret" "proxy_cert" {
 resource "kubernetes_deployment" "proxy" {
   metadata {
     name        = replace(local.proxy_name, ".", "-")
-    namespace   = var.platform_namespace
+    namespace   = kubernetes_namespace.platform.id
     labels      = local.proxy_labels
     annotations = local.proxy_annotations
   }
@@ -153,7 +153,7 @@ resource "kubernetes_deployment" "proxy" {
 resource "kubernetes_service" "proxy" {
   metadata {
     name        = replace(local.proxy_name, ".", "-")
-    namespace   = var.platform_namespace
+    namespace   = kubernetes_namespace.platform.id
     labels      = local.proxy_labels
     annotations = local.proxy_annotations
   }

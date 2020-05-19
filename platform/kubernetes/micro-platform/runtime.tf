@@ -36,7 +36,7 @@ module "runtime_cert" {
 resource "kubernetes_secret" "runtime_cert" {
   metadata {
     name        = "${replace(local.runtime_name, ".", "-")}-cert"
-    namespace   = var.platform_namespace
+    namespace   = kubernetes_namespace.platform.id
     labels      = local.runtime_labels
     annotations = local.runtime_annotations
   }
@@ -50,7 +50,7 @@ resource "kubernetes_secret" "runtime_cert" {
 resource "kubernetes_deployment" "runtime" {
   metadata {
     name        = replace(local.runtime_name, ".", "-")
-    namespace   = var.platform_namespace
+    namespace   = kubernetes_namespace.platform.id
     labels      = local.runtime_labels
     annotations = local.runtime_annotations
   }
@@ -131,7 +131,7 @@ resource "kubernetes_deployment" "runtime" {
 resource "kubernetes_service_account" "runtime" {
   metadata {
     name        = replace(local.runtime_name, ".", "-")
-    namespace   = var.platform_namespace
+    namespace   = kubernetes_namespace.platform.id
     labels      = local.runtime_labels
     annotations = local.runtime_annotations
   }
@@ -199,7 +199,7 @@ resource "kubernetes_cluster_role_binding" "runtime" {
   subject {
     kind      = "ServiceAccount"
     name      = kubernetes_service_account.runtime.metadata[0].name
-    namespace = var.platform_namespace
+    namespace = kubernetes_namespace.platform.id
   }
   role_ref {
     api_group = "rbac.authorization.k8s.io"
