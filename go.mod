@@ -34,4 +34,5 @@ require (
 )
 
 replace github.com/micro/go-micro/v2 => github.com/crufter/go-micro/v2 auth-invalid-token
+
 //replace github.com/micro/go-micro/v2 => /home/crufter/code/src/github.com/micro/go-micro
