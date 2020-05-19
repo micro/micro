@@ -37,7 +37,7 @@ module "network_cert" {
 resource "kubernetes_secret" "network_cert" {
   metadata {
     name        = "${replace(local.network_name, ".", "-")}-cert"
-    namespace   = var.platform_namespace
+    namespace   = kubernetes_namespace.platform.id
     labels      = local.network_labels
     annotations = local.network_annotations
   }
@@ -51,7 +51,7 @@ resource "kubernetes_secret" "network_cert" {
 resource "kubernetes_deployment" "network" {
   metadata {
     name        = replace(local.network_name, ".", "-")
-    namespace   = var.platform_namespace
+    namespace   = kubernetes_namespace.platform.id
     labels      = local.network_labels
     annotations = local.network_annotations
   }
@@ -122,7 +122,7 @@ resource "kubernetes_deployment" "network" {
 resource "kubernetes_service" "network" {
   metadata {
     name        = replace(local.network_name, ".", "-")
-    namespace   = var.platform_namespace
+    namespace   = kubernetes_namespace.platform.id
     labels      = local.network_labels
     annotations = local.network_annotations
   }
