@@ -2,6 +2,7 @@ package manager
 
 import (
 	"encoding/json"
+	"fmt"
 	"strings"
 
 	"github.com/micro/go-micro/v2/runtime"
@@ -16,13 +17,13 @@ type service struct {
 
 const (
 	// servicePrefix is prefixed to the key for service records
-	servicePrefix = "service/"
+	servicePrefix = "service:"
 )
 
 // key to write the service to the store under, e.g:
 // "service/foo/go.micro.service.bar:latest"
 func (s *service) Key() string {
-	return servicePrefix + s.Options.Namespace + "/" + s.Service.Name + ":" + s.Service.Version
+	return servicePrefix + s.Options.Namespace + ":" + s.Service.Name + ":" + s.Service.Version
 }
 
 // createService writes the service to the store
@@ -40,7 +41,7 @@ func (m *manager) createService(srv *runtime.Service, opts *runtime.CreateOption
 // readServices returns all the services in a given namespace. If a service name and
 // version are provided it will filter using these as well
 func (m *manager) readServices(namespace string, srv *runtime.Service) ([]*runtime.Service, error) {
-	prefix := servicePrefix + namespace + "/"
+	prefix := servicePrefix + namespace + ":"
 	if len(srv.Name) > 0 {
 		prefix += srv.Name + ":"
 	}
@@ -75,16 +76,18 @@ func (m *manager) deleteService(namespace string, srv *runtime.Service) error {
 
 // listNamespaces of the services in the store
 func (m *manager) listNamespaces() ([]string, error) {
-	keys, err := m.options.Store.List(store.ListPrefix(servicePrefix))
+	recs, err := m.options.Store.Read(servicePrefix, store.ReadPrefix())
 	if err != nil {
 		return nil, err
 	}
 
-	namespaces := make([]string, 0, len(keys))
-	for _, key := range keys {
-		// key is formatted 'prefix/namespace/name:version'
-		if comps := strings.Split(key, "/"); len(comps) == 3 {
+	namespaces := make([]string, 0, len(recs))
+	for _, rec := range recs {
+		// key is formatted 'prefix:namespace:name:version'
+		if comps := strings.Split(rec.Key, ":"); len(comps) == 4 {
 			namespaces = append(namespaces, comps[1])
+		} else {
+			return nil, fmt.Errorf("Invalid key: %v", rec.Key)
 		}
 	}
 

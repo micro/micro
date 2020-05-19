@@ -139,7 +139,7 @@ func (m *manager) Start() error {
 	go m.watchEvents()
 
 	// periodically load the status of services from the runtime
-	go m.watchStautes()
+	go m.watchStatus()
 
 	// todo: compare the store to the runtime incase we missed any events
 

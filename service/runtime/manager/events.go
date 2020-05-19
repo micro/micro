@@ -50,33 +50,32 @@ func (m *manager) publishEvent(eType runtime.EventType, srv *runtime.Service, op
 	return nil
 }
 
-// watchEvents polls the store for events periodically and processes
-// them if they have not already done so
+// watchEvents polls the store for events periodically and processes them if they have not already
+// done so
 func (m *manager) watchEvents() {
 	ticker := time.NewTicker(eventPollFrequency)
 
 	for {
 		// get the keys of the events
-		eventKeys, err := m.options.Store.List(store.ListPrefix(eventPrefix))
+		events, err := m.options.Store.Read(eventPrefix, store.ReadPrefix())
 		if err != nil {
 			logger.Warn("Error listing events: %v", err)
 			continue
 		}
 
 		// loop through every event
-		for _, key := range eventKeys {
-			logger.Debugf("Process Event:: %v", key)
-			m.processEvent(key)
+		for _, ev := range events {
+			logger.Debugf("Process Event: %v", ev.Key)
+			m.processEvent(ev.Key)
 		}
 
 		<-ticker.C
 	}
 }
 
-// processEvent will take an event key, verify it hasn't been consumed
-// and then execute it. We pass the key and not the ID since the global
-// store and the memory store use the same key prefix so there is not point
-// stripping and then re-prefixing.
+// processEvent will take an event key, verify it hasn't been consumed and then execute it. We pass
+// the key and not the ID since the global store and the memory store use the same key prefix so there
+// is not point stripping and then re-prefixing.
 func (m *manager) processEvent(key string) {
 	// check to see if the event has been processed before
 	if _, err := m.cache.Read(key); err != store.ErrNotFound {
@@ -95,9 +94,9 @@ func (m *manager) processEvent(key string) {
 	}
 
 	// determine the namespace
-	ns := ev.Options.Namespace
-	if len(ns) == 0 {
-		ns = namespace.DefaultNamespace
+	ns := namespace.DefaultNamespace
+	if ev.Options != nil && len(ev.Options.Namespace) > 0 {
+		ns = ev.Options.Namespace
 	}
 
 	// log the event
@@ -153,8 +152,7 @@ func (m *manager) runtimeEnv(options *runtime.CreateOptions) []string {
 	// override with vars from the Profile
 	setEnv(m.options.Profile, env)
 
-	// temp: set the auth namespace. this will be removed once
-	// the namespace can be determined from certs.
+	// temp: set the auth namespace. this will be removed once he namespace can be determined from certs.
 	if len(options.Namespace) > 0 {
 		env["MICRO_AUTH_NAMESPACE"] = options.Namespace
 	}
