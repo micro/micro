@@ -2,12 +2,14 @@ package manager
 
 import (
 	"encoding/json"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
 	"github.com/micro/go-micro/v2/logger"
 	"github.com/micro/go-micro/v2/runtime"
 	"github.com/micro/go-micro/v2/store"
+	"github.com/micro/micro/v2/internal/namespace"
 )
 
 type eventType string
@@ -101,9 +103,88 @@ func (m *manager) processEvent(key string) {
 		return
 	}
 
-	// TODO: process the event
+	// lookup the event
+	recs, err := m.options.Store.Read(key)
+	if err != nil {
+		logger.Warnf("Error finding event %v: %v", key, err)
+		return
+	}
+	var ev *event
+	if err := json.Unmarshal(recs[0].Value, &ev); err != nil {
+		logger.Warnf("Error unmarshaling event %v: %v", key, err)
+	}
 
-	// write to the store indicating the event has been consumed. We double
-	// the ttl to safely know the event will expire before this record
+	// determine the namespace
+	ns := ev.Options.Namespace
+	if len(ns) == 0 {
+		ns = namespace.DefaultNamespace
+	}
+
+	// log the event
+	logger.Infof("Procesing %v event for service %v:%v in namespace %v", ev.Type, ev.Service.Name, ev.Service.Version, ns)
+
+	// apply the event to the managed runtime
+	switch ev.Type {
+	case eventTypeDeleted:
+		err = m.Runtime.Delete(ev.Service, runtime.DeleteNamespace(ns))
+	case "update":
+		err = m.Runtime.Update(ev.Service, runtime.UpdateNamespace(ns))
+	case "create":
+		err = m.Runtime.Create(ev.Service,
+			runtime.CreateImage(ev.Options.Image),
+			runtime.CreateType(ev.Options.Type),
+			runtime.CreateNamespace(ns),
+			runtime.WithArgs(ev.Options.Args...),
+			runtime.WithCommand(ev.Options.Command...),
+			runtime.WithEnv(m.runtimeEnv(ev.Options)),
+		)
+	}
+
+	// if there was an error update the status in the cache
+	if err != nil {
+		logger.Warnf("Error procesing %v event for service %v:%v in namespace %v: %v,", ev.Type, ev.Service.Name, ev.Service.Version, ns, err)
+		ev.Service.Metadata = map[string]string{"status": "error", "error": err.Error()}
+		m.cacheStatus(ns, ev.Service)
+	}
+
+	// write to the store indicating the event has been consumed. We double the ttl to safely know the
+	// event will expire before this record
 	m.cache.Write(&store.Record{Key: key, Expiry: eventTTL * 2})
+}
+
+// runtimeEnv returns the environment variables which should  be used when creating a service.
+func (m *manager) runtimeEnv(options *runtime.CreateOptions) []string {
+	setEnv := func(p []string, env map[string]string) {
+		for _, v := range p {
+			parts := strings.Split(v, "=")
+			if len(parts) <= 1 {
+				continue
+			}
+			env[parts[0]] = strings.Join(parts[1:], "=")
+		}
+	}
+
+	// overwrite any values
+	env := map[string]string{}
+
+	// set the env vars provided
+	setEnv(options.Env, env)
+
+	// override with vars from the Profile
+	setEnv(m.options.Profile, env)
+
+	// temp: set the auth namespace. this will be removed once
+	// the namespace can be determined from certs.
+	if len(options.Namespace) > 0 {
+		env["MICRO_AUTH_NAMESPACE"] = options.Namespace
+	}
+
+	// create a new env
+	var vars []string
+	for k, v := range env {
+		vars = append(vars, k+"="+v)
+	}
+
+	// setup the runtime env
+	return vars
 }
