@@ -34,7 +34,7 @@ module "router_cert" {
 resource "kubernetes_secret" "router_cert" {
   metadata {
     name        = "${replace(local.router_name, ".", "-")}-cert"
-    namespace   = var.platform_namespace
+    namespace   = kubernetes_namespace.platform.id
     labels      = local.router_labels
     annotations = local.router_annotations
   }
@@ -48,7 +48,7 @@ resource "kubernetes_secret" "router_cert" {
 resource "kubernetes_deployment" "router" {
   metadata {
     name        = replace(local.router_name, ".", "-")
-    namespace   = var.platform_namespace
+    namespace   = kubernetes_namespace.platform.id
     labels      = local.router_labels
     annotations = local.router_annotations
   }
@@ -132,7 +132,7 @@ resource "kubernetes_deployment" "router" {
 resource "kubernetes_service" "router" {
   metadata {
     name        = replace(local.router_name, ".", "-")
-    namespace   = var.platform_namespace
+    namespace   = kubernetes_namespace.platform.id
     labels      = local.router_labels
     annotations = local.router_annotations
   }

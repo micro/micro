@@ -43,7 +43,7 @@ module "api_cert" {
 resource "kubernetes_secret" "api_cert" {
   metadata {
     name        = "${replace(local.api_name, ".", "-")}-cert"
-    namespace   = var.platform_namespace
+    namespace   = kubernetes_namespace.platform.id
     labels      = local.api_labels
     annotations = local.api_annotations
   }
@@ -57,7 +57,7 @@ resource "kubernetes_secret" "api_cert" {
 resource "kubernetes_deployment" "api" {
   metadata {
     name        = replace(local.api_name, ".", "-")
-    namespace   = var.platform_namespace
+    namespace   = kubernetes_namespace.platform.id
     labels      = local.api_labels
     annotations = local.api_annotations
   }
@@ -147,7 +147,7 @@ resource "kubernetes_deployment" "api" {
 resource "kubernetes_service" "api" {
   metadata {
     name        = replace(local.api_name, ".", "-")
-    namespace   = var.platform_namespace
+    namespace   = kubernetes_namespace.platform.id
     labels      = local.api_labels
     annotations = local.api_annotations
   }
