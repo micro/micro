@@ -63,8 +63,10 @@ func (i *initScheduler) Notify() (<-chan gorun.Event, error) {
 			// fire an event per service
 			for _, service := range i.services {
 				evChan <- gorun.Event{
-					Service:   service,
-					Version:   ev.Version,
+					Service: &gorun.Service{
+						Name:    service,
+						Version: ev.Service.Version,
+					},
 					Timestamp: ev.Timestamp,
 					Type:      ev.Type,
 				}
