@@ -36,7 +36,7 @@ func (n *scheduler) run() {
 			case n.notify <- runtime.Event{
 				Type:      runtime.Update,
 				Timestamp: time.Now(),
-				Service:   n.service,
+				Service:   &runtime.Service{Name: n.service},
 			}:
 			default:
 				// bail out
