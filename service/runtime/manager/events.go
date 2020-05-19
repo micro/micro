@@ -46,7 +46,7 @@ func (m *manager) publishEvent(eType runtime.EventType, srv *runtime.Service, op
 		return err
 	}
 
-	go m.processEvent(e.ID)
+	go m.processEvent(record.Key)
 	return nil
 }
 
@@ -56,8 +56,6 @@ func (m *manager) watchEvents() {
 	ticker := time.NewTicker(eventPollFrequency)
 
 	for {
-		<-ticker.C
-
 		// get the keys of the events
 		eventKeys, err := m.options.Store.List(store.ListPrefix(eventPrefix))
 		if err != nil {
@@ -67,8 +65,11 @@ func (m *manager) watchEvents() {
 
 		// loop through every event
 		for _, key := range eventKeys {
+			logger.Debugf("Process Event:: %v", key)
 			m.processEvent(key)
 		}
+
+		<-ticker.C
 	}
 }
 

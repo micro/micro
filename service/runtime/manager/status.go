@@ -30,8 +30,6 @@ func (m *manager) watchStautes() {
 
 loop:
 	for {
-		<-ticker.C
-
 		namespaces, err := m.listNamespaces()
 		if err != nil {
 			logger.Warnf("Error listing namespaces: %v", err)
@@ -46,12 +44,15 @@ loop:
 			}
 
 			for _, srv := range srvs {
+				logger.Infof("Updating status for service %v:%v in the %v namespace", srv.Name, srv.Version, ns)
 				if err := m.cacheStatus(ns, srv); err != nil {
 					logger.Warnf("Error caching status: %v", err)
 					continue loop
 				}
 			}
 		}
+
+		<-ticker.C
 	}
 }
 

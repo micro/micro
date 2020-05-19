@@ -52,7 +52,7 @@ func (m *manager) readServices(namespace string, srv *runtime.Service) ([]*runti
 	if err != nil {
 		return nil, err
 	} else if len(recs) == 0 {
-		return nil, runtime.ErrNotFound
+		return make([]*runtime.Service, 0), nil
 	}
 
 	srvs := make([]*runtime.Service, 0, len(recs))
