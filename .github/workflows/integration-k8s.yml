@@ -1,5 +1,5 @@
 name: Run micro server integration tests on k8s (kind)
-on: [push, pull_request]
+on: [push]
 
 jobs:
 
