@@ -9,7 +9,7 @@ export TF_VAR_resource_namespace=resource
 sed -i '/replicas/ s/3/1/g' nats.tf cockroachdb.tf etcd.tf
 
 terraform init; terraform apply -auto-approve
-ssh-keygen -b 2048 -t rsa -f /tmp/sshkey -q -N ""
+ssh-keygen -f /tmp/sshkey -e  -m PKCS8 > /tmp/sshkey.pub
 
 cd ../micro-platform
 
