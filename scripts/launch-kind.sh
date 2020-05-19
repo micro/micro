@@ -17,7 +17,7 @@ cd ../micro-platform
 GITHUB_BRANCH=${GITHUB_REF##*/}
 sed -i "/latest/ s/latest/$GITHUB_BRANCH/g" micro.tf
 
-export TF_VAR_resource_namespace=platform
+export TF_VAR_platform_namespace=platform
 export TF_VAR_micro_auth_private=$(cat /tmp/sshkey | base64 -w0)
 export TF_VAR_micro_auth_public=$(cat /tmp/sshkey.pub | base64 -w0)
 terraform init; terraform apply -auto-approve
