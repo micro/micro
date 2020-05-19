@@ -33,4 +33,4 @@ require (
 	google.golang.org/grpc v1.26.0
 )
 
-replace github.com/micro/go-micro/v2 => github.com/crufter/go-micro auth-invalid-token
+replace github.com/micro/go-micro/v2 => github.com/crufter/go-micro/v2 v2.0.0-20200519080859-269f9b1848fd
