@@ -11,7 +11,7 @@ import (
 	"github.com/micro/go-micro/v2/runtime"
 	pb "github.com/micro/go-micro/v2/runtime/service/proto"
 	"github.com/micro/micro/v2/service/runtime/handler"
-	runManager "github.com/micro/micro/v2/service/runtime/manager"
+	"github.com/micro/micro/v2/service/runtime/manager"
 )
 
 var (
@@ -50,7 +50,7 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 	}
 
 	// create a new runtime manager
-	manager := runManager.New(muRuntime)
+	manager := manager.New(muRuntime)
 
 	// start the manager
 	if err := manager.Start(); err != nil {
