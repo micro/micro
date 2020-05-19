@@ -1,7 +1,5 @@
 name: Run micro server integration tests on k8s (kind)
-on:
-  repository_dispatch:
-    types: [my-event]
+on: [push, pull_request]
 
 jobs:
 
