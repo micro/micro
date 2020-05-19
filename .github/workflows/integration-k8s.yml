@@ -24,20 +24,9 @@ jobs:
       run: |
         bash scripts/launch-kind.sh
 
-    - name: Set up Go 1.13
-      uses: actions/setup-go@v2
-      with:
-        go-version: 1.13
-      id: go
-
-    - name: Install Protoc
-      uses: arduino/setup-protoc@master
-
-    - name: Check out code
-      uses: actions/checkout@v2 
-
-    - name: Install micro
+    - name: Apply failed, show platform logs
+      if: ${{ failure() }}
       run: |
-        go install
+        kubectl get pods -n platform | awk '{print $1}' | xargs -n1 kubectl logs -n platform
 
 
