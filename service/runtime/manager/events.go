@@ -12,14 +12,6 @@ import (
 	"github.com/micro/micro/v2/internal/namespace"
 )
 
-type eventType string
-
-const (
-	eventTypeCreated eventType = "created"
-	eventTypeUpdated eventType = "updated"
-	eventTypeDeleted eventType = "deleted"
-)
-
 var (
 	// eventTTL is the duration events will perist in the store before expiring
 	eventTTL = time.Minute * 10
@@ -30,22 +22,9 @@ var (
 // eventPrefix is prefixed to the key for event records
 const eventPrefix = "event/"
 
-// event is the object written to the store
-type event struct {
-	ID      string                 `json:"id"`
-	Type    eventType              `json:"type"`
-	Service *runtime.Service       `json:"service"`
-	Options *runtime.CreateOptions `json:"options"`
-}
-
-// key the event should be written to in the store
-func (e *event) Key() string {
-	return eventPrefix + e.ID
-}
-
 // publishEvent will write the event to the global store and immediately process the event
-func (m *manager) publishEvent(eType eventType, srv *runtime.Service, opts *runtime.CreateOptions) error {
-	e := &event{
+func (m *manager) publishEvent(eType runtime.EventType, srv *runtime.Service, opts *runtime.CreateOptions) error {
+	e := &runtime.Event{
 		ID:      uuid.New().String(),
 		Type:    eType,
 		Service: srv,
@@ -58,7 +37,7 @@ func (m *manager) publishEvent(eType eventType, srv *runtime.Service, opts *runt
 	}
 
 	record := &store.Record{
-		Key:    e.Key(),
+		Key:    eventPrefix + e.ID,
 		Value:  bytes,
 		Expiry: eventTTL,
 	}
@@ -109,7 +88,7 @@ func (m *manager) processEvent(key string) {
 		logger.Warnf("Error finding event %v: %v", key, err)
 		return
 	}
-	var ev *event
+	var ev *runtime.Event
 	if err := json.Unmarshal(recs[0].Value, &ev); err != nil {
 		logger.Warnf("Error unmarshaling event %v: %v", key, err)
 	}
@@ -125,11 +104,11 @@ func (m *manager) processEvent(key string) {
 
 	// apply the event to the managed runtime
 	switch ev.Type {
-	case eventTypeDeleted:
+	case runtime.Delete:
 		err = m.Runtime.Delete(ev.Service, runtime.DeleteNamespace(ns))
-	case "update":
+	case runtime.Update:
 		err = m.Runtime.Update(ev.Service, runtime.UpdateNamespace(ns))
-	case "create":
+	case runtime.Create:
 		err = m.Runtime.Create(ev.Service,
 			runtime.CreateImage(ev.Options.Image),
 			runtime.CreateType(ev.Options.Type),

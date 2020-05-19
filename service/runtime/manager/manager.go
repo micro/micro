@@ -38,7 +38,7 @@ func (m *manager) Create(srv *runtime.Service, opts ...runtime.CreateOption) err
 	}
 
 	// publish the event, this will apply it aysnc to the runtime
-	return m.publishEvent(eventTypeCreated, srv, &options)
+	return m.publishEvent(runtime.Create, srv, &options)
 }
 
 // Read returns the service which matches the criteria provided
@@ -95,7 +95,7 @@ func (m *manager) Update(srv *runtime.Service, opts ...runtime.UpdateOption) err
 	}
 
 	// publish the update event which will trigger an update in the runtime
-	return m.publishEvent(eventTypeUpdated, srv, &runtime.CreateOptions{Namespace: options.Namespace})
+	return m.publishEvent(runtime.Update, srv, &runtime.CreateOptions{Namespace: options.Namespace})
 }
 
 // Remove a service
@@ -120,7 +120,7 @@ func (m *manager) Delete(srv *runtime.Service, opts ...runtime.DeleteOption) err
 	}
 
 	// publish the event which will trigger a delete in the runtime
-	return m.publishEvent(eventTypeDeleted, srv, &runtime.CreateOptions{Namespace: options.Namespace})
+	return m.publishEvent(runtime.Delete, srv, &runtime.CreateOptions{Namespace: options.Namespace})
 }
 
 // Starts the manager
