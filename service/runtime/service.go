@@ -65,7 +65,7 @@ func runtimeFromContext(ctx *cli.Context) runtime.Runtime {
 	if cliutil.IsLocal() {
 		return *cmd.DefaultCmd.Options().Runtime
 	}
-	return srvRuntime.NewRuntime(runtime.WithClient(client.New()))
+	return srvRuntime.NewRuntime(runtime.WithClient(client.New(ctx)))
 }
 
 // exists returns whether the given file or directory exists
@@ -104,7 +104,7 @@ func runService(ctx *cli.Context, srvOpts ...micro.Option) {
 	}
 	var newSource string
 	if source.Local {
-		newSource = upload(source)
+		newSource = upload(ctx, source)
 	}
 
 	typ := ctx.String("type")
@@ -213,7 +213,7 @@ func killService(ctx *cli.Context, srvOpts ...micro.Option) {
 	}
 }
 
-func upload(source *git.Source) string {
+func upload(ctx *cli.Context, source *git.Source) string {
 	uploadedFileName := strings.ReplaceAll(source.Folder, string(filepath.Separator), "-") + ".tar.gz"
 	path := filepath.Join(os.TempDir(), uploadedFileName)
 	err := handler.Compress(source.FullPath, path)
@@ -221,7 +221,7 @@ func upload(source *git.Source) string {
 		fmt.Println(err)
 		os.Exit(1)
 	}
-	err = file.New("go.micro.server", client.New()).Upload(uploadedFileName, path)
+	err = file.New("go.micro.server", client.New(ctx)).Upload(uploadedFileName, path)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
@@ -248,7 +248,7 @@ func updateService(ctx *cli.Context, srvOpts ...micro.Option) {
 	}
 	var newSource string
 	if source.Local {
-		newSource = upload(source)
+		newSource = upload(ctx, source)
 	}
 
 	runtimeSource := source.RuntimeSource()

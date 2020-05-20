@@ -157,7 +157,7 @@ func authFromContext(ctx *cli.Context) auth.Auth {
 		return *cmd.DefaultCmd.Options().Auth
 	}
 	return srvAuth.NewAuth(
-		auth.WithClient(client.New()),
+		auth.WithClient(client.New(ctx)),
 	)
 }
 
@@ -170,8 +170,13 @@ func login(ctx *cli.Context) {
 			fmt.Println(err)
 			os.Exit(1)
 		}
-
-		if err := config.Set(tok, "micro", "auth", "token"); err != nil {
+		var env cliutil.Env
+		if len(ctx.String("env")) > 0 {
+			env = cliutil.GetEnvByName(ctx.String("env"))
+		} else {
+			env = cliutil.GetEnv()
+		}
+		if err := config.Set(tok, "micro", "auth", env.Name, "token"); err != nil {
 			fmt.Println(err)
 			os.Exit(1)
 		}

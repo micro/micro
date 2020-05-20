@@ -55,5 +55,5 @@ func createAccount(ctx *cli.Context) {
 }
 
 func accountsFromContext(ctx *cli.Context) pb.AccountsService {
-	return pb.NewAccountsService("go.micro.auth", client.New())
+	return pb.NewAccountsService("go.micro.auth", client.New(ctx))
 }

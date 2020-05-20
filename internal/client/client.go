@@ -4,20 +4,27 @@ import (
 	"context"
 	"strings"
 
+	ccli "github.com/micro/cli/v2"
 	"github.com/micro/go-micro/v2/auth"
 	"github.com/micro/go-micro/v2/client"
 	"github.com/micro/go-micro/v2/client/grpc"
 	"github.com/micro/go-micro/v2/metadata"
 	"github.com/micro/micro/v2/client/cli/util"
+	cliutil "github.com/micro/micro/v2/client/cli/util"
 	"github.com/micro/micro/v2/internal/config"
 )
 
 // New returns a wrapped grpc client which will inject the
 // token found in config into each request
-func New() client.Client {
-	token, _ := config.Get("micro", "auth", "token")
-	env, _ := config.Get("env")
-	return &wrapper{grpc.NewClient(), token, env}
+func New(ctx *ccli.Context) client.Client {
+	var env cliutil.Env
+	if len(ctx.String("env")) > 0 {
+		env = cliutil.GetEnvByName(ctx.String("env"))
+	} else {
+		env = cliutil.GetEnv()
+	}
+	token, _ := config.Get("micro", "auth", env.Name, "token")
+	return &wrapper{grpc.NewClient(), token}
 }
 
 type wrapper struct {
