@@ -12,6 +12,7 @@ terraform init; terraform apply -auto-approve
 ssh-keygen -f /tmp/sshkey -e  -m PKCS8 > /tmp/sshkey.pub
 
 cd ../micro-platform
+rm bot.tf
 
 # change version to github branch
 GITHUB_BRANCH=${GITHUB_REF##*/}

@@ -19,7 +19,7 @@ locals {
       "MICRO_AUTH"           = "service",
       "MICRO_AUTH_LOGIN_URL" = "https://account.m3o.dev"
       "MICRO_ENABLE_STATS"   = "true",
-      "MICRO_ENABLE_ACME"    = "true",
+      "MICRO_ENABLE_ACME"    = "false",
       "MICRO_ACME_PROVIDER"  = "certmagic",
       "MICRO_ACME_HOSTS"     = var.web_acme_hosts
       "MICRO_STORE"          = "service"
