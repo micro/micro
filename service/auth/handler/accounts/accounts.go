@@ -66,11 +66,11 @@ func (a *Accounts) List(ctx context.Context, req *pb.ListAccountsRequest, rsp *p
 
 func serializeAccount(a *auth.Account) *pb.Account {
 	return &pb.Account{
-		Id:        a.ID,
-		Type:      a.Type,
-		Roles:     a.Roles,
-		Provider:  a.Provider,
-		Metadata:  a.Metadata,
-		Namespace: a.Namespace,
+		Id:       a.ID,
+		Type:     a.Type,
+		Roles:    a.Roles,
+		Scopes:   a.Scopes,
+		Provider: a.Provider,
+		Metadata: a.Metadata,
 	}
 }

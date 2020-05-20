@@ -6,15 +6,35 @@ import "github.com/micro/go-micro/v2/auth"
 const TokenCookieName = "micro-token"
 
 // SystemRules are the default rules which are applied to the runtime services
-var SystemRules = map[string][]*auth.Resource{
-	"*": {
-		&auth.Resource{Type: "*", Name: "*", Endpoint: "*"},
+var SystemRules = []*auth.Rule{
+	&auth.Rule{
+		ID:       "default",
+		Role:     "*",
+		Resource: &auth.Resource{Type: "*", Name: "*", Endpoint: "*"},
 	},
-	"": {
-		&auth.Resource{Type: "service", Name: "go.micro.auth", Endpoint: "Auth.Generate"},
-		&auth.Resource{Type: "service", Name: "go.micro.auth", Endpoint: "Auth.Token"},
-		&auth.Resource{Type: "service", Name: "go.micro.auth", Endpoint: "Auth.Inspect"},
-		&auth.Resource{Type: "service", Name: "go.micro.registry", Endpoint: "Registry.GetService"},
-		&auth.Resource{Type: "service", Name: "go.micro.registry", Endpoint: "Registry.ListServices"},
+	&auth.Rule{
+		ID:       "auth-generate",
+		Role:     "",
+		Resource: &auth.Resource{Type: "service", Name: "go.micro.auth", Endpoint: "Auth.Generate"},
+	},
+	&auth.Rule{
+		ID:       "auth-token",
+		Role:     "",
+		Resource: &auth.Resource{Type: "service", Name: "go.micro.auth", Endpoint: "Auth.Token"},
+	},
+	&auth.Rule{
+		ID:       "auth-inspect",
+		Role:     "",
+		Resource: &auth.Resource{Type: "service", Name: "go.micro.auth", Endpoint: "Auth.Inspect"},
+	},
+	&auth.Rule{
+		ID:       "registry-get",
+		Role:     "",
+		Resource: &auth.Resource{Type: "service", Name: "go.micro.registry", Endpoint: "Registry.GetService"},
+	},
+	&auth.Rule{
+		ID:       "registry-list",
+		Role:     "",
+		Resource: &auth.Resource{Type: "service", Name: "go.micro.registry", Endpoint: "Registry.ListServices"},
 	},
 }

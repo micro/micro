@@ -85,9 +85,6 @@ func (a *Auth) Generate(ctx context.Context, req *pb.GenerateRequest, rsp *pb.Ge
 	if len(req.Secret) == 0 {
 		req.Secret = uuid.New().String()
 	}
-	if len(req.Namespace) == 0 {
-		req.Namespace = auth.DefaultNamespace
-	}
 
 	// check the user does not already exist
 	key := storePrefixAccounts + req.Id
@@ -103,13 +100,13 @@ func (a *Auth) Generate(ctx context.Context, req *pb.GenerateRequest, rsp *pb.Ge
 
 	// construct the account
 	acc := &auth.Account{
-		ID:        req.Id,
-		Type:      req.Type,
-		Roles:     req.Roles,
-		Provider:  req.Provider,
-		Metadata:  req.Metadata,
-		Namespace: req.Namespace,
-		Secret:    secret,
+		ID:       req.Id,
+		Type:     req.Type,
+		Roles:    req.Roles,
+		Scopes:   req.Scopes,
+		Provider: req.Provider,
+		Metadata: req.Metadata,
+		Secret:   secret,
 	}
 
 	// marshal to json
@@ -250,12 +247,12 @@ func (a *Auth) accountIDForRefreshToken(token string) (string, error) {
 
 func serializeAccount(a *auth.Account) *pb.Account {
 	return &pb.Account{
-		Id:        a.ID,
-		Type:      a.Type,
-		Roles:     a.Roles,
-		Provider:  a.Provider,
-		Metadata:  a.Metadata,
-		Namespace: a.Namespace,
+		Id:       a.ID,
+		Type:     a.Type,
+		Roles:    a.Roles,
+		Scopes:   a.Scopes,
+		Provider: a.Provider,
+		Metadata: a.Metadata,
 	}
 }
 

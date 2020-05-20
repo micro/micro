@@ -3,7 +3,6 @@ package roles
 import (
 	"context"
 	"encoding/json"
-	"strings"
 
 	"github.com/micro/go-micro/v2/auth"
 	pb "github.com/micro/go-micro/v2/auth/service/proto"
@@ -51,15 +50,17 @@ func (r *Rules) Init(opts ...auth.Option) {
 	}
 	log.Info("Generating default rules")
 	err = r.Create(context.Background(), &pb.CreateRequest{
-		Role:     "", // a blank role  allows public access
-		Priority: 0,
-		Resource: &pb.Resource{
-			Namespace: "*",
-			Name:      "*",
-			Type:      "*",
-			Endpoint:  "*",
+		Rule: &pb.Rule{
+			Id:       "default",
+			Role:     "", // a blank role  allows public access
+			Priority: 0,
+			Resource: &pb.Resource{
+				Name:     "*",
+				Type:     "*",
+				Endpoint: "*",
+			},
+			Access: pb.Access_GRANTED,
 		},
-		Access: pb.Access_GRANTED,
 	}, &pb.CreateResponse{})
 	if err != nil {
 		log.Errorf("Error creating default rule in init: %v", err)
@@ -69,31 +70,32 @@ func (r *Rules) Init(opts ...auth.Option) {
 // Create a role access to a resource
 func (r *Rules) Create(ctx context.Context, req *pb.CreateRequest, rsp *pb.CreateResponse) error {
 	// Validate the request
-	if req.Resource == nil {
+	if req.Rule == nil {
+		return errors.BadRequest("go.micro.auth", "Rule missing")
+	}
+	if len(req.Rule.Id) == 0 {
+		return errors.BadRequest("go.micro.auth", "ID missing")
+	}
+	if req.Rule.Resource == nil {
 		return errors.BadRequest("go.micro.auth", "Resource missing")
 	}
-	if req.Access == pb.Access_UNKNOWN {
+	if req.Rule.Access == pb.Access_UNKNOWN {
 		return errors.BadRequest("go.micro.auth", "Access missing")
 	}
 
-	// Construct the rule
-	comps := []string{req.Resource.Namespace, req.Resource.Type, req.Resource.Name, req.Resource.Endpoint, req.Role}
-	rule := pb.Rule{
-		Id:       strings.Join(comps, joinKey),
-		Role:     req.Role,
-		Resource: req.Resource,
-		Access:   req.Access,
-		Priority: req.Priority,
+	// Chck the rule doesn't exist
+	key := storePrefix + req.Rule.Id
+	if _, err := r.Options.Store.Read(key); err == nil {
+		return errors.BadRequest("go.micro.auth", "A rule with this ID already exists")
 	}
 
 	// Encode the rule
-	bytes, err := json.Marshal(rule)
+	bytes, err := json.Marshal(req.Rule)
 	if err != nil {
 		return errors.InternalServerError("go.micro.auth", "Unable to marshal rule: %v", err)
 	}
 
 	// Write to the store
-	key := storePrefix + rule.Id
 	if err := r.Options.Store.Write(&store.Record{Key: key, Value: bytes}); err != nil {
 		return errors.InternalServerError("go.micro.auth", "Unable to write to the store: %v", err)
 	}
@@ -104,19 +106,15 @@ func (r *Rules) Create(ctx context.Context, req *pb.CreateRequest, rsp *pb.Creat
 // Delete a roles access to a resource
 func (r *Rules) Delete(ctx context.Context, req *pb.DeleteRequest, rsp *pb.DeleteResponse) error {
 	// Validate the request
-	if req.Resource == nil {
-		return errors.BadRequest("go.micro.auth", "Resource missing")
+	if req.Rule == nil {
+		return errors.BadRequest("go.micro.auth", "Rule missing")
 	}
-	if req.Access == pb.Access_UNKNOWN {
-		return errors.BadRequest("go.micro.auth", "Access missing")
+	if len(req.Rule.Id) == 0 {
+		return errors.BadRequest("go.micro.auth", "ID missing")
 	}
-
-	// Construct the key
-	comps := []string{req.Resource.Namespace, req.Resource.Type, req.Resource.Name, req.Resource.Endpoint, req.Role}
-	key := strings.Join(comps, joinKey)
 
 	// Delete the rule
-	err := r.Options.Store.Delete(storePrefix + key)
+	err := r.Options.Store.Delete(storePrefix + req.Rule.Id)
 	if err == store.ErrNotFound {
 		return errors.BadRequest("go.micro.auth", "Rule not found")
 	} else if err != nil {

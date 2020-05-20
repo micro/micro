@@ -55,13 +55,12 @@ var (
 	// RuleFlags are provided to commands which create or delete rules
 	RuleFlags = []cli.Flag{
 		&cli.StringFlag{
-			Name:     "role",
-			Usage:    "The role to amend, e.g. 'user' or '*' to represent all",
-			Required: true,
+			Name:  "role",
+			Usage: "The role to amend, e.g. 'user' or '*', leave blank to make public",
 		},
 		&cli.StringFlag{
 			Name:     "resource",
-			Usage:    "The resource to amend in the format namespace:type:name:endpoint, e.g. micro:service:go.micro.auth:*",
+			Usage:    "The resource to amend in the format type:name:endpoint, e.g. service:go.micro.auth:*",
 			Required: true,
 		},
 		&cli.StringFlag{

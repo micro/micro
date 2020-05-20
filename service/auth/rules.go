@@ -10,6 +10,7 @@ import (
 
 	"github.com/micro/cli/v2"
 	pb "github.com/micro/go-micro/v2/auth/service/proto"
+	"github.com/micro/go-micro/v2/errors"
 	"github.com/micro/micro/v2/internal/client"
 )
 
@@ -26,7 +27,7 @@ func listRules(ctx *cli.Context) {
 	defer w.Flush()
 
 	formatResource := func(r *pb.Resource) string {
-		return strings.Join([]string{r.Namespace, r.Type, r.Name, r.Endpoint}, ":")
+		return strings.Join([]string{r.Type, r.Name, r.Endpoint}, ":")
 	}
 
 	// sort rules using resource name and priority to keep the list consistent
@@ -36,50 +37,52 @@ func listRules(ctx *cli.Context) {
 		return sort.StringsAreSorted([]string{resJ, resI})
 	})
 
-	fmt.Fprintln(w, strings.Join([]string{"Role", "Access", "Resource", "Priority"}, "\t"))
+	fmt.Fprintln(w, strings.Join([]string{"ID", "Role", "Access", "Resource", "Priority"}, "\t\t"))
 	for _, r := range rsp.Rules {
 		res := formatResource(r.Resource)
-		fmt.Fprintln(w, strings.Join([]string{r.Role, r.Access.String(), res, fmt.Sprintf("%d", r.Priority)}, "\t"))
+		if r.Role == "" {
+			r.Role = "<public>"
+		}
+		fmt.Fprintln(w, strings.Join([]string{r.Id, r.Role, r.Access.String(), res, fmt.Sprintf("%d", r.Priority)}, "\t\t"))
 	}
 }
 
 func createRule(ctx *cli.Context) {
-	client := rulesFromContext(ctx)
-	r := constructRule(ctx)
-
-	_, err := client.Create(context.TODO(), &pb.CreateRequest{
-		Role:     r.Role,
-		Access:   r.Access,
-		Resource: r.Resource,
-		Priority: r.Priority,
+	_, err := rulesFromContext(ctx).Create(context.TODO(), &pb.CreateRequest{
+		Rule: constructRule(ctx),
 	})
-	if err != nil {
-		fmt.Printf("Error creating rule: %v\n", err)
-		os.Exit(1)
+	if verr, ok := err.(*errors.Error); ok {
+		fmt.Printf("Error: %v\n", verr.Detail)
+		return
+	} else if err != nil {
+		fmt.Println(err)
+		return
 	}
 
 	fmt.Println("Rule created")
 }
 
 func deleteRule(ctx *cli.Context) {
-	client := rulesFromContext(ctx)
-	r := constructRule(ctx)
-
-	_, err := client.Delete(context.TODO(), &pb.DeleteRequest{
-		Role:     r.Role,
-		Access:   r.Access,
-		Resource: r.Resource,
-		Priority: r.Priority,
+	_, err := rulesFromContext(ctx).Delete(context.TODO(), &pb.DeleteRequest{
+		Rule: constructRule(ctx),
 	})
-	if err != nil {
-		fmt.Printf("Error creating rule: %v\n", err)
-		os.Exit(1)
+	if verr, ok := err.(*errors.Error); ok {
+		fmt.Printf("Error: %v\n", verr.Detail)
+		return
+	} else if err != nil {
+		fmt.Println(err)
+		return
 	}
 
 	fmt.Println("Rule deleted")
 }
 
 func constructRule(ctx *cli.Context) *pb.Rule {
+	if ctx.Args().Len() != 1 {
+		fmt.Println("Too many arguments, expected one argument: ID")
+		os.Exit(1)
+	}
+
 	var access pb.Access
 	switch ctx.String("access") {
 	case "granted":
@@ -92,19 +95,19 @@ func constructRule(ctx *cli.Context) *pb.Rule {
 	}
 
 	resComps := strings.Split(ctx.String("resource"), ":")
-	if len(resComps) != 4 {
-		fmt.Println("Invalid resource, must be in the format namespace:type:name:endpoint")
+	if len(resComps) != 3 {
+		fmt.Println("Invalid resource, must be in the format type:name:endpoint")
 	}
 
 	return &pb.Rule{
+		Id:       ctx.Args().First(),
 		Access:   access,
 		Role:     ctx.String("role"),
 		Priority: int32(ctx.Int("priority")),
 		Resource: &pb.Resource{
-			Namespace: resComps[0],
-			Type:      resComps[1],
-			Name:      resComps[2],
-			Endpoint:  resComps[3],
+			Type:     resComps[0],
+			Name:     resComps[1],
+			Endpoint: resComps[2],
 		},
 	}
 }
