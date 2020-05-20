@@ -13,7 +13,7 @@ import (
 )
 
 const (
-	retryCount = 1
+	retryCount = 2
 	isParallel = true
 )
 
