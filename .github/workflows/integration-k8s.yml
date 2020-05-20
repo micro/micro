@@ -1,5 +1,11 @@
+# This integration test is unfinished.
+# The dream would be to ru the test suite after the tf apply
+# but it's fairly flaky still.
+
 name: Run micro server integration tests on k8s (kind)
-on: [push]
+  schedule:
+    # * is a special character in YAML so you have to quote this string
+    - cron:  '00 00 * * *'
 
 jobs:
 
