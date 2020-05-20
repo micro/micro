@@ -100,9 +100,9 @@ func Run(context *cli.Context) error {
 
 	// pass through the environment
 	// TODO: perhaps don't do this
-	env := os.Environ()
-	env = append(env, "MICRO_STORE=file")
+	env := []string{"MICRO_STORE=file"}
 	env = append(env, "MICRO_RUNTIME_PROFILE="+context.String("profile"))
+	env = append(env, os.Environ()...)
 
 	// connect to the network if specified
 	if peer {
