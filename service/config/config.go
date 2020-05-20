@@ -51,7 +51,7 @@ func Run(c *cli.Context, srvOpts ...micro.Option) {
 }
 
 func setConfig(ctx *cli.Context) error {
-	pb := proto.NewConfigService("go.micro.config", client.New())
+	pb := proto.NewConfigService("go.micro.config", client.New(ctx))
 
 	args := ctx.Args()
 
@@ -90,7 +90,7 @@ func setConfig(ctx *cli.Context) error {
 }
 
 func getConfig(ctx *cli.Context) error {
-	pb := proto.NewConfigService("go.micro.config", client.New())
+	pb := proto.NewConfigService("go.micro.config", client.New(ctx))
 
 	args := ctx.Args()
 
@@ -141,7 +141,7 @@ func getConfig(ctx *cli.Context) error {
 }
 
 func delConfig(ctx *cli.Context) error {
-	pb := proto.NewConfigService("go.micro.config", client.New())
+	pb := proto.NewConfigService("go.micro.config", client.New(ctx))
 
 	args := ctx.Args()
 
