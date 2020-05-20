@@ -150,7 +150,6 @@ func Run(context *cli.Context) error {
 		envs := env
 		fmt.Println(service)
 		if service == "proxy" {
-			fmt.Println("---WHAA")
 			envs = append(envs, "MICRO_AUTH=service")
 		}
 
