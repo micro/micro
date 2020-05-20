@@ -164,17 +164,17 @@ func authFromContext(ctx *cli.Context) auth.Auth {
 // login using a token
 func login(ctx *cli.Context) {
 	// check for the token flag
+	var env cliutil.Env
+	if len(ctx.String("env")) > 0 {
+		env = cliutil.GetEnvByName(ctx.String("env"))
+	} else {
+		env = cliutil.GetEnv()
+	}
 	if tok := ctx.String("token"); len(tok) > 0 {
 		_, err := authFromContext(ctx).Inspect(tok)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
-		}
-		var env cliutil.Env
-		if len(ctx.String("env")) > 0 {
-			env = cliutil.GetEnvByName(ctx.String("env"))
-		} else {
-			env = cliutil.GetEnv()
 		}
 		if err := config.Set(tok, "micro", "auth", env.Name, "token"); err != nil {
 			fmt.Println(err)
@@ -200,12 +200,12 @@ func login(ctx *cli.Context) {
 	}
 
 	// Store the access token in micro config
-	if err := config.Set(tok.AccessToken, "micro", "auth", "token"); err != nil {
+	if err := config.Set(tok.AccessToken, "micro", "auth", env.Name, "token"); err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
 	// Store the refresh token in micro config
-	if err := config.Set(tok.RefreshToken, "micro", "auth", "refresh-token"); err != nil {
+	if err := config.Set(tok.RefreshToken, "micro", "auth", env.Name, "refresh-token"); err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
