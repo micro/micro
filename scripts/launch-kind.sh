@@ -17,6 +17,8 @@ rm bot.tf
 # change version to github branch
 GITHUB_BRANCH=${GITHUB_REF##*/}
 sed -i "/latest/ s/latest/$GITHUB_BRANCH/g" micro.tf
+sed -i "/MICRO_ENABLE_ACME/ s/true/false/g" api.tf proxy.tf web.tf
+
 
 export TF_VAR_platform_namespace=platform
 export TF_VAR_micro_auth_private=$(cat /tmp/sshkey | base64 -w0)

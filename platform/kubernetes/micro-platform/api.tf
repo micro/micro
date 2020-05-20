@@ -19,6 +19,9 @@ locals {
       "MICRO_AUTH"           = "service"
       "MICRO_API_NAMESPACE"  = "domain",
       "MICRO_ENABLE_STATS"   = "true",
+      "MICRO_ENABLE_ACME"    = "true",
+      "MICRO_ACME_PROVIDER"  = "certmagic",
+      "MICRO_ACME_HOSTS"     = var.api_acme_hosts
       "MICRO_STORE"          = "service"
       "MICRO_STORE_ADDRESS"  = ""
       "MICRO_STORE_DATABASE" = "micro"
