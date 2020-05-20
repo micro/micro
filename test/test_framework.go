@@ -89,17 +89,40 @@ func myCaller() string {
 	return getFrame(2).Function
 }
 
-func newServer(t *t) server {
+type options struct {
+	auth string // eg. jwt
+}
+
+func newServer(t *t, opts ...options) server {
 	min := 8000
 	max := 60000
 	portnum := rand.Intn(max-min) + min
 	fname := strings.Split(myCaller(), ".")[2]
 	exec.Command("docker", "kill", fname).CombinedOutput()
 	exec.Command("docker", "rm", fname).CombinedOutput()
+	cmd := exec.Command("docker", "run", "--name", fname,
+		fmt.Sprintf("-p=%v:8081", portnum), "micro", "server")
+	if len(opts) == 1 && opts[0].auth == "jwt" {
+		priv := "cat /tmp/sshkey | base64 -w0"
+		privKey, err := exec.Command("bash", "-c", priv).Output()
+		if err != nil {
+			panic(string(privKey))
+		}
+		pub := "	cat /tmp/sshkey.pub | base64 -w0"
+		pubKey, err := exec.Command("bash", "-c", pub).Output()
+		if err != nil {
+			panic(string(pubKey))
+		}
+		cmd = exec.Command("docker", "run", "--name", fname,
+			fmt.Sprintf("-p=%v:8081", portnum),
+			"-e", "MICRO_AUTH=jwt",
+			"-e", "MICRO_AUTH_PRIVATE_KEY="+string(privKey),
+			"-e", "MICRO_AUTH_PUBLIC_KEY="+string(pubKey),
+			"micro", "server")
+	}
 	//fmt.Println("docker", "run", "--name", fname, fmt.Sprintf("-p=%v:8081", portnum), "micro", "server")
 	return server{
-		cmd: exec.Command("docker", "run", "--name", fname,
-			fmt.Sprintf("-p=%v:8081", portnum), "micro", "server"),
+		cmd:           cmd,
 		t:             t,
 		proxyPort:     portnum,
 		containerName: fname,
