@@ -10,6 +10,7 @@ import (
 	"github.com/micro/go-micro/v2/client/grpc"
 	"github.com/micro/go-micro/v2/metadata"
 	"github.com/micro/micro/v2/client/cli/util"
+	cliutil "github.com/micro/micro/v2/client/cli/util"
 	"github.com/micro/micro/v2/internal/config"
 )
 
@@ -23,7 +24,7 @@ func New(ctx *ccli.Context) client.Client {
 		env = cliutil.GetEnv()
 	}
 	token, _ := config.Get("micro", "auth", env.Name, "token")
-	return &wrapper{grpc.NewClient(), token, env}
+	return &wrapper{grpc.NewClient(), token, env.Name}
 }
 
 type wrapper struct {

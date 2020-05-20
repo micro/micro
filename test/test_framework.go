@@ -1,6 +1,7 @@
 package test
 
 import (
+	"errors"
 	"fmt"
 	"math/rand"
 	"os/exec"
@@ -144,8 +145,21 @@ func (s server) launch() {
 	}()
 	// @todo find a way to know everything is up and running
 	try("Calling micro server", s.t, func() ([]byte, error) {
-		return exec.Command("micro", s.envFlag(), "call", "go.micro.runtime", "Runtime.Read", "{}").CombinedOutput()
-	}, 10000*time.Millisecond)
+		outp, err := exec.Command("micro", s.envFlag(), "list", "services").CombinedOutput()
+		fmt.Println(string(outp))
+		if !strings.Contains(string(outp), "runtime") ||
+			!strings.Contains(string(outp), "router") ||
+			!strings.Contains(string(outp), "registry") ||
+			!strings.Contains(string(outp), "api") ||
+			!strings.Contains(string(outp), "broker") ||
+			!strings.Contains(string(outp), "config") ||
+			!strings.Contains(string(outp), "debug") ||
+			!strings.Contains(string(outp), "proxy") ||
+			!strings.Contains(string(outp), "store") {
+			return outp, errors.New("Not ready")
+		}
+		return outp, err
+	}, 30*time.Second)
 	time.Sleep(5 * time.Second)
 }
 
