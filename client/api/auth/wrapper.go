@@ -13,6 +13,7 @@ import (
 	"github.com/micro/go-micro/v2/api/server"
 	"github.com/micro/go-micro/v2/auth"
 	"github.com/micro/go-micro/v2/logger"
+	inauth "github.com/micro/micro/v2/internal/auth"
 	"github.com/micro/micro/v2/internal/namespace"
 )
 
@@ -53,7 +54,7 @@ func (a authWrapper) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	} else {
 		// Get the token out the cookies if not provided in headers
 		if c, err := req.Cookie("micro-token"); err == nil && c != nil {
-			token = strings.TrimPrefix(c.Value, auth.TokenCookieName+"=")
+			token = strings.TrimPrefix(c.Value, inauth.TokenCookieName+"=")
 			req.Header.Set("Authorization", auth.BearerScheme+token)
 		}
 	}
