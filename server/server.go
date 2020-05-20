@@ -148,7 +148,6 @@ func Run(context *cli.Context) error {
 		log.Infof("Registering %s", name)
 		// @todo this is a hack
 		envs := env
-		fmt.Println(service)
 		if service == "proxy" {
 			envs = append(envs, "MICRO_AUTH=service")
 		}
