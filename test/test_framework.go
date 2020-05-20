@@ -13,7 +13,7 @@ import (
 )
 
 const (
-	retryCount = 2
+	retryCount = 1
 	isParallel = true
 )
 
@@ -103,11 +103,21 @@ func newServer(t *t, opts ...options) server {
 	cmd := exec.Command("docker", "run", "--name", fname,
 		fmt.Sprintf("-p=%v:8081", portnum), "micro", "server")
 	if len(opts) == 1 && opts[0].auth == "jwt" {
+		priv := "cat /tmp/sshkey | base64 -w0"
+		privKey, err := exec.Command("bash", "-c", priv).Output()
+		if err != nil {
+			panic(string(privKey))
+		}
+		pub := "	cat /tmp/sshkey.pub | base64 -w0"
+		pubKey, err := exec.Command("bash", "-c", pub).Output()
+		if err != nil {
+			panic(string(pubKey))
+		}
 		cmd = exec.Command("docker", "run", "--name", fname,
 			fmt.Sprintf("-p=%v:8081", portnum),
 			"-e", "MICRO_AUTH=jwt",
-			"-e", "MICRO_AUTH_PRIVATE_KEY=$(cat /tmp/sshkey | base64 -w0)",
-			"-e", "MICRO_AUTH_PUBLIC_KEY=$(cat /tmp/sshkey.pub | base64 -w0)",
+			"-e", "MICRO_AUTH_PRIVATE_KEY="+string(privKey),
+			"-e", "MICRO_AUTH_PUBLIC_KEY="+string(pubKey),
 			"micro", "server")
 	}
 	//fmt.Println("docker", "run", "--name", fname, fmt.Sprintf("-p=%v:8081", portnum), "micro", "server")
