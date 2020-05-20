@@ -22,6 +22,22 @@ func testServerAuth(t *t) {
 	serv.launch()
 	defer serv.close()
 
+	basicAuthSuite(serv, t)
+}
+
+func TestServerAuthJWT(t *testing.T) {
+	trySuite(t, testServerAuthJWT, retryCount)
+}
+
+func testServerAuthJWT(t *t) {
+	t.Parallel()
+	serv := newServer(t, options{auth: "jwt"})
+	serv.launch()
+	defer serv.close()
+	basicAuthSuite(serv, t)
+}
+
+func basicAuthSuite(serv server, t *t) {
 	// Execute first command in read to wait for store service
 	// to start up
 	try("Calling micro auth list accounts", t, func() ([]byte, error) {
@@ -34,7 +50,7 @@ func testServerAuth(t *t) {
 			return outp, fmt.Errorf("Output should contain admin")
 		}
 		return outp, nil
-	}, 8*time.Second)
+	}, 15*time.Second)
 
 	try("Calling micro auth list rules", t, func() ([]byte, error) {
 		readCmd := exec.Command("micro", serv.envFlag(), "auth", "list", "rules")

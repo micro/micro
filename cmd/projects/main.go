@@ -9,11 +9,11 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 	"sync"
 	"time"
-	"sort"
 
 	"github.com/google/go-github/github"
 	"golang.org/x/oauth2"
@@ -429,7 +429,6 @@ func browseHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), 500)
 		return
 	}
-
 
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(b)

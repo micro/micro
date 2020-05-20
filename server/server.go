@@ -20,6 +20,7 @@ var (
 	services = []string{
 		// runtime services
 		"config",   // ????
+		"auth",     // :8010
 		"network",  // :8085
 		"runtime",  // :8088
 		"registry", // :8000
@@ -29,7 +30,6 @@ var (
 		"debug",    // :????
 		"proxy",    // :8081
 		"api",      // :8080
-		"auth",     // :8010
 		"web",      // :8082
 		"bot",      // :????
 		"init",     // no port, manage self
@@ -100,9 +100,9 @@ func Run(context *cli.Context) error {
 
 	// pass through the environment
 	// TODO: perhaps don't do this
-	env := os.Environ()
-	env = append(env, "MICRO_STORE=file")
+	env := []string{"MICRO_STORE=file"}
 	env = append(env, "MICRO_RUNTIME_PROFILE="+context.String("profile"))
+	env = append(env, os.Environ()...)
 
 	// connect to the network if specified
 	if peer {
@@ -146,12 +146,18 @@ func Run(context *cli.Context) error {
 		}
 
 		log.Infof("Registering %s", name)
+		// @todo this is a hack
+		envs := env
+		switch service {
+		case "proxy", "web", "api":
+			envs = append(envs, "MICRO_AUTH=service")
+		}
 
 		// runtime based on environment we run the service in
 		args := []gorun.CreateOption{
 			gorun.WithCommand(os.Args[0]),
 			gorun.WithArgs(service),
-			gorun.WithEnv(env),
+			gorun.WithEnv(envs),
 			gorun.WithOutput(os.Stdout),
 		}
 
