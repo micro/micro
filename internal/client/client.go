@@ -24,7 +24,7 @@ func New(ctx *ccli.Context) client.Client {
 		env = cliutil.GetEnv()
 	}
 	token, _ := config.Get("micro", "auth", env.Name, "token")
-	return &wrapper{grpc.NewClient(), token}
+	return &wrapper{grpc.NewClient(), token, env.Name}
 }
 
 type wrapper struct {
