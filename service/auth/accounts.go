@@ -25,14 +25,22 @@ func listAccounts(ctx *cli.Context) {
 	w := tabwriter.NewWriter(os.Stdout, 0, 8, 1, '\t', 0)
 	defer w.Flush()
 
-	fmt.Fprintln(w, strings.Join([]string{"ID", "Roles", "Metadata"}, "\t"))
+	fmt.Fprintln(w, strings.Join([]string{"ID", "Roles", "Metadata"}, "\t\t"))
 	for _, r := range rsp.Accounts {
 		var metadata string
 		for k, v := range r.Metadata {
 			metadata = fmt.Sprintf("%v %v=%v ", metadata, k, v)
 		}
 		roles := strings.Join(r.Roles, ", ")
-		fmt.Fprintln(w, strings.Join([]string{r.Id, roles, metadata}, "\t"))
+
+		if len(metadata) == 0 {
+			metadata = "n/a"
+		}
+		if len(roles) == 0 {
+			roles = "n/a"
+		}
+
+		fmt.Fprintln(w, strings.Join([]string{r.Id, roles, metadata}, "\t\t"))
 	}
 }
 
