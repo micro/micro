@@ -113,7 +113,7 @@ func testServerAuthJWT(t *t) {
 			return outp, fmt.Errorf("Output should contain admin")
 		}
 		return outp, nil
-	}, 8*time.Second)
+	}, 10*time.Second)
 
 	try("Calling micro auth list rules", t, func() ([]byte, error) {
 		readCmd := exec.Command("micro", serv.envFlag(), "auth", "list", "rules")
