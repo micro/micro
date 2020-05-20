@@ -5,7 +5,6 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/micro/go-micro/v2/auth"
 	"github.com/micro/go-micro/v2/logger"
 	"golang.org/x/net/publicsuffix"
 )
@@ -47,25 +46,25 @@ func (r Resolver) Resolve(req *http.Request) string {
 
 	// check for an ip address
 	if net.ParseIP(host) != nil {
-		return auth.DefaultNamespace
+		return DefaultNamespace
 	}
 
 	// check for dev enviroment
 	if host == "localhost" || host == "127.0.0.1" {
-		return auth.DefaultNamespace
+		return DefaultNamespace
 	}
 
 	// extract the top level domain plus one (e.g. 'myapp.com')
 	domain, err := publicsuffix.EffectiveTLDPlusOne(host)
 	if err != nil {
 		logger.Debugf("Unable to extract domain from %v", host)
-		return auth.DefaultNamespace
+		return DefaultNamespace
 	}
 
 	// check to see if the domain matches the host of micro.mu, in
 	// these cases we return the default namespace
 	if domain == host || domain == "micro.mu" {
-		return auth.DefaultNamespace
+		return DefaultNamespace
 	}
 
 	// remove the domain from the host, leaving the subdomain

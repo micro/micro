@@ -99,7 +99,7 @@ func (a authWrapper) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 
 	// Perform the verification check to see if the account has access to
 	// the resource they're requesting
-	res := &auth.Resource{Type: "service", Name: resName, Endpoint: resEndpoint, Namespace: ns}
+	res := &auth.Resource{Type: "service", Name: resName, Endpoint: resEndpoint}
 	if err := a.auth.Verify(acc, res); err == nil {
 		// The account has the necessary permissions to access the resource
 		a.handler.ServeHTTP(w, req)
