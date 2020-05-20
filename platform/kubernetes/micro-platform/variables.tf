@@ -49,6 +49,7 @@ variable "web_acme_hosts" {
 variable "cf_api_token" {
   type        = string
   description = "Cloudflare API Token"
+  default     = ""
 }
 
 variable "micro_auth_private" {
@@ -64,4 +65,5 @@ variable "micro_auth_public" {
 variable "micro_slack_token" {
   type        = string
   description = "Micro slack token"
+  default     = ""
 }
