@@ -31,5 +31,8 @@ jobs:
     - name: Test micro server
       working-directory: ./test
       run: |
+          # Generate keys for JWT tests
+          ssh-keygen -f /tmp/sshkey -m pkcs8 -q -N ""
+          ssh-keygen -f /tmp/sshkey -e  -m pkcs8 > /tmp/sshkey.pub
           go clean -testcache && go test --tags=integration -v ./... || true
         
