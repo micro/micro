@@ -3,7 +3,6 @@ package store
 import (
 	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro/v2"
-	"github.com/micro/go-micro/v2/config/cmd"
 	log "github.com/micro/go-micro/v2/logger"
 	"github.com/micro/go-micro/v2/store"
 	pb "github.com/micro/go-micro/v2/store/service/proto"
@@ -42,7 +41,7 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 
 	// the store handler
 	storeHandler := &handler.Store{
-		Default: *cmd.DefaultOptions().Store,
+		Default: service.Options().Store,
 		Stores:  make(map[string]bool),
 	}
 
