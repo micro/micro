@@ -36,7 +36,7 @@ type command struct {
 	exec  exec
 }
 
-func runc(c *cli.Context) error {
+func Run(c *cli.Context) error {
 	commands["help"] = &command{"help", "CLI usage", help}
 	alias := map[string]string{
 		"?":  "help",
@@ -503,7 +503,7 @@ func Commands() []*cli.Command {
 		{
 			Name:   "cli",
 			Usage:  "Run the interactive CLI",
-			Action: runc,
+			Action: Run,
 		},
 		{
 			Name:   "call",
