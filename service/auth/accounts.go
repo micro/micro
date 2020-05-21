@@ -2,6 +2,7 @@ package auth
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"os"
 	"strings"
@@ -45,6 +46,11 @@ func listAccounts(ctx *cli.Context) {
 }
 
 func createAccount(ctx *cli.Context) {
+	if ctx.Args().Len() == 0 {
+		fmt.Println("Missing argument: ID")
+		return
+	}
+
 	var options []auth.GenerateOption
 	if len(ctx.StringSlice("roles")) > 0 {
 		options = append(options, auth.WithRoles(ctx.StringSlice("roles")...))
@@ -53,13 +59,14 @@ func createAccount(ctx *cli.Context) {
 		options = append(options, auth.WithSecret(ctx.String("secret")))
 	}
 
-	_, err := authFromContext(ctx).Generate(ctx.String("id"), options...)
+	acc, err := authFromContext(ctx).Generate(ctx.Args().First(), options...)
 	if err != nil {
 		fmt.Printf("Error creating account: %v\n", err)
 		os.Exit(1)
 	}
 
-	fmt.Println("Account created")
+	json, _ := json.Marshal(acc)
+	fmt.Printf("Account created: %v\n", string(json))
 }
 
 func accountsFromContext(ctx *cli.Context) pb.AccountsService {

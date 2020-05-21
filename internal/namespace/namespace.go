@@ -16,23 +16,19 @@ const (
 // FromContext gets the namespace from the context
 func FromContext(ctx context.Context) string {
 	// get the namespace which is set at ingress by micro web / api / proxy etc
-	ns, _ := metadata.Get(ctx, NamespaceKey)
-
-	// get the account making the request. if there is no account then we return the namespace
-	acc, ok := auth.AccountFromContext(ctx)
-	if !ok && len(ns) > 0 {
-		return ns
-	} else if !ok {
+	ns, ok := metadata.Get(ctx, NamespaceKey)
+	if !ok || ns == DefaultNamespace {
 		return DefaultNamespace
 	}
 
-	// always allow access to the default namespace
-	if ns == DefaultNamespace {
+	// get the account making the request. if there is no account then we return the namespace
+	acc, ok := auth.AccountFromContext(ctx)
+	if !ok {
 		return ns
 	}
 
-	// if no namespace was requested or the account has the scope, return the namespace
-	if len(ns) == 0 || acc.HasScope("namespace", ns) {
+	// if the account has the scope, return the namespace
+	if acc.HasScope("namespace", ns) {
 		return ns
 	}
 

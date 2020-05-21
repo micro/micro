@@ -16,6 +16,7 @@ import (
 	"github.com/micro/go-micro/v2/store"
 	memStore "github.com/micro/go-micro/v2/store/memory"
 	"github.com/micro/go-micro/v2/util/log"
+	"github.com/micro/micro/v2/internal/namespace"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -89,13 +90,19 @@ func (a *Auth) Generate(ctx context.Context, req *pb.GenerateRequest, rsp *pb.Ge
 	// check the user does not already exist
 	key := storePrefixAccounts + req.Id
 	if _, err := a.Options.Store.Read(key); err != store.ErrNotFound {
-		return errors.BadRequest("go.micro.auth", "A user with this email already exists")
+		return errors.BadRequest("go.micro.auth", "Account with this ID already exists")
 	}
 
 	// hash the secret
 	secret, err := hashSecret(req.Secret)
 	if err != nil {
 		return errors.InternalServerError("go.micro.auth", "Unable to hash password: %v", err)
+	}
+
+	// Default to the current namespace as the scope. Once we add identity we can auto-generate
+	// these scopes and prevent users from generating accounts with any scope.
+	if len(req.Scopes) == 0 {
+		req.Scopes = []string{"namespace." + namespace.FromContext(ctx)}
 	}
 
 	// construct the account

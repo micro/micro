@@ -13,19 +13,9 @@ var SystemRules = []*auth.Rule{
 		Resource: &auth.Resource{Type: "*", Name: "*", Endpoint: "*"},
 	},
 	&auth.Rule{
-		ID:       "auth-generate",
+		ID:       "auth-public",
 		Role:     "",
-		Resource: &auth.Resource{Type: "service", Name: "go.micro.auth", Endpoint: "Auth.Generate"},
-	},
-	&auth.Rule{
-		ID:       "auth-token",
-		Role:     "",
-		Resource: &auth.Resource{Type: "service", Name: "go.micro.auth", Endpoint: "Auth.Token"},
-	},
-	&auth.Rule{
-		ID:       "auth-inspect",
-		Role:     "",
-		Resource: &auth.Resource{Type: "service", Name: "go.micro.auth", Endpoint: "Auth.Inspect"},
+		Resource: &auth.Resource{Type: "service", Name: "go.micro.auth", Endpoint: "*"},
 	},
 	&auth.Rule{
 		ID:       "registry-get",

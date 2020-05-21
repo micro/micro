@@ -3,6 +3,8 @@ package roles
 import (
 	"context"
 	"encoding/json"
+	"fmt"
+	"strings"
 
 	"github.com/micro/go-micro/v2/auth"
 	pb "github.com/micro/go-micro/v2/auth/service/proto"
@@ -10,12 +12,25 @@ import (
 	"github.com/micro/go-micro/v2/store"
 	memStore "github.com/micro/go-micro/v2/store/memory"
 	"github.com/micro/go-micro/v2/util/log"
+	"github.com/micro/micro/v2/internal/namespace"
 )
 
 const (
-	joinKey     = ":"
-	storePrefix = "rules/"
+	storePrefix = "rules"
+	joinKey     = "/"
 )
+
+var defaultRule = &pb.Rule{
+	Id:       "default",
+	Role:     "", // a blank role  allows public access
+	Priority: 0,
+	Resource: &pb.Resource{
+		Name:     "*",
+		Type:     "*",
+		Endpoint: "*",
+	},
+	Access: pb.Access_GRANTED,
+}
 
 // Rules processes RPC calls
 type Rules struct {
@@ -50,17 +65,7 @@ func (r *Rules) Init(opts ...auth.Option) {
 	}
 	log.Info("Generating default rules")
 	err = r.Create(context.Background(), &pb.CreateRequest{
-		Rule: &pb.Rule{
-			Id:       "default",
-			Role:     "", // a blank role  allows public access
-			Priority: 0,
-			Resource: &pb.Resource{
-				Name:     "*",
-				Type:     "*",
-				Endpoint: "*",
-			},
-			Access: pb.Access_GRANTED,
-		},
+		Rule: defaultRule,
 	}, &pb.CreateResponse{})
 	if err != nil {
 		log.Errorf("Error creating default rule in init: %v", err)
@@ -84,7 +89,8 @@ func (r *Rules) Create(ctx context.Context, req *pb.CreateRequest, rsp *pb.Creat
 	}
 
 	// Chck the rule doesn't exist
-	key := storePrefix + req.Rule.Id
+	ns := namespace.FromContext(ctx)
+	key := strings.Join([]string{storePrefix, ns, req.Rule.Id}, joinKey)
 	if _, err := r.Options.Store.Read(key); err == nil {
 		return errors.BadRequest("go.micro.auth", "A rule with this ID already exists")
 	}
@@ -114,7 +120,9 @@ func (r *Rules) Delete(ctx context.Context, req *pb.DeleteRequest, rsp *pb.Delet
 	}
 
 	// Delete the rule
-	err := r.Options.Store.Delete(storePrefix + req.Rule.Id)
+	ns := namespace.FromContext(ctx)
+	key := strings.Join([]string{storePrefix, ns, req.Rule.Id}, joinKey)
+	err := r.Options.Store.Delete(key)
 	if err == store.ErrNotFound {
 		return errors.BadRequest("go.micro.auth", "Rule not found")
 	} else if err != nil {
@@ -127,7 +135,10 @@ func (r *Rules) Delete(ctx context.Context, req *pb.DeleteRequest, rsp *pb.Delet
 // List returns all the rules
 func (r *Rules) List(ctx context.Context, req *pb.ListRequest, rsp *pb.ListResponse) error {
 	// get the records from the store
-	recs, err := r.Options.Store.Read(storePrefix, store.ReadPrefix())
+	ns := namespace.FromContext(ctx)
+	prefix := strings.Join([]string{storePrefix, ns, ""}, joinKey)
+	fmt.Println(prefix)
+	recs, err := r.Options.Store.Read(prefix, store.ReadPrefix())
 	if err != nil {
 		return errors.InternalServerError("go.micro.auth", "Unable to read from store: %v", err)
 	}

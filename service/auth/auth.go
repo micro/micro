@@ -77,14 +77,8 @@ var (
 	// AccountFlags are provided to the create account command
 	AccountFlags = []cli.Flag{
 		&cli.StringFlag{
-			Name:     "id",
-			Usage:    "The account id",
-			Required: true,
-		},
-		&cli.StringFlag{
-			Name:     "secret",
-			Usage:    "The account secret (password)",
-			Required: true,
+			Name:  "secret",
+			Usage: "The account secret (password)",
 		},
 		&cli.StringSliceFlag{
 			Name:  "roles",
@@ -226,6 +220,7 @@ func whoami(ctx *cli.Context) {
 
 	fmt.Printf("ID: %v\n", acc.ID)
 	fmt.Printf("Roles: %v\n", strings.Join(acc.Roles, ", "))
+	fmt.Printf("Scopes: %v\n", strings.Join(acc.Scopes, ", "))
 }
 
 //Commands for auth
