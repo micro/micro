@@ -1,4 +1,4 @@
-package roles
+package rules
 
 import (
 	"context"
@@ -21,7 +21,7 @@ const (
 
 var defaultRule = &pb.Rule{
 	Id:       "default",
-	Role:     "", // a blank role  allows public access
+	Scope:    "", // a blank scope allows public access
 	Priority: 0,
 	Resource: &pb.Resource{
 		Name:     "*",
@@ -71,7 +71,7 @@ func (r *Rules) Init(opts ...auth.Option) {
 	}
 }
 
-// Create a role access to a resource
+// Create a rule giving a scope access to a resource
 func (r *Rules) Create(ctx context.Context, req *pb.CreateRequest, rsp *pb.CreateResponse) error {
 	// Validate the request
 	if req.Rule == nil {
@@ -108,7 +108,7 @@ func (r *Rules) Create(ctx context.Context, req *pb.CreateRequest, rsp *pb.Creat
 	return nil
 }
 
-// Delete a roles access to a resource
+// Delete a scope access to a resource
 func (r *Rules) Delete(ctx context.Context, req *pb.DeleteRequest, rsp *pb.DeleteResponse) error {
 	// Validate the request
 	if len(req.Id) == 0 {

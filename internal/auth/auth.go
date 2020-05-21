@@ -9,22 +9,22 @@ const TokenCookieName = "micro-token"
 var SystemRules = []*auth.Rule{
 	&auth.Rule{
 		ID:       "default",
-		Role:     "*",
+		Scope:    "*",
 		Resource: &auth.Resource{Type: "*", Name: "*", Endpoint: "*"},
 	},
 	&auth.Rule{
 		ID:       "auth-public",
-		Role:     "",
+		Scope:    "",
 		Resource: &auth.Resource{Type: "service", Name: "go.micro.auth", Endpoint: "*"},
 	},
 	&auth.Rule{
 		ID:       "registry-get",
-		Role:     "",
+		Scope:    "",
 		Resource: &auth.Resource{Type: "service", Name: "go.micro.registry", Endpoint: "Registry.GetService"},
 	},
 	&auth.Rule{
 		ID:       "registry-list",
-		Role:     "",
+		Scope:    "",
 		Resource: &auth.Resource{Type: "service", Name: "go.micro.registry", Endpoint: "Registry.ListServices"},
 	},
 }

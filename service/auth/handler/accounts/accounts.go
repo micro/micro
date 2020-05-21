@@ -68,9 +68,8 @@ func serializeAccount(a *auth.Account) *pb.Account {
 	return &pb.Account{
 		Id:       a.ID,
 		Type:     a.Type,
-		Roles:    a.Roles,
 		Scopes:   a.Scopes,
-		Provider: a.Provider,
+		Issuer:   a.Issuer,
 		Metadata: a.Metadata,
 	}
 }

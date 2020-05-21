@@ -109,10 +109,9 @@ func (a *Auth) Generate(ctx context.Context, req *pb.GenerateRequest, rsp *pb.Ge
 	acc := &auth.Account{
 		ID:       req.Id,
 		Type:     req.Type,
-		Roles:    req.Roles,
 		Scopes:   req.Scopes,
-		Provider: req.Provider,
 		Metadata: req.Metadata,
+		Issuer:   namespace.FromContext(ctx),
 		Secret:   secret,
 	}
 
@@ -256,9 +255,8 @@ func serializeAccount(a *auth.Account) *pb.Account {
 	return &pb.Account{
 		Id:       a.ID,
 		Type:     a.Type,
-		Roles:    a.Roles,
 		Scopes:   a.Scopes,
-		Provider: a.Provider,
+		Issuer:   a.Issuer,
 		Metadata: a.Metadata,
 	}
 }

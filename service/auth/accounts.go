@@ -26,22 +26,22 @@ func listAccounts(ctx *cli.Context) {
 	w := tabwriter.NewWriter(os.Stdout, 0, 8, 1, '\t', 0)
 	defer w.Flush()
 
-	fmt.Fprintln(w, strings.Join([]string{"ID", "Roles", "Metadata"}, "\t\t"))
+	fmt.Fprintln(w, strings.Join([]string{"ID", "Scopes", "Metadata"}, "\t\t"))
 	for _, r := range rsp.Accounts {
 		var metadata string
 		for k, v := range r.Metadata {
 			metadata = fmt.Sprintf("%v %v=%v ", metadata, k, v)
 		}
-		roles := strings.Join(r.Roles, ", ")
+		scopes := strings.Join(r.Scopes, ", ")
 
 		if len(metadata) == 0 {
 			metadata = "n/a"
 		}
-		if len(roles) == 0 {
-			roles = "n/a"
+		if len(scopes) == 0 {
+			scopes = "n/a"
 		}
 
-		fmt.Fprintln(w, strings.Join([]string{r.Id, roles, metadata}, "\t\t"))
+		fmt.Fprintln(w, strings.Join([]string{r.Id, scopes, metadata}, "\t\t"))
 	}
 }
 
@@ -52,8 +52,8 @@ func createAccount(ctx *cli.Context) {
 	}
 
 	var options []auth.GenerateOption
-	if len(ctx.StringSlice("roles")) > 0 {
-		options = append(options, auth.WithRoles(ctx.StringSlice("roles")...))
+	if len(ctx.StringSlice("scopes")) > 0 {
+		options = append(options, auth.WithScopes(ctx.StringSlice("scopes")...))
 	}
 	if len(ctx.String("secret")) > 0 {
 		options = append(options, auth.WithSecret(ctx.String("secret")))

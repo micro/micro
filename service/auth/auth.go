@@ -55,8 +55,8 @@ var (
 	// RuleFlags are provided to commands which create or delete rules
 	RuleFlags = []cli.Flag{
 		&cli.StringFlag{
-			Name:  "role",
-			Usage: "The role to amend, e.g. 'user' or '*', leave blank to make public",
+			Name:  "scope",
+			Usage: "The scope to amend, e.g. 'user' or '*', leave blank to make public",
 		},
 		&cli.StringFlag{
 			Name:  "resource",
@@ -80,8 +80,8 @@ var (
 			Usage: "The account secret (password)",
 		},
 		&cli.StringSliceFlag{
-			Name:  "roles",
-			Usage: "Comma seperated list of roles to give the account",
+			Name:  "scopes",
+			Usage: "Comma seperated list of scopes to give the account",
 		},
 	}
 )
@@ -217,9 +217,7 @@ func whoami(ctx *cli.Context) {
 		os.Exit(1)
 	}
 
-	fmt.Printf("ID: %v\n", acc.ID)
-	fmt.Printf("Roles: %v\n", strings.Join(acc.Roles, ", "))
-	fmt.Printf("Scopes: %v\n", strings.Join(acc.Scopes, ", "))
+	fmt.Printf("ID: %v; Issuer: %v; Scopes: %v\n", acc.ID, acc.Issuer, strings.Join(acc.Scopes, ", "))
 }
 
 //Commands for auth

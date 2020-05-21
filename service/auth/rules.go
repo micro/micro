@@ -37,13 +37,13 @@ func listRules(ctx *cli.Context) {
 		return sort.StringsAreSorted([]string{resJ, resI})
 	})
 
-	fmt.Fprintln(w, strings.Join([]string{"ID", "Role", "Access", "Resource", "Priority"}, "\t\t"))
+	fmt.Fprintln(w, strings.Join([]string{"ID", "Scope", "Access", "Resource", "Priority"}, "\t\t"))
 	for _, r := range rsp.Rules {
 		res := formatResource(r.Resource)
-		if r.Role == "" {
-			r.Role = "<public>"
+		if r.Scope == "" {
+			r.Scope = "<public>"
 		}
-		fmt.Fprintln(w, strings.Join([]string{r.Id, r.Role, r.Access.String(), res, fmt.Sprintf("%d", r.Priority)}, "\t\t"))
+		fmt.Fprintln(w, strings.Join([]string{r.Id, r.Scope, r.Access.String(), res, fmt.Sprintf("%d", r.Priority)}, "\t\t"))
 	}
 }
 
@@ -108,7 +108,7 @@ func constructRule(ctx *cli.Context) *pb.Rule {
 	return &pb.Rule{
 		Id:       ctx.Args().First(),
 		Access:   access,
-		Role:     ctx.String("role"),
+		Scope:    ctx.String("scope"),
 		Priority: int32(ctx.Int("priority")),
 		Resource: &pb.Resource{
 			Type:     resComps[0],
