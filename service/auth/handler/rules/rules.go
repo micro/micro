@@ -111,16 +111,13 @@ func (r *Rules) Create(ctx context.Context, req *pb.CreateRequest, rsp *pb.Creat
 // Delete a roles access to a resource
 func (r *Rules) Delete(ctx context.Context, req *pb.DeleteRequest, rsp *pb.DeleteResponse) error {
 	// Validate the request
-	if req.Rule == nil {
-		return errors.BadRequest("go.micro.auth", "Rule missing")
-	}
-	if len(req.Rule.Id) == 0 {
+	if len(req.Id) == 0 {
 		return errors.BadRequest("go.micro.auth", "ID missing")
 	}
 
 	// Delete the rule
 	ns := namespace.FromContext(ctx)
-	key := strings.Join([]string{storePrefix, ns, req.Rule.Id}, joinKey)
+	key := strings.Join([]string{storePrefix, ns, req.Id}, joinKey)
 	err := r.Options.Store.Delete(key)
 	if err == store.ErrNotFound {
 		return errors.BadRequest("go.micro.auth", "Rule not found")

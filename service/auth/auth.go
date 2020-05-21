@@ -59,9 +59,8 @@ var (
 			Usage: "The role to amend, e.g. 'user' or '*', leave blank to make public",
 		},
 		&cli.StringFlag{
-			Name:     "resource",
-			Usage:    "The resource to amend in the format type:name:endpoint, e.g. service:go.micro.auth:*",
-			Required: true,
+			Name:  "resource",
+			Usage: "The resource to amend in the format type:name:endpoint, e.g. service:go.micro.auth:*",
 		},
 		&cli.StringFlag{
 			Name:  "access",

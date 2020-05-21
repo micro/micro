@@ -63,8 +63,13 @@ func createRule(ctx *cli.Context) {
 }
 
 func deleteRule(ctx *cli.Context) {
+	if ctx.Args().Len() != 1 {
+		fmt.Println("Expected one argument: ID")
+		os.Exit(1)
+	}
+
 	_, err := rulesFromContext(ctx).Delete(context.TODO(), &pb.DeleteRequest{
-		Rule: constructRule(ctx),
+		Id: ctx.Args().First(),
 	})
 	if verr, ok := err.(*errors.Error); ok {
 		fmt.Printf("Error: %v\n", verr.Detail)
@@ -97,6 +102,7 @@ func constructRule(ctx *cli.Context) *pb.Rule {
 	resComps := strings.Split(ctx.String("resource"), ":")
 	if len(resComps) != 3 {
 		fmt.Println("Invalid resource, must be in the format type:name:endpoint")
+		os.Exit(1)
 	}
 
 	return &pb.Rule{
