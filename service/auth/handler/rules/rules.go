@@ -3,7 +3,6 @@ package roles
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"strings"
 
 	"github.com/micro/go-micro/v2/auth"
@@ -137,7 +136,6 @@ func (r *Rules) List(ctx context.Context, req *pb.ListRequest, rsp *pb.ListRespo
 	// get the records from the store
 	ns := namespace.FromContext(ctx)
 	prefix := strings.Join([]string{storePrefix, ns, ""}, joinKey)
-	fmt.Println(prefix)
 	recs, err := r.Options.Store.Read(prefix, store.ReadPrefix())
 	if err != nil {
 		return errors.InternalServerError("go.micro.auth", "Unable to read from store: %v", err)
