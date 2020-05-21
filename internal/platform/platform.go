@@ -155,4 +155,3 @@ func Init(context *cli.Context) {
 	// exit success
 	os.Exit(0)
 }
-
