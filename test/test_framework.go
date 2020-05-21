@@ -111,12 +111,18 @@ func newServer(t *t, opts ...options) server {
 	cmd := exec.Command("docker", "run", "--name", fname,
 		fmt.Sprintf("-p=%v:8081", portnum), "micro", "server")
 	if len(opts) == 1 && opts[0].auth == "jwt" {
-		priv := "cat /tmp/sshkey | base64 -w0"
+
+		base64 := "base64 -w0"
+		if runtime.GOOS == "darwin" {
+			base64 = "base64 -b0"
+		}
+		priv := "cat /tmp/sshkey | " + base64
 		privKey, err := exec.Command("bash", "-c", priv).Output()
 		if err != nil {
 			panic(string(privKey))
 		}
-		pub := "cat /tmp/sshkey.pub | base64 -w0"
+
+		pub := "cat /tmp/sshkey.pub | " + base64
 		pubKey, err := exec.Command("bash", "-c", pub).Output()
 		if err != nil {
 			panic(string(pubKey))
@@ -124,8 +130,8 @@ func newServer(t *t, opts ...options) server {
 		cmd = exec.Command("docker", "run", "--name", fname,
 			fmt.Sprintf("-p=%v:8081", portnum),
 			"-e", "MICRO_AUTH=jwt",
-			"-e", "MICRO_AUTH_PRIVATE_KEY="+string(privKey),
-			"-e", "MICRO_AUTH_PUBLIC_KEY="+string(pubKey),
+			"-e", "MICRO_AUTH_PRIVATE_KEY="+strings.Trim(string(privKey), "\n"),
+			"-e", "MICRO_AUTH_PUBLIC_KEY="+strings.Trim(string(pubKey), "\n"),
 			"micro", "server")
 	}
 	//fmt.Println("docker", "run", "--name", fname, fmt.Sprintf("-p=%v:8081", portnum), "micro", "server")
@@ -146,7 +152,6 @@ func (s server) launch() {
 	// @todo find a way to know everything is up and running
 	try("Calling micro server", s.t, func() ([]byte, error) {
 		outp, err := exec.Command("micro", s.envFlag(), "list", "services").CombinedOutput()
-		fmt.Println(string(outp))
 		if !strings.Contains(string(outp), "runtime") ||
 			!strings.Contains(string(outp), "router") ||
 			!strings.Contains(string(outp), "registry") ||
@@ -159,7 +164,7 @@ func (s server) launch() {
 			return outp, errors.New("Not ready")
 		}
 		return outp, err
-	}, 30*time.Second)
+	}, 60*time.Second)
 	time.Sleep(5 * time.Second)
 }
 
