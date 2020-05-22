@@ -159,6 +159,7 @@ func Run(context *cli.Context) error {
 			gorun.WithArgs(service),
 			gorun.WithEnv(envs),
 			gorun.WithOutput(os.Stdout),
+			gorun.WithRetries(10),
 		}
 
 		// NOTE: we use Version right now to check for the latest release
