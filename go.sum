@@ -234,8 +234,6 @@ github.com/google/go-cmp v0.3.0/go.mod h1:8QqcDgzrUqlUb/G2PQTWiueGozuR1884gddMyw
 github.com/google/go-cmp v0.3.1/go.mod h1:8QqcDgzrUqlUb/G2PQTWiueGozuR1884gddMywk6iLU=
 github.com/google/go-cmp v0.4.0 h1:xsAVV57WRhGj6kEIi8ReJzQlHHqcBYCElAvkovg3B/4=
 github.com/google/go-cmp v0.4.0/go.mod h1:v8dTdLbMG2kIc/vJvl+f65V22dbkXbowE6jgT/gNBxE=
-github.com/google/go-github v17.0.0+incompatible h1:N0LgJ1j65A7kfXrZnUDaYCs/Sf4rEjNlfyDHW9dolSY=
-github.com/google/go-github v17.0.0+incompatible/go.mod h1:zLgOLi98H3fifZn+44m+umXrS52loVEgC2AApnigrVQ=
 github.com/google/go-querystring v1.0.0 h1:Xkwi/a1rcvNg1PPYe5vI8GbeBY/jrVuDX5ASuANWTrk=
 github.com/google/go-querystring v1.0.0/go.mod h1:odCYkC5MyYFN7vkCjXpyrEuKhc/BUO6wN/zVPAxq5ck=
 github.com/google/gofuzz v1.0.0/go.mod h1:dBl0BpW6vV/+mYPU4Po3pmUjxk6FQPldtuIdl/M65Eg=
@@ -362,8 +360,6 @@ github.com/micro/cli/v2 v2.1.2/go.mod h1:EguNh6DAoWKm9nmk+k/Rg0H3lQnDxqzu5x5srOt
 github.com/micro/go-micro v1.16.0/go.mod h1:A0F58bHLh2m0LAI9QyhvmbN8c1cxhAZo3cM6s+iDsrM=
 github.com/micro/go-micro v1.18.0 h1:gP70EZVHpJuUIT0YWth192JmlIci+qMOEByHm83XE9E=
 github.com/micro/go-micro v1.18.0/go.mod h1:klwUJL1gkdY1MHFyz+fFJXn52dKcty4hoe95Mp571AA=
-github.com/micro/go-micro/v2 v2.7.1-0.20200519160611-e61edf62807e h1:8qm4hFC+9AHd9L1i0UkbJNYxhBUsFwW//v4+60IKzTA=
-github.com/micro/go-micro/v2 v2.7.1-0.20200519160611-e61edf62807e/go.mod h1:bImBPfyXthPdQeVSik9sACGUxuxDE7jY8g5K7xZZV4c=
 github.com/micro/go-micro/v2 v2.7.1-0.20200520130338-6a661fd08cba h1:TcKclFbEuihXkD2CCfwMLvFUfgL6R9KhCg7HUoFnMh4=
 github.com/micro/go-micro/v2 v2.7.1-0.20200520130338-6a661fd08cba/go.mod h1:bImBPfyXthPdQeVSik9sACGUxuxDE7jY8g5K7xZZV4c=
 github.com/micro/go-micro/v2 v2.7.1-0.20200521113358-4de19805ba30 h1:uICFARYnRHTDh4hEscBK1Ubpxf5uiK6KoP3oz+aYJG0=

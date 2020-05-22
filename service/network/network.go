@@ -46,8 +46,8 @@ var (
 	Token = "micro"
 )
 
-// run runs the micro server
-func run(ctx *cli.Context, srvOpts ...micro.Option) {
+// Run runs the micro server
+func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 	log.Init(log.WithFields(map[string]interface{}{"service": "network"}))
 
 	if ctx.Args().Len() > 0 {
@@ -314,7 +314,7 @@ func Commands(options ...micro.Option) []*cli.Command {
 			},
 		}, mcli.NetworkCommands()...),
 		Action: func(ctx *cli.Context) error {
-			run(ctx, options...)
+			Run(ctx, options...)
 			return nil
 		},
 	}

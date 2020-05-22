@@ -18,7 +18,7 @@ var (
 	Address = ":8001"
 )
 
-func run(ctx *cli.Context, srvOpts ...micro.Option) {
+func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 	log.Init(log.WithFields(map[string]interface{}{"service": "broker"}))
 
 	if len(ctx.String("server_name")) > 0 {
@@ -75,7 +75,7 @@ func Commands(options ...micro.Option) []*cli.Command {
 			},
 		},
 		Action: func(ctx *cli.Context) error {
-			run(ctx, options...)
+			Run(ctx, options...)
 			return nil
 		},
 	}

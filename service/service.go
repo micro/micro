@@ -18,7 +18,7 @@ import (
 	"github.com/micro/micro/v2/service/handler/file"
 )
 
-func run(ctx *cli.Context, opts ...micro.Option) {
+func Run(ctx *cli.Context, opts ...micro.Option) {
 	log.Init(log.WithFields(map[string]interface{}{"service": "service"}))
 
 	name := ctx.String("name")
@@ -122,7 +122,7 @@ func Commands(options ...micro.Option) []*cli.Command {
 		Name:  "service",
 		Usage: "Run a micro service",
 		Action: func(ctx *cli.Context) error {
-			run(ctx, options...)
+			Run(ctx, options...)
 			return nil
 		},
 		Flags: []cli.Flag{
