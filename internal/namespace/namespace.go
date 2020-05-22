@@ -19,3 +19,8 @@ func FromContext(ctx context.Context) string {
 	ns, _ := metadata.Get(ctx, NamespaceKey)
 	return ns
 }
+
+// ContextWithNamespace sets the namespace in the context
+func ContextWithNamespace(ctx context.Context, ns string) context.Context {
+	return metadata.Set(ctx, NamespaceKey, ns)
+}

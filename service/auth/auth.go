@@ -14,12 +14,12 @@ import (
 	"github.com/micro/go-micro/v2/auth/token"
 	"github.com/micro/go-micro/v2/auth/token/jwt"
 	"github.com/micro/go-micro/v2/config/cmd"
+	"github.com/micro/go-micro/v2/errors"
 	log "github.com/micro/go-micro/v2/logger"
 	cliutil "github.com/micro/micro/v2/client/cli/util"
 	"github.com/micro/micro/v2/internal/client"
 	"github.com/micro/micro/v2/internal/config"
 	"github.com/micro/micro/v2/service/auth/api"
-	accountsHandler "github.com/micro/micro/v2/service/auth/handler/accounts"
 	authHandler "github.com/micro/micro/v2/service/auth/handler/auth"
 	rulesHandler "github.com/micro/micro/v2/service/auth/handler/rules"
 )
@@ -108,9 +108,8 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 	}
 
 	// setup the handlers
-	authH := &authHandler.Auth{}
 	ruleH := &rulesHandler.Rules{}
-	accountH := &accountsHandler.Accounts{}
+	authH := &authHandler.Auth{}
 
 	// setup the auth handler to use JWTs
 	pubKey := ctx.String("auth_public_key")
@@ -127,7 +126,6 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 	// set the handlers store
 	authH.Init(auth.Store(st))
 	ruleH.Init(auth.Store(st))
-	accountH.Init(auth.Store(st))
 
 	// setup service
 	srvOpts = append(srvOpts, micro.Name(Name))
@@ -136,7 +134,7 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 	// register handlers
 	pb.RegisterAuthHandler(service.Server(), authH)
 	pb.RegisterRulesHandler(service.Server(), ruleH)
-	pb.RegisterAccountsHandler(service.Server(), accountH)
+	pb.RegisterAccountsHandler(service.Server(), authH)
 
 	// run service
 	if err := service.Run(); err != nil {
@@ -163,7 +161,10 @@ func login(ctx *cli.Context) {
 			os.Exit(1)
 		}
 
-		if err := config.Set(tok, "micro", "auth", "token"); err != nil {
+		// we want to scope the token to our env
+		env, _ := config.Get("env")
+
+		if err := config.Set(tok, env, "auth", "token"); err != nil {
 			fmt.Println(err)
 			os.Exit(1)
 		}
@@ -187,12 +188,13 @@ func login(ctx *cli.Context) {
 	}
 
 	// Store the access token in micro config
-	if err := config.Set(tok.AccessToken, "micro", "auth", "token"); err != nil {
+	env, _ := config.Get("env")
+	if err := config.Set(tok.AccessToken, env, "auth", "token"); err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
 	// Store the refresh token in micro config
-	if err := config.Set(tok.RefreshToken, "micro", "auth", "refresh-token"); err != nil {
+	if err := config.Set(tok.RefreshToken, env, "auth", "refresh-token"); err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
@@ -204,7 +206,8 @@ func login(ctx *cli.Context) {
 // whoami returns info about the logged in user
 func whoami(ctx *cli.Context) {
 	// Get the token from micro config
-	tok, err := config.Get("micro", "auth", "token")
+	env, _ := config.Get("env")
+	tok, err := config.Get(env, "auth", "token")
 	if err != nil {
 		fmt.Println("You are not logged in")
 		os.Exit(1)
@@ -212,12 +215,15 @@ func whoami(ctx *cli.Context) {
 
 	// Inspect the token
 	acc, err := authFromContext(ctx).Inspect(tok)
-	if err != nil {
+	if verr, ok := err.(*errors.Error); ok {
+		fmt.Println("Error: " + verr.Detail)
+		return
+	} else if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
 
-	fmt.Printf("ID: %v; Issuer: %v; Scopes: %v\n", acc.ID, acc.Issuer, strings.Join(acc.Scopes, ", "))
+	fmt.Printf("ID: %v; Scopes: %v\n", acc.ID, strings.Join(acc.Scopes, ", "))
 }
 
 //Commands for auth

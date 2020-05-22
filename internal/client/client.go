@@ -15,8 +15,8 @@ import (
 // New returns a wrapped grpc client which will inject the
 // token found in config into each request
 func New() client.Client {
-	token, _ := config.Get("micro", "auth", "token")
 	env, _ := config.Get("env")
+	token, _ := config.Get(env, "auth", "token")
 	return &wrapper{grpc.NewClient(), token, env}
 }
 
