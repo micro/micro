@@ -20,6 +20,10 @@ jobs:
     - name: Check out code
       uses: actions/checkout@v2 
 
+    - name: Install micro
+      run: |
+        go install
+
     - name: Build container
       run: |
         bash scripts/build-local-docker.sh
