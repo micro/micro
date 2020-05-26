@@ -45,7 +45,7 @@ func (m *manager) readServices(namespace string, srv *runtime.Service) ([]*runti
 	if len(srv.Name) > 0 {
 		prefix += srv.Name + ":"
 	}
-	if len(srv.Version) > 0 {
+	if len(srv.Name) > 0 && len(srv.Version) > 0 {
 		prefix += srv.Version
 	}
 
