@@ -17,19 +17,13 @@ import (
 // New returns a wrapped grpc client which will inject the
 // token found in config into each request
 func New(ctx *ccli.Context) client.Client {
-	var env cliutil.Env
-	if len(ctx.String("env")) > 0 {
-		env = cliutil.GetEnvByName(ctx.String("env"))
-	} else {
-		env = cliutil.GetEnv()
-	}
+	env := cliutil.GetEnv()
 	token, _ := config.Get("micro", "auth", env.Name, "token")
 	return &wrapper{grpc.NewClient(), token, env.Name}
 }
 
 type wrapper struct {
 	client.Client
-
 	token string
 	env   string
 }

@@ -164,12 +164,7 @@ func authFromContext(ctx *cli.Context) auth.Auth {
 // login using a token
 func login(ctx *cli.Context) {
 	// check for the token flag
-	var env cliutil.Env
-	if len(ctx.String("env")) > 0 {
-		env = cliutil.GetEnvByName(ctx.String("env"))
-	} else {
-		env = cliutil.GetEnv()
-	}
+	env := cliutil.GetEnv()
 	if tok := ctx.String("token"); len(tok) > 0 {
 		_, err := authFromContext(ctx).Inspect(tok)
 		if err != nil {

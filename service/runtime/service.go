@@ -65,6 +65,7 @@ func runtimeFromContext(ctx *cli.Context) runtime.Runtime {
 	if cliutil.IsLocal() {
 		return *cmd.DefaultCmd.Options().Runtime
 	}
+
 	return srvRuntime.NewRuntime(runtime.WithClient(client.New(ctx)))
 }
 
@@ -271,6 +272,7 @@ func getService(ctx *cli.Context, srvOpts ...micro.Option) {
 	name := ""
 	version := "latest"
 	typ := ctx.String("type")
+
 	r := runtimeFromContext(ctx)
 
 	if ctx.Args().Len() > 0 {
