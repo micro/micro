@@ -62,7 +62,7 @@ func timeAgo(v string) string {
 }
 
 func runtimeFromContext(ctx *cli.Context) runtime.Runtime {
-	if cliutil.IsLocal() {
+	if cliutil.IsLocal(ctx) {
 		return *cmd.DefaultCmd.Options().Runtime
 	}
 
@@ -272,7 +272,6 @@ func getService(ctx *cli.Context, srvOpts ...micro.Option) {
 	name := ""
 	version := "latest"
 	typ := ctx.String("type")
-
 	r := runtimeFromContext(ctx)
 
 	if ctx.Args().Len() > 0 {

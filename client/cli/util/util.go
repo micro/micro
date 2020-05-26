@@ -15,12 +15,6 @@ import (
 	"github.com/micro/micro/v2/service/runtime/profile"
 )
 
-var (
-	// since the env flag does not get passed down to a subcommand and is only
-	// available in `cmd/cmd` before, we save it here.
-	envFlag string
-)
-
 const (
 	// EnvLocal is a builtin environment, it means services launched
 	// with `micro run` will use default, zero dependency implementations for
@@ -71,7 +65,6 @@ func isBuiltinService(command string) bool {
 
 // SetupCommand includes things that should run for each command.
 func SetupCommand(ctx *ccli.Context) {
-	envFlag = ctx.String("env")
 	if ctx.Args().Len() == 1 && isBuiltinService(ctx.Args().First()) {
 		return
 	}
@@ -94,7 +87,7 @@ func SetupCommand(ctx *ccli.Context) {
 		}
 	}
 
-	env := GetEnv()
+	env := GetEnv(ctx)
 
 	switch env.Name {
 	case EnvServer:
@@ -159,10 +152,10 @@ func setEnvs(envs map[string]Env) {
 
 // GetEnv returns the current selected environment
 // Does not take
-func GetEnv() Env {
+func GetEnv(ctx *ccli.Context) Env {
 	var envName string
-	if len(envFlag) > 0 {
-		envName = envFlag
+	if len(ctx.String("env")) > 0 {
+		envName = ctx.String("env")
 	} else {
 		env, err := config.Get("env")
 		if err != nil {
@@ -217,14 +210,14 @@ func SetEnv(envName string) {
 	config.Set(envName, "env")
 }
 
-func IsLocal() bool {
-	return GetEnv().Name == EnvLocal
+func IsLocal(ctx *ccli.Context) bool {
+	return GetEnv(ctx).Name == EnvLocal
 }
 
-func IsServer() bool {
-	return GetEnv().Name == EnvServer
+func IsServer(ctx *ccli.Context) bool {
+	return GetEnv(ctx).Name == EnvServer
 }
 
-func IsPlatform() bool {
-	return GetEnv().Name == EnvPlatform
+func IsPlatform(ctx *ccli.Context) bool {
+	return GetEnv(ctx).Name == EnvPlatform
 }
