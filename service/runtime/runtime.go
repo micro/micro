@@ -11,6 +11,7 @@ import (
 	"github.com/micro/go-micro/v2/runtime"
 	pb "github.com/micro/go-micro/v2/runtime/service/proto"
 	"github.com/micro/micro/v2/service/runtime/handler"
+	"github.com/micro/micro/v2/service/runtime/manager"
 )
 
 var (
@@ -48,25 +49,20 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 		muRuntime.Init(runtime.WithSource(ctx.String("source")))
 	}
 
-	// use default store
-	muStore := *cmd.DefaultCmd.Options().Store
+	// append name
+	srvOpts = append(srvOpts, micro.Name(Name))
+
+	// new service
+	service := micro.NewService(srvOpts...)
 
 	// create a new runtime manager
-	manager := newManager(ctx, muRuntime, muStore)
-
-	log.Infof("using store %s", muStore.String())
+	manager := manager.New(muRuntime, manager.Store(service.Options().Store))
 
 	// start the manager
 	if err := manager.Start(); err != nil {
 		log.Errorf("failed to start: %s", err)
 		os.Exit(1)
 	}
-
-	// append name
-	srvOpts = append(srvOpts, micro.Name(Name))
-
-	// new service
-	service := micro.NewService(srvOpts...)
 
 	// register the runtime handler
 	pb.RegisterRuntimeHandler(service.Server(), &handler.Runtime{
