@@ -282,10 +282,10 @@ func (a *Auth) accountIDForRefreshToken(ctx context.Context, token string) (stri
 	for _, k := range keys {
 		if strings.HasSuffix(k, "/"+token) {
 			comps := strings.Split(k, "/")
-			if len(comps) != 3 {
+			if len(comps) != 4 {
 				return "", store.ErrNotFound
 			}
-			return comps[1], nil
+			return comps[2], nil
 		}
 	}
 
