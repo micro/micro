@@ -49,20 +49,20 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 		muRuntime.Init(runtime.WithSource(ctx.String("source")))
 	}
 
+	// append name
+	srvOpts = append(srvOpts, micro.Name(Name))
+
+	// new service
+	service := micro.NewService(srvOpts...)
+
 	// create a new runtime manager
-	manager := manager.New(muRuntime)
+	manager := manager.New(muRuntime, manager.Store(service.Options().Store))
 
 	// start the manager
 	if err := manager.Start(); err != nil {
 		log.Errorf("failed to start: %s", err)
 		os.Exit(1)
 	}
-
-	// append name
-	srvOpts = append(srvOpts, micro.Name(Name))
-
-	// new service
-	service := micro.NewService(srvOpts...)
 
 	// register the runtime handler
 	pb.RegisterRuntimeHandler(service.Server(), &handler.Runtime{
