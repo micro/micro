@@ -162,6 +162,9 @@ func GetEnv(ctx *ccli.Context) Env {
 			fmt.Println(err)
 			os.Exit(1)
 		}
+		if env == "" {
+			env = EnvLocal
+		}
 		envName = env
 	}
 
