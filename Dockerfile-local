@@ -27,7 +27,6 @@ ENV MICRO_REGISTRY=etcd
 
 COPY ./test/example-service ${GOPATH}/src/example-service
 
-
 # Speeding up tests by predownloading dependencies for services used.
 RUN cd ${GOPATH}/src/example-service && go get && \
     go get github.com/micro/services/location && \

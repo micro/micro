@@ -11,6 +11,8 @@ import (
 	"github.com/micro/go-micro/v2/runtime"
 	pb "github.com/micro/go-micro/v2/runtime/service/proto"
 	"github.com/micro/micro/v2/service/runtime/handler"
+	"github.com/micro/micro/v2/service/runtime/manager"
+	"github.com/micro/micro/v2/service/runtime/profile"
 )
 
 var (
@@ -23,7 +25,19 @@ var (
 // Run the runtime service
 func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 	log.Init(log.WithFields(map[string]interface{}{"service": "runtime"}))
-	ctx.Set("profile", os.Getenv("MICRO_RUNTIME_PROFILE"))
+
+	// Get the profile
+	var prof []string
+	switch ctx.String("profile") {
+	case "local":
+		prof = profile.Local()
+	case "server":
+		prof = profile.Server()
+	case "kubernetes":
+		prof = profile.Kubernetes()
+	case "platform":
+		prof = profile.Platform()
+	}
 
 	// Init plugins
 	for _, p := range Plugins() {
@@ -48,25 +62,23 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 		muRuntime.Init(runtime.WithSource(ctx.String("source")))
 	}
 
-	// use default store
-	muStore := *cmd.DefaultCmd.Options().Store
+	// append name
+	srvOpts = append(srvOpts, micro.Name(Name))
+
+	// new service
+	service := micro.NewService(srvOpts...)
 
 	// create a new runtime manager
-	manager := newManager(ctx, muRuntime, muStore)
-
-	log.Infof("using store %s", muStore.String())
+	manager := manager.New(muRuntime,
+		manager.Store(service.Options().Store),
+		manager.Profile(prof),
+	)
 
 	// start the manager
 	if err := manager.Start(); err != nil {
 		log.Errorf("failed to start: %s", err)
 		os.Exit(1)
 	}
-
-	// append name
-	srvOpts = append(srvOpts, micro.Name(Name))
-
-	// new service
-	service := micro.NewService(srvOpts...)
 
 	// register the runtime handler
 	pb.RegisterRuntimeHandler(service.Server(), &handler.Runtime{
@@ -112,7 +124,7 @@ func Flags() []cli.Flag {
 			Usage: "The type of service operate on",
 		},
 		&cli.StringSliceFlag{
-			Name:  "env",
+			Name:  "env_vars",
 			Usage: "Set the environment variables e.g. foo=bar",
 		},
 	}

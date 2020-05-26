@@ -147,24 +147,26 @@ func authFromContext(ctx *cli.Context) auth.Auth {
 		return *cmd.DefaultCmd.Options().Auth
 	}
 	return srvAuth.NewAuth(
-		auth.WithClient(client.New()),
+		auth.WithClient(client.New(ctx)),
 	)
 }
 
 // login using a token
 func login(ctx *cli.Context) {
 	// check for the token flag
+	var env cliutil.Env
+	if len(ctx.String("env")) > 0 {
+		env = cliutil.GetEnvByName(ctx.String("env"))
+	} else {
+		env = cliutil.GetEnv()
+	}
 	if tok := ctx.String("token"); len(tok) > 0 {
 		_, err := authFromContext(ctx).Inspect(tok)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
 		}
-
-		// we want to scope the token to our env
-		env, _ := config.Get("env")
-
-		if err := config.Set(tok, env, "auth", "token"); err != nil {
+		if err := config.Set(tok, "micro", "auth", env.Name, "token"); err != nil {
 			fmt.Println(err)
 			os.Exit(1)
 		}
@@ -188,13 +190,21 @@ func login(ctx *cli.Context) {
 	}
 
 	// Store the access token in micro config
+<<<<<<< HEAD
 	env, _ := config.Get("env")
 	if err := config.Set(tok.AccessToken, env, "auth", "token"); err != nil {
+=======
+	if err := config.Set(tok.AccessToken, "micro", "auth", env.Name, "token"); err != nil {
+>>>>>>> ea9731a54a0230e95c7653e8d6c18a2a802c515e
 		fmt.Println(err)
 		os.Exit(1)
 	}
 	// Store the refresh token in micro config
+<<<<<<< HEAD
 	if err := config.Set(tok.RefreshToken, env, "auth", "refresh-token"); err != nil {
+=======
+	if err := config.Set(tok.RefreshToken, "micro", "auth", env.Name, "refresh-token"); err != nil {
+>>>>>>> ea9731a54a0230e95c7653e8d6c18a2a802c515e
 		fmt.Println(err)
 		os.Exit(1)
 	}

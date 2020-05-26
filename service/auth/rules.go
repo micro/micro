@@ -119,5 +119,5 @@ func constructRule(ctx *cli.Context) *pb.Rule {
 }
 
 func rulesFromContext(ctx *cli.Context) pb.RulesService {
-	return pb.NewRulesService("go.micro.auth", client.New())
+	return pb.NewRulesService("go.micro.auth", client.New(ctx))
 }
