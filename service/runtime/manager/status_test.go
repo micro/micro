@@ -9,11 +9,46 @@ import (
 )
 
 type testRuntime struct {
+	createCount  int
+	readCount    int
+	updateCount  int
+	deleteCount  int
 	readServices []*runtime.Service
+	events       chan *runtime.Service
 	runtime.Runtime
 }
 
-func (r *testRuntime) Read(...runtime.ReadOption) ([]*runtime.Service, error) {
+func (r *testRuntime) Reset() {
+	r.createCount = 0
+	r.readCount = 0
+	r.updateCount = 0
+	r.deleteCount = 0
+}
+
+func (r *testRuntime) Create(srv *runtime.Service, opts ...runtime.CreateOption) error {
+	r.createCount++
+	if r.events != nil {
+		r.events <- srv
+	}
+	return nil
+}
+func (r *testRuntime) Update(srv *runtime.Service, opts ...runtime.UpdateOption) error {
+	r.updateCount++
+	if r.events != nil {
+		r.events <- srv
+	}
+	return nil
+}
+func (r *testRuntime) Delete(srv *runtime.Service, opts ...runtime.DeleteOption) error {
+	r.deleteCount++
+	if r.events != nil {
+		r.events <- srv
+	}
+	return nil
+}
+
+func (r *testRuntime) Read(opts ...runtime.ReadOption) ([]*runtime.Service, error) {
+	r.readCount++
 	return r.readServices, nil
 }
 
