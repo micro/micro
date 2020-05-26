@@ -7,6 +7,7 @@ import (
 
 	"github.com/micro/go-micro/v2/runtime"
 	"github.com/micro/go-micro/v2/store"
+	"github.com/micro/micro/v2/internal/namespace"
 )
 
 // service is the object persisted in the store
@@ -79,6 +80,9 @@ func (m *manager) listNamespaces() ([]string, error) {
 	recs, err := m.options.Store.Read(servicePrefix, store.ReadPrefix())
 	if err != nil {
 		return nil, err
+	}
+	if len(recs) == 0 {
+		return []string{namespace.DefaultNamespace}, nil
 	}
 
 	namespaces := make([]string, 0, len(recs))

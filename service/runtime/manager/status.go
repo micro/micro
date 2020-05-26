@@ -23,35 +23,38 @@ type serviceStatus struct {
 // statusPollFrequency is the max frequency the manager will check for new statuses in the runtime
 var statusPollFrequency = time.Second * 30
 
-// watchStatus calls the managed runtime, gets the serviceStatus for all services listed in the
-// store and writes it to the memory store
+// watchStatus calls syncStatus periodically and should be run in a seperate go routine
 func (m *manager) watchStatus() {
 	ticker := time.NewTicker(statusPollFrequency)
 
-loop:
 	for {
-		namespaces, err := m.listNamespaces()
-		if err != nil {
-			logger.Warnf("Error listing namespaces: %v", err)
-			continue loop
-		}
-
-		for _, ns := range namespaces {
-			srvs, err := m.Runtime.Read(runtime.ReadNamespace(ns))
-			if err != nil {
-				logger.Warnf("Error reading namespace %v: %v", ns, err)
-				continue loop
-			}
-
-			for _, srv := range srvs {
-				if err := m.cacheStatus(ns, srv); err != nil {
-					logger.Warnf("Error caching status: %v", err)
-					continue loop
-				}
-			}
-		}
-
+		m.syncStatus()
 		<-ticker.C
+	}
+}
+
+// syncStatus calls the managed runtime, gets the serviceStatus for all services listed in the
+// store and writes it to the memory store
+func (m *manager) syncStatus() {
+	namespaces, err := m.listNamespaces()
+	if err != nil {
+		logger.Warnf("Error listing namespaces: %v", err)
+		return
+	}
+
+	for _, ns := range namespaces {
+		srvs, err := m.Runtime.Read(runtime.ReadNamespace(ns))
+		if err != nil {
+			logger.Warnf("Error reading namespace %v: %v", ns, err)
+			return
+		}
+
+		for _, srv := range srvs {
+			if err := m.cacheStatus(ns, srv); err != nil {
+				logger.Warnf("Error caching status: %v", err)
+				return
+			}
+		}
 	}
 }
 
