@@ -14,8 +14,6 @@ Reasons why you should not run this locally:
 
 Although the tests run in docker, the containers and envs are named so you can easily interact with them. Some useful tricks:
 
-### Seeing test env output
-
 First let's start a test, cd into the `test` folder and then:
 
 ```
@@ -28,7 +26,7 @@ CONTAINER ID        IMAGE                  COMMAND                  CREATED     
 1e6a3003ea94        micro                  "sh /bin/run.sh serv…"   4 seconds ago       Up 1 second         2379-2380/tcp, 4001/tcp, 7001/tcp, 0.0.0.0:14081->8081/tcp   testServerAuth
 ```
 
-As it can be seen the contianer name is the same as the test name.
+As it can be seen the container name is the same as the test name.
 The server output can be seen with `docker logs -f testServerAuth`.
 
 The tests also add the env into the micro config file:
