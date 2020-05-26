@@ -124,6 +124,9 @@ func (m *manager) processEvent(key string) {
 		logger.Warnf("Error procesing %v event for service %v:%v in namespace %v: %v,", ev.Type, ev.Service.Name, ev.Service.Version, ns, err)
 		ev.Service.Metadata = map[string]string{"status": "error", "error": err.Error()}
 		m.cacheStatus(ns, ev.Service)
+	} else if ev.Type != runtime.Delete {
+		ev.Service.Metadata = map[string]string{"status": "starting"}
+		m.cacheStatus(ns, ev.Service)
 	}
 
 	// write to the store indicating the event has been consumed. We double the ttl to safely know the
