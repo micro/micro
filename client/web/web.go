@@ -446,7 +446,7 @@ func (s *srv) render(w http.ResponseWriter, r *http.Request, tmpl string, data i
 	}
 }
 
-func run(ctx *cli.Context, srvOpts ...micro.Option) {
+func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 	log.Init(log.WithFields(map[string]interface{}{"service": "web"}))
 
 	if len(ctx.String("server_name")) > 0 {
@@ -627,7 +627,7 @@ func Commands(options ...micro.Option) []*cli.Command {
 		Name:  "web",
 		Usage: "Run the web dashboard",
 		Action: func(c *cli.Context) error {
-			run(c, options...)
+			Run(c, options...)
 			return nil
 		},
 		Flags: []cli.Flag{

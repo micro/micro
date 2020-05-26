@@ -23,7 +23,7 @@ locals {
 
 resource "kubernetes_namespace" "platform" {
   metadata {
-    name = kubernetes_namespace.platform.id
+    name = var.platform_namespace
   }
 }
 

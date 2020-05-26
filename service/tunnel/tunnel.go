@@ -32,8 +32,8 @@ var (
 	Token = "micro"
 )
 
-// run runs the micro server
-func run(ctx *cli.Context, srvOpts ...micro.Option) {
+// Run runs the micro server
+func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 	log.Init(log.WithFields(map[string]interface{}{"service": "tunnel"}))
 
 	// Init plugins
@@ -193,7 +193,7 @@ func Commands(options ...micro.Option) []*cli.Command {
 			},
 		},
 		Action: func(ctx *cli.Context) error {
-			run(ctx, options...)
+			Run(ctx, options...)
 			return nil
 		},
 	}

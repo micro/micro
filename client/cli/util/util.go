@@ -87,14 +87,9 @@ func SetupCommand(ctx *ccli.Context) {
 		}
 	}
 	var env Env
-	// @todo this override is needed for the tests where we connnect
-	// to different ad hoc environments. RETHINK THIS CRUFT
-	// Things to think about: these ad hoc overrides won't take effect `micro env`
-	// commands as they still use GetEnv and ilk.
+
 	if len(ctx.String("env")) > 0 {
-		env = Env{
-			ProxyAddress: ctx.String("env"),
-		}
+		env = GetEnvByName(ctx.String("env"))
 	} else {
 		env = GetEnv()
 	}
@@ -167,7 +162,10 @@ func GetEnv() Env {
 		fmt.Println(err)
 		os.Exit(1)
 	}
+	return GetEnvByName(env)
+}
 
+func GetEnvByName(env string) Env {
 	envs := getEnvs()
 	envir, ok := envs[env]
 	if !ok {

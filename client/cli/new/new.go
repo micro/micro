@@ -146,7 +146,7 @@ func create(c config) error {
 	return nil
 }
 
-func run(ctx *cli.Context) {
+func Run(ctx *cli.Context) {
 	namespace := ctx.String("namespace")
 	alias := ctx.String("alias")
 	fqdn := ctx.String("fqdn")
@@ -404,7 +404,7 @@ func Commands() []*cli.Command {
 				},
 			},
 			Action: func(c *cli.Context) error {
-				run(c)
+				Run(c)
 				return nil
 			},
 		},

@@ -15,7 +15,7 @@ locals {
   bot_env = merge(
     local.common_env_vars,
     {
-      "MICRO_AUTH" = "SERVICE"
+      "MICRO_AUTH" = "service"
     }
   )
 }
