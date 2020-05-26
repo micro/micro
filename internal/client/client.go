@@ -2,7 +2,6 @@ package client
 
 import (
 	"context"
-	"fmt"
 	"strings"
 
 	ccli "github.com/micro/cli/v2"
@@ -41,7 +40,6 @@ func (a *wrapper) Call(ctx context.Context, req client.Request, rsp interface{},
 	}
 	if len(a.env) > 0 && !util.IsLocal() && !util.IsServer() {
 		env := strings.ReplaceAll(a.env, "/", "-")
-		fmt.Println(env)
 		ctx = metadata.Set(ctx, "Micro-Namespace", env)
 	}
 	return a.Client.Call(ctx, req, rsp, opts...)

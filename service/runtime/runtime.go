@@ -108,7 +108,7 @@ func Flags() []cli.Flag {
 			Usage: "The type of service operate on",
 		},
 		&cli.StringSliceFlag{
-			Name:  "env",
+			Name:  "env_vars",
 			Usage: "Set the environment variables e.g. foo=bar",
 		},
 	}

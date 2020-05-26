@@ -137,7 +137,7 @@ func runService(ctx *cli.Context, srvOpts ...micro.Option) {
 
 	// add environment variable passed in via cli
 	var environment []string
-	for _, evar := range ctx.StringSlice("env") {
+	for _, evar := range ctx.StringSlice("env_vars") {
 		for _, e := range strings.Split(evar, ",") {
 			if len(e) > 0 {
 				environment = append(environment, strings.TrimSpace(e))
