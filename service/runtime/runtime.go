@@ -12,6 +12,7 @@ import (
 	pb "github.com/micro/go-micro/v2/runtime/service/proto"
 	"github.com/micro/micro/v2/service/runtime/handler"
 	"github.com/micro/micro/v2/service/runtime/manager"
+	"github.com/micro/micro/v2/service/runtime/profile"
 )
 
 var (
@@ -24,7 +25,19 @@ var (
 // Run the runtime service
 func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 	log.Init(log.WithFields(map[string]interface{}{"service": "runtime"}))
-	ctx.Set("profile", os.Getenv("MICRO_RUNTIME_PROFILE"))
+
+	// Get the profile
+	var prof []string
+	switch ctx.String("profile") {
+	case "local":
+		prof = profile.Local()
+	case "server":
+		prof = profile.Server()
+	case "kubernetes":
+		prof = profile.Kubernetes()
+	case "platform":
+		prof = profile.Platform()
+	}
 
 	// Init plugins
 	for _, p := range Plugins() {
@@ -56,7 +69,10 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 	service := micro.NewService(srvOpts...)
 
 	// create a new runtime manager
-	manager := manager.New(muRuntime, manager.Store(service.Options().Store))
+	manager := manager.New(muRuntime,
+		manager.Store(service.Options().Store),
+		manager.Profile(prof),
+	)
 
 	// start the manager
 	if err := manager.Start(); err != nil {
