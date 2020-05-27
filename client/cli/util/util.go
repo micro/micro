@@ -86,13 +86,8 @@ func SetupCommand(ctx *ccli.Context) {
 			ctx.Set(key, parts[1])
 		}
 	}
-	var env Env
 
-	if len(ctx.String("env")) > 0 {
-		env = GetEnvByName(ctx.String("env"))
-	} else {
-		env = GetEnv()
-	}
+	env := GetEnv(ctx)
 
 	// if we're running a local environment return here
 	if len(env.ProxyAddress) == 0 || env.Name == EnvLocal {
@@ -158,20 +153,33 @@ func setEnvs(envs map[string]Env) {
 }
 
 // GetEnv returns the current selected environment
-func GetEnv() Env {
-	env, err := config.Get("env")
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+// Does not take
+func GetEnv(ctx *ccli.Context) Env {
+	var envName string
+	if len(ctx.String("env")) > 0 {
+		envName = ctx.String("env")
+	} else {
+		env, err := config.Get("env")
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+		if env == "" {
+			env = EnvLocal
+		}
+		envName = env
 	}
-	return GetEnvByName(env)
+
+	return GetEnvByName(envName)
 }
 
 func GetEnvByName(env string) Env {
 	envs := getEnvs()
+
 	envir, ok := envs[env]
 	if !ok {
-		return defaultEnvs[EnvLocal]
+		fmt.Println(fmt.Sprintf("Env \"%s\" not found. See `micro env` for available environments.", env))
+		os.Exit(1)
 	}
 
 	if len(envir.ProxyAddress) == 0 {
@@ -211,14 +219,14 @@ func SetEnv(envName string) {
 	config.Set(envName, "env")
 }
 
-func IsLocal() bool {
-	return GetEnv().Name == EnvLocal
+func IsLocal(ctx *ccli.Context) bool {
+	return GetEnv(ctx).Name == EnvLocal
 }
 
-func IsServer() bool {
-	return GetEnv().Name == EnvServer
+func IsServer(ctx *ccli.Context) bool {
+	return GetEnv(ctx).Name == EnvServer
 }
 
-func IsPlatform() bool {
-	return GetEnv().Name == EnvPlatform
+func IsPlatform(ctx *ccli.Context) bool {
+	return GetEnv(ctx).Name == EnvPlatform
 }

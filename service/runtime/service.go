@@ -62,9 +62,10 @@ func timeAgo(v string) string {
 }
 
 func runtimeFromContext(ctx *cli.Context) runtime.Runtime {
-	if cliutil.IsLocal() {
+	if cliutil.IsLocal(ctx) {
 		return *cmd.DefaultCmd.Options().Runtime
 	}
+
 	return srvRuntime.NewRuntime(runtime.WithClient(client.New(ctx)))
 }
 

@@ -111,7 +111,7 @@ func callService(c *cli.Context, args []string) ([]byte, error) {
 }
 
 func getEnv(c *cli.Context, args []string) ([]byte, error) {
-	env := cliutil.GetEnv()
+	env := cliutil.GetEnv(c)
 	return []byte(env.Name), nil
 }
 
@@ -122,7 +122,7 @@ func setEnv(c *cli.Context, args []string) ([]byte, error) {
 
 func listEnvs(c *cli.Context, args []string) ([]byte, error) {
 	envs := cliutil.GetEnvs()
-	current := cliutil.GetEnv()
+	current := cliutil.GetEnv(c)
 
 	byt := bytes.NewBuffer([]byte{})
 
