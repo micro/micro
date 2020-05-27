@@ -56,6 +56,13 @@ func testNew(t *t) {
 			}
 		}
 	}
+	gogetCommand := exec.Command("go", "get")
+	gogetCommand.Dir = "./foobar"
+	outp, err = gogetCommand.CombinedOutput()
+	if err != nil {
+		t.Fatal(string(outp))
+		return
+	}
 
 	buildCommand := exec.Command("go", "build")
 	buildCommand.Dir = "./foobar"
