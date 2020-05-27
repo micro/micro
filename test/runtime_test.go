@@ -16,7 +16,7 @@ import (
 )
 
 func TestNew(t *testing.T) {
-	trySuite(t, testNew, retryCount)
+	//trySuite(t, testNew, retryCount)
 }
 
 func testNew(t *t) {
