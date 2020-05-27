@@ -25,18 +25,6 @@ func testServerAuth(t *t) {
 	basicAuthSuite(serv, t)
 }
 
-func TestServerAuthJWT(t *testing.T) {
-	trySuite(t, testServerAuthJWT, retryCount)
-}
-
-func testServerAuthJWT(t *t) {
-	t.Parallel()
-	serv := newServer(t, options{auth: "jwt"})
-	serv.launch()
-	defer serv.close()
-	basicAuthSuite(serv, t)
-}
-
 func basicAuthSuite(serv server, t *t) {
 	// Execute first command in read to wait for store service
 	// to start up
