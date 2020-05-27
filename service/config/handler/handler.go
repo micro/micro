@@ -49,7 +49,9 @@ func (c *Config) Read(ctx context.Context, req *pb.ReadRequest, rsp *pb.ReadResp
 	namespace := setNamespace(ctx, req.Namespace)
 
 	ch, err := c.Store.Read(namespace)
-	if err != nil {
+	if err == store.ErrNotFound {
+		return errors.NotFound("go.micro.config.Read", "Not found")
+	} else if err != nil {
 		return errors.BadRequest("go.micro.config.Read", "read error: %v: %v", err, req.Namespace)
 	}
 
