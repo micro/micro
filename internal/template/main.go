@@ -33,6 +33,9 @@ func main() {
 }
 `
 
+	GoModFNC = `
+`
+
 	MainSRV = `package main
 
 import (
