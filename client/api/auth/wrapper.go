@@ -7,12 +7,12 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/micro/go-micro/v2/util/ctx"
-
 	"github.com/micro/go-micro/v2/api/resolver"
 	"github.com/micro/go-micro/v2/api/server"
 	"github.com/micro/go-micro/v2/auth"
 	"github.com/micro/go-micro/v2/logger"
+	"github.com/micro/go-micro/v2/util/ctx"
+	inauth "github.com/micro/micro/v2/internal/auth"
 	"github.com/micro/micro/v2/internal/namespace"
 )
 
@@ -37,8 +37,11 @@ type authWrapper struct {
 
 func (a authWrapper) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	// Determine the namespace and set it in the header
-	ns := a.nsResolver.Resolve(req)
-	req.Header.Set(namespace.NamespaceKey, ns)
+	ns := req.Header.Get(namespace.NamespaceKey)
+	if len(ns) == 0 {
+		ns = a.nsResolver.Resolve(req)
+		req.Header.Set(namespace.NamespaceKey, ns)
+	}
 
 	// Set the metadata so we can access it in micro api / web
 	req = req.WithContext(ctx.FromRequest(req))
@@ -53,17 +56,19 @@ func (a authWrapper) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	} else {
 		// Get the token out the cookies if not provided in headers
 		if c, err := req.Cookie("micro-token"); err == nil && c != nil {
-			token = strings.TrimPrefix(c.Value, auth.TokenCookieName+"=")
+			token = strings.TrimPrefix(c.Value, inauth.TokenCookieName+"=")
 			req.Header.Set("Authorization", auth.BearerScheme+token)
 		}
 	}
 
-	// Get the account using the token, fallback to a blank account
-	// since some endpoints can be unauthenticated, so the lack of an
+	// Get the account using the token, some are unauthenticated, so the lack of an
 	// account doesn't necesserially mean a forbidden request
-	acc, err := a.auth.Inspect(token)
-	if err != nil {
-		acc = &auth.Account{}
+	acc, _ := a.auth.Inspect(token)
+
+	// Ensure the accounts issuer matches the namespace being requested
+	if acc != nil && acc.Issuer != ns {
+		http.Error(w, "Account not issued by "+ns, 403)
+		return
 	}
 
 	// Determine the name of the service being requested
@@ -98,8 +103,8 @@ func (a authWrapper) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 
 	// Perform the verification check to see if the account has access to
 	// the resource they're requesting
-	res := &auth.Resource{Type: "service", Name: resName, Endpoint: resEndpoint, Namespace: ns}
-	if err := a.auth.Verify(acc, res); err == nil {
+	res := &auth.Resource{Type: "service", Name: resName, Endpoint: resEndpoint}
+	if err := a.auth.Verify(acc, res, auth.VerifyContext(req.Context())); err == nil {
 		// The account has the necessary permissions to access the resource
 		a.handler.ServeHTTP(w, req)
 		return
@@ -107,7 +112,7 @@ func (a authWrapper) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 
 	// The account is set, but they don't have enough permissions, hence
 	// we return a forbidden error.
-	if len(acc.ID) > 0 {
+	if acc != nil {
 		http.Error(w, "Forbidden request", 403)
 		return
 	}

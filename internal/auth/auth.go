@@ -2,16 +2,29 @@ package auth
 
 import "github.com/micro/go-micro/v2/auth"
 
+// TokenCookieName is the name of the cookie which stores the auth token
+const TokenCookieName = "micro-token"
+
 // SystemRules are the default rules which are applied to the runtime services
-var SystemRules = map[string][]*auth.Resource{
-	"*": {
-		&auth.Resource{Namespace: "*", Type: "*", Name: "*", Endpoint: "*"},
+var SystemRules = []*auth.Rule{
+	&auth.Rule{
+		ID:       "default",
+		Scope:    "*",
+		Resource: &auth.Resource{Type: "*", Name: "*", Endpoint: "*"},
 	},
-	"": {
-		&auth.Resource{Namespace: "*", Type: "service", Name: "go.micro.auth", Endpoint: "Auth.Generate"},
-		&auth.Resource{Namespace: "*", Type: "service", Name: "go.micro.auth", Endpoint: "Auth.Token"},
-		&auth.Resource{Namespace: "*", Type: "service", Name: "go.micro.auth", Endpoint: "Auth.Inspect"},
-		&auth.Resource{Namespace: "*", Type: "service", Name: "go.micro.registry", Endpoint: "Registry.GetService"},
-		&auth.Resource{Namespace: "*", Type: "service", Name: "go.micro.registry", Endpoint: "Registry.ListServices"},
+	&auth.Rule{
+		ID:       "auth-public",
+		Scope:    "",
+		Resource: &auth.Resource{Type: "service", Name: "go.micro.auth", Endpoint: "*"},
+	},
+	&auth.Rule{
+		ID:       "registry-get",
+		Scope:    "",
+		Resource: &auth.Resource{Type: "service", Name: "go.micro.registry", Endpoint: "Registry.GetService"},
+	},
+	&auth.Rule{
+		ID:       "registry-list",
+		Scope:    "",
+		Resource: &auth.Resource{Type: "service", Name: "go.micro.registry", Endpoint: "Registry.ListServices"},
 	},
 }

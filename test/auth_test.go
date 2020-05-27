@@ -25,18 +25,6 @@ func testServerAuth(t *t) {
 	basicAuthSuite(serv, t)
 }
 
-func TestServerAuthJWT(t *testing.T) {
-	trySuite(t, testServerAuthJWT, retryCount)
-}
-
-func testServerAuthJWT(t *t) {
-	t.Parallel()
-	serv := newServer(t, options{auth: "jwt"})
-	serv.launch()
-	defer serv.close()
-	basicAuthSuite(serv, t)
-}
-
 func basicAuthSuite(serv server, t *t) {
 	// Execute first command in read to wait for store service
 	// to start up
@@ -58,7 +46,7 @@ func basicAuthSuite(serv server, t *t) {
 		if err != nil {
 			return outp, err
 		}
-		if !strings.Contains(string(outp), "*:*:*:*") {
+		if !strings.Contains(string(outp), "default") {
 			return outp, fmt.Errorf("Output should contain default rule")
 		}
 		return outp, nil
@@ -78,7 +66,7 @@ func basicAuthSuite(serv server, t *t) {
 
 	accessToken := ""
 	try("Try to get token with default account", t, func() ([]byte, error) {
-		readCmd := exec.Command("micro", serv.envFlag(), "call", "go.micro.auth", "Auth.Token", `{"id":"admin","secret":"Password1"}`)
+		readCmd := exec.Command("micro", serv.envFlag(), "call", "go.micro.auth", "Auth.Token", `{"id":"default","secret":"password"}`)
 		outp, err := readCmd.CombinedOutput()
 		if err != nil {
 			return outp, err

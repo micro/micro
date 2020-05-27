@@ -14,12 +14,12 @@ import (
 	"github.com/micro/go-micro/v2/auth/token"
 	"github.com/micro/go-micro/v2/auth/token/jwt"
 	"github.com/micro/go-micro/v2/config/cmd"
+	"github.com/micro/go-micro/v2/errors"
 	log "github.com/micro/go-micro/v2/logger"
 	cliutil "github.com/micro/micro/v2/client/cli/util"
 	"github.com/micro/micro/v2/internal/client"
 	"github.com/micro/micro/v2/internal/config"
 	"github.com/micro/micro/v2/service/auth/api"
-	accountsHandler "github.com/micro/micro/v2/service/auth/handler/accounts"
 	authHandler "github.com/micro/micro/v2/service/auth/handler/auth"
 	rulesHandler "github.com/micro/micro/v2/service/auth/handler/rules"
 )
@@ -55,14 +55,12 @@ var (
 	// RuleFlags are provided to commands which create or delete rules
 	RuleFlags = []cli.Flag{
 		&cli.StringFlag{
-			Name:     "role",
-			Usage:    "The role to amend, e.g. 'user' or '*' to represent all",
-			Required: true,
+			Name:  "scope",
+			Usage: "The scope to amend, e.g. 'user' or '*', leave blank to make public",
 		},
 		&cli.StringFlag{
-			Name:     "resource",
-			Usage:    "The resource to amend in the format namespace:type:name:endpoint, e.g. micro:service:go.micro.auth:*",
-			Required: true,
+			Name:  "resource",
+			Usage: "The resource to amend in the format type:name:endpoint, e.g. service:go.micro.auth:*",
 		},
 		&cli.StringFlag{
 			Name:  "access",
@@ -78,18 +76,12 @@ var (
 	// AccountFlags are provided to the create account command
 	AccountFlags = []cli.Flag{
 		&cli.StringFlag{
-			Name:     "id",
-			Usage:    "The account id",
-			Required: true,
-		},
-		&cli.StringFlag{
-			Name:     "secret",
-			Usage:    "The account secret (password)",
-			Required: true,
+			Name:  "secret",
+			Usage: "The account secret (password)",
 		},
 		&cli.StringSliceFlag{
-			Name:  "roles",
-			Usage: "Comma seperated list of roles to give the account",
+			Name:  "scopes",
+			Usage: "Comma seperated list of scopes to give the account",
 		},
 	}
 )
@@ -116,9 +108,8 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 	}
 
 	// setup the handlers
-	authH := &authHandler.Auth{}
 	ruleH := &rulesHandler.Rules{}
-	accountH := &accountsHandler.Accounts{}
+	authH := &authHandler.Auth{}
 
 	// setup the auth handler to use JWTs
 	pubKey := ctx.String("auth_public_key")
@@ -135,7 +126,6 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 	// set the handlers store
 	authH.Init(auth.Store(st))
 	ruleH.Init(auth.Store(st))
-	accountH.Init(auth.Store(st))
 
 	// setup service
 	srvOpts = append(srvOpts, micro.Name(Name))
@@ -144,7 +134,7 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 	// register handlers
 	pb.RegisterAuthHandler(service.Server(), authH)
 	pb.RegisterRulesHandler(service.Server(), ruleH)
-	pb.RegisterAccountsHandler(service.Server(), accountH)
+	pb.RegisterAccountsHandler(service.Server(), authH)
 
 	// run service
 	if err := service.Run(); err != nil {
@@ -212,7 +202,8 @@ func login(ctx *cli.Context) {
 // whoami returns info about the logged in user
 func whoami(ctx *cli.Context) {
 	// Get the token from micro config
-	tok, err := config.Get("micro", "auth", "token")
+	env, _ := config.Get("env")
+	tok, err := config.Get("micro", "auth", env, "token")
 	if err != nil {
 		fmt.Println("You are not logged in")
 		os.Exit(1)
@@ -220,13 +211,15 @@ func whoami(ctx *cli.Context) {
 
 	// Inspect the token
 	acc, err := authFromContext(ctx).Inspect(tok)
-	if err != nil {
+	if verr, ok := err.(*errors.Error); ok {
+		fmt.Println("Error: " + verr.Detail)
+		return
+	} else if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
 
-	fmt.Printf("ID: %v\n", acc.ID)
-	fmt.Printf("Roles: %v\n", strings.Join(acc.Roles, ", "))
+	fmt.Printf("ID: %v; Scopes: %v\n", acc.ID, strings.Join(acc.Scopes, ", "))
 }
 
 //Commands for auth
