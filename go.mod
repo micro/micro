@@ -13,12 +13,11 @@ require (
 	github.com/fsnotify/fsnotify v1.4.7
 	github.com/go-acme/lego/v3 v3.4.0
 	github.com/golang/protobuf v1.4.2
-	github.com/google/go-github v17.0.0+incompatible
 	github.com/google/uuid v1.1.1
 	github.com/gorilla/handlers v1.4.2
 	github.com/gorilla/mux v1.7.3
 	github.com/micro/cli/v2 v2.1.2
-	github.com/micro/go-micro/v2 v2.7.1-0.20200522130312-c80007047763
+	github.com/micro/go-micro/v2 v2.7.1-0.20200527081416-e2d662608c1d
 	github.com/miekg/dns v1.1.27
 	github.com/netdata/go-orchestrator v0.0.0-20190905093727-c793edba0e8f
 	github.com/olekukonko/tablewriter v0.0.4
@@ -33,5 +32,3 @@ require (
 	google.golang.org/genproto v0.0.0-20191216164720-4f79533eabd1
 	google.golang.org/grpc v1.26.0
 )
-
-replace github.com/micro/go-micro/v2 => ../go-micro
