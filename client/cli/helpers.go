@@ -135,6 +135,9 @@ func listEnvs(c *cli.Context, args []string) ([]byte, error) {
 		if env.Name == current.Name {
 			prefix = "*"
 		}
+		if env.ProxyAddress == "" {
+			env.ProxyAddress = "none"
+		}
 		fmt.Fprintf(w, "%v %v \t %v", prefix, env.Name, env.ProxyAddress)
 	}
 	w.Flush()
@@ -142,6 +145,13 @@ func listEnvs(c *cli.Context, args []string) ([]byte, error) {
 }
 
 func addEnv(c *cli.Context, args []string) ([]byte, error) {
+	if len(args) == 0 {
+		return nil, errors.New("name required")
+	}
+	if len(args) == 1 {
+		args = append(args, "") // default to no proxy address
+	}
+
 	cliutil.AddEnv(cliutil.Env{
 		Name:         args[0],
 		ProxyAddress: args[1],

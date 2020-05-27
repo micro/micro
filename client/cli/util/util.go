@@ -89,20 +89,22 @@ func SetupCommand(ctx *ccli.Context) {
 
 	env := GetEnv(ctx)
 
+	// if we're running a local environment return here
+	if len(env.ProxyAddress) == 0 || env.Name == EnvLocal {
+		return
+	}
+
 	switch env.Name {
 	case EnvServer:
 		setFlags(profile.ServerCLI())
 	case EnvPlatform:
 		setFlags(profile.PlatformCLI())
-	case EnvLocal:
-		// Not setting a proxy for local env
-		return
-		// default case for ad hoc envs, see comments above about tests
 	default:
+		// default case for ad hoc envs, see comments above about tests
 		setFlags(profile.ServerCLI())
 	}
 
-	// Set proxy for all envs apart from local
+	// Set the proxy
 	setFlags([]string{"MICRO_PROXY=" + env.ProxyAddress})
 }
 
@@ -178,6 +180,10 @@ func GetEnvByName(env string) Env {
 	if !ok {
 		fmt.Println(fmt.Sprintf("Env \"%s\" not found. See `micro env` for available environments.", env))
 		os.Exit(1)
+	}
+
+	if len(envir.ProxyAddress) == 0 {
+		return envir
 	}
 
 	// default to :443

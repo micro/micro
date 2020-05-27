@@ -1,26 +1,40 @@
-package roles
+package rules
 
 import (
 	"context"
 	"encoding/json"
 	"strings"
+	"sync"
 
 	"github.com/micro/go-micro/v2/auth"
 	pb "github.com/micro/go-micro/v2/auth/service/proto"
 	"github.com/micro/go-micro/v2/errors"
 	"github.com/micro/go-micro/v2/store"
 	memStore "github.com/micro/go-micro/v2/store/memory"
-	"github.com/micro/go-micro/v2/util/log"
+	"github.com/micro/micro/v2/internal/namespace"
 )
 
 const (
-	joinKey     = ":"
-	storePrefix = "rules/"
+	storePrefixRules = "rules"
+	joinKey          = "/"
 )
+
+var defaultRule = &auth.Rule{
+	ID:    "default",
+	Scope: auth.ScopePublic,
+	Resource: &auth.Resource{
+		Type:     "*",
+		Name:     "*",
+		Endpoint: "*",
+	},
+}
 
 // Rules processes RPC calls
 type Rules struct {
 	Options auth.Options
+
+	namespaces map[string]bool
+	sync.Mutex
 }
 
 // Init the auth
@@ -38,62 +52,84 @@ func (r *Rules) Init(opts ...auth.Option) {
 	if r.Options.Store.String() == "noop" {
 		r.Options.Store = memStore.NewStore()
 	}
-
-	resp := &pb.ListResponse{}
-	err := r.List(context.Background(), &pb.ListRequest{}, resp)
-	if err != nil {
-		log.Errorf("Error listing rules in init: %v", err)
-		return
-	}
-	if len(resp.GetRules()) > 0 {
-		log.Info("Rules exists. Skipping rule injection.")
-		return
-	}
-	log.Info("Generating default rules")
-	err = r.Create(context.Background(), &pb.CreateRequest{
-		Role:     "", // a blank role  allows public access
-		Priority: 0,
-		Resource: &pb.Resource{
-			Namespace: "*",
-			Name:      "*",
-			Type:      "*",
-			Endpoint:  "*",
-		},
-		Access: pb.Access_GRANTED,
-	}, &pb.CreateResponse{})
-	if err != nil {
-		log.Errorf("Error creating default rule in init: %v", err)
-	}
 }
 
-// Create a role access to a resource
+func (r *Rules) setupDefaultRules(ns string) {
+	r.Lock()
+	defer r.Unlock()
+
+	// setup the namespace cache if not yet done
+	if r.namespaces == nil {
+		r.namespaces = make(map[string]bool)
+	}
+
+	// check to see if the default rule has already been verified
+	if _, ok := r.namespaces[ns]; ok {
+		return
+	}
+
+	// setup a context with the namespace
+	ctx := namespace.ContextWithNamespace(context.TODO(), ns)
+
+	// check to see if we need to create the default account
+	key := strings.Join([]string{storePrefixRules, ns, ""}, joinKey)
+	recs, err := r.Options.Store.Read(key, store.ReadPrefix())
+	if err != nil {
+		return
+	}
+
+	// create the account if none exist in the namespace
+	if len(recs) == 0 {
+		req := &pb.CreateRequest{
+			Rule: &pb.Rule{
+				Id:     defaultRule.ID,
+				Scope:  defaultRule.Scope,
+				Access: pb.Access_GRANTED,
+				Resource: &pb.Resource{
+					Type:     defaultRule.Resource.Type,
+					Name:     defaultRule.Resource.Name,
+					Endpoint: defaultRule.Resource.Endpoint,
+				},
+			},
+		}
+
+		r.Create(ctx, req, &pb.CreateResponse{})
+	}
+
+	// set the namespace in the cache
+	r.namespaces[ns] = true
+}
+
+// Create a rule giving a scope access to a resource
 func (r *Rules) Create(ctx context.Context, req *pb.CreateRequest, rsp *pb.CreateResponse) error {
 	// Validate the request
-	if req.Resource == nil {
+	if req.Rule == nil {
+		return errors.BadRequest("go.micro.auth", "Rule missing")
+	}
+	if len(req.Rule.Id) == 0 {
+		return errors.BadRequest("go.micro.auth", "ID missing")
+	}
+	if req.Rule.Resource == nil {
 		return errors.BadRequest("go.micro.auth", "Resource missing")
 	}
-	if req.Access == pb.Access_UNKNOWN {
+	if req.Rule.Access == pb.Access_UNKNOWN {
 		return errors.BadRequest("go.micro.auth", "Access missing")
 	}
 
-	// Construct the rule
-	comps := []string{req.Resource.Namespace, req.Resource.Type, req.Resource.Name, req.Resource.Endpoint, req.Role}
-	rule := pb.Rule{
-		Id:       strings.Join(comps, joinKey),
-		Role:     req.Role,
-		Resource: req.Resource,
-		Access:   req.Access,
-		Priority: req.Priority,
+	// Chck the rule doesn't exist
+	ns := namespace.FromContext(ctx)
+	key := strings.Join([]string{storePrefixRules, ns, req.Rule.Id}, joinKey)
+	if _, err := r.Options.Store.Read(key); err == nil {
+		return errors.BadRequest("go.micro.auth", "A rule with this ID already exists")
 	}
 
 	// Encode the rule
-	bytes, err := json.Marshal(rule)
+	bytes, err := json.Marshal(req.Rule)
 	if err != nil {
 		return errors.InternalServerError("go.micro.auth", "Unable to marshal rule: %v", err)
 	}
 
 	// Write to the store
-	key := storePrefix + rule.Id
 	if err := r.Options.Store.Write(&store.Record{Key: key, Value: bytes}); err != nil {
 		return errors.InternalServerError("go.micro.auth", "Unable to write to the store: %v", err)
 	}
@@ -101,22 +137,17 @@ func (r *Rules) Create(ctx context.Context, req *pb.CreateRequest, rsp *pb.Creat
 	return nil
 }
 
-// Delete a roles access to a resource
+// Delete a scope access to a resource
 func (r *Rules) Delete(ctx context.Context, req *pb.DeleteRequest, rsp *pb.DeleteResponse) error {
 	// Validate the request
-	if req.Resource == nil {
-		return errors.BadRequest("go.micro.auth", "Resource missing")
+	if len(req.Id) == 0 {
+		return errors.BadRequest("go.micro.auth", "ID missing")
 	}
-	if req.Access == pb.Access_UNKNOWN {
-		return errors.BadRequest("go.micro.auth", "Access missing")
-	}
-
-	// Construct the key
-	comps := []string{req.Resource.Namespace, req.Resource.Type, req.Resource.Name, req.Resource.Endpoint, req.Role}
-	key := strings.Join(comps, joinKey)
 
 	// Delete the rule
-	err := r.Options.Store.Delete(storePrefix + key)
+	ns := namespace.FromContext(ctx)
+	key := strings.Join([]string{storePrefixRules, ns, req.Id}, joinKey)
+	err := r.Options.Store.Delete(key)
 	if err == store.ErrNotFound {
 		return errors.BadRequest("go.micro.auth", "Rule not found")
 	} else if err != nil {
@@ -128,8 +159,13 @@ func (r *Rules) Delete(ctx context.Context, req *pb.DeleteRequest, rsp *pb.Delet
 
 // List returns all the rules
 func (r *Rules) List(ctx context.Context, req *pb.ListRequest, rsp *pb.ListResponse) error {
+	// setup the defaults incase none exist
+	r.setupDefaultRules(namespace.FromContext(ctx))
+
 	// get the records from the store
-	recs, err := r.Options.Store.Read(storePrefix, store.ReadPrefix())
+	ns := namespace.FromContext(ctx)
+	prefix := strings.Join([]string{storePrefixRules, ns, ""}, joinKey)
+	recs, err := r.Options.Store.Read(prefix, store.ReadPrefix())
 	if err != nil {
 		return errors.InternalServerError("go.micro.auth", "Unable to read from store: %v", err)
 	}

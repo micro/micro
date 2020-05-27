@@ -10,7 +10,6 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/micro/go-micro/v2/auth"
 	"github.com/micro/go-micro/v2/runtime"
 	pb "github.com/micro/go-micro/v2/runtime/service/proto"
 	"github.com/micro/micro/v2/internal/namespace"
@@ -36,19 +35,10 @@ func toService(s *pb.Service) *runtime.Service {
 
 // getNamespace replaces the default auth namespace until we move
 // we wil replace go.micro with micro and move our default things there
-func getNamespace(ctx context.Context, optsNs string) string {
-	var ns string
+func getNamespace(ctx context.Context) string {
+	ns := namespace.FromContext(ctx)
 
-	// if the request options included a namespace and the account making
-	// the request is an admin, use the requested namespace.
-	if acc, ok := auth.AccountFromContext(ctx); ok && acc.HasRole("admin") && len(optsNs) > 0 {
-		ns = optsNs
-	} else {
-		ns = namespace.FromContext(ctx)
-	}
-
-	// go.micro is the default namespace
-	if len(ns) == 0 || ns == "go.micro" {
+	if ns == namespace.DefaultNamespace {
 		return "default"
 	}
 	return ns
@@ -60,7 +50,7 @@ func toCreateOptions(ctx context.Context, opts *pb.CreateOptions) []runtime.Crea
 	}
 
 	options := []runtime.CreateOption{
-		runtime.CreateNamespace(getNamespace(ctx, opts.Namespace)),
+		runtime.CreateNamespace(getNamespace(ctx)),
 	}
 
 	// command options
@@ -99,7 +89,7 @@ func toReadOptions(ctx context.Context, opts *pb.ReadOptions) []runtime.ReadOpti
 	}
 
 	options := []runtime.ReadOption{
-		runtime.ReadNamespace(getNamespace(ctx, opts.Namespace)),
+		runtime.ReadNamespace(getNamespace(ctx)),
 	}
 
 	if len(opts.Service) > 0 {
@@ -121,7 +111,7 @@ func toUpdateOptions(ctx context.Context, opts *pb.UpdateOptions) []runtime.Upda
 	}
 
 	return []runtime.UpdateOption{
-		runtime.UpdateNamespace(getNamespace(ctx, opts.Namespace)),
+		runtime.UpdateNamespace(getNamespace(ctx)),
 	}
 }
 
@@ -131,7 +121,7 @@ func toDeleteOptions(ctx context.Context, opts *pb.DeleteOptions) []runtime.Dele
 	}
 
 	return []runtime.DeleteOption{
-		runtime.DeleteNamespace(getNamespace(ctx, opts.Namespace)),
+		runtime.DeleteNamespace(getNamespace(ctx)),
 	}
 }
 
@@ -141,7 +131,7 @@ func toLogsOptions(ctx context.Context, opts *pb.LogsOptions) []runtime.LogsOpti
 	}
 
 	return []runtime.LogsOption{
-		runtime.LogsNamespace(getNamespace(ctx, opts.Namespace)),
+		runtime.LogsNamespace(getNamespace(ctx)),
 	}
 }
 

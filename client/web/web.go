@@ -32,6 +32,7 @@ import (
 	"github.com/micro/go-micro/v2/registry"
 	"github.com/micro/go-micro/v2/sync/memory"
 	apiAuth "github.com/micro/micro/v2/client/api/auth"
+	inauth "github.com/micro/micro/v2/internal/auth"
 	"github.com/micro/micro/v2/internal/handler"
 	"github.com/micro/micro/v2/internal/helper"
 	"github.com/micro/micro/v2/internal/namespace"
@@ -427,8 +428,8 @@ func (s *srv) render(w http.ResponseWriter, r *http.Request, tmpl string, data i
 	loginTitle := "Login"
 	user := ""
 
-	if c, err := r.Cookie(auth.TokenCookieName); err == nil && c != nil {
-		token := strings.TrimPrefix(c.Value, auth.TokenCookieName+"=")
+	if c, err := r.Cookie(inauth.TokenCookieName); err == nil && c != nil {
+		token := strings.TrimPrefix(c.Value, inauth.TokenCookieName+"=")
 		if acc, err := s.auth.Inspect(token); err == nil {
 			loginTitle = "Account"
 			user = acc.ID

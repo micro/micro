@@ -1,46 +1,25 @@
-package accounts
+package auth
 
 import (
 	"context"
 	"encoding/json"
+	"strings"
 
 	"github.com/micro/go-micro/v2/auth"
 	pb "github.com/micro/go-micro/v2/auth/service/proto"
 	"github.com/micro/go-micro/v2/errors"
 	"github.com/micro/go-micro/v2/store"
-	memStore "github.com/micro/go-micro/v2/store/memory"
+	"github.com/micro/micro/v2/internal/namespace"
 )
-
-const (
-	storePrefix = "account/"
-)
-
-// Accounts processes RPC calls
-type Accounts struct {
-	Options auth.Options
-}
-
-// Init the auth
-func (a *Accounts) Init(opts ...auth.Option) {
-	for _, o := range opts {
-		o(&a.Options)
-	}
-
-	// use the default store as a fallback
-	if a.Options.Store == nil {
-		a.Options.Store = store.DefaultStore
-	}
-
-	// noop will not work for auth
-	if a.Options.Store.String() == "noop" {
-		a.Options.Store = memStore.NewStore()
-	}
-}
 
 // List returns all auth accounts
-func (a *Accounts) List(ctx context.Context, req *pb.ListAccountsRequest, rsp *pb.ListAccountsResponse) error {
+func (a *Auth) List(ctx context.Context, req *pb.ListAccountsRequest, rsp *pb.ListAccountsResponse) error {
+	// setup the defaults incase none exist
+	a.setupDefaultAccount(namespace.FromContext(ctx))
+
 	// get the records from the store
-	recs, err := a.Options.Store.Read(storePrefix, store.ReadPrefix())
+	key := strings.Join([]string{storePrefixAccounts, namespace.FromContext(ctx), ""}, joinKey)
+	recs, err := a.Options.Store.Read(key, store.ReadPrefix())
 	if err != nil {
 		return errors.InternalServerError("go.micro.auth", "Unable to read from store: %v", err)
 	}
@@ -66,11 +45,10 @@ func (a *Accounts) List(ctx context.Context, req *pb.ListAccountsRequest, rsp *p
 
 func serializeAccount(a *auth.Account) *pb.Account {
 	return &pb.Account{
-		Id:        a.ID,
-		Type:      a.Type,
-		Roles:     a.Roles,
-		Provider:  a.Provider,
-		Metadata:  a.Metadata,
-		Namespace: a.Namespace,
+		Id:       a.ID,
+		Type:     a.Type,
+		Scopes:   a.Scopes,
+		Issuer:   a.Issuer,
+		Metadata: a.Metadata,
 	}
 }

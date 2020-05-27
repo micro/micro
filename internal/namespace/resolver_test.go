@@ -4,8 +4,6 @@ import (
 	"net/http"
 	"net/url"
 	"testing"
-
-	"github.com/micro/go-micro/v2/auth"
 )
 
 func TestResolveWithType(t *testing.T) {
@@ -28,42 +26,42 @@ func TestResolveWithType(t *testing.T) {
 			ServiceType: "web",
 			Namespace:   "domain",
 			Host:        "micro.mu",
-			Result:      auth.DefaultNamespace + ".web",
+			Result:      DefaultNamespace + ".web",
 		},
 		{
 			Name:        "A dynamic namespace with a type api and the micro.mu domain",
 			ServiceType: "api",
 			Namespace:   "domain",
 			Host:        "micro.mu",
-			Result:      auth.DefaultNamespace + ".api",
+			Result:      DefaultNamespace + ".api",
 		},
 		{
 			Name:        "A dynamic namespace with a type web and a effective top level domain",
 			ServiceType: "web",
 			Namespace:   "domain",
 			Host:        "micro.com.au",
-			Result:      auth.DefaultNamespace + ".web",
+			Result:      DefaultNamespace + ".web",
 		},
 		{
 			Name:        "A dynamic namespace with a type web and the web.micro.mu subdomain",
 			ServiceType: "web",
 			Namespace:   "domain",
 			Host:        "web.micro.mu",
-			Result:      auth.DefaultNamespace + ".web",
+			Result:      DefaultNamespace + ".web",
 		},
 		{
 			Name:        "A dynamic namespace with a type web and a micro.mu subdomain",
 			ServiceType: "web",
 			Namespace:   "domain",
 			Host:        "foo.micro.mu",
-			Result:      auth.DefaultNamespace + ".web",
+			Result:      DefaultNamespace + ".web",
 		},
 		{
 			Name:        "A dynamic namespace with a type web and top level domain host",
 			ServiceType: "web",
 			Namespace:   "domain",
 			Host:        "myapp.com",
-			Result:      auth.DefaultNamespace + ".web",
+			Result:      DefaultNamespace + ".web",
 		},
 		{
 			Name:        "A dynamic namespace with a type web subdomain host",
@@ -84,21 +82,21 @@ func TestResolveWithType(t *testing.T) {
 			ServiceType: "web",
 			Namespace:   "domain",
 			Host:        "127.0.0.1",
-			Result:      auth.DefaultNamespace + ".web",
+			Result:      DefaultNamespace + ".web",
 		},
 		{
 			Name:        "A dynamic namespace with a type web and localhost host",
 			ServiceType: "web",
 			Namespace:   "domain",
 			Host:        "localhost",
-			Result:      auth.DefaultNamespace + ".web",
+			Result:      DefaultNamespace + ".web",
 		},
 		{
 			Name:        "A dynamic namespace with a type web and IP host",
 			ServiceType: "web",
 			Namespace:   "domain",
 			Host:        "81.151.101.146",
-			Result:      auth.DefaultNamespace + ".web",
+			Result:      DefaultNamespace + ".web",
 		},
 	}
 
