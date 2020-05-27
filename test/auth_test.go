@@ -78,7 +78,7 @@ func basicAuthSuite(serv server, t *t) {
 
 	accessToken := ""
 	try("Try to get token with default account", t, func() ([]byte, error) {
-		readCmd := exec.Command("micro", serv.envFlag(), "call", "go.micro.auth", "Auth.Token", `{"id":"admin","secret":"Password1"}`)
+		readCmd := exec.Command("micro", serv.envFlag(), "call", "go.micro.auth", "Auth.Token", `{"id":"default","secret":"password"}`)
 		outp, err := readCmd.CombinedOutput()
 		if err != nil {
 			return outp, err
