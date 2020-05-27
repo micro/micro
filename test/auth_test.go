@@ -58,7 +58,7 @@ func basicAuthSuite(serv server, t *t) {
 		if err != nil {
 			return outp, err
 		}
-		if !strings.Contains(string(outp), "*:*:*:*") {
+		if !strings.Contains(string(outp), "default") {
 			return outp, fmt.Errorf("Output should contain default rule")
 		}
 		return outp, nil
