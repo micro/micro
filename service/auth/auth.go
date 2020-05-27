@@ -203,7 +203,7 @@ func login(ctx *cli.Context) {
 func whoami(ctx *cli.Context) {
 	// Get the token from micro config
 	env, _ := config.Get("env")
-	tok, err := config.Get(env, "auth", "token")
+	tok, err := config.Get("micro", "auth", env, "token")
 	if err != nil {
 		fmt.Println("You are not logged in")
 		os.Exit(1)
