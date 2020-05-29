@@ -10,7 +10,6 @@ import (
 	"path"
 	"path/filepath"
 	"runtime"
-	"runtime/debug"
 	"strings"
 	"text/template"
 	"time"
@@ -149,30 +148,35 @@ func copyAPIProto(c config) (string, error) {
 	// wasn't built on the user's machine
 	basedir := build.Default.GOPATH
 
-	bi, ok := debug.ReadBuildInfo()
-	if !ok {
-		return "", errors.New("Unable to read build info for micro")
+	contents, err := ioutil.ReadDir(filepath.Join(basedir, "pkg", "mod", "github.com", "micro", "go-micro"))
+	if err != nil {
+		return "", errors.New("Unable to find go-micro version. Please try `go get github.com/micro/go-micro/v2`")
 	}
-	for _, d := range bi.Deps {
-		if d.Path != "github.com/micro/go-micro/v2" {
-			continue
+	newestDir := ""
+	for _, v := range contents {
+		if v.IsDir() && strings.HasPrefix(v.Name(), "v2") && strings.Compare(newestDir, v.Name()) < 0 {
+			newestDir = v.Name()
 		}
-		input, err := ioutil.ReadFile(fmt.Sprintf("%s/pkg/mod/%s@%s/api/proto/api.proto", basedir, d.Path, d.Version))
-		if err != nil {
-			return "", err
-		}
-		f := filepath.Join(c.GoDir, "proto", "imports", "api.proto")
-		importsDir := filepath.Dir(f)
-		if err := os.Mkdir(importsDir, 0755); err != nil {
-			return "", err
-		}
-		err = ioutil.WriteFile(f, input, 0644)
-		if err != nil {
-			return "", err
-		}
-		return f[len(c.GoDir)+1:], nil
 	}
-	return "", errors.New("Unable to copy api proto")
+	if newestDir == "" {
+		return "", errors.New("Unable to find go-micro version. Please try `go get github.com/micro/go-micro/v2`")
+	}
+
+	input, err := ioutil.ReadFile(fmt.Sprintf("%s/pkg/mod/github.com/micro/go-micro/%s/api/proto/api.proto", basedir, newestDir))
+	if err != nil {
+		return "", err
+	}
+	f := filepath.Join(c.GoDir, "proto", "imports", "api.proto")
+	importsDir := filepath.Dir(f)
+	if err := os.Mkdir(importsDir, 0755); err != nil {
+		return "", err
+	}
+	err = ioutil.WriteFile(f, input, 0644)
+	if err != nil {
+		return "", err
+	}
+	return f[len(c.GoDir)+1:], nil
+
 }
 
 func addFileToTree(root treeprint.Tree, file string) {
