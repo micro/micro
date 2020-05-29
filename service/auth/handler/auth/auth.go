@@ -14,9 +14,9 @@ import (
 	"github.com/micro/go-micro/v2/auth/token"
 	"github.com/micro/go-micro/v2/auth/token/basic"
 	"github.com/micro/go-micro/v2/errors"
+	"github.com/micro/go-micro/v2/logger"
 	"github.com/micro/go-micro/v2/store"
 	memStore "github.com/micro/go-micro/v2/store/memory"
-	"github.com/micro/go-micro/v2/util/log"
 	"github.com/micro/micro/v2/internal/namespace"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -110,7 +110,7 @@ func (a *Auth) setupDefaultAccount(ns string) error {
 			Scopes: defaultAccount.Scopes,
 			Secret: defaultAccount.Secret,
 		}
-		log.Info("Generating default account")
+		logger.Info("Generating default account")
 		a.Generate(ctx, req, &pb.GenerateResponse{})
 	}
 
@@ -203,7 +203,7 @@ func (a *Auth) Token(ctx context.Context, req *pb.TokenRequest, rsp *pb.TokenRes
 	err := a.setupDefaultAccount(namespace.FromContext(ctx))
 	if err != nil {
 		// failing gracefully here
-		log.Errorf("Error setting up default accounts: %v", err)
+		logger.Errorf("Error setting up default accounts: %v", err)
 	}
 
 	// validate the request
