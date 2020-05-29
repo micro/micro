@@ -34,8 +34,9 @@ func basicAuthSuite(serv server, t *t) {
 		if err != nil {
 			return outp, err
 		}
-		if !strings.Contains(string(outp), "admin") {
-			return outp, fmt.Errorf("Output should contain admin")
+		if !strings.Contains(string(outp), "admin") ||
+			!strings.Contains(string(outp), "default") {
+			return outp, fmt.Errorf("Output should contain default admin account")
 		}
 		return outp, nil
 	}, 15*time.Second)
@@ -48,18 +49,6 @@ func basicAuthSuite(serv server, t *t) {
 		}
 		if !strings.Contains(string(outp), "default") {
 			return outp, fmt.Errorf("Output should contain default rule")
-		}
-		return outp, nil
-	}, 8*time.Second)
-
-	try("Calling micro auth list accounts", t, func() ([]byte, error) {
-		readCmd := exec.Command("micro", serv.envFlag(), "auth", "list", "accounts")
-		outp, err := readCmd.CombinedOutput()
-		if err != nil {
-			return outp, err
-		}
-		if !strings.Contains(string(outp), "admin") {
-			return outp, fmt.Errorf("Output should contain default admin account")
 		}
 		return outp, nil
 	}, 8*time.Second)
@@ -81,7 +70,7 @@ func basicAuthSuite(serv server, t *t) {
 			return outp, fmt.Errorf("Can't find access token")
 		}
 		return outp, nil
-	}, 5*time.Second)
+	}, 8*time.Second)
 
 	try("Try to log in with token we got", t, func() ([]byte, error) {
 		readCmd := exec.Command("micro", serv.envFlag(), "login", "--token", accessToken)

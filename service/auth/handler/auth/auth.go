@@ -16,6 +16,7 @@ import (
 	"github.com/micro/go-micro/v2/errors"
 	"github.com/micro/go-micro/v2/store"
 	memStore "github.com/micro/go-micro/v2/store/memory"
+	"github.com/micro/go-micro/v2/util/log"
 	"github.com/micro/micro/v2/internal/namespace"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -64,7 +65,7 @@ func (a *Auth) Init(opts ...auth.Option) {
 	}
 }
 
-func (a *Auth) setupDefaultAccount(ns string) {
+func (a *Auth) setupDefaultAccount(ns string) error {
 	a.Lock()
 	defer a.Unlock()
 
@@ -75,7 +76,7 @@ func (a *Auth) setupDefaultAccount(ns string) {
 
 	// check to see if the default account has already been verified
 	if _, ok := a.namespaces[ns]; ok {
-		return
+		return nil
 	}
 
 	// setup a context with the namespace
@@ -85,23 +86,37 @@ func (a *Auth) setupDefaultAccount(ns string) {
 	key := strings.Join([]string{storePrefixAccounts, ns, ""}, joinKey)
 	recs, err := a.Options.Store.Read(key, store.ReadPrefix())
 	if err != nil {
-		return
+		return err
+	}
+
+	hasUser := false
+	for _, rec := range recs {
+		acc := &auth.Account{}
+		err := json.Unmarshal(rec.Value, acc)
+		if err != nil {
+			return err
+		}
+		if acc.Type == "user" {
+			hasUser = true
+			break
+		}
 	}
 
 	// create the account if none exist in the namespace
-	if len(recs) == 0 {
+	if !hasUser {
 		req := &pb.GenerateRequest{
 			Id:     defaultAccount.ID,
 			Type:   defaultAccount.Type,
 			Scopes: defaultAccount.Scopes,
 			Secret: defaultAccount.Secret,
 		}
-
+		log.Info("Generating default account")
 		a.Generate(ctx, req, &pb.GenerateResponse{})
 	}
 
 	// set the namespace in the cache
 	a.namespaces[ns] = true
+	return nil
 }
 
 // Generate an account
@@ -185,7 +200,11 @@ func (a *Auth) Inspect(ctx context.Context, req *pb.InspectRequest, rsp *pb.Insp
 // Token generation using an account ID and secret
 func (a *Auth) Token(ctx context.Context, req *pb.TokenRequest, rsp *pb.TokenResponse) error {
 	// setup the defaults incase none exist
-	a.setupDefaultAccount(namespace.FromContext(ctx))
+	err := a.setupDefaultAccount(namespace.FromContext(ctx))
+	if err != nil {
+		// failing gracefully here
+		log.Errorf("Error setting up default accounts: %v", err)
+	}
 
 	// validate the request
 	if (len(req.Id) == 0 || len(req.Secret) == 0) && len(req.RefreshToken) == 0 {
