@@ -111,7 +111,10 @@ func (a *Auth) setupDefaultAccount(ns string) error {
 			Secret: defaultAccount.Secret,
 		}
 		logger.Info("Generating default account")
-		a.Generate(ctx, req, &pb.GenerateResponse{})
+		err = a.Generate(ctx, req, &pb.GenerateResponse{})
+		if err != nil {
+			return err
+		}
 	}
 
 	// set the namespace in the cache
