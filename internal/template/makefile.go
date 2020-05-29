@@ -3,7 +3,7 @@ package template
 var (
 	Makefile = `
 GOPATH:=$(shell go env GOPATH)
-MODIFY=Mgithub.com/micro/go-micro/api/proto/api.proto=github.com/micro/go-micro/v2/api/proto
+MODIFY=Mproto/imports/api.proto=github.com/micro/go-micro/v2/api/proto
 {{if ne .Type "web"}}
 .PHONY: proto
 proto:
