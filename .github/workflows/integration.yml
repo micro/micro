@@ -26,7 +26,7 @@ jobs:
 
     - name: Build container
       run: |
-        bash scripts/build-local-docker.sh
+        bash scripts/test-docker.sh
 
     - name: Test micro server
       working-directory: ./test
