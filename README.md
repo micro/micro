@@ -8,7 +8,7 @@ Micro addresses the key requirements for building distributed systems. It levera
 architecture pattern and provides a set of services which act as the building blocks of a platform. Micro deals
 with the complexity of distributed systems and provides simpler programmable abstractions to build on.
 
-<div style="text-align: center;">
+<div style="text-align: center; margin: 0 auto; width: 100%;">
 <img src="https://micro.mu/images/runtime.svg?5" style="width: 100%; height: auto;" />
 </div>
 
