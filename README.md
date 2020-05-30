@@ -15,8 +15,6 @@ with the complexity of distributed systems and provides simpler programmable abs
 Technology is constantly evolving. The infrastructure stack is always changing. Micro is a platform which
 addresses these issues with a pluggable foundation and strongly defined apis to build on. Plug into any stack or cloud.
 
-Follow us on [Twitter](https://twitter.com/microhq) or join the [Community](https://micro.mu/community/).
-
 ## Features
 
 The runtime is composed of the following features:
