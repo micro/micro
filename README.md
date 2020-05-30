@@ -8,9 +8,9 @@ Micro addresses the key requirements for building distributed systems. It levera
 architecture pattern and provides a set of services which act as the building blocks of a platform. Micro deals
 with the complexity of distributed systems and provides simpler programmable abstractions to build on.
 
-<div style="text-align: center; margin: 0 auto; width: 100%;">
+<p>
 <img src="https://micro.mu/images/runtime.svg?5" style="width: 100%; height: auto;" />
-</div>
+</p>
 
 Technology is constantly evolving. The infrastructure stack is always changing. Micro is a platform which
 addresses these issues with a pluggable foundation and strongly defined apis to build on. Plug into any stack or cloud.
