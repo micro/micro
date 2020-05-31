@@ -19,21 +19,6 @@ addresses these issues with a pluggable foundation and strongly defined apis to 
 
 The runtime is composed of the following features:
 
-### Clients
-
-Clients are entrypoints into the system. They enable access to your services through well known entrypoints.
-
-- **api:** An api gateway which acts as a single entry point for the frontend with dynamic request routing using service discovery. 
-
-- **bot:** A slack bot which enables you to query and interact with Micro directly from within slack. It's great for ChatOps.
-
-- **cli:** Access services via the terminal. Every good developer tool needs a CLI as a defacto standard for operating a system. 
-
-- **proxy:** An identity away proxy which allows you to access remote environments without painful configuration or vpn.
-
-- **web:** A dashboard to explore services, describe their endpoints, the request and response formats and
-query them directly.
-
 ### Services
 
 Services are the core services that makeup the runtime. They provide a programmable abstraction layer for distributed systems infrastructure.
@@ -61,6 +46,21 @@ or on kubernetes, providing a seamless abstraction across both.
 
 - **store:** State is a fundamental requirement of any system. We provide a key-value store to provide simple storage of state which can be shared
 between services or offload long term to keep microservices stateless and horizontally scalable.
+
+### Clients
+
+Clients are entrypoints into the system. They enable access to your services through well known entrypoints.
+
+- **api:** An api gateway which acts as a single entry point for the frontend with dynamic request routing using service discovery. 
+
+- **bot:** A slack bot which enables you to query and interact with Micro directly from within slack. It's great for ChatOps.
+
+- **cli:** Access services via the terminal. Every good developer tool needs a CLI as a defacto standard for operating a system. 
+
+- **proxy:** An identity away proxy which allows you to access remote environments without painful configuration or vpn.
+
+- **web:** A dashboard to explore services, describe their endpoints, the request and response formats and
+query them directly.
 
 ### Framework
 
