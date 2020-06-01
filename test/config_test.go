@@ -5,7 +5,10 @@ package test
 import (
 	"errors"
 	"fmt"
+	"os"
 	"os/exec"
+	"path/filepath"
+	"strings"
 	"testing"
 	"time"
 )
@@ -105,4 +108,65 @@ func testConfig(t *t) {
 		}
 		return outp, err
 	}, 8*time.Second)
+}
+
+func TestConfigReadFromService(t *testing.T) {
+	trySuite(t, testConfigReadFromService, retryCount)
+}
+
+func testConfigReadFromService(t *t) {
+	t.Parallel()
+	serv := newServer(t)
+	serv.launch()
+	defer serv.close()
+
+	dirname := "config-read-example"
+	folderPath := filepath.Join(os.TempDir(), dirname)
+
+	err := os.MkdirAll(folderPath, 0777)
+	if err != nil {
+		t.Fatal(err)
+		return
+	}
+
+	outp, err := exec.Command("cp", "-r", "config-example-service/.", folderPath).CombinedOutput()
+	if err != nil {
+		t.Fatal(string(outp))
+		return
+	}
+
+	runCmd := exec.Command("micro", serv.envFlag(), "run", ".")
+	runCmd.Dir = folderPath
+	outp, err = runCmd.CombinedOutput()
+	if err != nil {
+		t.Fatalf("micro run failure, output: %v", string(outp))
+		return
+	}
+
+	// This needs to be retried to the the "error listing rules"
+	// error log output that happens when the auth service is not yet available.
+	try("Calling micro config set", t, func() ([]byte, error) {
+		setCmd := exec.Command("micro", serv.envFlag(), "config", "set", "somekey", "subkey", "val1")
+		outp, err := setCmd.CombinedOutput()
+		if err != nil {
+			return outp, err
+		}
+		if string(outp) != "" {
+			return outp, fmt.Errorf("Expected no output, got: %v", string(outp))
+		}
+		return outp, err
+	}, 5*time.Second)
+
+	try("Try logs read", t, func() ([]byte, error) {
+		setCmd := exec.Command("micro", serv.envFlag(), "logs", "-n", "1", dirname)
+		outp, err := setCmd.CombinedOutput()
+		if err != nil {
+			return outp, err
+		}
+		fmt.Println(string(outp))
+		if !strings.Contains(string(outp), "val1") {
+			return outp, fmt.Errorf("Expected val1 in output, got: %v", string(outp))
+		}
+		return outp, err
+	}, 20*time.Second)
 }
