@@ -30,7 +30,7 @@ func protoComments(goDir, alias string) []string {
 		"go get github.com/micro/micro/v2/cmd/protoc-gen-micro",
 		"\ncompile the proto file " + alias + ".proto:\n",
 		"cd " + goDir,
-		"protoc --proto_path=.:$GOPATH/src --go_out=. --micro_out=. proto/" + alias + "/" + alias + ".proto\n",
+		"make proto\n",
 	}
 }
 
