@@ -163,7 +163,7 @@ func testConfigReadFromService(t *t) {
 		if err != nil {
 			return outp, err
 		}
-		fmt.Println(string(outp))
+
 		if !strings.Contains(string(outp), "val1") {
 			return outp, fmt.Errorf("Expected val1 in output, got: %v", string(outp))
 		}
