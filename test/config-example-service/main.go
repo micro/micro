@@ -12,6 +12,7 @@ func main() {
 		micro.Name("go.micro.service.config-read"),
 		micro.Version("latest"),
 	)
+	service.Init()
 
 	// create a new config
 	c := service.Options().Config
