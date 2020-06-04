@@ -8,37 +8,40 @@ import (
 	ccli "github.com/micro/cli/v2"
 	"github.com/micro/go-micro/v2"
 	"github.com/micro/go-micro/v2/config/cmd"
-	"github.com/micro/micro/v2/api"
-	"github.com/micro/micro/v2/auth"
-	"github.com/micro/micro/v2/bot"
-	"github.com/micro/micro/v2/broker"
-	"github.com/micro/micro/v2/cli"
-	cliutil "github.com/micro/micro/v2/cli/util"
-	"github.com/micro/micro/v2/config"
-	"github.com/micro/micro/v2/debug"
-	"github.com/micro/micro/v2/health"
-	"github.com/micro/micro/v2/network"
-	"github.com/micro/micro/v2/new"
+	gostore "github.com/micro/go-micro/v2/store"
 	"github.com/micro/micro/v2/plugin"
 	"github.com/micro/micro/v2/plugin/build"
-	"github.com/micro/micro/v2/proxy"
-	"github.com/micro/micro/v2/registry"
-	"github.com/micro/micro/v2/router"
-	"github.com/micro/micro/v2/runtime"
 	"github.com/micro/micro/v2/server"
 	"github.com/micro/micro/v2/service"
-	"github.com/micro/micro/v2/store"
-	"github.com/micro/micro/v2/tunnel"
-	"github.com/micro/micro/v2/web"
 
-	// include usage
+	// clients
+	"github.com/micro/micro/v2/client/api"
+	"github.com/micro/micro/v2/client/bot"
+	"github.com/micro/micro/v2/client/cli"
+	"github.com/micro/micro/v2/client/cli/new"
+	"github.com/micro/micro/v2/client/cli/util"
+	"github.com/micro/micro/v2/client/proxy"
+	"github.com/micro/micro/v2/client/web"
 
+	// services
+	"github.com/micro/micro/v2/service/auth"
+	"github.com/micro/micro/v2/service/broker"
+	"github.com/micro/micro/v2/service/config"
+	"github.com/micro/micro/v2/service/debug"
+	"github.com/micro/micro/v2/service/health"
+	"github.com/micro/micro/v2/service/network"
+	"github.com/micro/micro/v2/service/registry"
+	"github.com/micro/micro/v2/service/router"
+	"github.com/micro/micro/v2/service/runtime"
+	"github.com/micro/micro/v2/service/store"
+	"github.com/micro/micro/v2/service/tunnel"
+
+	// internals
+	inauth "github.com/micro/micro/v2/internal/auth"
 	"github.com/micro/micro/v2/internal/platform"
 	_ "github.com/micro/micro/v2/internal/plugins"
 	"github.com/micro/micro/v2/internal/update"
 	_ "github.com/micro/micro/v2/internal/usage"
-
-	gostore "github.com/micro/go-micro/v2/store"
 )
 
 var (
@@ -188,6 +191,12 @@ func setup(app *ccli.App) {
 			EnvVars: []string{"MICRO_REPORT_USAGE"},
 			Value:   true,
 		},
+		&ccli.StringFlag{
+			Name:    "env",
+			Aliases: []string{"e"},
+			Usage:   "Override environment",
+			EnvVars: []string{"MICRO_ENV"},
+		},
 	)
 
 	plugins := plugin.Plugins()
@@ -243,7 +252,7 @@ func setup(app *ccli.App) {
 			}
 		}
 
-		cliutil.SetupCommand(ctx)
+		util.SetupCommand(ctx)
 		// now do previous before
 		if err := before(ctx); err != nil {
 			return err
@@ -273,6 +282,16 @@ func setup(app *ccli.App) {
 		// maybe in service.Run so all things are configured
 		if len(opts) > 0 {
 			(*cmd.DefaultCmd.Options().Store).Init(opts...)
+		}
+
+		// add the system rules if we're using the JWT implementation
+		// which doesn't have access to the rules in the auth service
+		if (*cmd.DefaultCmd.Options().Auth).String() == "jwt" {
+			for _, rule := range inauth.SystemRules {
+				if err := (*cmd.DefaultCmd.Options().Auth).Grant(rule); err != nil {
+					return err
+				}
+			}
 		}
 
 		return nil

@@ -17,12 +17,12 @@ import (
 	"github.com/micro/go-micro/v2/client"
 	cbytes "github.com/micro/go-micro/v2/codec/bytes"
 	"github.com/micro/go-micro/v2/config/cmd"
+	proto "github.com/micro/go-micro/v2/debug/service/proto"
 	"github.com/micro/go-micro/v2/metadata"
 	"github.com/micro/go-micro/v2/registry"
-
-	proto "github.com/micro/go-micro/v2/debug/service/proto"
-
-	dns "github.com/micro/micro/v2/network/dns/proto/dns"
+	"github.com/micro/go-micro/v2/registry/service"
+	inclient "github.com/micro/micro/v2/internal/client"
+	dns "github.com/micro/micro/v2/service/network/dns/proto/dns"
 
 	"github.com/olekukonko/tablewriter"
 	"github.com/serenize/snaker"
@@ -178,16 +178,18 @@ func RegisterService(c *cli.Context, args []string) ([]byte, error) {
 
 	req := strings.Join(args, " ")
 
-	var service *registry.Service
+	var srv *registry.Service
 
 	d := json.NewDecoder(strings.NewReader(req))
 	d.UseNumber()
 
-	if err := d.Decode(&service); err != nil {
+	if err := d.Decode(&srv); err != nil {
 		return nil, err
 	}
 
-	if err := (*cmd.DefaultOptions().Registry).Register(service); err != nil {
+	reg := *cmd.DefaultOptions().Registry
+	reg.Init(service.WithClient(inclient.New(c)))
+	if err := reg.Register(srv); err != nil {
 		return nil, err
 	}
 
@@ -201,16 +203,18 @@ func DeregisterService(c *cli.Context, args []string) ([]byte, error) {
 
 	req := strings.Join(args, " ")
 
-	var service *registry.Service
+	var srv *registry.Service
 
 	d := json.NewDecoder(strings.NewReader(req))
 	d.UseNumber()
 
-	if err := d.Decode(&service); err != nil {
+	if err := d.Decode(&srv); err != nil {
 		return nil, err
 	}
 
-	if err := (*cmd.DefaultOptions().Registry).Deregister(service); err != nil {
+	reg := *cmd.DefaultOptions().Registry
+	reg.Init(service.WithClient(inclient.New(c)))
+	if err := reg.Deregister(srv); err != nil {
 		return nil, err
 	}
 
@@ -223,21 +227,23 @@ func GetService(c *cli.Context, args []string) ([]byte, error) {
 	}
 
 	var output []string
-	var service []*registry.Service
+	var srv []*registry.Service
 	var err error
 
-	service, err = (*cmd.DefaultOptions().Registry).GetService(args[0])
+	reg := *cmd.DefaultOptions().Registry
+	reg.Init(service.WithClient(inclient.New(c)))
+	srv, err = reg.GetService(args[0])
 	if err != nil {
 		return nil, err
 	}
 
-	if len(service) == 0 {
+	if len(srv) == 0 {
 		return nil, errors.New("Service not found")
 	}
 
-	output = append(output, "service  "+service[0].Name)
+	output = append(output, "service  "+srv[0].Name)
 
-	for _, serv := range service {
+	for _, serv := range srv {
 		if len(serv.Version) > 0 {
 			output = append(output, "\nversion "+serv.Version)
 		}
@@ -252,7 +258,7 @@ func GetService(c *cli.Context, args []string) ([]byte, error) {
 		}
 	}
 
-	for _, e := range service[0].Endpoints {
+	for _, e := range srv[0].Endpoints {
 		var request, response string
 		var meta []string
 		for k, v := range e.Metadata {
@@ -627,7 +633,9 @@ func ListServices(c *cli.Context) ([]byte, error) {
 	var rsp []*registry.Service
 	var err error
 
-	rsp, err = (*cmd.DefaultOptions().Registry).ListServices()
+	reg := *cmd.DefaultOptions().Registry
+	reg.Init(service.WithClient(inclient.New(c)))
+	rsp, err = reg.ListServices()
 	if err != nil {
 		return nil, err
 	}
@@ -758,7 +766,9 @@ func QueryHealth(c *cli.Context, args []string) ([]byte, error) {
 	}
 
 	// otherwise get the service and call each instance individually
-	service, err := (*cmd.DefaultOptions().Registry).GetService(args[0])
+	reg := *cmd.DefaultOptions().Registry
+	reg.Init(service.WithClient(inclient.New(c)))
+	service, err := reg.GetService(args[0])
 	if err != nil {
 		return nil, err
 	}
@@ -810,7 +820,9 @@ func QueryStats(c *cli.Context, args []string) ([]byte, error) {
 		return nil, errors.New("require service name")
 	}
 
-	service, err := (*cmd.DefaultOptions().Registry).GetService(args[0])
+	reg := *cmd.DefaultOptions().Registry
+	reg.Init(service.WithClient(inclient.New(c)))
+	service, err := reg.GetService(args[0])
 	if err != nil {
 		return nil, err
 	}
