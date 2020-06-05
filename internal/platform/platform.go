@@ -62,14 +62,18 @@ func (i *initScheduler) Notify() (<-chan gorun.Event, error) {
 		for ev := range ch {
 			// fire an event per service
 			for _, service := range i.services {
-				evChan <- gorun.Event{
+				newEv := gorun.Event{
 					Service: &gorun.Service{
-						Name:    service,
-						Version: ev.Service.Version,
+						Name: service,
 					},
 					Timestamp: ev.Timestamp,
 					Type:      ev.Type,
 				}
+				// Some updates don't come with version, e.g. filesystem watcher or the update notifier
+				if ev.Service != nil {
+					newEv.Service.Version = ev.Service.Version
+				}
+				evChan <- newEv
 				// slow roll the change
 				time.Sleep(time.Second)
 			}
