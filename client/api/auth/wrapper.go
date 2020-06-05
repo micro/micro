@@ -66,7 +66,7 @@ func (a authWrapper) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	acc, _ := a.auth.Inspect(token)
 
 	// Ensure the accounts issuer matches the namespace being requested
-	if acc != nil && acc.Issuer != ns {
+	if acc != nil && len(acc.Issuer) > 0 && acc.Issuer != ns {
 		http.Error(w, "Account not issued by "+ns, 403)
 		return
 	}
