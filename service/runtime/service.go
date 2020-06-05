@@ -169,12 +169,11 @@ func runService(ctx *cli.Context, srvOpts ...micro.Option) {
 		Version:  source.Ref,
 		Metadata: make(map[string]string),
 	}
-
+	started := time.Now()
 	if err := r.Create(service, opts...); err != nil {
 		fmt.Println(err)
 		return
 	}
-
 	if r.String() == "local" {
 		// we need to wait
 		ch := make(chan os.Signal, 1)
@@ -182,6 +181,45 @@ func runService(ctx *cli.Context, srvOpts ...micro.Option) {
 		<-ch
 		// delete the service
 		r.Delete(service)
+	} else {
+		waitForSuccess(r, service.Name, service.Version, started)
+	}
+}
+
+func waitForSuccess(r runtime.Runtime, service, version string, started time.Time) {
+
+	for {
+		time.Sleep(5 * time.Second)
+		svcs, err := r.Read(runtime.ReadService(service), runtime.ReadVersion(version))
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		if len(svcs) != 1 {
+			fmt.Println("Failed to retrieve status of the service")
+			return
+		}
+		fmt.Printf("Status is %+v\n", svcs[0])
+		meta := svcs[0].Metadata
+		if sTime := meta["lastStatusUpdate"]; sTime != "" {
+			sTimeObj, err := time.Parse(time.RFC3339, sTime)
+			if err == nil && sTimeObj.Before(started) {
+				// if this status is stale, ignore
+				continue
+			}
+		}
+		st := meta["status"]
+		if st == "starting" {
+			continue
+		}
+
+		if st == "running" {
+			fmt.Println("Success")
+			return
+		}
+		// something has gone wrong. Report back
+		fmt.Printf("Error running service. status: %s, error: %s\n", st, svcs[0].Metadata["error"])
+		return
 	}
 }
 
@@ -261,11 +299,14 @@ func updateService(ctx *cli.Context, srvOpts ...micro.Option) {
 		Source:  runtimeSource,
 		Version: source.Ref,
 	}
-
-	if err := runtimeFromContext(ctx).Update(service); err != nil {
+	r := runtimeFromContext(ctx)
+	started := time.Now()
+	if err := r.Update(service); err != nil {
 		fmt.Println(err)
 		return
 	}
+	waitForSuccess(r, service.Name, service.Version, started)
+
 }
 
 func getService(ctx *cli.Context, srvOpts ...micro.Option) {
