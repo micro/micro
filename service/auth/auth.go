@@ -102,11 +102,6 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 		srvOpts = append(srvOpts, micro.Address(Address))
 	}
 
-	// Init plugins
-	for _, p := range Plugins() {
-		p.Init(ctx)
-	}
-
 	// setup the handlers
 	ruleH := &rulesHandler.Rules{}
 	authH := &authHandler.Auth{}
