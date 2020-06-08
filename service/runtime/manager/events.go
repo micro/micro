@@ -100,7 +100,7 @@ func (m *manager) processEvent(key string) {
 	}
 
 	// log the event
-	logger.Infof("Procesing %v event for service %v:%v in namespace %v", ev.Type, ev.Service.Name, ev.Service.Version, ns)
+	logger.Infof("Processing %v event for service %v:%v in namespace %v", ev.Type, ev.Service.Name, ev.Service.Version, ns)
 
 	// apply the event to the managed runtime
 	switch ev.Type {
@@ -121,11 +121,10 @@ func (m *manager) processEvent(key string) {
 
 	// if there was an error update the status in the cache
 	if err != nil {
-		logger.Warnf("Error procesing %v event for service %v:%v in namespace %v: %v,", ev.Type, ev.Service.Name, ev.Service.Version, ns, err)
+		logger.Warnf("Error processing %v event for service %v:%v in namespace %v: %v", ev.Type, ev.Service.Name, ev.Service.Version, ns, err)
 		ev.Service.Metadata = map[string]string{"status": "error", "error": err.Error()}
 		m.cacheStatus(ns, ev.Service)
 	} else if ev.Type != runtime.Delete {
-		ev.Service.Metadata = map[string]string{"status": "starting"}
 		m.cacheStatus(ns, ev.Service)
 	}
 
