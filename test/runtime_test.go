@@ -45,12 +45,13 @@ func testNew(t *t) {
 				return
 			}
 		}
-		if strings.HasPrefix(line, "protoc") {
-			parts := strings.Split(line, " ")
-			protocCmd := exec.Command(parts[0], parts[1:]...)
+		if strings.HasPrefix(line, "make proto") {
+			mp := strings.Split(line, " ")
+			protocCmd := exec.Command(mp[0], mp[1:]...)
 			protocCmd.Dir = "./foobar"
 			pOutp, pErr := protocCmd.CombinedOutput()
 			if pErr != nil {
+				t.Log("That didn't work ", pErr)
 				t.Fatal(string(pOutp))
 				return
 			}

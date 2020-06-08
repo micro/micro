@@ -2,8 +2,10 @@
 package new
 
 import (
+	"errors"
 	"fmt"
 	"go/build"
+	"io/ioutil"
 	"os"
 	"path"
 	"path/filepath"
@@ -28,7 +30,7 @@ func protoComments(goDir, alias string) []string {
 		"go get github.com/micro/micro/v2/cmd/protoc-gen-micro",
 		"\ncompile the proto file " + alias + ".proto:\n",
 		"cd " + goDir,
-		"protoc --proto_path=.:$GOPATH/src --go_out=. --micro_out=. proto/" + alias + "/" + alias + ".proto\n",
+		"make proto\n",
 	}
 }
 
@@ -104,20 +106,10 @@ func create(c config) error {
 
 	t := treeprint.New()
 
-	nodes := map[string]treeprint.Tree{}
-	nodes[c.GoDir] = t
-
 	// write the files
 	for _, file := range c.Files {
 		f := filepath.Join(c.GoDir, file.Path)
 		dir := filepath.Dir(f)
-
-		b, ok := nodes[dir]
-		if !ok {
-			d, _ := filepath.Rel(c.GoDir, dir)
-			b = t.AddBranch(d)
-			nodes[dir] = b
-		}
 
 		if _, err := os.Stat(dir); os.IsNotExist(err) {
 			if err := os.MkdirAll(dir, 0755); err != nil {
@@ -125,14 +117,17 @@ func create(c config) error {
 			}
 		}
 
-		p := filepath.Base(f)
-
-		b.AddNode(p)
+		addFileToTree(t, file.Path)
 		if err := write(c, f, file.Tmpl); err != nil {
 			return err
 		}
 	}
 
+	dst, err := copyAPIProto(c)
+	if err != nil {
+		return err
+	}
+	addFileToTree(t, dst)
 	// print tree
 	fmt.Println(t.String())
 
@@ -144,6 +139,62 @@ func create(c config) error {
 	<-time.After(time.Millisecond * 250)
 
 	return nil
+}
+
+func copyAPIProto(c config) (string, error) {
+	// Find and copy the api proto from go-micro located *somewhere* on local machine.
+	// Required because proto can't do imports from random places on the internet like github.com,
+	// needs to be somewhere local. Let's try and find it from go mod. This doesn't work if micro
+	// wasn't built on the user's machine
+	basedir := build.Default.GOPATH
+
+	contents, err := ioutil.ReadDir(filepath.Join(basedir, "pkg", "mod", "github.com", "micro", "go-micro"))
+	if err != nil {
+		return "", errors.New("Unable to find go-micro version. Please try `go get github.com/micro/go-micro/v2`")
+	}
+	newestDir := ""
+	for _, v := range contents {
+		if v.IsDir() && strings.HasPrefix(v.Name(), "v2") && strings.Compare(newestDir, v.Name()) < 0 {
+			newestDir = v.Name()
+		}
+	}
+	if newestDir == "" {
+		return "", errors.New("Unable to find go-micro version. Please try `go get github.com/micro/go-micro/v2`")
+	}
+
+	input, err := ioutil.ReadFile(fmt.Sprintf("%s/pkg/mod/github.com/micro/go-micro/%s/api/proto/api.proto", basedir, newestDir))
+	if err != nil {
+		return "", err
+	}
+	f := filepath.Join(c.GoDir, "proto", "imports", "api.proto")
+	importsDir := filepath.Dir(f)
+	if err := os.Mkdir(importsDir, 0755); err != nil {
+		return "", err
+	}
+	err = ioutil.WriteFile(f, input, 0644)
+	if err != nil {
+		return "", err
+	}
+	return f[len(c.GoDir)+1:], nil
+
+}
+
+func addFileToTree(root treeprint.Tree, file string) {
+
+	split := strings.Split(file, "/")
+	curr := root
+	for i := 0; i < len(split)-1; i++ {
+		n := curr.FindByValue(split[i])
+		if n != nil {
+			curr = n
+		} else {
+			curr = curr.AddBranch(split[i])
+		}
+	}
+	if curr.FindByValue(split[len(split)-1]) == nil {
+		curr.AddNode(split[len(split)-1])
+	}
+
 }
 
 func Run(ctx *cli.Context) {
@@ -245,115 +296,78 @@ func Run(ctx *cli.Context) {
 		}
 	}
 
-	var c config
+	c := config{
+		Alias:     alias,
+		Command:   command,
+		Namespace: namespace,
+		Type:      atype,
+		FQDN:      fqdn,
+		Dir:       dir,
+		GoDir:     goDir,
+		GoPath:    goPath,
+		UseGoPath: useGoPath,
+		Plugins:   plugins,
+		Comments:  protoComments(goDir, alias),
+	}
 
 	switch atype {
 	case "function":
 		// create service config
-		c = config{
-			Alias:     alias,
-			Command:   command,
-			Namespace: namespace,
-			Type:      atype,
-			FQDN:      fqdn,
-			Dir:       dir,
-			GoDir:     goDir,
-			GoPath:    goPath,
-			UseGoPath: useGoPath,
-			Plugins:   plugins,
-			Files: []file{
-				{"main.go", tmpl.MainFNC},
-				{"generate.go", tmpl.GenerateFile},
-				{"plugin.go", tmpl.Plugin},
-				{"handler/" + alias + ".go", tmpl.HandlerFNC},
-				{"subscriber/" + alias + ".go", tmpl.SubscriberFNC},
-				{"proto/" + alias + "/" + alias + ".proto", tmpl.ProtoFNC},
-				{"Dockerfile", tmpl.DockerFNC},
-				{"Makefile", tmpl.Makefile},
-				{"README.md", tmpl.ReadmeFNC},
-				{".gitignore", tmpl.GitIgnore},
-			},
-			Comments: protoComments(goDir, alias),
+		c.Files = []file{
+			{"main.go", tmpl.MainFNC},
+			{"generate.go", tmpl.GenerateFile},
+			{"plugin.go", tmpl.Plugin},
+			{"handler/" + alias + ".go", tmpl.HandlerFNC},
+			{"subscriber/" + alias + ".go", tmpl.SubscriberFNC},
+			{"proto/" + alias + "/" + alias + ".proto", tmpl.ProtoFNC},
+			{"Dockerfile", tmpl.DockerFNC},
+			{"Makefile", tmpl.Makefile},
+			{"README.md", tmpl.ReadmeFNC},
+			{".gitignore", tmpl.GitIgnore},
 		}
+
 	case "service":
 		// create service config
-		c = config{
-			Alias:     alias,
-			Command:   command,
-			Namespace: namespace,
-			Type:      atype,
-			FQDN:      fqdn,
-			Dir:       dir,
-			GoDir:     goDir,
-			GoPath:    goPath,
-			UseGoPath: useGoPath,
-			Plugins:   plugins,
-			Files: []file{
-				{"main.go", tmpl.MainSRV},
-				{"generate.go", tmpl.GenerateFile},
-				{"plugin.go", tmpl.Plugin},
-				{"handler/" + alias + ".go", tmpl.HandlerSRV},
-				{"subscriber/" + alias + ".go", tmpl.SubscriberSRV},
-				{"proto/" + alias + "/" + alias + ".proto", tmpl.ProtoSRV},
-				{"Dockerfile", tmpl.DockerSRV},
-				{"Makefile", tmpl.Makefile},
-				{"README.md", tmpl.Readme},
-				{".gitignore", tmpl.GitIgnore},
-			},
-			Comments: protoComments(goDir, alias),
+		c.Files = []file{
+			{"main.go", tmpl.MainSRV},
+			{"generate.go", tmpl.GenerateFile},
+			{"plugin.go", tmpl.Plugin},
+			{"handler/" + alias + ".go", tmpl.HandlerSRV},
+			{"subscriber/" + alias + ".go", tmpl.SubscriberSRV},
+			{"proto/" + alias + "/" + alias + ".proto", tmpl.ProtoSRV},
+			{"Dockerfile", tmpl.DockerSRV},
+			{"Makefile", tmpl.Makefile},
+			{"README.md", tmpl.Readme},
+			{".gitignore", tmpl.GitIgnore},
 		}
 	case "api":
 		// create api config
-		c = config{
-			Alias:     alias,
-			Command:   command,
-			Namespace: namespace,
-			Type:      atype,
-			FQDN:      fqdn,
-			Dir:       dir,
-			GoDir:     goDir,
-			GoPath:    goPath,
-			UseGoPath: useGoPath,
-			Plugins:   plugins,
-			Files: []file{
-				{"main.go", tmpl.MainAPI},
-				{"generate.go", tmpl.GenerateFile},
-				{"plugin.go", tmpl.Plugin},
-				{"client/" + alias + ".go", tmpl.WrapperAPI},
-				{"handler/" + alias + ".go", tmpl.HandlerAPI},
-				{"proto/" + alias + "/" + alias + ".proto", tmpl.ProtoAPI},
-				{"Makefile", tmpl.Makefile},
-				{"Dockerfile", tmpl.DockerSRV},
-				{"README.md", tmpl.Readme},
-				{".gitignore", tmpl.GitIgnore},
-			},
-			Comments: protoComments(goDir, alias),
+		c.Files = []file{
+			{"main.go", tmpl.MainAPI},
+			{"generate.go", tmpl.GenerateFile},
+			{"plugin.go", tmpl.Plugin},
+			{"client/" + alias + ".go", tmpl.WrapperAPI},
+			{"handler/" + alias + ".go", tmpl.HandlerAPI},
+			{"proto/" + alias + "/" + alias + ".proto", tmpl.ProtoAPI},
+			{"Makefile", tmpl.Makefile},
+			{"Dockerfile", tmpl.DockerSRV},
+			{"README.md", tmpl.Readme},
+			{".gitignore", tmpl.GitIgnore},
 		}
 	case "web":
 		// create service config
-		c = config{
-			Alias:     alias,
-			Command:   command,
-			Namespace: namespace,
-			Type:      atype,
-			FQDN:      fqdn,
-			Dir:       dir,
-			GoDir:     goDir,
-			GoPath:    goPath,
-			UseGoPath: useGoPath,
-			Plugins:   plugins,
-			Files: []file{
-				{"main.go", tmpl.MainWEB},
-				{"plugin.go", tmpl.Plugin},
-				{"handler/handler.go", tmpl.HandlerWEB},
-				{"html/index.html", tmpl.HTMLWEB},
-				{"Dockerfile", tmpl.DockerWEB},
-				{"Makefile", tmpl.Makefile},
-				{"README.md", tmpl.Readme},
-				{".gitignore", tmpl.GitIgnore},
-			},
-			Comments: []string{},
+		c.Files = []file{
+			{"main.go", tmpl.MainWEB},
+			{"plugin.go", tmpl.Plugin},
+			{"handler/handler.go", tmpl.HandlerWEB},
+			{"html/index.html", tmpl.HTMLWEB},
+			{"Dockerfile", tmpl.DockerWEB},
+			{"Makefile", tmpl.Makefile},
+			{"README.md", tmpl.Readme},
+			{".gitignore", tmpl.GitIgnore},
 		}
+		c.Comments = []string{}
+
 	default:
 		fmt.Println("Unknown type", atype)
 		return
@@ -368,6 +382,7 @@ func Run(ctx *cli.Context) {
 		fmt.Println(err)
 		return
 	}
+
 }
 
 func Commands() []*cli.Command {

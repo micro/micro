@@ -36,12 +36,7 @@ func toService(s *pb.Service) *runtime.Service {
 // getNamespace replaces the default auth namespace until we move
 // we wil replace go.micro with micro and move our default things there
 func getNamespace(ctx context.Context) string {
-	ns := namespace.FromContext(ctx)
-
-	if ns == namespace.DefaultNamespace {
-		return "default"
-	}
-	return ns
+	return namespace.FromContext(ctx)
 }
 
 func toCreateOptions(ctx context.Context, opts *pb.CreateOptions) []runtime.CreateOption {

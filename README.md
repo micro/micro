@@ -1,6 +1,6 @@
-# Micro [![License](https://img.shields.io/:license-apache-blue.svg)](https://opensource.org/licenses/Apache-2.0) [![GoDoc](https://godoc.org/github.com/micro/micro?status.svg)](https://godoc.org/github.com/micro/micro) [![Travis CI](https://travis-ci.org/micro/micro.svg?branch=master)](https://travis-ci.org/micro/micro) [![Go Report Card](https://goreportcard.com/badge/micro/micro)](https://goreportcard.com/report/github.com/micro/micro) <a href="https://slack.micro.mu"><img src="https://img.shields.io/badge/join-us%20on%20slack-gray.svg?longCache=true&logo=slack&colorB=brightgreen" alt="Slack Widget"></a>
+# Micro [![License](https://img.shields.io/:license-apache-blue.svg)](https://opensource.org/licenses/Apache-2.0) [![GoDoc](https://godoc.org/github.com/micro/micro?status.svg)](https://godoc.org/github.com/micro/micro) [![Travis CI](https://travis-ci.org/micro/micro.svg?branch=master)](https://travis-ci.org/micro/micro) [![Go Report Card](https://goreportcard.com/badge/micro/micro)](https://goreportcard.com/report/github.com/micro/micro)
 
-Micro is a distributed systems server for the Cloud and beyond.
+Micro is a distributed systems runtime for the Cloud and beyond.
 
 ## Overview
 
@@ -8,31 +8,16 @@ Micro addresses the key requirements for building distributed systems. It levera
 architecture pattern and provides a set of services which act as the building blocks of a platform. Micro deals
 with the complexity of distributed systems and provides simpler programmable abstractions to build on.
 
-<img src="https://micro.mu/images/runtime10.svg" />
+<p>
+<img src="https://micro.mu/images/runtime.svg?5" style="width: 100%; height: auto;" />
+</p>
 
 Technology is constantly evolving. The infrastructure stack is always changing. Micro is a platform which
 addresses these issues with a pluggable foundation and strongly defined apis to build on. Plug into any stack or cloud.
 
-Follow us on [Twitter](https://twitter.com/microhq) or join the [Slack](https://slack.micro.mu) community.
-
 ## Features
 
 The runtime is composed of the following features:
-
-### Clients
-
-Clients are entrypoints into the system. They enable access to your services through well known entrypoints.
-
-- **api:** An api gateway which acts as a single entry point for the frontend with dynamic request routing using service discovery. 
-
-- **bot:** A slack bot which enables you to query and interact with Micro directly from within slack. It's great for ChatOps.
-
-- **cli:** Access services via the terminal. Every good developer tool needs a CLI as a defacto standard for operating a system. 
-
-- **proxy:** An identity away proxy which allows you to access remote environments without painful configuration or vpn.
-
-- **web:** A dashboard to explore services, describe their endpoints, the request and response formats and
-query them directly.
 
 ### Services
 
@@ -61,6 +46,21 @@ or on kubernetes, providing a seamless abstraction across both.
 
 - **store:** State is a fundamental requirement of any system. We provide a key-value store to provide simple storage of state which can be shared
 between services or offload long term to keep microservices stateless and horizontally scalable.
+
+### Clients
+
+Clients are entrypoints into the system. They enable access to your services through well known entrypoints.
+
+- **api:** An api gateway which acts as a single entry point for the frontend with dynamic request routing using service discovery. 
+
+- **bot:** A slack bot which enables you to query and interact with Micro directly from within slack. It's great for ChatOps.
+
+- **cli:** Access services via the terminal. Every good developer tool needs a CLI as a defacto standard for operating a system. 
+
+- **proxy:** An identity away proxy which allows you to access remote environments without painful configuration or vpn.
+
+- **web:** A dashboard to explore services, describe their endpoints, the request and response formats and
+query them directly.
 
 ### Framework
 
@@ -131,4 +131,4 @@ See all the options
 micro --help
 ```
 
-See the [docs](https://micro.mu/docs/runtime.html) for detailed information on the architecture, installation and use of the platform.
+See the [docs](https://dev.micro.mu) for detailed information on the architecture, installation and use of the platform.

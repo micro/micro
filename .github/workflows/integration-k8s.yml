@@ -3,6 +3,7 @@
 # but it's fairly flaky still.
 
 name: Run micro server integration tests on k8s (kind)
+on:
   schedule:
     # * is a special character in YAML so you have to quote this string
     - cron:  '00 00 * * *'
@@ -22,7 +23,6 @@ jobs:
       uses: elgohr/Publish-Docker-Github-Action@master
       with:
         name: micro/micro
-        event-type: my-event
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
 
