@@ -332,7 +332,7 @@ func testRunGithubSource(t *t) {
 		return
 	}
 	if len(p) == 0 {
-		t.Fatalf("Git is not available %v", p)
+		t.Fatal("Git is not available")
 		return
 	}
 	serv := newServer(t)
