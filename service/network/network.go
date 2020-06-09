@@ -50,11 +50,6 @@ var (
 func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 	log.Init(log.WithFields(map[string]interface{}{"service": "network"}))
 
-	if ctx.Args().Len() > 0 {
-		cli.ShowSubcommandHelp(ctx)
-		os.Exit(1)
-	}
-
 	// Init plugins
 	for _, p := range Plugins() {
 		p.Init(ctx)
@@ -307,6 +302,9 @@ func Commands(options ...micro.Option) []*cli.Command {
 					},
 				},
 				Action: func(ctx *cli.Context) error {
+					if err := helper.UnexpectedSubcommand(ctx); err != nil {
+						return err
+					}
 					netdns.Run(ctx)
 					return nil
 				},
@@ -314,6 +312,9 @@ func Commands(options ...micro.Option) []*cli.Command {
 			},
 		}, mcli.NetworkCommands()...),
 		Action: func(ctx *cli.Context) error {
+			if err := helper.UnexpectedSubcommand(ctx); err != nil {
+				return err
+			}
 			Run(ctx, options...)
 			return nil
 		},

@@ -19,6 +19,7 @@ import (
 	cliutil "github.com/micro/micro/v2/client/cli/util"
 	"github.com/micro/micro/v2/internal/client"
 	"github.com/micro/micro/v2/internal/config"
+	"github.com/micro/micro/v2/internal/helper"
 	"github.com/micro/micro/v2/service/auth/api"
 	authHandler "github.com/micro/micro/v2/service/auth/handler/auth"
 	rulesHandler "github.com/micro/micro/v2/service/auth/handler/rules"
@@ -89,11 +90,6 @@ var (
 // run the auth service
 func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 	log.Init(log.WithFields(map[string]interface{}{"service": "auth"}))
-
-	// Init plugins
-	for _, p := range Plugins() {
-		p.Init(ctx)
-	}
 
 	if len(ctx.String("address")) > 0 {
 		Address = ctx.String("address")
@@ -229,6 +225,9 @@ func Commands(srvOpts ...micro.Option) []*cli.Command {
 			Name:  "auth",
 			Usage: "Run the auth service",
 			Action: func(ctx *cli.Context) error {
+				if err := helper.UnexpectedSubcommand(ctx); err != nil {
+					return err
+				}
 				Run(ctx)
 				return nil
 			},
