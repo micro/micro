@@ -13,6 +13,7 @@ import (
 	proto "github.com/micro/go-micro/v2/config/source/service/proto"
 	log "github.com/micro/go-micro/v2/logger"
 	"github.com/micro/micro/v2/internal/client"
+	"github.com/micro/micro/v2/internal/helper"
 	"github.com/micro/micro/v2/service/config/handler"
 )
 
@@ -115,8 +116,9 @@ func getConfig(ctx *cli.Context) error {
 		// The actual key for the val
 		Path: key,
 	})
+
 	if err != nil {
-		if strings.Contains(err.Error(), "not found") {
+		if strings.Contains(strings.ToLower(err.Error()), "not found") {
 			fmt.Println("not found")
 			os.Exit(1)
 		}
@@ -198,6 +200,9 @@ func Commands(options ...micro.Option) []*cli.Command {
 			},
 		},
 		Action: func(ctx *cli.Context) error {
+			if err := helper.UnexpectedSubcommand(ctx); err != nil {
+				return err
+			}
 			Run(ctx, options...)
 			return nil
 		},
