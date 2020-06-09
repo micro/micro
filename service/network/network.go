@@ -302,9 +302,10 @@ func Commands(options ...micro.Option) []*cli.Command {
 					},
 				},
 				Action: func(ctx *cli.Context) error {
-					if ctx.Args().First() != "" {
+					if first := ctx.Args().First(); first != "" {
 						// received something that isn't a subcommand
-						return cli.ShowAppHelp(ctx)
+						cli.ShowSubcommandHelp(ctx)
+						return fmt.Errorf("Unrecognized subcommand %s", first)
 					}
 					netdns.Run(ctx)
 					return nil
@@ -313,10 +314,10 @@ func Commands(options ...micro.Option) []*cli.Command {
 			},
 		}, mcli.NetworkCommands()...),
 		Action: func(ctx *cli.Context) error {
-			if ctx.Args().First() != "" {
+			if first := ctx.Args().First(); first != "" {
 				// received something that isn't a subcommand
 				cli.ShowSubcommandHelp(ctx)
-				return fmt.Errorf("Unrecognized subcommand %s", ctx.Args().First())
+				return fmt.Errorf("Unrecognized subcommand %s", first)
 			}
 			Run(ctx, options...)
 			return nil

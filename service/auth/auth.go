@@ -224,10 +224,10 @@ func Commands(srvOpts ...micro.Option) []*cli.Command {
 			Name:  "auth",
 			Usage: "Run the auth service",
 			Action: func(ctx *cli.Context) error {
-				if ctx.Args().First() != "" {
+				if first := ctx.Args().First(); first != "" {
 					// received something that isn't a subcommand
 					cli.ShowSubcommandHelp(ctx)
-					return fmt.Errorf("Unrecognized subcommand %s", ctx.Args().First())
+					return fmt.Errorf("Unrecognized subcommand %s", first)
 				}
 				Run(ctx)
 				return nil
