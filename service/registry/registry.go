@@ -111,20 +111,6 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 	// get server id
 	id := service.Server().Options().Id
 
-	/*
-		// create the subscriber
-		s := &subscriber{
-			Id:       id,
-			Registry: service.Options().Registry,
-		}
-
-		// register the subscriber
-			if err := micro.RegisterSubscriber(Topic, service.Server(), s); err != nil {
-				log.Debugf("failed to subscribe to events: %s", err)
-				os.Exit(1)
-			}
-	*/
-
 	// register the handler
 	pb.RegisterRegistryHandler(service.Server(), &handler.Registry{
 		Id:        id,
@@ -151,6 +137,10 @@ func Commands(options ...micro.Option) []*cli.Command {
 			},
 		},
 		Action: func(ctx *cli.Context) error {
+			if ctx.Args().First() != "" {
+				// received something that isn't a subcommand
+				return cli.ShowAppHelp(ctx)
+			}
 			Run(ctx, options...)
 			return nil
 		},

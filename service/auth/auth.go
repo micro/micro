@@ -229,6 +229,10 @@ func Commands(srvOpts ...micro.Option) []*cli.Command {
 			Name:  "auth",
 			Usage: "Run the auth service",
 			Action: func(ctx *cli.Context) error {
+				if ctx.Args().First() != "" {
+					// received something that isn't a subcommand
+					return cli.ShowAppHelp(ctx)
+				}
 				Run(ctx)
 				return nil
 			},

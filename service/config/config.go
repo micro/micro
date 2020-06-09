@@ -199,6 +199,10 @@ func Commands(options ...micro.Option) []*cli.Command {
 			},
 		},
 		Action: func(ctx *cli.Context) error {
+			if ctx.Args().First() != "" {
+				// received something that isn't a subcommand
+				return cli.ShowAppHelp(ctx)
+			}
 			Run(ctx, options...)
 			return nil
 		},
