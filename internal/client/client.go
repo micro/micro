@@ -2,7 +2,6 @@ package client
 
 import (
 	"context"
-	"strings"
 
 	ccli "github.com/micro/cli/v2"
 	"github.com/micro/go-micro/v2/auth"
@@ -34,8 +33,15 @@ func (a *wrapper) Call(ctx context.Context, req client.Request, rsp interface{},
 		ctx = metadata.Set(ctx, "Authorization", auth.BearerScheme+a.token)
 	}
 	if len(a.env) > 0 && !util.IsLocal(a.ctx) && !util.IsServer(a.ctx) {
-		env := strings.ReplaceAll(a.env, "/", "-")
-		ctx = metadata.Set(ctx, "Micro-Namespace", env)
+		// @todo this is temporarily removed because multi tenancy is not there yet
+		// and the moment core and non core services run in different environment, we
+		// get issues. Just to test see `micro env add mine 127.0.0.1:8081`,
+		// `micro run github.com/crufter/micro-services/logspammer` works but
+		// `micro -env=mine run github.com/crufter/micro-services/logspammer` is broken.
+		// Related ticket https://github.com/micro/development/issues/193
+		//
+		// env := strings.ReplaceAll(a.env, "/", "-")
+		// ctx = metadata.Set(ctx, "Micro-Namespace", env)
 	}
 	return a.Client.Call(ctx, req, rsp, opts...)
 }
