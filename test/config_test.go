@@ -14,7 +14,7 @@ import (
 )
 
 func TestConfig(t *testing.T) {
-	trySuite(t, testConfig, 5)
+	trySuite(t, testConfig, retryCount)
 }
 
 func testConfig(t *t) {
