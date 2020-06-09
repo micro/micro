@@ -139,7 +139,7 @@ func testRunLocalSource(t *t) {
 }
 
 func TestRunAndKill(t *testing.T) {
-	trySuite(t, testRunLocalSource, retryCount)
+	trySuite(t, testRunAndKill, retryCount)
 }
 
 func testRunAndKill(t *t) {
@@ -181,16 +181,11 @@ func testRunAndKill(t *t) {
 		return outp, err
 	}, 50*time.Second)
 
-	try("Kill the example service ", t, func() ([]byte, error) {
-		outp, err := exec.Command("micro", serv.envFlag(), "kill", "test/example-service").CombinedOutput()
-		if err != nil {
-			return outp, err
-		}
-		if !strings.Contains(string(outp), "go.micro.service.example") {
-			return outp, errors.New("Can't find example service in list")
-		}
-		return outp, err
-	}, 50*time.Second)
+	outp, err = exec.Command("micro", serv.envFlag(), "kill", "test/example-service").CombinedOutput()
+	if err != nil {
+		t.Fatalf("micro kill failure, output: %v", string(outp))
+		return
+	}
 
 	try("Find test/example", t, func() ([]byte, error) {
 		psCmd := exec.Command("micro", serv.envFlag(), "status")
