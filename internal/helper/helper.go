@@ -5,6 +5,7 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"strings"
@@ -66,4 +67,14 @@ func TLSConfig(ctx *cli.Context) (*tls.Config, error) {
 	}
 
 	return nil, errors.New("TLS certificate and key files not specified")
+}
+
+// UnexpectedSubcommand checks for erroneous subcommands and prints help and returns error
+func UnexpectedSubcommand(ctx *cli.Context) error {
+	if first := ctx.Args().First(); first != "" {
+		// received something that isn't a subcommand
+		cli.ShowSubcommandHelp(ctx)
+		return fmt.Errorf("Unrecognized subcommand %s", first)
+	}
+	return nil
 }
