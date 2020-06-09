@@ -19,6 +19,7 @@ import (
 	cliutil "github.com/micro/micro/v2/client/cli/util"
 	"github.com/micro/micro/v2/internal/client"
 	"github.com/micro/micro/v2/internal/config"
+	"github.com/micro/micro/v2/internal/helper"
 	"github.com/micro/micro/v2/service/auth/api"
 	authHandler "github.com/micro/micro/v2/service/auth/handler/auth"
 	rulesHandler "github.com/micro/micro/v2/service/auth/handler/rules"
@@ -224,10 +225,8 @@ func Commands(srvOpts ...micro.Option) []*cli.Command {
 			Name:  "auth",
 			Usage: "Run the auth service",
 			Action: func(ctx *cli.Context) error {
-				if first := ctx.Args().First(); first != "" {
-					// received something that isn't a subcommand
-					cli.ShowSubcommandHelp(ctx)
-					return fmt.Errorf("Unrecognized subcommand %s", first)
+				if err := helper.UnexpectedSubcommand(ctx); err != nil {
+					return err
 				}
 				Run(ctx)
 				return nil

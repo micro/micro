@@ -1,14 +1,13 @@
 package store
 
 import (
-	"fmt"
-
 	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro/v2"
 	log "github.com/micro/go-micro/v2/logger"
 	"github.com/micro/go-micro/v2/store"
 	pb "github.com/micro/go-micro/v2/store/service/proto"
 	mcli "github.com/micro/micro/v2/client/cli"
+	"github.com/micro/micro/v2/internal/helper"
 	"github.com/micro/micro/v2/service/store/handler"
 	"github.com/pkg/errors"
 )
@@ -102,10 +101,8 @@ func Commands(options ...micro.Option) []*cli.Command {
 			},
 		},
 		Action: func(ctx *cli.Context) error {
-			if first := ctx.Args().First(); first != "" {
-				// received something that isn't a subcommand
-				cli.ShowSubcommandHelp(ctx)
-				return fmt.Errorf("Unrecognized subcommand %s", first)
+			if err := helper.UnexpectedSubcommand(ctx); err != nil {
+				return err
 			}
 			Run(ctx, options...)
 			return nil

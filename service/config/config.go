@@ -13,6 +13,7 @@ import (
 	proto "github.com/micro/go-micro/v2/config/source/service/proto"
 	log "github.com/micro/go-micro/v2/logger"
 	"github.com/micro/micro/v2/internal/client"
+	"github.com/micro/micro/v2/internal/helper"
 	"github.com/micro/micro/v2/service/config/handler"
 )
 
@@ -199,10 +200,8 @@ func Commands(options ...micro.Option) []*cli.Command {
 			},
 		},
 		Action: func(ctx *cli.Context) error {
-			if first := ctx.Args().First(); first != "" {
-				// received something that isn't a subcommand
-				cli.ShowSubcommandHelp(ctx)
-				return fmt.Errorf("Unrecognized subcommand %s", first)
+			if err := helper.UnexpectedSubcommand(ctx); err != nil {
+				return err
 			}
 			Run(ctx, options...)
 			return nil
