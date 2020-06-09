@@ -115,8 +115,9 @@ func getConfig(ctx *cli.Context) error {
 		// The actual key for the val
 		Path: key,
 	})
+
 	if err != nil {
-		if strings.Contains(err.Error(), "not found") {
+		if strings.Contains(strings.ToLower(err.Error()), "not found") {
 			fmt.Println("not found")
 			os.Exit(1)
 		}
