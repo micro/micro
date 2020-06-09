@@ -50,11 +50,6 @@ var (
 func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 	log.Init(log.WithFields(map[string]interface{}{"service": "network"}))
 
-	if ctx.Args().Len() > 0 {
-		cli.ShowSubcommandHelp(ctx)
-		os.Exit(1)
-	}
-
 	// Init plugins
 	for _, p := range Plugins() {
 		p.Init(ctx)
@@ -320,7 +315,8 @@ func Commands(options ...micro.Option) []*cli.Command {
 		Action: func(ctx *cli.Context) error {
 			if ctx.Args().First() != "" {
 				// received something that isn't a subcommand
-				return cli.ShowAppHelp(ctx)
+				cli.ShowSubcommandHelp(ctx)
+				return fmt.Errorf("Unrecognized subcommand %s", ctx.Args().First())
 			}
 			Run(ctx, options...)
 			return nil

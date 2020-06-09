@@ -90,11 +90,6 @@ var (
 func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 	log.Init(log.WithFields(map[string]interface{}{"service": "auth"}))
 
-	// Init plugins
-	for _, p := range Plugins() {
-		p.Init(ctx)
-	}
-
 	if len(ctx.String("address")) > 0 {
 		Address = ctx.String("address")
 	}
@@ -231,7 +226,8 @@ func Commands(srvOpts ...micro.Option) []*cli.Command {
 			Action: func(ctx *cli.Context) error {
 				if ctx.Args().First() != "" {
 					// received something that isn't a subcommand
-					return cli.ShowAppHelp(ctx)
+					cli.ShowSubcommandHelp(ctx)
+					return fmt.Errorf("Unrecognized subcommand %s", ctx.Args().First())
 				}
 				Run(ctx)
 				return nil
