@@ -228,7 +228,8 @@ func grepMain(path string) error {
 		if !strings.HasSuffix(f.Name(), ".go") {
 			continue
 		}
-		b, err := ioutil.ReadFile(f.Name())
+		file := filepath.Join(path, f.Name())
+		b, err := ioutil.ReadFile(file)
 		if err != nil {
 			continue
 		}
