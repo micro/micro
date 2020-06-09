@@ -34,8 +34,8 @@ func (a *wrapper) Call(ctx context.Context, req client.Request, rsp interface{},
 	}
 	if len(a.env) > 0 && !util.IsLocal(a.ctx) && !util.IsServer(a.ctx) {
 		// @todo this is temporarily removed because multi tenancy is not there yet
-		// and the moment core and non core services run in different environment, we
-		// get issues. Just to test see `micro env add mine 127.0.0.1:8081`,
+		// and the moment core and non core services run in different environments, we
+		// get issues. To test after `micro env add mine 127.0.0.1:8081` do,
 		// `micro run github.com/crufter/micro-services/logspammer` works but
 		// `micro -env=mine run github.com/crufter/micro-services/logspammer` is broken.
 		// Related ticket https://github.com/micro/development/issues/193
