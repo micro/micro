@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"os"
 	"strings"
 
 	"github.com/micro/cli/v2"
@@ -73,8 +74,16 @@ func TLSConfig(ctx *cli.Context) (*tls.Config, error) {
 func UnexpectedSubcommand(ctx *cli.Context) error {
 	if first := ctx.Args().First(); first != "" {
 		// received something that isn't a subcommand
-		cli.ShowSubcommandHelp(ctx)
-		return fmt.Errorf("Unrecognized subcommand %s", first)
+		return fmt.Errorf("Unrecognized subcommand for %s: %s. Please refer to 'micro help' or https://dev.m3o.com", ctx.App.Name, first)
 	}
 	return nil
+}
+
+func UnexpectedCommand(ctx *cli.Context) error {
+	commandName := os.Args[1]
+	return fmt.Errorf("Unrecognized micro command: %s. Please refer to 'micro help' or https://dev.m3o.com", commandName)
+}
+
+func MissingCommand(ctx *cli.Context) error {
+	return fmt.Errorf("No command provided to micro. Please refer to 'micro help' or https://dev.m3o.com")
 }

@@ -38,6 +38,7 @@ import (
 
 	// internals
 	inauth "github.com/micro/micro/v2/internal/auth"
+	"github.com/micro/micro/v2/internal/helper"
 	"github.com/micro/micro/v2/internal/platform"
 	_ "github.com/micro/micro/v2/internal/plugins"
 	"github.com/micro/micro/v2/internal/update"
@@ -369,7 +370,8 @@ func Setup(app *ccli.App, options ...micro.Option) {
 
 			v, err := exec.LookPath(command)
 			if err != nil {
-				return ccli.ShowAppHelp(c)
+				fmt.Println(helper.UnexpectedCommand(c))
+				os.Exit(1)
 			}
 
 			// execute the command
@@ -378,8 +380,9 @@ func Setup(app *ccli.App, options ...micro.Option) {
 			ce.Stderr = os.Stderr
 			return ce.Run()
 		}
-
-		return ccli.ShowAppHelp(c)
+		fmt.Println(helper.MissingCommand(c))
+		os.Exit(1)
+		return nil
 	}
 
 	setup(app)
