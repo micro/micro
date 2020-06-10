@@ -52,7 +52,8 @@ var defaultEnvs = map[string]Env{
 }
 
 func isBuiltinService(command string) bool {
-	if command == "server" {
+	switch command {
+	case "server", "help":
 		return true
 	}
 	for _, service := range platform.Services {
