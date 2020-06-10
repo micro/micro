@@ -131,4 +131,4 @@ See all the options
 micro --help
 ```
 
-See the [docs](https://dev.micro.mu) for detailed information on the architecture, installation and use of the platform.
+See the [docs](https://dev.m3o.com) for detailed information on the architecture, installation and use of the platform.
