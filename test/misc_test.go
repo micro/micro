@@ -82,8 +82,8 @@ func testWrongCommands(t *t) {
 	if err == nil {
 		t.Fatal("Missing command should error")
 	}
-	lines := strings.Split(string(outp), "\n")
-	if len(lines) > 1 || !strings.Contains(string(outp), "No command") {
+
+	if !strings.Contains(string(outp), "No command") {
 		t.Fatalf("Unexpected output for no command: %v", string(outp))
 	}
 
@@ -92,8 +92,8 @@ func testWrongCommands(t *t) {
 	if err == nil {
 		t.Fatal("Wrong command should error")
 	}
-	lines = strings.Split(string(outp), "\n")
-	if len(lines) > 1 || !strings.Contains(string(outp), "Unrecognized micro command") {
+
+	if !strings.Contains(string(outp), "Unrecognized micro command") {
 		t.Fatalf("Unexpected output for unrecognized command: %v", string(outp))
 	}
 
@@ -102,7 +102,7 @@ func testWrongCommands(t *t) {
 	if err == nil {
 		t.Fatal("Wrong subcommand should error")
 	}
-	lines = strings.Split(string(outp), "\n")
+
 	// @todod for some reason this one returns multiple lines so we don't check for line count now
 	if !strings.Contains(string(outp), "Unrecognized subcommand for micro config") {
 		t.Fatalf("Unexpected output for unrecognized subcommand: %v", string(outp))
