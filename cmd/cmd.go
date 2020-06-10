@@ -256,6 +256,10 @@ func setup(app *ccli.App) {
 		util.SetupCommand(ctx)
 		// now do previous before
 		if err := before(ctx); err != nil {
+			// DO NOT return this error otherwise the action will fail
+			// and help will be printed.
+			fmt.Println(err)
+			os.Exit(1)
 			return err
 		}
 
