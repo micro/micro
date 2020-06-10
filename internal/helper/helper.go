@@ -74,7 +74,7 @@ func TLSConfig(ctx *cli.Context) (*tls.Config, error) {
 func UnexpectedSubcommand(ctx *cli.Context) error {
 	if first := ctx.Args().First(); first != "" {
 		// received something that isn't a subcommand
-		return fmt.Errorf("Unrecognized subcommand for %s: %s. Please refer to '%s help' or https://dev.m3o.com", ctx.App.Name, first, ctx.App.Name)
+		return fmt.Errorf("Unrecognized subcommand for %s: %s. Please refer to '%s help', ctx.App.Name, first, ctx.App.Name)
 	}
 	return nil
 }
@@ -88,9 +88,9 @@ func UnexpectedCommand(ctx *cli.Context) error {
 			commandName = arg
 		}
 	}
-	return fmt.Errorf("Unrecognized micro command: %s. Please refer to 'micro help' or https://dev.m3o.com", commandName)
+	return fmt.Errorf("Unrecognized micro command: %s. Please refer to 'micro help'", commandName)
 }
 
 func MissingCommand(ctx *cli.Context) error {
-	return fmt.Errorf("No command provided to micro. Please refer to 'micro help' or https://dev.m3o.com")
+	return fmt.Errorf("No command provided to micro. Please refer to 'micro help'")
 }
