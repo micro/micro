@@ -4,6 +4,7 @@ package runtime
 import (
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"os"
 	"os/signal"
 	"path/filepath"
@@ -105,7 +106,11 @@ func runService(ctx *cli.Context, srvOpts ...micro.Option) {
 	}
 	var newSource string
 	if source.Local {
-		newSource = upload(ctx, source)
+		newSource, err = upload(ctx, source)
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
 	}
 
 	typ := ctx.String("type")
@@ -214,7 +219,31 @@ func killService(ctx *cli.Context, srvOpts ...micro.Option) {
 	}
 }
 
-func upload(ctx *cli.Context, source *git.Source) string {
+func grepMain(path string) error {
+	files, err := ioutil.ReadDir(path)
+	if err != nil {
+		return err
+	}
+	for _, f := range files {
+		if !strings.HasSuffix(f.Name(), ".go") {
+			continue
+		}
+		file := filepath.Join(path, f.Name())
+		b, err := ioutil.ReadFile(file)
+		if err != nil {
+			continue
+		}
+		if strings.Contains(string(b), "package main") {
+			return nil
+		}
+	}
+	return fmt.Errorf("Directory does not contain a main package")
+}
+
+func upload(ctx *cli.Context, source *git.Source) (string, error) {
+	if err := grepMain(source.FullPath); err != nil {
+		return "", err
+	}
 	uploadedFileName := strings.ReplaceAll(source.Folder, string(filepath.Separator), "-") + ".tar.gz"
 	path := filepath.Join(os.TempDir(), uploadedFileName)
 	err := handler.Compress(source.FullPath, path)
@@ -227,7 +256,7 @@ func upload(ctx *cli.Context, source *git.Source) string {
 		fmt.Println(err)
 		os.Exit(1)
 	}
-	return uploadedFileName
+	return uploadedFileName, nil
 }
 
 func updateService(ctx *cli.Context, srvOpts ...micro.Option) {
@@ -249,7 +278,11 @@ func updateService(ctx *cli.Context, srvOpts ...micro.Option) {
 	}
 	var newSource string
 	if source.Local {
-		newSource = upload(ctx, source)
+		newSource, err = upload(ctx, source)
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
 	}
 
 	runtimeSource := source.RuntimeSource()
