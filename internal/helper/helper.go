@@ -80,7 +80,14 @@ func UnexpectedSubcommand(ctx *cli.Context) error {
 }
 
 func UnexpectedCommand(ctx *cli.Context) error {
-	commandName := os.Args[1]
+	commandName := ""
+	// We fall back to os.Args as ctx does not seem to have the original command.
+	for _, arg := range os.Args[1:] {
+		// Exclude flags
+		if !strings.HasPrefix(arg, "-") {
+			commandName = arg
+		}
+	}
 	return fmt.Errorf("Unrecognized micro command: %s. Please refer to 'micro help' or https://dev.m3o.com", commandName)
 }
 

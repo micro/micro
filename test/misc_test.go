@@ -63,9 +63,19 @@ func TestWrongCommands(t *testing.T) {
 }
 
 func testWrongCommands(t *t) {
+	// @TODO this is obviously bad that we have to start a server for this. Why?
+	// What happens is in `cmd/cmd.go` `/service/store/cli/util.go`.SetupCommand is called
+	// which does not run for builtin services and help etc but there is no such exception for
+	// missing/unrecognized commands, so the behaviour below will only happen if a `micro server`
+	// is running. This is most likely because some config/auth wrapper in the background failing.
+	// Fix this later.
+	serv := newServer(t)
+	serv.launch()
+	defer serv.close()
+
 	t.Parallel()
 
-	comm := exec.Command("micro")
+	comm := exec.Command("micro", serv.envFlag())
 	outp, err := comm.CombinedOutput()
 	if err == nil {
 		t.Fatal("Missing command should error")
@@ -75,7 +85,7 @@ func testWrongCommands(t *t) {
 		t.Fatalf("Unexpected output for no command: %v", string(outp))
 	}
 
-	comm = exec.Command("micro", "asdasd")
+	comm = exec.Command("micro", serv.envFlag(), "asdasd")
 	outp, err = comm.CombinedOutput()
 	if err == nil {
 		t.Fatal("Wrong command should error")
@@ -85,7 +95,7 @@ func testWrongCommands(t *t) {
 		t.Fatalf("Unexpected output for unrecognized command: %v", string(outp))
 	}
 
-	comm = exec.Command("micro", "config", "asdasd")
+	comm = exec.Command("micro", serv.envFlag(), "config", "asdasd")
 	outp, err = comm.CombinedOutput()
 	if err == nil {
 		t.Fatal("Wrong subcommand should error")
