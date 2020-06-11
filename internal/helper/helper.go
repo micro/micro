@@ -5,8 +5,10 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"net/http"
+	"os"
 	"strings"
 
 	"github.com/micro/cli/v2"
@@ -66,4 +68,29 @@ func TLSConfig(ctx *cli.Context) (*tls.Config, error) {
 	}
 
 	return nil, errors.New("TLS certificate and key files not specified")
+}
+
+// UnexpectedSubcommand checks for erroneous subcommands and prints help and returns error
+func UnexpectedSubcommand(ctx *cli.Context) error {
+	if first := ctx.Args().First(); first != "" {
+		// received something that isn't a subcommand
+		return fmt.Errorf("Unrecognized subcommand for %s: %s. Please refer to '%s help'", ctx.App.Name, first, ctx.App.Name)
+	}
+	return nil
+}
+
+func UnexpectedCommand(ctx *cli.Context) error {
+	commandName := ""
+	// We fall back to os.Args as ctx does not seem to have the original command.
+	for _, arg := range os.Args[1:] {
+		// Exclude flags
+		if !strings.HasPrefix(arg, "-") {
+			commandName = arg
+		}
+	}
+	return fmt.Errorf("Unrecognized micro command: %s. Please refer to 'micro help'", commandName)
+}
+
+func MissingCommand(ctx *cli.Context) error {
+	return fmt.Errorf("No command provided to micro. Please refer to 'micro help'")
 }
