@@ -20,9 +20,6 @@ jobs:
         with:
           go-version: '1.13'
       -
-        name: Install upx
-        run: sudo apt install upx -y
-      -
         name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v1
         with:
