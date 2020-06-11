@@ -21,8 +21,8 @@ func TestEvents(t *testing.T) {
 	eventPollFrequency = time.Millisecond * 10
 	go m.watchEvents()
 
-	// timeout async tests after 50ms
-	timeout := time.NewTimer(time.Millisecond * 50)
+	// timeout async tests after 500ms
+	timeout := time.NewTimer(time.Millisecond * 500)
 
 	// the service that should be passed to the runtime
 	testSrv := &runtime.Service{Name: "go.micro.service.foo", Version: "latest"}
@@ -35,7 +35,7 @@ func TestEvents(t *testing.T) {
 			t.Errorf("Unexpected error when publishing events: %v", err)
 		}
 
-		timeout.Reset(time.Millisecond * 50)
+		timeout.Reset(time.Millisecond * 500)
 
 		select {
 		case srv := <-eventChan:
@@ -58,7 +58,7 @@ func TestEvents(t *testing.T) {
 			t.Errorf("Unexpected error when publishing events: %v", err)
 		}
 
-		timeout.Reset(time.Millisecond * 50)
+		timeout.Reset(time.Millisecond * 500)
 
 		select {
 		case srv := <-eventChan:
@@ -70,7 +70,7 @@ func TestEvents(t *testing.T) {
 		}
 
 		if rt.updateCount != 1 {
-			t.Errorf("Expected runtime update to be called 1 time but was actually called %v times", rt.createCount)
+			t.Errorf("Expected runtime update to be called 1 time but was actually called %v times", rt.updateCount)
 		}
 	})
 
@@ -81,7 +81,7 @@ func TestEvents(t *testing.T) {
 			t.Errorf("Unexpected error when publishing events: %v", err)
 		}
 
-		timeout.Reset(time.Millisecond * 50)
+		timeout.Reset(time.Millisecond * 500)
 
 		select {
 		case srv := <-eventChan:
@@ -93,7 +93,7 @@ func TestEvents(t *testing.T) {
 		}
 
 		if rt.deleteCount != 1 {
-			t.Errorf("Expected runtime delete to be called 1 time but was actually called %v times", rt.createCount)
+			t.Errorf("Expected runtime delete to be called 1 time but was actually called %v times", rt.deleteCount)
 		}
 	})
 }
