@@ -24,6 +24,8 @@ builds:
   - arm64
   goarm:
   - 7
+  hooks:
+    post: .github/workflows/upx.sh
 archives:
 - name_template: '{{.ProjectName}}-{{.Tag}}-{{.Os}}-{{.Arch}}{{if .Arm}}{{.Arm}}{{end}}'
   replacements:
