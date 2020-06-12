@@ -14,7 +14,12 @@ Reasons why you should not run this locally:
 
 Although the tests run in docker, the containers and envs are named so you can easily interact with them. Some useful tricks:
 
-First let's start a test, cd into the `test` folder and then:
+First, we have to build a local docker image:
+```
+bash scripts/build-local-docker.sh
+```
+
+To start a test, cd into the `test` folder and then:
 
 ```
 go clean -testcache && go test --tags=integration  -failfast -v -run TestServerAuth$
@@ -43,4 +48,9 @@ This means we can also interact with the server running in the container in the 
 
 ```
 $ micro -env=testServerAuth status
+```
+
+The loop script can be used to test for flakiness:
+```
+cd test; bash loop.sh
 ```
