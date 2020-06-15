@@ -37,25 +37,21 @@ const (
 )
 
 var defaultEnvs = map[string]Env{
-	EnvLocal: Env{
+	EnvLocal: {
 		Name:         EnvLocal,
 		ProxyAddress: localProxyAddress,
 	},
-	EnvServer: Env{
+	EnvServer: {
 		Name:         EnvServer,
 		ProxyAddress: serverProxyAddress,
 	},
-	EnvPlatform: Env{
+	EnvPlatform: {
 		Name:         EnvPlatform,
 		ProxyAddress: platformProxyAddress,
 	},
 }
 
 func isBuiltinService(command string) bool {
-	switch command {
-	case "server", "help":
-		return true
-	}
 	for _, service := range platform.Services {
 		if command == service {
 			return true
@@ -66,6 +62,10 @@ func isBuiltinService(command string) bool {
 
 // SetupCommand includes things that should run for each command.
 func SetupCommand(ctx *ccli.Context) {
+	switch ctx.Args().First() {
+	case "new", "server", "help":
+		return
+	}
 	if ctx.Args().Len() == 1 && isBuiltinService(ctx.Args().First()) {
 		return
 	}
