@@ -3,6 +3,7 @@
 package test
 
 import (
+	"fmt"
 	"os/exec"
 	"strings"
 	"testing"
@@ -131,13 +132,16 @@ func testHelps(t *t) {
 			continue
 		}
 		commandName := strings.Split(trimmed, " ")[0]
-		comm = exec.Command("micro", commandName, "help")
+		comm = exec.Command("micro", commandName, "--help")
 		outp, err = comm.CombinedOutput()
+
 		if err != nil {
-			t.Fatal(err)
+			t.Fatal(fmt.Errorf("Command %v output is wrong: %v", commandName, string(outp)))
+			break
 		}
 		if !strings.Contains(string(outp), "micro "+commandName+" -") {
 			t.Fatal(commandName + " output is wrong: " + string(outp))
+			break
 		}
 	}
 }
