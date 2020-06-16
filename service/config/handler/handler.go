@@ -273,7 +273,10 @@ func (c *Config) Delete(ctx context.Context, req *pb.DeleteRequest, rsp *pb.Dele
 	// Get the current change set
 	records, err := c.Store.Read(namespace)
 	if err != nil {
-		return errors.BadRequest("go.micro.config.Update", "read old value error: %v", err)
+		if err.Error() != "not found" {
+			return errors.BadRequest("go.micro.srv.Delete", "read old value error: %v", err)
+		}
+		return nil
 	}
 
 	ch := &pb.Change{}

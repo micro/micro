@@ -14,7 +14,7 @@ import (
 )
 
 func TestConfig(t *testing.T) {
-	trySuite(t, testConfig, 5)
+	trySuite(t, testConfig, retryCount)
 }
 
 func testConfig(t *t) {
@@ -146,7 +146,7 @@ func testConfigReadFromService(t *t) {
 	// This needs to be retried to the the "error listing rules"
 	// error log output that happens when the auth service is not yet available.
 	try("Calling micro config set", t, func() ([]byte, error) {
-		setCmd := exec.Command("micro", serv.envFlag(), "config", "set", "key", "subkey", "val1")
+		setCmd := exec.Command("micro", serv.envFlag(), "config", "set", "key.subkey", "val1")
 		outp, err := setCmd.CombinedOutput()
 		if err != nil {
 			return outp, err

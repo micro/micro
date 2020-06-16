@@ -24,7 +24,7 @@ jobs:
         run: sudo apt install upx -y
       -
         name: Run GoReleaser
-        uses: goreleaser/goreleaser-action@v1
+        uses: goreleaser/goreleaser-action@v2
         with:
           args: release --rm-dist
         env:

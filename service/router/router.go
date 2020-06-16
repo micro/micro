@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"os"
-	"sync"
 	"time"
 
 	"github.com/micro/cli/v2"
@@ -253,19 +252,14 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 		os.Exit(1)
 	}
 
-	var wg sync.WaitGroup
 	// error channel to collect router errors
 	errChan := make(chan error, 2)
 
-	wg.Add(1)
 	go func() {
-		defer wg.Done()
 		errChan <- rtr.PublishAdverts(advertChan)
 	}()
 
-	wg.Add(1)
 	go func() {
-		defer wg.Done()
 		errChan <- service.Run()
 	}()
 
@@ -281,8 +275,6 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 		log.Errorf("failed to stop: %s", err)
 		os.Exit(1)
 	}
-
-	wg.Wait()
 
 	log.Info("successfully stopped")
 }

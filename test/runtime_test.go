@@ -15,57 +15,6 @@ import (
 	"time"
 )
 
-func TestNew(t *testing.T) {
-	trySuite(t, testNew, retryCount)
-}
-
-func testNew(t *t) {
-	t.Parallel()
-	defer func() {
-		exec.Command("rm", "-r", "./foobar").CombinedOutput()
-	}()
-	outp, err := exec.Command("micro", "new", "foobar").CombinedOutput()
-	if err != nil {
-		t.Fatal(err)
-		return
-	}
-	if !strings.Contains(string(outp), "protoc") {
-		t.Fatalf("micro new lacks 	protobuf install instructions %v", string(outp))
-		return
-	}
-
-	lines := strings.Split(string(outp), "\n")
-	// executing install instructions
-	for _, line := range lines {
-		if strings.HasPrefix(line, "go get") {
-			parts := strings.Split(line, " ")
-			getOutp, getErr := exec.Command(parts[0], parts[1:]...).CombinedOutput()
-			if getErr != nil {
-				t.Fatal(string(getOutp))
-				return
-			}
-		}
-		if strings.HasPrefix(line, "protoc") {
-			parts := strings.Split(line, " ")
-			protocCmd := exec.Command(parts[0], parts[1:]...)
-			protocCmd.Dir = "./foobar"
-			pOutp, pErr := protocCmd.CombinedOutput()
-			if pErr != nil {
-				t.Fatal(string(pOutp))
-				return
-			}
-		}
-	}
-
-	buildCommand := exec.Command("go", "build")
-	buildCommand.Dir = "./foobar"
-	outp, err = buildCommand.CombinedOutput()
-	if err != nil {
-		t.Fatal(string(outp))
-		return
-	}
-}
-
 func TestServerModeCall(t *testing.T) {
 	trySuite(t, testServerModeCall, retryCount)
 }
@@ -138,7 +87,7 @@ func testRunLocalSource(t *t) {
 }
 
 func TestRunAndKill(t *testing.T) {
-	trySuite(t, testRunLocalSource, retryCount)
+	trySuite(t, testRunAndKill, retryCount)
 }
 
 func testRunAndKill(t *t) {
@@ -180,16 +129,11 @@ func testRunAndKill(t *t) {
 		return outp, err
 	}, 50*time.Second)
 
-	try("Kill the example service ", t, func() ([]byte, error) {
-		outp, err := exec.Command("micro", serv.envFlag(), "kill", "test/example-service").CombinedOutput()
-		if err != nil {
-			return outp, err
-		}
-		if !strings.Contains(string(outp), "go.micro.service.example") {
-			return outp, errors.New("Can't find example service in list")
-		}
-		return outp, err
-	}, 50*time.Second)
+	outp, err = exec.Command("micro", serv.envFlag(), "kill", "test/example-service").CombinedOutput()
+	if err != nil {
+		t.Fatalf("micro kill failure, output: %v", string(outp))
+		return
+	}
 
 	try("Find test/example", t, func() ([]byte, error) {
 		psCmd := exec.Command("micro", serv.envFlag(), "status")
@@ -336,14 +280,14 @@ func testRunGithubSource(t *t) {
 		return
 	}
 	if len(p) == 0 {
-		t.Fatalf("Git is not available %v", p)
+		t.Fatal("Git is not available")
 		return
 	}
 	serv := newServer(t)
 	serv.launch()
 	defer serv.close()
 
-	runCmd := exec.Command("micro", serv.envFlag(), "run", "helloworld")
+	runCmd := exec.Command("micro", serv.envFlag(), "run", "github.com/micro/examples/helloworld")
 	outp, err := runCmd.CombinedOutput()
 	if err != nil {
 		t.Fatalf("micro run failure, output: %v", string(outp))
