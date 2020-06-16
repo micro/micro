@@ -62,6 +62,12 @@ func isBuiltinService(command string) bool {
 
 // SetupCommand includes things that should run for each command.
 func SetupCommand(ctx *ccli.Context) {
+	// This makes `micro [command name] --help` work without a server
+	for _, arg := range os.Args {
+		if arg == "--help" || arg == "-h" {
+			return
+		}
+	}
 	switch ctx.Args().First() {
 	case "new", "server", "help":
 		return
