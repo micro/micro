@@ -3,6 +3,7 @@
 package test
 
 import (
+	"fmt"
 	"os/exec"
 	"strings"
 	"testing"
@@ -106,5 +107,41 @@ func testWrongCommands(t *t) {
 	// @todod for some reason this one returns multiple lines so we don't check for line count now
 	if !strings.Contains(string(outp), "Unrecognized subcommand for micro config") {
 		t.Fatalf("Unexpected output for unrecognized subcommand: %v", string(outp))
+	}
+}
+
+// TestHelps ensures all `micro [command name] help` && `micro [command name] --help` commands are working.
+func TestHelps(t *testing.T) {
+	trySuite(t, testHelps, retryCount)
+}
+
+func testHelps(t *t) {
+	comm := exec.Command("micro", "help")
+	outp, err := comm.CombinedOutput()
+	if err != nil {
+		t.Fatal(err)
+	}
+	commands := strings.Split(strings.Split(string(outp), "COMMANDS:")[1], "GLOBAL OPTIONS:")[0]
+	for _, line := range strings.Split(commands, "\n") {
+		trimmed := strings.TrimSpace(line)
+		if len(trimmed) == 0 {
+			continue
+		}
+		// no help for help ;)
+		if strings.Contains(trimmed, "help") {
+			continue
+		}
+		commandName := strings.Split(trimmed, " ")[0]
+		comm = exec.Command("micro", commandName, "--help")
+		outp, err = comm.CombinedOutput()
+
+		if err != nil {
+			t.Fatal(fmt.Errorf("Command %v output is wrong: %v", commandName, string(outp)))
+			break
+		}
+		if !strings.Contains(string(outp), "micro "+commandName+" -") {
+			t.Fatal(commandName + " output is wrong: " + string(outp))
+			break
+		}
 	}
 }
