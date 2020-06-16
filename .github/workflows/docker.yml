@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - master
+      # We want custom per developer branches to be pushed
+      - crufter
     tags:
       - v2.*
       - v3.*
