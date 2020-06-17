@@ -99,8 +99,7 @@ func Run(context *cli.Context) error {
 	peer := context.Bool("peer")
 
 	// pass through the environment
-	// TODO: perhaps don't do this
-	env := []string{"MICRO_STORE=file"}
+	env := []string{}
 	env = append(env, "MICRO_RUNTIME_PROFILE="+context.String("profile"))
 	env = append(env, os.Environ()...)
 
@@ -153,10 +152,23 @@ func Run(context *cli.Context) error {
 			envs = append(envs, "MICRO_AUTH=service")
 		}
 
+		// construct args to pass
+		cmdArgs := []string{}
+		for _, f := range context.FlagNames() {
+			if f == "profile" {
+				// TODO hack. profile seems to be some weird edge case because we have profile arg specced on runtime but also globally
+				// if we passed it here things won't start giving an `Unsupported profile` error
+				continue
+			}
+			cmdArgs = append(cmdArgs, "--"+f, context.String(f))
+		}
+
+		cmdArgs = append(cmdArgs, service)
+
 		// runtime based on environment we run the service in
 		args := []gorun.CreateOption{
 			gorun.WithCommand(os.Args[0]),
-			gorun.WithArgs(service),
+			gorun.WithArgs(cmdArgs...),
 			gorun.WithEnv(envs),
 			gorun.WithOutput(os.Stdout),
 			gorun.WithRetries(10),
