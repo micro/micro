@@ -223,7 +223,7 @@ func Commands(srvOpts ...micro.Option) []*cli.Command {
 	commands := []*cli.Command{
 		{
 			Name:  "auth",
-			Usage: "Run the auth service",
+			Usage: "Manage authentication related resources",
 			Action: func(ctx *cli.Context) error {
 				if err := helper.UnexpectedSubcommand(ctx); err != nil {
 					return err
@@ -232,16 +232,6 @@ func Commands(srvOpts ...micro.Option) []*cli.Command {
 				return nil
 			},
 			Subcommands: append([]*cli.Command{
-				{
-					Name:        "api",
-					Usage:       "Run the auth api",
-					Description: "Run the auth api",
-					Flags:       ServiceFlags,
-					Action: func(ctx *cli.Context) error {
-						api.Run(ctx, srvOpts...)
-						return nil
-					},
-				},
 				{
 					Name:  "list",
 					Usage: "List auth resources",
@@ -302,6 +292,16 @@ func Commands(srvOpts ...micro.Option) []*cli.Command {
 							},
 						},
 					}),
+				},
+				{
+					Name:        "api",
+					Usage:       "Run the auth api",
+					Description: "Run the auth api",
+					Flags:       ServiceFlags,
+					Action: func(ctx *cli.Context) error {
+						api.Run(ctx, srvOpts...)
+						return nil
+					},
 				},
 			}),
 		},
