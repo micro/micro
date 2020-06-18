@@ -462,6 +462,7 @@ func testBranchCheckout(t *t) {
 			return outp, err
 		}
 
+		// The log that this branch outputs is different from master, that's what we look for
 		if !strings.Contains(string(outp), "Listening on") || !strings.Contains(string(outp), "Branch checkout test") {
 			return outp, errors.New("Output does not contain expected")
 		}
