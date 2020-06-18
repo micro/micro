@@ -99,7 +99,9 @@ func Run(context *cli.Context) error {
 	peer := context.Bool("peer")
 
 	// pass through the environment
-	env := []string{}
+	// By default we want a file store when we run micro server.
+	// This will get overridden if user has set their own MICRO_STORE env var or passed in --store
+	env := []string{"MICRO_STORE=file"}
 	env = append(env, "MICRO_RUNTIME_PROFILE="+context.String("profile"))
 	env = append(env, os.Environ()...)
 
