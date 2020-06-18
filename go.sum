@@ -333,6 +333,8 @@ github.com/micro/go-micro/v2 v2.9.0-rc1 h1:JzuwVr6gcP7yRT/ftkZ7bn6jbv+8iAJPL1VWN
 github.com/micro/go-micro/v2 v2.9.0-rc1/go.mod h1:x55ZM3Puy0FyvvkR3e0ha0xsE9DFwfPSUMWAIbFY0SY=
 github.com/micro/go-micro/v2 v2.9.0 h1:SeQ3ba02jqcl51mtkGPcZjxpIRrBXxUel8PFG4Z9QSU=
 github.com/micro/go-micro/v2 v2.9.0/go.mod h1:x55ZM3Puy0FyvvkR3e0ha0xsE9DFwfPSUMWAIbFY0SY=
+github.com/micro/go-micro/v2 v2.9.1-0.20200618154539-8a09a0c00ee7 h1:KL50Vr368xPAR84GKeXBAIiVnMFI5aqeKdhsTtAqkJA=
+github.com/micro/go-micro/v2 v2.9.1-0.20200618154539-8a09a0c00ee7/go.mod h1:x55ZM3Puy0FyvvkR3e0ha0xsE9DFwfPSUMWAIbFY0SY=
 github.com/micro/mdns v0.3.0/go.mod h1:KJ0dW7KmicXU2BV++qkLlmHYcVv7/hHnbtguSWt9Aoc=
 github.com/micro/protoc-gen-micro v1.0.0/go.mod h1:C8ij4DJhapBmypcT00AXdb0cZ675/3PqUO02buWWqbE=
 github.com/miekg/dns v1.1.3/go.mod h1:W1PPwlIAgtquWBMBEV9nkV9Cazfe8ScdGz/Lj7v3Nrg=

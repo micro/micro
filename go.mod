@@ -34,4 +34,4 @@ require (
 	google.golang.org/grpc v1.26.0
 )
 
-replace github.com/micro/go-micro/v2 => github.com/micro/go-micro/v2 branch-checkout-test
+replace github.com/micro/go-micro/v2 => github.com/micro/go-micro/v2 v2.9.1-0.20200618154539-8a09a0c00ee7
