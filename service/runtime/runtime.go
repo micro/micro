@@ -167,10 +167,12 @@ func Commands(options ...micro.Option) []*cli.Command {
 			Name:  "run",
 			Usage: RunUsage,
 			Description: `Examples:
-			micro run github.com/micro/services/helloworld
-			micro run . # deploy local folder to your local micro server
-			micro run helloworld # translates to micro run github.com/micro/services/helloworld
-			micro run helloworld@9342934e6180 # deploy certain version`,
+			micro run github.com/micro/examples/helloworld
+			micro run .  # deploy local folder to your local micro server
+			micro run ../path/to/folder # deploy local folder to your local micro server
+			micro run helloworld # deploy latest version, translates to micro run github.com/micro/services/helloworld
+			micro run helloworld@9342934e6180 # deploy certain version
+			micro run helloworld@branchname	# deploy certain branch`,
 			Flags: Flags(),
 			Action: func(ctx *cli.Context) error {
 				runService(ctx, options...)
@@ -178,20 +180,32 @@ func Commands(options ...micro.Option) []*cli.Command {
 			},
 		},
 		{
-			Name:  "kill",
-			Usage: KillUsage,
+			Name:  "update",
+			Usage: UpdateUsage,
+			Description: `Examples:
+			micro update github.com/micro/examples/helloworld
+			micro update .  # deploy local folder to your local micro server
+			micro update ../path/to/folder # deploy local folder to your local micro server
+			micro update helloworld # deploy master branch, translates to micro update github.com/micro/services/helloworld
+			micro update helloworld@branchname	# deploy certain branch`,
 			Flags: Flags(),
 			Action: func(ctx *cli.Context) error {
-				killService(ctx, options...)
+				updateService(ctx, options...)
 				return nil
 			},
 		},
 		{
-			Name:  "update",
-			Usage: UpdateUsage,
+			Name:  "kill",
+			Usage: KillUsage,
 			Flags: Flags(),
+			Description: `Examples:
+			micro kill github.com/micro/examples/helloworld
+			micro update .  # kill service deployed from local folder
+			micro update ../path/to/folder # kill service deployed from local folder
+			micro update helloworld # kill serviced deployed from master branch, translates to micro kill github.com/micro/services/helloworld
+			micro update helloworld@branchname	# kill service deployed from certain branch`,
 			Action: func(ctx *cli.Context) error {
-				updateService(ctx, options...)
+				killService(ctx, options...)
 				return nil
 			},
 		},
