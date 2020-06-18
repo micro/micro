@@ -47,6 +47,8 @@ func Commands(options ...micro.Option) []*cli.Command {
 	command := &cli.Command{
 		Name:  "server",
 		Usage: "Run the micro server",
+		Description: `Launching the micro server ('micro server') will enable one to connect to it by
+		setting the appropriate Micro environment (see 'micro env' && 'micro env --help') commands.`,
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:    "address",
