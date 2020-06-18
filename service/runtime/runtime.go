@@ -210,15 +210,6 @@ func Commands(options ...micro.Option) []*cli.Command {
 			},
 		},
 		{
-			Name:  "services",
-			Usage: ServicesUsage,
-			Flags: Flags(),
-			Action: func(ctx *cli.Context) error {
-				getService(ctx, options...)
-				return nil
-			},
-		},
-		{
 			Name:  "status",
 			Usage: GetUsage,
 			Flags: Flags(),
