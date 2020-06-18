@@ -98,7 +98,11 @@ func Run(context *cli.Context) error {
 	// By default we want a file store when we run micro server.
 	// This will get overridden if user has set their own MICRO_STORE env var or passed in --store
 	env := []string{"MICRO_STORE=file"}
-	env = append(env, "MICRO_RUNTIME_PROFILE=server")
+	profile := context.String("profile")
+	if len(profile) == 0 {
+		profile = "server"
+	}
+	env = append(env, "MICRO_RUNTIME_PROFILE="+profile)
 	env = append(env, os.Environ()...)
 
 	// connect to the network if specified
