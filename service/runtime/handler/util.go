@@ -169,6 +169,8 @@ func compress(src string, buf io.Writer) error {
 			return nil
 		}
 
+		// @todo This is a quick hack to speed up whole repo uploads
+		// https://github.com/micro/micro/pull/956
 		if !fi.IsDir() && !strings.HasSuffix(header.Name, ".go") &&
 			!strings.HasSuffix(header.Name, ".mod") &&
 			!strings.HasSuffix(header.Name, ".sum") {
