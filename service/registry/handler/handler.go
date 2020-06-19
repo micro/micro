@@ -2,7 +2,6 @@ package handler
 
 import (
 	"context"
-	"strings"
 	"time"
 
 	"github.com/micro/go-micro/v2"
@@ -12,18 +11,15 @@ import (
 	"github.com/micro/go-micro/v2/registry"
 	"github.com/micro/go-micro/v2/registry/service"
 	pb "github.com/micro/go-micro/v2/registry/service/proto"
-	"github.com/micro/micro/v2/internal/namespace"
 )
 
 type Registry struct {
 	// service id
-	Id string
+	ID string
 	// the publisher
 	Publisher micro.Publisher
 	// internal registry
 	Registry registry.Registry
-	// auth to verify clients
-	Auth auth.Auth
 }
 
 func ActionToEventType(action string) registry.EventType {
@@ -41,7 +37,7 @@ func (r *Registry) publishEvent(action string, service *pb.Service) error {
 	// TODO: timestamp should be read from received event
 	// Right now registry.Result does not contain timestamp
 	event := &pb.Event{
-		Id:        r.Id,
+		Id:        r.ID,
 		Type:      pb.EventType(ActionToEventType(action)),
 		Timestamp: time.Now().UnixNano(),
 		Service:   service,
@@ -57,41 +53,60 @@ func (r *Registry) publishEvent(action string, service *pb.Service) error {
 
 // GetService from the registry with the name requested
 func (r *Registry) GetService(ctx context.Context, req *pb.GetRequest, rsp *pb.GetResponse) error {
-	// get the services in the default namespace
-	services, err := r.Registry.GetService(req.Service)
+	// parse the options
+	var options registry.GetOptions
+	if req.Options != nil && len(req.Options.Domain) > 0 {
+		options.Domain = req.Options.Domain
+	} else {
+		options.Domain = registry.DefaultDomain
+	}
+
+	// authorize the request
+	if err := authorizeDomainAccess(ctx, options.Domain); err != nil {
+		return err
+	}
+
+	// get the services in the namespace
+	services, err := r.Registry.GetService(req.Service, registry.GetDomain(options.Domain))
 	if err == registry.ErrNotFound {
 		return errors.NotFound("go.micro.registry", err.Error())
 	} else if err != nil {
 		return errors.InternalServerError("go.micro.registry", err.Error())
 	}
 
-	// get the services in the requested namespace, e.g. the "foo" namespace. name
-	// includes the namespace as the prefix, e.g. 'foo/go.micro.service.bar'
-	if namespace.FromContext(ctx) != namespace.DefaultNamespace {
-		name := namespace.FromContext(ctx) + nameSeperator + req.Service
-		srvs, err := r.Registry.GetService(name)
-		if err != nil {
-			return errors.InternalServerError("go.micro.registry", err.Error())
-		}
-		services = append(services, srvs...)
+	// serialize the response
+	rsp.Services = make([]*pb.Service, len(services))
+	for i, srv := range services {
+		rsp.Services[i] = service.ToProto(srv)
 	}
 
-	for _, srv := range services {
-		rsp.Services = append(rsp.Services, service.ToProto(withoutNamespace(*srv)))
-	}
 	return nil
 }
 
 // Register a service
 func (r *Registry) Register(ctx context.Context, req *pb.Service, rsp *pb.EmptyResponse) error {
-	var regOpts []registry.RegisterOption
-	if req.Options != nil {
+	var opts []registry.RegisterOption
+	var domain string
+
+	// parse the options
+	if req.Options != nil && req.Options.Ttl > 0 {
 		ttl := time.Duration(req.Options.Ttl) * time.Second
-		regOpts = append(regOpts, registry.RegisterTTL(ttl))
+		opts = append(opts, registry.RegisterTTL(ttl))
+	}
+	if req.Options != nil && len(req.Options.Domain) > 0 {
+		domain = req.Options.Domain
+	} else {
+		domain = registry.DefaultDomain
+	}
+	opts = append(opts, registry.RegisterDomain(req.Options.Domain))
+
+	// authorize the request
+	if err := authorizeDomainAccess(ctx, domain); err != nil {
+		return err
 	}
 
-	service := service.ToService(withNamespace(*req, namespace.FromContext(ctx)))
-	if err := r.Registry.Register(service, regOpts...); err != nil {
+	// register the service
+	if err := r.Registry.Register(service.ToService(req), opts...); err != nil {
 		return errors.InternalServerError("go.micro.registry", err.Error())
 	}
 
@@ -103,8 +118,21 @@ func (r *Registry) Register(ctx context.Context, req *pb.Service, rsp *pb.EmptyR
 
 // Deregister a service
 func (r *Registry) Deregister(ctx context.Context, req *pb.Service, rsp *pb.EmptyResponse) error {
-	service := service.ToService(withNamespace(*req, namespace.FromContext(ctx)))
-	if err := r.Registry.Deregister(service); err != nil {
+	// parse the options
+	var domain string
+	if req.Options != nil && len(req.Options.Domain) > 0 {
+		domain = req.Options.Domain
+	} else {
+		domain = registry.DefaultDomain
+	}
+
+	// authorize the request
+	if err := authorizeDomainAccess(ctx, domain); err != nil {
+		return err
+	}
+
+	// deregister the service
+	if err := r.Registry.Deregister(service.ToService(req), registry.DeregisterDomain(domain)); err != nil {
 		return errors.InternalServerError("go.micro.registry", err.Error())
 	}
 
@@ -116,20 +144,29 @@ func (r *Registry) Deregister(ctx context.Context, req *pb.Service, rsp *pb.Empt
 
 // ListServices returns all the services
 func (r *Registry) ListServices(ctx context.Context, req *pb.ListRequest, rsp *pb.ListResponse) error {
-	services, err := r.Registry.ListServices()
+	// parse the options
+	var domain string
+	if req.Options != nil && len(req.Options.Domain) > 0 {
+		domain = req.Options.Domain
+	} else {
+		domain = registry.DefaultDomain
+	}
+
+	// authorize the request
+	if err := authorizeDomainAccess(ctx, domain); err != nil {
+		return err
+	}
+
+	// list the services from the registry
+	services, err := r.Registry.ListServices(registry.ListDomain(domain))
 	if err != nil {
 		return errors.InternalServerError("go.micro.registry", err.Error())
 	}
 
-	for _, srv := range services {
-		// check to see if the service belongs to the defaut namespace
-		// or the contexts namespace. TODO: think about adding a prefix
-		//argument to ListServices
-		if !canReadService(ctx, srv) {
-			continue
-		}
-
-		rsp.Services = append(rsp.Services, service.ToProto(withoutNamespace(*srv)))
+	// serialize the response
+	rsp.Services = make([]*pb.Service, len(services))
+	for i, srv := range services {
+		rsp.Services[i] = service.ToProto(srv)
 	}
 
 	return nil
@@ -137,7 +174,21 @@ func (r *Registry) ListServices(ctx context.Context, req *pb.ListRequest, rsp *p
 
 // Watch a service for changes
 func (r *Registry) Watch(ctx context.Context, req *pb.WatchRequest, rsp pb.Registry_WatchStream) error {
-	watcher, err := r.Registry.Watch(registry.WatchService(req.Service))
+	// parse the options
+	var domain string
+	if req.Options != nil && len(req.Options.Domain) > 0 {
+		domain = req.Options.Domain
+	} else {
+		domain = registry.DefaultDomain
+	}
+
+	// authorize the request
+	if err := authorizeDomainAccess(ctx, domain); err != nil {
+		return err
+	}
+
+	// setup the watcher
+	watcher, err := r.Registry.Watch(registry.WatchService(req.Service), registry.WatchDomain(domain))
 	if err != nil {
 		return errors.InternalServerError("go.micro.registry", err.Error())
 	}
@@ -147,13 +198,10 @@ func (r *Registry) Watch(ctx context.Context, req *pb.WatchRequest, rsp pb.Regis
 		if err != nil {
 			return errors.InternalServerError("go.micro.registry", err.Error())
 		}
-		if !canReadService(ctx, next.Service) {
-			continue
-		}
 
 		err = rsp.Send(&pb.Result{
 			Action:  next.Action,
-			Service: service.ToProto(withoutNamespace(*next.Service)),
+			Service: service.ToProto(next.Service),
 		})
 		if err != nil {
 			return errors.InternalServerError("go.micro.registry", err.Error())
@@ -161,45 +209,31 @@ func (r *Registry) Watch(ctx context.Context, req *pb.WatchRequest, rsp pb.Regis
 	}
 }
 
-// canReadService is a helper function which returns a boolean indicating
-// if a context can read a service.
-func canReadService(ctx context.Context, srv *registry.Service) bool {
-	// check if the service has no prefix which means it was written
-	// directly to the store and is therefore assumed to be part of
-	// the default namespace
-	if len(strings.Split(srv.Name, nameSeperator)) == 1 {
-		return true
+// authorizeDomainAccess will return a go-micro error if the context cannot access the given domain
+func authorizeDomainAccess(ctx context.Context, domain string) error {
+	acc, ok := auth.AccountFromContext(ctx)
+
+	// accounts are always required so we can identify the caller. If auth is not configured, the noop
+	// auth implementation will return a blank account with the default domain set, allowing the caller
+	// access to all resources
+	if !ok {
+		return errors.Unauthorized("go.micro.registry", "An account is required")
 	}
 
-	// the service belongs to the contexts namespace
-	if strings.HasPrefix(srv.Name, namespace.FromContext(ctx)+nameSeperator) {
-		return true
+	// anyone can access the default domain
+	if domain == registry.DefaultDomain {
+		return nil
 	}
 
-	return false
-}
-
-// nameSeperator is the string which is used as a seperator when joining
-// namespace to the service name
-const nameSeperator = "/"
-
-// withoutNamespace returns the service with the namespace stripped from
-// the name, e.g. 'bar/go.micro.service.foo' => 'go.micro.service.foo'.
-func withoutNamespace(srv registry.Service) *registry.Service {
-	comps := strings.Split(srv.Name, nameSeperator)
-	srv.Name = comps[len(comps)-1]
-	return &srv
-}
-
-// withNamespace returns the service with the namespace prefixed to the
-// name, e.g. 'go.micro.service.foo' => 'bar/go.micro.service.foo'
-func withNamespace(srv pb.Service, ns string) *pb.Service {
-	// if the namespace is the default, don't append anything since this
-	// means users not leveraging multi-tenancy won't experience any changes
-	if ns == namespace.DefaultNamespace {
-		return &srv
+	// the server can access all domains
+	if acc.Issuer == registry.DefaultDomain {
+		return nil
 	}
 
-	srv.Name = strings.Join([]string{ns, srv.Name}, nameSeperator)
-	return &srv
+	// ensure the account is requesing access to it's own domain
+	if acc.Issuer != domain {
+		return errors.Forbidden("go.micro.registry", "An account issued by %v is required", domain)
+	}
+
+	return nil
 }
