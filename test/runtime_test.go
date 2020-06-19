@@ -490,3 +490,34 @@ func replaceStringInFile(t *t, filepath string, original, newone string) {
 		return
 	}
 }
+
+func TestParentDependency(t *testing.T) {
+	trySuite(t, testParentDependency, retryCount)
+}
+
+func testParentDependency(t *t) {
+	t.Parallel()
+	serv := newServer(t)
+	serv.launch()
+	defer serv.close()
+
+	runCmd := exec.Command("micro", serv.envFlag(), "run", "./dep-test")
+	outp, err := runCmd.CombinedOutput()
+	if err != nil {
+		t.Fatalf("micro run failure, output: %v", string(outp))
+		return
+	}
+
+	try("Find hello world", t, func() ([]byte, error) {
+		psCmd := exec.Command("micro", serv.envFlag(), "status")
+		outp, err = psCmd.CombinedOutput()
+		if err != nil {
+			return outp, err
+		}
+
+		if !statusRunning("helloworld", outp) {
+			return outp, errors.New("Output should contain hello world")
+		}
+		return outp, nil
+	}, 30*time.Second)
+}
