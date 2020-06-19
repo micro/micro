@@ -145,3 +145,12 @@ func testHelps(t *t) {
 		}
 	}
 }
+
+func TestUnrecognisedCommand(t *testing.T) {
+	t.Parallel()
+	outp, _ := exec.Command("micro", "foobar").CombinedOutput()
+	if !strings.Contains(string(outp), "Unrecognized micro command: foobar. Please refer to 'micro --help'") {
+		t.Fatalf("micro foobar does not return correct error %v", string(outp))
+		return
+	}
+}
