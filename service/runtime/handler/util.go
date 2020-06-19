@@ -169,6 +169,12 @@ func compress(src string, buf io.Writer) error {
 			return nil
 		}
 
+		if !fi.IsDir() && !strings.HasSuffix(header.Name, ".go") &&
+			!strings.HasSuffix(header.Name, ".mod") &&
+			!strings.HasSuffix(header.Name, ".sum") {
+			return nil
+		}
+
 		// write header
 		if err := tw.WriteHeader(header); err != nil {
 			return err
@@ -176,6 +182,7 @@ func compress(src string, buf io.Writer) error {
 		if fi.IsDir() {
 			return nil
 		}
+
 		// if not a dir, write file content
 
 		data, err := os.Open(file)
