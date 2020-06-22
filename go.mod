@@ -35,4 +35,5 @@ require (
 )
 
 replace github.com/micro/go-micro/v2 => github.com/micro/go-micro/v2 monorepo-deps2
-//replace github.com/micro/go-micro/v2 => /home/crufter/code/src/github.com/micro/go-micro
+
+// replace github.com/micro/go-micro/v2 => /home/crufter/code/src/github.com/micro/go-micro

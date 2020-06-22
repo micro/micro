@@ -164,9 +164,11 @@ func compress(src string, buf io.Writer) error {
 		// must provide real name
 		// (see https://golang.org/src/archive/tar/common.go?#L626)
 
+		srcWithSlash := src
 		if !strings.HasSuffix(src, string(filepath.Separator)) {
-			src += string(filepath.Separator)
+			srcWithSlash = src + string(filepath.Separator)
 		}
+		header.Name = strings.ReplaceAll(file, srcWithSlash, "")
 		if header.Name == src || len(strings.TrimSpace(header.Name)) == 0 {
 			return nil
 		}
