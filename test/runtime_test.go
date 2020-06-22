@@ -515,7 +515,7 @@ func testParentDependency(t *t) {
 			return outp, err
 		}
 
-		if !statusRunning("helloworld", outp) {
+		if !statusRunning("go.micro.service.dep", outp) {
 			return outp, errors.New("Output should contain hello world")
 		}
 		return outp, nil
