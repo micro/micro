@@ -34,4 +34,4 @@ require (
 	google.golang.org/grpc v1.26.0
 )
 
-// replace github.com/micro/go-micro/v2 => github.com/crufter/go-micro/v2 v2.0.0-20200619112638-a884ffdec473
+replace github.com/micro/go-micro/v2 => github.com/crufter/go-micro/v2 monorepo-deps
