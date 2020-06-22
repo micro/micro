@@ -184,7 +184,7 @@ func testLocalOutsideRepo(t *t) {
 	// since copying a whole folder is rather involved and only Linux sources
 	// are available, see https://stackoverflow.com/questions/51779243/copy-a-folder-in-go
 	// we fall back to `cp`
-	outp, err := exec.Command("cp", "-r", "example-service/.", folderPath).CombinedOutput()
+	outp, err := exec.Command("cp", "-r", "example-service/", folderPath).CombinedOutput()
 	if err != nil {
 		t.Fatal(string(outp))
 		return
