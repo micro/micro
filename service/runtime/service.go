@@ -247,10 +247,16 @@ func upload(ctx *cli.Context, source *git.Source) (string, error) {
 	uploadedFileName := strings.ReplaceAll(source.Folder, string(filepath.Separator), "-") + ".tar.gz"
 	path := filepath.Join(os.TempDir(), uploadedFileName)
 
-	// @todo currently this uploads the whole repo all the time to support local dependencies
-	// in parents (ie service path is `repo/a/b/c` and it depends on `repo/a/b`).
-	// Optimise this by only uploading things that are needed.
-	err := handler.Compress(source.LocalRepoRoot, path)
+	var err error
+	if len(source.LocalRepoRoot) > 0 {
+		// @todo currently this uploads the whole repo all the time to support local dependencies
+		// in parents (ie service path is `repo/a/b/c` and it depends on `repo/a/b`).
+		// Optimise this by only uploading things that are needed.
+		err = handler.Compress(source.LocalRepoRoot, path)
+	} else {
+		err = handler.Compress(source.FullPath, path)
+	}
+
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
