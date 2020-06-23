@@ -9,13 +9,12 @@ import (
 
 	res "github.com/micro/go-micro/v2/api/resolver"
 	"github.com/micro/go-micro/v2/client/selector"
-	"github.com/micro/micro/v2/internal/namespace"
 	"golang.org/x/net/publicsuffix"
 )
 
 var (
 	re               = regexp.MustCompile("^[a-zA-Z0-9]+([a-zA-Z0-9-]*[a-zA-Z0-9]*)?$")
-	defaultNamespace = namespace.DefaultNamespace + ".web"
+	defaultNamespace = "go.micro.web" // TODO rename to micro.web when we rename the core services
 )
 
 type Resolver struct {
