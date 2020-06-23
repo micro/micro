@@ -62,6 +62,9 @@ func (r *Registry) GetService(ctx context.Context, req *pb.GetRequest, rsp *pb.G
 	if err != nil && err != registry.ErrNotFound {
 		return errors.InternalServerError("go.micro.registry", err.Error())
 	}
+	if services == nil {
+		services = []*registry.Service{}
+	}
 
 	// get the services in the requested namespace, e.g. the "foo" namespace. name
 	// includes the namespace as the prefix, e.g. 'foo/go.micro.service.bar'
@@ -71,7 +74,10 @@ func (r *Registry) GetService(ctx context.Context, req *pb.GetRequest, rsp *pb.G
 		if err != nil && err != registry.ErrNotFound {
 			return errors.InternalServerError("go.micro.registry", err.Error())
 		}
-		services = append(services, srvs...)
+		if srvs != nil {
+			services = append(services, srvs...)
+		}
+
 	}
 	if len(services) == 0 {
 		return errors.NotFound("go.micro.registry", err.Error())
