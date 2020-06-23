@@ -59,9 +59,7 @@ func (r *Registry) publishEvent(action string, service *pb.Service) error {
 func (r *Registry) GetService(ctx context.Context, req *pb.GetRequest, rsp *pb.GetResponse) error {
 	// get the services in the default namespace
 	services, err := r.Registry.GetService(req.Service)
-	if err == registry.ErrNotFound {
-		return errors.NotFound("go.micro.registry", err.Error())
-	} else if err != nil {
+	if err != nil && err != registry.ErrNotFound {
 		return errors.InternalServerError("go.micro.registry", err.Error())
 	}
 
@@ -70,10 +68,13 @@ func (r *Registry) GetService(ctx context.Context, req *pb.GetRequest, rsp *pb.G
 	if namespace.FromContext(ctx) != namespace.DefaultNamespace {
 		name := namespace.FromContext(ctx) + nameSeperator + req.Service
 		srvs, err := r.Registry.GetService(name)
-		if err != nil {
+		if err != nil && err != registry.ErrNotFound {
 			return errors.InternalServerError("go.micro.registry", err.Error())
 		}
 		services = append(services, srvs...)
+	}
+	if len(services) == 0 {
+		return errors.NotFound("go.micro.registry", err.Error())
 	}
 
 	for _, srv := range services {
