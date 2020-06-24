@@ -94,8 +94,8 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 
 	ropts := []router.Option{
 		router.Id(server.DefaultId),
-		router.Client(client.DefaultClient),
 		router.Address(routerAddr),
+		rs.Client(client.DefaultClient),
 		router.Registry(registry.DefaultRegistry),
 	}
 
