@@ -76,12 +76,6 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 		router.Registry(service.Client().Options().Registry),
 	)
 
-	// start the router
-	if err := r.Start(); err != nil {
-		log.Errorf("Tunnel error starting router: %s", err)
-		os.Exit(1)
-	}
-
 	// create a tunnel
 	t := tun.NewTunnel(
 		tun.Address(Address),
@@ -152,8 +146,8 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 	}
 
 	// stop the router
-	if err := r.Stop(); err != nil {
-		log.Errorf("Tunnel error stopping tunnel router: %v", err)
+	if err := r.Close(); err != nil {
+		log.Errorf("Tunnel error closing tunnel router: %v", err)
 	}
 
 	// stop the server
