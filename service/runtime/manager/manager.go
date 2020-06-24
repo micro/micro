@@ -60,22 +60,23 @@ func (m *manager) Read(opts ...runtime.ReadOption) ([]*runtime.Service, error) {
 	if err != nil {
 		return nil, err
 	}
-
 	// add the metadata to the service from the local runtime (e.g. status, err)
 	statuses, err := m.listStatuses(options.Namespace)
 	if err != nil {
 		return nil, err
 	}
+	ret := []*runtime.Service{}
 	for _, srv := range srvs {
-		md, ok := statuses[srv.Name+":"+srv.Version]
+		ret = append(ret, srv.Service)
+		md, ok := statuses[srv.Service.Name+":"+srv.Service.Version]
 		if !ok {
 			continue
 		}
-		srv.Metadata["status"] = md.Status
-		srv.Metadata["error"] = md.Error
+		srv.Service.Metadata["status"] = md.Status
+		srv.Service.Metadata["error"] = md.Error
 	}
 
-	return srvs, nil
+	return ret, nil
 }
 
 // Update the service in place
@@ -142,6 +143,29 @@ func (m *manager) Start() error {
 	go m.watchStatus()
 
 	// todo: compare the store to the runtime incase we missed any events
+
+	// Resurrect services that were running previously
+	nss, err := m.listNamespaces()
+	if err != nil {
+		return err
+	}
+	for _, ns := range nss {
+		srvs, err := m.readServices(ns, &runtime.Service{})
+		if err != nil {
+			return err
+		}
+		for _, srv := range srvs {
+			m.Runtime.Create(srv.Service,
+				runtime.CreateImage(srv.Options.Image),
+				runtime.CreateType(srv.Options.Type),
+				runtime.CreateNamespace(ns),
+				runtime.WithArgs(srv.Options.Args...),
+				runtime.WithCommand(srv.Options.Command...),
+				runtime.WithEnv(m.runtimeEnv(srv.Options)),
+			)
+		}
+
+	}
 
 	return nil
 }
