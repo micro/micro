@@ -79,6 +79,11 @@ func SetupCommand(ctx *ccli.Context) {
 		return
 	}
 
+	if ctx.App.Command(ctx.Args().First()) == nil {
+		// unrecognised command
+		return
+	}
+
 	toFlag := func(s string) string {
 		return strings.ToLower(strings.ReplaceAll(s, "MICRO_", ""))
 	}
