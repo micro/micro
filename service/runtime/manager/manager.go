@@ -4,7 +4,7 @@ import (
 	"github.com/micro/go-micro/v2/config/cmd"
 	"github.com/micro/go-micro/v2/runtime"
 	"github.com/micro/go-micro/v2/store"
-	"github.com/micro/go-micro/v2/store/memory"
+	"github.com/micro/go-micro/v2/store/cachedfile"
 	"github.com/micro/micro/v2/internal/namespace"
 )
 
@@ -214,6 +214,6 @@ func New(r runtime.Runtime, opts ...Option) runtime.Runtime {
 	return &manager{
 		Runtime: r,
 		options: options,
-		cache:   memory.NewStore(),
+		cache:   cachedfile.NewStore(),
 	}
 }

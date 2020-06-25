@@ -131,8 +131,6 @@ func (m *manager) processEvent(key string) {
 	// write to the store indicating the event has been consumed. We double the ttl to safely know the
 	// event will expire before this record
 	m.cache.Write(&store.Record{Key: key, Expiry: eventTTL * 2})
-	// expire this event from the store
-	m.options.Store.Write(recs[0], store.WriteTTL(-1*time.Second))
 
 }
 
