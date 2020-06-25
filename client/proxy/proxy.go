@@ -94,8 +94,8 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 
 	ropts := []router.Option{
 		router.Id(server.DefaultId),
-		router.Client(client.DefaultClient),
 		router.Address(routerAddr),
+		rs.Client(client.DefaultClient),
 		router.Registry(registry.DefaultRegistry),
 	}
 
@@ -109,12 +109,6 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 		r = rs.NewRouter(ropts...)
 	default:
 		r = router.NewRouter(ropts...)
-	}
-
-	// start the router
-	if err := r.Start(); err != nil {
-		log.Errorf("Proxy error starting router: %s", err)
-		os.Exit(1)
 	}
 
 	// append router to proxy opts
