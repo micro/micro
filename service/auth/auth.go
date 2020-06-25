@@ -1,10 +1,11 @@
 package auth
 
 import (
+	"bufio"
+	"context"
 	"fmt"
 	"os"
 	"strings"
-	"time"
 
 	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro/v2"
@@ -23,6 +24,7 @@ import (
 	"github.com/micro/micro/v2/service/auth/api"
 	authHandler "github.com/micro/micro/v2/service/auth/handler/auth"
 	rulesHandler "github.com/micro/micro/v2/service/auth/handler/rules"
+	signupproto "github.com/micro/services/signup/proto/signup"
 )
 
 var (
@@ -147,40 +149,70 @@ func authFromContext(ctx *cli.Context) auth.Auth {
 	)
 }
 
-// login using a token
+// login flow.
+// For documentation of the flow please refer to https://github.com/micro/development/pull/223
 func login(ctx *cli.Context) {
-	// check for the token flag
-	env := cliutil.GetEnv(ctx)
-	if tok := ctx.String("token"); len(tok) > 0 {
-		_, err := authFromContext(ctx).Inspect(tok)
-		if err != nil {
-			fmt.Println(err)
-			os.Exit(1)
-		}
-		if err := config.Set(tok, "micro", "auth", env.Name, "token"); err != nil {
-			fmt.Println(err)
-			os.Exit(1)
-		}
-
-		fmt.Println("You have been logged in")
-		return
+	email := ""
+	if ctx.Args().Len() > 0 {
+		email = ctx.Args().First()
 	}
-
-	if ctx.Args().Len() != 2 {
-		fmt.Println("Usage: `micro login {id} {secret} OR micro login --token {token}`")
-		os.Exit(1)
+	reader := bufio.NewReader(os.Stdin)
+	if len(email) == 0 {
+		fmt.Print("Please enter your email address: ")
+		email, _ = reader.ReadString('\n')
+		email = strings.TrimSpace(email)
 	}
-	id := ctx.Args().Get(0)
-	secret := ctx.Args().Get(1)
+	signupService := signupproto.NewSignupService("go.micro.service.signup", client.New(ctx))
 
-	// Execute the request
-	tok, err := authFromContext(ctx).Token(auth.WithCredentials(id, secret), auth.WithExpiry(time.Hour*24))
+	signupService.SendVerificationEmail(context.TODO(), &signupproto.SendVerificationEmailRequest{
+		Email: email,
+	})
+
+	fmt.Print("We have sent you an email with a one time password. Please paste it here: ")
+	password, _ := reader.ReadString('\n')
+	password = strings.TrimSpace(password)
+
+	rsp, err := signupService.Verify(context.TODO(), &signupproto.VerifyRequest{
+		Email: email,
+		Token: password,
+	})
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
 
-	// Store the access token in micro config
+	// Already registered users can just get logged in.
+	tok := rsp.AuthToken
+	env := cliutil.GetEnv(ctx)
+	if rsp.AuthToken != nil {
+		if err := config.Set(tok.AccessToken, "micro", "auth", env.Name, "token"); err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+		// Store the refresh token in micro config
+		if err := config.Set(tok.RefreshToken, "micro", "auth", env.Name, "refresh-token"); err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+		fmt.Println("Successfully logged in.")
+		return
+	}
+
+	fmt.Print("Please go to https://m3o.com/subscribe.html and paste the acquired payment method id here: ")
+	paymentMethodID, _ := reader.ReadString('\n')
+	paymentMethodID = strings.TrimSpace(paymentMethodID)
+
+	signupRsp, err := signupService.CompleteSignup(context.TODO(), &signupproto.CompleteSignupRequest{
+		Email:           email,
+		Token:           password,
+		PaymentMethodID: paymentMethodID,
+	})
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+
+	tok = signupRsp.AuthToken
 	if err := config.Set(tok.AccessToken, "micro", "auth", env.Name, "token"); err != nil {
 		fmt.Println(err)
 		os.Exit(1)
@@ -190,9 +222,8 @@ func login(ctx *cli.Context) {
 		fmt.Println(err)
 		os.Exit(1)
 	}
-
-	// Inform the user
-	fmt.Println("You have been logged in")
+	fmt.Println("Successfully logged in.")
+	// @todo save the namespace from the last call and use that.
 }
 
 // whoami returns info about the logged in user
@@ -307,7 +338,7 @@ func Commands(srvOpts ...micro.Option) []*cli.Command {
 		},
 		{
 			Name:  "login",
-			Usage: "Login using a token",
+			Usage: "Interactive login flow. Just type `micro login` or `micro login [email address]`",
 			Action: func(ctx *cli.Context) error {
 				login(ctx)
 				return nil
