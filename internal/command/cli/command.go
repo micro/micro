@@ -232,7 +232,7 @@ func GetService(c *cli.Context, args []string) ([]byte, error) {
 
 	reg := *cmd.DefaultOptions().Registry
 	reg.Init(service.WithClient(inclient.New(c)))
-	srv, err = reg.GetService(args[0])
+	srv, err = reg.GetService(args[0], registry.GetDomain(registry.WildcardDomain))
 	if err != nil {
 		return nil, err
 	}
@@ -635,7 +635,7 @@ func ListServices(c *cli.Context) ([]byte, error) {
 
 	reg := *cmd.DefaultOptions().Registry
 	reg.Init(service.WithClient(inclient.New(c)))
-	rsp, err = reg.ListServices()
+	rsp, err = reg.ListServices(registry.ListDomain(registry.WildcardDomain))
 	if err != nil {
 		return nil, err
 	}
@@ -708,7 +708,9 @@ func CallService(c *cli.Context, args []string) ([]byte, error) {
 	}
 
 	ctx := callContext(c)
-	creq := (*cmd.DefaultOptions().Client).NewRequest(service, endpoint, request, client.WithContentType("application/json"))
+	cli := inclient.New(c)
+
+	creq := cli.NewRequest(service, endpoint, request, client.WithContentType("application/json"))
 
 	var opts []client.CallOption
 
@@ -719,12 +721,12 @@ func CallService(c *cli.Context, args []string) ([]byte, error) {
 	var err error
 	if output := c.String("output"); output == "raw" {
 		rsp := cbytes.Frame{}
-		err = (*cmd.DefaultOptions().Client).Call(ctx, creq, &rsp, opts...)
+		err = cli.Call(ctx, creq, &rsp, opts...)
 		// set the raw output
 		response = rsp.Data
 	} else {
 		var rsp json.RawMessage
-		err = (*cmd.DefaultOptions().Client).Call(ctx, creq, &rsp, opts...)
+		err = cli.Call(ctx, creq, &rsp, opts...)
 		// set the response
 		if err == nil {
 			var out bytes.Buffer
@@ -768,7 +770,7 @@ func QueryHealth(c *cli.Context, args []string) ([]byte, error) {
 	// otherwise get the service and call each instance individually
 	reg := *cmd.DefaultOptions().Registry
 	reg.Init(service.WithClient(inclient.New(c)))
-	service, err := reg.GetService(args[0])
+	service, err := reg.GetService(args[0], registry.GetDomain("*"))
 	if err != nil {
 		return nil, err
 	}
@@ -822,7 +824,7 @@ func QueryStats(c *cli.Context, args []string) ([]byte, error) {
 
 	reg := *cmd.DefaultOptions().Registry
 	reg.Init(service.WithClient(inclient.New(c)))
-	service, err := reg.GetService(args[0])
+	service, err := reg.GetService(args[0], registry.GetDomain(registry.WildcardDomain))
 	if err != nil {
 		return nil, err
 	}
