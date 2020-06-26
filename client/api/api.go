@@ -199,7 +199,7 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 
 	// resolver options
 	ropts := []resolver.Option{
-		resolver.WithNamespace(nsResolver.ResolveWithType),
+		resolver.WithServicePrefix(Namespace + "." + Type),
 		resolver.WithHandler(Handler),
 	}
 
