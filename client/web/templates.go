@@ -505,4 +505,9 @@ pre {padding: 20px;}
 {{end}}
 
 `
+
+	notFoundTemplate = `
+{{define "title"}}404: Not Found{{end}}
+{{define "heading"}}<h3>404: Not Found</h3>{{end}}
+{{define "content"}}<p>The requested page could not be found</p>{{end}}`
 )
