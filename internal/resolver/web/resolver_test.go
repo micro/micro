@@ -5,7 +5,6 @@ import (
 	"net/url"
 	"testing"
 
-	"github.com/micro/go-micro/v2/api/resolver"
 	"github.com/micro/go-micro/v2/client/selector"
 	"github.com/micro/go-micro/v2/registry"
 	"github.com/micro/go-micro/v2/registry/memory"
@@ -19,8 +18,8 @@ func TestWebResolver(t *testing.T) {
 	)
 
 	res := &Resolver{
-		Namespace: resolver.StaticNamespace("go.micro.web"),
-		Selector:  selector,
+		ServicePrefix: "go.micro.web",
+		Selector:      selector,
 	}
 
 	testCases := []struct {

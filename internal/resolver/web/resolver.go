@@ -9,20 +9,18 @@ import (
 
 	res "github.com/micro/go-micro/v2/api/resolver"
 	"github.com/micro/go-micro/v2/client/selector"
-	"github.com/micro/micro/v2/internal/namespace"
 	"golang.org/x/net/publicsuffix"
 )
 
 var (
-	re               = regexp.MustCompile("^[a-zA-Z0-9]+([a-zA-Z0-9-]*[a-zA-Z0-9]*)?$")
-	defaultNamespace = namespace.DefaultNamespace + ".web"
+	re = regexp.MustCompile("^[a-zA-Z0-9]+([a-zA-Z0-9-]*[a-zA-Z0-9]*)?$")
 )
 
 type Resolver struct {
 	// Type of resolver e.g path, domain
 	Type string
-	// a function which returns the namespace of the request
-	Namespace func(*http.Request) string
+	// ServicePrefix, e.g. "go.micro.web"
+	ServicePrefix string
 	// selector to find services
 	Selector selector.Selector
 }
@@ -39,7 +37,7 @@ func (r *Resolver) String() string {
 
 // Info checks whether this is a web request.
 // It returns host, namespace and whether its internal
-func (r *Resolver) Info(req *http.Request) (string, string, bool) {
+func (r *Resolver) Info(req *http.Request) (string, bool) {
 	// set to host
 	host := req.URL.Hostname()
 
@@ -53,9 +51,6 @@ func (r *Resolver) Info(req *http.Request) (string, string, bool) {
 		host = h
 	}
 
-	// determine the namespace of the request
-	namespace := r.Namespace(req)
-
 	// overide host if the namespace is go.micro.web, since
 	// this will also catch localhost & 127.0.0.1, resulting
 	// in a more consistent dev experience
@@ -65,38 +60,32 @@ func (r *Resolver) Info(req *http.Request) (string, string, bool) {
 
 	// if the type is path, always resolve using the path
 	if r.Type == "path" {
-		return host, namespace, true
-	}
-
-	// if the namespace is not the default (go.micro.web),
-	// we always resolve using path
-	if namespace != defaultNamespace {
-		return host, namespace, true
+		return host, true
 	}
 
 	// check for micro subdomains, we want to do subdomain routing
 	// on these if the subdomoain routing has been specified
 	if r.Type == "subdomain" && host != "web.micro.mu" && strings.HasSuffix(host, ".micro.mu") {
-		return host, namespace, false
+		return host, false
 	}
 
 	// Check for services info path, also handled by micro web but
 	// not a top level path. TODO: Find a better way of detecting and
 	// handling the non-proxied paths.
 	if strings.HasPrefix(req.URL.Path, "/service/") {
-		return host, namespace, true
+		return host, true
 	}
 
 	// Check if the request is a top level path
 	isWeb := strings.Count(req.URL.Path, "/") == 1
-	return host, namespace, isWeb
+	return host, isWeb
 }
 
 // Resolve replaces the values of Host, Path, Scheme to calla backend service
 // It accounts for subdomains for service names based on namespace
 func (r *Resolver) Resolve(req *http.Request) (*res.Endpoint, error) {
 	// get host, namespace and if its an internal request
-	host, _, _ := r.Info(req)
+	host, _ := r.Info(req)
 
 	// check for micro web
 	if r.Type == "path" || host == "web.micro.mu" {
@@ -123,7 +112,7 @@ func (r *Resolver) Resolve(req *http.Request) (*res.Endpoint, error) {
 	if strings.HasSuffix(host, ".micro.mu") {
 		// for micro.mu subdomains, we route foo.micro.mu/bar to
 		// go.micro.web.bar
-		name = defaultNamespace + "." + alias
+		name = r.ServicePrefix + "." + alias
 	} else if comps := strings.Split(req.URL.Path, "/"); len(comps) > 0 {
 		// for non micro.mu subdomains, we route foo.m3o.app/bar to
 		// foo.web.bar
@@ -164,8 +153,7 @@ func (r *Resolver) resolveWithPath(req *http.Request) (*res.Endpoint, error) {
 		return nil, res.ErrInvalidPath
 	}
 
-	_, namespace, _ := r.Info(req)
-	next, err := r.Selector.Select(namespace + "." + parts[1])
+	next, err := r.Selector.Select(r.ServicePrefix + "." + parts[1])
 	if err == selector.ErrNotFound {
 		return nil, res.ErrNotFound
 	} else if err != nil {

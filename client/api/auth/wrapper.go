@@ -40,8 +40,12 @@ func (a authWrapper) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	ns := req.Header.Get(namespace.NamespaceKey)
 	if len(ns) == 0 {
 		ns = a.nsResolver.Resolve(req)
-		req.Header.Set(namespace.NamespaceKey, ns)
 	}
+	// todo: replace this once the namespace resolver has been depricated
+	if ns == "go.micro" {
+		ns = "micro"
+	}
+	req.Header.Set(namespace.NamespaceKey, ns)
 
 	// Set the metadata so we can access it in micro api / web
 	req = req.WithContext(ctx.FromRequest(req))
