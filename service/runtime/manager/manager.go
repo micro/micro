@@ -4,7 +4,8 @@ import (
 	"github.com/micro/go-micro/v2/config/cmd"
 	"github.com/micro/go-micro/v2/runtime"
 	"github.com/micro/go-micro/v2/store"
-	"github.com/micro/go-micro/v2/store/cachedfile"
+	cachest "github.com/micro/go-micro/v2/store/cache"
+	filest "github.com/micro/go-micro/v2/store/file"
 	"github.com/micro/micro/v2/internal/namespace"
 )
 
@@ -154,7 +155,17 @@ func (m *manager) Start() error {
 		if err != nil {
 			return err
 		}
+		running := map[string]*runtime.Service{}
+
+		curr, _ := m.Runtime.Read(runtime.ReadNamespace(ns))
+		for _, v := range curr {
+			running[v.Name+":"+v.Version+":"+v.Source] = v
+		}
 		for _, srv := range srvs {
+			if _, ok := running[srv.Service.Name+":"+srv.Service.Version+":"+srv.Service.Source]; ok {
+				// already running, don't need to start again
+				continue
+			}
 			m.Runtime.Create(srv.Service,
 				runtime.CreateImage(srv.Options.Image),
 				runtime.CreateType(srv.Options.Type),
@@ -214,6 +225,6 @@ func New(r runtime.Runtime, opts ...Option) runtime.Runtime {
 	return &manager{
 		Runtime: r,
 		options: options,
-		cache:   cachedfile.NewStore(),
+		cache:   cachest.NewStore(filest.NewStore()),
 	}
 }
