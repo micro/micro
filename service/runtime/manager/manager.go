@@ -6,6 +6,7 @@ import (
 	"github.com/micro/go-micro/v2/store"
 	cachest "github.com/micro/go-micro/v2/store/cache"
 	filest "github.com/micro/go-micro/v2/store/file"
+	"github.com/micro/go-micro/v2/store/memory"
 	"github.com/micro/micro/v2/internal/namespace"
 )
 
@@ -204,9 +205,12 @@ type manager struct {
 	// running is true after Start is called
 	running bool
 	// cache is a memory store which is used to store any information we don't want to write to the
-	// global store, e.g. events consumed, service status / errors (these will change depending on the
+	// global store, e.g. service status / errors (these will change depending on the
 	// managed runtime and hence won't be the same globally).
 	cache store.Store
+	// fileCache is a cache store used to store any information we don't want to write to the
+	// global store but want to persist across restarts events consumed,
+	fileCache store.Store
 }
 
 // New returns a manager for the runtime
@@ -223,8 +227,9 @@ func New(r runtime.Runtime, opts ...Option) runtime.Runtime {
 	}
 
 	return &manager{
-		Runtime: r,
-		options: options,
-		cache:   cachest.NewStore(filest.NewStore()),
+		Runtime:   r,
+		options:   options,
+		cache:     memory.NewStore(),
+		fileCache: cachest.NewStore(filest.NewStore()),
 	}
 }

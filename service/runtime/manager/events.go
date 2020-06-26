@@ -78,7 +78,7 @@ func (m *manager) watchEvents() {
 // is not point stripping and then re-prefixing.
 func (m *manager) processEvent(key string) {
 	// check to see if the event has been processed before
-	if _, err := m.cache.Read(key); err != store.ErrNotFound {
+	if _, err := m.fileCache.Read(key); err != store.ErrNotFound {
 		return
 	}
 
@@ -130,7 +130,7 @@ func (m *manager) processEvent(key string) {
 
 	// write to the store indicating the event has been consumed. We double the ttl to safely know the
 	// event will expire before this record
-	m.cache.Write(&store.Record{Key: key, Expiry: eventTTL * 2})
+	m.fileCache.Write(&store.Record{Key: key, Expiry: eventTTL * 2})
 
 }
 
