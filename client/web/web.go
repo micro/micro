@@ -180,7 +180,7 @@ func (s *srv) proxy() *proxy {
 		if endpoint == nil {
 			if endpoint, err = s.resolver.Resolve(r); err != nil {
 				fmt.Printf("Failed to resolve url: %v: %v\n", r.URL, err)
-				r.URL.Path = "/notfound"
+				r.URL.Path = "/404"
 				return
 			}
 		}
@@ -512,7 +512,7 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 
 	// the web handler itself
 	s.HandleFunc("/favicon.ico", faviconHandler)
-	s.HandleFunc("/notfound", s.notFoundHandler)
+	s.HandleFunc("/404", s.notFoundHandler)
 	s.HandleFunc("/client", s.callHandler)
 	s.HandleFunc("/services", s.registryHandler)
 	s.HandleFunc("/service/{name}", s.registryHandler)
