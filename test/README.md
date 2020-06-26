@@ -54,3 +54,9 @@ The loop script can be used to test for flakiness:
 ```
 cd test; bash loop.sh
 ```
+
+or to run all tests once:
+
+```
+go clean -testcache && go test --tags=integration -v ./...
+```

@@ -136,11 +136,6 @@ func setup(app *ccli.App) {
 			EnvVars: []string{"MICRO_NETWORK_ADDRESS"},
 		},
 		&ccli.StringFlag{
-			Name:    "router_address",
-			Usage:   "Set the micro router address e.g. :8084",
-			EnvVars: []string{"MICRO_ROUTER_ADDRESS"},
-		},
-		&ccli.StringFlag{
 			Name:    "gateway_address",
 			Usage:   "Set the micro default gateway address e.g. :9094",
 			EnvVars: []string{"MICRO_GATEWAY_ADDRESS"},
@@ -230,9 +225,6 @@ func setup(app *ccli.App) {
 		}
 		if len(ctx.String("network_address")) > 0 {
 			network.Address = ctx.String("network_address")
-		}
-		if len(ctx.String("router_address")) > 0 {
-			router.Address = ctx.String("router_address")
 		}
 		if len(ctx.String("tunnel_address")) > 0 {
 			tunnel.Address = ctx.String("tunnel_address")
