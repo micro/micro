@@ -770,7 +770,7 @@ func QueryHealth(c *cli.Context, args []string) ([]byte, error) {
 	// otherwise get the service and call each instance individually
 	reg := *cmd.DefaultOptions().Registry
 	reg.Init(service.WithClient(inclient.New(c)))
-	service, err := reg.GetService(args[0], registry.GetDomain("*"))
+	service, err := reg.GetService(args[0], registry.GetDomain(registry.WildcardDomain))
 	if err != nil {
 		return nil, err
 	}
