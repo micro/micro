@@ -225,11 +225,14 @@ func New(r runtime.Runtime, opts ...Option) runtime.Runtime {
 	if options.Store == nil {
 		options.Store = *cmd.DefaultCmd.Options().Store
 	}
+	if options.CacheStore == nil {
+		options.CacheStore = filest.NewStore()
+	}
 
 	return &manager{
 		Runtime:   r,
 		options:   options,
 		cache:     memory.NewStore(),
-		fileCache: cachest.NewStore(filest.NewStore()),
+		fileCache: cachest.NewStore(options.CacheStore),
 	}
 }
