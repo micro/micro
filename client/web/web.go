@@ -259,7 +259,7 @@ func (s *srv) indexHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	services, err := s.registry.ListServices(registry.ListContext(r.Context()))
+	services, err := s.registry.ListServices(registry.ListDomain(registry.WildcardDomain))
 	if err != nil {
 		log.Errorf("Error listing services: %v", err)
 	}
@@ -311,7 +311,7 @@ func (s *srv) registryHandler(w http.ResponseWriter, r *http.Request) {
 	svc := vars["name"]
 
 	if len(svc) > 0 {
-		sv, err := s.registry.GetService(svc, registry.GetContext(r.Context()))
+		sv, err := s.registry.GetService(svc, registry.GetDomain(registry.WildcardDomain))
 		if err != nil {
 			http.Error(w, "Error occurred:"+err.Error(), 500)
 			return
@@ -339,7 +339,7 @@ func (s *srv) registryHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	services, err := s.registry.ListServices(registry.ListContext(r.Context()))
+	services, err := s.registry.ListServices(registry.ListDomain(registry.WildcardDomain))
 	if err != nil {
 		log.Errorf("Error listing services: %v", err)
 	}
@@ -363,7 +363,7 @@ func (s *srv) registryHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *srv) callHandler(w http.ResponseWriter, r *http.Request) {
-	services, err := s.registry.ListServices(registry.ListContext(r.Context()))
+	services, err := s.registry.ListServices(registry.ListDomain(registry.WildcardDomain))
 	if err != nil {
 		log.Errorf("Error listing services: %v", err)
 	}
@@ -377,7 +377,7 @@ func (s *srv) callHandler(w http.ResponseWriter, r *http.Request) {
 			continue
 		}
 		// lookup the endpoints otherwise
-		s, err := s.registry.GetService(service.Name, registry.GetContext(r.Context()))
+		s, err := s.registry.GetService(service.Name, registry.GetDomain(registry.WildcardDomain))
 		if err != nil {
 			continue
 		}
@@ -491,6 +491,7 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 			ServicePrefix: Namespace + "." + Type,
 			Selector: selector.NewSelector(
 				selector.Registry(reg),
+				selector.Domain(registry.WildcardDomain),
 			),
 		},
 		auth: *cmd.DefaultOptions().Auth,
