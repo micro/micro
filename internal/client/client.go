@@ -2,15 +2,12 @@ package client
 
 import (
 	"context"
-	"strings"
 
 	ccli "github.com/micro/cli/v2"
 	"github.com/micro/go-micro/v2/auth"
 	"github.com/micro/go-micro/v2/client"
 	"github.com/micro/go-micro/v2/client/grpc"
 	"github.com/micro/go-micro/v2/metadata"
-	"github.com/micro/go-micro/v2/router"
-	"github.com/micro/micro/v2/client/cli/util"
 	cliutil "github.com/micro/micro/v2/client/cli/util"
 	"github.com/micro/micro/v2/internal/config"
 )
@@ -35,14 +32,14 @@ func (a *wrapper) Call(ctx context.Context, req client.Request, rsp interface{},
 		ctx = metadata.Set(ctx, "Authorization", auth.BearerScheme+a.token)
 	}
 
-	// network will be used by the router to filter available routes
-	var network string
-	if util.IsLocal(a.ctx) || util.IsServer(a.ctx) {
-		network = router.DefaultNetwork
-	} else {
-		network = strings.ReplaceAll(a.env, "/", "-")
-	}
+	// network will be used by the router to filter available routes.
+	// var network string
+	// if util.IsLocal(a.ctx) || util.IsServer(a.ctx) {
+	// 	network = router.DefaultNetwork
+	// } else {
+	// 	network = strings.ReplaceAll(a.env, "/", "-")
+	// }
 
-	ctx = metadata.Set(ctx, "Micro-Network", network)
+	// ctx = metadata.Set(ctx, "Micro-Network", network)
 	return a.Client.Call(ctx, req, rsp, opts...)
 }
