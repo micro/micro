@@ -156,7 +156,7 @@ func (s *srv) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// check if its a web request
-	if _, _, isWeb := s.resolver.Info(r); isWeb {
+	if _, isWeb := s.resolver.Info(r); isWeb {
 		s.Router.ServeHTTP(w, r)
 		return
 	}
@@ -487,8 +487,8 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 		// our internal resolver
 		resolver: &web.Resolver{
 			// Default to type path
-			Type:      Resolver,
-			Namespace: namespace.NewResolver(Type, Namespace).ResolveWithType,
+			Type:          Resolver,
+			ServicePrefix: Namespace + "." + Type,
 			Selector: selector.NewSelector(
 				selector.Registry(reg),
 			),
