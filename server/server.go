@@ -102,6 +102,7 @@ func Run(context *cli.Context) error {
 	if len(profile) == 0 {
 		profile = "server"
 	}
+
 	env = append(env, "MICRO_RUNTIME_PROFILE="+profile)
 	env = append(env, os.Environ()...)
 
@@ -152,6 +153,7 @@ func Run(context *cli.Context) error {
 		switch service {
 		case "proxy", "web", "api":
 			envs = append(envs, "MICRO_AUTH=service")
+			envs = append(envs, "MICRO_ROUTER=service")
 		}
 
 		cmdArgs := []string{}
