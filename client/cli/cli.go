@@ -313,67 +313,6 @@ func RegistryCommands() []*cli.Command {
 func StoreCommands() []*cli.Command {
 	return []*cli.Command{
 		{
-			Name:   "snapshot",
-			Usage:  "Back up a store",
-			Action: storecli.Snapshot,
-			Flags: append(storecli.CommonFlags,
-				&cli.StringFlag{
-					Name:    "destination",
-					Usage:   "Backup destination",
-					Value:   "file:///tmp/store-snapshot",
-					EnvVars: []string{"MICRO_SNAPSHOT_DESTINATION"},
-				},
-			),
-		},
-		{
-			Name:   "sync",
-			Usage:  "Copy all records of one store into another store",
-			Action: storecli.Sync,
-			Flags:  storecli.SyncFlags,
-		},
-		{
-			Name:   "restore",
-			Usage:  "restore a store snapshot",
-			Action: storecli.Restore,
-			Flags: append(storecli.CommonFlags,
-				&cli.StringFlag{
-					Name:  "source",
-					Usage: "Backup source",
-					Value: "file:///tmp/store-snapshot",
-				},
-			),
-		},
-		{
-			Name:   "databases",
-			Usage:  "List all databases known to the store service",
-			Action: storecli.Databases,
-			Flags: []cli.Flag{
-				&cli.StringFlag{
-					Name:  "store",
-					Usage: "store service to call",
-					Value: "go.micro.store",
-				},
-			},
-		},
-		{
-			Name:   "tables",
-			Usage:  "List all tables in the specified database known to the store service",
-			Action: storecli.Tables,
-			Flags: []cli.Flag{
-				&cli.StringFlag{
-					Name:  "store",
-					Usage: "store service to call",
-					Value: "go.micro.store",
-				},
-				&cli.StringFlag{
-					Name:    "database",
-					Aliases: []string{"d"},
-					Usage:   "database to list tables of",
-					Value:   "micro",
-				},
-			},
-		},
-		{
 			Name:      "read",
 			Usage:     "read a record from the store",
 			UsageText: `micro store read [options] key`,
@@ -493,6 +432,67 @@ func StoreCommands() []*cli.Command {
 					Value: "micro",
 				},
 			},
+		},
+		{
+			Name:   "databases",
+			Usage:  "List all databases known to the store service",
+			Action: storecli.Databases,
+			Flags: []cli.Flag{
+				&cli.StringFlag{
+					Name:  "store",
+					Usage: "store service to call",
+					Value: "go.micro.store",
+				},
+			},
+		},
+		{
+			Name:   "tables",
+			Usage:  "List all tables in the specified database known to the store service",
+			Action: storecli.Tables,
+			Flags: []cli.Flag{
+				&cli.StringFlag{
+					Name:  "store",
+					Usage: "store service to call",
+					Value: "go.micro.store",
+				},
+				&cli.StringFlag{
+					Name:    "database",
+					Aliases: []string{"d"},
+					Usage:   "database to list tables of",
+					Value:   "micro",
+				},
+			},
+		},
+		{
+			Name:   "snapshot",
+			Usage:  "Back up a store",
+			Action: storecli.Snapshot,
+			Flags: append(storecli.CommonFlags,
+				&cli.StringFlag{
+					Name:    "destination",
+					Usage:   "Backup destination",
+					Value:   "file:///tmp/store-snapshot",
+					EnvVars: []string{"MICRO_SNAPSHOT_DESTINATION"},
+				},
+			),
+		},
+		{
+			Name:   "sync",
+			Usage:  "Copy all records of one store into another store",
+			Action: storecli.Sync,
+			Flags:  storecli.SyncFlags,
+		},
+		{
+			Name:   "restore",
+			Usage:  "restore a store snapshot",
+			Action: storecli.Restore,
+			Flags: append(storecli.CommonFlags,
+				&cli.StringFlag{
+					Name:  "source",
+					Usage: "Backup source",
+					Value: "file:///tmp/store-snapshot",
+				},
+			),
 		},
 	}
 }
