@@ -7,7 +7,7 @@ import (
 )
 
 const (
-	DefaultNamespace = "go.micro"
+	DefaultNamespace = "micro"
 	// NamespaceKey is used to set/get the namespace from the context
 	NamespaceKey = "Micro-Namespace"
 )
