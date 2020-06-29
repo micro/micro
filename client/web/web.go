@@ -2,10 +2,10 @@
 package web
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"html/template"
-	"net"
 	"net/http"
 	"net/http/httputil"
 	"os"
@@ -19,6 +19,7 @@ import (
 	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro/v2"
 	res "github.com/micro/go-micro/v2/api/resolver"
+	"github.com/micro/go-micro/v2/api/resolver/subdomain"
 	"github.com/micro/go-micro/v2/api/server"
 	"github.com/micro/go-micro/v2/api/server/acme"
 	"github.com/micro/go-micro/v2/api/server/acme/autocert"
@@ -26,8 +27,6 @@ import (
 	"github.com/micro/go-micro/v2/api/server/cors"
 	httpapi "github.com/micro/go-micro/v2/api/server/http"
 	"github.com/micro/go-micro/v2/auth"
-	"github.com/micro/go-micro/v2/client/selector"
-	"github.com/micro/go-micro/v2/config/cmd"
 	log "github.com/micro/go-micro/v2/logger"
 	"github.com/micro/go-micro/v2/registry"
 	"github.com/micro/go-micro/v2/sync/memory"
@@ -39,7 +38,6 @@ import (
 	"github.com/micro/micro/v2/internal/stats"
 	"github.com/micro/micro/v2/plugin"
 	"github.com/serenize/snaker"
-	"golang.org/x/net/publicsuffix"
 )
 
 //Meta Fields of micro web
@@ -74,7 +72,7 @@ type srv struct {
 	// registry we use
 	registry registry.Registry
 	// the resolver
-	resolver *web.Resolver
+	resolver res.Resolver
 	// the proxy server
 	prx *proxy
 	// auth service
@@ -91,97 +89,48 @@ type reg struct {
 
 // ServeHTTP serves the web dashboard and proxies where appropriate
 func (s *srv) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	// set defaults on the request
 	if len(r.URL.Host) == 0 {
 		r.URL.Host = r.Host
 	}
-
 	if len(r.URL.Scheme) == 0 {
 		r.URL.Scheme = "http"
 	}
 
-	// no host means dashboard
-	host := r.URL.Hostname()
-	if len(host) == 0 {
-		h, _, err := net.SplitHostPort(r.Host)
-		if err != nil && strings.Contains(err.Error(), "missing port in address") {
-			host = r.Host
-		} else if err == nil {
-			host = h
-		}
+	// the auth wrapper will resolve the route so it can verify the callers access. To prevent the
+	// resolution happening twice, we'll check to see if the endpont was set in the context before
+	// trying to resolve it ourselves. if an endpoint was found, we'll proxy to it.
+	if _, ok := (r.Context().Value(res.Endpoint{})).(*res.Endpoint); ok {
+		s.prx.ServeHTTP(w, r)
+		return
 	}
 
-	// check again
-	if len(host) == 0 {
+	// no endpoint was set in the context, so we'll look it up. If the router returns an error we will
+	// send the request to the mux which will render the web dashboard.
+	endpoint, err := s.resolver.Resolve(r)
+	if err != nil {
 		s.Router.ServeHTTP(w, r)
 		return
 	}
 
-	// check based on host set
-	if len(Host) > 0 && Host == host {
-		s.Router.ServeHTTP(w, r)
-		return
-	}
-
-	// an ip instead of hostname means dashboard
-	ip := net.ParseIP(host)
-	if ip != nil {
-		s.Router.ServeHTTP(w, r)
-		return
-	}
-
-	// namespace matching host means dashboard
-	parts := strings.Split(host, ".")
-	reverse(parts)
-	namespace := strings.Join(parts, ".")
-
-	// replace mu since we know its ours
-	if strings.HasPrefix(namespace, "mu.micro") {
-		namespace = strings.Replace(namespace, "mu.micro", "go.micro", 1)
-	}
-
-	// web dashboard if namespace matches
-	if namespace == Namespace+"."+Type {
-		s.Router.ServeHTTP(w, r)
-		return
-	}
-
-	// if a host has no subdomain serve dashboard
-	v, err := publicsuffix.EffectiveTLDPlusOne(host)
-	if err != nil || v == host {
-		s.Router.ServeHTTP(w, r)
-		return
-	}
-
-	// check if its a web request
-	if _, isWeb := s.resolver.Info(r); isWeb {
-		s.Router.ServeHTTP(w, r)
-		return
-	}
-
-	// otherwise serve the proxy
+	// set the endpoint in the request context and then proxy to that endpoint
+	*r = *r.Clone(context.WithValue(r.Context(), res.Endpoint{}, endpoint))
 	s.prx.ServeHTTP(w, r)
 }
 
 // proxy is a http reverse proxy
 func (s *srv) proxy() *proxy {
 	director := func(r *http.Request) {
-		// check to see if the endpoint was encoded in the request context
-		// by the auth wrapper
-		var endpoint *res.Endpoint
-		if val, ok := (r.Context().Value(res.Endpoint{})).(*res.Endpoint); ok {
-			endpoint = val
+		// the endpoint would have been set by either the auth wrapper or by the servers ServeHTTP method
+		// which invokes the proxy. If no endpoint is found, the router couldn't resolve the endpoint
+		// and the mux didn't match any routes.
+		endpoint, ok := (r.Context().Value(res.Endpoint{})).(*res.Endpoint)
+		if !ok {
+			r.URL.Path = "/404"
+			return
 		}
 
-		// TODO: better error handling
-		var err error
-		if endpoint == nil {
-			if endpoint, err = s.resolver.Resolve(r); err != nil {
-				fmt.Printf("Failed to resolve url: %v: %v\n", r.URL, err)
-				r.URL.Path = "/404"
-				return
-			}
-		}
-
+		// rewrite the request to go to this endpoint
 		r.Header.Set(BasePathHeader, "/"+endpoint.Name)
 		r.URL.Host = endpoint.Host
 		r.URL.Path = endpoint.Path
@@ -253,7 +202,13 @@ func (s *srv) indexHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	services, err := s.registry.ListServices(registry.ListDomain(registry.WildcardDomain))
+	// if we're using the subdomain resolver, we want to use a custom domain
+	domain := registry.DefaultDomain
+	if res, ok := s.resolver.(*subdomain.Resolver); ok {
+		domain = res.Domain(r)
+	}
+
+	services, err := s.registry.ListServices(registry.ListDomain(domain))
 	if err != nil {
 		log.Errorf("Error listing services: %v", err)
 	}
@@ -263,9 +218,6 @@ func (s *srv) indexHandler(w http.ResponseWriter, r *http.Request) {
 		Link string
 		Icon string // TODO: lookup icon
 	}
-
-	// if the resolver is subdomain, we will need the domain
-	domain, _ := publicsuffix.EffectiveTLDPlusOne(r.URL.Hostname())
 
 	prefix := Namespace + "." + Type + "."
 
@@ -277,17 +229,12 @@ func (s *srv) indexHandler(w http.ResponseWriter, r *http.Request) {
 
 		name := strings.TrimPrefix(srv.Name, prefix)
 
-		link := fmt.Sprintf("/%v/", name)
-		if Resolver == "subdomain" && len(domain) > 0 {
-			link = fmt.Sprintf("https://%v.%v", name, domain)
-		}
-
 		// in the case of 3 letter things e.g m3o convert to M3O
 		if len(name) <= 3 && strings.ContainsAny(name, "012345789") {
 			name = strings.ToUpper(name)
 		}
 
-		webServices = append(webServices, webService{Name: name, Link: link})
+		webServices = append(webServices, webService{Name: name, Link: fmt.Sprintf("/%v/", name)})
 	}
 
 	sort.Slice(webServices, func(i, j int) bool { return webServices[i].Name < webServices[j].Name })
@@ -305,8 +252,14 @@ func (s *srv) registryHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	svc := vars["name"]
 
+	// if we're using the subdomain resolver, we want to use a custom domain
+	domain := registry.DefaultDomain
+	if res, ok := s.resolver.(*subdomain.Resolver); ok {
+		domain = res.Domain(r)
+	}
+
 	if len(svc) > 0 {
-		sv, err := s.registry.GetService(svc, registry.GetDomain(registry.WildcardDomain))
+		sv, err := s.registry.GetService(svc, registry.GetDomain(domain))
 		if err != nil {
 			http.Error(w, "Error occurred:"+err.Error(), 500)
 			return
@@ -334,7 +287,7 @@ func (s *srv) registryHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	services, err := s.registry.ListServices(registry.ListDomain(registry.WildcardDomain))
+	services, err := s.registry.ListServices(registry.ListDomain(domain))
 	if err != nil {
 		log.Errorf("Error listing services: %v", err)
 	}
@@ -358,7 +311,13 @@ func (s *srv) registryHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *srv) callHandler(w http.ResponseWriter, r *http.Request) {
-	services, err := s.registry.ListServices(registry.ListDomain(registry.WildcardDomain))
+	// if we're using the subdomain resolver, we want to use a custom domain
+	domain := registry.DefaultDomain
+	if res, ok := s.resolver.(*subdomain.Resolver); ok {
+		domain = res.Domain(r)
+	}
+
+	services, err := s.registry.ListServices(registry.ListDomain(domain))
 	if err != nil {
 		log.Errorf("Error listing services: %v", err)
 	}
@@ -372,7 +331,7 @@ func (s *srv) callHandler(w http.ResponseWriter, r *http.Request) {
 			continue
 		}
 		// lookup the endpoints otherwise
-		s, err := s.registry.GetService(service.Name, registry.GetDomain(registry.WildcardDomain))
+		s, err := s.registry.GetService(service.Name, registry.GetDomain(domain))
 		if err != nil {
 			continue
 		}
@@ -474,22 +433,25 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 	// Initialize Server
 	service := micro.NewService(srvOpts...)
 
-	reg := &reg{Registry: *cmd.DefaultOptions().Registry}
+	// Setup the web resolver
+	var resolver res.Resolver
+	resolver = &web.Resolver{
+		Router: service.Options().Router,
+		Options: res.NewOptions(res.WithServicePrefix(
+			Namespace + "." + Type,
+		)),
+	}
+	if Resolver == "subdomain" {
+		resolver = subdomain.NewResolver(resolver)
+	}
 
 	s := &srv{
-		Router:   mux.NewRouter(),
-		registry: reg,
-		// our internal resolver
-		resolver: &web.Resolver{
-			// Default to type path
-			Type:          Resolver,
-			ServicePrefix: Namespace + "." + Type,
-			Selector: selector.NewSelector(
-				selector.Registry(reg),
-				selector.Domain(registry.WildcardDomain),
-			),
+		Router: mux.NewRouter(),
+		registry: &reg{
+			Registry: service.Options().Registry,
 		},
-		auth: *cmd.DefaultOptions().Auth,
+		resolver: resolver,
+		auth:     service.Options().Auth,
 	}
 
 	var h http.Handler
