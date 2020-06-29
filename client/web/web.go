@@ -38,7 +38,6 @@ import (
 	"github.com/micro/micro/v2/internal/stats"
 	"github.com/micro/micro/v2/plugin"
 	"github.com/serenize/snaker"
-	"golang.org/x/net/publicsuffix"
 )
 
 //Meta Fields of micro web
@@ -203,7 +202,13 @@ func (s *srv) indexHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	services, err := s.registry.ListServices(registry.ListDomain(registry.WildcardDomain))
+	// if we're using the subdomain resolver, we want to use a custom domain
+	domain := registry.DefaultDomain
+	if res, ok := s.resolver.(*subdomain.Resolver); ok {
+		domain = res.Domain(r)
+	}
+
+	services, err := s.registry.ListServices(registry.ListDomain(domain))
 	if err != nil {
 		log.Errorf("Error listing services: %v", err)
 	}
@@ -213,9 +218,6 @@ func (s *srv) indexHandler(w http.ResponseWriter, r *http.Request) {
 		Link string
 		Icon string // TODO: lookup icon
 	}
-
-	// if the resolver is subdomain, we will need the domain
-	domain, _ := publicsuffix.EffectiveTLDPlusOne(r.URL.Hostname())
 
 	prefix := Namespace + "." + Type + "."
 
@@ -227,17 +229,12 @@ func (s *srv) indexHandler(w http.ResponseWriter, r *http.Request) {
 
 		name := strings.TrimPrefix(srv.Name, prefix)
 
-		link := fmt.Sprintf("/%v/", name)
-		if Resolver == "subdomain" && len(domain) > 0 {
-			link = fmt.Sprintf("https://%v.%v", name, domain)
-		}
-
 		// in the case of 3 letter things e.g m3o convert to M3O
 		if len(name) <= 3 && strings.ContainsAny(name, "012345789") {
 			name = strings.ToUpper(name)
 		}
 
-		webServices = append(webServices, webService{Name: name, Link: link})
+		webServices = append(webServices, webService{Name: name, Link: fmt.Sprintf("/%v/", name)})
 	}
 
 	sort.Slice(webServices, func(i, j int) bool { return webServices[i].Name < webServices[j].Name })
@@ -255,8 +252,14 @@ func (s *srv) registryHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	svc := vars["name"]
 
+	// if we're using the subdomain resolver, we want to use a custom domain
+	domain := registry.DefaultDomain
+	if res, ok := s.resolver.(*subdomain.Resolver); ok {
+		domain = res.Domain(r)
+	}
+
 	if len(svc) > 0 {
-		sv, err := s.registry.GetService(svc, registry.GetDomain(registry.WildcardDomain))
+		sv, err := s.registry.GetService(svc, registry.GetDomain(domain))
 		if err != nil {
 			http.Error(w, "Error occurred:"+err.Error(), 500)
 			return
@@ -284,7 +287,7 @@ func (s *srv) registryHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	services, err := s.registry.ListServices(registry.ListDomain(registry.WildcardDomain))
+	services, err := s.registry.ListServices(registry.ListDomain(domain))
 	if err != nil {
 		log.Errorf("Error listing services: %v", err)
 	}
@@ -308,7 +311,13 @@ func (s *srv) registryHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *srv) callHandler(w http.ResponseWriter, r *http.Request) {
-	services, err := s.registry.ListServices(registry.ListDomain(registry.WildcardDomain))
+	// if we're using the subdomain resolver, we want to use a custom domain
+	domain := registry.DefaultDomain
+	if res, ok := s.resolver.(*subdomain.Resolver); ok {
+		domain = res.Domain(r)
+	}
+
+	services, err := s.registry.ListServices(registry.ListDomain(domain))
 	if err != nil {
 		log.Errorf("Error listing services: %v", err)
 	}
@@ -322,7 +331,7 @@ func (s *srv) callHandler(w http.ResponseWriter, r *http.Request) {
 			continue
 		}
 		// lookup the endpoints otherwise
-		s, err := s.registry.GetService(service.Name, registry.GetDomain(registry.WildcardDomain))
+		s, err := s.registry.GetService(service.Name, registry.GetDomain(domain))
 		if err != nil {
 			continue
 		}
