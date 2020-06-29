@@ -152,6 +152,22 @@ func authFromContext(ctx *cli.Context) auth.Auth {
 // login flow.
 // For documentation of the flow please refer to https://github.com/micro/development/pull/223
 func login(ctx *cli.Context) {
+	env := cliutil.GetEnv(ctx)
+	if tok := ctx.String("token"); len(tok) > 0 {
+		_, err := authFromContext(ctx).Inspect(tok)
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+		if err := config.Set(tok, "micro", "auth", env.Name, "token"); err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+
+		fmt.Println("You have been logged in")
+		return
+	}
+
 	email := ""
 	if ctx.Args().Len() > 0 {
 		email = ctx.Args().First()
@@ -187,7 +203,6 @@ func login(ctx *cli.Context) {
 
 	// Already registered users can just get logged in.
 	tok := rsp.AuthToken
-	env := cliutil.GetEnv(ctx)
 	if rsp.AuthToken != nil {
 		if err := config.Set(tok.AccessToken, "micro", "auth", env.Name, "token"); err != nil {
 			fmt.Println(err)
