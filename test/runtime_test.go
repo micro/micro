@@ -9,8 +9,8 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"regexp"
 	"strings"
-	"syscall"
 	"testing"
 	"time"
 )
@@ -68,7 +68,7 @@ func testRunLocalSource(t *t) {
 
 		// The started service should have the runtime name of "test/example-service",
 		// as the runtime name is the relative path inside a repo.
-		if !strings.Contains(string(outp), "test/example-service") {
+		if !statusRunning("test/example-service", outp) {
 			return outp, errors.New("Can't find example service in runtime")
 		}
 		return outp, err
@@ -112,7 +112,7 @@ func testRunAndKill(t *t) {
 
 		// The started service should have the runtime name of "test/example-service",
 		// as the runtime name is the relative path inside a repo.
-		if !strings.Contains(string(outp), "test/example-service") {
+		if !statusRunning("test/example-service", outp) {
 			return outp, errors.New("Can't find example service in runtime")
 		}
 		return outp, err
@@ -230,42 +230,10 @@ func testLocalOutsideRepo(t *t) {
 	}, 75*time.Second)
 }
 
-func TestLocalEnvRunGithubSource(t *testing.T) {
-	//trySuite(t, testLocalEnvRunGithubSource, retryCount)
-}
+func statusRunning(service string, statusOutput []byte) bool {
+	reg, _ := regexp.Compile(service + "\\s+latest\\s+\\S+\\s+running")
 
-func testLocalEnvRunGithubSource(t *t) {
-	t.Parallel()
-	outp, err := exec.Command("micro", "env", "set", "local").CombinedOutput()
-	if err != nil {
-		t.Fatalf("Failed to set env to local, err: %v, output: %v", err, string(outp))
-		return
-	}
-	var cmd *exec.Cmd
-	go func() {
-		cmd = exec.Command("micro", "run", "location")
-		// fire and forget as this will run forever
-		cmd.CombinedOutput()
-	}()
-	time.Sleep(100 * time.Millisecond)
-	defer func() {
-		if cmd.Process != nil {
-			cmd.Process.Signal(syscall.SIGTERM)
-		}
-	}()
-
-	try("Find location", t, func() ([]byte, error) {
-		psCmd := exec.Command("micro", "status")
-		outp, err := psCmd.CombinedOutput()
-		if err != nil {
-			return outp, err
-		}
-
-		if !strings.Contains(string(outp), "location") {
-			return outp, errors.New("Output should contain location")
-		}
-		return outp, nil
-	}, 30*time.Second)
+	return reg.Match(statusOutput)
 }
 
 func TestRunGithubSource(t *testing.T) {
@@ -301,7 +269,7 @@ func testRunGithubSource(t *t) {
 			return outp, err
 		}
 
-		if !strings.Contains(string(outp), "helloworld") {
+		if !statusRunning("helloworld", outp) {
 			return outp, errors.New("Output should contain hello world")
 		}
 		return outp, nil
@@ -353,7 +321,7 @@ func testRunLocalUpdateAndCall(t *t) {
 
 		// The started service should have the runtime name of "test/example-service",
 		// as the runtime name is the relative path inside a repo.
-		if !strings.Contains(string(outp), "test/example-service") {
+		if !statusRunning("test/example-service", outp) {
 			return outp, errors.New("can't find service in runtime")
 		}
 		return outp, err
@@ -521,4 +489,35 @@ func replaceStringInFile(t *t, filepath string, original, newone string) {
 		t.Fatal(err)
 		return
 	}
+}
+
+func TestParentDependency(t *testing.T) {
+	trySuite(t, testParentDependency, retryCount)
+}
+
+func testParentDependency(t *t) {
+	t.Parallel()
+	serv := newServer(t)
+	serv.launch()
+	defer serv.close()
+
+	runCmd := exec.Command("micro", serv.envFlag(), "run", "./dep-test/dep-test-service")
+	outp, err := runCmd.CombinedOutput()
+	if err != nil {
+		t.Fatalf("micro run failure, output: %v", string(outp))
+		return
+	}
+
+	try("Find hello world", t, func() ([]byte, error) {
+		psCmd := exec.Command("micro", serv.envFlag(), "status")
+		outp, err = psCmd.CombinedOutput()
+		if err != nil {
+			return outp, err
+		}
+
+		if !statusRunning("dep-test-service", outp) {
+			return outp, errors.New("Output should contain hello world")
+		}
+		return outp, nil
+	}, 30*time.Second)
 }

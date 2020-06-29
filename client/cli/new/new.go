@@ -123,11 +123,14 @@ func create(c config) error {
 		}
 	}
 
-	dst, err := copyAPIProto(c)
-	if err != nil {
-		return err
+	if c.Type == "api" {
+		dst, err := copyAPIProto(c)
+		if err != nil {
+			return err
+		}
+		addFileToTree(t, dst)
+
 	}
-	addFileToTree(t, dst)
 	// print tree
 	fmt.Println(t.String())
 
