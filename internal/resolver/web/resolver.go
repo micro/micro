@@ -2,9 +2,11 @@ package web
 
 import (
 	"errors"
+	"math/rand"
 	"net/http"
 	"regexp"
 	"strings"
+	"time"
 
 	"github.com/micro/go-micro/v2/api/resolver"
 	res "github.com/micro/go-micro/v2/api/resolver"
@@ -58,13 +60,14 @@ func (r *Resolver) Resolve(req *http.Request, opts ...res.ResolveOption) (*res.E
 		return nil, res.ErrNotFound
 	}
 
-	// select the route to use
+	// select a random route to use
 	// todo: update to use selector once go-micro has updated the interface
 	// route, err := r.Selector.Select(routes...)
 	// if err != nil {
 	// 	return nil, err
 	// }
-	route := routes[0]
+	rand.Seed(time.Now().UnixNano())
+	route := routes[rand.Intn(len(routes))]
 
 	// we're done
 	return &res.Endpoint{

@@ -4,44 +4,37 @@ import (
 	"net/http"
 	"net/url"
 	"testing"
+	"time"
 
-	"github.com/micro/go-micro/v2/client/selector"
+	"github.com/micro/go-micro/v2/api/resolver"
 	"github.com/micro/go-micro/v2/registry"
 	"github.com/micro/go-micro/v2/registry/memory"
+	"github.com/micro/go-micro/v2/router"
 )
 
 func TestWebResolver(t *testing.T) {
 	r := memory.NewRegistry()
 
-	selector := selector.NewSelector(
-		selector.Registry(r),
-	)
-
 	res := &Resolver{
-		ServicePrefix: "go.micro.web",
-		Selector:      selector,
+		Options: resolver.NewOptions(
+			resolver.WithServicePrefix("go.micro.web"),
+		),
+		Router: router.NewRouter(router.Registry(r)),
 	}
 
 	testCases := []struct {
 		Host    string
 		Path    string
 		Service string
-		Type    string
 	}{
-		{"web.micro.mu", "/home", "go.micro.web.home", "domain"},
-		{"localhost:8082", "/foobar", "go.micro.web.foobar", "path"},
-		{"web.micro.mu", "/foobar", "go.micro.web.foobar", "path"},
-		{"127.0.0.1:8082", "/hello", "go.micro.web.hello", "path"},
-		{"account.micro.mu", "/", "go.micro.web.account", "domain"},
-		{"foo.m3o.app", "/bar", "foo.web.bar", "domain"},
-		{"demo.m3o.app", "/bar", "go.micro.web.bar", "path"},
+		{"localhost:8082", "/foobar", "go.micro.web.foobar"},
+		{"web.micro.mu", "/foobar", "go.micro.web.foobar"},
+		{"127.0.0.1:8082", "/hello", "go.micro.web.hello"},
+		{"demo.m3o.app", "/bar", "go.micro.web.bar"},
 	}
 
 	for _, service := range testCases {
 		t.Run(service.Host+service.Path, func(t *testing.T) {
-			// set resolver type
-			res.Type = service.Type
-
 			v := &registry.Service{
 				Name:    service.Service,
 				Version: "latest",
@@ -51,6 +44,9 @@ func TestWebResolver(t *testing.T) {
 			}
 
 			r.Register(v)
+
+			// registry events are published to the router async
+			time.Sleep(time.Millisecond * 10)
 
 			u, err := url.Parse("https://" + service.Host + service.Path)
 			if err != nil {
