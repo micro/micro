@@ -28,15 +28,15 @@ import (
 
 const (
 	// RunUsage message for the run command
-	RunUsage = "Required usage: micro run [source]"
+	RunUsage = "Run a service: micro run [source]"
 	// KillUsage message for the kill command
-	KillUsage = "Require usage: micro kill [source]"
+	KillUsage = "Kill a service: micro kill [source]"
 	// UpdateUsage message for the update command
-	UpdateUsage = "Require usage: micro update [source]"
+	UpdateUsage = "Update a service: micro update [source]"
 	// GetUsage message for micro get command
-	GetUsage = "Require usage: micro status [service] [version]"
+	GetUsage = "List runtime objects"
 	// ServicesUsage message for micro services command
-	ServicesUsage = "Require usage: micro services"
+	ServicesUsage = "micro services"
 	// CannotWatch message for the run command
 	CannotWatch = "Cannot watch filesystem on this runtime"
 )

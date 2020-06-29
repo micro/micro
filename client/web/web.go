@@ -35,7 +35,6 @@ import (
 	inauth "github.com/micro/micro/v2/internal/auth"
 	"github.com/micro/micro/v2/internal/handler"
 	"github.com/micro/micro/v2/internal/helper"
-	"github.com/micro/micro/v2/internal/namespace"
 	"github.com/micro/micro/v2/internal/resolver/web"
 	"github.com/micro/micro/v2/internal/stats"
 	"github.com/micro/micro/v2/plugin"
@@ -76,8 +75,6 @@ type srv struct {
 	registry registry.Registry
 	// the resolver
 	resolver *web.Resolver
-	// the namespace resolver
-	nsResolver *namespace.Resolver
 	// the proxy server
 	prx *proxy
 	// auth service
@@ -156,7 +153,7 @@ func (s *srv) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// check if its a web request
-	if _, _, isWeb := s.resolver.Info(r); isWeb {
+	if _, isWeb := s.resolver.Info(r); isWeb {
 		s.Router.ServeHTTP(w, r)
 		return
 	}
@@ -168,14 +165,6 @@ func (s *srv) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 // proxy is a http reverse proxy
 func (s *srv) proxy() *proxy {
 	director := func(r *http.Request) {
-		kill := func() {
-			r.URL.Host = ""
-			r.URL.Path = ""
-			r.URL.Scheme = ""
-			r.Host = ""
-			r.RequestURI = ""
-		}
-
 		// check to see if the endpoint was encoded in the request context
 		// by the auth wrapper
 		var endpoint *res.Endpoint
@@ -188,7 +177,7 @@ func (s *srv) proxy() *proxy {
 		if endpoint == nil {
 			if endpoint, err = s.resolver.Resolve(r); err != nil {
 				fmt.Printf("Failed to resolve url: %v: %v\n", r.URL, err)
-				kill()
+				r.URL.Path = "/404"
 				return
 			}
 		}
@@ -252,6 +241,11 @@ func faviconHandler(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
+func (s *srv) notFoundHandler(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusNotFound)
+	s.render(w, r, notFoundTemplate, nil)
+}
+
 func (s *srv) indexHandler(w http.ResponseWriter, r *http.Request) {
 	cors.SetHeaders(w, r)
 
@@ -259,7 +253,7 @@ func (s *srv) indexHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	services, err := s.registry.ListServices(registry.ListContext(r.Context()))
+	services, err := s.registry.ListServices(registry.ListDomain(registry.WildcardDomain))
 	if err != nil {
 		log.Errorf("Error listing services: %v", err)
 	}
@@ -273,14 +267,15 @@ func (s *srv) indexHandler(w http.ResponseWriter, r *http.Request) {
 	// if the resolver is subdomain, we will need the domain
 	domain, _ := publicsuffix.EffectiveTLDPlusOne(r.URL.Hostname())
 
+	prefix := Namespace + "." + Type + "."
+
 	var webServices []webService
 	for _, srv := range services {
-		// not a web app
-		comps := strings.Split(srv.Name, ".web.")
-		if len(comps) == 1 {
+		if !strings.HasPrefix(srv.Name, prefix) {
 			continue
 		}
-		name := comps[1]
+
+		name := strings.TrimPrefix(srv.Name, prefix)
 
 		link := fmt.Sprintf("/%v/", name)
 		if Resolver == "subdomain" && len(domain) > 0 {
@@ -311,7 +306,7 @@ func (s *srv) registryHandler(w http.ResponseWriter, r *http.Request) {
 	svc := vars["name"]
 
 	if len(svc) > 0 {
-		sv, err := s.registry.GetService(svc, registry.GetContext(r.Context()))
+		sv, err := s.registry.GetService(svc, registry.GetDomain(registry.WildcardDomain))
 		if err != nil {
 			http.Error(w, "Error occurred:"+err.Error(), 500)
 			return
@@ -339,7 +334,7 @@ func (s *srv) registryHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	services, err := s.registry.ListServices(registry.ListContext(r.Context()))
+	services, err := s.registry.ListServices(registry.ListDomain(registry.WildcardDomain))
 	if err != nil {
 		log.Errorf("Error listing services: %v", err)
 	}
@@ -363,7 +358,7 @@ func (s *srv) registryHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *srv) callHandler(w http.ResponseWriter, r *http.Request) {
-	services, err := s.registry.ListServices(registry.ListContext(r.Context()))
+	services, err := s.registry.ListServices(registry.ListDomain(registry.WildcardDomain))
 	if err != nil {
 		log.Errorf("Error listing services: %v", err)
 	}
@@ -377,7 +372,7 @@ func (s *srv) callHandler(w http.ResponseWriter, r *http.Request) {
 			continue
 		}
 		// lookup the endpoints otherwise
-		s, err := s.registry.GetService(service.Name, registry.GetContext(r.Context()))
+		s, err := s.registry.GetService(service.Name, registry.GetDomain(registry.WildcardDomain))
 		if err != nil {
 			continue
 		}
@@ -487,10 +482,11 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 		// our internal resolver
 		resolver: &web.Resolver{
 			// Default to type path
-			Type:      Resolver,
-			Namespace: namespace.NewResolver(Type, Namespace).ResolveWithType,
+			Type:          Resolver,
+			ServicePrefix: Namespace + "." + Type,
 			Selector: selector.NewSelector(
 				selector.Registry(reg),
+				selector.Domain(registry.WildcardDomain),
 			),
 		},
 		auth: *cmd.DefaultOptions().Auth,
@@ -514,6 +510,7 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 
 	// the web handler itself
 	s.HandleFunc("/favicon.ico", faviconHandler)
+	s.HandleFunc("/404", s.notFoundHandler)
 	s.HandleFunc("/client", s.callHandler)
 	s.HandleFunc("/services", s.registryHandler)
 	s.HandleFunc("/service/{name}", s.registryHandler)
@@ -592,12 +589,9 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 		h = plugins[i-1].Handler()(h)
 	}
 
-	// create the namespace resolver and the auth wrapper
-	s.nsResolver = namespace.NewResolver(Type, Namespace)
-	authWrapper := apiAuth.Wrapper(s.resolver, s.nsResolver)
-
 	// create the service and add the auth wrapper
-	srv := httpapi.NewServer(Address, server.WrapHandler(authWrapper))
+	aw := apiAuth.Wrapper(s.resolver, Namespace+"."+Type)
+	srv := httpapi.NewServer(Address, server.WrapHandler(aw))
 
 	srv.Init(opts...)
 	srv.Handle("/", h)

@@ -47,6 +47,8 @@ func Commands(options ...micro.Option) []*cli.Command {
 	command := &cli.Command{
 		Name:  "server",
 		Usage: "Run the micro server",
+		Description: `Launching the micro server ('micro server') will enable one to connect to it by
+		setting the appropriate Micro environment (see 'micro env' && 'micro env --help') commands.`,
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:    "address",
@@ -102,6 +104,7 @@ func Run(context *cli.Context) error {
 	if len(profile) == 0 {
 		profile = "server"
 	}
+
 	env = append(env, "MICRO_RUNTIME_PROFILE="+profile)
 	env = append(env, os.Environ()...)
 
@@ -152,6 +155,7 @@ func Run(context *cli.Context) error {
 		switch service {
 		case "proxy", "web", "api":
 			envs = append(envs, "MICRO_AUTH=service")
+			envs = append(envs, "MICRO_ROUTER=service")
 		}
 
 		cmdArgs := []string{}
