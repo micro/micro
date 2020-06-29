@@ -8,6 +8,7 @@ import (
 
 	"github.com/micro/go-micro/v2/api/resolver"
 	res "github.com/micro/go-micro/v2/api/resolver"
+	"github.com/micro/go-micro/v2/registry"
 	"github.com/micro/go-micro/v2/router"
 	// "github.com/micro/go-micro/v2/selector"
 )
@@ -66,6 +67,6 @@ func (r *Resolver) Resolve(req *http.Request, opts ...res.ResolveOption) (*res.E
 		Method: req.Method,
 		Host:   route.Address,
 		Path:   "/" + strings.Join(parts[2:], "/"),
-		Domain: route.Network,
+		Domain: registry.DefaultDomain,
 	}, nil
 }
