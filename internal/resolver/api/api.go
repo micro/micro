@@ -5,7 +5,6 @@ import (
 	"net/http"
 
 	"github.com/micro/go-micro/v2/api/resolver"
-	"github.com/micro/go-micro/v2/registry"
 )
 
 // default resolver for legacy purposes
@@ -16,7 +15,9 @@ type Resolver struct {
 	opts resolver.Options
 }
 
-func (r *Resolver) Resolve(req *http.Request) (*resolver.Endpoint, error) {
+func (r *Resolver) Resolve(req *http.Request, opts ...resolver.ResolveOption) (*resolver.Endpoint, error) {
+	options := resolver.NewResolveOptions(opts...)
+
 	var name, method string
 
 	switch r.opts.Handler {
@@ -30,7 +31,7 @@ func (r *Resolver) Resolve(req *http.Request) (*resolver.Endpoint, error) {
 
 	return &resolver.Endpoint{
 		Name:   r.opts.ServicePrefix + "." + name,
-		Domain: registry.DefaultDomain,
+		Domain: options.Domain,
 		Method: method,
 	}, nil
 }
