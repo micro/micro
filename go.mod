@@ -18,6 +18,7 @@ require (
 	github.com/gorilla/mux v1.7.3
 	github.com/micro/cli/v2 v2.1.2
 	github.com/micro/go-micro/v2 v2.9.1-0.20200626132818-104b7d8f8dd7
+	github.com/micro/services/signup v0.0.0-20200629142252-9f80a09a8594
 	github.com/miekg/dns v1.1.27
 	github.com/netdata/go-orchestrator v0.0.0-20190905093727-c793edba0e8f
 	github.com/olekukonko/tablewriter v0.0.4
@@ -31,5 +32,7 @@ require (
 	golang.org/x/net v0.0.0-20200520182314-0ba52f642ac2
 	golang.org/x/tools v0.0.0-20191216173652-a0e659d51361
 	google.golang.org/genproto v0.0.0-20200526211855-cb27e3aa2013
-	google.golang.org/grpc v1.26.0
+	google.golang.org/grpc v1.27.0
 )
+
+replace google.golang.org/grpc => google.golang.org/grpc v1.26.0
