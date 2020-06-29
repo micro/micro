@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/micro/go-micro/v2/api/resolver"
+	"github.com/micro/go-micro/v2/registry"
 )
 
 // default resolver for legacy purposes
@@ -29,6 +30,7 @@ func (r *Resolver) Resolve(req *http.Request) (*resolver.Endpoint, error) {
 
 	return &resolver.Endpoint{
 		Name:   r.opts.ServicePrefix + "." + name,
+		Domain: registry.DefaultDomain,
 		Method: method,
 	}, nil
 }

@@ -9,6 +9,7 @@ import (
 
 	res "github.com/micro/go-micro/v2/api/resolver"
 	"github.com/micro/go-micro/v2/client/selector"
+	"github.com/micro/go-micro/v2/registry"
 	"golang.org/x/net/publicsuffix"
 )
 
@@ -140,6 +141,7 @@ func (r *Resolver) Resolve(req *http.Request) (*res.Endpoint, error) {
 		Method: req.Method,
 		Host:   s.Address,
 		Path:   req.URL.Path,
+		Domain: registry.DefaultDomain,
 	}, nil
 }
 
@@ -172,5 +174,6 @@ func (r *Resolver) resolveWithPath(req *http.Request) (*res.Endpoint, error) {
 		Method: req.Method,
 		Host:   s.Address,
 		Path:   "/" + strings.Join(parts[2:], "/"),
+		Domain: registry.DefaultDomain,
 	}, nil
 }

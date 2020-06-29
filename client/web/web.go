@@ -35,7 +35,6 @@ import (
 	inauth "github.com/micro/micro/v2/internal/auth"
 	"github.com/micro/micro/v2/internal/handler"
 	"github.com/micro/micro/v2/internal/helper"
-	"github.com/micro/micro/v2/internal/namespace"
 	"github.com/micro/micro/v2/internal/resolver/web"
 	"github.com/micro/micro/v2/internal/stats"
 	"github.com/micro/micro/v2/plugin"
@@ -76,8 +75,6 @@ type srv struct {
 	registry registry.Registry
 	// the resolver
 	resolver *web.Resolver
-	// the namespace resolver
-	nsResolver *namespace.Resolver
 	// the proxy server
 	prx *proxy
 	// auth service
@@ -270,14 +267,15 @@ func (s *srv) indexHandler(w http.ResponseWriter, r *http.Request) {
 	// if the resolver is subdomain, we will need the domain
 	domain, _ := publicsuffix.EffectiveTLDPlusOne(r.URL.Hostname())
 
+	prefix := Namespace + "." + Type + "."
+
 	var webServices []webService
 	for _, srv := range services {
-		// not a web app
-		comps := strings.Split(srv.Name, ".web.")
-		if len(comps) == 1 {
+		if !strings.HasPrefix(srv.Name, prefix) {
 			continue
 		}
-		name := comps[1]
+
+		name := strings.TrimPrefix(srv.Name, prefix)
 
 		link := fmt.Sprintf("/%v/", name)
 		if Resolver == "subdomain" && len(domain) > 0 {
@@ -591,12 +589,9 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 		h = plugins[i-1].Handler()(h)
 	}
 
-	// create the namespace resolver and the auth wrapper
-	s.nsResolver = namespace.NewResolver(Type, Namespace)
-	authWrapper := apiAuth.Wrapper(s.resolver, s.nsResolver)
-
 	// create the service and add the auth wrapper
-	srv := httpapi.NewServer(Address, server.WrapHandler(authWrapper))
+	aw := apiAuth.Wrapper(s.resolver, Namespace+"."+Type)
+	srv := httpapi.NewServer(Address, server.WrapHandler(aw))
 
 	srv.Init(opts...)
 	srv.Handle("/", h)
