@@ -48,9 +48,14 @@ func (r *Resolver) Resolve(req *http.Request, opts ...res.ResolveOption) (*res.E
 		router.QueryService(r.Options.ServicePrefix + "." + parts[1]),
 		router.QueryNetwork(options.Domain),
 	}
+
 	routes, err := r.Router.Lookup(query...)
-	if err != nil {
+	if err == router.ErrRouteNotFound {
+		return nil, res.ErrNotFound
+	} else if err != nil {
 		return nil, err
+	} else if len(routes) == 0 {
+		return nil, res.ErrNotFound
 	}
 
 	// select the route to use
