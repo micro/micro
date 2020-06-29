@@ -4,7 +4,6 @@ import (
 	"net/http"
 	"net/url"
 	"testing"
-	"time"
 
 	"github.com/micro/go-micro/v2/api/resolver"
 	"github.com/micro/go-micro/v2/registry"
@@ -44,9 +43,6 @@ func TestWebResolver(t *testing.T) {
 			}
 
 			r.Register(v)
-
-			// registry events are published to the router async
-			time.Sleep(time.Millisecond * 10)
 
 			u, err := url.Parse("https://" + service.Host + service.Path)
 			if err != nil {
