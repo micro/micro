@@ -164,9 +164,13 @@ func login(ctx *cli.Context) {
 	}
 	signupService := signupproto.NewSignupService("go.micro.service.signup", client.New(ctx))
 
-	signupService.SendVerificationEmail(context.TODO(), &signupproto.SendVerificationEmailRequest{
+	_, err := signupService.SendVerificationEmail(context.TODO(), &signupproto.SendVerificationEmailRequest{
 		Email: email,
 	})
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
 
 	fmt.Print("We have sent you an email with a one time password. Please paste it here: ")
 	password, _ := reader.ReadString('\n')
