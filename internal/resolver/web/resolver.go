@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"regexp"
 	"strings"
-	"time"
 
 	"github.com/micro/go-micro/v2/api/resolver"
 	res "github.com/micro/go-micro/v2/api/resolver"
@@ -66,7 +65,6 @@ func (r *Resolver) Resolve(req *http.Request, opts ...res.ResolveOption) (*res.E
 	// if err != nil {
 	// 	return nil, err
 	// }
-	rand.Seed(time.Now().UnixNano())
 	route := routes[rand.Intn(len(routes))]
 
 	// we're done
