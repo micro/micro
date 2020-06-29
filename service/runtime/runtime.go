@@ -200,10 +200,10 @@ func Commands(options ...micro.Option) []*cli.Command {
 			Flags: Flags(),
 			Description: `Examples:
 			micro kill github.com/micro/examples/helloworld
-			micro update .  # kill service deployed from local folder
-			micro update ../path/to/folder # kill service deployed from local folder
-			micro update helloworld # kill serviced deployed from master branch, translates to micro kill github.com/micro/services/helloworld
-			micro update helloworld@branchname	# kill service deployed from certain branch`,
+			micro kill .  # kill service deployed from local folder
+			micro kill ../path/to/folder # kill service deployed from local folder
+			micro kill helloworld # kill serviced deployed from master branch, translates to micro kill github.com/micro/services/helloworld
+			micro kill helloworld@branchname	# kill service deployed from certain branch`,
 			Action: func(ctx *cli.Context) error {
 				killService(ctx, options...)
 				return nil
