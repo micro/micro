@@ -33,7 +33,6 @@ import (
 	"github.com/micro/micro/v2/client/api/auth"
 	"github.com/micro/micro/v2/internal/handler"
 	"github.com/micro/micro/v2/internal/helper"
-	"github.com/micro/micro/v2/internal/namespace"
 	rrmicro "github.com/micro/micro/v2/internal/resolver/api"
 	"github.com/micro/micro/v2/internal/stats"
 	"github.com/micro/micro/v2/plugin"
@@ -194,12 +193,9 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 		r.HandleFunc(RPCPath, handler.RPC)
 	}
 
-	// create the namespace resolver
-	nsResolver := namespace.NewResolver(Type, Namespace)
-
 	// resolver options
 	ropts := []resolver.Option{
-		resolver.WithNamespace(nsResolver.ResolveWithType),
+		resolver.WithServicePrefix(Namespace + "." + Type),
 		resolver.WithHandler(Handler),
 	}
 
@@ -287,7 +283,7 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 			router.WithResolver(rr),
 			router.WithRegistry(service.Options().Registry),
 		)
-		r.PathPrefix(APIPath).Handler(handler.Meta(service, rt, nsResolver.ResolveWithType))
+		r.PathPrefix(APIPath).Handler(handler.Meta(service, rt, Namespace+"."+Type))
 	}
 
 	// reverse wrap handler
@@ -297,7 +293,7 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 	}
 
 	// create the auth wrapper and the server
-	authWrapper := auth.Wrapper(rr, nsResolver)
+	authWrapper := auth.Wrapper(rr, Namespace+"."+Type)
 	api := httpapi.NewServer(Address, server.WrapHandler(authWrapper))
 
 	api.Init(opts...)

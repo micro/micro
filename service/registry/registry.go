@@ -114,10 +114,9 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 
 	// register the handler
 	pb.RegisterRegistryHandler(service.Server(), &handler.Registry{
-		Id:        id,
+		ID:        id,
 		Publisher: micro.NewPublisher(Topic, service.Client()),
 		Registry:  service.Options().Registry,
-		Auth:      service.Options().Auth,
 	})
 
 	// run the service
