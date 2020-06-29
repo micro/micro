@@ -11,7 +11,6 @@ import (
 	res "github.com/micro/go-micro/v2/api/resolver"
 	"github.com/micro/go-micro/v2/registry"
 	"github.com/micro/go-micro/v2/router"
-	// "github.com/micro/go-micro/v2/selector"
 )
 
 var re = regexp.MustCompile("^[a-zA-Z0-9]+([a-zA-Z0-9-]*[a-zA-Z0-9]*)?$")
