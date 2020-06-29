@@ -10,6 +10,7 @@ import (
 	"github.com/micro/go-micro/v2/api/resolver"
 	"github.com/micro/go-micro/v2/api/server"
 	"github.com/micro/go-micro/v2/auth"
+	"github.com/micro/go-micro/v2/client/selector"
 	"github.com/micro/go-micro/v2/logger"
 	"github.com/micro/go-micro/v2/util/ctx"
 	inauth "github.com/micro/micro/v2/internal/auth"
