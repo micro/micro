@@ -10,6 +10,7 @@ import (
 	"github.com/micro/go-micro/v2/api/resolver"
 	"github.com/micro/go-micro/v2/api/server"
 	"github.com/micro/go-micro/v2/auth"
+	"github.com/micro/go-micro/v2/client/selector"
 	"github.com/micro/go-micro/v2/logger"
 	"github.com/micro/go-micro/v2/util/ctx"
 	inauth "github.com/micro/micro/v2/internal/auth"
@@ -77,7 +78,7 @@ func (a authWrapper) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 
 	// Determine the name of the service being requested
 	endpoint, err := a.resolver.Resolve(req)
-	if err == resolver.ErrInvalidPath || err == resolver.ErrNotFound {
+	if err == resolver.ErrInvalidPath || err == resolver.ErrNotFound || err == selector.ErrNoneAvailable {
 		// a file not served by the resolver has been requested (e.g. favicon.ico)
 		endpoint = &resolver.Endpoint{Path: req.URL.Path}
 	} else if err != nil {

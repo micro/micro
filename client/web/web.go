@@ -168,14 +168,6 @@ func (s *srv) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 // proxy is a http reverse proxy
 func (s *srv) proxy() *proxy {
 	director := func(r *http.Request) {
-		kill := func() {
-			r.URL.Host = ""
-			r.URL.Path = ""
-			r.URL.Scheme = ""
-			r.Host = ""
-			r.RequestURI = ""
-		}
-
 		// check to see if the endpoint was encoded in the request context
 		// by the auth wrapper
 		var endpoint *res.Endpoint
@@ -188,7 +180,7 @@ func (s *srv) proxy() *proxy {
 		if endpoint == nil {
 			if endpoint, err = s.resolver.Resolve(r); err != nil {
 				fmt.Printf("Failed to resolve url: %v: %v\n", r.URL, err)
-				kill()
+				r.URL.Path = "/404"
 				return
 			}
 		}
@@ -250,6 +242,11 @@ func formatEndpoint(v *registry.Value, r int) string {
 
 func faviconHandler(w http.ResponseWriter, r *http.Request) {
 	return
+}
+
+func (s *srv) notFoundHandler(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusNotFound)
+	s.render(w, r, notFoundTemplate, nil)
 }
 
 func (s *srv) indexHandler(w http.ResponseWriter, r *http.Request) {
@@ -515,6 +512,7 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 
 	// the web handler itself
 	s.HandleFunc("/favicon.ico", faviconHandler)
+	s.HandleFunc("/404", s.notFoundHandler)
 	s.HandleFunc("/client", s.callHandler)
 	s.HandleFunc("/services", s.registryHandler)
 	s.HandleFunc("/service/{name}", s.registryHandler)
