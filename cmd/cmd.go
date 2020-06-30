@@ -2,8 +2,10 @@ package cmd
 
 import (
 	"fmt"
+	"math"
 	"os"
 	"os/exec"
+	"sort"
 
 	ccli "github.com/micro/cli/v2"
 	"github.com/micro/go-micro/v2"
@@ -51,7 +53,7 @@ var (
 	BuildDate string
 
 	name        = "micro"
-	description = "A microservice runtime"
+	description = "A microservice runtime\n\n	 Use `micro [command] --help` to see command specific help."
 	version     = "latest"
 )
 
@@ -134,11 +136,6 @@ func setup(app *ccli.App) {
 			Name:    "network_address",
 			Usage:   "Set the micro network address e.g. :9093",
 			EnvVars: []string{"MICRO_NETWORK_ADDRESS"},
-		},
-		&ccli.StringFlag{
-			Name:    "router_address",
-			Usage:   "Set the micro router address e.g. :8084",
-			EnvVars: []string{"MICRO_ROUTER_ADDRESS"},
 		},
 		&ccli.StringFlag{
 			Name:    "gateway_address",
@@ -230,9 +227,6 @@ func setup(app *ccli.App) {
 		}
 		if len(ctx.String("network_address")) > 0 {
 			network.Address = ctx.String("network_address")
-		}
-		if len(ctx.String("router_address")) > 0 {
-			router.Address = ctx.String("router_address")
 		}
 		if len(ctx.String("tunnel_address")) > 0 {
 			tunnel.Address = ctx.String("tunnel_address")
@@ -332,9 +326,35 @@ func Init(options ...micro.Option) {
 	)
 }
 
+var commandOrder = []string{"server", "new", "env", "login", "run", "logs", "call", "update", "kill", "store", "config", "auth", "status", "stream", "file"}
+
+type commands []*ccli.Command
+
+func (s commands) Len() int      { return len(s) }
+func (s commands) Swap(i, j int) { s[i], s[j] = s[j], s[i] }
+func (s commands) Less(i, j int) bool {
+	index := map[string]int{}
+	for i, v := range commandOrder {
+		index[v] = i
+	}
+	iVal, ok := index[s[i].Name]
+	if !ok {
+		iVal = math.MaxInt32
+	}
+	jVal, ok := index[s[j].Name]
+	if !ok {
+		jVal = math.MaxInt32
+	}
+	return iVal < jVal
+}
+
 // Setup sets up a cli.App
 func Setup(app *ccli.App, options ...micro.Option) {
 	// Add the various commands
+	app.Commands = append(app.Commands, new.Commands()...)
+	app.Commands = append(app.Commands, runtime.Commands(options...)...)
+	app.Commands = append(app.Commands, store.Commands(options...)...)
+	app.Commands = append(app.Commands, config.Commands(options...)...)
 	app.Commands = append(app.Commands, api.Commands(options...)...)
 	app.Commands = append(app.Commands, auth.Commands()...)
 	app.Commands = append(app.Commands, bot.Commands()...)
@@ -346,15 +366,11 @@ func Setup(app *ccli.App, options ...micro.Option) {
 	app.Commands = append(app.Commands, tunnel.Commands(options...)...)
 	app.Commands = append(app.Commands, network.Commands(options...)...)
 	app.Commands = append(app.Commands, registry.Commands(options...)...)
-	app.Commands = append(app.Commands, runtime.Commands(options...)...)
 	app.Commands = append(app.Commands, debug.Commands(options...)...)
 	app.Commands = append(app.Commands, server.Commands(options...)...)
 	app.Commands = append(app.Commands, service.Commands(options...)...)
-	app.Commands = append(app.Commands, store.Commands(options...)...)
-	app.Commands = append(app.Commands, new.Commands()...)
 	app.Commands = append(app.Commands, build.Commands()...)
 	app.Commands = append(app.Commands, web.Commands(options...)...)
-	app.Commands = append(app.Commands, config.Commands(options...)...)
 
 	// add the init command for our internal operator
 	app.Commands = append(app.Commands, &ccli.Command{
@@ -366,6 +382,8 @@ func Setup(app *ccli.App, options ...micro.Option) {
 		},
 		Flags: []ccli.Flag{},
 	})
+
+	sort.Sort(commands(app.Commands))
 
 	// boot micro runtime
 	app.Action = func(c *ccli.Context) error {
