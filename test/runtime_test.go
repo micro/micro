@@ -406,6 +406,38 @@ func testExistingLogs(t *t) {
 	}, 50*time.Second)
 }
 
+func TestBranchCheckout(t *testing.T) {
+	trySuite(t, testBranchCheckout, retryCount)
+}
+
+func testBranchCheckout(t *t) {
+	t.Parallel()
+	serv := newServer(t)
+	serv.launch()
+	defer serv.close()
+
+	runCmd := exec.Command("micro", serv.envFlag(), "run", "github.com/crufter/micro-services/logspammer@branch-checkout-test")
+	outp, err := runCmd.CombinedOutput()
+	if err != nil {
+		t.Fatalf("micro run failure, output: %v", string(outp))
+		return
+	}
+
+	try("logspammer logs", t, func() ([]byte, error) {
+		psCmd := exec.Command("micro", serv.envFlag(), "logs", "-n", "5", "crufter/micro-services/logspammer")
+		outp, err = psCmd.CombinedOutput()
+		if err != nil {
+			return outp, err
+		}
+
+		// The log that this branch outputs is different from master, that's what we look for
+		if !strings.Contains(string(outp), "Listening on") || !strings.Contains(string(outp), "Branch checkout test") {
+			return outp, errors.New("Output does not contain expected")
+		}
+		return outp, nil
+	}, 50*time.Second)
+}
+
 func TestStreamLogsAndThirdPartyRepo(t *testing.T) {
 	trySuite(t, testStreamLogsAndThirdPartyRepo, retryCount)
 }
