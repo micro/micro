@@ -13,7 +13,6 @@ import (
 	"github.com/micro/go-micro/v2/api/server/acme/certmagic"
 	"github.com/micro/go-micro/v2/auth"
 	bmem "github.com/micro/go-micro/v2/broker/memory"
-	"github.com/micro/go-micro/v2/client"
 	mucli "github.com/micro/go-micro/v2/client"
 	"github.com/micro/go-micro/v2/config/cmd"
 	log "github.com/micro/go-micro/v2/logger"
@@ -22,10 +21,7 @@ import (
 	//"github.com/micro/go-micro/v2/proxy/grpc"
 	"github.com/micro/go-micro/v2/proxy/http"
 	"github.com/micro/go-micro/v2/proxy/mucp"
-	"github.com/micro/go-micro/v2/registry"
 	rmem "github.com/micro/go-micro/v2/registry/memory"
-	"github.com/micro/go-micro/v2/router"
-	rs "github.com/micro/go-micro/v2/router/service"
 	"github.com/micro/go-micro/v2/server"
 	sgrpc "github.com/micro/go-micro/v2/server/grpc"
 	"github.com/micro/go-micro/v2/sync/memory"
@@ -84,41 +80,9 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 	service := micro.NewService(srvOpts...)
 
 	// set the context
-	var popts []proxy.Option
-
-	// create new router
-	var r router.Router
-
-	routerName := ctx.String("router")
-	routerAddr := ctx.String("router_address")
-
-	ropts := []router.Option{
-		router.Id(server.DefaultId),
-		router.Client(client.DefaultClient),
-		router.Address(routerAddr),
-		router.Registry(registry.DefaultRegistry),
+	popts := []proxy.Option{
+		proxy.WithRouter(service.Options().Router),
 	}
-
-	// check if we need to use the router service
-	switch {
-	case routerName == "go.micro.router":
-		r = rs.NewRouter(ropts...)
-	case routerName == "service":
-		r = rs.NewRouter(ropts...)
-	case len(routerAddr) > 0:
-		r = rs.NewRouter(ropts...)
-	default:
-		r = router.NewRouter(ropts...)
-	}
-
-	// start the router
-	if err := r.Start(); err != nil {
-		log.Errorf("Proxy error starting router: %s", err)
-		os.Exit(1)
-	}
-
-	// append router to proxy opts
-	popts = append(popts, proxy.WithRouter(r))
 
 	// new proxy
 	var p proxy.Proxy
@@ -280,16 +244,6 @@ func Commands(options ...micro.Option) []*cli.Command {
 		Name:  "proxy",
 		Usage: "Run the service proxy",
 		Flags: []cli.Flag{
-			&cli.StringFlag{
-				Name:    "router",
-				Usage:   "Set the router to use e.g default, go.micro.router",
-				EnvVars: []string{"MICRO_ROUTER"},
-			},
-			&cli.StringFlag{
-				Name:    "router_address",
-				Usage:   "Set the router address",
-				EnvVars: []string{"MICRO_ROUTER_ADDRESS"},
-			},
 			&cli.StringFlag{
 				Name:    "address",
 				Usage:   "Set the proxy http address e.g 0.0.0.0:8081",

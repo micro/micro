@@ -123,11 +123,14 @@ func create(c config) error {
 		}
 	}
 
-	dst, err := copyAPIProto(c)
-	if err != nil {
-		return err
+	if c.Type == "api" {
+		dst, err := copyAPIProto(c)
+		if err != nil {
+			return err
+		}
+		addFileToTree(t, dst)
+
 	}
-	addFileToTree(t, dst)
 	// print tree
 	fmt.Println(t.String())
 
@@ -388,8 +391,9 @@ func Run(ctx *cli.Context) {
 func Commands() []*cli.Command {
 	return []*cli.Command{
 		{
-			Name:  "new",
-			Usage: "Create a service template",
+			Name:        "new",
+			Usage:       "Create a service template",
+			Description: `'micro new' scaffolds a new service skeleton. Example: 'micro new my-app && cd my-app'`,
 			Flags: []cli.Flag{
 				&cli.StringFlag{
 					Name:  "namespace",
