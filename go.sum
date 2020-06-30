@@ -327,8 +327,12 @@ github.com/matttproud/golang_protobuf_extensions v1.0.1 h1:4hp9jkHxhMHkqkrB3Ix0j
 github.com/matttproud/golang_protobuf_extensions v1.0.1/go.mod h1:D8He9yQNgCq6Z5Ld7szi9bcBfOoFv/3dc6xSMkL2PC0=
 github.com/micro/cli/v2 v2.1.2 h1:43J1lChg/rZCC1rvdqZNFSQDrGT7qfMrtp6/ztpIkEM=
 github.com/micro/cli/v2 v2.1.2/go.mod h1:EguNh6DAoWKm9nmk+k/Rg0H3lQnDxqzu5x5srOtGtYg=
-github.com/micro/go-micro/v2 v2.9.1-0.20200629153745-df3e5364caa6 h1:e/Vd6kSXsEmLsGi8lqY7KRgGXVKgB/0pthdx5/hVSCM=
-github.com/micro/go-micro/v2 v2.9.1-0.20200629153745-df3e5364caa6/go.mod h1:hSdOM6jb6aGswjBpCeB9wJ0yVH+CugevRm/CX7NlSrQ=
+github.com/micro/go-micro/v2 v2.9.1-0.20200618113919-8c7c27c573f5/go.mod h1:x55ZM3Puy0FyvvkR3e0ha0xsE9DFwfPSUMWAIbFY0SY=
+github.com/micro/go-micro/v2 v2.9.1-0.20200630085349-deea8fecf44d h1:vK6caRoFm75ckLfGffjnuW3U8kCvlgvWhxaUjnKcaWg=
+github.com/micro/go-micro/v2 v2.9.1-0.20200630085349-deea8fecf44d/go.mod h1:hSdOM6jb6aGswjBpCeB9wJ0yVH+CugevRm/CX7NlSrQ=
+github.com/micro/services/payments/provider v0.0.0-20200618133042-550220a6eff2/go.mod h1:mwSahcMJ6Bof7hY3M6gzzY8JN7XSHmMIBg8wXtb47j8=
+github.com/micro/services/signup v0.0.0-20200629142252-9f80a09a8594 h1:ARUwlYyrEfs5g4HRmgidSBkdPTPe0PVca02sBhjUj3g=
+github.com/micro/services/signup v0.0.0-20200629142252-9f80a09a8594/go.mod h1:zHL601FTryKhcFV0/VkWA5iMA4qqHQvqlkciyGGMjq0=
 github.com/miekg/dns v1.1.15/go.mod h1:W1PPwlIAgtquWBMBEV9nkV9Cazfe8ScdGz/Lj7v3Nrg=
 github.com/miekg/dns v1.1.27 h1:aEH/kqUzUxGJ/UHcEKdJY+ugH6WEzsEBBSPa8zuy1aM=
 github.com/miekg/dns v1.1.27/go.mod h1:KNUDUusw/aVsxyTYZM1oqvCicbwhgbNgztCETuNZ7xM=
