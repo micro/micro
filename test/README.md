@@ -15,7 +15,7 @@ Although the tests run in docker, the containers and envs are named so you can e
 
 First, we have to build a local docker image:
 ```
-bash scripts/build-local-docker.sh
+bash scripts/test-docker.sh
 ```
 
 To start a test, cd into the `test` folder and then:
