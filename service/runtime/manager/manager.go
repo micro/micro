@@ -209,7 +209,7 @@ type manager struct {
 	// managed runtime and hence won't be the same globally).
 	cache store.Store
 	// fileCache is a cache store used to store any information we don't want to write to the
-	// global store but want to persist across restarts events consumed,
+	// global store but want to persist across restarts, e.g. events consumed
 	fileCache store.Store
 }
 
