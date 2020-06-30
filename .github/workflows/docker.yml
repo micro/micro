@@ -26,3 +26,4 @@ jobs:
         name: micro/micro
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
+        tag_names: true
