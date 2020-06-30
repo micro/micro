@@ -1,13 +1,13 @@
 variable "platform_namespace" {
   type        = string
   description = "Namespace containing the micro platform"
-  default     = "platform"
+  //default     = "platform"
 }
 
 variable "resource_namespace" {
   type        = string
   description = "Namespace containing shared resources"
-  default     = "resource"
+  //default     = "resource"
 }
 
 variable "micro_image" {
@@ -52,18 +52,27 @@ variable "cf_api_token" {
   default     = ""
 }
 
-variable "micro_auth_private" {
-  type        = string
-  description = "base64 encoded RSA private key PEM for JWTs"
-}
-
-variable "micro_auth_public" {
-  type        = string
-  description = "base64 encoded RSA public key PEM for JWTs"
-}
-
 variable "micro_slack_token" {
   type        = string
   description = "Micro slack token"
+  default     = ""
+}
+
+// Specify image_pull_secret as a json string:
+// Usually thes contain auth, or user/password/email
+# {
+#   "auths": {
+#     "REGISTRY_SERVER": {
+#       "username": "DOCKER_LOGIN_USERNAME",
+#       "password": "DOCKER_LOGIN_PASSWORD",
+#       "email": "DUMMY_DOCKER_EMAIL",
+#       "auth": "AUTH_TOKEN"
+#     }
+#   }
+# }
+
+variable "image_pull_secret" {
+  type        = string
+  description = "Image pull secret credentials"
   default     = ""
 }
