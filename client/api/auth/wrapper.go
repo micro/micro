@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/micro/go-micro/v2/api/resolver"
+	"github.com/micro/go-micro/v2/api/resolver/subdomain"
 	"github.com/micro/go-micro/v2/api/server"
 	"github.com/micro/go-micro/v2/auth"
 	"github.com/micro/go-micro/v2/logger"
@@ -40,7 +41,7 @@ func (a authWrapper) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	endpoint, err := a.resolver.Resolve(req)
 	if err == resolver.ErrInvalidPath || err == resolver.ErrNotFound {
 		// a file not served by the resolver has been requested (e.g. favicon.ico)
-		endpoint = &resolver.Endpoint{Path: req.URL.Path, Domain: namespace.DefaultNamespace}
+		endpoint = &resolver.Endpoint{Path: req.URL.Path}
 	} else if err != nil {
 		logger.Error(err)
 		http.Error(w, err.Error(), 500)
@@ -50,6 +51,12 @@ func (a authWrapper) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		// the request later
 		ctx := context.WithValue(req.Context(), resolver.Endpoint{}, endpoint)
 		*req = *req.Clone(ctx)
+	}
+
+	// If an error occured looking up the route, the domain isn't returned. TODO: Find a better way
+	// of resolving network for non-standard requests, e.g. "/rpc".
+	if r, ok := a.resolver.(*subdomain.Resolver); ok && len(endpoint.Domain) == 0 {
+		endpoint.Domain = r.Domain(req)
 	}
 
 	// Determine the namespace and set it in the header
@@ -81,10 +88,9 @@ func (a authWrapper) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	// account doesn't necesserially mean a forbidden request
 	acc, _ := a.auth.Inspect(token)
 
-	// Ensure the accounts issuer matches the namespace being requested
-	if acc != nil && len(acc.Issuer) > 0 && acc.Issuer != ns {
-		http.Error(w, "Account not issued by "+ns, 403)
-		return
+	// Ensure accounts only issued by the namesace are valid
+	if acc != nil && acc.Issuer != ns {
+		acc = nil
 	}
 
 	// construct the resource name, e.g. home => go.micro.web.home
