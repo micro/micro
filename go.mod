@@ -17,7 +17,7 @@ require (
 	github.com/gorilla/handlers v1.4.2
 	github.com/gorilla/mux v1.7.3
 	github.com/micro/cli/v2 v2.1.2
-	github.com/micro/go-micro/v2 v2.9.1-0.20200626093811-4f0f4326df8b
+	github.com/micro/go-micro/v2 v2.9.1-0.20200629153745-df3e5364caa6
 	github.com/miekg/dns v1.1.27
 	github.com/netdata/go-orchestrator v0.0.0-20190905093727-c793edba0e8f
 	github.com/olekukonko/tablewriter v0.0.4
@@ -30,6 +30,8 @@ require (
 	golang.org/x/crypto v0.0.0-20200510223506-06a226fb4e37
 	golang.org/x/net v0.0.0-20200520182314-0ba52f642ac2
 	golang.org/x/tools v0.0.0-20191216173652-a0e659d51361
-	google.golang.org/genproto v0.0.0-20191216164720-4f79533eabd1
-	google.golang.org/grpc v1.26.0
+	google.golang.org/genproto v0.0.0-20200526211855-cb27e3aa2013
+	google.golang.org/grpc v1.27.0
 )
+
+replace google.golang.org/grpc => google.golang.org/grpc v1.26.0

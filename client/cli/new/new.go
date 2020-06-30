@@ -391,8 +391,9 @@ func Run(ctx *cli.Context) {
 func Commands() []*cli.Command {
 	return []*cli.Command{
 		{
-			Name:  "new",
-			Usage: "Create a service template",
+			Name:        "new",
+			Usage:       "Create a service template",
+			Description: `'micro new' scaffolds a new service skeleton. Example: 'micro new my-app && cd my-app'`,
 			Flags: []cli.Flag{
 				&cli.StringFlag{
 					Name:  "namespace",
