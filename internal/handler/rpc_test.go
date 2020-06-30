@@ -86,7 +86,7 @@ func TestRPCHandler(t *testing.T) {
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Foo", "Bar")
 
-	RPC(w, req)
+	NewRPCHandler(nil).ServeHTTP(w, req)
 
 	if err := server.Stop(); err != nil {
 		t.Fatal(err)
@@ -95,5 +95,4 @@ func TestRPCHandler(t *testing.T) {
 	if w.Code != 200 {
 		t.Fatalf("Expected 200 response got %d %s", w.Code, w.Body.String())
 	}
-
 }
