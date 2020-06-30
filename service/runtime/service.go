@@ -84,7 +84,11 @@ func dirExists(path string) (bool, error) {
 }
 
 func sourceExists(source *git.Source) error {
-	url := fmt.Sprintf("https://github.com/micro/services/tree/%v/%v", source.Ref, source.Folder)
+	ref := source.Ref
+	if ref == "" || ref == "latest" {
+		ref = "master"
+	}
+	url := fmt.Sprintf("https://%v/tree/%v/%v", source.Repo, ref, source.Folder)
 	resp, err := http.Get(url)
 	// @todo gracefully degrade?
 	if err != nil {
