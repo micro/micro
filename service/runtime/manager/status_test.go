@@ -67,7 +67,7 @@ func TestStatus(t *testing.T) {
 	}
 
 	rt := &testRuntime{readServices: testServices}
-	m := New(rt, Store(memory.NewStore())).(*manager)
+	m := New(rt, Store(memory.NewStore()), CacheStore(memory.NewStore())).(*manager)
 
 	// sync the status with the runtime, this should set the status for the testServices in the cache
 	m.syncStatus()

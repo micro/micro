@@ -9,6 +9,8 @@ type Options struct {
 	Profile []string
 	// Store to persist state
 	Store store.Store
+	// CacheStore for local rather than global storage
+	CacheStore store.Store
 }
 
 // Option sets an option
@@ -25,5 +27,12 @@ func Profile(p []string) Option {
 func Store(s store.Store) Option {
 	return func(o *Options) {
 		o.Store = s
+	}
+}
+
+// CacheStore for local (rather than global) storage
+func CacheStore(s store.Store) Option {
+	return func(o *Options) {
+		o.CacheStore = s
 	}
 }

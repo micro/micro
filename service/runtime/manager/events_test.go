@@ -15,7 +15,7 @@ func TestEvents(t *testing.T) {
 	eventChan := make(chan *runtime.Service)
 
 	rt := &testRuntime{events: eventChan}
-	m := New(rt, Store(memory.NewStore())).(*manager)
+	m := New(rt, Store(memory.NewStore()), CacheStore(memory.NewStore())).(*manager)
 
 	// set the eventPollFrequency to 10ms so events are processed immediately
 	eventPollFrequency = time.Millisecond * 10
