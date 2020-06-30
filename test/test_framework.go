@@ -15,7 +15,7 @@ import (
 
 const (
 	retryCount = 2
-	isParallel = false
+	isParallel = true
 )
 
 type cmdFunc func() ([]byte, error)
