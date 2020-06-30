@@ -17,7 +17,7 @@ func TestServices(t *testing.T) {
 
 	testNamespace := "foo"
 
-	m := New(&testRuntime{}, Store(memory.NewStore())).(*manager)
+	m := New(&testRuntime{}, Store(memory.NewStore()), CacheStore(memory.NewStore())).(*manager)
 
 	// listNamespaces shoud always return the default namespace
 	t.Run("DefaultNamespace", func(t *testing.T) {
