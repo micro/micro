@@ -476,7 +476,7 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 	s.HandleFunc("/client", s.callHandler)
 	s.HandleFunc("/services", s.registryHandler)
 	s.HandleFunc("/service/{name}", s.registryHandler)
-	s.HandleFunc("/rpc", handler.RPC)
+	s.Handle("/rpc", handler.NewRPCHandler(resolver))
 	s.PathPrefix("/{service:[a-zA-Z0-9]+}").Handler(p)
 	s.HandleFunc("/", s.indexHandler)
 

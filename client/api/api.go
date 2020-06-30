@@ -187,12 +187,6 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 	// strip favicon.ico
 	r.HandleFunc("/favicon.ico", func(w http.ResponseWriter, r *http.Request) {})
 
-	// register rpc handler
-	if EnableRPC {
-		log.Infof("Registering RPC Handler at %s", RPCPath)
-		r.HandleFunc(RPCPath, handler.RPC)
-	}
-
 	// resolver options
 	ropts := []resolver.Option{
 		resolver.WithServicePrefix(Namespace + "." + Type),
@@ -209,6 +203,12 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 		rr = path.NewResolver(ropts...)
 	case "grpc":
 		rr = grpc.NewResolver(ropts...)
+	}
+
+	// register rpc handler
+	if EnableRPC {
+		log.Infof("Registering RPC Handler at %s", RPCPath)
+		r.Handle(RPCPath, handler.NewRPCHandler(rr))
 	}
 
 	switch Handler {
