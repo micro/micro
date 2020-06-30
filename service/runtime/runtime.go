@@ -72,6 +72,7 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 	manager := manager.New(muRuntime,
 		manager.Store(service.Options().Store),
 		manager.Profile(prof),
+		manager.CacheStore(service.Options().Store),
 	)
 
 	// start the manager
