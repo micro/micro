@@ -151,7 +151,7 @@ func (s server) launch() {
 	}()
 	// @todo find a way to know everything is up and running
 	try("Calling micro server", s.t, func() ([]byte, error) {
-		outp, err := exec.Command("micro", s.envFlag(), "list", "services").CombinedOutput()
+		outp, err := exec.Command("micro", "-env=server", "list", "services").CombinedOutput()
 		if !strings.Contains(string(outp), "runtime") ||
 			!strings.Contains(string(outp), "router") ||
 			!strings.Contains(string(outp), "registry") ||
