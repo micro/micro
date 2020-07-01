@@ -27,7 +27,7 @@ resource "kubernetes_deployment" "jaeger" {
             name  = "COLLECTOR_ZIPKIN_HTTP_PORT"
             value = "9411"
           }
-          image = var.jaeger_image
+          image             = var.jaeger_image
           image_pull_policy = var.image_pull_policy
           port {
             name           = "agent-zip-thrft"

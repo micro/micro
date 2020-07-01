@@ -39,19 +39,19 @@ variable "jaeger_image" {
 }
 
 variable "etcd_replicas" {
-  type = number
+  type        = number
   description = "number of etcd replicas to deploy"
-  default = 3
+  default     = 3
 }
 
 variable "cockroach_replicas" {
-  type = number
+  type        = number
   description = "number of cockroach replicas to deploy"
-  default = 3
+  default     = 3
 }
 
 variable "nats_replicas" {
-  type = number
+  type        = number
   description = "number of nats replicas to deploy"
-  default = 3
+  default     = 3
 }
