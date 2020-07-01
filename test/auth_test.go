@@ -18,7 +18,9 @@ func TestServerAuth(t *testing.T) {
 
 func testServerAuth(t *t) {
 	t.Parallel()
-	serv := newServer(t)
+	serv := newServer(t, options{
+		auth: "jwt",
+	})
 	serv.launch()
 	defer serv.close()
 
