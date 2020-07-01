@@ -3,9 +3,12 @@
 package test
 
 import (
+	"errors"
 	"os"
 	"os/exec"
+	"strings"
 	"testing"
+	"time"
 )
 
 func TestM3oSignupFlow(t *testing.T) {
@@ -14,15 +17,7 @@ func TestM3oSignupFlow(t *testing.T) {
 
 func testM3oSignupFlow(t *t) {
 	t.Parallel()
-	p, err := exec.LookPath("git")
-	if err != nil {
-		t.Fatal(err)
-		return
-	}
-	if len(p) == 0 {
-		t.Fatal("Git is not available")
-		return
-	}
+
 	serv := newServer(t)
 	serv.launch()
 	defer serv.close()
@@ -47,4 +42,25 @@ func testM3oSignupFlow(t *t) {
 			t.Fatal(string(outp))
 		}
 	}
+
+	outp, err := exec.Command("micro", serv.envFlag(), "run", "github.com/micro/services/signup").CombinedOutput()
+	if err != nil {
+		t.Fatal(string(outp))
+	}
+
+	outp, err = exec.Command("micro", serv.envFlag(), "run", "github.com/micro/services/payments/provider/stripe").CombinedOutput()
+	if err != nil {
+		t.Fatal(string(outp))
+	}
+
+	try("Find signup and stripe in list", t, func() ([]byte, error) {
+		outp, err := exec.Command("micro", serv.envFlag(), "list", "services").CombinedOutput()
+		if err != nil {
+			return outp, err
+		}
+		if !strings.Contains(string(outp), "stripe") || !strings.Contains(string(outp), "signup") {
+			return outp, errors.New("Can't find sign or stripe in list")
+		}
+		return outp, err
+	}, 40*time.Second)
 }
