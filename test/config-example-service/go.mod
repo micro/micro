@@ -2,4 +2,4 @@ module exampl
 
 go 1.13
 
-require github.com/micro/go-micro/v2 v2.8.1-0.20200609104731-cdd8f9fd82c5 // indirect
+require github.com/micro/go-micro/v2 v2.9.1-0.20200701112355-6d9d94b10578

@@ -43,6 +43,6 @@ func (a *wrapper) Call(ctx context.Context, req client.Request, rsp interface{},
 		network = strings.ReplaceAll(a.env, "/", "-")
 	}
 
-	ctx = metadata.Set(ctx, "Micro-Network", network)
+	ctx = metadata.Set(ctx, "Micro-Namespace", network)
 	return a.Client.Call(ctx, req, rsp, opts...)
 }
