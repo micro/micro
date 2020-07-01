@@ -68,7 +68,12 @@ type file struct {
 
 func write(c config, file, tmpl string) error {
 	fn := template.FuncMap{
-		"title": strings.Title,
+		"title": func(s string) string {
+			return strings.ReplaceAll(strings.Title(s), "-", "")
+		},
+		"dehyphen": func(s string) string {
+			return strings.ReplaceAll(s, "-", "")
+		},
 	}
 
 	f, err := os.Create(file)
@@ -278,9 +283,6 @@ func Run(ctx *cli.Context) {
 	if len(alias) == 0 {
 		// set as last part
 		alias = filepath.Base(dir)
-		// strip hyphens
-		parts := strings.Split(alias, "-")
-		alias = parts[0]
 	}
 
 	if len(fqdn) == 0 {
