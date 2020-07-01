@@ -39,4 +39,4 @@ Image Pull Credentials: The default serviceaccount needs "Image pull secrets" se
   ```
 
 ## Advanced usage:
-The default configuration is that all m3o services talk to the infrastructure directly. These can be overridden using the per_service_overrides directive
+The default configuration is that all m3o services talk to the infrastructure directly. These can be overridden using the per_service_overrides directive.
