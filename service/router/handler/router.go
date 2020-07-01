@@ -21,7 +21,9 @@ func (r *Router) Lookup(ctx context.Context, req *pb.LookupRequest, resp *pb.Loo
 		router.QueryService(req.Query.Service),
 		router.QueryNetwork(req.Query.Network),
 	)
-	if err != nil {
+	if err == router.ErrRouteNotFound {
+		return errors.NotFound("go.micro.router", err.Error())
+	} else if err != nil {
 		return errors.InternalServerError("go.micro.router", "failed to lookup routes: %v", err)
 	}
 
