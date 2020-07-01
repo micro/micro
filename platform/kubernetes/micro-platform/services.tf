@@ -38,7 +38,7 @@ variable "per_service_overrides" {
   type        = map(map(string))
   description = "Per service env var overrides. Merged with local.core_config below"
   default = {
-    "auth" = { "MICRO_AUTH" = "jwt" },
+    "runtime" = { "MICRO_RUNTIME" = "kubernetes" },
   }
 }
 
@@ -55,6 +55,7 @@ locals {
     "MICRO_REGISTRY_ADDRESS"  = "etcd-cluster.${var.resource_namespace}.svc",
     "MICRO_REGISTER_TTL"      = "60",
     "MICRO_REGISTER_INTERVAL" = "30",
+    "MICRO_RUNTIME_PROFILE"   = "kubernetes"
     "MICRO_STORE"             = "cockroach",
     "MICRO_STORE_ADDRESS"     = "postgres://root@cockroachdb-public.${var.resource_namespace}.svc:26257/?sslmode=disable",
   }

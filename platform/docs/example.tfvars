@@ -4,6 +4,10 @@ resource_namespace = "example-shared"
 # k8s namesapce to deploy the m3o platform 
 platform_namespace = "example-platform"
 
+# Per-service env overrides:
+per_service_overrides = {
+  "runtime" = { "MICRO_RUNTIME" = "kubernetes" },
+}
 
 ## Everything else has defaults that can be overridden by uncommenting them below:
 
@@ -23,11 +27,6 @@ platform_namespace = "example-platform"
 #   "proxy"    = 443,
 #   "api"      = 443,
 #   "web"      = 443,
-# }
-
-# Per-service env overrides:
-# per_service_overrides = {
-#     "auth" = {"MICRO_AUTH" = "jwt"},
 # }
 
 # which services to expose
