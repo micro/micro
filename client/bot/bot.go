@@ -288,7 +288,7 @@ func (b *bot) watch() {
 		return fmt.Sprintf("%s - %s", rsp.Usage, rsp.Description), nil
 	}
 
-	serviceList, err := b.service.Client().Options().Registry.ListServices()
+	serviceList, err := b.service.Options().Registry.ListServices()
 	if err != nil {
 		// log error?
 		return
@@ -311,7 +311,7 @@ func (b *bot) watch() {
 	b.services = services
 	b.Unlock()
 
-	w, err := b.service.Client().Options().Registry.Watch()
+	w, err := b.service.Options().Registry.Watch()
 	if err != nil {
 		// log error?
 		return

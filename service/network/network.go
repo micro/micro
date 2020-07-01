@@ -137,7 +137,7 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 	rtr := router.NewRouter(
 		router.Network(Network),
 		router.Id(id),
-		router.Registry(service.Client().Options().Registry),
+		router.Registry(service.Options().Registry),
 		router.Advertise(strategy),
 		router.Gateway(gateway),
 	)
