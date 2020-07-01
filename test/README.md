@@ -9,6 +9,12 @@ Reasons why you should be careful with running this locally:
 The tests in this folder can be ran with `go test --tags=integration`.
 It's not being triggered by `go test`.
 
+## Architecture
+
+Key points:
+- tests are being run in parallel, with different micro servers running in different containers
+- local `micro run` commands will be executed with different env flags, eg. `micro -env=testConfigReadFromService run .` to connect to the above different servers.
+
 ## Working with these tests
 
 Although the tests run in docker, the containers and envs are named so you can easily interact with them. Some useful tricks:
