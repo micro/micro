@@ -18,6 +18,19 @@ func TestServerAuth(t *testing.T) {
 
 func testServerAuth(t *t) {
 	t.Parallel()
+	serv := newServer(t)
+	serv.launch()
+	defer serv.close()
+
+	basicAuthSuite(serv, t)
+}
+
+func TestServerAuthJWT(t *testing.T) {
+	trySuite(t, testServerAuthJWT, retryCount)
+}
+
+func testServerAuthJWT(t *t) {
+	t.Parallel()
 	serv := newServer(t, options{
 		auth: "jwt",
 	})

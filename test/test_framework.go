@@ -58,6 +58,7 @@ type server struct {
 	t             *t
 	envName       string
 	containerName string
+	opts          options
 }
 
 func getFrame(skipFrames int) runtime.Frame {
@@ -140,6 +141,7 @@ func newServer(t *t, opts ...options) server {
 		t:             t,
 		envName:       fname,
 		containerName: fname,
+		opts:          opts[0],
 	}
 }
 
@@ -150,22 +152,28 @@ func (s server) launch() {
 		}
 	}()
 	// @todo find a way to know everything is up and running
-	try("Calling micro server", s.t, func() ([]byte, error) {
-		outp, err := exec.Command("micro", s.envFlag(), "list", "services").CombinedOutput()
-		if !strings.Contains(string(outp), "runtime") ||
-			!strings.Contains(string(outp), "router") ||
-			!strings.Contains(string(outp), "registry") ||
-			!strings.Contains(string(outp), "api") ||
-			!strings.Contains(string(outp), "broker") ||
-			!strings.Contains(string(outp), "config") ||
-			!strings.Contains(string(outp), "debug") ||
-			!strings.Contains(string(outp), "proxy") ||
-			!strings.Contains(string(outp), "auth") ||
-			!strings.Contains(string(outp), "store") {
-			return outp, errors.New("Not ready")
-		}
-		return outp, err
-	}, 60*time.Second)
+	if s.opts.auth == "jwt" {
+		// when JWT is used we can't call `micro list services`
+		// until we log in.
+		time.Sleep(30 * time.Second)
+	} else {
+		try("Calling micro server", s.t, func() ([]byte, error) {
+			outp, err := exec.Command("micro", s.envFlag(), "list", "services").CombinedOutput()
+			if !strings.Contains(string(outp), "runtime") ||
+				!strings.Contains(string(outp), "router") ||
+				!strings.Contains(string(outp), "registry") ||
+				!strings.Contains(string(outp), "api") ||
+				!strings.Contains(string(outp), "broker") ||
+				!strings.Contains(string(outp), "config") ||
+				!strings.Contains(string(outp), "debug") ||
+				!strings.Contains(string(outp), "proxy") ||
+				!strings.Contains(string(outp), "auth") ||
+				!strings.Contains(string(outp), "store") {
+				return outp, errors.New("Not ready")
+			}
+			return outp, err
+		}, 60*time.Second)
+	}
 	time.Sleep(5 * time.Second)
 }
 
