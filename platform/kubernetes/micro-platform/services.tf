@@ -15,6 +15,7 @@ variable "services" {
     "proxy"    = 443,
     "api"      = 443,
     "web"      = 443,
+    "init"     = 8080,
   }
 }
 

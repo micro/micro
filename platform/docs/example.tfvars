@@ -27,6 +27,7 @@ per_service_overrides = {
 #   "proxy"    = 443,
 #   "api"      = 443,
 #   "web"      = 443,
+#   "init"     = 8080,
 # }
 
 # which services to expose
