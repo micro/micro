@@ -27,57 +27,24 @@ func testM3oSignupFlow(t *t) {
 	serv.launch()
 	defer serv.close()
 
-	stripeAPIKey := os.Getenv("MICRO_STRIPE_API_KEY")
-	if len(stripeAPIKey) == 0 {
-		t.Fatal("Stripe api key is missing")
-	}
-	outp, err := exec.Command("micro", serv.envFlag(), "config", "set", "micro.payments.stripe.api_key", stripeAPIKey).CombinedOutput()
-	if err != nil {
-		t.Fatal(string(outp))
-	}
-
-	sendgridAPIKey := os.Getenv("MICRO_SENDGRID_API_KEY")
-	if len(sendgridAPIKey) == 0 {
-		t.Fatal("Stripe api key is missing")
-	}
-	outp, err = exec.Command("micro", serv.envFlag(), "config", "set", "micro.signup.sendgrid.api_key", sendgridAPIKey).CombinedOutput()
-	if err != nil {
-		t.Fatal(string(outp))
+	envToConfigKey := map[string]string{
+		"MICRO_STRIPE_API_KEY":       "micro.payments.stripe.api_key",
+		"MICRO_SENDGRID_API_KEY":     "micro.signup.sendgrid.api_key",
+		"MICRO_SENDGRID_TEMPLATE_ID": "micro.signup.sendgrid.template_id",
+		"MICRO_STRIPE_PLAN_ID":       "micro.signup.sendgrid.template_id",
+		"MICRO_STRIPE_PLAN_ID":       "micro.signup.plan_id",
+		"MICRO_EMAIL_FROM":           "micro.signup.email_from",
+		"MICRO_TEST_ENV", "micro.test_env",
 	}
 
-	sendgridTemplateID := os.Getenv("MICRO_SENDGRID_TEMPLATE_ID")
-	if len(sendgridTemplateID) == 0 {
-		t.Fatal("Sendgrid template ID is missing")
-	}
-	outp, err = exec.Command("micro", serv.envFlag(), "config", "set", "micro.signup.sendgrid.template_id", sendgridTemplateID).CombinedOutput()
-	if err != nil {
-		t.Fatal(string(outp))
-	}
-
-	stripePlanID := os.Getenv("MICRO_STRIPE_PLAN_ID")
-	if len(stripePlanID) == 0 {
-		t.Fatal("Stripe plan ID is missing")
-	}
-	outp, err = exec.Command("micro", serv.envFlag(), "config", "set", "micro.signup.plan_id", stripePlanID).CombinedOutput()
-	if err != nil {
-		t.Fatal(string(outp))
-	}
-
-	emailFrom := os.Getenv("MICRO_EMAIL_FROM")
-	if len(emailFrom) == 0 {
-		t.Fatal("Email from address is missing")
-	}
-	outp, err = exec.Command("micro", serv.envFlag(), "config", "set", "micro.signup.email_from", emailFrom).CombinedOutput()
-	if err != nil {
-		t.Fatal(string(outp))
-	}
-
-	testEnv := os.Getenv("MICRO_TEST_ENV")
-	if len(testEnv) == 0 {
-		t.Fatal("Test env flag is missing")
-	}
-	outp, err = exec.Command("micro", serv.envFlag(), "config", "set", "micro.test_env", testEnv).CombinedOutput()
-	if err != nil {
-		t.Fatal(string(outp))
+	for envKey, configKey := range envToConfigKey {
+		val := os.Getenv(envKey)
+		if len(val) == 0 {
+			t.Fatalf("'%v' flag is missing", envKey)
+		}
+		outp, err = exec.Command("micro", serv.envFlag(), "config", "set", configKey, val.CombinedOutput()
+		if err != nil {
+			t.Fatal(string(outp))
+		}
 	}
 }
