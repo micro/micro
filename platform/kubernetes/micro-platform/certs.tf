@@ -69,7 +69,7 @@ resource "kubernetes_secret" "cert_bundles" {
   type = "Opaque"
   metadata {
     name      = "${replace(each.key, " ", "-")}-certs"
-    namespace = var.platform_namespace
+    namespace = kubernetes_namespace.platform.metadata[0].name
     labels = {
       "micro" = replace(each.key, " ", "-")
     }
