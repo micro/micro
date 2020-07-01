@@ -30,13 +30,14 @@ func (r *Router) Lookup(ctx context.Context, req *pb.LookupRequest, resp *pb.Loo
 	respRoutes := make([]*pb.Route, 0, len(routes))
 	for _, route := range routes {
 		respRoute := &pb.Route{
-			Service: route.Service,
-			Address: route.Address,
-			Gateway: route.Gateway,
-			Network: route.Network,
-			Router:  route.Router,
-			Link:    route.Link,
-			Metric:  route.Metric,
+			Service:  route.Service,
+			Address:  route.Address,
+			Gateway:  route.Gateway,
+			Network:  route.Network,
+			Router:   route.Router,
+			Link:     route.Link,
+			Metric:   route.Metric,
+			Metadata: route.Metadata,
 		}
 		respRoutes = append(respRoutes, respRoute)
 	}
@@ -57,13 +58,14 @@ func (r *Router) Advertise(ctx context.Context, req *pb.Request, stream pb.Route
 		var events []*pb.Event
 		for _, event := range advert.Events {
 			route := &pb.Route{
-				Service: event.Route.Service,
-				Address: event.Route.Address,
-				Gateway: event.Route.Gateway,
-				Network: event.Route.Network,
-				Router:  event.Route.Router,
-				Link:    event.Route.Link,
-				Metric:  event.Route.Metric,
+				Service:  event.Route.Service,
+				Address:  event.Route.Address,
+				Gateway:  event.Route.Gateway,
+				Network:  event.Route.Network,
+				Router:   event.Route.Router,
+				Link:     event.Route.Link,
+				Metric:   event.Route.Metric,
+				Metadata: event.Route.Metadata,
 			}
 			e := &pb.Event{
 				Id:        event.Id,
@@ -99,13 +101,14 @@ func (r *Router) Process(ctx context.Context, req *pb.Advert, rsp *pb.ProcessRes
 	events := make([]*router.Event, len(req.Events))
 	for i, event := range req.Events {
 		route := router.Route{
-			Service: event.Route.Service,
-			Address: event.Route.Address,
-			Gateway: event.Route.Gateway,
-			Network: event.Route.Network,
-			Router:  event.Route.Router,
-			Link:    event.Route.Link,
-			Metric:  event.Route.Metric,
+			Service:  event.Route.Service,
+			Address:  event.Route.Address,
+			Gateway:  event.Route.Gateway,
+			Network:  event.Route.Network,
+			Router:   event.Route.Router,
+			Link:     event.Route.Link,
+			Metric:   event.Route.Metric,
+			Metadata: event.Route.Metadata,
 		}
 
 		events[i] = &router.Event{
@@ -151,13 +154,14 @@ func (r *Router) Watch(ctx context.Context, req *pb.WatchRequest, stream pb.Rout
 		}
 
 		route := &pb.Route{
-			Service: event.Route.Service,
-			Address: event.Route.Address,
-			Gateway: event.Route.Gateway,
-			Network: event.Route.Network,
-			Router:  event.Route.Router,
-			Link:    event.Route.Link,
-			Metric:  event.Route.Metric,
+			Service:  event.Route.Service,
+			Address:  event.Route.Address,
+			Gateway:  event.Route.Gateway,
+			Network:  event.Route.Network,
+			Router:   event.Route.Router,
+			Link:     event.Route.Link,
+			Metric:   event.Route.Metric,
+			Metadata: event.Route.Metadata,
 		}
 
 		tableEvent := &pb.Event{
