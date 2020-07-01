@@ -62,4 +62,22 @@ func testM3oSignupFlow(t *t) {
 	if err != nil {
 		t.Fatal(string(outp))
 	}
+
+	emailFrom := os.Getenv("MICRO_EMAIL_FROM")
+	if len(emailFrom) == 0 {
+		t.Fatal("Email from address is missing")
+	}
+	outp, err = exec.Command("micro", serv.envFlag(), "config", "set", "micro.signup.email_from", emailFrom).CombinedOutput()
+	if err != nil {
+		t.Fatal(string(outp))
+	}
+
+	testEnv := os.Getenv("MICRO_TEST_ENV")
+	if len(testEnv) == 0 {
+		t.Fatal("Test env flag is missing")
+	}
+	outp, err = exec.Command("micro", serv.envFlag(), "config", "set", "micro.test_env", testEnv).CombinedOutput()
+	if err != nil {
+		t.Fatal(string(outp))
+	}
 }
