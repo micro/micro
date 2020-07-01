@@ -21,6 +21,7 @@ import (
 	"github.com/micro/go-micro/v2/metadata"
 	"github.com/micro/go-micro/v2/registry"
 	"github.com/micro/go-micro/v2/registry/service"
+	"github.com/micro/micro/v2/client/cli/util"
 	inclient "github.com/micro/micro/v2/internal/client"
 	dns "github.com/micro/micro/v2/service/network/dns/proto/dns"
 
@@ -171,6 +172,14 @@ func callContext(c *cli.Context) context.Context {
 	return metadata.NewContext(context.Background(), callMD)
 }
 
+func domainForContext(c *cli.Context) string {
+	if util.IsLocal(c) || util.IsServer(c) {
+		return registry.DefaultDomain
+	}
+
+	return strings.ReplaceAll(util.GetEnv(c).Name, "/", "-")
+}
+
 func RegisterService(c *cli.Context, args []string) ([]byte, error) {
 	if len(args) == 0 {
 		return nil, errors.New("require service definition")
@@ -232,7 +241,7 @@ func GetService(c *cli.Context, args []string) ([]byte, error) {
 
 	reg := *cmd.DefaultOptions().Registry
 	reg.Init(service.WithClient(inclient.New(c)))
-	srv, err = reg.GetService(args[0], registry.GetDomain(registry.WildcardDomain))
+	srv, err = reg.GetService(args[0], registry.GetDomain(domainForContext(c)))
 	if err != nil {
 		return nil, err
 	}
@@ -635,7 +644,7 @@ func ListServices(c *cli.Context) ([]byte, error) {
 
 	reg := *cmd.DefaultOptions().Registry
 	reg.Init(service.WithClient(inclient.New(c)))
-	rsp, err = reg.ListServices(registry.ListDomain(registry.WildcardDomain))
+	rsp, err = reg.ListServices(registry.ListDomain(domainForContext(c)))
 	if err != nil {
 		return nil, err
 	}
@@ -770,7 +779,7 @@ func QueryHealth(c *cli.Context, args []string) ([]byte, error) {
 	// otherwise get the service and call each instance individually
 	reg := *cmd.DefaultOptions().Registry
 	reg.Init(service.WithClient(inclient.New(c)))
-	service, err := reg.GetService(args[0], registry.GetDomain(registry.WildcardDomain))
+	service, err := reg.GetService(args[0], registry.GetDomain(domainForContext(c)))
 	if err != nil {
 		return nil, err
 	}
@@ -824,7 +833,7 @@ func QueryStats(c *cli.Context, args []string) ([]byte, error) {
 
 	reg := *cmd.DefaultOptions().Registry
 	reg.Init(service.WithClient(inclient.New(c)))
-	service, err := reg.GetService(args[0], registry.GetDomain(registry.WildcardDomain))
+	service, err := reg.GetService(args[0], registry.GetDomain(domainForContext(c)))
 	if err != nil {
 		return nil, err
 	}
