@@ -10,10 +10,10 @@ import (
 	"testing"
 
 	"github.com/micro/go-micro/v2/client"
-	"github.com/micro/go-micro/v2/client/selector"
 	"github.com/micro/go-micro/v2/config/cmd"
 	"github.com/micro/go-micro/v2/metadata"
 	"github.com/micro/go-micro/v2/registry/memory"
+	"github.com/micro/go-micro/v2/router"
 	"github.com/micro/go-micro/v2/server"
 )
 
@@ -45,11 +45,9 @@ func (t *TestHandler) Exec(ctx context.Context, req *TestRequest, rsp *TestRespo
 
 func TestRPCHandler(t *testing.T) {
 	r := memory.NewRegistry()
+	rtr := router.NewRouter(router.Registry(r))
 
-	(*cmd.DefaultOptions().Client).Init(
-		client.Registry(r),
-		client.Selector(selector.NewSelector(selector.Registry(r))),
-	)
+	(*cmd.DefaultOptions().Client).Init(client.Router(rtr))
 
 	(*cmd.DefaultOptions().Server).Init(
 		server.Name("test"),
