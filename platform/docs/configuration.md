@@ -10,25 +10,33 @@ like github and cloudflare.
 
 ## Dependencies
 
-- Terraform
+- Terraform >= 0.12.7
 - Github
-- ...
-
-## Environment
-
-A few things we need
-
-- FRONTEND_ADDRESS - the URL the dashboard is served on
-- GITHUB_TEAM_ID - The team which has access
-- GITHUB_OAUTH_CLIENT_ID - github oauth client id
-- GITHUB_OAUTH_CLIENT_SECRET - github oauth client secret
-- GITHUB_OAUTH_REDIRECT_URL - github oauth redirect url
-- MICRO_AUTH - the type of auth, e.g. jwt
-- MICRO_AUTH_PUBLIC_KEY - the base64 encoded public jwt key
-- MICRO_AUTH_PRIVATE_KEY - the base64 encoded private jwt key
 
 Image Pull Credentials: The default serviceaccount needs "Image pull secrets" set to a GitHub token.
 
 ## Usage
 
-Coming soon...
+0. Obtain a working kubernetes cluster, and ensure that your default context is pointing to the cluster you want to deploy
+  ```shell
+  $ kubectl cluster-info
+  Kubernetes master is running at https://127.0.0.1:46523
+  KubeDNS is running at https://127.0.0.1:46523/api/v1/namespaces/kube-system/services/kube-dns:dns/proxy
+
+  To further debug and diagnose cluster problems, use 'kubectl cluster-info dump'.
+  ```
+1. Clone the micro respository
+2. Create a `tfvars` file containing your configurations, see the [example](example.tfvars) 
+3. Deploy the shared resources: 
+  ```shell
+  $ cd platform/kubernetes/micro-resource
+  $ terraform apply -var-file=example.tfvars
+  ```
+4. Deploy the m3o platform
+  ```shell
+  $ cd platform/kubernetes/micro-platform
+  $ terraform apply -var-file=example.tfvars
+  ```
+
+## Advanced usage:
+The default configuration is that all m3o services talk to the infrastructure directly. These can be overridden using the per_service_overrides directive

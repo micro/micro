@@ -23,11 +23,6 @@ variable "nats_image" {
   default     = "nats:2.1.0-alpine3.10"
 }
 
-variable "netdata_image" {
-  description = "Micro customised netdata image"
-  default     = "micro/netdata:latest"
-}
-
 variable "cockroachdb_image" {
   description = "CockroachDB Image"
   default     = "cockroachdb/cockroach:v19.2.1"
@@ -41,4 +36,22 @@ variable "cockroachdb_storage" {
 variable "jaeger_image" {
   description = "Jaeger Tracing All in one image"
   default     = "jaegertracing/all-in-one"
+}
+
+variable "etcd_replicas" {
+  type = number
+  description = "number of etcd replicas to deploy"
+  default = 3
+}
+
+variable "cockroach_replicas" {
+  type = number
+  description = "number of cockroach replicas to deploy"
+  default = 3
+}
+
+variable "nats_replicas" {
+  type = number
+  description = "number of nats replicas to deploy"
+  default = 3
 }

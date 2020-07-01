@@ -1,13 +1,11 @@
 variable "platform_namespace" {
   type        = string
   description = "Namespace containing the micro platform"
-  //default     = "platform"
 }
 
 variable "resource_namespace" {
   type        = string
   description = "Namespace containing shared resources"
-  //default     = "resource"
 }
 
 variable "micro_image" {

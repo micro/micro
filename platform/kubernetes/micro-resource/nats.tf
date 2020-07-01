@@ -82,7 +82,7 @@ resource "kubernetes_stateful_set" "nats" {
     labels    = local.nats_labels
   }
   spec {
-    replicas     = 3
+    replicas     = var.nats_replicas
     service_name = "nats"
     selector {
       match_labels = local.nats_labels

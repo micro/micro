@@ -71,7 +71,7 @@ resource "kubernetes_stateful_set" "etcd" {
   }
   spec {
     service_name = "etcd"
-    replicas     = 3
+    replicas     = var.etcd_replicas
     update_strategy {
       type = "RollingUpdate"
     }

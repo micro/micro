@@ -70,7 +70,7 @@ resource "kubernetes_stateful_set" "cockroachdb" {
   }
   spec {
     service_name = kubernetes_service.cockroachdb.metadata.0.name
-    replicas     = 3
+    replicas     = var.cockroach_replicas
     selector {
       match_labels = local.cockroachdb_labels
     }
