@@ -144,6 +144,21 @@ func listEnvs(c *cli.Context, args []string) ([]byte, error) {
 	return byt.Bytes(), nil
 }
 
+func addEnv(c *cli.Context, args []string) ([]byte, error) {
+	if len(args) == 0 {
+		return nil, errors.New("name required")
+	}
+	if len(args) == 1 {
+		args = append(args, "") // default to no proxy address
+	}
+
+	cliutil.AddEnv(cliutil.Env{
+		Name:         args[0],
+		ProxyAddress: args[1],
+	})
+	return nil, nil
+}
+
 // netCall calls services through the network
 func netCall(c *cli.Context, args []string) ([]byte, error) {
 	os.Setenv("MICRO_PROXY", "go.micro.network")
