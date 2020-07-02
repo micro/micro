@@ -21,6 +21,8 @@ import (
 	"github.com/micro/go-micro/v2/metadata"
 	"github.com/micro/go-micro/v2/registry"
 	"github.com/micro/go-micro/v2/registry/service"
+	"github.com/micro/micro/v2/client/cli/namespace"
+	"github.com/micro/micro/v2/client/cli/util"
 	inclient "github.com/micro/micro/v2/internal/client"
 	dns "github.com/micro/micro/v2/service/network/dns/proto/dns"
 
@@ -226,13 +228,17 @@ func GetService(c *cli.Context, args []string) ([]byte, error) {
 		return nil, errors.New("service required")
 	}
 
+	ns, err := namespace.Get(util.GetEnv(c).Name)
+	if err != nil {
+		return nil, err
+	}
+
 	var output []string
 	var srv []*registry.Service
-	var err error
 
 	reg := *cmd.DefaultOptions().Registry
 	reg.Init(service.WithClient(inclient.New(c)))
-	srv, err = reg.GetService(args[0], registry.GetDomain(registry.WildcardDomain))
+	srv, err = reg.GetService(args[0], registry.GetDomain(ns))
 	if err != nil {
 		return nil, err
 	}
@@ -633,9 +639,14 @@ func ListServices(c *cli.Context) ([]byte, error) {
 	var rsp []*registry.Service
 	var err error
 
+	ns, err := namespace.Get(util.GetEnv(c).Name)
+	if err != nil {
+		return nil, err
+	}
+
 	reg := *cmd.DefaultOptions().Registry
 	reg.Init(service.WithClient(inclient.New(c)))
-	rsp, err = reg.ListServices(registry.ListDomain(registry.WildcardDomain))
+	rsp, err = reg.ListServices(registry.ListDomain(ns))
 	if err != nil {
 		return nil, err
 	}
@@ -750,6 +761,11 @@ func QueryHealth(c *cli.Context, args []string) ([]byte, error) {
 		return nil, errors.New("require service name")
 	}
 
+	ns, err := namespace.Get(util.GetEnv(c).Name)
+	if err != nil {
+		return nil, err
+	}
+
 	req := (*cmd.DefaultOptions().Client).NewRequest(args[0], "Debug.Health", &proto.HealthRequest{})
 
 	// if the address is specified then we just call it
@@ -770,7 +786,7 @@ func QueryHealth(c *cli.Context, args []string) ([]byte, error) {
 	// otherwise get the service and call each instance individually
 	reg := *cmd.DefaultOptions().Registry
 	reg.Init(service.WithClient(inclient.New(c)))
-	service, err := reg.GetService(args[0], registry.GetDomain(registry.WildcardDomain))
+	service, err := reg.GetService(args[0], registry.GetDomain(ns))
 	if err != nil {
 		return nil, err
 	}
@@ -822,9 +838,14 @@ func QueryStats(c *cli.Context, args []string) ([]byte, error) {
 		return nil, errors.New("require service name")
 	}
 
+	ns, err := namespace.Get(util.GetEnv(c).Name)
+	if err != nil {
+		return nil, err
+	}
+
 	reg := *cmd.DefaultOptions().Registry
 	reg.Init(service.WithClient(inclient.New(c)))
-	service, err := reg.GetService(args[0], registry.GetDomain(registry.WildcardDomain))
+	service, err := reg.GetService(args[0], registry.GetDomain(ns))
 	if err != nil {
 		return nil, err
 	}
