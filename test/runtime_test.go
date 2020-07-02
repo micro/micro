@@ -571,6 +571,14 @@ func testFastRuns(t *t) {
 		return
 	}
 
+	// Stripe needs some configs to start
+	runCmd = exec.Command("micro", serv.envFlag(), "config", "set", "micro.payments.stripe.api_key")
+	outp, err = runCmd.CombinedOutput()
+	if err != nil {
+		t.Fatalf("micro config set failure, output: %v", string(outp))
+		return
+	}
+
 	runCmd = exec.Command("micro", serv.envFlag(), "run", "payments/provider/stripe")
 	outp, err = runCmd.CombinedOutput()
 	if err != nil {

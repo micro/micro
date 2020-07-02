@@ -369,6 +369,8 @@ github.com/micro/go-micro/v2 v2.9.1-0.20200701160659-174e44b84693 h1:8gxDFj/ukBz
 github.com/micro/go-micro/v2 v2.9.1-0.20200701160659-174e44b84693/go.mod h1:kkYP0Fe2u9isAcRxED4iFpzFIQO5syZzK3H0wEoXAyA=
 github.com/micro/go-micro/v2 v2.9.1-0.20200702085126-093630b83b42 h1:v+4q009dgzRv4o+Y5o8GAzZB8opt1l2yczPp63cmkPM=
 github.com/micro/go-micro/v2 v2.9.1-0.20200702085126-093630b83b42/go.mod h1:r/8oeiYo1CNhFxKPjuGXgjAdGcY8r75EyaM20i0Ya9g=
+github.com/micro/go-micro/v2 v2.9.1-0.20200702105612-fd30f342bcee h1:KALsNUoPAqU+Dh5bE07AFBMJK5cvmqAwieAp+slgtEo=
+github.com/micro/go-micro/v2 v2.9.1-0.20200702105612-fd30f342bcee/go.mod h1:r/8oeiYo1CNhFxKPjuGXgjAdGcY8r75EyaM20i0Ya9g=
 github.com/micro/mdns v0.3.0/go.mod h1:KJ0dW7KmicXU2BV++qkLlmHYcVv7/hHnbtguSWt9Aoc=
 github.com/micro/protoc-gen-micro v1.0.0/go.mod h1:C8ij4DJhapBmypcT00AXdb0cZ675/3PqUO02buWWqbE=
 github.com/micro/services/payments/provider v0.0.0-20200618133042-550220a6eff2/go.mod h1:mwSahcMJ6Bof7hY3M6gzzY8JN7XSHmMIBg8wXtb47j8=
