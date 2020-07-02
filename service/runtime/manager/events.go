@@ -19,8 +19,12 @@ var (
 	eventPollFrequency = time.Minute
 )
 
-// eventPrefix is prefixed to the key for event records
-const eventPrefix = "event/"
+const (
+	// eventPrefix is prefixed to the key for event records
+	eventPrefix = "event/"
+	// eventProcessedPrefix is prefixed to the key for tracking event processing
+	eventProcessedPrefix = "processed/"
+)
 
 // publishEvent will write the event to the global store and immediately process the event
 func (m *manager) publishEvent(eType runtime.EventType, srv *runtime.Service, opts *runtime.CreateOptions) error {
@@ -78,7 +82,7 @@ func (m *manager) watchEvents() {
 // is not point stripping and then re-prefixing.
 func (m *manager) processEvent(key string) {
 	// check to see if the event has been processed before
-	if _, err := m.cache.Read(key); err != store.ErrNotFound {
+	if _, err := m.fileCache.Read(eventProcessedPrefix + key); err != store.ErrNotFound {
 		return
 	}
 
@@ -130,7 +134,8 @@ func (m *manager) processEvent(key string) {
 
 	// write to the store indicating the event has been consumed. We double the ttl to safely know the
 	// event will expire before this record
-	m.cache.Write(&store.Record{Key: key, Expiry: eventTTL * 2})
+	m.fileCache.Write(&store.Record{Key: eventProcessedPrefix + key, Expiry: eventTTL * 2})
+
 }
 
 // runtimeEnv returns the environment variables which should  be used when creating a service.
@@ -154,9 +159,9 @@ func (m *manager) runtimeEnv(options *runtime.CreateOptions) []string {
 	// override with vars from the Profile
 	setEnv(m.options.Profile, env)
 
-	// temp: set the auth namespace. this will be removed once he namespace can be determined from certs.
+	// temp: set the service namespace. this will be removed once he namespace can be determined from certs.
 	if len(options.Namespace) > 0 {
-		env["MICRO_AUTH_NAMESPACE"] = options.Namespace
+		env["MICRO_NAMESPACE"] = options.Namespace
 	}
 
 	// create a new env

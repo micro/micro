@@ -2,8 +2,11 @@ package manager
 
 import (
 	"github.com/micro/go-micro/v2/config/cmd"
+	"github.com/micro/go-micro/v2/logger"
 	"github.com/micro/go-micro/v2/runtime"
 	"github.com/micro/go-micro/v2/store"
+	cachest "github.com/micro/go-micro/v2/store/cache"
+	filest "github.com/micro/go-micro/v2/store/file"
 	"github.com/micro/go-micro/v2/store/memory"
 	"github.com/micro/micro/v2/internal/namespace"
 )
@@ -60,22 +63,23 @@ func (m *manager) Read(opts ...runtime.ReadOption) ([]*runtime.Service, error) {
 	if err != nil {
 		return nil, err
 	}
-
 	// add the metadata to the service from the local runtime (e.g. status, err)
 	statuses, err := m.listStatuses(options.Namespace)
 	if err != nil {
 		return nil, err
 	}
+	ret := []*runtime.Service{}
 	for _, srv := range srvs {
-		md, ok := statuses[srv.Name+":"+srv.Version]
+		ret = append(ret, srv.Service)
+		md, ok := statuses[srv.Service.Name+":"+srv.Service.Version]
 		if !ok {
 			continue
 		}
-		srv.Metadata["status"] = md.Status
-		srv.Metadata["error"] = md.Error
+		srv.Service.Metadata["status"] = md.Status
+		srv.Service.Metadata["error"] = md.Error
 	}
 
-	return srvs, nil
+	return ret, nil
 }
 
 // Update the service in place
@@ -143,7 +147,47 @@ func (m *manager) Start() error {
 
 	// todo: compare the store to the runtime incase we missed any events
 
+	// Resurrect services that were running previously
+	go m.resurrectServices()
+
 	return nil
+}
+
+func (m *manager) resurrectServices() {
+	nss, err := m.listNamespaces()
+	if err != nil {
+		logger.Warnf("Error listing namespaces: %v", err)
+		return
+	}
+
+	for _, ns := range nss {
+		srvs, err := m.readServices(ns, &runtime.Service{})
+		if err != nil {
+			logger.Warnf("Error reading services from the %v namespace: %v", ns, err)
+			return
+		}
+
+		running := map[string]*runtime.Service{}
+		curr, _ := m.Runtime.Read(runtime.ReadNamespace(ns))
+		for _, v := range curr {
+			running[v.Name+":"+v.Version+":"+v.Source] = v
+		}
+
+		for _, srv := range srvs {
+			if _, ok := running[srv.Service.Name+":"+srv.Service.Version+":"+srv.Service.Source]; ok {
+				// already running, don't need to start again
+				continue
+			}
+			m.Runtime.Create(srv.Service,
+				runtime.CreateImage(srv.Options.Image),
+				runtime.CreateType(srv.Options.Type),
+				runtime.CreateNamespace(ns),
+				runtime.WithArgs(srv.Options.Args...),
+				runtime.WithCommand(srv.Options.Command...),
+				runtime.WithEnv(m.runtimeEnv(srv.Options)),
+			)
+		}
+	}
 }
 
 // Stop the manager
@@ -169,9 +213,12 @@ type manager struct {
 	// running is true after Start is called
 	running bool
 	// cache is a memory store which is used to store any information we don't want to write to the
-	// global store, e.g. events consumed, service status / errors (these will change depending on the
+	// global store, e.g. service status / errors (these will change depending on the
 	// managed runtime and hence won't be the same globally).
 	cache store.Store
+	// fileCache is a cache store used to store any information we don't want to write to the
+	// global store but want to persist across restarts, e.g. events consumed
+	fileCache store.Store
 }
 
 // New returns a manager for the runtime
@@ -186,10 +233,14 @@ func New(r runtime.Runtime, opts ...Option) runtime.Runtime {
 	if options.Store == nil {
 		options.Store = *cmd.DefaultCmd.Options().Store
 	}
+	if options.CacheStore == nil {
+		options.CacheStore = filest.NewStore()
+	}
 
 	return &manager{
-		Runtime: r,
-		options: options,
-		cache:   memory.NewStore(),
+		Runtime:   r,
+		options:   options,
+		cache:     memory.NewStore(),
+		fileCache: cachest.NewStore(options.CacheStore),
 	}
 }

@@ -15,50 +15,76 @@ func TestNew(t *testing.T) {
 
 func testNew(t *t) {
 	t.Parallel()
-	defer func() {
-		exec.Command("rm", "-r", "./foobar").CombinedOutput()
-	}()
-	outp, err := exec.Command("micro", "new", "foobar").CombinedOutput()
-	if err != nil {
-		t.Fatal(err)
-		return
-	}
-	if !strings.Contains(string(outp), "protoc") {
-		t.Fatalf("micro new lacks 	protobuf install instructions %v", string(outp))
-		return
+
+	tcs := []struct {
+		svcName    string
+		sType      string
+		skipBuild  bool
+		skipProtoc bool
+	}{
+		{svcName: "foobarsvc", sType: "service"},
+		{svcName: "foobarfn", sType: "function"},
+		{svcName: "foobarweb", sType: "web", skipProtoc: true, skipBuild: true}, // web service has no proto generated
+		{svcName: "foobarapi", sType: "api", skipBuild: true},                   // api service actually fails build out of the box because it's supposed to point to a service proto
+		{svcName: "foo-bar", sType: "service"},
+		{svcName: "foo-barfn", sType: "function"},
+		{svcName: "foo-barweb", sType: "web", skipProtoc: true, skipBuild: true}, // web service has no proto generated
+		{svcName: "foo-barapi", sType: "api", skipBuild: true},                   // api service actually fails build out of the box because it's supposed to point to a service proto
+		{svcName: "foo-bar-baz", sType: "service"},
 	}
 
-	lines := strings.Split(string(outp), "\n")
-	// executing install instructions
-	for _, line := range lines {
-		if strings.HasPrefix(line, "go get") {
-			parts := strings.Split(line, " ")
-			getOutp, getErr := exec.Command(parts[0], parts[1:]...).CombinedOutput()
-			if getErr != nil {
-				t.Fatal(string(getOutp))
+	for _, tc := range tcs {
+		t.t.Run(tc.svcName, func(t *testing.T) {
+			defer func() {
+				exec.Command("rm", "-r", "./"+tc.svcName).CombinedOutput()
+			}()
+			outp, err := exec.Command("micro", "new", "--type", tc.sType, tc.svcName).CombinedOutput()
+			if err != nil {
+				t.Fatal(err)
 				return
 			}
-		}
-		if strings.HasPrefix(line, "make proto") {
-			mp := strings.Split(line, " ")
-			protocCmd := exec.Command(mp[0], mp[1:]...)
-			protocCmd.Dir = "./foobar"
-			pOutp, pErr := protocCmd.CombinedOutput()
-			if pErr != nil {
-				t.Log("That didn't work ", pErr)
-				t.Fatal(string(pOutp))
+			if !tc.skipProtoc && !strings.Contains(string(outp), "protoc") {
+				t.Fatalf("micro new lacks protobuf install instructions %v", string(outp))
 				return
 			}
-		}
+
+			lines := strings.Split(string(outp), "\n")
+			// executing install instructions
+			for _, line := range lines {
+				if strings.HasPrefix(line, "go get") {
+					parts := strings.Split(line, " ")
+					getOutp, getErr := exec.Command(parts[0], parts[1:]...).CombinedOutput()
+					if getErr != nil {
+						t.Fatal(string(getOutp))
+						return
+					}
+				}
+				if !tc.skipProtoc && strings.HasPrefix(line, "make proto") {
+					mp := strings.Split(line, " ")
+					protocCmd := exec.Command(mp[0], mp[1:]...)
+					protocCmd.Dir = "./" + tc.svcName
+					pOutp, pErr := protocCmd.CombinedOutput()
+					if pErr != nil {
+						t.Log("That didn't work ", pErr)
+						t.Fatal(string(pOutp))
+						return
+					}
+				}
+			}
+			if tc.skipBuild {
+				return
+			}
+			buildCommand := exec.Command("go", "build")
+			buildCommand.Dir = "./" + tc.svcName
+			outp, err = buildCommand.CombinedOutput()
+			if err != nil {
+				t.Fatal(string(outp))
+				return
+			}
+
+		})
 	}
 
-	buildCommand := exec.Command("go", "build")
-	buildCommand.Dir = "./foobar"
-	outp, err = buildCommand.CombinedOutput()
-	if err != nil {
-		t.Fatal(string(outp))
-		return
-	}
 }
 
 func TestWrongCommands(t *testing.T) {
@@ -143,5 +169,14 @@ func testHelps(t *t) {
 			t.Fatal(commandName + " output is wrong: " + string(outp))
 			break
 		}
+	}
+}
+
+func TestUnrecognisedCommand(t *testing.T) {
+	t.Parallel()
+	outp, _ := exec.Command("micro", "foobar").CombinedOutput()
+	if !strings.Contains(string(outp), "Unrecognized micro command: foobar. Please refer to 'micro --help'") {
+		t.Fatalf("micro foobar does not return correct error %v", string(outp))
+		return
 	}
 }

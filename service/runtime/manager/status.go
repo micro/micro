@@ -78,7 +78,7 @@ func (m *manager) cacheStatus(ns string, srv *runtime.Service) error {
 	return m.cache.Write(&store.Record{Key: key, Value: bytes})
 }
 
-// listStautuses returns all the statuses for the services in a given namespace with 'name:version'
+// listStatuses returns all the statuses for the services in a given namespace with 'name:version'
 // as the format used for the keys in the map.
 func (m *manager) listStatuses(ns string) (map[string]*serviceStatus, error) {
 	recs, err := m.cache.Read(statusPrefix+ns+":", store.ReadPrefix())

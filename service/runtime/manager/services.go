@@ -41,7 +41,7 @@ func (m *manager) createService(srv *runtime.Service, opts *runtime.CreateOption
 
 // readServices returns all the services in a given namespace. If a service name and
 // version are provided it will filter using these as well
-func (m *manager) readServices(namespace string, srv *runtime.Service) ([]*runtime.Service, error) {
+func (m *manager) readServices(namespace string, srv *runtime.Service) ([]*service, error) {
 	prefix := servicePrefix + namespace + ":"
 	if len(srv.Name) > 0 {
 		prefix += srv.Name + ":"
@@ -54,16 +54,16 @@ func (m *manager) readServices(namespace string, srv *runtime.Service) ([]*runti
 	if err != nil {
 		return nil, err
 	} else if len(recs) == 0 {
-		return make([]*runtime.Service, 0), nil
+		return make([]*service, 0), nil
 	}
 
-	srvs := make([]*runtime.Service, 0, len(recs))
+	srvs := make([]*service, 0, len(recs))
 	for _, r := range recs {
 		var s *service
 		if err := json.Unmarshal(r.Value, &s); err != nil {
 			return nil, err
 		}
-		srvs = append(srvs, s.Service)
+		srvs = append(srvs, s)
 	}
 
 	return srvs, nil

@@ -19,7 +19,7 @@ import (
 
 var (
 	// usage url
-	u = "https://go.micro.mu/usage"
+	u = "https://micro.mu/usage"
 	// usage agent
 	a = "micro/usage"
 	// usage version

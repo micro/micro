@@ -47,6 +47,8 @@ func Commands(options ...micro.Option) []*cli.Command {
 	command := &cli.Command{
 		Name:  "server",
 		Usage: "Run the micro server",
+		Description: `Launching the micro server ('micro server') will enable one to connect to it by
+		setting the appropriate Micro environment (see 'micro env' && 'micro env --help') commands.`,
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:    "address",
@@ -90,18 +92,20 @@ func Run(context *cli.Context) error {
 		cli.ShowSubcommandHelp(context)
 		os.Exit(1)
 	}
-	// set default profile
-	if len(context.String("profile")) == 0 {
-		context.Set("profile", "server")
-	}
 
 	// get the network flag
 	peer := context.Bool("peer")
 
 	// pass through the environment
-	// TODO: perhaps don't do this
+	// By default we want a file store when we run micro server.
+	// This will get overridden if user has set their own MICRO_STORE env var or passed in --store
 	env := []string{"MICRO_STORE=file"}
-	env = append(env, "MICRO_RUNTIME_PROFILE="+context.String("profile"))
+	profile := context.String("profile")
+	if len(profile) == 0 {
+		profile = "server"
+	}
+
+	env = append(env, "MICRO_RUNTIME_PROFILE="+profile)
 	env = append(env, os.Environ()...)
 
 	// connect to the network if specified
@@ -151,21 +155,33 @@ func Run(context *cli.Context) error {
 		switch service {
 		case "proxy", "web", "api":
 			envs = append(envs, "MICRO_AUTH=service")
+			envs = append(envs, "MICRO_ROUTER=service")
 		}
+
+		cmdArgs := []string{}
+		// we want to pass through the global args so go up one level in the context lineage
+		if len(context.Lineage()) > 1 {
+			globCtx := context.Lineage()[1]
+			for _, f := range globCtx.FlagNames() {
+				cmdArgs = append(cmdArgs, "--"+f, context.String(f))
+			}
+		}
+		cmdArgs = append(cmdArgs, service)
 
 		// runtime based on environment we run the service in
 		args := []gorun.CreateOption{
 			gorun.WithCommand(os.Args[0]),
-			gorun.WithArgs(service),
+			gorun.WithArgs(cmdArgs...),
 			gorun.WithEnv(envs),
 			gorun.WithOutput(os.Stdout),
 			gorun.WithRetries(10),
+			gorun.CreateImage("micro/micro"),
 		}
 
 		// NOTE: we use Version right now to check for the latest release
 		muService := &gorun.Service{Name: name, Version: platform.Version}
 		if err := (*muRuntime).Create(muService, args...); err != nil {
-			log.Errorf("Failed to create runtime enviroment: %v", err)
+			log.Errorf("Failed to create runtime environment: %v", err)
 			return err
 		}
 	}

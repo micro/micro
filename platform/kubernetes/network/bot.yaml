@@ -36,11 +36,13 @@ spec:
           env:
           - name: MICRO_AUTH
             value: "service"
+          - name: MICRO_AUTH_ADDRESS
+            value: "micro-auth:8010"
           - name: MICRO_AUTH_PUBLIC_KEY
             valueFrom:
               secretKeyRef:
-                name: micro-keypair
-                key: public
+                name: micro-secrets
+                key: auth_public_key
           - name: MICRO_BROKER
             value: "nats"
           - name: MICRO_BROKER_ADDRESS
@@ -48,11 +50,11 @@ spec:
           - name: MICRO_REGISTRY
             value: "etcd"
           - name: MICRO_REGISTRY_ADDRESS
-            value: "etcd-cluster-client"
+            value: "etcd-cluster"
           - name: MICRO_SLACK_TOKEN
             valueFrom:
               secretKeyRef:
-                name: micro-slack
-                key: token
+                name: micro-secrets
+                key: slack
 
 

@@ -9,8 +9,8 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"regexp"
 	"strings"
-	"syscall"
 	"testing"
 	"time"
 )
@@ -68,7 +68,7 @@ func testRunLocalSource(t *t) {
 
 		// The started service should have the runtime name of "test/example-service",
 		// as the runtime name is the relative path inside a repo.
-		if !strings.Contains(string(outp), "test/example-service") {
+		if !statusRunning("test/example-service", outp) {
 			return outp, errors.New("Can't find example service in runtime")
 		}
 		return outp, err
@@ -112,7 +112,7 @@ func testRunAndKill(t *t) {
 
 		// The started service should have the runtime name of "test/example-service",
 		// as the runtime name is the relative path inside a repo.
-		if !strings.Contains(string(outp), "test/example-service") {
+		if !statusRunning("test/example-service", outp) {
 			return outp, errors.New("Can't find example service in runtime")
 		}
 		return outp, err
@@ -230,42 +230,10 @@ func testLocalOutsideRepo(t *t) {
 	}, 75*time.Second)
 }
 
-func TestLocalEnvRunGithubSource(t *testing.T) {
-	//trySuite(t, testLocalEnvRunGithubSource, retryCount)
-}
+func statusRunning(service string, statusOutput []byte) bool {
+	reg, _ := regexp.Compile(service + "\\s+latest\\s+\\S+\\s+running")
 
-func testLocalEnvRunGithubSource(t *t) {
-	t.Parallel()
-	outp, err := exec.Command("micro", "env", "set", "local").CombinedOutput()
-	if err != nil {
-		t.Fatalf("Failed to set env to local, err: %v, output: %v", err, string(outp))
-		return
-	}
-	var cmd *exec.Cmd
-	go func() {
-		cmd = exec.Command("micro", "run", "location")
-		// fire and forget as this will run forever
-		cmd.CombinedOutput()
-	}()
-	time.Sleep(100 * time.Millisecond)
-	defer func() {
-		if cmd.Process != nil {
-			cmd.Process.Signal(syscall.SIGTERM)
-		}
-	}()
-
-	try("Find location", t, func() ([]byte, error) {
-		psCmd := exec.Command("micro", "status")
-		outp, err := psCmd.CombinedOutput()
-		if err != nil {
-			return outp, err
-		}
-
-		if !strings.Contains(string(outp), "location") {
-			return outp, errors.New("Output should contain location")
-		}
-		return outp, nil
-	}, 30*time.Second)
+	return reg.Match(statusOutput)
 }
 
 func TestRunGithubSource(t *testing.T) {
@@ -301,7 +269,7 @@ func testRunGithubSource(t *t) {
 			return outp, err
 		}
 
-		if !strings.Contains(string(outp), "helloworld") {
+		if !statusRunning("helloworld", outp) {
 			return outp, errors.New("Output should contain hello world")
 		}
 		return outp, nil
@@ -353,7 +321,7 @@ func testRunLocalUpdateAndCall(t *t) {
 
 		// The started service should have the runtime name of "test/example-service",
 		// as the runtime name is the relative path inside a repo.
-		if !strings.Contains(string(outp), "test/example-service") {
+		if !statusRunning("test/example-service", outp) {
 			return outp, errors.New("can't find service in runtime")
 		}
 		return outp, err
@@ -432,6 +400,38 @@ func testExistingLogs(t *t) {
 		}
 
 		if !strings.Contains(string(outp), "Listening on") || !strings.Contains(string(outp), "never stopping") {
+			return outp, errors.New("Output does not contain expected")
+		}
+		return outp, nil
+	}, 50*time.Second)
+}
+
+func TestBranchCheckout(t *testing.T) {
+	trySuite(t, testBranchCheckout, retryCount)
+}
+
+func testBranchCheckout(t *t) {
+	t.Parallel()
+	serv := newServer(t)
+	serv.launch()
+	defer serv.close()
+
+	runCmd := exec.Command("micro", serv.envFlag(), "run", "github.com/crufter/micro-services/logspammer@branch-checkout-test")
+	outp, err := runCmd.CombinedOutput()
+	if err != nil {
+		t.Fatalf("micro run failure, output: %v", string(outp))
+		return
+	}
+
+	try("logspammer logs", t, func() ([]byte, error) {
+		psCmd := exec.Command("micro", serv.envFlag(), "logs", "-n", "5", "crufter/micro-services/logspammer")
+		outp, err = psCmd.CombinedOutput()
+		if err != nil {
+			return outp, err
+		}
+
+		// The log that this branch outputs is different from master, that's what we look for
+		if !strings.Contains(string(outp), "Listening on") || !strings.Contains(string(outp), "Branch checkout test") {
 			return outp, errors.New("Output does not contain expected")
 		}
 		return outp, nil
@@ -521,4 +521,81 @@ func replaceStringInFile(t *t, filepath string, original, newone string) {
 		t.Fatal(err)
 		return
 	}
+}
+
+func TestParentDependency(t *testing.T) {
+	trySuite(t, testParentDependency, retryCount)
+}
+
+func testParentDependency(t *t) {
+	t.Parallel()
+	serv := newServer(t)
+	serv.launch()
+	defer serv.close()
+
+	runCmd := exec.Command("micro", serv.envFlag(), "run", "./dep-test/dep-test-service")
+	outp, err := runCmd.CombinedOutput()
+	if err != nil {
+		t.Fatalf("micro run failure, output: %v", string(outp))
+		return
+	}
+
+	try("Find hello world", t, func() ([]byte, error) {
+		psCmd := exec.Command("micro", serv.envFlag(), "status")
+		outp, err = psCmd.CombinedOutput()
+		if err != nil {
+			return outp, err
+		}
+
+		if !statusRunning("dep-test-service", outp) {
+			return outp, errors.New("Output should contain hello world")
+		}
+		return outp, nil
+	}, 30*time.Second)
+}
+
+func TestFastRuns(t *testing.T) {
+	trySuite(t, testFastRuns, retryCount)
+}
+
+func testFastRuns(t *t) {
+	t.Parallel()
+	serv := newServer(t)
+	serv.launch()
+	defer serv.close()
+
+	runCmd := exec.Command("micro", serv.envFlag(), "run", "signup")
+	outp, err := runCmd.CombinedOutput()
+	if err != nil {
+		t.Fatalf("micro run failure, output: %v", string(outp))
+		return
+	}
+
+	// Stripe needs some configs to start
+	runCmd = exec.Command("micro", serv.envFlag(), "config", "set", "micro.payments.stripe.api_key", "notatruekey")
+	outp, err = runCmd.CombinedOutput()
+	if err != nil {
+		t.Fatalf("micro config set failure, output: %v", string(outp))
+		return
+	}
+
+	runCmd = exec.Command("micro", serv.envFlag(), "run", "payments/provider/stripe")
+	outp, err = runCmd.CombinedOutput()
+	if err != nil {
+		t.Fatalf("micro run failure, output: %v", string(outp))
+		return
+	}
+
+	try("Find signup and stripe", t, func() ([]byte, error) {
+		psCmd := exec.Command("micro", serv.envFlag(), "list", "services")
+		outp, err = psCmd.CombinedOutput()
+		if err != nil {
+			return outp, err
+		}
+
+		if !strings.Contains(string(outp), "signup") || !strings.Contains(string(outp), "stripe") {
+			return outp, errors.New("Signup or stripe can't be found")
+		}
+		return outp, nil
+	}, 60*time.Second)
 }

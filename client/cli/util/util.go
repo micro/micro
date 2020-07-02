@@ -33,7 +33,7 @@ const (
 	// serverProxyAddress is the default proxy address for environment server
 	serverProxyAddress = "127.0.0.1:8081"
 	// platformProxyAddress is teh default proxy address for environment platform
-	platformProxyAddress = "proxy.micro.mu"
+	platformProxyAddress = "proxy.m3o.com"
 )
 
 var defaultEnvs = map[string]Env{
@@ -76,6 +76,11 @@ func SetupCommand(ctx *ccli.Context) {
 		return
 	}
 	if ctx.Args().Len() >= 1 && ctx.Args().First() == "env" {
+		return
+	}
+
+	if ctx.App.Command(ctx.Args().First()) == nil {
+		// unrecognised command
 		return
 	}
 

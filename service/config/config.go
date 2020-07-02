@@ -184,14 +184,14 @@ func Commands(options ...micro.Option) []*cli.Command {
 		Usage: "Manage configuration values",
 		Subcommands: []*cli.Command{
 			{
-				Name:   "set",
-				Usage:  "Set a key-val; micro config set key val",
-				Action: setConfig,
-			},
-			{
 				Name:   "get",
 				Usage:  "Get a value; micro config get key",
 				Action: getConfig,
+			},
+			{
+				Name:   "set",
+				Usage:  "Set a key-val; micro config set key val",
+				Action: setConfig,
 			},
 			{
 				Name:   "del",
