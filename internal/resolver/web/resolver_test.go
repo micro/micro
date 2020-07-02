@@ -45,7 +45,7 @@ func TestWebResolver(t *testing.T) {
 
 			r.Register(v)
 
-			// registry events are published to the router async
+			// registry events are published to the router async (although if we don't wait the fallback should still kick in)
 			time.Sleep(time.Millisecond * 10)
 
 			u, err := url.Parse("https://" + service.Host + service.Path)
