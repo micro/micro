@@ -39,7 +39,7 @@ The tests also add the env into the micro config file:
 $ micro env
   local               none
 * server              127.0.0.1:8081
-  platform            proxy.micro.mu
+  platform            proxy.m3o.com
   testServerAuth      127.0.0.1:14081
 ```
 
