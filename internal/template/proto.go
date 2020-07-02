@@ -3,9 +3,7 @@ package template
 var (
 	ProtoFNC = `syntax = "proto3";
 
-package {{.FQDN}};
-
-option go_package = "{{.Dir}}/proto/{{.Alias}}";
+package {{dehyphen .FQDN}};
 
 service {{title .Alias}} {
 	rpc Call(Request) returns (Response) {}
@@ -26,7 +24,7 @@ message Response {
 
 	ProtoSRV = `syntax = "proto3";
 
-package {{.FQDN}};
+package {{dehyphen .FQDN}};
 
 service {{title .Alias}} {
 	rpc Call(Request) returns (Response) {}
@@ -65,7 +63,7 @@ message Pong {
 
 	ProtoAPI = `syntax = "proto3";
 
-package {{.FQDN}};
+package {{dehyphen .FQDN}};
 
 import "proto/imports/api.proto";
 
