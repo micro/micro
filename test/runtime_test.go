@@ -593,9 +593,9 @@ func testFastRuns(t *t) {
 			return outp, err
 		}
 
-		if !strings.Contains("signup", string(outp)) || !strings.Contains("stripe", string(outp)) {
+		if !strings.Contains(string(outp), "signup") || !strings.Contains(string(outp), "stripe") {
 			return outp, errors.New("Signup or stripe can't be found")
 		}
 		return outp, nil
-	}, 50*time.Second)
+	}, 60*time.Second)
 }
