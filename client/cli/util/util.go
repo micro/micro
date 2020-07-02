@@ -33,7 +33,7 @@ const (
 	// serverProxyAddress is the default proxy address for environment server
 	serverProxyAddress = "127.0.0.1:8081"
 	// platformProxyAddress is teh default proxy address for environment platform
-	platformProxyAddress = "proxy.micro.mu"
+	platformProxyAddress = "proxy.m3o.com"
 )
 
 var defaultEnvs = map[string]Env{

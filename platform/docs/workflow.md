@@ -98,7 +98,7 @@ Once the service is deployed the user should be able to query the service from t
 to mimic the existing user experience of `micro call` and the web dashboard form for calling services. The User should 
 be pushed towards calling the service to ensure its actually working and behaving as expected (UI hint).
 
-1. micro call from CLI (through proxy.micro.mu)
+1. micro call from CLI (through proxy.m3o.com)
 2. Platform UI call via services pages
 
 ## Failure Cases
