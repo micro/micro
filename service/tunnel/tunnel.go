@@ -73,7 +73,7 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 	// local tunnel router
 	r := router.NewRouter(
 		router.Id(service.Server().Options().Id),
-		router.Registry(service.Client().Options().Registry),
+		router.Registry(service.Options().Registry),
 	)
 
 	// create a tunnel

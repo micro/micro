@@ -78,7 +78,7 @@ The contents of ~/.micro
 
 ```
 
-MICRO_PROXY_ADDRESS=proxy.micro.mu
+MICRO_PROXY_ADDRESS=proxy.m3o.com
 MICRO_AUTH_TOKEN=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjM0NTY3ODkw
 ...
 ```
