@@ -14,13 +14,14 @@ type Table struct {
 
 func (t *Table) Create(ctx context.Context, route *pb.Route, resp *pb.CreateResponse) error {
 	err := t.Router.Table().Create(router.Route{
-		Service: route.Service,
-		Address: route.Address,
-		Gateway: route.Gateway,
-		Network: route.Network,
-		Router:  route.Router,
-		Link:    route.Link,
-		Metric:  route.Metric,
+		Service:  route.Service,
+		Address:  route.Address,
+		Gateway:  route.Gateway,
+		Network:  route.Network,
+		Router:   route.Router,
+		Link:     route.Link,
+		Metric:   route.Metric,
+		Metadata: route.Metadata,
 	})
 	if err != nil {
 		return errors.InternalServerError("go.micro.router", "failed to create route: %s", err)
@@ -31,13 +32,14 @@ func (t *Table) Create(ctx context.Context, route *pb.Route, resp *pb.CreateResp
 
 func (t *Table) Update(ctx context.Context, route *pb.Route, resp *pb.UpdateResponse) error {
 	err := t.Router.Table().Update(router.Route{
-		Service: route.Service,
-		Address: route.Address,
-		Gateway: route.Gateway,
-		Network: route.Network,
-		Router:  route.Router,
-		Link:    route.Link,
-		Metric:  route.Metric,
+		Service:  route.Service,
+		Address:  route.Address,
+		Gateway:  route.Gateway,
+		Network:  route.Network,
+		Router:   route.Router,
+		Link:     route.Link,
+		Metric:   route.Metric,
+		Metadata: route.Metadata,
 	})
 	if err != nil {
 		return errors.InternalServerError("go.micro.router", "failed to update route: %s", err)
@@ -48,13 +50,14 @@ func (t *Table) Update(ctx context.Context, route *pb.Route, resp *pb.UpdateResp
 
 func (t *Table) Delete(ctx context.Context, route *pb.Route, resp *pb.DeleteResponse) error {
 	err := t.Router.Table().Delete(router.Route{
-		Service: route.Service,
-		Address: route.Address,
-		Gateway: route.Gateway,
-		Network: route.Network,
-		Router:  route.Router,
-		Link:    route.Link,
-		Metric:  route.Metric,
+		Service:  route.Service,
+		Address:  route.Address,
+		Gateway:  route.Gateway,
+		Network:  route.Network,
+		Router:   route.Router,
+		Link:     route.Link,
+		Metric:   route.Metric,
+		Metadata: route.Metadata,
 	})
 	if err != nil {
 		return errors.InternalServerError("go.micro.router", "failed to delete route: %s", err)
@@ -73,13 +76,14 @@ func (t *Table) List(ctx context.Context, req *pb.Request, resp *pb.ListResponse
 	respRoutes := make([]*pb.Route, 0, len(routes))
 	for _, route := range routes {
 		respRoute := &pb.Route{
-			Service: route.Service,
-			Address: route.Address,
-			Gateway: route.Gateway,
-			Network: route.Network,
-			Router:  route.Router,
-			Link:    route.Link,
-			Metric:  route.Metric,
+			Service:  route.Service,
+			Address:  route.Address,
+			Gateway:  route.Gateway,
+			Network:  route.Network,
+			Router:   route.Router,
+			Link:     route.Link,
+			Metric:   route.Metric,
+			Metadata: route.Metadata,
 		}
 		respRoutes = append(respRoutes, respRoute)
 	}
@@ -101,13 +105,14 @@ func (t *Table) Query(ctx context.Context, req *pb.QueryRequest, resp *pb.QueryR
 	respRoutes := make([]*pb.Route, 0, len(routes))
 	for _, route := range routes {
 		respRoute := &pb.Route{
-			Service: route.Service,
-			Address: route.Address,
-			Gateway: route.Gateway,
-			Network: route.Network,
-			Router:  route.Router,
-			Link:    route.Link,
-			Metric:  route.Metric,
+			Service:  route.Service,
+			Address:  route.Address,
+			Gateway:  route.Gateway,
+			Network:  route.Network,
+			Router:   route.Router,
+			Link:     route.Link,
+			Metric:   route.Metric,
+			Metadata: route.Metadata,
 		}
 		respRoutes = append(respRoutes, respRoute)
 	}

@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"net/http"
 	"os"
 	"os/signal"
 	"path/filepath"
@@ -82,6 +83,24 @@ func dirExists(path string) (bool, error) {
 	return true, err
 }
 
+func sourceExists(source *git.Source) error {
+	ref := source.Ref
+	if ref == "" || ref == "latest" {
+		ref = "master"
+	}
+	url := fmt.Sprintf("https://%v/tree/%v/%v", source.Repo, ref, source.Folder)
+	resp, err := http.Get(url)
+	// @todo gracefully degrade?
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+	if resp.StatusCode >= 400 && resp.StatusCode < 500 {
+		return fmt.Errorf("service at '%v' not found", url)
+	}
+	return nil
+}
+
 func runService(ctx *cli.Context, srvOpts ...micro.Option) {
 	// Init plugins
 	for _, p := range Plugins() {
@@ -107,6 +126,12 @@ func runService(ctx *cli.Context, srvOpts ...micro.Option) {
 	var newSource string
 	if source.Local {
 		newSource, err = upload(ctx, source)
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+	} else {
+		err := sourceExists(source)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
@@ -289,6 +314,12 @@ func updateService(ctx *cli.Context, srvOpts ...micro.Option) {
 	var newSource string
 	if source.Local {
 		newSource, err = upload(ctx, source)
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+	} else {
+		err := sourceExists(source)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)

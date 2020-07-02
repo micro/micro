@@ -198,7 +198,7 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 		router.Id(service.Server().Options().Id),
 		router.Address(service.Server().Options().Id),
 		router.Network(Network),
-		router.Registry(service.Client().Options().Registry),
+		router.Registry(service.Options().Registry),
 		router.Gateway(gateway),
 		router.Advertise(strategy),
 	)
