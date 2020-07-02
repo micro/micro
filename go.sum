@@ -367,6 +367,12 @@ github.com/micro/go-micro v1.18.0/go.mod h1:klwUJL1gkdY1MHFyz+fFJXn52dKcty4hoe95
 github.com/micro/go-micro/v2 v2.9.1-0.20200618113919-8c7c27c573f5/go.mod h1:x55ZM3Puy0FyvvkR3e0ha0xsE9DFwfPSUMWAIbFY0SY=
 github.com/micro/go-micro/v2 v2.9.1-0.20200701160659-174e44b84693 h1:8gxDFj/ukBzQfdwrW+VzBqP4PIeQVsedmFQCtb1oEDQ=
 github.com/micro/go-micro/v2 v2.9.1-0.20200701160659-174e44b84693/go.mod h1:kkYP0Fe2u9isAcRxED4iFpzFIQO5syZzK3H0wEoXAyA=
+github.com/micro/go-micro/v2 v2.9.1-0.20200702085126-093630b83b42 h1:v+4q009dgzRv4o+Y5o8GAzZB8opt1l2yczPp63cmkPM=
+github.com/micro/go-micro/v2 v2.9.1-0.20200702085126-093630b83b42/go.mod h1:r/8oeiYo1CNhFxKPjuGXgjAdGcY8r75EyaM20i0Ya9g=
+github.com/micro/go-micro/v2 v2.9.1-0.20200702105612-fd30f342bcee h1:KALsNUoPAqU+Dh5bE07AFBMJK5cvmqAwieAp+slgtEo=
+github.com/micro/go-micro/v2 v2.9.1-0.20200702105612-fd30f342bcee/go.mod h1:r/8oeiYo1CNhFxKPjuGXgjAdGcY8r75EyaM20i0Ya9g=
+github.com/micro/go-micro/v2 v2.9.1-0.20200702124040-3c633e357799 h1:P/m1CoM5EpJb6v27d8JFSHAl17BDv3N75j/Y4woL3xY=
+github.com/micro/go-micro/v2 v2.9.1-0.20200702124040-3c633e357799/go.mod h1:r/8oeiYo1CNhFxKPjuGXgjAdGcY8r75EyaM20i0Ya9g=
 github.com/micro/mdns v0.3.0/go.mod h1:KJ0dW7KmicXU2BV++qkLlmHYcVv7/hHnbtguSWt9Aoc=
 github.com/micro/protoc-gen-micro v1.0.0/go.mod h1:C8ij4DJhapBmypcT00AXdb0cZ675/3PqUO02buWWqbE=
 github.com/micro/services/payments/provider v0.0.0-20200618133042-550220a6eff2/go.mod h1:mwSahcMJ6Bof7hY3M6gzzY8JN7XSHmMIBg8wXtb47j8=
@@ -535,6 +541,8 @@ github.com/subosito/gotenv v1.2.0/go.mod h1:N0PQaV/YGNqwC0u51sEeR/aUtSLEXKX9iv69
 github.com/syndtr/gocapability v0.0.0-20170704070218-db04d3cc01c8/go.mod h1:hkRG7XYTFWNJGYcbNJQlaLq0fg1yr4J4t/NcTQtrfww=
 github.com/technoweenie/multipartstreamer v1.0.1 h1:XRztA5MXiR1TIRHxH2uNxXxaIkKQDeX7m2XsSOlQEnM=
 github.com/technoweenie/multipartstreamer v1.0.1/go.mod h1:jNVxdtShOxzAsukZwTSw6MDx5eUJoiEBsSvzDU9uzog=
+github.com/teris-io/shortid v0.0.0-20171029131806-771a37caa5cf h1:Z2X3Os7oRzpdJ75iPqWZc0HeJWFYNCvKsfpQwFpRNTA=
+github.com/teris-io/shortid v0.0.0-20171029131806-771a37caa5cf/go.mod h1:M8agBzgqHIhgj7wEn9/0hJUZcrvt9VY+Ln+S1I5Mha0=
 github.com/timewasted/linode v0.0.0-20160829202747-37e84520dcf7/go.mod h1:imsgLplxEC/etjIhdr3dNzV3JeT27LbVu5pYWm0JCBY=
 github.com/tmc/grpc-websocket-proxy v0.0.0-20190109142713-0ad062ec5ee5/go.mod h1:ncp9v5uamzpCO7NfCPTXjqaC+bZgJeR0sMTm6dMHP7U=
 github.com/tmc/grpc-websocket-proxy v0.0.0-20200122045848-3419fae592fc h1:yUaosFVTJwnltaHbSNC3i82I92quFs+OFPRl8kNMVwo=
