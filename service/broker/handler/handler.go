@@ -93,12 +93,12 @@ func authorizeNamespace(ctx context.Context, namespace string) error {
 	// access to all resources
 	acc, ok := auth.AccountFromContext(ctx)
 	if !ok {
-		return errors.Unauthorized("go.micro.registry", "An account is required")
+		return errors.Unauthorized("go.micro.broker", "An account is required")
 	}
 
 	// ensure the account is requesing access to it's own domain
 	if acc.Issuer != namespace {
-		return errors.Forbidden("go.micro.registry", "An account issued by %v is required", namespace)
+		return errors.Forbidden("go.micro.broker", "An account issued by %v is required", namespace)
 	}
 
 	return nil
