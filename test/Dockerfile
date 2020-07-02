@@ -32,8 +32,7 @@ COPY ./test/config-example-service ${GOPATH}/src/config-example-service
 RUN cd ${GOPATH}/src/example-service && go get && \
     cd ${GOPATH}/src/config-example-service && go get && \
     go get github.com/micro/services/helloworld && \
-    go get github.com/micro/services/signup && \
-    go get github.com/micro/services/payments/provider/stripe
+    go get github.com/micro/services/signup
 
 # RUN go get github.com/crufter/micro-services/logspammer
 

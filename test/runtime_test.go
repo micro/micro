@@ -597,5 +597,5 @@ func testFastRuns(t *t) {
 			return outp, errors.New("Signup or stripe can't be found")
 		}
 		return outp, nil
-	}, 30*time.Second)
+	}, 50*time.Second)
 }
