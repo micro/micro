@@ -32,5 +32,5 @@ All 443 with certs managed by certmagic/acme/letsencrypt. Cloudflare used for DN
 
 - api.m3o.com -> micro api
 - web.m3o.com -> micro web
-- proxy.m3o.com => micro proxy
+- proxy.m3o.com -> micro proxy
 
