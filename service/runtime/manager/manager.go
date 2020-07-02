@@ -2,6 +2,7 @@ package manager
 
 import (
 	"github.com/micro/go-micro/v2/config/cmd"
+	"github.com/micro/go-micro/v2/logger"
 	"github.com/micro/go-micro/v2/runtime"
 	"github.com/micro/go-micro/v2/store"
 	cachest "github.com/micro/go-micro/v2/store/cache"
@@ -147,21 +148,31 @@ func (m *manager) Start() error {
 	// todo: compare the store to the runtime incase we missed any events
 
 	// Resurrect services that were running previously
+	go m.resurrectServices()
+
+	return nil
+}
+
+func (m *manager) resurrectServices() {
 	nss, err := m.listNamespaces()
 	if err != nil {
-		return err
+		logger.Warnf("Error listing namespaces: %v", err)
+		return
 	}
+
 	for _, ns := range nss {
 		srvs, err := m.readServices(ns, &runtime.Service{})
 		if err != nil {
-			return err
+			logger.Warnf("Error reading services from the %v namespace: %v", ns, err)
+			return
 		}
-		running := map[string]*runtime.Service{}
 
+		running := map[string]*runtime.Service{}
 		curr, _ := m.Runtime.Read(runtime.ReadNamespace(ns))
 		for _, v := range curr {
 			running[v.Name+":"+v.Version+":"+v.Source] = v
 		}
+
 		for _, srv := range srvs {
 			if _, ok := running[srv.Service.Name+":"+srv.Service.Version+":"+srv.Service.Source]; ok {
 				// already running, don't need to start again
@@ -176,10 +187,7 @@ func (m *manager) Start() error {
 				runtime.WithEnv(m.runtimeEnv(srv.Options)),
 			)
 		}
-
 	}
-
-	return nil
 }
 
 // Stop the manager
