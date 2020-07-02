@@ -35,4 +35,12 @@ jobs:
           ssh-keygen -f /tmp/sshkey -m pkcs8 -q -N ""
           ssh-keygen -f /tmp/sshkey -e  -m pkcs8 > /tmp/sshkey.pub
           go clean -testcache && go test --tags=m3o -v ./...
+      env:
+        MICRO_STRIPE_API_KEY: ${{ secrets.MICRO_STRIPE_API_KEY }}
+        MICRO_SENDGRID_API_KEY: ${{ secrets.MICRO_SENDGRID_API_KEY }}
+        MICRO_SENDGRID_TEMPLATE_ID: ${{ secrets.MICRO_SENDGRID_TEMPLATE_ID }}
+        MICRO_STRIPE_PLAN_ID: ${{ secrets.MICRO_STRIPE_PLAN_ID }}
+        MICRO_EMAIL_FROM: ${{ secrets.MICRO_EMAIL_FROM }}
+        MICRO_TEST_ENV: ${{ secrets.MICRO_TEST_ENV }}
+        MICRO_STRIPE_PAYMENT_METHOD_ID: ${{ secrets.MICRO_STRIPE_PAYMENT_METHOD_ID }}
         
