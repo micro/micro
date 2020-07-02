@@ -175,12 +175,13 @@ func Run(context *cli.Context) error {
 			gorun.WithEnv(envs),
 			gorun.WithOutput(os.Stdout),
 			gorun.WithRetries(10),
+			gorun.CreateImage("micro/micro"),
 		}
 
 		// NOTE: we use Version right now to check for the latest release
 		muService := &gorun.Service{Name: name, Version: platform.Version}
 		if err := (*muRuntime).Create(muService, args...); err != nil {
-			log.Errorf("Failed to create runtime enviroment: %v", err)
+			log.Errorf("Failed to create runtime environment: %v", err)
 			return err
 		}
 	}
