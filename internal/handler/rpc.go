@@ -7,6 +7,9 @@ import (
 	"strings"
 	"time"
 
+	"github.com/micro/go-micro/v2/api/handler"
+	"github.com/micro/go-micro/v2/api/resolver"
+	"github.com/micro/go-micro/v2/api/resolver/subdomain"
 	"github.com/micro/go-micro/v2/api/server/cors"
 	"github.com/micro/go-micro/v2/client"
 	"github.com/micro/go-micro/v2/config/cmd"
@@ -22,10 +25,16 @@ type rpcRequest struct {
 	Request  interface{}
 }
 
-// RPC Handler passes on a JSON or form encoded RPC request to
-// a service.
-func RPC(w http.ResponseWriter, r *http.Request) {
+type rpcHandler struct {
+	resolver resolver.Resolver
+}
 
+func (h *rpcHandler) String() string {
+	return "internal/rpc"
+}
+
+// ServeHTTP passes on a JSON or form encoded RPC request to a service.
+func (h *rpcHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "OPTIONS" {
 		cors.SetHeaders(w, r)
 		return
@@ -135,6 +144,14 @@ func RPC(w http.ResponseWriter, r *http.Request) {
 		opts = append(opts, client.WithAddress(address))
 	}
 
+	// since services can be running in many domains, we'll use the resolver to determine the domain
+	// which should be used on the call
+	if resolver, ok := h.resolver.(*subdomain.Resolver); ok {
+		if dom := resolver.Domain(r); len(dom) > 0 {
+			opts = append(opts, client.WithNetwork(dom))
+		}
+	}
+
 	// remote call
 	err = (*cmd.DefaultOptions().Client).Call(ctx, req, &response, opts...)
 	if err != nil {
@@ -157,4 +174,9 @@ func RPC(w http.ResponseWriter, r *http.Request) {
 	b, _ := response.MarshalJSON()
 	w.Header().Set("Content-Length", strconv.Itoa(len(b)))
 	w.Write(b)
+}
+
+// NewRPCHandler returns an initialized RPC handler
+func NewRPCHandler(r resolver.Resolver) handler.Handler {
+	return &rpcHandler{r}
 }
