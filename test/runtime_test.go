@@ -553,3 +553,49 @@ func testParentDependency(t *t) {
 		return outp, nil
 	}, 30*time.Second)
 }
+
+func TestFastRuns(t *testing.T) {
+	trySuite(t, testFastRuns, retryCount)
+}
+
+func testFastRuns(t *t) {
+	t.Parallel()
+	serv := newServer(t)
+	serv.launch()
+	defer serv.close()
+
+	runCmd := exec.Command("micro", serv.envFlag(), "run", "signup")
+	outp, err := runCmd.CombinedOutput()
+	if err != nil {
+		t.Fatalf("micro run failure, output: %v", string(outp))
+		return
+	}
+
+	// Stripe needs some configs to start
+	runCmd = exec.Command("micro", serv.envFlag(), "config", "set", "micro.payments.stripe.api_key", "notatruekey")
+	outp, err = runCmd.CombinedOutput()
+	if err != nil {
+		t.Fatalf("micro config set failure, output: %v", string(outp))
+		return
+	}
+
+	runCmd = exec.Command("micro", serv.envFlag(), "run", "payments/provider/stripe")
+	outp, err = runCmd.CombinedOutput()
+	if err != nil {
+		t.Fatalf("micro run failure, output: %v", string(outp))
+		return
+	}
+
+	try("Find signup and stripe", t, func() ([]byte, error) {
+		psCmd := exec.Command("micro", serv.envFlag(), "list", "services")
+		outp, err = psCmd.CombinedOutput()
+		if err != nil {
+			return outp, err
+		}
+
+		if !strings.Contains(string(outp), "signup") || !strings.Contains(string(outp), "stripe") {
+			return outp, errors.New("Signup or stripe can't be found")
+		}
+		return outp, nil
+	}, 60*time.Second)
+}
