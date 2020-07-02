@@ -581,6 +581,25 @@ func Commands() []*cli.Command {
 			},
 		},
 		{
+			Name:   "namespace",
+			Usage:  "Manage micro namespaces",
+			Action: Print(listNamespaces),
+			Subcommands: []*cli.Command{
+				{
+					Name:   "set",
+					Action: Print(setNamespace),
+				},
+				{
+					Name:   "add",
+					Action: Print(addNamespace),
+				},
+				{
+					Name:   "remove",
+					Action: Print(removeNamespace),
+				},
+			},
+		},
+		{
 			Name:  "file",
 			Usage: "Move files between your local machine and the server",
 			Subcommands: []*cli.Command{
