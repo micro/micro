@@ -10,13 +10,10 @@ import (
 	"strings"
 	"text/tabwriter"
 
-	"github.com/micro/micro/v2/client/cli/namespace"
-
 	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro/v2/client"
 	cbytes "github.com/micro/go-micro/v2/codec/bytes"
 	"github.com/micro/go-micro/v2/config/cmd"
-	"github.com/micro/go-micro/v2/registry"
 	"github.com/micro/go-micro/v2/util/file"
 	cliutil "github.com/micro/micro/v2/client/cli/util"
 	clic "github.com/micro/micro/v2/internal/command/cli"
@@ -145,103 +142,6 @@ func listEnvs(c *cli.Context, args []string) ([]byte, error) {
 	}
 	w.Flush()
 	return byt.Bytes(), nil
-}
-
-func listNamespaces(c *cli.Context, args []string) ([]byte, error) {
-	env := cliutil.GetEnv(c)
-
-	all, err := namespace.List(env.Name)
-	if err != nil {
-		return nil, err
-	}
-
-	current, err := namespace.Get(env.Name)
-	if err != nil {
-		return nil, err
-	}
-
-	byt := bytes.NewBuffer([]byte{})
-	w := tabwriter.NewWriter(byt, 0, 0, 1, ' ', 0)
-
-	for i, ns := range all {
-		if i > 0 {
-			fmt.Fprintf(w, "\n")
-		}
-
-		prefix := " "
-		if ns == current {
-			prefix = "*"
-		}
-
-		suffix := ""
-		if ns == registry.DefaultDomain {
-			suffix = "(default)"
-		}
-
-		fmt.Fprintf(w, "%v %v %v", prefix, ns, suffix)
-	}
-	w.Flush()
-	return byt.Bytes(), nil
-}
-
-func addNamespace(c *cli.Context, args []string) ([]byte, error) {
-	env := cliutil.GetEnv(c)
-
-	var ns string
-	if len(args) > 0 {
-		ns = args[0]
-	}
-
-	if err := namespace.Add(ns, env.Name); err != nil {
-		return nil, err
-	}
-
-	return []byte("Namespace " + ns + " added"), nil
-}
-
-func removeNamespace(c *cli.Context, args []string) ([]byte, error) {
-	env := cliutil.GetEnv(c)
-
-	var ns string
-	if len(args) > 0 {
-		ns = args[0]
-	}
-
-	if err := namespace.Remove(ns, env.Name); err != nil {
-		return nil, err
-	}
-
-	return []byte("Namespace " + ns + " removed"), nil
-}
-
-func setNamespace(c *cli.Context, args []string) ([]byte, error) {
-	env := cliutil.GetEnv(c)
-
-	var ns string
-	if len(args) > 0 {
-		ns = args[0]
-	}
-
-	if err := namespace.Set(ns, env.Name); err != nil {
-		return nil, err
-	}
-
-	return []byte("Namespace " + ns + " set"), nil
-}
-
-func addEnv(c *cli.Context, args []string) ([]byte, error) {
-	if len(args) == 0 {
-		return nil, errors.New("name required")
-	}
-	if len(args) == 1 {
-		args = append(args, "") // default to no proxy address
-	}
-
-	cliutil.AddEnv(cliutil.Env{
-		Name:         args[0],
-		ProxyAddress: args[1],
-	})
-	return nil, nil
 }
 
 // netCall calls services through the network
