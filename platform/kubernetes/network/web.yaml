@@ -37,9 +37,9 @@ spec:
               name: micro-secrets
               key: auth_public_key
         - name: MICRO_BROKER
-          value: "nats"
+          value: "service"
         - name: MICRO_BROKER_ADDRESS
-          value: "nats-cluster"
+          value: "micro-broker:8001"
         - name: MICRO_REGISTRY
           value: "service"
         - name: MICRO_REGISTRY_ADDRESS
@@ -52,6 +52,8 @@ spec:
           value: 'web.m3o.com'
         - name: MICRO_STORE
           value: "service"
+        - name: MICRO_STORE_ADDRESS
+          value: "micro-store:8002"
         - name: MICRO_STORE_DATABASE
           value: "micro"
         - name: MICRO_STORE_TABLE
