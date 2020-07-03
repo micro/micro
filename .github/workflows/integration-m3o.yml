@@ -42,5 +42,4 @@ jobs:
         MICRO_STRIPE_PLAN_ID: ${{ secrets.MICRO_STRIPE_PLAN_ID }}
         MICRO_EMAIL_FROM: ${{ secrets.MICRO_EMAIL_FROM }}
         MICRO_TEST_ENV: ${{ secrets.MICRO_TEST_ENV }}
-        MICRO_STRIPE_PAYMENT_METHOD_ID: ${{ secrets.MICRO_STRIPE_PAYMENT_METHOD_ID }}
         
