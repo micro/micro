@@ -188,7 +188,7 @@ type t struct {
 }
 
 func (t *t) Fatal(values ...interface{}) {
-	//t.Log(values...)
+	t.t.Log(values...)
 	t.failed = true
 	t.values = values
 }
@@ -198,7 +198,7 @@ func (t *t) Log(values ...interface{}) {
 }
 
 func (t *t) Fatalf(format string, values ...interface{}) {
-	//t.Log(fmt.Sprintf(format, values...))
+	t.t.Log(fmt.Sprintf(format, values...))
 	t.failed = true
 	t.values = values
 	t.format = format
