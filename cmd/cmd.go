@@ -12,7 +12,6 @@ import (
 	"github.com/micro/go-micro/v2/config/cmd"
 	gostore "github.com/micro/go-micro/v2/store"
 	"github.com/micro/micro/v2/plugin"
-	"github.com/micro/micro/v2/plugin/build"
 	"github.com/micro/micro/v2/server"
 	"github.com/micro/micro/v2/service"
 
@@ -58,9 +57,6 @@ var (
 )
 
 func init() {
-	// setup the build plugin
-	plugin.Register(build.Flags())
-
 	// set platform build date
 	platform.Version = BuildDate
 }
@@ -388,7 +384,6 @@ func Setup(app *ccli.App, options ...micro.Option) {
 	app.Commands = append(app.Commands, debug.Commands(options...)...)
 	app.Commands = append(app.Commands, server.Commands(options...)...)
 	app.Commands = append(app.Commands, service.Commands(options...)...)
-	app.Commands = append(app.Commands, build.Commands()...)
 	app.Commands = append(app.Commands, web.Commands(options...)...)
 
 	// add the init command for our internal operator
