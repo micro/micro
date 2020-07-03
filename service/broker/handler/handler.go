@@ -17,6 +17,15 @@ type Broker struct {
 func (b *Broker) Publish(ctx context.Context, req *pb.PublishRequest, rsp *pb.Empty) error {
 	ns := namespace.FromContext(ctx)
 
+	// authorize the request
+	if err := namespace.Authorize(ctx, ns); err == namespace.ErrForbidden {
+		return errors.Forbidden("go.micro.broker", err.Error())
+	} else if err == namespace.ErrUnauthorized {
+		return errors.Unauthorized("go.micro.broker", err.Error())
+	} else if err != nil {
+		return errors.InternalServerError("go.micro.broker", err.Error())
+	}
+
 	log.Debugf("Publishing message to %s topic in the %v namespace", req.Topic, ns)
 	err := b.Broker.Publish(ns+"."+req.Topic, &broker.Message{
 		Header: req.Message.Header,
@@ -32,6 +41,15 @@ func (b *Broker) Publish(ctx context.Context, req *pb.PublishRequest, rsp *pb.Em
 func (b *Broker) Subscribe(ctx context.Context, req *pb.SubscribeRequest, stream pb.Broker_SubscribeStream) error {
 	ns := namespace.FromContext(ctx)
 	errChan := make(chan error, 1)
+
+	// authorize the request
+	if err := namespace.Authorize(ctx, ns); err == namespace.ErrForbidden {
+		return errors.Forbidden("go.micro.broker", err.Error())
+	} else if err == namespace.ErrUnauthorized {
+		return errors.Unauthorized("go.micro.broker", err.Error())
+	} else if err != nil {
+		return errors.InternalServerError("go.micro.broker", err.Error())
+	}
 
 	// message handler to stream back messages from broker
 	handler := func(p broker.Event) error {
