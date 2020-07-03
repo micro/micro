@@ -4,9 +4,12 @@ package test
 
 import (
 	"errors"
+	"io"
+	"log"
 	"os"
 	"os/exec"
 	"strings"
+	"sync"
 	"testing"
 	"time"
 )
@@ -63,4 +66,45 @@ func testM3oSignupFlow(t *t) {
 		}
 		return outp, err
 	}, 40*time.Second)
+
+	cmd := exec.Command("micro", serv.envFlag(), "login")
+	stdin, err := cmd.StdinPipe()
+	if err != nil {
+		log.Fatal(err)
+	}
+	wg := sync.WaitGroup{}
+	wg.Add(1)
+	go func() {
+		outp, err := cmd.CombinedOutput()
+		if err != nil {
+			t.Fatal(err)
+		}
+		if strings.Contains(string(outp), "Success") {
+			t.Fatal(string(outp))
+		}
+		wg.Done()
+	}()
+	func() {
+		time.Sleep(15 * time.Second)
+		cmd.Process.Kill()
+	}()
+	_, err = io.WriteString(stdin, "dobronszki@gmail.com\n")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	try("logspammer logs", t, func() ([]byte, error) {
+		psCmd := exec.Command("micro", serv.envFlag(), "logs", "-n", "10", "signup")
+		outp, err = psCmd.CombinedOutput()
+		if err != nil {
+			return outp, err
+		}
+
+		if !strings.Contains(string(outp), "Listening on") || !strings.Contains(string(outp), "never stopping") {
+			return outp, errors.New("Output does not contain expected")
+		}
+		return outp, nil
+	}, 50*time.Second)
+
+	wg.Wait()
 }
