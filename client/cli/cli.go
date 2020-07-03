@@ -15,15 +15,14 @@ var (
 	prompt = "micro> "
 
 	commands = map[string]*command{
-		"quit":    {"quit", "Exit the CLI", quit},
-		"exit":    {"exit", "Exit the CLI", quit},
-		"call":    {"call", "Call a service", callService},
-		"list":    {"list", "List services, peers or routes", list},
-		"get":     {"get", "Get service info", getService},
-		"stream":  {"stream", "Stream a call to a service", streamService},
-		"publish": {"publish", "Publish a message to a topic", publish},
-		"health":  {"health", "Get service health", queryHealth},
-		"stats":   {"stats", "Get service stats", queryStats},
+		"quit":   {"quit", "Exit the CLI", quit},
+		"exit":   {"exit", "Exit the CLI", quit},
+		"call":   {"call", "Call a service", callService},
+		"list":   {"list", "List services, peers or routes", list},
+		"get":    {"get", "Get service info", getService},
+		"stream": {"stream", "Stream a call to a service", streamService},
+		"health": {"health", "Get service health", queryHealth},
+		"stats":  {"stats", "Get service stats", queryStats},
 	}
 )
 
@@ -512,18 +511,6 @@ func Commands() []*cli.Command {
 					Usage:   "Set the output format; json (default), raw",
 					EnvVars: []string{"MICRO_OUTPUT"},
 				},
-				&cli.StringSliceFlag{
-					Name:    "metadata",
-					Usage:   "A list of key-value pairs to be forwarded as metadata",
-					EnvVars: []string{"MICRO_METADATA"},
-				},
-			},
-		},
-		{
-			Name:   "publish",
-			Usage:  "Publish a message to a topic",
-			Action: Print(publish),
-			Flags: []cli.Flag{
 				&cli.StringSliceFlag{
 					Name:    "metadata",
 					Usage:   "A list of key-value pairs to be forwarded as metadata",
