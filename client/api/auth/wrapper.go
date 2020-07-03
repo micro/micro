@@ -65,10 +65,9 @@ func (a authWrapper) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	// account doesn't necesserially mean a forbidden request
 	acc, _ := a.auth.Inspect(token)
 
-	// Ensure the accounts issuer matches the namespace being requested
-	if acc != nil && len(acc.Issuer) > 0 && acc.Issuer != ns {
-		http.Error(w, "Account not issued by "+ns, 403)
-		return
+	// Ensure accounts only issued by the namesace are valid
+	if acc != nil && acc.Issuer != ns {
+		acc = nil
 	}
 
 	// Determine the name of the service being requested
