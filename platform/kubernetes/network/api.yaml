@@ -13,7 +13,7 @@ metadata:
     owner: "micro"
     group: "micro"
 spec:
-  replicas: 3
+  replicas: 1
   selector:
     matchLabels:
       name: micro-api
@@ -33,13 +33,13 @@ spec:
         env:
         - name: MICRO_AUTH
           value: "service"
+        - name: MICRO_AUTH_ADDRESS
+          value: "micro-auth:8010"
         - name: MICRO_AUTH_PUBLIC_KEY
           valueFrom:
             secretKeyRef:
-              name: micro-keypair
-              key: public
-        - name: MICRO_API_NAMESPACE
-          value: "domain"
+              name: micro-secrets
+              key: auth_public_key
         - name: MICRO_ENABLE_STATS
           value: "true"
         - name: MICRO_BROKER
@@ -49,17 +49,13 @@ spec:
         - name: MICRO_REGISTRY
           value: "etcd"
         - name: MICRO_REGISTRY_ADDRESS
-          value: "etcd-cluster-client"
-        - name: MICRO_REGISTER_TTL
-          value: "60"
-        - name: MICRO_REGISTER_INTERVAL
-          value: "30"
+          value: "etcd-cluster"
         - name: MICRO_ENABLE_ACME
           value: "true"
         - name: MICRO_ACME_PROVIDER
           value: certmagic
         - name: MICRO_ACME_HOSTS
-          value: '*.micro.mu,*.cloud.micro.mu,micro.mu'
+          value: 'api.m3o.com'
         - name: MICRO_STORE
           value: "service"
         - name: MICRO_STORE_DATABASE
@@ -69,8 +65,8 @@ spec:
         - name: CF_API_TOKEN
           valueFrom:
             secretKeyRef:
-              key: CF_API_TOKEN
-              name: cloudflare-credentials
+              key: cloudflare
+              name: micro-secrets
         args:
         - api
         image: micro/micro

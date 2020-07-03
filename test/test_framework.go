@@ -153,7 +153,6 @@ func (s server) launch() {
 	try("Calling micro server", s.t, func() ([]byte, error) {
 		outp, err := exec.Command("micro", s.envFlag(), "list", "services").CombinedOutput()
 		if !strings.Contains(string(outp), "runtime") ||
-			!strings.Contains(string(outp), "router") ||
 			!strings.Contains(string(outp), "registry") ||
 			!strings.Contains(string(outp), "api") ||
 			!strings.Contains(string(outp), "broker") ||
