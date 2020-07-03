@@ -23,7 +23,7 @@ var (
             <div class="row">
                 <div class="col-md-8">
                     <h1>{{title .Alias}} {{title .Type}}</h1>
-                    <form class="{{.Alias}}">
+                    <form class="{{dehyphen .Alias}}">
                         <div class="form-group">
                             <label>Enter your name</label>
                             <input type=text class="form-control" id="name" name="name" placeholder="John">
@@ -45,10 +45,10 @@ var (
 
         <!-- You may want to store this in a separate file -->
         <script type="text/javascript">
-            $(".{{.Alias}}").submit(function(e) {
+            $(".{{dehyphen .Alias}}").submit(function(e) {
                 e.preventDefault();
 
-		var url = window.location.href.replace(/\/$/, "") + "/{{.Alias}}/call";
+		var url = window.location.href.replace(/\/$/, "") + "/{{dehyphen .Alias}}/call";
                 var data = $(this).serializeArray()[0];
                 var name = data.value;
                 if (name.length == 0) {

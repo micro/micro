@@ -1,16 +1,19 @@
 package server
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
 
 	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro/v2"
+	"github.com/micro/go-micro/v2/client"
 	"github.com/micro/go-micro/v2/config/cmd"
 	log "github.com/micro/go-micro/v2/logger"
 	gorun "github.com/micro/go-micro/v2/runtime"
-	handler "github.com/micro/go-micro/v2/util/file"
+	"github.com/micro/go-micro/v2/util/file"
+	ccli "github.com/micro/micro/v2/client/cli"
 	"github.com/micro/micro/v2/internal/platform"
 	"github.com/micro/micro/v2/internal/update"
 )
@@ -26,7 +29,6 @@ var (
 		"registry", // :8000
 		"broker",   // :8001
 		"store",    // :8002
-		"router",   // :8084
 		"debug",    // :????
 		"proxy",    // :8081
 		"api",      // :8080
@@ -42,6 +44,19 @@ var (
 	// Address is the router microservice bind address
 	Address = ":10001"
 )
+
+// upload is used for file uploads to the server
+func upload(ctx *cli.Context, args []string) ([]byte, error) {
+	if ctx.Args().Len() == 0 {
+		return nil, errors.New("Required filename to upload")
+	}
+
+	filename := ctx.Args().Get(0)
+	localfile := ctx.Args().Get(1)
+
+	fileClient := file.New("go.micro.server", client.DefaultClient)
+	return nil, fileClient.Upload(filename, localfile)
+}
 
 func Commands(options ...micro.Option) []*cli.Command {
 	command := &cli.Command{
@@ -69,6 +84,16 @@ func Commands(options ...micro.Option) []*cli.Command {
 			Run(ctx)
 			return nil
 		},
+		Subcommands: []*cli.Command{{
+			Name:  "file",
+			Usage: "Move files between your local machine and the server",
+			Subcommands: []*cli.Command{
+				{
+					Name:   "upload",
+					Action: ccli.Print(upload),
+				},
+			},
+		}},
 	}
 
 	for _, p := range Plugins() {
@@ -155,7 +180,7 @@ func Run(context *cli.Context) error {
 		switch service {
 		case "proxy", "web", "api":
 			envs = append(envs, "MICRO_AUTH=service")
-			envs = append(envs, "MICRO_ROUTER=service")
+			envs = append(envs, "MICRO_REGISTRY=service")
 		}
 
 		cmdArgs := []string{}
@@ -175,12 +200,13 @@ func Run(context *cli.Context) error {
 			gorun.WithEnv(envs),
 			gorun.WithOutput(os.Stdout),
 			gorun.WithRetries(10),
+			gorun.CreateImage("micro/micro"),
 		}
 
 		// NOTE: we use Version right now to check for the latest release
 		muService := &gorun.Service{Name: name, Version: platform.Version}
 		if err := (*muRuntime).Create(muService, args...); err != nil {
-			log.Errorf("Failed to create runtime enviroment: %v", err)
+			log.Errorf("Failed to create runtime environment: %v", err)
 			return err
 		}
 	}
@@ -207,7 +233,7 @@ func Run(context *cli.Context) error {
 	// @todo make this configurable
 	uploadDir := filepath.Join(os.TempDir(), "micro", "uploads")
 	os.MkdirAll(uploadDir, 0777)
-	handler.RegisterHandler(server.Server(), uploadDir)
+	file.RegisterHandler(server.Server(), uploadDir)
 	// start the server
 	server.Run()
 

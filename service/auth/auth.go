@@ -15,7 +15,6 @@ import (
 	"github.com/micro/go-micro/v2/auth/token"
 	"github.com/micro/go-micro/v2/auth/token/jwt"
 	"github.com/micro/go-micro/v2/config/cmd"
-	"github.com/micro/go-micro/v2/errors"
 	log "github.com/micro/go-micro/v2/logger"
 	cliutil "github.com/micro/micro/v2/client/cli/util"
 	"github.com/micro/micro/v2/internal/client"
@@ -246,29 +245,6 @@ func login(ctx *cli.Context) {
 	// @todo save the namespace from the last call and use that.
 }
 
-// whoami returns info about the logged in user
-func whoami(ctx *cli.Context) {
-	// Get the token from micro config
-	env, _ := config.Get("env")
-	tok, err := config.Get("micro", "auth", env, "token")
-	if err != nil {
-		fmt.Println("You are not logged in")
-		os.Exit(1)
-	}
-
-	// Inspect the token
-	acc, err := authFromContext(ctx).Inspect(tok)
-	if verr, ok := err.(*errors.Error); ok {
-		fmt.Println("Error: " + verr.Detail)
-		return
-	} else if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
-
-	fmt.Printf("ID: %v; Scopes: %v\n", acc.ID, strings.Join(acc.Scopes, ", "))
-}
-
 //Commands for auth
 func Commands(srvOpts ...micro.Option) []*cli.Command {
 	commands := []*cli.Command{
@@ -368,14 +344,6 @@ func Commands(srvOpts ...micro.Option) []*cli.Command {
 					Name:  "token",
 					Usage: "The token to set",
 				},
-			},
-		},
-		{
-			Name:  "whoami",
-			Usage: "Account information",
-			Action: func(ctx *cli.Context) error {
-				whoami(ctx)
-				return nil
 			},
 		},
 	}

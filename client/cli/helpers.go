@@ -14,7 +14,6 @@ import (
 	"github.com/micro/go-micro/v2/client"
 	cbytes "github.com/micro/go-micro/v2/codec/bytes"
 	"github.com/micro/go-micro/v2/config/cmd"
-	"github.com/micro/go-micro/v2/util/file"
 	cliutil "github.com/micro/micro/v2/client/cli/util"
 	clic "github.com/micro/micro/v2/internal/command/cli"
 )
@@ -220,16 +219,4 @@ func queryHealth(c *cli.Context, args []string) ([]byte, error) {
 
 func queryStats(c *cli.Context, args []string) ([]byte, error) {
 	return clic.QueryStats(c, args)
-}
-
-func upload(ctx *cli.Context, args []string) ([]byte, error) {
-	if ctx.Args().Len() == 0 {
-		return nil, errors.New("Required filename to upload")
-	}
-
-	filename := ctx.Args().Get(0)
-	localfile := ctx.Args().Get(1)
-
-	fileClient := file.New("go.micro.server", client.DefaultClient)
-	return nil, fileClient.Upload(filename, localfile)
 }

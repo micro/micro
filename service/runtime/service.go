@@ -35,7 +35,7 @@ const (
 	// UpdateUsage message for the update command
 	UpdateUsage = "Update a service: micro update [source]"
 	// GetUsage message for micro get command
-	GetUsage = "List runtime objects"
+	GetUsage = "List the running services"
 	// ServicesUsage message for micro services command
 	ServicesUsage = "micro services"
 	// CannotWatch message for the run command
