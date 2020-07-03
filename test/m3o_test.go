@@ -12,6 +12,9 @@ import (
 	"sync"
 	"testing"
 	"time"
+
+	"github.com/stripe/stripe-go"
+	"github.com/stripe/stripe-go/token"
 )
 
 func TestM3oSignupFlow(t *testing.T) {
@@ -65,7 +68,7 @@ func testM3oSignupFlow(t *t) {
 			return outp, errors.New("Can't find sign or stripe in list")
 		}
 		return outp, err
-	}, 40*time.Second)
+	}, 50*time.Second)
 
 	cmd := exec.Command("micro", serv.envFlag(), "login")
 	stdin, err := cmd.StdinPipe()
@@ -77,14 +80,14 @@ func testM3oSignupFlow(t *t) {
 	go func() {
 		outp, err := cmd.CombinedOutput()
 		if err != nil {
-			t.Fatal(err)
+			t.Fatal(string(outp), err)
 		}
-		if strings.Contains(string(outp), "Success") {
+		if !strings.Contains(string(outp), "Success") {
 			t.Fatal(string(outp))
 		}
 		wg.Done()
 	}()
-	func() {
+	go func() {
 		time.Sleep(15 * time.Second)
 		cmd.Process.Kill()
 	}()
@@ -93,18 +96,51 @@ func testM3oSignupFlow(t *t) {
 		t.Fatal(err)
 	}
 
-	try("logspammer logs", t, func() ([]byte, error) {
+	code := ""
+	try("Find verification token in logs", t, func() ([]byte, error) {
 		psCmd := exec.Command("micro", serv.envFlag(), "logs", "-n", "10", "signup")
 		outp, err = psCmd.CombinedOutput()
 		if err != nil {
 			return outp, err
 		}
-
-		if !strings.Contains(string(outp), "Listening on") || !strings.Contains(string(outp), "never stopping") {
+		if !strings.Contains(string(outp), "Sending verification token") {
 			return outp, errors.New("Output does not contain expected")
+		}
+		for _, line := range strings.Split(string(outp), "\n") {
+			if strings.Contains(line, "Sending verification token") {
+				code = strings.Split(line, "'")[1]
+			}
 		}
 		return outp, nil
 	}, 50*time.Second)
 
+	_, err = io.WriteString(stdin, code+"\n")
+	if err != nil {
+		t.Fatal(err)
+	}
+	time.Sleep(3 * time.Second)
+
+	params := &stripe.TokenParams{
+		Card: &stripe.CardParams{
+			Number:   stripe.String("4242424242424242"),
+			ExpMonth: stripe.String("12"),
+			ExpYear:  stripe.String("2021"),
+			CVC:      stripe.String("123"),
+		},
+	}
+	tok, err := token.New(params)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	_, err = io.WriteString(stdin, tok.ID+"\n")
+	if err != nil {
+		t.Fatal(err)
+	}
+	// Don't wait if a test is already failed, this is a quirk of the
+	// test framework @todo fix this quirk
+	if t.failed {
+		return
+	}
 	wg.Wait()
 }
