@@ -29,13 +29,12 @@ func testM3oSignupFlow(t *t) {
 	defer serv.close()
 
 	envToConfigKey := map[string]string{
-		"MICRO_STRIPE_API_KEY":           "micro.payments.stripe.api_key",
-		"MICRO_SENDGRID_API_KEY":         "micro.signup.sendgrid.api_key",
-		"MICRO_SENDGRID_TEMPLATE_ID":     "micro.signup.sendgrid.template_id",
-		"MICRO_STRIPE_PLAN_ID":           "micro.signup.plan_id",
-		"MICRO_EMAIL_FROM":               "micro.signup.email_from",
-		"MICRO_TEST_ENV":                 "micro.signup.test_env",
-		"MICRO_STRIPE_PAYMENT_METHOD_ID": "micro.signup.test_payment_method",
+		"MICRO_STRIPE_API_KEY":       "micro.payments.stripe.api_key",
+		"MICRO_SENDGRID_API_KEY":     "micro.signup.sendgrid.api_key",
+		"MICRO_SENDGRID_TEMPLATE_ID": "micro.signup.sendgrid.template_id",
+		"MICRO_STRIPE_PLAN_ID":       "micro.signup.plan_id",
+		"MICRO_EMAIL_FROM":           "micro.signup.email_from",
+		"MICRO_TEST_ENV":             "micro.signup.test_env",
 	}
 
 	for envKey, configKey := range envToConfigKey {
