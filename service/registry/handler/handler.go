@@ -5,12 +5,12 @@ import (
 	"time"
 
 	"github.com/micro/go-micro/v2"
-	"github.com/micro/go-micro/v2/auth"
 	"github.com/micro/go-micro/v2/errors"
 	log "github.com/micro/go-micro/v2/logger"
 	"github.com/micro/go-micro/v2/registry"
 	"github.com/micro/go-micro/v2/registry/service"
 	pb "github.com/micro/go-micro/v2/registry/service/proto"
+	"github.com/micro/micro/v2/internal/namespace"
 )
 
 type Registry struct {
@@ -62,8 +62,12 @@ func (r *Registry) GetService(ctx context.Context, req *pb.GetRequest, rsp *pb.G
 	}
 
 	// authorize the request
-	if err := authorizeDomainAccess(ctx, options.Domain); err != nil {
-		return err
+	if err := namespace.Authorize(ctx, options.Domain); err == namespace.ErrForbidden {
+		return errors.Forbidden("go.micro.registry", err.Error())
+	} else if err == namespace.ErrUnauthorized {
+		return errors.Unauthorized("go.micro.registry", err.Error())
+	} else if err != nil {
+		return errors.InternalServerError("go.micro.registry", err.Error())
 	}
 
 	// get the services in the namespace
@@ -98,11 +102,15 @@ func (r *Registry) Register(ctx context.Context, req *pb.Service, rsp *pb.EmptyR
 	} else {
 		domain = registry.DefaultDomain
 	}
-	opts = append(opts, registry.RegisterDomain(req.Options.Domain))
+	opts = append(opts, registry.RegisterDomain(domain))
 
 	// authorize the request
-	if err := authorizeDomainAccess(ctx, domain); err != nil {
-		return err
+	if err := namespace.Authorize(ctx, domain); err == namespace.ErrForbidden {
+		return errors.Forbidden("go.micro.registry", err.Error())
+	} else if err == namespace.ErrUnauthorized {
+		return errors.Unauthorized("go.micro.registry", err.Error())
+	} else if err != nil {
+		return errors.InternalServerError("go.micro.registry", err.Error())
 	}
 
 	// register the service
@@ -127,8 +135,12 @@ func (r *Registry) Deregister(ctx context.Context, req *pb.Service, rsp *pb.Empt
 	}
 
 	// authorize the request
-	if err := authorizeDomainAccess(ctx, domain); err != nil {
-		return err
+	if err := namespace.Authorize(ctx, domain); err == namespace.ErrForbidden {
+		return errors.Forbidden("go.micro.registry", err.Error())
+	} else if err == namespace.ErrUnauthorized {
+		return errors.Unauthorized("go.micro.registry", err.Error())
+	} else if err != nil {
+		return errors.InternalServerError("go.micro.registry", err.Error())
 	}
 
 	// deregister the service
@@ -153,8 +165,12 @@ func (r *Registry) ListServices(ctx context.Context, req *pb.ListRequest, rsp *p
 	}
 
 	// authorize the request
-	if err := authorizeDomainAccess(ctx, domain); err != nil {
-		return err
+	if err := namespace.Authorize(ctx, domain); err == namespace.ErrForbidden {
+		return errors.Forbidden("go.micro.registry", err.Error())
+	} else if err == namespace.ErrUnauthorized {
+		return errors.Unauthorized("go.micro.registry", err.Error())
+	} else if err != nil {
+		return errors.InternalServerError("go.micro.registry", err.Error())
 	}
 
 	// list the services from the registry
@@ -183,8 +199,12 @@ func (r *Registry) Watch(ctx context.Context, req *pb.WatchRequest, rsp pb.Regis
 	}
 
 	// authorize the request
-	if err := authorizeDomainAccess(ctx, domain); err != nil {
-		return err
+	if err := namespace.Authorize(ctx, domain); err == namespace.ErrForbidden {
+		return errors.Forbidden("go.micro.registry", err.Error())
+	} else if err == namespace.ErrUnauthorized {
+		return errors.Unauthorized("go.micro.registry", err.Error())
+	} else if err != nil {
+		return errors.InternalServerError("go.micro.registry", err.Error())
 	}
 
 	// setup the watcher
@@ -207,33 +227,4 @@ func (r *Registry) Watch(ctx context.Context, req *pb.WatchRequest, rsp pb.Regis
 			return errors.InternalServerError("go.micro.registry", err.Error())
 		}
 	}
-}
-
-// authorizeDomainAccess will return a go-micro error if the context cannot access the given domain
-func authorizeDomainAccess(ctx context.Context, domain string) error {
-	acc, ok := auth.AccountFromContext(ctx)
-
-	// accounts are always required so we can identify the caller. If auth is not configured, the noop
-	// auth implementation will return a blank account with the default domain set, allowing the caller
-	// access to all resources
-	if !ok {
-		return errors.Unauthorized("go.micro.registry", "An account is required")
-	}
-
-	// anyone can access the default domain
-	if domain == registry.DefaultDomain {
-		return nil
-	}
-
-	// the server can access all domains
-	if acc.Issuer == registry.DefaultDomain {
-		return nil
-	}
-
-	// ensure the account is requesing access to it's own domain
-	if acc.Issuer != domain {
-		return errors.Forbidden("go.micro.registry", "An account issued by %v is required", domain)
-	}
-
-	return nil
 }
