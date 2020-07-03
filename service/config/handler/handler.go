@@ -7,7 +7,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/micro/go-micro/v2/auth"
 	"github.com/micro/go-micro/v2/client"
 	cr "github.com/micro/go-micro/v2/config/reader"
 	jr "github.com/micro/go-micro/v2/config/reader/json"
@@ -15,6 +14,7 @@ import (
 	pb "github.com/micro/go-micro/v2/config/source/service/proto"
 	"github.com/micro/go-micro/v2/errors"
 	"github.com/micro/go-micro/v2/store"
+	"github.com/micro/micro/v2/internal/namespace"
 )
 
 const (
@@ -35,36 +35,18 @@ type Config struct {
 	Store store.Store
 }
 
-// authorizeNamespaceAccess returns an error if the context doesn't have access to the namespace
-// being requested. The shared namespace "micro" is open to all.
-func authorizeNamespaceAccess(ctx context.Context, ns string) error {
-	// anyone can access the micro namespace
-	if ns == DefaultNamespace {
-		return nil
-	}
-
-	// an account is required to read from any non-micro namespace
-	acc, ok := auth.AccountFromContext(ctx)
-	if !ok {
-		return errors.Unauthorized("go.micro.config", "An account is required to read config from the %v namespace", ns)
-	}
-
-	// the account wasn't issued by the namespace that's being requested
-	if acc.Issuer != ns {
-		return errors.Forbidden("go.micro.config", "An account issued by %v is required", ns)
-	}
-
-	return nil
-}
-
 func (c *Config) Read(ctx context.Context, req *pb.ReadRequest, rsp *pb.ReadResponse) error {
 	if len(req.Namespace) == 0 {
 		req.Namespace = DefaultNamespace
 	}
 
 	// authorize the request
-	if err := authorizeNamespaceAccess(ctx, req.Namespace); err != nil {
-		return err
+	if err := namespace.Authorize(ctx, req.Namespace); err == namespace.ErrForbidden {
+		return errors.Forbidden("go.micro.config", err.Error())
+	} else if err == namespace.ErrUnauthorized {
+		return errors.Unauthorized("go.micro.config", err.Error())
+	} else if err != nil {
+		return errors.InternalServerError("go.micro.config", err.Error())
 	}
 
 	ch, err := c.Store.Read(req.Namespace)
@@ -118,8 +100,12 @@ func (c *Config) Create(ctx context.Context, req *pb.CreateRequest, rsp *pb.Crea
 	}
 
 	// authorize the request
-	if err := authorizeNamespaceAccess(ctx, req.Change.Namespace); err != nil {
-		return err
+	if err := namespace.Authorize(ctx, req.Change.Namespace); err == namespace.ErrForbidden {
+		return errors.Forbidden("go.micro.config", err.Error())
+	} else if err == namespace.ErrUnauthorized {
+		return errors.Unauthorized("go.micro.config", err.Error())
+	} else if err != nil {
+		return errors.InternalServerError("go.micro.config", err.Error())
 	}
 
 	if len(req.Change.Path) > 0 {
@@ -167,9 +153,13 @@ func (c *Config) Update(ctx context.Context, req *pb.UpdateRequest, rsp *pb.Upda
 		req.Change.Namespace = DefaultNamespace
 	}
 
-	// authorize the namespace
-	if err := authorizeNamespaceAccess(ctx, req.Change.Namespace); err != nil {
-		return err
+	// authorize the request
+	if err := namespace.Authorize(ctx, req.Change.Namespace); err == namespace.ErrForbidden {
+		return errors.Forbidden("go.micro.config", err.Error())
+	} else if err == namespace.ErrUnauthorized {
+		return errors.Unauthorized("go.micro.config", err.Error())
+	} else if err != nil {
+		return errors.InternalServerError("go.micro.config", err.Error())
 	}
 
 	// set the changeset timestamp
@@ -274,8 +264,12 @@ func (c *Config) Delete(ctx context.Context, req *pb.DeleteRequest, rsp *pb.Dele
 	}
 
 	// authorize the request
-	if err := authorizeNamespaceAccess(ctx, req.Change.Namespace); err != nil {
-		return err
+	if err := namespace.Authorize(ctx, req.Change.Namespace); err == namespace.ErrForbidden {
+		return errors.Forbidden("go.micro.config", err.Error())
+	} else if err == namespace.ErrUnauthorized {
+		return errors.Unauthorized("go.micro.config", err.Error())
+	} else if err != nil {
+		return errors.InternalServerError("go.micro.config", err.Error())
 	}
 
 	if req.Change.ChangeSet == nil {
@@ -359,8 +353,12 @@ func (c *Config) List(ctx context.Context, req *pb.ListRequest, rsp *pb.ListResp
 	}
 
 	// authorize the request
-	if err := authorizeNamespaceAccess(ctx, req.Namespace); err != nil {
-		return err
+	if err := namespace.Authorize(ctx, req.Namespace); err == namespace.ErrForbidden {
+		return errors.Forbidden("go.micro.config", err.Error())
+	} else if err == namespace.ErrUnauthorized {
+		return errors.Unauthorized("go.micro.config", err.Error())
+	} else if err != nil {
+		return errors.InternalServerError("go.micro.config", err.Error())
 	}
 
 	list, err := c.Store.List(store.ListPrefix(req.Namespace))
@@ -396,8 +394,12 @@ func (c *Config) Watch(ctx context.Context, req *pb.WatchRequest, stream pb.Conf
 	}
 
 	// authorize the request
-	if err := authorizeNamespaceAccess(ctx, req.Namespace); err != nil {
-		return err
+	if err := namespace.Authorize(ctx, req.Namespace); err == namespace.ErrForbidden {
+		return errors.Forbidden("go.micro.config", err.Error())
+	} else if err == namespace.ErrUnauthorized {
+		return errors.Unauthorized("go.micro.config", err.Error())
+	} else if err != nil {
+		return errors.InternalServerError("go.micro.config", err.Error())
 	}
 
 	watch, err := Watch(req.Namespace)
