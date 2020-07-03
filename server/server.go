@@ -181,7 +181,7 @@ func Run(context *cli.Context) error {
 		switch service {
 		case "proxy", "web", "api":
 			envs = append(envs, "MICRO_AUTH=service")
-			envs = append(envs, "MICRO_ROUTER=service")
+			envs = append(envs, "MICRO_REGISTRY=service")
 		}
 
 		cmdArgs := []string{}
