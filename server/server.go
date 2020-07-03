@@ -29,7 +29,6 @@ var (
 		"registry", // :8000
 		"broker",   // :8001
 		"store",    // :8002
-		"router",   // :8084
 		"debug",    // :????
 		"proxy",    // :8081
 		"api",      // :8080
@@ -181,7 +180,7 @@ func Run(context *cli.Context) error {
 		switch service {
 		case "proxy", "web", "api":
 			envs = append(envs, "MICRO_AUTH=service")
-			envs = append(envs, "MICRO_ROUTER=service")
+			envs = append(envs, "MICRO_REGISTRY=service")
 		}
 
 		cmdArgs := []string{}
