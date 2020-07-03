@@ -326,7 +326,26 @@ func Init(options ...micro.Option) {
 	)
 }
 
-var commandOrder = []string{"server", "new", "env", "login", "run", "logs", "call", "update", "kill", "store", "config", "auth", "status", "stream", "file"}
+var (
+	// order in which commands are displayed
+	commandOrder = []string{
+		"server",
+		"new",
+		"env",
+		"login",
+		"run",
+		"logs",
+		"call",
+		"update",
+		"kill",
+		"store",
+		"config",
+		"auth",
+		"status",
+		"stream",
+		"file",
+	}
+)
 
 type commands []*ccli.Command
 
