@@ -6,27 +6,24 @@ import (
 	"os"
 	"strings"
 
+	"github.com/chzyer/readline"
 	"github.com/micro/cli/v2"
 	storecli "github.com/micro/micro/v2/service/store/cli"
-
-	"github.com/chzyer/readline"
 )
 
 var (
 	prompt = "micro> "
 
 	commands = map[string]*command{
-		"quit":       {"quit", "Exit the CLI", quit},
-		"exit":       {"exit", "Exit the CLI", quit},
-		"call":       {"call", "Call a service", callService},
-		"list":       {"list", "List services, peers or routes", list},
-		"get":        {"get", "Get service info", getService},
-		"stream":     {"stream", "Stream a call to a service", streamService},
-		"publish":    {"publish", "Publish a message to a topic", publish},
-		"health":     {"health", "Get service health", queryHealth},
-		"stats":      {"stats", "Get service stats", queryStats},
-		"register":   {"register", "Register a service", registerService},
-		"deregister": {"deregister", "Deregister a service", deregisterService},
+		"quit":    {"quit", "Exit the CLI", quit},
+		"exit":    {"exit", "Exit the CLI", quit},
+		"call":    {"call", "Call a service", callService},
+		"list":    {"list", "List services, peers or routes", list},
+		"get":     {"get", "Get service info", getService},
+		"stream":  {"stream", "Stream a call to a service", streamService},
+		"publish": {"publish", "Publish a message to a topic", publish},
+		"health":  {"health", "Get service health", queryHealth},
+		"stats":   {"stats", "Get service stats", queryStats},
 	}
 )
 
@@ -270,28 +267,6 @@ func RegistryCommands() []*cli.Command {
 					Name:   "services",
 					Usage:  "List services in registry",
 					Action: Print(listServices),
-				},
-			},
-		},
-		{
-			Name:  "register",
-			Usage: "Register an item in the registry",
-			Subcommands: []*cli.Command{
-				{
-					Name:   "service",
-					Usage:  "Register a service with JSON definition",
-					Action: Print(registerService),
-				},
-			},
-		},
-		{
-			Name:  "deregister",
-			Usage: "Deregister an item in the registry",
-			Subcommands: []*cli.Command{
-				{
-					Name:   "service",
-					Usage:  "Deregister a service with JSON definition",
-					Action: Print(deregisterService),
 				},
 			},
 		},
