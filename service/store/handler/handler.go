@@ -2,7 +2,9 @@ package handler
 
 import (
 	"context"
+	"fmt"
 	"io"
+	"reflect"
 	"strings"
 	"sync"
 	"time"
@@ -114,10 +116,18 @@ func (s *Store) Read(ctx context.Context, req *pb.ReadRequest, rsp *pb.ReadRespo
 	}
 
 	for _, val := range vals {
+		metadata := make(map[string]*pb.Field)
+		for k, v := range val.Metadata {
+			metadata[k] = &pb.Field{
+				Type:  reflect.TypeOf(v).String(),
+				Value: fmt.Sprintf("%v", v),
+			}
+		}
 		rsp.Records = append(rsp.Records, &pb.Record{
-			Key:    val.Key,
-			Value:  val.Value,
-			Expiry: int64(val.Expiry.Seconds()),
+			Key:      val.Key,
+			Value:    val.Value,
+			Expiry:   int64(val.Expiry.Seconds()),
+			Metadata: metadata,
 		})
 	}
 	return nil
@@ -142,10 +152,16 @@ func (s *Store) Write(ctx context.Context, req *pb.WriteRequest, rsp *pb.WriteRe
 		return errors.BadRequest("go.micro.store", "no record specified")
 	}
 
+	metadata := make(map[string]interface{})
+	for k, v := range req.Record.Metadata {
+		metadata[k] = v.Value
+	}
+
 	record := &store.Record{
-		Key:    req.Record.Key,
-		Value:  req.Record.Value,
-		Expiry: time.Duration(req.Record.Expiry) * time.Second,
+		Key:      req.Record.Key,
+		Value:    req.Record.Value,
+		Expiry:   time.Duration(req.Record.Expiry) * time.Second,
+		Metadata: metadata,
 	}
 
 	var opts []store.WriteOption
