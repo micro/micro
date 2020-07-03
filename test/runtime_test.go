@@ -15,58 +15,6 @@ import (
 	"time"
 )
 
-func TestNew(t *testing.T) {
-	trySuite(t, testNew, retryCount)
-}
-
-func testNew(t *t) {
-	t.Parallel()
-	defer func() {
-		exec.Command("rm", "-r", "./foobar").CombinedOutput()
-	}()
-	outp, err := exec.Command("micro", "new", "foobar").CombinedOutput()
-	if err != nil {
-		t.Fatal(err)
-		return
-	}
-	if !strings.Contains(string(outp), "protoc") {
-		t.Fatalf("micro new lacks 	protobuf install instructions %v", string(outp))
-		return
-	}
-
-	lines := strings.Split(string(outp), "\n")
-	// executing install instructions
-	for _, line := range lines {
-		if strings.HasPrefix(line, "go get") {
-			parts := strings.Split(line, " ")
-			getOutp, getErr := exec.Command(parts[0], parts[1:]...).CombinedOutput()
-			if getErr != nil {
-				t.Fatal(string(getOutp))
-				return
-			}
-		}
-		if strings.HasPrefix(line, "make proto") {
-			mp := strings.Split(line, " ")
-			protocCmd := exec.Command(mp[0], mp[1:]...)
-			protocCmd.Dir = "./foobar"
-			pOutp, pErr := protocCmd.CombinedOutput()
-			if pErr != nil {
-				t.Log("That didn't work ", pErr)
-				t.Fatal(string(pOutp))
-				return
-			}
-		}
-	}
-
-	buildCommand := exec.Command("go", "build")
-	buildCommand.Dir = "./foobar"
-	outp, err = buildCommand.CombinedOutput()
-	if err != nil {
-		t.Fatal(string(outp))
-		return
-	}
-}
-
 func TestServerModeCall(t *testing.T) {
 	trySuite(t, testServerModeCall, retryCount)
 }
