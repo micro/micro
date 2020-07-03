@@ -183,7 +183,6 @@ func login(ctx *cli.Context) {
 		Email: email,
 	})
 	if err != nil {
-		fmt.Println("calling signup service")
 		fmt.Println(err)
 		os.Exit(1)
 	}
