@@ -555,16 +555,6 @@ func Commands() []*cli.Command {
 				},
 			},
 		},
-		{
-			Name:  "file",
-			Usage: "Move files between your local machine and the server",
-			Subcommands: []*cli.Command{
-				{
-					Name:   "upload",
-					Action: Print(upload),
-				},
-			},
-		},
 	}
 
 	return append(commands, RegistryCommands()...)
