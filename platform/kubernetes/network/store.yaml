@@ -34,7 +34,7 @@ spec:
               name: micro-secrets
               key: auth_private_key
         - name: MICRO_SERVER_ADDRESS
-          value: "0.0.0.0:8082"
+          value: "0.0.0.0:8002"
         - name: MICRO_LOG_LEVEL
           value: "debug"
         - name: MICRO_BROKER
@@ -55,5 +55,5 @@ spec:
         - /micro
         - store
         ports:
-        - containerPort: 8082
+        - containerPort: 8002
           name: service
