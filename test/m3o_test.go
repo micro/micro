@@ -13,8 +13,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/stripe/stripe-go"
-	"github.com/stripe/stripe-go/token"
+	"github.com/stripe/stripe-go/v71"
+	stripe_client "github.com/stripe/stripe-go/v71/client"
 )
 
 func TestM3oSignupFlow(t *testing.T) {
@@ -68,7 +68,12 @@ func testM3oSignupFlow(t *t) {
 			return outp, errors.New("Can't find sign or stripe in list")
 		}
 		return outp, err
-	}, 50*time.Second)
+	}, 70*time.Second)
+	if t.failed {
+		return
+	}
+
+	time.Sleep(5 * time.Second)
 
 	cmd := exec.Command("micro", serv.envFlag(), "login")
 	stdin, err := cmd.StdinPipe()
@@ -88,7 +93,7 @@ func testM3oSignupFlow(t *t) {
 		wg.Done()
 	}()
 	go func() {
-		time.Sleep(15 * time.Second)
+		time.Sleep(20 * time.Second)
 		cmd.Process.Kill()
 	}()
 	_, err = io.WriteString(stdin, "dobronszki@gmail.com\n")
@@ -114,26 +119,31 @@ func testM3oSignupFlow(t *t) {
 		return outp, nil
 	}, 50*time.Second)
 
+	t.Log("Code is ", code)
 	_, err = io.WriteString(stdin, code+"\n")
 	if err != nil {
 		t.Fatal(err)
 	}
-	time.Sleep(3 * time.Second)
 
-	params := &stripe.TokenParams{
-		Card: &stripe.CardParams{
-			Number:   stripe.String("4242424242424242"),
-			ExpMonth: stripe.String("12"),
-			ExpYear:  stripe.String("2021"),
-			CVC:      stripe.String("123"),
-		},
-	}
-	tok, err := token.New(params)
+	time.Sleep(5 * time.Second)
+
+	sc := stripe_client.New(os.Getenv("MICRO_STRIPE_API_KEY"), nil)
+	pm, err := sc.PaymentMethods.New(
+		&stripe.PaymentMethodParams{
+			Card: &stripe.PaymentMethodCardParams{
+				Number:   stripe.String("4242424242424242"),
+				ExpMonth: stripe.String("7"),
+				ExpYear:  stripe.String("2021"),
+				CVC:      stripe.String("314"),
+			},
+			Type: stripe.String("card"),
+		})
 	if err != nil {
 		t.Fatal(err)
+		return
 	}
 
-	_, err = io.WriteString(stdin, tok.ID+"\n")
+	_, err = io.WriteString(stdin, pm.ID+"\n")
 	if err != nil {
 		t.Fatal(err)
 	}
