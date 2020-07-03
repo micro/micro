@@ -211,21 +211,20 @@ func (r *Registry) Watch(ctx context.Context, req *pb.WatchRequest, rsp pb.Regis
 
 // authorizeDomainAccess will return a go-micro error if the context cannot access the given domain
 func authorizeDomainAccess(ctx context.Context, domain string) error {
-	acc, ok := auth.AccountFromContext(ctx)
-
-	// accounts are always required so we can identify the caller. If auth is not configured, the noop
-	// auth implementation will return a blank account with the default domain set, allowing the caller
-	// access to all resources
-	if !ok {
-		return errors.Unauthorized("go.micro.registry", "An account is required")
-	}
-
 	// anyone can access the default domain
 	if domain == registry.DefaultDomain {
 		return nil
 	}
 
-	// the server can access all domains
+	// accounts are always required so we can identify the caller. If auth is not configured, the noop
+	// auth implementation will return a blank account with the default domain set, allowing the caller
+	// access to all resources
+	acc, ok := auth.AccountFromContext(ctx)
+	if !ok {
+		return errors.Unauthorized("go.micro.registry", "An account is required")
+	}
+
+	// the server can access all domains. todo: find a better way of identifying the server.
 	if acc.Issuer == registry.DefaultDomain {
 		return nil
 	}
