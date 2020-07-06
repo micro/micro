@@ -17,10 +17,14 @@ import (
 	"github.com/micro/micro/v2/internal/namespace"
 )
 
+const (
+	DefaultNamespace = "micro"
+	PathSplitter     = "."
+)
+
 var (
-	PathSplitter = "."
-	WatchTopic   = "go.micro.config.events"
-	watchers     = make(map[string][]*watcher)
+	WatchTopic = "go.micro.config.events"
+	watchers   = make(map[string][]*watcher)
 
 	// we now support json only
 	reader = jr.NewReader()
@@ -31,24 +35,21 @@ type Config struct {
 	Store store.Store
 }
 
-// setNamespace figures out what the namespace should be
-func setNamespace(ctx context.Context, v string) string {
-	ns := namespace.FromContext(ctx)
-	if ns == "go.micro" {
-		ns = "micro"
-	}
-
-	return ns + ":" + v
-}
-
 func (c *Config) Read(ctx context.Context, req *pb.ReadRequest, rsp *pb.ReadResponse) error {
 	if len(req.Namespace) == 0 {
-		return errors.BadRequest("go.micro.config.Read", "invalid id")
+		req.Namespace = DefaultNamespace
 	}
 
-	namespace := setNamespace(ctx, req.Namespace)
+	// authorize the request
+	if err := namespace.Authorize(ctx, req.Namespace); err == namespace.ErrForbidden {
+		return errors.Forbidden("go.micro.config", err.Error())
+	} else if err == namespace.ErrUnauthorized {
+		return errors.Unauthorized("go.micro.config", err.Error())
+	} else if err != nil {
+		return errors.InternalServerError("go.micro.config", err.Error())
+	}
 
-	ch, err := c.Store.Read(namespace)
+	ch, err := c.Store.Read(req.Namespace)
 	if err == store.ErrNotFound {
 		return errors.NotFound("go.micro.config.Read", "Not found")
 	} else if err != nil {
@@ -94,9 +95,17 @@ func (c *Config) Create(ctx context.Context, req *pb.CreateRequest, rsp *pb.Crea
 	if req.Change == nil || req.Change.ChangeSet == nil {
 		return errors.BadRequest("go.micro.config.Create", "invalid change")
 	}
-
 	if len(req.Change.Namespace) == 0 {
-		return errors.BadRequest("go.micro.config.Create", "invalid id")
+		req.Change.Namespace = DefaultNamespace
+	}
+
+	// authorize the request
+	if err := namespace.Authorize(ctx, req.Change.Namespace); err == namespace.ErrForbidden {
+		return errors.Forbidden("go.micro.config", err.Error())
+	} else if err == namespace.ErrUnauthorized {
+		return errors.Unauthorized("go.micro.config", err.Error())
+	} else if err != nil {
+		return errors.InternalServerError("go.micro.config", err.Error())
 	}
 
 	if len(req.Change.Path) > 0 {
@@ -117,10 +126,8 @@ func (c *Config) Create(ctx context.Context, req *pb.CreateRequest, rsp *pb.Crea
 
 	req.Change.ChangeSet.Timestamp = time.Now().Unix()
 
-	namespace := setNamespace(ctx, req.Change.Namespace)
-
 	record := &store.Record{
-		Key: namespace,
+		Key: req.Change.Namespace,
 	}
 
 	var err error
@@ -133,7 +140,7 @@ func (c *Config) Create(ctx context.Context, req *pb.CreateRequest, rsp *pb.Crea
 		return errors.BadRequest("go.micro.config.Create", "create new into db error: %v", err)
 	}
 
-	_ = publish(ctx, &pb.WatchResponse{Namespace: namespace, ChangeSet: req.Change.ChangeSet})
+	_ = publish(ctx, &pb.WatchResponse{Namespace: req.Change.Namespace, ChangeSet: req.Change.ChangeSet})
 
 	return nil
 }
@@ -142,28 +149,33 @@ func (c *Config) Update(ctx context.Context, req *pb.UpdateRequest, rsp *pb.Upda
 	if req.Change == nil || req.Change.ChangeSet == nil {
 		return errors.BadRequest("go.micro.config.Update", "invalid change")
 	}
-
 	if len(req.Change.Namespace) == 0 {
-		return errors.BadRequest("go.micro.config.Update", "invalid id")
+		req.Change.Namespace = DefaultNamespace
+	}
+
+	// authorize the request
+	if err := namespace.Authorize(ctx, req.Change.Namespace); err == namespace.ErrForbidden {
+		return errors.Forbidden("go.micro.config", err.Error())
+	} else if err == namespace.ErrUnauthorized {
+		return errors.Unauthorized("go.micro.config", err.Error())
+	} else if err != nil {
+		return errors.InternalServerError("go.micro.config", err.Error())
 	}
 
 	// set the changeset timestamp
 	req.Change.ChangeSet.Timestamp = time.Now().Unix()
-
 	oldCh := &pb.Change{}
-
-	namespace := setNamespace(ctx, req.Change.Namespace)
 
 	// Get the current change set
 	var record *store.Record
-	records, err := c.Store.Read(namespace)
+	records, err := c.Store.Read(req.Change.Namespace)
 	if err != nil {
 		if err.Error() != "not found" {
 			return errors.BadRequest("go.micro.config.Update", "read old value error: %v", err)
 		}
 		// create new record
 		record = new(store.Record)
-		record.Key = namespace
+		record.Key = req.Change.Namespace
 	} else {
 		// Unmarshal value
 		if err := json.Unmarshal(records[0].Value, oldCh); err != nil {
@@ -238,7 +250,7 @@ func (c *Config) Update(ctx context.Context, req *pb.UpdateRequest, rsp *pb.Upda
 		return errors.BadRequest("go.micro.config.Update", "update into db error: %v", err)
 	}
 
-	_ = publish(ctx, &pb.WatchResponse{Namespace: namespace, ChangeSet: req.Change.ChangeSet})
+	_ = publish(ctx, &pb.WatchResponse{Namespace: req.Change.Namespace, ChangeSet: req.Change.ChangeSet})
 
 	return nil
 }
@@ -247,9 +259,17 @@ func (c *Config) Delete(ctx context.Context, req *pb.DeleteRequest, rsp *pb.Dele
 	if req.Change == nil {
 		return errors.BadRequest("go.micro.srv.Delete", "invalid change")
 	}
-
 	if len(req.Change.Namespace) == 0 {
-		return errors.BadRequest("go.micro.srv.Delete", "invalid id")
+		req.Change.Namespace = DefaultNamespace
+	}
+
+	// authorize the request
+	if err := namespace.Authorize(ctx, req.Change.Namespace); err == namespace.ErrForbidden {
+		return errors.Forbidden("go.micro.config", err.Error())
+	} else if err == namespace.ErrUnauthorized {
+		return errors.Unauthorized("go.micro.config", err.Error())
+	} else if err != nil {
+		return errors.InternalServerError("go.micro.config", err.Error())
 	}
 
 	if req.Change.ChangeSet == nil {
@@ -258,11 +278,9 @@ func (c *Config) Delete(ctx context.Context, req *pb.DeleteRequest, rsp *pb.Dele
 
 	req.Change.ChangeSet.Timestamp = time.Now().Unix()
 
-	namespace := setNamespace(ctx, req.Change.Namespace)
-
 	// We're going to delete the record as we have no path and no data
 	if len(req.Change.Path) == 0 {
-		if err := c.Store.Delete(namespace); err != nil {
+		if err := c.Store.Delete(req.Change.Namespace); err != nil {
 			return errors.BadRequest("go.micro.srv.Delete", "delete from db error: %v", err)
 		}
 		return nil
@@ -271,7 +289,7 @@ func (c *Config) Delete(ctx context.Context, req *pb.DeleteRequest, rsp *pb.Dele
 	// We've got a path. Let's update the required path
 
 	// Get the current change set
-	records, err := c.Store.Read(namespace)
+	records, err := c.Store.Read(req.Change.Namespace)
 	if err != nil {
 		if err.Error() != "not found" {
 			return errors.BadRequest("go.micro.srv.Delete", "read old value error: %v", err)
@@ -324,25 +342,32 @@ func (c *Config) Delete(ctx context.Context, req *pb.DeleteRequest, rsp *pb.Dele
 		return errors.BadRequest("go.micro.srv.Delete", "update record set to db error: %v", err)
 	}
 
-	_ = publish(ctx, &pb.WatchResponse{Namespace: namespace, ChangeSet: req.Change.ChangeSet})
+	_ = publish(ctx, &pb.WatchResponse{Namespace: req.Change.Namespace, ChangeSet: req.Change.ChangeSet})
 
 	return nil
 }
 
 func (c *Config) List(ctx context.Context, req *pb.ListRequest, rsp *pb.ListResponse) (err error) {
-	list, err := c.Store.List()
+	if len(req.Namespace) == 0 {
+		req.Namespace = DefaultNamespace
+	}
+
+	// authorize the request
+	if err := namespace.Authorize(ctx, req.Namespace); err == namespace.ErrForbidden {
+		return errors.Forbidden("go.micro.config", err.Error())
+	} else if err == namespace.ErrUnauthorized {
+		return errors.Unauthorized("go.micro.config", err.Error())
+	} else if err != nil {
+		return errors.InternalServerError("go.micro.config", err.Error())
+	}
+
+	list, err := c.Store.List(store.ListPrefix(req.Namespace))
 	if err != nil {
 		return errors.BadRequest("go.micro.config.List", "query value error: %v", err)
 	}
 
-	ns := setNamespace(ctx, "")
-
 	// TODO: optimise filtering for prefix listing
 	for _, v := range list {
-		if !strings.HasPrefix(v, ns) {
-			continue
-		}
-
 		rec, err := c.Store.Read(v)
 		if err != nil {
 			return err
@@ -365,12 +390,19 @@ func (c *Config) List(ctx context.Context, req *pb.ListRequest, rsp *pb.ListResp
 
 func (c *Config) Watch(ctx context.Context, req *pb.WatchRequest, stream pb.Config_WatchStream) error {
 	if len(req.Namespace) == 0 {
-		return errors.BadRequest("go.micro.srv.Watch", "invalid id")
+		req.Namespace = DefaultNamespace
 	}
 
-	namespace := setNamespace(ctx, req.Namespace)
+	// authorize the request
+	if err := namespace.Authorize(ctx, req.Namespace); err == namespace.ErrForbidden {
+		return errors.Forbidden("go.micro.config", err.Error())
+	} else if err == namespace.ErrUnauthorized {
+		return errors.Unauthorized("go.micro.config", err.Error())
+	} else if err != nil {
+		return errors.InternalServerError("go.micro.config", err.Error())
+	}
 
-	watch, err := Watch(namespace)
+	watch, err := Watch(req.Namespace)
 	if err != nil {
 		return errors.BadRequest("go.micro.srv.Watch", "watch error: %v", err)
 	}
