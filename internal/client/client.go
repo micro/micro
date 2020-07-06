@@ -3,6 +3,7 @@ package client
 import (
 	"context"
 	"fmt"
+	"os"
 	"strconv"
 	"time"
 
@@ -24,6 +25,11 @@ func New(ctx *ccli.Context) client.Client {
 	env := cliutil.GetEnv(ctx)
 	ns, _ := namespace.Get(env.Name)
 	client := &wrapper{grpc.NewClient(), "", ns, env.ProxyAddress, env.Name, ctx}
+	err := client.getAccessToken(env.Name, ctx)
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
 	return client
 }
 
@@ -37,10 +43,6 @@ type wrapper struct {
 }
 
 func (a *wrapper) Call(ctx context.Context, req client.Request, rsp interface{}, opts ...client.CallOption) error {
-	err := a.getAccessToken(a.envName, a.context)
-	if err != nil {
-		return err
-	}
 	if len(a.token) > 0 {
 		ctx = metadata.Set(ctx, "Authorization", auth.BearerScheme+a.token)
 	}
@@ -80,7 +82,7 @@ func (a *wrapper) getAccessToken(envName string, ctx *ccli.Context) error {
 	}
 
 	// See if the access token has expired
-	expiry, _ := config.Get("micro", "auth", envName, "refresh-token")
+	expiry, _ := config.Get("micro", "auth", envName, "expiry")
 	if len(expiry) == 0 {
 		return nil
 	}
@@ -97,6 +99,7 @@ func (a *wrapper) getAccessToken(envName string, ctx *ccli.Context) error {
 		return err
 	}
 
+	a.token = tok.AccessToken
 	// Save the token to user config file
 	return SaveToken(envName, tok)
 }
