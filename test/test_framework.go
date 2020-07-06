@@ -136,12 +136,16 @@ func newServer(t *t, opts ...options) server {
 			"micro", "server")
 	}
 	//fmt.Println("docker", "run", "--name", fname, fmt.Sprintf("-p=%v:8081", portnum), "micro", "server")
+	opt := options{}
+	if len(opts) > 0 {
+		opt = opts[0]
+	}
 	return server{
 		cmd:           cmd,
 		t:             t,
 		envName:       fname,
 		containerName: fname,
-		opts:          opts[0],
+		opts:          opt,
 	}
 }
 
