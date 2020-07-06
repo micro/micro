@@ -12,7 +12,6 @@ import (
 	"github.com/micro/go-micro/v2/config/cmd"
 	gostore "github.com/micro/go-micro/v2/store"
 	"github.com/micro/micro/v2/plugin"
-	"github.com/micro/micro/v2/plugin/build"
 	"github.com/micro/micro/v2/server"
 	"github.com/micro/micro/v2/service"
 
@@ -48,19 +47,14 @@ import (
 )
 
 var (
-	GitCommit string
-	GitTag    string
+	// BuildDate is when the micro binary was built. Injeted via LDFLAGS
 	BuildDate string
 
 	name        = "micro"
 	description = "A microservice runtime\n\n	 Use `micro [command] --help` to see command specific help."
-	version     = "latest"
 )
 
 func init() {
-	// setup the build plugin
-	plugin.Register(build.Flags())
-
 	// set platform build date
 	platform.Version = BuildDate
 }
@@ -297,24 +291,6 @@ func setup(app *ccli.App) {
 	}
 }
 
-func buildVersion() string {
-	microVersion := version
-
-	if GitTag != "" {
-		microVersion = GitTag
-	}
-
-	if GitCommit != "" {
-		microVersion += fmt.Sprintf("-%s", GitCommit)
-	}
-
-	if BuildDate != "" {
-		microVersion += fmt.Sprintf("-%s", BuildDate)
-	}
-
-	return microVersion
-}
-
 // Init initialised the command line
 func Init(options ...micro.Option) {
 	Setup(cmd.App(), options...)
@@ -326,7 +302,26 @@ func Init(options ...micro.Option) {
 	)
 }
 
-var commandOrder = []string{"server", "new", "env", "login", "run", "logs", "call", "update", "kill", "store", "config", "auth", "status", "stream", "file"}
+var (
+	// order in which commands are displayed
+	commandOrder = []string{
+		"server",
+		"new",
+		"env",
+		"login",
+		"run",
+		"logs",
+		"call",
+		"update",
+		"kill",
+		"store",
+		"config",
+		"auth",
+		"status",
+		"stream",
+		"file",
+	}
+)
 
 type commands []*ccli.Command
 
@@ -369,7 +364,6 @@ func Setup(app *ccli.App, options ...micro.Option) {
 	app.Commands = append(app.Commands, debug.Commands(options...)...)
 	app.Commands = append(app.Commands, server.Commands(options...)...)
 	app.Commands = append(app.Commands, service.Commands(options...)...)
-	app.Commands = append(app.Commands, build.Commands()...)
 	app.Commands = append(app.Commands, web.Commands(options...)...)
 
 	// add the init command for our internal operator

@@ -160,7 +160,6 @@ func (s server) launch() {
 		try("Calling micro server", s.t, func() ([]byte, error) {
 			outp, err := exec.Command("micro", s.envFlag(), "list", "services").CombinedOutput()
 			if !strings.Contains(string(outp), "runtime") ||
-				!strings.Contains(string(outp), "router") ||
 				!strings.Contains(string(outp), "registry") ||
 				!strings.Contains(string(outp), "api") ||
 				!strings.Contains(string(outp), "broker") ||
@@ -197,7 +196,7 @@ type t struct {
 }
 
 func (t *t) Fatal(values ...interface{}) {
-	//t.Log(values...)
+	t.t.Log(values...)
 	t.failed = true
 	t.values = values
 }
@@ -207,7 +206,7 @@ func (t *t) Log(values ...interface{}) {
 }
 
 func (t *t) Fatalf(format string, values ...interface{}) {
-	//t.Log(fmt.Sprintf(format, values...))
+	t.t.Log(fmt.Sprintf(format, values...))
 	t.failed = true
 	t.values = values
 	t.format = format

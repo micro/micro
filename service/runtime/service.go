@@ -22,6 +22,8 @@ import (
 	"github.com/micro/go-micro/v2/runtime/local/git"
 	srvRuntime "github.com/micro/go-micro/v2/runtime/service"
 	"github.com/micro/go-micro/v2/util/file"
+	"github.com/micro/micro/v2/client/cli/namespace"
+	"github.com/micro/micro/v2/client/cli/util"
 	cliutil "github.com/micro/micro/v2/client/cli/util"
 	"github.com/micro/micro/v2/internal/client"
 	"github.com/micro/micro/v2/service/runtime/handler"
@@ -35,7 +37,7 @@ const (
 	// UpdateUsage message for the update command
 	UpdateUsage = "Update a service: micro update [source]"
 	// GetUsage message for micro get command
-	GetUsage = "List runtime objects"
+	GetUsage = "List the running services"
 	// ServicesUsage message for micro services command
 	ServicesUsage = "micro services"
 	// CannotWatch message for the run command
@@ -188,6 +190,14 @@ func runService(ctx *cli.Context, srvOpts ...micro.Option) {
 		opts = append(opts, runtime.WithArgs(strings.Split(args, " ")...))
 	}
 
+	// determine the namespace
+	ns, err := namespace.Get(util.GetEnv(ctx).Name)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	opts = append(opts, runtime.CreateNamespace(ns))
+
 	runtimeSource := source.RuntimeSource()
 	if source.Local {
 		runtimeSource = newSource
@@ -238,7 +248,14 @@ func killService(ctx *cli.Context, srvOpts ...micro.Option) {
 		Version: source.Ref,
 	}
 
-	if err := runtimeFromContext(ctx).Delete(service); err != nil {
+	// determine the namespace
+	ns, err := namespace.Get(util.GetEnv(ctx).Name)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	if err := runtimeFromContext(ctx).Delete(service, runtime.DeleteNamespace(ns)); err != nil {
 		fmt.Println(err)
 		return
 	}
@@ -336,7 +353,14 @@ func updateService(ctx *cli.Context, srvOpts ...micro.Option) {
 		Version: source.Ref,
 	}
 
-	if err := runtimeFromContext(ctx).Update(service); err != nil {
+	// determine the namespace
+	ns, err := namespace.Get(util.GetEnv(ctx).Name)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	if err := runtimeFromContext(ctx).Update(service, runtime.UpdateNamespace(ns)); err != nil {
 		fmt.Println(err)
 		return
 	}
@@ -402,11 +426,18 @@ func getService(ctx *cli.Context, srvOpts ...micro.Option) {
 		if len(typ) > 0 {
 			readOpts = append(readOpts, runtime.ReadType(typ))
 		}
-
 	}
 
+	// determine the namespace
+	ns, err := namespace.Get(util.GetEnv(ctx).Name)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	readOpts = append(readOpts, runtime.ReadNamespace(ns))
+
 	// read the service
-	services, err := r.Read(readOpts...)
+	services, err = r.Read(readOpts...)
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -501,6 +532,14 @@ func getLogs(ctx *cli.Context, srvOpts ...micro.Option) {
 	//if err == nil {
 	//	readSince = time.Now().Add(-d)
 	//}
+
+	// determine the namespace
+	ns, err := namespace.Get(util.GetEnv(ctx).Name)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	options = append(options, runtime.LogsNamespace(ns))
 
 	logs, err := r.Logs(&runtime.Service{Name: name}, options...)
 

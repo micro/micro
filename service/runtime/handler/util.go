@@ -12,7 +12,6 @@ import (
 
 	"github.com/micro/go-micro/v2/runtime"
 	pb "github.com/micro/go-micro/v2/runtime/service/proto"
-	"github.com/micro/micro/v2/internal/namespace"
 )
 
 func toProto(s *runtime.Service) *pb.Service {
@@ -33,19 +32,9 @@ func toService(s *pb.Service) *runtime.Service {
 	}
 }
 
-// getNamespace replaces the default auth namespace until we move
-// we wil replace go.micro with micro and move our default things there
-func getNamespace(ctx context.Context) string {
-	return namespace.FromContext(ctx)
-}
-
 func toCreateOptions(ctx context.Context, opts *pb.CreateOptions) []runtime.CreateOption {
-	if opts == nil {
-		opts = &pb.CreateOptions{}
-	}
-
 	options := []runtime.CreateOption{
-		runtime.CreateNamespace(getNamespace(ctx)),
+		runtime.CreateNamespace(opts.Namespace),
 	}
 
 	// command options
@@ -79,12 +68,8 @@ func toCreateOptions(ctx context.Context, opts *pb.CreateOptions) []runtime.Crea
 }
 
 func toReadOptions(ctx context.Context, opts *pb.ReadOptions) []runtime.ReadOption {
-	if opts == nil {
-		opts = &pb.ReadOptions{}
-	}
-
 	options := []runtime.ReadOption{
-		runtime.ReadNamespace(getNamespace(ctx)),
+		runtime.ReadNamespace(opts.Namespace),
 	}
 
 	if len(opts.Service) > 0 {
@@ -101,32 +86,20 @@ func toReadOptions(ctx context.Context, opts *pb.ReadOptions) []runtime.ReadOpti
 }
 
 func toUpdateOptions(ctx context.Context, opts *pb.UpdateOptions) []runtime.UpdateOption {
-	if opts == nil {
-		opts = &pb.UpdateOptions{}
-	}
-
 	return []runtime.UpdateOption{
-		runtime.UpdateNamespace(getNamespace(ctx)),
+		runtime.UpdateNamespace(opts.Namespace),
 	}
 }
 
 func toDeleteOptions(ctx context.Context, opts *pb.DeleteOptions) []runtime.DeleteOption {
-	if opts == nil {
-		opts = &pb.DeleteOptions{}
-	}
-
 	return []runtime.DeleteOption{
-		runtime.DeleteNamespace(getNamespace(ctx)),
+		runtime.DeleteNamespace(opts.Namespace),
 	}
 }
 
 func toLogsOptions(ctx context.Context, opts *pb.LogsOptions) []runtime.LogsOption {
-	if opts == nil {
-		opts = &pb.LogsOptions{}
-	}
-
 	return []runtime.LogsOption{
-		runtime.LogsNamespace(getNamespace(ctx)),
+		runtime.LogsNamespace(opts.Namespace),
 	}
 }
 

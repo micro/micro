@@ -13,7 +13,7 @@ metadata:
     owner: "micro"
     group: "micro"
 spec:
-  replicas: 3
+  replicas: 1
   selector:
     matchLabels:
       name: micro-web
@@ -29,21 +29,17 @@ spec:
         env:
         - name: MICRO_AUTH
           value: "service"
-        - name: MICRO_AUTH_LOGIN_URL
-          value: "https://account.micro.mu"
+        - name: MICRO_AUTH_ADDRESS
+          value: "micro-auth:8010"
         - name: MICRO_AUTH_PUBLIC_KEY
           valueFrom:
             secretKeyRef:
-              name: micro-keypair
-              key: public
-        - name: MICRO_WEB_NAMESPACE
-          value: "domain"
-        - name: MICRO_WEB_RESOLVER
-          value: "subdomain"
+              name: micro-secrets
+              key: auth_public_key
         - name: MICRO_BROKER
-          value: "nats"
+          value: "service"
         - name: MICRO_BROKER_ADDRESS
-          value: "nats-cluster"
+          value: "micro-broker:8001"
         - name: MICRO_REGISTRY
           value: "service"
         - name: MICRO_REGISTRY_ADDRESS
@@ -53,9 +49,11 @@ spec:
         - name: MICRO_ACME_PROVIDER
           value: certmagic
         - name: MICRO_ACME_HOSTS
-          value: '*.m3o.app,*.micro.mu,*.cloud.micro.mu,micro.mu'
+          value: 'web.m3o.com'
         - name: MICRO_STORE
           value: "service"
+        - name: MICRO_STORE_ADDRESS
+          value: "micro-store:8002"
         - name: MICRO_STORE_DATABASE
           value: "micro"
         - name: MICRO_STORE_TABLE
@@ -63,8 +61,8 @@ spec:
         - name: CF_API_TOKEN
           valueFrom:
             secretKeyRef:
-              key: CF_API_TOKEN
-              name: cloudflare-credentials
+              key: cloudflare
+              name: micro-secrets
         args:
         - web
         image: micro/micro

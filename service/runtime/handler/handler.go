@@ -9,6 +9,7 @@ import (
 	log "github.com/micro/go-micro/v2/logger"
 	"github.com/micro/go-micro/v2/runtime"
 	pb "github.com/micro/go-micro/v2/runtime/service/proto"
+	"github.com/micro/micro/v2/internal/namespace"
 )
 
 type Runtime struct {
@@ -19,13 +20,31 @@ type Runtime struct {
 }
 
 func (r *Runtime) Read(ctx context.Context, req *pb.ReadRequest, rsp *pb.ReadResponse) error {
-	options := toReadOptions(ctx, req.Options)
+	// set defaults
+	if req.Options == nil {
+		req.Options = &pb.ReadOptions{}
+	}
+	if len(req.Options.Namespace) == 0 {
+		req.Options.Namespace = namespace.DefaultNamespace
+	}
 
+	// authorize the request
+	if err := namespace.Authorize(ctx, req.Options.Namespace); err == namespace.ErrForbidden {
+		return errors.Forbidden("go.micro.runtime", err.Error())
+	} else if err == namespace.ErrUnauthorized {
+		return errors.Unauthorized("go.micro.runtime", err.Error())
+	} else if err != nil {
+		return errors.InternalServerError("go.micro.runtime", err.Error())
+	}
+
+	// lookup the services
+	options := toReadOptions(ctx, req.Options)
 	services, err := r.Runtime.Read(options...)
 	if err != nil {
 		return errors.InternalServerError("go.micro.runtime", err.Error())
 	}
 
+	// serialize the response
 	for _, service := range services {
 		rsp.Services = append(rsp.Services, toProto(service))
 	}
@@ -34,15 +53,33 @@ func (r *Runtime) Read(ctx context.Context, req *pb.ReadRequest, rsp *pb.ReadRes
 }
 
 func (r *Runtime) Create(ctx context.Context, req *pb.CreateRequest, rsp *pb.CreateResponse) error {
+	// validate the request
 	if req.Service == nil {
 		return errors.BadRequest("go.micro.runtime", "blank service")
 	}
 
-	options := toCreateOptions(ctx, req.Options)
+	// set defaults
+	if req.Options == nil {
+		req.Options = &pb.CreateOptions{}
+	}
+	if len(req.Options.Namespace) == 0 {
+		req.Options.Namespace = namespace.DefaultNamespace
+	}
+
+	// authorize the request
+	if err := namespace.Authorize(ctx, req.Options.Namespace); err == namespace.ErrForbidden {
+		return errors.Forbidden("go.micro.runtime", err.Error())
+	} else if err == namespace.ErrUnauthorized {
+		return errors.Unauthorized("go.micro.runtime", err.Error())
+	} else if err != nil {
+		return errors.InternalServerError("go.micro.runtime", err.Error())
+	}
+
+	// create the service
 	service := toService(req.Service)
+	options := toCreateOptions(ctx, req.Options)
 
 	log.Infof("Creating service %s version %s source %s", service.Name, service.Version, service.Source)
-
 	if err := r.Runtime.Create(service, options...); err != nil {
 		return errors.InternalServerError("go.micro.runtime", err.Error())
 	}
@@ -59,8 +96,26 @@ func (r *Runtime) Create(ctx context.Context, req *pb.CreateRequest, rsp *pb.Cre
 }
 
 func (r *Runtime) Update(ctx context.Context, req *pb.UpdateRequest, rsp *pb.UpdateResponse) error {
+	// validate the request
 	if req.Service == nil {
 		return errors.BadRequest("go.micro.runtime", "blank service")
+	}
+
+	// set defaults
+	if req.Options == nil {
+		req.Options = &pb.UpdateOptions{}
+	}
+	if len(req.Options.Namespace) == 0 {
+		req.Options.Namespace = namespace.DefaultNamespace
+	}
+
+	// authorize the request
+	if err := namespace.Authorize(ctx, req.Options.Namespace); err == namespace.ErrForbidden {
+		return errors.Forbidden("go.micro.runtime", err.Error())
+	} else if err == namespace.ErrUnauthorized {
+		return errors.Unauthorized("go.micro.runtime", err.Error())
+	} else if err != nil {
+		return errors.InternalServerError("go.micro.runtime", err.Error())
 	}
 
 	service := toService(req.Service)
@@ -84,15 +139,33 @@ func (r *Runtime) Update(ctx context.Context, req *pb.UpdateRequest, rsp *pb.Upd
 }
 
 func (r *Runtime) Delete(ctx context.Context, req *pb.DeleteRequest, rsp *pb.DeleteResponse) error {
+	// validate the request
 	if req.Service == nil {
 		return errors.BadRequest("go.micro.runtime", "blank service")
 	}
 
+	// set defaults
+	if req.Options == nil {
+		req.Options = &pb.DeleteOptions{}
+	}
+	if len(req.Options.Namespace) == 0 {
+		req.Options.Namespace = namespace.DefaultNamespace
+	}
+
+	// authorize the request
+	if err := namespace.Authorize(ctx, req.Options.Namespace); err == namespace.ErrForbidden {
+		return errors.Forbidden("go.micro.runtime", err.Error())
+	} else if err == namespace.ErrUnauthorized {
+		return errors.Unauthorized("go.micro.runtime", err.Error())
+	} else if err != nil {
+		return errors.InternalServerError("go.micro.runtime", err.Error())
+	}
+
+	// delete the service
 	service := toService(req.Service)
 	options := toDeleteOptions(ctx, req.Options)
 
 	log.Infof("Deleting service %s version %s source %s", service.Name, service.Version, service.Source)
-
 	if err := r.Runtime.Delete(service, options...); err != nil {
 		return errors.InternalServerError("go.micro.runtime", err.Error())
 	}
@@ -109,6 +182,23 @@ func (r *Runtime) Delete(ctx context.Context, req *pb.DeleteRequest, rsp *pb.Del
 }
 
 func (r *Runtime) Logs(ctx context.Context, req *pb.LogsRequest, stream pb.Runtime_LogsStream) error {
+	// set defaults
+	if req.Options == nil {
+		req.Options = &pb.LogsOptions{}
+	}
+	if len(req.Options.Namespace) == 0 {
+		req.Options.Namespace = namespace.DefaultNamespace
+	}
+
+	// authorize the request
+	if err := namespace.Authorize(ctx, req.Options.Namespace); err == namespace.ErrForbidden {
+		return errors.Forbidden("go.micro.runtime", err.Error())
+	} else if err == namespace.ErrUnauthorized {
+		return errors.Unauthorized("go.micro.runtime", err.Error())
+	} else if err != nil {
+		return errors.InternalServerError("go.micro.runtime", err.Error())
+	}
+
 	opts := toLogsOptions(ctx, req.Options)
 
 	// options passed in the request
