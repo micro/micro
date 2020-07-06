@@ -11,13 +11,23 @@ import (
 	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro/v2/auth"
 	pb "github.com/micro/go-micro/v2/auth/service/proto"
+	"github.com/micro/micro/v2/client/cli/namespace"
+	"github.com/micro/micro/v2/client/cli/util"
 	"github.com/micro/micro/v2/internal/client"
 )
 
 func listAccounts(ctx *cli.Context) {
 	client := accountsFromContext(ctx)
 
-	rsp, err := client.List(context.TODO(), &pb.ListAccountsRequest{})
+	ns, err := namespace.Get(util.GetEnv(ctx).Name)
+	if err != nil {
+		fmt.Printf("Error getting namespace: %v\n", err)
+		os.Exit(1)
+	}
+
+	rsp, err := client.List(context.TODO(), &pb.ListAccountsRequest{
+		Options: &pb.Options{Namespace: ns},
+	})
 	if err != nil {
 		fmt.Printf("Error listing accounts: %v\n", err)
 		os.Exit(1)

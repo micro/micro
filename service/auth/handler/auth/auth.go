@@ -136,9 +136,15 @@ func (a *Auth) Generate(ctx context.Context, req *pb.GenerateRequest, rsp *pb.Ge
 	if len(req.Secret) == 0 {
 		req.Secret = uuid.New().String()
 	}
+	if req.Options == nil {
+		req.Options = &pb.Options{}
+	}
+	if len(req.Options.Namespace) == 0 {
+		req.Options.Namespace = namespace.DefaultNamespace
+	}
 
 	// check the user does not already exists
-	key := strings.Join([]string{storePrefixAccounts, namespace.FromContext(ctx), req.Id}, joinKey)
+	key := strings.Join([]string{storePrefixAccounts, req.Options.Namespace, req.Id}, joinKey)
 	if _, err := a.Options.Store.Read(key); err != store.ErrNotFound {
 		return errors.BadRequest("go.micro.auth", "Account with this ID already exists")
 	}
@@ -152,7 +158,7 @@ func (a *Auth) Generate(ctx context.Context, req *pb.GenerateRequest, rsp *pb.Ge
 	// Default to the current namespace as the scope. Once we add identity we can auto-generate
 	// these scopes and prevent users from accounts with any scope.
 	if len(req.Scopes) == 0 {
-		req.Scopes = []string{"namespace." + namespace.FromContext(ctx)}
+		req.Scopes = []string{"namespace." + req.Options.Namespace}
 	}
 
 	// construct the account
@@ -161,7 +167,7 @@ func (a *Auth) Generate(ctx context.Context, req *pb.GenerateRequest, rsp *pb.Ge
 		Type:     req.Type,
 		Scopes:   req.Scopes,
 		Metadata: req.Metadata,
-		Issuer:   namespace.FromContext(ctx),
+		Issuer:   req.Options.Namespace,
 		Secret:   secret,
 	}
 
@@ -177,7 +183,7 @@ func (a *Auth) Generate(ctx context.Context, req *pb.GenerateRequest, rsp *pb.Ge
 	}
 
 	// set a refresh token
-	if err := a.setRefreshToken(ctx, acc.ID, uuid.New().String()); err != nil {
+	if err := a.setRefreshToken(req.Options.Namespace, acc.ID, uuid.New().String()); err != nil {
 		return errors.InternalServerError("go.micro.auth", "Unable to set a refresh token: %v", err)
 	}
 
@@ -202,8 +208,16 @@ func (a *Auth) Inspect(ctx context.Context, req *pb.InspectRequest, rsp *pb.Insp
 
 // Token generation using an account ID and secret
 func (a *Auth) Token(ctx context.Context, req *pb.TokenRequest, rsp *pb.TokenResponse) error {
+	// set defaults
+	if req.Options == nil {
+		req.Options = &pb.Options{}
+	}
+	if len(req.Options.Namespace) == 0 {
+		req.Options.Namespace = namespace.DefaultNamespace
+	}
+
 	// setup the defaults incase none exist
-	err := a.setupDefaultAccount(namespace.FromContext(ctx))
+	err := a.setupDefaultAccount(req.Options.Namespace)
 	if err != nil {
 		// failing gracefully here
 		logger.Errorf("Error setting up default accounts: %v", err)
@@ -220,7 +234,7 @@ func (a *Auth) Token(ctx context.Context, req *pb.TokenRequest, rsp *pb.TokenRes
 
 	// If the refresh token is set, check this
 	if len(req.RefreshToken) > 0 {
-		accID, err := a.accountIDForRefreshToken(ctx, req.RefreshToken)
+		accID, err := a.accountIDForRefreshToken(req.Options.Namespace, req.RefreshToken)
 		if err == store.ErrNotFound {
 			return errors.BadRequest("go.micro.auth", "Invalid token")
 		} else if err != nil {
@@ -230,7 +244,7 @@ func (a *Auth) Token(ctx context.Context, req *pb.TokenRequest, rsp *pb.TokenRes
 	}
 
 	// Lookup the account in the store
-	key := strings.Join([]string{storePrefixAccounts, namespace.FromContext(ctx), accountID}, joinKey)
+	key := strings.Join([]string{storePrefixAccounts, req.Options.Namespace, accountID}, joinKey)
 	recs, err := a.Options.Store.Read(key)
 	if err == store.ErrNotFound {
 		return errors.BadRequest("go.micro.auth", "Account not found with this ID")
@@ -251,7 +265,7 @@ func (a *Auth) Token(ctx context.Context, req *pb.TokenRequest, rsp *pb.TokenRes
 			return errors.BadRequest("go.micro.auth", "Secret not correct")
 		}
 
-		refreshToken, err = a.refreshTokenForAccount(ctx, acc.ID)
+		refreshToken, err = a.refreshTokenForAccount(req.Options.Namespace, acc.ID)
 		if err != nil {
 			return errors.InternalServerError("go.micro.auth", "Unable to get refresh token: %v", err)
 		}
@@ -269,14 +283,13 @@ func (a *Auth) Token(ctx context.Context, req *pb.TokenRequest, rsp *pb.TokenRes
 }
 
 // set the refresh token for an account
-func (a *Auth) setRefreshToken(ctx context.Context, id, token string) error {
-	key := strings.Join([]string{storePrefixRefreshTokens, namespace.FromContext(ctx), id, token}, joinKey)
+func (a *Auth) setRefreshToken(ns, id, token string) error {
+	key := strings.Join([]string{storePrefixRefreshTokens, ns, id, token}, joinKey)
 	return a.Options.Store.Write(&store.Record{Key: key})
 }
 
 // get the refresh token for an accutn
-func (a *Auth) refreshTokenForAccount(ctx context.Context, id string) (string, error) {
-	ns := namespace.FromContext(ctx)
+func (a *Auth) refreshTokenForAccount(ns, id string) (string, error) {
 	prefix := strings.Join([]string{storePrefixRefreshTokens, ns, id, ""}, joinKey)
 
 	recs, err := a.Options.Store.Read(prefix, store.ReadPrefix())
@@ -294,8 +307,8 @@ func (a *Auth) refreshTokenForAccount(ctx context.Context, id string) (string, e
 }
 
 // get the account ID for the given refresh token
-func (a *Auth) accountIDForRefreshToken(ctx context.Context, token string) (string, error) {
-	prefix := strings.Join([]string{storePrefixRefreshTokens, namespace.FromContext(ctx)}, joinKey)
+func (a *Auth) accountIDForRefreshToken(ns, token string) (string, error) {
+	prefix := strings.Join([]string{storePrefixRefreshTokens, ns}, joinKey)
 	keys, err := a.Options.Store.List(store.ListPrefix(prefix))
 	if err != nil {
 		return "", err
