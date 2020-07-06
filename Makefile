@@ -5,7 +5,7 @@ GIT_TAG=$(shell git describe --abbrev=0 --tags --always --match "v*")
 GIT_IMPORT=github.com/micro/micro/v2/cmd
 CGO_ENABLED=0
 BUILD_DATE=$(shell date +%s)
-LDFLAGS=-X $(GIT_IMPORT).GitCommit=$(GIT_COMMIT) -X $(GIT_IMPORT).GitTag=$(GIT_TAG) -X $(GIT_IMPORT).BuildDate=$(BUILD_DATE)
+LDFLAGS=-X $(GIT_IMPORT).BuildDate=$(BUILD_DATE)
 IMAGE_TAG=$(GIT_TAG)-$(GIT_COMMIT)
 
 all: build

@@ -47,13 +47,11 @@ import (
 )
 
 var (
-	GitCommit string
-	GitTag    string
+	// BuildDate is when the micro binary was built. Injeted via LDFLAGS
 	BuildDate string
 
 	name        = "micro"
 	description = "A microservice runtime\n\n	 Use `micro [command] --help` to see command specific help."
-	version     = "latest"
 )
 
 func init() {
@@ -291,24 +289,6 @@ func setup(app *ccli.App) {
 
 		return nil
 	}
-}
-
-func buildVersion() string {
-	microVersion := version
-
-	if GitTag != "" {
-		microVersion = GitTag
-	}
-
-	if GitCommit != "" {
-		microVersion += fmt.Sprintf("-%s", GitCommit)
-	}
-
-	if BuildDate != "" {
-		microVersion += fmt.Sprintf("-%s", BuildDate)
-	}
-
-	return microVersion
 }
 
 // Init initialised the command line
