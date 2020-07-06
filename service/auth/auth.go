@@ -19,7 +19,6 @@ import (
 	log "github.com/micro/go-micro/v2/logger"
 	cliutil "github.com/micro/micro/v2/client/cli/util"
 	"github.com/micro/micro/v2/internal/client"
-	"github.com/micro/micro/v2/internal/config"
 	"github.com/micro/micro/v2/internal/helper"
 	"github.com/micro/micro/v2/service/auth/api"
 	authHandler "github.com/micro/micro/v2/service/auth/handler/auth"
@@ -159,10 +158,13 @@ func login(ctx *cli.Context) {
 			fmt.Println(err)
 			os.Exit(1)
 		}
-		if err := config.Set(tok, "micro", "auth", env.Name, "token"); err != nil {
-			fmt.Println(err)
-			os.Exit(1)
-		}
+		refreshToken := ctx.String("refresh_token")
+		expiry := ctx.Int64("expiry")
+		client.SaveToken(env.Name, &auth.Token{
+			AccessToken:  tok,
+			RefreshToken: refreshToken,
+			Expiry:       time.Unix(expiry, 0),
+		})
 
 		fmt.Println("You have been logged in")
 		return
@@ -331,8 +333,10 @@ func Commands(srvOpts ...micro.Option) []*cli.Command {
 			}),
 		},
 		{
-			Name:  "login",
-			Usage: "Interactive login flow. Just type `micro login` or `micro login [email address]`",
+			Name: "login",
+			Usage: `Interactive login flow.
+	Just type 'micro login' or 'micro login [email address]'
+	Advanced usage: micro login --token ... --refresh_token ... -expiry ...`,
 			Action: func(ctx *cli.Context) error {
 				login(ctx)
 				return nil
@@ -340,7 +344,15 @@ func Commands(srvOpts ...micro.Option) []*cli.Command {
 			Flags: []cli.Flag{
 				&cli.StringFlag{
 					Name:  "token",
+					Usage: "The access token to set",
+				},
+				&cli.StringFlag{
+					Name:  "refresh_token",
 					Usage: "The token to set",
+				},
+				&cli.Int64Flag{
+					Name:  "expiry",
+					Usage: "The expiry of the access token",
 				},
 			},
 		},
