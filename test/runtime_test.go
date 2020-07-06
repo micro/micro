@@ -572,7 +572,9 @@ func testFastRuns(t *t) {
 	}
 
 	// Stripe needs some configs to start
-	runCmd = exec.Command("micro", serv.envFlag(), "config", "set", "micro.payments.stripe.api_key", "notatruekey")
+	// TODO replace with normal micro config set call
+	runCmd = exec.Command("micro", serv.envFlag(), "call", "go.micro.config", "Config.Create", `{"change":{"namespace":"micro", "path":"micro.payments.stripe.api_key", "changeSet" : {"data":"notatruekey", "format":"json"}}}`)
+	// runCmd = exec.Command("micro", serv.envFlag(), "config", "set", "micro.payments.stripe.api_key", "notatruekey")
 	outp, err = runCmd.CombinedOutput()
 	if err != nil {
 		t.Fatalf("micro config set failure, output: %v", string(outp))
@@ -597,5 +599,5 @@ func testFastRuns(t *t) {
 			return outp, errors.New("Signup or stripe can't be found")
 		}
 		return outp, nil
-	}, 60*time.Second)
+	}, 120*time.Second)
 }
