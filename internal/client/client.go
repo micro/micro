@@ -111,5 +111,5 @@ func SaveToken(envName string, token *auth.Token) error {
 		return err
 	}
 	// Store the refresh token in micro config
-	return config.Set(fmt.Sprintf("%s", token.Expiry.Unix()), "micro", "auth", envName, "expiry")
+	return config.Set(fmt.Sprintf("%v", token.Expiry.Unix()), "micro", "auth", envName, "expiry")
 }
