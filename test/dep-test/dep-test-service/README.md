@@ -53,3 +53,10 @@ Build a docker image
 ```
 make docker
 ```
+
+## Quirks of the tests
+
+There is one huge gotcha that must be kept in mind.
+The `t.Fatal` and other calls happen to a wrapper `t` type and not the normal `testing.T`.
+
+This will not immediately terminate the test - it will just run through the test quickly without waiting for `try` calls. This behaviour is not intuitive in cases when the user expects the `t.Fatal` call to terminate the test and this should be fixed (perhaps just by calling return with a Fatal but that might be too easy to miss.).

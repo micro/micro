@@ -36,7 +36,7 @@ spec:
         - name: MICRO_REGISTRY
           value: "etcd"
         - name: MICRO_REGISTRY_ADDRESS
-          value: "etcd-cluster-client"
+          value: "etcd-cluster"
         - name: MICRO_STORE
           value: "cockroach"
         - name: MICRO_STORE_ADDRESS
@@ -46,13 +46,13 @@ spec:
         - name: MICRO_AUTH_PUBLIC_KEY
           valueFrom:
             secretKeyRef:
-              name: micro-keypair
-              key: public
+              name: micro-secrets
+              key: auth_public_key
         - name: MICRO_AUTH_PRIVATE_KEY
           valueFrom:
             secretKeyRef:
-              name: micro-keypair
-              key: private
+              name: micro-secrets
+              key: auth_private_key
         args:
         - auth
         image: micro/micro

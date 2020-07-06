@@ -1,0 +1,45 @@
+name: Run micro server integration tests for m3o
+on: [push]
+
+jobs:
+
+  test:
+    name: Micro server m3o integration tests
+    runs-on: ubuntu-latest
+    steps:
+
+    - name: Set up Go 1.13
+      uses: actions/setup-go@v2
+      with:
+        go-version: 1.13
+      id: go
+
+    - name: Install Protoc
+      uses: arduino/setup-protoc@master
+
+    - name: Check out code
+      uses: actions/checkout@v2
+
+    - name: Install micro
+      run: |
+        go install
+
+    - name: Build container
+      run: |
+        bash scripts/test-docker.sh
+
+    - name: Test micro server
+      working-directory: ./test
+      run: |
+          # Generate keys for JWT tests
+          ssh-keygen -f /tmp/sshkey -m pkcs8 -q -N ""
+          ssh-keygen -f /tmp/sshkey -e  -m pkcs8 > /tmp/sshkey.pub
+          go clean -testcache && go test --tags=m3o -v ./...
+      env:
+        MICRO_STRIPE_API_KEY: ${{ secrets.MICRO_STRIPE_API_KEY }}
+        MICRO_SENDGRID_API_KEY: ${{ secrets.MICRO_SENDGRID_API_KEY }}
+        MICRO_SENDGRID_TEMPLATE_ID: ${{ secrets.MICRO_SENDGRID_TEMPLATE_ID }}
+        MICRO_STRIPE_PLAN_ID: ${{ secrets.MICRO_STRIPE_PLAN_ID }}
+        MICRO_EMAIL_FROM: ${{ secrets.MICRO_EMAIL_FROM }}
+        MICRO_TEST_ENV: ${{ secrets.MICRO_TEST_ENV }}
+        

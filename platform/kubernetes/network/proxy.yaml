@@ -29,11 +29,13 @@ spec:
         env:
         - name: MICRO_AUTH
           value: "service"
+        - name: MICRO_AUTH_ADDRESS
+          value: "micro-auth:8010"
         - name: MICRO_AUTH_PUBLIC_KEY
           valueFrom:
             secretKeyRef:
-              name: micro-keypair
-              key: public
+              name: micro-secrets
+              key: auth_public_key
         - name: MICRO_PROXY_ADDRESS
           value: "0.0.0.0:443"
         - name: MICRO_SERVER_ADDRESS
@@ -41,21 +43,23 @@ spec:
         - name: MICRO_LOG_LEVEL
           value: "trace"
         - name: MICRO_BROKER
-          value: "nats"
+          value: "service"
         - name: MICRO_BROKER_ADDRESS
-          value: "nats-cluster"
+          value: "micro-broker:8001"
         - name: MICRO_REGISTRY
-          value: "etcd"
+          value: "service"
         - name: MICRO_REGISTRY_ADDRESS
-          value: "etcd-cluster-client"
+          value: "micro-registry:8000"
         - name: MICRO_ENABLE_ACME
           value: "true"
         - name: MICRO_ACME_PROVIDER
           value: certmagic
         - name: MICRO_ACME_HOSTS
-          value: '*.micro.mu,*.cloud.micro.mu,micro.mu'
+          value: 'proxy.m3o.com'
         - name: MICRO_STORE
           value: "service"
+        - name: MICRO_STORE_ADDRESS
+          value: "micro-store:8002"
         - name: MICRO_STORE_DATABASE
           value: "micro"
         - name: MICRO_STORE_TABLE
@@ -63,8 +67,8 @@ spec:
         - name: CF_API_TOKEN
           valueFrom:
             secretKeyRef:
-              key: CF_API_TOKEN
-              name: cloudflare-credentials
+              key: cloudflare
+              name: micro-secrets
         args:
         - proxy
         image: micro/micro
