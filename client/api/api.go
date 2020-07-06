@@ -195,7 +195,7 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 
 	// resolver options
 	ropts := []resolver.Option{
-		resolver.WithServicePrefix(Namespace + "." + Type),
+		resolver.WithServicePrefix(apiNamespace),
 		resolver.WithHandler(Handler),
 	}
 
