@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro/v2"
@@ -203,12 +204,11 @@ func login(ctx *cli.Context) {
 	// Already registered users can just get logged in.
 	tok := rsp.AuthToken
 	if rsp.AuthToken != nil {
-		if err := config.Set(tok.AccessToken, "micro", "auth", env.Name, "token"); err != nil {
-			fmt.Println(err)
-			os.Exit(1)
-		}
-		// Store the refresh token in micro config
-		if err := config.Set(tok.RefreshToken, "micro", "auth", env.Name, "refresh-token"); err != nil {
+		if err := client.SaveToken(env.Name, &auth.Token{
+			AccessToken:  tok.AccessToken,
+			RefreshToken: tok.RefreshToken,
+			Expiry:       time.Unix(tok.Expiry, 0),
+		}); err != nil {
 			fmt.Println(err)
 			os.Exit(1)
 		}
@@ -231,12 +231,11 @@ func login(ctx *cli.Context) {
 	}
 
 	tok = signupRsp.AuthToken
-	if err := config.Set(tok.AccessToken, "micro", "auth", env.Name, "token"); err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
-	// Store the refresh token in micro config
-	if err := config.Set(tok.RefreshToken, "micro", "auth", env.Name, "refresh-token"); err != nil {
+	if err := client.SaveToken(env.Name, &auth.Token{
+		AccessToken:  tok.AccessToken,
+		RefreshToken: tok.RefreshToken,
+		Expiry:       time.Unix(tok.Expiry, 0),
+	}); err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
