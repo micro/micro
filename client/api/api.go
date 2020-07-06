@@ -85,8 +85,14 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 		Namespace = strings.TrimSuffix(ctx.String("namespace"), "."+Type)
 	}
 
-	// apiNamespace has the format: "go.micro.api"
-	apiNamespace := Namespace + "." + Type
+	// if the namespace was foo.api.v1, it would excape the trim suffix check
+	// above and we want to use this as our API namespace
+	var apiNamespace string
+	if strings.Contains(Namespace, ".api.") {
+		apiNamespace = Namespace
+	} else {
+		apiNamespace = Namespace + "." + Type
+	}
 
 	// append name to opts
 	srvOpts = append(srvOpts, micro.Name(Name))
