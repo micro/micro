@@ -12,6 +12,8 @@ import (
 	"github.com/micro/go-micro/v2/config/cmd"
 	proto "github.com/micro/go-micro/v2/config/source/service/proto"
 	log "github.com/micro/go-micro/v2/logger"
+	"github.com/micro/micro/v2/client/cli/namespace"
+	"github.com/micro/micro/v2/client/cli/util"
 	"github.com/micro/micro/v2/internal/client"
 	"github.com/micro/micro/v2/internal/helper"
 	"github.com/micro/micro/v2/service/config/handler"
@@ -22,8 +24,6 @@ var (
 	Name = "go.micro.config"
 	// Default database store
 	Database = "store"
-	// Default key
-	Namespace = "global"
 )
 
 func Run(c *cli.Context, srvOpts ...micro.Option) {
@@ -65,12 +65,17 @@ func setConfig(ctx *cli.Context) error {
 	key := args.Get(0)
 	val := args.Get(1)
 
+	ns, err := namespace.Get(util.GetEnv(ctx).Name)
+	if err != nil {
+		return err
+	}
+
 	// TODO: allow the specifying of a config.Key. This will be service name
 	// The actuall key-val set is a path e.g micro/accounts/key
-	_, err := pb.Update(context.TODO(), &proto.UpdateRequest{
+	_, err = pb.Update(context.TODO(), &proto.UpdateRequest{
 		Change: &proto.Change{
-			// global key
-			Namespace: Namespace,
+			// the current namespace
+			Namespace: ns,
 			// actual key for the value
 			Path: key,
 			// The value
@@ -107,12 +112,17 @@ func getConfig(ctx *cli.Context) error {
 		log.Fatal("key cannot be blank")
 	}
 
+	ns, err := namespace.Get(util.GetEnv(ctx).Name)
+	if err != nil {
+		return err
+	}
+
 	// TODO: allow the specifying of a config.Key. This will be service name
 	// The actuall key-val set is a path e.g micro/accounts/key
 
 	rsp, err := pb.Read(context.TODO(), &proto.ReadRequest{
-		// The global key,
-		Namespace: Namespace,
+		// The current namespace,
+		Namespace: ns,
 		// The actual key for the val
 		Path: key,
 	})
@@ -159,13 +169,18 @@ func delConfig(ctx *cli.Context) error {
 		log.Fatal("key cannot be blank")
 	}
 
+	ns, err := namespace.Get(util.GetEnv(ctx).Name)
+	if err != nil {
+		return err
+	}
+
 	// TODO: allow the specifying of a config.Key. This will be service name
 	// The actuall key-val set is a path e.g micro/accounts/key
 
-	_, err := pb.Delete(context.TODO(), &proto.DeleteRequest{
+	_, err = pb.Delete(context.TODO(), &proto.DeleteRequest{
 		Change: &proto.Change{
-			// The global key,
-			Namespace: Namespace,
+			// The current namespace
+			Namespace: ns,
 			// The actual key for the val
 			Path: key,
 		},
