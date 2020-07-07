@@ -346,10 +346,9 @@ func Commands(srvOpts ...micro.Option) []*cli.Command {
 			}),
 		},
 		{
-			Name: "login",
-			Usage: `Interactive login flow.
-	Just type 'micro login' or 'micro login [email address]'
-	Advanced usage: micro login --token ... --refresh_token ... -expiry ...`,
+			Name:        "login",
+			Usage:       `Interactive login flow.`,
+			Description: "Run 'micro login' for micro servers or 'micro login --otp' for m3o.",
 			Action: func(ctx *cli.Context) error {
 				login(ctx)
 				return nil
