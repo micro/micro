@@ -18,6 +18,7 @@ import (
 	"github.com/micro/go-micro/v2/auth/token/jwt"
 	"github.com/micro/go-micro/v2/config/cmd"
 	log "github.com/micro/go-micro/v2/logger"
+	clitoken "github.com/micro/micro/v2/client/cli/token"
 	cliutil "github.com/micro/micro/v2/client/cli/util"
 	"github.com/micro/micro/v2/internal/client"
 	"github.com/micro/micro/v2/internal/helper"
@@ -178,7 +179,7 @@ func login(ctx *cli.Context) {
 			fmt.Println(err)
 			os.Exit(1)
 		}
-		client.SaveToken(env.Name, tok)
+		clitoken.SaveToken(env.Name, tok)
 		fmt.Println("You have been logged in")
 		return
 	}
@@ -208,7 +209,7 @@ func login(ctx *cli.Context) {
 	// Already registered users can just get logged in.
 	tok := rsp.AuthToken
 	if rsp.AuthToken != nil {
-		if err := client.SaveToken(env.Name, &auth.Token{
+		if err := clitoken.SaveToken(env.Name, &auth.Token{
 			AccessToken:  tok.AccessToken,
 			RefreshToken: tok.RefreshToken,
 			Expiry:       time.Unix(tok.Expiry, 0),
@@ -235,7 +236,7 @@ func login(ctx *cli.Context) {
 	}
 
 	tok = signupRsp.AuthToken
-	if err := client.SaveToken(env.Name, &auth.Token{
+	if err := clitoken.SaveToken(env.Name, &auth.Token{
 		AccessToken:  tok.AccessToken,
 		RefreshToken: tok.RefreshToken,
 		Expiry:       time.Unix(tok.Expiry, 0),

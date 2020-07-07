@@ -16,6 +16,7 @@ import (
 	"github.com/micro/go-micro/v2/config/cmd"
 	"github.com/micro/go-micro/v2/metadata"
 	"github.com/micro/micro/v2/client/cli/namespace"
+	clitoken "github.com/micro/micro/v2/client/cli/token"
 	cliutil "github.com/micro/micro/v2/client/cli/util"
 	"github.com/micro/micro/v2/internal/config"
 )
@@ -103,18 +104,5 @@ func (a *wrapper) getAccessToken(envName string, ctx *ccli.Context) error {
 
 	a.token = tok.AccessToken
 	// Save the token to user config file
-	return SaveToken(envName, tok)
-}
-
-// SaveToken saves the auth token to the user's local config file
-func SaveToken(envName string, token *auth.Token) error {
-	if err := config.Set(token.AccessToken, "micro", "auth", envName, "token"); err != nil {
-		return err
-	}
-	// Store the refresh token in micro config
-	if err := config.Set(token.RefreshToken, "micro", "auth", envName, "refresh-token"); err != nil {
-		return err
-	}
-	// Store the refresh token in micro config
-	return config.Set(fmt.Sprintf("%v", token.Expiry.Unix()), "micro", "auth", envName, "expiry")
+	return clitoken.SaveToken(envName, tok)
 }
