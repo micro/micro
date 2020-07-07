@@ -83,6 +83,13 @@ func (a *wrapper) getAccessToken(envName string, ctx *ccli.Context) error {
 
 	// Save the access token so it's usable for calls
 	a.token = tok.AccessToken
+
+	// If there is no refresh token, do not try to refresh it
+	if len(tok.RefreshToken) == 0 {
+		return nil
+	}
+
+	// Check if token must be refreshed
 	if time.Now().Before(tok.Expiry.Add(-15 * time.Second)) {
 		return nil
 	}
