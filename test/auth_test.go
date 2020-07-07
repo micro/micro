@@ -68,7 +68,6 @@ func basicAuthSuite(serv server, t *t) {
 		return outp, nil
 	}, 8*time.Second)
 
-	accessToken := ""
 	try("Try to get token with default account", t, func() ([]byte, error) {
 		readCmd := exec.Command("micro", serv.envFlag(), "call", "go.micro.auth", "Auth.Token", `{"id":"default","secret":"password"}`)
 		outp, err := readCmd.CombinedOutput()
@@ -81,18 +80,18 @@ func basicAuthSuite(serv server, t *t) {
 		if !ok {
 			return outp, errors.New("Can't find token")
 		}
-		if accessToken, ok = token["access_token"].(string); !ok {
+		if _, ok = token["access_token"].(string); !ok {
+			return outp, fmt.Errorf("Can't find access token")
+		}
+		if _, ok = token["refresh_token"].(string); !ok {
+			return outp, fmt.Errorf("Can't find access token")
+		}
+		if _, ok = token["refresh_token"].(string); !ok {
+			return outp, fmt.Errorf("Can't find refresh token")
+		}
+		if _, ok = token["expiry"].(string); !ok {
 			return outp, fmt.Errorf("Can't find access token")
 		}
 		return outp, nil
 	}, 8*time.Second)
-
-	try("Try to log in with token we got", t, func() ([]byte, error) {
-		readCmd := exec.Command("micro", serv.envFlag(), "login", "--token", accessToken)
-		outp, err := readCmd.CombinedOutput()
-		if err != nil {
-			return outp, err
-		}
-		return outp, nil
-	}, 5*time.Second)
 }
