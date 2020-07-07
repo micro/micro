@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"syscall"
 	"time"
 
 	"github.com/micro/cli/v2"
@@ -24,6 +25,7 @@ import (
 	authHandler "github.com/micro/micro/v2/service/auth/handler/auth"
 	rulesHandler "github.com/micro/micro/v2/service/auth/handler/rules"
 	signupproto "github.com/micro/services/signup/proto/signup"
+	"golang.org/x/crypto/ssh/terminal"
 )
 
 var (
@@ -152,24 +154,6 @@ func authFromContext(ctx *cli.Context) auth.Auth {
 // For documentation of the flow please refer to https://github.com/micro/development/pull/223
 func login(ctx *cli.Context) {
 	env := cliutil.GetEnv(ctx)
-	if tok := ctx.String("token"); len(tok) > 0 {
-		_, err := authFromContext(ctx).Inspect(tok)
-		if err != nil {
-			fmt.Println(err)
-			os.Exit(1)
-		}
-		refreshToken := ctx.String("refresh_token")
-		expiry := ctx.Int64("expiry")
-		client.SaveToken(env.Name, &auth.Token{
-			AccessToken:  tok,
-			RefreshToken: refreshToken,
-			Expiry:       time.Unix(expiry, 0),
-		})
-
-		fmt.Println("You have been logged in")
-		return
-	}
-
 	email := ""
 	if ctx.Args().Len() > 0 {
 		email = ctx.Args().First()
@@ -180,8 +164,26 @@ func login(ctx *cli.Context) {
 		email, _ = reader.ReadString('\n')
 		email = strings.TrimSpace(email)
 	}
-	signupService := signupproto.NewSignupService("go.micro.service.signup", client.New(ctx))
 
+	if isOTP := ctx.Bool("otp"); !isOTP {
+		authSrv := authFromContext(ctx)
+		password, err := getPassword()
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+		fmt.Println()
+		tok, err := authSrv.Token(auth.WithCredentials(email, password))
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+		client.SaveToken(env.Name, tok)
+		fmt.Println("You have been logged in")
+		return
+	}
+
+	signupService := signupproto.NewSignupService("go.micro.service.signup", client.New(ctx))
 	_, err := signupService.SendVerificationEmail(context.TODO(), &signupproto.SendVerificationEmailRequest{
 		Email: email,
 	})
@@ -243,6 +245,17 @@ func login(ctx *cli.Context) {
 	}
 	fmt.Println("Successfully logged in.")
 	// @todo save the namespace from the last call and use that.
+}
+
+// taken from https://stackoverflow.com/questions/2137357/getpasswd-functionality-in-go
+func getPassword() (string, error) {
+	fmt.Print("Enter Password: ")
+	bytePassword, err := terminal.ReadPassword(int(syscall.Stdin))
+	if err != nil {
+		return "", err
+	}
+	password := string(bytePassword)
+	return strings.TrimSpace(password), nil
 }
 
 //Commands for auth
@@ -342,17 +355,9 @@ func Commands(srvOpts ...micro.Option) []*cli.Command {
 				return nil
 			},
 			Flags: []cli.Flag{
-				&cli.StringFlag{
-					Name:  "token",
-					Usage: "The access token to set",
-				},
-				&cli.StringFlag{
-					Name:  "refresh_token",
-					Usage: "The token to set",
-				},
-				&cli.Int64Flag{
-					Name:  "expiry",
-					Usage: "The expiry of the access token",
+				&cli.BoolFlag{
+					Name:  "otp",
+					Usage: "Login/signup with a One Time Password.",
 				},
 			},
 		},

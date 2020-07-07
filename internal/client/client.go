@@ -1,3 +1,4 @@
+// Package client handles calls from the CLI calls
 package client
 
 import (
