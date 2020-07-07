@@ -5,7 +5,6 @@ import (
 	"context"
 	"fmt"
 	"os"
-	"strconv"
 	"time"
 
 	ccli "github.com/micro/cli/v2"
@@ -18,7 +17,6 @@ import (
 	"github.com/micro/micro/v2/client/cli/namespace"
 	clitoken "github.com/micro/micro/v2/client/cli/token"
 	cliutil "github.com/micro/micro/v2/client/cli/util"
-	"github.com/micro/micro/v2/internal/config"
 )
 
 // New returns a wrapped grpc client which will inject the
@@ -26,7 +24,14 @@ import (
 func New(ctx *ccli.Context) client.Client {
 	env := cliutil.GetEnv(ctx)
 	ns, _ := namespace.Get(env.Name)
-	client := &wrapper{grpc.NewClient(), "", ns, env.ProxyAddress, env.Name, ctx}
+	client := &wrapper{
+		Client:       grpc.NewClient(),
+		token:        "",
+		ns:           ns,
+		proxyAddress: env.ProxyAddress,
+		envName:      env.Name,
+		context:      ctx,
+	}
 	err := client.getAccessToken(env.Name, ctx)
 	if err != nil {
 		// @todo this is veeery ugly being here
@@ -71,38 +76,21 @@ func (a *wrapper) authFromContext(ctx *ccli.Context) auth.Auth {
 // micro.auth.[envName].refresh-token: long lived refresh token
 // micro.auth.[envName].expiry: expiration time of the access token, seconds since Unix epoch.
 func (a *wrapper) getAccessToken(envName string, ctx *ccli.Context) error {
-	path := []string{"micro", "auth", envName}
-	accessToken, _ := config.Get(append(path, "token")...)
-
-	// Save the access token so it's usable for calls
-	a.token = accessToken
-
-	refreshToken, err := config.Get(append(path, "refresh-token")...)
+	tok, err := clitoken.Get(envName)
 	if err != nil {
-		// Gracefully degrading here in case the user only has a temporary access token at hand.
-		// The call will fail on the receiving end.
-		return nil
+		return err
 	}
-
-	// See if the access token has expired
-	expiry, _ := config.Get("micro", "auth", envName, "expiry")
-	if len(expiry) == 0 {
-		return nil
-	}
-	expiryInt, err := strconv.ParseInt(expiry, 10, 64)
-	if err != nil {
-		return nil
-	}
-	if time.Now().Before(time.Unix(expiryInt, 0).Add(-15 * time.Second)) {
+	a.token = tok.AccessToken
+	if time.Now().Before(tok.Expiry.Add(-15 * time.Second)) {
 		return nil
 	}
 	// Get new access token from refresh token
-	tok, err := a.authFromContext(a.context).Token(auth.WithToken(refreshToken))
+	tok, err = a.authFromContext(a.context).Token(auth.WithToken(tok.RefreshToken))
 	if err != nil {
 		return err
 	}
 
 	a.token = tok.AccessToken
 	// Save the token to user config file
-	return clitoken.SaveToken(envName, tok)
+	return clitoken.Save(envName, tok)
 }

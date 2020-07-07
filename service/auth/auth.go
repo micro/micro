@@ -179,7 +179,7 @@ func login(ctx *cli.Context) {
 			fmt.Println(err)
 			os.Exit(1)
 		}
-		clitoken.SaveToken(env.Name, tok)
+		clitoken.Save(env.Name, tok)
 		fmt.Println("You have been logged in")
 		return
 	}
@@ -209,7 +209,7 @@ func login(ctx *cli.Context) {
 	// Already registered users can just get logged in.
 	tok := rsp.AuthToken
 	if rsp.AuthToken != nil {
-		if err := clitoken.SaveToken(env.Name, &auth.Token{
+		if err := clitoken.Save(env.Name, &auth.Token{
 			AccessToken:  tok.AccessToken,
 			RefreshToken: tok.RefreshToken,
 			Expiry:       time.Unix(tok.Expiry, 0),
@@ -236,7 +236,7 @@ func login(ctx *cli.Context) {
 	}
 
 	tok = signupRsp.AuthToken
-	if err := clitoken.SaveToken(env.Name, &auth.Token{
+	if err := clitoken.Save(env.Name, &auth.Token{
 		AccessToken:  tok.AccessToken,
 		RefreshToken: tok.RefreshToken,
 		Expiry:       time.Unix(tok.Expiry, 0),

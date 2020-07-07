@@ -1,16 +1,56 @@
-// Package token contains user side config (eg. `~/.micro`) token helpers
+// Package token contains CLI client token related helpers
 package token
 
 import (
 	"fmt"
+	"strconv"
+	"time"
 
 	"github.com/micro/go-micro/v2/auth"
 	"github.com/micro/micro/v2/internal/config"
 )
 
+// Get tries a best effort read of auth token from user config.
+// Might have missing `RefreshToken` or `Expiry` fields in case of
+// incomplete or corrupted user config.
+func Get(envName string) (*auth.Token, error) {
+	path := []string{"micro", "auth", envName}
+	accessToken, _ := config.Get(append(path, "token")...)
+	// Save the access token so it's usable for calls
 
-// SaveToken saves the auth token to the user's local config file
-func SaveToken(envName string, token *auth.Token) error {
+	refreshToken, err := config.Get(append(path, "refresh-token")...)
+	if err != nil {
+		// Gracefully degrading here in case the user only has a temporary access token at hand.
+		// The call will fail on the receiving end.
+		return &auth.Token{
+			AccessToken: accessToken,
+		}, nil
+	}
+
+	// See if the access token has expired
+	expiry, _ := config.Get("micro", "auth", envName, "expiry")
+	if len(expiry) == 0 {
+		return &auth.Token{
+			AccessToken:  accessToken,
+			RefreshToken: refreshToken,
+		}, nil
+	}
+	expiryInt, err := strconv.ParseInt(expiry, 10, 64)
+	if err != nil {
+		return &auth.Token{
+			AccessToken:  accessToken,
+			RefreshToken: refreshToken,
+		}, nil
+	}
+	return &auth.Token{
+		AccessToken:  accessToken,
+		RefreshToken: refreshToken,
+		Expiry:       time.Unix(expiryInt, 0),
+	}, nil
+}
+
+// Save saves the auth token to the user's local config file
+func Save(envName string, token *auth.Token) error {
 	if err := config.Set(token.AccessToken, "micro", "auth", envName, "token"); err != nil {
 		return err
 	}
