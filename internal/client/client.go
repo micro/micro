@@ -80,17 +80,22 @@ func (a *wrapper) getAccessToken(envName string, ctx *ccli.Context) error {
 	if err != nil {
 		return err
 	}
+
+	// Save the access token so it's usable for calls
 	a.token = tok.AccessToken
 	if time.Now().Before(tok.Expiry.Add(-15 * time.Second)) {
 		return nil
 	}
-	// Get new access token from refresh token
+
+	// Get new access token from refresh token if it's close to expiry
 	tok, err = a.authFromContext(a.context).Token(auth.WithToken(tok.RefreshToken))
 	if err != nil {
 		return err
 	}
 
+	// Save the new access token
 	a.token = tok.AccessToken
+
 	// Save the token to user config file
 	return clitoken.Save(envName, tok)
 }

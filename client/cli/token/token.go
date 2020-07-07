@@ -16,7 +16,6 @@ import (
 func Get(envName string) (*auth.Token, error) {
 	path := []string{"micro", "auth", envName}
 	accessToken, _ := config.Get(append(path, "token")...)
-	// Save the access token so it's usable for calls
 
 	refreshToken, err := config.Get(append(path, "refresh-token")...)
 	if err != nil {
@@ -28,7 +27,7 @@ func Get(envName string) (*auth.Token, error) {
 	}
 
 	// See if the access token has expired
-	expiry, _ := config.Get("micro", "auth", envName, "expiry")
+	expiry, _ := config.Get(append(path, "expiry")...)
 	if len(expiry) == 0 {
 		return &auth.Token{
 			AccessToken:  accessToken,
@@ -37,10 +36,7 @@ func Get(envName string) (*auth.Token, error) {
 	}
 	expiryInt, err := strconv.ParseInt(expiry, 10, 64)
 	if err != nil {
-		return &auth.Token{
-			AccessToken:  accessToken,
-			RefreshToken: refreshToken,
-		}, nil
+		return nil, err
 	}
 	return &auth.Token{
 		AccessToken:  accessToken,
