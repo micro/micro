@@ -95,6 +95,11 @@ func testNamespaceConfigIsolationSuite(serv server, t *t) {
 		return outp, nil
 	}, 15*time.Second)
 
+	login(serv, t, "default", "password")
+	if t.failed {
+		return
+	}
+
 	try("reading 'somekey' should not be found with this account", t, func() ([]byte, error) {
 		getCmd := exec.Command("micro", serv.envFlag(), "config", "get", "somekey")
 		outp, err := getCmd.CombinedOutput()
@@ -105,6 +110,29 @@ func testNamespaceConfigIsolationSuite(serv server, t *t) {
 			return outp, errors.New("Expected 'not found\n'")
 		}
 		return outp, nil
+	}, 8*time.Second)
+
+	// Log back to original namespace and see if value is already there
+
+	// orignal namespace matchesthe env name
+	namespace.Set(serv.envName, serv.envName)
+	token.Remove(serv.envName)
+
+	login(serv, t, "default", "password")
+	if t.failed {
+		return
+	}
+
+	try("micro config get somekey", t, func() ([]byte, error) {
+		getCmd := exec.Command("micro", serv.envFlag(), "config", "get", "somekey")
+		outp, err := getCmd.CombinedOutput()
+		if err != nil {
+			return outp, err
+		}
+		if string(outp) != "val1\n" {
+			return outp, errors.New("Expected 'val1\n'")
+		}
+		return outp, err
 	}, 8*time.Second)
 }
 
