@@ -13,11 +13,7 @@ To start etcd
 To delete etcd
 
 ```
-# list existing deployments
-helm list
-
-# remove the deployment
-helm delete etcd-cluster
+./uninstall.sh
 ```
 
 Note: When connecting to etcd, the ca and client certs must be used, e.g:
@@ -42,7 +38,7 @@ spec:
         - name: MICRO_REGISTRY_SECURE
           value: "true"
         - name: MICRO_CERTIFICATE_AUTHORITIES
-          value: "/certs/registry/ca.crt"
+          value: "/certs/registry/ca.crt,/certs/broker/ca.crt"
         args:
         - registry
         image: bentoogood/micro:mtls
