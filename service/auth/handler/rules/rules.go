@@ -116,9 +116,25 @@ func (r *Rules) Create(ctx context.Context, req *pb.CreateRequest, rsp *pb.Creat
 		return errors.BadRequest("go.micro.auth", "Access missing")
 	}
 
+	// set defaults
+	if req.Options == nil {
+		req.Options = &pb.Options{}
+	}
+	if len(req.Options.Namespace) == 0 {
+		req.Options.Namespace = namespace.DefaultNamespace
+	}
+
+	// authorize the request
+	if err := namespace.Authorize(ctx, req.Options.Namespace); err == namespace.ErrForbidden {
+		return errors.Forbidden("go.micro.auth", err.Error())
+	} else if err == namespace.ErrUnauthorized {
+		return errors.Unauthorized("go.micro.auth", err.Error())
+	} else if err != nil {
+		return errors.InternalServerError("go.micro.auth", err.Error())
+	}
+
 	// Chck the rule doesn't exist
-	ns := namespace.FromContext(ctx)
-	key := strings.Join([]string{storePrefixRules, ns, req.Rule.Id}, joinKey)
+	key := strings.Join([]string{storePrefixRules, req.Options.Namespace, req.Rule.Id}, joinKey)
 	if _, err := r.Options.Store.Read(key); err == nil {
 		return errors.BadRequest("go.micro.auth", "A rule with this ID already exists")
 	}
@@ -144,9 +160,25 @@ func (r *Rules) Delete(ctx context.Context, req *pb.DeleteRequest, rsp *pb.Delet
 		return errors.BadRequest("go.micro.auth", "ID missing")
 	}
 
+	// set defaults
+	if req.Options == nil {
+		req.Options = &pb.Options{}
+	}
+	if len(req.Options.Namespace) == 0 {
+		req.Options.Namespace = namespace.DefaultNamespace
+	}
+
+	// authorize the request
+	if err := namespace.Authorize(ctx, req.Options.Namespace); err == namespace.ErrForbidden {
+		return errors.Forbidden("go.micro.auth", err.Error())
+	} else if err == namespace.ErrUnauthorized {
+		return errors.Unauthorized("go.micro.auth", err.Error())
+	} else if err != nil {
+		return errors.InternalServerError("go.micro.auth", err.Error())
+	}
+
 	// Delete the rule
-	ns := namespace.FromContext(ctx)
-	key := strings.Join([]string{storePrefixRules, ns, req.Id}, joinKey)
+	key := strings.Join([]string{storePrefixRules, req.Options.Namespace, req.Id}, joinKey)
 	err := r.Options.Store.Delete(key)
 	if err == store.ErrNotFound {
 		return errors.BadRequest("go.micro.auth", "Rule not found")
@@ -159,12 +191,28 @@ func (r *Rules) Delete(ctx context.Context, req *pb.DeleteRequest, rsp *pb.Delet
 
 // List returns all the rules
 func (r *Rules) List(ctx context.Context, req *pb.ListRequest, rsp *pb.ListResponse) error {
+	// set defaults
+	if req.Options == nil {
+		req.Options = &pb.Options{}
+	}
+	if len(req.Options.Namespace) == 0 {
+		req.Options.Namespace = namespace.DefaultNamespace
+	}
+
+	// authorize the request
+	if err := namespace.Authorize(ctx, req.Options.Namespace); err == namespace.ErrForbidden {
+		return errors.Forbidden("go.micro.auth", err.Error())
+	} else if err == namespace.ErrUnauthorized {
+		return errors.Unauthorized("go.micro.auth", err.Error())
+	} else if err != nil {
+		return errors.InternalServerError("go.micro.auth", err.Error())
+	}
+
 	// setup the defaults incase none exist
 	r.setupDefaultRules(namespace.FromContext(ctx))
 
 	// get the records from the store
-	ns := namespace.FromContext(ctx)
-	prefix := strings.Join([]string{storePrefixRules, ns, ""}, joinKey)
+	prefix := strings.Join([]string{storePrefixRules, req.Options.Namespace, ""}, joinKey)
 	recs, err := r.Options.Store.Read(prefix, store.ReadPrefix())
 	if err != nil {
 		return errors.InternalServerError("go.micro.auth", "Unable to read from store: %v", err)
