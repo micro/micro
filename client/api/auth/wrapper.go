@@ -104,10 +104,16 @@ func (a authWrapper) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		resEndpoint = endpoint.Method
 	}
 
+	// Options to use when verifying the request
+	verifyOpts := []auth.VerifyOption{
+		auth.VerifyContext(req.Context()),
+		auth.VerifyNamespace(ns),
+	}
+
 	// Perform the verification check to see if the account has access to
 	// the resource they're requesting
 	res := &auth.Resource{Type: "service", Name: resName, Endpoint: resEndpoint}
-	if err := a.auth.Verify(acc, res, auth.VerifyContext(req.Context())); err == nil {
+	if err := a.auth.Verify(acc, res, verifyOpts...); err == nil {
 		// The account has the necessary permissions to access the resource
 		a.handler.ServeHTTP(w, req)
 		return
