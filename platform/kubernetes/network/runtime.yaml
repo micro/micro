@@ -99,18 +99,18 @@ spec:
       containers:
       - name: runtime
         env:
-        # - name: MICRO_AUTH
-        #   value: "jwt"
-        # - name: MICRO_AUTH_PUBLIC_KEY
-        #   valueFrom:
-        #     secretKeyRef:
-        #       name: micro-secrets
-        #       key: auth_public_key
-        # - name: MICRO_AUTH_PRIVATE_KEY
-        #   valueFrom:
-        #     secretKeyRef:
-        #       name: micro-secrets
-        #       key: auth_private_key
+        - name: MICRO_AUTH
+          value: "jwt"
+        - name: MICRO_AUTH_PUBLIC_KEY
+          valueFrom:
+            secretKeyRef:
+              name: micro-secrets
+              key: auth_public_key
+        - name: MICRO_AUTH_PRIVATE_KEY
+          valueFrom:
+            secretKeyRef:
+              name: micro-secrets
+              key: auth_private_key
         - name: MICRO_BROKER
           value: "nats"
         - name: MICRO_BROKER_ADDRESS

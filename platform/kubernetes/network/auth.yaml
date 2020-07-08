@@ -47,18 +47,18 @@ spec:
           value: "cockroach"
         - name: MICRO_STORE_ADDRESS
           value: "postgresql://root@cockroachdb-cluster:26257?ssl=true&sslmode=require&sslrootcert=certs/store/ca.crt&sslkey=certs/store/key.pem&sslcert=certs/store/cert.pem"
-        # - name: MICRO_AUTH
-        #   value: "jwt"
-        # - name: MICRO_AUTH_PUBLIC_KEY
-        #   valueFrom:
-        #     secretKeyRef:
-        #       name: micro-secrets
-        #       key: auth_public_key
-        # - name: MICRO_AUTH_PRIVATE_KEY
-        #   valueFrom:
-        #     secretKeyRef:
-        #       name: micro-secrets
-        #       key: auth_private_key
+        - name: MICRO_AUTH
+          value: "jwt"
+        - name: MICRO_AUTH_PUBLIC_KEY
+          valueFrom:
+            secretKeyRef:
+              name: micro-secrets
+              key: auth_public_key
+        - name: MICRO_AUTH_PRIVATE_KEY
+          valueFrom:
+            secretKeyRef:
+              name: micro-secrets
+              key: auth_private_key
         args:
         - auth
         image: bentoogood/micro:mtls

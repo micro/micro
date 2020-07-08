@@ -21,18 +21,18 @@ spec:
       containers:
       - name: micro-store
         env:
-        # - name: MICRO_AUTH
-        #   value: "jwt"
-        # - name: MICRO_AUTH_PUBLIC_KEY
-        #   valueFrom:
-        #     secretKeyRef:
-        #       name: micro-secrets
-        #       key: auth_public_key
-        # - name: MICRO_AUTH_PRIVATE_KEY
-        #   valueFrom:
-        #     secretKeyRef:
-        #       name: micro-secrets
-        #       key: auth_private_key
+        - name: MICRO_AUTH
+          value: "jwt"
+        - name: MICRO_AUTH_PUBLIC_KEY
+          valueFrom:
+            secretKeyRef:
+              name: micro-secrets
+              key: auth_public_key
+        - name: MICRO_AUTH_PRIVATE_KEY
+          valueFrom:
+            secretKeyRef:
+              name: micro-secrets
+              key: auth_private_key
         - name: MICRO_SERVER_ADDRESS
           value: "0.0.0.0:8002"
         - name: MICRO_LOG_LEVEL
