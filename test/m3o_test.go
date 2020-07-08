@@ -104,6 +104,9 @@ func testM3oSignupFlow(t *t) {
 		t.Fatal(err)
 	}
 	wg.Wait()
+	if t.failed {
+		return
+	}
 
 	outp, err = exec.Command("micro", serv.envFlag(), "call", "go.micro.service.account.invite", "Invite.Create", `{"email":"dobronszki@gmail.com"}`).CombinedOutput()
 	if err != nil {
@@ -138,7 +141,7 @@ func testM3oSignupFlow(t *t) {
 
 	code := ""
 	try("Find verification token in logs", t, func() ([]byte, error) {
-		psCmd := exec.Command("micro", serv.envFlag(), "logs", "-n", "10", "signup")
+		psCmd := exec.Command("micro", serv.envFlag(), "logs", "-n", "100", "signup")
 		outp, err = psCmd.CombinedOutput()
 		if err != nil {
 			return outp, err
@@ -155,6 +158,10 @@ func testM3oSignupFlow(t *t) {
 	}, 50*time.Second)
 
 	t.Log("Code is ", code)
+	if code == "" {
+		t.Fatal("Code not found")
+		return
+	}
 	_, err = io.WriteString(stdin, code+"\n")
 	if err != nil {
 		t.Fatal(err)
