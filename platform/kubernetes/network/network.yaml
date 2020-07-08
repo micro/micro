@@ -66,7 +66,7 @@ spec:
           value: "0.0.0.0:8080"
         args:
         - network
-        image: bentoogood/micro:mtls
+        image: micro/micro
         imagePullPolicy: Always
         ports:
         - containerPort: 8080

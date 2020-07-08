@@ -71,7 +71,7 @@ spec:
               name: micro-secrets
         args:
         - proxy
-        image: bentoogood/micro:mtls
+        image: micro/micro
         imagePullPolicy: Always
         ports:
         - containerPort: 443

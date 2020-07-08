@@ -59,7 +59,7 @@ spec:
           value: "true"
         args:
         - router
-        image: bentoogood/micro:mtls
+        image: micro/micro
         imagePullPolicy: Always
         ports:
         - containerPort: 8084

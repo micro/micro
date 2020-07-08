@@ -57,7 +57,7 @@ spec:
           value: "/certs/registry/ca.crt,/certs/broker/ca.crt"
         args:
         - broker
-        image: bentoogood/micro:mtls
+        image: micro/micro
         imagePullPolicy: Always
         ports:
         - containerPort: 8001

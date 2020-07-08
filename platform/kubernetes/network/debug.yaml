@@ -60,7 +60,7 @@ spec:
           value: "true"
         - name: MICRO_CERTIFICATE_AUTHORITIES
           value: "/certs/registry/ca.crt,/certs/broker/ca.crt"
-        image: bentoogood/micro:mtls
+        image: micro/micro
         imagePullPolicy: Always
         command:
         - /micro

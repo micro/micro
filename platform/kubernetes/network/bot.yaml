@@ -31,7 +31,7 @@ spec:
             "bot",
             "--inputs=slack"
           ]
-          image: bentoogood/micro:mtls
+          image: micro/micro
           imagePullPolicy: Always
           env:
           - name: MICRO_AUTH

@@ -81,5 +81,5 @@ spec:
           value: "debug"
         args:
         - init
-        image: bentoogood/micro:mtls
+        image: micro/micro
         imagePullPolicy: Always
