@@ -43,7 +43,8 @@ func Add(namespace, env string) error {
 	}
 	for _, ns := range existing {
 		if ns == namespace {
-			return errors.New("Namespace already exists")
+			// Not returning error so Add can be idempotent
+			return nil
 		}
 	}
 
@@ -62,7 +63,7 @@ func Remove(namespace, env string) error {
 	if len(env) == 0 {
 		return errors.New("Missing env value")
 	}
-	if len(env) == 0 {
+	if len(namespace) == 0 {
 		return errors.New("Missing namespace value")
 	}
 	if namespace == registry.DefaultDomain {
@@ -108,7 +109,7 @@ func Set(namespace, env string) error {
 	if len(env) == 0 {
 		return errors.New("Missing env value")
 	}
-	if len(env) == 0 {
+	if len(namespace) == 0 {
 		return errors.New("Missing namespace value")
 	}
 

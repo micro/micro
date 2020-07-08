@@ -35,8 +35,16 @@ func testNamespaceConfigIsolation(t *t) {
 }
 
 func testNamespaceConfigIsolationSuite(serv server, t *t) {
-	// Execute first command in read to wait for store service
-	// to start up
+	err := namespace.Add(serv.envName, serv.envName)
+	if err != nil {
+		t.Fatal(err)
+		return
+	}
+	err = namespace.Set(serv.envName, serv.envName)
+	if err != nil {
+		t.Fatal(err)
+		return
+	}
 	try("Calling micro auth list accounts", t, func() ([]byte, error) {
 		readCmd := exec.Command("micro", serv.envFlag(), "auth", "list", "accounts")
 		outp, err := readCmd.CombinedOutput()
@@ -79,8 +87,21 @@ func testNamespaceConfigIsolationSuite(serv server, t *t) {
 		return outp, err
 	}, 8*time.Second)
 
-	namespace.Set(serv.envName, "random")
-	token.Remove(serv.envName)
+	err = namespace.Add("random", serv.envName)
+	if err != nil {
+		t.Fatal(err)
+		return
+	}
+	err = namespace.Set("random", serv.envName)
+	if err != nil {
+		t.Fatal(err)
+		return
+	}
+	err = token.Remove(serv.envName)
+	if err != nil {
+		t.Fatal(err)
+		return
+	}
 
 	try("Calling micro auth list accounts", t, func() ([]byte, error) {
 		readCmd := exec.Command("micro", serv.envFlag(), "auth", "list", "accounts")
@@ -115,8 +136,16 @@ func testNamespaceConfigIsolationSuite(serv server, t *t) {
 	// Log back to original namespace and see if value is already there
 
 	// orignal namespace matchesthe env name
-	namespace.Set(serv.envName, serv.envName)
-	token.Remove(serv.envName)
+	err = namespace.Set(serv.envName, serv.envName)
+	if err != nil {
+		t.Fatal(err)
+		return
+	}
+	err = token.Remove(serv.envName)
+	if err != nil {
+		t.Fatal(err)
+		return
+	}
 
 	login(serv, t, "default", "password")
 	if t.failed {
