@@ -87,10 +87,9 @@ func testM3oSignupFlow(t *t) {
 	wg.Add(1)
 	go func() {
 		outp, err := cmd.CombinedOutput()
-		if err != nil {
-			t.Fatal(string(outp), err)
-		}
-		if !strings.Contains(string(outp), "signup.notallowed") {
+		if err == nil {
+			t.Fatalf("Expected an error for login but got none")
+		} else if !strings.Contains(string(outp), "signup.notallowed") {
 			t.Fatal(string(outp))
 		}
 		wg.Done()
