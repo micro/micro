@@ -39,11 +39,6 @@ func ContextWithNamespace(ctx context.Context, ns string) context.Context {
 
 // Authorize will return an error if the context cannot access the given namespace
 func Authorize(ctx context.Context, namespace string) error {
-	// anyone can access the default namespace
-	if namespace == DefaultNamespace {
-		return nil
-	}
-
 	// accounts are always required so we can identify the caller. If auth is not configured, the noop
 	// auth implementation will return a blank account with the default namespace set, allowing the caller
 	// access to all resources
