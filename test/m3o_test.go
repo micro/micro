@@ -47,8 +47,12 @@ func testM3oSignupFlow(t *t) {
 			t.Fatal(string(outp))
 		}
 	}
+	outp, err := exec.Command("micro", serv.envFlag(), "run", "github.com/micro/services/account/invite").CombinedOutput()
+	if err != nil {
+		t.Fatal(string(outp))
+	}
 
-	outp, err := exec.Command("micro", serv.envFlag(), "run", "github.com/micro/services/signup").CombinedOutput()
+	outp, err = exec.Command("micro", serv.envFlag(), "run", "github.com/micro/services/signup").CombinedOutput()
 	if err != nil {
 		t.Fatal(string(outp))
 	}
@@ -63,16 +67,21 @@ func testM3oSignupFlow(t *t) {
 		if err != nil {
 			return outp, err
 		}
-		if !strings.Contains(string(outp), "stripe") || !strings.Contains(string(outp), "signup") {
-			return outp, errors.New("Can't find sign or stripe in list")
+		if !strings.Contains(string(outp), "stripe") || !strings.Contains(string(outp), "signup") || !strings.Contains(string(outp), "invite") {
+			return outp, errors.New("Can't find signup or stripe or invite in list")
 		}
 		return outp, err
-	}, 70*time.Second)
+	}, 700*time.Second)
 	if t.failed {
 		return
 	}
 
 	time.Sleep(5 * time.Second)
+
+	outp, err = exec.Command("micro", serv.envFlag(), "call", "go.micro.service.account.invite", "Invite.Create", `{"email":"dobronszki@gmail.com"}`).CombinedOutput()
+	if err != nil {
+		t.Fatal(string(outp))
+	}
 
 	cmd := exec.Command("micro", serv.envFlag(), "login", "--otp")
 	stdin, err := cmd.StdinPipe()
