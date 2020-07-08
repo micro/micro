@@ -38,7 +38,19 @@ func ContextWithNamespace(ctx context.Context, ns string) context.Context {
 }
 
 // Authorize will return an error if the context cannot access the given namespace
-func Authorize(ctx context.Context, namespace string) error {
+func Authorize(ctx context.Context, namespace string, options ...Option) error {
+	opts := &Options{}
+	for _, o := range options {
+		o(opts)
+	}
+	if len(opts.Public) > 0 {
+		for _, public := range opts.Public {
+			if namespace == public {
+				return nil
+			}
+		}
+	}
+
 	// accounts are always required so we can identify the caller. If auth is not configured, the noop
 	// auth implementation will return a blank account with the default namespace set, allowing the caller
 	// access to all resources
@@ -58,4 +70,19 @@ func Authorize(ctx context.Context, namespace string) error {
 	}
 
 	return nil
+}
+
+// Options for namespace operations
+type Options struct {
+	// Public namespaces
+	Public []string
+}
+
+// Option sets an option
+type Option func(*Options)
+
+func WithPublic(namespaces ...string) Option {
+	return func(o *Options) {
+		o.Public = namespaces
+	}
 }
