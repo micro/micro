@@ -111,10 +111,12 @@ spec:
         #     secretKeyRef:
         #       name: micro-secrets
         #       key: auth_private_key
-        # - name: MICRO_BROKER
-        #   value: "nats"
-        # - name: MICRO_BROKER_ADDRESS
-        #   value: "nats-cluster"
+        - name: MICRO_BROKER
+          value: "nats"
+        - name: MICRO_BROKER_ADDRESS
+          value: "nats-cluster"
+        - name: MICRO_BROKER_SECURE
+          value: "true"
         - name: MICRO_REGISTRY
           value: "etcd"
         - name: MICRO_REGISTRY_ADDRESS
@@ -122,7 +124,7 @@ spec:
         - name: MICRO_REGISTRY_SECURE
           value: "true"
         - name: MICRO_CERTIFICATE_AUTHORITIES
-          value: "/certs/registry/ca.crt"
+          value: "/certs/registry/ca.crt,/certs/broker/ca.crt"
         - name: MICRO_RUNTIME
           value: "kubernetes"
         - name: MICRO_RUNTIME_PROFILE
@@ -143,7 +145,13 @@ spec:
         - name: etcd-client-certs
           mountPath: "/certs/registry"
           readOnly: true
+        - name: nats-client-certs
+          mountPath: "/certs/broker"
+          readOnly: true
       volumes:
       - name: etcd-client-certs
         secret:
           secretName: etcd-client-certs
+      - name: nats-client-certs
+        secret:
+          secretName: nats-client-certs
