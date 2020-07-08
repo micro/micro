@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"os/exec"
 	"strconv"
-	"strings"
 	"testing"
 	"time"
 
@@ -45,18 +44,9 @@ func testNamespaceConfigIsolationSuite(serv server, t *t) {
 		t.Fatal(err)
 		return
 	}
-	try("Calling micro auth list accounts", t, func() ([]byte, error) {
-		readCmd := exec.Command("micro", serv.envFlag(), "auth", "list", "accounts")
-		outp, err := readCmd.CombinedOutput()
-		if err != nil {
-			return outp, err
-		}
-		if !strings.Contains(string(outp), "admin") ||
-			!strings.Contains(string(outp), "default") {
-			return outp, fmt.Errorf("Output should contain default admin account")
-		}
-		return outp, nil
-	}, 15*time.Second)
+
+	// This call is only here to trigger default account generation
+	exec.Command("micro", serv.envFlag(), "auth", "list", "accounts").CombinedOutput()
 
 	login(serv, t, "default", "password")
 	if t.failed {
@@ -103,18 +93,8 @@ func testNamespaceConfigIsolationSuite(serv server, t *t) {
 		return
 	}
 
-	try("Calling micro auth list accounts", t, func() ([]byte, error) {
-		readCmd := exec.Command("micro", serv.envFlag(), "auth", "list", "accounts")
-		outp, err := readCmd.CombinedOutput()
-		if err != nil {
-			return outp, err
-		}
-		if !strings.Contains(string(outp), "admin") ||
-			!strings.Contains(string(outp), "default") {
-			return outp, fmt.Errorf("Output should contain default admin account")
-		}
-		return outp, nil
-	}, 15*time.Second)
+	// This call is only here to trigger default account generation
+	exec.Command("micro", serv.envFlag(), "auth", "list", "accounts").CombinedOutput()
 
 	login(serv, t, "default", "password")
 	if t.failed {

@@ -22,6 +22,9 @@ func (a *Auth) List(ctx context.Context, req *pb.ListAccountsRequest, rsp *pb.Li
 		req.Options.Namespace = namespace.DefaultNamespace
 	}
 
+	// setup the defaults incase none exist
+	a.setupDefaultAccount(req.Options.Namespace)
+
 	// authorize the request
 	if err := namespace.Authorize(ctx, req.Options.Namespace); err == namespace.ErrForbidden {
 		return errors.Forbidden("go.micro.auth", err.Error())
@@ -30,9 +33,6 @@ func (a *Auth) List(ctx context.Context, req *pb.ListAccountsRequest, rsp *pb.Li
 	} else if err != nil {
 		return errors.InternalServerError("go.micro.auth", err.Error())
 	}
-
-	// setup the defaults incase none exist
-	a.setupDefaultAccount(req.Options.Namespace)
 
 	// get the records from the store
 	key := strings.Join([]string{storePrefixAccounts, req.Options.Namespace, ""}, joinKey)
