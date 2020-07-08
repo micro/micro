@@ -1,0 +1,18 @@
+{
+    "CN": "nats-cluster",
+    "hosts": [
+        "nats-cluster.default.svc.cluster.local",
+        "nats-cluster"
+    ],
+    "key": {
+        "algo": "ecdsa",
+        "size": 256
+    },
+    "names": [
+        {
+            "C": "UK",
+            "O": "Micro"
+        }
+    ]
+}
+
