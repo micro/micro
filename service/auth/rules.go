@@ -11,13 +11,23 @@ import (
 	"github.com/micro/cli/v2"
 	pb "github.com/micro/go-micro/v2/auth/service/proto"
 	"github.com/micro/go-micro/v2/errors"
+	"github.com/micro/micro/v2/client/cli/namespace"
+	"github.com/micro/micro/v2/client/cli/util"
 	"github.com/micro/micro/v2/internal/client"
 )
 
 func listRules(ctx *cli.Context) {
 	client := rulesFromContext(ctx)
 
-	rsp, err := client.List(context.TODO(), &pb.ListRequest{})
+	ns, err := namespace.Get(util.GetEnv(ctx).Name)
+	if err != nil {
+		fmt.Printf("Error getting namespace: %v\n", err)
+		os.Exit(1)
+	}
+
+	rsp, err := client.List(context.TODO(), &pb.ListRequest{
+		Options: &pb.Options{Namespace: ns},
+	})
 	if err != nil {
 		fmt.Printf("Error listing rules: %v\n", err)
 		os.Exit(1)
@@ -48,8 +58,14 @@ func listRules(ctx *cli.Context) {
 }
 
 func createRule(ctx *cli.Context) {
-	_, err := rulesFromContext(ctx).Create(context.TODO(), &pb.CreateRequest{
-		Rule: constructRule(ctx),
+	ns, err := namespace.Get(util.GetEnv(ctx).Name)
+	if err != nil {
+		fmt.Printf("Error getting namespace: %v\n", err)
+		os.Exit(1)
+	}
+
+	_, err = rulesFromContext(ctx).Create(context.TODO(), &pb.CreateRequest{
+		Rule: constructRule(ctx), Options: &pb.Options{Namespace: ns},
 	})
 	if verr, ok := err.(*errors.Error); ok {
 		fmt.Printf("Error: %v\n", verr.Detail)
@@ -68,8 +84,14 @@ func deleteRule(ctx *cli.Context) {
 		os.Exit(1)
 	}
 
-	_, err := rulesFromContext(ctx).Delete(context.TODO(), &pb.DeleteRequest{
-		Id: ctx.Args().First(),
+	ns, err := namespace.Get(util.GetEnv(ctx).Name)
+	if err != nil {
+		fmt.Printf("Error getting namespace: %v\n", err)
+		os.Exit(1)
+	}
+
+	_, err = rulesFromContext(ctx).Delete(context.TODO(), &pb.DeleteRequest{
+		Id: ctx.Args().First(), Options: &pb.Options{Namespace: ns},
 	})
 	if verr, ok := err.(*errors.Error); ok {
 		fmt.Printf("Error: %v\n", verr.Detail)

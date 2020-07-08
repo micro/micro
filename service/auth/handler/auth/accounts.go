@@ -14,11 +14,28 @@ import (
 
 // List returns all auth accounts
 func (a *Auth) List(ctx context.Context, req *pb.ListAccountsRequest, rsp *pb.ListAccountsResponse) error {
+	// set defaults
+	if req.Options == nil {
+		req.Options = &pb.Options{}
+	}
+	if len(req.Options.Namespace) == 0 {
+		req.Options.Namespace = namespace.DefaultNamespace
+	}
+
+	// authorize the request
+	if err := namespace.Authorize(ctx, req.Options.Namespace); err == namespace.ErrForbidden {
+		return errors.Forbidden("go.micro.auth", err.Error())
+	} else if err == namespace.ErrUnauthorized {
+		return errors.Unauthorized("go.micro.auth", err.Error())
+	} else if err != nil {
+		return errors.InternalServerError("go.micro.auth", err.Error())
+	}
+
 	// setup the defaults incase none exist
-	a.setupDefaultAccount(namespace.FromContext(ctx))
+	a.setupDefaultAccount(req.Options.Namespace)
 
 	// get the records from the store
-	key := strings.Join([]string{storePrefixAccounts, namespace.FromContext(ctx), ""}, joinKey)
+	key := strings.Join([]string{storePrefixAccounts, req.Options.Namespace, ""}, joinKey)
 	recs, err := a.Options.Store.Read(key, store.ReadPrefix())
 	if err != nil {
 		return errors.InternalServerError("go.micro.auth", "Unable to read from store: %v", err)
