@@ -78,17 +78,44 @@ func testM3oSignupFlow(t *t) {
 
 	time.Sleep(5 * time.Second)
 
-	outp, err = exec.Command("micro", serv.envFlag(), "call", "go.micro.service.account.invite", "Invite.Create", `{"email":"dobronszki@gmail.com"}`).CombinedOutput()
-	if err != nil {
-		t.Fatal(string(outp))
-	}
-
 	cmd := exec.Command("micro", serv.envFlag(), "login", "--otp")
 	stdin, err := cmd.StdinPipe()
 	if err != nil {
 		log.Fatal(err)
 	}
 	wg := sync.WaitGroup{}
+	wg.Add(1)
+	go func() {
+		outp, err := cmd.CombinedOutput()
+		if err != nil {
+			t.Fatal(string(outp), err)
+		}
+		if !strings.Contains(string(outp), "signup.notallowed") {
+			t.Fatal(string(outp))
+		}
+		wg.Done()
+	}()
+	go func() {
+		time.Sleep(20 * time.Second)
+		cmd.Process.Kill()
+	}()
+	_, err = io.WriteString(stdin, "dobronszki@gmail.com\n")
+	if err != nil {
+		t.Fatal(err)
+	}
+	wg.Wait()
+
+	outp, err = exec.Command("micro", serv.envFlag(), "call", "go.micro.service.account.invite", "Invite.Create", `{"email":"dobronszki@gmail.com"}`).CombinedOutput()
+	if err != nil {
+		t.Fatal(string(outp))
+	}
+
+	cmd = exec.Command("micro", serv.envFlag(), "login", "--otp")
+	stdin, err = cmd.StdinPipe()
+	if err != nil {
+		log.Fatal(err)
+	}
+	wg = sync.WaitGroup{}
 	wg.Add(1)
 	go func() {
 		outp, err := cmd.CombinedOutput()
