@@ -51,10 +51,8 @@ spec:
             value: "service"
           - name: MICRO_REGISTRY_ADDRESS
             value: "micro-registry:8000"
-        - name: MICRO_SLACK_TOKEN
+          - name: MICRO_SLACK_TOKEN
             valueFrom:
               secretKeyRef:
                 name: micro-secrets
                 key: slack
-
-
