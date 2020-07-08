@@ -92,6 +92,7 @@ func TestWrongCommands(t *testing.T) {
 }
 
 func testWrongCommands(t *t) {
+	t.Parallel()
 	// @TODO this is obviously bad that we have to start a server for this. Why?
 	// What happens is in `cmd/cmd.go` `/service/store/cli/util.go`.SetupCommand is called
 	// which does not run for builtin services and help etc but there is no such exception for
@@ -101,8 +102,6 @@ func testWrongCommands(t *t) {
 	serv := newServer(t)
 	serv.launch()
 	defer serv.close()
-
-	t.Parallel()
 
 	comm := exec.Command("micro", serv.envFlag())
 	outp, err := comm.CombinedOutput()
@@ -142,6 +141,7 @@ func TestHelps(t *testing.T) {
 }
 
 func testHelps(t *t) {
+	t.Parallel()
 	comm := exec.Command("micro", "help")
 	outp, err := comm.CombinedOutput()
 	if err != nil {
