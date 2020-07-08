@@ -58,7 +58,7 @@ spec:
         args:
         - auth
         - api
-        image: micro/micro
+        image: bentoogood/micro:mtls
         imagePullPolicy: Always
         ports:
         - containerPort: 8011

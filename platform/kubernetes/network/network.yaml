@@ -48,19 +48,23 @@ spec:
         env:
         - name: MICRO_LOG_LEVEL
           value: "debug"
-        - name: MICRO_BROKER
-          value: "nats"
-        - name: MICRO_BROKER_ADDRESS
-          value: "nats-cluster"
+        # - name: MICRO_BROKER
+        #   value: "nats"
+        # - name: MICRO_BROKER_ADDRESS
+        #   value: "nats-cluster"
         - name: MICRO_REGISTRY
           value: "etcd"
         - name: MICRO_REGISTRY_ADDRESS
           value: "etcd-cluster"
+        - name: MICRO_REGISTRY_SECURE
+          value: "true"
+        - name: MICRO_CERTIFICATE_AUTHORITIES
+          value: "/certs/registry/ca.crt"
         - name: MICRO_SERVER_ADDRESS
           value: "0.0.0.0:8080"
         args:
         - network
-        image: micro/micro
+        image: bentoogood/micro:mtls
         imagePullPolicy: Always
         ports:
         - containerPort: 8080
@@ -68,3 +72,11 @@ spec:
         - containerPort: 8085
           name: network-port
           protocol: UDP
+        volumeMounts:
+        - name: etcd-client-certs
+          mountPath: "/certs/registry"
+          readOnly: true
+      volumes:
+      - name: etcd-client-certs
+        secret:
+          secretName: etcd-client-certs

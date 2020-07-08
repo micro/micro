@@ -28,34 +28,46 @@ spec:
       containers:
       - name: micro-debug
         env:
-        - name: MICRO_AUTH
-          value: "jwt"
-        - name: MICRO_AUTH_PUBLIC_KEY
-          valueFrom:
-            secretKeyRef:
-              name: micro-secrets
-              key: auth_public_key
-        - name: MICRO_AUTH_PRIVATE_KEY
-          valueFrom:
-            secretKeyRef:
-              name: micro-secrets
-              key: auth_private_key
+        # - name: MICRO_AUTH
+        #   value: "jwt"
+        # - name: MICRO_AUTH_PUBLIC_KEY
+        #   valueFrom:
+        #     secretKeyRef:
+        #       name: micro-secrets
+        #       key: auth_public_key
+        # - name: MICRO_AUTH_PRIVATE_KEY
+        #   valueFrom:
+        #     secretKeyRef:
+        #       name: micro-secrets
+        #       key: auth_private_key
         - name: MICRO_DEBUG_LOG
           value: "service"
         - name: MICRO_DEBUG_WINDOW
           value: "600"
         - name: MICRO_LOG_LEVEL
           value: "debug"
-        - name: MICRO_BROKER
-          value: "nats"
-        - name: MICRO_BROKER_ADDRESS
-          value: "nats-cluster"
+        # - name: MICRO_BROKER
+        #   value: "nats"
+        # - name: MICRO_BROKER_ADDRESS
+        #   value: "nats-cluster"
         - name: MICRO_REGISTRY
           value: "etcd"
         - name: MICRO_REGISTRY_ADDRESS
           value: "etcd-cluster"
-        image: micro/micro
+        - name: MICRO_REGISTRY_SECURE
+          value: "true"
+        - name: MICRO_CERTIFICATE_AUTHORITIES
+          value: "/certs/registry/ca.crt"
+        image: bentoogood/micro:mtls
         imagePullPolicy: Always
         command:
         - /micro
         - debug
+        volumeMounts:
+        - name: etcd-client-certs
+          mountPath: "/certs/registry"
+          readOnly: true
+      volumes:
+      - name: etcd-client-certs
+        secret:
+          secretName: etcd-client-certs

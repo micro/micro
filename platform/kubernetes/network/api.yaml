@@ -35,41 +35,41 @@ spec:
           value: "service"
         - name: MICRO_AUTH_ADDRESS
           value: "micro-auth:8010"
-        - name: MICRO_AUTH_PUBLIC_KEY
-          valueFrom:
-            secretKeyRef:
-              name: micro-secrets
-              key: auth_public_key
-        - name: MICRO_ENABLE_STATS
-          value: "true"
-        - name: MICRO_BROKER
-          value: "nats"
-        - name: MICRO_BROKER_ADDRESS
-          value: "nats-cluster"
+        # - name: MICRO_AUTH_PUBLIC_KEY
+        #   valueFrom:
+        #     secretKeyRef:
+        #       name: micro-secrets
+        #       key: auth_public_key
+        # - name: MICRO_ENABLE_STATS
+        #   value: "true"
+        # - name: MICRO_BROKER
+        #   value: "nats"
+        # - name: MICRO_BROKER_ADDRESS
+        #   value: "nats-cluster"
         - name: MICRO_REGISTRY
-          value: "etcd"
+          value: "service"
         - name: MICRO_REGISTRY_ADDRESS
-          value: "etcd-cluster"
-        - name: MICRO_ENABLE_ACME
-          value: "true"
-        - name: MICRO_ACME_PROVIDER
-          value: certmagic
-        - name: MICRO_ACME_HOSTS
-          value: 'api.m3o.com'
+          value: "micro-registry:8000"
+        # - name: MICRO_ENABLE_ACME
+        #   value: "true"
+        # - name: MICRO_ACME_PROVIDER
+        #   value: certmagic
+        # - name: MICRO_ACME_HOSTS
+        #   value: 'api.m3o.com'
         - name: MICRO_STORE
           value: "service"
         - name: MICRO_STORE_DATABASE
           value: "micro"
         - name: MICRO_STORE_TABLE
           value: "micro"
-        - name: CF_API_TOKEN
-          valueFrom:
-            secretKeyRef:
-              key: cloudflare
-              name: micro-secrets
+        # - name: CF_API_TOKEN
+        #   valueFrom:
+        #     secretKeyRef:
+        #       key: cloudflare
+        #       name: micro-secrets
         args:
         - api
-        image: micro/micro
+        image: bentoogood/micro:mtls
         imagePullPolicy: Always
         ports:
         - containerPort: 443
