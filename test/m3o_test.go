@@ -5,7 +5,6 @@ package test
 import (
 	"errors"
 	"io"
-	"log"
 	"os"
 	"os/exec"
 	"strings"
@@ -77,7 +76,7 @@ func testM3oSignupFlow(t *t) {
 	cmd := exec.Command("micro", serv.envFlag(), "login", "--otp")
 	stdin, err := cmd.StdinPipe()
 	if err != nil {
-		log.Fatal(err)
+		t.Fatal(err)
 	}
 	wg := sync.WaitGroup{}
 	wg.Add(1)
