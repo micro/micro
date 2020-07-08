@@ -71,7 +71,7 @@ func testM3oSignupFlow(t *t) {
 			return outp, errors.New("Can't find signup or stripe or invite in list")
 		}
 		return outp, err
-	}, 700*time.Second)
+	}, 70*time.Second)
 	if t.failed {
 		return
 	}
