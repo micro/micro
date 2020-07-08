@@ -124,7 +124,7 @@ spec:
           value: "host=cockroachdb-public port=26257 sslmode=disable user=root"
         args:
         - server
-        image: bentoogood/micro:mtls
+        image: micro/micro
         imagePullPolicy: Always
         ports:
         - containerPort: 443

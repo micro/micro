@@ -50,11 +50,11 @@ spec:
         - name: MICRO_REGISTRY_SECURE
           value: "true"
         - name: MICRO_CERTIFICATE_AUTHORITIES
-          value: "/certs/registry/ca.crt,/certs/broker/ca.crt"
-        # - name: MICRO_STORE
-        #   value: "cockroach"
-        # - name: MICRO_STORE_ADDRESS
-        #   value: "host=cockroachdb-public port=26257 sslmode=disable user=root"
+          value: "/certs/registry/ca.crt,/certs/broker/ca.crt,/certs/store/ca.crt"
+        - name: MICRO_STORE
+          value: "cockroach"
+        - name: MICRO_STORE_ADDRESS
+          value: "postgresql://root@cockroachdb-cluster:26257?ssl=true&sslmode=require&sslrootcert=certs/store/ca.crt&sslkey=certs/store/key.pem&sslcert=certs/store/cert.pem"
         image: bentoogood/micro:mtls
         imagePullPolicy: Always
         command:
@@ -70,6 +70,9 @@ spec:
         - name: nats-client-certs
           mountPath: "/certs/broker"
           readOnly: true
+        - name: cockroachdb-client-certs
+          mountPath: "/certs/store"
+          readOnly: true
       volumes:
       - name: etcd-client-certs
         secret:
@@ -77,3 +80,7 @@ spec:
       - name: nats-client-certs
         secret:
           secretName: nats-client-certs
+      - name: cockroachdb-client-certs
+        secret:
+          secretName: cockroachdb-client-certs
+          defaultMode: 0600
