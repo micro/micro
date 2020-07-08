@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"syscall"
+	"time"
 
 	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro/v2"
@@ -16,14 +18,15 @@ import (
 	"github.com/micro/go-micro/v2/auth/token/jwt"
 	"github.com/micro/go-micro/v2/config/cmd"
 	log "github.com/micro/go-micro/v2/logger"
+	clitoken "github.com/micro/micro/v2/client/cli/token"
 	cliutil "github.com/micro/micro/v2/client/cli/util"
 	"github.com/micro/micro/v2/internal/client"
-	"github.com/micro/micro/v2/internal/config"
 	"github.com/micro/micro/v2/internal/helper"
 	"github.com/micro/micro/v2/service/auth/api"
 	authHandler "github.com/micro/micro/v2/service/auth/handler/auth"
 	rulesHandler "github.com/micro/micro/v2/service/auth/handler/rules"
 	signupproto "github.com/micro/services/signup/proto/signup"
+	"golang.org/x/crypto/ssh/terminal"
 )
 
 var (
@@ -152,21 +155,6 @@ func authFromContext(ctx *cli.Context) auth.Auth {
 // For documentation of the flow please refer to https://github.com/micro/development/pull/223
 func login(ctx *cli.Context) {
 	env := cliutil.GetEnv(ctx)
-	if tok := ctx.String("token"); len(tok) > 0 {
-		_, err := authFromContext(ctx).Inspect(tok)
-		if err != nil {
-			fmt.Println(err)
-			os.Exit(1)
-		}
-		if err := config.Set(tok, "micro", "auth", env.Name, "token"); err != nil {
-			fmt.Println(err)
-			os.Exit(1)
-		}
-
-		fmt.Println("You have been logged in")
-		return
-	}
-
 	email := ""
 	if ctx.Args().Len() > 0 {
 		email = ctx.Args().First()
@@ -177,8 +165,26 @@ func login(ctx *cli.Context) {
 		email, _ = reader.ReadString('\n')
 		email = strings.TrimSpace(email)
 	}
-	signupService := signupproto.NewSignupService("go.micro.service.signup", client.New(ctx))
 
+	if isOTP := ctx.Bool("otp"); !isOTP {
+		authSrv := authFromContext(ctx)
+		password, err := getPassword()
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+		fmt.Println()
+		tok, err := authSrv.Token(auth.WithCredentials(email, password))
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+		clitoken.Save(env.Name, tok)
+		fmt.Println("You have been logged in")
+		return
+	}
+
+	signupService := signupproto.NewSignupService("go.micro.service.signup", client.New(ctx))
 	_, err := signupService.SendVerificationEmail(context.TODO(), &signupproto.SendVerificationEmailRequest{
 		Email: email,
 	})
@@ -203,12 +209,11 @@ func login(ctx *cli.Context) {
 	// Already registered users can just get logged in.
 	tok := rsp.AuthToken
 	if rsp.AuthToken != nil {
-		if err := config.Set(tok.AccessToken, "micro", "auth", env.Name, "token"); err != nil {
-			fmt.Println(err)
-			os.Exit(1)
-		}
-		// Store the refresh token in micro config
-		if err := config.Set(tok.RefreshToken, "micro", "auth", env.Name, "refresh-token"); err != nil {
+		if err := clitoken.Save(env.Name, &auth.Token{
+			AccessToken:  tok.AccessToken,
+			RefreshToken: tok.RefreshToken,
+			Expiry:       time.Unix(tok.Expiry, 0),
+		}); err != nil {
 			fmt.Println(err)
 			os.Exit(1)
 		}
@@ -231,17 +236,27 @@ func login(ctx *cli.Context) {
 	}
 
 	tok = signupRsp.AuthToken
-	if err := config.Set(tok.AccessToken, "micro", "auth", env.Name, "token"); err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
-	// Store the refresh token in micro config
-	if err := config.Set(tok.RefreshToken, "micro", "auth", env.Name, "refresh-token"); err != nil {
+	if err := clitoken.Save(env.Name, &auth.Token{
+		AccessToken:  tok.AccessToken,
+		RefreshToken: tok.RefreshToken,
+		Expiry:       time.Unix(tok.Expiry, 0),
+	}); err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
 	fmt.Println("Successfully logged in.")
 	// @todo save the namespace from the last call and use that.
+}
+
+// taken from https://stackoverflow.com/questions/2137357/getpasswd-functionality-in-go
+func getPassword() (string, error) {
+	fmt.Print("Enter Password: ")
+	bytePassword, err := terminal.ReadPassword(int(syscall.Stdin))
+	if err != nil {
+		return "", err
+	}
+	password := string(bytePassword)
+	return strings.TrimSpace(password), nil
 }
 
 //Commands for auth
@@ -332,16 +347,17 @@ func Commands(srvOpts ...micro.Option) []*cli.Command {
 			}),
 		},
 		{
-			Name:  "login",
-			Usage: "Interactive login flow. Just type `micro login` or `micro login [email address]`",
+			Name:        "login",
+			Usage:       `Interactive login flow.`,
+			Description: "Run 'micro login' for micro servers or 'micro login --otp' for m3o.",
 			Action: func(ctx *cli.Context) error {
 				login(ctx)
 				return nil
 			},
 			Flags: []cli.Flag{
-				&cli.StringFlag{
-					Name:  "token",
-					Usage: "The token to set",
+				&cli.BoolFlag{
+					Name:  "otp",
+					Usage: "Login/signup with a One Time Password.",
 				},
 			},
 		},
