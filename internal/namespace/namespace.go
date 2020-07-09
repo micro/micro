@@ -38,9 +38,15 @@ func ContextWithNamespace(ctx context.Context, ns string) context.Context {
 }
 
 // Authorize will return an error if the context cannot access the given namespace
-func Authorize(ctx context.Context, namespace string) error {
-	// anyone can access the default namespace
-	if namespace == DefaultNamespace {
+func Authorize(ctx context.Context, namespace string, opts ...AuthorizeOption) error {
+	// parse the options
+	var options AuthorizeOptions
+	for _, o := range opts {
+		o(&options)
+	}
+
+	// check to see if the namespace was made public
+	if namespace == options.PublicNamespace {
 		return nil
 	}
 
@@ -63,4 +69,19 @@ func Authorize(ctx context.Context, namespace string) error {
 	}
 
 	return nil
+}
+
+// AuthorizeOptions are used to configure the Authorize method
+type AuthorizeOptions struct {
+	PublicNamespace string
+}
+
+// AuthorizeOption sets an attribute on AuthorizeOptions
+type AuthorizeOption func(o *AuthorizeOptions)
+
+// Public indicates a namespace is public and can be accessed by anyone
+func Public(ns string) AuthorizeOption {
+	return func(o *AuthorizeOptions) {
+		o.PublicNamespace = ns
+	}
 }

@@ -9,6 +9,7 @@ import (
 	"github.com/micro/go-micro/v2/auth"
 	pb "github.com/micro/go-micro/v2/auth/service/proto"
 	"github.com/micro/go-micro/v2/errors"
+	"github.com/micro/go-micro/v2/logger"
 	"github.com/micro/go-micro/v2/store"
 	memStore "github.com/micro/go-micro/v2/store/memory"
 	"github.com/micro/micro/v2/internal/namespace"
@@ -68,9 +69,6 @@ func (r *Rules) setupDefaultRules(ns string) {
 		return
 	}
 
-	// setup a context with the namespace
-	ctx := namespace.ContextWithNamespace(context.TODO(), ns)
-
 	// check to see if we need to create the default account
 	key := strings.Join([]string{storePrefixRules, ns, ""}, joinKey)
 	recs, err := r.Options.Store.Read(key, store.ReadPrefix())
@@ -80,20 +78,22 @@ func (r *Rules) setupDefaultRules(ns string) {
 
 	// create the account if none exist in the namespace
 	if len(recs) == 0 {
-		req := &pb.CreateRequest{
-			Rule: &pb.Rule{
-				Id:     defaultRule.ID,
-				Scope:  defaultRule.Scope,
-				Access: pb.Access_GRANTED,
-				Resource: &pb.Resource{
-					Type:     defaultRule.Resource.Type,
-					Name:     defaultRule.Resource.Name,
-					Endpoint: defaultRule.Resource.Endpoint,
-				},
+		rule := &pb.Rule{
+			Id:     defaultRule.ID,
+			Scope:  defaultRule.Scope,
+			Access: pb.Access_GRANTED,
+			Resource: &pb.Resource{
+				Type:     defaultRule.Resource.Type,
+				Name:     defaultRule.Resource.Name,
+				Endpoint: defaultRule.Resource.Endpoint,
 			},
 		}
 
-		r.Create(ctx, req, &pb.CreateResponse{})
+		if err := r.writeRule(rule, ns); err != nil {
+			if logger.V(logger.WarnLevel, logger.DefaultLogger) {
+				logger.Warnf("Error creating default rule: %v", err)
+			}
+		}
 	}
 
 	// set the namespace in the cache
@@ -133,24 +133,8 @@ func (r *Rules) Create(ctx context.Context, req *pb.CreateRequest, rsp *pb.Creat
 		return errors.InternalServerError("go.micro.auth", err.Error())
 	}
 
-	// Chck the rule doesn't exist
-	key := strings.Join([]string{storePrefixRules, req.Options.Namespace, req.Rule.Id}, joinKey)
-	if _, err := r.Options.Store.Read(key); err == nil {
-		return errors.BadRequest("go.micro.auth", "A rule with this ID already exists")
-	}
-
-	// Encode the rule
-	bytes, err := json.Marshal(req.Rule)
-	if err != nil {
-		return errors.InternalServerError("go.micro.auth", "Unable to marshal rule: %v", err)
-	}
-
-	// Write to the store
-	if err := r.Options.Store.Write(&store.Record{Key: key, Value: bytes}); err != nil {
-		return errors.InternalServerError("go.micro.auth", "Unable to write to the store: %v", err)
-	}
-
-	return nil
+	// write the rule to the store
+	return r.writeRule(req.Rule, req.Options.Namespace)
 }
 
 // Delete a scope access to a resource
@@ -226,6 +210,27 @@ func (r *Rules) List(ctx context.Context, req *pb.ListRequest, rsp *pb.ListRespo
 			return errors.InternalServerError("go.micro.auth", "Error to unmarshaling json: %v. Value: %v", err, string(rec.Value))
 		}
 		rsp.Rules = append(rsp.Rules, r)
+	}
+
+	return nil
+}
+
+// writeRule to the store
+func (r *Rules) writeRule(rule *pb.Rule, ns string) error {
+	key := strings.Join([]string{storePrefixRules, ns, rule.Id}, joinKey)
+	if _, err := r.Options.Store.Read(key); err == nil {
+		return errors.BadRequest("go.micro.auth", "A rule with this ID already exists")
+	}
+
+	// Encode the rule
+	bytes, err := json.Marshal(rule)
+	if err != nil {
+		return errors.InternalServerError("go.micro.auth", "Unable to marshal rule: %v", err)
+	}
+
+	// Write to the store
+	if err := r.Options.Store.Write(&store.Record{Key: key, Value: bytes}); err != nil {
+		return errors.InternalServerError("go.micro.auth", "Unable to write to the store: %v", err)
 	}
 
 	return nil

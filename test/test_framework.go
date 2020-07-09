@@ -57,6 +57,7 @@ type server struct {
 	cmd           *exec.Cmd
 	t             *t
 	envName       string
+	portNum       int
 	containerName string
 	opts          options
 }
@@ -106,9 +107,6 @@ func newServer(t *t, opts ...options) server {
 	exec.Command("docker", "kill", fname).CombinedOutput()
 	exec.Command("docker", "rm", fname).CombinedOutput()
 
-	// create env and set proxy address
-	exec.Command("micro", "env", "add", fname, fmt.Sprintf("127.0.0.1:%v", portnum)).CombinedOutput()
-
 	cmd := exec.Command("docker", "run", "--name", fname,
 		fmt.Sprintf("-p=%v:8081", portnum), "micro", "server")
 	if len(opts) == 1 && opts[0].auth == "jwt" {
@@ -145,6 +143,7 @@ func newServer(t *t, opts ...options) server {
 		t:             t,
 		envName:       fname,
 		containerName: fname,
+		portNum:       portnum,
 		opts:          opt,
 	}
 }
@@ -155,28 +154,45 @@ func (s server) launch() {
 			s.t.t.Fatal(err)
 		}
 	}()
-	// @todo find a way to know everything is up and running
-	if s.opts.auth == "jwt" {
-		// when JWT is used we can't call `micro list services`
-		// until we log in.
-		time.Sleep(30 * time.Second)
-	} else {
-		try("Calling micro server", s.t, func() ([]byte, error) {
-			outp, err := exec.Command("micro", s.envFlag(), "list", "services").CombinedOutput()
-			if !strings.Contains(string(outp), "runtime") ||
-				!strings.Contains(string(outp), "registry") ||
-				!strings.Contains(string(outp), "api") ||
-				!strings.Contains(string(outp), "broker") ||
-				!strings.Contains(string(outp), "config") ||
-				!strings.Contains(string(outp), "debug") ||
-				!strings.Contains(string(outp), "proxy") ||
-				!strings.Contains(string(outp), "auth") ||
-				!strings.Contains(string(outp), "store") {
-				return outp, errors.New("Not ready")
-			}
+
+	// add the environment
+	try("Adding micro env", s.t, func() ([]byte, error) {
+		outp, err := exec.Command("micro", "env", "add", s.envName, fmt.Sprintf("127.0.0.1:%v", s.portNum)).CombinedOutput()
+		if err != nil {
 			return outp, err
-		}, 60*time.Second)
-	}
+		}
+		if len(outp) > 0 {
+			return outp, errors.New("Not added")
+		}
+
+		outp, err = exec.Command("micro", "env").CombinedOutput()
+		if err != nil {
+			return outp, err
+		}
+		if !strings.Contains(string(outp), s.envName) {
+			return outp, errors.New("Not added")
+		}
+
+		return outp, nil
+	}, 15*time.Second)
+
+	try("Calling micro server", s.t, func() ([]byte, error) {
+		outp, err := exec.Command("micro", s.envFlag(), "list", "services").CombinedOutput()
+		if !strings.Contains(string(outp), "runtime") ||
+			!strings.Contains(string(outp), "registry") ||
+			!strings.Contains(string(outp), "api") ||
+			!strings.Contains(string(outp), "broker") ||
+			!strings.Contains(string(outp), "config") ||
+			!strings.Contains(string(outp), "debug") ||
+			!strings.Contains(string(outp), "proxy") ||
+			!strings.Contains(string(outp), "auth") ||
+			!strings.Contains(string(outp), "store") {
+			return outp, errors.New("Not ready")
+		}
+
+		return outp, err
+	}, 60*time.Second)
+
 	time.Sleep(5 * time.Second)
 }
 

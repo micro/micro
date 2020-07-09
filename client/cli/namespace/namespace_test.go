@@ -43,7 +43,7 @@ func TestNamespace(t *testing.T) {
 
 	t.Run("AddDuplicateNamespace", func(t *testing.T) {
 		err := Add(namespace, envName)
-		assert.Error(t, err, "Adding a duplicate namespace to an environment should return an error")
+		assert.Nil(t, err, "Adding a duplicate namespace to an environment should not return an error")
 	})
 
 	t.Run("ListPopulatedEnv", func(t *testing.T) {
