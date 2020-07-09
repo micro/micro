@@ -35,10 +35,12 @@ spec:
           value: "etcd"
         - name: MICRO_REGISTRY_ADDRESS
           value: "etcd-cluster"
-        - name: MICRO_REGISTRY_SECURE
-          value: "true"
-        - name: MICRO_CERTIFICATE_AUTHORITIES
-          value: "/certs/registry/ca.crt,/certs/broker/ca.crt"
+        - name: MICRO_REGISTRY_TLS_CA
+          value: "/certs/registry/ca.crt"
+        - name: MICRO_REGISTRY_TLS_CERT
+          value: "/certs/registry/cert.pem"
+        - name: MICRO_REGISTRY_TLS_KEY
+          value: "/certs/registry/key.pem"
         args:
         - registry
         image: bentoogood/micro:mtls
