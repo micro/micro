@@ -14,7 +14,7 @@ import (
 )
 
 const (
-	retryCount = 4
+	retryCount = 1
 	isParallel = true
 )
 
@@ -155,6 +155,16 @@ func (s server) launch() {
 		}
 	}()
 
+	// add the environment
+	try("Adding micro env", s.t, func() ([]byte, error) {
+		outp, err := exec.Command("micro", "env", "add", s.envName, fmt.Sprintf("127.0.0.1:%v", s.portNum)).CombinedOutput()
+		if len(outp) > 0 {
+			return outp, errors.New("Not added")
+		}
+		return outp, err
+	}, 5*time.Second)
+	// fmt.Println("Env added ok")
+
 	try("Calling micro server", s.t, func() ([]byte, error) {
 		outp, err := exec.Command("micro", s.envFlag(), "list", "services").CombinedOutput()
 		if !strings.Contains(string(outp), "runtime") ||
@@ -169,15 +179,10 @@ func (s server) launch() {
 			return outp, errors.New("Not ready")
 		}
 
-		// add the env once it's running
-		if err == nil {
-			exec.Command("micro", "env", "add", s.envName, fmt.Sprintf("127.0.0.1:%v", s.portNum))
-		}
-
 		return outp, err
 	}, 60*time.Second)
 
-	time.Sleep(10 * time.Second)
+	time.Sleep(5 * time.Second)
 }
 
 func (s server) close() {
