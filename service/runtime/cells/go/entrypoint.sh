@@ -6,17 +6,14 @@ set -e
 mkdir /app
 cd /app
 
-REPO=$1
+REPO=$(echo $1 | cut -d/ -f -3)
+PATH=$(echo $1 | cut -d/ -f 4-)
 
 # clone the repo
 echo "Cloning $REPO"
 git clone $REPO .
 
-# If parameter 2nd parameter is supplied, it's the path
-if [ $# -eq 2 ]
-  then
-    cd $2
-fi
+cd $PATH
 
 # run the source
 echo "Running service"
