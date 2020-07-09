@@ -57,3 +57,18 @@ func Save(envName string, token *auth.Token) error {
 	// Store the refresh token in micro config
 	return config.Set(fmt.Sprintf("%v", token.Expiry.Unix()), "micro", "auth", envName, "expiry")
 }
+
+// Remove deletes a token. Useful when trying to reset test
+// for example at testing: not having a token is a different state
+// than having an invalid token.
+func Remove(envName string) error {
+	if err := config.Set("", "micro", "auth", envName, "token"); err != nil {
+		return err
+	}
+	// Store the refresh token in micro config
+	if err := config.Set("", "micro", "auth", envName, "refresh-token"); err != nil {
+		return err
+	}
+	// Store the refresh token in micro config
+	return config.Set("", "micro", "auth", envName, "expiry")
+}

@@ -41,6 +41,8 @@ func testServerAuthJWT(t *t) {
 }
 
 func basicAuthSuite(serv server, t *t) {
+	login(serv, t, "default", "password")
+
 	// Execute first command in read to wait for store service
 	// to start up
 	try("Calling micro auth list accounts", t, func() ([]byte, error) {
