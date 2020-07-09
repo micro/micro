@@ -3,18 +3,20 @@
 set -x  
 set -e
 
+git version
+
 mkdir /app
-cd /app
+cd app
 
 REPO=$(echo $1 | cut -d/ -f -3)
-PATH=$(echo $1 | cut -d/ -f 4-)
+P=$(echo $1 | cut -d/ -f 4-)
 
 # clone the repo
 echo "Cloning $REPO"
-git clone $REPO .
+git clone https://$REPO .
 
-cd $PATH
+cd $P
 
 # run the source
 echo "Running service"
-go run .
+go run $1

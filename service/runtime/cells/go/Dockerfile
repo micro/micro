@@ -5,5 +5,6 @@ COPY entrypoint.sh /
 RUN chmod 755 entrypoint.sh
 RUN apt-get update && \
     apt-get upgrade -y && \
-    apt-get install -y git
+    apt-get install -y git && \
+    git version
 ENTRYPOINT ["bash", "/entrypoint.sh"]
