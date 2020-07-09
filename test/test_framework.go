@@ -107,9 +107,6 @@ func newServer(t *t, opts ...options) server {
 	exec.Command("docker", "kill", fname).CombinedOutput()
 	exec.Command("docker", "rm", fname).CombinedOutput()
 
-	// create env and set proxy address
-	exec.Command("micro", "env", "add", fname, fmt.Sprintf("127.0.0.1:%v", portnum)).CombinedOutput()
-
 	cmd := exec.Command("docker", "run", "--name", fname,
 		fmt.Sprintf("-p=%v:8081", portnum), "micro", "server")
 	if len(opts) == 1 && opts[0].auth == "jwt" {
@@ -172,7 +169,7 @@ func (s server) launch() {
 			return outp, errors.New("Not ready")
 		}
 
-		// temp solution to envs not being added
+		// add the env once it's running
 		if err == nil {
 			exec.Command("micro", "env", "add", s.envName, fmt.Sprintf("127.0.0.1:%v", s.portNum))
 		}
@@ -180,7 +177,7 @@ func (s server) launch() {
 		return outp, err
 	}, 60*time.Second)
 
-	time.Sleep(5 * time.Second)
+	time.Sleep(10 * time.Second)
 }
 
 func (s server) close() {
