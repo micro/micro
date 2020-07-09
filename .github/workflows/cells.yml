@@ -1,0 +1,17 @@
+name: Push cells
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+
+    - name: Clone repo
+      uses: actions/checkout@v2
+
+    - name: Build cells
+      run: cd service/runtime/cells; bash build.sh
