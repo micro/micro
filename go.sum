@@ -318,10 +318,8 @@ github.com/matttproud/golang_protobuf_extensions v1.0.1/go.mod h1:D8He9yQNgCq6Z5
 github.com/micro/cli/v2 v2.1.2 h1:43J1lChg/rZCC1rvdqZNFSQDrGT7qfMrtp6/ztpIkEM=
 github.com/micro/cli/v2 v2.1.2/go.mod h1:EguNh6DAoWKm9nmk+k/Rg0H3lQnDxqzu5x5srOtGtYg=
 github.com/micro/go-micro/v2 v2.9.1-0.20200618113919-8c7c27c573f5/go.mod h1:x55ZM3Puy0FyvvkR3e0ha0xsE9DFwfPSUMWAIbFY0SY=
-github.com/micro/go-micro/v2 v2.9.1-0.20200708152248-333320dcb896 h1:Ca08oRoACQGptHhB1+Ms7NDZz6HyRS7Vz5lUX/weAaM=
-github.com/micro/go-micro/v2 v2.9.1-0.20200708152248-333320dcb896/go.mod h1:Szpx+Q9oZvNOoGc1cPweBt3PozVX4e/z3SC1hpxV4iw=
-github.com/micro/go-micro/v2 v2.9.1-0.20200709155925-b90db4d36d8c h1:vE3rWOCI+aKKYFffBCZWO/x7uu8GjRcup1c986OqKmg=
-github.com/micro/go-micro/v2 v2.9.1-0.20200709155925-b90db4d36d8c/go.mod h1:Szpx+Q9oZvNOoGc1cPweBt3PozVX4e/z3SC1hpxV4iw=
+github.com/micro/go-micro/v2 v2.9.1-0.20200709152901-6d9a38a74700 h1:84HkGNnxlMrRV1GFM80hZ9S5ipsQxFPWdKo2/WmUj9c=
+github.com/micro/go-micro/v2 v2.9.1-0.20200709152901-6d9a38a74700/go.mod h1:Szpx+Q9oZvNOoGc1cPweBt3PozVX4e/z3SC1hpxV4iw=
 github.com/micro/services/payments/provider v0.0.0-20200618133042-550220a6eff2/go.mod h1:mwSahcMJ6Bof7hY3M6gzzY8JN7XSHmMIBg8wXtb47j8=
 github.com/micro/services/signup v0.0.0-20200629142252-9f80a09a8594 h1:ARUwlYyrEfs5g4HRmgidSBkdPTPe0PVca02sBhjUj3g=
 github.com/micro/services/signup v0.0.0-20200629142252-9f80a09a8594/go.mod h1:zHL601FTryKhcFV0/VkWA5iMA4qqHQvqlkciyGGMjq0=

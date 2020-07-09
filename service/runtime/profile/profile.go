@@ -71,8 +71,6 @@ func Platform() []string {
 		"MICRO_ROUTER_ADDRESS=micro-runtime.default.svc:8084",
 		"MICRO_RUNTIME_ADDRESS=micro-runtime.default.svc:8088",
 		"MICRO_STORE_ADDRESS=micro-store.default.svc:8002",
-		// set the athens proxy to speedup builds
-		"GOPROXY=http://athens-proxy",
 	}
 }
 

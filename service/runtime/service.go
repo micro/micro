@@ -47,10 +47,8 @@ const (
 var (
 	// DefaultRetries which should be attempted when starting a service
 	DefaultRetries = 3
-	// Image to specify if none is specified
-	Image = "micro/cells:go"
-	// Source where we get services from
-	Source = "github.com/micro/services"
+	// DefaultImage which should be run
+	DefaultImage = "micro/cells:go"
 )
 
 // timeAgo returns the time passed
@@ -127,6 +125,10 @@ func runService(ctx *cli.Context, srvOpts ...micro.Option) {
 	}
 	var newSource string
 	if source.Local {
+		if cliutil.IsPlatform(ctx) {
+			fmt.Println("Local sources are not yet supported on m3o. It's coming soon though!")
+			os.Exit(1)
+		}
 		newSource, err = upload(ctx, source)
 		if err != nil {
 			fmt.Println(err)
@@ -141,7 +143,6 @@ func runService(ctx *cli.Context, srvOpts ...micro.Option) {
 	}
 
 	typ := ctx.String("type")
-	image := ctx.String("image")
 	command := strings.TrimSpace(ctx.String("command"))
 	args := strings.TrimSpace(ctx.String("args"))
 
@@ -153,11 +154,9 @@ func runService(ctx *cli.Context, srvOpts ...micro.Option) {
 		retries = ctx.Int("retries")
 	}
 
-	// set the image if not specified
-	if len(image) == 0 {
-		formattedName := strings.ReplaceAll(source.Folder, "/", "-")
-		// eg. docker.pkg.github.com/micro/services/users-api
-		image = fmt.Sprintf("%v/%v", Image, formattedName)
+	var image = DefaultImage
+	if ctx.IsSet("image") {
+		image = ctx.String("image")
 	}
 
 	// specify the options
