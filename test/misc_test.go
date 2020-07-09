@@ -180,3 +180,12 @@ func TestUnrecognisedCommand(t *testing.T) {
 		return
 	}
 }
+
+func TestPlatformErrorLocalSource(t *testing.T) {
+	t.Parallel()
+	outp, _ := exec.Command("micro", "-env=platform", "example-service").CombinedOutput()
+	if !strings.Contains(string(outp), "Local sources are not yet supported on m3o") {
+		t.Fatalf("Local source does not return expected error %v", string(outp))
+		return
+	}
+}
