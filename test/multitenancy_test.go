@@ -1,4 +1,3 @@
-@@ -0,0 +1,184 @@
 // +build integration
 
 package test
