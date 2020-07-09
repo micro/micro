@@ -157,34 +157,28 @@ func (s server) launch() {
 			s.t.t.Fatal(err)
 		}
 	}()
-	// @todo find a way to know everything is up and running
-	if s.opts.auth == "jwt" {
-		// when JWT is used we can't call `micro list services`
-		// until we log in.
-		time.Sleep(30 * time.Second)
-	} else {
-		try("Calling micro server", s.t, func() ([]byte, error) {
-			outp, err := exec.Command("micro", s.envFlag(), "list", "services").CombinedOutput()
-			if !strings.Contains(string(outp), "runtime") ||
-				!strings.Contains(string(outp), "registry") ||
-				!strings.Contains(string(outp), "api") ||
-				!strings.Contains(string(outp), "broker") ||
-				!strings.Contains(string(outp), "config") ||
-				!strings.Contains(string(outp), "debug") ||
-				!strings.Contains(string(outp), "proxy") ||
-				!strings.Contains(string(outp), "auth") ||
-				!strings.Contains(string(outp), "store") {
-				return outp, errors.New("Not ready")
-			}
 
-			// temp solution to envs not being added
-			if err == nil {
-				exec.Command("micro", "env", "add", s.envName, fmt.Sprintf("127.0.0.1:%v", s.portNum))
-			}
+	try("Calling micro server", s.t, func() ([]byte, error) {
+		outp, err := exec.Command("micro", s.envFlag(), "list", "services").CombinedOutput()
+		if !strings.Contains(string(outp), "runtime") ||
+			!strings.Contains(string(outp), "registry") ||
+			!strings.Contains(string(outp), "api") ||
+			!strings.Contains(string(outp), "broker") ||
+			!strings.Contains(string(outp), "config") ||
+			!strings.Contains(string(outp), "debug") ||
+			!strings.Contains(string(outp), "proxy") ||
+			!strings.Contains(string(outp), "auth") ||
+			!strings.Contains(string(outp), "store") {
+			return outp, errors.New("Not ready")
+		}
 
-			return outp, err
-		}, 60*time.Second)
-	}
+		// temp solution to envs not being added
+		if err == nil {
+			exec.Command("micro", "env", "add", s.envName, fmt.Sprintf("127.0.0.1:%v", s.portNum))
+		}
+
+		return outp, err
+	}, 60*time.Second)
 
 	time.Sleep(5 * time.Second)
 }
