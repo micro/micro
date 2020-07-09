@@ -44,17 +44,15 @@ spec:
                 name: micro-secrets
                 key: auth_public_key
           - name: MICRO_BROKER
-            value: "nats"
+            value: "service"
           - name: MICRO_BROKER_ADDRESS
-            value: "nats-cluster"
+            value: "micro-broker:8001"
           - name: MICRO_REGISTRY
-            value: "etcd"
+            value: "service"
           - name: MICRO_REGISTRY_ADDRESS
-            value: "etcd-cluster"
+            value: "micro-registry:8000"
           - name: MICRO_SLACK_TOKEN
             valueFrom:
               secretKeyRef:
                 name: micro-secrets
                 key: slack
-
-

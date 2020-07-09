@@ -106,10 +106,23 @@ spec:
           value: "nats"
         - name: MICRO_BROKER_ADDRESS
           value: "nats-cluster"
+        - name: MICRO_BROKER_TLS_CA
+          value: "/certs/broker/ca.crt"
+        - name: MICRO_BROKER_TLS_CERT
+          value: "/certs/broker/cert.pem"
+        - name: MICRO_BROKER_TLS_KEY
+          value: "/certs/broker/key.pem"
+          value: "true"
         - name: MICRO_REGISTRY
           value: "etcd"
         - name: MICRO_REGISTRY_ADDRESS
           value: "etcd-cluster"
+        - name: MICRO_REGISTRY_TLS_CA
+          value: "/certs/registry/ca.crt"
+        - name: MICRO_REGISTRY_TLS_CERT
+          value: "/certs/registry/cert.pem"
+        - name: MICRO_REGISTRY_TLS_KEY
+          value: "/certs/registry/key.pem"
         - name: MICRO_ENABLE_ACME
           value: "true"
         - name: MICRO_ACME_HOSTS
@@ -121,7 +134,7 @@ spec:
         - name: MICRO_STORE
           value: "cockroach"
         - name: MICRO_STORE_ADDRESS
-          value: "host=cockroachdb-public port=26257 sslmode=disable user=root"
+          value: "postgresql://root@cockroachdb-cluster:26257?ssl=true&sslmode=require&sslrootcert=certs/store/ca.crt&sslkey=certs/store/key.pem&sslcert=certs/store/cert.pem"
         args:
         - server
         image: micro/micro
@@ -131,6 +144,27 @@ spec:
           name: https-port
         - containerPort: 8081
           name: proxy-port
+        volumeMounts:
+        - name: etcd-client-certs
+          mountPath: "/certs/registry"
+          readOnly: true
+        - name: nats-client-certs
+          mountPath: "/certs/broker"
+          readOnly: true
+        - name: cockroachdb-client-certs
+          mountPath: "/certs/store"
+          readOnly: true
+      volumes:
+      - name: etcd-client-certs
+        secret:
+          secretName: etcd-client-certs
+      - name: nats-client-certs
+        secret:
+          secretName: nats-client-certs
+      - name: cockroachdb-client-certs
+        secret:
+          secretName: cockroachdb-client-certs
+          defaultMode: 0600
 ---
 apiVersion: v1
 kind: Service

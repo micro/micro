@@ -43,13 +43,13 @@ spec:
         - name: MICRO_ENABLE_STATS
           value: "true"
         - name: MICRO_BROKER
-          value: "nats"
+          value: "service"
         - name: MICRO_BROKER_ADDRESS
-          value: "nats-cluster"
+          value: "micro-broker:8001"
         - name: MICRO_REGISTRY
-          value: "etcd"
+          value: "service"
         - name: MICRO_REGISTRY_ADDRESS
-          value: "etcd-cluster"
+          value: "micro-registry:8000"
         - name: MICRO_ENABLE_ACME
           value: "true"
         - name: MICRO_ACME_PROVIDER
