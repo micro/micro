@@ -12,9 +12,11 @@ rules:
   - ""
   resources:
   - pods
+  - pods/log
   - services
   - namespaces
   verbs:
+  - get
   - create
   - update
   - delete
