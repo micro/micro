@@ -48,7 +48,7 @@ var (
 	// DefaultRetries which should be attempted when starting a service
 	DefaultRetries = 3
 	// Image to specify if none is specified
-	Image = "docker.pkg.github.com/micro/cells:go"
+	Image = "micro/cells:go"
 	// Source where we get services from
 	Source = "github.com/micro/services"
 )
