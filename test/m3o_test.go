@@ -47,17 +47,18 @@ func testM3oSignupFlow(t *t) {
 			t.Fatal(string(outp))
 		}
 	}
-	outp, err := exec.Command("micro", serv.envFlag(), "run", "github.com/micro/services/account/invite").CombinedOutput()
+
+	outp, err := exec.Command("micro", serv.envFlag(), "run", getSrcString("M3O_INVITE_SVC", "github.com/micro/services/account/invite")).CombinedOutput()
 	if err != nil {
 		t.Fatal(string(outp))
 	}
 
-	outp, err = exec.Command("micro", serv.envFlag(), "run", "github.com/micro/services/signup").CombinedOutput()
+	outp, err = exec.Command("micro", serv.envFlag(), "run", getSrcString("M3O_SIGNUP_SVC", "github.com/micro/services/signup")).CombinedOutput()
 	if err != nil {
 		t.Fatal(string(outp))
 	}
 
-	outp, err = exec.Command("micro", serv.envFlag(), "run", "github.com/micro/services/payments/provider/stripe").CombinedOutput()
+	outp, err = exec.Command("micro", serv.envFlag(), "run", getSrcString("M3O_STRIPE_SVC", "github.com/micro/services/payments/provider/stripe")).CombinedOutput()
 	if err != nil {
 		t.Fatal(string(outp))
 	}
@@ -194,4 +195,11 @@ func testM3oSignupFlow(t *t) {
 		return
 	}
 	wg.Wait()
+}
+
+func getSrcString(envvar, dflt string) string {
+	if env := os.Getenv(envvar); env != "" {
+		return env
+	}
+	return dflt
 }
