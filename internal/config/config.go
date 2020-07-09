@@ -7,8 +7,10 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/alexflint/go-filemutex"
 	conf "github.com/micro/go-micro/v2/config"
 	"github.com/micro/go-micro/v2/config/source/file"
+	"github.com/micro/go-micro/v2/logger"
 	"github.com/micro/go-micro/v2/util/log"
 )
 
@@ -22,12 +24,20 @@ var config = newConfig()
 
 // Get a value from the .micro file
 func Get(path ...string) (string, error) {
+	m := mutex()
+	m.Lock()
+	defer m.Unlock()
+
 	tk := config.Get(path...).String("")
 	return strings.TrimSpace(tk), nil
 }
 
 // Set a value in the .micro file
 func Set(value string, path ...string) error {
+	m := mutex()
+	m.Lock()
+	defer m.Unlock()
+
 	// get the filepath
 	fp, err := filePath()
 	if err != nil {
@@ -51,6 +61,10 @@ func filePath() (string, error) {
 
 // newConfig returns a loaded config
 func newConfig() conf.Config {
+	m := mutex()
+	m.Lock()
+	defer m.Unlock()
+
 	// get the filepath
 	fp, err := filePath()
 	if err != nil {
@@ -87,4 +101,30 @@ func newConfig() conf.Config {
 
 	// return the conf
 	return c
+}
+
+func mutex() *filemutex.FileMutex {
+	// detemine lock filepath
+	fp, _ := filePath()
+	lockFile := fp + ".lock"
+
+	// check if file exists
+	var _, err = os.Stat(lockFile)
+
+	// create file if not exists
+	if os.IsNotExist(err) {
+		var file, err = os.Create(lockFile)
+		if err != nil {
+			logger.Fatalf("Error creating ~/.micro.lock: %v", err)
+		}
+		file.Close()
+	}
+
+	// create the mutex
+	m, err := filemutex.New(lockFile)
+	if err != nil {
+		logger.Fatalf("Error locking ~/.micro: %v", err)
+	}
+
+	return m
 }

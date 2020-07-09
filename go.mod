@@ -3,6 +3,7 @@ module github.com/micro/micro/v2
 go 1.13
 
 require (
+	github.com/alexflint/go-filemutex v1.1.0
 	github.com/boltdb/bolt v1.3.1
 	github.com/chzyer/logex v1.1.10 // indirect
 	github.com/chzyer/readline v0.0.0-20180603132655-2972be24d48e
