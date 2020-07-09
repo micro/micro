@@ -24,9 +24,7 @@ func TestNamespaceConfigIsolation(t *testing.T) {
 
 func testNamespaceConfigIsolation(t *t) {
 	t.Parallel()
-	serv := newServer(t, options{
-		auth: "jwt",
-	})
+	serv := newServer(t)
 	serv.launch()
 	defer serv.close()
 
