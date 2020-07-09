@@ -2,6 +2,8 @@ name: Push cells
 
 on:
   push:
+    branches:
+      - master
 
 jobs:
   build:
