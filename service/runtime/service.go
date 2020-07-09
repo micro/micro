@@ -47,10 +47,6 @@ const (
 var (
 	// DefaultRetries which should be attempted when starting a service
 	DefaultRetries = 3
-	// Image to specify if none is specified
-	Image = "docker.pkg.github.com/micro/services"
-	// Source where we get services from
-	Source = "github.com/micro/services"
 )
 
 // timeAgo returns the time passed
@@ -152,13 +148,6 @@ func runService(ctx *cli.Context, srvOpts ...micro.Option) {
 	if ctx.IsSet("retries") {
 		retries = ctx.Int("retries")
 	}
-
-	// set the image if not specified
-	// if len(image) == 0 {
-	// 	formattedName := strings.ReplaceAll(source.Folder, "/", "-")
-	// 	// eg. docker.pkg.github.com/micro/services/users-api
-	// 	image = fmt.Sprintf("%v/%v", Image, formattedName)
-	// }
 
 	// specify the options
 	opts := []runtime.CreateOption{
