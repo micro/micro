@@ -61,10 +61,6 @@ func filePath() (string, error) {
 
 // newConfig returns a loaded config
 func newConfig() conf.Config {
-	m := mutex()
-	m.Lock()
-	defer m.Unlock()
-
 	// get the filepath
 	fp, err := filePath()
 	if err != nil {
