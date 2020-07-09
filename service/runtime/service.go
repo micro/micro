@@ -149,6 +149,11 @@ func runService(ctx *cli.Context, srvOpts ...micro.Option) {
 	// load the runtime
 	r := runtimeFromContext(ctx)
 
+	runtimeSource := source.RuntimeSource()
+	if source.Local {
+		runtimeSource = newSource
+	}
+
 	var retries = DefaultRetries
 	if ctx.IsSet("retries") {
 		retries = ctx.Int("retries")
@@ -157,6 +162,9 @@ func runService(ctx *cli.Context, srvOpts ...micro.Option) {
 	var image = DefaultImage
 	if ctx.IsSet("image") {
 		image = ctx.String("image")
+	} else {
+		// when using the micro/cells:go image, we pass the source as the argument
+		args = runtimeSource
 	}
 
 	// specify the options
@@ -197,10 +205,6 @@ func runService(ctx *cli.Context, srvOpts ...micro.Option) {
 	}
 	opts = append(opts, runtime.CreateNamespace(ns))
 
-	runtimeSource := source.RuntimeSource()
-	if source.Local {
-		runtimeSource = newSource
-	}
 	// run the service
 	service := &runtime.Service{
 		Name:     source.RuntimeName(),
