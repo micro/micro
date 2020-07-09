@@ -154,11 +154,11 @@ func runService(ctx *cli.Context, srvOpts ...micro.Option) {
 	}
 
 	// set the image if not specified
-	if len(image) == 0 {
-		formattedName := strings.ReplaceAll(source.Folder, "/", "-")
-		// eg. docker.pkg.github.com/micro/services/users-api
-		image = fmt.Sprintf("%v/%v", Image, formattedName)
-	}
+	// if len(image) == 0 {
+	// 	formattedName := strings.ReplaceAll(source.Folder, "/", "-")
+	// 	// eg. docker.pkg.github.com/micro/services/users-api
+	// 	image = fmt.Sprintf("%v/%v", Image, formattedName)
+	// }
 
 	// specify the options
 	opts := []runtime.CreateOption{
