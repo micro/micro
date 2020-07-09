@@ -158,12 +158,24 @@ func (s server) launch() {
 	// add the environment
 	try("Adding micro env", s.t, func() ([]byte, error) {
 		outp, err := exec.Command("micro", "env", "add", s.envName, fmt.Sprintf("127.0.0.1:%v", s.portNum)).CombinedOutput()
+		if err != nil {
+			return outp, err
+		}
 		if len(outp) > 0 {
 			return outp, errors.New("Not added")
 		}
-		return outp, err
-	}, 5*time.Second)
-	// fmt.Println("Env added ok")
+
+		outp, err = exec.Command("micro", "env").CombinedOutput()
+		if err != nil {
+			return outp, err
+		}
+		if !strings.Contains(string(outp), s.envName) {
+			return outp, errors.New("Not added")
+		}
+
+		fmt.Println(string(outp))
+		return outp, nil
+	}, 15*time.Second)
 
 	try("Calling micro server", s.t, func() ([]byte, error) {
 		outp, err := exec.Command("micro", s.envFlag(), "list", "services").CombinedOutput()
