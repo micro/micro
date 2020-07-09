@@ -125,6 +125,10 @@ func runService(ctx *cli.Context, srvOpts ...micro.Option) {
 	}
 	var newSource string
 	if source.Local {
+		if cliutil.IsPlatform(ctx) {
+			fmt.Println("Local sources are not yet supported on m3o. It's coming soon though!")
+			os.Exit(1)
+		}
 		newSource, err = upload(ctx, source)
 		if err != nil {
 			fmt.Println(err)
