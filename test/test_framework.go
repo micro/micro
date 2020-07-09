@@ -173,7 +173,6 @@ func (s server) launch() {
 			return outp, errors.New("Not added")
 		}
 
-		fmt.Println(string(outp))
 		return outp, nil
 	}, 15*time.Second)
 
