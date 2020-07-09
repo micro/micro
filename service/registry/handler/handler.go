@@ -62,7 +62,8 @@ func (r *Registry) GetService(ctx context.Context, req *pb.GetRequest, rsp *pb.G
 	}
 
 	// authorize the request
-	if err := namespace.Authorize(ctx, options.Domain); err == namespace.ErrForbidden {
+	publicNS := namespace.Public(registry.DefaultDomain)
+	if err := namespace.Authorize(ctx, options.Domain, publicNS); err == namespace.ErrForbidden {
 		return errors.Forbidden("go.micro.registry", err.Error())
 	} else if err == namespace.ErrUnauthorized {
 		return errors.Unauthorized("go.micro.registry", err.Error())
@@ -165,7 +166,8 @@ func (r *Registry) ListServices(ctx context.Context, req *pb.ListRequest, rsp *p
 	}
 
 	// authorize the request
-	if err := namespace.Authorize(ctx, domain); err == namespace.ErrForbidden {
+	publicNS := namespace.Public(registry.DefaultDomain)
+	if err := namespace.Authorize(ctx, domain, publicNS); err == namespace.ErrForbidden {
 		return errors.Forbidden("go.micro.registry", err.Error())
 	} else if err == namespace.ErrUnauthorized {
 		return errors.Unauthorized("go.micro.registry", err.Error())
@@ -199,7 +201,8 @@ func (r *Registry) Watch(ctx context.Context, req *pb.WatchRequest, rsp pb.Regis
 	}
 
 	// authorize the request
-	if err := namespace.Authorize(ctx, domain); err == namespace.ErrForbidden {
+	publicNS := namespace.Public(registry.DefaultDomain)
+	if err := namespace.Authorize(ctx, domain, publicNS); err == namespace.ErrForbidden {
 		return errors.Forbidden("go.micro.registry", err.Error())
 	} else if err == namespace.ErrUnauthorized {
 		return errors.Unauthorized("go.micro.registry", err.Error())
