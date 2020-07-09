@@ -47,6 +47,8 @@ const (
 var (
 	// DefaultRetries which should be attempted when starting a service
 	DefaultRetries = 3
+	// DefaultImage which should be run
+	DefaultImage = "micro/cells:go"
 )
 
 // timeAgo returns the time passed
@@ -137,7 +139,6 @@ func runService(ctx *cli.Context, srvOpts ...micro.Option) {
 	}
 
 	typ := ctx.String("type")
-	image := ctx.String("image")
 	command := strings.TrimSpace(ctx.String("command"))
 	args := strings.TrimSpace(ctx.String("args"))
 
@@ -147,6 +148,11 @@ func runService(ctx *cli.Context, srvOpts ...micro.Option) {
 	var retries = DefaultRetries
 	if ctx.IsSet("retries") {
 		retries = ctx.Int("retries")
+	}
+
+	var image = DefaultImage
+	if ctx.IsSet("image") {
+		image = ctx.String("image")
 	}
 
 	// specify the options
