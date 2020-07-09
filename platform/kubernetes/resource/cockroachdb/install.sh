@@ -20,7 +20,10 @@ kubectl create secret generic cockroachdb-peer-certs --from-file=ca.crt=ca.pem -
 cd ../;
 
 # install the cluster using helm
-helm install cockroachdb-cluster stable/cockroachdb \
+helm repo add cockroachdb https://charts.cockroachdb.com/
+helm install cockroachdb-cluster cockroachdb/cockroachdb \
+  --set statefulset.replicas=1 \
+  --set storage.persistentVolume.size=10gi \
   --set tls.certs.clientRootSecret=cockroachdb-peer-certs \
   --set tls.certs.nodeSecret=cockroachdb-server-certs \
   --set tls.certs.tlsSecret=true \

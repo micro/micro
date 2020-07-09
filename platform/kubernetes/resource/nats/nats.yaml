@@ -8,7 +8,7 @@ kind: NatsCluster
 metadata:
   name: nats-cluster
 spec:
-  size: 3
+  size: 1
   version: "1.3.0"
   tls:
     serverSecret: "nats-server-certs"

@@ -29,6 +29,6 @@ helm install etcd-cluster bitnami/etcd \
 	--set auth.client.secureTransport=true \
 	--set auth.client.enableAuthentication=true \
 	--set auth.client.existingSecret=etcd-server-certs \
-	--set statefulset.replicaCount=3 \
+	--set statefulset.replicaCount=1 \
 	--set livenessProbe.enabled=false \
 	--set readinessProbe.enabled=false
