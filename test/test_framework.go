@@ -57,6 +57,7 @@ type server struct {
 	cmd           *exec.Cmd
 	t             *t
 	envName       string
+	portNum       int
 	containerName string
 	opts          options
 }
@@ -145,6 +146,7 @@ func newServer(t *t, opts ...options) server {
 		t:             t,
 		envName:       fname,
 		containerName: fname,
+		portNum:       portnum,
 		opts:          opt,
 	}
 }
@@ -174,9 +176,16 @@ func (s server) launch() {
 				!strings.Contains(string(outp), "store") {
 				return outp, errors.New("Not ready")
 			}
+
+			// temp solution to envs not being added
+			if err == nil {
+				exec.Command("micro", "env", "add", s.envName, fmt.Sprintf("127.0.0.1:%v", s.portNum))
+			}
+
 			return outp, err
 		}, 60*time.Second)
 	}
+
 	time.Sleep(5 * time.Second)
 }
 
