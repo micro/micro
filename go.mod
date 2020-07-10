@@ -18,7 +18,7 @@ require (
 	github.com/hashicorp/go-version v1.2.1
 	github.com/micro/cli/v2 v2.1.2
 	github.com/micro/go-micro/v2 v2.9.1-0.20200710152546-09ec20fdeddd
-	github.com/micro/services/signup v0.0.0-20200629142252-9f80a09a8594
+	github.com/micro/services v0.0.0-20200710134101-ae48cf29b8ba
 	github.com/miekg/dns v1.1.27
 	github.com/netdata/go-orchestrator v0.0.0-20190905093727-c793edba0e8f
 	github.com/olekukonko/tablewriter v0.0.4
@@ -28,7 +28,7 @@ require (
 	github.com/stretchr/testify v1.5.1
 	github.com/stripe/stripe-go/v71 v71.28.0
 	github.com/xlab/treeprint v0.0.0-20181112141820-a009c3971eca
-	golang.org/x/crypto v0.0.0-20200510223506-06a226fb4e37
+	golang.org/x/crypto v0.0.0-20200709230013-948cd5f35899
 	golang.org/x/net v0.0.0-20200520182314-0ba52f642ac2
 	golang.org/x/tools v0.0.0-20191216173652-a0e659d51361
 	google.golang.org/genproto v0.0.0-20200526211855-cb27e3aa2013
