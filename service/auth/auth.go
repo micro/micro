@@ -213,10 +213,12 @@ func login(ctx *cli.Context) {
 		err = clinamespace.Add(rsp.Namespace, env.Name)
 		if err != nil {
 			fmt.Println(err)
+			os.Exit(1)
 		}
 		err = clinamespace.Set(rsp.Namespace, env.Name)
 		if err != nil {
 			fmt.Println(err)
+			os.Exit(1)
 		}
 		if err := clitoken.Save(env.Name, &auth.Token{
 			AccessToken:  tok.AccessToken,
@@ -248,10 +250,12 @@ func login(ctx *cli.Context) {
 	err = clinamespace.Add(signupRsp.Namespace, env.Name)
 	if err != nil {
 		fmt.Println(err)
+		os.Exit(1)
 	}
 	err = clinamespace.Set(signupRsp.Namespace, env.Name)
 	if err != nil {
 		fmt.Println(err)
+		os.Exit(1)
 	}
 	if err := clitoken.Save(env.Name, &auth.Token{
 		AccessToken:  tok.AccessToken,
