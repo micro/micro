@@ -17,8 +17,8 @@ require (
 	github.com/gorilla/mux v1.7.3
 	github.com/hashicorp/go-version v1.2.1
 	github.com/micro/cli/v2 v2.1.2
-	github.com/micro/go-micro/v2 v2.9.1-0.20200709192134-3480e0a64e21
-	github.com/micro/services v0.0.0-20200710134101-ae48cf29b8ba
+	github.com/micro/go-micro/v2 v2.9.1-0.20200710164707-13ea0eec02a8
+	github.com/micro/services v0.0.0-20200710165452-9f70e76e2770
 	github.com/miekg/dns v1.1.27
 	github.com/netdata/go-orchestrator v0.0.0-20190905093727-c793edba0e8f
 	github.com/olekukonko/tablewriter v0.0.4
