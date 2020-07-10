@@ -27,7 +27,7 @@ const (
 	storePrefixRefreshTokens = "refresh"
 )
 
-var defaultAccount = &auth.Account{
+var defaultAccount = auth.Account{
 	ID:     "default",
 	Type:   "user",
 	Scopes: []string{"admin"},
@@ -79,9 +79,6 @@ func (a *Auth) setupDefaultAccount(ns string) error {
 		return nil
 	}
 
-	// setup a context with the namespace
-	ctx := namespace.ContextWithNamespace(context.TODO(), ns)
-
 	// check to see if we need to create the default account
 	key := strings.Join([]string{storePrefixAccounts, ns, ""}, joinKey)
 	recs, err := a.Options.Store.Read(key, store.ReadPrefix())
@@ -104,15 +101,10 @@ func (a *Auth) setupDefaultAccount(ns string) error {
 
 	// create the account if none exist in the namespace
 	if !hasUser {
-		req := &pb.GenerateRequest{
-			Id:     defaultAccount.ID,
-			Type:   defaultAccount.Type,
-			Scopes: defaultAccount.Scopes,
-			Secret: defaultAccount.Secret,
-		}
+		acc := defaultAccount
+		acc.Issuer = ns
 		logger.Info("Generating default account")
-		err = a.Generate(ctx, req, &pb.GenerateResponse{})
-		if err != nil {
+		if err := a.createAccount(&acc); err != nil {
 			return err
 		}
 	}
@@ -143,16 +135,19 @@ func (a *Auth) Generate(ctx context.Context, req *pb.GenerateRequest, rsp *pb.Ge
 		req.Options.Namespace = namespace.DefaultNamespace
 	}
 
+	// authorize the request
+	if err := namespace.Authorize(ctx, req.Options.Namespace); err == namespace.ErrForbidden {
+		return errors.Forbidden("go.micro.auth", err.Error())
+	} else if err == namespace.ErrUnauthorized {
+		return errors.Unauthorized("go.micro.auth", err.Error())
+	} else if err != nil {
+		return errors.InternalServerError("go.micro.auth", err.Error())
+	}
+
 	// check the user does not already exists
 	key := strings.Join([]string{storePrefixAccounts, req.Options.Namespace, req.Id}, joinKey)
 	if _, err := a.Options.Store.Read(key); err != store.ErrNotFound {
 		return errors.BadRequest("go.micro.auth", "Account with this ID already exists")
-	}
-
-	// hash the secret
-	secret, err := hashSecret(req.Secret)
-	if err != nil {
-		return errors.InternalServerError("go.micro.auth", "Unable to hash password: %v", err)
 	}
 
 	// Default to the current namespace as the scope. Once we add identity we can auto-generate
@@ -168,8 +163,32 @@ func (a *Auth) Generate(ctx context.Context, req *pb.GenerateRequest, rsp *pb.Ge
 		Scopes:   req.Scopes,
 		Metadata: req.Metadata,
 		Issuer:   req.Options.Namespace,
-		Secret:   secret,
+		Secret:   req.Secret,
 	}
+
+	// create the account
+	if err := a.createAccount(acc); err != nil {
+		return err
+	}
+
+	// return the account
+	rsp.Account = serializeAccount(acc)
+	rsp.Account.Secret = req.Secret // return unhashed secret
+	return nil
+}
+func (a *Auth) createAccount(acc *auth.Account) error {
+	// check the user does not already exists
+	key := strings.Join([]string{storePrefixAccounts, acc.Issuer, acc.ID}, joinKey)
+	if _, err := a.Options.Store.Read(key); err != store.ErrNotFound {
+		return errors.BadRequest("go.micro.auth", "Account with this ID already exists")
+	}
+
+	// hash the secret
+	secret, err := hashSecret(acc.Secret)
+	if err != nil {
+		return errors.InternalServerError("go.micro.auth", "Unable to hash password: %v", err)
+	}
+	acc.Secret = secret
 
 	// marshal to json
 	bytes, err := json.Marshal(acc)
@@ -183,13 +202,10 @@ func (a *Auth) Generate(ctx context.Context, req *pb.GenerateRequest, rsp *pb.Ge
 	}
 
 	// set a refresh token
-	if err := a.setRefreshToken(req.Options.Namespace, acc.ID, uuid.New().String()); err != nil {
+	if err := a.setRefreshToken(acc.Issuer, acc.ID, uuid.New().String()); err != nil {
 		return errors.InternalServerError("go.micro.auth", "Unable to set a refresh token: %v", err)
 	}
 
-	// return the account
-	rsp.Account = serializeAccount(acc)
-	rsp.Account.Secret = req.Secret // return unhashed secret
 	return nil
 }
 
@@ -226,6 +242,17 @@ func (a *Auth) Token(ctx context.Context, req *pb.TokenRequest, rsp *pb.TokenRes
 	// validate the request
 	if (len(req.Id) == 0 || len(req.Secret) == 0) && len(req.RefreshToken) == 0 {
 		return errors.BadRequest("go.micro.auth", "Credentials or a refresh token required")
+	}
+
+	// check to see if the secret is a JWT. this is a workaround to allow accounts issued
+	// by the runtime to be refreshed whilst keeping the private key in the server.
+	if a.TokenProvider.String() == "jwt" {
+		if acc, err := a.TokenProvider.Inspect(req.Secret); err == nil {
+			expiry := time.Duration(int64(time.Second) * req.TokenExpiry)
+			tok, _ := a.TokenProvider.Generate(acc, token.WithExpiry(expiry))
+			rsp.Token = serializeToken(tok, tok.Token)
+			return nil
+		}
 	}
 
 	// Declare the account id and refresh token

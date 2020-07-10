@@ -67,7 +67,7 @@ spec:
               key: auth_private_key
         args:
         - auth
-        image: micro/micro
+        image: bentoogood/micro:runtimecreds
         imagePullPolicy: Always
         ports:
         - containerPort: 8000
