@@ -147,6 +147,11 @@ func testM3oSignupFlow(t *t) {
 		}
 		if !strings.Contains(string(outp), "dobronszki@gmail.com") {
 			t.Fatalf("Account not found: %v", string(outp))
+			return
+		}
+		if strings.Contains(string(outp), "default") {
+			t.Fatalf("Default account should not be present in the namespace: %v", string(outp))
+			return
 		}
 	}()
 	go func() {
