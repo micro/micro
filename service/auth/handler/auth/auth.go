@@ -247,7 +247,12 @@ func (a *Auth) Token(ctx context.Context, req *pb.TokenRequest, rsp *pb.TokenRes
 	// check to see if the secret is a JWT. this is a workaround to allow accounts issued
 	// by the runtime to be refreshed whilst keeping the private key in the server.
 	if a.TokenProvider.String() == "jwt" {
-		if acc, err := a.TokenProvider.Inspect(req.Secret); err == nil {
+		jwt := req.Secret
+		if len(req.RefreshToken) > 0 {
+			jwt = req.RefreshToken
+		}
+
+		if acc, err := a.TokenProvider.Inspect(jwt); err == nil {
 			expiry := time.Duration(int64(time.Second) * req.TokenExpiry)
 			tok, _ := a.TokenProvider.Generate(acc, token.WithExpiry(expiry))
 			rsp.Token = serializeToken(tok, tok.Token)
