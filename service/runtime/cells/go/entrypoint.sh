@@ -19,4 +19,4 @@ cd $P
 
 # run the source
 echo "Running service"
-go run $1
+GOPROXY=direct go run .
