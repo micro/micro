@@ -197,10 +197,12 @@ func testM3oSignupFlow(t *t) {
 	}
 	ns, err := namespace.Get(serv.envName)
 	if err != nil {
-		t.Fatal(err)
+		t.Fatalf("Eror getting namespace: %v", err)
+		return
 	}
 	if strings.Count(ns, "_") != 3 {
 		t.Fatalf("Expected 3 underscores in namespace but namespace is: %v", ns)
+		return
 	}
 	t.t.Logf("Namespace set is %v", ns)
 	wg.Wait()
