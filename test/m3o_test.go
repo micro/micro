@@ -140,6 +140,14 @@ func testM3oSignupFlow(t *t) {
 			return
 		}
 		t.t.Logf("Namespace set is %v", ns)
+		outp, err = exec.Command("micro", serv.envFlag(), "auth", "list", "accounts").CombinedOutput()
+		if err != nil {
+			t.Fatalf("Error listing accounts: %v", err)
+			return
+		}
+		if !strings.Contains(string(outp), "dobronszki@gmail.com") {
+			t.Fatalf("Account not found: %v", string(outp))
+		}
 	}()
 	go func() {
 		time.Sleep(20 * time.Second)
