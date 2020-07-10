@@ -13,6 +13,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/micro/micro/v2/client/cli/namespace"
 	"github.com/stripe/stripe-go/v71"
 	stripe_client "github.com/stripe/stripe-go/v71/client"
 )
@@ -194,6 +195,14 @@ func testM3oSignupFlow(t *t) {
 	if t.failed {
 		return
 	}
+	ns, err := namespace.Get(serv.envName)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if strings.Count(ns, "_") != 3 {
+		t.Fatalf("Expected 3 underscores in namespace but namespace is: %v", ns)
+	}
+	t.t.Logf("Namespace set is %v", ns)
 	wg.Wait()
 }
 
