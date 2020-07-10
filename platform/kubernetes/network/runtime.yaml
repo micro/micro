@@ -148,7 +148,7 @@ spec:
           value: "postgresql://root@cockroachdb-cluster:26257?ssl=true&sslmode=require&sslrootcert=certs/store/ca.crt&sslkey=certs/store/key.pem&sslcert=certs/store/cert.pem"
         args:
         - runtime
-        image: bentoogood/micro:runtimecreds
+        image: micro/micro
         imagePullPolicy: Always
         volumeMounts:
         - name: etcd-client-certs

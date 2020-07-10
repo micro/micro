@@ -7,10 +7,10 @@
 # secrets are manually added.
 
 # Generate keys for JWT auth.
-ssh-keygen -f /tmp/jwt -q -N "";
-ssh-keygen -f /tmp/jwt -e  > /tmp/jwt.pub;
-cat /tmp/jwt | base64 > /tmp/jwt-base64;
-cat /tmp/jwt.pub | base64 > /tmp/jwt-base64.pub;
+ssh-keygen -f /tmp/jwt -m pkcs8 -q -N "";
+ssh-keygen -f /tmp/jwt -e  -m pkcs8 > /tmp/jwt.pub;
+cat /tmp/jwt | base64 > /tmp/jwt-base64
+cat /tmp/jwt.pub | base64 > /tmp/jwt-base64.pub
 
 # Create the k8s secret
 kubectl create secret generic micro-secrets \
