@@ -122,6 +122,7 @@ func testM3oSignupFlow(t *t) {
 	wg = sync.WaitGroup{}
 	wg.Add(1)
 	go func() {
+		defer wg.Done()
 		outp, err := cmd.CombinedOutput()
 		if err != nil {
 			t.Fatal(string(outp), err)
@@ -129,7 +130,16 @@ func testM3oSignupFlow(t *t) {
 		if !strings.Contains(string(outp), "Success") {
 			t.Fatal(string(outp))
 		}
-		wg.Done()
+		ns, err := namespace.Get(serv.envName)
+		if err != nil {
+			t.Fatalf("Eror getting namespace: %v", err)
+			return
+		}
+		if strings.Count(ns, "_") != 3 {
+			t.Fatalf("Expected 3 underscores in namespace but namespace is: %v", ns)
+			return
+		}
+		t.t.Logf("Namespace set is %v", ns)
 	}()
 	go func() {
 		time.Sleep(20 * time.Second)
@@ -195,16 +205,6 @@ func testM3oSignupFlow(t *t) {
 	if t.failed {
 		return
 	}
-	ns, err := namespace.Get(serv.envName)
-	if err != nil {
-		t.Fatalf("Eror getting namespace: %v", err)
-		return
-	}
-	if strings.Count(ns, "_") != 3 {
-		t.Fatalf("Expected 3 underscores in namespace but namespace is: %v", ns)
-		return
-	}
-	t.t.Logf("Namespace set is %v", ns)
 	wg.Wait()
 }
 
