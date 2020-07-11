@@ -1,6 +1,6 @@
 # Micro [![License](https://img.shields.io/:license-apache-blue.svg)](https://opensource.org/licenses/Apache-2.0) [![GoDoc](https://godoc.org/github.com/micro/micro?status.svg)](https://godoc.org/github.com/micro/micro) [![Travis CI](https://travis-ci.org/micro/micro.svg?branch=master)](https://travis-ci.org/micro/micro) [![Go Report Card](https://goreportcard.com/badge/micro/micro)](https://goreportcard.com/report/github.com/micro/micro)
 
-Micro is a distributed systems runtime for the Cloud and beyond.
+Micro is a framework for distributed systems development in the Cloud and beyond.
 
 ## Overview
 
@@ -8,16 +8,9 @@ Micro addresses the key requirements for building distributed systems. It levera
 architecture pattern and provides a set of services which act as the building blocks of a platform. Micro deals
 with the complexity of distributed systems and provides simpler programmable abstractions to build on.
 
-<p>
-<img src="https://micro.mu/images/runtime.svg?5" style="width: 100%; height: auto;" />
-</p>
-
-Technology is constantly evolving. The infrastructure stack is always changing. Micro is a platform which
-addresses these issues with a pluggable foundation and strongly defined apis to build on. Plug into any stack or cloud.
-
 ## Features
 
-The runtime is composed of the following features:
+The framework is composed of the following features:
 
 ### Services
 
@@ -62,12 +55,6 @@ Clients are entrypoints into the system. They enable access to your services thr
 - **web:** A dashboard to explore services, describe their endpoints, the request and response formats and
 query them directly.
 
-### Framework
-
-To write applications which run on Micro you can use the framework Go Micro.
-
-- **go-micro:** Leverage the powerful [Go Micro](https://github.com/micro/go-micro) framework to develop microservices easily and quickly.
-Go Micro abstracts away the complexity of distributed systems and provides simpler abstractions to build highly scalable microservices.
 
 ## Install
 
