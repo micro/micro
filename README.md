@@ -16,7 +16,7 @@ The framework is composed of the following features:
 and provide a programmable abstraction layer. Authentication, configuration, messaging, storage and more built in.
 
 - **Client:** Multiple entrypoints through which you can access your services. Write services once and access them through every means 
-you've already come to know. An API Gateway, CLI, slack bot, gRPC proxy and commmand line interface.
+you've already come to know. An API Gateway, gRPC proxy, slack bot, web dashboard and commmand line interface.
 
 - **Library:** A Go library which makes it drop dead simple to write your services without having to piece together lines and lines of 
 boilerplate. Auto configured and initialised by default, just import and get started quickly.
