@@ -21,15 +21,15 @@ you've already come to know. An API Gateway, gRPC proxy, slack bot, web dashboar
 - **Library:** A Go library which makes it drop dead simple to write your services without having to piece together lines and lines of 
 boilerplate. Auto configured and initialised by default, just import and get started quickly.
 
-## Install
+## Getting Started
 
-From source
+Install from source
 
 ```
 go get github.com/micro/micro/v2
 ```
 
-Docker image
+Using a docker image
 
 ```
 docker pull micro/micro
@@ -48,15 +48,13 @@ wget -q  https://raw.githubusercontent.com/micro/micro/master/scripts/install.sh
 powershell -Command "iwr -useb https://raw.githubusercontent.com/micro/micro/master/scripts/install.ps1 | iex"
 ```
 
-## Getting Started
-
-Bootup the server locally
+Run the server locally
 
 ```
 micro server
 ```
 
-### Create a service
+Create a service
 
 ```
 # generate a service (follow instructions in output)
