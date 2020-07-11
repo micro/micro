@@ -84,3 +84,7 @@ micro --help
 ```
 
 See the [docs](https://dev.m3o.com) for detailed information on the architecture, installation and use of the platform.
+
+## License
+
+Micro is Apache 2.0 Licensed
