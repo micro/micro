@@ -50,7 +50,7 @@ powershell -Command "iwr -useb https://raw.githubusercontent.com/micro/micro/mas
 
 ## Getting Started
 
-Boot the entire runtime environment locally
+Bootup the server locally
 
 ```
 micro server
