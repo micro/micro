@@ -21,7 +21,7 @@ you've already come to know. An API Gateway, gRPC proxy, slack bot, web dashboar
 - **Library:** A Go library which makes it drop dead simple to write your services without having to piece together lines and lines of 
 boilerplate. Auto configured and initialised by default, just import and get started quickly.
 
-## Getting Started
+## Install
 
 Install from source
 
@@ -47,6 +47,8 @@ wget -q  https://raw.githubusercontent.com/micro/micro/master/scripts/install.sh
 # Windows
 powershell -Command "iwr -useb https://raw.githubusercontent.com/micro/micro/master/scripts/install.ps1 | iex"
 ```
+
+## Getting Started
 
 Run the server locally
 
