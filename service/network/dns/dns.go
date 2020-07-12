@@ -18,7 +18,7 @@ func Run(c *cli.Context) {
 		log.Fatal("The only implemented DNS provider is cloudflare")
 	}
 
-	dnsService := micro.NewService(
+	dnsService := service.New(
 		micro.Name("go.micro.network.dns"),
 	)
 

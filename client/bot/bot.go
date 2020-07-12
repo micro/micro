@@ -409,7 +409,7 @@ func run(ctx *cli.Context) error {
 	}
 
 	// setup service
-	service := micro.NewService(
+	service := service.New(
 		micro.Name(Name),
 		micro.RegisterTTL(
 			time.Duration(ctx.Int("register_ttl"))*time.Second,

@@ -16,11 +16,11 @@ import (
 	pb "github.com/micro/go-micro/v2/auth/service/proto"
 	"github.com/micro/go-micro/v2/auth/token"
 	"github.com/micro/go-micro/v2/auth/token/jwt"
-	"github.com/micro/go-micro/v2/config/cmd"
 	log "github.com/micro/go-micro/v2/logger"
 	clinamespace "github.com/micro/micro/v2/client/cli/namespace"
 	clitoken "github.com/micro/micro/v2/client/cli/token"
 	cliutil "github.com/micro/micro/v2/client/cli/util"
+	"github.com/micro/micro/v2/cmd"
 	"github.com/micro/micro/v2/internal/client"
 	"github.com/micro/micro/v2/internal/helper"
 	"github.com/micro/micro/v2/service/auth/api"
@@ -92,6 +92,11 @@ var (
 	}
 )
 
+func init() {
+	// register the commands
+	cmd.Commands = append(app.Commands, Commands()...)
+}
+
 // run the auth service
 func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 	log.Init(log.WithFields(map[string]interface{}{"service": "auth"}))
@@ -130,7 +135,7 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 
 	// setup service
 	srvOpts = append(srvOpts, micro.Name(Name))
-	service := micro.NewService(srvOpts...)
+	service := service.New(srvOpts...)
 
 	// register handlers
 	pb.RegisterAuthHandler(service.Server(), authH)

@@ -14,9 +14,9 @@ import (
 	"github.com/micro/go-micro/v2/auth"
 	bmem "github.com/micro/go-micro/v2/broker/memory"
 	mucli "github.com/micro/go-micro/v2/client"
-	"github.com/micro/go-micro/v2/config/cmd"
 	log "github.com/micro/go-micro/v2/logger"
 	"github.com/micro/go-micro/v2/proxy"
+	"github.com/micro/micro/v2/cmd"
 
 	//"github.com/micro/go-micro/v2/proxy/grpc"
 	"github.com/micro/go-micro/v2/proxy/http"
@@ -77,7 +77,7 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 	srvOpts = append(srvOpts, micro.Name(Name))
 
 	// new service
-	service := micro.NewService(srvOpts...)
+	service := service.New(srvOpts...)
 
 	// set the context
 	popts := []proxy.Option{

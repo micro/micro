@@ -8,6 +8,7 @@ import (
 	"github.com/micro/go-micro/v2"
 	pb "github.com/micro/go-micro/v2/broker/service/proto"
 	log "github.com/micro/go-micro/v2/logger"
+	"github.com/micro/micro/v2/cmd"
 	"github.com/micro/micro/v2/service/broker/handler"
 )
 
@@ -17,6 +18,11 @@ var (
 	// The address of the broker
 	Address = ":8001"
 )
+
+func init() {
+	// register the commands
+	cmd.Commands = append(app.Commands, Commands()...)
+}
 
 func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 	log.Init(log.WithFields(map[string]interface{}{"service": "broker"}))
@@ -48,7 +54,7 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 	}
 
 	// new service
-	service := micro.NewService(srvOpts...)
+	service := service.New(srvOpts...)
 
 	// connect to the broker
 	service.Options().Broker.Connect()

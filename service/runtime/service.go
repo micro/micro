@@ -16,7 +16,6 @@ import (
 
 	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro/v2"
-	"github.com/micro/go-micro/v2/config/cmd"
 	log "github.com/micro/go-micro/v2/logger"
 	"github.com/micro/go-micro/v2/runtime"
 	"github.com/micro/go-micro/v2/runtime/local/git"
@@ -25,6 +24,7 @@ import (
 	"github.com/micro/micro/v2/client/cli/namespace"
 	"github.com/micro/micro/v2/client/cli/util"
 	cliutil "github.com/micro/micro/v2/client/cli/util"
+	"github.com/micro/micro/v2/cmd"
 	"github.com/micro/micro/v2/internal/client"
 	"github.com/micro/micro/v2/service/runtime/handler"
 )

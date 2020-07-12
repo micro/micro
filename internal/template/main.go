@@ -46,7 +46,7 @@ import (
 
 func main() {
 	// New Service
-	service := micro.NewService(
+	service := service.New(
 		micro.Name("{{.FQDN}}"),
 		micro.Version("latest"),
 	)
@@ -80,7 +80,7 @@ import (
 
 func main() {
 	// New Service
-	service := micro.NewService(
+	service := service.New(
 		micro.Name("{{.FQDN}}"),
 		micro.Version("latest"),
 	)

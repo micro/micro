@@ -98,7 +98,7 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 	srvOpts = append(srvOpts, micro.Name(Name))
 
 	// initialise service
-	service := micro.NewService(srvOpts...)
+	service := service.New(srvOpts...)
 
 	// Init plugins
 	for _, p := range Plugins() {
@@ -214,7 +214,7 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 	// register rpc handler
 	if EnableRPC {
 		log.Infof("Registering RPC Handler at %s", RPCPath)
-		r.Handle(RPCPath, handler.NewRPCHandler(rr))
+		r.Handle(RPCPath, handler.NewRPCHandler(rr, service.Client()))
 	}
 
 	switch Handler {

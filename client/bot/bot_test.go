@@ -103,7 +103,7 @@ func TestBot(t *testing.T) {
 		}),
 	}
 
-	service := micro.NewService(
+	service := service.New(
 		micro.Registry(memory.NewRegistry()),
 	)
 

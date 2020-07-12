@@ -19,6 +19,7 @@ import (
 	tun "github.com/micro/go-micro/v2/tunnel"
 	"github.com/micro/go-micro/v2/tunnel/transport"
 	"github.com/micro/go-micro/v2/util/mux"
+	"github.com/micro/micro/v2/cmd"
 )
 
 var (
@@ -31,6 +32,11 @@ var (
 	// The tunnel token
 	Token = "micro"
 )
+
+func init() {
+	// register the commands
+	cmd.Commands = append(app.Commands, Commands()...)
+}
 
 // Run runs the micro server
 func Run(ctx *cli.Context, srvOpts ...micro.Option) {
@@ -64,7 +70,7 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 	}
 
 	// Initialise service
-	service := micro.NewService(
+	service := service.New(
 		micro.Name(Name),
 		micro.RegisterTTL(time.Duration(ctx.Int("register_ttl"))*time.Second),
 		micro.RegisterInterval(time.Duration(ctx.Int("register_interval"))*time.Second),

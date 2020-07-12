@@ -12,7 +12,6 @@ import (
 	"github.com/micro/go-micro/v2/api/resolver/subdomain"
 	"github.com/micro/go-micro/v2/api/server/cors"
 	"github.com/micro/go-micro/v2/client"
-	"github.com/micro/go-micro/v2/config/cmd"
 	"github.com/micro/go-micro/v2/errors"
 	"github.com/micro/micro/v2/internal/helper"
 )
@@ -26,6 +25,7 @@ type rpcRequest struct {
 }
 
 type rpcHandler struct {
+	client   client.Client
 	resolver resolver.Resolver
 }
 
@@ -126,7 +126,7 @@ func (h *rpcHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// create request/response
 	var response json.RawMessage
 	var err error
-	req := (*cmd.DefaultOptions().Client).NewRequest(service, endpoint, request, client.WithContentType("application/json"))
+	req := h.client.NewRequest(service, endpoint, request, client.WithContentType("application/json"))
 
 	// create context
 	ctx := helper.RequestToContext(r)
@@ -153,7 +153,7 @@ func (h *rpcHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// remote call
-	err = (*cmd.DefaultOptions().Client).Call(ctx, req, &response, opts...)
+	err = h.client.Call(ctx, req, &response, opts...)
 	if err != nil {
 		ce := errors.Parse(err.Error())
 		switch ce.Code {
@@ -177,6 +177,6 @@ func (h *rpcHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 // NewRPCHandler returns an initialized RPC handler
-func NewRPCHandler(r resolver.Resolver) handler.Handler {
+func NewRPCHandler(r resolver.Resolver, c client.Client) handler.Handler {
 	return &rpcHandler{r}
 }

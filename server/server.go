@@ -9,11 +9,11 @@ import (
 	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro/v2"
 	"github.com/micro/go-micro/v2/client"
-	"github.com/micro/go-micro/v2/config/cmd"
 	log "github.com/micro/go-micro/v2/logger"
 	gorun "github.com/micro/go-micro/v2/runtime"
 	"github.com/micro/go-micro/v2/util/file"
 	ccli "github.com/micro/micro/v2/client/cli"
+	"github.com/micro/micro/v2/cmd"
 	"github.com/micro/micro/v2/internal/platform"
 	"github.com/micro/micro/v2/internal/update"
 )
@@ -225,7 +225,7 @@ func Run(context *cli.Context) error {
 	// start the console
 	// cli.Init(context)
 
-	server := micro.NewService(
+	server := service.New(
 		micro.Name(Name),
 		micro.Address(Address),
 	)

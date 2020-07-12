@@ -431,7 +431,7 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 	srvOpts = append(srvOpts, micro.Name(Name))
 
 	// Initialize Server
-	service := micro.NewService(srvOpts...)
+	service := service.New(srvOpts...)
 
 	// Setup the web resolver
 	var resolver res.Resolver
@@ -476,7 +476,7 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 	s.HandleFunc("/client", s.callHandler)
 	s.HandleFunc("/services", s.registryHandler)
 	s.HandleFunc("/service/{name}", s.registryHandler)
-	s.Handle("/rpc", handler.NewRPCHandler(resolver))
+	s.Handle("/rpc", handler.NewRPCHandler(resolver, service.Client()))
 	s.PathPrefix("/{service:[a-zA-Z0-9]+}").Handler(p)
 	s.HandleFunc("/", s.indexHandler)
 

@@ -224,7 +224,7 @@ func (n *Network) Nodes(ctx context.Context, req *map[string]interface{}, rsp *m
 
 func Run(ctx *cli.Context) {
 	// create the api service
-	api := micro.NewService(
+	api := service.New(
 		micro.Name("go.micro.api.network"),
 	)
 

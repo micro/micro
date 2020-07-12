@@ -12,6 +12,7 @@ import (
 	"github.com/micro/go-micro/v2/registry/service"
 	pb "github.com/micro/go-micro/v2/registry/service/proto"
 	rcli "github.com/micro/micro/v2/client/cli"
+	"github.com/micro/micro/v2/cmd"
 	"github.com/micro/micro/v2/internal/helper"
 	"github.com/micro/micro/v2/service/registry/handler"
 )
@@ -31,6 +32,11 @@ type subscriber struct {
 	Id string
 	// registry is service registry
 	Registry registry.Registry
+}
+
+func init() {
+	// register the commands
+	cmd.Commands = append(app.Commands, Commands()...)
 }
 
 // Process processes registry events
@@ -108,7 +114,7 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 	}
 
 	// new service
-	service := micro.NewService(srvOpts...)
+	service := service.New(srvOpts...)
 	// get server id
 	id := service.Server().Options().Id
 

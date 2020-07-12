@@ -6,8 +6,9 @@ import (
 	log "github.com/micro/go-micro/v2/logger"
 	"github.com/micro/go-micro/v2/store"
 	pb "github.com/micro/go-micro/v2/store/service/proto"
-	mcli "github.com/micro/micro/v2/client/cli"
+	"github.com/micro/micro/v2/cmd"
 	"github.com/micro/micro/v2/internal/helper"
+	storeCli "github.com/micro/micro/v2/service/store/cli"
 	"github.com/micro/micro/v2/service/store/handler"
 	"github.com/pkg/errors"
 )
@@ -18,6 +19,11 @@ var (
 	// Address is the store address
 	Address = ":8002"
 )
+
+func init() {
+	// register the commands
+	cmd.Commands = append(app.Commands, Commands()...)
+}
 
 // Run runs the micro server
 func Run(ctx *cli.Context, srvOpts ...micro.Option) {
@@ -36,7 +42,7 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 	}
 
 	// Initialise service
-	service := micro.NewService(
+	service := service.New(
 		micro.Name(Name),
 	)
 
@@ -107,7 +113,7 @@ func Commands(options ...micro.Option) []*cli.Command {
 			Run(ctx, options...)
 			return nil
 		},
-		Subcommands: mcli.StoreCommands(),
+		Subcommands: storeCli.Commands(),
 	}
 
 	for _, p := range Plugins() {

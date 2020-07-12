@@ -6,8 +6,8 @@ import (
 	"fmt"
 
 	"github.com/micro/cli/v2"
-	"github.com/micro/go-micro/v2/config/cmd"
 	storeproto "github.com/micro/go-micro/v2/store/service/proto"
+	"github.com/micro/micro/v2/cmd"
 )
 
 // Databases is the entrypoint for micro store databases

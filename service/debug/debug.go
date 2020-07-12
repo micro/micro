@@ -8,6 +8,7 @@ import (
 	"github.com/micro/go-micro/v2/debug/log/kubernetes"
 	dservice "github.com/micro/go-micro/v2/debug/service"
 	ulog "github.com/micro/go-micro/v2/logger"
+	"github.com/micro/micro/v2/cmd"
 	logHandler "github.com/micro/micro/v2/service/debug/log/handler"
 	pblog "github.com/micro/micro/v2/service/debug/log/proto"
 	statshandler "github.com/micro/micro/v2/service/debug/stats/handler"
@@ -22,6 +23,11 @@ var (
 	// Address of the service
 	Address = ":8089"
 )
+
+func init() {
+	// register the commands
+	cmd.Commands = append(app.Commands, Commands()...)
+}
 
 func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 	ulog.Init(ulog.WithFields(map[string]interface{}{"service": "debug"}))
@@ -47,7 +53,7 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 	srvOpts = append(srvOpts, micro.Name(Name))
 
 	// new service
-	service := micro.NewService(srvOpts...)
+	service := service.New(srvOpts...)
 
 	// default log initialiser
 	newLog := func(service string) log.Log {

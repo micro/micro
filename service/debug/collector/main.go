@@ -24,7 +24,7 @@ var (
 
 func main() {
 	// New Service
-	service := micro.NewService(
+	service := service.New(
 		micro.Name("go.micro.debug.collector"),
 		micro.Version("latest"),
 	)

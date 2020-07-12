@@ -12,11 +12,11 @@ import (
 	srvAuth "github.com/micro/go-micro/v2/auth/service"
 	"github.com/micro/go-micro/v2/client"
 	"github.com/micro/go-micro/v2/client/grpc"
-	"github.com/micro/go-micro/v2/config/cmd"
 	"github.com/micro/go-micro/v2/metadata"
 	"github.com/micro/micro/v2/client/cli/namespace"
 	clitoken "github.com/micro/micro/v2/client/cli/token"
 	cliutil "github.com/micro/micro/v2/client/cli/util"
+	"github.com/micro/micro/v2/cmd"
 )
 
 // New returns a wrapped grpc client which will inject the

@@ -11,6 +11,7 @@ import (
 	log "github.com/micro/go-micro/v2/logger"
 	"github.com/micro/go-micro/v2/router"
 	pb "github.com/micro/go-micro/v2/router/service/proto"
+	"github.com/micro/micro/v2/cmd"
 	"github.com/micro/micro/v2/service/router/handler"
 )
 
@@ -28,6 +29,11 @@ var (
 // Sub processes router events
 type sub struct {
 	router router.Router
+}
+
+func init() {
+	// register the commands
+	cmd.Commands = append(app.Commands, Commands()...)
 }
 
 // Process processes router adverts
@@ -187,7 +193,7 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 	}
 
 	// Initialise service
-	service := micro.NewService(
+	service := service.New(
 		micro.Name(Name),
 		micro.Address(Address),
 		micro.RegisterTTL(time.Duration(ctx.Int("register_ttl"))*time.Second),

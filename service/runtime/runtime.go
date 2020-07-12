@@ -6,10 +6,10 @@ import (
 
 	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro/v2"
-	"github.com/micro/go-micro/v2/config/cmd"
 	log "github.com/micro/go-micro/v2/logger"
 	"github.com/micro/go-micro/v2/runtime"
 	pb "github.com/micro/go-micro/v2/runtime/service/proto"
+	"github.com/micro/micro/v2/cmd"
 	"github.com/micro/micro/v2/service/runtime/handler"
 	"github.com/micro/micro/v2/service/runtime/manager"
 	"github.com/micro/micro/v2/service/runtime/profile"
@@ -21,6 +21,11 @@ var (
 	// Address of the runtime
 	Address = ":8088"
 )
+
+func init() {
+	// register the commands
+	cmd.Commands = append(app.Commands, Commands()...)
+}
 
 // Run the runtime service
 func Run(ctx *cli.Context, srvOpts ...micro.Option) {
@@ -66,7 +71,7 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 	srvOpts = append(srvOpts, micro.Name(Name))
 
 	// new service
-	service := micro.NewService(srvOpts...)
+	service := service.New(srvOpts...)
 
 	// create a new runtime manager
 	manager := manager.New(muRuntime,

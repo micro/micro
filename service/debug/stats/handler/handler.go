@@ -7,11 +7,11 @@ import (
 	"time"
 
 	"github.com/micro/go-micro/v2/client"
-	"github.com/micro/go-micro/v2/config/cmd"
 	debug "github.com/micro/go-micro/v2/debug/service/proto"
 	"github.com/micro/go-micro/v2/errors"
 	"github.com/micro/go-micro/v2/registry"
 	"github.com/micro/go-micro/v2/util/ring"
+	"github.com/micro/micro/v2/cmd"
 	stats "github.com/micro/micro/v2/service/debug/stats/proto"
 )
 

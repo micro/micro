@@ -19,7 +19,7 @@ var (
 func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 	log.Init(log.WithFields(map[string]interface{}{"service": "auth"}))
 
-	service := micro.NewService(
+	service := service.New(
 		micro.Name(Name),
 		micro.Address(Address),
 	)

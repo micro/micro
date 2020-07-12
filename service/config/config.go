@@ -9,11 +9,11 @@ import (
 
 	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro/v2"
-	"github.com/micro/go-micro/v2/config/cmd"
 	proto "github.com/micro/go-micro/v2/config/source/service/proto"
 	log "github.com/micro/go-micro/v2/logger"
 	"github.com/micro/micro/v2/client/cli/namespace"
 	"github.com/micro/micro/v2/client/cli/util"
+	"github.com/micro/micro/v2/cmd"
 	"github.com/micro/micro/v2/internal/client"
 	"github.com/micro/micro/v2/internal/helper"
 	"github.com/micro/micro/v2/service/config/handler"
@@ -37,7 +37,7 @@ func Run(c *cli.Context, srvOpts ...micro.Option) {
 
 	srvOpts = append(srvOpts, micro.Name(Name))
 
-	service := micro.NewService(srvOpts...)
+	service := service.New(srvOpts...)
 
 	h := &handler.Config{
 		Store: *cmd.DefaultCmd.Options().Store,
@@ -49,6 +49,11 @@ func Run(c *cli.Context, srvOpts ...micro.Option) {
 	if err := service.Run(); err != nil {
 		log.Fatalf("config Run the service error: ", err)
 	}
+}
+
+func init() {
+	// register the commands
+	cmd.Commands = append(app.Commands, Commands()...)
 }
 
 func setConfig(ctx *cli.Context) error {

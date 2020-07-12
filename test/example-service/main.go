@@ -10,7 +10,7 @@ import (
 
 func main() {
 	// New Service
-	service := micro.NewService(
+	service := service.New(
 		micro.Name("go.micro.service.example"),
 		micro.Version("latest"),
 	)
