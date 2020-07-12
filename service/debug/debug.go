@@ -3,11 +3,11 @@ package debug
 
 import (
 	"github.com/micro/cli/v2"
-	"github.com/micro/go-micro/v2"
 	"github.com/micro/go-micro/v2/debug/log"
 	"github.com/micro/go-micro/v2/debug/log/kubernetes"
 	dservice "github.com/micro/go-micro/v2/debug/service"
 	ulog "github.com/micro/go-micro/v2/logger"
+	"github.com/micro/go-micro/v2/service"
 	"github.com/micro/micro/v2/cmd"
 	logHandler "github.com/micro/micro/v2/service/debug/log/handler"
 	pblog "github.com/micro/micro/v2/service/debug/log/proto"
@@ -53,7 +53,7 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 	srvOpts = append(srvOpts, micro.Name(Name))
 
 	// new service
-	service := service.New(srvOpts...)
+	service := service.NewService(srvOpts...)
 
 	// default log initialiser
 	newLog := func(service string) log.Log {

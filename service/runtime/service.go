@@ -15,11 +15,11 @@ import (
 	"time"
 
 	"github.com/micro/cli/v2"
-	"github.com/micro/go-micro/v2"
 	log "github.com/micro/go-micro/v2/logger"
 	"github.com/micro/go-micro/v2/runtime"
 	"github.com/micro/go-micro/v2/runtime/local/git"
 	srvRuntime "github.com/micro/go-micro/v2/runtime/service"
+	"github.com/micro/go-micro/v2/service"
 	"github.com/micro/go-micro/v2/util/file"
 	"github.com/micro/micro/v2/client/cli/namespace"
 	"github.com/micro/micro/v2/client/cli/util"

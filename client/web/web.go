@@ -36,7 +36,7 @@ import (
 	"github.com/micro/micro/v2/internal/resolver/web"
 	"github.com/micro/micro/v2/internal/stats"
 	"github.com/micro/micro/v2/plugin"
-	"github.com/micro/micro/v2/service"
+	"github.com/micro/go-micro/v2/service"
 	"github.com/serenize/snaker"
 )
 
@@ -431,7 +431,7 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 	srvOpts = append(srvOpts, micro.Name(Name))
 
 	// Initialize Server
-	service := service.New(srvOpts...)
+	service := service.NewService(srvOpts...)
 
 	// Setup the web resolver
 	var resolver res.Resolver

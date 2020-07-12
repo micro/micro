@@ -6,11 +6,11 @@ import (
 	"time"
 
 	"github.com/micro/cli/v2"
-	"github.com/micro/go-micro/v2"
 	log "github.com/micro/go-micro/v2/logger"
 	"github.com/micro/go-micro/v2/registry"
 	"github.com/micro/go-micro/v2/registry/service"
 	pb "github.com/micro/go-micro/v2/registry/service/proto"
+	"github.com/micro/go-micro/v2/service"
 	rcli "github.com/micro/micro/v2/client/cli"
 	"github.com/micro/micro/v2/cmd"
 	"github.com/micro/micro/v2/internal/helper"
@@ -114,7 +114,7 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 	}
 
 	// new service
-	service := service.New(srvOpts...)
+	service := service.NewService(srvOpts...)
 	// get server id
 	id := service.Server().Options().Id
 

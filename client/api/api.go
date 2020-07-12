@@ -35,7 +35,7 @@ import (
 	rrmicro "github.com/micro/micro/v2/internal/resolver/api"
 	"github.com/micro/micro/v2/internal/stats"
 	"github.com/micro/micro/v2/plugin"
-	"github.com/micro/micro/v2/service"
+	"github.com/micro/go-micro/v2/service"
 )
 
 var (
@@ -98,7 +98,7 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 	srvOpts = append(srvOpts, micro.Name(Name))
 
 	// initialise service
-	service := service.New(srvOpts...)
+	service := service.NewService(srvOpts...)
 
 	// Init plugins
 	for _, p := range Plugins() {

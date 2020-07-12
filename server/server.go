@@ -225,7 +225,7 @@ func Run(context *cli.Context) error {
 	// start the console
 	// cli.Init(context)
 
-	server := service.New(
+	server := service.NewService(
 		micro.Name(Name),
 		micro.Address(Address),
 	)

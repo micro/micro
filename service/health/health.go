@@ -6,10 +6,10 @@ import (
 	"net/http"
 
 	"github.com/micro/cli/v2"
-	"github.com/micro/go-micro/v2"
 	"github.com/micro/go-micro/v2/client"
 	proto "github.com/micro/go-micro/v2/debug/service/proto"
 	log "github.com/micro/go-micro/v2/logger"
+	"github.com/micro/go-micro/v2/service"
 	mcli "github.com/micro/micro/v2/client/cli"
 	"github.com/micro/micro/v2/cmd"
 	qcli "github.com/micro/micro/v2/internal/command/cli"

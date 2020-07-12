@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"github.com/micro/cli/v2"
-	"github.com/micro/go-micro/v2"
 	log "github.com/micro/go-micro/v2/logger"
 	"github.com/micro/go-micro/v2/network"
 	"github.com/micro/go-micro/v2/network/resolver"
@@ -20,6 +19,7 @@ import (
 	"github.com/micro/go-micro/v2/proxy/mucp"
 	"github.com/micro/go-micro/v2/router"
 	"github.com/micro/go-micro/v2/server"
+	"github.com/micro/go-micro/v2/service"
 	"github.com/micro/go-micro/v2/transport"
 	"github.com/micro/go-micro/v2/transport/quic"
 	"github.com/micro/go-micro/v2/tunnel"
@@ -110,7 +110,7 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 	}
 
 	// Initialise service
-	service := service.New(
+	service := service.NewService(
 		micro.Name(Name),
 		micro.RegisterTTL(time.Duration(ctx.Int("register_ttl"))*time.Second),
 		micro.RegisterInterval(time.Duration(ctx.Int("register_interval"))*time.Second),

@@ -8,7 +8,7 @@ import (
 
 func main() {
 	// New Service
-	service := service.New(
+	service := service.NewService(
 		micro.Name("go.micro.service.config-read"),
 		micro.Version("latest"),
 	)

@@ -4,8 +4,8 @@ import (
 	"os"
 	"path"
 
-	"github.com/micro/go-micro/v2"
 	log "github.com/micro/go-micro/v2/logger"
+	"github.com/micro/go-micro/v2/service"
 	plugin "github.com/micro/micro/v2/service/debug/collector/micro"
 	"github.com/netdata/go-orchestrator"
 	"github.com/netdata/go-orchestrator/cli"
@@ -24,7 +24,7 @@ var (
 
 func main() {
 	// New Service
-	service := service.New(
+	service := service.NewService(
 		micro.Name("go.micro.debug.collector"),
 		micro.Version("latest"),
 	)

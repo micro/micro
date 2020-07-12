@@ -5,9 +5,9 @@ import (
 	"time"
 
 	"github.com/micro/cli/v2"
-	"github.com/micro/go-micro/v2"
 	pb "github.com/micro/go-micro/v2/broker/service/proto"
 	log "github.com/micro/go-micro/v2/logger"
+	"github.com/micro/go-micro/v2/service"
 	"github.com/micro/micro/v2/cmd"
 	"github.com/micro/micro/v2/service/broker/handler"
 )
@@ -54,7 +54,7 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 	}
 
 	// new service
-	service := service.New(srvOpts...)
+	service := service.NewService(srvOpts...)
 
 	// connect to the broker
 	service.Options().Broker.Connect()

@@ -16,7 +16,7 @@ import (
 	"github.com/micro/go-micro/v2/agent/input"
 	log "github.com/micro/go-micro/v2/logger"
 	botc "github.com/micro/micro/v2/internal/command/bot"
-	"github.com/micro/micro/v2/service"
+	"github.com/micro/go-micro/v2/service"
 
 	proto "github.com/micro/go-micro/v2/agent/proto"
 
@@ -350,7 +350,7 @@ func (b *bot) watch() {
 	}
 }
 
-func run(ctx *cli.Context) error {
+func Run(ctx *cli.Context) error {
 	log.Init(log.WithFields(map[string]interface{}{"service": "bot"}))
 
 	// Init plugins
@@ -408,7 +408,7 @@ func run(ctx *cli.Context) error {
 	}
 
 	// setup service
-	service := service.New(
+	service := service.NewService(
 		micro.Name(Name),
 		micro.RegisterTTL(
 			time.Duration(ctx.Int("register_ttl"))*time.Second,

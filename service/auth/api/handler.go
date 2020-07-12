@@ -3,9 +3,9 @@ package api
 import (
 	"context"
 
-	"github.com/micro/go-micro/v2"
 	"github.com/micro/go-micro/v2/auth"
 	"github.com/micro/go-micro/v2/errors"
+	"github.com/micro/go-micro/v2/service"
 	pb "github.com/micro/micro/v2/service/auth/api/proto"
 )
 

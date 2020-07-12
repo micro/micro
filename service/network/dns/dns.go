@@ -3,8 +3,8 @@ package dns
 
 import (
 	"github.com/micro/cli/v2"
-	"github.com/micro/go-micro/v2"
 	log "github.com/micro/go-micro/v2/logger"
+	"github.com/micro/go-micro/v2/service"
 
 	"github.com/micro/micro/v2/service/network/dns/handler"
 	dns "github.com/micro/micro/v2/service/network/dns/proto/dns"
@@ -18,7 +18,7 @@ func Run(c *cli.Context) {
 		log.Fatal("The only implemented DNS provider is cloudflare")
 	}
 
-	dnsService := service.New(
+	dnsService := service.NewService(
 		micro.Name("go.micro.network.dns"),
 	)
 

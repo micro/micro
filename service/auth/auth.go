@@ -10,13 +10,13 @@ import (
 	"time"
 
 	"github.com/micro/cli/v2"
-	"github.com/micro/go-micro/v2"
 	"github.com/micro/go-micro/v2/auth"
 	srvAuth "github.com/micro/go-micro/v2/auth/service"
 	pb "github.com/micro/go-micro/v2/auth/service/proto"
 	"github.com/micro/go-micro/v2/auth/token"
 	"github.com/micro/go-micro/v2/auth/token/jwt"
 	log "github.com/micro/go-micro/v2/logger"
+	"github.com/micro/go-micro/v2/service"
 	clinamespace "github.com/micro/micro/v2/client/cli/namespace"
 	clitoken "github.com/micro/micro/v2/client/cli/token"
 	cliutil "github.com/micro/micro/v2/client/cli/util"
@@ -135,7 +135,7 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 
 	// setup service
 	srvOpts = append(srvOpts, micro.Name(Name))
-	service := service.New(srvOpts...)
+	service := service.NewService(srvOpts...)
 
 	// register handlers
 	pb.RegisterAuthHandler(service.Server(), authH)

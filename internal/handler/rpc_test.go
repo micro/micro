@@ -44,7 +44,7 @@ func (t *TestHandler) Exec(ctx context.Context, req *TestRequest, rsp *TestRespo
 func TestRPCHandler(t *testing.T) {
 	r := memory.NewRegistry()
 
-	service := service.New(
+	service := service.NewService(
 		micro.Name("test"),
 		micro.Registry(r),
 	)
