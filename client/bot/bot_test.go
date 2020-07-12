@@ -10,9 +10,8 @@ import (
 	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro/v2/agent/command"
 	"github.com/micro/go-micro/v2/agent/input"
-
-	"github.com/micro/go-micro/v2"
 	"github.com/micro/go-micro/v2/registry/memory"
+	"github.com/micro/micro/v2/service"
 )
 
 type testInput struct {

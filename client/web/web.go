@@ -17,7 +17,6 @@ import (
 	"github.com/go-acme/lego/v3/providers/dns/cloudflare"
 	"github.com/gorilla/mux"
 	"github.com/micro/cli/v2"
-	"github.com/micro/go-micro/v2"
 	res "github.com/micro/go-micro/v2/api/resolver"
 	"github.com/micro/go-micro/v2/api/resolver/subdomain"
 	"github.com/micro/go-micro/v2/api/server"
@@ -37,6 +36,7 @@ import (
 	"github.com/micro/micro/v2/internal/resolver/web"
 	"github.com/micro/micro/v2/internal/stats"
 	"github.com/micro/micro/v2/plugin"
+	"github.com/micro/micro/v2/service"
 	"github.com/serenize/snaker"
 )
 
