@@ -29,7 +29,7 @@ func init() {
 	cmd.Commands = append(app.Commands, Commands()...)
 }
 
-func Run(ctx *cli.Context, srvOpts ...micro.Option) {
+func Run(ctx *cli.Context, srvOpts ...service.Option) {
 	ulog.Init(ulog.WithFields(map[string]interface{}{"service": "debug"}))
 
 	// Init plugins
@@ -46,11 +46,11 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 	}
 
 	if len(Address) > 0 {
-		srvOpts = append(srvOpts, micro.Address(Address))
+		srvOpts = append(srvOpts, service.Address(Address))
 	}
 
 	// append name
-	srvOpts = append(srvOpts, micro.Name(Name))
+	srvOpts = append(srvOpts, service.Name(Name))
 
 	// new service
 	service := service.NewService(srvOpts...)
@@ -125,7 +125,7 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 }
 
 // Commands populates the debug commands
-func Commands(options ...micro.Option) []*cli.Command {
+func Commands(options ...service.Option) []*cli.Command {
 	command := []*cli.Command{
 		{
 			Name:  "debug",

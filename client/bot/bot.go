@@ -14,11 +14,10 @@ import (
 	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro/v2/agent/command"
 	"github.com/micro/go-micro/v2/agent/input"
-	log "github.com/micro/go-micro/v2/logger"
-	botc "github.com/micro/micro/v2/internal/command/bot"
-	"github.com/micro/go-micro/v2/service"
-
 	proto "github.com/micro/go-micro/v2/agent/proto"
+	log "github.com/micro/go-micro/v2/logger"
+	"github.com/micro/go-micro/v2/service"
+	botc "github.com/micro/micro/v2/internal/command/bot"
 
 	// inputs
 	_ "github.com/micro/go-micro/v2/agent/input/discord"
@@ -29,7 +28,7 @@ import (
 type bot struct {
 	exit    chan bool
 	ctx     *cli.Context
-	service micro.Service
+	service service.Service
 
 	sync.RWMutex
 	inputs   map[string]input.Input
@@ -80,7 +79,7 @@ func help(commands map[string]command.Command, serviceCommands []string) command
 	})
 }
 
-func newBot(ctx *cli.Context, inputs map[string]input.Input, commands map[string]command.Command, service micro.Service) *bot {
+func newBot(ctx *cli.Context, inputs map[string]input.Input, commands map[string]command.Command, service service.Service) *bot {
 	commands["^help$"] = help(commands, nil)
 
 	return &bot{
@@ -409,13 +408,7 @@ func Run(ctx *cli.Context) error {
 
 	// setup service
 	service := service.NewService(
-		micro.Name(Name),
-		micro.RegisterTTL(
-			time.Duration(ctx.Int("register_ttl"))*time.Second,
-		),
-		micro.RegisterInterval(
-			time.Duration(ctx.Int("register_interval"))*time.Second,
-		),
+		service.Name(Name),
 	)
 
 	// Start bot

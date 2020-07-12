@@ -251,7 +251,7 @@ func (s *service) Run() error {
 }
 
 // Run starts a micro service sidecar to encapsulate any app
-func Run(ctx *cli.Context, opts ...micro.Option) {
+func Run(ctx *cli.Context, opts ...service.Option) {
 	log.Init(log.WithFields(map[string]interface{}{"service": "service"}))
 
 	name := ctx.String("name")
@@ -273,15 +273,15 @@ func Run(ctx *cli.Context, opts ...micro.Option) {
 	}
 
 	if len(metadata) > 0 {
-		opts = append(opts, micro.Metadata(metadata))
+		opts = append(opts, service.Metadata(metadata))
 	}
 
 	if len(name) > 0 {
-		opts = append(opts, micro.Name(name))
+		opts = append(opts, service.Name(name))
 	}
 
 	if len(address) > 0 {
-		opts = append(opts, micro.Address(address))
+		opts = append(opts, service.Address(address))
 	}
 
 	if len(endpoint) == 0 {
@@ -351,7 +351,7 @@ func Run(ctx *cli.Context, opts ...micro.Option) {
 }
 
 // Commands sets up the CLI command for `micro service`
-func Commands(options ...micro.Option) []*cli.Command {
+func Commands(options ...service.Option) []*cli.Command {
 	command := &cli.Command{
 		Name:  "service",
 		Usage: "Run a micro service",

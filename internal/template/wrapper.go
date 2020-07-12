@@ -6,7 +6,7 @@ var (
 import (
 	"context"
 
-	"github.com/micro/go-micro/v2"
+	"github.com/micro/go-micro/v2/service"
 	"github.com/micro/go-micro/v2/server"
 	{{dehyphen .Alias}} "path/to/service/proto/{{.Alias}}"
 )
@@ -20,7 +20,7 @@ func {{title .Alias}}FromContext(ctx context.Context) ({{dehyphen .Alias}}.{{tit
 }
 
 // Client returns a wrapper for the {{title .Alias}}Client
-func {{title .Alias}}Wrapper(service micro.Service) server.HandlerWrapper {
+func {{title .Alias}}Wrapper(service service.Service) server.HandlerWrapper {
 	client := {{dehyphen .Alias}}.New{{title .Alias}}Service("go.micro.service.template", service.Client())
 
 	return func(fn server.HandlerFunc) server.HandlerFunc {

@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/micro/go-micro/v2/client"
 	"github.com/micro/go-micro/v2/errors"
 	log "github.com/micro/go-micro/v2/logger"
 	"github.com/micro/go-micro/v2/registry"
@@ -16,8 +17,10 @@ import (
 type Registry struct {
 	// service id
 	ID string
+	// the topic
+	Topic string
 	// the publisher
-	Publisher micro.Publisher
+	Client client.Client
 	// internal registry
 	Registry registry.Registry
 }
@@ -48,7 +51,8 @@ func (r *Registry) publishEvent(action string, service *pb.Service) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	return r.Publisher.Publish(ctx, event)
+	ev := r.client.NewMessage(r.Topic, event)
+	return r.client.Publish(ctx, ev)
 }
 
 // GetService from the registry with the name requested

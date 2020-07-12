@@ -28,6 +28,7 @@ import (
 	"github.com/micro/go-micro/v2/auth"
 	log "github.com/micro/go-micro/v2/logger"
 	"github.com/micro/go-micro/v2/registry"
+	"github.com/micro/go-micro/v2/service"
 	"github.com/micro/go-micro/v2/sync/memory"
 	apiAuth "github.com/micro/micro/v2/client/api/auth"
 	inauth "github.com/micro/micro/v2/internal/auth"
@@ -36,7 +37,6 @@ import (
 	"github.com/micro/micro/v2/internal/resolver/web"
 	"github.com/micro/micro/v2/internal/stats"
 	"github.com/micro/micro/v2/plugin"
-	"github.com/micro/go-micro/v2/service"
 	"github.com/serenize/snaker"
 )
 
@@ -401,7 +401,7 @@ func (s *srv) render(w http.ResponseWriter, r *http.Request, tmpl string, data i
 	}
 }
 
-func Run(ctx *cli.Context, srvOpts ...micro.Option) {
+func Run(ctx *cli.Context, srvOpts ...service.Option) {
 	log.Init(log.WithFields(map[string]interface{}{"service": "web"}))
 
 	if len(ctx.String("server_name")) > 0 {
@@ -428,7 +428,7 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 	}
 
 	// service opts
-	srvOpts = append(srvOpts, micro.Name(Name))
+	srvOpts = append(srvOpts, service.Name(Name))
 
 	// Initialize Server
 	service := service.NewService(srvOpts...)
@@ -579,7 +579,7 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 }
 
 //Commands for `micro web`
-func Commands(options ...micro.Option) []*cli.Command {
+func Commands(options ...service.Option) []*cli.Command {
 	command := &cli.Command{
 		Name:  "web",
 		Usage: "Run the web dashboard",

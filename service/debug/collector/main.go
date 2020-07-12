@@ -25,8 +25,8 @@ var (
 func main() {
 	// New Service
 	service := service.NewService(
-		micro.Name("go.micro.debug.collector"),
-		micro.Version("latest"),
+		service.Name("go.micro.debug.collector"),
+		service.Version("latest"),
 	)
 
 	if len(os.Args) > 1 {

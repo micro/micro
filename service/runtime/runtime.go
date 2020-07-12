@@ -28,7 +28,7 @@ func init() {
 }
 
 // Run the runtime service
-func Run(ctx *cli.Context, srvOpts ...micro.Option) {
+func Run(ctx *cli.Context, srvOpts ...service.Option) {
 	log.Init(log.WithFields(map[string]interface{}{"service": "runtime"}))
 
 	// Get the profile
@@ -58,7 +58,7 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 	}
 
 	if len(Address) > 0 {
-		srvOpts = append(srvOpts, micro.Address(Address))
+		srvOpts = append(srvOpts, service.Address(Address))
 	}
 
 	// create runtime
@@ -68,7 +68,7 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 	}
 
 	// append name
-	srvOpts = append(srvOpts, micro.Name(Name))
+	srvOpts = append(srvOpts, service.Name(Name))
 
 	// new service
 	service := service.NewService(srvOpts...)
@@ -88,8 +88,8 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 
 	// register the runtime handler
 	pb.RegisterRuntimeHandler(service.Server(), &handler.Runtime{
-		// Client to publish events
-		Client: micro.NewEvent("go.micro.runtime.events", service.Client()),
+		Topic:  "go.micro.runtime.events",
+		Client: service.Client(),
 		// using the micro runtime
 		Runtime: manager,
 	})
@@ -136,7 +136,7 @@ func Flags() []cli.Flag {
 	}
 }
 
-func Commands(options ...micro.Option) []*cli.Command {
+func Commands(options ...service.Option) []*cli.Command {
 	command := []*cli.Command{
 		{
 			Name:  "runtime",

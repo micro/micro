@@ -5,16 +5,16 @@ var (
 
 import (
   log	"github.com/micro/go-micro/v2/logger"
-	"github.com/micro/go-micro/v2"
+	"github.com/micro/go-micro/v2/function"
 	"{{.Dir}}/handler"
 	"{{.Dir}}/subscriber"
 )
 
 func main() {
 	// New Service
-	function := micro.NewFunction(
-		micro.Name("{{.FQDN}}"),
-		micro.Version("latest"),
+	function := function.NewFunction(
+		service.Name("{{.FQDN}}"),
+		service.Version("latest"),
 	)
 
 	// Initialise function
@@ -37,7 +37,7 @@ func main() {
 
 import (
 	log "github.com/micro/go-micro/v2/logger"
-	"github.com/micro/go-micro/v2"
+	"github.com/micro/go-micro/v2/service"
 	"{{.Dir}}/handler"
 	"{{.Dir}}/subscriber"
 
@@ -47,8 +47,8 @@ import (
 func main() {
 	// New Service
 	service := service.NewService(
-		micro.Name("{{.FQDN}}"),
-		micro.Version("latest"),
+		service.Name("{{.FQDN}}"),
+		service.Version("latest"),
 	)
 
 	// Initialise service
@@ -58,7 +58,9 @@ func main() {
 	{{dehyphen .Alias}}.Register{{title .Alias}}Handler(service.Server(), new(handler.{{title .Alias}}))
 
 	// Register Struct as Subscriber
-	micro.RegisterSubscriber("{{.FQDN}}", service.Server(), new(subscriber.{{title .Alias}}))
+	service.Server().Subscribe(
+		service.Server().NewSubscribe("{{.FQDN}}", new(subscriber.{{title .Alias}})),
+	)
 
 	// Run service
 	if err := service.Run(); err != nil {
@@ -70,8 +72,7 @@ func main() {
 
 import (
 	log "github.com/micro/go-micro/v2/logger"
-
-	"github.com/micro/go-micro/v2"
+	"github.com/micro/go-micro/v2/service"
 	"{{.Dir}}/handler"
 	"{{.Dir}}/client"
 
@@ -81,14 +82,14 @@ import (
 func main() {
 	// New Service
 	service := service.NewService(
-		micro.Name("{{.FQDN}}"),
-		micro.Version("latest"),
+		service.Name("{{.FQDN}}"),
+		service.Version("latest"),
 	)
 
 	// Initialise service
 	service.Init(
 		// create wrap for the {{title .Alias}} service client
-		micro.WrapHandler(client.{{title .Alias}}Wrapper(service)),
+		service.WrapHandler(client.{{title .Alias}}Wrapper(service)),
 	)
 
 	// Register Handler
@@ -103,8 +104,9 @@ func main() {
 	MainWEB = `package main
 
 import (
-        log "github.com/micro/go-micro/v2/logger"
-	      "net/http"
+	"net/http"
+
+	log "github.com/micro/go-micro/v2/logger"
         "github.com/micro/go-micro/v2/web"
         "{{.Dir}}/handler"
 )

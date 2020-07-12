@@ -15,7 +15,7 @@ type Handler struct {
 }
 
 // NewHandler returns an initialized Handler
-func NewHandler(srv micro.Service) *Handler {
+func NewHandler(srv service.Service) *Handler {
 	return &Handler{auth: auth.DefaultAuth}
 }
 

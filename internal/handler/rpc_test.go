@@ -13,6 +13,8 @@ import (
 	"github.com/micro/go-micro/v2/client"
 	"github.com/micro/go-micro/v2/metadata"
 	"github.com/micro/go-micro/v2/registry/memory"
+	"github.com/micro/go-micro/v2/router"
+	"github.com/micro/go-micro/v2/server"
 )
 
 type TestHandler struct {
@@ -42,11 +44,19 @@ func (t *TestHandler) Exec(ctx context.Context, req *TestRequest, rsp *TestRespo
 }
 
 func TestRPCHandler(t *testing.T) {
-	r := memory.NewRegistry()
+	reg := memory.NewRegistry()
+	rtr := router.NewRouter(router.Registry(reg))
 
 	service := service.NewService(
-		micro.Name("test"),
-		micro.Registry(r),
+		service.Name("test"),
+	)
+
+	service.Client().Init(
+		client.Router(rtr),
+	)
+
+	service.Server().Init(
+		server.Registry(reg),
 	)
 
 	service.Server().Handle(
@@ -81,7 +91,7 @@ func TestRPCHandler(t *testing.T) {
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Foo", "Bar")
 
-	NewRPCHandler(nil, client.DefaultClient).ServeHTTP(w, req)
+	NewRPCHandler(nil, service.Client()).ServeHTTP(w, req)
 
 	if w.Code != 200 {
 		t.Fatalf("Expected 200 response got %d %s", w.Code, w.Body.String())

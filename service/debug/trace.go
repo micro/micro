@@ -15,7 +15,7 @@ const (
 	traceUsage = "Required usage: micro trace example"
 )
 
-func getTrace(ctx *cli.Context, srvOpts ...micro.Option) {
+func getTrace(ctx *cli.Context, srvOpts ...service.Option) {
 	log.Trace("debug")
 
 	// TODO look for trace id

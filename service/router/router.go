@@ -81,27 +81,32 @@ func (s *sub) Process(ctx context.Context, advert *pb.Advert) error {
 
 // rtr is micro router
 type rtr struct {
+	// topic to publish to
+	Topic string
 	// router is the micro router
 	router.Router
 	// publisher to publish router adverts
-	micro.Publisher
+	Client client.Client
 }
 
 // newRouter creates new micro router and returns it
-func newRouter(service micro.Service, router router.Router) *rtr {
+func newRouter(service service.Service, router router.Router) *rtr {
 	s := &sub{
 		router: router,
 	}
 
 	// register subscriber
-	if err := micro.RegisterSubscriber(Topic, service.Server(), s); err != nil {
+	if err := service.Server().Subscribe(
+		service.Server().NewSubscriber(Topic, s),
+	); err != nil {
 		log.Errorf("failed to subscribe to adverts: %s", err)
 		os.Exit(1)
 	}
 
 	return &rtr{
-		Router:    router,
-		Publisher: micro.NewPublisher(Topic, service.Client()),
+		Topic:  Topic,
+		Router: router,
+		Client: service.Client(),
 	}
 }
 
@@ -133,7 +138,9 @@ func (r *rtr) PublishAdverts(ch <-chan *router.Advert) error {
 			Events:    events,
 		}
 
-		if err := r.Publish(context.Background(), a); err != nil {
+		ev := r.Client.NewMessage(r.Topic, a)
+
+		if err := r.Client.Publish(context.Background(), ev); err != nil {
 			log.Debugf("error publishing advert: %v", err)
 			return fmt.Errorf("error publishing advert: %v", err)
 		}
@@ -153,7 +160,7 @@ func (r *rtr) Close() error {
 }
 
 // Run runs the micro server
-func Run(ctx *cli.Context, srvOpts ...micro.Option) {
+func Run(ctx *cli.Context, srvOpts ...service.Option) {
 	log.Init(log.WithFields(map[string]interface{}{"service": "router"}))
 
 	// Init plugins
@@ -194,10 +201,8 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 
 	// Initialise service
 	service := service.NewService(
-		micro.Name(Name),
-		micro.Address(Address),
-		micro.RegisterTTL(time.Duration(ctx.Int("register_ttl"))*time.Second),
-		micro.RegisterInterval(time.Duration(ctx.Int("register_interval"))*time.Second),
+		service.Name(Name),
+		service.Address(Address),
 	)
 
 	r := router.NewRouter(
@@ -268,7 +273,7 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 	log.Info("successfully closed")
 }
 
-func Commands(options ...micro.Option) []*cli.Command {
+func Commands(options ...service.Option) []*cli.Command {
 	command := &cli.Command{
 		Name:  "router",
 		Usage: "Run the micro network router",

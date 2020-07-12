@@ -84,7 +84,7 @@ func (s *subscriber) Process(ctx context.Context, event *pb.Event) error {
 	return nil
 }
 
-func Run(ctx *cli.Context, srvOpts ...micro.Option) {
+func Run(ctx *cli.Context, srvOpts ...service.Option) {
 	log.Init(log.WithFields(map[string]interface{}{"service": "registry"}))
 
 	if len(ctx.String("server_name")) > 0 {
@@ -100,17 +100,17 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 	}
 
 	// service opts
-	srvOpts = append(srvOpts, micro.Name(Name))
+	srvOpts = append(srvOpts, service.Name(Name))
 	if i := time.Duration(ctx.Int("register_ttl")); i > 0 {
-		srvOpts = append(srvOpts, micro.RegisterTTL(i*time.Second))
+		srvOpts = append(srvOpts, service.RegisterTTL(i*time.Second))
 	}
 	if i := time.Duration(ctx.Int("register_interval")); i > 0 {
-		srvOpts = append(srvOpts, micro.RegisterInterval(i*time.Second))
+		srvOpts = append(srvOpts, service.RegisterInterval(i*time.Second))
 	}
 
 	// set address
 	if len(Address) > 0 {
-		srvOpts = append(srvOpts, micro.Address(Address))
+		srvOpts = append(srvOpts, service.Address(Address))
 	}
 
 	// new service
@@ -120,9 +120,10 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 
 	// register the handler
 	pb.RegisterRegistryHandler(service.Server(), &handler.Registry{
-		ID:        id,
-		Publisher: micro.NewPublisher(Topic, service.Client()),
-		Registry:  service.Options().Registry,
+		ID:       id,
+		Topic:    Topic,
+		Client:   service.Client(),
+		Registry: service.Options().Registry,
 	})
 
 	// run the service
@@ -131,7 +132,7 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 	}
 }
 
-func Commands(options ...micro.Option) []*cli.Command {
+func Commands(options ...service.Option) []*cli.Command {
 	command := &cli.Command{
 		Name:  "registry",
 		Usage: "Run the service registry",

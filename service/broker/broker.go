@@ -24,7 +24,7 @@ func init() {
 	cmd.Commands = append(app.Commands, Commands()...)
 }
 
-func Run(ctx *cli.Context, srvOpts ...micro.Option) {
+func Run(ctx *cli.Context, srvOpts ...service.Option) {
 	log.Init(log.WithFields(map[string]interface{}{"service": "broker"}))
 
 	if len(ctx.String("server_name")) > 0 {
@@ -40,17 +40,17 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 	}
 
 	// service opts
-	srvOpts = append(srvOpts, micro.Name(Name))
+	srvOpts = append(srvOpts, service.Name(Name))
 	if i := time.Duration(ctx.Int("register_ttl")); i > 0 {
-		srvOpts = append(srvOpts, micro.RegisterTTL(i*time.Second))
+		srvOpts = append(srvOpts, service.RegisterTTL(i*time.Second))
 	}
 	if i := time.Duration(ctx.Int("register_interval")); i > 0 {
-		srvOpts = append(srvOpts, micro.RegisterInterval(i*time.Second))
+		srvOpts = append(srvOpts, service.RegisterInterval(i*time.Second))
 	}
 
 	// set address
 	if len(Address) > 0 {
-		srvOpts = append(srvOpts, micro.Address(Address))
+		srvOpts = append(srvOpts, service.Address(Address))
 	}
 
 	// new service
@@ -69,7 +69,7 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 	service.Run()
 }
 
-func Commands(options ...micro.Option) []*cli.Command {
+func Commands(options ...service.Option) []*cli.Command {
 	command := &cli.Command{
 		Name:  "broker",
 		Usage: "Run the message broker",

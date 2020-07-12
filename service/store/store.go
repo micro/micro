@@ -26,7 +26,7 @@ func init() {
 }
 
 // Run runs the micro server
-func Run(ctx *cli.Context, srvOpts ...micro.Option) {
+func Run(ctx *cli.Context, srvOpts ...service.Option) {
 	log.Init(log.WithFields(map[string]interface{}{"service": "store"}))
 
 	// Init plugins
@@ -43,7 +43,7 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 
 	// Initialise service
 	service := service.NewService(
-		micro.Name(Name),
+		service.Name(Name),
 	)
 
 	// the store handler
@@ -95,7 +95,7 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 }
 
 // Commands is the cli interface for the store service
-func Commands(options ...micro.Option) []*cli.Command {
+func Commands(options ...service.Option) []*cli.Command {
 	command := &cli.Command{
 		Name:  "store",
 		Usage: "Run the micro store service",

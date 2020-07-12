@@ -101,7 +101,7 @@ func sourceExists(source *git.Source) error {
 	return nil
 }
 
-func runService(ctx *cli.Context, srvOpts ...micro.Option) {
+func runService(ctx *cli.Context, srvOpts ...service.Option) {
 	// Init plugins
 	for _, p := range Plugins() {
 		p.Init(ctx)
@@ -228,7 +228,7 @@ func runService(ctx *cli.Context, srvOpts ...micro.Option) {
 	}
 }
 
-func killService(ctx *cli.Context, srvOpts ...micro.Option) {
+func killService(ctx *cli.Context, srvOpts ...service.Option) {
 	// we need some args to run
 	if ctx.Args().Len() == 0 {
 		fmt.Println(RunUsage)
@@ -314,7 +314,7 @@ func upload(ctx *cli.Context, source *git.Source) (string, error) {
 	return uploadedFileName, nil
 }
 
-func updateService(ctx *cli.Context, srvOpts ...micro.Option) {
+func updateService(ctx *cli.Context, srvOpts ...service.Option) {
 	// we need some args to run
 	if ctx.Args().Len() == 0 {
 		fmt.Println(RunUsage)
@@ -369,7 +369,7 @@ func updateService(ctx *cli.Context, srvOpts ...micro.Option) {
 	}
 }
 
-func getService(ctx *cli.Context, srvOpts ...micro.Option) {
+func getService(ctx *cli.Context, srvOpts ...service.Option) {
 	name := ""
 	version := "latest"
 	typ := ctx.String("type")
@@ -495,7 +495,7 @@ const (
 	logUsage = "Required usage: micro log example"
 )
 
-func getLogs(ctx *cli.Context, srvOpts ...micro.Option) {
+func getLogs(ctx *cli.Context, srvOpts ...service.Option) {
 	log.Init(log.WithFields(map[string]interface{}{"service": "runtime"}))
 	if ctx.Args().Len() == 0 {
 		fmt.Println("Service name is required")

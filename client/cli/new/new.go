@@ -41,7 +41,7 @@ type config struct {
 	Command string
 	// go.micro
 	Namespace string
-	// api, service, web, function
+	// api, service, web, // TODO: function
 	Type string
 	// go.micro.service.foo
 	FQDN string
@@ -315,22 +315,25 @@ func Run(ctx *cli.Context) {
 		Comments:  protoComments(goDir, alias),
 	}
 
-	switch atype {
-	case "function":
-		// create service config
-		c.Files = []file{
-			{"main.go", tmpl.MainFNC},
-			{"generate.go", tmpl.GenerateFile},
-			{"plugin.go", tmpl.Plugin},
-			{"handler/" + alias + ".go", tmpl.HandlerFNC},
-			{"subscriber/" + alias + ".go", tmpl.SubscriberFNC},
-			{"proto/" + alias + "/" + alias + ".proto", tmpl.ProtoFNC},
-			{"Dockerfile", tmpl.DockerFNC},
-			{"Makefile", tmpl.Makefile},
-			{"README.md", tmpl.ReadmeFNC},
-			{".gitignore", tmpl.GitIgnore},
-		}
+	/*
+		TODO: bring the function back to life
+		case "function":
+			// create service config
+			c.Files = []file{
+				{"main.go", tmpl.MainFNC},
+				{"generate.go", tmpl.GenerateFile},
+				{"plugin.go", tmpl.Plugin},
+				{"handler/" + alias + ".go", tmpl.HandlerFNC},
+				{"subscriber/" + alias + ".go", tmpl.SubscriberFNC},
+				{"proto/" + alias + "/" + alias + ".proto", tmpl.ProtoFNC},
+				{"Dockerfile", tmpl.DockerFNC},
+				{"Makefile", tmpl.Makefile},
+				{"README.md", tmpl.ReadmeFNC},
+				{".gitignore", tmpl.GitIgnore},
+			}
+	*/
 
+	switch atype {
 	case "service":
 		// create service config
 		c.Files = []file{
@@ -404,7 +407,7 @@ func Commands() []*cli.Command {
 				},
 				&cli.StringFlag{
 					Name:  "type",
-					Usage: "Type of service e.g api, function, service, web",
+					Usage: "Type of service e.g api, service, web", // TODO: function
 					Value: "service",
 				},
 				&cli.StringFlag{

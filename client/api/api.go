@@ -28,6 +28,7 @@ import (
 	"github.com/micro/go-micro/v2/api/server/acme/certmagic"
 	httpapi "github.com/micro/go-micro/v2/api/server/http"
 	log "github.com/micro/go-micro/v2/logger"
+	"github.com/micro/go-micro/v2/service"
 	"github.com/micro/go-micro/v2/sync/memory"
 	"github.com/micro/micro/v2/client/api/auth"
 	"github.com/micro/micro/v2/internal/handler"
@@ -35,7 +36,6 @@ import (
 	rrmicro "github.com/micro/micro/v2/internal/resolver/api"
 	"github.com/micro/micro/v2/internal/stats"
 	"github.com/micro/micro/v2/plugin"
-	"github.com/micro/go-micro/v2/service"
 )
 
 var (
@@ -55,7 +55,7 @@ var (
 	ACMECA                = acme.LetsEncryptProductionCA
 )
 
-func Run(ctx *cli.Context, srvOpts ...micro.Option) {
+func Run(ctx *cli.Context, srvOpts ...service.Option) {
 	log.Init(log.WithFields(map[string]interface{}{"service": "api"}))
 
 	if len(ctx.String("server_name")) > 0 {
@@ -95,7 +95,7 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 	}
 
 	// append name to opts
-	srvOpts = append(srvOpts, micro.Name(Name))
+	srvOpts = append(srvOpts, service.Name(Name))
 
 	// initialise service
 	service := service.NewService(srvOpts...)
@@ -321,7 +321,7 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 	}
 }
 
-func Commands(options ...micro.Option) []*cli.Command {
+func Commands(options ...service.Option) []*cli.Command {
 	command := &cli.Command{
 		Name:  "api",
 		Usage: "Run the api gateway",

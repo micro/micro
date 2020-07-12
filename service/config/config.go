@@ -26,7 +26,7 @@ var (
 	Database = "store"
 )
 
-func Run(c *cli.Context, srvOpts ...micro.Option) {
+func Run(c *cli.Context, srvOpts ...service.Option) {
 	if len(c.String("server_name")) > 0 {
 		Name = c.String("server_name")
 	}
@@ -35,7 +35,7 @@ func Run(c *cli.Context, srvOpts ...micro.Option) {
 		handler.WatchTopic = c.String("watch_topic")
 	}
 
-	srvOpts = append(srvOpts, micro.Name(Name))
+	srvOpts = append(srvOpts, service.Name(Name))
 
 	service := service.NewService(srvOpts...)
 
@@ -44,7 +44,12 @@ func Run(c *cli.Context, srvOpts ...micro.Option) {
 	}
 
 	proto.RegisterConfigHandler(service.Server(), h)
-	micro.RegisterSubscriber(handler.WatchTopic, service.Server(), handler.Watcher)
+
+	service.Server().Subscribe(
+		service.Server().NewSubscribe(
+			handler.WatchTopic, handler.Watcher,
+		),
+	)
 
 	if err := service.Run(); err != nil {
 		log.Fatalf("config Run the service error: ", err)
@@ -198,7 +203,7 @@ func delConfig(ctx *cli.Context) error {
 	return nil
 }
 
-func Commands(options ...micro.Option) []*cli.Command {
+func Commands(options ...service.Option) []*cli.Command {
 	command := &cli.Command{
 		Name:  "config",
 		Usage: "Manage configuration values",

@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/micro/go-micro/v2/client"
 	"github.com/micro/go-micro/v2/errors"
 	log "github.com/micro/go-micro/v2/logger"
 	"github.com/micro/go-micro/v2/runtime"
@@ -13,10 +14,12 @@ import (
 )
 
 type Runtime struct {
+	// Topic to publish to
+	Topic string
 	// The runtime used to manage services
 	Runtime runtime.Runtime
 	// The client used to publish events
-	Client micro.Publisher
+	Client client.Client
 }
 
 func (r *Runtime) Read(ctx context.Context, req *pb.ReadRequest, rsp *pb.ReadResponse) error {
@@ -85,12 +88,14 @@ func (r *Runtime) Create(ctx context.Context, req *pb.CreateRequest, rsp *pb.Cre
 	}
 
 	// publish the create event
-	r.Client.Publish(ctx, &pb.Event{
+	ev := r.Client.NewMessage(r.Topic, &pb.Event{
 		Type:      "create",
 		Timestamp: time.Now().Unix(),
 		Service:   req.Service.Name,
 		Version:   req.Service.Version,
 	})
+
+	r.Client.Publish(ctx, ev)
 
 	return nil
 }
@@ -127,13 +132,14 @@ func (r *Runtime) Update(ctx context.Context, req *pb.UpdateRequest, rsp *pb.Upd
 		return errors.InternalServerError("go.micro.runtime", err.Error())
 	}
 
-	// publish the update event
-	r.Client.Publish(ctx, &pb.Event{
+	ev := r.Client.NewMessage(r.Topic, &pb.Event{
 		Type:      "update",
 		Timestamp: time.Now().Unix(),
 		Service:   req.Service.Name,
 		Version:   req.Service.Version,
 	})
+
+	r.Client.Publish(ctx, ev)
 
 	return nil
 }
@@ -171,12 +177,14 @@ func (r *Runtime) Delete(ctx context.Context, req *pb.DeleteRequest, rsp *pb.Del
 	}
 
 	// publish the delete event
-	r.Client.Publish(ctx, &pb.Event{
+	ev := r.Client.NewMessage(r.Topic, &pb.Event{
 		Type:      "delete",
 		Timestamp: time.Now().Unix(),
 		Service:   req.Service.Name,
 		Version:   req.Service.Version,
 	})
+
+	r.Client.Publish(ctx, ev)
 
 	return nil
 }

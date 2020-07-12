@@ -1,13 +1,12 @@
 package main
 
 import (
-	"dep-test-service/handler"
-	"dep-test-service/subscriber"
 	"fmt"
 
+	"dep-test-service/handler"
+	"dep-test-service/subscriber"
 	"github.com/micro/go-micro/v2"
 	log "github.com/micro/go-micro/v2/logger"
-
 	dep "dep-test-service/proto/dep"
 	dependency "dependency"
 )
@@ -15,8 +14,8 @@ import (
 func main() {
 	// New Service
 	service := service.NewService(
-		micro.Name("go.micro.service.dep"),
-		micro.Version("latest"),
+		service.Name("go.micro.service.dep"),
+		service.Version("latest"),
 	)
 
 	// Initialise service
@@ -27,7 +26,10 @@ func main() {
 	dep.RegisterDepHandler(service.Server(), new(handler.Dep))
 
 	// Register Struct as Subscriber
-	micro.RegisterSubscriber("go.micro.service.dep", service.Server(), new(subscriber.Dep))
+	server := service.Server()
+	server.Subscribe(
+		server.NewSubscriber("go.micro.service.dep", new(subscriber.Dep)),
+	)
 
 	// Run service
 	if err := service.Run(); err != nil {

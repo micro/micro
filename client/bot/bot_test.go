@@ -10,7 +10,10 @@ import (
 	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro/v2/agent/command"
 	"github.com/micro/go-micro/v2/agent/input"
+	"github.com/micro/go-micro/v2/client"
 	"github.com/micro/go-micro/v2/registry/memory"
+	"github.com/micro/go-micro/v2/router"
+	"github.com/micro/go-micro/v2/server"
 	"github.com/micro/go-micro/v2/service"
 )
 
@@ -102,8 +105,14 @@ func TestBot(t *testing.T) {
 		}),
 	}
 
-	service := service.NewService(
-		micro.Registry(memory.NewRegistry()),
+	reg := memory.NewRegistry()
+	rtr := router.NewRouter(router.Registry(reg))
+	service := service.NewService()
+	service.Server().Init(
+		server.Register(reg),
+	)
+	service.Client().Init(
+		client.Router(rtr),
 	)
 
 	bot := newBot(ctx, inputs, commands, service)

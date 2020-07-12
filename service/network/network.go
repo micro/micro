@@ -53,7 +53,7 @@ func init() {
 }
 
 // Run runs the micro server
-func Run(ctx *cli.Context, srvOpts ...micro.Option) {
+func Run(ctx *cli.Context, srvOpts ...service.Option) {
 	log.Init(log.WithFields(map[string]interface{}{"service": "network"}))
 
 	// Init plugins
@@ -111,9 +111,7 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 
 	// Initialise service
 	service := service.NewService(
-		micro.Name(Name),
-		micro.RegisterTTL(time.Duration(ctx.Int("register_ttl"))*time.Second),
-		micro.RegisterInterval(time.Duration(ctx.Int("register_interval"))*time.Second),
+		service.Name(Name),
 	)
 
 	// create a tunnel
@@ -224,7 +222,7 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 	netClose(net)
 }
 
-func Commands(options ...micro.Option) []*cli.Command {
+func Commands(options ...service.Option) []*cli.Command {
 	command := &cli.Command{
 		Name:  "network",
 		Usage: "Run the micro network node",

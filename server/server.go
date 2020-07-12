@@ -58,7 +58,7 @@ func upload(ctx *cli.Context, args []string) ([]byte, error) {
 	return nil, fileClient.Upload(filename, localfile)
 }
 
-func Commands(options ...micro.Option) []*cli.Command {
+func Commands(options ...service.Option) []*cli.Command {
 	command := &cli.Command{
 		Name:  "server",
 		Usage: "Run the micro server",
@@ -226,8 +226,8 @@ func Run(context *cli.Context) error {
 	// cli.Init(context)
 
 	server := service.NewService(
-		micro.Name(Name),
-		micro.Address(Address),
+		service.Name(Name),
+		service.Address(Address),
 	)
 
 	// @todo make this configurable

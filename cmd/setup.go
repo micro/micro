@@ -320,7 +320,7 @@ func setup(app *ccli.App) {
 }
 
 // Init initialised the command line
-func Init(options ...micro.Option) {
+func Init(options ...service.Option) {
 	Setup(DefaultCmd.App(), options...)
 
 	DefaultCmd.Init(
@@ -331,7 +331,7 @@ func Init(options ...micro.Option) {
 }
 
 // Setup sets up a cli.App
-func Setup(app *ccli.App, options ...micro.Option) {
+func Setup(app *ccli.App, options ...service.Option) {
 	// Add the various commands
 	for _, command := range Commands {
 		app.Commands = append(app.Commands, command)

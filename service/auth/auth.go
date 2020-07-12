@@ -98,14 +98,14 @@ func init() {
 }
 
 // run the auth service
-func Run(ctx *cli.Context, srvOpts ...micro.Option) {
+func Run(ctx *cli.Context, srvOpts ...service.Option) {
 	log.Init(log.WithFields(map[string]interface{}{"service": "auth"}))
 
 	if len(ctx.String("address")) > 0 {
 		Address = ctx.String("address")
 	}
 	if len(Address) > 0 {
-		srvOpts = append(srvOpts, micro.Address(Address))
+		srvOpts = append(srvOpts, service.Address(Address))
 	}
 
 	// Init plugins
@@ -134,7 +134,7 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 	ruleH.Init(auth.Store(st))
 
 	// setup service
-	srvOpts = append(srvOpts, micro.Name(Name))
+	srvOpts = append(srvOpts, service.Name(Name))
 	service := service.NewService(srvOpts...)
 
 	// register handlers
@@ -286,7 +286,7 @@ func getPassword() (string, error) {
 }
 
 //Commands for auth
-func Commands(srvOpts ...micro.Option) []*cli.Command {
+func Commands(srvOpts ...service.Option) []*cli.Command {
 	commands := []*cli.Command{
 		{
 			Name:  "auth",

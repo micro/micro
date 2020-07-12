@@ -19,7 +19,7 @@ func Run(c *cli.Context) {
 	}
 
 	dnsService := service.NewService(
-		micro.Name("go.micro.network.dns"),
+		service.Name("go.micro.network.dns"),
 	)
 
 	// Create handler

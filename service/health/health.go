@@ -75,7 +75,7 @@ func Run(ctx *cli.Context) {
 	}
 }
 
-func Commands(options ...micro.Option) []*cli.Command {
+func Commands(options ...service.Option) []*cli.Command {
 	command := &cli.Command{
 		Name:  "health",
 		Usage: "Check the health of a service",

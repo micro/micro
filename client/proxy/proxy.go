@@ -15,8 +15,8 @@ import (
 	mucli "github.com/micro/go-micro/v2/client"
 	log "github.com/micro/go-micro/v2/logger"
 	"github.com/micro/go-micro/v2/proxy"
-	"github.com/micro/micro/v2/cmd"
 	"github.com/micro/go-micro/v2/service"
+	"github.com/micro/micro/v2/cmd"
 
 	//"github.com/micro/go-micro/v2/proxy/grpc"
 	"github.com/micro/go-micro/v2/proxy/http"
@@ -45,7 +45,7 @@ var (
 	ACMECA                = acme.LetsEncryptProductionCA
 )
 
-func Run(ctx *cli.Context, srvOpts ...micro.Option) {
+func Run(ctx *cli.Context, srvOpts ...service.Option) {
 	log.Init(log.WithFields(map[string]interface{}{"service": "proxy"}))
 
 	// because MICRO_PROXY_ADDRESS is used internally by the go-micro/client
@@ -74,7 +74,7 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 	}
 
 	// service opts
-	srvOpts = append(srvOpts, micro.Name(Name))
+	srvOpts = append(srvOpts, service.Name(Name))
 
 	// new service
 	service := service.NewService(srvOpts...)
@@ -239,7 +239,7 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 	}
 }
 
-func Commands(options ...micro.Option) []*cli.Command {
+func Commands(options ...service.Option) []*cli.Command {
 	command := &cli.Command{
 		Name:  "proxy",
 		Usage: "Run the service proxy",
