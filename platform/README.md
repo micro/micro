@@ -18,5 +18,5 @@ related source code and documentation.
 
 - Add config - post deployment bootstrapping config
 - Add command - turn into a `micro env {create, update, delete, list}` command
-- ...
+- Document the runbook - add a list of commands / docs / expected outcomes
 
