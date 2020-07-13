@@ -99,8 +99,10 @@ func testWrongCommands(t *t) {
 	// is running. This is most likely because some config/auth wrapper in the background failing.
 	// Fix this later.
 	serv := newServer(t)
-	serv.launch()
 	defer serv.close()
+	if err := serv.launch(); err != nil {
+		return
+	}
 
 	t.Parallel()
 
