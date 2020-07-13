@@ -174,18 +174,7 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 		serverOpts = append(serverOpts, server.TLSConfig(config))
 	}
 
-	// add auth wrapper to server
-	var authOpts []auth.Option
-	if ctx.IsSet("auth_public_key") {
-		authOpts = append(authOpts, auth.PublicKey(ctx.String("auth_public_key")))
-	}
-	if ctx.IsSet("auth_private_key") {
-		authOpts = append(authOpts, auth.PublicKey(ctx.String("auth_private_key")))
-	}
-
-	a := *cmd.DefaultOptions().Auth
-	a.Init(authOpts...)
-	authFn := func() auth.Auth { return a }
+	authFn := func() auth.Auth { return *cmd.DefaultOptions().Auth }
 	authOpt := server.WrapHandler(wrapper.AuthHandler(authFn))
 	serverOpts = append(serverOpts, authOpt)
 
