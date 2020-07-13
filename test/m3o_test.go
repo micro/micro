@@ -26,8 +26,10 @@ func testM3oSignupFlow(t *t) {
 	t.Parallel()
 
 	serv := newServer(t)
-	serv.launch()
 	defer serv.close()
+	if err := serv.launch(); err != nil {
+		return
+	}
 
 	envToConfigKey := map[string]string{
 		"MICRO_STRIPE_API_KEY":       "micro.payments.stripe.api_key",
@@ -64,7 +66,7 @@ func testM3oSignupFlow(t *t) {
 		t.Fatal(string(outp))
 	}
 
-	try("Find signup and stripe in list", t, func() ([]byte, error) {
+	if err := try("Find signup and stripe in list", t, func() ([]byte, error) {
 		outp, err := exec.Command("micro", serv.envFlag(), "list", "services").CombinedOutput()
 		if err != nil {
 			return outp, err
@@ -73,8 +75,7 @@ func testM3oSignupFlow(t *t) {
 			return outp, errors.New("Can't find signup or stripe or invite in list")
 		}
 		return outp, err
-	}, 70*time.Second)
-	if t.failed {
+	}, 70*time.Second); err != nil {
 		return
 	}
 
@@ -151,7 +152,7 @@ func testM3oSignupFlow(t *t) {
 	}
 
 	code := ""
-	try("Find verification token in logs", t, func() ([]byte, error) {
+	if err := try("Find verification token in logs", t, func() ([]byte, error) {
 		psCmd := exec.Command("micro", serv.envFlag(), "logs", "-n", "100", "signup")
 		outp, err = psCmd.CombinedOutput()
 		if err != nil {
@@ -166,7 +167,9 @@ func testM3oSignupFlow(t *t) {
 			}
 		}
 		return outp, nil
-	}, 50*time.Second)
+	}, 50*time.Second); err != nil {
+		return
+	}
 
 	t.Log("Code is ", code)
 	if code == "" {
@@ -176,6 +179,7 @@ func testM3oSignupFlow(t *t) {
 	_, err = io.WriteString(stdin, code+"\n")
 	if err != nil {
 		t.Fatal(err)
+		return
 	}
 
 	time.Sleep(5 * time.Second)
