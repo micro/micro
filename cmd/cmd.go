@@ -40,7 +40,6 @@ import (
 	// internals
 	inauth "github.com/micro/micro/v2/internal/auth"
 	"github.com/micro/micro/v2/internal/helper"
-	"github.com/micro/micro/v2/internal/platform"
 	_ "github.com/micro/micro/v2/internal/plugins"
 	"github.com/micro/micro/v2/internal/update"
 	_ "github.com/micro/micro/v2/internal/usage"
@@ -53,11 +52,6 @@ var (
 	name        = "micro"
 	description = "A microservice runtime\n\n	 Use `micro [command] --help` to see command specific help."
 )
-
-func init() {
-	// set platform build date
-	platform.Version = BuildDate
-}
 
 func setup(app *ccli.App) {
 	app.Flags = append(app.Flags,
@@ -365,17 +359,6 @@ func Setup(app *ccli.App, options ...micro.Option) {
 	app.Commands = append(app.Commands, server.Commands(options...)...)
 	app.Commands = append(app.Commands, service.Commands(options...)...)
 	app.Commands = append(app.Commands, web.Commands(options...)...)
-
-	// add the init command for our internal operator
-	app.Commands = append(app.Commands, &ccli.Command{
-		Name:  "init",
-		Usage: "Run the micro operator",
-		Action: func(c *ccli.Context) error {
-			platform.Init(c)
-			return nil
-		},
-		Flags: []ccli.Flag{},
-	})
 
 	sort.Sort(commands(app.Commands))
 
