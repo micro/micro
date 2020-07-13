@@ -110,12 +110,8 @@ func newServer(t *t, opts ...options) server {
 	exec.Command("docker", "kill", fname).CombinedOutput()
 	exec.Command("docker", "rm", fname).CombinedOutput()
 
-	cmd := exec.Command("docker", "run",
-		"-e", "MICRO_LOG_LEVEL=fatal",
-		"--name", fname,
-		"-p", fmt.Sprintf("%v:8081", portnum),
-		"micro", "server")
-
+	cmd := exec.Command("docker", "run", "--name", fname,
+		fmt.Sprintf("-p=%v:8081", portnum), "micro", "server")
 	if len(opts) == 1 && opts[0].auth == "jwt" {
 
 		base64 := "base64 -w0"
@@ -139,7 +135,6 @@ func newServer(t *t, opts ...options) server {
 		}
 		cmd = exec.Command("docker", "run", "--name", fname,
 			fmt.Sprintf("-p=%v:8081", portnum),
-			"-e", "MICRO_LOG_LEVEL=fatal",
 			"-e", "MICRO_AUTH=jwt",
 			"-e", "MICRO_AUTH_PRIVATE_KEY="+strings.Trim(string(privKey), "\n"),
 			"-e", "MICRO_AUTH_PUBLIC_KEY="+strings.Trim(string(pubKey), "\n"),
