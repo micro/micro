@@ -27,6 +27,7 @@ import (
 	cliutil "github.com/micro/micro/v2/client/cli/util"
 	"github.com/micro/micro/v2/internal/client"
 	"github.com/micro/micro/v2/service/runtime/handler"
+	"google.golang.org/grpc/status"
 )
 
 const (
@@ -556,6 +557,10 @@ func getLogs(ctx *cli.Context, srvOpts ...micro.Option) {
 		select {
 		case record, ok := <-logs.Chan():
 			if !ok {
+				if err := logs.Error(); err != nil {
+					fmt.Printf("Error reading logs: %s\n", status.Convert(err).Message())
+					os.Exit(1)
+				}
 				return
 			}
 			switch output {
