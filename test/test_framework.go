@@ -11,6 +11,8 @@ import (
 	"syscall"
 	"testing"
 	"time"
+
+	"github.com/micro/micro/v2/client/cli/token"
 )
 
 const (
@@ -201,6 +203,9 @@ func (s server) launch() {
 }
 
 func (s server) close() {
+	// remove the credentials so they aren't reused on next run
+	token.Remove(s.envName)
+
 	exec.Command("docker", "kill", s.containerName).CombinedOutput()
 	if s.cmd.Process != nil {
 		s.cmd.Process.Signal(syscall.SIGKILL)
