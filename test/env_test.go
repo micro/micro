@@ -52,3 +52,65 @@ func testEnvOverrides(t *t) {
 		return
 	}
 }
+
+func TestEnvOps(t *testing.T) {
+	trySuite(t, testEnvOps, retryCount)
+}
+
+func testEnvOps(t *t) {
+	// add an env
+	_, err := exec.Command("micro", "env", "add", "fooTestEnvOps", "127.0.0.1:8081").CombinedOutput()
+	if err != nil {
+		t.Fatalf("Error running micro env %s", err)
+		return
+	}
+	outp, err := exec.Command("micro", "env").CombinedOutput()
+	if err != nil {
+		t.Fatalf("Error running micro env %s", err)
+		return
+	}
+	if !strings.Contains(string(outp), "fooTestEnvOps") {
+		t.Fatalf("Cannot find expected environment. Output %s", outp)
+		return
+	}
+
+	// can we actually set it correctly
+	_, err = exec.Command("micro", "env", "set", "fooTestEnvOps").CombinedOutput()
+	if err != nil {
+		t.Fatalf("Error running micro env %s", err)
+		return
+	}
+	outp, err = exec.Command("micro", "env").CombinedOutput()
+	if err != nil {
+		t.Fatalf("Error running micro env %s", err)
+		return
+	}
+	if !strings.Contains(string(outp), "* fooTestEnvOps") {
+		t.Fatalf("Environment not set. Output %s", outp)
+		return
+	}
+
+	_, err = exec.Command("micro", "env", "set", "local").CombinedOutput()
+	if err != nil {
+		t.Fatalf("Error running micro env %s", err)
+		return
+	}
+
+	// we should be able to delete it too
+	_, err = exec.Command("micro", "env", "del", "fooTestEnvOps").CombinedOutput()
+	if err != nil {
+		t.Fatalf("Error running micro env %s", err)
+		return
+	}
+
+	outp, err = exec.Command("micro", "env").CombinedOutput()
+	if err != nil {
+		t.Fatalf("Error running micro env %s", err)
+		return
+	}
+	if strings.Contains(string(outp), "fooTestEnvOps") {
+		t.Fatalf("Found unexpected environment. Output %s", outp)
+		return
+	}
+
+}
