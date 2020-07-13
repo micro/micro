@@ -178,6 +178,13 @@ func (m *manager) resurrectServices() {
 				// already running, don't need to start again
 				continue
 			}
+
+			// generate an auth account for the service to use
+			acc, err := m.generateAccount(srv.Service, ns)
+			if err != nil {
+				continue
+			}
+
 			m.Runtime.Create(srv.Service,
 				runtime.CreateImage(srv.Options.Image),
 				runtime.CreateType(srv.Options.Type),
@@ -185,6 +192,7 @@ func (m *manager) resurrectServices() {
 				runtime.WithArgs(srv.Options.Args...),
 				runtime.WithCommand(srv.Options.Command...),
 				runtime.WithEnv(m.runtimeEnv(srv.Options)),
+				runtime.CreateCredentials(acc.ID, acc.Secret),
 			)
 		}
 	}
@@ -230,6 +238,9 @@ func New(r runtime.Runtime, opts ...Option) runtime.Runtime {
 	}
 
 	// set the defaults
+	if options.Auth == nil {
+		options.Auth = *cmd.DefaultCmd.Options().Auth
+	}
 	if options.Store == nil {
 		options.Store = *cmd.DefaultCmd.Options().Store
 	}

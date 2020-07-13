@@ -70,6 +70,7 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 
 	// create a new runtime manager
 	manager := manager.New(muRuntime,
+		manager.Auth(service.Options().Auth),
 		manager.Store(service.Options().Store),
 		manager.Profile(prof),
 		manager.CacheStore(service.Options().Store),

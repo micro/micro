@@ -16,9 +16,10 @@ require (
 	github.com/gorilla/handlers v1.4.2
 	github.com/gorilla/mux v1.7.3
 	github.com/hashicorp/go-version v1.2.1
+	github.com/mattn/go-isatty v0.0.12 // indirect
 	github.com/micro/cli/v2 v2.1.2
-	github.com/micro/go-micro/v2 v2.9.1-0.20200710164707-13ea0eec02a8
-	github.com/micro/services v0.0.0-20200710165452-9f70e76e2770
+	github.com/micro/go-micro/v2 v2.9.1-0.20200713142714-a4252ba69c86
+	github.com/micro/services v0.0.0-20200710134101-ae48cf29b8ba
 	github.com/miekg/dns v1.1.27
 	github.com/netdata/go-orchestrator v0.0.0-20190905093727-c793edba0e8f
 	github.com/olekukonko/tablewriter v0.0.4
@@ -36,6 +37,3 @@ require (
 )
 
 replace google.golang.org/grpc => google.golang.org/grpc v1.26.0
-
-//replace github.com/micro/go-micro/v2 => /home/crufter/code/src/github.com/micro/go-micro
-replace github.com/micro/go-micro/v2 => github.com/micro/go-micro/v2 v2.9.1-0.20200713063553-040577fb746f
