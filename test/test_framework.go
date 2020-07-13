@@ -117,14 +117,18 @@ func newServer(t *t, opts ...options) server {
 		}
 		priv := "cat /tmp/sshkey | " + base64
 		privKey, err := exec.Command("bash", "-c", priv).Output()
-		if err != nil || len(privKey) == 0 {
+		if err != nil {
 			panic(string(privKey))
+		} else if len(privKey) == 0 {
+			panic("privKey has not been set")
 		}
 
 		pub := "cat /tmp/sshkey.pub | " + base64
 		pubKey, err := exec.Command("bash", "-c", pub).Output()
-		if err != nil || len(pubKey) == 0 {
+		if err != nil {
 			panic(string(pubKey))
+		} else if len(pubKey) == 0 {
+			panic("pubKey has not been set")
 		}
 		cmd = exec.Command("docker", "run", "--name", fname,
 			fmt.Sprintf("-p=%v:8081", portnum),
