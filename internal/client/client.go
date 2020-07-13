@@ -35,7 +35,7 @@ func New(ctx *ccli.Context) client.Client {
 	err := client.getAccessToken(env.Name, ctx)
 	if err != nil {
 		// @todo this is veeery ugly being here
-		fmt.Println(err)
+		fmt.Println("Error getting auth token:", err)
 		os.Exit(1)
 	}
 	return client

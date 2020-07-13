@@ -12,6 +12,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/micro/micro/v2/client/cli/namespace"
 	"github.com/micro/micro/v2/client/cli/token"
 )
 
@@ -126,12 +127,16 @@ func newServer(t *t, opts ...options) server {
 		privKey, err := exec.Command("bash", "-c", priv).Output()
 		if err != nil {
 			panic(string(privKey))
+		} else if len(privKey) == 0 {
+			panic("privKey has not been set")
 		}
 
 		pub := "cat /tmp/sshkey.pub | " + base64
 		pubKey, err := exec.Command("bash", "-c", pub).Output()
 		if err != nil {
 			panic(string(pubKey))
+		} else if len(pubKey) == 0 {
+			panic("pubKey has not been set")
 		}
 		cmd = exec.Command("docker", "run", "--name", fname,
 			fmt.Sprintf("-p=%v:8081", portnum),
@@ -211,7 +216,12 @@ func (s server) launch() error {
 }
 
 func (s server) close() {
+	// remove the credentials so they aren't reused on next run
 	token.Remove(s.envName)
+
+	// reset back to the default namespace
+	namespace.Set("micro", s.envName)
+
 	exec.Command("docker", "kill", s.containerName).CombinedOutput()
 	if s.cmd.Process != nil {
 		s.cmd.Process.Signal(syscall.SIGKILL)

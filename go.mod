@@ -16,6 +16,7 @@ require (
 	github.com/gorilla/handlers v1.4.2
 	github.com/gorilla/mux v1.7.3
 	github.com/hashicorp/go-version v1.2.1
+	github.com/mattn/go-isatty v0.0.12 // indirect
 	github.com/micro/cli/v2 v2.1.2
 	github.com/micro/go-micro/v2 v2.9.1-0.20200713142714-a4252ba69c86
 	github.com/micro/services v0.0.0-20200713152824-a0e07e456f94
@@ -36,6 +37,3 @@ require (
 )
 
 replace google.golang.org/grpc => google.golang.org/grpc v1.26.0
-
-//replace github.com/micro/go-micro/v2 => /home/crufter/code/src/github.com/micro/go-micro
-replace github.com/micro/go-micro/v2 => github.com/micro/go-micro/v2 v2.9.1-0.20200713063553-040577fb746f

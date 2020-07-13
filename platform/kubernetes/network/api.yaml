@@ -1,76 +1,81 @@
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  namespace: default
-  name: micro-api
-  labels:
-    micro: runtime
-    name: micro-api
-  annotations:
-    name: "go.micro.api"
-    version: "latest"
-    source: "github.com/micro/micro"
-    owner: "micro"
-    group: "micro"
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      name: micro-api
-      micro: runtime
-  strategy:
-    rollingUpdate:
-      maxSurge: 0
-      maxUnavailable: 1
-  template:
-    metadata:
-      labels:
-        name: micro-api
-        micro: runtime
-    spec:
-      containers:
-      - name: api
-        env:
-        - name: MICRO_AUTH
-          value: "service"
-        - name: MICRO_AUTH_ADDRESS
-          value: "micro-auth:8010"
-        - name: MICRO_AUTH_PUBLIC_KEY
-          valueFrom:
-            secretKeyRef:
-              name: micro-secrets
-              key: auth_public_key
-        - name: MICRO_ENABLE_STATS
-          value: "true"
-        - name: MICRO_BROKER
-          value: "service"
-        - name: MICRO_BROKER_ADDRESS
-          value: "micro-broker:8001"
-        - name: MICRO_REGISTRY
-          value: "service"
-        - name: MICRO_REGISTRY_ADDRESS
-          value: "micro-registry:8000"
-        - name: MICRO_ENABLE_ACME
-          value: "true"
-        - name: MICRO_ACME_PROVIDER
-          value: certmagic
-        - name: MICRO_ACME_HOSTS
-          value: 'api.m3o.com'
-        - name: MICRO_STORE
-          value: "service"
-        - name: MICRO_STORE_DATABASE
-          value: "micro"
-        - name: MICRO_STORE_TABLE
-          value: "micro"
-        - name: CF_API_TOKEN
-          valueFrom:
-            secretKeyRef:
-              key: cloudflare
-              name: micro-secrets
-        args:
-        - api
-        image: micro/micro
-        imagePullPolicy: Always
-        ports:
-        - containerPort: 443
-          name: api-port
+# apiVersion: apps/v1
+# kind: Deployment
+# metadata:
+#   namespace: default
+#   name: micro-api
+#   labels:
+#     micro: runtime
+#     name: micro-api
+#   annotations:
+#     name: "go.micro.api"
+#     version: "latest"
+#     source: "github.com/micro/micro"
+#     owner: "micro"
+#     group: "micro"
+# spec:
+#   replicas: 1
+#   selector:
+#     matchLabels:
+#       name: micro-api
+#       micro: runtime
+#   strategy:
+#     rollingUpdate:
+#       maxSurge: 0
+#       maxUnavailable: 1
+#   template:
+#     metadata:
+#       labels:
+#         name: micro-api
+#         micro: runtime
+#     spec:
+#       containers:
+#       - name: api
+#         env:
+#         - name: MICRO_AUTH
+#           value: "service"
+#         - name: MICRO_AUTH_ADDRESS
+#           value: "micro-auth:8010"
+#         - name: MICRO_AUTH_PUBLIC_KEY
+#           valueFrom:
+#             secretKeyRef:
+#               name: micro-secrets
+#               key: auth_public_key
+#         - name: MICRO_AUTH_PRIVATE_KEY
+#           valueFrom:
+#             secretKeyRef:
+#               name: micro-secrets
+#               key: auth_private_key
+#         - name: MICRO_ENABLE_STATS
+#           value: "true"
+#         - name: MICRO_BROKER
+#           value: "service"
+#         - name: MICRO_BROKER_ADDRESS
+#           value: "micro-broker:8001"
+#         - name: MICRO_REGISTRY
+#           value: "service"
+#         - name: MICRO_REGISTRY_ADDRESS
+#           value: "micro-registry:8000"
+#         - name: MICRO_ENABLE_ACME
+#           value: "true"
+#         - name: MICRO_ACME_PROVIDER
+#           value: certmagic
+#         - name: MICRO_ACME_HOSTS
+#           value: 'api.m3o.com'
+#         - name: MICRO_STORE
+#           value: "service"
+#         - name: MICRO_STORE_DATABASE
+#           value: "micro"
+#         - name: MICRO_STORE_TABLE
+#           value: "micro"
+#         - name: CF_API_TOKEN
+#           valueFrom:
+#             secretKeyRef:
+#               key: cloudflare
+#               name: micro-secrets
+#         args:
+#         - api
+#         image: micro/micro
+#         imagePullPolicy: Always
+#         ports:
+#         - containerPort: 443
+#           name: api-port
