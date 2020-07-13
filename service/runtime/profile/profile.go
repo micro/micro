@@ -27,6 +27,7 @@ func ServerCLI() []string {
 		"MICRO_BROKER=service",
 		"MICRO_REGISTRY=service",
 		"MICRO_RUNTIME=service",
+		"MICRO_ROUTER=service",
 		"MICRO_STORE=service",
 		"MICRO_CONFIG=service",
 	}
@@ -82,6 +83,7 @@ func PlatformCLI() []string {
 		"MICRO_BROKER=service",
 		"MICRO_CONFIG=service",
 		"MICRO_REGISTRY=service",
+		"MICRO_ROUTER=service",
 		"MICRO_RUNTIME=service",
 		"MICRO_STORE=service",
 	}
