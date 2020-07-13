@@ -197,7 +197,7 @@ func (a *Auth) Generate(ctx context.Context, req *pb.GenerateRequest, rsp *pb.Ge
 func (a *Auth) Inspect(ctx context.Context, req *pb.InspectRequest, rsp *pb.InspectResponse) error {
 	acc, err := a.TokenProvider.Inspect(req.Token)
 	if err == token.ErrInvalidToken || err == token.ErrNotFound {
-		return errors.BadRequest("go.micro.auth", "Invalid token")
+		return errors.BadRequest("go.micro.auth", err.Error())
 	} else if err != nil {
 		return errors.InternalServerError("go.micro.auth", "Unable to inspect token: %v", err)
 	}
