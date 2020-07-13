@@ -199,7 +199,7 @@ func (s server) launch() {
 }
 
 func (s server) close() {
-	token.Remove(serv.envName)
+	token.Remove(s.envName)
 	exec.Command("docker", "kill", s.containerName).CombinedOutput()
 	if s.cmd.Process != nil {
 		s.cmd.Process.Signal(syscall.SIGKILL)
