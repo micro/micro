@@ -52,7 +52,9 @@ func testConfig(t *t) {
 			return outp, fmt.Errorf("Expected no output, got: %v", string(outp))
 		}
 		return outp, err
-	}, 5*time.Second)
+	}, 5*time.Second); err != nil {
+		return
+	}
 
 	if err := try("micro config get somekey", t, func() ([]byte, error) {
 		getCmd := exec.Command("micro", serv.envFlag(), "config", "get", "somekey")
