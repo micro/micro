@@ -75,7 +75,10 @@ func Remove(namespace, env string) error {
 		return err
 	}
 	if current == namespace {
-		return errors.New("Cannot remove the current namespace")
+		err = Set(registry.DefaultDomain, env)
+		if err != nil {
+			return err
+		}
 	}
 
 	existing, err := List(env)
