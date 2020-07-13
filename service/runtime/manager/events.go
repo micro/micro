@@ -113,6 +113,12 @@ func (m *manager) processEvent(key string) {
 	case runtime.Update:
 		err = m.Runtime.Update(ev.Service, runtime.UpdateNamespace(ns))
 	case runtime.Create:
+		// generate an auth account for the service to use
+		acc, err := m.generateAccount(ev.Service, ns)
+		if err != nil {
+			return
+		}
+
 		err = m.Runtime.Create(ev.Service,
 			runtime.CreateImage(ev.Options.Image),
 			runtime.CreateType(ev.Options.Type),
@@ -120,6 +126,7 @@ func (m *manager) processEvent(key string) {
 			runtime.WithArgs(ev.Options.Args...),
 			runtime.WithCommand(ev.Options.Command...),
 			runtime.WithEnv(m.runtimeEnv(ev.Options)),
+			runtime.CreateCredentials(acc.ID, acc.Secret),
 		)
 	}
 
