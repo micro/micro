@@ -158,6 +158,14 @@ func addEnv(c *cli.Context, args []string) ([]byte, error) {
 	return nil, nil
 }
 
+func delEnv(c *cli.Context, args []string) ([]byte, error) {
+	if len(args) == 0 {
+		return nil, errors.New("name required")
+	}
+	cliutil.DelEnv(args[0])
+	return nil, nil
+}
+
 // netCall calls services through the network
 func netCall(c *cli.Context, args []string) ([]byte, error) {
 	os.Setenv("MICRO_PROXY", "go.micro.network")

@@ -231,6 +231,18 @@ func SetEnv(envName string) {
 	config.Set(envName, "env")
 }
 
+// DelEnv deletes an env from config
+func DelEnv(envName string) {
+	envs := getEnvs()
+	_, ok := envs[envName]
+	if !ok {
+		fmt.Printf("Environment '%v' does not exist\n", envName)
+		os.Exit(1)
+	}
+	delete(envs, envName)
+	setEnvs(envs)
+}
+
 func IsLocal(ctx *ccli.Context) bool {
 	return GetEnv(ctx).Name == EnvLocal
 }
