@@ -34,7 +34,6 @@ var (
 		"api",      // :8080
 		"web",      // :8082
 		"bot",      // :????
-		"init",     // no port, manage self
 	}
 )
 
