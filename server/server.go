@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"time"
 
 	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro/v2"
@@ -14,7 +15,6 @@ import (
 	gorun "github.com/micro/go-micro/v2/runtime"
 	"github.com/micro/go-micro/v2/util/file"
 	ccli "github.com/micro/micro/v2/client/cli"
-	"github.com/micro/micro/v2/internal/platform"
 	"github.com/micro/micro/v2/internal/update"
 )
 
@@ -162,7 +162,7 @@ func Run(context *cli.Context) error {
 		}
 
 		options := []gorun.Option{
-			gorun.WithScheduler(update.NewScheduler(updateURL, platform.Version)),
+			gorun.WithScheduler(update.NewScheduler(updateURL, fmt.Sprintf("%d", time.Now().Unix()))),
 		}
 		(*muRuntime).Init(options...)
 	}
@@ -204,7 +204,7 @@ func Run(context *cli.Context) error {
 		}
 
 		// NOTE: we use Version right now to check for the latest release
-		muService := &gorun.Service{Name: name, Version: platform.Version}
+		muService := &gorun.Service{Name: name, Version: fmt.Sprintf("%d", time.Now().Unix())}
 		if err := (*muRuntime).Create(muService, args...); err != nil {
 			log.Errorf("Failed to create runtime environment: %v", err)
 			return err
