@@ -18,6 +18,5 @@ var (
 		"auth",     // :8010
 		"web",      // :8082
 		"bot",      // :????
-		"init",     // no port, manage self
 	}
 )
