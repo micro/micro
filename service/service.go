@@ -159,6 +159,10 @@ func (s *service) Server() server.Server {
 	return s.opts.Server
 }
 
+func (s *service) Model() model.Model {
+	return s.opts.Model
+}
+
 func (s *service) String() string {
 	return "micro"
 }
