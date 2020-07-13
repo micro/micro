@@ -12,6 +12,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/micro/micro/v2/client/cli/namespace"
 	"github.com/micro/micro/v2/client/cli/token"
 )
 
@@ -205,6 +206,9 @@ func (s server) launch() {
 func (s server) close() {
 	// remove the credentials so they aren't reused on next run
 	token.Remove(s.envName)
+
+	// reset back to the default namespace
+	namespace.Set("micro", s.envName)
 
 	exec.Command("docker", "kill", s.containerName).CombinedOutput()
 	if s.cmd.Process != nil {
