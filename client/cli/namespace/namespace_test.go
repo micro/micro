@@ -109,7 +109,7 @@ func TestNamespace(t *testing.T) {
 
 	t.Run("RemoveSetNamespace", func(t *testing.T) {
 		err := Remove(namespace, envName)
-		assert.Error(t, err, "Removing a namespace which is currently set should error")
+		assert.Nil(t, err, "Removing a namespace which is currently set should not error")
 	})
 
 	t.Run("SetDefaultNamespace", func(t *testing.T) {
