@@ -18,29 +18,34 @@ const (
 	isParallel = true
 )
 
+var ignoreThisError = errors.New("Do not use this error")
+
 type cmdFunc func() ([]byte, error)
 
 // try is designed with command line executions in mind
-func try(blockName string, t *t, f cmdFunc, maxTime time.Duration) {
+// Error should be checked and a simple `return` from the test case should
+// happen without calling `t.Fatal`. The error value should be disregarded.
+func try(blockName string, t *t, f cmdFunc, maxTime time.Duration) error {
 	start := time.Now()
 	var outp []byte
 	var err error
 
 	for {
 		if t.failed {
-			return
+			return ignoreThisError
 		}
 		if time.Since(start) > maxTime {
 			_, file, line, _ := runtime.Caller(1)
 			fname := filepath.Base(file)
 			if err != nil {
 				t.Fatalf("%v:%v, %v (failed after %v with '%v'), output: '%v'", fname, line, blockName, time.Since(start), err, string(outp))
+				return ignoreThisError
 			}
-			return
+			return nil
 		}
 		outp, err = f()
 		if err == nil {
-			return
+			return nil
 		}
 		time.Sleep(1000 * time.Millisecond)
 	}
@@ -148,7 +153,9 @@ func newServer(t *t, opts ...options) server {
 	}
 }
 
-func (s server) launch() {
+// error value should not be used but caller should return in the test suite
+// in case of error.
+func (s server) launch() error {
 	go func() {
 		if err := s.cmd.Start(); err != nil {
 			s.t.t.Fatal(err)
@@ -156,7 +163,7 @@ func (s server) launch() {
 	}()
 
 	// add the environment
-	try("Adding micro env", s.t, func() ([]byte, error) {
+	if err := try("Adding micro env", s.t, func() ([]byte, error) {
 		outp, err := exec.Command("micro", "env", "add", s.envName, fmt.Sprintf("127.0.0.1:%v", s.portNum)).CombinedOutput()
 		if err != nil {
 			return outp, err
@@ -174,9 +181,11 @@ func (s server) launch() {
 		}
 
 		return outp, nil
-	}, 15*time.Second)
+	}, 15*time.Second); err != nil {
+		return err
+	}
 
-	try("Calling micro server", s.t, func() ([]byte, error) {
+	if err := try("Calling micro server", s.t, func() ([]byte, error) {
 		outp, err := exec.Command("micro", s.envFlag(), "list", "services").CombinedOutput()
 		if !strings.Contains(string(outp), "runtime") ||
 			!strings.Contains(string(outp), "registry") ||
@@ -191,9 +200,12 @@ func (s server) launch() {
 		}
 
 		return outp, err
-	}, 60*time.Second)
+	}, 60*time.Second); err != nil {
+		return err
+	}
 
 	time.Sleep(5 * time.Second)
+	return nil
 }
 
 func (s server) close() {
