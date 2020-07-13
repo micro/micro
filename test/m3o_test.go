@@ -140,19 +140,19 @@ func testM3oSignupFlow(t *t) {
 			return
 		}
 		t.t.Logf("Namespace set is %v", ns)
-		outp, err = exec.Command("micro", serv.envFlag(), "auth", "list", "accounts").CombinedOutput()
-		if err != nil {
-			t.Fatalf("Error listing accounts: %v", err)
-			return
-		}
-		if !strings.Contains(string(outp), "dobronszki@gmail.com") {
-			t.Fatalf("Account not found: %v", string(outp))
-			return
-		}
-		if strings.Contains(string(outp), "default") {
-			t.Fatalf("Default account should not be present in the namespace: %v", string(outp))
-			return
-		}
+		try("Find verification token in logs", t, func() ([]byte, error) {
+			outp, err = exec.Command("micro", serv.envFlag(), "auth", "list", "accounts").CombinedOutput()
+			if err != nil {
+				return outp, err
+			}
+			if !strings.Contains(string(outp), "dobronszki@gmail.com") {
+				return outp, errors.New("Account not found")
+			}
+			if strings.Contains(string(outp), "default") {
+				return outp, errors.New("Default account should not be present in the namespace")
+			}
+			return outp, nil
+		}, 5*time.Second)
 	}()
 	go func() {
 		time.Sleep(20 * time.Second)
