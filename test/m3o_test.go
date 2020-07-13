@@ -14,7 +14,6 @@ import (
 	"time"
 
 	"github.com/micro/micro/v2/client/cli/namespace"
-	"github.com/micro/micro/v2/client/cli/token"
 	"github.com/stripe/stripe-go/v71"
 	stripe_client "github.com/stripe/stripe-go/v71/client"
 )
@@ -81,9 +80,6 @@ func testM3oSignupFlow(t *t) {
 
 	time.Sleep(5 * time.Second)
 
-	defer func() {
-		token.Remove(serv.envName)
-	}()
 	cmd := exec.Command("micro", serv.envFlag(), "login", "--otp")
 	stdin, err := cmd.StdinPipe()
 	if err != nil {
