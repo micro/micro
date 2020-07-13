@@ -72,7 +72,7 @@ micro env set server
 micro run example
 
 # list services
-micro list services
+micro services
 
 # call a service
 micro call go.micro.service.example Example.Call '{"name": "John"}'
