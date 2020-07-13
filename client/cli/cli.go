@@ -536,15 +536,23 @@ func Commands() []*cli.Command {
 			Subcommands: []*cli.Command{
 				{
 					Name:   "get",
+					Usage:  "Get the currently selected environment",
 					Action: Print(getEnv),
 				},
 				{
 					Name:   "set",
+					Usage:  "Set the environment to use for subsequent commands",
 					Action: Print(setEnv),
 				},
 				{
 					Name:   "add",
+					Usage:  "Add a new environment `micro env add foo 127.0.0.1:8081`",
 					Action: Print(addEnv),
+				},
+				{
+					Name:   "del",
+					Usage:  "Delete an environment from your list",
+					Action: Print(delEnv),
 				},
 			},
 		},

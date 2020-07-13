@@ -216,16 +216,19 @@ type t struct {
 }
 
 func (t *t) Fatal(values ...interface{}) {
+	t.t.Helper()
 	t.t.Log(values...)
 	t.failed = true
 	t.values = values
 }
 
 func (t *t) Log(values ...interface{}) {
+	t.t.Helper()
 	t.t.Log(values...)
 }
 
 func (t *t) Fatalf(format string, values ...interface{}) {
+	t.t.Helper()
 	t.t.Log(fmt.Sprintf(format, values...))
 	t.failed = true
 	t.values = values
@@ -245,6 +248,7 @@ func newT(te *testing.T) *t {
 
 // trySuite is designed to retry a TestXX function
 func trySuite(t *testing.T, f func(t *t), times int) {
+	t.Helper()
 	tee := newT(t)
 	for i := 0; i < times; i++ {
 		f(tee)
