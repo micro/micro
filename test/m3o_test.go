@@ -136,6 +136,9 @@ func testM3oSignupFlow(t *t) {
 			t.Fatalf("Eror getting namespace: %v", err)
 			return
 		}
+		defer func() {
+			namespace.Remove(ns, serv.envName)
+		}()
 		if strings.Count(ns, "_") != 2 {
 			t.Fatalf("Expected 2 underscores in namespace but namespace is: %v", ns)
 			return

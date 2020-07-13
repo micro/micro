@@ -11,6 +11,8 @@ import (
 	"syscall"
 	"testing"
 	"time"
+
+	"github.com/micro/micro/v2/client/cli/token"
 )
 
 const (
@@ -209,6 +211,7 @@ func (s server) launch() error {
 }
 
 func (s server) close() {
+	token.Remove(s.envName)
 	exec.Command("docker", "kill", s.containerName).CombinedOutput()
 	if s.cmd.Process != nil {
 		s.cmd.Process.Signal(syscall.SIGKILL)
