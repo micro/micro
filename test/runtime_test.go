@@ -30,16 +30,20 @@ func testServerModeCall(t *t) {
 		return
 	}
 
-	serv.launch()
 	defer serv.close()
+	if err := serv.launch(); err != nil {
+		return
+	}
 
-	try("Calling Runtime.Read", t, func() ([]byte, error) {
+	if err := try("Calling Runtime.Read", t, func() ([]byte, error) {
 		outp, err = exec.Command("micro", serv.envFlag(), "call", "go.micro.runtime", "Runtime.Read", "{}").CombinedOutput()
 		if err != nil {
 			return outp, errors.New("Call to runtime read should succeed")
 		}
 		return outp, err
-	}, 5*time.Second)
+	}, 5*time.Second); err != nil {
+		return
+	}
 }
 
 func TestRunLocalSource(t *testing.T) {
@@ -49,8 +53,10 @@ func TestRunLocalSource(t *testing.T) {
 func testRunLocalSource(t *t) {
 	t.Parallel()
 	serv := newServer(t)
-	serv.launch()
 	defer serv.close()
+	if err := serv.launch(); err != nil {
+		return
+	}
 
 	runCmd := exec.Command("micro", serv.envFlag(), "run", "./example-service")
 	outp, err := runCmd.CombinedOutput()
@@ -59,7 +65,7 @@ func testRunLocalSource(t *t) {
 		return
 	}
 
-	try("Find test/example", t, func() ([]byte, error) {
+	if err := try("Find test/example", t, func() ([]byte, error) {
 		psCmd := exec.Command("micro", serv.envFlag(), "status")
 		outp, err = psCmd.CombinedOutput()
 		if err != nil {
@@ -72,9 +78,11 @@ func testRunLocalSource(t *t) {
 			return outp, errors.New("Can't find example service in runtime")
 		}
 		return outp, err
-	}, 15*time.Second)
+	}, 15*time.Second); err != nil {
+		return
+	}
 
-	try("Find go.micro.service.example in list", t, func() ([]byte, error) {
+	if err := try("Find go.micro.service.example in list", t, func() ([]byte, error) {
 		outp, err := exec.Command("micro", serv.envFlag(), "list", "services").CombinedOutput()
 		if err != nil {
 			return outp, err
@@ -83,7 +91,9 @@ func testRunLocalSource(t *t) {
 			return outp, errors.New("Can't find example service in list")
 		}
 		return outp, err
-	}, 50*time.Second)
+	}, 50*time.Second); err != nil {
+		return
+	}
 }
 
 func TestRunAndKill(t *testing.T) {
@@ -93,8 +103,10 @@ func TestRunAndKill(t *testing.T) {
 func testRunAndKill(t *t) {
 	t.Parallel()
 	serv := newServer(t)
-	serv.launch()
 	defer serv.close()
+	if err := serv.launch(); err != nil {
+		return
+	}
 
 	runCmd := exec.Command("micro", serv.envFlag(), "run", "./example-service")
 	outp, err := runCmd.CombinedOutput()
@@ -103,7 +115,7 @@ func testRunAndKill(t *t) {
 		return
 	}
 
-	try("Find test/example", t, func() ([]byte, error) {
+	if err := try("Find test/example", t, func() ([]byte, error) {
 		psCmd := exec.Command("micro", serv.envFlag(), "status")
 		outp, err = psCmd.CombinedOutput()
 		if err != nil {
@@ -116,9 +128,11 @@ func testRunAndKill(t *t) {
 			return outp, errors.New("Can't find example service in runtime")
 		}
 		return outp, err
-	}, 15*time.Second)
+	}, 15*time.Second); err != nil {
+		return
+	}
 
-	try("Find go.micro.service.example in list", t, func() ([]byte, error) {
+	if err := try("Find go.micro.service.example in list", t, func() ([]byte, error) {
 		outp, err := exec.Command("micro", serv.envFlag(), "list", "services").CombinedOutput()
 		if err != nil {
 			return outp, err
@@ -127,7 +141,9 @@ func testRunAndKill(t *t) {
 			return outp, errors.New("Can't find example service in list")
 		}
 		return outp, err
-	}, 50*time.Second)
+	}, 50*time.Second); err != nil {
+		return
+	}
 
 	outp, err = exec.Command("micro", serv.envFlag(), "kill", "test/example-service").CombinedOutput()
 	if err != nil {
@@ -135,7 +151,7 @@ func testRunAndKill(t *t) {
 		return
 	}
 
-	try("Find test/example", t, func() ([]byte, error) {
+	if err := try("Find test/example", t, func() ([]byte, error) {
 		psCmd := exec.Command("micro", serv.envFlag(), "status")
 		outp, err = psCmd.CombinedOutput()
 		if err != nil {
@@ -148,9 +164,11 @@ func testRunAndKill(t *t) {
 			return outp, errors.New("Should not find example service in runtime")
 		}
 		return outp, err
-	}, 15*time.Second)
+	}, 15*time.Second); err != nil {
+		return
+	}
 
-	try("Find go.micro.service.example in list", t, func() ([]byte, error) {
+	if err := try("Find go.micro.service.example in list", t, func() ([]byte, error) {
 		outp, err := exec.Command("micro", serv.envFlag(), "list", "services").CombinedOutput()
 		if err != nil {
 			return outp, err
@@ -159,7 +177,9 @@ func testRunAndKill(t *t) {
 			return outp, errors.New("Should not find example service in list")
 		}
 		return outp, err
-	}, 20*time.Second)
+	}, 20*time.Second); err != nil {
+		return
+	}
 }
 
 func TestLocalOutsideRepo(t *testing.T) {
@@ -169,8 +189,10 @@ func TestLocalOutsideRepo(t *testing.T) {
 func testLocalOutsideRepo(t *t) {
 	t.Parallel()
 	serv := newServer(t)
-	serv.launch()
 	defer serv.close()
+	if err := serv.launch(); err != nil {
+		return
+	}
 
 	dirname := "last-dir-of-path"
 	folderPath := filepath.Join(os.TempDir(), dirname)
@@ -198,7 +220,7 @@ func testLocalOutsideRepo(t *t) {
 		return
 	}
 
-	try("Find "+dirname, t, func() ([]byte, error) {
+	if err := try("Find "+dirname, t, func() ([]byte, error) {
 		psCmd := exec.Command("micro", serv.envFlag(), "status")
 		outp, err = psCmd.CombinedOutput()
 		if err != nil {
@@ -216,9 +238,11 @@ func testLocalOutsideRepo(t *t) {
 			return outp, errors.New("Can't find '" + dirname + "' in runtime")
 		}
 		return outp, err
-	}, 12*time.Second)
+	}, 12*time.Second); err != nil {
+		return
+	}
 
-	try("Find go.micro.service.example in list", t, func() ([]byte, error) {
+	if err := try("Find go.micro.service.example in list", t, func() ([]byte, error) {
 		outp, err := exec.Command("micro", serv.envFlag(), "list", "services").CombinedOutput()
 		if err != nil {
 			return outp, err
@@ -227,7 +251,9 @@ func testLocalOutsideRepo(t *t) {
 			return outp, errors.New("Can't find example service in list")
 		}
 		return outp, err
-	}, 75*time.Second)
+	}, 75*time.Second); err != nil {
+		return
+	}
 }
 
 func statusRunning(service string, statusOutput []byte) bool {
@@ -252,8 +278,10 @@ func testRunGithubSource(t *t) {
 		return
 	}
 	serv := newServer(t)
-	serv.launch()
 	defer serv.close()
+	if err := serv.launch(); err != nil {
+		return
+	}
 
 	runCmd := exec.Command("micro", serv.envFlag(), "run", "github.com/micro/examples/helloworld")
 	outp, err := runCmd.CombinedOutput()
@@ -262,7 +290,7 @@ func testRunGithubSource(t *t) {
 		return
 	}
 
-	try("Find hello world", t, func() ([]byte, error) {
+	if err := try("Find hello world", t, func() ([]byte, error) {
 		psCmd := exec.Command("micro", serv.envFlag(), "status")
 		outp, err = psCmd.CombinedOutput()
 		if err != nil {
@@ -273,9 +301,11 @@ func testRunGithubSource(t *t) {
 			return outp, errors.New("Output should contain hello world")
 		}
 		return outp, nil
-	}, 60*time.Second)
+	}, 60*time.Second); err != nil {
+		return
+	}
 
-	try("Call hello world", t, func() ([]byte, error) {
+	if err := try("Call hello world", t, func() ([]byte, error) {
 		callCmd := exec.Command("micro", serv.envFlag(), "call", "go.micro.service.helloworld", "Helloworld.Call", `{"name": "Joe"}`)
 		outp, err := callCmd.CombinedOutput()
 		if err != nil {
@@ -290,7 +320,9 @@ func testRunGithubSource(t *t) {
 			return outp, errors.New("Helloworld resonse is unexpected")
 		}
 		return outp, err
-	}, 60*time.Second)
+	}, 60*time.Second); err != nil {
+		return
+	}
 
 }
 
@@ -301,8 +333,10 @@ func TestRunLocalUpdateAndCall(t *testing.T) {
 func testRunLocalUpdateAndCall(t *t) {
 	t.Parallel()
 	serv := newServer(t)
-	serv.launch()
 	defer serv.close()
+	if err := serv.launch(); err != nil {
+		return
+	}
 
 	// Run the example service
 	runCmd := exec.Command("micro", serv.envFlag(), "run", "./example-service")
@@ -312,7 +346,7 @@ func testRunLocalUpdateAndCall(t *t) {
 		return
 	}
 
-	try("Finding example service with micro status", t, func() ([]byte, error) {
+	if err := try("Finding example service with micro status", t, func() ([]byte, error) {
 		psCmd := exec.Command("micro", serv.envFlag(), "status")
 		outp, err = psCmd.CombinedOutput()
 		if err != nil {
@@ -325,9 +359,11 @@ func testRunLocalUpdateAndCall(t *t) {
 			return outp, errors.New("can't find service in runtime")
 		}
 		return outp, err
-	}, 15*time.Second)
+	}, 15*time.Second); err != nil {
+		return
+	}
 
-	try("Call example service", t, func() ([]byte, error) {
+	if err := try("Call example service", t, func() ([]byte, error) {
 		callCmd := exec.Command("micro", serv.envFlag(), "call", "go.micro.service.example", "Example.Call", `{"name": "Joe"}`)
 		outp, err := callCmd.CombinedOutput()
 		if err != nil {
@@ -342,7 +378,9 @@ func testRunLocalUpdateAndCall(t *t) {
 			return outp, errors.New("Response is unexpected")
 		}
 		return outp, err
-	}, 50*time.Second)
+	}, 50*time.Second); err != nil {
+		return
+	}
 
 	replaceStringInFile(t, "./example-service/handler/handler.go", "Hello", "Hi")
 	defer func() {
@@ -357,7 +395,7 @@ func testRunLocalUpdateAndCall(t *t) {
 		return
 	}
 
-	try("Call example service after modification", t, func() ([]byte, error) {
+	if err := try("Call example service after modification", t, func() ([]byte, error) {
 		callCmd := exec.Command("micro", serv.envFlag(), "call", "go.micro.service.example", "Example.Call", `{"name": "Joe"}`)
 		outp, err = callCmd.CombinedOutput()
 		if err != nil {
@@ -372,7 +410,9 @@ func testRunLocalUpdateAndCall(t *t) {
 			return outp, errors.New("Response is not what's expected")
 		}
 		return outp, err
-	}, 15*time.Second)
+	}, 15*time.Second); err != nil {
+		return
+	}
 }
 
 func TestExistingLogs(t *testing.T) {
@@ -382,8 +422,10 @@ func TestExistingLogs(t *testing.T) {
 func testExistingLogs(t *t) {
 	t.Parallel()
 	serv := newServer(t)
-	serv.launch()
 	defer serv.close()
+	if err := serv.launch(); err != nil {
+		return
+	}
 
 	runCmd := exec.Command("micro", serv.envFlag(), "run", "github.com/crufter/micro-services/logspammer")
 	outp, err := runCmd.CombinedOutput()
@@ -392,7 +434,7 @@ func testExistingLogs(t *t) {
 		return
 	}
 
-	try("logspammer logs", t, func() ([]byte, error) {
+	if err := try("logspammer logs", t, func() ([]byte, error) {
 		psCmd := exec.Command("micro", serv.envFlag(), "logs", "-n", "5", "crufter/micro-services/logspammer")
 		outp, err = psCmd.CombinedOutput()
 		if err != nil {
@@ -403,7 +445,9 @@ func testExistingLogs(t *t) {
 			return outp, errors.New("Output does not contain expected")
 		}
 		return outp, nil
-	}, 50*time.Second)
+	}, 50*time.Second); err != nil {
+		return
+	}
 }
 
 func TestBranchCheckout(t *testing.T) {
@@ -413,8 +457,10 @@ func TestBranchCheckout(t *testing.T) {
 func testBranchCheckout(t *t) {
 	t.Parallel()
 	serv := newServer(t)
-	serv.launch()
 	defer serv.close()
+	if err := serv.launch(); err != nil {
+		return
+	}
 
 	runCmd := exec.Command("micro", serv.envFlag(), "run", "github.com/crufter/micro-services/logspammer@branch-checkout-test")
 	outp, err := runCmd.CombinedOutput()
@@ -423,7 +469,7 @@ func testBranchCheckout(t *t) {
 		return
 	}
 
-	try("logspammer logs", t, func() ([]byte, error) {
+	if err := try("logspammer logs", t, func() ([]byte, error) {
 		psCmd := exec.Command("micro", serv.envFlag(), "logs", "-n", "5", "crufter/micro-services/logspammer")
 		outp, err = psCmd.CombinedOutput()
 		if err != nil {
@@ -435,7 +481,9 @@ func testBranchCheckout(t *t) {
 			return outp, errors.New("Output does not contain expected")
 		}
 		return outp, nil
-	}, 50*time.Second)
+	}, 50*time.Second); err != nil {
+		return
+	}
 }
 
 func TestStreamLogsAndThirdPartyRepo(t *testing.T) {
@@ -445,8 +493,10 @@ func TestStreamLogsAndThirdPartyRepo(t *testing.T) {
 func testStreamLogsAndThirdPartyRepo(t *t) {
 	t.Parallel()
 	serv := newServer(t)
-	serv.launch()
 	defer serv.close()
+	if err := serv.launch(); err != nil {
+		return
+	}
 
 	runCmd := exec.Command("micro", serv.envFlag(), "run", "github.com/crufter/micro-services/logspammer")
 	outp, err := runCmd.CombinedOutput()
@@ -455,7 +505,7 @@ func testStreamLogsAndThirdPartyRepo(t *t) {
 		return
 	}
 
-	try("logspammer logs", t, func() ([]byte, error) {
+	if err := try("logspammer logs", t, func() ([]byte, error) {
 		psCmd := exec.Command("micro", serv.envFlag(), "logs", "-n", "5", "crufter/micro-services/logspammer")
 		outp, err = psCmd.CombinedOutput()
 		if err != nil {
@@ -466,7 +516,9 @@ func testStreamLogsAndThirdPartyRepo(t *t) {
 			return outp, errors.New("Output does not contain expected")
 		}
 		return outp, nil
-	}, 50*time.Second)
+	}, 50*time.Second); err != nil {
+		return
+	}
 
 	// Test streaming logs
 	cmd := exec.Command("micro", serv.envFlag(), "logs", "-n", "1", "-f", "crufter-micro-services-logspammer")
@@ -530,8 +582,10 @@ func TestParentDependency(t *testing.T) {
 func testParentDependency(t *t) {
 	t.Parallel()
 	serv := newServer(t)
-	serv.launch()
 	defer serv.close()
+	if err := serv.launch(); err != nil {
+		return
+	}
 
 	runCmd := exec.Command("micro", serv.envFlag(), "run", "./dep-test/dep-test-service")
 	outp, err := runCmd.CombinedOutput()
@@ -540,7 +594,7 @@ func testParentDependency(t *t) {
 		return
 	}
 
-	try("Find hello world", t, func() ([]byte, error) {
+	if err := try("Find hello world", t, func() ([]byte, error) {
 		psCmd := exec.Command("micro", serv.envFlag(), "status")
 		outp, err = psCmd.CombinedOutput()
 		if err != nil {
@@ -551,7 +605,9 @@ func testParentDependency(t *t) {
 			return outp, errors.New("Output should contain hello world")
 		}
 		return outp, nil
-	}, 30*time.Second)
+	}, 30*time.Second); err != nil {
+		return
+	}
 }
 
 func TestFastRuns(t *testing.T) {
@@ -561,8 +617,10 @@ func TestFastRuns(t *testing.T) {
 func testFastRuns(t *t) {
 	t.Parallel()
 	serv := newServer(t)
-	serv.launch()
 	defer serv.close()
+	if err := serv.launch(); err != nil {
+		return
+	}
 
 	runCmd := exec.Command("micro", serv.envFlag(), "run", "signup")
 	outp, err := runCmd.CombinedOutput()
@@ -588,7 +646,7 @@ func testFastRuns(t *t) {
 		return
 	}
 
-	try("Find signup and stripe", t, func() ([]byte, error) {
+	if err := try("Find signup and stripe", t, func() ([]byte, error) {
 		psCmd := exec.Command("micro", serv.envFlag(), "list", "services")
 		outp, err = psCmd.CombinedOutput()
 		if err != nil {
@@ -599,5 +657,7 @@ func testFastRuns(t *t) {
 			return outp, errors.New("Signup or stripe can't be found")
 		}
 		return outp, nil
-	}, 120*time.Second)
+	}, 120*time.Second); err != nil {
+		return
+	}
 }
