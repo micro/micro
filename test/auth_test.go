@@ -19,8 +19,10 @@ func TestServerAuth(t *testing.T) {
 func testServerAuth(t *t) {
 	t.Parallel()
 	serv := newServer(t)
-	serv.launch()
 	defer serv.close()
+	if err := serv.launch(); err != nil {
+		return
+	}
 
 	basicAuthSuite(serv, t)
 }
@@ -34,8 +36,10 @@ func testServerAuthJWT(t *t) {
 	serv := newServer(t, options{
 		auth: "jwt",
 	})
-	serv.launch()
 	defer serv.close()
+	if err := serv.launch(); err != nil {
+		return
+	}
 
 	basicAuthSuite(serv, t)
 }
@@ -45,7 +49,7 @@ func basicAuthSuite(serv server, t *t) {
 
 	// Execute first command in read to wait for store service
 	// to start up
-	try("Calling micro auth list accounts", t, func() ([]byte, error) {
+	if err := try("Calling micro auth list accounts", t, func() ([]byte, error) {
 		readCmd := exec.Command("micro", serv.envFlag(), "auth", "list", "accounts")
 		outp, err := readCmd.CombinedOutput()
 		if err != nil {
@@ -56,9 +60,11 @@ func basicAuthSuite(serv server, t *t) {
 			return outp, fmt.Errorf("Output should contain default admin account")
 		}
 		return outp, nil
-	}, 15*time.Second)
+	}, 15*time.Second); err != nil {
+		return
+	}
 
-	try("Calling micro auth list rules", t, func() ([]byte, error) {
+	if err := try("Calling micro auth list rules", t, func() ([]byte, error) {
 		readCmd := exec.Command("micro", serv.envFlag(), "auth", "list", "rules")
 		outp, err := readCmd.CombinedOutput()
 		if err != nil {
@@ -68,9 +74,11 @@ func basicAuthSuite(serv server, t *t) {
 			return outp, fmt.Errorf("Output should contain default rule")
 		}
 		return outp, nil
-	}, 8*time.Second)
+	}, 8*time.Second); err != nil {
+		return
+	}
 
-	try("Try to get token with default account", t, func() ([]byte, error) {
+	if err := try("Try to get token with default account", t, func() ([]byte, error) {
 		readCmd := exec.Command("micro", serv.envFlag(), "call", "go.micro.auth", "Auth.Token", `{"id":"default","secret":"password"}`)
 		outp, err := readCmd.CombinedOutput()
 		if err != nil {
@@ -95,5 +103,7 @@ func basicAuthSuite(serv server, t *t) {
 			return outp, fmt.Errorf("Can't find access token")
 		}
 		return outp, nil
-	}, 8*time.Second)
+	}, 8*time.Second); err != nil {
+		return
+	}
 }

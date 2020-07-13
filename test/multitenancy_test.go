@@ -25,8 +25,10 @@ func TestNamespaceConfigIsolation(t *testing.T) {
 func testNamespaceConfigIsolation(t *t) {
 	t.Parallel()
 	serv := newServer(t)
-	serv.launch()
 	defer serv.close()
+	if err := serv.launch(); err != nil {
+		return
+	}
 
 	testNamespaceConfigIsolationSuite(serv, t)
 }
@@ -51,7 +53,7 @@ func testNamespaceConfigIsolationSuite(serv server, t *t) {
 		return
 	}
 
-	try("Calling micro config set", t, func() ([]byte, error) {
+	if err := try("Calling micro config set", t, func() ([]byte, error) {
 		setCmd := exec.Command("micro", serv.envFlag(), "config", "set", "somekey", "val1")
 		outp, err := setCmd.CombinedOutput()
 		if err != nil {
@@ -61,9 +63,11 @@ func testNamespaceConfigIsolationSuite(serv server, t *t) {
 			return outp, fmt.Errorf("Expected no output, got: %v", string(outp))
 		}
 		return outp, err
-	}, 5*time.Second)
+	}, 5*time.Second); err != nil {
+		return
+	}
 
-	try("micro config get somekey", t, func() ([]byte, error) {
+	if err := try("micro config get somekey", t, func() ([]byte, error) {
 		getCmd := exec.Command("micro", serv.envFlag(), "config", "get", "somekey")
 		outp, err := getCmd.CombinedOutput()
 		if err != nil {
@@ -73,7 +77,9 @@ func testNamespaceConfigIsolationSuite(serv server, t *t) {
 			return outp, errors.New("Expected 'val1\n'")
 		}
 		return outp, err
-	}, 8*time.Second)
+	}, 8*time.Second); err != nil {
+		return
+	}
 
 	err = namespace.Add("random", serv.envName)
 	if err != nil {
@@ -99,7 +105,7 @@ func testNamespaceConfigIsolationSuite(serv server, t *t) {
 		return
 	}
 
-	try("reading 'somekey' should not be found with this account", t, func() ([]byte, error) {
+	if err := try("reading 'somekey' should not be found with this account", t, func() ([]byte, error) {
 		getCmd := exec.Command("micro", serv.envFlag(), "config", "get", "somekey")
 		outp, err := getCmd.CombinedOutput()
 		if err == nil {
@@ -109,7 +115,9 @@ func testNamespaceConfigIsolationSuite(serv server, t *t) {
 			return outp, errors.New("Expected 'not found\n'")
 		}
 		return outp, nil
-	}, 8*time.Second)
+	}, 8*time.Second); err != nil {
+		return
+	}
 
 	// Log back to original namespace and see if value is already there
 
@@ -125,12 +133,11 @@ func testNamespaceConfigIsolationSuite(serv server, t *t) {
 		return
 	}
 
-	login(serv, t, "default", "password")
-	if t.failed {
+	if err := login(serv, t, "default", "password"); err != nil {
 		return
 	}
 
-	try("micro config get somekey", t, func() ([]byte, error) {
+	if err := try("micro config get somekey", t, func() ([]byte, error) {
 		getCmd := exec.Command("micro", serv.envFlag(), "config", "get", "somekey")
 		outp, err := getCmd.CombinedOutput()
 		if err != nil {
@@ -140,11 +147,13 @@ func testNamespaceConfigIsolationSuite(serv server, t *t) {
 			return outp, errors.New("Expected 'val1\n'")
 		}
 		return outp, err
-	}, 8*time.Second)
+	}, 8*time.Second); err != nil {
+		return
+	}
 }
 
-func login(serv server, t *t, email, password string) {
-	try("Logging in", t, func() ([]byte, error) {
+func login(serv server, t *t, email, password string) error {
+	return try("Logging in", t, func() ([]byte, error) {
 		readCmd := exec.Command("micro", serv.envFlag(), "call", "go.micro.auth", "Auth.Token", fmt.Sprintf(`{"id":"%v","secret":"%v"}`, email, password))
 		outp, err := readCmd.CombinedOutput()
 		if err != nil {

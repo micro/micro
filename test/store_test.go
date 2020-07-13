@@ -18,12 +18,14 @@ func TestStore(t *testing.T) {
 func testStore(t *t) {
 	t.Parallel()
 	serv := newServer(t)
-	serv.launch()
 	defer serv.close()
+	if err := serv.launch(); err != nil {
+		return
+	}
 
 	// Execute first command in read to wait for store service
 	// to start up
-	try("Calling micro store read", t, func() ([]byte, error) {
+	if err := try("Calling micro store read", t, func() ([]byte, error) {
 		readCmd := exec.Command("micro", serv.envFlag(), "store", "read", "somekey")
 		outp, err := readCmd.CombinedOutput()
 		if err == nil {
@@ -33,7 +35,9 @@ func testStore(t *t) {
 			return outp, fmt.Errorf("Output should be 'not found\n', got %v", string(outp))
 		}
 		return outp, nil
-	}, 8*time.Second)
+	}, 8*time.Second); err != nil {
+		return
+	}
 
 	writeCmd := exec.Command("micro", serv.envFlag(), "store", "write", "somekey", "val1")
 	outp, err := writeCmd.CombinedOutput()
