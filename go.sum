@@ -322,6 +322,8 @@ github.com/micro/go-micro/v2 v2.9.1-0.20200714092715-a5e9dc21cadb h1:7E6lwxrnrNu
 github.com/micro/go-micro/v2 v2.9.1-0.20200714092715-a5e9dc21cadb/go.mod h1:Szpx+Q9oZvNOoGc1cPweBt3PozVX4e/z3SC1hpxV4iw=
 github.com/micro/services v0.0.0-20200714103035-581668b54c4d h1:sjaRBcpqhSYcdVsp5fmJGhZ2TKebr8IFlruuZLXwUpU=
 github.com/micro/services v0.0.0-20200714103035-581668b54c4d/go.mod h1:P87Ku3eCn6fNi6FkZ30ifHSCKWJRMHLnsNpedSO7jrs=
+github.com/micro/services v0.0.0-20200714105604-d1090a4f606b h1:r26J9VU8sq7mKwdQYTC7Ut16rzYh6C9O5eL2b/XlS0I=
+github.com/micro/services v0.0.0-20200714105604-d1090a4f606b/go.mod h1:P87Ku3eCn6fNi6FkZ30ifHSCKWJRMHLnsNpedSO7jrs=
 github.com/miekg/dns v1.1.15/go.mod h1:W1PPwlIAgtquWBMBEV9nkV9Cazfe8ScdGz/Lj7v3Nrg=
 github.com/miekg/dns v1.1.27 h1:aEH/kqUzUxGJ/UHcEKdJY+ugH6WEzsEBBSPa8zuy1aM=
 github.com/miekg/dns v1.1.27/go.mod h1:KNUDUusw/aVsxyTYZM1oqvCicbwhgbNgztCETuNZ7xM=
