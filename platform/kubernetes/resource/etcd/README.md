@@ -43,7 +43,7 @@ spec:
           value: "/certs/registry/key.pem"
         args:
         - registry
-        image: micro/micro:mtls
+        image: micro/micro
         imagePullPolicy: Always
         ports:
         - containerPort: 8000
