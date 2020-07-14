@@ -21,8 +21,9 @@ const (
 )
 
 var defaultRule = &auth.Rule{
-	ID:    "default",
-	Scope: auth.ScopePublic,
+	ID:     "default",
+	Scope:  auth.ScopePublic,
+	Access: auth.AccessGranted,
 	Resource: &auth.Resource{
 		Type:     "*",
 		Name:     "*",
@@ -126,11 +127,11 @@ func (r *Rules) Create(ctx context.Context, req *pb.CreateRequest, rsp *pb.Creat
 
 	// authorize the request
 	if err := namespace.Authorize(ctx, req.Options.Namespace); err == namespace.ErrForbidden {
-		return errors.Forbidden("go.micro.auth", err.Error())
+		return errors.Forbidden("go.micro.auth.Rules.Create", err.Error())
 	} else if err == namespace.ErrUnauthorized {
-		return errors.Unauthorized("go.micro.auth", err.Error())
+		return errors.Unauthorized("go.micro.auth.Rules.Create", err.Error())
 	} else if err != nil {
-		return errors.InternalServerError("go.micro.auth", err.Error())
+		return errors.InternalServerError("go.micro.auth.Rules.Create", err.Error())
 	}
 
 	// write the rule to the store
@@ -154,11 +155,11 @@ func (r *Rules) Delete(ctx context.Context, req *pb.DeleteRequest, rsp *pb.Delet
 
 	// authorize the request
 	if err := namespace.Authorize(ctx, req.Options.Namespace); err == namespace.ErrForbidden {
-		return errors.Forbidden("go.micro.auth", err.Error())
+		return errors.Forbidden("go.micro.auth.Rules.Delete", err.Error())
 	} else if err == namespace.ErrUnauthorized {
-		return errors.Unauthorized("go.micro.auth", err.Error())
+		return errors.Unauthorized("go.micro.auth.Rules.Delete", err.Error())
 	} else if err != nil {
-		return errors.InternalServerError("go.micro.auth", err.Error())
+		return errors.InternalServerError("go.micro.auth.Rules.Delete", err.Error())
 	}
 
 	// Delete the rule
@@ -185,15 +186,15 @@ func (r *Rules) List(ctx context.Context, req *pb.ListRequest, rsp *pb.ListRespo
 
 	// authorize the request
 	if err := namespace.Authorize(ctx, req.Options.Namespace); err == namespace.ErrForbidden {
-		return errors.Forbidden("go.micro.auth", err.Error())
+		return errors.Forbidden("go.micro.auth.Rules.List", err.Error())
 	} else if err == namespace.ErrUnauthorized {
-		return errors.Unauthorized("go.micro.auth", err.Error())
+		return errors.Unauthorized("go.micro.auth.Rules.List", err.Error())
 	} else if err != nil {
-		return errors.InternalServerError("go.micro.auth", err.Error())
+		return errors.InternalServerError("go.micro.auth.Rules.List", err.Error())
 	}
 
 	// setup the defaults incase none exist
-	r.setupDefaultRules(namespace.FromContext(ctx))
+	r.setupDefaultRules(req.Options.Namespace)
 
 	// get the records from the store
 	prefix := strings.Join([]string{storePrefixRules, req.Options.Namespace, ""}, joinKey)

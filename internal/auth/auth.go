@@ -9,7 +9,8 @@ const TokenCookieName = "micro-token"
 var SystemRules = []*auth.Rule{
 	&auth.Rule{
 		ID:       "default",
-		Scope:    "",
+		Scope:    auth.ScopePublic,
+		Access:   auth.AccessGranted,
 		Resource: &auth.Resource{Type: "*", Name: "*", Endpoint: "*"},
 	},
 }

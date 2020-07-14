@@ -24,11 +24,11 @@ func (a *Auth) List(ctx context.Context, req *pb.ListAccountsRequest, rsp *pb.Li
 
 	// authorize the request
 	if err := namespace.Authorize(ctx, req.Options.Namespace); err == namespace.ErrForbidden {
-		return errors.Forbidden("go.micro.auth", err.Error())
+		return errors.Forbidden("go.micro.auth.Accounts.List", err.Error())
 	} else if err == namespace.ErrUnauthorized {
-		return errors.Unauthorized("go.micro.auth", err.Error())
+		return errors.Unauthorized("go.micro.auth.Accounts.List", err.Error())
 	} else if err != nil {
-		return errors.InternalServerError("go.micro.auth", err.Error())
+		return errors.InternalServerError("go.micro.auth.Accounts.List", err.Error())
 	}
 
 	// setup the defaults incase none exist
