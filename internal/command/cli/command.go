@@ -189,7 +189,7 @@ func RegisterService(c *cli.Context, args []string) ([]byte, error) {
 		return nil, err
 	}
 
-	reg := *cmd.DefaultOptions().Registry
+	reg := *cmd.DefaultCmd.Options().Registry
 	reg.Init(service.WithClient(inclient.New(c)))
 	if err := reg.Register(srv); err != nil {
 		return nil, err
@@ -214,7 +214,7 @@ func DeregisterService(c *cli.Context, args []string) ([]byte, error) {
 		return nil, err
 	}
 
-	reg := *cmd.DefaultOptions().Registry
+	reg := *cmd.DefaultCmd.Options().Registry
 	reg.Init(service.WithClient(inclient.New(c)))
 	if err := reg.Deregister(srv); err != nil {
 		return nil, err
@@ -236,7 +236,7 @@ func GetService(c *cli.Context, args []string) ([]byte, error) {
 	var output []string
 	var srv []*registry.Service
 
-	reg := *cmd.DefaultOptions().Registry
+	reg := *cmd.DefaultCmd.Options().Registry
 	reg.Init(service.WithClient(inclient.New(c)))
 	srv, err = reg.GetService(args[0], registry.GetDomain(ns))
 	if err != nil {
@@ -307,7 +307,7 @@ func NetworkConnect(c *cli.Context, args []string) ([]byte, error) {
 		return nil, nil
 	}
 
-	cli := *cmd.DefaultOptions().Client
+	cli := *cmd.DefaultCmd.Options().Client
 
 	request := map[string]interface{}{
 		"nodes": []interface{}{
@@ -330,7 +330,7 @@ func NetworkConnect(c *cli.Context, args []string) ([]byte, error) {
 }
 
 func NetworkConnections(c *cli.Context) ([]byte, error) {
-	cli := *cmd.DefaultOptions().Client
+	cli := *cmd.DefaultCmd.Options().Client
 
 	request := map[string]interface{}{
 		"depth": 1,
@@ -376,7 +376,7 @@ func NetworkConnections(c *cli.Context) ([]byte, error) {
 }
 
 func NetworkGraph(c *cli.Context) ([]byte, error) {
-	cli := *cmd.DefaultOptions().Client
+	cli := *cmd.DefaultCmd.Options().Client
 
 	var rsp map[string]interface{}
 
@@ -391,7 +391,7 @@ func NetworkGraph(c *cli.Context) ([]byte, error) {
 }
 
 func NetworkNodes(c *cli.Context) ([]byte, error) {
-	cli := *cmd.DefaultOptions().Client
+	cli := *cmd.DefaultCmd.Options().Client
 
 	var rsp map[string]interface{}
 
@@ -433,7 +433,7 @@ func NetworkNodes(c *cli.Context) ([]byte, error) {
 }
 
 func NetworkRoutes(c *cli.Context) ([]byte, error) {
-	cli := (*cmd.DefaultOptions().Client)
+	cli := (*cmd.DefaultCmd.Options().Client)
 
 	query := map[string]string{}
 
@@ -518,7 +518,7 @@ func NetworkRoutes(c *cli.Context) ([]byte, error) {
 }
 
 func NetworkServices(c *cli.Context) ([]byte, error) {
-	cli := (*cmd.DefaultOptions().Client)
+	cli := (*cmd.DefaultCmd.Options().Client)
 
 	var rsp map[string]interface{}
 
@@ -566,7 +566,7 @@ func NetworkDNSResolve(c *cli.Context) ([]byte, error) {
 	request["name"] = c.String("domain")
 	request["type"] = c.String("type")
 
-	cli := (*cmd.DefaultOptions().Client)
+	cli := (*cmd.DefaultCmd.Options().Client)
 	req := cli.NewRequest("go.micro.network.dns", "Dns.Resolve", request, client.WithContentType("application/json"))
 	var rsp map[string][]*dns.Record
 	err := cli.Call(
@@ -618,7 +618,7 @@ func networkDNSHelper(action, address, domain, token string) error {
 		}
 	}
 
-	cli := (*cmd.DefaultOptions().Client)
+	cli := (*cmd.DefaultCmd.Options().Client)
 	req := cli.NewRequest("go.micro.network.dns", action, request, client.WithContentType("application/json"))
 	var rsp map[string]interface{}
 	err := cli.Call(
@@ -644,7 +644,7 @@ func ListServices(c *cli.Context) ([]byte, error) {
 		return nil, err
 	}
 
-	reg := *cmd.DefaultOptions().Registry
+	reg := *cmd.DefaultCmd.Options().Registry
 	reg.Init(service.WithClient(inclient.New(c)))
 	rsp, err = reg.ListServices(registry.ListDomain(ns))
 	if err != nil {
@@ -672,7 +672,7 @@ func Publish(c *cli.Context, args []string) error {
 	topic := args[0]
 	message := args[1]
 
-	cl := *cmd.DefaultOptions().Client
+	cl := *cmd.DefaultCmd.Options().Client
 	ct := func(o *client.MessageOptions) {
 		o.ContentType = "application/json"
 	}
@@ -766,12 +766,12 @@ func QueryHealth(c *cli.Context, args []string) ([]byte, error) {
 		return nil, err
 	}
 
-	req := (*cmd.DefaultOptions().Client).NewRequest(args[0], "Debug.Health", &proto.HealthRequest{})
+	req := (*cmd.DefaultCmd.Options().Client).NewRequest(args[0], "Debug.Health", &proto.HealthRequest{})
 
 	// if the address is specified then we just call it
 	if addr := c.String("address"); len(addr) > 0 {
 		rsp := &proto.HealthResponse{}
-		err := (*cmd.DefaultOptions().Client).Call(
+		err := (*cmd.DefaultCmd.Options().Client).Call(
 			context.Background(),
 			req,
 			rsp,
@@ -784,7 +784,7 @@ func QueryHealth(c *cli.Context, args []string) ([]byte, error) {
 	}
 
 	// otherwise get the service and call each instance individually
-	reg := *cmd.DefaultOptions().Registry
+	reg := *cmd.DefaultCmd.Options().Registry
 	reg.Init(service.WithClient(inclient.New(c)))
 	service, err := reg.GetService(args[0], registry.GetDomain(ns))
 	if err != nil {
@@ -813,7 +813,7 @@ func QueryHealth(c *cli.Context, args []string) ([]byte, error) {
 			var err error
 
 			// call using client
-			err = (*cmd.DefaultOptions().Client).Call(
+			err = (*cmd.DefaultCmd.Options().Client).Call(
 				context.Background(),
 				req,
 				rsp,
@@ -843,7 +843,7 @@ func QueryStats(c *cli.Context, args []string) ([]byte, error) {
 		return nil, err
 	}
 
-	reg := *cmd.DefaultOptions().Registry
+	reg := *cmd.DefaultCmd.Options().Registry
 	reg.Init(service.WithClient(inclient.New(c)))
 	service, err := reg.GetService(args[0], registry.GetDomain(ns))
 	if err != nil {
@@ -854,7 +854,7 @@ func QueryStats(c *cli.Context, args []string) ([]byte, error) {
 		return nil, errors.New("Service not found")
 	}
 
-	req := (*cmd.DefaultOptions().Client).NewRequest(service[0].Name, "Debug.Stats", &proto.StatsRequest{})
+	req := (*cmd.DefaultCmd.Options().Client).NewRequest(service[0].Name, "Debug.Stats", &proto.StatsRequest{})
 
 	var output []string
 
@@ -874,7 +874,7 @@ func QueryStats(c *cli.Context, args []string) ([]byte, error) {
 			var err error
 
 			// call using client
-			err = (*cmd.DefaultOptions().Client).Call(
+			err = (*cmd.DefaultCmd.Options().Client).Call(
 				context.Background(),
 				req,
 				rsp,

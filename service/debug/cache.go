@@ -20,7 +20,7 @@ type cached struct {
 
 func newCache(done <-chan bool) *cached {
 	c := &cached{
-		registry: cache.New(*cmd.DefaultOptions().Registry),
+		registry: cache.New(*cmd.DefaultCmd.Options().Registry),
 	}
 
 	// first scan

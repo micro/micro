@@ -29,7 +29,7 @@ func Read(ctx *cli.Context) error {
 		opts = append(opts, store.ReadPrefix())
 	}
 
-	store := *cmd.DefaultOptions().Store
+	store := *cmd.DefaultCmd.Options().Store
 	records, err := store.Read(ctx.Args().First(), opts...)
 	if err != nil {
 		if err.Error() == "not found" {
@@ -97,7 +97,7 @@ func Write(ctx *cli.Context) error {
 		record.Expiry = d
 	}
 
-	store := *cmd.DefaultOptions().Store
+	store := *cmd.DefaultCmd.Options().Store
 	if err := store.Write(record); err != nil {
 		return errors.Wrap(err, "couldn't write")
 	}
@@ -119,7 +119,7 @@ func List(ctx *cli.Context) error {
 	if ctx.Uint("offset") != 0 {
 		opts = append(opts, store.ListLimit(ctx.Uint("offset")))
 	}
-	store := *cmd.DefaultOptions().Store
+	store := *cmd.DefaultCmd.Options().Store
 	keys, err := store.List(opts...)
 	if err != nil {
 		return errors.Wrap(err, "couldn't list")
@@ -147,7 +147,7 @@ func Delete(ctx *cli.Context) error {
 	if len(ctx.Args().Slice()) == 0 {
 		return errors.New("key is required")
 	}
-	store := *cmd.DefaultOptions().Store
+	store := *cmd.DefaultCmd.Options().Store
 	if err := store.Delete(ctx.Args().First()); err != nil {
 		return errors.Wrapf(err, "couldn't delete key %s", ctx.Args().First())
 	}
@@ -163,7 +163,7 @@ func initStore(ctx *cli.Context) error {
 		opts = append(opts, store.Table(ctx.String("table")))
 	}
 	if len(opts) > 0 {
-		store := *cmd.DefaultOptions().Store
+		store := *cmd.DefaultCmd.Options().Store
 		if err := store.Init(opts...); err != nil {
 			return errors.Wrap(err, "couldn't reinitialise store with options")
 		}

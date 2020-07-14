@@ -20,7 +20,7 @@ import (
 // New initialises and returns a new trace service handler
 func New(done <-chan bool, windowSize int, services func() []*registry.Service) (*Trace, error) {
 	s := &Trace{
-		client:    *cmd.DefaultOptions().Client,
+		client:    *cmd.DefaultCmd.Options().Client,
 		snapshots: ring.New(windowSize),
 		services:  services,
 	}

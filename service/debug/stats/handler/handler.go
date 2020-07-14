@@ -18,7 +18,7 @@ import (
 // New initialises and returns a new Stats service handler
 func New(done <-chan bool, windowSize int, services func() []*registry.Service) (*Stats, error) {
 	s := &Stats{
-		client:    *cmd.DefaultOptions().Client,
+		client:    *cmd.DefaultCmd.Options().Client,
 		snapshots: ring.New(windowSize),
 		services:  services,
 	}
