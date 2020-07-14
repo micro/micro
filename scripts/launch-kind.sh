@@ -1,7 +1,7 @@
 # This is mostly intended to be triggered by CI
 # as it modifies the source code.
 
-git clone git@github.com:cloudflare/cfssl.git
+git clone https://github.com/cloudflare/cfssl.git
 pushd cfssl 
 make
 popd
