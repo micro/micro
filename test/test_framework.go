@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"math/rand"
+	"os"
 	"os/exec"
 	"path/filepath"
 	"runtime"
@@ -22,6 +23,7 @@ const (
 )
 
 var ignoreThisError = errors.New("Do not use this error")
+var k8sTest = os.Getenv("MICRO_K8S_SERVER") == "yes"
 
 type cmdFunc func() ([]byte, error)
 
@@ -105,10 +107,20 @@ type options struct {
 }
 
 func newServer(t *t, opts ...options) server {
+
 	min := 8000
 	max := 60000
 	portnum := rand.Intn(max-min) + min
 	fname := strings.Split(myCaller(), ".")[2]
+
+	if k8sTest {
+		return server{
+			t:             t,
+			envName:       fname,
+			containerName: fname,
+			portNum:       8081,
+		}
+	}
 
 	// kill container, ignore error because it might not exist,
 	// we dont care about this that much
@@ -145,7 +157,6 @@ func newServer(t *t, opts ...options) server {
 			"-e", "MICRO_AUTH_PUBLIC_KEY="+strings.Trim(string(pubKey), "\n"),
 			"micro", "server")
 	}
-	//fmt.Println("docker", "run", "--name", fname, fmt.Sprintf("-p=%v:8081", portnum), "micro", "server")
 	opt := options{}
 	if len(opts) > 0 {
 		opt = opts[0]
@@ -164,6 +175,9 @@ func newServer(t *t, opts ...options) server {
 // in case of error.
 func (s server) launch() error {
 	go func() {
+		if s.cmd == nil {
+			return
+		}
 		if err := s.cmd.Start(); err != nil {
 			s.t.t.Fatal(err)
 		}
@@ -196,7 +210,7 @@ func (s server) launch() error {
 		outp, err := exec.Command("micro", s.envFlag(), "list", "services").CombinedOutput()
 		if !strings.Contains(string(outp), "runtime") ||
 			!strings.Contains(string(outp), "registry") ||
-			!strings.Contains(string(outp), "api") ||
+			// !strings.Contains(string(outp), "api") ||
 			!strings.Contains(string(outp), "broker") ||
 			!strings.Contains(string(outp), "config") ||
 			!strings.Contains(string(outp), "debug") ||
@@ -222,6 +236,9 @@ func (s server) close() {
 	// reset back to the default namespace
 	namespace.Set("micro", s.envName)
 
+	if k8sTest {
+		return
+	}
 	exec.Command("docker", "kill", s.containerName).CombinedOutput()
 	if s.cmd.Process != nil {
 		s.cmd.Process.Signal(syscall.SIGKILL)
@@ -261,7 +278,7 @@ func (t *t) Fatalf(format string, values ...interface{}) {
 }
 
 func (t *t) Parallel() {
-	if t.counter == 0 && isParallel {
+	if t.counter == 0 && isParallel && !k8sTest {
 		t.t.Parallel()
 	}
 	t.counter++

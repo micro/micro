@@ -1,4 +1,4 @@
-// +build integration
+// +build integration k8sintegration
 
 package test
 
@@ -20,6 +20,9 @@ func TestServerModeCall(t *testing.T) {
 }
 
 func testServerModeCall(t *t) {
+	if k8sTest {
+		t.t.Skip("In k8s integration tests")
+	}
 	t.Parallel()
 	serv := newServer(t)
 
@@ -51,6 +54,9 @@ func TestRunLocalSource(t *testing.T) {
 }
 
 func testRunLocalSource(t *t) {
+	if k8sTest {
+		t.t.Skip("In k8s integration tests")
+	}
 	t.Parallel()
 	serv := newServer(t)
 	defer serv.close()
@@ -101,6 +107,9 @@ func TestRunAndKill(t *testing.T) {
 }
 
 func testRunAndKill(t *t) {
+	if k8sTest {
+		t.t.Skip("In k8s integration tests")
+	}
 	t.Parallel()
 	serv := newServer(t)
 	defer serv.close()
@@ -187,6 +196,9 @@ func TestLocalOutsideRepo(t *testing.T) {
 }
 
 func testLocalOutsideRepo(t *t) {
+	if k8sTest {
+		t.t.Skip("In k8s integration tests")
+	}
 	t.Parallel()
 	serv := newServer(t)
 	defer serv.close()
@@ -283,6 +295,8 @@ func testRunGithubSource(t *t) {
 		return
 	}
 
+	login(serv, t, "default", "password")
+
 	runCmd := exec.Command("micro", serv.envFlag(), "run", "github.com/micro/examples/helloworld")
 	outp, err := runCmd.CombinedOutput()
 	if err != nil {
@@ -331,6 +345,9 @@ func TestRunLocalUpdateAndCall(t *testing.T) {
 }
 
 func testRunLocalUpdateAndCall(t *t) {
+	if k8sTest {
+		t.t.Skip("In k8s integration tests")
+	}
 	t.Parallel()
 	serv := newServer(t)
 	defer serv.close()
@@ -580,6 +597,9 @@ func TestParentDependency(t *testing.T) {
 }
 
 func testParentDependency(t *t) {
+	if k8sTest {
+		t.t.Skip("In k8s integration tests")
+	}
 	t.Parallel()
 	serv := newServer(t)
 	defer serv.close()
