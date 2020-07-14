@@ -29,7 +29,7 @@ const (
 const (
 	// localProxyAddress is the default proxy address for environment local
 	// local env does not use other services so talking about a proxy
-	localProxyAddress = "none"
+	localProxyAddress = ""
 	// serverProxyAddress is the default proxy address for environment server
 	serverProxyAddress = "127.0.0.1:8081"
 	// platformProxyAddress is teh default proxy address for environment platform
@@ -198,9 +198,9 @@ func GetEnvByName(env string) Env {
 		return envir
 	}
 
-	// default to :443
+	// default to :8081 (the proxy port)
 	if _, port, _ := net.SplitHostPort(envir.ProxyAddress); len(port) == 0 {
-		envir.ProxyAddress = net.JoinHostPort(envir.ProxyAddress, "443")
+		envir.ProxyAddress = net.JoinHostPort(envir.ProxyAddress, "8081")
 	}
 
 	return envir

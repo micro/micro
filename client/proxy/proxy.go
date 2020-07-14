@@ -14,7 +14,6 @@ import (
 	"github.com/micro/go-micro/v2/auth"
 	bmem "github.com/micro/go-micro/v2/broker/memory"
 	mucli "github.com/micro/go-micro/v2/client"
-	"github.com/micro/go-micro/v2/config/cmd"
 	log "github.com/micro/go-micro/v2/logger"
 	"github.com/micro/go-micro/v2/proxy"
 
@@ -174,7 +173,7 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 		serverOpts = append(serverOpts, server.TLSConfig(config))
 	}
 
-	authFn := func() auth.Auth { return *cmd.DefaultOptions().Auth }
+	authFn := func() auth.Auth { return service.Options().Auth }
 	authOpt := server.WrapHandler(wrapper.AuthHandler(authFn))
 	serverOpts = append(serverOpts, authOpt)
 
