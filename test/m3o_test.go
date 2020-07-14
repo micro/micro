@@ -142,8 +142,8 @@ func testM3oSignupFlow(t *t) {
 		defer func() {
 			namespace.Remove(ns, serv.envName)
 		}()
-		if strings.Count(ns, "_") != 2 {
-			t.Fatalf("Expected 2 underscores in namespace but namespace is: %v", ns)
+		if strings.Count(ns, "-") != 2 {
+			t.Fatalf("Expected 2 dashes in namespace but namespace is: %v", ns)
 			return
 		}
 		t.t.Logf("Namespace set is %v", ns)
