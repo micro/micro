@@ -268,8 +268,6 @@ func (a *Auth) Token(ctx context.Context, req *pb.TokenRequest, rsp *pb.TokenRes
 	if len(req.RefreshToken) > 0 {
 		accID, err := a.accountIDForRefreshToken(req.Options.Namespace, req.RefreshToken)
 		if err == store.ErrNotFound {
-			ls, err := a.Options.Store.List()
-			logger.Infof("list: %v, err: %v", ls, err)
 			return errors.BadRequest("go.micro.auth", "Account can't be found for refresh token")
 		} else if err != nil {
 			return errors.InternalServerError("go.micro.auth", "Unable to lookup token: %v", err)
