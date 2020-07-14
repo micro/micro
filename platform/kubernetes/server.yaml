@@ -112,7 +112,6 @@ spec:
           value: "/certs/broker/cert.pem"
         - name: MICRO_BROKER_TLS_KEY
           value: "/certs/broker/key.pem"
-          value: "true"
         - name: MICRO_REGISTRY
           value: "etcd"
         - name: MICRO_REGISTRY_ADDRESS
