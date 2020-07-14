@@ -21,8 +21,9 @@ const (
 )
 
 var defaultRule = &auth.Rule{
-	ID:    "default",
-	Scope: auth.ScopePublic,
+	ID:     "default",
+	Scope:  auth.ScopePublic,
+	Access: auth.AccessGranted,
 	Resource: &auth.Resource{
 		Type:     "*",
 		Name:     "*",
@@ -193,7 +194,7 @@ func (r *Rules) List(ctx context.Context, req *pb.ListRequest, rsp *pb.ListRespo
 	}
 
 	// setup the defaults incase none exist
-	r.setupDefaultRules(namespace.FromContext(ctx))
+	r.setupDefaultRules(req.Options.Namespace)
 
 	// get the records from the store
 	prefix := strings.Join([]string{storePrefixRules, req.Options.Namespace, ""}, joinKey)
