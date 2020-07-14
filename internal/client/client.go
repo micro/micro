@@ -106,7 +106,7 @@ func (a *wrapper) getAccessToken(envName string, ctx *ccli.Context) error {
 	}
 
 	// Get new access token from refresh token if it's close to expiry
-	tok, err = a.authFromContext(a.context).Token(auth.WithToken(tok.RefreshToken))
+	tok, err = a.authFromContext(a.context).Token(auth.WithToken(tok.RefreshToken), auth.WithTokenIssuer(a.ns))
 	if err != nil {
 		return err
 	}
