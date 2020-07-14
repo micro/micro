@@ -137,11 +137,11 @@ func (a *Auth) Generate(ctx context.Context, req *pb.GenerateRequest, rsp *pb.Ge
 
 	// authorize the request
 	if err := namespace.Authorize(ctx, req.Options.Namespace); err == namespace.ErrForbidden {
-		return errors.Forbidden("go.micro.auth", err.Error())
+		return errors.Forbidden("go.micro.auth.Auth.Generate", err.Error())
 	} else if err == namespace.ErrUnauthorized {
-		return errors.Unauthorized("go.micro.auth", err.Error())
+		return errors.Unauthorized("go.micro.auth.Auth.Generate", err.Error())
 	} else if err != nil {
-		return errors.InternalServerError("go.micro.auth", err.Error())
+		return errors.InternalServerError("go.micro.auth.Auth.Generate", err.Error())
 	}
 
 	// check the user does not already exists
