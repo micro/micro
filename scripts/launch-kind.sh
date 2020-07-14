@@ -5,6 +5,7 @@ git clone https://github.com/cloudflare/cfssl.git
 pushd cfssl 
 make
 popd
+export PATH=$PATH:$(pwd)/cfssl/bin
 
 GO111MODULE=on go get github.com/mikefarah/yq/v3
 
