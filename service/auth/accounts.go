@@ -61,7 +61,13 @@ func createAccount(ctx *cli.Context) {
 		return
 	}
 
-	var options []auth.GenerateOption
+	ns, err := namespace.Get(util.GetEnv(ctx).Name)
+	if err != nil {
+		fmt.Printf("Error getting namespace: %v\n", err)
+		os.Exit(1)
+	}
+
+	options := []auth.GenerateOption{auth.WithIssuer(ns)}
 	if len(ctx.StringSlice("scopes")) > 0 {
 		options = append(options, auth.WithScopes(ctx.StringSlice("scopes")...))
 	}
@@ -77,6 +83,29 @@ func createAccount(ctx *cli.Context) {
 
 	json, _ := json.Marshal(acc)
 	fmt.Printf("Account created: %v\n", string(json))
+}
+
+func deleteAccount(ctx *cli.Context) {
+	if ctx.Args().Len() == 0 {
+		fmt.Println("Missing argument: ID")
+		return
+	}
+	client := accountsFromContext(ctx)
+
+	ns, err := namespace.Get(util.GetEnv(ctx).Name)
+	if err != nil {
+		fmt.Printf("Error getting namespace: %v\n", err)
+		os.Exit(1)
+	}
+
+	_, err = client.Delete(context.TODO(), &pb.DeleteAccountRequest{
+		Id:      ctx.Args().First(),
+		Options: &pb.Options{Namespace: ns},
+	})
+	if err != nil {
+		fmt.Printf("Error deleting account: %v\n", err)
+		os.Exit(1)
+	}
 }
 
 func accountsFromContext(ctx *cli.Context) pb.AccountsService {

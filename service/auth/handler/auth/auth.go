@@ -150,12 +150,6 @@ func (a *Auth) Generate(ctx context.Context, req *pb.GenerateRequest, rsp *pb.Ge
 		return errors.BadRequest("go.micro.auth", "Account with this ID already exists")
 	}
 
-	// Default to the current namespace as the scope. Once we add identity we can auto-generate
-	// these scopes and prevent users from accounts with any scope.
-	if len(req.Scopes) == 0 {
-		req.Scopes = []string{"namespace." + req.Options.Namespace}
-	}
-
 	// construct the account
 	acc := &auth.Account{
 		ID:       req.Id,
