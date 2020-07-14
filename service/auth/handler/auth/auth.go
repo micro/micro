@@ -150,12 +150,6 @@ func (a *Auth) Generate(ctx context.Context, req *pb.GenerateRequest, rsp *pb.Ge
 		return errors.BadRequest("go.micro.auth", "Account with this ID already exists")
 	}
 
-	// Default to the current namespace as the scope. Once we add identity we can auto-generate
-	// these scopes and prevent users from accounts with any scope.
-	if len(req.Scopes) == 0 {
-		req.Scopes = []string{"namespace." + req.Options.Namespace}
-	}
-
 	// construct the account
 	acc := &auth.Account{
 		ID:       req.Id,
@@ -213,7 +207,7 @@ func (a *Auth) createAccount(acc *auth.Account) error {
 func (a *Auth) Inspect(ctx context.Context, req *pb.InspectRequest, rsp *pb.InspectResponse) error {
 	acc, err := a.TokenProvider.Inspect(req.Token)
 	if err == token.ErrInvalidToken || err == token.ErrNotFound {
-		return errors.BadRequest("go.micro.auth", "Invalid token")
+		return errors.BadRequest("go.micro.auth", err.Error())
 	} else if err != nil {
 		return errors.InternalServerError("go.micro.auth", "Unable to inspect token: %v", err)
 	}
@@ -268,7 +262,7 @@ func (a *Auth) Token(ctx context.Context, req *pb.TokenRequest, rsp *pb.TokenRes
 	if len(req.RefreshToken) > 0 {
 		accID, err := a.accountIDForRefreshToken(req.Options.Namespace, req.RefreshToken)
 		if err == store.ErrNotFound {
-			return errors.BadRequest("go.micro.auth", "Invalid token")
+			return errors.BadRequest("go.micro.auth", "Account can't be found for refresh token")
 		} else if err != nil {
 			return errors.InternalServerError("go.micro.auth", "Unable to lookup token: %v", err)
 		}

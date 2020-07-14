@@ -54,16 +54,19 @@ func testM3oSignupFlow(t *t) {
 	outp, err := exec.Command("micro", serv.envFlag(), "run", getSrcString("M3O_INVITE_SVC", "github.com/micro/services/account/invite")).CombinedOutput()
 	if err != nil {
 		t.Fatal(string(outp))
+		return
 	}
 
 	outp, err = exec.Command("micro", serv.envFlag(), "run", getSrcString("M3O_SIGNUP_SVC", "github.com/micro/services/signup")).CombinedOutput()
 	if err != nil {
 		t.Fatal(string(outp))
+		return
 	}
 
 	outp, err = exec.Command("micro", serv.envFlag(), "run", getSrcString("M3O_STRIPE_SVC", "github.com/micro/services/payments/provider/stripe")).CombinedOutput()
 	if err != nil {
 		t.Fatal(string(outp))
+		return
 	}
 
 	if err := try("Find signup and stripe in list", t, func() ([]byte, error) {
@@ -139,11 +142,24 @@ func testM3oSignupFlow(t *t) {
 		defer func() {
 			namespace.Remove(ns, serv.envName)
 		}()
-		if strings.Count(ns, "_") != 2 {
-			t.Fatalf("Expected 2 underscores in namespace but namespace is: %v", ns)
+		if strings.Count(ns, "-") != 2 {
+			t.Fatalf("Expected 2 dashes in namespace but namespace is: %v", ns)
 			return
 		}
 		t.t.Logf("Namespace set is %v", ns)
+		try("Find verification token in logs", t, func() ([]byte, error) {
+			outp, err = exec.Command("micro", serv.envFlag(), "auth", "list", "accounts").CombinedOutput()
+			if err != nil {
+				return outp, err
+			}
+			if !strings.Contains(string(outp), "dobronszki@gmail.com") {
+				return outp, errors.New("Account not found")
+			}
+			if strings.Contains(string(outp), "default") {
+				return outp, errors.New("Default account should not be present in the namespace")
+			}
+			return outp, nil
+		}, 5*time.Second)
 	}()
 	go func() {
 		time.Sleep(20 * time.Second)
