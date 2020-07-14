@@ -50,6 +50,17 @@ type wrapper struct {
 	context      *ccli.Context
 }
 
+func (a *wrapper) Stream(ctx context.Context, req client.Request, opts ...client.CallOption) (client.Stream, error) {
+	if len(a.token) > 0 {
+		ctx = metadata.Set(ctx, "Authorization", auth.BearerScheme+a.token)
+	}
+	if len(a.proxyAddress) > 0 {
+		opts = append(opts, client.WithAddress(a.proxyAddress))
+	}
+	ctx = metadata.Set(ctx, "Micro-Namespace", a.ns)
+	return a.Client.Stream(ctx, req, opts...)
+}
+
 func (a *wrapper) Call(ctx context.Context, req client.Request, rsp interface{}, opts ...client.CallOption) error {
 	if len(a.token) > 0 {
 		ctx = metadata.Set(ctx, "Authorization", auth.BearerScheme+a.token)
