@@ -8,8 +8,16 @@ git version
 mkdir /app
 cd app
 
-REPO=$(echo $1 | cut -d/ -f -3)
-P=$(echo $1 | cut -d/ -f 4-)
+URL=$1
+if [[ $1 != *"github"* ]]; then
+  URL="github.com/micro/services/$URL"
+fi
+
+REPO=$(echo $URL | cut -d/ -f -3)
+P=$(echo $URL | cut -d/ -f 4-)
+
+echo "Repo is $REPO"
+echo "Path is $P"
 
 # clone the repo
 echo "Cloning $REPO"
@@ -19,4 +27,4 @@ cd $P
 
 # run the source
 echo "Running service"
-go run $1
+go run .
