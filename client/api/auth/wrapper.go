@@ -117,19 +117,21 @@ func (a authWrapper) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		// The account has the necessary permissions to access the resource
 		a.handler.ServeHTTP(w, req)
 		return
+	} else if err != auth.ErrForbidden {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 
 	// The account is set, but they don't have enough permissions, hence
 	// we return a forbidden error.
 	if acc != nil {
-		http.Error(w, "Forbidden request", 403)
+		http.Error(w, "Forbidden request", http.StatusForbidden)
 		return
 	}
 
 	// If there is no auth login url set, 401
 	loginURL := a.auth.Options().LoginURL
 	if loginURL == "" {
-		http.Error(w, "unauthorized request", 401)
+		http.Error(w, "unauthorized request", http.StatusUnauthorized)
 		return
 	}
 
