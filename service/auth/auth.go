@@ -353,6 +353,15 @@ func Commands(srvOpts ...micro.Option) []*cli.Command {
 								return nil
 							},
 						},
+						{
+							Name:  "account",
+							Usage: "Delete an auth account",
+							Flags: RuleFlags,
+							Action: func(ctx *cli.Context) error {
+								deleteAccount(ctx)
+								return nil
+							},
+						},
 					}),
 				},
 				{

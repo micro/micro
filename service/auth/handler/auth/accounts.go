@@ -60,6 +60,46 @@ func (a *Auth) List(ctx context.Context, req *pb.ListAccountsRequest, rsp *pb.Li
 	return nil
 }
 
+// Delete an auth account
+func (a *Auth) Delete(ctx context.Context, req *pb.DeleteAccountRequest, rsp *pb.DeleteAccountResponse) error {
+	// validate the request
+	if len(req.Id) == 0 {
+		return errors.BadRequest("go.micro.auth.Auth.Delete", "Missing ID")
+	}
+
+	// set defaults
+	if req.Options == nil {
+		req.Options = &pb.Options{}
+	}
+	if len(req.Options.Namespace) == 0 {
+		req.Options.Namespace = namespace.DefaultNamespace
+	}
+
+	// authorize the request
+	if err := namespace.Authorize(ctx, req.Options.Namespace); err == namespace.ErrForbidden {
+		return errors.Forbidden("go.micro.auth.Accounts.Delete", err.Error())
+	} else if err == namespace.ErrUnauthorized {
+		return errors.Unauthorized("go.micro.auth.Accounts.Delete", err.Error())
+	} else if err != nil {
+		return errors.InternalServerError("go.micro.auth.Accounts.Delete", err.Error())
+	}
+
+	// check the account exists
+	key := strings.Join([]string{storePrefixAccounts, req.Options.Namespace, req.Id}, joinKey)
+	if _, err := a.Options.Store.Read(key); err == store.ErrNotFound {
+		return errors.BadRequest("go.micro.auth.Accounts.Delete", "Account not found with this ID")
+	} else if err != nil {
+		return errors.BadRequest("go.micro.auth.Accounts.Delete", "Error querying accounts: %v", err)
+	}
+
+	// delete the account
+	if err := a.Options.Store.Delete(key); err != nil {
+		return errors.BadRequest("go.micro.auth.Accounts.Delete", "Error deleting account: %v", err)
+	}
+
+	return nil
+}
+
 func serializeAccount(a *auth.Account) *pb.Account {
 	return &pb.Account{
 		Id:       a.ID,
