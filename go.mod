@@ -19,7 +19,7 @@ require (
 	github.com/mattn/go-isatty v0.0.12 // indirect
 	github.com/micro/cli/v2 v2.1.2
 	github.com/micro/go-micro/v2 v2.9.1-0.20200714083546-3f4b58b58c21
-	github.com/micro/services v0.0.0-20200713152824-a0e07e456f94
+	github.com/micro/services v0.0.0-20200714102419-ca696f7051eb
 	github.com/miekg/dns v1.1.27
 	github.com/netdata/go-orchestrator v0.0.0-20190905093727-c793edba0e8f
 	github.com/olekukonko/tablewriter v0.0.4
