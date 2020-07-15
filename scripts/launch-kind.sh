@@ -9,8 +9,11 @@
 # Warning: This script will modify some yaml files so please don't commit the modifications
 set -e
 
-yq write -i platform/kubernetes/network/proxy.yaml "spec.template.spec.containers[0].env.(name==MICRO_ENABLE_ACME).value" '"false"'
-yq write -i platform/kubernetes/network/router.yaml "spec.template.spec.containers[0].env.(name==MICRO_ENABLE_ACME).value" '"false"'
+
+yq write -i platform/kubernetes/network/router.yaml "spec.template.spec.containers[0].env.(name==MICRO_ENABLE_ACME).value" '_false_'
+sed -e 's/_false_/"false"/g' -i bak platform/kubernetes/network/router.yaml
+yq write -i platform/kubernetes/network/proxy.yaml "spec.template.spec.containers[0].env.(name==MICRO_ENABLE_ACME).value" '_false_'
+sed -e 's/_false_/"false"/g' -i bak platform/kubernetes/network/proxy.yaml
 yq delete -i platform/kubernetes/network/proxy.yaml "spec.template.spec.containers[0].env.(name==CF_API_TOKEN)"
 
 pushd platform/kubernetes
@@ -19,3 +22,5 @@ popd
 
 # TODO 
 # how do we make it pull down this version of micro ?
+# Build and push to docker a named version
+# update the yamls
