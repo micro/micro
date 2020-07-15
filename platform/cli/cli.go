@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"syscall"
 	"time"
 
 	"github.com/micro/cli/v2"
@@ -17,6 +18,7 @@ import (
 	cliutil "github.com/micro/micro/v2/client/cli/util"
 	"github.com/micro/micro/v2/internal/client"
 	signupproto "github.com/micro/services/signup/proto/signup"
+	"golang.org/x/crypto/ssh/terminal"
 )
 
 // Signup flow for the Micro Platform
@@ -33,6 +35,21 @@ func Signup(ctx *cli.Context) {
 		email = strings.TrimSpace(email)
 	}
 
+	fmt.Print("Please enter your password: ")
+	bytePassword, _ := terminal.ReadPassword(int(syscall.Stdin))
+	password := string(bytePassword)
+	password = strings.TrimSpace(password)
+
+	fmt.Print("Please verify your password: ")
+	bytePasswordVer, _ := terminal.ReadPassword(int(syscall.Stdin))
+	passwordVer := string(bytePasswordVer)
+	passwordVer = strings.TrimSpace(passwordVer)
+
+	if password != passwordVer {
+		fmt.Println("Passwords do not match")
+		os.Exit(1)
+	}
+
 	// send a verification email to the user
 	signupService := signupproto.NewSignupService("go.micro.service.signup", client.New(ctx))
 	_, err := signupService.SendVerificationEmail(context.TODO(), &signupproto.SendVerificationEmailRequest{
@@ -44,13 +61,13 @@ func Signup(ctx *cli.Context) {
 	}
 
 	fmt.Print("We have sent you an email with a one time password. Please enter here: ")
-	password, _ := reader.ReadString('\n')
-	password = strings.TrimSpace(password)
+	otp, _ := reader.ReadString('\n')
+	otp = strings.TrimSpace(otp)
 
 	// verify the email and password entered
 	rsp, err := signupService.Verify(context.TODO(), &signupproto.VerifyRequest{
 		Email: email,
-		Token: password,
+		Token: otp,
 	})
 	if err != nil {
 		fmt.Println(err)
@@ -91,8 +108,9 @@ func Signup(ctx *cli.Context) {
 	// complete the signup flow
 	signupRsp, err := signupService.CompleteSignup(context.TODO(), &signupproto.CompleteSignupRequest{
 		Email:           email,
-		Token:           password,
+		Token:           otp,
 		PaymentMethodID: paymentMethodID,
+		Secret:          password,
 	})
 	if err != nil {
 		fmt.Println(err)

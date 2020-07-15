@@ -118,7 +118,8 @@ func testM3oSignupFlow(t *t) {
 		t.Fatal(string(outp))
 	}
 
-	cmd = exec.Command("micro", serv.envFlag(), "login", "--otp")
+	password := "PassWord1@"
+	cmd = exec.Command("micro", serv.envFlag(), "signup")
 	stdin, err = cmd.StdinPipe()
 	if err != nil {
 		log.Fatal(err)
@@ -160,6 +161,9 @@ func testM3oSignupFlow(t *t) {
 			}
 			return outp, nil
 		}, 5*time.Second)
+
+		// Try if micro login works with the password
+		login(serv, t, "dobronszki@gmail.com", password)
 	}()
 	go func() {
 		time.Sleep(20 * time.Second)
@@ -223,6 +227,19 @@ func testM3oSignupFlow(t *t) {
 	if err != nil {
 		t.Fatal(err)
 	}
+
+	// After the above step the CLI should ask for the password twice
+	time.Sleep(1 * time.Second)
+	_, err = io.WriteString(stdin, password+"\n")
+	if err != nil {
+		t.Fatal(err)
+	}
+	time.Sleep(1 * time.Second)
+	_, err = io.WriteString(stdin, password+"\n")
+	if err != nil {
+		t.Fatal(err)
+	}
+
 	// Don't wait if a test is already failed, this is a quirk of the
 	// test framework @todo fix this quirk
 	if t.failed {
