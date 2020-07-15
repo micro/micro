@@ -3,15 +3,13 @@
 package test
 
 import (
-	"encoding/json"
 	"errors"
 	"fmt"
 	"os/exec"
-	"strconv"
+	"strings"
 	"testing"
 	"time"
 
-	"github.com/micro/go-micro/v2/auth"
 	"github.com/micro/micro/v2/client/cli/namespace"
 	"github.com/micro/micro/v2/client/cli/token"
 )
@@ -154,38 +152,14 @@ func testNamespaceConfigIsolationSuite(serv server, t *t) {
 
 func login(serv server, t *t, email, password string) error {
 	return try("Logging in", t, func() ([]byte, error) {
-		readCmd := exec.Command("micro", serv.envFlag(), "call", "go.micro.auth", "Auth.Token", fmt.Sprintf(`{"id":"%v","secret":"%v"}`, email, password))
+		readCmd := exec.Command("micro", serv.envFlag(), "login", email, "--password", password)
 		outp, err := readCmd.CombinedOutput()
 		if err != nil {
 			return outp, err
 		}
-		rsp := map[string]interface{}{}
-		err = json.Unmarshal(outp, &rsp)
-		tok, ok := rsp["token"].(map[string]interface{})
-		if !ok {
-			return outp, errors.New("Can't find token")
+		if !strings.Contains(string(outp), "Success") {
+			t.Fatal("Login output does not contain 'Success'")
+			return
 		}
-		if _, ok = tok["access_token"].(string); !ok {
-			return outp, fmt.Errorf("Can't find access token")
-		}
-		if _, ok = tok["refresh_token"].(string); !ok {
-			return outp, fmt.Errorf("Can't find access token")
-		}
-		if _, ok = tok["refresh_token"].(string); !ok {
-			return outp, fmt.Errorf("Can't find refresh token")
-		}
-		if _, ok = tok["expiry"].(string); !ok {
-			return outp, fmt.Errorf("Can't find access token")
-		}
-		exp, err := strconv.ParseInt(tok["expiry"].(string), 10, 64)
-		if err != nil {
-			return nil, err
-		}
-		token.Save(serv.envName, &auth.Token{
-			AccessToken:  tok["access_token"].(string),
-			RefreshToken: tok["refresh_token"].(string),
-			Expiry:       time.Unix(exp, 0),
-		})
-		return outp, nil
-	}, 8*time.Second)
+	}, 4*time.Second)
 }

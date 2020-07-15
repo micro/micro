@@ -35,19 +35,23 @@ func Signup(ctx *cli.Context) {
 		email = strings.TrimSpace(email)
 	}
 
-	fmt.Print("Please enter your password: ")
-	bytePassword, _ := terminal.ReadPassword(int(syscall.Stdin))
-	password := string(bytePassword)
-	password = strings.TrimSpace(password)
+	password := ctx.String("password")
+	if len(password) == 0 {
+		fmt.Print("Please enter your password: ")
+		bytePw, _ := terminal.ReadPassword(int(syscall.Stdin))
+		pw := string(bytePw)
+		pw = strings.TrimSpace(pw)
 
-	fmt.Print("Please verify your password: ")
-	bytePasswordVer, _ := terminal.ReadPassword(int(syscall.Stdin))
-	passwordVer := string(bytePasswordVer)
-	passwordVer = strings.TrimSpace(passwordVer)
+		fmt.Print("Please verify your password: ")
+		bytePwVer, _ := terminal.ReadPassword(int(syscall.Stdin))
+		pwVer := string(bytePwVer)
+		pwVer = strings.TrimSpace(pwVer)
 
-	if password != passwordVer {
-		fmt.Println("Passwords do not match")
-		os.Exit(1)
+		if pw != pwVer {
+			fmt.Println("Passwords do not match")
+			os.Exit(1)
+		}
+		password = pw
 	}
 
 	// send a verification email to the user
@@ -157,6 +161,17 @@ func Commands(srvOpts ...micro.Option) []*cli.Command {
 				&cli.StringFlag{
 					Name:  "email",
 					Usage: "Email address to use for signup",
+				},
+				// In fact this is only here currently to help testing
+				// as the signup flow can't be automated yet.
+				// The testing breaks because we take the password
+				// with the `terminal` package that makes input invisible.
+				// That breaks tests though so password flag is used to get around tests.
+				// @todo maybe payment method token and email sent verification
+				// code should also be invisible. Problem for an other day.
+				&cli.StringFlag{
+					Name:  "password",
+					Usage: "Password for automated signups",
 				},
 			},
 		},

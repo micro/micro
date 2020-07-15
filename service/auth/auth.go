@@ -177,12 +177,16 @@ func login(ctx *cli.Context) {
 	}
 
 	authSrv := authFromContext(ctx)
-	password, err := getPassword()
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+	password := ctx.String("password")
+	if len(password) == 0 {
+		pw, err := getPassword()
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+		password = strings.TrimSpace(pw)
+		fmt.Println()
 	}
-	fmt.Println()
 	tok, err := authSrv.Token(auth.WithCredentials(email, password))
 	if err != nil {
 		fmt.Println(err)
@@ -314,8 +318,8 @@ func Commands(srvOpts ...micro.Option) []*cli.Command {
 					Usage: "Login/signup with a One Time Password.",
 				},
 				&cli.StringFlag{
-					Name:  "email",
-					Usage: "Email address to use for Login with OTP",
+					Name:  "password",
+					Usage: "Password for automated logins",
 				},
 			},
 		},

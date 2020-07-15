@@ -119,7 +119,7 @@ func testM3oSignupFlow(t *t) {
 	}
 
 	password := "PassWord1@"
-	cmd = exec.Command("micro", serv.envFlag(), "signup")
+	cmd = exec.Command("micro", serv.envFlag(), "signup", "--password", password)
 	stdin, err = cmd.StdinPipe()
 	if err != nil {
 		log.Fatal(err)
@@ -228,18 +228,6 @@ func testM3oSignupFlow(t *t) {
 		t.Fatal(err)
 	}
 
-	// After the above step the CLI should ask for the password twice
-	time.Sleep(1 * time.Second)
-	_, err = io.WriteString(stdin, password+"\n")
-	if err != nil {
-		t.Fatal(err)
-	}
-	time.Sleep(1 * time.Second)
-	_, err = io.WriteString(stdin, password+"\n")
-	if err != nil {
-		t.Fatal(err)
-	}
-
 	// Don't wait if a test is already failed, this is a quirk of the
 	// test framework @todo fix this quirk
 	if t.failed {
@@ -253,4 +241,18 @@ func getSrcString(envvar, dflt string) string {
 		return env
 	}
 	return dflt
+}
+
+func login(serv server, t *t, email, password string) error {
+	return try("Logging in", t, func() ([]byte, error) {
+		readCmd := exec.Command("micro", serv.envFlag(), "login", email, "--password", password)
+		outp, err := readCmd.CombinedOutput()
+		if err != nil {
+			return outp, err
+		}
+		if !strings.Contains(string(outp), "Success") {
+			t.Fatal("Login output does not contain 'Success'")
+			return
+		}
+	}, 4*time.Second)
 }
