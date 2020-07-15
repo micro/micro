@@ -5,15 +5,15 @@ import (
 	"fmt"
 
 	"github.com/micro/cli/v2"
-	"github.com/micro/go-micro/v2/cmd"
 	storeproto "github.com/micro/go-micro/v2/store/service/proto"
 	"github.com/micro/micro/v2/client/cli/namespace"
 	"github.com/micro/micro/v2/client/cli/util"
+	inclient "github.com/micro/micro/v2/internal/client"
 )
 
 // Databases is the entrypoint for micro store databases
 func Databases(ctx *cli.Context) error {
-	client := *cmd.DefaultCmd.Options().Client
+	client := inclient.New(ctx)
 	dbReq := client.NewRequest(ctx.String("store"), "Store.Databases", &storeproto.DatabasesRequest{})
 	dbRsp := &storeproto.DatabasesResponse{}
 	if err := client.Call(context.TODO(), dbReq, dbRsp); err != nil {
@@ -32,7 +32,7 @@ func Tables(ctx *cli.Context) error {
 		return err
 	}
 
-	client := *cmd.DefaultCmd.Options().Client
+	client := inclient.New(ctx)
 	tReq := client.NewRequest(ctx.String("store"), "Store.Tables", &storeproto.TablesRequest{
 		Database: ns,
 	})

@@ -15,6 +15,7 @@ import (
 	"github.com/micro/go-micro/v2/store"
 	"github.com/micro/micro/v2/client/cli/namespace"
 	"github.com/micro/micro/v2/client/cli/util"
+	inclient "github.com/micro/micro/v2/internal/client"
 	"github.com/pkg/errors"
 )
 
@@ -189,18 +190,20 @@ func Delete(ctx *cli.Context) error {
 }
 
 func initStore(ctx *cli.Context) error {
-	opts := []store.Option{}
+	opts := []store.Option{
+		store.WithClient(inclient.New(ctx)),
+	}
+
 	if len(ctx.String("database")) > 0 {
 		opts = append(opts, store.Database(ctx.String("database")))
 	}
 	if len(ctx.String("table")) > 0 {
 		opts = append(opts, store.Table(ctx.String("table")))
 	}
-	if len(opts) > 0 {
-		store := *cmd.DefaultCmd.Options().Store
-		if err := store.Init(opts...); err != nil {
-			return errors.Wrap(err, "couldn't reinitialise store with options")
-		}
+
+	store := *cmd.DefaultCmd.Options().Store
+	if err := store.Init(opts...); err != nil {
+		return errors.Wrap(err, "couldn't reinitialise store with options")
 	}
 	return nil
 }
