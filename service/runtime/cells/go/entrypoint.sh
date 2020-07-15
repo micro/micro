@@ -1,7 +1,6 @@
 #!/bin/dumb-init /bin/sh
 
 set -x  
-set -e
 
 git version
 
@@ -13,15 +12,38 @@ if [[ $1 != *"github"* ]]; then
   URL="github.com/micro/services/$URL"
 fi
 
+REF=""
+if [[ $URL == *"@"* ]]; then
+   # Save the ref
+  REF=$(echo $URL | cut -d@ -f 2-)
+  # URL should not contain the ref
+  URL=$(echo $URL | cut -d@ -f -1)
+fi
+
+if [[ $REF == "latest" ]]; then
+  REF="master"
+fi
+
 REPO=$(echo $URL | cut -d/ -f -3)
 P=$(echo $URL | cut -d/ -f 4-)
 
 echo "Repo is $REPO"
 echo "Path is $P"
+echo "Ref is $REF"
 
 # clone the repo
 echo "Cloning $REPO"
-git clone https://$REPO .
+git clone https://$REPO  --branch $REF --single-branch .
+if [ $? -eq 0 ]; then
+    echo "Successfully cloned branch"
+else
+    # Clone the full repo if the REF was not a branch.
+    # In case of a commit REF we will git reset later.
+    git clone https://$REPO .
+fi
+
+# Try to check out commit and do not care if it fails
+git reset --hard $REF
 
 cd $P
 
