@@ -9,9 +9,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/micro/go-micro/v2/auth"
 	"github.com/micro/go-micro/v2/errors"
-	"github.com/micro/go-micro/v2/logger"
 	"github.com/micro/go-micro/v2/store"
 	pb "github.com/micro/go-micro/v2/store/service/proto"
 	"github.com/micro/micro/v2/internal/namespace"
@@ -55,23 +53,15 @@ func (h *handler) List(ctx context.Context, req *pb.ListRequest, stream pb.Store
 
 	// authorize the request
 	if err := namespace.Authorize(ctx, req.Options.Database); err == namespace.ErrForbidden {
-		acc, _ := auth.AccountFromContext(ctx)
-		logger.Debugf("Error accessing: %v; %v", req.Options.Database, acc)
 		return errors.Forbidden("go.micro.store.Store.List", err.Error())
 	} else if err == namespace.ErrUnauthorized {
-		acc, _ := auth.AccountFromContext(ctx)
-		logger.Debugf("Error accessing: %v; %v", req.Options.Database, acc)
 		return errors.Unauthorized("go.micro.store.Store.List", err.Error())
 	} else if err != nil {
-		acc, _ := auth.AccountFromContext(ctx)
-		logger.Debugf("Error accessing: %v; %v", req.Options.Database, acc)
 		return errors.InternalServerError("go.micro.store.Store.List", err.Error())
 	}
 
 	// setup the store
 	if err := h.setupTable(req.Options.Database, req.Options.Table); err != nil {
-		acc, _ := auth.AccountFromContext(ctx)
-		logger.Debugf("Error accessing: %v; %v", req.Options.Database, acc)
 		return errors.InternalServerError("go.micro.store.Store.List", err.Error())
 	}
 
@@ -92,12 +82,8 @@ func (h *handler) List(ctx context.Context, req *pb.ListRequest, stream pb.Store
 	// list from the store
 	vals, err := h.store.List(opts...)
 	if err != nil && err == store.ErrNotFound {
-		acc, _ := auth.AccountFromContext(ctx)
-		logger.Debugf("Error accessing: %v; %v", req.Options.Database, acc)
 		return errors.NotFound("go.micro.store.Store.List", err.Error())
 	} else if err != nil {
-		acc, _ := auth.AccountFromContext(ctx)
-		logger.Debugf("Error accessing: %v; %v", req.Options.Database, acc)
 		return errors.InternalServerError("go.micro.store.Store.List", err.Error())
 	}
 
@@ -113,8 +99,6 @@ func (h *handler) List(ctx context.Context, req *pb.ListRequest, stream pb.Store
 		return nil
 	}
 	if err != nil {
-		acc, _ := auth.AccountFromContext(ctx)
-		logger.Debugf("Error accessing: %v; %v", req.Options.Database, acc)
 		return errors.InternalServerError("go.micro.store.Store.List", err.Error())
 	}
 	return nil
@@ -135,23 +119,15 @@ func (h *handler) Read(ctx context.Context, req *pb.ReadRequest, rsp *pb.ReadRes
 
 	// authorize the request
 	if err := namespace.Authorize(ctx, req.Options.Database); err == namespace.ErrForbidden {
-		acc, _ := auth.AccountFromContext(ctx)
-		logger.Debugf("Error accessing: %v; %v", req.Options.Database, acc)
 		return errors.Forbidden("go.micro.store.Store.Read", err.Error())
 	} else if err == namespace.ErrUnauthorized {
-		acc, _ := auth.AccountFromContext(ctx)
-		logger.Debugf("Error accessing: %v; %v", req.Options.Database, acc)
 		return errors.Unauthorized("go.micro.store.Store.Read", err.Error())
 	} else if err != nil {
-		acc, _ := auth.AccountFromContext(ctx)
-		logger.Debugf("Error accessing: %v; %v", req.Options.Database, acc)
 		return errors.InternalServerError("go.micro.store.Store.Read", err.Error())
 	}
 
 	// setup the store
 	if err := h.setupTable(req.Options.Database, req.Options.Table); err != nil {
-		acc, _ := auth.AccountFromContext(ctx)
-		logger.Debugf("Error accessing: %v; %v", req.Options.Database, acc)
 		return errors.InternalServerError("go.micro.store.Store.Read", err.Error())
 	}
 
@@ -166,12 +142,8 @@ func (h *handler) Read(ctx context.Context, req *pb.ReadRequest, rsp *pb.ReadRes
 	// read from the database
 	vals, err := h.store.Read(req.Key, opts...)
 	if err != nil && err == store.ErrNotFound {
-		acc, _ := auth.AccountFromContext(ctx)
-		logger.Debugf("Error accessing: %v; %v", req.Options.Database, acc)
 		return errors.NotFound("go.micro.store.Store.Read", err.Error())
 	} else if err != nil {
-		acc, _ := auth.AccountFromContext(ctx)
-		logger.Debugf("Error accessing: %v; %v", req.Options.Database, acc)
 		return errors.InternalServerError("go.micro.store.Store.Read", err.Error())
 	}
 
@@ -214,23 +186,15 @@ func (h *handler) Write(ctx context.Context, req *pb.WriteRequest, rsp *pb.Write
 
 	// authorize the request
 	if err := namespace.Authorize(ctx, req.Options.Database); err == namespace.ErrForbidden {
-		acc, _ := auth.AccountFromContext(ctx)
-		logger.Debugf("Error accessing: %v; %v", req.Options.Database, acc)
 		return errors.Forbidden("go.micro.store.Store.Write", err.Error())
 	} else if err == namespace.ErrUnauthorized {
-		acc, _ := auth.AccountFromContext(ctx)
-		logger.Debugf("Error accessing: %v; %v", req.Options.Database, acc)
 		return errors.Unauthorized("go.micro.store.Store.Write", err.Error())
 	} else if err != nil {
-		acc, _ := auth.AccountFromContext(ctx)
-		logger.Debugf("Error accessing: %v; %v", req.Options.Database, acc)
 		return errors.InternalServerError("go.micro.store.Store.Write", err.Error())
 	}
 
 	// setup the store
 	if err := h.setupTable(req.Options.Database, req.Options.Table); err != nil {
-		acc, _ := auth.AccountFromContext(ctx)
-		logger.Debugf("Error accessing: %v; %v", req.Options.Database, acc)
 		return errors.InternalServerError("go.micro.store.Store.Write", err.Error())
 	}
 
@@ -254,12 +218,8 @@ func (h *handler) Write(ctx context.Context, req *pb.WriteRequest, rsp *pb.Write
 	// write to the store
 	err := h.store.Write(record, opts...)
 	if err != nil && err == store.ErrNotFound {
-		acc, _ := auth.AccountFromContext(ctx)
-		logger.Debugf("Error accessing: %v; %v", req.Options.Database, acc)
 		return errors.NotFound("go.micro.store.Store.Write", err.Error())
 	} else if err != nil {
-		acc, _ := auth.AccountFromContext(ctx)
-		logger.Debugf("Error accessing: %v; %v", req.Options.Database, acc)
 		return errors.InternalServerError("go.micro.store.Store.Write", err.Error())
 	}
 
@@ -280,23 +240,15 @@ func (h *handler) Delete(ctx context.Context, req *pb.DeleteRequest, rsp *pb.Del
 
 	// authorize the request
 	if err := namespace.Authorize(ctx, req.Options.Database); err == namespace.ErrForbidden {
-		acc, _ := auth.AccountFromContext(ctx)
-		logger.Debugf("Error accessing: %v; %v", req.Options.Database, acc)
 		return errors.Forbidden("go.micro.store.Store.Delete", err.Error())
 	} else if err == namespace.ErrUnauthorized {
-		acc, _ := auth.AccountFromContext(ctx)
-		logger.Debugf("Error accessing: %v; %v", req.Options.Database, acc)
 		return errors.Unauthorized("go.micro.store.Store.Delete", err.Error())
 	} else if err != nil {
-		acc, _ := auth.AccountFromContext(ctx)
-		logger.Debugf("Error accessing: %v; %v", req.Options.Database, acc)
 		return errors.InternalServerError("go.micro.store.Store.Delete", err.Error())
 	}
 
 	// setup the store
 	if err := h.setupTable(req.Options.Database, req.Options.Table); err != nil {
-		acc, _ := auth.AccountFromContext(ctx)
-		logger.Debugf("Error accessing: %v; %v", req.Options.Database, acc)
 		return errors.InternalServerError("go.micro.store.Store.Delete", err.Error())
 	}
 
@@ -307,12 +259,8 @@ func (h *handler) Delete(ctx context.Context, req *pb.DeleteRequest, rsp *pb.Del
 
 	// delete from the store
 	if err := h.store.Delete(req.Key, opts...); err == store.ErrNotFound {
-		acc, _ := auth.AccountFromContext(ctx)
-		logger.Debugf("Error accessing: %v; %v", req.Options.Database, acc)
 		return errors.NotFound("go.micro.store.Store.Delete", err.Error())
 	} else if err != nil {
-		acc, _ := auth.AccountFromContext(ctx)
-		logger.Debugf("Error accessing: %v; %v", req.Options.Database, acc)
 		return errors.InternalServerError("go.micro.store.Store.Delete", err.Error())
 	}
 
@@ -323,16 +271,10 @@ func (h *handler) Delete(ctx context.Context, req *pb.DeleteRequest, rsp *pb.Del
 func (h *handler) Databases(ctx context.Context, req *pb.DatabasesRequest, rsp *pb.DatabasesResponse) error {
 	// authorize the request
 	if err := namespace.Authorize(ctx, defaultDatabase); err == namespace.ErrForbidden {
-		acc, _ := auth.AccountFromContext(ctx)
-		logger.Debugf("Error accessing: %v; %v", defaultDatabase, acc)
 		return errors.Forbidden("go.micro.store.Store.Databases", err.Error())
 	} else if err == namespace.ErrUnauthorized {
-		acc, _ := auth.AccountFromContext(ctx)
-		logger.Debugf("Error accessing: %v; %v", defaultDatabase, acc)
 		return errors.Unauthorized("go.micro.store.Store.Databases", err.Error())
 	} else if err != nil {
-		acc, _ := auth.AccountFromContext(ctx)
-		logger.Debugf("Error accessing: %v; %v", defaultDatabase, acc)
 		return errors.InternalServerError("go.micro.store.Store.Databases", err.Error())
 	}
 
@@ -363,16 +305,10 @@ func (h *handler) Tables(ctx context.Context, req *pb.TablesRequest, rsp *pb.Tab
 
 	// authorize the request
 	if err := namespace.Authorize(ctx, req.Database); err == namespace.ErrForbidden {
-		acc, _ := auth.AccountFromContext(ctx)
-		logger.Debugf("Error accessing: %v; %v", req.Database, acc)
 		return errors.Forbidden("go.micro.store.Store.Tables", err.Error())
 	} else if err == namespace.ErrUnauthorized {
-		acc, _ := auth.AccountFromContext(ctx)
-		logger.Debugf("Error accessing: %v; %v", req.Database, acc)
 		return errors.Unauthorized("go.micro.store.Store.Tables", err.Error())
 	} else if err != nil {
-		acc, _ := auth.AccountFromContext(ctx)
-		logger.Debugf("Error accessing: %v; %v", req.Database, acc)
 		return errors.InternalServerError("go.micro.store.Store.Tables", err.Error())
 	}
 
@@ -386,8 +322,6 @@ func (h *handler) Tables(ctx context.Context, req *pb.TablesRequest, rsp *pb.Tab
 	query := fmt.Sprintf("tables/%v/", req.Database)
 	recs, err := h.store.Read(query, opts...)
 	if err != nil {
-		acc, _ := auth.AccountFromContext(ctx)
-		logger.Debugf("Error accessing: %v; %v", req.Database, acc)
 		return errors.InternalServerError("go.micro.store.Store.Tables", err.Error())
 	}
 
