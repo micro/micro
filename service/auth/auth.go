@@ -319,7 +319,11 @@ func Commands(srvOpts ...micro.Option) []*cli.Command {
 				},
 				&cli.StringFlag{
 					Name:  "password",
-					Usage: "Password for automated logins",
+					Usage: "Password to use for login. If not provided, will be asked for during login. Useful for automated scripts",
+				},
+				&cli.StringFlag{
+					Name:  "email",
+					Usage: "Email address to use for login",
 				},
 			},
 		},

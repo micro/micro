@@ -152,14 +152,14 @@ func testNamespaceConfigIsolationSuite(serv server, t *t) {
 
 func login(serv server, t *t, email, password string) error {
 	return try("Logging in", t, func() ([]byte, error) {
-		readCmd := exec.Command("micro", serv.envFlag(), "login", email, "--password", password)
+		readCmd := exec.Command("micro", serv.envFlag(), "login", "--email", email, "--password", password)
 		outp, err := readCmd.CombinedOutput()
 		if err != nil {
 			return outp, err
 		}
 		if !strings.Contains(string(outp), "Success") {
-			t.Fatal("Login output does not contain 'Success'")
-			return
+			return outp, errors.New("Login output does not contain 'Success'")
 		}
+		return outp, err
 	}, 4*time.Second)
 }

@@ -171,7 +171,7 @@ func Commands(srvOpts ...micro.Option) []*cli.Command {
 				// code should also be invisible. Problem for an other day.
 				&cli.StringFlag{
 					Name:  "password",
-					Usage: "Password for automated signups",
+					Usage: "Password to use for login. If not provided, will be asked for during login. Useful for automated scripts",
 				},
 			},
 		},
