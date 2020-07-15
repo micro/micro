@@ -166,6 +166,9 @@ func runService(ctx *cli.Context, srvOpts ...micro.Option) {
 	} else {
 		// when using the micro/cells:go image, we pass the source as the argument
 		args = runtimeSource
+		if len(source.Ref) > 0 {
+			args += "@" + source.Ref
+		}
 	}
 
 	// specify the options
