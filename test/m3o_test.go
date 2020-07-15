@@ -251,8 +251,8 @@ func login(serv server, t *t, email, password string) error {
 			return outp, err
 		}
 		if !strings.Contains(string(outp), "Success") {
-			t.Fatal("Login output does not contain 'Success'")
-			return
+			return outp, errors.New("Login output does not contain 'Success'")
 		}
+		return outp, err
 	}, 4*time.Second)
 }
