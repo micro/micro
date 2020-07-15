@@ -35,25 +35,6 @@ func Signup(ctx *cli.Context) {
 		email = strings.TrimSpace(email)
 	}
 
-	password := ctx.String("password")
-	if len(password) == 0 {
-		fmt.Print("Please enter your password: ")
-		bytePw, _ := terminal.ReadPassword(int(syscall.Stdin))
-		pw := string(bytePw)
-		pw = strings.TrimSpace(pw)
-
-		fmt.Print("Please verify your password: ")
-		bytePwVer, _ := terminal.ReadPassword(int(syscall.Stdin))
-		pwVer := string(bytePwVer)
-		pwVer = strings.TrimSpace(pwVer)
-
-		if pw != pwVer {
-			fmt.Println("Passwords do not match")
-			os.Exit(1)
-		}
-		password = pw
-	}
-
 	// send a verification email to the user
 	signupService := signupproto.NewSignupService("go.micro.service.signup", client.New(ctx))
 	_, err := signupService.SendVerificationEmail(context.TODO(), &signupproto.SendVerificationEmailRequest{
@@ -103,7 +84,26 @@ func Signup(ctx *cli.Context) {
 		return
 	}
 
-	// for users who have to make payment
+	// For users who don't have an account yet, this flow will proceed
+
+	password := ctx.String("password")
+	if len(password) == 0 {
+		fmt.Print("Please enter your password: ")
+		bytePw, _ := terminal.ReadPassword(int(syscall.Stdin))
+		pw := string(bytePw)
+		pw = strings.TrimSpace(pw)
+
+		fmt.Print("Please verify your password: ")
+		bytePwVer, _ := terminal.ReadPassword(int(syscall.Stdin))
+		pwVer := string(bytePwVer)
+		pwVer = strings.TrimSpace(pwVer)
+
+		if pw != pwVer {
+			fmt.Println("Passwords do not match")
+			os.Exit(1)
+		}
+		password = pw
+	}
 
 	fmt.Print("Please go to https://m3o.com/subscribe and paste the acquired payment method id here: ")
 	paymentMethodID, _ := reader.ReadString('\n')
