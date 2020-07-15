@@ -31,18 +31,11 @@ func New(store store.Store) pb.StoreHandler {
 	}
 }
 
-// SetupFunc sets up database table given the name of the
-// database and table
-type SetupFunc = func(string, string) error
-
 type handler struct {
 	// store interface to use for executing requests
 	store store.Store
 
-	// setup a new store and error given a database and table name.
-	setup SetupFunc
-
-	// Store map
+	// local stores cache
 	sync.RWMutex
 	stores map[string]bool
 }
