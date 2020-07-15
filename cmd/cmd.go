@@ -378,7 +378,8 @@ func Setup(app *ccli.App, options ...micro.Option) {
 	// boot micro runtime
 	app.Action = func(c *ccli.Context) error {
 		if c.Args().Len() > 0 {
-			command := c.Args().First()
+			// prefix with micro
+			command := "micro-" + c.Args().First()
 
 			v, err := exec.LookPath(command)
 			if err != nil {
