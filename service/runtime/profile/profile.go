@@ -63,6 +63,7 @@ func Platform() []string {
 		"MICRO_NETWORK=service",
 		"MICRO_REGISTRY=service",
 		"MICRO_RUNTIME=service",
+		"MICRO_ROUTER=service",
 		"MICRO_STORE=service",
 		// now set the addresses
 		"MICRO_AUTH_ADDRESS=micro-auth.default.svc:8010",
