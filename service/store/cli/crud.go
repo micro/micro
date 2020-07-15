@@ -35,7 +35,7 @@ func Read(ctx *cli.Context) error {
 	}
 
 	opts := []store.ReadOption{
-		store.ReadFrom(ns, ""),
+		store.ReadFrom(ns, ctx.String("table")),
 	}
 	if ctx.Bool("prefix") {
 		opts = append(opts, store.ReadPrefix())
@@ -116,7 +116,7 @@ func Write(ctx *cli.Context) error {
 	}
 
 	s := *cmd.DefaultCmd.Options().Store
-	if err := s.Write(record, store.WriteTo(ns, "")); err != nil {
+	if err := s.Write(record, store.WriteTo(ns, ctx.String("table"))); err != nil {
 		return errors.Wrap(err, "couldn't write")
 	}
 	return nil
@@ -135,7 +135,7 @@ func List(ctx *cli.Context) error {
 	}
 
 	opts := []store.ListOption{
-		store.ListFrom(ns, ""),
+		store.ListFrom(ns, ctx.String("table")),
 	}
 	if ctx.Bool("prefix") {
 		opts = append(opts, store.ListPrefix(ctx.Args().First()))
@@ -183,7 +183,7 @@ func Delete(ctx *cli.Context) error {
 	}
 
 	s := *cmd.DefaultCmd.Options().Store
-	if err := s.Delete(ctx.Args().First(), store.DeleteFrom(ns, "")); err != nil {
+	if err := s.Delete(ctx.Args().First(), store.DeleteFrom(ns, ctx.String("table"))); err != nil {
 		return errors.Wrapf(err, "couldn't delete key %s", ctx.Args().First())
 	}
 	return nil
