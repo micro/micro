@@ -4,7 +4,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/micro/go-micro/v2/config/cmd"
+	"github.com/micro/go-micro/v2/cmd"
 	log "github.com/micro/go-micro/v2/logger"
 	"github.com/micro/go-micro/v2/registry"
 	"github.com/micro/go-micro/v2/registry/cache"
@@ -20,7 +20,7 @@ type cached struct {
 
 func newCache(done <-chan bool) *cached {
 	c := &cached{
-		registry: cache.New(*cmd.DefaultOptions().Registry),
+		registry: cache.New(*cmd.DefaultCmd.Options().Registry),
 	}
 
 	// first scan
