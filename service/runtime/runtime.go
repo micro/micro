@@ -112,6 +112,7 @@ func Flags() []cli.Flag {
 		&cli.StringFlag{
 			Name:  "image",
 			Usage: "Set the image to use for the container",
+			Value: "micro/cells:go",
 		},
 		&cli.StringFlag{
 			Name:  "command",
