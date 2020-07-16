@@ -30,6 +30,24 @@ var (
 	Tunnel = "tun:0"
 	// The tunnel token
 	Token = "micro"
+	// Flags specific to the tunnel service
+	Flags = []cli.Flag{
+		&cli.StringFlag{
+			Name:    "id",
+			Usage:   "Id of the tunnel used as the internal dial/listen address.",
+			EnvVars: []string{"MICRO_TUNNEL_ID"},
+		},
+		&cli.StringFlag{
+			Name:    "server",
+			Usage:   "Set the micro tunnel server address. This can be a comma separated list.",
+			EnvVars: []string{"MICRO_TUNNEL_SERVER"},
+		},
+		&cli.StringFlag{
+			Name:    "token",
+			Usage:   "Set the micro tunnel token for authentication",
+			EnvVars: []string{"MICRO_TUNNEL_TOKEN"},
+		},
+	}
 )
 
 // Run runs the micro server
@@ -158,49 +176,4 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 	if err := t.Close(); err != nil {
 		log.Errorf("Tunnel error stopping tunnel: %v", err)
 	}
-}
-
-func Commands(options ...micro.Option) []*cli.Command {
-	command := &cli.Command{
-		Name:  "tunnel",
-		Usage: "Run the micro network tunnel",
-		Flags: []cli.Flag{
-			&cli.StringFlag{
-				Name:    "address",
-				Usage:   "Set the micro tunnel address :8083",
-				EnvVars: []string{"MICRO_TUNNEL_ADDRESS"},
-			},
-			&cli.StringFlag{
-				Name:    "id",
-				Usage:   "Id of the tunnel used as the internal dial/listen address.",
-				EnvVars: []string{"MICRO_TUNNEL_ID"},
-			},
-			&cli.StringFlag{
-				Name:    "server",
-				Usage:   "Set the micro tunnel server address. This can be a comma separated list.",
-				EnvVars: []string{"MICRO_TUNNEL_SERVER"},
-			},
-			&cli.StringFlag{
-				Name:    "token",
-				Usage:   "Set the micro tunnel token for authentication",
-				EnvVars: []string{"MICRO_TUNNEL_TOKEN"},
-			},
-		},
-		Action: func(ctx *cli.Context) error {
-			Run(ctx, options...)
-			return nil
-		},
-	}
-
-	for _, p := range Plugins() {
-		if cmds := p.Commands(); len(cmds) > 0 {
-			command.Subcommands = append(command.Subcommands, cmds...)
-		}
-
-		if flags := p.Flags(); len(flags) > 0 {
-			command.Flags = append(command.Flags, flags...)
-		}
-	}
-
-	return []*cli.Command{command}
 }

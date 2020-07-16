@@ -26,7 +26,6 @@ import (
 
 	// services
 	"github.com/micro/micro/v2/service/auth"
-	"github.com/micro/micro/v2/service/broker"
 	"github.com/micro/micro/v2/service/config"
 	"github.com/micro/micro/v2/service/debug"
 	"github.com/micro/micro/v2/service/network"
@@ -358,9 +357,7 @@ func Setup(app *ccli.App, options ...micro.Option) {
 	app.Commands = append(app.Commands, auth.Commands()...)
 	app.Commands = append(app.Commands, bot.Commands()...)
 	app.Commands = append(app.Commands, cli.Commands()...)
-	app.Commands = append(app.Commands, broker.Commands(options...)...)
 	app.Commands = append(app.Commands, proxy.Commands(options...)...)
-	app.Commands = append(app.Commands, tunnel.Commands(options...)...)
 	app.Commands = append(app.Commands, network.Commands(options...)...)
 	app.Commands = append(app.Commands, registry.Commands(options...)...)
 	app.Commands = append(app.Commands, debug.Commands(options...)...)

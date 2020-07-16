@@ -21,6 +21,15 @@ var (
 	Name = "go.micro.debug"
 	// Address of the service
 	Address = ":8089"
+	// Flags specific to the debug service
+	Flags = []cli.Flag{
+		&cli.IntFlag{
+			Name:    "window",
+			Usage:   "Specifies how many seconds of stats snapshots to retain in memory",
+			EnvVars: []string{"MICRO_DEBUG_WINDOW"},
+			Value:   60,
+		},
+	}
 )
 
 func Run(ctx *cli.Context, srvOpts ...micro.Option) {
@@ -121,27 +130,6 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 // Commands populates the debug commands
 func Commands(options ...micro.Option) []*cli.Command {
 	command := []*cli.Command{
-		{
-			Name:  "debug",
-			Usage: "Run the micro debug service",
-			Flags: []cli.Flag{
-				&cli.StringFlag{
-					Name:    "address",
-					Usage:   "Set the registry http address e.g 0.0.0.0:8089",
-					EnvVars: []string{"MICRO_SERVER_ADDRESS"},
-				},
-				&cli.IntFlag{
-					Name:    "window",
-					Usage:   "Specifies how many seconds of stats snapshots to retain in memory",
-					EnvVars: []string{"MICRO_DEBUG_WINDOW"},
-					Value:   60,
-				},
-			},
-			Action: func(ctx *cli.Context) error {
-				Run(ctx, options...)
-				return nil
-			},
-		},
 		{
 			Name:  "trace",
 			Usage: "Get tracing info from a service",

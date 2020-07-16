@@ -16,7 +16,6 @@ import (
 	"github.com/micro/micro/v2/client/cli/util"
 	"github.com/micro/micro/v2/internal/client"
 	cliconfig "github.com/micro/micro/v2/internal/config"
-	"github.com/micro/micro/v2/internal/helper"
 	"github.com/micro/micro/v2/service/config/handler"
 )
 
@@ -24,8 +23,21 @@ var (
 	// Service name
 	Name = "go.micro.config"
 	// Default database store
-	Database    = "store"
-	configFlags = []cli.Flag{
+	Database = "store"
+	// Flags specific to the config service
+	Flags = []cli.Flag{
+		&cli.StringFlag{
+			Name:    "namespace",
+			EnvVars: []string{"MICRO_CONFIG_NAMESPACE"},
+			Usage:   "Set the namespace used by the Config Service e.g. go.micro.srv.config",
+		},
+		&cli.StringFlag{
+			Name:    "watch_topic",
+			EnvVars: []string{"MICRO_CONFIG_WATCH_TOPIC"},
+			Usage:   "watch the change event.",
+		},
+	}
+	subcommandFlags = []cli.Flag{
 		&cli.BoolFlag{
 			Name:  "local",
 			Usage: "Connect to local user micro config file and not to micro server config",
@@ -218,38 +230,19 @@ func Commands(options ...micro.Option) []*cli.Command {
 				Name:   "get",
 				Usage:  "Get a value; micro config get key",
 				Action: getConfig,
-				Flags:  configFlags,
+				Flags:  subcommandFlags,
 			},
 			{
 				Name:   "set",
 				Usage:  "Set a key-val; micro config set key val",
 				Action: setConfig,
-				Flags:  configFlags,
+				Flags:  subcommandFlags,
 			},
 			{
 				Name:   "del",
 				Usage:  "Delete a value; micro config del key",
 				Action: delConfig,
-				Flags:  configFlags,
-			},
-		},
-		Action: func(ctx *cli.Context) error {
-			if err := helper.UnexpectedSubcommand(ctx); err != nil {
-				return err
-			}
-			Run(ctx, options...)
-			return nil
-		},
-		Flags: []cli.Flag{
-			&cli.StringFlag{
-				Name:    "namespace",
-				EnvVars: []string{"MICRO_CONFIG_NAMESPACE"},
-				Usage:   "Set the namespace used by the Config Service e.g. go.micro.srv.config",
-			},
-			&cli.StringFlag{
-				Name:    "watch_topic",
-				EnvVars: []string{"MICRO_CONFIG_WATCH_TOPIC"},
-				Usage:   "watch the change event.",
+				Flags:  subcommandFlags,
 			},
 		},
 	}

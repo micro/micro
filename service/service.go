@@ -12,10 +12,15 @@ import (
 	"github.com/micro/go-micro/v2/proxy/grpc"
 	"github.com/micro/go-micro/v2/proxy/http"
 	"github.com/micro/go-micro/v2/proxy/mucp"
-
 	rt "github.com/micro/go-micro/v2/runtime"
 	"github.com/micro/go-micro/v2/server"
 	"github.com/micro/micro/v2/internal/helper"
+
+	// services
+	"github.com/micro/micro/v2/service/auth"
+	"github.com/micro/micro/v2/service/broker"
+	"github.com/micro/micro/v2/service/config"
+	"github.com/micro/micro/v2/service/debug"
 	"github.com/micro/micro/v2/service/handler/exec"
 	"github.com/micro/micro/v2/service/handler/file"
 	"github.com/micro/micro/v2/service/health"
@@ -24,6 +29,7 @@ import (
 	"github.com/micro/micro/v2/service/router"
 	"github.com/micro/micro/v2/service/runtime"
 	"github.com/micro/micro/v2/service/store"
+	"github.com/micro/micro/v2/service/tunnel"
 )
 
 func Run(ctx *cli.Context, opts ...micro.Option) {
@@ -158,6 +164,40 @@ func Commands(options ...micro.Option) []*cli.Command {
 		},
 		Subcommands: []*cli.Command{
 			{
+				Name:  "auth",
+				Usage: "Run micro auth",
+				Action: func(ctx *cli.Context) error {
+					auth.Run(ctx)
+					return nil
+				},
+			},
+			{
+				Name:  "broker",
+				Usage: "Run micro broker",
+				Action: func(ctx *cli.Context) error {
+					broker.Run(ctx)
+					return nil
+				},
+			},
+			{
+				Name:  "config",
+				Usage: "Run micro config",
+				Flags: config.Flags,
+				Action: func(ctx *cli.Context) error {
+					config.Run(ctx)
+					return nil
+				},
+			},
+			{
+				Name:  "debug",
+				Usage: "Run micro debug",
+				Flags: debug.Flags,
+				Action: func(ctx *cli.Context) error {
+					debug.Run(ctx)
+					return nil
+				},
+			},
+			{
 				Name:  "health",
 				Usage: "Run micro health",
 				Flags: health.Flags,
@@ -216,6 +256,18 @@ func Commands(options ...micro.Option) []*cli.Command {
 						return err
 					}
 					store.Run(ctx, options...)
+					return nil
+				},
+			},
+			{
+				Name:  "tunnel",
+				Usage: "Run micro tunnel",
+				Flags: tunnel.Flags,
+				Action: func(ctx *cli.Context) error {
+					if err := helper.UnexpectedSubcommand(ctx); err != nil {
+						return err
+					}
+					tunnel.Run(ctx, options...)
 					return nil
 				},
 			},
