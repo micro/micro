@@ -365,20 +365,36 @@ func Setup(app *ccli.App, options ...micro.Option) {
 	// boot micro runtime
 	app.Action = func(c *ccli.Context) error {
 		if c.Args().Len() > 0 {
-			// prefix with micro
-			command := "micro-" + c.Args().First()
-
-			v, err := exec.LookPath(command)
-			if err != nil {
-				fmt.Println(helper.UnexpectedCommand(c))
-				os.Exit(1)
+			// if an executable is available with the name of
+			// the command, execute it with the arguments from
+			// index 1 on.
+			v, err := exec.LookPath("micro-" + c.Args().First())
+			if err == nil {
+				ce := exec.Command(v, c.Args().Slice()[1:]...)
+				ce.Stdout = os.Stdout
+				ce.Stderr = os.Stderr
+				return ce.Run()
 			}
 
-			// execute the command
-			ce := exec.Command(v, c.Args().Slice()[1:]...)
-			ce.Stdout = os.Stdout
-			ce.Stderr = os.Stderr
-			return ce.Run()
+			// lookup the service, e.g. "micro config set" would
+			// firstly check to see if the service "go.micro.config"
+			// exists within the current namespace, then it would
+			// execute the Config.Set RPC, setting the flags in the
+			// request.
+			if srv, err := lookupService(c); err != nil {
+				fmt.Printf("Error querying registry for service: %v", err)
+				os.Exit(1)
+			} else if srv != nil && c.Args().Len() == 1 {
+				fmt.Println(formatServiceUsage(srv, c.Args().First()))
+				os.Exit(1)
+			} else if srv != nil {
+				if err := callService(srv, c); err != nil {
+					fmt.Println(err)
+					os.Exit(1)
+				}
+				os.Exit(0)
+			}
+
 		}
 		fmt.Println(helper.MissingCommand(c))
 		os.Exit(1)
