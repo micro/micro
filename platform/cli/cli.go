@@ -13,6 +13,7 @@ import (
 	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro/v2"
 	"github.com/micro/go-micro/v2/auth"
+	cl "github.com/micro/go-micro/v2/client"
 	clinamespace "github.com/micro/micro/v2/client/cli/namespace"
 	clitoken "github.com/micro/micro/v2/client/cli/token"
 	cliutil "github.com/micro/micro/v2/client/cli/util"
@@ -39,7 +40,7 @@ func Signup(ctx *cli.Context) {
 	signupService := signupproto.NewSignupService("go.micro.service.signup", client.New(ctx))
 	_, err := signupService.SendVerificationEmail(context.TODO(), &signupproto.SendVerificationEmailRequest{
 		Email: email,
-	})
+	}, cl.WithRequestTimeout(10*time.Second))
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
@@ -53,7 +54,7 @@ func Signup(ctx *cli.Context) {
 	rsp, err := signupService.Verify(context.TODO(), &signupproto.VerifyRequest{
 		Email: email,
 		Token: otp,
-	})
+	}, cl.WithRequestTimeout(10*time.Second))
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
@@ -62,6 +63,7 @@ func Signup(ctx *cli.Context) {
 	// Already registered users can just get logged in.
 	tok := rsp.AuthToken
 	if rsp.AuthToken != nil {
+
 		err = clinamespace.Add(rsp.Namespace, env.Name)
 		if err != nil {
 			fmt.Println(err)
@@ -120,7 +122,7 @@ func Signup(ctx *cli.Context) {
 		Token:           otp,
 		PaymentMethodID: paymentMethodID,
 		Secret:          password,
-	})
+	}, cl.WithRequestTimeout(30*time.Second))
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
