@@ -118,7 +118,8 @@ func testM3oSignupFlow(t *t) {
 		t.Fatal(string(outp))
 	}
 
-	cmd = exec.Command("micro", serv.envFlag(), "login", "--otp")
+	password := "PassWord1@"
+	cmd = exec.Command("micro", serv.envFlag(), "signup", "--password", password)
 	stdin, err = cmd.StdinPipe()
 	if err != nil {
 		log.Fatal(err)
@@ -147,7 +148,7 @@ func testM3oSignupFlow(t *t) {
 			return
 		}
 		t.t.Logf("Namespace set is %v", ns)
-		try("Find verification token in logs", t, func() ([]byte, error) {
+		try("Find account", t, func() ([]byte, error) {
 			outp, err = exec.Command("micro", serv.envFlag(), "auth", "list", "accounts").CombinedOutput()
 			if err != nil {
 				return outp, err
@@ -160,6 +161,7 @@ func testM3oSignupFlow(t *t) {
 			}
 			return outp, nil
 		}, 5*time.Second)
+		login(serv, t, "dobronszki@gmail.com", password)
 	}()
 	go func() {
 		time.Sleep(20 * time.Second)
@@ -223,6 +225,7 @@ func testM3oSignupFlow(t *t) {
 	if err != nil {
 		t.Fatal(err)
 	}
+
 	// Don't wait if a test is already failed, this is a quirk of the
 	// test framework @todo fix this quirk
 	if t.failed {
@@ -236,4 +239,18 @@ func getSrcString(envvar, dflt string) string {
 		return env
 	}
 	return dflt
+}
+
+func login(serv server, t *t, email, password string) error {
+	return try("Logging in", t, func() ([]byte, error) {
+		readCmd := exec.Command("micro", serv.envFlag(), "login", "--email", email, "--password", password)
+		outp, err := readCmd.CombinedOutput()
+		if err != nil {
+			return outp, err
+		}
+		if !strings.Contains(string(outp), "Success") {
+			return outp, errors.New("Login output does not contain 'Success'")
+		}
+		return outp, err
+	}, 4*time.Second)
 }

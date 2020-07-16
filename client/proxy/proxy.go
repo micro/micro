@@ -25,7 +25,6 @@ import (
 	sgrpc "github.com/micro/go-micro/v2/server/grpc"
 	"github.com/micro/go-micro/v2/sync/memory"
 	"github.com/micro/go-micro/v2/util/mux"
-	"github.com/micro/go-micro/v2/util/wrapper"
 	"github.com/micro/micro/v2/internal/helper"
 )
 
@@ -173,8 +172,9 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 		serverOpts = append(serverOpts, server.TLSConfig(config))
 	}
 
+	// wrap the proxy using the proxy's authHandler
 	authFn := func() auth.Auth { return service.Options().Auth }
-	authOpt := server.WrapHandler(wrapper.AuthHandler(authFn))
+	authOpt := server.WrapHandler(authHandler(authFn))
 	serverOpts = append(serverOpts, authOpt)
 
 	// set proxy

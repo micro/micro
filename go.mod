@@ -18,8 +18,8 @@ require (
 	github.com/hashicorp/go-version v1.2.1
 	github.com/mattn/go-isatty v0.0.12 // indirect
 	github.com/micro/cli/v2 v2.1.2
-	github.com/micro/go-micro/v2 v2.9.1-0.20200715134431-7d41c2224ed1
-	github.com/micro/services v0.0.0-20200714200709-c1d3a09d4098
+	github.com/micro/go-micro/v2 v2.9.1-0.20200716094938-15052de41a69
+	github.com/micro/services v0.0.0-20200715134902-819e0ec2948d
 	github.com/miekg/dns v1.1.27
 	github.com/netdata/go-orchestrator v0.0.0-20190905093727-c793edba0e8f
 	github.com/olekukonko/tablewriter v0.0.4
