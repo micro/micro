@@ -23,6 +23,7 @@ func testStore(t *t) {
 		return
 	}
 
+	login(serv, t, "default", "password")
 	// Execute first command in read to wait for store service
 	// to start up
 	if err := try("Calling micro store read", t, func() ([]byte, error) {
