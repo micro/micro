@@ -16,6 +16,7 @@ import (
 	"github.com/micro/go-micro/v2/auth/token/jwt"
 	"github.com/micro/go-micro/v2/cmd"
 	log "github.com/micro/go-micro/v2/logger"
+	"github.com/micro/micro/v2/client/cli/namespace"
 	clitoken "github.com/micro/micro/v2/client/cli/token"
 	cliutil "github.com/micro/micro/v2/client/cli/util"
 	"github.com/micro/micro/v2/internal/client"
@@ -177,6 +178,12 @@ func login(ctx *cli.Context) {
 	}
 
 	authSrv := authFromContext(ctx)
+	ns, err := namespace.Get(env.Name)
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+
 	password := ctx.String("password")
 	if len(password) == 0 {
 		pw, err := getPassword()
@@ -187,7 +194,7 @@ func login(ctx *cli.Context) {
 		password = strings.TrimSpace(pw)
 		fmt.Println()
 	}
-	tok, err := authSrv.Token(auth.WithCredentials(email, password))
+	tok, err := authSrv.Token(auth.WithCredentials(email, password), auth.WithTokenIssuer(ns))
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)

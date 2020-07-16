@@ -148,7 +148,7 @@ func testM3oSignupFlow(t *t) {
 			return
 		}
 		t.t.Logf("Namespace set is %v", ns)
-		try("Find verification token in logs", t, func() ([]byte, error) {
+		try("Find account", t, func() ([]byte, error) {
 			outp, err = exec.Command("micro", serv.envFlag(), "auth", "list", "accounts").CombinedOutput()
 			if err != nil {
 				return outp, err
@@ -161,9 +161,6 @@ func testM3oSignupFlow(t *t) {
 			}
 			return outp, nil
 		}, 5*time.Second)
-
-		// Try if micro login works with the password
-		login(serv, t, "dobronszki@gmail.com", password)
 	}()
 	go func() {
 		time.Sleep(20 * time.Second)
