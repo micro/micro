@@ -57,11 +57,6 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 		prof = profile.Platform()
 	}
 
-	// Init plugins
-	for _, p := range Plugins() {
-		p.Init(ctx)
-	}
-
 	if len(ctx.String("address")) > 0 {
 		Address = ctx.String("address")
 	}
@@ -217,16 +212,6 @@ func Commands(options ...micro.Option) []*cli.Command {
 				return nil
 			},
 		},
-	}
-
-	for _, p := range Plugins() {
-		if cmds := p.Commands(); len(cmds) > 0 {
-			command[0].Subcommands = append(command[0].Subcommands, cmds...)
-		}
-
-		if flags := p.Flags(); len(flags) > 0 {
-			command[0].Flags = append(command[0].Flags, flags...)
-		}
 	}
 
 	return command

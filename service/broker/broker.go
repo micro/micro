@@ -28,11 +28,6 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 		Address = ctx.String("address")
 	}
 
-	// Init plugins
-	for _, p := range Plugins() {
-		p.Init(ctx)
-	}
-
 	// service opts
 	srvOpts = append(srvOpts, micro.Name(Name))
 	if i := time.Duration(ctx.Int("register_ttl")); i > 0 {

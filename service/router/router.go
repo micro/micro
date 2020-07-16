@@ -168,11 +168,6 @@ func (r *rtr) Close() error {
 func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 	log.Init(log.WithFields(map[string]interface{}{"service": "router"}))
 
-	// Init plugins
-	for _, p := range Plugins() {
-		p.Init(ctx)
-	}
-
 	if len(ctx.String("server_name")) > 0 {
 		Name = ctx.String("server_name")
 	}

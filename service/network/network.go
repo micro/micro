@@ -86,11 +86,6 @@ var (
 func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 	log.Init(log.WithFields(map[string]interface{}{"service": "network"}))
 
-	// Init plugins
-	for _, p := range Plugins() {
-		p.Init(ctx)
-	}
-
 	if len(ctx.String("server_name")) > 0 {
 		Name = ctx.String("server_name")
 	}
@@ -258,16 +253,6 @@ func Commands(options ...micro.Option) []*cli.Command {
 	command := &cli.Command{
 		Name:        "network",
 		Subcommands: mcli.NetworkCommands(),
-	}
-
-	for _, p := range Plugins() {
-		if cmds := p.Commands(); len(cmds) > 0 {
-			command.Subcommands = append(command.Subcommands, cmds...)
-		}
-
-		if flags := p.Flags(); len(flags) > 0 {
-			command.Flags = append(command.Flags, flags...)
-		}
 	}
 
 	return []*cli.Command{command}
