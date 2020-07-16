@@ -18,6 +18,8 @@ import (
 	"github.com/micro/micro/v2/internal/helper"
 	"github.com/micro/micro/v2/service/handler/exec"
 	"github.com/micro/micro/v2/service/handler/file"
+	"github.com/micro/micro/v2/service/health"
+	"github.com/micro/micro/v2/service/network"
 	"github.com/micro/micro/v2/service/registry"
 	"github.com/micro/micro/v2/service/router"
 	"github.com/micro/micro/v2/service/runtime"
@@ -156,8 +158,47 @@ func Commands(options ...micro.Option) []*cli.Command {
 		},
 		Subcommands: []*cli.Command{
 			{
+				Name:  "health",
+				Usage: "Run micro health",
+				Flags: health.Flags,
+				Action: func(ctx *cli.Context) error {
+					health.Run(ctx)
+					return nil
+				},
+			},
+			{
+				Name:  "network",
+				Usage: "Run micro network",
+				Action: func(ctx *cli.Context) error {
+					if err := helper.UnexpectedSubcommand(ctx); err != nil {
+						return err
+					}
+					network.Run(ctx, options...)
+					return nil
+				},
+			},
+			{
+				Name:  "registry",
+				Usage: "Run micro registry",
+				Action: func(ctx *cli.Context) error {
+					if err := helper.UnexpectedSubcommand(ctx); err != nil {
+						return err
+					}
+					registry.Run(ctx, options...)
+					return nil
+				},
+			},
+			{
+				Name:  "router",
+				Usage: "Run micro network router",
+				Action: func(ctx *cli.Context) error {
+					router.Run(ctx, options...)
+					return nil
+				},
+			},
+			{
 				Name:  "runtime",
-				Usage: "Run the micro runtime",
+				Usage: "Run micro runtime",
 				Flags: runtime.Flags,
 				Action: func(ctx *cli.Context) error {
 					if err := helper.UnexpectedSubcommand(ctx); err != nil {
@@ -169,31 +210,12 @@ func Commands(options ...micro.Option) []*cli.Command {
 			},
 			{
 				Name:  "store",
-				Usage: "Run the micro store",
+				Usage: "Run micro store",
 				Action: func(ctx *cli.Context) error {
 					if err := helper.UnexpectedSubcommand(ctx); err != nil {
 						return err
 					}
 					store.Run(ctx, options...)
-					return nil
-				},
-			},
-			{
-				Name:  "registry",
-				Usage: "Run the micro registry",
-				Action: func(ctx *cli.Context) error {
-					if err := helper.UnexpectedSubcommand(ctx); err != nil {
-						return err
-					}
-					registry.Run(ctx, options...)
-					return nil
-				},
-			},
-			{
-				Name:  "router",
-				Usage: "Run the micro network router",
-				Action: func(ctx *cli.Context) error {
-					router.Run(ctx, options...)
 					return nil
 				},
 			},

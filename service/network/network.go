@@ -26,8 +26,6 @@ import (
 	"github.com/micro/go-micro/v2/util/mux"
 	mcli "github.com/micro/micro/v2/client/cli"
 	"github.com/micro/micro/v2/internal/helper"
-	"github.com/micro/micro/v2/service/network/api"
-	netdns "github.com/micro/micro/v2/service/network/dns"
 	"github.com/micro/micro/v2/service/network/handler"
 )
 
@@ -44,6 +42,44 @@ var (
 	Resolver = "registry"
 	// The tunnel token
 	Token = "micro"
+	// Flags specific to the network
+	Flags = []cli.Flag{
+		&cli.StringFlag{
+			Name:    "advertise",
+			Usage:   "Set the micro network address to advertise",
+			EnvVars: []string{"MICRO_NETWORK_ADVERTISE"},
+		},
+		&cli.StringFlag{
+			Name:    "gateway",
+			Usage:   "Set the default gateway",
+			EnvVars: []string{"MICRO_NETWORK_GATEWAY"},
+		},
+		&cli.StringFlag{
+			Name:    "network",
+			Usage:   "Set the micro network name: go.micro",
+			EnvVars: []string{"MICRO_NETWORK"},
+		},
+		&cli.StringFlag{
+			Name:    "nodes",
+			Usage:   "Set the micro network nodes to connect to. This can be a comma separated list.",
+			EnvVars: []string{"MICRO_NETWORK_NODES"},
+		},
+		&cli.StringFlag{
+			Name:    "token",
+			Usage:   "Set the micro network token for authentication",
+			EnvVars: []string{"MICRO_NETWORK_TOKEN"},
+		},
+		&cli.StringFlag{
+			Name:    "resolver",
+			Usage:   "Set the micro network resolver. This can be a comma separated list.",
+			EnvVars: []string{"MICRO_NETWORK_RESOLVER"},
+		},
+		&cli.StringFlag{
+			Name:    "advertise_strategy",
+			Usage:   "Set the route advertise strategy; all, best, local, none",
+			EnvVars: []string{"MICRO_NETWORK_ADVERTISE_STRATEGY"},
+		},
+	}
 )
 
 // Run runs the micro server
@@ -220,104 +256,8 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 
 func Commands(options ...micro.Option) []*cli.Command {
 	command := &cli.Command{
-		Name:  "network",
-		Usage: "Run the micro network node",
-		Flags: []cli.Flag{
-			&cli.StringFlag{
-				Name:    "address",
-				Usage:   "Set the micro network address :8085",
-				EnvVars: []string{"MICRO_NETWORK_ADDRESS"},
-			},
-			&cli.StringFlag{
-				Name:    "advertise",
-				Usage:   "Set the micro network address to advertise",
-				EnvVars: []string{"MICRO_NETWORK_ADVERTISE"},
-			},
-			&cli.StringFlag{
-				Name:    "gateway",
-				Usage:   "Set the default gateway",
-				EnvVars: []string{"MICRO_NETWORK_GATEWAY"},
-			},
-			&cli.StringFlag{
-				Name:    "network",
-				Usage:   "Set the micro network name: go.micro",
-				EnvVars: []string{"MICRO_NETWORK"},
-			},
-			&cli.StringFlag{
-				Name:    "nodes",
-				Usage:   "Set the micro network nodes to connect to. This can be a comma separated list.",
-				EnvVars: []string{"MICRO_NETWORK_NODES"},
-			},
-			&cli.StringFlag{
-				Name:    "token",
-				Usage:   "Set the micro network token for authentication",
-				EnvVars: []string{"MICRO_NETWORK_TOKEN"},
-			},
-			&cli.StringFlag{
-				Name:    "resolver",
-				Usage:   "Set the micro network resolver. This can be a comma separated list.",
-				EnvVars: []string{"MICRO_NETWORK_RESOLVER"},
-			},
-			&cli.StringFlag{
-				Name:    "advertise_strategy",
-				Usage:   "Set the route advertise strategy; all, best, local, none",
-				EnvVars: []string{"MICRO_NETWORK_ADVERTISE_STRATEGY"},
-			},
-		},
-		Subcommands: append([]*cli.Command{
-			{
-				Name:        "api",
-				Usage:       "Run the network api",
-				Description: "Run the network api",
-				Action: func(ctx *cli.Context) error {
-					api.Run(ctx)
-					return nil
-				},
-			},
-			{
-				Name:        "dns",
-				Usage:       "Start a DNS resolver service that registers core nodes in DNS",
-				Description: "Start a DNS resolver service that registers core nodes in DNS",
-				Flags: []cli.Flag{
-					&cli.StringFlag{
-						Name:    "provider",
-						Usage:   "The DNS provider to use. Currently, only cloudflare is implemented",
-						EnvVars: []string{"MICRO_NETWORK_DNS_PROVIDER"},
-						Value:   "cloudflare",
-					},
-					&cli.StringFlag{
-						Name:    "api-token",
-						Usage:   "The provider's API Token.",
-						EnvVars: []string{"MICRO_NETWORK_DNS_API_TOKEN"},
-					},
-					&cli.StringFlag{
-						Name:    "zone-id",
-						Usage:   "The provider's Zone ID.",
-						EnvVars: []string{"MICRO_NETWORK_DNS_ZONE_ID"},
-					},
-					&cli.StringFlag{
-						Name:    "token",
-						Usage:   "Shared secret that must be presented to the service to authorize requests.",
-						EnvVars: []string{"MICRO_NETWORK_DNS_TOKEN"},
-					},
-				},
-				Action: func(ctx *cli.Context) error {
-					if err := helper.UnexpectedSubcommand(ctx); err != nil {
-						return err
-					}
-					netdns.Run(ctx)
-					return nil
-				},
-				Subcommands: mcli.NetworkDNSCommands(),
-			},
-		}, mcli.NetworkCommands()...),
-		Action: func(ctx *cli.Context) error {
-			if err := helper.UnexpectedSubcommand(ctx); err != nil {
-				return err
-			}
-			Run(ctx, options...)
-			return nil
-		},
+		Name:        "network",
+		Subcommands: mcli.NetworkCommands(),
 	}
 
 	for _, p := range Plugins() {
