@@ -122,7 +122,7 @@ func testWrongCommands(t *t) {
 		t.Fatal("Wrong command should error")
 	}
 
-	if !strings.Contains(string(outp), "Unrecognized micro command") {
+	if !strings.Contains(string(outp), "No command provided to micro") {
 		t.Fatalf("Unexpected output for unrecognized command: %v", string(outp))
 	}
 
