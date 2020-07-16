@@ -12,10 +12,14 @@ import (
 	"github.com/micro/go-micro/v2/proxy/grpc"
 	"github.com/micro/go-micro/v2/proxy/http"
 	"github.com/micro/go-micro/v2/proxy/mucp"
-	"github.com/micro/go-micro/v2/runtime"
+
+	rt "github.com/micro/go-micro/v2/runtime"
 	"github.com/micro/go-micro/v2/server"
+	"github.com/micro/micro/v2/internal/helper"
 	"github.com/micro/micro/v2/service/handler/exec"
 	"github.com/micro/micro/v2/service/handler/file"
+	"github.com/micro/micro/v2/service/runtime"
+	"github.com/micro/micro/v2/service/store"
 )
 
 func Run(ctx *cli.Context, opts ...micro.Option) {
@@ -75,25 +79,25 @@ func Run(ctx *cli.Context, opts ...micro.Option) {
 
 	// run the service if asked to
 	if ctx.Args().Len() > 0 {
-		args := []runtime.CreateOption{
-			runtime.WithCommand(ctx.Args().Slice()...),
-			runtime.WithOutput(os.Stdout),
+		args := []rt.CreateOption{
+			rt.WithCommand(ctx.Args().Slice()...),
+			rt.WithOutput(os.Stdout),
 		}
 
 		// create new local runtime
-		r := runtime.NewRuntime()
+		r := rt.NewRuntime()
 
 		// start the runtime
 		r.Start()
 
 		// register the service
-		r.Create(&runtime.Service{
+		r.Create(&rt.Service{
 			Name: name,
 		}, args...)
 
 		// stop the runtime
 		defer func() {
-			r.Delete(&runtime.Service{
+			r.Delete(&rt.Service{
 				Name: name,
 			})
 			r.Stop()
@@ -146,6 +150,31 @@ func Commands(options ...micro.Option) []*cli.Command {
 				Name:    "metadata",
 				Usage:   "Add metadata as key-value pairs describing the service e.g owner=john@example.com",
 				EnvVars: []string{"MICRO_SERVICE_METADATA"},
+			},
+		},
+		Subcommands: []*cli.Command{
+			{
+				Name:  "runtime",
+				Usage: "Run the micro runtime",
+				Flags: runtime.Flags,
+				Action: func(ctx *cli.Context) error {
+					if err := helper.UnexpectedSubcommand(ctx); err != nil {
+						return err
+					}
+					runtime.Run(ctx, options...)
+					return nil
+				},
+			},
+			{
+				Name:  "store",
+				Usage: "Run the micro store",
+				Action: func(ctx *cli.Context) error {
+					if err := helper.UnexpectedSubcommand(ctx); err != nil {
+						return err
+					}
+					store.Run(ctx, options...)
+					return nil
+				},
 			},
 		},
 	}

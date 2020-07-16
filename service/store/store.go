@@ -6,7 +6,6 @@ import (
 	log "github.com/micro/go-micro/v2/logger"
 	pb "github.com/micro/go-micro/v2/store/service/proto"
 	mcli "github.com/micro/micro/v2/client/cli"
-	"github.com/micro/micro/v2/internal/helper"
 	"github.com/micro/micro/v2/service/store/handler"
 )
 
@@ -18,7 +17,7 @@ var (
 )
 
 // Run runs the micro server
-func Run(ctx *cli.Context, srvOpts ...micro.Option) {
+func Run(ctx *cli.Context, srvOpts ...micro.Option) error {
 	log.Init(log.WithFields(map[string]interface{}{"service": "store"}))
 
 	// Init plugins
@@ -47,27 +46,14 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 	if err := service.Run(); err != nil {
 		log.Fatal(err)
 	}
+
+	return nil
 }
 
 // Commands is the cli interface for the store service
 func Commands(options ...micro.Option) []*cli.Command {
 	command := &cli.Command{
-		Name:  "store",
-		Usage: "Run the micro store service",
-		Flags: []cli.Flag{
-			&cli.StringFlag{
-				Name:    "address",
-				Usage:   "Set the micro tunnel address :8002",
-				EnvVars: []string{"MICRO_SERVER_ADDRESS"},
-			},
-		},
-		Action: func(ctx *cli.Context) error {
-			if err := helper.UnexpectedSubcommand(ctx); err != nil {
-				return err
-			}
-			Run(ctx, options...)
-			return nil
-		},
+		Name:        "store",
 		Subcommands: mcli.StoreCommands(),
 	}
 

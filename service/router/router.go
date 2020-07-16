@@ -23,6 +23,24 @@ var (
 	Network = router.DefaultNetwork
 	// Topic is router adverts topic
 	Topic = "go.micro.router.adverts"
+	// Flags specific to the router
+	Flags = []cli.Flag{
+		&cli.StringFlag{
+			Name:    "network",
+			Usage:   "Set the micro network name: local",
+			EnvVars: []string{"MICRO_NETWORK_NAME"},
+		},
+		&cli.StringFlag{
+			Name:    "gateway",
+			Usage:   "Set the micro default gateway address. Defaults to none.",
+			EnvVars: []string{"MICRO_GATEWAY_ADDRESS"},
+		},
+		&cli.StringFlag{
+			Name:    "advertise_strategy",
+			Usage:   "Set the advertise strategy; all, best, local, none",
+			EnvVars: []string{"MICRO_ROUTER_ADVERTISE_STRATEGY"},
+		},
+	}
 )
 
 // Sub processes router events
@@ -266,28 +284,6 @@ func Commands(options ...micro.Option) []*cli.Command {
 	command := &cli.Command{
 		Name:  "router",
 		Usage: "Run the micro network router",
-		Flags: []cli.Flag{
-			&cli.StringFlag{
-				Name:    "address",
-				Usage:   "Set the micro router address :9093",
-				EnvVars: []string{"MICRO_SERVER_ADDRESS"},
-			},
-			&cli.StringFlag{
-				Name:    "network",
-				Usage:   "Set the micro network name: local",
-				EnvVars: []string{"MICRO_NETWORK_NAME"},
-			},
-			&cli.StringFlag{
-				Name:    "gateway",
-				Usage:   "Set the micro default gateway address. Defaults to none.",
-				EnvVars: []string{"MICRO_GATEWAY_ADDRESS"},
-			},
-			&cli.StringFlag{
-				Name:    "advertise_strategy",
-				Usage:   "Set the advertise strategy; all, best, local, none",
-				EnvVars: []string{"MICRO_ROUTER_ADVERTISE_STRATEGY"},
-			},
-		},
 		Action: func(ctx *cli.Context) error {
 			Run(ctx, options...)
 			return nil
