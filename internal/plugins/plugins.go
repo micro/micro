@@ -2,7 +2,7 @@
 package plugins
 
 import (
-	"github.com/micro/go-micro/v2/config/cmd"
+	"github.com/micro/go-micro/v2/cmd"
 
 	// import specific plugins
 	ckStore "github.com/micro/go-micro/v2/store/cockroach"

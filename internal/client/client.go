@@ -12,7 +12,7 @@ import (
 	srvAuth "github.com/micro/go-micro/v2/auth/service"
 	"github.com/micro/go-micro/v2/client"
 	"github.com/micro/go-micro/v2/client/grpc"
-	"github.com/micro/go-micro/v2/config/cmd"
+	"github.com/micro/go-micro/v2/cmd"
 	"github.com/micro/go-micro/v2/metadata"
 	"github.com/micro/micro/v2/client/cli/namespace"
 	clitoken "github.com/micro/micro/v2/client/cli/token"
@@ -106,7 +106,7 @@ func (a *wrapper) getAccessToken(envName string, ctx *ccli.Context) error {
 	}
 
 	// Get new access token from refresh token if it's close to expiry
-	tok, err = a.authFromContext(a.context).Token(auth.WithToken(tok.RefreshToken))
+	tok, err = a.authFromContext(a.context).Token(auth.WithToken(tok.RefreshToken), auth.WithTokenIssuer(a.ns))
 	if err != nil {
 		return err
 	}

@@ -9,7 +9,7 @@ import (
 
 	ccli "github.com/micro/cli/v2"
 	"github.com/micro/go-micro/v2"
-	"github.com/micro/go-micro/v2/config/cmd"
+	"github.com/micro/go-micro/v2/cmd"
 	gostore "github.com/micro/go-micro/v2/store"
 	"github.com/micro/micro/v2/plugin"
 	"github.com/micro/micro/v2/server"
@@ -365,7 +365,8 @@ func Setup(app *ccli.App, options ...micro.Option) {
 	// boot micro runtime
 	app.Action = func(c *ccli.Context) error {
 		if c.Args().Len() > 0 {
-			command := c.Args().First()
+			// prefix with micro
+			command := "micro-" + c.Args().First()
 
 			v, err := exec.LookPath(command)
 			if err != nil {

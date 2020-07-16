@@ -12,8 +12,8 @@ import (
 
 	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro/v2/client"
+	"github.com/micro/go-micro/v2/cmd"
 	cbytes "github.com/micro/go-micro/v2/codec/bytes"
-	"github.com/micro/go-micro/v2/config/cmd"
 	cliutil "github.com/micro/micro/v2/client/cli/util"
 	clic "github.com/micro/micro/v2/internal/command/cli"
 )
@@ -184,8 +184,8 @@ func streamService(c *cli.Context, args []string) ([]byte, error) {
 	// ignore error
 	json.Unmarshal([]byte(strings.Join(args[2:], " ")), &request)
 
-	req := (*cmd.DefaultOptions().Client).NewRequest(service, endpoint, request, client.WithContentType("application/json"))
-	stream, err := (*cmd.DefaultOptions().Client).Stream(context.Background(), req)
+	req := (*cmd.DefaultCmd.Options().Client).NewRequest(service, endpoint, request, client.WithContentType("application/json"))
+	stream, err := (*cmd.DefaultCmd.Options().Client).Stream(context.Background(), req)
 	if err != nil {
 		return nil, fmt.Errorf("error calling %s.%s: %v", service, endpoint, err)
 	}

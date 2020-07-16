@@ -15,15 +15,15 @@ var (
 	prompt = "micro> "
 
 	commands = map[string]*command{
-		"services":   {"services", "List services in the registry", listServices},
-		"quit":   {"quit", "Exit the CLI", quit},
-		"exit":   {"exit", "Exit the CLI", quit},
-		"call":   {"call", "Call a service", callService},
-		"list":   {"list", "List services, peers or routes", list},
-		"get":    {"get", "Get service info", getService},
-		"stream": {"stream", "Stream a call to a service", streamService},
-		"health": {"health", "Get service health", queryHealth},
-		"stats":  {"stats", "Get service stats", queryStats},
+		"services": {"services", "List services in the registry", listServices},
+		"quit":     {"quit", "Exit the CLI", quit},
+		"exit":     {"exit", "Exit the CLI", quit},
+		"call":     {"call", "Call a service", callService},
+		"list":     {"list", "List services, peers or routes", list},
+		"get":      {"get", "Get service info", getService},
+		"stream":   {"stream", "Stream a call to a service", streamService},
+		"health":   {"health", "Get service health", queryHealth},
+		"stats":    {"stats", "Get service stats", queryStats},
 	}
 )
 
@@ -282,8 +282,8 @@ func RegistryCommands() []*cli.Command {
 			},
 		},
 		{
-			Name:  "services",
-			Usage: "List services in the registry",
+			Name:   "services",
+			Usage:  "List services in the registry",
 			Action: Print(listServices),
 		},
 	}
