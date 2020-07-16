@@ -161,6 +161,7 @@ func testM3oSignupFlow(t *t) {
 			}
 			return outp, nil
 		}, 5*time.Second)
+		login(serv, t, "dobronszki@gmail.com", password)
 	}()
 	go func() {
 		time.Sleep(20 * time.Second)

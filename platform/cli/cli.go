@@ -88,21 +88,26 @@ func Signup(ctx *cli.Context) {
 
 	password := ctx.String("password")
 	if len(password) == 0 {
-		fmt.Print("Please enter your password: ")
-		bytePw, _ := terminal.ReadPassword(int(syscall.Stdin))
-		pw := string(bytePw)
-		pw = strings.TrimSpace(pw)
+		for {
+			fmt.Print("Please enter your password: ")
+			bytePw, _ := terminal.ReadPassword(int(syscall.Stdin))
+			pw := string(bytePw)
+			pw = strings.TrimSpace(pw)
+			fmt.Println()
 
-		fmt.Print("Please verify your password: ")
-		bytePwVer, _ := terminal.ReadPassword(int(syscall.Stdin))
-		pwVer := string(bytePwVer)
-		pwVer = strings.TrimSpace(pwVer)
+			fmt.Print("Please verify your password: ")
+			bytePwVer, _ := terminal.ReadPassword(int(syscall.Stdin))
+			pwVer := string(bytePwVer)
+			pwVer = strings.TrimSpace(pwVer)
+			fmt.Println()
 
-		if pw != pwVer {
-			fmt.Println("Passwords do not match")
-			os.Exit(1)
+			if pw != pwVer {
+				fmt.Println("Passwords do not match. Please try again.")
+				continue
+			}
+			password = pw
+			break
 		}
-		password = pw
 	}
 
 	fmt.Print("Please go to https://m3o.com/subscribe and paste the acquired payment method id here: ")
