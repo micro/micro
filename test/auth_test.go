@@ -107,3 +107,20 @@ func basicAuthSuite(serv server, t *t) {
 		return
 	}
 }
+
+func TestServerLoginJWT(t *testing.T) {
+	trySuite(t, testServerAuthJWT, retryCount)
+}
+
+func testServerLoginJWT(t *t) {
+	t.Parallel()
+	serv := newServer(t, options{
+		auth: "jwt",
+	})
+	defer serv.close()
+	if err := serv.launch(); err != nil {
+		return
+	}
+
+	login(serv, t, "default", "password")
+}

@@ -2,12 +2,10 @@ package auth
 
 import (
 	"bufio"
-	"context"
 	"fmt"
 	"os"
 	"strings"
 	"syscall"
-	"time"
 
 	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro/v2"
@@ -18,7 +16,7 @@ import (
 	"github.com/micro/go-micro/v2/auth/token/jwt"
 	"github.com/micro/go-micro/v2/cmd"
 	log "github.com/micro/go-micro/v2/logger"
-	clinamespace "github.com/micro/micro/v2/client/cli/namespace"
+	"github.com/micro/micro/v2/client/cli/namespace"
 	clitoken "github.com/micro/micro/v2/client/cli/token"
 	cliutil "github.com/micro/micro/v2/client/cli/util"
 	"github.com/micro/micro/v2/internal/client"
@@ -26,8 +24,10 @@ import (
 	"github.com/micro/micro/v2/service/auth/api"
 	authHandler "github.com/micro/micro/v2/service/auth/handler/auth"
 	rulesHandler "github.com/micro/micro/v2/service/auth/handler/rules"
-	signupproto "github.com/micro/services/signup/proto/signup"
 	"golang.org/x/crypto/ssh/terminal"
+
+	// imported specifically for signup
+	platform "github.com/micro/micro/v2/platform/cli"
 )
 
 var (
@@ -155,118 +155,53 @@ func authFromContext(ctx *cli.Context) auth.Auth {
 // login flow.
 // For documentation of the flow please refer to https://github.com/micro/development/pull/223
 func login(ctx *cli.Context) {
-	env := cliutil.GetEnv(ctx)
-	email := ""
-	if ctx.Args().Len() > 0 {
-		email = ctx.Args().First()
+	// assuming --otp go to platform.Signup
+	if isOTP := ctx.Bool("otp"); isOTP {
+		platform.Signup(ctx)
+		return
 	}
-	reader := bufio.NewReader(os.Stdin)
+
+	// otherwise assume username/password login
+
+	// get the environment
+	env := cliutil.GetEnv(ctx)
+	// get the email address
+	email := ctx.String("email")
+
+	// email is blank
 	if len(email) == 0 {
-		fmt.Print("Please enter your email address: ")
+		fmt.Print("Enter email address: ")
+		// read out the email from prompt if blank
+		reader := bufio.NewReader(os.Stdin)
 		email, _ = reader.ReadString('\n')
 		email = strings.TrimSpace(email)
 	}
 
-	if isOTP := ctx.Bool("otp"); !isOTP {
-		authSrv := authFromContext(ctx)
-		password, err := getPassword()
+	authSrv := authFromContext(ctx)
+	ns, err := namespace.Get(env.Name)
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+
+	password := ctx.String("password")
+	if len(password) == 0 {
+		pw, err := getPassword()
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
 		}
+		password = strings.TrimSpace(pw)
 		fmt.Println()
-		tok, err := authSrv.Token(auth.WithCredentials(email, password))
-		if err != nil {
-			fmt.Println(err)
-			os.Exit(1)
-		}
-		clitoken.Save(env.Name, tok)
-		fmt.Println("You have been logged in")
-		return
 	}
-
-	signupService := signupproto.NewSignupService("go.micro.service.signup", client.New(ctx))
-	_, err := signupService.SendVerificationEmail(context.TODO(), &signupproto.SendVerificationEmailRequest{
-		Email: email,
-	})
+	tok, err := authSrv.Token(auth.WithCredentials(email, password), auth.WithTokenIssuer(ns))
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
+	clitoken.Save(env.Name, tok)
 
-	fmt.Print("We have sent you an email with a one time password. Please paste it here: ")
-	password, _ := reader.ReadString('\n')
-	password = strings.TrimSpace(password)
-
-	rsp, err := signupService.Verify(context.TODO(), &signupproto.VerifyRequest{
-		Email: email,
-		Token: password,
-	})
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
-
-	// Already registered users can just get logged in.
-	tok := rsp.AuthToken
-	if rsp.AuthToken != nil {
-		err = clinamespace.Add(rsp.Namespace, env.Name)
-		if err != nil {
-			fmt.Println(err)
-			os.Exit(1)
-		}
-		err = clinamespace.Set(rsp.Namespace, env.Name)
-		if err != nil {
-			fmt.Println(err)
-			os.Exit(1)
-		}
-		if err := clitoken.Save(env.Name, &auth.Token{
-			AccessToken:  tok.AccessToken,
-			RefreshToken: tok.RefreshToken,
-			Expiry:       time.Unix(tok.Expiry, 0),
-		}); err != nil {
-			fmt.Println(err)
-			os.Exit(1)
-		}
-		fmt.Println("Successfully logged in.")
-		return
-	}
-
-	fmt.Print("Please go to https://m3o.com/subscribe.html and paste the acquired payment method id here: ")
-	paymentMethodID, _ := reader.ReadString('\n')
-	paymentMethodID = strings.TrimSpace(paymentMethodID)
-
-	signupRsp, err := signupService.CompleteSignup(context.TODO(), &signupproto.CompleteSignupRequest{
-		Email:           email,
-		Token:           password,
-		PaymentMethodID: paymentMethodID,
-	})
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
-
-	tok = signupRsp.AuthToken
-	err = clinamespace.Add(signupRsp.Namespace, env.Name)
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
-	err = clinamespace.Set(signupRsp.Namespace, env.Name)
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
-	if err := clitoken.Save(env.Name, &auth.Token{
-		AccessToken:  tok.AccessToken,
-		RefreshToken: tok.RefreshToken,
-		Expiry:       time.Unix(tok.Expiry, 0),
-	}); err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
 	fmt.Println("Successfully logged in.")
-	// @todo save the namespace from the last call and use that.
 }
 
 // taken from https://stackoverflow.com/questions/2137357/getpasswd-functionality-in-go
@@ -379,7 +314,7 @@ func Commands(srvOpts ...micro.Option) []*cli.Command {
 		{
 			Name:        "login",
 			Usage:       `Interactive login flow.`,
-			Description: "Run 'micro login' for micro servers or 'micro login --otp' for m3o.",
+			Description: "Run 'micro login' for micro servers or 'micro login --otp' for the Micro Platform.",
 			Action: func(ctx *cli.Context) error {
 				login(ctx)
 				return nil
@@ -388,6 +323,14 @@ func Commands(srvOpts ...micro.Option) []*cli.Command {
 				&cli.BoolFlag{
 					Name:  "otp",
 					Usage: "Login/signup with a One Time Password.",
+				},
+				&cli.StringFlag{
+					Name:  "password",
+					Usage: "Password to use for login. If not provided, will be asked for during login. Useful for automated scripts",
+				},
+				&cli.StringFlag{
+					Name:  "email",
+					Usage: "Email address to use for login",
 				},
 			},
 		},
