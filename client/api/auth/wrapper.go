@@ -59,13 +59,6 @@ func (a authWrapper) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		endpoint.Domain = r.Domain(req)
 	}
 
-	// Determine the namespace and set it in the header
-	ns := req.Header.Get(namespace.NamespaceKey)
-	if len(ns) == 0 {
-		ns = endpoint.Domain
-		req.Header.Set(namespace.NamespaceKey, ns)
-	}
-
 	// Set the metadata so we can access it in micro api / web
 	req = req.WithContext(ctx.FromRequest(req))
 
@@ -87,6 +80,18 @@ func (a authWrapper) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	// Get the account using the token, some are unauthenticated, so the lack of an
 	// account doesn't necesserially mean a forbidden request
 	acc, _ := a.auth.Inspect(token)
+
+	// Determine the namespace and set it in the header. If the user passed auth creds
+	// on the request, use the namespace that issued the account, otherwise check for
+	// the domain of the resolved endpoint.
+	ns := req.Header.Get(namespace.NamespaceKey)
+	if len(ns) == 0 && acc != nil {
+		ns = acc.Issuer
+		req.Header.Set(namespace.NamespaceKey, ns)
+	} else if len(ns) == 0 {
+		ns = endpoint.Domain
+		req.Header.Set(namespace.NamespaceKey, ns)
+	}
 
 	// Ensure accounts only issued by the namesace are valid
 	if acc != nil && acc.Issuer != ns {
