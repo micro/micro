@@ -15,7 +15,6 @@ import (
 	"github.com/micro/micro/v2/client/cli/namespace"
 	"github.com/micro/micro/v2/client/cli/util"
 	"github.com/micro/micro/v2/internal/client"
-	"github.com/micro/micro/v2/internal/helper"
 	"github.com/micro/micro/v2/service/config/handler"
 )
 
@@ -214,10 +213,8 @@ func Commands(options ...micro.Option) []*cli.Command {
 				Action: delConfig,
 			},
 		},
+		AcceptsArgs: false,
 		Action: func(ctx *cli.Context) error {
-			if err := helper.UnexpectedSubcommand(ctx); err != nil {
-				return err
-			}
 			Run(ctx, options...)
 			return nil
 		},

@@ -70,15 +70,6 @@ func TLSConfig(ctx *cli.Context) (*tls.Config, error) {
 	return nil, errors.New("TLS certificate and key files not specified")
 }
 
-// UnexpectedSubcommand checks for erroneous subcommands and prints help and returns error
-func UnexpectedSubcommand(ctx *cli.Context) error {
-	if first := ctx.Args().First(); first != "" {
-		// received something that isn't a subcommand
-		return fmt.Errorf("Unrecognized subcommand for %s: %s. Please refer to '%s --help'", ctx.App.Name, first, ctx.App.Name)
-	}
-	return nil
-}
-
 func UnexpectedCommand(ctx *cli.Context) error {
 	commandName := ""
 	// We fall back to os.Args as ctx does not seem to have the original command.

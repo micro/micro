@@ -301,20 +301,16 @@ func Commands(options ...micro.Option) []*cli.Command {
 						EnvVars: []string{"MICRO_NETWORK_DNS_TOKEN"},
 					},
 				},
+				AcceptsArgs: false,
 				Action: func(ctx *cli.Context) error {
-					if err := helper.UnexpectedSubcommand(ctx); err != nil {
-						return err
-					}
 					netdns.Run(ctx)
 					return nil
 				},
 				Subcommands: mcli.NetworkDNSCommands(),
 			},
 		}, mcli.NetworkCommands()...),
+		AcceptsArgs: false,
 		Action: func(ctx *cli.Context) error {
-			if err := helper.UnexpectedSubcommand(ctx); err != nil {
-				return err
-			}
 			Run(ctx, options...)
 			return nil
 		},

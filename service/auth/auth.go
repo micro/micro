@@ -20,7 +20,6 @@ import (
 	clitoken "github.com/micro/micro/v2/client/cli/token"
 	cliutil "github.com/micro/micro/v2/client/cli/util"
 	"github.com/micro/micro/v2/internal/client"
-	"github.com/micro/micro/v2/internal/helper"
 	"github.com/micro/micro/v2/service/auth/api"
 	authHandler "github.com/micro/micro/v2/service/auth/handler/auth"
 	rulesHandler "github.com/micro/micro/v2/service/auth/handler/rules"
@@ -219,12 +218,10 @@ func getPassword() (string, error) {
 func Commands(srvOpts ...micro.Option) []*cli.Command {
 	commands := []*cli.Command{
 		{
-			Name:  "auth",
-			Usage: "Manage authentication related resources",
+			Name:        "auth",
+			Usage:       "Manage authentication related resources",
+			AcceptsArgs: false,
 			Action: func(ctx *cli.Context) error {
-				if err := helper.UnexpectedSubcommand(ctx); err != nil {
-					return err
-				}
 				Run(ctx)
 				return nil
 			},

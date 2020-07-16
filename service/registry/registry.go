@@ -12,7 +12,6 @@ import (
 	"github.com/micro/go-micro/v2/registry/service"
 	pb "github.com/micro/go-micro/v2/registry/service/proto"
 	rcli "github.com/micro/micro/v2/client/cli"
-	"github.com/micro/micro/v2/internal/helper"
 	"github.com/micro/micro/v2/service/registry/handler"
 )
 
@@ -136,10 +135,8 @@ func Commands(options ...micro.Option) []*cli.Command {
 				EnvVars: []string{"MICRO_SERVER_ADDRESS"},
 			},
 		},
+		AcceptsArgs: false,
 		Action: func(ctx *cli.Context) error {
-			if err := helper.UnexpectedSubcommand(ctx); err != nil {
-				return err
-			}
 			Run(ctx, options...)
 			return nil
 		},

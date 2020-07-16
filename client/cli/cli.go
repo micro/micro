@@ -414,36 +414,6 @@ func StoreCommands() []*cli.Command {
 			},
 		},
 		{
-			Name:   "databases",
-			Usage:  "List all databases known to the store service",
-			Action: storecli.Databases,
-			Flags: []cli.Flag{
-				&cli.StringFlag{
-					Name:  "store",
-					Usage: "store service to call",
-					Value: "go.micro.store",
-				},
-			},
-		},
-		{
-			Name:   "tables",
-			Usage:  "List all tables in the specified database known to the store service",
-			Action: storecli.Tables,
-			Flags: []cli.Flag{
-				&cli.StringFlag{
-					Name:  "store",
-					Usage: "store service to call",
-					Value: "go.micro.store",
-				},
-				&cli.StringFlag{
-					Name:    "database",
-					Aliases: []string{"d"},
-					Usage:   "database to list tables of",
-					Value:   "micro",
-				},
-			},
-		},
-		{
 			Name:   "snapshot",
 			Usage:  "Back up a store",
 			Action: storecli.Snapshot,

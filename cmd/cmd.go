@@ -407,7 +407,6 @@ func Setup(app *ccli.App, options ...micro.Option) {
 				}
 				os.Exit(0)
 			}
-
 		}
 		fmt.Println(helper.MissingCommand(c))
 		os.Exit(1)

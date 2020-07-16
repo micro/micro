@@ -17,7 +17,7 @@ require (
 	github.com/gorilla/mux v1.7.3
 	github.com/hashicorp/go-version v1.2.1
 	github.com/mattn/go-isatty v0.0.12 // indirect
-	github.com/micro/cli/v2 v2.1.2
+	github.com/micro/cli/v2 v2.1.3-0.20200716114742-b7f85cf4d717
 	github.com/micro/go-micro/v2 v2.9.1-0.20200716094938-15052de41a69
 	github.com/micro/services v0.0.0-20200715134902-819e0ec2948d
 	github.com/miekg/dns v1.1.27

@@ -7,7 +7,6 @@ import (
 	"github.com/micro/go-micro/v2/store"
 	pb "github.com/micro/go-micro/v2/store/service/proto"
 	mcli "github.com/micro/micro/v2/client/cli"
-	"github.com/micro/micro/v2/internal/helper"
 	"github.com/micro/micro/v2/service/store/handler"
 	"github.com/pkg/errors"
 )
@@ -100,10 +99,8 @@ func Commands(options ...micro.Option) []*cli.Command {
 				EnvVars: []string{"MICRO_SERVER_ADDRESS"},
 			},
 		},
+		AcceptsArgs: false,
 		Action: func(ctx *cli.Context) error {
-			if err := helper.UnexpectedSubcommand(ctx); err != nil {
-				return err
-			}
 			Run(ctx, options...)
 			return nil
 		},
