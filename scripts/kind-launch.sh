@@ -8,8 +8,10 @@
 # 
 # Warning: This script will modify some yaml files so please don't commit the modifications
 set -e
+# safety first
+kubectl config use-context kind-kind
 
-
+# yq does not quote the strings in it's output so need to hack this and fix with sed so it doesn't get parsed as a bool later in k8s
 yq write -i platform/kubernetes/network/router.yaml "spec.template.spec.containers[0].env.(name==MICRO_ENABLE_ACME).value" '_false_'
 sed -e 's/_false_/"false"/g' -i bak platform/kubernetes/network/router.yaml
 yq write -i platform/kubernetes/network/proxy.yaml "spec.template.spec.containers[0].env.(name==MICRO_ENABLE_ACME).value" '_false_'

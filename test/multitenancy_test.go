@@ -3,15 +3,12 @@
 package test
 
 import (
-	"encoding/json"
 	"errors"
 	"fmt"
 	"os/exec"
-	"strconv"
 	"testing"
 	"time"
 
-	"github.com/micro/go-micro/v2/auth"
 	"github.com/micro/micro/v2/client/cli/namespace"
 	"github.com/micro/micro/v2/client/cli/token"
 )
@@ -33,13 +30,13 @@ func testNamespaceConfigIsolation(t *t) {
 	testNamespaceConfigIsolationSuite(serv, t)
 }
 
-func testNamespaceConfigIsolationSuite(serv server, t *t) {
-	err := namespace.Add(serv.envName, serv.envName)
+func testNamespaceConfigIsolationSuite(serv testServer, t *t) {
+	err := namespace.Add(serv.envName(), serv.envName())
 	if err != nil {
 		t.Fatal(err)
 		return
 	}
-	err = namespace.Set(serv.envName, serv.envName)
+	err = namespace.Set(serv.envName(), serv.envName())
 	if err != nil {
 		t.Fatal(err)
 		return
@@ -81,17 +78,17 @@ func testNamespaceConfigIsolationSuite(serv server, t *t) {
 		return
 	}
 
-	err = namespace.Add("random", serv.envName)
+	err = namespace.Add("random", serv.envName())
 	if err != nil {
 		t.Fatal(err)
 		return
 	}
-	err = namespace.Set("random", serv.envName)
+	err = namespace.Set("random", serv.envName())
 	if err != nil {
 		t.Fatal(err)
 		return
 	}
-	err = token.Remove(serv.envName)
+	err = token.Remove(serv.envName())
 	if err != nil {
 		t.Fatal(err)
 		return
@@ -122,12 +119,12 @@ func testNamespaceConfigIsolationSuite(serv server, t *t) {
 	// Log back to original namespace and see if value is already there
 
 	// orignal namespace matchesthe env name
-	err = namespace.Set(serv.envName, serv.envName)
+	err = namespace.Set(serv.envName(), serv.envName())
 	if err != nil {
 		t.Fatal(err)
 		return
 	}
-	err = token.Remove(serv.envName)
+	err = token.Remove(serv.envName())
 	if err != nil {
 		t.Fatal(err)
 		return
@@ -150,42 +147,4 @@ func testNamespaceConfigIsolationSuite(serv server, t *t) {
 	}, 8*time.Second); err != nil {
 		return
 	}
-}
-
-func login(serv server, t *t, email, password string) error {
-	return try("Logging in", t, func() ([]byte, error) {
-		readCmd := exec.Command("micro", serv.envFlag(), "call", "go.micro.auth", "Auth.Token", fmt.Sprintf(`{"id":"%v","secret":"%v"}`, email, password))
-		outp, err := readCmd.CombinedOutput()
-		if err != nil {
-			return outp, err
-		}
-		rsp := map[string]interface{}{}
-		err = json.Unmarshal(outp, &rsp)
-		tok, ok := rsp["token"].(map[string]interface{})
-		if !ok {
-			return outp, errors.New("Can't find token")
-		}
-		if _, ok = tok["access_token"].(string); !ok {
-			return outp, fmt.Errorf("Can't find access token")
-		}
-		if _, ok = tok["refresh_token"].(string); !ok {
-			return outp, fmt.Errorf("Can't find access token")
-		}
-		if _, ok = tok["refresh_token"].(string); !ok {
-			return outp, fmt.Errorf("Can't find refresh token")
-		}
-		if _, ok = tok["expiry"].(string); !ok {
-			return outp, fmt.Errorf("Can't find access token")
-		}
-		exp, err := strconv.ParseInt(tok["expiry"].(string), 10, 64)
-		if err != nil {
-			return nil, err
-		}
-		token.Save(serv.envName, &auth.Token{
-			AccessToken:  tok["access_token"].(string),
-			RefreshToken: tok["refresh_token"].(string),
-			Expiry:       time.Unix(exp, 0),
-		})
-		return outp, nil
-	}, 8*time.Second)
 }
