@@ -16,7 +16,6 @@ import (
 	"github.com/micro/micro/v2/client/cli/util"
 	"github.com/micro/micro/v2/internal/client"
 	cliconfig "github.com/micro/micro/v2/internal/config"
-	"github.com/micro/micro/v2/internal/helper"
 	"github.com/micro/micro/v2/service/config/handler"
 )
 
