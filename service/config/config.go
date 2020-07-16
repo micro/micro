@@ -232,7 +232,7 @@ func Commands(options ...micro.Option) []*cli.Command {
 				Flags:  configFlags,
 			},
 		},
-		AcceptsArgs: false,
+		NoArgs: false,
 		Action: func(ctx *cli.Context) error {
 			Run(ctx, options...)
 			return nil

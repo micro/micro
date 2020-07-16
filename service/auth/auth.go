@@ -220,7 +220,7 @@ func Commands(srvOpts ...micro.Option) []*cli.Command {
 		{
 			Name:        "auth",
 			Usage:       "Manage authentication related resources",
-			AcceptsArgs: false,
+			NoArgs: false,
 			Action: func(ctx *cli.Context) error {
 				Run(ctx)
 				return nil

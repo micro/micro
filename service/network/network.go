@@ -301,7 +301,7 @@ func Commands(options ...micro.Option) []*cli.Command {
 						EnvVars: []string{"MICRO_NETWORK_DNS_TOKEN"},
 					},
 				},
-				AcceptsArgs: false,
+				NoArgs: false,
 				Action: func(ctx *cli.Context) error {
 					netdns.Run(ctx)
 					return nil
@@ -309,7 +309,7 @@ func Commands(options ...micro.Option) []*cli.Command {
 				Subcommands: mcli.NetworkDNSCommands(),
 			},
 		}, mcli.NetworkCommands()...),
-		AcceptsArgs: false,
+		NoArgs: false,
 		Action: func(ctx *cli.Context) error {
 			Run(ctx, options...)
 			return nil

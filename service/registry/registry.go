@@ -135,7 +135,7 @@ func Commands(options ...micro.Option) []*cli.Command {
 				EnvVars: []string{"MICRO_SERVER_ADDRESS"},
 			},
 		},
-		AcceptsArgs: false,
+		NoArgs: false,
 		Action: func(ctx *cli.Context) error {
 			Run(ctx, options...)
 			return nil
