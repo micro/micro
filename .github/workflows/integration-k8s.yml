@@ -46,11 +46,10 @@ jobs:
       working-directory: ./test
       env:
         IN_TRAVIS_CI: yes
-        MICRO_K8S_SERVER: yes
       run: |
           # Generate keys for JWT tests
           ssh-keygen -f /tmp/sshkey -m pkcs8 -q -N ""
           ssh-keygen -f /tmp/sshkey -e  -m pkcs8 > /tmp/sshkey.pub
-          go clean -testcache && go test --tags=k8sintegration -v ./...
+          go clean -testcache && go test --tags=integration,kind -v ./...
 
 
