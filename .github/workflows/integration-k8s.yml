@@ -24,19 +24,12 @@ jobs:
         go-version: 1.13
       id: go
 
-    # - name: Publish to Registry
-    #   uses: elgohr/Publish-Docker-Github-Action@master
-    #   with:
-    #     name: micro/micro
-    #     username: ${{ secrets.DOCKER_USERNAME }}
-    #     password: ${{ secrets.DOCKER_PASSWORD }}
-
     - name: Install the prerequisites
       run: |
         bash .github/workflows/kind-prereqs.sh
     - name: Install the platform
       run: |
-        bash scripts/launch-kind.sh
+        bash scripts/kind-launch.sh
 
     - name: Install failed, show platform logs
       if: ${{ failure() }}
