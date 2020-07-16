@@ -4,11 +4,9 @@ import (
 	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro/v2"
 	log "github.com/micro/go-micro/v2/logger"
-	"github.com/micro/go-micro/v2/store"
 	pb "github.com/micro/go-micro/v2/store/service/proto"
 	mcli "github.com/micro/micro/v2/client/cli"
 	"github.com/micro/micro/v2/service/store/handler"
-	"github.com/pkg/errors"
 )
 
 var (
@@ -37,49 +35,12 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 	// Initialise service
 	service := micro.NewService(
 		micro.Name(Name),
+		micro.Address(Address),
 	)
 
 	// the store handler
-	storeHandler := &handler.Store{
-		Default: service.Options().Store,
-		Stores:  make(map[string]bool),
-	}
-
-	table := "store"
-	if v := ctx.String("store_table"); len(v) > 0 {
-		table = v
-	}
-
-	// set to store table
-	storeHandler.Default.Init(
-		store.Table(table),
-	)
-
-	backend := storeHandler.Default.String()
-	options := storeHandler.Default.Options()
-
-	log.Infof("Initialising the [%s] store with opts: %+v", backend, options)
-
-	// set the new store initialiser
-	storeHandler.New = func(database string, table string) (store.Store, error) {
-		// Record the new database and table in the internal store
-		if err := storeHandler.Default.Write(&store.Record{
-			Key:   "databases/" + database,
-			Value: []byte{},
-		}, store.WriteTo("micro", "internal")); err != nil {
-			return nil, errors.Wrap(err, "micro store couldn't store new database in internal table")
-		}
-		if err := storeHandler.Default.Write(&store.Record{
-			Key:   "tables/" + database + "/" + table,
-			Value: []byte{},
-		}, store.WriteTo("micro", "internal")); err != nil {
-			return nil, errors.Wrap(err, "micro store couldn't store new table in internal table")
-		}
-
-		return storeHandler.Default, nil
-	}
-
-	pb.RegisterStoreHandler(service.Server(), storeHandler)
+	h := handler.New(service.Options().Store)
+	pb.RegisterStoreHandler(service.Server(), h)
 
 	// start the service
 	if err := service.Run(); err != nil {
