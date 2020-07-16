@@ -12,7 +12,6 @@ import (
 	"github.com/micro/go-micro/v2/registry/service"
 	pb "github.com/micro/go-micro/v2/registry/service/proto"
 	rcli "github.com/micro/micro/v2/client/cli"
-	"github.com/micro/micro/v2/internal/helper"
 	"github.com/micro/micro/v2/service/registry/handler"
 )
 
@@ -127,22 +126,7 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 
 func Commands(options ...micro.Option) []*cli.Command {
 	command := &cli.Command{
-		Name:  "registry",
-		Usage: "Run the service registry",
-		Flags: []cli.Flag{
-			&cli.StringFlag{
-				Name:    "address",
-				Usage:   "Set the registry http address e.g 0.0.0.0:8000",
-				EnvVars: []string{"MICRO_SERVER_ADDRESS"},
-			},
-		},
-		Action: func(ctx *cli.Context) error {
-			if err := helper.UnexpectedSubcommand(ctx); err != nil {
-				return err
-			}
-			Run(ctx, options...)
-			return nil
-		},
+		Name:        "registry",
 		Subcommands: rcli.RegistryCommands(),
 	}
 

@@ -18,6 +18,8 @@ import (
 	"github.com/micro/micro/v2/internal/helper"
 	"github.com/micro/micro/v2/service/handler/exec"
 	"github.com/micro/micro/v2/service/handler/file"
+	"github.com/micro/micro/v2/service/registry"
+	"github.com/micro/micro/v2/service/router"
 	"github.com/micro/micro/v2/service/runtime"
 	"github.com/micro/micro/v2/service/store"
 )
@@ -173,6 +175,25 @@ func Commands(options ...micro.Option) []*cli.Command {
 						return err
 					}
 					store.Run(ctx, options...)
+					return nil
+				},
+			},
+			{
+				Name:  "registry",
+				Usage: "Run the micro registry",
+				Action: func(ctx *cli.Context) error {
+					if err := helper.UnexpectedSubcommand(ctx); err != nil {
+						return err
+					}
+					registry.Run(ctx, options...)
+					return nil
+				},
+			},
+			{
+				Name:  "router",
+				Usage: "Run the micro network router",
+				Action: func(ctx *cli.Context) error {
+					router.Run(ctx, options...)
 					return nil
 				},
 			},
