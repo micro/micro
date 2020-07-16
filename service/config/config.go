@@ -15,6 +15,7 @@ import (
 	"github.com/micro/micro/v2/client/cli/namespace"
 	"github.com/micro/micro/v2/client/cli/util"
 	"github.com/micro/micro/v2/internal/client"
+	cliconfig "github.com/micro/micro/v2/internal/config"
 	"github.com/micro/micro/v2/internal/helper"
 	"github.com/micro/micro/v2/service/config/handler"
 )
@@ -23,7 +24,13 @@ var (
 	// Service name
 	Name = "go.micro.config"
 	// Default database store
-	Database = "store"
+	Database    = "store"
+	configFlags = []cli.Flag{
+		&cli.BoolFlag{
+			Name:  "local",
+			Usage: "Connect to local user micro config file and not to micro server config",
+		},
+	}
 )
 
 func Run(c *cli.Context, srvOpts ...micro.Option) {
@@ -52,18 +59,20 @@ func Run(c *cli.Context, srvOpts ...micro.Option) {
 }
 
 func setConfig(ctx *cli.Context) error {
-	pb := proto.NewConfigService("go.micro.config", client.New(ctx))
-
 	args := ctx.Args()
+	// key val
+	key := args.Get(0)
+	val := args.Get(1)
+
+	if ctx.Bool("local") {
+		return cliconfig.Set(val, strings.Split(key, ".")...)
+	}
+	pb := proto.NewConfigService("go.micro.config", client.New(ctx))
 
 	if args.Len() == 0 {
 		fmt.Println("Required usage: micro config set key val")
 		os.Exit(1)
 	}
-
-	// key val
-	key := args.Get(0)
-	val := args.Get(1)
 
 	ns, err := namespace.Get(util.GetEnv(ctx).Name)
 	if err != nil {
@@ -96,21 +105,30 @@ func setConfig(ctx *cli.Context) error {
 }
 
 func getConfig(ctx *cli.Context) error {
-	pb := proto.NewConfigService("go.micro.config", client.New(ctx))
-
 	args := ctx.Args()
 
 	if args.Len() == 0 {
 		fmt.Println("Required usage: micro config get key")
 		os.Exit(1)
 	}
-
 	// key val
 	key := args.Get(0)
-
 	if len(key) == 0 {
 		log.Fatal("key cannot be blank")
 	}
+
+	if ctx.Bool("local") {
+		val, err := cliconfig.Get(strings.Split(key, ".")...)
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+			return err
+		}
+		fmt.Println(val)
+		return err
+	}
+
+	pb := proto.NewConfigService("go.micro.config", client.New(ctx))
 
 	ns, err := namespace.Get(util.GetEnv(ctx).Name)
 	if err != nil {
@@ -153,21 +171,19 @@ func getConfig(ctx *cli.Context) error {
 }
 
 func delConfig(ctx *cli.Context) error {
-	pb := proto.NewConfigService("go.micro.config", client.New(ctx))
-
 	args := ctx.Args()
 
 	if args.Len() == 0 {
 		fmt.Println("Required usage: micro config get key")
 		os.Exit(1)
 	}
-
 	// key val
 	key := args.Get(0)
-
 	if len(key) == 0 {
 		log.Fatal("key cannot be blank")
 	}
+
+	pb := proto.NewConfigService("go.micro.config", client.New(ctx))
 
 	ns, err := namespace.Get(util.GetEnv(ctx).Name)
 	if err != nil {
@@ -202,16 +218,19 @@ func Commands(options ...micro.Option) []*cli.Command {
 				Name:   "get",
 				Usage:  "Get a value; micro config get key",
 				Action: getConfig,
+				Flags:  configFlags,
 			},
 			{
 				Name:   "set",
 				Usage:  "Set a key-val; micro config set key val",
 				Action: setConfig,
+				Flags:  configFlags,
 			},
 			{
 				Name:   "del",
 				Usage:  "Delete a value; micro config del key",
 				Action: delConfig,
+				Flags:  configFlags,
 			},
 		},
 		Action: func(ctx *cli.Context) error {
