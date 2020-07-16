@@ -35,7 +35,6 @@ import (
 	"github.com/micro/micro/v2/internal/helper"
 	rrmicro "github.com/micro/micro/v2/internal/resolver/api"
 	"github.com/micro/micro/v2/internal/stats"
-	"github.com/micro/micro/v2/plugin"
 )
 
 var (
@@ -53,6 +52,45 @@ var (
 	ACMEProvider          = "autocert"
 	ACMEChallengeProvider = "cloudflare"
 	ACMECA                = acme.LetsEncryptProductionCA
+	// Flags specific to the API
+	Flags = []cli.Flag{
+		&cli.StringFlag{
+			Name:    "address",
+			Usage:   "Set the api address e.g 0.0.0.0:8080",
+			EnvVars: []string{"MICRO_API_ADDRESS"},
+		},
+		&cli.StringFlag{
+			Name:    "handler",
+			Usage:   "Specify the request handler to be used for mapping HTTP requests to services; {api, event, http, rpc}",
+			EnvVars: []string{"MICRO_API_HANDLER"},
+		},
+		&cli.StringFlag{
+			Name:    "namespace",
+			Usage:   "Set the namespace used by the API e.g. com.example",
+			EnvVars: []string{"MICRO_API_NAMESPACE"},
+		},
+		&cli.StringFlag{
+			Name:    "type",
+			Usage:   "Set the service type used by the API e.g. api",
+			EnvVars: []string{"MICRO_API_TYPE"},
+		},
+		&cli.StringFlag{
+			Name:    "resolver",
+			Usage:   "Set the hostname resolver used by the API {host, path, grpc}",
+			EnvVars: []string{"MICRO_API_RESOLVER"},
+		},
+		&cli.BoolFlag{
+			Name:    "enable_rpc",
+			Usage:   "Enable call the backend directly via /rpc",
+			EnvVars: []string{"MICRO_API_ENABLE_RPC"},
+		},
+		&cli.BoolFlag{
+			Name:    "enable_cors",
+			Usage:   "Enable CORS, allowing the API to be called by frontend applications",
+			EnvVars: []string{"MICRO_API_ENABLE_CORS"},
+			Value:   true,
+		},
+	}
 )
 
 func Run(ctx *cli.Context, srvOpts ...micro.Option) {
@@ -99,11 +137,6 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 
 	// initialise service
 	service := micro.NewService(srvOpts...)
-
-	// Init plugins
-	for _, p := range Plugins() {
-		p.Init(ctx)
-	}
 
 	// Init API
 	var opts []server.Option
@@ -292,12 +325,6 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 		r.PathPrefix(APIPath).Handler(handler.Meta(service, rt, Namespace+"."+Type))
 	}
 
-	// reverse wrap handler
-	plugins := append(Plugins(), plugin.Plugins()...)
-	for i := len(plugins); i > 0; i-- {
-		h = plugins[i-1].Handler()(h)
-	}
-
 	// create the auth wrapper and the server
 	authWrapper := auth.Wrapper(rr, Namespace+"."+Type)
 	api := httpapi.NewServer(Address, server.WrapHandler(authWrapper))
@@ -319,65 +346,4 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 	if err := api.Stop(); err != nil {
 		log.Fatal(err)
 	}
-}
-
-func Commands(options ...micro.Option) []*cli.Command {
-	command := &cli.Command{
-		Name:  "api",
-		Usage: "Run the api gateway",
-		Action: func(ctx *cli.Context) error {
-			Run(ctx, options...)
-			return nil
-		},
-		Flags: []cli.Flag{
-			&cli.StringFlag{
-				Name:    "address",
-				Usage:   "Set the api address e.g 0.0.0.0:8080",
-				EnvVars: []string{"MICRO_API_ADDRESS"},
-			},
-			&cli.StringFlag{
-				Name:    "handler",
-				Usage:   "Specify the request handler to be used for mapping HTTP requests to services; {api, event, http, rpc}",
-				EnvVars: []string{"MICRO_API_HANDLER"},
-			},
-			&cli.StringFlag{
-				Name:    "namespace",
-				Usage:   "Set the namespace used by the API e.g. com.example",
-				EnvVars: []string{"MICRO_API_NAMESPACE"},
-			},
-			&cli.StringFlag{
-				Name:    "type",
-				Usage:   "Set the service type used by the API e.g. api",
-				EnvVars: []string{"MICRO_API_TYPE"},
-			},
-			&cli.StringFlag{
-				Name:    "resolver",
-				Usage:   "Set the hostname resolver used by the API {host, path, grpc}",
-				EnvVars: []string{"MICRO_API_RESOLVER"},
-			},
-			&cli.BoolFlag{
-				Name:    "enable_rpc",
-				Usage:   "Enable call the backend directly via /rpc",
-				EnvVars: []string{"MICRO_API_ENABLE_RPC"},
-			},
-			&cli.BoolFlag{
-				Name:    "enable_cors",
-				Usage:   "Enable CORS, allowing the API to be called by frontend applications",
-				EnvVars: []string{"MICRO_API_ENABLE_CORS"},
-				Value:   true,
-			},
-		},
-	}
-
-	for _, p := range Plugins() {
-		if cmds := p.Commands(); len(cmds) > 0 {
-			command.Subcommands = append(command.Subcommands, cmds...)
-		}
-
-		if flags := p.Flags(); len(flags) > 0 {
-			command.Flags = append(command.Flags, flags...)
-		}
-	}
-
-	return []*cli.Command{command}
 }

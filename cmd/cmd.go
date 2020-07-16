@@ -17,7 +17,6 @@ import (
 
 	// clients
 	"github.com/micro/micro/v2/client/api"
-	"github.com/micro/micro/v2/client/bot"
 	"github.com/micro/micro/v2/client/cli"
 	"github.com/micro/micro/v2/client/cli/new"
 	"github.com/micro/micro/v2/client/cli/util"
@@ -353,17 +352,13 @@ func Setup(app *ccli.App, options ...micro.Option) {
 	app.Commands = append(app.Commands, runtime.Commands(options...)...)
 	app.Commands = append(app.Commands, store.Commands(options...)...)
 	app.Commands = append(app.Commands, config.Commands(options...)...)
-	app.Commands = append(app.Commands, api.Commands(options...)...)
 	app.Commands = append(app.Commands, auth.Commands()...)
-	app.Commands = append(app.Commands, bot.Commands()...)
 	app.Commands = append(app.Commands, cli.Commands()...)
-	app.Commands = append(app.Commands, proxy.Commands(options...)...)
 	app.Commands = append(app.Commands, network.Commands(options...)...)
 	app.Commands = append(app.Commands, registry.Commands(options...)...)
 	app.Commands = append(app.Commands, debug.Commands(options...)...)
 	app.Commands = append(app.Commands, server.Commands(options...)...)
 	app.Commands = append(app.Commands, service.Commands(options...)...)
-	app.Commands = append(app.Commands, web.Commands(options...)...)
 	app.Commands = append(app.Commands, platform.Commands(options...)...)
 
 	sort.Sort(commands(app.Commands))

@@ -405,11 +405,6 @@ func StoreCommands() []*cli.Command {
 func Commands() []*cli.Command {
 	commands := []*cli.Command{
 		{
-			Name:   "cli",
-			Usage:  "Run the interactive CLI",
-			Action: Run,
-		},
-		{
 			Name:   "call",
 			Usage:  "Call a service e.g micro call greeter Say.Hello '{\"name\": \"John\"}",
 			Action: Print(callService),

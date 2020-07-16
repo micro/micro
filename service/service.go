@@ -5,16 +5,23 @@ import (
 	"os"
 	"strings"
 
-	"github.com/micro/cli/v2"
+	ccli "github.com/micro/cli/v2"
 	"github.com/micro/go-micro/v2"
 	log "github.com/micro/go-micro/v2/logger"
-	"github.com/micro/go-micro/v2/proxy"
+	prox "github.com/micro/go-micro/v2/proxy"
 	"github.com/micro/go-micro/v2/proxy/grpc"
 	"github.com/micro/go-micro/v2/proxy/http"
 	"github.com/micro/go-micro/v2/proxy/mucp"
 	rt "github.com/micro/go-micro/v2/runtime"
 	"github.com/micro/go-micro/v2/server"
 	"github.com/micro/micro/v2/internal/helper"
+
+	// clients
+	"github.com/micro/micro/v2/client/api"
+	"github.com/micro/micro/v2/client/bot"
+	"github.com/micro/micro/v2/client/cli"
+	"github.com/micro/micro/v2/client/proxy"
+	"github.com/micro/micro/v2/client/web"
 
 	// services
 	"github.com/micro/micro/v2/service/auth"
@@ -32,7 +39,7 @@ import (
 	"github.com/micro/micro/v2/service/tunnel"
 )
 
-func Run(ctx *cli.Context, opts ...micro.Option) {
+func Run(ctx *ccli.Context, opts ...micro.Option) {
 	log.Init(log.WithFields(map[string]interface{}{"service": "service"}))
 
 	name := ctx.String("name")
@@ -66,25 +73,25 @@ func Run(ctx *cli.Context, opts ...micro.Option) {
 	}
 
 	if len(endpoint) == 0 {
-		endpoint = proxy.DefaultEndpoint
+		endpoint = prox.DefaultEndpoint
 	}
 
-	var p proxy.Proxy
+	var p prox.Proxy
 
 	switch {
 	case strings.HasPrefix(endpoint, "grpc"):
 		endpoint = strings.TrimPrefix(endpoint, "grpc://")
-		p = grpc.NewProxy(proxy.WithEndpoint(endpoint))
+		p = grpc.NewProxy(prox.WithEndpoint(endpoint))
 	case strings.HasPrefix(endpoint, "http"):
-		p = http.NewProxy(proxy.WithEndpoint(endpoint))
+		p = http.NewProxy(prox.WithEndpoint(endpoint))
 	case strings.HasPrefix(endpoint, "file"):
 		endpoint = strings.TrimPrefix(endpoint, "file://")
-		p = file.NewProxy(proxy.WithEndpoint(endpoint))
+		p = file.NewProxy(prox.WithEndpoint(endpoint))
 	case strings.HasPrefix(endpoint, "exec"):
 		endpoint = strings.TrimPrefix(endpoint, "exec://")
-		p = exec.NewProxy(proxy.WithEndpoint(endpoint))
+		p = exec.NewProxy(prox.WithEndpoint(endpoint))
 	default:
-		p = mucp.NewProxy(proxy.WithEndpoint(endpoint))
+		p = mucp.NewProxy(prox.WithEndpoint(endpoint))
 	}
 
 	// run the service if asked to
@@ -131,51 +138,76 @@ func Run(ctx *cli.Context, opts ...micro.Option) {
 	service.Run()
 }
 
-func Commands(options ...micro.Option) []*cli.Command {
-	command := &cli.Command{
+func Commands(options ...micro.Option) []*ccli.Command {
+	command := &ccli.Command{
 		Name:  "service",
 		Usage: "Run a micro service",
-		Action: func(ctx *cli.Context) error {
+		Action: func(ctx *ccli.Context) error {
 			Run(ctx, options...)
 			return nil
 		},
-		Flags: []cli.Flag{
-			&cli.StringFlag{
+		Flags: []ccli.Flag{
+			&ccli.StringFlag{
 				Name:    "name",
 				Usage:   "Name of the service",
 				EnvVars: []string{"MICRO_SERVICE_NAME"},
 				Value:   "service",
 			},
-			&cli.StringFlag{
+			&ccli.StringFlag{
 				Name:    "address",
 				Usage:   "Address of the service",
 				EnvVars: []string{"MICRO_SERVICE_ADDRESS"},
 			},
-			&cli.StringFlag{
+			&ccli.StringFlag{
 				Name:    "endpoint",
 				Usage:   "The local service endpoint (Defaults to localhost:9090); {http, grpc, file, exec}://path-or-address e.g http://localhost:9090",
 				EnvVars: []string{"MICRO_SERVICE_ENDPOINT"},
 			},
-			&cli.StringSliceFlag{
+			&ccli.StringSliceFlag{
 				Name:    "metadata",
 				Usage:   "Add metadata as key-value pairs describing the service e.g owner=john@example.com",
 				EnvVars: []string{"MICRO_SERVICE_METADATA"},
 			},
 		},
-		Subcommands: []*cli.Command{
+		Subcommands: []*ccli.Command{
+			{
+				Name:  "api",
+				Usage: "Run micro api",
+				Action: func(ctx *ccli.Context) error {
+					api.Run(ctx)
+					return nil
+				},
+			},
 			{
 				Name:  "auth",
 				Usage: "Run micro auth",
-				Action: func(ctx *cli.Context) error {
+				Action: func(ctx *ccli.Context) error {
 					auth.Run(ctx)
+					return nil
+				},
+			},
+			{
+				Name:  "bot",
+				Usage: "Run micro bot",
+				Flags: bot.Flags,
+				Action: func(ctx *ccli.Context) error {
+					bot.Run(ctx)
 					return nil
 				},
 			},
 			{
 				Name:  "broker",
 				Usage: "Run micro broker",
-				Action: func(ctx *cli.Context) error {
+				Action: func(ctx *ccli.Context) error {
 					broker.Run(ctx)
+					return nil
+				},
+			},
+			{
+				Name:  "cli",
+				Usage: "Run micro cli",
+				Action: func(ctx *ccli.Context) error {
+					cli.Run(ctx)
 					return nil
 				},
 			},
@@ -183,7 +215,7 @@ func Commands(options ...micro.Option) []*cli.Command {
 				Name:  "config",
 				Usage: "Run micro config",
 				Flags: config.Flags,
-				Action: func(ctx *cli.Context) error {
+				Action: func(ctx *ccli.Context) error {
 					config.Run(ctx)
 					return nil
 				},
@@ -192,7 +224,7 @@ func Commands(options ...micro.Option) []*cli.Command {
 				Name:  "debug",
 				Usage: "Run micro debug",
 				Flags: debug.Flags,
-				Action: func(ctx *cli.Context) error {
+				Action: func(ctx *ccli.Context) error {
 					debug.Run(ctx)
 					return nil
 				},
@@ -201,7 +233,7 @@ func Commands(options ...micro.Option) []*cli.Command {
 				Name:  "health",
 				Usage: "Run micro health",
 				Flags: health.Flags,
-				Action: func(ctx *cli.Context) error {
+				Action: func(ctx *ccli.Context) error {
 					health.Run(ctx)
 					return nil
 				},
@@ -209,7 +241,7 @@ func Commands(options ...micro.Option) []*cli.Command {
 			{
 				Name:  "network",
 				Usage: "Run micro network",
-				Action: func(ctx *cli.Context) error {
+				Action: func(ctx *ccli.Context) error {
 					if err := helper.UnexpectedSubcommand(ctx); err != nil {
 						return err
 					}
@@ -218,9 +250,17 @@ func Commands(options ...micro.Option) []*cli.Command {
 				},
 			},
 			{
+				Name:  "proxy",
+				Usage: "Run micro proxy",
+				Action: func(ctx *ccli.Context) error {
+					proxy.Run(ctx, options...)
+					return nil
+				},
+			},
+			{
 				Name:  "registry",
 				Usage: "Run micro registry",
-				Action: func(ctx *cli.Context) error {
+				Action: func(ctx *ccli.Context) error {
 					if err := helper.UnexpectedSubcommand(ctx); err != nil {
 						return err
 					}
@@ -231,7 +271,7 @@ func Commands(options ...micro.Option) []*cli.Command {
 			{
 				Name:  "router",
 				Usage: "Run micro network router",
-				Action: func(ctx *cli.Context) error {
+				Action: func(ctx *ccli.Context) error {
 					router.Run(ctx, options...)
 					return nil
 				},
@@ -240,7 +280,7 @@ func Commands(options ...micro.Option) []*cli.Command {
 				Name:  "runtime",
 				Usage: "Run micro runtime",
 				Flags: runtime.Flags,
-				Action: func(ctx *cli.Context) error {
+				Action: func(ctx *ccli.Context) error {
 					if err := helper.UnexpectedSubcommand(ctx); err != nil {
 						return err
 					}
@@ -251,7 +291,7 @@ func Commands(options ...micro.Option) []*cli.Command {
 			{
 				Name:  "store",
 				Usage: "Run micro store",
-				Action: func(ctx *cli.Context) error {
+				Action: func(ctx *ccli.Context) error {
 					if err := helper.UnexpectedSubcommand(ctx); err != nil {
 						return err
 					}
@@ -263,11 +303,23 @@ func Commands(options ...micro.Option) []*cli.Command {
 				Name:  "tunnel",
 				Usage: "Run micro tunnel",
 				Flags: tunnel.Flags,
-				Action: func(ctx *cli.Context) error {
+				Action: func(ctx *ccli.Context) error {
 					if err := helper.UnexpectedSubcommand(ctx); err != nil {
 						return err
 					}
 					tunnel.Run(ctx, options...)
+					return nil
+				},
+			},
+			{
+				Name:  "web",
+				Usage: "Run micro web",
+				Flags: web.Flags,
+				Action: func(ctx *ccli.Context) error {
+					if err := helper.UnexpectedSubcommand(ctx); err != nil {
+						return err
+					}
+					web.Run(ctx, options...)
 					return nil
 				},
 			},
@@ -284,5 +336,5 @@ func Commands(options ...micro.Option) []*cli.Command {
 		}
 	}
 
-	return []*cli.Command{command}
+	return []*ccli.Command{command}
 }

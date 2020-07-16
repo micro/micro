@@ -36,7 +36,6 @@ import (
 	"github.com/micro/micro/v2/internal/helper"
 	"github.com/micro/micro/v2/internal/resolver/web"
 	"github.com/micro/micro/v2/internal/stats"
-	"github.com/micro/micro/v2/plugin"
 	"github.com/serenize/snaker"
 )
 
@@ -65,6 +64,30 @@ var (
 
 	// Host name the web dashboard is served on
 	Host, _ = os.Hostname()
+
+	// Flags specific to micro web
+	Flags = []cli.Flag{
+		&cli.StringFlag{
+			Name:    "address",
+			Usage:   "Set the web UI address e.g 0.0.0.0:8082",
+			EnvVars: []string{"MICRO_WEB_ADDRESS"},
+		},
+		&cli.StringFlag{
+			Name:    "namespace",
+			Usage:   "Set the namespace used by the Web proxy e.g. com.example.web",
+			EnvVars: []string{"MICRO_WEB_NAMESPACE"},
+		},
+		&cli.StringFlag{
+			Name:    "resolver",
+			Usage:   "Set the resolver to route to services e.g path, domain",
+			EnvVars: []string{"MICRO_WEB_RESOLVER"},
+		},
+		&cli.StringFlag{
+			Name:    "auth_login_url",
+			EnvVars: []string{"MICRO_AUTH_LOGIN_URL"},
+			Usage:   "The relative URL where a user can login",
+		},
+	}
 )
 
 type srv struct {
@@ -422,11 +445,6 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 		Namespace = strings.TrimSuffix(ctx.String("namespace"), "."+Type)
 	}
 
-	// Init plugins
-	for _, p := range Plugins() {
-		p.Init(ctx)
-	}
-
 	// service opts
 	srvOpts = append(srvOpts, micro.Name(Name))
 
@@ -545,12 +563,6 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 		opts = append(opts, server.TLSConfig(config))
 	}
 
-	// reverse wrap handler
-	plugins := append(Plugins(), plugin.Plugins()...)
-	for i := len(plugins); i > 0; i-- {
-		h = plugins[i-1].Handler()(h)
-	}
-
 	// create the service and add the auth wrapper
 	aw := apiAuth.Wrapper(s.resolver, Namespace+"."+Type)
 	srv := httpapi.NewServer(Address, server.WrapHandler(aw))
@@ -576,52 +588,6 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 	if err := srv.Stop(); err != nil {
 		log.Fatal(err)
 	}
-}
-
-//Commands for `micro web`
-func Commands(options ...micro.Option) []*cli.Command {
-	command := &cli.Command{
-		Name:  "web",
-		Usage: "Run the web dashboard",
-		Action: func(c *cli.Context) error {
-			Run(c, options...)
-			return nil
-		},
-		Flags: []cli.Flag{
-			&cli.StringFlag{
-				Name:    "address",
-				Usage:   "Set the web UI address e.g 0.0.0.0:8082",
-				EnvVars: []string{"MICRO_WEB_ADDRESS"},
-			},
-			&cli.StringFlag{
-				Name:    "namespace",
-				Usage:   "Set the namespace used by the Web proxy e.g. com.example.web",
-				EnvVars: []string{"MICRO_WEB_NAMESPACE"},
-			},
-			&cli.StringFlag{
-				Name:    "resolver",
-				Usage:   "Set the resolver to route to services e.g path, domain",
-				EnvVars: []string{"MICRO_WEB_RESOLVER"},
-			},
-			&cli.StringFlag{
-				Name:    "auth_login_url",
-				EnvVars: []string{"MICRO_AUTH_LOGIN_URL"},
-				Usage:   "The relative URL where a user can login",
-			},
-		},
-	}
-
-	for _, p := range Plugins() {
-		if cmds := p.Commands(); len(cmds) > 0 {
-			command.Subcommands = append(command.Subcommands, cmds...)
-		}
-
-		if flags := p.Flags(); len(flags) > 0 {
-			command.Flags = append(command.Flags, flags...)
-		}
-	}
-
-	return []*cli.Command{command}
 }
 
 func reverse(s []string) {
