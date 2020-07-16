@@ -13,6 +13,9 @@ import (
 	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro/v2/cmd"
 	"github.com/micro/go-micro/v2/store"
+	"github.com/micro/micro/v2/client/cli/namespace"
+	"github.com/micro/micro/v2/client/cli/util"
+	inclient "github.com/micro/micro/v2/internal/client"
 	"github.com/pkg/errors"
 )
 
@@ -24,7 +27,16 @@ func Read(ctx *cli.Context) error {
 	if ctx.Args().Len() < 1 {
 		return errors.New("Key arg is required")
 	}
-	opts := []store.ReadOption{}
+
+	// get the namespace
+	ns, err := namespace.Get(util.GetEnv(ctx).Name)
+	if err != nil {
+		return err
+	}
+
+	opts := []store.ReadOption{
+		store.ReadFrom(ns, ctx.String("table")),
+	}
 	if ctx.Bool("prefix") {
 		opts = append(opts, store.ReadPrefix())
 	}
@@ -97,8 +109,14 @@ func Write(ctx *cli.Context) error {
 		record.Expiry = d
 	}
 
-	store := *cmd.DefaultCmd.Options().Store
-	if err := store.Write(record); err != nil {
+	// get the namespace
+	ns, err := namespace.Get(util.GetEnv(ctx).Name)
+	if err != nil {
+		return err
+	}
+
+	s := *cmd.DefaultCmd.Options().Store
+	if err := s.Write(record, store.WriteTo(ns, ctx.String("table"))); err != nil {
 		return errors.Wrap(err, "couldn't write")
 	}
 	return nil
@@ -109,7 +127,16 @@ func List(ctx *cli.Context) error {
 	if err := initStore(ctx); err != nil {
 		return err
 	}
-	var opts []store.ListOption
+
+	// get the namespace
+	ns, err := namespace.Get(util.GetEnv(ctx).Name)
+	if err != nil {
+		return err
+	}
+
+	opts := []store.ListOption{
+		store.ListFrom(ns, ctx.String("table")),
+	}
 	if ctx.Bool("prefix") {
 		opts = append(opts, store.ListPrefix(ctx.Args().First()))
 	}
@@ -119,6 +146,7 @@ func List(ctx *cli.Context) error {
 	if ctx.Uint("offset") != 0 {
 		opts = append(opts, store.ListLimit(ctx.Uint("offset")))
 	}
+
 	store := *cmd.DefaultCmd.Options().Store
 	keys, err := store.List(opts...)
 	if err != nil {
@@ -147,26 +175,35 @@ func Delete(ctx *cli.Context) error {
 	if len(ctx.Args().Slice()) == 0 {
 		return errors.New("key is required")
 	}
-	store := *cmd.DefaultCmd.Options().Store
-	if err := store.Delete(ctx.Args().First()); err != nil {
+
+	// get the namespace
+	ns, err := namespace.Get(util.GetEnv(ctx).Name)
+	if err != nil {
+		return err
+	}
+
+	s := *cmd.DefaultCmd.Options().Store
+	if err := s.Delete(ctx.Args().First(), store.DeleteFrom(ns, ctx.String("table"))); err != nil {
 		return errors.Wrapf(err, "couldn't delete key %s", ctx.Args().First())
 	}
 	return nil
 }
 
 func initStore(ctx *cli.Context) error {
-	opts := []store.Option{}
+	opts := []store.Option{
+		store.WithClient(inclient.New(ctx)),
+	}
+
 	if len(ctx.String("database")) > 0 {
 		opts = append(opts, store.Database(ctx.String("database")))
 	}
 	if len(ctx.String("table")) > 0 {
 		opts = append(opts, store.Table(ctx.String("table")))
 	}
-	if len(opts) > 0 {
-		store := *cmd.DefaultCmd.Options().Store
-		if err := store.Init(opts...); err != nil {
-			return errors.Wrap(err, "couldn't reinitialise store with options")
-		}
+
+	store := *cmd.DefaultCmd.Options().Store
+	if err := store.Init(opts...); err != nil {
+		return errors.Wrap(err, "couldn't reinitialise store with options")
 	}
 	return nil
 }

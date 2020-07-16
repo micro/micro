@@ -10,111 +10,144 @@ import (
 	"time"
 
 	"github.com/micro/go-micro/v2/errors"
-	"github.com/micro/go-micro/v2/metadata"
 	"github.com/micro/go-micro/v2/store"
 	pb "github.com/micro/go-micro/v2/store/service/proto"
 	"github.com/micro/micro/v2/internal/namespace"
 )
 
-type Store struct {
-	// The default store
-	Default store.Store
+const (
+	defaultDatabase = namespace.DefaultNamespace
+	defaultTable    = namespace.DefaultNamespace
+	internalTable   = "store"
+)
 
-	// Store initialiser
-	New func(string, string) (store.Store, error)
+// New returns an initialized store handler
+func New(store store.Store) pb.StoreHandler {
+	return &handler{
+		store:  store,
+		stores: make(map[string]bool),
+	}
+}
 
-	// Store map
+type handler struct {
+	// store interface to use for executing requests
+	store store.Store
+
+	// local stores cache
 	sync.RWMutex
-
-	Stores map[string]bool
+	stores map[string]bool
 }
 
-// TODO: remove this horrible bs
-func (s *Store) get(ctx context.Context, database, table string) (string, string) {
-	// lock (might be a race)
-	s.Lock()
-	defer s.Unlock()
-
-	// get the namespace from context
-	ns := namespace.FromContext(ctx)
-	// we're using "micro" as the database"
-	// TODO: change default namespace to micro
-	if ns == "go.micro" {
-		ns = "micro"
+// List all the keys in a table
+func (h *handler) List(ctx context.Context, req *pb.ListRequest, stream pb.Store_ListStream) error {
+	// set defaults
+	if req.Options == nil {
+		req.Options = &pb.ListOptions{}
+	}
+	if len(req.Options.Database) == 0 {
+		req.Options.Database = defaultDatabase
+	}
+	if len(req.Options.Table) == 0 {
+		req.Options.Table = defaultTable
 	}
 
-	// retrieve values from metadata
-	// TODO: switch to options
-	if md, ok := metadata.FromContext(ctx); ok {
-		// TODO: remove this, its here only for legacy purposes
-		if v, ok := md.Get("Micro-Database"); ok && len(v) > 0 {
-			database = v
-		}
-		if v, ok := md.Get("Micro-Table"); ok && len(v) > 0 {
-			table = v
-		}
-	}
-
-	// set the database to the namespace
-	if len(ns) > 0 {
-		database = ns
-	}
-
-	// reset database to options if not set
-	if len(database) == 0 {
-		database = s.Default.Options().Database
-	}
-
-	// reset table to options if not set
-	if len(table) == 0 {
-		table = s.Default.Options().Table
-	}
-
-	// just use the default if nothing is specified
-	if len(database) == 0 && len(table) == 0 {
-		return "micro", "store"
-	}
-
-	// attempt to get the database
-	_, ok := s.Stores[database+":"+table]
-	if !ok {
-		// set that we know about this database/table
-		s.New(database, table)
-	}
-
-	// save store
-	s.Stores[database+":"+table] = true
-
-	return database, table
-}
-
-func (s *Store) Read(ctx context.Context, req *pb.ReadRequest, rsp *pb.ReadResponse) error {
-	var opts []store.ReadOption
-	var database, table string
-
-	if req.Options != nil {
-		if req.Options.Prefix {
-			opts = append(opts, store.ReadPrefix())
-		}
-		if db := req.Options.Database; len(db) > 0 {
-			database = db
-		}
-		if tb := req.Options.Table; len(tb) > 0 {
-			table = tb
-		}
-	}
-
-	// get new store
-	database, table = s.get(ctx, database, table)
-	opts = append(opts, store.ReadFrom(database, table))
-
-	vals, err := s.Default.Read(req.Key, opts...)
-	if err != nil && err == store.ErrNotFound {
-		return errors.NotFound("go.micro.store", err.Error())
+	// authorize the request
+	if err := namespace.Authorize(ctx, req.Options.Database); err == namespace.ErrForbidden {
+		return errors.Forbidden("go.micro.store.Store.List", err.Error())
+	} else if err == namespace.ErrUnauthorized {
+		return errors.Unauthorized("go.micro.store.Store.List", err.Error())
 	} else if err != nil {
-		return errors.InternalServerError("go.micro.store", err.Error())
+		return errors.InternalServerError("go.micro.store.Store.List", err.Error())
 	}
 
+	// setup the store
+	if err := h.setupTable(req.Options.Database, req.Options.Table); err != nil {
+		return errors.InternalServerError("go.micro.store.Store.List", err.Error())
+	}
+
+	// setup the options
+	opts := []store.ListOption{
+		store.ListFrom(req.Options.Database, req.Options.Table),
+	}
+	if len(req.Options.Prefix) > 0 {
+		opts = append(opts, store.ListPrefix(req.Options.Prefix))
+	}
+	if req.Options.Offset > 0 {
+		opts = append(opts, store.ListOffset(uint(req.Options.Offset)))
+	}
+	if req.Options.Limit > 0 {
+		opts = append(opts, store.ListLimit(uint(req.Options.Limit)))
+	}
+
+	// list from the store
+	vals, err := h.store.List(opts...)
+	if err != nil && err == store.ErrNotFound {
+		return errors.NotFound("go.micro.store.Store.List", err.Error())
+	} else if err != nil {
+		return errors.InternalServerError("go.micro.store.Store.List", err.Error())
+	}
+
+	// serialize the response
+	// TODO: batch sync
+	rsp := new(pb.ListResponse)
+	for _, val := range vals {
+		rsp.Keys = append(rsp.Keys, val)
+	}
+
+	err = stream.Send(rsp)
+	if err == io.EOF {
+		return nil
+	}
+	if err != nil {
+		return errors.InternalServerError("go.micro.store.Store.List", err.Error())
+	}
+	return nil
+}
+
+// Read records from the store
+func (h *handler) Read(ctx context.Context, req *pb.ReadRequest, rsp *pb.ReadResponse) error {
+	// set defaults
+	if req.Options == nil {
+		req.Options = &pb.ReadOptions{}
+	}
+	if len(req.Options.Database) == 0 {
+		req.Options.Database = defaultDatabase
+	}
+	if len(req.Options.Table) == 0 {
+		req.Options.Table = defaultTable
+	}
+
+	// authorize the request
+	if err := namespace.Authorize(ctx, req.Options.Database); err == namespace.ErrForbidden {
+		return errors.Forbidden("go.micro.store.Store.Read", err.Error())
+	} else if err == namespace.ErrUnauthorized {
+		return errors.Unauthorized("go.micro.store.Store.Read", err.Error())
+	} else if err != nil {
+		return errors.InternalServerError("go.micro.store.Store.Read", err.Error())
+	}
+
+	// setup the store
+	if err := h.setupTable(req.Options.Database, req.Options.Table); err != nil {
+		return errors.InternalServerError("go.micro.store.Store.Read", err.Error())
+	}
+
+	// setup the options
+	opts := []store.ReadOption{
+		store.ReadFrom(req.Options.Database, req.Options.Table),
+	}
+	if req.Options.Prefix {
+		opts = append(opts, store.ReadPrefix())
+	}
+
+	// read from the database
+	vals, err := h.store.Read(req.Key, opts...)
+	if err != nil && err == store.ErrNotFound {
+		return errors.NotFound("go.micro.store.Store.Read", err.Error())
+	} else if err != nil {
+		return errors.InternalServerError("go.micro.store.Store.Read", err.Error())
+	}
+
+	// serialize the result
 	for _, val := range vals {
 		metadata := make(map[string]*pb.Field)
 		for k, v := range val.Metadata {
@@ -133,30 +166,48 @@ func (s *Store) Read(ctx context.Context, req *pb.ReadRequest, rsp *pb.ReadRespo
 	return nil
 }
 
-func (s *Store) Write(ctx context.Context, req *pb.WriteRequest, rsp *pb.WriteResponse) error {
-	var database, table string
-
-	if req.Options != nil {
-		if db := req.Options.Database; len(db) > 0 {
-			database = db
-		}
-		if tb := req.Options.Table; len(tb) > 0 {
-			table = tb
-		}
-	}
-
-	// get new store
-	database, table = s.get(ctx, database, table)
-
+// Write to the store
+func (h *handler) Write(ctx context.Context, req *pb.WriteRequest, rsp *pb.WriteResponse) error {
+	// validate the request
 	if req.Record == nil {
-		return errors.BadRequest("go.micro.store", "no record specified")
+		return errors.BadRequest("go.micro.store.Store.Write", "no record specified")
 	}
 
+	// set defaults
+	if req.Options == nil {
+		req.Options = &pb.WriteOptions{}
+	}
+	if len(req.Options.Database) == 0 {
+		req.Options.Database = defaultDatabase
+	}
+	if len(req.Options.Table) == 0 {
+		req.Options.Table = defaultTable
+	}
+
+	// authorize the request
+	if err := namespace.Authorize(ctx, req.Options.Database); err == namespace.ErrForbidden {
+		return errors.Forbidden("go.micro.store.Store.Write", err.Error())
+	} else if err == namespace.ErrUnauthorized {
+		return errors.Unauthorized("go.micro.store.Store.Write", err.Error())
+	} else if err != nil {
+		return errors.InternalServerError("go.micro.store.Store.Write", err.Error())
+	}
+
+	// setup the store
+	if err := h.setupTable(req.Options.Database, req.Options.Table); err != nil {
+		return errors.InternalServerError("go.micro.store.Store.Write", err.Error())
+	}
+
+	// setup the options
+	opts := []store.WriteOption{
+		store.WriteTo(req.Options.Database, req.Options.Table),
+	}
+
+	// construct the record
 	metadata := make(map[string]interface{})
 	for k, v := range req.Record.Metadata {
 		metadata[k] = v.Value
 	}
-
 	record := &store.Record{
 		Key:      req.Record.Key,
 		Value:    req.Record.Value,
@@ -164,51 +215,80 @@ func (s *Store) Write(ctx context.Context, req *pb.WriteRequest, rsp *pb.WriteRe
 		Metadata: metadata,
 	}
 
-	var opts []store.WriteOption
-	opts = append(opts, store.WriteTo(database, table))
-
-	err := s.Default.Write(record, opts...)
+	// write to the store
+	err := h.store.Write(record, opts...)
 	if err != nil && err == store.ErrNotFound {
-		return errors.NotFound("go.micro.store", err.Error())
+		return errors.NotFound("go.micro.store.Store.Write", err.Error())
 	} else if err != nil {
-		return errors.InternalServerError("go.micro.store", err.Error())
+		return errors.InternalServerError("go.micro.store.Store.Write", err.Error())
 	}
 
 	return nil
 }
 
-func (s *Store) Delete(ctx context.Context, req *pb.DeleteRequest, rsp *pb.DeleteResponse) error {
-	var database, table string
-
-	if req.Options != nil {
-		if db := req.Options.Database; len(db) > 0 {
-			database = db
-		}
-		if tb := req.Options.Table; len(tb) > 0 {
-			table = tb
-		}
+func (h *handler) Delete(ctx context.Context, req *pb.DeleteRequest, rsp *pb.DeleteResponse) error {
+	// set defaults
+	if req.Options == nil {
+		req.Options = &pb.DeleteOptions{}
+	}
+	if len(req.Options.Database) == 0 {
+		req.Options.Database = defaultDatabase
+	}
+	if len(req.Options.Table) == 0 {
+		req.Options.Table = defaultTable
 	}
 
-	// get new store
-	database, table = s.get(ctx, database, table)
-
-	var opts []store.DeleteOption
-	opts = append(opts, store.DeleteFrom(database, table))
-
-	if err := s.Default.Delete(req.Key, opts...); err == store.ErrNotFound {
-		return errors.NotFound("go.micro.store", err.Error())
+	// authorize the request
+	if err := namespace.Authorize(ctx, req.Options.Database); err == namespace.ErrForbidden {
+		return errors.Forbidden("go.micro.store.Store.Delete", err.Error())
+	} else if err == namespace.ErrUnauthorized {
+		return errors.Unauthorized("go.micro.store.Store.Delete", err.Error())
 	} else if err != nil {
-		return errors.InternalServerError("go.micro.store", err.Error())
+		return errors.InternalServerError("go.micro.store.Store.Delete", err.Error())
 	}
+
+	// setup the store
+	if err := h.setupTable(req.Options.Database, req.Options.Table); err != nil {
+		return errors.InternalServerError("go.micro.store.Store.Delete", err.Error())
+	}
+
+	// setup the options
+	opts := []store.DeleteOption{
+		store.DeleteFrom(req.Options.Database, req.Options.Table),
+	}
+
+	// delete from the store
+	if err := h.store.Delete(req.Key, opts...); err == store.ErrNotFound {
+		return errors.NotFound("go.micro.store.Store.Delete", err.Error())
+	} else if err != nil {
+		return errors.InternalServerError("go.micro.store.Store.Delete", err.Error())
+	}
+
 	return nil
 }
 
-// TODO: lock down to admin?
-func (s *Store) Databases(ctx context.Context, req *pb.DatabasesRequest, rsp *pb.DatabasesResponse) error {
-	recs, err := s.Default.Read("databases/", store.ReadPrefix(), store.ReadFrom("micro", "internal"))
+// Databases lists all the databases
+func (h *handler) Databases(ctx context.Context, req *pb.DatabasesRequest, rsp *pb.DatabasesResponse) error {
+	// authorize the request
+	if err := namespace.Authorize(ctx, defaultDatabase); err == namespace.ErrForbidden {
+		return errors.Forbidden("go.micro.store.Store.Databases", err.Error())
+	} else if err == namespace.ErrUnauthorized {
+		return errors.Unauthorized("go.micro.store.Store.Databases", err.Error())
+	} else if err != nil {
+		return errors.InternalServerError("go.micro.store.Store.Databases", err.Error())
+	}
+
+	// read the databases from the store
+	opts := []store.ReadOption{
+		store.ReadPrefix(),
+		store.ReadFrom(defaultDatabase, internalTable),
+	}
+	recs, err := h.store.Read("databases/", opts...)
 	if err != nil {
-		return errors.InternalServerError("go.micro.store", err.Error())
+		return errors.InternalServerError("go.micro.store.Store.Databases", err.Error())
 	}
+
+	// serialize the response
 	rsp.Databases = make([]string, len(recs))
 	for i, r := range recs {
 		rsp.Databases[i] = strings.TrimPrefix(r.Key, "databases/")
@@ -216,12 +296,36 @@ func (s *Store) Databases(ctx context.Context, req *pb.DatabasesRequest, rsp *pb
 	return nil
 }
 
-// TODO: lock down to admin?
-func (s *Store) Tables(ctx context.Context, req *pb.TablesRequest, rsp *pb.TablesResponse) error {
-	recs, err := s.Default.Read("tables/"+req.Database+"/", store.ReadPrefix(), store.ReadFrom("micro", "internal"))
-	if err != nil {
-		return errors.InternalServerError("go.micro.store", err.Error())
+// Tables returns all the tables in a database
+func (h *handler) Tables(ctx context.Context, req *pb.TablesRequest, rsp *pb.TablesResponse) error {
+	// set defaults
+	if len(req.Database) == 0 {
+		req.Database = defaultDatabase
 	}
+
+	// authorize the request
+	if err := namespace.Authorize(ctx, req.Database); err == namespace.ErrForbidden {
+		return errors.Forbidden("go.micro.store.Store.Tables", err.Error())
+	} else if err == namespace.ErrUnauthorized {
+		return errors.Unauthorized("go.micro.store.Store.Tables", err.Error())
+	} else if err != nil {
+		return errors.InternalServerError("go.micro.store.Store.Tables", err.Error())
+	}
+
+	// construct the options
+	opts := []store.ReadOption{
+		store.ReadPrefix(),
+		store.ReadFrom(defaultDatabase, internalTable),
+	}
+
+	// perform the query
+	query := fmt.Sprintf("tables/%v/", req.Database)
+	recs, err := h.store.Read(query, opts...)
+	if err != nil {
+		return errors.InternalServerError("go.micro.store.Store.Tables", err.Error())
+	}
+
+	// serialize the response
 	rsp.Tables = make([]string, len(recs))
 	for i, r := range recs {
 		rsp.Tables[i] = strings.TrimPrefix(r.Key, "tables/"+req.Database+"/")
@@ -229,44 +333,30 @@ func (s *Store) Tables(ctx context.Context, req *pb.TablesRequest, rsp *pb.Table
 	return nil
 }
 
-func (s *Store) List(ctx context.Context, req *pb.ListRequest, stream pb.Store_ListStream) error {
-	var database, table string
+func (h *handler) setupTable(database, table string) error {
+	// lock (might be a race)
+	h.Lock()
+	defer h.Unlock()
 
-	if req.Options != nil {
-		if db := req.Options.Database; len(db) > 0 {
-			database = db
-		}
-		if tb := req.Options.Table; len(tb) > 0 {
-			table = tb
-		}
-	}
-
-	// get new store
-	database, table = s.get(ctx, database, table)
-
-	var opts []store.ListOption
-	opts = append(opts, store.ListFrom(database, table))
-
-	vals, err := s.Default.List(opts...)
-	if err != nil && err == store.ErrNotFound {
-		return errors.NotFound("go.micro.store", err.Error())
-	} else if err != nil {
-		return errors.InternalServerError("go.micro.store", err.Error())
-	}
-
-	rsp := new(pb.ListResponse)
-
-	// TODO: batch sync
-	for _, val := range vals {
-		rsp.Keys = append(rsp.Keys, val)
-	}
-
-	err = stream.Send(rsp)
-	if err == io.EOF {
+	// attempt to get the database
+	if _, ok := h.stores[database+":"+table]; ok {
 		return nil
 	}
-	if err != nil {
-		return errors.InternalServerError("go.micro.store", err.Error())
+
+	// record the new database in the internal store
+	opt := store.WriteTo(defaultDatabase, internalTable)
+	dbRecord := &store.Record{Key: "databases/" + database, Value: []byte{}}
+	if err := h.store.Write(dbRecord, opt); err != nil {
+		return fmt.Errorf("Error writing new database to internal table: %v", err)
 	}
+
+	// record the new table in the internal store
+	tableRecord := &store.Record{Key: "tables/" + database + "/" + table, Value: []byte{}}
+	if err := h.store.Write(tableRecord, opt); err != nil {
+		return fmt.Errorf("Error writing new table to internal table: %v", err)
+	}
+
+	// write to the cache
+	h.stores[database+":"+table] = true
 	return nil
 }
