@@ -30,6 +30,9 @@ jobs:
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
         tag_names: true 
+    - name: Update the image
+      run: |
+        sed -e 's/: micro\/micro/: ${GITHUB_REF#refs/heads/}/g' -i.bak platform/kubernetes/network/*.yaml
     - name: Install the prerequisites
       run: |
         bash .github/workflows/kind-prereqs.sh
