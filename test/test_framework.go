@@ -1,20 +1,17 @@
 package test
 
 import (
-	"encoding/json"
 	"errors"
 	"fmt"
 	"math/rand"
 	"os/exec"
 	"path/filepath"
 	"runtime"
-	"strconv"
 	"strings"
 	"syscall"
 	"testing"
 	"time"
 
-	"github.com/micro/go-micro/v2/auth"
 	"github.com/micro/micro/v2/client/cli/namespace"
 	"github.com/micro/micro/v2/client/cli/token"
 )
@@ -224,6 +221,17 @@ func (s *testServerBase) launch() error {
 	}, 15*time.Second); err != nil {
 		return err
 	}
+
+	// login to admin account
+	login(s, s.t, "default", "password")
+
+	// generate a new admin account for the env : user=ENV_NAME pass=password
+	req := fmt.Sprintf(`{"id":"%s", "secret":"password", "options":{"namespace":"%s"}}`, s.envName(), s.envName())
+	outp, err := exec.Command("micro", s.envFlag(), "call", "go.micro.auth", "Auth.Generate", req).CombinedOutput()
+	if err != nil && !strings.Contains(string(outp), "already exists") { // until auth.Delete is implemented
+		s.t.Fatalf("Error generating auth: %s, %s", err, outp)
+		return err
+	}
 	return nil
 }
 
@@ -353,46 +361,16 @@ type loginOptions struct {
 	admin bool // log me in as an admin please
 }
 
-func login(serv testServer, t *t, email, password string, opts ...loginOptions) error {
-	optionsStr := `{"namespace":"micro"}`
-	if len(serv.loginOptions()) > 0 && (len(opts) == 0 || !opts[0].admin) {
-		optionsStr = serv.loginOptions()
-		// hack, default admin ID is serv.envName
-		email = serv.envName()
-	}
+func login(serv testServer, t *t, email, password string) error {
 	return try("Logging in", t, func() ([]byte, error) {
-		readCmd := exec.Command("micro", serv.envFlag(), "call", "go.micro.auth", "Auth.Token", fmt.Sprintf(`{"id":"%v","secret":"%v", "options":%s}`, email, password, optionsStr))
+		readCmd := exec.Command("micro", serv.envFlag(), "login", "--email", email, "--password", password)
 		outp, err := readCmd.CombinedOutput()
 		if err != nil {
 			return outp, err
 		}
-		rsp := map[string]interface{}{}
-		err = json.Unmarshal(outp, &rsp)
-		tok, ok := rsp["token"].(map[string]interface{})
-		if !ok {
-			return outp, errors.New("Can't find token")
+		if !strings.Contains(string(outp), "Success") {
+			return outp, errors.New("Login output does not contain 'Success'")
 		}
-		if _, ok = tok["access_token"].(string); !ok {
-			return outp, fmt.Errorf("Can't find access token")
-		}
-		if _, ok = tok["refresh_token"].(string); !ok {
-			return outp, fmt.Errorf("Can't find access token")
-		}
-		if _, ok = tok["refresh_token"].(string); !ok {
-			return outp, fmt.Errorf("Can't find refresh token")
-		}
-		if _, ok = tok["expiry"].(string); !ok {
-			return outp, fmt.Errorf("Can't find access token")
-		}
-		exp, err := strconv.ParseInt(tok["expiry"].(string), 10, 64)
-		if err != nil {
-			return nil, err
-		}
-		token.Save(serv.envName(), &auth.Token{
-			AccessToken:  tok["access_token"].(string),
-			RefreshToken: tok["refresh_token"].(string),
-			Expiry:       time.Unix(exp, 0),
-		})
-		return outp, nil
-	}, 8*time.Second)
+		return outp, err
+	}, 4*time.Second)
 }
