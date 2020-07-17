@@ -28,7 +28,6 @@ type cmdFunc func() ([]byte, error)
 type testServer interface {
 	launch() error
 	close()
-	loginOptions() string
 	envFlag() string
 	envName() string
 }
@@ -79,11 +78,6 @@ type testServerBase struct {
 	portNum       int
 	containerName string
 	opts          options
-	loginOpts     string
-}
-
-func (s *testServerBase) loginOptions() string {
-	return s.loginOpts
 }
 
 func (s *testServerBase) envName() string {
@@ -227,6 +221,7 @@ func (s *testServerBase) launch() error {
 
 	// generate a new admin account for the env : user=ENV_NAME pass=password
 	req := fmt.Sprintf(`{"id":"%s", "secret":"password", "options":{"namespace":"%s"}}`, s.envName(), s.envName())
+	s.t.t.Logf("Creating new auth account: %s", req)
 	outp, err := exec.Command("micro", s.envFlag(), "call", "go.micro.auth", "Auth.Generate", req).CombinedOutput()
 	if err != nil && !strings.Contains(string(outp), "already exists") { // until auth.Delete is implemented
 		s.t.Fatalf("Error generating auth: %s, %s", err, outp)
@@ -357,12 +352,8 @@ func trySuite(t *testing.T, f func(t *t), times int) {
 	}
 }
 
-type loginOptions struct {
-	admin bool // log me in as an admin please
-}
-
 func login(serv testServer, t *t, email, password string) error {
-	return try("Logging in", t, func() ([]byte, error) {
+	return try("Logging in with "+email, t, func() ([]byte, error) {
 		readCmd := exec.Command("micro", serv.envFlag(), "login", "--email", email, "--password", password)
 		outp, err := readCmd.CombinedOutput()
 		if err != nil {

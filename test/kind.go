@@ -3,7 +3,6 @@
 package test
 
 import (
-	"fmt"
 	"os/exec"
 	"strings"
 
@@ -28,7 +27,6 @@ func newK8sServer(t *t, fname string, opts ...options) testServer {
 		portNum: 8081,
 		cmd:     exec.Command("kubectl", "port-forward", "--namespace", "default", "svc/micro-proxy", "8081:8081"),
 	}}
-	s.loginOpts = fmt.Sprintf(`{"namespace":"%s"}`, s.envName())
 
 	return s
 }
