@@ -95,7 +95,6 @@ func databaseAndTable(ctx *cli.Context) (string, string) {
 	if tableCtx := ctx.String("table"); tableCtx != "" {
 		table = tableCtx
 	}
-	fmt.Printf("DB %s, table %s\n", db, table)
 	return db, table
 }
 
