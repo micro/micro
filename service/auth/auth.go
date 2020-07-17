@@ -189,6 +189,7 @@ func getPassword() (string, error) {
 func Commands(srvOpts ...micro.Option) []*cli.Command {
 	commands := []*cli.Command{
 		{
+			Name: "auth",
 			Subcommands: append([]*cli.Command{
 				{
 					Name:  "list",
