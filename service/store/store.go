@@ -18,7 +18,7 @@ var (
 )
 
 // Run runs the micro server
-func Run(ctx *cli.Context, srvOpts ...micro.Option) error {
+func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 	log.Init(log.WithFields(map[string]interface{}{"service": "store"}))
 
 	if len(ctx.String("server_name")) > 0 {
@@ -42,8 +42,6 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) error {
 	if err := service.Run(); err != nil {
 		log.Fatal(err)
 	}
-
-	return nil
 }
 
 // Commands is the cli interface for the store service

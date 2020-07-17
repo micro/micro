@@ -2,6 +2,7 @@
 package service
 
 import (
+	"fmt"
 	"os"
 	"strings"
 
@@ -14,7 +15,7 @@ import (
 	"github.com/micro/go-micro/v2/proxy/mucp"
 	rt "github.com/micro/go-micro/v2/runtime"
 	"github.com/micro/go-micro/v2/server"
-	"github.com/micro/micro/v2/internal/helper"
+	"github.com/micro/micro/v2/plugin"
 
 	// services
 	"github.com/micro/micro/v2/service/auth"
@@ -131,7 +132,96 @@ func Run(ctx *ccli.Context, opts ...micro.Option) {
 	service.Run()
 }
 
+type srvCommand struct {
+	Name    string
+	Command func(ctx *ccli.Context, srvOpts ...micro.Option)
+	Flags   []ccli.Flag
+}
+
+var srvCommands = []srvCommand{
+	{
+		Name:    "auth",
+		Command: auth.Run,
+	},
+	{
+		Name:    "broker",
+		Command: broker.Run,
+	},
+	{
+		Name:    "config",
+		Command: config.Run,
+		Flags:   config.Flags,
+	},
+	{
+		Name:    "debug",
+		Command: debug.Run,
+		Flags:   debug.Flags,
+	},
+	{
+		Name:    "health",
+		Command: health.Run,
+		Flags:   health.Flags,
+	},
+	{
+		Name:    "network",
+		Command: network.Run,
+		Flags:   network.Flags,
+	},
+	{
+		Name:    "registry",
+		Command: registry.Run,
+	},
+	{
+		Name:    "router",
+		Command: router.Run,
+		Flags:   router.Flags,
+	},
+	{
+		Name:    "runtime",
+		Command: runtime.Run,
+		Flags:   runtime.Flags,
+	},
+	{
+		Name:    "store",
+		Command: store.Run,
+	},
+	{
+		Name:    "tunnel",
+		Command: tunnel.Run,
+		Flags:   tunnel.Flags,
+	},
+}
+
 func Commands(options ...micro.Option) []*ccli.Command {
+	subcommands := make([]*ccli.Command, len(srvCommands))
+	for i, c := range srvCommands {
+		// construct the command
+		command := &ccli.Command{
+			Name:  c.Name,
+			Usage: fmt.Sprintf("Run micro %v", c.Name),
+			Action: func(ctx *ccli.Context) error {
+				fmt.Println("running", c.Name, i)
+				c.Command(ctx, options...)
+				return nil
+			},
+		}
+
+		// setup the plugins
+		for _, p := range plugin.Plugins(plugin.Module(c.Name)) {
+			if cmds := p.Commands(); len(cmds) > 0 {
+				command.Subcommands = append(command.Subcommands, cmds...)
+			}
+
+			if flags := p.Flags(); len(flags) > 0 {
+				command.Flags = append(command.Flags, flags...)
+			}
+		}
+
+		// set the command
+		subcommands[i] = command
+		fmt.Println(i, c.Name, command.Action)
+	}
+
 	command := &ccli.Command{
 		Name:  "service",
 		Usage: "Run a micro service",
@@ -162,134 +252,18 @@ func Commands(options ...micro.Option) []*ccli.Command {
 				EnvVars: []string{"MICRO_SERVICE_METADATA"},
 			},
 		},
-		Subcommands: []*ccli.Command{
-			{
-				Name:  "auth",
-				Usage: "Run micro auth",
-				Action: func(ctx *ccli.Context) error {
-					if err := helper.UnexpectedSubcommand(ctx); err != nil {
-						return err
-					}
-					auth.Run(ctx)
-					return nil
-				},
-			},
-			{
-				Name:  "broker",
-				Usage: "Run micro broker",
-				Action: func(ctx *ccli.Context) error {
-					if err := helper.UnexpectedSubcommand(ctx); err != nil {
-						return err
-					}
-					broker.Run(ctx)
-					return nil
-				},
-			},
-			{
-				Name:  "config",
-				Usage: "Run micro config",
-				Flags: config.Flags,
-				Action: func(ctx *ccli.Context) error {
-					if err := helper.UnexpectedSubcommand(ctx); err != nil {
-						return err
-					}
-					config.Run(ctx)
-					return nil
-				},
-			},
-			{
-				Name:  "debug",
-				Usage: "Run micro debug",
-				Flags: debug.Flags,
-				Action: func(ctx *ccli.Context) error {
-					if err := helper.UnexpectedSubcommand(ctx); err != nil {
-						return err
-					}
-					debug.Run(ctx)
-					return nil
-				},
-			},
-			{
-				Name:  "health",
-				Usage: "Run micro health",
-				Flags: health.Flags,
-				Action: func(ctx *ccli.Context) error {
-					if err := helper.UnexpectedSubcommand(ctx); err != nil {
-						return err
-					}
-					health.Run(ctx)
-					return nil
-				},
-			},
-			{
-				Name:  "network",
-				Usage: "Run micro network",
-				Action: func(ctx *ccli.Context) error {
-					if err := helper.UnexpectedSubcommand(ctx); err != nil {
-						return err
-					}
-					network.Run(ctx, options...)
-					return nil
-				},
-			},
-			{
-				Name:  "registry",
-				Usage: "Run micro registry",
-				Action: func(ctx *ccli.Context) error {
-					if err := helper.UnexpectedSubcommand(ctx); err != nil {
-						return err
-					}
-					registry.Run(ctx, options...)
-					return nil
-				},
-			},
-			{
-				Name:  "router",
-				Usage: "Run micro network router",
-				Action: func(ctx *ccli.Context) error {
-					if err := helper.UnexpectedSubcommand(ctx); err != nil {
-						return err
-					}
-					router.Run(ctx, options...)
-					return nil
-				},
-			},
-			{
-				Name:  "runtime",
-				Usage: "Run micro runtime",
-				Flags: runtime.Flags,
-				Action: func(ctx *ccli.Context) error {
-					if err := helper.UnexpectedSubcommand(ctx); err != nil {
-						return err
-					}
-					runtime.Run(ctx, options...)
-					return nil
-				},
-			},
-			{
-				Name:  "store",
-				Usage: "Run micro store",
-				Action: func(ctx *ccli.Context) error {
-					if err := helper.UnexpectedSubcommand(ctx); err != nil {
-						return err
-					}
-					store.Run(ctx, options...)
-					return nil
-				},
-			},
-			{
-				Name:  "tunnel",
-				Usage: "Run micro tunnel",
-				Flags: tunnel.Flags,
-				Action: func(ctx *ccli.Context) error {
-					if err := helper.UnexpectedSubcommand(ctx); err != nil {
-						return err
-					}
-					tunnel.Run(ctx, options...)
-					return nil
-				},
-			},
-		},
+		Subcommands: subcommands,
+	}
+
+	// register global plugins and flags
+	for _, p := range plugin.Plugins() {
+		if cmds := p.Commands(); len(cmds) > 0 {
+			command.Subcommands = append(command.Subcommands, cmds...)
+		}
+
+		if flags := p.Flags(); len(flags) > 0 {
+			command.Flags = append(command.Flags, flags...)
+		}
 	}
 
 	return []*ccli.Command{command}

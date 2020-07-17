@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/micro/cli/v2"
+	"github.com/micro/go-micro/v2"
 	"github.com/micro/go-micro/v2/client"
 	proto "github.com/micro/go-micro/v2/debug/service/proto"
 	log "github.com/micro/go-micro/v2/logger"
@@ -34,7 +35,7 @@ var (
 	}
 )
 
-func Run(ctx *cli.Context) {
+func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 	log.Init(log.WithFields(map[string]interface{}{"service": "health"}))
 
 	// just check service health
