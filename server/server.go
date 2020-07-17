@@ -175,13 +175,17 @@ func Run(context *cli.Context) error {
 		log.Infof("Registering %s", name)
 		// @todo this is a hack
 		envs := env
+		cmdArgs := []string{}
+
 		switch service {
-		case "proxy", "web", "api":
+		case "proxy", "web", "api", "bot", "cli":
 			envs = append(envs, "MICRO_AUTH=service")
 			envs = append(envs, "MICRO_REGISTRY=service")
+		default:
+			// run server as "micro service [cmd]"
+			cmdArgs = append(cmdArgs, "service")
 		}
 
-		cmdArgs := []string{}
 		// we want to pass through the global args so go up one level in the context lineage
 		if len(context.Lineage()) > 1 {
 			globCtx := context.Lineage()[1]

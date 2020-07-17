@@ -20,6 +20,24 @@ var (
 	Name = "go.micro.runtime"
 	// Address of the runtime
 	Address = ":8088"
+	// Flags specific to the runtime service
+	Flags = []cli.Flag{
+		&cli.StringFlag{
+			Name:    "profile",
+			Usage:   "Set the runtime profile to use for services e.g local, kubernetes, platform",
+			EnvVars: []string{"MICRO_RUNTIME_PROFILE"},
+		},
+		&cli.StringFlag{
+			Name:    "source",
+			Usage:   "Set the runtime source, e.g. micro/services",
+			EnvVars: []string{"MICRO_RUNTIME_SOURCE"},
+		},
+		&cli.IntFlag{
+			Name:    "retries",
+			Usage:   "Set the max retries per service",
+			EnvVars: []string{"MICRO_RUNTIME_RETRIES"},
+		},
+	}
 )
 
 // Run the runtime service
@@ -37,11 +55,8 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 		prof = profile.Kubernetes()
 	case "platform":
 		prof = profile.Platform()
-	}
-
-	// Init plugins
-	for _, p := range Plugins() {
-		p.Init(ctx)
+	default:
+		log.Fatal("Missing runtime profile")
 	}
 
 	if len(ctx.String("address")) > 0 {
@@ -102,8 +117,8 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 	}
 }
 
-// Flags is shared flags so we don't have to continually re-add
-func Flags() []cli.Flag {
+// flags is shared flags so we don't have to continually re-add
+func flags() []cli.Flag {
 	return []cli.Flag{
 		&cli.StringFlag{
 			Name:  "source",
@@ -135,36 +150,6 @@ func Flags() []cli.Flag {
 func Commands(options ...micro.Option) []*cli.Command {
 	command := []*cli.Command{
 		{
-			Name:  "runtime",
-			Usage: "Run the micro runtime",
-			Flags: []cli.Flag{
-				&cli.StringFlag{
-					Name:    "address",
-					Usage:   "Set the registry http address e.g 0.0.0.0:8088",
-					EnvVars: []string{"MICRO_SERVER_ADDRESS"},
-				},
-				&cli.StringFlag{
-					Name:    "profile",
-					Usage:   "Set the runtime profile to use for services e.g local, kubernetes, platform",
-					EnvVars: []string{"MICRO_RUNTIME_PROFILE"},
-				},
-				&cli.StringFlag{
-					Name:    "source",
-					Usage:   "Set the runtime source, e.g. micro/services",
-					EnvVars: []string{"MICRO_RUNTIME_SOURCE"},
-				},
-				&cli.IntFlag{
-					Name:    "retries",
-					Usage:   "Set the max retries per service",
-					EnvVars: []string{"MICRO_RUNTIME_RETRIES"},
-				},
-			},
-			Action: func(ctx *cli.Context) error {
-				Run(ctx, options...)
-				return nil
-			},
-		},
-		{
 			// In future we'll also have `micro run [x]` hence `micro run service` requiring "service"
 			Name:  "run",
 			Usage: RunUsage,
@@ -175,7 +160,7 @@ func Commands(options ...micro.Option) []*cli.Command {
 			micro run helloworld # deploy latest version, translates to micro run github.com/micro/services/helloworld
 			micro run helloworld@9342934e6180 # deploy certain version
 			micro run helloworld@branchname	# deploy certain branch`,
-			Flags: Flags(),
+			Flags: flags(),
 			Action: func(ctx *cli.Context) error {
 				runService(ctx, options...)
 				return nil
@@ -190,7 +175,7 @@ func Commands(options ...micro.Option) []*cli.Command {
 			micro update ../path/to/folder # deploy local folder to your local micro server
 			micro update helloworld # deploy master branch, translates to micro update github.com/micro/services/helloworld
 			micro update helloworld@branchname	# deploy certain branch`,
-			Flags: Flags(),
+			Flags: flags(),
 			Action: func(ctx *cli.Context) error {
 				updateService(ctx, options...)
 				return nil
@@ -199,7 +184,7 @@ func Commands(options ...micro.Option) []*cli.Command {
 		{
 			Name:  "kill",
 			Usage: KillUsage,
-			Flags: Flags(),
+			Flags: flags(),
 			Description: `Examples:
 			micro kill github.com/micro/examples/helloworld
 			micro kill .  # kill service deployed from local folder
@@ -214,7 +199,7 @@ func Commands(options ...micro.Option) []*cli.Command {
 		{
 			Name:  "status",
 			Usage: GetUsage,
-			Flags: Flags(),
+			Flags: flags(),
 			Action: func(ctx *cli.Context) error {
 				getService(ctx, options...)
 				return nil
@@ -229,16 +214,6 @@ func Commands(options ...micro.Option) []*cli.Command {
 				return nil
 			},
 		},
-	}
-
-	for _, p := range Plugins() {
-		if cmds := p.Commands(); len(cmds) > 0 {
-			command[0].Subcommands = append(command[0].Subcommands, cmds...)
-		}
-
-		if flags := p.Flags(); len(flags) > 0 {
-			command[0].Flags = append(command[0].Flags, flags...)
-		}
 	}
 
 	return command

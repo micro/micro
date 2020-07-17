@@ -23,6 +23,24 @@ var (
 	Network = router.DefaultNetwork
 	// Topic is router adverts topic
 	Topic = "go.micro.router.adverts"
+	// Flags specific to the router
+	Flags = []cli.Flag{
+		&cli.StringFlag{
+			Name:    "network",
+			Usage:   "Set the micro network name: local",
+			EnvVars: []string{"MICRO_NETWORK_NAME"},
+		},
+		&cli.StringFlag{
+			Name:    "gateway",
+			Usage:   "Set the micro default gateway address. Defaults to none.",
+			EnvVars: []string{"MICRO_GATEWAY_ADDRESS"},
+		},
+		&cli.StringFlag{
+			Name:    "advertise_strategy",
+			Usage:   "Set the advertise strategy; all, best, local, none",
+			EnvVars: []string{"MICRO_ROUTER_ADVERTISE_STRATEGY"},
+		},
+	}
 )
 
 // Sub processes router events
@@ -150,11 +168,6 @@ func (r *rtr) Close() error {
 func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 	log.Init(log.WithFields(map[string]interface{}{"service": "router"}))
 
-	// Init plugins
-	for _, p := range Plugins() {
-		p.Init(ctx)
-	}
-
 	if len(ctx.String("server_name")) > 0 {
 		Name = ctx.String("server_name")
 	}
@@ -260,49 +273,4 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 	}
 
 	log.Info("successfully closed")
-}
-
-func Commands(options ...micro.Option) []*cli.Command {
-	command := &cli.Command{
-		Name:  "router",
-		Usage: "Run the micro network router",
-		Flags: []cli.Flag{
-			&cli.StringFlag{
-				Name:    "address",
-				Usage:   "Set the micro router address :9093",
-				EnvVars: []string{"MICRO_SERVER_ADDRESS"},
-			},
-			&cli.StringFlag{
-				Name:    "network",
-				Usage:   "Set the micro network name: local",
-				EnvVars: []string{"MICRO_NETWORK_NAME"},
-			},
-			&cli.StringFlag{
-				Name:    "gateway",
-				Usage:   "Set the micro default gateway address. Defaults to none.",
-				EnvVars: []string{"MICRO_GATEWAY_ADDRESS"},
-			},
-			&cli.StringFlag{
-				Name:    "advertise_strategy",
-				Usage:   "Set the advertise strategy; all, best, local, none",
-				EnvVars: []string{"MICRO_ROUTER_ADVERTISE_STRATEGY"},
-			},
-		},
-		Action: func(ctx *cli.Context) error {
-			Run(ctx, options...)
-			return nil
-		},
-	}
-
-	for _, p := range Plugins() {
-		if cmds := p.Commands(); len(cmds) > 0 {
-			command.Subcommands = append(command.Subcommands, cmds...)
-		}
-
-		if flags := p.Flags(); len(flags) > 0 {
-			command.Flags = append(command.Flags, flags...)
-		}
-	}
-
-	return []*cli.Command{command}
 }

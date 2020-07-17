@@ -68,8 +68,8 @@ spec:
           value: "/certs/registry/key.pem"
         image: micro/micro
         imagePullPolicy: Always
-        command:
-        - /micro
+        args:
+        - service
         - debug
         volumeMounts:
         - name: etcd-client-certs

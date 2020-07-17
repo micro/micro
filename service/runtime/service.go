@@ -103,11 +103,6 @@ func sourceExists(source *git.Source) error {
 }
 
 func runService(ctx *cli.Context, srvOpts ...micro.Option) {
-	// Init plugins
-	for _, p := range Plugins() {
-		p.Init(ctx)
-	}
-
 	// we need some args to run
 	if ctx.Args().Len() == 0 {
 		fmt.Println(RunUsage)

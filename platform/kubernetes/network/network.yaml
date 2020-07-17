@@ -71,6 +71,7 @@ spec:
         - name: MICRO_SERVER_ADDRESS
           value: "0.0.0.0:8080"
         args:
+        - service
         - network
         image: micro/micro
         imagePullPolicy: Always

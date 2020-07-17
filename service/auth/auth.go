@@ -21,7 +21,6 @@ import (
 	cliutil "github.com/micro/micro/v2/client/cli/util"
 	"github.com/micro/micro/v2/internal/client"
 	"github.com/micro/micro/v2/internal/helper"
-	"github.com/micro/micro/v2/service/auth/api"
 	authHandler "github.com/micro/micro/v2/service/auth/handler/auth"
 	rulesHandler "github.com/micro/micro/v2/service/auth/handler/rules"
 	"golang.org/x/crypto/ssh/terminal"
@@ -35,29 +34,6 @@ var (
 	Name = "go.micro.auth"
 	// Address of the service
 	Address = ":8010"
-	// ServiceFlags are provided to commands which run micro services
-	ServiceFlags = []cli.Flag{
-		&cli.StringFlag{
-			Name:    "address",
-			Usage:   "Set the auth http address e.g 0.0.0.0:8010",
-			EnvVars: []string{"MICRO_SERVER_ADDRESS"},
-		},
-		&cli.StringFlag{
-			Name:    "auth_provider",
-			EnvVars: []string{"MICRO_AUTH_PROVIDER"},
-			Usage:   "Auth provider enables account generation",
-		},
-		&cli.StringFlag{
-			Name:    "auth_public_key",
-			EnvVars: []string{"MICRO_AUTH_PUBLIC_KEY"},
-			Usage:   "Public key for JWT auth (base64 encoded PEM)",
-		},
-		&cli.StringFlag{
-			Name:    "auth_private_key",
-			EnvVars: []string{"MICRO_AUTH_PRIVATE_KEY"},
-			Usage:   "Private key for JWT auth (base64 encoded PEM)",
-		},
-	}
 	// RuleFlags are provided to commands which create or delete rules
 	RuleFlags = []cli.Flag{
 		&cli.StringFlag{
@@ -101,11 +77,6 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 	}
 	if len(Address) > 0 {
 		srvOpts = append(srvOpts, micro.Address(Address))
-	}
-
-	// Init plugins
-	for _, p := range Plugins() {
-		p.Init(ctx)
 	}
 
 	// setup the handlers
@@ -219,15 +190,8 @@ func getPassword() (string, error) {
 func Commands(srvOpts ...micro.Option) []*cli.Command {
 	commands := []*cli.Command{
 		{
-			Name:  "auth",
-			Usage: "Manage authentication related resources",
-			Action: func(ctx *cli.Context) error {
-				if err := helper.UnexpectedSubcommand(ctx); err != nil {
-					return err
-				}
-				Run(ctx)
-				return nil
-			},
+			Name:   "auth",
+			Action: helper.UnexpectedSubcommand,
 			Subcommands: append([]*cli.Command{
 				{
 					Name:  "list",
@@ -299,16 +263,6 @@ func Commands(srvOpts ...micro.Option) []*cli.Command {
 						},
 					}),
 				},
-				{
-					Name:        "api",
-					Usage:       "Run the auth api",
-					Description: "Run the auth api",
-					Flags:       ServiceFlags,
-					Action: func(ctx *cli.Context) error {
-						api.Run(ctx, srvOpts...)
-						return nil
-					},
-				},
 			}),
 		},
 		{
@@ -334,18 +288,6 @@ func Commands(srvOpts ...micro.Option) []*cli.Command {
 				},
 			},
 		},
-	}
-
-	for _, c := range commands {
-		for _, p := range Plugins() {
-			if cmds := p.Commands(); len(cmds) > 0 {
-				c.Subcommands = append(c.Subcommands, cmds...)
-			}
-
-			if flags := p.Flags(); len(flags) > 0 {
-				c.Flags = append(c.Flags, flags...)
-			}
-		}
 	}
 
 	return commands

@@ -63,8 +63,8 @@ spec:
           value: "postgresql://root@cockroachdb-cluster-public:26257?ssl=true&sslmode=require&sslrootcert=certs/store/ca.crt&sslkey=certs/store/key.pem&sslcert=certs/store/cert.pem"
         image: micro/micro
         imagePullPolicy: Always
-        command:
-        - /micro
+        args:
+        - service
         - store
         ports:
         - containerPort: 8002

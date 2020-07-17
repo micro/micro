@@ -88,11 +88,6 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 		Address = ctx.String("address")
 	}
 
-	// Init plugins
-	for _, p := range Plugins() {
-		p.Init(ctx)
-	}
-
 	// service opts
 	srvOpts = append(srvOpts, micro.Name(Name))
 	if i := time.Duration(ctx.Int("register_ttl")); i > 0 {
@@ -127,33 +122,9 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 
 func Commands(options ...micro.Option) []*cli.Command {
 	command := &cli.Command{
-		Name:  "registry",
-		Usage: "Run the service registry",
-		Flags: []cli.Flag{
-			&cli.StringFlag{
-				Name:    "address",
-				Usage:   "Set the registry http address e.g 0.0.0.0:8000",
-				EnvVars: []string{"MICRO_SERVER_ADDRESS"},
-			},
-		},
-		Action: func(ctx *cli.Context) error {
-			if err := helper.UnexpectedSubcommand(ctx); err != nil {
-				return err
-			}
-			Run(ctx, options...)
-			return nil
-		},
+		Name:        "registry",
+		Action:      helper.UnexpectedSubcommand,
 		Subcommands: rcli.RegistryCommands(),
-	}
-
-	for _, p := range Plugins() {
-		if cmds := p.Commands(); len(cmds) > 0 {
-			command.Subcommands = append(command.Subcommands, cmds...)
-		}
-
-		if flags := p.Flags(); len(flags) > 0 {
-			command.Flags = append(command.Flags, flags...)
-		}
 	}
 
 	return []*cli.Command{command}

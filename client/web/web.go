@@ -36,7 +36,6 @@ import (
 	"github.com/micro/micro/v2/internal/helper"
 	"github.com/micro/micro/v2/internal/resolver/web"
 	"github.com/micro/micro/v2/internal/stats"
-	"github.com/micro/micro/v2/plugin"
 	"github.com/serenize/snaker"
 )
 
@@ -422,11 +421,6 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 		Namespace = strings.TrimSuffix(ctx.String("namespace"), "."+Type)
 	}
 
-	// Init plugins
-	for _, p := range Plugins() {
-		p.Init(ctx)
-	}
-
 	// service opts
 	srvOpts = append(srvOpts, micro.Name(Name))
 
@@ -545,12 +539,6 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 		opts = append(opts, server.TLSConfig(config))
 	}
 
-	// reverse wrap handler
-	plugins := append(Plugins(), plugin.Plugins()...)
-	for i := len(plugins); i > 0; i-- {
-		h = plugins[i-1].Handler()(h)
-	}
-
 	// create the service and add the auth wrapper
 	aw := apiAuth.Wrapper(s.resolver, Namespace+"."+Type)
 	srv := httpapi.NewServer(Address, server.WrapHandler(aw))
@@ -609,16 +597,6 @@ func Commands(options ...micro.Option) []*cli.Command {
 				Usage:   "The relative URL where a user can login",
 			},
 		},
-	}
-
-	for _, p := range Plugins() {
-		if cmds := p.Commands(); len(cmds) > 0 {
-			command.Subcommands = append(command.Subcommands, cmds...)
-		}
-
-		if flags := p.Flags(); len(flags) > 0 {
-			command.Flags = append(command.Flags, flags...)
-		}
 	}
 
 	return []*cli.Command{command}

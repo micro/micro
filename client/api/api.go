@@ -34,7 +34,6 @@ import (
 	"github.com/micro/micro/v2/internal/helper"
 	rrmicro "github.com/micro/micro/v2/internal/resolver/api"
 	"github.com/micro/micro/v2/internal/stats"
-	"github.com/micro/micro/v2/plugin"
 )
 
 var (
@@ -83,11 +82,6 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 
 	// initialise service
 	service := micro.NewService(srvOpts...)
-
-	// Init plugins
-	for _, p := range Plugins() {
-		p.Init(ctx)
-	}
 
 	// Init API
 	var opts []server.Option
@@ -276,12 +270,6 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 		r.PathPrefix(APIPath).Handler(handler.Meta(service, rt, Namespace))
 	}
 
-	// reverse wrap handler
-	plugins := append(Plugins(), plugin.Plugins()...)
-	for i := len(plugins); i > 0; i-- {
-		h = plugins[i-1].Handler()(h)
-	}
-
 	// create the auth wrapper and the server
 	authWrapper := auth.Wrapper(rr, Namespace)
 	api := httpapi.NewServer(Address, server.WrapHandler(authWrapper))
@@ -351,16 +339,6 @@ func Commands(options ...micro.Option) []*cli.Command {
 				Value:   true,
 			},
 		},
-	}
-
-	for _, p := range Plugins() {
-		if cmds := p.Commands(); len(cmds) > 0 {
-			command.Subcommands = append(command.Subcommands, cmds...)
-		}
-
-		if flags := p.Flags(); len(flags) > 0 {
-			command.Flags = append(command.Flags, flags...)
-		}
 	}
 
 	return []*cli.Command{command}

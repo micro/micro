@@ -147,6 +147,7 @@ spec:
         - name: MICRO_STORE_ADDRESS
           value: "postgresql://root@cockroachdb-cluster-public:26257?ssl=true&sslmode=require&sslrootcert=certs/store/ca.crt&sslkey=certs/store/key.pem&sslcert=certs/store/cert.pem"
         args:
+        - service
         - runtime
         image: micro/micro
         imagePullPolicy: Always

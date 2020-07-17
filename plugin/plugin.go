@@ -26,8 +26,21 @@ type Plugin interface {
 // Manager is the plugin manager which stores plugins and allows them to be retrieved.
 // This is used by all the components of micro.
 type Manager interface {
-	Plugins() []Plugin
-	Register(Plugin) error
+	Plugins(...PluginOption) []Plugin
+	Register(Plugin, ...PluginOption) error
+}
+
+type PluginOptions struct {
+	Module string
+}
+
+type PluginOption func(o *PluginOptions)
+
+// Module will scope the plugin to a specific module, e.g. the "api"
+func Module(m string) PluginOption {
+	return func(o *PluginOptions) {
+		o.Module = m
+	}
 }
 
 // Handler is the plugin middleware handler which wraps an existing http.Handler passed in.
@@ -84,19 +97,19 @@ func newPlugin(opts ...Option) Plugin {
 }
 
 // Plugins lists the global plugins
-func Plugins() []Plugin {
-	return defaultManager.Plugins()
+func Plugins(opts ...PluginOption) []Plugin {
+	return defaultManager.Plugins(opts...)
 }
 
 // Register registers a global plugins
-func Register(plugin Plugin) error {
-	return defaultManager.Register(plugin)
+func Register(plugin Plugin, opts ...PluginOption) error {
+	return defaultManager.Register(plugin, opts...)
 }
 
 // IsRegistered check plugin whether registered global.
 // Notice plugin is not check whether is nil
-func IsRegistered(plugin Plugin) bool {
-	return defaultManager.isRegistered(plugin)
+func IsRegistered(plugin Plugin, opts ...PluginOption) bool {
+	return defaultManager.isRegistered(plugin, opts...)
 }
 
 // NewManager creates a new plugin manager

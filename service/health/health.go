@@ -19,9 +19,23 @@ var (
 	healthAddress = ":8088"
 	serverAddress string
 	serverName    string
+
+	// Flags specific to the health service
+	Flags = []cli.Flag{
+		&cli.StringFlag{
+			Name:    "check_service",
+			Usage:   "Name of the service to query",
+			EnvVars: []string{"MICRO_HEALTH_CHECK_SERVICE"},
+		},
+		&cli.StringFlag{
+			Name:    "check_address",
+			Usage:   "Set the service address to query",
+			EnvVars: []string{"MICRO_HEALTH_CHECK_ADDRESS"},
+		},
+	}
 )
 
-func Run(ctx *cli.Context) {
+func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 	log.Init(log.WithFields(map[string]interface{}{"service": "health"}))
 
 	// just check service health
@@ -67,44 +81,4 @@ func Run(ctx *cli.Context) {
 	if err := http.ListenAndServe(healthAddress, nil); err != nil {
 		log.Fatal(err)
 	}
-}
-
-func Commands(options ...micro.Option) []*cli.Command {
-	command := &cli.Command{
-		Name:  "health",
-		Usage: "Check the health of a service",
-		Flags: []cli.Flag{
-			&cli.StringFlag{
-				Name:    "address",
-				Usage:   "Set the address exposed for the http server e.g :8088",
-				EnvVars: []string{"MICRO_HEALTH_ADDRESS"},
-			},
-			&cli.StringFlag{
-				Name:    "check_service",
-				Usage:   "Name of the service to query",
-				EnvVars: []string{"MICRO_HEALTH_CHECK_SERVICE"},
-			},
-			&cli.StringFlag{
-				Name:    "check_address",
-				Usage:   "Set the service address to query",
-				EnvVars: []string{"MICRO_HEALTH_CHECK_ADDRESS"},
-			},
-		},
-		Action: func(ctx *cli.Context) error {
-			Run(ctx)
-			return nil
-		},
-	}
-
-	for _, p := range Plugins() {
-		if cmds := p.Commands(); len(cmds) > 0 {
-			command.Subcommands = append(command.Subcommands, cmds...)
-		}
-
-		if flags := p.Flags(); len(flags) > 0 {
-			command.Flags = append(command.Flags, flags...)
-		}
-	}
-
-	return []*cli.Command{command}
 }

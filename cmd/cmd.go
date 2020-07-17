@@ -26,13 +26,10 @@ import (
 
 	// services
 	"github.com/micro/micro/v2/service/auth"
-	"github.com/micro/micro/v2/service/broker"
 	"github.com/micro/micro/v2/service/config"
 	"github.com/micro/micro/v2/service/debug"
-	"github.com/micro/micro/v2/service/health"
 	"github.com/micro/micro/v2/service/network"
 	"github.com/micro/micro/v2/service/registry"
-	"github.com/micro/micro/v2/service/router"
 	"github.com/micro/micro/v2/service/runtime"
 	"github.com/micro/micro/v2/service/store"
 	"github.com/micro/micro/v2/service/tunnel"
@@ -351,26 +348,24 @@ func Setup(app *ccli.App, options ...micro.Option) {
 		app.Commands = append(app.Commands, command)
 	}
 
-	// Add the various commands
+	// Add the client commmands
+	app.Commands = append(app.Commands, api.Commands()...)
+	app.Commands = append(app.Commands, web.Commands()...)
+	app.Commands = append(app.Commands, proxy.Commands()...)
+	app.Commands = append(app.Commands, bot.Commands()...)
+	app.Commands = append(app.Commands, cli.Commands()...)
+
+	// Add the service commands
 	app.Commands = append(app.Commands, new.Commands()...)
 	app.Commands = append(app.Commands, runtime.Commands(options...)...)
 	app.Commands = append(app.Commands, store.Commands(options...)...)
 	app.Commands = append(app.Commands, config.Commands(options...)...)
-	app.Commands = append(app.Commands, api.Commands(options...)...)
 	app.Commands = append(app.Commands, auth.Commands()...)
-	app.Commands = append(app.Commands, bot.Commands()...)
-	app.Commands = append(app.Commands, cli.Commands()...)
-	app.Commands = append(app.Commands, broker.Commands(options...)...)
-	app.Commands = append(app.Commands, health.Commands(options...)...)
-	app.Commands = append(app.Commands, proxy.Commands(options...)...)
-	app.Commands = append(app.Commands, router.Commands(options...)...)
-	app.Commands = append(app.Commands, tunnel.Commands(options...)...)
 	app.Commands = append(app.Commands, network.Commands(options...)...)
 	app.Commands = append(app.Commands, registry.Commands(options...)...)
 	app.Commands = append(app.Commands, debug.Commands(options...)...)
 	app.Commands = append(app.Commands, server.Commands(options...)...)
 	app.Commands = append(app.Commands, service.Commands(options...)...)
-	app.Commands = append(app.Commands, web.Commands(options...)...)
 	app.Commands = append(app.Commands, platform.Commands(options...)...)
 
 	sort.Sort(commands(app.Commands))
