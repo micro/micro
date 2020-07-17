@@ -66,6 +66,7 @@ spec:
               name: micro-secrets
               key: auth_private_key
         args:
+        - service
         - auth
         image: micro/micro
         imagePullPolicy: Always

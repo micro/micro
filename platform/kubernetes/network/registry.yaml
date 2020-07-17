@@ -62,6 +62,7 @@ spec:
         - name: MICRO_REGISTRY_TLS_KEY
           value: "/certs/registry/key.pem"
         args:
+        - service
         - registry
         image: micro/micro
         imagePullPolicy: Always

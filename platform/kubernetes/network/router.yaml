@@ -64,6 +64,7 @@ spec:
         - name: MICRO_ENABLE_ACME
           value: "true"
         args:
+        - service
         - router
         image: micro/micro
         imagePullPolicy: Always
