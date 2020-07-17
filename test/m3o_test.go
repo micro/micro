@@ -134,13 +134,13 @@ func testM3oSignupFlow(t *t) {
 		if !strings.Contains(string(outp), "Success") {
 			t.Fatal(string(outp))
 		}
-		ns, err := namespace.Get(serv.envName)
+		ns, err := namespace.Get(serv.envName())
 		if err != nil {
 			t.Fatalf("Eror getting namespace: %v", err)
 			return
 		}
 		defer func() {
-			namespace.Remove(ns, serv.envName)
+			namespace.Remove(ns, serv.envName())
 		}()
 		if strings.Count(ns, "-") != 2 {
 			t.Fatalf("Expected 2 dashes in namespace but namespace is: %v", ns)
