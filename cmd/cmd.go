@@ -17,6 +17,7 @@ import (
 
 	// clients
 	"github.com/micro/micro/v2/client/api"
+	"github.com/micro/micro/v2/client/bot"
 	"github.com/micro/micro/v2/client/cli"
 	"github.com/micro/micro/v2/client/cli/new"
 	"github.com/micro/micro/v2/client/cli/util"
@@ -347,13 +348,19 @@ func Setup(app *ccli.App, options ...micro.Option) {
 		app.Commands = append(app.Commands, command)
 	}
 
-	// Add the various commands
+	// Add the client commmands
+	app.Commands = append(app.Commands, api.Commands()...)
+	app.Commands = append(app.Commands, web.Commands()...)
+	app.Commands = append(app.Commands, proxy.Commands()...)
+	app.Commands = append(app.Commands, bot.Commands()...)
+	app.Commands = append(app.Commands, cli.Commands()...)
+
+	// Add the service commands
 	app.Commands = append(app.Commands, new.Commands()...)
 	app.Commands = append(app.Commands, runtime.Commands(options...)...)
 	app.Commands = append(app.Commands, store.Commands(options...)...)
 	app.Commands = append(app.Commands, config.Commands(options...)...)
 	app.Commands = append(app.Commands, auth.Commands()...)
-	app.Commands = append(app.Commands, cli.Commands()...)
 	app.Commands = append(app.Commands, network.Commands(options...)...)
 	app.Commands = append(app.Commands, registry.Commands(options...)...)
 	app.Commands = append(app.Commands, debug.Commands(options...)...)

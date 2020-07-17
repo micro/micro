@@ -66,11 +66,6 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 		ACMEProvider = ctx.String("acme_provider")
 	}
 
-	// Init plugins
-	for _, p := range Plugins() {
-		p.Init(ctx)
-	}
-
 	// service opts
 	srvOpts = append(srvOpts, micro.Name(Name))
 
@@ -252,16 +247,6 @@ func Commands(options ...micro.Option) []*cli.Command {
 			Run(ctx, options...)
 			return nil
 		},
-	}
-
-	for _, p := range Plugins() {
-		if cmds := p.Commands(); len(cmds) > 0 {
-			command.Subcommands = append(command.Subcommands, cmds...)
-		}
-
-		if flags := p.Flags(); len(flags) > 0 {
-			command.Flags = append(command.Flags, flags...)
-		}
 	}
 
 	return []*cli.Command{command}

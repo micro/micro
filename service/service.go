@@ -16,13 +16,6 @@ import (
 	"github.com/micro/go-micro/v2/server"
 	"github.com/micro/micro/v2/internal/helper"
 
-	// clients
-	"github.com/micro/micro/v2/client/api"
-	"github.com/micro/micro/v2/client/bot"
-	"github.com/micro/micro/v2/client/cli"
-	"github.com/micro/micro/v2/client/proxy"
-	"github.com/micro/micro/v2/client/web"
-
 	// services
 	"github.com/micro/micro/v2/service/auth"
 	"github.com/micro/micro/v2/service/broker"
@@ -171,14 +164,6 @@ func Commands(options ...micro.Option) []*ccli.Command {
 		},
 		Subcommands: []*ccli.Command{
 			{
-				Name:  "api",
-				Usage: "Run micro api",
-				Action: func(ctx *ccli.Context) error {
-					api.Run(ctx)
-					return nil
-				},
-			},
-			{
 				Name:  "auth",
 				Usage: "Run micro auth",
 				Action: func(ctx *ccli.Context) error {
@@ -187,27 +172,10 @@ func Commands(options ...micro.Option) []*ccli.Command {
 				},
 			},
 			{
-				Name:  "bot",
-				Usage: "Run micro bot",
-				Flags: bot.Flags,
-				Action: func(ctx *ccli.Context) error {
-					bot.Run(ctx)
-					return nil
-				},
-			},
-			{
 				Name:  "broker",
 				Usage: "Run micro broker",
 				Action: func(ctx *ccli.Context) error {
 					broker.Run(ctx)
-					return nil
-				},
-			},
-			{
-				Name:  "cli",
-				Usage: "Run micro cli",
-				Action: func(ctx *ccli.Context) error {
-					cli.Run(ctx)
 					return nil
 				},
 			},
@@ -246,14 +214,6 @@ func Commands(options ...micro.Option) []*ccli.Command {
 						return err
 					}
 					network.Run(ctx, options...)
-					return nil
-				},
-			},
-			{
-				Name:  "proxy",
-				Usage: "Run micro proxy",
-				Action: func(ctx *ccli.Context) error {
-					proxy.Run(ctx, options...)
 					return nil
 				},
 			},
@@ -308,18 +268,6 @@ func Commands(options ...micro.Option) []*ccli.Command {
 						return err
 					}
 					tunnel.Run(ctx, options...)
-					return nil
-				},
-			},
-			{
-				Name:  "web",
-				Usage: "Run micro web",
-				Flags: web.Flags,
-				Action: func(ctx *ccli.Context) error {
-					if err := helper.UnexpectedSubcommand(ctx); err != nil {
-						return err
-					}
-					web.Run(ctx, options...)
 					return nil
 				},
 			},
