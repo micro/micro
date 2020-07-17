@@ -207,6 +207,7 @@ func Commands(options ...micro.Option) []*ccli.Command {
 		// construct the command
 		command := &ccli.Command{
 			Name:   c.Name,
+			Flags:  c.Flags,
 			Usage:  fmt.Sprintf("Run micro %v", c.Name),
 			Action: newAction(c),
 		}

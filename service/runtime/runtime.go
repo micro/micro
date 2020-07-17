@@ -55,6 +55,8 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 		prof = profile.Kubernetes()
 	case "platform":
 		prof = profile.Platform()
+	default:
+		log.Fatal("Missing runtime profile")
 	}
 
 	if len(ctx.String("address")) > 0 {
