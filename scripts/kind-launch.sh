@@ -20,6 +20,7 @@ yq delete -i platform/kubernetes/network/proxy.yaml "spec.template.spec.containe
 
 pushd platform/kubernetes
 ./install.sh
+kubectl wait deployment --all --timeout=180s -n default --for=condition=available 
 popd
 
 # TODO 
