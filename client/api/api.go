@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"net/http"
 	"os"
-	"strings"
 
 	"github.com/go-acme/lego/v3/providers/dns/cloudflare"
 	"github.com/gorilla/mux"
@@ -46,7 +45,6 @@ var (
 	APIPath               = "/"
 	ProxyPath             = "/{service:[a-zA-Z0-9]+}"
 	Namespace             = "go.micro"
-	Type                  = "api"
 	HeaderPrefix          = "X-Micro-"
 	EnableRPC             = false
 	ACMEProvider          = "autocert"
@@ -75,22 +73,8 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 	if len(ctx.String("acme_provider")) > 0 {
 		ACMEProvider = ctx.String("acme_provider")
 	}
-	if len(ctx.String("type")) > 0 {
-		Type = ctx.String("type")
-	}
 	if len(ctx.String("namespace")) > 0 {
-		// remove the service type from the namespace to allow for
-		// backwards compatability
-		Namespace = strings.TrimSuffix(ctx.String("namespace"), "."+Type)
-	}
-
-	// if the namespace was foo.api.v1, it would excape the trim suffix check
-	// above and we want to use this as our API namespace
-	var apiNamespace string
-	if strings.Contains(Namespace, ".api.") {
-		apiNamespace = Namespace
-	} else {
-		apiNamespace = Namespace + "." + Type
+		Namespace = ctx.String("namespace")
 	}
 
 	// append name to opts
@@ -189,7 +173,7 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 
 	// resolver options
 	ropts := []resolver.Option{
-		resolver.WithServicePrefix(apiNamespace),
+		resolver.WithServicePrefix(Namespace),
 		resolver.WithHandler(Handler),
 	}
 
@@ -220,7 +204,7 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 			router.WithRegistry(service.Options().Registry),
 		)
 		rp := arpc.NewHandler(
-			ahandler.WithNamespace(apiNamespace),
+			ahandler.WithNamespace(Namespace),
 			ahandler.WithRouter(rt),
 			ahandler.WithClient(service.Client()),
 		)
@@ -233,7 +217,7 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 			router.WithRegistry(service.Options().Registry),
 		)
 		ap := aapi.NewHandler(
-			ahandler.WithNamespace(apiNamespace),
+			ahandler.WithNamespace(Namespace),
 			ahandler.WithRouter(rt),
 			ahandler.WithClient(service.Client()),
 		)
@@ -246,7 +230,7 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 			router.WithRegistry(service.Options().Registry),
 		)
 		ev := event.NewHandler(
-			ahandler.WithNamespace(apiNamespace),
+			ahandler.WithNamespace(Namespace),
 			ahandler.WithRouter(rt),
 			ahandler.WithClient(service.Client()),
 		)
@@ -259,7 +243,7 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 			router.WithRegistry(service.Options().Registry),
 		)
 		ht := ahttp.NewHandler(
-			ahandler.WithNamespace(apiNamespace),
+			ahandler.WithNamespace(Namespace),
 			ahandler.WithRouter(rt),
 			ahandler.WithClient(service.Client()),
 		)
@@ -272,7 +256,7 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 			router.WithRegistry(service.Options().Registry),
 		)
 		w := web.NewHandler(
-			ahandler.WithNamespace(apiNamespace),
+			ahandler.WithNamespace(Namespace),
 			ahandler.WithRouter(rt),
 			ahandler.WithClient(service.Client()),
 		)
@@ -283,11 +267,11 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 			router.WithResolver(rr),
 			router.WithRegistry(service.Options().Registry),
 		)
-		r.PathPrefix(APIPath).Handler(handler.Meta(service, rt, Namespace+"."+Type))
+		r.PathPrefix(APIPath).Handler(handler.Meta(service, rt, Namespace))
 	}
 
 	// create the auth wrapper and the server
-	authWrapper := auth.Wrapper(rr, Namespace+"."+Type)
+	authWrapper := auth.Wrapper(rr, Namespace)
 	api := httpapi.NewServer(Address, server.WrapHandler(authWrapper))
 
 	api.Init(opts...)
