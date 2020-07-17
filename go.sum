@@ -319,14 +319,10 @@ github.com/matttproud/golang_protobuf_extensions v1.0.1 h1:4hp9jkHxhMHkqkrB3Ix0j
 github.com/matttproud/golang_protobuf_extensions v1.0.1/go.mod h1:D8He9yQNgCq6Z5Ld7szi9bcBfOoFv/3dc6xSMkL2PC0=
 github.com/micro/cli/v2 v2.1.2 h1:43J1lChg/rZCC1rvdqZNFSQDrGT7qfMrtp6/ztpIkEM=
 github.com/micro/cli/v2 v2.1.2/go.mod h1:EguNh6DAoWKm9nmk+k/Rg0H3lQnDxqzu5x5srOtGtYg=
-github.com/micro/go-micro/v2 v2.9.1-0.20200714195713-057d61063f5a h1:0X2VO4ToczEmJz15JHu1XT21mUzio08B+Gm70AeAEQY=
-github.com/micro/go-micro/v2 v2.9.1-0.20200714195713-057d61063f5a/go.mod h1:Szpx+Q9oZvNOoGc1cPweBt3PozVX4e/z3SC1hpxV4iw=
-github.com/micro/go-micro/v2 v2.9.1-0.20200716094938-15052de41a69 h1:uJSsRdqWXFC1fEHHaNTJ7rAkxjZJ0PCyJp6613I6XUM=
-github.com/micro/go-micro/v2 v2.9.1-0.20200716094938-15052de41a69/go.mod h1:Szpx+Q9oZvNOoGc1cPweBt3PozVX4e/z3SC1hpxV4iw=
 github.com/micro/go-micro/v2 v2.9.1-0.20200716131338-e63b9015ae45 h1:U9BDuGxC+u+PO7HQ+6CDhEEbMuwp1VcKv4VTVwY47Eg=
 github.com/micro/go-micro/v2 v2.9.1-0.20200716131338-e63b9015ae45/go.mod h1:JgTt07BfD2x4mcTm/qZi8HZnxopoBYJxfpIETI8MKq8=
-github.com/micro/services v0.0.0-20200715134902-819e0ec2948d h1:lh7SNafmFQUsfk9l74HGyDBY3/gFheNp6YXgqcRH8ig=
-github.com/micro/services v0.0.0-20200715134902-819e0ec2948d/go.mod h1:OCOo8baJ/9bC4gpn8xRMrM7pYNOHjGIWfpFHcCPmMUM=
+github.com/micro/go-micro/v2 v2.9.1-0.20200717152936-a09bcd0cb8a1 h1:Pybx2NR7HOpPOXKcP57vhbLI61fiLfHTV4sio4BaJX8=
+github.com/micro/go-micro/v2 v2.9.1-0.20200717152936-a09bcd0cb8a1/go.mod h1:JgTt07BfD2x4mcTm/qZi8HZnxopoBYJxfpIETI8MKq8=
 github.com/micro/services v0.0.0-20200716140808-890e08d2c50b h1:CHkla8UiaXuGoZlBMYwEmzcCRW95Z2JLSj5RW0fQG2Q=
 github.com/micro/services v0.0.0-20200716140808-890e08d2c50b/go.mod h1:yP4uN1Q2zM4x84skxfxTkt1CIBwY/HrzyYqtsdYPa+c=
 github.com/miekg/dns v1.1.15/go.mod h1:W1PPwlIAgtquWBMBEV9nkV9Cazfe8ScdGz/Lj7v3Nrg=

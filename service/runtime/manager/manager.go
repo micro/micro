@@ -185,15 +185,27 @@ func (m *manager) resurrectServices() {
 				continue
 			}
 
-			m.Runtime.Create(srv.Service,
+			options := []runtime.CreateOption{
 				runtime.CreateImage(srv.Options.Image),
 				runtime.CreateType(srv.Options.Type),
 				runtime.CreateNamespace(ns),
 				runtime.WithArgs(srv.Options.Args...),
 				runtime.WithCommand(srv.Options.Command...),
 				runtime.WithEnv(m.runtimeEnv(srv.Options)),
-				runtime.CreateCredentials(acc.ID, acc.Secret),
-			)
+				runtime.WithSecret("MICRO_AUTH_ID", acc.ID),
+				runtime.WithSecret("MICRO_AUTH_SECRET", acc.Secret),
+			}
+
+			// add the secrets
+			for key, value := range srv.Options.Secrets {
+				options = append(options, runtime.WithSecret(key, value))
+			}
+
+			if err := m.Runtime.Create(srv.Service, options...); err != nil {
+				if logger.V(logger.ErrorLevel, logger.DefaultLogger) {
+					logger.Errorf("Error resurrecting service: %v", err)
+				}
+			}
 		}
 	}
 }
