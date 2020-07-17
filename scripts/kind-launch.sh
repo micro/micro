@@ -13,9 +13,9 @@ kubectl config use-context kind-kind
 
 # yq does not quote the strings in it's output so need to hack this and fix with sed so it doesn't get parsed as a bool later in k8s
 yq write -i platform/kubernetes/network/router.yaml "spec.template.spec.containers[0].env.(name==MICRO_ENABLE_ACME).value" '_false_'
-sed -e 's/_false_/"false"/g' -i bak platform/kubernetes/network/router.yaml
+sed -e 's/_false_/"false"/g' -i.bak platform/kubernetes/network/router.yaml
 yq write -i platform/kubernetes/network/proxy.yaml "spec.template.spec.containers[0].env.(name==MICRO_ENABLE_ACME).value" '_false_'
-sed -e 's/_false_/"false"/g' -i bak platform/kubernetes/network/proxy.yaml
+sed -e 's/_false_/"false"/g' -i.bak platform/kubernetes/network/proxy.yaml
 yq delete -i platform/kubernetes/network/proxy.yaml "spec.template.spec.containers[0].env.(name==CF_API_TOKEN)"
 
 pushd platform/kubernetes
