@@ -193,17 +193,22 @@ var srvCommands = []srvCommand{
 }
 
 func Commands(options ...micro.Option) []*ccli.Command {
+	// move newAction outside the loop and pass c as an arg to
+	// set the scope of the variable
+	newAction := func(c srvCommand) func(ctx *ccli.Context) error {
+		return func(ctx *ccli.Context) error {
+			c.Command(ctx, options...)
+			return nil
+		}
+	}
+
 	subcommands := make([]*ccli.Command, len(srvCommands))
 	for i, c := range srvCommands {
 		// construct the command
 		command := &ccli.Command{
-			Name:  c.Name,
-			Usage: fmt.Sprintf("Run micro %v", c.Name),
-			Action: func(ctx *ccli.Context) error {
-				fmt.Println("running", c.Name, i)
-				c.Command(ctx, options...)
-				return nil
-			},
+			Name:   c.Name,
+			Usage:  fmt.Sprintf("Run micro %v", c.Name),
+			Action: newAction(c),
 		}
 
 		// setup the plugins
@@ -219,7 +224,6 @@ func Commands(options ...micro.Option) []*ccli.Command {
 
 		// set the command
 		subcommands[i] = command
-		fmt.Println(i, c.Name, command.Action)
 	}
 
 	command := &ccli.Command{
