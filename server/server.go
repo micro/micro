@@ -16,6 +16,7 @@ import (
 	"github.com/micro/go-micro/v2/util/file"
 	ccli "github.com/micro/micro/v2/client/cli"
 	"github.com/micro/micro/v2/internal/update"
+	"github.com/micro/micro/v2/service/runtime/profile"
 )
 
 var (
@@ -123,12 +124,6 @@ func Run(context *cli.Context) error {
 	// By default we want a file store when we run micro server.
 	// This will get overridden if user has set their own MICRO_STORE env var or passed in --store
 	env := []string{"MICRO_STORE=file"}
-	profile := context.String("profile")
-	if len(profile) == 0 {
-		profile = "server"
-	}
-
-	env = append(env, "MICRO_RUNTIME_PROFILE="+profile)
 	env = append(env, os.Environ()...)
 
 	// connect to the network if specified
@@ -173,35 +168,39 @@ func Run(context *cli.Context) error {
 		}
 
 		log.Infof("Registering %s", name)
-		// @todo this is a hack
-		envs := env
-		var isClient bool
+		args := []string{}
+		envs := []string{}
 		switch service {
 		case "proxy", "web", "api", "bot", "cli":
-			isClient = true
-			envs = append(envs, "MICRO_AUTH=service")
-			envs = append(envs, "MICRO_REGISTRY=service")
+			envs = profile.Server()
+		default:
+			// run non-clients as "micro service [name]"
+			args = append(args, "service")
+			envs = env
 		}
 
-		cmdArgs := []string{}
-		if !isClient {
-			// run non-clients as "micro service [name]"
-			cmdArgs = append(cmdArgs, "service")
+		// pass the profile for the runtime
+		if service == "runtime" {
+			if p := context.String("profile"); len(p) > 0 {
+				env = append(env, "MICRO_RUNTIME_PROFILE="+p)
+			} else {
+				env = append(env, "MICRO_RUNTIME_PROFILE=server")
+			}
 		}
 
 		// we want to pass through the global args so go up one level in the context lineage
 		if len(context.Lineage()) > 1 {
 			globCtx := context.Lineage()[1]
 			for _, f := range globCtx.FlagNames() {
-				cmdArgs = append(cmdArgs, "--"+f, context.String(f))
+				args = append(args, "--"+f, context.String(f))
 			}
 		}
-		cmdArgs = append(cmdArgs, service)
+		args = append(args, service)
 
 		// runtime based on environment we run the service in
-		args := []gorun.CreateOption{
+		opts := []gorun.CreateOption{
 			gorun.WithCommand(os.Args[0]),
-			gorun.WithArgs(cmdArgs...),
+			gorun.WithArgs(args...),
 			gorun.WithEnv(envs),
 			gorun.WithOutput(os.Stdout),
 			gorun.WithRetries(10),
@@ -210,7 +209,7 @@ func Run(context *cli.Context) error {
 
 		// NOTE: we use Version right now to check for the latest release
 		muService := &gorun.Service{Name: name, Version: fmt.Sprintf("%d", time.Now().Unix())}
-		if err := (*muRuntime).Create(muService, args...); err != nil {
+		if err := (*muRuntime).Create(muService, opts...); err != nil {
 			log.Errorf("Failed to create runtime environment: %v", err)
 			return err
 		}
