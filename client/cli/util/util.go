@@ -72,6 +72,10 @@ func SetupCommand(ctx *ccli.Context) {
 	case "new", "server", "help":
 		return
 	}
+	// fix for "micro service [command]", e.g "micro service auth"
+	if ctx.Args().First() == "service" && isBuiltinService(ctx.Args().Get(1)) {
+		return
+	}
 	if ctx.Args().Len() == 1 && isBuiltinService(ctx.Args().First()) {
 		return
 	}
