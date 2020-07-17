@@ -23,7 +23,13 @@ jobs:
       with:
         go-version: 1.13
       id: go
-
+    - name: Publish to Registry
+      uses: elgohr/Publish-Docker-Github-Action@master
+      with:
+        name: micro/integbuilds
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
+        tag_names: true 
     - name: Install the prerequisites
       run: |
         bash .github/workflows/kind-prereqs.sh
