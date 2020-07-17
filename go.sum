@@ -61,6 +61,7 @@ github.com/bmizerany/assert v0.0.0-20160611221934-b7ed37b82869 h1:DDGfHa7BWjL4Yn
 github.com/bmizerany/assert v0.0.0-20160611221934-b7ed37b82869/go.mod h1:Ekp36dRnpXw/yCqJaO+ZrUyxD+3VXMFFr56k5XYrpB4=
 github.com/boltdb/bolt v1.3.1 h1:JQmyP4ZBrce+ZQu0dY660FMfatumYDLun9hBCUVIkF4=
 github.com/boltdb/bolt v1.3.1/go.mod h1:clJnj/oiGkjum5o1McbSZDSLxVThjynRyGBgiAx27Ps=
+github.com/bradfitz/gomemcache v0.0.0-20190913173617-a41fca850d0b/go.mod h1:H0wQNHz2YrLsuXOZozoeDmnHXkNCRmMW0gwFWDfEZDA=
 github.com/bwmarrin/discordgo v0.20.2 h1:nA7jiTtqUA9lT93WL2jPjUp8ZTEInRujBdx1C9gkr20=
 github.com/bwmarrin/discordgo v0.20.2/go.mod h1:O9S4p+ofTFwB02em7jkpkV8M3R0/PUVOwN61zSZ0r4Q=
 github.com/caddyserver/certmagic v0.10.6 h1:sCya6FmfaN74oZE46kqfaFOVoROD/mF36rTQfjN7TZc=
@@ -322,8 +323,12 @@ github.com/micro/go-micro/v2 v2.9.1-0.20200714195713-057d61063f5a h1:0X2VO4ToczE
 github.com/micro/go-micro/v2 v2.9.1-0.20200714195713-057d61063f5a/go.mod h1:Szpx+Q9oZvNOoGc1cPweBt3PozVX4e/z3SC1hpxV4iw=
 github.com/micro/go-micro/v2 v2.9.1-0.20200716094938-15052de41a69 h1:uJSsRdqWXFC1fEHHaNTJ7rAkxjZJ0PCyJp6613I6XUM=
 github.com/micro/go-micro/v2 v2.9.1-0.20200716094938-15052de41a69/go.mod h1:Szpx+Q9oZvNOoGc1cPweBt3PozVX4e/z3SC1hpxV4iw=
+github.com/micro/go-micro/v2 v2.9.1-0.20200716131338-e63b9015ae45 h1:U9BDuGxC+u+PO7HQ+6CDhEEbMuwp1VcKv4VTVwY47Eg=
+github.com/micro/go-micro/v2 v2.9.1-0.20200716131338-e63b9015ae45/go.mod h1:JgTt07BfD2x4mcTm/qZi8HZnxopoBYJxfpIETI8MKq8=
 github.com/micro/services v0.0.0-20200715134902-819e0ec2948d h1:lh7SNafmFQUsfk9l74HGyDBY3/gFheNp6YXgqcRH8ig=
 github.com/micro/services v0.0.0-20200715134902-819e0ec2948d/go.mod h1:OCOo8baJ/9bC4gpn8xRMrM7pYNOHjGIWfpFHcCPmMUM=
+github.com/micro/services v0.0.0-20200716140808-890e08d2c50b h1:CHkla8UiaXuGoZlBMYwEmzcCRW95Z2JLSj5RW0fQG2Q=
+github.com/micro/services v0.0.0-20200716140808-890e08d2c50b/go.mod h1:yP4uN1Q2zM4x84skxfxTkt1CIBwY/HrzyYqtsdYPa+c=
 github.com/miekg/dns v1.1.15/go.mod h1:W1PPwlIAgtquWBMBEV9nkV9Cazfe8ScdGz/Lj7v3Nrg=
 github.com/miekg/dns v1.1.27 h1:aEH/kqUzUxGJ/UHcEKdJY+ugH6WEzsEBBSPa8zuy1aM=
 github.com/miekg/dns v1.1.27/go.mod h1:KNUDUusw/aVsxyTYZM1oqvCicbwhgbNgztCETuNZ7xM=
