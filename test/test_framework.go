@@ -350,7 +350,7 @@ func trySuite(t *testing.T, f func(t *t), times int) {
 }
 
 type loginOptions struct {
-	admin bool
+	admin bool // log me in as an admin please
 }
 
 func login(serv testServer, t *t, email, password string, opts ...loginOptions) error {

@@ -23,7 +23,9 @@ func testStore(t *t) {
 		return
 	}
 
-	login(serv, t, "default", "password")
+	if err := login(serv, t, "default", "password"); err != nil {
+		t.Fatalf("Failed to login %s", err)
+	}
 	// Execute first command in read to wait for store service
 	// to start up
 	if err := try("Calling micro store read", t, func() ([]byte, error) {

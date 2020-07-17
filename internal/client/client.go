@@ -68,6 +68,7 @@ func (a *wrapper) Call(ctx context.Context, req client.Request, rsp interface{},
 	if len(a.proxyAddress) > 0 {
 		opts = append(opts, client.WithAddress(a.proxyAddress))
 	}
+	fmt.Printf("Namespace set %s\n", a.ns)
 	ctx = metadata.Set(ctx, "Micro-Namespace", a.ns)
 	return a.Client.Call(ctx, req, rsp, opts...)
 }
