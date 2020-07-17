@@ -6,6 +6,7 @@ on:
       - master
       # We want custom per developer branches to be pushed
       - crufter
+      - feature/k8s_tryagain
     tags:
       - v2.*
       - v3.*
@@ -26,4 +27,4 @@ jobs:
         name: micro/micro
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
-        tag_names: true
+        tag: dom
