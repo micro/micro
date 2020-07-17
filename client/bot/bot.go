@@ -57,19 +57,6 @@ var (
 		"^deregister ":                       botc.Deregister,
 		"^(the )?three laws( of robotics)?$": botc.ThreeLaws,
 	}
-	// Flags specific to the bot
-	Flags = []cli.Flag{
-		&cli.StringFlag{
-			Name:    "inputs",
-			Usage:   "Inputs to load on startup",
-			EnvVars: []string{"MICRO_BOT_INPUTS"},
-		},
-		&cli.StringFlag{
-			Name:    "namespace",
-			Usage:   "Set the namespace used by the bot to find commands e.g. com.example.bot",
-			EnvVars: []string{"MICRO_BOT_NAMESPACE"},
-		},
-	}
 )
 
 func help(commands map[string]command.Command, serviceCommands []string) command.Command {
@@ -364,8 +351,13 @@ func (b *bot) watch() {
 	}
 }
 
-func Run(ctx *cli.Context) error {
+func run(ctx *cli.Context) error {
 	log.Init(log.WithFields(map[string]interface{}{"service": "bot"}))
+
+	// Init plugins
+	for _, p := range Plugins() {
+		p.Init(ctx)
+	}
 
 	if len(ctx.String("server_name")) > 0 {
 		Name = ctx.String("server_name")
@@ -446,4 +438,43 @@ func Run(ctx *cli.Context) error {
 	}
 
 	return nil
+}
+
+func Commands() []*cli.Command {
+	flags := []cli.Flag{
+		&cli.StringFlag{
+			Name:    "inputs",
+			Usage:   "Inputs to load on startup",
+			EnvVars: []string{"MICRO_BOT_INPUTS"},
+		},
+		&cli.StringFlag{
+			Name:    "namespace",
+			Usage:   "Set the namespace used by the bot to find commands e.g. com.example.bot",
+			EnvVars: []string{"MICRO_BOT_NAMESPACE"},
+		},
+	}
+
+	// setup input flags
+	for _, input := range input.Inputs {
+		flags = append(flags, input.Flags()...)
+	}
+
+	command := &cli.Command{
+		Name:   "bot",
+		Usage:  "Run the chatops bot",
+		Flags:  flags,
+		Action: run,
+	}
+
+	for _, p := range Plugins() {
+		if cmds := p.Commands(); len(cmds) > 0 {
+			command.Subcommands = append(command.Subcommands, cmds...)
+		}
+
+		if flags := p.Flags(); len(flags) > 0 {
+			command.Flags = append(command.Flags, flags...)
+		}
+	}
+
+	return []*cli.Command{command}
 }

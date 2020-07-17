@@ -41,24 +41,6 @@ var (
 	ACMEProvider          = "autocert"
 	ACMEChallengeProvider = "cloudflare"
 	ACMECA                = acme.LetsEncryptProductionCA
-	// Flags specific to the proxy
-	Flags = []cli.Flag{
-		&cli.StringFlag{
-			Name:    "address",
-			Usage:   "Set the proxy http address e.g 0.0.0.0:8081",
-			EnvVars: []string{"MICRO_PROXY_ADDRESS"},
-		},
-		&cli.StringFlag{
-			Name:    "protocol",
-			Usage:   "Set the protocol used for proxying e.g mucp, grpc, http",
-			EnvVars: []string{"MICRO_PROXY_PROTOCOL"},
-		},
-		&cli.StringFlag{
-			Name:    "endpoint",
-			Usage:   "Set the endpoint to route to e.g greeter or localhost:9090",
-			EnvVars: []string{"MICRO_PROXY_ENDPOINT"},
-		},
-	}
 )
 
 func Run(ctx *cli.Context, srvOpts ...micro.Option) {
@@ -82,6 +64,11 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 	}
 	if len(ctx.String("acme_provider")) > 0 {
 		ACMEProvider = ctx.String("acme_provider")
+	}
+
+	// Init plugins
+	for _, p := range Plugins() {
+		p.Init(ctx)
 	}
 
 	// service opts
@@ -238,4 +225,44 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 	if err := srv.Stop(); err != nil {
 		log.Fatal(err)
 	}
+}
+
+func Commands(options ...micro.Option) []*cli.Command {
+	command := &cli.Command{
+		Name:  "proxy",
+		Usage: "Run the service proxy",
+		Flags: []cli.Flag{
+			&cli.StringFlag{
+				Name:    "address",
+				Usage:   "Set the proxy http address e.g 0.0.0.0:8081",
+				EnvVars: []string{"MICRO_PROXY_ADDRESS"},
+			},
+			&cli.StringFlag{
+				Name:    "protocol",
+				Usage:   "Set the protocol used for proxying e.g mucp, grpc, http",
+				EnvVars: []string{"MICRO_PROXY_PROTOCOL"},
+			},
+			&cli.StringFlag{
+				Name:    "endpoint",
+				Usage:   "Set the endpoint to route to e.g greeter or localhost:9090",
+				EnvVars: []string{"MICRO_PROXY_ENDPOINT"},
+			},
+		},
+		Action: func(ctx *cli.Context) error {
+			Run(ctx, options...)
+			return nil
+		},
+	}
+
+	for _, p := range Plugins() {
+		if cmds := p.Commands(); len(cmds) > 0 {
+			command.Subcommands = append(command.Subcommands, cmds...)
+		}
+
+		if flags := p.Flags(); len(flags) > 0 {
+			command.Flags = append(command.Flags, flags...)
+		}
+	}
+
+	return []*cli.Command{command}
 }
