@@ -23,7 +23,7 @@ func testStore(t *t) {
 		return
 	}
 
-	if err := login(serv, t, "default", "password"); err != nil {
+	if err := login(serv, t, serv.envFlag(), "password"); err != nil {
 		t.Fatalf("Failed to login %s", err)
 	}
 

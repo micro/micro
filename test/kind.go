@@ -42,16 +42,6 @@ func (s *testK8sServer) launch() error {
 		return err
 	}
 	t := s.t
-	// login to admin account
-	login(s, t, "default", "password", loginOptions{admin: true})
-
-	// generate a new admin account for the env : user=ENV_NAME pass=password
-	req := fmt.Sprintf(`{"id":"%s", "secret":"password", "options":{"namespace":"%s"}}`, s.envName(), s.envName())
-	outp, err := exec.Command("micro", s.envFlag(), "call", "go.micro.auth", "Auth.Generate", req).CombinedOutput()
-	if err != nil && !strings.Contains(string(outp), "already exists") { // until auth.Delete is implemented
-		t.Fatalf("Error generating auth: %s, %s", err, outp)
-		return err
-	}
 
 	// setup .micro config for access
 	if err := namespace.Add(s.envName(), s.envName()); err != nil {
