@@ -167,6 +167,9 @@ func Commands(options ...micro.Option) []*ccli.Command {
 				Name:  "auth",
 				Usage: "Run micro auth",
 				Action: func(ctx *ccli.Context) error {
+					if err := helper.UnexpectedSubcommand(ctx); err != nil {
+						return err
+					}
 					auth.Run(ctx)
 					return nil
 				},
@@ -175,6 +178,9 @@ func Commands(options ...micro.Option) []*ccli.Command {
 				Name:  "broker",
 				Usage: "Run micro broker",
 				Action: func(ctx *ccli.Context) error {
+					if err := helper.UnexpectedSubcommand(ctx); err != nil {
+						return err
+					}
 					broker.Run(ctx)
 					return nil
 				},
@@ -184,6 +190,9 @@ func Commands(options ...micro.Option) []*ccli.Command {
 				Usage: "Run micro config",
 				Flags: config.Flags,
 				Action: func(ctx *ccli.Context) error {
+					if err := helper.UnexpectedSubcommand(ctx); err != nil {
+						return err
+					}
 					config.Run(ctx)
 					return nil
 				},
@@ -193,6 +202,9 @@ func Commands(options ...micro.Option) []*ccli.Command {
 				Usage: "Run micro debug",
 				Flags: debug.Flags,
 				Action: func(ctx *ccli.Context) error {
+					if err := helper.UnexpectedSubcommand(ctx); err != nil {
+						return err
+					}
 					debug.Run(ctx)
 					return nil
 				},
@@ -202,6 +214,9 @@ func Commands(options ...micro.Option) []*ccli.Command {
 				Usage: "Run micro health",
 				Flags: health.Flags,
 				Action: func(ctx *ccli.Context) error {
+					if err := helper.UnexpectedSubcommand(ctx); err != nil {
+						return err
+					}
 					health.Run(ctx)
 					return nil
 				},
@@ -232,6 +247,9 @@ func Commands(options ...micro.Option) []*ccli.Command {
 				Name:  "router",
 				Usage: "Run micro network router",
 				Action: func(ctx *ccli.Context) error {
+					if err := helper.UnexpectedSubcommand(ctx); err != nil {
+						return err
+					}
 					router.Run(ctx, options...)
 					return nil
 				},

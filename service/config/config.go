@@ -16,6 +16,7 @@ import (
 	"github.com/micro/micro/v2/client/cli/util"
 	"github.com/micro/micro/v2/internal/client"
 	cliconfig "github.com/micro/micro/v2/internal/config"
+	"github.com/micro/micro/v2/internal/helper"
 	"github.com/micro/micro/v2/service/config/handler"
 )
 
@@ -223,8 +224,9 @@ func delConfig(ctx *cli.Context) error {
 
 func Commands(options ...micro.Option) []*cli.Command {
 	command := &cli.Command{
-		Name:  "config",
-		Usage: "Manage configuration values",
+		Name:   "config",
+		Usage:  "Manage configuration values",
+		Action: helper.UnexpectedSubcommand,
 		Subcommands: []*cli.Command{
 			{
 				Name:   "get",

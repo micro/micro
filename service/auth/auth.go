@@ -20,6 +20,7 @@ import (
 	clitoken "github.com/micro/micro/v2/client/cli/token"
 	cliutil "github.com/micro/micro/v2/client/cli/util"
 	"github.com/micro/micro/v2/internal/client"
+	"github.com/micro/micro/v2/internal/helper"
 	authHandler "github.com/micro/micro/v2/service/auth/handler/auth"
 	rulesHandler "github.com/micro/micro/v2/service/auth/handler/rules"
 	"golang.org/x/crypto/ssh/terminal"
@@ -189,7 +190,8 @@ func getPassword() (string, error) {
 func Commands(srvOpts ...micro.Option) []*cli.Command {
 	commands := []*cli.Command{
 		{
-			Name: "auth",
+			Name:   "auth",
+			Action: helper.UnexpectedSubcommand,
 			Subcommands: append([]*cli.Command{
 				{
 					Name:  "list",

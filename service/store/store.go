@@ -6,6 +6,7 @@ import (
 	log "github.com/micro/go-micro/v2/logger"
 	pb "github.com/micro/go-micro/v2/store/service/proto"
 	mcli "github.com/micro/micro/v2/client/cli"
+	"github.com/micro/micro/v2/internal/helper"
 	"github.com/micro/micro/v2/service/store/handler"
 )
 
@@ -49,6 +50,7 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) error {
 func Commands(options ...micro.Option) []*cli.Command {
 	command := &cli.Command{
 		Name:        "store",
+		Action:      helper.UnexpectedSubcommand,
 		Subcommands: mcli.StoreCommands(),
 	}
 
