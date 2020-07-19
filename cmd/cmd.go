@@ -330,7 +330,7 @@ func setup(app *ccli.App) {
 	}
 }
 
-// Setup sets up a cli.App
+// Run executes the command line
 func Run(options ...micro.Option) {
 	// get the app
 	app := cmd.App()
