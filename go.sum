@@ -332,6 +332,8 @@ github.com/micro/go-micro/v2 v2.9.1-0.20200719171418-755b816086a5 h1:Q/zY/mVQZ0j
 github.com/micro/go-micro/v2 v2.9.1-0.20200719171418-755b816086a5/go.mod h1:niBfOpaZzEw22NJlAtz1CEHocA3qrkzpcTYi0h0d8CE=
 github.com/micro/go-micro/v2 v2.9.1-0.20200719172017-16c591d74105 h1:cnMsUJY/1rHaj1PdjkP650tsSwL9IF1mvABD6oUqu+Y=
 github.com/micro/go-micro/v2 v2.9.1-0.20200719172017-16c591d74105/go.mod h1:niBfOpaZzEw22NJlAtz1CEHocA3qrkzpcTYi0h0d8CE=
+github.com/micro/go-micro/v2 v2.9.1-0.20200719184811-9b74bc52d6a3 h1:zAeqmFjEiQ47vlDWscVR+9hNPpISkap4a/oY9MHkvlY=
+github.com/micro/go-micro/v2 v2.9.1-0.20200719184811-9b74bc52d6a3/go.mod h1:niBfOpaZzEw22NJlAtz1CEHocA3qrkzpcTYi0h0d8CE=
 github.com/micro/go-micro/v2 v2.9.1 h1:+S9koIrNWARjpP6k2TZ7kt0uC9zUJtNXzIdZTZRms7Q=
 github.com/micro/go-micro/v2 v2.9.1/go.mod h1:x55ZM3Puy0FyvvkR3e0ha0xsE9DFwfPSUMWAIbFY0SY=
 github.com/micro/services v0.0.0-20200715134902-819e0ec2948d h1:lh7SNafmFQUsfk9l74HGyDBY3/gFheNp6YXgqcRH8ig=
