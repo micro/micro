@@ -112,7 +112,7 @@ func deleteAccount(ctx *cli.Context) error {
 func accountsFromContext(ctx *cli.Context) pb.AccountsService {
 	cli, err := client.New(ctx)
 	if err != nil {
-		fmt.Printf("Error: %s", err)
+		fmt.Printf("Error: %s\n", err)
 		os.Exit(1)
 	}
 	return pb.NewAccountsService("go.micro.auth", cli)
