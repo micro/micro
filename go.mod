@@ -20,7 +20,7 @@ require (
 	github.com/kr/pretty v0.2.0 // indirect
 	github.com/mattn/go-isatty v0.0.12 // indirect
 	github.com/micro/cli/v2 v2.1.2
-	github.com/micro/go-micro/v2 v2.9.1
+	github.com/micro/go-micro/v2 v2.9.1-0.20200720090451-a3a7434f2cd9
 	github.com/micro/services v0.0.0-20200716140808-890e08d2c50b
 	github.com/netdata/go-orchestrator v0.0.0-20190905093727-c793edba0e8f
 	github.com/olekukonko/tablewriter v0.0.4
@@ -42,5 +42,3 @@ require (
 )
 
 replace google.golang.org/grpc => google.golang.org/grpc v1.26.0
-
-replace github.com/micro/go-micro/v2 => github.com/micro/go-micro/v2 v2.9.1-0.20200720090451-a3a7434f2cd9
