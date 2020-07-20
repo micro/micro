@@ -219,7 +219,7 @@ func (s *testServerBase) launch() error {
 	}
 
 	if err := try("Calling micro server", s.t, func() ([]byte, error) {
-		outp, err := exec.Command("micro", s.envFlag(), "list", "services").CombinedOutput()
+		outp, err := exec.Command("micro", s.envFlag(), "services").CombinedOutput()
 		if !strings.Contains(string(outp), "runtime") ||
 			!strings.Contains(string(outp), "registry") ||
 			!strings.Contains(string(outp), "broker") ||

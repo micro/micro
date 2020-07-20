@@ -197,6 +197,10 @@ func Commands(options ...micro.Option) []*ccli.Command {
 	// set the scope of the variable
 	newAction := func(c srvCommand) func(ctx *ccli.Context) error {
 		return func(ctx *ccli.Context) error {
+			// configure the logger
+			log.Init(log.WithFields(map[string]interface{}{"service": c.Name}))
+
+			// run the service
 			c.Command(ctx, options...)
 			return nil
 		}

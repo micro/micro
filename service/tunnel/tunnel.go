@@ -22,14 +22,15 @@ import (
 )
 
 var (
-	// Name of the tunnel service
-	Name = "go.micro.tunnel"
-	// Address is the tunnel address
-	Address = ":8083"
-	// Tunnel is the name of the tunnel
-	Tunnel = "tun:0"
-	// The tunnel token
-	Token = "micro"
+	// name of the tunnel service
+	name = "go.micro.tunnel"
+	// address is the tunnel address
+	address = ":8083"
+	// tunnel is the name of the tunnel
+	tunnel = "tun:0"
+	// the tunnel token
+	token = "micro"
+
 	// Flags specific to the tunnel service
 	Flags = []cli.Flag{
 		&cli.StringFlag{
@@ -50,25 +51,26 @@ var (
 	}
 )
 
-// Run runs the micro server
+// Run micro tunnel
 func Run(ctx *cli.Context, srvOpts ...micro.Option) {
-	log.Init(log.WithFields(map[string]interface{}{"service": "tunnel"}))
-
 	if len(ctx.String("server_name")) > 0 {
-		Name = ctx.String("server_name")
+		name = ctx.String("server_name")
 	}
 	if len(ctx.String("address")) > 0 {
-		Address = ctx.String("address")
+		address = ctx.String("address")
+	}
+	if len(ctx.String("tunnel_address")) > 0 {
+		address = ctx.String("tunnel_address")
 	}
 	if len(ctx.String("token")) > 0 {
-		Token = ctx.String("token")
+		token = ctx.String("token")
 	}
 	if len(ctx.String("id")) > 0 {
-		Tunnel = ctx.String("id")
+		tunnel = ctx.String("id")
 		// We need host:port for the Endpoint value in the proxy
-		parts := strings.Split(Tunnel, ":")
+		parts := strings.Split(tunnel, ":")
 		if len(parts) == 1 {
-			Tunnel = Tunnel + ":0"
+			tunnel = tunnel + ":0"
 		}
 	}
 	var nodes []string
@@ -78,7 +80,7 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 
 	// Initialise service
 	service := micro.NewService(
-		micro.Name(Name),
+		micro.Name(name),
 		micro.RegisterTTL(time.Duration(ctx.Int("register_ttl"))*time.Second),
 		micro.RegisterInterval(time.Duration(ctx.Int("register_interval"))*time.Second),
 	)
@@ -91,9 +93,9 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 
 	// create a tunnel
 	t := tun.NewTunnel(
-		tun.Address(Address),
+		tun.Address(address),
 		tun.Nodes(nodes...),
-		tun.Token(Token),
+		tun.Token(token),
 	)
 
 	// start the tunnel
@@ -101,7 +103,7 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 		log.Errorf("Tunnel error connecting: %v", err)
 	}
 
-	log.Infof("Tunnel [%s] listening on %s", Tunnel, Address)
+	log.Infof("Tunnel [%s] listening on %s", tunnel, address)
 
 	// create tunnel client with tunnel transport
 	tunTransport := transport.NewTransport(
@@ -116,11 +118,11 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 	// local proxy
 	localProxy := mucp.NewProxy(
 		proxy.WithClient(localSrvClient),
-		proxy.WithEndpoint(Tunnel),
+		proxy.WithEndpoint(tunnel),
 	)
 
 	// create new muxer
-	muxer := mux.New(Name, localProxy)
+	muxer := mux.New(name, localProxy)
 
 	// init server
 	service.Server().Init(
@@ -143,7 +145,7 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 
 	// local server
 	tunSrv := smucp.NewServer(
-		server.Address(Tunnel),
+		server.Address(tunnel),
 		server.Transport(tunTransport),
 		server.WithRouter(tunProxy),
 		server.Registry(memRegistry),
@@ -155,7 +157,7 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 	}
 
 	if err := service.Run(); err != nil {
-		log.Errorf("Tunnel %s failed: %v", Name, err)
+		log.Errorf("Tunnel %s failed: %v", name, err)
 	}
 
 	// stop the router

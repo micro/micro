@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"os/exec"
+	"strings"
 	"testing"
 	"time"
 
@@ -108,7 +109,7 @@ func testNamespaceConfigIsolationSuite(serv testServer, t *t) {
 		if err == nil {
 			return outp, errors.New("getting somekey should fail")
 		}
-		if string(outp) != "not found\n" {
+		if !strings.Contains(string(outp), "Not found") {
 			return outp, errors.New("Expected 'not found\n'")
 		}
 		return outp, nil

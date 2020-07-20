@@ -15,14 +15,15 @@ import (
 )
 
 var (
-	// Name of the router microservice
-	Name = "go.micro.router"
-	// Address is the router microservice bind address
-	Address = ":8084"
-	// Network is the network name
-	Network = router.DefaultNetwork
-	// Topic is router adverts topic
-	Topic = "go.micro.router.adverts"
+	// name of the router microservice
+	name = "go.micro.router"
+	// address is the router microservice bind address
+	address = ":8084"
+	// network is the network name
+	network = router.DefaultNetwork
+	// topic is router adverts topic
+	topic = "go.micro.router.adverts"
+
 	// Flags specific to the router
 	Flags = []cli.Flag{
 		&cli.StringFlag{
@@ -106,14 +107,14 @@ func newRouter(service micro.Service, router router.Router) *rtr {
 	}
 
 	// register subscriber
-	if err := micro.RegisterSubscriber(Topic, service.Server(), s); err != nil {
+	if err := micro.RegisterSubscriber(topic, service.Server(), s); err != nil {
 		log.Errorf("failed to subscribe to adverts: %s", err)
 		os.Exit(1)
 	}
 
 	return &rtr{
 		Router:    router,
-		Publisher: micro.NewPublisher(Topic, service.Client()),
+		Publisher: micro.NewPublisher(topic, service.Client()),
 	}
 }
 
@@ -164,18 +165,16 @@ func (r *rtr) Close() error {
 	return nil
 }
 
-// Run runs the micro server
+// Run the micro router
 func Run(ctx *cli.Context, srvOpts ...micro.Option) {
-	log.Init(log.WithFields(map[string]interface{}{"service": "router"}))
-
 	if len(ctx.String("server_name")) > 0 {
-		Name = ctx.String("server_name")
+		name = ctx.String("server_name")
 	}
 	if len(ctx.String("address")) > 0 {
-		Address = ctx.String("address")
+		address = ctx.String("address")
 	}
 	if len(ctx.String("network")) > 0 {
-		Network = ctx.String("network")
+		network = ctx.String("network")
 	}
 	// default gateway address
 	var gateway string
@@ -201,8 +200,8 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 
 	// Initialise service
 	service := micro.NewService(
-		micro.Name(Name),
-		micro.Address(Address),
+		micro.Name(name),
+		micro.Address(address),
 		micro.RegisterTTL(time.Duration(ctx.Int("register_ttl"))*time.Second),
 		micro.RegisterInterval(time.Duration(ctx.Int("register_interval"))*time.Second),
 	)
@@ -210,7 +209,7 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 	r := router.NewRouter(
 		router.Id(service.Server().Options().Id),
 		router.Address(service.Server().Options().Id),
-		router.Network(Network),
+		router.Network(network),
 		router.Registry(service.Options().Registry),
 		router.Gateway(gateway),
 		router.Advertise(strategy),
