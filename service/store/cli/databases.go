@@ -13,7 +13,10 @@ import (
 
 // databases is the entrypoint for micro store databases
 func databases(ctx *cli.Context) error {
-	client := inclient.New(ctx)
+	client, err := inclient.New(ctx)
+	if err != nil {
+		return err
+	}
 	dbReq := client.NewRequest(ctx.String("store"), "Store.Databases", &storeproto.DatabasesRequest{})
 	dbRsp := &storeproto.DatabasesResponse{}
 	if err := client.Call(context.TODO(), dbReq, dbRsp); err != nil {
@@ -32,7 +35,10 @@ func tables(ctx *cli.Context) error {
 		return err
 	}
 
-	client := inclient.New(ctx)
+	client, err := inclient.New(ctx)
+	if err != nil {
+		return err
+	}
 	tReq := client.NewRequest(ctx.String("store"), "Store.Tables", &storeproto.TablesRequest{
 		Database: ns,
 	})

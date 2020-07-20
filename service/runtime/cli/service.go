@@ -67,8 +67,12 @@ func runtimeFromContext(ctx *cli.Context) runtime.Runtime {
 	if cliutil.IsLocal(ctx) {
 		return *cmd.DefaultCmd.Options().Runtime
 	}
-
-	return srvRuntime.NewRuntime(runtime.WithClient(client.New(ctx)))
+	cli, err := client.New(ctx)
+	if err != nil {
+		fmt.Printf("Error: %s", err)
+		os.Exit(1)
+	}
+	return srvRuntime.NewRuntime(runtime.WithClient(cli))
 }
 
 // exists returns whether the given file or directory exists
@@ -296,7 +300,11 @@ func upload(ctx *cli.Context, source *git.Source) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	err = file.New("go.micro.server", client.New(ctx)).Upload(uploadedFileName, path)
+	cli, err := client.New(ctx)
+	if err != nil {
+		fmt.Printf("Error: %s\n", err)
+	}
+	err = file.New("go.micro.server", cli).Upload(uploadedFileName, path)
 	if err != nil {
 		return "", err
 	}

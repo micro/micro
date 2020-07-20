@@ -138,5 +138,10 @@ func constructRule(ctx *cli.Context) (*pb.Rule, error) {
 }
 
 func rulesFromContext(ctx *cli.Context) pb.RulesService {
-	return pb.NewRulesService("go.micro.auth", client.New(ctx))
+	cli, err := client.New(ctx)
+	if err != nil {
+		fmt.Printf("Error: %s", err)
+		os.Exit(1)
+	}
+	return pb.NewRulesService("go.micro.auth", cli)
 }
