@@ -15,10 +15,8 @@ var (
 	address = ":8002"
 )
 
-// Run runs the micro server
+// Run micro store
 func Run(ctx *cli.Context, srvOpts ...micro.Option) {
-	log.Init(log.WithFields(map[string]interface{}{"service": "store"}))
-
 	if len(ctx.String("server_name")) > 0 {
 		name = ctx.String("server_name")
 	}

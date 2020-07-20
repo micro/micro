@@ -30,7 +30,6 @@ import (
 	_ "github.com/micro/micro/v2/service/network/cli"
 	_ "github.com/micro/micro/v2/service/runtime/cli"
 	_ "github.com/micro/micro/v2/service/store/cli"
-	"github.com/micro/micro/v2/service/tunnel"
 
 	// internals
 	"github.com/micro/micro/v2/cmd/command"
@@ -222,9 +221,6 @@ func setup(app *ccli.App) {
 		}
 		if len(ctx.String("web_address")) > 0 {
 			web.Address = ctx.String("web_address")
-		}
-		if len(ctx.String("tunnel_address")) > 0 {
-			tunnel.Address = ctx.String("tunnel_address")
 		}
 		if len(ctx.String("api_namespace")) > 0 {
 			api.Namespace = ctx.String("api_namespace")
