@@ -25,7 +25,7 @@ import (
 	"github.com/micro/micro/v2/client/web"
 
 	// services
-	"github.com/micro/micro/v2/service/auth"
+	_ "github.com/micro/micro/v2/service/auth/cli"
 	"github.com/micro/micro/v2/service/config"
 	"github.com/micro/micro/v2/service/debug"
 	"github.com/micro/micro/v2/service/network"
@@ -35,6 +35,7 @@ import (
 	"github.com/micro/micro/v2/service/tunnel"
 
 	// internals
+	"github.com/micro/micro/v2/cmd/command"
 	inauth "github.com/micro/micro/v2/internal/auth"
 	"github.com/micro/micro/v2/internal/helper"
 	_ "github.com/micro/micro/v2/internal/plugins"
@@ -73,9 +74,6 @@ var (
 		"stream",
 		"file",
 	}
-
-	// commands to include in the binary
-	Commands = []*ccli.Command{}
 )
 
 type commands []*ccli.Command
@@ -335,10 +333,8 @@ func Run(options ...micro.Option) {
 	// get the app
 	app := cmd.App()
 
-	// commands to include that are otherwise sourced from elsewhere
-	for _, command := range Commands {
-		app.Commands = append(app.Commands, command)
-	}
+	// register commands
+	app.Commands = append(app.Commands, command.List()...)
 
 	// Add the client commmands
 	app.Commands = append(app.Commands, api.Commands()...)
@@ -352,7 +348,6 @@ func Run(options ...micro.Option) {
 	app.Commands = append(app.Commands, runtime.Commands(options...)...)
 	app.Commands = append(app.Commands, store.Commands(options...)...)
 	app.Commands = append(app.Commands, config.Commands(options...)...)
-	app.Commands = append(app.Commands, auth.Commands()...)
 	app.Commands = append(app.Commands, network.Commands(options...)...)
 	app.Commands = append(app.Commands, registry.Commands(options...)...)
 	app.Commands = append(app.Commands, debug.Commands(options...)...)

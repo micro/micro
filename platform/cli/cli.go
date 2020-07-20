@@ -23,7 +23,7 @@ import (
 )
 
 // Signup flow for the Micro Platform
-func Signup(ctx *cli.Context) {
+func Signup(ctx *cli.Context) error {
 	email := ctx.String("email")
 	env := cliutil.GetEnv(ctx)
 	reader := bufio.NewReader(os.Stdin)
@@ -42,8 +42,7 @@ func Signup(ctx *cli.Context) {
 		Email: email,
 	}, cl.WithRequestTimeout(10*time.Second))
 	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+		return err
 	}
 
 	fmt.Print("We have sent you an email with a one time password. Please enter here: ")
@@ -56,8 +55,7 @@ func Signup(ctx *cli.Context) {
 		Token: otp,
 	}, cl.WithRequestTimeout(10*time.Second))
 	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+		return err
 	}
 
 	// Already registered users can just get logged in.
@@ -66,24 +64,21 @@ func Signup(ctx *cli.Context) {
 
 		err = clinamespace.Add(rsp.Namespace, env.Name)
 		if err != nil {
-			fmt.Println(err)
-			os.Exit(1)
+			return err
 		}
 		err = clinamespace.Set(rsp.Namespace, env.Name)
 		if err != nil {
-			fmt.Println(err)
-			os.Exit(1)
+			return err
 		}
 		if err := clitoken.Save(env.Name, &auth.Token{
 			AccessToken:  tok.AccessToken,
 			RefreshToken: tok.RefreshToken,
 			Expiry:       time.Unix(tok.Expiry, 0),
 		}); err != nil {
-			fmt.Println(err)
-			os.Exit(1)
+			return err
 		}
 		fmt.Println("Successfully logged in.")
-		return
+		return nil
 	}
 
 	// For users who don't have an account yet, this flow will proceed
@@ -124,19 +119,16 @@ func Signup(ctx *cli.Context) {
 		Secret:          password,
 	}, cl.WithRequestTimeout(30*time.Second))
 	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+		return err
 	}
 
 	tok = signupRsp.AuthToken
 	if err := clinamespace.Add(signupRsp.Namespace, env.Name); err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+		return err
 	}
 
 	if err := clinamespace.Set(signupRsp.Namespace, env.Name); err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+		return err
 	}
 
 	if err := clitoken.Save(env.Name, &auth.Token{
@@ -144,13 +136,13 @@ func Signup(ctx *cli.Context) {
 		RefreshToken: tok.RefreshToken,
 		Expiry:       time.Unix(tok.Expiry, 0),
 	}); err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+		return err
 	}
 
 	// the user has now signed up and logged in
-	fmt.Println("Successfully logged in.")
 	// @todo save the namespace from the last call and use that.
+	fmt.Println("Successfully logged in.")
+	return nil
 }
 
 // Commands for the Micro Platform

@@ -1,4 +1,4 @@
-package auth
+package cli
 
 import (
 	"context"
@@ -16,21 +16,19 @@ import (
 	"github.com/micro/micro/v2/internal/client"
 )
 
-func listAccounts(ctx *cli.Context) {
+func listAccounts(ctx *cli.Context) error {
 	client := accountsFromContext(ctx)
 
 	ns, err := namespace.Get(util.GetEnv(ctx).Name)
 	if err != nil {
-		fmt.Printf("Error getting namespace: %v\n", err)
-		os.Exit(1)
+		return fmt.Errorf("Error getting namespace: %v", err)
 	}
 
 	rsp, err := client.List(context.TODO(), &pb.ListAccountsRequest{
 		Options: &pb.Options{Namespace: ns},
 	})
 	if err != nil {
-		fmt.Printf("Error listing accounts: %v\n", err)
-		os.Exit(1)
+		return fmt.Errorf("Error listing accounts: %v", err)
 	}
 
 	w := tabwriter.NewWriter(os.Stdout, 0, 8, 1, '\t', 0)
@@ -53,18 +51,18 @@ func listAccounts(ctx *cli.Context) {
 
 		fmt.Fprintln(w, strings.Join([]string{r.Id, scopes, metadata}, "\t\t"))
 	}
+
+	return nil
 }
 
-func createAccount(ctx *cli.Context) {
+func createAccount(ctx *cli.Context) error {
 	if ctx.Args().Len() == 0 {
-		fmt.Println("Missing argument: ID")
-		return
+		return fmt.Errorf("Missing argument: ID")
 	}
 
 	ns, err := namespace.Get(util.GetEnv(ctx).Name)
 	if err != nil {
-		fmt.Printf("Error getting namespace: %v\n", err)
-		os.Exit(1)
+		return fmt.Errorf("Error getting namespace: %v", err)
 	}
 
 	options := []auth.GenerateOption{auth.WithIssuer(ns)}
@@ -77,25 +75,23 @@ func createAccount(ctx *cli.Context) {
 
 	acc, err := authFromContext(ctx).Generate(ctx.Args().First(), options...)
 	if err != nil {
-		fmt.Printf("Error creating account: %v\n", err)
-		os.Exit(1)
+		return fmt.Errorf("Error creating account: %v", err)
 	}
 
 	json, _ := json.Marshal(acc)
 	fmt.Printf("Account created: %v\n", string(json))
+	return nil
 }
 
-func deleteAccount(ctx *cli.Context) {
+func deleteAccount(ctx *cli.Context) error {
 	if ctx.Args().Len() == 0 {
-		fmt.Println("Missing argument: ID")
-		return
+		return fmt.Errorf("Missing argument: ID")
 	}
 	client := accountsFromContext(ctx)
 
 	ns, err := namespace.Get(util.GetEnv(ctx).Name)
 	if err != nil {
-		fmt.Printf("Error getting namespace: %v\n", err)
-		os.Exit(1)
+		return fmt.Errorf("Error getting namespace: %v", err)
 	}
 
 	_, err = client.Delete(context.TODO(), &pb.DeleteAccountRequest{
@@ -103,9 +99,10 @@ func deleteAccount(ctx *cli.Context) {
 		Options: &pb.Options{Namespace: ns},
 	})
 	if err != nil {
-		fmt.Printf("Error deleting account: %v\n", err)
-		os.Exit(1)
+		return fmt.Errorf("Error deleting account: %v", err)
 	}
+
+	return nil
 }
 
 func accountsFromContext(ctx *cli.Context) pb.AccountsService {
