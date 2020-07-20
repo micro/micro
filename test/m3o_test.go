@@ -135,13 +135,13 @@ func testM3oSignupFlow(t *t) {
 		if !strings.Contains(string(outp), "Success") {
 			t.Fatal(string(outp))
 		}
-		ns, err := namespace.Get(serv.envName)
+		ns, err := namespace.Get(serv.envName())
 		if err != nil {
 			t.Fatalf("Eror getting namespace: %v", err)
 			return
 		}
 		defer func() {
-			namespace.Remove(ns, serv.envName)
+			namespace.Remove(ns, serv.envName())
 		}()
 		if strings.Count(ns, "-") != 2 {
 			t.Fatalf("Expected 2 dashes in namespace but namespace is: %v", ns)
@@ -239,18 +239,4 @@ func getSrcString(envvar, dflt string) string {
 		return env
 	}
 	return dflt
-}
-
-func login(serv server, t *t, email, password string) error {
-	return try("Logging in", t, func() ([]byte, error) {
-		readCmd := exec.Command("micro", serv.envFlag(), "login", "--email", email, "--password", password)
-		outp, err := readCmd.CombinedOutput()
-		if err != nil {
-			return outp, err
-		}
-		if !strings.Contains(string(outp), "Success") {
-			return outp, errors.New("Login output does not contain 'Success'")
-		}
-		return outp, err
-	}, 4*time.Second)
 }

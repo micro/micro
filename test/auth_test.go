@@ -44,7 +44,7 @@ func testServerAuthJWT(t *t) {
 	basicAuthSuite(serv, t)
 }
 
-func basicAuthSuite(serv server, t *t) {
+func basicAuthSuite(serv testServer, t *t) {
 	login(serv, t, "default", "password")
 
 	// Execute first command in read to wait for store service

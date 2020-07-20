@@ -13,6 +13,10 @@ bash uninstall.sh;
 cd ../nats;
 bash uninstall.sh;
 
+# delete the PVs and PVCs
+kubectl delete pvc --all
+kubectl delete pv --all
+
 # move to the /kubernetes folder and apply the deployments
 cd ../..;
 kubectl delete -f network
