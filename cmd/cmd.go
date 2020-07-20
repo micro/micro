@@ -330,19 +330,11 @@ func setup(app *ccli.App) {
 	}
 }
 
-// Init initialised the command line
-func Init(options ...micro.Option) {
-	Setup(cmd.App(), options...)
+// Run executes the command line
+func Run(options ...micro.Option) {
+	// get the app
+	app := cmd.App()
 
-	cmd.Init(
-		cmd.Name(name),
-		cmd.Description(description),
-		cmd.Version(buildVersion()),
-	)
-}
-
-// Setup sets up a cli.App
-func Setup(app *ccli.App, options ...micro.Option) {
 	// commands to include that are otherwise sourced from elsewhere
 	for _, command := range Commands {
 		app.Commands = append(app.Commands, command)
@@ -409,5 +401,19 @@ func Setup(app *ccli.App, options ...micro.Option) {
 		return nil
 	}
 
+	// add additional flags and setup functions
 	setup(app)
+
+	// initialise our options
+	cmd.DefaultCmd.Init(
+		cmd.Name(name),
+		cmd.Description(description),
+		cmd.Version(buildVersion()),
+	)
+
+	// run the command
+	if err := cmd.DefaultCmd.Run(); err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
 }
