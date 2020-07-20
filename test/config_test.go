@@ -31,7 +31,7 @@ func testConfig(t *t) {
 		if err == nil {
 			return outp, errors.New("config gete should fail")
 		}
-		if string(outp) != "not found\n" {
+		if !strings.Contains(string(outp), "Not found") {
 			return outp, fmt.Errorf("Output should be 'not found\n', got %v", string(outp))
 		}
 		return outp, nil
@@ -87,8 +87,8 @@ func testConfig(t *t) {
 		if err == nil {
 			return outp, errors.New("getting somekey should fail")
 		}
-		if string(outp) != "not found\n" {
-			return outp, errors.New("Expected 'not found\n'")
+		if !strings.Contains(string(outp), "not found") {
+			return outp, errors.New("Expected 'not found'")
 		}
 		return outp, nil
 	}, 8*time.Second); err != nil {
