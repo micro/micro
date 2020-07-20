@@ -166,6 +166,11 @@ func Commands() []*cli.Command {
 				},
 			},
 		},
+		{
+			Name:   "services",
+			Usage:  "List micro services",
+			Action: Print(listServices),
+		},
 	}
 
 	return commands

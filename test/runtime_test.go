@@ -83,7 +83,7 @@ func testRunLocalSource(t *t) {
 	}
 
 	if err := try("Find go.micro.service.example in list", t, func() ([]byte, error) {
-		outp, err := exec.Command("micro", serv.envFlag(), "list", "services").CombinedOutput()
+		outp, err := exec.Command("micro", serv.envFlag(), "services").CombinedOutput()
 		if err != nil {
 			return outp, err
 		}
@@ -133,7 +133,7 @@ func testRunAndKill(t *t) {
 	}
 
 	if err := try("Find go.micro.service.example in list", t, func() ([]byte, error) {
-		outp, err := exec.Command("micro", serv.envFlag(), "list", "services").CombinedOutput()
+		outp, err := exec.Command("micro", serv.envFlag(), "services").CombinedOutput()
 		if err != nil {
 			return outp, err
 		}
@@ -169,7 +169,7 @@ func testRunAndKill(t *t) {
 	}
 
 	if err := try("Find go.micro.service.example in list", t, func() ([]byte, error) {
-		outp, err := exec.Command("micro", serv.envFlag(), "list", "services").CombinedOutput()
+		outp, err := exec.Command("micro", serv.envFlag(), "services").CombinedOutput()
 		if err != nil {
 			return outp, err
 		}
@@ -243,7 +243,7 @@ func testLocalOutsideRepo(t *t) {
 	}
 
 	if err := try("Find go.micro.service.example in list", t, func() ([]byte, error) {
-		outp, err := exec.Command("micro", serv.envFlag(), "list", "services").CombinedOutput()
+		outp, err := exec.Command("micro", serv.envFlag(), "services").CombinedOutput()
 		if err != nil {
 			return outp, err
 		}
@@ -647,7 +647,7 @@ func testFastRuns(t *t) {
 	}
 
 	if err := try("Find signup and stripe", t, func() ([]byte, error) {
-		psCmd := exec.Command("micro", serv.envFlag(), "list", "services")
+		psCmd := exec.Command("micro", serv.envFlag(), "services")
 		outp, err = psCmd.CombinedOutput()
 		if err != nil {
 			return outp, err

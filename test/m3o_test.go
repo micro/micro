@@ -70,7 +70,7 @@ func testM3oSignupFlow(t *t) {
 	}
 
 	if err := try("Find signup and stripe in list", t, func() ([]byte, error) {
-		outp, err := exec.Command("micro", serv.envFlag(), "list", "services").CombinedOutput()
+		outp, err := exec.Command("micro", serv.envFlag(), "services").CombinedOutput()
 		if err != nil {
 			return outp, err
 		}
