@@ -16,19 +16,29 @@ import (
 	"github.com/micro/micro/v2/client/cli/token"
 )
 
-const (
-	retryCount = 2
-	isParallel = true
-)
-
+var retryCount = 2
+var isParallel = true
 var ignoreThisError = errors.New("Do not use this error")
 
+var testFilter = []string{}
+var maxTimeMultiplier = time.Duration(1)
+
 type cmdFunc func() ([]byte, error)
+
+type testServer interface {
+	launch() error
+	close()
+	envFlag() string
+	envName() string
+}
 
 // try is designed with command line executions in mind
 // Error should be checked and a simple `return` from the test case should
 // happen without calling `t.Fatal`. The error value should be disregarded.
 func try(blockName string, t *t, f cmdFunc, maxTime time.Duration) error {
+	// hack. k8s can be slow locally
+	maxTime = maxTimeMultiplier * maxTime
+
 	start := time.Now()
 	var outp []byte
 	var err error
@@ -61,13 +71,18 @@ func once(blockName string, t *testing.T, f cmdFunc) {
 	}
 }
 
-type server struct {
+type testServerBase struct {
 	cmd           *exec.Cmd
 	t             *t
-	envName       string
+	envNm         string
 	portNum       int
 	containerName string
 	opts          options
+	namespace     string
+}
+
+func (s *testServerBase) envName() string {
+	return s.envNm
 }
 
 func getFrame(skipFrames int) runtime.Frame {
@@ -104,11 +119,23 @@ type options struct {
 	auth string // eg. jwt
 }
 
-func newServer(t *t, opts ...options) server {
+func newServer(t *t, opts ...options) testServer {
+	fname := strings.Split(myCaller(), ".")[2]
+	return newSrv(t, fname, opts...)
+}
+
+type newServerFunc func(t *t, fname string, opts ...options) testServer
+
+var newSrv newServerFunc = newLocalServer
+
+type testServerDefault struct {
+	testServerBase
+}
+
+func newLocalServer(t *t, fname string, opts ...options) testServer {
 	min := 8000
 	max := 60000
 	portnum := rand.Intn(max-min) + min
-	fname := strings.Split(myCaller(), ".")[2]
 
 	// kill container, ignore error because it might not exist,
 	// we dont care about this that much
@@ -145,33 +172,32 @@ func newServer(t *t, opts ...options) server {
 			"-e", "MICRO_AUTH_PUBLIC_KEY="+strings.Trim(string(pubKey), "\n"),
 			"micro", "server")
 	}
-	//fmt.Println("docker", "run", "--name", fname, fmt.Sprintf("-p=%v:8081", portnum), "micro", "server")
 	opt := options{}
 	if len(opts) > 0 {
 		opt = opts[0]
 	}
-	return server{
+	return &testServerDefault{testServerBase{
 		cmd:           cmd,
 		t:             t,
-		envName:       fname,
+		envNm:         fname,
 		containerName: fname,
 		portNum:       portnum,
 		opts:          opt,
-	}
+		namespace:     "micro",
+	}}
 }
 
 // error value should not be used but caller should return in the test suite
 // in case of error.
-func (s server) launch() error {
+func (s *testServerBase) launch() error {
 	go func() {
 		if err := s.cmd.Start(); err != nil {
 			s.t.t.Fatal(err)
 		}
 	}()
-
 	// add the environment
 	if err := try("Adding micro env", s.t, func() ([]byte, error) {
-		outp, err := exec.Command("micro", "env", "add", s.envName, fmt.Sprintf("127.0.0.1:%v", s.portNum)).CombinedOutput()
+		outp, err := exec.Command("micro", "env", "add", s.envName(), fmt.Sprintf("127.0.0.1:%v", s.portNum)).CombinedOutput()
 		if err != nil {
 			return outp, err
 		}
@@ -183,7 +209,7 @@ func (s server) launch() error {
 		if err != nil {
 			return outp, err
 		}
-		if !strings.Contains(string(outp), s.envName) {
+		if !strings.Contains(string(outp), s.envName()) {
 			return outp, errors.New("Not added")
 		}
 
@@ -196,7 +222,6 @@ func (s server) launch() error {
 		outp, err := exec.Command("micro", s.envFlag(), "services").CombinedOutput()
 		if !strings.Contains(string(outp), "runtime") ||
 			!strings.Contains(string(outp), "registry") ||
-			!strings.Contains(string(outp), "api") ||
 			!strings.Contains(string(outp), "broker") ||
 			!strings.Contains(string(outp), "config") ||
 			!strings.Contains(string(outp), "debug") ||
@@ -211,25 +236,46 @@ func (s server) launch() error {
 		return err
 	}
 
+	// login to admin account
+	login(s, s.t, "default", "password")
+
+	// generate a new admin account for the env : user=ENV_NAME pass=password
+	req := fmt.Sprintf(`{"id":"%s", "secret":"password", "options":{"namespace":"%s"}}`, s.envName(), s.namespace)
+	outp, err := exec.Command("micro", s.envFlag(), "call", "go.micro.auth", "Auth.Generate", req).CombinedOutput()
+	if err != nil && !strings.Contains(string(outp), "already exists") { // until auth.Delete is implemented
+		s.t.Fatalf("Error generating auth: %s, %s", err, outp)
+		return err
+	}
+	return nil
+}
+
+func (s *testServerDefault) launch() error {
+	if err := s.testServerBase.launch(); err != nil {
+		return err
+	}
+
 	time.Sleep(5 * time.Second)
 	return nil
 }
 
-func (s server) close() {
+func (s *testServerBase) close() {
 	// remove the credentials so they aren't reused on next run
-	token.Remove(s.envName)
+	token.Remove(s.envName())
 
 	// reset back to the default namespace
-	namespace.Set("micro", s.envName)
+	namespace.Set("micro", s.envName())
 
+}
+
+func (s *testServerDefault) close() {
 	exec.Command("docker", "kill", s.containerName).CombinedOutput()
 	if s.cmd.Process != nil {
 		s.cmd.Process.Signal(syscall.SIGKILL)
 	}
 }
 
-func (s server) envFlag() string {
-	return fmt.Sprintf("-env=%v", s.envName)
+func (s *testServerBase) envFlag() string {
+	return fmt.Sprintf("-env=%v", s.envName())
 }
 
 type t struct {
@@ -274,6 +320,20 @@ func newT(te *testing.T) *t {
 // trySuite is designed to retry a TestXX function
 func trySuite(t *testing.T, f func(t *t), times int) {
 	t.Helper()
+	if len(testFilter) > 0 {
+		caller := strings.Split(getFrame(1).Function, ".")[2]
+		runit := false
+		for _, test := range testFilter {
+			if test == caller {
+				runit = true
+				break
+			}
+		}
+		if !runit {
+			t.Skip()
+		}
+	}
+
 	tee := newT(t)
 	for i := 0; i < times; i++ {
 		f(tee)
@@ -292,4 +352,18 @@ func trySuite(t *testing.T, f func(t *t), times int) {
 			t.Fatal(tee.values...)
 		}
 	}
+}
+
+func login(serv testServer, t *t, email, password string) error {
+	return try("Logging in with "+email, t, func() ([]byte, error) {
+		readCmd := exec.Command("micro", serv.envFlag(), "login", "--email", email, "--password", password)
+		outp, err := readCmd.CombinedOutput()
+		if err != nil {
+			return outp, err
+		}
+		if !strings.Contains(string(outp), "Success") {
+			return outp, errors.New("Login output does not contain 'Success'")
+		}
+		return outp, err
+	}, 4*time.Second)
 }

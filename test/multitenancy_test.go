@@ -6,7 +6,6 @@ import (
 	"errors"
 	"fmt"
 	"os/exec"
-	"strings"
 	"testing"
 	"time"
 
@@ -31,13 +30,13 @@ func testNamespaceConfigIsolation(t *t) {
 	testNamespaceConfigIsolationSuite(serv, t)
 }
 
-func testNamespaceConfigIsolationSuite(serv server, t *t) {
-	err := namespace.Add(serv.envName, serv.envName)
+func testNamespaceConfigIsolationSuite(serv testServer, t *t) {
+	err := namespace.Add(serv.envName(), serv.envName())
 	if err != nil {
 		t.Fatal(err)
 		return
 	}
-	err = namespace.Set(serv.envName, serv.envName)
+	err = namespace.Set(serv.envName(), serv.envName())
 	if err != nil {
 		t.Fatal(err)
 		return
@@ -79,17 +78,17 @@ func testNamespaceConfigIsolationSuite(serv server, t *t) {
 		return
 	}
 
-	err = namespace.Add("random", serv.envName)
+	err = namespace.Add("random", serv.envName())
 	if err != nil {
 		t.Fatal(err)
 		return
 	}
-	err = namespace.Set("random", serv.envName)
+	err = namespace.Set("random", serv.envName())
 	if err != nil {
 		t.Fatal(err)
 		return
 	}
-	err = token.Remove(serv.envName)
+	err = token.Remove(serv.envName())
 	if err != nil {
 		t.Fatal(err)
 		return
@@ -120,12 +119,12 @@ func testNamespaceConfigIsolationSuite(serv server, t *t) {
 	// Log back to original namespace and see if value is already there
 
 	// orignal namespace matchesthe env name
-	err = namespace.Set(serv.envName, serv.envName)
+	err = namespace.Set(serv.envName(), serv.envName())
 	if err != nil {
 		t.Fatal(err)
 		return
 	}
-	err = token.Remove(serv.envName)
+	err = token.Remove(serv.envName())
 	if err != nil {
 		t.Fatal(err)
 		return
@@ -148,18 +147,4 @@ func testNamespaceConfigIsolationSuite(serv server, t *t) {
 	}, 8*time.Second); err != nil {
 		return
 	}
-}
-
-func login(serv server, t *t, email, password string) error {
-	return try("Logging in", t, func() ([]byte, error) {
-		readCmd := exec.Command("micro", serv.envFlag(), "login", "--email", email, "--password", password)
-		outp, err := readCmd.CombinedOutput()
-		if err != nil {
-			return outp, err
-		}
-		if !strings.Contains(string(outp), "Success") {
-			return outp, errors.New("Login output does not contain 'Success'")
-		}
-		return outp, err
-	}, 4*time.Second)
 }

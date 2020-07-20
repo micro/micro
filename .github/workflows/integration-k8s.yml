@@ -2,11 +2,11 @@
 # The dream would be to ru the test suite after the tf apply
 # but it's fairly flaky still.
 
-name: Run micro server integration tests on k8s (kind)
-on:
-  schedule:
-    # * is a special character in YAML so you have to quote this string
-    - cron:  '00 00 * * *'
+name: K8s integration tests
+on: [push]
+  # schedule:
+  #   # * is a special character in YAML so you have to quote this string
+  #   - cron:  '00 00 * * *'
 
 jobs:
 
@@ -17,22 +17,43 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v1
     - name: Setup Kind
-      uses: engineerd/setup-kind@v0.3.0
-
+      uses: engineerd/setup-kind@v0.4.0
+    - name: Set up Go 1.13
+      uses: actions/setup-go@v2
+      with:
+        go-version: 1.13
+      id: go
     - name: Publish to Registry
       uses: elgohr/Publish-Docker-Github-Action@master
       with:
-        name: micro/micro
+        name: micro/integbuilds
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
-
-    - name: Apply tf files
+        tag_names: true 
+    - name: Update the image
       run: |
-        bash scripts/launch-kind.sh
-
-    - name: Apply failed, show platform logs
+        bash .github/workflows/update-image.sh
+    - name: Install the prerequisites
+      run: |
+        bash .github/workflows/kind-prereqs.sh
+    - name: Install the platform
+      run: |
+        bash scripts/kind-launch.sh
+    - name: Install failed, show platform logs
       if: ${{ failure() }}
       run: |
         kubectl get pods -n platform | awk '{print $1}' | xargs -n1 kubectl logs -n platform
-
-
+    - name: Install Protoc
+      uses: arduino/setup-protoc@master
+    - name: Install micro
+      run: |
+        go install
+    - name: Test micro server
+      working-directory: ./test
+      env:
+        IN_TRAVIS_CI: yes
+      run: |
+          # Generate keys for JWT tests
+          ssh-keygen -f /tmp/sshkey -m pkcs8 -q -N ""
+          ssh-keygen -f /tmp/sshkey -e  -m pkcs8 > /tmp/sshkey.pub
+          go clean -testcache && go test --tags=integration,kind -v ./...
