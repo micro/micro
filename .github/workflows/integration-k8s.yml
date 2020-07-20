@@ -32,7 +32,7 @@ jobs:
         tag_names: true 
     - name: Update the image
       run: |
-        sed -e 's/: micro\/micro/: ${GITHUB_REF#refs/heads/}/g' -i.bak platform/kubernetes/network/*.yaml
+        bash .github/workflows/update-image.sh
     - name: Install the prerequisites
       run: |
         bash .github/workflows/kind-prereqs.sh
