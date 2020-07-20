@@ -82,7 +82,7 @@ func testStore(t *t) {
 		t.Fatalf("store read should fail: %v", string(outp))
 		return
 	}
-	if !strings.Contains(string(outp), "Not found") {
+	if !strings.Contains(string(outp), "not found") {
 		t.Fatalf("Expected 'not found\n', got: '%v'", string(outp))
 		return
 	}
@@ -117,7 +117,7 @@ func testStore(t *t) {
 		t.Fatalf("store read should fail: %v", string(outp))
 		return
 	}
-	if !strings.Contains(string(outp), "Not found") {
+	if !strings.Contains(string(outp), "not found") {
 		t.Fatalf("Expected 'not found\n', got: '%v'", string(outp))
 		return
 	}

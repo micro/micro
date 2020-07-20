@@ -283,7 +283,7 @@ func testRunGithubSource(t *t) {
 		return
 	}
 
-	login(serv, t, serv.envName(), "password")
+	login(serv, t, "default", "password")
 
 	runCmd := exec.Command("micro", serv.envFlag(), "run", "github.com/micro/examples/helloworld")
 	outp, err := runCmd.CombinedOutput()
