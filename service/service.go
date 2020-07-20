@@ -112,7 +112,7 @@ func (s *Service) Init(opts ...Option) {
 			s.opts.Cmd.App().Name = s.Server().Options().Name
 		}
 
-		// Initialise the command flags, overriding new service
+		// Initialise the command options
 		if err := s.opts.Cmd.Init(
 			cmd.Auth(&s.opts.Auth),
 			cmd.Broker(&s.opts.Broker),
@@ -125,6 +125,12 @@ func (s *Service) Init(opts ...Option) {
 			cmd.Store(&s.opts.Store),
 			cmd.Profile(&s.opts.Profile),
 		); err != nil {
+			logger.Fatal(err)
+		}
+
+		// run the command line
+		// TODO: move to service.Run
+		if err := s.opts.Cmd.Run(); err != nil {
 			logger.Fatal(err)
 		}
 
