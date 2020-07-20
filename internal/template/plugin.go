@@ -4,7 +4,7 @@ var (
 	Plugin = `package main
 {{if .Plugins}}
 import ({{range .Plugins}}
-	_ "github.com/micro/go-plugins/{{.}}"{{end}}
+	_ "github.com/micro/go-plugins/v2/{{.}}"{{end}}
 ){{end}}
 `
 )
