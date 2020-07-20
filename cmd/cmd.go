@@ -27,7 +27,7 @@ import (
 	// load services so they can register cli commands
 	_ "github.com/micro/micro/v2/service/auth/cli"
 	_ "github.com/micro/micro/v2/service/config/cli"
-	"github.com/micro/micro/v2/service/debug"
+	_ "github.com/micro/micro/v2/service/debug/cli"
 	"github.com/micro/micro/v2/service/network"
 	"github.com/micro/micro/v2/service/registry"
 	"github.com/micro/micro/v2/service/runtime"
@@ -349,7 +349,6 @@ func Run(options ...micro.Option) {
 	app.Commands = append(app.Commands, store.Commands(options...)...)
 	app.Commands = append(app.Commands, network.Commands(options...)...)
 	app.Commands = append(app.Commands, registry.Commands(options...)...)
-	app.Commands = append(app.Commands, debug.Commands(options...)...)
 	app.Commands = append(app.Commands, server.Commands(options...)...)
 	app.Commands = append(app.Commands, service.Commands(options...)...)
 	app.Commands = append(app.Commands, platform.Commands(options...)...)
