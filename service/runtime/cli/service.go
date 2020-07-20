@@ -15,7 +15,6 @@ import (
 	"time"
 
 	"github.com/micro/cli/v2"
-	"github.com/micro/go-micro/v2"
 	"github.com/micro/go-micro/v2/cmd"
 	log "github.com/micro/go-micro/v2/logger"
 	"github.com/micro/go-micro/v2/runtime"
@@ -93,8 +92,7 @@ func sourceExists(source *git.Source) error {
 	resp, err := http.Get(url)
 	// @todo gracefully degrade?
 	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+		return err
 	}
 	if resp.StatusCode >= 400 && resp.StatusCode < 500 {
 		return fmt.Errorf("service at '%v' not found", url)
@@ -102,22 +100,20 @@ func sourceExists(source *git.Source) error {
 	return nil
 }
 
-func runService(ctx *cli.Context, srvOpts ...micro.Option) {
+func runService(ctx *cli.Context) error {
 	// we need some args to run
 	if ctx.Args().Len() == 0 {
 		fmt.Println(RunUsage)
-		return
+		return nil
 	}
 
 	wd, err := os.Getwd()
 	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+		return err
 	}
 	source, err := git.ParseSourceLocal(wd, ctx.Args().Get(0))
 	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+		return err
 	}
 	var newSource string
 	if source.Local {
@@ -127,14 +123,12 @@ func runService(ctx *cli.Context, srvOpts ...micro.Option) {
 		}
 		newSource, err = upload(ctx, source)
 		if err != nil {
-			fmt.Println(err)
-			os.Exit(1)
+			return err
 		}
 	} else {
 		err := sourceExists(source)
 		if err != nil {
-			fmt.Println(err)
-			os.Exit(1)
+			return err
 		}
 	}
 
@@ -199,8 +193,7 @@ func runService(ctx *cli.Context, srvOpts ...micro.Option) {
 	// determine the namespace
 	ns, err := namespace.Get(util.GetEnv(ctx).Name)
 	if err != nil {
-		fmt.Println(err)
-		return
+		return err
 	}
 	opts = append(opts, runtime.CreateNamespace(ns))
 
@@ -213,8 +206,7 @@ func runService(ctx *cli.Context, srvOpts ...micro.Option) {
 	}
 
 	if err := r.Create(service, opts...); err != nil {
-		fmt.Println(err)
-		return
+		return err
 	}
 
 	if r.String() == "local" {
@@ -223,26 +215,26 @@ func runService(ctx *cli.Context, srvOpts ...micro.Option) {
 		signal.Notify(ch, os.Interrupt)
 		<-ch
 		// delete the service
-		r.Delete(service)
+		return r.Delete(service)
 	}
+
+	return nil
 }
 
-func killService(ctx *cli.Context, srvOpts ...micro.Option) {
+func killService(ctx *cli.Context) error {
 	// we need some args to run
 	if ctx.Args().Len() == 0 {
 		fmt.Println(RunUsage)
-		return
+		return nil
 	}
 
 	wd, err := os.Getwd()
 	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+		return err
 	}
 	source, err := git.ParseSourceLocal(wd, ctx.Args().Get(0))
 	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+		return err
 	}
 	service := &runtime.Service{
 		Name:    source.RuntimeName(),
@@ -253,14 +245,14 @@ func killService(ctx *cli.Context, srvOpts ...micro.Option) {
 	// determine the namespace
 	ns, err := namespace.Get(util.GetEnv(ctx).Name)
 	if err != nil {
-		fmt.Println(err)
-		return
+		return err
 	}
 
 	if err := runtimeFromContext(ctx).Delete(service, runtime.DeleteNamespace(ns)); err != nil {
-		fmt.Println(err)
-		return
+		return err
 	}
+
+	return nil
 }
 
 func grepMain(path string) error {
@@ -302,46 +294,40 @@ func upload(ctx *cli.Context, source *git.Source) (string, error) {
 	}
 
 	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+		return "", err
 	}
 	err = file.New("go.micro.server", client.New(ctx)).Upload(uploadedFileName, path)
 	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+		return "", err
 	}
 	return uploadedFileName, nil
 }
 
-func updateService(ctx *cli.Context, srvOpts ...micro.Option) {
+func updateService(ctx *cli.Context) error {
 	// we need some args to run
 	if ctx.Args().Len() == 0 {
 		fmt.Println(RunUsage)
-		return
+		return nil
 	}
 
 	wd, err := os.Getwd()
 	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+		return err
 	}
 	source, err := git.ParseSourceLocal(wd, ctx.Args().Get(0))
 	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+		return err
 	}
 	var newSource string
 	if source.Local {
 		newSource, err = upload(ctx, source)
 		if err != nil {
-			fmt.Println(err)
-			os.Exit(1)
+			return err
 		}
 	} else {
 		err := sourceExists(source)
 		if err != nil {
-			fmt.Println(err)
-			os.Exit(1)
+			return err
 		}
 	}
 
@@ -358,17 +344,13 @@ func updateService(ctx *cli.Context, srvOpts ...micro.Option) {
 	// determine the namespace
 	ns, err := namespace.Get(util.GetEnv(ctx).Name)
 	if err != nil {
-		fmt.Println(err)
-		return
+		return err
 	}
 
-	if err := runtimeFromContext(ctx).Update(service, runtime.UpdateNamespace(ns)); err != nil {
-		fmt.Println(err)
-		return
-	}
+	return runtimeFromContext(ctx).Update(service, runtime.UpdateNamespace(ns))
 }
 
-func getService(ctx *cli.Context, srvOpts ...micro.Option) {
+func getService(ctx *cli.Context) error {
 	name := ""
 	version := "latest"
 	typ := ctx.String("type")
@@ -377,13 +359,11 @@ func getService(ctx *cli.Context, srvOpts ...micro.Option) {
 	if ctx.Args().Len() > 0 {
 		wd, err := os.Getwd()
 		if err != nil {
-			fmt.Println(err)
-			os.Exit(1)
+			return err
 		}
 		source, err := git.ParseSourceLocal(wd, ctx.Args().Get(0))
 		if err != nil {
-			fmt.Println(err)
-			os.Exit(1)
+			return err
 		}
 		name = source.RuntimeName()
 	}
@@ -415,7 +395,7 @@ func getService(ctx *cli.Context, srvOpts ...micro.Option) {
 		// check if service name was passed in
 		if len(name) == 0 {
 			fmt.Println(GetUsage)
-			return
+			return nil
 		}
 
 		// get service with name and version
@@ -433,16 +413,14 @@ func getService(ctx *cli.Context, srvOpts ...micro.Option) {
 	// determine the namespace
 	ns, err := namespace.Get(util.GetEnv(ctx).Name)
 	if err != nil {
-		fmt.Println(err)
-		return
+		return err
 	}
 	readOpts = append(readOpts, runtime.ReadNamespace(ns))
 
 	// read the service
 	services, err = r.Read(readOpts...)
 	if err != nil {
-		fmt.Println(err)
-		return
+		return err
 	}
 
 	// make sure we return UNKNOWN when empty string is supplied
@@ -455,7 +433,7 @@ func getService(ctx *cli.Context, srvOpts ...micro.Option) {
 
 	// don't do anything if there's no services
 	if len(services) == 0 {
-		return
+		return nil
 	}
 
 	sort.Slice(services, func(i, j int) bool { return services[i].Name < services[j].Name })
@@ -487,6 +465,7 @@ func getService(ctx *cli.Context, srvOpts ...micro.Option) {
 			fmt.Sprintf("owner=%s,group=%s", parse(service.Metadata["owner"]), parse(service.Metadata["group"])))
 	}
 	writer.Flush()
+	return nil
 }
 
 const (
@@ -494,11 +473,11 @@ const (
 	logUsage = "Required usage: micro log example"
 )
 
-func getLogs(ctx *cli.Context, srvOpts ...micro.Option) {
+func getLogs(ctx *cli.Context) error {
 	log.Init(log.WithFields(map[string]interface{}{"service": "runtime"}))
 	if ctx.Args().Len() == 0 {
 		fmt.Println("Service name is required")
-		return
+		return nil
 	}
 
 	name := ctx.Args().Get(0)
@@ -506,7 +485,7 @@ func getLogs(ctx *cli.Context, srvOpts ...micro.Option) {
 	// must specify service name
 	if len(name) == 0 {
 		fmt.Println(logUsage)
-		return
+		return nil
 	}
 
 	// get the args
@@ -538,16 +517,14 @@ func getLogs(ctx *cli.Context, srvOpts ...micro.Option) {
 	// determine the namespace
 	ns, err := namespace.Get(util.GetEnv(ctx).Name)
 	if err != nil {
-		fmt.Println(err)
-		return
+		return err
 	}
 	options = append(options, runtime.LogsNamespace(ns))
 
 	logs, err := r.Logs(&runtime.Service{Name: name}, options...)
 
 	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+		return err
 	}
 
 	output := ctx.String("output")
@@ -559,7 +536,7 @@ func getLogs(ctx *cli.Context, srvOpts ...micro.Option) {
 					fmt.Printf("Error reading logs: %s\n", status.Convert(err).Message())
 					os.Exit(1)
 				}
-				return
+				return nil
 			}
 			switch output {
 			case "json":
@@ -570,34 +547,5 @@ func getLogs(ctx *cli.Context, srvOpts ...micro.Option) {
 
 			}
 		}
-	}
-}
-
-// logFlags is shared flags so we don't have to continually re-add
-func logFlags() []cli.Flag {
-	return []cli.Flag{
-		&cli.StringFlag{
-			Name:  "version",
-			Usage: "Set the version of the service to debug",
-		},
-		&cli.StringFlag{
-			Name:    "output",
-			Aliases: []string{"o"},
-			Usage:   "Set the output format e.g json, text",
-		},
-		&cli.BoolFlag{
-			Name:    "follow",
-			Aliases: []string{"f"},
-			Usage:   "Set to stream logs continuously (default: true)",
-		},
-		&cli.StringFlag{
-			Name:  "since",
-			Usage: "Set to the relative time from which to show the logs for e.g. 1h",
-		},
-		&cli.IntFlag{
-			Name:    "lines",
-			Aliases: []string{"n"},
-			Usage:   "Set to query the last number of log events",
-		},
 	}
 }

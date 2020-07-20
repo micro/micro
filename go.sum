@@ -380,6 +380,7 @@ github.com/micro/go-micro/v2 v2.9.1-0.20200720090451-a3a7434f2cd9 h1:tyAToidaELJ
 github.com/micro/go-micro/v2 v2.9.1-0.20200720090451-a3a7434f2cd9/go.mod h1:niBfOpaZzEw22NJlAtz1CEHocA3qrkzpcTYi0h0d8CE=
 github.com/micro/mdns v0.3.0 h1:bYycYe+98AXR3s8Nq5qvt6C573uFTDPIYzJemWON0QE=
 github.com/micro/mdns v0.3.0/go.mod h1:KJ0dW7KmicXU2BV++qkLlmHYcVv7/hHnbtguSWt9Aoc=
+github.com/micro/micro v1.18.0 h1:v+xiQOXbT9xxotLwu1nJM81t4FbruBxZSSyIdhUfujM=
 github.com/micro/protoc-gen-micro v1.0.0/go.mod h1:C8ij4DJhapBmypcT00AXdb0cZ675/3PqUO02buWWqbE=
 github.com/micro/services v0.0.0-20200716140808-890e08d2c50b h1:CHkla8UiaXuGoZlBMYwEmzcCRW95Z2JLSj5RW0fQG2Q=
 github.com/micro/services v0.0.0-20200716140808-890e08d2c50b/go.mod h1:yP4uN1Q2zM4x84skxfxTkt1CIBwY/HrzyYqtsdYPa+c=

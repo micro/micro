@@ -29,7 +29,7 @@ import (
 	_ "github.com/micro/micro/v2/service/config/cli"
 	_ "github.com/micro/micro/v2/service/debug/cli"
 	_ "github.com/micro/micro/v2/service/network/cli"
-	"github.com/micro/micro/v2/service/runtime"
+	_ "github.com/micro/micro/v2/service/runtime/cli"
 	"github.com/micro/micro/v2/service/store"
 	"github.com/micro/micro/v2/service/tunnel"
 
@@ -341,7 +341,6 @@ func Run(options ...micro.Option) {
 
 	// Add the service commands
 	app.Commands = append(app.Commands, new.Commands()...)
-	app.Commands = append(app.Commands, runtime.Commands(options...)...)
 	app.Commands = append(app.Commands, store.Commands(options...)...)
 	app.Commands = append(app.Commands, server.Commands(options...)...)
 	app.Commands = append(app.Commands, service.Commands(options...)...)
