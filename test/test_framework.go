@@ -216,6 +216,24 @@ func (s *testServerBase) launch() error {
 		return err
 	}
 
+	if err := try("Calling micro server", s.t, func() ([]byte, error) {
+		outp, err := exec.Command("micro", s.envFlag(), "list", "services").CombinedOutput()
+		if !strings.Contains(string(outp), "runtime") ||
+			!strings.Contains(string(outp), "registry") ||
+			!strings.Contains(string(outp), "broker") ||
+			!strings.Contains(string(outp), "config") ||
+			!strings.Contains(string(outp), "debug") ||
+			!strings.Contains(string(outp), "proxy") ||
+			!strings.Contains(string(outp), "auth") ||
+			!strings.Contains(string(outp), "store") {
+			return outp, errors.New("Not ready")
+		}
+
+		return outp, err
+	}, 60*time.Second); err != nil {
+		return err
+	}
+
 	// login to admin account
 	login(s, s.t, "default", "password")
 
@@ -232,23 +250,6 @@ func (s *testServerBase) launch() error {
 
 func (s *testServerDefault) launch() error {
 	if err := s.testServerBase.launch(); err != nil {
-		return err
-	}
-	if err := try("Calling micro server", s.t, func() ([]byte, error) {
-		outp, err := exec.Command("micro", s.envFlag(), "list", "services").CombinedOutput()
-		if !strings.Contains(string(outp), "runtime") ||
-			!strings.Contains(string(outp), "registry") ||
-			!strings.Contains(string(outp), "broker") ||
-			!strings.Contains(string(outp), "config") ||
-			!strings.Contains(string(outp), "debug") ||
-			!strings.Contains(string(outp), "proxy") ||
-			!strings.Contains(string(outp), "auth") ||
-			!strings.Contains(string(outp), "store") {
-			return outp, errors.New("Not ready")
-		}
-
-		return outp, err
-	}, 60*time.Second); err != nil {
 		return err
 	}
 
