@@ -19,7 +19,6 @@ var (
 		"quit":     {"quit", "Exit the CLI", quit},
 		"exit":     {"exit", "Exit the CLI", quit},
 		"call":     {"call", "Call a service", callService},
-		"get":      {"get", "Get service info", getService},
 		"stream":   {"stream", "Stream a call to a service", streamService},
 		"health":   {"health", "Get service health", queryHealth},
 		"stats":    {"stats", "Get service stats", queryStats},
@@ -87,38 +86,6 @@ func Run(c *cli.Context) error {
 		}
 	}
 	return nil
-}
-
-func RegistryCommands() []*cli.Command {
-	return []*cli.Command{
-		{
-			Name:  "list",
-			Usage: "List items in registry or network",
-			Subcommands: []*cli.Command{
-				{
-					Name:   "services",
-					Usage:  "List services in registry",
-					Action: Print(listServices),
-				},
-			},
-		},
-		{
-			Name:  "get",
-			Usage: "Get item from registry",
-			Subcommands: []*cli.Command{
-				{
-					Name:   "service",
-					Usage:  "Get service from registry",
-					Action: Print(getService),
-				},
-			},
-		},
-		{
-			Name:   "services",
-			Usage:  "List services in the registry",
-			Action: Print(listServices),
-		},
-	}
 }
 
 //StoreCommands for data storing
@@ -390,5 +357,5 @@ func Commands() []*cli.Command {
 		},
 	}
 
-	return append(commands, RegistryCommands()...)
+	return commands
 }

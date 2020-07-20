@@ -38,18 +38,6 @@ func listServices(c *cli.Context, args []string) ([]byte, error) {
 	return clic.ListServices(c)
 }
 
-func registerService(c *cli.Context, args []string) ([]byte, error) {
-	return clic.RegisterService(c, args)
-}
-
-func deregisterService(c *cli.Context, args []string) ([]byte, error) {
-	return clic.DeregisterService(c, args)
-}
-
-func getService(c *cli.Context, args []string) ([]byte, error) {
-	return clic.GetService(c, args)
-}
-
 func callService(c *cli.Context, args []string) ([]byte, error) {
 	return clic.CallService(c, args)
 }

@@ -11,18 +11,16 @@ import (
 	"github.com/micro/go-micro/v2/registry"
 	"github.com/micro/go-micro/v2/registry/service"
 	pb "github.com/micro/go-micro/v2/registry/service/proto"
-	rcli "github.com/micro/micro/v2/client/cli"
-	"github.com/micro/micro/v2/internal/helper"
 	"github.com/micro/micro/v2/service/registry/handler"
 )
 
 var (
-	// Name of the registry
-	Name = "go.micro.registry"
-	// The address of the registry
-	Address = ":8000"
-	// Topic to publish registry events to
-	Topic = "go.micro.registry.events"
+	// name of the registry
+	name = "go.micro.registry"
+	// address of the registry
+	address = ":8000"
+	// topic to publish registry events to
+	topic = "go.micro.registry.events"
 )
 
 // Sub processes registry events
@@ -79,17 +77,15 @@ func (s *subscriber) Process(ctx context.Context, event *pb.Event) error {
 }
 
 func Run(ctx *cli.Context, srvOpts ...micro.Option) {
-	log.Init(log.WithFields(map[string]interface{}{"service": "registry"}))
-
 	if len(ctx.String("server_name")) > 0 {
-		Name = ctx.String("server_name")
+		name = ctx.String("server_name")
 	}
 	if len(ctx.String("address")) > 0 {
-		Address = ctx.String("address")
+		address = ctx.String("address")
 	}
 
 	// service opts
-	srvOpts = append(srvOpts, micro.Name(Name))
+	srvOpts = append(srvOpts, micro.Name(name))
 	if i := time.Duration(ctx.Int("register_ttl")); i > 0 {
 		srvOpts = append(srvOpts, micro.RegisterTTL(i*time.Second))
 	}
@@ -98,8 +94,8 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 	}
 
 	// set address
-	if len(Address) > 0 {
-		srvOpts = append(srvOpts, micro.Address(Address))
+	if len(address) > 0 {
+		srvOpts = append(srvOpts, micro.Address(address))
 	}
 
 	// new service
@@ -110,7 +106,7 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 	// register the handler
 	pb.RegisterRegistryHandler(service.Server(), &handler.Registry{
 		ID:        id,
-		Publisher: micro.NewPublisher(Topic, service.Client()),
+		Publisher: micro.NewPublisher(topic, service.Client()),
 		Registry:  service.Options().Registry,
 	})
 
@@ -118,14 +114,4 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 	if err := service.Run(); err != nil {
 		log.Fatal(err)
 	}
-}
-
-func Commands(options ...micro.Option) []*cli.Command {
-	command := &cli.Command{
-		Name:        "registry",
-		Action:      helper.UnexpectedSubcommand,
-		Subcommands: rcli.RegistryCommands(),
-	}
-
-	return []*cli.Command{command}
 }
