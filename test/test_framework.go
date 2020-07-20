@@ -78,6 +78,7 @@ type testServerBase struct {
 	portNum       int
 	containerName string
 	opts          options
+	namespace     string
 }
 
 func (s *testServerBase) envName() string {
@@ -182,6 +183,7 @@ func newLocalServer(t *t, fname string, opts ...options) testServer {
 		containerName: fname,
 		portNum:       portnum,
 		opts:          opt,
+		namespace:     "micro",
 	}}
 }
 
@@ -238,8 +240,7 @@ func (s *testServerBase) launch() error {
 	login(s, s.t, "default", "password")
 
 	// generate a new admin account for the env : user=ENV_NAME pass=password
-	req := fmt.Sprintf(`{"id":"%s", "secret":"password", "options":{"namespace":"%s"}}`, s.envName(), s.envName())
-	s.t.t.Logf("Creating new auth account: %s", req)
+	req := fmt.Sprintf(`{"id":"%s", "secret":"password", "options":{"namespace":"%s"}}`, s.envName(), s.namespace)
 	outp, err := exec.Command("micro", s.envFlag(), "call", "go.micro.auth", "Auth.Generate", req).CombinedOutput()
 	if err != nil && !strings.Contains(string(outp), "already exists") { // until auth.Delete is implemented
 		s.t.Fatalf("Error generating auth: %s, %s", err, outp)

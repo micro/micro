@@ -27,6 +27,7 @@ func newK8sServer(t *t, fname string, opts ...options) testServer {
 		portNum: 8081,
 		cmd:     exec.Command("kubectl", "port-forward", "--namespace", "default", "svc/micro-proxy", "8081:8081"),
 	}}
+	s.namespace = s.envNm
 
 	return s
 }
@@ -56,10 +57,6 @@ func (s *testK8sServer) launch() error {
 
 func (s *testK8sServer) close() {
 	s.testServerBase.close()
-	// tear down the services that were made
-	// kubectl truncate namespace or somethin
 	// kill the port forward
 	s.cmd.Process.Kill()
-	// exec.Command("kubectl", "delete", "namespace", s.envName)
-
 }
