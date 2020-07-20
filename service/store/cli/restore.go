@@ -5,18 +5,18 @@ import (
 
 	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro/v2/logger"
-	"github.com/micro/micro/v2/service/store/snapshot"
+	snap "github.com/micro/micro/v2/service/store/snapshot"
 	"github.com/pkg/errors"
 )
 
-// Restore is the entrypoint for micro store restore
-func Restore(ctx *cli.Context) error {
+// restore is the entrypoint for micro store restore
+func restore(ctx *cli.Context) error {
 	s, err := makeStore(ctx)
 	if err != nil {
 		return errors.Wrap(err, "couldn't construct a store")
 	}
 	log := logger.DefaultLogger
-	var rs snapshot.Restore
+	var rs snap.Restore
 	source := ctx.String("source")
 
 	if len(source) == 0 {
@@ -28,7 +28,7 @@ func Restore(ctx *cli.Context) error {
 	}
 	switch u.Scheme {
 	case "file":
-		rs = snapshot.NewFileRestore(snapshot.Source(source))
+		rs = snap.NewFileRestore(snap.Source(source))
 	default:
 		return errors.Errorf("unsupported source scheme: %s", u.Scheme)
 	}

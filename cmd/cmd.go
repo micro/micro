@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"fmt"
-	"math"
 	"os"
 	"os/exec"
 	"sort"
@@ -30,7 +29,7 @@ import (
 	_ "github.com/micro/micro/v2/service/debug/cli"
 	_ "github.com/micro/micro/v2/service/network/cli"
 	_ "github.com/micro/micro/v2/service/runtime/cli"
-	"github.com/micro/micro/v2/service/store"
+	_ "github.com/micro/micro/v2/service/store/cli"
 	"github.com/micro/micro/v2/service/tunnel"
 
 	// internals
@@ -54,25 +53,6 @@ var (
 
 	// description of the binary
 	description = "A framework for cloud native development\n\n	 Use `micro [command] --help` to see command specific help."
-
-	// order in which commands are displayed
-	commandOrder = []string{
-		"server",
-		"new",
-		"env",
-		"login",
-		"run",
-		"logs",
-		"call",
-		"update",
-		"kill",
-		"store",
-		"config",
-		"auth",
-		"status",
-		"stream",
-		"file",
-	}
 )
 
 type commands []*ccli.Command
@@ -80,19 +60,7 @@ type commands []*ccli.Command
 func (s commands) Len() int      { return len(s) }
 func (s commands) Swap(i, j int) { s[i], s[j] = s[j], s[i] }
 func (s commands) Less(i, j int) bool {
-	index := map[string]int{}
-	for i, v := range commandOrder {
-		index[v] = i
-	}
-	iVal, ok := index[s[i].Name]
-	if !ok {
-		iVal = math.MaxInt32
-	}
-	jVal, ok := index[s[j].Name]
-	if !ok {
-		jVal = math.MaxInt32
-	}
-	return iVal < jVal
+	return s[i].Name < s[j].Name
 }
 
 func setup(app *ccli.App) {
@@ -341,7 +309,6 @@ func Run(options ...micro.Option) {
 
 	// Add the service commands
 	app.Commands = append(app.Commands, new.Commands()...)
-	app.Commands = append(app.Commands, store.Commands(options...)...)
 	app.Commands = append(app.Commands, server.Commands(options...)...)
 	app.Commands = append(app.Commands, service.Commands(options...)...)
 	app.Commands = append(app.Commands, platform.Commands(options...)...)
