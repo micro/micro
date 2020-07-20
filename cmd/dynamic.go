@@ -22,10 +22,6 @@ import (
 // the error will also be nil. An error is only returned if there was an issue
 // listing from the registry.
 func lookupService(ctx *cli.Context) (*registry.Service, error) {
-	// TODO: remove the service prefix from the name, go.micro.service.helloworld
-	// will soon be named just the alias, e.g. "helloworld".
-	name := fmt.Sprintf("go.micro.service.%v", ctx.Args().First())
-
 	// get the namespace to query the services from
 	dom, err := namespace.Get(util.GetEnv(ctx).Name)
 	if err != nil {
@@ -34,20 +30,37 @@ func lookupService(ctx *cli.Context) (*registry.Service, error) {
 
 	// lookup from the registry in the current namespace
 	reg := *cmd.DefaultCmd.Options().Registry
-	srvs, err := reg.GetService(name, registry.GetDomain(dom))
+	srvs, err := reg.ListServices(registry.ListDomain(dom))
 	if err != nil {
 		return nil, err
-	} else if len(srvs) > 0 {
-		return srvs[0], nil
+	}
+
+	// filter to services with the correct suffix
+	for _, s := range srvs {
+		if strings.HasSuffix(s.Name, "."+ctx.Args().First()) {
+			srvs, err = reg.GetService(s.Name, registry.GetDomain(dom))
+			if err == nil && len(srvs) > 0 {
+				return srvs[0], nil
+			}
+		}
 	}
 
 	// check for the service in the default namespace also
-	if dom != registry.DefaultDomain {
-		srvs, err := reg.GetService(name)
-		if err != nil {
-			return nil, err
-		} else if len(srvs) > 0 {
-			return srvs[0], nil
+	if dom == registry.DefaultDomain {
+		return nil, nil
+	}
+	srvs, err = reg.ListServices()
+	if err != nil {
+		return nil, err
+	}
+
+	// filter to services with the correct suffix
+	for _, s := range srvs {
+		if strings.HasSuffix(s.Name, "."+ctx.Args().First()) {
+			srvs, err = reg.GetService(s.Name, registry.GetDomain(dom))
+			if err == nil && len(srvs) > 0 {
+				return srvs[0], nil
+			}
 		}
 	}
 
