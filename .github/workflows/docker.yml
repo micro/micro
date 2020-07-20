@@ -6,7 +6,6 @@ on:
       - master
       # We want custom per developer branches to be pushed
       - crufter
-      - feature/k8s_tryagain
     tags:
       - v2.*
       - v3.*
