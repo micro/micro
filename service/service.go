@@ -1,279 +1,226 @@
-// Package service provides a micro service
 package service
 
 import (
-	"fmt"
 	"os"
+	"os/signal"
+	rtime "runtime"
 	"strings"
+	"sync"
 
-	ccli "github.com/micro/cli/v2"
-	"github.com/micro/go-micro/v2"
-	log "github.com/micro/go-micro/v2/logger"
-	prox "github.com/micro/go-micro/v2/proxy"
-	"github.com/micro/go-micro/v2/proxy/grpc"
-	"github.com/micro/go-micro/v2/proxy/http"
-	"github.com/micro/go-micro/v2/proxy/mucp"
-	rt "github.com/micro/go-micro/v2/runtime"
+	"github.com/micro/go-micro/v2/auth"
+	"github.com/micro/go-micro/v2/client"
+	"github.com/micro/go-micro/v2/cmd"
+	"github.com/micro/go-micro/v2/debug/service/handler"
+	"github.com/micro/go-micro/v2/debug/stats"
+	"github.com/micro/go-micro/v2/debug/trace"
+	"github.com/micro/go-micro/v2/logger"
+	"github.com/micro/go-micro/v2/model"
+	"github.com/micro/go-micro/v2/plugin"
 	"github.com/micro/go-micro/v2/server"
-	"github.com/micro/micro/v2/plugin"
-
-	// services
-	"github.com/micro/micro/v2/service/auth"
-	"github.com/micro/micro/v2/service/broker"
-	"github.com/micro/micro/v2/service/config"
-	"github.com/micro/micro/v2/service/debug"
-	"github.com/micro/micro/v2/service/handler/exec"
-	"github.com/micro/micro/v2/service/handler/file"
-	"github.com/micro/micro/v2/service/health"
-	"github.com/micro/micro/v2/service/network"
-	"github.com/micro/micro/v2/service/registry"
-	"github.com/micro/micro/v2/service/router"
-	"github.com/micro/micro/v2/service/runtime"
-	"github.com/micro/micro/v2/service/store"
-	"github.com/micro/micro/v2/service/tunnel"
+	"github.com/micro/go-micro/v2/store"
+	signalutil "github.com/micro/go-micro/v2/util/signal"
+	"github.com/micro/go-micro/v2/util/wrapper"
+	// used to setup defaults
 )
 
-func Run(ctx *ccli.Context, opts ...micro.Option) {
-	log.Init(log.WithFields(map[string]interface{}{"service": "service"}))
+// Service is a Micro Service which honours the go-micro/service interface
+type Service struct {
+	opts Options
+	once sync.Once
+}
 
-	name := ctx.String("name")
-	address := ctx.String("address")
-	endpoint := ctx.String("endpoint")
+// New returns a new Micro Service
+func New(opts ...Option) *Service {
+	service := new(Service)
+	options := newOptions(opts...)
 
-	metadata := make(map[string]string)
-	for _, md := range ctx.StringSlice("metadata") {
-		parts := strings.Split(md, "=")
-		if len(parts) < 2 {
-			continue
-		}
+	// service name
+	serviceName := options.Server.Options().Name
 
-		key := parts[0]
-		val := strings.Join(parts[1:], "=")
+	// we pass functions to the wrappers since the values can change during initialisation
+	authFn := func() auth.Auth { return options.Server.Options().Auth }
+	cacheFn := func() *client.Cache { return options.Client.Options().Cache }
 
-		// set the key/val
-		metadata[key] = val
-	}
+	// wrap client to inject From-Service header on any calls
+	options.Client = wrapper.FromService(serviceName, options.Client)
+	options.Client = wrapper.TraceCall(serviceName, trace.DefaultTracer, options.Client)
+	options.Client = wrapper.CacheClient(cacheFn, options.Client)
+	options.Client = wrapper.AuthClient(authFn, options.Client)
 
-	if len(metadata) > 0 {
-		opts = append(opts, micro.Metadata(metadata))
-	}
-
-	if len(name) > 0 {
-		opts = append(opts, micro.Name(name))
-	}
-
-	if len(address) > 0 {
-		opts = append(opts, micro.Address(address))
-	}
-
-	if len(endpoint) == 0 {
-		endpoint = prox.DefaultEndpoint
-	}
-
-	var p prox.Proxy
-
-	switch {
-	case strings.HasPrefix(endpoint, "grpc"):
-		endpoint = strings.TrimPrefix(endpoint, "grpc://")
-		p = grpc.NewProxy(prox.WithEndpoint(endpoint))
-	case strings.HasPrefix(endpoint, "http"):
-		p = http.NewProxy(prox.WithEndpoint(endpoint))
-	case strings.HasPrefix(endpoint, "file"):
-		endpoint = strings.TrimPrefix(endpoint, "file://")
-		p = file.NewProxy(prox.WithEndpoint(endpoint))
-	case strings.HasPrefix(endpoint, "exec"):
-		endpoint = strings.TrimPrefix(endpoint, "exec://")
-		p = exec.NewProxy(prox.WithEndpoint(endpoint))
-	default:
-		p = mucp.NewProxy(prox.WithEndpoint(endpoint))
-	}
-
-	// run the service if asked to
-	if ctx.Args().Len() > 0 {
-		args := []rt.CreateOption{
-			rt.WithCommand(ctx.Args().Slice()...),
-			rt.WithOutput(os.Stdout),
-		}
-
-		// create new local runtime
-		r := rt.NewRuntime()
-
-		// start the runtime
-		r.Start()
-
-		// register the service
-		r.Create(&rt.Service{
-			Name: name,
-		}, args...)
-
-		// stop the runtime
-		defer func() {
-			r.Delete(&rt.Service{
-				Name: name,
-			})
-			r.Stop()
-		}()
-	}
-
-	log.Infof("Service [%s] Serving %s at endpoint %s\n", p.String(), name, endpoint)
-
-	// new service
-	service := micro.NewService(opts...)
-
-	// create new muxer
-	//	muxer := mux.New(name, p)
-
-	// set the router
-	service.Server().Init(
-		server.WithRouter(p),
+	// wrap the server to provide handler stats
+	options.Server.Init(
+		server.WrapHandler(wrapper.HandlerStats(stats.DefaultStats)),
+		server.WrapHandler(wrapper.TraceHandler(trace.DefaultTracer)),
+		server.WrapHandler(wrapper.AuthHandler(authFn)),
 	)
 
-	// run service
-	service.Run()
+	// set opts
+	service.opts = options
+	return service
 }
 
-type srvCommand struct {
-	Name    string
-	Command func(ctx *ccli.Context, srvOpts ...micro.Option)
-	Flags   []ccli.Flag
+func (s *Service) Name() string {
+	return s.opts.Server.Options().Name
 }
 
-var srvCommands = []srvCommand{
-	{
-		Name:    "auth",
-		Command: auth.Run,
-	},
-	{
-		Name:    "broker",
-		Command: broker.Run,
-	},
-	{
-		Name:    "config",
-		Command: config.Run,
-		Flags:   config.Flags,
-	},
-	{
-		Name:    "debug",
-		Command: debug.Run,
-		Flags:   debug.Flags,
-	},
-	{
-		Name:    "health",
-		Command: health.Run,
-		Flags:   health.Flags,
-	},
-	{
-		Name:    "network",
-		Command: network.Run,
-		Flags:   network.Flags,
-	},
-	{
-		Name:    "registry",
-		Command: registry.Run,
-	},
-	{
-		Name:    "router",
-		Command: router.Run,
-		Flags:   router.Flags,
-	},
-	{
-		Name:    "runtime",
-		Command: runtime.Run,
-		Flags:   runtime.Flags,
-	},
-	{
-		Name:    "store",
-		Command: store.Run,
-	},
-	{
-		Name:    "tunnel",
-		Command: tunnel.Run,
-		Flags:   tunnel.Flags,
-	},
-}
-
-func Commands(options ...micro.Option) []*ccli.Command {
-	// move newAction outside the loop and pass c as an arg to
-	// set the scope of the variable
-	newAction := func(c srvCommand) func(ctx *ccli.Context) error {
-		return func(ctx *ccli.Context) error {
-			// configure the logger
-			log.Init(log.WithFields(map[string]interface{}{"service": c.Name}))
-
-			// run the service
-			c.Command(ctx, options...)
-			return nil
-		}
+// Init initialises options. Additionally it calls cmd.Init
+// which parses command line flags. cmd.Init is only called
+// on first Init.
+func (s *Service) Init(opts ...Option) {
+	// process options
+	for _, o := range opts {
+		o(&s.opts)
 	}
 
-	subcommands := make([]*ccli.Command, len(srvCommands))
-	for i, c := range srvCommands {
-		// construct the command
-		command := &ccli.Command{
-			Name:   c.Name,
-			Flags:  c.Flags,
-			Usage:  fmt.Sprintf("Run micro %v", c.Name),
-			Action: newAction(c),
-		}
-
+	s.once.Do(func() {
 		// setup the plugins
-		for _, p := range plugin.Plugins(plugin.Module(c.Name)) {
-			if cmds := p.Commands(); len(cmds) > 0 {
-				command.Subcommands = append(command.Subcommands, cmds...)
+		for _, p := range strings.Split(os.Getenv("MICRO_PLUGIN"), ",") {
+			if len(p) == 0 {
+				continue
 			}
 
-			if flags := p.Flags(); len(flags) > 0 {
-				command.Flags = append(command.Flags, flags...)
+			// load the plugin
+			c, err := plugin.Load(p)
+			if err != nil {
+				logger.Fatal(err)
+			}
+
+			// initialise the plugin
+			if err := plugin.Init(c); err != nil {
+				logger.Fatal(err)
 			}
 		}
 
-		// set the command
-		subcommands[i] = command
-	}
-
-	command := &ccli.Command{
-		Name:  "service",
-		Usage: "Run a micro service",
-		Action: func(ctx *ccli.Context) error {
-			Run(ctx, options...)
-			return nil
-		},
-		Flags: []ccli.Flag{
-			&ccli.StringFlag{
-				Name:    "name",
-				Usage:   "Name of the service",
-				EnvVars: []string{"MICRO_SERVICE_NAME"},
-				Value:   "service",
-			},
-			&ccli.StringFlag{
-				Name:    "address",
-				Usage:   "Address of the service",
-				EnvVars: []string{"MICRO_SERVICE_ADDRESS"},
-			},
-			&ccli.StringFlag{
-				Name:    "endpoint",
-				Usage:   "The local service endpoint (Defaults to localhost:9090); {http, grpc, file, exec}://path-or-address e.g http://localhost:9090",
-				EnvVars: []string{"MICRO_SERVICE_ENDPOINT"},
-			},
-			&ccli.StringSliceFlag{
-				Name:    "metadata",
-				Usage:   "Add metadata as key-value pairs describing the service e.g owner=john@example.com",
-				EnvVars: []string{"MICRO_SERVICE_METADATA"},
-			},
-		},
-		Subcommands: subcommands,
-	}
-
-	// register global plugins and flags
-	for _, p := range plugin.Plugins() {
-		if cmds := p.Commands(); len(cmds) > 0 {
-			command.Subcommands = append(command.Subcommands, cmds...)
+		// set cmd name
+		if len(s.opts.Cmd.App().Name) == 0 {
+			s.opts.Cmd.App().Name = s.Server().Options().Name
 		}
 
-		if flags := p.Flags(); len(flags) > 0 {
-			command.Flags = append(command.Flags, flags...)
+		// Initialise the command flags, overriding new service
+		if err := s.opts.Cmd.Init(
+			cmd.Auth(&s.opts.Auth),
+			cmd.Broker(&s.opts.Broker),
+			cmd.Registry(&s.opts.Registry),
+			cmd.Runtime(&s.opts.Runtime),
+			cmd.Transport(&s.opts.Transport),
+			cmd.Client(&s.opts.Client),
+			cmd.Config(&s.opts.Config),
+			cmd.Server(&s.opts.Server),
+			cmd.Store(&s.opts.Store),
+			cmd.Profile(&s.opts.Profile),
+		); err != nil {
+			logger.Fatal(err)
+		}
+
+		// Explicitly set the table name to the service name
+		name := s.Server().Options().Name
+		s.opts.Store.Init(store.Table(name))
+	})
+}
+
+func (s *Service) Options() Options {
+	return s.opts
+}
+
+func (s *Service) Client() client.Client {
+	return s.opts.Client
+}
+
+func (s *Service) Server() server.Server {
+	return s.opts.Server
+}
+
+func (s *Service) Model() model.Model {
+	return s.opts.Model
+}
+
+func (s *Service) String() string {
+	return "micro"
+}
+
+func (s *Service) Start() error {
+	for _, fn := range s.opts.BeforeStart {
+		if err := fn(); err != nil {
+			return err
 		}
 	}
 
-	return []*ccli.Command{command}
+	if err := s.opts.Server.Start(); err != nil {
+		return err
+	}
+
+	for _, fn := range s.opts.AfterStart {
+		if err := fn(); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (s *Service) Stop() error {
+	var gerr error
+
+	for _, fn := range s.opts.BeforeStop {
+		if err := fn(); err != nil {
+			gerr = err
+		}
+	}
+
+	if err := s.opts.Server.Stop(); err != nil {
+		return err
+	}
+
+	for _, fn := range s.opts.AfterStop {
+		if err := fn(); err != nil {
+			gerr = err
+		}
+	}
+
+	return gerr
+}
+
+func (s *Service) Run() error {
+	// register the debug handler
+	s.opts.Server.Handle(
+		s.opts.Server.NewHandler(
+			handler.NewHandler(s.opts.Client),
+			server.InternalHandler(true),
+		),
+	)
+
+	// start the profiler
+	if s.opts.Profile != nil {
+		// to view mutex contention
+		rtime.SetMutexProfileFraction(5)
+		// to view blocking profile
+		rtime.SetBlockProfileRate(1)
+
+		if err := s.opts.Profile.Start(); err != nil {
+			return err
+		}
+		defer s.opts.Profile.Stop()
+	}
+
+	if logger.V(logger.InfoLevel, logger.DefaultLogger) {
+		logger.Infof("Starting [service] %s", s.Name())
+	}
+
+	if err := s.Start(); err != nil {
+		return err
+	}
+
+	ch := make(chan os.Signal, 1)
+	if s.opts.Signal {
+		signal.Notify(ch, signalutil.Shutdown()...)
+	}
+
+	select {
+	// wait on kill signal
+	case <-ch:
+	// wait on context cancel
+	case <-s.opts.Context.Done():
+	}
+
+	return s.Stop()
 }

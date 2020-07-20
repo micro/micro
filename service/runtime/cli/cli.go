@@ -3,7 +3,7 @@ package runtime
 
 import (
 	"github.com/micro/cli/v2"
-	"github.com/micro/micro/v2/cmd/command"
+	"github.com/micro/micro/v2/command"
 )
 
 // flags is shared flags so we don't have to continually re-add

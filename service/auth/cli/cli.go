@@ -6,7 +6,7 @@ import (
 	srvAuth "github.com/micro/go-micro/v2/auth/service"
 	"github.com/micro/go-micro/v2/cmd"
 	"github.com/micro/micro/v2/client/cli/util"
-	"github.com/micro/micro/v2/cmd/command"
+	"github.com/micro/micro/v2/command"
 	"github.com/micro/micro/v2/internal/client"
 	"github.com/micro/micro/v2/internal/helper"
 	// imported specifically for signup
