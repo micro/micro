@@ -19,7 +19,6 @@ var (
 		"quit":     {"quit", "Exit the CLI", quit},
 		"exit":     {"exit", "Exit the CLI", quit},
 		"call":     {"call", "Call a service", callService},
-		"list":     {"list", "List services, peers or routes", list},
 		"get":      {"get", "Get service info", getService},
 		"stream":   {"stream", "Stream a call to a service", streamService},
 		"health":   {"health", "Get service health", queryHealth},
@@ -90,103 +89,12 @@ func Run(c *cli.Context) error {
 	return nil
 }
 
-//NetworkCommands for network toplogy routing
-func NetworkCommands() []*cli.Command {
-	return []*cli.Command{
-		{
-			Name:   "connect",
-			Usage:  "connect to the network. specify nodes e.g connect ip:port",
-			Action: Print(networkConnect),
-		},
-		{
-			Name:   "connections",
-			Usage:  "List the immediate connections to the network",
-			Action: Print(networkConnections),
-		},
-		{
-			Name:   "graph",
-			Usage:  "Get the network graph",
-			Action: Print(networkGraph),
-		},
-		{
-			Name:   "nodes",
-			Usage:  "List nodes in the network",
-			Action: Print(netNodes),
-		},
-		{
-			Name:   "routes",
-			Usage:  "List network routes",
-			Action: Print(netRoutes),
-			Flags: []cli.Flag{
-				&cli.StringFlag{
-					Name:  "service",
-					Usage: "Filter by service",
-				},
-				&cli.StringFlag{
-					Name:  "address",
-					Usage: "Filter by address",
-				},
-				&cli.StringFlag{
-					Name:  "gateway",
-					Usage: "Filter by gateway",
-				},
-				&cli.StringFlag{
-					Name:  "router",
-					Usage: "Filter by router",
-				},
-				&cli.StringFlag{
-					Name:  "network",
-					Usage: "Filter by network",
-				},
-			},
-		},
-		{
-			Name:   "services",
-			Usage:  "Get the network services",
-			Action: Print(networkServices),
-		},
-		// TODO: duplicates call. Move so we reuse same stuff.
-		{
-			Name:   "call",
-			Usage:  "Call a service e.g micro call greeter Say.Hello '{\"name\": \"John\"}",
-			Action: Print(netCall),
-			Flags: []cli.Flag{
-				&cli.StringFlag{
-					Name:    "address",
-					Usage:   "Set the address of the service instance to call",
-					EnvVars: []string{"MICRO_ADDRESS"},
-				},
-				&cli.StringFlag{
-					Name:    "output, o",
-					Usage:   "Set the output format; json (default), raw",
-					EnvVars: []string{"MICRO_OUTPUT"},
-				},
-				&cli.StringSliceFlag{
-					Name:    "metadata",
-					Usage:   "A list of key-value pairs to be forwarded as metadata",
-					EnvVars: []string{"MICRO_METADATA"},
-				},
-			},
-		},
-	}
-}
-
 func RegistryCommands() []*cli.Command {
 	return []*cli.Command{
 		{
 			Name:  "list",
 			Usage: "List items in registry or network",
 			Subcommands: []*cli.Command{
-				{
-					Name:   "nodes",
-					Usage:  "List nodes in the network",
-					Action: Print(netNodes),
-				},
-				{
-					Name:   "routes",
-					Usage:  "List network routes",
-					Action: Print(netRoutes),
-				},
 				{
 					Name:   "services",
 					Usage:  "List services in registry",

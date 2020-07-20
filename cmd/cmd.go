@@ -28,7 +28,7 @@ import (
 	_ "github.com/micro/micro/v2/service/auth/cli"
 	_ "github.com/micro/micro/v2/service/config/cli"
 	_ "github.com/micro/micro/v2/service/debug/cli"
-	"github.com/micro/micro/v2/service/network"
+	_ "github.com/micro/micro/v2/service/network/cli"
 	"github.com/micro/micro/v2/service/registry"
 	"github.com/micro/micro/v2/service/runtime"
 	"github.com/micro/micro/v2/service/store"
@@ -256,9 +256,6 @@ func setup(app *ccli.App) {
 		if len(ctx.String("web_address")) > 0 {
 			web.Address = ctx.String("web_address")
 		}
-		if len(ctx.String("network_address")) > 0 {
-			network.Address = ctx.String("network_address")
-		}
 		if len(ctx.String("tunnel_address")) > 0 {
 			tunnel.Address = ctx.String("tunnel_address")
 		}
@@ -347,7 +344,6 @@ func Run(options ...micro.Option) {
 	app.Commands = append(app.Commands, new.Commands()...)
 	app.Commands = append(app.Commands, runtime.Commands(options...)...)
 	app.Commands = append(app.Commands, store.Commands(options...)...)
-	app.Commands = append(app.Commands, network.Commands(options...)...)
 	app.Commands = append(app.Commands, registry.Commands(options...)...)
 	app.Commands = append(app.Commands, server.Commands(options...)...)
 	app.Commands = append(app.Commands, service.Commands(options...)...)
