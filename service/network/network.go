@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"github.com/micro/cli/v2"
-	"github.com/micro/go-micro/v2"
 	log "github.com/micro/go-micro/v2/logger"
 	net "github.com/micro/go-micro/v2/network"
 	res "github.com/micro/go-micro/v2/network/resolver"
@@ -25,6 +24,7 @@ import (
 	"github.com/micro/go-micro/v2/tunnel"
 	"github.com/micro/go-micro/v2/util/mux"
 	"github.com/micro/micro/v2/internal/helper"
+	"github.com/micro/micro/v2/service"
 	"github.com/micro/micro/v2/service/network/handler"
 )
 
@@ -83,7 +83,7 @@ var (
 )
 
 // Run runs the micro server
-func Run(ctx *cli.Context, srvOpts ...micro.Option) {
+func Run(ctx *cli.Context) error {
 	if len(ctx.String("server_name")) > 0 {
 		name = ctx.String("server_name")
 	}
@@ -133,10 +133,10 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 	}
 
 	// Initialise service
-	service := micro.NewService(
-		micro.Name(name),
-		micro.RegisterTTL(time.Duration(ctx.Int("register_ttl"))*time.Second),
-		micro.RegisterInterval(time.Duration(ctx.Int("register_interval"))*time.Second),
+	service := service.New(
+		service.Name(name),
+		service.RegisterTTL(time.Duration(ctx.Int("register_ttl"))*time.Second),
+		service.RegisterInterval(time.Duration(ctx.Int("register_interval"))*time.Second),
 	)
 
 	// create a tunnel
@@ -149,7 +149,7 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 		config, err := helper.TLSConfig(ctx)
 		if err != nil {
 			fmt.Println(err.Error())
-			return
+			return err
 		}
 		config.InsecureSkipVerify = true
 
@@ -240,4 +240,5 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 
 	// close the network
 	netClose(n)
+	return nil
 }

@@ -136,7 +136,7 @@ func Run(ctx *ccli.Context, opts ...micro.Option) {
 
 type srvCommand struct {
 	Name    string
-	Command func(ctx *ccli.Context, srvOpts ...micro.Option)
+	Command ccli.ActionFunc
 	Flags   []ccli.Flag
 }
 

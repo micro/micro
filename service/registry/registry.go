@@ -6,11 +6,11 @@ import (
 	"time"
 
 	"github.com/micro/cli/v2"
-	"github.com/micro/go-micro/v2"
 	log "github.com/micro/go-micro/v2/logger"
 	"github.com/micro/go-micro/v2/registry"
-	"github.com/micro/go-micro/v2/registry/service"
+	regSrv "github.com/micro/go-micro/v2/registry/service"
 	pb "github.com/micro/go-micro/v2/registry/service/proto"
+	"github.com/micro/micro/v2/service"
 	"github.com/micro/micro/v2/service/registry/handler"
 )
 
@@ -46,7 +46,7 @@ func (s *subscriber) Process(ctx context.Context, event *pb.Event) error {
 	}
 
 	// decode protobuf to registry.Service
-	svc := service.ToService(event.Service)
+	svc := regSrv.ToService(event.Service)
 
 	// default ttl to 1 minute
 	ttl := time.Minute
@@ -76,7 +76,7 @@ func (s *subscriber) Process(ctx context.Context, event *pb.Event) error {
 	return nil
 }
 
-func Run(ctx *cli.Context, srvOpts ...micro.Option) {
+func Run(ctx *cli.Context) error {
 	if len(ctx.String("server_name")) > 0 {
 		name = ctx.String("server_name")
 	}
@@ -85,33 +85,34 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 	}
 
 	// service opts
-	srvOpts = append(srvOpts, micro.Name(name))
+	srvOpts := []service.Option{service.Name(name)}
 	if i := time.Duration(ctx.Int("register_ttl")); i > 0 {
-		srvOpts = append(srvOpts, micro.RegisterTTL(i*time.Second))
+		srvOpts = append(srvOpts, service.RegisterTTL(i*time.Second))
 	}
 	if i := time.Duration(ctx.Int("register_interval")); i > 0 {
-		srvOpts = append(srvOpts, micro.RegisterInterval(i*time.Second))
+		srvOpts = append(srvOpts, service.RegisterInterval(i*time.Second))
 	}
 
 	// set address
 	if len(address) > 0 {
-		srvOpts = append(srvOpts, micro.Address(address))
+		srvOpts = append(srvOpts, service.Address(address))
 	}
 
 	// new service
-	service := micro.NewService(srvOpts...)
+	srv := service.New(srvOpts...)
 	// get server id
-	id := service.Server().Options().Id
+	id := srv.Server().Options().Id
 
 	// register the handler
-	pb.RegisterRegistryHandler(service.Server(), &handler.Registry{
+	pb.RegisterRegistryHandler(srv.Server(), &handler.Registry{
 		ID:        id,
-		Publisher: micro.NewPublisher(topic, service.Client()),
-		Registry:  service.Options().Registry,
+		Publisher: service.NewEvent(topic, srv.Client()),
+		Registry:  srv.Options().Registry,
 	})
 
 	// run the service
-	if err := service.Run(); err != nil {
+	if err := srv.Run(); err != nil {
 		log.Fatal(err)
 	}
+	return nil
 }

@@ -36,6 +36,7 @@ import (
 	"github.com/micro/micro/v2/internal/helper"
 	"github.com/micro/micro/v2/internal/resolver/web"
 	"github.com/micro/micro/v2/internal/stats"
+	"github.com/micro/micro/v2/service"
 	"github.com/serenize/snaker"
 )
 
@@ -400,7 +401,7 @@ func (s *srv) render(w http.ResponseWriter, r *http.Request, tmpl string, data i
 	}
 }
 
-func Run(ctx *cli.Context, srvOpts ...micro.Option) {
+func Run(ctx *cli.Context) error {
 	log.Init(log.WithFields(map[string]interface{}{"service": "web"}))
 
 	if len(ctx.String("server_name")) > 0 {
@@ -421,16 +422,13 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 		Namespace = strings.TrimSuffix(ctx.String("namespace"), "."+Type)
 	}
 
-	// service opts
-	srvOpts = append(srvOpts, micro.Name(Name))
-
 	// Initialize Server
-	service := micro.NewService(srvOpts...)
+	s := service.New(service.Name(Name))
 
 	// Setup the web resolver
 	var resolver res.Resolver
 	resolver = &web.Resolver{
-		Router: service.Options().Router,
+		Router: s.Options().Router,
 		Options: res.NewOptions(res.WithServicePrefix(
 			Namespace + "." + Type,
 		)),
@@ -439,43 +437,43 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 		resolver = subdomain.NewResolver(resolver)
 	}
 
-	s := &srv{
+	srv := &srv{
 		Router: mux.NewRouter(),
 		registry: &reg{
-			Registry: service.Options().Registry,
+			Registry: s.Options().Registry,
 		},
 		resolver: resolver,
-		auth:     service.Options().Auth,
+		auth:     s.Options().Auth,
 	}
 
 	var h http.Handler
 	// set as the server
-	h = s
+	h = srv
 
 	if ctx.Bool("enable_stats") {
 		statsURL = "/stats"
 		st := stats.New()
-		s.HandleFunc("/stats", st.StatsHandler)
-		h = st.ServeHTTP(s)
+		srv.HandleFunc("/stats", st.StatsHandler)
+		h = st.ServeHTTP(srv)
 		st.Start()
 		defer st.Stop()
 	}
 
 	// create the proxy
-	p := s.proxy()
+	p := srv.proxy()
 
 	// the web handler itself
-	s.HandleFunc("/favicon.ico", faviconHandler)
-	s.HandleFunc("/404", s.notFoundHandler)
-	s.HandleFunc("/client", s.callHandler)
-	s.HandleFunc("/services", s.registryHandler)
-	s.HandleFunc("/service/{name}", s.registryHandler)
-	s.Handle("/rpc", handler.NewRPCHandler(resolver))
-	s.PathPrefix("/{service:[a-zA-Z0-9]+}").Handler(p)
-	s.HandleFunc("/", s.indexHandler)
+	srv.HandleFunc("/favicon.ico", faviconHandler)
+	srv.HandleFunc("/404", srv.notFoundHandler)
+	srv.HandleFunc("/client", srv.callHandler)
+	srv.HandleFunc("/services", srv.registryHandler)
+	srv.HandleFunc("/service/{name}", srv.registryHandler)
+	srv.Handle("/rpc", handler.NewRPCHandler(resolver))
+	srv.PathPrefix("/{service:[a-zA-Z0-9]+}").Handler(p)
+	srv.HandleFunc("/", srv.indexHandler)
 
 	// insert the proxy
-	s.prx = p
+	srv.prx = p
 
 	var opts []server.Option
 
@@ -503,7 +501,7 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 			// create the store
 			storage := certmagic.NewStorage(
 				memory.NewSync(),
-				service.Options().Store,
+				s.Options().Store,
 			)
 
 			config := cloudflare.NewDefaultConfig()
@@ -532,7 +530,7 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 		config, err := helper.TLSConfig(ctx)
 		if err != nil {
 			fmt.Println(err.Error())
-			return
+			return err
 		}
 
 		opts = append(opts, server.EnableTLS(true))
@@ -540,41 +538,40 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 	}
 
 	// create the service and add the auth wrapper
-	aw := apiAuth.Wrapper(s.resolver, Namespace+"."+Type)
-	srv := httpapi.NewServer(Address, server.WrapHandler(aw))
+	aw := apiAuth.Wrapper(srv.resolver, Namespace+"."+Type)
+	server := httpapi.NewServer(Address, server.WrapHandler(aw))
 
-	srv.Init(opts...)
-	srv.Handle("/", h)
+	server.Init(opts...)
+	server.Handle("/", h)
 
 	// Setup auth redirect
 	if len(ctx.String("auth_login_url")) > 0 {
 		loginURL = ctx.String("auth_login_url")
-		service.Options().Auth.Init(auth.LoginURL(loginURL))
+		s.Options().Auth.Init(auth.LoginURL(loginURL))
 	}
 
-	if err := srv.Start(); err != nil {
+	if err := server.Start(); err != nil {
 		log.Fatal(err)
 	}
 
-	// Run server
-	if err := service.Run(); err != nil {
+	// Run service
+	if err := s.Run(); err != nil {
 		log.Fatal(err)
 	}
 
-	if err := srv.Stop(); err != nil {
+	if err := server.Stop(); err != nil {
 		log.Fatal(err)
 	}
+
+	return nil
 }
 
 //Commands for `micro web`
 func Commands(options ...micro.Option) []*cli.Command {
 	command := &cli.Command{
-		Name:  "web",
-		Usage: "Run the web dashboard",
-		Action: func(c *cli.Context) error {
-			Run(c, options...)
-			return nil
-		},
+		Name:   "web",
+		Usage:  "Run the web dashboard",
+		Action: Run,
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:    "address",

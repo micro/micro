@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/micro/cli/v2"
-	"github.com/micro/go-micro/v2"
 	"github.com/micro/go-micro/v2/client"
 	cmucp "github.com/micro/go-micro/v2/client/mucp"
 	log "github.com/micro/go-micro/v2/logger"
@@ -19,6 +18,7 @@ import (
 	tun "github.com/micro/go-micro/v2/tunnel"
 	"github.com/micro/go-micro/v2/tunnel/transport"
 	"github.com/micro/go-micro/v2/util/mux"
+	"github.com/micro/micro/v2/service"
 )
 
 var (
@@ -52,7 +52,7 @@ var (
 )
 
 // Run micro tunnel
-func Run(ctx *cli.Context, srvOpts ...micro.Option) {
+func Run(ctx *cli.Context) error {
 	if len(ctx.String("server_name")) > 0 {
 		name = ctx.String("server_name")
 	}
@@ -79,10 +79,10 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 	}
 
 	// Initialise service
-	service := micro.NewService(
-		micro.Name(name),
-		micro.RegisterTTL(time.Duration(ctx.Int("register_ttl"))*time.Second),
-		micro.RegisterInterval(time.Duration(ctx.Int("register_interval"))*time.Second),
+	service := service.New(
+		service.Name(name),
+		service.RegisterTTL(time.Duration(ctx.Int("register_ttl"))*time.Second),
+		service.RegisterInterval(time.Duration(ctx.Int("register_interval"))*time.Second),
 	)
 
 	// local tunnel router
@@ -173,4 +173,6 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 	if err := t.Close(); err != nil {
 		log.Errorf("Tunnel error stopping tunnel: %v", err)
 	}
+
+	return nil
 }

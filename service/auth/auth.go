@@ -2,13 +2,13 @@ package auth
 
 import (
 	"github.com/micro/cli/v2"
-	"github.com/micro/go-micro/v2"
 	"github.com/micro/go-micro/v2/auth"
 	pb "github.com/micro/go-micro/v2/auth/service/proto"
 	log "github.com/micro/go-micro/v2/logger"
 	"github.com/micro/go-micro/v2/store"
 	"github.com/micro/go-micro/v2/util/token"
 	"github.com/micro/go-micro/v2/util/token/jwt"
+	"github.com/micro/micro/v2/service"
 	authHandler "github.com/micro/micro/v2/service/auth/handler/auth"
 	rulesHandler "github.com/micro/micro/v2/service/auth/handler/rules"
 )
@@ -19,13 +19,11 @@ const (
 )
 
 // Run the auth service
-func Run(ctx *cli.Context, srvOpts ...micro.Option) {
-	srvOpts = append([]micro.Option{
-		micro.Name(name),
-		micro.Address(address),
-	}, srvOpts...)
-
-	srv := micro.NewService(srvOpts...)
+func Run(ctx *cli.Context) error {
+	srv := service.New(
+		service.Name(name),
+		service.Address(address),
+	)
 
 	// setup the handlers
 	ruleH := &rulesHandler.Rules{}
@@ -55,4 +53,5 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 	if err := srv.Run(); err != nil {
 		log.Fatal(err)
 	}
+	return nil
 }
