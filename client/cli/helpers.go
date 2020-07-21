@@ -34,63 +34,8 @@ func Print(e exec) func(*cli.Context) error {
 	}
 }
 
-func list(c *cli.Context, args []string) ([]byte, error) {
-	// no args
-	if len(args) == 0 {
-		return clic.ListServices(c)
-	}
-
-	// check first arg
-	switch args[0] {
-	case "services":
-		return clic.ListServices(c)
-	case "nodes":
-		return clic.NetworkNodes(c)
-	case "routes":
-		return clic.NetworkRoutes(c)
-	}
-
-	return nil, errors.New("unknown command")
-}
-
-func networkConnect(c *cli.Context, args []string) ([]byte, error) {
-	return clic.NetworkConnect(c, args)
-}
-
-func networkConnections(c *cli.Context, args []string) ([]byte, error) {
-	return clic.NetworkConnections(c)
-}
-
-func networkGraph(c *cli.Context, args []string) ([]byte, error) {
-	return clic.NetworkGraph(c)
-}
-
-func networkServices(c *cli.Context, args []string) ([]byte, error) {
-	return clic.NetworkServices(c)
-}
-
-func netNodes(c *cli.Context, args []string) ([]byte, error) {
-	return clic.NetworkNodes(c)
-}
-
-func netRoutes(c *cli.Context, args []string) ([]byte, error) {
-	return clic.NetworkRoutes(c)
-}
-
 func listServices(c *cli.Context, args []string) ([]byte, error) {
 	return clic.ListServices(c)
-}
-
-func registerService(c *cli.Context, args []string) ([]byte, error) {
-	return clic.RegisterService(c, args)
-}
-
-func deregisterService(c *cli.Context, args []string) ([]byte, error) {
-	return clic.DeregisterService(c, args)
-}
-
-func getService(c *cli.Context, args []string) ([]byte, error) {
-	return clic.GetService(c, args)
 }
 
 func callService(c *cli.Context, args []string) ([]byte, error) {
@@ -152,12 +97,6 @@ func delEnv(c *cli.Context, args []string) ([]byte, error) {
 	}
 	cliutil.DelEnv(args[0])
 	return nil, nil
-}
-
-// netCall calls services through the network
-func netCall(c *cli.Context, args []string) ([]byte, error) {
-	os.Setenv("MICRO_PROXY", "go.micro.network")
-	return clic.CallService(c, args)
 }
 
 // TODO: stream via HTTP

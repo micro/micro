@@ -1,4 +1,4 @@
-package auth
+package cli
 
 import (
 	"context"
@@ -16,21 +16,19 @@ import (
 	"github.com/micro/micro/v2/internal/client"
 )
 
-func listRules(ctx *cli.Context) {
+func listRules(ctx *cli.Context) error {
 	client := rulesFromContext(ctx)
 
 	ns, err := namespace.Get(util.GetEnv(ctx).Name)
 	if err != nil {
-		fmt.Printf("Error getting namespace: %v\n", err)
-		os.Exit(1)
+		return fmt.Errorf("Error getting namespace: %v", err)
 	}
 
 	rsp, err := client.List(context.TODO(), &pb.ListRequest{
 		Options: &pb.Options{Namespace: ns},
 	})
 	if err != nil {
-		fmt.Printf("Error listing rules: %v\n", err)
-		os.Exit(1)
+		return fmt.Errorf("Error listing rules: %v", err)
 	}
 
 	w := tabwriter.NewWriter(os.Stdout, 0, 8, 1, '\t', 0)
@@ -55,59 +53,60 @@ func listRules(ctx *cli.Context) {
 		}
 		fmt.Fprintln(w, strings.Join([]string{r.Id, r.Scope, r.Access.String(), res, fmt.Sprintf("%d", r.Priority)}, "\t\t"))
 	}
+
+	return nil
 }
 
-func createRule(ctx *cli.Context) {
+func createRule(ctx *cli.Context) error {
 	ns, err := namespace.Get(util.GetEnv(ctx).Name)
 	if err != nil {
-		fmt.Printf("Error getting namespace: %v\n", err)
-		os.Exit(1)
+		return fmt.Errorf("Error getting namespace: %v", err)
+	}
+
+	rule, err := constructRule(ctx)
+	if err != nil {
+		return err
 	}
 
 	_, err = rulesFromContext(ctx).Create(context.TODO(), &pb.CreateRequest{
-		Rule: constructRule(ctx), Options: &pb.Options{Namespace: ns},
+		Rule: rule, Options: &pb.Options{Namespace: ns},
 	})
 	if verr, ok := err.(*errors.Error); ok {
-		fmt.Printf("Error: %v\n", verr.Detail)
-		return
+		return fmt.Errorf("Error: %v", verr.Detail)
 	} else if err != nil {
-		fmt.Println(err)
-		return
+		return err
 	}
 
 	fmt.Println("Rule created")
+	return nil
 }
 
-func deleteRule(ctx *cli.Context) {
+func deleteRule(ctx *cli.Context) error {
 	if ctx.Args().Len() != 1 {
-		fmt.Println("Expected one argument: ID")
-		os.Exit(1)
+		return fmt.Errorf("Expected one argument: ID")
 	}
 
 	ns, err := namespace.Get(util.GetEnv(ctx).Name)
 	if err != nil {
-		fmt.Printf("Error getting namespace: %v\n", err)
-		os.Exit(1)
+		return fmt.Errorf("Error getting namespace: %v", err)
 	}
 
 	_, err = rulesFromContext(ctx).Delete(context.TODO(), &pb.DeleteRequest{
 		Id: ctx.Args().First(), Options: &pb.Options{Namespace: ns},
 	})
 	if verr, ok := err.(*errors.Error); ok {
-		fmt.Printf("Error: %v\n", verr.Detail)
-		return
+		return fmt.Errorf("Error: %v", verr.Detail)
 	} else if err != nil {
-		fmt.Println(err)
-		return
+		return err
 	}
 
 	fmt.Println("Rule deleted")
+	return nil
 }
 
-func constructRule(ctx *cli.Context) *pb.Rule {
+func constructRule(ctx *cli.Context) (*pb.Rule, error) {
 	if ctx.Args().Len() != 1 {
-		fmt.Println("Too many arguments, expected one argument: ID")
-		os.Exit(1)
+		return nil, fmt.Errorf("Too many arguments, expected one argument: ID")
 	}
 
 	var access pb.Access
@@ -117,14 +116,12 @@ func constructRule(ctx *cli.Context) *pb.Rule {
 	case "denied":
 		access = pb.Access_DENIED
 	default:
-		fmt.Printf("Invalid access: %v, must be granted or denied\n", ctx.String("access"))
-		os.Exit(1)
+		return nil, fmt.Errorf("Invalid access: %v, must be granted or denied", ctx.String("access"))
 	}
 
 	resComps := strings.Split(ctx.String("resource"), ":")
 	if len(resComps) != 3 {
-		fmt.Println("Invalid resource, must be in the format type:name:endpoint")
-		os.Exit(1)
+		return nil, fmt.Errorf("Invalid resource, must be in the format type:name:endpoint")
 	}
 
 	return &pb.Rule{
@@ -137,9 +134,14 @@ func constructRule(ctx *cli.Context) *pb.Rule {
 			Name:     resComps[1],
 			Endpoint: resComps[2],
 		},
-	}
+	}, nil
 }
 
 func rulesFromContext(ctx *cli.Context) pb.RulesService {
-	return pb.NewRulesService("go.micro.auth", client.New(ctx))
+	cli, err := client.New(ctx)
+	if err != nil {
+		fmt.Printf("Error: %s\n", err)
+		os.Exit(1)
+	}
+	return pb.NewRulesService("go.micro.auth", cli)
 }

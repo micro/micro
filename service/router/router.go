@@ -11,18 +11,20 @@ import (
 	log "github.com/micro/go-micro/v2/logger"
 	"github.com/micro/go-micro/v2/router"
 	pb "github.com/micro/go-micro/v2/router/service/proto"
+	"github.com/micro/micro/v2/service"
 	"github.com/micro/micro/v2/service/router/handler"
 )
 
 var (
-	// Name of the router microservice
-	Name = "go.micro.router"
-	// Address is the router microservice bind address
-	Address = ":8084"
-	// Network is the network name
-	Network = router.DefaultNetwork
-	// Topic is router adverts topic
-	Topic = "go.micro.router.adverts"
+	// name of the router microservice
+	name = "go.micro.router"
+	// address is the router microservice bind address
+	address = ":8084"
+	// network is the network name
+	network = router.DefaultNetwork
+	// topic is router adverts topic
+	topic = "go.micro.router.adverts"
+
 	// Flags specific to the router
 	Flags = []cli.Flag{
 		&cli.StringFlag{
@@ -100,20 +102,20 @@ type rtr struct {
 }
 
 // newRouter creates new micro router and returns it
-func newRouter(service micro.Service, router router.Router) *rtr {
+func newRouter(srv *service.Service, router router.Router) *rtr {
 	s := &sub{
 		router: router,
 	}
 
 	// register subscriber
-	if err := micro.RegisterSubscriber(Topic, service.Server(), s); err != nil {
+	if err := service.RegisterSubscriber(topic, srv.Server(), s); err != nil {
 		log.Errorf("failed to subscribe to adverts: %s", err)
 		os.Exit(1)
 	}
 
 	return &rtr{
 		Router:    router,
-		Publisher: micro.NewPublisher(Topic, service.Client()),
+		Publisher: service.NewEvent(topic, srv.Client()),
 	}
 }
 
@@ -164,18 +166,16 @@ func (r *rtr) Close() error {
 	return nil
 }
 
-// Run runs the micro server
-func Run(ctx *cli.Context, srvOpts ...micro.Option) {
-	log.Init(log.WithFields(map[string]interface{}{"service": "router"}))
-
+// Run the micro router
+func Run(ctx *cli.Context) error {
 	if len(ctx.String("server_name")) > 0 {
-		Name = ctx.String("server_name")
+		name = ctx.String("server_name")
 	}
 	if len(ctx.String("address")) > 0 {
-		Address = ctx.String("address")
+		address = ctx.String("address")
 	}
 	if len(ctx.String("network")) > 0 {
-		Network = ctx.String("network")
+		network = ctx.String("network")
 	}
 	// default gateway address
 	var gateway string
@@ -200,25 +200,25 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 	}
 
 	// Initialise service
-	service := micro.NewService(
-		micro.Name(Name),
-		micro.Address(Address),
-		micro.RegisterTTL(time.Duration(ctx.Int("register_ttl"))*time.Second),
-		micro.RegisterInterval(time.Duration(ctx.Int("register_interval"))*time.Second),
+	srv := service.New(
+		service.Name(name),
+		service.Address(address),
+		service.RegisterTTL(time.Duration(ctx.Int("register_ttl"))*time.Second),
+		service.RegisterInterval(time.Duration(ctx.Int("register_interval"))*time.Second),
 	)
 
 	r := router.NewRouter(
-		router.Id(service.Server().Options().Id),
-		router.Address(service.Server().Options().Id),
-		router.Network(Network),
-		router.Registry(service.Options().Registry),
+		router.Id(srv.Server().Options().Id),
+		router.Address(srv.Server().Options().Id),
+		router.Network(network),
+		router.Registry(srv.Options().Registry),
 		router.Gateway(gateway),
 		router.Advertise(strategy),
 	)
 
 	// register router handler
 	pb.RegisterRouterHandler(
-		service.Server(),
+		srv.Server(),
 		&handler.Router{
 			Router: r,
 		},
@@ -226,14 +226,14 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 
 	// register the table handler
 	pb.RegisterTableHandler(
-		service.Server(),
+		srv.Server(),
 		&handler.Table{
 			Router: r,
 		},
 	)
 
 	// create new micro router and start advertising routes
-	rtr := newRouter(service, r)
+	rtr := newRouter(srv, r)
 
 	log.Info("starting to advertise")
 
@@ -256,7 +256,7 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 	}()
 
 	go func() {
-		errChan <- service.Run()
+		errChan <- srv.Run()
 	}()
 
 	// we block here until either service or server fails
@@ -273,4 +273,5 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 	}
 
 	log.Info("successfully closed")
+	return nil
 }

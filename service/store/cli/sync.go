@@ -5,8 +5,8 @@ import (
 	"github.com/pkg/errors"
 )
 
-// Sync is the entrypoint for micro store sync
-func Sync(ctx *cli.Context) error {
+// sync is the entrypoint for micro store sync
+func sync(ctx *cli.Context) error {
 	from, to, err := makeStores(ctx)
 	if err != nil {
 		return errors.Wrap(err, "Sync")

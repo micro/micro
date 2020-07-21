@@ -1,36 +1,42 @@
-package debug
+package cli
 
 import (
 	"fmt"
 	"time"
 
 	"github.com/micro/cli/v2"
-	"github.com/micro/go-micro/v2"
 	"github.com/micro/go-micro/v2/debug/service"
 	log "github.com/micro/go-micro/v2/logger"
+	"github.com/micro/micro/v2/cmd"
 )
+
+func init() {
+	cmd.Register(&cli.Command{
+		Name:   "trace",
+		Usage:  "Get tracing info from a service",
+		Action: getTrace,
+	})
+}
 
 const (
 	// logUsage message for logs command
 	traceUsage = "Required usage: micro trace example"
 )
 
-func getTrace(ctx *cli.Context, srvOpts ...micro.Option) {
+func getTrace(ctx *cli.Context) error {
 	log.Trace("debug")
 
 	// TODO look for trace id
 
 	if ctx.Args().Len() == 0 {
-		fmt.Println("Require service name")
-		return
+		return fmt.Errorf("Require service name")
 	}
 
 	name := ctx.Args().Get(0)
 
 	// must specify service name
 	if len(name) == 0 {
-		fmt.Println(traceUsage)
-		return
+		return fmt.Errorf(traceUsage)
 	}
 
 	// initialise a new service log
@@ -39,12 +45,11 @@ func getTrace(ctx *cli.Context, srvOpts ...micro.Option) {
 
 	spans, err := srv.Trace()
 	if err != nil {
-		fmt.Println(err)
-		return
+		return err
 	}
 
 	if len(spans) == 0 {
-		return
+		return nil
 	}
 
 	fmt.Println("Id\tName\tTime\tDuration\tStatus")
@@ -58,4 +63,6 @@ func getTrace(ctx *cli.Context, srvOpts ...micro.Option) {
 			"",
 		)
 	}
+
+	return nil
 }

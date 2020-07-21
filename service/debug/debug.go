@@ -7,7 +7,7 @@ import (
 	"github.com/micro/go-micro/v2/debug/log"
 	"github.com/micro/go-micro/v2/debug/log/kubernetes"
 	dservice "github.com/micro/go-micro/v2/debug/service"
-	ulog "github.com/micro/go-micro/v2/logger"
+	"github.com/micro/go-micro/v2/logger"
 	logHandler "github.com/micro/micro/v2/service/debug/log/handler"
 	pblog "github.com/micro/micro/v2/service/debug/log/proto"
 	statshandler "github.com/micro/micro/v2/service/debug/stats/handler"
@@ -16,11 +16,12 @@ import (
 	pbtrace "github.com/micro/micro/v2/service/debug/trace/proto"
 )
 
+const (
+	name    = "go.micro.debug"
+	address = ":8089"
+)
+
 var (
-	// Name of the service
-	Name = "go.micro.debug"
-	// Address of the service
-	Address = ":8089"
 	// Flags specific to the debug service
 	Flags = []cli.Flag{
 		&cli.IntFlag{
@@ -32,26 +33,13 @@ var (
 	}
 )
 
-func Run(ctx *cli.Context, srvOpts ...micro.Option) {
-	ulog.Init(ulog.WithFields(map[string]interface{}{"service": "debug"}))
-
-	if len(ctx.String("address")) > 0 {
-		Address = ctx.String("address")
-	}
-
-	if len(ctx.String("server_name")) > 0 {
-		Name = ctx.String("server_name")
-	}
-
-	if len(Address) > 0 {
-		srvOpts = append(srvOpts, micro.Address(Address))
-	}
-
-	// append name
-	srvOpts = append(srvOpts, micro.Name(Name))
-
+// Run micro debug
+func Run(ctx *cli.Context) error {
 	// new service
-	service := micro.NewService(srvOpts...)
+	service := micro.NewService(
+		micro.Name(name),
+		micro.Address(address),
+	)
 
 	// default log initialiser
 	newLog := func(service string) log.Log {
@@ -100,13 +88,13 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 	// stats handler
 	statsHandler, err := statshandler.New(done, ctx.Int("window"), c.services)
 	if err != nil {
-		ulog.Fatal(err)
+		logger.Fatal(err)
 	}
 
 	// stats handler
 	traceHandler, err := tracehandler.New(done, ctx.Int("window"), c.services)
 	if err != nil {
-		ulog.Fatal(err)
+		logger.Fatal(err)
 	}
 
 	// Register the stats handler
@@ -118,22 +106,7 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 
 	// start debug service
 	if err := service.Run(); err != nil {
-		ulog.Fatal(err)
+		logger.Fatal(err)
 	}
-}
-
-// Commands populates the debug commands
-func Commands(options ...micro.Option) []*cli.Command {
-	command := []*cli.Command{
-		{
-			Name:  "trace",
-			Usage: "Get tracing info from a service",
-			Action: func(ctx *cli.Context) error {
-				getTrace(ctx, options...)
-				return nil
-			},
-		},
-	}
-
-	return command
+	return nil
 }

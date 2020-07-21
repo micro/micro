@@ -92,11 +92,20 @@ func (a *Auth) Delete(ctx context.Context, req *pb.DeleteAccountRequest, rsp *pb
 		return errors.BadRequest("go.micro.auth.Accounts.Delete", "Error querying accounts: %v", err)
 	}
 
+	// delete the refresh token linked to the account
+	tok, err := a.refreshTokenForAccount(req.Options.Namespace, req.Id)
+	if err != nil {
+		return errors.InternalServerError("go.micro.auth.Accounts.Delete", "Error finding refresh token")
+	}
+	refreshKey := strings.Join([]string{storePrefixRefreshTokens, req.Options.Namespace, req.Id, tok}, joinKey)
+	if err := a.Options.Store.Delete(refreshKey); err != nil {
+		return errors.InternalServerError("go.micro.auth.Accounts.Delete", "Error deleting refresh token: %v", err)
+	}
+
 	// delete the account
 	if err := a.Options.Store.Delete(key); err != nil {
 		return errors.BadRequest("go.micro.auth.Accounts.Delete", "Error deleting account: %v", err)
 	}
-
 	return nil
 }
 

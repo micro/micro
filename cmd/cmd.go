@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"fmt"
-	"math"
 	"os"
 	"os/exec"
 	"sort"
@@ -13,7 +12,6 @@ import (
 	gostore "github.com/micro/go-micro/v2/store"
 	"github.com/micro/micro/v2/plugin"
 	"github.com/micro/micro/v2/server"
-	"github.com/micro/micro/v2/service"
 
 	// clients
 	"github.com/micro/micro/v2/client/api"
@@ -23,16 +21,6 @@ import (
 	"github.com/micro/micro/v2/client/cli/util"
 	"github.com/micro/micro/v2/client/proxy"
 	"github.com/micro/micro/v2/client/web"
-
-	// services
-	"github.com/micro/micro/v2/service/auth"
-	"github.com/micro/micro/v2/service/config"
-	"github.com/micro/micro/v2/service/debug"
-	"github.com/micro/micro/v2/service/network"
-	"github.com/micro/micro/v2/service/registry"
-	"github.com/micro/micro/v2/service/runtime"
-	"github.com/micro/micro/v2/service/store"
-	"github.com/micro/micro/v2/service/tunnel"
 
 	// internals
 	inauth "github.com/micro/micro/v2/internal/auth"
@@ -54,28 +42,6 @@ var (
 
 	// description of the binary
 	description = "A framework for cloud native development\n\n	 Use `micro [command] --help` to see command specific help."
-
-	// order in which commands are displayed
-	commandOrder = []string{
-		"server",
-		"new",
-		"env",
-		"login",
-		"run",
-		"logs",
-		"call",
-		"update",
-		"kill",
-		"store",
-		"config",
-		"auth",
-		"status",
-		"stream",
-		"file",
-	}
-
-	// commands to include in the binary
-	Commands = []*ccli.Command{}
 )
 
 type commands []*ccli.Command
@@ -83,19 +49,7 @@ type commands []*ccli.Command
 func (s commands) Len() int      { return len(s) }
 func (s commands) Swap(i, j int) { s[i], s[j] = s[j], s[i] }
 func (s commands) Less(i, j int) bool {
-	index := map[string]int{}
-	for i, v := range commandOrder {
-		index[v] = i
-	}
-	iVal, ok := index[s[i].Name]
-	if !ok {
-		iVal = math.MaxInt32
-	}
-	jVal, ok := index[s[j].Name]
-	if !ok {
-		jVal = math.MaxInt32
-	}
-	return iVal < jVal
+	return s[i].Name < s[j].Name
 }
 
 func setup(app *ccli.App) {
@@ -258,12 +212,6 @@ func setup(app *ccli.App) {
 		if len(ctx.String("web_address")) > 0 {
 			web.Address = ctx.String("web_address")
 		}
-		if len(ctx.String("network_address")) > 0 {
-			network.Address = ctx.String("network_address")
-		}
-		if len(ctx.String("tunnel_address")) > 0 {
-			tunnel.Address = ctx.String("tunnel_address")
-		}
 		if len(ctx.String("api_namespace")) > 0 {
 			api.Namespace = ctx.String("api_namespace")
 		}
@@ -335,10 +283,8 @@ func Run(options ...micro.Option) {
 	// get the app
 	app := cmd.App()
 
-	// commands to include that are otherwise sourced from elsewhere
-	for _, command := range Commands {
-		app.Commands = append(app.Commands, command)
-	}
+	// register commands
+	app.Commands = append(app.Commands, cliCommands...)
 
 	// Add the client commmands
 	app.Commands = append(app.Commands, api.Commands()...)
@@ -349,15 +295,7 @@ func Run(options ...micro.Option) {
 
 	// Add the service commands
 	app.Commands = append(app.Commands, new.Commands()...)
-	app.Commands = append(app.Commands, runtime.Commands(options...)...)
-	app.Commands = append(app.Commands, store.Commands(options...)...)
-	app.Commands = append(app.Commands, config.Commands(options...)...)
-	app.Commands = append(app.Commands, auth.Commands()...)
-	app.Commands = append(app.Commands, network.Commands(options...)...)
-	app.Commands = append(app.Commands, registry.Commands(options...)...)
-	app.Commands = append(app.Commands, debug.Commands(options...)...)
 	app.Commands = append(app.Commands, server.Commands(options...)...)
-	app.Commands = append(app.Commands, service.Commands(options...)...)
 	app.Commands = append(app.Commands, platform.Commands(options...)...)
 
 	sort.Sort(commands(app.Commands))
