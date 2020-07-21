@@ -1,15 +1,15 @@
 FROM alpine:latest
 RUN apk --no-cache add make git go gcc libtool musl-dev curl
+VOLUME ["/go"]
 # Configure Go
 ENV GOROOT /usr/lib/go
 ENV GOPATH /go
 ENV PATH /go/bin:$PATH
-RUN ls
-RUN mkdir -p ${GOPATH}/src ${GOPATH}/bin
 WORKDIR /app
+RUN mkdir -p ${GOPATH}/src ${GOPATH}/bin
+RUN go mod download
 COPY . .
 RUN GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build .
-RUN ls
 
 FROM alpine:latest
 RUN apk --no-cache add make git go gcc libtool musl-dev curl

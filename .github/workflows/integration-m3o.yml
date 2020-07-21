@@ -1,4 +1,4 @@
-name: Run micro server integration tests for m3o
+name: M3O integration tests
 on: [push]
 
 jobs:

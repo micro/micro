@@ -1,4 +1,4 @@
-name: Run micro server integration tests
+name: Integration tests
 on: [push]
 
 jobs:
@@ -33,7 +33,7 @@ jobs:
       run: |
         pwd
         go install
-        ls 
+        ls ~
 
     - name: Build container
       run: |
