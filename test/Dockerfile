@@ -1,18 +1,5 @@
 FROM alpine:latest
 RUN apk --no-cache add make git go gcc libtool musl-dev curl
-VOLUME ["/go"]
-# Configure Go
-ENV GOROOT /usr/lib/go
-ENV GOPATH /go
-ENV PATH /go/bin:$PATH
-WORKDIR /app
-RUN mkdir -p ${GOPATH}/src ${GOPATH}/bin
-COPY . .
-RUN go mod download
-RUN GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build .
-
-FROM alpine:latest
-RUN apk --no-cache add make git go gcc libtool musl-dev curl
 
 # Configure Go
 ENV GOROOT /usr/lib/go
@@ -20,7 +7,6 @@ ENV GOPATH /go
 ENV PATH /go/bin:$PATH
 
 RUN mkdir -p ${GOPATH}/src ${GOPATH}/bin
-
 
 RUN apk add ca-certificates && \
     rm -rf /var/cache/apk/* /tmp/* && \
@@ -47,6 +33,6 @@ RUN cd ${GOPATH}/src/example-service && go get && \
     go get github.com/micro/examples/helloworld
 
 
-COPY --from=0 /app/micro /micro
+COPY ./micro /micro
 
 ENTRYPOINT ["sh", "/bin/run.sh"]

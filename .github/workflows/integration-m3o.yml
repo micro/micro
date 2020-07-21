@@ -4,7 +4,7 @@ on: [push]
 jobs:
 
   test:
-    name: Micro server m3o integration tests
+    name: M3O integration tests
     runs-on: ubuntu-latest
     steps:
 
@@ -20,6 +20,13 @@ jobs:
     - name: Check out code
       uses: actions/checkout@v2
 
+    - name: Enable caching
+      uses: actions/cache@v2
+      with:
+        path: ~/go/pkg/mod
+        key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+        restore-keys: |
+          ${{ runner.os }}-go-
     - name: Install micro
       run: |
         go install
