@@ -15,7 +15,7 @@ import (
 	"github.com/micro/go-micro/v2/client"
 	"github.com/micro/go-micro/v2/cmd"
 	ccli "github.com/micro/micro/v2/client/cli"
-	"github.com/micro/micro/v2/cmd/command"
+	"github.com/micro/micro/v2/command"
 	clic "github.com/micro/micro/v2/internal/command/cli"
 	"github.com/olekukonko/tablewriter"
 )

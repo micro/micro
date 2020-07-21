@@ -7,7 +7,7 @@ package cli
 
 import (
 	"github.com/micro/cli/v2"
-	"github.com/micro/micro/v2/cmd/command"
+	"github.com/micro/micro/v2/command"
 	"github.com/micro/micro/v2/internal/helper"
 )
 

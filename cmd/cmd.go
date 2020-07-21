@@ -12,7 +12,6 @@ import (
 	gostore "github.com/micro/go-micro/v2/store"
 	"github.com/micro/micro/v2/plugin"
 	"github.com/micro/micro/v2/server"
-	"github.com/micro/micro/v2/service"
 
 	// clients
 	"github.com/micro/micro/v2/client/api"
@@ -23,8 +22,9 @@ import (
 	"github.com/micro/micro/v2/client/proxy"
 	"github.com/micro/micro/v2/client/web"
 
-	// load services so they can register cli commands
+	// load cli packages so they can register commands
 	_ "github.com/micro/micro/v2/service/auth/cli"
+	_ "github.com/micro/micro/v2/service/cli"
 	_ "github.com/micro/micro/v2/service/config/cli"
 	_ "github.com/micro/micro/v2/service/debug/cli"
 	_ "github.com/micro/micro/v2/service/network/cli"
@@ -32,7 +32,7 @@ import (
 	_ "github.com/micro/micro/v2/service/store/cli"
 
 	// internals
-	"github.com/micro/micro/v2/cmd/command"
+	"github.com/micro/micro/v2/command"
 	inauth "github.com/micro/micro/v2/internal/auth"
 	"github.com/micro/micro/v2/internal/helper"
 	_ "github.com/micro/micro/v2/internal/plugins"
@@ -306,7 +306,6 @@ func Run(options ...micro.Option) {
 	// Add the service commands
 	app.Commands = append(app.Commands, new.Commands()...)
 	app.Commands = append(app.Commands, server.Commands(options...)...)
-	app.Commands = append(app.Commands, service.Commands(options...)...)
 	app.Commands = append(app.Commands, platform.Commands(options...)...)
 
 	sort.Sort(commands(app.Commands))
