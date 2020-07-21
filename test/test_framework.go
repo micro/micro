@@ -20,6 +20,11 @@ var retryCount = 2
 var isParallel = true
 var ignoreThisError = errors.New("Do not use this error")
 
+const (
+	minPort = 8000
+	maxPort = 60000
+)
+
 var testFilter = []string{}
 var maxTimeMultiplier = time.Duration(1)
 
@@ -133,9 +138,7 @@ type testServerDefault struct {
 }
 
 func newLocalServer(t *t, fname string, opts ...options) testServer {
-	min := 8000
-	max := 60000
-	portnum := rand.Intn(max-min) + min
+	portnum := rand.Intn(maxPort-minPort) + minPort
 
 	// kill container, ignore error because it might not exist,
 	// we dont care about this that much
