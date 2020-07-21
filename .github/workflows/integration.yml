@@ -35,7 +35,7 @@ jobs:
 
     - name: Setup docker caching
       id: cache-docker
-      uses: actions/cache@v2
+      uses: pat-s/always-upload-cache@v2
       with:
         path: /tmp/docker-registry
         key: docker-registry-${{ hashFiles('Dockerfile') }}
