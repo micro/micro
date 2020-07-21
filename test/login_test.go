@@ -21,7 +21,6 @@ func testCorruptedLogin(t *t) {
 	if err := serv.launch(); err != nil {
 		return
 	}
-	token.Remove(serv.envName())
 
 	t.Parallel()
 
@@ -49,7 +48,7 @@ func testCorruptedLogin(t *t) {
 	}
 	outp, _ = exec.Command("micro", serv.envFlag(), "login", "--email", "default", "--password", "password").CombinedOutput()
 	if !strings.Contains(string(outp), "Successfully logged in.") {
-		t.Fatalf("Login failed")
+		t.Fatalf("Login failed: %s", outp)
 	}
 
 }
