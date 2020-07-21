@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/micro/cli/v2"
-	"github.com/micro/go-micro/v2"
 	log "github.com/micro/go-micro/v2/logger"
 	"github.com/micro/go-micro/v2/router"
 	pb "github.com/micro/go-micro/v2/router/service/proto"
@@ -98,7 +97,7 @@ type rtr struct {
 	// router is the micro router
 	router.Router
 	// publisher to publish router adverts
-	micro.Publisher
+	*service.Event
 }
 
 // newRouter creates new micro router and returns it
@@ -114,8 +113,8 @@ func newRouter(srv *service.Service, router router.Router) *rtr {
 	}
 
 	return &rtr{
-		Router:    router,
-		Publisher: service.NewEvent(topic, srv.Client()),
+		Router: router,
+		Event:  service.NewEvent(topic, srv.Client()),
 	}
 }
 

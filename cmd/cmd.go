@@ -7,30 +7,15 @@ import (
 	"sort"
 
 	ccli "github.com/micro/cli/v2"
-	"github.com/micro/go-micro/v2"
 	"github.com/micro/go-micro/v2/cmd"
 	gostore "github.com/micro/go-micro/v2/store"
-	"github.com/micro/micro/v2/plugin"
-	"github.com/micro/micro/v2/server"
-
-	// clients
-	"github.com/micro/micro/v2/client/api"
-	"github.com/micro/micro/v2/client/bot"
-	"github.com/micro/micro/v2/client/cli"
-	"github.com/micro/micro/v2/client/cli/new"
 	"github.com/micro/micro/v2/client/cli/util"
-	"github.com/micro/micro/v2/client/proxy"
-	"github.com/micro/micro/v2/client/web"
-
-	// internals
 	inauth "github.com/micro/micro/v2/internal/auth"
 	"github.com/micro/micro/v2/internal/helper"
 	_ "github.com/micro/micro/v2/internal/plugins"
 	"github.com/micro/micro/v2/internal/update"
 	_ "github.com/micro/micro/v2/internal/usage"
-
-	// platform related commands
-	platform "github.com/micro/micro/v2/platform/cli"
+	"github.com/micro/micro/v2/plugin"
 )
 
 var (
@@ -199,29 +184,6 @@ func setup(app *ccli.App) {
 	before := app.Before
 
 	app.Before = func(ctx *ccli.Context) error {
-
-		if len(ctx.String("api_handler")) > 0 {
-			api.Handler = ctx.String("api_handler")
-		}
-		if len(ctx.String("api_address")) > 0 {
-			api.Address = ctx.String("api_address")
-		}
-		if len(ctx.String("proxy_address")) > 0 {
-			proxy.Address = ctx.String("proxy_address")
-		}
-		if len(ctx.String("web_address")) > 0 {
-			web.Address = ctx.String("web_address")
-		}
-		if len(ctx.String("api_namespace")) > 0 {
-			api.Namespace = ctx.String("api_namespace")
-		}
-		if len(ctx.String("web_namespace")) > 0 {
-			web.Namespace = ctx.String("web_namespace")
-		}
-		if len(ctx.String("web_host")) > 0 {
-			web.Host = ctx.String("web_host")
-		}
-
 		for _, p := range plugins {
 			if err := p.Init(ctx); err != nil {
 				return err
@@ -279,25 +241,12 @@ func setup(app *ccli.App) {
 }
 
 // Run executes the command line
-func Run(options ...micro.Option) {
+func Run() {
 	// get the app
 	app := cmd.App()
 
 	// register commands
 	app.Commands = append(app.Commands, cliCommands...)
-
-	// Add the client commmands
-	app.Commands = append(app.Commands, api.Commands()...)
-	app.Commands = append(app.Commands, web.Commands()...)
-	app.Commands = append(app.Commands, proxy.Commands()...)
-	app.Commands = append(app.Commands, bot.Commands()...)
-	app.Commands = append(app.Commands, cli.Commands()...)
-
-	// Add the service commands
-	app.Commands = append(app.Commands, new.Commands()...)
-	app.Commands = append(app.Commands, server.Commands(options...)...)
-	app.Commands = append(app.Commands, platform.Commands(options...)...)
-
 	sort.Sort(commands(app.Commands))
 
 	// boot micro runtime

@@ -7,7 +7,6 @@ import (
 	"strings"
 
 	ccli "github.com/micro/cli/v2"
-	"github.com/micro/go-micro/v2"
 	log "github.com/micro/go-micro/v2/logger"
 	prox "github.com/micro/go-micro/v2/proxy"
 	"github.com/micro/go-micro/v2/proxy/grpc"
@@ -17,6 +16,7 @@ import (
 	"github.com/micro/go-micro/v2/server"
 	"github.com/micro/micro/v2/cmd"
 	"github.com/micro/micro/v2/plugin"
+	"github.com/micro/micro/v2/service"
 
 	// services
 	"github.com/micro/micro/v2/service/auth"
@@ -35,9 +35,7 @@ import (
 )
 
 // Run starts a micro service sidecar to encapsulate any app
-func Run(ctx *ccli.Context, opts ...micro.Option) {
-	log.Init(log.WithFields(map[string]interface{}{"service": "service"}))
-
+func Run(ctx *ccli.Context) {
 	name := ctx.String("name")
 	address := ctx.String("address")
 	endpoint := ctx.String("endpoint")
@@ -56,16 +54,15 @@ func Run(ctx *ccli.Context, opts ...micro.Option) {
 		metadata[key] = val
 	}
 
+	var opts []service.Option
 	if len(metadata) > 0 {
-		opts = append(opts, micro.Metadata(metadata))
+		opts = append(opts, service.Metadata(metadata))
 	}
-
 	if len(name) > 0 {
-		opts = append(opts, micro.Name(name))
+		opts = append(opts, service.Name(name))
 	}
-
 	if len(address) > 0 {
-		opts = append(opts, micro.Address(address))
+		opts = append(opts, service.Address(address))
 	}
 
 	if len(endpoint) == 0 {
@@ -120,18 +117,18 @@ func Run(ctx *ccli.Context, opts ...micro.Option) {
 	log.Infof("Service [%s] Serving %s at endpoint %s\n", p.String(), name, endpoint)
 
 	// new service
-	service := micro.NewService(opts...)
+	srv := service.New(opts...)
 
 	// create new muxer
 	//	muxer := mux.New(name, p)
 
 	// set the router
-	service.Server().Init(
+	srv.Server().Init(
 		server.WithRouter(p),
 	)
 
 	// run service
-	service.Run()
+	srv.Run()
 }
 
 type srvCommand struct {

@@ -8,6 +8,8 @@ import (
 
 	"github.com/chzyer/readline"
 	"github.com/micro/cli/v2"
+	"github.com/micro/micro/v2/client/cli/util"
+	"github.com/micro/micro/v2/cmd"
 )
 
 var (
@@ -27,7 +29,7 @@ var (
 type command struct {
 	name  string
 	usage string
-	exec  exec
+	exec  util.Exec
 }
 
 func Run(c *cli.Context) error {
@@ -87,18 +89,17 @@ func Run(c *cli.Context) error {
 	return nil
 }
 
-//Commands for micro calling action
-func Commands() []*cli.Command {
-	commands := []*cli.Command{
-		{
+func init() {
+	cmd.Register(
+		&cli.Command{
 			Name:   "cli",
 			Usage:  "Run the interactive CLI",
 			Action: Run,
 		},
-		{
+		&cli.Command{
 			Name:   "call",
 			Usage:  "Call a service e.g micro call greeter Say.Hello '{\"name\": \"John\"}",
-			Action: Print(callService),
+			Action: util.Print(callService),
 			Flags: []cli.Flag{
 				&cli.StringFlag{
 					Name:    "address",
@@ -117,10 +118,10 @@ func Commands() []*cli.Command {
 				},
 			},
 		},
-		{
+		&cli.Command{
 			Name:   "stream",
 			Usage:  "Create a service stream",
-			Action: Print(streamService),
+			Action: util.Print(streamService),
 			Flags: []cli.Flag{
 				&cli.StringFlag{
 					Name:    "output, o",
@@ -134,44 +135,42 @@ func Commands() []*cli.Command {
 				},
 			},
 		},
-		{
+		&cli.Command{
 			Name:   "stats",
 			Usage:  "Query the stats of a service",
-			Action: Print(queryStats),
+			Action: util.Print(queryStats),
 		},
-		{
+		&cli.Command{
 			Name:   "env",
 			Usage:  "Get/set micro cli environment",
-			Action: Print(listEnvs),
+			Action: util.Print(listEnvs),
 			Subcommands: []*cli.Command{
 				{
 					Name:   "get",
 					Usage:  "Get the currently selected environment",
-					Action: Print(getEnv),
+					Action: util.Print(getEnv),
 				},
 				{
 					Name:   "set",
 					Usage:  "Set the environment to use for subsequent commands",
-					Action: Print(setEnv),
+					Action: util.Print(setEnv),
 				},
 				{
 					Name:   "add",
 					Usage:  "Add a new environment `micro env add foo 127.0.0.1:8081`",
-					Action: Print(addEnv),
+					Action: util.Print(addEnv),
 				},
 				{
 					Name:   "del",
 					Usage:  "Delete an environment from your list",
-					Action: Print(delEnv),
+					Action: util.Print(delEnv),
 				},
 			},
 		},
-		{
+		&cli.Command{
 			Name:   "services",
 			Usage:  "List micro services",
-			Action: Print(listServices),
+			Action: util.Print(listServices),
 		},
-	}
-
-	return commands
+	)
 }

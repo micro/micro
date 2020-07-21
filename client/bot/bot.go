@@ -16,6 +16,7 @@ import (
 	"github.com/micro/go-micro/v2/agent/input"
 	proto "github.com/micro/go-micro/v2/agent/proto"
 	log "github.com/micro/go-micro/v2/logger"
+	"github.com/micro/micro/v2/cmd"
 	botc "github.com/micro/micro/v2/internal/command/bot"
 	"github.com/micro/micro/v2/service"
 
@@ -349,9 +350,7 @@ func (b *bot) watch() {
 	}
 }
 
-func run(ctx *cli.Context) error {
-	log.Init(log.WithFields(map[string]interface{}{"service": "bot"}))
-
+func Run(ctx *cli.Context) error {
 	if len(ctx.String("server_name")) > 0 {
 		Name = ctx.String("server_name")
 	}
@@ -433,7 +432,7 @@ func run(ctx *cli.Context) error {
 	return nil
 }
 
-func Commands() []*cli.Command {
+func init() {
 	flags := []cli.Flag{
 		&cli.StringFlag{
 			Name:    "inputs",
@@ -452,12 +451,10 @@ func Commands() []*cli.Command {
 		flags = append(flags, input.Flags()...)
 	}
 
-	command := &cli.Command{
+	cmd.Register(&cli.Command{
 		Name:   "bot",
 		Usage:  "Run the chatops bot",
 		Flags:  flags,
-		Action: run,
-	}
-
-	return []*cli.Command{command}
+		Action: Run,
+	})
 }
