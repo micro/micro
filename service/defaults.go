@@ -8,42 +8,16 @@ import (
 	"github.com/micro/go-micro/v2/server"
 	"github.com/micro/go-micro/v2/store"
 
-	// clients
-	gcli "github.com/micro/go-micro/v2/client/grpc"
-
-	gsrv "github.com/micro/go-micro/v2/server/grpc"
-
-	// brokers
-
+	svcAuth "github.com/micro/go-micro/v2/auth/service"
 	brokerSrv "github.com/micro/go-micro/v2/broker/service"
-
-	// registries
-
+	gcli "github.com/micro/go-micro/v2/client/grpc"
+	memTracer "github.com/micro/go-micro/v2/debug/trace/memory"
 	regSrv "github.com/micro/go-micro/v2/registry/service"
-
-	// routers
-
 	srvRouter "github.com/micro/go-micro/v2/router/service"
-
-	// runtimes
-
 	srvRuntime "github.com/micro/go-micro/v2/runtime/service"
-
-	// selectors
-
-	// transports
-
-	// stores
+	gsrv "github.com/micro/go-micro/v2/server/grpc"
 	memStore "github.com/micro/go-micro/v2/store/memory"
 	svcStore "github.com/micro/go-micro/v2/store/service"
-
-	// tracers
-	// jTracer "github.com/micro/go-micro/v2/debug/trace/jaeger"
-	memTracer "github.com/micro/go-micro/v2/debug/trace/memory"
-
-	// auth
-
-	svcAuth "github.com/micro/go-micro/v2/auth/service"
 )
 
 func init() {
