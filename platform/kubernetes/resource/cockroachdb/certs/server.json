@@ -2,7 +2,8 @@
     "CN": "node",
     "hosts": [
         "*.cockroachdb-cluster.default.svc.cluster.local",
-        "*.cockroachdb-cluster"
+        "*.cockroachdb-cluster",
+        "cockroachdb-cluster"
     ],
     "key": {
         "algo": "ecdsa",

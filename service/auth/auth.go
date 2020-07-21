@@ -6,6 +6,7 @@ import (
 	"github.com/micro/go-micro/v2/auth"
 	pb "github.com/micro/go-micro/v2/auth/service/proto"
 	log "github.com/micro/go-micro/v2/logger"
+	"github.com/micro/go-micro/v2/store"
 	"github.com/micro/go-micro/v2/util/token"
 	"github.com/micro/go-micro/v2/util/token/jwt"
 	authHandler "github.com/micro/micro/v2/service/auth/handler/auth"
@@ -41,6 +42,7 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 	}
 
 	// set the handlers store
+	srv.Options().Store.Init(store.Table("auth"))
 	authH.Init(auth.Store(srv.Options().Store))
 	ruleH.Init(auth.Store(srv.Options().Store))
 
