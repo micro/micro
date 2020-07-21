@@ -3,8 +3,8 @@ package main
 import (
 	"example-service/handler"
 	example "example-service/proto"
+	"fmt"
 
-	"github.com/micro/go-micro/v2/logger"
 	"github.com/micro/micro/v2/service"
 )
 
@@ -23,6 +23,6 @@ func main() {
 
 	// Run service
 	if err := srv.Run(); err != nil {
-		logger.Fatal(err)
+		fmt.Println(err)
 	}
 }
