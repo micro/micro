@@ -37,8 +37,13 @@ func Signup(ctx *cli.Context) error {
 	}
 
 	// send a verification email to the user
-	signupService := signupproto.NewSignupService("go.micro.service.signup", client.New(ctx))
-	_, err := signupService.SendVerificationEmail(context.TODO(), &signupproto.SendVerificationEmailRequest{
+	cli, err := client.New(ctx)
+	if err != nil {
+		fmt.Printf("Error processing signup: %s\n", err)
+		os.Exit(1)
+	}
+	signupService := signupproto.NewSignupService("go.micro.service.signup", cli)
+	_, err = signupService.SendVerificationEmail(context.TODO(), &signupproto.SendVerificationEmailRequest{
 		Email: email,
 	}, cl.WithRequestTimeout(10*time.Second))
 	if err != nil {

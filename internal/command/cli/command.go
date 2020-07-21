@@ -186,7 +186,11 @@ func RegisterService(c *cli.Context, args []string) ([]byte, error) {
 	}
 
 	reg := *cmd.DefaultCmd.Options().Registry
-	reg.Init(service.WithClient(inclient.New(c)))
+	cli, err := inclient.New(c)
+	if err != nil {
+		return nil, err
+	}
+	reg.Init(service.WithClient(cli))
 	if err := reg.Register(srv); err != nil {
 		return nil, err
 	}
@@ -211,7 +215,11 @@ func DeregisterService(c *cli.Context, args []string) ([]byte, error) {
 	}
 
 	reg := *cmd.DefaultCmd.Options().Registry
-	reg.Init(service.WithClient(inclient.New(c)))
+	cli, err := inclient.New(c)
+	if err != nil {
+		return nil, err
+	}
+	reg.Init(service.WithClient(cli))
 	if err := reg.Deregister(srv); err != nil {
 		return nil, err
 	}
@@ -233,7 +241,11 @@ func GetService(c *cli.Context, args []string) ([]byte, error) {
 	var srv []*registry.Service
 
 	reg := *cmd.DefaultCmd.Options().Registry
-	reg.Init(service.WithClient(inclient.New(c)))
+	cli, err := inclient.New(c)
+	if err != nil {
+		return nil, err
+	}
+	reg.Init(service.WithClient(cli))
 	srv, err = reg.GetService(args[0], registry.GetDomain(ns))
 	if err != nil {
 		return nil, err
@@ -308,7 +320,11 @@ func ListServices(c *cli.Context) ([]byte, error) {
 	}
 
 	reg := *cmd.DefaultCmd.Options().Registry
-	reg.Init(service.WithClient(inclient.New(c)))
+	cli, err := inclient.New(c)
+	if err != nil {
+		return nil, err
+	}
+	reg.Init(service.WithClient(cli))
 	rsp, err = reg.ListServices(registry.ListDomain(ns))
 	if err != nil {
 		return nil, err
@@ -382,7 +398,10 @@ func CallService(c *cli.Context, args []string) ([]byte, error) {
 	}
 
 	ctx := callContext(c)
-	cli := inclient.New(c)
+	cli, err := inclient.New(c)
+	if err != nil {
+		return nil, err
+	}
 
 	creq := cli.NewRequest(service, endpoint, request, client.WithContentType("application/json"))
 
@@ -392,7 +411,7 @@ func CallService(c *cli.Context, args []string) ([]byte, error) {
 		opts = append(opts, client.WithAddress(addr))
 	}
 
-	var err error
+	err = nil
 	if output := c.String("output"); output == "raw" {
 		rsp := cbytes.Frame{}
 		err = cli.Call(ctx, creq, &rsp, opts...)
@@ -448,7 +467,11 @@ func QueryHealth(c *cli.Context, args []string) ([]byte, error) {
 
 	// otherwise get the service and call each instance individually
 	reg := *cmd.DefaultCmd.Options().Registry
-	reg.Init(service.WithClient(inclient.New(c)))
+	cli, err := inclient.New(c)
+	if err != nil {
+		return nil, err
+	}
+	reg.Init(service.WithClient(cli))
 	service, err := reg.GetService(args[0], registry.GetDomain(ns))
 	if err != nil {
 		return nil, err
@@ -507,7 +530,11 @@ func QueryStats(c *cli.Context, args []string) ([]byte, error) {
 	}
 
 	reg := *cmd.DefaultCmd.Options().Registry
-	reg.Init(service.WithClient(inclient.New(c)))
+	cli, err := inclient.New(c)
+	if err != nil {
+		return nil, err
+	}
+	reg.Init(service.WithClient(cli))
 	service, err := reg.GetService(args[0], registry.GetDomain(ns))
 	if err != nil {
 		return nil, err
