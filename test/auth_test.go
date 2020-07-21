@@ -265,13 +265,13 @@ func lockdownSuite(serv testServer, t *t) {
 	email := "me@email.com"
 	pass := "mystrongpass"
 
-	outp, err = exec.Command("micro", serv.envFlag(), "auth", "create", "account", "--secret", pass, "--scopes", "admin", email).CombinedOutput()
+	outp, err := exec.Command("micro", serv.envFlag(), "auth", "create", "account", "--secret", pass, "--scopes", "admin", email).CombinedOutput()
 	if err != nil {
 		t.Fatal(string(outp), err)
 		return
 	}
 
-	outp, err := exec.Command("micro", serv.envFlag(), "auth", "create", "rule", "--access=granted", "--scope='*'", "--resource='*:*:*'", "onlyloggedin").CombinedOutput()
+	outp, err = exec.Command("micro", serv.envFlag(), "auth", "create", "rule", "--access=granted", "--scope='*'", "--resource='*:*:*'", "onlyloggedin").CombinedOutput()
 	if err != nil {
 		t.Fatal(string(outp), err)
 		return
