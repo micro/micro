@@ -46,7 +46,7 @@ func testCorruptedLogin(t *t) {
 	if !strings.Contains(string(outp), "Account can't be found for refresh token") {
 		t.Fatalf("Call should have failed: %s", outp)
 	}
-	outp, _ = exec.Command("micro", serv.envFlag(), "login", "--email", "default", "--password", "password").CombinedOutput()
+	outp, _ = exec.Command("micro", serv.envFlag(), "login", "--email", serv.envName(), "--password", "password").CombinedOutput()
 	if !strings.Contains(string(outp), "Successfully logged in.") {
 		t.Fatalf("Login failed: %s", outp)
 	}
