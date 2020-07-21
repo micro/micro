@@ -20,7 +20,7 @@ var (
 	// address of the registry
 	address = ":8000"
 	// topic to publish registry events to
-	topic = "go.service.registry.events"
+	topic = "go.micro.registry.events"
 )
 
 // Sub processes registry events

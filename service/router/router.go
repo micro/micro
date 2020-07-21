@@ -23,7 +23,7 @@ var (
 	// network is the network name
 	network = router.DefaultNetwork
 	// topic is router adverts topic
-	topic = "go.service.router.adverts"
+	topic = "go.micro.router.adverts"
 
 	// Flags specific to the router
 	Flags = []cli.Flag{
