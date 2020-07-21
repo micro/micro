@@ -7,8 +7,8 @@ ENV GOPATH /go
 ENV PATH /go/bin:$PATH
 WORKDIR /app
 RUN mkdir -p ${GOPATH}/src ${GOPATH}/bin
-RUN go mod download
 COPY . .
+RUN go mod download
 RUN GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build .
 
 FROM alpine:latest
