@@ -34,14 +34,12 @@ var (
 )
 
 // Run micro debug
-func Run(ctx *cli.Context, srvOpts ...micro.Option) {
-	srvOpts = append([]micro.Option{
+func Run(ctx *cli.Context) error {
+	// new service
+	service := micro.NewService(
 		micro.Name(name),
 		micro.Address(address),
-	}, srvOpts...)
-
-	// new service
-	service := micro.NewService(srvOpts...)
+	)
 
 	// default log initialiser
 	newLog := func(service string) log.Log {
@@ -110,4 +108,5 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 	if err := service.Run(); err != nil {
 		logger.Fatal(err)
 	}
+	return nil
 }

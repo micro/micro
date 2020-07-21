@@ -2,9 +2,9 @@ package config
 
 import (
 	"github.com/micro/cli/v2"
-	"github.com/micro/go-micro/v2"
 	proto "github.com/micro/go-micro/v2/config/source/service/proto"
 	"github.com/micro/go-micro/v2/logger"
+	"github.com/micro/micro/v2/service"
 	"github.com/micro/micro/v2/service/config/handler"
 )
 
@@ -24,22 +24,19 @@ var (
 )
 
 // Run micro config
-func Run(c *cli.Context, srvOpts ...micro.Option) {
-	srvOpts = append([]micro.Option{
-		micro.Name(name),
-	}, srvOpts...)
-
+func Run(c *cli.Context) error {
 	if len(c.String("watch_topic")) > 0 {
 		handler.WatchTopic = c.String("watch_topic")
 	}
 
-	srv := micro.NewService(srvOpts...)
+	srv := service.New(service.Name(name))
 
 	h := &handler.Config{Store: srv.Options().Store}
 	proto.RegisterConfigHandler(srv.Server(), h)
-	micro.RegisterSubscriber(handler.WatchTopic, srv.Server(), handler.Watcher)
+	service.RegisterSubscriber(handler.WatchTopic, srv.Server(), handler.Watcher)
 
 	if err := srv.Run(); err != nil {
 		logger.Fatal(err)
 	}
+	return nil
 }

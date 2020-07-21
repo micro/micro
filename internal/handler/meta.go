@@ -3,12 +3,12 @@ package handler
 import (
 	"net/http"
 
-	"github.com/micro/go-micro/v2"
 	"github.com/micro/go-micro/v2/api/handler"
 	"github.com/micro/go-micro/v2/api/handler/event"
 	"github.com/micro/go-micro/v2/api/router"
 	"github.com/micro/go-micro/v2/client"
 	"github.com/micro/go-micro/v2/errors"
+	"github.com/micro/micro/v2/service"
 
 	// TODO: only import handler package
 	aapi "github.com/micro/go-micro/v2/api/handler/api"
@@ -61,7 +61,7 @@ func (m *metaHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 // Meta is a http.Handler that routes based on endpoint metadata
-func Meta(s micro.Service, r router.Router, ns string) http.Handler {
+func Meta(s *service.Service, r router.Router, ns string) http.Handler {
 	return &metaHandler{
 		c:  s.Client(),
 		r:  r,

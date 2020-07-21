@@ -9,7 +9,6 @@ import (
 	"github.com/go-acme/lego/v3/providers/dns/cloudflare"
 	"github.com/gorilla/mux"
 	"github.com/micro/cli/v2"
-	"github.com/micro/go-micro/v2"
 	ahandler "github.com/micro/go-micro/v2/api/handler"
 	aapi "github.com/micro/go-micro/v2/api/handler/api"
 	"github.com/micro/go-micro/v2/api/handler/event"
@@ -34,6 +33,7 @@ import (
 	"github.com/micro/micro/v2/internal/helper"
 	rrmicro "github.com/micro/micro/v2/internal/resolver/api"
 	"github.com/micro/micro/v2/internal/stats"
+	"github.com/micro/micro/v2/service"
 )
 
 var (
@@ -52,7 +52,7 @@ var (
 	ACMECA                = acme.LetsEncryptProductionCA
 )
 
-func Run(ctx *cli.Context, srvOpts ...micro.Option) {
+func Run(ctx *cli.Context, srvOpts ...service.Option) {
 	log.Init(log.WithFields(map[string]interface{}{"service": "api"}))
 
 	if len(ctx.String("server_name")) > 0 {
@@ -78,10 +78,10 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 	}
 
 	// append name to opts
-	srvOpts = append(srvOpts, micro.Name(Name))
+	srvOpts = append(srvOpts, service.Name(Name))
 
 	// initialise service
-	service := micro.NewService(srvOpts...)
+	srv := service.New(srvOpts...)
 
 	// Init API
 	var opts []server.Option
@@ -105,7 +105,7 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 
 			storage := certmagic.NewStorage(
 				memory.NewSync(),
-				service.Options().Store,
+				srv.Options().Store,
 			)
 
 			config := cloudflare.NewDefaultConfig()
@@ -201,12 +201,12 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 		rt := regRouter.NewRouter(
 			router.WithHandler(arpc.Handler),
 			router.WithResolver(rr),
-			router.WithRegistry(service.Options().Registry),
+			router.WithRegistry(srv.Options().Registry),
 		)
 		rp := arpc.NewHandler(
 			ahandler.WithNamespace(Namespace),
 			ahandler.WithRouter(rt),
-			ahandler.WithClient(service.Client()),
+			ahandler.WithClient(srv.Client()),
 		)
 		r.PathPrefix(APIPath).Handler(rp)
 	case "api":
@@ -214,12 +214,12 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 		rt := regRouter.NewRouter(
 			router.WithHandler(aapi.Handler),
 			router.WithResolver(rr),
-			router.WithRegistry(service.Options().Registry),
+			router.WithRegistry(srv.Options().Registry),
 		)
 		ap := aapi.NewHandler(
 			ahandler.WithNamespace(Namespace),
 			ahandler.WithRouter(rt),
-			ahandler.WithClient(service.Client()),
+			ahandler.WithClient(srv.Client()),
 		)
 		r.PathPrefix(APIPath).Handler(ap)
 	case "event":
@@ -227,12 +227,12 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 		rt := regRouter.NewRouter(
 			router.WithHandler(event.Handler),
 			router.WithResolver(rr),
-			router.WithRegistry(service.Options().Registry),
+			router.WithRegistry(srv.Options().Registry),
 		)
 		ev := event.NewHandler(
 			ahandler.WithNamespace(Namespace),
 			ahandler.WithRouter(rt),
-			ahandler.WithClient(service.Client()),
+			ahandler.WithClient(srv.Client()),
 		)
 		r.PathPrefix(APIPath).Handler(ev)
 	case "http", "proxy":
@@ -240,12 +240,12 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 		rt := regRouter.NewRouter(
 			router.WithHandler(ahttp.Handler),
 			router.WithResolver(rr),
-			router.WithRegistry(service.Options().Registry),
+			router.WithRegistry(srv.Options().Registry),
 		)
 		ht := ahttp.NewHandler(
 			ahandler.WithNamespace(Namespace),
 			ahandler.WithRouter(rt),
-			ahandler.WithClient(service.Client()),
+			ahandler.WithClient(srv.Client()),
 		)
 		r.PathPrefix(ProxyPath).Handler(ht)
 	case "web":
@@ -253,21 +253,21 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 		rt := regRouter.NewRouter(
 			router.WithHandler(web.Handler),
 			router.WithResolver(rr),
-			router.WithRegistry(service.Options().Registry),
+			router.WithRegistry(srv.Options().Registry),
 		)
 		w := web.NewHandler(
 			ahandler.WithNamespace(Namespace),
 			ahandler.WithRouter(rt),
-			ahandler.WithClient(service.Client()),
+			ahandler.WithClient(srv.Client()),
 		)
 		r.PathPrefix(APIPath).Handler(w)
 	default:
 		log.Infof("Registering API Default Handler at %s", APIPath)
 		rt := regRouter.NewRouter(
 			router.WithResolver(rr),
-			router.WithRegistry(service.Options().Registry),
+			router.WithRegistry(srv.Options().Registry),
 		)
-		r.PathPrefix(APIPath).Handler(handler.Meta(service, rt, Namespace))
+		r.PathPrefix(APIPath).Handler(handler.Meta(srv, rt, Namespace))
 	}
 
 	// create the auth wrapper and the server
@@ -283,7 +283,7 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 	}
 
 	// Run server
-	if err := service.Run(); err != nil {
+	if err := srv.Run(); err != nil {
 		log.Fatal(err)
 	}
 
@@ -293,7 +293,7 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 	}
 }
 
-func Commands(options ...micro.Option) []*cli.Command {
+func Commands(options ...service.Option) []*cli.Command {
 	command := &cli.Command{
 		Name:  "api",
 		Usage: "Run the api gateway",
