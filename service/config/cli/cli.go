@@ -12,7 +12,7 @@ import (
 	log "github.com/micro/go-micro/v2/logger"
 	"github.com/micro/micro/v2/client/cli/namespace"
 	"github.com/micro/micro/v2/client/cli/util"
-	"github.com/micro/micro/v2/command"
+	"github.com/micro/micro/v2/cmd"
 	"github.com/micro/micro/v2/internal/client"
 	cliconfig "github.com/micro/micro/v2/internal/config"
 	"github.com/micro/micro/v2/internal/helper"
@@ -165,7 +165,7 @@ func delConfig(ctx *cli.Context) error {
 }
 
 func init() {
-	command.Register(
+	cmd.Register(
 		&cli.Command{
 			Name:   "config",
 			Usage:  "Manage configuration values",

@@ -15,7 +15,7 @@ import (
 	"github.com/micro/go-micro/v2/proxy/mucp"
 	rt "github.com/micro/go-micro/v2/runtime"
 	"github.com/micro/go-micro/v2/server"
-	"github.com/micro/micro/v2/command"
+	"github.com/micro/micro/v2/cmd"
 	"github.com/micro/micro/v2/plugin"
 
 	// services
@@ -233,7 +233,7 @@ func init() {
 		subcommands[i] = command
 	}
 
-	cmd := &ccli.Command{
+	command := &ccli.Command{
 		Name:  "service",
 		Usage: "Run a micro service",
 		Action: func(ctx *ccli.Context) error {
@@ -269,13 +269,13 @@ func init() {
 	// register global plugins and flags
 	for _, p := range plugin.Plugins() {
 		if cmds := p.Commands(); len(cmds) > 0 {
-			cmd.Subcommands = append(cmd.Subcommands, cmds...)
+			command.Subcommands = append(command.Subcommands, cmds...)
 		}
 
 		if flags := p.Flags(); len(flags) > 0 {
-			cmd.Flags = append(cmd.Flags, flags...)
+			command.Flags = append(command.Flags, flags...)
 		}
 	}
 
-	command.Register(cmd)
+	cmd.Register(command)
 }

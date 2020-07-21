@@ -22,17 +22,7 @@ import (
 	"github.com/micro/micro/v2/client/proxy"
 	"github.com/micro/micro/v2/client/web"
 
-	// load cli packages so they can register commands
-	_ "github.com/micro/micro/v2/service/auth/cli"
-	_ "github.com/micro/micro/v2/service/cli"
-	_ "github.com/micro/micro/v2/service/config/cli"
-	_ "github.com/micro/micro/v2/service/debug/cli"
-	_ "github.com/micro/micro/v2/service/network/cli"
-	_ "github.com/micro/micro/v2/service/runtime/cli"
-	_ "github.com/micro/micro/v2/service/store/cli"
-
 	// internals
-	"github.com/micro/micro/v2/command"
 	inauth "github.com/micro/micro/v2/internal/auth"
 	"github.com/micro/micro/v2/internal/helper"
 	_ "github.com/micro/micro/v2/internal/plugins"
@@ -294,7 +284,7 @@ func Run(options ...micro.Option) {
 	app := cmd.App()
 
 	// register commands
-	app.Commands = append(app.Commands, command.List()...)
+	app.Commands = append(app.Commands, cliCommands...)
 
 	// Add the client commmands
 	app.Commands = append(app.Commands, api.Commands()...)
