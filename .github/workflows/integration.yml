@@ -35,7 +35,7 @@ jobs:
 
     - name: Setup docker caching
       id: cache-docker
-      uses: actions/cache@v1
+      uses: actions/cache@v2
       with:
         path: /tmp/docker-registry
         key: docker-registry-${{ hashFiles('Dockerfile') }}
@@ -50,7 +50,7 @@ jobs:
     - name: Tag and push docker
       run: |
         docker tag micro localhost:5000/micro && docker push localhost:5000/micro || true
-      if: steps.cache.outputs.cache-hit != 'true'
+      if: steps.cache-docker.outputs.cache-hit != 'true'
 
     # - name: Build container
     #   run: |
