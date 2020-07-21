@@ -218,6 +218,14 @@ func (s *testServerBase) launch() error {
 		return err
 	}
 
+	return nil
+}
+
+func (s *testServerDefault) launch() error {
+	if err := s.testServerBase.launch(); err != nil {
+		return err
+	}
+
 	if err := try("Calling micro server", s.t, func() ([]byte, error) {
 		outp, err := exec.Command("micro", s.envFlag(), "services").CombinedOutput()
 		if !strings.Contains(string(outp), "runtime") ||
@@ -246,15 +254,7 @@ func (s *testServerBase) launch() error {
 		s.t.Fatalf("Error generating auth: %s, %s", err, outp)
 		return err
 	}
-	return nil
-}
 
-func (s *testServerDefault) launch() error {
-	if err := s.testServerBase.launch(); err != nil {
-		return err
-	}
-
-	time.Sleep(5 * time.Second)
 	return nil
 }
 
@@ -268,6 +268,7 @@ func (s *testServerBase) close() {
 }
 
 func (s *testServerDefault) close() {
+	s.testServerBase.close()
 	exec.Command("docker", "kill", s.containerName).CombinedOutput()
 	if s.cmd.Process != nil {
 		s.cmd.Process.Signal(syscall.SIGKILL)

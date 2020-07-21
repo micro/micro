@@ -190,8 +190,12 @@ func delete(ctx *cli.Context) error {
 }
 
 func initStore(ctx *cli.Context) error {
+	cli, err := inclient.New(ctx)
+	if err != nil {
+		return err
+	}
 	opts := []store.Option{
-		store.WithClient(inclient.New(ctx)),
+		store.WithClient(cli),
 	}
 
 	if len(ctx.String("database")) > 0 {

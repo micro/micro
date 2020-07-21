@@ -47,13 +47,17 @@ var (
 	}
 )
 
-func authFromContext(ctx *cli.Context) auth.Auth {
+func authFromContext(ctx *cli.Context) (auth.Auth, error) {
 	if util.IsLocal(ctx) {
-		return *mcmd.DefaultCmd.Options().Auth
+		return *mcmd.DefaultCmd.Options().Auth, nil
+	}
+	cli, err := client.New(ctx)
+	if err != nil {
+		return nil, err
 	}
 	return srvAuth.NewAuth(
-		auth.WithClient(client.New(ctx)),
-	)
+		auth.WithClient(cli),
+	), nil
 }
 
 func init() {

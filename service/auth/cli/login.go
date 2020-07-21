@@ -40,7 +40,20 @@ func login(ctx *cli.Context) error {
 		email = strings.TrimSpace(email)
 	}
 
-	authSrv := authFromContext(ctx)
+	authSrv, err := authFromContext(ctx)
+	if err != nil {
+		// clear tokens and try again
+		if err := token.Remove(env.Name); err != nil {
+			fmt.Printf("Error: %s\n", err)
+			os.Exit(1)
+		}
+		authSrv, err = authFromContext(ctx)
+		if err != nil {
+			fmt.Printf("Error: %s\n", err)
+			os.Exit(1)
+		}
+
+	}
 	ns, err := namespace.Get(env.Name)
 	if err != nil {
 		return err

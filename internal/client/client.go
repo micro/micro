@@ -3,8 +3,6 @@ package client
 
 import (
 	"context"
-	"fmt"
-	"os"
 	"time"
 
 	ccli "github.com/micro/cli/v2"
@@ -21,7 +19,7 @@ import (
 
 // New returns a wrapped grpc client which will inject the
 // token found in config into each request
-func New(ctx *ccli.Context) client.Client {
+func New(ctx *ccli.Context) (client.Client, error) {
 	env := cliutil.GetEnv(ctx)
 	ns, _ := namespace.Get(env.Name)
 	client := &wrapper{
@@ -34,11 +32,9 @@ func New(ctx *ccli.Context) client.Client {
 	}
 	err := client.getAccessToken(env.Name, ctx)
 	if err != nil {
-		// @todo this is veeery ugly being here
-		fmt.Println("Error getting auth token:", err)
-		os.Exit(1)
+		return nil, err
 	}
-	return client
+	return client, nil
 }
 
 type wrapper struct {
