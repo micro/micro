@@ -4,9 +4,9 @@ import (
 	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro/v2/auth"
 	srvAuth "github.com/micro/go-micro/v2/auth/service"
-	"github.com/micro/go-micro/v2/cmd"
+	mcmd "github.com/micro/go-micro/v2/cmd"
 	"github.com/micro/micro/v2/client/cli/util"
-	"github.com/micro/micro/v2/command"
+	"github.com/micro/micro/v2/cmd"
 	"github.com/micro/micro/v2/internal/client"
 	"github.com/micro/micro/v2/internal/helper"
 	// imported specifically for signup
@@ -49,7 +49,7 @@ var (
 
 func authFromContext(ctx *cli.Context) auth.Auth {
 	if util.IsLocal(ctx) {
-		return *cmd.DefaultCmd.Options().Auth
+		return *mcmd.DefaultCmd.Options().Auth
 	}
 	return srvAuth.NewAuth(
 		auth.WithClient(client.New(ctx)),
@@ -57,7 +57,7 @@ func authFromContext(ctx *cli.Context) auth.Auth {
 }
 
 func init() {
-	command.Register(
+	cmd.Register(
 		&cli.Command{
 			Name:   "auth",
 			Action: helper.UnexpectedSubcommand,

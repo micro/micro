@@ -7,11 +7,11 @@ import (
 	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro/v2/debug/service"
 	log "github.com/micro/go-micro/v2/logger"
-	"github.com/micro/micro/v2/command"
+	"github.com/micro/micro/v2/cmd"
 )
 
 func init() {
-	command.Register(&cli.Command{
+	cmd.Register(&cli.Command{
 		Name:   "trace",
 		Usage:  "Get tracing info from a service",
 		Action: getTrace,
