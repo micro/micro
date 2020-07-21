@@ -12,7 +12,7 @@ import (
 	log "github.com/micro/go-micro/v2/logger"
 	"github.com/micro/micro/v2/client/cli/namespace"
 	"github.com/micro/micro/v2/client/cli/util"
-	"github.com/micro/micro/v2/cmd/command"
+	"github.com/micro/micro/v2/command"
 	"github.com/micro/micro/v2/internal/client"
 	cliconfig "github.com/micro/micro/v2/internal/config"
 	"github.com/micro/micro/v2/internal/helper"
