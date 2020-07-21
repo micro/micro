@@ -103,7 +103,6 @@ func (a *Auth) setupDefaultAccount(ns string) error {
 	if !hasUser {
 		acc := defaultAccount
 		acc.Issuer = ns
-		logger.Info("Generating default account")
 		if err := a.createAccount(&acc); err != nil {
 			return err
 		}
