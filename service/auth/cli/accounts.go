@@ -72,8 +72,12 @@ func createAccount(ctx *cli.Context) error {
 	if len(ctx.String("secret")) > 0 {
 		options = append(options, auth.WithSecret(ctx.String("secret")))
 	}
-
-	acc, err := authFromContext(ctx).Generate(ctx.Args().First(), options...)
+	auth, err := authFromContext(ctx)
+	if err != nil {
+		fmt.Printf("Error getting auth: %v\n", err)
+		os.Exit(1)
+	}
+	acc, err := auth.Generate(ctx.Args().First(), options...)
 	if err != nil {
 		return fmt.Errorf("Error creating account: %v", err)
 	}
@@ -106,5 +110,10 @@ func deleteAccount(ctx *cli.Context) error {
 }
 
 func accountsFromContext(ctx *cli.Context) pb.AccountsService {
-	return pb.NewAccountsService("go.micro.auth", client.New(ctx))
+	cli, err := client.New(ctx)
+	if err != nil {
+		fmt.Printf("Error: %s\n", err)
+		os.Exit(1)
+	}
+	return pb.NewAccountsService("go.micro.auth", cli)
 }
