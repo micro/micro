@@ -4,6 +4,7 @@ package cli
 import (
 	"fmt"
 	"os"
+	osexec "os/exec"
 	"strings"
 
 	"github.com/chzyer/readline"
@@ -15,15 +16,8 @@ import (
 var (
 	prompt = "micro> "
 
-	commands = map[string]*command{
-		"services": {"services", "List services in the registry", listServices},
-		"quit":     {"quit", "Exit the CLI", quit},
-		"exit":     {"exit", "Exit the CLI", quit},
-		"call":     {"call", "Call a service", callService},
-		"stream":   {"stream", "Stream a call to a service", streamService},
-		"health":   {"health", "Get service health", queryHealth},
-		"stats":    {"stats", "Get service stats", queryStats},
-	}
+	// TODO: only run fixed set of commands for security purposes
+	commands = map[string]*command{}
 )
 
 type command struct {
@@ -33,11 +27,8 @@ type command struct {
 }
 
 func Run(c *cli.Context) error {
-	commands["help"] = &command{"help", "CLI usage", help}
-	alias := map[string]string{
-		"?":  "help",
-		"ls": "list",
-	}
+	// take the first arg as the binary
+	binary := os.Args[0]
 
 	r, err := readline.New(prompt)
 	if err != nil {
@@ -66,26 +57,15 @@ func Run(c *cli.Context) error {
 			continue
 		}
 
-		name := parts[0]
-
-		// get alias
-		if n, ok := alias[name]; ok {
-			name = n
-		}
-
-		if cmd, ok := commands[name]; ok {
-			rsp, err := cmd.exec(c, parts[1:])
-			if err != nil {
-				// TODO return err
-				println(err.Error())
-				continue
-			}
-			println(string(rsp))
-		} else {
-			// TODO return err
-			println("unknown command")
+		cmd := osexec.Command(binary, parts...)
+		cmd.Stdin = os.Stdin
+		cmd.Stdout = os.Stdout
+		cmd.Stderr = os.Stderr
+		if err := cmd.Run(); err != nil {
+			fmt.Println(string(err.(*osexec.ExitError).Stderr))
 		}
 	}
+
 	return nil
 }
 
