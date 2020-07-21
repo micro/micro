@@ -32,10 +32,27 @@ jobs:
     - name: Install micro
       run: |
         go install
-        
-    - name: Build container
+
+    - name: Setup docker registry
+      id: cache-docker
+      uses: actions/cache@v1
+      with:
+        path: /tmp/docker-registry
+        key: docker-registry-${{ hashFiles('Dockerfile') }}
       run: |
-        bash scripts/test-docker.sh
+        docker run -d -p 5000:5000 --restart=always --name registry -v /tmp/docker-registry:/var/lib/registry registry:2 && npx wait-on tcp:5000
+        docker pull localhost:5000/micro || true
+    - name: Build docker image
+        GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build
+        docker build -f test/Dockerfile . -t micro --cache-from=localhost:5000/micro
+    - name: Tag and push docker
+      run: |
+        docker tag micro localhost:5000/micro && docker push localhost:5000/micro || true
+      if: steps.cache.outputs.cache-hit != 'true'
+
+    # - name: Build container
+    #   run: |
+    #     bash scripts/test-docker.sh
 
     - name: Test micro server
       working-directory: ./test
