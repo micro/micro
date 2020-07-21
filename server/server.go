@@ -16,6 +16,7 @@ import (
 	"github.com/micro/go-micro/v2/util/file"
 	ccli "github.com/micro/micro/v2/client/cli"
 	"github.com/micro/micro/v2/internal/update"
+	"github.com/micro/micro/v2/service"
 )
 
 var (
@@ -227,9 +228,9 @@ func Run(context *cli.Context) error {
 	// start the console
 	// cli.Init(context)
 
-	server := micro.NewService(
-		micro.Name(Name),
-		micro.Address(Address),
+	server := service.New(
+		service.Name(Name),
+		service.Address(Address),
 	)
 
 	// @todo make this configurable
