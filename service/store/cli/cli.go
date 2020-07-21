@@ -7,12 +7,12 @@ package cli
 
 import (
 	"github.com/micro/cli/v2"
-	"github.com/micro/micro/v2/command"
+	"github.com/micro/micro/v2/cmd"
 	"github.com/micro/micro/v2/internal/helper"
 )
 
 func init() {
-	command.Register(&cli.Command{
+	cmd.Register(&cli.Command{
 		Name:   "store",
 		Action: helper.UnexpectedSubcommand,
 		Subcommands: []*cli.Command{

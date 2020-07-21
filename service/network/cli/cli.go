@@ -13,15 +13,15 @@ import (
 
 	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro/v2/client"
-	"github.com/micro/go-micro/v2/cmd"
+	mcmd "github.com/micro/go-micro/v2/cmd"
 	ccli "github.com/micro/micro/v2/client/cli"
-	"github.com/micro/micro/v2/command"
+	"github.com/micro/micro/v2/cmd"
 	clic "github.com/micro/micro/v2/internal/command/cli"
 	"github.com/olekukonko/tablewriter"
 )
 
 func init() {
-	command.Register(&cli.Command{
+	cmd.Register(&cli.Command{
 		Name: "network",
 		Subcommands: []*cli.Command{
 			{
@@ -108,7 +108,7 @@ func networkConnect(c *cli.Context, args []string) ([]byte, error) {
 		return nil, nil
 	}
 
-	cli := *cmd.DefaultCmd.Options().Client
+	cli := *mcmd.DefaultCmd.Options().Client
 
 	request := map[string]interface{}{
 		"nodes": []interface{}{
@@ -131,7 +131,7 @@ func networkConnect(c *cli.Context, args []string) ([]byte, error) {
 }
 
 func networkConnections(c *cli.Context, args []string) ([]byte, error) {
-	cli := *cmd.DefaultCmd.Options().Client
+	cli := *mcmd.DefaultCmd.Options().Client
 
 	request := map[string]interface{}{
 		"depth": 1,
@@ -177,7 +177,7 @@ func networkConnections(c *cli.Context, args []string) ([]byte, error) {
 }
 
 func networkGraph(c *cli.Context, args []string) ([]byte, error) {
-	cli := *cmd.DefaultCmd.Options().Client
+	cli := *mcmd.DefaultCmd.Options().Client
 
 	var rsp map[string]interface{}
 
@@ -192,7 +192,7 @@ func networkGraph(c *cli.Context, args []string) ([]byte, error) {
 }
 
 func networkNodes(c *cli.Context, args []string) ([]byte, error) {
-	cli := *cmd.DefaultCmd.Options().Client
+	cli := *mcmd.DefaultCmd.Options().Client
 
 	var rsp map[string]interface{}
 
@@ -234,7 +234,7 @@ func networkNodes(c *cli.Context, args []string) ([]byte, error) {
 }
 
 func networkRoutes(c *cli.Context, args []string) ([]byte, error) {
-	cli := (*cmd.DefaultCmd.Options().Client)
+	cli := (*mcmd.DefaultCmd.Options().Client)
 
 	query := map[string]string{}
 
@@ -319,7 +319,7 @@ func networkRoutes(c *cli.Context, args []string) ([]byte, error) {
 }
 
 func networkServices(c *cli.Context, args []string) ([]byte, error) {
-	cli := (*cmd.DefaultCmd.Options().Client)
+	cli := (*mcmd.DefaultCmd.Options().Client)
 
 	var rsp map[string]interface{}
 
