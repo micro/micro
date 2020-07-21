@@ -1,5 +1,18 @@
 FROM alpine:latest
 RUN apk --no-cache add make git go gcc libtool musl-dev curl
+# Configure Go
+ENV GOROOT /usr/lib/go
+ENV GOPATH /go
+ENV PATH /go/bin:$PATH
+RUN ls
+RUN mkdir -p ${GOPATH}/src ${GOPATH}/bin
+WORKDIR /app
+COPY . .
+RUN GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build .
+RUN ls
+
+FROM alpine:latest
+RUN apk --no-cache add make git go gcc libtool musl-dev curl
 
 # Configure Go
 ENV GOROOT /usr/lib/go
@@ -33,8 +46,7 @@ RUN cd ${GOPATH}/src/example-service && go get && \
     cd ${GOPATH}/src/config-example-service && go get && \
     go get github.com/micro/examples/helloworld
 
-# RUN go get github.com/crufter/micro-services/logspammer
 
-COPY ./micro /micro
+COPY --from=0 /app/micro /micro
 
 ENTRYPOINT ["sh", "/bin/run.sh"]
