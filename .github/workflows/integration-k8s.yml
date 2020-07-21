@@ -1,7 +1,3 @@
-# This integration test is unfinished.
-# The dream would be to ru the test suite after the tf apply
-# but it's fairly flaky still.
-
 name: K8s integration tests
 on: [push]
   # schedule:
@@ -11,7 +7,7 @@ on: [push]
 jobs:
 
   test:
-    name: Micro server integration tests
+    name: K8s integration tests
     runs-on: ubuntu-latest
     steps:
     - name: Checkout
@@ -45,6 +41,13 @@ jobs:
         kubectl get pods -n platform | awk '{print $1}' | xargs -n1 kubectl logs -n platform
     - name: Install Protoc
       uses: arduino/setup-protoc@master
+    - name: Enable caching
+      uses: actions/cache@v2
+      with:
+        path: ~/go/pkg/mod
+        key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+        restore-keys: |
+          ${{ runner.os }}-go-
     - name: Install micro
       run: |
         go install
