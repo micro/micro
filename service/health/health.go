@@ -6,7 +6,6 @@ import (
 	"net/http"
 
 	"github.com/micro/cli/v2"
-	"github.com/micro/go-micro/v2"
 	"github.com/micro/go-micro/v2/client"
 	proto "github.com/micro/go-micro/v2/debug/service/proto"
 	"github.com/micro/go-micro/v2/logger"
@@ -32,16 +31,12 @@ var Flags = []cli.Flag{
 }
 
 // Run micro health
-func Run(ctx *cli.Context, srvOpts ...micro.Option) {
+func Run(ctx *cli.Context) error {
 	// just check service health
 	if ctx.Args().Len() > 0 {
 		mcli.Print(qcli.QueryHealth)(ctx)
-		return
+		return nil
 	}
-
-	srvOpts = append([]micro.Option{
-		micro.Address(healthAddress),
-	}, srvOpts...)
 
 	serverName := ctx.String("check_service")
 	serverAddress := ctx.String("check_address")
@@ -73,4 +68,5 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 	if err := http.ListenAndServe(healthAddress, nil); err != nil {
 		logger.Fatal(err)
 	}
+	return nil
 }

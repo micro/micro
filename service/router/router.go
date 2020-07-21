@@ -11,6 +11,7 @@ import (
 	log "github.com/micro/go-micro/v2/logger"
 	"github.com/micro/go-micro/v2/router"
 	pb "github.com/micro/go-micro/v2/router/service/proto"
+	"github.com/micro/micro/v2/service"
 	"github.com/micro/micro/v2/service/router/handler"
 )
 
@@ -22,7 +23,7 @@ var (
 	// network is the network name
 	network = router.DefaultNetwork
 	// topic is router adverts topic
-	topic = "go.micro.router.adverts"
+	topic = "go.service.router.adverts"
 
 	// Flags specific to the router
 	Flags = []cli.Flag{
@@ -101,20 +102,20 @@ type rtr struct {
 }
 
 // newRouter creates new micro router and returns it
-func newRouter(service micro.Service, router router.Router) *rtr {
+func newRouter(srv *service.Service, router router.Router) *rtr {
 	s := &sub{
 		router: router,
 	}
 
 	// register subscriber
-	if err := micro.RegisterSubscriber(topic, service.Server(), s); err != nil {
+	if err := service.RegisterSubscriber(topic, srv.Server(), s); err != nil {
 		log.Errorf("failed to subscribe to adverts: %s", err)
 		os.Exit(1)
 	}
 
 	return &rtr{
 		Router:    router,
-		Publisher: micro.NewPublisher(topic, service.Client()),
+		Publisher: service.NewEvent(topic, srv.Client()),
 	}
 }
 
@@ -166,7 +167,7 @@ func (r *rtr) Close() error {
 }
 
 // Run the micro router
-func Run(ctx *cli.Context, srvOpts ...micro.Option) {
+func Run(ctx *cli.Context) error {
 	if len(ctx.String("server_name")) > 0 {
 		name = ctx.String("server_name")
 	}
@@ -199,25 +200,25 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 	}
 
 	// Initialise service
-	service := micro.NewService(
-		micro.Name(name),
-		micro.Address(address),
-		micro.RegisterTTL(time.Duration(ctx.Int("register_ttl"))*time.Second),
-		micro.RegisterInterval(time.Duration(ctx.Int("register_interval"))*time.Second),
+	srv := service.New(
+		service.Name(name),
+		service.Address(address),
+		service.RegisterTTL(time.Duration(ctx.Int("register_ttl"))*time.Second),
+		service.RegisterInterval(time.Duration(ctx.Int("register_interval"))*time.Second),
 	)
 
 	r := router.NewRouter(
-		router.Id(service.Server().Options().Id),
-		router.Address(service.Server().Options().Id),
+		router.Id(srv.Server().Options().Id),
+		router.Address(srv.Server().Options().Id),
 		router.Network(network),
-		router.Registry(service.Options().Registry),
+		router.Registry(srv.Options().Registry),
 		router.Gateway(gateway),
 		router.Advertise(strategy),
 	)
 
 	// register router handler
 	pb.RegisterRouterHandler(
-		service.Server(),
+		srv.Server(),
 		&handler.Router{
 			Router: r,
 		},
@@ -225,14 +226,14 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 
 	// register the table handler
 	pb.RegisterTableHandler(
-		service.Server(),
+		srv.Server(),
 		&handler.Table{
 			Router: r,
 		},
 	)
 
 	// create new micro router and start advertising routes
-	rtr := newRouter(service, r)
+	rtr := newRouter(srv, r)
 
 	log.Info("starting to advertise")
 
@@ -255,7 +256,7 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 	}()
 
 	go func() {
-		errChan <- service.Run()
+		errChan <- srv.Run()
 	}()
 
 	// we block here until either service or server fails
@@ -272,4 +273,5 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 	}
 
 	log.Info("successfully closed")
+	return nil
 }

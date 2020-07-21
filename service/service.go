@@ -1,6 +1,7 @@
 package service
 
 import (
+	"context"
 	"os"
 	"os/signal"
 	rtime "runtime"
@@ -245,4 +246,33 @@ func (s *Service) Run() error {
 	}
 
 	return s.Stop()
+}
+
+// RegisterHandler is syntactic sugar for registering a handler
+func RegisterHandler(s server.Server, h interface{}, opts ...server.HandlerOption) error {
+	return s.Handle(s.NewHandler(h, opts...))
+}
+
+// RegisterSubscriber is syntactic sugar for registering a subscriber
+func RegisterSubscriber(topic string, s server.Server, h interface{}, opts ...server.SubscriberOption) error {
+	return s.Subscribe(s.NewSubscriber(topic, h, opts...))
+}
+
+// Event is an object messages are published to
+type Event struct {
+	c     client.Client
+	topic string
+}
+
+// Publish a message to an event
+func (e *Event) Publish(ctx context.Context, msg interface{}, opts ...client.PublishOption) error {
+	return e.c.Publish(ctx, e.c.NewMessage(e.topic, msg), opts...)
+}
+
+// NewEvent creates a new event publisher
+func NewEvent(topic string, c client.Client) *Event {
+	if c == nil {
+		c = client.NewClient()
+	}
+	return &Event{c, topic}
 }
