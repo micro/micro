@@ -5,11 +5,11 @@ import (
 	"os"
 
 	"github.com/micro/cli/v2"
-	"github.com/micro/go-micro/v2"
 	"github.com/micro/go-micro/v2/cmd"
 	log "github.com/micro/go-micro/v2/logger"
 	"github.com/micro/go-micro/v2/runtime"
 	pb "github.com/micro/go-micro/v2/runtime/service/proto"
+	"github.com/micro/micro/v2/service"
 	"github.com/micro/micro/v2/service/runtime/handler"
 	"github.com/micro/micro/v2/service/runtime/manager"
 	"github.com/micro/micro/v2/service/runtime/profile"
@@ -42,7 +42,7 @@ var (
 )
 
 // Run the runtime service
-func Run(ctx *cli.Context, srvOpts ...micro.Option) {
+func Run(ctx *cli.Context) error {
 	// Get the profile
 	var prof []string
 	switch ctx.String("profile") {
@@ -66,8 +66,9 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 		name = ctx.String("server_name")
 	}
 
+	var srvOpts []service.Option
 	if len(address) > 0 {
-		srvOpts = append(srvOpts, micro.Address(address))
+		srvOpts = append(srvOpts, service.Address(address))
 	}
 
 	// create runtime
@@ -77,17 +78,17 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 	}
 
 	// append name
-	srvOpts = append(srvOpts, micro.Name(name))
+	srvOpts = append(srvOpts, service.Name(name))
 
 	// new service
-	service := micro.NewService(srvOpts...)
+	srv := service.New(srvOpts...)
 
 	// create a new runtime manager
 	manager := manager.New(muRuntime,
-		manager.Auth(service.Options().Auth),
-		manager.Store(service.Options().Store),
+		manager.Auth(srv.Options().Auth),
+		manager.Store(srv.Options().Store),
 		manager.Profile(prof),
-		manager.CacheStore(service.Options().Store),
+		manager.CacheStore(srv.Options().Store),
 	)
 
 	// start the manager
@@ -97,15 +98,15 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 	}
 
 	// register the runtime handler
-	pb.RegisterRuntimeHandler(service.Server(), &handler.Runtime{
+	pb.RegisterRuntimeHandler(srv.Server(), &handler.Runtime{
 		// Client to publish events
-		Client: micro.NewEvent("go.micro.runtime.events", service.Client()),
+		Client: service.NewEvent("go.micro.runtime.events", srv.Client()),
 		// using the micro runtime
 		Runtime: manager,
 	})
 
 	// start runtime service
-	if err := service.Run(); err != nil {
+	if err := srv.Run(); err != nil {
 		log.Errorf("error running service: %v", err)
 	}
 
@@ -114,4 +115,6 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 		log.Errorf("failed to stop: %s", err)
 		os.Exit(1)
 	}
+
+	return nil
 }

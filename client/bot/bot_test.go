@@ -10,8 +10,8 @@ import (
 	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro/v2/agent/command"
 	"github.com/micro/go-micro/v2/agent/input"
+	"github.com/micro/micro/v2/service"
 
-	"github.com/micro/go-micro/v2"
 	"github.com/micro/go-micro/v2/registry/memory"
 )
 
@@ -103,11 +103,11 @@ func TestBot(t *testing.T) {
 		}),
 	}
 
-	service := micro.NewService(
-		micro.Registry(memory.NewRegistry()),
+	srv := service.New(
+		service.Registry(memory.NewRegistry()),
 	)
 
-	bot := newBot(ctx, inputs, commands, service)
+	bot := newBot(ctx, inputs, commands, srv)
 
 	if err := bot.start(); err != nil {
 		t.Fatal(err)

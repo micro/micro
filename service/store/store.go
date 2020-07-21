@@ -2,9 +2,9 @@ package store
 
 import (
 	"github.com/micro/cli/v2"
-	"github.com/micro/go-micro/v2"
 	log "github.com/micro/go-micro/v2/logger"
 	pb "github.com/micro/go-micro/v2/store/service/proto"
+	"github.com/micro/micro/v2/service"
 	"github.com/micro/micro/v2/service/store/handler"
 )
 
@@ -16,7 +16,7 @@ var (
 )
 
 // Run micro store
-func Run(ctx *cli.Context, srvOpts ...micro.Option) {
+func Run(ctx *cli.Context) error {
 	if len(ctx.String("server_name")) > 0 {
 		name = ctx.String("server_name")
 	}
@@ -25,9 +25,9 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 	}
 
 	// Initialise service
-	service := micro.NewService(
-		micro.Name(name),
-		micro.Address(address),
+	service := service.New(
+		service.Name(name),
+		service.Address(address),
 	)
 
 	// the store handler
@@ -38,4 +38,5 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 	if err := service.Run(); err != nil {
 		log.Fatal(err)
 	}
+	return nil
 }

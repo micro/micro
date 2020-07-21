@@ -26,6 +26,7 @@ import (
 	"github.com/micro/go-micro/v2/sync/memory"
 	"github.com/micro/go-micro/v2/util/mux"
 	"github.com/micro/micro/v2/internal/helper"
+	"github.com/micro/micro/v2/service"
 )
 
 var (
@@ -43,7 +44,7 @@ var (
 	ACMECA                = acme.LetsEncryptProductionCA
 )
 
-func Run(ctx *cli.Context, srvOpts ...micro.Option) {
+func Run(ctx *cli.Context) error {
 	log.Init(log.WithFields(map[string]interface{}{"service": "proxy"}))
 
 	// because MICRO_PROXY_ADDRESS is used internally by the go-micro/client
@@ -66,11 +67,8 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 		ACMEProvider = ctx.String("acme_provider")
 	}
 
-	// service opts
-	srvOpts = append(srvOpts, micro.Name(Name))
-
 	// new service
-	service := micro.NewService(srvOpts...)
+	service := service.New(service.Name(Name))
 
 	// set the context
 	popts := []proxy.Option{
@@ -162,7 +160,7 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 		config, err := helper.TLSConfig(ctx)
 		if err != nil {
 			log.Fatal(err)
-			return
+			return err
 		}
 		serverOpts = append(serverOpts, server.TLSConfig(config))
 	}
@@ -220,6 +218,8 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 	if err := srv.Stop(); err != nil {
 		log.Fatal(err)
 	}
+
+	return nil
 }
 
 func Commands(options ...micro.Option) []*cli.Command {
@@ -243,10 +243,7 @@ func Commands(options ...micro.Option) []*cli.Command {
 				EnvVars: []string{"MICRO_PROXY_ENDPOINT"},
 			},
 		},
-		Action: func(ctx *cli.Context) error {
-			Run(ctx, options...)
-			return nil
-		},
+		Action: Run,
 	}
 
 	return []*cli.Command{command}
