@@ -9,7 +9,7 @@ import (
 	"github.com/micro/go-micro/v2/client"
 	proto "github.com/micro/go-micro/v2/debug/service/proto"
 	"github.com/micro/go-micro/v2/logger"
-	mcli "github.com/micro/micro/v2/client/cli"
+	"github.com/micro/micro/v2/client/cli/util"
 	qcli "github.com/micro/micro/v2/internal/command/cli"
 	"golang.org/x/net/context"
 )
@@ -34,7 +34,7 @@ var Flags = []cli.Flag{
 func Run(ctx *cli.Context) error {
 	// just check service health
 	if ctx.Args().Len() > 0 {
-		mcli.Print(qcli.QueryHealth)(ctx)
+		util.Print(qcli.QueryHealth)(ctx)
 		return nil
 	}
 

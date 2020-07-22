@@ -14,7 +14,7 @@ import (
 	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro/v2/client"
 	mcmd "github.com/micro/go-micro/v2/cmd"
-	ccli "github.com/micro/micro/v2/client/cli"
+	"github.com/micro/micro/v2/client/cli/util"
 	"github.com/micro/micro/v2/cmd"
 	clic "github.com/micro/micro/v2/internal/command/cli"
 	"github.com/olekukonko/tablewriter"
@@ -27,27 +27,27 @@ func init() {
 			{
 				Name:   "connect",
 				Usage:  "connect to the network. specify nodes e.g connect ip:port",
-				Action: ccli.Print(networkConnect),
+				Action: util.Print(networkConnect),
 			},
 			{
 				Name:   "connections",
 				Usage:  "List the immediate connections to the network",
-				Action: ccli.Print(networkConnections),
+				Action: util.Print(networkConnections),
 			},
 			{
 				Name:   "graph",
 				Usage:  "Get the network graph",
-				Action: ccli.Print(networkGraph),
+				Action: util.Print(networkGraph),
 			},
 			{
 				Name:   "nodes",
 				Usage:  "List nodes in the network",
-				Action: ccli.Print(networkNodes),
+				Action: util.Print(networkNodes),
 			},
 			{
 				Name:   "routes",
 				Usage:  "List network routes",
-				Action: ccli.Print(networkRoutes),
+				Action: util.Print(networkRoutes),
 				Flags: []cli.Flag{
 					&cli.StringFlag{
 						Name:  "service",
@@ -74,13 +74,13 @@ func init() {
 			{
 				Name:   "services",
 				Usage:  "Get the network services",
-				Action: ccli.Print(networkServices),
+				Action: util.Print(networkServices),
 			},
 			// TODO: duplicates call. Move so we reuse same stuff.
 			{
 				Name:   "call",
 				Usage:  "Call a service e.g micro call greeter Say.Hello '{\"name\": \"John\"}",
-				Action: ccli.Print(netCall),
+				Action: util.Print(netCall),
 				Flags: []cli.Flag{
 					&cli.StringFlag{
 						Name:    "address",

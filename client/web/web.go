@@ -17,7 +17,6 @@ import (
 	"github.com/go-acme/lego/v3/providers/dns/cloudflare"
 	"github.com/gorilla/mux"
 	"github.com/micro/cli/v2"
-	"github.com/micro/go-micro/v2"
 	res "github.com/micro/go-micro/v2/api/resolver"
 	"github.com/micro/go-micro/v2/api/resolver/subdomain"
 	"github.com/micro/go-micro/v2/api/server"
@@ -31,6 +30,7 @@ import (
 	"github.com/micro/go-micro/v2/registry"
 	"github.com/micro/go-micro/v2/sync/memory"
 	apiAuth "github.com/micro/micro/v2/client/api/auth"
+	"github.com/micro/micro/v2/cmd"
 	inauth "github.com/micro/micro/v2/internal/auth"
 	"github.com/micro/micro/v2/internal/handler"
 	"github.com/micro/micro/v2/internal/helper"
@@ -402,8 +402,6 @@ func (s *srv) render(w http.ResponseWriter, r *http.Request, tmpl string, data i
 }
 
 func Run(ctx *cli.Context) error {
-	log.Init(log.WithFields(map[string]interface{}{"service": "web"}))
-
 	if len(ctx.String("server_name")) > 0 {
 		Name = ctx.String("server_name")
 	}
@@ -415,6 +413,15 @@ func Run(ctx *cli.Context) error {
 	}
 	if len(ctx.String("type")) > 0 {
 		Type = ctx.String("type")
+	}
+	if len(ctx.String("web_address")) > 0 {
+		Address = ctx.String("web_address")
+	}
+	if len(ctx.String("web_namespace")) > 0 {
+		Namespace = ctx.String("web_namespace")
+	}
+	if len(ctx.String("web_host")) > 0 {
+		Host = ctx.String("web_host")
 	}
 	if len(ctx.String("namespace")) > 0 {
 		// remove the service type from the namespace to allow for
@@ -566,9 +573,8 @@ func Run(ctx *cli.Context) error {
 	return nil
 }
 
-//Commands for `micro web`
-func Commands(options ...micro.Option) []*cli.Command {
-	command := &cli.Command{
+func init() {
+	cmd.Register(&cli.Command{
 		Name:   "web",
 		Usage:  "Run the web dashboard",
 		Action: Run,
@@ -594,9 +600,7 @@ func Commands(options ...micro.Option) []*cli.Command {
 				Usage:   "The relative URL where a user can login",
 			},
 		},
-	}
-
-	return []*cli.Command{command}
+	})
 }
 
 func reverse(s []string) {
