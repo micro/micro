@@ -40,7 +40,7 @@ func Signup(ctx *cli.Context) error {
 	cli, err := client.New(ctx)
 	if err != nil {
 		fmt.Printf("Error processing signup: %s\n", err)
-		report.Errorf(ctx, "Error processing signup: %s", err)
+		report.Errorf(ctx, "%v: Error processing signup: %s", email, err)
 		os.Exit(1)
 	}
 
@@ -51,7 +51,7 @@ func Signup(ctx *cli.Context) error {
 	}, cl.WithRequestTimeout(10*time.Second))
 	if err != nil {
 		fmt.Printf("Error sending email during signup: %s\n", err)
-		report.Errorf(ctx, "Error sending email during signup: %s", err)
+		report.Errorf(ctx, "%v: Error sending email during signup: %s", email, err)
 		os.Exit(1)
 	}
 
@@ -66,7 +66,7 @@ func Signup(ctx *cli.Context) error {
 	}, cl.WithRequestTimeout(10*time.Second))
 	if err != nil {
 		fmt.Printf("Error verifying: %s\n", err)
-		report.Errorf(ctx, "Error verifying: %s", err)
+		report.Errorf(ctx, "%v: Error verifying: %s", email, err)
 		os.Exit(1)
 	}
 
@@ -90,6 +90,7 @@ func Signup(ctx *cli.Context) error {
 			return err
 		}
 		fmt.Println("Successfully logged in.")
+		report.Success(ctx, email)
 		return nil
 	}
 
@@ -162,6 +163,7 @@ func Signup(ctx *cli.Context) error {
 	// the user has now signed up and logged in
 	// @todo save the namespace from the last call and use that.
 	fmt.Println("Successfully logged in.")
+	report.Success(ctx, email)
 	return nil
 }
 

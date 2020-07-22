@@ -24,7 +24,7 @@ const (
 	envToTrack   = "staging"
 )
 
-// Error is a helper function: it prints an error, records events an exits the CLI
+// Error is a helper function to record error events
 func Error(ctx *cli.Context, a ...interface{}) {
 	env := util.GetEnv(ctx)
 	if env.Name != envToTrack {
@@ -40,7 +40,7 @@ func Error(ctx *cli.Context, a ...interface{}) {
 	}
 }
 
-// Errorf is a helper function: it prints an error, records events an exits the CLI
+// Errorf is a helper function to record error events
 func Errorf(ctx *cli.Context, format string, a ...interface{}) {
 	env := util.GetEnv(ctx)
 	if env.Name != envToTrack {
@@ -49,6 +49,38 @@ func Errorf(ctx *cli.Context, format string, a ...interface{}) {
 	err := TrackEvent(TrackingData{
 		Category: getTrackingCategory(ctx),
 		Action:   "error",
+		Label:    fmt.Sprintf(format, a...),
+	})
+	if err != nil {
+		fmt.Println(err)
+	}
+}
+
+// Success is a helper function to record success events
+func Success(ctx *cli.Context, a ...interface{}) {
+	env := util.GetEnv(ctx)
+	if env.Name != envToTrack {
+		return
+	}
+	err := TrackEvent(TrackingData{
+		Category: getTrackingCategory(ctx),
+		Action:   "success",
+		Label:    fmt.Sprint(a...),
+	})
+	if err != nil {
+		fmt.Println(err)
+	}
+}
+
+// Successf is a helper function to record success events
+func Successf(ctx *cli.Context, format string, a ...interface{}) {
+	env := util.GetEnv(ctx)
+	if env.Name != envToTrack {
+		return
+	}
+	err := TrackEvent(TrackingData{
+		Category: getTrackingCategory(ctx),
+		Action:   "success",
 		Label:    fmt.Sprintf(format, a...),
 	})
 	if err != nil {
