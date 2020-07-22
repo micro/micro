@@ -241,7 +241,7 @@ func Run() {
 	app := cmd.App()
 
 	// register commands
-	app.Commands = append(app.Commands, cliCommands...)
+	app.Commands = append(app.Commands, commands...)
 	sort.Slice(app.Commands, func(i, j int) bool {
 		return app.Commands[i].Name < app.Commands[j].Name
 	})
