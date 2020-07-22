@@ -6,6 +6,8 @@ jobs:
   test:
     name: M3O integration tests
     runs-on: ubuntu-latest
+    env: 
+      DOCKER_BUILDKIT: '1'
     steps:
 
     - name: Set up Go 1.13
