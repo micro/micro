@@ -34,7 +34,8 @@ jobs:
     - name: Install micro
       run: |
         go install # this is used by the tests themselves
-        cp $GOBIN/micro .
+        which micro
+        cp `which micro` .
     # This sets up a local docker registry to cache 
     # Based on https://dev.to/dtinth/caching-docker-builds-in-github-actions-which-approach-is-the-fastest-a-research-18ei
     - name: Setup docker caching
