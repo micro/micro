@@ -35,7 +35,8 @@ jobs:
     - name: Install micro
       run: |
         go install # this is used by the tests themselves
-        cp `which micro` .
+        GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build
+
     # This sets up a local docker registry to cache 
     # Based on https://dev.to/dtinth/caching-docker-builds-in-github-actions-which-approach-is-the-fastest-a-research-18ei
     - name: Setup docker caching
