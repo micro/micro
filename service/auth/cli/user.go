@@ -36,7 +36,7 @@ func user(ctx *cli.Context) error {
 
 	acc, err := a.Inspect(token)
 	if err != nil {
-		fmt.Println("failure", err)
+		fmt.Println(err)
 		os.Exit(1)
 	}
 
