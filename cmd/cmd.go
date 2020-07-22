@@ -27,15 +27,10 @@ var (
 
 	// description of the binary
 	description = "A framework for cloud native development\n\n	 Use `micro [command] --help` to see command specific help."
+
+	// list of commands
+	commands []*ccli.Command
 )
-
-type commands []*ccli.Command
-
-func (s commands) Len() int      { return len(s) }
-func (s commands) Swap(i, j int) { s[i], s[j] = s[j], s[i] }
-func (s commands) Less(i, j int) bool {
-	return s[i].Name < s[j].Name
-}
 
 func setup(app *ccli.App) {
 	app.Flags = append(app.Flags,
@@ -247,7 +242,9 @@ func Run() {
 
 	// register commands
 	app.Commands = append(app.Commands, cliCommands...)
-	sort.Sort(commands(app.Commands))
+	sort.Slice(app.Commands, func(i, j int) bool {
+		return app.Commands[i].Name < app.Commands[j].Name
+	})
 
 	// boot micro runtime
 	app.Action = func(c *ccli.Context) error {
@@ -303,4 +300,9 @@ func Run() {
 		fmt.Println(err)
 		os.Exit(1)
 	}
+}
+
+// Register CLI commands
+func Register(cmds ...*ccli.Command) {
+	commands = append(commands, cmds...)
 }
