@@ -19,6 +19,14 @@ jobs:
       with:
         go-version: 1.13
       id: go
+    - name: Install Protoc
+      uses: arduino/setup-protoc@master
+    - name: Install micro
+      id: install-micro
+      run: |
+        go install &
+        echo "::set-output pid=date::$(echo $!)"
+    
     # http://man7.org/linux/man-pages/man1/date.1.html
     - name: Get Date
       id: get-date
@@ -49,6 +57,13 @@ jobs:
     - name: Setup docker registry
       run: |
         docker run -d -p 5000:5000 --restart=always --name kind-registry -v /tmp/docker-registry:/var/lib/registry registry:2 && npx wait-on tcp:5000
+    # Now let's build an image and push to our local registry. We do this in the background because it takes a while. Remember to wait for it later
+    - name: Build and push to local registry
+      id: build-push-reg
+      run: |
+        (docker build -f Dockerfile . -t micro --cache-from=localhost:5000/micro --build-arg BUILDKIT_INLINE_CACHE=1 && docker tag micro localhost:5000/micro && docker push localhost:5000/micro) &
+        echo "::set-output pid=date::$(echo $!)"
+
     - name: Setup Kind
       uses: engineerd/setup-kind@v0.4.0
       with:
@@ -59,17 +74,18 @@ jobs:
         docker network connect "kind" "kind-registry"
         for node in $(kind get nodes); do kubectl annotate node "${node}" "kind.x-k8s.io/registry=localhost:5000"; done
 
-    # Now let's build an image and push to our local registry
-    - name: Push to local registry
-      run: |
-        docker build -f Dockerfile . -t micro --cache-from=localhost:5000/micro --build-arg BUILDKIT_INLINE_CACHE=1
-        docker tag micro localhost:5000/micro && docker push localhost:5000/micro
     - name: Update the image
       run: |
         bash .github/workflows/update-image.sh
     - name: Install the prerequisites
       run: |
         bash .github/workflows/kind-prereqs.sh
+    - name: Wait for micro install result
+      run: |
+        wait ${{ steps.install-micro.outputs.pid }} 
+    - name: Wait for build and push result
+      run: |
+        wait ${{ steps.build-push-reg.outputs.pid }}
 
     # Everything is set up so let's install the platform
     - name: Install the platform
@@ -80,12 +96,7 @@ jobs:
       run: |
         kubectl get pods -n platform | awk '{print $1}' | xargs -n1 kubectl logs -n platform
 
-    # Finally, we can actually build and run the tests
-    - name: Install Protoc
-      uses: arduino/setup-protoc@master
-    - name: Install micro
-      run: |
-        go install
+    # Finally, we can actually run the tests
     - name: Test micro server
       working-directory: ./test
       env:
