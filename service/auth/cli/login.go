@@ -10,6 +10,7 @@ import (
 	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro/v2/auth"
 	"github.com/micro/micro/v2/client/cli/namespace"
+	"github.com/micro/micro/v2/client/cli/report"
 	"github.com/micro/micro/v2/client/cli/token"
 	"github.com/micro/micro/v2/client/cli/util"
 	platform "github.com/micro/micro/v2/platform/cli"
@@ -70,7 +71,9 @@ func login(ctx *cli.Context) error {
 	}
 	tok, err := authSrv.Token(auth.WithCredentials(email, password), auth.WithTokenIssuer(ns))
 	if err != nil {
-		return err
+		fmt.Println(err)
+		report.Error(ctx, err.Error())
+		os.Exit(1)
 	}
 	token.Save(env.Name, tok)
 
