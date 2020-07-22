@@ -8,29 +8,22 @@ import (
 )
 
 var (
-	// UserCommands defines a set of commands specific to user config
-	UserCommands = []*cli.Command{
+	// Commands defines a set of commands for local config
+	Commands = []*cli.Command{
 		{
-			// TODO: implement `micro user config` which outputs the config
-			Name:        "config",
-			Description: "Manage user related config like id, token, namespace, etc",
-			Subcommands: []*cli.Command{
-				{
-					Name:   "get",
-					Usage:  "Get a value; micro user config get key",
-					Action: get,
-				},
-				{
-					Name:   "set",
-					Usage:  "Set a key-val; micro user config set key val",
-					Action: set,
-				},
-				{
-					Name:   "delete",
-					Usage:  "Delete a value; micro user config delete key",
-					Action: del,
-				},
-			},
+			Name:   "get",
+			Usage:  "Get a value by specifying [key] as an arg",
+			Action: get,
+		},
+		{
+			Name:   "set",
+			Usage:  "Set a key-val using [key] [value] as args",
+			Action: set,
+		},
+		{
+			Name:   "delete",
+			Usage:  "Delete a value using [key] as an arg",
+			Action: del,
 		},
 	}
 )
