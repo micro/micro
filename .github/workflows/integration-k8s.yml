@@ -29,7 +29,7 @@ jobs:
       uses: engineerd/setup-kind@v0.4.0
       with:
         config: scripts/kind-config.yaml
-        version: 0.8.1
+        version: v0.8.1
     - name: Finish Kind registry setup
       run: |
         docker network ls
