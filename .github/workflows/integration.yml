@@ -33,7 +33,9 @@ jobs:
 
     - name: Install micro
       run: |
+        pwd
         GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build # this is used by the Docker image
+        ls 
         go install # this is used by the tests themselves
 
     # This sets up a local docker registry to cache 
@@ -52,6 +54,8 @@ jobs:
         docker pull localhost:5000/micro || true
     - name: Build docker image
       run: |
+        pwd
+        ls
         docker build -f test/Dockerfile . -t micro --cache-from=localhost:5000/micro
     - name: Tag and push docker
       run: |
