@@ -106,6 +106,12 @@ func (a *Auth) Delete(ctx context.Context, req *pb.DeleteAccountRequest, rsp *pb
 	if err := a.Options.Store.Delete(key); err != nil {
 		return errors.BadRequest("go.micro.auth.Accounts.Delete", "Error deleting account: %v", err)
 	}
+
+	// Clear the namespace cache, since the accounts for this namespace could now be empty
+	a.Lock()
+	delete(a.namespaces, req.Options.Namespace)
+	a.Unlock()
+
 	return nil
 }
 

@@ -7,7 +7,6 @@ import (
 
 	"github.com/go-acme/lego/v3/providers/dns/cloudflare"
 	"github.com/micro/cli/v2"
-	"github.com/micro/go-micro/v2"
 	"github.com/micro/go-micro/v2/api/server/acme"
 	"github.com/micro/go-micro/v2/api/server/acme/autocert"
 	"github.com/micro/go-micro/v2/api/server/acme/certmagic"
@@ -16,8 +15,6 @@ import (
 	mucli "github.com/micro/go-micro/v2/client"
 	log "github.com/micro/go-micro/v2/logger"
 	"github.com/micro/go-micro/v2/proxy"
-
-	//"github.com/micro/go-micro/v2/proxy/grpc"
 	"github.com/micro/go-micro/v2/proxy/http"
 	"github.com/micro/go-micro/v2/proxy/mucp"
 	rmem "github.com/micro/go-micro/v2/registry/memory"
@@ -25,6 +22,7 @@ import (
 	sgrpc "github.com/micro/go-micro/v2/server/grpc"
 	"github.com/micro/go-micro/v2/sync/memory"
 	"github.com/micro/go-micro/v2/util/mux"
+	"github.com/micro/micro/v2/cmd"
 	"github.com/micro/micro/v2/internal/helper"
 	"github.com/micro/micro/v2/service"
 )
@@ -45,17 +43,17 @@ var (
 )
 
 func Run(ctx *cli.Context) error {
-	log.Init(log.WithFields(map[string]interface{}{"service": "proxy"}))
-
 	// because MICRO_PROXY_ADDRESS is used internally by the go-micro/client
 	// we need to unset it so we don't end up calling ourselves infinitely
 	os.Unsetenv("MICRO_PROXY_ADDRESS")
-
 	if len(ctx.String("server_name")) > 0 {
 		Name = ctx.String("server_name")
 	}
 	if len(ctx.String("address")) > 0 {
 		Address = ctx.String("address")
+	}
+	if len(ctx.String("proxy_address")) > 0 {
+		Address = ctx.String("proxy_address")
 	}
 	if len(ctx.String("endpoint")) > 0 {
 		Endpoint = ctx.String("endpoint")
@@ -222,8 +220,8 @@ func Run(ctx *cli.Context) error {
 	return nil
 }
 
-func Commands(options ...micro.Option) []*cli.Command {
-	command := &cli.Command{
+func init() {
+	cmd.Register(&cli.Command{
 		Name:  "proxy",
 		Usage: "Run the service proxy",
 		Flags: []cli.Flag{
@@ -244,7 +242,5 @@ func Commands(options ...micro.Option) []*cli.Command {
 			},
 		},
 		Action: Run,
-	}
-
-	return []*cli.Command{command}
+	})
 }

@@ -3,11 +3,11 @@ package debug
 
 import (
 	"github.com/micro/cli/v2"
-	"github.com/micro/go-micro/v2"
 	"github.com/micro/go-micro/v2/debug/log"
 	"github.com/micro/go-micro/v2/debug/log/kubernetes"
 	dservice "github.com/micro/go-micro/v2/debug/service"
 	"github.com/micro/go-micro/v2/logger"
+	"github.com/micro/micro/v2/service"
 	logHandler "github.com/micro/micro/v2/service/debug/log/handler"
 	pblog "github.com/micro/micro/v2/service/debug/log/proto"
 	statshandler "github.com/micro/micro/v2/service/debug/stats/handler"
@@ -36,9 +36,9 @@ var (
 // Run micro debug
 func Run(ctx *cli.Context) error {
 	// new service
-	service := micro.NewService(
-		micro.Name(name),
-		micro.Address(address),
+	srv := service.New(
+		service.Name(name),
+		service.Address(address),
 	)
 
 	// default log initialiser
@@ -83,7 +83,7 @@ func Run(ctx *cli.Context) error {
 	}
 
 	// Register the logs handler
-	pblog.RegisterLogHandler(service.Server(), lgHandler)
+	pblog.RegisterLogHandler(srv.Server(), lgHandler)
 
 	// stats handler
 	statsHandler, err := statshandler.New(done, ctx.Int("window"), c.services)
@@ -98,14 +98,14 @@ func Run(ctx *cli.Context) error {
 	}
 
 	// Register the stats handler
-	pbstats.RegisterStatsHandler(service.Server(), statsHandler)
+	pbstats.RegisterStatsHandler(srv.Server(), statsHandler)
 	// register trace handler
-	pbtrace.RegisterTraceHandler(service.Server(), traceHandler)
+	pbtrace.RegisterTraceHandler(srv.Server(), traceHandler)
 
 	// TODO: implement debug service for k8s cruft
 
 	// start debug service
-	if err := service.Run(); err != nil {
+	if err := srv.Run(); err != nil {
 		logger.Fatal(err)
 	}
 	return nil

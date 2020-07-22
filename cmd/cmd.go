@@ -7,30 +7,15 @@ import (
 	"sort"
 
 	ccli "github.com/micro/cli/v2"
-	"github.com/micro/go-micro/v2"
 	"github.com/micro/go-micro/v2/cmd"
 	gostore "github.com/micro/go-micro/v2/store"
-	"github.com/micro/micro/v2/plugin"
-	"github.com/micro/micro/v2/server"
-
-	// clients
-	"github.com/micro/micro/v2/client/api"
-	"github.com/micro/micro/v2/client/bot"
-	"github.com/micro/micro/v2/client/cli"
-	"github.com/micro/micro/v2/client/cli/new"
 	"github.com/micro/micro/v2/client/cli/util"
-	"github.com/micro/micro/v2/client/proxy"
-	"github.com/micro/micro/v2/client/web"
-
-	// internals
 	inauth "github.com/micro/micro/v2/internal/auth"
 	"github.com/micro/micro/v2/internal/helper"
 	_ "github.com/micro/micro/v2/internal/plugins"
 	"github.com/micro/micro/v2/internal/update"
 	_ "github.com/micro/micro/v2/internal/usage"
-
-	// platform related commands
-	platform "github.com/micro/micro/v2/platform/cli"
+	"github.com/micro/micro/v2/plugin"
 )
 
 var (
@@ -42,15 +27,10 @@ var (
 
 	// description of the binary
 	description = "A framework for cloud native development\n\n	 Use `micro [command] --help` to see command specific help."
+
+	// list of commands
+	commands []*ccli.Command
 )
-
-type commands []*ccli.Command
-
-func (s commands) Len() int      { return len(s) }
-func (s commands) Swap(i, j int) { s[i], s[j] = s[j], s[i] }
-func (s commands) Less(i, j int) bool {
-	return s[i].Name < s[j].Name
-}
 
 func setup(app *ccli.App) {
 	app.Flags = append(app.Flags,
@@ -199,29 +179,6 @@ func setup(app *ccli.App) {
 	before := app.Before
 
 	app.Before = func(ctx *ccli.Context) error {
-
-		if len(ctx.String("api_handler")) > 0 {
-			api.Handler = ctx.String("api_handler")
-		}
-		if len(ctx.String("api_address")) > 0 {
-			api.Address = ctx.String("api_address")
-		}
-		if len(ctx.String("proxy_address")) > 0 {
-			proxy.Address = ctx.String("proxy_address")
-		}
-		if len(ctx.String("web_address")) > 0 {
-			web.Address = ctx.String("web_address")
-		}
-		if len(ctx.String("api_namespace")) > 0 {
-			api.Namespace = ctx.String("api_namespace")
-		}
-		if len(ctx.String("web_namespace")) > 0 {
-			web.Namespace = ctx.String("web_namespace")
-		}
-		if len(ctx.String("web_host")) > 0 {
-			web.Host = ctx.String("web_host")
-		}
-
 		for _, p := range plugins {
 			if err := p.Init(ctx); err != nil {
 				return err
@@ -279,26 +236,15 @@ func setup(app *ccli.App) {
 }
 
 // Run executes the command line
-func Run(options ...micro.Option) {
+func Run() {
 	// get the app
 	app := cmd.App()
 
 	// register commands
-	app.Commands = append(app.Commands, cliCommands...)
-
-	// Add the client commmands
-	app.Commands = append(app.Commands, api.Commands()...)
-	app.Commands = append(app.Commands, web.Commands()...)
-	app.Commands = append(app.Commands, proxy.Commands()...)
-	app.Commands = append(app.Commands, bot.Commands()...)
-	app.Commands = append(app.Commands, cli.Commands()...)
-
-	// Add the service commands
-	app.Commands = append(app.Commands, new.Commands()...)
-	app.Commands = append(app.Commands, server.Commands(options...)...)
-	app.Commands = append(app.Commands, platform.Commands(options...)...)
-
-	sort.Sort(commands(app.Commands))
+	app.Commands = append(app.Commands, commands...)
+	sort.Slice(app.Commands, func(i, j int) bool {
+		return app.Commands[i].Name < app.Commands[j].Name
+	})
 
 	// boot micro runtime
 	app.Action = func(c *ccli.Context) error {
@@ -354,4 +300,9 @@ func Run(options ...micro.Option) {
 		fmt.Println(err)
 		os.Exit(1)
 	}
+}
+
+// Register CLI commands
+func Register(cmds ...*ccli.Command) {
+	commands = append(commands, cmds...)
 }
