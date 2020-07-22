@@ -1,5 +1,7 @@
 package main
 
+//go:generate ./.github/generate.sh
+
 import (
 	"github.com/micro/micro/v2/cmd"
 
