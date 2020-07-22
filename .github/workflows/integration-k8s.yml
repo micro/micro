@@ -19,23 +19,23 @@ jobs:
       with:
         go-version: 1.13
       id: go
-    - name: Enable caching
-      # We would use the official actions/cache@v2, but it doesn't save the cache if the build fails
-      # caches are scoped to a branch but will also check the default branch upon cache miss
-      uses: pat-s/always-upload-cache@v2.0.0 
-      with:
-        path: ~/go/pkg/mod
-        key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
-        restore-keys: |
-          ${{ runner.os }}-go-
-
-    # We set up a local docker registry to push to and pull from. We need to set up the Kind cluster to pull from this
     # http://man7.org/linux/man-pages/man1/date.1.html
     - name: Get Date
       id: get-date
       run: |
         echo "::set-output name=date::$(/bin/date -u "+%s")"
       shell: bash
+    - name: Enable caching
+      # We would use the official actions/cache@v2, but it doesn't save the cache if the build fails
+      # caches are scoped to a branch but will also check the default branch upon cache miss
+      uses: pat-s/always-upload-cache@v2.0.0 
+      with:
+        path: ~/go/pkg/mod
+        key: ${{ runner.os }}-go-kind-${{ steps.get-date.outputs.date }}
+        restore-keys: |
+          ${{ runner.os }}-go-kind-
+
+    # We set up a local docker registry to push to and pull from. We need to set up the Kind cluster to pull from this
     - name: Setup docker caching
       id: cache-docker
       # We would use the official actions/cache@v2, but it doesn't save the cache if the build fails

@@ -19,15 +19,21 @@ jobs:
     - name: Check out code
       uses: actions/checkout@v2
 
+    # http://man7.org/linux/man-pages/man1/date.1.html
+    - name: Get Date
+      id: get-date
+      run: |
+        echo "::set-output name=date::$(/bin/date -u "+%s")"
+      shell: bash
     - name: Enable caching
       # We would use the official actions/cache@v2, but it doesn't save the cache if the build fails
       # caches are scoped to a branch but will also check the default branch upon cache miss
       uses: pat-s/always-upload-cache@v2.0.0 
       with:
         path: ~/go/pkg/mod
-        key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+        key: ${{ runner.os }}-go-m3o-${{ steps.get-date.outputs.date }}
         restore-keys: |
-          ${{ runner.os }}-go-
+          ${{ runner.os }}-go-m3o-
     
     - name: Install Protoc
       uses: arduino/setup-protoc@master
@@ -39,12 +45,6 @@ jobs:
 
     # This sets up a local docker registry to cache the images
     # Based on https://dev.to/dtinth/caching-docker-builds-in-github-actions-which-approach-is-the-fastest-a-research-18ei
-    # http://man7.org/linux/man-pages/man1/date.1.html
-    - name: Get Date
-      id: get-date
-      run: |
-        echo "::set-output name=date::$(/bin/date -u "+%s")"
-      shell: bash
     - name: Setup docker caching
       id: cache-docker
       # We would use the official actions/cache@v2, but it doesn't save the cache if the build fails
