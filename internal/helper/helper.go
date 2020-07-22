@@ -72,7 +72,7 @@ func TLSConfig(ctx *cli.Context) (*tls.Config, error) {
 
 // UnexpectedSubcommand checks for erroneous subcommands and prints help and returns error
 func UnexpectedSubcommand(ctx *cli.Context) error {
-	if first := MicroSubCommand(ctx); first != "" {
+	if first := MicroSubcommand(ctx); first != "" {
 		// received something that isn't a subcommand
 		return fmt.Errorf("Unrecognized subcommand for %s: %s. Please refer to '%s --help'", ctx.App.Name, first, ctx.App.Name)
 	}
