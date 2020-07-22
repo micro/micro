@@ -37,7 +37,7 @@ jobs:
         go install # this is used by the tests themselves
         GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build
 
-    # This sets up a local docker registry to cache 
+    # This sets up a local docker registry to cache the images
     # Based on https://dev.to/dtinth/caching-docker-builds-in-github-actions-which-approach-is-the-fastest-a-research-18ei
     # http://man7.org/linux/man-pages/man1/date.1.html
     - name: Get Date
