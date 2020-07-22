@@ -7,9 +7,10 @@ import (
 	"github.com/micro/go-micro/v2/errors"
 	log "github.com/micro/go-micro/v2/logger"
 	"github.com/micro/go-micro/v2/network"
-	pbNet "github.com/micro/go-micro/v2/network/service/proto"
 	"github.com/micro/go-micro/v2/router"
-	pbRtr "github.com/micro/go-micro/v2/router/service/proto"
+	pb "github.com/micro/micro/v2/service/network/proto"
+	"github.com/micro/micro/v2/service/network/util"
+	pbRtr "github.com/micro/micro/v2/service/router/proto"
 )
 
 // Network implements network handler
@@ -49,7 +50,7 @@ func flatten(n network.Node, visited map[string]bool) []network.Node {
 	return nodes
 }
 
-func (n *Network) Connect(ctx context.Context, req *pbNet.ConnectRequest, resp *pbNet.ConnectResponse) error {
+func (n *Network) Connect(ctx context.Context, req *pb.ConnectRequest, resp *pb.ConnectResponse) error {
 	if len(req.Nodes) == 0 {
 		return nil
 	}
@@ -94,7 +95,7 @@ func (n *Network) Connect(ctx context.Context, req *pbNet.ConnectRequest, resp *
 }
 
 // Nodes returns the list of nodes
-func (n *Network) Nodes(ctx context.Context, req *pbNet.NodesRequest, resp *pbNet.NodesResponse) error {
+func (n *Network) Nodes(ctx context.Context, req *pb.NodesRequest, resp *pb.NodesResponse) error {
 	// root node
 	nodes := map[string]network.Node{}
 
@@ -113,7 +114,7 @@ func (n *Network) Nodes(ctx context.Context, req *pbNet.NodesRequest, resp *pbNe
 		// add to visited list
 		nodes[n.Network.Id()] = peer
 
-		resp.Nodes = append(resp.Nodes, &pbNet.Node{
+		resp.Nodes = append(resp.Nodes, &pb.Node{
 			Id:      peer.Id(),
 			Address: peer.Address(),
 		})
@@ -123,14 +124,14 @@ func (n *Network) Nodes(ctx context.Context, req *pbNet.NodesRequest, resp *pbNe
 }
 
 // Graph returns the network graph from this root node
-func (n *Network) Graph(ctx context.Context, req *pbNet.GraphRequest, resp *pbNet.GraphResponse) error {
+func (n *Network) Graph(ctx context.Context, req *pb.GraphRequest, resp *pb.GraphResponse) error {
 	depth := uint(req.Depth)
 	if depth <= 0 || depth > network.MaxDepth {
 		depth = network.MaxDepth
 	}
 
 	// get peers encoded into protobuf
-	peers := network.PeersToProto(n.Network, depth)
+	peers := util.PeersToProto(n.Network, depth)
 
 	// set the root node
 	resp.Root = peers
@@ -139,7 +140,7 @@ func (n *Network) Graph(ctx context.Context, req *pbNet.GraphRequest, resp *pbNe
 }
 
 // Routes returns a list of routing table routes
-func (n *Network) Routes(ctx context.Context, req *pbNet.RoutesRequest, resp *pbNet.RoutesResponse) error {
+func (n *Network) Routes(ctx context.Context, req *pb.RoutesRequest, resp *pb.RoutesResponse) error {
 	// build query
 
 	var qOpts []router.QueryOption
@@ -187,7 +188,7 @@ func (n *Network) Routes(ctx context.Context, req *pbNet.RoutesRequest, resp *pb
 }
 
 // Services returns a list of services based on the routing table
-func (n *Network) Services(ctx context.Context, req *pbNet.ServicesRequest, resp *pbNet.ServicesResponse) error {
+func (n *Network) Services(ctx context.Context, req *pb.ServicesRequest, resp *pb.ServicesResponse) error {
 	routes, err := n.Network.Options().Router.Table().List()
 	if err != nil {
 		return errors.InternalServerError("go.micro.network", "failed to list services: %s", err)

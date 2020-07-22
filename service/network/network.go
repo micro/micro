@@ -10,7 +10,7 @@ import (
 
 	"github.com/micro/cli/v2"
 	log "github.com/micro/go-micro/v2/logger"
-	net "github.com/micro/go-micro/v2/network"
+	"github.com/micro/go-micro/v2/network"
 	res "github.com/micro/go-micro/v2/network/resolver"
 	"github.com/micro/go-micro/v2/network/resolver/dns"
 	"github.com/micro/go-micro/v2/network/resolver/http"
@@ -32,7 +32,7 @@ var (
 	// name of the network service
 	name = "go.micro.network"
 	// name of the micro network
-	network = "go.micro"
+	networkName = "go.micro"
 	// address is the network address
 	address = ":8085"
 	// set the advertise address
@@ -94,7 +94,7 @@ func Run(ctx *cli.Context) error {
 		advertise = ctx.String("advertise")
 	}
 	if len(ctx.String("network")) > 0 {
-		network = ctx.String("network")
+		networkName = ctx.String("network")
 	}
 	if len(ctx.String("token")) > 0 {
 		token = ctx.String("token")
@@ -164,7 +164,7 @@ func Run(ctx *cli.Context) error {
 
 	// local tunnel router
 	rtr := router.NewRouter(
-		router.Network(network),
+		router.Network(networkName),
 		router.Id(id),
 		router.Registry(service.Options().Registry),
 		router.Advertise(strategy),
@@ -172,15 +172,15 @@ func Run(ctx *cli.Context) error {
 	)
 
 	// create new network
-	n := net.NewNetwork(
-		net.Id(id),
-		net.Name(network),
-		net.Address(address),
-		net.Advertise(advertise),
-		net.Nodes(nodes...),
-		net.Tunnel(tun),
-		net.Router(rtr),
-		net.Resolver(r),
+	n := network.NewNetwork(
+		network.Id(id),
+		network.Name(networkName),
+		network.Address(address),
+		network.Advertise(advertise),
+		network.Nodes(nodes...),
+		network.Tunnel(tun),
+		network.Router(rtr),
+		network.Resolver(r),
 	)
 
 	// local proxy
@@ -215,7 +215,7 @@ func Run(ctx *cli.Context) error {
 	}
 
 	// netClose hard exits if we have problems
-	netClose := func(net net.Network) error {
+	netClose := func(net network.Network) error {
 		errChan := make(chan error, 1)
 
 		go func() {
@@ -230,10 +230,10 @@ func Run(ctx *cli.Context) error {
 		}
 	}
 
-	log.Infof("Network [%s] listening on %s", network, address)
+	log.Infof("Network [%s] listening on %s", networkName, address)
 
 	if err := service.Run(); err != nil {
-		log.Errorf("Network %s failed: %v", network, err)
+		log.Errorf("Network %s failed: %v", networkName, err)
 		netClose(n)
 		os.Exit(1)
 	}
