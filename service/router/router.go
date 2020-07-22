@@ -2,10 +2,10 @@ package router
 
 import (
 	"github.com/micro/go-micro/v2/router"
-	"github.com/micro/go-micro/v2/router/service"
+	"github.com/micro/micro/v2/service/router/client"
 )
 
 var (
 	// DefaultRouter implementation
-	DefaultRouter router.Router = service.NewRouter()
+	DefaultRouter router.Router = client.NewRouter()
 )

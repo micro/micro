@@ -11,8 +11,8 @@ import (
 
 	"github.com/micro/go-micro/v2/errors"
 	"github.com/micro/go-micro/v2/store"
-	pb "github.com/micro/go-micro/v2/store/service/proto"
 	"github.com/micro/micro/v2/internal/namespace"
+	pb "github.com/micro/micro/v2/service/store/proto"
 )
 
 const (

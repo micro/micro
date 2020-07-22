@@ -6,10 +6,10 @@ import (
 	"strings"
 
 	"github.com/micro/go-micro/v2/auth"
-	pb "github.com/micro/go-micro/v2/auth/service/proto"
 	"github.com/micro/go-micro/v2/errors"
 	"github.com/micro/go-micro/v2/store"
 	"github.com/micro/micro/v2/internal/namespace"
+	pb "github.com/micro/micro/v2/service/auth/proto"
 )
 
 // List returns all auth accounts

@@ -2,10 +2,10 @@ package config
 
 import (
 	"github.com/micro/go-micro/v2/config"
-	"github.com/micro/go-micro/v2/config/source/service"
+	"github.com/micro/micro/v2/service/config/client"
 )
 
 // DefaultConfig implementation
 var DefaultConfig, _ = config.NewConfig(
-	config.WithSource(service.NewSource()),
+	config.WithSource(client.NewSource()),
 )

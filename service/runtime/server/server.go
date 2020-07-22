@@ -7,11 +7,11 @@ import (
 	"github.com/micro/go-micro/v2/cmd"
 	log "github.com/micro/go-micro/v2/logger"
 	"github.com/micro/go-micro/v2/runtime"
-	pb "github.com/micro/go-micro/v2/runtime/service/proto"
 	"github.com/micro/micro/v2/service"
 	"github.com/micro/micro/v2/service/auth"
 	"github.com/micro/micro/v2/service/runtime/manager"
 	"github.com/micro/micro/v2/service/runtime/profile"
+	pb "github.com/micro/micro/v2/service/runtime/proto"
 	"github.com/micro/micro/v2/service/store"
 )
 

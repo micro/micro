@@ -7,10 +7,10 @@ import (
 	"github.com/micro/cli/v2"
 	log "github.com/micro/go-micro/v2/logger"
 	"github.com/micro/go-micro/v2/registry"
-	regSrv "github.com/micro/go-micro/v2/registry/service"
-	pb "github.com/micro/go-micro/v2/registry/service/proto"
 	"github.com/micro/micro/v2/service"
 	mureg "github.com/micro/micro/v2/service/registry"
+	pb "github.com/micro/micro/v2/service/registry/proto"
+	"github.com/micro/micro/v2/service/registry/util"
 )
 
 var (
@@ -45,7 +45,7 @@ func (s *subscriber) Process(ctx context.Context, event *pb.Event) error {
 	}
 
 	// decode protobuf to registry.Service
-	svc := regSrv.ToService(event.Service)
+	svc := util.ToService(event.Service)
 
 	// default ttl to 1 minute
 	ttl := time.Minute

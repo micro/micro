@@ -7,7 +7,6 @@ import (
 
 	ccli "github.com/micro/cli/v2"
 	"github.com/micro/go-micro/v2/auth"
-	srvAuth "github.com/micro/go-micro/v2/auth/service"
 	"github.com/micro/go-micro/v2/client"
 	"github.com/micro/go-micro/v2/client/grpc"
 	"github.com/micro/go-micro/v2/cmd"
@@ -69,12 +68,7 @@ func (a *wrapper) Call(ctx context.Context, req client.Request, rsp interface{},
 }
 
 func (a *wrapper) authFromContext(ctx *ccli.Context) auth.Auth {
-	if cliutil.IsLocal(ctx) {
-		return *cmd.DefaultCmd.Options().Auth
-	}
-	return srvAuth.NewAuth(
-		auth.WithClient(a),
-	)
+	return *cmd.DefaultCmd.Options().Auth
 }
 
 // getAccessToken handles exchanging refresh tokens to access tokens

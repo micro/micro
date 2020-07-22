@@ -3,7 +3,7 @@ package server
 import (
 	"errors"
 
-	proto "github.com/micro/go-micro/v2/config/source/service/proto"
+	proto "github.com/micro/micro/v2/service/config/proto"
 )
 
 type watcher struct {

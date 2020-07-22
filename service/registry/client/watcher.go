@@ -3,6 +3,7 @@ package client
 import (
 	"github.com/micro/go-micro/v2/registry"
 	pb "github.com/micro/micro/v2/service/registry/proto"
+	"github.com/micro/micro/v2/service/registry/util"
 )
 
 type serviceWatcher struct {
@@ -25,7 +26,7 @@ func (s *serviceWatcher) Next() (*registry.Result, error) {
 
 	return &registry.Result{
 		Action:  r.Action,
-		Service: ToService(r.Service),
+		Service: util.ToService(r.Service),
 	}, nil
 }
 

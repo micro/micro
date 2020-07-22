@@ -9,6 +9,7 @@ import (
 	"github.com/micro/go-micro/v2/errors"
 	"github.com/micro/go-micro/v2/registry"
 	pb "github.com/micro/micro/v2/service/registry/proto"
+	"github.com/micro/micro/v2/service/registry/util"
 )
 
 type srv struct {
@@ -54,7 +55,7 @@ func (s *srv) Init(opts ...registry.Option) error {
 		cli = grpc.NewClient()
 	}
 
-	s.client = pb.NewRegistryService(name, cli)
+	s.client = pb.NewRegistryService("go.micro.registry", cli)
 
 	return nil
 }
@@ -73,7 +74,7 @@ func (s *srv) Register(srv *registry.Service, opts ...registry.RegisterOption) e
 	}
 
 	// encode srv into protobuf and pack TTL and domain into it
-	pbSrv := ToProto(srv)
+	pbSrv := util.ToProto(srv)
 	pbSrv.Options.Ttl = int64(options.TTL.Seconds())
 	pbSrv.Options.Domain = options.Domain
 
@@ -92,7 +93,7 @@ func (s *srv) Deregister(srv *registry.Service, opts ...registry.DeregisterOptio
 	}
 
 	// encode srv into protobuf and pack domain into it
-	pbSrv := ToProto(srv)
+	pbSrv := util.ToProto(srv)
 	pbSrv.Options.Domain = options.Domain
 
 	// deregister the service
@@ -121,7 +122,7 @@ func (s *srv) GetService(name string, opts ...registry.GetOption) ([]*registry.S
 
 	services := make([]*registry.Service, 0, len(rsp.Services))
 	for _, service := range rsp.Services {
-		services = append(services, ToService(service))
+		services = append(services, util.ToService(service))
 	}
 	return services, nil
 }
@@ -143,7 +144,7 @@ func (s *srv) ListServices(opts ...registry.ListOption) ([]*registry.Service, er
 
 	services := make([]*registry.Service, 0, len(rsp.Services))
 	for _, service := range rsp.Services {
-		services = append(services, ToService(service))
+		services = append(services, util.ToService(service))
 	}
 
 	return services, nil
@@ -197,6 +198,8 @@ func NewRegistry(opts ...registry.Option) registry.Registry {
 	} else {
 		cli = grpc.NewClient()
 	}
+
+	name := "go.micro.registry"
 
 	return &srv{
 		opts:    options,

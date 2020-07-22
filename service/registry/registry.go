@@ -3,10 +3,10 @@ package registry
 
 import (
 	"github.com/micro/go-micro/v2/registry"
-	"github.com/micro/go-micro/v2/registry/service"
+	"github.com/micro/micro/v2/service/registry/client"
 )
 
 var (
 	// DefaultRegistry implementation
-	DefaultRegistry registry.Registry = service.NewRegistry()
+	DefaultRegistry registry.Registry = client.NewRegistry()
 )

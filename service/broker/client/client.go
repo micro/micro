@@ -10,6 +10,11 @@ import (
 	pb "github.com/micro/micro/v2/service/broker/proto"
 )
 
+var (
+	name    = "go.micro.broker"
+	address = ":8001"
+)
+
 type serviceBroker struct {
 	Addrs   []string
 	Client  pb.BrokerService
@@ -135,8 +140,10 @@ func NewBroker(opts ...broker.Option) broker.Broker {
 
 	// get options client from the context. We set this in the context to prevent an import loop, as
 	// the client depends on the broker
-	if c, ok := options.Context.Value(clientKey{}).(client.Client); ok {
-		cli = c
+	if options.Context != nil {
+		if c, ok := options.Context.Value(clientKey{}).(client.Client); ok {
+			cli = c
+		}
 	}
 
 	return &serviceBroker{

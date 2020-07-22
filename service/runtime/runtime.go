@@ -3,10 +3,10 @@ package runtime
 
 import (
 	"github.com/micro/go-micro/v2/runtime"
-	"github.com/micro/go-micro/v2/runtime/service"
+	"github.com/micro/micro/v2/service/runtime/client"
 )
 
 var (
 	// DefaultRuntime implementation
-	DefaultRuntime runtime.Runtime = service.NewRuntime()
+	DefaultRuntime runtime.Runtime = client.NewRuntime()
 )

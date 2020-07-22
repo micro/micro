@@ -7,10 +7,10 @@ import (
 	"github.com/micro/go-micro/v2/errors"
 	log "github.com/micro/go-micro/v2/logger"
 	"github.com/micro/go-micro/v2/registry"
-	regSrv "github.com/micro/go-micro/v2/registry/service"
-	pb "github.com/micro/go-micro/v2/registry/service/proto"
 	"github.com/micro/micro/v2/internal/namespace"
 	"github.com/micro/micro/v2/service"
+	pb "github.com/micro/micro/v2/service/registry/proto"
+	"github.com/micro/micro/v2/service/registry/util"
 )
 
 type Registry struct {
@@ -82,7 +82,7 @@ func (r *Registry) GetService(ctx context.Context, req *pb.GetRequest, rsp *pb.G
 	// serialize the response
 	rsp.Services = make([]*pb.Service, len(services))
 	for i, srv := range services {
-		rsp.Services[i] = regSrv.ToProto(srv)
+		rsp.Services[i] = util.ToProto(srv)
 	}
 
 	return nil
@@ -115,7 +115,7 @@ func (r *Registry) Register(ctx context.Context, req *pb.Service, rsp *pb.EmptyR
 	}
 
 	// register the service
-	if err := r.Registry.Register(regSrv.ToService(req), opts...); err != nil {
+	if err := r.Registry.Register(util.ToService(req), opts...); err != nil {
 		return errors.InternalServerError("go.micro.registry", err.Error())
 	}
 
@@ -145,7 +145,7 @@ func (r *Registry) Deregister(ctx context.Context, req *pb.Service, rsp *pb.Empt
 	}
 
 	// deregister the service
-	if err := r.Registry.Deregister(regSrv.ToService(req), registry.DeregisterDomain(domain)); err != nil {
+	if err := r.Registry.Deregister(util.ToService(req), registry.DeregisterDomain(domain)); err != nil {
 		return errors.InternalServerError("go.micro.registry", err.Error())
 	}
 
@@ -184,7 +184,7 @@ func (r *Registry) ListServices(ctx context.Context, req *pb.ListRequest, rsp *p
 	// serialize the response
 	rsp.Services = make([]*pb.Service, len(services))
 	for i, srv := range services {
-		rsp.Services[i] = regSrv.ToProto(srv)
+		rsp.Services[i] = util.ToProto(srv)
 	}
 
 	return nil
@@ -224,7 +224,7 @@ func (r *Registry) Watch(ctx context.Context, req *pb.WatchRequest, rsp pb.Regis
 
 		err = rsp.Send(&pb.Result{
 			Action:  next.Action,
-			Service: regSrv.ToProto(next.Service),
+			Service: util.ToProto(next.Service),
 		})
 		if err != nil {
 			return errors.InternalServerError("go.micro.registry", err.Error())

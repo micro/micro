@@ -19,7 +19,6 @@ import (
 	log "github.com/micro/go-micro/v2/logger"
 	"github.com/micro/go-micro/v2/runtime"
 	"github.com/micro/go-micro/v2/runtime/local/git"
-	srvRuntime "github.com/micro/go-micro/v2/runtime/service"
 	"github.com/micro/go-micro/v2/util/file"
 	"github.com/micro/micro/v2/client/cli/namespace"
 	"github.com/micro/micro/v2/client/cli/util"
@@ -64,15 +63,7 @@ func timeAgo(v string) string {
 }
 
 func runtimeFromContext(ctx *cli.Context) runtime.Runtime {
-	if cliutil.IsLocal(ctx) {
-		return *cmd.DefaultCmd.Options().Runtime
-	}
-	cli, err := client.New(ctx)
-	if err != nil {
-		fmt.Printf("Error: %s\n", err)
-		os.Exit(1)
-	}
-	return srvRuntime.NewRuntime(runtime.WithClient(cli))
+	return *cmd.DefaultCmd.Options().Runtime
 }
 
 // exists returns whether the given file or directory exists

@@ -10,7 +10,7 @@ import (
 
 	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro/v2/auth"
-	pb "github.com/micro/go-micro/v2/auth/service/proto"
+	pb "github.com/micro/micro/v2/service/auth/proto"
 	"github.com/micro/micro/v2/client/cli/namespace"
 	"github.com/micro/micro/v2/client/cli/util"
 	"github.com/micro/micro/v2/internal/client"

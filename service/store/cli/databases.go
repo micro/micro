@@ -5,10 +5,10 @@ import (
 	"fmt"
 
 	"github.com/micro/cli/v2"
-	storeproto "github.com/micro/go-micro/v2/store/service/proto"
 	"github.com/micro/micro/v2/client/cli/namespace"
 	"github.com/micro/micro/v2/client/cli/util"
 	inclient "github.com/micro/micro/v2/internal/client"
+	pb "github.com/micro/micro/v2/service/store/proto"
 )
 
 // databases is the entrypoint for micro store databases
@@ -17,8 +17,8 @@ func databases(ctx *cli.Context) error {
 	if err != nil {
 		return err
 	}
-	dbReq := client.NewRequest(ctx.String("store"), "Store.Databases", &storeproto.DatabasesRequest{})
-	dbRsp := &storeproto.DatabasesResponse{}
+	dbReq := client.NewRequest(ctx.String("store"), "Store.Databases", &pb.DatabasesRequest{})
+	dbRsp := &pb.DatabasesResponse{}
 	if err := client.Call(context.TODO(), dbReq, dbRsp); err != nil {
 		return err
 	}
@@ -39,10 +39,10 @@ func tables(ctx *cli.Context) error {
 	if err != nil {
 		return err
 	}
-	tReq := client.NewRequest(ctx.String("store"), "Store.Tables", &storeproto.TablesRequest{
+	tReq := client.NewRequest(ctx.String("store"), "Store.Tables", &pb.TablesRequest{
 		Database: ns,
 	})
-	tRsp := &storeproto.TablesResponse{}
+	tRsp := &pb.TablesResponse{}
 	if err := client.Call(context.TODO(), tReq, tRsp); err != nil {
 		return err
 	}

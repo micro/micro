@@ -3,12 +3,12 @@ package server
 import (
 	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro/v2/auth"
-	pb "github.com/micro/go-micro/v2/auth/service/proto"
 	log "github.com/micro/go-micro/v2/logger"
 	"github.com/micro/go-micro/v2/store"
 	"github.com/micro/go-micro/v2/util/token"
 	"github.com/micro/go-micro/v2/util/token/jwt"
 	"github.com/micro/micro/v2/service"
+	pb "github.com/micro/micro/v2/service/auth/proto"
 	authHandler "github.com/micro/micro/v2/service/auth/server/auth"
 	rulesHandler "github.com/micro/micro/v2/service/auth/server/rules"
 	mustore "github.com/micro/micro/v2/service/store"

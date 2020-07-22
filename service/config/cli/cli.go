@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/micro/cli/v2"
-	proto "github.com/micro/go-micro/v2/config/source/service/proto"
+	proto "github.com/micro/micro/v2/service/config/proto"
 	log "github.com/micro/go-micro/v2/logger"
 	"github.com/micro/micro/v2/client/cli/namespace"
 	"github.com/micro/micro/v2/client/cli/util"

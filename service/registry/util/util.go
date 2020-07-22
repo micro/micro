@@ -1,4 +1,4 @@
-package client
+package util
 
 import (
 	"github.com/micro/go-micro/v2/registry"

@@ -6,13 +6,13 @@ import (
 
 	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro/v2/broker"
-	pb "github.com/micro/go-micro/v2/broker/service/proto"
 	"github.com/micro/go-micro/v2/errors"
 	"github.com/micro/go-micro/v2/logger"
 	log "github.com/micro/go-micro/v2/logger"
 	"github.com/micro/micro/v2/internal/namespace"
 	"github.com/micro/micro/v2/service"
 	mubroker "github.com/micro/micro/v2/service/broker"
+	pb "github.com/micro/micro/v2/service/broker/proto"
 )
 
 var (

@@ -10,7 +10,6 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/micro/go-micro/v2/auth"
-	pb "github.com/micro/go-micro/v2/auth/service/proto"
 	"github.com/micro/go-micro/v2/errors"
 	"github.com/micro/go-micro/v2/logger"
 	"github.com/micro/go-micro/v2/store"
@@ -18,6 +17,7 @@ import (
 	"github.com/micro/go-micro/v2/util/token"
 	"github.com/micro/go-micro/v2/util/token/basic"
 	"github.com/micro/micro/v2/internal/namespace"
+	pb "github.com/micro/micro/v2/service/auth/proto"
 	"golang.org/x/crypto/bcrypt"
 )
 

@@ -18,7 +18,6 @@ import (
 	proto "github.com/micro/go-micro/v2/debug/service/proto"
 	"github.com/micro/go-micro/v2/metadata"
 	"github.com/micro/go-micro/v2/registry"
-	"github.com/micro/go-micro/v2/registry/service"
 	"github.com/micro/micro/v2/client/cli/namespace"
 	"github.com/micro/micro/v2/client/cli/util"
 	inclient "github.com/micro/micro/v2/internal/client"
@@ -186,11 +185,6 @@ func RegisterService(c *cli.Context, args []string) ([]byte, error) {
 	}
 
 	reg := *cmd.DefaultCmd.Options().Registry
-	cli, err := inclient.New(c)
-	if err != nil {
-		return nil, err
-	}
-	reg.Init(service.WithClient(cli))
 	if err := reg.Register(srv); err != nil {
 		return nil, err
 	}
@@ -215,11 +209,7 @@ func DeregisterService(c *cli.Context, args []string) ([]byte, error) {
 	}
 
 	reg := *cmd.DefaultCmd.Options().Registry
-	cli, err := inclient.New(c)
-	if err != nil {
-		return nil, err
-	}
-	reg.Init(service.WithClient(cli))
+
 	if err := reg.Deregister(srv); err != nil {
 		return nil, err
 	}
@@ -241,16 +231,11 @@ func GetService(c *cli.Context, args []string) ([]byte, error) {
 	var srv []*registry.Service
 
 	reg := *cmd.DefaultCmd.Options().Registry
-	cli, err := inclient.New(c)
-	if err != nil {
-		return nil, err
-	}
-	reg.Init(service.WithClient(cli))
+
 	srv, err = reg.GetService(args[0], registry.GetDomain(ns))
 	if err != nil {
 		return nil, err
 	}
-
 	if len(srv) == 0 {
 		return nil, errors.New("Service not found")
 	}
@@ -320,11 +305,7 @@ func ListServices(c *cli.Context) ([]byte, error) {
 	}
 
 	reg := *cmd.DefaultCmd.Options().Registry
-	cli, err := inclient.New(c)
-	if err != nil {
-		return nil, err
-	}
-	reg.Init(service.WithClient(cli))
+
 	rsp, err = reg.ListServices(registry.ListDomain(ns))
 	if err != nil {
 		return nil, err
@@ -333,7 +314,6 @@ func ListServices(c *cli.Context) ([]byte, error) {
 	sort.Sort(sortedServices{rsp})
 
 	var services []string
-
 	for _, service := range rsp {
 		services = append(services, service.Name)
 	}
@@ -467,11 +447,7 @@ func QueryHealth(c *cli.Context, args []string) ([]byte, error) {
 
 	// otherwise get the service and call each instance individually
 	reg := *cmd.DefaultCmd.Options().Registry
-	cli, err := inclient.New(c)
-	if err != nil {
-		return nil, err
-	}
-	reg.Init(service.WithClient(cli))
+
 	service, err := reg.GetService(args[0], registry.GetDomain(ns))
 	if err != nil {
 		return nil, err
@@ -482,7 +458,6 @@ func QueryHealth(c *cli.Context, args []string) ([]byte, error) {
 	}
 
 	var output []string
-
 	// print things
 	output = append(output, "service  "+service[0].Name)
 
@@ -530,11 +505,7 @@ func QueryStats(c *cli.Context, args []string) ([]byte, error) {
 	}
 
 	reg := *cmd.DefaultCmd.Options().Registry
-	cli, err := inclient.New(c)
-	if err != nil {
-		return nil, err
-	}
-	reg.Init(service.WithClient(cli))
+
 	service, err := reg.GetService(args[0], registry.GetDomain(ns))
 	if err != nil {
 		return nil, err
@@ -548,8 +519,7 @@ func QueryStats(c *cli.Context, args []string) ([]byte, error) {
 
 	var output []string
 
-	// print things
-	output = append(output, "service  "+service[0].Name)
+	// print things	output = append(output, "service  "+service[0].Name)
 
 	for _, serv := range service {
 		// print things

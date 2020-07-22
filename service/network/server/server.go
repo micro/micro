@@ -24,6 +24,7 @@ import (
 	"github.com/micro/go-micro/v2/util/mux"
 	"github.com/micro/micro/v2/internal/helper"
 	"github.com/micro/micro/v2/service"
+	"github.com/micro/micro/v2/service/network/client"
 	muregistry "github.com/micro/micro/v2/service/registry"
 )
 
@@ -171,7 +172,7 @@ func Run(ctx *cli.Context) error {
 	)
 
 	// create new network
-	n := net.NewNetwork(
+	n := client.NewNetwork(
 		net.Id(id),
 		net.Name(networkName),
 		net.Address(address),
