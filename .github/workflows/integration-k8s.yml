@@ -9,23 +9,39 @@ jobs:
   test:
     name: K8s integration tests
     runs-on: ubuntu-latest
+    env: 
+      DOCKER_BUILDKIT: '1'
     steps:
     - name: Checkout
       uses: actions/checkout@v1
+    - name: Setup docker caching
+      id: cache-docker
+      # We would use the official actions/cache@v2, but it doesn't save the cache if the build fails
+      # caches are scoped to a branch but will also check the default branch upon cache miss
+      uses: pat-s/always-upload-cache@v2.0.0
+      with:
+        path: /tmp/docker-registry
+        key: docker-registry-kind-${{ hashFiles('test/Dockerfile') }}
+    - name: Setup docker registry
+      run: |
+        docker run -d -p 5000:5000 --restart=always --name kind-registry -v /tmp/docker-registry:/var/lib/registry registry:2 && npx wait-on tcp:5000
     - name: Setup Kind
       uses: engineerd/setup-kind@v0.4.0
+      with:
+        config: scripts/kind-config.yaml
+    - name: Finish Kind registry setup
+      run: |
+        docker network connect "kind" "kind-registry"
+        for node in $(kind get nodes); do kubectl annotate node "${node}" "kind.x-k8s.io/registry=localhost:5000"; done
     - name: Set up Go 1.13
       uses: actions/setup-go@v2
       with:
         go-version: 1.13
       id: go
-    - name: Publish to Registry
-      uses: elgohr/Publish-Docker-Github-Action@master
-      with:
-        name: micro/integbuilds
-        username: ${{ secrets.DOCKER_USERNAME }}
-        password: ${{ secrets.DOCKER_PASSWORD }}
-        tag_names: true 
+    - name: Push to local registry
+      run: |
+        docker build -f Dockerfile . -t micro --cache-from=localhost:5000/micro --build-arg BUILDKIT_INLINE_CACHE=1
+        docker tag micro localhost:5000/micro && docker push localhost:5000/micro
     - name: Update the image
       run: |
         bash .github/workflows/update-image.sh
