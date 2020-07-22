@@ -75,64 +75,6 @@ func callContext(c *cli.Context) context.Context {
 	return metadata.NewContext(context.Background(), callMD)
 }
 
-func RegisterService(c *cli.Context, args []string) ([]byte, error) {
-	if len(args) == 0 {
-		return nil, errors.New("require service definition")
-	}
-
-	req := strings.Join(args, " ")
-
-	var srv *registry.Service
-
-	d := json.NewDecoder(strings.NewReader(req))
-	d.UseNumber()
-
-	if err := d.Decode(&srv); err != nil {
-		return nil, err
-	}
-
-	reg := *cmd.DefaultCmd.Options().Registry
-	cli, err := inclient.New(c)
-	if err != nil {
-		return nil, err
-	}
-	reg.Init(service.WithClient(cli))
-	if err := reg.Register(srv); err != nil {
-		return nil, err
-	}
-
-	return []byte("ok"), nil
-}
-
-func DeregisterService(c *cli.Context, args []string) ([]byte, error) {
-	if len(args) == 0 {
-		return nil, errors.New("require service definition")
-	}
-
-	req := strings.Join(args, " ")
-
-	var srv *registry.Service
-
-	d := json.NewDecoder(strings.NewReader(req))
-	d.UseNumber()
-
-	if err := d.Decode(&srv); err != nil {
-		return nil, err
-	}
-
-	reg := *cmd.DefaultCmd.Options().Registry
-	cli, err := inclient.New(c)
-	if err != nil {
-		return nil, err
-	}
-	reg.Init(service.WithClient(cli))
-	if err := reg.Deregister(srv); err != nil {
-		return nil, err
-	}
-
-	return []byte("ok"), nil
-}
-
 func GetService(c *cli.Context, args []string) ([]byte, error) {
 	if len(args) == 0 {
 		return nil, errors.New("service required")

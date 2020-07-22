@@ -47,12 +47,10 @@ var (
 		"^time$":                             Time,
 		"^hello$":                            Hello,
 		"^ping$":                             Ping,
-		"^list ":                             List,
+		"^services$":                         List,
 		"^get ":                              Get,
 		"^health ":                           Health,
 		"^call ":                             Call,
-		"^register ":                         Register,
-		"^deregister ":                       Deregister,
 		"^(the )?three laws( of robotics)?$": ThreeLaws,
 	}
 )
