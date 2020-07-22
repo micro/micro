@@ -39,6 +39,12 @@ jobs:
 
     # This sets up a local docker registry to cache 
     # Based on https://dev.to/dtinth/caching-docker-builds-in-github-actions-which-approach-is-the-fastest-a-research-18ei
+    # http://man7.org/linux/man-pages/man1/date.1.html
+    - name: Get Date
+      id: get-date
+      run: |
+        echo "::set-output name=date::$(/bin/date -u "+%Y%m%d")"
+      shell: bash
     - name: Setup docker caching
       id: cache-docker
       # We would use the official actions/cache@v2, but it doesn't save the cache if the build fails
@@ -46,7 +52,9 @@ jobs:
       uses: pat-s/always-upload-cache@v2.0.0
       with:
         path: /tmp/docker-registry
-        key: docker-registry-m3o-${{ hashFiles('test/Dockerfile') }}
+        key: docker-registry-m3o-${{ steps.get-date.outputs.date }}
+        restore-keys: |
+          docker-registry-m3o-
     - name: Setup docker registry
       run: |
         docker run -d -p 5000:5000 --restart=always --name registry -v /tmp/docker-registry:/var/lib/registry registry:2 && npx wait-on tcp:5000

@@ -14,6 +14,14 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v1
+
+    # We set up a local docker registry to push to and pull from. We need to set up the Kind cluster to pull from this
+    # http://man7.org/linux/man-pages/man1/date.1.html
+    - name: Get Date
+      id: get-date
+      run: |
+        echo "::set-output name=date::$(/bin/date -u "+%Y%m%d")"
+      shell: bash
     - name: Setup docker caching
       id: cache-docker
       # We would use the official actions/cache@v2, but it doesn't save the cache if the build fails
@@ -21,7 +29,9 @@ jobs:
       uses: pat-s/always-upload-cache@v2.0.0
       with:
         path: /tmp/docker-registry
-        key: docker-registry-kind-${{ hashFiles('Dockerfile') }}
+        key: docker-registry-kind-${{ steps.get-date.outputs.date }}
+        restore-keys: |
+          docker-registry-kind-
     - name: Setup docker registry
       run: |
         docker run -d -p 5000:5000 --restart=always --name kind-registry -v /tmp/docker-registry:/var/lib/registry registry:2 && npx wait-on tcp:5000
@@ -32,9 +42,10 @@ jobs:
         version: v0.8.1
     - name: Finish Kind registry setup
       run: |
-        docker network ls
         docker network connect "kind" "kind-registry"
         for node in $(kind get nodes); do kubectl annotate node "${node}" "kind.x-k8s.io/registry=localhost:5000"; done
+
+    # Now let's build an image and push to our local registry
     - name: Set up Go 1.13
       uses: actions/setup-go@v2
       with:
@@ -50,6 +61,8 @@ jobs:
     - name: Install the prerequisites
       run: |
         bash .github/workflows/kind-prereqs.sh
+
+    # Everything is set up so let's install the platform
     - name: Install the platform
       run: |
         bash scripts/kind-launch.sh
@@ -57,6 +70,8 @@ jobs:
       if: ${{ failure() }}
       run: |
         kubectl get pods -n platform | awk '{print $1}' | xargs -n1 kubectl logs -n platform
+
+    # Finally, we can actually build and run the tests
     - name: Install Protoc
       uses: arduino/setup-protoc@master
     - name: Enable caching
