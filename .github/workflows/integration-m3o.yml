@@ -43,7 +43,7 @@ jobs:
       uses: pat-s/always-upload-cache@v2.0.0
       with:
         path: /tmp/docker-registry
-        key: docker-registry-${{ hashFiles('test/Dockerfile', 'micro') }}
+        key: docker-registry-${{ hashFiles('test/Dockerfile') }}
     - name: Setup docker registry
       run: |
         docker run -d -p 5000:5000 --restart=always --name registry -v /tmp/docker-registry:/var/lib/registry registry:2 && npx wait-on tcp:5000
@@ -54,8 +54,6 @@ jobs:
     - name: Tag and push docker
       run: |
         docker tag micro localhost:5000/micro && docker push localhost:5000/micro || true
-      if: steps.cache-docker.outputs.cache-hit != 'true'
-
 
     - name: Test micro server
       working-directory: ./test

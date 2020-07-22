@@ -149,7 +149,6 @@ func testHelps(t *t) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	t.Fatal("DAMMIT")
 	commands := strings.Split(strings.Split(string(outp), "COMMANDS:")[1], "GLOBAL OPTIONS:")[0]
 	for _, line := range strings.Split(commands, "\n") {
 		trimmed := strings.TrimSpace(line)
