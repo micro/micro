@@ -195,7 +195,7 @@ func newLocalServer(t *t, fname string, opts ...options) testServer {
 func (s *testServerBase) launch() error {
 	go func() {
 		if err := s.cmd.Start(); err != nil {
-			s.t.t.Fatal(err)
+			s.t.Fatal(err)
 		}
 	}()
 	// add the environment
@@ -295,6 +295,7 @@ func (t *t) Fatal(values ...interface{}) {
 	t.t.Log(values...)
 	t.failed = true
 	t.values = values
+	panic(errFatal)
 }
 
 func (t *t) Log(values ...interface{}) {
@@ -308,6 +309,7 @@ func (t *t) Fatalf(format string, values ...interface{}) {
 	t.failed = true
 	t.values = values
 	t.format = format
+	panic(errFatal)
 }
 
 func (t *t) Parallel() {
@@ -340,7 +342,7 @@ func trySuite(t *testing.T, f func(t *t), times int) {
 
 	tee := newT(t)
 	for i := 0; i < times; i++ {
-		f(tee)
+		wrapF(tee, f)
 		if !tee.failed {
 			return
 		}
@@ -356,6 +358,19 @@ func trySuite(t *testing.T, f func(t *t), times int) {
 			t.Fatal(tee.values...)
 		}
 	}
+}
+
+var errFatal = errors.New("Fatal error")
+
+func wrapF(t *t, f func(t *t)) {
+	defer func() {
+		if r := recover(); r != nil {
+			if r != errFatal {
+				panic(r)
+			}
+		}
+	}()
+	f(t)
 }
 
 func login(serv testServer, t *t, email, password string) error {
