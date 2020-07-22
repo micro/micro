@@ -50,7 +50,7 @@ func Signup(ctx *cli.Context) error {
 		Email: email,
 	}, cl.WithRequestTimeout(10*time.Second))
 	if err != nil {
-		fmt.Println("Error sending email during signup: %s\n", err)
+		fmt.Printf("Error sending email during signup: %s\n", err)
 		report.Errorf(ctx, "Error sending email during signup: %s", err)
 		os.Exit(1)
 	}
@@ -65,7 +65,7 @@ func Signup(ctx *cli.Context) error {
 		Token: otp,
 	}, cl.WithRequestTimeout(10*time.Second))
 	if err != nil {
-		fmt.Println("Error verifying: %s\n", err)
+		fmt.Printf("Error verifying: %s\n", err)
 		report.Errorf(ctx, "Error verifying: %s", err)
 		os.Exit(1)
 	}
