@@ -1,4 +1,4 @@
-FROM alpine:latest
+FROM alpine:latest AS builder
 RUN apk --no-cache add make git go gcc libtool musl-dev
 
 # Configure Go
@@ -7,7 +7,9 @@ ENV GOPATH /go
 ENV PATH /go/bin:$PATH
 
 RUN mkdir -p ${GOPATH}/src ${GOPATH}/bin
-
+COPY go.mod .
+COPY go.sum .
+RUN go mod download
 COPY . /
 RUN make
 

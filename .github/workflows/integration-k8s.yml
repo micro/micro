@@ -63,6 +63,7 @@ jobs:
         docker build -f Dockerfile . -t micro --cache-from=localhost:5000/micro --build-arg BUILDKIT_INLINE_CACHE=1 
         docker tag micro localhost:5000/micro 
         docker push localhost:5000/micro
+        docker images -f dangling=true -q | sed 1d | xargs docker rmi
 
     - name: Setup Kind
       uses: engineerd/setup-kind@v0.4.0
