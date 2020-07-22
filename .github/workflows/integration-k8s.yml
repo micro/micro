@@ -21,11 +21,6 @@ jobs:
       id: go
     - name: Install Protoc
       uses: arduino/setup-protoc@master
-    - name: Install micro
-      id: install-micro
-      run: |
-        go install &
-        echo "::set-output name=pid::$(echo $!)"
     
     # http://man7.org/linux/man-pages/man1/date.1.html
     - name: Get Date
@@ -42,6 +37,10 @@ jobs:
         key: ${{ runner.os }}-go-kind-${{ steps.get-date.outputs.date }}
         restore-keys: |
           ${{ runner.os }}-go-kind-
+    - name: Install micro
+      id: install-micro
+      run: |
+        go install
 
     # We set up a local docker registry to push to and pull from. We need to set up the Kind cluster to pull from this
     - name: Setup docker caching
@@ -61,8 +60,9 @@ jobs:
     - name: Build and push to local registry
       id: build-push-reg
       run: |
-        (docker build -f Dockerfile . -t micro --cache-from=localhost:5000/micro --build-arg BUILDKIT_INLINE_CACHE=1 && docker tag micro localhost:5000/micro && docker push localhost:5000/micro) &
-        echo "::set-output name=pid::$(echo $!)"
+        docker build -f Dockerfile . -t micro --cache-from=localhost:5000/micro --build-arg BUILDKIT_INLINE_CACHE=1 
+        docker tag micro localhost:5000/micro 
+        docker push localhost:5000/micro
 
     - name: Setup Kind
       uses: engineerd/setup-kind@v0.4.0
@@ -80,12 +80,6 @@ jobs:
     - name: Install the prerequisites
       run: |
         bash .github/workflows/kind-prereqs.sh
-    - name: Wait for micro install result
-      run: |
-        wait ${{ steps.install-micro.outputs.pid }} 
-    - name: Wait for build and push result
-      run: |
-        wait ${{ steps.build-push-reg.outputs.pid }}
 
     # Everything is set up so let's install the platform
     - name: Install the platform
