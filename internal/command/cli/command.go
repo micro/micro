@@ -178,13 +178,13 @@ func ListServices(c *cli.Context) ([]byte, error) {
 		return nil, err
 	}
 
-	sort.Sort(sortedServices{rsp})
-
 	var services []string
 
 	for _, service := range rsp {
 		services = append(services, service.Name)
 	}
+
+	sort.Strings(services)
 
 	return []byte(strings.Join(services, "\n")), nil
 }
@@ -361,76 +361,6 @@ func QueryHealth(c *cli.Context, args []string) ([]byte, error) {
 				status = rsp.Status
 			}
 			output = append(output, fmt.Sprintf("%s\t\t%s\t\t%s", node.Id, node.Address, status))
-		}
-	}
-
-	return []byte(strings.Join(output, "\n")), nil
-}
-
-func QueryStats(c *cli.Context, args []string) ([]byte, error) {
-	if len(args) == 0 {
-		return nil, errors.New("require service name")
-	}
-
-	ns, err := namespace.Get(util.GetEnv(c).Name)
-	if err != nil {
-		return nil, err
-	}
-
-	reg := *cmd.DefaultCmd.Options().Registry
-	cli, err := inclient.New(c)
-	if err != nil {
-		return nil, err
-	}
-	reg.Init(service.WithClient(cli))
-	service, err := reg.GetService(args[0], registry.GetDomain(ns))
-	if err != nil {
-		return nil, err
-	}
-
-	if len(service) == 0 {
-		return nil, errors.New("Service not found")
-	}
-
-	req := (*cmd.DefaultCmd.Options().Client).NewRequest(service[0].Name, "Debug.Stats", &proto.StatsRequest{})
-
-	var output []string
-
-	// print things
-	output = append(output, "service  "+service[0].Name)
-
-	for _, serv := range service {
-		// print things
-		output = append(output, "\nversion "+serv.Version)
-		output = append(output, "\nnode\t\taddress:port\t\tstarted\tuptime\tmemory\tthreads\tgc")
-
-		// query health for every node
-		for _, node := range serv.Nodes {
-			address := node.Address
-			rsp := &proto.StatsResponse{}
-
-			var err error
-
-			// call using client
-			err = (*cmd.DefaultCmd.Options().Client).Call(
-				context.Background(),
-				req,
-				rsp,
-				client.WithAddress(address),
-			)
-
-			var started, uptime, memory, gc string
-			if err == nil {
-				started = time.Unix(int64(rsp.Started), 0).Format("Jan 2 15:04:05")
-				uptime = fmt.Sprintf("%v", time.Duration(rsp.Uptime)*time.Second)
-				memory = fmt.Sprintf("%.2fmb", float64(rsp.Memory)/(1024.0*1024.0))
-				gc = fmt.Sprintf("%v", time.Duration(rsp.Gc))
-			}
-
-			line := fmt.Sprintf("%s\t\t%s\t\t%s\t%s\t%s\t%d\t%s",
-				node.Id, node.Address, started, uptime, memory, rsp.Threads, gc)
-
-			output = append(output, line)
 		}
 	}
 
