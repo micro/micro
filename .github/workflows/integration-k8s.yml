@@ -25,7 +25,7 @@ jobs:
       id: install-micro
       run: |
         go install &
-        echo "::set-output pid=date::$(echo $!)"
+        echo "::set-output name=pid::$(echo $!)"
     
     # http://man7.org/linux/man-pages/man1/date.1.html
     - name: Get Date
@@ -62,7 +62,7 @@ jobs:
       id: build-push-reg
       run: |
         (docker build -f Dockerfile . -t micro --cache-from=localhost:5000/micro --build-arg BUILDKIT_INLINE_CACHE=1 && docker tag micro localhost:5000/micro && docker push localhost:5000/micro) &
-        echo "::set-output pid=date::$(echo $!)"
+        echo "::set-output name=pid::$(echo $!)"
 
     - name: Setup Kind
       uses: engineerd/setup-kind@v0.4.0
