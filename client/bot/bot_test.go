@@ -11,8 +11,7 @@ import (
 	"github.com/micro/go-micro/v2/agent/command"
 	"github.com/micro/go-micro/v2/agent/input"
 	"github.com/micro/micro/v2/service"
-
-	"github.com/micro/go-micro/v2/registry/memory"
+	"github.com/micro/micro/v2/service/runtime/profile"
 )
 
 type testInput struct {
@@ -103,10 +102,7 @@ func TestBot(t *testing.T) {
 		}),
 	}
 
-	srv := service.New(
-		service.Registry(memory.NewRegistry()),
-	)
-
+	srv := service.New(service.Profile(profile.Test))
 	bot := newBot(ctx, inputs, commands, srv)
 
 	if err := bot.start(); err != nil {

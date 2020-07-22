@@ -14,6 +14,8 @@ import (
 	"sync"
 	"time"
 
+	"github.com/micro/micro/v2/service/store"
+
 	"github.com/go-acme/lego/v3/providers/dns/cloudflare"
 	"github.com/gorilla/mux"
 	"github.com/micro/cli/v2"
@@ -37,6 +39,9 @@ import (
 	"github.com/micro/micro/v2/internal/resolver/web"
 	"github.com/micro/micro/v2/internal/stats"
 	"github.com/micro/micro/v2/service"
+	muauth "github.com/micro/micro/v2/service/auth"
+	muregistry "github.com/micro/micro/v2/service/registry"
+	"github.com/micro/micro/v2/service/router"
 	"github.com/serenize/snaker"
 )
 
@@ -435,7 +440,7 @@ func Run(ctx *cli.Context) error {
 	// Setup the web resolver
 	var resolver res.Resolver
 	resolver = &web.Resolver{
-		Router: s.Options().Router,
+		Router: router.DefaultRouter,
 		Options: res.NewOptions(res.WithServicePrefix(
 			Namespace + "." + Type,
 		)),
@@ -447,10 +452,10 @@ func Run(ctx *cli.Context) error {
 	srv := &srv{
 		Router: mux.NewRouter(),
 		registry: &reg{
-			Registry: s.Options().Registry,
+			Registry: muregistry.DefaultRegistry,
 		},
 		resolver: resolver,
-		auth:     s.Options().Auth,
+		auth:     muauth.DefaultAuth,
 	}
 
 	var h http.Handler
@@ -506,10 +511,7 @@ func Run(ctx *cli.Context) error {
 			}
 
 			// create the store
-			storage := certmagic.NewStorage(
-				memory.NewSync(),
-				s.Options().Store,
-			)
+			storage := certmagic.NewStorage(memory.NewSync(), store.DefaultStore)
 
 			config := cloudflare.NewDefaultConfig()
 			config.AuthToken = apiToken
@@ -554,7 +556,7 @@ func Run(ctx *cli.Context) error {
 	// Setup auth redirect
 	if len(ctx.String("auth_login_url")) > 0 {
 		loginURL = ctx.String("auth_login_url")
-		s.Options().Auth.Init(auth.LoginURL(loginURL))
+		muauth.DefaultAuth.Init(auth.LoginURL(loginURL))
 	}
 
 	if err := server.Start(); err != nil {

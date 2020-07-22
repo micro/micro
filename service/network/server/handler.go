@@ -1,5 +1,4 @@
-// Package handler implements network RPC handler
-package handler
+package server
 
 import (
 	"context"

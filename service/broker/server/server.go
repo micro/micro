@@ -2,19 +2,57 @@ package handler
 
 import (
 	"context"
+	"time"
 
+	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro/v2/broker"
 	pb "github.com/micro/go-micro/v2/broker/service/proto"
 	"github.com/micro/go-micro/v2/errors"
+	"github.com/micro/go-micro/v2/logger"
 	log "github.com/micro/go-micro/v2/logger"
 	"github.com/micro/micro/v2/internal/namespace"
+	"github.com/micro/micro/v2/service"
+	mubroker "github.com/micro/micro/v2/service/broker"
 )
 
-type Broker struct {
-	Broker broker.Broker
+var (
+	name    = "go.micro.broker"
+	address = ":8001"
+)
+
+// Run the micro broker
+func Run(ctx *cli.Context) error {
+	srvOpts := []service.Option{
+		service.Name(name),
+		service.Address(address),
+	}
+
+	if i := time.Duration(ctx.Int("register_ttl")); i > 0 {
+		srvOpts = append(srvOpts, service.RegisterTTL(i*time.Second))
+	}
+	if i := time.Duration(ctx.Int("register_interval")); i > 0 {
+		srvOpts = append(srvOpts, service.RegisterInterval(i*time.Second))
+	}
+
+	// new service
+	srv := service.New(srvOpts...)
+
+	// connect to the broker
+	mubroker.DefaultBroker.Connect()
+
+	// register the broker handler
+	pb.RegisterBrokerHandler(srv.Server(), new(handler))
+
+	// run the service
+	if err := srv.Run(); err != nil {
+		logger.Fatal(err)
+	}
+	return nil
 }
 
-func (b *Broker) Publish(ctx context.Context, req *pb.PublishRequest, rsp *pb.Empty) error {
+type handler struct{}
+
+func (h *handler) Publish(ctx context.Context, req *pb.PublishRequest, rsp *pb.Empty) error {
 	ns := namespace.FromContext(ctx)
 
 	// authorize the request
@@ -27,7 +65,7 @@ func (b *Broker) Publish(ctx context.Context, req *pb.PublishRequest, rsp *pb.Em
 	}
 
 	log.Debugf("Publishing message to %s topic in the %v namespace", req.Topic, ns)
-	err := b.Broker.Publish(ns+"."+req.Topic, &broker.Message{
+	err := mubroker.DefaultBroker.Publish(ns+"."+req.Topic, &broker.Message{
 		Header: req.Message.Header,
 		Body:   req.Message.Body,
 	})
@@ -38,7 +76,7 @@ func (b *Broker) Publish(ctx context.Context, req *pb.PublishRequest, rsp *pb.Em
 	return nil
 }
 
-func (b *Broker) Subscribe(ctx context.Context, req *pb.SubscribeRequest, stream pb.Broker_SubscribeStream) error {
+func (h *handler) Subscribe(ctx context.Context, req *pb.SubscribeRequest, stream pb.Broker_SubscribeStream) error {
 	ns := namespace.FromContext(ctx)
 	errChan := make(chan error, 1)
 
@@ -68,7 +106,7 @@ func (b *Broker) Subscribe(ctx context.Context, req *pb.SubscribeRequest, stream
 	}
 
 	log.Debugf("Subscribing to %s topic in namespace %v", req.Topic, ns)
-	sub, err := b.Broker.Subscribe(ns+"."+req.Topic, handler, broker.Queue(ns+"."+req.Queue))
+	sub, err := mubroker.DefaultBroker.Subscribe(ns+"."+req.Topic, handler, broker.Queue(ns+"."+req.Queue))
 	if err != nil {
 		return errors.InternalServerError("go.micro.broker", err.Error())
 	}

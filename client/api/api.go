@@ -35,6 +35,8 @@ import (
 	rrmicro "github.com/micro/micro/v2/internal/resolver/api"
 	"github.com/micro/micro/v2/internal/stats"
 	"github.com/micro/micro/v2/service"
+	muregistry "github.com/micro/micro/v2/service/registry"
+	mustore "github.com/micro/micro/v2/service/store"
 )
 
 var (
@@ -109,7 +111,7 @@ func Run(ctx *cli.Context) error {
 
 			storage := certmagic.NewStorage(
 				memory.NewSync(),
-				srv.Options().Store,
+				mustore.DefaultStore,
 			)
 
 			config := cloudflare.NewDefaultConfig()
@@ -205,7 +207,7 @@ func Run(ctx *cli.Context) error {
 		rt := regRouter.NewRouter(
 			router.WithHandler(arpc.Handler),
 			router.WithResolver(rr),
-			router.WithRegistry(srv.Options().Registry),
+			router.WithRegistry(muregistry.DefaultRegistry),
 		)
 		rp := arpc.NewHandler(
 			ahandler.WithNamespace(Namespace),
@@ -218,7 +220,7 @@ func Run(ctx *cli.Context) error {
 		rt := regRouter.NewRouter(
 			router.WithHandler(aapi.Handler),
 			router.WithResolver(rr),
-			router.WithRegistry(srv.Options().Registry),
+			router.WithRegistry(muregistry.DefaultRegistry),
 		)
 		ap := aapi.NewHandler(
 			ahandler.WithNamespace(Namespace),
@@ -231,7 +233,7 @@ func Run(ctx *cli.Context) error {
 		rt := regRouter.NewRouter(
 			router.WithHandler(event.Handler),
 			router.WithResolver(rr),
-			router.WithRegistry(srv.Options().Registry),
+			router.WithRegistry(muregistry.DefaultRegistry),
 		)
 		ev := event.NewHandler(
 			ahandler.WithNamespace(Namespace),
@@ -244,7 +246,7 @@ func Run(ctx *cli.Context) error {
 		rt := regRouter.NewRouter(
 			router.WithHandler(ahttp.Handler),
 			router.WithResolver(rr),
-			router.WithRegistry(srv.Options().Registry),
+			router.WithRegistry(muregistry.DefaultRegistry),
 		)
 		ht := ahttp.NewHandler(
 			ahandler.WithNamespace(Namespace),
@@ -257,7 +259,7 @@ func Run(ctx *cli.Context) error {
 		rt := regRouter.NewRouter(
 			router.WithHandler(web.Handler),
 			router.WithResolver(rr),
-			router.WithRegistry(srv.Options().Registry),
+			router.WithRegistry(muregistry.DefaultRegistry),
 		)
 		w := web.NewHandler(
 			ahandler.WithNamespace(Namespace),
@@ -269,7 +271,7 @@ func Run(ctx *cli.Context) error {
 		log.Infof("Registering API Default Handler at %s", APIPath)
 		rt := regRouter.NewRouter(
 			router.WithResolver(rr),
-			router.WithRegistry(srv.Options().Registry),
+			router.WithRegistry(muregistry.DefaultRegistry),
 		)
 		r.PathPrefix(APIPath).Handler(handler.Meta(srv, rt, Namespace))
 	}

@@ -3,6 +3,23 @@
 // should be rewritten in a more elegant way
 package profile
 
+import (
+	"github.com/micro/go-micro/v2/auth"
+	"github.com/micro/go-micro/v2/registry/memory"
+	"github.com/micro/micro/v2/service"
+)
+
+// Profile configures an environment
+type Profile []service.Option
+
+// Test profile is used for the go test suite
+var Test Profile = []service.Option{
+	service.Auth(auth.NewAuth()),
+	service.Registry(memory.NewRegistry()),
+}
+
+// TODO: Convert the below profiles to use the new type
+
 // Local is a profile for local environments
 func Local() []string {
 	return []string{}

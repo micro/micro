@@ -19,6 +19,7 @@ import (
 	"github.com/micro/micro/v2/cmd"
 	botc "github.com/micro/micro/v2/internal/command/bot"
 	"github.com/micro/micro/v2/service"
+	muregistry "github.com/micro/micro/v2/service/registry"
 
 	// inputs
 	_ "github.com/micro/go-micro/v2/agent/input/discord"
@@ -287,7 +288,7 @@ func (b *bot) watch() {
 		return fmt.Sprintf("%s - %s", rsp.Usage, rsp.Description), nil
 	}
 
-	serviceList, err := b.service.Options().Registry.ListServices()
+	serviceList, err := muregistry.DefaultRegistry.ListServices()
 	if err != nil {
 		// log error?
 		return
@@ -310,7 +311,7 @@ func (b *bot) watch() {
 	b.services = services
 	b.Unlock()
 
-	w, err := b.service.Options().Registry.Watch()
+	w, err := muregistry.DefaultRegistry.Watch()
 	if err != nil {
 		// log error?
 		return

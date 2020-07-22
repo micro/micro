@@ -1,4 +1,4 @@
-package handler
+package server
 
 import (
 	"context"
@@ -20,14 +20,6 @@ const (
 	defaultTable    = namespace.DefaultNamespace
 	internalTable   = "store"
 )
-
-// New returns an initialized store handler
-func New(store store.Store) pb.StoreHandler {
-	return &handler{
-		store:  store,
-		stores: make(map[string]bool),
-	}
-}
 
 type handler struct {
 	// store interface to use for executing requests

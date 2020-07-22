@@ -10,7 +10,6 @@ import (
 	"github.com/micro/go-micro/v2/api/server/acme"
 	"github.com/micro/go-micro/v2/api/server/acme/autocert"
 	"github.com/micro/go-micro/v2/api/server/acme/certmagic"
-	"github.com/micro/go-micro/v2/auth"
 	bmem "github.com/micro/go-micro/v2/broker/memory"
 	mucli "github.com/micro/go-micro/v2/client"
 	log "github.com/micro/go-micro/v2/logger"
@@ -25,6 +24,8 @@ import (
 	"github.com/micro/micro/v2/cmd"
 	"github.com/micro/micro/v2/internal/helper"
 	"github.com/micro/micro/v2/service"
+	murouter "github.com/micro/micro/v2/service/router"
+	"github.com/micro/micro/v2/service/store"
 )
 
 var (
@@ -70,7 +71,7 @@ func Run(ctx *cli.Context) error {
 
 	// set the context
 	popts := []proxy.Option{
-		proxy.WithRouter(service.Options().Router),
+		proxy.WithRouter(murouter.DefaultRouter),
 	}
 
 	// new proxy
@@ -121,7 +122,7 @@ func Run(ctx *cli.Context) error {
 
 			storage := certmagic.NewStorage(
 				memory.NewSync(),
-				service.Options().Store,
+				store.DefaultStore,
 			)
 
 			config := cloudflare.NewDefaultConfig()
@@ -164,8 +165,7 @@ func Run(ctx *cli.Context) error {
 	}
 
 	// wrap the proxy using the proxy's authHandler
-	authFn := func() auth.Auth { return service.Options().Auth }
-	authOpt := server.WrapHandler(authHandler(authFn))
+	authOpt := server.WrapHandler(authHandler())
 	serverOpts = append(serverOpts, authOpt)
 
 	// set proxy

@@ -19,19 +19,21 @@ import (
 	"github.com/micro/micro/v2/service"
 
 	// services
-	"github.com/micro/micro/v2/service/auth"
-	"github.com/micro/micro/v2/service/broker"
-	"github.com/micro/micro/v2/service/config"
+	auth "github.com/micro/micro/v2/service/auth/server"
+	broker "github.com/micro/micro/v2/service/broker/server"
+	config "github.com/micro/micro/v2/service/config/server"
+	network "github.com/micro/micro/v2/service/network/server"
+	registry "github.com/micro/micro/v2/service/registry/server"
+	router "github.com/micro/micro/v2/service/router/server"
+	runtime "github.com/micro/micro/v2/service/runtime/server"
+	store "github.com/micro/micro/v2/service/store/server"
+	tunnel "github.com/micro/micro/v2/service/tunnel/server"
+
+	// misc commands
 	"github.com/micro/micro/v2/service/debug"
 	"github.com/micro/micro/v2/service/handler/exec"
 	"github.com/micro/micro/v2/service/handler/file"
 	"github.com/micro/micro/v2/service/health"
-	"github.com/micro/micro/v2/service/network"
-	"github.com/micro/micro/v2/service/registry"
-	"github.com/micro/micro/v2/service/router"
-	"github.com/micro/micro/v2/service/runtime"
-	"github.com/micro/micro/v2/service/store"
-	"github.com/micro/micro/v2/service/tunnel"
 )
 
 // Run starts a micro service sidecar to encapsulate any app

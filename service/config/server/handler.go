@@ -1,4 +1,4 @@
-package handler
+package server
 
 import (
 	"context"
@@ -18,12 +18,12 @@ import (
 )
 
 const (
-	DefaultNamespace = "micro"
-	PathSplitter     = "."
+	defaultNamespace = "micro"
+	pathSplitter     = "."
 )
 
 var (
-	WatchTopic = "go.micro.config.events"
+	watchTopic = "go.micro.config.events"
 	watchers   = make(map[string][]*watcher)
 
 	// we now support json only
@@ -31,13 +31,13 @@ var (
 	mtx    sync.RWMutex
 )
 
-type Config struct {
+type config struct {
 	Store store.Store
 }
 
-func (c *Config) Read(ctx context.Context, req *pb.ReadRequest, rsp *pb.ReadResponse) error {
+func (c *config) Read(ctx context.Context, req *pb.ReadRequest, rsp *pb.ReadResponse) error {
 	if len(req.Namespace) == 0 {
-		req.Namespace = DefaultNamespace
+		req.Namespace = defaultNamespace
 	}
 
 	// authorize the request
@@ -83,7 +83,7 @@ func (c *Config) Read(ctx context.Context, req *pb.ReadRequest, rsp *pb.ReadResp
 	}
 
 	// peel apart the path
-	parts := strings.Split(req.Path, PathSplitter)
+	parts := strings.Split(req.Path, pathSplitter)
 
 	// we just want to pass back bytes
 	rsp.Change.ChangeSet.Data = string(values.Get(parts...).Bytes())
@@ -91,12 +91,12 @@ func (c *Config) Read(ctx context.Context, req *pb.ReadRequest, rsp *pb.ReadResp
 	return nil
 }
 
-func (c *Config) Create(ctx context.Context, req *pb.CreateRequest, rsp *pb.CreateResponse) error {
+func (c *config) Create(ctx context.Context, req *pb.CreateRequest, rsp *pb.CreateResponse) error {
 	if req.Change == nil || req.Change.ChangeSet == nil {
 		return errors.BadRequest("go.micro.config.Create", "invalid change")
 	}
 	if len(req.Change.Namespace) == 0 {
-		req.Change.Namespace = DefaultNamespace
+		req.Change.Namespace = defaultNamespace
 	}
 
 	// authorize the request
@@ -117,7 +117,7 @@ func (c *Config) Create(ctx context.Context, req *pb.CreateRequest, rsp *pb.Crea
 		}
 
 		// peel apart the path
-		parts := strings.Split(req.Change.Path, PathSplitter)
+		parts := strings.Split(req.Change.Path, pathSplitter)
 		// set the values
 		vals.Set(req.Change.ChangeSet.Data, parts...)
 		// change the changeset value
@@ -145,12 +145,12 @@ func (c *Config) Create(ctx context.Context, req *pb.CreateRequest, rsp *pb.Crea
 	return nil
 }
 
-func (c *Config) Update(ctx context.Context, req *pb.UpdateRequest, rsp *pb.UpdateResponse) error {
+func (c *config) Update(ctx context.Context, req *pb.UpdateRequest, rsp *pb.UpdateResponse) error {
 	if req.Change == nil || req.Change.ChangeSet == nil {
 		return errors.BadRequest("go.micro.config.Update", "invalid change")
 	}
 	if len(req.Change.Namespace) == 0 {
-		req.Change.Namespace = DefaultNamespace
+		req.Change.Namespace = defaultNamespace
 	}
 
 	// authorize the request
@@ -211,7 +211,7 @@ func (c *Config) Update(ctx context.Context, req *pb.UpdateRequest, rsp *pb.Upda
 		}
 
 		// Apply the data to the existing change
-		values.Set(req.Change.ChangeSet.Data, strings.Split(req.Change.Path, PathSplitter)...)
+		values.Set(req.Change.ChangeSet.Data, strings.Split(req.Change.Path, pathSplitter)...)
 
 		// Create a new change
 		newChange, err = merge(&source.ChangeSet{Data: values.Bytes()})
@@ -255,12 +255,12 @@ func (c *Config) Update(ctx context.Context, req *pb.UpdateRequest, rsp *pb.Upda
 	return nil
 }
 
-func (c *Config) Delete(ctx context.Context, req *pb.DeleteRequest, rsp *pb.DeleteResponse) error {
+func (c *config) Delete(ctx context.Context, req *pb.DeleteRequest, rsp *pb.DeleteResponse) error {
 	if req.Change == nil {
 		return errors.BadRequest("go.micro.srv.Delete", "invalid change")
 	}
 	if len(req.Change.Namespace) == 0 {
-		req.Change.Namespace = DefaultNamespace
+		req.Change.Namespace = defaultNamespace
 	}
 
 	// authorize the request
@@ -316,7 +316,7 @@ func (c *Config) Delete(ctx context.Context, req *pb.DeleteRequest, rsp *pb.Dele
 	}
 
 	// Delete at the given path
-	values.Del(strings.Split(req.Change.Path, PathSplitter)...)
+	values.Del(strings.Split(req.Change.Path, pathSplitter)...)
 
 	// Create a change record from the values
 	change, err := merge(&source.ChangeSet{Data: values.Bytes()})
@@ -347,9 +347,9 @@ func (c *Config) Delete(ctx context.Context, req *pb.DeleteRequest, rsp *pb.Dele
 	return nil
 }
 
-func (c *Config) List(ctx context.Context, req *pb.ListRequest, rsp *pb.ListResponse) (err error) {
+func (c *config) List(ctx context.Context, req *pb.ListRequest, rsp *pb.ListResponse) (err error) {
 	if len(req.Namespace) == 0 {
-		req.Namespace = DefaultNamespace
+		req.Namespace = defaultNamespace
 	}
 
 	// authorize the request
@@ -388,9 +388,9 @@ func (c *Config) List(ctx context.Context, req *pb.ListRequest, rsp *pb.ListResp
 	return nil
 }
 
-func (c *Config) Watch(ctx context.Context, req *pb.WatchRequest, stream pb.Config_WatchStream) error {
+func (c *config) Watch(ctx context.Context, req *pb.WatchRequest, stream pb.Config_WatchStream) error {
 	if len(req.Namespace) == 0 {
-		req.Namespace = DefaultNamespace
+		req.Namespace = defaultNamespace
 	}
 
 	// authorize the request
@@ -453,6 +453,6 @@ func values(ch *source.ChangeSet) (cr.Values, error) {
 
 // publish a change
 func publish(ctx context.Context, ch *pb.WatchResponse) error {
-	req := client.NewMessage(WatchTopic, ch)
+	req := client.NewMessage(watchTopic, ch)
 	return client.Publish(ctx, req)
 }

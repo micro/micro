@@ -25,7 +25,7 @@ import (
 	"github.com/micro/micro/v2/client/cli/util"
 	cliutil "github.com/micro/micro/v2/client/cli/util"
 	"github.com/micro/micro/v2/internal/client"
-	"github.com/micro/micro/v2/service/runtime/handler"
+	"github.com/micro/micro/v2/service/runtime/server"
 	"google.golang.org/grpc/status"
 )
 
@@ -292,9 +292,9 @@ func upload(ctx *cli.Context, source *git.Source) (string, error) {
 		// @todo currently this uploads the whole repo all the time to support local dependencies
 		// in parents (ie service path is `repo/a/b/c` and it depends on `repo/a/b`).
 		// Optimise this by only uploading things that are needed.
-		err = handler.Compress(source.LocalRepoRoot, path)
+		err = server.Compress(source.LocalRepoRoot, path)
 	} else {
-		err = handler.Compress(source.FullPath, path)
+		err = server.Compress(source.FullPath, path)
 	}
 
 	if err != nil {
