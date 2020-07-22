@@ -33,7 +33,7 @@ jobs:
         path: ~/go/pkg/mod
         key: ${{ runner.os }}-go-int-${{ steps.get-date.outputs.date }}
         restore-keys: |
-          ${{ runner.os }}-go-
+          ${{ runner.os }}-go-int-
 
     - name: Install Protoc
       uses: arduino/setup-protoc@master
