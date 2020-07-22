@@ -6,8 +6,6 @@ jobs:
   test:
     name: Integration tests
     runs-on: ubuntu-latest
-    env: 
-      DOCKER_BUILDKIT: '1'
     
     steps:
 
@@ -52,7 +50,7 @@ jobs:
         docker run -d -p 5000:5000 --restart=always --name registry -v /tmp/docker-registry:/var/lib/registry registry:2 && npx wait-on tcp:5000
     - name: Build docker image
       run: |
-        docker build -f test/Dockerfile . -t micro --cache-from=localhost:5000/micro --build-arg BUILDKIT_INLINE_CACHE=1
+        docker build -f test/Dockerfile . -t micro --cache-from=localhost:5000/micro --build-arg
     - name: Tag and push docker
       run: |
         docker tag micro localhost:5000/micro && docker push localhost:5000/micro || true
