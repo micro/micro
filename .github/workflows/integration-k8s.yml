@@ -63,7 +63,8 @@ jobs:
         docker build -f Dockerfile . -t micro --cache-from=localhost:5000/micro --build-arg BUILDKIT_INLINE_CACHE=1 
         docker tag micro localhost:5000/micro 
         docker push localhost:5000/micro
-        docker images -f "dangling=true"
+        docker images -a 
+        docker images -f "dangling=true" localhost:5000
         docker images -f "dangling=true" -q
         docker images -f "dangling=true" -q | sed 1d | xargs docker rmi || true
 
