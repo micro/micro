@@ -37,6 +37,8 @@ jobs:
         GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build # this is used by the Docker image
         ls 
         go install # this is used by the tests themselves
+        echo again
+        ls 
 
     # This sets up a local docker registry to cache 
     # Based on https://dev.to/dtinth/caching-docker-builds-in-github-actions-which-approach-is-the-fastest-a-research-18ei
@@ -50,8 +52,10 @@ jobs:
         key: docker-registry-${{ hashFiles('test/Dockerfile', 'micro') }}
     - name: Setup docker registry
       run: |
+        ls 
         docker run -d -p 5000:5000 --restart=always --name registry -v /tmp/docker-registry:/var/lib/registry registry:2 && npx wait-on tcp:5000
         docker pull localhost:5000/micro || true
+        ls
     - name: Build docker image
       run: |
         pwd
