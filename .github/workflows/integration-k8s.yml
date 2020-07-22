@@ -21,7 +21,7 @@ jobs:
       uses: pat-s/always-upload-cache@v2.0.0
       with:
         path: /tmp/docker-registry
-        key: docker-registry-kind-${{ hashFiles('test/Dockerfile') }}
+        key: docker-registry-kind-${{ hashFiles('Dockerfile') }}
     - name: Setup docker registry
       run: |
         docker run -d -p 5000:5000 --restart=always --name kind-registry -v /tmp/docker-registry:/var/lib/registry registry:2 && npx wait-on tcp:5000
@@ -29,8 +29,10 @@ jobs:
       uses: engineerd/setup-kind@v0.4.0
       with:
         config: scripts/kind-config.yaml
+        version: 0.8.1
     - name: Finish Kind registry setup
       run: |
+        docker network ls
         docker network connect "kind" "kind-registry"
         for node in $(kind get nodes); do kubectl annotate node "${node}" "kind.x-k8s.io/registry=localhost:5000"; done
     - name: Set up Go 1.13
