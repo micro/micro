@@ -72,7 +72,7 @@ func TLSConfig(ctx *cli.Context) (*tls.Config, error) {
 
 // UnexpectedSubcommand checks for erroneous subcommands and prints help and returns error
 func UnexpectedSubcommand(ctx *cli.Context) error {
-	if first := MicroSubcommand(ctx); first != "" {
+	if first := Subcommand(ctx); first != "" {
 		// received something that isn't a subcommand
 		return fmt.Errorf("Unrecognized subcommand for %s: %s. Please refer to '%s --help'", ctx.App.Name, first, ctx.App.Name)
 	}
@@ -80,7 +80,7 @@ func UnexpectedSubcommand(ctx *cli.Context) error {
 }
 
 func UnexpectedCommand(ctx *cli.Context) error {
-	commandName := MicroCommand(ctx)
+	commandName := Command(ctx)
 	return fmt.Errorf("Unrecognized micro command: %s. Please refer to 'micro --help'", commandName)
 }
 
@@ -89,7 +89,7 @@ func MissingCommand(ctx *cli.Context) error {
 }
 
 // MicroCommand returns the main command name
-func MicroCommand(ctx *cli.Context) string {
+func Command(ctx *cli.Context) string {
 	// We fall back to os.Args as ctx does not seem to have the original command.
 	for _, arg := range os.Args[1:] {
 		// Exclude flags
@@ -101,6 +101,6 @@ func MicroCommand(ctx *cli.Context) string {
 }
 
 // MicroSubcommand returns the subcommand name
-func MicroSubcommand(ctx *cli.Context) string {
+func Subcommand(ctx *cli.Context) string {
 	return ctx.Args().First()
 }

@@ -97,8 +97,8 @@ type TrackingData struct {
 }
 
 func getTrackingCategory(ctx *cli.Context) string {
-	command := helper.MicroCommand(ctx)
-	subcommand := helper.MicroSubcommand(ctx)
+	command := helper.Command(ctx)
+	subcommand := helper.Subcommand(ctx)
 	if len(strings.TrimSpace(subcommand)) == 0 {
 		return command
 	}
