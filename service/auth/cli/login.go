@@ -10,9 +10,9 @@ import (
 	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro/v2/auth"
 	"github.com/micro/micro/v2/client/cli/namespace"
-	"github.com/micro/micro/v2/client/cli/report"
 	"github.com/micro/micro/v2/client/cli/token"
 	"github.com/micro/micro/v2/client/cli/util"
+	"github.com/micro/micro/v2/internal/report"
 	platform "github.com/micro/micro/v2/platform/cli"
 	"golang.org/x/crypto/ssh/terminal"
 )
