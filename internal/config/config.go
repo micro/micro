@@ -23,7 +23,7 @@ var config = newConfig()
 // Get a value from the .micro file
 func Get(path ...string) (string, error) {
 	c := newConfig()
-	tk := c.Get(path...).String("")
+	tk := string(c.Get(path...).Bytes())
 	return strings.TrimSpace(tk), nil
 }
 

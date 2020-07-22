@@ -16,8 +16,13 @@ func user(ctx *cli.Context) error {
 	env := util.GetEnv(ctx)
 
 	// Get the token from micro config
-	tok, err := config.Get("micro", "auth", env.Name, "token")
+	token, err := config.Get("micro", "auth", env.Name, "token")
 	if err != nil {
+		fmt.Println("You are not logged in")
+		os.Exit(1)
+	}
+
+	if len(token) == 0 {
 		fmt.Println("You are not logged in")
 		os.Exit(1)
 	}
@@ -29,7 +34,7 @@ func user(ctx *cli.Context) error {
 		os.Exit(1)
 	}
 
-	acc, err := a.Inspect(tok)
+	acc, err := a.Inspect(token)
 	if err != nil {
 		fmt.Println("failure", err)
 		os.Exit(1)
@@ -42,9 +47,10 @@ func user(ctx *cli.Context) error {
 func init() {
 	cmd.Register(
 		&cli.Command{
-			Name:   "user",
-			Usage:  "Print the current logged in user",
-			Action: user,
+			Name:        "user",
+			Usage:       "Print the current logged in user",
+			Action:      user,
+			Subcommands: config.UserCommands,
 		},
 	)
 }
