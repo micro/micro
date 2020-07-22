@@ -171,6 +171,11 @@ func (r *Rules) Delete(ctx context.Context, req *pb.DeleteRequest, rsp *pb.Delet
 		return errors.InternalServerError("go.micro.auth", "Unable to delete key from store: %v", err)
 	}
 
+	// Clear the namespace cache, since the rules for this namespace could now be empty
+	r.Lock()
+	delete(r.namespaces, req.Options.Namespace)
+	r.Unlock()
+
 	return nil
 }
 

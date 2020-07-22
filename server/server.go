@@ -8,13 +8,13 @@ import (
 	"time"
 
 	"github.com/micro/cli/v2"
-	"github.com/micro/go-micro/v2"
 	"github.com/micro/go-micro/v2/client"
-	"github.com/micro/go-micro/v2/cmd"
+	mcmd "github.com/micro/go-micro/v2/cmd"
 	log "github.com/micro/go-micro/v2/logger"
 	gorun "github.com/micro/go-micro/v2/runtime"
 	"github.com/micro/go-micro/v2/util/file"
-	ccli "github.com/micro/micro/v2/client/cli"
+	"github.com/micro/micro/v2/client/cli/util"
+	"github.com/micro/micro/v2/cmd"
 	"github.com/micro/micro/v2/internal/update"
 	"github.com/micro/micro/v2/service"
 )
@@ -57,7 +57,7 @@ func upload(ctx *cli.Context, args []string) ([]byte, error) {
 	return nil, fileClient.Upload(filename, localfile)
 }
 
-func Commands(options ...micro.Option) []*cli.Command {
+func init() {
 	command := &cli.Command{
 		Name:  "server",
 		Usage: "Run the micro server",
@@ -89,7 +89,7 @@ func Commands(options ...micro.Option) []*cli.Command {
 			Subcommands: []*cli.Command{
 				{
 					Name:   "upload",
-					Action: ccli.Print(upload),
+					Action: util.Print(upload),
 				},
 			},
 		}},
@@ -105,13 +105,11 @@ func Commands(options ...micro.Option) []*cli.Command {
 		}
 	}
 
-	return []*cli.Command{command}
+	cmd.Register(command)
 }
 
 // Run runs the entire platform
 func Run(context *cli.Context) error {
-	log.Init(log.WithFields(map[string]interface{}{"service": "micro"}))
-
 	if context.Args().Len() > 0 {
 		cli.ShowSubcommandHelp(context)
 		os.Exit(1)
@@ -151,7 +149,7 @@ func Run(context *cli.Context) error {
 	log.Info("Loading core services")
 
 	// create new micro runtime
-	muRuntime := cmd.DefaultCmd.Options().Runtime
+	muRuntime := mcmd.DefaultCmd.Options().Runtime
 
 	// Use default update notifier
 	if context.Bool("auto_update") {

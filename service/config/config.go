@@ -4,6 +4,7 @@ import (
 	"github.com/micro/cli/v2"
 	proto "github.com/micro/go-micro/v2/config/source/service/proto"
 	"github.com/micro/go-micro/v2/logger"
+	"github.com/micro/go-micro/v2/store"
 	"github.com/micro/micro/v2/service"
 	"github.com/micro/micro/v2/service/config/handler"
 )
@@ -31,7 +32,9 @@ func Run(c *cli.Context) error {
 
 	srv := service.New(service.Name(name))
 
+	srv.Options().Store.Init(store.Table("config"))
 	h := &handler.Config{Store: srv.Options().Store}
+
 	proto.RegisterConfigHandler(srv.Server(), h)
 	service.RegisterSubscriber(handler.WatchTopic, srv.Server(), handler.Watcher)
 

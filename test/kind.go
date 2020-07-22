@@ -5,6 +5,7 @@ package test
 import (
 	"errors"
 	"fmt"
+	"math/rand"
 	"os/exec"
 	"strings"
 	"time"
@@ -26,11 +27,13 @@ func init() {
 }
 
 func newK8sServer(t *t, fname string, opts ...options) testServer {
+	portnum := rand.Intn(maxPort-minPort) + minPort
+
 	s := &testK8sServer{testServerBase{
 		t:       t,
 		envNm:   strings.ToLower(fname),
-		portNum: 8081,
-		cmd:     exec.Command("kubectl", "port-forward", "--namespace", "default", "svc/micro-proxy", "8081:8081"),
+		portNum: portnum,
+		cmd:     exec.Command("kubectl", "port-forward", "--namespace", "default", "svc/micro-proxy", fmt.Sprintf("%d:8081", portnum)),
 	}}
 	s.namespace = s.envNm
 

@@ -99,9 +99,7 @@ func Run(ctx *cli.Context) error {
 
 	// register the runtime handler
 	pb.RegisterRuntimeHandler(srv.Server(), &handler.Runtime{
-		// Client to publish events
-		Client: service.NewEvent("go.micro.runtime.events", srv.Client()),
-		// using the micro runtime
+		Event:   service.NewEvent("go.micro.runtime.events", srv.Client()),
 		Runtime: manager,
 	})
 

@@ -105,9 +105,9 @@ func Run(ctx *cli.Context) error {
 
 	// register the handler
 	pb.RegisterRegistryHandler(srv.Server(), &handler.Registry{
-		ID:        id,
-		Publisher: service.NewEvent(topic, srv.Client()),
-		Registry:  srv.Options().Registry,
+		ID:       id,
+		Event:    service.NewEvent(topic, srv.Client()),
+		Registry: srv.Options().Registry,
 	})
 
 	// run the service

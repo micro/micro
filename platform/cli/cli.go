@@ -11,12 +11,12 @@ import (
 	"time"
 
 	"github.com/micro/cli/v2"
-	"github.com/micro/go-micro/v2"
 	"github.com/micro/go-micro/v2/auth"
 	cl "github.com/micro/go-micro/v2/client"
 	clinamespace "github.com/micro/micro/v2/client/cli/namespace"
 	clitoken "github.com/micro/micro/v2/client/cli/token"
 	cliutil "github.com/micro/micro/v2/client/cli/util"
+	"github.com/micro/micro/v2/cmd"
 	"github.com/micro/micro/v2/internal/client"
 	"github.com/micro/micro/v2/internal/report"
 	signupproto "github.com/micro/services/signup/proto/signup"
@@ -165,34 +165,28 @@ func Signup(ctx *cli.Context) error {
 	return nil
 }
 
-// Commands for the Micro Platform
-func Commands(srvOpts ...micro.Option) []*cli.Command {
-	return []*cli.Command{
-		{
-			Name:        "signup",
-			Usage:       "Signup to the Micro Platform",
-			Description: "Enables signup to the Micro Platform which can then be accessed via `micro env set platform` and `micro login`",
-			Action: func(ctx *cli.Context) error {
-				Signup(ctx)
-				return nil
+func init() {
+	cmd.Register(&cli.Command{
+		Name:        "signup",
+		Usage:       "Signup to the Micro Platform",
+		Description: "Enables signup to the Micro Platform which can then be accessed via `micro env set platform` and `micro login`",
+		Action:      Signup,
+		Flags: []cli.Flag{
+			&cli.StringFlag{
+				Name:  "email",
+				Usage: "Email address to use for signup",
 			},
-			Flags: []cli.Flag{
-				&cli.StringFlag{
-					Name:  "email",
-					Usage: "Email address to use for signup",
-				},
-				// In fact this is only here currently to help testing
-				// as the signup flow can't be automated yet.
-				// The testing breaks because we take the password
-				// with the `terminal` package that makes input invisible.
-				// That breaks tests though so password flag is used to get around tests.
-				// @todo maybe payment method token and email sent verification
-				// code should also be invisible. Problem for an other day.
-				&cli.StringFlag{
-					Name:  "password",
-					Usage: "Password to use for login. If not provided, will be asked for during login. Useful for automated scripts",
-				},
+			// In fact this is only here currently to help testing
+			// as the signup flow can't be automated yet.
+			// The testing breaks because we take the password
+			// with the `terminal` package that makes input invisible.
+			// That breaks tests though so password flag is used to get around tests.
+			// @todo maybe payment method token and email sent verification
+			// code should also be invisible. Problem for an other day.
+			&cli.StringFlag{
+				Name:  "password",
+				Usage: "Password to use for login. If not provided, will be asked for during login. Useful for automated scripts",
 			},
 		},
-	}
+	})
 }
