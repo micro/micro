@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"net/http"
 	"sort"
 	"strings"
 	"time"
@@ -55,99 +54,6 @@ func formatEndpoint(v *registry.Value, r int) string {
 	fparts = append(fparts, "}\n")
 
 	return fmt.Sprintf(strings.Join(fparts, ""), vals...)
-}
-
-func del(url string, b []byte, v interface{}) error {
-	if !strings.HasPrefix(url, "http") && !strings.HasPrefix(url, "https") {
-		url = "http://" + url
-	}
-
-	buf := bytes.NewBuffer(b)
-	defer buf.Reset()
-
-	req, err := http.NewRequest("DELETE", url, buf)
-	if err != nil {
-		return err
-	}
-
-	rsp, err := http.DefaultClient.Do(req)
-	if err != nil {
-		return err
-	}
-	defer rsp.Body.Close()
-
-	if v == nil {
-		return nil
-	}
-
-	d := json.NewDecoder(rsp.Body)
-	d.UseNumber()
-	return d.Decode(v)
-}
-
-func get(url string, v interface{}) error {
-	if !strings.HasPrefix(url, "http") && !strings.HasPrefix(url, "https") {
-		url = "http://" + url
-	}
-
-	rsp, err := http.Get(url)
-	if err != nil {
-		return err
-	}
-	defer rsp.Body.Close()
-
-	d := json.NewDecoder(rsp.Body)
-	d.UseNumber()
-	return d.Decode(v)
-}
-
-func post(url string, b []byte, v interface{}) error {
-	if !strings.HasPrefix(url, "http") && !strings.HasPrefix(url, "https") {
-		url = "http://" + url
-	}
-
-	buf := bytes.NewBuffer(b)
-	defer buf.Reset()
-
-	rsp, err := http.Post(url, "application/json", buf)
-	if err != nil {
-		return err
-	}
-	defer rsp.Body.Close()
-
-	if v == nil {
-		return nil
-	}
-
-	d := json.NewDecoder(rsp.Body)
-	d.UseNumber()
-	return d.Decode(v)
-}
-
-func getPeers(v map[string]interface{}) map[string]string {
-	if v == nil {
-		return nil
-	}
-
-	peers := make(map[string]string)
-	node := v["node"].(map[string]interface{})
-	peers[node["id"].(string)] = node["address"].(string)
-
-	// return peers if nil
-	if v["peers"] == nil {
-		return peers
-	}
-
-	nodes := v["peers"].([]interface{})
-
-	for _, peer := range nodes {
-		p := getPeers(peer.(map[string]interface{}))
-		for id, address := range p {
-			peers[id] = address
-		}
-	}
-
-	return peers
 }
 
 func callContext(c *cli.Context) context.Context {
