@@ -14,6 +14,20 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v1
+    - name: Set up Go 1.13
+      uses: actions/setup-go@v2
+      with:
+        go-version: 1.13
+      id: go
+    - name: Enable caching
+      # We would use the official actions/cache@v2, but it doesn't save the cache if the build fails
+      # caches are scoped to a branch but will also check the default branch upon cache miss
+      uses: pat-s/always-upload-cache@v2.0.0 
+      with:
+        path: ~/go/pkg/mod
+        key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+        restore-keys: |
+          ${{ runner.os }}-go-
 
     # We set up a local docker registry to push to and pull from. We need to set up the Kind cluster to pull from this
     # http://man7.org/linux/man-pages/man1/date.1.html
@@ -46,11 +60,6 @@ jobs:
         for node in $(kind get nodes); do kubectl annotate node "${node}" "kind.x-k8s.io/registry=localhost:5000"; done
 
     # Now let's build an image and push to our local registry
-    - name: Set up Go 1.13
-      uses: actions/setup-go@v2
-      with:
-        go-version: 1.13
-      id: go
     - name: Push to local registry
       run: |
         docker build -f Dockerfile . -t micro --cache-from=localhost:5000/micro --build-arg BUILDKIT_INLINE_CACHE=1
@@ -74,15 +83,6 @@ jobs:
     # Finally, we can actually build and run the tests
     - name: Install Protoc
       uses: arduino/setup-protoc@master
-    - name: Enable caching
-      # We would use the official actions/cache@v2, but it doesn't save the cache if the build fails
-      # caches are scoped to a branch but will also check the default branch upon cache miss
-      uses: pat-s/always-upload-cache@v2.0.0 
-      with:
-        path: ~/go/pkg/mod
-        key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
-        restore-keys: |
-          ${{ runner.os }}-go-
     - name: Install micro
       run: |
         go install
