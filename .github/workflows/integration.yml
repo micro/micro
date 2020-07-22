@@ -34,7 +34,7 @@ jobs:
     - name: Install micro
       run: |
         go install # this is used by the tests themselves
-        cp `which micro` .
+        GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build
     # This sets up a local docker registry to cache 
     # Based on https://dev.to/dtinth/caching-docker-builds-in-github-actions-which-approach-is-the-fastest-a-research-18ei
     - name: Setup docker caching
@@ -44,10 +44,11 @@ jobs:
       uses: pat-s/always-upload-cache@v2.0.0
       with:
         path: /tmp/docker-registry
-        key: docker-registry-bk-${{ hashFiles('test/Dockerfile') }}
+        key: docker-registry-int-${{ hashFiles('test/Dockerfile') }}
     - name: Setup docker registry
       run: |
         docker run -d -p 5000:5000 --restart=always --name registry -v /tmp/docker-registry:/var/lib/registry registry:2 && npx wait-on tcp:5000
+        docker pull localhost:5000/micro || true
     - name: Build docker image
       run: |
         docker build -f test/Dockerfile . -t micro --cache-from=localhost:5000/micro
