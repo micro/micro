@@ -46,13 +46,13 @@ func login(ctx *cli.Context) error {
 		// clear tokens and try again
 		if err := token.Remove(env.Name); err != nil {
 			fmt.Printf("Error: %s\n", err)
-			report.Error(ctx, "%v: Token remove: %v", email, err.Error())
+			report.Errorf(ctx, "%v: Token remove: %v", email, err.Error())
 			os.Exit(1)
 		}
 		authSrv, err = authFromContext(ctx)
 		if err != nil {
 			fmt.Printf("Error: %s\n", err)
-			report.Error(ctx, "%v: Getting auth: %v", email, err.Error())
+			report.Errorf(ctx, "%v: Getting auth: %v", email, err.Error())
 			os.Exit(1)
 		}
 
@@ -74,7 +74,7 @@ func login(ctx *cli.Context) error {
 	tok, err := authSrv.Token(auth.WithCredentials(email, password), auth.WithTokenIssuer(ns))
 	if err != nil {
 		fmt.Println(err)
-		report.Error(ctx, "%v: Getting token: %v", email, err.Error())
+		report.Errorf(ctx, "%v: Getting token: %v", email, err.Error())
 		os.Exit(1)
 	}
 	token.Save(env.Name, tok)
