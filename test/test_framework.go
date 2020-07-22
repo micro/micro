@@ -16,17 +16,19 @@ import (
 	"github.com/micro/micro/v2/client/cli/token"
 )
 
-var retryCount = 2
-var isParallel = true
-var ignoreThisError = errors.New("Do not use this error")
-
 const (
 	minPort = 8000
 	maxPort = 60000
 )
 
-var testFilter = []string{}
-var maxTimeMultiplier = time.Duration(1)
+var (
+	retryCount        = 2
+	isParallel        = true
+	ignoreThisError   = errors.New("Do not use this error")
+	errFatal          = errors.New("Fatal error")
+	testFilter        = []string{}
+	maxTimeMultiplier = time.Duration(1)
+)
 
 type cmdFunc func() ([]byte, error)
 
@@ -359,8 +361,6 @@ func trySuite(t *testing.T, f func(t *t), times int) {
 		}
 	}
 }
-
-var errFatal = errors.New("Fatal error")
 
 func wrapF(t *t, f func(t *t)) {
 	defer func() {
