@@ -75,22 +75,12 @@ func SetProxyAddress(ctx *ccli.Context) {
 	if ctx.Args().First() == "service" && isBuiltinService(ctx.Args().Get(1)) {
 		return
 	}
-	if ctx.Args().Len() == 1 && isBuiltinService(ctx.Args().First()) {
-		return
-	}
 	if ctx.Args().Len() >= 1 && ctx.Args().First() == "env" {
 		return
 	}
 
-	if ctx.App.Command(ctx.Args().First()) == nil {
-		// unrecognised command
-		return
-	}
-
 	env := GetEnv(ctx)
-
-	// if we're running a local environment return here
-	if len(env.ProxyAddress) == 0 || env.Name == EnvLocal {
+	if len(env.ProxyAddress) == 0 {
 		return
 	}
 

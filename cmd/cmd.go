@@ -14,6 +14,7 @@ import (
 
 	"github.com/micro/go-micro/v2/broker"
 	"github.com/micro/go-micro/v2/client"
+	"github.com/micro/go-micro/v2/runtime"
 	"github.com/micro/go-micro/v2/server"
 	"github.com/micro/go-micro/v2/store"
 
@@ -38,6 +39,7 @@ import (
 	mubroker "github.com/micro/micro/v2/service/broker"
 	muclient "github.com/micro/micro/v2/service/client"
 	muregistry "github.com/micro/micro/v2/service/registry"
+	muruntime "github.com/micro/micro/v2/service/runtime"
 	muserver "github.com/micro/micro/v2/service/server"
 	mustore "github.com/micro/micro/v2/service/store"
 )
@@ -342,6 +344,11 @@ func before(ctx *cli.Context) error {
 	}
 	if err := mustore.DefaultStore.Init(storeOpts...); err != nil {
 		logger.Fatalf("Error configuring store: %v", err)
+	}
+
+	// Set runtime client
+	if err := muruntime.DefaultRuntime.Init(runtime.WithClient(cli)); err != nil {
+		logger.Fatalf("Error configuring runtime: %v", err)
 	}
 
 	// set the registry in the client and server
