@@ -154,9 +154,6 @@ func Run(context *cli.Context) error {
 	// Use default update notifier
 	if context.Bool("auto_update") {
 		updateURL := context.String("update_url")
-		if len(updateURL) == 0 {
-			updateURL = update.DefaultURL
-		}
 
 		options := []gorun.Option{
 			gorun.WithScheduler(update.NewScheduler(updateURL, fmt.Sprintf("%d", time.Now().Unix()))),
