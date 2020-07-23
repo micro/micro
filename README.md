@@ -75,7 +75,7 @@ micro run helloworld
 micro services
 
 # call a service
-micro call hellworld Hellworld.Call '{"name": "John"}'
+micro call helloworld Helloworld.Call '{"name": "John"}'
 ```
 
 ## Usage
