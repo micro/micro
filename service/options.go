@@ -11,8 +11,10 @@ import (
 	"github.com/micro/go-micro/v2/server"
 
 	muauth "github.com/micro/micro/v2/service/auth"
+	muclient "github.com/micro/micro/v2/service/client"
 	muregistry "github.com/micro/micro/v2/service/registry"
 	murouter "github.com/micro/micro/v2/service/router"
+	muserver "github.com/micro/micro/v2/service/server"
 )
 
 // Options for micro service
@@ -54,42 +56,42 @@ func HandleSignal(b bool) Option {
 // Address sets the address of the server
 func Address(addr string) Option {
 	return func(o *Options) {
-		DefaultServer.Init(server.Address(addr))
+		muserver.DefaultServer.Init(server.Address(addr))
 	}
 }
 
 // Name of the service
 func Name(n string) Option {
 	return func(o *Options) {
-		DefaultServer.Init(server.Name(n))
+		muserver.DefaultServer.Init(server.Name(n))
 	}
 }
 
 // Version of the service
 func Version(v string) Option {
 	return func(o *Options) {
-		DefaultServer.Init(server.Version(v))
+		muserver.DefaultServer.Init(server.Version(v))
 	}
 }
 
 // Metadata associated with the service
 func Metadata(md map[string]string) Option {
 	return func(o *Options) {
-		DefaultServer.Init(server.Metadata(md))
+		muserver.DefaultServer.Init(server.Metadata(md))
 	}
 }
 
 // RegisterTTL specifies the TTL to use when registering the service
 func RegisterTTL(t time.Duration) Option {
 	return func(o *Options) {
-		DefaultServer.Init(server.RegisterTTL(t))
+		muserver.DefaultServer.Init(server.RegisterTTL(t))
 	}
 }
 
 // RegisterInterval specifies the interval on which to re-register
 func RegisterInterval(t time.Duration) Option {
 	return func(o *Options) {
-		DefaultServer.Init(server.RegisterInterval(t))
+		muserver.DefaultServer.Init(server.RegisterInterval(t))
 	}
 }
 
@@ -98,8 +100,8 @@ func Registry(r registry.Registry) Option {
 	return func(o *Options) {
 		muregistry.DefaultRegistry = r
 		murouter.DefaultRouter.Init(router.Registry(r))
-		DefaultServer.Init(server.Registry(r))
-		DefaultClient.Init(client.Registry(r))
+		muserver.DefaultServer.Init(server.Registry(r))
+		muclient.DefaultClient.Init(client.Registry(r))
 	}
 }
 
@@ -126,7 +128,7 @@ func WrapClient(w ...client.Wrapper) Option {
 	return func(o *Options) {
 		// apply in reverse
 		for i := len(w); i > 0; i-- {
-			DefaultClient = w[i-1](DefaultClient)
+			muclient.DefaultClient = w[i-1](muclient.DefaultClient)
 		}
 	}
 }
@@ -134,7 +136,7 @@ func WrapClient(w ...client.Wrapper) Option {
 // WrapCall is a convenience method for wrapping a Client CallFunc
 func WrapCall(w ...client.CallWrapper) Option {
 	return func(o *Options) {
-		DefaultClient.Init(client.WrapCall(w...))
+		muclient.DefaultClient.Init(client.WrapCall(w...))
 	}
 }
 
@@ -148,7 +150,7 @@ func WrapHandler(w ...server.HandlerWrapper) Option {
 		}
 
 		// Init once
-		DefaultServer.Init(wrappers...)
+		muserver.DefaultServer.Init(wrappers...)
 	}
 }
 
@@ -162,7 +164,7 @@ func WrapSubscriber(w ...server.SubscriberWrapper) Option {
 		}
 
 		// Init once
-		DefaultServer.Init(wrappers...)
+		muserver.DefaultServer.Init(wrappers...)
 	}
 }
 

@@ -5,8 +5,8 @@ import (
 	"io"
 	"sync"
 
-	"github.com/micro/go-micro/v2/client"
 	"github.com/micro/go-micro/v2/runtime"
+	"github.com/micro/micro/v2/service/client"
 	pb "github.com/micro/micro/v2/service/runtime/proto"
 )
 

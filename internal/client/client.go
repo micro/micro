@@ -9,11 +9,11 @@ import (
 	"github.com/micro/go-micro/v2/auth"
 	"github.com/micro/go-micro/v2/client"
 	"github.com/micro/go-micro/v2/client/grpc"
-	"github.com/micro/go-micro/v2/cmd"
 	"github.com/micro/go-micro/v2/metadata"
 	"github.com/micro/micro/v2/client/cli/namespace"
 	clitoken "github.com/micro/micro/v2/client/cli/token"
 	cliutil "github.com/micro/micro/v2/client/cli/util"
+	muauth "github.com/micro/micro/v2/service/auth"
 )
 
 // New returns a wrapped grpc client which will inject the
@@ -67,10 +67,6 @@ func (a *wrapper) Call(ctx context.Context, req client.Request, rsp interface{},
 	return a.Client.Call(ctx, req, rsp, opts...)
 }
 
-func (a *wrapper) authFromContext(ctx *ccli.Context) auth.Auth {
-	return *cmd.DefaultCmd.Options().Auth
-}
-
 // getAccessToken handles exchanging refresh tokens to access tokens
 // The structure of the local micro userconfig file is the following:
 // micro.auth.[envName].token: temporary access token
@@ -96,7 +92,7 @@ func (a *wrapper) getAccessToken(envName string, ctx *ccli.Context) error {
 	}
 
 	// Get new access token from refresh token if it's close to expiry
-	tok, err = a.authFromContext(a.context).Token(auth.WithToken(tok.RefreshToken), auth.WithTokenIssuer(a.ns))
+	tok, err = muauth.DefaultAuth.Token(auth.WithToken(tok.RefreshToken), auth.WithTokenIssuer(a.ns))
 	if err != nil {
 		return err
 	}

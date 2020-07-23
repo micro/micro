@@ -13,7 +13,6 @@ import (
 
 	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro/v2/client"
-	"github.com/micro/go-micro/v2/cmd"
 	cbytes "github.com/micro/go-micro/v2/codec/bytes"
 	proto "github.com/micro/go-micro/v2/debug/service/proto"
 	"github.com/micro/go-micro/v2/metadata"
@@ -21,6 +20,8 @@ import (
 	"github.com/micro/micro/v2/client/cli/namespace"
 	"github.com/micro/micro/v2/client/cli/util"
 	inclient "github.com/micro/micro/v2/internal/client"
+	muclient "github.com/micro/micro/v2/service/client"
+	muregistry "github.com/micro/micro/v2/service/registry"
 
 	"github.com/serenize/snaker"
 )
@@ -184,7 +185,7 @@ func RegisterService(c *cli.Context, args []string) ([]byte, error) {
 		return nil, err
 	}
 
-	reg := *cmd.DefaultCmd.Options().Registry
+	reg := muregistry.DefaultRegistry
 	if err := reg.Register(srv); err != nil {
 		return nil, err
 	}
@@ -208,7 +209,7 @@ func DeregisterService(c *cli.Context, args []string) ([]byte, error) {
 		return nil, err
 	}
 
-	reg := *cmd.DefaultCmd.Options().Registry
+	reg := muregistry.DefaultRegistry
 
 	if err := reg.Deregister(srv); err != nil {
 		return nil, err
@@ -230,7 +231,7 @@ func GetService(c *cli.Context, args []string) ([]byte, error) {
 	var output []string
 	var srv []*registry.Service
 
-	reg := *cmd.DefaultCmd.Options().Registry
+	reg := muregistry.DefaultRegistry
 
 	srv, err = reg.GetService(args[0], registry.GetDomain(ns))
 	if err != nil {
@@ -304,7 +305,7 @@ func ListServices(c *cli.Context) ([]byte, error) {
 		return nil, err
 	}
 
-	reg := *cmd.DefaultCmd.Options().Registry
+	reg := muregistry.DefaultRegistry
 
 	rsp, err = reg.ListServices(registry.ListDomain(ns))
 	if err != nil {
@@ -331,7 +332,7 @@ func Publish(c *cli.Context, args []string) error {
 	topic := args[0]
 	message := args[1]
 
-	cl := *cmd.DefaultCmd.Options().Client
+	cl := muclient.DefaultClient
 	ct := func(o *client.MessageOptions) {
 		o.ContentType = "application/json"
 	}
@@ -428,12 +429,12 @@ func QueryHealth(c *cli.Context, args []string) ([]byte, error) {
 		return nil, err
 	}
 
-	req := (*cmd.DefaultCmd.Options().Client).NewRequest(args[0], "Debug.Health", &proto.HealthRequest{})
+	req := (muclient.DefaultClient).NewRequest(args[0], "Debug.Health", &proto.HealthRequest{})
 
 	// if the address is specified then we just call it
 	if addr := c.String("address"); len(addr) > 0 {
 		rsp := &proto.HealthResponse{}
-		err := (*cmd.DefaultCmd.Options().Client).Call(
+		err := (muclient.DefaultClient).Call(
 			context.Background(),
 			req,
 			rsp,
@@ -446,7 +447,7 @@ func QueryHealth(c *cli.Context, args []string) ([]byte, error) {
 	}
 
 	// otherwise get the service and call each instance individually
-	reg := *cmd.DefaultCmd.Options().Registry
+	reg := muregistry.DefaultRegistry
 
 	service, err := reg.GetService(args[0], registry.GetDomain(ns))
 	if err != nil {
@@ -474,7 +475,7 @@ func QueryHealth(c *cli.Context, args []string) ([]byte, error) {
 			var err error
 
 			// call using client
-			err = (*cmd.DefaultCmd.Options().Client).Call(
+			err = (muclient.DefaultClient).Call(
 				context.Background(),
 				req,
 				rsp,
@@ -504,7 +505,7 @@ func QueryStats(c *cli.Context, args []string) ([]byte, error) {
 		return nil, err
 	}
 
-	reg := *cmd.DefaultCmd.Options().Registry
+	reg := muregistry.DefaultRegistry
 
 	service, err := reg.GetService(args[0], registry.GetDomain(ns))
 	if err != nil {
@@ -515,7 +516,7 @@ func QueryStats(c *cli.Context, args []string) ([]byte, error) {
 		return nil, errors.New("Service not found")
 	}
 
-	req := (*cmd.DefaultCmd.Options().Client).NewRequest(service[0].Name, "Debug.Stats", &proto.StatsRequest{})
+	req := (muclient.DefaultClient).NewRequest(service[0].Name, "Debug.Stats", &proto.StatsRequest{})
 
 	var output []string
 
@@ -534,7 +535,7 @@ func QueryStats(c *cli.Context, args []string) ([]byte, error) {
 			var err error
 
 			// call using client
-			err = (*cmd.DefaultCmd.Options().Client).Call(
+			err = (muclient.DefaultClient).Call(
 				context.Background(),
 				req,
 				rsp,

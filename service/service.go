@@ -8,29 +8,22 @@ import (
 	"sync"
 
 	"github.com/micro/go-micro/v2/client"
-	"github.com/micro/go-micro/v2/cmd"
 	debug "github.com/micro/go-micro/v2/debug/service/handler"
+	"github.com/micro/go-micro/v2/debug/stats"
 	"github.com/micro/go-micro/v2/debug/trace"
+	memTracer "github.com/micro/go-micro/v2/debug/trace/memory"
 	"github.com/micro/go-micro/v2/logger"
 	"github.com/micro/go-micro/v2/model"
+	"github.com/micro/go-micro/v2/model/mud"
 	"github.com/micro/go-micro/v2/plugin"
 	"github.com/micro/go-micro/v2/server"
 	"github.com/micro/go-micro/v2/store"
 	signalutil "github.com/micro/go-micro/v2/util/signal"
-
-	// defaults
-	grpcClient "github.com/micro/go-micro/v2/client/grpc"
-	"github.com/micro/go-micro/v2/debug/stats"
-	memTracer "github.com/micro/go-micro/v2/debug/trace/memory"
-	"github.com/micro/go-micro/v2/model/mud"
-	grpcServer "github.com/micro/go-micro/v2/server/grpc"
+	muclient "github.com/micro/micro/v2/service/client"
+	muserver "github.com/micro/micro/v2/service/server"
 )
 
 var (
-	// DefaultClient for the service
-	DefaultClient client.Client = grpcClient.NewClient()
-	// DefaultServer for the service
-	DefaultServer server.Server = grpcServer.NewServer()
 	// DefaultModel for the service
 	DefaultModel model.Model = mud.NewModel()
 
@@ -41,13 +34,13 @@ var (
 
 func init() {
 	// wrap the client
-	DefaultClient = cacheClient(DefaultClient)
-	DefaultClient = authClient(DefaultClient)
-	DefaultClient = fromService(DefaultClient)
-	DefaultClient = traceCall(DefaultClient)
+	muclient.DefaultClient = cacheClient(muclient.DefaultClient)
+	muclient.DefaultClient = authClient(muclient.DefaultClient)
+	muclient.DefaultClient = fromService(muclient.DefaultClient)
+	muclient.DefaultClient = traceCall(muclient.DefaultClient)
 
 	// wrap the server
-	DefaultServer.Init(
+	muserver.DefaultServer.Init(
 		server.WrapHandler(handlerStats()),
 		server.WrapHandler(traceHandler()),
 		server.WrapHandler(authHandler()),
@@ -67,7 +60,7 @@ func New(opts ...Option) *Service {
 
 // Name of the service
 func (s *Service) Name() string {
-	return DefaultServer.Options().Name
+	return muserver.DefaultServer.Options().Name
 }
 
 // Init initialises options. Additionally it calls cmd.Init
@@ -103,12 +96,6 @@ func (s *Service) Init(opts ...Option) {
 			s.opts.Cmd.App().Name = s.Server().Options().Name
 		}
 
-		// Initialise the command options
-		s.opts.Cmd.Init(
-			cmd.Client(&DefaultClient),
-			cmd.Server(&DefaultServer),
-		)
-
 		// run the command line
 		// TODO: move to service.Run
 		if err := s.opts.Cmd.Run(); err != nil {
@@ -126,11 +113,11 @@ func (s *Service) Options() Options {
 }
 
 func (s *Service) Client() client.Client {
-	return DefaultClient
+	return muclient.DefaultClient
 }
 
 func (s *Service) Server() server.Server {
-	return DefaultServer
+	return muserver.DefaultServer
 }
 
 func (s *Service) Model() model.Model {
@@ -148,7 +135,7 @@ func (s *Service) Start() error {
 		}
 	}
 
-	if err := DefaultServer.Start(); err != nil {
+	if err := muserver.DefaultServer.Start(); err != nil {
 		return err
 	}
 
@@ -170,7 +157,7 @@ func (s *Service) Stop() error {
 		}
 	}
 
-	if err := DefaultServer.Stop(); err != nil {
+	if err := muserver.DefaultServer.Stop(); err != nil {
 		return err
 	}
 
@@ -185,9 +172,9 @@ func (s *Service) Stop() error {
 
 func (s *Service) Run() error {
 	// register the debug handler
-	DefaultServer.Handle(
-		DefaultServer.NewHandler(
-			debug.NewHandler(DefaultClient),
+	muserver.DefaultServer.Handle(
+		muserver.DefaultServer.NewHandler(
+			debug.NewHandler(muclient.DefaultClient),
 			server.InternalHandler(true),
 		),
 	)
@@ -225,12 +212,12 @@ func (s *Service) Run() error {
 
 // RegisterHandler is syntactic sugar for registering a handler
 func RegisterHandler(h interface{}, opts ...server.HandlerOption) error {
-	return DefaultServer.Handle(DefaultServer.NewHandler(h, opts...))
+	return muserver.DefaultServer.Handle(muserver.DefaultServer.NewHandler(h, opts...))
 }
 
 // RegisterSubscriber is syntactic sugar for registering a subscriber
 func RegisterSubscriber(topic string, h interface{}, opts ...server.SubscriberOption) error {
-	return DefaultServer.Subscribe(DefaultServer.NewSubscriber(topic, h, opts...))
+	return muserver.DefaultServer.Subscribe(muserver.DefaultServer.NewSubscriber(topic, h, opts...))
 }
 
 // Event is an object messages are published to
@@ -240,7 +227,7 @@ type Event struct {
 
 // Publish a message to an event
 func (e *Event) Publish(ctx context.Context, msg interface{}, opts ...client.PublishOption) error {
-	return DefaultClient.Publish(ctx, DefaultClient.NewMessage(e.topic, msg), opts...)
+	return muclient.DefaultClient.Publish(ctx, muclient.DefaultClient.NewMessage(e.topic, msg), opts...)
 }
 
 // NewEvent creates a new event publisher

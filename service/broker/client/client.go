@@ -8,6 +8,7 @@ import (
 	"github.com/micro/go-micro/v2/client"
 	"github.com/micro/go-micro/v2/logger"
 	pb "github.com/micro/micro/v2/service/broker/proto"
+	muclient "github.com/micro/micro/v2/service/client"
 )
 
 var (
@@ -136,7 +137,7 @@ func NewBroker(opts ...broker.Option) broker.Broker {
 		addrs = []string{address}
 	}
 
-	cli := client.DefaultClient
+	cli := muclient.DefaultClient
 
 	// get options client from the context. We set this in the context to prevent an import loop, as
 	// the client depends on the broker

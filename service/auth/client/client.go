@@ -10,6 +10,7 @@ import (
 	"github.com/micro/go-micro/v2/util/token"
 	"github.com/micro/go-micro/v2/util/token/jwt"
 	pb "github.com/micro/micro/v2/service/auth/proto"
+	muclient "github.com/micro/micro/v2/service/client"
 )
 
 // srv is the service implementation of the Auth interface
@@ -286,7 +287,7 @@ func (s *srv) callOpts() []client.CallOption {
 func NewAuth(opts ...auth.Option) auth.Auth {
 	options := auth.NewOptions(opts...)
 	if options.Client == nil {
-		options.Client = client.DefaultClient
+		options.Client = muclient.DefaultClient
 	}
 	if len(options.Addrs) == 0 {
 		options.Addrs = []string{"127.0.0.1:8010"}

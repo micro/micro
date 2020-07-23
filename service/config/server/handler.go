@@ -7,14 +7,14 @@ import (
 	"sync"
 	"time"
 
-	"github.com/micro/go-micro/v2/client"
 	cr "github.com/micro/go-micro/v2/config/reader"
 	jr "github.com/micro/go-micro/v2/config/reader/json"
 	"github.com/micro/go-micro/v2/config/source"
-	pb "github.com/micro/micro/v2/service/config/proto"
 	"github.com/micro/go-micro/v2/errors"
 	"github.com/micro/go-micro/v2/store"
 	"github.com/micro/micro/v2/internal/namespace"
+	muclient "github.com/micro/micro/v2/service/client"
+	pb "github.com/micro/micro/v2/service/config/proto"
 )
 
 const (
@@ -453,6 +453,7 @@ func values(ch *source.ChangeSet) (cr.Values, error) {
 
 // publish a change
 func publish(ctx context.Context, ch *pb.WatchResponse) error {
-	req := client.NewMessage(watchTopic, ch)
-	return client.Publish(ctx, req)
+	c := muclient.DefaultClient
+	req := c.NewMessage(watchTopic, ch)
+	return c.Publish(ctx, req)
 }

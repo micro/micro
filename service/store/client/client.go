@@ -11,6 +11,7 @@ import (
 	"github.com/micro/go-micro/v2/errors"
 	"github.com/micro/go-micro/v2/metadata"
 	"github.com/micro/go-micro/v2/store"
+	muclient "github.com/micro/micro/v2/service/client"
 	pb "github.com/micro/micro/v2/service/store/proto"
 )
 
@@ -43,7 +44,7 @@ func (s *srv) Init(opts ...store.Option) error {
 	s.Nodes = s.options.Nodes
 
 	if s.options.Client == nil {
-		s.options.Client = client.DefaultClient
+		s.options.Client = muclient.DefaultClient
 	}
 	s.Client = pb.NewStoreService("go.micro.store", s.options.Client)
 
@@ -247,7 +248,7 @@ func NewStore(opts ...store.Option) store.Store {
 	}
 
 	if options.Client == nil {
-		options.Client = client.DefaultClient
+		options.Client = muclient.DefaultClient
 	}
 
 	service := &srv{

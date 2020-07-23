@@ -10,10 +10,11 @@ import (
 
 	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro/v2/auth"
-	pb "github.com/micro/micro/v2/service/auth/proto"
 	"github.com/micro/micro/v2/client/cli/namespace"
 	"github.com/micro/micro/v2/client/cli/util"
 	"github.com/micro/micro/v2/internal/client"
+	muauth "github.com/micro/micro/v2/service/auth"
+	pb "github.com/micro/micro/v2/service/auth/proto"
 )
 
 func listAccounts(ctx *cli.Context) error {
@@ -72,12 +73,7 @@ func createAccount(ctx *cli.Context) error {
 	if len(ctx.String("secret")) > 0 {
 		options = append(options, auth.WithSecret(ctx.String("secret")))
 	}
-	auth, err := authFromContext(ctx)
-	if err != nil {
-		fmt.Printf("Error getting auth: %v\n", err)
-		os.Exit(1)
-	}
-	acc, err := auth.Generate(ctx.Args().First(), options...)
+	acc, err := muauth.DefaultAuth.Generate(ctx.Args().First(), options...)
 	if err != nil {
 		return fmt.Errorf("Error creating account: %v", err)
 	}

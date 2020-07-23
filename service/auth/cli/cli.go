@@ -2,8 +2,6 @@ package cli
 
 import (
 	"github.com/micro/cli/v2"
-	"github.com/micro/go-micro/v2/auth"
-	mcmd "github.com/micro/go-micro/v2/cmd"
 	"github.com/micro/micro/v2/cmd"
 	"github.com/micro/micro/v2/internal/helper"
 	// imported specifically for signup
@@ -43,10 +41,6 @@ var (
 		},
 	}
 )
-
-func authFromContext(ctx *cli.Context) (auth.Auth, error) {
-	return *mcmd.DefaultCmd.Options().Auth, nil
-}
 
 func init() {
 	cmd.Register(

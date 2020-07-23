@@ -8,8 +8,6 @@ import (
 	"time"
 
 	"github.com/micro/cli/v2"
-	"github.com/micro/go-micro/v2/client"
-	mcmd "github.com/micro/go-micro/v2/cmd"
 	log "github.com/micro/go-micro/v2/logger"
 	gorun "github.com/micro/go-micro/v2/runtime"
 	"github.com/micro/go-micro/v2/util/file"
@@ -17,6 +15,8 @@ import (
 	"github.com/micro/micro/v2/cmd"
 	"github.com/micro/micro/v2/internal/update"
 	"github.com/micro/micro/v2/service"
+	"github.com/micro/micro/v2/service/client"
+	muruntime "github.com/micro/micro/v2/service/runtime"
 )
 
 var (
@@ -149,7 +149,7 @@ func Run(context *cli.Context) error {
 	log.Info("Loading core services")
 
 	// create new micro runtime
-	muRuntime := mcmd.DefaultCmd.Options().Runtime
+	muRuntime := muruntime.DefaultRuntime
 
 	// Use default update notifier
 	if context.Bool("auto_update") {
@@ -161,7 +161,7 @@ func Run(context *cli.Context) error {
 		options := []gorun.Option{
 			gorun.WithScheduler(update.NewScheduler(updateURL, fmt.Sprintf("%d", time.Now().Unix()))),
 		}
-		(*muRuntime).Init(options...)
+		muRuntime.Init(options...)
 	}
 
 	for _, service := range services {
@@ -206,7 +206,7 @@ func Run(context *cli.Context) error {
 
 		// NOTE: we use Version right now to check for the latest release
 		muService := &gorun.Service{Name: name, Version: fmt.Sprintf("%d", time.Now().Unix())}
-		if err := (*muRuntime).Create(muService, args...); err != nil {
+		if err := muRuntime.Create(muService, args...); err != nil {
 			log.Errorf("Failed to create runtime environment: %v", err)
 			return err
 		}
@@ -215,7 +215,7 @@ func Run(context *cli.Context) error {
 	log.Info("Starting service runtime")
 
 	// start the runtime
-	if err := (*muRuntime).Start(); err != nil {
+	if err := muRuntime.Start(); err != nil {
 		log.Fatal(err)
 		return err
 	}
@@ -241,7 +241,7 @@ func Run(context *cli.Context) error {
 	log.Info("Stopping service runtime")
 
 	// stop all the things
-	if err := (*muRuntime).Stop(); err != nil {
+	if err := muRuntime.Stop(); err != nil {
 		log.Fatal(err)
 		return err
 	}

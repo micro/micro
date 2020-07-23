@@ -13,6 +13,7 @@ import (
 	"github.com/micro/micro/v2/client/cli/token"
 	"github.com/micro/micro/v2/client/cli/util"
 	platform "github.com/micro/micro/v2/platform/cli"
+	muauth "github.com/micro/micro/v2/service/auth"
 	"golang.org/x/crypto/ssh/terminal"
 )
 
@@ -40,19 +41,10 @@ func login(ctx *cli.Context) error {
 		email = strings.TrimSpace(email)
 	}
 
-	authSrv, err := authFromContext(ctx)
-	if err != nil {
-		// clear tokens and try again
-		if err := token.Remove(env.Name); err != nil {
-			fmt.Printf("Error: %s\n", err)
-			os.Exit(1)
-		}
-		authSrv, err = authFromContext(ctx)
-		if err != nil {
-			fmt.Printf("Error: %s\n", err)
-			os.Exit(1)
-		}
-
+	// clear tokens and try again
+	if err := token.Remove(env.Name); err != nil {
+		fmt.Printf("Error: %s\n", err)
+		os.Exit(1)
 	}
 	ns, err := namespace.Get(env.Name)
 	if err != nil {
@@ -68,7 +60,7 @@ func login(ctx *cli.Context) error {
 		password = strings.TrimSpace(pw)
 		fmt.Println()
 	}
-	tok, err := authSrv.Token(auth.WithCredentials(email, password), auth.WithTokenIssuer(ns))
+	tok, err := muauth.DefaultAuth.Token(auth.WithCredentials(email, password), auth.WithTokenIssuer(ns))
 	if err != nil {
 		return err
 	}

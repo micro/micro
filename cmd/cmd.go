@@ -12,10 +12,11 @@ import (
 	"github.com/micro/micro/v2/client/cli/util"
 	inauth "github.com/micro/micro/v2/internal/auth"
 	"github.com/micro/micro/v2/internal/helper"
-	_ "github.com/micro/micro/v2/internal/plugins"
 	"github.com/micro/micro/v2/internal/update"
 	_ "github.com/micro/micro/v2/internal/usage"
 	"github.com/micro/micro/v2/plugin"
+	"github.com/micro/micro/v2/service/auth"
+	"github.com/micro/micro/v2/service/store"
 )
 
 var (
@@ -218,14 +219,14 @@ func setup(app *ccli.App) {
 		// TODO: move this entire initialisation elsewhere
 		// maybe in service.Run so all things are configured
 		if len(opts) > 0 {
-			(*cmd.DefaultCmd.Options().Store).Init(opts...)
+			store.DefaultStore.Init(opts...)
 		}
 
 		// add the system rules if we're using the JWT implementation
 		// which doesn't have access to the rules in the auth service
-		if (*cmd.DefaultCmd.Options().Auth).String() == "jwt" {
+		if auth.DefaultAuth.String() == "jwt" {
 			for _, rule := range inauth.SystemRules {
-				if err := (*cmd.DefaultCmd.Options().Auth).Grant(rule); err != nil {
+				if err := auth.DefaultAuth.Grant(rule); err != nil {
 					return err
 				}
 			}

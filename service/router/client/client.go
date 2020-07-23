@@ -11,6 +11,7 @@ import (
 	"github.com/micro/go-micro/v2/client"
 	"github.com/micro/go-micro/v2/errors"
 	"github.com/micro/go-micro/v2/router"
+	muclient "github.com/micro/micro/v2/service/client"
 	pb "github.com/micro/micro/v2/service/router/proto"
 )
 
@@ -36,7 +37,7 @@ func NewRouter(opts ...router.Option) router.Router {
 	}
 
 	// NOTE: might need some client opts here
-	cli := client.DefaultClient
+	cli := muclient.DefaultClient
 
 	// get options client from the context. We set this in the context to prevent an import loop, as
 	// the client depends on the router

@@ -13,6 +13,7 @@ import (
 	"github.com/micro/go-micro/v2/server"
 	"github.com/micro/micro/v2/internal/namespace"
 	muauth "github.com/micro/micro/v2/service/auth"
+	muclient "github.com/micro/micro/v2/service/client"
 )
 
 type fromServiceWrapper struct {
@@ -23,7 +24,7 @@ const headerPrefix = "Micro-"
 
 func (f *fromServiceWrapper) setHeaders(ctx context.Context) context.Context {
 	return metadata.MergeContext(ctx, metadata.Metadata{
-		headerPrefix + "From-Service": DefaultServer.Options().Name,
+		headerPrefix + "From-Service": server.DefaultServer.Options().Name,
 	}, false)
 }
 
@@ -251,7 +252,7 @@ func (c *cacheWrapper) Call(ctx context.Context, req client.Request, rsp interfa
 	}
 
 	// if the client doesn't have a cacbe setup don't continue
-	cache := DefaultClient.Options().Cache
+	cache := muclient.DefaultClient.Options().Cache
 	if cache == nil {
 		return c.Client.Call(ctx, req, rsp, opts...)
 	}

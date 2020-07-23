@@ -11,6 +11,7 @@ import (
 	"github.com/micro/go-micro/v2/logger"
 	"github.com/micro/micro/v2/client/cli/util"
 	qcli "github.com/micro/micro/v2/internal/command/cli"
+	muclient "github.com/micro/micro/v2/service/client"
 	"golang.org/x/net/context"
 )
 
@@ -49,10 +50,12 @@ func Run(ctx *cli.Context) error {
 	}
 
 	http.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
-		req := client.NewRequest(serverName, "Debug.Health", &proto.HealthRequest{})
+		c := muclient.DefaultClient
+
+		req := c.NewRequest(serverName, "Debug.Health", &proto.HealthRequest{})
 		rsp := &proto.HealthResponse{}
 
-		err := client.Call(context.TODO(), req, rsp, client.WithAddress(serverAddress))
+		err := c.Call(context.TODO(), req, rsp, client.WithAddress(serverAddress))
 		if err != nil || rsp.Status != "ok" {
 			w.WriteHeader(http.StatusInternalServerError)
 			fmt.Fprint(w, "NOT_HEALTHY")

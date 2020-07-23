@@ -4,10 +4,10 @@ import (
 	"sync"
 	"time"
 
-	"github.com/micro/go-micro/v2/cmd"
 	log "github.com/micro/go-micro/v2/logger"
 	"github.com/micro/go-micro/v2/registry"
 	"github.com/micro/go-micro/v2/registry/cache"
+	muregistry "github.com/micro/micro/v2/service/registry"
 )
 
 // Stats is the Debug.Stats handler
@@ -20,7 +20,7 @@ type cached struct {
 
 func newCache(done <-chan bool) *cached {
 	c := &cached{
-		registry: cache.New(*cmd.DefaultCmd.Options().Registry),
+		registry: cache.New(muregistry.DefaultRegistry),
 	}
 
 	// first scan

@@ -4,11 +4,11 @@ import (
 	"os"
 
 	"github.com/micro/cli/v2"
-	"github.com/micro/go-micro/v2/cmd"
 	log "github.com/micro/go-micro/v2/logger"
 	"github.com/micro/go-micro/v2/runtime"
 	"github.com/micro/micro/v2/service"
 	"github.com/micro/micro/v2/service/auth"
+	muruntime "github.com/micro/micro/v2/service/runtime"
 	"github.com/micro/micro/v2/service/runtime/manager"
 	"github.com/micro/micro/v2/service/runtime/profile"
 	pb "github.com/micro/micro/v2/service/runtime/proto"
@@ -72,7 +72,7 @@ func Run(ctx *cli.Context) error {
 	}
 
 	// create runtime
-	muRuntime := *cmd.DefaultCmd.Options().Runtime
+	muRuntime := muruntime.DefaultRuntime
 	if ctx.IsSet("source") {
 		muRuntime.Init(runtime.WithSource(ctx.String("source")))
 	}

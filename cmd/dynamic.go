@@ -10,11 +10,11 @@ import (
 
 	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro/v2/client"
-	"github.com/micro/go-micro/v2/cmd"
 	"github.com/micro/go-micro/v2/registry"
 	"github.com/micro/micro/v2/client/cli/namespace"
 	"github.com/micro/micro/v2/client/cli/util"
 	inclient "github.com/micro/micro/v2/internal/client"
+	muregistry "github.com/micro/micro/v2/service/registry"
 )
 
 // lookupService queries the service for a service with the given alias. If
@@ -33,7 +33,7 @@ func lookupService(ctx *cli.Context) (*registry.Service, error) {
 	}
 
 	// lookup from the registry in the current namespace
-	reg := *cmd.DefaultCmd.Options().Registry
+	reg := muregistry.DefaultRegistry
 	srvs, err := reg.GetService(name, registry.GetDomain(dom))
 	if err != nil {
 		return nil, err
