@@ -16,17 +16,19 @@ import (
 	"github.com/micro/micro/v2/client/cli/token"
 )
 
-var retryCount = 2
-var isParallel = true
-var ignoreThisError = errors.New("Do not use this error")
-
 const (
 	minPort = 8000
 	maxPort = 60000
 )
 
-var testFilter = []string{}
-var maxTimeMultiplier = time.Duration(1)
+var (
+	retryCount        = 2
+	isParallel        = true
+	ignoreThisError   = errors.New("Do not use this error")
+	errFatal          = errors.New("Fatal error")
+	testFilter        = []string{}
+	maxTimeMultiplier = time.Duration(1)
+)
 
 type cmdFunc func() ([]byte, error)
 
@@ -195,7 +197,7 @@ func newLocalServer(t *t, fname string, opts ...options) testServer {
 func (s *testServerBase) launch() error {
 	go func() {
 		if err := s.cmd.Start(); err != nil {
-			s.t.t.Fatal(err)
+			s.t.Fatal(err)
 		}
 	}()
 	// add the environment
@@ -295,6 +297,7 @@ func (t *t) Fatal(values ...interface{}) {
 	t.t.Log(values...)
 	t.failed = true
 	t.values = values
+	panic(errFatal)
 }
 
 func (t *t) Log(values ...interface{}) {
@@ -308,6 +311,7 @@ func (t *t) Fatalf(format string, values ...interface{}) {
 	t.failed = true
 	t.values = values
 	t.format = format
+	panic(errFatal)
 }
 
 func (t *t) Parallel() {
@@ -340,7 +344,7 @@ func trySuite(t *testing.T, f func(t *t), times int) {
 
 	tee := newT(t)
 	for i := 0; i < times; i++ {
-		f(tee)
+		wrapF(tee, f)
 		if !tee.failed {
 			return
 		}
@@ -356,6 +360,17 @@ func trySuite(t *testing.T, f func(t *t), times int) {
 			t.Fatal(tee.values...)
 		}
 	}
+}
+
+func wrapF(t *t, f func(t *t)) {
+	defer func() {
+		if r := recover(); r != nil {
+			if r != errFatal {
+				panic(r)
+			}
+		}
+	}()
+	f(t)
 }
 
 func login(serv testServer, t *t, email, password string) error {
