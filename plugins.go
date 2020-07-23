@@ -49,8 +49,12 @@ import (
 	tmem "github.com/micro/go-micro/v2/transport/memory"
 
 	// stores
+	ckStore "github.com/micro/go-micro/v2/store/cockroach"
+	fileStore "github.com/micro/go-micro/v2/store/file"
 	memStore "github.com/micro/go-micro/v2/store/memory"
 	svcStore "github.com/micro/go-micro/v2/store/service"
+	// we only use CF internally for certs
+	cfStore "github.com/micro/micro/v2/internal/plugins/store/cloudflare"
 
 	// tracers
 	// jTracer "github.com/micro/go-micro/v2/debug/trace/jaeger"
@@ -124,6 +128,9 @@ func init() {
 	// store
 	cmd.DefaultStores["memory"] = memStore.NewStore
 	cmd.DefaultStores["service"] = svcStore.NewStore
+	cmd.DefaultStores["cloudflare"] = cfStore.NewStore
+	cmd.DefaultStores["cockroach"] = ckStore.NewStore
+	cmd.DefaultStores["file"] = fileStore.NewStore
 
 	// trace
 	cmd.DefaultTracers["memory"] = memTracer.NewTracer

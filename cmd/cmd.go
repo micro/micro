@@ -12,7 +12,6 @@ import (
 	"github.com/micro/micro/v2/client/cli/util"
 	inauth "github.com/micro/micro/v2/internal/auth"
 	"github.com/micro/micro/v2/internal/helper"
-	_ "github.com/micro/micro/v2/internal/plugins"
 	"github.com/micro/micro/v2/internal/update"
 	_ "github.com/micro/micro/v2/internal/usage"
 	"github.com/micro/micro/v2/plugin"
