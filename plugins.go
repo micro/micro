@@ -49,6 +49,8 @@ import (
 	tmem "github.com/micro/go-micro/v2/transport/memory"
 
 	// stores
+	ckStore "github.com/micro/go-micro/v2/store/cockroach"
+	fileStore "github.com/micro/go-micro/v2/store/file"
 	memStore "github.com/micro/go-micro/v2/store/memory"
 	svcStore "github.com/micro/go-micro/v2/store/service"
 
@@ -124,6 +126,8 @@ func init() {
 	// store
 	cmd.DefaultStores["memory"] = memStore.NewStore
 	cmd.DefaultStores["service"] = svcStore.NewStore
+	cmd.DefaultStores["cockroach"] = ckStore.NewStore
+	cmd.DefaultStores["file"] = fileStore.NewStore
 
 	// trace
 	cmd.DefaultTracers["memory"] = memTracer.NewTracer

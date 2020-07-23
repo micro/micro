@@ -17,7 +17,6 @@ import (
 	proto "github.com/micro/go-micro/v2/agent/proto"
 	log "github.com/micro/go-micro/v2/logger"
 	"github.com/micro/micro/v2/cmd"
-	botc "github.com/micro/micro/v2/internal/command/bot"
 	"github.com/micro/micro/v2/service"
 
 	// inputs
@@ -44,17 +43,15 @@ var (
 	Namespace = "go.micro.bot"
 	// map pattern:command
 	commands = map[string]func(*cli.Context) command.Command{
-		"^echo ":                             botc.Echo,
-		"^time$":                             botc.Time,
-		"^hello$":                            botc.Hello,
-		"^ping$":                             botc.Ping,
-		"^list ":                             botc.List,
-		"^get ":                              botc.Get,
-		"^health ":                           botc.Health,
-		"^call ":                             botc.Call,
-		"^register ":                         botc.Register,
-		"^deregister ":                       botc.Deregister,
-		"^(the )?three laws( of robotics)?$": botc.ThreeLaws,
+		"^echo ":                             Echo,
+		"^time$":                             Time,
+		"^hello$":                            Hello,
+		"^ping$":                             Ping,
+		"^services$":                         List,
+		"^get ":                              Get,
+		"^health ":                           Health,
+		"^call ":                             Call,
+		"^(the )?three laws( of robotics)?$": ThreeLaws,
 	}
 )
 

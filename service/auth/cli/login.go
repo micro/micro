@@ -12,6 +12,7 @@ import (
 	"github.com/micro/micro/v2/client/cli/namespace"
 	"github.com/micro/micro/v2/client/cli/token"
 	"github.com/micro/micro/v2/client/cli/util"
+	"github.com/micro/micro/v2/internal/report"
 	platform "github.com/micro/micro/v2/platform/cli"
 	"golang.org/x/crypto/ssh/terminal"
 )
@@ -45,11 +46,13 @@ func login(ctx *cli.Context) error {
 		// clear tokens and try again
 		if err := token.Remove(env.Name); err != nil {
 			fmt.Printf("Error: %s\n", err)
+			report.Errorf(ctx, "%v: Token remove: %v", email, err.Error())
 			os.Exit(1)
 		}
 		authSrv, err = authFromContext(ctx)
 		if err != nil {
 			fmt.Printf("Error: %s\n", err)
+			report.Errorf(ctx, "%v: Getting auth: %v", email, err.Error())
 			os.Exit(1)
 		}
 
@@ -70,11 +73,14 @@ func login(ctx *cli.Context) error {
 	}
 	tok, err := authSrv.Token(auth.WithCredentials(email, password), auth.WithTokenIssuer(ns))
 	if err != nil {
-		return err
+		fmt.Println(err)
+		report.Errorf(ctx, "%v: Getting token: %v", email, err.Error())
+		os.Exit(1)
 	}
 	token.Save(env.Name, tok)
 
 	fmt.Println("Successfully logged in.")
+	report.Success(ctx, email)
 	return nil
 }
 

@@ -23,8 +23,22 @@ var config = newConfig()
 // Get a value from the .micro file
 func Get(path ...string) (string, error) {
 	c := newConfig()
-	tk := c.Get(path...).String("")
-	return strings.TrimSpace(tk), nil
+	val := c.Get(path...)
+	v := strings.TrimSpace(val.String(""))
+	if len(v) > 0 {
+		return v, nil
+	}
+
+	// try as bytes
+	v = string(val.Bytes())
+	v = strings.TrimSpace(v)
+
+	// don't return nil decoded value
+	if v == "null" {
+		return "", nil
+	}
+
+	return v, nil
 }
 
 // Set a value in the .micro file

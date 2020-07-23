@@ -86,23 +86,11 @@ func Health(ctx *cli.Context) command.Command {
 
 // List returns a list of services
 func List(ctx *cli.Context) command.Command {
-	usage := "list services"
+	usage := "services"
 	desc := "Returns a list of registered services"
 
-	return command.NewCommand("list", usage, desc, func(args ...string) ([]byte, error) {
-		if len(args) < 2 {
-			return []byte("list what?"), nil
-		}
-		switch args[1] {
-		case "services":
-			rsp, err := clic.ListServices(ctx)
-			if err != nil {
-				return nil, err
-			}
-			return rsp, nil
-		default:
-			return []byte("unknown command...\nsupported commands: \nlist services"), nil
-		}
+	return command.NewCommand("services", usage, desc, func(args ...string) ([]byte, error) {
+		return clic.ListServices(ctx)
 	})
 }
 
@@ -130,56 +118,6 @@ func Call(ctx *cli.Context) command.Command {
 			return nil, err
 		}
 		return rsp, nil
-	})
-}
-
-// Register registers a service
-func Register(ctx *cli.Context) command.Command {
-	usage := "register service [definition]"
-	desc := "Registers a service"
-
-	return command.NewCommand("register", usage, desc, func(args ...string) ([]byte, error) {
-		if len(args) < 2 {
-			return []byte("register what?"), nil
-		}
-		switch args[1] {
-		case "service":
-			if len(args) < 3 {
-				return []byte("require service definition"), nil
-			}
-			rsp, err := clic.RegisterService(ctx, args[2:])
-			if err != nil {
-				return nil, err
-			}
-			return rsp, nil
-		default:
-			return []byte("unknown command...\nsupported commands: \nregister service [definition]"), nil
-		}
-	})
-}
-
-// Deregister registers a service
-func Deregister(ctx *cli.Context) command.Command {
-	usage := "deregister service [definition]"
-	desc := "Deregisters a service"
-
-	return command.NewCommand("deregister", usage, desc, func(args ...string) ([]byte, error) {
-		if len(args) < 2 {
-			return []byte("deregister what?"), nil
-		}
-		switch args[1] {
-		case "service":
-			if len(args) < 3 {
-				return []byte("require service definition"), nil
-			}
-			rsp, err := clic.DeregisterService(ctx, args[2:])
-			if err != nil {
-				return nil, err
-			}
-			return rsp, nil
-		default:
-			return []byte("unknown command...\nsupported commands: \nderegister service [definition]"), nil
-		}
 	})
 }
 
