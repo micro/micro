@@ -43,10 +43,13 @@ func (s *srv) Init(opts ...store.Option) error {
 	s.Table = s.options.Table
 	s.Nodes = s.options.Nodes
 
-	if s.options.Client == nil {
-		s.options.Client = muclient.DefaultClient
+	cli := muclient.DefaultClient
+	if s.options.Context != nil {
+		if c, ok := s.options.Context.Value(clientKey{}).(client.Client); ok {
+			cli = c
+		}
 	}
-	s.Client = pb.NewStoreService("go.micro.store", s.options.Client)
+	s.Client = pb.NewStoreService("go.micro.store", cli)
 
 	return nil
 }
@@ -247,8 +250,11 @@ func NewStore(opts ...store.Option) store.Store {
 		o(&options)
 	}
 
-	if options.Client == nil {
-		options.Client = muclient.DefaultClient
+	cli := muclient.DefaultClient
+	if options.Context != nil {
+		if c, ok := options.Context.Value(clientKey{}).(client.Client); ok {
+			cli = c
+		}
 	}
 
 	service := &srv{
@@ -256,7 +262,7 @@ func NewStore(opts ...store.Option) store.Store {
 		Database: options.Database,
 		Table:    options.Table,
 		Nodes:    options.Nodes,
-		Client:   pb.NewStoreService("go.micro.store", options.Client),
+		Client:   pb.NewStoreService("go.micro.store", cli),
 	}
 
 	return service

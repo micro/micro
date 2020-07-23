@@ -14,7 +14,6 @@ import (
 	"github.com/micro/go-micro/v2/store"
 	"github.com/micro/micro/v2/client/cli/namespace"
 	"github.com/micro/micro/v2/client/cli/util"
-	inclient "github.com/micro/micro/v2/internal/client"
 	mustore "github.com/micro/micro/v2/service/store"
 	"github.com/pkg/errors"
 )
@@ -190,13 +189,7 @@ func delete(ctx *cli.Context) error {
 }
 
 func initStore(ctx *cli.Context) error {
-	cli, err := inclient.New(ctx)
-	if err != nil {
-		return err
-	}
-	opts := []store.Option{
-		store.WithClient(cli),
-	}
+	opts := []store.Option{}
 
 	if len(ctx.String("database")) > 0 {
 		opts = append(opts, store.Database(ctx.String("database")))

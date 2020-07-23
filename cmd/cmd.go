@@ -28,8 +28,11 @@ import (
 	"github.com/micro/micro/v2/internal/wrapper"
 	"github.com/micro/micro/v2/plugin"
 	"github.com/micro/micro/v2/profile"
+
+	authCli "github.com/micro/micro/v2/service/auth/client"
 	brokerCli "github.com/micro/micro/v2/service/broker/client"
 	registryCli "github.com/micro/micro/v2/service/registry/client"
+	storeCli "github.com/micro/micro/v2/service/store/client"
 
 	muauth "github.com/micro/micro/v2/service/auth"
 	mubroker "github.com/micro/micro/v2/service/broker"
@@ -248,7 +251,7 @@ func before(ctx *cli.Context) error {
 	cli := wrapper.AuthClient(muclient.DefaultClient)
 
 	// setup auth
-	authOpts := []auth.Option{auth.WithClient(cli)}
+	authOpts := []auth.Option{authCli.WithClient(cli)}
 	if len(ctx.String("namespace")) > 0 {
 		authOpts = append(authOpts, auth.Issuer(ctx.String("namespace")))
 	}
@@ -300,7 +303,7 @@ func before(ctx *cli.Context) error {
 	}
 
 	// Setup broker options.
-	brokerOpts := []broker.Option{brokerCli.Client(cli)}
+	brokerOpts := []broker.Option{brokerCli.WithClient(cli)}
 	if len(ctx.String("broker_address")) > 0 {
 		brokerOpts = append(brokerOpts, broker.Addrs(ctx.String("broker_address")))
 	}
@@ -330,7 +333,7 @@ func before(ctx *cli.Context) error {
 	}
 
 	// Setup store options
-	storeOpts := []store.Option{store.WithClient(cli)}
+	storeOpts := []store.Option{storeCli.WithClient(cli)}
 	if len(ctx.String("store_address")) > 0 {
 		storeOpts = append(storeOpts, store.Nodes(strings.Split(ctx.String("store_address"), ",")...))
 	}

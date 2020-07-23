@@ -4,8 +4,8 @@
 package profile
 
 import (
-	"github.com/micro/go-micro/v2/auth"
 	"github.com/micro/go-micro/v2/auth/jwt"
+	"github.com/micro/go-micro/v2/auth/noop"
 	"github.com/micro/go-micro/v2/broker/http"
 	"github.com/micro/go-micro/v2/broker/nats"
 	"github.com/micro/go-micro/v2/client"
@@ -37,7 +37,7 @@ type Profile func()
 
 // Test profile is used for the go test suite
 var Test Profile = func() {
-	muauth.DefaultAuth = auth.NewAuth()
+	muauth.DefaultAuth = noop.NewAuth()
 	mustore.DefaultStore = mem.NewStore()
 	setRegistry(memory.NewRegistry())
 }

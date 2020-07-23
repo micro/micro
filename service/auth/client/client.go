@@ -30,8 +30,15 @@ func (s *srv) Init(opts ...auth.Option) {
 		o(&s.options)
 	}
 
-	s.auth = pb.NewAuthService("go.micro.auth", s.options.Client)
-	s.rules = pb.NewRulesService("go.micro.auth", s.options.Client)
+	cli := muclient.DefaultClient
+	if s.options.Context != nil {
+		if c, ok := s.options.Context.Value(clientKey{}).(client.Client); ok {
+			cli = c
+		}
+	}
+
+	s.auth = pb.NewAuthService("go.micro.auth", cli)
+	s.rules = pb.NewRulesService("go.micro.auth", cli)
 
 	s.setupJWT()
 }
@@ -286,16 +293,20 @@ func (s *srv) callOpts() []client.CallOption {
 // NewAuth returns a new instance of the Auth service
 func NewAuth(opts ...auth.Option) auth.Auth {
 	options := auth.NewOptions(opts...)
-	if options.Client == nil {
-		options.Client = muclient.DefaultClient
-	}
 	if len(options.Addrs) == 0 {
 		options.Addrs = []string{"127.0.0.1:8010"}
 	}
 
+	cli := muclient.DefaultClient
+	if options.Context != nil {
+		if c, ok := options.Context.Value(clientKey{}).(client.Client); ok {
+			cli = c
+		}
+	}
+
 	service := &srv{
-		auth:    pb.NewAuthService("go.micro.auth", options.Client),
-		rules:   pb.NewRulesService("go.micro.auth", options.Client),
+		auth:    pb.NewAuthService("go.micro.auth", cli),
+		rules:   pb.NewRulesService("go.micro.auth", cli),
 		options: options,
 	}
 	service.setupJWT()

@@ -3,15 +3,15 @@ package client
 import (
 	"context"
 
-	"github.com/micro/go-micro/v2/broker"
+	"github.com/micro/go-micro/v2/auth"
 	"github.com/micro/go-micro/v2/client"
 )
 
 type clientKey struct{}
 
 // WithClient to call broker service
-func WithClient(c client.Client) broker.Option {
-	return func(o *broker.Options) {
+func WithClient(c client.Client) auth.Option {
+	return func(o *auth.Options) {
 		if o.Context == nil {
 			o.Context = context.WithValue(context.Background(), clientKey{}, c)
 			return
