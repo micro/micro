@@ -8,18 +8,19 @@ import (
 
 	"github.com/micro/go-micro/v2/api/resolver"
 	"github.com/micro/go-micro/v2/registry"
-	"github.com/micro/go-micro/v2/registry/memory"
-	"github.com/micro/go-micro/v2/router"
+	"github.com/micro/micro/v2/profile"
+	muregistry "github.com/micro/micro/v2/service/registry"
+	"github.com/micro/micro/v2/service/router"
 )
 
 func TestWebResolver(t *testing.T) {
-	r := memory.NewRegistry()
+	profile.Test()
 
 	res := &Resolver{
 		Options: resolver.NewOptions(
 			resolver.WithServicePrefix("go.micro.web"),
 		),
-		Router: router.NewRouter(router.Registry(r)),
+		Router: router.DefaultRouter,
 	}
 
 	testCases := []struct {
@@ -43,7 +44,7 @@ func TestWebResolver(t *testing.T) {
 				},
 			}
 
-			r.Register(v)
+			muregistry.DefaultRegistry.Register(v)
 
 			// registry events are published to the router async (although if we don't wait the fallback should still kick in)
 			time.Sleep(time.Millisecond * 10)
@@ -64,7 +65,7 @@ func TestWebResolver(t *testing.T) {
 				t.Fatalf("Failed to resolve %v", service.Host)
 			}
 
-			r.Deregister(v)
+			muregistry.DefaultRegistry.Deregister(v)
 		})
 	}
 
