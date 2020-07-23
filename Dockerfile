@@ -6,11 +6,11 @@ ENV GOROOT /usr/lib/go
 ENV GOPATH /go
 ENV PATH /go/bin:$PATH
 
-RUN mkdir -p ${GOPATH}/src ${GOPATH}/bin
 COPY go.mod .
 COPY go.sum .
 RUN go mod download
 COPY . /
+RUN mkdir -p ${GOPATH}/src ${GOPATH}/bin
 RUN make ; rm -rf $GOPATH/pkg/mod
 
 FROM alpine:latest
@@ -18,7 +18,6 @@ FROM alpine:latest
 ENV GOROOT /usr/lib/go
 ENV GOPATH /go
 ENV PATH /go/bin:$PATH
-RUN mkdir -p ${GOPATH}/src ${GOPATH}/bin # not sure if we need this
 RUN apk --no-cache add ca-certificates \
     gcc \
     git \
@@ -28,5 +27,6 @@ RUN apk --no-cache add ca-certificates \
     && \
     rm -rf /var/cache/apk/* /tmp/* && \
     [ ! -e /etc/nsswitch.conf ] && echo 'hosts: files dns' > /etc/nsswitch.conf
+RUN mkdir -p ${GOPATH}/src ${GOPATH}/bin # not sure if we need this
 COPY --from=0 /micro /micro
 ENTRYPOINT ["/micro"]
