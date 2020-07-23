@@ -4,6 +4,8 @@
 // and other funkiness around error paths.
 //
 // This package currently only tracks the m3o platform calls.
+// Please use `1` event values for failure and `0` for success to be consistent
+// in our Google Analytics alerts.
 package report
 
 import (
@@ -30,10 +32,12 @@ func Error(ctx *cli.Context, a ...interface{}) {
 	if env.Name != envToTrack {
 		return
 	}
+	val := uint(1)
 	err := TrackEvent(TrackingData{
 		Category: getTrackingCategory(ctx),
 		Action:   "error",
 		Label:    fmt.Sprint(a...),
+		Value:    &val,
 	})
 	if err != nil {
 		fmt.Println(err)
@@ -46,10 +50,12 @@ func Errorf(ctx *cli.Context, format string, a ...interface{}) {
 	if env.Name != envToTrack {
 		return
 	}
+	val := uint(1)
 	err := TrackEvent(TrackingData{
 		Category: getTrackingCategory(ctx),
 		Action:   "error",
 		Label:    fmt.Sprintf(format, a...),
+		Value:    &val,
 	})
 	if err != nil {
 		fmt.Println(err)
@@ -62,10 +68,12 @@ func Success(ctx *cli.Context, a ...interface{}) {
 	if env.Name != envToTrack {
 		return
 	}
+	val := uint(0)
 	err := TrackEvent(TrackingData{
 		Category: getTrackingCategory(ctx),
 		Action:   "success",
 		Label:    fmt.Sprint(a...),
+		Value:    &val,
 	})
 	if err != nil {
 		fmt.Println(err)
@@ -78,10 +86,12 @@ func Successf(ctx *cli.Context, format string, a ...interface{}) {
 	if env.Name != envToTrack {
 		return
 	}
+	val := uint(0)
 	err := TrackEvent(TrackingData{
 		Category: getTrackingCategory(ctx),
 		Action:   "success",
 		Label:    fmt.Sprintf(format, a...),
+		Value:    &val,
 	})
 	if err != nil {
 		fmt.Println(err)
