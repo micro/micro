@@ -9,6 +9,7 @@ import (
 	"github.com/micro/cli/v2"
 	log "github.com/micro/go-micro/v2/logger"
 	"github.com/micro/go-micro/v2/router"
+	"github.com/micro/go-micro/v2/router/registry"
 	"github.com/micro/micro/v2/service"
 	muregistry "github.com/micro/micro/v2/service/registry"
 	pb "github.com/micro/micro/v2/service/router/proto"
@@ -206,7 +207,7 @@ func Run(ctx *cli.Context) error {
 		service.RegisterInterval(time.Duration(ctx.Int("register_interval"))*time.Second),
 	)
 
-	r := router.NewRouter(
+	r := registry.NewRouter(
 		router.Id(srv.Server().Options().Id),
 		router.Address(srv.Server().Options().Id),
 		router.Network(network),
