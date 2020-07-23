@@ -4,7 +4,9 @@ import (
 	"testing"
 	"time"
 
+	"github.com/micro/go-micro/v2/network"
 	pb "github.com/micro/micro/v2/service/network/proto"
+	"github.com/micro/micro/v2/service/network/util"
 )
 
 var (
@@ -20,7 +22,7 @@ func testSetup() *node {
 		id:      testNodeId,
 		address: testNodeAddress,
 		peers:   make(map[string]*node),
-		network: newNetwork(Name(testNodeNetName)),
+		network: NewNetwork(network.Name(testNodeNetName)),
 		status:  newStatus(),
 	}
 
@@ -81,7 +83,7 @@ func TestNodes(t *testing.T) {
 		id:      testNodeId,
 		address: testNodeAddress,
 		peers:   make(map[string]*node),
-		network: newNetwork(Name(testNodeNetName)),
+		network: NewNetwork(network.Name(testNodeNetName)),
 	}
 	// get all the nodes including yourself
 	nodes := single.Nodes()
@@ -128,7 +130,7 @@ func TestNodes(t *testing.T) {
 	}
 }
 
-func collectPeerIds(peer Node, ids map[string]bool) map[string]bool {
+func collectPeerIds(peer network.Node, ids map[string]bool) map[string]bool {
 	if len(peer.Peers()) == 0 {
 		return ids
 	}
@@ -150,7 +152,7 @@ func TestPeers(t *testing.T) {
 		id:      testNodeId,
 		address: testNodeAddress,
 		peers:   make(map[string]*node),
-		network: newNetwork(Name(testNodeNetName)),
+		network: NewNetwork(network.Name(testNodeNetName)),
 	}
 	// get node peers
 	peers := single.Peers()
@@ -202,8 +204,8 @@ func TestDeletePeerNode(t *testing.T) {
 	nodeCount := len(node.Nodes())
 
 	// should not find non-existent peer node
-	if err := node.DeletePeerNode("foobar"); err != ErrPeerNotFound {
-		t.Errorf("Expected: %v, got: %v", ErrPeerNotFound, err)
+	if err := node.DeletePeerNode("foobar"); err != network.ErrPeerNotFound {
+		t.Errorf("Expected: %v, got: %v", network.ErrPeerNotFound, err)
 	}
 
 	// lets pick one of the peer1 peers
@@ -338,12 +340,12 @@ func TestPeersToProto(t *testing.T) {
 		id:      testNodeId,
 		address: testNodeAddress,
 		peers:   make(map[string]*node),
-		network: newNetwork(Name(testNodeNetName)),
+		network: NewNetwork(network.Name(testNodeNetName)),
 		status:  newStatus(),
 	}
 	topCount := 0
 
-	protoPeers := PeersToProto(single, 0)
+	protoPeers := util.PeersToProto(single, 0)
 
 	if len(protoPeers.Peers) != topCount {
 		t.Errorf("Expected to find %d nodes, found: %d", topCount, len(protoPeers.Peers))
@@ -359,7 +361,7 @@ func TestPeersToProto(t *testing.T) {
 		peerIds[id] = true
 	}
 	// depth 1 should give us immmediate neighbours only
-	protoPeers = PeersToProto(node, 1)
+	protoPeers = util.PeersToProto(node, 1)
 
 	if len(protoPeers.Peers) != topCount {
 		t.Errorf("Expected to find %d nodes, found: %d", topCount, len(protoPeers.Peers))

@@ -4,6 +4,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/micro/go-micro/v2/auth"
+
 	"github.com/micro/go-micro/v2/runtime"
 	"github.com/micro/go-micro/v2/store/memory"
 	"github.com/micro/micro/v2/internal/namespace"
@@ -15,7 +17,11 @@ func TestEvents(t *testing.T) {
 	eventChan := make(chan *runtime.Service)
 
 	rt := &testRuntime{events: eventChan}
-	m := New(rt, Store(memory.NewStore()), CacheStore(memory.NewStore())).(*manager)
+	m := New(rt,
+		Store(memory.NewStore()),
+		CacheStore(memory.NewStore()),
+		Auth(auth.NewAuth()),
+	).(*manager)
 
 	// set the eventPollFrequency to 10ms so events are processed immediately
 	eventPollFrequency = time.Millisecond * 10

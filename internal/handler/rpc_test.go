@@ -9,9 +9,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/micro/micro/v2/service/runtime/profile"
-
 	"github.com/micro/go-micro/v2/metadata"
+	"github.com/micro/micro/v2/profile"
 	"github.com/micro/micro/v2/service"
 )
 
@@ -42,9 +41,10 @@ func (t *TestHandler) Exec(ctx context.Context, req *TestRequest, rsp *TestRespo
 }
 
 func TestRPCHandler(t *testing.T) {
+	profile.Test()
+
 	srv := service.New(
 		service.Name("test"),
-		service.Profile(profile.Test),
 	)
 
 	srv.Server().Handle(

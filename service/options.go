@@ -3,17 +3,12 @@ package service
 import (
 	"time"
 
-	"github.com/micro/go-micro/v2/auth"
 	"github.com/micro/go-micro/v2/client"
 	"github.com/micro/go-micro/v2/cmd"
-	"github.com/micro/go-micro/v2/registry"
-	"github.com/micro/go-micro/v2/router"
 	"github.com/micro/go-micro/v2/server"
 
-	muauth "github.com/micro/micro/v2/service/auth"
+	mucmd "github.com/micro/micro/v2/cmd"
 	muclient "github.com/micro/micro/v2/service/client"
-	muregistry "github.com/micro/micro/v2/service/registry"
-	murouter "github.com/micro/micro/v2/service/router"
 	muserver "github.com/micro/micro/v2/service/server"
 )
 
@@ -32,7 +27,7 @@ type Options struct {
 
 func newOptions(opts ...Option) Options {
 	opt := Options{
-		Cmd:    cmd.DefaultCmd,
+		Cmd:    mucmd.DefaultCmd,
 		Signal: true,
 	}
 
@@ -92,32 +87,6 @@ func RegisterTTL(t time.Duration) Option {
 func RegisterInterval(t time.Duration) Option {
 	return func(o *Options) {
 		muserver.DefaultServer.Init(server.RegisterInterval(t))
-	}
-}
-
-// Registry for the service to use
-func Registry(r registry.Registry) Option {
-	return func(o *Options) {
-		muregistry.DefaultRegistry = r
-		murouter.DefaultRouter.Init(router.Registry(r))
-		muserver.DefaultServer.Init(server.Registry(r))
-		muclient.DefaultClient.Init(client.Registry(r))
-	}
-}
-
-// Auth for the service to use
-func Auth(a auth.Auth) Option {
-	return func(o *Options) {
-		muauth.DefaultAuth = a
-	}
-}
-
-// Profile applies a profile
-func Profile(opts []Option) Option {
-	return func(o *Options) {
-		for _, op := range opts {
-			op(o)
-		}
 	}
 }
 

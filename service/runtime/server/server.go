@@ -10,7 +10,6 @@ import (
 	"github.com/micro/micro/v2/service/auth"
 	muruntime "github.com/micro/micro/v2/service/runtime"
 	"github.com/micro/micro/v2/service/runtime/manager"
-	"github.com/micro/micro/v2/service/runtime/profile"
 	pb "github.com/micro/micro/v2/service/runtime/proto"
 	"github.com/micro/micro/v2/service/store"
 )
@@ -43,21 +42,6 @@ var (
 
 // Run the runtime service
 func Run(ctx *cli.Context) error {
-	// Get the profile
-	var prof []string
-	switch ctx.String("profile") {
-	case "local":
-		prof = profile.Local()
-	case "server":
-		prof = profile.Server()
-	case "kubernetes":
-		prof = profile.Kubernetes()
-	case "platform":
-		prof = profile.Platform()
-	default:
-		log.Fatal("Missing runtime profile")
-	}
-
 	if len(ctx.String("address")) > 0 {
 		address = ctx.String("address")
 	}
@@ -87,7 +71,7 @@ func Run(ctx *cli.Context) error {
 	manager := manager.New(muRuntime,
 		manager.Auth(auth.DefaultAuth),
 		manager.Store(store.DefaultStore),
-		manager.Profile(prof),
+		// manager.Profile(prof),
 		manager.CacheStore(store.DefaultStore),
 	)
 

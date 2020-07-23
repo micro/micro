@@ -3,6 +3,9 @@ package main
 //go:generate ./.github/generate.sh
 
 import (
+	"fmt"
+	"os"
+
 	"github.com/micro/micro/v2/cmd"
 
 	// load packages so they can register commands
@@ -24,5 +27,8 @@ import (
 )
 
 func main() {
-	cmd.Run()
+	if err := cmd.DefaultCmd.Run(); err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
 }

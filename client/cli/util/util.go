@@ -12,7 +12,6 @@ import (
 	ccli "github.com/micro/cli/v2"
 	"github.com/micro/micro/v2/internal/config"
 	"github.com/micro/micro/v2/internal/platform"
-	"github.com/micro/micro/v2/service/runtime/profile"
 )
 
 const (
@@ -88,21 +87,6 @@ func SetupCommand(ctx *ccli.Context) {
 		return
 	}
 
-	toFlag := func(s string) string {
-		return strings.ToLower(strings.ReplaceAll(s, "MICRO_", ""))
-	}
-	setFlags := func(envars []string) {
-		for _, envar := range envars {
-			// setting both env and flags here
-			// as the proxy settings for example did not take effect
-			// with only flags
-			parts := strings.Split(envar, "=")
-			key := toFlag(parts[0])
-			os.Setenv(parts[0], parts[1])
-			ctx.Set(key, parts[1])
-		}
-	}
-
 	env := GetEnv(ctx)
 
 	// if we're running a local environment return here
@@ -110,18 +94,8 @@ func SetupCommand(ctx *ccli.Context) {
 		return
 	}
 
-	switch env.Name {
-	case EnvServer:
-		setFlags(profile.ServerCLI())
-	case EnvPlatform:
-		setFlags(profile.PlatformCLI())
-	default:
-		// default case for ad hoc envs, see comments above about tests
-		setFlags(profile.ServerCLI())
-	}
-
-	// Set the proxy
-	setFlags([]string{"MICRO_PROXY=" + env.ProxyAddress})
+	// Set the proxy. TODO: Pass this as an option to the client instead.
+	setFlags(ctx, []string{"MICRO_PROXY=" + env.ProxyAddress})
 }
 
 type Env struct {
@@ -272,5 +246,21 @@ func Print(e Exec) func(*ccli.Context) error {
 			fmt.Printf("%s\n", string(rsp))
 		}
 		return nil
+	}
+}
+
+func toFlag(s string) string {
+	return strings.ToLower(strings.ReplaceAll(s, "MICRO_", ""))
+}
+
+func setFlags(ctx *ccli.Context, envars []string) {
+	for _, envar := range envars {
+		// setting both env and flags here
+		// as the proxy settings for example did not take effect
+		// with only flags
+		parts := strings.Split(envar, "=")
+		key := toFlag(parts[0])
+		os.Setenv(parts[0], parts[1])
+		ctx.Set(key, parts[1])
 	}
 }

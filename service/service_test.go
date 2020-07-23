@@ -8,8 +8,7 @@ import (
 
 	"github.com/micro/go-micro/v2/client"
 	proto "github.com/micro/go-micro/v2/debug/service/proto"
-	"github.com/micro/go-micro/v2/registry/memory"
-	"github.com/micro/go-micro/v2/util/test"
+	"github.com/micro/micro/v2/profile"
 )
 
 func testShutdown(wg *sync.WaitGroup, cancel func()) {
@@ -22,15 +21,14 @@ func testShutdown(wg *sync.WaitGroup, cancel func()) {
 }
 
 func testService(ctx context.Context, wg *sync.WaitGroup, name string) *Service {
+	profile.Test()
+
 	// add self
 	wg.Add(1)
-
-	reg := memory.NewRegistry(memory.Services(test.Data))
 
 	// create service
 	return New(
 		Name(name),
-		Registry(reg),
 		AfterStart(func() error {
 			wg.Done()
 			return nil
