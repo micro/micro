@@ -59,8 +59,8 @@ func isBuiltinService(command string) bool {
 	return false
 }
 
-// SetupCommand includes things that should run for each command.
-func SetupCommand(ctx *ccli.Context) {
+// SetProxyAddress includes things that should run for each command.
+func SetProxyAddress(ctx *ccli.Context) {
 	// This makes `micro [command name] --help` work without a server
 	for _, arg := range os.Args {
 		if arg == "--help" || arg == "-h" {

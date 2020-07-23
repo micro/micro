@@ -1,22 +1,42 @@
 package cmd
 
 import (
+	"crypto/tls"
+	"crypto/x509"
 	"fmt"
+	"io/ioutil"
 	"math/rand"
 	"os"
 	"os/exec"
 	"sort"
+	"strings"
 	"time"
 
+	"github.com/micro/go-micro/v2/broker"
+	"github.com/micro/go-micro/v2/client"
+	"github.com/micro/go-micro/v2/server"
+	"github.com/micro/go-micro/v2/store"
+
 	"github.com/micro/cli/v2"
-	ccli "github.com/micro/cli/v2"
+	"github.com/micro/go-micro/v2/auth"
 	"github.com/micro/go-micro/v2/cmd"
 	"github.com/micro/go-micro/v2/logger"
+	"github.com/micro/go-micro/v2/registry"
 	"github.com/micro/micro/v2/client/cli/util"
 	"github.com/micro/micro/v2/internal/helper"
 	_ "github.com/micro/micro/v2/internal/usage"
+	"github.com/micro/micro/v2/internal/wrapper"
 	"github.com/micro/micro/v2/plugin"
 	"github.com/micro/micro/v2/profile"
+	brokerCli "github.com/micro/micro/v2/service/broker/client"
+	registryCli "github.com/micro/micro/v2/service/registry/client"
+
+	muauth "github.com/micro/micro/v2/service/auth"
+	mubroker "github.com/micro/micro/v2/service/broker"
+	muclient "github.com/micro/micro/v2/service/client"
+	muregistry "github.com/micro/micro/v2/service/registry"
+	muserver "github.com/micro/micro/v2/service/server"
+	mustore "github.com/micro/micro/v2/service/store"
 )
 
 type command struct {
@@ -32,101 +52,105 @@ var (
 	// description of the binary
 	description = "A framework for cloud native development\n\n	 Use `micro [command] --help` to see command specific help."
 	// defaultFlags which are used on all commands
-	defaultFlags = []ccli.Flag{
-		&ccli.StringFlag{
+	defaultFlags = []cli.Flag{
+		&cli.StringFlag{
 			Name:    "profile",
 			Usage:   "Set the micro profile: local, server or platform",
 			EnvVars: []string{"MICRO_PROFILE"},
 		},
-		// &ccli.StringFlag{
-		// 	Name:    "api_address",
-		// 	Usage:   "Set the api address e.g 0.0.0.0:8080",
-		// 	EnvVars: []string{"MICRO_API_ADDRESS"},
-		// },
-		// &ccli.StringFlag{
-		// 	Name:    "namespace",
-		// 	Usage:   "Set the micro service namespace",
-		// 	EnvVars: []string{"MICRO_NAMESPACE"},
-		// 	Value:   "micro",
-		// },
-		// &ccli.StringFlag{
-		// 	Name:    "proxy_address",
-		// 	Usage:   "Proxy requests via the HTTP address specified",
-		// 	EnvVars: []string{"MICRO_PROXY_ADDRESS"},
-		// },
-		// &ccli.StringFlag{
-		// 	Name:    "web_address",
-		// 	Usage:   "Set the web UI address e.g 0.0.0.0:8082",
-		// 	EnvVars: []string{"MICRO_WEB_ADDRESS"},
-		// },
-		// &ccli.StringFlag{
-		// 	Name:    "network",
-		// 	Usage:   "Set the micro network name: local, go.micro",
-		// 	EnvVars: []string{"MICRO_NETWORK"},
-		// },
-		// &ccli.StringFlag{
-		// 	Name:    "network_address",
-		// 	Usage:   "Set the micro network address e.g. :9093",
-		// 	EnvVars: []string{"MICRO_NETWORK_ADDRESS"},
-		// },
-		// &ccli.StringFlag{
-		// 	Name:    "gateway_address",
-		// 	Usage:   "Set the micro default gateway address e.g. :9094",
-		// 	EnvVars: []string{"MICRO_GATEWAY_ADDRESS"},
-		// },
-		// &ccli.StringFlag{
-		// 	Name:    "tunnel_address",
-		// 	Usage:   "Set the micro tunnel address e.g. :8083",
-		// 	EnvVars: []string{"MICRO_TUNNEL_ADDRESS"},
-		// },
-		// &ccli.StringFlag{
-		// 	Name:    "api_handler",
-		// 	Usage:   "Specify the request handler to be used for mapping HTTP requests to services; {api, proxy, rpc}",
-		// 	EnvVars: []string{"MICRO_API_HANDLER"},
-		// },
-		// &ccli.StringFlag{
-		// 	Name:    "api_namespace",
-		// 	Usage:   "Set the namespace used by the API e.g. com.example.api",
-		// 	EnvVars: []string{"MICRO_API_NAMESPACE"},
-		// },
-		// &ccli.StringFlag{
-		// 	Name:    "web_namespace",
-		// 	Usage:   "Set the namespace used by the Web proxy e.g. com.example.web",
-		// 	EnvVars: []string{"MICRO_WEB_NAMESPACE"},
-		// },
-		// &ccli.StringFlag{
-		// 	Name:    "web_url",
-		// 	Usage:   "Set the host used for the web dashboard e.g web.example.com",
-		// 	EnvVars: []string{"MICRO_WEB_HOST"},
-		// },
-		// &ccli.BoolFlag{
-		// 	Name:    "enable_stats",
-		// 	Usage:   "Enable stats",
-		// 	EnvVars: []string{"MICRO_ENABLE_STATS"},
-		// },
-		// &ccli.BoolFlag{
-		// 	Name:    "auto_update",
-		// 	Usage:   "Enable automatic updates",
-		// 	EnvVars: []string{"MICRO_AUTO_UPDATE"},
-		// },
-		// &ccli.StringFlag{
-		// 	Name:    "update_url",
-		// 	Usage:   "Set the url to retrieve system updates from",
-		// 	EnvVars: []string{"MICRO_UPDATE_URL"},
-		// 	Value:   update.DefaultURL,
-		// },
-		// &ccli.BoolFlag{
-		// 	Name:    "report_usage",
-		// 	Usage:   "Report usage statistics",
-		// 	EnvVars: []string{"MICRO_REPORT_USAGE"},
-		// 	Value:   true,
-		// },
-		// &ccli.StringFlag{
-		// 	Name:    "env",
-		// 	Aliases: []string{"e"},
-		// 	Usage:   "Override environment",
-		// 	EnvVars: []string{"MICRO_ENV"},
-		// },
+		&cli.StringFlag{
+			Name:    "namespace",
+			EnvVars: []string{"MICRO_NAMESPACE"},
+			Usage:   "Namespace the service is operating in",
+			Value:   "micro",
+		},
+		&cli.StringFlag{
+			Name:    "auth_address",
+			EnvVars: []string{"MICRO_AUTH_ADDRESS"},
+			Usage:   "Comma-separated list of auth addresses",
+		},
+		&cli.StringFlag{
+			Name:    "auth_id",
+			EnvVars: []string{"MICRO_AUTH_ID"},
+			Usage:   "Account ID used for client authentication",
+		},
+		&cli.StringFlag{
+			Name:    "auth_secret",
+			EnvVars: []string{"MICRO_AUTH_SECRET"},
+			Usage:   "Account secret used for client authentication",
+		},
+		&cli.StringFlag{
+			Name:    "auth_public_key",
+			EnvVars: []string{"MICRO_AUTH_PUBLIC_KEY"},
+			Usage:   "Public key for JWT auth (base64 encoded PEM)",
+		},
+		&cli.StringFlag{
+			Name:    "auth_private_key",
+			EnvVars: []string{"MICRO_AUTH_PRIVATE_KEY"},
+			Usage:   "Private key for JWT auth (base64 encoded PEM)",
+		},
+		&cli.StringFlag{
+			Name:    "registry_address",
+			EnvVars: []string{"MICRO_REGISTRY_ADDRESS"},
+			Usage:   "Comma-separated list of registry addresses",
+		},
+		&cli.StringFlag{
+			Name:    "registry_tls_ca",
+			Usage:   "Certificate authority for TLS with registry",
+			EnvVars: []string{"MICRO_REGISTRY_TLS_CA"},
+		},
+		&cli.StringFlag{
+			Name:    "registry_tls_cert",
+			Usage:   "Client cert for TLS with registry",
+			EnvVars: []string{"MICRO_REGISTRY_TLS_CERT"},
+		},
+		&cli.StringFlag{
+			Name:    "registry_tls_key",
+			Usage:   "Client key for TLS with registry",
+			EnvVars: []string{"MICRO_REGISTRY_TLS_KEY"},
+		},
+		&cli.StringFlag{
+			Name:    "broker_address",
+			EnvVars: []string{"MICRO_BROKER_ADDRESS"},
+			Usage:   "Comma-separated list of broker addresses",
+		},
+		&cli.StringFlag{
+			Name:    "broker_tls_ca",
+			Usage:   "Certificate authority for TLS with broker",
+			EnvVars: []string{"MICRO_BROKER_TLS_CA"},
+		},
+		&cli.StringFlag{
+			Name:    "broker_tls_cert",
+			Usage:   "Client cert for TLS with broker",
+			EnvVars: []string{"MICRO_BROKER_TLS_CERT"},
+		},
+		&cli.StringFlag{
+			Name:    "broker_tls_key",
+			Usage:   "Client key for TLS with broker",
+			EnvVars: []string{"MICRO_BROKER_TLS_KEY"},
+		},
+		&cli.StringFlag{
+			Name:    "store_address",
+			EnvVars: []string{"MICRO_STORE_ADDRESS"},
+			Usage:   "Comma-separated list of store addresses",
+		},
+		&cli.StringFlag{
+			Name:    "proxy_address",
+			Usage:   "Proxy requests via the HTTP address specified",
+			EnvVars: []string{"MICRO_PROXY"},
+		},
+		&cli.BoolFlag{
+			Name:    "report_usage",
+			Usage:   "Report usage statistics",
+			EnvVars: []string{"MICRO_REPORT_USAGE"},
+			Value:   true,
+		},
+		&cli.StringFlag{
+			Name:    "env",
+			Aliases: []string{"e"},
+			Usage:   "Override environment",
+			EnvVars: []string{"MICRO_ENV"},
+		},
 	}
 )
 
@@ -189,7 +213,7 @@ func (c *command) String() string {
 	return "micro"
 }
 
-func before(ctx *ccli.Context) error {
+func before(ctx *cli.Context) error {
 	for _, p := range plugin.Plugins() {
 		if err := p.Init(ctx); err != nil {
 			return err
@@ -217,13 +241,117 @@ func before(ctx *ccli.Context) error {
 		logger.Fatalf("Unknown profile: %v", ctx.String("profile"))
 	}
 
-	// set the proxy address
-	util.SetupCommand(ctx)
+	// wrap the server to perform auth
+	muserver.DefaultServer.Init(server.WrapHandler(wrapper.AuthHandler()))
+
+	// setup a wrapped client
+	cli := wrapper.AuthClient(muclient.DefaultClient)
+
+	// setup auth
+	authOpts := []auth.Option{auth.WithClient(cli)}
+	if len(ctx.String("namespace")) > 0 {
+		authOpts = append(authOpts, auth.Issuer(ctx.String("namespace")))
+	}
+	if len(ctx.String("auth_address")) > 0 {
+		authOpts = append(authOpts, auth.Addrs(ctx.String("auth_address")))
+	}
+	if len(ctx.String("auth_id")) > 0 || len(ctx.String("auth_secret")) > 0 {
+		authOpts = append(authOpts, auth.Credentials(
+			ctx.String("auth_id"), ctx.String("auth_secret"),
+		))
+	}
+	if len(ctx.String("auth_public_key")) > 0 {
+		authOpts = append(authOpts, auth.PublicKey(ctx.String("auth_public_key")))
+	}
+	if len(ctx.String("auth_private_key")) > 0 {
+		authOpts = append(authOpts, auth.PrivateKey(ctx.String("auth_private_key")))
+	}
+	muauth.DefaultAuth.Init(authOpts...)
+
+	// setup registry
+	registryOpts := []registry.Option{registryCli.WithClient(cli)}
+
+	// Parse registry TLS certs
+	if len(ctx.String("registry_tls_cert")) > 0 || len(ctx.String("registry_tls_key")) > 0 {
+		cert, err := tls.LoadX509KeyPair(ctx.String("registry_tls_cert"), ctx.String("registry_tls_key"))
+		if err != nil {
+			logger.Fatalf("Error loading registry tls cert: %v", err)
+		}
+
+		// load custom certificate authority
+		caCertPool := x509.NewCertPool()
+		if len(ctx.String("registry_tls_ca")) > 0 {
+			crt, err := ioutil.ReadFile(ctx.String("registry_tls_ca"))
+			if err != nil {
+				logger.Fatalf("Error loading registry tls certificate authority: %v", err)
+			}
+			caCertPool.AppendCertsFromPEM(crt)
+		}
+
+		cfg := &tls.Config{Certificates: []tls.Certificate{cert}, RootCAs: caCertPool}
+		registryOpts = append(registryOpts, registry.TLSConfig(cfg))
+	}
+	if len(ctx.String("registry_address")) > 0 {
+		addresses := strings.Split(ctx.String("registry_address"), ",")
+		registryOpts = append(registryOpts, registry.Addrs(addresses...))
+	}
+	if err := muregistry.DefaultRegistry.Init(registryOpts...); err != nil {
+		logger.Fatalf("Error configuring registry: %v", err)
+	}
+
+	// Setup broker options.
+	brokerOpts := []broker.Option{brokerCli.Client(cli)}
+	if len(ctx.String("broker_address")) > 0 {
+		brokerOpts = append(brokerOpts, broker.Addrs(ctx.String("broker_address")))
+	}
+
+	// Parse broker TLS certs
+	if len(ctx.String("broker_tls_cert")) > 0 || len(ctx.String("broker_tls_key")) > 0 {
+		cert, err := tls.LoadX509KeyPair(ctx.String("broker_tls_cert"), ctx.String("broker_tls_key"))
+		if err != nil {
+			logger.Fatalf("Error loading broker TLS cert: %v", err)
+		}
+
+		// load custom certificate authority
+		caCertPool := x509.NewCertPool()
+		if len(ctx.String("broker_tls_ca")) > 0 {
+			crt, err := ioutil.ReadFile(ctx.String("broker_tls_ca"))
+			if err != nil {
+				logger.Fatalf("Error loading broker TLS certificate authority: %v", err)
+			}
+			caCertPool.AppendCertsFromPEM(crt)
+		}
+
+		cfg := &tls.Config{Certificates: []tls.Certificate{cert}, RootCAs: caCertPool}
+		brokerOpts = append(brokerOpts, broker.TLSConfig(cfg))
+	}
+	if err := mubroker.DefaultBroker.Init(brokerOpts...); err != nil {
+		logger.Fatalf("Error configuring broker: %v", err)
+	}
+
+	// Setup store options
+	storeOpts := []store.Option{store.WithClient(cli)}
+	if len(ctx.String("store_address")) > 0 {
+		storeOpts = append(storeOpts, store.Nodes(strings.Split(ctx.String("store_address"), ",")...))
+	}
+	if len(ctx.String("namespace")) > 0 {
+		storeOpts = append(storeOpts, store.Database(ctx.String("namespace")))
+	}
+	if err := mustore.DefaultStore.Init(storeOpts...); err != nil {
+		logger.Fatalf("Error configuring store: %v", err)
+	}
+
+	// set the registry in the client and server
+	muclient.DefaultClient.Init(client.Registry(muregistry.DefaultRegistry))
+	muserver.DefaultServer.Init(server.Registry(muregistry.DefaultRegistry))
+
+	// set the proxy address. TODO: Refactor to be a client option.
+	util.SetProxyAddress(ctx)
 
 	return nil
 }
 
-func action(c *ccli.Context) error {
+func action(c *cli.Context) error {
 	if c.Args().Len() > 0 {
 		// if an executable is available with the name of
 		// the command, execute it with the arguments from
@@ -262,7 +390,7 @@ func action(c *ccli.Context) error {
 }
 
 // Register CLI commands
-func Register(cmds ...*ccli.Command) {
+func Register(cmds ...*cli.Command) {
 	app := DefaultCmd.App()
 	app.Commands = append(app.Commands, cmds...)
 

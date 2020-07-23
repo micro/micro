@@ -43,4 +43,9 @@ var Flags = []cli.Flag{
 		Usage:   "Path to the TLS CA file to verify clients against",
 		EnvVars: []string{"MICRO_TLS_CLIENT_CA_FILE"},
 	},
+	&cli.BoolFlag{
+		Name:    "enable_stats",
+		Usage:   "Enable stats",
+		EnvVars: []string{"MICRO_ENABLE_STATS"},
+	},
 }

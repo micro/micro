@@ -79,6 +79,17 @@ func init() {
 				EnvVars: []string{"MICRO_RUNTIME_PROFILE"},
 				Value:   "server",
 			},
+			&cli.BoolFlag{
+				Name:    "auto_update",
+				Usage:   "Enable automatic updates",
+				EnvVars: []string{"MICRO_AUTO_UPDATE"},
+			},
+			&cli.StringFlag{
+				Name:    "update_url",
+				Usage:   "Set the url to retrieve system updates from",
+				EnvVars: []string{"MICRO_UPDATE_URL"},
+				Value:   update.DefaultURL,
+			},
 		},
 		Action: func(ctx *cli.Context) error {
 			Run(ctx)

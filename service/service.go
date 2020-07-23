@@ -28,24 +28,9 @@ var (
 	DefaultModel model.Model = mud.NewModel()
 
 	// debugging interfaces
-	defaultTracer trace.Tracer = memTracer.NewTracer()
-	defaultStats  stats.Stats  = stats.NewStats()
+	DefaultTracer trace.Tracer = memTracer.NewTracer()
+	DefaultStats  stats.Stats  = stats.NewStats()
 )
-
-func init() {
-	// wrap the client
-	muclient.DefaultClient = cacheClient(muclient.DefaultClient)
-	muclient.DefaultClient = authClient(muclient.DefaultClient)
-	muclient.DefaultClient = fromService(muclient.DefaultClient)
-	muclient.DefaultClient = traceCall(muclient.DefaultClient)
-
-	// wrap the server
-	muserver.DefaultServer.Init(
-		server.WrapHandler(handlerStats()),
-		server.WrapHandler(traceHandler()),
-		server.WrapHandler(authHandler()),
-	)
-}
 
 // Service is a Micro Service which honours the go-micro/service interface
 type Service struct {
@@ -178,6 +163,11 @@ func (s *Service) Run() error {
 			server.InternalHandler(true),
 		),
 	)
+
+	// setup service auth credentials
+	if err := setupAuth(); err != nil {
+		return err
+	}
 
 	// start the profiler
 	// if s.opts.Profile != nil {
