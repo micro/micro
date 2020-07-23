@@ -79,6 +79,11 @@ func SetProxyAddress(ctx *ccli.Context) {
 		return
 	}
 
+	// don't set the proxy address on the proxy
+	if ctx.Args().First() == "proxy" {
+		return
+	}
+
 	env := GetEnv(ctx)
 	if len(env.ProxyAddress) == 0 {
 		return
