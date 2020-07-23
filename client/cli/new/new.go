@@ -15,6 +15,7 @@ import (
 	"time"
 
 	"github.com/micro/cli/v2"
+	"github.com/micro/micro/v2/cmd"
 	tmpl "github.com/micro/micro/v2/internal/template"
 	"github.com/micro/micro/v2/internal/usage"
 	"github.com/xlab/treeprint"
@@ -205,7 +206,7 @@ func addFileToTree(root treeprint.Tree, file string) {
 
 }
 
-func Run(ctx *cli.Context) {
+func Run(ctx *cli.Context) error {
 	namespace := ctx.String("namespace")
 	alias := ctx.String("alias")
 	fqdn := ctx.String("fqdn")
@@ -214,35 +215,29 @@ func Run(ctx *cli.Context) {
 	useGoPath := ctx.Bool("gopath")
 	useGoModule := os.Getenv("GO111MODULE")
 	var plugins []string
+	var parts []string
 
 	if len(dir) == 0 {
 		fmt.Println("specify service name")
-		return
-	}
-
-	if len(namespace) == 0 {
-		fmt.Println("namespace not defined")
-		return
-	}
-
-	if len(atype) == 0 {
-		fmt.Println("type not defined")
-		return
+		return nil
 	}
 
 	// set the command
 	command := "micro new"
 	if len(namespace) > 0 {
+		parts = append(parts, namespace)
 		command += " --namespace=" + namespace
 	}
+	if len(atype) > 0 {
+		parts = append(parts, atype)
+		command += " --type=" + atype
+	}
 	if len(alias) > 0 {
+		parts = append(parts, alias)
 		command += " --alias=" + alias
 	}
 	if len(fqdn) > 0 {
 		command += " --fqdn=" + fqdn
-	}
-	if len(atype) > 0 {
-		command += " --type=" + atype
 	}
 	if plugins := ctx.StringSlice("plugin"); len(plugins) > 0 {
 		command += " --plugin=" + strings.Join(plugins, ":")
@@ -253,7 +248,7 @@ func Run(ctx *cli.Context) {
 	// we want to a relative path so we can install in GOPATH
 	if path.IsAbs(dir) {
 		fmt.Println("require relative path as service will be installed in GOPATH")
-		return
+		return nil
 	}
 
 	var goPath string
@@ -266,7 +261,7 @@ func Run(ctx *cli.Context) {
 		// don't know GOPATH, runaway....
 		if len(goPath) == 0 {
 			fmt.Println("unknown GOPATH")
-			return
+			return nil
 		}
 
 		// attempt to split path if not windows
@@ -283,10 +278,11 @@ func Run(ctx *cli.Context) {
 	if len(alias) == 0 {
 		// set as last part
 		alias = filepath.Base(dir)
+		parts = append(parts, alias)
 	}
 
 	if len(fqdn) == 0 {
-		fqdn = strings.Join([]string{namespace, atype, alias}, ".")
+		fqdn = strings.Join(parts, ".")
 	}
 
 	for _, plugin := range ctx.StringSlice("plugin") {
@@ -331,20 +327,6 @@ func Run(ctx *cli.Context) {
 			{".gitignore", tmpl.GitIgnore},
 		}
 
-	case "service":
-		// create service config
-		c.Files = []file{
-			{"main.go", tmpl.MainSRV},
-			{"generate.go", tmpl.GenerateFile},
-			{"plugin.go", tmpl.Plugin},
-			{"handler/" + alias + ".go", tmpl.HandlerSRV},
-			{"subscriber/" + alias + ".go", tmpl.SubscriberSRV},
-			{"proto/" + alias + "/" + alias + ".proto", tmpl.ProtoSRV},
-			{"Dockerfile", tmpl.DockerSRV},
-			{"Makefile", tmpl.Makefile},
-			{"README.md", tmpl.Readme},
-			{".gitignore", tmpl.GitIgnore},
-		}
 	case "api":
 		// create api config
 		c.Files = []file{
@@ -374,8 +356,19 @@ func Run(ctx *cli.Context) {
 		c.Comments = []string{}
 
 	default:
-		fmt.Println("Unknown type", atype)
-		return
+		// create service config
+		c.Files = []file{
+			{"main.go", tmpl.MainSRV},
+			{"generate.go", tmpl.GenerateFile},
+			{"plugin.go", tmpl.Plugin},
+			{"handler/" + alias + ".go", tmpl.HandlerSRV},
+			{"subscriber/" + alias + ".go", tmpl.SubscriberSRV},
+			{"proto/" + alias + "/" + alias + ".proto", tmpl.ProtoSRV},
+			{"Dockerfile", tmpl.DockerSRV},
+			{"Makefile", tmpl.Makefile},
+			{"README.md", tmpl.Readme},
+			{".gitignore", tmpl.GitIgnore},
+		}
 	}
 
 	// set gomodule
@@ -385,49 +378,43 @@ func Run(ctx *cli.Context) {
 
 	if err := create(c); err != nil {
 		fmt.Println(err)
-		return
+		return nil
 	}
 
+	return nil
 }
 
-func Commands() []*cli.Command {
-	return []*cli.Command{
-		{
-			Name:        "new",
-			Usage:       "Create a service template",
-			Description: `'micro new' scaffolds a new service skeleton. Example: 'micro new my-app && cd my-app'`,
-			Flags: []cli.Flag{
-				&cli.StringFlag{
-					Name:  "namespace",
-					Usage: "Namespace for the service e.g com.example",
-					Value: "go.micro",
-				},
-				&cli.StringFlag{
-					Name:  "type",
-					Usage: "Type of service e.g api, function, service, web",
-					Value: "service",
-				},
-				&cli.StringFlag{
-					Name:  "fqdn",
-					Usage: "FQDN of service e.g com.example.service.service (defaults to namespace.type.alias)",
-				},
-				&cli.StringFlag{
-					Name:  "alias",
-					Usage: "Alias is the short name used as part of combined name if specified",
-				},
-				&cli.StringSliceFlag{
-					Name:  "plugin",
-					Usage: "Specify plugins e.g --plugin=registry=etcd:broker=nats or use flag multiple times",
-				},
-				&cli.BoolFlag{
-					Name:  "gopath",
-					Usage: "Create the service in the gopath.",
-				},
+func init() {
+	cmd.Register(&cli.Command{
+		Name:        "new",
+		Usage:       "Create a service template",
+		Description: `'micro new' scaffolds a new service skeleton. Example: 'micro new my-app && cd my-app'`,
+		Flags: []cli.Flag{
+			&cli.StringFlag{
+				Name:  "namespace",
+				Usage: "Namespace for the service e.g com.example",
 			},
-			Action: func(c *cli.Context) error {
-				Run(c)
-				return nil
+			&cli.StringFlag{
+				Name:  "type",
+				Usage: "Type of service e.g api, function, service, web",
+			},
+			&cli.StringFlag{
+				Name:  "fqdn",
+				Usage: "FQDN of service e.g com.example.service.service (defaults to namespace.type.alias)",
+			},
+			&cli.StringFlag{
+				Name:  "alias",
+				Usage: "Alias is the short name used as part of combined name if specified",
+			},
+			&cli.StringSliceFlag{
+				Name:  "plugin",
+				Usage: "Specify plugins e.g --plugin=registry=etcd:broker=nats or use flag multiple times",
+			},
+			&cli.BoolFlag{
+				Name:  "gopath",
+				Usage: "Create the service in the gopath.",
 			},
 		},
-	}
+		Action: Run,
+	})
 }

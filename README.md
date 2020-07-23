@@ -63,19 +63,19 @@ Create a service
 
 ```
 # generate a service (follow instructions in output)
-micro new example
+micro new helloworld
 
 # set to use server
 micro env set server
 
 # run the service
-micro run example
+micro run helloworld
 
 # list services
 micro services
 
 # call a service
-micro call go.micro.service.example Example.Call '{"name": "John"}'
+micro call helloworld Helloworld.Call '{"name": "John"}'
 ```
 
 ## Usage

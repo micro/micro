@@ -9,7 +9,6 @@ import (
 	"github.com/go-acme/lego/v3/providers/dns/cloudflare"
 	"github.com/gorilla/mux"
 	"github.com/micro/cli/v2"
-	"github.com/micro/go-micro/v2"
 	ahandler "github.com/micro/go-micro/v2/api/handler"
 	aapi "github.com/micro/go-micro/v2/api/handler/api"
 	"github.com/micro/go-micro/v2/api/handler/event"
@@ -30,10 +29,12 @@ import (
 	log "github.com/micro/go-micro/v2/logger"
 	"github.com/micro/go-micro/v2/sync/memory"
 	"github.com/micro/micro/v2/client/api/auth"
+	"github.com/micro/micro/v2/cmd"
 	"github.com/micro/micro/v2/internal/handler"
 	"github.com/micro/micro/v2/internal/helper"
 	rrmicro "github.com/micro/micro/v2/internal/resolver/api"
 	"github.com/micro/micro/v2/internal/stats"
+	"github.com/micro/micro/v2/service"
 )
 
 var (
@@ -52,9 +53,7 @@ var (
 	ACMECA                = acme.LetsEncryptProductionCA
 )
 
-func Run(ctx *cli.Context, srvOpts ...micro.Option) {
-	log.Init(log.WithFields(map[string]interface{}{"service": "api"}))
-
+func Run(ctx *cli.Context) error {
 	if len(ctx.String("server_name")) > 0 {
 		Name = ctx.String("server_name")
 	}
@@ -76,12 +75,17 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 	if len(ctx.String("namespace")) > 0 {
 		Namespace = ctx.String("namespace")
 	}
-
-	// append name to opts
-	srvOpts = append(srvOpts, micro.Name(Name))
-
+	if len(ctx.String("api_handler")) > 0 {
+		Handler = ctx.String("api_handler")
+	}
+	if len(ctx.String("api_address")) > 0 {
+		Address = ctx.String("api_address")
+	}
+	if len(ctx.String("api_namespace")) > 0 {
+		Namespace = ctx.String("api_namespace")
+	}
 	// initialise service
-	service := micro.NewService(srvOpts...)
+	srv := service.New(service.Name(Name))
 
 	// Init API
 	var opts []server.Option
@@ -105,7 +109,7 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 
 			storage := certmagic.NewStorage(
 				memory.NewSync(),
-				service.Options().Store,
+				srv.Options().Store,
 			)
 
 			config := cloudflare.NewDefaultConfig()
@@ -134,7 +138,7 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 		config, err := helper.TLSConfig(ctx)
 		if err != nil {
 			fmt.Println(err.Error())
-			return
+			return err
 		}
 
 		opts = append(opts, server.EnableTLS(true))
@@ -201,12 +205,12 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 		rt := regRouter.NewRouter(
 			router.WithHandler(arpc.Handler),
 			router.WithResolver(rr),
-			router.WithRegistry(service.Options().Registry),
+			router.WithRegistry(srv.Options().Registry),
 		)
 		rp := arpc.NewHandler(
 			ahandler.WithNamespace(Namespace),
 			ahandler.WithRouter(rt),
-			ahandler.WithClient(service.Client()),
+			ahandler.WithClient(srv.Client()),
 		)
 		r.PathPrefix(APIPath).Handler(rp)
 	case "api":
@@ -214,12 +218,12 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 		rt := regRouter.NewRouter(
 			router.WithHandler(aapi.Handler),
 			router.WithResolver(rr),
-			router.WithRegistry(service.Options().Registry),
+			router.WithRegistry(srv.Options().Registry),
 		)
 		ap := aapi.NewHandler(
 			ahandler.WithNamespace(Namespace),
 			ahandler.WithRouter(rt),
-			ahandler.WithClient(service.Client()),
+			ahandler.WithClient(srv.Client()),
 		)
 		r.PathPrefix(APIPath).Handler(ap)
 	case "event":
@@ -227,12 +231,12 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 		rt := regRouter.NewRouter(
 			router.WithHandler(event.Handler),
 			router.WithResolver(rr),
-			router.WithRegistry(service.Options().Registry),
+			router.WithRegistry(srv.Options().Registry),
 		)
 		ev := event.NewHandler(
 			ahandler.WithNamespace(Namespace),
 			ahandler.WithRouter(rt),
-			ahandler.WithClient(service.Client()),
+			ahandler.WithClient(srv.Client()),
 		)
 		r.PathPrefix(APIPath).Handler(ev)
 	case "http", "proxy":
@@ -240,12 +244,12 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 		rt := regRouter.NewRouter(
 			router.WithHandler(ahttp.Handler),
 			router.WithResolver(rr),
-			router.WithRegistry(service.Options().Registry),
+			router.WithRegistry(srv.Options().Registry),
 		)
 		ht := ahttp.NewHandler(
 			ahandler.WithNamespace(Namespace),
 			ahandler.WithRouter(rt),
-			ahandler.WithClient(service.Client()),
+			ahandler.WithClient(srv.Client()),
 		)
 		r.PathPrefix(ProxyPath).Handler(ht)
 	case "web":
@@ -253,21 +257,21 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 		rt := regRouter.NewRouter(
 			router.WithHandler(web.Handler),
 			router.WithResolver(rr),
-			router.WithRegistry(service.Options().Registry),
+			router.WithRegistry(srv.Options().Registry),
 		)
 		w := web.NewHandler(
 			ahandler.WithNamespace(Namespace),
 			ahandler.WithRouter(rt),
-			ahandler.WithClient(service.Client()),
+			ahandler.WithClient(srv.Client()),
 		)
 		r.PathPrefix(APIPath).Handler(w)
 	default:
 		log.Infof("Registering API Default Handler at %s", APIPath)
 		rt := regRouter.NewRouter(
 			router.WithResolver(rr),
-			router.WithRegistry(service.Options().Registry),
+			router.WithRegistry(srv.Options().Registry),
 		)
-		r.PathPrefix(APIPath).Handler(handler.Meta(service, rt, Namespace))
+		r.PathPrefix(APIPath).Handler(handler.Meta(srv, rt, Namespace))
 	}
 
 	// create the auth wrapper and the server
@@ -283,7 +287,7 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 	}
 
 	// Run server
-	if err := service.Run(); err != nil {
+	if err := srv.Run(); err != nil {
 		log.Fatal(err)
 	}
 
@@ -291,16 +295,15 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 	if err := api.Stop(); err != nil {
 		log.Fatal(err)
 	}
+
+	return nil
 }
 
-func Commands(options ...micro.Option) []*cli.Command {
-	command := &cli.Command{
-		Name:  "api",
-		Usage: "Run the api gateway",
-		Action: func(ctx *cli.Context) error {
-			Run(ctx, options...)
-			return nil
-		},
+func init() {
+	cmd.Register(&cli.Command{
+		Name:   "api",
+		Usage:  "Run the api gateway",
+		Action: Run,
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:    "address",
@@ -339,7 +342,5 @@ func Commands(options ...micro.Option) []*cli.Command {
 				Value:   true,
 			},
 		},
-	}
-
-	return []*cli.Command{command}
+	})
 }

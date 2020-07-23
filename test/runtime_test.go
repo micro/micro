@@ -83,7 +83,7 @@ func testRunLocalSource(t *t) {
 	}
 
 	if err := try("Find go.micro.service.example in list", t, func() ([]byte, error) {
-		outp, err := exec.Command("micro", serv.envFlag(), "list", "services").CombinedOutput()
+		outp, err := exec.Command("micro", serv.envFlag(), "services").CombinedOutput()
 		if err != nil {
 			return outp, err
 		}
@@ -133,7 +133,7 @@ func testRunAndKill(t *t) {
 	}
 
 	if err := try("Find go.micro.service.example in list", t, func() ([]byte, error) {
-		outp, err := exec.Command("micro", serv.envFlag(), "list", "services").CombinedOutput()
+		outp, err := exec.Command("micro", serv.envFlag(), "services").CombinedOutput()
 		if err != nil {
 			return outp, err
 		}
@@ -169,7 +169,7 @@ func testRunAndKill(t *t) {
 	}
 
 	if err := try("Find go.micro.service.example in list", t, func() ([]byte, error) {
-		outp, err := exec.Command("micro", serv.envFlag(), "list", "services").CombinedOutput()
+		outp, err := exec.Command("micro", serv.envFlag(), "services").CombinedOutput()
 		if err != nil {
 			return outp, err
 		}
@@ -243,7 +243,7 @@ func testLocalOutsideRepo(t *t) {
 	}
 
 	if err := try("Find go.micro.service.example in list", t, func() ([]byte, error) {
-		outp, err := exec.Command("micro", serv.envFlag(), "list", "services").CombinedOutput()
+		outp, err := exec.Command("micro", serv.envFlag(), "services").CombinedOutput()
 		if err != nil {
 			return outp, err
 		}
@@ -283,6 +283,8 @@ func testRunGithubSource(t *t) {
 		return
 	}
 
+	login(serv, t, serv.envName(), "password")
+
 	runCmd := exec.Command("micro", serv.envFlag(), "run", "github.com/micro/examples/helloworld")
 	outp, err := runCmd.CombinedOutput()
 	if err != nil {
@@ -306,7 +308,7 @@ func testRunGithubSource(t *t) {
 	}
 
 	if err := try("Call hello world", t, func() ([]byte, error) {
-		callCmd := exec.Command("micro", serv.envFlag(), "call", "go.micro.service.helloworld", "Helloworld.Call", `{"name": "Joe"}`)
+		callCmd := exec.Command("micro", serv.envFlag(), "call", "helloworld", "Helloworld.Call", `{"name": "Joe"}`)
 		outp, err := callCmd.CombinedOutput()
 		if err != nil {
 			return outp, err
@@ -647,7 +649,7 @@ func testFastRuns(t *t) {
 	}
 
 	if err := try("Find signup and stripe", t, func() ([]byte, error) {
-		psCmd := exec.Command("micro", serv.envFlag(), "list", "services")
+		psCmd := exec.Command("micro", serv.envFlag(), "services")
 		outp, err = psCmd.CombinedOutput()
 		if err != nil {
 			return outp, err

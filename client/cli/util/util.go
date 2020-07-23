@@ -253,3 +253,19 @@ func IsServer(ctx *ccli.Context) bool {
 func IsPlatform(ctx *ccli.Context) bool {
 	return GetEnv(ctx).Name == EnvPlatform
 }
+
+type Exec func(*ccli.Context, []string) ([]byte, error)
+
+func Print(e Exec) func(*ccli.Context) error {
+	return func(c *ccli.Context) error {
+		rsp, err := e(c, c.Args().Slice())
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+		if len(rsp) > 0 {
+			fmt.Printf("%s\n", string(rsp))
+		}
+		return nil
+	}
+}

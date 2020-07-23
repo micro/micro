@@ -6,10 +6,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"math"
-	"net/http"
 	"sort"
-	"strconv"
 	"strings"
 	"time"
 
@@ -25,7 +22,6 @@ import (
 	"github.com/micro/micro/v2/client/cli/util"
 	inclient "github.com/micro/micro/v2/internal/client"
 
-	"github.com/olekukonko/tablewriter"
 	"github.com/serenize/snaker"
 )
 
@@ -60,99 +56,6 @@ func formatEndpoint(v *registry.Value, r int) string {
 	return fmt.Sprintf(strings.Join(fparts, ""), vals...)
 }
 
-func del(url string, b []byte, v interface{}) error {
-	if !strings.HasPrefix(url, "http") && !strings.HasPrefix(url, "https") {
-		url = "http://" + url
-	}
-
-	buf := bytes.NewBuffer(b)
-	defer buf.Reset()
-
-	req, err := http.NewRequest("DELETE", url, buf)
-	if err != nil {
-		return err
-	}
-
-	rsp, err := http.DefaultClient.Do(req)
-	if err != nil {
-		return err
-	}
-	defer rsp.Body.Close()
-
-	if v == nil {
-		return nil
-	}
-
-	d := json.NewDecoder(rsp.Body)
-	d.UseNumber()
-	return d.Decode(v)
-}
-
-func get(url string, v interface{}) error {
-	if !strings.HasPrefix(url, "http") && !strings.HasPrefix(url, "https") {
-		url = "http://" + url
-	}
-
-	rsp, err := http.Get(url)
-	if err != nil {
-		return err
-	}
-	defer rsp.Body.Close()
-
-	d := json.NewDecoder(rsp.Body)
-	d.UseNumber()
-	return d.Decode(v)
-}
-
-func post(url string, b []byte, v interface{}) error {
-	if !strings.HasPrefix(url, "http") && !strings.HasPrefix(url, "https") {
-		url = "http://" + url
-	}
-
-	buf := bytes.NewBuffer(b)
-	defer buf.Reset()
-
-	rsp, err := http.Post(url, "application/json", buf)
-	if err != nil {
-		return err
-	}
-	defer rsp.Body.Close()
-
-	if v == nil {
-		return nil
-	}
-
-	d := json.NewDecoder(rsp.Body)
-	d.UseNumber()
-	return d.Decode(v)
-}
-
-func getPeers(v map[string]interface{}) map[string]string {
-	if v == nil {
-		return nil
-	}
-
-	peers := make(map[string]string)
-	node := v["node"].(map[string]interface{})
-	peers[node["id"].(string)] = node["address"].(string)
-
-	// return peers if nil
-	if v["peers"] == nil {
-		return peers
-	}
-
-	nodes := v["peers"].([]interface{})
-
-	for _, peer := range nodes {
-		p := getPeers(peer.(map[string]interface{}))
-		for id, address := range p {
-			peers[id] = address
-		}
-	}
-
-	return peers
-}
-
 func callContext(c *cli.Context) context.Context {
 	callMD := make(map[string]string)
 
@@ -172,56 +75,6 @@ func callContext(c *cli.Context) context.Context {
 	return metadata.NewContext(context.Background(), callMD)
 }
 
-func RegisterService(c *cli.Context, args []string) ([]byte, error) {
-	if len(args) == 0 {
-		return nil, errors.New("require service definition")
-	}
-
-	req := strings.Join(args, " ")
-
-	var srv *registry.Service
-
-	d := json.NewDecoder(strings.NewReader(req))
-	d.UseNumber()
-
-	if err := d.Decode(&srv); err != nil {
-		return nil, err
-	}
-
-	reg := *cmd.DefaultCmd.Options().Registry
-	reg.Init(service.WithClient(inclient.New(c)))
-	if err := reg.Register(srv); err != nil {
-		return nil, err
-	}
-
-	return []byte("ok"), nil
-}
-
-func DeregisterService(c *cli.Context, args []string) ([]byte, error) {
-	if len(args) == 0 {
-		return nil, errors.New("require service definition")
-	}
-
-	req := strings.Join(args, " ")
-
-	var srv *registry.Service
-
-	d := json.NewDecoder(strings.NewReader(req))
-	d.UseNumber()
-
-	if err := d.Decode(&srv); err != nil {
-		return nil, err
-	}
-
-	reg := *cmd.DefaultCmd.Options().Registry
-	reg.Init(service.WithClient(inclient.New(c)))
-	if err := reg.Deregister(srv); err != nil {
-		return nil, err
-	}
-
-	return []byte("ok"), nil
-}
-
 func GetService(c *cli.Context, args []string) ([]byte, error) {
 	if len(args) == 0 {
 		return nil, errors.New("service required")
@@ -236,7 +89,11 @@ func GetService(c *cli.Context, args []string) ([]byte, error) {
 	var srv []*registry.Service
 
 	reg := *cmd.DefaultCmd.Options().Registry
-	reg.Init(service.WithClient(inclient.New(c)))
+	cli, err := inclient.New(c)
+	if err != nil {
+		return nil, err
+	}
+	reg.Init(service.WithClient(cli))
 	srv, err = reg.GetService(args[0], registry.GetDomain(ns))
 	if err != nil {
 		return nil, err
@@ -301,249 +158,6 @@ func GetService(c *cli.Context, args []string) ([]byte, error) {
 	return []byte(strings.Join(output, "\n")), nil
 }
 
-func NetworkConnect(c *cli.Context, args []string) ([]byte, error) {
-	if len(args) == 0 {
-		return nil, nil
-	}
-
-	cli := *cmd.DefaultCmd.Options().Client
-
-	request := map[string]interface{}{
-		"nodes": []interface{}{
-			map[string]interface{}{
-				"address": args[0],
-			},
-		},
-	}
-
-	var rsp map[string]interface{}
-
-	req := cli.NewRequest("go.micro.network", "Network.Connect", request, client.WithContentType("application/json"))
-	err := cli.Call(context.TODO(), req, &rsp)
-	if err != nil {
-		return nil, err
-	}
-
-	b, _ := json.MarshalIndent(rsp, "", "\t")
-	return b, nil
-}
-
-func NetworkConnections(c *cli.Context) ([]byte, error) {
-	cli := *cmd.DefaultCmd.Options().Client
-
-	request := map[string]interface{}{
-		"depth": 1,
-	}
-
-	var rsp map[string]interface{}
-
-	req := cli.NewRequest("go.micro.network", "Network.Graph", request, client.WithContentType("application/json"))
-	err := cli.Call(context.TODO(), req, &rsp)
-	if err != nil {
-		return nil, err
-	}
-
-	if rsp["root"] == nil {
-		return nil, nil
-	}
-
-	peers := rsp["root"].(map[string]interface{})["peers"]
-
-	if peers == nil {
-		return nil, nil
-	}
-
-	b := bytes.NewBuffer(nil)
-	table := tablewriter.NewWriter(b)
-	table.SetHeader([]string{"NODE", "ADDRESS"})
-
-	// root node
-	for _, n := range peers.([]interface{}) {
-		node := n.(map[string]interface{})["node"].(map[string]interface{})
-		strEntry := []string{
-			fmt.Sprintf("%s", node["id"]),
-			fmt.Sprintf("%s", node["address"]),
-		}
-		table.Append(strEntry)
-	}
-
-	// render table into b
-	table.SetAlignment(tablewriter.ALIGN_LEFT)
-	table.Render()
-
-	return b.Bytes(), nil
-}
-
-func NetworkGraph(c *cli.Context) ([]byte, error) {
-	cli := *cmd.DefaultCmd.Options().Client
-
-	var rsp map[string]interface{}
-
-	req := cli.NewRequest("go.micro.network", "Network.Graph", map[string]interface{}{}, client.WithContentType("application/json"))
-	err := cli.Call(context.TODO(), req, &rsp)
-	if err != nil {
-		return nil, err
-	}
-
-	b, _ := json.MarshalIndent(rsp, "", "\t")
-	return b, nil
-}
-
-func NetworkNodes(c *cli.Context) ([]byte, error) {
-	cli := *cmd.DefaultCmd.Options().Client
-
-	var rsp map[string]interface{}
-
-	// TODO: change to list nodes
-	req := cli.NewRequest("go.micro.network", "Network.Nodes", map[string]interface{}{}, client.WithContentType("application/json"))
-	err := cli.Call(context.TODO(), req, &rsp)
-	if err != nil {
-		return nil, err
-	}
-
-	// return if nil
-	if rsp["nodes"] == nil {
-		return nil, nil
-	}
-
-	b := bytes.NewBuffer(nil)
-	table := tablewriter.NewWriter(b)
-	table.SetHeader([]string{"ID", "ADDRESS"})
-
-	// get nodes
-
-	if rsp["nodes"] != nil {
-		// root node
-		for _, n := range rsp["nodes"].([]interface{}) {
-			node := n.(map[string]interface{})
-			strEntry := []string{
-				fmt.Sprintf("%s", node["id"]),
-				fmt.Sprintf("%s", node["address"]),
-			}
-			table.Append(strEntry)
-		}
-	}
-
-	// render table into b
-	table.SetAlignment(tablewriter.ALIGN_LEFT)
-	table.Render()
-
-	return b.Bytes(), nil
-}
-
-func NetworkRoutes(c *cli.Context) ([]byte, error) {
-	cli := (*cmd.DefaultCmd.Options().Client)
-
-	query := map[string]string{}
-
-	for _, filter := range []string{"service", "address", "gateway", "router", "network"} {
-		if v := c.String(filter); len(v) > 0 {
-			query[filter] = v
-		}
-	}
-
-	request := map[string]interface{}{
-		"query": query,
-	}
-
-	var rsp map[string]interface{}
-
-	req := cli.NewRequest("go.micro.network", "Network.Routes", request, client.WithContentType("application/json"))
-	err := cli.Call(context.TODO(), req, &rsp)
-	if err != nil {
-		return nil, err
-	}
-
-	if len(rsp) == 0 {
-		return []byte(``), nil
-	}
-
-	b := bytes.NewBuffer(nil)
-	table := tablewriter.NewWriter(b)
-	table.SetHeader([]string{"SERVICE", "ADDRESS", "GATEWAY", "ROUTER", "NETWORK", "METRIC", "LINK"})
-
-	routes := rsp["routes"].([]interface{})
-
-	val := func(v interface{}) string {
-		if v == nil {
-			return ""
-		}
-		return v.(string)
-	}
-
-	var sortedRoutes [][]string
-
-	for _, r := range routes {
-		route := r.(map[string]interface{})
-		service := route["service"]
-		address := route["address"]
-		gateway := val(route["gateway"])
-		router := route["router"]
-		network := route["network"]
-		link := route["link"]
-		metric := route["metric"]
-
-		var metInt int64
-		if metric != nil {
-			metInt, _ = strconv.ParseInt(route["metric"].(string), 10, 64)
-		}
-
-		// set max int64 metric to infinity
-		if metInt == math.MaxInt64 {
-			metric = "∞"
-		} else {
-			metric = fmt.Sprintf("%d", metInt)
-		}
-
-		sortedRoutes = append(sortedRoutes, []string{
-			fmt.Sprintf("%s", service),
-			fmt.Sprintf("%s", address),
-			fmt.Sprintf("%s", gateway),
-			fmt.Sprintf("%s", router),
-			fmt.Sprintf("%s", network),
-			fmt.Sprintf("%s", metric),
-			fmt.Sprintf("%s", link),
-		})
-	}
-
-	sort.Slice(sortedRoutes, func(i, j int) bool { return sortedRoutes[i][0] < sortedRoutes[j][0] })
-
-	table.AppendBulk(sortedRoutes)
-	// render table into b
-	table.SetAlignment(tablewriter.ALIGN_LEFT)
-	table.Render()
-
-	return b.Bytes(), nil
-}
-
-func NetworkServices(c *cli.Context) ([]byte, error) {
-	cli := (*cmd.DefaultCmd.Options().Client)
-
-	var rsp map[string]interface{}
-
-	req := cli.NewRequest("go.micro.network", "Network.Services", map[string]interface{}{}, client.WithContentType("application/json"))
-	err := cli.Call(context.TODO(), req, &rsp)
-	if err != nil {
-		return nil, err
-	}
-
-	if len(rsp) == 0 || rsp["services"] == nil {
-		return []byte(``), nil
-	}
-
-	rspSrv := rsp["services"].([]interface{})
-
-	var services []string
-
-	for _, service := range rspSrv {
-		services = append(services, service.(string))
-	}
-
-	sort.Strings(services)
-
-	return []byte(strings.Join(services, "\n")), nil
-}
-
 func ListServices(c *cli.Context) ([]byte, error) {
 	var rsp []*registry.Service
 	var err error
@@ -554,19 +168,23 @@ func ListServices(c *cli.Context) ([]byte, error) {
 	}
 
 	reg := *cmd.DefaultCmd.Options().Registry
-	reg.Init(service.WithClient(inclient.New(c)))
+	cli, err := inclient.New(c)
+	if err != nil {
+		return nil, err
+	}
+	reg.Init(service.WithClient(cli))
 	rsp, err = reg.ListServices(registry.ListDomain(ns))
 	if err != nil {
 		return nil, err
 	}
-
-	sort.Sort(sortedServices{rsp})
 
 	var services []string
 
 	for _, service := range rsp {
 		services = append(services, service.Name)
 	}
+
+	sort.Strings(services)
 
 	return []byte(strings.Join(services, "\n")), nil
 }
@@ -628,7 +246,10 @@ func CallService(c *cli.Context, args []string) ([]byte, error) {
 	}
 
 	ctx := callContext(c)
-	cli := inclient.New(c)
+	cli, err := inclient.New(c)
+	if err != nil {
+		return nil, err
+	}
 
 	creq := cli.NewRequest(service, endpoint, request, client.WithContentType("application/json"))
 
@@ -638,7 +259,7 @@ func CallService(c *cli.Context, args []string) ([]byte, error) {
 		opts = append(opts, client.WithAddress(addr))
 	}
 
-	var err error
+	err = nil
 	if output := c.String("output"); output == "raw" {
 		rsp := cbytes.Frame{}
 		err = cli.Call(ctx, creq, &rsp, opts...)
@@ -694,7 +315,11 @@ func QueryHealth(c *cli.Context, args []string) ([]byte, error) {
 
 	// otherwise get the service and call each instance individually
 	reg := *cmd.DefaultCmd.Options().Registry
-	reg.Init(service.WithClient(inclient.New(c)))
+	cli, err := inclient.New(c)
+	if err != nil {
+		return nil, err
+	}
+	reg.Init(service.WithClient(cli))
 	service, err := reg.GetService(args[0], registry.GetDomain(ns))
 	if err != nil {
 		return nil, err
@@ -736,72 +361,6 @@ func QueryHealth(c *cli.Context, args []string) ([]byte, error) {
 				status = rsp.Status
 			}
 			output = append(output, fmt.Sprintf("%s\t\t%s\t\t%s", node.Id, node.Address, status))
-		}
-	}
-
-	return []byte(strings.Join(output, "\n")), nil
-}
-
-func QueryStats(c *cli.Context, args []string) ([]byte, error) {
-	if len(args) == 0 {
-		return nil, errors.New("require service name")
-	}
-
-	ns, err := namespace.Get(util.GetEnv(c).Name)
-	if err != nil {
-		return nil, err
-	}
-
-	reg := *cmd.DefaultCmd.Options().Registry
-	reg.Init(service.WithClient(inclient.New(c)))
-	service, err := reg.GetService(args[0], registry.GetDomain(ns))
-	if err != nil {
-		return nil, err
-	}
-
-	if len(service) == 0 {
-		return nil, errors.New("Service not found")
-	}
-
-	req := (*cmd.DefaultCmd.Options().Client).NewRequest(service[0].Name, "Debug.Stats", &proto.StatsRequest{})
-
-	var output []string
-
-	// print things
-	output = append(output, "service  "+service[0].Name)
-
-	for _, serv := range service {
-		// print things
-		output = append(output, "\nversion "+serv.Version)
-		output = append(output, "\nnode\t\taddress:port\t\tstarted\tuptime\tmemory\tthreads\tgc")
-
-		// query health for every node
-		for _, node := range serv.Nodes {
-			address := node.Address
-			rsp := &proto.StatsResponse{}
-
-			var err error
-
-			// call using client
-			err = (*cmd.DefaultCmd.Options().Client).Call(
-				context.Background(),
-				req,
-				rsp,
-				client.WithAddress(address),
-			)
-
-			var started, uptime, memory, gc string
-			if err == nil {
-				started = time.Unix(int64(rsp.Started), 0).Format("Jan 2 15:04:05")
-				uptime = fmt.Sprintf("%v", time.Duration(rsp.Uptime)*time.Second)
-				memory = fmt.Sprintf("%.2fmb", float64(rsp.Memory)/(1024.0*1024.0))
-				gc = fmt.Sprintf("%v", time.Duration(rsp.Gc))
-			}
-
-			line := fmt.Sprintf("%s\t\t%s\t\t%s\t%s\t%s\t%d\t%s",
-				node.Id, node.Address, started, uptime, memory, rsp.Threads, gc)
-
-			output = append(output, line)
 		}
 	}
 

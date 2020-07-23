@@ -8,7 +8,6 @@ ENV PATH /go/bin:$PATH
 
 RUN mkdir -p ${GOPATH}/src ${GOPATH}/bin
 
-
 RUN apk add ca-certificates && \
     rm -rf /var/cache/apk/* /tmp/* && \
     [ ! -e /etc/nsswitch.conf ] && echo 'hosts: files dns' > /etc/nsswitch.conf
@@ -33,7 +32,6 @@ RUN cd ${GOPATH}/src/example-service && go get && \
     cd ${GOPATH}/src/config-example-service && go get && \
     go get github.com/micro/examples/helloworld
 
-# RUN go get github.com/crufter/micro-services/logspammer
 
 COPY ./micro /micro
 

@@ -4,20 +4,20 @@ import (
 	"context"
 	"time"
 
-	"github.com/micro/go-micro/v2"
 	"github.com/micro/go-micro/v2/errors"
 	log "github.com/micro/go-micro/v2/logger"
 	"github.com/micro/go-micro/v2/registry"
-	"github.com/micro/go-micro/v2/registry/service"
+	regSrv "github.com/micro/go-micro/v2/registry/service"
 	pb "github.com/micro/go-micro/v2/registry/service/proto"
 	"github.com/micro/micro/v2/internal/namespace"
+	"github.com/micro/micro/v2/service"
 )
 
 type Registry struct {
 	// service id
 	ID string
-	// the publisher
-	Publisher micro.Publisher
+	// the event
+	Event *service.Event
 	// internal registry
 	Registry registry.Registry
 }
@@ -48,7 +48,7 @@ func (r *Registry) publishEvent(action string, service *pb.Service) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	return r.Publisher.Publish(ctx, event)
+	return r.Event.Publish(ctx, event)
 }
 
 // GetService from the registry with the name requested
@@ -82,7 +82,7 @@ func (r *Registry) GetService(ctx context.Context, req *pb.GetRequest, rsp *pb.G
 	// serialize the response
 	rsp.Services = make([]*pb.Service, len(services))
 	for i, srv := range services {
-		rsp.Services[i] = service.ToProto(srv)
+		rsp.Services[i] = regSrv.ToProto(srv)
 	}
 
 	return nil
@@ -115,7 +115,7 @@ func (r *Registry) Register(ctx context.Context, req *pb.Service, rsp *pb.EmptyR
 	}
 
 	// register the service
-	if err := r.Registry.Register(service.ToService(req), opts...); err != nil {
+	if err := r.Registry.Register(regSrv.ToService(req), opts...); err != nil {
 		return errors.InternalServerError("go.micro.registry", err.Error())
 	}
 
@@ -145,7 +145,7 @@ func (r *Registry) Deregister(ctx context.Context, req *pb.Service, rsp *pb.Empt
 	}
 
 	// deregister the service
-	if err := r.Registry.Deregister(service.ToService(req), registry.DeregisterDomain(domain)); err != nil {
+	if err := r.Registry.Deregister(regSrv.ToService(req), registry.DeregisterDomain(domain)); err != nil {
 		return errors.InternalServerError("go.micro.registry", err.Error())
 	}
 
@@ -184,7 +184,7 @@ func (r *Registry) ListServices(ctx context.Context, req *pb.ListRequest, rsp *p
 	// serialize the response
 	rsp.Services = make([]*pb.Service, len(services))
 	for i, srv := range services {
-		rsp.Services[i] = service.ToProto(srv)
+		rsp.Services[i] = regSrv.ToProto(srv)
 	}
 
 	return nil
@@ -224,7 +224,7 @@ func (r *Registry) Watch(ctx context.Context, req *pb.WatchRequest, rsp pb.Regis
 
 		err = rsp.Send(&pb.Result{
 			Action:  next.Action,
-			Service: service.ToProto(next.Service),
+			Service: regSrv.ToProto(next.Service),
 		})
 		if err != nil {
 			return errors.InternalServerError("go.micro.registry", err.Error())

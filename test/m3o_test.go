@@ -5,7 +5,6 @@ package test
 import (
 	"errors"
 	"io"
-	"log"
 	"os"
 	"os/exec"
 	"strings"
@@ -70,7 +69,7 @@ func testM3oSignupFlow(t *t) {
 	}
 
 	if err := try("Find signup and stripe in list", t, func() ([]byte, error) {
-		outp, err := exec.Command("micro", serv.envFlag(), "list", "services").CombinedOutput()
+		outp, err := exec.Command("micro", serv.envFlag(), "services").CombinedOutput()
 		if err != nil {
 			return outp, err
 		}
@@ -87,7 +86,7 @@ func testM3oSignupFlow(t *t) {
 	cmd := exec.Command("micro", serv.envFlag(), "login", "--otp")
 	stdin, err := cmd.StdinPipe()
 	if err != nil {
-		log.Fatal(err)
+		t.Fatal(err)
 	}
 	wg := sync.WaitGroup{}
 	wg.Add(1)
@@ -122,7 +121,7 @@ func testM3oSignupFlow(t *t) {
 	cmd = exec.Command("micro", serv.envFlag(), "signup", "--password", password)
 	stdin, err = cmd.StdinPipe()
 	if err != nil {
-		log.Fatal(err)
+		t.Fatal(err)
 	}
 	wg = sync.WaitGroup{}
 	wg.Add(1)
@@ -135,13 +134,13 @@ func testM3oSignupFlow(t *t) {
 		if !strings.Contains(string(outp), "Success") {
 			t.Fatal(string(outp))
 		}
-		ns, err := namespace.Get(serv.envName)
+		ns, err := namespace.Get(serv.envName())
 		if err != nil {
 			t.Fatalf("Eror getting namespace: %v", err)
 			return
 		}
 		defer func() {
-			namespace.Remove(ns, serv.envName)
+			namespace.Remove(ns, serv.envName())
 		}()
 		if strings.Count(ns, "-") != 2 {
 			t.Fatalf("Expected 2 dashes in namespace but namespace is: %v", ns)
@@ -239,18 +238,4 @@ func getSrcString(envvar, dflt string) string {
 		return env
 	}
 	return dflt
-}
-
-func login(serv server, t *t, email, password string) error {
-	return try("Logging in", t, func() ([]byte, error) {
-		readCmd := exec.Command("micro", serv.envFlag(), "login", "--email", email, "--password", password)
-		outp, err := readCmd.CombinedOutput()
-		if err != nil {
-			return outp, err
-		}
-		if !strings.Contains(string(outp), "Success") {
-			return outp, errors.New("Login output does not contain 'Success'")
-		}
-		return outp, err
-	}, 4*time.Second)
 }

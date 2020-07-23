@@ -5,19 +5,19 @@ import (
 
 	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro/v2/logger"
-	"github.com/micro/micro/v2/service/store/snapshot"
+	snap "github.com/micro/micro/v2/service/store/snapshot"
 	"github.com/pkg/errors"
 )
 
-// Snapshot in the entrypoint for micro store snapshot
-func Snapshot(ctx *cli.Context) error {
+// snapshot in the entrypoint for micro store snapshot
+func snapshot(ctx *cli.Context) error {
 	s, err := makeStore(ctx)
 	if err != nil {
 		return errors.Wrap(err, "couldn't construct a store")
 	}
 	log := logger.DefaultLogger
 	dest := ctx.String("destination")
-	var sn snapshot.Snapshot
+	var sn snap.Snapshot
 
 	if len(dest) == 0 {
 		return errors.New("destination flag must be set")
@@ -28,7 +28,7 @@ func Snapshot(ctx *cli.Context) error {
 	}
 	switch u.Scheme {
 	case "file":
-		sn = snapshot.NewFileSnapshot(snapshot.Destination(dest))
+		sn = snap.NewFileSnapshot(snap.Destination(dest))
 	default:
 		return errors.Errorf("unsupported destination scheme: %s", u.Scheme)
 	}

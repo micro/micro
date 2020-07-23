@@ -130,7 +130,10 @@ func callService(srv *registry.Service, ctx *cli.Context) error {
 	}
 
 	// construct and execute the request using the json content type
-	cli := inclient.New(ctx)
+	cli, err := inclient.New(ctx)
+	if err != nil {
+		return err
+	}
 	req := cli.NewRequest(srv.Name, endpoint, body, client.WithContentType("application/json"))
 	var rsp json.RawMessage
 	if err := cli.Call(ctx.Context, req, &rsp); err != nil {

@@ -9,10 +9,9 @@ import (
 	"time"
 
 	"github.com/micro/cli/v2"
-	"github.com/micro/go-micro/v2"
 	log "github.com/micro/go-micro/v2/logger"
-	"github.com/micro/go-micro/v2/network"
-	"github.com/micro/go-micro/v2/network/resolver"
+	net "github.com/micro/go-micro/v2/network"
+	res "github.com/micro/go-micro/v2/network/resolver"
 	"github.com/micro/go-micro/v2/network/resolver/dns"
 	"github.com/micro/go-micro/v2/network/resolver/http"
 	"github.com/micro/go-micro/v2/network/resolver/registry"
@@ -24,24 +23,25 @@ import (
 	"github.com/micro/go-micro/v2/transport/quic"
 	"github.com/micro/go-micro/v2/tunnel"
 	"github.com/micro/go-micro/v2/util/mux"
-	mcli "github.com/micro/micro/v2/client/cli"
 	"github.com/micro/micro/v2/internal/helper"
+	"github.com/micro/micro/v2/service"
 	"github.com/micro/micro/v2/service/network/handler"
 )
 
 var (
-	// Name of the network service
-	Name = "go.micro.network"
-	// Name of the micro network
-	Network = "go.micro"
-	// Address is the network address
-	Address = ":8085"
-	// Set the advertise address
-	Advertise = ""
-	// Resolver is the network resolver
-	Resolver = "registry"
-	// The tunnel token
-	Token = "micro"
+	// name of the network service
+	name = "go.micro.network"
+	// name of the micro network
+	network = "go.micro"
+	// address is the network address
+	address = ":8085"
+	// set the advertise address
+	advertise = ""
+	// resolver is the network resolver
+	resolver = "registry"
+	// the tunnel token
+	token = "micro"
+
 	// Flags specific to the network
 	Flags = []cli.Flag{
 		&cli.StringFlag{
@@ -83,23 +83,21 @@ var (
 )
 
 // Run runs the micro server
-func Run(ctx *cli.Context, srvOpts ...micro.Option) {
-	log.Init(log.WithFields(map[string]interface{}{"service": "network"}))
-
+func Run(ctx *cli.Context) error {
 	if len(ctx.String("server_name")) > 0 {
-		Name = ctx.String("server_name")
+		name = ctx.String("server_name")
 	}
 	if len(ctx.String("address")) > 0 {
-		Address = ctx.String("address")
+		address = ctx.String("address")
 	}
 	if len(ctx.String("advertise")) > 0 {
-		Advertise = ctx.String("advertise")
+		advertise = ctx.String("advertise")
 	}
 	if len(ctx.String("network")) > 0 {
-		Network = ctx.String("network")
+		network = ctx.String("network")
 	}
 	if len(ctx.String("token")) > 0 {
-		Token = ctx.String("token")
+		token = ctx.String("token")
 	}
 
 	var nodes []string
@@ -107,16 +105,16 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 		nodes = strings.Split(ctx.String("nodes"), ",")
 	}
 	if len(ctx.String("resolver")) > 0 {
-		Resolver = ctx.String("resolver")
+		resolver = ctx.String("resolver")
 	}
-	var res resolver.Resolver
-	switch Resolver {
+	var r res.Resolver
+	switch resolver {
 	case "dns":
-		res = &dns.Resolver{}
+		r = &dns.Resolver{}
 	case "http":
-		res = &http.Resolver{}
+		r = &http.Resolver{}
 	case "registry":
-		res = &registry.Resolver{}
+		r = &registry.Resolver{}
 	}
 
 	// advertise the best routes
@@ -135,23 +133,23 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 	}
 
 	// Initialise service
-	service := micro.NewService(
-		micro.Name(Name),
-		micro.RegisterTTL(time.Duration(ctx.Int("register_ttl"))*time.Second),
-		micro.RegisterInterval(time.Duration(ctx.Int("register_interval"))*time.Second),
+	service := service.New(
+		service.Name(name),
+		service.RegisterTTL(time.Duration(ctx.Int("register_ttl"))*time.Second),
+		service.RegisterInterval(time.Duration(ctx.Int("register_interval"))*time.Second),
 	)
 
 	// create a tunnel
 	tunOpts := []tunnel.Option{
-		tunnel.Address(Address),
-		tunnel.Token(Token),
+		tunnel.Address(address),
+		tunnel.Token(token),
 	}
 
 	if ctx.Bool("enable_tls") {
 		config, err := helper.TLSConfig(ctx)
 		if err != nil {
 			fmt.Println(err.Error())
-			return
+			return err
 		}
 		config.InsecureSkipVerify = true
 
@@ -166,7 +164,7 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 
 	// local tunnel router
 	rtr := router.NewRouter(
-		router.Network(Network),
+		router.Network(network),
 		router.Id(id),
 		router.Registry(service.Options().Registry),
 		router.Advertise(strategy),
@@ -174,36 +172,34 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 	)
 
 	// create new network
-	net := network.NewNetwork(
-		network.Id(id),
-		network.Name(Network),
-		network.Address(Address),
-		network.Advertise(Advertise),
-		network.Nodes(nodes...),
-		network.Tunnel(tun),
-		network.Router(rtr),
-		network.Resolver(res),
+	n := net.NewNetwork(
+		net.Id(id),
+		net.Name(network),
+		net.Address(address),
+		net.Advertise(advertise),
+		net.Nodes(nodes...),
+		net.Tunnel(tun),
+		net.Router(rtr),
+		net.Resolver(r),
 	)
 
 	// local proxy
 	prx := mucp.NewProxy(
 		proxy.WithRouter(rtr),
 		proxy.WithClient(service.Client()),
-		proxy.WithLink("network", net.Client()),
+		proxy.WithLink("network", n.Client()),
 	)
 
 	// create a handler
 	h := server.DefaultRouter.NewHandler(
-		&handler.Network{
-			Network: net,
-		},
+		&handler.Network{Network: n},
 	)
 
 	// register the handler
 	server.DefaultRouter.Handle(h)
 
 	// create a new muxer
-	mux := mux.New(Name, prx)
+	mux := mux.New(name, prx)
 
 	// init server
 	service.Server().Init(
@@ -211,18 +207,15 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 	)
 
 	// set network server to proxy
-	net.Server().Init(
-		server.WithRouter(mux),
-	)
+	n.Server().Init(server.WithRouter(mux))
 
 	// connect network
-	if err := net.Connect(); err != nil {
-		log.Errorf("Network failed to connect: %v", err)
-		os.Exit(1)
+	if err := n.Connect(); err != nil {
+		log.Fatalf("Network failed to connect: %v", err)
 	}
 
 	// netClose hard exits if we have problems
-	netClose := func(net network.Network) error {
+	netClose := func(net net.Network) error {
 		errChan := make(chan error, 1)
 
 		go func() {
@@ -237,23 +230,15 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 		}
 	}
 
-	log.Infof("Network [%s] listening on %s", Network, Address)
+	log.Infof("Network [%s] listening on %s", network, address)
 
 	if err := service.Run(); err != nil {
-		log.Errorf("Network %s failed: %v", Network, err)
-		netClose(net)
+		log.Errorf("Network %s failed: %v", network, err)
+		netClose(n)
 		os.Exit(1)
 	}
 
 	// close the network
-	netClose(net)
-}
-
-func Commands(options ...micro.Option) []*cli.Command {
-	command := &cli.Command{
-		Name:        "network",
-		Subcommands: mcli.NetworkCommands(),
-	}
-
-	return []*cli.Command{command}
+	netClose(n)
+	return nil
 }

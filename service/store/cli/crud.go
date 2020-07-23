@@ -19,8 +19,8 @@ import (
 	"github.com/pkg/errors"
 )
 
-// Read gets something from the store
-func Read(ctx *cli.Context) error {
+// read gets something from the store
+func read(ctx *cli.Context) error {
 	if err := initStore(ctx); err != nil {
 		return err
 	}
@@ -89,8 +89,8 @@ func Read(ctx *cli.Context) error {
 	return nil
 }
 
-// Write puts something in the store.
-func Write(ctx *cli.Context) error {
+// write puts something in the store.
+func write(ctx *cli.Context) error {
 	if err := initStore(ctx); err != nil {
 		return err
 	}
@@ -122,8 +122,8 @@ func Write(ctx *cli.Context) error {
 	return nil
 }
 
-// List retrieves keys
-func List(ctx *cli.Context) error {
+// list retrieves keys
+func list(ctx *cli.Context) error {
 	if err := initStore(ctx); err != nil {
 		return err
 	}
@@ -167,8 +167,8 @@ func List(ctx *cli.Context) error {
 	return nil
 }
 
-// Delete deletes keys
-func Delete(ctx *cli.Context) error {
+// delete deletes keys
+func delete(ctx *cli.Context) error {
 	if err := initStore(ctx); err != nil {
 		return err
 	}
@@ -190,8 +190,12 @@ func Delete(ctx *cli.Context) error {
 }
 
 func initStore(ctx *cli.Context) error {
+	cli, err := inclient.New(ctx)
+	if err != nil {
+		return err
+	}
 	opts := []store.Option{
-		store.WithClient(inclient.New(ctx)),
+		store.WithClient(cli),
 	}
 
 	if len(ctx.String("database")) > 0 {

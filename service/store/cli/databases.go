@@ -11,9 +11,12 @@ import (
 	inclient "github.com/micro/micro/v2/internal/client"
 )
 
-// Databases is the entrypoint for micro store databases
-func Databases(ctx *cli.Context) error {
-	client := inclient.New(ctx)
+// databases is the entrypoint for micro store databases
+func databases(ctx *cli.Context) error {
+	client, err := inclient.New(ctx)
+	if err != nil {
+		return err
+	}
 	dbReq := client.NewRequest(ctx.String("store"), "Store.Databases", &storeproto.DatabasesRequest{})
 	dbRsp := &storeproto.DatabasesResponse{}
 	if err := client.Call(context.TODO(), dbReq, dbRsp); err != nil {
@@ -25,14 +28,17 @@ func Databases(ctx *cli.Context) error {
 	return nil
 }
 
-// Tables is the entrypoint for micro store tables
-func Tables(ctx *cli.Context) error {
+// tables is the entrypoint for micro store tables
+func tables(ctx *cli.Context) error {
 	ns, err := namespace.Get(util.GetEnv(ctx).Name)
 	if err != nil {
 		return err
 	}
 
-	client := inclient.New(ctx)
+	client, err := inclient.New(ctx)
+	if err != nil {
+		return err
+	}
 	tReq := client.NewRequest(ctx.String("store"), "Store.Tables", &storeproto.TablesRequest{
 		Database: ns,
 	})
