@@ -236,6 +236,8 @@ func before(ctx *cli.Context) error {
 	switch prof {
 	case "":
 		// use default rpc implementations
+	case "ci":
+		profile.CI()
 	case "test":
 		profile.Test()
 	case "server":

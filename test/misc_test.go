@@ -175,6 +175,16 @@ func testHelps(t *t) {
 }
 
 func TestUnrecognisedCommand(t *testing.T) {
+	trySuite(t, testUnrecognisedCommand, retryCount)
+}
+
+func testUnrecognisedCommand(t *t) {
+	serv := newServer(t)
+	defer serv.close()
+	if err := serv.launch(); err != nil {
+		return
+	}
+
 	t.Parallel()
 	outp, _ := exec.Command("micro", "foobar").CombinedOutput()
 	if !strings.Contains(string(outp), "No command provided to micro. Please refer to 'micro --help'") {

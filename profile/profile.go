@@ -11,6 +11,7 @@ import (
 	"github.com/micro/go-micro/v2/client"
 	"github.com/micro/go-micro/v2/logger"
 	"github.com/micro/go-micro/v2/registry"
+	"github.com/micro/go-micro/v2/registry/etcd"
 	"github.com/micro/go-micro/v2/registry/mdns"
 	"github.com/micro/go-micro/v2/registry/memory"
 	"github.com/micro/go-micro/v2/router"
@@ -42,6 +43,16 @@ var Test Profile = func() {
 	setRegistry(memory.NewRegistry())
 }
 
+// CI profile to use for CI tests
+var CI Profile = func() {
+	muauth.DefaultAuth = jwt.NewAuth()
+	mubroker.DefaultBroker = http.NewBroker()
+	muruntime.DefaultRuntime = local.NewRuntime()
+	mustore.DefaultStore = file.NewStore()
+	setRegistry(etcd.NewRegistry())
+	setupJWTRules()
+}
+
 // Server profile to use for the server locally
 var Server Profile = func() {
 	muauth.DefaultAuth = noop.NewAuth()
@@ -59,6 +70,7 @@ var Platform Profile = func() {
 	mubroker.DefaultBroker = nats.NewBroker()
 	muruntime.DefaultRuntime = kubernetes.NewRuntime()
 	mustore.DefaultStore = cockroach.NewStore()
+	setRegistry(etcd.NewRegistry())
 	setupJWTRules()
 }
 

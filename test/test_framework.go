@@ -145,36 +145,35 @@ func newLocalServer(t *t, fname string, opts ...options) testServer {
 	exec.Command("docker", "kill", fname).CombinedOutput()
 	exec.Command("docker", "rm", fname).CombinedOutput()
 
-	cmd := exec.Command("docker", "run", "--name", fname,
-		fmt.Sprintf("-p=%v:8081", portnum), "micro", "server")
-	if len(opts) == 1 && opts[0].auth == "jwt" {
-
-		base64 := "base64 -w0"
-		if runtime.GOOS == "darwin" {
-			base64 = "base64 -b0"
-		}
-		priv := "cat /tmp/sshkey | " + base64
-		privKey, err := exec.Command("bash", "-c", priv).Output()
-		if err != nil {
-			panic(string(privKey))
-		} else if len(privKey) == 0 {
-			panic("privKey has not been set")
-		}
-
-		pub := "cat /tmp/sshkey.pub | " + base64
-		pubKey, err := exec.Command("bash", "-c", pub).Output()
-		if err != nil {
-			panic(string(pubKey))
-		} else if len(pubKey) == 0 {
-			panic("pubKey has not been set")
-		}
-		cmd = exec.Command("docker", "run", "--name", fname,
-			fmt.Sprintf("-p=%v:8081", portnum),
-			"-e", "MICRO_AUTH=jwt",
-			"-e", "MICRO_AUTH_PRIVATE_KEY="+strings.Trim(string(privKey), "\n"),
-			"-e", "MICRO_AUTH_PUBLIC_KEY="+strings.Trim(string(pubKey), "\n"),
-			"micro", "server")
+	// setup JWT keys
+	base64 := "base64 -w0"
+	if runtime.GOOS == "darwin" {
+		base64 = "base64 -b0"
 	}
+	priv := "cat /tmp/sshkey | " + base64
+	privKey, err := exec.Command("bash", "-c", priv).Output()
+	if err != nil {
+		panic(string(privKey))
+	} else if len(strings.TrimSpace(string(privKey))) == 0 {
+		panic("privKey has not been set")
+	}
+
+	pub := "cat /tmp/sshkey.pub | " + base64
+	pubKey, err := exec.Command("bash", "-c", pub).Output()
+	if err != nil {
+		panic(string(pubKey))
+	} else if len(strings.TrimSpace(string(pubKey))) == 0 {
+		panic("pubKey has not been set")
+	}
+
+	// run the server
+	cmd := exec.Command("docker", "run", "--name", fname,
+		fmt.Sprintf("-p=%v:8081", portnum),
+		"-e", "MICRO_PROFILE=ci",
+		"-e", "MICRO_AUTH_PRIVATE_KEY="+strings.Trim(string(privKey), "\n"),
+		"-e", "MICRO_AUTH_PUBLIC_KEY="+strings.Trim(string(pubKey), "\n"),
+		"micro", "server")
+
 	opt := options{}
 	if len(opts) > 0 {
 		opt = opts[0]

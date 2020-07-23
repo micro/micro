@@ -240,8 +240,11 @@ func Run(context *cli.Context) error {
 	uploadDir := filepath.Join(os.TempDir(), "micro", "uploads")
 	os.MkdirAll(uploadDir, 0777)
 	file.RegisterHandler(server.Server(), uploadDir)
+
 	// start the server
-	server.Run()
+	if err := server.Run(); err != nil {
+		log.Fatalf("Error running server: %v", err)
+	}
 
 	log.Info("Stopping service runtime")
 
