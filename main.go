@@ -3,6 +3,9 @@ package main
 import (
 	"github.com/micro/micro/v2/cmd"
 
+	// internal packages
+	_ "github.com/micro/micro/v2/internal/usage"
+
 	// load packages so they can register commands
 	_ "github.com/micro/micro/v2/client/api"
 	_ "github.com/micro/micro/v2/client/bot"

@@ -12,8 +12,6 @@ import (
 	"github.com/micro/micro/v2/client/cli/util"
 	inauth "github.com/micro/micro/v2/internal/auth"
 	"github.com/micro/micro/v2/internal/helper"
-	"github.com/micro/micro/v2/internal/update"
-	_ "github.com/micro/micro/v2/internal/usage"
 	"github.com/micro/micro/v2/plugin"
 )
 
@@ -147,7 +145,7 @@ func setup(app *ccli.App) {
 			Name:    "update_url",
 			Usage:   "Set the url to retrieve system updates from",
 			EnvVars: []string{"MICRO_UPDATE_URL"},
-			Value:   update.DefaultURL,
+			Value:   "https://micro.mu/update",
 		},
 		&ccli.BoolFlag{
 			Name:    "report_usage",
