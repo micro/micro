@@ -14,7 +14,6 @@ func main() {
 	// New Service
 	function := micro.NewFunction(
 		micro.Name("{{.FQDN}}"),
-		micro.Version("latest"),
 	)
 
 	// Initialise function
@@ -82,7 +81,6 @@ func main() {
 	// New Service
 	service := micro.NewService(
 		micro.Name("{{.FQDN}}"),
-		micro.Version("latest"),
 	)
 
 	// Initialise service
@@ -113,7 +111,6 @@ func main() {
 	// create new web service
         service := web.NewService(
                 web.Name("{{.FQDN}}"),
-                web.Version("latest"),
         )
 
 	// initialise service
