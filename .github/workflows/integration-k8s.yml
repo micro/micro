@@ -43,16 +43,8 @@ jobs:
         go install
 
     # We set up a local docker registry to push to and pull from. We need to set up the Kind cluster to pull from this
-    # - name: Setup docker caching
-    #   id: cache-docker
-    #   # We would use the official actions/cache@v2, but it doesn't save the cache if the build fails
-    #   # caches are scoped to a branch but will also check the default branch upon cache miss
-    #   uses: pat-s/always-upload-cache@v2.0.0
-    #   with:
-    #     path: /tmp/docker-registry
-    #     key: docker-registry-kind-${{ steps.get-date.outputs.date }}
-    #     restore-keys: |
-    #       docker-registry-kind-
+    # We don't currently cache this because the layers keep adding up and blowing out the storage - each run adds an additional X00MBs and we quickly 
+    # end up slowing the build down just setting up the caches
     - name: Setup docker registry
       run: |
         docker run -d -p 5000:5000 --restart=always --name kind-registry -v /tmp/docker-registry:/var/lib/registry registry:2 && npx wait-on tcp:5000
@@ -80,9 +72,18 @@ jobs:
         docker network connect "kind" "kind-registry"
         for node in $(kind get nodes); do kubectl annotate node "${node}" "kind.x-k8s.io/registry=localhost:5000"; done
 
+
     - name: Update the image
       run: |
         bash .github/workflows/update-image.sh
+    # cache the prereqs
+    - name: Cache pre-reqs
+      # We would use the official actions/cache@v2, but it doesn't save the cache if the build fails
+      # caches are scoped to a branch but will also check the default branch upon cache miss
+      uses: pat-s/always-upload-cache@v2.0.0 
+      with:
+        path: ./cfssl
+        key: ${{ runner.os }}-kind-cfssl
     - name: Install the prerequisites
       run: |
         bash .github/workflows/kind-prereqs.sh
