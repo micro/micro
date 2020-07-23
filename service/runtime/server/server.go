@@ -23,11 +23,6 @@ var (
 	// Flags specific to the runtime service
 	Flags = []cli.Flag{
 		&cli.StringFlag{
-			Name:    "profile",
-			Usage:   "Set the runtime profile to use for services e.g local, kubernetes, platform",
-			EnvVars: []string{"MICRO_RUNTIME_PROFILE"},
-		},
-		&cli.StringFlag{
 			Name:    "source",
 			Usage:   "Set the runtime source, e.g. micro/services",
 			EnvVars: []string{"MICRO_RUNTIME_SOURCE"},
@@ -71,7 +66,6 @@ func Run(ctx *cli.Context) error {
 	manager := manager.New(muRuntime,
 		manager.Auth(auth.DefaultAuth),
 		manager.Store(store.DefaultStore),
-		// manager.Profile(prof),
 		manager.CacheStore(store.DefaultStore),
 	)
 

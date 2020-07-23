@@ -74,9 +74,10 @@ func init() {
 				Usage: "Peer with the global network to share services",
 			},
 			&cli.StringFlag{
-				Name:    "profile",
-				Usage:   "Set the runtime profile to use for services e.g local, kubernetes, platform",
+				Name:    "runtime_profile",
+				Usage:   "Set the micro profile: server or platform",
 				EnvVars: []string{"MICRO_RUNTIME_PROFILE"},
+				Value:   "server",
 			},
 		},
 		Action: func(ctx *cli.Context) error {
@@ -118,17 +119,8 @@ func Run(context *cli.Context) error {
 	// get the network flag
 	peer := context.Bool("peer")
 
-	// pass through the environment
-	// By default we want a file store when we run micro server.
-	// This will get overridden if user has set their own MICRO_STORE env var or passed in --store
-	env := []string{"MICRO_STORE=file"}
-	profile := context.String("profile")
-	if len(profile) == 0 {
-		profile = "server"
-	}
-
-	env = append(env, "MICRO_RUNTIME_PROFILE="+profile)
-	env = append(env, os.Environ()...)
+	// pass the env to the server
+	env := os.Environ()
 
 	// connect to the network if specified
 	if peer {
@@ -183,6 +175,8 @@ func Run(context *cli.Context) error {
 		default:
 			// run server as "micro service [cmd]"
 			cmdArgs = append(cmdArgs, "service")
+			// pass the profile for the server
+			envs = append(envs, "MICRO_PROFILE="+context.String("runtime_profile"))
 		}
 
 		// we want to pass through the global args so go up one level in the context lineage

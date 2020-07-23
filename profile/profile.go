@@ -42,8 +42,8 @@ var Test Profile = func() {
 	setRegistry(memory.NewRegistry())
 }
 
-// Local profile to use for the server
-var Local Profile = func() {
+// Server profile to use for the server locally
+var Server Profile = func() {
 	muauth.DefaultAuth = jwt.NewAuth()
 	mubroker.DefaultBroker = http.NewBroker()
 	muruntime.DefaultRuntime = local.NewRuntime()

@@ -34,5 +34,4 @@ RUN cd ${GOPATH}/src/example-service && go get && \
 
 
 COPY ./micro /micro
-
 ENTRYPOINT ["sh", "/bin/run.sh"]

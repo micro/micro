@@ -35,9 +35,8 @@ var (
 	defaultFlags = []ccli.Flag{
 		&ccli.StringFlag{
 			Name:    "profile",
-			Usage:   "Set the micro profile: local, test or platform",
+			Usage:   "Set the micro profile: local, server or platform",
 			EnvVars: []string{"MICRO_PROFILE"},
-			Value:   "local",
 		},
 		// &ccli.StringFlag{
 		// 	Name:    "api_address",
@@ -197,18 +196,25 @@ func before(ctx *ccli.Context) error {
 		}
 	}
 
-	// configure the server
-	if ctx.Args().First() == "service" || ctx.Args().First() == "server" {
-		switch ctx.String("profile") {
-		case "local":
-			profile.Local()
-		case "test":
-			profile.Test()
-		case "platform":
-			profile.Platform()
-		default:
-			logger.Fatalf("Unknown profile: %v", ctx.String("profile"))
-		}
+	// default the profile for the server
+	prof := ctx.String("profile")
+	c := ctx.Args().First()
+	if len(prof) == 0 && (c == "service" || c == "server") {
+		prof = "server"
+	}
+
+	// configure micro
+	switch prof {
+	case "":
+		// use default rpc implementations
+	case "test":
+		profile.Test()
+	case "server":
+		profile.Server()
+	case "platform":
+		profile.Platform()
+	default:
+		logger.Fatalf("Unknown profile: %v", ctx.String("profile"))
 	}
 
 	// set the proxy address
