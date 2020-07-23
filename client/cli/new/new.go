@@ -215,35 +215,29 @@ func Run(ctx *cli.Context) error {
 	useGoPath := ctx.Bool("gopath")
 	useGoModule := os.Getenv("GO111MODULE")
 	var plugins []string
+	var parts []string
 
 	if len(dir) == 0 {
 		fmt.Println("specify service name")
 		return nil
 	}
 
-	if len(namespace) == 0 {
-		fmt.Println("namespace not defined")
-		return nil
-	}
-
-	if len(atype) == 0 {
-		fmt.Println("type not defined")
-		return nil
-	}
-
 	// set the command
 	command := "micro new"
 	if len(namespace) > 0 {
+		parts = append(parts, namespace)
 		command += " --namespace=" + namespace
 	}
+	if len(atype) > 0 {
+		parts = append(parts, atype)
+		command += " --type=" + atype
+	}
 	if len(alias) > 0 {
+		parts = append(parts, alias)
 		command += " --alias=" + alias
 	}
 	if len(fqdn) > 0 {
 		command += " --fqdn=" + fqdn
-	}
-	if len(atype) > 0 {
-		command += " --type=" + atype
 	}
 	if plugins := ctx.StringSlice("plugin"); len(plugins) > 0 {
 		command += " --plugin=" + strings.Join(plugins, ":")
@@ -284,10 +278,11 @@ func Run(ctx *cli.Context) error {
 	if len(alias) == 0 {
 		// set as last part
 		alias = filepath.Base(dir)
+		parts = append(parts, alias)
 	}
 
 	if len(fqdn) == 0 {
-		fqdn = strings.Join([]string{namespace, atype, alias}, ".")
+		fqdn = strings.Join(parts, ".")
 	}
 
 	for _, plugin := range ctx.StringSlice("plugin") {
@@ -332,20 +327,6 @@ func Run(ctx *cli.Context) error {
 			{".gitignore", tmpl.GitIgnore},
 		}
 
-	case "service":
-		// create service config
-		c.Files = []file{
-			{"main.go", tmpl.MainSRV},
-			{"generate.go", tmpl.GenerateFile},
-			{"plugin.go", tmpl.Plugin},
-			{"handler/" + alias + ".go", tmpl.HandlerSRV},
-			{"subscriber/" + alias + ".go", tmpl.SubscriberSRV},
-			{"proto/" + alias + "/" + alias + ".proto", tmpl.ProtoSRV},
-			{"Dockerfile", tmpl.DockerSRV},
-			{"Makefile", tmpl.Makefile},
-			{"README.md", tmpl.Readme},
-			{".gitignore", tmpl.GitIgnore},
-		}
 	case "api":
 		// create api config
 		c.Files = []file{
@@ -375,8 +356,19 @@ func Run(ctx *cli.Context) error {
 		c.Comments = []string{}
 
 	default:
-		fmt.Println("Unknown type", atype)
-		return nil
+		// create service config
+		c.Files = []file{
+			{"main.go", tmpl.MainSRV},
+			{"generate.go", tmpl.GenerateFile},
+			{"plugin.go", tmpl.Plugin},
+			{"handler/" + alias + ".go", tmpl.HandlerSRV},
+			{"subscriber/" + alias + ".go", tmpl.SubscriberSRV},
+			{"proto/" + alias + "/" + alias + ".proto", tmpl.ProtoSRV},
+			{"Dockerfile", tmpl.DockerSRV},
+			{"Makefile", tmpl.Makefile},
+			{"README.md", tmpl.Readme},
+			{".gitignore", tmpl.GitIgnore},
+		}
 	}
 
 	// set gomodule
@@ -401,12 +393,10 @@ func init() {
 			&cli.StringFlag{
 				Name:  "namespace",
 				Usage: "Namespace for the service e.g com.example",
-				Value: "go.micro",
 			},
 			&cli.StringFlag{
 				Name:  "type",
 				Usage: "Type of service e.g api, function, service, web",
-				Value: "service",
 			},
 			&cli.StringFlag{
 				Name:  "fqdn",
