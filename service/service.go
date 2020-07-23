@@ -81,12 +81,6 @@ func (s *Service) Init(opts ...Option) {
 			s.opts.Cmd.App().Name = s.Server().Options().Name
 		}
 
-		// run the command line
-		// TODO: move to service.Run
-		if err := s.opts.Cmd.Run(); err != nil {
-			logger.Fatal(err)
-		}
-
 		// Explicitly set the table name to the service name
 		name := s.Server().Options().Name
 		store.DefaultStore.Init(store.Table(name))

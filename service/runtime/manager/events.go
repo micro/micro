@@ -163,10 +163,7 @@ func (m *manager) runtimeEnv(options *runtime.CreateOptions) []string {
 	// set the env vars provided
 	setEnv(options.Env, env)
 
-	// override with vars from the Profile
-	setEnv(m.options.Profile, env)
-
-	// temp: set the service namespace. this will be removed once he namespace can be determined from certs.
+	// set the service namespace
 	if len(options.Namespace) > 0 {
 		env["MICRO_NAMESPACE"] = options.Namespace
 	}

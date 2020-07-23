@@ -44,7 +44,7 @@ var Test Profile = func() {
 
 // Server profile to use for the server locally
 var Server Profile = func() {
-	muauth.DefaultAuth = jwt.NewAuth()
+	muauth.DefaultAuth = noop.NewAuth()
 	mubroker.DefaultBroker = http.NewBroker()
 	muruntime.DefaultRuntime = local.NewRuntime()
 	mustore.DefaultStore = file.NewStore()
