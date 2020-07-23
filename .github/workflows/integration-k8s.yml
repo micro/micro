@@ -43,16 +43,16 @@ jobs:
         go install
 
     # We set up a local docker registry to push to and pull from. We need to set up the Kind cluster to pull from this
-    - name: Setup docker caching
-      id: cache-docker
-      # We would use the official actions/cache@v2, but it doesn't save the cache if the build fails
-      # caches are scoped to a branch but will also check the default branch upon cache miss
-      uses: pat-s/always-upload-cache@v2.0.0
-      with:
-        path: /tmp/docker-registry
-        key: docker-registry-kind-${{ steps.get-date.outputs.date }}
-        restore-keys: |
-          docker-registry-kind-
+    # - name: Setup docker caching
+    #   id: cache-docker
+    #   # We would use the official actions/cache@v2, but it doesn't save the cache if the build fails
+    #   # caches are scoped to a branch but will also check the default branch upon cache miss
+    #   uses: pat-s/always-upload-cache@v2.0.0
+    #   with:
+    #     path: /tmp/docker-registry
+    #     key: docker-registry-kind-${{ steps.get-date.outputs.date }}
+    #     restore-keys: |
+    #       docker-registry-kind-
     - name: Setup docker registry
       run: |
         docker run -d -p 5000:5000 --restart=always --name kind-registry -v /tmp/docker-registry:/var/lib/registry registry:2 && npx wait-on tcp:5000

@@ -11,7 +11,7 @@ COPY go.mod .
 COPY go.sum .
 RUN go mod download
 COPY . /
-RUN make
+RUN make ; rm -rf $GOPATH/pkg/mod
 
 FROM alpine:latest
 # Configure Go
