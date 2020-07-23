@@ -14,6 +14,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/micro/micro/v2/client"
 	"github.com/micro/micro/v2/service/store"
 
 	"github.com/go-acme/lego/v3/providers/dns/cloudflare"
@@ -580,7 +581,7 @@ func init() {
 		Name:   "web",
 		Usage:  "Run the web dashboard",
 		Action: Run,
-		Flags: []cli.Flag{
+		Flags: append(client.Flags,
 			&cli.StringFlag{
 				Name:    "address",
 				Usage:   "Set the web UI address e.g 0.0.0.0:8082",
@@ -601,7 +602,7 @@ func init() {
 				EnvVars: []string{"MICRO_AUTH_LOGIN_URL"},
 				Usage:   "The relative URL where a user can login",
 			},
-		},
+		),
 	})
 }
 

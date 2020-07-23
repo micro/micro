@@ -28,6 +28,7 @@ import (
 	httpapi "github.com/micro/go-micro/v2/api/server/http"
 	log "github.com/micro/go-micro/v2/logger"
 	"github.com/micro/go-micro/v2/sync/memory"
+	"github.com/micro/micro/v2/client"
 	"github.com/micro/micro/v2/client/api/auth"
 	"github.com/micro/micro/v2/cmd"
 	"github.com/micro/micro/v2/internal/handler"
@@ -306,7 +307,7 @@ func init() {
 		Name:   "api",
 		Usage:  "Run the api gateway",
 		Action: Run,
-		Flags: []cli.Flag{
+		Flags: append(client.Flags,
 			&cli.StringFlag{
 				Name:    "address",
 				Usage:   "Set the api address e.g 0.0.0.0:8080",
@@ -343,6 +344,6 @@ func init() {
 				EnvVars: []string{"MICRO_API_ENABLE_CORS"},
 				Value:   true,
 			},
-		},
+		),
 	})
 }

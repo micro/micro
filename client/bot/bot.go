@@ -16,6 +16,7 @@ import (
 	"github.com/micro/go-micro/v2/agent/input"
 	proto "github.com/micro/go-micro/v2/agent/proto"
 	log "github.com/micro/go-micro/v2/logger"
+	"github.com/micro/micro/v2/client"
 	"github.com/micro/micro/v2/cmd"
 	botc "github.com/micro/micro/v2/internal/command/bot"
 	"github.com/micro/micro/v2/service"
@@ -434,7 +435,7 @@ func Run(ctx *cli.Context) error {
 }
 
 func init() {
-	flags := []cli.Flag{
+	flags := append(client.Flags,
 		&cli.StringFlag{
 			Name:    "inputs",
 			Usage:   "Inputs to load on startup",
@@ -445,7 +446,7 @@ func init() {
 			Usage:   "Set the namespace used by the bot to find commands e.g. com.example.bot",
 			EnvVars: []string{"MICRO_BOT_NAMESPACE"},
 		},
-	}
+	)
 
 	// setup input flags
 	for _, input := range input.Inputs {

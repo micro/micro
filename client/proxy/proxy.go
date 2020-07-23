@@ -21,6 +21,7 @@ import (
 	sgrpc "github.com/micro/go-micro/v2/server/grpc"
 	"github.com/micro/go-micro/v2/sync/memory"
 	"github.com/micro/go-micro/v2/util/mux"
+	"github.com/micro/micro/v2/client"
 	"github.com/micro/micro/v2/cmd"
 	"github.com/micro/micro/v2/internal/helper"
 	"github.com/micro/micro/v2/service"
@@ -224,7 +225,7 @@ func init() {
 	cmd.Register(&cli.Command{
 		Name:  "proxy",
 		Usage: "Run the service proxy",
-		Flags: []cli.Flag{
+		Flags: append(client.Flags,
 			&cli.StringFlag{
 				Name:    "address",
 				Usage:   "Set the proxy http address e.g 0.0.0.0:8081",
@@ -240,7 +241,7 @@ func init() {
 				Usage:   "Set the endpoint to route to e.g greeter or localhost:9090",
 				EnvVars: []string{"MICRO_PROXY_ENDPOINT"},
 			},
-		},
+		),
 		Action: Run,
 	})
 }
