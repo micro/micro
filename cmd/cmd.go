@@ -232,11 +232,17 @@ func (c *command) Before(ctx *cli.Context) error {
 		logger.Fatalf("Unknown profile: %v", ctx.String("profile"))
 	}
 
-	// wrap the server to perform auth
-	muserver.DefaultServer.Init(server.WrapHandler(wrapper.AuthHandler()))
-
 	// wrap the client
 	muclient.DefaultClient = wrapper.AuthClient(muclient.DefaultClient)
+	muclient.DefaultClient = wrapper.CacheClient(muclient.DefaultClient)
+	muclient.DefaultClient = wrapper.TraceCall(muclient.DefaultClient)
+
+	// wrap the server
+	muserver.DefaultServer.Init(
+		server.WrapHandler(wrapper.AuthHandler()),
+		server.WrapHandler(wrapper.TraceHandler()),
+		server.WrapHandler(wrapper.HandlerStats()),
+	)
 
 	// setup auth
 	authOpts := []auth.Option{authCli.WithClient(muclient.DefaultClient)}

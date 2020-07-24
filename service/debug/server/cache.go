@@ -1,4 +1,4 @@
-package debug
+package server
 
 import (
 	"sync"

@@ -10,28 +10,16 @@ import (
 	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro/v2/client"
 	debug "github.com/micro/go-micro/v2/debug/service/handler"
-	"github.com/micro/go-micro/v2/debug/stats"
-	"github.com/micro/go-micro/v2/debug/trace"
-	memTracer "github.com/micro/go-micro/v2/debug/trace/memory"
 	"github.com/micro/go-micro/v2/logger"
 	"github.com/micro/go-micro/v2/model"
-	"github.com/micro/go-micro/v2/model/mud"
 	"github.com/micro/go-micro/v2/plugin"
 	"github.com/micro/go-micro/v2/server"
 	"github.com/micro/go-micro/v2/store"
 	signalutil "github.com/micro/go-micro/v2/util/signal"
 	"github.com/micro/micro/v2/cmd"
 	muclient "github.com/micro/micro/v2/service/client"
+	mumodel "github.com/micro/micro/v2/service/model"
 	muserver "github.com/micro/micro/v2/service/server"
-)
-
-var (
-	// DefaultModel for the service
-	DefaultModel model.Model = mud.NewModel()
-
-	// debugging interfaces
-	DefaultTracer trace.Tracer = memTracer.NewTracer()
-	DefaultStats  stats.Stats  = stats.NewStats()
 )
 
 // Service is a Micro Service which honours the go-micro/service interface
@@ -96,7 +84,7 @@ func (s *Service) Server() server.Server {
 }
 
 func (s *Service) Model() model.Model {
-	return DefaultModel
+	return mumodel.DefaultModel
 }
 
 func (s *Service) String() string {

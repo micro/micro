@@ -2,15 +2,19 @@ package wrapper
 
 import (
 	"context"
+	"reflect"
 	"strings"
 
 	"github.com/micro/go-micro/v2/auth"
 	"github.com/micro/go-micro/v2/client"
+	"github.com/micro/go-micro/v2/debug/trace"
 	"github.com/micro/go-micro/v2/errors"
 	"github.com/micro/go-micro/v2/metadata"
 	"github.com/micro/go-micro/v2/server"
 	"github.com/micro/micro/v2/internal/namespace"
 	muauth "github.com/micro/micro/v2/service/auth"
+	muclient "github.com/micro/micro/v2/service/client"
+	"github.com/micro/micro/v2/service/debug"
 )
 
 type authWrapper struct {
@@ -129,4 +133,166 @@ func AuthHandler() server.HandlerWrapper {
 			return h(ctx, req, rsp)
 		}
 	}
+}
+
+type fromServiceWrapper struct {
+	client.Client
+
+	// headers to inject
+	headers metadata.Metadata
+}
+
+var (
+	HeaderPrefix = "Micro-"
+)
+
+func (f *fromServiceWrapper) setHeaders(ctx context.Context) context.Context {
+	// don't overwrite keys
+	return metadata.MergeContext(ctx, f.headers, false)
+}
+
+func (f *fromServiceWrapper) Call(ctx context.Context, req client.Request, rsp interface{}, opts ...client.CallOption) error {
+	ctx = f.setHeaders(ctx)
+	return f.Client.Call(ctx, req, rsp, opts...)
+}
+
+func (f *fromServiceWrapper) Stream(ctx context.Context, req client.Request, opts ...client.CallOption) (client.Stream, error) {
+	ctx = f.setHeaders(ctx)
+	return f.Client.Stream(ctx, req, opts...)
+}
+
+func (f *fromServiceWrapper) Publish(ctx context.Context, p client.Message, opts ...client.PublishOption) error {
+	ctx = f.setHeaders(ctx)
+	return f.Client.Publish(ctx, p, opts...)
+}
+
+// FromService wraps a client to inject service and auth metadata
+func FromService(name string, c client.Client) client.Client {
+	return &fromServiceWrapper{
+		c,
+		metadata.Metadata{
+			HeaderPrefix + "From-Service": name,
+		},
+	}
+}
+
+// HandlerStats wraps a server handler to generate request/error stats
+func HandlerStats() server.HandlerWrapper {
+	// return a handler wrapper
+	return func(h server.HandlerFunc) server.HandlerFunc {
+		// return a function that returns a function
+		return func(ctx context.Context, req server.Request, rsp interface{}) error {
+			// execute the handler
+			err := h(ctx, req, rsp)
+			// record the stats
+			debug.DefaultStats.Record(err)
+			// return the error
+			return err
+		}
+	}
+}
+
+type traceWrapper struct {
+	client.Client
+}
+
+func (c *traceWrapper) Call(ctx context.Context, req client.Request, rsp interface{}, opts ...client.CallOption) error {
+	newCtx, s := debug.DefaultTracer.Start(ctx, req.Service()+"."+req.Endpoint())
+
+	s.Type = trace.SpanTypeRequestOutbound
+	err := c.Client.Call(newCtx, req, rsp, opts...)
+	if err != nil {
+		s.Metadata["error"] = err.Error()
+	}
+
+	// finish the trace
+	debug.DefaultTracer.Finish(s)
+
+	return err
+}
+
+// TraceCall is a call tracing wrapper
+func TraceCall(c client.Client) client.Client {
+	return &traceWrapper{
+		Client: c,
+	}
+}
+
+// TraceHandler wraps a server handler to perform tracing
+func TraceHandler() server.HandlerWrapper {
+	// return a handler wrapper
+	return func(h server.HandlerFunc) server.HandlerFunc {
+		// return a function that returns a function
+		return func(ctx context.Context, req server.Request, rsp interface{}) error {
+			// don't store traces for debug
+			if strings.HasPrefix(req.Endpoint(), "Debug.") {
+				return h(ctx, req, rsp)
+			}
+
+			// get the span
+			newCtx, s := debug.DefaultTracer.Start(ctx, req.Service()+"."+req.Endpoint())
+			s.Type = trace.SpanTypeRequestInbound
+
+			err := h(newCtx, req, rsp)
+			if err != nil {
+				s.Metadata["error"] = err.Error()
+			}
+
+			// finish
+			debug.DefaultTracer.Finish(s)
+
+			return err
+		}
+	}
+}
+
+type cacheWrapper struct {
+	client.Client
+}
+
+// Call executes the request. If the CacheExpiry option was set, the response will be cached using
+// a hash of the metadata and request as the key.
+func (c *cacheWrapper) Call(ctx context.Context, req client.Request, rsp interface{}, opts ...client.CallOption) error {
+	// parse the options
+	var options client.CallOptions
+	for _, o := range opts {
+		o(&options)
+	}
+
+	// if the client doesn't have a cacbe setup don't continue
+	cache := muclient.DefaultClient.Options().Cache
+	if cache == nil {
+		return c.Client.Call(ctx, req, rsp, opts...)
+	}
+
+	// if the cache expiry is not set, execute the call without the cache
+	if options.CacheExpiry == 0 {
+		return c.Client.Call(ctx, req, rsp, opts...)
+	}
+
+	// if the response is nil don't call the cache since we can't assign the response
+	if rsp == nil {
+		return c.Client.Call(ctx, req, rsp, opts...)
+	}
+
+	// check to see if there is a response cached, if there is assign it
+	if r, ok := cache.Get(ctx, &req); ok {
+		val := reflect.ValueOf(rsp).Elem()
+		val.Set(reflect.ValueOf(r).Elem())
+		return nil
+	}
+
+	// don't cache the result if there was an error
+	if err := c.Client.Call(ctx, req, rsp, opts...); err != nil {
+		return err
+	}
+
+	// set the result in the cache
+	cache.Set(ctx, &req, rsp, options.CacheExpiry)
+	return nil
+}
+
+// CacheClient wraps requests with the cache wrapper
+func CacheClient(c client.Client) client.Client {
+	return &cacheWrapper{c}
 }

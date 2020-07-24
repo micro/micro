@@ -22,6 +22,7 @@ import (
 	auth "github.com/micro/micro/v2/service/auth/server"
 	broker "github.com/micro/micro/v2/service/broker/server"
 	config "github.com/micro/micro/v2/service/config/server"
+	debug "github.com/micro/micro/v2/service/debug/server"
 	network "github.com/micro/micro/v2/service/network/server"
 	registry "github.com/micro/micro/v2/service/registry/server"
 	router "github.com/micro/micro/v2/service/router/server"
@@ -30,7 +31,6 @@ import (
 	tunnel "github.com/micro/micro/v2/service/tunnel/server"
 
 	// misc commands
-	"github.com/micro/micro/v2/service/debug"
 	"github.com/micro/micro/v2/service/handler/exec"
 	"github.com/micro/micro/v2/service/handler/file"
 	"github.com/micro/micro/v2/service/health"
