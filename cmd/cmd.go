@@ -251,11 +251,11 @@ func before(ctx *cli.Context) error {
 	// wrap the server to perform auth
 	muserver.DefaultServer.Init(server.WrapHandler(wrapper.AuthHandler()))
 
-	// setup a wrapped client
-	cli := wrapper.AuthClient(muclient.DefaultClient)
+	// wrap the client
+	muclient.DefaultClient = wrapper.AuthClient(muclient.DefaultClient)
 
 	// setup auth
-	authOpts := []auth.Option{authCli.WithClient(cli)}
+	authOpts := []auth.Option{authCli.WithClient(muclient.DefaultClient)}
 	if len(ctx.String("namespace")) > 0 {
 		authOpts = append(authOpts, auth.Issuer(ctx.String("namespace")))
 	}
@@ -276,7 +276,7 @@ func before(ctx *cli.Context) error {
 	muauth.DefaultAuth.Init(authOpts...)
 
 	// setup registry
-	registryOpts := []registry.Option{registryCli.WithClient(cli)}
+	registryOpts := []registry.Option{registryCli.WithClient(muclient.DefaultClient)}
 
 	// Parse registry TLS certs
 	if len(ctx.String("registry_tls_cert")) > 0 || len(ctx.String("registry_tls_key")) > 0 {
@@ -307,7 +307,7 @@ func before(ctx *cli.Context) error {
 	}
 
 	// Setup broker options.
-	brokerOpts := []broker.Option{brokerCli.WithClient(cli)}
+	brokerOpts := []broker.Option{brokerCli.WithClient(muclient.DefaultClient)}
 	if len(ctx.String("broker_address")) > 0 {
 		brokerOpts = append(brokerOpts, broker.Addrs(ctx.String("broker_address")))
 	}
@@ -337,7 +337,7 @@ func before(ctx *cli.Context) error {
 	}
 
 	// Setup store options
-	storeOpts := []store.Option{storeCli.WithClient(cli)}
+	storeOpts := []store.Option{storeCli.WithClient(muclient.DefaultClient)}
 	if len(ctx.String("store_address")) > 0 {
 		storeOpts = append(storeOpts, store.Nodes(strings.Split(ctx.String("store_address"), ",")...))
 	}
@@ -349,7 +349,7 @@ func before(ctx *cli.Context) error {
 	}
 
 	// Set runtime client
-	if err := muruntime.DefaultRuntime.Init(runtime.WithClient(cli)); err != nil {
+	if err := muruntime.DefaultRuntime.Init(runtime.WithClient(muclient.DefaultClient)); err != nil {
 		logger.Fatalf("Error configuring runtime: %v", err)
 	}
 
@@ -362,7 +362,9 @@ func before(ctx *cli.Context) error {
 
 	// set the credentials from the CLI. If a service is run, it'll override
 	// these when it's started.
-	util.SetAuthToken(ctx)
+	if err := util.SetAuthToken(ctx); err != nil {
+		return err
+	}
 
 	return nil
 }

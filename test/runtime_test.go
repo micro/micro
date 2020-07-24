@@ -21,7 +21,7 @@ func TestServerModeCall(t *testing.T) {
 
 func testServerModeCall(t *t) {
 	t.Parallel()
-	serv := newServer(t)
+	serv := newServer(t, withLogin())
 
 	callCmd := exec.Command("micro", serv.envFlag(), "call", "go.micro.runtime", "Runtime.Read", "{}")
 	outp, err := callCmd.CombinedOutput()
@@ -46,143 +46,141 @@ func testServerModeCall(t *t) {
 	}
 }
 
-// Not yet supported
-// func TestRunLocalSource(t *testing.T) {
-// 	trySuite(t, testRunLocalSource, retryCount)
-// }
+func TestRunLocalSource(t *testing.T) {
+	trySuite(t, testRunLocalSource, retryCount)
+}
 
-// func testRunLocalSource(t *t) {
-// 	t.Parallel()
-// 	serv := newServer(t, withLogin())
-// 	defer serv.close()
-// 	if err := serv.launch(); err != nil {
-// 		return
-// 	}
+func testRunLocalSource(t *t) {
+	t.Parallel()
+	serv := newServer(t, withLogin())
+	defer serv.close()
+	if err := serv.launch(); err != nil {
+		return
+	}
 
-// 	runCmd := exec.Command("micro", serv.envFlag(), "run", "./example-service")
-// 	outp, err := runCmd.CombinedOutput()
-// 	if err != nil {
-// 		t.Fatalf("micro run failure, output: %v", string(outp))
-// 		return
-// 	}
+	runCmd := exec.Command("micro", serv.envFlag(), "run", "./example-service")
+	outp, err := runCmd.CombinedOutput()
+	if err != nil {
+		t.Fatalf("micro run failure, output: %v", string(outp))
+		return
+	}
 
-// 	if err := try("Find test/example", t, func() ([]byte, error) {
-// 		psCmd := exec.Command("micro", serv.envFlag(), "status")
-// 		outp, err = psCmd.CombinedOutput()
-// 		if err != nil {
-// 			return outp, err
-// 		}
+	if err := try("Find test/example", t, func() ([]byte, error) {
+		psCmd := exec.Command("micro", serv.envFlag(), "status")
+		outp, err = psCmd.CombinedOutput()
+		if err != nil {
+			return outp, err
+		}
 
-// 		// The started service should have the runtime name of "test/example-service",
-// 		// as the runtime name is the relative path inside a repo.
-// 		if !statusRunning("test/example-service", outp) {
-// 			return outp, errors.New("Can't find example service in runtime")
-// 		}
-// 		return outp, err
-// 	}, 15*time.Second); err != nil {
-// 		return
-// 	}
+		// The started service should have the runtime name of "test/example-service",
+		// as the runtime name is the relative path inside a repo.
+		if !statusRunning("test/example-service", outp) {
+			return outp, errors.New("Can't find example service in runtime")
+		}
+		return outp, err
+	}, 15*time.Second); err != nil {
+		return
+	}
 
-// 	if err := try("Find go.micro.service.example in list", t, func() ([]byte, error) {
-// 		outp, err := exec.Command("micro", serv.envFlag(), "services").CombinedOutput()
-// 		if err != nil {
-// 			return outp, err
-// 		}
-// 		if !strings.Contains(string(outp), "go.micro.service.example") {
-// 			return outp, errors.New("Can't find example service in list")
-// 		}
-// 		return outp, err
-// 	}, 50*time.Second); err != nil {
-// 		return
-// 	}
-// }
+	if err := try("Find go.micro.service.example in list", t, func() ([]byte, error) {
+		outp, err := exec.Command("micro", serv.envFlag(), "services").CombinedOutput()
+		if err != nil {
+			return outp, err
+		}
+		if !strings.Contains(string(outp), "go.micro.service.example") {
+			return outp, errors.New("Can't find example service in list")
+		}
+		return outp, err
+	}, 50*time.Second); err != nil {
+		return
+	}
+}
 
-// Not yet supported
-// func TestRunAndKill(t *testing.T) {
-// 	trySuite(t, testRunAndKill, retryCount)
-// }
+func TestRunAndKill(t *testing.T) {
+	trySuite(t, testRunAndKill, retryCount)
+}
 
-// func testRunAndKill(t *t) {
-// 	t.Parallel()
-// 	serv := newServer(t, withLogin())
-// 	defer serv.close()
-// 	if err := serv.launch(); err != nil {
-// 		return
-// 	}
+func testRunAndKill(t *t) {
+	t.Parallel()
+	serv := newServer(t, withLogin())
+	defer serv.close()
+	if err := serv.launch(); err != nil {
+		return
+	}
 
-// 	runCmd := exec.Command("micro", serv.envFlag(), "run", "./example-service")
-// 	outp, err := runCmd.CombinedOutput()
-// 	if err != nil {
-// 		t.Fatalf("micro run failure, output: %v", string(outp))
-// 		return
-// 	}
+	runCmd := exec.Command("micro", serv.envFlag(), "run", "./example-service")
+	outp, err := runCmd.CombinedOutput()
+	if err != nil {
+		t.Fatalf("micro run failure, output: %v", string(outp))
+		return
+	}
 
-// 	if err := try("Find test/example", t, func() ([]byte, error) {
-// 		psCmd := exec.Command("micro", serv.envFlag(), "status")
-// 		outp, err = psCmd.CombinedOutput()
-// 		if err != nil {
-// 			return outp, err
-// 		}
+	if err := try("Find test/example", t, func() ([]byte, error) {
+		psCmd := exec.Command("micro", serv.envFlag(), "status")
+		outp, err = psCmd.CombinedOutput()
+		if err != nil {
+			return outp, err
+		}
 
-// 		// The started service should have the runtime name of "test/example-service",
-// 		// as the runtime name is the relative path inside a repo.
-// 		if !statusRunning("test/example-service", outp) {
-// 			return outp, errors.New("Can't find example service in runtime")
-// 		}
-// 		return outp, err
-// 	}, 15*time.Second); err != nil {
-// 		return
-// 	}
+		// The started service should have the runtime name of "test/example-service",
+		// as the runtime name is the relative path inside a repo.
+		if !statusRunning("test/example-service", outp) {
+			return outp, errors.New("Can't find example service in runtime")
+		}
+		return outp, err
+	}, 15*time.Second); err != nil {
+		return
+	}
 
-// 	if err := try("Find go.micro.service.example in list", t, func() ([]byte, error) {
-// 		outp, err := exec.Command("micro", serv.envFlag(), "services").CombinedOutput()
-// 		if err != nil {
-// 			return outp, err
-// 		}
-// 		if !strings.Contains(string(outp), "go.micro.service.example") {
-// 			return outp, errors.New("Can't find example service in list")
-// 		}
-// 		return outp, err
-// 	}, 50*time.Second); err != nil {
-// 		return
-// 	}
+	if err := try("Find go.micro.service.example in list", t, func() ([]byte, error) {
+		outp, err := exec.Command("micro", serv.envFlag(), "services").CombinedOutput()
+		if err != nil {
+			return outp, err
+		}
+		if !strings.Contains(string(outp), "go.micro.service.example") {
+			return outp, errors.New("Can't find example service in list")
+		}
+		return outp, err
+	}, 50*time.Second); err != nil {
+		return
+	}
 
-// 	outp, err = exec.Command("micro", serv.envFlag(), "kill", "test/example-service").CombinedOutput()
-// 	if err != nil {
-// 		t.Fatalf("micro kill failure, output: %v", string(outp))
-// 		return
-// 	}
+	outp, err = exec.Command("micro", serv.envFlag(), "kill", "test/example-service").CombinedOutput()
+	if err != nil {
+		t.Fatalf("micro kill failure, output: %v", string(outp))
+		return
+	}
 
-// 	if err := try("Find test/example", t, func() ([]byte, error) {
-// 		psCmd := exec.Command("micro", serv.envFlag(), "status")
-// 		outp, err = psCmd.CombinedOutput()
-// 		if err != nil {
-// 			return outp, err
-// 		}
+	if err := try("Find test/example", t, func() ([]byte, error) {
+		psCmd := exec.Command("micro", serv.envFlag(), "status")
+		outp, err = psCmd.CombinedOutput()
+		if err != nil {
+			return outp, err
+		}
 
-// 		// The started service should have the runtime name of "test/example-service",
-// 		// as the runtime name is the relative path inside a repo.
-// 		if strings.Contains(string(outp), "test/example-service") {
-// 			return outp, errors.New("Should not find example service in runtime")
-// 		}
-// 		return outp, err
-// 	}, 15*time.Second); err != nil {
-// 		return
-// 	}
+		// The started service should have the runtime name of "test/example-service",
+		// as the runtime name is the relative path inside a repo.
+		if strings.Contains(string(outp), "test/example-service") {
+			return outp, errors.New("Should not find example service in runtime")
+		}
+		return outp, err
+	}, 15*time.Second); err != nil {
+		return
+	}
 
-// 	if err := try("Find go.micro.service.example in list", t, func() ([]byte, error) {
-// 		outp, err := exec.Command("micro", serv.envFlag(), "services").CombinedOutput()
-// 		if err != nil {
-// 			return outp, err
-// 		}
-// 		if strings.Contains(string(outp), "go.micro.service.example") {
-// 			return outp, errors.New("Should not find example service in list")
-// 		}
-// 		return outp, err
-// 	}, 20*time.Second); err != nil {
-// 		return
-// 	}
-// }
+	if err := try("Find go.micro.service.example in list", t, func() ([]byte, error) {
+		outp, err := exec.Command("micro", serv.envFlag(), "services").CombinedOutput()
+		if err != nil {
+			return outp, err
+		}
+		if strings.Contains(string(outp), "go.micro.service.example") {
+			return outp, errors.New("Should not find example service in list")
+		}
+		return outp, err
+	}, 20*time.Second); err != nil {
+		return
+	}
+}
 
 func TestLocalOutsideRepo(t *testing.T) {
 	trySuite(t, testLocalOutsideRepo, retryCount)

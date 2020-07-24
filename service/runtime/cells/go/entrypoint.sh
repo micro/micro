@@ -9,7 +9,7 @@ cd app
 
 URL=$1
 if [[ $1 != *"github"* ]]; then
-  URL="github.com/micro/services/$URL"
+  URL="github.com/m3o/services/$URL"
 fi
 
 REF=""

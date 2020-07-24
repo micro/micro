@@ -73,12 +73,6 @@ func init() {
 				Name:  "peer",
 				Usage: "Peer with the global network to share services",
 			},
-			&cli.StringFlag{
-				Name:    "server_profile",
-				Usage:   "Set the micro profile: local or platform",
-				EnvVars: []string{"MICRO_SERVER_PROFILE"},
-				Value:   "local",
-			},
 			&cli.BoolFlag{
 				Name:    "auto_update",
 				Usage:   "Enable automatic updates",
@@ -130,7 +124,10 @@ func Run(context *cli.Context) error {
 	// get the network flag
 	peer := context.Bool("peer")
 
-	// pass the env to the server
+	// pass the env to the services, we unset the profile
+	// env var so it doesn't get passed to the clients
+	// e.g. api, web, proxy
+	os.Unsetenv("MICRO_PROFILE")
 	env := os.Environ()
 
 	// connect to the network if specified
@@ -223,14 +220,14 @@ func Run(context *cli.Context) error {
 		log.Fatal(err)
 		return err
 	}
-
+	defer muRuntime.Stop()
 	log.Info("Service runtime started")
 
 	// TODO: should we launch the console?
 	// start the console
 	// cli.Init(context)
 
-	server := service.New(
+	srv := service.New(
 		service.Name(Name),
 		service.Address(Address),
 	)
@@ -238,24 +235,12 @@ func Run(context *cli.Context) error {
 	// @todo make this configurable
 	uploadDir := filepath.Join(os.TempDir(), "micro", "uploads")
 	os.MkdirAll(uploadDir, 0777)
-	file.RegisterHandler(server.Server(), uploadDir)
+	file.RegisterHandler(srv.Server(), uploadDir)
 
 	// start the server
-	if err := server.Run(); err != nil {
+	if err := srv.Run(); err != nil {
 		log.Fatalf("Error running server: %v", err)
 	}
 
-	log.Info("Stopping service runtime")
-
-	// stop all the things
-	if err := muRuntime.Stop(); err != nil {
-		log.Fatal(err)
-		return err
-	}
-
-	log.Info("Service runtime shutdown")
-
-	// exit success
-	os.Exit(0)
 	return nil
 }

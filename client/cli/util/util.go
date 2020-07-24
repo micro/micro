@@ -210,10 +210,6 @@ func DelEnv(envName string) {
 	setEnvs(envs)
 }
 
-func IsLocal(ctx *cli.Context) bool {
-	return GetEnv(ctx).Name == EnvLocal
-}
-
 func IsPlatform(ctx *cli.Context) bool {
 	return GetEnv(ctx).Name == EnvPlatform
 }

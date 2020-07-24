@@ -24,10 +24,6 @@ func testServerAuth(t *t) {
 		return
 	}
 
-	basicAuthSuite(serv, t)
-}
-
-func basicAuthSuite(serv testServer, t *t) {
 	// Execute first command in read to wait for store service
 	// to start up
 	if err := try("Calling micro auth list accounts", t, func() ([]byte, error) {

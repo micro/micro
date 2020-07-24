@@ -18,7 +18,7 @@ import (
 	cliutil "github.com/micro/micro/v2/client/cli/util"
 	"github.com/micro/micro/v2/cmd"
 	muclient "github.com/micro/micro/v2/service/client"
-	signupproto "github.com/micro/services/signup/proto/signup"
+	signupproto "github.com/m3o/services/signup/proto/signup"
 	"golang.org/x/crypto/ssh/terminal"
 )
 
