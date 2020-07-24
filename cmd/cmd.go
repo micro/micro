@@ -405,8 +405,7 @@ func action(c *cli.Context) error {
 
 	}
 
-	fmt.Println(helper.MissingCommand(c))
-	return nil
+	return helper.MissingCommand(c)
 }
 
 // Register CLI commands
