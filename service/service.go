@@ -4,6 +4,7 @@ import (
 	"context"
 	"os"
 	"os/signal"
+	"runtime"
 
 	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro/v2/client"
@@ -15,6 +16,7 @@ import (
 	signalutil "github.com/micro/go-micro/v2/util/signal"
 	"github.com/micro/micro/v2/cmd"
 	muclient "github.com/micro/micro/v2/service/client"
+	mudebug "github.com/micro/micro/v2/service/debug"
 	mumodel "github.com/micro/micro/v2/service/model"
 	muserver "github.com/micro/micro/v2/service/server"
 )
@@ -130,17 +132,18 @@ func (s *Service) run(ctx *cli.Context) error {
 	}
 
 	// start the profiler
-	// if s.opts.Profile != nil {
-	// 	// to view mutex contention
-	// 	rtime.SetMutexProfileFraction(5)
-	// 	// to view blocking profile
-	// 	rtime.SetBlockProfileRate(1)
+	if mudebug.DefaultProfiler != nil {
+		// to view mutex contention
+		runtime.SetMutexProfileFraction(5)
+		// to view blocking profile
+		runtime.SetBlockProfileRate(1)
 
-	// 	if err := s.opts.Profile.Start(); err != nil {
-	// 		return err
-	// 	}
-	// 	defer s.opts.Profile.Stop()
-	// }
+		if err := mudebug.DefaultProfiler.Start(); err != nil {
+			return err
+		}
+
+		defer mudebug.DefaultProfiler.Stop()
+	}
 
 	if logger.V(logger.InfoLevel, logger.DefaultLogger) {
 		logger.Infof("Starting [service] %s", s.Name())
