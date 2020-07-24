@@ -7,6 +7,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"runtime"
+	"runtime/debug"
 	"strings"
 	"syscall"
 	"testing"
@@ -292,12 +293,13 @@ type t struct {
 	t       *testing.T
 }
 
+// Fatal logs and exits immediately. Assumes it has come from a trySuite() call. If called from within goroutine it does not immediately exit.
 func (t *t) Fatal(values ...interface{}) {
 	t.t.Helper()
 	t.t.Log(values...)
 	t.failed = true
 	t.values = values
-	panic(errFatal)
+	doPanic()
 }
 
 func (t *t) Log(values ...interface{}) {
@@ -305,12 +307,22 @@ func (t *t) Log(values ...interface{}) {
 	t.t.Log(values...)
 }
 
+// Fatalf logs and exits immediately. Assumes it has come from a trySuite() call. If called from within goroutine it does not immediately exit.
 func (t *t) Fatalf(format string, values ...interface{}) {
 	t.t.Helper()
 	t.t.Log(fmt.Sprintf(format, values...))
 	t.failed = true
 	t.values = values
 	t.format = format
+	doPanic()
+}
+
+func doPanic() {
+	stack := debug.Stack()
+	// if we're not in trySuite we're doing something funky in a goroutine (probably), don't panic because we won't recover
+	if !strings.Contains(string(stack), "trySuite(") {
+		return
+	}
 	panic(errFatal)
 }
 
