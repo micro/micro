@@ -277,13 +277,11 @@ func testRunGithubSource(t *t) {
 		t.Fatal("Git is not available")
 		return
 	}
-	serv := newServer(t)
+	serv := newServer(t, withLogin())
 	defer serv.close()
 	if err := serv.launch(); err != nil {
 		return
 	}
-
-	login(serv, t, serv.envName(), "password")
 
 	runCmd := exec.Command("micro", serv.envFlag(), "run", "github.com/micro/examples/helloworld")
 	outp, err := runCmd.CombinedOutput()

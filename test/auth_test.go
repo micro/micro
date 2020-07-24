@@ -10,8 +10,6 @@ import (
 	"strings"
 	"testing"
 	"time"
-
-	"github.com/micro/micro/v2/client/cli/token"
 )
 
 func TestServerAuth(t *testing.T) {
@@ -20,24 +18,7 @@ func TestServerAuth(t *testing.T) {
 
 func testServerAuth(t *t) {
 	t.Parallel()
-	serv := newServer(t)
-	defer serv.close()
-	if err := serv.launch(); err != nil {
-		return
-	}
-
-	basicAuthSuite(serv, t)
-}
-
-func TestServerAuthJWT(t *testing.T) {
-	trySuite(t, testServerAuthJWT, retryCount)
-}
-
-func testServerAuthJWT(t *t) {
-	t.Parallel()
-	serv := newServer(t, options{
-		auth: "jwt",
-	})
+	serv := newServer(t, withLogin())
 	defer serv.close()
 	if err := serv.launch(); err != nil {
 		return
@@ -47,8 +28,6 @@ func testServerAuthJWT(t *t) {
 }
 
 func basicAuthSuite(serv testServer, t *t) {
-	login(serv, t, "default", "password")
-
 	// Execute first command in read to wait for store service
 	// to start up
 	if err := try("Calling micro auth list accounts", t, func() ([]byte, error) {
@@ -110,109 +89,6 @@ func basicAuthSuite(serv testServer, t *t) {
 	}
 }
 
-func TestServerLoginJWT(t *testing.T) {
-	trySuite(t, testServerAuthJWT, retryCount)
-}
-
-func testServerLoginJWT(t *t) {
-	t.Parallel()
-	serv := newServer(t, options{
-		auth: "jwt",
-	})
-	defer serv.close()
-	if err := serv.launch(); err != nil {
-		return
-	}
-
-	login(serv, t, "default", "password")
-}
-
-// Test bad tokens by messing up refresh token and trying to log in
-// - this used to make even login fail which resulted in a UX deadlock
-func TestServerBadTokenJWT(t *testing.T) {
-	trySuite(t, testServerAuthJWT, retryCount)
-}
-
-func testServerBadTokenJWT(t *t) {
-	t.Parallel()
-	serv := newServer(t, options{
-		auth: "jwt",
-	})
-	defer serv.close()
-	if err := serv.launch(); err != nil {
-		return
-	}
-
-	login(serv, t, "default", "password")
-
-	// Micro status should work
-	if err := try("Micro status", t, func() ([]byte, error) {
-		return exec.Command("micro", serv.envFlag(), "status").CombinedOutput()
-	}, 3*time.Second); err != nil {
-		return
-	}
-
-	// Modify rules so only logged in users can do anything
-
-	// Add new rule that only lets logged in users do anything
-	outp, err := exec.Command("micro", serv.envFlag(), "auth", "create", "rule", "--access=granted", "--scope='*'", "--resource='*:*:*'", "onlyloggedin").CombinedOutput()
-	if err != nil {
-		t.Fatal(string(outp))
-		return
-	}
-	// Remove default rule
-	outp, err = exec.Command("micro", serv.envFlag(), "auth", "delete", "rule", "default").CombinedOutput()
-	if err != nil {
-		t.Fatal(string(outp))
-		return
-	}
-
-	// Micro status should still work as our user is already logged in
-	if err := try("Micro status", t, func() ([]byte, error) {
-		return exec.Command("micro", serv.envFlag(), "status").CombinedOutput()
-	}, 3*time.Second); err != nil {
-		return
-	}
-
-	// Now get the token and mess it up
-
-	tok, err := token.Get(serv.envName())
-	if err != nil {
-		t.Fatal(err)
-		return
-	}
-
-	tok.AccessToken = ""
-	tok.Expiry = time.Time{}
-	tok.RefreshToken = "some-random-junk"
-
-	err = token.Save(serv.envName(), tok)
-	if err != nil {
-		t.Fatal(err)
-		return
-	}
-
-	// Micro status should fail
-	if err := try("Micro status", t, func() ([]byte, error) {
-		outp, err := exec.Command("micro", serv.envFlag(), "status").CombinedOutput()
-		if err == nil {
-			return outp, errors.New("Micro status should fail")
-		}
-		return outp, err
-	}, 3*time.Second); err != nil {
-		return
-	}
-
-	login(serv, t, "default", "password")
-
-	// Micro status should still work again after login
-	if err := try("Micro status", t, func() ([]byte, error) {
-		return exec.Command("micro", serv.envFlag(), "status").CombinedOutput()
-	}, 3*time.Second); err != nil {
-		return
-	}
-}
-
 func TestServerLockdown(t *testing.T) {
 	trySuite(t, testServerAuth, retryCount)
 }
@@ -226,23 +102,6 @@ func testServerLockdown(t *t) {
 	}
 
 	lockdownSuite(serv, t)
-}
-
-func TestServerLockdownJWT(t *testing.T) {
-	trySuite(t, testServerAuthJWT, retryCount)
-}
-
-func testServerLockdownJWT(t *t) {
-	t.Parallel()
-	serv := newServer(t, options{
-		auth: "jwt",
-	})
-	defer serv.close()
-	if err := serv.launch(); err != nil {
-		return
-	}
-
-	basicAuthSuite(serv, t)
 }
 
 func lockdownSuite(serv testServer, t *t) {

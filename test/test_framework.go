@@ -121,15 +121,23 @@ func myCaller() string {
 }
 
 type options struct {
-	auth string // eg. jwt
+	login bool
 }
 
-func newServer(t *t, opts ...options) testServer {
+type option func(o *options)
+
+func withLogin() option {
+	return func(o *options) {
+		o.login = true
+	}
+}
+
+func newServer(t *t, opts ...option) testServer {
 	fname := strings.Split(myCaller(), ".")[2]
 	return newSrv(t, fname, opts...)
 }
 
-type newServerFunc func(t *t, fname string, opts ...options) testServer
+type newServerFunc func(t *t, fname string, opts ...option) testServer
 
 var newSrv newServerFunc = newLocalServer
 
@@ -137,7 +145,12 @@ type testServerDefault struct {
 	testServerBase
 }
 
-func newLocalServer(t *t, fname string, opts ...options) testServer {
+func newLocalServer(t *t, fname string, opts ...option) testServer {
+	var options options
+	for _, o := range opts {
+		o(&options)
+	}
+
 	portnum := rand.Intn(maxPort-minPort) + minPort
 
 	// kill container, ignore error because it might not exist,
@@ -174,17 +187,13 @@ func newLocalServer(t *t, fname string, opts ...options) testServer {
 		"-e", "MICRO_AUTH_PUBLIC_KEY="+strings.Trim(string(pubKey), "\n"),
 		"micro", "server")
 
-	opt := options{}
-	if len(opts) > 0 {
-		opt = opts[0]
-	}
 	return &testServerDefault{testServerBase{
 		cmd:           cmd,
 		t:             t,
 		envNm:         fname,
 		containerName: fname,
 		portNum:       portnum,
-		opts:          opt,
+		opts:          options,
 		namespace:     "micro",
 	}}
 }
@@ -197,6 +206,7 @@ func (s *testServerBase) launch() error {
 			s.t.t.Fatal(err)
 		}
 	}()
+
 	// add the environment
 	if err := try("Adding micro env", s.t, func() ([]byte, error) {
 		outp, err := exec.Command("micro", "env", "add", s.envName(), fmt.Sprintf("127.0.0.1:%v", s.portNum)).CombinedOutput()
@@ -247,15 +257,17 @@ func (s *testServerDefault) launch() error {
 	}
 
 	// login to admin account
-	login(s, s.t, "default", "password")
-
-	// generate a new admin account for the env : user=ENV_NAME pass=password
-	req := fmt.Sprintf(`{"id":"%s", "secret":"password", "options":{"namespace":"%s"}}`, s.envName(), s.namespace)
-	outp, err := exec.Command("micro", s.envFlag(), "call", "go.micro.auth", "Auth.Generate", req).CombinedOutput()
-	if err != nil && !strings.Contains(string(outp), "already exists") { // until auth.Delete is implemented
-		s.t.Fatalf("Error generating auth: %s, %s", err, outp)
-		return err
+	if s.opts.login {
+		login(s, s.t, "default", "password")
 	}
+
+	// // generate a new admin account for the env : user=ENV_NAME pass=password
+	// req := fmt.Sprintf(`{"id":"%s", "secret":"password", "options":{"namespace":"%s"}}`, s.envName(), s.namespace)
+	// outp, err := exec.Command("micro", s.envFlag(), "call", "go.micro.auth", "Auth.Generate", req).CombinedOutput()
+	// if err != nil && !strings.Contains(string(outp), "already exists") { // until auth.Delete is implemented
+	// 	s.t.Fatalf("Error generating auth: %s, %s", err, outp)
+	// 	return err
+	// }
 
 	return nil
 }
