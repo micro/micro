@@ -19,7 +19,6 @@ import (
 	"github.com/micro/go-micro/v2/registry"
 	"github.com/micro/micro/v2/client/cli/namespace"
 	"github.com/micro/micro/v2/client/cli/util"
-	inclient "github.com/micro/micro/v2/internal/client"
 	muclient "github.com/micro/micro/v2/service/client"
 	muregistry "github.com/micro/micro/v2/service/registry"
 
@@ -379,11 +378,8 @@ func CallService(c *cli.Context, args []string) ([]byte, error) {
 	}
 
 	ctx := callContext(c)
-	cli, err := inclient.New(c)
-	if err != nil {
-		return nil, err
-	}
 
+	cli := muclient.DefaultClient
 	creq := cli.NewRequest(service, endpoint, request, client.WithContentType("application/json"))
 
 	var opts []client.CallOption
@@ -392,7 +388,7 @@ func CallService(c *cli.Context, args []string) ([]byte, error) {
 		opts = append(opts, client.WithAddress(addr))
 	}
 
-	err = nil
+	var err error
 	if output := c.String("output"); output == "raw" {
 		rsp := cbytes.Frame{}
 		err = cli.Call(ctx, creq, &rsp, opts...)

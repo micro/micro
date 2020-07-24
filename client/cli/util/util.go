@@ -8,10 +8,15 @@ import (
 	"net"
 	"os"
 	"strings"
+	"time"
 
-	ccli "github.com/micro/cli/v2"
+	"github.com/micro/cli/v2"
+	"github.com/micro/go-micro/v2/auth"
+	"github.com/micro/micro/v2/client/cli/namespace"
+	clitoken "github.com/micro/micro/v2/client/cli/token"
 	"github.com/micro/micro/v2/internal/config"
 	"github.com/micro/micro/v2/internal/platform"
+	muauth "github.com/micro/micro/v2/service/auth"
 )
 
 const (
@@ -49,7 +54,7 @@ func isBuiltinService(command string) bool {
 }
 
 // SetProxyAddress includes things that should run for each command.
-func SetProxyAddress(ctx *ccli.Context) {
+func SetProxyAddress(ctx *cli.Context) {
 	// This makes `micro [command name] --help` work without a server
 	for _, arg := range os.Args {
 		if arg == "--help" || arg == "-h" {
@@ -128,7 +133,7 @@ func setEnvs(envs map[string]Env) {
 
 // GetEnv returns the current selected environment
 // Does not take
-func GetEnv(ctx *ccli.Context) Env {
+func GetEnv(ctx *cli.Context) Env {
 	var envName string
 	if len(ctx.String("env")) > 0 {
 		envName = ctx.String("env")
@@ -205,18 +210,18 @@ func DelEnv(envName string) {
 	setEnvs(envs)
 }
 
-func IsServer(ctx *ccli.Context) bool {
+func IsLocal(ctx *cli.Context) bool {
 	return GetEnv(ctx).Name == EnvLocal
 }
 
-func IsPlatform(ctx *ccli.Context) bool {
+func IsPlatform(ctx *cli.Context) bool {
 	return GetEnv(ctx).Name == EnvPlatform
 }
 
-type Exec func(*ccli.Context, []string) ([]byte, error)
+type Exec func(*cli.Context, []string) ([]byte, error)
 
-func Print(e Exec) func(*ccli.Context) error {
-	return func(c *ccli.Context) error {
+func Print(e Exec) func(*cli.Context) error {
+	return func(c *cli.Context) error {
 		rsp, err := e(c, c.Args().Slice())
 		if err != nil {
 			fmt.Println(err)
@@ -233,7 +238,7 @@ func toFlag(s string) string {
 	return strings.ToLower(strings.ReplaceAll(s, "MICRO_", ""))
 }
 
-func setFlags(ctx *ccli.Context, envars []string) {
+func setFlags(ctx *cli.Context, envars []string) {
 	for _, envar := range envars {
 		// setting both env and flags here
 		// as the proxy settings for example did not take effect
@@ -243,4 +248,46 @@ func setFlags(ctx *ccli.Context, envars []string) {
 		os.Setenv(parts[0], parts[1])
 		ctx.Set(key, parts[1])
 	}
+}
+
+// SetAuthToken handles exchanging refresh tokens to access tokens
+// The structure of the local micro userconfig file is the following:
+// micro.auth.[envName].token: temporary access token
+// micro.auth.[envName].refresh-token: long lived refresh token
+// micro.auth.[envName].expiry: expiration time of the access token, seconds since Unix epoch.
+func SetAuthToken(ctx *cli.Context) error {
+	env := GetEnv(ctx)
+	ns, err := namespace.Get(env.Name)
+	if err != nil {
+		return err
+	}
+
+	tok, err := clitoken.Get(env.Name)
+	if err != nil {
+		return err
+	}
+
+	// If there is no refresh token, do not try to refresh it
+	if len(tok.RefreshToken) == 0 {
+		return nil
+	}
+
+	// Check if token is valid
+	if time.Now().Before(tok.Expiry.Add(-15 * time.Second)) {
+		muauth.DefaultAuth.Init(auth.ClientToken(tok))
+		return nil
+	}
+
+	// Get new access token from refresh token if it's close to expiry
+	tok, err = muauth.DefaultAuth.Token(
+		auth.WithToken(tok.RefreshToken),
+		auth.WithTokenIssuer(ns),
+	)
+	if err != nil {
+		return err
+	}
+
+	// Save the token to user config file
+	muauth.DefaultAuth.Init(auth.ClientToken(tok))
+	return clitoken.Save(env.Name, tok)
 }

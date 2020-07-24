@@ -9,11 +9,11 @@ import (
 	"text/tabwriter"
 
 	"github.com/micro/cli/v2"
-	pb "github.com/micro/micro/v2/service/auth/proto"
 	"github.com/micro/go-micro/v2/errors"
 	"github.com/micro/micro/v2/client/cli/namespace"
 	"github.com/micro/micro/v2/client/cli/util"
-	"github.com/micro/micro/v2/internal/client"
+	pb "github.com/micro/micro/v2/service/auth/proto"
+	muclient "github.com/micro/micro/v2/service/client"
 )
 
 func listRules(ctx *cli.Context) error {
@@ -138,10 +138,5 @@ func constructRule(ctx *cli.Context) (*pb.Rule, error) {
 }
 
 func rulesFromContext(ctx *cli.Context) pb.RulesService {
-	cli, err := client.New(ctx)
-	if err != nil {
-		fmt.Printf("Error: %s\n", err)
-		os.Exit(1)
-	}
-	return pb.NewRulesService("go.micro.auth", cli)
+	return pb.NewRulesService("go.micro.auth", muclient.DefaultClient)
 }

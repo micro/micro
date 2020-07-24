@@ -13,7 +13,7 @@ import (
 	"github.com/micro/go-micro/v2/registry"
 	"github.com/micro/micro/v2/client/cli/namespace"
 	"github.com/micro/micro/v2/client/cli/util"
-	inclient "github.com/micro/micro/v2/internal/client"
+	muclient "github.com/micro/micro/v2/service/client"
 	muregistry "github.com/micro/micro/v2/service/registry"
 )
 
@@ -117,10 +117,7 @@ func callService(srv *registry.Service, ctx *cli.Context) error {
 	}
 
 	// construct and execute the request using the json content type
-	cli, err := inclient.New(ctx)
-	if err != nil {
-		return err
-	}
+	cli := muclient.DefaultClient
 	req := cli.NewRequest(srv.Name, endpoint, body, client.WithContentType("application/json"))
 	var rsp json.RawMessage
 	if err := cli.Call(ctx.Context, req, &rsp); err != nil {

@@ -12,9 +12,9 @@ import (
 	"github.com/micro/go-micro/v2/auth"
 	"github.com/micro/micro/v2/client/cli/namespace"
 	"github.com/micro/micro/v2/client/cli/util"
-	"github.com/micro/micro/v2/internal/client"
 	muauth "github.com/micro/micro/v2/service/auth"
 	pb "github.com/micro/micro/v2/service/auth/proto"
+	muclient "github.com/micro/micro/v2/service/client"
 )
 
 func listAccounts(ctx *cli.Context) error {
@@ -106,10 +106,5 @@ func deleteAccount(ctx *cli.Context) error {
 }
 
 func accountsFromContext(ctx *cli.Context) pb.AccountsService {
-	cli, err := client.New(ctx)
-	if err != nil {
-		fmt.Printf("Error: %s\n", err)
-		os.Exit(1)
-	}
-	return pb.NewAccountsService("go.micro.auth", cli)
+	return pb.NewAccountsService("go.micro.auth", muclient.DefaultClient)
 }

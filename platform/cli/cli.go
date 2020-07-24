@@ -17,7 +17,7 @@ import (
 	clitoken "github.com/micro/micro/v2/client/cli/token"
 	cliutil "github.com/micro/micro/v2/client/cli/util"
 	"github.com/micro/micro/v2/cmd"
-	"github.com/micro/micro/v2/internal/client"
+	muclient "github.com/micro/micro/v2/service/client"
 	signupproto "github.com/micro/services/signup/proto/signup"
 	"golang.org/x/crypto/ssh/terminal"
 )
@@ -37,13 +37,9 @@ func Signup(ctx *cli.Context) error {
 	}
 
 	// send a verification email to the user
-	cli, err := client.New(ctx)
-	if err != nil {
-		fmt.Printf("Error processing signup: %s\n", err)
-		os.Exit(1)
-	}
+	cli := muclient.DefaultClient
 	signupService := signupproto.NewSignupService("go.micro.service.signup", cli)
-	_, err = signupService.SendVerificationEmail(context.TODO(), &signupproto.SendVerificationEmailRequest{
+	_, err := signupService.SendVerificationEmail(context.TODO(), &signupproto.SendVerificationEmailRequest{
 		Email: email,
 	}, cl.WithRequestTimeout(10*time.Second))
 	if err != nil {

@@ -360,6 +360,10 @@ func before(ctx *cli.Context) error {
 	// set the proxy address. TODO: Refactor to be a client option.
 	util.SetProxyAddress(ctx)
 
+	// set the credentials from the CLI. If a service is run, it'll override
+	// these when it's started.
+	util.SetAuthToken(ctx)
+
 	return nil
 }
 

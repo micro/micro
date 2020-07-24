@@ -22,7 +22,7 @@ import (
 	"github.com/micro/micro/v2/client/cli/namespace"
 	"github.com/micro/micro/v2/client/cli/util"
 	cliutil "github.com/micro/micro/v2/client/cli/util"
-	"github.com/micro/micro/v2/internal/client"
+	muclient "github.com/micro/micro/v2/service/client"
 	muruntime "github.com/micro/micro/v2/service/runtime"
 	"github.com/micro/micro/v2/service/runtime/server"
 	"google.golang.org/grpc/status"
@@ -285,10 +285,7 @@ func upload(ctx *cli.Context, source *git.Source) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	cli, err := client.New(ctx)
-	if err != nil {
-		fmt.Printf("Error: %s\n", err)
-	}
+	cli := muclient.DefaultClient
 	err = file.New("go.micro.server", cli).Upload(uploadedFileName, path)
 	if err != nil {
 		return "", err
