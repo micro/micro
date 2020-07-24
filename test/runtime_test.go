@@ -616,7 +616,7 @@ func TestFastRuns(t *testing.T) {
 
 func testFastRuns(t *t) {
 	t.Parallel()
-	serv := newServer(t)
+	serv := newServer(t, withLogin())
 	defer serv.close()
 	if err := serv.launch(); err != nil {
 		return
