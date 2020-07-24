@@ -231,7 +231,6 @@ func Run(context *cli.Context) error {
 		service.Name(Name),
 		service.Address(Address),
 	)
-	fmt.Println("Server registry:", srv.Server().Options().Registry)
 
 	// @todo make this configurable
 	uploadDir := filepath.Join(os.TempDir(), "micro", "uploads")

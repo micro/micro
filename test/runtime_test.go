@@ -188,7 +188,7 @@ func TestLocalOutsideRepo(t *testing.T) {
 
 func testLocalOutsideRepo(t *t) {
 	t.Parallel()
-	serv := newServer(t)
+	serv := newServer(t, withLogin())
 	defer serv.close()
 	if err := serv.launch(); err != nil {
 		return

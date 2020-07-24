@@ -2,10 +2,10 @@ package server
 
 import (
 	"github.com/micro/cli/v2"
-	proto "github.com/micro/micro/v2/service/config/proto"
 	"github.com/micro/go-micro/v2/logger"
 	"github.com/micro/go-micro/v2/store"
 	"github.com/micro/micro/v2/service"
+	proto "github.com/micro/micro/v2/service/config/proto"
 	mustore "github.com/micro/micro/v2/service/store"
 )
 
@@ -33,7 +33,9 @@ func Run(c *cli.Context) error {
 	srv := service.New(service.Name(name))
 	mustore.DefaultStore.Init(store.Table("config"))
 
-	proto.RegisterConfigHandler(srv.Server(), new(config))
+	proto.RegisterConfigHandler(srv.Server(), &config{
+		Store: mustore.DefaultStore,
+	})
 	service.RegisterSubscriber(watchTopic, new(watcher))
 
 	if err := srv.Run(); err != nil {
