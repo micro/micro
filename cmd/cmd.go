@@ -217,20 +217,11 @@ func (c *command) Before(ctx *cli.Context) error {
 		prof = "local"
 	}
 
-	// configure micro
-	switch prof {
-	case "":
-		// use default rpc implementations
-	case "ci":
-		profile.CI()
-	case "test":
-		profile.Test()
-	case "local":
-		profile.Local()
-	case "platform":
-		profile.Platform()
-	default:
-		logger.Fatalf("Unknown profile: %v", ctx.String("profile"))
+	// apply the profile
+	if profile, ok := profile.Profiles[prof]; ok {
+		profile()
+	} else if len(prof) > 0 {
+		logger.Fatalf("Unknown profile: %v", prof)
 	}
 
 	// wrap the client

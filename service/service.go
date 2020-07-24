@@ -36,9 +36,6 @@ func (s *Service) Name() string {
 	return muserver.DefaultServer.Options().Name
 }
 
-// Init initialises options. Additionally it calls cmd.Init
-// which parses command line flags. cmd.Init is only called
-// on first Init.
 func (s *Service) Init(opts ...Option) {
 	for _, o := range opts {
 		o(&s.opts)

@@ -33,6 +33,14 @@ import (
 	mustore "github.com/micro/micro/v2/service/store"
 )
 
+// Profiles which when called will configure micro
+var Profiles = map[string]Profile{
+	"ci":       CI,
+	"test":     Test,
+	"local":    Local,
+	"platform": Platform,
+}
+
 // Profile configures an environment
 type Profile func()
 
