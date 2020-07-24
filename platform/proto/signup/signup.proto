@@ -3,10 +3,12 @@ syntax = "proto3";
 package go.micro.service.signup;
 
 service Signup {
-   rpc SendVerificationEmail(SendVerificationEmailRequest) returns (SendVerificationEmailResponse);
-   rpc Verify(VerifyRequest) returns (VerifyResponse);
-   // Creates a subscription and an account
-   rpc CompleteSignup(CompleteSignupRequest) returns (CompleteSignupResponse);
+	// Send a verification email
+	rpc SendVerificationEmail(SendVerificationEmailRequest) returns (SendVerificationEmailResponse);
+	// Verify a user who's been sent an email
+	rpc Verify(VerifyRequest) returns (VerifyResponse);
+	// Complete the signup process
+	rpc CompleteSignup(CompleteSignupRequest) returns (CompleteSignupResponse);
 }
 
 message SendVerificationEmailRequest {
