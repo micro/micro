@@ -421,7 +421,7 @@ func TestExistingLogs(t *testing.T) {
 
 func testExistingLogs(t *t) {
 	t.Parallel()
-	serv := newServer(t)
+	serv := newServer(t, withLogin())
 	defer serv.close()
 	if err := serv.launch(); err != nil {
 		return
@@ -456,7 +456,7 @@ func TestBranchCheckout(t *testing.T) {
 
 func testBranchCheckout(t *t) {
 	t.Parallel()
-	serv := newServer(t)
+	serv := newServer(t, withLogin())
 	defer serv.close()
 	if err := serv.launch(); err != nil {
 		return
@@ -492,7 +492,7 @@ func TestStreamLogsAndThirdPartyRepo(t *testing.T) {
 
 func testStreamLogsAndThirdPartyRepo(t *t) {
 	t.Parallel()
-	serv := newServer(t)
+	serv := newServer(t, withLogin())
 	defer serv.close()
 	if err := serv.launch(); err != nil {
 		return
