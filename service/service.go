@@ -4,15 +4,12 @@ import (
 	"context"
 	"os"
 	"os/signal"
-	"strings"
-	"sync"
 
 	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro/v2/client"
 	debug "github.com/micro/go-micro/v2/debug/service/handler"
 	"github.com/micro/go-micro/v2/logger"
 	"github.com/micro/go-micro/v2/model"
-	"github.com/micro/go-micro/v2/plugin"
 	"github.com/micro/go-micro/v2/server"
 	"github.com/micro/go-micro/v2/store"
 	signalutil "github.com/micro/go-micro/v2/util/signal"
@@ -25,7 +22,6 @@ import (
 // Service is a Micro Service which honours the go-micro/service interface
 type Service struct {
 	opts Options
-	once sync.Once
 }
 
 // New returns a new Micro Service
@@ -42,33 +38,9 @@ func (s *Service) Name() string {
 // which parses command line flags. cmd.Init is only called
 // on first Init.
 func (s *Service) Init(opts ...Option) {
-	// process options
 	for _, o := range opts {
 		o(&s.opts)
 	}
-
-	s.once.Do(func() {
-		// setup the plugins
-		for _, p := range strings.Split(os.Getenv("MICRO_PLUGIN"), ",") {
-			if len(p) == 0 {
-				continue
-			}
-
-			// load the plugin
-			c, err := plugin.Load(p)
-			if err != nil {
-				logger.Fatal(err)
-			}
-
-			// initialise the plugin
-			if err := plugin.Init(c); err != nil {
-				logger.Fatal(err)
-			}
-		}
-
-		// Explicitly set the table name to the service name
-		store.DefaultStore.Init(store.Table(s.Name()))
-	})
 }
 
 func (s *Service) Options() Options {
@@ -92,6 +64,9 @@ func (s *Service) String() string {
 }
 
 func (s *Service) Start() error {
+	// set the store to use the service name as the table
+	store.DefaultStore.Init(store.Table(s.Name()))
+
 	for _, fn := range s.opts.BeforeStart {
 		if err := fn(); err != nil {
 			return err

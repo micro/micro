@@ -203,6 +203,7 @@ func (c *command) Options() cmd.Options {
 }
 
 func (c *command) Before(ctx *cli.Context) error {
+	// initialize plugins
 	for _, p := range plugin.Plugins() {
 		if err := p.Init(ctx); err != nil {
 			return err
