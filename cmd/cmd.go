@@ -50,7 +50,7 @@ type command struct {
 }
 
 var (
-	DefaultCmd cmd.Cmd = newCmd()
+	DefaultCmd cmd.Cmd = New()
 
 	// name of the binary
 	name = "micro"
@@ -163,7 +163,7 @@ func init() {
 	rand.Seed(time.Now().Unix())
 }
 
-func newCmd(opts ...cmd.Option) cmd.Cmd {
+func New(opts ...cmd.Option) cmd.Cmd {
 	options := cmd.Options{}
 	for _, o := range opts {
 		o(&options)
@@ -177,7 +177,13 @@ func newCmd(opts ...cmd.Option) cmd.Cmd {
 	cmd.app.Usage = description
 	cmd.app.Flags = defaultFlags
 	cmd.app.Action = action
-	cmd.app.Before = before
+	cmd.app.Before = cmd.Before
+
+	// run a custom action, this allows us to run a service
+	// after parsing the cli flags and setting up micro
+	if action := actionFromContext(options.Context); action != nil {
+		cmd.app.Action = action
+	}
 
 	return cmd
 }
@@ -191,34 +197,6 @@ func (c *command) Options() cmd.Options {
 }
 
 func (c *command) Before(ctx *cli.Context) error {
-	return nil
-}
-
-func (c *command) Init(opts ...cmd.Option) error {
-	for _, o := range opts {
-		o(&c.opts)
-	}
-	if len(c.opts.Name) > 0 {
-		c.app.Name = c.opts.Name
-	}
-	if len(c.opts.Version) > 0 {
-		c.app.Version = c.opts.Version
-	}
-	c.app.HideVersion = len(c.opts.Version) == 0
-	c.app.Usage = c.opts.Description
-
-	return nil
-}
-
-func (c *command) Run() error {
-	return c.app.Run(os.Args)
-}
-
-func (c *command) String() string {
-	return "micro"
-}
-
-func before(ctx *cli.Context) error {
 	for _, p := range plugin.Plugins() {
 		if err := p.Init(ctx); err != nil {
 			return err
@@ -227,8 +205,8 @@ func before(ctx *cli.Context) error {
 
 	// default the profile for the server
 	prof := ctx.String("profile")
-	c := ctx.Args().First()
-	if len(prof) == 0 && (c == "service" || c == "server") {
+	a := ctx.Args().First()
+	if len(prof) == 0 && (a == "service" || a == "server") {
 		prof = "local"
 	}
 
@@ -369,6 +347,30 @@ func before(ctx *cli.Context) error {
 	return nil
 }
 
+func (c *command) Init(opts ...cmd.Option) error {
+	for _, o := range opts {
+		o(&c.opts)
+	}
+	if len(c.opts.Name) > 0 {
+		c.app.Name = c.opts.Name
+	}
+	if len(c.opts.Version) > 0 {
+		c.app.Version = c.opts.Version
+	}
+	c.app.HideVersion = len(c.opts.Version) == 0
+	c.app.Usage = c.opts.Description
+
+	return nil
+}
+
+func (c *command) Run() error {
+	return c.app.Run(os.Args)
+}
+
+func (c *command) String() string {
+	return "micro"
+}
+
 func action(c *cli.Context) error {
 	if c.Args().Len() > 0 {
 		// if an executable is available with the name of
@@ -402,8 +404,8 @@ func action(c *cli.Context) error {
 		}
 
 	}
+
 	fmt.Println(helper.MissingCommand(c))
-	os.Exit(1)
 	return nil
 }
 

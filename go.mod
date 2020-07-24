@@ -18,6 +18,7 @@ require (
 	github.com/hashicorp/go-version v1.2.1
 	github.com/kr/pretty v0.2.0 // indirect
 	github.com/mattn/go-isatty v0.0.12 // indirect
+	github.com/micro/cli v0.2.0
 	github.com/micro/cli/v2 v2.1.2
 	github.com/micro/go-micro v1.18.0
 	github.com/micro/go-micro/v2 v2.9.1-0.20200723131438-ad75a3ce0cb2

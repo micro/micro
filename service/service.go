@@ -7,6 +7,7 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro/v2/client"
 	debug "github.com/micro/go-micro/v2/debug/service/handler"
 	"github.com/micro/go-micro/v2/debug/stats"
@@ -19,6 +20,7 @@ import (
 	"github.com/micro/go-micro/v2/server"
 	"github.com/micro/go-micro/v2/store"
 	signalutil "github.com/micro/go-micro/v2/util/signal"
+	"github.com/micro/micro/v2/cmd"
 	muclient "github.com/micro/micro/v2/service/client"
 	muserver "github.com/micro/micro/v2/service/server"
 )
@@ -76,14 +78,8 @@ func (s *Service) Init(opts ...Option) {
 			}
 		}
 
-		// set cmd name
-		if len(s.opts.Cmd.App().Name) == 0 {
-			s.opts.Cmd.App().Name = s.Server().Options().Name
-		}
-
 		// Explicitly set the table name to the service name
-		name := s.Server().Options().Name
-		store.DefaultStore.Init(store.Table(name))
+		store.DefaultStore.Init(store.Table(s.Name()))
 	})
 }
 
@@ -149,7 +145,14 @@ func (s *Service) Stop() error {
 	return gerr
 }
 
+// Run the service
 func (s *Service) Run() error {
+	// run the app wrapped by the cmd package so it
+	// initializes micro before running the service.
+	return cmd.New(cmd.Action(s.run)).Run()
+}
+
+func (s *Service) run(ctx *cli.Context) error {
 	// register the debug handler
 	muserver.DefaultServer.Handle(
 		muserver.DefaultServer.NewHandler(
