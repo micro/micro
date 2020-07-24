@@ -205,7 +205,7 @@ func setup(app *ccli.App) {
 
 			// if an arg is specified use that as the name
 			// so each service has its own table preconfigured
-			if name := ctx.Args().First(); len(name) > 0 {
+			if name := ctx.Args().Get(1); len(name) > 0 {
 				table = name
 			}
 
