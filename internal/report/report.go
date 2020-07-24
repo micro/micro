@@ -168,6 +168,7 @@ func TrackEvent(ctx *cli.Context, td TrackingData) error {
 	return err
 }
 
+// send event to alert service
 func sendEvent(ctx *cli.Context, td TrackingData) error {
 	cli, err := client.New(ctx)
 	if err != nil {
