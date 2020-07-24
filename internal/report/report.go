@@ -175,7 +175,7 @@ func sendEvent(ctx *cli.Context, td TrackingData) error {
 	}
 	alertService := alertproto.NewAlertService("alert", cli)
 	val := uint64(0)
-	if td.Value != 0 {
+	if td.Value != nil {
 		val = *td.Value
 	}
 	_, err = alertService.ReportEvent(context.TODO(), &alertproto.ReportEventRequest{
