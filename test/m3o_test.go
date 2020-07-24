@@ -51,19 +51,19 @@ func testM3oSignupFlow(t *t) {
 		}
 	}
 
-	outp, err := exec.Command("micro", serv.envFlag(), "run", getSrcString("M3O_INVITE_SVC", "github.com/m3o/services/account/invite")).CombinedOutput()
+	outp, err := exec.Command("micro", serv.envFlag(), "run", getSrcString("M3O_INVITE_SVC", "github.com/micro/services/account/invite")).CombinedOutput()
 	if err != nil {
 		t.Fatal(string(outp))
 		return
 	}
 
-	outp, err = exec.Command("micro", serv.envFlag(), "run", getSrcString("M3O_SIGNUP_SVC", "github.com/m3o/services/signup")).CombinedOutput()
+	outp, err = exec.Command("micro", serv.envFlag(), "run", getSrcString("M3O_SIGNUP_SVC", "github.com/micro/services/signup")).CombinedOutput()
 	if err != nil {
 		t.Fatal(string(outp))
 		return
 	}
 
-	outp, err = exec.Command("micro", serv.envFlag(), "run", getSrcString("M3O_STRIPE_SVC", "github.com/m3o/services/payments/provider/stripe")).CombinedOutput()
+	outp, err = exec.Command("micro", serv.envFlag(), "run", getSrcString("M3O_STRIPE_SVC", "github.com/micro/services/payments/provider/stripe")).CombinedOutput()
 	if err != nil {
 		t.Fatal(string(outp))
 		return

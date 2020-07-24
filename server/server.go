@@ -183,7 +183,7 @@ func Run(context *cli.Context) error {
 			// run server as "micro service [cmd]"
 			cmdArgs = append(cmdArgs, "service")
 			// pass the profile for the server
-			envs = append(envs, "MICRO_PROFILE="+context.String("server_profile"))
+			envs = append(envs, "MICRO_PROFILE="+context.String("profile"))
 		}
 
 		// we want to pass through the global args so go up one level in the context lineage
@@ -231,6 +231,7 @@ func Run(context *cli.Context) error {
 		service.Name(Name),
 		service.Address(Address),
 	)
+	fmt.Println("Server registry:", srv.Server().Options().Registry)
 
 	// @todo make this configurable
 	uploadDir := filepath.Join(os.TempDir(), "micro", "uploads")

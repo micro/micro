@@ -44,7 +44,7 @@ func init() {
 			micro run github.com/micro/examples/helloworld
 			micro run .  # deploy local folder to your local micro server
 			micro run ../path/to/folder # deploy local folder to your local micro server
-			micro run helloworld # deploy latest version, translates to micro run github.com/m3o/services/helloworld
+			micro run helloworld # deploy latest version, translates to micro run github.com/micro/services/helloworld
 			micro run helloworld@9342934e6180 # deploy certain version
 			micro run helloworld@branchname	# deploy certain branch`,
 			Flags:  flags,
@@ -57,7 +57,7 @@ func init() {
 			micro update github.com/micro/examples/helloworld
 			micro update .  # deploy local folder to your local micro server
 			micro update ../path/to/folder # deploy local folder to your local micro server
-			micro update helloworld # deploy master branch, translates to micro update github.com/m3o/services/helloworld
+			micro update helloworld # deploy master branch, translates to micro update github.com/micro/services/helloworld
 			micro update helloworld@branchname	# deploy certain branch`,
 			Flags:  flags,
 			Action: updateService,
@@ -70,7 +70,7 @@ func init() {
 			micro kill github.com/micro/examples/helloworld
 			micro kill .  # kill service deployed from local folder
 			micro kill ../path/to/folder # kill service deployed from local folder
-			micro kill helloworld # kill serviced deployed from master branch, translates to micro kill github.com/m3o/services/helloworld
+			micro kill helloworld # kill serviced deployed from master branch, translates to micro kill github.com/micro/services/helloworld
 			micro kill helloworld@branchname	# kill service deployed from certain branch`,
 			Action: killService,
 		},
