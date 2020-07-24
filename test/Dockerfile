@@ -30,8 +30,7 @@ COPY ./test/config-example-service ${GOPATH}/src/config-example-service
 # Speeding up tests by predownloading dependencies for services used.
 RUN cd ${GOPATH}/src/example-service && go get && \
     cd ${GOPATH}/src/config-example-service && go get && \
-    go get github.com/micro/services/helloworld@master
-
+    go get github.com/micro/services@master
 
 COPY ./micro /micro
 ENTRYPOINT ["sh", "/bin/run.sh"]
