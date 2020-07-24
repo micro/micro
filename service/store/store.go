@@ -6,6 +6,7 @@ import (
 	pb "github.com/micro/go-micro/v2/store/service/proto"
 	"github.com/micro/micro/v2/service"
 	"github.com/micro/micro/v2/service/store/handler"
+	"github.com/micro/micro/v2/store"
 )
 
 var (
@@ -31,6 +32,7 @@ func Run(ctx *cli.Context) error {
 	)
 
 	// the store handler
+	service.Options().Store.Init(store.Table("config"))
 	h := handler.New(service.Options().Store)
 	pb.RegisterStoreHandler(service.Server(), h)
 
