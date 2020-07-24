@@ -60,7 +60,7 @@ var (
 	defaultFlags = []cli.Flag{
 		&cli.StringFlag{
 			Name:    "profile",
-			Usage:   "Set the micro profile: local, server or platform",
+			Usage:   "Set the micro profile: e.g. local or platform",
 			EnvVars: []string{"MICRO_PROFILE"},
 		},
 		&cli.StringFlag{
@@ -229,7 +229,7 @@ func before(ctx *cli.Context) error {
 	prof := ctx.String("profile")
 	c := ctx.Args().First()
 	if len(prof) == 0 && (c == "service" || c == "server") {
-		prof = "server"
+		prof = "local"
 	}
 
 	// configure micro
@@ -240,8 +240,8 @@ func before(ctx *cli.Context) error {
 		profile.CI()
 	case "test":
 		profile.Test()
-	case "server":
-		profile.Server()
+	case "local":
+		profile.Local()
 	case "platform":
 		profile.Platform()
 	default:

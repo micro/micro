@@ -53,8 +53,8 @@ var CI Profile = func() {
 	setupJWTRules()
 }
 
-// Server profile to use for the server locally
-var Server Profile = func() {
+// Local profile to use for the server locally
+var Local Profile = func() {
 	muauth.DefaultAuth = noop.NewAuth()
 	mubroker.DefaultBroker = http.NewBroker()
 	muruntime.DefaultRuntime = local.NewRuntime()

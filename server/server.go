@@ -75,9 +75,9 @@ func init() {
 			},
 			&cli.StringFlag{
 				Name:    "server_profile",
-				Usage:   "Set the micro profile: server or platform",
+				Usage:   "Set the micro profile: local or platform",
 				EnvVars: []string{"MICRO_SERVER_PROFILE"},
-				Value:   "server",
+				Value:   "local",
 			},
 			&cli.BoolFlag{
 				Name:    "auto_update",
