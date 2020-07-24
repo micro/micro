@@ -130,9 +130,11 @@ func testM3oSignupFlow(t *t) {
 		outp, err := cmd.CombinedOutput()
 		if err != nil {
 			t.Fatal(string(outp), err)
+			return
 		}
 		if !strings.Contains(string(outp), "Success") {
 			t.Fatal(string(outp))
+			return
 		}
 		ns, err := namespace.Get(serv.envName())
 		if err != nil {
@@ -166,6 +168,7 @@ func testM3oSignupFlow(t *t) {
 		time.Sleep(20 * time.Second)
 		cmd.Process.Kill()
 	}()
+
 	_, err = io.WriteString(stdin, "dobronszki@gmail.com\n")
 	if err != nil {
 		t.Fatal(err)
