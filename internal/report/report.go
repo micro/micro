@@ -9,6 +9,7 @@
 package report
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"net/http"
@@ -18,7 +19,9 @@ import (
 	"github.com/google/uuid"
 	"github.com/micro/cli/v2"
 	"github.com/micro/micro/v2/client/cli/util"
+	"github.com/micro/micro/v2/internal/client"
 	"github.com/micro/micro/v2/internal/helper"
+	alertproto "github.com/micro/micro/v2/platform/proto/alert"
 )
 
 const (
@@ -32,8 +35,8 @@ func Error(ctx *cli.Context, a ...interface{}) {
 	if env.Name != envToTrack {
 		return
 	}
-	val := uint(1)
-	err := TrackEvent(TrackingData{
+	val := uint64(1)
+	err := TrackEvent(ctx, TrackingData{
 		Category: getTrackingCategory(ctx),
 		Action:   "error",
 		Label:    fmt.Sprint(a...),
@@ -50,8 +53,8 @@ func Errorf(ctx *cli.Context, format string, a ...interface{}) {
 	if env.Name != envToTrack {
 		return
 	}
-	val := uint(1)
-	err := TrackEvent(TrackingData{
+	val := uint64(1)
+	err := TrackEvent(ctx, TrackingData{
 		Category: getTrackingCategory(ctx),
 		Action:   "error",
 		Label:    fmt.Sprintf(format, a...),
@@ -68,8 +71,8 @@ func Success(ctx *cli.Context, a ...interface{}) {
 	if env.Name != envToTrack {
 		return
 	}
-	val := uint(0)
-	err := TrackEvent(TrackingData{
+	val := uint64(0)
+	err := TrackEvent(ctx, TrackingData{
 		Category: getTrackingCategory(ctx),
 		Action:   "success",
 		Label:    fmt.Sprint(a...),
@@ -86,8 +89,8 @@ func Successf(ctx *cli.Context, format string, a ...interface{}) {
 	if env.Name != envToTrack {
 		return
 	}
-	val := uint(0)
-	err := TrackEvent(TrackingData{
+	val := uint64(0)
+	err := TrackEvent(ctx, TrackingData{
 		Category: getTrackingCategory(ctx),
 		Action:   "success",
 		Label:    fmt.Sprintf(format, a...),
@@ -103,7 +106,7 @@ type TrackingData struct {
 	Action   string
 	Label    string
 	UserID   string
-	Value    *uint
+	Value    *uint64
 }
 
 func getTrackingCategory(ctx *cli.Context) string {
@@ -122,7 +125,8 @@ func getTrackingCategory(ctx *cli.Context) string {
 // Category: "Videos"
 // Action: "Downloaded"
 // Label: "Gone With the Wind"
-func TrackEvent(td TrackingData) error {
+func TrackEvent(ctx *cli.Context, td TrackingData) error {
+	sendEvent(ctx, td)
 	if gaPropertyID == "" {
 		return errors.New("analytics: GA_TRACKING_ID environment variable is missing")
 	}
@@ -161,5 +165,26 @@ func TrackEvent(td TrackingData) error {
 
 	// NOTE: Google Analytics returns a 200, even if the request is malformed.
 	_, err := http.PostForm("https://www.google-analytics.com/collect", v)
+	return err
+}
+
+func sendEvent(ctx *cli.Context, td TrackingData) error {
+	cli, err := client.New(ctx)
+	if err != nil {
+		return err
+	}
+	alertService := alertproto.NewAlertService("alert", cli)
+	val := uint64(0)
+	if td.Value != 0 {
+		val = *td.Value
+	}
+	_, err = alertService.ReportEvent(context.TODO(), &alertproto.ReportEventRequest{
+		Event: &alertproto.Event{
+			Category: td.Category,
+			Action:   td.Action,
+			Label:    td.Label,
+			Value:    val,
+		},
+	})
 	return err
 }
