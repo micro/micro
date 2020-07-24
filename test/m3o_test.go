@@ -176,7 +176,7 @@ func testM3oSignupFlow(t *t) {
 
 	code := ""
 	if err := try("Find verification token in logs", t, func() ([]byte, error) {
-		psCmd := exec.Command("micro", serv.envFlag(), "logs", "-n", "100", "signup")
+		psCmd := exec.Command("micro", serv.envFlag(), "logs", "-n", "100", "m3o/services/signup")
 		outp, err = psCmd.CombinedOutput()
 		if err != nil {
 			return outp, err
