@@ -63,19 +63,19 @@ Create a service
 
 ```
 # generate a service (follow instructions in output)
-micro new example
+micro new helloworld
 
 # set to use server
 micro env set server
 
 # run the service
-micro run example
+micro run helloworld
 
 # list services
 micro services
 
 # call a service
-micro call go.micro.service.example Example.Call '{"name": "John"}'
+micro call helloworld Helloworld.Call '{"name": "John"}'
 ```
 
 ## Usage
@@ -86,7 +86,7 @@ See all the options
 micro --help
 ```
 
-See the [docs](https://dev.m3o.com) for detailed information on the architecture, installation and use of the platform.
+See the [docs](https://github.com/micro/docs) for detailed information on the architecture, installation and use of the platform.
 
 ## License
 

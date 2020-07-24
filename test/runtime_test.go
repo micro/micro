@@ -622,7 +622,7 @@ func testFastRuns(t *t) {
 		return
 	}
 
-	runCmd := exec.Command("micro", serv.envFlag(), "run", "signup")
+	runCmd := exec.Command("micro", serv.envFlag(), "run", "github.com/m3o/services/signup")
 	outp, err := runCmd.CombinedOutput()
 	if err != nil {
 		t.Fatalf("micro run failure, output: %v", string(outp))
@@ -639,7 +639,7 @@ func testFastRuns(t *t) {
 		return
 	}
 
-	runCmd = exec.Command("micro", serv.envFlag(), "run", "payments/provider/stripe")
+	runCmd = exec.Command("micro", serv.envFlag(), "run", "github.com/m3o/services/payments/provider/stripe")
 	outp, err = runCmd.CombinedOutput()
 	if err != nil {
 		t.Fatalf("micro run failure, output: %v", string(outp))

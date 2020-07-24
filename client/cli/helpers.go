@@ -136,5 +136,5 @@ func queryHealth(c *cli.Context, args []string) ([]byte, error) {
 }
 
 func queryStats(c *cli.Context, args []string) ([]byte, error) {
-	return clic.QueryStats(c, args)
+	return QueryStats(c, args)
 }

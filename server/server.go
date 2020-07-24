@@ -82,7 +82,7 @@ func init() {
 				Name:    "update_url",
 				Usage:   "Set the url to retrieve system updates from",
 				EnvVars: []string{"MICRO_UPDATE_URL"},
-				Value:   update.DefaultURL,
+				Value:   "https://micro.mu/update",
 			},
 		},
 		Action: func(ctx *cli.Context) error {
@@ -154,9 +154,6 @@ func Run(context *cli.Context) error {
 	// Use default update notifier
 	if context.Bool("auto_update") {
 		updateURL := context.String("update_url")
-		if len(updateURL) == 0 {
-			updateURL = update.DefaultURL
-		}
 
 		options := []gorun.Option{
 			gorun.WithScheduler(update.NewScheduler(updateURL, fmt.Sprintf("%d", time.Now().Unix()))),

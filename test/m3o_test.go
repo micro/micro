@@ -5,7 +5,6 @@ package test
 import (
 	"errors"
 	"io"
-	"log"
 	"os"
 	"os/exec"
 	"strings"
@@ -51,19 +50,19 @@ func testM3oSignupFlow(t *t) {
 		}
 	}
 
-	outp, err := exec.Command("micro", serv.envFlag(), "run", getSrcString("M3O_INVITE_SVC", "github.com/micro/services/account/invite")).CombinedOutput()
+	outp, err := exec.Command("micro", serv.envFlag(), "run", getSrcString("M3O_INVITE_SVC", "github.com/m3o/services/account/invite")).CombinedOutput()
 	if err != nil {
 		t.Fatal(string(outp))
 		return
 	}
 
-	outp, err = exec.Command("micro", serv.envFlag(), "run", getSrcString("M3O_SIGNUP_SVC", "github.com/micro/services/signup")).CombinedOutput()
+	outp, err = exec.Command("micro", serv.envFlag(), "run", getSrcString("M3O_SIGNUP_SVC", "github.com/m3o/services/signup")).CombinedOutput()
 	if err != nil {
 		t.Fatal(string(outp))
 		return
 	}
 
-	outp, err = exec.Command("micro", serv.envFlag(), "run", getSrcString("M3O_STRIPE_SVC", "github.com/micro/services/payments/provider/stripe")).CombinedOutput()
+	outp, err = exec.Command("micro", serv.envFlag(), "run", getSrcString("M3O_STRIPE_SVC", "github.com/m3o/services/payments/provider/stripe")).CombinedOutput()
 	if err != nil {
 		t.Fatal(string(outp))
 		return
@@ -87,7 +86,7 @@ func testM3oSignupFlow(t *t) {
 	cmd := exec.Command("micro", serv.envFlag(), "login", "--otp")
 	stdin, err := cmd.StdinPipe()
 	if err != nil {
-		log.Fatal(err)
+		t.Fatal(err)
 	}
 	wg := sync.WaitGroup{}
 	wg.Add(1)
@@ -122,7 +121,7 @@ func testM3oSignupFlow(t *t) {
 	cmd = exec.Command("micro", serv.envFlag(), "signup", "--password", password)
 	stdin, err = cmd.StdinPipe()
 	if err != nil {
-		log.Fatal(err)
+		t.Fatal(err)
 	}
 	wg = sync.WaitGroup{}
 	wg.Add(1)
@@ -131,9 +130,11 @@ func testM3oSignupFlow(t *t) {
 		outp, err := cmd.CombinedOutput()
 		if err != nil {
 			t.Fatal(string(outp), err)
+			return
 		}
 		if !strings.Contains(string(outp), "Success") {
 			t.Fatal(string(outp))
+			return
 		}
 		ns, err := namespace.Get(serv.envName())
 		if err != nil {
@@ -167,6 +168,7 @@ func testM3oSignupFlow(t *t) {
 		time.Sleep(20 * time.Second)
 		cmd.Process.Kill()
 	}()
+
 	_, err = io.WriteString(stdin, "dobronszki@gmail.com\n")
 	if err != nil {
 		t.Fatal(err)
@@ -174,7 +176,7 @@ func testM3oSignupFlow(t *t) {
 
 	code := ""
 	if err := try("Find verification token in logs", t, func() ([]byte, error) {
-		psCmd := exec.Command("micro", serv.envFlag(), "logs", "-n", "100", "signup")
+		psCmd := exec.Command("micro", serv.envFlag(), "logs", "-n", "100", "m3o/services/signup")
 		outp, err = psCmd.CombinedOutput()
 		if err != nil {
 			return outp, err

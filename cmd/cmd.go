@@ -144,6 +144,12 @@ var (
 			Usage:   "Proxy requests via the HTTP address specified",
 			EnvVars: []string{"MICRO_PROXY"},
 		},
+		&cli.StringFlag{
+			Name:    "update_url",
+			Usage:   "Set the url to retrieve system updates from",
+			EnvVars: []string{"MICRO_UPDATE_URL"},
+			Value:   "https://micro.mu/update",
+		},
 		&cli.BoolFlag{
 			Name:    "report_usage",
 			Usage:   "Report usage statistics",
