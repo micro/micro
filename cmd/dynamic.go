@@ -35,7 +35,7 @@ func lookupService(ctx *cli.Context) (*registry.Service, error) {
 	// lookup from the registry in the current namespace
 	reg := muregistry.DefaultRegistry
 	srvs, err := reg.GetService(name, registry.GetDomain(dom))
-	if err != nil {
+	if err != nil && err != registry.ErrNotFound {
 		return nil, err
 	} else if len(srvs) > 0 {
 		return srvs[0], nil
@@ -44,7 +44,7 @@ func lookupService(ctx *cli.Context) (*registry.Service, error) {
 	// check for the service in the default namespace also
 	if dom != registry.DefaultDomain {
 		srvs, err := reg.GetService(name)
-		if err != nil {
+		if err != nil && err != registry.ErrNotFound {
 			return nil, err
 		} else if len(srvs) > 0 {
 			return srvs[0], nil

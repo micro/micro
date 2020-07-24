@@ -169,7 +169,7 @@ func newLocalServer(t *t, fname string, opts ...options) testServer {
 	// run the server
 	cmd := exec.Command("docker", "run", "--name", fname,
 		fmt.Sprintf("-p=%v:8081", portnum),
-		"-e", "MICRO_PROFILE=ci",
+		"-e", "MICRO_SERVER_PROFILE=ci",
 		"-e", "MICRO_AUTH_PRIVATE_KEY="+strings.Trim(string(privKey), "\n"),
 		"-e", "MICRO_AUTH_PUBLIC_KEY="+strings.Trim(string(pubKey), "\n"),
 		"micro", "server")

@@ -204,13 +204,13 @@ func (s *srv) Token(opts ...auth.TokenOption) (*auth.Token, error) {
 		options.Issuer = s.options.Issuer
 	}
 
-	// we have the JWT private key and refresh accounts locally
-	if len(s.options.PrivateKey) > 0 {
-		tok := options.RefreshToken
-		if len(options.Secret) > 0 {
-			tok = options.Secret
-		}
+	tok := options.RefreshToken
+	if len(options.Secret) > 0 {
+		tok = options.Secret
+	}
 
+	// we have the JWT private key and refresh accounts locally
+	if len(s.options.PrivateKey) > 0 && len(strings.Split(tok, ".")) == 3 {
 		acc, err := s.token.Inspect(tok)
 		if err != nil {
 			return nil, err

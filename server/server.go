@@ -74,9 +74,9 @@ func init() {
 				Usage: "Peer with the global network to share services",
 			},
 			&cli.StringFlag{
-				Name:    "runtime_profile",
+				Name:    "server_profile",
 				Usage:   "Set the micro profile: server or platform",
-				EnvVars: []string{"MICRO_RUNTIME_PROFILE"},
+				EnvVars: []string{"MICRO_SERVER_PROFILE"},
 				Value:   "server",
 			},
 			&cli.BoolFlag{
@@ -181,13 +181,12 @@ func Run(context *cli.Context) error {
 
 		switch service {
 		case "proxy", "web", "api", "bot", "cli":
-			envs = append(envs, "MICRO_AUTH=service")
-			envs = append(envs, "MICRO_REGISTRY=service")
+			// don't set any profile
 		default:
 			// run server as "micro service [cmd]"
 			cmdArgs = append(cmdArgs, "service")
 			// pass the profile for the server
-			envs = append(envs, "MICRO_PROFILE="+context.String("runtime_profile"))
+			envs = append(envs, "MICRO_PROFILE="+context.String("server_profile"))
 		}
 
 		// we want to pass through the global args so go up one level in the context lineage
