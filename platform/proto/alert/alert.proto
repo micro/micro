@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+package alert;
+
+service Alert {
+	// ReportEvent does event ingestions.
+	rpc ReportEvent(ReportEventRequest) returns (ReportEventResponse) {}
+}
+
+
+// Event is inspired by Google Analytics events
+// https://developers.google.com/analytics/devguides/collection/analyticsjs/events
+message Event {
+	// id is not required for inserts
+	string id = 1;
+	string category = 2;
+	string action = 3;
+	string label = 4;
+	uint64 value = 5;
+	map<string,string> metadata = 6;
+}
+
+message ReportEventRequest {
+	Event event = 1;
+}
+
+message ReportEventResponse {}
