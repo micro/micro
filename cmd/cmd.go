@@ -14,6 +14,7 @@ import (
 
 	"github.com/micro/go-micro/v2/broker"
 	"github.com/micro/go-micro/v2/client"
+	"github.com/micro/go-micro/v2/config"
 	"github.com/micro/go-micro/v2/runtime"
 	"github.com/micro/go-micro/v2/server"
 	"github.com/micro/go-micro/v2/store"
@@ -32,12 +33,14 @@ import (
 
 	authCli "github.com/micro/micro/v2/service/auth/client"
 	brokerCli "github.com/micro/micro/v2/service/broker/client"
+	configCli "github.com/micro/micro/v2/service/config/client"
 	registryCli "github.com/micro/micro/v2/service/registry/client"
 	storeCli "github.com/micro/micro/v2/service/store/client"
 
 	muauth "github.com/micro/micro/v2/service/auth"
 	mubroker "github.com/micro/micro/v2/service/broker"
 	muclient "github.com/micro/micro/v2/service/client"
+	muconfig "github.com/micro/micro/v2/service/config"
 	muregistry "github.com/micro/micro/v2/service/registry"
 	muruntime "github.com/micro/micro/v2/service/runtime"
 	muserver "github.com/micro/micro/v2/service/server"
@@ -203,6 +206,9 @@ func (c *command) Options() cmd.Options {
 }
 
 func (c *command) Before(ctx *cli.Context) error {
+	// set the proxy address. TODO: Refactor to be a client option.
+	util.SetProxyAddress(ctx)
+
 	// initialize plugins
 	for _, p := range plugin.Plugins() {
 		if err := p.Init(ctx); err != nil {
@@ -339,14 +345,19 @@ func (c *command) Before(ctx *cli.Context) error {
 	muclient.DefaultClient.Init(client.Registry(muregistry.DefaultRegistry))
 	muserver.DefaultServer.Init(server.Registry(muregistry.DefaultRegistry))
 
-	// set the proxy address. TODO: Refactor to be a client option.
-	util.SetProxyAddress(ctx)
-
 	// set the credentials from the CLI. If a service is run, it'll override
 	// these when it's started.
 	if err := util.SetAuthToken(ctx); err != nil {
 		return err
 	}
+
+	// Setup config. Do this after auth is configured since it'll load the config
+	// from the service immediately.
+	conf, err := config.NewConfig(config.WithSource(configCli.NewSource()))
+	if err != nil {
+		logger.Fatalf("Error configuring config: %v", err)
+	}
+	muconfig.DefaultConfig = conf
 
 	return nil
 }

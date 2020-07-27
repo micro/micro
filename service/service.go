@@ -6,7 +6,6 @@ import (
 	"os/signal"
 	"runtime"
 
-	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro/v2/client"
 	debug "github.com/micro/go-micro/v2/debug/service/handler"
 	"github.com/micro/go-micro/v2/logger"
@@ -28,6 +27,11 @@ type Service struct {
 
 // New returns a new Micro Service
 func New(opts ...Option) *Service {
+	// setup micro, this triggers the Before
+	// function which parses CLI flags
+	cmd.New(cmd.Action(nil)).Run()
+
+	// return a new service
 	return &Service{opts: newOptions(opts...)}
 }
 
@@ -109,12 +113,6 @@ func (s *Service) Stop() error {
 
 // Run the service
 func (s *Service) Run() error {
-	// run the app wrapped by the cmd package so it
-	// initializes micro before running the service.
-	return cmd.New(cmd.Action(s.run)).Run()
-}
-
-func (s *Service) run(ctx *cli.Context) error {
 	// register the debug handler
 	muserver.DefaultServer.Handle(
 		muserver.DefaultServer.NewHandler(
