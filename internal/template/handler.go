@@ -23,7 +23,7 @@ func (e *{{title .Alias}}) Call(ctx context.Context, req *{{dehyphen .Alias}}.Re
 import (
 	"context"
 
-	log "github.com/micro/go-micro/v3/logger"
+	log "github.com/micro/go-micro/v2/logger"
 
 	{{dehyphen .Alias}} "{{.Dir}}/proto/{{.Alias}}"
 )
@@ -73,7 +73,7 @@ func (e *{{title .Alias}}) PingPong(ctx context.Context, stream {{dehyphen .Alia
 import (
 	"context"
 
-	log "github.com/micro/go-micro/v3/logger"
+	log "github.com/micro/go-micro/v2/logger"
 
 	{{dehyphen .Alias}} "{{.Dir}}/proto/{{.Alias}}"
 )
@@ -90,7 +90,7 @@ func (e *{{title .Alias}}) Handle(ctx context.Context, msg *{{dehyphen .Alias}}.
 
 import (
 	"context"
-	log "github.com/micro/go-micro/v3/logger"
+	log "github.com/micro/go-micro/v2/logger"
 
 	{{dehyphen .Alias}} "{{.Dir}}/proto/{{.Alias}}"
 )
@@ -113,11 +113,11 @@ func Handler(ctx context.Context, msg *{{dehyphen .Alias}}.Message) error {
 import (
 	"context"
 	"encoding/json"
-	log "github.com/micro/go-micro/v3/logger"
+	log "github.com/micro/go-micro/v2/logger"
 
 	"{{.Dir}}/client"
-	"github.com/micro/go-micro/v3/errors"
-	api "github.com/micro/go-micro/v3/api/proto"
+	"github.com/micro/go-micro/v2/errors"
+	api "github.com/micro/go-micro/v2/api/proto"
 	{{dehyphen .Alias}} "path/to/service/proto/{{.Alias}}"
 )
 
@@ -168,7 +168,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/micro/go-micro/v3/client"
+	"github.com/micro/go-micro/v2/client"
 	{{dehyphen .Alias}} "path/to/service/proto/{{.Alias}}"
 )
 

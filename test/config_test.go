@@ -174,7 +174,6 @@ func testConfigReadFromService(t *t) {
 	if err := try("Try logs read", t, func() ([]byte, error) {
 		setCmd := exec.Command("micro", serv.envFlag(), "logs", "test/config-example-service")
 		outp, err := setCmd.CombinedOutput()
-		fmt.Println(string(outp), err)
 		if err != nil {
 			return outp, err
 		}
