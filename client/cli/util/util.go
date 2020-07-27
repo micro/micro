@@ -278,7 +278,8 @@ func SetAuthToken(ctx *cli.Context) error {
 		auth.WithTokenIssuer(ns),
 	)
 	if err != nil {
-		return err
+		clitoken.Remove(env.Name)
+		return nil
 	}
 
 	// Save the token to user config file
