@@ -226,6 +226,7 @@ func (c *command) Before(ctx *cli.Context) error {
 	// apply the profile
 	if profile, ok := profile.Profiles[prof]; ok {
 		profile()
+		logger.Debugf("Configuring micro with the %v profile", prof)
 	} else if len(prof) > 0 {
 		logger.Fatalf("Unknown profile: %v", prof)
 	}
@@ -353,7 +354,11 @@ func (c *command) Before(ctx *cli.Context) error {
 
 	// Setup config. Do this after auth is configured since it'll load the config
 	// from the service immediately.
-	muconfig.DefaultConfig, _ = config.NewConfig(config.WithSource(configCli.NewSource()))
+	conf, err := config.NewConfig(config.WithSource(configCli.NewSource()))
+	if err != nil {
+		logger.Fatalf("Error configuring config: %v", err)
+	}
+	muconfig.DefaultConfig = conf
 
 	return nil
 }

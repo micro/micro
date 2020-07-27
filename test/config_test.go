@@ -5,9 +5,7 @@ package test
 import (
 	"errors"
 	"fmt"
-	"os"
 	"os/exec"
-	"path/filepath"
 	"strings"
 	"testing"
 	"time"
@@ -134,29 +132,6 @@ func testConfigReadFromService(t *t) {
 		return
 	}
 
-	dirname := "config-read-example"
-	folderPath := filepath.Join(os.TempDir(), dirname)
-
-	err := os.MkdirAll(folderPath, 0777)
-	if err != nil {
-		t.Fatal(err)
-		return
-	}
-
-	outp, err := exec.Command("cp", "-r", "config-example-service/.", folderPath).CombinedOutput()
-	if err != nil {
-		t.Fatal(string(outp))
-		return
-	}
-
-	runCmd := exec.Command("micro", serv.envFlag(), "run", ".")
-	runCmd.Dir = folderPath
-	outp, err = runCmd.CombinedOutput()
-	if err != nil {
-		t.Fatalf("micro run failure, output: %v", string(outp))
-		return
-	}
-
 	// This needs to be retried to the the "error listing rules"
 	// error log output that happens when the auth service is not yet available.
 	if err := try("Calling micro config set", t, func() ([]byte, error) {
@@ -173,9 +148,33 @@ func testConfigReadFromService(t *t) {
 		return
 	}
 
-	if err := try("Try logs read", t, func() ([]byte, error) {
-		setCmd := exec.Command("micro", serv.envFlag(), "logs", "-n", "1", dirname)
+	// check the value set correctly
+	if err := try("Calling micro config get", t, func() ([]byte, error) {
+		setCmd := exec.Command("micro", serv.envFlag(), "config", "get", "key")
 		outp, err := setCmd.CombinedOutput()
+		if err != nil {
+			return outp, err
+		}
+		if !strings.Contains(string(outp), "val1") {
+			return outp, fmt.Errorf("Expected output to contain val1, got: %v", string(outp))
+		}
+
+		return outp, err
+	}, 5*time.Second); err != nil {
+		return
+	}
+
+	runCmd := exec.Command("micro", serv.envFlag(), "run", "./config-example-service")
+	outp, err := runCmd.CombinedOutput()
+	if err != nil {
+		t.Fatalf("micro run failure, output: %v", string(outp))
+		return
+	}
+
+	if err := try("Try logs read", t, func() ([]byte, error) {
+		setCmd := exec.Command("micro", serv.envFlag(), "logs", "test/config-example-service")
+		outp, err := setCmd.CombinedOutput()
+		fmt.Println(string(outp), err)
 		if err != nil {
 			return outp, err
 		}

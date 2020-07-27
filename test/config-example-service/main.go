@@ -17,5 +17,5 @@ func main() {
 
 	// get a value
 	c := config.DefaultConfig
-	fmt.Println("Value of key.subkey: ", c.Get("key", "subkey").String(""))
+	fmt.Println("Value of 'key.subkey': ", c.Get("key", "subkey").String(""))
 }
