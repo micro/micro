@@ -158,7 +158,11 @@ func (m *manager) runtimeEnv(options *runtime.CreateOptions) []string {
 	}
 
 	// overwrite any values
-	env := map[string]string{}
+	env := map[string]string{
+		// ensure a profile for the services isn't set, they
+		// should use the default RPC clients
+		"MICRO_PROFILE": "",
+	}
 
 	// set the env vars provided
 	setEnv(options.Env, env)

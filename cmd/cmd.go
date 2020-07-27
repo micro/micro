@@ -226,7 +226,7 @@ func (c *command) Before(ctx *cli.Context) error {
 	// apply the profile
 	if profile, ok := profile.Profiles[prof]; ok {
 		profile()
-		logger.Debugf("Configuring micro with the %v profile", prof)
+		logger.Infof("Configuring micro with the %v profile", prof)
 	} else if len(prof) > 0 {
 		logger.Fatalf("Unknown profile: %v", prof)
 	}
