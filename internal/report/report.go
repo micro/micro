@@ -19,9 +19,9 @@ import (
 	"github.com/google/uuid"
 	"github.com/micro/cli/v2"
 	"github.com/micro/micro/v2/client/cli/util"
-	"github.com/micro/micro/v2/internal/client"
 	"github.com/micro/micro/v2/internal/helper"
 	alertproto "github.com/micro/micro/v2/platform/proto/alert"
+	"github.com/micro/micro/v2/service/client"
 )
 
 const (
@@ -170,16 +170,12 @@ func TrackEvent(ctx *cli.Context, td TrackingData) error {
 
 // send event to alert service
 func sendEvent(ctx *cli.Context, td TrackingData) error {
-	cli, err := client.New(ctx)
-	if err != nil {
-		return err
-	}
-	alertService := alertproto.NewAlertService("alert", cli)
+	alertService := alertproto.NewAlertService("alert", client.DefaultClient)
 	val := uint64(0)
 	if td.Value != nil {
 		val = *td.Value
 	}
-	_, err = alertService.ReportEvent(context.TODO(), &alertproto.ReportEventRequest{
+	_, err := alertService.ReportEvent(context.TODO(), &alertproto.ReportEventRequest{
 		Event: &alertproto.Event{
 			Category: td.Category,
 			Action:   td.Action,
