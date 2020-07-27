@@ -4,6 +4,7 @@ package test
 
 import (
 	"fmt"
+	"os"
 	"os/exec"
 	"strings"
 	"testing"
@@ -23,7 +24,6 @@ func testNew(t *t) {
 		skipProtoc bool
 	}{
 		{svcName: "foobarsvc", sType: "service"},
-		{svcName: "foobarfn", sType: "function"},
 		{svcName: "foobarweb", sType: "web", skipProtoc: true, skipBuild: true}, // web service has no proto generated
 		{svcName: "foobarapi", sType: "api", skipBuild: true},                   // api service actually fails build out of the box because it's supposed to point to a service proto
 		{svcName: "foo-bar", sType: "service"},
@@ -74,6 +74,20 @@ func testNew(t *t) {
 			if tc.skipBuild {
 				return
 			}
+
+			// for tests, update the micro import to use the current version of the code.
+			fname := fmt.Sprintf("./%v/go.mod", tc.svcName)
+			f, err := os.OpenFile(fname, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+			if err != nil {
+				t.Fatal(string(outp))
+				return
+			}
+			if _, err := f.WriteString("\nreplace github.com/micro/micro/v2 => ../.."); err != nil {
+				t.Fatal(string(outp))
+				return
+			}
+			f.Close()
+
 			buildCommand := exec.Command("go", "build")
 			buildCommand.Dir = "./" + tc.svcName
 			outp, err = buildCommand.CombinedOutput()

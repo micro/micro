@@ -312,21 +312,6 @@ func Run(ctx *cli.Context) error {
 	}
 
 	switch atype {
-	case "function":
-		// create service config
-		c.Files = []file{
-			{"main.go", tmpl.MainFNC},
-			{"generate.go", tmpl.GenerateFile},
-			{"plugin.go", tmpl.Plugin},
-			{"handler/" + alias + ".go", tmpl.HandlerFNC},
-			{"subscriber/" + alias + ".go", tmpl.SubscriberFNC},
-			{"proto/" + alias + "/" + alias + ".proto", tmpl.ProtoFNC},
-			{"Dockerfile", tmpl.DockerFNC},
-			{"Makefile", tmpl.Makefile},
-			{"README.md", tmpl.ReadmeFNC},
-			{".gitignore", tmpl.GitIgnore},
-		}
-
 	case "api":
 		// create api config
 		c.Files = []file{
