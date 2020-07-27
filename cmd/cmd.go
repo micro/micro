@@ -12,18 +12,18 @@ import (
 	"strings"
 	"time"
 
-	"github.com/micro/go-micro/v2/broker"
-	"github.com/micro/go-micro/v2/client"
-	"github.com/micro/go-micro/v2/config"
-	"github.com/micro/go-micro/v2/runtime"
-	"github.com/micro/go-micro/v2/server"
-	"github.com/micro/go-micro/v2/store"
+	"github.com/micro/go-micro/v3/broker"
+	"github.com/micro/go-micro/v3/client"
+	"github.com/micro/go-micro/v3/config"
+	"github.com/micro/go-micro/v3/runtime"
+	"github.com/micro/go-micro/v3/server"
+	"github.com/micro/go-micro/v3/store"
 
 	"github.com/micro/cli/v2"
-	"github.com/micro/go-micro/v2/auth"
-	"github.com/micro/go-micro/v2/cmd"
-	"github.com/micro/go-micro/v2/logger"
-	"github.com/micro/go-micro/v2/registry"
+	"github.com/micro/go-micro/v3/auth"
+	"github.com/micro/go-micro/v3/cmd"
+	"github.com/micro/go-micro/v3/logger"
+	"github.com/micro/go-micro/v3/registry"
 	"github.com/micro/micro/v2/client/cli/util"
 	"github.com/micro/micro/v2/internal/helper"
 	_ "github.com/micro/micro/v2/internal/usage"
@@ -353,11 +353,7 @@ func (c *command) Before(ctx *cli.Context) error {
 
 	// Setup config. Do this after auth is configured since it'll load the config
 	// from the service immediately.
-	conf, err := config.NewConfig(config.WithSource(configCli.NewSource()))
-	if err != nil {
-		logger.Fatalf("Error configuring config: %v", err)
-	}
-	muconfig.DefaultConfig = conf
+	muconfig.DefaultConfig, _ = config.NewConfig(config.WithSource(configCli.NewSource()))
 
 	return nil
 }

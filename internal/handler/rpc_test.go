@@ -9,7 +9,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/micro/go-micro/v2/metadata"
+	"github.com/micro/go-micro/v3/metadata"
 	"github.com/micro/micro/v2/profile"
 	"github.com/micro/micro/v2/service"
 )

@@ -5,10 +5,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/micro/go-micro/v2/auth"
-	"github.com/micro/go-micro/v2/client"
-	"github.com/micro/go-micro/v2/util/token"
-	"github.com/micro/go-micro/v2/util/token/jwt"
+	"github.com/micro/go-micro/v3/auth"
+	"github.com/micro/go-micro/v3/client"
+	"github.com/micro/go-micro/v3/util/token"
+	"github.com/micro/go-micro/v3/util/token/jwt"
 	pb "github.com/micro/micro/v2/service/auth/proto"
 	muclient "github.com/micro/micro/v2/service/client"
 )

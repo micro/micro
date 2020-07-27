@@ -7,16 +7,17 @@ import (
 	"strings"
 
 	ccli "github.com/micro/cli/v2"
-	log "github.com/micro/go-micro/v2/logger"
-	prox "github.com/micro/go-micro/v2/proxy"
-	"github.com/micro/go-micro/v2/proxy/grpc"
-	"github.com/micro/go-micro/v2/proxy/http"
-	"github.com/micro/go-micro/v2/proxy/mucp"
-	rt "github.com/micro/go-micro/v2/runtime"
-	"github.com/micro/go-micro/v2/server"
+	log "github.com/micro/go-micro/v3/logger"
+	prox "github.com/micro/go-micro/v3/proxy"
+	"github.com/micro/go-micro/v3/proxy/grpc"
+	"github.com/micro/go-micro/v3/proxy/http"
+	"github.com/micro/go-micro/v3/proxy/mucp"
+	rt "github.com/micro/go-micro/v3/runtime"
+	"github.com/micro/go-micro/v3/server"
 	"github.com/micro/micro/v2/cmd"
 	"github.com/micro/micro/v2/plugin"
 	"github.com/micro/micro/v2/service"
+	muruntime "github.com/micro/micro/v2/service/runtime"
 
 	// services
 	auth "github.com/micro/micro/v2/service/auth/server"
@@ -97,7 +98,7 @@ func Run(ctx *ccli.Context) {
 		}
 
 		// create new local runtime
-		r := rt.NewRuntime()
+		r := muruntime.DefaultRuntime
 
 		// start the runtime
 		r.Start()

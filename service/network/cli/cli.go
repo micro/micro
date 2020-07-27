@@ -12,7 +12,7 @@ import (
 	"strings"
 
 	"github.com/micro/cli/v2"
-	"github.com/micro/go-micro/v2/client"
+	"github.com/micro/go-micro/v3/client"
 	"github.com/micro/micro/v2/client/cli/util"
 	"github.com/micro/micro/v2/cmd"
 	clic "github.com/micro/micro/v2/internal/command/cli"

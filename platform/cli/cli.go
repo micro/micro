@@ -11,8 +11,8 @@ import (
 	"time"
 
 	"github.com/micro/cli/v2"
-	"github.com/micro/go-micro/v2/auth"
-	cl "github.com/micro/go-micro/v2/client"
+	"github.com/micro/go-micro/v3/auth"
+	cl "github.com/micro/go-micro/v3/client"
 	clinamespace "github.com/micro/micro/v2/client/cli/namespace"
 	clitoken "github.com/micro/micro/v2/client/cli/token"
 	cliutil "github.com/micro/micro/v2/client/cli/util"

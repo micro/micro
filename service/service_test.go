@@ -6,8 +6,8 @@ import (
 	"sync"
 	"testing"
 
-	"github.com/micro/go-micro/v2/client"
-	proto "github.com/micro/go-micro/v2/debug/service/proto"
+	"github.com/micro/go-micro/v3/client"
+	proto "github.com/micro/go-micro/v3/debug/service/proto"
 	"github.com/micro/micro/v2/profile"
 )
 

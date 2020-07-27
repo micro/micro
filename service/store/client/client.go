@@ -7,10 +7,10 @@ import (
 	"reflect"
 	"time"
 
-	"github.com/micro/go-micro/v2/client"
-	"github.com/micro/go-micro/v2/errors"
-	"github.com/micro/go-micro/v2/metadata"
-	"github.com/micro/go-micro/v2/store"
+	"github.com/micro/go-micro/v3/client"
+	"github.com/micro/go-micro/v3/errors"
+	"github.com/micro/go-micro/v3/metadata"
+	"github.com/micro/go-micro/v3/store"
 	muclient "github.com/micro/micro/v2/service/client"
 	pb "github.com/micro/micro/v2/service/store/proto"
 )

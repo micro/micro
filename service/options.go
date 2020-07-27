@@ -3,9 +3,9 @@ package service
 import (
 	"time"
 
-	"github.com/micro/go-micro/v2/client"
-	"github.com/micro/go-micro/v2/cmd"
-	"github.com/micro/go-micro/v2/server"
+	"github.com/micro/go-micro/v3/client"
+	"github.com/micro/go-micro/v3/cmd"
+	"github.com/micro/go-micro/v3/server"
 
 	mucmd "github.com/micro/micro/v2/cmd"
 	muclient "github.com/micro/micro/v2/service/client"

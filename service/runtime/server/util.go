@@ -10,7 +10,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/micro/go-micro/v2/runtime"
+	"github.com/micro/go-micro/v3/runtime"
 	pb "github.com/micro/micro/v2/service/runtime/proto"
 )
 

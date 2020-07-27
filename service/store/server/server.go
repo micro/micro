@@ -2,7 +2,7 @@ package server
 
 import (
 	"github.com/micro/cli/v2"
-	log "github.com/micro/go-micro/v2/logger"
+	log "github.com/micro/go-micro/v3/logger"
 	"github.com/micro/micro/v2/service"
 	"github.com/micro/micro/v2/service/store"
 	pb "github.com/micro/micro/v2/service/store/proto"

@@ -7,9 +7,9 @@ import (
 	"time"
 
 	"github.com/micro/cli/v2"
-	log "github.com/micro/go-micro/v2/logger"
-	"github.com/micro/go-micro/v2/router"
-	"github.com/micro/go-micro/v2/router/registry"
+	log "github.com/micro/go-micro/v3/logger"
+	"github.com/micro/go-micro/v3/router"
+	"github.com/micro/go-micro/v3/router/registry"
 	"github.com/micro/micro/v2/service"
 	muregistry "github.com/micro/micro/v2/service/registry"
 	pb "github.com/micro/micro/v2/service/router/proto"

@@ -6,8 +6,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/micro/go-micro/v2/api/resolver"
-	"github.com/micro/go-micro/v2/registry"
+	"github.com/micro/go-micro/v3/api/resolver"
+	"github.com/micro/go-micro/v3/registry"
 	"github.com/micro/micro/v2/profile"
 	muregistry "github.com/micro/micro/v2/service/registry"
 	"github.com/micro/micro/v2/service/router"

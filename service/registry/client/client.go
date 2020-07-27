@@ -4,10 +4,10 @@ import (
 	"context"
 	"time"
 
-	"github.com/micro/go-micro/v2/client"
-	"github.com/micro/go-micro/v2/client/grpc"
-	"github.com/micro/go-micro/v2/errors"
-	"github.com/micro/go-micro/v2/registry"
+	"github.com/micro/go-micro/v3/client"
+	"github.com/micro/go-micro/v3/client/grpc"
+	"github.com/micro/go-micro/v3/errors"
+	"github.com/micro/go-micro/v3/registry"
 	pb "github.com/micro/micro/v2/service/registry/proto"
 	"github.com/micro/micro/v2/service/registry/util"
 )

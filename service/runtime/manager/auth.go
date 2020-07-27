@@ -1,9 +1,9 @@
 package manager
 
 import (
-	"github.com/micro/go-micro/v2/auth"
-	"github.com/micro/go-micro/v2/logger"
-	"github.com/micro/go-micro/v2/runtime"
+	"github.com/micro/go-micro/v3/auth"
+	"github.com/micro/go-micro/v3/logger"
+	"github.com/micro/go-micro/v3/runtime"
 )
 
 func (m *manager) generateAccount(srv *runtime.Service, ns string) (*auth.Account, error) {

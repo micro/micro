@@ -4,9 +4,9 @@ import (
 	"context"
 	"net/http"
 
-	"github.com/micro/go-micro/v2/config/source"
-	"github.com/micro/go-micro/v2/errors"
-	"github.com/micro/go-micro/v2/logger"
+	"github.com/micro/go-micro/v3/config/source"
+	"github.com/micro/go-micro/v3/errors"
+	"github.com/micro/go-micro/v3/logger"
 	"github.com/micro/micro/v2/service/client"
 	proto "github.com/micro/micro/v2/service/config/proto"
 )

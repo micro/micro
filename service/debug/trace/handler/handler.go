@@ -7,12 +7,12 @@ import (
 	"sync"
 	"time"
 
-	"github.com/micro/go-micro/v2/client"
-	debug "github.com/micro/go-micro/v2/debug/service/proto"
-	"github.com/micro/go-micro/v2/errors"
-	log "github.com/micro/go-micro/v2/logger"
-	"github.com/micro/go-micro/v2/registry"
-	"github.com/micro/go-micro/v2/util/ring"
+	"github.com/micro/go-micro/v3/client"
+	debug "github.com/micro/go-micro/v3/debug/service/proto"
+	"github.com/micro/go-micro/v3/errors"
+	log "github.com/micro/go-micro/v3/logger"
+	"github.com/micro/go-micro/v3/registry"
+	"github.com/micro/go-micro/v3/util/ring"
 	muclient "github.com/micro/micro/v2/service/client"
 	trace "github.com/micro/micro/v2/service/debug/trace/proto"
 )

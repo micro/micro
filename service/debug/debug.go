@@ -1,10 +1,10 @@
 package debug
 
 import (
-	"github.com/micro/go-micro/v2/debug/profile"
-	"github.com/micro/go-micro/v2/debug/stats"
-	"github.com/micro/go-micro/v2/debug/trace"
-	"github.com/micro/go-micro/v2/debug/trace/memory"
+	"github.com/micro/go-micro/v3/debug/profile"
+	"github.com/micro/go-micro/v3/debug/stats"
+	"github.com/micro/go-micro/v3/debug/trace"
+	"github.com/micro/go-micro/v3/debug/trace/memory"
 )
 
 var (

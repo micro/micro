@@ -1,8 +1,8 @@
 package model
 
 import (
-	"github.com/micro/go-micro/v2/model"
-	"github.com/micro/go-micro/v2/model/mud"
+	"github.com/micro/go-micro/v3/model"
+	"github.com/micro/go-micro/v3/model/mud"
 )
 
 var (

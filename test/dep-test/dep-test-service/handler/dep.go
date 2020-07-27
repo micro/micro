@@ -3,7 +3,7 @@ package handler
 import (
 	"context"
 
-	log "github.com/micro/go-micro/v2/logger"
+	log "github.com/micro/go-micro/v3/logger"
 
 	dep "dep-test-service/proto/dep"
 )

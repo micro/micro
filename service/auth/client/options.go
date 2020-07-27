@@ -3,8 +3,8 @@ package client
 import (
 	"context"
 
-	"github.com/micro/go-micro/v2/auth"
-	"github.com/micro/go-micro/v2/client"
+	"github.com/micro/go-micro/v3/auth"
+	"github.com/micro/go-micro/v3/client"
 )
 
 type clientKey struct{}

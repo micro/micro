@@ -8,9 +8,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/micro/go-micro/v2/client"
-	"github.com/micro/go-micro/v2/errors"
-	"github.com/micro/go-micro/v2/router"
+	"github.com/micro/go-micro/v3/client"
+	"github.com/micro/go-micro/v3/errors"
+	"github.com/micro/go-micro/v3/router"
 	muclient "github.com/micro/micro/v2/service/client"
 	pb "github.com/micro/micro/v2/service/router/proto"
 )

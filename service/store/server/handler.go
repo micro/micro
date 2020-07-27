@@ -9,8 +9,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/micro/go-micro/v2/errors"
-	"github.com/micro/go-micro/v2/store"
+	"github.com/micro/go-micro/v3/errors"
+	"github.com/micro/go-micro/v3/store"
 	"github.com/micro/micro/v2/internal/namespace"
 	pb "github.com/micro/micro/v2/service/store/proto"
 )

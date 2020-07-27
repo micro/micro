@@ -11,7 +11,7 @@ import (
 
 	"github.com/dustin/go-humanize"
 	"github.com/micro/cli/v2"
-	"github.com/micro/go-micro/v2/store"
+	"github.com/micro/go-micro/v3/store"
 	"github.com/micro/micro/v2/client/cli/namespace"
 	"github.com/micro/micro/v2/client/cli/util"
 	mustore "github.com/micro/micro/v2/service/store"

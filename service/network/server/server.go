@@ -8,24 +8,25 @@ import (
 	"time"
 
 	"github.com/micro/cli/v2"
-	log "github.com/micro/go-micro/v2/logger"
-	net "github.com/micro/go-micro/v2/network"
-	res "github.com/micro/go-micro/v2/network/resolver"
-	"github.com/micro/go-micro/v2/network/resolver/dns"
-	"github.com/micro/go-micro/v2/network/resolver/http"
-	"github.com/micro/go-micro/v2/network/resolver/registry"
-	"github.com/micro/go-micro/v2/proxy"
-	"github.com/micro/go-micro/v2/proxy/mucp"
-	"github.com/micro/go-micro/v2/router"
-	regRouter "github.com/micro/go-micro/v2/router/registry"
-	"github.com/micro/go-micro/v2/server"
-	"github.com/micro/go-micro/v2/transport"
-	"github.com/micro/go-micro/v2/transport/quic"
-	"github.com/micro/go-micro/v2/tunnel"
-	"github.com/micro/go-micro/v2/util/mux"
+	log "github.com/micro/go-micro/v3/logger"
+	net "github.com/micro/go-micro/v3/network"
+	"github.com/micro/go-micro/v3/network/mucp"
+	res "github.com/micro/go-micro/v3/network/resolver"
+	"github.com/micro/go-micro/v3/network/resolver/dns"
+	"github.com/micro/go-micro/v3/network/resolver/http"
+	"github.com/micro/go-micro/v3/network/resolver/registry"
+	"github.com/micro/go-micro/v3/proxy"
+	mucpProxy "github.com/micro/go-micro/v3/proxy/mucp"
+	"github.com/micro/go-micro/v3/router"
+	regRouter "github.com/micro/go-micro/v3/router/registry"
+	"github.com/micro/go-micro/v3/server"
+	mucpServer "github.com/micro/go-micro/v3/server/mucp"
+	"github.com/micro/go-micro/v3/transport"
+	"github.com/micro/go-micro/v3/transport/quic"
+	"github.com/micro/go-micro/v3/tunnel"
+	"github.com/micro/go-micro/v3/util/mux"
 	"github.com/micro/micro/v2/internal/helper"
 	"github.com/micro/micro/v2/service"
-	"github.com/micro/micro/v2/service/network/client"
 	muregistry "github.com/micro/micro/v2/service/registry"
 )
 
@@ -173,7 +174,7 @@ func Run(ctx *cli.Context) error {
 	)
 
 	// create new network
-	n := client.NewNetwork(
+	n := mucp.NewNetwork(
 		net.Id(id),
 		net.Name(networkName),
 		net.Address(address),
@@ -185,19 +186,19 @@ func Run(ctx *cli.Context) error {
 	)
 
 	// local proxy
-	prx := mucp.NewProxy(
+	prx := mucpProxy.NewProxy(
 		proxy.WithRouter(rtr),
 		proxy.WithClient(service.Client()),
 		proxy.WithLink("network", n.Client()),
 	)
 
 	// create a handler
-	h := server.DefaultRouter.NewHandler(
+	h := mucpServer.DefaultRouter.NewHandler(
 		&Network{Network: n},
 	)
 
 	// register the handler
-	server.DefaultRouter.Handle(h)
+	mucpServer.DefaultRouter.Handle(h)
 
 	// create a new muxer
 	mux := mux.New(name, prx)

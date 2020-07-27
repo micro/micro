@@ -9,7 +9,7 @@ import (
 	"text/tabwriter"
 
 	"github.com/micro/cli/v2"
-	"github.com/micro/go-micro/v2/errors"
+	"github.com/micro/go-micro/v3/errors"
 	"github.com/micro/micro/v2/client/cli/namespace"
 	"github.com/micro/micro/v2/client/cli/util"
 	pb "github.com/micro/micro/v2/service/auth/proto"

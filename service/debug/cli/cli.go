@@ -5,8 +5,8 @@ import (
 	"time"
 
 	"github.com/micro/cli/v2"
-	"github.com/micro/go-micro/v2/debug/service"
-	log "github.com/micro/go-micro/v2/logger"
+	"github.com/micro/go-micro/v3/debug/service"
+	log "github.com/micro/go-micro/v3/logger"
 	"github.com/micro/micro/v2/cmd"
 )
 

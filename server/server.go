@@ -8,9 +8,9 @@ import (
 	"time"
 
 	"github.com/micro/cli/v2"
-	log "github.com/micro/go-micro/v2/logger"
-	gorun "github.com/micro/go-micro/v2/runtime"
-	"github.com/micro/go-micro/v2/util/file"
+	log "github.com/micro/go-micro/v3/logger"
+	gorun "github.com/micro/go-micro/v3/runtime"
+	"github.com/micro/go-micro/v3/util/file"
 	"github.com/micro/micro/v2/client/cli/util"
 	"github.com/micro/micro/v2/cmd"
 	"github.com/micro/micro/v2/internal/update"

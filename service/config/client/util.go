@@ -3,7 +3,7 @@ package client
 import (
 	"time"
 
-	"github.com/micro/go-micro/v2/config/source"
+	"github.com/micro/go-micro/v3/config/source"
 	proto "github.com/micro/micro/v2/service/config/proto"
 )
 

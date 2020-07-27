@@ -4,9 +4,9 @@ import (
 	"context"
 	"time"
 
-	"github.com/micro/go-micro/v2/errors"
-	log "github.com/micro/go-micro/v2/logger"
-	"github.com/micro/go-micro/v2/registry"
+	"github.com/micro/go-micro/v3/errors"
+	log "github.com/micro/go-micro/v3/logger"
+	"github.com/micro/go-micro/v3/registry"
 	"github.com/micro/micro/v2/internal/namespace"
 	"github.com/micro/micro/v2/service"
 	pb "github.com/micro/micro/v2/service/registry/proto"

@@ -11,7 +11,7 @@ import (
 	"time"
 
 	"github.com/micro/cli/v2"
-	"github.com/micro/go-micro/v2/auth"
+	"github.com/micro/go-micro/v3/auth"
 	"github.com/micro/micro/v2/client/cli/namespace"
 	clitoken "github.com/micro/micro/v2/client/cli/token"
 	"github.com/micro/micro/v2/internal/config"
@@ -62,14 +62,12 @@ func SetProxyAddress(ctx *cli.Context) {
 		}
 	}
 	switch ctx.Args().First() {
-	case "new", "server", "help":
+	case "new", "server", "help", "env":
 		return
 	}
+
 	// fix for "micro service [command]", e.g "micro service auth"
 	if ctx.Args().First() == "service" && isBuiltinService(ctx.Args().Get(1)) {
-		return
-	}
-	if ctx.Args().Len() >= 1 && ctx.Args().First() == "env" {
 		return
 	}
 

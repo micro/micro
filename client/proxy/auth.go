@@ -4,10 +4,10 @@ import (
 	"context"
 	"strings"
 
-	"github.com/micro/go-micro/v2/auth"
-	"github.com/micro/go-micro/v2/errors"
-	"github.com/micro/go-micro/v2/metadata"
-	"github.com/micro/go-micro/v2/server"
+	"github.com/micro/go-micro/v3/auth"
+	"github.com/micro/go-micro/v3/errors"
+	"github.com/micro/go-micro/v3/metadata"
+	"github.com/micro/go-micro/v3/server"
 	"github.com/micro/micro/v2/internal/namespace"
 	muauth "github.com/micro/micro/v2/service/auth"
 )

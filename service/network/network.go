@@ -2,11 +2,11 @@
 package network
 
 import (
-	"github.com/micro/go-micro/v2/network"
-	"github.com/micro/micro/v2/service/network/client"
+	"github.com/micro/go-micro/v3/network"
+	"github.com/micro/go-micro/v3/network/mucp"
 )
 
 var (
 	// DefaultNetwork implementation
-	DefaultNetwork network.Network = client.NewNetwork()
+	DefaultNetwork network.Network = mucp.NewNetwork()
 )

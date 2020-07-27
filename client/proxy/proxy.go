@@ -7,20 +7,21 @@ import (
 
 	"github.com/go-acme/lego/v3/providers/dns/cloudflare"
 	"github.com/micro/cli/v2"
-	"github.com/micro/go-micro/v2/api/server/acme"
-	"github.com/micro/go-micro/v2/api/server/acme/autocert"
-	"github.com/micro/go-micro/v2/api/server/acme/certmagic"
-	bmem "github.com/micro/go-micro/v2/broker/memory"
-	mucli "github.com/micro/go-micro/v2/client"
-	log "github.com/micro/go-micro/v2/logger"
-	"github.com/micro/go-micro/v2/proxy"
-	"github.com/micro/go-micro/v2/proxy/http"
-	"github.com/micro/go-micro/v2/proxy/mucp"
-	rmem "github.com/micro/go-micro/v2/registry/memory"
-	"github.com/micro/go-micro/v2/server"
-	sgrpc "github.com/micro/go-micro/v2/server/grpc"
-	"github.com/micro/go-micro/v2/sync/memory"
-	"github.com/micro/go-micro/v2/util/mux"
+	"github.com/micro/go-micro/v3/api/server/acme"
+	"github.com/micro/go-micro/v3/api/server/acme/autocert"
+	"github.com/micro/go-micro/v3/api/server/acme/certmagic"
+	bmem "github.com/micro/go-micro/v3/broker/memory"
+	grpcCli "github.com/micro/go-micro/v3/client/grpc"
+	log "github.com/micro/go-micro/v3/logger"
+	"github.com/micro/go-micro/v3/proxy"
+	"github.com/micro/go-micro/v3/proxy/http"
+	"github.com/micro/go-micro/v3/proxy/mucp"
+	rmem "github.com/micro/go-micro/v3/registry/memory"
+	"github.com/micro/go-micro/v3/server"
+	grpcSrv "github.com/micro/go-micro/v3/server/grpc"
+	sgrpc "github.com/micro/go-micro/v3/server/grpc"
+	"github.com/micro/go-micro/v3/sync/memory"
+	"github.com/micro/go-micro/v3/util/mux"
 	"github.com/micro/micro/v2/client"
 	"github.com/micro/micro/v2/cmd"
 	"github.com/micro/micro/v2/internal/helper"
@@ -175,13 +176,13 @@ func Run(ctx *cli.Context) error {
 		p = http.NewProxy(popts...)
 		serverOpts = append(serverOpts, server.WithRouter(p))
 		// TODO: http server
-		srv = server.NewServer(serverOpts...)
+		srv = grpcSrv.NewServer(serverOpts...)
 	case "mucp":
-		popts = append(popts, proxy.WithClient(mucli.NewClient()))
+		popts = append(popts, proxy.WithClient(grpcCli.NewClient()))
 		p = mucp.NewProxy(popts...)
 
 		serverOpts = append(serverOpts, server.WithRouter(p))
-		srv = server.NewServer(serverOpts...)
+		srv = grpcSrv.NewServer(serverOpts...)
 	default:
 		p = mucp.NewProxy(popts...)
 

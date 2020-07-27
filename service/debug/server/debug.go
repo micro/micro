@@ -2,10 +2,10 @@ package server
 
 import (
 	"github.com/micro/cli/v2"
-	"github.com/micro/go-micro/v2/debug/log"
-	"github.com/micro/go-micro/v2/debug/log/kubernetes"
-	dservice "github.com/micro/go-micro/v2/debug/service"
-	"github.com/micro/go-micro/v2/logger"
+	"github.com/micro/go-micro/v3/debug/log"
+	"github.com/micro/go-micro/v3/debug/log/kubernetes"
+	dservice "github.com/micro/go-micro/v3/debug/service"
+	"github.com/micro/go-micro/v3/logger"
 	"github.com/micro/micro/v2/service"
 	logHandler "github.com/micro/micro/v2/service/debug/log/handler"
 	pblog "github.com/micro/micro/v2/service/debug/log/proto"

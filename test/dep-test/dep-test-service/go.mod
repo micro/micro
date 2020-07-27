@@ -11,7 +11,7 @@ replace dependency => ../
 require (
 	dependency v0.0.0-00010101000000-000000000000
 	github.com/golang/protobuf v1.4.2
-	github.com/micro/go-micro/v2 v2.9.1-0.20200724132314-1f697400e61a
+	github.com/micro/go-micro/v3 v2.9.1-0.20200724132314-1f697400e61a
 	github.com/micro/micro/v2 v2.9.2-0.20200721134233-06a44ad58f35
 	google.golang.org/grpc v1.27.0
 )

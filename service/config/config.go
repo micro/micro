@@ -1,7 +1,7 @@
 package config
 
 import (
-	"github.com/micro/go-micro/v2/config"
+	"github.com/micro/go-micro/v3/config"
 )
 
 // DefaultConfig implementation. Setup in the cmd package, this will

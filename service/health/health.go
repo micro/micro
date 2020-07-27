@@ -6,9 +6,9 @@ import (
 	"net/http"
 
 	"github.com/micro/cli/v2"
-	"github.com/micro/go-micro/v2/client"
-	proto "github.com/micro/go-micro/v2/debug/service/proto"
-	"github.com/micro/go-micro/v2/logger"
+	"github.com/micro/go-micro/v3/client"
+	proto "github.com/micro/go-micro/v3/debug/service/proto"
+	"github.com/micro/go-micro/v3/logger"
 	"github.com/micro/micro/v2/client/cli/util"
 	qcli "github.com/micro/micro/v2/internal/command/cli"
 	muclient "github.com/micro/micro/v2/service/client"

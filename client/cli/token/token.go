@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/micro/go-micro/v2/auth"
+	"github.com/micro/go-micro/v3/auth"
 	"github.com/micro/micro/v2/internal/config"
 )
 

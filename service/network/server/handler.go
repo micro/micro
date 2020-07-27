@@ -3,10 +3,11 @@ package server
 import (
 	"context"
 
-	"github.com/micro/go-micro/v2/errors"
-	log "github.com/micro/go-micro/v2/logger"
-	"github.com/micro/go-micro/v2/network"
-	"github.com/micro/go-micro/v2/router"
+	"github.com/micro/go-micro/v3/errors"
+	log "github.com/micro/go-micro/v3/logger"
+	"github.com/micro/go-micro/v3/network"
+	"github.com/micro/go-micro/v3/network/mucp"
+	"github.com/micro/go-micro/v3/router"
 	pb "github.com/micro/micro/v2/service/network/proto"
 	"github.com/micro/micro/v2/service/network/util"
 	pbRtr "github.com/micro/micro/v2/service/router/proto"
@@ -125,8 +126,8 @@ func (n *Network) Nodes(ctx context.Context, req *pb.NodesRequest, resp *pb.Node
 // Graph returns the network graph from this root node
 func (n *Network) Graph(ctx context.Context, req *pb.GraphRequest, resp *pb.GraphResponse) error {
 	depth := uint(req.Depth)
-	if depth <= 0 || depth > network.MaxDepth {
-		depth = network.MaxDepth
+	if depth <= 0 || depth > mucp.MaxDepth {
+		depth = mucp.MaxDepth
 	}
 
 	// get peers encoded into protobuf

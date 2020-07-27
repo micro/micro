@@ -9,8 +9,8 @@ import (
 	"strings"
 
 	"github.com/micro/cli/v2"
-	"github.com/micro/go-micro/v2/client"
-	"github.com/micro/go-micro/v2/registry"
+	"github.com/micro/go-micro/v3/client"
+	"github.com/micro/go-micro/v3/registry"
 	"github.com/micro/micro/v2/client/cli/namespace"
 	"github.com/micro/micro/v2/client/cli/util"
 	muclient "github.com/micro/micro/v2/service/client"
