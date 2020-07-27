@@ -231,7 +231,7 @@ func Run(context *cli.Context) error {
 	// @todo make this configurable
 	uploadDir := filepath.Join(os.TempDir(), "micro", "uploads")
 	os.MkdirAll(uploadDir, 0777)
-	file.RegisterHandler(server.Server(), uploadDir)
+	file.RegisterHandler(server.Server(), uploadDir, server.Options().Store)
 	// start the server
 	server.Run()
 
