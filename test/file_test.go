@@ -38,7 +38,7 @@ func testFileUpload(t *t) {
 		}
 		// Note the test prefix here.. it's because of the relative path to repo root is
 		// test/example-service
-		if !strings.Contains(string(outp), "files/micro/test-example-service.tar.gz") {
+		if !strings.Contains(string(outp), "files/micro/test--example-service.tar.gz") {
 			return outp, fmt.Errorf("Output should contain example service")
 		}
 		return outp, nil
