@@ -13,7 +13,6 @@ import (
 	"github.com/micro/go-micro/v3/util/file"
 	"github.com/micro/micro/v3/client/cli/util"
 	"github.com/micro/micro/v3/cmd"
-	"github.com/micro/micro/v3/internal/update"
 	"github.com/micro/micro/v3/service"
 	"github.com/micro/micro/v3/service/client"
 	muruntime "github.com/micro/micro/v3/service/runtime"
@@ -72,17 +71,6 @@ func init() {
 			&cli.BoolFlag{
 				Name:  "peer",
 				Usage: "Peer with the global network to share services",
-			},
-			&cli.BoolFlag{
-				Name:    "auto_update",
-				Usage:   "Enable automatic updates",
-				EnvVars: []string{"MICRO_AUTO_UPDATE"},
-			},
-			&cli.StringFlag{
-				Name:    "update_url",
-				Usage:   "Set the url to retrieve system updates from",
-				EnvVars: []string{"MICRO_UPDATE_URL"},
-				Value:   "https://micro.mu/update",
 			},
 		},
 		Action: func(ctx *cli.Context) error {
@@ -150,16 +138,6 @@ func Run(context *cli.Context) error {
 
 	// create new micro runtime
 	muRuntime := muruntime.DefaultRuntime
-
-	// Use default update notifier
-	if context.Bool("auto_update") {
-		updateURL := context.String("update_url")
-
-		options := []gorun.Option{
-			gorun.WithScheduler(update.NewScheduler(updateURL, fmt.Sprintf("%d", time.Now().Unix()))),
-		}
-		muRuntime.Init(options...)
-	}
 
 	for _, service := range services {
 		name := service
