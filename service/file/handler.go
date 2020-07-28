@@ -124,7 +124,7 @@ func (h *handler) Stat(ctx context.Context, req *proto.StatRequest, rsp *proto.S
 		return err
 	}
 
-	path := filepath.Join(h.readDir, req.Filename)
+	path := filepath.Join(h.readDir, ns, req.Filename)
 	fi, err := os.Stat(path)
 	if os.IsNotExist(err) {
 		return errors.InternalServerError("go.micro.srv.file", err.Error())

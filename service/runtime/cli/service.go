@@ -284,7 +284,9 @@ func upload(ctx *cli.Context, source *git.Source) (string, error) {
 	if err := grepMain(source.FullPath); err != nil {
 		return "", err
 	}
-	uploadedFileName := strings.ReplaceAll(source.Folder, string(filepath.Separator), "-") + ".tar.gz"
+	// The replacing of '/' to '--' here is a terrible hack: it will be turned back on
+	// the runtime side so we don't lose information about the subfolder path.
+	uploadedFileName := strings.ReplaceAll(source.Folder, string(filepath.Separator), "--") + ".tar.gz"
 	path := filepath.Join(os.TempDir(), uploadedFileName)
 
 	var err error
