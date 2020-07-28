@@ -13,8 +13,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/micro/micro/v2/client/cli/namespace"
-	"github.com/micro/micro/v2/client/cli/token"
+	"github.com/micro/micro/v3/client/cli/namespace"
+	"github.com/micro/micro/v3/client/cli/token"
 )
 
 const (

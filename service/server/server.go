@@ -3,7 +3,7 @@ package server
 import (
 	"github.com/micro/go-micro/v3/server"
 	"github.com/micro/go-micro/v3/server/grpc"
-	"github.com/micro/micro/v2/service/registry"
+	"github.com/micro/micro/v3/service/registry"
 )
 
 // DefaultServer for the service

@@ -9,10 +9,10 @@ import (
 	"github.com/micro/go-micro/v3/errors"
 	"github.com/micro/go-micro/v3/logger"
 	log "github.com/micro/go-micro/v3/logger"
-	"github.com/micro/micro/v2/internal/namespace"
-	"github.com/micro/micro/v2/service"
-	mubroker "github.com/micro/micro/v2/service/broker"
-	pb "github.com/micro/micro/v2/service/broker/proto"
+	"github.com/micro/micro/v3/internal/namespace"
+	"github.com/micro/micro/v3/service"
+	mubroker "github.com/micro/micro/v3/service/broker"
+	pb "github.com/micro/micro/v3/service/broker/proto"
 )
 
 var (

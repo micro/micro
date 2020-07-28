@@ -7,11 +7,11 @@ import (
 	"github.com/micro/go-micro/v3/store"
 	"github.com/micro/go-micro/v3/util/token"
 	"github.com/micro/go-micro/v3/util/token/jwt"
-	"github.com/micro/micro/v2/service"
-	pb "github.com/micro/micro/v2/service/auth/proto"
-	authHandler "github.com/micro/micro/v2/service/auth/server/auth"
-	rulesHandler "github.com/micro/micro/v2/service/auth/server/rules"
-	mustore "github.com/micro/micro/v2/service/store"
+	"github.com/micro/micro/v3/service"
+	pb "github.com/micro/micro/v3/service/auth/proto"
+	authHandler "github.com/micro/micro/v3/service/auth/server/auth"
+	rulesHandler "github.com/micro/micro/v3/service/auth/server/rules"
+	mustore "github.com/micro/micro/v3/service/store"
 )
 
 const (

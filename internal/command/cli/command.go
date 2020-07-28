@@ -16,10 +16,10 @@ import (
 	proto "github.com/micro/go-micro/v3/debug/service/proto"
 	"github.com/micro/go-micro/v3/metadata"
 	"github.com/micro/go-micro/v3/registry"
-	"github.com/micro/micro/v2/client/cli/namespace"
-	"github.com/micro/micro/v2/client/cli/util"
-	muclient "github.com/micro/micro/v2/service/client"
-	muregistry "github.com/micro/micro/v2/service/registry"
+	"github.com/micro/micro/v3/client/cli/namespace"
+	"github.com/micro/micro/v3/client/cli/util"
+	muclient "github.com/micro/micro/v3/service/client"
+	muregistry "github.com/micro/micro/v3/service/registry"
 
 	"github.com/serenize/snaker"
 )

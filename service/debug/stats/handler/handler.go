@@ -11,8 +11,8 @@ import (
 	"github.com/micro/go-micro/v3/errors"
 	"github.com/micro/go-micro/v3/registry"
 	"github.com/micro/go-micro/v3/util/ring"
-	muclient "github.com/micro/micro/v2/service/client"
-	stats "github.com/micro/micro/v2/service/debug/stats/proto"
+	muclient "github.com/micro/micro/v3/service/client"
+	stats "github.com/micro/micro/v3/service/debug/stats/proto"
 )
 
 // New initialises and returns a new Stats service handler

@@ -11,4 +11,4 @@ require (
 	google.golang.org/grpc v1.27.0
 )
 
-replace github.com/micro/micro/v2 => ../../..
+replace github.com/micro/micro/v3 => ../../..

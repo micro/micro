@@ -13,8 +13,8 @@ import (
 	log "github.com/micro/go-micro/v3/logger"
 	"github.com/micro/go-micro/v3/registry"
 	"github.com/micro/go-micro/v3/util/ring"
-	muclient "github.com/micro/micro/v2/service/client"
-	trace "github.com/micro/micro/v2/service/debug/trace/proto"
+	muclient "github.com/micro/micro/v3/service/client"
+	trace "github.com/micro/micro/v3/service/debug/trace/proto"
 )
 
 // New initialises and returns a new trace service handler

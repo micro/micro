@@ -20,9 +20,9 @@ import (
 	tun "github.com/micro/go-micro/v3/tunnel"
 	tuntransport "github.com/micro/go-micro/v3/tunnel/transport"
 	"github.com/micro/go-micro/v3/util/mux"
-	"github.com/micro/micro/v2/service"
-	"github.com/micro/micro/v2/service/registry"
-	mutunnel "github.com/micro/micro/v2/service/tunnel"
+	"github.com/micro/micro/v3/service"
+	"github.com/micro/micro/v3/service/registry"
+	mutunnel "github.com/micro/micro/v3/service/tunnel"
 )
 
 var (

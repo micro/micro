@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package go.micro.broker;
 
-option go_package = "github.com/micro/micro/v2/service/broker/proto;broker";
+option go_package = "github.com/micro/micro/v3/service/broker/proto;broker";
 
 service Broker {
 	rpc Publish(PublishRequest) returns (Empty) {};

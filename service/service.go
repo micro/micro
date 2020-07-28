@@ -13,11 +13,11 @@ import (
 	"github.com/micro/go-micro/v3/server"
 	"github.com/micro/go-micro/v3/store"
 	signalutil "github.com/micro/go-micro/v3/util/signal"
-	"github.com/micro/micro/v2/cmd"
-	muclient "github.com/micro/micro/v2/service/client"
-	mudebug "github.com/micro/micro/v2/service/debug"
-	mumodel "github.com/micro/micro/v2/service/model"
-	muserver "github.com/micro/micro/v2/service/server"
+	"github.com/micro/micro/v3/cmd"
+	muclient "github.com/micro/micro/v3/service/client"
+	mudebug "github.com/micro/micro/v3/service/debug"
+	mumodel "github.com/micro/micro/v3/service/model"
+	muserver "github.com/micro/micro/v3/service/server"
 )
 
 // Service is a Micro Service which honours the go-micro/service interface

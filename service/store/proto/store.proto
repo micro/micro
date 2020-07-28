@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package go.micro.store;
 
-option go_package = "github.com/micro/micro/v2/service/store/proto;store";
+option go_package = "github.com/micro/micro/v3/service/store/proto;store";
 
 service Store {
 	rpc Read(ReadRequest) returns (ReadResponse) {};

@@ -12,11 +12,11 @@ import (
 
 	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro/v3/auth"
-	"github.com/micro/micro/v2/client/cli/namespace"
-	clitoken "github.com/micro/micro/v2/client/cli/token"
-	"github.com/micro/micro/v2/internal/config"
-	"github.com/micro/micro/v2/internal/platform"
-	muauth "github.com/micro/micro/v2/service/auth"
+	"github.com/micro/micro/v3/client/cli/namespace"
+	clitoken "github.com/micro/micro/v3/client/cli/token"
+	"github.com/micro/micro/v3/internal/config"
+	"github.com/micro/micro/v3/internal/platform"
+	muauth "github.com/micro/micro/v3/service/auth"
 )
 
 const (

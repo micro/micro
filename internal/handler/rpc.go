@@ -13,8 +13,8 @@ import (
 	"github.com/micro/go-micro/v3/api/server/cors"
 	"github.com/micro/go-micro/v3/client"
 	"github.com/micro/go-micro/v3/errors"
-	"github.com/micro/micro/v2/internal/helper"
-	muclient "github.com/micro/micro/v2/service/client"
+	"github.com/micro/micro/v3/internal/helper"
+	muclient "github.com/micro/micro/v3/service/client"
 )
 
 type rpcRequest struct {

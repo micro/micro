@@ -11,10 +11,10 @@ import (
 	"github.com/micro/go-micro/v3/errors"
 	"github.com/micro/go-micro/v3/metadata"
 	"github.com/micro/go-micro/v3/server"
-	"github.com/micro/micro/v2/internal/namespace"
-	muauth "github.com/micro/micro/v2/service/auth"
-	muclient "github.com/micro/micro/v2/service/client"
-	"github.com/micro/micro/v2/service/debug"
+	"github.com/micro/micro/v3/internal/namespace"
+	muauth "github.com/micro/micro/v3/service/auth"
+	muclient "github.com/micro/micro/v3/service/client"
+	"github.com/micro/micro/v3/service/debug"
 )
 
 type authWrapper struct {

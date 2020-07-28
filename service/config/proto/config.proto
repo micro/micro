@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package go.micro.config;
 
-option go_package = "github.com/micro/micro/v2/service/config/proto;config";
+option go_package = "github.com/micro/micro/v3/service/config/proto;config";
 
 service Config {
 	rpc Create (CreateRequest) returns (CreateResponse) {}

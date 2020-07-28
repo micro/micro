@@ -9,13 +9,13 @@ import (
 
 	"github.com/micro/cli/v2"
 	log "github.com/micro/go-micro/v3/logger"
-	"github.com/micro/micro/v2/client/cli/namespace"
-	"github.com/micro/micro/v2/client/cli/util"
-	"github.com/micro/micro/v2/cmd"
-	cliconfig "github.com/micro/micro/v2/internal/config"
-	"github.com/micro/micro/v2/internal/helper"
-	muclient "github.com/micro/micro/v2/service/client"
-	proto "github.com/micro/micro/v2/service/config/proto"
+	"github.com/micro/micro/v3/client/cli/namespace"
+	"github.com/micro/micro/v3/client/cli/util"
+	"github.com/micro/micro/v3/cmd"
+	cliconfig "github.com/micro/micro/v3/internal/config"
+	"github.com/micro/micro/v3/internal/helper"
+	muclient "github.com/micro/micro/v3/service/client"
+	proto "github.com/micro/micro/v3/service/config/proto"
 )
 
 var (

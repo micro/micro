@@ -18,10 +18,10 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/micro/cli/v2"
-	"github.com/micro/micro/v2/client/cli/util"
-	"github.com/micro/micro/v2/internal/helper"
-	alertproto "github.com/micro/micro/v2/platform/proto/alert"
-	"github.com/micro/micro/v2/service/client"
+	"github.com/micro/micro/v3/client/cli/util"
+	"github.com/micro/micro/v3/internal/helper"
+	alertproto "github.com/micro/micro/v3/platform/proto/alert"
+	"github.com/micro/micro/v3/service/client"
 )
 
 const (

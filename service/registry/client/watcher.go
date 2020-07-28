@@ -2,8 +2,8 @@ package client
 
 import (
 	"github.com/micro/go-micro/v3/registry"
-	pb "github.com/micro/micro/v2/service/registry/proto"
-	"github.com/micro/micro/v2/service/registry/util"
+	pb "github.com/micro/micro/v3/service/registry/proto"
+	"github.com/micro/micro/v3/service/registry/util"
 )
 
 type serviceWatcher struct {

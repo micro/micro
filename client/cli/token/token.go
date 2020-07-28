@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/micro/go-micro/v3/auth"
-	"github.com/micro/micro/v2/internal/config"
+	"github.com/micro/micro/v3/internal/config"
 )
 
 // Get tries a best effort read of auth token from user config.

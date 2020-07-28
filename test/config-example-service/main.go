@@ -3,8 +3,8 @@ package main
 import (
 	"fmt"
 
-	"github.com/micro/micro/v2/service"
-	"github.com/micro/micro/v2/service/config"
+	"github.com/micro/micro/v3/service"
+	"github.com/micro/micro/v3/service/config"
 )
 
 func main() {

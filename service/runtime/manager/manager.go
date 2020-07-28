@@ -7,9 +7,9 @@ import (
 	cachest "github.com/micro/go-micro/v3/store/cache"
 	filest "github.com/micro/go-micro/v3/store/file"
 	"github.com/micro/go-micro/v3/store/memory"
-	"github.com/micro/micro/v2/internal/namespace"
-	"github.com/micro/micro/v2/service/auth"
-	mustore "github.com/micro/micro/v2/service/store"
+	"github.com/micro/micro/v3/internal/namespace"
+	"github.com/micro/micro/v3/service/auth"
+	mustore "github.com/micro/micro/v3/service/store"
 )
 
 // Init initializes the runtime

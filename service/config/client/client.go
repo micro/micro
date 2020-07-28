@@ -7,8 +7,8 @@ import (
 	"github.com/micro/go-micro/v3/config/source"
 	"github.com/micro/go-micro/v3/errors"
 	"github.com/micro/go-micro/v3/logger"
-	"github.com/micro/micro/v2/service/client"
-	proto "github.com/micro/micro/v2/service/config/proto"
+	"github.com/micro/micro/v3/service/client"
+	proto "github.com/micro/micro/v3/service/config/proto"
 )
 
 var (

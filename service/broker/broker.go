@@ -3,7 +3,7 @@ package broker
 
 import (
 	"github.com/micro/go-micro/v3/broker"
-	"github.com/micro/micro/v2/service/broker/client"
+	"github.com/micro/micro/v3/service/broker/client"
 )
 
 // DefaultBroker implementation

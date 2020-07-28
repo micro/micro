@@ -5,10 +5,10 @@ import (
 	"fmt"
 
 	"github.com/micro/cli/v2"
-	"github.com/micro/micro/v2/client/cli/namespace"
-	"github.com/micro/micro/v2/client/cli/util"
-	muclient "github.com/micro/micro/v2/service/client"
-	pb "github.com/micro/micro/v2/service/store/proto"
+	"github.com/micro/micro/v3/client/cli/namespace"
+	"github.com/micro/micro/v3/client/cli/util"
+	muclient "github.com/micro/micro/v3/service/client"
+	pb "github.com/micro/micro/v3/service/store/proto"
 )
 
 // databases is the entrypoint for micro store databases

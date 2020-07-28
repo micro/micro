@@ -23,15 +23,15 @@ import (
 	"github.com/micro/go-micro/v3/store/file"
 	mem "github.com/micro/go-micro/v3/store/memory"
 
-	inauth "github.com/micro/micro/v2/internal/auth"
-	muauth "github.com/micro/micro/v2/service/auth"
-	mubroker "github.com/micro/micro/v2/service/broker"
-	muclient "github.com/micro/micro/v2/service/client"
-	muregistry "github.com/micro/micro/v2/service/registry"
-	murouter "github.com/micro/micro/v2/service/router"
-	muruntime "github.com/micro/micro/v2/service/runtime"
-	muserver "github.com/micro/micro/v2/service/server"
-	mustore "github.com/micro/micro/v2/service/store"
+	inauth "github.com/micro/micro/v3/internal/auth"
+	muauth "github.com/micro/micro/v3/service/auth"
+	mubroker "github.com/micro/micro/v3/service/broker"
+	muclient "github.com/micro/micro/v3/service/client"
+	muregistry "github.com/micro/micro/v3/service/registry"
+	murouter "github.com/micro/micro/v3/service/router"
+	muruntime "github.com/micro/micro/v3/service/runtime"
+	muserver "github.com/micro/micro/v3/service/server"
+	mustore "github.com/micro/micro/v3/service/store"
 )
 
 // Profiles which when called will configure micro

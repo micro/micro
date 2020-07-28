@@ -7,7 +7,7 @@ import (
 
 	"github.com/micro/go-micro/v3/errors"
 	"github.com/micro/go-micro/v3/router"
-	pb "github.com/micro/micro/v2/service/router/proto"
+	pb "github.com/micro/micro/v3/service/router/proto"
 )
 
 // Router implements router handler

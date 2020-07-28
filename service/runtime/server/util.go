@@ -11,7 +11,7 @@ import (
 	"strings"
 
 	"github.com/micro/go-micro/v3/runtime"
-	pb "github.com/micro/micro/v2/service/runtime/proto"
+	pb "github.com/micro/micro/v3/service/runtime/proto"
 )
 
 func toProto(s *runtime.Service) *pb.Service {

@@ -9,8 +9,8 @@ import (
 	"github.com/micro/go-micro/v3/client"
 	"github.com/micro/go-micro/v3/util/token"
 	"github.com/micro/go-micro/v3/util/token/jwt"
-	pb "github.com/micro/micro/v2/service/auth/proto"
-	muclient "github.com/micro/micro/v2/service/client"
+	pb "github.com/micro/micro/v3/service/auth/proto"
+	muclient "github.com/micro/micro/v3/service/client"
 )
 
 // srv is the service implementation of the Auth interface

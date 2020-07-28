@@ -3,7 +3,7 @@ package runtime
 
 import (
 	"github.com/micro/go-micro/v3/runtime"
-	"github.com/micro/micro/v2/service/runtime/client"
+	"github.com/micro/micro/v3/service/runtime/client"
 )
 
 var (

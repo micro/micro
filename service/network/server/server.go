@@ -25,9 +25,9 @@ import (
 	"github.com/micro/go-micro/v3/transport/quic"
 	"github.com/micro/go-micro/v3/tunnel"
 	"github.com/micro/go-micro/v3/util/mux"
-	"github.com/micro/micro/v2/internal/helper"
-	"github.com/micro/micro/v2/service"
-	muregistry "github.com/micro/micro/v2/service/registry"
+	"github.com/micro/micro/v3/internal/helper"
+	"github.com/micro/micro/v3/service"
+	muregistry "github.com/micro/micro/v3/service/registry"
 )
 
 var (

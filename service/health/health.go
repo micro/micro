@@ -9,9 +9,9 @@ import (
 	"github.com/micro/go-micro/v3/client"
 	proto "github.com/micro/go-micro/v3/debug/service/proto"
 	"github.com/micro/go-micro/v3/logger"
-	"github.com/micro/micro/v2/client/cli/util"
-	qcli "github.com/micro/micro/v2/internal/command/cli"
-	muclient "github.com/micro/micro/v2/service/client"
+	"github.com/micro/micro/v3/client/cli/util"
+	qcli "github.com/micro/micro/v3/internal/command/cli"
+	muclient "github.com/micro/micro/v3/service/client"
 	"golang.org/x/net/context"
 )
 

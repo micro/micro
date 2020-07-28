@@ -6,10 +6,10 @@ import (
 	"os"
 
 	"github.com/micro/cli/v2"
-	"github.com/micro/micro/v2/client/cli/util"
-	"github.com/micro/micro/v2/cmd"
-	"github.com/micro/micro/v2/internal/config"
-	muauth "github.com/micro/micro/v2/service/auth"
+	"github.com/micro/micro/v3/client/cli/util"
+	"github.com/micro/micro/v3/cmd"
+	"github.com/micro/micro/v3/internal/config"
+	muauth "github.com/micro/micro/v3/service/auth"
 )
 
 func init() {

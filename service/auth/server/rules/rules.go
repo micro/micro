@@ -7,12 +7,12 @@ import (
 	"sync"
 
 	"github.com/micro/go-micro/v3/auth"
-	pb "github.com/micro/micro/v2/service/auth/proto"
+	pb "github.com/micro/micro/v3/service/auth/proto"
 	"github.com/micro/go-micro/v3/errors"
 	"github.com/micro/go-micro/v3/logger"
 	"github.com/micro/go-micro/v3/store"
 	memStore "github.com/micro/go-micro/v3/store/memory"
-	"github.com/micro/micro/v2/internal/namespace"
+	"github.com/micro/micro/v3/internal/namespace"
 )
 
 const (

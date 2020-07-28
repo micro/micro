@@ -6,13 +6,13 @@ import (
 	"github.com/micro/go-micro/v3/debug/log/kubernetes"
 	dservice "github.com/micro/go-micro/v3/debug/service"
 	"github.com/micro/go-micro/v3/logger"
-	"github.com/micro/micro/v2/service"
-	logHandler "github.com/micro/micro/v2/service/debug/log/handler"
-	pblog "github.com/micro/micro/v2/service/debug/log/proto"
-	statshandler "github.com/micro/micro/v2/service/debug/stats/handler"
-	pbstats "github.com/micro/micro/v2/service/debug/stats/proto"
-	tracehandler "github.com/micro/micro/v2/service/debug/trace/handler"
-	pbtrace "github.com/micro/micro/v2/service/debug/trace/proto"
+	"github.com/micro/micro/v3/service"
+	logHandler "github.com/micro/micro/v3/service/debug/log/handler"
+	pblog "github.com/micro/micro/v3/service/debug/log/proto"
+	statshandler "github.com/micro/micro/v3/service/debug/stats/handler"
+	pbstats "github.com/micro/micro/v3/service/debug/stats/proto"
+	tracehandler "github.com/micro/micro/v3/service/debug/trace/handler"
+	pbtrace "github.com/micro/micro/v3/service/debug/trace/proto"
 )
 
 const (

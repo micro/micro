@@ -16,8 +16,8 @@ import (
 	memStore "github.com/micro/go-micro/v3/store/memory"
 	"github.com/micro/go-micro/v3/util/token"
 	"github.com/micro/go-micro/v3/util/token/basic"
-	"github.com/micro/micro/v2/internal/namespace"
-	pb "github.com/micro/micro/v2/service/auth/proto"
+	"github.com/micro/micro/v3/internal/namespace"
+	pb "github.com/micro/micro/v3/service/auth/proto"
 	"golang.org/x/crypto/bcrypt"
 )
 

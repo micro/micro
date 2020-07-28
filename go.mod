@@ -1,4 +1,4 @@
-module github.com/micro/micro/v2
+module github.com/micro/micro/v3
 
 go 1.13
 

@@ -6,8 +6,8 @@ import (
 	"sync"
 
 	"github.com/micro/go-micro/v3/runtime"
-	"github.com/micro/micro/v2/service/client"
-	pb "github.com/micro/micro/v2/service/runtime/proto"
+	"github.com/micro/micro/v3/service/client"
+	pb "github.com/micro/micro/v3/service/runtime/proto"
 )
 
 type svc struct {

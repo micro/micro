@@ -8,9 +8,9 @@ import (
 
 	"github.com/micro/go-micro/v3/api/resolver"
 	"github.com/micro/go-micro/v3/registry"
-	"github.com/micro/micro/v2/profile"
-	muregistry "github.com/micro/micro/v2/service/registry"
-	"github.com/micro/micro/v2/service/router"
+	"github.com/micro/micro/v3/profile"
+	muregistry "github.com/micro/micro/v3/service/registry"
+	"github.com/micro/micro/v3/service/router"
 )
 
 func TestWebResolver(t *testing.T) {

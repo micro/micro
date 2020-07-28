@@ -11,12 +11,12 @@ import (
 	log "github.com/micro/go-micro/v3/logger"
 	gorun "github.com/micro/go-micro/v3/runtime"
 	"github.com/micro/go-micro/v3/util/file"
-	"github.com/micro/micro/v2/client/cli/util"
-	"github.com/micro/micro/v2/cmd"
-	"github.com/micro/micro/v2/internal/update"
-	"github.com/micro/micro/v2/service"
-	"github.com/micro/micro/v2/service/client"
-	muruntime "github.com/micro/micro/v2/service/runtime"
+	"github.com/micro/micro/v3/client/cli/util"
+	"github.com/micro/micro/v3/cmd"
+	"github.com/micro/micro/v3/internal/update"
+	"github.com/micro/micro/v3/service"
+	"github.com/micro/micro/v3/service/client"
+	muruntime "github.com/micro/micro/v3/service/runtime"
 )
 
 var (

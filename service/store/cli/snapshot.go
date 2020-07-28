@@ -5,7 +5,7 @@ import (
 
 	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro/v3/logger"
-	snap "github.com/micro/micro/v2/service/store/snapshot"
+	snap "github.com/micro/micro/v3/service/store/snapshot"
 	"github.com/pkg/errors"
 )
 

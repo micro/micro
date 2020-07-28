@@ -8,9 +8,9 @@ import (
 	"github.com/micro/go-micro/v3/network"
 	"github.com/micro/go-micro/v3/network/mucp"
 	"github.com/micro/go-micro/v3/router"
-	pb "github.com/micro/micro/v2/service/network/proto"
-	"github.com/micro/micro/v2/service/network/util"
-	pbRtr "github.com/micro/micro/v2/service/router/proto"
+	pb "github.com/micro/micro/v3/service/network/proto"
+	"github.com/micro/micro/v3/service/network/util"
+	pbRtr "github.com/micro/micro/v3/service/router/proto"
 )
 
 // Network implements network handler

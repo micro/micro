@@ -8,8 +8,8 @@ import (
 	"github.com/micro/go-micro/v3/auth"
 	"github.com/micro/go-micro/v3/errors"
 	"github.com/micro/go-micro/v3/store"
-	"github.com/micro/micro/v2/internal/namespace"
-	pb "github.com/micro/micro/v2/service/auth/proto"
+	"github.com/micro/micro/v3/internal/namespace"
+	pb "github.com/micro/micro/v3/service/auth/proto"
 )
 
 // List returns all auth accounts

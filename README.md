@@ -29,7 +29,7 @@ to provide a pluggable foundation. We make it simple to use by pre-initialising 
 Install from source
 
 ```
-go get github.com/micro/micro/v2
+go get github.com/micro/micro/v3
 ```
 
 Using a docker image

@@ -5,8 +5,8 @@ import (
 	"path"
 
 	log "github.com/micro/go-micro/v3/logger"
-	"github.com/micro/micro/v2/service"
-	plugin "github.com/micro/micro/v2/service/debug/collector/micro"
+	"github.com/micro/micro/v3/service"
+	plugin "github.com/micro/micro/v3/service/debug/collector/micro"
 	"github.com/netdata/go-orchestrator"
 	"github.com/netdata/go-orchestrator/cli"
 	"github.com/netdata/go-orchestrator/pkg/multipath"

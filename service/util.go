@@ -6,7 +6,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/micro/go-micro/v3/auth"
 	"github.com/micro/go-micro/v3/logger"
-	muauth "github.com/micro/micro/v2/service/auth"
+	muauth "github.com/micro/micro/v3/service/auth"
 )
 
 // setupAuth generates auth credentials for the service

@@ -6,7 +6,7 @@ import (
 
 	"github.com/micro/go-micro/v3/debug/log"
 	"github.com/micro/go-micro/v3/errors"
-	pb "github.com/micro/micro/v2/service/debug/log/proto"
+	pb "github.com/micro/micro/v3/service/debug/log/proto"
 )
 
 type Log struct {

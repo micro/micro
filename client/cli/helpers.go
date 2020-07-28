@@ -12,9 +12,9 @@ import (
 	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro/v3/client"
 	cbytes "github.com/micro/go-micro/v3/codec/bytes"
-	cliutil "github.com/micro/micro/v2/client/cli/util"
-	clic "github.com/micro/micro/v2/internal/command/cli"
-	muclient "github.com/micro/micro/v2/service/client"
+	cliutil "github.com/micro/micro/v3/client/cli/util"
+	clic "github.com/micro/micro/v3/internal/command/cli"
+	muclient "github.com/micro/micro/v3/service/client"
 )
 
 func listServices(c *cli.Context, args []string) ([]byte, error) {

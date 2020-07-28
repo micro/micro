@@ -6,12 +6,12 @@ import (
 	"github.com/micro/cli/v2"
 	log "github.com/micro/go-micro/v3/logger"
 	"github.com/micro/go-micro/v3/runtime"
-	"github.com/micro/micro/v2/service"
-	"github.com/micro/micro/v2/service/auth"
-	muruntime "github.com/micro/micro/v2/service/runtime"
-	"github.com/micro/micro/v2/service/runtime/manager"
-	pb "github.com/micro/micro/v2/service/runtime/proto"
-	"github.com/micro/micro/v2/service/store"
+	"github.com/micro/micro/v3/service"
+	"github.com/micro/micro/v3/service/auth"
+	muruntime "github.com/micro/micro/v3/service/runtime"
+	"github.com/micro/micro/v3/service/runtime/manager"
+	pb "github.com/micro/micro/v3/service/runtime/proto"
+	"github.com/micro/micro/v3/service/store"
 )
 
 var (

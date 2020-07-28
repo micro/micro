@@ -19,12 +19,12 @@ import (
 	"github.com/micro/go-micro/v3/runtime"
 	"github.com/micro/go-micro/v3/runtime/local/git"
 	"github.com/micro/go-micro/v3/util/file"
-	"github.com/micro/micro/v2/client/cli/namespace"
-	"github.com/micro/micro/v2/client/cli/util"
-	cliutil "github.com/micro/micro/v2/client/cli/util"
-	muclient "github.com/micro/micro/v2/service/client"
-	muruntime "github.com/micro/micro/v2/service/runtime"
-	"github.com/micro/micro/v2/service/runtime/server"
+	"github.com/micro/micro/v3/client/cli/namespace"
+	"github.com/micro/micro/v3/client/cli/util"
+	cliutil "github.com/micro/micro/v3/client/cli/util"
+	muclient "github.com/micro/micro/v3/service/client"
+	muruntime "github.com/micro/micro/v3/service/runtime"
+	"github.com/micro/micro/v3/service/runtime/server"
 	"google.golang.org/grpc/status"
 )
 

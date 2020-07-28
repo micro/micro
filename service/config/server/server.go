@@ -4,9 +4,9 @@ import (
 	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro/v3/logger"
 	"github.com/micro/go-micro/v3/store"
-	"github.com/micro/micro/v2/service"
-	proto "github.com/micro/micro/v2/service/config/proto"
-	mustore "github.com/micro/micro/v2/service/store"
+	"github.com/micro/micro/v3/service"
+	proto "github.com/micro/micro/v3/service/config/proto"
+	mustore "github.com/micro/micro/v3/service/store"
 )
 
 const (

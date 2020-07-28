@@ -16,10 +16,10 @@ import (
 	"github.com/micro/go-micro/v3/agent/input"
 	proto "github.com/micro/go-micro/v3/agent/proto"
 	log "github.com/micro/go-micro/v3/logger"
-	"github.com/micro/micro/v2/client"
-	"github.com/micro/micro/v2/cmd"
-	"github.com/micro/micro/v2/service"
-	muregistry "github.com/micro/micro/v2/service/registry"
+	"github.com/micro/micro/v3/client"
+	"github.com/micro/micro/v3/cmd"
+	"github.com/micro/micro/v3/service"
+	muregistry "github.com/micro/micro/v3/service/registry"
 
 	// inputs
 	_ "github.com/micro/go-micro/v3/agent/input/discord"

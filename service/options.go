@@ -7,9 +7,9 @@ import (
 	"github.com/micro/go-micro/v3/cmd"
 	"github.com/micro/go-micro/v3/server"
 
-	mucmd "github.com/micro/micro/v2/cmd"
-	muclient "github.com/micro/micro/v2/service/client"
-	muserver "github.com/micro/micro/v2/service/server"
+	mucmd "github.com/micro/micro/v3/cmd"
+	muclient "github.com/micro/micro/v3/service/client"
+	muserver "github.com/micro/micro/v3/service/server"
 )
 
 // Options for micro service

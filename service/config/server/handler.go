@@ -12,9 +12,9 @@ import (
 	"github.com/micro/go-micro/v3/config/source"
 	"github.com/micro/go-micro/v3/errors"
 	"github.com/micro/go-micro/v3/store"
-	"github.com/micro/micro/v2/internal/namespace"
-	muclient "github.com/micro/micro/v2/service/client"
-	pb "github.com/micro/micro/v2/service/config/proto"
+	"github.com/micro/micro/v3/internal/namespace"
+	muclient "github.com/micro/micro/v3/service/client"
+	pb "github.com/micro/micro/v3/service/config/proto"
 )
 
 const (

@@ -10,11 +10,11 @@ import (
 
 	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro/v3/auth"
-	"github.com/micro/micro/v2/client/cli/namespace"
-	"github.com/micro/micro/v2/client/cli/util"
-	muauth "github.com/micro/micro/v2/service/auth"
-	pb "github.com/micro/micro/v2/service/auth/proto"
-	muclient "github.com/micro/micro/v2/service/client"
+	"github.com/micro/micro/v3/client/cli/namespace"
+	"github.com/micro/micro/v3/client/cli/util"
+	muauth "github.com/micro/micro/v3/service/auth"
+	pb "github.com/micro/micro/v3/service/auth/proto"
+	muclient "github.com/micro/micro/v3/service/client"
 )
 
 func listAccounts(ctx *cli.Context) error {

@@ -4,7 +4,7 @@ import (
 	"time"
 
 	"github.com/micro/go-micro/v3/logger"
-	"github.com/micro/micro/v2/service"
+	"github.com/micro/micro/v3/service"
 )
 
 func init() {

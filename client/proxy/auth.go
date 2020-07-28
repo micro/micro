@@ -8,8 +8,8 @@ import (
 	"github.com/micro/go-micro/v3/errors"
 	"github.com/micro/go-micro/v3/metadata"
 	"github.com/micro/go-micro/v3/server"
-	"github.com/micro/micro/v2/internal/namespace"
-	muauth "github.com/micro/micro/v2/service/auth"
+	"github.com/micro/micro/v3/internal/namespace"
+	muauth "github.com/micro/micro/v3/service/auth"
 )
 
 // authHandler wraps a server handler to perform auth

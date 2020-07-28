@@ -3,9 +3,9 @@ package server
 import (
 	"github.com/micro/cli/v2"
 	log "github.com/micro/go-micro/v3/logger"
-	"github.com/micro/micro/v2/service"
-	"github.com/micro/micro/v2/service/store"
-	pb "github.com/micro/micro/v2/service/store/proto"
+	"github.com/micro/micro/v3/service"
+	"github.com/micro/micro/v3/service/store"
+	pb "github.com/micro/micro/v3/service/store/proto"
 )
 
 var (
