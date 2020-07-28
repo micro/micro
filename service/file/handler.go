@@ -56,6 +56,10 @@ type handler struct {
 
 func (h *handler) Open(ctx context.Context, req *proto.OpenRequest, rsp *proto.OpenResponse) error {
 	ns := namespace.FromContext(ctx)
+	err := namespace.Authorize(ctx, ns)
+	if err != nil {
+		return err
+	}
 
 	// Create directory, ignore failure
 	os.Mkdir(filepath.Join(h.readDir, ns), 0777)
@@ -90,6 +94,12 @@ func (h *handler) Open(ctx context.Context, req *proto.OpenRequest, rsp *proto.O
 }
 
 func (h *handler) Close(ctx context.Context, req *proto.CloseRequest, rsp *proto.CloseResponse) error {
+	ns := namespace.FromContext(ctx)
+	err := namespace.Authorize(ctx, ns)
+	if err != nil {
+		return err
+	}
+
 	fileInfo := h.session.Get(req.Id)
 	if fileInfo == nil {
 		return errors.BadRequest("go.micro.srv.file", "Closing unopened file")
@@ -106,6 +116,12 @@ func (h *handler) Close(ctx context.Context, req *proto.CloseRequest, rsp *proto
 }
 
 func (h *handler) Stat(ctx context.Context, req *proto.StatRequest, rsp *proto.StatResponse) error {
+	ns := namespace.FromContext(ctx)
+	err := namespace.Authorize(ctx, ns)
+	if err != nil {
+		return err
+	}
+
 	path := filepath.Join(h.readDir, req.Filename)
 	fi, err := os.Stat(path)
 	if os.IsNotExist(err) {
@@ -126,6 +142,12 @@ func (h *handler) Stat(ctx context.Context, req *proto.StatRequest, rsp *proto.S
 }
 
 func (h *handler) Read(ctx context.Context, req *proto.ReadRequest, rsp *proto.ReadResponse) error {
+	ns := namespace.FromContext(ctx)
+	err := namespace.Authorize(ctx, ns)
+	if err != nil {
+		return err
+	}
+
 	fileInfo := h.session.Get(req.Id)
 	if fileInfo == nil {
 		return errors.InternalServerError("go.micro.srv.file", "You must call open first.")
@@ -150,6 +172,12 @@ func (h *handler) Read(ctx context.Context, req *proto.ReadRequest, rsp *proto.R
 }
 
 func (h *handler) Write(ctx context.Context, req *proto.WriteRequest, rsp *proto.WriteResponse) error {
+	ns := namespace.FromContext(ctx)
+	err := namespace.Authorize(ctx, ns)
+	if err != nil {
+		return err
+	}
+
 	fileInfo := h.session.Get(req.Id)
 	if fileInfo == nil {
 		return errors.InternalServerError("go.micro.srv.file", "You must call open first.")
