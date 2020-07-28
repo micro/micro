@@ -242,9 +242,16 @@ func (c *command) Before(ctx *cli.Context) error {
 
 	// default the profile for the server
 	prof := ctx.String("profile")
-	a := ctx.Args().First()
-	if len(prof) == 0 && (a == "service" || a == "server") {
-		prof = "local"
+	arg := ctx.Args().First()
+
+	// if no profile is set then set one
+	if len(prof) == 0 {
+		switch arg {
+		case "service", "server":
+			prof = "local"
+		default:
+			prof = "client"
+		}
 	}
 
 	// apply the profile
