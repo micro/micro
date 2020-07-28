@@ -169,7 +169,6 @@ github.com/gogo/protobuf v1.1.1/go.mod h1:r8qH/GZQm5c6nD/R0oafs1akxWv10x8SbQlK7a
 github.com/gogo/protobuf v1.2.0/go.mod h1:r8qH/GZQm5c6nD/R0oafs1akxWv10x8SbQlK7atdtwQ=
 github.com/gogo/protobuf v1.2.1 h1:/s5zKNz0uPFCZ5hddgPdo2TK2TVrUNMn0OOX8/aZMTE=
 github.com/gogo/protobuf v1.2.1/go.mod h1:hp+jE20tsWTFYpLwKvXlhS1hjn+gTNwPg2I6zVXpSg4=
-github.com/gogo/protobuf v1.3.1 h1:DqDEcV5aeaTmdFBePNpYsp3FlcVH/2ISVVM9Qf8PSls=
 github.com/goji/httpauth v0.0.0-20160601135302-2da839ab0f4d/go.mod h1:nnjvkQ9ptGaCkuDUx6wNykzzlUixGxvkme+H/lnzb+A=
 github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b h1:VKtxabqXZkF25pY9ekfRL6a582T4P37/31XEstQ5p58=
 github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b/go.mod h1:SBH7ygxi8pfUlaOkMMuAQtPIUF8ecWP5IEl/CR7VP2Q=
@@ -306,14 +305,8 @@ github.com/matttproud/golang_protobuf_extensions v1.0.1 h1:4hp9jkHxhMHkqkrB3Ix0j
 github.com/matttproud/golang_protobuf_extensions v1.0.1/go.mod h1:D8He9yQNgCq6Z5Ld7szi9bcBfOoFv/3dc6xSMkL2PC0=
 github.com/micro/cli/v2 v2.1.2 h1:43J1lChg/rZCC1rvdqZNFSQDrGT7qfMrtp6/ztpIkEM=
 github.com/micro/cli/v2 v2.1.2/go.mod h1:EguNh6DAoWKm9nmk+k/Rg0H3lQnDxqzu5x5srOtGtYg=
-github.com/micro/go-micro/v3 v3.0.0-20200726113018-34dc21d37191 h1:X4n7O7XhPj6+JhCtwQ5AzXnLbL1Pqut2LX64AIjVw64=
-github.com/micro/go-micro/v3 v3.0.0-20200726113018-34dc21d37191/go.mod h1:NmdVm6JkvzciCS0RW++AkY4VhiuzhY68Qe/WXIdCwk4=
-github.com/micro/go-micro/v3 v3.0.0-alpha h1:Z4/X67Wywu7fYKKPsrnx2fVDY3+WkzuCLr5lInlvIP0=
-github.com/micro/go-micro/v3 v3.0.0-alpha/go.mod h1:NmdVm6JkvzciCS0RW++AkY4VhiuzhY68Qe/WXIdCwk4=
-github.com/micro/go-micro/v3 v3.0.0-alpha.0.20200727163319-c31ce76d407a h1:g3Sa+TRBm2Vf4UOZvPFeN8nQe24h+5/UdNINH7eeSMk=
-github.com/micro/go-micro/v3 v3.0.0-alpha.0.20200727163319-c31ce76d407a/go.mod h1:NmdVm6JkvzciCS0RW++AkY4VhiuzhY68Qe/WXIdCwk4=
-github.com/micro/micro/v3 v2.9.2-0.20200727095830-a9d1f931458a h1:wnqfMkmhLisvMnaXySkpg4L6PBsWor8/r5dsceBtQVM=
-github.com/micro/micro/v3 v2.9.2-0.20200727095830-a9d1f931458a/go.mod h1:QGFBKfRayIsv2ThvFEO+tKMDeRro7aJMjlYKaZeMuOE=
+github.com/micro/go-micro/v3 v3.0.0-alpha.0.20200728080108-cb4a2864da37 h1:vMWbrOE36kON2imFUOJXH+XaOYCGahYpIncWj9IMwxw=
+github.com/micro/go-micro/v3 v3.0.0-alpha.0.20200728080108-cb4a2864da37/go.mod h1:NmdVm6JkvzciCS0RW++AkY4VhiuzhY68Qe/WXIdCwk4=
 github.com/miekg/dns v1.1.15/go.mod h1:W1PPwlIAgtquWBMBEV9nkV9Cazfe8ScdGz/Lj7v3Nrg=
 github.com/miekg/dns v1.1.27 h1:aEH/kqUzUxGJ/UHcEKdJY+ugH6WEzsEBBSPa8zuy1aM=
 github.com/miekg/dns v1.1.27/go.mod h1:KNUDUusw/aVsxyTYZM1oqvCicbwhgbNgztCETuNZ7xM=
