@@ -43,4 +43,4 @@ replace google.golang.org/grpc => google.golang.org/grpc v1.26.0
 
 // replace github.com/micro/go-micro/v2 => /home/crufter/code/src/github.com/micro/go-micro
 
-replace github.com/micro/go-micro/v2 => github.com/micro/go-micro/v2 k8supload
+replace github.com/micro/go-micro/v2 => github.com/micro/go-micro/v2 v2.9.1-0.20200728092920-077c00bb4059

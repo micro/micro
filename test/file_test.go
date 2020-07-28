@@ -26,7 +26,7 @@ func testFileUpload(t *t) {
 
 	login(serv, t, "default", "password")
 
-	outp, err := exec.Command("micro", serv.envFlag(), "upload", "./example-service").CombinedOutput()
+	outp, err := exec.Command("micro", serv.envFlag(), "run", "./example-service").CombinedOutput()
 	if err != nil {
 		t.Fatal(string(outp))
 	}
@@ -36,7 +36,7 @@ func testFileUpload(t *t) {
 		if err != nil {
 			return outp, err
 		}
-		if !strings.Contains(string(outp), "example-service") {
+		if !strings.Contains(string(outp), "files/micro/example-service.tar.gz") {
 			return outp, fmt.Errorf("Output should contain example service")
 		}
 		return outp, nil
