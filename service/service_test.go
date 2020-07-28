@@ -21,7 +21,7 @@ func testShutdown(wg *sync.WaitGroup, cancel func()) {
 }
 
 func testService(ctx context.Context, wg *sync.WaitGroup, name string) *Service {
-	profile.Test()
+	profile.Test.Setup(nil)
 
 	// add self
 	wg.Add(1)

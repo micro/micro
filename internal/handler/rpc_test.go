@@ -41,7 +41,7 @@ func (t *TestHandler) Exec(ctx context.Context, req *TestRequest, rsp *TestRespo
 }
 
 func TestRPCHandler(t *testing.T) {
-	profile.Test()
+	profile.Test.Setup(nil)
 
 	srv := service.New(
 		service.Name("test"),

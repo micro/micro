@@ -6,6 +6,7 @@ package profile
 import (
 	"fmt"
 
+	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro/v3/auth/jwt"
 	"github.com/micro/go-micro/v3/auth/noop"
 	"github.com/micro/go-micro/v3/broker/http"
@@ -39,7 +40,7 @@ import (
 )
 
 // profiles which when called will configure micro to run in that environment
-var profiles = map[string]Profile{
+var profiles = map[string]*Profile{
 	// built in profiles
 	"ci":         CI,
 	"test":       Test,
@@ -51,10 +52,17 @@ var profiles = map[string]Profile{
 }
 
 // Profile configures an environment
-type Profile func() error
+type Profile struct {
+	// name of the profile
+	Name string
+	// function used for setup
+	Setup func(*cli.Context) error
+	// TODO: presetup dependencies
+	// e.g start resources
+}
 
 // Register a profile
-func Register(name string, p Profile) error {
+func Register(name string, p *Profile) error {
 	if _, ok := profiles[name]; ok {
 		return fmt.Errorf("profile %s already exists", name)
 	}
@@ -63,7 +71,7 @@ func Register(name string, p Profile) error {
 }
 
 // Load a profile
-func Load(name string) (Profile, error) {
+func Load(name string) (*Profile, error) {
 	v, ok := profiles[name]
 	if !ok {
 		return nil, fmt.Errorf("profile %s does not exist", name)
@@ -72,75 +80,88 @@ func Load(name string) (Profile, error) {
 }
 
 // CI profile to use for CI tests
-var CI Profile = func() error {
-	microAuth.DefaultAuth = jwt.NewAuth()
-	microBroker.DefaultBroker = http.NewBroker()
-	microRuntime.DefaultRuntime = local.NewRuntime()
-	microStore.DefaultStore = file.NewStore()
-	microConfig.DefaultConfig, _ = config.NewConfig()
-	setRegistry(etcd.NewRegistry())
-	setupJWTRules()
-	return nil
+var CI = &Profile{
+	Name: "ci",
+	Setup: func(ctx *cli.Context) error {
+		microAuth.DefaultAuth = jwt.NewAuth()
+		microBroker.DefaultBroker = http.NewBroker()
+		microRuntime.DefaultRuntime = local.NewRuntime()
+		microStore.DefaultStore = file.NewStore()
+		microConfig.DefaultConfig, _ = config.NewConfig()
+		setRegistry(etcd.NewRegistry())
+		setupJWTRules()
+		return nil
+	},
 }
 
 // Client profile is for any entrypoint that behaves as a client
-var Client Profile = func() error {
-	// Defaults to service implementations
-	return nil
+var Client = &Profile{
+	Name:  "client",
+	Setup: func(ctx *cli.Context) error { return nil },
 }
 
 // Local profile to run locally
-var Local Profile = func() error {
-	microAuth.DefaultAuth = noop.NewAuth()
-	microBroker.DefaultBroker = http.NewBroker()
-	microRuntime.DefaultRuntime = local.NewRuntime()
-	microStore.DefaultStore = file.NewStore()
-	microConfig.DefaultConfig, _ = config.NewConfig()
-	setRegistry(mdns.NewRegistry())
-	setupJWTRules()
-	return nil
+var Local = &Profile{
+	Name: "local",
+	Setup: func(ctx *cli.Context) error {
+		microAuth.DefaultAuth = noop.NewAuth()
+		microBroker.DefaultBroker = http.NewBroker()
+		microRuntime.DefaultRuntime = local.NewRuntime()
+		microStore.DefaultStore = file.NewStore()
+		microConfig.DefaultConfig, _ = config.NewConfig()
+		setRegistry(mdns.NewRegistry())
+		setupJWTRules()
+		return nil
+	},
 }
 
 // Kubernetes profile to run on kubernetes
-var Kubernetes Profile = func() error {
-	// TODO: implement
-	// auth jwt
-	// registry kubernetes
-	// router static
-	// config configmap
-	// store ...
-	microAuth.DefaultAuth = jwt.NewAuth()
-	setupJWTRules()
-	return nil
+var Kubernetes = &Profile{
+	Name: "kubernetes",
+	Setup: func(ctx *cli.Context) error {
+		// TODO: implement
+		// auth jwt
+		// registry kubernetes
+		// router static
+		// config configmap
+		// store ...
+		microAuth.DefaultAuth = jwt.NewAuth()
+		setupJWTRules()
+		return nil
+	},
 }
 
 // Platform is for running the micro platform
-var Platform Profile = func() error {
-	microAuth.DefaultAuth = jwt.NewAuth()
-	microBroker.DefaultBroker = nats.NewBroker()
-	microRuntime.DefaultRuntime = kubernetes.NewRuntime()
-	microStore.DefaultStore = cockroach.NewStore()
-	microConfig.DefaultConfig, _ = config.NewConfig()
-	setRegistry(etcd.NewRegistry())
-	setupJWTRules()
-	return nil
+var Platform = &Profile{
+	Name: "platform",
+	Setup: func(ctx *cli.Context) error {
+		microAuth.DefaultAuth = jwt.NewAuth()
+		microBroker.DefaultBroker = nats.NewBroker()
+		microRuntime.DefaultRuntime = kubernetes.NewRuntime()
+		microStore.DefaultStore = cockroach.NewStore()
+		microConfig.DefaultConfig, _ = config.NewConfig()
+		setRegistry(etcd.NewRegistry())
+		setupJWTRules()
+		return nil
+	},
 }
 
 // Service is the default for any services run
-var Service Profile = func() error {
-	// All values are set by default
-	// Potentially better set here
-	// Add any other initialisation necessary
-	return nil
+var Service = &Profile{
+	Name:  "service",
+	Setup: func(ctx *cli.Context) error { return nil },
 }
 
 // Test profile is used for the go test suite
-var Test Profile = func() error {
-	microAuth.DefaultAuth = noop.NewAuth()
-	microStore.DefaultStore = mem.NewStore()
-	microConfig.DefaultConfig, _ = config.NewConfig()
-	setRegistry(memory.NewRegistry())
-	return nil
+var Test = &Profile{
+	Name: "test",
+	Setup: func(ctx *cli.Context) error {
+		microAuth.DefaultAuth = noop.NewAuth()
+		microStore.DefaultStore = mem.NewStore()
+		microConfig.DefaultConfig, _ = config.NewConfig()
+		setRegistry(memory.NewRegistry())
+		return nil
+	},
 }
 
 func setRegistry(reg registry.Registry) {

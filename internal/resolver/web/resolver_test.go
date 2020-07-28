@@ -14,7 +14,7 @@ import (
 )
 
 func TestWebResolver(t *testing.T) {
-	profile.Test()
+	profile.Test.Setup(nil)
 
 	res := &Resolver{
 		Options: resolver.NewOptions(

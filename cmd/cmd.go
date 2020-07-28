@@ -249,7 +249,7 @@ func (c *command) Before(ctx *cli.Context) error {
 		logger.Fatal(err)
 	} else {
 		// load the profile
-		profile()
+		profile.Setup(ctx)
 	}
 
 	// wrap the client
