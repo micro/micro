@@ -72,8 +72,8 @@ func (h *handler) Open(ctx context.Context, req *proto.OpenRequest, rsp *proto.O
 
 	// Uploads are using truncate on open.
 	// We use truncate as a (probably bad) proxy to know if a file is opened for reading or writing.
-	isWrite := !req.Truncate
-	err = h.storeToDisk(ns, file, isWrite)
+	isWrite := req.Truncate
+	err = h.storeToDisk(ns, file, !isWrite)
 	if err != nil {
 		return err
 	}
