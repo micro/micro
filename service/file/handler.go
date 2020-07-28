@@ -8,6 +8,8 @@
 // files opened with `truncate: true` are considered uploads, others as downloads.
 // For these reasons, make sure to use the `file.Client` `Upload` and `Download` methods
 // which hide these implementation details to interact with these handlers.
+//
+// @todo lock file to protects against multiple writes
 package file
 
 import (
