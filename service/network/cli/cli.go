@@ -15,7 +15,7 @@ import (
 	"github.com/micro/go-micro/v3/client"
 	"github.com/micro/micro/v3/client/cli/util"
 	"github.com/micro/micro/v3/cmd"
-	clic "github.com/micro/micro/v3/internal/command/cli"
+	clic "github.com/micro/micro/v3/internal/command"
 	muclient "github.com/micro/micro/v3/service/client"
 	"github.com/olekukonko/tablewriter"
 )

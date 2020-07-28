@@ -100,30 +100,34 @@ func setupAuthForService() error {
 	return nil
 }
 
-// refreshAuthTokenPeriodically if it is close to expiring
-func refreshAuthTokenPeriodically() {
-	timer := time.NewTicker(time.Second * 15)
+// refreshAuthToken if it is close to expiring
+func refreshAuthToken(stop chan bool) {
+	t := time.NewTicker(time.Second * 15)
+	defer t.Stop()
 
 	for {
-		<-timer.C
+		select {
+		case <-t.C:
+			// don't refresh the token if it's not close to expiring
+			tok := muauth.DefaultAuth.Options().Token
+			if tok.Expiry.Unix() > time.Now().Add(time.Minute).Unix() {
+				continue
+			}
 
-		// don't refresh the token if it's not close to expiring
-		tok := muauth.DefaultAuth.Options().Token
-		if tok.Expiry.Unix() > time.Now().Add(time.Minute).Unix() {
-			continue
+			// generate the first token
+			tok, err := muauth.DefaultAuth.Token(
+				auth.WithToken(tok.RefreshToken),
+				auth.WithExpiry(time.Minute*10),
+			)
+			if err != nil {
+				logger.Warnf("[Auth] Error refreshing token: %v", err)
+				continue
+			}
+
+			// set the token
+			muauth.DefaultAuth.Init(auth.ClientToken(tok))
+		case <-stop:
+			return
 		}
-
-		// generate the first token
-		tok, err := muauth.DefaultAuth.Token(
-			auth.WithToken(tok.RefreshToken),
-			auth.WithExpiry(time.Minute*10),
-		)
-		if err != nil {
-			logger.Warnf("[Auth] Error refreshing token: %v", err)
-			continue
-		}
-
-		// set the token
-		muauth.DefaultAuth.Init(auth.ClientToken(tok))
 	}
 }

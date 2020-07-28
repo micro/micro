@@ -13,7 +13,7 @@ import (
 	"github.com/micro/go-micro/v3/client"
 	cbytes "github.com/micro/go-micro/v3/codec/bytes"
 	cliutil "github.com/micro/micro/v3/client/cli/util"
-	clic "github.com/micro/micro/v3/internal/command/cli"
+	clic "github.com/micro/micro/v3/internal/command"
 	muclient "github.com/micro/micro/v3/service/client"
 )
 

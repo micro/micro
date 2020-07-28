@@ -10,7 +10,6 @@ import (
 
 	"github.com/micro/cli/v2"
 	"github.com/micro/micro/v3/internal/config"
-	"github.com/micro/micro/v3/internal/platform"
 )
 
 const (
@@ -27,6 +26,26 @@ const (
 	platformProxyAddress = "proxy.m3o.com"
 )
 
+var (
+	// list of services managed
+	// TODO: make use server/server list
+	services = []string{
+		// runtime services
+		"config",   // ????
+		"network",  // :8085
+		"runtime",  // :8088
+		"registry", // :8000
+		"broker",   // :8001
+		"store",    // :8002
+		"router",   // :8084
+		"debug",    // :????
+		"proxy",    // :8081
+		"api",      // :8080
+		"auth",     // :8010
+		"web",      // :8082
+	}
+)
+
 var defaultEnvs = map[string]Env{
 	EnvLocal: {
 		Name:         EnvLocal,
@@ -39,7 +58,7 @@ var defaultEnvs = map[string]Env{
 }
 
 func isBuiltinService(command string) bool {
-	for _, service := range platform.Services {
+	for _, service := range services {
 		if command == service {
 			return true
 		}

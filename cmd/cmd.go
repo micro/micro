@@ -10,6 +10,7 @@ import (
 	"os/exec"
 	"sort"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/micro/go-micro/v3/broker"
@@ -48,9 +49,17 @@ import (
 )
 
 type command struct {
-	opts       cmd.Options
-	app        *cli.App
-	runningSrv bool
+	opts cmd.Options
+	app  *cli.App
+
+	// indicates whether this is a service
+	service bool
+
+	sync.Mutex
+	// exit is a channel which is closed
+	// on exit for anything that requires
+	// cleanup
+	exit chan bool
 }
 
 var (
@@ -64,8 +73,9 @@ var (
 	defaultFlags = []cli.Flag{
 		&cli.StringFlag{
 			Name:    "profile",
-			Usage:   "Set the micro profile: e.g. local or platform",
+			Usage:   "Set the micro server profile: e.g. local or kubernetes",
 			EnvVars: []string{"MICRO_PROFILE"},
+			Value:   "local",
 		},
 		&cli.StringFlag{
 			Name:    "namespace",
@@ -148,12 +158,6 @@ var (
 			Usage:   "Proxy requests via the HTTP address specified",
 			EnvVars: []string{"MICRO_PROXY"},
 		},
-		&cli.StringFlag{
-			Name:    "update_url",
-			Usage:   "Set the url to retrieve system updates from",
-			EnvVars: []string{"MICRO_UPDATE_URL"},
-			Value:   "https://micro.mu/update",
-		},
 		&cli.BoolFlag{
 			Name:    "report_usage",
 			Usage:   "Report usage statistics",
@@ -180,6 +184,7 @@ func New(opts ...cmd.Option) cmd.Cmd {
 	}
 
 	cmd := new(command)
+	cmd.exit = make(chan bool)
 	cmd.opts = options
 	cmd.app = cli.NewApp()
 	cmd.app.Name = name
@@ -188,12 +193,13 @@ func New(opts ...cmd.Option) cmd.Cmd {
 	cmd.app.Flags = defaultFlags
 	cmd.app.Action = action
 	cmd.app.Before = cmd.Before
+	cmd.app.After = cmd.After
 
 	// if this option has been set, we're running a service
 	// and no action needs to be performed. The CMD package
 	// is just being used to parse flags and configure micro.
 	if setupOnlyFromContext(options.Context) {
-		cmd.runningSrv = true
+		cmd.service = true
 		cmd.app.Action = func(ctx *cli.Context) error { return nil }
 	}
 
@@ -208,6 +214,22 @@ func (c *command) Options() cmd.Options {
 	return c.opts
 }
 
+// After is executed after any subcommand
+func (c *command) After(ctx *cli.Context) error {
+	c.Lock()
+	defer c.Unlock()
+
+	select {
+	case <-c.exit:
+		return nil
+	default:
+		close(c.exit)
+	}
+
+	return nil
+}
+
+// Before is executed before any subcommand
 func (c *command) Before(ctx *cli.Context) error {
 	// set the proxy address. TODO: Refactor to be a client option.
 	util.SetProxyAddress(ctx)
@@ -221,16 +243,13 @@ func (c *command) Before(ctx *cli.Context) error {
 
 	// default the profile for the server
 	prof := ctx.String("profile")
-	a := ctx.Args().First()
-	if len(prof) == 0 && (a == "service" || a == "server") {
-		prof = "local"
-	}
 
 	// apply the profile
-	if profile, ok := profile.Profiles[prof]; ok {
+	if profile, err := profile.Load(prof); err != nil {
+		logger.Fatal(err)
+	} else {
+		// load the profile
 		profile()
-	} else if len(prof) > 0 {
-		logger.Fatalf("Unknown profile: %v", prof)
 	}
 
 	// wrap the client
@@ -351,7 +370,7 @@ func (c *command) Before(ctx *cli.Context) error {
 	// setup auth credentials, use local credentials for the CLI and injected creds
 	// for the service.
 	var err error
-	if c.runningSrv {
+	if c.service {
 		err = setupAuthForService()
 	} else {
 		err = setupAuthForCLI(ctx)
@@ -359,12 +378,14 @@ func (c *command) Before(ctx *cli.Context) error {
 	if err != nil {
 		logger.Fatal("Error setting up auth: %v", err)
 	}
-	go refreshAuthTokenPeriodically()
+
+	// refresh token periodically
+	go refreshAuthToken(c.exit)
 
 	// Setup config. Do this after auth is configured since it'll load the config
 	// from the service immediately. We only do this if the action is nil, indicating
 	// a service is being run
-	if c.runningSrv && muconfig.DefaultConfig == nil {
+	if c.service && muconfig.DefaultConfig == nil {
 		conf, err := config.NewConfig(config.WithSource(configCli.NewSource()))
 		if err != nil {
 			logger.Fatalf("Error configuring config: %v", err)

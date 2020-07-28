@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/micro/cli/v2"
@@ -68,10 +69,6 @@ func init() {
 				Usage:   "Set the micro server address :10001",
 				EnvVars: []string{"MICRO_SERVER_ADDRESS"},
 			},
-			&cli.BoolFlag{
-				Name:  "peer",
-				Usage: "Peer with the global network to share services",
-			},
 		},
 		Action: func(ctx *cli.Context) error {
 			Run(ctx)
@@ -109,30 +106,8 @@ func Run(context *cli.Context) error {
 		os.Exit(1)
 	}
 
-	// get the network flag
-	peer := context.Bool("peer")
-
-	// pass the env to the services, we unset the profile
-	// env var so it doesn't get passed to the clients
-	// e.g. api, web, proxy
-	os.Unsetenv("MICRO_PROFILE")
-	env := os.Environ()
-
-	// connect to the network if specified
-	if peer {
-		log.Info("Setting global network")
-
-		if v := os.Getenv("MICRO_NETWORK_NODES"); len(v) == 0 {
-			// set the resolver to use https://micro.mu/network
-			env = append(env, "MICRO_NETWORK_NODES=network.micro.mu")
-			log.Info("Setting default network micro.mu")
-		}
-		if v := os.Getenv("MICRO_NETWORK_TOKEN"); len(v) == 0 {
-			// set the network token
-			env = append(env, "MICRO_NETWORK_TOKEN=micro.mu")
-			log.Info("Setting default network token")
-		}
-	}
+	// TODO: reimplement peering of servers e.g --peer=node1,node2,node3
+	// peers are configured as network nodes to cluster between
 
 	log.Info("Loading core services")
 
@@ -148,17 +123,37 @@ func Run(context *cli.Context) error {
 
 		log.Infof("Registering %s", name)
 		// @todo this is a hack
-		envs := env
+		env := []string{}
 		cmdArgs := []string{}
 
 		switch service {
 		case "proxy", "web", "api", "bot", "cli":
-			// don't set any profile
+			// pull the values we care about from environment
+			for _, val := range os.Environ() {
+				// only process MICRO_ values
+				if !strings.HasPrefix(val, "MICRO_") {
+					continue
+				}
+				// override any profile value because clients
+				// talk to services, these may be started
+				// differently in future as a `micro client`
+				if strings.HasPrefix(val, "MICRO_PROFILE=") {
+					val = "MICRO_PROFILE=client"
+				}
+				env = append(env, val)
+			}
 		default:
 			// run server as "micro service [cmd]"
 			cmdArgs = append(cmdArgs, "service")
-			// pass the profile for the server
-			envs = append(envs, "MICRO_PROFILE="+context.String("profile"))
+
+			// pull the values we care about from environment
+			for _, val := range os.Environ() {
+				// only process MICRO_ values
+				if !strings.HasPrefix(val, "MICRO_") {
+					continue
+				}
+				env = append(env, val)
+			}
 		}
 
 		// we want to pass through the global args so go up one level in the context lineage
@@ -174,7 +169,7 @@ func Run(context *cli.Context) error {
 		args := []gorun.CreateOption{
 			gorun.WithCommand(os.Args[0]),
 			gorun.WithArgs(cmdArgs...),
-			gorun.WithEnv(envs),
+			gorun.WithEnv(env),
 			gorun.WithOutput(os.Stdout),
 			gorun.WithRetries(10),
 			gorun.CreateImage("micro/micro"),

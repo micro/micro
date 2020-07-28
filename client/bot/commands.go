@@ -6,7 +6,7 @@ import (
 
 	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro/v3/agent/command"
-	clic "github.com/micro/micro/v3/internal/command/cli"
+	clic "github.com/micro/micro/v3/internal/command"
 )
 
 // Echo returns the same message
