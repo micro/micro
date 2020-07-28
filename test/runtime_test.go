@@ -6,9 +6,7 @@ import (
 	"encoding/json"
 	"errors"
 	"io/ioutil"
-	"os"
 	"os/exec"
-	"path/filepath"
 	"regexp"
 	"strings"
 	"testing"
@@ -178,80 +176,6 @@ func testRunAndKill(t *t) {
 		}
 		return outp, err
 	}, 20*time.Second); err != nil {
-		return
-	}
-}
-
-func TestLocalOutsideRepo(t *testing.T) {
-	trySuite(t, testLocalOutsideRepo, retryCount)
-}
-
-func testLocalOutsideRepo(t *t) {
-	t.Parallel()
-	serv := newServer(t, withLogin())
-	defer serv.close()
-	if err := serv.launch(); err != nil {
-		return
-	}
-
-	dirname := "last-dir-of-path"
-	folderPath := filepath.Join(os.TempDir(), dirname)
-
-	err := os.MkdirAll(folderPath, 0777)
-	if err != nil {
-		t.Fatal(err)
-		return
-	}
-
-	// since copying a whole folder is rather involved and only Linux sources
-	// are available, see https://stackoverflow.com/questions/51779243/copy-a-folder-in-go
-	// we fall back to `cp`
-	outp, err := exec.Command("cp", "-r", "example-service/.", folderPath).CombinedOutput()
-	if err != nil {
-		t.Fatal(string(outp))
-		return
-	}
-
-	runCmd := exec.Command("micro", serv.envFlag(), "run", ".")
-	runCmd.Dir = folderPath
-	outp, err = runCmd.CombinedOutput()
-	if err != nil {
-		t.Fatalf("micro run failure, output: %v", string(outp))
-		return
-	}
-
-	if err := try("Find "+dirname, t, func() ([]byte, error) {
-		psCmd := exec.Command("micro", serv.envFlag(), "status")
-		outp, err = psCmd.CombinedOutput()
-		if err != nil {
-			return outp, err
-		}
-
-		lines := strings.Split(string(outp), "\n")
-		found := false
-		for _, line := range lines {
-			if strings.HasPrefix(line, dirname) {
-				found = true
-			}
-		}
-		if !found {
-			return outp, errors.New("Can't find '" + dirname + "' in runtime")
-		}
-		return outp, err
-	}, 12*time.Second); err != nil {
-		return
-	}
-
-	if err := try("Find go.micro.service.example in list", t, func() ([]byte, error) {
-		outp, err := exec.Command("micro", serv.envFlag(), "services").CombinedOutput()
-		if err != nil {
-			return outp, err
-		}
-		if !strings.Contains(string(outp), "go.micro.service.example") {
-			return outp, errors.New("Can't find example service in list")
-		}
-		return outp, err
-	}, 75*time.Second); err != nil {
 		return
 	}
 }
