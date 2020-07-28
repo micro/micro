@@ -48,8 +48,9 @@ import (
 )
 
 type command struct {
-	opts cmd.Options
-	app  *cli.App
+	opts       cmd.Options
+	app        *cli.App
+	runningSrv bool
 }
 
 var (
@@ -192,6 +193,7 @@ func New(opts ...cmd.Option) cmd.Cmd {
 	// and no action needs to be performed. The CMD package
 	// is just being used to parse flags and configure micro.
 	if setupOnlyFromContext(options.Context) {
+		cmd.runningSrv = true
 		cmd.app.Action = func(ctx *cli.Context) error { return nil }
 	}
 
@@ -346,22 +348,31 @@ func (c *command) Before(ctx *cli.Context) error {
 	muclient.DefaultClient.Init(client.Registry(muregistry.DefaultRegistry))
 	muserver.DefaultServer.Init(server.Registry(muregistry.DefaultRegistry))
 
-	// set the credentials from the CLI. If a service is run, it'll override
-	// these when it's started.
-	if err := util.SetAuthToken(ctx); err != nil {
-		return err
+	// setup auth credentials, use local credentials for the CLI and injected creds
+	// for the service.
+	var err error
+	if c.runningSrv {
+		err = setupAuthForService()
+	} else {
+		err = setupAuthForCLI(ctx)
 	}
+	if err != nil {
+		logger.Fatal("Error setting up auth: %v", err)
+	}
+	go refreshAuthTokenPeriodically()
 
 	// Setup config. Do this after auth is configured since it'll load the config
-	// from the service immediately.
-	conf, err := config.NewConfig(config.WithSource(configCli.NewSource()))
-	if err != nil {
-		logger.Fatalf("Error configuring config: %v", err)
+	// from the service immediately. We only do this if the action is nil, indicating
+	// a service is being run
+	if c.runningSrv && muconfig.DefaultConfig == nil {
+		conf, err := config.NewConfig(config.WithSource(configCli.NewSource()))
+		if err != nil {
+			logger.Fatalf("Error configuring config: %v", err)
+		}
+		muconfig.DefaultConfig = conf
+	} else if muconfig.DefaultConfig == nil {
+		muconfig.DefaultConfig, _ = config.NewConfig()
 	}
-	if err := conf.Sync(); err != nil {
-		logger.Fatalf("Error syncing config: %v", err)
-	}
-	muconfig.DefaultConfig = conf
 
 	return nil
 }

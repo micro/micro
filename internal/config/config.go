@@ -9,7 +9,7 @@ import (
 
 	conf "github.com/micro/go-micro/v3/config"
 	"github.com/micro/go-micro/v3/config/source/file"
-	"github.com/micro/go-micro/v3/util/log"
+	"github.com/micro/go-micro/v3/logger"
 )
 
 // FileName for global micro config
@@ -18,12 +18,19 @@ const FileName = ".micro"
 // config is a singleton which is required to ensure
 // each function call doesn't load the .micro file
 // from disk
-var config = newConfig()
+var config conf.Config
+
+func init() {
+	c, err := newConfig()
+	if err != nil {
+		logger.Fatal("Error setting up local config: %v", err)
+	}
+	config = c
+}
 
 // Get a value from the .micro file
 func Get(path ...string) (string, error) {
-	c := newConfig()
-	val := c.Get(path...)
+	val := config.Get(path...)
 	v := strings.TrimSpace(val.String(""))
 	if len(v) > 0 {
 		return v, nil
@@ -50,11 +57,10 @@ func Set(value string, path ...string) error {
 	}
 
 	// set the value
-	c := newConfig()
-	c.Set(value, path...)
+	config.Set(value, path...)
 
 	// write to the file
-	return ioutil.WriteFile(fp, c.Bytes(), 0644)
+	return ioutil.WriteFile(fp, config.Bytes(), 0644)
 }
 
 func filePath() (string, error) {
@@ -66,20 +72,18 @@ func filePath() (string, error) {
 }
 
 // newConfig returns a loaded config
-func newConfig() conf.Config {
+func newConfig() (conf.Config, error) {
 	// get the filepath
 	fp, err := filePath()
 	if err != nil {
-		log.Error(err)
-		return conf.DefaultConfig
+		return nil, err
 	}
 
 	// write the file if it does not exist
 	if _, err := os.Stat(fp); os.IsNotExist(err) {
 		ioutil.WriteFile(fp, []byte{}, 0644)
 	} else if err != nil {
-		log.Error(err)
-		return conf.DefaultConfig
+		return nil, err
 	}
 
 	// create a new config
@@ -91,16 +95,14 @@ func newConfig() conf.Config {
 		),
 	)
 	if err != nil {
-		log.Error(err)
-		return conf.DefaultConfig
+		return nil, err
 	}
 
 	// load the config
 	if err := c.Load(); err != nil {
-		log.Error(err)
-		return conf.DefaultConfig
+		return nil, err
 	}
 
 	// return the conf
-	return c
+	return c, nil
 }

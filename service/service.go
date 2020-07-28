@@ -121,11 +121,6 @@ func (s *Service) Run() error {
 		),
 	)
 
-	// setup service auth credentials
-	if err := setupAuth(); err != nil {
-		return err
-	}
-
 	// start the profiler
 	if mudebug.DefaultProfiler != nil {
 		// to view mutex contention

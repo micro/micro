@@ -9,6 +9,7 @@ import (
 	"github.com/micro/go-micro/v3/broker/http"
 	"github.com/micro/go-micro/v3/broker/nats"
 	"github.com/micro/go-micro/v3/client"
+	"github.com/micro/go-micro/v3/config"
 	"github.com/micro/go-micro/v3/logger"
 	"github.com/micro/go-micro/v3/registry"
 	"github.com/micro/go-micro/v3/registry/etcd"
@@ -27,6 +28,7 @@ import (
 	muauth "github.com/micro/micro/v3/service/auth"
 	mubroker "github.com/micro/micro/v3/service/broker"
 	muclient "github.com/micro/micro/v3/service/client"
+	muconfig "github.com/micro/micro/v3/service/config"
 	muregistry "github.com/micro/micro/v3/service/registry"
 	murouter "github.com/micro/micro/v3/service/router"
 	muruntime "github.com/micro/micro/v3/service/runtime"
@@ -49,6 +51,7 @@ type Profile func()
 var Test Profile = func() {
 	muauth.DefaultAuth = noop.NewAuth()
 	mustore.DefaultStore = mem.NewStore()
+	muconfig.DefaultConfig, _ = config.NewConfig()
 	setRegistry(memory.NewRegistry())
 }
 
@@ -58,6 +61,7 @@ var CI Profile = func() {
 	mubroker.DefaultBroker = http.NewBroker()
 	muruntime.DefaultRuntime = local.NewRuntime()
 	mustore.DefaultStore = file.NewStore()
+	muconfig.DefaultConfig, _ = config.NewConfig()
 	setRegistry(etcd.NewRegistry())
 	setupJWTRules()
 }
@@ -68,6 +72,7 @@ var Local Profile = func() {
 	mubroker.DefaultBroker = http.NewBroker()
 	muruntime.DefaultRuntime = local.NewRuntime()
 	mustore.DefaultStore = file.NewStore()
+	muconfig.DefaultConfig, _ = config.NewConfig()
 	setRegistry(mdns.NewRegistry())
 	setupJWTRules()
 }
@@ -79,6 +84,7 @@ var Platform Profile = func() {
 	mubroker.DefaultBroker = nats.NewBroker()
 	muruntime.DefaultRuntime = kubernetes.NewRuntime()
 	mustore.DefaultStore = cockroach.NewStore()
+	muconfig.DefaultConfig, _ = config.NewConfig()
 	setRegistry(etcd.NewRegistry())
 	setupJWTRules()
 }

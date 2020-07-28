@@ -20,6 +20,6 @@ func main() {
 	c := config.DefaultConfig
 	for {
 		fmt.Println("Value of key.subkey: ", c.Get("key", "subkey").String(""))
-		time.Sleep(time.Millisecond * 250)
+		time.Sleep(time.Second)
 	}
 }
