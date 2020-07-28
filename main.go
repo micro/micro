@@ -1,6 +1,6 @@
 package main
 
-//go:generate ./.github/generate.sh
+//go:generate ./scripts/generate.sh
 
 import (
 	"fmt"
