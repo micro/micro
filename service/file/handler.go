@@ -91,6 +91,9 @@ func (h *handler) Open(ctx context.Context, req *proto.OpenRequest, rsp *proto.O
 
 func (h *handler) Close(ctx context.Context, req *proto.CloseRequest, rsp *proto.CloseResponse) error {
 	fileInfo := h.session.Get(req.Id)
+	if fileInfo == nil {
+		return errors.BadRequest("go.micro.srv.file", "Closing unopened file")
+	}
 	if fileInfo.openedForWriting {
 		err := h.diskToStore(fileInfo.namespace, fileInfo.file)
 		if err != nil {
