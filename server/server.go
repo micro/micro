@@ -17,6 +17,7 @@ import (
 	"github.com/micro/micro/v2/cmd"
 	"github.com/micro/micro/v2/internal/update"
 	"github.com/micro/micro/v2/service"
+	fileserv "github.com/micro/micro/v2/service/file"
 )
 
 var (
@@ -231,7 +232,7 @@ func Run(context *cli.Context) error {
 	// @todo make this configurable
 	uploadDir := filepath.Join(os.TempDir(), "micro", "uploads")
 	os.MkdirAll(uploadDir, 0777)
-	file.RegisterHandler(server.Server(), uploadDir, server.Options().Store)
+	fileserv.RegisterHandler(server.Server(), uploadDir, server.Options().Store)
 	// start the server
 	server.Run()
 

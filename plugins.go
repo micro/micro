@@ -71,7 +71,7 @@ func init() {
 	// default server
 	server.DefaultServer = gsrv.NewServer()
 	// default store
-	store.DefaultStore = memStore.NewStore()
+	store.DefaultStore = fileStore.NewStore()
 	// set default trace
 	trace.DefaultTracer = memTracer.NewTracer()
 
