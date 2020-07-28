@@ -188,10 +188,11 @@ func New(opts ...cmd.Option) cmd.Cmd {
 	cmd.app.Action = action
 	cmd.app.Before = cmd.Before
 
-	// run a custom action, this allows us to run a service
-	// after parsing the cli flags and setting up micro
-	if action := actionFromContext(options.Context); action != nil {
-		cmd.app.Action = action
+	// if this option has been set, we're running a service
+	// and no action needs to be performed. The CMD package
+	// is just being used to parse flags and configure micro.
+	if setupOnlyFromContext(options.Context) {
+		cmd.app.Action = func(ctx *cli.Context) error { return nil }
 	}
 
 	return cmd
@@ -226,7 +227,6 @@ func (c *command) Before(ctx *cli.Context) error {
 	// apply the profile
 	if profile, ok := profile.Profiles[prof]; ok {
 		profile()
-		logger.Infof("Configuring micro with the %v profile", prof)
 	} else if len(prof) > 0 {
 		logger.Fatalf("Unknown profile: %v", prof)
 	}
@@ -406,7 +406,8 @@ func action(c *cli.Context) error {
 		// execute the Config.Set RPC, setting the flags in the
 		// request.
 		if srv, err := lookupService(c); err != nil {
-			fmt.Printf("Error querying registry for service: %v", err)
+			cmdStr := strings.Join(c.Args().Slice(), " ")
+			fmt.Printf("Error querying registry for service %v: %v", cmdStr, err)
 			os.Exit(1)
 		} else if srv != nil && c.Args().Len() == 1 {
 			fmt.Println(formatServiceUsage(srv, c.Args().First()))

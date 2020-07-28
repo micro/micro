@@ -31,6 +31,8 @@ import (
 	"github.com/micro/go-micro/v3/auth"
 	log "github.com/micro/go-micro/v3/logger"
 	"github.com/micro/go-micro/v3/registry"
+	"github.com/micro/go-micro/v3/router"
+	regRouter "github.com/micro/go-micro/v3/router/registry"
 	"github.com/micro/go-micro/v3/sync/memory"
 	apiAuth "github.com/micro/micro/v2/client/api/auth"
 	"github.com/micro/micro/v2/cmd"
@@ -42,7 +44,6 @@ import (
 	"github.com/micro/micro/v2/service"
 	muauth "github.com/micro/micro/v2/service/auth"
 	muregistry "github.com/micro/micro/v2/service/registry"
-	"github.com/micro/micro/v2/service/router"
 	"github.com/serenize/snaker"
 )
 
@@ -441,7 +442,9 @@ func Run(ctx *cli.Context) error {
 	// Setup the web resolver
 	var resolver res.Resolver
 	resolver = &web.Resolver{
-		Router: router.DefaultRouter,
+		Router: regRouter.NewRouter(
+			router.Registry(muregistry.DefaultRegistry),
+		),
 		Options: res.NewOptions(res.WithServicePrefix(
 			Namespace + "." + Type,
 		)),

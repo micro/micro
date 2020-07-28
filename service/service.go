@@ -28,8 +28,8 @@ type Service struct {
 // New returns a new Micro Service
 func New(opts ...Option) *Service {
 	// setup micro, this triggers the Before
-	// function which parses CLI flags
-	cmd.New(cmd.Action(nil)).Run()
+	// function which parses CLI flags.
+	cmd.New(cmd.SetupOnly()).Run()
 
 	// return a new service
 	return &Service{opts: newOptions(opts...)}

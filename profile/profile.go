@@ -15,6 +15,7 @@ import (
 	"github.com/micro/go-micro/v3/registry/mdns"
 	"github.com/micro/go-micro/v3/registry/memory"
 	"github.com/micro/go-micro/v3/router"
+	regRouter "github.com/micro/go-micro/v3/router/registry"
 	"github.com/micro/go-micro/v3/runtime/kubernetes"
 	"github.com/micro/go-micro/v3/runtime/local"
 	"github.com/micro/go-micro/v3/server"
@@ -84,6 +85,7 @@ var Platform Profile = func() {
 
 func setRegistry(reg registry.Registry) {
 	muregistry.DefaultRegistry = reg
+	murouter.DefaultRouter = regRouter.NewRouter()
 	murouter.DefaultRouter.Init(router.Registry(reg))
 	muserver.DefaultServer.Init(server.Registry(reg))
 	muclient.DefaultClient.Init(client.Registry(reg))

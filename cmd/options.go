@@ -3,27 +3,26 @@ package cmd
 import (
 	"context"
 
-	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro/v3/cmd"
 )
 
-type serviceKey struct{}
+type setupOnlyKey struct{}
 
-// Action for cmd to execute
-func Action(a cli.ActionFunc) cmd.Option {
+// SetupOnly for cmd to execute
+func SetupOnly() cmd.Option {
 	return func(o *cmd.Options) {
 		if o.Context == nil {
 			o.Context = context.Background()
 		}
-		o.Context = context.WithValue(o.Context, serviceKey{}, a)
+		o.Context = context.WithValue(o.Context, setupOnlyKey{}, true)
 	}
 }
 
-func actionFromContext(ctx context.Context) cli.ActionFunc {
+func setupOnlyFromContext(ctx context.Context) bool {
 	if ctx == nil {
-		return nil
+		return false
 	}
 
-	a, _ := ctx.Value(serviceKey{}).(cli.ActionFunc)
+	a, _ := ctx.Value(setupOnlyKey{}).(bool)
 	return a
 }

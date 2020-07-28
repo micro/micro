@@ -17,6 +17,8 @@ import (
 	"github.com/micro/go-micro/v3/proxy/http"
 	"github.com/micro/go-micro/v3/proxy/mucp"
 	rmem "github.com/micro/go-micro/v3/registry/memory"
+	"github.com/micro/go-micro/v3/router"
+	"github.com/micro/go-micro/v3/router/registry"
 	"github.com/micro/go-micro/v3/server"
 	grpcSrv "github.com/micro/go-micro/v3/server/grpc"
 	sgrpc "github.com/micro/go-micro/v3/server/grpc"
@@ -26,7 +28,7 @@ import (
 	"github.com/micro/micro/v2/cmd"
 	"github.com/micro/micro/v2/internal/helper"
 	"github.com/micro/micro/v2/service"
-	murouter "github.com/micro/micro/v2/service/router"
+	muregistry "github.com/micro/micro/v2/service/registry"
 	"github.com/micro/micro/v2/service/store"
 )
 
@@ -73,7 +75,9 @@ func Run(ctx *cli.Context) error {
 
 	// set the context
 	popts := []proxy.Option{
-		proxy.WithRouter(murouter.DefaultRouter),
+		proxy.WithRouter(registry.NewRouter(
+			router.Registry(muregistry.DefaultRegistry),
+		)),
 	}
 
 	// new proxy
