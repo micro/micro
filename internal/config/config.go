@@ -9,7 +9,6 @@ import (
 
 	conf "github.com/micro/go-micro/v3/config"
 	"github.com/micro/go-micro/v3/config/source/file"
-	"github.com/micro/go-micro/v3/logger"
 )
 
 // FileName for global micro config
@@ -18,18 +17,14 @@ const FileName = ".micro"
 // config is a singleton which is required to ensure
 // each function call doesn't load the .micro file
 // from disk
-var config conf.Config
-
-func init() {
-	c, err := newConfig()
-	if err != nil {
-		logger.Fatal("Error setting up local config: %v", err)
-	}
-	config = c
-}
 
 // Get a value from the .micro file
 func Get(path ...string) (string, error) {
+	config, err := newConfig()
+	if err != nil {
+		return "", err
+	}
+
 	val := config.Get(path...)
 	v := strings.TrimSpace(val.String(""))
 	if len(v) > 0 {
@@ -52,6 +47,11 @@ func Get(path ...string) (string, error) {
 func Set(value string, path ...string) error {
 	// get the filepath
 	fp, err := filePath()
+	if err != nil {
+		return err
+	}
+
+	config, err := newConfig()
 	if err != nil {
 		return err
 	}
