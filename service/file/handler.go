@@ -58,7 +58,7 @@ func (h *handler) Open(ctx context.Context, req *proto.OpenRequest, rsp *proto.O
 	ns := namespace.FromContext(ctx)
 
 	// Create directory, ignore failure
-	os.Mkdir(filepath.Join(h.readDir, ns), 0666)
+	os.Mkdir(filepath.Join(h.readDir, ns), 0777)
 
 	path := filepath.Join(h.readDir, ns, req.Filename)
 	flags := os.O_CREATE | os.O_RDWR
