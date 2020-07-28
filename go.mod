@@ -27,7 +27,6 @@ require (
 	github.com/serenize/snaker v0.0.0-20171204205717-a683aaf2d516
 	github.com/stretchr/testify v1.5.1
 	github.com/stripe/stripe-go/v71 v71.28.0
-	github.com/technoweenie/multipartstreamer v1.0.1 // indirect
 	github.com/xlab/treeprint v0.0.0-20181112141820-a009c3971eca
 	golang.org/x/crypto v0.0.0-20200709230013-948cd5f35899
 	golang.org/x/net v0.0.0-20200520182314-0ba52f642ac2
@@ -41,6 +40,6 @@ require (
 
 replace google.golang.org/grpc => google.golang.org/grpc v1.26.0
 
-//replace github.com/micro/go-micro/v2 => /home/crufter/code/src/github.com/micro/go-micro
+// replace github.com/micro/go-micro/v2 => /home/crufter/code/src/github.com/micro/go-micro
 
 replace github.com/micro/go-micro/v2 => github.com/micro/go-micro/v2 k8supload
