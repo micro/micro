@@ -1,10 +1,10 @@
 # Micro [![License](https://img.shields.io/:license-apache-blue.svg)](https://opensource.org/licenses/Apache-2.0) [![GoDoc](https://godoc.org/github.com/micro/micro?status.svg)](https://godoc.org/github.com/micro/micro) [![Travis CI](https://travis-ci.org/micro/micro.svg?branch=master)](https://travis-ci.org/micro/micro) [![Go Report Card](https://goreportcard.com/badge/micro/micro)](https://goreportcard.com/report/github.com/micro/micro)
 
-Micro is a framework for distributed systems development in the Cloud and beyond.
+Micro is a framework for cloud native development.
 
 ## Overview
 
-Micro addresses the key requirements for building distributed systems. It leverages the microservices
+Micro addresses the key requirements for building cloud native services. It leverages the microservices
 architecture pattern and provides a set of services which act as the building blocks of a platform. Micro deals
 with the complexity of distributed systems and provides simpler programmable abstractions to build on.
 
