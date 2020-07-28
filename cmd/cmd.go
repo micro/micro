@@ -354,11 +354,12 @@ func (c *command) Before(ctx *cli.Context) error {
 
 	// Setup config. Do this after auth is configured since it'll load the config
 	// from the service immediately.
-	conf, err := config.NewConfig(
-		config.WithSource(configCli.NewSource()),
-	)
+	conf, err := config.NewConfig(config.WithSource(configCli.NewSource()))
 	if err != nil {
 		logger.Fatalf("Error configuring config: %v", err)
+	}
+	if err := conf.Sync(); err != nil {
+		logger.Fatalf("Error syncing config: %v", err)
 	}
 	muconfig.DefaultConfig = conf
 
