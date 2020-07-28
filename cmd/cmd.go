@@ -75,7 +75,6 @@ var (
 			Name:    "profile",
 			Usage:   "Set the micro server profile: e.g. local or kubernetes",
 			EnvVars: []string{"MICRO_PROFILE"},
-			Value:   "local",
 		},
 		&cli.StringFlag{
 			Name:    "namespace",
@@ -243,6 +242,10 @@ func (c *command) Before(ctx *cli.Context) error {
 
 	// default the profile for the server
 	prof := ctx.String("profile")
+	a := ctx.Args().First()
+	if len(prof) == 0 && (a == "service" || a == "server") {
+		prof = "local"
+	}
 
 	// apply the profile
 	if profile, err := profile.Load(prof); err != nil {
