@@ -340,6 +340,8 @@ func testRunLocalUpdateAndCall(t *t) {
 		return
 	}
 
+	login(serv, t, serv.envName(), "password")
+
 	// Run the example service
 	runCmd := exec.Command("micro", serv.envFlag(), "run", "./example-service")
 	outp, err := runCmd.CombinedOutput()
