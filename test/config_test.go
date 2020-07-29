@@ -171,8 +171,8 @@ func testConfigReadFromService(t *t) {
 		return
 	}
 
-	if err := try("Try logs read", t, func() ([]byte, error) {
-		setCmd := exec.Command("micro", serv.envFlag(), "logs", "config")
+	if err := Try("Try logs read", t, func() ([]byte, error) {
+		setCmd := exec.Command("micro", serv.EnvFlag(), "logs", "config")
 		outp, err := setCmd.CombinedOutput()
 		if err != nil {
 			return outp, err

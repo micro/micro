@@ -358,8 +358,8 @@ func testExistingLogs(t *t) {
 		return
 	}
 
-	if err := try("logger logs", t, func() ([]byte, error) {
-		psCmd := exec.Command("micro", serv.envFlag(), "logs", "logger")
+	if err := Try("logger logs", t, func() ([]byte, error) {
+		psCmd := exec.Command("micro", serv.EnvFlag(), "logs", "logger")
 		outp, err = psCmd.CombinedOutput()
 		if err != nil {
 			return outp, err
@@ -393,8 +393,8 @@ func testBranchCheckout(t *t) {
 		return
 	}
 
-	if err := try("logger logs", t, func() ([]byte, error) {
-		psCmd := exec.Command("micro", serv.envFlag(), "logs", "logger")
+	if err := Try("logger logs", t, func() ([]byte, error) {
+		psCmd := exec.Command("micro", serv.EnvFlag(), "logs", "logger")
 		outp, err = psCmd.CombinedOutput()
 		if err != nil {
 			return outp, err
@@ -429,8 +429,8 @@ func testStreamLogsAndThirdPartyRepo(t *t) {
 		return
 	}
 
-	if err := try("logger logs", t, func() ([]byte, error) {
-		psCmd := exec.Command("micro", serv.envFlag(), "logs", "logger")
+	if err := Try("logger logs", t, func() ([]byte, error) {
+		psCmd := exec.Command("micro", serv.EnvFlag(), "logs", "logger")
 		outp, err = psCmd.CombinedOutput()
 		if err != nil {
 			return outp, err
@@ -445,7 +445,7 @@ func testStreamLogsAndThirdPartyRepo(t *t) {
 	}
 
 	// Test streaming logs
-	cmd := exec.Command("micro", serv.envFlag(), "logs", "-n", "1", "-f", "logger")
+	cmd := exec.Command("micro", serv.EnvFlag(), "logs", "-n", "1", "-f", "logger")
 
 	time.Sleep(7 * time.Second)
 
