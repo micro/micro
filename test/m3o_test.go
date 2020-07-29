@@ -18,15 +18,15 @@ import (
 )
 
 func TestM3oSignupFlow(t *testing.T) {
-	trySuite(t, testM3oSignupFlow, retryCount)
+	TrySuite(t, testM3oSignupFlow, retryCount)
 }
 
 func testM3oSignupFlow(t *t) {
 	t.Parallel()
 
-	serv := newServer(t)
-	defer serv.close()
-	if err := serv.launch(); err != nil {
+	serv := NewServer(t)
+	defer serv.Close()
+	if err := serv.Run(); err != nil {
 		return
 	}
 
@@ -44,32 +44,32 @@ func testM3oSignupFlow(t *t) {
 		if len(val) == 0 {
 			t.Fatalf("'%v' flag is missing", envKey)
 		}
-		outp, err := exec.Command("micro", serv.envFlag(), "config", "set", configKey, val).CombinedOutput()
+		outp, err := exec.Command("micro", serv.EnvFlag(), "config", "set", configKey, val).CombinedOutput()
 		if err != nil {
 			t.Fatal(string(outp))
 		}
 	}
 
-	outp, err := exec.Command("micro", serv.envFlag(), "run", getSrcString("M3O_INVITE_SVC", "github.com/m3o/services/account/invite")).CombinedOutput()
+	outp, err := exec.Command("micro", serv.EnvFlag(), "run", getSrcString("M3O_INVITE_SVC", "github.com/m3o/services/account/invite")).CombinedOutput()
 	if err != nil {
 		t.Fatal(string(outp))
 		return
 	}
 
-	outp, err = exec.Command("micro", serv.envFlag(), "run", getSrcString("M3O_SIGNUP_SVC", "github.com/m3o/services/signup")).CombinedOutput()
+	outp, err = exec.Command("micro", serv.EnvFlag(), "run", getSrcString("M3O_SIGNUP_SVC", "github.com/m3o/services/signup")).CombinedOutput()
 	if err != nil {
 		t.Fatal(string(outp))
 		return
 	}
 
-	outp, err = exec.Command("micro", serv.envFlag(), "run", getSrcString("M3O_STRIPE_SVC", "github.com/m3o/services/payments/provider/stripe")).CombinedOutput()
+	outp, err = exec.Command("micro", serv.EnvFlag(), "run", getSrcString("M3O_STRIPE_SVC", "github.com/m3o/services/payments/provider/stripe")).CombinedOutput()
 	if err != nil {
 		t.Fatal(string(outp))
 		return
 	}
 
-	if err := try("Find signup and stripe in list", t, func() ([]byte, error) {
-		outp, err := exec.Command("micro", serv.envFlag(), "services").CombinedOutput()
+	if err := Try("Find signup and stripe in list", t, func() ([]byte, error) {
+		outp, err := exec.Command("micro", serv.EnvFlag(), "services").CombinedOutput()
 		if err != nil {
 			return outp, err
 		}
@@ -83,7 +83,7 @@ func testM3oSignupFlow(t *t) {
 
 	time.Sleep(5 * time.Second)
 
-	cmd := exec.Command("micro", serv.envFlag(), "login", "--otp")
+	cmd := exec.Command("micro", serv.EnvFlag(), "login", "--otp")
 	stdin, err := cmd.StdinPipe()
 	if err != nil {
 		t.Fatal(err)
@@ -112,13 +112,13 @@ func testM3oSignupFlow(t *t) {
 		return
 	}
 
-	outp, err = exec.Command("micro", serv.envFlag(), "call", "go.micro.service.account.invite", "Invite.Create", `{"email":"dobronszki@gmail.com"}`).CombinedOutput()
+	outp, err = exec.Command("micro", serv.EnvFlag(), "call", "go.micro.service.account.invite", "Invite.Create", `{"email":"dobronszki@gmail.com"}`).CombinedOutput()
 	if err != nil {
 		t.Fatal(string(outp))
 	}
 
 	password := "PassWord1@"
-	cmd = exec.Command("micro", serv.envFlag(), "signup", "--password", password)
+	cmd = exec.Command("micro", serv.EnvFlag(), "signup", "--password", password)
 	stdin, err = cmd.StdinPipe()
 	if err != nil {
 		t.Fatal(err)
@@ -136,21 +136,21 @@ func testM3oSignupFlow(t *t) {
 			t.Fatal(string(outp))
 			return
 		}
-		ns, err := namespace.Get(serv.envName())
+		ns, err := namespace.Get(serv.EnvName())
 		if err != nil {
 			t.Fatalf("Eror getting namespace: %v", err)
 			return
 		}
 		defer func() {
-			namespace.Remove(ns, serv.envName())
+			namespace.Remove(ns, serv.EnvName())
 		}()
 		if strings.Count(ns, "-") != 2 {
 			t.Fatalf("Expected 2 dashes in namespace but namespace is: %v", ns)
 			return
 		}
 		t.t.Logf("Namespace set is %v", ns)
-		try("Find account", t, func() ([]byte, error) {
-			outp, err = exec.Command("micro", serv.envFlag(), "auth", "list", "accounts").CombinedOutput()
+		Try("Find account", t, func() ([]byte, error) {
+			outp, err = exec.Command("micro", serv.EnvFlag(), "auth", "list", "accounts").CombinedOutput()
 			if err != nil {
 				return outp, err
 			}
@@ -175,8 +175,8 @@ func testM3oSignupFlow(t *t) {
 	}
 
 	code := ""
-	if err := try("Find verification token in logs", t, func() ([]byte, error) {
-		psCmd := exec.Command("micro", serv.envFlag(), "logs", "-n", "100", "m3o/services/signup")
+	if err := Try("Find verification token in logs", t, func() ([]byte, error) {
+		psCmd := exec.Command("micro", serv.EnvFlag(), "logs", "-n", "100", "m3o/services/signup")
 		outp, err = psCmd.CombinedOutput()
 		if err != nil {
 			return outp, err
