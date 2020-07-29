@@ -165,7 +165,7 @@ func (m *manager) runtimeEnv(srv *gorun.Service, options *gorun.CreateOptions) [
 		// should use the default RPC clients
 		"MICRO_PROFILE": "",
 		// pass the service's name and version
-		"MICRO_SERVICE_NAME":    srv.Name,
+		"MICRO_SERVICE_NAME":    nameFromService(srv.Name),
 		"MICRO_SERVICE_VERSION": srv.Version,
 	}
 
@@ -185,4 +185,14 @@ func (m *manager) runtimeEnv(srv *gorun.Service, options *gorun.CreateOptions) [
 
 	// setup the runtime env
 	return vars
+}
+
+// if a service is run from directory "/test/foo", the service
+// will register as foo
+func nameFromService(name string) string {
+	comps := strings.Split(name, "/")
+	if len(comps) == 0 {
+		return ""
+	}
+	return comps[len(comps)-1]
 }

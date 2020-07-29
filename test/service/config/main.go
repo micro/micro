@@ -9,11 +9,6 @@ import (
 )
 
 func main() {
-	// New Service
-	srv := service.New(
-		service.Name("go.micro.service.config-read"),
-	)
-
 	// get a value
 	go func() {
 		for {
@@ -23,5 +18,5 @@ func main() {
 	}()
 
 	// run the service
-	srv.Run()
+	service.Run()
 }
