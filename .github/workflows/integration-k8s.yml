@@ -1,38 +1,102 @@
-# This integration test is unfinished.
-# The dream would be to ru the test suite after the tf apply
-# but it's fairly flaky still.
-
-name: Run micro server integration tests on k8s (kind)
-on:
-  schedule:
-    # * is a special character in YAML so you have to quote this string
-    - cron:  '00 00 * * *'
+name: K8s integration tests
+on: [push]
+  # schedule:
+  #   # * is a special character in YAML so you have to quote this string
+  #   - cron:  '00 00 * * *'
 
 jobs:
 
   test:
-    name: Micro server integration tests
+    name: K8s integration tests
     runs-on: ubuntu-latest
+    env: 
+      DOCKER_BUILDKIT: '1'
     steps:
     - name: Checkout
       uses: actions/checkout@v1
-    - name: Setup Kind
-      uses: engineerd/setup-kind@v0.3.0
-
-    - name: Publish to Registry
-      uses: elgohr/Publish-Docker-Github-Action@master
+    - name: Set up Go 1.13
+      uses: actions/setup-go@v2
       with:
-        name: micro/micro
-        username: ${{ secrets.DOCKER_USERNAME }}
-        password: ${{ secrets.DOCKER_PASSWORD }}
-
-    - name: Apply tf files
+        go-version: 1.13
+      id: go
+    - name: Install Protoc
+      uses: arduino/setup-protoc@master
+    
+    # http://man7.org/linux/man-pages/man1/date.1.html
+    - name: Get Date
+      id: get-date
       run: |
-        bash scripts/launch-kind.sh
+        echo "::set-output name=date::$(/bin/date -u "+%s")"
+      shell: bash
+    - name: Enable caching
+      # We would use the official actions/cache@v2, but it doesn't save the cache if the build fails
+      # caches are scoped to a branch but will also check the default branch upon cache miss
+      uses: pat-s/always-upload-cache@v2.0.0 
+      with:
+        path: ~/go/pkg/mod
+        key: ${{ runner.os }}-go-kind-${{ steps.get-date.outputs.date }}
+        restore-keys: |
+          ${{ runner.os }}-go-kind-
+    - name: Install micro
+      id: install-micro
+      run: |
+        go install
 
-    - name: Apply failed, show platform logs
+    # We set up a local docker registry to push to and pull from. We need to set up the Kind cluster to pull from this
+    # We don't currently cache this because it doesn't seem to speed up the build 
+    - name: Setup docker registry
+      run: |
+        docker run -d -p 5000:5000 --restart=always --name kind-registry -v /tmp/docker-registry:/var/lib/registry registry:2 && npx wait-on tcp:5000
+    # Now let's build an image and push to our local registry. 
+    - name: Build and push to local registry
+      id: build-push-reg
+      run: |
+        docker build -f Dockerfile . -t micro
+        docker tag micro localhost:5000/micro 
+        docker push localhost:5000/micro
+
+    - name: Setup Kind
+      uses: engineerd/setup-kind@v0.4.0
+      with:
+        config: scripts/kind-config.yaml
+        version: v0.8.1
+    - name: Finish Kind registry setup
+      run: |
+        docker network connect "kind" "kind-registry"
+        for node in $(kind get nodes); do kubectl annotate node "${node}" "kind.x-k8s.io/registry=localhost:5000"; done
+
+
+    - name: Update the image
+      run: |
+        bash .github/workflows/update-image.sh
+    # cache the prereqs
+    - name: Cache pre-reqs
+      # We would use the official actions/cache@v2, but it doesn't save the cache if the build fails
+      # caches are scoped to a branch but will also check the default branch upon cache miss
+      uses: pat-s/always-upload-cache@v2.0.0 
+      with:
+        path: ./cfssl
+        key: ${{ runner.os }}-kind-cfssl
+    - name: Install the prerequisites
+      run: |
+        bash .github/workflows/kind-prereqs.sh
+
+    # Everything is set up so let's install the platform
+    - name: Install the platform
+      run: |
+        bash scripts/kind-launch.sh
+    - name: Install failed, show platform logs
       if: ${{ failure() }}
       run: |
         kubectl get pods -n platform | awk '{print $1}' | xargs -n1 kubectl logs -n platform
 
-
+    # Finally, we can actually run the tests
+    - name: Test micro server
+      working-directory: ./test
+      env:
+        IN_TRAVIS_CI: yes
+      run: |
+          # Generate keys for JWT tests
+          ssh-keygen -f /tmp/sshkey -m pkcs8 -q -N ""
+          ssh-keygen -f /tmp/sshkey -e  -m pkcs8 > /tmp/sshkey.pub
+          go clean -testcache && go test --tags=integration,kind -v ./...

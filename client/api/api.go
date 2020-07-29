@@ -9,31 +9,35 @@ import (
 	"github.com/go-acme/lego/v3/providers/dns/cloudflare"
 	"github.com/gorilla/mux"
 	"github.com/micro/cli/v2"
-	"github.com/micro/go-micro/v2"
-	ahandler "github.com/micro/go-micro/v2/api/handler"
-	aapi "github.com/micro/go-micro/v2/api/handler/api"
-	"github.com/micro/go-micro/v2/api/handler/event"
-	ahttp "github.com/micro/go-micro/v2/api/handler/http"
-	arpc "github.com/micro/go-micro/v2/api/handler/rpc"
-	"github.com/micro/go-micro/v2/api/handler/web"
-	"github.com/micro/go-micro/v2/api/resolver"
-	"github.com/micro/go-micro/v2/api/resolver/grpc"
-	"github.com/micro/go-micro/v2/api/resolver/host"
-	"github.com/micro/go-micro/v2/api/resolver/path"
-	"github.com/micro/go-micro/v2/api/router"
-	regRouter "github.com/micro/go-micro/v2/api/router/registry"
-	"github.com/micro/go-micro/v2/api/server"
-	"github.com/micro/go-micro/v2/api/server/acme"
-	"github.com/micro/go-micro/v2/api/server/acme/autocert"
-	"github.com/micro/go-micro/v2/api/server/acme/certmagic"
-	httpapi "github.com/micro/go-micro/v2/api/server/http"
-	log "github.com/micro/go-micro/v2/logger"
-	"github.com/micro/go-micro/v2/sync/memory"
-	"github.com/micro/micro/v2/client/api/auth"
-	"github.com/micro/micro/v2/internal/handler"
-	"github.com/micro/micro/v2/internal/helper"
-	rrmicro "github.com/micro/micro/v2/internal/resolver/api"
-	"github.com/micro/micro/v2/internal/stats"
+	ahandler "github.com/micro/go-micro/v3/api/handler"
+	aapi "github.com/micro/go-micro/v3/api/handler/api"
+	"github.com/micro/go-micro/v3/api/handler/event"
+	ahttp "github.com/micro/go-micro/v3/api/handler/http"
+	arpc "github.com/micro/go-micro/v3/api/handler/rpc"
+	"github.com/micro/go-micro/v3/api/handler/web"
+	"github.com/micro/go-micro/v3/api/resolver"
+	"github.com/micro/go-micro/v3/api/resolver/grpc"
+	"github.com/micro/go-micro/v3/api/resolver/host"
+	"github.com/micro/go-micro/v3/api/resolver/path"
+	"github.com/micro/go-micro/v3/api/router"
+	regRouter "github.com/micro/go-micro/v3/api/router/registry"
+	"github.com/micro/go-micro/v3/api/server"
+	"github.com/micro/go-micro/v3/api/server/acme"
+	"github.com/micro/go-micro/v3/api/server/acme/autocert"
+	"github.com/micro/go-micro/v3/api/server/acme/certmagic"
+	httpapi "github.com/micro/go-micro/v3/api/server/http"
+	log "github.com/micro/go-micro/v3/logger"
+	"github.com/micro/go-micro/v3/sync/memory"
+	"github.com/micro/micro/v3/client"
+	"github.com/micro/micro/v3/client/api/auth"
+	"github.com/micro/micro/v3/cmd"
+	"github.com/micro/micro/v3/internal/handler"
+	"github.com/micro/micro/v3/internal/helper"
+	rrmicro "github.com/micro/micro/v3/internal/resolver/api"
+	"github.com/micro/micro/v3/internal/stats"
+	"github.com/micro/micro/v3/service"
+	muregistry "github.com/micro/micro/v3/service/registry"
+	mustore "github.com/micro/micro/v3/service/store"
 )
 
 var (
@@ -52,9 +56,7 @@ var (
 	ACMECA                = acme.LetsEncryptProductionCA
 )
 
-func Run(ctx *cli.Context, srvOpts ...micro.Option) {
-	log.Init(log.WithFields(map[string]interface{}{"service": "api"}))
-
+func Run(ctx *cli.Context) error {
 	if len(ctx.String("server_name")) > 0 {
 		Name = ctx.String("server_name")
 	}
@@ -76,12 +78,17 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 	if len(ctx.String("namespace")) > 0 {
 		Namespace = ctx.String("namespace")
 	}
-
-	// append name to opts
-	srvOpts = append(srvOpts, micro.Name(Name))
-
+	if len(ctx.String("api_handler")) > 0 {
+		Handler = ctx.String("api_handler")
+	}
+	if len(ctx.String("api_address")) > 0 {
+		Address = ctx.String("api_address")
+	}
+	if len(ctx.String("api_namespace")) > 0 {
+		Namespace = ctx.String("api_namespace")
+	}
 	// initialise service
-	service := micro.NewService(srvOpts...)
+	srv := service.New(service.Name(Name))
 
 	// Init API
 	var opts []server.Option
@@ -105,7 +112,7 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 
 			storage := certmagic.NewStorage(
 				memory.NewSync(),
-				service.Options().Store,
+				mustore.DefaultStore,
 			)
 
 			config := cloudflare.NewDefaultConfig()
@@ -134,7 +141,7 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 		config, err := helper.TLSConfig(ctx)
 		if err != nil {
 			fmt.Println(err.Error())
-			return
+			return err
 		}
 
 		opts = append(opts, server.EnableTLS(true))
@@ -201,12 +208,12 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 		rt := regRouter.NewRouter(
 			router.WithHandler(arpc.Handler),
 			router.WithResolver(rr),
-			router.WithRegistry(service.Options().Registry),
+			router.WithRegistry(muregistry.DefaultRegistry),
 		)
 		rp := arpc.NewHandler(
 			ahandler.WithNamespace(Namespace),
 			ahandler.WithRouter(rt),
-			ahandler.WithClient(service.Client()),
+			ahandler.WithClient(srv.Client()),
 		)
 		r.PathPrefix(APIPath).Handler(rp)
 	case "api":
@@ -214,12 +221,12 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 		rt := regRouter.NewRouter(
 			router.WithHandler(aapi.Handler),
 			router.WithResolver(rr),
-			router.WithRegistry(service.Options().Registry),
+			router.WithRegistry(muregistry.DefaultRegistry),
 		)
 		ap := aapi.NewHandler(
 			ahandler.WithNamespace(Namespace),
 			ahandler.WithRouter(rt),
-			ahandler.WithClient(service.Client()),
+			ahandler.WithClient(srv.Client()),
 		)
 		r.PathPrefix(APIPath).Handler(ap)
 	case "event":
@@ -227,12 +234,12 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 		rt := regRouter.NewRouter(
 			router.WithHandler(event.Handler),
 			router.WithResolver(rr),
-			router.WithRegistry(service.Options().Registry),
+			router.WithRegistry(muregistry.DefaultRegistry),
 		)
 		ev := event.NewHandler(
 			ahandler.WithNamespace(Namespace),
 			ahandler.WithRouter(rt),
-			ahandler.WithClient(service.Client()),
+			ahandler.WithClient(srv.Client()),
 		)
 		r.PathPrefix(APIPath).Handler(ev)
 	case "http", "proxy":
@@ -240,12 +247,12 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 		rt := regRouter.NewRouter(
 			router.WithHandler(ahttp.Handler),
 			router.WithResolver(rr),
-			router.WithRegistry(service.Options().Registry),
+			router.WithRegistry(muregistry.DefaultRegistry),
 		)
 		ht := ahttp.NewHandler(
 			ahandler.WithNamespace(Namespace),
 			ahandler.WithRouter(rt),
-			ahandler.WithClient(service.Client()),
+			ahandler.WithClient(srv.Client()),
 		)
 		r.PathPrefix(ProxyPath).Handler(ht)
 	case "web":
@@ -253,21 +260,21 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 		rt := regRouter.NewRouter(
 			router.WithHandler(web.Handler),
 			router.WithResolver(rr),
-			router.WithRegistry(service.Options().Registry),
+			router.WithRegistry(muregistry.DefaultRegistry),
 		)
 		w := web.NewHandler(
 			ahandler.WithNamespace(Namespace),
 			ahandler.WithRouter(rt),
-			ahandler.WithClient(service.Client()),
+			ahandler.WithClient(srv.Client()),
 		)
 		r.PathPrefix(APIPath).Handler(w)
 	default:
 		log.Infof("Registering API Default Handler at %s", APIPath)
 		rt := regRouter.NewRouter(
 			router.WithResolver(rr),
-			router.WithRegistry(service.Options().Registry),
+			router.WithRegistry(muregistry.DefaultRegistry),
 		)
-		r.PathPrefix(APIPath).Handler(handler.Meta(service, rt, Namespace))
+		r.PathPrefix(APIPath).Handler(handler.Meta(srv, rt, Namespace))
 	}
 
 	// create the auth wrapper and the server
@@ -283,7 +290,7 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 	}
 
 	// Run server
-	if err := service.Run(); err != nil {
+	if err := srv.Run(); err != nil {
 		log.Fatal(err)
 	}
 
@@ -291,17 +298,16 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 	if err := api.Stop(); err != nil {
 		log.Fatal(err)
 	}
+
+	return nil
 }
 
-func Commands(options ...micro.Option) []*cli.Command {
-	command := &cli.Command{
-		Name:  "api",
-		Usage: "Run the api gateway",
-		Action: func(ctx *cli.Context) error {
-			Run(ctx, options...)
-			return nil
-		},
-		Flags: []cli.Flag{
+func init() {
+	cmd.Register(&cli.Command{
+		Name:   "api",
+		Usage:  "Run the api gateway",
+		Action: Run,
+		Flags: append(client.Flags,
 			&cli.StringFlag{
 				Name:    "address",
 				Usage:   "Set the api address e.g 0.0.0.0:8080",
@@ -338,8 +344,6 @@ func Commands(options ...micro.Option) []*cli.Command {
 				EnvVars: []string{"MICRO_API_ENABLE_CORS"},
 				Value:   true,
 			},
-		},
-	}
-
-	return []*cli.Command{command}
+		),
+	})
 }

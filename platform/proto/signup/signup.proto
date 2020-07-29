@@ -1,0 +1,63 @@
+syntax = "proto3";
+
+package go.micro.service.signup;
+
+service Signup {
+	// Send a verification email
+	rpc SendVerificationEmail(SendVerificationEmailRequest) returns (SendVerificationEmailResponse);
+	// Verify a user who's been sent an email
+	rpc Verify(VerifyRequest) returns (VerifyResponse);
+	// Complete the signup process
+	rpc CompleteSignup(CompleteSignupRequest) returns (CompleteSignupResponse);
+}
+
+message SendVerificationEmailRequest {
+	string email = 1;
+}
+
+message SendVerificationEmailResponse {
+}
+
+message VerifyRequest {
+	string email = 1;
+	// Email token that was received in an email.
+	string token = 2;
+}
+
+message VerifyResponse {
+	// Auth token to be saved into `~/.micro`
+	// For users who are already registered and paid,
+	// the flow stops here.
+	// For users who are yet to be registered
+	// the token will be acquired in the `FinishSignup` step.
+	AuthToken authToken = 1;
+	// Payment provider custommer id that can be used to
+	// acquire a payment method, see `micro login` flow for more.
+	// @todo this is likely not needed
+	string customerID = 2;
+	// Namesp
+	string namespace = 3;
+}
+
+message CompleteSignupRequest {
+	string email = 1;
+	// The token has to be passed here too for identification purposes.
+	string token = 2;
+	// This payment method ID is the one we got back from Stripe on the frontend (ie. `m3o.com/subscribe.html`)
+	string paymentMethodID = 3;
+	// The secret/password to use for the account
+	string secret = 4;
+}
+
+message CompleteSignupResponse {
+	AuthToken authToken = 1;
+	string namespace = 2;
+}
+
+// lifted from https://github.com/micro/go-micro/blob/master/auth/service/proto/auth.proto
+message AuthToken {
+	string access_token = 1;
+	string refresh_token = 2;
+	int64 created = 3;
+	int64 expiry = 4;
+}

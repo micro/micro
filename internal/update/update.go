@@ -9,15 +9,13 @@ import (
 	"sync"
 	"time"
 
-	log "github.com/micro/go-micro/v2/logger"
-	"github.com/micro/go-micro/v2/runtime"
+	log "github.com/micro/go-micro/v3/logger"
+	"github.com/micro/go-micro/v3/runtime"
 )
 
 var (
 	// DefaultTick defines how often we poll for updates
 	DefaultTick = 1 * time.Minute
-	// DefaultURL defines url to poll for updates
-	DefaultURL = "https://micro.mu/update"
 )
 
 // Build is service build

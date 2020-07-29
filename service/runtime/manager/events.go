@@ -6,10 +6,10 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/micro/go-micro/v2/logger"
-	"github.com/micro/go-micro/v2/runtime"
-	"github.com/micro/go-micro/v2/store"
-	"github.com/micro/micro/v2/internal/namespace"
+	"github.com/micro/go-micro/v3/logger"
+	"github.com/micro/go-micro/v3/runtime"
+	"github.com/micro/go-micro/v3/store"
+	"github.com/micro/micro/v3/internal/namespace"
 )
 
 var (
@@ -166,15 +166,16 @@ func (m *manager) runtimeEnv(options *runtime.CreateOptions) []string {
 	}
 
 	// overwrite any values
-	env := map[string]string{}
+	env := map[string]string{
+		// ensure a profile for the services isn't set, they
+		// should use the default RPC clients
+		"MICRO_PROFILE": "",
+	}
 
 	// set the env vars provided
 	setEnv(options.Env, env)
 
-	// override with vars from the Profile
-	setEnv(m.options.Profile, env)
-
-	// temp: set the service namespace. this will be removed once he namespace can be determined from certs.
+	// set the service namespace
 	if len(options.Namespace) > 0 {
 		env["MICRO_NAMESPACE"] = options.Namespace
 	}

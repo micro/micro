@@ -1,275 +1,179 @@
-// Package service provides a micro service
 package service
 
 import (
-	"fmt"
+	"context"
 	"os"
-	"strings"
+	"os/signal"
+	"runtime"
 
-	ccli "github.com/micro/cli/v2"
-	"github.com/micro/go-micro/v2"
-	log "github.com/micro/go-micro/v2/logger"
-	prox "github.com/micro/go-micro/v2/proxy"
-	"github.com/micro/go-micro/v2/proxy/grpc"
-	"github.com/micro/go-micro/v2/proxy/http"
-	"github.com/micro/go-micro/v2/proxy/mucp"
-	rt "github.com/micro/go-micro/v2/runtime"
-	"github.com/micro/go-micro/v2/server"
-	"github.com/micro/micro/v2/plugin"
-
-	// services
-	"github.com/micro/micro/v2/service/auth"
-	"github.com/micro/micro/v2/service/broker"
-	"github.com/micro/micro/v2/service/config"
-	"github.com/micro/micro/v2/service/debug"
-	"github.com/micro/micro/v2/service/handler/exec"
-	"github.com/micro/micro/v2/service/handler/file"
-	"github.com/micro/micro/v2/service/health"
-	"github.com/micro/micro/v2/service/network"
-	"github.com/micro/micro/v2/service/registry"
-	"github.com/micro/micro/v2/service/router"
-	"github.com/micro/micro/v2/service/runtime"
-	"github.com/micro/micro/v2/service/store"
-	"github.com/micro/micro/v2/service/tunnel"
+	"github.com/micro/go-micro/v3/client"
+	debug "github.com/micro/go-micro/v3/debug/service/handler"
+	"github.com/micro/go-micro/v3/logger"
+	"github.com/micro/go-micro/v3/model"
+	"github.com/micro/go-micro/v3/server"
+	"github.com/micro/go-micro/v3/store"
+	signalutil "github.com/micro/go-micro/v3/util/signal"
+	"github.com/micro/micro/v3/cmd"
+	muclient "github.com/micro/micro/v3/service/client"
+	mudebug "github.com/micro/micro/v3/service/debug"
+	mumodel "github.com/micro/micro/v3/service/model"
+	muserver "github.com/micro/micro/v3/service/server"
 )
 
-func Run(ctx *ccli.Context, opts ...micro.Option) {
-	log.Init(log.WithFields(map[string]interface{}{"service": "service"}))
+// Service is a Micro Service which honours the go-micro/service interface
+type Service struct {
+	opts Options
+}
 
-	name := ctx.String("name")
-	address := ctx.String("address")
-	endpoint := ctx.String("endpoint")
+// New returns a new Micro Service
+func New(opts ...Option) *Service {
+	// setup micro, this triggers the Before
+	// function which parses CLI flags.
+	cmd.New(cmd.SetupOnly()).Run()
 
-	metadata := make(map[string]string)
-	for _, md := range ctx.StringSlice("metadata") {
-		parts := strings.Split(md, "=")
-		if len(parts) < 2 {
-			continue
+	// return a new service
+	return &Service{opts: newOptions(opts...)}
+}
+
+// Name of the service
+func (s *Service) Name() string {
+	return muserver.DefaultServer.Options().Name
+}
+
+func (s *Service) Init(opts ...Option) {
+	for _, o := range opts {
+		o(&s.opts)
+	}
+}
+
+func (s *Service) Options() Options {
+	return s.opts
+}
+
+func (s *Service) Client() client.Client {
+	return muclient.DefaultClient
+}
+
+func (s *Service) Server() server.Server {
+	return muserver.DefaultServer
+}
+
+func (s *Service) Model() model.Model {
+	return mumodel.DefaultModel
+}
+
+func (s *Service) String() string {
+	return "micro"
+}
+
+func (s *Service) Start() error {
+	// set the store to use the service name as the table
+	store.DefaultStore.Init(store.Table(s.Name()))
+
+	for _, fn := range s.opts.BeforeStart {
+		if err := fn(); err != nil {
+			return err
 		}
-
-		key := parts[0]
-		val := strings.Join(parts[1:], "=")
-
-		// set the key/val
-		metadata[key] = val
 	}
 
-	if len(metadata) > 0 {
-		opts = append(opts, micro.Metadata(metadata))
+	if err := muserver.DefaultServer.Start(); err != nil {
+		return err
 	}
 
-	if len(name) > 0 {
-		opts = append(opts, micro.Name(name))
-	}
-
-	if len(address) > 0 {
-		opts = append(opts, micro.Address(address))
-	}
-
-	if len(endpoint) == 0 {
-		endpoint = prox.DefaultEndpoint
-	}
-
-	var p prox.Proxy
-
-	switch {
-	case strings.HasPrefix(endpoint, "grpc"):
-		endpoint = strings.TrimPrefix(endpoint, "grpc://")
-		p = grpc.NewProxy(prox.WithEndpoint(endpoint))
-	case strings.HasPrefix(endpoint, "http"):
-		p = http.NewProxy(prox.WithEndpoint(endpoint))
-	case strings.HasPrefix(endpoint, "file"):
-		endpoint = strings.TrimPrefix(endpoint, "file://")
-		p = file.NewProxy(prox.WithEndpoint(endpoint))
-	case strings.HasPrefix(endpoint, "exec"):
-		endpoint = strings.TrimPrefix(endpoint, "exec://")
-		p = exec.NewProxy(prox.WithEndpoint(endpoint))
-	default:
-		p = mucp.NewProxy(prox.WithEndpoint(endpoint))
-	}
-
-	// run the service if asked to
-	if ctx.Args().Len() > 0 {
-		args := []rt.CreateOption{
-			rt.WithCommand(ctx.Args().Slice()...),
-			rt.WithOutput(os.Stdout),
+	for _, fn := range s.opts.AfterStart {
+		if err := fn(); err != nil {
+			return err
 		}
-
-		// create new local runtime
-		r := rt.NewRuntime()
-
-		// start the runtime
-		r.Start()
-
-		// register the service
-		r.Create(&rt.Service{
-			Name: name,
-		}, args...)
-
-		// stop the runtime
-		defer func() {
-			r.Delete(&rt.Service{
-				Name: name,
-			})
-			r.Stop()
-		}()
 	}
 
-	log.Infof("Service [%s] Serving %s at endpoint %s\n", p.String(), name, endpoint)
+	return nil
+}
 
-	// new service
-	service := micro.NewService(opts...)
+func (s *Service) Stop() error {
+	var gerr error
 
-	// create new muxer
-	//	muxer := mux.New(name, p)
+	for _, fn := range s.opts.BeforeStop {
+		if err := fn(); err != nil {
+			gerr = err
+		}
+	}
 
-	// set the router
-	service.Server().Init(
-		server.WithRouter(p),
+	if err := muserver.DefaultServer.Stop(); err != nil {
+		return err
+	}
+
+	for _, fn := range s.opts.AfterStop {
+		if err := fn(); err != nil {
+			gerr = err
+		}
+	}
+
+	return gerr
+}
+
+// Run the service
+func (s *Service) Run() error {
+	// register the debug handler
+	muserver.DefaultServer.Handle(
+		muserver.DefaultServer.NewHandler(
+			debug.NewHandler(muclient.DefaultClient),
+			server.InternalHandler(true),
+		),
 	)
 
-	// run service
-	service.Run()
+	// start the profiler
+	if mudebug.DefaultProfiler != nil {
+		// to view mutex contention
+		runtime.SetMutexProfileFraction(5)
+		// to view blocking profile
+		runtime.SetBlockProfileRate(1)
+
+		if err := mudebug.DefaultProfiler.Start(); err != nil {
+			return err
+		}
+
+		defer mudebug.DefaultProfiler.Stop()
+	}
+
+	if logger.V(logger.InfoLevel, logger.DefaultLogger) {
+		logger.Infof("Starting [service] %s", s.Name())
+	}
+
+	if err := s.Start(); err != nil {
+		return err
+	}
+
+	ch := make(chan os.Signal, 1)
+	if s.opts.Signal {
+		signal.Notify(ch, signalutil.Shutdown()...)
+	}
+
+	// wait on kill signal
+	<-ch
+	return s.Stop()
 }
 
-type srvCommand struct {
-	Name    string
-	Command func(ctx *ccli.Context, srvOpts ...micro.Option)
-	Flags   []ccli.Flag
+// RegisterHandler is syntactic sugar for registering a handler
+func RegisterHandler(h interface{}, opts ...server.HandlerOption) error {
+	return muserver.DefaultServer.Handle(muserver.DefaultServer.NewHandler(h, opts...))
 }
 
-var srvCommands = []srvCommand{
-	{
-		Name:    "auth",
-		Command: auth.Run,
-	},
-	{
-		Name:    "broker",
-		Command: broker.Run,
-	},
-	{
-		Name:    "config",
-		Command: config.Run,
-		Flags:   config.Flags,
-	},
-	{
-		Name:    "debug",
-		Command: debug.Run,
-		Flags:   debug.Flags,
-	},
-	{
-		Name:    "health",
-		Command: health.Run,
-		Flags:   health.Flags,
-	},
-	{
-		Name:    "network",
-		Command: network.Run,
-		Flags:   network.Flags,
-	},
-	{
-		Name:    "registry",
-		Command: registry.Run,
-	},
-	{
-		Name:    "router",
-		Command: router.Run,
-		Flags:   router.Flags,
-	},
-	{
-		Name:    "runtime",
-		Command: runtime.Run,
-		Flags:   runtime.Flags,
-	},
-	{
-		Name:    "store",
-		Command: store.Run,
-	},
-	{
-		Name:    "tunnel",
-		Command: tunnel.Run,
-		Flags:   tunnel.Flags,
-	},
+// RegisterSubscriber is syntactic sugar for registering a subscriber
+func RegisterSubscriber(topic string, h interface{}, opts ...server.SubscriberOption) error {
+	return muserver.DefaultServer.Subscribe(muserver.DefaultServer.NewSubscriber(topic, h, opts...))
 }
 
-func Commands(options ...micro.Option) []*ccli.Command {
-	// move newAction outside the loop and pass c as an arg to
-	// set the scope of the variable
-	newAction := func(c srvCommand) func(ctx *ccli.Context) error {
-		return func(ctx *ccli.Context) error {
-			c.Command(ctx, options...)
-			return nil
-		}
-	}
+// Event is an object messages are published to
+type Event struct {
+	topic string
+}
 
-	subcommands := make([]*ccli.Command, len(srvCommands))
-	for i, c := range srvCommands {
-		// construct the command
-		command := &ccli.Command{
-			Name:   c.Name,
-			Flags:  c.Flags,
-			Usage:  fmt.Sprintf("Run micro %v", c.Name),
-			Action: newAction(c),
-		}
+// Publish a message to an event
+func (e *Event) Publish(ctx context.Context, msg interface{}, opts ...client.PublishOption) error {
+	return muclient.DefaultClient.Publish(ctx, muclient.DefaultClient.NewMessage(e.topic, msg), opts...)
+}
 
-		// setup the plugins
-		for _, p := range plugin.Plugins(plugin.Module(c.Name)) {
-			if cmds := p.Commands(); len(cmds) > 0 {
-				command.Subcommands = append(command.Subcommands, cmds...)
-			}
-
-			if flags := p.Flags(); len(flags) > 0 {
-				command.Flags = append(command.Flags, flags...)
-			}
-		}
-
-		// set the command
-		subcommands[i] = command
-	}
-
-	command := &ccli.Command{
-		Name:  "service",
-		Usage: "Run a micro service",
-		Action: func(ctx *ccli.Context) error {
-			Run(ctx, options...)
-			return nil
-		},
-		Flags: []ccli.Flag{
-			&ccli.StringFlag{
-				Name:    "name",
-				Usage:   "Name of the service",
-				EnvVars: []string{"MICRO_SERVICE_NAME"},
-				Value:   "service",
-			},
-			&ccli.StringFlag{
-				Name:    "address",
-				Usage:   "Address of the service",
-				EnvVars: []string{"MICRO_SERVICE_ADDRESS"},
-			},
-			&ccli.StringFlag{
-				Name:    "endpoint",
-				Usage:   "The local service endpoint (Defaults to localhost:9090); {http, grpc, file, exec}://path-or-address e.g http://localhost:9090",
-				EnvVars: []string{"MICRO_SERVICE_ENDPOINT"},
-			},
-			&ccli.StringSliceFlag{
-				Name:    "metadata",
-				Usage:   "Add metadata as key-value pairs describing the service e.g owner=john@example.com",
-				EnvVars: []string{"MICRO_SERVICE_METADATA"},
-			},
-		},
-		Subcommands: subcommands,
-	}
-
-	// register global plugins and flags
-	for _, p := range plugin.Plugins() {
-		if cmds := p.Commands(); len(cmds) > 0 {
-			command.Subcommands = append(command.Subcommands, cmds...)
-		}
-
-		if flags := p.Flags(); len(flags) > 0 {
-			command.Flags = append(command.Flags, flags...)
-		}
-	}
-
-	return []*ccli.Command{command}
+// NewEvent creates a new event publisher
+func NewEvent(topic string) *Event {
+	return &Event{topic}
 }

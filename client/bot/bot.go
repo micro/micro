@@ -12,25 +12,25 @@ import (
 	"time"
 
 	"github.com/micro/cli/v2"
-	"github.com/micro/go-micro/v2"
-
-	"github.com/micro/go-micro/v2/agent/command"
-	"github.com/micro/go-micro/v2/agent/input"
-	log "github.com/micro/go-micro/v2/logger"
-	botc "github.com/micro/micro/v2/internal/command/bot"
-
-	proto "github.com/micro/go-micro/v2/agent/proto"
+	"github.com/micro/go-micro/v3/agent/command"
+	"github.com/micro/go-micro/v3/agent/input"
+	proto "github.com/micro/go-micro/v3/agent/proto"
+	log "github.com/micro/go-micro/v3/logger"
+	"github.com/micro/micro/v3/client"
+	"github.com/micro/micro/v3/cmd"
+	"github.com/micro/micro/v3/service"
+	muregistry "github.com/micro/micro/v3/service/registry"
 
 	// inputs
-	_ "github.com/micro/go-micro/v2/agent/input/discord"
-	_ "github.com/micro/go-micro/v2/agent/input/slack"
-	_ "github.com/micro/go-micro/v2/agent/input/telegram"
+	_ "github.com/micro/go-micro/v3/agent/input/discord"
+	_ "github.com/micro/go-micro/v3/agent/input/slack"
+	_ "github.com/micro/go-micro/v3/agent/input/telegram"
 )
 
 type bot struct {
 	exit    chan bool
 	ctx     *cli.Context
-	service micro.Service
+	service *service.Service
 
 	sync.RWMutex
 	inputs   map[string]input.Input
@@ -45,17 +45,15 @@ var (
 	Namespace = "go.micro.bot"
 	// map pattern:command
 	commands = map[string]func(*cli.Context) command.Command{
-		"^echo ":                             botc.Echo,
-		"^time$":                             botc.Time,
-		"^hello$":                            botc.Hello,
-		"^ping$":                             botc.Ping,
-		"^list ":                             botc.List,
-		"^get ":                              botc.Get,
-		"^health ":                           botc.Health,
-		"^call ":                             botc.Call,
-		"^register ":                         botc.Register,
-		"^deregister ":                       botc.Deregister,
-		"^(the )?three laws( of robotics)?$": botc.ThreeLaws,
+		"^echo ":                             Echo,
+		"^time$":                             Time,
+		"^hello$":                            Hello,
+		"^ping$":                             Ping,
+		"^services$":                         List,
+		"^get ":                              Get,
+		"^health ":                           Health,
+		"^call ":                             Call,
+		"^(the )?three laws( of robotics)?$": ThreeLaws,
 	}
 )
 
@@ -81,7 +79,7 @@ func help(commands map[string]command.Command, serviceCommands []string) command
 	})
 }
 
-func newBot(ctx *cli.Context, inputs map[string]input.Input, commands map[string]command.Command, service micro.Service) *bot {
+func newBot(ctx *cli.Context, inputs map[string]input.Input, commands map[string]command.Command, service *service.Service) *bot {
 	commands["^help$"] = help(commands, nil)
 
 	return &bot{
@@ -288,7 +286,7 @@ func (b *bot) watch() {
 		return fmt.Sprintf("%s - %s", rsp.Usage, rsp.Description), nil
 	}
 
-	serviceList, err := b.service.Options().Registry.ListServices()
+	serviceList, err := muregistry.DefaultRegistry.ListServices()
 	if err != nil {
 		// log error?
 		return
@@ -311,7 +309,7 @@ func (b *bot) watch() {
 	b.services = services
 	b.Unlock()
 
-	w, err := b.service.Options().Registry.Watch()
+	w, err := muregistry.DefaultRegistry.Watch()
 	if err != nil {
 		// log error?
 		return
@@ -351,9 +349,7 @@ func (b *bot) watch() {
 	}
 }
 
-func run(ctx *cli.Context) error {
-	log.Init(log.WithFields(map[string]interface{}{"service": "bot"}))
-
+func Run(ctx *cli.Context) error {
 	if len(ctx.String("server_name")) > 0 {
 		Name = ctx.String("server_name")
 	}
@@ -404,18 +400,18 @@ func run(ctx *cli.Context) error {
 	}
 
 	// setup service
-	service := micro.NewService(
-		micro.Name(Name),
-		micro.RegisterTTL(
+	srv := service.New(
+		service.Name(Name),
+		service.RegisterTTL(
 			time.Duration(ctx.Int("register_ttl"))*time.Second,
 		),
-		micro.RegisterInterval(
+		service.RegisterInterval(
 			time.Duration(ctx.Int("register_interval"))*time.Second,
 		),
 	)
 
 	// Start bot
-	b := newBot(ctx, ios, cmds, service)
+	b := newBot(ctx, ios, cmds, srv)
 
 	if err := b.start(); err != nil {
 		log.Errorf("error starting bot %v", err)
@@ -423,7 +419,7 @@ func run(ctx *cli.Context) error {
 	}
 
 	// Run server
-	if err := service.Run(); err != nil {
+	if err := srv.Run(); err != nil {
 		log.Fatal(err)
 	}
 
@@ -435,8 +431,8 @@ func run(ctx *cli.Context) error {
 	return nil
 }
 
-func Commands() []*cli.Command {
-	flags := []cli.Flag{
+func init() {
+	flags := append(client.Flags,
 		&cli.StringFlag{
 			Name:    "inputs",
 			Usage:   "Inputs to load on startup",
@@ -447,19 +443,17 @@ func Commands() []*cli.Command {
 			Usage:   "Set the namespace used by the bot to find commands e.g. com.example.bot",
 			EnvVars: []string{"MICRO_BOT_NAMESPACE"},
 		},
-	}
+	)
 
 	// setup input flags
 	for _, input := range input.Inputs {
 		flags = append(flags, input.Flags()...)
 	}
 
-	command := &cli.Command{
+	cmd.Register(&cli.Command{
 		Name:   "bot",
 		Usage:  "Run the chatops bot",
 		Flags:  flags,
-		Action: run,
-	}
-
-	return []*cli.Command{command}
+		Action: Run,
+	})
 }

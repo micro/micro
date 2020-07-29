@@ -6,91 +6,19 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"os"
 	"strings"
 	"text/tabwriter"
 
 	"github.com/micro/cli/v2"
-	"github.com/micro/go-micro/v2/client"
-	"github.com/micro/go-micro/v2/cmd"
-	cbytes "github.com/micro/go-micro/v2/codec/bytes"
-	cliutil "github.com/micro/micro/v2/client/cli/util"
-	clic "github.com/micro/micro/v2/internal/command/cli"
+	"github.com/micro/go-micro/v3/client"
+	cbytes "github.com/micro/go-micro/v3/codec/bytes"
+	cliutil "github.com/micro/micro/v3/client/cli/util"
+	clic "github.com/micro/micro/v3/internal/command"
+	muclient "github.com/micro/micro/v3/service/client"
 )
-
-type exec func(*cli.Context, []string) ([]byte, error)
-
-func Print(e exec) func(*cli.Context) error {
-	return func(c *cli.Context) error {
-		rsp, err := e(c, c.Args().Slice())
-		if err != nil {
-			fmt.Println(err)
-			os.Exit(1)
-		}
-		if len(rsp) > 0 {
-			fmt.Printf("%s\n", string(rsp))
-		}
-		return nil
-	}
-}
-
-func list(c *cli.Context, args []string) ([]byte, error) {
-	// no args
-	if len(args) == 0 {
-		return clic.ListServices(c)
-	}
-
-	// check first arg
-	switch args[0] {
-	case "services":
-		return clic.ListServices(c)
-	case "nodes":
-		return clic.NetworkNodes(c)
-	case "routes":
-		return clic.NetworkRoutes(c)
-	}
-
-	return nil, errors.New("unknown command")
-}
-
-func networkConnect(c *cli.Context, args []string) ([]byte, error) {
-	return clic.NetworkConnect(c, args)
-}
-
-func networkConnections(c *cli.Context, args []string) ([]byte, error) {
-	return clic.NetworkConnections(c)
-}
-
-func networkGraph(c *cli.Context, args []string) ([]byte, error) {
-	return clic.NetworkGraph(c)
-}
-
-func networkServices(c *cli.Context, args []string) ([]byte, error) {
-	return clic.NetworkServices(c)
-}
-
-func netNodes(c *cli.Context, args []string) ([]byte, error) {
-	return clic.NetworkNodes(c)
-}
-
-func netRoutes(c *cli.Context, args []string) ([]byte, error) {
-	return clic.NetworkRoutes(c)
-}
 
 func listServices(c *cli.Context, args []string) ([]byte, error) {
 	return clic.ListServices(c)
-}
-
-func registerService(c *cli.Context, args []string) ([]byte, error) {
-	return clic.RegisterService(c, args)
-}
-
-func deregisterService(c *cli.Context, args []string) ([]byte, error) {
-	return clic.DeregisterService(c, args)
-}
-
-func getService(c *cli.Context, args []string) ([]byte, error) {
-	return clic.GetService(c, args)
 }
 
 func callService(c *cli.Context, args []string) ([]byte, error) {
@@ -154,12 +82,6 @@ func delEnv(c *cli.Context, args []string) ([]byte, error) {
 	return nil, nil
 }
 
-// netCall calls services through the network
-func netCall(c *cli.Context, args []string) ([]byte, error) {
-	os.Setenv("MICRO_PROXY", "go.micro.network")
-	return clic.CallService(c, args)
-}
-
 // TODO: stream via HTTP
 func streamService(c *cli.Context, args []string) ([]byte, error) {
 	if len(args) < 2 {
@@ -172,8 +94,8 @@ func streamService(c *cli.Context, args []string) ([]byte, error) {
 	// ignore error
 	json.Unmarshal([]byte(strings.Join(args[2:], " ")), &request)
 
-	req := (*cmd.DefaultCmd.Options().Client).NewRequest(service, endpoint, request, client.WithContentType("application/json"))
-	stream, err := (*cmd.DefaultCmd.Options().Client).Stream(context.Background(), req)
+	req := muclient.DefaultClient.NewRequest(service, endpoint, request, client.WithContentType("application/json"))
+	stream, err := muclient.DefaultClient.Stream(context.Background(), req)
 	if err != nil {
 		return nil, fmt.Errorf("error calling %s.%s: %v", service, endpoint, err)
 	}
@@ -214,5 +136,5 @@ func queryHealth(c *cli.Context, args []string) ([]byte, error) {
 }
 
 func queryStats(c *cli.Context, args []string) ([]byte, error) {
-	return clic.QueryStats(c, args)
+	return QueryStats(c, args)
 }

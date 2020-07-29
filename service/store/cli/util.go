@@ -4,8 +4,7 @@ import (
 	"strings"
 
 	"github.com/micro/cli/v2"
-	"github.com/micro/go-micro/v2/cmd"
-	"github.com/micro/go-micro/v2/store"
+	"github.com/micro/go-micro/v3/store"
 	"github.com/pkg/errors"
 )
 
@@ -56,9 +55,10 @@ func makeStores(ctx *cli.Context) (store.Store, store.Store, error) {
 }
 
 func getStore(s string) (func(...store.Option) store.Store, error) {
-	builtinStore, exists := cmd.DefaultStores[s]
-	if !exists {
-		return nil, errors.Errorf("store %s is not an implemented store - check your plugins", s)
-	}
-	return builtinStore, nil
+	// builtinStore, exists := cmd.DefaultStores[s]
+	// if !exists {
+	// 	return nil, errors.Errorf("store %s is not an implemented store - check your plugins", s)
+	// }
+	// return builtinStore, nil
+	return nil, nil
 }

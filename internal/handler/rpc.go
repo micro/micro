@@ -7,14 +7,14 @@ import (
 	"strings"
 	"time"
 
-	"github.com/micro/go-micro/v2/api/handler"
-	"github.com/micro/go-micro/v2/api/resolver"
-	"github.com/micro/go-micro/v2/api/resolver/subdomain"
-	"github.com/micro/go-micro/v2/api/server/cors"
-	"github.com/micro/go-micro/v2/client"
-	"github.com/micro/go-micro/v2/cmd"
-	"github.com/micro/go-micro/v2/errors"
-	"github.com/micro/micro/v2/internal/helper"
+	"github.com/micro/go-micro/v3/api/handler"
+	"github.com/micro/go-micro/v3/api/resolver"
+	"github.com/micro/go-micro/v3/api/resolver/subdomain"
+	"github.com/micro/go-micro/v3/api/server/cors"
+	"github.com/micro/go-micro/v3/client"
+	"github.com/micro/go-micro/v3/errors"
+	"github.com/micro/micro/v3/internal/helper"
+	muclient "github.com/micro/micro/v3/service/client"
 )
 
 type rpcRequest struct {
@@ -126,7 +126,7 @@ func (h *rpcHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// create request/response
 	var response json.RawMessage
 	var err error
-	req := (*cmd.DefaultCmd.Options().Client).NewRequest(service, endpoint, request, client.WithContentType("application/json"))
+	req := muclient.DefaultClient.NewRequest(service, endpoint, request, client.WithContentType("application/json"))
 
 	// create context
 	ctx := helper.RequestToContext(r)
@@ -153,7 +153,7 @@ func (h *rpcHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// remote call
-	err = (*cmd.DefaultCmd.Options().Client).Call(ctx, req, &response, opts...)
+	err = muclient.DefaultClient.Call(ctx, req, &response, opts...)
 	if err != nil {
 		ce := errors.Parse(err.Error())
 		switch ce.Code {

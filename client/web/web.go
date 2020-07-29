@@ -14,28 +14,36 @@ import (
 	"sync"
 	"time"
 
+	"github.com/micro/micro/v3/client"
+	"github.com/micro/micro/v3/service/store"
+
 	"github.com/go-acme/lego/v3/providers/dns/cloudflare"
 	"github.com/gorilla/mux"
 	"github.com/micro/cli/v2"
-	"github.com/micro/go-micro/v2"
-	res "github.com/micro/go-micro/v2/api/resolver"
-	"github.com/micro/go-micro/v2/api/resolver/subdomain"
-	"github.com/micro/go-micro/v2/api/server"
-	"github.com/micro/go-micro/v2/api/server/acme"
-	"github.com/micro/go-micro/v2/api/server/acme/autocert"
-	"github.com/micro/go-micro/v2/api/server/acme/certmagic"
-	"github.com/micro/go-micro/v2/api/server/cors"
-	httpapi "github.com/micro/go-micro/v2/api/server/http"
-	"github.com/micro/go-micro/v2/auth"
-	log "github.com/micro/go-micro/v2/logger"
-	"github.com/micro/go-micro/v2/registry"
-	"github.com/micro/go-micro/v2/sync/memory"
-	apiAuth "github.com/micro/micro/v2/client/api/auth"
-	inauth "github.com/micro/micro/v2/internal/auth"
-	"github.com/micro/micro/v2/internal/handler"
-	"github.com/micro/micro/v2/internal/helper"
-	"github.com/micro/micro/v2/internal/resolver/web"
-	"github.com/micro/micro/v2/internal/stats"
+	res "github.com/micro/go-micro/v3/api/resolver"
+	"github.com/micro/go-micro/v3/api/resolver/subdomain"
+	"github.com/micro/go-micro/v3/api/server"
+	"github.com/micro/go-micro/v3/api/server/acme"
+	"github.com/micro/go-micro/v3/api/server/acme/autocert"
+	"github.com/micro/go-micro/v3/api/server/acme/certmagic"
+	"github.com/micro/go-micro/v3/api/server/cors"
+	httpapi "github.com/micro/go-micro/v3/api/server/http"
+	"github.com/micro/go-micro/v3/auth"
+	log "github.com/micro/go-micro/v3/logger"
+	"github.com/micro/go-micro/v3/registry"
+	"github.com/micro/go-micro/v3/router"
+	regRouter "github.com/micro/go-micro/v3/router/registry"
+	"github.com/micro/go-micro/v3/sync/memory"
+	apiAuth "github.com/micro/micro/v3/client/api/auth"
+	"github.com/micro/micro/v3/cmd"
+	inauth "github.com/micro/micro/v3/internal/auth"
+	"github.com/micro/micro/v3/internal/handler"
+	"github.com/micro/micro/v3/internal/helper"
+	"github.com/micro/micro/v3/internal/resolver/web"
+	"github.com/micro/micro/v3/internal/stats"
+	"github.com/micro/micro/v3/service"
+	muauth "github.com/micro/micro/v3/service/auth"
+	muregistry "github.com/micro/micro/v3/service/registry"
 	"github.com/serenize/snaker"
 )
 
@@ -400,9 +408,7 @@ func (s *srv) render(w http.ResponseWriter, r *http.Request, tmpl string, data i
 	}
 }
 
-func Run(ctx *cli.Context, srvOpts ...micro.Option) {
-	log.Init(log.WithFields(map[string]interface{}{"service": "web"}))
-
+func Run(ctx *cli.Context) error {
 	if len(ctx.String("server_name")) > 0 {
 		Name = ctx.String("server_name")
 	}
@@ -415,22 +421,30 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 	if len(ctx.String("type")) > 0 {
 		Type = ctx.String("type")
 	}
+	if len(ctx.String("web_address")) > 0 {
+		Address = ctx.String("web_address")
+	}
+	if len(ctx.String("web_namespace")) > 0 {
+		Namespace = ctx.String("web_namespace")
+	}
+	if len(ctx.String("web_host")) > 0 {
+		Host = ctx.String("web_host")
+	}
 	if len(ctx.String("namespace")) > 0 {
 		// remove the service type from the namespace to allow for
 		// backwards compatability
 		Namespace = strings.TrimSuffix(ctx.String("namespace"), "."+Type)
 	}
 
-	// service opts
-	srvOpts = append(srvOpts, micro.Name(Name))
-
 	// Initialize Server
-	service := micro.NewService(srvOpts...)
+	s := service.New(service.Name(Name))
 
 	// Setup the web resolver
 	var resolver res.Resolver
 	resolver = &web.Resolver{
-		Router: service.Options().Router,
+		Router: regRouter.NewRouter(
+			router.Registry(muregistry.DefaultRegistry),
+		),
 		Options: res.NewOptions(res.WithServicePrefix(
 			Namespace + "." + Type,
 		)),
@@ -439,43 +453,43 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 		resolver = subdomain.NewResolver(resolver)
 	}
 
-	s := &srv{
+	srv := &srv{
 		Router: mux.NewRouter(),
 		registry: &reg{
-			Registry: service.Options().Registry,
+			Registry: muregistry.DefaultRegistry,
 		},
 		resolver: resolver,
-		auth:     service.Options().Auth,
+		auth:     muauth.DefaultAuth,
 	}
 
 	var h http.Handler
 	// set as the server
-	h = s
+	h = srv
 
 	if ctx.Bool("enable_stats") {
 		statsURL = "/stats"
 		st := stats.New()
-		s.HandleFunc("/stats", st.StatsHandler)
-		h = st.ServeHTTP(s)
+		srv.HandleFunc("/stats", st.StatsHandler)
+		h = st.ServeHTTP(srv)
 		st.Start()
 		defer st.Stop()
 	}
 
 	// create the proxy
-	p := s.proxy()
+	p := srv.proxy()
 
 	// the web handler itself
-	s.HandleFunc("/favicon.ico", faviconHandler)
-	s.HandleFunc("/404", s.notFoundHandler)
-	s.HandleFunc("/client", s.callHandler)
-	s.HandleFunc("/services", s.registryHandler)
-	s.HandleFunc("/service/{name}", s.registryHandler)
-	s.Handle("/rpc", handler.NewRPCHandler(resolver))
-	s.PathPrefix("/{service:[a-zA-Z0-9]+}").Handler(p)
-	s.HandleFunc("/", s.indexHandler)
+	srv.HandleFunc("/favicon.ico", faviconHandler)
+	srv.HandleFunc("/404", srv.notFoundHandler)
+	srv.HandleFunc("/client", srv.callHandler)
+	srv.HandleFunc("/services", srv.registryHandler)
+	srv.HandleFunc("/service/{name}", srv.registryHandler)
+	srv.Handle("/rpc", handler.NewRPCHandler(resolver))
+	srv.PathPrefix("/{service:[a-zA-Z0-9]+}").Handler(p)
+	srv.HandleFunc("/", srv.indexHandler)
 
 	// insert the proxy
-	s.prx = p
+	srv.prx = p
 
 	var opts []server.Option
 
@@ -501,10 +515,7 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 			}
 
 			// create the store
-			storage := certmagic.NewStorage(
-				memory.NewSync(),
-				service.Options().Store,
-			)
+			storage := certmagic.NewStorage(memory.NewSync(), store.DefaultStore)
 
 			config := cloudflare.NewDefaultConfig()
 			config.AuthToken = apiToken
@@ -532,7 +543,7 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 		config, err := helper.TLSConfig(ctx)
 		if err != nil {
 			fmt.Println(err.Error())
-			return
+			return err
 		}
 
 		opts = append(opts, server.EnableTLS(true))
@@ -540,42 +551,40 @@ func Run(ctx *cli.Context, srvOpts ...micro.Option) {
 	}
 
 	// create the service and add the auth wrapper
-	aw := apiAuth.Wrapper(s.resolver, Namespace+"."+Type)
-	srv := httpapi.NewServer(Address, server.WrapHandler(aw))
+	aw := apiAuth.Wrapper(srv.resolver, Namespace+"."+Type)
+	server := httpapi.NewServer(Address, server.WrapHandler(aw))
 
-	srv.Init(opts...)
-	srv.Handle("/", h)
+	server.Init(opts...)
+	server.Handle("/", h)
 
 	// Setup auth redirect
 	if len(ctx.String("auth_login_url")) > 0 {
 		loginURL = ctx.String("auth_login_url")
-		service.Options().Auth.Init(auth.LoginURL(loginURL))
+		muauth.DefaultAuth.Init(auth.LoginURL(loginURL))
 	}
 
-	if err := srv.Start(); err != nil {
+	if err := server.Start(); err != nil {
 		log.Fatal(err)
 	}
 
-	// Run server
-	if err := service.Run(); err != nil {
+	// Run service
+	if err := s.Run(); err != nil {
 		log.Fatal(err)
 	}
 
-	if err := srv.Stop(); err != nil {
+	if err := server.Stop(); err != nil {
 		log.Fatal(err)
 	}
+
+	return nil
 }
 
-//Commands for `micro web`
-func Commands(options ...micro.Option) []*cli.Command {
-	command := &cli.Command{
-		Name:  "web",
-		Usage: "Run the web dashboard",
-		Action: func(c *cli.Context) error {
-			Run(c, options...)
-			return nil
-		},
-		Flags: []cli.Flag{
+func init() {
+	cmd.Register(&cli.Command{
+		Name:   "web",
+		Usage:  "Run the web dashboard",
+		Action: Run,
+		Flags: append(client.Flags,
 			&cli.StringFlag{
 				Name:    "address",
 				Usage:   "Set the web UI address e.g 0.0.0.0:8082",
@@ -596,10 +605,8 @@ func Commands(options ...micro.Option) []*cli.Command {
 				EnvVars: []string{"MICRO_AUTH_LOGIN_URL"},
 				Usage:   "The relative URL where a user can login",
 			},
-		},
-	}
-
-	return []*cli.Command{command}
+		),
+	})
 }
 
 func reverse(s []string) {

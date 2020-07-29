@@ -5,9 +5,7 @@ package test
 import (
 	"errors"
 	"fmt"
-	"os"
 	"os/exec"
-	"path/filepath"
 	"strings"
 	"testing"
 	"time"
@@ -19,7 +17,7 @@ func TestConfig(t *testing.T) {
 
 func testConfig(t *t) {
 	t.Parallel()
-	serv := newServer(t)
+	serv := newServer(t, withLogin())
 	defer serv.close()
 	if err := serv.launch(); err != nil {
 		return
@@ -31,7 +29,7 @@ func testConfig(t *t) {
 		if err == nil {
 			return outp, errors.New("config gete should fail")
 		}
-		if string(outp) != "not found\n" {
+		if !strings.Contains(string(outp), "Not found") {
 			return outp, fmt.Errorf("Output should be 'not found\n', got %v", string(outp))
 		}
 		return outp, nil
@@ -87,8 +85,8 @@ func testConfig(t *t) {
 		if err == nil {
 			return outp, errors.New("getting somekey should fail")
 		}
-		if string(outp) != "not found\n" {
-			return outp, errors.New("Expected 'not found\n'")
+		if !strings.Contains(string(outp), "not found") {
+			return outp, errors.New("Expected 'not found'")
 		}
 		return outp, nil
 	}, 8*time.Second); err != nil {
@@ -128,32 +126,9 @@ func TestConfigReadFromService(t *testing.T) {
 
 func testConfigReadFromService(t *t) {
 	t.Parallel()
-	serv := newServer(t)
+	serv := newServer(t, withLogin())
 	defer serv.close()
 	if err := serv.launch(); err != nil {
-		return
-	}
-
-	dirname := "config-read-example"
-	folderPath := filepath.Join(os.TempDir(), dirname)
-
-	err := os.MkdirAll(folderPath, 0777)
-	if err != nil {
-		t.Fatal(err)
-		return
-	}
-
-	outp, err := exec.Command("cp", "-r", "config-example-service/.", folderPath).CombinedOutput()
-	if err != nil {
-		t.Fatal(string(outp))
-		return
-	}
-
-	runCmd := exec.Command("micro", serv.envFlag(), "run", ".")
-	runCmd.Dir = folderPath
-	outp, err = runCmd.CombinedOutput()
-	if err != nil {
-		t.Fatalf("micro run failure, output: %v", string(outp))
 		return
 	}
 
@@ -173,8 +148,31 @@ func testConfigReadFromService(t *t) {
 		return
 	}
 
+	// check the value set correctly
+	if err := try("Calling micro config get", t, func() ([]byte, error) {
+		setCmd := exec.Command("micro", serv.envFlag(), "config", "get", "key")
+		outp, err := setCmd.CombinedOutput()
+		if err != nil {
+			return outp, err
+		}
+		if !strings.Contains(string(outp), "val1") {
+			return outp, fmt.Errorf("Expected output to contain val1, got: %v", string(outp))
+		}
+
+		return outp, err
+	}, 5*time.Second); err != nil {
+		return
+	}
+
+	runCmd := exec.Command("micro", serv.envFlag(), "run", "./service/config")
+	outp, err := runCmd.CombinedOutput()
+	if err != nil {
+		t.Fatalf("micro run failure, output: %v", string(outp))
+		return
+	}
+
 	if err := try("Try logs read", t, func() ([]byte, error) {
-		setCmd := exec.Command("micro", serv.envFlag(), "logs", "-n", "1", dirname)
+		setCmd := exec.Command("micro", serv.envFlag(), "logs", "service/config")
 		outp, err := setCmd.CombinedOutput()
 		if err != nil {
 			return outp, err

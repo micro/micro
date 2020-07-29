@@ -8,8 +8,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/micro/go-micro/v2/client"
-	stats "github.com/micro/micro/v2/service/debug/stats/proto"
+	"github.com/micro/go-micro/v3/client"
+	stats "github.com/micro/micro/v3/service/debug/stats/proto"
 	"github.com/netdata/go-orchestrator/module"
 )
 
@@ -193,7 +193,7 @@ func (m *Micro) collect(ctx context.Context) error {
 	req := &stats.ReadRequest{}
 	rsp := &stats.ReadResponse{}
 
-	err := m.client.Call(ctx, client.NewRequest("go.micro.debug", "Stats.Read", req), rsp)
+	err := m.client.Call(ctx, m.client.NewRequest("go.micro.debug", "Stats.Read", req), rsp)
 	if err != nil {
 		return err
 	}

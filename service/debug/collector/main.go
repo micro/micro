@@ -4,9 +4,9 @@ import (
 	"os"
 	"path"
 
-	"github.com/micro/go-micro/v2"
-	log "github.com/micro/go-micro/v2/logger"
-	plugin "github.com/micro/micro/v2/service/debug/collector/micro"
+	log "github.com/micro/go-micro/v3/logger"
+	"github.com/micro/micro/v3/service"
+	plugin "github.com/micro/micro/v3/service/debug/collector/micro"
 	"github.com/netdata/go-orchestrator"
 	"github.com/netdata/go-orchestrator/cli"
 	"github.com/netdata/go-orchestrator/pkg/multipath"
@@ -24,9 +24,9 @@ var (
 
 func main() {
 	// New Service
-	service := micro.NewService(
-		micro.Name("go.micro.debug.collector"),
-		micro.Version("latest"),
+	srv := service.New(
+		service.Name("go.micro.debug.collector"),
+		service.Version("latest"),
 	)
 
 	if len(os.Args) > 1 {
@@ -34,14 +34,14 @@ func main() {
 	}
 
 	// Initialise service
-	service.Init()
+	srv.Init()
 
 	go func() {
-		log.Fatal(service.Run())
+		log.Fatal(srv.Run())
 	}()
 
 	// register the new plugin
-	plugin.New(service.Client()).Register()
+	plugin.New(srv.Client()).Register()
 
 	netdata := orchestrator.New()
 	netdata.Name = "micro.d"

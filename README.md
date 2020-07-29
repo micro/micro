@@ -1,10 +1,10 @@
 # Micro [![License](https://img.shields.io/:license-apache-blue.svg)](https://opensource.org/licenses/Apache-2.0) [![GoDoc](https://godoc.org/github.com/micro/micro?status.svg)](https://godoc.org/github.com/micro/micro) [![Travis CI](https://travis-ci.org/micro/micro.svg?branch=master)](https://travis-ci.org/micro/micro) [![Go Report Card](https://goreportcard.com/badge/micro/micro)](https://goreportcard.com/report/github.com/micro/micro)
 
-Micro is a framework for distributed systems development in the Cloud and beyond.
+Micro is a framework for cloud native development.
 
 ## Overview
 
-Micro addresses the key requirements for building distributed systems. It leverages the microservices
+Micro addresses the key requirements for building cloud native services. It leverages the microservices
 architecture pattern and provides a set of services which act as the building blocks of a platform. Micro deals
 with the complexity of distributed systems and provides simpler programmable abstractions to build on.
 
@@ -29,7 +29,7 @@ to provide a pluggable foundation. We make it simple to use by pre-initialising 
 Install from source
 
 ```
-go get github.com/micro/micro/v2
+go get github.com/micro/micro/v3
 ```
 
 Using a docker image
@@ -63,19 +63,19 @@ Create a service
 
 ```
 # generate a service (follow instructions in output)
-micro new example
+micro new helloworld
 
 # set to use server
 micro env set server
 
 # run the service
-micro run example
+micro run helloworld
 
 # list services
 micro services
 
 # call a service
-micro call go.micro.service.example Example.Call '{"name": "John"}'
+micro call helloworld Helloworld.Call '{"name": "John"}'
 ```
 
 ## Usage
@@ -86,7 +86,7 @@ See all the options
 micro --help
 ```
 
-See the [docs](https://dev.m3o.com) for detailed information on the architecture, installation and use of the platform.
+See the [docs](https://github.com/micro/docs) for detailed information on the architecture, installation and use of the platform.
 
 ## License
 

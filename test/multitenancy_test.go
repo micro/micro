@@ -10,8 +10,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/micro/micro/v2/client/cli/namespace"
-	"github.com/micro/micro/v2/client/cli/token"
+	"github.com/micro/micro/v3/client/cli/namespace"
+	"github.com/micro/micro/v3/client/cli/token"
 )
 
 // Test for making sure config and store values across namespaces
@@ -22,7 +22,7 @@ func TestNamespaceConfigIsolation(t *testing.T) {
 
 func testNamespaceConfigIsolation(t *t) {
 	t.Parallel()
-	serv := newServer(t)
+	serv := newServer(t, withLogin())
 	defer serv.close()
 	if err := serv.launch(); err != nil {
 		return
@@ -31,20 +31,17 @@ func testNamespaceConfigIsolation(t *t) {
 	testNamespaceConfigIsolationSuite(serv, t)
 }
 
-func testNamespaceConfigIsolationSuite(serv server, t *t) {
-	err := namespace.Add(serv.envName, serv.envName)
+func testNamespaceConfigIsolationSuite(serv testServer, t *t) {
+	err := namespace.Add(serv.envName(), serv.envName())
 	if err != nil {
 		t.Fatal(err)
 		return
 	}
-	err = namespace.Set(serv.envName, serv.envName)
+	err = namespace.Set(serv.envName(), serv.envName())
 	if err != nil {
 		t.Fatal(err)
 		return
 	}
-
-	// This call is only here to trigger default account generation
-	exec.Command("micro", serv.envFlag(), "auth", "list", "accounts").CombinedOutput()
 
 	login(serv, t, "default", "password")
 	if t.failed {
@@ -79,17 +76,17 @@ func testNamespaceConfigIsolationSuite(serv server, t *t) {
 		return
 	}
 
-	err = namespace.Add("random", serv.envName)
+	err = namespace.Add("random", serv.envName())
 	if err != nil {
 		t.Fatal(err)
 		return
 	}
-	err = namespace.Set("random", serv.envName)
+	err = namespace.Set("random", serv.envName())
 	if err != nil {
 		t.Fatal(err)
 		return
 	}
-	err = token.Remove(serv.envName)
+	err = token.Remove(serv.envName())
 	if err != nil {
 		t.Fatal(err)
 		return
@@ -109,7 +106,7 @@ func testNamespaceConfigIsolationSuite(serv server, t *t) {
 		if err == nil {
 			return outp, errors.New("getting somekey should fail")
 		}
-		if string(outp) != "not found\n" {
+		if !strings.Contains(string(outp), "Not found") {
 			return outp, errors.New("Expected 'not found\n'")
 		}
 		return outp, nil
@@ -120,12 +117,12 @@ func testNamespaceConfigIsolationSuite(serv server, t *t) {
 	// Log back to original namespace and see if value is already there
 
 	// orignal namespace matchesthe env name
-	err = namespace.Set(serv.envName, serv.envName)
+	err = namespace.Set(serv.envName(), serv.envName())
 	if err != nil {
 		t.Fatal(err)
 		return
 	}
-	err = token.Remove(serv.envName)
+	err = token.Remove(serv.envName())
 	if err != nil {
 		t.Fatal(err)
 		return
@@ -148,18 +145,4 @@ func testNamespaceConfigIsolationSuite(serv server, t *t) {
 	}, 8*time.Second); err != nil {
 		return
 	}
-}
-
-func login(serv server, t *t, email, password string) error {
-	return try("Logging in", t, func() ([]byte, error) {
-		readCmd := exec.Command("micro", serv.envFlag(), "login", "--email", email, "--password", password)
-		outp, err := readCmd.CombinedOutput()
-		if err != nil {
-			return outp, err
-		}
-		if !strings.Contains(string(outp), "Success") {
-			return outp, errors.New("Login output does not contain 'Success'")
-		}
-		return outp, err
-	}, 4*time.Second)
 }

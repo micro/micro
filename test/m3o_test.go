@@ -5,7 +5,6 @@ package test
 import (
 	"errors"
 	"io"
-	"log"
 	"os"
 	"os/exec"
 	"strings"
@@ -13,7 +12,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/micro/micro/v2/client/cli/namespace"
+	"github.com/micro/micro/v3/client/cli/namespace"
 	"github.com/stripe/stripe-go/v71"
 	stripe_client "github.com/stripe/stripe-go/v71/client"
 )
@@ -51,26 +50,26 @@ func testM3oSignupFlow(t *t) {
 		}
 	}
 
-	outp, err := exec.Command("micro", serv.envFlag(), "run", getSrcString("M3O_INVITE_SVC", "github.com/micro/services/account/invite")).CombinedOutput()
+	outp, err := exec.Command("micro", serv.envFlag(), "run", getSrcString("M3O_INVITE_SVC", "github.com/m3o/services/account/invite")).CombinedOutput()
 	if err != nil {
 		t.Fatal(string(outp))
 		return
 	}
 
-	outp, err = exec.Command("micro", serv.envFlag(), "run", getSrcString("M3O_SIGNUP_SVC", "github.com/micro/services/signup")).CombinedOutput()
+	outp, err = exec.Command("micro", serv.envFlag(), "run", getSrcString("M3O_SIGNUP_SVC", "github.com/m3o/services/signup")).CombinedOutput()
 	if err != nil {
 		t.Fatal(string(outp))
 		return
 	}
 
-	outp, err = exec.Command("micro", serv.envFlag(), "run", getSrcString("M3O_STRIPE_SVC", "github.com/micro/services/payments/provider/stripe")).CombinedOutput()
+	outp, err = exec.Command("micro", serv.envFlag(), "run", getSrcString("M3O_STRIPE_SVC", "github.com/m3o/services/payments/provider/stripe")).CombinedOutput()
 	if err != nil {
 		t.Fatal(string(outp))
 		return
 	}
 
 	if err := try("Find signup and stripe in list", t, func() ([]byte, error) {
-		outp, err := exec.Command("micro", serv.envFlag(), "list", "services").CombinedOutput()
+		outp, err := exec.Command("micro", serv.envFlag(), "services").CombinedOutput()
 		if err != nil {
 			return outp, err
 		}
@@ -87,7 +86,7 @@ func testM3oSignupFlow(t *t) {
 	cmd := exec.Command("micro", serv.envFlag(), "login", "--otp")
 	stdin, err := cmd.StdinPipe()
 	if err != nil {
-		log.Fatal(err)
+		t.Fatal(err)
 	}
 	wg := sync.WaitGroup{}
 	wg.Add(1)
@@ -122,7 +121,7 @@ func testM3oSignupFlow(t *t) {
 	cmd = exec.Command("micro", serv.envFlag(), "signup", "--password", password)
 	stdin, err = cmd.StdinPipe()
 	if err != nil {
-		log.Fatal(err)
+		t.Fatal(err)
 	}
 	wg = sync.WaitGroup{}
 	wg.Add(1)
@@ -131,17 +130,19 @@ func testM3oSignupFlow(t *t) {
 		outp, err := cmd.CombinedOutput()
 		if err != nil {
 			t.Fatal(string(outp), err)
+			return
 		}
 		if !strings.Contains(string(outp), "Success") {
 			t.Fatal(string(outp))
+			return
 		}
-		ns, err := namespace.Get(serv.envName)
+		ns, err := namespace.Get(serv.envName())
 		if err != nil {
 			t.Fatalf("Eror getting namespace: %v", err)
 			return
 		}
 		defer func() {
-			namespace.Remove(ns, serv.envName)
+			namespace.Remove(ns, serv.envName())
 		}()
 		if strings.Count(ns, "-") != 2 {
 			t.Fatalf("Expected 2 dashes in namespace but namespace is: %v", ns)
@@ -167,6 +168,7 @@ func testM3oSignupFlow(t *t) {
 		time.Sleep(20 * time.Second)
 		cmd.Process.Kill()
 	}()
+
 	_, err = io.WriteString(stdin, "dobronszki@gmail.com\n")
 	if err != nil {
 		t.Fatal(err)
@@ -174,7 +176,7 @@ func testM3oSignupFlow(t *t) {
 
 	code := ""
 	if err := try("Find verification token in logs", t, func() ([]byte, error) {
-		psCmd := exec.Command("micro", serv.envFlag(), "logs", "-n", "100", "signup")
+		psCmd := exec.Command("micro", serv.envFlag(), "logs", "-n", "100", "m3o/services/signup")
 		outp, err = psCmd.CombinedOutput()
 		if err != nil {
 			return outp, err
@@ -239,18 +241,4 @@ func getSrcString(envvar, dflt string) string {
 		return env
 	}
 	return dflt
-}
-
-func login(serv server, t *t, email, password string) error {
-	return try("Logging in", t, func() ([]byte, error) {
-		readCmd := exec.Command("micro", serv.envFlag(), "login", "--email", email, "--password", password)
-		outp, err := readCmd.CombinedOutput()
-		if err != nil {
-			return outp, err
-		}
-		if !strings.Contains(string(outp), "Success") {
-			return outp, errors.New("Login output does not contain 'Success'")
-		}
-		return outp, err
-	}, 4*time.Second)
 }

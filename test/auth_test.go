@@ -18,34 +18,11 @@ func TestServerAuth(t *testing.T) {
 
 func testServerAuth(t *t) {
 	t.Parallel()
-	serv := newServer(t)
+	serv := newServer(t, withLogin())
 	defer serv.close()
 	if err := serv.launch(); err != nil {
 		return
 	}
-
-	basicAuthSuite(serv, t)
-}
-
-func TestServerAuthJWT(t *testing.T) {
-	trySuite(t, testServerAuthJWT, retryCount)
-}
-
-func testServerAuthJWT(t *t) {
-	t.Parallel()
-	serv := newServer(t, options{
-		auth: "jwt",
-	})
-	defer serv.close()
-	if err := serv.launch(); err != nil {
-		return
-	}
-
-	basicAuthSuite(serv, t)
-}
-
-func basicAuthSuite(serv server, t *t) {
-	login(serv, t, "default", "password")
 
 	// Execute first command in read to wait for store service
 	// to start up
@@ -108,19 +85,93 @@ func basicAuthSuite(serv server, t *t) {
 	}
 }
 
-func TestServerLoginJWT(t *testing.T) {
-	trySuite(t, testServerAuthJWT, retryCount)
+func TestServerLockdown(t *testing.T) {
+	trySuite(t, testServerAuth, retryCount)
 }
 
-func testServerLoginJWT(t *t) {
+func testServerLockdown(t *t) {
 	t.Parallel()
-	serv := newServer(t, options{
-		auth: "jwt",
-	})
+	serv := newServer(t)
 	defer serv.close()
 	if err := serv.launch(); err != nil {
 		return
 	}
 
-	login(serv, t, "default", "password")
+	lockdownSuite(serv, t)
+}
+
+func lockdownSuite(serv testServer, t *t) {
+	// Execute first command in read to wait for store service
+	// to start up
+	if err := try("Calling micro auth list rules", t, func() ([]byte, error) {
+		readCmd := exec.Command("micro", serv.envFlag(), "auth", "list", "rules")
+		outp, err := readCmd.CombinedOutput()
+		if err != nil {
+			return outp, err
+		}
+		if !strings.Contains(string(outp), "default") {
+			return outp, fmt.Errorf("Output should contain default rule")
+		}
+		return outp, nil
+	}, 15*time.Second); err != nil {
+		return
+	}
+
+	email := "me@email.com"
+	pass := "mystrongpass"
+
+	outp, err := exec.Command("micro", serv.envFlag(), "auth", "create", "account", "--secret", pass, "--scopes", "admin", email).CombinedOutput()
+	if err != nil {
+		t.Fatal(string(outp), err)
+		return
+	}
+
+	outp, err = exec.Command("micro", serv.envFlag(), "auth", "create", "rule", "--access=granted", "--scope='*'", "--resource='*:*:*'", "onlyloggedin").CombinedOutput()
+	if err != nil {
+		t.Fatal(string(outp), err)
+		return
+	}
+
+	outp, err = exec.Command("micro", serv.envFlag(), "auth", "create", "rule", "--access=granted", "--scope=''", "authpublic").CombinedOutput()
+	if err != nil {
+		t.Fatal(string(outp), err)
+		return
+	}
+
+	outp, err = exec.Command("micro", serv.envFlag(), "auth", "delete", "rule", "default").CombinedOutput()
+	if err != nil {
+		t.Fatal(string(outp), err)
+		return
+	}
+
+	outp, err = exec.Command("micro", serv.envFlag(), "auth", "delete", "account", "default").CombinedOutput()
+	if err != nil {
+		t.Fatal(string(outp), err)
+		return
+	}
+
+	if err := try("Listing rules should fail before login", t, func() ([]byte, error) {
+		outp, err := exec.Command("micro", serv.envFlag(), "auth", "list", "rules").CombinedOutput()
+		if err == nil {
+			return outp, errors.New("List rules should fail")
+		}
+		return outp, err
+	}, 31*time.Second); err != nil {
+		return
+	}
+
+	login(serv, t, "me@email.com", "mystrongpass")
+
+	if err := try("Listing rules should pass after login", t, func() ([]byte, error) {
+		outp, err := exec.Command("micro", serv.envFlag(), "auth", "list", "rules").CombinedOutput()
+		if err != nil {
+			return outp, err
+		}
+		if !strings.Contains(string(outp), "onlyloggedin") || !strings.Contains(string(outp), "authpublic") {
+			return outp, errors.New("Can't find rules")
+		}
+		return outp, err
+	}, 31*time.Second); err != nil {
+		return
+	}
 }

@@ -4,19 +4,20 @@ import (
 	"context"
 	"strings"
 
-	"github.com/micro/go-micro/v2/auth"
-	"github.com/micro/go-micro/v2/errors"
-	"github.com/micro/go-micro/v2/metadata"
-	"github.com/micro/go-micro/v2/server"
-	"github.com/micro/micro/v2/internal/namespace"
+	"github.com/micro/go-micro/v3/auth"
+	"github.com/micro/go-micro/v3/errors"
+	"github.com/micro/go-micro/v3/metadata"
+	"github.com/micro/go-micro/v3/server"
+	"github.com/micro/micro/v3/internal/namespace"
+	muauth "github.com/micro/micro/v3/service/auth"
 )
 
 // authHandler wraps a server handler to perform auth
-func authHandler(fn func() auth.Auth) server.HandlerWrapper {
+func authHandler() server.HandlerWrapper {
 	return func(h server.HandlerFunc) server.HandlerFunc {
 		return func(ctx context.Context, req server.Request, rsp interface{}) error {
 			// get the auth.Auth interface
-			a := fn()
+			a := muauth.DefaultAuth
 
 			// Extract the token if the header is present. We will inspect the token regardless of if it's
 			// present or not since noop auth will return a blank account upon Inspecting a blank token.

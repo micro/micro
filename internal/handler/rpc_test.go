@@ -9,9 +9,9 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/micro/go-micro/v2"
-	"github.com/micro/go-micro/v2/metadata"
-	"github.com/micro/go-micro/v2/registry/memory"
+	"github.com/micro/go-micro/v3/metadata"
+	"github.com/micro/micro/v3/profile"
+	"github.com/micro/micro/v3/service"
 )
 
 type TestHandler struct {
@@ -41,22 +41,21 @@ func (t *TestHandler) Exec(ctx context.Context, req *TestRequest, rsp *TestRespo
 }
 
 func TestRPCHandler(t *testing.T) {
-	r := memory.NewRegistry()
+	profile.Test.Setup(nil)
 
-	service := micro.NewService(
-		micro.Name("test"),
-		micro.Registry(r),
+	srv := service.New(
+		service.Name("test"),
 	)
 
-	service.Server().Handle(
-		service.Server().NewHandler(&TestHandler{t, metadata.Metadata{"Foo": "Bar"}}),
+	srv.Server().Handle(
+		srv.Server().NewHandler(&TestHandler{t, metadata.Metadata{"Foo": "Bar"}}),
 	)
 
-	if err := service.Server().Start(); err != nil {
+	if err := srv.Server().Start(); err != nil {
 		t.Fatal(err)
 	}
 
-	defer service.Server().Stop()
+	defer srv.Server().Stop()
 
 	w := httptest.NewRecorder()
 

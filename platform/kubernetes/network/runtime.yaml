@@ -138,8 +138,6 @@ spec:
           value: "kubernetes"
         - name: MICRO_RUNTIME_PROFILE
           value: "platform"
-        - name: MICRO_AUTO_UPDATE
-          value: "true"
         - name: MICRO_LOG_LEVEL
           value: "debug"
         - name: MICRO_STORE

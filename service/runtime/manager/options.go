@@ -1,15 +1,12 @@
 package manager
 
 import (
-	"github.com/micro/go-micro/v2/auth"
-	"github.com/micro/go-micro/v2/store"
+	"github.com/micro/go-micro/v3/auth"
+	"github.com/micro/go-micro/v3/store"
 )
 
 // Options for the runtime manager
 type Options struct {
-	// Profile contains the env vars to set when
-	// running a service
-	Profile []string
 	// Auth to generate credentials
 	Auth auth.Auth
 	// Store to persist state
@@ -20,13 +17,6 @@ type Options struct {
 
 // Option sets an option
 type Option func(*Options)
-
-// Profile to use when running services
-func Profile(p []string) Option {
-	return func(o *Options) {
-		o.Profile = p
-	}
-}
 
 // Store to persist services and sync events
 func Store(s store.Store) Option {

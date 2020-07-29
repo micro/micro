@@ -11,16 +11,15 @@ import (
 
 	"github.com/dustin/go-humanize"
 	"github.com/micro/cli/v2"
-	"github.com/micro/go-micro/v2/cmd"
-	"github.com/micro/go-micro/v2/store"
-	"github.com/micro/micro/v2/client/cli/namespace"
-	"github.com/micro/micro/v2/client/cli/util"
-	inclient "github.com/micro/micro/v2/internal/client"
+	"github.com/micro/go-micro/v3/store"
+	"github.com/micro/micro/v3/client/cli/namespace"
+	"github.com/micro/micro/v3/client/cli/util"
+	mustore "github.com/micro/micro/v3/service/store"
 	"github.com/pkg/errors"
 )
 
-// Read gets something from the store
-func Read(ctx *cli.Context) error {
+// read gets something from the store
+func read(ctx *cli.Context) error {
 	if err := initStore(ctx); err != nil {
 		return err
 	}
@@ -41,7 +40,7 @@ func Read(ctx *cli.Context) error {
 		opts = append(opts, store.ReadPrefix())
 	}
 
-	store := *cmd.DefaultCmd.Options().Store
+	store := mustore.DefaultStore
 	records, err := store.Read(ctx.Args().First(), opts...)
 	if err != nil {
 		if err.Error() == "not found" {
@@ -89,8 +88,8 @@ func Read(ctx *cli.Context) error {
 	return nil
 }
 
-// Write puts something in the store.
-func Write(ctx *cli.Context) error {
+// write puts something in the store.
+func write(ctx *cli.Context) error {
 	if err := initStore(ctx); err != nil {
 		return err
 	}
@@ -115,15 +114,15 @@ func Write(ctx *cli.Context) error {
 		return err
 	}
 
-	s := *cmd.DefaultCmd.Options().Store
+	s := mustore.DefaultStore
 	if err := s.Write(record, store.WriteTo(ns, ctx.String("table"))); err != nil {
 		return errors.Wrap(err, "couldn't write")
 	}
 	return nil
 }
 
-// List retrieves keys
-func List(ctx *cli.Context) error {
+// list retrieves keys
+func list(ctx *cli.Context) error {
 	if err := initStore(ctx); err != nil {
 		return err
 	}
@@ -147,7 +146,7 @@ func List(ctx *cli.Context) error {
 		opts = append(opts, store.ListLimit(ctx.Uint("offset")))
 	}
 
-	store := *cmd.DefaultCmd.Options().Store
+	store := mustore.DefaultStore
 	keys, err := store.List(opts...)
 	if err != nil {
 		return errors.Wrap(err, "couldn't list")
@@ -167,8 +166,8 @@ func List(ctx *cli.Context) error {
 	return nil
 }
 
-// Delete deletes keys
-func Delete(ctx *cli.Context) error {
+// delete deletes keys
+func delete(ctx *cli.Context) error {
 	if err := initStore(ctx); err != nil {
 		return err
 	}
@@ -182,7 +181,7 @@ func Delete(ctx *cli.Context) error {
 		return err
 	}
 
-	s := *cmd.DefaultCmd.Options().Store
+	s := mustore.DefaultStore
 	if err := s.Delete(ctx.Args().First(), store.DeleteFrom(ns, ctx.String("table"))); err != nil {
 		return errors.Wrapf(err, "couldn't delete key %s", ctx.Args().First())
 	}
@@ -190,9 +189,7 @@ func Delete(ctx *cli.Context) error {
 }
 
 func initStore(ctx *cli.Context) error {
-	opts := []store.Option{
-		store.WithClient(inclient.New(ctx)),
-	}
+	opts := []store.Option{}
 
 	if len(ctx.String("database")) > 0 {
 		opts = append(opts, store.Database(ctx.String("database")))
@@ -201,7 +198,7 @@ func initStore(ctx *cli.Context) error {
 		opts = append(opts, store.Table(ctx.String("table")))
 	}
 
-	store := *cmd.DefaultCmd.Options().Store
+	store := mustore.DefaultStore
 	if err := store.Init(opts...); err != nil {
 		return errors.Wrap(err, "couldn't reinitialise store with options")
 	}
