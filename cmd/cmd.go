@@ -23,7 +23,6 @@ import (
 	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro/v3/auth"
 	"github.com/micro/go-micro/v3/cmd"
-	"github.com/micro/micro/v3/service/logger"
 	"github.com/micro/go-micro/v3/registry"
 	"github.com/micro/micro/v3/client/cli/util"
 	"github.com/micro/micro/v3/internal/helper"
@@ -31,6 +30,7 @@ import (
 	"github.com/micro/micro/v3/internal/wrapper"
 	"github.com/micro/micro/v3/plugin"
 	"github.com/micro/micro/v3/profile"
+	"github.com/micro/micro/v3/service/logger"
 
 	authCli "github.com/micro/micro/v3/service/auth/client"
 	brokerCli "github.com/micro/micro/v3/service/broker/client"
@@ -51,6 +51,10 @@ import (
 type command struct {
 	opts cmd.Options
 	app  *cli.App
+
+	// before is a function which should
+	// be called in Before if not nil
+	before cli.ActionFunc
 
 	// indicates whether this is a service
 	service bool
@@ -169,6 +173,16 @@ var (
 			Usage:   "Override environment",
 			EnvVars: []string{"MICRO_ENV"},
 		},
+		&cli.StringFlag{
+			Name:    "service_name",
+			Usage:   "Name of the micro service",
+			EnvVars: []string{"MICRO_NAME"},
+		},
+		&cli.StringFlag{
+			Name:    "service_version",
+			Usage:   "Version of the micro service",
+			EnvVars: []string{"MICRO_VERSION"},
+		},
 	}
 )
 
@@ -191,7 +205,7 @@ func New(opts ...cmd.Option) cmd.Cmd {
 	cmd.app.Usage = description
 	cmd.app.Flags = defaultFlags
 	cmd.app.Action = action
-	cmd.app.Before = cmd.Before
+	cmd.app.Before = beforeFromContext(options.Context, cmd.Before)
 	cmd.app.After = cmd.After
 
 	// if this option has been set, we're running a service

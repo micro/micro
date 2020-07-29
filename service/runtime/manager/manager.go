@@ -196,7 +196,7 @@ func (m *manager) resurrectServices() {
 				gorun.CreateNamespace(ns),
 				gorun.WithArgs(srv.Options.Args...),
 				gorun.WithCommand(srv.Options.Command...),
-				gorun.WithEnv(m.runtimeEnv(srv.Options)),
+				gorun.WithEnv(m.runtimeEnv(srv.Service, srv.Options)),
 				gorun.CreateCredentials(acc.ID, acc.Secret),
 			)
 		}
