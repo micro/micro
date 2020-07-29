@@ -9,11 +9,11 @@ import (
 	"text/tabwriter"
 
 	"github.com/micro/cli/v2"
-	"github.com/micro/go-micro/v3/errors"
 	"github.com/micro/micro/v3/client/cli/namespace"
 	"github.com/micro/micro/v3/client/cli/util"
 	pb "github.com/micro/micro/v3/service/auth/proto"
 	muclient "github.com/micro/micro/v3/service/client"
+	"github.com/micro/micro/v3/service/errors"
 )
 
 func listRules(ctx *cli.Context) error {
@@ -71,7 +71,7 @@ func createRule(ctx *cli.Context) error {
 	_, err = rulesFromContext(ctx).Create(context.TODO(), &pb.CreateRequest{
 		Rule: rule, Options: &pb.Options{Namespace: ns},
 	})
-	if verr, ok := err.(*errors.Error); ok {
+	if verr := errors.Parse(err); verr != nil {
 		return fmt.Errorf("Error: %v", verr.Detail)
 	} else if err != nil {
 		return err
@@ -94,7 +94,7 @@ func deleteRule(ctx *cli.Context) error {
 	_, err = rulesFromContext(ctx).Delete(context.TODO(), &pb.DeleteRequest{
 		Id: ctx.Args().First(), Options: &pb.Options{Namespace: ns},
 	})
-	if verr, ok := err.(*errors.Error); ok {
+	if verr := errors.Parse(err); verr != nil {
 		return fmt.Errorf("Error: %v", verr.Detail)
 	} else if err != nil {
 		return err

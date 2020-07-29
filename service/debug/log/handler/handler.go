@@ -5,7 +5,7 @@ import (
 	"sync"
 
 	"github.com/micro/go-micro/v3/debug/log"
-	"github.com/micro/go-micro/v3/errors"
+	"github.com/micro/micro/v3/service/errors"
 	pb "github.com/micro/micro/v3/service/debug/log/proto"
 )
 
