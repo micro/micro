@@ -12,7 +12,6 @@ func main() {
 	// New Service
 	srv := service.New(
 		service.Name("go.micro.service.config-read"),
-		service.Version("latest"),
 	)
 	srv.Init()
 
