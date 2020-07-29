@@ -37,7 +37,7 @@ import (
 	"github.com/micro/micro/v3/service"
 	log "github.com/micro/micro/v3/service/logger"
 	muregistry "github.com/micro/micro/v3/service/registry"
-	mustore "github.com/micro/micro/v3/service/store"
+	"github.com/micro/micro/v3/service/store"
 )
 
 var (
@@ -112,7 +112,7 @@ func Run(ctx *cli.Context) error {
 
 			storage := certmagic.NewStorage(
 				memory.NewSync(),
-				mustore.DefaultStore,
+				store.DefaultStore,
 			)
 
 			config := cloudflare.NewDefaultConfig()

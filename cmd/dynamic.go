@@ -9,19 +9,19 @@ import (
 	"strings"
 
 	"github.com/micro/cli/v2"
-	"github.com/micro/go-micro/v3/client"
-	"github.com/micro/go-micro/v3/registry"
+	goclient "github.com/micro/go-micro/v3/client"
+	goregistry "github.com/micro/go-micro/v3/registry"
 	"github.com/micro/micro/v3/client/cli/namespace"
 	"github.com/micro/micro/v3/client/cli/util"
-	muclient "github.com/micro/micro/v3/service/client"
-	muregistry "github.com/micro/micro/v3/service/registry"
+	"github.com/micro/micro/v3/service/client"
+	"github.com/micro/micro/v3/service/registry"
 )
 
 // lookupService queries the service for a service with the given alias. If
 // no services are found for a given alias, the registry will return nil and
 // the error will also be nil. An error is only returned if there was an issue
 // listing from the registry.
-func lookupService(ctx *cli.Context) (*registry.Service, error) {
+func lookupService(ctx *cli.Context) (*goregistry.Service, error) {
 	// TODO: remove the service prefix from the name, go.micro.service.helloworld
 	// will soon be named just the alias, e.g. "helloworld".
 	name := fmt.Sprintf("go.micro.service.%v", ctx.Args().First())
@@ -33,18 +33,17 @@ func lookupService(ctx *cli.Context) (*registry.Service, error) {
 	}
 
 	// lookup from the registry in the current namespace
-	reg := muregistry.DefaultRegistry
-	srvs, err := reg.GetService(name, registry.GetDomain(dom))
-	if err != nil && err != registry.ErrNotFound {
+	srvs, err := registry.GetService(name, goregistry.GetDomain(dom))
+	if err != nil && err != goregistry.ErrNotFound {
 		return nil, err
 	} else if len(srvs) > 0 {
 		return srvs[0], nil
 	}
 
 	// check for the service in the default namespace also
-	if dom != registry.DefaultDomain {
-		srvs, err := reg.GetService(name)
-		if err != nil && err != registry.ErrNotFound {
+	if dom != goregistry.DefaultDomain {
+		srvs, err := registry.GetService(name)
+		if err != nil && err != goregistry.ErrNotFound {
 			return nil, err
 		} else if len(srvs) > 0 {
 			return srvs[0], nil
@@ -56,7 +55,7 @@ func lookupService(ctx *cli.Context) (*registry.Service, error) {
 }
 
 // formatServiceUsage returns a string containing the service usage.
-func formatServiceUsage(srv *registry.Service, alias string) string {
+func formatServiceUsage(srv *goregistry.Service, alias string) string {
 	commands := make([]string, len(srv.Endpoints))
 	for i, e := range srv.Endpoints {
 		// map "Helloworld.Call" to "helloworld.call"
@@ -85,7 +84,7 @@ func formatServiceUsage(srv *registry.Service, alias string) string {
 // callService will call a service using the arguments and flags provided
 // in the context. It will print the result or error to stdout. If there
 // was an error performing the call, it will be returned.
-func callService(srv *registry.Service, ctx *cli.Context) error {
+func callService(srv *goregistry.Service, ctx *cli.Context) error {
 	// parse the flags and args
 	args, flags, err := splitCmdArgs(ctx)
 	if err != nil {
@@ -99,7 +98,7 @@ func callService(srv *registry.Service, ctx *cli.Context) error {
 	}
 
 	// ensure the endpoint exists on the service
-	var ep *registry.Endpoint
+	var ep *goregistry.Endpoint
 	for _, e := range srv.Endpoints {
 		if e.Name == endpoint {
 			ep = e
@@ -117,10 +116,9 @@ func callService(srv *registry.Service, ctx *cli.Context) error {
 	}
 
 	// construct and execute the request using the json content type
-	cli := muclient.DefaultClient
-	req := cli.NewRequest(srv.Name, endpoint, body, client.WithContentType("application/json"))
+	req := client.NewRequest(srv.Name, endpoint, body, goclient.WithContentType("application/json"))
 	var rsp json.RawMessage
-	if err := cli.Call(ctx.Context, req, &rsp); err != nil {
+	if err := client.Call(ctx.Context, req, &rsp); err != nil {
 		return err
 	}
 
@@ -181,7 +179,7 @@ func constructEndpoint(args []string) (string, error) {
 // flagsToRequeest parses a set of flags, e.g {name:"Foo", "options_surname","Bar"} and
 // converts it into a request body. If the key is not a valid object in the request, an
 // error will be returned.
-func flagsToRequest(flags map[string]string, req *registry.Value) (map[string]interface{}, error) {
+func flagsToRequest(flags map[string]string, req *goregistry.Value) (map[string]interface{}, error) {
 	result := map[string]interface{}{}
 
 loop:

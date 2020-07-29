@@ -8,3 +8,13 @@ import (
 
 // DefaultBroker implementation
 var DefaultBroker broker.Broker = client.NewBroker()
+
+// Publish a message to a topic
+func Publish(topic string, m *broker.Message, opts ...broker.PublishOption) error {
+	return DefaultBroker.Publish(topic, m, opts...)
+}
+
+// Subscribe to a topic
+func Subscribe(topic string, h broker.Handler, opts ...broker.SubscribeOption) (broker.Subscriber, error) {
+	return DefaultBroker.Subscribe(topic, h, opts...)
+}

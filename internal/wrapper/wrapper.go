@@ -5,14 +5,14 @@ import (
 	"reflect"
 	"strings"
 
-	"github.com/micro/go-micro/v3/auth"
+	goauth "github.com/micro/go-micro/v3/auth"
 	"github.com/micro/go-micro/v3/client"
 	"github.com/micro/go-micro/v3/debug/trace"
 	"github.com/micro/micro/v3/service/errors"
 	"github.com/micro/go-micro/v3/metadata"
 	"github.com/micro/go-micro/v3/server"
 	"github.com/micro/micro/v3/internal/namespace"
-	muauth "github.com/micro/micro/v3/service/auth"
+	"github.com/micro/micro/v3/service/auth"
 	muclient "github.com/micro/micro/v3/service/client"
 	"github.com/micro/micro/v3/service/debug"
 )
@@ -45,22 +45,15 @@ func (a *authWrapper) wrapContext(ctx context.Context, opts ...client.CallOption
 		return ctx
 	}
 
-	// if auth is nil we won't be able to get an access token, so we execute
-	// the request without one.
-	aa := muauth.DefaultAuth
-	if aa == nil {
-		return ctx
-	}
-
 	// set the namespace header if it has not been set (e.g. on a service to service request)
+	authOpts := auth.DefaultAuth.Options()
 	if _, ok := metadata.Get(ctx, "Micro-Namespace"); !ok {
-		ctx = metadata.Set(ctx, "Micro-Namespace", aa.Options().Issuer)
+		ctx = metadata.Set(ctx, "Micro-Namespace", authOpts.Issuer)
 	}
 
 	// check to see if we have a valid access token
-	aaOpts := aa.Options()
-	if aaOpts.Token != nil && !aaOpts.Token.Expired() {
-		ctx = metadata.Set(ctx, "Authorization", auth.BearerScheme+aaOpts.Token.AccessToken)
+	if authOpts.Token != nil && !authOpts.Token.Expired() {
+		ctx = metadata.Set(ctx, "Authorization", goauth.BearerScheme+authOpts.Token.AccessToken)
 		return ctx
 	}
 
@@ -77,29 +70,26 @@ func AuthClient(c client.Client) client.Client {
 func AuthHandler() server.HandlerWrapper {
 	return func(h server.HandlerFunc) server.HandlerFunc {
 		return func(ctx context.Context, req server.Request, rsp interface{}) error {
-			// get the auth.Auth interface
-			a := muauth.DefaultAuth
-
 			// Extract the token if the header is present. We will inspect the token regardless of if it's
 			// present or not since noop auth will return a blank account upon Inspecting a blank token.
 			var token string
 			if header, ok := metadata.Get(ctx, "Authorization"); ok {
 				// Ensure the correct scheme is being used
-				if !strings.HasPrefix(header, auth.BearerScheme) {
+				if !strings.HasPrefix(header, goauth.BearerScheme) {
 					return errors.Unauthorized(req.Service(), "invalid authorization header. expected Bearer schema")
 				}
 
 				// Strip the bearer scheme prefix
-				token = strings.TrimPrefix(header, auth.BearerScheme)
+				token = strings.TrimPrefix(header, goauth.BearerScheme)
 			}
 
 			// Inspect the token and decode an account
-			account, _ := a.Inspect(token)
+			account, _ := auth.Inspect(token)
 
 			// ensure only accounts with the correct namespace can access this namespace,
 			// since the auth package will verify access below, and some endpoints could
 			// be public, we allow nil accounts access using the namespace.Public option.
-			ns := a.Options().Issuer
+			ns := auth.DefaultAuth.Options().Issuer
 			err := namespace.Authorize(ctx, ns, namespace.Public(ns))
 			if err == namespace.ErrForbidden {
 				return errors.Forbidden(req.Service(), err.Error())
@@ -108,17 +98,17 @@ func AuthHandler() server.HandlerWrapper {
 			}
 
 			// construct the resource
-			res := &auth.Resource{
+			res := &goauth.Resource{
 				Type:     "service",
 				Name:     req.Service(),
 				Endpoint: req.Endpoint(),
 			}
 
 			// Verify the caller has access to the resource.
-			err = a.Verify(account, res, auth.VerifyNamespace(ns))
-			if err == auth.ErrForbidden && account != nil {
+			err = auth.Verify(account, res, goauth.VerifyNamespace(ns))
+			if err == goauth.ErrForbidden && account != nil {
 				return errors.Forbidden(req.Service(), "Forbidden call made to %v:%v by %v", req.Service(), req.Endpoint(), account.ID)
-			} else if err == auth.ErrForbidden {
+			} else if err == goauth.ErrForbidden {
 				return errors.Unauthorized(req.Service(), "Unauthorized call made to %v:%v", req.Service(), req.Endpoint())
 			} else if err != nil {
 				return errors.InternalServerError(req.Service(), "Error authorizing request: %v", err)
@@ -126,7 +116,7 @@ func AuthHandler() server.HandlerWrapper {
 
 			// There is an account, set it in the context
 			if account != nil {
-				ctx = auth.ContextWithAccount(ctx, account)
+				ctx = goauth.ContextWithAccount(ctx, account)
 			}
 
 			// The user is authorised, allow the call

@@ -1,26 +1,25 @@
 package manager
 
 import (
-	"github.com/micro/micro/v3/service/logger"
-	"github.com/micro/go-micro/v3/runtime"
+	gorun "github.com/micro/go-micro/v3/runtime"
 	"github.com/micro/go-micro/v3/store"
 	cachest "github.com/micro/go-micro/v3/store/cache"
 	filest "github.com/micro/go-micro/v3/store/file"
 	"github.com/micro/go-micro/v3/store/memory"
 	"github.com/micro/micro/v3/internal/namespace"
-	"github.com/micro/micro/v3/service/auth"
-	mustore "github.com/micro/micro/v3/service/store"
+	"github.com/micro/micro/v3/service/logger"
+	"github.com/micro/micro/v3/service/runtime"
 )
 
 // Init initializes the runtime
-func (m *manager) Init(...runtime.Option) error {
+func (m *manager) Init(...gorun.Option) error {
 	return nil
 }
 
 // Create registers a service
-func (m *manager) Create(srv *runtime.Service, opts ...runtime.CreateOption) error {
+func (m *manager) Create(srv *gorun.Service, opts ...gorun.CreateOption) error {
 	// parse the options
-	var options runtime.CreateOptions
+	var options gorun.CreateOptions
 	for _, o := range opts {
 		o(&options)
 	}
@@ -42,13 +41,13 @@ func (m *manager) Create(srv *runtime.Service, opts ...runtime.CreateOption) err
 	}
 
 	// publish the event, this will apply it aysnc to the runtime
-	return m.publishEvent(runtime.Create, srv, &options)
+	return m.publishEvent(gorun.Create, srv, &options)
 }
 
 // Read returns the service which matches the criteria provided
-func (m *manager) Read(opts ...runtime.ReadOption) ([]*runtime.Service, error) {
+func (m *manager) Read(opts ...gorun.ReadOption) ([]*gorun.Service, error) {
 	// parse the options
-	var options runtime.ReadOptions
+	var options gorun.ReadOptions
 	for _, o := range opts {
 		o(&options)
 	}
@@ -57,7 +56,7 @@ func (m *manager) Read(opts ...runtime.ReadOption) ([]*runtime.Service, error) {
 	}
 
 	// query the store. TODO: query by type? (it isn't an attr of srv)
-	srvs, err := m.readServices(options.Namespace, &runtime.Service{
+	srvs, err := m.readServices(options.Namespace, &gorun.Service{
 		Name:    options.Service,
 		Version: options.Version,
 	})
@@ -69,7 +68,7 @@ func (m *manager) Read(opts ...runtime.ReadOption) ([]*runtime.Service, error) {
 	if err != nil {
 		return nil, err
 	}
-	ret := []*runtime.Service{}
+	ret := []*gorun.Service{}
 	for _, srv := range srvs {
 		ret = append(ret, srv.Service)
 		md, ok := statuses[srv.Service.Name+":"+srv.Service.Version]
@@ -84,9 +83,9 @@ func (m *manager) Read(opts ...runtime.ReadOption) ([]*runtime.Service, error) {
 }
 
 // Update the service in place
-func (m *manager) Update(srv *runtime.Service, opts ...runtime.UpdateOption) error {
+func (m *manager) Update(srv *gorun.Service, opts ...gorun.UpdateOption) error {
 	// parse the options
-	var options runtime.UpdateOptions
+	var options gorun.UpdateOptions
 	for _, o := range opts {
 		o(&options)
 	}
@@ -100,13 +99,13 @@ func (m *manager) Update(srv *runtime.Service, opts ...runtime.UpdateOption) err
 	}
 
 	// publish the update event which will trigger an update in the runtime
-	return m.publishEvent(runtime.Update, srv, &runtime.CreateOptions{Namespace: options.Namespace})
+	return m.publishEvent(gorun.Update, srv, &gorun.CreateOptions{Namespace: options.Namespace})
 }
 
 // Remove a service
-func (m *manager) Delete(srv *runtime.Service, opts ...runtime.DeleteOption) error {
+func (m *manager) Delete(srv *gorun.Service, opts ...gorun.DeleteOption) error {
 	// parse the options
-	var options runtime.DeleteOptions
+	var options gorun.DeleteOptions
 	for _, o := range opts {
 		o(&options)
 	}
@@ -125,7 +124,7 @@ func (m *manager) Delete(srv *runtime.Service, opts ...runtime.DeleteOption) err
 	}
 
 	// publish the event which will trigger a delete in the runtime
-	return m.publishEvent(runtime.Delete, srv, &runtime.CreateOptions{Namespace: options.Namespace})
+	return m.publishEvent(gorun.Delete, srv, &gorun.CreateOptions{Namespace: options.Namespace})
 }
 
 // Starts the manager
@@ -136,7 +135,7 @@ func (m *manager) Start() error {
 	m.running = true
 
 	// start the runtime we're going to manage
-	if err := m.Runtime.Start(); err != nil {
+	if err := runtime.DefaultRuntime.Start(); err != nil {
 		return err
 	}
 
@@ -154,6 +153,11 @@ func (m *manager) Start() error {
 	return nil
 }
 
+// Logs for a service
+func (m *manager) Logs(srv *gorun.Service, opts ...gorun.LogsOption) (gorun.LogStream, error) {
+	return runtime.Logs(srv, opts...)
+}
+
 func (m *manager) resurrectServices() {
 	nss, err := m.listNamespaces()
 	if err != nil {
@@ -162,14 +166,14 @@ func (m *manager) resurrectServices() {
 	}
 
 	for _, ns := range nss {
-		srvs, err := m.readServices(ns, &runtime.Service{})
+		srvs, err := m.readServices(ns, &gorun.Service{})
 		if err != nil {
 			logger.Warnf("Error reading services from the %v namespace: %v", ns, err)
 			return
 		}
 
-		running := map[string]*runtime.Service{}
-		curr, _ := m.Runtime.Read(runtime.ReadNamespace(ns))
+		running := map[string]*gorun.Service{}
+		curr, _ := runtime.Read(gorun.ReadNamespace(ns))
 		for _, v := range curr {
 			running[v.Name+":"+v.Version+":"+v.Source] = v
 		}
@@ -186,14 +190,14 @@ func (m *manager) resurrectServices() {
 				continue
 			}
 
-			m.Runtime.Create(srv.Service,
-				runtime.CreateImage(srv.Options.Image),
-				runtime.CreateType(srv.Options.Type),
-				runtime.CreateNamespace(ns),
-				runtime.WithArgs(srv.Options.Args...),
-				runtime.WithCommand(srv.Options.Command...),
-				runtime.WithEnv(m.runtimeEnv(srv.Options)),
-				runtime.CreateCredentials(acc.ID, acc.Secret),
+			runtime.Create(srv.Service,
+				gorun.CreateImage(srv.Options.Image),
+				gorun.CreateType(srv.Options.Type),
+				gorun.CreateNamespace(ns),
+				gorun.WithArgs(srv.Options.Args...),
+				gorun.WithCommand(srv.Options.Command...),
+				gorun.WithEnv(m.runtimeEnv(srv.Options)),
+				gorun.CreateCredentials(acc.ID, acc.Secret),
 			)
 		}
 	}
@@ -206,7 +210,7 @@ func (m *manager) Stop() error {
 	}
 	m.running = false
 
-	return m.Runtime.Stop()
+	return runtime.DefaultRuntime.Stop()
 }
 
 // String describes runtime
@@ -215,10 +219,6 @@ func (m *manager) String() string {
 }
 
 type manager struct {
-	// runtime being managed
-	runtime.Runtime
-	// options passed by the caller
-	options Options
 	// running is true after Start is called
 	running bool
 	// cache is a memory store which is used to store any information we don't want to write to the
@@ -231,28 +231,9 @@ type manager struct {
 }
 
 // New returns a manager for the runtime
-func New(r runtime.Runtime, opts ...Option) runtime.Runtime {
-	// parse the options
-	var options Options
-	for _, o := range opts {
-		o(&options)
-	}
-
-	// set the defaults
-	if options.Auth == nil {
-		options.Auth = auth.DefaultAuth
-	}
-	if options.Store == nil {
-		options.Store = mustore.DefaultStore
-	}
-	if options.CacheStore == nil {
-		options.CacheStore = filest.NewStore()
-	}
-
+func New() gorun.Runtime {
 	return &manager{
-		Runtime:   r,
-		options:   options,
 		cache:     memory.NewStore(),
-		fileCache: cachest.NewStore(options.CacheStore),
+		fileCache: cachest.NewStore(filest.NewStore()),
 	}
 }

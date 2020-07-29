@@ -9,9 +9,10 @@ import (
 	"sync"
 	"time"
 
-	"github.com/micro/micro/v3/service/errors"
-	"github.com/micro/go-micro/v3/store"
+	gostore "github.com/micro/go-micro/v3/store"
 	"github.com/micro/micro/v3/internal/namespace"
+	"github.com/micro/micro/v3/service/errors"
+	"github.com/micro/micro/v3/service/store"
 	pb "github.com/micro/micro/v3/service/store/proto"
 )
 
@@ -22,9 +23,6 @@ const (
 )
 
 type handler struct {
-	// store interface to use for executing requests
-	store store.Store
-
 	// local stores cache
 	sync.RWMutex
 	stores map[string]bool
@@ -58,22 +56,22 @@ func (h *handler) List(ctx context.Context, req *pb.ListRequest, stream pb.Store
 	}
 
 	// setup the options
-	opts := []store.ListOption{
-		store.ListFrom(req.Options.Database, req.Options.Table),
+	opts := []gostore.ListOption{
+		gostore.ListFrom(req.Options.Database, req.Options.Table),
 	}
 	if len(req.Options.Prefix) > 0 {
-		opts = append(opts, store.ListPrefix(req.Options.Prefix))
+		opts = append(opts, gostore.ListPrefix(req.Options.Prefix))
 	}
 	if req.Options.Offset > 0 {
-		opts = append(opts, store.ListOffset(uint(req.Options.Offset)))
+		opts = append(opts, gostore.ListOffset(uint(req.Options.Offset)))
 	}
 	if req.Options.Limit > 0 {
-		opts = append(opts, store.ListLimit(uint(req.Options.Limit)))
+		opts = append(opts, gostore.ListLimit(uint(req.Options.Limit)))
 	}
 
 	// list from the store
-	vals, err := h.store.List(opts...)
-	if err != nil && err == store.ErrNotFound {
+	vals, err := store.List(opts...)
+	if err != nil && err == gostore.ErrNotFound {
 		return errors.NotFound("go.micro.store.Store.List", err.Error())
 	} else if err != nil {
 		return errors.InternalServerError("go.micro.store.Store.List", err.Error())
@@ -124,16 +122,16 @@ func (h *handler) Read(ctx context.Context, req *pb.ReadRequest, rsp *pb.ReadRes
 	}
 
 	// setup the options
-	opts := []store.ReadOption{
-		store.ReadFrom(req.Options.Database, req.Options.Table),
+	opts := []gostore.ReadOption{
+		gostore.ReadFrom(req.Options.Database, req.Options.Table),
 	}
 	if req.Options.Prefix {
-		opts = append(opts, store.ReadPrefix())
+		opts = append(opts, gostore.ReadPrefix())
 	}
 
 	// read from the database
-	vals, err := h.store.Read(req.Key, opts...)
-	if err != nil && err == store.ErrNotFound {
+	vals, err := store.Read(req.Key, opts...)
+	if err != nil && err == gostore.ErrNotFound {
 		return errors.NotFound("go.micro.store.Store.Read", err.Error())
 	} else if err != nil {
 		return errors.InternalServerError("go.micro.store.Store.Read", err.Error())
@@ -191,8 +189,8 @@ func (h *handler) Write(ctx context.Context, req *pb.WriteRequest, rsp *pb.Write
 	}
 
 	// setup the options
-	opts := []store.WriteOption{
-		store.WriteTo(req.Options.Database, req.Options.Table),
+	opts := []gostore.WriteOption{
+		gostore.WriteTo(req.Options.Database, req.Options.Table),
 	}
 
 	// construct the record
@@ -200,7 +198,7 @@ func (h *handler) Write(ctx context.Context, req *pb.WriteRequest, rsp *pb.Write
 	for k, v := range req.Record.Metadata {
 		metadata[k] = v.Value
 	}
-	record := &store.Record{
+	record := &gostore.Record{
 		Key:      req.Record.Key,
 		Value:    req.Record.Value,
 		Expiry:   time.Duration(req.Record.Expiry) * time.Second,
@@ -208,8 +206,8 @@ func (h *handler) Write(ctx context.Context, req *pb.WriteRequest, rsp *pb.Write
 	}
 
 	// write to the store
-	err := h.store.Write(record, opts...)
-	if err != nil && err == store.ErrNotFound {
+	err := store.Write(record, opts...)
+	if err != nil && err == gostore.ErrNotFound {
 		return errors.NotFound("go.micro.store.Store.Write", err.Error())
 	} else if err != nil {
 		return errors.InternalServerError("go.micro.store.Store.Write", err.Error())
@@ -245,12 +243,12 @@ func (h *handler) Delete(ctx context.Context, req *pb.DeleteRequest, rsp *pb.Del
 	}
 
 	// setup the options
-	opts := []store.DeleteOption{
-		store.DeleteFrom(req.Options.Database, req.Options.Table),
+	opts := []gostore.DeleteOption{
+		gostore.DeleteFrom(req.Options.Database, req.Options.Table),
 	}
 
 	// delete from the store
-	if err := h.store.Delete(req.Key, opts...); err == store.ErrNotFound {
+	if err := store.Delete(req.Key, opts...); err == gostore.ErrNotFound {
 		return errors.NotFound("go.micro.store.Store.Delete", err.Error())
 	} else if err != nil {
 		return errors.InternalServerError("go.micro.store.Store.Delete", err.Error())
@@ -271,11 +269,11 @@ func (h *handler) Databases(ctx context.Context, req *pb.DatabasesRequest, rsp *
 	}
 
 	// read the databases from the store
-	opts := []store.ReadOption{
-		store.ReadPrefix(),
-		store.ReadFrom(defaultDatabase, internalTable),
+	opts := []gostore.ReadOption{
+		gostore.ReadPrefix(),
+		gostore.ReadFrom(defaultDatabase, internalTable),
 	}
-	recs, err := h.store.Read("databases/", opts...)
+	recs, err := store.Read("databases/", opts...)
 	if err != nil {
 		return errors.InternalServerError("go.micro.store.Store.Databases", err.Error())
 	}
@@ -305,14 +303,14 @@ func (h *handler) Tables(ctx context.Context, req *pb.TablesRequest, rsp *pb.Tab
 	}
 
 	// construct the options
-	opts := []store.ReadOption{
-		store.ReadPrefix(),
-		store.ReadFrom(defaultDatabase, internalTable),
+	opts := []gostore.ReadOption{
+		gostore.ReadPrefix(),
+		gostore.ReadFrom(defaultDatabase, internalTable),
 	}
 
 	// perform the query
 	query := fmt.Sprintf("tables/%v/", req.Database)
-	recs, err := h.store.Read(query, opts...)
+	recs, err := store.Read(query, opts...)
 	if err != nil {
 		return errors.InternalServerError("go.micro.store.Store.Tables", err.Error())
 	}
@@ -336,15 +334,15 @@ func (h *handler) setupTable(database, table string) error {
 	}
 
 	// record the new database in the internal store
-	opt := store.WriteTo(defaultDatabase, internalTable)
-	dbRecord := &store.Record{Key: "databases/" + database, Value: []byte{}}
-	if err := h.store.Write(dbRecord, opt); err != nil {
+	opt := gostore.WriteTo(defaultDatabase, internalTable)
+	dbRecord := &gostore.Record{Key: "databases/" + database, Value: []byte{}}
+	if err := store.Write(dbRecord, opt); err != nil {
 		return fmt.Errorf("Error writing new database to internal table: %v", err)
 	}
 
 	// record the new table in the internal store
-	tableRecord := &store.Record{Key: "tables/" + database + "/" + table, Value: []byte{}}
-	if err := h.store.Write(tableRecord, opt); err != nil {
+	tableRecord := &gostore.Record{Key: "tables/" + database + "/" + table, Value: []byte{}}
+	if err := store.Write(tableRecord, opt); err != nil {
 		return fmt.Errorf("Error writing new table to internal table: %v", err)
 	}
 
