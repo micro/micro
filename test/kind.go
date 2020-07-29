@@ -50,7 +50,7 @@ func (s *testK8sServer) Run() error {
 	}
 
 	// login to admin account
-	if err := login(s, s.t, "default", "password"); err != nil {
+	if err := Login(s, s.t, "default", "password"); err != nil {
 		s.t.Fatalf("Error logging in %s", err)
 		return err
 	}

@@ -43,7 +43,7 @@ func testNamespaceConfigIsolationSuite(serv Server, t *t) {
 		return
 	}
 
-	login(serv, t, "default", "password")
+	Login(serv, t, "default", "password")
 	if t.failed {
 		return
 	}
@@ -95,7 +95,7 @@ func testNamespaceConfigIsolationSuite(serv Server, t *t) {
 	// This call is only here to trigger default account generation
 	exec.Command("micro", serv.EnvFlag(), "auth", "list", "accounts").CombinedOutput()
 
-	login(serv, t, "default", "password")
+	Login(serv, t, "default", "password")
 	if t.failed {
 		return
 	}
@@ -128,7 +128,7 @@ func testNamespaceConfigIsolationSuite(serv Server, t *t) {
 		return
 	}
 
-	if err := login(serv, t, "default", "password"); err != nil {
+	if err := Login(serv, t, "default", "password"); err != nil {
 		return
 	}
 
