@@ -86,6 +86,7 @@ func (g *micro) Generate(file *generator.FileDescriptor) {
 	g.P("var _ ", apiPkg, ".Endpoint")
 	g.P("var _ ", contextPkg, ".Context")
 	g.P("var _ ", clientPkg, ".Option")
+	g.P("var _ ", serverPkg, ".Option")
 	g.P("var _ = ", microServerPkg, ".Handle")
 	g.P("var _ = ", microClientPkg, ".Call")
 	g.P()
