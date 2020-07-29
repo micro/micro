@@ -112,7 +112,7 @@ func Signup(ctx *cli.Context) error {
 		}
 	}
 
-	fmt.Print("Please go to https://m3o.com/subscribe and paste the acquired payment method id here: ")
+	fmt.Printf("Please go to https://m3o.com/subscribe?email=%s and paste the acquired payment method id here: ", email)
 	paymentMethodID, _ := reader.ReadString('\n')
 	paymentMethodID = strings.TrimSpace(paymentMethodID)
 
