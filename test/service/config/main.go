@@ -15,10 +15,13 @@ func main() {
 	)
 
 	// get a value
-	c := config.DefaultConfig
+	go func() {
+		for {
+			fmt.Println("Value of key.subkey: ", config.Get("key", "subkey").String(""))
+			time.Sleep(time.Second)
+		}
+	}()
 
-	for {
-		fmt.Println("Value of key.subkey: ", c.Get("key", "subkey").String(""))
-		time.Sleep(time.Second)
-	}
+	// run the service
+	srv.Run()
 }
