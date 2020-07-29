@@ -211,7 +211,7 @@ func TestPlatformErrorLocalSource(t *testing.T) {
 	t.Parallel()
 	// @todo reintroduce this test as a change after the creation of this test broke it
 	return
-	outp, _ := exec.Command("micro", "-env=platform", "run", "example-service").CombinedOutput()
+	outp, _ := exec.Command("micro", "-env=platform", "run", "./service/example").CombinedOutput()
 	if !strings.Contains(string(outp), "Local sources are not yet supported on m3o") {
 		t.Fatalf("Local source does not return expected error %v", string(outp))
 		return
