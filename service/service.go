@@ -24,9 +24,6 @@ import (
 )
 
 var (
-	// DefaultService to run
-	DefaultService *Service = New()
-
 	// errMissingName is returned by service.Run when a service is run
 	// prior to it's name being set.
 	errMissingName = errors.New("missing service name")
@@ -39,24 +36,30 @@ type Service struct {
 
 // Run the default service and waits for it to exist
 func Run() {
-	if err := DefaultService.Run(); err == errMissingName {
+	// setup a new service, calling New() will trigger the cmd package
+	// to parse the command line and
+	srv := New()
+
+	if err := srv.Run(); err == errMissingName {
 		fmt.Println("Micro services must be run using \"micro run\"")
 		os.Exit(1)
 	} else if err != nil {
-		logger.Fatalf("Error running %v service: %v", DefaultService.Name(), err)
+		logger.Fatalf("Error running %v service: %v", srv.Name(), err)
 	}
 }
 
 // New returns a new Micro Service
 func New(opts ...Option) *Service {
 	// before extracts service options from the CLI flags. These
-	// aren't set by the cmd package to prevent a circular dependancy
+	// aren't set by the cmd package to prevent a circular dependancy.
+	// prepend them to the array so options passed by the user to this
+	// function are applied after (taking precedence)
 	before := func(ctx *cli.Context) error {
 		if n := ctx.String("service_name"); len(n) > 0 {
-			opts = append(opts, Name(n))
+			opts = append([]Option{Name(n)}, opts...)
 		}
 		if v := ctx.String("service_version"); len(v) > 0 {
-			opts = append(opts, Version(v))
+			opts = append([]Option{Version(v)}, opts...)
 		}
 		return nil
 	}
