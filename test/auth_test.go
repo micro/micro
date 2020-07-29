@@ -90,7 +90,7 @@ func testServerAuth(t *t) {
 }
 
 func TestServerLockdown(t *testing.T) {
-	trySuite(t, testServerAuth, retryCount)
+	trySuite(t, testServerLockdown, retryCount)
 }
 
 func testServerLockdown(t *t) {
