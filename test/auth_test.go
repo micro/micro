@@ -160,7 +160,7 @@ func lockdownSuite(serv Server, t *t) {
 		return
 	}
 
-	login(serv, t, "me@email.com", "mystrongpass")
+	Login(serv, t, "me@email.com", "mystrongpass")
 
 	if err := Try("Listing rules should pass after login", t, func() ([]byte, error) {
 		outp, err := exec.Command("micro", serv.EnvFlag(), "auth", "list", "rules").CombinedOutput()
