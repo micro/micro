@@ -365,6 +365,8 @@ github.com/micro/go-micro/v2 v2.9.1-0.20200728141321-350b6a34bf1e h1:2t7JBMZ10om
 github.com/micro/go-micro/v2 v2.9.1-0.20200728141321-350b6a34bf1e/go.mod h1:U5xLh5fjy5MGTZy2XJRm+1zBGKICiXUmXkFBcqVTxQg=
 github.com/micro/go-micro/v2 v2.9.1-0.20200728150515-7e6dda23e6ea h1:uyBf1wdSTmSs/o6VeGZBfI6rERLY8bhIhuQFabtNz54=
 github.com/micro/go-micro/v2 v2.9.1-0.20200728150515-7e6dda23e6ea/go.mod h1:U5xLh5fjy5MGTZy2XJRm+1zBGKICiXUmXkFBcqVTxQg=
+github.com/micro/go-micro/v2 v2.9.1-0.20200729084143-f54f91421f5a h1:W9uFlbN+gc9G5TpBAUTUjzQCpRHiMfL+0D4QVvkVnGk=
+github.com/micro/go-micro/v2 v2.9.1-0.20200729084143-f54f91421f5a/go.mod h1:U5xLh5fjy5MGTZy2XJRm+1zBGKICiXUmXkFBcqVTxQg=
 github.com/micro/go-micro/v2 v2.9.1/go.mod h1:x55ZM3Puy0FyvvkR3e0ha0xsE9DFwfPSUMWAIbFY0SY=
 github.com/micro/micro v1.18.0 h1:v+xiQOXbT9xxotLwu1nJM81t4FbruBxZSSyIdhUfujM=
 github.com/micro/micro/v2 v2.9.3/go.mod h1:YsjUsRTTjtBw07MnEYeglNLCZjgvrbmdQFKfTuC9AYk=
