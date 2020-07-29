@@ -18,7 +18,6 @@ require (
 	github.com/hashicorp/go-version v1.2.1
 	github.com/kr/pretty v0.2.0 // indirect
 	github.com/mattn/go-isatty v0.0.12 // indirect
-	github.com/micro/cli v0.2.0
 	github.com/micro/cli/v2 v2.1.2
 	github.com/micro/go-micro/v3 v3.0.0-alpha.0.20200728125458-9813f98c8b60
 	github.com/netdata/go-orchestrator v0.0.0-20190905093727-c793edba0e8f
