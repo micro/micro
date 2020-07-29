@@ -165,8 +165,8 @@ func (m *manager) runtimeEnv(srv *gorun.Service, options *gorun.CreateOptions) [
 		// should use the default RPC clients
 		"MICRO_PROFILE": "",
 		// pass the service's name and version
-		"MICRO_NAME":    srv.Name,
-		"MICRO_VERSION": srv.Version,
+		"MICRO_SERVICE_NAME":    srv.Name,
+		"MICRO_SERVICE_VERSION": srv.Version,
 	}
 
 	// set the env vars provided

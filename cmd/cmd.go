@@ -176,12 +176,12 @@ var (
 		&cli.StringFlag{
 			Name:    "service_name",
 			Usage:   "Name of the micro service",
-			EnvVars: []string{"MICRO_NAME"},
+			EnvVars: []string{"MICRO_SERVICE_NAME"},
 		},
 		&cli.StringFlag{
 			Name:    "service_version",
 			Usage:   "Version of the micro service",
-			EnvVars: []string{"MICRO_VERSION"},
+			EnvVars: []string{"MICRO_SERVICE_VERSION"},
 		},
 	}
 )
