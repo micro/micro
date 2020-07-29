@@ -190,15 +190,29 @@ func (m *manager) resurrectServices() {
 				continue
 			}
 
-			runtime.Create(srv.Service,
+			// construct the options
+			options := []gorun.CreateOption{
 				gorun.CreateImage(srv.Options.Image),
 				gorun.CreateType(srv.Options.Type),
 				gorun.CreateNamespace(ns),
 				gorun.WithArgs(srv.Options.Args...),
 				gorun.WithCommand(srv.Options.Command...),
 				gorun.WithEnv(m.runtimeEnv(srv.Service, srv.Options)),
-				gorun.CreateCredentials(acc.ID, acc.Secret),
-			)
+				gorun.WithSecret("MICRO_AUTH_ID", acc.ID),
+				gorun.WithSecret("MICRO_AUTH_SECRET", acc.Secret),
+			}
+
+			// add the secrets
+			for key, value := range srv.Options.Secrets {
+				options = append(options, gorun.WithSecret(key, value))
+			}
+
+			// create the service
+			if err := runtime.Create(srv.Service, options...); err != nil {
+				if logger.V(logger.ErrorLevel, logger.DefaultLogger) {
+					logger.Errorf("Error resurrecting service: %v", err)
+				}
+			}
 		}
 	}
 }

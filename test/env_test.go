@@ -12,7 +12,7 @@ func TestEnvBasic(t *testing.T) {
 	TrySuite(t, testEnvOverrides, retryCount)
 }
 
-func testEnvBasic(t *t) {
+func testEnvBasic(t *T) {
 	outp, err := exec.Command("micro", "-env=platform", "env").CombinedOutput()
 	if err != nil {
 		t.Fatal(err)
@@ -31,7 +31,7 @@ func TestEnvOverrides(t *testing.T) {
 	TrySuite(t, testEnvOverrides, retryCount)
 }
 
-func testEnvOverrides(t *t) {
+func testEnvOverrides(t *T) {
 	outp, err := exec.Command("micro", "-env=platform", "env").CombinedOutput()
 	if err != nil {
 		t.Fatal(err)
@@ -57,7 +57,7 @@ func TestEnvOps(t *testing.T) {
 	TrySuite(t, testEnvOps, retryCount)
 }
 
-func testEnvOps(t *t) {
+func testEnvOps(t *T) {
 	// add an env
 	_, err := exec.Command("micro", "env", "add", "fooTestEnvOps", "127.0.0.1:8081").CombinedOutput()
 	if err != nil {

@@ -26,7 +26,7 @@ func init() {
 	retryCount = 1
 }
 
-func newK8sServer(t *t, fname string, opts ...Option) Server {
+func newK8sServer(t *T, fname string, opts ...Option) Server {
 	portnum := rand.Intn(maxPort-minPort) + minPort
 
 	s := &testK8sServer{ServerBase{
@@ -69,7 +69,7 @@ func (s *testK8sServer) Run() error {
 		}
 
 		return outp, err
-	}, 60*time.Second); err != nil {
+	}, 60 * time.Second); err != nil {
 		return err
 	}
 

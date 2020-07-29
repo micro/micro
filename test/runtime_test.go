@@ -17,7 +17,7 @@ func TestServerModeCall(t *testing.T) {
 	TrySuite(t, ServerModeCall, retryCount)
 }
 
-func ServerModeCall(t *t) {
+func ServerModeCall(t *T) {
 	t.Parallel()
 	serv := NewServer(t, WithLogin())
 
@@ -39,7 +39,7 @@ func ServerModeCall(t *t) {
 			return outp, errors.New("Call to runtime read should succeed")
 		}
 		return outp, err
-	}, 5*time.Second); err != nil {
+	}, 5 * time.Second); err != nil {
 		return
 	}
 }
@@ -48,7 +48,7 @@ func TestRunLocalSource(t *testing.T) {
 	TrySuite(t, testRunLocalSource, retryCount)
 }
 
-func testRunLocalSource(t *t) {
+func testRunLocalSource(t *T) {
 	t.Parallel()
 	serv := NewServer(t, WithLogin())
 	defer serv.Close()
@@ -76,7 +76,7 @@ func testRunLocalSource(t *t) {
 			return outp, errors.New("Can't find example service in runtime")
 		}
 		return outp, err
-	}, 15*time.Second); err != nil {
+	}, 15 * time.Second); err != nil {
 		return
 	}
 
@@ -89,7 +89,7 @@ func testRunLocalSource(t *t) {
 			return outp, errors.New("Can't find example service in list")
 		}
 		return outp, err
-	}, 50*time.Second); err != nil {
+	}, 50 * time.Second); err != nil {
 		return
 	}
 }
@@ -98,7 +98,7 @@ func TestRunAndKill(t *testing.T) {
 	TrySuite(t, testRunAndKill, retryCount)
 }
 
-func testRunAndKill(t *t) {
+func testRunAndKill(t *T) {
 	t.Parallel()
 	serv := NewServer(t, WithLogin())
 	defer serv.Close()
@@ -126,7 +126,7 @@ func testRunAndKill(t *t) {
 			return outp, errors.New("Can't find example service in runtime")
 		}
 		return outp, err
-	}, 15*time.Second); err != nil {
+	}, 15 * time.Second); err != nil {
 		return
 	}
 
@@ -139,7 +139,7 @@ func testRunAndKill(t *t) {
 			return outp, errors.New("Can't find example service in list")
 		}
 		return outp, err
-	}, 50*time.Second); err != nil {
+	}, 50 * time.Second); err != nil {
 		return
 	}
 
@@ -162,7 +162,7 @@ func testRunAndKill(t *t) {
 			return outp, errors.New("Should not find example service in runtime")
 		}
 		return outp, err
-	}, 15*time.Second); err != nil {
+	}, 15 * time.Second); err != nil {
 		return
 	}
 
@@ -175,7 +175,7 @@ func testRunAndKill(t *t) {
 			return outp, errors.New("Should not find example service in list")
 		}
 		return outp, err
-	}, 20*time.Second); err != nil {
+	}, 20 * time.Second); err != nil {
 		return
 	}
 }
@@ -190,7 +190,7 @@ func TestRunGithubSource(t *testing.T) {
 	TrySuite(t, testRunGithubSource, retryCount)
 }
 
-func testRunGithubSource(t *t) {
+func testRunGithubSource(t *T) {
 	t.Parallel()
 	p, err := exec.LookPath("git")
 	if err != nil {
@@ -225,7 +225,7 @@ func testRunGithubSource(t *t) {
 			return outp, errors.New("Output should contain hello world")
 		}
 		return outp, nil
-	}, 60*time.Second); err != nil {
+	}, 60 * time.Second); err != nil {
 		return
 	}
 
@@ -244,7 +244,7 @@ func testRunGithubSource(t *t) {
 			return outp, errors.New("Helloworld resonse is unexpected")
 		}
 		return outp, err
-	}, 60*time.Second); err != nil {
+	}, 60 * time.Second); err != nil {
 		return
 	}
 
@@ -254,7 +254,7 @@ func TestRunLocalUpdateAndCall(t *testing.T) {
 	TrySuite(t, testRunLocalUpdateAndCall, retryCount)
 }
 
-func testRunLocalUpdateAndCall(t *t) {
+func testRunLocalUpdateAndCall(t *T) {
 	t.Parallel()
 	serv := NewServer(t, WithLogin())
 	defer serv.Close()
@@ -283,7 +283,7 @@ func testRunLocalUpdateAndCall(t *t) {
 			return outp, errors.New("can't find service in runtime")
 		}
 		return outp, err
-	}, 15*time.Second); err != nil {
+	}, 15 * time.Second); err != nil {
 		return
 	}
 
@@ -302,7 +302,7 @@ func testRunLocalUpdateAndCall(t *t) {
 			return outp, errors.New("Response is unexpected")
 		}
 		return outp, err
-	}, 50*time.Second); err != nil {
+	}, 50 * time.Second); err != nil {
 		return
 	}
 
@@ -334,7 +334,7 @@ func testRunLocalUpdateAndCall(t *t) {
 			return outp, errors.New("Response is not what's expected")
 		}
 		return outp, err
-	}, 15*time.Second); err != nil {
+	}, 15 * time.Second); err != nil {
 		return
 	}
 }
@@ -343,7 +343,7 @@ func TestExistingLogs(t *testing.T) {
 	TrySuite(t, testExistingLogs, retryCount)
 }
 
-func testExistingLogs(t *t) {
+func testExistingLogs(t *T) {
 	t.Parallel()
 	serv := NewServer(t, WithLogin())
 	defer serv.Close()
@@ -369,7 +369,7 @@ func testExistingLogs(t *t) {
 			return outp, errors.New("Output does not contain expected")
 		}
 		return outp, nil
-	}, 50*time.Second); err != nil {
+	}, 50 * time.Second); err != nil {
 		return
 	}
 }
@@ -378,7 +378,7 @@ func TestBranchCheckout(t *testing.T) {
 	TrySuite(t, testBranchCheckout, retryCount)
 }
 
-func testBranchCheckout(t *t) {
+func testBranchCheckout(t *T) {
 	t.Parallel()
 	serv := NewServer(t, WithLogin())
 	defer serv.Close()
@@ -405,7 +405,7 @@ func testBranchCheckout(t *t) {
 			return outp, errors.New("Output does not contain expected")
 		}
 		return outp, nil
-	}, 30*time.Second); err != nil {
+	}, 30 * time.Second); err != nil {
 		return
 	}
 }
@@ -414,7 +414,7 @@ func TestStreamLogsAndThirdPartyRepo(t *testing.T) {
 	TrySuite(t, testStreamLogsAndThirdPartyRepo, retryCount)
 }
 
-func testStreamLogsAndThirdPartyRepo(t *t) {
+func testStreamLogsAndThirdPartyRepo(t *T) {
 	t.Parallel()
 	serv := NewServer(t, WithLogin())
 	defer serv.Close()
@@ -436,11 +436,11 @@ func testStreamLogsAndThirdPartyRepo(t *t) {
 			return outp, err
 		}
 
-		if !strings.Contains(string(outp), "Listening on") || !strings.Contains(string(outp), "never stopping") {
+		if !strings.Contains(string(outp), "Listening on") || !strings.Contains(string(outp), "This is a log line") {
 			return outp, errors.New("Output does not contain expected")
 		}
 		return outp, nil
-	}, 50*time.Second); err != nil {
+	}, 50 * time.Second); err != nil {
 		return
 	}
 
@@ -484,7 +484,7 @@ func testStreamLogsAndThirdPartyRepo(t *t) {
 	time.Sleep(2 * time.Second)
 }
 
-func replaceStringInFile(t *t, filepath string, original, newone string) {
+func replaceStringInFile(t *T, filepath string, original, newone string) {
 	input, err := ioutil.ReadFile(filepath)
 	if err != nil {
 		t.Fatal(err)
@@ -503,7 +503,7 @@ func TestParentDependency(t *testing.T) {
 	TrySuite(t, testParentDependency, retryCount)
 }
 
-func testParentDependency(t *t) {
+func testParentDependency(t *T) {
 	t.Parallel()
 	serv := NewServer(t, WithLogin())
 	defer serv.Close()
@@ -529,7 +529,7 @@ func testParentDependency(t *t) {
 			return outp, errors.New("Output should contain hello world")
 		}
 		return outp, nil
-	}, 30*time.Second); err != nil {
+	}, 30 * time.Second); err != nil {
 		return
 	}
 }
