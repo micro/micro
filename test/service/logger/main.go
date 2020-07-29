@@ -21,6 +21,5 @@ func main() {
 	srv := service.New(
 		service.Name("go.micro.service.logger"),
 	)
-	srv.Init()
 	srv.Run()
 }

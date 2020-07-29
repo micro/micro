@@ -14,9 +14,6 @@ func main() {
 		service.Name("go.micro.service.example"),
 	)
 
-	// Initialise service
-	srv.Init()
-
 	// Register Handler
 	pb.RegisterExampleHandler(srv.Server(), new(handler.Example))
 

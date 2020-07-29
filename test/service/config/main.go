@@ -13,10 +13,10 @@ func main() {
 	srv := service.New(
 		service.Name("go.micro.service.config-read"),
 	)
-	srv.Init()
 
 	// get a value
 	c := config.DefaultConfig
+
 	for {
 		fmt.Println("Value of key.subkey: ", c.Get("key", "subkey").String(""))
 		time.Sleep(time.Second)
