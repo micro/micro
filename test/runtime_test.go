@@ -39,7 +39,7 @@ func ServerModeCall(t *T) {
 			return outp, errors.New("Call to runtime read should succeed")
 		}
 		return outp, err
-	}, 5 * time.Second); err != nil {
+	}, 5*time.Second); err != nil {
 		return
 	}
 }
@@ -76,7 +76,7 @@ func testRunLocalSource(t *T) {
 			return outp, errors.New("Can't find example service in runtime")
 		}
 		return outp, err
-	}, 15 * time.Second); err != nil {
+	}, 15*time.Second); err != nil {
 		return
 	}
 
@@ -89,7 +89,7 @@ func testRunLocalSource(t *T) {
 			return outp, errors.New("Can't find example service in list")
 		}
 		return outp, err
-	}, 50 * time.Second); err != nil {
+	}, 50*time.Second); err != nil {
 		return
 	}
 }
@@ -126,7 +126,7 @@ func testRunAndKill(t *T) {
 			return outp, errors.New("Can't find example service in runtime")
 		}
 		return outp, err
-	}, 15 * time.Second); err != nil {
+	}, 15*time.Second); err != nil {
 		return
 	}
 
@@ -139,7 +139,7 @@ func testRunAndKill(t *T) {
 			return outp, errors.New("Can't find example service in list")
 		}
 		return outp, err
-	}, 50 * time.Second); err != nil {
+	}, 50*time.Second); err != nil {
 		return
 	}
 
@@ -162,7 +162,7 @@ func testRunAndKill(t *T) {
 			return outp, errors.New("Should not find example service in runtime")
 		}
 		return outp, err
-	}, 15 * time.Second); err != nil {
+	}, 15*time.Second); err != nil {
 		return
 	}
 
@@ -175,7 +175,7 @@ func testRunAndKill(t *T) {
 			return outp, errors.New("Should not find example service in list")
 		}
 		return outp, err
-	}, 20 * time.Second); err != nil {
+	}, 20*time.Second); err != nil {
 		return
 	}
 }
@@ -225,7 +225,7 @@ func testRunGithubSource(t *T) {
 			return outp, errors.New("Output should contain hello world")
 		}
 		return outp, nil
-	}, 60 * time.Second); err != nil {
+	}, 60*time.Second); err != nil {
 		return
 	}
 
@@ -244,7 +244,7 @@ func testRunGithubSource(t *T) {
 			return outp, errors.New("Helloworld resonse is unexpected")
 		}
 		return outp, err
-	}, 60 * time.Second); err != nil {
+	}, 60*time.Second); err != nil {
 		return
 	}
 
@@ -283,7 +283,7 @@ func testRunLocalUpdateAndCall(t *T) {
 			return outp, errors.New("can't find service in runtime")
 		}
 		return outp, err
-	}, 15 * time.Second); err != nil {
+	}, 15*time.Second); err != nil {
 		return
 	}
 
@@ -302,7 +302,7 @@ func testRunLocalUpdateAndCall(t *T) {
 			return outp, errors.New("Response is unexpected")
 		}
 		return outp, err
-	}, 50 * time.Second); err != nil {
+	}, 50*time.Second); err != nil {
 		return
 	}
 
@@ -334,7 +334,7 @@ func testRunLocalUpdateAndCall(t *T) {
 			return outp, errors.New("Response is not what's expected")
 		}
 		return outp, err
-	}, 15 * time.Second); err != nil {
+	}, 15*time.Second); err != nil {
 		return
 	}
 }
@@ -365,11 +365,11 @@ func testExistingLogs(t *T) {
 			return outp, err
 		}
 
-		if !strings.Contains(string(outp), "Listening on") || !strings.Contains(string(outp), "never stopping") {
+		if !strings.Contains(string(outp), "Listening on") || !strings.Contains(string(outp), "This is a log line") {
 			return outp, errors.New("Output does not contain expected")
 		}
 		return outp, nil
-	}, 50 * time.Second); err != nil {
+	}, 50*time.Second); err != nil {
 		return
 	}
 }
@@ -405,7 +405,7 @@ func testBranchCheckout(t *T) {
 			return outp, errors.New("Output does not contain expected")
 		}
 		return outp, nil
-	}, 30 * time.Second); err != nil {
+	}, 30*time.Second); err != nil {
 		return
 	}
 }
@@ -440,7 +440,7 @@ func testStreamLogsAndThirdPartyRepo(t *T) {
 			return outp, errors.New("Output does not contain expected")
 		}
 		return outp, nil
-	}, 50 * time.Second); err != nil {
+	}, 50*time.Second); err != nil {
 		return
 	}
 
@@ -529,7 +529,7 @@ func testParentDependency(t *T) {
 			return outp, errors.New("Output should contain hello world")
 		}
 		return outp, nil
-	}, 30 * time.Second); err != nil {
+	}, 30*time.Second); err != nil {
 		return
 	}
 }
