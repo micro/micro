@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/micro/go-micro/v3/client"
-	"github.com/micro/go-micro/v3/errors"
+	"github.com/micro/micro/v3/service/errors"
 	"github.com/micro/go-micro/v3/metadata"
 	"github.com/micro/go-micro/v3/store"
 	muclient "github.com/micro/micro/v3/service/client"
