@@ -14,11 +14,11 @@ import (
 
 	goclient "github.com/micro/go-micro/v3/client"
 	proto "github.com/micro/go-micro/v3/debug/service/proto"
-	"github.com/micro/go-micro/v3/registry"
+	goregistry "github.com/micro/go-micro/v3/registry"
 	"github.com/micro/micro/v3/client/cli/namespace"
 	"github.com/micro/micro/v3/client/cli/util"
 	"github.com/micro/micro/v3/service/client"
-	muregistry "github.com/micro/micro/v3/service/registry"
+	"github.com/micro/micro/v3/service/registry"
 )
 
 func quit(c *cli.Context, args []string) ([]byte, error) {
@@ -56,8 +56,7 @@ func QueryStats(c *cli.Context, args []string) ([]byte, error) {
 		return nil, err
 	}
 
-	reg := muregistry.DefaultRegistry
-	service, err := reg.GetService(args[0], registry.GetDomain(ns))
+	service, err := registry.GetService(args[0], goregistry.GetDomain(ns))
 	if err != nil {
 		return nil, err
 	}

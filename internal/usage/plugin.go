@@ -51,7 +51,7 @@ func Plugin() plugin.Plugin {
 
 				for {
 					// get service list
-					s, _ := registry.DefaultRegistry.ListServices()
+					s, _ := registry.ListServices()
 					// get requests
 					reqs := atomic.LoadUint64(&requests)
 					srvs := uint64(len(s))

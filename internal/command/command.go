@@ -15,16 +15,16 @@ import (
 	cbytes "github.com/micro/go-micro/v3/codec/bytes"
 	proto "github.com/micro/go-micro/v3/debug/service/proto"
 	"github.com/micro/go-micro/v3/metadata"
-	"github.com/micro/go-micro/v3/registry"
+	goregistry "github.com/micro/go-micro/v3/registry"
 	"github.com/micro/micro/v3/client/cli/namespace"
 	"github.com/micro/micro/v3/client/cli/util"
 	"github.com/micro/micro/v3/service/client"
-	muregistry "github.com/micro/micro/v3/service/registry"
+	"github.com/micro/micro/v3/service/registry"
 
 	"github.com/serenize/snaker"
 )
 
-func formatEndpoint(v *registry.Value, r int) string {
+func formatEndpoint(v *goregistry.Value, r int) string {
 	// default format is tabbed plus the value plus new line
 	fparts := []string{"", "%s %s", "\n"}
 	for i := 0; i < r+1; i++ {
@@ -85,11 +85,9 @@ func GetService(c *cli.Context, args []string) ([]byte, error) {
 	}
 
 	var output []string
-	var srv []*registry.Service
+	var srv []*goregistry.Service
 
-	reg := muregistry.DefaultRegistry
-
-	srv, err = reg.GetService(args[0], registry.GetDomain(ns))
+	srv, err = registry.GetService(args[0], goregistry.GetDomain(ns))
 	if err != nil {
 		return nil, err
 	}
@@ -153,7 +151,7 @@ func GetService(c *cli.Context, args []string) ([]byte, error) {
 }
 
 func ListServices(c *cli.Context) ([]byte, error) {
-	var rsp []*registry.Service
+	var rsp []*goregistry.Service
 	var err error
 
 	ns, err := namespace.Get(util.GetEnv(c).Name)
@@ -161,9 +159,7 @@ func ListServices(c *cli.Context) ([]byte, error) {
 		return nil, err
 	}
 
-	reg := muregistry.DefaultRegistry
-
-	rsp, err = reg.ListServices(registry.ListDomain(ns))
+	rsp, err = registry.ListServices(goregistry.ListDomain(ns))
 	if err != nil {
 		return nil, err
 	}
@@ -298,9 +294,7 @@ func QueryHealth(c *cli.Context, args []string) ([]byte, error) {
 	}
 
 	// otherwise get the service and call each instance individually
-	reg := muregistry.DefaultRegistry
-
-	service, err := reg.GetService(args[0], registry.GetDomain(ns))
+	service, err := registry.GetService(args[0], goregistry.GetDomain(ns))
 	if err != nil {
 		return nil, err
 	}
