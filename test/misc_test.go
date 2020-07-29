@@ -14,7 +14,7 @@ func TestNew(t *testing.T) {
 	TrySuite(t, testNew, retryCount)
 }
 
-func testNew(t *t) {
+func testNew(t *T) {
 	t.Parallel()
 
 	tcs := []struct {
@@ -105,7 +105,7 @@ func TestWrongCommands(t *testing.T) {
 	TrySuite(t, testWrongCommands, retryCount)
 }
 
-func testWrongCommands(t *t) {
+func testWrongCommands(t *T) {
 	// @TODO this is obviously bad that we have to start a server for this. Why?
 	// What happens is in `cmd/cmd.go` `/service/store/cli/util.go`.SetupCommand is called
 	// which does not run for builtin services and help etc but there is no such exception for
@@ -157,7 +157,7 @@ func TestHelps(t *testing.T) {
 	TrySuite(t, testHelps, retryCount)
 }
 
-func testHelps(t *t) {
+func testHelps(t *T) {
 	comm := exec.Command("micro", "help")
 	outp, err := comm.CombinedOutput()
 	if err != nil {
@@ -192,7 +192,7 @@ func TestUnrecognisedCommand(t *testing.T) {
 	TrySuite(t, testUnrecognisedCommand, retryCount)
 }
 
-func testUnrecognisedCommand(t *t) {
+func testUnrecognisedCommand(t *T) {
 	serv := NewServer(t)
 	defer serv.Close()
 	if err := serv.Run(); err != nil {

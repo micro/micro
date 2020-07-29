@@ -15,7 +15,7 @@ func TestCorruptedTokenLogin(t *testing.T) {
 	TrySuite(t, testCorruptedLogin, retryCount)
 }
 
-func testCorruptedLogin(t *t) {
+func testCorruptedLogin(t *T) {
 	serv := NewServer(t)
 	defer serv.Close()
 	if err := serv.Run(); err != nil {
