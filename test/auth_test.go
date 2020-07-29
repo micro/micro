@@ -18,7 +18,7 @@ func TestServerAuth(t *testing.T) {
 
 func ServerAuth(t *t) {
 	t.Parallel()
-	serv := NewServer(t, withLogin())
+	serv := NewServer(t, WithLogin())
 	defer serv.Close()
 	if err := serv.Run(); err != nil {
 		return

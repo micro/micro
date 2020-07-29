@@ -85,7 +85,7 @@ type ServerBase struct {
 	envNm         string
 	portNum       int
 	containerName string
-	opts          options
+	opts          Options
 	namespace     string
 }
 
@@ -123,24 +123,24 @@ func myCaller() string {
 	return getFrame(2).Function
 }
 
-type options struct {
-	login bool
+type Options struct {
+	Login bool
 }
 
-type option func(o *options)
+type Option func(o *Options)
 
-func withLogin() option {
-	return func(o *options) {
-		o.login = true
+func WithLogin() Option {
+	return func(o *Options) {
+		o.Login = true
 	}
 }
 
-func NewServer(t *t, opts ...option) Server {
+func NewServer(t *t, opts ...Option) Server {
 	fname := strings.Split(myCaller(), ".")[2]
 	return newSrv(t, fname, opts...)
 }
 
-type NewServerFunc func(t *t, fname string, opts ...option) Server
+type NewServerFunc func(t *t, fname string, opts ...Option) Server
 
 var newSrv NewServerFunc = newLocalServer
 
@@ -148,8 +148,8 @@ type ServerDefault struct {
 	ServerBase
 }
 
-func newLocalServer(t *t, fname string, opts ...option) Server {
-	var options options
+func newLocalServer(t *t, fname string, opts ...Option) Server {
+	var options Options
 	for _, o := range opts {
 		o(&options)
 	}
@@ -260,7 +260,7 @@ func (s *ServerDefault) Run() error {
 	}
 
 	// login to admin account
-	if s.opts.login {
+	if s.opts.Login {
 		login(s, s.t, "default", "password")
 	}
 

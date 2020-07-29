@@ -112,7 +112,7 @@ func testWrongCommands(t *t) {
 	// missing/unrecognized commands, so the behaviour below will only happen if a `micro server`
 	// is running. This is most likely because some config/auth wrapper in the background failing.
 	// Fix this later.
-	serv := NewServer(t, withLogin())
+	serv := NewServer(t, WithLogin())
 	defer serv.Close()
 	if err := serv.Run(); err != nil {
 		return

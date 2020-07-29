@@ -17,7 +17,7 @@ func TestConfig(t *testing.T) {
 
 func testConfig(t *t) {
 	t.Parallel()
-	serv := NewServer(t, withLogin())
+	serv := NewServer(t, WithLogin())
 	defer serv.Close()
 	if err := serv.Run(); err != nil {
 		return
@@ -126,7 +126,7 @@ func TestConfigReadFromService(t *testing.T) {
 
 func testConfigReadFromService(t *t) {
 	t.Parallel()
-	serv := NewServer(t, withLogin())
+	serv := NewServer(t, WithLogin())
 	defer serv.Close()
 	if err := serv.Run(); err != nil {
 		return

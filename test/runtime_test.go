@@ -19,7 +19,7 @@ func TestServerModeCall(t *testing.T) {
 
 func ServerModeCall(t *t) {
 	t.Parallel()
-	serv := NewServer(t, withLogin())
+	serv := NewServer(t, WithLogin())
 
 	callCmd := exec.Command("micro", serv.EnvFlag(), "call", "go.micro.runtime", "Runtime.Read", "{}")
 	outp, err := callCmd.CombinedOutput()
@@ -50,7 +50,7 @@ func TestRunLocalSource(t *testing.T) {
 
 func testRunLocalSource(t *t) {
 	t.Parallel()
-	serv := NewServer(t, withLogin())
+	serv := NewServer(t, WithLogin())
 	defer serv.Close()
 	if err := serv.Run(); err != nil {
 		return
@@ -100,7 +100,7 @@ func TestRunAndKill(t *testing.T) {
 
 func testRunAndKill(t *t) {
 	t.Parallel()
-	serv := NewServer(t, withLogin())
+	serv := NewServer(t, WithLogin())
 	defer serv.Close()
 	if err := serv.Run(); err != nil {
 		return
@@ -201,7 +201,7 @@ func testRunGithubSource(t *t) {
 		t.Fatal("Git is not available")
 		return
 	}
-	serv := NewServer(t, withLogin())
+	serv := NewServer(t, WithLogin())
 	defer serv.Close()
 	if err := serv.Run(); err != nil {
 		return
@@ -256,7 +256,7 @@ func TestRunLocalUpdateAndCall(t *testing.T) {
 
 func testRunLocalUpdateAndCall(t *t) {
 	t.Parallel()
-	serv := NewServer(t, withLogin())
+	serv := NewServer(t, WithLogin())
 	defer serv.Close()
 	if err := serv.Run(); err != nil {
 		return
@@ -345,7 +345,7 @@ func TestExistingLogs(t *testing.T) {
 
 func testExistingLogs(t *t) {
 	t.Parallel()
-	serv := NewServer(t, withLogin())
+	serv := NewServer(t, WithLogin())
 	defer serv.Close()
 	if err := serv.Run(); err != nil {
 		return
@@ -380,7 +380,7 @@ func TestBranchCheckout(t *testing.T) {
 
 func testBranchCheckout(t *t) {
 	t.Parallel()
-	serv := NewServer(t, withLogin())
+	serv := NewServer(t, WithLogin())
 	defer serv.Close()
 	if err := serv.Run(); err != nil {
 		return
@@ -416,7 +416,7 @@ func TestStreamLogsAndThirdPartyRepo(t *testing.T) {
 
 func testStreamLogsAndThirdPartyRepo(t *t) {
 	t.Parallel()
-	serv := NewServer(t, withLogin())
+	serv := NewServer(t, WithLogin())
 	defer serv.Close()
 	if err := serv.Run(); err != nil {
 		return
@@ -505,7 +505,7 @@ func TestParentDependency(t *testing.T) {
 
 func testParentDependency(t *t) {
 	t.Parallel()
-	serv := NewServer(t, withLogin())
+	serv := NewServer(t, WithLogin())
 	defer serv.Close()
 	if err := serv.Run(); err != nil {
 		return
@@ -540,7 +540,7 @@ func TestFastRuns(t *testing.T) {
 
 func testFastRuns(t *t) {
 	t.Parallel()
-	serv := NewServer(t, withLogin())
+	serv := NewServer(t, WithLogin())
 	defer serv.Close()
 	if err := serv.Run(); err != nil {
 		return
