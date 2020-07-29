@@ -7,7 +7,6 @@ import (
 	log "github.com/micro/go-micro/v3/logger"
 	"github.com/micro/go-micro/v3/runtime"
 	"github.com/micro/micro/v3/service"
-	"github.com/micro/micro/v3/service/auth"
 	muruntime "github.com/micro/micro/v3/service/runtime"
 	"github.com/micro/micro/v3/service/runtime/manager"
 	pb "github.com/micro/micro/v3/service/runtime/proto"
@@ -64,7 +63,6 @@ func Run(ctx *cli.Context) error {
 
 	// create a new runtime manager
 	manager := manager.New(muRuntime,
-		manager.Auth(auth.DefaultAuth),
 		manager.Store(store.DefaultStore),
 		manager.CacheStore(store.DefaultStore),
 	)

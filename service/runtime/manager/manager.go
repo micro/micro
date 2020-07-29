@@ -8,7 +8,6 @@ import (
 	filest "github.com/micro/go-micro/v3/store/file"
 	"github.com/micro/go-micro/v3/store/memory"
 	"github.com/micro/micro/v3/internal/namespace"
-	"github.com/micro/micro/v3/service/auth"
 	mustore "github.com/micro/micro/v3/service/store"
 )
 
@@ -239,9 +238,6 @@ func New(r runtime.Runtime, opts ...Option) runtime.Runtime {
 	}
 
 	// set the defaults
-	if options.Auth == nil {
-		options.Auth = auth.DefaultAuth
-	}
 	if options.Store == nil {
 		options.Store = mustore.DefaultStore
 	}
