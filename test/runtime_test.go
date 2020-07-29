@@ -436,7 +436,7 @@ func testStreamLogsAndThirdPartyRepo(t *T) {
 			return outp, err
 		}
 
-		if !strings.Contains(string(outp), "Listening on") || !strings.Contains(string(outp), "never stopping") {
+		if !strings.Contains(string(outp), "Listening on") || !strings.Contains(string(outp), "This is a log line") {
 			return outp, errors.New("Output does not contain expected")
 		}
 		return outp, nil

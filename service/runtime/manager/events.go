@@ -121,15 +121,25 @@ func (m *manager) processEvent(key string) {
 			return
 		}
 
-		err = runtime.Create(ev.Service,
+		// construct the options
+		options := []gorun.CreateOption{
 			gorun.CreateImage(ev.Options.Image),
 			gorun.CreateType(ev.Options.Type),
 			gorun.CreateNamespace(ns),
 			gorun.WithArgs(ev.Options.Args...),
 			gorun.WithCommand(ev.Options.Command...),
 			gorun.WithEnv(m.runtimeEnv(ev.Options)),
-			gorun.CreateCredentials(acc.ID, acc.Secret),
-		)
+			gorun.WithSecret("MICRO_AUTH_ID", acc.ID),
+			gorun.WithSecret("MICRO_AUTH_SECRET", acc.Secret),
+		}
+
+		// add the secrets
+		for key, value := range ev.Options.Secrets {
+			options = append(options, gorun.WithSecret(key, value))
+		}
+
+		// create the service
+		err = runtime.Create(ev.Service, options...)
 	}
 
 	// if there was an error update the status in the cache
