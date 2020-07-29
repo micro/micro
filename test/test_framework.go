@@ -344,8 +344,9 @@ func (t *T) Parallel() {
 	t.counter++
 }
 
-func newT(te *testing.T) *T {
-	return &t{t: te}
+// New returns a new test framework
+func New(te *testing.T) *T {
+	return &T{t: te}
 }
 
 // TrySuite is designed to retry a TestXX function
