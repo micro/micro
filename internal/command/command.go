@@ -11,14 +11,14 @@ import (
 	"time"
 
 	"github.com/micro/cli/v2"
-	"github.com/micro/go-micro/v3/client"
+	goclient "github.com/micro/go-micro/v3/client"
 	cbytes "github.com/micro/go-micro/v3/codec/bytes"
 	proto "github.com/micro/go-micro/v3/debug/service/proto"
 	"github.com/micro/go-micro/v3/metadata"
 	"github.com/micro/go-micro/v3/registry"
 	"github.com/micro/micro/v3/client/cli/namespace"
 	"github.com/micro/micro/v3/client/cli/util"
-	muclient "github.com/micro/micro/v3/service/client"
+	"github.com/micro/micro/v3/service/client"
 	muregistry "github.com/micro/micro/v3/service/registry"
 
 	"github.com/serenize/snaker"
@@ -188,8 +188,7 @@ func Publish(c *cli.Context, args []string) error {
 	topic := args[0]
 	message := args[1]
 
-	cl := muclient.DefaultClient
-	ct := func(o *client.MessageOptions) {
+	ct := func(o *goclient.MessageOptions) {
 		o.ContentType = "application/json"
 	}
 
@@ -202,8 +201,8 @@ func Publish(c *cli.Context, args []string) error {
 	}
 
 	ctx := callContext(c)
-	m := cl.NewMessage(topic, msg, ct)
-	return cl.Publish(ctx, m)
+	m := client.NewMessage(topic, msg, ct)
+	return client.Publish(ctx, m)
 }
 
 func CallService(c *cli.Context, args []string) ([]byte, error) {
@@ -236,24 +235,23 @@ func CallService(c *cli.Context, args []string) ([]byte, error) {
 
 	ctx := callContext(c)
 
-	cli := muclient.DefaultClient
-	creq := cli.NewRequest(service, endpoint, request, client.WithContentType("application/json"))
+	creq := client.NewRequest(service, endpoint, request, goclient.WithContentType("application/json"))
 
-	var opts []client.CallOption
+	var opts []goclient.CallOption
 
 	if addr := c.String("address"); len(addr) > 0 {
-		opts = append(opts, client.WithAddress(addr))
+		opts = append(opts, goclient.WithAddress(addr))
 	}
 
 	var err error
 	if output := c.String("output"); output == "raw" {
 		rsp := cbytes.Frame{}
-		err = cli.Call(ctx, creq, &rsp, opts...)
+		err = client.Call(ctx, creq, &rsp, opts...)
 		// set the raw output
 		response = rsp.Data
 	} else {
 		var rsp json.RawMessage
-		err = cli.Call(ctx, creq, &rsp, opts...)
+		err = client.Call(ctx, creq, &rsp, opts...)
 		// set the response
 		if err == nil {
 			var out bytes.Buffer
@@ -282,16 +280,16 @@ func QueryHealth(c *cli.Context, args []string) ([]byte, error) {
 		return nil, err
 	}
 
-	req := (muclient.DefaultClient).NewRequest(args[0], "Debug.Health", &proto.HealthRequest{})
+	req := client.NewRequest(args[0], "Debug.Health", &proto.HealthRequest{})
 
 	// if the address is specified then we just call it
 	if addr := c.String("address"); len(addr) > 0 {
 		rsp := &proto.HealthResponse{}
-		err := (muclient.DefaultClient).Call(
+		err := client.Call(
 			context.Background(),
 			req,
 			rsp,
-			client.WithAddress(addr),
+			goclient.WithAddress(addr),
 		)
 		if err != nil {
 			return nil, err
@@ -328,11 +326,11 @@ func QueryHealth(c *cli.Context, args []string) ([]byte, error) {
 			var err error
 
 			// call using client
-			err = (muclient.DefaultClient).Call(
+			err = client.Call(
 				context.Background(),
 				req,
 				rsp,
-				client.WithAddress(address),
+				goclient.WithAddress(address),
 			)
 
 			var status string

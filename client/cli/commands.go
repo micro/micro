@@ -12,12 +12,12 @@ import (
 
 	"github.com/micro/cli/v2"
 
-	"github.com/micro/go-micro/v3/client"
+	goclient "github.com/micro/go-micro/v3/client"
 	proto "github.com/micro/go-micro/v3/debug/service/proto"
 	"github.com/micro/go-micro/v3/registry"
 	"github.com/micro/micro/v3/client/cli/namespace"
 	"github.com/micro/micro/v3/client/cli/util"
-	muclient "github.com/micro/micro/v3/service/client"
+	"github.com/micro/micro/v3/service/client"
 	muregistry "github.com/micro/micro/v3/service/registry"
 )
 
@@ -66,7 +66,7 @@ func QueryStats(c *cli.Context, args []string) ([]byte, error) {
 		return nil, errors.New("Service not found")
 	}
 
-	req := muclient.DefaultClient.NewRequest(service[0].Name, "Debug.Stats", &proto.StatsRequest{})
+	req := client.NewRequest(service[0].Name, "Debug.Stats", &proto.StatsRequest{})
 
 	var output []string
 
@@ -86,8 +86,7 @@ func QueryStats(c *cli.Context, args []string) ([]byte, error) {
 			var err error
 
 			// call using client
-			cli := muclient.DefaultClient
-			err = cli.Call(context.Background(), req, rsp, client.WithAddress(address))
+			err = client.Call(context.Background(), req, rsp, goclient.WithAddress(address))
 
 			var started, uptime, memory, gc string
 			if err == nil {

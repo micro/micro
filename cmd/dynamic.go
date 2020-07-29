@@ -9,11 +9,11 @@ import (
 	"strings"
 
 	"github.com/micro/cli/v2"
-	"github.com/micro/go-micro/v3/client"
+	goclient "github.com/micro/go-micro/v3/client"
 	"github.com/micro/go-micro/v3/registry"
 	"github.com/micro/micro/v3/client/cli/namespace"
 	"github.com/micro/micro/v3/client/cli/util"
-	muclient "github.com/micro/micro/v3/service/client"
+	"github.com/micro/micro/v3/service/client"
 	muregistry "github.com/micro/micro/v3/service/registry"
 )
 
@@ -117,10 +117,9 @@ func callService(srv *registry.Service, ctx *cli.Context) error {
 	}
 
 	// construct and execute the request using the json content type
-	cli := muclient.DefaultClient
-	req := cli.NewRequest(srv.Name, endpoint, body, client.WithContentType("application/json"))
+	req := client.NewRequest(srv.Name, endpoint, body, goclient.WithContentType("application/json"))
 	var rsp json.RawMessage
-	if err := cli.Call(ctx.Context, req, &rsp); err != nil {
+	if err := client.Call(ctx.Context, req, &rsp); err != nil {
 		return err
 	}
 

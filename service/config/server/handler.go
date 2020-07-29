@@ -453,7 +453,6 @@ func values(ch *source.ChangeSet) (cr.Values, error) {
 
 // publish a change
 func publish(ctx context.Context, ch *pb.WatchResponse) error {
-	c := muclient.DefaultClient
-	req := c.NewMessage(watchTopic, ch)
-	return c.Publish(ctx, req)
+	req := muclient.NewMessage(watchTopic, ch)
+	return muclient.Publish(ctx, req)
 }
