@@ -6,10 +6,14 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io/ioutil"
+	"net/http"
 	"os/exec"
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/micro/micro/v3/client/cli/token"
 )
 
 func TestServerAuth(t *testing.T) {
@@ -117,6 +121,11 @@ func lockdownSuite(serv testServer, t *t) {
 		return
 	}
 
+	err := token.Remove(serv.envName())
+	if err != nil {
+		t.Fatal(err)
+	}
+
 	email := "me@email.com"
 	pass := "mystrongpass"
 
@@ -160,6 +169,12 @@ func lockdownSuite(serv testServer, t *t) {
 		return
 	}
 
+	exec.Command("micro", serv.envFlag(), "store", "write", "a", "1").CombinedOutput()
+	rsp, err := curl(serv, "store/list")
+	if err == nil {
+		t.Fatal(rsp, errors.New("store list should be closed"))
+	}
+
 	login(serv, t, "me@email.com", "mystrongpass")
 
 	if err := try("Listing rules should pass after login", t, func() ([]byte, error) {
@@ -174,4 +189,18 @@ func lockdownSuite(serv testServer, t *t) {
 	}, 31*time.Second); err != nil {
 		return
 	}
+}
+
+func curl(serv testServer, path string) (map[string]interface{}, error) {
+	resp, err := http.Get(fmt.Sprintf("http://127.0.0.1:%v/%v", serv.ports().api, path))
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+	m := map[string]interface{}{}
+	return m, json.Unmarshal(body, &m)
 }

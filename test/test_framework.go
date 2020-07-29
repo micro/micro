@@ -33,10 +33,16 @@ var (
 
 type cmdFunc func() ([]byte, error)
 
+type ports struct {
+	proxy int
+	api   int
+}
+
 type testServer interface {
 	launch() error
 	close()
 	envFlag() string
+	ports() ports
 	envName() string
 }
 
@@ -84,6 +90,7 @@ type testServerBase struct {
 	t             *t
 	envNm         string
 	portNum       int
+	apiPortNum    int
 	containerName string
 	opts          options
 	namespace     string
@@ -154,7 +161,8 @@ func newLocalServer(t *t, fname string, opts ...option) testServer {
 		o(&options)
 	}
 
-	portnum := rand.Intn(maxPort-minPort) + minPort
+	proxyPortnum := rand.Intn(maxPort-minPort) + minPort
+	apiPortNum := rand.Intn(maxPort-minPort) + minPort
 
 	// kill container, ignore error because it might not exist,
 	// we dont care about this that much
@@ -184,7 +192,8 @@ func newLocalServer(t *t, fname string, opts ...option) testServer {
 
 	// run the server
 	cmd := exec.Command("docker", "run", "--name", fname,
-		fmt.Sprintf("-p=%v:8081", portnum),
+		fmt.Sprintf("-p=%v:8081", proxyPortnum),
+		fmt.Sprintf("-p=%v:8080", apiPortNum),
 		"-e", "MICRO_AUTH_PRIVATE_KEY="+strings.Trim(string(privKey), "\n"),
 		"-e", "MICRO_AUTH_PUBLIC_KEY="+strings.Trim(string(pubKey), "\n"),
 		"-e", "MICRO_PROFILE=ci",
@@ -195,10 +204,18 @@ func newLocalServer(t *t, fname string, opts ...option) testServer {
 		t:             t,
 		envNm:         fname,
 		containerName: fname,
-		portNum:       portnum,
+		portNum:       proxyPortnum,
+		apiPortNum:    apiPortNum,
 		opts:          options,
 		namespace:     "micro",
 	}}
+}
+
+func (s *testServerBase) ports() ports {
+	return ports{
+		proxy: s.portNum,
+		api:   s.apiPortNum,
+	}
 }
 
 // error value should not be used but caller should return in the test suite
