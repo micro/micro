@@ -9,10 +9,10 @@ import (
 	"text/tabwriter"
 
 	"github.com/micro/cli/v2"
-	"github.com/micro/go-micro/v3/auth"
+	goauth "github.com/micro/go-micro/v3/auth"
 	"github.com/micro/micro/v3/client/cli/namespace"
 	"github.com/micro/micro/v3/client/cli/util"
-	muauth "github.com/micro/micro/v3/service/auth"
+	"github.com/micro/micro/v3/service/auth"
 	pb "github.com/micro/micro/v3/service/auth/proto"
 	muclient "github.com/micro/micro/v3/service/client"
 )
@@ -66,14 +66,14 @@ func createAccount(ctx *cli.Context) error {
 		return fmt.Errorf("Error getting namespace: %v", err)
 	}
 
-	options := []auth.GenerateOption{auth.WithIssuer(ns)}
+	options := []goauth.GenerateOption{goauth.WithIssuer(ns)}
 	if len(ctx.StringSlice("scopes")) > 0 {
-		options = append(options, auth.WithScopes(ctx.StringSlice("scopes")...))
+		options = append(options, goauth.WithScopes(ctx.StringSlice("scopes")...))
 	}
 	if len(ctx.String("secret")) > 0 {
-		options = append(options, auth.WithSecret(ctx.String("secret")))
+		options = append(options, goauth.WithSecret(ctx.String("secret")))
 	}
-	acc, err := muauth.DefaultAuth.Generate(ctx.Args().First(), options...)
+	acc, err := auth.Generate(ctx.Args().First(), options...)
 	if err != nil {
 		return fmt.Errorf("Error creating account: %v", err)
 	}

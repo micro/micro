@@ -10,14 +10,14 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/micro/go-micro/v3/auth"
-	"github.com/micro/go-micro/v3/errors"
-	"github.com/micro/micro/v3/service/logger"
-	"github.com/micro/go-micro/v3/store"
-	memStore "github.com/micro/go-micro/v3/store/memory"
+	gostore "github.com/micro/go-micro/v3/store"
 	"github.com/micro/go-micro/v3/util/token"
 	"github.com/micro/go-micro/v3/util/token/basic"
 	"github.com/micro/micro/v3/internal/namespace"
 	pb "github.com/micro/micro/v3/service/auth/proto"
+	"github.com/micro/micro/v3/service/errors"
+	"github.com/micro/micro/v3/service/logger"
+	"github.com/micro/micro/v3/service/store"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -49,19 +49,9 @@ func (a *Auth) Init(opts ...auth.Option) {
 		o(&a.Options)
 	}
 
-	// use the default store as a fallback
-	if a.Options.Store == nil {
-		a.Options.Store = store.DefaultStore
-	}
-
-	// noop will not work for auth
-	if a.Options.Store.String() == "noop" {
-		a.Options.Store = memStore.NewStore()
-	}
-
 	// setup a token provider
 	if a.TokenProvider == nil {
-		a.TokenProvider = basic.NewTokenProvider(token.WithStore(a.Options.Store))
+		a.TokenProvider = basic.NewTokenProvider(token.WithStore(store.DefaultStore))
 	}
 }
 
@@ -81,7 +71,7 @@ func (a *Auth) setupDefaultAccount(ns string) error {
 
 	// check to see if we need to create the default account
 	key := strings.Join([]string{storePrefixAccounts, ns, ""}, joinKey)
-	recs, err := a.Options.Store.Read(key, store.ReadPrefix())
+	recs, err := store.Read(key, gostore.ReadPrefix())
 	if err != nil {
 		return err
 	}
@@ -145,7 +135,7 @@ func (a *Auth) Generate(ctx context.Context, req *pb.GenerateRequest, rsp *pb.Ge
 
 	// check the user does not already exists
 	key := strings.Join([]string{storePrefixAccounts, req.Options.Namespace, req.Id}, joinKey)
-	if _, err := a.Options.Store.Read(key); err != store.ErrNotFound {
+	if _, err := store.Read(key); err != gostore.ErrNotFound {
 		return errors.BadRequest("go.micro.auth", "Account with this ID already exists")
 	}
 
@@ -172,7 +162,7 @@ func (a *Auth) Generate(ctx context.Context, req *pb.GenerateRequest, rsp *pb.Ge
 func (a *Auth) createAccount(acc *auth.Account) error {
 	// check the user does not already exists
 	key := strings.Join([]string{storePrefixAccounts, acc.Issuer, acc.ID}, joinKey)
-	if _, err := a.Options.Store.Read(key); err != store.ErrNotFound {
+	if _, err := store.Read(key); err != gostore.ErrNotFound {
 		return errors.BadRequest("go.micro.auth", "Account with this ID already exists")
 	}
 
@@ -190,7 +180,7 @@ func (a *Auth) createAccount(acc *auth.Account) error {
 	}
 
 	// write to the store
-	if err := a.Options.Store.Write(&store.Record{Key: key, Value: bytes}); err != nil {
+	if err := store.Write(&gostore.Record{Key: key, Value: bytes}); err != nil {
 		return errors.InternalServerError("go.micro.auth", "Unable to write account to store: %v", err)
 	}
 
@@ -260,7 +250,7 @@ func (a *Auth) Token(ctx context.Context, req *pb.TokenRequest, rsp *pb.TokenRes
 	// If the refresh token is set, check this
 	if len(req.RefreshToken) > 0 {
 		accID, err := a.accountIDForRefreshToken(req.Options.Namespace, req.RefreshToken)
-		if err == store.ErrNotFound {
+		if err == gostore.ErrNotFound {
 			return errors.BadRequest("go.micro.auth", "Account can't be found for refresh token")
 		} else if err != nil {
 			return errors.InternalServerError("go.micro.auth", "Unable to lookup token: %v", err)
@@ -270,8 +260,8 @@ func (a *Auth) Token(ctx context.Context, req *pb.TokenRequest, rsp *pb.TokenRes
 
 	// Lookup the account in the store
 	key := strings.Join([]string{storePrefixAccounts, req.Options.Namespace, accountID}, joinKey)
-	recs, err := a.Options.Store.Read(key)
-	if err == store.ErrNotFound {
+	recs, err := store.Read(key)
+	if err == gostore.ErrNotFound {
 		return errors.BadRequest("go.micro.auth", "Account not found with this ID")
 	} else if err != nil {
 		return errors.InternalServerError("go.micro.auth", "Unable to read from store: %v", err)
@@ -310,23 +300,23 @@ func (a *Auth) Token(ctx context.Context, req *pb.TokenRequest, rsp *pb.TokenRes
 // set the refresh token for an account
 func (a *Auth) setRefreshToken(ns, id, token string) error {
 	key := strings.Join([]string{storePrefixRefreshTokens, ns, id, token}, joinKey)
-	return a.Options.Store.Write(&store.Record{Key: key})
+	return store.Write(&gostore.Record{Key: key})
 }
 
 // get the refresh token for an accutn
 func (a *Auth) refreshTokenForAccount(ns, id string) (string, error) {
 	prefix := strings.Join([]string{storePrefixRefreshTokens, ns, id, ""}, joinKey)
 
-	recs, err := a.Options.Store.Read(prefix, store.ReadPrefix())
+	recs, err := store.Read(prefix, gostore.ReadPrefix())
 	if err != nil {
 		return "", err
 	} else if len(recs) == 0 {
-		return "", store.ErrNotFound
+		return "", gostore.ErrNotFound
 	}
 
 	comps := strings.Split(recs[0].Key, "/")
 	if len(comps) != 4 {
-		return "", store.ErrNotFound
+		return "", gostore.ErrNotFound
 	}
 	return comps[3], nil
 }
@@ -334,7 +324,7 @@ func (a *Auth) refreshTokenForAccount(ns, id string) (string, error) {
 // get the account ID for the given refresh token
 func (a *Auth) accountIDForRefreshToken(ns, token string) (string, error) {
 	prefix := strings.Join([]string{storePrefixRefreshTokens, ns}, joinKey)
-	keys, err := a.Options.Store.List(store.ListPrefix(prefix))
+	keys, err := store.List(gostore.ListPrefix(prefix))
 	if err != nil {
 		return "", err
 	}
@@ -343,13 +333,13 @@ func (a *Auth) accountIDForRefreshToken(ns, token string) (string, error) {
 		if strings.HasSuffix(k, "/"+token) {
 			comps := strings.Split(k, "/")
 			if len(comps) != 4 {
-				return "", store.ErrNotFound
+				return "", gostore.ErrNotFound
 			}
 			return comps[2], nil
 		}
 	}
 
-	return "", store.ErrNotFound
+	return "", gostore.ErrNotFound
 }
 
 func serializeToken(t *token.Token, refresh string) *pb.Token {

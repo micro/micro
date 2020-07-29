@@ -26,10 +26,10 @@ func init() {
 	retryCount = 1
 }
 
-func newK8sServer(t *t, fname string, opts ...options) testServer {
+func newK8sServer(t *t, fname string, opts ...Option) Server {
 	portnum := rand.Intn(maxPort-minPort) + minPort
 
-	s := &testK8sServer{testServerBase{
+	s := &testK8sServer{ServerBase{
 		t:       t,
 		envNm:   strings.ToLower(fname),
 		portNum: portnum,
@@ -41,22 +41,22 @@ func newK8sServer(t *t, fname string, opts ...options) testServer {
 }
 
 type testK8sServer struct {
-	testServerBase
+	ServerBase
 }
 
-func (s *testK8sServer) launch() error {
-	if err := s.testServerBase.launch(); err != nil {
+func (s *testK8sServer) Run() error {
+	if err := s.ServerBase.Run(); err != nil {
 		return err
 	}
 
 	// login to admin account
-	if err := login(s, s.t, "default", "password"); err != nil {
+	if err := Login(s, s.t, "default", "password"); err != nil {
 		s.t.Fatalf("Error logging in %s", err)
 		return err
 	}
 
-	if err := try("Calling micro server", s.t, func() ([]byte, error) {
-		outp, err := exec.Command("micro", s.envFlag(), "services").CombinedOutput()
+	if err := Try("Calling micro server", s.t, func() ([]byte, error) {
+		outp, err := exec.Command("micro", s.EnvFlag(), "services").CombinedOutput()
 		if !strings.Contains(string(outp), "runtime") ||
 			!strings.Contains(string(outp), "registry") ||
 			!strings.Contains(string(outp), "broker") ||
@@ -74,23 +74,23 @@ func (s *testK8sServer) launch() error {
 	}
 
 	// generate a new admin account for the env : user=ENV_NAME pass=password
-	req := fmt.Sprintf(`{"id":"%s", "secret":"password", "options":{"namespace":"%s"}}`, s.envName(), s.namespace)
-	outp, err := exec.Command("micro", s.envFlag(), "call", "go.micro.auth", "Auth.Generate", req).CombinedOutput()
+	req := fmt.Sprintf(`{"id":"%s", "secret":"password", "options":{"namespace":"%s"}}`, s.EnvName(), s.namespace)
+	outp, err := exec.Command("micro", s.EnvFlag(), "call", "go.micro.auth", "Auth.Generate", req).CombinedOutput()
 	if err != nil && !strings.Contains(string(outp), "already exists") { // until auth.Delete is implemented
 		s.t.Fatalf("Error generating auth: %s, %s", err, outp)
 		return err
 	}
 
 	// remove the admin token
-	token.Remove(s.envName())
+	token.Remove(s.EnvName())
 
 	t := s.t
 	// setup .micro config for access
-	if err := namespace.Add(s.envName(), s.envName()); err != nil {
+	if err := namespace.Add(s.EnvName(), s.EnvName()); err != nil {
 		t.Fatalf("Failed to add current namespace: %s", err)
 		return err
 	}
-	if err := namespace.Set(s.envName(), s.envName()); err != nil {
+	if err := namespace.Set(s.EnvName(), s.EnvName()); err != nil {
 		t.Fatalf("Failed to set current namespace: %s", err)
 		return err
 	}
@@ -98,8 +98,8 @@ func (s *testK8sServer) launch() error {
 	return nil
 }
 
-func (s *testK8sServer) close() {
-	s.testServerBase.close()
+func (s *testK8sServer) Close() {
+	s.ServerBase.Close()
 	// kill the port forward
 	s.cmd.Process.Kill()
 }

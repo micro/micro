@@ -6,19 +6,18 @@ import (
 	"sync"
 	"time"
 
-	"github.com/micro/go-micro/v3/client"
+	goclient "github.com/micro/go-micro/v3/client"
 	debug "github.com/micro/go-micro/v3/debug/service/proto"
-	"github.com/micro/go-micro/v3/errors"
+	"github.com/micro/micro/v3/service/errors"
 	"github.com/micro/go-micro/v3/registry"
 	"github.com/micro/go-micro/v3/util/ring"
-	muclient "github.com/micro/micro/v3/service/client"
+	"github.com/micro/micro/v3/service/client"
 	stats "github.com/micro/micro/v3/service/debug/stats/proto"
 )
 
 // New initialises and returns a new Stats service handler
 func New(done <-chan bool, windowSize int, services func() []*registry.Service) (*Stats, error) {
 	s := &Stats{
-		client:    muclient.DefaultClient,
 		snapshots: ring.New(windowSize),
 		services:  services,
 	}
@@ -29,8 +28,6 @@ func New(done <-chan bool, windowSize int, services func() []*registry.Service) 
 
 // Stats is the Debug.Stats handler
 type Stats struct {
-	client client.Client
-
 	sync.RWMutex
 	// historical snapshots from the start
 	snapshots *ring.Buffer
@@ -124,7 +121,7 @@ func (s *Stats) scrape() {
 	// Call each node of each service in goroutines
 	var wg sync.WaitGroup
 
-	protocol := s.client.String()
+	protocol := client.DefaultClient.String()
 
 	for _, svc := range services {
 		// Ignore nodeless and non mucp services
@@ -146,9 +143,9 @@ func (s *Stats) scrape() {
 				ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 				defer cancel()
 
-				req := s.client.NewRequest(service.Name, "Debug.Stats", &debug.StatsRequest{})
+				req := client.NewRequest(service.Name, "Debug.Stats", &debug.StatsRequest{})
 				rsp := new(debug.StatsResponse)
-				if err := s.client.Call(ctx, req, rsp, client.WithAddress(node.Address)); err != nil {
+				if err := client.Call(ctx, req, rsp, goclient.WithAddress(node.Address)); err != nil {
 					// Don't report an error to the user if stats can't be collected, just continue
 					return
 				}

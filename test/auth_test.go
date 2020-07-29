@@ -13,21 +13,21 @@ import (
 )
 
 func TestServerAuth(t *testing.T) {
-	trySuite(t, testServerAuth, retryCount)
+	TrySuite(t, ServerAuth, retryCount)
 }
 
-func testServerAuth(t *t) {
+func ServerAuth(t *t) {
 	t.Parallel()
-	serv := newServer(t, withLogin())
-	defer serv.close()
-	if err := serv.launch(); err != nil {
+	serv := NewServer(t, WithLogin())
+	defer serv.Close()
+	if err := serv.Run(); err != nil {
 		return
 	}
 
 	// Execute first command in read to wait for store service
 	// to start up
-	if err := try("Calling micro auth list accounts", t, func() ([]byte, error) {
-		readCmd := exec.Command("micro", serv.envFlag(), "auth", "list", "accounts")
+	if err := Try("Calling micro auth list accounts", t, func() ([]byte, error) {
+		readCmd := exec.Command("micro", serv.EnvFlag(), "auth", "list", "accounts")
 		outp, err := readCmd.CombinedOutput()
 		if err != nil {
 			return outp, err
@@ -41,8 +41,8 @@ func testServerAuth(t *t) {
 		return
 	}
 
-	if err := try("Calling micro auth list rules", t, func() ([]byte, error) {
-		readCmd := exec.Command("micro", serv.envFlag(), "auth", "list", "rules")
+	if err := Try("Calling micro auth list rules", t, func() ([]byte, error) {
+		readCmd := exec.Command("micro", serv.EnvFlag(), "auth", "list", "rules")
 		outp, err := readCmd.CombinedOutput()
 		if err != nil {
 			return outp, err
@@ -55,8 +55,8 @@ func testServerAuth(t *t) {
 		return
 	}
 
-	if err := try("Try to get token with default account", t, func() ([]byte, error) {
-		readCmd := exec.Command("micro", serv.envFlag(), "call", "go.micro.auth", "Auth.Token", `{"id":"default","secret":"password"}`)
+	if err := Try("Try to get token with default account", t, func() ([]byte, error) {
+		readCmd := exec.Command("micro", serv.EnvFlag(), "call", "go.micro.auth", "Auth.Token", `{"id":"default","secret":"password"}`)
 		outp, err := readCmd.CombinedOutput()
 		if err != nil {
 			return outp, err
@@ -86,25 +86,25 @@ func testServerAuth(t *t) {
 }
 
 func TestServerLockdown(t *testing.T) {
-	trySuite(t, testServerAuth, retryCount)
+	TrySuite(t, ServerAuth, retryCount)
 }
 
-func testServerLockdown(t *t) {
+func ServerLockdown(t *t) {
 	t.Parallel()
-	serv := newServer(t)
-	defer serv.close()
-	if err := serv.launch(); err != nil {
+	serv := NewServer(t)
+	defer serv.Close()
+	if err := serv.Run(); err != nil {
 		return
 	}
 
 	lockdownSuite(serv, t)
 }
 
-func lockdownSuite(serv testServer, t *t) {
+func lockdownSuite(serv Server, t *t) {
 	// Execute first command in read to wait for store service
 	// to start up
-	if err := try("Calling micro auth list rules", t, func() ([]byte, error) {
-		readCmd := exec.Command("micro", serv.envFlag(), "auth", "list", "rules")
+	if err := Try("Calling micro auth list rules", t, func() ([]byte, error) {
+		readCmd := exec.Command("micro", serv.EnvFlag(), "auth", "list", "rules")
 		outp, err := readCmd.CombinedOutput()
 		if err != nil {
 			return outp, err
@@ -120,38 +120,38 @@ func lockdownSuite(serv testServer, t *t) {
 	email := "me@email.com"
 	pass := "mystrongpass"
 
-	outp, err := exec.Command("micro", serv.envFlag(), "auth", "create", "account", "--secret", pass, "--scopes", "admin", email).CombinedOutput()
+	outp, err := exec.Command("micro", serv.EnvFlag(), "auth", "create", "account", "--secret", pass, "--scopes", "admin", email).CombinedOutput()
 	if err != nil {
 		t.Fatal(string(outp), err)
 		return
 	}
 
-	outp, err = exec.Command("micro", serv.envFlag(), "auth", "create", "rule", "--access=granted", "--scope='*'", "--resource='*:*:*'", "onlyloggedin").CombinedOutput()
+	outp, err = exec.Command("micro", serv.EnvFlag(), "auth", "create", "rule", "--access=granted", "--scope='*'", "--resource='*:*:*'", "onlyloggedin").CombinedOutput()
 	if err != nil {
 		t.Fatal(string(outp), err)
 		return
 	}
 
-	outp, err = exec.Command("micro", serv.envFlag(), "auth", "create", "rule", "--access=granted", "--scope=''", "authpublic").CombinedOutput()
+	outp, err = exec.Command("micro", serv.EnvFlag(), "auth", "create", "rule", "--access=granted", "--scope=''", "authpublic").CombinedOutput()
 	if err != nil {
 		t.Fatal(string(outp), err)
 		return
 	}
 
-	outp, err = exec.Command("micro", serv.envFlag(), "auth", "delete", "rule", "default").CombinedOutput()
+	outp, err = exec.Command("micro", serv.EnvFlag(), "auth", "delete", "rule", "default").CombinedOutput()
 	if err != nil {
 		t.Fatal(string(outp), err)
 		return
 	}
 
-	outp, err = exec.Command("micro", serv.envFlag(), "auth", "delete", "account", "default").CombinedOutput()
+	outp, err = exec.Command("micro", serv.EnvFlag(), "auth", "delete", "account", "default").CombinedOutput()
 	if err != nil {
 		t.Fatal(string(outp), err)
 		return
 	}
 
-	if err := try("Listing rules should fail before login", t, func() ([]byte, error) {
-		outp, err := exec.Command("micro", serv.envFlag(), "auth", "list", "rules").CombinedOutput()
+	if err := Try("Listing rules should fail before login", t, func() ([]byte, error) {
+		outp, err := exec.Command("micro", serv.EnvFlag(), "auth", "list", "rules").CombinedOutput()
 		if err == nil {
 			return outp, errors.New("List rules should fail")
 		}
@@ -160,10 +160,10 @@ func lockdownSuite(serv testServer, t *t) {
 		return
 	}
 
-	login(serv, t, "me@email.com", "mystrongpass")
+	Login(serv, t, "me@email.com", "mystrongpass")
 
-	if err := try("Listing rules should pass after login", t, func() ([]byte, error) {
-		outp, err := exec.Command("micro", serv.envFlag(), "auth", "list", "rules").CombinedOutput()
+	if err := Try("Listing rules should pass after login", t, func() ([]byte, error) {
+		outp, err := exec.Command("micro", serv.EnvFlag(), "auth", "list", "rules").CombinedOutput()
 		if err != nil {
 			return outp, err
 		}
