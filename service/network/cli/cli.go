@@ -12,11 +12,11 @@ import (
 	"strings"
 
 	"github.com/micro/cli/v2"
-	"github.com/micro/go-micro/v3/client"
+	goclient "github.com/micro/go-micro/v3/client"
 	"github.com/micro/micro/v3/client/cli/util"
 	"github.com/micro/micro/v3/cmd"
 	clic "github.com/micro/micro/v3/internal/command"
-	muclient "github.com/micro/micro/v3/service/client"
+	"github.com/micro/micro/v3/service/client"
 	"github.com/olekukonko/tablewriter"
 )
 
@@ -108,8 +108,6 @@ func networkConnect(c *cli.Context, args []string) ([]byte, error) {
 		return nil, nil
 	}
 
-	cli := muclient.DefaultClient
-
 	request := map[string]interface{}{
 		"nodes": []interface{}{
 			map[string]interface{}{
@@ -120,8 +118,8 @@ func networkConnect(c *cli.Context, args []string) ([]byte, error) {
 
 	var rsp map[string]interface{}
 
-	req := cli.NewRequest("go.micro.network", "Network.Connect", request, client.WithContentType("application/json"))
-	err := cli.Call(context.TODO(), req, &rsp)
+	req := client.NewRequest("go.micro.network", "Network.Connect", request, goclient.WithContentType("application/json"))
+	err := client.Call(context.TODO(), req, &rsp)
 	if err != nil {
 		return nil, err
 	}
@@ -131,7 +129,6 @@ func networkConnect(c *cli.Context, args []string) ([]byte, error) {
 }
 
 func networkConnections(c *cli.Context, args []string) ([]byte, error) {
-	cli := muclient.DefaultClient
 
 	request := map[string]interface{}{
 		"depth": 1,
@@ -139,8 +136,8 @@ func networkConnections(c *cli.Context, args []string) ([]byte, error) {
 
 	var rsp map[string]interface{}
 
-	req := cli.NewRequest("go.micro.network", "Network.Graph", request, client.WithContentType("application/json"))
-	err := cli.Call(context.TODO(), req, &rsp)
+	req := client.NewRequest("go.micro.network", "Network.Graph", request, goclient.WithContentType("application/json"))
+	err := client.Call(context.TODO(), req, &rsp)
 	if err != nil {
 		return nil, err
 	}
@@ -177,12 +174,11 @@ func networkConnections(c *cli.Context, args []string) ([]byte, error) {
 }
 
 func networkGraph(c *cli.Context, args []string) ([]byte, error) {
-	cli := muclient.DefaultClient
 
 	var rsp map[string]interface{}
 
-	req := cli.NewRequest("go.micro.network", "Network.Graph", map[string]interface{}{}, client.WithContentType("application/json"))
-	err := cli.Call(context.TODO(), req, &rsp)
+	req := client.NewRequest("go.micro.network", "Network.Graph", map[string]interface{}{}, goclient.WithContentType("application/json"))
+	err := client.Call(context.TODO(), req, &rsp)
 	if err != nil {
 		return nil, err
 	}
@@ -192,13 +188,12 @@ func networkGraph(c *cli.Context, args []string) ([]byte, error) {
 }
 
 func networkNodes(c *cli.Context, args []string) ([]byte, error) {
-	cli := muclient.DefaultClient
 
 	var rsp map[string]interface{}
 
 	// TODO: change to list nodes
-	req := cli.NewRequest("go.micro.network", "Network.Nodes", map[string]interface{}{}, client.WithContentType("application/json"))
-	err := cli.Call(context.TODO(), req, &rsp)
+	req := client.NewRequest("go.micro.network", "Network.Nodes", map[string]interface{}{}, goclient.WithContentType("application/json"))
+	err := client.Call(context.TODO(), req, &rsp)
 	if err != nil {
 		return nil, err
 	}
@@ -234,7 +229,6 @@ func networkNodes(c *cli.Context, args []string) ([]byte, error) {
 }
 
 func networkRoutes(c *cli.Context, args []string) ([]byte, error) {
-	cli := muclient.DefaultClient
 
 	query := map[string]string{}
 
@@ -250,8 +244,8 @@ func networkRoutes(c *cli.Context, args []string) ([]byte, error) {
 
 	var rsp map[string]interface{}
 
-	req := cli.NewRequest("go.micro.network", "Network.Routes", request, client.WithContentType("application/json"))
-	err := cli.Call(context.TODO(), req, &rsp)
+	req := client.NewRequest("go.micro.network", "Network.Routes", request, goclient.WithContentType("application/json"))
+	err := client.Call(context.TODO(), req, &rsp)
 	if err != nil {
 		return nil, err
 	}
@@ -319,12 +313,11 @@ func networkRoutes(c *cli.Context, args []string) ([]byte, error) {
 }
 
 func networkServices(c *cli.Context, args []string) ([]byte, error) {
-	cli := muclient.DefaultClient
 
 	var rsp map[string]interface{}
 
-	req := cli.NewRequest("go.micro.network", "Network.Services", map[string]interface{}{}, client.WithContentType("application/json"))
-	err := cli.Call(context.TODO(), req, &rsp)
+	req := client.NewRequest("go.micro.network", "Network.Services", map[string]interface{}{}, goclient.WithContentType("application/json"))
+	err := client.Call(context.TODO(), req, &rsp)
 	if err != nil {
 		return nil, err
 	}

@@ -4,8 +4,9 @@ import (
 	"testing"
 
 	"github.com/micro/go-micro/v3/runtime"
-	"github.com/micro/go-micro/v3/store/memory"
 	"github.com/micro/micro/v3/internal/namespace"
+	"github.com/micro/micro/v3/profile"
+	muruntime "github.com/micro/micro/v3/service/runtime"
 )
 
 func TestServices(t *testing.T) {
@@ -17,7 +18,10 @@ func TestServices(t *testing.T) {
 
 	testNamespace := "foo"
 
-	m := New(&testRuntime{}, Store(memory.NewStore()), CacheStore(memory.NewStore())).(*manager)
+	profile.Test.Setup(nil)
+	rt := &testRuntime{}
+	muruntime.DefaultRuntime = rt
+	m := New().(*manager)
 
 	// listNamespaces shoud always return the default namespace
 	t.Run("DefaultNamespace", func(t *testing.T) {

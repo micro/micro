@@ -8,7 +8,7 @@ import (
 
 	"github.com/micro/go-micro/v3/client"
 	debug "github.com/micro/go-micro/v3/debug/service/handler"
-	"github.com/micro/go-micro/v3/logger"
+	"github.com/micro/micro/v3/service/logger"
 	"github.com/micro/go-micro/v3/model"
 	"github.com/micro/go-micro/v3/server"
 	"github.com/micro/go-micro/v3/store"
@@ -170,7 +170,7 @@ type Event struct {
 
 // Publish a message to an event
 func (e *Event) Publish(ctx context.Context, msg interface{}, opts ...client.PublishOption) error {
-	return muclient.DefaultClient.Publish(ctx, muclient.DefaultClient.NewMessage(e.topic, msg), opts...)
+	return muclient.Publish(ctx, muclient.NewMessage(e.topic, msg), opts...)
 }
 
 // NewEvent creates a new event publisher

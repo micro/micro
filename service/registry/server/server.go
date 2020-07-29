@@ -5,10 +5,9 @@ import (
 	"time"
 
 	"github.com/micro/cli/v2"
-	log "github.com/micro/go-micro/v3/logger"
+	log "github.com/micro/micro/v3/service/logger"
 	"github.com/micro/go-micro/v3/registry"
 	"github.com/micro/micro/v3/service"
-	mureg "github.com/micro/micro/v3/service/registry"
 	pb "github.com/micro/micro/v3/service/registry/proto"
 	"github.com/micro/micro/v3/service/registry/util"
 )
@@ -104,9 +103,8 @@ func Run(ctx *cli.Context) error {
 
 	// register the handler
 	pb.RegisterRegistryHandler(srv.Server(), &Registry{
-		ID:       id,
-		Event:    service.NewEvent(topic),
-		Registry: mureg.DefaultRegistry,
+		ID:    id,
+		Event: service.NewEvent(topic),
 	})
 
 	// run the service

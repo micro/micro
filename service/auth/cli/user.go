@@ -9,7 +9,7 @@ import (
 	"github.com/micro/micro/v3/client/cli/util"
 	"github.com/micro/micro/v3/cmd"
 	"github.com/micro/micro/v3/internal/config"
-	muauth "github.com/micro/micro/v3/service/auth"
+	"github.com/micro/micro/v3/service/auth"
 )
 
 func init() {
@@ -62,7 +62,7 @@ func current(ctx *cli.Context) error {
 	id := "n/a"
 
 	// Inspect the token
-	acc, err := muauth.DefaultAuth.Inspect(token)
+	acc, err := auth.Inspect(token)
 	if err == nil {
 		id = acc.ID
 	}
@@ -118,7 +118,7 @@ func user(ctx *cli.Context) error {
 	}
 
 	// Inspect the token
-	acc, err := muauth.DefaultAuth.Inspect(token)
+	acc, err := auth.Inspect(token)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)

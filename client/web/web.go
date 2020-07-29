@@ -15,6 +15,7 @@ import (
 	"time"
 
 	"github.com/micro/micro/v3/client"
+	"github.com/micro/micro/v3/service/auth"
 	"github.com/micro/micro/v3/service/store"
 
 	"github.com/go-acme/lego/v3/providers/dns/cloudflare"
@@ -28,8 +29,7 @@ import (
 	"github.com/micro/go-micro/v3/api/server/acme/certmagic"
 	"github.com/micro/go-micro/v3/api/server/cors"
 	httpapi "github.com/micro/go-micro/v3/api/server/http"
-	"github.com/micro/go-micro/v3/auth"
-	log "github.com/micro/go-micro/v3/logger"
+	goauth "github.com/micro/go-micro/v3/auth"
 	"github.com/micro/go-micro/v3/registry"
 	"github.com/micro/go-micro/v3/router"
 	regRouter "github.com/micro/go-micro/v3/router/registry"
@@ -42,7 +42,7 @@ import (
 	"github.com/micro/micro/v3/internal/resolver/web"
 	"github.com/micro/micro/v3/internal/stats"
 	"github.com/micro/micro/v3/service"
-	muauth "github.com/micro/micro/v3/service/auth"
+	log "github.com/micro/micro/v3/service/logger"
 	muregistry "github.com/micro/micro/v3/service/registry"
 	"github.com/serenize/snaker"
 )
@@ -82,8 +82,6 @@ type srv struct {
 	resolver res.Resolver
 	// the proxy server
 	prx *proxy
-	// auth service
-	auth auth.Auth
 }
 
 type reg struct {
@@ -391,7 +389,7 @@ func (s *srv) render(w http.ResponseWriter, r *http.Request, tmpl string, data i
 
 	if c, err := r.Cookie(inauth.TokenCookieName); err == nil && c != nil {
 		token := strings.TrimPrefix(c.Value, inauth.TokenCookieName+"=")
-		if acc, err := s.auth.Inspect(token); err == nil {
+		if acc, err := auth.Inspect(token); err == nil {
 			loginTitle = "Account"
 			user = acc.ID
 		}
@@ -459,7 +457,6 @@ func Run(ctx *cli.Context) error {
 			Registry: muregistry.DefaultRegistry,
 		},
 		resolver: resolver,
-		auth:     muauth.DefaultAuth,
 	}
 
 	var h http.Handler
@@ -560,7 +557,7 @@ func Run(ctx *cli.Context) error {
 	// Setup auth redirect
 	if len(ctx.String("auth_login_url")) > 0 {
 		loginURL = ctx.String("auth_login_url")
-		muauth.DefaultAuth.Init(auth.LoginURL(loginURL))
+		auth.DefaultAuth.Init(goauth.LoginURL(loginURL))
 	}
 
 	if err := server.Start(); err != nil {

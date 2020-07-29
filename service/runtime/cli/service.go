@@ -15,15 +15,16 @@ import (
 	"time"
 
 	"github.com/micro/cli/v2"
-	log "github.com/micro/go-micro/v3/logger"
-	"github.com/micro/go-micro/v3/runtime"
+	golog "github.com/micro/go-micro/v3/logger"
+	goruntime "github.com/micro/go-micro/v3/runtime"
 	"github.com/micro/go-micro/v3/runtime/local/git"
 	"github.com/micro/go-micro/v3/util/file"
 	"github.com/micro/micro/v3/client/cli/namespace"
 	"github.com/micro/micro/v3/client/cli/util"
 	cliutil "github.com/micro/micro/v3/client/cli/util"
 	muclient "github.com/micro/micro/v3/service/client"
-	muruntime "github.com/micro/micro/v3/service/runtime"
+	"github.com/micro/micro/v3/service/logger"
+	"github.com/micro/micro/v3/service/runtime"
 	"github.com/micro/micro/v3/service/runtime/server"
 	"google.golang.org/grpc/status"
 )
@@ -149,11 +150,11 @@ func runService(ctx *cli.Context) error {
 	}
 
 	// specify the options
-	opts := []runtime.CreateOption{
-		runtime.WithOutput(os.Stdout),
-		runtime.WithRetries(retries),
-		runtime.CreateImage(image),
-		runtime.CreateType(typ),
+	opts := []goruntime.CreateOption{
+		goruntime.WithOutput(os.Stdout),
+		goruntime.WithRetries(retries),
+		goruntime.CreateImage(image),
+		goruntime.CreateType(typ),
 	}
 
 	// add environment variable passed in via cli
@@ -167,15 +168,15 @@ func runService(ctx *cli.Context) error {
 	}
 
 	if len(environment) > 0 {
-		opts = append(opts, runtime.WithEnv(environment))
+		opts = append(opts, goruntime.WithEnv(environment))
 	}
 
 	if len(command) > 0 {
-		opts = append(opts, runtime.WithCommand(strings.Split(command, " ")...))
+		opts = append(opts, goruntime.WithCommand(strings.Split(command, " ")...))
 	}
 
 	if len(args) > 0 {
-		opts = append(opts, runtime.WithArgs(strings.Split(args, " ")...))
+		opts = append(opts, goruntime.WithArgs(strings.Split(args, " ")...))
 	}
 
 	// determine the namespace
@@ -183,28 +184,27 @@ func runService(ctx *cli.Context) error {
 	if err != nil {
 		return err
 	}
-	opts = append(opts, runtime.CreateNamespace(ns))
+	opts = append(opts, goruntime.CreateNamespace(ns))
 
 	// run the service
-	service := &runtime.Service{
+	service := &goruntime.Service{
 		Name:     source.RuntimeName(),
 		Source:   runtimeSource,
 		Version:  source.Ref,
 		Metadata: make(map[string]string),
 	}
 
-	r := muruntime.DefaultRuntime
-	if err := r.Create(service, opts...); err != nil {
+	if err := runtime.Create(service, opts...); err != nil {
 		return err
 	}
 
-	if r.String() == "local" {
+	if runtime.DefaultRuntime.String() == "local" {
 		// we need to wait
 		ch := make(chan os.Signal, 1)
 		signal.Notify(ch, os.Interrupt)
 		<-ch
 		// delete the service
-		return r.Delete(service)
+		return runtime.Delete(service)
 	}
 
 	return nil
@@ -225,7 +225,7 @@ func killService(ctx *cli.Context) error {
 	if err != nil {
 		return err
 	}
-	service := &runtime.Service{
+	service := &goruntime.Service{
 		Name:    source.RuntimeName(),
 		Source:  source.RuntimeSource(),
 		Version: source.Ref,
@@ -237,7 +237,7 @@ func killService(ctx *cli.Context) error {
 		return err
 	}
 
-	if err := muruntime.DefaultRuntime.Delete(service, runtime.DeleteNamespace(ns)); err != nil {
+	if err := runtime.Delete(service, goruntime.DeleteNamespace(ns)); err != nil {
 		return err
 	}
 
@@ -325,7 +325,7 @@ func updateService(ctx *cli.Context) error {
 	if source.Local {
 		runtimeSource = newSource
 	}
-	service := &runtime.Service{
+	service := &goruntime.Service{
 		Name:    source.RuntimeName(),
 		Source:  runtimeSource,
 		Version: source.Ref,
@@ -337,7 +337,7 @@ func updateService(ctx *cli.Context) error {
 		return err
 	}
 
-	return muruntime.DefaultRuntime.Update(service, runtime.UpdateNamespace(ns))
+	return runtime.Update(service, goruntime.UpdateNamespace(ns))
 }
 
 func getService(ctx *cli.Context) error {
@@ -369,15 +369,15 @@ func getService(ctx *cli.Context) error {
 		list = true
 	}
 
-	var services []*runtime.Service
-	var readOpts []runtime.ReadOption
+	var services []*goruntime.Service
+	var readOpts []goruntime.ReadOption
 
 	// return a list of services
 	switch list {
 	case true:
 		// return specific type listing
 		if len(typ) > 0 {
-			readOpts = append(readOpts, runtime.ReadType(typ))
+			readOpts = append(readOpts, goruntime.ReadType(typ))
 		}
 	// return one service
 	default:
@@ -388,14 +388,14 @@ func getService(ctx *cli.Context) error {
 		}
 
 		// get service with name and version
-		readOpts = []runtime.ReadOption{
-			runtime.ReadService(name),
-			runtime.ReadVersion(version),
+		readOpts = []goruntime.ReadOption{
+			goruntime.ReadService(name),
+			goruntime.ReadVersion(version),
 		}
 
 		// return the runtime services
 		if len(typ) > 0 {
-			readOpts = append(readOpts, runtime.ReadType(typ))
+			readOpts = append(readOpts, goruntime.ReadType(typ))
 		}
 	}
 
@@ -404,10 +404,10 @@ func getService(ctx *cli.Context) error {
 	if err != nil {
 		return err
 	}
-	readOpts = append(readOpts, runtime.ReadNamespace(ns))
+	readOpts = append(readOpts, goruntime.ReadNamespace(ns))
 
 	// read the service
-	services, err = muruntime.DefaultRuntime.Read(readOpts...)
+	services, err = runtime.Read(readOpts...)
 	if err != nil {
 		return err
 	}
@@ -463,7 +463,7 @@ const (
 )
 
 func getLogs(ctx *cli.Context) error {
-	log.Init(log.WithFields(map[string]interface{}{"service": "runtime"}))
+	logger.DefaultLogger.Init(golog.WithFields(map[string]interface{}{"service": "runtime"}))
 	if ctx.Args().Len() == 0 {
 		fmt.Println("Service name is required")
 		return nil
@@ -478,19 +478,19 @@ func getLogs(ctx *cli.Context) error {
 	}
 
 	// get the args
-	options := []runtime.LogsOption{}
+	options := []goruntime.LogsOption{}
 
 	count := ctx.Int("lines")
 	if count > 0 {
-		options = append(options, runtime.LogsCount(int64(count)))
+		options = append(options, goruntime.LogsCount(int64(count)))
 	} else {
-		options = append(options, runtime.LogsCount(int64(15)))
+		options = append(options, goruntime.LogsCount(int64(15)))
 	}
 
 	follow := ctx.Bool("follow")
 
 	if follow {
-		options = append(options, runtime.LogsStream(follow))
+		options = append(options, goruntime.LogsStream(follow))
 	}
 
 	// @todo reintroduce since
@@ -506,9 +506,9 @@ func getLogs(ctx *cli.Context) error {
 	if err != nil {
 		return err
 	}
-	options = append(options, runtime.LogsNamespace(ns))
+	options = append(options, goruntime.LogsNamespace(ns))
 
-	logs, err := muruntime.DefaultRuntime.Logs(&runtime.Service{Name: name}, options...)
+	logs, err := runtime.Logs(&goruntime.Service{Name: name}, options...)
 
 	if err != nil {
 		return err

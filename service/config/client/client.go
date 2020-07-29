@@ -5,10 +5,10 @@ import (
 	"net/http"
 
 	"github.com/micro/go-micro/v3/config/source"
-	"github.com/micro/go-micro/v3/errors"
-	"github.com/micro/go-micro/v3/logger"
 	"github.com/micro/micro/v3/service/client"
 	proto "github.com/micro/micro/v3/service/config/proto"
+	"github.com/micro/micro/v3/service/errors"
+	"github.com/micro/micro/v3/service/logger"
 )
 
 var (
@@ -31,7 +31,7 @@ func (m *srv) Read() (set *source.ChangeSet, err error) {
 		Namespace: m.namespace,
 		Path:      m.path,
 	})
-	if verr, ok := err.(*errors.Error); ok && verr.Code == http.StatusNotFound {
+	if verr := errors.Parse(err); verr != nil && verr.Code == http.StatusNotFound {
 		return nil, nil
 	} else if err != nil {
 		return nil, err

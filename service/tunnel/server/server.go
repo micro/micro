@@ -8,7 +8,7 @@ import (
 	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro/v3/client"
 	cmucp "github.com/micro/go-micro/v3/client/mucp"
-	log "github.com/micro/go-micro/v3/logger"
+	log "github.com/micro/micro/v3/service/logger"
 	"github.com/micro/go-micro/v3/proxy"
 	"github.com/micro/go-micro/v3/proxy/mucp"
 	"github.com/micro/go-micro/v3/registry/memory"

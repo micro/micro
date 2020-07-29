@@ -5,7 +5,7 @@ import (
 	"github.com/micro/go-micro/v3/debug/log"
 	"github.com/micro/go-micro/v3/debug/log/kubernetes"
 	dservice "github.com/micro/go-micro/v3/debug/service"
-	"github.com/micro/go-micro/v3/logger"
+	"github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service"
 	logHandler "github.com/micro/micro/v3/service/debug/log/handler"
 	pblog "github.com/micro/micro/v3/service/debug/log/proto"

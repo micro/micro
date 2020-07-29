@@ -8,7 +8,7 @@ import (
 	dep "dep-test-service/proto/dep"
 	dependency "dependency"
 
-	log "github.com/micro/go-micro/v3/logger"
+	log "github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service"
 )
 

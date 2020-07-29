@@ -10,11 +10,12 @@ import (
 	cr "github.com/micro/go-micro/v3/config/reader"
 	jr "github.com/micro/go-micro/v3/config/reader/json"
 	"github.com/micro/go-micro/v3/config/source"
-	"github.com/micro/go-micro/v3/errors"
-	"github.com/micro/go-micro/v3/store"
+	gostore "github.com/micro/go-micro/v3/store"
 	"github.com/micro/micro/v3/internal/namespace"
 	muclient "github.com/micro/micro/v3/service/client"
 	pb "github.com/micro/micro/v3/service/config/proto"
+	"github.com/micro/micro/v3/service/errors"
+	"github.com/micro/micro/v3/service/store"
 )
 
 const (
@@ -31,9 +32,7 @@ var (
 	mtx    sync.RWMutex
 )
 
-type config struct {
-	Store store.Store
-}
+type config struct{}
 
 func (c *config) Read(ctx context.Context, req *pb.ReadRequest, rsp *pb.ReadResponse) error {
 	if len(req.Namespace) == 0 {
@@ -49,8 +48,8 @@ func (c *config) Read(ctx context.Context, req *pb.ReadRequest, rsp *pb.ReadResp
 		return errors.InternalServerError("go.micro.config", err.Error())
 	}
 
-	ch, err := c.Store.Read(req.Namespace)
-	if err == store.ErrNotFound {
+	ch, err := store.Read(req.Namespace)
+	if err == gostore.ErrNotFound {
 		return errors.NotFound("go.micro.config.Read", "Not found")
 	} else if err != nil {
 		return errors.BadRequest("go.micro.config.Read", "read error: %v: %v", err, req.Namespace)
@@ -126,9 +125,7 @@ func (c *config) Create(ctx context.Context, req *pb.CreateRequest, rsp *pb.Crea
 
 	req.Change.ChangeSet.Timestamp = time.Now().Unix()
 
-	record := &store.Record{
-		Key: req.Change.Namespace,
-	}
+	record := &gostore.Record{Key: req.Change.Namespace}
 
 	var err error
 	record.Value, err = json.Marshal(req.Change)
@@ -136,7 +133,7 @@ func (c *config) Create(ctx context.Context, req *pb.CreateRequest, rsp *pb.Crea
 		return errors.BadRequest("go.micro.config.Create", "marshal error: %v", err)
 	}
 
-	if err := c.Store.Write(record); err != nil {
+	if err := store.Write(record); err != nil {
 		return errors.BadRequest("go.micro.config.Create", "create new into db error: %v", err)
 	}
 
@@ -167,14 +164,14 @@ func (c *config) Update(ctx context.Context, req *pb.UpdateRequest, rsp *pb.Upda
 	oldCh := &pb.Change{}
 
 	// Get the current change set
-	var record *store.Record
-	records, err := c.Store.Read(req.Change.Namespace)
+	var record *gostore.Record
+	records, err := store.Read(req.Change.Namespace)
 	if err != nil {
 		if err.Error() != "not found" {
 			return errors.BadRequest("go.micro.config.Update", "read old value error: %v", err)
 		}
 		// create new record
-		record = new(store.Record)
+		record = new(gostore.Record)
 		record.Key = req.Change.Namespace
 	} else {
 		// Unmarshal value
@@ -246,7 +243,7 @@ func (c *config) Update(ctx context.Context, req *pb.UpdateRequest, rsp *pb.Upda
 		return errors.BadRequest("go.micro.config.Update", "marshal error: %v", err)
 	}
 
-	if err := c.Store.Write(record); err != nil {
+	if err := store.Write(record); err != nil {
 		return errors.BadRequest("go.micro.config.Update", "update into db error: %v", err)
 	}
 
@@ -280,7 +277,7 @@ func (c *config) Delete(ctx context.Context, req *pb.DeleteRequest, rsp *pb.Dele
 
 	// We're going to delete the record as we have no path and no data
 	if len(req.Change.Path) == 0 {
-		if err := c.Store.Delete(req.Change.Namespace); err != nil {
+		if err := store.Delete(req.Change.Namespace); err != nil {
 			return errors.BadRequest("go.micro.srv.Delete", "delete from db error: %v", err)
 		}
 		return nil
@@ -289,7 +286,7 @@ func (c *config) Delete(ctx context.Context, req *pb.DeleteRequest, rsp *pb.Dele
 	// We've got a path. Let's update the required path
 
 	// Get the current change set
-	records, err := c.Store.Read(req.Change.Namespace)
+	records, err := store.Read(req.Change.Namespace)
 	if err != nil {
 		if err.Error() != "not found" {
 			return errors.BadRequest("go.micro.srv.Delete", "read old value error: %v", err)
@@ -338,7 +335,7 @@ func (c *config) Delete(ctx context.Context, req *pb.DeleteRequest, rsp *pb.Dele
 		return errors.BadRequest("go.micro.config.Update", "marshal error: %v", err)
 	}
 
-	if err := c.Store.Write(records[0]); err != nil {
+	if err := store.Write(records[0]); err != nil {
 		return errors.BadRequest("go.micro.srv.Delete", "update record set to db error: %v", err)
 	}
 
@@ -361,14 +358,14 @@ func (c *config) List(ctx context.Context, req *pb.ListRequest, rsp *pb.ListResp
 		return errors.InternalServerError("go.micro.config", err.Error())
 	}
 
-	list, err := c.Store.List(store.ListPrefix(req.Namespace))
+	list, err := store.List(gostore.ListPrefix(req.Namespace))
 	if err != nil {
 		return errors.BadRequest("go.micro.config.List", "query value error: %v", err)
 	}
 
 	// TODO: optimise filtering for prefix listing
 	for _, v := range list {
-		rec, err := c.Store.Read(v)
+		rec, err := store.Read(v)
 		if err != nil {
 			return err
 		}
@@ -453,7 +450,6 @@ func values(ch *source.ChangeSet) (cr.Values, error) {
 
 // publish a change
 func publish(ctx context.Context, ch *pb.WatchResponse) error {
-	c := muclient.DefaultClient
-	req := c.NewMessage(watchTopic, ch)
-	return c.Publish(ctx, req)
+	req := muclient.NewMessage(watchTopic, ch)
+	return muclient.Publish(ctx, req)
 }

@@ -9,14 +9,14 @@ import (
 	"time"
 
 	"github.com/micro/cli/v2"
-	log "github.com/micro/go-micro/v3/logger"
+	log "github.com/micro/micro/v3/service/logger"
 	gorun "github.com/micro/go-micro/v3/runtime"
 	"github.com/micro/go-micro/v3/util/file"
 	"github.com/micro/micro/v3/client/cli/util"
 	"github.com/micro/micro/v3/cmd"
 	"github.com/micro/micro/v3/service"
 	"github.com/micro/micro/v3/service/client"
-	muruntime "github.com/micro/micro/v3/service/runtime"
+	"github.com/micro/micro/v3/service/runtime"
 )
 
 var (
@@ -110,10 +110,6 @@ func Run(context *cli.Context) error {
 	// peers are configured as network nodes to cluster between
 
 	log.Info("Loading core services")
-
-	// create new micro runtime
-	muRuntime := muruntime.DefaultRuntime
-
 	for _, service := range services {
 		name := service
 
@@ -177,7 +173,7 @@ func Run(context *cli.Context) error {
 
 		// NOTE: we use Version right now to check for the latest release
 		muService := &gorun.Service{Name: name, Version: fmt.Sprintf("%d", time.Now().Unix())}
-		if err := muRuntime.Create(muService, args...); err != nil {
+		if err := runtime.Create(muService, args...); err != nil {
 			log.Errorf("Failed to create runtime environment: %v", err)
 			return err
 		}
@@ -186,11 +182,11 @@ func Run(context *cli.Context) error {
 	log.Info("Starting service runtime")
 
 	// start the runtime
-	if err := muRuntime.Start(); err != nil {
+	if err := runtime.DefaultRuntime.Start(); err != nil {
 		log.Fatal(err)
 		return err
 	}
-	defer muRuntime.Stop()
+	defer runtime.DefaultRuntime.Stop()
 	log.Info("Service runtime started")
 
 	// TODO: should we launch the console?

@@ -6,9 +6,9 @@ import (
 
 	"github.com/micro/go-micro/v3/broker"
 	"github.com/micro/go-micro/v3/client"
-	"github.com/micro/go-micro/v3/logger"
 	pb "github.com/micro/micro/v3/service/broker/proto"
 	muclient "github.com/micro/micro/v3/service/client"
+	"github.com/micro/micro/v3/service/logger"
 )
 
 var (

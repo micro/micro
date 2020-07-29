@@ -9,9 +9,9 @@ import (
 	"time"
 
 	"github.com/micro/go-micro/v3/client"
-	"github.com/micro/go-micro/v3/errors"
 	"github.com/micro/go-micro/v3/router"
 	muclient "github.com/micro/micro/v3/service/client"
+	"github.com/micro/micro/v3/service/errors"
 	pb "github.com/micro/micro/v3/service/router/proto"
 )
 
@@ -229,7 +229,7 @@ func (s *svc) Lookup(q ...router.QueryOption) ([]router.Route, error) {
 		},
 	}, s.callOpts...)
 
-	if verr, ok := err.(*errors.Error); ok && verr.Code == http.StatusNotFound {
+	if verr := errors.Parse(err); verr != nil && verr.Code == http.StatusNotFound {
 		return nil, router.ErrRouteNotFound
 	} else if err != nil {
 		return nil, err

@@ -6,8 +6,9 @@ import (
 	"strings"
 
 	"github.com/micro/go-micro/v3/runtime"
-	"github.com/micro/go-micro/v3/store"
+	gostore "github.com/micro/go-micro/v3/store"
 	"github.com/micro/micro/v3/internal/namespace"
+	"github.com/micro/micro/v3/service/store"
 )
 
 // service is the object persisted in the store
@@ -36,7 +37,7 @@ func (m *manager) createService(srv *runtime.Service, opts *runtime.CreateOption
 		return err
 	}
 
-	return m.options.Store.Write(&store.Record{Key: s.Key(), Value: bytes})
+	return store.Write(&gostore.Record{Key: s.Key(), Value: bytes})
 }
 
 // readServices returns all the services in a given namespace. If a service name and
@@ -50,7 +51,7 @@ func (m *manager) readServices(namespace string, srv *runtime.Service) ([]*servi
 		prefix += srv.Version
 	}
 
-	recs, err := m.options.Store.Read(prefix, store.ReadPrefix())
+	recs, err := store.Read(prefix, gostore.ReadPrefix())
 	if err != nil {
 		return nil, err
 	} else if len(recs) == 0 {
@@ -72,12 +73,12 @@ func (m *manager) readServices(namespace string, srv *runtime.Service) ([]*servi
 // deleteSevice from the store
 func (m *manager) deleteService(namespace string, srv *runtime.Service) error {
 	obj := &service{srv, &runtime.CreateOptions{Namespace: namespace}}
-	return m.options.Store.Delete(obj.Key())
+	return store.Delete(obj.Key())
 }
 
 // listNamespaces of the services in the store
 func (m *manager) listNamespaces() ([]string, error) {
-	recs, err := m.options.Store.Read(servicePrefix, store.ReadPrefix())
+	recs, err := store.Read(servicePrefix, gostore.ReadPrefix())
 	if err != nil {
 		return nil, err
 	}

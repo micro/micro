@@ -26,7 +26,6 @@ import (
 	"github.com/micro/go-micro/v3/api/server/acme/autocert"
 	"github.com/micro/go-micro/v3/api/server/acme/certmagic"
 	httpapi "github.com/micro/go-micro/v3/api/server/http"
-	log "github.com/micro/go-micro/v3/logger"
 	"github.com/micro/go-micro/v3/sync/memory"
 	"github.com/micro/micro/v3/client"
 	"github.com/micro/micro/v3/client/api/auth"
@@ -36,8 +35,9 @@ import (
 	rrmicro "github.com/micro/micro/v3/internal/resolver/api"
 	"github.com/micro/micro/v3/internal/stats"
 	"github.com/micro/micro/v3/service"
+	log "github.com/micro/micro/v3/service/logger"
 	muregistry "github.com/micro/micro/v3/service/registry"
-	mustore "github.com/micro/micro/v3/service/store"
+	"github.com/micro/micro/v3/service/store"
 )
 
 var (
@@ -112,7 +112,7 @@ func Run(ctx *cli.Context) error {
 
 			storage := certmagic.NewStorage(
 				memory.NewSync(),
-				mustore.DefaultStore,
+				store.DefaultStore,
 			)
 
 			config := cloudflare.NewDefaultConfig()

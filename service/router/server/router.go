@@ -5,7 +5,7 @@ import (
 	"io"
 	"time"
 
-	"github.com/micro/go-micro/v3/errors"
+	"github.com/micro/micro/v3/service/errors"
 	"github.com/micro/go-micro/v3/router"
 	pb "github.com/micro/micro/v3/service/router/proto"
 )

@@ -4,11 +4,12 @@ import (
 	"context"
 	"time"
 
-	"github.com/micro/go-micro/v3/errors"
-	log "github.com/micro/go-micro/v3/logger"
-	"github.com/micro/go-micro/v3/registry"
+	goregistry "github.com/micro/go-micro/v3/registry"
 	"github.com/micro/micro/v3/internal/namespace"
 	"github.com/micro/micro/v3/service"
+	"github.com/micro/micro/v3/service/errors"
+	log "github.com/micro/micro/v3/service/logger"
+	"github.com/micro/micro/v3/service/registry"
 	pb "github.com/micro/micro/v3/service/registry/proto"
 	"github.com/micro/micro/v3/service/registry/util"
 )
@@ -18,24 +19,22 @@ type Registry struct {
 	ID string
 	// the event
 	Event *service.Event
-	// internal registry
-	Registry registry.Registry
 }
 
-func ActionToEventType(action string) registry.EventType {
+func ActionToEventType(action string) goregistry.EventType {
 	switch action {
 	case "create":
-		return registry.Create
+		return goregistry.Create
 	case "delete":
-		return registry.Delete
+		return goregistry.Delete
 	default:
-		return registry.Update
+		return goregistry.Update
 	}
 }
 
 func (r *Registry) publishEvent(action string, service *pb.Service) error {
 	// TODO: timestamp should be read from received event
-	// Right now registry.Result does not contain timestamp
+	// Right now goregistry.Result does not contain timestamp
 	event := &pb.Event{
 		Id:        r.ID,
 		Type:      pb.EventType(ActionToEventType(action)),
@@ -54,15 +53,15 @@ func (r *Registry) publishEvent(action string, service *pb.Service) error {
 // GetService from the registry with the name requested
 func (r *Registry) GetService(ctx context.Context, req *pb.GetRequest, rsp *pb.GetResponse) error {
 	// parse the options
-	var options registry.GetOptions
+	var options goregistry.GetOptions
 	if req.Options != nil && len(req.Options.Domain) > 0 {
 		options.Domain = req.Options.Domain
 	} else {
-		options.Domain = registry.DefaultDomain
+		options.Domain = goregistry.DefaultDomain
 	}
 
 	// authorize the request
-	publicNS := namespace.Public(registry.DefaultDomain)
+	publicNS := namespace.Public(goregistry.DefaultDomain)
 	if err := namespace.Authorize(ctx, options.Domain, publicNS); err == namespace.ErrForbidden {
 		return errors.Forbidden("go.micro.registry", err.Error())
 	} else if err == namespace.ErrUnauthorized {
@@ -72,8 +71,8 @@ func (r *Registry) GetService(ctx context.Context, req *pb.GetRequest, rsp *pb.G
 	}
 
 	// get the services in the namespace
-	services, err := r.Registry.GetService(req.Service, registry.GetDomain(options.Domain))
-	if err == registry.ErrNotFound {
+	services, err := registry.GetService(req.Service, goregistry.GetDomain(options.Domain))
+	if err == goregistry.ErrNotFound {
 		return errors.NotFound("go.micro.registry", err.Error())
 	} else if err != nil {
 		return errors.InternalServerError("go.micro.registry", err.Error())
@@ -90,20 +89,20 @@ func (r *Registry) GetService(ctx context.Context, req *pb.GetRequest, rsp *pb.G
 
 // Register a service
 func (r *Registry) Register(ctx context.Context, req *pb.Service, rsp *pb.EmptyResponse) error {
-	var opts []registry.RegisterOption
+	var opts []goregistry.RegisterOption
 	var domain string
 
 	// parse the options
 	if req.Options != nil && req.Options.Ttl > 0 {
 		ttl := time.Duration(req.Options.Ttl) * time.Second
-		opts = append(opts, registry.RegisterTTL(ttl))
+		opts = append(opts, goregistry.RegisterTTL(ttl))
 	}
 	if req.Options != nil && len(req.Options.Domain) > 0 {
 		domain = req.Options.Domain
 	} else {
-		domain = registry.DefaultDomain
+		domain = goregistry.DefaultDomain
 	}
-	opts = append(opts, registry.RegisterDomain(domain))
+	opts = append(opts, goregistry.RegisterDomain(domain))
 
 	// authorize the request
 	if err := namespace.Authorize(ctx, domain); err == namespace.ErrForbidden {
@@ -115,7 +114,7 @@ func (r *Registry) Register(ctx context.Context, req *pb.Service, rsp *pb.EmptyR
 	}
 
 	// register the service
-	if err := r.Registry.Register(util.ToService(req), opts...); err != nil {
+	if err := registry.Register(util.ToService(req), opts...); err != nil {
 		return errors.InternalServerError("go.micro.registry", err.Error())
 	}
 
@@ -132,7 +131,7 @@ func (r *Registry) Deregister(ctx context.Context, req *pb.Service, rsp *pb.Empt
 	if req.Options != nil && len(req.Options.Domain) > 0 {
 		domain = req.Options.Domain
 	} else {
-		domain = registry.DefaultDomain
+		domain = goregistry.DefaultDomain
 	}
 
 	// authorize the request
@@ -145,7 +144,7 @@ func (r *Registry) Deregister(ctx context.Context, req *pb.Service, rsp *pb.Empt
 	}
 
 	// deregister the service
-	if err := r.Registry.Deregister(util.ToService(req), registry.DeregisterDomain(domain)); err != nil {
+	if err := registry.Deregister(util.ToService(req), goregistry.DeregisterDomain(domain)); err != nil {
 		return errors.InternalServerError("go.micro.registry", err.Error())
 	}
 
@@ -162,11 +161,11 @@ func (r *Registry) ListServices(ctx context.Context, req *pb.ListRequest, rsp *p
 	if req.Options != nil && len(req.Options.Domain) > 0 {
 		domain = req.Options.Domain
 	} else {
-		domain = registry.DefaultDomain
+		domain = goregistry.DefaultDomain
 	}
 
 	// authorize the request
-	publicNS := namespace.Public(registry.DefaultDomain)
+	publicNS := namespace.Public(goregistry.DefaultDomain)
 	if err := namespace.Authorize(ctx, domain, publicNS); err == namespace.ErrForbidden {
 		return errors.Forbidden("go.micro.registry", err.Error())
 	} else if err == namespace.ErrUnauthorized {
@@ -176,7 +175,7 @@ func (r *Registry) ListServices(ctx context.Context, req *pb.ListRequest, rsp *p
 	}
 
 	// list the services from the registry
-	services, err := r.Registry.ListServices(registry.ListDomain(domain))
+	services, err := registry.ListServices(goregistry.ListDomain(domain))
 	if err != nil {
 		return errors.InternalServerError("go.micro.registry", err.Error())
 	}
@@ -197,11 +196,11 @@ func (r *Registry) Watch(ctx context.Context, req *pb.WatchRequest, rsp pb.Regis
 	if req.Options != nil && len(req.Options.Domain) > 0 {
 		domain = req.Options.Domain
 	} else {
-		domain = registry.DefaultDomain
+		domain = goregistry.DefaultDomain
 	}
 
 	// authorize the request
-	publicNS := namespace.Public(registry.DefaultDomain)
+	publicNS := namespace.Public(goregistry.DefaultDomain)
 	if err := namespace.Authorize(ctx, domain, publicNS); err == namespace.ErrForbidden {
 		return errors.Forbidden("go.micro.registry", err.Error())
 	} else if err == namespace.ErrUnauthorized {
@@ -211,7 +210,7 @@ func (r *Registry) Watch(ctx context.Context, req *pb.WatchRequest, rsp pb.Regis
 	}
 
 	// setup the watcher
-	watcher, err := r.Registry.Watch(registry.WatchService(req.Service), registry.WatchDomain(domain))
+	watcher, err := registry.Watch(goregistry.WatchService(req.Service), goregistry.WatchDomain(domain))
 	if err != nil {
 		return errors.InternalServerError("go.micro.registry", err.Error())
 	}

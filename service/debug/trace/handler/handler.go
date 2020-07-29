@@ -7,20 +7,19 @@ import (
 	"sync"
 	"time"
 
-	"github.com/micro/go-micro/v3/client"
+	goclient "github.com/micro/go-micro/v3/client"
 	debug "github.com/micro/go-micro/v3/debug/service/proto"
-	"github.com/micro/go-micro/v3/errors"
-	log "github.com/micro/go-micro/v3/logger"
+	"github.com/micro/micro/v3/service/errors"
+	log "github.com/micro/micro/v3/service/logger"
 	"github.com/micro/go-micro/v3/registry"
 	"github.com/micro/go-micro/v3/util/ring"
-	muclient "github.com/micro/micro/v3/service/client"
+	"github.com/micro/micro/v3/service/client"
 	trace "github.com/micro/micro/v3/service/debug/trace/proto"
 )
 
 // New initialises and returns a new trace service handler
 func New(done <-chan bool, windowSize int, services func() []*registry.Service) (*Trace, error) {
 	s := &Trace{
-		client:    muclient.DefaultClient,
 		snapshots: ring.New(windowSize),
 		services:  services,
 	}
@@ -31,8 +30,6 @@ func New(done <-chan bool, windowSize int, services func() []*registry.Service) 
 
 // trace is the Debug.trace handler
 type Trace struct {
-	client client.Client
-
 	sync.RWMutex
 	// snapshots
 	snapshots *ring.Buffer
@@ -200,7 +197,7 @@ func (s *Trace) scrape() {
 	// Call each node of each service in goroutines
 	var wg sync.WaitGroup
 
-	protocol := s.client.String()
+	protocol := client.DefaultClient.String()
 
 	for _, svc := range services {
 		// Ignore nodeless and non mucp services
@@ -221,9 +218,9 @@ func (s *Trace) scrape() {
 				// create new context to cancel within a few seconds
 				ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 				defer cancel()
-				req := s.client.NewRequest(service.Name, "Debug.Trace", &debug.TraceResponse{})
+				req := client.NewRequest(service.Name, "Debug.Trace", &debug.TraceResponse{})
 				rsp := new(debug.TraceResponse)
-				if err := s.client.Call(ctx, req, rsp, client.WithAddress(node.Address)); err != nil {
+				if err := client.Call(ctx, req, rsp, goclient.WithAddress(node.Address)); err != nil {
 					log.Errorf("Error calling %s@%s (%s)", service.Name, node.Address, err.Error())
 					return
 				}

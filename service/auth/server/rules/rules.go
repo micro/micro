@@ -7,12 +7,12 @@ import (
 	"sync"
 
 	"github.com/micro/go-micro/v3/auth"
-	"github.com/micro/go-micro/v3/errors"
-	"github.com/micro/go-micro/v3/logger"
-	"github.com/micro/go-micro/v3/store"
-	memStore "github.com/micro/go-micro/v3/store/memory"
+	gostore "github.com/micro/go-micro/v3/store"
 	"github.com/micro/micro/v3/internal/namespace"
 	pb "github.com/micro/micro/v3/service/auth/proto"
+	"github.com/micro/micro/v3/service/errors"
+	"github.com/micro/micro/v3/service/logger"
+	"github.com/micro/micro/v3/service/store"
 )
 
 const (
@@ -44,16 +44,6 @@ func (r *Rules) Init(opts ...auth.Option) {
 	for _, o := range opts {
 		o(&r.Options)
 	}
-
-	// use the default store as a fallback
-	if r.Options.Store == nil {
-		r.Options.Store = store.DefaultStore
-	}
-
-	// noop will not work for auth
-	if r.Options.Store.String() == "noop" {
-		r.Options.Store = memStore.NewStore()
-	}
 }
 
 func (r *Rules) setupDefaultRules(ns string) {
@@ -72,7 +62,7 @@ func (r *Rules) setupDefaultRules(ns string) {
 
 	// check to see if we need to create the default account
 	key := strings.Join([]string{storePrefixRules, ns, ""}, joinKey)
-	recs, err := r.Options.Store.Read(key, store.ReadPrefix())
+	recs, err := store.DefaultStore.Read(key, gostore.ReadPrefix())
 	if err != nil {
 		return
 	}
@@ -164,8 +154,8 @@ func (r *Rules) Delete(ctx context.Context, req *pb.DeleteRequest, rsp *pb.Delet
 
 	// Delete the rule
 	key := strings.Join([]string{storePrefixRules, req.Options.Namespace, req.Id}, joinKey)
-	err := r.Options.Store.Delete(key)
-	if err == store.ErrNotFound {
+	err := store.DefaultStore.Delete(key)
+	if err == gostore.ErrNotFound {
 		return errors.BadRequest("go.micro.auth", "Rule not found")
 	} else if err != nil {
 		return errors.InternalServerError("go.micro.auth", "Unable to delete key from store: %v", err)
@@ -203,7 +193,7 @@ func (r *Rules) List(ctx context.Context, req *pb.ListRequest, rsp *pb.ListRespo
 
 	// get the records from the store
 	prefix := strings.Join([]string{storePrefixRules, req.Options.Namespace, ""}, joinKey)
-	recs, err := r.Options.Store.Read(prefix, store.ReadPrefix())
+	recs, err := store.DefaultStore.Read(prefix, gostore.ReadPrefix())
 	if err != nil {
 		return errors.InternalServerError("go.micro.auth", "Unable to read from store: %v", err)
 	}
@@ -224,7 +214,7 @@ func (r *Rules) List(ctx context.Context, req *pb.ListRequest, rsp *pb.ListRespo
 // writeRule to the store
 func (r *Rules) writeRule(rule *pb.Rule, ns string) error {
 	key := strings.Join([]string{storePrefixRules, ns, rule.Id}, joinKey)
-	if _, err := r.Options.Store.Read(key); err == nil {
+	if _, err := store.DefaultStore.Read(key); err == nil {
 		return errors.BadRequest("go.micro.auth", "A rule with this ID already exists")
 	}
 
@@ -235,7 +225,7 @@ func (r *Rules) writeRule(rule *pb.Rule, ns string) error {
 	}
 
 	// Write to the store
-	if err := r.Options.Store.Write(&store.Record{Key: key, Value: bytes}); err != nil {
+	if err := store.DefaultStore.Write(&gostore.Record{Key: key, Value: bytes}); err != nil {
 		return errors.InternalServerError("go.micro.auth", "Unable to write to the store: %v", err)
 	}
 
