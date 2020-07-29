@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/micro/go-micro/v3/client"
-	"github.com/micro/go-micro/v3/client/grpc"
 	"github.com/micro/go-micro/v3/registry"
 	"github.com/micro/micro/v3/service/errors"
 	pb "github.com/micro/micro/v3/service/registry/proto"
@@ -47,16 +46,6 @@ func (s *srv) Init(opts ...registry.Option) error {
 	if len(s.opts.Addrs) > 0 {
 		s.address = s.opts.Addrs
 	}
-
-	// extract the client from the context, fallback to grpc
-	var cli client.Client
-	if c, ok := s.opts.Context.Value(clientKey{}).(client.Client); ok {
-		cli = c
-	} else {
-		cli = grpc.NewClient()
-	}
-
-	s.client = pb.NewRegistryService("go.micro.registry", cli)
 
 	return nil
 }
@@ -188,24 +177,11 @@ func NewRegistry(opts ...registry.Option) registry.Registry {
 		addrs = []string{"127.0.0.1:8000"}
 	}
 
-	if options.Context == nil {
-		options.Context = context.TODO()
-	}
-
-	// extract the client from the context, fallback to grpc
-	var cli client.Client
-	if c, ok := options.Context.Value(clientKey{}).(client.Client); ok {
-		cli = c
-	} else {
-		cli = grpc.NewClient()
-	}
-
 	name := "go.micro.registry"
-
 	return &srv{
 		opts:    options,
 		name:    name,
 		address: addrs,
-		client:  pb.NewRegistryService(name, cli),
+		client:  pb.NewRegistryService(name),
 	}
 }

@@ -14,6 +14,8 @@ import (
 	api "github.com/micro/go-micro/v3/api"
 	client "github.com/micro/go-micro/v3/client"
 	server "github.com/micro/go-micro/v3/server"
+	microClient "github.com/micro/micro/v3/service/client"
+	microServer "github.com/micro/micro/v3/service/server"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -31,7 +33,8 @@ const _ = proto.ProtoPackageIsVersion3 // please upgrade the proto package
 var _ api.Endpoint
 var _ context.Context
 var _ client.Option
-var _ server.Option
+var _ = microServer.Handle
+var _ = microClient.Call
 
 // Api Endpoints for Signup service
 
@@ -51,21 +54,17 @@ type SignupService interface {
 }
 
 type signupService struct {
-	c    client.Client
 	name string
 }
 
-func NewSignupService(name string, c client.Client) SignupService {
-	return &signupService{
-		c:    c,
-		name: name,
-	}
+func NewSignupService(name string) SignupService {
+	return &signupService{name: name}
 }
 
 func (c *signupService) SendVerificationEmail(ctx context.Context, in *SendVerificationEmailRequest, opts ...client.CallOption) (*SendVerificationEmailResponse, error) {
-	req := c.c.NewRequest(c.name, "Signup.SendVerificationEmail", in)
+	req := microClient.NewRequest(c.name, "Signup.SendVerificationEmail", in)
 	out := new(SendVerificationEmailResponse)
-	err := c.c.Call(ctx, req, out, opts...)
+	err := microClient.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -73,9 +72,9 @@ func (c *signupService) SendVerificationEmail(ctx context.Context, in *SendVerif
 }
 
 func (c *signupService) Verify(ctx context.Context, in *VerifyRequest, opts ...client.CallOption) (*VerifyResponse, error) {
-	req := c.c.NewRequest(c.name, "Signup.Verify", in)
+	req := microClient.NewRequest(c.name, "Signup.Verify", in)
 	out := new(VerifyResponse)
-	err := c.c.Call(ctx, req, out, opts...)
+	err := microClient.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -83,9 +82,9 @@ func (c *signupService) Verify(ctx context.Context, in *VerifyRequest, opts ...c
 }
 
 func (c *signupService) CompleteSignup(ctx context.Context, in *CompleteSignupRequest, opts ...client.CallOption) (*CompleteSignupResponse, error) {
-	req := c.c.NewRequest(c.name, "Signup.CompleteSignup", in)
+	req := microClient.NewRequest(c.name, "Signup.CompleteSignup", in)
 	out := new(CompleteSignupResponse)
-	err := c.c.Call(ctx, req, out, opts...)
+	err := microClient.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -103,7 +102,7 @@ type SignupHandler interface {
 	CompleteSignup(context.Context, *CompleteSignupRequest, *CompleteSignupResponse) error
 }
 
-func RegisterSignupHandler(s server.Server, hdlr SignupHandler, opts ...server.HandlerOption) error {
+func RegisterSignupHandler(hdlr SignupHandler, opts ...server.HandlerOption) error {
 	type signup interface {
 		SendVerificationEmail(ctx context.Context, in *SendVerificationEmailRequest, out *SendVerificationEmailResponse) error
 		Verify(ctx context.Context, in *VerifyRequest, out *VerifyResponse) error
@@ -113,7 +112,7 @@ func RegisterSignupHandler(s server.Server, hdlr SignupHandler, opts ...server.H
 		signup
 	}
 	h := &signupHandler{hdlr}
-	return s.Handle(s.NewHandler(&Signup{h}, opts...))
+	return microServer.Handle(microServer.NewHandler(&Signup{h}, opts...))
 }
 
 type signupHandler struct {

@@ -3,7 +3,6 @@ package server
 import (
 	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro/v3/auth"
-	log "github.com/micro/micro/v3/service/logger"
 	"github.com/micro/go-micro/v3/store"
 	"github.com/micro/go-micro/v3/util/token"
 	"github.com/micro/go-micro/v3/util/token/jwt"
@@ -11,6 +10,7 @@ import (
 	pb "github.com/micro/micro/v3/service/auth/proto"
 	authHandler "github.com/micro/micro/v3/service/auth/server/auth"
 	rulesHandler "github.com/micro/micro/v3/service/auth/server/rules"
+	log "github.com/micro/micro/v3/service/logger"
 	mustore "github.com/micro/micro/v3/service/store"
 )
 
@@ -46,9 +46,9 @@ func Run(ctx *cli.Context) error {
 	ruleH.Init(auth.Store(mustore.DefaultStore))
 
 	// register handlers
-	pb.RegisterAuthHandler(srv.Server(), authH)
-	pb.RegisterRulesHandler(srv.Server(), ruleH)
-	pb.RegisterAccountsHandler(srv.Server(), authH)
+	pb.RegisterAuthHandler(authH)
+	pb.RegisterRulesHandler(ruleH)
+	pb.RegisterAccountsHandler(authH)
 
 	// run service
 	if err := srv.Run(); err != nil {
