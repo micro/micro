@@ -164,7 +164,7 @@ func testConfigReadFromService(t *t) {
 		return
 	}
 
-	runCmd := exec.Command("micro", serv.envFlag(), "run", "./config-example-service")
+	runCmd := exec.Command("micro", serv.envFlag(), "run", "./service/config")
 	outp, err := runCmd.CombinedOutput()
 	if err != nil {
 		t.Fatalf("micro run failure, output: %v", string(outp))
@@ -172,7 +172,7 @@ func testConfigReadFromService(t *t) {
 	}
 
 	if err := try("Try logs read", t, func() ([]byte, error) {
-		setCmd := exec.Command("micro", serv.envFlag(), "logs", "test/config-example-service")
+		setCmd := exec.Command("micro", serv.envFlag(), "logs", "service/config")
 		outp, err := setCmd.CombinedOutput()
 		if err != nil {
 			return outp, err
