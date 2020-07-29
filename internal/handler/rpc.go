@@ -12,9 +12,10 @@ import (
 	"github.com/micro/go-micro/v3/api/resolver/subdomain"
 	"github.com/micro/go-micro/v3/api/server/cors"
 	goclient "github.com/micro/go-micro/v3/client"
-	"github.com/micro/go-micro/v3/errors"
+	goerrors "github.com/micro/go-micro/v3/errors"
 	"github.com/micro/micro/v3/internal/helper"
 	"github.com/micro/micro/v3/service/client"
+	"github.com/micro/micro/v3/service/errors"
 )
 
 type rpcRequest struct {
@@ -155,7 +156,7 @@ func (h *rpcHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// remote call
 	err = client.Call(ctx, req, &response, opts...)
 	if err != nil {
-		ce := errors.Parse(err.Error())
+		ce := goerrors.Parse(err.Error())
 		switch ce.Code {
 		case 0:
 			// assuming it's totally screwed
