@@ -8,14 +8,14 @@ import (
 	"time"
 
 	"github.com/micro/cli/v2"
-	proto "github.com/micro/go-micro/v2/config/source/service/proto"
-	log "github.com/micro/go-micro/v2/logger"
-	"github.com/micro/micro/v2/client/cli/namespace"
-	"github.com/micro/micro/v2/client/cli/util"
-	"github.com/micro/micro/v2/cmd"
-	"github.com/micro/micro/v2/internal/client"
-	cliconfig "github.com/micro/micro/v2/internal/config"
-	"github.com/micro/micro/v2/internal/helper"
+	log "github.com/micro/go-micro/v3/logger"
+	"github.com/micro/micro/v3/client/cli/namespace"
+	"github.com/micro/micro/v3/client/cli/util"
+	"github.com/micro/micro/v3/cmd"
+	cliconfig "github.com/micro/micro/v3/internal/config"
+	"github.com/micro/micro/v3/internal/helper"
+	muclient "github.com/micro/micro/v3/service/client"
+	proto "github.com/micro/micro/v3/service/config/proto"
 )
 
 var (
@@ -36,11 +36,7 @@ func setConfig(ctx *cli.Context) error {
 	if ctx.Bool("local") {
 		return cliconfig.Set(val, strings.Split(key, ".")...)
 	}
-	cli, err := client.New(ctx)
-	if err != nil {
-		return err
-	}
-	pb := proto.NewConfigService("go.micro.config", cli)
+	pb := proto.NewConfigService("go.micro.config", muclient.DefaultClient)
 
 	if args.Len() == 0 {
 		return fmt.Errorf("Required usage: micro config set key val")
@@ -90,10 +86,7 @@ func getConfig(ctx *cli.Context) error {
 		}
 		return err
 	}
-	cli, err := client.New(ctx)
-	if err != nil {
-		return err
-	}
+	cli := muclient.DefaultClient
 	pb := proto.NewConfigService("go.micro.config", cli)
 
 	ns, err := namespace.Get(util.GetEnv(ctx).Name)
@@ -139,11 +132,7 @@ func delConfig(ctx *cli.Context) error {
 		log.Fatal("key cannot be blank")
 	}
 
-	cli, err := client.New(ctx)
-	if err != nil {
-		return err
-	}
-	pb := proto.NewConfigService("go.micro.config", cli)
+	pb := proto.NewConfigService("go.micro.config", muclient.DefaultClient)
 
 	ns, err := namespace.Get(util.GetEnv(ctx).Name)
 	if err != nil {

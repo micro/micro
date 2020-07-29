@@ -3,7 +3,7 @@ package runtime
 
 import (
 	"github.com/micro/cli/v2"
-	"github.com/micro/micro/v2/cmd"
+	"github.com/micro/micro/v3/cmd"
 )
 
 // flags is shared flags so we don't have to continually re-add
@@ -41,7 +41,7 @@ func init() {
 			Name:  "run",
 			Usage: RunUsage,
 			Description: `Examples:
-			micro run github.com/micro/examples/helloworld
+			micro run github.com/micro/services/helloworld
 			micro run .  # deploy local folder to your local micro server
 			micro run ../path/to/folder # deploy local folder to your local micro server
 			micro run helloworld # deploy latest version, translates to micro run github.com/micro/services/helloworld
@@ -54,7 +54,7 @@ func init() {
 			Name:  "update",
 			Usage: UpdateUsage,
 			Description: `Examples:
-			micro update github.com/micro/examples/helloworld
+			micro update github.com/micro/services/helloworld
 			micro update .  # deploy local folder to your local micro server
 			micro update ../path/to/folder # deploy local folder to your local micro server
 			micro update helloworld # deploy master branch, translates to micro update github.com/micro/services/helloworld
@@ -67,7 +67,7 @@ func init() {
 			Usage: KillUsage,
 			Flags: flags,
 			Description: `Examples:
-			micro kill github.com/micro/examples/helloworld
+			micro kill github.com/micro/services/helloworld
 			micro kill .  # kill service deployed from local folder
 			micro kill ../path/to/folder # kill service deployed from local folder
 			micro kill helloworld # kill serviced deployed from master branch, translates to micro kill github.com/micro/services/helloworld

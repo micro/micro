@@ -14,29 +14,36 @@ import (
 	"sync"
 	"time"
 
+	"github.com/micro/micro/v3/client"
+	"github.com/micro/micro/v3/service/store"
+
 	"github.com/go-acme/lego/v3/providers/dns/cloudflare"
 	"github.com/gorilla/mux"
 	"github.com/micro/cli/v2"
-	res "github.com/micro/go-micro/v2/api/resolver"
-	"github.com/micro/go-micro/v2/api/resolver/subdomain"
-	"github.com/micro/go-micro/v2/api/server"
-	"github.com/micro/go-micro/v2/api/server/acme"
-	"github.com/micro/go-micro/v2/api/server/acme/autocert"
-	"github.com/micro/go-micro/v2/api/server/acme/certmagic"
-	"github.com/micro/go-micro/v2/api/server/cors"
-	httpapi "github.com/micro/go-micro/v2/api/server/http"
-	"github.com/micro/go-micro/v2/auth"
-	log "github.com/micro/go-micro/v2/logger"
-	"github.com/micro/go-micro/v2/registry"
-	"github.com/micro/go-micro/v2/sync/memory"
-	apiAuth "github.com/micro/micro/v2/client/api/auth"
-	"github.com/micro/micro/v2/cmd"
-	inauth "github.com/micro/micro/v2/internal/auth"
-	"github.com/micro/micro/v2/internal/handler"
-	"github.com/micro/micro/v2/internal/helper"
-	"github.com/micro/micro/v2/internal/resolver/web"
-	"github.com/micro/micro/v2/internal/stats"
-	"github.com/micro/micro/v2/service"
+	res "github.com/micro/go-micro/v3/api/resolver"
+	"github.com/micro/go-micro/v3/api/resolver/subdomain"
+	"github.com/micro/go-micro/v3/api/server"
+	"github.com/micro/go-micro/v3/api/server/acme"
+	"github.com/micro/go-micro/v3/api/server/acme/autocert"
+	"github.com/micro/go-micro/v3/api/server/acme/certmagic"
+	"github.com/micro/go-micro/v3/api/server/cors"
+	httpapi "github.com/micro/go-micro/v3/api/server/http"
+	"github.com/micro/go-micro/v3/auth"
+	log "github.com/micro/go-micro/v3/logger"
+	"github.com/micro/go-micro/v3/registry"
+	"github.com/micro/go-micro/v3/router"
+	regRouter "github.com/micro/go-micro/v3/router/registry"
+	"github.com/micro/go-micro/v3/sync/memory"
+	apiAuth "github.com/micro/micro/v3/client/api/auth"
+	"github.com/micro/micro/v3/cmd"
+	inauth "github.com/micro/micro/v3/internal/auth"
+	"github.com/micro/micro/v3/internal/handler"
+	"github.com/micro/micro/v3/internal/helper"
+	"github.com/micro/micro/v3/internal/resolver/web"
+	"github.com/micro/micro/v3/internal/stats"
+	"github.com/micro/micro/v3/service"
+	muauth "github.com/micro/micro/v3/service/auth"
+	muregistry "github.com/micro/micro/v3/service/registry"
 	"github.com/serenize/snaker"
 )
 
@@ -435,7 +442,9 @@ func Run(ctx *cli.Context) error {
 	// Setup the web resolver
 	var resolver res.Resolver
 	resolver = &web.Resolver{
-		Router: s.Options().Router,
+		Router: regRouter.NewRouter(
+			router.Registry(muregistry.DefaultRegistry),
+		),
 		Options: res.NewOptions(res.WithServicePrefix(
 			Namespace + "." + Type,
 		)),
@@ -447,10 +456,10 @@ func Run(ctx *cli.Context) error {
 	srv := &srv{
 		Router: mux.NewRouter(),
 		registry: &reg{
-			Registry: s.Options().Registry,
+			Registry: muregistry.DefaultRegistry,
 		},
 		resolver: resolver,
-		auth:     s.Options().Auth,
+		auth:     muauth.DefaultAuth,
 	}
 
 	var h http.Handler
@@ -506,10 +515,7 @@ func Run(ctx *cli.Context) error {
 			}
 
 			// create the store
-			storage := certmagic.NewStorage(
-				memory.NewSync(),
-				s.Options().Store,
-			)
+			storage := certmagic.NewStorage(memory.NewSync(), store.DefaultStore)
 
 			config := cloudflare.NewDefaultConfig()
 			config.AuthToken = apiToken
@@ -554,7 +560,7 @@ func Run(ctx *cli.Context) error {
 	// Setup auth redirect
 	if len(ctx.String("auth_login_url")) > 0 {
 		loginURL = ctx.String("auth_login_url")
-		s.Options().Auth.Init(auth.LoginURL(loginURL))
+		muauth.DefaultAuth.Init(auth.LoginURL(loginURL))
 	}
 
 	if err := server.Start(); err != nil {
@@ -578,7 +584,7 @@ func init() {
 		Name:   "web",
 		Usage:  "Run the web dashboard",
 		Action: Run,
-		Flags: []cli.Flag{
+		Flags: append(client.Flags,
 			&cli.StringFlag{
 				Name:    "address",
 				Usage:   "Set the web UI address e.g 0.0.0.0:8082",
@@ -599,7 +605,7 @@ func init() {
 				EnvVars: []string{"MICRO_AUTH_LOGIN_URL"},
 				Usage:   "The relative URL where a user can login",
 			},
-		},
+		),
 	})
 }
 

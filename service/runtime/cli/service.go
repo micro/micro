@@ -15,17 +15,16 @@ import (
 	"time"
 
 	"github.com/micro/cli/v2"
-	"github.com/micro/go-micro/v2/cmd"
-	log "github.com/micro/go-micro/v2/logger"
-	"github.com/micro/go-micro/v2/runtime"
-	"github.com/micro/go-micro/v2/runtime/local/git"
-	srvRuntime "github.com/micro/go-micro/v2/runtime/service"
-	"github.com/micro/go-micro/v2/util/file"
-	"github.com/micro/micro/v2/client/cli/namespace"
-	"github.com/micro/micro/v2/client/cli/util"
-	cliutil "github.com/micro/micro/v2/client/cli/util"
-	"github.com/micro/micro/v2/internal/client"
-	"github.com/micro/micro/v2/service/runtime/handler"
+	log "github.com/micro/go-micro/v3/logger"
+	"github.com/micro/go-micro/v3/runtime"
+	"github.com/micro/go-micro/v3/runtime/local/git"
+	"github.com/micro/go-micro/v3/util/file"
+	"github.com/micro/micro/v3/client/cli/namespace"
+	"github.com/micro/micro/v3/client/cli/util"
+	cliutil "github.com/micro/micro/v3/client/cli/util"
+	muclient "github.com/micro/micro/v3/service/client"
+	muruntime "github.com/micro/micro/v3/service/runtime"
+	"github.com/micro/micro/v3/service/runtime/server"
 	"google.golang.org/grpc/status"
 )
 
@@ -61,18 +60,6 @@ func timeAgo(v string) string {
 		return v
 	}
 	return fmt.Sprintf("%v ago", time.Since(t).Truncate(time.Second))
-}
-
-func runtimeFromContext(ctx *cli.Context) runtime.Runtime {
-	if cliutil.IsLocal(ctx) {
-		return *cmd.DefaultCmd.Options().Runtime
-	}
-	cli, err := client.New(ctx)
-	if err != nil {
-		fmt.Printf("Error: %s\n", err)
-		os.Exit(1)
-	}
-	return srvRuntime.NewRuntime(runtime.WithClient(cli))
 }
 
 // exists returns whether the given file or directory exists
@@ -140,9 +127,6 @@ func runService(ctx *cli.Context) error {
 	command := strings.TrimSpace(ctx.String("command"))
 	args := strings.TrimSpace(ctx.String("args"))
 
-	// load the runtime
-	r := runtimeFromContext(ctx)
-
 	runtimeSource := source.RuntimeSource()
 	if source.Local {
 		runtimeSource = newSource
@@ -209,6 +193,7 @@ func runService(ctx *cli.Context) error {
 		Metadata: make(map[string]string),
 	}
 
+	r := muruntime.DefaultRuntime
 	if err := r.Create(service, opts...); err != nil {
 		return err
 	}
@@ -252,7 +237,7 @@ func killService(ctx *cli.Context) error {
 		return err
 	}
 
-	if err := runtimeFromContext(ctx).Delete(service, runtime.DeleteNamespace(ns)); err != nil {
+	if err := muruntime.DefaultRuntime.Delete(service, runtime.DeleteNamespace(ns)); err != nil {
 		return err
 	}
 
@@ -292,18 +277,15 @@ func upload(ctx *cli.Context, source *git.Source) (string, error) {
 		// @todo currently this uploads the whole repo all the time to support local dependencies
 		// in parents (ie service path is `repo/a/b/c` and it depends on `repo/a/b`).
 		// Optimise this by only uploading things that are needed.
-		err = handler.Compress(source.LocalRepoRoot, path)
+		err = server.Compress(source.LocalRepoRoot, path)
 	} else {
-		err = handler.Compress(source.FullPath, path)
+		err = server.Compress(source.FullPath, path)
 	}
 
 	if err != nil {
 		return "", err
 	}
-	cli, err := client.New(ctx)
-	if err != nil {
-		fmt.Printf("Error: %s\n", err)
-	}
+	cli := muclient.DefaultClient
 	err = file.New("go.micro.server", cli).Upload(uploadedFileName, path)
 	if err != nil {
 		return "", err
@@ -355,14 +337,13 @@ func updateService(ctx *cli.Context) error {
 		return err
 	}
 
-	return runtimeFromContext(ctx).Update(service, runtime.UpdateNamespace(ns))
+	return muruntime.DefaultRuntime.Update(service, runtime.UpdateNamespace(ns))
 }
 
 func getService(ctx *cli.Context) error {
 	name := ""
 	version := "latest"
 	typ := ctx.String("type")
-	r := runtimeFromContext(ctx)
 
 	if ctx.Args().Len() > 0 {
 		wd, err := os.Getwd()
@@ -426,7 +407,7 @@ func getService(ctx *cli.Context) error {
 	readOpts = append(readOpts, runtime.ReadNamespace(ns))
 
 	// read the service
-	services, err = r.Read(readOpts...)
+	services, err = muruntime.DefaultRuntime.Read(readOpts...)
 	if err != nil {
 		return err
 	}
@@ -512,8 +493,6 @@ func getLogs(ctx *cli.Context) error {
 		options = append(options, runtime.LogsStream(follow))
 	}
 
-	r := runtimeFromContext(ctx)
-
 	// @todo reintroduce since
 	//since := ctx.String("since")
 	//var readSince time.Time
@@ -529,7 +508,7 @@ func getLogs(ctx *cli.Context) error {
 	}
 	options = append(options, runtime.LogsNamespace(ns))
 
-	logs, err := r.Logs(&runtime.Service{Name: name}, options...)
+	logs, err := muruntime.DefaultRuntime.Logs(&runtime.Service{Name: name}, options...)
 
 	if err != nil {
 		return err

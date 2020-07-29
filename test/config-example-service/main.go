@@ -2,8 +2,10 @@ package main
 
 import (
 	"fmt"
+	"time"
 
-	"github.com/micro/micro/v2/service"
+	"github.com/micro/micro/v3/service"
+	"github.com/micro/micro/v3/service/config"
 )
 
 func main() {
@@ -14,9 +16,10 @@ func main() {
 	)
 	srv.Init()
 
-	// create a new config
-	c := srv.Options().Config
-
-	// set a value
-	fmt.Println("Value of key.subkey: ", c.Get("key", "subkey").String(""))
+	// get a value
+	c := config.DefaultConfig
+	for {
+		fmt.Println("Value of key.subkey: ", c.Get("key", "subkey").String(""))
+		time.Sleep(time.Second)
+	}
 }

@@ -3,7 +3,7 @@ package server
 import (
 	"fmt"
 
-	"github.com/micro/micro/v2/plugin"
+	"github.com/micro/micro/v3/plugin"
 )
 
 var (

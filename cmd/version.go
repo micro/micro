@@ -7,7 +7,7 @@ import (
 )
 
 var (
-	version    = "v2.9.2"
+	version    = "v3.0.0"
 	prerelease = "develop" // blank if full release
 )
 

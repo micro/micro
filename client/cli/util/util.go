@@ -7,43 +7,49 @@ import (
 	"fmt"
 	"net"
 	"os"
-	"strings"
 
-	ccli "github.com/micro/cli/v2"
-	"github.com/micro/micro/v2/internal/config"
-	"github.com/micro/micro/v2/internal/platform"
-	"github.com/micro/micro/v2/service/runtime/profile"
+	"github.com/micro/cli/v2"
+	"github.com/micro/micro/v3/internal/config"
 )
 
 const (
-	// EnvLocal is a builtin environment, it means services launched
-	// with `micro run` will use default, zero dependency implementations for
-	// interfaces, like mdns for registry.
+	// EnvLocal is a builtin environment, it represents your local `micro server`
 	EnvLocal = "local"
-	// EnvServer is a builtin environment, it represents your local `micro server`
-	EnvServer = "server"
 	// EnvPlatform is a builtin environment, the One True Micro Live(tm) environment.
 	EnvPlatform = "platform"
 )
 
 const (
-	// localProxyAddress is the default proxy address for environment local
-	// local env does not use other services so talking about a proxy
-	localProxyAddress = ""
-	// serverProxyAddress is the default proxy address for environment server
-	serverProxyAddress = "127.0.0.1:8081"
+	// localProxyAddress is the default proxy address for environment server
+	localProxyAddress = "127.0.0.1:8081"
 	// platformProxyAddress is teh default proxy address for environment platform
 	platformProxyAddress = "proxy.m3o.com"
+)
+
+var (
+	// list of services managed
+	// TODO: make use server/server list
+	services = []string{
+		// runtime services
+		"config",   // ????
+		"network",  // :8085
+		"runtime",  // :8088
+		"registry", // :8000
+		"broker",   // :8001
+		"store",    // :8002
+		"router",   // :8084
+		"debug",    // :????
+		"proxy",    // :8081
+		"api",      // :8080
+		"auth",     // :8010
+		"web",      // :8082
+	}
 )
 
 var defaultEnvs = map[string]Env{
 	EnvLocal: {
 		Name:         EnvLocal,
 		ProxyAddress: localProxyAddress,
-	},
-	EnvServer: {
-		Name:         EnvServer,
-		ProxyAddress: serverProxyAddress,
 	},
 	EnvPlatform: {
 		Name:         EnvPlatform,
@@ -52,7 +58,7 @@ var defaultEnvs = map[string]Env{
 }
 
 func isBuiltinService(command string) bool {
-	for _, service := range platform.Services {
+	for _, service := range services {
 		if command == service {
 			return true
 		}
@@ -60,8 +66,8 @@ func isBuiltinService(command string) bool {
 	return false
 }
 
-// SetupCommand includes things that should run for each command.
-func SetupCommand(ctx *ccli.Context) {
+// SetProxyAddress includes things that should run for each command.
+func SetProxyAddress(ctx *cli.Context) {
 	// This makes `micro [command name] --help` work without a server
 	for _, arg := range os.Args {
 		if arg == "--help" || arg == "-h" {
@@ -69,59 +75,27 @@ func SetupCommand(ctx *ccli.Context) {
 		}
 	}
 	switch ctx.Args().First() {
-	case "new", "server", "help":
+	case "new", "server", "help", "env":
 		return
 	}
+
 	// fix for "micro service [command]", e.g "micro service auth"
 	if ctx.Args().First() == "service" && isBuiltinService(ctx.Args().Get(1)) {
 		return
 	}
-	if ctx.Args().Len() == 1 && isBuiltinService(ctx.Args().First()) {
-		return
-	}
-	if ctx.Args().Len() >= 1 && ctx.Args().First() == "env" {
-		return
-	}
 
-	if ctx.App.Command(ctx.Args().First()) == nil {
-		// unrecognised command
+	// don't set the proxy address on the proxy
+	if ctx.Args().First() == "proxy" {
 		return
-	}
-
-	toFlag := func(s string) string {
-		return strings.ToLower(strings.ReplaceAll(s, "MICRO_", ""))
-	}
-	setFlags := func(envars []string) {
-		for _, envar := range envars {
-			// setting both env and flags here
-			// as the proxy settings for example did not take effect
-			// with only flags
-			parts := strings.Split(envar, "=")
-			key := toFlag(parts[0])
-			os.Setenv(parts[0], parts[1])
-			ctx.Set(key, parts[1])
-		}
 	}
 
 	env := GetEnv(ctx)
-
-	// if we're running a local environment return here
-	if len(env.ProxyAddress) == 0 || env.Name == EnvLocal {
+	if len(env.ProxyAddress) == 0 {
 		return
 	}
 
-	switch env.Name {
-	case EnvServer:
-		setFlags(profile.ServerCLI())
-	case EnvPlatform:
-		setFlags(profile.PlatformCLI())
-	default:
-		// default case for ad hoc envs, see comments above about tests
-		setFlags(profile.ServerCLI())
-	}
-
-	// Set the proxy
-	setFlags([]string{"MICRO_PROXY=" + env.ProxyAddress})
+	// Set the proxy. TODO: Pass this as an option to the client instead.
+	os.Setenv("MICRO_PROXY", env.ProxyAddress)
 }
 
 type Env struct {
@@ -170,7 +144,7 @@ func setEnvs(envs map[string]Env) {
 
 // GetEnv returns the current selected environment
 // Does not take
-func GetEnv(ctx *ccli.Context) Env {
+func GetEnv(ctx *cli.Context) Env {
 	var envName string
 	if len(ctx.String("env")) > 0 {
 		envName = ctx.String("env")
@@ -212,7 +186,7 @@ func GetEnvByName(env string) Env {
 
 func GetEnvs() []Env {
 	envs := getEnvs()
-	ret := []Env{defaultEnvs[EnvLocal], defaultEnvs[EnvServer], defaultEnvs[EnvPlatform]}
+	ret := []Env{defaultEnvs[EnvLocal], defaultEnvs[EnvPlatform]}
 	nonDefaults := []Env{}
 	for _, env := range envs {
 		if _, isDefault := defaultEnvs[env.Name]; !isDefault {
@@ -247,22 +221,14 @@ func DelEnv(envName string) {
 	setEnvs(envs)
 }
 
-func IsLocal(ctx *ccli.Context) bool {
-	return GetEnv(ctx).Name == EnvLocal
-}
-
-func IsServer(ctx *ccli.Context) bool {
-	return GetEnv(ctx).Name == EnvServer
-}
-
-func IsPlatform(ctx *ccli.Context) bool {
+func IsPlatform(ctx *cli.Context) bool {
 	return GetEnv(ctx).Name == EnvPlatform
 }
 
-type Exec func(*ccli.Context, []string) ([]byte, error)
+type Exec func(*cli.Context, []string) ([]byte, error)
 
-func Print(e Exec) func(*ccli.Context) error {
-	return func(c *ccli.Context) error {
+func Print(e Exec) func(*cli.Context) error {
+	return func(c *cli.Context) error {
 		rsp, err := e(c, c.Args().Slice())
 		if err != nil {
 			fmt.Println(err)

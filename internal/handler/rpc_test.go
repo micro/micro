@@ -9,9 +9,9 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/micro/go-micro/v2/metadata"
-	"github.com/micro/go-micro/v2/registry/memory"
-	"github.com/micro/micro/v2/service"
+	"github.com/micro/go-micro/v3/metadata"
+	"github.com/micro/micro/v3/profile"
+	"github.com/micro/micro/v3/service"
 )
 
 type TestHandler struct {
@@ -41,11 +41,10 @@ func (t *TestHandler) Exec(ctx context.Context, req *TestRequest, rsp *TestRespo
 }
 
 func TestRPCHandler(t *testing.T) {
-	r := memory.NewRegistry()
+	profile.Test.Setup(nil)
 
 	srv := service.New(
 		service.Name("test"),
-		service.Registry(r),
 	)
 
 	srv.Server().Handle(

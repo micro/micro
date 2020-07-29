@@ -8,9 +8,9 @@ import (
 	"time"
 
 	"github.com/micro/cli/v2"
-	"github.com/micro/go-micro/v2/registry"
-	"github.com/micro/go-micro/v2/util/backoff"
-	"github.com/micro/micro/v2/plugin"
+	"github.com/micro/go-micro/v3/util/backoff"
+	"github.com/micro/micro/v3/plugin"
+	"github.com/micro/micro/v3/service/registry"
 )
 
 func init() {
@@ -51,7 +51,7 @@ func Plugin() plugin.Plugin {
 
 				for {
 					// get service list
-					s, _ := registry.ListServices()
+					s, _ := registry.DefaultRegistry.ListServices()
 					// get requests
 					reqs := atomic.LoadUint64(&requests)
 					srvs := uint64(len(s))

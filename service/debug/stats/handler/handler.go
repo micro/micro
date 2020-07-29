@@ -6,19 +6,19 @@ import (
 	"sync"
 	"time"
 
-	"github.com/micro/go-micro/v2/client"
-	"github.com/micro/go-micro/v2/cmd"
-	debug "github.com/micro/go-micro/v2/debug/service/proto"
-	"github.com/micro/go-micro/v2/errors"
-	"github.com/micro/go-micro/v2/registry"
-	"github.com/micro/go-micro/v2/util/ring"
-	stats "github.com/micro/micro/v2/service/debug/stats/proto"
+	"github.com/micro/go-micro/v3/client"
+	debug "github.com/micro/go-micro/v3/debug/service/proto"
+	"github.com/micro/go-micro/v3/errors"
+	"github.com/micro/go-micro/v3/registry"
+	"github.com/micro/go-micro/v3/util/ring"
+	muclient "github.com/micro/micro/v3/service/client"
+	stats "github.com/micro/micro/v3/service/debug/stats/proto"
 )
 
 // New initialises and returns a new Stats service handler
 func New(done <-chan bool, windowSize int, services func() []*registry.Service) (*Stats, error) {
 	s := &Stats{
-		client:    *cmd.DefaultCmd.Options().Client,
+		client:    muclient.DefaultClient,
 		snapshots: ring.New(windowSize),
 		services:  services,
 	}

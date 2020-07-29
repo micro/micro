@@ -1,6 +1,8 @@
 package auth
 
-import "github.com/micro/go-micro/v2/auth"
+import (
+	"github.com/micro/go-micro/v3/auth"
+)
 
 // TokenCookieName is the name of the cookie which stores the auth token
 const TokenCookieName = "micro-token"

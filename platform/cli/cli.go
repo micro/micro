@@ -11,15 +11,15 @@ import (
 	"time"
 
 	"github.com/micro/cli/v2"
-	"github.com/micro/go-micro/v2/auth"
-	cl "github.com/micro/go-micro/v2/client"
-	clinamespace "github.com/micro/micro/v2/client/cli/namespace"
-	clitoken "github.com/micro/micro/v2/client/cli/token"
-	cliutil "github.com/micro/micro/v2/client/cli/util"
-	"github.com/micro/micro/v2/cmd"
-	"github.com/micro/micro/v2/internal/client"
-	"github.com/micro/micro/v2/internal/report"
-	pb "github.com/micro/micro/v2/platform/proto/signup"
+	"github.com/micro/go-micro/v3/auth"
+	cl "github.com/micro/go-micro/v3/client"
+	clinamespace "github.com/micro/micro/v3/client/cli/namespace"
+	clitoken "github.com/micro/micro/v3/client/cli/token"
+	cliutil "github.com/micro/micro/v3/client/cli/util"
+	"github.com/micro/micro/v3/cmd"
+	"github.com/micro/micro/v3/internal/report"
+	pb "github.com/micro/micro/v3/platform/proto/signup"
+	muclient "github.com/micro/micro/v3/service/client"
 	"golang.org/x/crypto/ssh/terminal"
 )
 
@@ -37,16 +37,9 @@ func Signup(ctx *cli.Context) error {
 		email = strings.TrimSpace(email)
 	}
 
-	cli, err := client.New(ctx)
-	if err != nil {
-		fmt.Printf("Error processing signup: %s\n", err)
-		report.Errorf(ctx, "%v: Error processing signup: %s", email, err)
-		os.Exit(1)
-	}
-
 	// send a verification email to the user
-	signupService := pb.NewSignupService("go.micro.service.signup", cli)
-	_, err = signupService.SendVerificationEmail(context.TODO(), &pb.SendVerificationEmailRequest{
+	signupService := pb.NewSignupService("go.micro.service.signup", muclient.DefaultClient)
+	_, err := signupService.SendVerificationEmail(context.TODO(), &pb.SendVerificationEmailRequest{
 		Email: email,
 	}, cl.WithRequestTimeout(10*time.Second))
 	if err != nil {

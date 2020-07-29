@@ -10,8 +10,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/micro/micro/v2/client/cli/namespace"
-	"github.com/micro/micro/v2/client/cli/token"
+	"github.com/micro/micro/v3/client/cli/namespace"
+	"github.com/micro/micro/v3/client/cli/token"
 )
 
 // Test for making sure config and store values across namespaces
@@ -22,7 +22,7 @@ func TestNamespaceConfigIsolation(t *testing.T) {
 
 func testNamespaceConfigIsolation(t *t) {
 	t.Parallel()
-	serv := newServer(t)
+	serv := newServer(t, withLogin())
 	defer serv.close()
 	if err := serv.launch(); err != nil {
 		return
@@ -42,9 +42,6 @@ func testNamespaceConfigIsolationSuite(serv testServer, t *t) {
 		t.Fatal(err)
 		return
 	}
-
-	// This call is only here to trigger default account generation
-	exec.Command("micro", serv.envFlag(), "auth", "list", "accounts").CombinedOutput()
 
 	login(serv, t, "default", "password")
 	if t.failed {

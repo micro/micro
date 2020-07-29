@@ -7,20 +7,20 @@ import (
 	"sync"
 	"time"
 
-	"github.com/micro/go-micro/v2/client"
-	"github.com/micro/go-micro/v2/cmd"
-	debug "github.com/micro/go-micro/v2/debug/service/proto"
-	"github.com/micro/go-micro/v2/errors"
-	log "github.com/micro/go-micro/v2/logger"
-	"github.com/micro/go-micro/v2/registry"
-	"github.com/micro/go-micro/v2/util/ring"
-	trace "github.com/micro/micro/v2/service/debug/trace/proto"
+	"github.com/micro/go-micro/v3/client"
+	debug "github.com/micro/go-micro/v3/debug/service/proto"
+	"github.com/micro/go-micro/v3/errors"
+	log "github.com/micro/go-micro/v3/logger"
+	"github.com/micro/go-micro/v3/registry"
+	"github.com/micro/go-micro/v3/util/ring"
+	muclient "github.com/micro/micro/v3/service/client"
+	trace "github.com/micro/micro/v3/service/debug/trace/proto"
 )
 
 // New initialises and returns a new trace service handler
 func New(done <-chan bool, windowSize int, services func() []*registry.Service) (*Trace, error) {
 	s := &Trace{
-		client:    *cmd.DefaultCmd.Options().Client,
+		client:    muclient.DefaultClient,
 		snapshots: ring.New(windowSize),
 		services:  services,
 	}

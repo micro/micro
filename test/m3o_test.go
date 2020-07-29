@@ -12,7 +12,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/micro/micro/v2/client/cli/namespace"
+	"github.com/micro/micro/v3/client/cli/namespace"
 	"github.com/stripe/stripe-go/v71"
 	stripe_client "github.com/stripe/stripe-go/v71/client"
 )

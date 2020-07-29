@@ -5,21 +5,18 @@ import (
 	"fmt"
 
 	"github.com/micro/cli/v2"
-	storeproto "github.com/micro/go-micro/v2/store/service/proto"
-	"github.com/micro/micro/v2/client/cli/namespace"
-	"github.com/micro/micro/v2/client/cli/util"
-	inclient "github.com/micro/micro/v2/internal/client"
+	"github.com/micro/micro/v3/client/cli/namespace"
+	"github.com/micro/micro/v3/client/cli/util"
+	muclient "github.com/micro/micro/v3/service/client"
+	pb "github.com/micro/micro/v3/service/store/proto"
 )
 
 // databases is the entrypoint for micro store databases
 func databases(ctx *cli.Context) error {
-	client, err := inclient.New(ctx)
-	if err != nil {
-		return err
-	}
-	dbReq := client.NewRequest(ctx.String("store"), "Store.Databases", &storeproto.DatabasesRequest{})
-	dbRsp := &storeproto.DatabasesResponse{}
-	if err := client.Call(context.TODO(), dbReq, dbRsp); err != nil {
+	cli := muclient.DefaultClient
+	dbReq := cli.NewRequest(ctx.String("store"), "Store.Databases", &pb.DatabasesRequest{})
+	dbRsp := &pb.DatabasesResponse{}
+	if err := cli.Call(context.TODO(), dbReq, dbRsp); err != nil {
 		return err
 	}
 	for _, db := range dbRsp.Databases {
@@ -35,15 +32,12 @@ func tables(ctx *cli.Context) error {
 		return err
 	}
 
-	client, err := inclient.New(ctx)
-	if err != nil {
-		return err
-	}
-	tReq := client.NewRequest(ctx.String("store"), "Store.Tables", &storeproto.TablesRequest{
+	cli := muclient.DefaultClient
+	tReq := cli.NewRequest(ctx.String("store"), "Store.Tables", &pb.TablesRequest{
 		Database: ns,
 	})
-	tRsp := &storeproto.TablesResponse{}
-	if err := client.Call(context.TODO(), tReq, tRsp); err != nil {
+	tRsp := &pb.TablesResponse{}
+	if err := cli.Call(context.TODO(), tReq, tRsp); err != nil {
 		return err
 	}
 	for _, table := range tRsp.Tables {

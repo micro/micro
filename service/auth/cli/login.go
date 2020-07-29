@@ -8,12 +8,13 @@ import (
 	"syscall"
 
 	"github.com/micro/cli/v2"
-	"github.com/micro/go-micro/v2/auth"
-	"github.com/micro/micro/v2/client/cli/namespace"
-	"github.com/micro/micro/v2/client/cli/token"
-	"github.com/micro/micro/v2/client/cli/util"
-	"github.com/micro/micro/v2/internal/report"
-	platform "github.com/micro/micro/v2/platform/cli"
+	"github.com/micro/go-micro/v3/auth"
+	"github.com/micro/micro/v3/client/cli/namespace"
+	"github.com/micro/micro/v3/client/cli/token"
+	"github.com/micro/micro/v3/client/cli/util"
+	"github.com/micro/micro/v3/internal/report"
+	platform "github.com/micro/micro/v3/platform/cli"
+	muauth "github.com/micro/micro/v3/service/auth"
 	"golang.org/x/crypto/ssh/terminal"
 )
 
@@ -41,21 +42,11 @@ func login(ctx *cli.Context) error {
 		email = strings.TrimSpace(email)
 	}
 
-	authSrv, err := authFromContext(ctx)
-	if err != nil {
-		// clear tokens and try again
-		if err := token.Remove(env.Name); err != nil {
-			fmt.Printf("Error: %s\n", err)
-			report.Errorf(ctx, "%v: Token remove: %v", email, err.Error())
-			os.Exit(1)
-		}
-		authSrv, err = authFromContext(ctx)
-		if err != nil {
-			fmt.Printf("Error: %s\n", err)
-			report.Errorf(ctx, "%v: Getting auth: %v", email, err.Error())
-			os.Exit(1)
-		}
-
+	// clear tokens and try again
+	if err := token.Remove(env.Name); err != nil {
+		fmt.Printf("Error: %s\n", err)
+		report.Errorf(ctx, "%v: Token remove: %v", email, err.Error())
+		os.Exit(1)
 	}
 	ns, err := namespace.Get(env.Name)
 	if err != nil {
@@ -71,7 +62,7 @@ func login(ctx *cli.Context) error {
 		password = strings.TrimSpace(pw)
 		fmt.Println()
 	}
-	tok, err := authSrv.Token(auth.WithCredentials(email, password), auth.WithTokenIssuer(ns))
+	tok, err := muauth.DefaultAuth.Token(auth.WithCredentials(email, password), auth.WithTokenIssuer(ns))
 	if err != nil {
 		fmt.Println(err)
 		report.Errorf(ctx, "%v: Getting token: %v", email, err.Error())

@@ -5,7 +5,7 @@ import (
 	example "example-service/proto"
 	"fmt"
 
-	"github.com/micro/micro/v2/service"
+	"github.com/micro/micro/v3/service"
 )
 
 func main() {

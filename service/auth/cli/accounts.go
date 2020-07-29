@@ -9,11 +9,12 @@ import (
 	"text/tabwriter"
 
 	"github.com/micro/cli/v2"
-	"github.com/micro/go-micro/v2/auth"
-	pb "github.com/micro/go-micro/v2/auth/service/proto"
-	"github.com/micro/micro/v2/client/cli/namespace"
-	"github.com/micro/micro/v2/client/cli/util"
-	"github.com/micro/micro/v2/internal/client"
+	"github.com/micro/go-micro/v3/auth"
+	"github.com/micro/micro/v3/client/cli/namespace"
+	"github.com/micro/micro/v3/client/cli/util"
+	muauth "github.com/micro/micro/v3/service/auth"
+	pb "github.com/micro/micro/v3/service/auth/proto"
+	muclient "github.com/micro/micro/v3/service/client"
 )
 
 func listAccounts(ctx *cli.Context) error {
@@ -72,12 +73,7 @@ func createAccount(ctx *cli.Context) error {
 	if len(ctx.String("secret")) > 0 {
 		options = append(options, auth.WithSecret(ctx.String("secret")))
 	}
-	auth, err := authFromContext(ctx)
-	if err != nil {
-		fmt.Printf("Error getting auth: %v\n", err)
-		os.Exit(1)
-	}
-	acc, err := auth.Generate(ctx.Args().First(), options...)
+	acc, err := muauth.DefaultAuth.Generate(ctx.Args().First(), options...)
 	if err != nil {
 		return fmt.Errorf("Error creating account: %v", err)
 	}
@@ -110,10 +106,5 @@ func deleteAccount(ctx *cli.Context) error {
 }
 
 func accountsFromContext(ctx *cli.Context) pb.AccountsService {
-	cli, err := client.New(ctx)
-	if err != nil {
-		fmt.Printf("Error: %s\n", err)
-		os.Exit(1)
-	}
-	return pb.NewAccountsService("go.micro.auth", cli)
+	return pb.NewAccountsService("go.micro.auth", muclient.DefaultClient)
 }

@@ -6,9 +6,7 @@ import (
 	"encoding/json"
 	"errors"
 	"io/ioutil"
-	"os"
 	"os/exec"
-	"path/filepath"
 	"regexp"
 	"strings"
 	"testing"
@@ -21,7 +19,7 @@ func TestServerModeCall(t *testing.T) {
 
 func testServerModeCall(t *t) {
 	t.Parallel()
-	serv := newServer(t)
+	serv := newServer(t, withLogin())
 
 	callCmd := exec.Command("micro", serv.envFlag(), "call", "go.micro.runtime", "Runtime.Read", "{}")
 	outp, err := callCmd.CombinedOutput()
@@ -52,7 +50,7 @@ func TestRunLocalSource(t *testing.T) {
 
 func testRunLocalSource(t *t) {
 	t.Parallel()
-	serv := newServer(t)
+	serv := newServer(t, withLogin())
 	defer serv.close()
 	if err := serv.launch(); err != nil {
 		return
@@ -102,7 +100,7 @@ func TestRunAndKill(t *testing.T) {
 
 func testRunAndKill(t *t) {
 	t.Parallel()
-	serv := newServer(t)
+	serv := newServer(t, withLogin())
 	defer serv.close()
 	if err := serv.launch(); err != nil {
 		return
@@ -182,80 +180,6 @@ func testRunAndKill(t *t) {
 	}
 }
 
-func TestLocalOutsideRepo(t *testing.T) {
-	trySuite(t, testLocalOutsideRepo, retryCount)
-}
-
-func testLocalOutsideRepo(t *t) {
-	t.Parallel()
-	serv := newServer(t)
-	defer serv.close()
-	if err := serv.launch(); err != nil {
-		return
-	}
-
-	dirname := "last-dir-of-path"
-	folderPath := filepath.Join(os.TempDir(), dirname)
-
-	err := os.MkdirAll(folderPath, 0777)
-	if err != nil {
-		t.Fatal(err)
-		return
-	}
-
-	// since copying a whole folder is rather involved and only Linux sources
-	// are available, see https://stackoverflow.com/questions/51779243/copy-a-folder-in-go
-	// we fall back to `cp`
-	outp, err := exec.Command("cp", "-r", "example-service/.", folderPath).CombinedOutput()
-	if err != nil {
-		t.Fatal(string(outp))
-		return
-	}
-
-	runCmd := exec.Command("micro", serv.envFlag(), "run", ".")
-	runCmd.Dir = folderPath
-	outp, err = runCmd.CombinedOutput()
-	if err != nil {
-		t.Fatalf("micro run failure, output: %v", string(outp))
-		return
-	}
-
-	if err := try("Find "+dirname, t, func() ([]byte, error) {
-		psCmd := exec.Command("micro", serv.envFlag(), "status")
-		outp, err = psCmd.CombinedOutput()
-		if err != nil {
-			return outp, err
-		}
-
-		lines := strings.Split(string(outp), "\n")
-		found := false
-		for _, line := range lines {
-			if strings.HasPrefix(line, dirname) {
-				found = true
-			}
-		}
-		if !found {
-			return outp, errors.New("Can't find '" + dirname + "' in runtime")
-		}
-		return outp, err
-	}, 12*time.Second); err != nil {
-		return
-	}
-
-	if err := try("Find go.micro.service.example in list", t, func() ([]byte, error) {
-		outp, err := exec.Command("micro", serv.envFlag(), "services").CombinedOutput()
-		if err != nil {
-			return outp, err
-		}
-		if !strings.Contains(string(outp), "go.micro.service.example") {
-			return outp, errors.New("Can't find example service in list")
-		}
-		return outp, err
-	}, 75*time.Second); err != nil {
-		return
-	}
-}
-
 func statusRunning(service string, statusOutput []byte) bool {
 	reg, _ := regexp.Compile(service + "\\s+latest\\s+\\S+\\s+running")
 
@@ -277,15 +201,13 @@ func testRunGithubSource(t *t) {
 		t.Fatal("Git is not available")
 		return
 	}
-	serv := newServer(t)
+	serv := newServer(t, withLogin())
 	defer serv.close()
 	if err := serv.launch(); err != nil {
 		return
 	}
 
-	login(serv, t, serv.envName(), "password")
-
-	runCmd := exec.Command("micro", serv.envFlag(), "run", "github.com/micro/examples/helloworld")
+	runCmd := exec.Command("micro", serv.envFlag(), "run", "github.com/micro/services/helloworld")
 	outp, err := runCmd.CombinedOutput()
 	if err != nil {
 		t.Fatalf("micro run failure, output: %v", string(outp))
@@ -334,7 +256,7 @@ func TestRunLocalUpdateAndCall(t *testing.T) {
 
 func testRunLocalUpdateAndCall(t *t) {
 	t.Parallel()
-	serv := newServer(t)
+	serv := newServer(t, withLogin())
 	defer serv.close()
 	if err := serv.launch(); err != nil {
 		return
@@ -423,13 +345,13 @@ func TestExistingLogs(t *testing.T) {
 
 func testExistingLogs(t *t) {
 	t.Parallel()
-	serv := newServer(t)
+	serv := newServer(t, withLogin())
 	defer serv.close()
 	if err := serv.launch(); err != nil {
 		return
 	}
 
-	runCmd := exec.Command("micro", serv.envFlag(), "run", "github.com/crufter/micro-services/logspammer")
+	runCmd := exec.Command("micro", serv.envFlag(), "run", "./logspammer")
 	outp, err := runCmd.CombinedOutput()
 	if err != nil {
 		t.Fatalf("micro run failure, output: %v", string(outp))
@@ -437,7 +359,7 @@ func testExistingLogs(t *t) {
 	}
 
 	if err := try("logspammer logs", t, func() ([]byte, error) {
-		psCmd := exec.Command("micro", serv.envFlag(), "logs", "-n", "5", "crufter/micro-services/logspammer")
+		psCmd := exec.Command("micro", serv.envFlag(), "logs", "-n", "5", "test/logspammer")
 		outp, err = psCmd.CombinedOutput()
 		if err != nil {
 			return outp, err
@@ -458,7 +380,7 @@ func TestBranchCheckout(t *testing.T) {
 
 func testBranchCheckout(t *t) {
 	t.Parallel()
-	serv := newServer(t)
+	serv := newServer(t, withLogin())
 	defer serv.close()
 	if err := serv.launch(); err != nil {
 		return
@@ -494,7 +416,7 @@ func TestStreamLogsAndThirdPartyRepo(t *testing.T) {
 
 func testStreamLogsAndThirdPartyRepo(t *t) {
 	t.Parallel()
-	serv := newServer(t)
+	serv := newServer(t, withLogin())
 	defer serv.close()
 	if err := serv.launch(); err != nil {
 		return
@@ -583,7 +505,7 @@ func TestParentDependency(t *testing.T) {
 
 func testParentDependency(t *t) {
 	t.Parallel()
-	serv := newServer(t)
+	serv := newServer(t, withLogin())
 	defer serv.close()
 	if err := serv.launch(); err != nil {
 		return
@@ -618,7 +540,7 @@ func TestFastRuns(t *testing.T) {
 
 func testFastRuns(t *t) {
 	t.Parallel()
-	serv := newServer(t)
+	serv := newServer(t, withLogin())
 	defer serv.close()
 	if err := serv.launch(); err != nil {
 		return

@@ -1,14 +1,15 @@
 package manager
 
 import (
-	"github.com/micro/go-micro/v2/cmd"
-	"github.com/micro/go-micro/v2/logger"
-	"github.com/micro/go-micro/v2/runtime"
-	"github.com/micro/go-micro/v2/store"
-	cachest "github.com/micro/go-micro/v2/store/cache"
-	filest "github.com/micro/go-micro/v2/store/file"
-	"github.com/micro/go-micro/v2/store/memory"
-	"github.com/micro/micro/v2/internal/namespace"
+	"github.com/micro/go-micro/v3/logger"
+	"github.com/micro/go-micro/v3/runtime"
+	"github.com/micro/go-micro/v3/store"
+	cachest "github.com/micro/go-micro/v3/store/cache"
+	filest "github.com/micro/go-micro/v3/store/file"
+	"github.com/micro/go-micro/v3/store/memory"
+	"github.com/micro/micro/v3/internal/namespace"
+	"github.com/micro/micro/v3/service/auth"
+	mustore "github.com/micro/micro/v3/service/store"
 )
 
 // Init initializes the runtime
@@ -239,10 +240,10 @@ func New(r runtime.Runtime, opts ...Option) runtime.Runtime {
 
 	// set the defaults
 	if options.Auth == nil {
-		options.Auth = *cmd.DefaultCmd.Options().Auth
+		options.Auth = auth.DefaultAuth
 	}
 	if options.Store == nil {
-		options.Store = *cmd.DefaultCmd.Options().Store
+		options.Store = mustore.DefaultStore
 	}
 	if options.CacheStore == nil {
 		options.CacheStore = filest.NewStore()

@@ -2,13 +2,8 @@ package cli
 
 import (
 	"github.com/micro/cli/v2"
-	"github.com/micro/go-micro/v2/auth"
-	srvAuth "github.com/micro/go-micro/v2/auth/service"
-	mcmd "github.com/micro/go-micro/v2/cmd"
-	"github.com/micro/micro/v2/client/cli/util"
-	"github.com/micro/micro/v2/cmd"
-	"github.com/micro/micro/v2/internal/client"
-	"github.com/micro/micro/v2/internal/helper"
+	"github.com/micro/micro/v3/cmd"
+	"github.com/micro/micro/v3/internal/helper"
 	// imported specifically for signup
 )
 
@@ -46,19 +41,6 @@ var (
 		},
 	}
 )
-
-func authFromContext(ctx *cli.Context) (auth.Auth, error) {
-	if util.IsLocal(ctx) {
-		return *mcmd.DefaultCmd.Options().Auth, nil
-	}
-	cli, err := client.New(ctx)
-	if err != nil {
-		return nil, err
-	}
-	return srvAuth.NewAuth(
-		auth.WithClient(cli),
-	), nil
-}
 
 func init() {
 	cmd.Register(

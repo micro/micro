@@ -12,11 +12,11 @@ import (
 	"strings"
 
 	"github.com/micro/cli/v2"
-	"github.com/micro/go-micro/v2/client"
-	mcmd "github.com/micro/go-micro/v2/cmd"
-	"github.com/micro/micro/v2/client/cli/util"
-	"github.com/micro/micro/v2/cmd"
-	clic "github.com/micro/micro/v2/internal/command/cli"
+	"github.com/micro/go-micro/v3/client"
+	"github.com/micro/micro/v3/client/cli/util"
+	"github.com/micro/micro/v3/cmd"
+	clic "github.com/micro/micro/v3/internal/command"
+	muclient "github.com/micro/micro/v3/service/client"
 	"github.com/olekukonko/tablewriter"
 )
 
@@ -108,7 +108,7 @@ func networkConnect(c *cli.Context, args []string) ([]byte, error) {
 		return nil, nil
 	}
 
-	cli := *mcmd.DefaultCmd.Options().Client
+	cli := muclient.DefaultClient
 
 	request := map[string]interface{}{
 		"nodes": []interface{}{
@@ -131,7 +131,7 @@ func networkConnect(c *cli.Context, args []string) ([]byte, error) {
 }
 
 func networkConnections(c *cli.Context, args []string) ([]byte, error) {
-	cli := *mcmd.DefaultCmd.Options().Client
+	cli := muclient.DefaultClient
 
 	request := map[string]interface{}{
 		"depth": 1,
@@ -177,7 +177,7 @@ func networkConnections(c *cli.Context, args []string) ([]byte, error) {
 }
 
 func networkGraph(c *cli.Context, args []string) ([]byte, error) {
-	cli := *mcmd.DefaultCmd.Options().Client
+	cli := muclient.DefaultClient
 
 	var rsp map[string]interface{}
 
@@ -192,7 +192,7 @@ func networkGraph(c *cli.Context, args []string) ([]byte, error) {
 }
 
 func networkNodes(c *cli.Context, args []string) ([]byte, error) {
-	cli := *mcmd.DefaultCmd.Options().Client
+	cli := muclient.DefaultClient
 
 	var rsp map[string]interface{}
 
@@ -234,7 +234,7 @@ func networkNodes(c *cli.Context, args []string) ([]byte, error) {
 }
 
 func networkRoutes(c *cli.Context, args []string) ([]byte, error) {
-	cli := (*mcmd.DefaultCmd.Options().Client)
+	cli := muclient.DefaultClient
 
 	query := map[string]string{}
 
@@ -319,7 +319,7 @@ func networkRoutes(c *cli.Context, args []string) ([]byte, error) {
 }
 
 func networkServices(c *cli.Context, args []string) ([]byte, error) {
-	cli := (*mcmd.DefaultCmd.Options().Client)
+	cli := muclient.DefaultClient
 
 	var rsp map[string]interface{}
 

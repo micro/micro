@@ -9,12 +9,12 @@ import (
 	"strings"
 
 	"github.com/micro/cli/v2"
-	"github.com/micro/go-micro/v2/client"
-	"github.com/micro/go-micro/v2/cmd"
-	"github.com/micro/go-micro/v2/registry"
-	"github.com/micro/micro/v2/client/cli/namespace"
-	"github.com/micro/micro/v2/client/cli/util"
-	inclient "github.com/micro/micro/v2/internal/client"
+	"github.com/micro/go-micro/v3/client"
+	"github.com/micro/go-micro/v3/registry"
+	"github.com/micro/micro/v3/client/cli/namespace"
+	"github.com/micro/micro/v3/client/cli/util"
+	muclient "github.com/micro/micro/v3/service/client"
+	muregistry "github.com/micro/micro/v3/service/registry"
 )
 
 // lookupService queries the service for a service with the given alias. If
@@ -33,9 +33,9 @@ func lookupService(ctx *cli.Context) (*registry.Service, error) {
 	}
 
 	// lookup from the registry in the current namespace
-	reg := *cmd.DefaultCmd.Options().Registry
+	reg := muregistry.DefaultRegistry
 	srvs, err := reg.GetService(name, registry.GetDomain(dom))
-	if err != nil {
+	if err != nil && err != registry.ErrNotFound {
 		return nil, err
 	} else if len(srvs) > 0 {
 		return srvs[0], nil
@@ -44,7 +44,7 @@ func lookupService(ctx *cli.Context) (*registry.Service, error) {
 	// check for the service in the default namespace also
 	if dom != registry.DefaultDomain {
 		srvs, err := reg.GetService(name)
-		if err != nil {
+		if err != nil && err != registry.ErrNotFound {
 			return nil, err
 		} else if len(srvs) > 0 {
 			return srvs[0], nil
@@ -117,10 +117,7 @@ func callService(srv *registry.Service, ctx *cli.Context) error {
 	}
 
 	// construct and execute the request using the json content type
-	cli, err := inclient.New(ctx)
-	if err != nil {
-		return err
-	}
+	cli := muclient.DefaultClient
 	req := cli.NewRequest(srv.Name, endpoint, body, client.WithContentType("application/json"))
 	var rsp json.RawMessage
 	if err := cli.Call(ctx.Context, req, &rsp); err != nil {

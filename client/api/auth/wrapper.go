@@ -7,14 +7,15 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/micro/go-micro/v2/api/resolver"
-	"github.com/micro/go-micro/v2/api/resolver/subdomain"
-	"github.com/micro/go-micro/v2/api/server"
-	"github.com/micro/go-micro/v2/auth"
-	"github.com/micro/go-micro/v2/logger"
-	"github.com/micro/go-micro/v2/util/ctx"
-	inauth "github.com/micro/micro/v2/internal/auth"
-	"github.com/micro/micro/v2/internal/namespace"
+	"github.com/micro/go-micro/v3/api/resolver"
+	"github.com/micro/go-micro/v3/api/resolver/subdomain"
+	"github.com/micro/go-micro/v3/api/server"
+	"github.com/micro/go-micro/v3/auth"
+	"github.com/micro/go-micro/v3/logger"
+	"github.com/micro/go-micro/v3/util/ctx"
+	inauth "github.com/micro/micro/v3/internal/auth"
+	"github.com/micro/micro/v3/internal/namespace"
+	muauth "github.com/micro/micro/v3/service/auth"
 )
 
 // Wrapper wraps a handler and authenticates requests
@@ -24,19 +25,19 @@ func Wrapper(r resolver.Resolver, prefix string) server.Wrapper {
 			handler:       h,
 			resolver:      r,
 			servicePrefix: prefix,
-			auth:          auth.DefaultAuth,
 		}
 	}
 }
 
 type authWrapper struct {
 	handler       http.Handler
-	auth          auth.Auth
 	resolver      resolver.Resolver
 	servicePrefix string
 }
 
 func (a authWrapper) ServeHTTP(w http.ResponseWriter, req *http.Request) {
+	aa := muauth.DefaultAuth
+
 	// Determine the name of the service being requested
 	endpoint, err := a.resolver.Resolve(req)
 	if err == resolver.ErrInvalidPath || err == resolver.ErrNotFound {
@@ -79,7 +80,7 @@ func (a authWrapper) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 
 	// Get the account using the token, some are unauthenticated, so the lack of an
 	// account doesn't necesserially mean a forbidden request
-	acc, _ := a.auth.Inspect(token)
+	acc, _ := aa.Inspect(token)
 
 	// Determine the namespace and set it in the header. If the user passed auth creds
 	// on the request, use the namespace that issued the account, otherwise check for
@@ -118,7 +119,7 @@ func (a authWrapper) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	// Perform the verification check to see if the account has access to
 	// the resource they're requesting
 	res := &auth.Resource{Type: "service", Name: resName, Endpoint: resEndpoint}
-	if err := a.auth.Verify(acc, res, verifyOpts...); err == nil {
+	if err := aa.Verify(acc, res, verifyOpts...); err == nil {
 		// The account has the necessary permissions to access the resource
 		a.handler.ServeHTTP(w, req)
 		return
@@ -134,7 +135,7 @@ func (a authWrapper) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	}
 
 	// If there is no auth login url set, 401
-	loginURL := a.auth.Options().LoginURL
+	loginURL := aa.Options().LoginURL
 	if loginURL == "" {
 		http.Error(w, "unauthorized request", http.StatusUnauthorized)
 		return

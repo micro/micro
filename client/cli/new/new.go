@@ -15,9 +15,9 @@ import (
 	"time"
 
 	"github.com/micro/cli/v2"
-	"github.com/micro/micro/v2/cmd"
-	tmpl "github.com/micro/micro/v2/internal/template"
-	"github.com/micro/micro/v2/internal/usage"
+	"github.com/micro/micro/v3/cmd"
+	tmpl "github.com/micro/micro/v3/internal/template"
+	"github.com/micro/micro/v3/internal/usage"
 	"github.com/xlab/treeprint"
 )
 
@@ -28,7 +28,7 @@ func protoComments(goDir, alias string) []string {
 		"\ndownload protobuf for micro:\n",
 		"go get -u github.com/golang/protobuf/proto",
 		"go get -u github.com/golang/protobuf/protoc-gen-go",
-		"go get github.com/micro/micro/v2/cmd/protoc-gen-micro",
+		"go get github.com/micro/micro/v3/cmd/protoc-gen-micro",
 		"\ncompile the proto file " + alias + ".proto:\n",
 		"cd " + goDir,
 		"make proto\n",
@@ -159,7 +159,7 @@ func copyAPIProto(c config) (string, error) {
 
 	contents, err := ioutil.ReadDir(filepath.Join(basedir, "pkg", "mod", "github.com", "micro", "go-micro"))
 	if err != nil {
-		return "", errors.New("Unable to find go-micro version. Please try `go get github.com/micro/go-micro/v2`")
+		return "", errors.New("Unable to find go-micro version. Please try `go get github.com/micro/go-micro/v3`")
 	}
 	newestDir := ""
 	for _, v := range contents {
@@ -168,7 +168,7 @@ func copyAPIProto(c config) (string, error) {
 		}
 	}
 	if newestDir == "" {
-		return "", errors.New("Unable to find go-micro version. Please try `go get github.com/micro/go-micro/v2`")
+		return "", errors.New("Unable to find go-micro version. Please try `go get github.com/micro/go-micro/v3`")
 	}
 
 	input, err := ioutil.ReadFile(fmt.Sprintf("%s/pkg/mod/github.com/micro/go-micro/%s/api/proto/api.proto", basedir, newestDir))
@@ -312,21 +312,6 @@ func Run(ctx *cli.Context) error {
 	}
 
 	switch atype {
-	case "function":
-		// create service config
-		c.Files = []file{
-			{"main.go", tmpl.MainFNC},
-			{"generate.go", tmpl.GenerateFile},
-			{"plugin.go", tmpl.Plugin},
-			{"handler/" + alias + ".go", tmpl.HandlerFNC},
-			{"subscriber/" + alias + ".go", tmpl.SubscriberFNC},
-			{"proto/" + alias + "/" + alias + ".proto", tmpl.ProtoFNC},
-			{"Dockerfile", tmpl.DockerFNC},
-			{"Makefile", tmpl.Makefile},
-			{"README.md", tmpl.ReadmeFNC},
-			{".gitignore", tmpl.GitIgnore},
-		}
-
 	case "api":
 		// create api config
 		c.Files = []file{

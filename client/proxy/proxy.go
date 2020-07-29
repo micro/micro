@@ -7,24 +7,29 @@ import (
 
 	"github.com/go-acme/lego/v3/providers/dns/cloudflare"
 	"github.com/micro/cli/v2"
-	"github.com/micro/go-micro/v2/api/server/acme"
-	"github.com/micro/go-micro/v2/api/server/acme/autocert"
-	"github.com/micro/go-micro/v2/api/server/acme/certmagic"
-	"github.com/micro/go-micro/v2/auth"
-	bmem "github.com/micro/go-micro/v2/broker/memory"
-	mucli "github.com/micro/go-micro/v2/client"
-	log "github.com/micro/go-micro/v2/logger"
-	"github.com/micro/go-micro/v2/proxy"
-	"github.com/micro/go-micro/v2/proxy/http"
-	"github.com/micro/go-micro/v2/proxy/mucp"
-	rmem "github.com/micro/go-micro/v2/registry/memory"
-	"github.com/micro/go-micro/v2/server"
-	sgrpc "github.com/micro/go-micro/v2/server/grpc"
-	"github.com/micro/go-micro/v2/sync/memory"
-	"github.com/micro/go-micro/v2/util/mux"
-	"github.com/micro/micro/v2/cmd"
-	"github.com/micro/micro/v2/internal/helper"
-	"github.com/micro/micro/v2/service"
+	"github.com/micro/go-micro/v3/api/server/acme"
+	"github.com/micro/go-micro/v3/api/server/acme/autocert"
+	"github.com/micro/go-micro/v3/api/server/acme/certmagic"
+	bmem "github.com/micro/go-micro/v3/broker/memory"
+	grpcCli "github.com/micro/go-micro/v3/client/grpc"
+	log "github.com/micro/go-micro/v3/logger"
+	"github.com/micro/go-micro/v3/proxy"
+	"github.com/micro/go-micro/v3/proxy/http"
+	"github.com/micro/go-micro/v3/proxy/mucp"
+	rmem "github.com/micro/go-micro/v3/registry/memory"
+	"github.com/micro/go-micro/v3/router"
+	"github.com/micro/go-micro/v3/router/registry"
+	"github.com/micro/go-micro/v3/server"
+	grpcSrv "github.com/micro/go-micro/v3/server/grpc"
+	sgrpc "github.com/micro/go-micro/v3/server/grpc"
+	"github.com/micro/go-micro/v3/sync/memory"
+	"github.com/micro/go-micro/v3/util/mux"
+	"github.com/micro/micro/v3/client"
+	"github.com/micro/micro/v3/cmd"
+	"github.com/micro/micro/v3/internal/helper"
+	"github.com/micro/micro/v3/service"
+	muregistry "github.com/micro/micro/v3/service/registry"
+	"github.com/micro/micro/v3/service/store"
 )
 
 var (
@@ -70,7 +75,9 @@ func Run(ctx *cli.Context) error {
 
 	// set the context
 	popts := []proxy.Option{
-		proxy.WithRouter(service.Options().Router),
+		proxy.WithRouter(registry.NewRouter(
+			router.Registry(muregistry.DefaultRegistry),
+		)),
 	}
 
 	// new proxy
@@ -121,7 +128,7 @@ func Run(ctx *cli.Context) error {
 
 			storage := certmagic.NewStorage(
 				memory.NewSync(),
-				service.Options().Store,
+				store.DefaultStore,
 			)
 
 			config := cloudflare.NewDefaultConfig()
@@ -164,8 +171,7 @@ func Run(ctx *cli.Context) error {
 	}
 
 	// wrap the proxy using the proxy's authHandler
-	authFn := func() auth.Auth { return service.Options().Auth }
-	authOpt := server.WrapHandler(authHandler(authFn))
+	authOpt := server.WrapHandler(authHandler())
 	serverOpts = append(serverOpts, authOpt)
 
 	// set proxy
@@ -174,13 +180,13 @@ func Run(ctx *cli.Context) error {
 		p = http.NewProxy(popts...)
 		serverOpts = append(serverOpts, server.WithRouter(p))
 		// TODO: http server
-		srv = server.NewServer(serverOpts...)
+		srv = grpcSrv.NewServer(serverOpts...)
 	case "mucp":
-		popts = append(popts, proxy.WithClient(mucli.NewClient()))
+		popts = append(popts, proxy.WithClient(grpcCli.NewClient()))
 		p = mucp.NewProxy(popts...)
 
 		serverOpts = append(serverOpts, server.WithRouter(p))
-		srv = server.NewServer(serverOpts...)
+		srv = grpcSrv.NewServer(serverOpts...)
 	default:
 		p = mucp.NewProxy(popts...)
 
@@ -224,7 +230,7 @@ func init() {
 	cmd.Register(&cli.Command{
 		Name:  "proxy",
 		Usage: "Run the service proxy",
-		Flags: []cli.Flag{
+		Flags: append(client.Flags,
 			&cli.StringFlag{
 				Name:    "address",
 				Usage:   "Set the proxy http address e.g 0.0.0.0:8081",
@@ -240,7 +246,7 @@ func init() {
 				Usage:   "Set the endpoint to route to e.g greeter or localhost:9090",
 				EnvVars: []string{"MICRO_PROXY_ENDPOINT"},
 			},
-		},
+		),
 		Action: Run,
 	})
 }
