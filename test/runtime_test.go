@@ -430,13 +430,13 @@ func testStreamLogsAndThirdPartyRepo(t *t) {
 	}
 
 	if err := try("logger logs", t, func() ([]byte, error) {
-		psCmd := exec.Command("micro", serv.envFlag(), "logs", "-n", "5", "micro/test/service/logger")
+		psCmd := exec.Command("micro", serv.envFlag(), "logs", "-n", "8", "micro/test/service/logger")
 		outp, err = psCmd.CombinedOutput()
 		if err != nil {
 			return outp, err
 		}
 
-		if !strings.Contains(string(outp), "Listening on") || !strings.Contains(string(outp), "never stopping") {
+		if !strings.Contains(string(outp), "Listening on") || !strings.Contains(string(outp), "This is a log line") {
 			return outp, errors.New("Output does not contain expected")
 		}
 		return outp, nil
