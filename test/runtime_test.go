@@ -359,7 +359,7 @@ func testExistingLogs(t *t) {
 	}
 
 	if err := try("logger logs", t, func() ([]byte, error) {
-		psCmd := exec.Command("micro", serv.envFlag(), "logs", "-n", "5", "service/logger")
+		psCmd := exec.Command("micro", serv.envFlag(), "logs", "-n", "5", "test/service/logger")
 		outp, err = psCmd.CombinedOutput()
 		if err != nil {
 			return outp, err
