@@ -366,7 +366,7 @@ func TrySuite(t *testing.T, f func(t *T), times int) {
 		}
 	}
 
-	tee := newT(t)
+	tee := New(t)
 	for i := 0; i < times; i++ {
 		wrapF(tee, f)
 		if !tee.failed {
