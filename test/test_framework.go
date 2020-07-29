@@ -261,7 +261,7 @@ func (s *ServerDefault) Run() error {
 
 	// login to admin account
 	if s.opts.Login {
-		login(s, s.t, "default", "password")
+		Login(s, s.t, "default", "password")
 	}
 
 	// // generate a new admin account for the env : user=ENV_NAME pass=password
@@ -396,7 +396,7 @@ func wrapF(t *t, f func(t *t)) {
 	f(t)
 }
 
-func login(serv Server, t *t, email, password string) error {
+func Login(serv Server, t *t, email, password string) error {
 	return Try("Logging in with "+email, t, func() ([]byte, error) {
 		readCmd := exec.Command("micro", serv.EnvFlag(), "login", "--email", email, "--password", password)
 		outp, err := readCmd.CombinedOutput()
