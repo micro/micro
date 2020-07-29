@@ -33,9 +33,7 @@ func Run(c *cli.Context) error {
 	srv := service.New(service.Name(name))
 	mustore.DefaultStore.Init(store.Table("config"))
 
-	proto.RegisterConfigHandler(srv.Server(), &config{
-		Store: mustore.DefaultStore,
-	})
+	proto.RegisterConfigHandler(srv.Server(), new(config))
 	service.RegisterSubscriber(watchTopic, new(watcher))
 
 	if err := srv.Run(); err != nil {

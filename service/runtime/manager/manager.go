@@ -9,7 +9,6 @@ import (
 	"github.com/micro/go-micro/v3/store/memory"
 	"github.com/micro/micro/v3/internal/namespace"
 	"github.com/micro/micro/v3/service/runtime"
-	mustore "github.com/micro/micro/v3/service/store"
 )
 
 // Init initializes the runtime
@@ -220,8 +219,6 @@ func (m *manager) String() string {
 }
 
 type manager struct {
-	// options passed by the caller
-	options Options
 	// running is true after Start is called
 	running bool
 	// cache is a memory store which is used to store any information we don't want to write to the
@@ -234,24 +231,9 @@ type manager struct {
 }
 
 // New returns a manager for the runtime
-func New(opts ...Option) gorun.Runtime {
-	// parse the options
-	var options Options
-	for _, o := range opts {
-		o(&options)
-	}
-
-	// set the defaults
-	if options.Store == nil {
-		options.Store = mustore.DefaultStore
-	}
-	if options.CacheStore == nil {
-		options.CacheStore = filest.NewStore()
-	}
-
+func New() gorun.Runtime {
 	return &manager{
-		options:   options,
 		cache:     memory.NewStore(),
-		fileCache: cachest.NewStore(options.CacheStore),
+		fileCache: cachest.NewStore(filest.NewStore()),
 	}
 }

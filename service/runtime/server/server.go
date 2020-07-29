@@ -10,7 +10,6 @@ import (
 	"github.com/micro/micro/v3/service/runtime"
 	"github.com/micro/micro/v3/service/runtime/manager"
 	pb "github.com/micro/micro/v3/service/runtime/proto"
-	"github.com/micro/micro/v3/service/store"
 )
 
 var (
@@ -61,10 +60,7 @@ func Run(ctx *cli.Context) error {
 	srv := service.New(srvOpts...)
 
 	// create a new runtime manager
-	manager := manager.New(
-		manager.Store(store.DefaultStore),
-		manager.CacheStore(store.DefaultStore),
-	)
+	manager := manager.New()
 
 	// start the manager
 	if err := manager.Start(); err != nil {

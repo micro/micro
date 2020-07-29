@@ -8,9 +8,10 @@ import (
 	"github.com/google/uuid"
 	"github.com/micro/go-micro/v3/logger"
 	gorun "github.com/micro/go-micro/v3/runtime"
-	"github.com/micro/go-micro/v3/store"
+	gostore "github.com/micro/go-micro/v3/store"
 	"github.com/micro/micro/v3/internal/namespace"
 	"github.com/micro/micro/v3/service/runtime"
+	"github.com/micro/micro/v3/service/store"
 )
 
 var (
@@ -41,13 +42,13 @@ func (m *manager) publishEvent(eType gorun.EventType, srv *gorun.Service, opts *
 		return err
 	}
 
-	record := &store.Record{
+	record := &gostore.Record{
 		Key:    eventPrefix + e.ID,
 		Value:  bytes,
 		Expiry: eventTTL,
 	}
 
-	if err := m.options.Store.Write(record); err != nil {
+	if err := store.Write(record); err != nil {
 		return err
 	}
 
@@ -62,7 +63,7 @@ func (m *manager) watchEvents() {
 
 	for {
 		// get the keys of the events
-		events, err := m.options.Store.Read(eventPrefix, store.ReadPrefix())
+		events, err := store.Read(eventPrefix, gostore.ReadPrefix())
 		if err != nil {
 			logger.Warn("Error listing events: %v", err)
 			continue
@@ -83,12 +84,12 @@ func (m *manager) watchEvents() {
 // is not point stripping and then re-prefixing.
 func (m *manager) processEvent(key string) {
 	// check to see if the event has been processed before
-	if _, err := m.fileCache.Read(eventProcessedPrefix + key); err != store.ErrNotFound {
+	if _, err := m.fileCache.Read(eventProcessedPrefix + key); err != gostore.ErrNotFound {
 		return
 	}
 
 	// lookup the event
-	recs, err := m.options.Store.Read(key)
+	recs, err := store.Read(key)
 	if err != nil {
 		logger.Warnf("Error finding event %v: %v", key, err)
 		return
@@ -142,7 +143,7 @@ func (m *manager) processEvent(key string) {
 
 	// write to the store indicating the event has been consumed. We double the ttl to safely know the
 	// event will expire before this record
-	m.fileCache.Write(&store.Record{Key: eventProcessedPrefix + key, Expiry: eventTTL * 2})
+	m.fileCache.Write(&gostore.Record{Key: eventProcessedPrefix + key, Expiry: eventTTL * 2})
 
 }
 
