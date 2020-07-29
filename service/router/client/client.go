@@ -10,7 +10,6 @@ import (
 
 	"github.com/micro/go-micro/v3/client"
 	"github.com/micro/go-micro/v3/router"
-	muclient "github.com/micro/micro/v3/service/client"
 	"github.com/micro/micro/v3/service/errors"
 	pb "github.com/micro/micro/v3/service/router/proto"
 )
@@ -36,19 +35,10 @@ func NewRouter(opts ...router.Option) router.Router {
 		o(&options)
 	}
 
-	// NOTE: might need some client opts here
-	cli := muclient.DefaultClient
-
-	// get options client from the context. We set this in the context to prevent an import loop, as
-	// the client depends on the router
-	if c, ok := options.Context.Value(clientKey{}).(client.Client); ok {
-		cli = c
-	}
-
 	// NOTE: should we have Client/Service option in router.Options?
 	s := &svc{
 		opts:   options,
-		router: pb.NewRouterService(router.DefaultName, cli),
+		router: pb.NewRouterService(router.DefaultName),
 	}
 
 	// set the router address to call
@@ -58,7 +48,7 @@ func NewRouter(opts ...router.Option) router.Router {
 		}
 	}
 	// set the table
-	s.table = &table{pb.NewTableService(router.DefaultName, cli), s.callOpts}
+	s.table = &table{pb.NewTableService(router.DefaultName), s.callOpts}
 
 	return s
 }

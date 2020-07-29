@@ -7,10 +7,10 @@ import (
 	"time"
 
 	"github.com/micro/cli/v2"
-	log "github.com/micro/micro/v3/service/logger"
 	"github.com/micro/go-micro/v3/router"
 	"github.com/micro/go-micro/v3/router/registry"
 	"github.com/micro/micro/v3/service"
+	log "github.com/micro/micro/v3/service/logger"
 	muregistry "github.com/micro/micro/v3/service/registry"
 	pb "github.com/micro/micro/v3/service/router/proto"
 )
@@ -216,17 +216,9 @@ func Run(ctx *cli.Context) error {
 		router.Advertise(strategy),
 	)
 
-	// register router handler
-	pb.RegisterRouterHandler(
-		srv.Server(),
-		&Router{Router: r},
-	)
-
-	// register the table handler
-	pb.RegisterTableHandler(
-		srv.Server(),
-		&Table{Router: r},
-	)
+	// register handlers
+	pb.RegisterRouterHandler(&Router{Router: r})
+	pb.RegisterTableHandler(&Table{Router: r})
 
 	// create new micro router and start advertising routes
 	rtr := newRouter(srv, r)

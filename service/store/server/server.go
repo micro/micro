@@ -2,8 +2,8 @@ package server
 
 import (
 	"github.com/micro/cli/v2"
-	log "github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service"
+	log "github.com/micro/micro/v3/service/logger"
 	pb "github.com/micro/micro/v3/service/store/proto"
 )
 
@@ -30,7 +30,7 @@ func Run(ctx *cli.Context) error {
 	)
 
 	// the store handler
-	pb.RegisterStoreHandler(service.Server(), &handler{
+	pb.RegisterStoreHandler(&handler{
 		stores: make(map[string]bool),
 	})
 

@@ -16,7 +16,6 @@ import (
 	"github.com/micro/go-micro/v3/broker"
 	"github.com/micro/go-micro/v3/client"
 	"github.com/micro/go-micro/v3/config"
-	"github.com/micro/go-micro/v3/runtime"
 	"github.com/micro/go-micro/v3/server"
 	"github.com/micro/go-micro/v3/store"
 
@@ -32,18 +31,13 @@ import (
 	"github.com/micro/micro/v3/profile"
 	"github.com/micro/micro/v3/service/logger"
 
-	authCli "github.com/micro/micro/v3/service/auth/client"
-	brokerCli "github.com/micro/micro/v3/service/broker/client"
 	configCli "github.com/micro/micro/v3/service/config/client"
-	registryCli "github.com/micro/micro/v3/service/registry/client"
-	storeCli "github.com/micro/micro/v3/service/store/client"
 
 	muauth "github.com/micro/micro/v3/service/auth"
 	mubroker "github.com/micro/micro/v3/service/broker"
 	muclient "github.com/micro/micro/v3/service/client"
 	muconfig "github.com/micro/micro/v3/service/config"
 	muregistry "github.com/micro/micro/v3/service/registry"
-	muruntime "github.com/micro/micro/v3/service/runtime"
 	muserver "github.com/micro/micro/v3/service/server"
 	mustore "github.com/micro/micro/v3/service/store"
 )
@@ -289,7 +283,7 @@ func (c *command) Before(ctx *cli.Context) error {
 	)
 
 	// setup auth
-	authOpts := []auth.Option{authCli.WithClient(muclient.DefaultClient)}
+	authOpts := []auth.Option{}
 	if len(ctx.String("namespace")) > 0 {
 		authOpts = append(authOpts, auth.Issuer(ctx.String("namespace")))
 	}
@@ -310,7 +304,7 @@ func (c *command) Before(ctx *cli.Context) error {
 	muauth.DefaultAuth.Init(authOpts...)
 
 	// setup registry
-	registryOpts := []registry.Option{registryCli.WithClient(muclient.DefaultClient)}
+	registryOpts := []registry.Option{}
 
 	// Parse registry TLS certs
 	if len(ctx.String("registry_tls_cert")) > 0 || len(ctx.String("registry_tls_key")) > 0 {
@@ -341,7 +335,7 @@ func (c *command) Before(ctx *cli.Context) error {
 	}
 
 	// Setup broker options.
-	brokerOpts := []broker.Option{brokerCli.WithClient(muclient.DefaultClient)}
+	brokerOpts := []broker.Option{}
 	if len(ctx.String("broker_address")) > 0 {
 		brokerOpts = append(brokerOpts, broker.Addrs(ctx.String("broker_address")))
 	}
@@ -371,7 +365,7 @@ func (c *command) Before(ctx *cli.Context) error {
 	}
 
 	// Setup store options
-	storeOpts := []store.Option{storeCli.WithClient(muclient.DefaultClient)}
+	storeOpts := []store.Option{}
 	if len(ctx.String("store_address")) > 0 {
 		storeOpts = append(storeOpts, store.Nodes(strings.Split(ctx.String("store_address"), ",")...))
 	}
@@ -380,11 +374,6 @@ func (c *command) Before(ctx *cli.Context) error {
 	}
 	if err := mustore.DefaultStore.Init(storeOpts...); err != nil {
 		logger.Fatalf("Error configuring store: %v", err)
-	}
-
-	// Set runtime client
-	if err := muruntime.DefaultRuntime.Init(runtime.WithClient(muclient.DefaultClient)); err != nil {
-		logger.Fatalf("Error configuring runtime: %v", err)
 	}
 
 	// set the registry in the client and server
