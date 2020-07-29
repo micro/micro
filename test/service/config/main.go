@@ -12,8 +12,8 @@ func main() {
 	// get a value
 	go func() {
 		for {
-			fmt.Println("Value of key.subkey: ", config.Get("key", "subkey").String(""))
 			time.Sleep(time.Second)
+			fmt.Println("Value of key.subkey: ", config.Get("key", "subkey").String(""))
 		}
 	}()
 
