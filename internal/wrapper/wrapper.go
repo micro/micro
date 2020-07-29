@@ -44,6 +44,9 @@ func (a *authWrapper) wrapContext(ctx context.Context, opts ...client.CallOption
 	if _, ok := metadata.Get(ctx, "Authorization"); ok && !options.ServiceToken {
 		return ctx
 	}
+	if !options.ServiceToken {
+		return ctx
+	}
 
 	// if auth is nil we won't be able to get an access token, so we execute
 	// the request without one.
@@ -79,7 +82,6 @@ func AuthHandler() server.HandlerWrapper {
 		return func(ctx context.Context, req server.Request, rsp interface{}) error {
 			// get the auth.Auth interface
 			a := muauth.DefaultAuth
-
 			// Extract the token if the header is present. We will inspect the token regardless of if it's
 			// present or not since noop auth will return a blank account upon Inspecting a blank token.
 			var token string

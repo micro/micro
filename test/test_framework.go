@@ -23,7 +23,7 @@ const (
 )
 
 var (
-	retryCount        = 2
+	retryCount        = 1
 	isParallel        = true
 	ignoreThisError   = errors.New("Do not use this error")
 	errFatal          = errors.New("Fatal error")
@@ -272,7 +272,7 @@ func (s *testServerDefault) launch() error {
 		}
 
 		return outp, err
-	}, 60*time.Second); err != nil {
+	}, 20*time.Second); err != nil {
 		return err
 	}
 

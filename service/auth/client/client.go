@@ -287,6 +287,7 @@ func serializeRule(r *pb.Rule) *auth.Rule {
 func (s *srv) callOpts() []client.CallOption {
 	return []client.CallOption{
 		client.WithAddress(s.options.Addrs...),
+		client.WithServiceToken(),
 	}
 }
 

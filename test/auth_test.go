@@ -13,7 +13,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/micro/micro/v3/client/cli/token"
+	"github.com/micro/micro/v3/client/cli/namespace"
 )
 
 func TestServerAuth(t *testing.T) {
@@ -107,24 +107,21 @@ func testServerLockdown(t *t) {
 func lockdownSuite(serv testServer, t *t) {
 	// Execute first command in read to wait for store service
 	// to start up
-	if err := try("Calling micro auth list rules", t, func() ([]byte, error) {
-		readCmd := exec.Command("micro", serv.envFlag(), "auth", "list", "rules")
-		outp, err := readCmd.CombinedOutput()
-		if err != nil {
-			return outp, err
-		}
-		if !strings.Contains(string(outp), "default") {
-			return outp, fmt.Errorf("Output should contain default rule")
-		}
-		return outp, nil
-	}, 15*time.Second); err != nil {
-		return
-	}
-
-	err := token.Remove(serv.envName())
+	ns, err := namespace.Get(serv.envName())
 	if err != nil {
 		t.Fatal(err)
 	}
+	t.Log("Namespace is", ns)
+
+	rsp, _ := curl(serv, "store/list")
+	if rsp == nil {
+		t.Fatal(rsp, errors.New("store list should have response"))
+	}
+	if val, ok := rsp["Code"].(float64); !ok || val != 401 {
+		t.Fatal(rsp, errors.New("store list should be closed"), val)
+	}
+
+	login(serv, t, "default", "password")
 
 	email := "me@email.com"
 	pass := "mystrongpass"
@@ -167,12 +164,6 @@ func lockdownSuite(serv testServer, t *t) {
 		return outp, err
 	}, 31*time.Second); err != nil {
 		return
-	}
-
-	exec.Command("micro", serv.envFlag(), "store", "write", "a", "1").CombinedOutput()
-	rsp, err := curl(serv, "store/list")
-	if err == nil {
-		t.Fatal(rsp, errors.New("store list should be closed"))
 	}
 
 	login(serv, t, "me@email.com", "mystrongpass")
