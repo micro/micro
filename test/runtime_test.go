@@ -80,12 +80,12 @@ func testRunLocalSource(t *t) {
 		return
 	}
 
-	if err := Try("Find go.micro.service.example in list", t, func() ([]byte, error) {
+	if err := Try("Find example in list", t, func() ([]byte, error) {
 		outp, err := exec.Command("micro", serv.EnvFlag(), "services").CombinedOutput()
 		if err != nil {
 			return outp, err
 		}
-		if !strings.Contains(string(outp), "go.micro.service.example") {
+		if !strings.Contains(string(outp), "example") {
 			return outp, errors.New("Can't find example service in list")
 		}
 		return outp, err
@@ -130,12 +130,12 @@ func testRunAndKill(t *t) {
 		return
 	}
 
-	if err := Try("Find go.micro.service.example in list", t, func() ([]byte, error) {
+	if err := Try("Find example in list", t, func() ([]byte, error) {
 		outp, err := exec.Command("micro", serv.EnvFlag(), "services").CombinedOutput()
 		if err != nil {
 			return outp, err
 		}
-		if !strings.Contains(string(outp), "go.micro.service.example") {
+		if !strings.Contains(string(outp), "example") {
 			return outp, errors.New("Can't find example service in list")
 		}
 		return outp, err
@@ -166,12 +166,12 @@ func testRunAndKill(t *t) {
 		return
 	}
 
-	if err := Try("Find go.micro.service.example in list", t, func() ([]byte, error) {
+	if err := Try("Find example in list", t, func() ([]byte, error) {
 		outp, err := exec.Command("micro", serv.EnvFlag(), "services").CombinedOutput()
 		if err != nil {
 			return outp, err
 		}
-		if strings.Contains(string(outp), "go.micro.service.example") {
+		if strings.Contains(string(outp), "example") {
 			return outp, errors.New("Should not find example service in list")
 		}
 		return outp, err
@@ -288,7 +288,7 @@ func testRunLocalUpdateAndCall(t *t) {
 	}
 
 	if err := Try("Call example service", t, func() ([]byte, error) {
-		callCmd := exec.Command("micro", serv.EnvFlag(), "call", "go.micro.service.example", "Example.Call", `{"name": "Joe"}`)
+		callCmd := exec.Command("micro", serv.EnvFlag(), "call", "example", "Example.Call", `{"name": "Joe"}`)
 		outp, err := callCmd.CombinedOutput()
 		if err != nil {
 			return outp, err
@@ -320,7 +320,7 @@ func testRunLocalUpdateAndCall(t *t) {
 	}
 
 	if err := Try("Call example service after modification", t, func() ([]byte, error) {
-		callCmd := exec.Command("micro", serv.EnvFlag(), "call", "go.micro.service.example", "Example.Call", `{"name": "Joe"}`)
+		callCmd := exec.Command("micro", serv.EnvFlag(), "call", "example", "Example.Call", `{"name": "Joe"}`)
 		outp, err = callCmd.CombinedOutput()
 		if err != nil {
 			return outp, err
