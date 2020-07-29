@@ -20,7 +20,7 @@ func TestNamespaceConfigIsolation(t *testing.T) {
 	TrySuite(t, testNamespaceConfigIsolation, retryCount)
 }
 
-func testNamespaceConfigIsolation(t *t) {
+func testNamespaceConfigIsolation(t *T) {
 	t.Parallel()
 	serv := NewServer(t, WithLogin())
 	defer serv.Close()
@@ -31,7 +31,7 @@ func testNamespaceConfigIsolation(t *t) {
 	testNamespaceConfigIsolationSuite(serv, t)
 }
 
-func testNamespaceConfigIsolationSuite(serv Server, t *t) {
+func testNamespaceConfigIsolationSuite(serv Server, t *T) {
 	err := namespace.Add(serv.EnvName(), serv.EnvName())
 	if err != nil {
 		t.Fatal(err)
@@ -58,7 +58,7 @@ func testNamespaceConfigIsolationSuite(serv Server, t *t) {
 			return outp, fmt.Errorf("Expected no output, got: %v", string(outp))
 		}
 		return outp, err
-	}, 5*time.Second); err != nil {
+	}, 5 * time.Second); err != nil {
 		return
 	}
 
@@ -72,7 +72,7 @@ func testNamespaceConfigIsolationSuite(serv Server, t *t) {
 			return outp, errors.New("Expected 'val1\n'")
 		}
 		return outp, err
-	}, 8*time.Second); err != nil {
+	}, 8 * time.Second); err != nil {
 		return
 	}
 
@@ -110,7 +110,7 @@ func testNamespaceConfigIsolationSuite(serv Server, t *t) {
 			return outp, errors.New("Expected 'not found\n'")
 		}
 		return outp, nil
-	}, 8*time.Second); err != nil {
+	}, 8 * time.Second); err != nil {
 		return
 	}
 
@@ -142,7 +142,7 @@ func testNamespaceConfigIsolationSuite(serv Server, t *t) {
 			return outp, errors.New("Expected 'val1\n'")
 		}
 		return outp, err
-	}, 8*time.Second); err != nil {
+	}, 8 * time.Second); err != nil {
 		return
 	}
 }

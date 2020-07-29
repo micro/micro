@@ -43,7 +43,7 @@ type Server interface {
 // try is designed with command line executions in mind
 // Error should be checked and a simple `return` from the test case should
 // happen without calling `t.Fatal`. The error value should be disregarded.
-func Try(blockName string, t *t, f cmdFunc, maxTime time.Duration) error {
+func Try(blockName string, t *T, f cmdFunc, maxTime time.Duration) error {
 	// hack. k8s can be slow locally
 	maxTime = maxTimeMultiplier * maxTime
 
@@ -81,7 +81,7 @@ func once(blockName string, t *testing.T, f cmdFunc) {
 
 type ServerBase struct {
 	cmd           *exec.Cmd
-	t             *t
+	t             *T
 	envNm         string
 	portNum       int
 	containerName string
@@ -135,12 +135,12 @@ func WithLogin() Option {
 	}
 }
 
-func NewServer(t *t, opts ...Option) Server {
+func NewServer(t *T, opts ...Option) Server {
 	fname := strings.Split(myCaller(), ".")[2]
 	return newSrv(t, fname, opts...)
 }
 
-type NewServerFunc func(t *t, fname string, opts ...Option) Server
+type NewServerFunc func(t *T, fname string, opts ...Option) Server
 
 var newSrv NewServerFunc = newLocalServer
 
@@ -148,7 +148,7 @@ type ServerDefault struct {
 	ServerBase
 }
 
-func newLocalServer(t *t, fname string, opts ...Option) Server {
+func newLocalServer(t *T, fname string, opts ...Option) Server {
 	var options Options
 	for _, o := range opts {
 		o(&options)
@@ -229,7 +229,7 @@ func (s *ServerBase) Run() error {
 		}
 
 		return outp, nil
-	}, 15*time.Second); err != nil {
+	}, 15 * time.Second); err != nil {
 		return err
 	}
 
@@ -255,7 +255,7 @@ func (s *ServerDefault) Run() error {
 		}
 
 		return outp, err
-	}, 60*time.Second); err != nil {
+	}, 60 * time.Second); err != nil {
 		return err
 	}
 
@@ -296,7 +296,7 @@ func (s *ServerBase) EnvFlag() string {
 	return fmt.Sprintf("-env=%v", s.EnvName())
 }
 
-type t struct {
+type T struct {
 	counter int
 	failed  bool
 	format  string
@@ -305,7 +305,7 @@ type t struct {
 }
 
 // Fatal logs and exits immediately. Assumes it has come from a TrySuite() call. If called from within goroutine it does not immediately exit.
-func (t *t) Fatal(values ...interface{}) {
+func (t *T) Fatal(values ...interface{}) {
 	t.t.Helper()
 	t.t.Log(values...)
 	t.failed = true
@@ -313,13 +313,13 @@ func (t *t) Fatal(values ...interface{}) {
 	doPanic()
 }
 
-func (t *t) Log(values ...interface{}) {
+func (t *T) Log(values ...interface{}) {
 	t.t.Helper()
 	t.t.Log(values...)
 }
 
 // Fatalf logs and exits immediately. Assumes it has come from a TrySuite() call. If called from within goroutine it does not immediately exit.
-func (t *t) Fatalf(format string, values ...interface{}) {
+func (t *T) Fatalf(format string, values ...interface{}) {
 	t.t.Helper()
 	t.t.Log(fmt.Sprintf(format, values...))
 	t.failed = true
@@ -337,19 +337,19 @@ func doPanic() {
 	panic(errFatal)
 }
 
-func (t *t) Parallel() {
+func (t *T) Parallel() {
 	if t.counter == 0 && isParallel {
 		t.t.Parallel()
 	}
 	t.counter++
 }
 
-func newT(te *testing.T) *t {
+func newT(te *testing.T) *T {
 	return &t{t: te}
 }
 
 // TrySuite is designed to retry a TestXX function
-func TrySuite(t *testing.T, f func(t *t), times int) {
+func TrySuite(t *testing.T, f func(t *T), times int) {
 	t.Helper()
 	if len(testFilter) > 0 {
 		caller := strings.Split(getFrame(1).Function, ".")[2]
@@ -385,7 +385,7 @@ func TrySuite(t *testing.T, f func(t *t), times int) {
 	}
 }
 
-func wrapF(t *t, f func(t *t)) {
+func wrapF(t *T, f func(t *T)) {
 	defer func() {
 		if r := recover(); r != nil {
 			if r != errFatal {
@@ -396,7 +396,7 @@ func wrapF(t *t, f func(t *t)) {
 	f(t)
 }
 
-func Login(serv Server, t *t, email, password string) error {
+func Login(serv Server, t *T, email, password string) error {
 	return Try("Logging in with "+email, t, func() ([]byte, error) {
 		readCmd := exec.Command("micro", serv.EnvFlag(), "login", "--email", email, "--password", password)
 		outp, err := readCmd.CombinedOutput()
@@ -407,5 +407,5 @@ func Login(serv Server, t *t, email, password string) error {
 			return outp, errors.New("Login output does not contain 'Success'")
 		}
 		return outp, err
-	}, 4*time.Second)
+	}, 4 * time.Second)
 }

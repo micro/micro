@@ -15,7 +15,7 @@ func TestConfig(t *testing.T) {
 	TrySuite(t, testConfig, retryCount)
 }
 
-func testConfig(t *t) {
+func testConfig(t *T) {
 	t.Parallel()
 	serv := NewServer(t, WithLogin())
 	defer serv.Close()
@@ -33,7 +33,7 @@ func testConfig(t *t) {
 			return outp, fmt.Errorf("Output should be 'not found\n', got %v", string(outp))
 		}
 		return outp, nil
-	}, 5*time.Second); err != nil {
+	}, 5 * time.Second); err != nil {
 		return
 	}
 
@@ -50,7 +50,7 @@ func testConfig(t *t) {
 			return outp, fmt.Errorf("Expected no output, got: %v", string(outp))
 		}
 		return outp, err
-	}, 5*time.Second); err != nil {
+	}, 5 * time.Second); err != nil {
 		return
 	}
 
@@ -64,7 +64,7 @@ func testConfig(t *t) {
 			return outp, errors.New("Expected 'val1\n'")
 		}
 		return outp, err
-	}, 8*time.Second); err != nil {
+	}, 8 * time.Second); err != nil {
 		return
 	}
 
@@ -89,7 +89,7 @@ func testConfig(t *t) {
 			return outp, errors.New("Expected 'not found'")
 		}
 		return outp, nil
-	}, 8*time.Second); err != nil {
+	}, 8 * time.Second); err != nil {
 		return
 	}
 
@@ -115,7 +115,7 @@ func testConfig(t *t) {
 			return outp, errors.New("Expected 'otherval1\n'")
 		}
 		return outp, err
-	}, 8*time.Second); err != nil {
+	}, 8 * time.Second); err != nil {
 		return
 	}
 }
@@ -124,7 +124,7 @@ func TestConfigReadFromService(t *testing.T) {
 	TrySuite(t, testConfigReadFromService, retryCount)
 }
 
-func testConfigReadFromService(t *t) {
+func testConfigReadFromService(t *T) {
 	t.Parallel()
 	serv := NewServer(t, WithLogin())
 	defer serv.Close()
@@ -144,7 +144,7 @@ func testConfigReadFromService(t *t) {
 			return outp, fmt.Errorf("Expected no output, got: %v", string(outp))
 		}
 		return outp, err
-	}, 5*time.Second); err != nil {
+	}, 5 * time.Second); err != nil {
 		return
 	}
 
@@ -160,7 +160,7 @@ func testConfigReadFromService(t *t) {
 		}
 
 		return outp, err
-	}, 5*time.Second); err != nil {
+	}, 5 * time.Second); err != nil {
 		return
 	}
 
@@ -182,7 +182,7 @@ func testConfigReadFromService(t *t) {
 			return outp, fmt.Errorf("Expected val1 in output, got: %v", string(outp))
 		}
 		return outp, err
-	}, 20*time.Second); err != nil {
+	}, 20 * time.Second); err != nil {
 		return
 	}
 }
