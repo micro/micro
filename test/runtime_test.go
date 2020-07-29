@@ -458,7 +458,7 @@ func testStreamLogsAndThirdPartyRepo(t *T) {
 			t.Fatal("No log lines streamed")
 			return
 		}
-		if !strings.Contains(string(outp), "never stopping") {
+		if !strings.Contains(string(outp), "This is a log line") {
 			t.Fatalf("Unexpected logs: %v", string(outp))
 			return
 		}
