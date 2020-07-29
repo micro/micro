@@ -12,41 +12,41 @@ import (
 )
 
 func TestCorruptedTokenLogin(t *testing.T) {
-	trySuite(t, testCorruptedLogin, retryCount)
+	TrySuite(t, testCorruptedLogin, retryCount)
 }
 
 func testCorruptedLogin(t *t) {
-	serv := newServer(t)
-	defer serv.close()
-	if err := serv.launch(); err != nil {
+	serv := NewServer(t)
+	defer serv.Close()
+	if err := serv.Run(); err != nil {
 		return
 	}
 
 	t.Parallel()
 
-	outp, _ := exec.Command("micro", serv.envFlag(), "status").CombinedOutput()
+	outp, _ := exec.Command("micro", serv.EnvFlag(), "status").CombinedOutput()
 	if !strings.Contains(string(outp), "Unauthorized") {
 		t.Fatalf("Call should need authorization")
 	}
-	outp, _ = exec.Command("micro", serv.envFlag(), "login", "--email", serv.envName(), "--password", "password").CombinedOutput()
+	outp, _ = exec.Command("micro", serv.EnvFlag(), "login", "--email", serv.EnvName(), "--password", "password").CombinedOutput()
 	if !strings.Contains(string(outp), "Successfully logged in.") {
 		t.Fatalf("Login failed: %s", outp)
 	}
-	outp, _ = exec.Command("micro", serv.envFlag(), "status").CombinedOutput()
+	outp, _ = exec.Command("micro", serv.EnvFlag(), "status").CombinedOutput()
 	if string(outp) != "" {
 		t.Fatalf("Call should receive no output: %s", outp)
 	}
 	// munge token
-	tok, _ := token.Get(serv.envName())
+	tok, _ := token.Get(serv.EnvName())
 	tok.Expiry = time.Now().Add(-1 * time.Hour)
 	tok.RefreshToken = tok.RefreshToken + "a"
-	token.Save(serv.envName(), tok)
+	token.Save(serv.EnvName(), tok)
 
-	outp, _ = exec.Command("micro", serv.envFlag(), "status").CombinedOutput()
+	outp, _ = exec.Command("micro", serv.EnvFlag(), "status").CombinedOutput()
 	if !strings.Contains(string(outp), "Account can't be found for refresh token") {
 		t.Fatalf("Call should have failed: %s", outp)
 	}
-	outp, _ = exec.Command("micro", serv.envFlag(), "login", "--email", serv.envName(), "--password", "password").CombinedOutput()
+	outp, _ = exec.Command("micro", serv.EnvFlag(), "login", "--email", serv.EnvName(), "--password", "password").CombinedOutput()
 	if !strings.Contains(string(outp), "Successfully logged in.") {
 		t.Fatalf("Login failed: %s", outp)
 	}
