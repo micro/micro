@@ -304,6 +304,17 @@ type T struct {
 	t       *testing.T
 }
 
+
+// Failed indicate whether the test failed
+func (t *T) Failed() bool {
+	return t.failed
+}
+
+// Expose testing.T
+func (t *T) T() *testing.T {
+	return t.t
+}
+
 // Fatal logs and exits immediately. Assumes it has come from a TrySuite() call. If called from within goroutine it does not immediately exit.
 func (t *T) Fatal(values ...interface{}) {
 	t.t.Helper()
