@@ -15,7 +15,7 @@ func TestStore(t *testing.T) {
 	TrySuite(t, testStore, 5)
 }
 
-func testStore(t *t) {
+func testStore(t *T) {
 	t.Parallel()
 	serv := NewServer(t)
 	defer serv.Close()
@@ -39,7 +39,7 @@ func testStore(t *t) {
 			return outp, fmt.Errorf("Output should be 'not found', got %v", string(outp))
 		}
 		return outp, nil
-	}, 8*time.Second); err != nil {
+	}, 8 * time.Second); err != nil {
 		return
 	}
 

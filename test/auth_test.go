@@ -16,7 +16,7 @@ func TestServerAuth(t *testing.T) {
 	TrySuite(t, ServerAuth, retryCount)
 }
 
-func ServerAuth(t *t) {
+func ServerAuth(t *T) {
 	t.Parallel()
 	serv := NewServer(t, WithLogin())
 	defer serv.Close()
@@ -37,7 +37,7 @@ func ServerAuth(t *t) {
 			return outp, fmt.Errorf("Output should contain default admin account")
 		}
 		return outp, nil
-	}, 15*time.Second); err != nil {
+	}, 15 * time.Second); err != nil {
 		return
 	}
 
@@ -51,7 +51,7 @@ func ServerAuth(t *t) {
 			return outp, fmt.Errorf("Output should contain default rule")
 		}
 		return outp, nil
-	}, 8*time.Second); err != nil {
+	}, 8 * time.Second); err != nil {
 		return
 	}
 
@@ -80,7 +80,7 @@ func ServerAuth(t *t) {
 			return outp, fmt.Errorf("Can't find access token")
 		}
 		return outp, nil
-	}, 8*time.Second); err != nil {
+	}, 8 * time.Second); err != nil {
 		return
 	}
 }
@@ -89,7 +89,7 @@ func TestServerLockdown(t *testing.T) {
 	TrySuite(t, ServerAuth, retryCount)
 }
 
-func ServerLockdown(t *t) {
+func ServerLockdown(t *T) {
 	t.Parallel()
 	serv := NewServer(t)
 	defer serv.Close()
@@ -100,7 +100,7 @@ func ServerLockdown(t *t) {
 	lockdownSuite(serv, t)
 }
 
-func lockdownSuite(serv Server, t *t) {
+func lockdownSuite(serv Server, t *T) {
 	// Execute first command in read to wait for store service
 	// to start up
 	if err := Try("Calling micro auth list rules", t, func() ([]byte, error) {
@@ -113,7 +113,7 @@ func lockdownSuite(serv Server, t *t) {
 			return outp, fmt.Errorf("Output should contain default rule")
 		}
 		return outp, nil
-	}, 15*time.Second); err != nil {
+	}, 15 * time.Second); err != nil {
 		return
 	}
 
@@ -156,7 +156,7 @@ func lockdownSuite(serv Server, t *t) {
 			return outp, errors.New("List rules should fail")
 		}
 		return outp, err
-	}, 31*time.Second); err != nil {
+	}, 31 * time.Second); err != nil {
 		return
 	}
 
@@ -171,7 +171,7 @@ func lockdownSuite(serv Server, t *t) {
 			return outp, errors.New("Can't find rules")
 		}
 		return outp, err
-	}, 31*time.Second); err != nil {
+	}, 31 * time.Second); err != nil {
 		return
 	}
 }
