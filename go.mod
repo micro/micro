@@ -11,7 +11,6 @@ require (
 	github.com/dustin/go-humanize v1.0.0
 	github.com/fsnotify/fsnotify v1.4.7
 	github.com/go-acme/lego/v3 v3.4.0
-	github.com/go-log/log v0.2.0
 	github.com/golang/protobuf v1.4.2
 	github.com/google/uuid v1.1.1
 	github.com/gorilla/handlers v1.4.2
@@ -21,7 +20,7 @@ require (
 	github.com/mattn/go-isatty v0.0.12 // indirect
 	github.com/micro/cli/v2 v2.1.2
 	github.com/micro/go-micro/v2 v2.9.1
-	github.com/micro/go-micro/v3 v3.0.0-alpha.0.20200728125458-9813f98c8b60
+	github.com/micro/go-micro/v3 v3.0.0-alpha.0.20200729124150-006bbefaf3ee
 	github.com/netdata/go-orchestrator v0.0.0-20190905093727-c793edba0e8f
 	github.com/olekukonko/tablewriter v0.0.4
 	github.com/onsi/ginkgo v1.12.0 // indirect

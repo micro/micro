@@ -6,10 +6,10 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/micro/micro/v3/service/logger"
 	"github.com/micro/go-micro/v3/runtime"
 	"github.com/micro/go-micro/v3/store"
 	"github.com/micro/micro/v3/internal/namespace"
+	"github.com/micro/micro/v3/service/logger"
 )
 
 var (
@@ -119,15 +119,25 @@ func (m *manager) processEvent(key string) {
 			return
 		}
 
-		err = m.Runtime.Create(ev.Service,
+		// construct the options
+		options := []runtime.CreateOption{
 			runtime.CreateImage(ev.Options.Image),
 			runtime.CreateType(ev.Options.Type),
 			runtime.CreateNamespace(ns),
 			runtime.WithArgs(ev.Options.Args...),
 			runtime.WithCommand(ev.Options.Command...),
 			runtime.WithEnv(m.runtimeEnv(ev.Options)),
-			runtime.CreateCredentials(acc.ID, acc.Secret),
-		)
+			runtime.WithSecret("MICRO_AUTH_ID", acc.ID),
+			runtime.WithSecret("MICRO_AUTH_SECRET", acc.Secret),
+		}
+
+		// add the secrets
+		for key, value := range ev.Options.Secrets {
+			options = append(options, runtime.WithSecret(key, value))
+		}
+
+		// create the service
+		err = m.Runtime.Create(ev.Service, options...)
 	}
 
 	// if there was an error update the status in the cache

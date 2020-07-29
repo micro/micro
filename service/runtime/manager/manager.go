@@ -1,7 +1,6 @@
 package manager
 
 import (
-	"github.com/micro/micro/v3/service/logger"
 	"github.com/micro/go-micro/v3/runtime"
 	"github.com/micro/go-micro/v3/store"
 	cachest "github.com/micro/go-micro/v3/store/cache"
@@ -9,6 +8,7 @@ import (
 	"github.com/micro/go-micro/v3/store/memory"
 	"github.com/micro/micro/v3/internal/namespace"
 	"github.com/micro/micro/v3/service/auth"
+	"github.com/micro/micro/v3/service/logger"
 	mustore "github.com/micro/micro/v3/service/store"
 )
 
@@ -186,15 +186,29 @@ func (m *manager) resurrectServices() {
 				continue
 			}
 
-			m.Runtime.Create(srv.Service,
+			// construct the options
+			options := []runtime.CreateOption{
 				runtime.CreateImage(srv.Options.Image),
 				runtime.CreateType(srv.Options.Type),
 				runtime.CreateNamespace(ns),
 				runtime.WithArgs(srv.Options.Args...),
 				runtime.WithCommand(srv.Options.Command...),
 				runtime.WithEnv(m.runtimeEnv(srv.Options)),
-				runtime.CreateCredentials(acc.ID, acc.Secret),
-			)
+				runtime.WithSecret("MICRO_AUTH_ID", acc.ID),
+				runtime.WithSecret("MICRO_AUTH_SECRET", acc.Secret),
+			}
+
+			// add the secrets
+			for key, value := range srv.Options.Secrets {
+				options = append(options, runtime.WithSecret(key, value))
+			}
+
+			// create the service
+			if err := m.Runtime.Create(srv.Service, options...); err != nil {
+				if logger.V(logger.ErrorLevel, logger.DefaultLogger) {
+					logger.Errorf("Error resurrecting service: %v", err)
+				}
+			}
 		}
 	}
 }
