@@ -6,7 +6,7 @@ import (
 
 	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro/v3/debug/service"
-	log "github.com/micro/go-micro/v3/logger"
+	log "github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/cmd"
 )
 

@@ -11,7 +11,7 @@ import (
 	"github.com/micro/go-micro/v3/api/resolver/subdomain"
 	"github.com/micro/go-micro/v3/api/server"
 	"github.com/micro/go-micro/v3/auth"
-	"github.com/micro/go-micro/v3/logger"
+	"github.com/micro/micro/v3/service/logger"
 	"github.com/micro/go-micro/v3/util/ctx"
 	inauth "github.com/micro/micro/v3/internal/auth"
 	"github.com/micro/micro/v3/internal/namespace"

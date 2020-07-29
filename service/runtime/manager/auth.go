@@ -2,7 +2,7 @@ package manager
 
 import (
 	"github.com/micro/go-micro/v3/auth"
-	"github.com/micro/go-micro/v3/logger"
+	"github.com/micro/micro/v3/service/logger"
 	"github.com/micro/go-micro/v3/runtime"
 )
 
