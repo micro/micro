@@ -6,10 +6,12 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/micro/go-micro/v3/runtime"
-	"github.com/micro/go-micro/v3/store"
+	gorun "github.com/micro/go-micro/v3/runtime"
+	gostore "github.com/micro/go-micro/v3/store"
 	"github.com/micro/micro/v3/internal/namespace"
 	"github.com/micro/micro/v3/service/logger"
+	"github.com/micro/micro/v3/service/runtime"
+	"github.com/micro/micro/v3/service/store"
 )
 
 var (
@@ -27,8 +29,8 @@ const (
 )
 
 // publishEvent will write the event to the global store and immediately process the event
-func (m *manager) publishEvent(eType runtime.EventType, srv *runtime.Service, opts *runtime.CreateOptions) error {
-	e := &runtime.Event{
+func (m *manager) publishEvent(eType gorun.EventType, srv *gorun.Service, opts *gorun.CreateOptions) error {
+	e := &gorun.Event{
 		ID:      uuid.New().String(),
 		Type:    eType,
 		Service: srv,
@@ -40,13 +42,13 @@ func (m *manager) publishEvent(eType runtime.EventType, srv *runtime.Service, op
 		return err
 	}
 
-	record := &store.Record{
+	record := &gostore.Record{
 		Key:    eventPrefix + e.ID,
 		Value:  bytes,
 		Expiry: eventTTL,
 	}
 
-	if err := m.options.Store.Write(record); err != nil {
+	if err := store.Write(record); err != nil {
 		return err
 	}
 
@@ -61,7 +63,7 @@ func (m *manager) watchEvents() {
 
 	for {
 		// get the keys of the events
-		events, err := m.options.Store.Read(eventPrefix, store.ReadPrefix())
+		events, err := store.Read(eventPrefix, gostore.ReadPrefix())
 		if err != nil {
 			logger.Warn("Error listing events: %v", err)
 			continue
@@ -82,17 +84,17 @@ func (m *manager) watchEvents() {
 // is not point stripping and then re-prefixing.
 func (m *manager) processEvent(key string) {
 	// check to see if the event has been processed before
-	if _, err := m.fileCache.Read(eventProcessedPrefix + key); err != store.ErrNotFound {
+	if _, err := m.fileCache.Read(eventProcessedPrefix + key); err != gostore.ErrNotFound {
 		return
 	}
 
 	// lookup the event
-	recs, err := m.options.Store.Read(key)
+	recs, err := store.Read(key)
 	if err != nil {
 		logger.Warnf("Error finding event %v: %v", key, err)
 		return
 	}
-	var ev *runtime.Event
+	var ev *gorun.Event
 	if err := json.Unmarshal(recs[0].Value, &ev); err != nil {
 		logger.Warnf("Error unmarshaling event %v: %v", key, err)
 	}
@@ -108,11 +110,11 @@ func (m *manager) processEvent(key string) {
 
 	// apply the event to the managed runtime
 	switch ev.Type {
-	case runtime.Delete:
-		err = m.Runtime.Delete(ev.Service, runtime.DeleteNamespace(ns))
-	case runtime.Update:
-		err = m.Runtime.Update(ev.Service, runtime.UpdateNamespace(ns))
-	case runtime.Create:
+	case gorun.Delete:
+		err = runtime.Delete(ev.Service, gorun.DeleteNamespace(ns))
+	case gorun.Update:
+		err = runtime.Update(ev.Service, gorun.UpdateNamespace(ns))
+	case gorun.Create:
 		// generate an auth account for the service to use
 		acc, err := m.generateAccount(ev.Service, ns)
 		if err != nil {
@@ -120,24 +122,24 @@ func (m *manager) processEvent(key string) {
 		}
 
 		// construct the options
-		options := []runtime.CreateOption{
-			runtime.CreateImage(ev.Options.Image),
-			runtime.CreateType(ev.Options.Type),
-			runtime.CreateNamespace(ns),
-			runtime.WithArgs(ev.Options.Args...),
-			runtime.WithCommand(ev.Options.Command...),
-			runtime.WithEnv(m.runtimeEnv(ev.Options)),
-			runtime.WithSecret("MICRO_AUTH_ID", acc.ID),
-			runtime.WithSecret("MICRO_AUTH_SECRET", acc.Secret),
+		options := []gorun.CreateOption{
+			gorun.CreateImage(ev.Options.Image),
+			gorun.CreateType(ev.Options.Type),
+			gorun.CreateNamespace(ns),
+			gorun.WithArgs(ev.Options.Args...),
+			gorun.WithCommand(ev.Options.Command...),
+			gorun.WithEnv(m.runtimeEnv(ev.Options)),
+			gorun.WithSecret("MICRO_AUTH_ID", acc.ID),
+			gorun.WithSecret("MICRO_AUTH_SECRET", acc.Secret),
 		}
 
 		// add the secrets
 		for key, value := range ev.Options.Secrets {
-			options = append(options, runtime.WithSecret(key, value))
+			options = append(options, gorun.WithSecret(key, value))
 		}
 
 		// create the service
-		err = m.Runtime.Create(ev.Service, options...)
+		err = runtime.Create(ev.Service, options...)
 	}
 
 	// if there was an error update the status in the cache
@@ -145,18 +147,18 @@ func (m *manager) processEvent(key string) {
 		logger.Warnf("Error processing %v event for service %v:%v in namespace %v: %v", ev.Type, ev.Service.Name, ev.Service.Version, ns, err)
 		ev.Service.Metadata = map[string]string{"status": "error", "error": err.Error()}
 		m.cacheStatus(ns, ev.Service)
-	} else if ev.Type != runtime.Delete {
+	} else if ev.Type != gorun.Delete {
 		m.cacheStatus(ns, ev.Service)
 	}
 
 	// write to the store indicating the event has been consumed. We double the ttl to safely know the
 	// event will expire before this record
-	m.fileCache.Write(&store.Record{Key: eventProcessedPrefix + key, Expiry: eventTTL * 2})
+	m.fileCache.Write(&gostore.Record{Key: eventProcessedPrefix + key, Expiry: eventTTL * 2})
 
 }
 
 // runtimeEnv returns the environment variables which should  be used when creating a service.
-func (m *manager) runtimeEnv(options *runtime.CreateOptions) []string {
+func (m *manager) runtimeEnv(options *gorun.CreateOptions) []string {
 	setEnv := func(p []string, env map[string]string) {
 		for _, v := range p {
 			parts := strings.Split(v, "=")

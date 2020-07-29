@@ -4,14 +4,12 @@ import (
 	"os"
 
 	"github.com/micro/cli/v2"
-	log "github.com/micro/micro/v3/service/logger"
-	"github.com/micro/go-micro/v3/runtime"
+	goruntime "github.com/micro/go-micro/v3/runtime"
 	"github.com/micro/micro/v3/service"
-	"github.com/micro/micro/v3/service/auth"
-	muruntime "github.com/micro/micro/v3/service/runtime"
+	log "github.com/micro/micro/v3/service/logger"
+	"github.com/micro/micro/v3/service/runtime"
 	"github.com/micro/micro/v3/service/runtime/manager"
 	pb "github.com/micro/micro/v3/service/runtime/proto"
-	"github.com/micro/micro/v3/service/store"
 )
 
 var (
@@ -51,9 +49,8 @@ func Run(ctx *cli.Context) error {
 	}
 
 	// create runtime
-	muRuntime := muruntime.DefaultRuntime
 	if ctx.IsSet("source") {
-		muRuntime.Init(runtime.WithSource(ctx.String("source")))
+		runtime.DefaultRuntime.Init(goruntime.WithSource(ctx.String("source")))
 	}
 
 	// append name
@@ -63,11 +60,7 @@ func Run(ctx *cli.Context) error {
 	srv := service.New(srvOpts...)
 
 	// create a new runtime manager
-	manager := manager.New(muRuntime,
-		manager.Auth(auth.DefaultAuth),
-		manager.Store(store.DefaultStore),
-		manager.CacheStore(store.DefaultStore),
-	)
+	manager := manager.New()
 
 	// start the manager
 	if err := manager.Start(); err != nil {

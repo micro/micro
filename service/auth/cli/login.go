@@ -8,13 +8,13 @@ import (
 	"syscall"
 
 	"github.com/micro/cli/v2"
-	"github.com/micro/go-micro/v3/auth"
+	goauth "github.com/micro/go-micro/v3/auth"
 	"github.com/micro/micro/v3/client/cli/namespace"
 	"github.com/micro/micro/v3/client/cli/token"
 	"github.com/micro/micro/v3/client/cli/util"
 	"github.com/micro/micro/v3/internal/report"
 	platform "github.com/micro/micro/v3/platform/cli"
-	muauth "github.com/micro/micro/v3/service/auth"
+	"github.com/micro/micro/v3/service/auth"
 	"golang.org/x/crypto/ssh/terminal"
 )
 
@@ -62,7 +62,7 @@ func login(ctx *cli.Context) error {
 		password = strings.TrimSpace(pw)
 		fmt.Println()
 	}
-	tok, err := muauth.DefaultAuth.Token(auth.WithCredentials(email, password), auth.WithTokenIssuer(ns))
+	tok, err := auth.Token(goauth.WithCredentials(email, password), goauth.WithTokenIssuer(ns))
 	if err != nil {
 		fmt.Println(err)
 		report.Errorf(ctx, "%v: Getting token: %v", email, err.Error())

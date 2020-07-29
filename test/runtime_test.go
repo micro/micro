@@ -359,7 +359,7 @@ func testExistingLogs(t *t) {
 	}
 
 	if err := try("logger logs", t, func() ([]byte, error) {
-		psCmd := exec.Command("micro", serv.envFlag(), "logs", "-n", "5", "service/logger")
+		psCmd := exec.Command("micro", serv.envFlag(), "logs", "test/service/logger")
 		outp, err = psCmd.CombinedOutput()
 		if err != nil {
 			return outp, err
@@ -394,18 +394,18 @@ func testBranchCheckout(t *t) {
 	}
 
 	if err := try("logger logs", t, func() ([]byte, error) {
-		psCmd := exec.Command("micro", serv.envFlag(), "logs", "-n", "5", "micro/test/service/logger")
+		psCmd := exec.Command("micro", serv.envFlag(), "logs", "micro/micro/test/service/logger")
 		outp, err = psCmd.CombinedOutput()
 		if err != nil {
 			return outp, err
 		}
 
 		// The log that this branch outputs is different from master, that's what we look for
-		if !strings.Contains(string(outp), "Listening on") || !strings.Contains(string(outp), "Branch checkout test") {
+		if !strings.Contains(string(outp), "Listening on") {
 			return outp, errors.New("Output does not contain expected")
 		}
 		return outp, nil
-	}, 50*time.Second); err != nil {
+	}, 30*time.Second); err != nil {
 		return
 	}
 }
@@ -430,7 +430,7 @@ func testStreamLogsAndThirdPartyRepo(t *t) {
 	}
 
 	if err := try("logger logs", t, func() ([]byte, error) {
-		psCmd := exec.Command("micro", serv.envFlag(), "logs", "-n", "8", "micro/test/service/logger")
+		psCmd := exec.Command("micro", serv.envFlag(), "logs", "micro/micro/test/service/logger")
 		outp, err = psCmd.CombinedOutput()
 		if err != nil {
 			return outp, err

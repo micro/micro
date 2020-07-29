@@ -4,8 +4,9 @@ import (
 	"testing"
 
 	"github.com/micro/go-micro/v3/runtime"
-	"github.com/micro/go-micro/v3/store/memory"
 	"github.com/micro/micro/v3/internal/namespace"
+	"github.com/micro/micro/v3/profile"
+	muruntime "github.com/micro/micro/v3/service/runtime"
 )
 
 type testRuntime struct {
@@ -66,8 +67,9 @@ func TestStatus(t *testing.T) {
 		},
 	}
 
-	rt := &testRuntime{readServices: testServices}
-	m := New(rt, Store(memory.NewStore()), CacheStore(memory.NewStore())).(*manager)
+	profile.Test.Setup(nil)
+	muruntime.DefaultRuntime = &testRuntime{readServices: testServices}
+	m := New().(*manager)
 
 	// sync the status with the runtime, this should set the status for the testServices in the cache
 	m.syncStatus()

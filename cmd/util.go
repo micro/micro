@@ -5,12 +5,12 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/micro/cli/v2"
-	"github.com/micro/go-micro/v2/logger"
-	"github.com/micro/go-micro/v3/auth"
+	goauth "github.com/micro/go-micro/v3/auth"
+	"github.com/micro/go-micro/v3/logger"
 	"github.com/micro/micro/v3/client/cli/namespace"
 	clitoken "github.com/micro/micro/v3/client/cli/token"
 	"github.com/micro/micro/v3/client/cli/util"
-	muauth "github.com/micro/micro/v3/service/auth"
+	"github.com/micro/micro/v3/service/auth"
 )
 
 // setupAuthForCLI handles exchanging refresh tokens to access tokens
@@ -37,14 +37,14 @@ func setupAuthForCLI(ctx *cli.Context) error {
 
 	// Check if token is valid
 	if time.Now().Before(tok.Expiry.Add(-15 * time.Second)) {
-		muauth.DefaultAuth.Init(auth.ClientToken(tok))
+		auth.DefaultAuth.Init(goauth.ClientToken(tok))
 		return nil
 	}
 
 	// Get new access token from refresh token if it's close to expiry
-	tok, err = muauth.DefaultAuth.Token(
-		auth.WithToken(tok.RefreshToken),
-		auth.WithTokenIssuer(ns),
+	tok, err = auth.Token(
+		goauth.WithToken(tok.RefreshToken),
+		goauth.WithTokenIssuer(ns),
 	)
 	if err != nil {
 		clitoken.Remove(env.Name)
@@ -52,31 +52,31 @@ func setupAuthForCLI(ctx *cli.Context) error {
 	}
 
 	// Save the token to user config file
-	muauth.DefaultAuth.Init(auth.ClientToken(tok))
+	auth.DefaultAuth.Init(goauth.ClientToken(tok))
 	return clitoken.Save(env.Name, tok)
 }
 
 // setupAuthForService generates auth credentials for the service
 func setupAuthForService() error {
-	a := muauth.DefaultAuth
+	opts := auth.DefaultAuth.Options()
 
 	// extract the account creds from options, these can be set by flags
-	accID := muauth.DefaultAuth.Options().ID
-	accSecret := a.Options().Secret
+	accID := opts.ID
+	accSecret := opts.Secret
 
 	// if no credentials were provided, self generate an account
 	if len(accID) == 0 && len(accSecret) == 0 {
-		opts := []auth.GenerateOption{
-			auth.WithType("service"),
-			auth.WithScopes("service"),
+		opts := []goauth.GenerateOption{
+			goauth.WithType("service"),
+			goauth.WithScopes("service"),
 		}
 
-		acc, err := a.Generate(uuid.New().String(), opts...)
+		acc, err := auth.Generate(uuid.New().String(), opts...)
 		if err != nil {
 			return err
 		}
 		if logger.V(logger.DebugLevel, logger.DefaultLogger) {
-			logger.Debugf("Auth [%v] Generated an auth account", a.String())
+			logger.Debugf("Auth [%v] Generated an auth account", auth.DefaultAuth.String())
 		}
 
 		accID = acc.ID
@@ -84,18 +84,18 @@ func setupAuthForService() error {
 	}
 
 	// generate the first token
-	token, err := a.Token(
-		auth.WithCredentials(accID, accSecret),
-		auth.WithExpiry(time.Minute*10),
+	token, err := auth.Token(
+		goauth.WithCredentials(accID, accSecret),
+		goauth.WithExpiry(time.Minute*10),
 	)
 	if err != nil {
 		return err
 	}
 
 	// set the credentials and token in auth options
-	a.Init(
-		auth.ClientToken(token),
-		auth.Credentials(accID, accSecret),
+	auth.DefaultAuth.Init(
+		goauth.ClientToken(token),
+		goauth.Credentials(accID, accSecret),
 	)
 	return nil
 }
@@ -109,15 +109,15 @@ func refreshAuthToken(stop chan bool) {
 		select {
 		case <-t.C:
 			// don't refresh the token if it's not close to expiring
-			tok := muauth.DefaultAuth.Options().Token
+			tok := auth.DefaultAuth.Options().Token
 			if tok.Expiry.Unix() > time.Now().Add(time.Minute).Unix() {
 				continue
 			}
 
 			// generate the first token
-			tok, err := muauth.DefaultAuth.Token(
-				auth.WithToken(tok.RefreshToken),
-				auth.WithExpiry(time.Minute*10),
+			tok, err := auth.Token(
+				goauth.WithToken(tok.RefreshToken),
+				goauth.WithExpiry(time.Minute*10),
 			)
 			if err != nil {
 				logger.Warnf("[Auth] Error refreshing token: %v", err)
@@ -125,7 +125,7 @@ func refreshAuthToken(stop chan bool) {
 			}
 
 			// set the token
-			muauth.DefaultAuth.Init(auth.ClientToken(tok))
+			auth.DefaultAuth.Init(goauth.ClientToken(tok))
 		case <-stop:
 			return
 		}
