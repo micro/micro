@@ -14,11 +14,10 @@ import (
 	"github.com/micro/micro/v3/client/cli/util"
 	"github.com/micro/micro/v3/service/auth"
 	pb "github.com/micro/micro/v3/service/auth/proto"
-	muclient "github.com/micro/micro/v3/service/client"
 )
 
 func listAccounts(ctx *cli.Context) error {
-	client := accountsFromContext(ctx)
+	client := pb.NewAccountsService("go.micro.auth")
 
 	ns, err := namespace.Get(util.GetEnv(ctx).Name)
 	if err != nil {
@@ -87,7 +86,7 @@ func deleteAccount(ctx *cli.Context) error {
 	if ctx.Args().Len() == 0 {
 		return fmt.Errorf("Missing argument: ID")
 	}
-	client := accountsFromContext(ctx)
+	client := pb.NewAccountsService("go.micro.auth")
 
 	ns, err := namespace.Get(util.GetEnv(ctx).Name)
 	if err != nil {
@@ -103,8 +102,4 @@ func deleteAccount(ctx *cli.Context) error {
 	}
 
 	return nil
-}
-
-func accountsFromContext(ctx *cli.Context) pb.AccountsService {
-	return pb.NewAccountsService("go.micro.auth", muclient.DefaultClient)
 }

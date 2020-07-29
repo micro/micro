@@ -16,6 +16,9 @@ import (
 type Options struct {
 	Cmd cmd.Cmd
 
+	Name    string
+	Version string
+
 	// Before and After funcs
 	BeforeStart []func() error
 	BeforeStop  []func() error
@@ -58,6 +61,7 @@ func Address(addr string) Option {
 // Name of the service
 func Name(n string) Option {
 	return func(o *Options) {
+		o.Name = n
 		muserver.DefaultServer.Init(server.Name(n))
 	}
 }
@@ -65,6 +69,7 @@ func Name(n string) Option {
 // Version of the service
 func Version(v string) Option {
 	return func(o *Options) {
+		o.Version = v
 		muserver.DefaultServer.Init(server.Version(v))
 	}
 }

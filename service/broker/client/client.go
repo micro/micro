@@ -7,7 +7,6 @@ import (
 	"github.com/micro/go-micro/v3/broker"
 	"github.com/micro/go-micro/v3/client"
 	pb "github.com/micro/micro/v3/service/broker/proto"
-	muclient "github.com/micro/micro/v3/service/client"
 	"github.com/micro/micro/v3/service/logger"
 )
 
@@ -137,19 +136,9 @@ func NewBroker(opts ...broker.Option) broker.Broker {
 		addrs = []string{address}
 	}
 
-	cli := muclient.DefaultClient
-
-	// get options client from the context. We set this in the context to prevent an import loop, as
-	// the client depends on the broker
-	if options.Context != nil {
-		if c, ok := options.Context.Value(clientKey{}).(client.Client); ok {
-			cli = c
-		}
-	}
-
 	return &serviceBroker{
 		Addrs:   addrs,
-		Client:  pb.NewBrokerService(name, cli),
+		Client:  pb.NewBrokerService(name),
 		options: options,
 	}
 }

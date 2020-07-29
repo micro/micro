@@ -8,17 +8,12 @@ import (
 )
 
 func main() {
-	// New Service
-	srv := service.New(
-		service.Name("go.micro.service.logger"),
-	)
-
 	go func() {
 		for {
 			logger.Infof("This is a log line %s", time.Now())
-			time.Sleep(5 * time.Second)
+			time.Sleep(1 * time.Second)
 		}
 	}()
 
-	srv.Run()
+	service.Run()
 }

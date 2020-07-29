@@ -10,7 +10,6 @@ import (
 	"github.com/micro/go-micro/v3/util/token"
 	"github.com/micro/go-micro/v3/util/token/jwt"
 	pb "github.com/micro/micro/v3/service/auth/proto"
-	muclient "github.com/micro/micro/v3/service/client"
 )
 
 // srv is the service implementation of the Auth interface
@@ -29,17 +28,6 @@ func (s *srv) Init(opts ...auth.Option) {
 	for _, o := range opts {
 		o(&s.options)
 	}
-
-	cli := muclient.DefaultClient
-	if s.options.Context != nil {
-		if c, ok := s.options.Context.Value(clientKey{}).(client.Client); ok {
-			cli = c
-		}
-	}
-
-	s.auth = pb.NewAuthService("go.micro.auth", cli)
-	s.rules = pb.NewRulesService("go.micro.auth", cli)
-
 	s.setupJWT()
 }
 
@@ -297,16 +285,9 @@ func NewAuth(opts ...auth.Option) auth.Auth {
 		options.Addrs = []string{"127.0.0.1:8010"}
 	}
 
-	cli := muclient.DefaultClient
-	if options.Context != nil {
-		if c, ok := options.Context.Value(clientKey{}).(client.Client); ok {
-			cli = c
-		}
-	}
-
 	service := &srv{
-		auth:    pb.NewAuthService("go.micro.auth", cli),
-		rules:   pb.NewRulesService("go.micro.auth", cli),
+		auth:    pb.NewAuthService("go.micro.auth"),
+		rules:   pb.NewRulesService("go.micro.auth"),
 		options: options,
 	}
 	service.setupJWT()

@@ -5,7 +5,6 @@ import (
 	"github.com/micro/go-micro/v3/debug/log"
 	"github.com/micro/go-micro/v3/debug/log/kubernetes"
 	dservice "github.com/micro/go-micro/v3/debug/service"
-	"github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service"
 	logHandler "github.com/micro/micro/v3/service/debug/log/handler"
 	pblog "github.com/micro/micro/v3/service/debug/log/proto"
@@ -13,6 +12,7 @@ import (
 	pbstats "github.com/micro/micro/v3/service/debug/stats/proto"
 	tracehandler "github.com/micro/micro/v3/service/debug/trace/handler"
 	pbtrace "github.com/micro/micro/v3/service/debug/trace/proto"
+	"github.com/micro/micro/v3/service/logger"
 )
 
 const (
@@ -82,7 +82,7 @@ func Run(ctx *cli.Context) error {
 	}
 
 	// Register the logs handler
-	pblog.RegisterLogHandler(srv.Server(), lgHandler)
+	pblog.RegisterLogHandler(lgHandler)
 
 	// stats handler
 	statsHandler, err := statshandler.New(done, ctx.Int("window"), c.services)
@@ -97,9 +97,9 @@ func Run(ctx *cli.Context) error {
 	}
 
 	// Register the stats handler
-	pbstats.RegisterStatsHandler(srv.Server(), statsHandler)
+	pbstats.RegisterStatsHandler(statsHandler)
 	// register trace handler
-	pbtrace.RegisterTraceHandler(srv.Server(), traceHandler)
+	pbtrace.RegisterTraceHandler(traceHandler)
 
 	// TODO: implement debug service for k8s cruft
 

@@ -14,6 +14,8 @@ import (
 	api "github.com/micro/go-micro/v3/api"
 	client "github.com/micro/go-micro/v3/client"
 	server "github.com/micro/go-micro/v3/server"
+	microClient "github.com/micro/micro/v3/service/client"
+	microServer "github.com/micro/micro/v3/service/server"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -31,7 +33,8 @@ const _ = proto.ProtoPackageIsVersion3 // please upgrade the proto package
 var _ api.Endpoint
 var _ context.Context
 var _ client.Option
-var _ server.Option
+var _ = microServer.Handle
+var _ = microClient.Call
 
 // Api Endpoints for Alert service
 
@@ -47,21 +50,17 @@ type AlertService interface {
 }
 
 type alertService struct {
-	c    client.Client
 	name string
 }
 
-func NewAlertService(name string, c client.Client) AlertService {
-	return &alertService{
-		c:    c,
-		name: name,
-	}
+func NewAlertService(name string) AlertService {
+	return &alertService{name: name}
 }
 
 func (c *alertService) ReportEvent(ctx context.Context, in *ReportEventRequest, opts ...client.CallOption) (*ReportEventResponse, error) {
-	req := c.c.NewRequest(c.name, "Alert.ReportEvent", in)
+	req := microClient.NewRequest(c.name, "Alert.ReportEvent", in)
 	out := new(ReportEventResponse)
-	err := c.c.Call(ctx, req, out, opts...)
+	err := microClient.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -75,7 +74,7 @@ type AlertHandler interface {
 	ReportEvent(context.Context, *ReportEventRequest, *ReportEventResponse) error
 }
 
-func RegisterAlertHandler(s server.Server, hdlr AlertHandler, opts ...server.HandlerOption) error {
+func RegisterAlertHandler(hdlr AlertHandler, opts ...server.HandlerOption) error {
 	type alert interface {
 		ReportEvent(ctx context.Context, in *ReportEventRequest, out *ReportEventResponse) error
 	}
@@ -83,7 +82,7 @@ func RegisterAlertHandler(s server.Server, hdlr AlertHandler, opts ...server.Han
 		alert
 	}
 	h := &alertHandler{hdlr}
-	return s.Handle(s.NewHandler(&Alert{h}, opts...))
+	return microServer.Handle(microServer.NewHandler(&Alert{h}, opts...))
 }
 
 type alertHandler struct {

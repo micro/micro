@@ -19,7 +19,6 @@ import (
 	"github.com/micro/micro/v3/cmd"
 	"github.com/micro/micro/v3/internal/report"
 	pb "github.com/micro/micro/v3/platform/proto/signup"
-	muclient "github.com/micro/micro/v3/service/client"
 	"golang.org/x/crypto/ssh/terminal"
 )
 
@@ -38,7 +37,7 @@ func Signup(ctx *cli.Context) error {
 	}
 
 	// send a verification email to the user
-	signupService := pb.NewSignupService("go.micro.service.signup", muclient.DefaultClient)
+	signupService := pb.NewSignupService("go.micro.service.signup")
 	_, err := signupService.SendVerificationEmail(context.TODO(), &pb.SendVerificationEmailRequest{
 		Email: email,
 	}, cl.WithRequestTimeout(10*time.Second))
