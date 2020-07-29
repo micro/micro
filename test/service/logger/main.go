@@ -10,7 +10,7 @@ import (
 func init() {
 	go func() {
 		for {
-			logger.Info("These logs will happen until you stop me! Never stop never stopping!")
+			logger.Infof("This is a log line %s\n", time.Now())
 			time.Sleep(2 * time.Second)
 		}
 	}()
@@ -19,8 +19,7 @@ func init() {
 func main() {
 	// New Service
 	srv := service.New(
-		service.Name("go.micro.service.logspammer"),
-		service.Version("latest"),
+		service.Name("go.micro.service.logger"),
 	)
 	srv.Run()
 }
