@@ -12,19 +12,19 @@ import (
 )
 
 func TestConfig(t *testing.T) {
-	trySuite(t, testConfig, retryCount)
+	TrySuite(t, testConfig, retryCount)
 }
 
-func testConfig(t *t) {
+func testConfig(t *T) {
 	t.Parallel()
-	serv := newServer(t, withLogin())
-	defer serv.close()
-	if err := serv.launch(); err != nil {
+	serv := NewServer(t, WithLogin())
+	defer serv.Close()
+	if err := serv.Run(); err != nil {
 		return
 	}
 
-	if err := try("Calling micro config read", t, func() ([]byte, error) {
-		getCmd := exec.Command("micro", serv.envFlag(), "config", "get", "somekey")
+	if err := Try("Calling micro config read", t, func() ([]byte, error) {
+		getCmd := exec.Command("micro", serv.EnvFlag(), "config", "get", "somekey")
 		outp, err := getCmd.CombinedOutput()
 		if err == nil {
 			return outp, errors.New("config gete should fail")
@@ -33,15 +33,15 @@ func testConfig(t *t) {
 			return outp, fmt.Errorf("Output should be 'not found\n', got %v", string(outp))
 		}
 		return outp, nil
-	}, 5*time.Second); err != nil {
+	}, 5 * time.Second); err != nil {
 		return
 	}
 
 	// This needs to be retried to the the "error listing rules"
 	// error log output that happens when the auth service is not yet available.
 
-	if err := try("Calling micro config set", t, func() ([]byte, error) {
-		setCmd := exec.Command("micro", serv.envFlag(), "config", "set", "somekey", "val1")
+	if err := Try("Calling micro config set", t, func() ([]byte, error) {
+		setCmd := exec.Command("micro", serv.EnvFlag(), "config", "set", "somekey", "val1")
 		outp, err := setCmd.CombinedOutput()
 		if err != nil {
 			return outp, err
@@ -50,12 +50,12 @@ func testConfig(t *t) {
 			return outp, fmt.Errorf("Expected no output, got: %v", string(outp))
 		}
 		return outp, err
-	}, 5*time.Second); err != nil {
+	}, 5 * time.Second); err != nil {
 		return
 	}
 
-	if err := try("micro config get somekey", t, func() ([]byte, error) {
-		getCmd := exec.Command("micro", serv.envFlag(), "config", "get", "somekey")
+	if err := Try("micro config get somekey", t, func() ([]byte, error) {
+		getCmd := exec.Command("micro", serv.EnvFlag(), "config", "get", "somekey")
 		outp, err := getCmd.CombinedOutput()
 		if err != nil {
 			return outp, err
@@ -64,11 +64,11 @@ func testConfig(t *t) {
 			return outp, errors.New("Expected 'val1\n'")
 		}
 		return outp, err
-	}, 8*time.Second); err != nil {
+	}, 8 * time.Second); err != nil {
 		return
 	}
 
-	delCmd := exec.Command("micro", serv.envFlag(), "config", "del", "somekey")
+	delCmd := exec.Command("micro", serv.EnvFlag(), "config", "del", "somekey")
 	outp, err := delCmd.CombinedOutput()
 	if err != nil {
 		t.Fatalf(string(outp))
@@ -79,8 +79,8 @@ func testConfig(t *t) {
 		return
 	}
 
-	if err := try("micro config get somekey", t, func() ([]byte, error) {
-		getCmd := exec.Command("micro", serv.envFlag(), "config", "get", "somekey")
+	if err := Try("micro config get somekey", t, func() ([]byte, error) {
+		getCmd := exec.Command("micro", serv.EnvFlag(), "config", "get", "somekey")
 		outp, err = getCmd.CombinedOutput()
 		if err == nil {
 			return outp, errors.New("getting somekey should fail")
@@ -89,12 +89,12 @@ func testConfig(t *t) {
 			return outp, errors.New("Expected 'not found'")
 		}
 		return outp, nil
-	}, 8*time.Second); err != nil {
+	}, 8 * time.Second); err != nil {
 		return
 	}
 
 	// Testing dot notation
-	setCmd := exec.Command("micro", serv.envFlag(), "config", "set", "someotherkey.subkey", "otherval1")
+	setCmd := exec.Command("micro", serv.EnvFlag(), "config", "set", "someotherkey.subkey", "otherval1")
 	outp, err = setCmd.CombinedOutput()
 	if err != nil {
 		t.Fatal(err)
@@ -105,8 +105,8 @@ func testConfig(t *t) {
 		return
 	}
 
-	if err := try("micro config get someotherkey.subkey", t, func() ([]byte, error) {
-		getCmd := exec.Command("micro", serv.envFlag(), "config", "get", "someotherkey.subkey")
+	if err := Try("micro config get someotherkey.subkey", t, func() ([]byte, error) {
+		getCmd := exec.Command("micro", serv.EnvFlag(), "config", "get", "someotherkey.subkey")
 		outp, err = getCmd.CombinedOutput()
 		if err != nil {
 			return outp, err
@@ -115,27 +115,27 @@ func testConfig(t *t) {
 			return outp, errors.New("Expected 'otherval1\n'")
 		}
 		return outp, err
-	}, 8*time.Second); err != nil {
+	}, 8 * time.Second); err != nil {
 		return
 	}
 }
 
 func TestConfigReadFromService(t *testing.T) {
-	trySuite(t, testConfigReadFromService, retryCount)
+	TrySuite(t, testConfigReadFromService, retryCount)
 }
 
-func testConfigReadFromService(t *t) {
+func testConfigReadFromService(t *T) {
 	t.Parallel()
-	serv := newServer(t, withLogin())
-	defer serv.close()
-	if err := serv.launch(); err != nil {
+	serv := NewServer(t, WithLogin())
+	defer serv.Close()
+	if err := serv.Run(); err != nil {
 		return
 	}
 
 	// This needs to be retried to the the "error listing rules"
 	// error log output that happens when the auth service is not yet available.
-	if err := try("Calling micro config set", t, func() ([]byte, error) {
-		setCmd := exec.Command("micro", serv.envFlag(), "config", "set", "key.subkey", "val1")
+	if err := Try("Calling micro config set", t, func() ([]byte, error) {
+		setCmd := exec.Command("micro", serv.EnvFlag(), "config", "set", "key.subkey", "val1")
 		outp, err := setCmd.CombinedOutput()
 		if err != nil {
 			return outp, err
@@ -144,13 +144,13 @@ func testConfigReadFromService(t *t) {
 			return outp, fmt.Errorf("Expected no output, got: %v", string(outp))
 		}
 		return outp, err
-	}, 5*time.Second); err != nil {
+	}, 5 * time.Second); err != nil {
 		return
 	}
 
 	// check the value set correctly
-	if err := try("Calling micro config get", t, func() ([]byte, error) {
-		setCmd := exec.Command("micro", serv.envFlag(), "config", "get", "key")
+	if err := Try("Calling micro config get", t, func() ([]byte, error) {
+		setCmd := exec.Command("micro", serv.EnvFlag(), "config", "get", "key")
 		outp, err := setCmd.CombinedOutput()
 		if err != nil {
 			return outp, err
@@ -160,19 +160,19 @@ func testConfigReadFromService(t *t) {
 		}
 
 		return outp, err
-	}, 5*time.Second); err != nil {
+	}, 5 * time.Second); err != nil {
 		return
 	}
 
-	runCmd := exec.Command("micro", serv.envFlag(), "run", "./service/config")
+	runCmd := exec.Command("micro", serv.EnvFlag(), "run", "./service/config")
 	outp, err := runCmd.CombinedOutput()
 	if err != nil {
 		t.Fatalf("micro run failure, output: %v", string(outp))
 		return
 	}
 
-	if err := try("Try logs read", t, func() ([]byte, error) {
-		setCmd := exec.Command("micro", serv.envFlag(), "logs", "test/service/config")
+	if err := Try("Try logs read", t, func() ([]byte, error) {
+		setCmd := exec.Command("micro", serv.EnvFlag(), "logs", "test/service/config")
 		outp, err := setCmd.CombinedOutput()
 		if err != nil {
 			return outp, err
@@ -182,7 +182,7 @@ func testConfigReadFromService(t *t) {
 			return outp, fmt.Errorf("Expected val1 in output, got: %v", string(outp))
 		}
 		return outp, err
-	}, 20*time.Second); err != nil {
+	}, 20 * time.Second); err != nil {
 		return
 	}
 }
