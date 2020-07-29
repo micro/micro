@@ -15,7 +15,7 @@ import (
 	"time"
 
 	"github.com/micro/cli/v2"
-	log "github.com/micro/go-micro/v3/logger"
+	golog "github.com/micro/go-micro/v3/logger"
 	"github.com/micro/go-micro/v3/runtime"
 	"github.com/micro/go-micro/v3/runtime/local/git"
 	"github.com/micro/go-micro/v3/util/file"
@@ -23,6 +23,7 @@ import (
 	"github.com/micro/micro/v3/client/cli/util"
 	cliutil "github.com/micro/micro/v3/client/cli/util"
 	muclient "github.com/micro/micro/v3/service/client"
+	"github.com/micro/micro/v3/service/logger"
 	muruntime "github.com/micro/micro/v3/service/runtime"
 	"github.com/micro/micro/v3/service/runtime/server"
 	"google.golang.org/grpc/status"
@@ -463,7 +464,7 @@ const (
 )
 
 func getLogs(ctx *cli.Context) error {
-	log.Init(log.WithFields(map[string]interface{}{"service": "runtime"}))
+	logger.DefaultLogger.Init(golog.WithFields(map[string]interface{}{"service": "runtime"}))
 	if ctx.Args().Len() == 0 {
 		fmt.Println("Service name is required")
 		return nil

@@ -23,7 +23,7 @@ import (
 	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro/v3/auth"
 	"github.com/micro/go-micro/v3/cmd"
-	"github.com/micro/go-micro/v3/logger"
+	"github.com/micro/micro/v3/service/logger"
 	"github.com/micro/go-micro/v3/registry"
 	"github.com/micro/micro/v3/client/cli/util"
 	"github.com/micro/micro/v3/internal/helper"

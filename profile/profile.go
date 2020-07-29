@@ -13,7 +13,7 @@ import (
 	"github.com/micro/go-micro/v3/broker/nats"
 	"github.com/micro/go-micro/v3/client"
 	"github.com/micro/go-micro/v3/config"
-	"github.com/micro/go-micro/v3/logger"
+	"github.com/micro/micro/v3/service/logger"
 	"github.com/micro/go-micro/v3/registry"
 	"github.com/micro/go-micro/v3/registry/etcd"
 	"github.com/micro/go-micro/v3/registry/mdns"

@@ -4,7 +4,7 @@ import (
 	"net/url"
 
 	"github.com/micro/cli/v2"
-	"github.com/micro/go-micro/v3/logger"
+	"github.com/micro/micro/v3/service/logger"
 	snap "github.com/micro/micro/v3/service/store/snapshot"
 	"github.com/pkg/errors"
 )
