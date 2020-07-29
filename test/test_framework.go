@@ -34,12 +34,12 @@ var (
 type cmdFunc func() ([]byte, error)
 
 type Ports struct {
-	proxy int
-	api   int
+	Proxy int
+	Api   int
 }
 
 type Server interface {
-	Launch() error
+	Run() error
 	Close()
 	EnvFlag() string
 	Ports() Ports
@@ -211,7 +211,7 @@ func newLocalServer(t *T, fname string, opts ...Option) Server {
 	}}
 }
 
-func (s *testServerBase) Ports() Ports {
+func (s *ServerBase) Ports() Ports {
 	return Ports{
 		Proxy: s.portNum,
 		Api:   s.apiPortNum,
@@ -246,7 +246,7 @@ func (s *ServerBase) Run() error {
 		}
 
 		return outp, nil
-	}, 15 * time.Second); err != nil {
+	}, 15*time.Second); err != nil {
 		return err
 	}
 
@@ -320,7 +320,6 @@ type T struct {
 	values  []interface{}
 	t       *testing.T
 }
-
 
 // Failed indicate whether the test failed
 func (t *T) Failed() bool {
@@ -436,5 +435,5 @@ func Login(serv Server, t *T, email, password string) error {
 			return outp, errors.New("Login output does not contain 'Success'")
 		}
 		return outp, err
-	}, 4 * time.Second)
+	}, 4*time.Second)
 }

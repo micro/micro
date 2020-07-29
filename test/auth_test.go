@@ -41,7 +41,7 @@ func ServerAuth(t *T) {
 			return outp, fmt.Errorf("Output should contain default admin account")
 		}
 		return outp, nil
-	}, 15 * time.Second); err != nil {
+	}, 15*time.Second); err != nil {
 		return
 	}
 
@@ -55,7 +55,7 @@ func ServerAuth(t *T) {
 			return outp, fmt.Errorf("Output should contain default rule")
 		}
 		return outp, nil
-	}, 8 * time.Second); err != nil {
+	}, 8*time.Second); err != nil {
 		return
 	}
 
@@ -84,7 +84,7 @@ func ServerAuth(t *T) {
 			return outp, fmt.Errorf("Can't find access token")
 		}
 		return outp, nil
-	}, 8 * time.Second); err != nil {
+	}, 8*time.Second); err != nil {
 		return
 	}
 }
@@ -93,7 +93,7 @@ func TestServerLockdown(t *testing.T) {
 	TrySuite(t, testServerLockdown, retryCount)
 }
 
-func ServerLockdown(t *T) {
+func testServerLockdown(t *T) {
 	t.Parallel()
 	serv := NewServer(t)
 	defer serv.Close()
@@ -107,7 +107,7 @@ func ServerLockdown(t *T) {
 func lockdownSuite(serv Server, t *T) {
 	// Execute first command in read to wait for store service
 	// to start up
-	ns, err := namespace.Get(serv.envName())
+	ns, err := namespace.Get(serv.EnvName())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -121,7 +121,7 @@ func lockdownSuite(serv Server, t *T) {
 		t.Fatal(rsp, errors.New("store list should be closed"), val)
 	}
 
-	login(serv, t, "default", "password")
+	Login(serv, t, "default", "password")
 
 	email := "me@email.com"
 	pass := "mystrongpass"
@@ -162,7 +162,7 @@ func lockdownSuite(serv Server, t *T) {
 			return outp, errors.New("List rules should fail")
 		}
 		return outp, err
-	}, 31 * time.Second); err != nil {
+	}, 31*time.Second); err != nil {
 		return
 	}
 
@@ -177,13 +177,13 @@ func lockdownSuite(serv Server, t *T) {
 			return outp, errors.New("Can't find rules")
 		}
 		return outp, err
-	}, 31 * time.Second); err != nil {
+	}, 31*time.Second); err != nil {
 		return
 	}
 }
 
-func curl(serv testServer, path string) (map[string]interface{}, error) {
-	resp, err := http.Get(fmt.Sprintf("http://127.0.0.1:%v/%v", serv.ports().api, path))
+func curl(serv Server, path string) (map[string]interface{}, error) {
+	resp, err := http.Get(fmt.Sprintf("http://127.0.0.1:%v/%v", serv.Ports().Api, path))
 	if err != nil {
 		return nil, err
 	}
