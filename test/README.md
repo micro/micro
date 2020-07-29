@@ -90,9 +90,8 @@ Not all integration tests use a server so only a subset of the tests need to run
 
 #### Running a local registry
 If you prefer not having to push your images to docker hub for them to be pulled down by your Kind cluster, you can run a local registry and build and push your images to it. We have some handy scripts to get it working.
-1. `kind create cluster` - create the cluster
-2. `./scripts/kind-local-reg.sh` - install and run a local registry, set up the cluster to use it
-3. `./scripts/kind-build-micro.sh` - build and push micro to the local registry
-4. `./scripts/kind-launch.sh` - install micro in to the cluster
+1. `./scripts/kind-local-reg.sh` - install and run a local registry, set up and launch the cluster to use it
+2. `./scripts/kind-build-micro.sh` - build and push micro to the local registry
+3. `./scripts/kind-launch.sh` - install micro in to the cluster
 
 When you make any changes you can build and push using `kind-build-micro.sh` and then bounce all the micro pods `kubectl delete po -l micro=runtime` to pick up the new version.
