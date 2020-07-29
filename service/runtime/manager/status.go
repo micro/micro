@@ -6,9 +6,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/micro/go-micro/v3/logger"
 	gorun "github.com/micro/go-micro/v3/runtime"
 	"github.com/micro/go-micro/v3/store"
+	"github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/runtime"
 )
 

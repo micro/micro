@@ -7,7 +7,7 @@ import (
 	"strings"
 
 	ccli "github.com/micro/cli/v2"
-	log "github.com/micro/go-micro/v3/logger"
+	golog "github.com/micro/go-micro/v3/logger"
 	prox "github.com/micro/go-micro/v3/proxy"
 	"github.com/micro/go-micro/v3/proxy/grpc"
 	"github.com/micro/go-micro/v3/proxy/http"
@@ -17,6 +17,7 @@ import (
 	"github.com/micro/micro/v3/cmd"
 	"github.com/micro/micro/v3/plugin"
 	"github.com/micro/micro/v3/service"
+	log "github.com/micro/micro/v3/service/logger"
 	muruntime "github.com/micro/micro/v3/service/runtime"
 
 	// services
@@ -200,7 +201,7 @@ func init() {
 	newAction := func(c srvCommand) func(ctx *ccli.Context) error {
 		return func(ctx *ccli.Context) error {
 			// configure the logger
-			log.Init(log.WithFields(map[string]interface{}{"service": c.Name}))
+			log.DefaultLogger.Init(golog.WithFields(map[string]interface{}{"service": c.Name}))
 
 			// run the service
 			c.Command(ctx)

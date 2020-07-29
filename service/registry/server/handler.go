@@ -5,10 +5,10 @@ import (
 	"time"
 
 	"github.com/micro/go-micro/v3/errors"
-	log "github.com/micro/go-micro/v3/logger"
 	goregistry "github.com/micro/go-micro/v3/registry"
 	"github.com/micro/micro/v3/internal/namespace"
 	"github.com/micro/micro/v3/service"
+	log "github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/registry"
 	pb "github.com/micro/micro/v3/service/registry/proto"
 	"github.com/micro/micro/v3/service/registry/util"

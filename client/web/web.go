@@ -30,7 +30,6 @@ import (
 	"github.com/micro/go-micro/v3/api/server/cors"
 	httpapi "github.com/micro/go-micro/v3/api/server/http"
 	goauth "github.com/micro/go-micro/v3/auth"
-	log "github.com/micro/go-micro/v3/logger"
 	"github.com/micro/go-micro/v3/registry"
 	"github.com/micro/go-micro/v3/router"
 	regRouter "github.com/micro/go-micro/v3/router/registry"
@@ -43,6 +42,7 @@ import (
 	"github.com/micro/micro/v3/internal/resolver/web"
 	"github.com/micro/micro/v3/internal/stats"
 	"github.com/micro/micro/v3/service"
+	log "github.com/micro/micro/v3/service/logger"
 	muregistry "github.com/micro/micro/v3/service/registry"
 	"github.com/serenize/snaker"
 )

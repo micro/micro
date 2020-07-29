@@ -10,7 +10,7 @@ import (
 	goclient "github.com/micro/go-micro/v3/client"
 	debug "github.com/micro/go-micro/v3/debug/service/proto"
 	"github.com/micro/go-micro/v3/errors"
-	log "github.com/micro/go-micro/v3/logger"
+	log "github.com/micro/micro/v3/service/logger"
 	"github.com/micro/go-micro/v3/registry"
 	"github.com/micro/go-micro/v3/util/ring"
 	"github.com/micro/micro/v3/service/client"

@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/fsnotify/fsnotify"
-	log "github.com/micro/go-micro/v3/logger"
+	log "github.com/micro/micro/v3/service/logger"
 	"github.com/micro/go-micro/v3/runtime"
 )
 

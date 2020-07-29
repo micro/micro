@@ -8,7 +8,7 @@ import (
 
 	"github.com/micro/go-micro/v3/client"
 	debug "github.com/micro/go-micro/v3/debug/service/handler"
-	"github.com/micro/go-micro/v3/logger"
+	"github.com/micro/micro/v3/service/logger"
 	"github.com/micro/go-micro/v3/model"
 	"github.com/micro/go-micro/v3/server"
 	"github.com/micro/go-micro/v3/store"

@@ -4,7 +4,7 @@ import (
 	"os"
 	"path"
 
-	log "github.com/micro/go-micro/v3/logger"
+	log "github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service"
 	plugin "github.com/micro/micro/v3/service/debug/collector/micro"
 	"github.com/netdata/go-orchestrator"

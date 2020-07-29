@@ -1,13 +1,13 @@
 package manager
 
 import (
-	"github.com/micro/go-micro/v3/logger"
 	gorun "github.com/micro/go-micro/v3/runtime"
 	"github.com/micro/go-micro/v3/store"
 	cachest "github.com/micro/go-micro/v3/store/cache"
 	filest "github.com/micro/go-micro/v3/store/file"
 	"github.com/micro/go-micro/v3/store/memory"
 	"github.com/micro/micro/v3/internal/namespace"
+	"github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/runtime"
 )
 

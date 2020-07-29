@@ -11,11 +11,11 @@ import (
 	"github.com/micro/go-micro/v3/api/resolver/subdomain"
 	"github.com/micro/go-micro/v3/api/server"
 	goauth "github.com/micro/go-micro/v3/auth"
-	"github.com/micro/go-micro/v3/logger"
 	"github.com/micro/go-micro/v3/util/ctx"
 	inauth "github.com/micro/micro/v3/internal/auth"
 	"github.com/micro/micro/v3/internal/namespace"
 	"github.com/micro/micro/v3/service/auth"
+	"github.com/micro/micro/v3/service/logger"
 )
 
 // Wrapper wraps a handler and authenticates requests
