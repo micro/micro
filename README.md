@@ -65,9 +65,6 @@ Create a service
 # generate a service (follow instructions in output)
 micro new helloworld
 
-# set to use server
-micro env set server
-
 # run the service
 micro run helloworld
 
