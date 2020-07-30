@@ -9,6 +9,7 @@ import (
 	"text/tabwriter"
 
 	"github.com/micro/cli/v2"
+	"github.com/micro/go-micro/v3/client"
 	"github.com/micro/micro/v3/client/cli/namespace"
 	"github.com/micro/micro/v3/client/cli/util"
 	pb "github.com/micro/micro/v3/service/auth/proto"
@@ -69,7 +70,7 @@ func createRule(ctx *cli.Context) error {
 
 	_, err = pb.NewRulesService("go.micro.auth").Create(context.TODO(), &pb.CreateRequest{
 		Rule: rule, Options: &pb.Options{Namespace: ns},
-	})
+	}, client.WithServiceToken())
 	if verr := errors.Parse(err); verr != nil {
 		return fmt.Errorf("Error: %v", verr.Detail)
 	} else if err != nil {
@@ -92,8 +93,8 @@ func deleteRule(ctx *cli.Context) error {
 
 	_, err = pb.NewRulesService("go.micro.auth").Delete(context.TODO(), &pb.DeleteRequest{
 		Id: ctx.Args().First(), Options: &pb.Options{Namespace: ns},
-	})
-	if verr := errors.Parse(err); verr != nil {
+	}, client.WithServiceToken())
+	if verr := errors.Parse(err); err != nil {
 		return fmt.Errorf("Error: %v", verr.Detail)
 	} else if err != nil {
 		return err

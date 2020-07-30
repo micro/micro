@@ -138,7 +138,7 @@ func lockdownSuite(serv Server, t *T) {
 		return
 	}
 
-	outp, err = exec.Command("micro", serv.EnvFlag(), "auth", "create", "rule", "--access=granted", "--scope=''", "authpublic").CombinedOutput()
+	outp, err = exec.Command("micro", serv.EnvFlag(), "auth", "create", "rule", "--access=granted", "--scope=''", "--resource='*:*:*'", "authpublic").CombinedOutput()
 	if err != nil {
 		t.Fatal(string(outp), err)
 		return
