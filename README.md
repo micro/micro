@@ -15,7 +15,7 @@ The framework is composed of the following features:
 - **Server:** A distributed systems runtime server composed of building block services which abstract away the underlying infrastructure 
 and provide a programmable abstraction layer. Authentication, configuration, messaging, storage and more built in.
 
-- **Client:** Multiple entrypoints through which you can access your services. Write services once and access them through every means 
+- **Clients:** Multiple entrypoints through which you can access your services. Write services once and access them through every means 
 you've already come to know. An API Gateway, gRPC proxy, slack bot, web dashboard and commmand line interface.
 
 - **Library:** A Go library which makes it drop dead simple to write your services without having to piece together lines and lines of 
