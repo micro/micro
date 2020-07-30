@@ -9,19 +9,23 @@ import (
 	"strings"
 
 	"github.com/micro/cli/v2"
-	"github.com/micro/go-micro/v2/client"
-	"github.com/micro/go-micro/v2/cmd"
-	"github.com/micro/go-micro/v2/registry"
-	"github.com/micro/micro/v2/client/cli/namespace"
-	"github.com/micro/micro/v2/client/cli/util"
-	inclient "github.com/micro/micro/v2/internal/client"
+	goclient "github.com/micro/go-micro/v3/client"
+	goregistry "github.com/micro/go-micro/v3/registry"
+	"github.com/micro/micro/v3/client/cli/namespace"
+	"github.com/micro/micro/v3/client/cli/util"
+	"github.com/micro/micro/v3/service/client"
+	"github.com/micro/micro/v3/service/registry"
 )
 
 // lookupService queries the service for a service with the given alias. If
 // no services are found for a given alias, the registry will return nil and
 // the error will also be nil. An error is only returned if there was an issue
 // listing from the registry.
-func lookupService(ctx *cli.Context) (*registry.Service, error) {
+func lookupService(ctx *cli.Context) (*goregistry.Service, error) {
+	// use the first arg as the name, e.g. "micro helloworld foo"
+	// would try to call the helloworld service
+	name := ctx.Args().Get(1)
+
 	// get the namespace to query the services from
 	dom, err := namespace.Get(util.GetEnv(ctx).Name)
 	if err != nil {
@@ -29,47 +33,21 @@ func lookupService(ctx *cli.Context) (*registry.Service, error) {
 	}
 
 	// lookup from the registry in the current namespace
-	reg := *cmd.DefaultCmd.Options().Registry
-	srvs, err := reg.ListServices(registry.ListDomain(dom))
-	if err != nil {
+	if srv, err := serviceWithName(name, dom); err != nil {
 		return nil, err
-	}
-
-	// filter to services with the correct suffix
-	for _, s := range srvs {
-		if strings.HasSuffix(s.Name, "."+ctx.Args().First()) {
-			srvs, err = reg.GetService(s.Name, registry.GetDomain(dom))
-			if err == nil && len(srvs) > 0 {
-				return srvs[0], nil
-			}
-		}
+	} else if srv != nil {
+		return srv, nil
 	}
 
 	// check for the service in the default namespace also
-	if dom == registry.DefaultDomain {
+	if dom == goregistry.DefaultDomain {
 		return nil, nil
 	}
-	srvs, err = reg.ListServices()
-	if err != nil {
-		return nil, err
-	}
-
-	// filter to services with the correct suffix
-	for _, s := range srvs {
-		if strings.HasSuffix(s.Name, "."+ctx.Args().First()) {
-			srvs, err = reg.GetService(s.Name, registry.GetDomain(dom))
-			if err == nil && len(srvs) > 0 {
-				return srvs[0], nil
-			}
-		}
-	}
-
-	// no service was found
-	return nil, nil
+	return serviceWithName(name, goregistry.DefaultDomain)
 }
 
 // formatServiceUsage returns a string containing the service usage.
-func formatServiceUsage(srv *registry.Service, alias string) string {
+func formatServiceUsage(srv *goregistry.Service, alias string) string {
 	commands := make([]string, len(srv.Endpoints))
 	for i, e := range srv.Endpoints {
 		// map "Helloworld.Call" to "helloworld.call"
@@ -98,7 +76,7 @@ func formatServiceUsage(srv *registry.Service, alias string) string {
 // callService will call a service using the arguments and flags provided
 // in the context. It will print the result or error to stdout. If there
 // was an error performing the call, it will be returned.
-func callService(srv *registry.Service, ctx *cli.Context) error {
+func callService(srv *goregistry.Service, ctx *cli.Context) error {
 	// parse the flags and args
 	args, flags, err := splitCmdArgs(ctx)
 	if err != nil {
@@ -112,7 +90,7 @@ func callService(srv *registry.Service, ctx *cli.Context) error {
 	}
 
 	// ensure the endpoint exists on the service
-	var ep *registry.Endpoint
+	var ep *goregistry.Endpoint
 	for _, e := range srv.Endpoints {
 		if e.Name == endpoint {
 			ep = e
@@ -130,13 +108,9 @@ func callService(srv *registry.Service, ctx *cli.Context) error {
 	}
 
 	// construct and execute the request using the json content type
-	cli, err := inclient.New(ctx)
-	if err != nil {
-		return err
-	}
-	req := cli.NewRequest(srv.Name, endpoint, body, client.WithContentType("application/json"))
+	req := client.NewRequest(srv.Name, endpoint, body, goclient.WithContentType("application/json"))
 	var rsp json.RawMessage
-	if err := cli.Call(ctx.Context, req, &rsp); err != nil {
+	if err := client.Call(ctx.Context, req, &rsp); err != nil {
 		return err
 	}
 
@@ -197,7 +171,7 @@ func constructEndpoint(args []string) (string, error) {
 // flagsToRequeest parses a set of flags, e.g {name:"Foo", "options_surname","Bar"} and
 // converts it into a request body. If the key is not a valid object in the request, an
 // error will be returned.
-func flagsToRequest(flags map[string]string, req *registry.Value) (map[string]interface{}, error) {
+func flagsToRequest(flags map[string]string, req *goregistry.Value) (map[string]interface{}, error) {
 	result := map[string]interface{}{}
 
 loop:
@@ -232,4 +206,41 @@ loop:
 	}
 
 	return result, nil
+}
+
+// find a service in a domain matching the name
+func serviceWithName(name, domain string) (*goregistry.Service, error) {
+	// lookup the services in this domain
+	srvs, err := registry.ListServices(goregistry.ListDomain(domain))
+	if err != nil {
+		return nil, err
+	}
+
+	for _, s := range srvs {
+		// check for exact match
+		if s.Name == name {
+			return getService(s.Name, domain)
+		}
+
+		// check for suffix, e.g. "foo.bar" would match for "bar", but
+		// foobar would not.
+		if strings.HasSuffix(s.Name, "."+name) {
+			return getService(s.Name, domain)
+		}
+	}
+
+	return nil, nil
+}
+
+// getService from the registry since List doesn't return all the details
+// such as endpoints.
+func getService(name, domain string) (*goregistry.Service, error) {
+	srvs, err := registry.GetService(name, goregistry.GetDomain(domain))
+	if err != nil {
+		return nil, err
+	}
+	if len(srvs) == 0 {
+		return nil, goregistry.ErrNotFound
+	}
+	return srvs[0], nil
 }

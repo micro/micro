@@ -81,9 +81,17 @@ To run the k8s integration tests locally you need to first install the pre-reqs:
 
 #### Running the tests
 The tests can then be run:
-1. `kind create cluster`
-2. `./scripts/kind-launch.sh`
-3. `cd tests && go clean -testcache && IN_TRAVIS_CI=yes go test --tags=integration,kind -v ./...`
+1. `kind create cluster` - create the cluster
+2. `./scripts/kind-launch.sh` - install micro in to the cluster
+3. `cd tests && go clean -testcache && IN_TRAVIS_CI=yes go test --tags=integration,kind -v ./...` - run the tests
 
 #### Adding more tests
 Not all integration tests use a server so only a subset of the tests need to run against our Kind cluster. New tests should be defined in the usual way and then added to the `testFilter` slice defined near the top of [kind.go](kind.go). This is the list of all tests to be run against Kind. 
+
+#### Running a local registry
+If you prefer not having to push your images to docker hub for them to be pulled down by your Kind cluster, you can run a local registry and build and push your images to it. We have some handy scripts to get it working.
+1. `./scripts/kind-local-reg.sh` - install and run a local registry, set up and launch the cluster to use it
+2. `./scripts/kind-build-micro.sh` - build and push micro to the local registry
+3. `./scripts/kind-launch.sh` - install micro in to the cluster
+
+When you make any changes you can build and push using `kind-build-micro.sh` and then bounce all the micro pods `kubectl delete po -l micro=runtime` to pick up the new version.

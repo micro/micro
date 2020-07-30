@@ -9,15 +9,15 @@ import (
 	"text/tabwriter"
 
 	"github.com/micro/cli/v2"
-	"github.com/micro/go-micro/v2/auth"
-	pb "github.com/micro/go-micro/v2/auth/service/proto"
-	"github.com/micro/micro/v2/client/cli/namespace"
-	"github.com/micro/micro/v2/client/cli/util"
-	"github.com/micro/micro/v2/internal/client"
+	goauth "github.com/micro/go-micro/v3/auth"
+	"github.com/micro/micro/v3/client/cli/namespace"
+	"github.com/micro/micro/v3/client/cli/util"
+	"github.com/micro/micro/v3/service/auth"
+	pb "github.com/micro/micro/v3/service/auth/proto"
 )
 
 func listAccounts(ctx *cli.Context) error {
-	client := accountsFromContext(ctx)
+	client := pb.NewAccountsService("go.micro.auth")
 
 	ns, err := namespace.Get(util.GetEnv(ctx).Name)
 	if err != nil {
@@ -65,17 +65,12 @@ func createAccount(ctx *cli.Context) error {
 		return fmt.Errorf("Error getting namespace: %v", err)
 	}
 
-	options := []auth.GenerateOption{auth.WithIssuer(ns)}
+	options := []goauth.GenerateOption{goauth.WithIssuer(ns)}
 	if len(ctx.StringSlice("scopes")) > 0 {
-		options = append(options, auth.WithScopes(ctx.StringSlice("scopes")...))
+		options = append(options, goauth.WithScopes(ctx.StringSlice("scopes")...))
 	}
 	if len(ctx.String("secret")) > 0 {
-		options = append(options, auth.WithSecret(ctx.String("secret")))
-	}
-	auth, err := authFromContext(ctx)
-	if err != nil {
-		fmt.Printf("Error getting auth: %v\n", err)
-		os.Exit(1)
+		options = append(options, goauth.WithSecret(ctx.String("secret")))
 	}
 	acc, err := auth.Generate(ctx.Args().First(), options...)
 	if err != nil {
@@ -91,7 +86,7 @@ func deleteAccount(ctx *cli.Context) error {
 	if ctx.Args().Len() == 0 {
 		return fmt.Errorf("Missing argument: ID")
 	}
-	client := accountsFromContext(ctx)
+	client := pb.NewAccountsService("go.micro.auth")
 
 	ns, err := namespace.Get(util.GetEnv(ctx).Name)
 	if err != nil {
@@ -107,13 +102,4 @@ func deleteAccount(ctx *cli.Context) error {
 	}
 
 	return nil
-}
-
-func accountsFromContext(ctx *cli.Context) pb.AccountsService {
-	cli, err := client.New(ctx)
-	if err != nil {
-		fmt.Printf("Error: %s\n", err)
-		os.Exit(1)
-	}
-	return pb.NewAccountsService("go.micro.auth", cli)
 }

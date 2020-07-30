@@ -1,45 +1,40 @@
 package config
 
 import (
-	"github.com/micro/cli/v2"
-	proto "github.com/micro/go-micro/v2/config/source/service/proto"
-	"github.com/micro/go-micro/v2/logger"
-	"github.com/micro/go-micro/v2/store"
-	"github.com/micro/micro/v2/service"
-	"github.com/micro/micro/v2/service/config/handler"
+	"github.com/micro/go-micro/v3/config"
+	"github.com/micro/go-micro/v3/config/reader"
 )
 
-const (
-	name = "go.micro.config"
-)
+// DefaultConfig implementation. Setup in the cmd package, this will
+// be refactored following the updated config interface.
+var DefaultConfig config.Config
 
-var (
-	// Flags specific to the config service
-	Flags = []cli.Flag{
-		&cli.StringFlag{
-			Name:    "watch_topic",
-			EnvVars: []string{"MICRO_CONFIG_WATCH_TOPIC"},
-			Usage:   "watch the change event.",
-		},
-	}
-)
+// Bytes representation of config
+func Bytes() []byte {
+	return DefaultConfig.Bytes()
+}
 
-// Run micro config
-func Run(c *cli.Context) error {
-	if len(c.String("watch_topic")) > 0 {
-		handler.WatchTopic = c.String("watch_topic")
-	}
+// Get a value at the path
+func Get(path ...string) reader.Value {
+	return DefaultConfig.Get(path...)
+}
 
-	srv := service.New(service.Name(name))
+// Set the value at a path
+func Set(val interface{}, path ...string) {
+	DefaultConfig.Set(val)
+}
 
-	srv.Options().Store.Init(store.Table("config"))
-	h := &handler.Config{Store: srv.Options().Store}
+// Delete the value at a path
+func Delete(path ...string) {
+	DefaultConfig.Del(path...)
+}
 
-	proto.RegisterConfigHandler(srv.Server(), h)
-	service.RegisterSubscriber(handler.WatchTopic, srv.Server(), handler.Watcher)
+// Map represesentation of config
+func Map() map[string]interface{} {
+	return DefaultConfig.Map()
+}
 
-	if err := srv.Run(); err != nil {
-		logger.Fatal(err)
-	}
-	return nil
+// Scan config into the value provided
+func Scan(v interface{}) error {
+	return DefaultConfig.Scan(v)
 }

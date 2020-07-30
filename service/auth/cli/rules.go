@@ -9,15 +9,14 @@ import (
 	"text/tabwriter"
 
 	"github.com/micro/cli/v2"
-	pb "github.com/micro/go-micro/v2/auth/service/proto"
-	"github.com/micro/go-micro/v2/errors"
-	"github.com/micro/micro/v2/client/cli/namespace"
-	"github.com/micro/micro/v2/client/cli/util"
-	"github.com/micro/micro/v2/internal/client"
+	"github.com/micro/micro/v3/client/cli/namespace"
+	"github.com/micro/micro/v3/client/cli/util"
+	pb "github.com/micro/micro/v3/service/auth/proto"
+	"github.com/micro/micro/v3/service/errors"
 )
 
 func listRules(ctx *cli.Context) error {
-	client := rulesFromContext(ctx)
+	client := pb.NewRulesService("go.micro.auth")
 
 	ns, err := namespace.Get(util.GetEnv(ctx).Name)
 	if err != nil {
@@ -68,10 +67,10 @@ func createRule(ctx *cli.Context) error {
 		return err
 	}
 
-	_, err = rulesFromContext(ctx).Create(context.TODO(), &pb.CreateRequest{
+	_, err = pb.NewRulesService("go.micro.auth").Create(context.TODO(), &pb.CreateRequest{
 		Rule: rule, Options: &pb.Options{Namespace: ns},
 	})
-	if verr, ok := err.(*errors.Error); ok {
+	if verr := errors.Parse(err); verr != nil {
 		return fmt.Errorf("Error: %v", verr.Detail)
 	} else if err != nil {
 		return err
@@ -91,10 +90,10 @@ func deleteRule(ctx *cli.Context) error {
 		return fmt.Errorf("Error getting namespace: %v", err)
 	}
 
-	_, err = rulesFromContext(ctx).Delete(context.TODO(), &pb.DeleteRequest{
+	_, err = pb.NewRulesService("go.micro.auth").Delete(context.TODO(), &pb.DeleteRequest{
 		Id: ctx.Args().First(), Options: &pb.Options{Namespace: ns},
 	})
-	if verr, ok := err.(*errors.Error); ok {
+	if verr := errors.Parse(err); verr != nil {
 		return fmt.Errorf("Error: %v", verr.Detail)
 	} else if err != nil {
 		return err
@@ -135,13 +134,4 @@ func constructRule(ctx *cli.Context) (*pb.Rule, error) {
 			Endpoint: resComps[2],
 		},
 	}, nil
-}
-
-func rulesFromContext(ctx *cli.Context) pb.RulesService {
-	cli, err := client.New(ctx)
-	if err != nil {
-		fmt.Printf("Error: %s\n", err)
-		os.Exit(1)
-	}
-	return pb.NewRulesService("go.micro.auth", cli)
 }

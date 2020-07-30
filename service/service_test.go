@@ -6,10 +6,9 @@ import (
 	"sync"
 	"testing"
 
-	"github.com/micro/go-micro/v2/client"
-	proto "github.com/micro/go-micro/v2/debug/service/proto"
-	"github.com/micro/go-micro/v2/registry/memory"
-	"github.com/micro/go-micro/v2/util/test"
+	"github.com/micro/go-micro/v3/client"
+	proto "github.com/micro/go-micro/v3/debug/service/proto"
+	"github.com/micro/micro/v3/profile"
 )
 
 func testShutdown(wg *sync.WaitGroup, cancel func()) {
@@ -22,16 +21,14 @@ func testShutdown(wg *sync.WaitGroup, cancel func()) {
 }
 
 func testService(ctx context.Context, wg *sync.WaitGroup, name string) *Service {
+	profile.Test.Setup(nil)
+
 	// add self
 	wg.Add(1)
-
-	r := memory.NewRegistry(memory.Services(test.Data))
 
 	// create service
 	return New(
 		Name(name),
-		Context(ctx),
-		Registry(r),
 		AfterStart(func() error {
 			wg.Done()
 			return nil
@@ -63,36 +60,6 @@ func testRequest(ctx context.Context, c client.Client, name string) error {
 	}
 
 	return nil
-}
-
-// TestService tests running and calling a service
-func TestService(t *testing.T) {
-	// waitgroup for server start
-	var wg sync.WaitGroup
-
-	// cancellation context
-	ctx, cancel := context.WithCancel(context.Background())
-
-	// start test server
-	service := testService(ctx, &wg, "test.service")
-
-	go func() {
-		// wait for service to start
-		wg.Wait()
-
-		// make a test call
-		if err := testRequest(ctx, service.Client(), "test.service"); err != nil {
-			t.Fatal(err)
-		}
-
-		// shutdown the service
-		testShutdown(&wg, cancel)
-	}()
-
-	// start service
-	if err := service.Run(); err != nil {
-		t.Fatal(err)
-	}
 }
 
 func benchmarkService(b *testing.B, n int, name string) {

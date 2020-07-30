@@ -2,117 +2,36 @@
 package runtime
 
 import (
-	"os"
-
-	"github.com/micro/cli/v2"
-	"github.com/micro/go-micro/v2/cmd"
-	log "github.com/micro/go-micro/v2/logger"
-	"github.com/micro/go-micro/v2/runtime"
-	pb "github.com/micro/go-micro/v2/runtime/service/proto"
-	"github.com/micro/micro/v2/service"
-	"github.com/micro/micro/v2/service/runtime/handler"
-	"github.com/micro/micro/v2/service/runtime/manager"
-	"github.com/micro/micro/v2/service/runtime/profile"
+	"github.com/micro/go-micro/v3/runtime"
+	"github.com/micro/micro/v3/service/runtime/client"
 )
 
 var (
-	// name of the runtime
-	name = "go.micro.runtime"
-	// address of the runtime
-	address = ":8088"
-
-	// Flags specific to the runtime service
-	Flags = []cli.Flag{
-		&cli.StringFlag{
-			Name:    "profile",
-			Usage:   "Set the runtime profile to use for services e.g local, kubernetes, platform",
-			EnvVars: []string{"MICRO_RUNTIME_PROFILE"},
-		},
-		&cli.StringFlag{
-			Name:    "source",
-			Usage:   "Set the runtime source, e.g. micro/services",
-			EnvVars: []string{"MICRO_RUNTIME_SOURCE"},
-		},
-		&cli.IntFlag{
-			Name:    "retries",
-			Usage:   "Set the max retries per service",
-			EnvVars: []string{"MICRO_RUNTIME_RETRIES"},
-		},
-	}
+	// DefaultRuntime implementation
+	DefaultRuntime runtime.Runtime = client.NewRuntime()
 )
 
-// Run the runtime service
-func Run(ctx *cli.Context) error {
-	// Get the profile
-	var prof []string
-	switch ctx.String("profile") {
-	case "local":
-		prof = profile.Local()
-	case "server":
-		prof = profile.Server()
-	case "kubernetes":
-		prof = profile.Kubernetes()
-	case "platform":
-		prof = profile.Platform()
-	default:
-		log.Fatal("Missing runtime profile")
-	}
+// Create registers a service
+func Create(srv *runtime.Service, opts ...runtime.CreateOption) error {
+	return DefaultRuntime.Create(srv, opts...)
+}
 
-	if len(ctx.String("address")) > 0 {
-		address = ctx.String("address")
-	}
+// Read returns the service
+func Read(opts ...runtime.ReadOption) ([]*runtime.Service, error) {
+	return DefaultRuntime.Read(opts...)
+}
 
-	if len(ctx.String("server_name")) > 0 {
-		name = ctx.String("server_name")
-	}
+// Update the service in place
+func Update(srv *runtime.Service, opts ...runtime.UpdateOption) error {
+	return DefaultRuntime.Update(srv, opts...)
+}
 
-	var srvOpts []service.Option
-	if len(address) > 0 {
-		srvOpts = append(srvOpts, service.Address(address))
-	}
+// Delete a service
+func Delete(srv *runtime.Service, opts ...runtime.DeleteOption) error {
+	return DefaultRuntime.Delete(srv, opts...)
+}
 
-	// create runtime
-	muRuntime := *cmd.DefaultCmd.Options().Runtime
-	if ctx.IsSet("source") {
-		muRuntime.Init(runtime.WithSource(ctx.String("source")))
-	}
-
-	// append name
-	srvOpts = append(srvOpts, service.Name(name))
-
-	// new service
-	srv := service.New(srvOpts...)
-
-	// create a new runtime manager
-	manager := manager.New(muRuntime,
-		manager.Auth(srv.Options().Auth),
-		manager.Store(srv.Options().Store),
-		manager.Profile(prof),
-		manager.CacheStore(srv.Options().Store),
-	)
-
-	// start the manager
-	if err := manager.Start(); err != nil {
-		log.Errorf("failed to start: %s", err)
-		os.Exit(1)
-	}
-
-	// register the runtime handler
-	pb.RegisterRuntimeHandler(srv.Server(), &handler.Runtime{
-		Event:   service.NewEvent("go.micro.runtime.events", srv.Client()),
-		Runtime: manager,
-	})
-
-	// start runtime service
-	if err := srv.Run(); err != nil {
-		log.Errorf("error running service: %v", err)
-	}
-
-	// stop the manager
-	if err := manager.Stop(); err != nil {
-		log.Errorf("failed to stop: %s", err)
-		os.Exit(1)
-	}
-
-	return nil
+// Logs returns the logs for a service
+func Logs(srv *runtime.Service, opts ...runtime.LogsOption) (runtime.LogStream, error) {
+	return DefaultRuntime.Logs(srv, opts...)
 }

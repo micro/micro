@@ -1,21 +1,22 @@
 package manager
 
 import (
-	"github.com/micro/go-micro/v2/auth"
-	"github.com/micro/go-micro/v2/logger"
-	"github.com/micro/go-micro/v2/runtime"
+	goauth "github.com/micro/go-micro/v3/auth"
+	"github.com/micro/go-micro/v3/runtime"
+	"github.com/micro/micro/v3/service/auth"
+	"github.com/micro/micro/v3/service/logger"
 )
 
-func (m *manager) generateAccount(srv *runtime.Service, ns string) (*auth.Account, error) {
+func (m *manager) generateAccount(srv *runtime.Service, ns string) (*goauth.Account, error) {
 	accName := srv.Name + "-" + srv.Version
 
-	opts := []auth.GenerateOption{
-		auth.WithIssuer(ns),
-		auth.WithScopes("service"),
-		auth.WithType("service"),
+	opts := []goauth.GenerateOption{
+		goauth.WithIssuer(ns),
+		goauth.WithScopes("service"),
+		goauth.WithType("service"),
 	}
 
-	acc, err := m.options.Auth.Generate(accName, opts...)
+	acc, err := auth.Generate(accName, opts...)
 	if err != nil {
 		if logger.V(logger.WarnLevel, logger.DefaultLogger) {
 			logger.Warnf("Error generating account %v: %v", accName, err)

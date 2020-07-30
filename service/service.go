@@ -2,127 +2,90 @@ package service
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"os"
 	"os/signal"
-	rtime "runtime"
-	"strings"
-	"sync"
+	"runtime"
 
-	"github.com/micro/go-micro/v2/auth"
-	"github.com/micro/go-micro/v2/client"
-	"github.com/micro/go-micro/v2/cmd"
-	"github.com/micro/go-micro/v2/debug/service/handler"
-	"github.com/micro/go-micro/v2/debug/stats"
-	"github.com/micro/go-micro/v2/debug/trace"
-	"github.com/micro/go-micro/v2/logger"
-	"github.com/micro/go-micro/v2/model"
-	"github.com/micro/go-micro/v2/plugin"
-	"github.com/micro/go-micro/v2/server"
-	"github.com/micro/go-micro/v2/store"
-	signalutil "github.com/micro/go-micro/v2/util/signal"
-	"github.com/micro/go-micro/v2/util/wrapper"
-	// used to setup defaults
+	"github.com/micro/cli/v2"
+	"github.com/micro/go-micro/v3/client"
+	debug "github.com/micro/go-micro/v3/debug/service/handler"
+	"github.com/micro/go-micro/v3/model"
+	"github.com/micro/go-micro/v3/server"
+	"github.com/micro/go-micro/v3/store"
+	signalutil "github.com/micro/go-micro/v3/util/signal"
+	"github.com/micro/micro/v3/cmd"
+	muclient "github.com/micro/micro/v3/service/client"
+	mudebug "github.com/micro/micro/v3/service/debug"
+	"github.com/micro/micro/v3/service/logger"
+	mumodel "github.com/micro/micro/v3/service/model"
+	muserver "github.com/micro/micro/v3/service/server"
+)
+
+var (
+	// errMissingName is returned by service.Run when a service is run
+	// prior to it's name being set.
+	errMissingName = errors.New("missing service name")
 )
 
 // Service is a Micro Service which honours the go-micro/service interface
 type Service struct {
 	opts Options
-	once sync.Once
+}
+
+// Run the default service and waits for it to exist
+func Run() {
+	// setup a new service, calling New() will trigger the cmd package
+	// to parse the command line and
+	srv := New()
+
+	if err := srv.Run(); err == errMissingName {
+		fmt.Println("Micro services must be run using \"micro run\"")
+		os.Exit(1)
+	} else if err != nil {
+		logger.Fatalf("Error running %v service: %v", srv.Name(), err)
+	}
 }
 
 // New returns a new Micro Service
 func New(opts ...Option) *Service {
-	service := new(Service)
-	options := newOptions(opts...)
+	// before extracts service options from the CLI flags. These
+	// aren't set by the cmd package to prevent a circular dependancy.
+	// prepend them to the array so options passed by the user to this
+	// function are applied after (taking precedence)
+	before := func(ctx *cli.Context) error {
+		if n := ctx.String("service_name"); len(n) > 0 {
+			opts = append([]Option{Name(n)}, opts...)
+		}
+		if v := ctx.String("service_version"); len(v) > 0 {
+			opts = append([]Option{Version(v)}, opts...)
+		}
+		return nil
+	}
 
-	// service name
-	serviceName := options.Server.Options().Name
+	// setup micro, this triggers the Before
+	// function which parses CLI flags.
+	cmd.New(cmd.SetupOnly(), cmd.Before(before)).Run()
 
-	// we pass functions to the wrappers since the values can change during initialisation
-	authFn := func() auth.Auth { return options.Server.Options().Auth }
-	cacheFn := func() *client.Cache { return options.Client.Options().Cache }
-
-	// wrap client to inject From-Service header on any calls
-	options.Client = wrapper.FromService(serviceName, options.Client)
-	options.Client = wrapper.TraceCall(serviceName, trace.DefaultTracer, options.Client)
-	options.Client = wrapper.CacheClient(cacheFn, options.Client)
-	options.Client = wrapper.AuthClient(authFn, options.Client)
-
-	// wrap the server to provide handler stats
-	options.Server.Init(
-		server.WrapHandler(wrapper.HandlerStats(stats.DefaultStats)),
-		server.WrapHandler(wrapper.TraceHandler(trace.DefaultTracer)),
-		server.WrapHandler(wrapper.AuthHandler(authFn)),
-	)
-
-	// set opts
-	service.opts = options
-	return service
+	// return a new service
+	return &Service{opts: newOptions(opts...)}
 }
 
+// Name of the service
 func (s *Service) Name() string {
-	return s.opts.Server.Options().Name
+	return s.opts.Name
 }
 
-// Init initialises options. Additionally it calls cmd.Init
-// which parses command line flags. cmd.Init is only called
-// on first Init.
+// Version of the service
+func (s *Service) Version() string {
+	return s.opts.Version
+}
+
 func (s *Service) Init(opts ...Option) {
-	// process options
 	for _, o := range opts {
 		o(&s.opts)
 	}
-
-	s.once.Do(func() {
-		// setup the plugins
-		for _, p := range strings.Split(os.Getenv("MICRO_PLUGIN"), ",") {
-			if len(p) == 0 {
-				continue
-			}
-
-			// load the plugin
-			c, err := plugin.Load(p)
-			if err != nil {
-				logger.Fatal(err)
-			}
-
-			// initialise the plugin
-			if err := plugin.Init(c); err != nil {
-				logger.Fatal(err)
-			}
-		}
-
-		// set cmd name
-		if len(s.opts.Cmd.App().Name) == 0 {
-			s.opts.Cmd.App().Name = s.Server().Options().Name
-		}
-
-		// Initialise the command options
-		if err := s.opts.Cmd.Init(
-			cmd.Auth(&s.opts.Auth),
-			cmd.Broker(&s.opts.Broker),
-			cmd.Registry(&s.opts.Registry),
-			cmd.Runtime(&s.opts.Runtime),
-			cmd.Transport(&s.opts.Transport),
-			cmd.Client(&s.opts.Client),
-			cmd.Config(&s.opts.Config),
-			cmd.Server(&s.opts.Server),
-			cmd.Store(&s.opts.Store),
-			cmd.Profile(&s.opts.Profile),
-		); err != nil {
-			logger.Fatal(err)
-		}
-
-		// run the command line
-		// TODO: move to service.Run
-		if err := s.opts.Cmd.Run(); err != nil {
-			logger.Fatal(err)
-		}
-
-		// Explicitly set the table name to the service name
-		name := s.Server().Options().Name
-		s.opts.Store.Init(store.Table(name))
-	})
 }
 
 func (s *Service) Options() Options {
@@ -130,15 +93,15 @@ func (s *Service) Options() Options {
 }
 
 func (s *Service) Client() client.Client {
-	return s.opts.Client
+	return muclient.DefaultClient
 }
 
 func (s *Service) Server() server.Server {
-	return s.opts.Server
+	return muserver.DefaultServer
 }
 
 func (s *Service) Model() model.Model {
-	return s.opts.Model
+	return mumodel.DefaultModel
 }
 
 func (s *Service) String() string {
@@ -146,13 +109,16 @@ func (s *Service) String() string {
 }
 
 func (s *Service) Start() error {
+	// set the store to use the service name as the table
+	store.DefaultStore.Init(store.Table(s.Name()))
+
 	for _, fn := range s.opts.BeforeStart {
 		if err := fn(); err != nil {
 			return err
 		}
 	}
 
-	if err := s.opts.Server.Start(); err != nil {
+	if err := s.Server().Start(); err != nil {
 		return err
 	}
 
@@ -174,7 +140,7 @@ func (s *Service) Stop() error {
 		}
 	}
 
-	if err := s.opts.Server.Stop(); err != nil {
+	if err := muserver.DefaultServer.Stop(); err != nil {
 		return err
 	}
 
@@ -187,26 +153,33 @@ func (s *Service) Stop() error {
 	return gerr
 }
 
+// Run the service
 func (s *Service) Run() error {
+	// ensure service's have a name, this is injected by the runtime manager
+	if len(s.Name()) == 0 {
+		return errMissingName
+	}
+
 	// register the debug handler
-	s.opts.Server.Handle(
-		s.opts.Server.NewHandler(
-			handler.NewHandler(s.opts.Client),
+	muserver.DefaultServer.Handle(
+		muserver.DefaultServer.NewHandler(
+			debug.NewHandler(muclient.DefaultClient),
 			server.InternalHandler(true),
 		),
 	)
 
 	// start the profiler
-	if s.opts.Profile != nil {
+	if mudebug.DefaultProfiler != nil {
 		// to view mutex contention
-		rtime.SetMutexProfileFraction(5)
+		runtime.SetMutexProfileFraction(5)
 		// to view blocking profile
-		rtime.SetBlockProfileRate(1)
+		runtime.SetBlockProfileRate(1)
 
-		if err := s.opts.Profile.Start(); err != nil {
+		if err := mudebug.DefaultProfiler.Start(); err != nil {
 			return err
 		}
-		defer s.opts.Profile.Stop()
+
+		defer mudebug.DefaultProfiler.Stop()
 	}
 
 	if logger.V(logger.InfoLevel, logger.DefaultLogger) {
@@ -222,41 +195,32 @@ func (s *Service) Run() error {
 		signal.Notify(ch, signalutil.Shutdown()...)
 	}
 
-	select {
 	// wait on kill signal
-	case <-ch:
-	// wait on context cancel
-	case <-s.opts.Context.Done():
-	}
-
+	<-ch
 	return s.Stop()
 }
 
 // RegisterHandler is syntactic sugar for registering a handler
-func RegisterHandler(s server.Server, h interface{}, opts ...server.HandlerOption) error {
-	return s.Handle(s.NewHandler(h, opts...))
+func RegisterHandler(h interface{}, opts ...server.HandlerOption) error {
+	return muserver.DefaultServer.Handle(muserver.DefaultServer.NewHandler(h, opts...))
 }
 
 // RegisterSubscriber is syntactic sugar for registering a subscriber
-func RegisterSubscriber(topic string, s server.Server, h interface{}, opts ...server.SubscriberOption) error {
-	return s.Subscribe(s.NewSubscriber(topic, h, opts...))
+func RegisterSubscriber(topic string, h interface{}, opts ...server.SubscriberOption) error {
+	return muserver.DefaultServer.Subscribe(muserver.DefaultServer.NewSubscriber(topic, h, opts...))
 }
 
 // Event is an object messages are published to
 type Event struct {
-	c     client.Client
 	topic string
 }
 
 // Publish a message to an event
 func (e *Event) Publish(ctx context.Context, msg interface{}, opts ...client.PublishOption) error {
-	return e.c.Publish(ctx, e.c.NewMessage(e.topic, msg), opts...)
+	return muclient.Publish(ctx, muclient.NewMessage(e.topic, msg), opts...)
 }
 
 // NewEvent creates a new event publisher
-func NewEvent(topic string, c client.Client) *Event {
-	if c == nil {
-		c = client.NewClient()
-	}
-	return &Event{c, topic}
+func NewEvent(topic string) *Event {
+	return &Event{topic}
 }

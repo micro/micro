@@ -2,17 +2,15 @@ package bot
 
 import (
 	"errors"
-	"flag"
 	"strings"
 	"testing"
 	"time"
 
 	"github.com/micro/cli/v2"
-	"github.com/micro/go-micro/v2/agent/command"
-	"github.com/micro/go-micro/v2/agent/input"
-	"github.com/micro/micro/v2/service"
-
-	"github.com/micro/go-micro/v2/registry/memory"
+	"github.com/micro/go-micro/v3/agent/command"
+	"github.com/micro/go-micro/v3/agent/input"
+	"github.com/micro/micro/v3/profile"
+	"github.com/micro/micro/v3/service"
 )
 
 type testInput struct {
@@ -83,9 +81,8 @@ func (t *testInput) String() string {
 }
 
 func TestBot(t *testing.T) {
-	flagSet := flag.NewFlagSet("test", flag.ExitOnError)
 	app := cli.NewApp()
-	ctx := cli.NewContext(app, flagSet, nil)
+	ctx := cli.NewContext(app, nil, nil)
 
 	io := &testInput{
 		send: make(chan *input.Event),
@@ -103,10 +100,8 @@ func TestBot(t *testing.T) {
 		}),
 	}
 
-	srv := service.New(
-		service.Registry(memory.NewRegistry()),
-	)
-
+	profile.Test.Setup(nil)
+	srv := service.New()
 	bot := newBot(ctx, inputs, commands, srv)
 
 	if err := bot.start(); err != nil {

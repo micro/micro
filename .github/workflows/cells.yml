@@ -15,3 +15,6 @@ jobs:
 
     - name: Build cells
       run: cd service/runtime/cells; bash build.sh
+      env:
+        USERNAME: ${{ secrets.DOCKER_USERNAME }}
+        PASSWORD: ${{ secrets.DOCKER_PASSWORD }}

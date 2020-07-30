@@ -15,7 +15,7 @@ import (
 	"github.com/boltdb/bolt"
 	"github.com/golang/protobuf/proto"
 	"github.com/gorilla/handlers"
-	pb "github.com/micro/micro/v2/cmd/usage/proto"
+	pb "github.com/micro/micro/v3/cmd/usage/proto"
 )
 
 var (

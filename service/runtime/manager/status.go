@@ -6,9 +6,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/micro/go-micro/v2/logger"
-	"github.com/micro/go-micro/v2/runtime"
-	"github.com/micro/go-micro/v2/store"
+	gorun "github.com/micro/go-micro/v3/runtime"
+	"github.com/micro/go-micro/v3/store"
+	"github.com/micro/micro/v3/service/logger"
+	"github.com/micro/micro/v3/service/runtime"
 )
 
 // statusPrefix is prefixed to every status key written to the memory store
@@ -43,7 +44,7 @@ func (m *manager) syncStatus() {
 	}
 
 	for _, ns := range namespaces {
-		srvs, err := m.Runtime.Read(runtime.ReadNamespace(ns))
+		srvs, err := runtime.Read(gorun.ReadNamespace(ns))
 		if err != nil {
 			logger.Warnf("Error reading namespace %v: %v", ns, err)
 			return
@@ -59,10 +60,10 @@ func (m *manager) syncStatus() {
 }
 
 // cacheStatus writes a services status to the memory store which is then later returned in service
-// metadata on Runtime.Read
-func (m *manager) cacheStatus(ns string, srv *runtime.Service) error {
+// metadata on gorun.Read
+func (m *manager) cacheStatus(ns string, srv *gorun.Service) error {
 	// errors / status is returned from the underlying runtime using srv.Metadata. TODO: Consider
-	// changing this so status / error are attributes on runtime.Service.
+	// changing this so status / error are attributes on gorun.Service.
 	if srv.Metadata == nil {
 		return fmt.Errorf("Service %v:%v (%v) is missing metadata", srv.Name, srv.Version, ns)
 	}

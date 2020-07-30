@@ -12,17 +12,19 @@ import (
 	"time"
 
 	"github.com/micro/cli/v2"
-	"github.com/micro/go-micro/v2/agent/command"
-	"github.com/micro/go-micro/v2/agent/input"
-	proto "github.com/micro/go-micro/v2/agent/proto"
-	log "github.com/micro/go-micro/v2/logger"
-	"github.com/micro/micro/v2/cmd"
-	"github.com/micro/micro/v2/service"
+	"github.com/micro/go-micro/v3/agent/command"
+	"github.com/micro/go-micro/v3/agent/input"
+	proto "github.com/micro/go-micro/v3/agent/proto"
+	log "github.com/micro/micro/v3/service/logger"
+	"github.com/micro/micro/v3/client"
+	"github.com/micro/micro/v3/cmd"
+	"github.com/micro/micro/v3/service"
+	"github.com/micro/micro/v3/service/registry"
 
 	// inputs
-	_ "github.com/micro/go-micro/v2/agent/input/discord"
-	_ "github.com/micro/go-micro/v2/agent/input/slack"
-	_ "github.com/micro/go-micro/v2/agent/input/telegram"
+	_ "github.com/micro/go-micro/v3/agent/input/discord"
+	_ "github.com/micro/go-micro/v3/agent/input/slack"
+	_ "github.com/micro/go-micro/v3/agent/input/telegram"
 )
 
 type bot struct {
@@ -284,7 +286,7 @@ func (b *bot) watch() {
 		return fmt.Sprintf("%s - %s", rsp.Usage, rsp.Description), nil
 	}
 
-	serviceList, err := b.service.Options().Registry.ListServices()
+	serviceList, err := registry.ListServices()
 	if err != nil {
 		// log error?
 		return
@@ -307,7 +309,7 @@ func (b *bot) watch() {
 	b.services = services
 	b.Unlock()
 
-	w, err := b.service.Options().Registry.Watch()
+	w, err := registry.Watch()
 	if err != nil {
 		// log error?
 		return
@@ -430,7 +432,7 @@ func Run(ctx *cli.Context) error {
 }
 
 func init() {
-	flags := []cli.Flag{
+	flags := append(client.Flags,
 		&cli.StringFlag{
 			Name:    "inputs",
 			Usage:   "Inputs to load on startup",
@@ -441,7 +443,7 @@ func init() {
 			Usage:   "Set the namespace used by the bot to find commands e.g. com.example.bot",
 			EnvVars: []string{"MICRO_BOT_NAMESPACE"},
 		},
-	}
+	)
 
 	// setup input flags
 	for _, input := range input.Inputs {

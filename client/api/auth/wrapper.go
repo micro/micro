@@ -7,14 +7,15 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/micro/go-micro/v2/api/resolver"
-	"github.com/micro/go-micro/v2/api/resolver/subdomain"
-	"github.com/micro/go-micro/v2/api/server"
-	"github.com/micro/go-micro/v2/auth"
-	"github.com/micro/go-micro/v2/logger"
-	"github.com/micro/go-micro/v2/util/ctx"
-	inauth "github.com/micro/micro/v2/internal/auth"
-	"github.com/micro/micro/v2/internal/namespace"
+	"github.com/micro/go-micro/v3/api/resolver"
+	"github.com/micro/go-micro/v3/api/resolver/subdomain"
+	"github.com/micro/go-micro/v3/api/server"
+	goauth "github.com/micro/go-micro/v3/auth"
+	"github.com/micro/go-micro/v3/util/ctx"
+	inauth "github.com/micro/micro/v3/internal/auth"
+	"github.com/micro/micro/v3/internal/namespace"
+	"github.com/micro/micro/v3/service/auth"
+	"github.com/micro/micro/v3/service/logger"
 )
 
 // Wrapper wraps a handler and authenticates requests
@@ -24,14 +25,12 @@ func Wrapper(r resolver.Resolver, prefix string) server.Wrapper {
 			handler:       h,
 			resolver:      r,
 			servicePrefix: prefix,
-			auth:          auth.DefaultAuth,
 		}
 	}
 }
 
 type authWrapper struct {
 	handler       http.Handler
-	auth          auth.Auth
 	resolver      resolver.Resolver
 	servicePrefix string
 }
@@ -66,20 +65,20 @@ func (a authWrapper) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	var token string
 	if header := req.Header.Get("Authorization"); len(header) > 0 {
 		// Extract the auth token from the request
-		if strings.HasPrefix(header, auth.BearerScheme) {
-			token = header[len(auth.BearerScheme):]
+		if strings.HasPrefix(header, goauth.BearerScheme) {
+			token = header[len(goauth.BearerScheme):]
 		}
 	} else {
 		// Get the token out the cookies if not provided in headers
 		if c, err := req.Cookie("micro-token"); err == nil && c != nil {
 			token = strings.TrimPrefix(c.Value, inauth.TokenCookieName+"=")
-			req.Header.Set("Authorization", auth.BearerScheme+token)
+			req.Header.Set("Authorization", goauth.BearerScheme+token)
 		}
 	}
 
 	// Get the account using the token, some are unauthenticated, so the lack of an
 	// account doesn't necesserially mean a forbidden request
-	acc, _ := a.auth.Inspect(token)
+	acc, _ := auth.Inspect(token)
 
 	// Determine the namespace and set it in the header. If the user passed auth creds
 	// on the request, use the namespace that issued the account, otherwise check for
@@ -110,19 +109,19 @@ func (a authWrapper) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	}
 
 	// Options to use when verifying the request
-	verifyOpts := []auth.VerifyOption{
-		auth.VerifyContext(req.Context()),
-		auth.VerifyNamespace(ns),
+	verifyOpts := []goauth.VerifyOption{
+		goauth.VerifyContext(req.Context()),
+		goauth.VerifyNamespace(ns),
 	}
 
 	// Perform the verification check to see if the account has access to
 	// the resource they're requesting
-	res := &auth.Resource{Type: "service", Name: resName, Endpoint: resEndpoint}
-	if err := a.auth.Verify(acc, res, verifyOpts...); err == nil {
+	res := &goauth.Resource{Type: "service", Name: resName, Endpoint: resEndpoint}
+	if err := auth.Verify(acc, res, verifyOpts...); err == nil {
 		// The account has the necessary permissions to access the resource
 		a.handler.ServeHTTP(w, req)
 		return
-	} else if err != auth.ErrForbidden {
+	} else if err != goauth.ErrForbidden {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 
@@ -134,7 +133,7 @@ func (a authWrapper) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	}
 
 	// If there is no auth login url set, 401
-	loginURL := a.auth.Options().LoginURL
+	loginURL := auth.DefaultAuth.Options().LoginURL
 	if loginURL == "" {
 		http.Error(w, "unauthorized request", http.StatusUnauthorized)
 		return

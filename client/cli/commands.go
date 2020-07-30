@@ -12,14 +12,13 @@ import (
 
 	"github.com/micro/cli/v2"
 
-	"github.com/micro/go-micro/v2/client"
-	"github.com/micro/go-micro/v2/cmd"
-	proto "github.com/micro/go-micro/v2/debug/service/proto"
-	"github.com/micro/go-micro/v2/registry"
-	"github.com/micro/go-micro/v2/registry/service"
-	"github.com/micro/micro/v2/client/cli/namespace"
-	"github.com/micro/micro/v2/client/cli/util"
-	inclient "github.com/micro/micro/v2/internal/client"
+	goclient "github.com/micro/go-micro/v3/client"
+	proto "github.com/micro/go-micro/v3/debug/service/proto"
+	goregistry "github.com/micro/go-micro/v3/registry"
+	"github.com/micro/micro/v3/client/cli/namespace"
+	"github.com/micro/micro/v3/client/cli/util"
+	"github.com/micro/micro/v3/service/client"
+	"github.com/micro/micro/v3/service/registry"
 )
 
 func quit(c *cli.Context, args []string) ([]byte, error) {
@@ -57,13 +56,7 @@ func QueryStats(c *cli.Context, args []string) ([]byte, error) {
 		return nil, err
 	}
 
-	reg := *cmd.DefaultCmd.Options().Registry
-	cli, err := inclient.New(c)
-	if err != nil {
-		return nil, err
-	}
-	reg.Init(service.WithClient(cli))
-	service, err := reg.GetService(args[0], registry.GetDomain(ns))
+	service, err := registry.GetService(args[0], goregistry.GetDomain(ns))
 	if err != nil {
 		return nil, err
 	}
@@ -72,7 +65,7 @@ func QueryStats(c *cli.Context, args []string) ([]byte, error) {
 		return nil, errors.New("Service not found")
 	}
 
-	req := (*cmd.DefaultCmd.Options().Client).NewRequest(service[0].Name, "Debug.Stats", &proto.StatsRequest{})
+	req := client.NewRequest(service[0].Name, "Debug.Stats", &proto.StatsRequest{})
 
 	var output []string
 
@@ -92,12 +85,7 @@ func QueryStats(c *cli.Context, args []string) ([]byte, error) {
 			var err error
 
 			// call using client
-			err = (*cmd.DefaultCmd.Options().Client).Call(
-				context.Background(),
-				req,
-				rsp,
-				client.WithAddress(address),
-			)
+			err = client.Call(context.Background(), req, rsp, goclient.WithAddress(address))
 
 			var started, uptime, memory, gc string
 			if err == nil {

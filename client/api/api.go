@@ -9,32 +9,35 @@ import (
 	"github.com/go-acme/lego/v3/providers/dns/cloudflare"
 	"github.com/gorilla/mux"
 	"github.com/micro/cli/v2"
-	ahandler "github.com/micro/go-micro/v2/api/handler"
-	aapi "github.com/micro/go-micro/v2/api/handler/api"
-	"github.com/micro/go-micro/v2/api/handler/event"
-	ahttp "github.com/micro/go-micro/v2/api/handler/http"
-	arpc "github.com/micro/go-micro/v2/api/handler/rpc"
-	"github.com/micro/go-micro/v2/api/handler/web"
-	"github.com/micro/go-micro/v2/api/resolver"
-	"github.com/micro/go-micro/v2/api/resolver/grpc"
-	"github.com/micro/go-micro/v2/api/resolver/host"
-	"github.com/micro/go-micro/v2/api/resolver/path"
-	"github.com/micro/go-micro/v2/api/router"
-	regRouter "github.com/micro/go-micro/v2/api/router/registry"
-	"github.com/micro/go-micro/v2/api/server"
-	"github.com/micro/go-micro/v2/api/server/acme"
-	"github.com/micro/go-micro/v2/api/server/acme/autocert"
-	"github.com/micro/go-micro/v2/api/server/acme/certmagic"
-	httpapi "github.com/micro/go-micro/v2/api/server/http"
-	log "github.com/micro/go-micro/v2/logger"
-	"github.com/micro/go-micro/v2/sync/memory"
-	"github.com/micro/micro/v2/client/api/auth"
-	"github.com/micro/micro/v2/cmd"
-	"github.com/micro/micro/v2/internal/handler"
-	"github.com/micro/micro/v2/internal/helper"
-	rrmicro "github.com/micro/micro/v2/internal/resolver/api"
-	"github.com/micro/micro/v2/internal/stats"
-	"github.com/micro/micro/v2/service"
+	ahandler "github.com/micro/go-micro/v3/api/handler"
+	aapi "github.com/micro/go-micro/v3/api/handler/api"
+	"github.com/micro/go-micro/v3/api/handler/event"
+	ahttp "github.com/micro/go-micro/v3/api/handler/http"
+	arpc "github.com/micro/go-micro/v3/api/handler/rpc"
+	"github.com/micro/go-micro/v3/api/handler/web"
+	"github.com/micro/go-micro/v3/api/resolver"
+	"github.com/micro/go-micro/v3/api/resolver/grpc"
+	"github.com/micro/go-micro/v3/api/resolver/host"
+	"github.com/micro/go-micro/v3/api/resolver/path"
+	"github.com/micro/go-micro/v3/api/router"
+	regRouter "github.com/micro/go-micro/v3/api/router/registry"
+	"github.com/micro/go-micro/v3/api/server"
+	"github.com/micro/go-micro/v3/api/server/acme"
+	"github.com/micro/go-micro/v3/api/server/acme/autocert"
+	"github.com/micro/go-micro/v3/api/server/acme/certmagic"
+	httpapi "github.com/micro/go-micro/v3/api/server/http"
+	"github.com/micro/go-micro/v3/sync/memory"
+	"github.com/micro/micro/v3/client"
+	"github.com/micro/micro/v3/client/api/auth"
+	"github.com/micro/micro/v3/cmd"
+	"github.com/micro/micro/v3/internal/handler"
+	"github.com/micro/micro/v3/internal/helper"
+	rrmicro "github.com/micro/micro/v3/internal/resolver/api"
+	"github.com/micro/micro/v3/internal/stats"
+	"github.com/micro/micro/v3/service"
+	log "github.com/micro/micro/v3/service/logger"
+	muregistry "github.com/micro/micro/v3/service/registry"
+	"github.com/micro/micro/v3/service/store"
 )
 
 var (
@@ -109,7 +112,7 @@ func Run(ctx *cli.Context) error {
 
 			storage := certmagic.NewStorage(
 				memory.NewSync(),
-				srv.Options().Store,
+				store.DefaultStore,
 			)
 
 			config := cloudflare.NewDefaultConfig()
@@ -205,7 +208,7 @@ func Run(ctx *cli.Context) error {
 		rt := regRouter.NewRouter(
 			router.WithHandler(arpc.Handler),
 			router.WithResolver(rr),
-			router.WithRegistry(srv.Options().Registry),
+			router.WithRegistry(muregistry.DefaultRegistry),
 		)
 		rp := arpc.NewHandler(
 			ahandler.WithNamespace(Namespace),
@@ -218,7 +221,7 @@ func Run(ctx *cli.Context) error {
 		rt := regRouter.NewRouter(
 			router.WithHandler(aapi.Handler),
 			router.WithResolver(rr),
-			router.WithRegistry(srv.Options().Registry),
+			router.WithRegistry(muregistry.DefaultRegistry),
 		)
 		ap := aapi.NewHandler(
 			ahandler.WithNamespace(Namespace),
@@ -231,7 +234,7 @@ func Run(ctx *cli.Context) error {
 		rt := regRouter.NewRouter(
 			router.WithHandler(event.Handler),
 			router.WithResolver(rr),
-			router.WithRegistry(srv.Options().Registry),
+			router.WithRegistry(muregistry.DefaultRegistry),
 		)
 		ev := event.NewHandler(
 			ahandler.WithNamespace(Namespace),
@@ -244,7 +247,7 @@ func Run(ctx *cli.Context) error {
 		rt := regRouter.NewRouter(
 			router.WithHandler(ahttp.Handler),
 			router.WithResolver(rr),
-			router.WithRegistry(srv.Options().Registry),
+			router.WithRegistry(muregistry.DefaultRegistry),
 		)
 		ht := ahttp.NewHandler(
 			ahandler.WithNamespace(Namespace),
@@ -257,7 +260,7 @@ func Run(ctx *cli.Context) error {
 		rt := regRouter.NewRouter(
 			router.WithHandler(web.Handler),
 			router.WithResolver(rr),
-			router.WithRegistry(srv.Options().Registry),
+			router.WithRegistry(muregistry.DefaultRegistry),
 		)
 		w := web.NewHandler(
 			ahandler.WithNamespace(Namespace),
@@ -269,7 +272,7 @@ func Run(ctx *cli.Context) error {
 		log.Infof("Registering API Default Handler at %s", APIPath)
 		rt := regRouter.NewRouter(
 			router.WithResolver(rr),
-			router.WithRegistry(srv.Options().Registry),
+			router.WithRegistry(muregistry.DefaultRegistry),
 		)
 		r.PathPrefix(APIPath).Handler(handler.Meta(srv, rt, Namespace))
 	}
@@ -304,7 +307,7 @@ func init() {
 		Name:   "api",
 		Usage:  "Run the api gateway",
 		Action: Run,
-		Flags: []cli.Flag{
+		Flags: append(client.Flags,
 			&cli.StringFlag{
 				Name:    "address",
 				Usage:   "Set the api address e.g 0.0.0.0:8080",
@@ -341,6 +344,6 @@ func init() {
 				EnvVars: []string{"MICRO_API_ENABLE_CORS"},
 				Value:   true,
 			},
-		},
+		),
 	})
 }

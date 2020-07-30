@@ -10,11 +10,11 @@ import (
 	"text/tabwriter"
 
 	"github.com/micro/cli/v2"
-	"github.com/micro/go-micro/v2/client"
-	"github.com/micro/go-micro/v2/cmd"
-	cbytes "github.com/micro/go-micro/v2/codec/bytes"
-	cliutil "github.com/micro/micro/v2/client/cli/util"
-	clic "github.com/micro/micro/v2/internal/command/cli"
+	goclient "github.com/micro/go-micro/v3/client"
+	cbytes "github.com/micro/go-micro/v3/codec/bytes"
+	cliutil "github.com/micro/micro/v3/client/cli/util"
+	clic "github.com/micro/micro/v3/internal/command"
+	"github.com/micro/micro/v3/service/client"
 )
 
 func listServices(c *cli.Context, args []string) ([]byte, error) {
@@ -94,8 +94,8 @@ func streamService(c *cli.Context, args []string) ([]byte, error) {
 	// ignore error
 	json.Unmarshal([]byte(strings.Join(args[2:], " ")), &request)
 
-	req := (*cmd.DefaultCmd.Options().Client).NewRequest(service, endpoint, request, client.WithContentType("application/json"))
-	stream, err := (*cmd.DefaultCmd.Options().Client).Stream(context.Background(), req)
+	req := client.NewRequest(service, endpoint, request, goclient.WithContentType("application/json"))
+	stream, err := client.Stream(context.Background(), req)
 	if err != nil {
 		return nil, fmt.Errorf("error calling %s.%s: %v", service, endpoint, err)
 	}

@@ -1,42 +1,31 @@
 package store
 
 import (
-	"github.com/micro/cli/v2"
-	log "github.com/micro/go-micro/v2/logger"
-	pb "github.com/micro/go-micro/v2/store/service/proto"
-	"github.com/micro/micro/v2/service"
-	"github.com/micro/micro/v2/service/store/handler"
+	"github.com/micro/go-micro/v3/store"
+	"github.com/micro/micro/v3/service/store/client"
 )
 
 var (
-	// name of the store service
-	name = "go.micro.store"
-	// address is the store address
-	address = ":8002"
+	// DefaultStore implementation
+	DefaultStore store.Store = client.NewStore()
 )
 
-// Run micro store
-func Run(ctx *cli.Context) error {
-	if len(ctx.String("server_name")) > 0 {
-		name = ctx.String("server_name")
-	}
-	if len(ctx.String("address")) > 0 {
-		address = ctx.String("address")
-	}
+// Read takes a single key name and optional ReadOptions. It returns matching []*Record or an error.
+func Read(key string, opts ...store.ReadOption) ([]*store.Record, error) {
+	return DefaultStore.Read(key, opts...)
+}
 
-	// Initialise service
-	service := service.New(
-		service.Name(name),
-		service.Address(address),
-	)
+// Write a record to the store, and returns an error if the record was not written.
+func Write(r *store.Record, opts ...store.WriteOption) error {
+	return DefaultStore.Write(r, opts...)
+}
 
-	// the store handler
-	h := handler.New(service.Options().Store)
-	pb.RegisterStoreHandler(service.Server(), h)
+// Delete removes the record with the corresponding key from the store.
+func Delete(key string, opts ...store.DeleteOption) error {
+	return DefaultStore.Delete(key, opts...)
+}
 
-	// start the service
-	if err := service.Run(); err != nil {
-		log.Fatal(err)
-	}
-	return nil
+// List returns any keys that match, or an empty list with no error if none matched.
+func List(opts ...store.ListOption) ([]string, error) {
+	return DefaultStore.List(opts...)
 }

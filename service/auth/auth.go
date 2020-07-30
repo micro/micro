@@ -1,57 +1,44 @@
 package auth
 
 import (
-	"github.com/micro/cli/v2"
-	"github.com/micro/go-micro/v2/auth"
-	pb "github.com/micro/go-micro/v2/auth/service/proto"
-	log "github.com/micro/go-micro/v2/logger"
-	"github.com/micro/go-micro/v2/store"
-	"github.com/micro/go-micro/v2/util/token"
-	"github.com/micro/go-micro/v2/util/token/jwt"
-	"github.com/micro/micro/v2/service"
-	authHandler "github.com/micro/micro/v2/service/auth/handler/auth"
-	rulesHandler "github.com/micro/micro/v2/service/auth/handler/rules"
+	"github.com/micro/go-micro/v3/auth"
+	"github.com/micro/micro/v3/service/auth/client"
 )
 
-const (
-	name    = "go.micro.auth"
-	address = ":8010"
-)
+// DefaultAuth implementation
+var DefaultAuth auth.Auth = client.NewAuth()
 
-// Run the auth service
-func Run(ctx *cli.Context) error {
-	srv := service.New(
-		service.Name(name),
-		service.Address(address),
-	)
+// Generate a new account
+func Generate(id string, opts ...auth.GenerateOption) (*auth.Account, error) {
+	return DefaultAuth.Generate(id, opts...)
+}
 
-	// setup the handlers
-	ruleH := &rulesHandler.Rules{}
-	authH := &authHandler.Auth{}
+// Verify an account has access to a resource using the rules
+func Verify(acc *auth.Account, res *auth.Resource, opts ...auth.VerifyOption) error {
+	return DefaultAuth.Verify(acc, res, opts...)
+}
 
-	// setup the auth handler to use JWTs
-	pubKey := ctx.String("auth_public_key")
-	privKey := ctx.String("auth_private_key")
-	if len(pubKey) > 0 || len(privKey) > 0 {
-		authH.TokenProvider = jwt.NewTokenProvider(
-			token.WithPublicKey(pubKey),
-			token.WithPrivateKey(privKey),
-		)
-	}
+// Inspect a token
+func Inspect(token string) (*auth.Account, error) {
+	return DefaultAuth.Inspect(token)
+}
 
-	// set the handlers store
-	srv.Options().Store.Init(store.Table("auth"))
-	authH.Init(auth.Store(srv.Options().Store))
-	ruleH.Init(auth.Store(srv.Options().Store))
+// Token generated using refresh token or credentials
+func Token(opts ...auth.TokenOption) (*auth.Token, error) {
+	return DefaultAuth.Token(opts...)
+}
 
-	// register handlers
-	pb.RegisterAuthHandler(srv.Server(), authH)
-	pb.RegisterRulesHandler(srv.Server(), ruleH)
-	pb.RegisterAccountsHandler(srv.Server(), authH)
+// Grant access to a resource
+func Grant(rule *auth.Rule) error {
+	return DefaultAuth.Grant(rule)
+}
 
-	// run service
-	if err := srv.Run(); err != nil {
-		log.Fatal(err)
-	}
-	return nil
+// Revoke access to a resource
+func Revoke(rule *auth.Rule) error {
+	return DefaultAuth.Revoke(rule)
+}
+
+// Rules returns all the rules used to verify requests
+func Rules(...auth.RulesOption) ([]*auth.Rule, error) {
+	return DefaultAuth.Rules()
 }

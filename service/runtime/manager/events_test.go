@@ -4,9 +4,10 @@ import (
 	"testing"
 	"time"
 
-	"github.com/micro/go-micro/v2/runtime"
-	"github.com/micro/go-micro/v2/store/memory"
-	"github.com/micro/micro/v2/internal/namespace"
+	"github.com/micro/go-micro/v3/runtime"
+	"github.com/micro/micro/v3/internal/namespace"
+	"github.com/micro/micro/v3/profile"
+	muruntime "github.com/micro/micro/v3/service/runtime"
 )
 
 func TestEvents(t *testing.T) {
@@ -14,8 +15,10 @@ func TestEvents(t *testing.T) {
 	// this is done since events ae processed async
 	eventChan := make(chan *runtime.Service)
 
+	profile.Test.Setup(nil)
 	rt := &testRuntime{events: eventChan}
-	m := New(rt, Store(memory.NewStore()), CacheStore(memory.NewStore())).(*manager)
+	muruntime.DefaultRuntime = rt
+	m := New().(*manager)
 
 	// set the eventPollFrequency to 10ms so events are processed immediately
 	eventPollFrequency = time.Millisecond * 10

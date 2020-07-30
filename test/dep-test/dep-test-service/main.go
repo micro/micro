@@ -8,8 +8,8 @@ import (
 	dep "dep-test-service/proto/dep"
 	dependency "dependency"
 
-	log "github.com/micro/go-micro/v2/logger"
-	"github.com/micro/micro/v2/service"
+	log "github.com/micro/micro/v3/service/logger"
+	"github.com/micro/micro/v3/service"
 )
 
 func main() {

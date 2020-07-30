@@ -24,15 +24,9 @@ ADD         scripts/run-etcd.sh /bin/run.sh
 
 ENV MICRO_REGISTRY=etcd
 
-COPY ./test/example-service ${GOPATH}/src/example-service
-COPY ./test/config-example-service ${GOPATH}/src/config-example-service
-
 # Speeding up tests by predownloading dependencies for services used.
-RUN cd ${GOPATH}/src/example-service && go get && \
-    cd ${GOPATH}/src/config-example-service && go get && \
-    go get github.com/micro/examples/helloworld
-
-
+RUN go get github.com/micro/services
+COPY . .
+RUN go get
 COPY ./micro /micro
-
 ENTRYPOINT ["sh", "/bin/run.sh"]

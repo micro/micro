@@ -11,15 +11,14 @@ import (
 	"time"
 
 	"github.com/micro/cli/v2"
-	"github.com/micro/go-micro/v2/auth"
-	cl "github.com/micro/go-micro/v2/client"
-	clinamespace "github.com/micro/micro/v2/client/cli/namespace"
-	clitoken "github.com/micro/micro/v2/client/cli/token"
-	cliutil "github.com/micro/micro/v2/client/cli/util"
-	"github.com/micro/micro/v2/cmd"
-	"github.com/micro/micro/v2/internal/client"
-	"github.com/micro/micro/v2/internal/report"
-	signupproto "github.com/micro/services/signup/proto/signup"
+	"github.com/micro/go-micro/v3/auth"
+	cl "github.com/micro/go-micro/v3/client"
+	clinamespace "github.com/micro/micro/v3/client/cli/namespace"
+	clitoken "github.com/micro/micro/v3/client/cli/token"
+	cliutil "github.com/micro/micro/v3/client/cli/util"
+	"github.com/micro/micro/v3/cmd"
+	"github.com/micro/micro/v3/internal/report"
+	pb "github.com/micro/micro/v3/platform/proto/signup"
 	"golang.org/x/crypto/ssh/terminal"
 )
 
@@ -37,16 +36,9 @@ func Signup(ctx *cli.Context) error {
 		email = strings.TrimSpace(email)
 	}
 
-	cli, err := client.New(ctx)
-	if err != nil {
-		fmt.Printf("Error processing signup: %s\n", err)
-		report.Errorf(ctx, "%v: Error processing signup: %s", email, err)
-		os.Exit(1)
-	}
-
 	// send a verification email to the user
-	signupService := signupproto.NewSignupService("go.micro.service.signup", cli)
-	_, err = signupService.SendVerificationEmail(context.TODO(), &signupproto.SendVerificationEmailRequest{
+	signupService := pb.NewSignupService("go.micro.service.signup")
+	_, err := signupService.SendVerificationEmail(context.TODO(), &pb.SendVerificationEmailRequest{
 		Email: email,
 	}, cl.WithRequestTimeout(10*time.Second))
 	if err != nil {
@@ -60,7 +52,7 @@ func Signup(ctx *cli.Context) error {
 	otp = strings.TrimSpace(otp)
 
 	// verify the email and password entered
-	rsp, err := signupService.Verify(context.TODO(), &signupproto.VerifyRequest{
+	rsp, err := signupService.Verify(context.TODO(), &pb.VerifyRequest{
 		Email: email,
 		Token: otp,
 	}, cl.WithRequestTimeout(10*time.Second))
@@ -120,12 +112,12 @@ func Signup(ctx *cli.Context) error {
 		}
 	}
 
-	fmt.Print("Please go to https://m3o.com/subscribe and paste the acquired payment method id here: ")
+	fmt.Printf("Please go to https://m3o.com/subscribe?email=%s and paste the acquired payment method id here: ", email)
 	paymentMethodID, _ := reader.ReadString('\n')
 	paymentMethodID = strings.TrimSpace(paymentMethodID)
 
 	// complete the signup flow
-	signupRsp, err := signupService.CompleteSignup(context.TODO(), &signupproto.CompleteSignupRequest{
+	signupRsp, err := signupService.CompleteSignup(context.TODO(), &pb.CompleteSignupRequest{
 		Email:           email,
 		Token:           otp,
 		PaymentMethodID: paymentMethodID,
