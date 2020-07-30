@@ -53,6 +53,8 @@ spec:
           value: "/certs/registry/cert.pem"
         - name: MICRO_REGISTRY_TLS_KEY
           value: "/certs/registry/key.pem"
+        - name: MICRO_STORE_ADDRESS
+          value: "postgresql://root@cockroachdb-cluster-public:26257?ssl=true&sslmode=require&sslrootcert=certs/store/ca.crt&sslkey=certs/store/key.pem&sslcert=certs/store/cert.pem"
         args:
         - service
         - broker
@@ -68,6 +70,9 @@ spec:
         - name: nats-client-certs
           mountPath: "/certs/broker"
           readOnly: true
+        - name: cockroachdb-client-certs
+          mountPath: "/certs/store"
+          readOnly: true
       volumes:
       - name: etcd-client-certs
         secret:
@@ -75,3 +80,7 @@ spec:
       - name: nats-client-certs
         secret:
           secretName: nats-client-certs
+      - name: cockroachdb-client-certs
+        secret:
+          secretName: cockroachdb-client-certs
+          defaultMode: 0600

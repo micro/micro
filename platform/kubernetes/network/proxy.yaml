@@ -27,10 +27,6 @@ spec:
       containers:
       - name: proxy
         env:
-        - name: MICRO_AUTH
-          value: "service"
-        - name: MICRO_AUTH_ADDRESS
-          value: "micro-auth:8010"
         - name: MICRO_AUTH_PUBLIC_KEY
           valueFrom:
             secretKeyRef:
@@ -47,12 +43,6 @@ spec:
           value: "0.0.0.0:8081"
         - name: MICRO_LOG_LEVEL
           value: "trace"
-        - name: MICRO_BROKER
-          value: "service"
-        - name: MICRO_BROKER_ADDRESS
-          value: "micro-broker:8001"
-        - name: MICRO_REGISTRY
-          value: "service"
         - name: MICRO_REGISTRY_ADDRESS
           value: "micro-registry:8000"
         - name: MICRO_ENABLE_ACME
@@ -61,14 +51,6 @@ spec:
           value: certmagic
         - name: MICRO_ACME_HOSTS
           value: 'proxy.m3o.com'
-        - name: MICRO_STORE
-          value: "service"
-        - name: MICRO_STORE_ADDRESS
-          value: "micro-store:8002"
-        - name: MICRO_STORE_DATABASE
-          value: "micro"
-        - name: MICRO_STORE_TABLE
-          value: "micro"
         - name: CF_API_TOKEN
           valueFrom:
             secretKeyRef:
