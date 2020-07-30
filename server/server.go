@@ -71,12 +71,6 @@ func init() {
 				Usage:   "Set the micro server address :10001",
 				EnvVars: []string{"MICRO_SERVER_ADDRESS"},
 			},
-			&cli.StringFlag{
-				Name:    "network_address",
-				Usage:   "Address of the micro network to proxy inter-service requests",
-				EnvVars: []string{"MICRO_NETWORK_ADDRESS"},
-				Value:   "127.0.0.1:8085",
-			},
 		},
 		Action: func(ctx *cli.Context) error {
 			Run(ctx)
