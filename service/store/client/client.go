@@ -77,7 +77,7 @@ func (s *srv) List(opts ...store.ListOption) ([]string, error) {
 		Offset:   uint64(options.Offset),
 	}
 
-	stream, err := s.Client.List(s.Context(), &pb.ListRequest{Options: listOpts}, client.WithAddress(s.Nodes...))
+	stream, err := s.Client.List(s.Context(), &pb.ListRequest{Options: listOpts}, client.WithAddress(s.Nodes...), client.WithServiceToken())
 	if err != nil && errors.Equal(err, errors.NotFound("", "")) {
 		return nil, store.ErrNotFound
 	} else if err != nil {
@@ -127,7 +127,7 @@ func (s *srv) Read(key string, opts ...store.ReadOption) ([]*store.Record, error
 	rsp, err := s.Client.Read(s.Context(), &pb.ReadRequest{
 		Key:     key,
 		Options: readOpts,
-	}, client.WithAddress(s.Nodes...))
+	}, client.WithAddress(s.Nodes...), client.WithServiceToken())
 	if err != nil && errors.Equal(err, errors.NotFound("", "")) {
 		return nil, store.ErrNotFound
 	} else if err != nil {
@@ -190,7 +190,7 @@ func (s *srv) Write(record *store.Record, opts ...store.WriteOption) error {
 			Expiry:   int64(record.Expiry.Seconds()),
 			Metadata: metadata,
 		},
-		Options: writeOpts}, client.WithAddress(s.Nodes...))
+		Options: writeOpts}, client.WithAddress(s.Nodes...), client.WithServiceToken())
 	if err != nil && errors.Equal(err, errors.NotFound("", "")) {
 		return store.ErrNotFound
 	}
@@ -217,7 +217,7 @@ func (s *srv) Delete(key string, opts ...store.DeleteOption) error {
 	_, err := s.Client.Delete(s.Context(), &pb.DeleteRequest{
 		Key:     key,
 		Options: deleteOpts,
-	}, client.WithAddress(s.Nodes...))
+	}, client.WithAddress(s.Nodes...), client.WithServiceToken())
 	if err != nil && errors.Equal(err, errors.NotFound("", "")) {
 		return store.ErrNotFound
 	}
