@@ -14,6 +14,7 @@ import (
 	"time"
 
 	"github.com/micro/micro/v3/client/cli/namespace"
+	"github.com/micro/micro/v3/client/cli/token"
 )
 
 func TestServerAuth(t *testing.T) {
@@ -156,12 +157,18 @@ func lockdownSuite(serv Server, t *T) {
 		return
 	}
 
+	err = token.Remove(serv.EnvName())
+	if err != nil {
+		t.Fatal(err)
+		return
+	}
+
 	if err := Try("Listing rules should fail before login", t, func() ([]byte, error) {
 		outp, err := exec.Command("micro", serv.EnvFlag(), "auth", "list", "rules").CombinedOutput()
 		if err == nil {
 			return outp, errors.New("List rules should fail")
 		}
-		return outp, err
+		return outp, nil
 	}, 31*time.Second); err != nil {
 		return
 	}
