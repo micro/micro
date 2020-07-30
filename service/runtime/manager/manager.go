@@ -197,7 +197,7 @@ func (m *manager) resurrectServices() {
 				gorun.CreateNamespace(ns),
 				gorun.WithArgs(srv.Options.Args...),
 				gorun.WithCommand(srv.Options.Command...),
-				gorun.WithEnv(m.runtimeEnv(srv.Options)),
+				gorun.WithEnv(m.runtimeEnv(srv.Service, srv.Options)),
 				gorun.WithSecret("MICRO_AUTH_ID", acc.ID),
 				gorun.WithSecret("MICRO_AUTH_SECRET", acc.Secret),
 			}

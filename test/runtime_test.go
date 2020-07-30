@@ -39,7 +39,7 @@ func ServerModeCall(t *T) {
 			return outp, errors.New("Call to runtime read should succeed")
 		}
 		return outp, err
-	}, 5 * time.Second); err != nil {
+	}, 5*time.Second); err != nil {
 		return
 	}
 }
@@ -76,20 +76,20 @@ func testRunLocalSource(t *T) {
 			return outp, errors.New("Can't find example service in runtime")
 		}
 		return outp, err
-	}, 15 * time.Second); err != nil {
+	}, 15*time.Second); err != nil {
 		return
 	}
 
-	if err := Try("Find go.micro.service.example in list", t, func() ([]byte, error) {
+	if err := Try("Find example in list", t, func() ([]byte, error) {
 		outp, err := exec.Command("micro", serv.EnvFlag(), "services").CombinedOutput()
 		if err != nil {
 			return outp, err
 		}
-		if !strings.Contains(string(outp), "go.micro.service.example") {
+		if !strings.Contains(string(outp), "example") {
 			return outp, errors.New("Can't find example service in list")
 		}
 		return outp, err
-	}, 50 * time.Second); err != nil {
+	}, 50*time.Second); err != nil {
 		return
 	}
 }
@@ -126,20 +126,20 @@ func testRunAndKill(t *T) {
 			return outp, errors.New("Can't find example service in runtime")
 		}
 		return outp, err
-	}, 15 * time.Second); err != nil {
+	}, 15*time.Second); err != nil {
 		return
 	}
 
-	if err := Try("Find go.micro.service.example in list", t, func() ([]byte, error) {
+	if err := Try("Find example in list", t, func() ([]byte, error) {
 		outp, err := exec.Command("micro", serv.EnvFlag(), "services").CombinedOutput()
 		if err != nil {
 			return outp, err
 		}
-		if !strings.Contains(string(outp), "go.micro.service.example") {
+		if !strings.Contains(string(outp), "example") {
 			return outp, errors.New("Can't find example service in list")
 		}
 		return outp, err
-	}, 50 * time.Second); err != nil {
+	}, 50*time.Second); err != nil {
 		return
 	}
 
@@ -162,20 +162,20 @@ func testRunAndKill(t *T) {
 			return outp, errors.New("Should not find example service in runtime")
 		}
 		return outp, err
-	}, 15 * time.Second); err != nil {
+	}, 15*time.Second); err != nil {
 		return
 	}
 
-	if err := Try("Find go.micro.service.example in list", t, func() ([]byte, error) {
+	if err := Try("Find example in list", t, func() ([]byte, error) {
 		outp, err := exec.Command("micro", serv.EnvFlag(), "services").CombinedOutput()
 		if err != nil {
 			return outp, err
 		}
-		if strings.Contains(string(outp), "go.micro.service.example") {
+		if strings.Contains(string(outp), "example") {
 			return outp, errors.New("Should not find example service in list")
 		}
 		return outp, err
-	}, 20 * time.Second); err != nil {
+	}, 20*time.Second); err != nil {
 		return
 	}
 }
@@ -225,7 +225,7 @@ func testRunGithubSource(t *T) {
 			return outp, errors.New("Output should contain hello world")
 		}
 		return outp, nil
-	}, 60 * time.Second); err != nil {
+	}, 60*time.Second); err != nil {
 		return
 	}
 
@@ -244,7 +244,7 @@ func testRunGithubSource(t *T) {
 			return outp, errors.New("Helloworld resonse is unexpected")
 		}
 		return outp, err
-	}, 60 * time.Second); err != nil {
+	}, 60*time.Second); err != nil {
 		return
 	}
 
@@ -283,12 +283,12 @@ func testRunLocalUpdateAndCall(t *T) {
 			return outp, errors.New("can't find service in runtime")
 		}
 		return outp, err
-	}, 15 * time.Second); err != nil {
+	}, 15*time.Second); err != nil {
 		return
 	}
 
 	if err := Try("Call example service", t, func() ([]byte, error) {
-		callCmd := exec.Command("micro", serv.EnvFlag(), "call", "go.micro.service.example", "Example.Call", `{"name": "Joe"}`)
+		callCmd := exec.Command("micro", serv.EnvFlag(), "call", "example", "Example.Call", `{"name": "Joe"}`)
 		outp, err := callCmd.CombinedOutput()
 		if err != nil {
 			return outp, err
@@ -302,7 +302,7 @@ func testRunLocalUpdateAndCall(t *T) {
 			return outp, errors.New("Response is unexpected")
 		}
 		return outp, err
-	}, 50 * time.Second); err != nil {
+	}, 50*time.Second); err != nil {
 		return
 	}
 
@@ -320,7 +320,7 @@ func testRunLocalUpdateAndCall(t *T) {
 	}
 
 	if err := Try("Call example service after modification", t, func() ([]byte, error) {
-		callCmd := exec.Command("micro", serv.EnvFlag(), "call", "go.micro.service.example", "Example.Call", `{"name": "Joe"}`)
+		callCmd := exec.Command("micro", serv.EnvFlag(), "call", "example", "Example.Call", `{"name": "Joe"}`)
 		outp, err = callCmd.CombinedOutput()
 		if err != nil {
 			return outp, err
@@ -334,7 +334,7 @@ func testRunLocalUpdateAndCall(t *T) {
 			return outp, errors.New("Response is not what's expected")
 		}
 		return outp, err
-	}, 15 * time.Second); err != nil {
+	}, 15*time.Second); err != nil {
 		return
 	}
 }
@@ -365,11 +365,11 @@ func testExistingLogs(t *T) {
 			return outp, err
 		}
 
-		if !strings.Contains(string(outp), "Listening on") || !strings.Contains(string(outp), "never stopping") {
+		if !strings.Contains(string(outp), "Listening on") || !strings.Contains(string(outp), "This is a log line") {
 			return outp, errors.New("Output does not contain expected")
 		}
 		return outp, nil
-	}, 50 * time.Second); err != nil {
+	}, 50*time.Second); err != nil {
 		return
 	}
 }
@@ -405,7 +405,7 @@ func testBranchCheckout(t *T) {
 			return outp, errors.New("Output does not contain expected")
 		}
 		return outp, nil
-	}, 30 * time.Second); err != nil {
+	}, 30*time.Second); err != nil {
 		return
 	}
 }
@@ -440,12 +440,12 @@ func testStreamLogsAndThirdPartyRepo(t *T) {
 			return outp, errors.New("Output does not contain expected")
 		}
 		return outp, nil
-	}, 50 * time.Second); err != nil {
+	}, 50*time.Second); err != nil {
 		return
 	}
 
 	// Test streaming logs
-	cmd := exec.Command("micro", serv.EnvFlag(), "logs", "-n", "1", "-f", "micro-test-service-logger")
+	cmd := exec.Command("micro", serv.EnvFlag(), "logs", "-n", "1", "-f", "micro/micro/test/service/logger")
 
 	time.Sleep(7 * time.Second)
 
@@ -458,7 +458,7 @@ func testStreamLogsAndThirdPartyRepo(t *T) {
 			t.Fatal("No log lines streamed")
 			return
 		}
-		if !strings.Contains(string(outp), "never stopping") {
+		if !strings.Contains(string(outp), "This is a log line") {
 			t.Fatalf("Unexpected logs: %v", string(outp))
 			return
 		}
@@ -529,59 +529,7 @@ func testParentDependency(t *T) {
 			return outp, errors.New("Output should contain hello world")
 		}
 		return outp, nil
-	}, 30 * time.Second); err != nil {
-		return
-	}
-}
-
-func TestFastRuns(t *testing.T) {
-	TrySuite(t, testFastRuns, retryCount)
-}
-
-func testFastRuns(t *T) {
-	t.Parallel()
-	serv := NewServer(t, WithLogin())
-	defer serv.Close()
-	if err := serv.Run(); err != nil {
-		return
-	}
-
-	runCmd := exec.Command("micro", serv.EnvFlag(), "run", "github.com/m3o/services/signup")
-	outp, err := runCmd.CombinedOutput()
-	if err != nil {
-		t.Fatalf("micro run failure, output: %v", string(outp))
-		return
-	}
-
-	// Stripe needs some configs to start
-	// TODO replace with normal micro config set call
-	runCmd = exec.Command("micro", serv.EnvFlag(), "call", "go.micro.config", "Config.Create", `{"change":{"namespace":"micro", "path":"micro.payments.stripe.api_key", "changeSet" : {"data":"notatruekey", "format":"json"}}}`)
-	// runCmd = exec.Command("micro", serv.EnvFlag(), "config", "set", "micro.payments.stripe.api_key", "notatruekey")
-	outp, err = runCmd.CombinedOutput()
-	if err != nil {
-		t.Fatalf("micro config set failure, output: %v", string(outp))
-		return
-	}
-
-	runCmd = exec.Command("micro", serv.EnvFlag(), "run", "github.com/m3o/services/payments/provider/stripe")
-	outp, err = runCmd.CombinedOutput()
-	if err != nil {
-		t.Fatalf("micro run failure, output: %v", string(outp))
-		return
-	}
-
-	if err := Try("Find signup and stripe", t, func() ([]byte, error) {
-		psCmd := exec.Command("micro", serv.EnvFlag(), "services")
-		outp, err = psCmd.CombinedOutput()
-		if err != nil {
-			return outp, err
-		}
-
-		if !strings.Contains(string(outp), "signup") || !strings.Contains(string(outp), "stripe") {
-			return outp, errors.New("Signup or stripe can't be found")
-		}
-		return outp, nil
-	}, 120 * time.Second); err != nil {
+	}, 30*time.Second); err != nil {
 		return
 	}
 }

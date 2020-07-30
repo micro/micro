@@ -15,6 +15,8 @@ import (
 	api "github.com/micro/go-micro/v3/api"
 	client "github.com/micro/go-micro/v3/client"
 	server "github.com/micro/go-micro/v3/server"
+	microClient "github.com/micro/micro/v3/service/client"
+	microServer "github.com/micro/micro/v3/service/server"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -32,7 +34,8 @@ const _ = proto.ProtoPackageIsVersion3 // please upgrade the proto package
 var _ api.Endpoint
 var _ context.Context
 var _ client.Option
-var _ server.Option
+var _ = microServer.Handle
+var _ = microClient.Call
 
 // Api Endpoints for Network service
 
@@ -58,21 +61,17 @@ type NetworkService interface {
 }
 
 type networkService struct {
-	c    client.Client
 	name string
 }
 
-func NewNetworkService(name string, c client.Client) NetworkService {
-	return &networkService{
-		c:    c,
-		name: name,
-	}
+func NewNetworkService(name string) NetworkService {
+	return &networkService{name: name}
 }
 
 func (c *networkService) Connect(ctx context.Context, in *ConnectRequest, opts ...client.CallOption) (*ConnectResponse, error) {
-	req := c.c.NewRequest(c.name, "Network.Connect", in)
+	req := microClient.NewRequest(c.name, "Network.Connect", in)
 	out := new(ConnectResponse)
-	err := c.c.Call(ctx, req, out, opts...)
+	err := microClient.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -80,9 +79,9 @@ func (c *networkService) Connect(ctx context.Context, in *ConnectRequest, opts .
 }
 
 func (c *networkService) Graph(ctx context.Context, in *GraphRequest, opts ...client.CallOption) (*GraphResponse, error) {
-	req := c.c.NewRequest(c.name, "Network.Graph", in)
+	req := microClient.NewRequest(c.name, "Network.Graph", in)
 	out := new(GraphResponse)
-	err := c.c.Call(ctx, req, out, opts...)
+	err := microClient.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -90,9 +89,9 @@ func (c *networkService) Graph(ctx context.Context, in *GraphRequest, opts ...cl
 }
 
 func (c *networkService) Nodes(ctx context.Context, in *NodesRequest, opts ...client.CallOption) (*NodesResponse, error) {
-	req := c.c.NewRequest(c.name, "Network.Nodes", in)
+	req := microClient.NewRequest(c.name, "Network.Nodes", in)
 	out := new(NodesResponse)
-	err := c.c.Call(ctx, req, out, opts...)
+	err := microClient.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -100,9 +99,9 @@ func (c *networkService) Nodes(ctx context.Context, in *NodesRequest, opts ...cl
 }
 
 func (c *networkService) Routes(ctx context.Context, in *RoutesRequest, opts ...client.CallOption) (*RoutesResponse, error) {
-	req := c.c.NewRequest(c.name, "Network.Routes", in)
+	req := microClient.NewRequest(c.name, "Network.Routes", in)
 	out := new(RoutesResponse)
-	err := c.c.Call(ctx, req, out, opts...)
+	err := microClient.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -110,9 +109,9 @@ func (c *networkService) Routes(ctx context.Context, in *RoutesRequest, opts ...
 }
 
 func (c *networkService) Services(ctx context.Context, in *ServicesRequest, opts ...client.CallOption) (*ServicesResponse, error) {
-	req := c.c.NewRequest(c.name, "Network.Services", in)
+	req := microClient.NewRequest(c.name, "Network.Services", in)
 	out := new(ServicesResponse)
-	err := c.c.Call(ctx, req, out, opts...)
+	err := microClient.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -120,9 +119,9 @@ func (c *networkService) Services(ctx context.Context, in *ServicesRequest, opts
 }
 
 func (c *networkService) Status(ctx context.Context, in *StatusRequest, opts ...client.CallOption) (*StatusResponse, error) {
-	req := c.c.NewRequest(c.name, "Network.Status", in)
+	req := microClient.NewRequest(c.name, "Network.Status", in)
 	out := new(StatusResponse)
-	err := c.c.Call(ctx, req, out, opts...)
+	err := microClient.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -146,7 +145,7 @@ type NetworkHandler interface {
 	Status(context.Context, *StatusRequest, *StatusResponse) error
 }
 
-func RegisterNetworkHandler(s server.Server, hdlr NetworkHandler, opts ...server.HandlerOption) error {
+func RegisterNetworkHandler(hdlr NetworkHandler, opts ...server.HandlerOption) error {
 	type network interface {
 		Connect(ctx context.Context, in *ConnectRequest, out *ConnectResponse) error
 		Graph(ctx context.Context, in *GraphRequest, out *GraphResponse) error
@@ -159,7 +158,7 @@ func RegisterNetworkHandler(s server.Server, hdlr NetworkHandler, opts ...server
 		network
 	}
 	h := &networkHandler{hdlr}
-	return s.Handle(s.NewHandler(&Network{h}, opts...))
+	return microServer.Handle(microServer.NewHandler(&Network{h}, opts...))
 }
 
 type networkHandler struct {

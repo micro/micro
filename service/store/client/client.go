@@ -8,10 +8,9 @@ import (
 	"time"
 
 	"github.com/micro/go-micro/v3/client"
-	"github.com/micro/micro/v3/service/errors"
 	"github.com/micro/go-micro/v3/metadata"
 	"github.com/micro/go-micro/v3/store"
-	muclient "github.com/micro/micro/v3/service/client"
+	"github.com/micro/micro/v3/service/errors"
 	pb "github.com/micro/micro/v3/service/store/proto"
 )
 
@@ -42,15 +41,6 @@ func (s *srv) Init(opts ...store.Option) error {
 	s.Database = s.options.Database
 	s.Table = s.options.Table
 	s.Nodes = s.options.Nodes
-
-	cli := muclient.DefaultClient
-	if s.options.Context != nil {
-		if c, ok := s.options.Context.Value(clientKey{}).(client.Client); ok {
-			cli = c
-		}
-	}
-	s.Client = pb.NewStoreService("go.micro.store", cli)
-
 	return nil
 }
 
@@ -250,20 +240,11 @@ func NewStore(opts ...store.Option) store.Store {
 		o(&options)
 	}
 
-	cli := muclient.DefaultClient
-	if options.Context != nil {
-		if c, ok := options.Context.Value(clientKey{}).(client.Client); ok {
-			cli = c
-		}
-	}
-
-	service := &srv{
+	return &srv{
 		options:  options,
 		Database: options.Database,
 		Table:    options.Table,
 		Nodes:    options.Nodes,
-		Client:   pb.NewStoreService("go.micro.store", cli),
+		Client:   pb.NewStoreService("go.micro.store"),
 	}
-
-	return service
 }

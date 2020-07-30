@@ -14,6 +14,8 @@ import (
 	api "github.com/micro/go-micro/v3/api"
 	client "github.com/micro/go-micro/v3/client"
 	server "github.com/micro/go-micro/v3/server"
+	microClient "github.com/micro/micro/v3/service/client"
+	microServer "github.com/micro/micro/v3/service/server"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -31,7 +33,8 @@ const _ = proto.ProtoPackageIsVersion3 // please upgrade the proto package
 var _ api.Endpoint
 var _ context.Context
 var _ client.Option
-var _ server.Option
+var _ = microServer.Handle
+var _ = microClient.Call
 
 // Api Endpoints for Auth service
 
@@ -48,21 +51,17 @@ type AuthService interface {
 }
 
 type authService struct {
-	c    client.Client
 	name string
 }
 
-func NewAuthService(name string, c client.Client) AuthService {
-	return &authService{
-		c:    c,
-		name: name,
-	}
+func NewAuthService(name string) AuthService {
+	return &authService{name: name}
 }
 
 func (c *authService) Generate(ctx context.Context, in *GenerateRequest, opts ...client.CallOption) (*GenerateResponse, error) {
-	req := c.c.NewRequest(c.name, "Auth.Generate", in)
+	req := microClient.NewRequest(c.name, "Auth.Generate", in)
 	out := new(GenerateResponse)
-	err := c.c.Call(ctx, req, out, opts...)
+	err := microClient.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -70,9 +69,9 @@ func (c *authService) Generate(ctx context.Context, in *GenerateRequest, opts ..
 }
 
 func (c *authService) Inspect(ctx context.Context, in *InspectRequest, opts ...client.CallOption) (*InspectResponse, error) {
-	req := c.c.NewRequest(c.name, "Auth.Inspect", in)
+	req := microClient.NewRequest(c.name, "Auth.Inspect", in)
 	out := new(InspectResponse)
-	err := c.c.Call(ctx, req, out, opts...)
+	err := microClient.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -80,9 +79,9 @@ func (c *authService) Inspect(ctx context.Context, in *InspectRequest, opts ...c
 }
 
 func (c *authService) Token(ctx context.Context, in *TokenRequest, opts ...client.CallOption) (*TokenResponse, error) {
-	req := c.c.NewRequest(c.name, "Auth.Token", in)
+	req := microClient.NewRequest(c.name, "Auth.Token", in)
 	out := new(TokenResponse)
-	err := c.c.Call(ctx, req, out, opts...)
+	err := microClient.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -97,7 +96,7 @@ type AuthHandler interface {
 	Token(context.Context, *TokenRequest, *TokenResponse) error
 }
 
-func RegisterAuthHandler(s server.Server, hdlr AuthHandler, opts ...server.HandlerOption) error {
+func RegisterAuthHandler(hdlr AuthHandler, opts ...server.HandlerOption) error {
 	type auth interface {
 		Generate(ctx context.Context, in *GenerateRequest, out *GenerateResponse) error
 		Inspect(ctx context.Context, in *InspectRequest, out *InspectResponse) error
@@ -107,7 +106,7 @@ func RegisterAuthHandler(s server.Server, hdlr AuthHandler, opts ...server.Handl
 		auth
 	}
 	h := &authHandler{hdlr}
-	return s.Handle(s.NewHandler(&Auth{h}, opts...))
+	return microServer.Handle(microServer.NewHandler(&Auth{h}, opts...))
 }
 
 type authHandler struct {
@@ -140,21 +139,17 @@ type AccountsService interface {
 }
 
 type accountsService struct {
-	c    client.Client
 	name string
 }
 
-func NewAccountsService(name string, c client.Client) AccountsService {
-	return &accountsService{
-		c:    c,
-		name: name,
-	}
+func NewAccountsService(name string) AccountsService {
+	return &accountsService{name: name}
 }
 
 func (c *accountsService) List(ctx context.Context, in *ListAccountsRequest, opts ...client.CallOption) (*ListAccountsResponse, error) {
-	req := c.c.NewRequest(c.name, "Accounts.List", in)
+	req := microClient.NewRequest(c.name, "Accounts.List", in)
 	out := new(ListAccountsResponse)
-	err := c.c.Call(ctx, req, out, opts...)
+	err := microClient.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -162,9 +157,9 @@ func (c *accountsService) List(ctx context.Context, in *ListAccountsRequest, opt
 }
 
 func (c *accountsService) Delete(ctx context.Context, in *DeleteAccountRequest, opts ...client.CallOption) (*DeleteAccountResponse, error) {
-	req := c.c.NewRequest(c.name, "Accounts.Delete", in)
+	req := microClient.NewRequest(c.name, "Accounts.Delete", in)
 	out := new(DeleteAccountResponse)
-	err := c.c.Call(ctx, req, out, opts...)
+	err := microClient.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -178,7 +173,7 @@ type AccountsHandler interface {
 	Delete(context.Context, *DeleteAccountRequest, *DeleteAccountResponse) error
 }
 
-func RegisterAccountsHandler(s server.Server, hdlr AccountsHandler, opts ...server.HandlerOption) error {
+func RegisterAccountsHandler(hdlr AccountsHandler, opts ...server.HandlerOption) error {
 	type accounts interface {
 		List(ctx context.Context, in *ListAccountsRequest, out *ListAccountsResponse) error
 		Delete(ctx context.Context, in *DeleteAccountRequest, out *DeleteAccountResponse) error
@@ -187,7 +182,7 @@ func RegisterAccountsHandler(s server.Server, hdlr AccountsHandler, opts ...serv
 		accounts
 	}
 	h := &accountsHandler{hdlr}
-	return s.Handle(s.NewHandler(&Accounts{h}, opts...))
+	return microServer.Handle(microServer.NewHandler(&Accounts{h}, opts...))
 }
 
 type accountsHandler struct {
@@ -217,21 +212,17 @@ type RulesService interface {
 }
 
 type rulesService struct {
-	c    client.Client
 	name string
 }
 
-func NewRulesService(name string, c client.Client) RulesService {
-	return &rulesService{
-		c:    c,
-		name: name,
-	}
+func NewRulesService(name string) RulesService {
+	return &rulesService{name: name}
 }
 
 func (c *rulesService) Create(ctx context.Context, in *CreateRequest, opts ...client.CallOption) (*CreateResponse, error) {
-	req := c.c.NewRequest(c.name, "Rules.Create", in)
+	req := microClient.NewRequest(c.name, "Rules.Create", in)
 	out := new(CreateResponse)
-	err := c.c.Call(ctx, req, out, opts...)
+	err := microClient.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -239,9 +230,9 @@ func (c *rulesService) Create(ctx context.Context, in *CreateRequest, opts ...cl
 }
 
 func (c *rulesService) Delete(ctx context.Context, in *DeleteRequest, opts ...client.CallOption) (*DeleteResponse, error) {
-	req := c.c.NewRequest(c.name, "Rules.Delete", in)
+	req := microClient.NewRequest(c.name, "Rules.Delete", in)
 	out := new(DeleteResponse)
-	err := c.c.Call(ctx, req, out, opts...)
+	err := microClient.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -249,9 +240,9 @@ func (c *rulesService) Delete(ctx context.Context, in *DeleteRequest, opts ...cl
 }
 
 func (c *rulesService) List(ctx context.Context, in *ListRequest, opts ...client.CallOption) (*ListResponse, error) {
-	req := c.c.NewRequest(c.name, "Rules.List", in)
+	req := microClient.NewRequest(c.name, "Rules.List", in)
 	out := new(ListResponse)
-	err := c.c.Call(ctx, req, out, opts...)
+	err := microClient.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -266,7 +257,7 @@ type RulesHandler interface {
 	List(context.Context, *ListRequest, *ListResponse) error
 }
 
-func RegisterRulesHandler(s server.Server, hdlr RulesHandler, opts ...server.HandlerOption) error {
+func RegisterRulesHandler(hdlr RulesHandler, opts ...server.HandlerOption) error {
 	type rules interface {
 		Create(ctx context.Context, in *CreateRequest, out *CreateResponse) error
 		Delete(ctx context.Context, in *DeleteRequest, out *DeleteResponse) error
@@ -276,7 +267,7 @@ func RegisterRulesHandler(s server.Server, hdlr RulesHandler, opts ...server.Han
 		rules
 	}
 	h := &rulesHandler{hdlr}
-	return s.Handle(s.NewHandler(&Rules{h}, opts...))
+	return microServer.Handle(microServer.NewHandler(&Rules{h}, opts...))
 }
 
 type rulesHandler struct {

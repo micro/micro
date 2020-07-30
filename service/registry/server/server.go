@@ -5,9 +5,9 @@ import (
 	"time"
 
 	"github.com/micro/cli/v2"
-	log "github.com/micro/micro/v3/service/logger"
 	"github.com/micro/go-micro/v3/registry"
 	"github.com/micro/micro/v3/service"
+	log "github.com/micro/micro/v3/service/logger"
 	pb "github.com/micro/micro/v3/service/registry/proto"
 	"github.com/micro/micro/v3/service/registry/util"
 )
@@ -102,7 +102,7 @@ func Run(ctx *cli.Context) error {
 	id := srv.Server().Options().Id
 
 	// register the handler
-	pb.RegisterRegistryHandler(srv.Server(), &Registry{
+	pb.RegisterRegistryHandler(&Registry{
 		ID:    id,
 		Event: service.NewEvent(topic),
 	})

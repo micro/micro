@@ -128,7 +128,7 @@ func (m *manager) processEvent(key string) {
 			gorun.CreateNamespace(ns),
 			gorun.WithArgs(ev.Options.Args...),
 			gorun.WithCommand(ev.Options.Command...),
-			gorun.WithEnv(m.runtimeEnv(ev.Options)),
+			gorun.WithEnv(m.runtimeEnv(ev.Service, ev.Options)),
 			gorun.WithSecret("MICRO_AUTH_ID", acc.ID),
 			gorun.WithSecret("MICRO_AUTH_SECRET", acc.Secret),
 		}
@@ -158,7 +158,7 @@ func (m *manager) processEvent(key string) {
 }
 
 // runtimeEnv returns the environment variables which should  be used when creating a service.
-func (m *manager) runtimeEnv(options *gorun.CreateOptions) []string {
+func (m *manager) runtimeEnv(srv *gorun.Service, options *gorun.CreateOptions) []string {
 	setEnv := func(p []string, env map[string]string) {
 		for _, v := range p {
 			parts := strings.Split(v, "=")
@@ -174,6 +174,9 @@ func (m *manager) runtimeEnv(options *gorun.CreateOptions) []string {
 		// ensure a profile for the services isn't set, they
 		// should use the default RPC clients
 		"MICRO_PROFILE": "",
+		// pass the service's name and version
+		"MICRO_SERVICE_NAME":    nameFromService(srv.Name),
+		"MICRO_SERVICE_VERSION": srv.Version,
 	}
 
 	// set the env vars provided
@@ -192,4 +195,14 @@ func (m *manager) runtimeEnv(options *gorun.CreateOptions) []string {
 
 	// setup the runtime env
 	return vars
+}
+
+// if a service is run from directory "/test/foo", the service
+// will register as foo
+func nameFromService(name string) string {
+	comps := strings.Split(name, "/")
+	if len(comps) == 0 {
+		return ""
+	}
+	return comps[len(comps)-1]
 }

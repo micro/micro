@@ -2,13 +2,15 @@ package service
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"os"
 	"os/signal"
 	"runtime"
 
+	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro/v3/client"
 	debug "github.com/micro/go-micro/v3/debug/service/handler"
-	"github.com/micro/micro/v3/service/logger"
 	"github.com/micro/go-micro/v3/model"
 	"github.com/micro/go-micro/v3/server"
 	"github.com/micro/go-micro/v3/store"
@@ -16,8 +18,15 @@ import (
 	"github.com/micro/micro/v3/cmd"
 	muclient "github.com/micro/micro/v3/service/client"
 	mudebug "github.com/micro/micro/v3/service/debug"
+	"github.com/micro/micro/v3/service/logger"
 	mumodel "github.com/micro/micro/v3/service/model"
 	muserver "github.com/micro/micro/v3/service/server"
+)
+
+var (
+	// errMissingName is returned by service.Run when a service is run
+	// prior to it's name being set.
+	errMissingName = errors.New("missing service name")
 )
 
 // Service is a Micro Service which honours the go-micro/service interface
@@ -25,11 +34,39 @@ type Service struct {
 	opts Options
 }
 
+// Run the default service and waits for it to exist
+func Run() {
+	// setup a new service, calling New() will trigger the cmd package
+	// to parse the command line and
+	srv := New()
+
+	if err := srv.Run(); err == errMissingName {
+		fmt.Println("Micro services must be run using \"micro run\"")
+		os.Exit(1)
+	} else if err != nil {
+		logger.Fatalf("Error running %v service: %v", srv.Name(), err)
+	}
+}
+
 // New returns a new Micro Service
 func New(opts ...Option) *Service {
+	// before extracts service options from the CLI flags. These
+	// aren't set by the cmd package to prevent a circular dependancy.
+	// prepend them to the array so options passed by the user to this
+	// function are applied after (taking precedence)
+	before := func(ctx *cli.Context) error {
+		if n := ctx.String("service_name"); len(n) > 0 {
+			opts = append([]Option{Name(n)}, opts...)
+		}
+		if v := ctx.String("service_version"); len(v) > 0 {
+			opts = append([]Option{Version(v)}, opts...)
+		}
+		return nil
+	}
+
 	// setup micro, this triggers the Before
 	// function which parses CLI flags.
-	cmd.New(cmd.SetupOnly()).Run()
+	cmd.New(cmd.SetupOnly(), cmd.Before(before)).Run()
 
 	// return a new service
 	return &Service{opts: newOptions(opts...)}
@@ -37,7 +74,12 @@ func New(opts ...Option) *Service {
 
 // Name of the service
 func (s *Service) Name() string {
-	return muserver.DefaultServer.Options().Name
+	return s.opts.Name
+}
+
+// Version of the service
+func (s *Service) Version() string {
+	return s.opts.Version
 }
 
 func (s *Service) Init(opts ...Option) {
@@ -76,7 +118,7 @@ func (s *Service) Start() error {
 		}
 	}
 
-	if err := muserver.DefaultServer.Start(); err != nil {
+	if err := s.Server().Start(); err != nil {
 		return err
 	}
 
@@ -113,6 +155,11 @@ func (s *Service) Stop() error {
 
 // Run the service
 func (s *Service) Run() error {
+	// ensure service's have a name, this is injected by the runtime manager
+	if len(s.Name()) == 0 {
+		return errMissingName
+	}
+
 	// register the debug handler
 	muserver.DefaultServer.Handle(
 		muserver.DefaultServer.NewHandler(

@@ -1,4 +1,4 @@
-# Micro [![License](https://img.shields.io/:license-apache-blue.svg)](https://opensource.org/licenses/Apache-2.0) [![GoDoc](https://godoc.org/github.com/micro/micro?status.svg)](https://godoc.org/github.com/micro/micro) [![Travis CI](https://travis-ci.org/micro/micro.svg?branch=master)](https://travis-ci.org/micro/micro) [![Go Report Card](https://goreportcard.com/badge/micro/micro)](https://goreportcard.com/report/github.com/micro/micro)
+# Micro [![License](https://img.shields.io/:license-apache-blue.svg)](https://opensource.org/licenses/Apache-2.0) [![Go.Dev reference](https://img.shields.io/badge/go.dev-reference-007d9c?logo=go&logoColor=white&style=flat-square)](https://pkg.go.dev/github.com/micro/micro/v3?tab=overview) [![Travis CI](https://travis-ci.org/micro/micro.svg?branch=master)](https://travis-ci.org/micro/micro) [![Go Report Card](https://goreportcard.com/badge/micro/micro)](https://goreportcard.com/report/github.com/micro/micro)
 
 Micro is a framework for cloud native development.
 
@@ -15,7 +15,7 @@ The framework is composed of the following features:
 - **Server:** A distributed systems runtime server composed of building block services which abstract away the underlying infrastructure 
 and provide a programmable abstraction layer. Authentication, configuration, messaging, storage and more built in.
 
-- **Client:** Multiple entrypoints through which you can access your services. Write services once and access them through every means 
+- **Clients:** Multiple entrypoints through which you can access your services. Write services once and access them through every means 
 you've already come to know. An API Gateway, gRPC proxy, slack bot, web dashboard and commmand line interface.
 
 - **Library:** A Go library which makes it drop dead simple to write your services without having to piece together lines and lines of 
@@ -64,9 +64,6 @@ Create a service
 ```
 # generate a service (follow instructions in output)
 micro new helloworld
-
-# set to use server
-micro env set server
 
 # run the service
 micro run helloworld

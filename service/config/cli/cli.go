@@ -8,14 +8,13 @@ import (
 	"time"
 
 	"github.com/micro/cli/v2"
-	log "github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/client/cli/namespace"
 	"github.com/micro/micro/v3/client/cli/util"
 	"github.com/micro/micro/v3/cmd"
 	cliconfig "github.com/micro/micro/v3/internal/config"
 	"github.com/micro/micro/v3/internal/helper"
-	muclient "github.com/micro/micro/v3/service/client"
 	proto "github.com/micro/micro/v3/service/config/proto"
+	log "github.com/micro/micro/v3/service/logger"
 )
 
 var (
@@ -36,7 +35,7 @@ func setConfig(ctx *cli.Context) error {
 	if ctx.Bool("local") {
 		return cliconfig.Set(val, strings.Split(key, ".")...)
 	}
-	pb := proto.NewConfigService("go.micro.config", muclient.DefaultClient)
+	pb := proto.NewConfigService("go.micro.config")
 
 	if args.Len() == 0 {
 		return fmt.Errorf("Required usage: micro config set key val")
@@ -86,8 +85,6 @@ func getConfig(ctx *cli.Context) error {
 		}
 		return err
 	}
-	cli := muclient.DefaultClient
-	pb := proto.NewConfigService("go.micro.config", cli)
 
 	ns, err := namespace.Get(util.GetEnv(ctx).Name)
 	if err != nil {
@@ -96,6 +93,7 @@ func getConfig(ctx *cli.Context) error {
 
 	// TODO: allow the specifying of a config.Key. This will be service name
 	// The actuall key-val set is a path e.g micro/accounts/key
+	pb := proto.NewConfigService("go.micro.config")
 	rsp, err := pb.Read(context.TODO(), &proto.ReadRequest{
 		// The current namespace,
 		Namespace: ns,
@@ -132,8 +130,6 @@ func delConfig(ctx *cli.Context) error {
 		log.Fatal("key cannot be blank")
 	}
 
-	pb := proto.NewConfigService("go.micro.config", muclient.DefaultClient)
-
 	ns, err := namespace.Get(util.GetEnv(ctx).Name)
 	if err != nil {
 		return err
@@ -141,7 +137,7 @@ func delConfig(ctx *cli.Context) error {
 
 	// TODO: allow the specifying of a config.Key. This will be service name
 	// The actuall key-val set is a path e.g micro/accounts/key
-
+	pb := proto.NewConfigService("go.micro.config")
 	_, err = pb.Delete(context.TODO(), &proto.DeleteRequest{
 		Change: &proto.Change{
 			// The current namespace

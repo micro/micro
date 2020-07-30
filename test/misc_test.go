@@ -19,18 +19,12 @@ func testNew(t *T) {
 
 	tcs := []struct {
 		svcName    string
-		sType      string
 		skipBuild  bool
 		skipProtoc bool
 	}{
-		{svcName: "foobarsvc", sType: "service"},
-		{svcName: "foobarweb", sType: "web", skipProtoc: true, skipBuild: true}, // web service has no proto generated
-		{svcName: "foobarapi", sType: "api", skipBuild: true},                   // api service actually fails build out of the box because it's supposed to point to a service proto
-		{svcName: "foo-bar", sType: "service"},
-		{svcName: "foo-barfn", sType: "function"},
-		{svcName: "foo-barweb", sType: "web", skipProtoc: true, skipBuild: true}, // web service has no proto generated
-		{svcName: "foo-barapi", sType: "api", skipBuild: true},                   // api service actually fails build out of the box because it's supposed to point to a service proto
-		{svcName: "foo-bar-baz", sType: "service"},
+		{svcName: "foobarsvc"},
+		{svcName: "foo-bar"},
+		{svcName: "foo-bar-baz"},
 	}
 
 	for _, tc := range tcs {
@@ -38,7 +32,7 @@ func testNew(t *T) {
 			defer func() {
 				exec.Command("rm", "-r", "./"+tc.svcName).CombinedOutput()
 			}()
-			outp, err := exec.Command("micro", "new", "--type", tc.sType, tc.svcName).CombinedOutput()
+			outp, err := exec.Command("micro", "new", tc.svcName).CombinedOutput()
 			if err != nil {
 				t.Fatal(err)
 				return
