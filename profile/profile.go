@@ -23,6 +23,7 @@ import (
 	"github.com/micro/go-micro/v3/runtime/kubernetes"
 	"github.com/micro/go-micro/v3/runtime/local"
 	"github.com/micro/go-micro/v3/server"
+	"github.com/micro/go-micro/v3/store"
 	"github.com/micro/go-micro/v3/store/cockroach"
 	"github.com/micro/go-micro/v3/store/file"
 	mem "github.com/micro/go-micro/v3/store/memory"
@@ -85,10 +86,10 @@ var CI = &Profile{
 	Name: "ci",
 	Setup: func(ctx *cli.Context) error {
 		microAuth.DefaultAuth = jwt.NewAuth()
-		microBroker.DefaultBroker = http.NewBroker()
 		microRuntime.DefaultRuntime = local.NewRuntime()
 		microStore.DefaultStore = file.NewStore()
 		microConfig.DefaultConfig, _ = config.NewConfig()
+		setBroker(http.NewBroker())
 		setRegistry(etcd.NewRegistry())
 		setupJWTRules()
 		return nil
@@ -106,10 +107,10 @@ var Local = &Profile{
 	Name: "local",
 	Setup: func(ctx *cli.Context) error {
 		microAuth.DefaultAuth = noop.NewAuth()
-		microBroker.DefaultBroker = http.NewBroker()
 		microRuntime.DefaultRuntime = local.NewRuntime()
 		microStore.DefaultStore = file.NewStore()
 		microConfig.DefaultConfig, _ = config.NewConfig()
+		setBroker(http.NewBroker())
 		setRegistry(mdns.NewRegistry())
 		setupJWTRules()
 		return nil
@@ -136,12 +137,16 @@ var Platform = &Profile{
 	Name: "platform",
 	Setup: func(ctx *cli.Context) error {
 		microAuth.DefaultAuth = jwt.NewAuth()
-		microBroker.DefaultBroker = nats.NewBroker(broker.Addrs("nats-cluster"))
 		microConfig.DefaultConfig, _ = config.NewConfig()
 		microRuntime.DefaultRuntime = kubernetes.NewRuntime()
-		microStore.DefaultStore = cockroach.NewStore()
+		setBroker(nats.NewBroker(broker.Addrs("nats-cluster")))
 		setRegistry(etcd.NewRegistry(registry.Addrs("etcd-cluster")))
 		setupJWTRules()
+
+		// the cockroach store will connect immediately so the address must be passed
+		// when the store is created. The cockroach store address contains the location
+		// of certs so it can't be defaulted like the broker and registry.
+		microStore.DefaultStore = cockroach.NewStore(store.Nodes(ctx.String("store_address")))
 		return nil
 	},
 }
@@ -170,6 +175,12 @@ func setRegistry(reg registry.Registry) {
 	microRouter.DefaultRouter.Init(router.Registry(reg))
 	microServer.DefaultServer.Init(server.Registry(reg))
 	microClient.DefaultClient.Init(client.Registry(reg))
+}
+
+func setBroker(b broker.Broker) {
+	microBroker.DefaultBroker = b
+	microClient.DefaultClient.Init(client.Broker(b))
+	microServer.DefaultServer.Init(server.Broker(b))
 }
 
 func setupJWTRules() {
