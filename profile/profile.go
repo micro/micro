@@ -124,7 +124,7 @@ var Local = &Profile{
 // Kubernetes profile to run on kubernetes
 var Kubernetes = &Profile{
 	Name:           "kubernetes",
-	NetworkAddress: "micro-network:8085",
+	NetworkAddress: "micro-network.default.svc.cluster.local:8085",
 	Setup: func(ctx *cli.Context) error {
 		// TODO: implement
 		// registry kubernetes
@@ -140,7 +140,7 @@ var Kubernetes = &Profile{
 // Platform is for running the micro platform
 var Platform = &Profile{
 	Name:           "platform",
-	NetworkAddress: "micro-network:8085",
+	NetworkAddress: "micro-network.default.svc.cluster.local:8085",
 	Setup: func(ctx *cli.Context) error {
 		microAuth.DefaultAuth = jwt.NewAuth()
 		microConfig.DefaultConfig, _ = config.NewConfig()
