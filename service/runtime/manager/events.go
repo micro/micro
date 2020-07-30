@@ -9,6 +9,7 @@ import (
 	gorun "github.com/micro/go-micro/v3/runtime"
 	gostore "github.com/micro/go-micro/v3/store"
 	"github.com/micro/micro/v3/internal/namespace"
+	"github.com/micro/micro/v3/service/client"
 	"github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/runtime"
 	"github.com/micro/micro/v3/service/store"
@@ -177,6 +178,9 @@ func (m *manager) runtimeEnv(srv *gorun.Service, options *gorun.CreateOptions) [
 		// pass the service's name and version
 		"MICRO_SERVICE_NAME":    nameFromService(srv.Name),
 		"MICRO_SERVICE_VERSION": srv.Version,
+		// set the proxy for the service to use (e.g. micro proxy)
+		// using the proxy which has been configured for the runtime
+		"MICRO_PROXY": client.DefaultClient.Options().Proxy,
 	}
 
 	// set the env vars provided

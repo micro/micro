@@ -8,14 +8,16 @@ import (
 	"strings"
 	"time"
 
+	"github.com/micro/micro/v3/profile"
+
 	"github.com/micro/cli/v2"
-	log "github.com/micro/micro/v3/service/logger"
 	gorun "github.com/micro/go-micro/v3/runtime"
 	"github.com/micro/go-micro/v3/util/file"
 	"github.com/micro/micro/v3/client/cli/util"
 	"github.com/micro/micro/v3/cmd"
 	"github.com/micro/micro/v3/service"
 	"github.com/micro/micro/v3/service/client"
+	log "github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/runtime"
 )
 
@@ -69,6 +71,12 @@ func init() {
 				Usage:   "Set the micro server address :10001",
 				EnvVars: []string{"MICRO_SERVER_ADDRESS"},
 			},
+			&cli.StringFlag{
+				Name:    "network_address",
+				Usage:   "Address of the micro network to proxy inter-service requests",
+				EnvVars: []string{"MICRO_NETWORK_ADDRESS"},
+				Value:   "127.0.0.1:8085",
+			},
 		},
 		Action: func(ctx *cli.Context) error {
 			Run(ctx)
@@ -117,6 +125,15 @@ func Run(context *cli.Context) error {
 			name = fmt.Sprintf("%s.%s", namespace, service)
 		}
 
+		// get the network address from the profile, all of the services
+		// should use this as a proxy to route requests via
+		var proxy string
+		if prof, err := profile.Load(context.String("profile")); err == nil {
+			proxy = prof.NetworkAddress
+		} else {
+			proxy = "127.0.0.1:8085"
+		}
+
 		log.Infof("Registering %s", name)
 		// @todo this is a hack
 		env := []string{}
@@ -150,6 +167,12 @@ func Run(context *cli.Context) error {
 				}
 				env = append(env, val)
 			}
+		}
+
+		// inject the proxy address for all services but the network, as we don't want
+		// that calling itself
+		if len(proxy) > 0 && service != "network" {
+			env = append(env, "MICRO_PROXY="+proxy)
 		}
 
 		// we want to pass through the global args so go up one level in the context lineage

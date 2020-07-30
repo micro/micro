@@ -66,36 +66,30 @@ func isBuiltinService(command string) bool {
 	return false
 }
 
-// SetProxyAddress includes things that should run for each command.
-func SetProxyAddress(ctx *cli.Context) {
+// CLIProxyAddress returns the proxy address which should be set for the client
+func CLIProxyAddress(ctx *cli.Context) string {
 	// This makes `micro [command name] --help` work without a server
 	for _, arg := range os.Args {
 		if arg == "--help" || arg == "-h" {
-			return
+			return ""
 		}
 	}
 	switch ctx.Args().First() {
 	case "new", "server", "help", "env":
-		return
+		return ""
 	}
 
 	// fix for "micro service [command]", e.g "micro service auth"
 	if ctx.Args().First() == "service" && isBuiltinService(ctx.Args().Get(1)) {
-		return
+		return ""
 	}
 
 	// don't set the proxy address on the proxy
 	if ctx.Args().First() == "proxy" {
-		return
+		return ""
 	}
 
-	env := GetEnv(ctx)
-	if len(env.ProxyAddress) == 0 {
-		return
-	}
-
-	// Set the proxy. TODO: Pass this as an option to the client instead.
-	os.Setenv("MICRO_PROXY", env.ProxyAddress)
+	return GetEnv(ctx).ProxyAddress
 }
 
 type Env struct {

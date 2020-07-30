@@ -12,7 +12,6 @@ import (
 	"github.com/micro/go-micro/v3/api/server/acme/certmagic"
 	bmem "github.com/micro/go-micro/v3/broker/memory"
 	grpcCli "github.com/micro/go-micro/v3/client/grpc"
-	log "github.com/micro/micro/v3/service/logger"
 	"github.com/micro/go-micro/v3/proxy"
 	"github.com/micro/go-micro/v3/proxy/http"
 	"github.com/micro/go-micro/v3/proxy/mucp"
@@ -28,6 +27,7 @@ import (
 	"github.com/micro/micro/v3/cmd"
 	"github.com/micro/micro/v3/internal/helper"
 	"github.com/micro/micro/v3/service"
+	log "github.com/micro/micro/v3/service/logger"
 	muregistry "github.com/micro/micro/v3/service/registry"
 	"github.com/micro/micro/v3/service/store"
 )
@@ -48,9 +48,6 @@ var (
 )
 
 func Run(ctx *cli.Context) error {
-	// because MICRO_PROXY_ADDRESS is used internally by the go-micro/client
-	// we need to unset it so we don't end up calling ourselves infinitely
-	os.Unsetenv("MICRO_PROXY_ADDRESS")
 	if len(ctx.String("server_name")) > 0 {
 		Name = ctx.String("server_name")
 	}
