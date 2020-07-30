@@ -118,7 +118,7 @@ func callService(srv *goregistry.Service, ctx *cli.Context) error {
 	// construct and execute the request using the json content type
 	req := client.NewRequest(srv.Name, endpoint, body, goclient.WithContentType("application/json"))
 	var rsp json.RawMessage
-	if err := client.Call(ctx.Context, req, &rsp); err != nil {
+	if err := client.Call(ctx.Context, req, &rsp, goclient.WithServiceToken()); err != nil {
 		return err
 	}
 

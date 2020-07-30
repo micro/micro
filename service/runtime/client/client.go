@@ -5,6 +5,7 @@ import (
 	"io"
 	"sync"
 
+	"github.com/micro/go-micro/v3/client"
 	cl "github.com/micro/go-micro/v3/client"
 	"github.com/micro/go-micro/v3/runtime"
 	pb "github.com/micro/micro/v3/service/runtime/proto"
@@ -87,7 +88,7 @@ func (s *svc) Logs(service *runtime.Service, opts ...runtime.LogsOption) (runtim
 		Options: &pb.LogsOptions{
 			Namespace: options.Namespace,
 		},
-	})
+	}, client.WithServiceToken())
 	if err != nil {
 		return nil, err
 	}
