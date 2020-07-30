@@ -27,8 +27,8 @@ spec:
       containers:
       - name: router
         env:
-        - name: MICRO_AUTH
-          value: "jwt"
+        - name: MICRO_PROFILE
+          value: platform
         - name: MICRO_AUTH_PUBLIC_KEY
           valueFrom:
             secretKeyRef:
@@ -41,20 +41,12 @@ spec:
               key: auth_private_key
         - name: MICRO_LOG_LEVEL
           value: "trace"
-        - name: MICRO_BROKER
-          value: "nats"
-        - name: MICRO_BROKER_ADDRESS
-          value: "nats-cluster"
         - name: MICRO_BROKER_TLS_CA
           value: "/certs/broker/ca.crt"
         - name: MICRO_BROKER_TLS_CERT
           value: "/certs/broker/cert.pem"
         - name: MICRO_BROKER_TLS_KEY
           value: "/certs/broker/key.pem"
-        - name: MICRO_REGISTRY
-          value: "etcd"
-        - name: MICRO_REGISTRY_ADDRESS
-          value: "etcd-cluster"
         - name: MICRO_REGISTRY_TLS_CA
           value: "/certs/registry/ca.crt"
         - name: MICRO_REGISTRY_TLS_CERT
