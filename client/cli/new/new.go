@@ -153,12 +153,6 @@ func Run(ctx *cli.Context) error {
 		return nil
 	}
 
-	// wd, err := os.Getwd()
-	// if err != nil {
-	// 	return err
-	// }
-	// dir := path.Join(wd, path.Clean(dir))
-
 	// check if the path is absolute, we don't want this
 	// we want to a relative path so we can install in GOPATH
 	if path.IsAbs(dir) {
