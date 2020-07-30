@@ -102,6 +102,11 @@ func setupAuthForService() error {
 
 // refreshAuthToken if it is close to expiring
 func refreshAuthToken(stop chan bool) {
+	// can't refresh a token we dno't have
+	if auth.DefaultAuth.Options().Token == nil {
+		return
+	}
+
 	t := time.NewTicker(time.Second * 15)
 	defer t.Stop()
 
