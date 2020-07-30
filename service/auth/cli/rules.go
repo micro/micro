@@ -17,16 +17,16 @@ import (
 )
 
 func listRules(ctx *cli.Context) error {
-	client := pb.NewRulesService("go.micro.auth")
+	rulesClient := pb.NewRulesService("go.micro.auth")
 
 	ns, err := namespace.Get(util.GetEnv(ctx).Name)
 	if err != nil {
 		return fmt.Errorf("Error getting namespace: %v", err)
 	}
 
-	rsp, err := client.List(context.TODO(), &pb.ListRequest{
+	rsp, err := rulesClient.List(context.TODO(), &pb.ListRequest{
 		Options: &pb.Options{Namespace: ns},
-	})
+	}, client.WithServiceToken())
 	if err != nil {
 		return fmt.Errorf("Error listing rules: %v", err)
 	}
