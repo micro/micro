@@ -9,11 +9,11 @@ import (
 	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro/v3/auth/jwt"
 	"github.com/micro/go-micro/v3/auth/noop"
+	"github.com/micro/go-micro/v3/broker"
 	"github.com/micro/go-micro/v3/broker/http"
 	"github.com/micro/go-micro/v3/broker/nats"
 	"github.com/micro/go-micro/v3/client"
 	"github.com/micro/go-micro/v3/config"
-	"github.com/micro/micro/v3/service/logger"
 	"github.com/micro/go-micro/v3/registry"
 	"github.com/micro/go-micro/v3/registry/etcd"
 	"github.com/micro/go-micro/v3/registry/mdns"
@@ -26,6 +26,7 @@ import (
 	"github.com/micro/go-micro/v3/store/cockroach"
 	"github.com/micro/go-micro/v3/store/file"
 	mem "github.com/micro/go-micro/v3/store/memory"
+	"github.com/micro/micro/v3/service/logger"
 
 	inAuth "github.com/micro/micro/v3/internal/auth"
 	microAuth "github.com/micro/micro/v3/service/auth"
@@ -120,7 +121,6 @@ var Kubernetes = &Profile{
 	Name: "kubernetes",
 	Setup: func(ctx *cli.Context) error {
 		// TODO: implement
-		// auth jwt
 		// registry kubernetes
 		// router static
 		// config configmap
@@ -136,11 +136,11 @@ var Platform = &Profile{
 	Name: "platform",
 	Setup: func(ctx *cli.Context) error {
 		microAuth.DefaultAuth = jwt.NewAuth()
-		microBroker.DefaultBroker = nats.NewBroker()
+		microBroker.DefaultBroker = nats.NewBroker(broker.Addrs("nats-cluster"))
+		microConfig.DefaultConfig, _ = config.NewConfig()
 		microRuntime.DefaultRuntime = kubernetes.NewRuntime()
 		microStore.DefaultStore = cockroach.NewStore()
-		microConfig.DefaultConfig, _ = config.NewConfig()
-		setRegistry(etcd.NewRegistry())
+		setRegistry(etcd.NewRegistry(registry.Addrs("etcd-cluster")))
 		setupJWTRules()
 		return nil
 	},
