@@ -40,7 +40,7 @@ spec:
               name: micro-secrets
               key: auth_private_key
         - name: MICRO_LOG_LEVEL
-          value: "trace"
+          value: "debug"
         - name: MICRO_BROKER_TLS_CA
           value: "/certs/broker/ca.crt"
         - name: MICRO_BROKER_TLS_CERT
