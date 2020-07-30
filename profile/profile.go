@@ -57,8 +57,6 @@ var profiles = map[string]*Profile{
 type Profile struct {
 	// name of the profile
 	Name string
-	// network address to use
-	NetworkAddress string
 	// function used for setup
 	Setup func(*cli.Context) error
 	// TODO: presetup dependencies
@@ -85,8 +83,7 @@ func Load(name string) (*Profile, error) {
 
 // CI profile to use for CI tests
 var CI = &Profile{
-	Name:           "ci",
-	NetworkAddress: "127.0.0.1:8085",
+	Name: "ci",
 	Setup: func(ctx *cli.Context) error {
 		microAuth.DefaultAuth = jwt.NewAuth()
 		microRuntime.DefaultRuntime = local.NewRuntime()
@@ -107,8 +104,7 @@ var Client = &Profile{
 
 // Local profile to run locally
 var Local = &Profile{
-	Name:           "local",
-	NetworkAddress: "127.0.0.0:8085",
+	Name: "local",
 	Setup: func(ctx *cli.Context) error {
 		microAuth.DefaultAuth = noop.NewAuth()
 		microRuntime.DefaultRuntime = local.NewRuntime()
@@ -123,8 +119,7 @@ var Local = &Profile{
 
 // Kubernetes profile to run on kubernetes
 var Kubernetes = &Profile{
-	Name:           "kubernetes",
-	NetworkAddress: "micro-network.default.svc.cluster.local:8085",
+	Name: "kubernetes",
 	Setup: func(ctx *cli.Context) error {
 		// TODO: implement
 		// registry kubernetes
@@ -139,8 +134,7 @@ var Kubernetes = &Profile{
 
 // Platform is for running the micro platform
 var Platform = &Profile{
-	Name:           "platform",
-	NetworkAddress: "micro-network.default.svc.cluster.local:8085",
+	Name: "platform",
 	Setup: func(ctx *cli.Context) error {
 		microAuth.DefaultAuth = jwt.NewAuth()
 		microConfig.DefaultConfig, _ = config.NewConfig()

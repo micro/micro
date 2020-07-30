@@ -8,8 +8,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/micro/micro/v3/profile"
-
 	"github.com/micro/cli/v2"
 	gorun "github.com/micro/go-micro/v3/runtime"
 	"github.com/micro/go-micro/v3/util/file"
@@ -27,7 +25,7 @@ var (
 		// runtime services
 		"config",   // ????
 		"auth",     // :8010
-		"network",  // :8085
+		"network",  // :443
 		"runtime",  // :8088
 		"registry", // :8000
 		"broker",   // :8001
@@ -119,13 +117,10 @@ func Run(context *cli.Context) error {
 			name = fmt.Sprintf("%s.%s", namespace, service)
 		}
 
-		// get the network address from the profile, all of the services
-		// should use this as a proxy to route requests via
-		var proxy string
-		if prof, err := profile.Load(context.String("profile")); err == nil {
-			proxy = prof.NetworkAddress
-		} else {
-			proxy = "127.0.0.1:8085"
+		// set the proxy addres, default to the network running locally
+		proxy := context.String("proxy_address")
+		if len(proxy) == 0 {
+			proxy = "127.0.0.1:8443"
 		}
 
 		log.Infof("Registering %s", name)

@@ -32,7 +32,7 @@ var (
 	services = []string{
 		// runtime services
 		"config",   // ????
-		"network",  // :8085
+		"network",  // :8085 (peer), :8443 (proxy)
 		"runtime",  // :8088
 		"registry", // :8000
 		"broker",   // :8001
