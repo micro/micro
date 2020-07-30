@@ -25,7 +25,7 @@ var (
 		// runtime services
 		"config",   // ????
 		"auth",     // :8010
-		"network",  // :443
+		"network",  // :8443
 		"runtime",  // :8088
 		"registry", // :8000
 		"broker",   // :8001
