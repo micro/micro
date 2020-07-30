@@ -5,6 +5,7 @@ import (
 	"io"
 	"sync"
 
+	cl "github.com/micro/go-micro/v3/client"
 	"github.com/micro/go-micro/v3/runtime"
 	"github.com/micro/micro/v3/service/client"
 	pb "github.com/micro/micro/v3/service/runtime/proto"
@@ -64,7 +65,7 @@ func (s *svc) Create(svc *runtime.Service, opts ...runtime.CreateOption) error {
 		},
 	}
 
-	if _, err := s.runtime.Create(options.Context, req); err != nil {
+	if _, err := s.runtime.Create(options.Context, req, cl.WithServiceToken()); err != nil {
 		return err
 	}
 
@@ -187,7 +188,7 @@ func (s *svc) Read(opts ...runtime.ReadOption) ([]*runtime.Service, error) {
 		},
 	}
 
-	resp, err := s.runtime.Read(options.Context, req)
+	resp, err := s.runtime.Read(options.Context, req, cl.WithServiceToken())
 	if err != nil {
 		return nil, err
 	}
@@ -229,7 +230,7 @@ func (s *svc) Update(svc *runtime.Service, opts ...runtime.UpdateOption) error {
 		},
 	}
 
-	if _, err := s.runtime.Update(options.Context, req); err != nil {
+	if _, err := s.runtime.Update(options.Context, req, cl.WithServiceToken()); err != nil {
 		return err
 	}
 
@@ -259,7 +260,7 @@ func (s *svc) Delete(svc *runtime.Service, opts ...runtime.DeleteOption) error {
 		},
 	}
 
-	if _, err := s.runtime.Delete(options.Context, req); err != nil {
+	if _, err := s.runtime.Delete(options.Context, req, cl.WithServiceToken()); err != nil {
 		return err
 	}
 

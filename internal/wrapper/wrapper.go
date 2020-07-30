@@ -8,13 +8,13 @@ import (
 	goauth "github.com/micro/go-micro/v3/auth"
 	"github.com/micro/go-micro/v3/client"
 	"github.com/micro/go-micro/v3/debug/trace"
-	"github.com/micro/micro/v3/service/errors"
 	"github.com/micro/go-micro/v3/metadata"
 	"github.com/micro/go-micro/v3/server"
 	"github.com/micro/micro/v3/internal/namespace"
 	"github.com/micro/micro/v3/service/auth"
 	muclient "github.com/micro/micro/v3/service/client"
 	"github.com/micro/micro/v3/service/debug"
+	"github.com/micro/micro/v3/service/errors"
 )
 
 type authWrapper struct {
@@ -38,12 +38,8 @@ func (a *authWrapper) wrapContext(ctx context.Context, opts ...client.CallOption
 		o(&options)
 	}
 
-	// check to see if the authorization header has already been set.
 	// We dont't override the header unless the ServiceToken option has
-	// been specified or the header wasn't provided
-	if _, ok := metadata.Get(ctx, "Authorization"); ok && !options.ServiceToken {
-		return ctx
-	}
+	// been specified
 	if !options.ServiceToken {
 		return ctx
 	}
