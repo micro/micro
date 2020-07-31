@@ -8,7 +8,6 @@ import (
 	"path/filepath"
 	"strings"
 	"sync"
-	"time"
 
 	"github.com/juju/fslock"
 	conf "github.com/micro/go-micro/v3/config"
