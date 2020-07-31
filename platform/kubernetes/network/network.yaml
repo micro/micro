@@ -59,7 +59,7 @@ spec:
         - name: MICRO_PROFILE
           value: platform
         - name: MICRO_LOG_LEVEL
-          value: "debug"
+          value: "trace"
         - name: MICRO_BROKER_TLS_CA
           value: "/certs/broker/ca.crt"
         - name: MICRO_BROKER_TLS_CERT
@@ -72,8 +72,6 @@ spec:
           value: "/certs/registry/cert.pem"
         - name: MICRO_REGISTRY_TLS_KEY
           value: "/certs/registry/key.pem"
-        - name: MICRO_SERVER_ADDRESS
-          value: "0.0.0.0:8080"
         - name: MICRO_STORE_ADDRESS
           value: "postgresql://root@cockroachdb-cluster-public:26257?ssl=true&sslmode=require&sslrootcert=certs/store/ca.crt&sslkey=certs/store/key.pem&sslcert=certs/store/cert.pem"
         args:
@@ -82,7 +80,7 @@ spec:
         image: micro/micro
         imagePullPolicy: Always
         ports:
-        - containerPort: 8080
+        - containerPort: 8443
           name: service-port
         - containerPort: 8085
           name: network-port

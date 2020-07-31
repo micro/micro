@@ -15,10 +15,10 @@ import (
 	"github.com/micro/go-micro/v3/agent/command"
 	"github.com/micro/go-micro/v3/agent/input"
 	proto "github.com/micro/go-micro/v3/agent/proto"
-	log "github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/client"
 	"github.com/micro/micro/v3/cmd"
 	"github.com/micro/micro/v3/service"
+	log "github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/registry"
 
 	// inputs

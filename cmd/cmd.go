@@ -24,6 +24,7 @@ import (
 	"github.com/micro/go-micro/v3/cmd"
 	"github.com/micro/go-micro/v3/registry"
 	"github.com/micro/micro/v3/client/cli/util"
+	uconf "github.com/micro/micro/v3/internal/config"
 	"github.com/micro/micro/v3/internal/helper"
 	_ "github.com/micro/micro/v3/internal/usage"
 	"github.com/micro/micro/v3/internal/wrapper"
@@ -69,6 +70,17 @@ var (
 	description = "A framework for cloud native development\n\n	 Use `micro [command] --help` to see command specific help."
 	// defaultFlags which are used on all commands
 	defaultFlags = []cli.Flag{
+		&cli.StringFlag{
+			Name:    "c",
+			Usage:   "Set the config file: Defaults to ~/.micro/config.json",
+			EnvVars: []string{"MICRO_CONFIG_FILE"},
+		},
+		&cli.StringFlag{
+			Name:    "env",
+			Aliases: []string{"e"},
+			Usage:   "Set the environment to operate in",
+			EnvVars: []string{"MICRO_ENV"},
+		},
 		&cli.StringFlag{
 			Name:    "profile",
 			Usage:   "Set the micro server profile: e.g. local or kubernetes",
@@ -162,12 +174,6 @@ var (
 			Value:   true,
 		},
 		&cli.StringFlag{
-			Name:    "env",
-			Aliases: []string{"e"},
-			Usage:   "Override environment",
-			EnvVars: []string{"MICRO_ENV"},
-		},
-		&cli.StringFlag{
 			Name:    "service_name",
 			Usage:   "Name of the micro service",
 			EnvVars: []string{"MICRO_SERVICE_NAME"},
@@ -238,8 +244,10 @@ func (c *command) After(ctx *cli.Context) error {
 
 // Before is executed before any subcommand
 func (c *command) Before(ctx *cli.Context) error {
-	// set the proxy address. TODO: Refactor to be a client option.
-	util.SetProxyAddress(ctx)
+	// set the config file if specified
+	if cf := ctx.String("c"); len(cf) > 0 {
+		uconf.SetConfig(cf)
+	}
 
 	// initialize plugins
 	for _, p := range plugin.Plugins() {
@@ -250,11 +258,10 @@ func (c *command) Before(ctx *cli.Context) error {
 
 	// default the profile for the server
 	prof := ctx.String("profile")
-	arg := ctx.Args().First()
 
 	// if no profile is set then set one
 	if len(prof) == 0 {
-		switch arg {
+		switch ctx.Args().First() {
 		case "service", "server":
 			prof = "local"
 		default:
@@ -270,10 +277,26 @@ func (c *command) Before(ctx *cli.Context) error {
 		profile.Setup(ctx)
 	}
 
+	// set the proxy address
+	var proxy string
+	if c.service {
+		// use the proxy address passed as a flag, this is normally
+		// the micro network
+		proxy = ctx.String("proxy_address")
+	} else {
+		// for CLI, use the external proxy which is loaded from the
+		// local config
+		proxy = util.CLIProxyAddress(ctx)
+	}
+	if len(proxy) > 0 {
+		muclient.DefaultClient.Init(client.Proxy(proxy))
+	}
+
 	// wrap the client
 	muclient.DefaultClient = wrapper.AuthClient(muclient.DefaultClient)
 	muclient.DefaultClient = wrapper.CacheClient(muclient.DefaultClient)
 	muclient.DefaultClient = wrapper.TraceCall(muclient.DefaultClient)
+	muclient.DefaultClient = wrapper.FromService(muclient.DefaultClient)
 
 	// wrap the server
 	muserver.DefaultServer.Init(
@@ -389,7 +412,7 @@ func (c *command) Before(ctx *cli.Context) error {
 		err = setupAuthForCLI(ctx)
 	}
 	if err != nil {
-		logger.Fatal("Error setting up auth: %v", err)
+		logger.Fatalf("Error setting up auth: %v", err)
 	}
 
 	// refresh token periodically

@@ -4,9 +4,9 @@ import (
 	"sync"
 	"time"
 
-	log "github.com/micro/micro/v3/service/logger"
 	"github.com/micro/go-micro/v3/registry"
 	"github.com/micro/go-micro/v3/registry/cache"
+	log "github.com/micro/micro/v3/service/logger"
 	muregistry "github.com/micro/micro/v3/service/registry"
 )
 

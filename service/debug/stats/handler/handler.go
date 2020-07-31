@@ -8,11 +8,11 @@ import (
 
 	goclient "github.com/micro/go-micro/v3/client"
 	debug "github.com/micro/go-micro/v3/debug/service/proto"
-	"github.com/micro/micro/v3/service/errors"
 	"github.com/micro/go-micro/v3/registry"
 	"github.com/micro/go-micro/v3/util/ring"
 	"github.com/micro/micro/v3/service/client"
 	stats "github.com/micro/micro/v3/service/debug/stats/proto"
+	"github.com/micro/micro/v3/service/errors"
 )
 
 // New initialises and returns a new Stats service handler

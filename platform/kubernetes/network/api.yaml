@@ -44,17 +44,13 @@
          - name: MICRO_ENABLE_STATS
            value: "true"
          - name: MICRO_PROXY
-           value: "micro-network:8080"
-         - name: MICRO_BROKER_ADDRESS
-           value: "micro-broker:8001"
-         - name: MICRO_REGISTRY_ADDRESS
-           value: "micro-registry:8000"
+           value: "micro-network.default.svc.cluster.local:8443"
          - name: MICRO_ENABLE_ACME
            value: "true"
          - name: MICRO_ACME_PROVIDER
            value: certmagic
          - name: MICRO_ACME_HOSTS
-           value: 'api.m3o.com,api.m3o.dev'
+           value: 'api.m3o.com'
          - name: CF_API_TOKEN
            valueFrom:
              secretKeyRef:
