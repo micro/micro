@@ -7,6 +7,7 @@ import (
 	"os/user"
 	"path/filepath"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/juju/fslock"
@@ -22,6 +23,9 @@ var (
 
 	// a global lock for the config
 	lock = fslock.New(path)
+
+	// lock in single process
+	mtx sync.Mutex
 )
 
 // config is a singleton which is required to ensure
@@ -30,6 +34,9 @@ var (
 
 // Get a value from the .micro file
 func Get(path ...string) (string, error) {
+	mtx.Lock()
+	defer mtx.Unlock()
+
 	config, err := newConfig()
 	if err != nil {
 		return "", err
@@ -61,6 +68,9 @@ func Get(path ...string) (string, error) {
 
 // Set a value in the .micro file
 func Set(value string, path ...string) error {
+	mtx.Lock()
+	defer mtx.Unlock()
+
 	// get the filepath
 	fp, err := filePath()
 	if err != nil {
