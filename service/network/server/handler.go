@@ -3,11 +3,11 @@ package server
 import (
 	"context"
 
-	"github.com/micro/micro/v3/service/errors"
-	log "github.com/micro/micro/v3/service/logger"
 	"github.com/micro/go-micro/v3/network"
 	"github.com/micro/go-micro/v3/network/mucp"
 	"github.com/micro/go-micro/v3/router"
+	"github.com/micro/micro/v3/service/errors"
+	log "github.com/micro/micro/v3/service/logger"
 	pb "github.com/micro/micro/v3/service/network/proto"
 	"github.com/micro/micro/v3/service/network/util"
 	pbRtr "github.com/micro/micro/v3/service/router/proto"
