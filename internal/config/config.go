@@ -7,6 +7,7 @@ import (
 	"os/user"
 	"path/filepath"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/juju/fslock"
@@ -22,6 +23,9 @@ var (
 
 	// a global lock for the config
 	lock = fslock.New(path)
+
+	// lock in single process
+	mtx sync.Mutex
 )
 
 // config is a singleton which is required to ensure
@@ -30,13 +34,16 @@ var (
 
 // Get a value from the .micro file
 func Get(path ...string) (string, error) {
+	mtx.Lock()
+	defer mtx.Unlock()
+
 	config, err := newConfig()
 	if err != nil {
 		return "", err
 	}
 
 	// acquire lock
-	if err := lock.LockWithTimeout(time.Second); err != nil {
+	if err := lock.LockWithTimeout(time.Second * 5); err != nil {
 		return "", err
 	}
 	defer lock.Unlock()
@@ -61,6 +68,9 @@ func Get(path ...string) (string, error) {
 
 // Set a value in the .micro file
 func Set(value string, path ...string) error {
+	mtx.Lock()
+	defer mtx.Unlock()
+
 	// get the filepath
 	fp, err := filePath()
 	if err != nil {
@@ -73,7 +83,7 @@ func Set(value string, path ...string) error {
 	}
 
 	// acquire lock
-	if err := lock.LockWithTimeout(time.Second); err != nil {
+	if err := lock.LockWithTimeout(time.Second * 5); err != nil {
 		return err
 	}
 	defer lock.Unlock()
@@ -94,14 +104,20 @@ func filePath() (string, error) {
 }
 
 func moveConfig(from, to string) error {
+	// read the config
 	b, err := ioutil.ReadFile(from)
 	if err != nil {
 		return fmt.Errorf("Failed to read config file %s: %v", from, err)
 	}
+	// remove the file
+	os.Remove(from)
+
+	// create new directory
 	dir := filepath.Dir(to)
 	if err := os.MkdirAll(dir, 0755); err != nil {
 		return fmt.Errorf("Failed to create dir %s: %v", dir, err)
 	}
+	// write the file to new location
 	return ioutil.WriteFile(to, b, 0644)
 }
 
