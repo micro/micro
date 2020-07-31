@@ -129,8 +129,6 @@ spec:
           value: 'proxy.m3o.com'
         - name: MICRO_RUNTIME
           value: "kubernetes"
-        - name: MICRO_RUNTIME_PROFILE
-          value: "platform"
         - name: MICRO_STORE
           value: "cockroach"
         - name: MICRO_STORE_ADDRESS

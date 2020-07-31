@@ -21,6 +21,8 @@ spec:
       containers:
       - name: micro-store
         env:
+        - name: MICRO_PROFILE
+          value: platform
         - name: MICRO_AUTH
           value: "jwt"
         - name: MICRO_AUTH_PUBLIC_KEY
