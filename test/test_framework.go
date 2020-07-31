@@ -292,7 +292,7 @@ func (s *ServerBase) Run() error {
 	}()
 
 	// add the environment
-	if err := Try("Adding micro env", s.t, func() ([]byte, error) {
+	if err := Try("Adding micro env: " + s.env, s.t, func() ([]byte, error) {
 		out, err := s.Command().Exec("env", "add", s.env, fmt.Sprintf("127.0.0.1:%v", s.port))
 		if err != nil {
 			return nil, err
