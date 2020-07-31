@@ -27,6 +27,8 @@ spec:
       containers:
       - name: proxy
         env:
+        - name: MICRO_PROXY
+          value: "micro-network.default.svc.cluster.local"
         - name: MICRO_AUTH_PUBLIC_KEY
           valueFrom:
             secretKeyRef:

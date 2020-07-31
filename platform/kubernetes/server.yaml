@@ -98,14 +98,14 @@ spec:
       containers:
       - name: server
         env:
+        - name: MICRO_PROFILE
+          value: "platform"
+        - name: MICRO_PROXY
+          value: "micro-network.default.svc.cluster.local"
         - name: MICRO_PROXY_ADDRESS
           value: "0.0.0.0:443"
         - name: MICRO_LOG_LEVEL
           value: "trace"
-        - name: MICRO_BROKER
-          value: "nats"
-        - name: MICRO_BROKER_ADDRESS
-          value: "nats-cluster"
         - name: MICRO_BROKER_TLS_CA
           value: "/certs/broker/ca.crt"
         - name: MICRO_BROKER_TLS_CERT
@@ -113,10 +113,6 @@ spec:
         - name: MICRO_BROKER_TLS_KEY
           value: "/certs/broker/key.pem"
           value: "true"
-        - name: MICRO_REGISTRY
-          value: "etcd"
-        - name: MICRO_REGISTRY_ADDRESS
-          value: "etcd-cluster"
         - name: MICRO_REGISTRY_TLS_CA
           value: "/certs/registry/ca.crt"
         - name: MICRO_REGISTRY_TLS_CERT
@@ -127,10 +123,6 @@ spec:
           value: "true"
         - name: MICRO_ACME_HOSTS
           value: 'proxy.m3o.com'
-        - name: MICRO_RUNTIME
-          value: "kubernetes"
-        - name: MICRO_STORE
-          value: "cockroach"
         - name: MICRO_STORE_ADDRESS
           value: "postgresql://root@cockroachdb-cluster-public:26257?ssl=true&sslmode=require&sslrootcert=certs/store/ca.crt&sslkey=certs/store/key.pem&sslcert=certs/store/cert.pem"
         args:
