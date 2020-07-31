@@ -32,14 +32,17 @@ func Test(t *testing.T) {
 
 	// change the config path for the lifetime
 	// of this test
-	savePath := FileName
+	saveFile := file
+	savePath := path
 	saveLock := lock
-	FileName = ".micro/config-test.json"
+
+	file = ".micro/config-test.json"
 	path, _ := filePath()
 	lock = fslock.New(path)
 
 	defer func() {
-		FileName = savePath
+		file = saveFile
+		path = savePath
 		lock = saveLock
 	}()
 

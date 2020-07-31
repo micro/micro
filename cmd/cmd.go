@@ -26,6 +26,7 @@ import (
 	"github.com/micro/micro/v3/client/cli/util"
 	"github.com/micro/micro/v3/internal/helper"
 	_ "github.com/micro/micro/v3/internal/usage"
+	uconf "github.com/micro/micro/v3/internal/config"
 	"github.com/micro/micro/v3/internal/wrapper"
 	"github.com/micro/micro/v3/plugin"
 	"github.com/micro/micro/v3/profile"
@@ -69,6 +70,17 @@ var (
 	description = "A framework for cloud native development\n\n	 Use `micro [command] --help` to see command specific help."
 	// defaultFlags which are used on all commands
 	defaultFlags = []cli.Flag{
+		&cli.StringFlag{
+			Name:    "c",
+			Usage:   "Set the config file: Defaults to ~/.micro/config.json",
+			EnvVars: []string{"MICRO_CONFIG_FILE"},
+		},
+		&cli.StringFlag{
+			Name:    "env",
+			Aliases: []string{"e"},
+			Usage:   "Set the environment to operate in",
+			EnvVars: []string{"MICRO_ENV"},
+		},
 		&cli.StringFlag{
 			Name:    "profile",
 			Usage:   "Set the micro server profile: e.g. local or kubernetes",
@@ -162,12 +174,6 @@ var (
 			Value:   true,
 		},
 		&cli.StringFlag{
-			Name:    "env",
-			Aliases: []string{"e"},
-			Usage:   "Override environment",
-			EnvVars: []string{"MICRO_ENV"},
-		},
-		&cli.StringFlag{
 			Name:    "service_name",
 			Usage:   "Name of the micro service",
 			EnvVars: []string{"MICRO_SERVICE_NAME"},
@@ -238,6 +244,11 @@ func (c *command) After(ctx *cli.Context) error {
 
 // Before is executed before any subcommand
 func (c *command) Before(ctx *cli.Context) error {
+	// set the config file if specified
+	if cf := ctx.String("c"); len(cf) > 0 {
+		uconf.SetConfig(cf)
+	}
+
 	// set the proxy address. TODO: Refactor to be a client option.
 	util.SetProxyAddress(ctx)
 
