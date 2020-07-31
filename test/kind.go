@@ -69,7 +69,7 @@ func (s *testK8sServer) Run() error {
 		}
 
 		return outp, err
-	}, 60 * time.Second); err != nil {
+	}, 60*time.Second); err != nil {
 		return err
 	}
 
