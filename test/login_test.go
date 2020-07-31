@@ -3,7 +3,6 @@
 package test
 
 import (
-	"os/exec"
 	"strings"
 	"testing"
 	"time"

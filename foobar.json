@@ -1,0 +1,1 @@
+{"env":"platform","envs":"{\"cruft\":{\"Name\":\"cruft\",\"ProxyAddress\":\"baz\"},\"foobar\":{\"Name\":\"foobar\",\"ProxyAddress\":\"baz\"},\"local\":{\"Name\":\"local\",\"ProxyAddress\":\"127.0.0.1:8081\"},\"platform\":{\"Name\":\"platform\",\"ProxyAddress\":\"proxy.m3o.com\"}}"}

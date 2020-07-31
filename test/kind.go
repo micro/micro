@@ -31,11 +31,11 @@ func newK8sServer(t *T, fname string, opts ...Option) Server {
 
 	s := &testK8sServer{ServerBase{
 		t:       t,
-		envNm:   strings.ToLower(fname),
-		portNum: portnum,
+		env:   strings.ToLower(fname),
+		port: portnum,
 		cmd:     exec.Command("kubectl", "port-forward", "--namespace", "default", "svc/micro-proxy", fmt.Sprintf("%d:8081", portnum)),
 	}}
-	s.namespace = s.envNm
+	s.namespace = s.env
 
 	return s
 }
