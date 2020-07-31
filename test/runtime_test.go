@@ -140,7 +140,7 @@ func testRunAndKill(t *T) {
 		return
 	}
 
-	outp, err := cmd.Exec("kill", "service/example")
+	outp, err = cmd.Exec("kill", "service/example")
 	if err != nil {
 		t.Fatalf("micro kill failure, output: %v", string(outp))
 		return
@@ -301,7 +301,7 @@ func testRunLocalUpdateAndCall(t *T) {
 		replaceStringInFile(t, "./service/example/handler/handler.go", "Hi", "Hello")
 	}()
 
-	outp, err := cmd.Exec("update", "./service/example")
+	outp, err = cmd.Exec("update", "./service/example")
 	if err != nil {
 		t.Fatal(err)
 		return

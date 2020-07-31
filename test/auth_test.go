@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"os/exec"
 	"strings"
 	"testing"
 	"time"
@@ -126,25 +125,25 @@ func lockdownSuite(serv Server, t *T) {
 		return
 	}
 
-	outp, err := cmd.Exec("auth", "create", "rule", "--access=granted", "--scope='*'", "--resource='*:*:*'", "onlyloggedin").CombinedOutput()
+	outp, err = cmd.Exec("auth", "create", "rule", "--access=granted", "--scope='*'", "--resource='*:*:*'", "onlyloggedin").CombinedOutput()
 	if err != nil {
 		t.Fatal(string(outp), err)
 		return
 	}
 
-	outp, err := cmd.Exec("auth", "create", "rule", "--access=granted", "--scope=''", "authpublic").CombinedOutput()
+	outp, err = cmd.Exec("auth", "create", "rule", "--access=granted", "--scope=''", "authpublic").CombinedOutput()
 	if err != nil {
 		t.Fatal(string(outp), err)
 		return
 	}
 
-	outp, err := cmd.Exec("auth", "delete", "rule", "default").CombinedOutput()
+	outp, err = cmd.Exec("auth", "delete", "rule", "default").CombinedOutput()
 	if err != nil {
 		t.Fatal(string(outp), err)
 		return
 	}
 
-	outp, err := cmd.Exec("auth", "delete", "account", "default").CombinedOutput()
+	outp, err = cmd.Exec("auth", "delete", "account", "default").CombinedOutput()
 	if err != nil {
 		t.Fatal(string(outp), err)
 		return

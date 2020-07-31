@@ -5,7 +5,6 @@ package test
 import (
 	"errors"
 	"fmt"
-	"os/exec"
 	"strings"
 	"testing"
 	"time"
@@ -91,7 +90,7 @@ func testConfig(t *T) {
 	}
 
 	// Testing dot notation
-	outp, err := cmd.Exec("config", "set", "someotherkey.subkey", "otherval1")
+	outp, err = cmd.Exec("config", "set", "someotherkey.subkey", "otherval1")
 	if err != nil {
 		t.Fatal(err)
 		return
