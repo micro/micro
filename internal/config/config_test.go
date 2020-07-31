@@ -28,6 +28,14 @@ func Test(t *testing.T) {
 		},
 	}
 
+	// change the config path for the lifetime
+	// of this test
+	savePath := FileName
+	FileName = ".micro/config-test.json"
+	defer func() {
+		FileName = savePath
+	}()
+
 	fp, err := filePath()
 	if err != nil {
 		t.Fatal(err)
@@ -35,6 +43,8 @@ func Test(t *testing.T) {
 
 	for _, tc := range tt {
 		t.Run(tc.name, func(t *testing.T) {
+			defer os.Remove(fp)
+
 			if _, err := os.Stat(fp); err != os.ErrNotExist {
 				os.Remove(fp)
 			}
