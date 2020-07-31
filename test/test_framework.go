@@ -58,9 +58,7 @@ type Command struct {
 }
 
 func (c *Command) args(a ...string) []string {
-	envFlag := "-e=" + c.Env
-	configFlag := "-c=" + c.Config
-	arguments := []string{envFlag, configFlag}
+	arguments := []string{"-e", c.Env, "-c", c.Config}
 	return append(arguments, a...)
 }
 
@@ -291,22 +289,26 @@ func (s *ServerBase) Run() error {
 		}
 	}()
 
+	cmd := s.Command()
+
 	// add the environment
-	if err := Try("Adding micro env: " + s.env, s.t, func() ([]byte, error) {
-		out, err := s.Command().Exec("env", "add", s.env, fmt.Sprintf("127.0.0.1:%v", s.port))
+	if err := Try("Adding micro env: " + s.env + " file: " + s.config, s.t, func() ([]byte, error) {
+		out, err := cmd.Exec("env", "add", s.env, fmt.Sprintf("127.0.0.1:%d", s.port))
 		if err != nil {
 			return nil, err
 		}
+
 		if len(out) > 0 {
-			return out, errors.New("Not added")
+			return nil, errors.New("Not added")
 		}
 
-		out, err = s.Command().Exec("env")
+		out, err = cmd.Exec("env")
 		if err != nil {
-			return out, err
+			return nil, err
 		}
+
 		if !strings.Contains(string(out), s.env) {
-			return out, errors.New("Not added")
+			return nil, errors.New("Not added")
 		}
 
 		return out, nil
