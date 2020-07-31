@@ -23,6 +23,8 @@ spec:
         env:
         - name: MICRO_PROFILE
           value: platform
+        - name: MICRO_PROXY
+          value: "micro-network.default.svc.cluster.local"
         - name: MICRO_AUTH_PUBLIC_KEY
           valueFrom:
             secretKeyRef:
