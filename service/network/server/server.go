@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/micro/cli/v2"
-	log "github.com/micro/micro/v3/service/logger"
 	net "github.com/micro/go-micro/v3/network"
 	"github.com/micro/go-micro/v3/network/mucp"
 	res "github.com/micro/go-micro/v3/network/resolver"
@@ -27,6 +26,7 @@ import (
 	"github.com/micro/go-micro/v3/util/mux"
 	"github.com/micro/micro/v3/internal/helper"
 	"github.com/micro/micro/v3/service"
+	log "github.com/micro/micro/v3/service/logger"
 	muregistry "github.com/micro/micro/v3/service/registry"
 )
 
@@ -36,7 +36,9 @@ var (
 	// name of the micro network
 	networkName = "go.micro"
 	// address is the network address
-	address = ":8085"
+	address = ":8443"
+	// peerAddress is the address the network peers on
+	peerAddress = ":8085"
 	// set the advertise address
 	advertise = ""
 	// resolver is the network resolver
@@ -46,6 +48,11 @@ var (
 
 	// Flags specific to the network
 	Flags = []cli.Flag{
+		&cli.StringFlag{
+			Name:    "address",
+			Usage:   "Set the address of the network service",
+			EnvVars: []string{"MICRO_NETWORK_ADDRESS"},
+		},
 		&cli.StringFlag{
 			Name:    "advertise",
 			Usage:   "Set the micro network address to advertise",
@@ -92,6 +99,9 @@ func Run(ctx *cli.Context) error {
 	if len(ctx.String("address")) > 0 {
 		address = ctx.String("address")
 	}
+	if len(ctx.String("peer_address")) > 0 {
+		peerAddress = ctx.String("peer_address")
+	}
 	if len(ctx.String("advertise")) > 0 {
 		advertise = ctx.String("advertise")
 	}
@@ -137,13 +147,14 @@ func Run(ctx *cli.Context) error {
 	// Initialise service
 	service := service.New(
 		service.Name(name),
+		service.Address(address),
 		service.RegisterTTL(time.Duration(ctx.Int("register_ttl"))*time.Second),
 		service.RegisterInterval(time.Duration(ctx.Int("register_interval"))*time.Second),
 	)
 
 	// create a tunnel
 	tunOpts := []tunnel.Option{
-		tunnel.Address(address),
+		tunnel.Address(peerAddress),
 		tunnel.Token(token),
 	}
 
@@ -177,7 +188,7 @@ func Run(ctx *cli.Context) error {
 	n := mucp.NewNetwork(
 		net.Id(id),
 		net.Name(networkName),
-		net.Address(address),
+		net.Address(peerAddress),
 		net.Advertise(advertise),
 		net.Nodes(nodes...),
 		net.Tunnel(tun),
@@ -232,7 +243,7 @@ func Run(ctx *cli.Context) error {
 		}
 	}
 
-	log.Infof("Network [%s] listening on %s", networkName, address)
+	log.Infof("Network [%s] listening on %s", networkName, peerAddress)
 
 	if err := service.Run(); err != nil {
 		log.Errorf("Network %s failed: %v", networkName, err)

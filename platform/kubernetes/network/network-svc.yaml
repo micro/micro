@@ -12,10 +12,10 @@ spec:
     protocol: UDP
     name: network-udp
     targetPort: 8085
-  - port: 8080
+  - port: 443
     protocol: TCP
     name: network-tcp
-    targetPort: 8080
+    targetPort: 443
   selector:
     name: micro-network
     micro: runtime
