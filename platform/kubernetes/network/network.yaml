@@ -46,22 +46,26 @@ spec:
       containers:
       - name: network
         env:
+        - name: MICRO_AUTH_PUBLIC_KEY
+          valueFrom:
+            secretKeyRef:
+              name: micro-secrets
+              key: auth_public_key
+        - name: MICRO_AUTH_PRIVATE_KEY
+          valueFrom:
+            secretKeyRef:
+              name: micro-secrets
+              key: auth_private_key
+        - name: MICRO_PROFILE
+          value: platform
         - name: MICRO_LOG_LEVEL
           value: "debug"
-        - name: MICRO_BROKER
-          value: "nats"
-        - name: MICRO_BROKER_ADDRESS
-          value: "nats-cluster"
         - name: MICRO_BROKER_TLS_CA
           value: "/certs/broker/ca.crt"
         - name: MICRO_BROKER_TLS_CERT
           value: "/certs/broker/cert.pem"
         - name: MICRO_BROKER_TLS_KEY
           value: "/certs/broker/key.pem"
-        - name: MICRO_REGISTRY
-          value: "etcd"
-        - name: MICRO_REGISTRY_ADDRESS
-          value: "etcd-cluster"
         - name: MICRO_REGISTRY_TLS_CA
           value: "/certs/registry/ca.crt"
         - name: MICRO_REGISTRY_TLS_CERT
@@ -70,6 +74,8 @@ spec:
           value: "/certs/registry/key.pem"
         - name: MICRO_SERVER_ADDRESS
           value: "0.0.0.0:8080"
+        - name: MICRO_STORE_ADDRESS
+          value: "postgresql://root@cockroachdb-cluster-public:26257?ssl=true&sslmode=require&sslrootcert=certs/store/ca.crt&sslkey=certs/store/key.pem&sslcert=certs/store/cert.pem"
         args:
         - service
         - network
@@ -88,6 +94,9 @@ spec:
         - name: nats-client-certs
           mountPath: "/certs/broker"
           readOnly: true
+        - name: cockroachdb-client-certs
+          mountPath: "/certs/store"
+          readOnly: true
       volumes:
       - name: etcd-client-certs
         secret:
@@ -95,3 +104,7 @@ spec:
       - name: nats-client-certs
         secret:
           secretName: nats-client-certs
+      - name: cockroachdb-client-certs
+        secret:
+          secretName: cockroachdb-client-certs
+          defaultMode: 0600
