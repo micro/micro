@@ -46,8 +46,6 @@ spec:
       containers:
       - name: network
         env:
-        - name: MICRO_NETWORK_ADDRESS
-          value: "0.0.0.0:8443"
         - name: MICRO_AUTH_PUBLIC_KEY
           valueFrom:
             secretKeyRef:
