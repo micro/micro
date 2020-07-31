@@ -3,8 +3,8 @@ package server
 import (
 	"context"
 
-	"github.com/micro/micro/v3/service/errors"
 	"github.com/micro/go-micro/v3/router"
+	"github.com/micro/micro/v3/service/errors"
 	pb "github.com/micro/micro/v3/service/router/proto"
 )
 
