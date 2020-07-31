@@ -61,7 +61,7 @@ spec:
         - name: MICRO_PROFILE
           value: platform
         - name: MICRO_LOG_LEVEL
-          value: "debug"
+          value: "trace"
         - name: MICRO_BROKER_TLS_CA
           value: "/certs/broker/ca.crt"
         - name: MICRO_BROKER_TLS_CERT
