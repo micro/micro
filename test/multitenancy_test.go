@@ -58,7 +58,7 @@ func testNamespaceConfigIsolationSuite(serv Server, t *T) {
 			return outp, fmt.Errorf("Expected no output, got: %v", string(outp))
 		}
 		return outp, err
-	}, 5 * time.Second); err != nil {
+	}, 5*time.Second); err != nil {
 		return
 	}
 
@@ -72,7 +72,7 @@ func testNamespaceConfigIsolationSuite(serv Server, t *T) {
 			return outp, errors.New("Expected 'val1\n'")
 		}
 		return outp, err
-	}, 8 * time.Second); err != nil {
+	}, 8*time.Second); err != nil {
 		return
 	}
 
@@ -110,7 +110,7 @@ func testNamespaceConfigIsolationSuite(serv Server, t *T) {
 			return outp, errors.New("Expected 'not found\n'")
 		}
 		return outp, nil
-	}, 8 * time.Second); err != nil {
+	}, 8*time.Second); err != nil {
 		return
 	}
 
@@ -142,7 +142,7 @@ func testNamespaceConfigIsolationSuite(serv Server, t *T) {
 			return outp, errors.New("Expected 'val1\n'")
 		}
 		return outp, err
-	}, 8 * time.Second); err != nil {
+	}, 8*time.Second); err != nil {
 		return
 	}
 }

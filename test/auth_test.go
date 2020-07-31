@@ -37,7 +37,7 @@ func ServerAuth(t *T) {
 			return outp, fmt.Errorf("Output should contain default admin account")
 		}
 		return outp, nil
-	}, 15 * time.Second); err != nil {
+	}, 15*time.Second); err != nil {
 		return
 	}
 
@@ -51,7 +51,7 @@ func ServerAuth(t *T) {
 			return outp, fmt.Errorf("Output should contain default rule")
 		}
 		return outp, nil
-	}, 8 * time.Second); err != nil {
+	}, 8*time.Second); err != nil {
 		return
 	}
 
@@ -80,7 +80,7 @@ func ServerAuth(t *T) {
 			return outp, fmt.Errorf("Can't find access token")
 		}
 		return outp, nil
-	}, 8 * time.Second); err != nil {
+	}, 8*time.Second); err != nil {
 		return
 	}
 }
@@ -113,7 +113,7 @@ func lockdownSuite(serv Server, t *T) {
 			return outp, fmt.Errorf("Output should contain default rule")
 		}
 		return outp, nil
-	}, 15 * time.Second); err != nil {
+	}, 15*time.Second); err != nil {
 		return
 	}
 
@@ -156,7 +156,7 @@ func lockdownSuite(serv Server, t *T) {
 			return outp, errors.New("List rules should fail")
 		}
 		return outp, err
-	}, 31 * time.Second); err != nil {
+	}, 31*time.Second); err != nil {
 		return
 	}
 
@@ -171,7 +171,7 @@ func lockdownSuite(serv Server, t *T) {
 			return outp, errors.New("Can't find rules")
 		}
 		return outp, err
-	}, 31 * time.Second); err != nil {
+	}, 31*time.Second); err != nil {
 		return
 	}
 }
