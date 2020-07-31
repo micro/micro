@@ -431,9 +431,6 @@ func testStreamLogsAndThirdPartyRepo(t *T) {
 		return
 	}
 
-	// Test streaming logs
-	cmd := serv.Command()
-
 	cmd.Start("logs", "-n", "1", "-f", "micro/micro/test/service/logger")
 
 	time.Sleep(7 * time.Second)
