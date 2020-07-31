@@ -22,8 +22,8 @@ type srv struct {
 	client pb.RegistryService
 }
 
-func (s *srv) callOpts() []client.CallOption {
-  opts := []client.CallOption{client.WithAuthToken()}
+func (s *srv) callOpts() []goclient.CallOption {
+	opts := []goclient.CallOption{goclient.WithAuthToken()}
 
 	// set registry address
 	if len(s.address) > 0 {
