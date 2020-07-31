@@ -8,25 +8,38 @@ import (
 	"path/filepath"
 	"strings"
 	"sync"
-	"time"
 
 	"github.com/juju/fslock"
 	conf "github.com/micro/go-micro/v3/config"
-	"github.com/micro/go-micro/v3/config/source/file"
+	fs "github.com/micro/go-micro/v3/config/source/file"
 )
 
 var (
-	// FileName for global micro config
-	FileName = ".micro/config.json"
+	// lock in single process
+	mtx sync.Mutex
 
+	// file for global micro config
+	file = ".micro/config.json"
+
+	// full path to file
 	path, _ = filePath()
 
 	// a global lock for the config
 	lock = fslock.New(path)
-
-	// lock in single process
-	mtx sync.Mutex
 )
+
+// SetConfig sets the config file
+func SetConfig(file string) {
+	mtx.Lock()
+	defer mtx.Unlock()
+
+	// path is the full path
+	path = file
+	// the name of the file
+	file = filepath.Base(file)
+	// new lock for the file
+	lock = fslock.New(path)
+}
 
 // config is a singleton which is required to ensure
 // each function call doesn't load the .micro file
@@ -43,7 +56,7 @@ func Get(path ...string) (string, error) {
 	}
 
 	// acquire lock
-	if err := lock.LockWithTimeout(time.Second * 5); err != nil {
+	if err := lock.Lock(); err != nil {
 		return "", err
 	}
 	defer lock.Unlock()
@@ -83,7 +96,7 @@ func Set(value string, path ...string) error {
 	}
 
 	// acquire lock
-	if err := lock.LockWithTimeout(time.Second * 5); err != nil {
+	if err := lock.Lock(); err != nil {
 		return err
 	}
 	defer lock.Unlock()
@@ -100,7 +113,7 @@ func filePath() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return filepath.Join(usr.HomeDir, FileName), nil
+	return filepath.Join(usr.HomeDir, file), nil
 }
 
 func moveConfig(from, to string) error {
@@ -161,8 +174,8 @@ func newConfig() (conf.Config, error) {
 	// create a new config
 	c, err := conf.NewConfig(
 		conf.WithSource(
-			file.NewSource(
-				file.WithPath(fp),
+			fs.NewSource(
+				fs.WithPath(fp),
 			),
 		),
 	)

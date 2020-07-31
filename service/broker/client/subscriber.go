@@ -2,8 +2,8 @@ package client
 
 import (
 	"github.com/micro/go-micro/v3/broker"
-	"github.com/micro/micro/v3/service/logger"
 	pb "github.com/micro/micro/v3/service/broker/proto"
+	"github.com/micro/micro/v3/service/logger"
 )
 
 type serviceSub struct {
