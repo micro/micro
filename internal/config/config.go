@@ -94,14 +94,20 @@ func filePath() (string, error) {
 }
 
 func moveConfig(from, to string) error {
+	// read the config
 	b, err := ioutil.ReadFile(from)
 	if err != nil {
 		return fmt.Errorf("Failed to read config file %s: %v", from, err)
 	}
+	// remove the file
+	os.Remove(from)
+
+	// create new directory
 	dir := filepath.Dir(to)
 	if err := os.MkdirAll(dir, 0755); err != nil {
 		return fmt.Errorf("Failed to create dir %s: %v", dir, err)
 	}
+	// write the file to new location
 	return ioutil.WriteFile(to, b, 0644)
 }
 
