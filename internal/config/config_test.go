@@ -3,6 +3,8 @@ package config
 import (
 	"os"
 	"testing"
+
+	"github.com/juju/fslock"
 )
 
 func Test(t *testing.T) {
@@ -31,9 +33,14 @@ func Test(t *testing.T) {
 	// change the config path for the lifetime
 	// of this test
 	savePath := FileName
+	saveLock := lock
 	FileName = ".micro/config-test.json"
+	path, _ := filePath()
+	lock = fslock.New(path)
+
 	defer func() {
 		FileName = savePath
+		lock = saveLock
 	}()
 
 	fp, err := filePath()
