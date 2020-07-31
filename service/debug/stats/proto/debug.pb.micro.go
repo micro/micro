@@ -33,6 +33,7 @@ const _ = proto.ProtoPackageIsVersion3 // please upgrade the proto package
 var _ api.Endpoint
 var _ context.Context
 var _ client.Option
+var _ server.Option
 var _ = microServer.Handle
 var _ = microClient.Call
 
@@ -58,6 +59,8 @@ func NewStatsService(name string) StatsService {
 	return &statsService{name: name}
 }
 
+var defaultStatsService = NewStatsService("stats")
+
 func (c *statsService) Read(ctx context.Context, in *ReadRequest, opts ...client.CallOption) (*ReadResponse, error) {
 	req := microClient.NewRequest(c.name, "Stats.Read", in)
 	out := new(ReadResponse)
@@ -68,6 +71,10 @@ func (c *statsService) Read(ctx context.Context, in *ReadRequest, opts ...client
 	return out, nil
 }
 
+func StatsRead(ctx context.Context, in *ReadRequest, opts ...client.CallOption) (*ReadResponse, error) {
+	return defaultStatsService.Read(ctx, in, opts...)
+}
+
 func (c *statsService) Write(ctx context.Context, in *WriteRequest, opts ...client.CallOption) (*WriteResponse, error) {
 	req := microClient.NewRequest(c.name, "Stats.Write", in)
 	out := new(WriteResponse)
@@ -76,6 +83,10 @@ func (c *statsService) Write(ctx context.Context, in *WriteRequest, opts ...clie
 		return nil, err
 	}
 	return out, nil
+}
+
+func StatsWrite(ctx context.Context, in *WriteRequest, opts ...client.CallOption) (*WriteResponse, error) {
+	return defaultStatsService.Write(ctx, in, opts...)
 }
 
 func (c *statsService) Stream(ctx context.Context, in *StreamRequest, opts ...client.CallOption) (Stats_StreamService, error) {
@@ -125,6 +136,10 @@ func (x *statsServiceStream) Recv() (*StreamResponse, error) {
 		return nil, err
 	}
 	return m, nil
+}
+
+func StatsStream(ctx context.Context, in *StreamRequest, opts ...client.CallOption) (Stats_StreamService, error) {
+	return defaultStatsService.Stream(ctx, in, opts...)
 }
 
 // Server API for Stats service

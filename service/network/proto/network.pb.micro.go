@@ -34,6 +34,7 @@ const _ = proto.ProtoPackageIsVersion3 // please upgrade the proto package
 var _ api.Endpoint
 var _ context.Context
 var _ client.Option
+var _ server.Option
 var _ = microServer.Handle
 var _ = microClient.Call
 
@@ -68,6 +69,8 @@ func NewNetworkService(name string) NetworkService {
 	return &networkService{name: name}
 }
 
+var defaultNetworkService = NewNetworkService("network")
+
 func (c *networkService) Connect(ctx context.Context, in *ConnectRequest, opts ...client.CallOption) (*ConnectResponse, error) {
 	req := microClient.NewRequest(c.name, "Network.Connect", in)
 	out := new(ConnectResponse)
@@ -76,6 +79,10 @@ func (c *networkService) Connect(ctx context.Context, in *ConnectRequest, opts .
 		return nil, err
 	}
 	return out, nil
+}
+
+func NetworkConnect(ctx context.Context, in *ConnectRequest, opts ...client.CallOption) (*ConnectResponse, error) {
+	return defaultNetworkService.Connect(ctx, in, opts...)
 }
 
 func (c *networkService) Graph(ctx context.Context, in *GraphRequest, opts ...client.CallOption) (*GraphResponse, error) {
@@ -88,6 +95,10 @@ func (c *networkService) Graph(ctx context.Context, in *GraphRequest, opts ...cl
 	return out, nil
 }
 
+func NetworkGraph(ctx context.Context, in *GraphRequest, opts ...client.CallOption) (*GraphResponse, error) {
+	return defaultNetworkService.Graph(ctx, in, opts...)
+}
+
 func (c *networkService) Nodes(ctx context.Context, in *NodesRequest, opts ...client.CallOption) (*NodesResponse, error) {
 	req := microClient.NewRequest(c.name, "Network.Nodes", in)
 	out := new(NodesResponse)
@@ -96,6 +107,10 @@ func (c *networkService) Nodes(ctx context.Context, in *NodesRequest, opts ...cl
 		return nil, err
 	}
 	return out, nil
+}
+
+func NetworkNodes(ctx context.Context, in *NodesRequest, opts ...client.CallOption) (*NodesResponse, error) {
+	return defaultNetworkService.Nodes(ctx, in, opts...)
 }
 
 func (c *networkService) Routes(ctx context.Context, in *RoutesRequest, opts ...client.CallOption) (*RoutesResponse, error) {
@@ -108,6 +123,10 @@ func (c *networkService) Routes(ctx context.Context, in *RoutesRequest, opts ...
 	return out, nil
 }
 
+func NetworkRoutes(ctx context.Context, in *RoutesRequest, opts ...client.CallOption) (*RoutesResponse, error) {
+	return defaultNetworkService.Routes(ctx, in, opts...)
+}
+
 func (c *networkService) Services(ctx context.Context, in *ServicesRequest, opts ...client.CallOption) (*ServicesResponse, error) {
 	req := microClient.NewRequest(c.name, "Network.Services", in)
 	out := new(ServicesResponse)
@@ -118,6 +137,10 @@ func (c *networkService) Services(ctx context.Context, in *ServicesRequest, opts
 	return out, nil
 }
 
+func NetworkServices(ctx context.Context, in *ServicesRequest, opts ...client.CallOption) (*ServicesResponse, error) {
+	return defaultNetworkService.Services(ctx, in, opts...)
+}
+
 func (c *networkService) Status(ctx context.Context, in *StatusRequest, opts ...client.CallOption) (*StatusResponse, error) {
 	req := microClient.NewRequest(c.name, "Network.Status", in)
 	out := new(StatusResponse)
@@ -126,6 +149,10 @@ func (c *networkService) Status(ctx context.Context, in *StatusRequest, opts ...
 		return nil, err
 	}
 	return out, nil
+}
+
+func NetworkStatus(ctx context.Context, in *StatusRequest, opts ...client.CallOption) (*StatusResponse, error) {
+	return defaultNetworkService.Status(ctx, in, opts...)
 }
 
 // Server API for Network service

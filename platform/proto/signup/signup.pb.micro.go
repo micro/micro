@@ -33,6 +33,7 @@ const _ = proto.ProtoPackageIsVersion3 // please upgrade the proto package
 var _ api.Endpoint
 var _ context.Context
 var _ client.Option
+var _ server.Option
 var _ = microServer.Handle
 var _ = microClient.Call
 
@@ -61,6 +62,8 @@ func NewSignupService(name string) SignupService {
 	return &signupService{name: name}
 }
 
+var defaultSignupService = NewSignupService("signup")
+
 func (c *signupService) SendVerificationEmail(ctx context.Context, in *SendVerificationEmailRequest, opts ...client.CallOption) (*SendVerificationEmailResponse, error) {
 	req := microClient.NewRequest(c.name, "Signup.SendVerificationEmail", in)
 	out := new(SendVerificationEmailResponse)
@@ -69,6 +72,10 @@ func (c *signupService) SendVerificationEmail(ctx context.Context, in *SendVerif
 		return nil, err
 	}
 	return out, nil
+}
+
+func SignupSendVerificationEmail(ctx context.Context, in *SendVerificationEmailRequest, opts ...client.CallOption) (*SendVerificationEmailResponse, error) {
+	return defaultSignupService.SendVerificationEmail(ctx, in, opts...)
 }
 
 func (c *signupService) Verify(ctx context.Context, in *VerifyRequest, opts ...client.CallOption) (*VerifyResponse, error) {
@@ -81,6 +88,10 @@ func (c *signupService) Verify(ctx context.Context, in *VerifyRequest, opts ...c
 	return out, nil
 }
 
+func SignupVerify(ctx context.Context, in *VerifyRequest, opts ...client.CallOption) (*VerifyResponse, error) {
+	return defaultSignupService.Verify(ctx, in, opts...)
+}
+
 func (c *signupService) CompleteSignup(ctx context.Context, in *CompleteSignupRequest, opts ...client.CallOption) (*CompleteSignupResponse, error) {
 	req := microClient.NewRequest(c.name, "Signup.CompleteSignup", in)
 	out := new(CompleteSignupResponse)
@@ -89,6 +100,10 @@ func (c *signupService) CompleteSignup(ctx context.Context, in *CompleteSignupRe
 		return nil, err
 	}
 	return out, nil
+}
+
+func SignupCompleteSignup(ctx context.Context, in *CompleteSignupRequest, opts ...client.CallOption) (*CompleteSignupResponse, error) {
+	return defaultSignupService.CompleteSignup(ctx, in, opts...)
 }
 
 // Server API for Signup service

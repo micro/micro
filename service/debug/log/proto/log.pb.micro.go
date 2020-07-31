@@ -33,6 +33,7 @@ const _ = proto.ProtoPackageIsVersion3 // please upgrade the proto package
 var _ api.Endpoint
 var _ context.Context
 var _ client.Option
+var _ server.Option
 var _ = microServer.Handle
 var _ = microClient.Call
 
@@ -56,6 +57,8 @@ func NewLogService(name string) LogService {
 	return &logService{name: name}
 }
 
+var defaultLogService = NewLogService("log")
+
 func (c *logService) Read(ctx context.Context, in *ReadRequest, opts ...client.CallOption) (*ReadResponse, error) {
 	req := microClient.NewRequest(c.name, "Log.Read", in)
 	out := new(ReadResponse)
@@ -64,6 +67,10 @@ func (c *logService) Read(ctx context.Context, in *ReadRequest, opts ...client.C
 		return nil, err
 	}
 	return out, nil
+}
+
+func LogRead(ctx context.Context, in *ReadRequest, opts ...client.CallOption) (*ReadResponse, error) {
+	return defaultLogService.Read(ctx, in, opts...)
 }
 
 // Server API for Log service

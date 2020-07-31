@@ -33,6 +33,7 @@ const _ = proto.ProtoPackageIsVersion3 // please upgrade the proto package
 var _ api.Endpoint
 var _ context.Context
 var _ client.Option
+var _ server.Option
 var _ = microServer.Handle
 var _ = microClient.Call
 
@@ -58,6 +59,8 @@ func NewTraceService(name string) TraceService {
 	return &traceService{name: name}
 }
 
+var defaultTraceService = NewTraceService("trace")
+
 func (c *traceService) Read(ctx context.Context, in *ReadRequest, opts ...client.CallOption) (*ReadResponse, error) {
 	req := microClient.NewRequest(c.name, "Trace.Read", in)
 	out := new(ReadResponse)
@@ -68,6 +71,10 @@ func (c *traceService) Read(ctx context.Context, in *ReadRequest, opts ...client
 	return out, nil
 }
 
+func TraceRead(ctx context.Context, in *ReadRequest, opts ...client.CallOption) (*ReadResponse, error) {
+	return defaultTraceService.Read(ctx, in, opts...)
+}
+
 func (c *traceService) Write(ctx context.Context, in *WriteRequest, opts ...client.CallOption) (*WriteResponse, error) {
 	req := microClient.NewRequest(c.name, "Trace.Write", in)
 	out := new(WriteResponse)
@@ -76,6 +83,10 @@ func (c *traceService) Write(ctx context.Context, in *WriteRequest, opts ...clie
 		return nil, err
 	}
 	return out, nil
+}
+
+func TraceWrite(ctx context.Context, in *WriteRequest, opts ...client.CallOption) (*WriteResponse, error) {
+	return defaultTraceService.Write(ctx, in, opts...)
 }
 
 func (c *traceService) Stream(ctx context.Context, in *StreamRequest, opts ...client.CallOption) (Trace_StreamService, error) {
@@ -125,6 +136,10 @@ func (x *traceServiceStream) Recv() (*StreamResponse, error) {
 		return nil, err
 	}
 	return m, nil
+}
+
+func TraceStream(ctx context.Context, in *StreamRequest, opts ...client.CallOption) (Trace_StreamService, error) {
+	return defaultTraceService.Stream(ctx, in, opts...)
 }
 
 // Server API for Trace service

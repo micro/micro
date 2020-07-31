@@ -33,6 +33,7 @@ const _ = proto.ProtoPackageIsVersion3 // please upgrade the proto package
 var _ api.Endpoint
 var _ context.Context
 var _ client.Option
+var _ server.Option
 var _ = microServer.Handle
 var _ = microClient.Call
 
@@ -57,6 +58,8 @@ func NewAlertService(name string) AlertService {
 	return &alertService{name: name}
 }
 
+var defaultAlertService = NewAlertService("alert")
+
 func (c *alertService) ReportEvent(ctx context.Context, in *ReportEventRequest, opts ...client.CallOption) (*ReportEventResponse, error) {
 	req := microClient.NewRequest(c.name, "Alert.ReportEvent", in)
 	out := new(ReportEventResponse)
@@ -65,6 +68,10 @@ func (c *alertService) ReportEvent(ctx context.Context, in *ReportEventRequest, 
 		return nil, err
 	}
 	return out, nil
+}
+
+func AlertReportEvent(ctx context.Context, in *ReportEventRequest, opts ...client.CallOption) (*ReportEventResponse, error) {
+	return defaultAlertService.ReportEvent(ctx, in, opts...)
 }
 
 // Server API for Alert service

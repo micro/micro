@@ -33,6 +33,7 @@ const _ = proto.ProtoPackageIsVersion3 // please upgrade the proto package
 var _ api.Endpoint
 var _ context.Context
 var _ client.Option
+var _ server.Option
 var _ = microServer.Handle
 var _ = microClient.Call
 
@@ -58,6 +59,8 @@ func NewDepService(name string) DepService {
 	return &depService{name: name}
 }
 
+var defaultDepService = NewDepService("dep")
+
 func (c *depService) Call(ctx context.Context, in *Request, opts ...client.CallOption) (*Response, error) {
 	req := microClient.NewRequest(c.name, "Dep.Call", in)
 	out := new(Response)
@@ -66,6 +69,10 @@ func (c *depService) Call(ctx context.Context, in *Request, opts ...client.CallO
 		return nil, err
 	}
 	return out, nil
+}
+
+func DepCall(ctx context.Context, in *Request, opts ...client.CallOption) (*Response, error) {
+	return defaultDepService.Call(ctx, in, opts...)
 }
 
 func (c *depService) Stream(ctx context.Context, in *StreamingRequest, opts ...client.CallOption) (Dep_StreamService, error) {
@@ -117,6 +124,10 @@ func (x *depServiceStream) Recv() (*StreamingResponse, error) {
 	return m, nil
 }
 
+func DepStream(ctx context.Context, in *StreamingRequest, opts ...client.CallOption) (Dep_StreamService, error) {
+	return defaultDepService.Stream(ctx, in, opts...)
+}
+
 func (c *depService) PingPong(ctx context.Context, opts ...client.CallOption) (Dep_PingPongService, error) {
 	req := microClient.NewRequest(c.name, "Dep.PingPong", &Ping{})
 	stream, err := microClient.Stream(ctx, req, opts...)
@@ -166,6 +177,10 @@ func (x *depServicePingPong) Recv() (*Pong, error) {
 		return nil, err
 	}
 	return m, nil
+}
+
+func DepPingPong(ctx context.Context, opts ...client.CallOption) (Dep_PingPongService, error) {
+	return defaultDepService.PingPong(ctx, opts...)
 }
 
 // Server API for Dep service

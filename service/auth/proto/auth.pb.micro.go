@@ -33,6 +33,7 @@ const _ = proto.ProtoPackageIsVersion3 // please upgrade the proto package
 var _ api.Endpoint
 var _ context.Context
 var _ client.Option
+var _ server.Option
 var _ = microServer.Handle
 var _ = microClient.Call
 
@@ -58,6 +59,8 @@ func NewAuthService(name string) AuthService {
 	return &authService{name: name}
 }
 
+var defaultAuthService = NewAuthService("auth")
+
 func (c *authService) Generate(ctx context.Context, in *GenerateRequest, opts ...client.CallOption) (*GenerateResponse, error) {
 	req := microClient.NewRequest(c.name, "Auth.Generate", in)
 	out := new(GenerateResponse)
@@ -66,6 +69,10 @@ func (c *authService) Generate(ctx context.Context, in *GenerateRequest, opts ..
 		return nil, err
 	}
 	return out, nil
+}
+
+func AuthGenerate(ctx context.Context, in *GenerateRequest, opts ...client.CallOption) (*GenerateResponse, error) {
+	return defaultAuthService.Generate(ctx, in, opts...)
 }
 
 func (c *authService) Inspect(ctx context.Context, in *InspectRequest, opts ...client.CallOption) (*InspectResponse, error) {
@@ -78,6 +85,10 @@ func (c *authService) Inspect(ctx context.Context, in *InspectRequest, opts ...c
 	return out, nil
 }
 
+func AuthInspect(ctx context.Context, in *InspectRequest, opts ...client.CallOption) (*InspectResponse, error) {
+	return defaultAuthService.Inspect(ctx, in, opts...)
+}
+
 func (c *authService) Token(ctx context.Context, in *TokenRequest, opts ...client.CallOption) (*TokenResponse, error) {
 	req := microClient.NewRequest(c.name, "Auth.Token", in)
 	out := new(TokenResponse)
@@ -86,6 +97,10 @@ func (c *authService) Token(ctx context.Context, in *TokenRequest, opts ...clien
 		return nil, err
 	}
 	return out, nil
+}
+
+func AuthToken(ctx context.Context, in *TokenRequest, opts ...client.CallOption) (*TokenResponse, error) {
+	return defaultAuthService.Token(ctx, in, opts...)
 }
 
 // Server API for Auth service
@@ -146,6 +161,8 @@ func NewAccountsService(name string) AccountsService {
 	return &accountsService{name: name}
 }
 
+var defaultAccountsService = NewAccountsService("accounts")
+
 func (c *accountsService) List(ctx context.Context, in *ListAccountsRequest, opts ...client.CallOption) (*ListAccountsResponse, error) {
 	req := microClient.NewRequest(c.name, "Accounts.List", in)
 	out := new(ListAccountsResponse)
@@ -156,6 +173,10 @@ func (c *accountsService) List(ctx context.Context, in *ListAccountsRequest, opt
 	return out, nil
 }
 
+func AccountsList(ctx context.Context, in *ListAccountsRequest, opts ...client.CallOption) (*ListAccountsResponse, error) {
+	return defaultAccountsService.List(ctx, in, opts...)
+}
+
 func (c *accountsService) Delete(ctx context.Context, in *DeleteAccountRequest, opts ...client.CallOption) (*DeleteAccountResponse, error) {
 	req := microClient.NewRequest(c.name, "Accounts.Delete", in)
 	out := new(DeleteAccountResponse)
@@ -164,6 +185,10 @@ func (c *accountsService) Delete(ctx context.Context, in *DeleteAccountRequest, 
 		return nil, err
 	}
 	return out, nil
+}
+
+func AccountsDelete(ctx context.Context, in *DeleteAccountRequest, opts ...client.CallOption) (*DeleteAccountResponse, error) {
+	return defaultAccountsService.Delete(ctx, in, opts...)
 }
 
 // Server API for Accounts service
@@ -219,6 +244,8 @@ func NewRulesService(name string) RulesService {
 	return &rulesService{name: name}
 }
 
+var defaultRulesService = NewRulesService("rules")
+
 func (c *rulesService) Create(ctx context.Context, in *CreateRequest, opts ...client.CallOption) (*CreateResponse, error) {
 	req := microClient.NewRequest(c.name, "Rules.Create", in)
 	out := new(CreateResponse)
@@ -227,6 +254,10 @@ func (c *rulesService) Create(ctx context.Context, in *CreateRequest, opts ...cl
 		return nil, err
 	}
 	return out, nil
+}
+
+func RulesCreate(ctx context.Context, in *CreateRequest, opts ...client.CallOption) (*CreateResponse, error) {
+	return defaultRulesService.Create(ctx, in, opts...)
 }
 
 func (c *rulesService) Delete(ctx context.Context, in *DeleteRequest, opts ...client.CallOption) (*DeleteResponse, error) {
@@ -239,6 +270,10 @@ func (c *rulesService) Delete(ctx context.Context, in *DeleteRequest, opts ...cl
 	return out, nil
 }
 
+func RulesDelete(ctx context.Context, in *DeleteRequest, opts ...client.CallOption) (*DeleteResponse, error) {
+	return defaultRulesService.Delete(ctx, in, opts...)
+}
+
 func (c *rulesService) List(ctx context.Context, in *ListRequest, opts ...client.CallOption) (*ListResponse, error) {
 	req := microClient.NewRequest(c.name, "Rules.List", in)
 	out := new(ListResponse)
@@ -247,6 +282,10 @@ func (c *rulesService) List(ctx context.Context, in *ListRequest, opts ...client
 		return nil, err
 	}
 	return out, nil
+}
+
+func RulesList(ctx context.Context, in *ListRequest, opts ...client.CallOption) (*ListResponse, error) {
+	return defaultRulesService.List(ctx, in, opts...)
 }
 
 // Server API for Rules service

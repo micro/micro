@@ -33,6 +33,7 @@ const _ = proto.ProtoPackageIsVersion3 // please upgrade the proto package
 var _ api.Endpoint
 var _ context.Context
 var _ client.Option
+var _ server.Option
 var _ = microServer.Handle
 var _ = microClient.Call
 
@@ -57,6 +58,8 @@ func NewCommandService(name string) CommandService {
 	return &commandService{name: name}
 }
 
+var defaultCommandService = NewCommandService("command")
+
 func (c *commandService) Help(ctx context.Context, in *HelpRequest, opts ...client.CallOption) (*HelpResponse, error) {
 	req := microClient.NewRequest(c.name, "Command.Help", in)
 	out := new(HelpResponse)
@@ -67,6 +70,10 @@ func (c *commandService) Help(ctx context.Context, in *HelpRequest, opts ...clie
 	return out, nil
 }
 
+func CommandHelp(ctx context.Context, in *HelpRequest, opts ...client.CallOption) (*HelpResponse, error) {
+	return defaultCommandService.Help(ctx, in, opts...)
+}
+
 func (c *commandService) Exec(ctx context.Context, in *ExecRequest, opts ...client.CallOption) (*ExecResponse, error) {
 	req := microClient.NewRequest(c.name, "Command.Exec", in)
 	out := new(ExecResponse)
@@ -75,6 +82,10 @@ func (c *commandService) Exec(ctx context.Context, in *ExecRequest, opts ...clie
 		return nil, err
 	}
 	return out, nil
+}
+
+func CommandExec(ctx context.Context, in *ExecRequest, opts ...client.CallOption) (*ExecResponse, error) {
+	return defaultCommandService.Exec(ctx, in, opts...)
 }
 
 // Server API for Command service

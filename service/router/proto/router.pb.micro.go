@@ -33,6 +33,7 @@ const _ = proto.ProtoPackageIsVersion3 // please upgrade the proto package
 var _ api.Endpoint
 var _ context.Context
 var _ client.Option
+var _ server.Option
 var _ = microServer.Handle
 var _ = microClient.Call
 
@@ -59,6 +60,8 @@ func NewRouterService(name string) RouterService {
 	return &routerService{name: name}
 }
 
+var defaultRouterService = NewRouterService("router")
+
 func (c *routerService) Lookup(ctx context.Context, in *LookupRequest, opts ...client.CallOption) (*LookupResponse, error) {
 	req := microClient.NewRequest(c.name, "Router.Lookup", in)
 	out := new(LookupResponse)
@@ -67,6 +70,10 @@ func (c *routerService) Lookup(ctx context.Context, in *LookupRequest, opts ...c
 		return nil, err
 	}
 	return out, nil
+}
+
+func RouterLookup(ctx context.Context, in *LookupRequest, opts ...client.CallOption) (*LookupResponse, error) {
+	return defaultRouterService.Lookup(ctx, in, opts...)
 }
 
 func (c *routerService) Watch(ctx context.Context, in *WatchRequest, opts ...client.CallOption) (Router_WatchService, error) {
@@ -118,6 +125,10 @@ func (x *routerServiceWatch) Recv() (*Event, error) {
 	return m, nil
 }
 
+func RouterWatch(ctx context.Context, in *WatchRequest, opts ...client.CallOption) (Router_WatchService, error) {
+	return defaultRouterService.Watch(ctx, in, opts...)
+}
+
 func (c *routerService) Advertise(ctx context.Context, in *Request, opts ...client.CallOption) (Router_AdvertiseService, error) {
 	req := microClient.NewRequest(c.name, "Router.Advertise", &Request{})
 	stream, err := microClient.Stream(ctx, req, opts...)
@@ -167,6 +178,10 @@ func (x *routerServiceAdvertise) Recv() (*Advert, error) {
 	return m, nil
 }
 
+func RouterAdvertise(ctx context.Context, in *Request, opts ...client.CallOption) (Router_AdvertiseService, error) {
+	return defaultRouterService.Advertise(ctx, in, opts...)
+}
+
 func (c *routerService) Process(ctx context.Context, in *Advert, opts ...client.CallOption) (*ProcessResponse, error) {
 	req := microClient.NewRequest(c.name, "Router.Process", in)
 	out := new(ProcessResponse)
@@ -175,6 +190,10 @@ func (c *routerService) Process(ctx context.Context, in *Advert, opts ...client.
 		return nil, err
 	}
 	return out, nil
+}
+
+func RouterProcess(ctx context.Context, in *Advert, opts ...client.CallOption) (*ProcessResponse, error) {
+	return defaultRouterService.Process(ctx, in, opts...)
 }
 
 // Server API for Router service
@@ -316,6 +335,8 @@ func NewTableService(name string) TableService {
 	return &tableService{name: name}
 }
 
+var defaultTableService = NewTableService("table")
+
 func (c *tableService) Create(ctx context.Context, in *Route, opts ...client.CallOption) (*CreateResponse, error) {
 	req := microClient.NewRequest(c.name, "Table.Create", in)
 	out := new(CreateResponse)
@@ -324,6 +345,10 @@ func (c *tableService) Create(ctx context.Context, in *Route, opts ...client.Cal
 		return nil, err
 	}
 	return out, nil
+}
+
+func TableCreate(ctx context.Context, in *Route, opts ...client.CallOption) (*CreateResponse, error) {
+	return defaultTableService.Create(ctx, in, opts...)
 }
 
 func (c *tableService) Delete(ctx context.Context, in *Route, opts ...client.CallOption) (*DeleteResponse, error) {
@@ -336,6 +361,10 @@ func (c *tableService) Delete(ctx context.Context, in *Route, opts ...client.Cal
 	return out, nil
 }
 
+func TableDelete(ctx context.Context, in *Route, opts ...client.CallOption) (*DeleteResponse, error) {
+	return defaultTableService.Delete(ctx, in, opts...)
+}
+
 func (c *tableService) Update(ctx context.Context, in *Route, opts ...client.CallOption) (*UpdateResponse, error) {
 	req := microClient.NewRequest(c.name, "Table.Update", in)
 	out := new(UpdateResponse)
@@ -344,6 +373,10 @@ func (c *tableService) Update(ctx context.Context, in *Route, opts ...client.Cal
 		return nil, err
 	}
 	return out, nil
+}
+
+func TableUpdate(ctx context.Context, in *Route, opts ...client.CallOption) (*UpdateResponse, error) {
+	return defaultTableService.Update(ctx, in, opts...)
 }
 
 func (c *tableService) List(ctx context.Context, in *Request, opts ...client.CallOption) (*ListResponse, error) {
@@ -356,6 +389,10 @@ func (c *tableService) List(ctx context.Context, in *Request, opts ...client.Cal
 	return out, nil
 }
 
+func TableList(ctx context.Context, in *Request, opts ...client.CallOption) (*ListResponse, error) {
+	return defaultTableService.List(ctx, in, opts...)
+}
+
 func (c *tableService) Query(ctx context.Context, in *QueryRequest, opts ...client.CallOption) (*QueryResponse, error) {
 	req := microClient.NewRequest(c.name, "Table.Query", in)
 	out := new(QueryResponse)
@@ -364,6 +401,10 @@ func (c *tableService) Query(ctx context.Context, in *QueryRequest, opts ...clie
 		return nil, err
 	}
 	return out, nil
+}
+
+func TableQuery(ctx context.Context, in *QueryRequest, opts ...client.CallOption) (*QueryResponse, error) {
+	return defaultTableService.Query(ctx, in, opts...)
 }
 
 // Server API for Table service

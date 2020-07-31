@@ -34,6 +34,7 @@ const _ = proto.ProtoPackageIsVersion3 // please upgrade the proto package
 var _ api.Endpoint
 var _ context.Context
 var _ client.Option
+var _ server.Option
 var _ = microServer.Handle
 var _ = microClient.Call
 
@@ -73,6 +74,8 @@ func NewGreeterService(name string) GreeterService {
 	return &greeterService{name: name}
 }
 
+var defaultGreeterService = NewGreeterService("greeter")
+
 func (c *greeterService) Hello(ctx context.Context, in *Request, opts ...client.CallOption) (*Response, error) {
 	req := microClient.NewRequest(c.name, "Greeter.Hello", in)
 	out := new(Response)
@@ -81,6 +84,10 @@ func (c *greeterService) Hello(ctx context.Context, in *Request, opts ...client.
 		return nil, err
 	}
 	return out, nil
+}
+
+func GreeterHello(ctx context.Context, in *Request, opts ...client.CallOption) (*Response, error) {
+	return defaultGreeterService.Hello(ctx, in, opts...)
 }
 
 func (c *greeterService) Stream(ctx context.Context, opts ...client.CallOption) (Greeter_StreamService, error) {
@@ -132,6 +139,10 @@ func (x *greeterServiceStream) Recv() (*Response, error) {
 		return nil, err
 	}
 	return m, nil
+}
+
+func GreeterStream(ctx context.Context, opts ...client.CallOption) (Greeter_StreamService, error) {
+	return defaultGreeterService.Stream(ctx, opts...)
 }
 
 // Server API for Greeter service

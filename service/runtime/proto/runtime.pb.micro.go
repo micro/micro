@@ -33,6 +33,7 @@ const _ = proto.ProtoPackageIsVersion3 // please upgrade the proto package
 var _ api.Endpoint
 var _ context.Context
 var _ client.Option
+var _ server.Option
 var _ = microServer.Handle
 var _ = microClient.Call
 
@@ -60,6 +61,8 @@ func NewRuntimeService(name string) RuntimeService {
 	return &runtimeService{name: name}
 }
 
+var defaultRuntimeService = NewRuntimeService("runtime")
+
 func (c *runtimeService) Create(ctx context.Context, in *CreateRequest, opts ...client.CallOption) (*CreateResponse, error) {
 	req := microClient.NewRequest(c.name, "Runtime.Create", in)
 	out := new(CreateResponse)
@@ -68,6 +71,10 @@ func (c *runtimeService) Create(ctx context.Context, in *CreateRequest, opts ...
 		return nil, err
 	}
 	return out, nil
+}
+
+func RuntimeCreate(ctx context.Context, in *CreateRequest, opts ...client.CallOption) (*CreateResponse, error) {
+	return defaultRuntimeService.Create(ctx, in, opts...)
 }
 
 func (c *runtimeService) Read(ctx context.Context, in *ReadRequest, opts ...client.CallOption) (*ReadResponse, error) {
@@ -80,6 +87,10 @@ func (c *runtimeService) Read(ctx context.Context, in *ReadRequest, opts ...clie
 	return out, nil
 }
 
+func RuntimeRead(ctx context.Context, in *ReadRequest, opts ...client.CallOption) (*ReadResponse, error) {
+	return defaultRuntimeService.Read(ctx, in, opts...)
+}
+
 func (c *runtimeService) Delete(ctx context.Context, in *DeleteRequest, opts ...client.CallOption) (*DeleteResponse, error) {
 	req := microClient.NewRequest(c.name, "Runtime.Delete", in)
 	out := new(DeleteResponse)
@@ -90,6 +101,10 @@ func (c *runtimeService) Delete(ctx context.Context, in *DeleteRequest, opts ...
 	return out, nil
 }
 
+func RuntimeDelete(ctx context.Context, in *DeleteRequest, opts ...client.CallOption) (*DeleteResponse, error) {
+	return defaultRuntimeService.Delete(ctx, in, opts...)
+}
+
 func (c *runtimeService) Update(ctx context.Context, in *UpdateRequest, opts ...client.CallOption) (*UpdateResponse, error) {
 	req := microClient.NewRequest(c.name, "Runtime.Update", in)
 	out := new(UpdateResponse)
@@ -98,6 +113,10 @@ func (c *runtimeService) Update(ctx context.Context, in *UpdateRequest, opts ...
 		return nil, err
 	}
 	return out, nil
+}
+
+func RuntimeUpdate(ctx context.Context, in *UpdateRequest, opts ...client.CallOption) (*UpdateResponse, error) {
+	return defaultRuntimeService.Update(ctx, in, opts...)
 }
 
 func (c *runtimeService) Logs(ctx context.Context, in *LogsRequest, opts ...client.CallOption) (Runtime_LogsService, error) {
@@ -147,6 +166,10 @@ func (x *runtimeServiceLogs) Recv() (*LogRecord, error) {
 		return nil, err
 	}
 	return m, nil
+}
+
+func RuntimeLogs(ctx context.Context, in *LogsRequest, opts ...client.CallOption) (Runtime_LogsService, error) {
+	return defaultRuntimeService.Logs(ctx, in, opts...)
 }
 
 // Server API for Runtime service

@@ -201,6 +201,11 @@ func (g *micro) generateService(file *generator.FileDescriptor, service *pb.Serv
 	g.P("return &", unexport(servAlias), "{name: name}")
 	g.P("}")
 	g.P()
+
+	// DefaultClient
+	g.P("var default", servAlias, " = New", servAlias, "(\"", strings.ToLower(servName), "\")")
+	g.P()
+
 	var methodIndex, streamIndex int
 	serviceDescVar := "_" + servName + "_serviceDesc"
 	// Client method implementations.
@@ -216,6 +221,7 @@ func (g *micro) generateService(file *generator.FileDescriptor, service *pb.Serv
 			streamIndex++
 		}
 		g.generateClientMethod(serviceName, servName, serviceDescVar, method, descExpr)
+		g.generatePublicAccessor(serviceName, servName, serviceDescVar, method, descExpr)
 	}
 
 	g.P("// Server API for ", servName, " service")
@@ -441,6 +447,26 @@ func (g *micro) generateClientMethod(reqServ, servName, serviceDescVar string, m
 		g.P("}")
 		g.P()
 	}
+}
+
+func (g *micro) generatePublicAccessor(reqServ, servName, serviceDescVar string, method *pb.MethodDescriptorProto, descExpr string) {
+	methName := generator.CamelCase(method.GetName())
+	servAlias := servName + "Service"
+
+	// strip suffix
+	if strings.HasSuffix(servAlias, "ServiceService") {
+		servAlias = strings.TrimSuffix(servAlias, "Service")
+	}
+
+	// public accessor which calls default service client
+	g.P("func ", servName, g.generateClientSignature(servName, method), "{")
+	if !method.GetClientStreaming() {
+		g.P("return default", servName, "Service.", methName, "(ctx, in, opts...)")
+	} else {
+		g.P("return default", servName, "Service.", methName, "(ctx, opts...)")
+	}
+	g.P("}")
+	g.P()
 }
 
 // generateServerSignature returns the server-side signature for a method.

@@ -33,6 +33,7 @@ const _ = proto.ProtoPackageIsVersion3 // please upgrade the proto package
 var _ api.Endpoint
 var _ context.Context
 var _ client.Option
+var _ server.Option
 var _ = microServer.Handle
 var _ = microClient.Call
 
@@ -61,6 +62,8 @@ func NewStoreService(name string) StoreService {
 	return &storeService{name: name}
 }
 
+var defaultStoreService = NewStoreService("store")
+
 func (c *storeService) Read(ctx context.Context, in *ReadRequest, opts ...client.CallOption) (*ReadResponse, error) {
 	req := microClient.NewRequest(c.name, "Store.Read", in)
 	out := new(ReadResponse)
@@ -69,6 +72,10 @@ func (c *storeService) Read(ctx context.Context, in *ReadRequest, opts ...client
 		return nil, err
 	}
 	return out, nil
+}
+
+func StoreRead(ctx context.Context, in *ReadRequest, opts ...client.CallOption) (*ReadResponse, error) {
+	return defaultStoreService.Read(ctx, in, opts...)
 }
 
 func (c *storeService) Write(ctx context.Context, in *WriteRequest, opts ...client.CallOption) (*WriteResponse, error) {
@@ -81,6 +88,10 @@ func (c *storeService) Write(ctx context.Context, in *WriteRequest, opts ...clie
 	return out, nil
 }
 
+func StoreWrite(ctx context.Context, in *WriteRequest, opts ...client.CallOption) (*WriteResponse, error) {
+	return defaultStoreService.Write(ctx, in, opts...)
+}
+
 func (c *storeService) Delete(ctx context.Context, in *DeleteRequest, opts ...client.CallOption) (*DeleteResponse, error) {
 	req := microClient.NewRequest(c.name, "Store.Delete", in)
 	out := new(DeleteResponse)
@@ -89,6 +100,10 @@ func (c *storeService) Delete(ctx context.Context, in *DeleteRequest, opts ...cl
 		return nil, err
 	}
 	return out, nil
+}
+
+func StoreDelete(ctx context.Context, in *DeleteRequest, opts ...client.CallOption) (*DeleteResponse, error) {
+	return defaultStoreService.Delete(ctx, in, opts...)
 }
 
 func (c *storeService) List(ctx context.Context, in *ListRequest, opts ...client.CallOption) (Store_ListService, error) {
@@ -140,6 +155,10 @@ func (x *storeServiceList) Recv() (*ListResponse, error) {
 	return m, nil
 }
 
+func StoreList(ctx context.Context, in *ListRequest, opts ...client.CallOption) (Store_ListService, error) {
+	return defaultStoreService.List(ctx, in, opts...)
+}
+
 func (c *storeService) Databases(ctx context.Context, in *DatabasesRequest, opts ...client.CallOption) (*DatabasesResponse, error) {
 	req := microClient.NewRequest(c.name, "Store.Databases", in)
 	out := new(DatabasesResponse)
@@ -150,6 +169,10 @@ func (c *storeService) Databases(ctx context.Context, in *DatabasesRequest, opts
 	return out, nil
 }
 
+func StoreDatabases(ctx context.Context, in *DatabasesRequest, opts ...client.CallOption) (*DatabasesResponse, error) {
+	return defaultStoreService.Databases(ctx, in, opts...)
+}
+
 func (c *storeService) Tables(ctx context.Context, in *TablesRequest, opts ...client.CallOption) (*TablesResponse, error) {
 	req := microClient.NewRequest(c.name, "Store.Tables", in)
 	out := new(TablesResponse)
@@ -158,6 +181,10 @@ func (c *storeService) Tables(ctx context.Context, in *TablesRequest, opts ...cl
 		return nil, err
 	}
 	return out, nil
+}
+
+func StoreTables(ctx context.Context, in *TablesRequest, opts ...client.CallOption) (*TablesResponse, error) {
+	return defaultStoreService.Tables(ctx, in, opts...)
 }
 
 // Server API for Store service

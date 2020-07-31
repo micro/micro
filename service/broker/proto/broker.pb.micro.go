@@ -33,6 +33,7 @@ const _ = proto.ProtoPackageIsVersion3 // please upgrade the proto package
 var _ api.Endpoint
 var _ context.Context
 var _ client.Option
+var _ server.Option
 var _ = microServer.Handle
 var _ = microClient.Call
 
@@ -57,6 +58,8 @@ func NewBrokerService(name string) BrokerService {
 	return &brokerService{name: name}
 }
 
+var defaultBrokerService = NewBrokerService("broker")
+
 func (c *brokerService) Publish(ctx context.Context, in *PublishRequest, opts ...client.CallOption) (*Empty, error) {
 	req := microClient.NewRequest(c.name, "Broker.Publish", in)
 	out := new(Empty)
@@ -65,6 +68,10 @@ func (c *brokerService) Publish(ctx context.Context, in *PublishRequest, opts ..
 		return nil, err
 	}
 	return out, nil
+}
+
+func BrokerPublish(ctx context.Context, in *PublishRequest, opts ...client.CallOption) (*Empty, error) {
+	return defaultBrokerService.Publish(ctx, in, opts...)
 }
 
 func (c *brokerService) Subscribe(ctx context.Context, in *SubscribeRequest, opts ...client.CallOption) (Broker_SubscribeService, error) {
@@ -114,6 +121,10 @@ func (x *brokerServiceSubscribe) Recv() (*Message, error) {
 		return nil, err
 	}
 	return m, nil
+}
+
+func BrokerSubscribe(ctx context.Context, in *SubscribeRequest, opts ...client.CallOption) (Broker_SubscribeService, error) {
+	return defaultBrokerService.Subscribe(ctx, in, opts...)
 }
 
 // Server API for Broker service

@@ -33,6 +33,7 @@ const _ = proto.ProtoPackageIsVersion3 // please upgrade the proto package
 var _ api.Endpoint
 var _ context.Context
 var _ client.Option
+var _ server.Option
 var _ = microServer.Handle
 var _ = microClient.Call
 
@@ -56,6 +57,8 @@ func NewExampleService(name string) ExampleService {
 	return &exampleService{name: name}
 }
 
+var defaultExampleService = NewExampleService("example")
+
 func (c *exampleService) Call(ctx context.Context, in *Request, opts ...client.CallOption) (*Response, error) {
 	req := microClient.NewRequest(c.name, "Example.Call", in)
 	out := new(Response)
@@ -64,6 +67,10 @@ func (c *exampleService) Call(ctx context.Context, in *Request, opts ...client.C
 		return nil, err
 	}
 	return out, nil
+}
+
+func ExampleCall(ctx context.Context, in *Request, opts ...client.CallOption) (*Response, error) {
+	return defaultExampleService.Call(ctx, in, opts...)
 }
 
 // Server API for Example service

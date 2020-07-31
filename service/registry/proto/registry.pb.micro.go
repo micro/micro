@@ -33,6 +33,7 @@ const _ = proto.ProtoPackageIsVersion3 // please upgrade the proto package
 var _ api.Endpoint
 var _ context.Context
 var _ client.Option
+var _ server.Option
 var _ = microServer.Handle
 var _ = microClient.Call
 
@@ -60,6 +61,8 @@ func NewRegistryService(name string) RegistryService {
 	return &registryService{name: name}
 }
 
+var defaultRegistryService = NewRegistryService("registry")
+
 func (c *registryService) GetService(ctx context.Context, in *GetRequest, opts ...client.CallOption) (*GetResponse, error) {
 	req := microClient.NewRequest(c.name, "Registry.GetService", in)
 	out := new(GetResponse)
@@ -68,6 +71,10 @@ func (c *registryService) GetService(ctx context.Context, in *GetRequest, opts .
 		return nil, err
 	}
 	return out, nil
+}
+
+func RegistryGetService(ctx context.Context, in *GetRequest, opts ...client.CallOption) (*GetResponse, error) {
+	return defaultRegistryService.GetService(ctx, in, opts...)
 }
 
 func (c *registryService) Register(ctx context.Context, in *Service, opts ...client.CallOption) (*EmptyResponse, error) {
@@ -80,6 +87,10 @@ func (c *registryService) Register(ctx context.Context, in *Service, opts ...cli
 	return out, nil
 }
 
+func RegistryRegister(ctx context.Context, in *Service, opts ...client.CallOption) (*EmptyResponse, error) {
+	return defaultRegistryService.Register(ctx, in, opts...)
+}
+
 func (c *registryService) Deregister(ctx context.Context, in *Service, opts ...client.CallOption) (*EmptyResponse, error) {
 	req := microClient.NewRequest(c.name, "Registry.Deregister", in)
 	out := new(EmptyResponse)
@@ -90,6 +101,10 @@ func (c *registryService) Deregister(ctx context.Context, in *Service, opts ...c
 	return out, nil
 }
 
+func RegistryDeregister(ctx context.Context, in *Service, opts ...client.CallOption) (*EmptyResponse, error) {
+	return defaultRegistryService.Deregister(ctx, in, opts...)
+}
+
 func (c *registryService) ListServices(ctx context.Context, in *ListRequest, opts ...client.CallOption) (*ListResponse, error) {
 	req := microClient.NewRequest(c.name, "Registry.ListServices", in)
 	out := new(ListResponse)
@@ -98,6 +113,10 @@ func (c *registryService) ListServices(ctx context.Context, in *ListRequest, opt
 		return nil, err
 	}
 	return out, nil
+}
+
+func RegistryListServices(ctx context.Context, in *ListRequest, opts ...client.CallOption) (*ListResponse, error) {
+	return defaultRegistryService.ListServices(ctx, in, opts...)
 }
 
 func (c *registryService) Watch(ctx context.Context, in *WatchRequest, opts ...client.CallOption) (Registry_WatchService, error) {
@@ -147,6 +166,10 @@ func (x *registryServiceWatch) Recv() (*Result, error) {
 		return nil, err
 	}
 	return m, nil
+}
+
+func RegistryWatch(ctx context.Context, in *WatchRequest, opts ...client.CallOption) (Registry_WatchService, error) {
+	return defaultRegistryService.Watch(ctx, in, opts...)
 }
 
 // Server API for Registry service

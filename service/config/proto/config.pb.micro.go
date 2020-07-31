@@ -33,6 +33,7 @@ const _ = proto.ProtoPackageIsVersion3 // please upgrade the proto package
 var _ api.Endpoint
 var _ context.Context
 var _ client.Option
+var _ server.Option
 var _ = microServer.Handle
 var _ = microClient.Call
 
@@ -61,6 +62,8 @@ func NewConfigService(name string) ConfigService {
 	return &configService{name: name}
 }
 
+var defaultConfigService = NewConfigService("config")
+
 func (c *configService) Create(ctx context.Context, in *CreateRequest, opts ...client.CallOption) (*CreateResponse, error) {
 	req := microClient.NewRequest(c.name, "Config.Create", in)
 	out := new(CreateResponse)
@@ -69,6 +72,10 @@ func (c *configService) Create(ctx context.Context, in *CreateRequest, opts ...c
 		return nil, err
 	}
 	return out, nil
+}
+
+func ConfigCreate(ctx context.Context, in *CreateRequest, opts ...client.CallOption) (*CreateResponse, error) {
+	return defaultConfigService.Create(ctx, in, opts...)
 }
 
 func (c *configService) Update(ctx context.Context, in *UpdateRequest, opts ...client.CallOption) (*UpdateResponse, error) {
@@ -81,6 +88,10 @@ func (c *configService) Update(ctx context.Context, in *UpdateRequest, opts ...c
 	return out, nil
 }
 
+func ConfigUpdate(ctx context.Context, in *UpdateRequest, opts ...client.CallOption) (*UpdateResponse, error) {
+	return defaultConfigService.Update(ctx, in, opts...)
+}
+
 func (c *configService) Delete(ctx context.Context, in *DeleteRequest, opts ...client.CallOption) (*DeleteResponse, error) {
 	req := microClient.NewRequest(c.name, "Config.Delete", in)
 	out := new(DeleteResponse)
@@ -89,6 +100,10 @@ func (c *configService) Delete(ctx context.Context, in *DeleteRequest, opts ...c
 		return nil, err
 	}
 	return out, nil
+}
+
+func ConfigDelete(ctx context.Context, in *DeleteRequest, opts ...client.CallOption) (*DeleteResponse, error) {
+	return defaultConfigService.Delete(ctx, in, opts...)
 }
 
 func (c *configService) List(ctx context.Context, in *ListRequest, opts ...client.CallOption) (*ListResponse, error) {
@@ -101,6 +116,10 @@ func (c *configService) List(ctx context.Context, in *ListRequest, opts ...clien
 	return out, nil
 }
 
+func ConfigList(ctx context.Context, in *ListRequest, opts ...client.CallOption) (*ListResponse, error) {
+	return defaultConfigService.List(ctx, in, opts...)
+}
+
 func (c *configService) Read(ctx context.Context, in *ReadRequest, opts ...client.CallOption) (*ReadResponse, error) {
 	req := microClient.NewRequest(c.name, "Config.Read", in)
 	out := new(ReadResponse)
@@ -109,6 +128,10 @@ func (c *configService) Read(ctx context.Context, in *ReadRequest, opts ...clien
 		return nil, err
 	}
 	return out, nil
+}
+
+func ConfigRead(ctx context.Context, in *ReadRequest, opts ...client.CallOption) (*ReadResponse, error) {
+	return defaultConfigService.Read(ctx, in, opts...)
 }
 
 func (c *configService) Watch(ctx context.Context, in *WatchRequest, opts ...client.CallOption) (Config_WatchService, error) {
@@ -158,6 +181,10 @@ func (x *configServiceWatch) Recv() (*WatchResponse, error) {
 		return nil, err
 	}
 	return m, nil
+}
+
+func ConfigWatch(ctx context.Context, in *WatchRequest, opts ...client.CallOption) (Config_WatchService, error) {
+	return defaultConfigService.Watch(ctx, in, opts...)
 }
 
 // Server API for Config service
