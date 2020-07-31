@@ -21,6 +21,8 @@ func ServerModeCall(t *T) {
 	t.Parallel()
 	serv := NewServer(t, WithLogin())
 
+	cmd := serv.Command()
+
 	outp, err := cmd.Exec("call", "go.micro.runtime", "Runtime.Read", "{}")
 	if err == nil {
 		t.Fatalf("Call to server should fail, got no error, output: %v", string(outp))
@@ -104,6 +106,8 @@ func testRunAndKill(t *T) {
 	if err := serv.Run(); err != nil {
 		return
 	}
+
+	cmd := serv.Command()
 
 	outp, err := cmd.Exec("run", "./service/example")
 	if err != nil {
@@ -202,6 +206,8 @@ func testRunGithubSource(t *T) {
 		return
 	}
 
+	cmd := serv.Command()
+
 	outp, err := cmd.Exec("run", "github.com/micro/services/helloworld@master")
 	if err != nil {
 		t.Fatalf("micro run failure, output: %v", string(outp))
@@ -253,6 +259,8 @@ func testRunLocalUpdateAndCall(t *T) {
 	if err := serv.Run(); err != nil {
 		return
 	}
+
+	cmd := serv.Command()
 
 	// Run the example service
 	outp, err := cmd.Exec("run", "./service/example")

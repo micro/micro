@@ -156,6 +156,7 @@ func testHelps(t *T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+
 	commands := strings.Split(strings.Split(string(outp), "COMMANDS:")[1], "GLOBAL OPTIONS:")[0]
 	for _, line := range strings.Split(commands, "\n") {
 		trimmed := strings.TrimSpace(line)
@@ -168,7 +169,7 @@ func testHelps(t *T) {
 		}
 		commandName := strings.Split(trimmed, " ")[0]
 
-		outp, err = cmd.Exec(commandName, "--help")
+		outp, err = exec.Command("micro", commandName, "--help").CombinedOutput()
 		if err != nil {
 			t.Fatal(fmt.Errorf("Command %v output is wrong: %v", commandName, string(outp)))
 			break
@@ -192,7 +193,7 @@ func testUnrecognisedCommand(t *T) {
 	}
 
 	t.Parallel()
-	outp, _ := cmd.Exec("foobar")
+	outp, _ := exec.Command("micro", "foobar").CombinedOutput()
 	if !strings.Contains(string(outp), "No command provided to micro. Please refer to 'micro --help'") {
 		t.Fatalf("micro foobar does not return correct error %v", string(outp))
 		return
