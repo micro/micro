@@ -24,29 +24,32 @@ func testCorruptedLogin(t *T) {
 
 	t.Parallel()
 
-	outp, _ := exec.Command("micro", serv.EnvFlag(), "status").CombinedOutput()
+	// get server command
+	cmd := serv.Command()
+
+	outp, _ := cmd.Exec("status")
 	if !strings.Contains(string(outp), "Unauthorized") {
 		t.Fatalf("Call should need authorization")
 	}
-	outp, _ = exec.Command("micro", serv.EnvFlag(), "login", "--email", serv.EnvName(), "--password", "password").CombinedOutput()
+	outp, _ = cmd.Exec("login", "--email", serv.Env(), "--password", "password")
 	if !strings.Contains(string(outp), "Successfully logged in.") {
 		t.Fatalf("Login failed: %s", outp)
 	}
-	outp, _ = exec.Command("micro", serv.EnvFlag(), "status").CombinedOutput()
+	outp, _ = cmd.Exec("status")
 	if string(outp) != "" {
 		t.Fatalf("Call should receive no output: %s", outp)
 	}
 	// munge token
-	tok, _ := token.Get(serv.EnvName())
+	tok, _ := token.Get(serv.Env())
 	tok.Expiry = time.Now().Add(-1 * time.Hour)
 	tok.RefreshToken = tok.RefreshToken + "a"
-	token.Save(serv.EnvName(), tok)
+	token.Save(serv.Env(), tok)
 
-	outp, _ = exec.Command("micro", serv.EnvFlag(), "status").CombinedOutput()
+	outp, _ = cmd.Exec("status")
 	if !strings.Contains(string(outp), "Account can't be found for refresh token") {
 		t.Fatalf("Call should have failed: %s", outp)
 	}
-	outp, _ = exec.Command("micro", serv.EnvFlag(), "login", "--email", serv.EnvName(), "--password", "password").CombinedOutput()
+	outp, _ = cmd.Exec("login", "--email", serv.Env(), "--password", "password")
 	if !strings.Contains(string(outp), "Successfully logged in.") {
 		t.Fatalf("Login failed: %s", outp)
 	}

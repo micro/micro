@@ -114,8 +114,7 @@ func testWrongCommands(t *T) {
 
 	t.Parallel()
 
-	comm := exec.Command("micro", serv.EnvFlag())
-	outp, err := comm.CombinedOutput()
+	outp, err := serv.Command().Exec()
 	if err == nil {
 		t.Fatal("Missing command should error")
 	}
@@ -124,8 +123,7 @@ func testWrongCommands(t *T) {
 		t.Fatalf("Unexpected output for no command: %v", string(outp))
 	}
 
-	comm = exec.Command("micro", serv.EnvFlag(), "asdasd")
-	outp, err = comm.CombinedOutput()
+	outp, err = serv.Command().Exec("asdasd")
 	if err == nil {
 		t.Fatal("Wrong command should error")
 	}
@@ -134,8 +132,7 @@ func testWrongCommands(t *T) {
 		t.Fatalf("Unexpected output for unrecognized command: %v", string(outp))
 	}
 
-	comm = exec.Command("micro", serv.EnvFlag(), "config", "asdasd")
-	outp, err = comm.CombinedOutput()
+	outp, err = serv.Command().Exec("config", "asdasd")
 	if err == nil {
 		t.Fatal("Wrong subcommand should error")
 	}
@@ -168,9 +165,8 @@ func testHelps(t *T) {
 			continue
 		}
 		commandName := strings.Split(trimmed, " ")[0]
-		comm = exec.Command("micro", commandName, "--help")
-		outp, err = comm.CombinedOutput()
 
+		outp, err = serv.Command().Exec(commandName, "--help")
 		if err != nil {
 			t.Fatal(fmt.Errorf("Command %v output is wrong: %v", commandName, string(outp)))
 			break
@@ -194,20 +190,9 @@ func testUnrecognisedCommand(t *T) {
 	}
 
 	t.Parallel()
-	outp, _ := exec.Command("micro", serv.EnvFlag(), "foobar").CombinedOutput()
+	outp, _ := serv.Command().Exec("foobar")
 	if !strings.Contains(string(outp), "No command provided to micro. Please refer to 'micro --help'") {
 		t.Fatalf("micro foobar does not return correct error %v", string(outp))
-		return
-	}
-}
-
-func TestPlatformErrorLocalSource(t *testing.T) {
-	t.Parallel()
-	// @todo reintroduce this test as a change after the creation of this test broke it
-	return
-	outp, _ := exec.Command("micro", "-env=platform", "run", "./service/example").CombinedOutput()
-	if !strings.Contains(string(outp), "Local sources are not yet supported on m3o") {
-		t.Fatalf("Local source does not return expected error %v", string(outp))
 		return
 	}
 }

@@ -32,12 +32,12 @@ func testNamespaceConfigIsolation(t *T) {
 }
 
 func testNamespaceConfigIsolationSuite(serv Server, t *T) {
-	err := namespace.Add(serv.EnvName(), serv.EnvName())
+	err := namespace.Add(serv.Env(), serv.Env())
 	if err != nil {
 		t.Fatal(err)
 		return
 	}
-	err = namespace.Set(serv.EnvName(), serv.EnvName())
+	err = namespace.Set(serv.Env(), serv.Env())
 	if err != nil {
 		t.Fatal(err)
 		return
@@ -49,8 +49,7 @@ func testNamespaceConfigIsolationSuite(serv Server, t *T) {
 	}
 
 	if err := Try("Calling micro config set", t, func() ([]byte, error) {
-		setCmd := exec.Command("micro", serv.EnvFlag(), "config", "set", "somekey", "val1")
-		outp, err := setCmd.CombinedOutput()
+		outp, err := serv.Command().Exec("config", "set", "somekey", "val1")
 		if err != nil {
 			return outp, err
 		}
@@ -63,8 +62,7 @@ func testNamespaceConfigIsolationSuite(serv Server, t *T) {
 	}
 
 	if err := Try("micro config get somekey", t, func() ([]byte, error) {
-		getCmd := exec.Command("micro", serv.EnvFlag(), "config", "get", "somekey")
-		outp, err := getCmd.CombinedOutput()
+		outp, err := serv.Command().Exec("config", "get", "somekey")
 		if err != nil {
 			return outp, err
 		}
@@ -76,24 +74,24 @@ func testNamespaceConfigIsolationSuite(serv Server, t *T) {
 		return
 	}
 
-	err = namespace.Add("random", serv.EnvName())
+	err = namespace.Add("random", serv.Env())
 	if err != nil {
 		t.Fatal(err)
 		return
 	}
-	err = namespace.Set("random", serv.EnvName())
+	err = namespace.Set("random", serv.Env())
 	if err != nil {
 		t.Fatal(err)
 		return
 	}
-	err = token.Remove(serv.EnvName())
+	err = token.Remove(serv.Env())
 	if err != nil {
 		t.Fatal(err)
 		return
 	}
 
 	// This call is only here to trigger default account generation
-	exec.Command("micro", serv.EnvFlag(), "auth", "list", "accounts").CombinedOutput()
+	serv.Command().Exec("auth", "list", "accounts")
 
 	Login(serv, t, "default", "password")
 	if t.failed {
@@ -101,8 +99,7 @@ func testNamespaceConfigIsolationSuite(serv Server, t *T) {
 	}
 
 	if err := Try("reading 'somekey' should not be found with this account", t, func() ([]byte, error) {
-		getCmd := exec.Command("micro", serv.EnvFlag(), "config", "get", "somekey")
-		outp, err := getCmd.CombinedOutput()
+		outp, err := serv.Command().Exec("config", "get", "somekey")
 		if err == nil {
 			return outp, errors.New("getting somekey should fail")
 		}
@@ -117,12 +114,12 @@ func testNamespaceConfigIsolationSuite(serv Server, t *T) {
 	// Log back to original namespace and see if value is already there
 
 	// orignal namespace matchesthe env name
-	err = namespace.Set(serv.EnvName(), serv.EnvName())
+	err = namespace.Set(serv.Env(), serv.Env())
 	if err != nil {
 		t.Fatal(err)
 		return
 	}
-	err = token.Remove(serv.EnvName())
+	err = token.Remove(serv.Env())
 	if err != nil {
 		t.Fatal(err)
 		return
@@ -133,8 +130,7 @@ func testNamespaceConfigIsolationSuite(serv Server, t *T) {
 	}
 
 	if err := Try("micro config get somekey", t, func() ([]byte, error) {
-		getCmd := exec.Command("micro", serv.EnvFlag(), "config", "get", "somekey")
-		outp, err := getCmd.CombinedOutput()
+		outp, err := serv.Command().Exec("config", "get", "somekey")
 		if err != nil {
 			return outp, err
 		}
