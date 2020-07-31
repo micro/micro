@@ -238,9 +238,6 @@ func (c *command) After(ctx *cli.Context) error {
 
 // Before is executed before any subcommand
 func (c *command) Before(ctx *cli.Context) error {
-	// set the proxy address. TODO: Refactor to be a client option.
-	util.SetProxyAddress(ctx)
-
 	// initialize plugins
 	for _, p := range plugin.Plugins() {
 		if err := p.Init(ctx); err != nil {
@@ -250,11 +247,10 @@ func (c *command) Before(ctx *cli.Context) error {
 
 	// default the profile for the server
 	prof := ctx.String("profile")
-	arg := ctx.Args().First()
 
 	// if no profile is set then set one
 	if len(prof) == 0 {
-		switch arg {
+		switch ctx.Args().First() {
 		case "service", "server":
 			prof = "local"
 		default:
@@ -270,10 +266,26 @@ func (c *command) Before(ctx *cli.Context) error {
 		profile.Setup(ctx)
 	}
 
+	// set the proxy address
+	var proxy string
+	if c.service {
+		// use the proxy address passed as a flag, this is normally
+		// the micro network
+		proxy = ctx.String("proxy_address")
+	} else {
+		// for CLI, use the external proxy which is loaded from the
+		// local config
+		proxy = util.CLIProxyAddress(ctx)
+	}
+	if len(proxy) > 0 {
+		muclient.DefaultClient.Init(client.Proxy(proxy))
+	}
+
 	// wrap the client
 	muclient.DefaultClient = wrapper.AuthClient(muclient.DefaultClient)
 	muclient.DefaultClient = wrapper.CacheClient(muclient.DefaultClient)
 	muclient.DefaultClient = wrapper.TraceCall(muclient.DefaultClient)
+	muclient.DefaultClient = wrapper.FromService(muclient.DefaultClient)
 
 	// wrap the server
 	muserver.DefaultServer.Init(
@@ -389,7 +401,7 @@ func (c *command) Before(ctx *cli.Context) error {
 		err = setupAuthForCLI(ctx)
 	}
 	if err != nil {
-		logger.Fatal("Error setting up auth: %v", err)
+		logger.Fatalf("Error setting up auth: %v", err)
 	}
 
 	// refresh token periodically

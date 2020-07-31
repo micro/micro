@@ -72,7 +72,7 @@ func testRunLocalSource(t *T) {
 
 		// The started service should have the runtime name of "service/example",
 		// as the runtime name is the relative path inside a repo.
-		if !statusRunning("service/example", outp) {
+		if !statusRunning("service/example", "latest", outp) {
 			return outp, errors.New("Can't find example service in runtime")
 		}
 		return outp, err
@@ -122,7 +122,7 @@ func testRunAndKill(t *T) {
 
 		// The started service should have the runtime name of "service/example",
 		// as the runtime name is the relative path inside a repo.
-		if !statusRunning("service/example", outp) {
+		if !statusRunning("service/example", "latest", outp) {
 			return outp, errors.New("Can't find example service in runtime")
 		}
 		return outp, err
@@ -180,9 +180,8 @@ func testRunAndKill(t *T) {
 	}
 }
 
-func statusRunning(service string, statusOutput []byte) bool {
-	reg, _ := regexp.Compile(service + "\\s+latest\\s+\\S+\\s+running")
-
+func statusRunning(service, branch string, statusOutput []byte) bool {
+	reg, _ := regexp.Compile(service + "\\s+" + branch + "\\s+\\S+\\s+running")
 	return reg.Match(statusOutput)
 }
 
@@ -207,7 +206,7 @@ func testRunGithubSource(t *T) {
 		return
 	}
 
-	runCmd := exec.Command("micro", serv.EnvFlag(), "run", "github.com/micro/services/helloworld")
+	runCmd := exec.Command("micro", serv.EnvFlag(), "run", "github.com/micro/services/helloworld@master")
 	outp, err := runCmd.CombinedOutput()
 	if err != nil {
 		t.Fatalf("micro run failure, output: %v", string(outp))
@@ -221,7 +220,7 @@ func testRunGithubSource(t *T) {
 			return outp, err
 		}
 
-		if !statusRunning("helloworld", outp) {
+		if !statusRunning("helloworld", "master", outp) {
 			return outp, errors.New("Output should contain hello world")
 		}
 		return outp, nil
@@ -279,7 +278,7 @@ func testRunLocalUpdateAndCall(t *T) {
 
 		// The started service should have the runtime name of "service/example",
 		// as the runtime name is the relative path inside a repo.
-		if !statusRunning("service/example", outp) {
+		if !statusRunning("service/example", "latest", outp) {
 			return outp, errors.New("can't find service in runtime")
 		}
 		return outp, err
@@ -525,7 +524,7 @@ func testParentDependency(t *T) {
 			return outp, err
 		}
 
-		if !statusRunning("dep-test-service", outp) {
+		if !statusRunning("dep-test-service", "latest", outp) {
 			return outp, errors.New("Output should contain hello world")
 		}
 		return outp, nil

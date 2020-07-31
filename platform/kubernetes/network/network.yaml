@@ -46,6 +46,8 @@ spec:
       containers:
       - name: network
         env:
+        - name: MICRO_NETWORK_ADDRESS
+          value: "0.0.0.0:443"
         - name: MICRO_AUTH_PUBLIC_KEY
           valueFrom:
             secretKeyRef:
@@ -72,8 +74,6 @@ spec:
           value: "/certs/registry/cert.pem"
         - name: MICRO_REGISTRY_TLS_KEY
           value: "/certs/registry/key.pem"
-        - name: MICRO_SERVER_ADDRESS
-          value: "0.0.0.0:8080"
         - name: MICRO_STORE_ADDRESS
           value: "postgresql://root@cockroachdb-cluster-public:26257?ssl=true&sslmode=require&sslrootcert=certs/store/ca.crt&sslkey=certs/store/key.pem&sslcert=certs/store/cert.pem"
         args:
@@ -82,7 +82,7 @@ spec:
         image: micro/micro
         imagePullPolicy: Always
         ports:
-        - containerPort: 8080
+        - containerPort: 443
           name: service-port
         - containerPort: 8085
           name: network-port

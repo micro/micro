@@ -9,13 +9,13 @@ import (
 	"time"
 
 	"github.com/micro/cli/v2"
-	log "github.com/micro/micro/v3/service/logger"
 	gorun "github.com/micro/go-micro/v3/runtime"
 	"github.com/micro/go-micro/v3/util/file"
 	"github.com/micro/micro/v3/client/cli/util"
 	"github.com/micro/micro/v3/cmd"
 	"github.com/micro/micro/v3/service"
 	"github.com/micro/micro/v3/service/client"
+	log "github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/runtime"
 )
 
@@ -25,7 +25,7 @@ var (
 		// runtime services
 		"config",   // ????
 		"auth",     // :8010
-		"network",  // :8085
+		"network",  // :8443
 		"runtime",  // :8088
 		"registry", // :8000
 		"broker",   // :8001
@@ -117,6 +117,12 @@ func Run(context *cli.Context) error {
 			name = fmt.Sprintf("%s.%s", namespace, service)
 		}
 
+		// set the proxy addres, default to the network running locally
+		proxy := context.String("proxy_address")
+		if len(proxy) == 0 {
+			proxy = "127.0.0.1:8443"
+		}
+
 		log.Infof("Registering %s", name)
 		// @todo this is a hack
 		env := []string{}
@@ -150,6 +156,12 @@ func Run(context *cli.Context) error {
 				}
 				env = append(env, val)
 			}
+		}
+
+		// inject the proxy address for all services but the network, as we don't want
+		// that calling itself
+		if len(proxy) > 0 && service != "network" {
+			env = append(env, "MICRO_PROXY="+proxy)
 		}
 
 		// we want to pass through the global args so go up one level in the context lineage
