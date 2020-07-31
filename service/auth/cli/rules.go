@@ -26,7 +26,7 @@ func listRules(ctx *cli.Context) error {
 
 	rsp, err := rulesClient.List(context.TODO(), &pb.ListRequest{
 		Options: &pb.Options{Namespace: ns},
-	}, client.WithServiceToken())
+	}, client.WithAuthToken())
 	if err != nil {
 		return fmt.Errorf("Error listing rules: %v", err)
 	}
@@ -70,7 +70,7 @@ func createRule(ctx *cli.Context) error {
 
 	_, err = pb.NewRulesService("go.micro.auth").Create(context.TODO(), &pb.CreateRequest{
 		Rule: rule, Options: &pb.Options{Namespace: ns},
-	}, client.WithServiceToken())
+	}, client.WithAuthToken())
 	if verr := errors.Parse(err); verr != nil {
 		return fmt.Errorf("Error: %v", verr.Detail)
 	} else if err != nil {
@@ -93,7 +93,7 @@ func deleteRule(ctx *cli.Context) error {
 
 	_, err = pb.NewRulesService("go.micro.auth").Delete(context.TODO(), &pb.DeleteRequest{
 		Id: ctx.Args().First(), Options: &pb.Options{Namespace: ns},
-	}, client.WithServiceToken())
+	}, client.WithAuthToken())
 	if verr := errors.Parse(err); err != nil {
 		return fmt.Errorf("Error: %v", verr.Detail)
 	} else if err != nil {

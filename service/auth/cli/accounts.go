@@ -27,7 +27,7 @@ func listAccounts(ctx *cli.Context) error {
 
 	rsp, err := accountClient.List(context.TODO(), &pb.ListAccountsRequest{
 		Options: &pb.Options{Namespace: ns},
-	}, client.WithServiceToken())
+	}, client.WithAuthToken())
 	if err != nil {
 		return fmt.Errorf("Error listing accounts: %v", err)
 	}
@@ -97,7 +97,7 @@ func deleteAccount(ctx *cli.Context) error {
 	_, err = accountClient.Delete(context.TODO(), &pb.DeleteAccountRequest{
 		Id:      ctx.Args().First(),
 		Options: &pb.Options{Namespace: ns},
-	}, client.WithServiceToken())
+	}, client.WithAuthToken())
 	if err != nil {
 		return fmt.Errorf("Error deleting account: %v", err)
 	}

@@ -38,9 +38,8 @@ func (a *authWrapper) wrapContext(ctx context.Context, opts ...client.CallOption
 		o(&options)
 	}
 
-	// We dont't override the header unless the ServiceToken option has
-	// been specified
-	if !options.ServiceToken {
+	// We dont't override the header unless the AuthToken option has been specified
+	if !options.AuthToken {
 		return ctx
 	}
 

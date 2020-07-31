@@ -233,7 +233,7 @@ func CallService(c *cli.Context, args []string) ([]byte, error) {
 
 	creq := client.NewRequest(service, endpoint, request, goclient.WithContentType("application/json"))
 
-	opts := []goclient.CallOption{goclient.WithServiceToken()}
+	opts := []goclient.CallOption{goclient.WithAuthToken()}
 
 	if addr := c.String("address"); len(addr) > 0 {
 		opts = append(opts, goclient.WithAddress(addr))

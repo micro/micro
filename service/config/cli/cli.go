@@ -63,7 +63,7 @@ func setConfig(ctx *cli.Context) error {
 				Timestamp: time.Now().Unix(),
 			},
 		},
-	}, client.WithServiceToken())
+	}, client.WithAuthToken())
 	return err
 }
 
@@ -100,7 +100,7 @@ func getConfig(ctx *cli.Context) error {
 		Namespace: ns,
 		// The actual key for the val
 		Path: key,
-	}, client.WithServiceToken())
+	}, client.WithAuthToken())
 	if err != nil {
 		return err
 	}
@@ -146,7 +146,7 @@ func delConfig(ctx *cli.Context) error {
 			// The actual key for the val
 			Path: key,
 		},
-	}, client.WithServiceToken())
+	}, client.WithAuthToken())
 	return err
 }
 

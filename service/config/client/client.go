@@ -31,7 +31,7 @@ func (m *srv) Read() (set *source.ChangeSet, err error) {
 	req, err := client.Read(context.Background(), &proto.ReadRequest{
 		Namespace: m.namespace,
 		Path:      m.path,
-	}, goclient.WithServiceToken())
+	}, goclient.WithAuthToken())
 	if verr := errors.Parse(err); verr != nil && verr.Code == http.StatusNotFound {
 		return nil, nil
 	} else if err != nil {
@@ -46,7 +46,7 @@ func (m *srv) Watch() (w source.Watcher, err error) {
 	stream, err := client.Watch(context.Background(), &proto.WatchRequest{
 		Namespace: m.namespace,
 		Path:      m.path,
-	}, goclient.WithServiceToken())
+	}, goclient.WithAuthToken())
 	if err != nil {
 		if logger.V(logger.ErrorLevel, logger.DefaultLogger) {
 			logger.Error("watch err: ", err)

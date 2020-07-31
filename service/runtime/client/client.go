@@ -64,7 +64,7 @@ func (s *svc) Create(svc *runtime.Service, opts ...runtime.CreateOption) error {
 		},
 	}
 
-	if _, err := s.runtime.Create(options.Context, req, cl.WithServiceToken()); err != nil {
+	if _, err := s.runtime.Create(options.Context, req, cl.WithAuthToken()); err != nil {
 		return err
 	}
 
@@ -88,7 +88,7 @@ func (s *svc) Logs(service *runtime.Service, opts ...runtime.LogsOption) (runtim
 		Options: &pb.LogsOptions{
 			Namespace: options.Namespace,
 		},
-	}, client.WithServiceToken())
+	}, client.WithAuthToken())
 	if err != nil {
 		return nil, err
 	}
@@ -187,7 +187,7 @@ func (s *svc) Read(opts ...runtime.ReadOption) ([]*runtime.Service, error) {
 		},
 	}
 
-	resp, err := s.runtime.Read(options.Context, req, cl.WithServiceToken())
+	resp, err := s.runtime.Read(options.Context, req, cl.WithAuthToken())
 	if err != nil {
 		return nil, err
 	}
@@ -229,7 +229,7 @@ func (s *svc) Update(svc *runtime.Service, opts ...runtime.UpdateOption) error {
 		},
 	}
 
-	if _, err := s.runtime.Update(options.Context, req, cl.WithServiceToken()); err != nil {
+	if _, err := s.runtime.Update(options.Context, req, cl.WithAuthToken()); err != nil {
 		return err
 	}
 
@@ -259,7 +259,7 @@ func (s *svc) Delete(svc *runtime.Service, opts ...runtime.DeleteOption) error {
 		},
 	}
 
-	if _, err := s.runtime.Delete(options.Context, req, cl.WithServiceToken()); err != nil {
+	if _, err := s.runtime.Delete(options.Context, req, cl.WithAuthToken()); err != nil {
 		return err
 	}
 
