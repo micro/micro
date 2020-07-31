@@ -40,9 +40,9 @@ func (a *authWrapper) wrapContext(ctx context.Context, opts ...client.CallOption
 	}
 
 	// check to see if the authorization header has already been set.
-	// We dont't override the header unless the ServiceToken option has
+	// We dont't override the header unless the AuthToken option has
 	// been specified or the header wasn't provided
-	if _, ok := metadata.Get(ctx, "Authorization"); ok && !options.ServiceToken {
+	if _, ok := metadata.Get(ctx, "Authorization"); ok && !options.AuthToken {
 		return ctx
 	}
 
