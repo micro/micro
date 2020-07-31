@@ -389,7 +389,7 @@ func (c *command) Before(ctx *cli.Context) error {
 		err = setupAuthForCLI(ctx)
 	}
 	if err != nil {
-		logger.Fatal("Error setting up auth: %v", err)
+		logger.Fatalf("Error setting up auth: %v", err)
 	}
 
 	// refresh token periodically
