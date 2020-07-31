@@ -43,7 +43,7 @@ func Get(path ...string) (string, error) {
 	}
 
 	// acquire lock
-	if err := lock.LockWithTimeout(time.Second); err != nil {
+	if err := lock.LockWithTimeout(time.Second * 5); err != nil {
 		return "", err
 	}
 	defer lock.Unlock()
@@ -83,7 +83,7 @@ func Set(value string, path ...string) error {
 	}
 
 	// acquire lock
-	if err := lock.LockWithTimeout(time.Second); err != nil {
+	if err := lock.LockWithTimeout(time.Second * 5); err != nil {
 		return err
 	}
 	defer lock.Unlock()
