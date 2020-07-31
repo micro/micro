@@ -48,8 +48,10 @@ func testNamespaceConfigIsolationSuite(serv Server, t *T) {
 		return
 	}
 
+	cmd := serv.Command()
+
 	if err := Try("Calling micro config set", t, func() ([]byte, error) {
-		outp, err := serv.Command().Exec("config", "set", "somekey", "val1")
+		outp, err := cmd.Exec("config", "set", "somekey", "val1")
 		if err != nil {
 			return outp, err
 		}
@@ -62,7 +64,7 @@ func testNamespaceConfigIsolationSuite(serv Server, t *T) {
 	}
 
 	if err := Try("micro config get somekey", t, func() ([]byte, error) {
-		outp, err := serv.Command().Exec("config", "get", "somekey")
+		outp, err := cmd.Exec("config", "get", "somekey")
 		if err != nil {
 			return outp, err
 		}
@@ -91,7 +93,7 @@ func testNamespaceConfigIsolationSuite(serv Server, t *T) {
 	}
 
 	// This call is only here to trigger default account generation
-	serv.Command().Exec("auth", "list", "accounts")
+	cmd.Exec("auth", "list", "accounts")
 
 	Login(serv, t, "default", "password")
 	if t.failed {
@@ -99,7 +101,7 @@ func testNamespaceConfigIsolationSuite(serv Server, t *T) {
 	}
 
 	if err := Try("reading 'somekey' should not be found with this account", t, func() ([]byte, error) {
-		outp, err := serv.Command().Exec("config", "get", "somekey")
+		outp, err := cmd.Exec("config", "get", "somekey")
 		if err == nil {
 			return outp, errors.New("getting somekey should fail")
 		}
@@ -130,7 +132,7 @@ func testNamespaceConfigIsolationSuite(serv Server, t *T) {
 	}
 
 	if err := Try("micro config get somekey", t, func() ([]byte, error) {
-		outp, err := serv.Command().Exec("config", "get", "somekey")
+		outp, err := cmd.Exec("config", "get", "somekey")
 		if err != nil {
 			return outp, err
 		}
