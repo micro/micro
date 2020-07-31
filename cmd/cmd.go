@@ -285,6 +285,7 @@ func (c *command) Before(ctx *cli.Context) error {
 	muclient.DefaultClient = wrapper.AuthClient(muclient.DefaultClient)
 	muclient.DefaultClient = wrapper.CacheClient(muclient.DefaultClient)
 	muclient.DefaultClient = wrapper.TraceCall(muclient.DefaultClient)
+	muclient.DefaultClient = wrapper.FromService(muclient.DefaultClient)
 
 	// wrap the server
 	muserver.DefaultServer.Init(

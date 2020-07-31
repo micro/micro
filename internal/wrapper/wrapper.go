@@ -8,13 +8,14 @@ import (
 	goauth "github.com/micro/go-micro/v3/auth"
 	"github.com/micro/go-micro/v3/client"
 	"github.com/micro/go-micro/v3/debug/trace"
-	"github.com/micro/micro/v3/service/errors"
 	"github.com/micro/go-micro/v3/metadata"
 	"github.com/micro/go-micro/v3/server"
 	"github.com/micro/micro/v3/internal/namespace"
 	"github.com/micro/micro/v3/service/auth"
 	muclient "github.com/micro/micro/v3/service/client"
 	"github.com/micro/micro/v3/service/debug"
+	"github.com/micro/micro/v3/service/errors"
+	muserver "github.com/micro/micro/v3/service/server"
 )
 
 type authWrapper struct {
@@ -127,9 +128,6 @@ func AuthHandler() server.HandlerWrapper {
 
 type fromServiceWrapper struct {
 	client.Client
-
-	// headers to inject
-	headers metadata.Metadata
 }
 
 var (
@@ -137,8 +135,9 @@ var (
 )
 
 func (f *fromServiceWrapper) setHeaders(ctx context.Context) context.Context {
-	// don't overwrite keys
-	return metadata.MergeContext(ctx, f.headers, false)
+	return metadata.MergeContext(ctx, metadata.Metadata{
+		HeaderPrefix + "From-Service": muserver.DefaultServer.Options().Name,
+	}, false)
 }
 
 func (f *fromServiceWrapper) Call(ctx context.Context, req client.Request, rsp interface{}, opts ...client.CallOption) error {
@@ -157,13 +156,8 @@ func (f *fromServiceWrapper) Publish(ctx context.Context, p client.Message, opts
 }
 
 // FromService wraps a client to inject service and auth metadata
-func FromService(name string, c client.Client) client.Client {
-	return &fromServiceWrapper{
-		c,
-		metadata.Metadata{
-			HeaderPrefix + "From-Service": name,
-		},
-	}
+func FromService(c client.Client) client.Client {
+	return &fromServiceWrapper{c}
 }
 
 // HandlerStats wraps a server handler to generate request/error stats

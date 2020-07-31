@@ -54,9 +54,6 @@ func Run(ctx *cli.Context) error {
 	if len(ctx.String("address")) > 0 {
 		Address = ctx.String("address")
 	}
-	if len(ctx.String("proxy_address")) > 0 {
-		Address = ctx.String("proxy_address")
-	}
 	if len(ctx.String("endpoint")) > 0 {
 		Endpoint = ctx.String("endpoint")
 	}
