@@ -190,7 +190,6 @@ func Run(ctx *cli.Context) error {
 			{"main.go", tmpl.MainSRV},
 			{"generate.go", tmpl.GenerateFile},
 			{"handler/" + dir + ".go", tmpl.HandlerSRV},
-			{"subscriber/" + dir + ".go", tmpl.SubscriberSRV},
 			{"proto/" + dir + ".proto", tmpl.ProtoSRV},
 			{"Dockerfile", tmpl.DockerSRV},
 			{"Makefile", tmpl.Makefile},
