@@ -55,6 +55,9 @@ type Command struct {
 	sync.Mutex
 	// in the event an async command is run
 	cmd *exec.Cmd
+
+	// internal logging use
+	t *T
 }
 
 func (c *Command) args(a ...string) []string {
@@ -66,6 +69,7 @@ func (c *Command) args(a ...string) []string {
 func (c *Command) Exec(args ...string) ([]byte, error) {
 	arguments := c.args(args...)
 	// exec the command
+	c.t.Logf("Executing command: micro %s\n", strings.Join(arguments, " "))
 	return exec.Command("micro", arguments...).CombinedOutput()
 }
 
@@ -382,6 +386,7 @@ func (s *ServerBase) Command() *Command {
 	return &Command{
 		Env:    s.env,
 		Config: s.config,
+		t: s.t,
 	}
 }
 
@@ -419,6 +424,11 @@ func (t *T) Fatal(values ...interface{}) {
 func (t *T) Log(values ...interface{}) {
 	t.t.Helper()
 	t.t.Log(values...)
+}
+
+func (t *T) Logf(values ...interface{}) {
+	t.t.Helper()
+	t.t.Logf(values...)
 }
 
 // Fatalf logs and exits immediately. Assumes it has come from a TrySuite() call. If called from within goroutine it does not immediately exit.
