@@ -61,7 +61,13 @@ type Command struct {
 }
 
 func (c *Command) args(a ...string) []string {
-	arguments := []string{"-e", c.Env, "-c", c.Config}
+	arguments := []string{}
+	// add config flag
+	arguments = append(arguments, []string{"-c", c.Config}...)
+	// add env flag if not env command 
+	if v := len(args); v > 0 && args[0] != "env" {
+		arguments = append(arguments, []string{"-e", c.Env}...)
+	}
 	return append(arguments, a...)
 }
 
