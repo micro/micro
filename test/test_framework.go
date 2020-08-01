@@ -426,9 +426,9 @@ func (t *T) Log(values ...interface{}) {
 	t.t.Log(values...)
 }
 
-func (t *T) Logf(values ...interface{}) {
+func (t *T) Logf(format string, values ...interface{}) {
 	t.t.Helper()
-	t.t.Logf(values...)
+	t.t.Logf(format, values...)
 }
 
 // Fatalf logs and exits immediately. Assumes it has come from a TrySuite() call. If called from within goroutine it does not immediately exit.
