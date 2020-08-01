@@ -64,8 +64,8 @@ func (c *Command) args(a ...string) []string {
 	arguments := []string{}
 	// add config flag
 	arguments = append(arguments, []string{"-c", c.Config}...)
-	// add env flag if not env command 
-	if v := len(args); v > 0 && args[0] != "env" {
+	// add env flag if not env command
+	if v := len(a); v > 0 && a[0] != "env" {
 		arguments = append(arguments, []string{"-e", c.Env}...)
 	}
 	return append(arguments, a...)
@@ -302,7 +302,7 @@ func (s *ServerBase) Run() error {
 	cmd := s.Command()
 
 	// add the environment
-	if err := Try("Adding micro env: " + s.env + " file: " + s.config, s.t, func() ([]byte, error) {
+	if err := Try("Adding micro env: "+s.env+" file: "+s.config, s.t, func() ([]byte, error) {
 		out, err := cmd.Exec("env", "add", s.env, fmt.Sprintf("127.0.0.1:%d", s.port))
 		if err != nil {
 			return nil, err
@@ -392,7 +392,7 @@ func (s *ServerBase) Command() *Command {
 	return &Command{
 		Env:    s.env,
 		Config: s.config,
-		t: s.t,
+		t:      s.t,
 	}
 }
 

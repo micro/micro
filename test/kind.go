@@ -30,10 +30,10 @@ func newK8sServer(t *T, fname string, opts ...Option) Server {
 	portnum := rand.Intn(maxPort-minPort) + minPort
 
 	s := &testK8sServer{ServerBase{
-		t:       t,
-		env:   strings.ToLower(fname),
+		t:    t,
+		env:  strings.ToLower(fname),
 		port: portnum,
-		cmd:     exec.Command("kubectl", "port-forward", "--namespace", "default", "svc/micro-proxy", fmt.Sprintf("%d:8081", portnum)),
+		cmd:  exec.Command("kubectl", "port-forward", "--namespace", "default", "svc/micro-proxy", fmt.Sprintf("%d:8081", portnum)),
 	}}
 	s.namespace = s.env
 
