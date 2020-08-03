@@ -10,6 +10,7 @@ import (
 
 	// internal packages
 	_ "github.com/micro/micro/v3/internal/usage"
+	_ "github.com/micro/micro/v3/internal/wrapper"
 
 	// load packages so they can register commands
 	_ "github.com/micro/micro/v3/client/api"

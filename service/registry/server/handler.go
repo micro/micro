@@ -102,6 +102,7 @@ func (r *Registry) Register(ctx context.Context, req *pb.Service, rsp *pb.EmptyR
 	} else {
 		domain = goregistry.DefaultDomain
 	}
+
 	opts = append(opts, goregistry.RegisterDomain(domain))
 
 	// authorize the request

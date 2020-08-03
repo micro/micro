@@ -5,11 +5,13 @@ import (
 	"reflect"
 	"strings"
 
+	"github.com/micro/cli/v2"
 	goauth "github.com/micro/go-micro/v3/auth"
 	"github.com/micro/go-micro/v3/client"
 	"github.com/micro/go-micro/v3/debug/trace"
 	"github.com/micro/go-micro/v3/metadata"
 	"github.com/micro/go-micro/v3/server"
+	"github.com/micro/micro/v3/internal/cmd"
 	"github.com/micro/micro/v3/internal/namespace"
 	"github.com/micro/micro/v3/service/auth"
 	muclient "github.com/micro/micro/v3/service/client"
@@ -17,6 +19,24 @@ import (
 	"github.com/micro/micro/v3/service/errors"
 	muserver "github.com/micro/micro/v3/service/server"
 )
+
+func init() {
+	cmd.Init(func(ctx *cli.Context) error {
+		// wrap the client
+		muclient.DefaultClient = AuthClient(muclient.DefaultClient)
+		muclient.DefaultClient = CacheClient(muclient.DefaultClient)
+		muclient.DefaultClient = TraceCall(muclient.DefaultClient)
+		muclient.DefaultClient = FromService(muclient.DefaultClient)
+
+		// wrap the server
+		muserver.DefaultServer.Init(
+			server.WrapHandler(AuthHandler()),
+			server.WrapHandler(TraceHandler()),
+			server.WrapHandler(HandlerStats()),
+		)
+		return nil
+	})
+}
 
 type authWrapper struct {
 	client.Client

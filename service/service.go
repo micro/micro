@@ -203,5 +203,6 @@ func NewEvent(topic string) *Event {
 // this in init because it will result in micro always being configured
 // as if a service was being run
 func setupDefaultService() {
-	defaultService = New()
+	defaultService = &Service{opts: newOptions()}
+	defaultService.Options().Cmd.Run()
 }

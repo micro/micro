@@ -1,9 +1,26 @@
 package store
 
 import (
+	"strings"
+
+	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro/v3/store"
+	"github.com/micro/micro/v3/internal/cmd"
 	"github.com/micro/micro/v3/service/store/client"
 )
+
+func init() {
+	cmd.Init(func(ctx *cli.Context) error {
+		var opts []store.Option
+		if len(ctx.String("store_address")) > 0 {
+			opts = append(opts, store.Nodes(strings.Split(ctx.String("store_address"), ",")...))
+		}
+		if len(ctx.String("namespace")) > 0 {
+			opts = append(opts, store.Database(ctx.String("namespace")))
+		}
+		return DefaultStore.Init(opts...)
+	})
+}
 
 var (
 	// DefaultStore implementation

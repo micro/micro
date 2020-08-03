@@ -3,18 +3,17 @@ package service
 import (
 	"time"
 
-	"github.com/micro/go-micro/v3/client"
-	"github.com/micro/go-micro/v3/cmd"
-	"github.com/micro/go-micro/v3/server"
+	goclient "github.com/micro/go-micro/v3/client"
+	gocmd "github.com/micro/go-micro/v3/cmd"
+	goserver "github.com/micro/go-micro/v3/server"
 
-	muclient "github.com/micro/micro/v3/service/client"
-	mucmd "github.com/micro/micro/v3/service/cmd"
-	muserver "github.com/micro/micro/v3/service/server"
+	"github.com/micro/micro/v3/service/client"
+	"github.com/micro/micro/v3/service/server"
 )
 
 // Options for micro service
 type Options struct {
-	Cmd cmd.Cmd
+	Cmd gocmd.Cmd
 
 	Name    string
 	Version string
@@ -30,7 +29,7 @@ type Options struct {
 
 func newOptions(opts ...Option) Options {
 	opt := Options{
-		Cmd:    mucmd.DefaultCmd,
+		Cmd:    defaultCmd,
 		Signal: true,
 	}
 
@@ -54,7 +53,7 @@ func HandleSignal(b bool) Option {
 // Address sets the address of the server
 func Address(addr string) Option {
 	return func(o *Options) {
-		muserver.DefaultServer.Init(server.Address(addr))
+		server.DefaultServer.Init(goserver.Address(addr))
 	}
 }
 
@@ -62,7 +61,7 @@ func Address(addr string) Option {
 func Name(n string) Option {
 	return func(o *Options) {
 		o.Name = n
-		muserver.DefaultServer.Init(server.Name(n))
+		server.DefaultServer.Init(goserver.Name(n))
 	}
 }
 
@@ -70,75 +69,75 @@ func Name(n string) Option {
 func Version(v string) Option {
 	return func(o *Options) {
 		o.Version = v
-		muserver.DefaultServer.Init(server.Version(v))
+		server.DefaultServer.Init(goserver.Version(v))
 	}
 }
 
 // Metadata associated with the service
 func Metadata(md map[string]string) Option {
 	return func(o *Options) {
-		muserver.DefaultServer.Init(server.Metadata(md))
+		server.DefaultServer.Init(goserver.Metadata(md))
 	}
 }
 
 // RegisterTTL specifies the TTL to use when registering the service
 func RegisterTTL(t time.Duration) Option {
 	return func(o *Options) {
-		muserver.DefaultServer.Init(server.RegisterTTL(t))
+		server.DefaultServer.Init(goserver.RegisterTTL(t))
 	}
 }
 
 // RegisterInterval specifies the interval on which to re-register
 func RegisterInterval(t time.Duration) Option {
 	return func(o *Options) {
-		muserver.DefaultServer.Init(server.RegisterInterval(t))
+		server.DefaultServer.Init(goserver.RegisterInterval(t))
 	}
 }
 
 // WrapClient is a convenience method for wrapping a Client with
 // some middleware component. A list of wrappers can be provided.
 // Wrappers are applied in reverse order so the last is executed first.
-func WrapClient(w ...client.Wrapper) Option {
+func WrapClient(w ...goclient.Wrapper) Option {
 	return func(o *Options) {
 		// apply in reverse
 		for i := len(w); i > 0; i-- {
-			muclient.DefaultClient = w[i-1](muclient.DefaultClient)
+			client.DefaultClient = w[i-1](client.DefaultClient)
 		}
 	}
 }
 
 // WrapCall is a convenience method for wrapping a Client CallFunc
-func WrapCall(w ...client.CallWrapper) Option {
+func WrapCall(w ...goclient.CallWrapper) Option {
 	return func(o *Options) {
-		muclient.DefaultClient.Init(client.WrapCall(w...))
+		client.DefaultClient.Init(goclient.WrapCall(w...))
 	}
 }
 
 // WrapHandler adds a handler Wrapper to a list of options passed into the server
-func WrapHandler(w ...server.HandlerWrapper) Option {
+func WrapHandler(w ...goserver.HandlerWrapper) Option {
 	return func(o *Options) {
-		var wrappers []server.Option
+		var wrappers []goserver.Option
 
 		for _, wrap := range w {
-			wrappers = append(wrappers, server.WrapHandler(wrap))
+			wrappers = append(wrappers, goserver.WrapHandler(wrap))
 		}
 
 		// Init once
-		muserver.DefaultServer.Init(wrappers...)
+		server.DefaultServer.Init(wrappers...)
 	}
 }
 
 // WrapSubscriber adds a subscriber Wrapper to a list of options passed into the server
-func WrapSubscriber(w ...server.SubscriberWrapper) Option {
+func WrapSubscriber(w ...goserver.SubscriberWrapper) Option {
 	return func(o *Options) {
-		var wrappers []server.Option
+		var wrappers []goserver.Option
 
 		for _, wrap := range w {
-			wrappers = append(wrappers, server.WrapSubscriber(wrap))
+			wrappers = append(wrappers, goserver.WrapSubscriber(wrap))
 		}
 
 		// Init once
-		muserver.DefaultServer.Init(wrappers...)
+		server.DefaultServer.Init(wrappers...)
 	}
 }
 

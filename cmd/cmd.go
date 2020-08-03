@@ -1,10 +1,7 @@
 package cmd
 
 import (
-	"crypto/tls"
-	"crypto/x509"
 	"fmt"
-	"io/ioutil"
 	"math/rand"
 	"os"
 	"os/exec"
@@ -13,46 +10,28 @@ import (
 	"sync"
 	"time"
 
-	"github.com/micro/go-micro/v3/broker"
 	"github.com/micro/go-micro/v3/client"
-	"github.com/micro/go-micro/v3/config"
 	"github.com/micro/go-micro/v3/server"
-	"github.com/micro/go-micro/v3/store"
 
 	"github.com/micro/cli/v2"
-	"github.com/micro/go-micro/v3/auth"
 	"github.com/micro/go-micro/v3/cmd"
-	"github.com/micro/go-micro/v3/registry"
 	"github.com/micro/micro/v3/client/cli/util"
+	incmd "github.com/micro/micro/v3/internal/cmd"
 	uconf "github.com/micro/micro/v3/internal/config"
 	"github.com/micro/micro/v3/internal/helper"
 	_ "github.com/micro/micro/v3/internal/usage"
-	"github.com/micro/micro/v3/internal/wrapper"
 	"github.com/micro/micro/v3/plugin"
 	"github.com/micro/micro/v3/profile"
 	"github.com/micro/micro/v3/service/logger"
 
-	configCli "github.com/micro/micro/v3/service/config/client"
-
-	muauth "github.com/micro/micro/v3/service/auth"
-	mubroker "github.com/micro/micro/v3/service/broker"
 	muclient "github.com/micro/micro/v3/service/client"
-	muconfig "github.com/micro/micro/v3/service/config"
 	muregistry "github.com/micro/micro/v3/service/registry"
 	muserver "github.com/micro/micro/v3/service/server"
-	mustore "github.com/micro/micro/v3/service/store"
 )
 
 type command struct {
 	opts cmd.Options
 	app  *cli.App
-
-	// before is a function which should
-	// be called in Before if not nil
-	before cli.ActionFunc
-
-	// indicates whether this is a service
-	service bool
 
 	sync.Mutex
 	// exit is a channel which is closed
@@ -91,11 +70,6 @@ var (
 			EnvVars: []string{"MICRO_NAMESPACE"},
 			Usage:   "Namespace the service is operating in",
 			Value:   "micro",
-		},
-		&cli.StringFlag{
-			Name:    "auth_address",
-			EnvVars: []string{"MICRO_AUTH_ADDRESS"},
-			Usage:   "Comma-separated list of auth addresses",
 		},
 		&cli.StringFlag{
 			Name:    "auth_id",
@@ -207,15 +181,6 @@ func New(opts ...cmd.Option) cmd.Cmd {
 	cmd.app.Action = action
 	cmd.app.Before = beforeFromContext(options.Context, cmd.Before)
 	cmd.app.After = cmd.After
-
-	// if this option has been set, we're running a service
-	// and no action needs to be performed. The CMD package
-	// is just being used to parse flags and configure micro.
-	if setupOnlyFromContext(options.Context) {
-		cmd.service = true
-		cmd.app.Action = func(ctx *cli.Context) error { return nil }
-	}
-
 	return cmd
 }
 
@@ -277,158 +242,26 @@ func (c *command) Before(ctx *cli.Context) error {
 		profile.Setup(ctx)
 	}
 
-	// set the proxy address
-	var proxy string
-	if c.service {
-		// use the proxy address passed as a flag, this is normally
-		// the micro network
-		proxy = ctx.String("proxy_address")
-	} else {
-		// for CLI, use the external proxy which is loaded from the
-		// local config
-		proxy = util.CLIProxyAddress(ctx)
-	}
-	if len(proxy) > 0 {
+	// use the external proxy which is loaded from the local config
+	if proxy := util.CLIProxyAddress(ctx); len(proxy) > 0 {
 		muclient.DefaultClient.Init(client.Proxy(proxy))
-	}
-
-	// wrap the client
-	muclient.DefaultClient = wrapper.AuthClient(muclient.DefaultClient)
-	muclient.DefaultClient = wrapper.CacheClient(muclient.DefaultClient)
-	muclient.DefaultClient = wrapper.TraceCall(muclient.DefaultClient)
-	muclient.DefaultClient = wrapper.FromService(muclient.DefaultClient)
-
-	// wrap the server
-	muserver.DefaultServer.Init(
-		server.WrapHandler(wrapper.AuthHandler()),
-		server.WrapHandler(wrapper.TraceHandler()),
-		server.WrapHandler(wrapper.HandlerStats()),
-	)
-
-	// setup auth
-	authOpts := []auth.Option{}
-	if len(ctx.String("namespace")) > 0 {
-		authOpts = append(authOpts, auth.Issuer(ctx.String("namespace")))
-	}
-	if len(ctx.String("auth_address")) > 0 {
-		authOpts = append(authOpts, auth.Addrs(ctx.String("auth_address")))
-	}
-	if len(ctx.String("auth_id")) > 0 || len(ctx.String("auth_secret")) > 0 {
-		authOpts = append(authOpts, auth.Credentials(
-			ctx.String("auth_id"), ctx.String("auth_secret"),
-		))
-	}
-	if len(ctx.String("auth_public_key")) > 0 {
-		authOpts = append(authOpts, auth.PublicKey(ctx.String("auth_public_key")))
-	}
-	if len(ctx.String("auth_private_key")) > 0 {
-		authOpts = append(authOpts, auth.PrivateKey(ctx.String("auth_private_key")))
-	}
-	muauth.DefaultAuth.Init(authOpts...)
-
-	// setup registry
-	registryOpts := []registry.Option{}
-
-	// Parse registry TLS certs
-	if len(ctx.String("registry_tls_cert")) > 0 || len(ctx.String("registry_tls_key")) > 0 {
-		cert, err := tls.LoadX509KeyPair(ctx.String("registry_tls_cert"), ctx.String("registry_tls_key"))
-		if err != nil {
-			logger.Fatalf("Error loading registry tls cert: %v", err)
-		}
-
-		// load custom certificate authority
-		caCertPool := x509.NewCertPool()
-		if len(ctx.String("registry_tls_ca")) > 0 {
-			crt, err := ioutil.ReadFile(ctx.String("registry_tls_ca"))
-			if err != nil {
-				logger.Fatalf("Error loading registry tls certificate authority: %v", err)
-			}
-			caCertPool.AppendCertsFromPEM(crt)
-		}
-
-		cfg := &tls.Config{Certificates: []tls.Certificate{cert}, RootCAs: caCertPool}
-		registryOpts = append(registryOpts, registry.TLSConfig(cfg))
-	}
-	if len(ctx.String("registry_address")) > 0 {
-		addresses := strings.Split(ctx.String("registry_address"), ",")
-		registryOpts = append(registryOpts, registry.Addrs(addresses...))
-	}
-	if err := muregistry.DefaultRegistry.Init(registryOpts...); err != nil {
-		logger.Fatalf("Error configuring registry: %v", err)
-	}
-
-	// Setup broker options.
-	brokerOpts := []broker.Option{}
-	if len(ctx.String("broker_address")) > 0 {
-		brokerOpts = append(brokerOpts, broker.Addrs(ctx.String("broker_address")))
-	}
-
-	// Parse broker TLS certs
-	if len(ctx.String("broker_tls_cert")) > 0 || len(ctx.String("broker_tls_key")) > 0 {
-		cert, err := tls.LoadX509KeyPair(ctx.String("broker_tls_cert"), ctx.String("broker_tls_key"))
-		if err != nil {
-			logger.Fatalf("Error loading broker TLS cert: %v", err)
-		}
-
-		// load custom certificate authority
-		caCertPool := x509.NewCertPool()
-		if len(ctx.String("broker_tls_ca")) > 0 {
-			crt, err := ioutil.ReadFile(ctx.String("broker_tls_ca"))
-			if err != nil {
-				logger.Fatalf("Error loading broker TLS certificate authority: %v", err)
-			}
-			caCertPool.AppendCertsFromPEM(crt)
-		}
-
-		cfg := &tls.Config{Certificates: []tls.Certificate{cert}, RootCAs: caCertPool}
-		brokerOpts = append(brokerOpts, broker.TLSConfig(cfg))
-	}
-	if err := mubroker.DefaultBroker.Init(brokerOpts...); err != nil {
-		logger.Fatalf("Error configuring broker: %v", err)
-	}
-
-	// Setup store options
-	storeOpts := []store.Option{}
-	if len(ctx.String("store_address")) > 0 {
-		storeOpts = append(storeOpts, store.Nodes(strings.Split(ctx.String("store_address"), ",")...))
-	}
-	if len(ctx.String("namespace")) > 0 {
-		storeOpts = append(storeOpts, store.Database(ctx.String("namespace")))
-	}
-	if err := mustore.DefaultStore.Init(storeOpts...); err != nil {
-		logger.Fatalf("Error configuring store: %v", err)
 	}
 
 	// set the registry in the client and server
 	muclient.DefaultClient.Init(client.Registry(muregistry.DefaultRegistry))
 	muserver.DefaultServer.Init(server.Registry(muregistry.DefaultRegistry))
 
-	// setup auth credentials, use local credentials for the CLI and injected creds
-	// for the service.
-	var err error
-	if c.service {
-		err = setupAuthForService()
-	} else {
-		err = setupAuthForCLI(ctx)
-	}
-	if err != nil {
+	// inject auth credentials from the local storage for CLI auth
+	if err := setupAuthForCLI(ctx); err != nil {
 		logger.Fatalf("Error setting up auth: %v", err)
 	}
 
-	// refresh token periodically
-	go refreshAuthToken(c.exit)
-
-	// Setup config. Do this after auth is configured since it'll load the config
-	// from the service immediately. We only do this if the action is nil, indicating
-	// a service is being run
-	if c.service && muconfig.DefaultConfig == nil {
-		conf, err := config.NewConfig(config.WithSource(configCli.NewSource()))
-		if err != nil {
-			logger.Fatalf("Error configuring config: %v", err)
+	// call the init funcs registered by other modules
+	// in micro such as auth, registry etc
+	for _, fn := range incmd.InitFuncs {
+		if err := fn(ctx); err != nil {
+			return err
 		}
-		muconfig.DefaultConfig = conf
-	} else if muconfig.DefaultConfig == nil {
-		muconfig.DefaultConfig, _ = config.NewConfig()
 	}
 
 	return nil
