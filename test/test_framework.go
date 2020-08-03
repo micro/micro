@@ -1,6 +1,7 @@
 package test
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
 	"math/rand"
@@ -54,7 +55,8 @@ type Command struct {
 
 	sync.Mutex
 	// in the event an async command is run
-	cmd *exec.Cmd
+	cmd       *exec.Cmd
+	cmdOutput bytes.Buffer
 
 	// internal logging use
 	t *T
@@ -91,7 +93,10 @@ func (c *Command) Start(args ...string) error {
 	arguments := c.args(args...)
 	c.cmd = exec.Command("micro", arguments...)
 
-	return nil
+	c.cmd.Stdout = &c.cmdOutput
+	c.cmd.Stderr = &c.cmdOutput
+
+	return c.cmd.Start()
 }
 
 // Stop a command thats running
@@ -115,7 +120,7 @@ func (c *Command) Output() ([]byte, error) {
 	if c.cmd == nil {
 		return nil, errors.New("command is not running")
 	}
-	return c.cmd.CombinedOutput()
+	return c.cmdOutput.Bytes(), nil
 }
 
 // try is designed with command line executions in mind
@@ -131,7 +136,6 @@ func Try(blockName string, t *T, f cmdFunc, maxTime time.Duration) error {
 
 	for {
 		if t.failed {
-			t.Logf("Returning from failed")
 			return ignoreThisError
 		}
 		if time.Since(start) > maxTime {
@@ -347,7 +351,6 @@ func (s *ServerDefault) Run() error {
 			!strings.Contains(string(out), "store") {
 			return out, errors.New("Not ready")
 		}
-		s.t.t.Logf("Returning from failed %s", out)
 
 		return out, err
 	}, 60*time.Second); err != nil {
