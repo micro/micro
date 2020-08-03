@@ -13,6 +13,7 @@ import (
 	log "github.com/micro/micro/v3/service/logger"
 	muregistry "github.com/micro/micro/v3/service/registry"
 	pb "github.com/micro/micro/v3/service/router/proto"
+	"github.com/micro/micro/v3/service/server"
 )
 
 var (
@@ -108,7 +109,7 @@ func newRouter(srv *service.Service, router router.Router) *rtr {
 	}
 
 	// register subscriber
-	if err := service.RegisterSubscriber(topic, s); err != nil {
+	if err := service.Subscribe(topic, s); err != nil {
 		log.Errorf("failed to subscribe to adverts: %s", err)
 		os.Exit(1)
 	}
@@ -208,8 +209,8 @@ func Run(ctx *cli.Context) error {
 	)
 
 	r := registry.NewRouter(
-		router.Id(srv.Server().Options().Id),
-		router.Address(srv.Server().Options().Id),
+		router.Id(server.DefaultServer.Options().Id),
+		router.Address(server.DefaultServer.Options().Id),
 		router.Network(network),
 		router.Registry(muregistry.DefaultRegistry),
 		router.Gateway(gateway),
@@ -217,8 +218,8 @@ func Run(ctx *cli.Context) error {
 	)
 
 	// register handlers
-	pb.RegisterRouterHandler(&Router{Router: r})
-	pb.RegisterTableHandler(&Table{Router: r})
+	pb.RegisterRouterHandler(server.DefaultServer, &Router{Router: r})
+	pb.RegisterTableHandler(server.DefaultServer, &Table{Router: r})
 
 	// create new micro router and start advertising routes
 	rtr := newRouter(srv, r)

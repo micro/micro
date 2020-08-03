@@ -10,6 +10,7 @@ import (
 	"github.com/micro/micro/v3/service/runtime"
 	"github.com/micro/micro/v3/service/runtime/manager"
 	pb "github.com/micro/micro/v3/service/runtime/proto"
+	"github.com/micro/micro/v3/service/server"
 )
 
 var (
@@ -69,7 +70,7 @@ func Run(ctx *cli.Context) error {
 	}
 
 	// register the runtime handler
-	pb.RegisterRuntimeHandler(&Runtime{
+	pb.RegisterRuntimeHandler(server.DefaultServer, &Runtime{
 		Event:   service.NewEvent("go.micro.runtime.events"),
 		Runtime: manager,
 	})

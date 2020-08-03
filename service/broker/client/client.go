@@ -7,6 +7,7 @@ import (
 	"github.com/micro/go-micro/v3/broker"
 	"github.com/micro/go-micro/v3/client"
 	pb "github.com/micro/micro/v3/service/broker/proto"
+	muclient "github.com/micro/micro/v3/service/client"
 	"github.com/micro/micro/v3/service/logger"
 )
 
@@ -138,7 +139,7 @@ func NewBroker(opts ...broker.Option) broker.Broker {
 
 	return &serviceBroker{
 		Addrs:   addrs,
-		Client:  pb.NewBrokerService(name),
+		Client:  pb.NewBrokerService(name, muclient.DefaultClient),
 		options: options,
 	}
 }

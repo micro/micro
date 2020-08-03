@@ -8,6 +8,7 @@ import (
 	"github.com/micro/go-micro/v3/server"
 
 	muclient "github.com/micro/micro/v3/service/client"
+	mucmd "github.com/micro/micro/v3/service/cmd"
 	muserver "github.com/micro/micro/v3/service/server"
 )
 
@@ -29,7 +30,7 @@ type Options struct {
 
 func newOptions(opts ...Option) Options {
 	opt := Options{
-		Cmd:    newCmd(),
+		Cmd:    mucmd.DefaultCmd,
 		Signal: true,
 	}
 

@@ -10,6 +10,7 @@ import (
 	log "github.com/micro/micro/v3/service/logger"
 	pb "github.com/micro/micro/v3/service/registry/proto"
 	"github.com/micro/micro/v3/service/registry/util"
+	"github.com/micro/micro/v3/service/server"
 )
 
 var (
@@ -99,10 +100,10 @@ func Run(ctx *cli.Context) error {
 	// new service
 	srv := service.New(srvOpts...)
 	// get server id
-	id := srv.Server().Options().Id
+	id := server.DefaultServer.Options().Id
 
 	// register the handler
-	pb.RegisterRegistryHandler(&Registry{
+	pb.RegisterRegistryHandler(server.DefaultServer, &Registry{
 		ID:    id,
 		Event: service.NewEvent(topic),
 	})

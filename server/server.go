@@ -17,6 +17,7 @@ import (
 	"github.com/micro/micro/v3/service/client"
 	log "github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/runtime"
+	"github.com/micro/micro/v3/service/server"
 )
 
 var (
@@ -213,7 +214,7 @@ func Run(context *cli.Context) error {
 	// @todo make this configurable
 	uploadDir := filepath.Join(os.TempDir(), "micro", "uploads")
 	os.MkdirAll(uploadDir, 0777)
-	file.RegisterHandler(srv.Server(), uploadDir)
+	file.RegisterHandler(server.DefaultServer, uploadDir)
 
 	// start the server
 	if err := srv.Run(); err != nil {

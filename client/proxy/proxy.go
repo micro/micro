@@ -18,7 +18,7 @@ import (
 	rmem "github.com/micro/go-micro/v3/registry/memory"
 	"github.com/micro/go-micro/v3/router"
 	"github.com/micro/go-micro/v3/router/registry"
-	"github.com/micro/go-micro/v3/server"
+	goserver "github.com/micro/go-micro/v3/server"
 	grpcSrv "github.com/micro/go-micro/v3/server/grpc"
 	sgrpc "github.com/micro/go-micro/v3/server/grpc"
 	"github.com/micro/go-micro/v3/sync/memory"
@@ -29,6 +29,7 @@ import (
 	"github.com/micro/micro/v3/service"
 	log "github.com/micro/micro/v3/service/logger"
 	muregistry "github.com/micro/micro/v3/service/registry"
+	"github.com/micro/micro/v3/service/server"
 	"github.com/micro/micro/v3/service/store"
 )
 
@@ -77,7 +78,7 @@ func Run(ctx *cli.Context) error {
 	// new proxy
 	var p proxy.Proxy
 	// setup the default server
-	var srv server.Server
+	var srv goserver.Server
 
 	// set endpoint
 	if len(Endpoint) > 0 {
@@ -97,10 +98,10 @@ func Run(ctx *cli.Context) error {
 		}
 	}
 
-	serverOpts := []server.Option{
-		server.Address(Address),
-		server.Registry(rmem.NewRegistry()),
-		server.Broker(bmem.NewBroker()),
+	serverOpts := []goserver.Option{
+		goserver.Address(Address),
+		goserver.Registry(rmem.NewRegistry()),
+		goserver.Broker(bmem.NewBroker()),
 	}
 
 	// enable acme will create a net.Listener which
@@ -152,7 +153,7 @@ func Run(ctx *cli.Context) error {
 		}
 
 		// set the tls config
-		serverOpts = append(serverOpts, server.TLSConfig(config))
+		serverOpts = append(serverOpts, goserver.TLSConfig(config))
 		// enable tls will leverage tls certs and generate a tls.Config
 	} else if ctx.Bool("enable_tls") {
 		// get certificates from the context
@@ -161,30 +162,30 @@ func Run(ctx *cli.Context) error {
 			log.Fatal(err)
 			return err
 		}
-		serverOpts = append(serverOpts, server.TLSConfig(config))
+		serverOpts = append(serverOpts, goserver.TLSConfig(config))
 	}
 
 	// wrap the proxy using the proxy's authHandler
-	authOpt := server.WrapHandler(authHandler())
+	authOpt := goserver.WrapHandler(authHandler())
 	serverOpts = append(serverOpts, authOpt)
 
 	// set proxy
 	switch Protocol {
 	case "http":
 		p = http.NewProxy(popts...)
-		serverOpts = append(serverOpts, server.WithRouter(p))
+		serverOpts = append(serverOpts, goserver.WithRouter(p))
 		// TODO: http server
 		srv = grpcSrv.NewServer(serverOpts...)
 	case "mucp":
 		popts = append(popts, proxy.WithClient(grpcCli.NewClient()))
 		p = mucp.NewProxy(popts...)
 
-		serverOpts = append(serverOpts, server.WithRouter(p))
+		serverOpts = append(serverOpts, goserver.WithRouter(p))
 		srv = grpcSrv.NewServer(serverOpts...)
 	default:
 		p = mucp.NewProxy(popts...)
 
-		serverOpts = append(serverOpts, server.WithRouter(p))
+		serverOpts = append(serverOpts, goserver.WithRouter(p))
 		srv = sgrpc.NewServer(serverOpts...)
 	}
 
@@ -198,8 +199,8 @@ func Run(ctx *cli.Context) error {
 	muxer := mux.New(Name, p)
 
 	// set the router
-	service.Server().Init(
-		server.WithRouter(muxer),
+	server.DefaultServer.Init(
+		goserver.WithRouter(muxer),
 	)
 
 	// Start the proxy server

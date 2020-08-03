@@ -169,7 +169,7 @@ func TrackEvent(ctx *cli.Context, td TrackingData) error {
 
 // send event to alert service
 func sendEvent(ctx *cli.Context, td TrackingData) error {
-	alertService := alertproto.NewAlertService("alert")
+	alertService := alertproto.AlertServiceClient()
 	val := uint64(0)
 	if td.Value != nil {
 		val = *td.Value

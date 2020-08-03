@@ -185,6 +185,6 @@ func NewRegistry(opts ...registry.Option) registry.Registry {
 		opts:    options,
 		name:    name,
 		address: addrs,
-		client:  pb.NewRegistryService(name),
+		client:  pb.NewRegistryService(name, client.DefaultClient),
 	}
 }

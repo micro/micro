@@ -10,6 +10,7 @@ require (
 	github.com/cloudflare/cloudflare-go v0.10.9 // indirect
 	github.com/dustin/go-humanize v1.0.0
 	github.com/fsnotify/fsnotify v1.4.7
+	github.com/github/hub v2.11.2+incompatible
 	github.com/go-acme/lego/v3 v3.4.0
 	github.com/golang/protobuf v1.4.2
 	github.com/google/uuid v1.1.1
@@ -17,10 +18,13 @@ require (
 	github.com/gorilla/mux v1.7.3
 	github.com/hashicorp/go-version v1.2.1
 	github.com/juju/fslock v0.0.0-20160525022230-4d5c94c67b4b
+	github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51 // indirect
 	github.com/kr/pretty v0.2.0 // indirect
-	github.com/mattn/go-isatty v0.0.12 // indirect
+	github.com/mattn/go-colorable v0.1.7 // indirect
 	github.com/micro/cli v0.2.0
 	github.com/micro/cli/v2 v2.1.2
+	github.com/micro/go-micro v1.18.0
+	github.com/micro/go-micro/v2 v2.9.1
 	github.com/micro/go-micro/v3 v3.0.0-alpha.0.20200731140532-31ed4aa0e8d3
 	github.com/netdata/go-orchestrator v0.0.0-20190905093727-c793edba0e8f
 	github.com/olekukonko/tablewriter v0.0.4

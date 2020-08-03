@@ -18,7 +18,7 @@ import (
 	mucpProxy "github.com/micro/go-micro/v3/proxy/mucp"
 	"github.com/micro/go-micro/v3/router"
 	regRouter "github.com/micro/go-micro/v3/router/registry"
-	"github.com/micro/go-micro/v3/server"
+	goserver "github.com/micro/go-micro/v3/server"
 	mucpServer "github.com/micro/go-micro/v3/server/mucp"
 	"github.com/micro/go-micro/v3/transport"
 	"github.com/micro/go-micro/v3/transport/quic"
@@ -26,8 +26,10 @@ import (
 	"github.com/micro/go-micro/v3/util/mux"
 	"github.com/micro/micro/v3/internal/helper"
 	"github.com/micro/micro/v3/service"
+	"github.com/micro/micro/v3/service/client"
 	log "github.com/micro/micro/v3/service/logger"
 	muregistry "github.com/micro/micro/v3/service/registry"
+	"github.com/micro/micro/v3/service/server"
 )
 
 var (
@@ -173,7 +175,7 @@ func Run(ctx *cli.Context) error {
 
 	gateway := ctx.String("gateway")
 	tun := tunnel.NewTunnel(tunOpts...)
-	id := service.Server().Options().Id
+	id := server.DefaultServer.Options().Id
 
 	// local tunnel router
 	rtr := regRouter.NewRouter(
@@ -199,7 +201,7 @@ func Run(ctx *cli.Context) error {
 	// local proxy
 	prx := mucpProxy.NewProxy(
 		proxy.WithRouter(rtr),
-		proxy.WithClient(service.Client()),
+		proxy.WithClient(client.DefaultClient),
 		proxy.WithLink("network", n.Client()),
 	)
 
@@ -215,12 +217,12 @@ func Run(ctx *cli.Context) error {
 	mux := mux.New(name, prx)
 
 	// init server
-	service.Server().Init(
-		server.WithRouter(mux),
+	server.DefaultServer.Init(
+		goserver.WithRouter(mux),
 	)
 
 	// set network server to proxy
-	n.Server().Init(server.WithRouter(mux))
+	n.Server().Init(goserver.WithRouter(mux))
 
 	// connect network
 	if err := n.Connect(); err != nil {

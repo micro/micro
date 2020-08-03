@@ -6,6 +6,7 @@ import (
 	"github.com/micro/micro/v3/service"
 	proto "github.com/micro/micro/v3/service/config/proto"
 	"github.com/micro/micro/v3/service/logger"
+	"github.com/micro/micro/v3/service/server"
 	mustore "github.com/micro/micro/v3/service/store"
 )
 
@@ -33,8 +34,8 @@ func Run(c *cli.Context) error {
 	srv := service.New(service.Name(name))
 	mustore.DefaultStore.Init(store.Table("config"))
 
-	proto.RegisterConfigHandler(new(config))
-	service.RegisterSubscriber(watchTopic, new(watcher))
+	proto.RegisterConfigHandler(server.DefaultServer, new(config))
+	service.Subscribe(watchTopic, new(watcher))
 
 	if err := srv.Run(); err != nil {
 		logger.Fatal(err)

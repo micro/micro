@@ -13,6 +13,7 @@ import (
 	"github.com/micro/micro/v3/service/errors"
 	"github.com/micro/micro/v3/service/logger"
 	log "github.com/micro/micro/v3/service/logger"
+	"github.com/micro/micro/v3/service/server"
 )
 
 var (
@@ -41,7 +42,7 @@ func Run(ctx *cli.Context) error {
 	mubroker.DefaultBroker.Connect()
 
 	// register the broker handler
-	pb.RegisterBrokerHandler(new(handler))
+	pb.RegisterBrokerHandler(server.DefaultServer, new(handler))
 
 	// run the service
 	if err := srv.Run(); err != nil {

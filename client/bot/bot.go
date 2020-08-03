@@ -15,9 +15,10 @@ import (
 	"github.com/micro/go-micro/v3/agent/command"
 	"github.com/micro/go-micro/v3/agent/input"
 	proto "github.com/micro/go-micro/v3/agent/proto"
-	"github.com/micro/micro/v3/client"
+	muclient "github.com/micro/micro/v3/client"
 	"github.com/micro/micro/v3/cmd"
 	"github.com/micro/micro/v3/service"
+	"github.com/micro/micro/v3/service/client"
 	log "github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/registry"
 
@@ -151,7 +152,7 @@ func (b *bot) process(c input.Conn, ev input.Event) error {
 	}
 
 	// make service request
-	req := b.service.Client().NewRequest(service, "Command.Exec", &proto.ExecRequest{
+	req := client.NewRequest(service, "Command.Exec", &proto.ExecRequest{
 		Args: args,
 	})
 	rsp := &proto.ExecResponse{}
@@ -159,7 +160,7 @@ func (b *bot) process(c input.Conn, ev input.Event) error {
 	var response []byte
 
 	// call service
-	if err := b.service.Client().Call(context.Background(), req, rsp); err != nil {
+	if err := client.Call(context.Background(), req, rsp); err != nil {
 		response = []byte("error executing cmd: " + err.Error())
 	} else if len(rsp.Error) > 0 {
 		response = []byte("error executing cmd: " + rsp.Error)
@@ -275,10 +276,10 @@ func (b *bot) watch() {
 		}
 
 		// get command help
-		req := b.service.Client().NewRequest(service, "Command.Help", &proto.HelpRequest{})
+		req := client.NewRequest(service, "Command.Help", &proto.HelpRequest{})
 		rsp := &proto.HelpResponse{}
 
-		err := b.service.Client().Call(context.Background(), req, rsp)
+		err := client.Call(context.Background(), req, rsp)
 		if err != nil {
 			return "", err
 		}
@@ -432,7 +433,7 @@ func Run(ctx *cli.Context) error {
 }
 
 func init() {
-	flags := append(client.Flags,
+	flags := append(muclient.Flags,
 		&cli.StringFlag{
 			Name:    "inputs",
 			Usage:   "Inputs to load on startup",

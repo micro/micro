@@ -13,12 +13,13 @@ import (
 	"github.com/micro/go-micro/v3/proxy/http"
 	"github.com/micro/go-micro/v3/proxy/mucp"
 	rt "github.com/micro/go-micro/v3/runtime"
-	"github.com/micro/go-micro/v3/server"
+	goserver "github.com/micro/go-micro/v3/server"
 	"github.com/micro/micro/v3/cmd"
 	"github.com/micro/micro/v3/plugin"
 	"github.com/micro/micro/v3/service"
 	log "github.com/micro/micro/v3/service/logger"
 	muruntime "github.com/micro/micro/v3/service/runtime"
+	"github.com/micro/micro/v3/service/server"
 
 	// services
 	auth "github.com/micro/micro/v3/service/auth/server"
@@ -127,8 +128,8 @@ func Run(ctx *ccli.Context) {
 	//	muxer := mux.New(name, p)
 
 	// set the router
-	srv.Server().Init(
-		server.WithRouter(p),
+	server.DefaultServer.Init(
+		goserver.WithRouter(p),
 	)
 
 	// run service

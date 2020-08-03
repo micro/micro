@@ -8,7 +8,6 @@ import (
 	"os/signal"
 	"runtime"
 
-	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro/v3/client"
 	debug "github.com/micro/go-micro/v3/debug/service/handler"
 	"github.com/micro/go-micro/v3/server"
@@ -31,6 +30,13 @@ var (
 // Service is a Micro Service which honours the go-micro/service interface
 type Service struct {
 	opts Options
+}
+
+// New returns a new service
+func New(opts ...Option) *Service {
+	s := &Service{opts: newOptions(opts...)}
+	s.Options().Cmd.Run()
+	return s
 }
 
 // Init the default service
@@ -197,24 +203,5 @@ func NewEvent(topic string) *Event {
 // this in init because it will result in micro always being configured
 // as if a service was being run
 func setupDefaultService() {
-	// before extracts service options from the CLI flags. These
-	// aren't set by the cmd package to prevent a circular dependancy.
-	// prepend them to the array so options passed by the user to this
-	// function are applied after (taking precedence)
-	var opts []Option
-	before := func(ctx *cli.Context) error {
-		if n := ctx.String("service_name"); len(n) > 0 {
-			opts = append(opts, Name(n))
-		}
-		if v := ctx.String("service_version"); len(v) > 0 {
-			opts = append(opts, Version(v))
-		}
-		return nil
-	}
-
-	// construct the service
-	defaultService = &Service{opts: newOptions(opts...)}
-
-	// parse the flags and configure micro
-	defaultService.Options().Cmd.Run()
+	defaultService = New()
 }

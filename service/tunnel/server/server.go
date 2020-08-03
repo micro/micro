@@ -6,22 +6,24 @@ import (
 	"time"
 
 	"github.com/micro/cli/v2"
-	"github.com/micro/go-micro/v3/client"
+	goclient "github.com/micro/go-micro/v3/client"
 	cmucp "github.com/micro/go-micro/v3/client/mucp"
 	"github.com/micro/go-micro/v3/proxy"
 	"github.com/micro/go-micro/v3/proxy/mucp"
 	"github.com/micro/go-micro/v3/registry/memory"
 	"github.com/micro/go-micro/v3/router"
 	regRouter "github.com/micro/go-micro/v3/router/registry"
-	"github.com/micro/go-micro/v3/server"
+	goserver "github.com/micro/go-micro/v3/server"
 	smucp "github.com/micro/go-micro/v3/server/mucp"
 	"github.com/micro/go-micro/v3/transport"
 	tun "github.com/micro/go-micro/v3/tunnel"
 	tuntransport "github.com/micro/go-micro/v3/tunnel/transport"
 	"github.com/micro/go-micro/v3/util/mux"
 	"github.com/micro/micro/v3/service"
+	"github.com/micro/micro/v3/service/client"
 	log "github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/registry"
+	"github.com/micro/micro/v3/service/server"
 	mutunnel "github.com/micro/micro/v3/service/tunnel"
 )
 
@@ -91,7 +93,7 @@ func Run(ctx *cli.Context) error {
 
 	// local tunnel router
 	r := regRouter.NewRouter(
-		router.Id(service.Server().Options().Id),
+		router.Id(server.DefaultServer.Options().Id),
 		router.Registry(registry.DefaultRegistry),
 	)
 
@@ -116,7 +118,7 @@ func Run(ctx *cli.Context) error {
 
 	// local server client talks to tunnel
 	localSrvClient := cmucp.NewClient(
-		client.Transport(tunTransport),
+		goclient.Transport(tunTransport),
 	)
 
 	// local proxy
@@ -129,19 +131,19 @@ func Run(ctx *cli.Context) error {
 	muxer := mux.New(name, localProxy)
 
 	// init server
-	service.Server().Init(
-		server.WithRouter(muxer),
+	server.DefaultServer.Init(
+		goserver.WithRouter(muxer),
 	)
 
 	// local transport client
-	service.Client().Init(
-		client.Transport(mutunnel.DefaultTransport),
+	client.DefaultClient.Init(
+		goclient.Transport(mutunnel.DefaultTransport),
 	)
 
 	// local proxy
 	tunProxy := mucp.NewProxy(
 		proxy.WithRouter(r),
-		proxy.WithClient(service.Client()),
+		proxy.WithClient(client.DefaultClient),
 	)
 
 	// create memory registry
@@ -149,10 +151,10 @@ func Run(ctx *cli.Context) error {
 
 	// local server
 	tunSrv := smucp.NewServer(
-		server.Address(tunnel),
-		server.Transport(tunTransport),
-		server.WithRouter(tunProxy),
-		server.Registry(memRegistry),
+		goserver.Address(tunnel),
+		goserver.Transport(tunTransport),
+		goserver.WithRouter(tunProxy),
+		goserver.Registry(memRegistry),
 	)
 
 	if err := tunSrv.Start(); err != nil {

@@ -13,6 +13,7 @@ import (
 	"github.com/micro/micro/v3/cmd"
 	cliconfig "github.com/micro/micro/v3/internal/config"
 	"github.com/micro/micro/v3/internal/helper"
+	"github.com/micro/micro/v3/service/client"
 	proto "github.com/micro/micro/v3/service/config/proto"
 	log "github.com/micro/micro/v3/service/logger"
 )
@@ -35,7 +36,7 @@ func setConfig(ctx *cli.Context) error {
 	if ctx.Bool("local") {
 		return cliconfig.Set(val, strings.Split(key, ".")...)
 	}
-	pb := proto.NewConfigService("go.micro.config")
+	pb := proto.NewConfigService("go.micro.config", client.DefaultClient)
 
 	if args.Len() == 0 {
 		return fmt.Errorf("Required usage: micro config set key val")
@@ -93,7 +94,7 @@ func getConfig(ctx *cli.Context) error {
 
 	// TODO: allow the specifying of a config.Key. This will be service name
 	// The actuall key-val set is a path e.g micro/accounts/key
-	pb := proto.NewConfigService("go.micro.config")
+	pb := proto.NewConfigService("go.micro.config", client.DefaultClient)
 	rsp, err := pb.Read(context.TODO(), &proto.ReadRequest{
 		// The current namespace,
 		Namespace: ns,
@@ -137,7 +138,7 @@ func delConfig(ctx *cli.Context) error {
 
 	// TODO: allow the specifying of a config.Key. This will be service name
 	// The actuall key-val set is a path e.g micro/accounts/key
-	pb := proto.NewConfigService("go.micro.config")
+	pb := proto.NewConfigService("go.micro.config", client.DefaultClient)
 	_, err = pb.Delete(context.TODO(), &proto.DeleteRequest{
 		Change: &proto.Change{
 			// The current namespace

@@ -11,6 +11,7 @@ import (
 	authHandler "github.com/micro/micro/v3/service/auth/server/auth"
 	rulesHandler "github.com/micro/micro/v3/service/auth/server/rules"
 	log "github.com/micro/micro/v3/service/logger"
+	"github.com/micro/micro/v3/service/server"
 	mustore "github.com/micro/micro/v3/service/store"
 )
 
@@ -46,9 +47,9 @@ func Run(ctx *cli.Context) error {
 	ruleH.Init(auth.Store(mustore.DefaultStore))
 
 	// register handlers
-	pb.RegisterAuthHandler(authH)
-	pb.RegisterRulesHandler(ruleH)
-	pb.RegisterAccountsHandler(authH)
+	pb.RegisterAuthHandler(server.DefaultServer, authH)
+	pb.RegisterRulesHandler(server.DefaultServer, ruleH)
+	pb.RegisterAccountsHandler(server.DefaultServer, authH)
 
 	// run service
 	if err := srv.Run(); err != nil {

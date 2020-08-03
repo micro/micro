@@ -13,6 +13,7 @@ import (
 	tracehandler "github.com/micro/micro/v3/service/debug/trace/handler"
 	pbtrace "github.com/micro/micro/v3/service/debug/trace/proto"
 	"github.com/micro/micro/v3/service/logger"
+	"github.com/micro/micro/v3/service/server"
 )
 
 const (
@@ -82,7 +83,7 @@ func Run(ctx *cli.Context) error {
 	}
 
 	// Register the logs handler
-	pblog.RegisterLogHandler(lgHandler)
+	pblog.RegisterLogHandler(server.DefaultServer, lgHandler)
 
 	// stats handler
 	statsHandler, err := statshandler.New(done, ctx.Int("window"), c.services)
@@ -97,9 +98,9 @@ func Run(ctx *cli.Context) error {
 	}
 
 	// Register the stats handler
-	pbstats.RegisterStatsHandler(statsHandler)
+	pbstats.RegisterStatsHandler(server.DefaultServer, statsHandler)
 	// register trace handler
-	pbtrace.RegisterTraceHandler(traceHandler)
+	pbtrace.RegisterTraceHandler(server.DefaultServer, traceHandler)
 
 	// TODO: implement debug service for k8s cruft
 

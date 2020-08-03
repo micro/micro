@@ -27,7 +27,7 @@ import (
 	"github.com/micro/go-micro/v3/api/server/acme/certmagic"
 	httpapi "github.com/micro/go-micro/v3/api/server/http"
 	"github.com/micro/go-micro/v3/sync/memory"
-	"github.com/micro/micro/v3/client"
+	muclient "github.com/micro/micro/v3/client"
 	"github.com/micro/micro/v3/client/api/auth"
 	"github.com/micro/micro/v3/cmd"
 	"github.com/micro/micro/v3/internal/handler"
@@ -35,6 +35,7 @@ import (
 	rrmicro "github.com/micro/micro/v3/internal/resolver/api"
 	"github.com/micro/micro/v3/internal/stats"
 	"github.com/micro/micro/v3/service"
+	"github.com/micro/micro/v3/service/client"
 	log "github.com/micro/micro/v3/service/logger"
 	muregistry "github.com/micro/micro/v3/service/registry"
 	"github.com/micro/micro/v3/service/store"
@@ -213,7 +214,7 @@ func Run(ctx *cli.Context) error {
 		rp := arpc.NewHandler(
 			ahandler.WithNamespace(Namespace),
 			ahandler.WithRouter(rt),
-			ahandler.WithClient(srv.Client()),
+			ahandler.WithClient(client.DefaultClient),
 		)
 		r.PathPrefix(APIPath).Handler(rp)
 	case "api":
@@ -226,7 +227,7 @@ func Run(ctx *cli.Context) error {
 		ap := aapi.NewHandler(
 			ahandler.WithNamespace(Namespace),
 			ahandler.WithRouter(rt),
-			ahandler.WithClient(srv.Client()),
+			ahandler.WithClient(client.DefaultClient),
 		)
 		r.PathPrefix(APIPath).Handler(ap)
 	case "event":
@@ -239,7 +240,7 @@ func Run(ctx *cli.Context) error {
 		ev := event.NewHandler(
 			ahandler.WithNamespace(Namespace),
 			ahandler.WithRouter(rt),
-			ahandler.WithClient(srv.Client()),
+			ahandler.WithClient(client.DefaultClient),
 		)
 		r.PathPrefix(APIPath).Handler(ev)
 	case "http", "proxy":
@@ -252,7 +253,7 @@ func Run(ctx *cli.Context) error {
 		ht := ahttp.NewHandler(
 			ahandler.WithNamespace(Namespace),
 			ahandler.WithRouter(rt),
-			ahandler.WithClient(srv.Client()),
+			ahandler.WithClient(client.DefaultClient),
 		)
 		r.PathPrefix(ProxyPath).Handler(ht)
 	case "web":
@@ -265,7 +266,7 @@ func Run(ctx *cli.Context) error {
 		w := web.NewHandler(
 			ahandler.WithNamespace(Namespace),
 			ahandler.WithRouter(rt),
-			ahandler.WithClient(srv.Client()),
+			ahandler.WithClient(client.DefaultClient),
 		)
 		r.PathPrefix(APIPath).Handler(w)
 	default:
@@ -274,7 +275,7 @@ func Run(ctx *cli.Context) error {
 			router.WithResolver(rr),
 			router.WithRegistry(muregistry.DefaultRegistry),
 		)
-		r.PathPrefix(APIPath).Handler(handler.Meta(srv, rt, Namespace))
+		r.PathPrefix(APIPath).Handler(handler.Meta(rt, Namespace))
 	}
 
 	// create the auth wrapper and the server
@@ -307,7 +308,7 @@ func init() {
 		Name:   "api",
 		Usage:  "Run the api gateway",
 		Action: Run,
-		Flags: append(client.Flags,
+		Flags: append(muclient.Flags,
 			&cli.StringFlag{
 				Name:    "address",
 				Usage:   "Set the api address e.g 0.0.0.0:8080",
