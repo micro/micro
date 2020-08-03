@@ -148,7 +148,7 @@ func (m *manager) Start() error {
 	// todo: compare the store to the runtime incase we missed any events
 
 	// Watch services that were running previously
-	go m.wachServices()
+	go m.watchServices()
 
 	return nil
 }
