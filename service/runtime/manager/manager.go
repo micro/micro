@@ -147,8 +147,8 @@ func (m *manager) Start() error {
 
 	// todo: compare the store to the runtime incase we missed any events
 
-	// Resurrect services that were running previously
-	go m.resurrectServices()
+	// Watch services which need to be restarted
+	go m.watchServices()
 
 	return nil
 }
@@ -158,7 +158,7 @@ func (m *manager) Logs(srv *gorun.Service, opts ...gorun.LogsOption) (gorun.LogS
 	return runtime.Logs(srv, opts...)
 }
 
-func (m *manager) resurrectServices() {
+func (m *manager) watchServices() {
 	nss, err := m.listNamespaces()
 	if err != nil {
 		logger.Warnf("Error listing namespaces: %v", err)
@@ -210,7 +210,7 @@ func (m *manager) resurrectServices() {
 			// create the service
 			if err := runtime.Create(srv.Service, options...); err != nil {
 				if logger.V(logger.ErrorLevel, logger.DefaultLogger) {
-					logger.Errorf("Error resurrecting service: %v", err)
+					logger.Errorf("Error restarting service: %v", err)
 				}
 			}
 		}
