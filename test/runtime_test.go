@@ -320,7 +320,7 @@ func testRunLocalUpdateAndCall(t *T) {
 	}
 
 	// wait for the update
-	time.Sleep(time.Second * 5)
+	time.Sleep(time.Second * 15)
 
 	if err := Try("Call example service after modification", t, func() ([]byte, error) {
 		callCmd := exec.Command("micro", serv.EnvFlag(), "call", "example", "Example.Call", `{"name": "Joe"}`)
