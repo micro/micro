@@ -131,6 +131,7 @@ func Try(blockName string, t *T, f cmdFunc, maxTime time.Duration) error {
 
 	for {
 		if t.failed {
+			t.Logf("Returning from failed")
 			return ignoreThisError
 		}
 		if time.Since(start) > maxTime {
@@ -346,6 +347,7 @@ func (s *ServerDefault) Run() error {
 			!strings.Contains(string(out), "store") {
 			return out, errors.New("Not ready")
 		}
+		s.t.t.Logf("Returning from failed %s", out)
 
 		return out, err
 	}, 60*time.Second); err != nil {
@@ -527,4 +529,23 @@ func Login(serv Server, t *T, email, password string) error {
 		}
 		return out, err
 	}, 4*time.Second)
+}
+
+func ChangeNamespace(cmd *Command, env, namespace string) error {
+	if _, err := cmd.Exec("user", "config", "set", "namespaces."+env+".all", namespace); err != nil {
+		return err
+	}
+	if _, err := cmd.Exec("user", "config", "set", "namespaces."+env+".current", namespace); err != nil {
+		return err
+	}
+	if _, err := cmd.Exec("user", "config", "set", "micro.auth."+env+".token", ""); err != nil {
+		return err
+	}
+	if _, err := cmd.Exec("user", "config", "set", "micro.auth."+env+".refresh-token", ""); err != nil {
+		return err
+	}
+	if _, err := cmd.Exec("user", "config", "set", "micro.auth."+env+".expiry", ""); err != nil {
+		return err
+	}
+	return nil
 }

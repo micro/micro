@@ -193,7 +193,8 @@ func testUnrecognisedCommand(t *T) {
 	}
 
 	t.Parallel()
-	outp, _ := exec.Command("micro", "foobar").CombinedOutput()
+	cmd := serv.Command()
+	outp, _ := cmd.Exec("micro", "foobar")
 	if !strings.Contains(string(outp), "No command provided to micro. Please refer to 'micro --help'") {
 		t.Fatalf("micro foobar does not return correct error %v", string(outp))
 		return

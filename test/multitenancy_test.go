@@ -10,13 +10,12 @@ import (
 	"time"
 
 	"github.com/micro/micro/v3/client/cli/namespace"
-	"github.com/micro/micro/v3/client/cli/token"
 )
 
 // Test for making sure config and store values across namespaces
 // are correctly isolated
 func TestNamespaceConfigIsolation(t *testing.T) {
-	TrySuite(t, testNamespaceConfigIsolation, retryCount)
+	TrySuite(t, testNamespaceConfigIsolation, 1)
 }
 
 func testNamespaceConfigIsolation(t *T) {
@@ -74,21 +73,9 @@ func testNamespaceConfigIsolationSuite(serv Server, t *T) {
 	}, 8*time.Second); err != nil {
 		return
 	}
-
-	err = namespace.Add("random", serv.Env())
-	if err != nil {
-		t.Fatal(err)
-		return
-	}
-	err = namespace.Set("random", serv.Env())
-	if err != nil {
-		t.Fatal(err)
-		return
-	}
-	err = token.Remove(serv.Env())
-	if err != nil {
-		t.Fatal(err)
-		return
+	currNamespace, _ := cmd.Exec("user", "config", "get", "namespaces."+serv.Env()+".current")
+	if err := ChangeNamespace(cmd, serv.Env(), "random"); err != nil {
+		t.Fatalf("Error changing namespace %s", err)
 	}
 
 	// This call is only here to trigger default account generation
@@ -113,17 +100,8 @@ func testNamespaceConfigIsolationSuite(serv Server, t *T) {
 	}
 
 	// Log back to original namespace and see if value is already there
-
-	// orignal namespace matchesthe env name
-	err = namespace.Set(serv.Env(), serv.Env())
-	if err != nil {
-		t.Fatal(err)
-		return
-	}
-	err = token.Remove(serv.Env())
-	if err != nil {
-		t.Fatal(err)
-		return
+	if err := ChangeNamespace(cmd, serv.Env(), string(currNamespace)); err != nil {
+		t.Fatalf("Error changing namespace %s", err)
 	}
 
 	if err := Login(serv, t, "default", "password"); err != nil {
