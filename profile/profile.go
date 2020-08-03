@@ -53,7 +53,6 @@ var profiles = map[string]*Profile{
 // Profile configures an environment. If an implementation is
 // not specified, the RPC implementation will be used
 type Profile struct {
-	Name       string
 	Auth       func(opts ...auth.Option) auth.Auth
 	Broker     func(opts ...broker.Option) broker.Broker
 	Registry   func(opts ...registry.Option) registry.Registry
@@ -126,7 +125,6 @@ func Load(name string) (*Profile, error) {
 
 // CI profile to use for CI tests
 var CI = &Profile{
-	Name:       "ci",
 	Auth:       jwt.NewAuth,
 	Runtime:    local.NewRuntime,
 	Store:      file.NewStore,
@@ -136,11 +134,10 @@ var CI = &Profile{
 }
 
 // Client profile is for any entrypoint that behaves as a client
-var Client = &Profile{Name: "client"}
+var Client = &Profile{}
 
 // Local profile to run locally
 var Local = &Profile{
-	Name:     "local",
 	Auth:     noop.NewAuth,
 	Broker:   http.NewBroker,
 	Store:    file.NewStore,
@@ -150,7 +147,6 @@ var Local = &Profile{
 
 // Kubernetes profile to run on kubernetes
 var Kubernetes = &Profile{
-	Name: "kubernetes",
 	Auth: jwt.NewAuth,
 	// TODO: implement
 	// registry kubernetes
@@ -162,7 +158,6 @@ var Kubernetes = &Profile{
 
 // Platform is for running the micro platform
 var Platform = &Profile{
-	Name:    "platform",
 	Auth:    jwt.NewAuth,
 	Runtime: kubernetes.NewRuntime,
 	Broker: func(opts ...broker.Option) broker.Broker {
@@ -176,11 +171,10 @@ var Platform = &Profile{
 }
 
 // Service is the default for any services run
-var Service = &Profile{Name: "service"}
+var Service = &Profile{}
 
 // Test profile is used for the go test suite
 var Test = &Profile{
-	Name:     "test",
 	Auth:     noop.NewAuth,
 	Store:    mem.NewStore,
 	Registry: memReg.NewRegistry,
