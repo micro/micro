@@ -312,7 +312,7 @@ func testRunLocalUpdateAndCall(t *T) {
 	}()
 
 	// TODO: fix the naming issue, for some reason the name becomes current-dir/sub-folder
-	updateCmd := exec.Command("micro", serv.EnvFlag(), "update", "test/ervice/example")
+	updateCmd := exec.Command("micro", serv.EnvFlag(), "update", "test/service/example")
 	outp, err = updateCmd.CombinedOutput()
 	if err != nil {
 		t.Fatal(err)
