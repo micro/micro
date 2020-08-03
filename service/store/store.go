@@ -6,7 +6,6 @@ import (
 	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro/v3/store"
 	"github.com/micro/micro/v3/internal/cmd"
-	"github.com/micro/micro/v3/service/store/client"
 )
 
 func init() {
@@ -24,7 +23,7 @@ func init() {
 
 var (
 	// DefaultStore implementation
-	DefaultStore store.Store = client.NewStore()
+	DefaultStore store.Store
 )
 
 // Read takes a single key name and optional ReadOptions. It returns matching []*Record or an error.

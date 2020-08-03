@@ -70,6 +70,8 @@ func (c *command) After(ctx *cli.Context) error {
 
 // Before is executed before any subcommand
 func (c *command) Before(ctx *cli.Context) error {
+	// profile.Service.Setup()
+
 	if n := ctx.String("service_name"); len(n) > 0 {
 		Name(n)(&defaultService.opts)
 	}

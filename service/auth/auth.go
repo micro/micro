@@ -4,7 +4,6 @@ import (
 	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro/v3/auth"
 	"github.com/micro/micro/v3/internal/cmd"
-	"github.com/micro/micro/v3/service/auth/client"
 )
 
 func init() {
@@ -41,7 +40,7 @@ func init() {
 }
 
 // DefaultAuth implementation
-var DefaultAuth auth.Auth = client.NewAuth()
+var DefaultAuth auth.Auth
 
 // Generate a new account
 func Generate(id string, opts ...auth.GenerateOption) (*auth.Account, error) {

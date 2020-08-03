@@ -10,7 +10,6 @@ import (
 	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro/v3/registry"
 	"github.com/micro/micro/v3/internal/cmd"
-	"github.com/micro/micro/v3/service/registry/client"
 	"github.com/pkg/errors"
 )
 
@@ -50,7 +49,7 @@ func init() {
 
 var (
 	// DefaultRegistry implementation
-	DefaultRegistry registry.Registry = client.NewRegistry()
+	DefaultRegistry registry.Registry
 )
 
 // Register a service

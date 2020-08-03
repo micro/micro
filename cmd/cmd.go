@@ -11,7 +11,6 @@ import (
 	"time"
 
 	"github.com/micro/go-micro/v3/client"
-	"github.com/micro/go-micro/v3/server"
 
 	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro/v3/cmd"
@@ -25,8 +24,6 @@ import (
 	"github.com/micro/micro/v3/service/logger"
 
 	muclient "github.com/micro/micro/v3/service/client"
-	muregistry "github.com/micro/micro/v3/service/registry"
-	muserver "github.com/micro/micro/v3/service/server"
 )
 
 type command struct {
@@ -229,8 +226,10 @@ func (c *command) Before(ctx *cli.Context) error {
 		switch ctx.Args().First() {
 		case "service", "server":
 			prof = "local"
-		default:
+		case "api", "web", "proxy":
 			prof = "client"
+		default:
+			prof = "service"
 		}
 	}
 
@@ -238,18 +237,13 @@ func (c *command) Before(ctx *cli.Context) error {
 	if profile, err := profile.Load(prof); err != nil {
 		logger.Fatal(err)
 	} else {
-		// load the profile
-		profile.Setup(ctx)
+		profile.Setup()
 	}
 
 	// use the external proxy which is loaded from the local config
 	if proxy := util.CLIProxyAddress(ctx); len(proxy) > 0 {
 		muclient.DefaultClient.Init(client.Proxy(proxy))
 	}
-
-	// set the registry in the client and server
-	muclient.DefaultClient.Init(client.Registry(muregistry.DefaultRegistry))
-	muserver.DefaultServer.Init(server.Registry(muregistry.DefaultRegistry))
 
 	// inject auth credentials from the local storage for CLI auth
 	if err := setupAuthForCLI(ctx); err != nil {

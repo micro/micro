@@ -8,7 +8,6 @@ import (
 
 	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro/v3/broker"
-	"github.com/micro/micro/v3/service/broker/client"
 	"github.com/micro/micro/v3/internal/cmd"
 	"github.com/pkg/errors"
 )
@@ -48,7 +47,7 @@ func init() {
 }
 
 // DefaultBroker implementation
-var DefaultBroker broker.Broker = client.NewBroker()
+var DefaultBroker broker.Broker
 
 // Publish a message to a topic
 func Publish(topic string, m *broker.Message, opts ...broker.PublishOption) error {

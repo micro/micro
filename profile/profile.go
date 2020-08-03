@@ -6,39 +6,36 @@ package profile
 import (
 	"fmt"
 
-	"github.com/micro/cli/v2"
+	"github.com/micro/go-micro/v3/auth"
 	"github.com/micro/go-micro/v3/auth/jwt"
 	"github.com/micro/go-micro/v3/auth/noop"
 	"github.com/micro/go-micro/v3/broker"
 	"github.com/micro/go-micro/v3/broker/http"
 	"github.com/micro/go-micro/v3/broker/nats"
-	"github.com/micro/go-micro/v3/client"
-	"github.com/micro/go-micro/v3/config"
 	"github.com/micro/go-micro/v3/registry"
 	"github.com/micro/go-micro/v3/registry/etcd"
 	"github.com/micro/go-micro/v3/registry/mdns"
-	"github.com/micro/go-micro/v3/registry/memory"
+	memReg "github.com/micro/go-micro/v3/registry/memory"
 	"github.com/micro/go-micro/v3/router"
-	regRouter "github.com/micro/go-micro/v3/router/registry"
+	"github.com/micro/go-micro/v3/runtime"
 	"github.com/micro/go-micro/v3/runtime/kubernetes"
 	"github.com/micro/go-micro/v3/runtime/local"
-	"github.com/micro/go-micro/v3/server"
 	"github.com/micro/go-micro/v3/store"
 	"github.com/micro/go-micro/v3/store/cockroach"
 	"github.com/micro/go-micro/v3/store/file"
 	mem "github.com/micro/go-micro/v3/store/memory"
-	"github.com/micro/micro/v3/service/logger"
 
-	inAuth "github.com/micro/micro/v3/internal/auth"
 	microAuth "github.com/micro/micro/v3/service/auth"
-	microBroker "github.com/micro/micro/v3/service/broker"
-	microClient "github.com/micro/micro/v3/service/client"
-	microConfig "github.com/micro/micro/v3/service/config"
-	microRegistry "github.com/micro/micro/v3/service/registry"
 	microRouter "github.com/micro/micro/v3/service/router"
 	microRuntime "github.com/micro/micro/v3/service/runtime"
-	microServer "github.com/micro/micro/v3/service/server"
 	microStore "github.com/micro/micro/v3/service/store"
+
+	authClient "github.com/micro/micro/v3/service/auth/client"
+	brokerClient "github.com/micro/micro/v3/service/broker/client"
+	registryClient "github.com/micro/micro/v3/service/registry/client"
+	routerClient "github.com/micro/micro/v3/service/router/client"
+	runtimeClient "github.com/micro/micro/v3/service/runtime/client"
+	storeClient "github.com/micro/micro/v3/service/store/client"
 )
 
 // profiles which when called will configure micro to run in that environment
@@ -53,14 +50,60 @@ var profiles = map[string]*Profile{
 	"service":    Service,
 }
 
-// Profile configures an environment
+// Profile configures an environment. If an implementation is
+// not specified, the RPC implementation will be used
 type Profile struct {
-	// name of the profile
-	Name string
-	// function used for setup
-	Setup func(*cli.Context) error
-	// TODO: presetup dependencies
-	// e.g start resources
+	Name       string
+	Auth       func(opts ...auth.Option) auth.Auth
+	Broker     func(opts ...broker.Option) broker.Broker
+	Registry   func(opts ...registry.Option) registry.Registry
+	Router     func(opts ...router.Option) router.Router
+	Runtime    func(opts ...runtime.Option) runtime.Runtime
+	Store      func(opts ...store.Option) store.Store
+	AfterSetup func()
+}
+
+// Setup the profile
+func (p *Profile) Setup() {
+	if p.Auth == nil {
+		microAuth.DefaultAuth = authClient.NewAuth()
+	} else {
+		microAuth.DefaultAuth = p.Auth()
+	}
+
+	if p.Broker == nil {
+		setBroker(brokerClient.NewBroker())
+	} else {
+		setBroker(p.Broker())
+	}
+
+	if p.Registry == nil {
+		setRegistry(registryClient.NewRegistry())
+	} else {
+		setRegistry(p.Registry())
+	}
+
+	if p.Router == nil {
+		microRouter.DefaultRouter = routerClient.NewRouter()
+	} else {
+		microRouter.DefaultRouter = p.Router()
+	}
+
+	if p.Runtime == nil {
+		microRuntime.DefaultRuntime = runtimeClient.NewRuntime()
+	} else {
+		microRuntime.DefaultRuntime = p.Runtime()
+	}
+
+	if p.Store == nil {
+		microStore.DefaultStore = storeClient.NewStore()
+	} else {
+		microStore.DefaultStore = p.Store()
+	}
+
+	if p.AfterSetup != nil {
+		p.AfterSetup()
+	}
 }
 
 // Register a profile
@@ -83,110 +126,62 @@ func Load(name string) (*Profile, error) {
 
 // CI profile to use for CI tests
 var CI = &Profile{
-	Name: "ci",
-	Setup: func(ctx *cli.Context) error {
-		microAuth.DefaultAuth = jwt.NewAuth()
-		microRuntime.DefaultRuntime = local.NewRuntime()
-		microStore.DefaultStore = file.NewStore()
-		microConfig.DefaultConfig, _ = config.NewConfig()
-		setBroker(http.NewBroker())
-		setRegistry(etcd.NewRegistry())
-		setupJWTRules()
-		return nil
-	},
+	Name:       "ci",
+	Auth:       jwt.NewAuth,
+	Runtime:    local.NewRuntime,
+	Store:      file.NewStore,
+	Broker:     http.NewBroker,
+	Registry:   etcd.NewRegistry,
+	AfterSetup: setupJWTRules,
 }
 
 // Client profile is for any entrypoint that behaves as a client
-var Client = &Profile{
-	Name:  "client",
-	Setup: func(ctx *cli.Context) error { return nil },
-}
+var Client = &Profile{Name: "client"}
 
 // Local profile to run locally
 var Local = &Profile{
-	Name: "local",
-	Setup: func(ctx *cli.Context) error {
-		microAuth.DefaultAuth = noop.NewAuth()
-		microRuntime.DefaultRuntime = local.NewRuntime()
-		microStore.DefaultStore = file.NewStore()
-		microConfig.DefaultConfig, _ = config.NewConfig()
-		setBroker(http.NewBroker())
-		setRegistry(mdns.NewRegistry())
-		setupJWTRules()
-		return nil
-	},
+	Name:     "local",
+	Auth:     noop.NewAuth,
+	Broker:   http.NewBroker,
+	Store:    file.NewStore,
+	Runtime:  local.NewRuntime,
+	Registry: mdns.NewRegistry,
 }
 
 // Kubernetes profile to run on kubernetes
 var Kubernetes = &Profile{
 	Name: "kubernetes",
-	Setup: func(ctx *cli.Context) error {
-		// TODO: implement
-		// registry kubernetes
-		// router static
-		// config configmap
-		// store ...
-		microAuth.DefaultAuth = jwt.NewAuth()
-		setupJWTRules()
-		return nil
-	},
+	Auth: jwt.NewAuth,
+	// TODO: implement
+	// registry kubernetes
+	// router static
+	// config configmap
+	// store ...
+	AfterSetup: setupJWTRules,
 }
 
 // Platform is for running the micro platform
 var Platform = &Profile{
-	Name: "platform",
-	Setup: func(ctx *cli.Context) error {
-		microAuth.DefaultAuth = jwt.NewAuth()
-		microConfig.DefaultConfig, _ = config.NewConfig()
-		microRuntime.DefaultRuntime = kubernetes.NewRuntime()
-		setBroker(nats.NewBroker(broker.Addrs("nats-cluster")))
-		setRegistry(etcd.NewRegistry(registry.Addrs("etcd-cluster")))
-		setupJWTRules()
-
-		// the cockroach store will connect immediately so the address must be passed
-		// when the store is created. The cockroach store address contains the location
-		// of certs so it can't be defaulted like the broker and registry.
-		microStore.DefaultStore = cockroach.NewStore(store.Nodes(ctx.String("store_address")))
-		return nil
+	Name:    "platform",
+	Auth:    jwt.NewAuth,
+	Runtime: kubernetes.NewRuntime,
+	Broker: func(opts ...broker.Option) broker.Broker {
+		return nats.NewBroker(broker.Addrs("nats-cluster"))
 	},
+	Registry: func(opts ...registry.Option) registry.Registry {
+		return etcd.NewRegistry(registry.Addrs("etcd-cluster"))
+	},
+	Store:      cockroach.NewStore,
+	AfterSetup: setupJWTRules,
 }
 
 // Service is the default for any services run
-var Service = &Profile{
-	Name:  "service",
-	Setup: func(ctx *cli.Context) error { return nil },
-}
+var Service = &Profile{Name: "service"}
 
 // Test profile is used for the go test suite
 var Test = &Profile{
-	Name: "test",
-	Setup: func(ctx *cli.Context) error {
-		microAuth.DefaultAuth = noop.NewAuth()
-		microStore.DefaultStore = mem.NewStore()
-		microConfig.DefaultConfig, _ = config.NewConfig()
-		setRegistry(memory.NewRegistry())
-		return nil
-	},
-}
-
-func setRegistry(reg registry.Registry) {
-	microRegistry.DefaultRegistry = reg
-	microRouter.DefaultRouter = regRouter.NewRouter()
-	microRouter.DefaultRouter.Init(router.Registry(reg))
-	microServer.DefaultServer.Init(server.Registry(reg))
-	microClient.DefaultClient.Init(client.Registry(reg))
-}
-
-func setBroker(b broker.Broker) {
-	microBroker.DefaultBroker = b
-	microClient.DefaultClient.Init(client.Broker(b))
-	microServer.DefaultServer.Init(server.Broker(b))
-}
-
-func setupJWTRules() {
-	for _, rule := range inAuth.SystemRules {
-		if err := microAuth.DefaultAuth.Grant(rule); err != nil {
-			logger.Fatal("Error creating default rule: %v", err)
-		}
-	}
+	Name:     "test",
+	Auth:     noop.NewAuth,
+	Store:    mem.NewStore,
+	Registry: memReg.NewRegistry,
 }
