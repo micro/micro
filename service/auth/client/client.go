@@ -280,16 +280,12 @@ func (s *srv) callOpts() []client.CallOption {
 
 // NewAuth returns a new instance of the Auth service
 func NewAuth(opts ...auth.Option) auth.Auth {
-	options := auth.NewOptions(opts...)
-	if len(options.Addrs) == 0 {
-		options.Addrs = []string{"127.0.0.1:8010"}
-	}
-
 	service := &srv{
 		auth:    pb.NewAuthService("go.micro.auth"),
 		rules:   pb.NewRulesService("go.micro.auth"),
-		options: options,
+		options: auth.NewOptions(opts...),
 	}
+
 	service.setupJWT()
 
 	return service

@@ -9,12 +9,12 @@ import (
 
 	goclient "github.com/micro/go-micro/v3/client"
 	debug "github.com/micro/go-micro/v3/debug/service/proto"
-	"github.com/micro/micro/v3/service/errors"
-	log "github.com/micro/micro/v3/service/logger"
 	"github.com/micro/go-micro/v3/registry"
 	"github.com/micro/go-micro/v3/util/ring"
 	"github.com/micro/micro/v3/service/client"
 	trace "github.com/micro/micro/v3/service/debug/trace/proto"
+	"github.com/micro/micro/v3/service/errors"
+	log "github.com/micro/micro/v3/service/logger"
 )
 
 // New initialises and returns a new trace service handler

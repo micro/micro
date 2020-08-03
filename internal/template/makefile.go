@@ -3,23 +3,13 @@ package template
 var (
 	Makefile = `
 GOPATH:=$(shell go env GOPATH)
-MODIFY=Mproto/imports/api.proto=github.com/micro/go-micro/v2/api/proto
-{{if ne .Type "web"}}
 .PHONY: proto
 proto:
-    {{if eq .UseGoPath true}}
-	protoc --proto_path=${GOPATH}/src:. --micro_out=${MODIFY}:. --go_out=${MODIFY}. proto/{{.Alias}}/{{.Alias}}.proto
-    {{else}}
-	protoc --proto_path=. --micro_out=${MODIFY}:. --go_out=${MODIFY}:. proto/{{.Alias}}/{{.Alias}}.proto
-    {{end}}
-
-.PHONY: build
-build: proto
-{{else}}
+	protoc --proto_path=. --micro_out=. --go_out=:. proto/{{.Alias}}.proto
+	
 .PHONY: build
 build:
-{{end}}
-	go build -o {{.Alias}}-{{.Type}} *.go
+	go build -o {{.Alias}} *.go
 
 .PHONY: test
 test:
@@ -27,7 +17,7 @@ test:
 
 .PHONY: docker
 docker:
-	docker build . -t {{.Alias}}-{{.Type}}:latest
+	docker build . -t {{.Alias}}:latest
 `
 
 	GenerateFile = `package main

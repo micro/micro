@@ -4,8 +4,9 @@ import (
 	"context"
 	"time"
 
-	"github.com/micro/go-micro/v3/client"
+	goclient "github.com/micro/go-micro/v3/client"
 	"github.com/micro/go-micro/v3/registry"
+	"github.com/micro/micro/v3/service/client"
 	"github.com/micro/micro/v3/service/errors"
 	pb "github.com/micro/micro/v3/service/registry/proto"
 	"github.com/micro/micro/v3/service/registry/util"
@@ -21,17 +22,17 @@ type srv struct {
 	client pb.RegistryService
 }
 
-func (s *srv) callOpts() []client.CallOption {
-	var opts []client.CallOption
+func (s *srv) callOpts() []goclient.CallOption {
+	var opts []goclient.CallOption
 
 	// set registry address
 	if len(s.address) > 0 {
-		opts = append(opts, client.WithAddress(s.address...))
+		opts = append(opts, goclient.WithAddress(s.address...))
 	}
 
 	// set timeout
 	if s.opts.Timeout > time.Duration(0) {
-		opts = append(opts, client.WithRequestTimeout(s.opts.Timeout))
+		opts = append(opts, goclient.WithRequestTimeout(s.opts.Timeout))
 	}
 
 	return opts
@@ -172,7 +173,10 @@ func NewRegistry(opts ...registry.Option) registry.Registry {
 
 	// the registry address
 	addrs := options.Addrs
-	if len(addrs) == 0 {
+
+	// don't default the address if a proxy is being used, as the
+	// address will take precedent, circumventing the proxy.
+	if len(addrs) == 0 && len(client.DefaultClient.Options().Proxy) == 0 {
 		addrs = []string{"127.0.0.1:8000"}
 	}
 

@@ -39,7 +39,7 @@ func testStore(t *T) {
 			return outp, fmt.Errorf("Output should be 'not found', got %v", string(outp))
 		}
 		return outp, nil
-	}, 8 * time.Second); err != nil {
+	}, 8*time.Second); err != nil {
 		return
 	}
 

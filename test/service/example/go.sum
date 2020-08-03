@@ -316,6 +316,8 @@ github.com/micro/go-micro/v3 v3.0.0-alpha.0.20200728080108-cb4a2864da37 h1:vMWbr
 github.com/micro/go-micro/v3 v3.0.0-alpha.0.20200728080108-cb4a2864da37/go.mod h1:NmdVm6JkvzciCS0RW++AkY4VhiuzhY68Qe/WXIdCwk4=
 github.com/micro/go-micro/v3 v3.0.0-alpha.0.20200728125458-9813f98c8b60 h1:cV5a/lkyeKw6a/xuYf6g2eCURfKjep+x2a90qpczg4g=
 github.com/micro/go-micro/v3 v3.0.0-alpha.0.20200728125458-9813f98c8b60/go.mod h1:NmdVm6JkvzciCS0RW++AkY4VhiuzhY68Qe/WXIdCwk4=
+github.com/micro/go-micro/v3 v3.0.0-alpha.0.20200730142236-e9fc5b1671d3 h1:0Iq2DueD05P91j5TskoZPeTEONPtEVrYvOAPozA7fMw=
+github.com/micro/go-micro/v3 v3.0.0-alpha.0.20200730142236-e9fc5b1671d3/go.mod h1:NmdVm6JkvzciCS0RW++AkY4VhiuzhY68Qe/WXIdCwk4=
 github.com/miekg/dns v1.1.15/go.mod h1:W1PPwlIAgtquWBMBEV9nkV9Cazfe8ScdGz/Lj7v3Nrg=
 github.com/miekg/dns v1.1.27 h1:aEH/kqUzUxGJ/UHcEKdJY+ugH6WEzsEBBSPa8zuy1aM=
 github.com/miekg/dns v1.1.27/go.mod h1:KNUDUusw/aVsxyTYZM1oqvCicbwhgbNgztCETuNZ7xM=
