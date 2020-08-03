@@ -113,9 +113,19 @@ func Signup(ctx *cli.Context) error {
 		}
 	}
 
-	fmt.Printf("Please go to https://m3o.com/subscribe?email=%s and paste the acquired payment method id here: ", email)
-	paymentMethodID, _ := reader.ReadString('\n')
-	paymentMethodID = strings.TrimSpace(paymentMethodID)
+	// payment method id read from user input
+	var paymentMethodID string
+
+	// print the message returned from the verification process
+	if len(rsp.Message) > 0 {
+		fmt.Print(rsp.Message)
+	}
+
+	// payment required
+	if rsp.PaymentRequired {
+		paymentMethodID, _ = reader.ReadString('\n')
+		paymentMethodID = strings.TrimSpace(paymentMethodID)
+	}
 
 	// complete the signup flow
 	signupRsp, err := signupService.CompleteSignup(context.TODO(), &pb.CompleteSignupRequest{
