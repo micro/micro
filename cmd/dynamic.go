@@ -22,9 +22,9 @@ import (
 // the error will also be nil. An error is only returned if there was an issue
 // listing from the registry.
 func lookupService(ctx *cli.Context) (*goregistry.Service, error) {
-	// TODO: remove the service prefix from the name, go.micro.service.helloworld
-	// will soon be named just the alias, e.g. "helloworld".
-	name := fmt.Sprintf("go.micro.service.%v", ctx.Args().First())
+	// use the first arg as the name, e.g. "micro helloworld foo"
+	// would try to call the helloworld service
+	name := ctx.Args().Get(1)
 
 	// get the namespace to query the services from
 	dom, err := namespace.Get(util.GetEnv(ctx).Name)
@@ -33,25 +33,17 @@ func lookupService(ctx *cli.Context) (*goregistry.Service, error) {
 	}
 
 	// lookup from the registry in the current namespace
-	srvs, err := registry.GetService(name, goregistry.GetDomain(dom))
-	if err != nil && err != goregistry.ErrNotFound {
+	if srv, err := serviceWithName(name, dom); err != nil {
 		return nil, err
-	} else if len(srvs) > 0 {
-		return srvs[0], nil
+	} else if srv != nil {
+		return srv, nil
 	}
 
 	// check for the service in the default namespace also
-	if dom != goregistry.DefaultDomain {
-		srvs, err := registry.GetService(name)
-		if err != nil && err != goregistry.ErrNotFound {
-			return nil, err
-		} else if len(srvs) > 0 {
-			return srvs[0], nil
-		}
+	if dom == goregistry.DefaultDomain {
+		return nil, nil
 	}
-
-	// no service was found
-	return nil, nil
+	return serviceWithName(name, goregistry.DefaultDomain)
 }
 
 // formatServiceUsage returns a string containing the service usage.
@@ -214,4 +206,41 @@ loop:
 	}
 
 	return result, nil
+}
+
+// find a service in a domain matching the name
+func serviceWithName(name, domain string) (*goregistry.Service, error) {
+	// lookup the services in this domain
+	srvs, err := registry.ListServices(goregistry.ListDomain(domain))
+	if err != nil {
+		return nil, err
+	}
+
+	for _, s := range srvs {
+		// check for exact match
+		if s.Name == name {
+			return getService(s.Name, domain)
+		}
+
+		// check for suffix, e.g. "foo.bar" would match for "bar", but
+		// foobar would not.
+		if strings.HasSuffix(s.Name, "."+name) {
+			return getService(s.Name, domain)
+		}
+	}
+
+	return nil, nil
+}
+
+// getService from the registry since List doesn't return all the details
+// such as endpoints.
+func getService(name, domain string) (*goregistry.Service, error) {
+	srvs, err := registry.GetService(name, goregistry.GetDomain(domain))
+	if err != nil {
+		return nil, err
+	}
+	if len(srvs) == 0 {
+		return nil, goregistry.ErrNotFound
+	}
+	return srvs[0], nil
 }
