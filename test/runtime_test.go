@@ -311,7 +311,8 @@ func testRunLocalUpdateAndCall(t *T) {
 		replaceStringInFile(t, "./service/example/handler/handler.go", "Hi", "Hello")
 	}()
 
-	updateCmd := exec.Command("micro", serv.EnvFlag(), "update", "./service/example")
+	// TODO: fix the naming issue, for some reason the name becomes current-dir/sub-folder
+	updateCmd := exec.Command("micro", serv.EnvFlag(), "update", "test/ervice/example")
 	outp, err = updateCmd.CombinedOutput()
 	if err != nil {
 		t.Fatal(err)
