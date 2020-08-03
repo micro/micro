@@ -14,6 +14,7 @@ import (
 	api "github.com/micro/go-micro/v3/api"
 	client "github.com/micro/go-micro/v3/client"
 	server "github.com/micro/go-micro/v3/server"
+	microService "github.com/micro/micro/v3/service"
 	microClient "github.com/micro/micro/v3/service/client"
 	microServer "github.com/micro/micro/v3/service/server"
 )
@@ -33,6 +34,7 @@ const _ = proto.ProtoPackageIsVersion3 // please upgrade the proto package
 var _ api.Endpoint
 var _ context.Context
 var _ client.Option
+var _ server.Option
 var _ = microServer.Handle
 var _ = microClient.Call
 
@@ -50,11 +52,24 @@ type AlertService interface {
 }
 
 type alertService struct {
+	c    client.Client
 	name string
 }
 
-func NewAlertService(name string) AlertService {
-	return &alertService{name: name}
+func NewAlertService(name string, c client.Client) AlertService {
+	return &alertService{
+		c:    c,
+		name: name,
+	}
+}
+
+func AlertServiceClient() AlertService {
+	return NewAlertService("alert", microClient.DefaultClient)
+}
+
+func RunAlertService() {
+	microService.Init(microService.Name("alert"))
+	microService.Run()
 }
 
 func (c *alertService) ReportEvent(ctx context.Context, in *ReportEventRequest, opts ...client.CallOption) (*ReportEventResponse, error) {
@@ -74,7 +89,11 @@ type AlertHandler interface {
 	ReportEvent(context.Context, *ReportEventRequest, *ReportEventResponse) error
 }
 
-func RegisterAlertHandler(hdlr AlertHandler, opts ...server.HandlerOption) error {
+func RegisterAlertService(hdlr AlertHandler, opts ...server.HandlerOption) error {
+	return RegisterAlertHandler(microServer.DefaultServer, hdlr, opts...)
+}
+
+func RegisterAlertHandler(s server.Server, hdlr AlertHandler, opts ...server.HandlerOption) error {
 	type alert interface {
 		ReportEvent(ctx context.Context, in *ReportEventRequest, out *ReportEventResponse) error
 	}
@@ -82,7 +101,7 @@ func RegisterAlertHandler(hdlr AlertHandler, opts ...server.HandlerOption) error
 		alert
 	}
 	h := &alertHandler{hdlr}
-	return microServer.Handle(microServer.NewHandler(&Alert{h}, opts...))
+	return s.Handle(s.NewHandler(&Alert{h}, opts...))
 }
 
 type alertHandler struct {

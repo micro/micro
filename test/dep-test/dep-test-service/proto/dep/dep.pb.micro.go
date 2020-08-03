@@ -14,6 +14,7 @@ import (
 	api "github.com/micro/go-micro/v3/api"
 	client "github.com/micro/go-micro/v3/client"
 	server "github.com/micro/go-micro/v3/server"
+	microService "github.com/micro/micro/v3/service"
 	microClient "github.com/micro/micro/v3/service/client"
 	microServer "github.com/micro/micro/v3/service/server"
 )
@@ -33,6 +34,7 @@ const _ = proto.ProtoPackageIsVersion3 // please upgrade the proto package
 var _ api.Endpoint
 var _ context.Context
 var _ client.Option
+var _ server.Option
 var _ = microServer.Handle
 var _ = microClient.Call
 
@@ -51,11 +53,24 @@ type DepService interface {
 }
 
 type depService struct {
+	c    client.Client
 	name string
 }
 
-func NewDepService(name string) DepService {
-	return &depService{name: name}
+func NewDepService(name string, c client.Client) DepService {
+	return &depService{
+		c:    c,
+		name: name,
+	}
+}
+
+func DepServiceClient() DepService {
+	return NewDepService("dep", microClient.DefaultClient)
+}
+
+func RunDepService() {
+	microService.Init(microService.Name("dep"))
+	microService.Run()
 }
 
 func (c *depService) Call(ctx context.Context, in *Request, opts ...client.CallOption) (*Response, error) {
@@ -176,7 +191,11 @@ type DepHandler interface {
 	PingPong(context.Context, Dep_PingPongStream) error
 }
 
-func RegisterDepHandler(hdlr DepHandler, opts ...server.HandlerOption) error {
+func RegisterDepService(hdlr DepHandler, opts ...server.HandlerOption) error {
+	return RegisterDepHandler(microServer.DefaultServer, hdlr, opts...)
+}
+
+func RegisterDepHandler(s server.Server, hdlr DepHandler, opts ...server.HandlerOption) error {
 	type dep interface {
 		Call(ctx context.Context, in *Request, out *Response) error
 		Stream(ctx context.Context, stream server.Stream) error
@@ -186,7 +205,7 @@ func RegisterDepHandler(hdlr DepHandler, opts ...server.HandlerOption) error {
 		dep
 	}
 	h := &depHandler{hdlr}
-	return microServer.Handle(microServer.NewHandler(&Dep{h}, opts...))
+	return s.Handle(s.NewHandler(&Dep{h}, opts...))
 }
 
 type depHandler struct {

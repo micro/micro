@@ -15,6 +15,7 @@ import (
 	api "github.com/micro/go-micro/v3/api"
 	client "github.com/micro/go-micro/v3/client"
 	server "github.com/micro/go-micro/v3/server"
+	microService "github.com/micro/micro/v3/service"
 	microClient "github.com/micro/micro/v3/service/client"
 	microServer "github.com/micro/micro/v3/service/server"
 )
@@ -34,6 +35,7 @@ const _ = proto.ProtoPackageIsVersion3 // please upgrade the proto package
 var _ api.Endpoint
 var _ context.Context
 var _ client.Option
+var _ server.Option
 var _ = microServer.Handle
 var _ = microClient.Call
 
@@ -66,11 +68,24 @@ type GreeterService interface {
 }
 
 type greeterService struct {
+	c    client.Client
 	name string
 }
 
-func NewGreeterService(name string) GreeterService {
-	return &greeterService{name: name}
+func NewGreeterService(name string, c client.Client) GreeterService {
+	return &greeterService{
+		c:    c,
+		name: name,
+	}
+}
+
+func GreeterServiceClient() GreeterService {
+	return NewGreeterService("greeter", microClient.DefaultClient)
+}
+
+func RunGreeterService() {
+	microService.Init(microService.Name("greeter"))
+	microService.Run()
 }
 
 func (c *greeterService) Hello(ctx context.Context, in *Request, opts ...client.CallOption) (*Response, error) {
@@ -141,7 +156,11 @@ type GreeterHandler interface {
 	Stream(context.Context, Greeter_StreamStream) error
 }
 
-func RegisterGreeterHandler(hdlr GreeterHandler, opts ...server.HandlerOption) error {
+func RegisterGreeterService(hdlr GreeterHandler, opts ...server.HandlerOption) error {
+	return RegisterGreeterHandler(microServer.DefaultServer, hdlr, opts...)
+}
+
+func RegisterGreeterHandler(s server.Server, hdlr GreeterHandler, opts ...server.HandlerOption) error {
 	type greeter interface {
 		Hello(ctx context.Context, in *Request, out *Response) error
 		Stream(ctx context.Context, stream server.Stream) error
@@ -164,7 +183,7 @@ func RegisterGreeterHandler(hdlr GreeterHandler, opts ...server.HandlerOption) e
 		Stream:  true,
 		Handler: "rpc",
 	}))
-	return microServer.Handle(microServer.NewHandler(&Greeter{h}, opts...))
+	return s.Handle(s.NewHandler(&Greeter{h}, opts...))
 }
 
 type greeterHandler struct {

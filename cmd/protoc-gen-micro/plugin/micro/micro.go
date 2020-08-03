@@ -15,12 +15,13 @@ import (
 // Paths for packages used by code generated in this file,
 // relative to the import_prefix of the generator.Generator.
 const (
-	apiPkgPath         = "github.com/micro/go-micro/v3/api"
-	contextPkgPath     = "context"
-	clientPkgPath      = "github.com/micro/go-micro/v3/client"
-	serverPkgPath      = "github.com/micro/go-micro/v3/server"
-	microServerPkgPath = "github.com/micro/micro/v3/service/server"
-	microClientPkgPath = "github.com/micro/micro/v3/service/client"
+	apiPkgPath          = "github.com/micro/go-micro/v3/api"
+	contextPkgPath      = "context"
+	clientPkgPath       = "github.com/micro/go-micro/v3/client"
+	serverPkgPath       = "github.com/micro/go-micro/v3/server"
+	microServerPkgPath  = "github.com/micro/micro/v3/service/server"
+	microClientPkgPath  = "github.com/micro/micro/v3/service/client"
+	microServicePkgPath = "github.com/micro/micro/v3/service"
 )
 
 func init() {
@@ -42,13 +43,14 @@ func (g *micro) Name() string {
 // They may vary from the final path component of the import path
 // if the name is used by other packages.
 var (
-	apiPkg         string
-	contextPkg     string
-	clientPkg      string
-	serverPkg      string
-	microClientPkg string
-	microServerPkg string
-	pkgImports     map[generator.GoPackageName]bool
+	apiPkg          string
+	contextPkg      string
+	clientPkg       string
+	serverPkg       string
+	microClientPkg  string
+	microServerPkg  string
+	microServicePkg string
+	pkgImports      map[generator.GoPackageName]bool
 )
 
 // Init initializes the plugin.
@@ -60,6 +62,7 @@ func (g *micro) Init(gen *generator.Generator) {
 	serverPkg = generator.RegisterUniquePackageName("server", nil)
 	microClientPkg = generator.RegisterUniquePackageName("microClient", nil)
 	microServerPkg = generator.RegisterUniquePackageName("microServer", nil)
+	microServicePkg = generator.RegisterUniquePackageName("microService", nil)
 }
 
 // Given a type name defined in a .proto, return its object.
@@ -108,6 +111,7 @@ func (g *micro) GenerateImports(file *generator.FileDescriptor, imports map[gene
 	g.P(serverPkg, " ", strconv.Quote(path.Join(g.gen.ImportPrefix, serverPkgPath)))
 	g.P(microServerPkg, " ", strconv.Quote(path.Join(g.gen.ImportPrefix, microServerPkgPath)))
 	g.P(microClientPkg, " ", strconv.Quote(path.Join(g.gen.ImportPrefix, microClientPkgPath)))
+	g.P(microServicePkg, " ", strconv.Quote(path.Join(g.gen.ImportPrefix, microServicePkgPath)))
 	g.P(")")
 	g.P()
 
@@ -184,12 +188,13 @@ func (g *micro) generateService(file *generator.FileDescriptor, service *pb.Serv
 
 	// Client structure.
 	g.P("type ", unexport(servAlias), " struct {")
+	g.P("c ", clientPkg, ".Client")
 	g.P("name string")
 	g.P("}")
 	g.P()
 
 	// NewClient factory.
-	g.P("func New", servAlias, " (name string) ", servAlias, " {")
+	g.P("func New", servAlias, " (name string, c ", clientPkg, ".Client) ", servAlias, " {")
 	/*
 		g.P("if c == nil {")
 		g.P("c = ", clientPkg, ".NewClient()")
@@ -198,9 +203,26 @@ func (g *micro) generateService(file *generator.FileDescriptor, service *pb.Serv
 		g.P(`name = "`, serviceName, `"`)
 		g.P("}")
 	*/
-	g.P("return &", unexport(servAlias), "{name: name}")
+	g.P("return &", unexport(servAlias), "{")
+	g.P("c: c,")
+	g.P("name: name,")
+	g.P("}")
 	g.P("}")
 	g.P()
+
+	// New client, e.g. ExampleServiceClient
+	g.P("func ", servAlias+"Client () ", servAlias, " {")
+	g.P("return New", servAlias, "(\"", strings.ToLower(servName), "\",", microClientPkg, ".DefaultClient)")
+	g.P("}")
+	g.P()
+
+	// Run the service, e.g. RunExampleService
+	g.P("func Run", servAlias, " () {")
+	g.P(microServicePkg, ".Init(", microServicePkg, ".Name(\"", strings.ToLower(servName), "\"))")
+	g.P(microServicePkg, ".Run()")
+	g.P("}")
+	g.P("")
+
 	var methodIndex, streamIndex int
 	serviceDescVar := "_" + servName + "_serviceDesc"
 	// Client method implementations.
@@ -232,7 +254,12 @@ func (g *micro) generateService(file *generator.FileDescriptor, service *pb.Serv
 	g.P()
 
 	// Server registration.
-	g.P("func Register", servName, "Handler(hdlr ", serverType, ", opts ...", serverPkg, ".HandlerOption) error {")
+	g.P("func Register", servName, "Service(hdlr ", serverType, ", opts ...", serverPkg, ".HandlerOption) error {")
+	g.P("return Register", servName, "Handler(", microServerPkg, ".DefaultServer, hdlr, opts...)")
+	g.P("}")
+	g.P()
+
+	g.P("func Register", servName, "Handler(s ", serverPkg, ".Server, hdlr ", serverType, ", opts ...", serverPkg, ".HandlerOption) error {")
 	g.P("type ", unexport(servName), " interface {")
 
 	// generate interface methods
@@ -259,7 +286,7 @@ func (g *micro) generateService(file *generator.FileDescriptor, service *pb.Serv
 			g.P("}))")
 		}
 	}
-	g.P("return ", microServerPkg, ".Handle(", microServerPkg, ".NewHandler(&", servName, "{h}, opts...))")
+	g.P("return s.Handle(s.NewHandler(&", servName, "{h}, opts...))")
 	g.P("}")
 	g.P()
 

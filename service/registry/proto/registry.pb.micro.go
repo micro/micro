@@ -14,6 +14,7 @@ import (
 	api "github.com/micro/go-micro/v3/api"
 	client "github.com/micro/go-micro/v3/client"
 	server "github.com/micro/go-micro/v3/server"
+	microService "github.com/micro/micro/v3/service"
 	microClient "github.com/micro/micro/v3/service/client"
 	microServer "github.com/micro/micro/v3/service/server"
 )
@@ -33,6 +34,7 @@ const _ = proto.ProtoPackageIsVersion3 // please upgrade the proto package
 var _ api.Endpoint
 var _ context.Context
 var _ client.Option
+var _ server.Option
 var _ = microServer.Handle
 var _ = microClient.Call
 
@@ -53,11 +55,24 @@ type RegistryService interface {
 }
 
 type registryService struct {
+	c    client.Client
 	name string
 }
 
-func NewRegistryService(name string) RegistryService {
-	return &registryService{name: name}
+func NewRegistryService(name string, c client.Client) RegistryService {
+	return &registryService{
+		c:    c,
+		name: name,
+	}
+}
+
+func RegistryServiceClient() RegistryService {
+	return NewRegistryService("registry", microClient.DefaultClient)
+}
+
+func RunRegistryService() {
+	microService.Init(microService.Name("registry"))
+	microService.Run()
 }
 
 func (c *registryService) GetService(ctx context.Context, in *GetRequest, opts ...client.CallOption) (*GetResponse, error) {
@@ -159,7 +174,11 @@ type RegistryHandler interface {
 	Watch(context.Context, *WatchRequest, Registry_WatchStream) error
 }
 
-func RegisterRegistryHandler(hdlr RegistryHandler, opts ...server.HandlerOption) error {
+func RegisterRegistryService(hdlr RegistryHandler, opts ...server.HandlerOption) error {
+	return RegisterRegistryHandler(microServer.DefaultServer, hdlr, opts...)
+}
+
+func RegisterRegistryHandler(s server.Server, hdlr RegistryHandler, opts ...server.HandlerOption) error {
 	type registry interface {
 		GetService(ctx context.Context, in *GetRequest, out *GetResponse) error
 		Register(ctx context.Context, in *Service, out *EmptyResponse) error
@@ -171,7 +190,7 @@ func RegisterRegistryHandler(hdlr RegistryHandler, opts ...server.HandlerOption)
 		registry
 	}
 	h := &registryHandler{hdlr}
-	return microServer.Handle(microServer.NewHandler(&Registry{h}, opts...))
+	return s.Handle(s.NewHandler(&Registry{h}, opts...))
 }
 
 type registryHandler struct {

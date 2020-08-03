@@ -14,6 +14,7 @@ import (
 	api "github.com/micro/go-micro/v3/api"
 	client "github.com/micro/go-micro/v3/client"
 	server "github.com/micro/go-micro/v3/server"
+	microService "github.com/micro/micro/v3/service"
 	microClient "github.com/micro/micro/v3/service/client"
 	microServer "github.com/micro/micro/v3/service/server"
 )
@@ -33,6 +34,7 @@ const _ = proto.ProtoPackageIsVersion3 // please upgrade the proto package
 var _ api.Endpoint
 var _ context.Context
 var _ client.Option
+var _ server.Option
 var _ = microServer.Handle
 var _ = microClient.Call
 
@@ -49,11 +51,24 @@ type LogService interface {
 }
 
 type logService struct {
+	c    client.Client
 	name string
 }
 
-func NewLogService(name string) LogService {
-	return &logService{name: name}
+func NewLogService(name string, c client.Client) LogService {
+	return &logService{
+		c:    c,
+		name: name,
+	}
+}
+
+func LogServiceClient() LogService {
+	return NewLogService("log", microClient.DefaultClient)
+}
+
+func RunLogService() {
+	microService.Init(microService.Name("log"))
+	microService.Run()
 }
 
 func (c *logService) Read(ctx context.Context, in *ReadRequest, opts ...client.CallOption) (*ReadResponse, error) {
@@ -72,7 +87,11 @@ type LogHandler interface {
 	Read(context.Context, *ReadRequest, *ReadResponse) error
 }
 
-func RegisterLogHandler(hdlr LogHandler, opts ...server.HandlerOption) error {
+func RegisterLogService(hdlr LogHandler, opts ...server.HandlerOption) error {
+	return RegisterLogHandler(microServer.DefaultServer, hdlr, opts...)
+}
+
+func RegisterLogHandler(s server.Server, hdlr LogHandler, opts ...server.HandlerOption) error {
 	type log interface {
 		Read(ctx context.Context, in *ReadRequest, out *ReadResponse) error
 	}
@@ -80,7 +99,7 @@ func RegisterLogHandler(hdlr LogHandler, opts ...server.HandlerOption) error {
 		log
 	}
 	h := &logHandler{hdlr}
-	return microServer.Handle(microServer.NewHandler(&Log{h}, opts...))
+	return s.Handle(s.NewHandler(&Log{h}, opts...))
 }
 
 type logHandler struct {

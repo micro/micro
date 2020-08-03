@@ -14,6 +14,7 @@ import (
 	api "github.com/micro/go-micro/v3/api"
 	client "github.com/micro/go-micro/v3/client"
 	server "github.com/micro/go-micro/v3/server"
+	microService "github.com/micro/micro/v3/service"
 	microClient "github.com/micro/micro/v3/service/client"
 	microServer "github.com/micro/micro/v3/service/server"
 )
@@ -33,6 +34,7 @@ const _ = proto.ProtoPackageIsVersion3 // please upgrade the proto package
 var _ api.Endpoint
 var _ context.Context
 var _ client.Option
+var _ server.Option
 var _ = microServer.Handle
 var _ = microClient.Call
 
@@ -54,11 +56,24 @@ type StoreService interface {
 }
 
 type storeService struct {
+	c    client.Client
 	name string
 }
 
-func NewStoreService(name string) StoreService {
-	return &storeService{name: name}
+func NewStoreService(name string, c client.Client) StoreService {
+	return &storeService{
+		c:    c,
+		name: name,
+	}
+}
+
+func StoreServiceClient() StoreService {
+	return NewStoreService("store", microClient.DefaultClient)
+}
+
+func RunStoreService() {
+	microService.Init(microService.Name("store"))
+	microService.Run()
 }
 
 func (c *storeService) Read(ctx context.Context, in *ReadRequest, opts ...client.CallOption) (*ReadResponse, error) {
@@ -171,7 +186,11 @@ type StoreHandler interface {
 	Tables(context.Context, *TablesRequest, *TablesResponse) error
 }
 
-func RegisterStoreHandler(hdlr StoreHandler, opts ...server.HandlerOption) error {
+func RegisterStoreService(hdlr StoreHandler, opts ...server.HandlerOption) error {
+	return RegisterStoreHandler(microServer.DefaultServer, hdlr, opts...)
+}
+
+func RegisterStoreHandler(s server.Server, hdlr StoreHandler, opts ...server.HandlerOption) error {
 	type store interface {
 		Read(ctx context.Context, in *ReadRequest, out *ReadResponse) error
 		Write(ctx context.Context, in *WriteRequest, out *WriteResponse) error
@@ -184,7 +203,7 @@ func RegisterStoreHandler(hdlr StoreHandler, opts ...server.HandlerOption) error
 		store
 	}
 	h := &storeHandler{hdlr}
-	return microServer.Handle(microServer.NewHandler(&Store{h}, opts...))
+	return s.Handle(s.NewHandler(&Store{h}, opts...))
 }
 
 type storeHandler struct {

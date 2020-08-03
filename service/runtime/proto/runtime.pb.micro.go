@@ -14,6 +14,7 @@ import (
 	api "github.com/micro/go-micro/v3/api"
 	client "github.com/micro/go-micro/v3/client"
 	server "github.com/micro/go-micro/v3/server"
+	microService "github.com/micro/micro/v3/service"
 	microClient "github.com/micro/micro/v3/service/client"
 	microServer "github.com/micro/micro/v3/service/server"
 )
@@ -33,6 +34,7 @@ const _ = proto.ProtoPackageIsVersion3 // please upgrade the proto package
 var _ api.Endpoint
 var _ context.Context
 var _ client.Option
+var _ server.Option
 var _ = microServer.Handle
 var _ = microClient.Call
 
@@ -53,11 +55,24 @@ type RuntimeService interface {
 }
 
 type runtimeService struct {
+	c    client.Client
 	name string
 }
 
-func NewRuntimeService(name string) RuntimeService {
-	return &runtimeService{name: name}
+func NewRuntimeService(name string, c client.Client) RuntimeService {
+	return &runtimeService{
+		c:    c,
+		name: name,
+	}
+}
+
+func RuntimeServiceClient() RuntimeService {
+	return NewRuntimeService("runtime", microClient.DefaultClient)
+}
+
+func RunRuntimeService() {
+	microService.Init(microService.Name("runtime"))
+	microService.Run()
 }
 
 func (c *runtimeService) Create(ctx context.Context, in *CreateRequest, opts ...client.CallOption) (*CreateResponse, error) {
@@ -159,7 +174,11 @@ type RuntimeHandler interface {
 	Logs(context.Context, *LogsRequest, Runtime_LogsStream) error
 }
 
-func RegisterRuntimeHandler(hdlr RuntimeHandler, opts ...server.HandlerOption) error {
+func RegisterRuntimeService(hdlr RuntimeHandler, opts ...server.HandlerOption) error {
+	return RegisterRuntimeHandler(microServer.DefaultServer, hdlr, opts...)
+}
+
+func RegisterRuntimeHandler(s server.Server, hdlr RuntimeHandler, opts ...server.HandlerOption) error {
 	type runtime interface {
 		Create(ctx context.Context, in *CreateRequest, out *CreateResponse) error
 		Read(ctx context.Context, in *ReadRequest, out *ReadResponse) error
@@ -171,7 +190,7 @@ func RegisterRuntimeHandler(hdlr RuntimeHandler, opts ...server.HandlerOption) e
 		runtime
 	}
 	h := &runtimeHandler{hdlr}
-	return microServer.Handle(microServer.NewHandler(&Runtime{h}, opts...))
+	return s.Handle(s.NewHandler(&Runtime{h}, opts...))
 }
 
 type runtimeHandler struct {

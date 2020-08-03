@@ -14,6 +14,7 @@ import (
 	api "github.com/micro/go-micro/v3/api"
 	client "github.com/micro/go-micro/v3/client"
 	server "github.com/micro/go-micro/v3/server"
+	microService "github.com/micro/micro/v3/service"
 	microClient "github.com/micro/micro/v3/service/client"
 	microServer "github.com/micro/micro/v3/service/server"
 )
@@ -33,6 +34,7 @@ const _ = proto.ProtoPackageIsVersion3 // please upgrade the proto package
 var _ api.Endpoint
 var _ context.Context
 var _ client.Option
+var _ server.Option
 var _ = microServer.Handle
 var _ = microClient.Call
 
@@ -51,11 +53,24 @@ type StatsService interface {
 }
 
 type statsService struct {
+	c    client.Client
 	name string
 }
 
-func NewStatsService(name string) StatsService {
-	return &statsService{name: name}
+func NewStatsService(name string, c client.Client) StatsService {
+	return &statsService{
+		c:    c,
+		name: name,
+	}
+}
+
+func StatsServiceClient() StatsService {
+	return NewStatsService("stats", microClient.DefaultClient)
+}
+
+func RunStatsService() {
+	microService.Init(microService.Name("stats"))
+	microService.Run()
 }
 
 func (c *statsService) Read(ctx context.Context, in *ReadRequest, opts ...client.CallOption) (*ReadResponse, error) {
@@ -135,7 +150,11 @@ type StatsHandler interface {
 	Stream(context.Context, *StreamRequest, Stats_StreamStream) error
 }
 
-func RegisterStatsHandler(hdlr StatsHandler, opts ...server.HandlerOption) error {
+func RegisterStatsService(hdlr StatsHandler, opts ...server.HandlerOption) error {
+	return RegisterStatsHandler(microServer.DefaultServer, hdlr, opts...)
+}
+
+func RegisterStatsHandler(s server.Server, hdlr StatsHandler, opts ...server.HandlerOption) error {
 	type stats interface {
 		Read(ctx context.Context, in *ReadRequest, out *ReadResponse) error
 		Write(ctx context.Context, in *WriteRequest, out *WriteResponse) error
@@ -145,7 +164,7 @@ func RegisterStatsHandler(hdlr StatsHandler, opts ...server.HandlerOption) error
 		stats
 	}
 	h := &statsHandler{hdlr}
-	return microServer.Handle(microServer.NewHandler(&Stats{h}, opts...))
+	return s.Handle(s.NewHandler(&Stats{h}, opts...))
 }
 
 type statsHandler struct {

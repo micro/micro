@@ -14,6 +14,7 @@ import (
 	api "github.com/micro/go-micro/v3/api"
 	client "github.com/micro/go-micro/v3/client"
 	server "github.com/micro/go-micro/v3/server"
+	microService "github.com/micro/micro/v3/service"
 	microClient "github.com/micro/micro/v3/service/client"
 	microServer "github.com/micro/micro/v3/service/server"
 )
@@ -33,6 +34,7 @@ const _ = proto.ProtoPackageIsVersion3 // please upgrade the proto package
 var _ api.Endpoint
 var _ context.Context
 var _ client.Option
+var _ server.Option
 var _ = microServer.Handle
 var _ = microClient.Call
 
@@ -54,11 +56,24 @@ type ConfigService interface {
 }
 
 type configService struct {
+	c    client.Client
 	name string
 }
 
-func NewConfigService(name string) ConfigService {
-	return &configService{name: name}
+func NewConfigService(name string, c client.Client) ConfigService {
+	return &configService{
+		c:    c,
+		name: name,
+	}
+}
+
+func ConfigServiceClient() ConfigService {
+	return NewConfigService("config", microClient.DefaultClient)
+}
+
+func RunConfigService() {
+	microService.Init(microService.Name("config"))
+	microService.Run()
 }
 
 func (c *configService) Create(ctx context.Context, in *CreateRequest, opts ...client.CallOption) (*CreateResponse, error) {
@@ -171,7 +186,11 @@ type ConfigHandler interface {
 	Watch(context.Context, *WatchRequest, Config_WatchStream) error
 }
 
-func RegisterConfigHandler(hdlr ConfigHandler, opts ...server.HandlerOption) error {
+func RegisterConfigService(hdlr ConfigHandler, opts ...server.HandlerOption) error {
+	return RegisterConfigHandler(microServer.DefaultServer, hdlr, opts...)
+}
+
+func RegisterConfigHandler(s server.Server, hdlr ConfigHandler, opts ...server.HandlerOption) error {
 	type config interface {
 		Create(ctx context.Context, in *CreateRequest, out *CreateResponse) error
 		Update(ctx context.Context, in *UpdateRequest, out *UpdateResponse) error
@@ -184,7 +203,7 @@ func RegisterConfigHandler(hdlr ConfigHandler, opts ...server.HandlerOption) err
 		config
 	}
 	h := &configHandler{hdlr}
-	return microServer.Handle(microServer.NewHandler(&Config{h}, opts...))
+	return s.Handle(s.NewHandler(&Config{h}, opts...))
 }
 
 type configHandler struct {

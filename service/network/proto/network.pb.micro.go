@@ -15,6 +15,7 @@ import (
 	api "github.com/micro/go-micro/v3/api"
 	client "github.com/micro/go-micro/v3/client"
 	server "github.com/micro/go-micro/v3/server"
+	microService "github.com/micro/micro/v3/service"
 	microClient "github.com/micro/micro/v3/service/client"
 	microServer "github.com/micro/micro/v3/service/server"
 )
@@ -34,6 +35,7 @@ const _ = proto.ProtoPackageIsVersion3 // please upgrade the proto package
 var _ api.Endpoint
 var _ context.Context
 var _ client.Option
+var _ server.Option
 var _ = microServer.Handle
 var _ = microClient.Call
 
@@ -61,11 +63,24 @@ type NetworkService interface {
 }
 
 type networkService struct {
+	c    client.Client
 	name string
 }
 
-func NewNetworkService(name string) NetworkService {
-	return &networkService{name: name}
+func NewNetworkService(name string, c client.Client) NetworkService {
+	return &networkService{
+		c:    c,
+		name: name,
+	}
+}
+
+func NetworkServiceClient() NetworkService {
+	return NewNetworkService("network", microClient.DefaultClient)
+}
+
+func RunNetworkService() {
+	microService.Init(microService.Name("network"))
+	microService.Run()
 }
 
 func (c *networkService) Connect(ctx context.Context, in *ConnectRequest, opts ...client.CallOption) (*ConnectResponse, error) {
@@ -145,7 +160,11 @@ type NetworkHandler interface {
 	Status(context.Context, *StatusRequest, *StatusResponse) error
 }
 
-func RegisterNetworkHandler(hdlr NetworkHandler, opts ...server.HandlerOption) error {
+func RegisterNetworkService(hdlr NetworkHandler, opts ...server.HandlerOption) error {
+	return RegisterNetworkHandler(microServer.DefaultServer, hdlr, opts...)
+}
+
+func RegisterNetworkHandler(s server.Server, hdlr NetworkHandler, opts ...server.HandlerOption) error {
 	type network interface {
 		Connect(ctx context.Context, in *ConnectRequest, out *ConnectResponse) error
 		Graph(ctx context.Context, in *GraphRequest, out *GraphResponse) error
@@ -158,7 +177,7 @@ func RegisterNetworkHandler(hdlr NetworkHandler, opts ...server.HandlerOption) e
 		network
 	}
 	h := &networkHandler{hdlr}
-	return microServer.Handle(microServer.NewHandler(&Network{h}, opts...))
+	return s.Handle(s.NewHandler(&Network{h}, opts...))
 }
 
 type networkHandler struct {

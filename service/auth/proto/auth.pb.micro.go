@@ -14,6 +14,7 @@ import (
 	api "github.com/micro/go-micro/v3/api"
 	client "github.com/micro/go-micro/v3/client"
 	server "github.com/micro/go-micro/v3/server"
+	microService "github.com/micro/micro/v3/service"
 	microClient "github.com/micro/micro/v3/service/client"
 	microServer "github.com/micro/micro/v3/service/server"
 )
@@ -33,6 +34,7 @@ const _ = proto.ProtoPackageIsVersion3 // please upgrade the proto package
 var _ api.Endpoint
 var _ context.Context
 var _ client.Option
+var _ server.Option
 var _ = microServer.Handle
 var _ = microClient.Call
 
@@ -51,11 +53,24 @@ type AuthService interface {
 }
 
 type authService struct {
+	c    client.Client
 	name string
 }
 
-func NewAuthService(name string) AuthService {
-	return &authService{name: name}
+func NewAuthService(name string, c client.Client) AuthService {
+	return &authService{
+		c:    c,
+		name: name,
+	}
+}
+
+func AuthServiceClient() AuthService {
+	return NewAuthService("auth", microClient.DefaultClient)
+}
+
+func RunAuthService() {
+	microService.Init(microService.Name("auth"))
+	microService.Run()
 }
 
 func (c *authService) Generate(ctx context.Context, in *GenerateRequest, opts ...client.CallOption) (*GenerateResponse, error) {
@@ -96,7 +111,11 @@ type AuthHandler interface {
 	Token(context.Context, *TokenRequest, *TokenResponse) error
 }
 
-func RegisterAuthHandler(hdlr AuthHandler, opts ...server.HandlerOption) error {
+func RegisterAuthService(hdlr AuthHandler, opts ...server.HandlerOption) error {
+	return RegisterAuthHandler(microServer.DefaultServer, hdlr, opts...)
+}
+
+func RegisterAuthHandler(s server.Server, hdlr AuthHandler, opts ...server.HandlerOption) error {
 	type auth interface {
 		Generate(ctx context.Context, in *GenerateRequest, out *GenerateResponse) error
 		Inspect(ctx context.Context, in *InspectRequest, out *InspectResponse) error
@@ -106,7 +125,7 @@ func RegisterAuthHandler(hdlr AuthHandler, opts ...server.HandlerOption) error {
 		auth
 	}
 	h := &authHandler{hdlr}
-	return microServer.Handle(microServer.NewHandler(&Auth{h}, opts...))
+	return s.Handle(s.NewHandler(&Auth{h}, opts...))
 }
 
 type authHandler struct {
@@ -139,11 +158,24 @@ type AccountsService interface {
 }
 
 type accountsService struct {
+	c    client.Client
 	name string
 }
 
-func NewAccountsService(name string) AccountsService {
-	return &accountsService{name: name}
+func NewAccountsService(name string, c client.Client) AccountsService {
+	return &accountsService{
+		c:    c,
+		name: name,
+	}
+}
+
+func AccountsServiceClient() AccountsService {
+	return NewAccountsService("accounts", microClient.DefaultClient)
+}
+
+func RunAccountsService() {
+	microService.Init(microService.Name("accounts"))
+	microService.Run()
 }
 
 func (c *accountsService) List(ctx context.Context, in *ListAccountsRequest, opts ...client.CallOption) (*ListAccountsResponse, error) {
@@ -173,7 +205,11 @@ type AccountsHandler interface {
 	Delete(context.Context, *DeleteAccountRequest, *DeleteAccountResponse) error
 }
 
-func RegisterAccountsHandler(hdlr AccountsHandler, opts ...server.HandlerOption) error {
+func RegisterAccountsService(hdlr AccountsHandler, opts ...server.HandlerOption) error {
+	return RegisterAccountsHandler(microServer.DefaultServer, hdlr, opts...)
+}
+
+func RegisterAccountsHandler(s server.Server, hdlr AccountsHandler, opts ...server.HandlerOption) error {
 	type accounts interface {
 		List(ctx context.Context, in *ListAccountsRequest, out *ListAccountsResponse) error
 		Delete(ctx context.Context, in *DeleteAccountRequest, out *DeleteAccountResponse) error
@@ -182,7 +218,7 @@ func RegisterAccountsHandler(hdlr AccountsHandler, opts ...server.HandlerOption)
 		accounts
 	}
 	h := &accountsHandler{hdlr}
-	return microServer.Handle(microServer.NewHandler(&Accounts{h}, opts...))
+	return s.Handle(s.NewHandler(&Accounts{h}, opts...))
 }
 
 type accountsHandler struct {
@@ -212,11 +248,24 @@ type RulesService interface {
 }
 
 type rulesService struct {
+	c    client.Client
 	name string
 }
 
-func NewRulesService(name string) RulesService {
-	return &rulesService{name: name}
+func NewRulesService(name string, c client.Client) RulesService {
+	return &rulesService{
+		c:    c,
+		name: name,
+	}
+}
+
+func RulesServiceClient() RulesService {
+	return NewRulesService("rules", microClient.DefaultClient)
+}
+
+func RunRulesService() {
+	microService.Init(microService.Name("rules"))
+	microService.Run()
 }
 
 func (c *rulesService) Create(ctx context.Context, in *CreateRequest, opts ...client.CallOption) (*CreateResponse, error) {
@@ -257,7 +306,11 @@ type RulesHandler interface {
 	List(context.Context, *ListRequest, *ListResponse) error
 }
 
-func RegisterRulesHandler(hdlr RulesHandler, opts ...server.HandlerOption) error {
+func RegisterRulesService(hdlr RulesHandler, opts ...server.HandlerOption) error {
+	return RegisterRulesHandler(microServer.DefaultServer, hdlr, opts...)
+}
+
+func RegisterRulesHandler(s server.Server, hdlr RulesHandler, opts ...server.HandlerOption) error {
 	type rules interface {
 		Create(ctx context.Context, in *CreateRequest, out *CreateResponse) error
 		Delete(ctx context.Context, in *DeleteRequest, out *DeleteResponse) error
@@ -267,7 +320,7 @@ func RegisterRulesHandler(hdlr RulesHandler, opts ...server.HandlerOption) error
 		rules
 	}
 	h := &rulesHandler{hdlr}
-	return microServer.Handle(microServer.NewHandler(&Rules{h}, opts...))
+	return s.Handle(s.NewHandler(&Rules{h}, opts...))
 }
 
 type rulesHandler struct {

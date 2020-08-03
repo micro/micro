@@ -14,6 +14,7 @@ import (
 	api "github.com/micro/go-micro/v3/api"
 	client "github.com/micro/go-micro/v3/client"
 	server "github.com/micro/go-micro/v3/server"
+	microService "github.com/micro/micro/v3/service"
 	microClient "github.com/micro/micro/v3/service/client"
 	microServer "github.com/micro/micro/v3/service/server"
 )
@@ -33,6 +34,7 @@ const _ = proto.ProtoPackageIsVersion3 // please upgrade the proto package
 var _ api.Endpoint
 var _ context.Context
 var _ client.Option
+var _ server.Option
 var _ = microServer.Handle
 var _ = microClient.Call
 
@@ -50,11 +52,24 @@ type BrokerService interface {
 }
 
 type brokerService struct {
+	c    client.Client
 	name string
 }
 
-func NewBrokerService(name string) BrokerService {
-	return &brokerService{name: name}
+func NewBrokerService(name string, c client.Client) BrokerService {
+	return &brokerService{
+		c:    c,
+		name: name,
+	}
+}
+
+func BrokerServiceClient() BrokerService {
+	return NewBrokerService("broker", microClient.DefaultClient)
+}
+
+func RunBrokerService() {
+	microService.Init(microService.Name("broker"))
+	microService.Run()
 }
 
 func (c *brokerService) Publish(ctx context.Context, in *PublishRequest, opts ...client.CallOption) (*Empty, error) {
@@ -123,7 +138,11 @@ type BrokerHandler interface {
 	Subscribe(context.Context, *SubscribeRequest, Broker_SubscribeStream) error
 }
 
-func RegisterBrokerHandler(hdlr BrokerHandler, opts ...server.HandlerOption) error {
+func RegisterBrokerService(hdlr BrokerHandler, opts ...server.HandlerOption) error {
+	return RegisterBrokerHandler(microServer.DefaultServer, hdlr, opts...)
+}
+
+func RegisterBrokerHandler(s server.Server, hdlr BrokerHandler, opts ...server.HandlerOption) error {
 	type broker interface {
 		Publish(ctx context.Context, in *PublishRequest, out *Empty) error
 		Subscribe(ctx context.Context, stream server.Stream) error
@@ -132,7 +151,7 @@ func RegisterBrokerHandler(hdlr BrokerHandler, opts ...server.HandlerOption) err
 		broker
 	}
 	h := &brokerHandler{hdlr}
-	return microServer.Handle(microServer.NewHandler(&Broker{h}, opts...))
+	return s.Handle(s.NewHandler(&Broker{h}, opts...))
 }
 
 type brokerHandler struct {

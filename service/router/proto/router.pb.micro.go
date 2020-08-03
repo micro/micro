@@ -14,6 +14,7 @@ import (
 	api "github.com/micro/go-micro/v3/api"
 	client "github.com/micro/go-micro/v3/client"
 	server "github.com/micro/go-micro/v3/server"
+	microService "github.com/micro/micro/v3/service"
 	microClient "github.com/micro/micro/v3/service/client"
 	microServer "github.com/micro/micro/v3/service/server"
 )
@@ -33,6 +34,7 @@ const _ = proto.ProtoPackageIsVersion3 // please upgrade the proto package
 var _ api.Endpoint
 var _ context.Context
 var _ client.Option
+var _ server.Option
 var _ = microServer.Handle
 var _ = microClient.Call
 
@@ -52,11 +54,24 @@ type RouterService interface {
 }
 
 type routerService struct {
+	c    client.Client
 	name string
 }
 
-func NewRouterService(name string) RouterService {
-	return &routerService{name: name}
+func NewRouterService(name string, c client.Client) RouterService {
+	return &routerService{
+		c:    c,
+		name: name,
+	}
+}
+
+func RouterServiceClient() RouterService {
+	return NewRouterService("router", microClient.DefaultClient)
+}
+
+func RunRouterService() {
+	microService.Init(microService.Name("router"))
+	microService.Run()
 }
 
 func (c *routerService) Lookup(ctx context.Context, in *LookupRequest, opts ...client.CallOption) (*LookupResponse, error) {
@@ -186,7 +201,11 @@ type RouterHandler interface {
 	Process(context.Context, *Advert, *ProcessResponse) error
 }
 
-func RegisterRouterHandler(hdlr RouterHandler, opts ...server.HandlerOption) error {
+func RegisterRouterService(hdlr RouterHandler, opts ...server.HandlerOption) error {
+	return RegisterRouterHandler(microServer.DefaultServer, hdlr, opts...)
+}
+
+func RegisterRouterHandler(s server.Server, hdlr RouterHandler, opts ...server.HandlerOption) error {
 	type router interface {
 		Lookup(ctx context.Context, in *LookupRequest, out *LookupResponse) error
 		Watch(ctx context.Context, stream server.Stream) error
@@ -197,7 +216,7 @@ func RegisterRouterHandler(hdlr RouterHandler, opts ...server.HandlerOption) err
 		router
 	}
 	h := &routerHandler{hdlr}
-	return microServer.Handle(microServer.NewHandler(&Router{h}, opts...))
+	return s.Handle(s.NewHandler(&Router{h}, opts...))
 }
 
 type routerHandler struct {
@@ -309,11 +328,24 @@ type TableService interface {
 }
 
 type tableService struct {
+	c    client.Client
 	name string
 }
 
-func NewTableService(name string) TableService {
-	return &tableService{name: name}
+func NewTableService(name string, c client.Client) TableService {
+	return &tableService{
+		c:    c,
+		name: name,
+	}
+}
+
+func TableServiceClient() TableService {
+	return NewTableService("table", microClient.DefaultClient)
+}
+
+func RunTableService() {
+	microService.Init(microService.Name("table"))
+	microService.Run()
 }
 
 func (c *tableService) Create(ctx context.Context, in *Route, opts ...client.CallOption) (*CreateResponse, error) {
@@ -376,7 +408,11 @@ type TableHandler interface {
 	Query(context.Context, *QueryRequest, *QueryResponse) error
 }
 
-func RegisterTableHandler(hdlr TableHandler, opts ...server.HandlerOption) error {
+func RegisterTableService(hdlr TableHandler, opts ...server.HandlerOption) error {
+	return RegisterTableHandler(microServer.DefaultServer, hdlr, opts...)
+}
+
+func RegisterTableHandler(s server.Server, hdlr TableHandler, opts ...server.HandlerOption) error {
 	type table interface {
 		Create(ctx context.Context, in *Route, out *CreateResponse) error
 		Delete(ctx context.Context, in *Route, out *DeleteResponse) error
@@ -388,7 +424,7 @@ func RegisterTableHandler(hdlr TableHandler, opts ...server.HandlerOption) error
 		table
 	}
 	h := &tableHandler{hdlr}
-	return microServer.Handle(microServer.NewHandler(&Table{h}, opts...))
+	return s.Handle(s.NewHandler(&Table{h}, opts...))
 }
 
 type tableHandler struct {

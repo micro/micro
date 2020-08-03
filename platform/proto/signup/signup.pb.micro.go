@@ -14,6 +14,7 @@ import (
 	api "github.com/micro/go-micro/v3/api"
 	client "github.com/micro/go-micro/v3/client"
 	server "github.com/micro/go-micro/v3/server"
+	microService "github.com/micro/micro/v3/service"
 	microClient "github.com/micro/micro/v3/service/client"
 	microServer "github.com/micro/micro/v3/service/server"
 )
@@ -33,6 +34,7 @@ const _ = proto.ProtoPackageIsVersion3 // please upgrade the proto package
 var _ api.Endpoint
 var _ context.Context
 var _ client.Option
+var _ server.Option
 var _ = microServer.Handle
 var _ = microClient.Call
 
@@ -54,11 +56,24 @@ type SignupService interface {
 }
 
 type signupService struct {
+	c    client.Client
 	name string
 }
 
-func NewSignupService(name string) SignupService {
-	return &signupService{name: name}
+func NewSignupService(name string, c client.Client) SignupService {
+	return &signupService{
+		c:    c,
+		name: name,
+	}
+}
+
+func SignupServiceClient() SignupService {
+	return NewSignupService("signup", microClient.DefaultClient)
+}
+
+func RunSignupService() {
+	microService.Init(microService.Name("signup"))
+	microService.Run()
 }
 
 func (c *signupService) SendVerificationEmail(ctx context.Context, in *SendVerificationEmailRequest, opts ...client.CallOption) (*SendVerificationEmailResponse, error) {
@@ -102,7 +117,11 @@ type SignupHandler interface {
 	CompleteSignup(context.Context, *CompleteSignupRequest, *CompleteSignupResponse) error
 }
 
-func RegisterSignupHandler(hdlr SignupHandler, opts ...server.HandlerOption) error {
+func RegisterSignupService(hdlr SignupHandler, opts ...server.HandlerOption) error {
+	return RegisterSignupHandler(microServer.DefaultServer, hdlr, opts...)
+}
+
+func RegisterSignupHandler(s server.Server, hdlr SignupHandler, opts ...server.HandlerOption) error {
 	type signup interface {
 		SendVerificationEmail(ctx context.Context, in *SendVerificationEmailRequest, out *SendVerificationEmailResponse) error
 		Verify(ctx context.Context, in *VerifyRequest, out *VerifyResponse) error
@@ -112,7 +131,7 @@ func RegisterSignupHandler(hdlr SignupHandler, opts ...server.HandlerOption) err
 		signup
 	}
 	h := &signupHandler{hdlr}
-	return microServer.Handle(microServer.NewHandler(&Signup{h}, opts...))
+	return s.Handle(s.NewHandler(&Signup{h}, opts...))
 }
 
 type signupHandler struct {

@@ -14,6 +14,7 @@ import (
 	api "github.com/micro/go-micro/v3/api"
 	client "github.com/micro/go-micro/v3/client"
 	server "github.com/micro/go-micro/v3/server"
+	microService "github.com/micro/micro/v3/service"
 	microClient "github.com/micro/micro/v3/service/client"
 	microServer "github.com/micro/micro/v3/service/server"
 )
@@ -33,6 +34,7 @@ const _ = proto.ProtoPackageIsVersion3 // please upgrade the proto package
 var _ api.Endpoint
 var _ context.Context
 var _ client.Option
+var _ server.Option
 var _ = microServer.Handle
 var _ = microClient.Call
 
@@ -51,11 +53,24 @@ type TraceService interface {
 }
 
 type traceService struct {
+	c    client.Client
 	name string
 }
 
-func NewTraceService(name string) TraceService {
-	return &traceService{name: name}
+func NewTraceService(name string, c client.Client) TraceService {
+	return &traceService{
+		c:    c,
+		name: name,
+	}
+}
+
+func TraceServiceClient() TraceService {
+	return NewTraceService("trace", microClient.DefaultClient)
+}
+
+func RunTraceService() {
+	microService.Init(microService.Name("trace"))
+	microService.Run()
 }
 
 func (c *traceService) Read(ctx context.Context, in *ReadRequest, opts ...client.CallOption) (*ReadResponse, error) {
@@ -135,7 +150,11 @@ type TraceHandler interface {
 	Stream(context.Context, *StreamRequest, Trace_StreamStream) error
 }
 
-func RegisterTraceHandler(hdlr TraceHandler, opts ...server.HandlerOption) error {
+func RegisterTraceService(hdlr TraceHandler, opts ...server.HandlerOption) error {
+	return RegisterTraceHandler(microServer.DefaultServer, hdlr, opts...)
+}
+
+func RegisterTraceHandler(s server.Server, hdlr TraceHandler, opts ...server.HandlerOption) error {
 	type trace interface {
 		Read(ctx context.Context, in *ReadRequest, out *ReadResponse) error
 		Write(ctx context.Context, in *WriteRequest, out *WriteResponse) error
@@ -145,7 +164,7 @@ func RegisterTraceHandler(hdlr TraceHandler, opts ...server.HandlerOption) error
 		trace
 	}
 	h := &traceHandler{hdlr}
-	return microServer.Handle(microServer.NewHandler(&Trace{h}, opts...))
+	return s.Handle(s.NewHandler(&Trace{h}, opts...))
 }
 
 type traceHandler struct {

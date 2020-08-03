@@ -14,6 +14,7 @@ import (
 	api "github.com/micro/go-micro/v3/api"
 	client "github.com/micro/go-micro/v3/client"
 	server "github.com/micro/go-micro/v3/server"
+	microService "github.com/micro/micro/v3/service"
 	microClient "github.com/micro/micro/v3/service/client"
 	microServer "github.com/micro/micro/v3/service/server"
 )
@@ -33,6 +34,7 @@ const _ = proto.ProtoPackageIsVersion3 // please upgrade the proto package
 var _ api.Endpoint
 var _ context.Context
 var _ client.Option
+var _ server.Option
 var _ = microServer.Handle
 var _ = microClient.Call
 
@@ -49,11 +51,24 @@ type ExampleService interface {
 }
 
 type exampleService struct {
+	c    client.Client
 	name string
 }
 
-func NewExampleService(name string) ExampleService {
-	return &exampleService{name: name}
+func NewExampleService(name string, c client.Client) ExampleService {
+	return &exampleService{
+		c:    c,
+		name: name,
+	}
+}
+
+func ExampleServiceClient() ExampleService {
+	return NewExampleService("example", microClient.DefaultClient)
+}
+
+func RunExampleService() {
+	microService.Init(microService.Name("example"))
+	microService.Run()
 }
 
 func (c *exampleService) Call(ctx context.Context, in *Request, opts ...client.CallOption) (*Response, error) {
@@ -72,7 +87,11 @@ type ExampleHandler interface {
 	Call(context.Context, *Request, *Response) error
 }
 
-func RegisterExampleHandler(hdlr ExampleHandler, opts ...server.HandlerOption) error {
+func RegisterExampleService(hdlr ExampleHandler, opts ...server.HandlerOption) error {
+	return RegisterExampleHandler(microServer.DefaultServer, hdlr, opts...)
+}
+
+func RegisterExampleHandler(s server.Server, hdlr ExampleHandler, opts ...server.HandlerOption) error {
 	type example interface {
 		Call(ctx context.Context, in *Request, out *Response) error
 	}
@@ -80,7 +99,7 @@ func RegisterExampleHandler(hdlr ExampleHandler, opts ...server.HandlerOption) e
 		example
 	}
 	h := &exampleHandler{hdlr}
-	return microServer.Handle(microServer.NewHandler(&Example{h}, opts...))
+	return s.Handle(s.NewHandler(&Example{h}, opts...))
 }
 
 type exampleHandler struct {
