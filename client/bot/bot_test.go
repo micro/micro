@@ -7,8 +7,8 @@ import (
 	"time"
 
 	"github.com/micro/cli/v2"
-	"github.com/micro/go-micro/v3/agent/command"
-	"github.com/micro/go-micro/v3/agent/input"
+	"github.com/micro/micro/v3/client/bot/command"
+	"github.com/micro/micro/v3/client/bot/input"
 	"github.com/micro/micro/v3/profile"
 	"github.com/micro/micro/v3/service"
 )
