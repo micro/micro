@@ -42,6 +42,7 @@ func (s *srv) Init(opts ...store.Option) error {
 	s.Database = s.options.Database
 	s.Table = s.options.Table
 	s.Nodes = s.options.Nodes
+	s.Client = pb.NewStoreService("go.micro.store", client.DefaultClient)
 	return nil
 }
 
