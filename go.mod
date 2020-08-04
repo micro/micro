@@ -22,7 +22,7 @@ require (
 	github.com/kr/pretty v0.2.0 // indirect
 	github.com/mattn/go-isatty v0.0.12 // indirect
 	github.com/micro/cli/v2 v2.1.2
-	github.com/micro/go-micro/v3 v3.0.0-alpha.0.20200804101912-2da8e692eeeb
+	github.com/micro/go-micro/v3 v3.0.0-alpha.0.20200804104301-07fef9fd33c2
 	github.com/netdata/go-orchestrator v0.0.0-20190905093727-c793edba0e8f
 	github.com/nlopes/slack v0.6.1-0.20191106133607-d06c2a2b3249
 	github.com/olekukonko/tablewriter v0.0.4
