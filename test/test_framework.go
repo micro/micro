@@ -77,7 +77,7 @@ func (c *Command) args(a ...string) []string {
 func (c *Command) Exec(args ...string) ([]byte, error) {
 	arguments := c.args(args...)
 	// exec the command
-	c.t.Logf("Executing command: micro %s\n", strings.Join(arguments, " "))
+	// c.t.Logf("Executing command: micro %s\n", strings.Join(arguments, " "))
 	return exec.Command("micro", arguments...).CombinedOutput()
 }
 
