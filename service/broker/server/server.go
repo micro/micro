@@ -41,7 +41,7 @@ func Run(ctx *cli.Context) error {
 	mubroker.DefaultBroker.Connect()
 
 	// register the broker handler
-	pb.RegisterBrokerHandler(new(handler))
+	pb.RegisterBrokerHandler(srv.Server(), new(handler))
 
 	// run the service
 	if err := srv.Run(); err != nil {

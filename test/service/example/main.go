@@ -8,9 +8,11 @@ import (
 )
 
 func main() {
+	srv := service.New(service.Name("example"))
+
 	// Register Handler
-	pb.RegisterExampleHandler(new(handler.Example))
+	pb.RegisterExampleHandler(srv.Server(), new(handler.Example))
 
 	// Run the service
-	service.Run()
+	srv.Run()
 }

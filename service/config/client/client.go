@@ -26,8 +26,7 @@ type srv struct {
 }
 
 func (m *srv) Read() (set *source.ChangeSet, err error) {
-	client := proto.NewConfigService(m.serviceName)
-	req, err := client.Read(context.Background(), &proto.ReadRequest{
+	req, err := m.client.Read(context.Background(), &proto.ReadRequest{
 		Namespace: m.namespace,
 		Path:      m.path,
 	})
@@ -41,8 +40,7 @@ func (m *srv) Read() (set *source.ChangeSet, err error) {
 }
 
 func (m *srv) Watch() (w source.Watcher, err error) {
-	client := proto.NewConfigService(m.serviceName)
-	stream, err := client.Watch(context.Background(), &proto.WatchRequest{
+	stream, err := m.client.Watch(context.Background(), &proto.WatchRequest{
 		Namespace: m.namespace,
 		Path:      m.path,
 	})
@@ -100,6 +98,7 @@ func NewSource(opts ...source.Option) source.Source {
 		opts:        options,
 		namespace:   namespace,
 		path:        path,
+		client:      proto.NewConfigService(addr, options.Client),
 	}
 
 	return s

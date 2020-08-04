@@ -63,6 +63,9 @@ func write(c config, file, tmpl string) error {
 		"dehyphen": func(s string) string {
 			return strings.ReplaceAll(s, "-", "")
 		},
+		"lower": func(s string) string {
+			return strings.ToLower(s)
+		},
 	}
 
 	f, err := os.Create(file)
