@@ -14,8 +14,6 @@ import (
 	api "github.com/micro/go-micro/v3/api"
 	client "github.com/micro/go-micro/v3/client"
 	server "github.com/micro/go-micro/v3/server"
-	microClient "github.com/micro/micro/v3/service/client"
-	microServer "github.com/micro/micro/v3/service/server"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -33,8 +31,7 @@ const _ = proto.ProtoPackageIsVersion3 // please upgrade the proto package
 var _ api.Endpoint
 var _ context.Context
 var _ client.Option
-var _ = microServer.Handle
-var _ = microClient.Call
+var _ server.Option
 
 // Api Endpoints for Command service
 
@@ -50,17 +47,21 @@ type CommandService interface {
 }
 
 type commandService struct {
+	c    client.Client
 	name string
 }
 
-func NewCommandService(name string) CommandService {
-	return &commandService{name: name}
+func NewCommandService(name string, c client.Client) CommandService {
+	return &commandService{
+		c:    c,
+		name: name,
+	}
 }
 
 func (c *commandService) Help(ctx context.Context, in *HelpRequest, opts ...client.CallOption) (*HelpResponse, error) {
-	req := microClient.NewRequest(c.name, "Command.Help", in)
+	req := c.c.NewRequest(c.name, "Command.Help", in)
 	out := new(HelpResponse)
-	err := microClient.Call(ctx, req, out, opts...)
+	err := c.c.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -68,9 +69,9 @@ func (c *commandService) Help(ctx context.Context, in *HelpRequest, opts ...clie
 }
 
 func (c *commandService) Exec(ctx context.Context, in *ExecRequest, opts ...client.CallOption) (*ExecResponse, error) {
-	req := microClient.NewRequest(c.name, "Command.Exec", in)
+	req := c.c.NewRequest(c.name, "Command.Exec", in)
 	out := new(ExecResponse)
-	err := microClient.Call(ctx, req, out, opts...)
+	err := c.c.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -84,7 +85,7 @@ type CommandHandler interface {
 	Exec(context.Context, *ExecRequest, *ExecResponse) error
 }
 
-func RegisterCommandHandler(hdlr CommandHandler, opts ...server.HandlerOption) error {
+func RegisterCommandHandler(s server.Server, hdlr CommandHandler, opts ...server.HandlerOption) error {
 	type command interface {
 		Help(ctx context.Context, in *HelpRequest, out *HelpResponse) error
 		Exec(ctx context.Context, in *ExecRequest, out *ExecResponse) error
@@ -93,7 +94,7 @@ func RegisterCommandHandler(hdlr CommandHandler, opts ...server.HandlerOption) e
 		command
 	}
 	h := &commandHandler{hdlr}
-	return microServer.Handle(microServer.NewHandler(&Command{h}, opts...))
+	return s.Handle(s.NewHandler(&Command{h}, opts...))
 }
 
 type commandHandler struct {

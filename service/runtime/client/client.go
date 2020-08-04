@@ -6,6 +6,7 @@ import (
 	"sync"
 
 	"github.com/micro/go-micro/v3/runtime"
+	"github.com/micro/micro/v3/service/client"
 	pb "github.com/micro/micro/v3/service/runtime/proto"
 )
 
@@ -24,8 +25,6 @@ func (s *svc) Init(opts ...runtime.Option) error {
 		o(&s.options)
 	}
 
-	// reset the runtime as the client could have changed
-	s.runtime = pb.NewRuntimeService("go.micro.runtime")
 	return nil
 }
 
@@ -290,6 +289,6 @@ func NewRuntime(opts ...runtime.Option) runtime.Runtime {
 
 	return &svc{
 		options: options,
-		runtime: pb.NewRuntimeService("go.micro.runtime"),
+		runtime: pb.NewRuntimeService("go.micro.runtime", client.DefaultClient),
 	}
 }

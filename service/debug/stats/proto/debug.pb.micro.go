@@ -14,8 +14,6 @@ import (
 	api "github.com/micro/go-micro/v3/api"
 	client "github.com/micro/go-micro/v3/client"
 	server "github.com/micro/go-micro/v3/server"
-	microClient "github.com/micro/micro/v3/service/client"
-	microServer "github.com/micro/micro/v3/service/server"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -33,8 +31,7 @@ const _ = proto.ProtoPackageIsVersion3 // please upgrade the proto package
 var _ api.Endpoint
 var _ context.Context
 var _ client.Option
-var _ = microServer.Handle
-var _ = microClient.Call
+var _ server.Option
 
 // Api Endpoints for Stats service
 
@@ -51,17 +48,21 @@ type StatsService interface {
 }
 
 type statsService struct {
+	c    client.Client
 	name string
 }
 
-func NewStatsService(name string) StatsService {
-	return &statsService{name: name}
+func NewStatsService(name string, c client.Client) StatsService {
+	return &statsService{
+		c:    c,
+		name: name,
+	}
 }
 
 func (c *statsService) Read(ctx context.Context, in *ReadRequest, opts ...client.CallOption) (*ReadResponse, error) {
-	req := microClient.NewRequest(c.name, "Stats.Read", in)
+	req := c.c.NewRequest(c.name, "Stats.Read", in)
 	out := new(ReadResponse)
-	err := microClient.Call(ctx, req, out, opts...)
+	err := c.c.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -69,9 +70,9 @@ func (c *statsService) Read(ctx context.Context, in *ReadRequest, opts ...client
 }
 
 func (c *statsService) Write(ctx context.Context, in *WriteRequest, opts ...client.CallOption) (*WriteResponse, error) {
-	req := microClient.NewRequest(c.name, "Stats.Write", in)
+	req := c.c.NewRequest(c.name, "Stats.Write", in)
 	out := new(WriteResponse)
-	err := microClient.Call(ctx, req, out, opts...)
+	err := c.c.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -79,8 +80,8 @@ func (c *statsService) Write(ctx context.Context, in *WriteRequest, opts ...clie
 }
 
 func (c *statsService) Stream(ctx context.Context, in *StreamRequest, opts ...client.CallOption) (Stats_StreamService, error) {
-	req := microClient.NewRequest(c.name, "Stats.Stream", &StreamRequest{})
-	stream, err := microClient.Stream(ctx, req, opts...)
+	req := c.c.NewRequest(c.name, "Stats.Stream", &StreamRequest{})
+	stream, err := c.c.Stream(ctx, req, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -135,7 +136,7 @@ type StatsHandler interface {
 	Stream(context.Context, *StreamRequest, Stats_StreamStream) error
 }
 
-func RegisterStatsHandler(hdlr StatsHandler, opts ...server.HandlerOption) error {
+func RegisterStatsHandler(s server.Server, hdlr StatsHandler, opts ...server.HandlerOption) error {
 	type stats interface {
 		Read(ctx context.Context, in *ReadRequest, out *ReadResponse) error
 		Write(ctx context.Context, in *WriteRequest, out *WriteResponse) error
@@ -145,7 +146,7 @@ func RegisterStatsHandler(hdlr StatsHandler, opts ...server.HandlerOption) error
 		stats
 	}
 	h := &statsHandler{hdlr}
-	return microServer.Handle(microServer.NewHandler(&Stats{h}, opts...))
+	return s.Handle(s.NewHandler(&Stats{h}, opts...))
 }
 
 type statsHandler struct {

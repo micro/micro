@@ -5,8 +5,9 @@ import (
 	"time"
 
 	"github.com/micro/go-micro/v3/broker"
-	"github.com/micro/go-micro/v3/client"
+	goclient "github.com/micro/go-micro/v3/client"
 	pb "github.com/micro/micro/v3/service/broker/proto"
+	"github.com/micro/micro/v3/service/client"
 	"github.com/micro/micro/v3/service/logger"
 )
 
@@ -54,7 +55,7 @@ func (b *serviceBroker) Publish(topic string, msg *broker.Message, opts ...broke
 			Header: msg.Header,
 			Body:   msg.Body,
 		},
-	}, client.WithAddress(b.Addrs...))
+	}, goclient.WithAddress(b.Addrs...))
 	return err
 }
 
@@ -69,7 +70,7 @@ func (b *serviceBroker) Subscribe(topic string, handler broker.Handler, opts ...
 	stream, err := b.Client.Subscribe(context.TODO(), &pb.SubscribeRequest{
 		Topic: topic,
 		Queue: options.Queue,
-	}, client.WithAddress(b.Addrs...), client.WithRequestTimeout(time.Hour))
+	}, goclient.WithAddress(b.Addrs...), goclient.WithRequestTimeout(time.Hour))
 	if err != nil {
 		return nil, err
 	}
@@ -103,7 +104,7 @@ func (b *serviceBroker) Subscribe(topic string, handler broker.Handler, opts ...
 					stream, err := b.Client.Subscribe(context.TODO(), &pb.SubscribeRequest{
 						Topic: topic,
 						Queue: options.Queue,
-					}, client.WithAddress(b.Addrs...), client.WithRequestTimeout(time.Hour))
+					}, goclient.WithAddress(b.Addrs...), goclient.WithRequestTimeout(time.Hour))
 					if err != nil {
 						if logger.V(logger.DebugLevel, logger.DefaultLogger) {
 							logger.Debugf("Failed to resubscribe to topic %s: %v", topic, err)
@@ -138,7 +139,7 @@ func NewBroker(opts ...broker.Option) broker.Broker {
 
 	return &serviceBroker{
 		Addrs:   addrs,
-		Client:  pb.NewBrokerService(name),
+		Client:  pb.NewBrokerService(name, client.DefaultClient),
 		options: options,
 	}
 }

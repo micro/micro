@@ -176,7 +176,7 @@ func NewRegistry(opts ...registry.Option) registry.Registry {
 
 	// don't default the address if a proxy is being used, as the
 	// address will take precedent, circumventing the proxy.
-	if len(addrs) == 0 && len(client.DefaultClient.Options().Proxy) == 0 {
+	if len(addrs) == 0 {
 		addrs = []string{"127.0.0.1:8000"}
 	}
 
@@ -185,6 +185,6 @@ func NewRegistry(opts ...registry.Option) registry.Registry {
 		opts:    options,
 		name:    name,
 		address: addrs,
-		client:  pb.NewRegistryService(name),
+		client:  pb.NewRegistryService(name, client.DefaultClient),
 	}
 }
