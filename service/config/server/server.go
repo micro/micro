@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	name = "go.micro.config"
+	name = "config"
 )
 
 var (

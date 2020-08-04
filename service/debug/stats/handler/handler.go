@@ -81,12 +81,12 @@ func (s *Stats) Read(ctx context.Context, req *stats.ReadRequest, rsp *stats.Rea
 }
 
 func (s *Stats) Write(ctx context.Context, req *stats.WriteRequest, rsp *stats.WriteResponse) error {
-	return errors.BadRequest("go.micro.debug.stats", "not implemented")
+	return errors.BadRequest("debug.stats", "not implemented")
 }
 
 // Stream starts streaming stats
 func (s *Stats) Stream(ctx context.Context, req *stats.StreamRequest, rsp stats.Stats_StreamStream) error {
-	return errors.BadRequest("go.micro.debug.stats", "not implemented")
+	return errors.BadRequest("debug.stats", "not implemented")
 }
 
 // Start Starts scraping other services until the provided channel is closed

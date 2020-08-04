@@ -7,7 +7,7 @@
 #     micro: runtime
 #     name: micro-bot
 #   annotations:
-#     name: "go.micro.bot"
+#     name: "bot"
 #     version: "latest"
 #     source: "github.com/micro/micro"
 #     owner: "micro"

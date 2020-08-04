@@ -75,7 +75,7 @@ func (s *testK8sServer) Run() error {
 
 	// generate a new admin account for the env : user=ENV_NAME pass=password
 	req := fmt.Sprintf(`{"id":"%s", "secret":"password", "options":{"namespace":"%s"}}`, s.Env(), s.namespace)
-	outp, err := s.Command().Exec("call", "go.micro.auth", "Auth.Generate", req)
+	outp, err := s.Command().Exec("call", "auth", "Auth.Generate", req)
 	if err != nil && !strings.Contains(string(outp), "already exists") { // until auth.Delete is implemented
 		s.t.Fatalf("Error generating auth: %s, %s", err, outp)
 		return err

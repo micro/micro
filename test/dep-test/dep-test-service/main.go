@@ -15,7 +15,7 @@ import (
 func main() {
 	// New Service
 	srv := service.New(
-		service.Name("go.micro.service.dep"),
+		service.Name("service.dep"),
 		service.Version("latest"),
 	)
 
@@ -27,7 +27,7 @@ func main() {
 	dep.RegisterDepHandler(srv.Server(), new(handler.Dep))
 
 	// Register Struct as Subscriber
-	service.RegisterSubscriber("go.micro.service.dep", srv.Server(), new(subscriber.Dep))
+	service.RegisterSubscriber("service.dep", srv.Server(), new(subscriber.Dep))
 
 	// Run service
 	if err := srv.Run(); err != nil {

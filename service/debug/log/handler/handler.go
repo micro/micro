@@ -20,7 +20,7 @@ type Log struct {
 
 func (l *Log) Read(ctx context.Context, req *pb.ReadRequest, rsp *pb.ReadResponse) error {
 	if len(req.Service) == 0 {
-		return errors.BadRequest("go.micro.debug.log", "Invalid service name")
+		return errors.BadRequest("debug.log", "Invalid service name")
 	}
 
 	l.Lock()

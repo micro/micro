@@ -23,7 +23,7 @@ func ServerModeCall(t *T) {
 
 	cmd := serv.Command()
 
-	outp, err := cmd.Exec("call", "go.micro.runtime", "Runtime.Read", "{}")
+	outp, err := cmd.Exec("call", "runtime", "Runtime.Read", "{}")
 	if err == nil {
 		t.Fatalf("Call to server should fail, got no error, output: %v", string(outp))
 		return
@@ -35,7 +35,7 @@ func ServerModeCall(t *T) {
 	}
 
 	if err := Try("Calling Runtime.Read", t, func() ([]byte, error) {
-		outp, err := cmd.Exec("call", "go.micro.runtime", "Runtime.Read", "{}")
+		outp, err := cmd.Exec("call", "runtime", "Runtime.Read", "{}")
 		if err != nil {
 			return outp, errors.New("Call to runtime read should succeed")
 		}

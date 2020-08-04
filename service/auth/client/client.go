@@ -282,8 +282,8 @@ func (s *srv) callOpts() []goclient.CallOption {
 // NewAuth returns a new instance of the Auth service
 func NewAuth(opts ...auth.Option) auth.Auth {
 	service := &srv{
-		auth:    pb.NewAuthService("go.micro.auth", client.DefaultClient),
-		rules:   pb.NewRulesService("go.micro.auth", client.DefaultClient),
+		auth:    pb.NewAuthService("auth", client.DefaultClient),
+		rules:   pb.NewRulesService("auth", client.DefaultClient),
 		options: auth.NewOptions(opts...),
 	}
 

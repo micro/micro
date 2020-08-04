@@ -42,9 +42,14 @@ func (r *Resolver) Resolve(req *http.Request, opts ...res.ResolveOption) (*res.E
 		return nil, res.ErrInvalidPath
 	}
 
+	name := parts[1]
+	if len(r.Options.ServicePrefix) > 0 {
+		name = r.Options.ServicePrefix + "." + name
+	}
+
 	// lookup the routes for the service
 	query := []router.QueryOption{
-		router.QueryService(r.Options.ServicePrefix + "." + parts[1]),
+		router.QueryService(name),
 		router.QueryNetwork(options.Domain),
 	}
 

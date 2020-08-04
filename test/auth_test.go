@@ -55,7 +55,7 @@ func ServerAuth(t *T) {
 	}
 
 	if err := Try("Try to get token with default account", t, func() ([]byte, error) {
-		outp, err := cmd.Exec("call", "go.micro.auth", "Auth.Token", `{"id":"default","secret":"password"}`)
+		outp, err := cmd.Exec("call", "auth", "Auth.Token", `{"id":"default","secret":"password"}`)
 		if err != nil {
 			return outp, err
 		}

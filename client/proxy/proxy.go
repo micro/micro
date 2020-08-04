@@ -34,7 +34,7 @@ import (
 
 var (
 	// Name of the proxy
-	Name = "go.micro.proxy"
+	Name = "proxy"
 	// The address of the proxy
 	Address = ":8081"
 	// the proxy protocol

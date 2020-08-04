@@ -5,7 +5,7 @@ This is the Dep service
 Generated with
 
 ```
-micro new --namespace=go.micro --type=service dep-test-service
+micro new dep-test-service
 ```
 
 ## Getting Started
@@ -13,12 +13,6 @@ micro new --namespace=go.micro --type=service dep-test-service
 - [Configuration](#configuration)
 - [Dependencies](#dependencies)
 - [Usage](#usage)
-
-## Configuration
-
-- FQDN: go.micro.service.dep
-- Type: service
-- Alias: dep
 
 ## Dependencies
 

@@ -18,7 +18,7 @@ func TestWebResolver(t *testing.T) {
 
 	res := &Resolver{
 		Options: resolver.NewOptions(
-			resolver.WithServicePrefix("go.micro.web"),
+			resolver.WithServicePrefix("web"),
 		),
 		Router: router.DefaultRouter,
 	}
@@ -28,10 +28,10 @@ func TestWebResolver(t *testing.T) {
 		Path    string
 		Service string
 	}{
-		{"localhost:8082", "/foobar", "go.micro.web.foobar"},
-		{"web.micro.mu", "/foobar", "go.micro.web.foobar"},
-		{"127.0.0.1:8082", "/hello", "go.micro.web.hello"},
-		{"demo.m3o.app", "/bar", "go.micro.web.bar"},
+		{"localhost:8082", "/foobar", "web.foobar"},
+		{"web.micro.mu", "/foobar", "web.foobar"},
+		{"127.0.0.1:8082", "/hello", "web.hello"},
+		{"demo.m3o.app", "/bar", "web.bar"},
 	}
 
 	for _, service := range testCases {

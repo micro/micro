@@ -40,9 +40,9 @@ type bot struct {
 
 var (
 	// Default server name
-	Name = "go.micro.bot"
+	Name = "bot"
 	// Namespace for commands
-	Namespace = "go.micro.bot"
+	Namespace = "bot"
 	// map pattern:command
 	commands = map[string]func(*cli.Context) command.Command{
 		"^echo ":                             Echo,

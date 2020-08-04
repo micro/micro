@@ -56,12 +56,12 @@ func (r *testRuntime) Read(opts ...runtime.ReadOption) ([]*runtime.Service, erro
 func TestStatus(t *testing.T) {
 	testServices := []*runtime.Service{
 		&runtime.Service{
-			Name:     "go.micro.service.foo",
+			Name:     "service.foo",
 			Version:  "latest",
 			Metadata: map[string]string{"status": "starting"},
 		},
 		&runtime.Service{
-			Name:     "go.micro.service.bar",
+			Name:     "service.bar",
 			Version:  "2.0.0",
 			Metadata: map[string]string{"status": "error", "error": "Crashed on L1"},
 		},

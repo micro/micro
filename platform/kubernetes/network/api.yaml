@@ -7,7 +7,7 @@
      micro: runtime
      name: micro-api
    annotations:
-     name: "go.micro.api"
+     name: "api"
      version: "latest"
      source: "github.com/micro/micro"
      owner: "micro"

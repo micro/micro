@@ -24,7 +24,7 @@ const (
 )
 
 var (
-	watchTopic = "go.micro.config.events"
+	watchTopic = "config.events"
 	watchers   = make(map[string][]*watcher)
 
 	// we now support json only
@@ -41,25 +41,25 @@ func (c *config) Read(ctx context.Context, req *pb.ReadRequest, rsp *pb.ReadResp
 
 	// authorize the request
 	if err := namespace.Authorize(ctx, req.Namespace); err == namespace.ErrForbidden {
-		return errors.Forbidden("go.micro.config", err.Error())
+		return errors.Forbidden("config", err.Error())
 	} else if err == namespace.ErrUnauthorized {
-		return errors.Unauthorized("go.micro.config", err.Error())
+		return errors.Unauthorized("config", err.Error())
 	} else if err != nil {
-		return errors.InternalServerError("go.micro.config", err.Error())
+		return errors.InternalServerError("config", err.Error())
 	}
 
 	ch, err := store.Read(req.Namespace)
 	if err == gostore.ErrNotFound {
-		return errors.NotFound("go.micro.config.Read", "Not found")
+		return errors.NotFound("config.Read", "Not found")
 	} else if err != nil {
-		return errors.BadRequest("go.micro.config.Read", "read error: %v: %v", err, req.Namespace)
+		return errors.BadRequest("config.Read", "read error: %v: %v", err, req.Namespace)
 	}
 
 	rsp.Change = new(pb.Change)
 
 	// Unmarshal value
 	if err = json.Unmarshal(ch[0].Value, rsp.Change); err != nil {
-		return errors.BadRequest("go.micro.config.Read", "unmarshal value error: %v", err)
+		return errors.BadRequest("config.Read", "unmarshal value error: %v", err)
 	}
 
 	// if dont need path, we return all of the data
@@ -78,7 +78,7 @@ func (c *config) Read(ctx context.Context, req *pb.ReadRequest, rsp *pb.ReadResp
 		Source:    rc.Source,
 	})
 	if err != nil {
-		return errors.InternalServerError("go.micro.config.Read", err.Error())
+		return errors.InternalServerError("config.Read", err.Error())
 	}
 
 	// peel apart the path
@@ -92,7 +92,7 @@ func (c *config) Read(ctx context.Context, req *pb.ReadRequest, rsp *pb.ReadResp
 
 func (c *config) Create(ctx context.Context, req *pb.CreateRequest, rsp *pb.CreateResponse) error {
 	if req.Change == nil || req.Change.ChangeSet == nil {
-		return errors.BadRequest("go.micro.config.Create", "invalid change")
+		return errors.BadRequest("config.Create", "invalid change")
 	}
 	if len(req.Change.Namespace) == 0 {
 		req.Change.Namespace = defaultNamespace
@@ -100,11 +100,11 @@ func (c *config) Create(ctx context.Context, req *pb.CreateRequest, rsp *pb.Crea
 
 	// authorize the request
 	if err := namespace.Authorize(ctx, req.Change.Namespace); err == namespace.ErrForbidden {
-		return errors.Forbidden("go.micro.config", err.Error())
+		return errors.Forbidden("config", err.Error())
 	} else if err == namespace.ErrUnauthorized {
-		return errors.Unauthorized("go.micro.config", err.Error())
+		return errors.Unauthorized("config", err.Error())
 	} else if err != nil {
-		return errors.InternalServerError("go.micro.config", err.Error())
+		return errors.InternalServerError("config", err.Error())
 	}
 
 	if len(req.Change.Path) > 0 {
@@ -112,7 +112,7 @@ func (c *config) Create(ctx context.Context, req *pb.CreateRequest, rsp *pb.Crea
 			Format: "json",
 		})
 		if err != nil {
-			return errors.InternalServerError("go.micro.config.Create", err.Error())
+			return errors.InternalServerError("config.Create", err.Error())
 		}
 
 		// peel apart the path
@@ -130,11 +130,11 @@ func (c *config) Create(ctx context.Context, req *pb.CreateRequest, rsp *pb.Crea
 	var err error
 	record.Value, err = json.Marshal(req.Change)
 	if err != nil {
-		return errors.BadRequest("go.micro.config.Create", "marshal error: %v", err)
+		return errors.BadRequest("config.Create", "marshal error: %v", err)
 	}
 
 	if err := store.Write(record); err != nil {
-		return errors.BadRequest("go.micro.config.Create", "create new into db error: %v", err)
+		return errors.BadRequest("config.Create", "create new into db error: %v", err)
 	}
 
 	_ = publish(ctx, &pb.WatchResponse{Namespace: req.Change.Namespace, ChangeSet: req.Change.ChangeSet})
@@ -144,7 +144,7 @@ func (c *config) Create(ctx context.Context, req *pb.CreateRequest, rsp *pb.Crea
 
 func (c *config) Update(ctx context.Context, req *pb.UpdateRequest, rsp *pb.UpdateResponse) error {
 	if req.Change == nil || req.Change.ChangeSet == nil {
-		return errors.BadRequest("go.micro.config.Update", "invalid change")
+		return errors.BadRequest("config.Update", "invalid change")
 	}
 	if len(req.Change.Namespace) == 0 {
 		req.Change.Namespace = defaultNamespace
@@ -152,11 +152,11 @@ func (c *config) Update(ctx context.Context, req *pb.UpdateRequest, rsp *pb.Upda
 
 	// authorize the request
 	if err := namespace.Authorize(ctx, req.Change.Namespace); err == namespace.ErrForbidden {
-		return errors.Forbidden("go.micro.config", err.Error())
+		return errors.Forbidden("config", err.Error())
 	} else if err == namespace.ErrUnauthorized {
-		return errors.Unauthorized("go.micro.config", err.Error())
+		return errors.Unauthorized("config", err.Error())
 	} else if err != nil {
-		return errors.InternalServerError("go.micro.config", err.Error())
+		return errors.InternalServerError("config", err.Error())
 	}
 
 	// set the changeset timestamp
@@ -168,7 +168,7 @@ func (c *config) Update(ctx context.Context, req *pb.UpdateRequest, rsp *pb.Upda
 	records, err := store.Read(req.Change.Namespace)
 	if err != nil {
 		if err.Error() != "not found" {
-			return errors.BadRequest("go.micro.config.Update", "read old value error: %v", err)
+			return errors.BadRequest("config.Update", "read old value error: %v", err)
 		}
 		// create new record
 		record = new(gostore.Record)
@@ -176,7 +176,7 @@ func (c *config) Update(ctx context.Context, req *pb.UpdateRequest, rsp *pb.Upda
 	} else {
 		// Unmarshal value
 		if err := json.Unmarshal(records[0].Value, oldCh); err != nil {
-			return errors.BadRequest("go.micro.config.Read", "unmarshal value error: %v", err)
+			return errors.BadRequest("config.Read", "unmarshal value error: %v", err)
 		}
 		record = records[0]
 	}
@@ -204,7 +204,7 @@ func (c *config) Update(ctx context.Context, req *pb.UpdateRequest, rsp *pb.Upda
 		// Get values from existing change
 		values, err := values(changeSet)
 		if err != nil {
-			return errors.InternalServerError("go.micro.config.Update", "error getting existing change: %v", err)
+			return errors.InternalServerError("config.Update", "error getting existing change: %v", err)
 		}
 
 		// Apply the data to the existing change
@@ -213,7 +213,7 @@ func (c *config) Update(ctx context.Context, req *pb.UpdateRequest, rsp *pb.Upda
 		// Create a new change
 		newChange, err = merge(&source.ChangeSet{Data: values.Bytes()})
 		if err != nil {
-			return errors.InternalServerError("go.micro.config.Update", "create a new change error: %v", err)
+			return errors.InternalServerError("config.Update", "create a new change error: %v", err)
 		}
 	} else {
 		// No path specified, business as usual
@@ -225,7 +225,7 @@ func (c *config) Update(ctx context.Context, req *pb.UpdateRequest, rsp *pb.Upda
 			Format:    req.Change.ChangeSet.Format,
 		})
 		if err != nil {
-			return errors.BadRequest("go.micro.srv.config.Update", "merge all error: %v", err)
+			return errors.BadRequest("srv.config.Update", "merge all error: %v", err)
 		}
 	}
 
@@ -240,11 +240,11 @@ func (c *config) Update(ctx context.Context, req *pb.UpdateRequest, rsp *pb.Upda
 
 	record.Value, err = json.Marshal(req.Change)
 	if err != nil {
-		return errors.BadRequest("go.micro.config.Update", "marshal error: %v", err)
+		return errors.BadRequest("config.Update", "marshal error: %v", err)
 	}
 
 	if err := store.Write(record); err != nil {
-		return errors.BadRequest("go.micro.config.Update", "update into db error: %v", err)
+		return errors.BadRequest("config.Update", "update into db error: %v", err)
 	}
 
 	_ = publish(ctx, &pb.WatchResponse{Namespace: req.Change.Namespace, ChangeSet: req.Change.ChangeSet})
@@ -254,7 +254,7 @@ func (c *config) Update(ctx context.Context, req *pb.UpdateRequest, rsp *pb.Upda
 
 func (c *config) Delete(ctx context.Context, req *pb.DeleteRequest, rsp *pb.DeleteResponse) error {
 	if req.Change == nil {
-		return errors.BadRequest("go.micro.srv.Delete", "invalid change")
+		return errors.BadRequest("srv.Delete", "invalid change")
 	}
 	if len(req.Change.Namespace) == 0 {
 		req.Change.Namespace = defaultNamespace
@@ -262,11 +262,11 @@ func (c *config) Delete(ctx context.Context, req *pb.DeleteRequest, rsp *pb.Dele
 
 	// authorize the request
 	if err := namespace.Authorize(ctx, req.Change.Namespace); err == namespace.ErrForbidden {
-		return errors.Forbidden("go.micro.config", err.Error())
+		return errors.Forbidden("config", err.Error())
 	} else if err == namespace.ErrUnauthorized {
-		return errors.Unauthorized("go.micro.config", err.Error())
+		return errors.Unauthorized("config", err.Error())
 	} else if err != nil {
-		return errors.InternalServerError("go.micro.config", err.Error())
+		return errors.InternalServerError("config", err.Error())
 	}
 
 	if req.Change.ChangeSet == nil {
@@ -278,7 +278,7 @@ func (c *config) Delete(ctx context.Context, req *pb.DeleteRequest, rsp *pb.Dele
 	// We're going to delete the record as we have no path and no data
 	if len(req.Change.Path) == 0 {
 		if err := store.Delete(req.Change.Namespace); err != nil {
-			return errors.BadRequest("go.micro.srv.Delete", "delete from db error: %v", err)
+			return errors.BadRequest("srv.Delete", "delete from db error: %v", err)
 		}
 		return nil
 	}
@@ -289,7 +289,7 @@ func (c *config) Delete(ctx context.Context, req *pb.DeleteRequest, rsp *pb.Dele
 	records, err := store.Read(req.Change.Namespace)
 	if err != nil {
 		if err.Error() != "not found" {
-			return errors.BadRequest("go.micro.srv.Delete", "read old value error: %v", err)
+			return errors.BadRequest("srv.Delete", "read old value error: %v", err)
 		}
 		return nil
 	}
@@ -297,7 +297,7 @@ func (c *config) Delete(ctx context.Context, req *pb.DeleteRequest, rsp *pb.Dele
 	ch := &pb.Change{}
 	// Unmarshal value
 	if err := json.Unmarshal(records[0].Value, ch); err != nil {
-		return errors.BadRequest("go.micro.config.Read", "unmarshal value error: %v", err)
+		return errors.BadRequest("config.Read", "unmarshal value error: %v", err)
 	}
 
 	// Get the current config as values
@@ -309,7 +309,7 @@ func (c *config) Delete(ctx context.Context, req *pb.DeleteRequest, rsp *pb.Dele
 		Format:    ch.ChangeSet.Format,
 	})
 	if err != nil {
-		return errors.BadRequest("go.micro.srv.Delete", "Get the current config as values error: %v", err)
+		return errors.BadRequest("srv.Delete", "Get the current config as values error: %v", err)
 	}
 
 	// Delete at the given path
@@ -318,7 +318,7 @@ func (c *config) Delete(ctx context.Context, req *pb.DeleteRequest, rsp *pb.Dele
 	// Create a change record from the values
 	change, err := merge(&source.ChangeSet{Data: values.Bytes()})
 	if err != nil {
-		return errors.BadRequest("go.micro.srv.Delete", "Create a change record from the values error: %v", err)
+		return errors.BadRequest("srv.Delete", "Create a change record from the values error: %v", err)
 	}
 
 	// Update change set
@@ -332,11 +332,11 @@ func (c *config) Delete(ctx context.Context, req *pb.DeleteRequest, rsp *pb.Dele
 
 	records[0].Value, err = json.Marshal(req.Change)
 	if err != nil {
-		return errors.BadRequest("go.micro.config.Update", "marshal error: %v", err)
+		return errors.BadRequest("config.Update", "marshal error: %v", err)
 	}
 
 	if err := store.Write(records[0]); err != nil {
-		return errors.BadRequest("go.micro.srv.Delete", "update record set to db error: %v", err)
+		return errors.BadRequest("srv.Delete", "update record set to db error: %v", err)
 	}
 
 	_ = publish(ctx, &pb.WatchResponse{Namespace: req.Change.Namespace, ChangeSet: req.Change.ChangeSet})
@@ -351,16 +351,16 @@ func (c *config) List(ctx context.Context, req *pb.ListRequest, rsp *pb.ListResp
 
 	// authorize the request
 	if err := namespace.Authorize(ctx, req.Namespace); err == namespace.ErrForbidden {
-		return errors.Forbidden("go.micro.config", err.Error())
+		return errors.Forbidden("config", err.Error())
 	} else if err == namespace.ErrUnauthorized {
-		return errors.Unauthorized("go.micro.config", err.Error())
+		return errors.Unauthorized("config", err.Error())
 	} else if err != nil {
-		return errors.InternalServerError("go.micro.config", err.Error())
+		return errors.InternalServerError("config", err.Error())
 	}
 
 	list, err := store.List(gostore.ListPrefix(req.Namespace))
 	if err != nil {
-		return errors.BadRequest("go.micro.config.List", "query value error: %v", err)
+		return errors.BadRequest("config.List", "query value error: %v", err)
 	}
 
 	// TODO: optimise filtering for prefix listing
@@ -372,7 +372,7 @@ func (c *config) List(ctx context.Context, req *pb.ListRequest, rsp *pb.ListResp
 
 		ch := &pb.Change{}
 		if err := json.Unmarshal(rec[0].Value, ch); err != nil {
-			return errors.BadRequest("go.micro.config.Read", "unmarshal value error: %v", err)
+			return errors.BadRequest("config.Read", "unmarshal value error: %v", err)
 		}
 
 		if ch.ChangeSet != nil {
@@ -392,16 +392,16 @@ func (c *config) Watch(ctx context.Context, req *pb.WatchRequest, stream pb.Conf
 
 	// authorize the request
 	if err := namespace.Authorize(ctx, req.Namespace); err == namespace.ErrForbidden {
-		return errors.Forbidden("go.micro.config", err.Error())
+		return errors.Forbidden("config", err.Error())
 	} else if err == namespace.ErrUnauthorized {
-		return errors.Unauthorized("go.micro.config", err.Error())
+		return errors.Unauthorized("config", err.Error())
 	} else if err != nil {
-		return errors.InternalServerError("go.micro.config", err.Error())
+		return errors.InternalServerError("config", err.Error())
 	}
 
 	watch, err := Watch(req.Namespace)
 	if err != nil {
-		return errors.BadRequest("go.micro.srv.Watch", "watch error: %v", err)
+		return errors.BadRequest("srv.Watch", "watch error: %v", err)
 	}
 	defer watch.Stop()
 
@@ -416,13 +416,13 @@ func (c *config) Watch(ctx context.Context, req *pb.WatchRequest, stream pb.Conf
 	for {
 		ch, err := watch.Next()
 		if err != nil {
-			return errors.BadRequest("go.micro.srv.Watch", "listen the Next error: %v", err)
+			return errors.BadRequest("srv.Watch", "listen the Next error: %v", err)
 		}
 		if ch.ChangeSet != nil {
 			ch.ChangeSet.Data = string(ch.ChangeSet.Data)
 		}
 		if err := stream.Send(ch); err != nil {
-			return errors.BadRequest("go.micro.srv.Watch", "send the Change error: %v", err)
+			return errors.BadRequest("srv.Watch", "send the Change error: %v", err)
 		}
 	}
 }

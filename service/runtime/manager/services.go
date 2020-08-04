@@ -23,7 +23,7 @@ const (
 )
 
 // key to write the service to the store under, e.g:
-// "service/foo/go.micro.service.bar:latest"
+// "service/foo/bar:latest"
 func (s *service) Key() string {
 	return servicePrefix + s.Options.Namespace + ":" + s.Service.Name + ":" + s.Service.Version
 }

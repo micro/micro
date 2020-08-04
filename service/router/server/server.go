@@ -17,13 +17,13 @@ import (
 
 var (
 	// name of the router microservice
-	name = "go.micro.router"
+	name = "router"
 	// address is the router microservice bind address
 	address = ":8084"
 	// network is the network name
 	network = router.DefaultNetwork
 	// topic is router adverts topic
-	topic = "go.micro.router.adverts"
+	topic = "router.adverts"
 
 	// Flags specific to the router
 	Flags = []cli.Flag{

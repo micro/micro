@@ -50,14 +50,14 @@ import (
 //Meta Fields of micro web
 var (
 	// Default server name
-	Name = "go.micro.web"
+	Name = "web"
 	// Default address to bind to
 	Address = ":8082"
 	// The namespace to serve
 	// Example:
 	// Namespace + /[Service]/foo/bar
 	// Host: Namespace.Service Endpoint: /foo/bar
-	Namespace = "go.micro"
+	Namespace = ""
 	Type      = "web"
 	Resolver  = "path"
 	// Base path sent to web service.

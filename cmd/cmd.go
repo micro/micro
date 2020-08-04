@@ -479,10 +479,9 @@ func action(c *cli.Context) error {
 		}
 
 		// lookup the service, e.g. "micro config set" would
-		// firstly check to see if the service "go.micro.config"
-		// exists within the current namespace, then it would
-		// execute the Config.Set RPC, setting the flags in the
-		// request.
+		// firstly check to see if the service config exists
+		// within the current namespace, then it would execute
+		// the Config.Set RPC, setting the flags in the request.
 		if srv, err := lookupService(c); err != nil {
 			cmdStr := strings.Join(c.Args().Slice(), " ")
 			fmt.Printf("Error querying registry for service %v: %v", cmdStr, err)

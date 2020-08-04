@@ -41,14 +41,14 @@ import (
 )
 
 var (
-	Name                  = "go.micro.api"
+	Name                  = "api"
 	Address               = ":8080"
 	Handler               = "meta"
 	Resolver              = "micro"
 	RPCPath               = "/rpc"
 	APIPath               = "/"
 	ProxyPath             = "/{service:[a-zA-Z0-9]+}"
-	Namespace             = "go.micro"
+	Namespace             = ""
 	HeaderPrefix          = "X-Micro-"
 	EnableRPC             = false
 	ACMEProvider          = "autocert"

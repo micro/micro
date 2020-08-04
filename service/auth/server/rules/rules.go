@@ -95,16 +95,16 @@ func (r *Rules) setupDefaultRules(ns string) {
 func (r *Rules) Create(ctx context.Context, req *pb.CreateRequest, rsp *pb.CreateResponse) error {
 	// Validate the request
 	if req.Rule == nil {
-		return errors.BadRequest("go.micro.auth", "Rule missing")
+		return errors.BadRequest("auth", "Rule missing")
 	}
 	if len(req.Rule.Id) == 0 {
-		return errors.BadRequest("go.micro.auth", "ID missing")
+		return errors.BadRequest("auth", "ID missing")
 	}
 	if req.Rule.Resource == nil {
-		return errors.BadRequest("go.micro.auth", "Resource missing")
+		return errors.BadRequest("auth", "Resource missing")
 	}
 	if req.Rule.Access == pb.Access_UNKNOWN {
-		return errors.BadRequest("go.micro.auth", "Access missing")
+		return errors.BadRequest("auth", "Access missing")
 	}
 
 	// set defaults
@@ -117,11 +117,11 @@ func (r *Rules) Create(ctx context.Context, req *pb.CreateRequest, rsp *pb.Creat
 
 	// authorize the request
 	if err := namespace.Authorize(ctx, req.Options.Namespace); err == namespace.ErrForbidden {
-		return errors.Forbidden("go.micro.auth.Rules.Create", err.Error())
+		return errors.Forbidden("auth.Rules.Create", err.Error())
 	} else if err == namespace.ErrUnauthorized {
-		return errors.Unauthorized("go.micro.auth.Rules.Create", err.Error())
+		return errors.Unauthorized("auth.Rules.Create", err.Error())
 	} else if err != nil {
-		return errors.InternalServerError("go.micro.auth.Rules.Create", err.Error())
+		return errors.InternalServerError("auth.Rules.Create", err.Error())
 	}
 
 	// write the rule to the store
@@ -132,7 +132,7 @@ func (r *Rules) Create(ctx context.Context, req *pb.CreateRequest, rsp *pb.Creat
 func (r *Rules) Delete(ctx context.Context, req *pb.DeleteRequest, rsp *pb.DeleteResponse) error {
 	// Validate the request
 	if len(req.Id) == 0 {
-		return errors.BadRequest("go.micro.auth", "ID missing")
+		return errors.BadRequest("auth", "ID missing")
 	}
 
 	// set defaults
@@ -145,20 +145,20 @@ func (r *Rules) Delete(ctx context.Context, req *pb.DeleteRequest, rsp *pb.Delet
 
 	// authorize the request
 	if err := namespace.Authorize(ctx, req.Options.Namespace); err == namespace.ErrForbidden {
-		return errors.Forbidden("go.micro.auth.Rules.Delete", err.Error())
+		return errors.Forbidden("auth.Rules.Delete", err.Error())
 	} else if err == namespace.ErrUnauthorized {
-		return errors.Unauthorized("go.micro.auth.Rules.Delete", err.Error())
+		return errors.Unauthorized("auth.Rules.Delete", err.Error())
 	} else if err != nil {
-		return errors.InternalServerError("go.micro.auth.Rules.Delete", err.Error())
+		return errors.InternalServerError("auth.Rules.Delete", err.Error())
 	}
 
 	// Delete the rule
 	key := strings.Join([]string{storePrefixRules, req.Options.Namespace, req.Id}, joinKey)
 	err := store.DefaultStore.Delete(key)
 	if err == gostore.ErrNotFound {
-		return errors.BadRequest("go.micro.auth", "Rule not found")
+		return errors.BadRequest("auth", "Rule not found")
 	} else if err != nil {
-		return errors.InternalServerError("go.micro.auth", "Unable to delete key from store: %v", err)
+		return errors.InternalServerError("auth", "Unable to delete key from store: %v", err)
 	}
 
 	// Clear the namespace cache, since the rules for this namespace could now be empty
@@ -181,11 +181,11 @@ func (r *Rules) List(ctx context.Context, req *pb.ListRequest, rsp *pb.ListRespo
 
 	// authorize the request
 	if err := namespace.Authorize(ctx, req.Options.Namespace); err == namespace.ErrForbidden {
-		return errors.Forbidden("go.micro.auth.Rules.List", err.Error())
+		return errors.Forbidden("auth.Rules.List", err.Error())
 	} else if err == namespace.ErrUnauthorized {
-		return errors.Unauthorized("go.micro.auth.Rules.List", err.Error())
+		return errors.Unauthorized("auth.Rules.List", err.Error())
 	} else if err != nil {
-		return errors.InternalServerError("go.micro.auth.Rules.List", err.Error())
+		return errors.InternalServerError("auth.Rules.List", err.Error())
 	}
 
 	// setup the defaults incase none exist
@@ -195,7 +195,7 @@ func (r *Rules) List(ctx context.Context, req *pb.ListRequest, rsp *pb.ListRespo
 	prefix := strings.Join([]string{storePrefixRules, req.Options.Namespace, ""}, joinKey)
 	recs, err := store.DefaultStore.Read(prefix, gostore.ReadPrefix())
 	if err != nil {
-		return errors.InternalServerError("go.micro.auth", "Unable to read from store: %v", err)
+		return errors.InternalServerError("auth", "Unable to read from store: %v", err)
 	}
 
 	// unmarshal the records
@@ -203,7 +203,7 @@ func (r *Rules) List(ctx context.Context, req *pb.ListRequest, rsp *pb.ListRespo
 	for _, rec := range recs {
 		var r *pb.Rule
 		if err := json.Unmarshal(rec.Value, &r); err != nil {
-			return errors.InternalServerError("go.micro.auth", "Error to unmarshaling json: %v. Value: %v", err, string(rec.Value))
+			return errors.InternalServerError("auth", "Error to unmarshaling json: %v. Value: %v", err, string(rec.Value))
 		}
 		rsp.Rules = append(rsp.Rules, r)
 	}
@@ -215,18 +215,18 @@ func (r *Rules) List(ctx context.Context, req *pb.ListRequest, rsp *pb.ListRespo
 func (r *Rules) writeRule(rule *pb.Rule, ns string) error {
 	key := strings.Join([]string{storePrefixRules, ns, rule.Id}, joinKey)
 	if _, err := store.DefaultStore.Read(key); err == nil {
-		return errors.BadRequest("go.micro.auth", "A rule with this ID already exists")
+		return errors.BadRequest("auth", "A rule with this ID already exists")
 	}
 
 	// Encode the rule
 	bytes, err := json.Marshal(rule)
 	if err != nil {
-		return errors.InternalServerError("go.micro.auth", "Unable to marshal rule: %v", err)
+		return errors.InternalServerError("auth", "Unable to marshal rule: %v", err)
 	}
 
 	// Write to the store
 	if err := store.DefaultStore.Write(&gostore.Record{Key: key, Value: bytes}); err != nil {
-		return errors.InternalServerError("go.micro.auth", "Unable to write to the store: %v", err)
+		return errors.InternalServerError("auth", "Unable to write to the store: %v", err)
 	}
 
 	return nil

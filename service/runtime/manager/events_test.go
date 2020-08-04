@@ -28,7 +28,7 @@ func TestEvents(t *testing.T) {
 	timeout := time.NewTimer(time.Millisecond * 500)
 
 	// the service that should be passed to the runtime
-	testSrv := &runtime.Service{Name: "go.micro.service.foo", Version: "latest"}
+	testSrv := &runtime.Service{Name: "service.foo", Version: "latest"}
 	opts := &runtime.CreateOptions{Namespace: namespace.DefaultNamespace}
 
 	t.Run("Create", func(t *testing.T) {
