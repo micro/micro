@@ -22,7 +22,7 @@ require (
 	github.com/kr/pretty v0.2.0 // indirect
 	github.com/mattn/go-isatty v0.0.12 // indirect
 	github.com/micro/cli/v2 v2.1.2
-	github.com/micro/go-micro/v3 v3.0.0-alpha.0.20200804104301-07fef9fd33c2
+	github.com/micro/go-micro/v3 v3.0.0-alpha.0.20200804152103-eee91ed9768b
 	github.com/netdata/go-orchestrator v0.0.0-20190905093727-c793edba0e8f
 	github.com/nlopes/slack v0.6.1-0.20191106133607-d06c2a2b3249
 	github.com/olekukonko/tablewriter v0.0.4
@@ -37,7 +37,7 @@ require (
 	golang.org/x/tools v0.0.0-20200117065230-39095c1d176c // indirect
 	google.golang.org/genproto v0.0.0-20200526211855-cb27e3aa2013
 	google.golang.org/grpc v1.27.0
-	google.golang.org/protobuf v1.25.0
+	google.golang.org/protobuf v1.25.0 // indirect
 	gopkg.in/square/go-jose.v2 v2.4.1 // indirect
 	gopkg.in/telegram-bot-api.v4 v4.6.4
 	gopkg.in/yaml.v2 v2.2.8 // indirect
