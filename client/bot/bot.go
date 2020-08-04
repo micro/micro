@@ -12,19 +12,19 @@ import (
 	"time"
 
 	"github.com/micro/cli/v2"
-	"github.com/micro/go-micro/v3/agent/command"
-	"github.com/micro/go-micro/v3/agent/input"
-	proto "github.com/micro/go-micro/v3/agent/proto"
 	"github.com/micro/micro/v3/client"
+	"github.com/micro/micro/v3/client/bot/command"
+	"github.com/micro/micro/v3/client/bot/input"
+	proto "github.com/micro/micro/v3/client/bot/proto"
 	"github.com/micro/micro/v3/cmd"
 	"github.com/micro/micro/v3/service"
 	log "github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/registry"
 
 	// inputs
-	_ "github.com/micro/go-micro/v3/agent/input/discord"
-	_ "github.com/micro/go-micro/v3/agent/input/slack"
-	_ "github.com/micro/go-micro/v3/agent/input/telegram"
+	_ "github.com/micro/micro/v3/client/bot/input/discord"
+	_ "github.com/micro/micro/v3/client/bot/input/slack"
+	_ "github.com/micro/micro/v3/client/bot/input/telegram"
 )
 
 type bot struct {
