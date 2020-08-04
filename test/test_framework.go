@@ -277,14 +277,10 @@ func newLocalServer(t *T, fname string, opts ...Option) Server {
 		"-e", "MICRO_AUTH_PUBLIC_KEY="+strings.Trim(string(pubKey), "\n"),
 		"-e", "MICRO_PROFILE=ci",
 		"micro", "server")
-
-	userDir, _ := user.Current()
-	dir := filepath.Join(userDir.HomeDir, ".micro/test")
-	config := filepath.Join(dir, "config-"+fname+".json")
-
+	configFile := configFile(fname)
 	return &ServerDefault{ServerBase{
-		dir:       dir,
-		config:    config,
+		dir:       filepath.Dir(configFile),
+		config:    configFile,
 		cmd:       cmd,
 		t:         t,
 		env:       fname,
@@ -293,6 +289,12 @@ func newLocalServer(t *T, fname string, opts ...Option) Server {
 		opts:      options,
 		namespace: "micro",
 	}}
+}
+
+func configFile(fname string) string {
+	userDir, _ := user.Current()
+	dir := filepath.Join(userDir.HomeDir, ".micro/test")
+	return filepath.Join(dir, "config-"+fname+".json")
 }
 
 // error value should not be used but caller should return in the test suite
@@ -361,15 +363,6 @@ func (s *ServerDefault) Run() error {
 	if s.opts.Login {
 		Login(s, s.t, "default", "password")
 	}
-
-	// // generate a new admin account for the env : user=ENV_NAME pass=password
-	// req := fmt.Sprintf(`{"id":"%s", "secret":"password", "options":{"namespace":"%s"}}`, s.env, s.namespace)
-	// outp, err := exec.Command("micro", s.EnvFlag(), "call", "go.micro.auth", "Auth.Generate", req).CombinedOutput()
-	// if err != nil && !strings.Contains(string(outp), "already exists") { // until auth.Delete is implemented
-	// 	s.t.Fatalf("Error generating auth: %s, %s", err, outp)
-	// 	return err
-	// }
-
 	return nil
 }
 
