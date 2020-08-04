@@ -29,14 +29,14 @@ var (
 )
 
 // SetConfig sets the config file
-func SetConfig(file string) {
+func SetConfig(f string) {
 	mtx.Lock()
 	defer mtx.Unlock()
 
 	// path is the full path
-	path = file
+	path = f
 	// the name of the file
-	file = filepath.Base(file)
+	file = filepath.Base(f)
 	// new lock for the file
 	lock = fslock.New(path)
 }
@@ -80,15 +80,9 @@ func Get(path ...string) (string, error) {
 }
 
 // Set a value in the .micro file
-func Set(value string, path ...string) error {
+func Set(value string, p ...string) error {
 	mtx.Lock()
 	defer mtx.Unlock()
-
-	// get the filepath
-	fp, err := filePath()
-	if err != nil {
-		return err
-	}
 
 	config, err := newConfig()
 	if err != nil {
@@ -102,10 +96,10 @@ func Set(value string, path ...string) error {
 	defer lock.Unlock()
 
 	// set the value
-	config.Set(value, path...)
+	config.Set(value, p...)
 
 	// write to the file
-	return ioutil.WriteFile(fp, config.Bytes(), 0644)
+	return ioutil.WriteFile(path, config.Bytes(), 0644)
 }
 
 func filePath() (string, error) {
@@ -136,14 +130,8 @@ func moveConfig(from, to string) error {
 
 // newConfig returns a loaded config
 func newConfig() (conf.Config, error) {
-	// get the filepath
-	fp, err := filePath()
-	if err != nil {
-		return nil, err
-	}
-
 	// check if the directory exists, otherwise create it
-	dir := filepath.Dir(fp)
+	dir := filepath.Dir(path)
 
 	// for legacy purposes check if .micro is a file or directory
 	if f, err := os.Stat(dir); err != nil {
@@ -158,24 +146,24 @@ func newConfig() (conf.Config, error) {
 	} else {
 		// if not a directory, copy and move the config
 		if !f.IsDir() {
-			if err := moveConfig(dir, fp); err != nil {
-				return nil, fmt.Errorf("Failed to move config from %s to %s: %v", dir, fp, err)
+			if err := moveConfig(dir, path); err != nil {
+				return nil, fmt.Errorf("Failed to move config from %s to %s: %v", dir, path, err)
 			}
 		}
 	}
 
 	// now write the file if it does not exist
-	if _, err := os.Stat(fp); os.IsNotExist(err) {
-		ioutil.WriteFile(fp, []byte(`{}`), 0644)
+	if _, err := os.Stat(path); os.IsNotExist(err) {
+		ioutil.WriteFile(path, []byte(`{}`), 0644)
 	} else if err != nil {
-		return nil, fmt.Errorf("Failed to write config file %s: %v", fp, err)
+		return nil, fmt.Errorf("Failed to write config file %s: %v", path, err)
 	}
 
 	// create a new config
 	c, err := conf.NewConfig(
 		conf.WithSource(
 			fs.NewSource(
-				fs.WithPath(fp),
+				fs.WithPath(path),
 			),
 		),
 	)
