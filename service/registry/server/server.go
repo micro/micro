@@ -102,7 +102,7 @@ func Run(ctx *cli.Context) error {
 	id := srv.Server().Options().Id
 
 	// register the handler
-	pb.RegisterRegistryHandler(&Registry{
+	pb.RegisterRegistryHandler(srv.Server(), &Registry{
 		ID:    id,
 		Event: service.NewEvent(topic),
 	})

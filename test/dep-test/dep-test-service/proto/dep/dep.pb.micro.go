@@ -14,8 +14,6 @@ import (
 	api "github.com/micro/go-micro/v3/api"
 	client "github.com/micro/go-micro/v3/client"
 	server "github.com/micro/go-micro/v3/server"
-	microClient "github.com/micro/micro/v3/service/client"
-	microServer "github.com/micro/micro/v3/service/server"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -33,8 +31,7 @@ const _ = proto.ProtoPackageIsVersion3 // please upgrade the proto package
 var _ api.Endpoint
 var _ context.Context
 var _ client.Option
-var _ = microServer.Handle
-var _ = microClient.Call
+var _ server.Option
 
 // Api Endpoints for Dep service
 
@@ -51,17 +48,21 @@ type DepService interface {
 }
 
 type depService struct {
+	c    client.Client
 	name string
 }
 
-func NewDepService(name string) DepService {
-	return &depService{name: name}
+func NewDepService(name string, c client.Client) DepService {
+	return &depService{
+		c:    c,
+		name: name,
+	}
 }
 
 func (c *depService) Call(ctx context.Context, in *Request, opts ...client.CallOption) (*Response, error) {
-	req := microClient.NewRequest(c.name, "Dep.Call", in)
+	req := c.c.NewRequest(c.name, "Dep.Call", in)
 	out := new(Response)
-	err := microClient.Call(ctx, req, out, opts...)
+	err := c.c.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -69,8 +70,8 @@ func (c *depService) Call(ctx context.Context, in *Request, opts ...client.CallO
 }
 
 func (c *depService) Stream(ctx context.Context, in *StreamingRequest, opts ...client.CallOption) (Dep_StreamService, error) {
-	req := microClient.NewRequest(c.name, "Dep.Stream", &StreamingRequest{})
-	stream, err := microClient.Stream(ctx, req, opts...)
+	req := c.c.NewRequest(c.name, "Dep.Stream", &StreamingRequest{})
+	stream, err := c.c.Stream(ctx, req, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -118,8 +119,8 @@ func (x *depServiceStream) Recv() (*StreamingResponse, error) {
 }
 
 func (c *depService) PingPong(ctx context.Context, opts ...client.CallOption) (Dep_PingPongService, error) {
-	req := microClient.NewRequest(c.name, "Dep.PingPong", &Ping{})
-	stream, err := microClient.Stream(ctx, req, opts...)
+	req := c.c.NewRequest(c.name, "Dep.PingPong", &Ping{})
+	stream, err := c.c.Stream(ctx, req, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -176,7 +177,7 @@ type DepHandler interface {
 	PingPong(context.Context, Dep_PingPongStream) error
 }
 
-func RegisterDepHandler(hdlr DepHandler, opts ...server.HandlerOption) error {
+func RegisterDepHandler(s server.Server, hdlr DepHandler, opts ...server.HandlerOption) error {
 	type dep interface {
 		Call(ctx context.Context, in *Request, out *Response) error
 		Stream(ctx context.Context, stream server.Stream) error
@@ -186,7 +187,7 @@ func RegisterDepHandler(hdlr DepHandler, opts ...server.HandlerOption) error {
 		dep
 	}
 	h := &depHandler{hdlr}
-	return microServer.Handle(microServer.NewHandler(&Dep{h}, opts...))
+	return s.Handle(s.NewHandler(&Dep{h}, opts...))
 }
 
 type depHandler struct {

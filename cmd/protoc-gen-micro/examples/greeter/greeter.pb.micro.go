@@ -15,8 +15,6 @@ import (
 	api "github.com/micro/go-micro/v3/api"
 	client "github.com/micro/go-micro/v3/client"
 	server "github.com/micro/go-micro/v3/server"
-	microClient "github.com/micro/micro/v3/service/client"
-	microServer "github.com/micro/micro/v3/service/server"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -34,8 +32,7 @@ const _ = proto.ProtoPackageIsVersion3 // please upgrade the proto package
 var _ api.Endpoint
 var _ context.Context
 var _ client.Option
-var _ = microServer.Handle
-var _ = microClient.Call
+var _ server.Option
 
 // Api Endpoints for Greeter service
 
@@ -66,17 +63,21 @@ type GreeterService interface {
 }
 
 type greeterService struct {
+	c    client.Client
 	name string
 }
 
-func NewGreeterService(name string) GreeterService {
-	return &greeterService{name: name}
+func NewGreeterService(name string, c client.Client) GreeterService {
+	return &greeterService{
+		c:    c,
+		name: name,
+	}
 }
 
 func (c *greeterService) Hello(ctx context.Context, in *Request, opts ...client.CallOption) (*Response, error) {
-	req := microClient.NewRequest(c.name, "Greeter.Hello", in)
+	req := c.c.NewRequest(c.name, "Greeter.Hello", in)
 	out := new(Response)
-	err := microClient.Call(ctx, req, out, opts...)
+	err := c.c.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -84,8 +85,8 @@ func (c *greeterService) Hello(ctx context.Context, in *Request, opts ...client.
 }
 
 func (c *greeterService) Stream(ctx context.Context, opts ...client.CallOption) (Greeter_StreamService, error) {
-	req := microClient.NewRequest(c.name, "Greeter.Stream", &Request{})
-	stream, err := microClient.Stream(ctx, req, opts...)
+	req := c.c.NewRequest(c.name, "Greeter.Stream", &Request{})
+	stream, err := c.c.Stream(ctx, req, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -141,7 +142,7 @@ type GreeterHandler interface {
 	Stream(context.Context, Greeter_StreamStream) error
 }
 
-func RegisterGreeterHandler(hdlr GreeterHandler, opts ...server.HandlerOption) error {
+func RegisterGreeterHandler(s server.Server, hdlr GreeterHandler, opts ...server.HandlerOption) error {
 	type greeter interface {
 		Hello(ctx context.Context, in *Request, out *Response) error
 		Stream(ctx context.Context, stream server.Stream) error
@@ -164,7 +165,7 @@ func RegisterGreeterHandler(hdlr GreeterHandler, opts ...server.HandlerOption) e
 		Stream:  true,
 		Handler: "rpc",
 	}))
-	return microServer.Handle(microServer.NewHandler(&Greeter{h}, opts...))
+	return s.Handle(s.NewHandler(&Greeter{h}, opts...))
 }
 
 type greeterHandler struct {

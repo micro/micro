@@ -14,8 +14,6 @@ import (
 	api "github.com/micro/go-micro/v3/api"
 	client "github.com/micro/go-micro/v3/client"
 	server "github.com/micro/go-micro/v3/server"
-	microClient "github.com/micro/micro/v3/service/client"
-	microServer "github.com/micro/micro/v3/service/server"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -33,8 +31,7 @@ const _ = proto.ProtoPackageIsVersion3 // please upgrade the proto package
 var _ api.Endpoint
 var _ context.Context
 var _ client.Option
-var _ = microServer.Handle
-var _ = microClient.Call
+var _ server.Option
 
 // Api Endpoints for Broker service
 
@@ -50,17 +47,21 @@ type BrokerService interface {
 }
 
 type brokerService struct {
+	c    client.Client
 	name string
 }
 
-func NewBrokerService(name string) BrokerService {
-	return &brokerService{name: name}
+func NewBrokerService(name string, c client.Client) BrokerService {
+	return &brokerService{
+		c:    c,
+		name: name,
+	}
 }
 
 func (c *brokerService) Publish(ctx context.Context, in *PublishRequest, opts ...client.CallOption) (*Empty, error) {
-	req := microClient.NewRequest(c.name, "Broker.Publish", in)
+	req := c.c.NewRequest(c.name, "Broker.Publish", in)
 	out := new(Empty)
-	err := microClient.Call(ctx, req, out, opts...)
+	err := c.c.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -68,8 +69,8 @@ func (c *brokerService) Publish(ctx context.Context, in *PublishRequest, opts ..
 }
 
 func (c *brokerService) Subscribe(ctx context.Context, in *SubscribeRequest, opts ...client.CallOption) (Broker_SubscribeService, error) {
-	req := microClient.NewRequest(c.name, "Broker.Subscribe", &SubscribeRequest{})
-	stream, err := microClient.Stream(ctx, req, opts...)
+	req := c.c.NewRequest(c.name, "Broker.Subscribe", &SubscribeRequest{})
+	stream, err := c.c.Stream(ctx, req, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -123,7 +124,7 @@ type BrokerHandler interface {
 	Subscribe(context.Context, *SubscribeRequest, Broker_SubscribeStream) error
 }
 
-func RegisterBrokerHandler(hdlr BrokerHandler, opts ...server.HandlerOption) error {
+func RegisterBrokerHandler(s server.Server, hdlr BrokerHandler, opts ...server.HandlerOption) error {
 	type broker interface {
 		Publish(ctx context.Context, in *PublishRequest, out *Empty) error
 		Subscribe(ctx context.Context, stream server.Stream) error
@@ -132,7 +133,7 @@ func RegisterBrokerHandler(hdlr BrokerHandler, opts ...server.HandlerOption) err
 		broker
 	}
 	h := &brokerHandler{hdlr}
-	return microServer.Handle(microServer.NewHandler(&Broker{h}, opts...))
+	return s.Handle(s.NewHandler(&Broker{h}, opts...))
 }
 
 type brokerHandler struct {

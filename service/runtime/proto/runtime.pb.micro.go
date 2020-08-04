@@ -14,8 +14,6 @@ import (
 	api "github.com/micro/go-micro/v3/api"
 	client "github.com/micro/go-micro/v3/client"
 	server "github.com/micro/go-micro/v3/server"
-	microClient "github.com/micro/micro/v3/service/client"
-	microServer "github.com/micro/micro/v3/service/server"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -33,8 +31,7 @@ const _ = proto.ProtoPackageIsVersion3 // please upgrade the proto package
 var _ api.Endpoint
 var _ context.Context
 var _ client.Option
-var _ = microServer.Handle
-var _ = microClient.Call
+var _ server.Option
 
 // Api Endpoints for Runtime service
 
@@ -53,17 +50,21 @@ type RuntimeService interface {
 }
 
 type runtimeService struct {
+	c    client.Client
 	name string
 }
 
-func NewRuntimeService(name string) RuntimeService {
-	return &runtimeService{name: name}
+func NewRuntimeService(name string, c client.Client) RuntimeService {
+	return &runtimeService{
+		c:    c,
+		name: name,
+	}
 }
 
 func (c *runtimeService) Create(ctx context.Context, in *CreateRequest, opts ...client.CallOption) (*CreateResponse, error) {
-	req := microClient.NewRequest(c.name, "Runtime.Create", in)
+	req := c.c.NewRequest(c.name, "Runtime.Create", in)
 	out := new(CreateResponse)
-	err := microClient.Call(ctx, req, out, opts...)
+	err := c.c.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -71,9 +72,9 @@ func (c *runtimeService) Create(ctx context.Context, in *CreateRequest, opts ...
 }
 
 func (c *runtimeService) Read(ctx context.Context, in *ReadRequest, opts ...client.CallOption) (*ReadResponse, error) {
-	req := microClient.NewRequest(c.name, "Runtime.Read", in)
+	req := c.c.NewRequest(c.name, "Runtime.Read", in)
 	out := new(ReadResponse)
-	err := microClient.Call(ctx, req, out, opts...)
+	err := c.c.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -81,9 +82,9 @@ func (c *runtimeService) Read(ctx context.Context, in *ReadRequest, opts ...clie
 }
 
 func (c *runtimeService) Delete(ctx context.Context, in *DeleteRequest, opts ...client.CallOption) (*DeleteResponse, error) {
-	req := microClient.NewRequest(c.name, "Runtime.Delete", in)
+	req := c.c.NewRequest(c.name, "Runtime.Delete", in)
 	out := new(DeleteResponse)
-	err := microClient.Call(ctx, req, out, opts...)
+	err := c.c.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -91,9 +92,9 @@ func (c *runtimeService) Delete(ctx context.Context, in *DeleteRequest, opts ...
 }
 
 func (c *runtimeService) Update(ctx context.Context, in *UpdateRequest, opts ...client.CallOption) (*UpdateResponse, error) {
-	req := microClient.NewRequest(c.name, "Runtime.Update", in)
+	req := c.c.NewRequest(c.name, "Runtime.Update", in)
 	out := new(UpdateResponse)
-	err := microClient.Call(ctx, req, out, opts...)
+	err := c.c.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -101,8 +102,8 @@ func (c *runtimeService) Update(ctx context.Context, in *UpdateRequest, opts ...
 }
 
 func (c *runtimeService) Logs(ctx context.Context, in *LogsRequest, opts ...client.CallOption) (Runtime_LogsService, error) {
-	req := microClient.NewRequest(c.name, "Runtime.Logs", &LogsRequest{})
-	stream, err := microClient.Stream(ctx, req, opts...)
+	req := c.c.NewRequest(c.name, "Runtime.Logs", &LogsRequest{})
+	stream, err := c.c.Stream(ctx, req, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -159,7 +160,7 @@ type RuntimeHandler interface {
 	Logs(context.Context, *LogsRequest, Runtime_LogsStream) error
 }
 
-func RegisterRuntimeHandler(hdlr RuntimeHandler, opts ...server.HandlerOption) error {
+func RegisterRuntimeHandler(s server.Server, hdlr RuntimeHandler, opts ...server.HandlerOption) error {
 	type runtime interface {
 		Create(ctx context.Context, in *CreateRequest, out *CreateResponse) error
 		Read(ctx context.Context, in *ReadRequest, out *ReadResponse) error
@@ -171,7 +172,7 @@ func RegisterRuntimeHandler(hdlr RuntimeHandler, opts ...server.HandlerOption) e
 		runtime
 	}
 	h := &runtimeHandler{hdlr}
-	return microServer.Handle(microServer.NewHandler(&Runtime{h}, opts...))
+	return s.Handle(s.NewHandler(&Runtime{h}, opts...))
 }
 
 type runtimeHandler struct {

@@ -217,8 +217,8 @@ func Run(ctx *cli.Context) error {
 	)
 
 	// register handlers
-	pb.RegisterRouterHandler(&Router{Router: r})
-	pb.RegisterTableHandler(&Table{Router: r})
+	pb.RegisterRouterHandler(srv.Server(), &Router{Router: r})
+	pb.RegisterTableHandler(srv.Server(), &Table{Router: r})
 
 	// create new micro router and start advertising routes
 	rtr := newRouter(srv, r)

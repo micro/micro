@@ -30,7 +30,7 @@ func Run(ctx *cli.Context) error {
 	)
 
 	// the store handler
-	pb.RegisterStoreHandler(&handler{
+	pb.RegisterStoreHandler(service.Server(), &handler{
 		stores: make(map[string]bool),
 	})
 
