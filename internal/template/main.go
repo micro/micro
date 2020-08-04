@@ -14,6 +14,7 @@ func main() {
 	// Create service
 	srv := service.New(
 		service.Name("{{lower .Alias}}"),
+		service.Version("latest"),
 	)
 
 	// Register handler
