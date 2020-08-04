@@ -82,6 +82,16 @@ func (s *Service) Version() string {
 	return s.opts.Version
 }
 
+// Handler registers a handler
+func (s *Service) Handle(v interface{}) error {
+	return s.Server().Handle(s.Server().NewHandler(v))
+}
+
+// Subscribe registers a subscriber
+func (s *Service) Subscribe(topic string, v interface{}) error {
+	return s.Server().Subscribe(s.Server().NewSubscriber(topic, v))
+}
+
 func (s *Service) Init(opts ...Option) {
 	for _, o := range opts {
 		o(&s.opts)
@@ -200,13 +210,13 @@ func (s *Service) Run() error {
 	return s.Stop()
 }
 
-// RegisterHandler is syntactic sugar for registering a handler
-func RegisterHandler(h interface{}, opts ...server.HandlerOption) error {
+// Handle is syntactic sugar for registering a handler
+func Handle(h interface{}, opts ...server.HandlerOption) error {
 	return muserver.DefaultServer.Handle(muserver.DefaultServer.NewHandler(h, opts...))
 }
 
-// RegisterSubscriber is syntactic sugar for registering a subscriber
-func RegisterSubscriber(topic string, h interface{}, opts ...server.SubscriberOption) error {
+// Subscribe is syntactic sugar for registering a subscriber
+func Subscribe(topic string, h interface{}, opts ...server.SubscriberOption) error {
 	return muserver.DefaultServer.Subscribe(muserver.DefaultServer.NewSubscriber(topic, h, opts...))
 }
 
