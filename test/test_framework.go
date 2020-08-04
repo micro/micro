@@ -525,7 +525,7 @@ func Login(serv Server, t *T, email, password string) error {
 	return Try("Logging in with "+email, t, func() ([]byte, error) {
 		out, err := serv.Command().Exec("login", "--email", email, "--password", password)
 		if err != nil {
-			return nil, err
+			return out, err
 		}
 		if !strings.Contains(string(out), "Success") {
 			return out, errors.New("Login output does not contain 'Success'")
