@@ -14,9 +14,6 @@ import (
 	api "github.com/micro/go-micro/v3/api"
 	client "github.com/micro/go-micro/v3/client"
 	server "github.com/micro/go-micro/v3/server"
-	microService "github.com/micro/micro/v3/service"
-	microClient "github.com/micro/micro/v3/service/client"
-	microServer "github.com/micro/micro/v3/service/server"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -35,8 +32,6 @@ var _ api.Endpoint
 var _ context.Context
 var _ client.Option
 var _ server.Option
-var _ = microServer.Handle
-var _ = microClient.Call
 
 // Api Endpoints for Store service
 
@@ -67,19 +62,10 @@ func NewStoreService(name string, c client.Client) StoreService {
 	}
 }
 
-func StoreServiceClient() StoreService {
-	return NewStoreService("store", microClient.DefaultClient)
-}
-
-func RunStoreService() {
-	microService.Init(microService.Name("store"))
-	microService.Run()
-}
-
 func (c *storeService) Read(ctx context.Context, in *ReadRequest, opts ...client.CallOption) (*ReadResponse, error) {
-	req := microClient.NewRequest(c.name, "Store.Read", in)
+	req := c.c.NewRequest(c.name, "Store.Read", in)
 	out := new(ReadResponse)
-	err := microClient.Call(ctx, req, out, opts...)
+	err := c.c.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -87,9 +73,9 @@ func (c *storeService) Read(ctx context.Context, in *ReadRequest, opts ...client
 }
 
 func (c *storeService) Write(ctx context.Context, in *WriteRequest, opts ...client.CallOption) (*WriteResponse, error) {
-	req := microClient.NewRequest(c.name, "Store.Write", in)
+	req := c.c.NewRequest(c.name, "Store.Write", in)
 	out := new(WriteResponse)
-	err := microClient.Call(ctx, req, out, opts...)
+	err := c.c.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -97,9 +83,9 @@ func (c *storeService) Write(ctx context.Context, in *WriteRequest, opts ...clie
 }
 
 func (c *storeService) Delete(ctx context.Context, in *DeleteRequest, opts ...client.CallOption) (*DeleteResponse, error) {
-	req := microClient.NewRequest(c.name, "Store.Delete", in)
+	req := c.c.NewRequest(c.name, "Store.Delete", in)
 	out := new(DeleteResponse)
-	err := microClient.Call(ctx, req, out, opts...)
+	err := c.c.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -107,8 +93,8 @@ func (c *storeService) Delete(ctx context.Context, in *DeleteRequest, opts ...cl
 }
 
 func (c *storeService) List(ctx context.Context, in *ListRequest, opts ...client.CallOption) (Store_ListService, error) {
-	req := microClient.NewRequest(c.name, "Store.List", &ListRequest{})
-	stream, err := microClient.Stream(ctx, req, opts...)
+	req := c.c.NewRequest(c.name, "Store.List", &ListRequest{})
+	stream, err := c.c.Stream(ctx, req, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -156,9 +142,9 @@ func (x *storeServiceList) Recv() (*ListResponse, error) {
 }
 
 func (c *storeService) Databases(ctx context.Context, in *DatabasesRequest, opts ...client.CallOption) (*DatabasesResponse, error) {
-	req := microClient.NewRequest(c.name, "Store.Databases", in)
+	req := c.c.NewRequest(c.name, "Store.Databases", in)
 	out := new(DatabasesResponse)
-	err := microClient.Call(ctx, req, out, opts...)
+	err := c.c.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -166,9 +152,9 @@ func (c *storeService) Databases(ctx context.Context, in *DatabasesRequest, opts
 }
 
 func (c *storeService) Tables(ctx context.Context, in *TablesRequest, opts ...client.CallOption) (*TablesResponse, error) {
-	req := microClient.NewRequest(c.name, "Store.Tables", in)
+	req := c.c.NewRequest(c.name, "Store.Tables", in)
 	out := new(TablesResponse)
-	err := microClient.Call(ctx, req, out, opts...)
+	err := c.c.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -184,10 +170,6 @@ type StoreHandler interface {
 	List(context.Context, *ListRequest, Store_ListStream) error
 	Databases(context.Context, *DatabasesRequest, *DatabasesResponse) error
 	Tables(context.Context, *TablesRequest, *TablesResponse) error
-}
-
-func RegisterStoreService(hdlr StoreHandler, opts ...server.HandlerOption) error {
-	return RegisterStoreHandler(microServer.DefaultServer, hdlr, opts...)
 }
 
 func RegisterStoreHandler(s server.Server, hdlr StoreHandler, opts ...server.HandlerOption) error {

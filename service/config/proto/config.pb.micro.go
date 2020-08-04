@@ -14,9 +14,6 @@ import (
 	api "github.com/micro/go-micro/v3/api"
 	client "github.com/micro/go-micro/v3/client"
 	server "github.com/micro/go-micro/v3/server"
-	microService "github.com/micro/micro/v3/service"
-	microClient "github.com/micro/micro/v3/service/client"
-	microServer "github.com/micro/micro/v3/service/server"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -35,8 +32,6 @@ var _ api.Endpoint
 var _ context.Context
 var _ client.Option
 var _ server.Option
-var _ = microServer.Handle
-var _ = microClient.Call
 
 // Api Endpoints for Config service
 
@@ -67,19 +62,10 @@ func NewConfigService(name string, c client.Client) ConfigService {
 	}
 }
 
-func ConfigServiceClient() ConfigService {
-	return NewConfigService("config", microClient.DefaultClient)
-}
-
-func RunConfigService() {
-	microService.Init(microService.Name("config"))
-	microService.Run()
-}
-
 func (c *configService) Create(ctx context.Context, in *CreateRequest, opts ...client.CallOption) (*CreateResponse, error) {
-	req := microClient.NewRequest(c.name, "Config.Create", in)
+	req := c.c.NewRequest(c.name, "Config.Create", in)
 	out := new(CreateResponse)
-	err := microClient.Call(ctx, req, out, opts...)
+	err := c.c.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -87,9 +73,9 @@ func (c *configService) Create(ctx context.Context, in *CreateRequest, opts ...c
 }
 
 func (c *configService) Update(ctx context.Context, in *UpdateRequest, opts ...client.CallOption) (*UpdateResponse, error) {
-	req := microClient.NewRequest(c.name, "Config.Update", in)
+	req := c.c.NewRequest(c.name, "Config.Update", in)
 	out := new(UpdateResponse)
-	err := microClient.Call(ctx, req, out, opts...)
+	err := c.c.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -97,9 +83,9 @@ func (c *configService) Update(ctx context.Context, in *UpdateRequest, opts ...c
 }
 
 func (c *configService) Delete(ctx context.Context, in *DeleteRequest, opts ...client.CallOption) (*DeleteResponse, error) {
-	req := microClient.NewRequest(c.name, "Config.Delete", in)
+	req := c.c.NewRequest(c.name, "Config.Delete", in)
 	out := new(DeleteResponse)
-	err := microClient.Call(ctx, req, out, opts...)
+	err := c.c.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -107,9 +93,9 @@ func (c *configService) Delete(ctx context.Context, in *DeleteRequest, opts ...c
 }
 
 func (c *configService) List(ctx context.Context, in *ListRequest, opts ...client.CallOption) (*ListResponse, error) {
-	req := microClient.NewRequest(c.name, "Config.List", in)
+	req := c.c.NewRequest(c.name, "Config.List", in)
 	out := new(ListResponse)
-	err := microClient.Call(ctx, req, out, opts...)
+	err := c.c.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -117,9 +103,9 @@ func (c *configService) List(ctx context.Context, in *ListRequest, opts ...clien
 }
 
 func (c *configService) Read(ctx context.Context, in *ReadRequest, opts ...client.CallOption) (*ReadResponse, error) {
-	req := microClient.NewRequest(c.name, "Config.Read", in)
+	req := c.c.NewRequest(c.name, "Config.Read", in)
 	out := new(ReadResponse)
-	err := microClient.Call(ctx, req, out, opts...)
+	err := c.c.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -127,8 +113,8 @@ func (c *configService) Read(ctx context.Context, in *ReadRequest, opts ...clien
 }
 
 func (c *configService) Watch(ctx context.Context, in *WatchRequest, opts ...client.CallOption) (Config_WatchService, error) {
-	req := microClient.NewRequest(c.name, "Config.Watch", &WatchRequest{})
-	stream, err := microClient.Stream(ctx, req, opts...)
+	req := c.c.NewRequest(c.name, "Config.Watch", &WatchRequest{})
+	stream, err := c.c.Stream(ctx, req, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -184,10 +170,6 @@ type ConfigHandler interface {
 	List(context.Context, *ListRequest, *ListResponse) error
 	Read(context.Context, *ReadRequest, *ReadResponse) error
 	Watch(context.Context, *WatchRequest, Config_WatchStream) error
-}
-
-func RegisterConfigService(hdlr ConfigHandler, opts ...server.HandlerOption) error {
-	return RegisterConfigHandler(microServer.DefaultServer, hdlr, opts...)
 }
 
 func RegisterConfigHandler(s server.Server, hdlr ConfigHandler, opts ...server.HandlerOption) error {

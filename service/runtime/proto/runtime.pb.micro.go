@@ -14,9 +14,6 @@ import (
 	api "github.com/micro/go-micro/v3/api"
 	client "github.com/micro/go-micro/v3/client"
 	server "github.com/micro/go-micro/v3/server"
-	microService "github.com/micro/micro/v3/service"
-	microClient "github.com/micro/micro/v3/service/client"
-	microServer "github.com/micro/micro/v3/service/server"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -35,8 +32,6 @@ var _ api.Endpoint
 var _ context.Context
 var _ client.Option
 var _ server.Option
-var _ = microServer.Handle
-var _ = microClient.Call
 
 // Api Endpoints for Runtime service
 
@@ -66,19 +61,10 @@ func NewRuntimeService(name string, c client.Client) RuntimeService {
 	}
 }
 
-func RuntimeServiceClient() RuntimeService {
-	return NewRuntimeService("runtime", microClient.DefaultClient)
-}
-
-func RunRuntimeService() {
-	microService.Init(microService.Name("runtime"))
-	microService.Run()
-}
-
 func (c *runtimeService) Create(ctx context.Context, in *CreateRequest, opts ...client.CallOption) (*CreateResponse, error) {
-	req := microClient.NewRequest(c.name, "Runtime.Create", in)
+	req := c.c.NewRequest(c.name, "Runtime.Create", in)
 	out := new(CreateResponse)
-	err := microClient.Call(ctx, req, out, opts...)
+	err := c.c.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -86,9 +72,9 @@ func (c *runtimeService) Create(ctx context.Context, in *CreateRequest, opts ...
 }
 
 func (c *runtimeService) Read(ctx context.Context, in *ReadRequest, opts ...client.CallOption) (*ReadResponse, error) {
-	req := microClient.NewRequest(c.name, "Runtime.Read", in)
+	req := c.c.NewRequest(c.name, "Runtime.Read", in)
 	out := new(ReadResponse)
-	err := microClient.Call(ctx, req, out, opts...)
+	err := c.c.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -96,9 +82,9 @@ func (c *runtimeService) Read(ctx context.Context, in *ReadRequest, opts ...clie
 }
 
 func (c *runtimeService) Delete(ctx context.Context, in *DeleteRequest, opts ...client.CallOption) (*DeleteResponse, error) {
-	req := microClient.NewRequest(c.name, "Runtime.Delete", in)
+	req := c.c.NewRequest(c.name, "Runtime.Delete", in)
 	out := new(DeleteResponse)
-	err := microClient.Call(ctx, req, out, opts...)
+	err := c.c.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -106,9 +92,9 @@ func (c *runtimeService) Delete(ctx context.Context, in *DeleteRequest, opts ...
 }
 
 func (c *runtimeService) Update(ctx context.Context, in *UpdateRequest, opts ...client.CallOption) (*UpdateResponse, error) {
-	req := microClient.NewRequest(c.name, "Runtime.Update", in)
+	req := c.c.NewRequest(c.name, "Runtime.Update", in)
 	out := new(UpdateResponse)
-	err := microClient.Call(ctx, req, out, opts...)
+	err := c.c.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -116,8 +102,8 @@ func (c *runtimeService) Update(ctx context.Context, in *UpdateRequest, opts ...
 }
 
 func (c *runtimeService) Logs(ctx context.Context, in *LogsRequest, opts ...client.CallOption) (Runtime_LogsService, error) {
-	req := microClient.NewRequest(c.name, "Runtime.Logs", &LogsRequest{})
-	stream, err := microClient.Stream(ctx, req, opts...)
+	req := c.c.NewRequest(c.name, "Runtime.Logs", &LogsRequest{})
+	stream, err := c.c.Stream(ctx, req, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -172,10 +158,6 @@ type RuntimeHandler interface {
 	Delete(context.Context, *DeleteRequest, *DeleteResponse) error
 	Update(context.Context, *UpdateRequest, *UpdateResponse) error
 	Logs(context.Context, *LogsRequest, Runtime_LogsStream) error
-}
-
-func RegisterRuntimeService(hdlr RuntimeHandler, opts ...server.HandlerOption) error {
-	return RegisterRuntimeHandler(microServer.DefaultServer, hdlr, opts...)
 }
 
 func RegisterRuntimeHandler(s server.Server, hdlr RuntimeHandler, opts ...server.HandlerOption) error {

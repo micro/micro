@@ -15,9 +15,6 @@ import (
 	api "github.com/micro/go-micro/v3/api"
 	client "github.com/micro/go-micro/v3/client"
 	server "github.com/micro/go-micro/v3/server"
-	microService "github.com/micro/micro/v3/service"
-	microClient "github.com/micro/micro/v3/service/client"
-	microServer "github.com/micro/micro/v3/service/server"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -36,8 +33,6 @@ var _ api.Endpoint
 var _ context.Context
 var _ client.Option
 var _ server.Option
-var _ = microServer.Handle
-var _ = microClient.Call
 
 // Api Endpoints for Greeter service
 
@@ -79,19 +74,10 @@ func NewGreeterService(name string, c client.Client) GreeterService {
 	}
 }
 
-func GreeterServiceClient() GreeterService {
-	return NewGreeterService("greeter", microClient.DefaultClient)
-}
-
-func RunGreeterService() {
-	microService.Init(microService.Name("greeter"))
-	microService.Run()
-}
-
 func (c *greeterService) Hello(ctx context.Context, in *Request, opts ...client.CallOption) (*Response, error) {
-	req := microClient.NewRequest(c.name, "Greeter.Hello", in)
+	req := c.c.NewRequest(c.name, "Greeter.Hello", in)
 	out := new(Response)
-	err := microClient.Call(ctx, req, out, opts...)
+	err := c.c.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -99,8 +85,8 @@ func (c *greeterService) Hello(ctx context.Context, in *Request, opts ...client.
 }
 
 func (c *greeterService) Stream(ctx context.Context, opts ...client.CallOption) (Greeter_StreamService, error) {
-	req := microClient.NewRequest(c.name, "Greeter.Stream", &Request{})
-	stream, err := microClient.Stream(ctx, req, opts...)
+	req := c.c.NewRequest(c.name, "Greeter.Stream", &Request{})
+	stream, err := c.c.Stream(ctx, req, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -154,10 +140,6 @@ func (x *greeterServiceStream) Recv() (*Response, error) {
 type GreeterHandler interface {
 	Hello(context.Context, *Request, *Response) error
 	Stream(context.Context, Greeter_StreamStream) error
-}
-
-func RegisterGreeterService(hdlr GreeterHandler, opts ...server.HandlerOption) error {
-	return RegisterGreeterHandler(microServer.DefaultServer, hdlr, opts...)
 }
 
 func RegisterGreeterHandler(s server.Server, hdlr GreeterHandler, opts ...server.HandlerOption) error {

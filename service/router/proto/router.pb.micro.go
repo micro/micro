@@ -14,9 +14,6 @@ import (
 	api "github.com/micro/go-micro/v3/api"
 	client "github.com/micro/go-micro/v3/client"
 	server "github.com/micro/go-micro/v3/server"
-	microService "github.com/micro/micro/v3/service"
-	microClient "github.com/micro/micro/v3/service/client"
-	microServer "github.com/micro/micro/v3/service/server"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -35,8 +32,6 @@ var _ api.Endpoint
 var _ context.Context
 var _ client.Option
 var _ server.Option
-var _ = microServer.Handle
-var _ = microClient.Call
 
 // Api Endpoints for Router service
 
@@ -65,19 +60,10 @@ func NewRouterService(name string, c client.Client) RouterService {
 	}
 }
 
-func RouterServiceClient() RouterService {
-	return NewRouterService("router", microClient.DefaultClient)
-}
-
-func RunRouterService() {
-	microService.Init(microService.Name("router"))
-	microService.Run()
-}
-
 func (c *routerService) Lookup(ctx context.Context, in *LookupRequest, opts ...client.CallOption) (*LookupResponse, error) {
-	req := microClient.NewRequest(c.name, "Router.Lookup", in)
+	req := c.c.NewRequest(c.name, "Router.Lookup", in)
 	out := new(LookupResponse)
-	err := microClient.Call(ctx, req, out, opts...)
+	err := c.c.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -85,8 +71,8 @@ func (c *routerService) Lookup(ctx context.Context, in *LookupRequest, opts ...c
 }
 
 func (c *routerService) Watch(ctx context.Context, in *WatchRequest, opts ...client.CallOption) (Router_WatchService, error) {
-	req := microClient.NewRequest(c.name, "Router.Watch", &WatchRequest{})
-	stream, err := microClient.Stream(ctx, req, opts...)
+	req := c.c.NewRequest(c.name, "Router.Watch", &WatchRequest{})
+	stream, err := c.c.Stream(ctx, req, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -134,8 +120,8 @@ func (x *routerServiceWatch) Recv() (*Event, error) {
 }
 
 func (c *routerService) Advertise(ctx context.Context, in *Request, opts ...client.CallOption) (Router_AdvertiseService, error) {
-	req := microClient.NewRequest(c.name, "Router.Advertise", &Request{})
-	stream, err := microClient.Stream(ctx, req, opts...)
+	req := c.c.NewRequest(c.name, "Router.Advertise", &Request{})
+	stream, err := c.c.Stream(ctx, req, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -183,9 +169,9 @@ func (x *routerServiceAdvertise) Recv() (*Advert, error) {
 }
 
 func (c *routerService) Process(ctx context.Context, in *Advert, opts ...client.CallOption) (*ProcessResponse, error) {
-	req := microClient.NewRequest(c.name, "Router.Process", in)
+	req := c.c.NewRequest(c.name, "Router.Process", in)
 	out := new(ProcessResponse)
-	err := microClient.Call(ctx, req, out, opts...)
+	err := c.c.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -199,10 +185,6 @@ type RouterHandler interface {
 	Watch(context.Context, *WatchRequest, Router_WatchStream) error
 	Advertise(context.Context, *Request, Router_AdvertiseStream) error
 	Process(context.Context, *Advert, *ProcessResponse) error
-}
-
-func RegisterRouterService(hdlr RouterHandler, opts ...server.HandlerOption) error {
-	return RegisterRouterHandler(microServer.DefaultServer, hdlr, opts...)
 }
 
 func RegisterRouterHandler(s server.Server, hdlr RouterHandler, opts ...server.HandlerOption) error {
@@ -339,19 +321,10 @@ func NewTableService(name string, c client.Client) TableService {
 	}
 }
 
-func TableServiceClient() TableService {
-	return NewTableService("table", microClient.DefaultClient)
-}
-
-func RunTableService() {
-	microService.Init(microService.Name("table"))
-	microService.Run()
-}
-
 func (c *tableService) Create(ctx context.Context, in *Route, opts ...client.CallOption) (*CreateResponse, error) {
-	req := microClient.NewRequest(c.name, "Table.Create", in)
+	req := c.c.NewRequest(c.name, "Table.Create", in)
 	out := new(CreateResponse)
-	err := microClient.Call(ctx, req, out, opts...)
+	err := c.c.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -359,9 +332,9 @@ func (c *tableService) Create(ctx context.Context, in *Route, opts ...client.Cal
 }
 
 func (c *tableService) Delete(ctx context.Context, in *Route, opts ...client.CallOption) (*DeleteResponse, error) {
-	req := microClient.NewRequest(c.name, "Table.Delete", in)
+	req := c.c.NewRequest(c.name, "Table.Delete", in)
 	out := new(DeleteResponse)
-	err := microClient.Call(ctx, req, out, opts...)
+	err := c.c.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -369,9 +342,9 @@ func (c *tableService) Delete(ctx context.Context, in *Route, opts ...client.Cal
 }
 
 func (c *tableService) Update(ctx context.Context, in *Route, opts ...client.CallOption) (*UpdateResponse, error) {
-	req := microClient.NewRequest(c.name, "Table.Update", in)
+	req := c.c.NewRequest(c.name, "Table.Update", in)
 	out := new(UpdateResponse)
-	err := microClient.Call(ctx, req, out, opts...)
+	err := c.c.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -379,9 +352,9 @@ func (c *tableService) Update(ctx context.Context, in *Route, opts ...client.Cal
 }
 
 func (c *tableService) List(ctx context.Context, in *Request, opts ...client.CallOption) (*ListResponse, error) {
-	req := microClient.NewRequest(c.name, "Table.List", in)
+	req := c.c.NewRequest(c.name, "Table.List", in)
 	out := new(ListResponse)
-	err := microClient.Call(ctx, req, out, opts...)
+	err := c.c.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -389,9 +362,9 @@ func (c *tableService) List(ctx context.Context, in *Request, opts ...client.Cal
 }
 
 func (c *tableService) Query(ctx context.Context, in *QueryRequest, opts ...client.CallOption) (*QueryResponse, error) {
-	req := microClient.NewRequest(c.name, "Table.Query", in)
+	req := c.c.NewRequest(c.name, "Table.Query", in)
 	out := new(QueryResponse)
-	err := microClient.Call(ctx, req, out, opts...)
+	err := c.c.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -406,10 +379,6 @@ type TableHandler interface {
 	Update(context.Context, *Route, *UpdateResponse) error
 	List(context.Context, *Request, *ListResponse) error
 	Query(context.Context, *QueryRequest, *QueryResponse) error
-}
-
-func RegisterTableService(hdlr TableHandler, opts ...server.HandlerOption) error {
-	return RegisterTableHandler(microServer.DefaultServer, hdlr, opts...)
 }
 
 func RegisterTableHandler(s server.Server, hdlr TableHandler, opts ...server.HandlerOption) error {

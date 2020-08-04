@@ -14,9 +14,6 @@ import (
 	api "github.com/micro/go-micro/v3/api"
 	client "github.com/micro/go-micro/v3/client"
 	server "github.com/micro/go-micro/v3/server"
-	microService "github.com/micro/micro/v3/service"
-	microClient "github.com/micro/micro/v3/service/client"
-	microServer "github.com/micro/micro/v3/service/server"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -35,8 +32,6 @@ var _ api.Endpoint
 var _ context.Context
 var _ client.Option
 var _ server.Option
-var _ = microServer.Handle
-var _ = microClient.Call
 
 // Api Endpoints for Trace service
 
@@ -64,19 +59,10 @@ func NewTraceService(name string, c client.Client) TraceService {
 	}
 }
 
-func TraceServiceClient() TraceService {
-	return NewTraceService("trace", microClient.DefaultClient)
-}
-
-func RunTraceService() {
-	microService.Init(microService.Name("trace"))
-	microService.Run()
-}
-
 func (c *traceService) Read(ctx context.Context, in *ReadRequest, opts ...client.CallOption) (*ReadResponse, error) {
-	req := microClient.NewRequest(c.name, "Trace.Read", in)
+	req := c.c.NewRequest(c.name, "Trace.Read", in)
 	out := new(ReadResponse)
-	err := microClient.Call(ctx, req, out, opts...)
+	err := c.c.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -84,9 +70,9 @@ func (c *traceService) Read(ctx context.Context, in *ReadRequest, opts ...client
 }
 
 func (c *traceService) Write(ctx context.Context, in *WriteRequest, opts ...client.CallOption) (*WriteResponse, error) {
-	req := microClient.NewRequest(c.name, "Trace.Write", in)
+	req := c.c.NewRequest(c.name, "Trace.Write", in)
 	out := new(WriteResponse)
-	err := microClient.Call(ctx, req, out, opts...)
+	err := c.c.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -94,8 +80,8 @@ func (c *traceService) Write(ctx context.Context, in *WriteRequest, opts ...clie
 }
 
 func (c *traceService) Stream(ctx context.Context, in *StreamRequest, opts ...client.CallOption) (Trace_StreamService, error) {
-	req := microClient.NewRequest(c.name, "Trace.Stream", &StreamRequest{})
-	stream, err := microClient.Stream(ctx, req, opts...)
+	req := c.c.NewRequest(c.name, "Trace.Stream", &StreamRequest{})
+	stream, err := c.c.Stream(ctx, req, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -148,10 +134,6 @@ type TraceHandler interface {
 	Read(context.Context, *ReadRequest, *ReadResponse) error
 	Write(context.Context, *WriteRequest, *WriteResponse) error
 	Stream(context.Context, *StreamRequest, Trace_StreamStream) error
-}
-
-func RegisterTraceService(hdlr TraceHandler, opts ...server.HandlerOption) error {
-	return RegisterTraceHandler(microServer.DefaultServer, hdlr, opts...)
 }
 
 func RegisterTraceHandler(s server.Server, hdlr TraceHandler, opts ...server.HandlerOption) error {

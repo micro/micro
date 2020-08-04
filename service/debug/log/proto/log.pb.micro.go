@@ -14,9 +14,6 @@ import (
 	api "github.com/micro/go-micro/v3/api"
 	client "github.com/micro/go-micro/v3/client"
 	server "github.com/micro/go-micro/v3/server"
-	microService "github.com/micro/micro/v3/service"
-	microClient "github.com/micro/micro/v3/service/client"
-	microServer "github.com/micro/micro/v3/service/server"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -35,8 +32,6 @@ var _ api.Endpoint
 var _ context.Context
 var _ client.Option
 var _ server.Option
-var _ = microServer.Handle
-var _ = microClient.Call
 
 // Api Endpoints for Log service
 
@@ -62,19 +57,10 @@ func NewLogService(name string, c client.Client) LogService {
 	}
 }
 
-func LogServiceClient() LogService {
-	return NewLogService("log", microClient.DefaultClient)
-}
-
-func RunLogService() {
-	microService.Init(microService.Name("log"))
-	microService.Run()
-}
-
 func (c *logService) Read(ctx context.Context, in *ReadRequest, opts ...client.CallOption) (*ReadResponse, error) {
-	req := microClient.NewRequest(c.name, "Log.Read", in)
+	req := c.c.NewRequest(c.name, "Log.Read", in)
 	out := new(ReadResponse)
-	err := microClient.Call(ctx, req, out, opts...)
+	err := c.c.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -85,10 +71,6 @@ func (c *logService) Read(ctx context.Context, in *ReadRequest, opts ...client.C
 
 type LogHandler interface {
 	Read(context.Context, *ReadRequest, *ReadResponse) error
-}
-
-func RegisterLogService(hdlr LogHandler, opts ...server.HandlerOption) error {
-	return RegisterLogHandler(microServer.DefaultServer, hdlr, opts...)
 }
 
 func RegisterLogHandler(s server.Server, hdlr LogHandler, opts ...server.HandlerOption) error {

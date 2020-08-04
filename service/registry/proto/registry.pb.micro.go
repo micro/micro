@@ -14,9 +14,6 @@ import (
 	api "github.com/micro/go-micro/v3/api"
 	client "github.com/micro/go-micro/v3/client"
 	server "github.com/micro/go-micro/v3/server"
-	microService "github.com/micro/micro/v3/service"
-	microClient "github.com/micro/micro/v3/service/client"
-	microServer "github.com/micro/micro/v3/service/server"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -35,8 +32,6 @@ var _ api.Endpoint
 var _ context.Context
 var _ client.Option
 var _ server.Option
-var _ = microServer.Handle
-var _ = microClient.Call
 
 // Api Endpoints for Registry service
 
@@ -66,19 +61,10 @@ func NewRegistryService(name string, c client.Client) RegistryService {
 	}
 }
 
-func RegistryServiceClient() RegistryService {
-	return NewRegistryService("registry", microClient.DefaultClient)
-}
-
-func RunRegistryService() {
-	microService.Init(microService.Name("registry"))
-	microService.Run()
-}
-
 func (c *registryService) GetService(ctx context.Context, in *GetRequest, opts ...client.CallOption) (*GetResponse, error) {
-	req := microClient.NewRequest(c.name, "Registry.GetService", in)
+	req := c.c.NewRequest(c.name, "Registry.GetService", in)
 	out := new(GetResponse)
-	err := microClient.Call(ctx, req, out, opts...)
+	err := c.c.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -86,9 +72,9 @@ func (c *registryService) GetService(ctx context.Context, in *GetRequest, opts .
 }
 
 func (c *registryService) Register(ctx context.Context, in *Service, opts ...client.CallOption) (*EmptyResponse, error) {
-	req := microClient.NewRequest(c.name, "Registry.Register", in)
+	req := c.c.NewRequest(c.name, "Registry.Register", in)
 	out := new(EmptyResponse)
-	err := microClient.Call(ctx, req, out, opts...)
+	err := c.c.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -96,9 +82,9 @@ func (c *registryService) Register(ctx context.Context, in *Service, opts ...cli
 }
 
 func (c *registryService) Deregister(ctx context.Context, in *Service, opts ...client.CallOption) (*EmptyResponse, error) {
-	req := microClient.NewRequest(c.name, "Registry.Deregister", in)
+	req := c.c.NewRequest(c.name, "Registry.Deregister", in)
 	out := new(EmptyResponse)
-	err := microClient.Call(ctx, req, out, opts...)
+	err := c.c.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -106,9 +92,9 @@ func (c *registryService) Deregister(ctx context.Context, in *Service, opts ...c
 }
 
 func (c *registryService) ListServices(ctx context.Context, in *ListRequest, opts ...client.CallOption) (*ListResponse, error) {
-	req := microClient.NewRequest(c.name, "Registry.ListServices", in)
+	req := c.c.NewRequest(c.name, "Registry.ListServices", in)
 	out := new(ListResponse)
-	err := microClient.Call(ctx, req, out, opts...)
+	err := c.c.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -116,8 +102,8 @@ func (c *registryService) ListServices(ctx context.Context, in *ListRequest, opt
 }
 
 func (c *registryService) Watch(ctx context.Context, in *WatchRequest, opts ...client.CallOption) (Registry_WatchService, error) {
-	req := microClient.NewRequest(c.name, "Registry.Watch", &WatchRequest{})
-	stream, err := microClient.Stream(ctx, req, opts...)
+	req := c.c.NewRequest(c.name, "Registry.Watch", &WatchRequest{})
+	stream, err := c.c.Stream(ctx, req, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -172,10 +158,6 @@ type RegistryHandler interface {
 	Deregister(context.Context, *Service, *EmptyResponse) error
 	ListServices(context.Context, *ListRequest, *ListResponse) error
 	Watch(context.Context, *WatchRequest, Registry_WatchStream) error
-}
-
-func RegisterRegistryService(hdlr RegistryHandler, opts ...server.HandlerOption) error {
-	return RegisterRegistryHandler(microServer.DefaultServer, hdlr, opts...)
 }
 
 func RegisterRegistryHandler(s server.Server, hdlr RegistryHandler, opts ...server.HandlerOption) error {

@@ -14,9 +14,6 @@ import (
 	api "github.com/micro/go-micro/v3/api"
 	client "github.com/micro/go-micro/v3/client"
 	server "github.com/micro/go-micro/v3/server"
-	microService "github.com/micro/micro/v3/service"
-	microClient "github.com/micro/micro/v3/service/client"
-	microServer "github.com/micro/micro/v3/service/server"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -35,8 +32,6 @@ var _ api.Endpoint
 var _ context.Context
 var _ client.Option
 var _ server.Option
-var _ = microServer.Handle
-var _ = microClient.Call
 
 // Api Endpoints for Broker service
 
@@ -63,19 +58,10 @@ func NewBrokerService(name string, c client.Client) BrokerService {
 	}
 }
 
-func BrokerServiceClient() BrokerService {
-	return NewBrokerService("broker", microClient.DefaultClient)
-}
-
-func RunBrokerService() {
-	microService.Init(microService.Name("broker"))
-	microService.Run()
-}
-
 func (c *brokerService) Publish(ctx context.Context, in *PublishRequest, opts ...client.CallOption) (*Empty, error) {
-	req := microClient.NewRequest(c.name, "Broker.Publish", in)
+	req := c.c.NewRequest(c.name, "Broker.Publish", in)
 	out := new(Empty)
-	err := microClient.Call(ctx, req, out, opts...)
+	err := c.c.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -83,8 +69,8 @@ func (c *brokerService) Publish(ctx context.Context, in *PublishRequest, opts ..
 }
 
 func (c *brokerService) Subscribe(ctx context.Context, in *SubscribeRequest, opts ...client.CallOption) (Broker_SubscribeService, error) {
-	req := microClient.NewRequest(c.name, "Broker.Subscribe", &SubscribeRequest{})
-	stream, err := microClient.Stream(ctx, req, opts...)
+	req := c.c.NewRequest(c.name, "Broker.Subscribe", &SubscribeRequest{})
+	stream, err := c.c.Stream(ctx, req, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -136,10 +122,6 @@ func (x *brokerServiceSubscribe) Recv() (*Message, error) {
 type BrokerHandler interface {
 	Publish(context.Context, *PublishRequest, *Empty) error
 	Subscribe(context.Context, *SubscribeRequest, Broker_SubscribeStream) error
-}
-
-func RegisterBrokerService(hdlr BrokerHandler, opts ...server.HandlerOption) error {
-	return RegisterBrokerHandler(microServer.DefaultServer, hdlr, opts...)
 }
 
 func RegisterBrokerHandler(s server.Server, hdlr BrokerHandler, opts ...server.HandlerOption) error {

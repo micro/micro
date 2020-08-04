@@ -14,9 +14,6 @@ import (
 	api "github.com/micro/go-micro/v3/api"
 	client "github.com/micro/go-micro/v3/client"
 	server "github.com/micro/go-micro/v3/server"
-	microService "github.com/micro/micro/v3/service"
-	microClient "github.com/micro/micro/v3/service/client"
-	microServer "github.com/micro/micro/v3/service/server"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -35,8 +32,6 @@ var _ api.Endpoint
 var _ context.Context
 var _ client.Option
 var _ server.Option
-var _ = microServer.Handle
-var _ = microClient.Call
 
 // Api Endpoints for Example service
 
@@ -62,19 +57,10 @@ func NewExampleService(name string, c client.Client) ExampleService {
 	}
 }
 
-func ExampleServiceClient() ExampleService {
-	return NewExampleService("example", microClient.DefaultClient)
-}
-
-func RunExampleService() {
-	microService.Init(microService.Name("example"))
-	microService.Run()
-}
-
 func (c *exampleService) Call(ctx context.Context, in *Request, opts ...client.CallOption) (*Response, error) {
-	req := microClient.NewRequest(c.name, "Example.Call", in)
+	req := c.c.NewRequest(c.name, "Example.Call", in)
 	out := new(Response)
-	err := microClient.Call(ctx, req, out, opts...)
+	err := c.c.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -85,10 +71,6 @@ func (c *exampleService) Call(ctx context.Context, in *Request, opts ...client.C
 
 type ExampleHandler interface {
 	Call(context.Context, *Request, *Response) error
-}
-
-func RegisterExampleService(hdlr ExampleHandler, opts ...server.HandlerOption) error {
-	return RegisterExampleHandler(microServer.DefaultServer, hdlr, opts...)
 }
 
 func RegisterExampleHandler(s server.Server, hdlr ExampleHandler, opts ...server.HandlerOption) error {
