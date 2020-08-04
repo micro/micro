@@ -17,7 +17,6 @@ import (
 	"github.com/micro/go-micro/v3/proxy"
 	mucpProxy "github.com/micro/go-micro/v3/proxy/mucp"
 	"github.com/micro/go-micro/v3/router"
-	regRouter "github.com/micro/go-micro/v3/router/registry"
 	goserver "github.com/micro/go-micro/v3/server"
 	mucpServer "github.com/micro/go-micro/v3/server/mucp"
 	"github.com/micro/go-micro/v3/transport"
@@ -29,6 +28,7 @@ import (
 	"github.com/micro/micro/v3/service/client"
 	log "github.com/micro/micro/v3/service/logger"
 	muregistry "github.com/micro/micro/v3/service/registry"
+	murouter "github.com/micro/micro/v3/service/router"
 	"github.com/micro/micro/v3/service/server"
 )
 
@@ -178,7 +178,8 @@ func Run(ctx *cli.Context) error {
 	id := server.DefaultServer.Options().Id
 
 	// local tunnel router
-	rtr := regRouter.NewRouter(
+	rtr := murouter.DefaultRouter
+	rtr.Init(
 		router.Network(networkName),
 		router.Id(id),
 		router.Registry(muregistry.DefaultRegistry),

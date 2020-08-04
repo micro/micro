@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/micro/cli/v2"
-	"github.com/micro/go-micro/v3/agent/command"
+	"github.com/micro/micro/v3/client/bot/command"
 	clic "github.com/micro/micro/v3/internal/command"
 )
 
