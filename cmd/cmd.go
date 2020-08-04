@@ -39,6 +39,7 @@ import (
 	muclient "github.com/micro/micro/v3/service/client"
 	muconfig "github.com/micro/micro/v3/service/config"
 	muregistry "github.com/micro/micro/v3/service/registry"
+	muruntime "github.com/micro/micro/v3/service/runtime"
 	muserver "github.com/micro/micro/v3/service/server"
 	mustore "github.com/micro/micro/v3/service/store"
 )
@@ -385,6 +386,12 @@ func (c *command) Before(ctx *cli.Context) error {
 	}
 	if err := mubroker.DefaultBroker.Init(brokerOpts...); err != nil {
 		logger.Fatalf("Error configuring broker: %v", err)
+	}
+
+	// Setup runtime. This is a temporary fix to trigger the runtime to recreate
+	// its client now the client has been replaced with a wrapped one.
+	if err := muruntime.DefaultRuntime.Init(); err != nil {
+		logger.Fatalf("Error configuring runtime: %v", err)
 	}
 
 	// Setup store options

@@ -25,6 +25,8 @@ func (s *svc) Init(opts ...runtime.Option) error {
 		o(&s.options)
 	}
 
+	s.runtime = pb.NewRuntimeService("go.micro.runtime", client.DefaultClient)
+
 	return nil
 }
 
