@@ -5,7 +5,6 @@ package test
 import (
 	"errors"
 	"fmt"
-	"os/exec"
 	"strings"
 	"testing"
 	"time"
@@ -23,9 +22,10 @@ func testConfig(t *T) {
 		return
 	}
 
+	cmd := serv.Command()
+
 	if err := Try("Calling micro config read", t, func() ([]byte, error) {
-		getCmd := exec.Command("micro", serv.EnvFlag(), "config", "get", "somekey")
-		outp, err := getCmd.CombinedOutput()
+		outp, err := cmd.Exec("config", "get", "somekey")
 		if err == nil {
 			return outp, errors.New("config gete should fail")
 		}
@@ -41,8 +41,7 @@ func testConfig(t *T) {
 	// error log output that happens when the auth service is not yet available.
 
 	if err := Try("Calling micro config set", t, func() ([]byte, error) {
-		setCmd := exec.Command("micro", serv.EnvFlag(), "config", "set", "somekey", "val1")
-		outp, err := setCmd.CombinedOutput()
+		outp, err := cmd.Exec("config", "set", "somekey", "val1")
 		if err != nil {
 			return outp, err
 		}
@@ -55,8 +54,7 @@ func testConfig(t *T) {
 	}
 
 	if err := Try("micro config get somekey", t, func() ([]byte, error) {
-		getCmd := exec.Command("micro", serv.EnvFlag(), "config", "get", "somekey")
-		outp, err := getCmd.CombinedOutput()
+		outp, err := cmd.Exec("config", "get", "somekey")
 		if err != nil {
 			return outp, err
 		}
@@ -68,8 +66,7 @@ func testConfig(t *T) {
 		return
 	}
 
-	delCmd := exec.Command("micro", serv.EnvFlag(), "config", "del", "somekey")
-	outp, err := delCmd.CombinedOutput()
+	outp, err := cmd.Exec("config", "del", "somekey")
 	if err != nil {
 		t.Fatalf(string(outp))
 		return
@@ -80,8 +77,7 @@ func testConfig(t *T) {
 	}
 
 	if err := Try("micro config get somekey", t, func() ([]byte, error) {
-		getCmd := exec.Command("micro", serv.EnvFlag(), "config", "get", "somekey")
-		outp, err = getCmd.CombinedOutput()
+		outp, err := cmd.Exec("config", "get", "somekey")
 		if err == nil {
 			return outp, errors.New("getting somekey should fail")
 		}
@@ -94,8 +90,7 @@ func testConfig(t *T) {
 	}
 
 	// Testing dot notation
-	setCmd := exec.Command("micro", serv.EnvFlag(), "config", "set", "someotherkey.subkey", "otherval1")
-	outp, err = setCmd.CombinedOutput()
+	outp, err = cmd.Exec("config", "set", "someotherkey.subkey", "otherval1")
 	if err != nil {
 		t.Fatal(err)
 		return
@@ -106,8 +101,7 @@ func testConfig(t *T) {
 	}
 
 	if err := Try("micro config get someotherkey.subkey", t, func() ([]byte, error) {
-		getCmd := exec.Command("micro", serv.EnvFlag(), "config", "get", "someotherkey.subkey")
-		outp, err = getCmd.CombinedOutput()
+		outp, err := cmd.Exec("config", "get", "someotherkey.subkey")
 		if err != nil {
 			return outp, err
 		}
@@ -132,11 +126,12 @@ func testConfigReadFromService(t *T) {
 		return
 	}
 
+	cmd := serv.Command()
+
 	// This needs to be retried to the the "error listing rules"
 	// error log output that happens when the auth service is not yet available.
 	if err := Try("Calling micro config set", t, func() ([]byte, error) {
-		setCmd := exec.Command("micro", serv.EnvFlag(), "config", "set", "key.subkey", "val1")
-		outp, err := setCmd.CombinedOutput()
+		outp, err := cmd.Exec("config", "set", "key.subkey", "val1")
 		if err != nil {
 			return outp, err
 		}
@@ -150,8 +145,7 @@ func testConfigReadFromService(t *T) {
 
 	// check the value set correctly
 	if err := Try("Calling micro config get", t, func() ([]byte, error) {
-		setCmd := exec.Command("micro", serv.EnvFlag(), "config", "get", "key")
-		outp, err := setCmd.CombinedOutput()
+		outp, err := cmd.Exec("config", "get", "key")
 		if err != nil {
 			return outp, err
 		}
@@ -164,16 +158,14 @@ func testConfigReadFromService(t *T) {
 		return
 	}
 
-	runCmd := exec.Command("micro", serv.EnvFlag(), "run", "./service/config")
-	outp, err := runCmd.CombinedOutput()
+	outp, err := cmd.Exec("run", "./service/config")
 	if err != nil {
 		t.Fatalf("micro run failure, output: %v", string(outp))
 		return
 	}
 
 	if err := Try("Try logs read", t, func() ([]byte, error) {
-		setCmd := exec.Command("micro", serv.EnvFlag(), "logs", "test/service/config")
-		outp, err := setCmd.CombinedOutput()
+		outp, err := cmd.Exec("logs", "test/service/config")
 		if err != nil {
 			return outp, err
 		}
