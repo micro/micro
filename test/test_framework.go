@@ -364,7 +364,7 @@ func (s *ServerDefault) Run() error {
 
 	// // generate a new admin account for the env : user=ENV_NAME pass=password
 	// req := fmt.Sprintf(`{"id":"%s", "secret":"password", "options":{"namespace":"%s"}}`, s.env, s.namespace)
-	// outp, err := exec.Command("micro", s.EnvFlag(), "call", "go.micro.auth", "Auth.Generate", req).CombinedOutput()
+	// outp, err := exec.Command("micro", s.EnvFlag(), "call", "auth", "Auth.Generate", req).CombinedOutput()
 	// if err != nil && !strings.Contains(string(outp), "already exists") { // until auth.Delete is implemented
 	// 	s.t.Fatalf("Error generating auth: %s, %s", err, outp)
 	// 	return err
