@@ -23,10 +23,24 @@ if [ "$ENV" != "platform" ]; then
 fi
 
 # Generate keys for JWT auth.
-ssh-keygen -f /tmp/jwt -m pkcs8 -q -N "";
-ssh-keygen -f /tmp/jwt -e  -m pkcs8 > /tmp/jwt.pub;
-cat /tmp/jwt | base64 > /tmp/jwt-base64
-cat /tmp/jwt.pub | base64 > /tmp/jwt-base64.pub
+which ssh-keygen > /dev/null
+if [ $? -eq 1 ]; then
+  echo "Missing ssh-keygen command"
+  exit 1
+fi
+
+which openssl > /dev/null
+if [ $? -eq 1 ]; then
+  echo "Missing openssl command"
+fi
+
+# generate new PEM key
+ssh-keygen -t rsa -b 2048 -m PEM -f /tmp/jwt -q -N "";
+# Don't add passphrase
+openssl rsa -in /tmp/jwt -pubout -outform PEM -out /tmp/jwt.pub
+# Base64 encode
+base64 /tmp/jwt > /tmp/jwt-base64
+base64 /tmp/jwt.pub > /tmp/jwt-base64.pub
 
 # Create the k8s secret
 kubectl create secret generic micro-secrets \
