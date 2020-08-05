@@ -287,7 +287,7 @@ func newLocalServer(t *T, fname string, opts ...Option) Server {
 		t:         t,
 		env:       fname,
 		container: fname,
-		port:      portnum,
+		port:      proxyPortnum,
 		opts:      options,
 		namespace: "micro",
 	}}
