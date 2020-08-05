@@ -38,7 +38,7 @@ func (m *Micro) Register() {
 	})
 }
 
-// Micro is a netdata module that collects metrics from the go.micro.debug service
+// Micro is a netdata module that collects metrics from the debug service
 type Micro struct {
 	// netdata
 	module.Base
@@ -193,7 +193,7 @@ func (m *Micro) collect(ctx context.Context) error {
 	req := &stats.ReadRequest{}
 	rsp := &stats.ReadResponse{}
 
-	err := m.client.Call(ctx, m.client.NewRequest("go.micro.debug", "Stats.Read", req), rsp)
+	err := m.client.Call(ctx, m.client.NewRequest("debug", "Stats.Read", req), rsp)
 	if err != nil {
 		return err
 	}

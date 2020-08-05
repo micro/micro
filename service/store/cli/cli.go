@@ -145,7 +145,7 @@ func init() {
 					&cli.StringFlag{
 						Name:  "store",
 						Usage: "store service to call",
-						Value: "go.micro.store",
+						Value: "store",
 					},
 				},
 			},
@@ -157,7 +157,7 @@ func init() {
 					&cli.StringFlag{
 						Name:  "store",
 						Usage: "store service to call",
-						Value: "go.micro.store",
+						Value: "store",
 					},
 					&cli.StringFlag{
 						Name:    "database",

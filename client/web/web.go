@@ -50,14 +50,14 @@ import (
 //Meta Fields of micro web
 var (
 	// Default server name
-	Name = "go.micro.web"
+	Name = "web"
 	// Default address to bind to
 	Address = ":8082"
 	// The namespace to serve
 	// Example:
 	// Namespace + /[Service]/foo/bar
 	// Host: Namespace.Service Endpoint: /foo/bar
-	Namespace = "go.micro"
+	Namespace = ""
 	Type      = "web"
 	Resolver  = "path"
 	// Base path sent to web service.
@@ -224,7 +224,13 @@ func (s *srv) indexHandler(w http.ResponseWriter, r *http.Request) {
 		Icon string // TODO: lookup icon
 	}
 
-	prefix := Namespace + "." + Type + "."
+	var prefix string
+	if len(Namespace) > 0 {
+		prefix = Namespace + "."
+	}
+	if len(Type) > 0 {
+		prefix = prefix + Type + "."
+	}
 
 	var webServices []webService
 	for _, srv := range services {
@@ -419,15 +425,6 @@ func Run(ctx *cli.Context) error {
 	if len(ctx.String("type")) > 0 {
 		Type = ctx.String("type")
 	}
-	if len(ctx.String("web_address")) > 0 {
-		Address = ctx.String("web_address")
-	}
-	if len(ctx.String("web_namespace")) > 0 {
-		Namespace = ctx.String("web_namespace")
-	}
-	if len(ctx.String("web_host")) > 0 {
-		Host = ctx.String("web_host")
-	}
 	if len(ctx.String("namespace")) > 0 {
 		// remove the service type from the namespace to allow for
 		// backwards compatability
@@ -437,15 +434,22 @@ func Run(ctx *cli.Context) error {
 	// Initialize Server
 	s := service.New(service.Name(Name))
 
+	// Determine the service prefix
+	var prefix string
+	if len(Namespace) > 0 {
+		prefix = Namespace + "."
+	}
+	if len(Type) > 0 {
+		prefix = prefix + Type + "."
+	}
+
 	// Setup the web resolver
 	var resolver res.Resolver
 	resolver = &web.Resolver{
 		Router: regRouter.NewRouter(
 			router.Registry(muregistry.DefaultRegistry),
 		),
-		Options: res.NewOptions(res.WithServicePrefix(
-			Namespace + "." + Type,
-		)),
+		Options: res.NewOptions(res.WithServicePrefix(prefix)),
 	}
 	if Resolver == "subdomain" {
 		resolver = subdomain.NewResolver(resolver)
@@ -548,7 +552,7 @@ func Run(ctx *cli.Context) error {
 	}
 
 	// create the service and add the auth wrapper
-	aw := apiAuth.Wrapper(srv.resolver, Namespace+"."+Type)
+	aw := apiAuth.Wrapper(srv.resolver, prefix)
 	server := httpapi.NewServer(Address, server.WrapHandler(aw))
 
 	server.Init(opts...)

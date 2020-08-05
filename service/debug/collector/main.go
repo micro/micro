@@ -4,9 +4,9 @@ import (
 	"os"
 	"path"
 
-	log "github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service"
 	plugin "github.com/micro/micro/v3/service/debug/collector/micro"
+	log "github.com/micro/micro/v3/service/logger"
 	"github.com/netdata/go-orchestrator"
 	"github.com/netdata/go-orchestrator/cli"
 	"github.com/netdata/go-orchestrator/pkg/multipath"
@@ -25,7 +25,7 @@ var (
 func main() {
 	// New Service
 	srv := service.New(
-		service.Name("go.micro.debug.collector"),
+		service.Name("debug.collector"),
 		service.Version("latest"),
 	)
 

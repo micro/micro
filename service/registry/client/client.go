@@ -12,10 +12,10 @@ import (
 	"github.com/micro/micro/v3/service/registry/util"
 )
 
+var name = "registry"
+
 type srv struct {
 	opts registry.Options
-	// name of the registry
-	name string
 	// address
 	address []string
 	// client to call registry
@@ -35,6 +35,7 @@ func (s *srv) callOpts() []goclient.CallOption {
 		opts = append(opts, goclient.WithRequestTimeout(s.opts.Timeout))
 	}
 
+	s.client = pb.NewRegistryService(name, client.DefaultClient)
 	return opts
 }
 
@@ -176,15 +177,13 @@ func NewRegistry(opts ...registry.Option) registry.Registry {
 
 	// don't default the address if a proxy is being used, as the
 	// address will take precedent, circumventing the proxy.
-	if len(addrs) == 0 && len(client.DefaultClient.Options().Proxy) == 0 {
+	if len(addrs) == 0 {
 		addrs = []string{"127.0.0.1:8000"}
 	}
 
-	name := "go.micro.registry"
 	return &srv{
 		opts:    options,
-		name:    name,
 		address: addrs,
-		client:  pb.NewRegistryService(name),
+		client:  pb.NewRegistryService(name, client.DefaultClient),
 	}
 }

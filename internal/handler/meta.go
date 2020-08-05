@@ -7,8 +7,8 @@ import (
 	"github.com/micro/go-micro/v3/api/handler/event"
 	"github.com/micro/go-micro/v3/api/router"
 	"github.com/micro/go-micro/v3/client"
-	"github.com/micro/micro/v3/service/errors"
 	"github.com/micro/micro/v3/service"
+	"github.com/micro/micro/v3/service/errors"
 
 	// TODO: only import handler package
 	aapi "github.com/micro/go-micro/v3/api/handler/api"

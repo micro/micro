@@ -14,7 +14,7 @@ import (
 
 var (
 	// name of the runtime
-	name = "go.micro.runtime"
+	name = "runtime"
 	// address of the runtime
 	address = ":8088"
 
@@ -69,8 +69,8 @@ func Run(ctx *cli.Context) error {
 	}
 
 	// register the runtime handler
-	pb.RegisterRuntimeHandler(&Runtime{
-		Event:   service.NewEvent("go.micro.runtime.events"),
+	pb.RegisterRuntimeHandler(srv.Server(), &Runtime{
+		Event:   service.NewEvent("runtime.events"),
 		Runtime: manager,
 	})
 

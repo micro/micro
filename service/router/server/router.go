@@ -5,8 +5,8 @@ import (
 	"io"
 	"time"
 
-	"github.com/micro/micro/v3/service/errors"
 	"github.com/micro/go-micro/v3/router"
+	"github.com/micro/micro/v3/service/errors"
 	pb "github.com/micro/micro/v3/service/router/proto"
 )
 
@@ -22,9 +22,9 @@ func (r *Router) Lookup(ctx context.Context, req *pb.LookupRequest, resp *pb.Loo
 		router.QueryNetwork(req.Query.Network),
 	)
 	if err == router.ErrRouteNotFound {
-		return errors.NotFound("go.micro.router", err.Error())
+		return errors.NotFound("router.Router.Lookup", err.Error())
 	} else if err != nil {
-		return errors.InternalServerError("go.micro.router", "failed to lookup routes: %v", err)
+		return errors.InternalServerError("router.Router.Lookup", "failed to lookup routes: %v", err)
 	}
 
 	respRoutes := make([]*pb.Route, 0, len(routes))
@@ -51,7 +51,7 @@ func (r *Router) Lookup(ctx context.Context, req *pb.LookupRequest, resp *pb.Loo
 func (r *Router) Advertise(ctx context.Context, req *pb.Request, stream pb.Router_AdvertiseStream) error {
 	advertChan, err := r.Router.Advertise()
 	if err != nil {
-		return errors.InternalServerError("go.micro.router", "failed to get adverts: %v", err)
+		return errors.InternalServerError("router.Router.Advertise", "failed to get adverts: %v", err)
 	}
 
 	for advert := range advertChan {
@@ -89,7 +89,7 @@ func (r *Router) Advertise(ctx context.Context, req *pb.Request, stream pb.Route
 			return nil
 		}
 		if err != nil {
-			return errors.InternalServerError("go.micro.router", "error sending message %v", err)
+			return errors.InternalServerError("router.Router.Advertise", "error sending message %v", err)
 		}
 	}
 
@@ -128,7 +128,7 @@ func (r *Router) Process(ctx context.Context, req *pb.Advert, rsp *pb.ProcessRes
 	}
 
 	if err := r.Router.Process(advert); err != nil {
-		return errors.InternalServerError("go.micro.router", "error publishing advert: %v", err)
+		return errors.InternalServerError("router.Router.Process", "error publishing advert: %v", err)
 	}
 
 	return nil
@@ -138,7 +138,7 @@ func (r *Router) Process(ctx context.Context, req *pb.Advert, rsp *pb.ProcessRes
 func (r *Router) Watch(ctx context.Context, req *pb.WatchRequest, stream pb.Router_WatchStream) error {
 	watcher, err := r.Router.Watch()
 	if err != nil {
-		return errors.InternalServerError("go.micro.router", "failed creating event watcher: %v", err)
+		return errors.InternalServerError("router.Router.Watch", "failed creating event watcher: %v", err)
 	}
 	defer watcher.Stop()
 	defer stream.Close()
@@ -146,11 +146,11 @@ func (r *Router) Watch(ctx context.Context, req *pb.WatchRequest, stream pb.Rout
 	for {
 		event, err := watcher.Next()
 		if err == router.ErrWatcherStopped {
-			return errors.InternalServerError("go.micro.router", "watcher stopped")
+			return errors.InternalServerError("router.Router.Watch", "watcher stopped")
 		}
 
 		if err != nil {
-			return errors.InternalServerError("go.micro.router", "error watching events: %v", err)
+			return errors.InternalServerError("router.Router.Watch", "error watching events: %v", err)
 		}
 
 		route := &pb.Route{

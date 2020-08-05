@@ -6,10 +6,11 @@ import (
 	"time"
 
 	"github.com/micro/go-micro/v3/auth"
-	"github.com/micro/go-micro/v3/client"
+	goclient "github.com/micro/go-micro/v3/client"
 	"github.com/micro/go-micro/v3/util/token"
 	"github.com/micro/go-micro/v3/util/token/jwt"
 	pb "github.com/micro/micro/v3/service/auth/proto"
+	"github.com/micro/micro/v3/service/client"
 )
 
 // srv is the service implementation of the Auth interface
@@ -133,7 +134,7 @@ func (s *srv) Rules(opts ...auth.RulesOption) ([]*auth.Rule, error) {
 		options.Namespace = s.options.Issuer
 	}
 
-	callOpts := append(s.callOpts(), client.WithCache(time.Second*30))
+	callOpts := append(s.callOpts(), goclient.WithCache(time.Second*30))
 	rsp, err := s.rules.List(options.Context, &pb.ListRequest{
 		Options: &pb.Options{Namespace: options.Namespace},
 	}, callOpts...)
@@ -272,18 +273,18 @@ func serializeRule(r *pb.Rule) *auth.Rule {
 	}
 }
 
-func (s *srv) callOpts() []client.CallOption {
-	return []client.CallOption{
-		client.WithAddress(s.options.Addrs...),
-		client.WithAuthToken(),
+func (s *srv) callOpts() []goclient.CallOption {
+	return []goclient.CallOption{
+		goclient.WithAddress(s.options.Addrs...),
+		goclient.WithAuthToken(),
 	}
 }
 
 // NewAuth returns a new instance of the Auth service
 func NewAuth(opts ...auth.Option) auth.Auth {
 	service := &srv{
-		auth:    pb.NewAuthService("go.micro.auth"),
-		rules:   pb.NewRulesService("go.micro.auth"),
+		auth:    pb.NewAuthService("auth", client.DefaultClient),
+		rules:   pb.NewRulesService("auth", client.DefaultClient),
 		options: auth.NewOptions(opts...),
 	}
 

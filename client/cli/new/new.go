@@ -63,6 +63,9 @@ func write(c config, file, tmpl string) error {
 		"dehyphen": func(s string) string {
 			return strings.ReplaceAll(s, "-", "")
 		},
+		"lower": func(s string) string {
+			return strings.ToLower(s)
+		},
 	}
 
 	f, err := os.Create(file)
@@ -190,7 +193,6 @@ func Run(ctx *cli.Context) error {
 			{"main.go", tmpl.MainSRV},
 			{"generate.go", tmpl.GenerateFile},
 			{"handler/" + dir + ".go", tmpl.HandlerSRV},
-			{"subscriber/" + dir + ".go", tmpl.SubscriberSRV},
 			{"proto/" + dir + ".proto", tmpl.ProtoSRV},
 			{"Dockerfile", tmpl.DockerSRV},
 			{"Makefile", tmpl.Makefile},

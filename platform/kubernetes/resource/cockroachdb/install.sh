@@ -1,5 +1,12 @@
 #!/bin/bash
 
+SIZE=$1
+
+# default to 25Gi
+if [ "$SIZE" == "" ]; then
+  SIZE=25Gi
+fi
+
 # move into the certs directory
 cd certs;
 
@@ -23,7 +30,7 @@ cd ../;
 helm repo add cockroachdb https://charts.cockroachdb.com/
 helm install cockroachdb-cluster cockroachdb/cockroachdb \
   --set statefulset.replicas=1 \
-  --set storage.persistentVolume.size=10Gi \
+  --set storage.persistentVolume.size=$SIZE \
   --set tls.certs.clientRootSecret=cockroachdb-peer-certs \
   --set tls.certs.nodeSecret=cockroachdb-server-certs \
   --set tls.certs.tlsSecret=true \

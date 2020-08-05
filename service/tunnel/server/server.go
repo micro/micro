@@ -8,7 +8,6 @@ import (
 	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro/v3/client"
 	cmucp "github.com/micro/go-micro/v3/client/mucp"
-	log "github.com/micro/micro/v3/service/logger"
 	"github.com/micro/go-micro/v3/proxy"
 	"github.com/micro/go-micro/v3/proxy/mucp"
 	"github.com/micro/go-micro/v3/registry/memory"
@@ -21,13 +20,14 @@ import (
 	tuntransport "github.com/micro/go-micro/v3/tunnel/transport"
 	"github.com/micro/go-micro/v3/util/mux"
 	"github.com/micro/micro/v3/service"
+	log "github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/registry"
 	mutunnel "github.com/micro/micro/v3/service/tunnel"
 )
 
 var (
 	// name of the tunnel service
-	name = "go.micro.tunnel"
+	name = "tunnel"
 	// address is the tunnel address
 	address = ":8083"
 	// tunnel is the name of the tunnel

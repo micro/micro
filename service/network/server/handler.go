@@ -3,11 +3,11 @@ package server
 import (
 	"context"
 
-	"github.com/micro/micro/v3/service/errors"
-	log "github.com/micro/micro/v3/service/logger"
 	"github.com/micro/go-micro/v3/network"
 	"github.com/micro/go-micro/v3/network/mucp"
 	"github.com/micro/go-micro/v3/router"
+	"github.com/micro/micro/v3/service/errors"
+	log "github.com/micro/micro/v3/service/logger"
 	pb "github.com/micro/micro/v3/service/network/proto"
 	"github.com/micro/micro/v3/service/network/util"
 	pbRtr "github.com/micro/micro/v3/service/router/proto"
@@ -165,7 +165,7 @@ func (n *Network) Routes(ctx context.Context, req *pb.RoutesRequest, resp *pb.Ro
 
 	routes, err := n.Network.Options().Router.Table().Query(qOpts...)
 	if err != nil {
-		return errors.InternalServerError("go.micro.network", "failed to list routes: %s", err)
+		return errors.InternalServerError("network.Network.Routes", "failed to list routes: %s", err)
 	}
 
 	respRoutes := make([]*pbRtr.Route, 0, len(routes))
@@ -191,7 +191,7 @@ func (n *Network) Routes(ctx context.Context, req *pb.RoutesRequest, resp *pb.Ro
 func (n *Network) Services(ctx context.Context, req *pb.ServicesRequest, resp *pb.ServicesResponse) error {
 	routes, err := n.Network.Options().Router.Table().List()
 	if err != nil {
-		return errors.InternalServerError("go.micro.network", "failed to list services: %s", err)
+		return errors.InternalServerError("network.Network.Services", "failed to list services: %s", err)
 	}
 
 	services := make(map[string]bool)

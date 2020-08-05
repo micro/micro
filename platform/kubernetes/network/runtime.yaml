@@ -80,7 +80,7 @@ metadata:
     micro: runtime
     name: micro-runtime
   annotations:
-    name: "go.micro.runtime"
+    name: "runtime"
     version: "latest"
     source: "github.com/micro/micro"
     owner: "micro"
@@ -105,7 +105,7 @@ spec:
         - name: MICRO_PROFILE
           value: platform
         - name: MICRO_PROXY
-          value: "micro-network.default.svc.cluster.local"
+          value: "micro-network.default.svc.cluster.local:8443"
         - name: MICRO_AUTH_PUBLIC_KEY
           valueFrom:
             secretKeyRef:

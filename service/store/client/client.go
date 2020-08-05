@@ -7,9 +7,10 @@ import (
 	"reflect"
 	"time"
 
-	"github.com/micro/go-micro/v3/client"
+	goclient "github.com/micro/go-micro/v3/client"
 	"github.com/micro/go-micro/v3/metadata"
 	"github.com/micro/go-micro/v3/store"
+	"github.com/micro/micro/v3/service/client"
 	"github.com/micro/micro/v3/service/errors"
 	pb "github.com/micro/micro/v3/service/store/proto"
 )
@@ -41,6 +42,7 @@ func (s *srv) Init(opts ...store.Option) error {
 	s.Database = s.options.Database
 	s.Table = s.options.Table
 	s.Nodes = s.options.Nodes
+	s.Client = pb.NewStoreService("store", client.DefaultClient)
 	return nil
 }
 
@@ -77,7 +79,7 @@ func (s *srv) List(opts ...store.ListOption) ([]string, error) {
 		Offset:   uint64(options.Offset),
 	}
 
-	stream, err := s.Client.List(s.Context(), &pb.ListRequest{Options: listOpts}, client.WithAddress(s.Nodes...), client.WithAuthToken())
+	stream, err := s.Client.List(s.Context(), &pb.ListRequest{Options: listOpts}, goclient.WithAddress(s.Nodes...), goclient.WithAuthToken())
 	if err != nil && errors.Equal(err, errors.NotFound("", "")) {
 		return nil, store.ErrNotFound
 	} else if err != nil {
@@ -127,7 +129,7 @@ func (s *srv) Read(key string, opts ...store.ReadOption) ([]*store.Record, error
 	rsp, err := s.Client.Read(s.Context(), &pb.ReadRequest{
 		Key:     key,
 		Options: readOpts,
-	}, client.WithAddress(s.Nodes...), client.WithAuthToken())
+	}, goclient.WithAddress(s.Nodes...), goclient.WithAuthToken())
 	if err != nil && errors.Equal(err, errors.NotFound("", "")) {
 		return nil, store.ErrNotFound
 	} else if err != nil {
@@ -190,7 +192,7 @@ func (s *srv) Write(record *store.Record, opts ...store.WriteOption) error {
 			Expiry:   int64(record.Expiry.Seconds()),
 			Metadata: metadata,
 		},
-		Options: writeOpts}, client.WithAddress(s.Nodes...), client.WithAuthToken())
+		Options: writeOpts}, goclient.WithAddress(s.Nodes...), goclient.WithAuthToken())
 	if err != nil && errors.Equal(err, errors.NotFound("", "")) {
 		return store.ErrNotFound
 	}
@@ -217,7 +219,7 @@ func (s *srv) Delete(key string, opts ...store.DeleteOption) error {
 	_, err := s.Client.Delete(s.Context(), &pb.DeleteRequest{
 		Key:     key,
 		Options: deleteOpts,
-	}, client.WithAddress(s.Nodes...), client.WithAuthToken())
+	}, goclient.WithAddress(s.Nodes...), goclient.WithAuthToken())
 	if err != nil && errors.Equal(err, errors.NotFound("", "")) {
 		return store.ErrNotFound
 	}
@@ -245,6 +247,6 @@ func NewStore(opts ...store.Option) store.Store {
 		Database: options.Database,
 		Table:    options.Table,
 		Nodes:    options.Nodes,
-		Client:   pb.NewStoreService("go.micro.store"),
+		Client:   pb.NewStoreService("store", client.DefaultClient),
 	}
 }

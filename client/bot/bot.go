@@ -12,19 +12,19 @@ import (
 	"time"
 
 	"github.com/micro/cli/v2"
-	"github.com/micro/go-micro/v3/agent/command"
-	"github.com/micro/go-micro/v3/agent/input"
-	proto "github.com/micro/go-micro/v3/agent/proto"
-	log "github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/client"
+	"github.com/micro/micro/v3/client/bot/command"
+	"github.com/micro/micro/v3/client/bot/input"
+	proto "github.com/micro/micro/v3/client/bot/proto"
 	"github.com/micro/micro/v3/cmd"
 	"github.com/micro/micro/v3/service"
+	log "github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/registry"
 
 	// inputs
-	_ "github.com/micro/go-micro/v3/agent/input/discord"
-	_ "github.com/micro/go-micro/v3/agent/input/slack"
-	_ "github.com/micro/go-micro/v3/agent/input/telegram"
+	_ "github.com/micro/micro/v3/client/bot/input/discord"
+	_ "github.com/micro/micro/v3/client/bot/input/slack"
+	_ "github.com/micro/micro/v3/client/bot/input/telegram"
 )
 
 type bot struct {
@@ -40,9 +40,9 @@ type bot struct {
 
 var (
 	// Default server name
-	Name = "go.micro.bot"
+	Name = "bot"
 	// Namespace for commands
-	Namespace = "go.micro.bot"
+	Namespace = ""
 	// map pattern:command
 	commands = map[string]func(*cli.Context) command.Command{
 		"^echo ":                             Echo,
@@ -143,7 +143,10 @@ func (b *bot) process(c input.Conn, ev input.Event) error {
 
 	// no built in match
 	// try service commands
-	service := Namespace + "." + args[0]
+	service := args[0]
+	if len(Namespace) > 0 {
+		service = Namespace + "." + service
+	}
 
 	// is there a service for the command?
 	if _, ok := b.services[service]; !ok {
@@ -266,7 +269,7 @@ func (b *bot) watch() {
 	// getHelp retries usage and description from bot service commands
 	getHelp := func(service string) (string, error) {
 		// is within namespace?
-		if !strings.HasPrefix(service, Namespace) {
+		if len(Namespace) > 0 && !strings.HasPrefix(service, Namespace) {
 			return "", fmt.Errorf("%s not within namespace", service)
 		}
 

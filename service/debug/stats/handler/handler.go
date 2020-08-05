@@ -8,11 +8,11 @@ import (
 
 	goclient "github.com/micro/go-micro/v3/client"
 	debug "github.com/micro/go-micro/v3/debug/service/proto"
-	"github.com/micro/micro/v3/service/errors"
 	"github.com/micro/go-micro/v3/registry"
 	"github.com/micro/go-micro/v3/util/ring"
 	"github.com/micro/micro/v3/service/client"
 	stats "github.com/micro/micro/v3/service/debug/stats/proto"
+	"github.com/micro/micro/v3/service/errors"
 )
 
 // New initialises and returns a new Stats service handler
@@ -81,12 +81,12 @@ func (s *Stats) Read(ctx context.Context, req *stats.ReadRequest, rsp *stats.Rea
 }
 
 func (s *Stats) Write(ctx context.Context, req *stats.WriteRequest, rsp *stats.WriteResponse) error {
-	return errors.BadRequest("go.micro.debug.stats", "not implemented")
+	return errors.BadRequest("debug.Stats.Write", "not implemented")
 }
 
 // Stream starts streaming stats
 func (s *Stats) Stream(ctx context.Context, req *stats.StreamRequest, rsp stats.Stats_StreamStream) error {
-	return errors.BadRequest("go.micro.debug.stats", "not implemented")
+	return errors.BadRequest("debug.Stats.Stream", "not implemented")
 }
 
 // Start Starts scraping other services until the provided channel is closed

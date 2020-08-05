@@ -19,6 +19,7 @@ import (
 	"github.com/micro/micro/v3/cmd"
 	"github.com/micro/micro/v3/internal/report"
 	pb "github.com/micro/micro/v3/platform/proto/signup"
+	"github.com/micro/micro/v3/service/client"
 	"golang.org/x/crypto/ssh/terminal"
 )
 
@@ -37,7 +38,7 @@ func Signup(ctx *cli.Context) error {
 	}
 
 	// send a verification email to the user
-	signupService := pb.NewSignupService("go.micro.service.signup")
+	signupService := pb.NewSignupService("signup", client.DefaultClient)
 	_, err := signupService.SendVerificationEmail(context.TODO(), &pb.SendVerificationEmailRequest{
 		Email: email,
 	}, cl.WithRequestTimeout(10*time.Second))
@@ -112,9 +113,19 @@ func Signup(ctx *cli.Context) error {
 		}
 	}
 
-	fmt.Printf("Please go to https://m3o.com/subscribe?email=%s and paste the acquired payment method id here: ", email)
-	paymentMethodID, _ := reader.ReadString('\n')
-	paymentMethodID = strings.TrimSpace(paymentMethodID)
+	// payment method id read from user input
+	var paymentMethodID string
+
+	// print the message returned from the verification process
+	if len(rsp.Message) > 0 {
+		fmt.Print(rsp.Message)
+	}
+
+	// payment required
+	if rsp.PaymentRequired {
+		paymentMethodID, _ = reader.ReadString('\n')
+		paymentMethodID = strings.TrimSpace(paymentMethodID)
+	}
 
 	// complete the signup flow
 	signupRsp, err := signupService.CompleteSignup(context.TODO(), &pb.CompleteSignupRequest{

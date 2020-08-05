@@ -5,9 +5,9 @@ import (
 	"io"
 	"sync"
 
-	"github.com/micro/go-micro/v3/client"
-	cl "github.com/micro/go-micro/v3/client"
+	goclient "github.com/micro/go-micro/v3/client"
 	"github.com/micro/go-micro/v3/runtime"
+	"github.com/micro/micro/v3/service/client"
 	pb "github.com/micro/micro/v3/service/runtime/proto"
 )
 
@@ -26,8 +26,8 @@ func (s *svc) Init(opts ...runtime.Option) error {
 		o(&s.options)
 	}
 
-	// reset the runtime as the client could have changed
-	s.runtime = pb.NewRuntimeService("go.micro.runtime")
+	s.runtime = pb.NewRuntimeService("runtime", client.DefaultClient)
+
 	return nil
 }
 
@@ -64,7 +64,7 @@ func (s *svc) Create(svc *runtime.Service, opts ...runtime.CreateOption) error {
 		},
 	}
 
-	if _, err := s.runtime.Create(options.Context, req, cl.WithAuthToken()); err != nil {
+	if _, err := s.runtime.Create(options.Context, req, goclient.WithAuthToken()); err != nil {
 		return err
 	}
 
@@ -88,7 +88,7 @@ func (s *svc) Logs(service *runtime.Service, opts ...runtime.LogsOption) (runtim
 		Options: &pb.LogsOptions{
 			Namespace: options.Namespace,
 		},
-	}, client.WithAuthToken())
+	}, goclient.WithAuthToken())
 	if err != nil {
 		return nil, err
 	}
@@ -187,7 +187,7 @@ func (s *svc) Read(opts ...runtime.ReadOption) ([]*runtime.Service, error) {
 		},
 	}
 
-	resp, err := s.runtime.Read(options.Context, req, cl.WithAuthToken())
+	resp, err := s.runtime.Read(options.Context, req, goclient.WithAuthToken())
 	if err != nil {
 		return nil, err
 	}
@@ -229,7 +229,7 @@ func (s *svc) Update(svc *runtime.Service, opts ...runtime.UpdateOption) error {
 		},
 	}
 
-	if _, err := s.runtime.Update(options.Context, req, cl.WithAuthToken()); err != nil {
+	if _, err := s.runtime.Update(options.Context, req, goclient.WithAuthToken()); err != nil {
 		return err
 	}
 
@@ -259,7 +259,7 @@ func (s *svc) Delete(svc *runtime.Service, opts ...runtime.DeleteOption) error {
 		},
 	}
 
-	if _, err := s.runtime.Delete(options.Context, req, cl.WithAuthToken()); err != nil {
+	if _, err := s.runtime.Delete(options.Context, req, goclient.WithAuthToken()); err != nil {
 		return err
 	}
 
@@ -292,6 +292,6 @@ func NewRuntime(opts ...runtime.Option) runtime.Runtime {
 
 	return &svc{
 		options: options,
-		runtime: pb.NewRuntimeService("go.micro.runtime"),
+		runtime: pb.NewRuntimeService("runtime", client.DefaultClient),
 	}
 }

@@ -7,11 +7,9 @@ import (
 	"fmt"
 	"math/rand"
 	"os/exec"
+	"path/filepath"
 	"strings"
 	"time"
-
-	"github.com/micro/micro/v3/client/cli/namespace"
-	"github.com/micro/micro/v3/client/cli/token"
 )
 
 func init() {
@@ -27,15 +25,24 @@ func init() {
 }
 
 func newK8sServer(t *T, fname string, opts ...Option) Server {
+	var options Options
+	for _, o := range opts {
+		o(&options)
+	}
+
 	portnum := rand.Intn(maxPort-minPort) + minPort
+	configFile := configFile(fname)
 
 	s := &testK8sServer{ServerBase{
-		t:       t,
-		envNm:   strings.ToLower(fname),
-		portNum: portnum,
-		cmd:     exec.Command("kubectl", "port-forward", "--namespace", "default", "svc/micro-proxy", fmt.Sprintf("%d:8081", portnum)),
+		dir:    filepath.Dir(configFile),
+		config: configFile,
+		t:      t,
+		env:    strings.ToLower(fname),
+		port:   portnum,
+		opts:   options,
+		cmd:    exec.Command("kubectl", "port-forward", "--namespace", "default", "svc/micro-proxy", fmt.Sprintf("%d:443", portnum)),
 	}}
-	s.namespace = s.envNm
+	s.namespace = s.env
 
 	return s
 }
@@ -49,6 +56,8 @@ func (s *testK8sServer) Run() error {
 		return err
 	}
 
+	ChangeNamespace(s.Command(), s.Env(), "micro")
+
 	// login to admin account
 	if err := Login(s, s.t, "default", "password"); err != nil {
 		s.t.Fatalf("Error logging in %s", err)
@@ -56,7 +65,7 @@ func (s *testK8sServer) Run() error {
 	}
 
 	if err := Try("Calling micro server", s.t, func() ([]byte, error) {
-		outp, err := exec.Command("micro", s.EnvFlag(), "services").CombinedOutput()
+		outp, err := s.Command().Exec("services")
 		if !strings.Contains(string(outp), "runtime") ||
 			!strings.Contains(string(outp), "registry") ||
 			!strings.Contains(string(outp), "broker") ||
@@ -74,25 +83,16 @@ func (s *testK8sServer) Run() error {
 	}
 
 	// generate a new admin account for the env : user=ENV_NAME pass=password
-	req := fmt.Sprintf(`{"id":"%s", "secret":"password", "options":{"namespace":"%s"}}`, s.EnvName(), s.namespace)
-	outp, err := exec.Command("micro", s.EnvFlag(), "call", "go.micro.auth", "Auth.Generate", req).CombinedOutput()
+	req := fmt.Sprintf(`{"id":"%s", "secret":"password", "options":{"namespace":"%s"}}`, s.Env(), s.namespace)
+	outp, err := s.Command().Exec("call", "auth", "Auth.Generate", req)
 	if err != nil && !strings.Contains(string(outp), "already exists") { // until auth.Delete is implemented
 		s.t.Fatalf("Error generating auth: %s, %s", err, outp)
 		return err
 	}
 
-	// remove the admin token
-	token.Remove(s.EnvName())
-
-	t := s.t
-	// setup .micro config for access
-	if err := namespace.Add(s.EnvName(), s.EnvName()); err != nil {
-		t.Fatalf("Failed to add current namespace: %s", err)
-		return err
-	}
-	if err := namespace.Set(s.EnvName(), s.EnvName()); err != nil {
-		t.Fatalf("Failed to set current namespace: %s", err)
-		return err
+	ChangeNamespace(s.Command(), s.Env(), s.Env())
+	if s.opts.Login {
+		Login(s, s.t, s.Env(), "password")
 	}
 
 	return nil

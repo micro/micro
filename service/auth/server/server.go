@@ -15,7 +15,7 @@ import (
 )
 
 const (
-	name    = "go.micro.auth"
+	name    = "auth"
 	address = ":8010"
 )
 
@@ -46,9 +46,9 @@ func Run(ctx *cli.Context) error {
 	ruleH.Init(auth.Store(mustore.DefaultStore))
 
 	// register handlers
-	pb.RegisterAuthHandler(authH)
-	pb.RegisterRulesHandler(ruleH)
-	pb.RegisterAccountsHandler(authH)
+	pb.RegisterAuthHandler(srv.Server(), authH)
+	pb.RegisterRulesHandler(srv.Server(), ruleH)
+	pb.RegisterAccountsHandler(srv.Server(), authH)
 
 	// run service
 	if err := srv.Run(); err != nil {

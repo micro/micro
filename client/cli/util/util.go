@@ -5,7 +5,6 @@ package util
 import (
 	"encoding/json"
 	"fmt"
-	"net"
 	"os"
 
 	"github.com/micro/cli/v2"
@@ -23,7 +22,7 @@ const (
 	// localProxyAddress is the default proxy address for environment server
 	localProxyAddress = "127.0.0.1:8081"
 	// platformProxyAddress is teh default proxy address for environment platform
-	platformProxyAddress = "proxy.m3o.com"
+	platformProxyAddress = "proxy.m3o.com:443"
 )
 
 var (
@@ -165,16 +164,6 @@ func GetEnvByName(env string) Env {
 		fmt.Println(fmt.Sprintf("Env \"%s\" not found. See `micro env` for available environments.", env))
 		os.Exit(1)
 	}
-
-	if len(envir.ProxyAddress) == 0 {
-		return envir
-	}
-
-	// default to :8081 (the proxy port)
-	if _, port, _ := net.SplitHostPort(envir.ProxyAddress); len(port) == 0 {
-		envir.ProxyAddress = net.JoinHostPort(envir.ProxyAddress, "8081")
-	}
-
 	return envir
 }
 

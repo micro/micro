@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package go.micro.network;
+package network;
 
 import "service/router/proto/router.proto";
 
@@ -64,7 +64,7 @@ message RoutesRequest {
 }
 
 message RoutesResponse {
-	repeated go.micro.router.Route routes = 1;
+	repeated router.Route routes = 1;
 }
 
 message ServicesRequest {}
@@ -129,5 +129,5 @@ message Sync {
         // peer origin
         Peer peer = 1;
         // node routes
-        repeated go.micro.router.Route routes = 2;
+        repeated router.Route routes = 2;
 }

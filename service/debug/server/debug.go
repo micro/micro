@@ -16,7 +16,7 @@ import (
 )
 
 const (
-	name    = "go.micro.debug"
+	name    = "debug"
 	address = ":8089"
 )
 
@@ -82,7 +82,7 @@ func Run(ctx *cli.Context) error {
 	}
 
 	// Register the logs handler
-	pblog.RegisterLogHandler(lgHandler)
+	pblog.RegisterLogHandler(srv.Server(), lgHandler)
 
 	// stats handler
 	statsHandler, err := statshandler.New(done, ctx.Int("window"), c.services)
@@ -97,9 +97,9 @@ func Run(ctx *cli.Context) error {
 	}
 
 	// Register the stats handler
-	pbstats.RegisterStatsHandler(statsHandler)
+	pbstats.RegisterStatsHandler(srv.Server(), statsHandler)
 	// register trace handler
-	pbtrace.RegisterTraceHandler(traceHandler)
+	pbtrace.RegisterTraceHandler(srv.Server(), traceHandler)
 
 	// TODO: implement debug service for k8s cruft
 

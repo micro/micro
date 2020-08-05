@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package go.micro.store;
+package store;
 
 option go_package = "github.com/micro/micro/v3/service/store/proto;store";
 

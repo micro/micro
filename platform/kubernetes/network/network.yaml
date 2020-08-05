@@ -7,7 +7,7 @@ metadata:
     micro: runtime
     name: micro-network
   annotations:
-    name: "go.micro.network"
+    name: "network"
     version: "latest"
     source: "github.com/micro/micro"
     owner: "micro"
@@ -46,8 +46,6 @@ spec:
       containers:
       - name: network
         env:
-        - name: MICRO_NETWORK_ADDRESS
-          value: "0.0.0.0:443"
         - name: MICRO_AUTH_PUBLIC_KEY
           valueFrom:
             secretKeyRef:
@@ -82,7 +80,7 @@ spec:
         image: micro/micro
         imagePullPolicy: Always
         ports:
-        - containerPort: 443
+        - containerPort: 8443
           name: service-port
         - containerPort: 8085
           name: network-port

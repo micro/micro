@@ -7,7 +7,7 @@ metadata:
     micro: runtime
     name: micro-auth
   annotations:
-    name: "go.micro.auth"
+    name: "auth"
     version: "latest"
     source: "github.com/micro/micro"
     owner: "micro"
@@ -30,7 +30,7 @@ spec:
         - name: MICRO_PROFILE
           value: platform
         - name: MICRO_PROXY
-          value: "micro-network.default.svc.cluster.local"
+          value: "micro-network.default.svc.cluster.local:8443"
         - name: MICRO_LOG_LEVEL
           value: "debug"
         - name: MICRO_BROKER_TLS_CA

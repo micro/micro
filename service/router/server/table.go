@@ -3,8 +3,8 @@ package server
 import (
 	"context"
 
-	"github.com/micro/micro/v3/service/errors"
 	"github.com/micro/go-micro/v3/router"
+	"github.com/micro/micro/v3/service/errors"
 	pb "github.com/micro/micro/v3/service/router/proto"
 )
 
@@ -24,7 +24,7 @@ func (t *Table) Create(ctx context.Context, route *pb.Route, resp *pb.CreateResp
 		Metadata: route.Metadata,
 	})
 	if err != nil {
-		return errors.InternalServerError("go.micro.router", "failed to create route: %s", err)
+		return errors.InternalServerError("router.Table.Create", "failed to create route: %s", err)
 	}
 
 	return nil
@@ -42,7 +42,7 @@ func (t *Table) Update(ctx context.Context, route *pb.Route, resp *pb.UpdateResp
 		Metadata: route.Metadata,
 	})
 	if err != nil {
-		return errors.InternalServerError("go.micro.router", "failed to update route: %s", err)
+		return errors.InternalServerError("router.Table.Update", "failed to update route: %s", err)
 	}
 
 	return nil
@@ -60,7 +60,7 @@ func (t *Table) Delete(ctx context.Context, route *pb.Route, resp *pb.DeleteResp
 		Metadata: route.Metadata,
 	})
 	if err != nil {
-		return errors.InternalServerError("go.micro.router", "failed to delete route: %s", err)
+		return errors.InternalServerError("route.Table.Delete", "failed to delete route: %s", err)
 	}
 
 	return nil
@@ -70,7 +70,7 @@ func (t *Table) Delete(ctx context.Context, route *pb.Route, resp *pb.DeleteResp
 func (t *Table) List(ctx context.Context, req *pb.Request, resp *pb.ListResponse) error {
 	routes, err := t.Router.Table().List()
 	if err != nil {
-		return errors.InternalServerError("go.micro.router", "failed to list routes: %s", err)
+		return errors.InternalServerError("router.Table.List", "failed to list routes: %s", err)
 	}
 
 	respRoutes := make([]*pb.Route, 0, len(routes))
@@ -99,7 +99,7 @@ func (t *Table) Query(ctx context.Context, req *pb.QueryRequest, resp *pb.QueryR
 		router.QueryNetwork(req.Query.Network),
 	)
 	if err != nil {
-		return errors.InternalServerError("go.micro.router", "failed to lookup routes: %s", err)
+		return errors.InternalServerError("router.Table.Query", "failed to lookup routes: %s", err)
 	}
 
 	respRoutes := make([]*pb.Route, 0, len(routes))

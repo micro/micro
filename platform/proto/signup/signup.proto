@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package go.micro.service.signup;
+package signup;
 
 service Signup {
 	// Send a verification email
@@ -35,8 +35,12 @@ message VerifyResponse {
 	// acquire a payment method, see `micro login` flow for more.
 	// @todo this is likely not needed
 	string customerID = 2;
-	// Namesp
+	// Namespace
 	string namespace = 3;
+	// Message returned from the service to display to user
+	string message = 4;
+	// Whether payment is required or not
+	bool payment_required = 5;
 }
 
 message CompleteSignupRequest {

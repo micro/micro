@@ -24,6 +24,7 @@ import (
 	"github.com/micro/go-micro/v3/cmd"
 	"github.com/micro/go-micro/v3/registry"
 	"github.com/micro/micro/v3/client/cli/util"
+	uconf "github.com/micro/micro/v3/internal/config"
 	"github.com/micro/micro/v3/internal/helper"
 	_ "github.com/micro/micro/v3/internal/usage"
 	"github.com/micro/micro/v3/internal/wrapper"
@@ -38,6 +39,7 @@ import (
 	muclient "github.com/micro/micro/v3/service/client"
 	muconfig "github.com/micro/micro/v3/service/config"
 	muregistry "github.com/micro/micro/v3/service/registry"
+	muruntime "github.com/micro/micro/v3/service/runtime"
 	muserver "github.com/micro/micro/v3/service/server"
 	mustore "github.com/micro/micro/v3/service/store"
 )
@@ -69,6 +71,17 @@ var (
 	description = "A framework for cloud native development\n\n	 Use `micro [command] --help` to see command specific help."
 	// defaultFlags which are used on all commands
 	defaultFlags = []cli.Flag{
+		&cli.StringFlag{
+			Name:    "c",
+			Usage:   "Set the config file: Defaults to ~/.micro/config.json",
+			EnvVars: []string{"MICRO_CONFIG_FILE"},
+		},
+		&cli.StringFlag{
+			Name:    "env",
+			Aliases: []string{"e"},
+			Usage:   "Set the environment to operate in",
+			EnvVars: []string{"MICRO_ENV"},
+		},
 		&cli.StringFlag{
 			Name:    "profile",
 			Usage:   "Set the micro server profile: e.g. local or kubernetes",
@@ -162,12 +175,6 @@ var (
 			Value:   true,
 		},
 		&cli.StringFlag{
-			Name:    "env",
-			Aliases: []string{"e"},
-			Usage:   "Override environment",
-			EnvVars: []string{"MICRO_ENV"},
-		},
-		&cli.StringFlag{
 			Name:    "service_name",
 			Usage:   "Name of the micro service",
 			EnvVars: []string{"MICRO_SERVICE_NAME"},
@@ -238,6 +245,11 @@ func (c *command) After(ctx *cli.Context) error {
 
 // Before is executed before any subcommand
 func (c *command) Before(ctx *cli.Context) error {
+	// set the config file if specified
+	if cf := ctx.String("c"); len(cf) > 0 {
+		uconf.SetConfig(cf)
+	}
+
 	// initialize plugins
 	for _, p := range plugin.Plugins() {
 		if err := p.Init(ctx); err != nil {
@@ -376,6 +388,12 @@ func (c *command) Before(ctx *cli.Context) error {
 		logger.Fatalf("Error configuring broker: %v", err)
 	}
 
+	// Setup runtime. This is a temporary fix to trigger the runtime to recreate
+	// its client now the client has been replaced with a wrapped one.
+	if err := muruntime.DefaultRuntime.Init(); err != nil {
+		logger.Fatalf("Error configuring runtime: %v", err)
+	}
+
 	// Setup store options
 	storeOpts := []store.Option{}
 	if len(ctx.String("store_address")) > 0 {
@@ -411,7 +429,9 @@ func (c *command) Before(ctx *cli.Context) error {
 	// from the service immediately. We only do this if the action is nil, indicating
 	// a service is being run
 	if c.service && muconfig.DefaultConfig == nil {
-		conf, err := config.NewConfig(config.WithSource(configCli.NewSource()))
+		conf, err := config.NewConfig(config.WithSource(configCli.NewSource(
+			configCli.Namespace(ctx.String("namespace")),
+		)))
 		if err != nil {
 			logger.Fatalf("Error configuring config: %v", err)
 		}
@@ -461,7 +481,7 @@ func action(c *cli.Context) error {
 		}
 
 		// lookup the service, e.g. "micro config set" would
-		// firstly check to see if the service "go.micro.config"
+		// firstly check to see if the service, e.g. config
 		// exists within the current namespace, then it would
 		// execute the Config.Set RPC, setting the flags in the
 		// request.

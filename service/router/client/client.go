@@ -8,16 +8,22 @@ import (
 	"sync"
 	"time"
 
-	"github.com/micro/go-micro/v3/client"
+	goclient "github.com/micro/go-micro/v3/client"
 	"github.com/micro/go-micro/v3/router"
+	"github.com/micro/micro/v3/service/client"
 	"github.com/micro/micro/v3/service/errors"
 	pb "github.com/micro/micro/v3/service/router/proto"
+)
+
+var (
+	// name of the router service
+	name = "router"
 )
 
 type svc struct {
 	sync.RWMutex
 	opts       router.Options
-	callOpts   []client.CallOption
+	callOpts   []goclient.CallOption
 	router     pb.RouterService
 	table      *table
 	exit       chan bool
@@ -35,21 +41,23 @@ func NewRouter(opts ...router.Option) router.Router {
 		o(&options)
 	}
 
-	// NOTE: should we have Client/Service option in router.Options?
 	s := &svc{
 		opts:   options,
-		router: pb.NewRouterService(router.DefaultName),
+		router: pb.NewRouterService(name, client.DefaultClient),
 	}
 
 	// set the router address to call
 	if len(options.Address) > 0 {
-		s.callOpts = []client.CallOption{
-			client.WithAddress(options.Address),
-			client.WithAuthToken(),
+		s.callOpts = []goclient.CallOption{
+			goclient.WithAddress(options.Address),
+			goclient.WithAuthToken(),
 		}
 	}
 	// set the table
-	s.table = &table{pb.NewTableService(router.DefaultName), s.callOpts}
+	s.table = &table{
+		pb.NewTableService(name, client.DefaultClient),
+		s.callOpts,
+	}
 
 	return s
 }

@@ -11,13 +11,10 @@ import (
 	"github.com/micro/go-micro/v3/api/server/acme/autocert"
 	"github.com/micro/go-micro/v3/api/server/acme/certmagic"
 	bmem "github.com/micro/go-micro/v3/broker/memory"
-	grpcCli "github.com/micro/go-micro/v3/client/grpc"
 	"github.com/micro/go-micro/v3/proxy"
 	"github.com/micro/go-micro/v3/proxy/http"
 	"github.com/micro/go-micro/v3/proxy/mucp"
 	rmem "github.com/micro/go-micro/v3/registry/memory"
-	"github.com/micro/go-micro/v3/router"
-	"github.com/micro/go-micro/v3/router/registry"
 	"github.com/micro/go-micro/v3/server"
 	grpcSrv "github.com/micro/go-micro/v3/server/grpc"
 	sgrpc "github.com/micro/go-micro/v3/server/grpc"
@@ -27,14 +24,15 @@ import (
 	"github.com/micro/micro/v3/cmd"
 	"github.com/micro/micro/v3/internal/helper"
 	"github.com/micro/micro/v3/service"
+	muclient "github.com/micro/micro/v3/service/client"
 	log "github.com/micro/micro/v3/service/logger"
-	muregistry "github.com/micro/micro/v3/service/registry"
+	murouter "github.com/micro/micro/v3/service/router"
 	"github.com/micro/micro/v3/service/store"
 )
 
 var (
 	// Name of the proxy
-	Name = "go.micro.proxy"
+	Name = "proxy"
 	// The address of the proxy
 	Address = ":8081"
 	// the proxy protocol
@@ -69,9 +67,8 @@ func Run(ctx *cli.Context) error {
 
 	// set the context
 	popts := []proxy.Option{
-		proxy.WithRouter(registry.NewRouter(
-			router.Registry(muregistry.DefaultRegistry),
-		)),
+		proxy.WithRouter(murouter.DefaultRouter),
+		proxy.WithClient(muclient.DefaultClient),
 	}
 
 	// new proxy
@@ -176,14 +173,11 @@ func Run(ctx *cli.Context) error {
 		// TODO: http server
 		srv = grpcSrv.NewServer(serverOpts...)
 	case "mucp":
-		popts = append(popts, proxy.WithClient(grpcCli.NewClient()))
 		p = mucp.NewProxy(popts...)
-
 		serverOpts = append(serverOpts, server.WithRouter(p))
 		srv = grpcSrv.NewServer(serverOpts...)
 	default:
 		p = mucp.NewProxy(popts...)
-
 		serverOpts = append(serverOpts, server.WithRouter(p))
 		srv = sgrpc.NewServer(serverOpts...)
 	}

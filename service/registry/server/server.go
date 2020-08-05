@@ -14,11 +14,11 @@ import (
 
 var (
 	// name of the registry
-	name = "go.micro.registry"
+	name = "registry"
 	// address of the registry
 	address = ":8000"
 	// topic to publish registry events to
-	topic = "go.micro.registry.events"
+	topic = "registry.events"
 )
 
 // Sub processes registry events
@@ -102,7 +102,7 @@ func Run(ctx *cli.Context) error {
 	id := srv.Server().Options().Id
 
 	// register the handler
-	pb.RegisterRegistryHandler(&Registry{
+	pb.RegisterRegistryHandler(srv.Server(), &Registry{
 		ID:    id,
 		Event: service.NewEvent(topic),
 	})

@@ -9,12 +9,12 @@ import (
 
 	goclient "github.com/micro/go-micro/v3/client"
 	debug "github.com/micro/go-micro/v3/debug/service/proto"
-	"github.com/micro/micro/v3/service/errors"
-	log "github.com/micro/micro/v3/service/logger"
 	"github.com/micro/go-micro/v3/registry"
 	"github.com/micro/go-micro/v3/util/ring"
 	"github.com/micro/micro/v3/service/client"
 	trace "github.com/micro/micro/v3/service/debug/trace/proto"
+	"github.com/micro/micro/v3/service/errors"
+	log "github.com/micro/micro/v3/service/logger"
 )
 
 // New initialises and returns a new trace service handler
@@ -139,12 +139,12 @@ func (s *Trace) Read(ctx context.Context, req *trace.ReadRequest, rsp *trace.Rea
 }
 
 func (s *Trace) Write(ctx context.Context, req *trace.WriteRequest, rsp *trace.WriteResponse) error {
-	return errors.BadRequest("go.micro.debug.trace", "not implemented")
+	return errors.BadRequest("debug.Trace.Write", "not implemented")
 }
 
 // Stream starts streaming trace
 func (s *Trace) Stream(ctx context.Context, req *trace.StreamRequest, rsp trace.Trace_StreamStream) error {
-	return errors.BadRequest("go.micro.debug.trace", "not implemented")
+	return errors.BadRequest("debug.Trace.Stream", "not implemented")
 }
 
 // Start Starts scraping other services until the provided channel is closed

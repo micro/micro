@@ -17,13 +17,13 @@ import (
 
 var (
 	// name of the router microservice
-	name = "go.micro.router"
+	name = "router"
 	// address is the router microservice bind address
 	address = ":8084"
 	// network is the network name
 	network = router.DefaultNetwork
 	// topic is router adverts topic
-	topic = "go.micro.router.adverts"
+	topic = "router.adverts"
 
 	// Flags specific to the router
 	Flags = []cli.Flag{
@@ -108,7 +108,7 @@ func newRouter(srv *service.Service, router router.Router) *rtr {
 	}
 
 	// register subscriber
-	if err := service.RegisterSubscriber(topic, s); err != nil {
+	if err := srv.Subscribe(topic, s); err != nil {
 		log.Errorf("failed to subscribe to adverts: %s", err)
 		os.Exit(1)
 	}
@@ -217,8 +217,8 @@ func Run(ctx *cli.Context) error {
 	)
 
 	// register handlers
-	pb.RegisterRouterHandler(&Router{Router: r})
-	pb.RegisterTableHandler(&Table{Router: r})
+	pb.RegisterRouterHandler(srv.Server(), &Router{Router: r})
+	pb.RegisterTableHandler(srv.Server(), &Table{Router: r})
 
 	// create new micro router and start advertising routes
 	rtr := newRouter(srv, r)

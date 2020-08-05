@@ -4,11 +4,11 @@ import (
 	"context"
 	"time"
 
-	"github.com/micro/micro/v3/service/errors"
-	log "github.com/micro/micro/v3/service/logger"
 	"github.com/micro/go-micro/v3/runtime"
 	"github.com/micro/micro/v3/internal/namespace"
 	"github.com/micro/micro/v3/service"
+	"github.com/micro/micro/v3/service/errors"
+	log "github.com/micro/micro/v3/service/logger"
 	pb "github.com/micro/micro/v3/service/runtime/proto"
 )
 
@@ -28,18 +28,18 @@ func (r *Runtime) Read(ctx context.Context, req *pb.ReadRequest, rsp *pb.ReadRes
 
 	// authorize the request
 	if err := namespace.Authorize(ctx, req.Options.Namespace); err == namespace.ErrForbidden {
-		return errors.Forbidden("go.micro.runtime", err.Error())
+		return errors.Forbidden("runtime.Runtime.Read", err.Error())
 	} else if err == namespace.ErrUnauthorized {
-		return errors.Unauthorized("go.micro.runtime", err.Error())
+		return errors.Unauthorized("runtime.Runtime.Read", err.Error())
 	} else if err != nil {
-		return errors.InternalServerError("go.micro.runtime", err.Error())
+		return errors.InternalServerError("runtime.Runtime.Read", err.Error())
 	}
 
 	// lookup the services
 	options := toReadOptions(ctx, req.Options)
 	services, err := r.Runtime.Read(options...)
 	if err != nil {
-		return errors.InternalServerError("go.micro.runtime", err.Error())
+		return errors.InternalServerError("runtime.Runtime.Read", err.Error())
 	}
 
 	// serialize the response
@@ -53,7 +53,7 @@ func (r *Runtime) Read(ctx context.Context, req *pb.ReadRequest, rsp *pb.ReadRes
 func (r *Runtime) Create(ctx context.Context, req *pb.CreateRequest, rsp *pb.CreateResponse) error {
 	// validate the request
 	if req.Service == nil {
-		return errors.BadRequest("go.micro.runtime", "blank service")
+		return errors.BadRequest("runtime.Runtime.Create", "blank service")
 	}
 
 	// set defaults
@@ -66,11 +66,11 @@ func (r *Runtime) Create(ctx context.Context, req *pb.CreateRequest, rsp *pb.Cre
 
 	// authorize the request
 	if err := namespace.Authorize(ctx, req.Options.Namespace); err == namespace.ErrForbidden {
-		return errors.Forbidden("go.micro.runtime", err.Error())
+		return errors.Forbidden("runtime.Runtime.Create", err.Error())
 	} else if err == namespace.ErrUnauthorized {
-		return errors.Unauthorized("go.micro.runtime", err.Error())
+		return errors.Unauthorized("runtime.Runtime.Create", err.Error())
 	} else if err != nil {
-		return errors.InternalServerError("go.micro.runtime", err.Error())
+		return errors.InternalServerError("runtime.Runtime.Create", err.Error())
 	}
 
 	// create the service
@@ -79,7 +79,7 @@ func (r *Runtime) Create(ctx context.Context, req *pb.CreateRequest, rsp *pb.Cre
 
 	log.Infof("Creating service %s version %s source %s", service.Name, service.Version, service.Source)
 	if err := r.Runtime.Create(service, options...); err != nil {
-		return errors.InternalServerError("go.micro.runtime", err.Error())
+		return errors.InternalServerError("runtime.Runtime.Create", err.Error())
 	}
 
 	// publish the create event
@@ -96,7 +96,7 @@ func (r *Runtime) Create(ctx context.Context, req *pb.CreateRequest, rsp *pb.Cre
 func (r *Runtime) Update(ctx context.Context, req *pb.UpdateRequest, rsp *pb.UpdateResponse) error {
 	// validate the request
 	if req.Service == nil {
-		return errors.BadRequest("go.micro.runtime", "blank service")
+		return errors.BadRequest("runtime.Runtime.Update", "blank service")
 	}
 
 	// set defaults
@@ -109,11 +109,11 @@ func (r *Runtime) Update(ctx context.Context, req *pb.UpdateRequest, rsp *pb.Upd
 
 	// authorize the request
 	if err := namespace.Authorize(ctx, req.Options.Namespace); err == namespace.ErrForbidden {
-		return errors.Forbidden("go.micro.runtime", err.Error())
+		return errors.Forbidden("runtime.Runtime.Update", err.Error())
 	} else if err == namespace.ErrUnauthorized {
-		return errors.Unauthorized("go.micro.runtime", err.Error())
+		return errors.Unauthorized("runtime.Runtime.Update", err.Error())
 	} else if err != nil {
-		return errors.InternalServerError("go.micro.runtime", err.Error())
+		return errors.InternalServerError("runtime.Runtime.Update", err.Error())
 	}
 
 	service := toService(req.Service)
@@ -122,7 +122,7 @@ func (r *Runtime) Update(ctx context.Context, req *pb.UpdateRequest, rsp *pb.Upd
 	log.Infof("Updating service %s version %s source %s", service.Name, service.Version, service.Source)
 
 	if err := r.Runtime.Update(service, options...); err != nil {
-		return errors.InternalServerError("go.micro.runtime", err.Error())
+		return errors.InternalServerError("runtime.Runtime.Update", err.Error())
 	}
 
 	// publish the update event
@@ -139,7 +139,7 @@ func (r *Runtime) Update(ctx context.Context, req *pb.UpdateRequest, rsp *pb.Upd
 func (r *Runtime) Delete(ctx context.Context, req *pb.DeleteRequest, rsp *pb.DeleteResponse) error {
 	// validate the request
 	if req.Service == nil {
-		return errors.BadRequest("go.micro.runtime", "blank service")
+		return errors.BadRequest("runtime.Runtime.Delete", "blank service")
 	}
 
 	// set defaults
@@ -152,11 +152,11 @@ func (r *Runtime) Delete(ctx context.Context, req *pb.DeleteRequest, rsp *pb.Del
 
 	// authorize the request
 	if err := namespace.Authorize(ctx, req.Options.Namespace); err == namespace.ErrForbidden {
-		return errors.Forbidden("go.micro.runtime", err.Error())
+		return errors.Forbidden("runtime.Runtime.Delete", err.Error())
 	} else if err == namespace.ErrUnauthorized {
-		return errors.Unauthorized("go.micro.runtime", err.Error())
+		return errors.Unauthorized("runtime.Runtime.Delete", err.Error())
 	} else if err != nil {
-		return errors.InternalServerError("go.micro.runtime", err.Error())
+		return errors.InternalServerError("runtime.Runtime.Delete", err.Error())
 	}
 
 	// delete the service
@@ -165,7 +165,7 @@ func (r *Runtime) Delete(ctx context.Context, req *pb.DeleteRequest, rsp *pb.Del
 
 	log.Infof("Deleting service %s version %s source %s", service.Name, service.Version, service.Source)
 	if err := r.Runtime.Delete(service, options...); err != nil {
-		return errors.InternalServerError("go.micro.runtime", err.Error())
+		return errors.InternalServerError("runtime.Runtime.Delete", err.Error())
 	}
 
 	// publish the delete event
@@ -190,11 +190,11 @@ func (r *Runtime) Logs(ctx context.Context, req *pb.LogsRequest, stream pb.Runti
 
 	// authorize the request
 	if err := namespace.Authorize(ctx, req.Options.Namespace); err == namespace.ErrForbidden {
-		return errors.Forbidden("go.micro.runtime", err.Error())
+		return errors.Forbidden("runtime.Runtime.Logs", err.Error())
 	} else if err == namespace.ErrUnauthorized {
-		return errors.Unauthorized("go.micro.runtime", err.Error())
+		return errors.Unauthorized("runtime.Runtime.Logs", err.Error())
 	} else if err != nil {
-		return errors.InternalServerError("go.micro.runtime", err.Error())
+		return errors.InternalServerError("runtime.Runtime.Logs", err.Error())
 	}
 
 	opts := toLogsOptions(ctx, req.Options)

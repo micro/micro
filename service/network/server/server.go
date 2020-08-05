@@ -17,7 +17,6 @@ import (
 	"github.com/micro/go-micro/v3/proxy"
 	mucpProxy "github.com/micro/go-micro/v3/proxy/mucp"
 	"github.com/micro/go-micro/v3/router"
-	regRouter "github.com/micro/go-micro/v3/router/registry"
 	"github.com/micro/go-micro/v3/server"
 	mucpServer "github.com/micro/go-micro/v3/server/mucp"
 	"github.com/micro/go-micro/v3/transport"
@@ -28,13 +27,14 @@ import (
 	"github.com/micro/micro/v3/service"
 	log "github.com/micro/micro/v3/service/logger"
 	muregistry "github.com/micro/micro/v3/service/registry"
+	murouter "github.com/micro/micro/v3/service/router"
 )
 
 var (
 	// name of the network service
-	name = "go.micro.network"
+	name = "network"
 	// name of the micro network
-	networkName = "go.micro"
+	networkName = "micro"
 	// address is the network address
 	address = ":8443"
 	// peerAddress is the address the network peers on
@@ -65,7 +65,7 @@ var (
 		},
 		&cli.StringFlag{
 			Name:    "network",
-			Usage:   "Set the micro network name: go.micro",
+			Usage:   "Set the micro network name: micro",
 			EnvVars: []string{"MICRO_NETWORK"},
 		},
 		&cli.StringFlag{
@@ -176,7 +176,8 @@ func Run(ctx *cli.Context) error {
 	id := service.Server().Options().Id
 
 	// local tunnel router
-	rtr := regRouter.NewRouter(
+	rtr := murouter.DefaultRouter
+	rtr.Init(
 		router.Network(networkName),
 		router.Id(id),
 		router.Registry(muregistry.DefaultRegistry),

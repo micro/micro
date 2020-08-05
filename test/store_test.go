@@ -5,7 +5,6 @@ package test
 import (
 	"errors"
 	"fmt"
-	"os/exec"
 	"strings"
 	"testing"
 	"time"
@@ -17,21 +16,18 @@ func TestStore(t *testing.T) {
 
 func testStore(t *T) {
 	t.Parallel()
-	serv := NewServer(t)
+	serv := NewServer(t, WithLogin())
 	defer serv.Close()
 	if err := serv.Run(); err != nil {
 		return
 	}
 
-	if err := Login(serv, t, "default", "password"); err != nil {
-		t.Fatalf("Failed to login %s", err)
-	}
+	cmd := serv.Command()
 
 	// Execute first command in read to wait for store service
 	// to start up
 	if err := Try("Calling micro store read", t, func() ([]byte, error) {
-		readCmd := exec.Command("micro", serv.EnvFlag(), "store", "read", "somekey")
-		outp, err := readCmd.CombinedOutput()
+		outp, err := cmd.Exec("store", "read", "somekey")
 		if err == nil {
 			return outp, errors.New("store read should fail")
 		}
@@ -43,8 +39,7 @@ func testStore(t *T) {
 		return
 	}
 
-	writeCmd := exec.Command("micro", serv.EnvFlag(), "store", "write", "somekey", "val1")
-	outp, err := writeCmd.CombinedOutput()
+	outp, err := cmd.Exec("store", "write", "somekey", "val1")
 	if err != nil {
 		t.Fatal(string(outp))
 		return
@@ -54,8 +49,7 @@ func testStore(t *T) {
 		return
 	}
 
-	readCmd := exec.Command("micro", serv.EnvFlag(), "store", "read", "somekey")
-	outp, err = readCmd.CombinedOutput()
+	outp, err = cmd.Exec("store", "read", "somekey")
 	if err != nil {
 		t.Fatal(string(outp))
 		return
@@ -65,8 +59,7 @@ func testStore(t *T) {
 		return
 	}
 
-	delCmd := exec.Command("micro", serv.EnvFlag(), "store", "delete", "somekey")
-	outp, err = delCmd.CombinedOutput()
+	outp, err = cmd.Exec("store", "delete", "somekey")
 	if err != nil {
 		t.Fatal(err)
 		return
@@ -76,8 +69,7 @@ func testStore(t *T) {
 		return
 	}
 
-	readCmd = exec.Command("micro", serv.EnvFlag(), "store", "read", "somekey")
-	outp, err = readCmd.CombinedOutput()
+	outp, err = cmd.Exec("store", "read", "somekey")
 	if err == nil {
 		t.Fatalf("store read should fail: %v", string(outp))
 		return
@@ -88,8 +80,7 @@ func testStore(t *T) {
 	}
 
 	// Test prefixes
-	writeCmd = exec.Command("micro", serv.EnvFlag(), "store", "write", "somekey1", "val1")
-	outp, err = writeCmd.CombinedOutput()
+	outp, err = cmd.Exec("store", "write", "somekey1", "val1")
 	if err != nil {
 		t.Fatal(string(outp))
 		return
@@ -99,8 +90,7 @@ func testStore(t *T) {
 		return
 	}
 
-	writeCmd = exec.Command("micro", serv.EnvFlag(), "store", "write", "somekey2", "val2")
-	outp, err = writeCmd.CombinedOutput()
+	outp, err = cmd.Exec("store", "write", "somekey2", "val2")
 	if err != nil {
 		t.Fatal(string(outp))
 		return
@@ -111,8 +101,7 @@ func testStore(t *T) {
 	}
 
 	// Read exact key
-	readCmd = exec.Command("micro", serv.EnvFlag(), "store", "read", "somekey")
-	outp, err = readCmd.CombinedOutput()
+	outp, err = cmd.Exec("store", "read", "somekey")
 	if err == nil {
 		t.Fatalf("store read should fail: %v", string(outp))
 		return
@@ -122,8 +111,7 @@ func testStore(t *T) {
 		return
 	}
 
-	readCmd = exec.Command("micro", serv.EnvFlag(), "store", "read", "--prefix", "somekey")
-	outp, err = readCmd.CombinedOutput()
+	outp, err = cmd.Exec("store", "read", "--prefix", "somekey")
 	if err != nil {
 		t.Fatalf("store prefix read not should fail: %v", string(outp))
 		return
@@ -133,8 +121,7 @@ func testStore(t *T) {
 		return
 	}
 
-	readCmd = exec.Command("micro", serv.EnvFlag(), "store", "read", "-v", "--prefix", "somekey")
-	outp, err = readCmd.CombinedOutput()
+	outp, err = cmd.Exec("store", "read", "-v", "--prefix", "somekey")
 	if err != nil {
 		t.Fatalf("store prefix read not should fail: %v", string(outp))
 		return
@@ -145,8 +132,7 @@ func testStore(t *T) {
 		return
 	}
 
-	listCmd := exec.Command("micro", serv.EnvFlag(), "store", "list")
-	outp, err = listCmd.CombinedOutput()
+	outp, err = cmd.Exec("store", "list")
 	if err != nil {
 		t.Fatalf("store list should not fail: %v", string(outp))
 		return
