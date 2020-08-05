@@ -63,19 +63,19 @@ func (r *Registry) GetService(ctx context.Context, req *pb.GetRequest, rsp *pb.G
 	// authorize the request
 	publicNS := namespace.Public(goregistry.DefaultDomain)
 	if err := namespace.Authorize(ctx, options.Domain, publicNS); err == namespace.ErrForbidden {
-		return errors.Forbidden("registry.Registry.GetService", err.Error())
+		return errors.Forbidden("go.micro.registry", err.Error())
 	} else if err == namespace.ErrUnauthorized {
-		return errors.Unauthorized("registry.Registry.GetService", err.Error())
+		return errors.Unauthorized("go.micro.registry", err.Error())
 	} else if err != nil {
-		return errors.InternalServerError("registry.Registry.GetService", err.Error())
+		return errors.InternalServerError("go.micro.registry", err.Error())
 	}
 
 	// get the services in the namespace
 	services, err := registry.GetService(req.Service, goregistry.GetDomain(options.Domain))
 	if err == goregistry.ErrNotFound {
-		return errors.NotFound("registry.Registry.GetService", err.Error())
+		return errors.NotFound("go.micro.registry", err.Error())
 	} else if err != nil {
-		return errors.InternalServerError("registry.Registry.GetService", err.Error())
+		return errors.InternalServerError("go.micro.registry", err.Error())
 	}
 
 	// serialize the response
@@ -106,16 +106,16 @@ func (r *Registry) Register(ctx context.Context, req *pb.Service, rsp *pb.EmptyR
 
 	// authorize the request
 	if err := namespace.Authorize(ctx, domain); err == namespace.ErrForbidden {
-		return errors.Forbidden("registry.Registry.Register", err.Error())
+		return errors.Forbidden("go.micro.registry", err.Error())
 	} else if err == namespace.ErrUnauthorized {
-		return errors.Unauthorized("registry.Registry.Register", err.Error())
+		return errors.Unauthorized("go.micro.registry", err.Error())
 	} else if err != nil {
-		return errors.InternalServerError("registry.Registry.Register", err.Error())
+		return errors.InternalServerError("go.micro.registry", err.Error())
 	}
 
 	// register the service
 	if err := registry.Register(util.ToService(req), opts...); err != nil {
-		return errors.InternalServerError("registry.Registry.Register", err.Error())
+		return errors.InternalServerError("go.micro.registry", err.Error())
 	}
 
 	// publish the event
@@ -136,16 +136,16 @@ func (r *Registry) Deregister(ctx context.Context, req *pb.Service, rsp *pb.Empt
 
 	// authorize the request
 	if err := namespace.Authorize(ctx, domain); err == namespace.ErrForbidden {
-		return errors.Forbidden("registry.Registry.Deregister", err.Error())
+		return errors.Forbidden("go.micro.registry", err.Error())
 	} else if err == namespace.ErrUnauthorized {
-		return errors.Unauthorized("registry.Registry.Deregister", err.Error())
+		return errors.Unauthorized("go.micro.registry", err.Error())
 	} else if err != nil {
-		return errors.InternalServerError("registry.Registry.Deregister", err.Error())
+		return errors.InternalServerError("go.micro.registry", err.Error())
 	}
 
 	// deregister the service
 	if err := registry.Deregister(util.ToService(req), goregistry.DeregisterDomain(domain)); err != nil {
-		return errors.InternalServerError("registry.Registry.Deregister", err.Error())
+		return errors.InternalServerError("go.micro.registry", err.Error())
 	}
 
 	// publish the event
@@ -167,17 +167,17 @@ func (r *Registry) ListServices(ctx context.Context, req *pb.ListRequest, rsp *p
 	// authorize the request
 	publicNS := namespace.Public(goregistry.DefaultDomain)
 	if err := namespace.Authorize(ctx, domain, publicNS); err == namespace.ErrForbidden {
-		return errors.Forbidden("registry.Registry.ListServices", err.Error())
+		return errors.Forbidden("go.micro.registry", err.Error())
 	} else if err == namespace.ErrUnauthorized {
-		return errors.Unauthorized("registry.Registry.ListServices", err.Error())
+		return errors.Unauthorized("go.micro.registry", err.Error())
 	} else if err != nil {
-		return errors.InternalServerError("registry.Registry.ListServices", err.Error())
+		return errors.InternalServerError("go.micro.registry", err.Error())
 	}
 
 	// list the services from the registry
 	services, err := registry.ListServices(goregistry.ListDomain(domain))
 	if err != nil {
-		return errors.InternalServerError("registry.Registry.ListServices", err.Error())
+		return errors.InternalServerError("go.micro.registry", err.Error())
 	}
 
 	// serialize the response
@@ -202,23 +202,23 @@ func (r *Registry) Watch(ctx context.Context, req *pb.WatchRequest, rsp pb.Regis
 	// authorize the request
 	publicNS := namespace.Public(goregistry.DefaultDomain)
 	if err := namespace.Authorize(ctx, domain, publicNS); err == namespace.ErrForbidden {
-		return errors.Forbidden("registry.Registry.Watch", err.Error())
+		return errors.Forbidden("go.micro.registry", err.Error())
 	} else if err == namespace.ErrUnauthorized {
-		return errors.Unauthorized("registry.Registry.Watch", err.Error())
+		return errors.Unauthorized("go.micro.registry", err.Error())
 	} else if err != nil {
-		return errors.InternalServerError("registry.Registry.Watch", err.Error())
+		return errors.InternalServerError("go.micro.registry", err.Error())
 	}
 
 	// setup the watcher
 	watcher, err := registry.Watch(goregistry.WatchService(req.Service), goregistry.WatchDomain(domain))
 	if err != nil {
-		return errors.InternalServerError("registry.Registry.Watch", err.Error())
+		return errors.InternalServerError("go.micro.registry", err.Error())
 	}
 
 	for {
 		next, err := watcher.Next()
 		if err != nil {
-			return errors.InternalServerError("registry.Registry.Watch", err.Error())
+			return errors.InternalServerError("go.micro.registry", err.Error())
 		}
 
 		err = rsp.Send(&pb.Result{
@@ -226,7 +226,7 @@ func (r *Registry) Watch(ctx context.Context, req *pb.WatchRequest, rsp pb.Regis
 			Service: util.ToProto(next.Service),
 		})
 		if err != nil {
-			return errors.InternalServerError("registry.Registry.Watch", err.Error())
+			return errors.InternalServerError("go.micro.registry", err.Error())
 		}
 	}
 }

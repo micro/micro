@@ -180,7 +180,7 @@ func NewRegistry(opts ...registry.Option) registry.Registry {
 		addrs = []string{"127.0.0.1:8000"}
 	}
 
-	name := "registry"
+	name := "go.micro.registry"
 	return &srv{
 		opts:    options,
 		name:    name,

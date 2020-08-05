@@ -14,11 +14,11 @@ import (
 
 var (
 	// name of the registry
-	name = "registry"
+	name = "go.micro.registry"
 	// address of the registry
 	address = ":8000"
 	// topic to publish registry events to
-	topic = "registry.events"
+	topic = "go.micro.registry.events"
 )
 
 // Sub processes registry events
