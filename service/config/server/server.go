@@ -6,6 +6,7 @@ import (
 	"github.com/micro/micro/v3/service"
 	"github.com/micro/micro/v3/service/logger"
 	mustore "github.com/micro/micro/v3/service/store"
+	pb "github.com/micro/micro/v3/service/config/proto"
 )
 
 const (
@@ -33,7 +34,7 @@ func Run(c *cli.Context) error {
 	mustore.DefaultStore.Init(store.Table("config"))
 
 	// register the handler
-	srv.Handle(new(Config))
+	pb.RegisterConfigHandler(srv.Server(), new(Config))
 	// register the subscriber
 	srv.Subscribe(watchTopic, new(watcher))
 
