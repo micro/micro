@@ -315,7 +315,7 @@ func (s *ServerBase) Run() error {
 
 	// add the environment
 	if err := Try("Adding micro env: "+s.env+" file: "+s.config, s.t, func() ([]byte, error) {
-		out, err := cmd.Exec("env", "add", s.env, fmt.Sprintf("127.0.0.1:%d", s.port))
+		out, err := cmd.Exec("env", "add", s.env, fmt.Sprintf("127.0.0.1:%d", s.ProxyPort()))
 		if err != nil {
 			return nil, err
 		}
