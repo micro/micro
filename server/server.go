@@ -109,13 +109,10 @@ func Run(context *cli.Context) error {
 	// TODO: reimplement peering of servers e.g --peer=node1,node2,node3
 	// peers are configured as network nodes to cluster between
 
-	log.Info("Loading core services")
+	log.Info("Starting server")
+
 	for _, service := range services {
 		name := service
-
-		if namespace := context.String("namespace"); len(namespace) > 0 {
-			name = fmt.Sprintf("%s.%s", namespace, service)
-		}
 
 		// set the proxy addres, default to the network running locally
 		proxy := context.String("proxy_address")
@@ -178,7 +175,6 @@ func Run(context *cli.Context) error {
 			gorun.WithCommand(os.Args[0]),
 			gorun.WithArgs(cmdArgs...),
 			gorun.WithEnv(env),
-			gorun.WithOutput(os.Stdout),
 			gorun.WithRetries(10),
 			gorun.CreateImage("micro/micro"),
 		}
@@ -191,7 +187,7 @@ func Run(context *cli.Context) error {
 		}
 	}
 
-	log.Info("Starting service runtime")
+	log.Info("Starting server runtime")
 
 	// start the runtime
 	if err := runtime.DefaultRuntime.Start(); err != nil {
@@ -199,12 +195,8 @@ func Run(context *cli.Context) error {
 		return err
 	}
 	defer runtime.DefaultRuntime.Stop()
-	log.Info("Service runtime started")
 
-	// TODO: should we launch the console?
-	// start the console
-	// cli.Init(context)
-
+	// internal server
 	srv := service.New(
 		service.Name(Name),
 		service.Address(Address),
@@ -219,6 +211,8 @@ func Run(context *cli.Context) error {
 	if err := srv.Run(); err != nil {
 		log.Fatalf("Error running server: %v", err)
 	}
+
+	log.Info("Stopped server")
 
 	return nil
 }
