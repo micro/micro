@@ -39,7 +39,7 @@ var (
 
 var (
 	// Name of the server microservice
-	Name = "go.micro.server"
+	Name = "server"
 	// Address is the router microservice bind address
 	Address = ":10001"
 )
@@ -53,7 +53,7 @@ func upload(ctx *cli.Context, args []string) ([]byte, error) {
 	filename := ctx.Args().Get(0)
 	localfile := ctx.Args().Get(1)
 
-	fileClient := file.New("go.micro.server", client.DefaultClient)
+	fileClient := file.New("server", client.DefaultClient)
 	return nil, fileClient.Upload(filename, localfile)
 }
 
