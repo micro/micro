@@ -16,6 +16,7 @@ import (
 	"github.com/micro/go-micro/v3/broker"
 	"github.com/micro/go-micro/v3/client"
 	"github.com/micro/go-micro/v3/config"
+	"github.com/micro/go-micro/v3/config/source"
 	"github.com/micro/go-micro/v3/server"
 	"github.com/micro/go-micro/v3/store"
 
@@ -429,7 +430,7 @@ func (c *command) Before(ctx *cli.Context) error {
 	// from the service immediately. We only do this if the action is nil, indicating
 	// a service is being run
 	if c.service && muconfig.DefaultConfig == nil {
-		conf, err := config.NewConfig(config.WithSource(configCli.NewSource()))
+		conf, err := config.NewConfig(config.WithSource(configCli.NewSource(source.WithContext(ctx.Context))))
 		if err != nil {
 			logger.Fatalf("Error configuring config: %v", err)
 		}
