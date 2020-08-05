@@ -3,13 +3,15 @@
 package test
 
 import (
+	"fmt"
 	"strings"
 	"testing"
 	"time"
-
-	"github.com/micro/micro/v3/client/cli/token"
 )
 
+// TestCorruptedTokenLogin checks that if we corrupt the token we successfully reset the config and clear the token
+// to allow the user to login again rather than leave them in a state of limbo where they have to munge the config
+// themselves
 func TestCorruptedTokenLogin(t *testing.T) {
 	TrySuite(t, testCorruptedLogin, retryCount)
 }
@@ -39,13 +41,19 @@ func testCorruptedLogin(t *T) {
 		t.Fatalf("Call should receive no output: %s", outp)
 	}
 	// munge token
-	tok, _ := token.Get(serv.Env())
-	tok.Expiry = time.Now().Add(-1 * time.Hour)
-	tok.RefreshToken = tok.RefreshToken + "a"
-	token.Save(serv.Env(), tok)
+	tok, err := cmd.Exec("user", "config", "get", "micro.auth."+serv.Env()+".refresh-token")
+	if err != nil {
+		t.Fatalf("Error getting refresh token value %s", err)
+	}
+	if _, err := cmd.Exec("user", "config", "set", "micro.auth."+serv.Env()+".refresh-token", strings.TrimSpace(string(tok))+"a"); err != nil {
+		t.Fatalf("Error setting refresh token value %s", err)
+	}
+	if _, err := cmd.Exec("user", "config", "set", "micro.auth."+serv.Env()+".expiry", fmt.Sprintf("%d", time.Now().Add(-1*time.Hour).Unix())); err != nil {
+		t.Fatalf("Error getting refresh token expiry %s", err)
+	}
 
 	outp, _ = cmd.Exec("status")
-	if !strings.Contains(string(outp), "Account can't be found for refresh token") {
+	if !strings.Contains(string(outp), "Unauthorized") {
 		t.Fatalf("Call should have failed: %s", outp)
 	}
 	outp, _ = cmd.Exec("login", "--email", serv.Env(), "--password", "password")
