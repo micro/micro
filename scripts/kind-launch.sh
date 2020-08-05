@@ -25,8 +25,3 @@ pushd platform/kubernetes
 ./install.sh
 kubectl wait deployment --all --timeout=180s -n default --for=condition=available 
 popd
-
-# TODO 
-# how do we make it pull down this version of micro ?
-# Build and push to docker a named version
-# update the yamls

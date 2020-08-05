@@ -16,14 +16,10 @@ func TestStore(t *testing.T) {
 
 func testStore(t *T) {
 	t.Parallel()
-	serv := NewServer(t)
+	serv := NewServer(t, WithLogin())
 	defer serv.Close()
 	if err := serv.Run(); err != nil {
 		return
-	}
-
-	if err := Login(serv, t, "default", "password"); err != nil {
-		t.Fatalf("Failed to login %s", err)
 	}
 
 	cmd := serv.Command()

@@ -25,6 +25,11 @@ func init() {
 }
 
 func newK8sServer(t *T, fname string, opts ...Option) Server {
+	var options Options
+	for _, o := range opts {
+		o(&options)
+	}
+
 	portnum := rand.Intn(maxPort-minPort) + minPort
 	configFile := configFile(fname)
 
@@ -34,6 +39,7 @@ func newK8sServer(t *T, fname string, opts ...Option) Server {
 		t:      t,
 		env:    strings.ToLower(fname),
 		port:   portnum,
+		opts:   options,
 		cmd:    exec.Command("kubectl", "port-forward", "--namespace", "default", "svc/micro-proxy", fmt.Sprintf("%d:443", portnum)),
 	}}
 	s.namespace = s.env
@@ -49,6 +55,8 @@ func (s *testK8sServer) Run() error {
 	if err := s.ServerBase.Run(); err != nil {
 		return err
 	}
+
+	ChangeNamespace(s.Command(), s.Env(), "micro")
 
 	// login to admin account
 	if err := Login(s, s.t, "default", "password"); err != nil {
@@ -83,6 +91,9 @@ func (s *testK8sServer) Run() error {
 	}
 
 	ChangeNamespace(s.Command(), s.Env(), s.Env())
+	if s.opts.Login {
+		Login(s, s.t, s.Env(), "password")
+	}
 
 	return nil
 }
