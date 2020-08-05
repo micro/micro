@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package go.micro.srv.test_example;
+package srv.test_example;
 
 service Example {
 	rpc Call(Request) returns (Response) {}
