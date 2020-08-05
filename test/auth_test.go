@@ -139,7 +139,7 @@ func lockdownSuite(serv Server, t *T) {
 		return
 	}
 
-	outp, err = cmd.Exec("auth", "create", "rule", "--access=granted", "--scope=''", "authpublic")
+	outp, err = cmd.Exec("auth", "create", "rule", "--access=granted", "--scope=''", "--resource='service:auth:*'", "authpublic")
 	if err != nil {
 		t.Fatal(string(outp), err)
 		return
@@ -173,7 +173,20 @@ func lockdownSuite(serv Server, t *T) {
 		return
 	}
 
-	Login(serv, t, "me@email.com", "mystrongpass")
+	// auth rules are cached so this could take a few seconds (until the authpublic rule takes
+	// effect in both the proxy and the auth service)
+	if err := Try("Logging in with "+email, t, func() ([]byte, error) {
+		out, err := serv.Command().Exec("login", "--email", email, "--password", pass)
+		if err != nil {
+			return out, err
+		}
+		if !strings.Contains(string(out), "Success") {
+			return out, errors.New("Login output does not contain 'Success'")
+		}
+		return out, err
+	}, 45*time.Second); err != nil {
+		return
+	}
 
 	if err := Try("Listing rules should pass after login", t, func() ([]byte, error) {
 		outp, err := cmd.Exec("auth", "list", "rules")
