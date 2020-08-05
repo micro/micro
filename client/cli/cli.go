@@ -149,7 +149,7 @@ func init() {
 		},
 		&cli.Command{
 			Name:   "services",
-			Usage:  "List micro services",
+			Usage:  "List services in the registry",
 			Action: util.Print(listServices),
 		},
 	)
