@@ -72,7 +72,7 @@ func (r *Registry) GetService(ctx context.Context, req *pb.GetRequest, rsp *pb.G
 
 	// get the services in the namespace
 	services, err := registry.GetService(req.Service, goregistry.GetDomain(options.Domain))
-	if err == goregistry.ErrNotFound {
+	if err == goregistry.ErrNotFound || len(services) == 0 {
 		return errors.NotFound("registry.Registry.GetService", err.Error())
 	} else if err != nil {
 		return errors.InternalServerError("registry.Registry.GetService", err.Error())

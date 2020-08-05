@@ -24,7 +24,7 @@ import (
 func lookupService(ctx *cli.Context) (*goregistry.Service, error) {
 	// use the first arg as the name, e.g. "micro helloworld foo"
 	// would try to call the helloworld service
-	name := ctx.Args().Get(1)
+	name := ctx.Args().First()
 
 	// get the namespace to query the services from
 	dom, err := namespace.Get(util.GetEnv(ctx).Name)
@@ -210,37 +210,11 @@ loop:
 
 // find a service in a domain matching the name
 func serviceWithName(name, domain string) (*goregistry.Service, error) {
-	// lookup the services in this domain
-	srvs, err := registry.ListServices(goregistry.ListDomain(domain))
-	if err != nil {
-		return nil, err
-	}
-
-	for _, s := range srvs {
-		// check for exact match
-		if s.Name == name {
-			return getService(s.Name, domain)
-		}
-
-		// check for suffix, e.g. "foo.bar" would match for "bar", but
-		// foobar would not.
-		if strings.HasSuffix(s.Name, "."+name) {
-			return getService(s.Name, domain)
-		}
-	}
-
-	return nil, nil
-}
-
-// getService from the registry since List doesn't return all the details
-// such as endpoints.
-func getService(name, domain string) (*goregistry.Service, error) {
 	srvs, err := registry.GetService(name, goregistry.GetDomain(domain))
-	if err != nil {
+	if err == goregistry.ErrNotFound {
+		return nil, nil
+	} else if err != nil {
 		return nil, err
-	}
-	if len(srvs) == 0 {
-		return nil, goregistry.ErrNotFound
 	}
 	return srvs[0], nil
 }
