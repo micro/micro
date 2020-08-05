@@ -7,7 +7,7 @@ metadata:
     micro: runtime
     name: micro-broker
   annotations:
-    name: "go.micro.broker"
+    name: "broker"
     version: "latest"
     source: "github.com/micro/micro"
     owner: "micro"
