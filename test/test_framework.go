@@ -47,6 +47,10 @@ type Server interface {
 	Command() *Command
 	// Name of the environment
 	Env() string
+	// APIPort is the port the api is exposed on
+	APIPort() int
+	// PoxyPort is the port the proxy is exposed on
+	ProxyPort() int
 }
 
 type Command struct {
