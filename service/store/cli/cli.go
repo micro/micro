@@ -14,6 +14,7 @@ import (
 func init() {
 	cmd.Register(&cli.Command{
 		Name:   "store",
+		Usage:  "Commands for accessing the store",
 		Action: helper.UnexpectedSubcommand,
 		Subcommands: []*cli.Command{
 			{

@@ -46,6 +46,7 @@ func init() {
 	cmd.Register(
 		&cli.Command{
 			Name:   "auth",
+			Usage:  "Manage authentication, accounts and rules",
 			Action: helper.UnexpectedSubcommand,
 			Subcommands: []*cli.Command{
 				{
