@@ -39,15 +39,15 @@ func (a *authWrapper) wrapContext(ctx context.Context, opts ...client.CallOption
 		o(&options)
 	}
 
-	// We dont't override the header unless the AuthToken option has been specified
-	if !options.AuthToken {
-		return ctx
-	}
-
 	// set the namespace header if it has not been set (e.g. on a service to service request)
 	authOpts := auth.DefaultAuth.Options()
 	if _, ok := metadata.Get(ctx, "Micro-Namespace"); !ok {
 		ctx = metadata.Set(ctx, "Micro-Namespace", authOpts.Issuer)
+	}
+
+	// We dont't override the header unless the AuthToken option has been specified
+	if !options.AuthToken {
+		return ctx
 	}
 
 	// check to see if we have a valid access token
