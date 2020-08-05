@@ -14,11 +14,6 @@ micro new --namespace=go.micro --type=service dep-test-service
 - [Dependencies](#dependencies)
 - [Usage](#usage)
 
-## Configuration
-
-- FQDN: go.micro.service.dep
-- Type: service
-- Alias: dep
 
 ## Dependencies
 

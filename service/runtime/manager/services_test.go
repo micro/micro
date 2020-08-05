@@ -11,9 +11,9 @@ import (
 
 func TestServices(t *testing.T) {
 	testServices := []*runtime.Service{
-		&runtime.Service{Name: "go.micro.service.foo", Version: "2.0.0"},
-		&runtime.Service{Name: "go.micro.service.foo", Version: "1.0.0"},
-		&runtime.Service{Name: "go.micro.service.bar", Version: "latest"},
+		&runtime.Service{Name: "foo", Version: "2.0.0"},
+		&runtime.Service{Name: "foo", Version: "1.0.0"},
+		&runtime.Service{Name: "bar", Version: "latest"},
 	}
 
 	testNamespace := "foo"
@@ -56,7 +56,7 @@ func TestServices(t *testing.T) {
 
 	// Calling readServices with a name should return any service with that name
 	t.Run("ReadServicesWithName", func(t *testing.T) {
-		srvs, err := m.readServices(testNamespace, &runtime.Service{Name: "go.micro.service.foo"})
+		srvs, err := m.readServices(testNamespace, &runtime.Service{Name: "foo"})
 		if err != nil {
 			t.Fatalf("Unexpected error when reading services%v", err)
 		}
@@ -68,7 +68,7 @@ func TestServices(t *testing.T) {
 	// Calling readServices with a name and version should only return the services with that name
 	// and version
 	t.Run("ReadServicesWithNameAndVersion", func(t *testing.T) {
-		query := &runtime.Service{Name: "go.micro.service.foo", Version: "1.0.0"}
+		query := &runtime.Service{Name: "foo", Version: "1.0.0"}
 		srvs, err := m.readServices(testNamespace, query)
 		if err != nil {
 			t.Fatalf("Unexpected error when reading services%v", err)
@@ -80,7 +80,7 @@ func TestServices(t *testing.T) {
 
 	// Calling delete service should remove the service with that name and version
 	t.Run("DeleteService", func(t *testing.T) {
-		query := &runtime.Service{Name: "go.micro.service.foo", Version: "1.0.0"}
+		query := &runtime.Service{Name: "foo", Version: "1.0.0"}
 		if err := m.deleteService(testNamespace, query); err != nil {
 			t.Fatalf("Unexpected error when reading services%v", err)
 		}
@@ -96,7 +96,7 @@ func TestServices(t *testing.T) {
 
 	// a service created in one namespace shouldn't be returned when querying another
 	t.Run("NamespaceScope", func(t *testing.T) {
-		srv := &runtime.Service{Name: "go.micro.service.apple", Version: "latest"}
+		srv := &runtime.Service{Name: "apple", Version: "latest"}
 
 		if err := m.createService(srv, &runtime.CreateOptions{Namespace: "random"}); err != nil {
 			t.Fatalf("Unexpected error when creating service %v", err)
