@@ -11,8 +11,8 @@ var (
 	versionRe = regexp.MustCompilePOSIX("^v[0-9]+$")
 )
 
-// Translates /foo/bar/zool into api service go.micro.api.foo method Bar.Zool
-// Translates /foo/bar into api service go.micro.api.foo method Foo.Bar
+// Translates /foo/bar/zool into api service micro.api.foo method Bar.Zool
+// Translates /foo/bar into api service micro.api.foo method Foo.Bar
 func apiRoute(p string) (string, string) {
 	p = path.Clean(p)
 	p = strings.TrimPrefix(p, "/")
