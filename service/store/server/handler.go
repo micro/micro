@@ -43,16 +43,16 @@ func (h *handler) List(ctx context.Context, req *pb.ListRequest, stream pb.Store
 
 	// authorize the request
 	if err := namespace.Authorize(ctx, req.Options.Database); err == namespace.ErrForbidden {
-		return errors.Forbidden("go.micro.store.Store.List", err.Error())
+		return errors.Forbidden("store.Store.List", err.Error())
 	} else if err == namespace.ErrUnauthorized {
-		return errors.Unauthorized("go.micro.store.Store.List", err.Error())
+		return errors.Unauthorized("store.Store.List", err.Error())
 	} else if err != nil {
-		return errors.InternalServerError("go.micro.store.Store.List", err.Error())
+		return errors.InternalServerError("store.Store.List", err.Error())
 	}
 
 	// setup the store
 	if err := h.setupTable(req.Options.Database, req.Options.Table); err != nil {
-		return errors.InternalServerError("go.micro.store.Store.List", err.Error())
+		return errors.InternalServerError("store.Store.List", err.Error())
 	}
 
 	// setup the options
@@ -72,9 +72,9 @@ func (h *handler) List(ctx context.Context, req *pb.ListRequest, stream pb.Store
 	// list from the store
 	vals, err := store.List(opts...)
 	if err != nil && err == gostore.ErrNotFound {
-		return errors.NotFound("go.micro.store.Store.List", err.Error())
+		return errors.NotFound("store.Store.List", err.Error())
 	} else if err != nil {
-		return errors.InternalServerError("go.micro.store.Store.List", err.Error())
+		return errors.InternalServerError("store.Store.List", err.Error())
 	}
 
 	// serialize the response
@@ -89,7 +89,7 @@ func (h *handler) List(ctx context.Context, req *pb.ListRequest, stream pb.Store
 		return nil
 	}
 	if err != nil {
-		return errors.InternalServerError("go.micro.store.Store.List", err.Error())
+		return errors.InternalServerError("store.Store.List", err.Error())
 	}
 	return nil
 }
@@ -109,16 +109,16 @@ func (h *handler) Read(ctx context.Context, req *pb.ReadRequest, rsp *pb.ReadRes
 
 	// authorize the request
 	if err := namespace.Authorize(ctx, req.Options.Database); err == namespace.ErrForbidden {
-		return errors.Forbidden("go.micro.store.Store.Read", err.Error())
+		return errors.Forbidden("store.Store.Read", err.Error())
 	} else if err == namespace.ErrUnauthorized {
-		return errors.Unauthorized("go.micro.store.Store.Read", err.Error())
+		return errors.Unauthorized("store.Store.Read", err.Error())
 	} else if err != nil {
-		return errors.InternalServerError("go.micro.store.Store.Read", err.Error())
+		return errors.InternalServerError("store.Store.Read", err.Error())
 	}
 
 	// setup the store
 	if err := h.setupTable(req.Options.Database, req.Options.Table); err != nil {
-		return errors.InternalServerError("go.micro.store.Store.Read", err.Error())
+		return errors.InternalServerError("store.Store.Read", err.Error())
 	}
 
 	// setup the options
@@ -132,9 +132,9 @@ func (h *handler) Read(ctx context.Context, req *pb.ReadRequest, rsp *pb.ReadRes
 	// read from the database
 	vals, err := store.Read(req.Key, opts...)
 	if err != nil && err == gostore.ErrNotFound {
-		return errors.NotFound("go.micro.store.Store.Read", err.Error())
+		return errors.NotFound("store.Store.Read", err.Error())
 	} else if err != nil {
-		return errors.InternalServerError("go.micro.store.Store.Read", err.Error())
+		return errors.InternalServerError("store.Store.Read", err.Error())
 	}
 
 	// serialize the result
@@ -160,7 +160,7 @@ func (h *handler) Read(ctx context.Context, req *pb.ReadRequest, rsp *pb.ReadRes
 func (h *handler) Write(ctx context.Context, req *pb.WriteRequest, rsp *pb.WriteResponse) error {
 	// validate the request
 	if req.Record == nil {
-		return errors.BadRequest("go.micro.store.Store.Write", "no record specified")
+		return errors.BadRequest("store.Store.Write", "no record specified")
 	}
 
 	// set defaults
@@ -176,16 +176,16 @@ func (h *handler) Write(ctx context.Context, req *pb.WriteRequest, rsp *pb.Write
 
 	// authorize the request
 	if err := namespace.Authorize(ctx, req.Options.Database); err == namespace.ErrForbidden {
-		return errors.Forbidden("go.micro.store.Store.Write", err.Error())
+		return errors.Forbidden("store.Store.Write", err.Error())
 	} else if err == namespace.ErrUnauthorized {
-		return errors.Unauthorized("go.micro.store.Store.Write", err.Error())
+		return errors.Unauthorized("store.Store.Write", err.Error())
 	} else if err != nil {
-		return errors.InternalServerError("go.micro.store.Store.Write", err.Error())
+		return errors.InternalServerError("store.Store.Write", err.Error())
 	}
 
 	// setup the store
 	if err := h.setupTable(req.Options.Database, req.Options.Table); err != nil {
-		return errors.InternalServerError("go.micro.store.Store.Write", err.Error())
+		return errors.InternalServerError("store.Store.Write", err.Error())
 	}
 
 	// setup the options
@@ -208,9 +208,9 @@ func (h *handler) Write(ctx context.Context, req *pb.WriteRequest, rsp *pb.Write
 	// write to the store
 	err := store.Write(record, opts...)
 	if err != nil && err == gostore.ErrNotFound {
-		return errors.NotFound("go.micro.store.Store.Write", err.Error())
+		return errors.NotFound("store.Store.Write", err.Error())
 	} else if err != nil {
-		return errors.InternalServerError("go.micro.store.Store.Write", err.Error())
+		return errors.InternalServerError("store.Store.Write", err.Error())
 	}
 
 	return nil
@@ -230,16 +230,16 @@ func (h *handler) Delete(ctx context.Context, req *pb.DeleteRequest, rsp *pb.Del
 
 	// authorize the request
 	if err := namespace.Authorize(ctx, req.Options.Database); err == namespace.ErrForbidden {
-		return errors.Forbidden("go.micro.store.Store.Delete", err.Error())
+		return errors.Forbidden("store.Store.Delete", err.Error())
 	} else if err == namespace.ErrUnauthorized {
-		return errors.Unauthorized("go.micro.store.Store.Delete", err.Error())
+		return errors.Unauthorized("store.Store.Delete", err.Error())
 	} else if err != nil {
-		return errors.InternalServerError("go.micro.store.Store.Delete", err.Error())
+		return errors.InternalServerError("store.Store.Delete", err.Error())
 	}
 
 	// setup the store
 	if err := h.setupTable(req.Options.Database, req.Options.Table); err != nil {
-		return errors.InternalServerError("go.micro.store.Store.Delete", err.Error())
+		return errors.InternalServerError("store.Store.Delete", err.Error())
 	}
 
 	// setup the options
@@ -249,9 +249,9 @@ func (h *handler) Delete(ctx context.Context, req *pb.DeleteRequest, rsp *pb.Del
 
 	// delete from the store
 	if err := store.Delete(req.Key, opts...); err == gostore.ErrNotFound {
-		return errors.NotFound("go.micro.store.Store.Delete", err.Error())
+		return errors.NotFound("store.Store.Delete", err.Error())
 	} else if err != nil {
-		return errors.InternalServerError("go.micro.store.Store.Delete", err.Error())
+		return errors.InternalServerError("store.Store.Delete", err.Error())
 	}
 
 	return nil
@@ -261,11 +261,11 @@ func (h *handler) Delete(ctx context.Context, req *pb.DeleteRequest, rsp *pb.Del
 func (h *handler) Databases(ctx context.Context, req *pb.DatabasesRequest, rsp *pb.DatabasesResponse) error {
 	// authorize the request
 	if err := namespace.Authorize(ctx, defaultDatabase); err == namespace.ErrForbidden {
-		return errors.Forbidden("go.micro.store.Store.Databases", err.Error())
+		return errors.Forbidden("store.Store.Databases", err.Error())
 	} else if err == namespace.ErrUnauthorized {
-		return errors.Unauthorized("go.micro.store.Store.Databases", err.Error())
+		return errors.Unauthorized("store.Store.Databases", err.Error())
 	} else if err != nil {
-		return errors.InternalServerError("go.micro.store.Store.Databases", err.Error())
+		return errors.InternalServerError("store.Store.Databases", err.Error())
 	}
 
 	// read the databases from the store
@@ -275,7 +275,7 @@ func (h *handler) Databases(ctx context.Context, req *pb.DatabasesRequest, rsp *
 	}
 	recs, err := store.Read("databases/", opts...)
 	if err != nil {
-		return errors.InternalServerError("go.micro.store.Store.Databases", err.Error())
+		return errors.InternalServerError("store.Store.Databases", err.Error())
 	}
 
 	// serialize the response
@@ -295,11 +295,11 @@ func (h *handler) Tables(ctx context.Context, req *pb.TablesRequest, rsp *pb.Tab
 
 	// authorize the request
 	if err := namespace.Authorize(ctx, req.Database); err == namespace.ErrForbidden {
-		return errors.Forbidden("go.micro.store.Store.Tables", err.Error())
+		return errors.Forbidden("store.Store.Tables", err.Error())
 	} else if err == namespace.ErrUnauthorized {
-		return errors.Unauthorized("go.micro.store.Store.Tables", err.Error())
+		return errors.Unauthorized("store.Store.Tables", err.Error())
 	} else if err != nil {
-		return errors.InternalServerError("go.micro.store.Store.Tables", err.Error())
+		return errors.InternalServerError("store.Store.Tables", err.Error())
 	}
 
 	// construct the options
@@ -312,7 +312,7 @@ func (h *handler) Tables(ctx context.Context, req *pb.TablesRequest, rsp *pb.Tab
 	query := fmt.Sprintf("tables/%v/", req.Database)
 	recs, err := store.Read(query, opts...)
 	if err != nil {
-		return errors.InternalServerError("go.micro.store.Store.Tables", err.Error())
+		return errors.InternalServerError("store.Store.Tables", err.Error())
 	}
 
 	// serialize the response
