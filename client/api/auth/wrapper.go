@@ -97,7 +97,7 @@ func (a authWrapper) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		acc = nil
 	}
 
-	// construct the resource name, e.g. home => go.micro.web.home
+	// construct the resource name, e.g. home => foo.api.home
 	resName := endpoint.Name
 	if len(a.servicePrefix) > 0 {
 		resName = a.servicePrefix + "." + resName

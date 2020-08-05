@@ -40,9 +40,9 @@ type bot struct {
 
 var (
 	// Default server name
-	Name = "go.micro.bot"
+	Name = "bot"
 	// Namespace for commands
-	Namespace = "go.micro.bot"
+	Namespace = ""
 	// map pattern:command
 	commands = map[string]func(*cli.Context) command.Command{
 		"^echo ":                             Echo,
@@ -143,7 +143,10 @@ func (b *bot) process(c input.Conn, ev input.Event) error {
 
 	// no built in match
 	// try service commands
-	service := Namespace + "." + args[0]
+	service := args[0]
+	if len(Namespace) > 0 {
+		service = Namespace + "." + service
+	}
 
 	// is there a service for the command?
 	if _, ok := b.services[service]; !ok {
@@ -266,7 +269,7 @@ func (b *bot) watch() {
 	// getHelp retries usage and description from bot service commands
 	getHelp := func(service string) (string, error) {
 		// is within namespace?
-		if !strings.HasPrefix(service, Namespace) {
+		if len(Namespace) > 0 && !strings.HasPrefix(service, Namespace) {
 			return "", fmt.Errorf("%s not within namespace", service)
 		}
 
