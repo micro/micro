@@ -214,7 +214,7 @@ func testRunGithubSource(t *T) {
 		return
 	}
 
-	if err := Try("Find helloworld", t, func() ([]byte, error) {
+	if err := Try("Find helloworld in runtime", t, func() ([]byte, error) {
 		outp, err = cmd.Exec("status")
 		if err != nil {
 			return outp, err
@@ -222,6 +222,19 @@ func testRunGithubSource(t *T) {
 
 		if !statusRunning("helloworld", "master", outp) {
 			return outp, errors.New("Output should contain helloworld")
+		}
+		return outp, nil
+	}, 60*time.Second); err != nil {
+		return
+	}
+
+	if err := Try("Find helloworld in registry", t, func() ([]byte, error) {
+		outp, err = cmd.Exec("services")
+		if err != nil {
+			return outp, err
+		}
+		if !strings.Contains(string(outp), "helloworld") {
+			return outp, errors.New("Registry doesn't contain helloworld")
 		}
 		return outp, nil
 	}, 60*time.Second); err != nil {
@@ -242,7 +255,7 @@ func testRunGithubSource(t *T) {
 			return outp, errors.New("Helloworld resonse is unexpected")
 		}
 		return outp, err
-	}, 60*time.Second); err != nil {
+	}, 15*time.Second); err != nil {
 		return
 	}
 
