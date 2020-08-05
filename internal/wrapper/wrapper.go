@@ -15,6 +15,7 @@ import (
 	muclient "github.com/micro/micro/v3/service/client"
 	"github.com/micro/micro/v3/service/debug"
 	"github.com/micro/micro/v3/service/errors"
+	"github.com/micro/micro/v3/service/logger"
 	muserver "github.com/micro/micro/v3/service/server"
 )
 
@@ -23,16 +24,16 @@ type authWrapper struct {
 }
 
 func (a *authWrapper) Call(ctx context.Context, req client.Request, rsp interface{}, opts ...client.CallOption) error {
-	ctx = a.wrapContext(ctx, opts...)
+	ctx = a.wrapContext(ctx, req, opts...)
 	return a.Client.Call(ctx, req, rsp, opts...)
 }
 
 func (a *authWrapper) Stream(ctx context.Context, req client.Request, opts ...client.CallOption) (client.Stream, error) {
-	ctx = a.wrapContext(ctx, opts...)
+	ctx = a.wrapContext(ctx, req, opts...)
 	return a.Client.Stream(ctx, req, opts...)
 }
 
-func (a *authWrapper) wrapContext(ctx context.Context, opts ...client.CallOption) context.Context {
+func (a *authWrapper) wrapContext(ctx context.Context, req client.Request, opts ...client.CallOption) context.Context {
 	// parse the options
 	var options client.CallOptions
 	for _, o := range opts {
@@ -48,6 +49,11 @@ func (a *authWrapper) wrapContext(ctx context.Context, opts ...client.CallOption
 	// We dont't override the header unless the AuthToken option has been specified
 	if !options.AuthToken {
 		return ctx
+	}
+
+	// Log that we're using our own credentials on the call
+	if logger.V(logger.DebugLevel, logger.DefaultLogger) {
+		logger.Debugf("Injecting auth credentials to %v %v request", req.Service(), req.Endpoint())
 	}
 
 	// check to see if we have a valid access token

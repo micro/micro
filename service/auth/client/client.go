@@ -29,6 +29,8 @@ func (s *srv) Init(opts ...auth.Option) {
 	for _, o := range opts {
 		o(&s.options)
 	}
+	s.auth = pb.NewAuthService("auth", client.DefaultClient)
+	s.rules = pb.NewRulesService("auth", client.DefaultClient)
 	s.setupJWT()
 }
 
