@@ -26,7 +26,7 @@ const _ = proto.ProtoPackageIsVersion3 // please upgrade the proto package
 
 // Service describes a service running in the micro network.
 type Service struct {
-	// Service name, e.g. go.micro.service.greeter
+	// Service name, e.g. greeter
 	Name                 string   `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
 	Version              string   `protobuf:"bytes,2,opt,name=version,proto3" json:"version,omitempty"`
 	Node                 *Node    `protobuf:"bytes,3,opt,name=node,proto3" json:"node,omitempty"`
