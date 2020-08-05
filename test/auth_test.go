@@ -108,7 +108,7 @@ func lockdownSuite(serv Server, t *T) {
 
 	// Execute first command in read to wait for store service
 	// to start up
-	ns, err := namespace.Get(serv.EnvName())
+	ns, err := namespace.Get(serv.Env())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -157,7 +157,7 @@ func lockdownSuite(serv Server, t *T) {
 		return
 	}
 
-	err = token.Remove(serv.EnvName())
+	err = token.Remove(serv.Env())
 	if err != nil {
 		t.Fatal(err)
 		return
