@@ -71,7 +71,7 @@ func Run(ctx *cli.Context) error {
 		proxy.WithClient(muclient.DefaultClient),
 	}
 
-	// new p	roxy
+	// new proxy
 	var p proxy.Proxy
 	// setup the default server
 	var srv server.Server
