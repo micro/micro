@@ -15,6 +15,11 @@ import (
 	pb "github.com/micro/micro/v3/service/router/proto"
 )
 
+var (
+	// name of the router service
+	name = "router"
+)
+
 type svc struct {
 	sync.RWMutex
 	opts       router.Options
@@ -38,7 +43,7 @@ func NewRouter(opts ...router.Option) router.Router {
 
 	s := &svc{
 		opts:   options,
-		router: pb.NewRouterService(router.DefaultName, client.DefaultClient),
+		router: pb.NewRouterService(name, client.DefaultClient),
 	}
 
 	// set the router address to call
@@ -49,7 +54,7 @@ func NewRouter(opts ...router.Option) router.Router {
 	}
 	// set the table
 	s.table = &table{
-		pb.NewTableService(router.DefaultName, client.DefaultClient),
+		pb.NewTableService(name, client.DefaultClient),
 		s.callOpts,
 	}
 
