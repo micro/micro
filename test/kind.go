@@ -59,7 +59,7 @@ func (s *testK8sServer) Run() error {
 	ChangeNamespace(s.Command(), s.Env(), "micro")
 
 	// login to admin account
-	if err := Login(s, s.t, "default", "password"); err != nil {
+	if err := Login(s, s.t, "admin", "micro"); err != nil {
 		s.t.Fatalf("Error logging in %s", err)
 		return err
 	}

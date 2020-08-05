@@ -361,7 +361,7 @@ func (s *ServerDefault) Run() error {
 
 	// login to admin account
 	if s.opts.Login {
-		Login(s, s.t, "default", "password")
+		Login(s, s.t, "admin", "micro")
 	}
 
 	return nil

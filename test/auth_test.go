@@ -32,8 +32,7 @@ func ServerAuth(t *T) {
 		if err != nil {
 			return outp, err
 		}
-		if !strings.Contains(string(outp), "admin") ||
-			!strings.Contains(string(outp), "default") {
+		if !strings.Contains(string(outp), "admin") {
 			return outp, fmt.Errorf("Output should contain default admin account")
 		}
 		return outp, nil
@@ -55,7 +54,7 @@ func ServerAuth(t *T) {
 	}
 
 	if err := Try("Try to get token with default account", t, func() ([]byte, error) {
-		outp, err := cmd.Exec("call", "auth", "Auth.Token", `{"id":"default","secret":"password"}`)
+		outp, err := cmd.Exec("call", "auth", "Auth.Token", `{"id":"admin","secret":"micro"}`)
 		if err != nil {
 			return outp, err
 		}
