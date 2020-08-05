@@ -57,6 +57,11 @@ func (r *Resolver) Resolve(req *http.Request, opts ...res.ResolveOption) (*res.E
 		return nil, res.ErrNotFound
 	}
 
+	name := parts[1]
+	if len(r.Options.ServicePrefix) > 0 {
+		name = r.Options.ServicePrefix + "." + name
+	}
+
 	// select a random route to use
 	// todo: update to use selector once go-micro has updated the interface
 	// route, err := r.Selector.Select(routes...)
@@ -67,7 +72,7 @@ func (r *Resolver) Resolve(req *http.Request, opts ...res.ResolveOption) (*res.E
 
 	// we're done
 	return &res.Endpoint{
-		Name:   parts[1],
+		Name:   name,
 		Method: req.Method,
 		Host:   route.Address,
 		Path:   "/" + strings.Join(parts[2:], "/"),

@@ -41,14 +41,14 @@ import (
 )
 
 var (
-	Name                  = "go.micro.api"
+	Name                  = "api"
 	Address               = ":8080"
 	Handler               = "meta"
 	Resolver              = "micro"
 	RPCPath               = "/rpc"
 	APIPath               = "/"
 	ProxyPath             = "/{service:[a-zA-Z0-9]+}"
-	Namespace             = "go.micro"
+	Namespace             = ""
 	HeaderPrefix          = "X-Micro-"
 	EnableRPC             = false
 	ACMEProvider          = "autocert"
@@ -83,9 +83,6 @@ func Run(ctx *cli.Context) error {
 	}
 	if len(ctx.String("api_address")) > 0 {
 		Address = ctx.String("api_address")
-	}
-	if len(ctx.String("api_namespace")) > 0 {
-		Namespace = ctx.String("api_namespace")
 	}
 	// initialise service
 	srv := service.New(service.Name(Name))
