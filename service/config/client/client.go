@@ -14,7 +14,7 @@ import (
 var (
 	defaultNamespace = "micro"
 	defaultPath      = ""
-	name             = "go.micro.config"
+	name             = "config"
 )
 
 type srv struct {
