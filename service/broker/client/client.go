@@ -12,7 +12,7 @@ import (
 )
 
 var (
-	name    = "go.micro.broker"
+	name    = "broker"
 	address = ":8001"
 )
 
