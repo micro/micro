@@ -107,7 +107,7 @@ func (a *Auth) setupDefaultAccount(ns string) error {
 func (a *Auth) Generate(ctx context.Context, req *pb.GenerateRequest, rsp *pb.GenerateResponse) error {
 	// validate the request
 	if len(req.Id) == 0 {
-		return errors.BadRequest("go.micro.auth", "ID required")
+		return errors.BadRequest("auth.Auth.Generate", "ID required")
 	}
 
 	// set the defaults
@@ -126,17 +126,17 @@ func (a *Auth) Generate(ctx context.Context, req *pb.GenerateRequest, rsp *pb.Ge
 
 	// authorize the request
 	if err := namespace.Authorize(ctx, req.Options.Namespace); err == namespace.ErrForbidden {
-		return errors.Forbidden("go.micro.auth.Auth.Generate", err.Error())
+		return errors.Forbidden("auth.Auth.Generate", err.Error())
 	} else if err == namespace.ErrUnauthorized {
-		return errors.Unauthorized("go.micro.auth.Auth.Generate", err.Error())
+		return errors.Unauthorized("auth.Auth.Generate", err.Error())
 	} else if err != nil {
-		return errors.InternalServerError("go.micro.auth.Auth.Generate", err.Error())
+		return errors.InternalServerError("auth.Auth.Generate", err.Error())
 	}
 
 	// check the user does not already exists
 	key := strings.Join([]string{storePrefixAccounts, req.Options.Namespace, req.Id}, joinKey)
 	if _, err := store.Read(key); err != gostore.ErrNotFound {
-		return errors.BadRequest("go.micro.auth", "Account with this ID already exists")
+		return errors.BadRequest("auth", "Account with this ID already exists")
 	}
 
 	// construct the account
@@ -163,30 +163,30 @@ func (a *Auth) createAccount(acc *auth.Account) error {
 	// check the user does not already exists
 	key := strings.Join([]string{storePrefixAccounts, acc.Issuer, acc.ID}, joinKey)
 	if _, err := store.Read(key); err != gostore.ErrNotFound {
-		return errors.BadRequest("go.micro.auth", "Account with this ID already exists")
+		return errors.BadRequest("auth.Auth.Generate", "Account with this ID already exists")
 	}
 
 	// hash the secret
 	secret, err := hashSecret(acc.Secret)
 	if err != nil {
-		return errors.InternalServerError("go.micro.auth", "Unable to hash password: %v", err)
+		return errors.InternalServerError("auth.Auth.Generate", "Unable to hash password: %v", err)
 	}
 	acc.Secret = secret
 
 	// marshal to json
 	bytes, err := json.Marshal(acc)
 	if err != nil {
-		return errors.InternalServerError("go.micro.auth", "Unable to marshal json: %v", err)
+		return errors.InternalServerError("auth.Auth.Generate", "Unable to marshal json: %v", err)
 	}
 
 	// write to the store
 	if err := store.Write(&gostore.Record{Key: key, Value: bytes}); err != nil {
-		return errors.InternalServerError("go.micro.auth", "Unable to write account to store: %v", err)
+		return errors.InternalServerError("auth.Auth.Generate", "Unable to write account to store: %v", err)
 	}
 
 	// set a refresh token
 	if err := a.setRefreshToken(acc.Issuer, acc.ID, uuid.New().String()); err != nil {
-		return errors.InternalServerError("go.micro.auth", "Unable to set a refresh token: %v", err)
+		return errors.InternalServerError("auth.Auth.Generate", "Unable to set a refresh token: %v", err)
 	}
 
 	return nil
@@ -196,9 +196,9 @@ func (a *Auth) createAccount(acc *auth.Account) error {
 func (a *Auth) Inspect(ctx context.Context, req *pb.InspectRequest, rsp *pb.InspectResponse) error {
 	acc, err := a.TokenProvider.Inspect(req.Token)
 	if err == token.ErrInvalidToken || err == token.ErrNotFound {
-		return errors.BadRequest("go.micro.auth", err.Error())
+		return errors.BadRequest("auth.Auth.Inspect", err.Error())
 	} else if err != nil {
-		return errors.InternalServerError("go.micro.auth", "Unable to inspect token: %v", err)
+		return errors.InternalServerError("auth.Auth.Inspect", "Unable to inspect token: %v", err)
 	}
 
 	rsp.Account = serializeAccount(acc)
@@ -224,7 +224,7 @@ func (a *Auth) Token(ctx context.Context, req *pb.TokenRequest, rsp *pb.TokenRes
 
 	// validate the request
 	if (len(req.Id) == 0 || len(req.Secret) == 0) && len(req.RefreshToken) == 0 {
-		return errors.BadRequest("go.micro.auth", "Credentials or a refresh token required")
+		return errors.BadRequest("auth.Auth.Token", "Credentials or a refresh token required")
 	}
 
 	// check to see if the secret is a JWT. this is a workaround to allow accounts issued
@@ -251,9 +251,9 @@ func (a *Auth) Token(ctx context.Context, req *pb.TokenRequest, rsp *pb.TokenRes
 	if len(req.RefreshToken) > 0 {
 		accID, err := a.accountIDForRefreshToken(req.Options.Namespace, req.RefreshToken)
 		if err == gostore.ErrNotFound {
-			return errors.BadRequest("go.micro.auth", "Account can't be found for refresh token")
+			return errors.BadRequest("auth.Auth.Token", "Account can't be found for refresh token")
 		} else if err != nil {
-			return errors.InternalServerError("go.micro.auth", "Unable to lookup token: %v", err)
+			return errors.InternalServerError("auth.Auth.Token", "Unable to lookup token: %v", err)
 		}
 		accountID = accID
 	}
@@ -262,27 +262,27 @@ func (a *Auth) Token(ctx context.Context, req *pb.TokenRequest, rsp *pb.TokenRes
 	key := strings.Join([]string{storePrefixAccounts, req.Options.Namespace, accountID}, joinKey)
 	recs, err := store.Read(key)
 	if err == gostore.ErrNotFound {
-		return errors.BadRequest("go.micro.auth", "Account not found with this ID")
+		return errors.BadRequest("auth.Auth.Token", "Account not found with this ID")
 	} else if err != nil {
-		return errors.InternalServerError("go.micro.auth", "Unable to read from store: %v", err)
+		return errors.InternalServerError("auth.Auth.Token", "Unable to read from store: %v", err)
 	}
 
 	// Unmarshal the record
 	var acc *auth.Account
 	if err := json.Unmarshal(recs[0].Value, &acc); err != nil {
-		return errors.InternalServerError("go.micro.auth", "Unable to unmarshal account: %v", err)
+		return errors.InternalServerError("auth.Auth.Token", "Unable to unmarshal account: %v", err)
 	}
 
 	// If the refresh token was not used, validate the secrets match and then set the refresh token
 	// so it can be returned to the user
 	if len(req.RefreshToken) == 0 {
 		if !secretsMatch(acc.Secret, req.Secret) {
-			return errors.BadRequest("go.micro.auth", "Secret not correct")
+			return errors.BadRequest("auth.Auth.Token", "Secret not correct")
 		}
 
 		refreshToken, err = a.refreshTokenForAccount(req.Options.Namespace, acc.ID)
 		if err != nil {
-			return errors.InternalServerError("go.micro.auth", "Unable to get refresh token: %v", err)
+			return errors.InternalServerError("auth.Auth.Token", "Unable to get refresh token: %v", err)
 		}
 	}
 
@@ -290,7 +290,7 @@ func (a *Auth) Token(ctx context.Context, req *pb.TokenRequest, rsp *pb.TokenRes
 	duration := time.Duration(req.TokenExpiry) * time.Second
 	tok, err := a.TokenProvider.Generate(acc, token.WithExpiry(duration))
 	if err != nil {
-		return errors.InternalServerError("go.micro.auth", "Unable to generate token: %v", err)
+		return errors.InternalServerError("auth.Auth.Token", "Unable to generate token: %v", err)
 	}
 
 	rsp.Token = serializeToken(tok, refreshToken)

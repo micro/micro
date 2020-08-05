@@ -17,7 +17,7 @@ import (
 )
 
 func listRules(ctx *cli.Context) error {
-	client := pb.NewRulesService("go.micro.auth", client.DefaultClient)
+	client := pb.NewRulesService("auth", client.DefaultClient)
 
 	ns, err := namespace.Get(util.GetEnv(ctx).Name)
 	if err != nil {
@@ -68,7 +68,7 @@ func createRule(ctx *cli.Context) error {
 		return err
 	}
 
-	cli := pb.NewRulesService("go.micro.auth", client.DefaultClient)
+	cli := pb.NewRulesService("auth", client.DefaultClient)
 	_, err = cli.Create(context.TODO(), &pb.CreateRequest{
 		Rule: rule, Options: &pb.Options{Namespace: ns},
 	})
@@ -92,7 +92,7 @@ func deleteRule(ctx *cli.Context) error {
 		return fmt.Errorf("Error getting namespace: %v", err)
 	}
 
-	cli := pb.NewRulesService("go.micro.auth", client.DefaultClient)
+	cli := pb.NewRulesService("auth", client.DefaultClient)
 	_, err = cli.Delete(context.TODO(), &pb.DeleteRequest{
 		Id: ctx.Args().First(), Options: &pb.Options{Namespace: ns},
 	})

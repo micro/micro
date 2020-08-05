@@ -25,7 +25,7 @@ var (
 func main() {
 	// New Service
 	srv := service.New(
-		service.Name("go.micro.debug.collector"),
+		service.Name("debug.collector"),
 		service.Version("latest"),
 	)
 

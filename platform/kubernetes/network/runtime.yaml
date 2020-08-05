@@ -80,7 +80,7 @@ metadata:
     micro: runtime
     name: micro-runtime
   annotations:
-    name: "go.micro.runtime"
+    name: "runtime"
     version: "latest"
     source: "github.com/micro/micro"
     owner: "micro"

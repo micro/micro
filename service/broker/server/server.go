@@ -16,7 +16,7 @@ import (
 )
 
 var (
-	name    = "go.micro.broker"
+	name    = "broker"
 	address = ":8001"
 )
 
@@ -57,11 +57,11 @@ func (h *handler) Publish(ctx context.Context, req *pb.PublishRequest, rsp *pb.E
 
 	// authorize the request
 	if err := namespace.Authorize(ctx, ns); err == namespace.ErrForbidden {
-		return errors.Forbidden("go.micro.broker", err.Error())
+		return errors.Forbidden("broker.Broker.Publish", err.Error())
 	} else if err == namespace.ErrUnauthorized {
-		return errors.Unauthorized("go.micro.broker", err.Error())
+		return errors.Unauthorized("broker.Broker.Publish", err.Error())
 	} else if err != nil {
-		return errors.InternalServerError("go.micro.broker", err.Error())
+		return errors.InternalServerError("broker.Broker.Publish", err.Error())
 	}
 
 	log.Debugf("Publishing message to %s topic in the %v namespace", req.Topic, ns)
@@ -71,7 +71,7 @@ func (h *handler) Publish(ctx context.Context, req *pb.PublishRequest, rsp *pb.E
 	})
 	log.Debugf("Published message to %s topic in the %v namespace", req.Topic, ns)
 	if err != nil {
-		return errors.InternalServerError("go.micro.broker", err.Error())
+		return errors.InternalServerError("broker.Broker.Publish", err.Error())
 	}
 	return nil
 }
@@ -82,11 +82,11 @@ func (h *handler) Subscribe(ctx context.Context, req *pb.SubscribeRequest, strea
 
 	// authorize the request
 	if err := namespace.Authorize(ctx, ns); err == namespace.ErrForbidden {
-		return errors.Forbidden("go.micro.broker", err.Error())
+		return errors.Forbidden("broker.Broker.Subscribe", err.Error())
 	} else if err == namespace.ErrUnauthorized {
-		return errors.Unauthorized("go.micro.broker", err.Error())
+		return errors.Unauthorized("broker.Broker.Subscribe", err.Error())
 	} else if err != nil {
-		return errors.InternalServerError("go.micro.broker", err.Error())
+		return errors.InternalServerError("broker.Broker.Subscribe", err.Error())
 	}
 
 	// message handler to stream back messages from broker
@@ -108,7 +108,7 @@ func (h *handler) Subscribe(ctx context.Context, req *pb.SubscribeRequest, strea
 	log.Debugf("Subscribing to %s topic in namespace %v", req.Topic, ns)
 	sub, err := mubroker.DefaultBroker.Subscribe(ns+"."+req.Topic, handler, broker.Queue(ns+"."+req.Queue))
 	if err != nil {
-		return errors.InternalServerError("go.micro.broker", err.Error())
+		return errors.InternalServerError("broker.Broker.Subscribe", err.Error())
 	}
 	defer func() {
 		log.Debugf("Unsubscribing from topic %s in namespace %v", req.Topic, ns)

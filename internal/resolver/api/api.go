@@ -29,8 +29,13 @@ func (r *Resolver) Resolve(req *http.Request, opts ...resolver.ResolveOption) (*
 		name = proxyRoute(req.URL.Path)
 	}
 
+	// append the service prefix, e.g. foo.api
+	if len(r.opts.ServicePrefix) > 0 {
+		name = r.opts.ServicePrefix + "." + name
+	}
+
 	return &resolver.Endpoint{
-		Name:   r.opts.ServicePrefix + "." + name,
+		Name:   name,
 		Domain: options.Domain,
 		Method: method,
 	}, nil

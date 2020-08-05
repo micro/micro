@@ -118,7 +118,7 @@ func networkConnect(c *cli.Context, args []string) ([]byte, error) {
 
 	var rsp map[string]interface{}
 
-	req := client.NewRequest("go.micro.network", "Network.Connect", request, goclient.WithContentType("application/json"))
+	req := client.NewRequest("network", "Network.Connect", request, goclient.WithContentType("application/json"))
 	err := client.Call(context.TODO(), req, &rsp)
 	if err != nil {
 		return nil, err
@@ -136,7 +136,7 @@ func networkConnections(c *cli.Context, args []string) ([]byte, error) {
 
 	var rsp map[string]interface{}
 
-	req := client.NewRequest("go.micro.network", "Network.Graph", request, goclient.WithContentType("application/json"))
+	req := client.NewRequest("network", "Network.Graph", request, goclient.WithContentType("application/json"))
 	err := client.Call(context.TODO(), req, &rsp)
 	if err != nil {
 		return nil, err
@@ -177,7 +177,7 @@ func networkGraph(c *cli.Context, args []string) ([]byte, error) {
 
 	var rsp map[string]interface{}
 
-	req := client.NewRequest("go.micro.network", "Network.Graph", map[string]interface{}{}, goclient.WithContentType("application/json"))
+	req := client.NewRequest("network", "Network.Graph", map[string]interface{}{}, goclient.WithContentType("application/json"))
 	err := client.Call(context.TODO(), req, &rsp)
 	if err != nil {
 		return nil, err
@@ -192,7 +192,7 @@ func networkNodes(c *cli.Context, args []string) ([]byte, error) {
 	var rsp map[string]interface{}
 
 	// TODO: change to list nodes
-	req := client.NewRequest("go.micro.network", "Network.Nodes", map[string]interface{}{}, goclient.WithContentType("application/json"))
+	req := client.NewRequest("network", "Network.Nodes", map[string]interface{}{}, goclient.WithContentType("application/json"))
 	err := client.Call(context.TODO(), req, &rsp)
 	if err != nil {
 		return nil, err
@@ -244,7 +244,7 @@ func networkRoutes(c *cli.Context, args []string) ([]byte, error) {
 
 	var rsp map[string]interface{}
 
-	req := client.NewRequest("go.micro.network", "Network.Routes", request, goclient.WithContentType("application/json"))
+	req := client.NewRequest("network", "Network.Routes", request, goclient.WithContentType("application/json"))
 	err := client.Call(context.TODO(), req, &rsp)
 	if err != nil {
 		return nil, err
@@ -316,7 +316,7 @@ func networkServices(c *cli.Context, args []string) ([]byte, error) {
 
 	var rsp map[string]interface{}
 
-	req := client.NewRequest("go.micro.network", "Network.Services", map[string]interface{}{}, goclient.WithContentType("application/json"))
+	req := client.NewRequest("network", "Network.Services", map[string]interface{}{}, goclient.WithContentType("application/json"))
 	err := client.Call(context.TODO(), req, &rsp)
 	if err != nil {
 		return nil, err
@@ -341,6 +341,6 @@ func networkServices(c *cli.Context, args []string) ([]byte, error) {
 
 // netCall calls services through the network
 func netCall(c *cli.Context, args []string) ([]byte, error) {
-	os.Setenv("MICRO_PROXY", "go.micro.network")
+	os.Setenv("MICRO_PROXY", "network")
 	return clic.CallService(c, args)
 }

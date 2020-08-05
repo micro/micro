@@ -16,7 +16,7 @@ import (
 )
 
 const (
-	name    = "go.micro.debug"
+	name    = "debug"
 	address = ":8089"
 )
 

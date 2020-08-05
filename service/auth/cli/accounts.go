@@ -18,7 +18,7 @@ import (
 )
 
 func listAccounts(ctx *cli.Context) error {
-	client := pb.NewAccountsService("go.micro.auth", client.DefaultClient)
+	client := pb.NewAccountsService("auth", client.DefaultClient)
 
 	ns, err := namespace.Get(util.GetEnv(ctx).Name)
 	if err != nil {
@@ -87,7 +87,7 @@ func deleteAccount(ctx *cli.Context) error {
 	if ctx.Args().Len() == 0 {
 		return fmt.Errorf("Missing argument: ID")
 	}
-	client := pb.NewAccountsService("go.micro.auth", client.DefaultClient)
+	client := pb.NewAccountsService("auth", client.DefaultClient)
 
 	ns, err := namespace.Get(util.GetEnv(ctx).Name)
 	if err != nil {

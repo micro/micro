@@ -7,7 +7,7 @@
 #     micro: runtime
 #     name: micro-web
 #   annotations:
-#     name: "go.micro.web"
+#     name: "web"
 #     version: "latest"
 #     source: "github.com/micro/micro"
 #     owner: "micro"

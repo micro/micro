@@ -286,7 +286,7 @@ func upload(ctx *cli.Context, source *git.Source) (string, error) {
 		return "", err
 	}
 	cli := muclient.DefaultClient
-	err = file.New("go.micro.server", cli).Upload(uploadedFileName, path)
+	err = file.New("server", cli).Upload(uploadedFileName, path)
 	if err != nil {
 		return "", err
 	}

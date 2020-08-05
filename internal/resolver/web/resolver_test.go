@@ -13,27 +13,51 @@ import (
 	"github.com/micro/micro/v3/service/router"
 )
 
+type testCase struct {
+	Host    string
+	Path    string
+	Service string
+}
+
 func TestWebResolver(t *testing.T) {
 	profile.Test.Setup(nil)
 
-	res := &Resolver{
-		Options: resolver.NewOptions(
-			resolver.WithServicePrefix("go.micro.web"),
-		),
-		Router: router.DefaultRouter,
-	}
+	t.Run("WithServicePrefix", func(t *testing.T) {
+		res := &Resolver{
+			Options: resolver.NewOptions(
+				resolver.WithServicePrefix("web"),
+			),
+			Router: router.DefaultRouter,
+		}
 
-	testCases := []struct {
-		Host    string
-		Path    string
-		Service string
-	}{
-		{"localhost:8082", "/foobar", "go.micro.web.foobar"},
-		{"web.micro.mu", "/foobar", "go.micro.web.foobar"},
-		{"127.0.0.1:8082", "/hello", "go.micro.web.hello"},
-		{"demo.m3o.app", "/bar", "go.micro.web.bar"},
-	}
+		testCases := []testCase{
+			{"localhost:8082", "/foobar", "web.foobar"},
+			{"web.micro.mu", "/foobar", "web.foobar"},
+			{"127.0.0.1:8082", "/hello", "web.hello"},
+			{"demo.m3o.app", "/bar", "web.bar"},
+		}
 
+		runTests(t, res, testCases)
+	})
+
+	t.Run("WithoutServicePrefix", func(t *testing.T) {
+		res := &Resolver{
+			Options: resolver.NewOptions(),
+			Router:  router.DefaultRouter,
+		}
+
+		testCases := []testCase{
+			{"localhost:8082", "/foobar", "foobar"},
+			{"web.micro.mu", "/foobar", "foobar"},
+			{"127.0.0.1:8082", "/hello", "hello"},
+			{"demo.m3o.app", "/bar", "bar"},
+		}
+
+		runTests(t, res, testCases)
+	})
+}
+
+func runTests(t *testing.T, res *Resolver, testCases []testCase) {
 	for _, service := range testCases {
 		t.Run(service.Host+service.Path, func(t *testing.T) {
 			v := &goregistry.Service{
@@ -68,5 +92,4 @@ func TestWebResolver(t *testing.T) {
 			registry.Deregister(v)
 		})
 	}
-
 }

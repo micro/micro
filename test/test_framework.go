@@ -363,6 +363,7 @@ func (s *ServerDefault) Run() error {
 	if s.opts.Login {
 		Login(s, s.t, "default", "password")
 	}
+
 	return nil
 }
 

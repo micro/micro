@@ -9,7 +9,7 @@ import (
 
 var (
 	// name of the store service
-	name = "go.micro.store"
+	name = "store"
 	// address is the store address
 	address = ":8002"
 )

@@ -27,7 +27,7 @@ import (
 
 var (
 	// name of the tunnel service
-	name = "go.micro.tunnel"
+	name = "tunnel"
 	// address is the tunnel address
 	address = ":8083"
 	// tunnel is the name of the tunnel

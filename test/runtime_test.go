@@ -23,7 +23,7 @@ func ServerModeCall(t *T) {
 
 	cmd := serv.Command()
 
-	outp, err := cmd.Exec("call", "go.micro.runtime", "Runtime.Read", "{}")
+	outp, err := cmd.Exec("call", "runtime", "Runtime.Read", "{}")
 	if err == nil {
 		t.Fatalf("Call to server should fail, got no error, output: %v", string(outp))
 		return
@@ -35,7 +35,7 @@ func ServerModeCall(t *T) {
 	}
 
 	if err := Try("Calling Runtime.Read", t, func() ([]byte, error) {
-		outp, err := cmd.Exec("call", "go.micro.runtime", "Runtime.Read", "{}")
+		outp, err := cmd.Exec("call", "runtime", "Runtime.Read", "{}")
 		if err != nil {
 			return outp, errors.New("Call to runtime read should succeed")
 		}
@@ -214,21 +214,21 @@ func testRunGithubSource(t *T) {
 		return
 	}
 
-	if err := Try("Find hello world", t, func() ([]byte, error) {
+	if err := Try("Find helloworld", t, func() ([]byte, error) {
 		outp, err = cmd.Exec("status")
 		if err != nil {
 			return outp, err
 		}
 
 		if !statusRunning("helloworld", "master", outp) {
-			return outp, errors.New("Output should contain hello world")
+			return outp, errors.New("Output should contain helloworld")
 		}
 		return outp, nil
 	}, 60*time.Second); err != nil {
 		return
 	}
 
-	if err := Try("Call hello world", t, func() ([]byte, error) {
+	if err := Try("Call helloworld", t, func() ([]byte, error) {
 		outp, err := cmd.Exec("call", "helloworld", "Helloworld.Call", `{"name": "Joe"}`)
 		if err != nil {
 			return outp, err
@@ -513,14 +513,14 @@ func testParentDependency(t *T) {
 		return
 	}
 
-	if err := Try("Find hello world", t, func() ([]byte, error) {
+	if err := Try("Find dep-test-service", t, func() ([]byte, error) {
 		outp, err := cmd.Exec("status")
 		if err != nil {
 			return outp, err
 		}
 
 		if !statusRunning("dep-test-service", "latest", outp) {
-			return outp, errors.New("Output should contain hello world")
+			return outp, errors.New("Output should contain dep-test-service")
 		}
 		return outp, nil
 	}, 30*time.Second); err != nil {

@@ -481,7 +481,7 @@ func action(c *cli.Context) error {
 		}
 
 		// lookup the service, e.g. "micro config set" would
-		// firstly check to see if the service "go.micro.config"
+		// firstly check to see if the service, e.g. config
 		// exists within the current namespace, then it would
 		// execute the Config.Set RPC, setting the flags in the
 		// request.

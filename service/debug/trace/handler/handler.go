@@ -139,12 +139,12 @@ func (s *Trace) Read(ctx context.Context, req *trace.ReadRequest, rsp *trace.Rea
 }
 
 func (s *Trace) Write(ctx context.Context, req *trace.WriteRequest, rsp *trace.WriteResponse) error {
-	return errors.BadRequest("go.micro.debug.trace", "not implemented")
+	return errors.BadRequest("debug.Trace.Write", "not implemented")
 }
 
 // Stream starts streaming trace
 func (s *Trace) Stream(ctx context.Context, req *trace.StreamRequest, rsp trace.Trace_StreamStream) error {
-	return errors.BadRequest("go.micro.debug.trace", "not implemented")
+	return errors.BadRequest("debug.Trace.Stream", "not implemented")
 }
 
 // Start Starts scraping other services until the provided channel is closed

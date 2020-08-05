@@ -38,7 +38,7 @@ func Signup(ctx *cli.Context) error {
 	}
 
 	// send a verification email to the user
-	signupService := pb.NewSignupService("go.micro.service.signup", client.DefaultClient)
+	signupService := pb.NewSignupService("signup", client.DefaultClient)
 	_, err := signupService.SendVerificationEmail(context.TODO(), &pb.SendVerificationEmailRequest{
 		Email: email,
 	}, cl.WithRequestTimeout(10*time.Second))

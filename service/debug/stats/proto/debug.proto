@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package go.micro.debug.stats;
+package debug.stats;
 
 // Stats retrieves a snapshot of the Debug.Stats data for services
 service Stats {
@@ -11,7 +11,7 @@ service Stats {
 
 // Service describes a service running in the micro network.
 message Service {
-    // Service name, e.g. go.micro.service.greeter
+    // Service name, e.g. greeter
     string name = 1;
     string version = 2;
     Node node = 3;
