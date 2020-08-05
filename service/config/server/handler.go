@@ -32,9 +32,9 @@ var (
 	mtx    sync.RWMutex
 )
 
-type config struct{}
+type Config struct{}
 
-func (c *config) Read(ctx context.Context, req *pb.ReadRequest, rsp *pb.ReadResponse) error {
+func (c *Config) Read(ctx context.Context, req *pb.ReadRequest, rsp *pb.ReadResponse) error {
 	if len(req.Namespace) == 0 {
 		req.Namespace = defaultNamespace
 	}
@@ -90,7 +90,7 @@ func (c *config) Read(ctx context.Context, req *pb.ReadRequest, rsp *pb.ReadResp
 	return nil
 }
 
-func (c *config) Create(ctx context.Context, req *pb.CreateRequest, rsp *pb.CreateResponse) error {
+func (c *Config) Create(ctx context.Context, req *pb.CreateRequest, rsp *pb.CreateResponse) error {
 	if req.Change == nil || req.Change.ChangeSet == nil {
 		return errors.BadRequest("go.micro.config.Create", "invalid change")
 	}
@@ -142,7 +142,7 @@ func (c *config) Create(ctx context.Context, req *pb.CreateRequest, rsp *pb.Crea
 	return nil
 }
 
-func (c *config) Update(ctx context.Context, req *pb.UpdateRequest, rsp *pb.UpdateResponse) error {
+func (c *Config) Update(ctx context.Context, req *pb.UpdateRequest, rsp *pb.UpdateResponse) error {
 	if req.Change == nil || req.Change.ChangeSet == nil {
 		return errors.BadRequest("go.micro.config.Update", "invalid change")
 	}
@@ -252,7 +252,7 @@ func (c *config) Update(ctx context.Context, req *pb.UpdateRequest, rsp *pb.Upda
 	return nil
 }
 
-func (c *config) Delete(ctx context.Context, req *pb.DeleteRequest, rsp *pb.DeleteResponse) error {
+func (c *Config) Delete(ctx context.Context, req *pb.DeleteRequest, rsp *pb.DeleteResponse) error {
 	if req.Change == nil {
 		return errors.BadRequest("go.micro.srv.Delete", "invalid change")
 	}
@@ -344,7 +344,7 @@ func (c *config) Delete(ctx context.Context, req *pb.DeleteRequest, rsp *pb.Dele
 	return nil
 }
 
-func (c *config) List(ctx context.Context, req *pb.ListRequest, rsp *pb.ListResponse) (err error) {
+func (c *Config) List(ctx context.Context, req *pb.ListRequest, rsp *pb.ListResponse) (err error) {
 	if len(req.Namespace) == 0 {
 		req.Namespace = defaultNamespace
 	}
@@ -385,7 +385,7 @@ func (c *config) List(ctx context.Context, req *pb.ListRequest, rsp *pb.ListResp
 	return nil
 }
 
-func (c *config) Watch(ctx context.Context, req *pb.WatchRequest, stream pb.Config_WatchStream) error {
+func (c *Config) Watch(ctx context.Context, req *pb.WatchRequest, stream pb.Config_WatchStream) error {
 	if len(req.Namespace) == 0 {
 		req.Namespace = defaultNamespace
 	}

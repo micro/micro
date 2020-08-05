@@ -108,7 +108,7 @@ func newRouter(srv *service.Service, router router.Router) *rtr {
 	}
 
 	// register subscriber
-	if err := service.RegisterSubscriber(topic, s); err != nil {
+	if err := srv.Subscribe(topic, s); err != nil {
 		log.Errorf("failed to subscribe to adverts: %s", err)
 		os.Exit(1)
 	}
