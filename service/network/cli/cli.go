@@ -22,7 +22,7 @@ import (
 
 func init() {
 	cmd.Register(&cli.Command{
-		Name: "network",
+		Name:  "network",
 		Usage: "Manage the micro service network",
 		Subcommands: []*cli.Command{
 			{
