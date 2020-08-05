@@ -172,8 +172,10 @@ type ServerBase struct {
 	dir string
 	// name of the environment
 	env string
-	// port number
-	port int
+	// proxyPort number
+	proxyPort int
+	// apiPort number
+	apiPort int
 	// name of the container
 	container string
 	// namespace of server
@@ -287,7 +289,8 @@ func newLocalServer(t *T, fname string, opts ...Option) Server {
 		t:         t,
 		env:       fname,
 		container: fname,
-		port:      proxyPortnum,
+		apiPort:   apiPortNum,
+		proxyPort: proxyPortnum,
 		opts:      options,
 		namespace: "micro",
 	}}
@@ -399,6 +402,14 @@ func (s *ServerBase) Command() *Command {
 
 func (s *ServerBase) Env() string {
 	return s.env
+}
+
+func (s *ServerBase) ProxyPort() int {
+	return s.proxyPort
+}
+
+func (s *ServerBase) APIPort() int {
+	return s.apiPort
 }
 
 type T struct {

@@ -190,7 +190,7 @@ func lockdownSuite(serv Server, t *T) {
 }
 
 func curl(serv Server, path string) (map[string]interface{}, error) {
-	resp, err := http.Get(fmt.Sprintf("http://127.0.0.1:%v/%v", serv.Ports().Api, path))
+	resp, err := http.Get(fmt.Sprintf("http://127.0.0.1:%v/%v", serv.APIPort, path))
 	if err != nil {
 		return nil, err
 	}
