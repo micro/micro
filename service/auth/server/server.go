@@ -15,7 +15,7 @@ import (
 )
 
 const (
-	name    = "go.micro.auth"
+	name    = "auth"
 	address = ":8010"
 )
 
