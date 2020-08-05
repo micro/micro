@@ -429,7 +429,9 @@ func (c *command) Before(ctx *cli.Context) error {
 	// from the service immediately. We only do this if the action is nil, indicating
 	// a service is being run
 	if c.service && muconfig.DefaultConfig == nil {
-		conf, err := config.NewConfig(config.WithSource(configCli.NewSource(configCli.Namespace(ctx.String("namespace")))))
+		conf, err := config.NewConfig(config.WithSource(configCli.NewSource(
+			configCli.Namespace(ctx.String("namespace")),
+		)))
 		if err != nil {
 			logger.Fatalf("Error configuring config: %v", err)
 		}
