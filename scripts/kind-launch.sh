@@ -22,6 +22,6 @@ sed -e 's/_false_/"false"/g' -i.bak platform/kubernetes/network/api.yaml
 yq delete -i platform/kubernetes/network/api.yaml "spec.template.spec.containers[0].env.(name==CF_API_TOKEN)"
 
 pushd platform/kubernetes
-./install.sh
+./install.sh dev
 kubectl wait deployment --all --timeout=180s -n default --for=condition=available 
 popd

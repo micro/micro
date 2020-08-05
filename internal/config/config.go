@@ -54,6 +54,7 @@ func Get(path ...string) (string, error) {
 	if err != nil {
 		return "", err
 	}
+	defer config.Close()
 
 	// acquire lock
 	if err := lock.Lock(); err != nil {
@@ -88,7 +89,7 @@ func Set(value string, p ...string) error {
 	if err != nil {
 		return err
 	}
-
+	defer config.Close()
 	// acquire lock
 	if err := lock.Lock(); err != nil {
 		return err
