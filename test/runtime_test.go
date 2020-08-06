@@ -5,6 +5,7 @@ package test
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"os/exec"
 	"regexp"
@@ -228,6 +229,20 @@ func testRunGithubSource(t *T) {
 		return
 	}
 
+	if err := Try("Log helloworld", t, func() ([]byte, error) {
+		outp, err := cmd.Exec("logs", "-n", "250", "helloworld")
+		fmt.Println((outp), err)
+		if err != nil {
+			return outp, err
+		}
+		if !strings.Contains(string(outp), "Registering") {
+			return outp, errors.New("Service didn't register")
+		}
+		return outp, nil
+	}, 60*time.Second); err != nil {
+		return
+	}
+
 	if err := Try("Call helloworld", t, func() ([]byte, error) {
 		outp, err := cmd.Exec("helloworld", "call", "--name=Joe")
 		if err != nil {
@@ -242,7 +257,7 @@ func testRunGithubSource(t *T) {
 			return outp, errors.New("Helloworld resonse is unexpected")
 		}
 		return outp, err
-	}, 120*time.Second); err != nil {
+	}, 15*time.Second); err != nil {
 		return
 	}
 
