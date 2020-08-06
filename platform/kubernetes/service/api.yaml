@@ -41,8 +41,8 @@
              secretKeyRef:
                name: micro-secrets
                key: auth_private_key
-         - name: MICRO_ENABLE_STATS
-           value: "true"
+         - name: MICRO_PROFILE
+           value: "client"
          - name: MICRO_SERVICE_NAME
            value: client
          - name: MICRO_PROXY

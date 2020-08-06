@@ -128,8 +128,9 @@ func (c *Command) Output() ([]byte, error) {
 // happen without calling `t.Fatal`. The error value should be disregarded.
 func Try(blockName string, t *T, f cmdFunc, maxTime time.Duration) error {
 	// hack. k8s can be slow locally
-	maxTime = maxTimeMultiplier * maxTime
-
+	maxTime *= maxTimeMultiplier
+	// backoff, the retry logic is basically to cover up timing issues
+	maxTime *= time.Duration(t.attempt)
 	start := time.Now()
 	var outp []byte
 	var err error
@@ -405,6 +406,7 @@ type T struct {
 	format  string
 	values  []interface{}
 	t       *testing.T
+	attempt int
 }
 
 // Failed indicate whether the test failed
@@ -464,7 +466,7 @@ func (t *T) Parallel() {
 
 // New returns a new test framework
 func New(t *testing.T) *T {
-	return &T{t: t}
+	return &T{t: t, attempt: 1}
 }
 
 // TrySuite is designed to retry a TestXX function
@@ -493,6 +495,7 @@ func TrySuite(t *testing.T, f func(t *T), times int) {
 		if i != times-1 {
 			tee.failed = false
 		}
+		tee.attempt++
 		time.Sleep(200 * time.Millisecond)
 	}
 	if tee.failed {
