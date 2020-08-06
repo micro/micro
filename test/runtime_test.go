@@ -228,19 +228,6 @@ func testRunGithubSource(t *T) {
 		return
 	}
 
-	if err := Try("Find helloworld in registry", t, func() ([]byte, error) {
-		outp, err = cmd.Exec("services")
-		if err != nil {
-			return outp, err
-		}
-		if !strings.Contains(string(outp), "helloworld") {
-			return outp, errors.New("Registry doesn't contain helloworld")
-		}
-		return outp, nil
-	}, 60*time.Second); err != nil {
-		return
-	}
-
 	if err := Try("Call helloworld", t, func() ([]byte, error) {
 		outp, err := cmd.Exec("helloworld", "call", "--name=Joe")
 		if err != nil {
