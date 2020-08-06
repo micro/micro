@@ -43,6 +43,8 @@
                key: auth_private_key
          - name: MICRO_ENABLE_STATS
            value: "true"
+         - name: MICRO_SERVICE_NAME
+           value: client
          - name: MICRO_PROXY
            value: "micro-network.default.svc.cluster.local:8443"
          - name: MICRO_ENABLE_ACME
@@ -57,6 +59,7 @@
                key: cloudflare
                name: micro-secrets
          args:
+         - service
          - api
          image: micro/micro
          imagePullPolicy: Always
