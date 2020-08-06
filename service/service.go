@@ -13,7 +13,6 @@ import (
 	debug "github.com/micro/go-micro/v3/debug/service/handler"
 	"github.com/micro/go-micro/v3/model"
 	"github.com/micro/go-micro/v3/server"
-	"github.com/micro/go-micro/v3/store"
 	signalutil "github.com/micro/go-micro/v3/util/signal"
 	"github.com/micro/micro/v3/cmd"
 	muclient "github.com/micro/micro/v3/service/client"
@@ -119,9 +118,6 @@ func (s *Service) String() string {
 }
 
 func (s *Service) Start() error {
-	// set the store to use the service name as the table
-	store.DefaultStore.Init(store.Table(s.Name()))
-
 	for _, fn := range s.opts.BeforeStart {
 		if err := fn(); err != nil {
 			return err
