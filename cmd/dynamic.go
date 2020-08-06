@@ -120,6 +120,7 @@ func callService(srv *goregistry.Service, ctx *cli.Context) error {
 	if err := json.Indent(&out, rsp, "", "\t"); err != nil {
 		return err
 	}
+	out.Write([]byte("\n"))
 	out.WriteTo(os.Stdout)
 
 	return nil
