@@ -33,7 +33,6 @@ var (
 		"debug",    // :????
 		"proxy",    // :8081
 		"api",      // :8080
-		"web",      // :8082
 	}
 )
 
@@ -123,10 +122,11 @@ func Run(context *cli.Context) error {
 		log.Infof("Registering %s", name)
 		// @todo this is a hack
 		env := []string{}
-		cmdArgs := []string{}
+		// all things run by the server are `micro service [name]`
+		cmdArgs := []string{"service"}
 
 		switch service {
-		case "proxy", "web", "api", "bot", "cli":
+		case "proxy", "api":
 			// pull the values we care about from environment
 			for _, val := range os.Environ() {
 				// only process MICRO_ values
@@ -137,7 +137,7 @@ func Run(context *cli.Context) error {
 				// talk to services, these may be started
 				// differently in future as a `micro client`
 				if strings.HasPrefix(val, "MICRO_PROFILE=") {
-					val = "MICRO_PROFILE=client"
+					val = "MICRO_PROFILE=service"
 				}
 				env = append(env, val)
 			}

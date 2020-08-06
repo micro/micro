@@ -28,7 +28,7 @@ import (
 	httpapi "github.com/micro/go-micro/v3/api/server/http"
 	"github.com/micro/go-micro/v3/sync/memory"
 	"github.com/micro/micro/v3/client"
-	"github.com/micro/micro/v3/client/api/auth"
+	"github.com/micro/micro/v3/service/api/auth"
 	"github.com/micro/micro/v3/cmd"
 	"github.com/micro/micro/v3/internal/handler"
 	"github.com/micro/micro/v3/internal/helper"
