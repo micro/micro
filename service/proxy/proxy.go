@@ -21,7 +21,6 @@ import (
 	"github.com/micro/go-micro/v3/sync/memory"
 	"github.com/micro/go-micro/v3/util/mux"
 	"github.com/micro/micro/v3/client"
-	"github.com/micro/micro/v3/cmd"
 	"github.com/micro/micro/v3/internal/helper"
 	"github.com/micro/micro/v3/service"
 	muclient "github.com/micro/micro/v3/service/client"
@@ -214,27 +213,22 @@ func Run(ctx *cli.Context) error {
 	return nil
 }
 
-func init() {
-	cmd.Register(&cli.Command{
-		Name:  "proxy",
-		Usage: "Run the service proxy",
-		Flags: append(client.Flags,
-			&cli.StringFlag{
-				Name:    "address",
-				Usage:   "Set the proxy http address e.g 0.0.0.0:8081",
-				EnvVars: []string{"MICRO_PROXY_ADDRESS"},
-			},
-			&cli.StringFlag{
-				Name:    "protocol",
-				Usage:   "Set the protocol used for proxying e.g mucp, grpc, http",
-				EnvVars: []string{"MICRO_PROXY_PROTOCOL"},
-			},
-			&cli.StringFlag{
-				Name:    "endpoint",
-				Usage:   "Set the endpoint to route to e.g greeter or localhost:9090",
-				EnvVars: []string{"MICRO_PROXY_ENDPOINT"},
-			},
-		),
-		Action: Run,
-	})
-}
+var (
+	Flags = append(client.Flags,
+		&cli.StringFlag{
+			Name:    "address",
+			Usage:   "Set the proxy http address e.g 0.0.0.0:8081",
+			EnvVars: []string{"MICRO_PROXY_ADDRESS"},
+		},
+		&cli.StringFlag{
+			Name:    "protocol",
+			Usage:   "Set the protocol used for proxying e.g mucp, grpc, http",
+			EnvVars: []string{"MICRO_PROXY_PROTOCOL"},
+		},
+		&cli.StringFlag{
+			Name:    "endpoint",
+			Usage:   "Set the endpoint to route to e.g greeter or localhost:9090",
+			EnvVars: []string{"MICRO_PROXY_ENDPOINT"},
+		},
+	)
+)
