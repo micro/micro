@@ -21,11 +21,13 @@ import (
 	muruntime "github.com/micro/micro/v3/service/runtime"
 
 	// services
+	api "github.com/micro/micro/v3/service/api"
 	auth "github.com/micro/micro/v3/service/auth/server"
 	broker "github.com/micro/micro/v3/service/broker/server"
 	config "github.com/micro/micro/v3/service/config/server"
 	debug "github.com/micro/micro/v3/service/debug/server"
 	network "github.com/micro/micro/v3/service/network/server"
+	proxy "github.com/micro/micro/v3/service/proxy"
 	registry "github.com/micro/micro/v3/service/registry/server"
 	router "github.com/micro/micro/v3/service/router/server"
 	runtime "github.com/micro/micro/v3/service/runtime/server"
@@ -143,6 +145,11 @@ type srvCommand struct {
 
 var srvCommands = []srvCommand{
 	{
+		Name:    "api",
+		Command: api.Run,
+		Flags:   api.Flags,
+	},
+	{
 		Name:    "auth",
 		Command: auth.Run,
 	},
@@ -169,6 +176,11 @@ var srvCommands = []srvCommand{
 		Name:    "network",
 		Command: network.Run,
 		Flags:   network.Flags,
+	},
+	{
+		Name:    "proxy",
+		Command: proxy.Run,
+		Flags:   proxy.Flags,
 	},
 	{
 		Name:    "registry",
