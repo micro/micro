@@ -14,6 +14,7 @@ import (
 
 	"github.com/micro/micro/v3/client/cli/namespace"
 	"github.com/micro/micro/v3/client/cli/token"
+	"github.com/micro/micro/v3/internal/config"
 )
 
 func TestServerAuth(t *testing.T) {
@@ -127,19 +128,19 @@ func lockdownSuite(serv Server, t *T) {
 	email := "me@email.com"
 	pass := "mystrongpass"
 
-	outp, err := cmd.Exec("auth", "create", "account", "--secret", pass, "--scopes", "admin", email)
+	outp, err := cmd.Exec("auth", "create", "account", "--secret", pass, email)
 	if err != nil {
 		t.Fatal(string(outp), err)
 		return
 	}
 
-	outp, err = cmd.Exec("auth", "create", "rule", "--access=granted", "--scope='*'", "--resource='*:*:*'", "onlyloggedin")
+	outp, err = cmd.Exec("auth", "create", "rule", "--access=granted", "--scope=*", "--resource=*:*:*", "onlyloggedin")
 	if err != nil {
 		t.Fatal(string(outp), err)
 		return
 	}
 
-	outp, err = cmd.Exec("auth", "create", "rule", "--access=granted", "--scope=''", "--resource='service:auth:*'", "authpublic")
+	outp, err = cmd.Exec("auth", "create", "rule", "--access=granted", "--resource=service:auth:Auth.Token", "authpublic")
 	if err != nil {
 		t.Fatal(string(outp), err)
 		return
@@ -157,6 +158,9 @@ func lockdownSuite(serv Server, t *T) {
 		return
 	}
 
+	// set the local config file to be the same as the one micro will be configured to use.
+	// todo: consider adding a micro logout command.
+	config.SetConfig(cmd.Config)
 	err = token.Remove(serv.Env())
 	if err != nil {
 		t.Fatal(err)
@@ -169,14 +173,14 @@ func lockdownSuite(serv Server, t *T) {
 			return outp, errors.New("List rules should fail")
 		}
 		return outp, nil
-	}, 31*time.Second); err != nil {
+	}, 40*time.Second); err != nil {
 		return
 	}
 
 	// auth rules are cached so this could take a few seconds (until the authpublic rule takes
 	// effect in both the proxy and the auth service)
 	if err := Try("Logging in with "+email, t, func() ([]byte, error) {
-		out, err := serv.Command().Exec("login", "--email", email, "--password", pass)
+		out, err := cmd.Exec("login", "--email", email, "--password", pass)
 		if err != nil {
 			return out, err
 		}
@@ -184,7 +188,7 @@ func lockdownSuite(serv Server, t *T) {
 			return out, errors.New("Login output does not contain 'Success'")
 		}
 		return out, err
-	}, 45*time.Second); err != nil {
+	}, 40*time.Second); err != nil {
 		return
 	}
 
@@ -197,7 +201,7 @@ func lockdownSuite(serv Server, t *T) {
 			return outp, errors.New("Can't find rules")
 		}
 		return outp, err
-	}, 31*time.Second); err != nil {
+	}, 40*time.Second); err != nil {
 		return
 	}
 }

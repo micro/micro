@@ -68,12 +68,20 @@ type Command struct {
 
 func (c *Command) args(a ...string) []string {
 	arguments := []string{}
+
+	// disable jwt creds which are injected so the server can run
+	// but shouldn't be passed to the CLI
+	arguments = append(arguments, "-auth_public_key", "")
+	arguments = append(arguments, "-auth_private_key", "")
+
 	// add config flag
-	arguments = append(arguments, []string{"-c", c.Config}...)
+	arguments = append(arguments, "-c", c.Config)
+
 	// add env flag if not env command
 	if v := len(a); v > 0 && a[0] != "env" {
-		arguments = append(arguments, []string{"-e", c.Env}...)
+		arguments = append(arguments, "-e", c.Env)
 	}
+
 	return append(arguments, a...)
 }
 
