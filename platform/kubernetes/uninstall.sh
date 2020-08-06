@@ -19,7 +19,7 @@ kubectl delete pv --all
 
 # move to the /kubernetes folder and apply the deployments
 cd ../..;
-kubectl delete -f network
+kubectl delete -f service
 
 # go back to the top level
 cd ..;

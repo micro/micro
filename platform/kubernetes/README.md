@@ -7,7 +7,7 @@ This repo serves as the kubernetes deployment for the platform.
 The platform consists of the following
 
 - **resource** - shared resources that must be run to support the platform
-- **network** - the micro runtime run on top of the shared infra as distributed systems
+- **service** - the micro services run on top of the shared infra as a platform
 - **server.yaml** - experimental single yaml deployment of a self managed micro server for dev
 
 ## Dependencies
@@ -22,9 +22,9 @@ We have dependencies to get started
 For production
 
 1. Spin up managed k8s on scaleway
-2. Spin up the shared infra in resource (./install.sh)
-3. Get the secrets needed for micro and install
-4. kubectl apply -f network
+2. Switch to the k8s env
+3. ./install platform
+3. Install secrets as micro-secrets (auth keys, cf token)
 
 ## DNS Records
 
