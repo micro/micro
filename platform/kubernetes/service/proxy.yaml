@@ -45,8 +45,6 @@ spec:
           value: "client"
         - name: MICRO_PROXY_ADDRESS
           value: "0.0.0.0:443"
-        - name: MICRO_SERVER_ADDRESS
-          value: "0.0.0.0:8081"
         - name: MICRO_LOG_LEVEL
           value: "trace"
         - name: MICRO_ENABLE_ACME
