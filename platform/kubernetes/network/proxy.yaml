@@ -57,7 +57,7 @@ spec:
               key: cloudflare
               name: micro-secrets
         args:
-	- service
+        - service
         - proxy
         image: micro/micro
         imagePullPolicy: Always
