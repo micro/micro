@@ -22,7 +22,7 @@ you've already come to know. A HTTP api, gRPC proxy and commmand line interface.
 boilerplate. Auto configured and initialised by default, just import and get started quickly.
 
 - **Plugins:** Micro is runtime and infrastructure agnostic. Each underlying building block service uses the Go Micro standard library 
-to provide a pluggable foundation. We make it simple to use by pre-initialising of local use and the cloud.
+to provide a pluggable foundation. We make it simple to use by pre-initialising for local use and the cloud.
 
 ## Install
 
