@@ -63,15 +63,15 @@ cd ../..;
 
 # replace m3o.com with m3o.dev
 if [ $ENV == "staging" ]; then
-  sed -i 's@m3o.com@m3o.dev@g' network/*.yaml
+  sed -i 's@m3o.com@m3o.dev@g' service/*.yaml
 fi
 
 # execute the yaml
-kubectl apply -f network
+kubectl apply -f service
 
 # replace back
 if [ $ENV == "staging" ]; then
-  sed -i 's@m3o.dev@m3o.com@g' network/*.yaml
+  sed -i 's@m3o.dev@m3o.com@g' service/*.yaml
 fi
 
 # go back to the top level
