@@ -142,9 +142,6 @@ func Run(context *cli.Context) error {
 				env = append(env, val)
 			}
 		default:
-			// run server as "micro service [cmd]"
-			cmdArgs = append(cmdArgs, "service")
-
 			// pull the values we care about from environment
 			for _, val := range os.Environ() {
 				// only process MICRO_ values
