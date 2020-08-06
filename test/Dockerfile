@@ -1,5 +1,5 @@
 FROM alpine:latest
-RUN apk --no-cache add make git go gcc libtool musl-dev curl
+RUN apk --no-cache add make git go gcc libtool musl-dev curl bash
 
 # Configure Go
 ENV GOROOT /usr/lib/go
@@ -28,5 +28,6 @@ ENV MICRO_REGISTRY=etcd
 COPY . .
 RUN go get github.com/micro/services
 RUN go get github.com/micro/services/helloworld
+RUN bash -c 'for d in test/service/*; do pushd $d && go get && popd; done'
 COPY ./micro /micro
 ENTRYPOINT ["sh", "/bin/run.sh"]
