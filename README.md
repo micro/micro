@@ -12,17 +12,17 @@ with the complexity of distributed systems and provides simpler programmable abs
 
 The framework is composed of the following features:
 
-- **Server:** A distributed systems runtime server composed of building block services which abstract away the underlying infrastructure 
+- **Server:** A distributed systems runtime composed of building block services which abstract away the underlying infrastructure 
 and provide a programmable abstraction layer. Authentication, configuration, messaging, storage and more built in.
 
 - **Clients:** Multiple entrypoints through which you can access your services. Write services once and access them through every means 
-you've already come to know. An API Gateway, gRPC proxy and commmand line interface.
+you've already come to know. A HTTP api, gRPC proxy and commmand line interface.
 
 - **Library:** A Go library which makes it drop dead simple to write your services without having to piece together lines and lines of 
 boilerplate. Auto configured and initialised by default, just import and get started quickly.
 
 - **Plugins:** Micro is runtime and infrastructure agnostic. Each underlying building block service uses the Go Micro standard library 
-to provide a pluggable foundation. We make it simple to use by pre-initialising of local use and the cloud.
+to provide a pluggable foundation. We make it simple to use by pre-initialising for local use and the cloud.
 
 ## Install
 
