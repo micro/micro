@@ -26,10 +26,10 @@ var (
 		"runtime",  // :8088
 		"registry", // :8000
 		"config",   // :8001
-		"auth",     // :8010
-		"broker",   // :8001
 		"store",    // :8002
+		"broker",   // :8003
 		"debug",    // :????
+		"auth",     // :8010
 		"proxy",    // :8081
 		"api",      // :8080
 	}
