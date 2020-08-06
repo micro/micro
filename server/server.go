@@ -22,12 +22,11 @@ import (
 var (
 	// list of services managed
 	services = []string{
-		// runtime services
-		"config",   // ????
-		"auth",     // :8010
 		"network",  // :8443
 		"runtime",  // :8088
 		"registry", // :8000
+		"config",   // :8001
+		"auth",     // :8010
 		"broker",   // :8001
 		"store",    // :8002
 		"debug",    // :????
@@ -137,7 +136,7 @@ func Run(context *cli.Context) error {
 				// talk to services, these may be started
 				// differently in future as a `micro client`
 				if strings.HasPrefix(val, "MICRO_PROFILE=") {
-					val = "MICRO_PROFILE=service"
+					val = "MICRO_PROFILE=client"
 				}
 				env = append(env, val)
 			}
