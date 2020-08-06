@@ -1,5 +1,5 @@
-// Package user providers the micro user cli command
-package cli
+// Package user handles the user cli command
+package user
 
 import (
 	"fmt"
