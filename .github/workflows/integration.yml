@@ -23,7 +23,7 @@ jobs:
     - name: Get Date
       id: get-date
       run: |
-        echo "::set-output name=date::$(/bin/date -u "+%s")"
+        echo "::set-output name=date::$(/bin/date -u "+%Y%m%d")"
       shell: bash
     - name: Enable caching
       # We would use the official actions/cache@v2, but it doesn't save the cache if the build fails
@@ -32,8 +32,6 @@ jobs:
       with:
         path: ~/go/pkg/mod
         key: ${{ runner.os }}-go-int-${{ steps.get-date.outputs.date }}
-        restore-keys: |
-          ${{ runner.os }}-go-int-
 
     - name: Install Protoc
       uses: arduino/setup-protoc@master
@@ -52,8 +50,6 @@ jobs:
       with:
         path: /tmp/docker-registry
         key: docker-registry-int-${{ steps.get-date.outputs.date }}
-        restore-keys: |
-          docker-registry-int-
     - name: Setup docker registry
       run: |
         docker run -d -p 5000:5000 --restart=always --name registry -v /tmp/docker-registry:/var/lib/registry registry:2 && npx wait-on tcp:5000
