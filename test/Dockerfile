@@ -24,9 +24,9 @@ ADD         scripts/run-etcd.sh /bin/run.sh
 
 ENV MICRO_REGISTRY=etcd
 
-# Speeding up tests by predownloading dependencies for services used.
-RUN go get github.com/micro/services
+# Speeding up tests by predownloading and building dependencies for services used.
 COPY . .
-RUN go get
+RUN go get github.com/micro/services
+RUN go get github.com/micro/services/helloworld
 COPY ./micro /micro
 ENTRYPOINT ["sh", "/bin/run.sh"]
