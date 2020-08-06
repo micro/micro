@@ -101,8 +101,8 @@ func setupAuthForService() error {
 }
 
 // refreshAuthToken if it is close to expiring
-func refreshAuthToken(stop chan bool) {
-	// can't refresh a token we dno't have
+func refreshAuthToken() {
+	// can't refresh a token we don't have
 	if auth.DefaultAuth.Options().Token == nil {
 		return
 	}
@@ -131,8 +131,6 @@ func refreshAuthToken(stop chan bool) {
 
 			// set the token
 			auth.DefaultAuth.Init(goauth.ClientToken(tok))
-		case <-stop:
-			return
 		}
 	}
 }
