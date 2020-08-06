@@ -378,6 +378,9 @@ func (c *command) Before(ctx *cli.Context) error {
 	if len(ctx.String("namespace")) > 0 {
 		storeOpts = append(storeOpts, store.Database(ctx.String("namespace")))
 	}
+	if len(ctx.String("service_name")) > 0 {
+		storeOpts = append(storeOpts, store.Table(ctx.String("service_name")))
+	}
 	if err := mustore.DefaultStore.Init(storeOpts...); err != nil {
 		logger.Fatalf("Error configuring store: %v", err)
 	}

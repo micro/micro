@@ -58,6 +58,8 @@ spec:
               key: auth_private_key
         - name: MICRO_PROFILE
           value: platform
+        - name: MICRO_SERVICE_NAME
+          value: network
         - name: MICRO_LOG_LEVEL
           value: "trace"
         - name: MICRO_BROKER_TLS_CA
