@@ -12,7 +12,7 @@ with the complexity of distributed systems and provides simpler programmable abs
 
 The framework is composed of the following features:
 
-- **Server:** A distributed systems runtime server composed of building block services which abstract away the underlying infrastructure 
+- **Server:** A distributed systems runtime composed of building block services which abstract away the underlying infrastructure 
 and provide a programmable abstraction layer. Authentication, configuration, messaging, storage and more built in.
 
 - **Clients:** Multiple entrypoints through which you can access your services. Write services once and access them through every means 
