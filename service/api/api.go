@@ -28,13 +28,12 @@ import (
 	httpapi "github.com/micro/go-micro/v3/api/server/http"
 	"github.com/micro/go-micro/v3/sync/memory"
 	"github.com/micro/micro/v3/client"
-	"github.com/micro/micro/v3/service/api/auth"
-	"github.com/micro/micro/v3/cmd"
 	"github.com/micro/micro/v3/internal/handler"
 	"github.com/micro/micro/v3/internal/helper"
 	rrmicro "github.com/micro/micro/v3/internal/resolver/api"
 	"github.com/micro/micro/v3/internal/stats"
 	"github.com/micro/micro/v3/service"
+	"github.com/micro/micro/v3/service/api/auth"
 	log "github.com/micro/micro/v3/service/logger"
 	muregistry "github.com/micro/micro/v3/service/registry"
 	"github.com/micro/micro/v3/service/store"
@@ -299,48 +298,43 @@ func Run(ctx *cli.Context) error {
 	return nil
 }
 
-func init() {
-	cmd.Register(&cli.Command{
-		Name:   "api",
-		Usage:  "Run the api gateway",
-		Action: Run,
-		Flags: append(client.Flags,
-			&cli.StringFlag{
-				Name:    "address",
-				Usage:   "Set the api address e.g 0.0.0.0:8080",
-				EnvVars: []string{"MICRO_API_ADDRESS"},
-			},
-			&cli.StringFlag{
-				Name:    "handler",
-				Usage:   "Specify the request handler to be used for mapping HTTP requests to services; {api, event, http, rpc}",
-				EnvVars: []string{"MICRO_API_HANDLER"},
-			},
-			&cli.StringFlag{
-				Name:    "namespace",
-				Usage:   "Set the namespace used by the API e.g. com.example",
-				EnvVars: []string{"MICRO_API_NAMESPACE"},
-			},
-			&cli.StringFlag{
-				Name:    "type",
-				Usage:   "Set the service type used by the API e.g. api",
-				EnvVars: []string{"MICRO_API_TYPE"},
-			},
-			&cli.StringFlag{
-				Name:    "resolver",
-				Usage:   "Set the hostname resolver used by the API {host, path, grpc}",
-				EnvVars: []string{"MICRO_API_RESOLVER"},
-			},
-			&cli.BoolFlag{
-				Name:    "enable_rpc",
-				Usage:   "Enable call the backend directly via /rpc",
-				EnvVars: []string{"MICRO_API_ENABLE_RPC"},
-			},
-			&cli.BoolFlag{
-				Name:    "enable_cors",
-				Usage:   "Enable CORS, allowing the API to be called by frontend applications",
-				EnvVars: []string{"MICRO_API_ENABLE_CORS"},
-				Value:   true,
-			},
-		),
-	})
-}
+var (
+	Flags = append(client.Flags,
+		&cli.StringFlag{
+			Name:    "address",
+			Usage:   "Set the api address e.g 0.0.0.0:8080",
+			EnvVars: []string{"MICRO_API_ADDRESS"},
+		},
+		&cli.StringFlag{
+			Name:    "handler",
+			Usage:   "Specify the request handler to be used for mapping HTTP requests to services; {api, event, http, rpc}",
+			EnvVars: []string{"MICRO_API_HANDLER"},
+		},
+		&cli.StringFlag{
+			Name:    "namespace",
+			Usage:   "Set the namespace used by the API e.g. com.example",
+			EnvVars: []string{"MICRO_API_NAMESPACE"},
+		},
+		&cli.StringFlag{
+			Name:    "type",
+			Usage:   "Set the service type used by the API e.g. api",
+			EnvVars: []string{"MICRO_API_TYPE"},
+		},
+		&cli.StringFlag{
+			Name:    "resolver",
+			Usage:   "Set the hostname resolver used by the API {host, path, grpc}",
+			EnvVars: []string{"MICRO_API_RESOLVER"},
+		},
+		&cli.BoolFlag{
+			Name:    "enable_rpc",
+			Usage:   "Enable call the backend directly via /rpc",
+			EnvVars: []string{"MICRO_API_ENABLE_RPC"},
+		},
+		&cli.BoolFlag{
+			Name:    "enable_cors",
+			Usage:   "Enable CORS, allowing the API to be called by frontend applications",
+			EnvVars: []string{"MICRO_API_ENABLE_CORS"},
+			Value:   true,
+		},
+	)
+)
