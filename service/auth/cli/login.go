@@ -46,7 +46,7 @@ func login(ctx *cli.Context) error {
 	if err := token.Remove(env.Name); err != nil {
 		fmt.Printf("Error: %s\n", err)
 		report.Errorf(ctx, "%v: Token remove: %v", email, err.Error())
-		os.Exit(1)
+		return err
 	}
 	ns, err := namespace.Get(env.Name)
 	if err != nil {
@@ -66,7 +66,7 @@ func login(ctx *cli.Context) error {
 	if err != nil {
 		fmt.Println(err)
 		report.Errorf(ctx, "%v: Getting token: %v", email, err.Error())
-		os.Exit(1)
+		return err
 	}
 	token.Save(env.Name, tok)
 
