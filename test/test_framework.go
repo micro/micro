@@ -495,6 +495,7 @@ func TrySuite(t *testing.T, f func(t *T), times int) {
 		if i != times-1 {
 			tee.failed = false
 		}
+		tee.attempt++
 		time.Sleep(200 * time.Millisecond)
 	}
 	if tee.failed {
