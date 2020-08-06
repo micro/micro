@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: micro-auth
+  namespace: default
+  labels:
+    name: micro-auth
+    micro: runtime
+spec:
+  ports:
+  - port: 8010
+    protocol: TCP
+  selector:
+    name: micro-auth
+    micro: runtime

@@ -183,7 +183,7 @@ func Run(ctx *cli.Context) error {
 		router.Registry(muregistry.DefaultRegistry),
 		router.Advertise(strategy),
 		router.Gateway(gateway),
-		router.Precache(),
+		router.Precache(true),
 	)
 
 	// create new network

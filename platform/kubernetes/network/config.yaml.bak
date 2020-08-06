@@ -1,0 +1,84 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: default
+  name: micro-config
+  labels:
+    name: micro-config
+    micro: runtime
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: micro-config
+      micro: runtime
+  template:
+    metadata:
+      labels:
+        name: micro-config
+        micro: runtime
+    spec:
+      containers:
+      - name: micro-config
+        env:
+        - name: MICRO_PROFILE
+          value: platform
+        - name: MICRO_PROXY
+          value: "micro-network.default.svc.cluster.local:8443"
+        - name: MICRO_AUTH_PUBLIC_KEY
+          valueFrom:
+            secretKeyRef:
+              name: micro-secrets
+              key: auth_public_key
+        - name: MICRO_AUTH_PRIVATE_KEY
+          valueFrom:
+            secretKeyRef:
+              name: micro-secrets
+              key: auth_private_key
+        - name: MICRO_SERVER_ADDRESS
+          value: "0.0.0.0:8080"
+        - name: MICRO_LOG_LEVEL
+          value: "debug"
+        - name: MICRO_BROKER_TLS_CA
+          value: "/certs/broker/ca.crt"
+        - name: MICRO_BROKER_TLS_CERT
+          value: "/certs/broker/cert.pem"
+        - name: MICRO_BROKER_TLS_KEY
+          value: "/certs/broker/key.pem"
+        - name: MICRO_REGISTRY_TLS_CA
+          value: "/certs/registry/ca.crt"
+        - name: MICRO_REGISTRY_TLS_CERT
+          value: "/certs/registry/cert.pem"
+        - name: MICRO_REGISTRY_TLS_KEY
+          value: "/certs/registry/key.pem"
+        - name: MICRO_STORE_ADDRESS
+          value: "postgresql://root@cockroachdb-cluster-public:26257?ssl=true&sslmode=require&sslrootcert=certs/store/ca.crt&sslkey=certs/store/key.pem&sslcert=certs/store/cert.pem"
+        image: localhost:5000/micro
+        imagePullPolicy: Always
+        args:
+        - service
+        - config
+        ports:
+        - containerPort: 8080
+          name: service
+        volumeMounts:
+        - name: etcd-client-certs
+          mountPath: "/certs/registry"
+          readOnly: true
+        - name: nats-client-certs
+          mountPath: "/certs/broker"
+          readOnly: true
+        - name: cockroachdb-client-certs
+          mountPath: "/certs/store"
+          readOnly: true
+      volumes:
+      - name: etcd-client-certs
+        secret:
+          secretName: etcd-client-certs
+      - name: nats-client-certs
+        secret:
+          secretName: nats-client-certs
+      - name: cockroachdb-client-certs
+        secret:
+          secretName: cockroachdb-client-certs
+          defaultMode: 0600
