@@ -24,7 +24,7 @@ For production
 1. Spin up managed k8s on scaleway
 2. Switch to the k8s env
 3. ./install platform
-3. Install as micro-secrets (auth keys, cf token)
+3. Install secrets as micro-secrets (auth keys, cf token)
 
 ## DNS Records
 
