@@ -209,7 +209,7 @@ func testRunGithubSource(t *T) {
 
 	cmd := serv.Command()
 
-	outp, err := cmd.Exec("run", "github.com/micro/services/helloworld@master")
+	outp, err := cmd.Exec("run", "github.com/micro/services/helloworld@authfix")
 	if err != nil {
 		t.Fatalf("micro run failure, output: %v", string(outp))
 		return
@@ -221,7 +221,7 @@ func testRunGithubSource(t *T) {
 			return outp, err
 		}
 
-		if !statusRunning("helloworld", "master", outp) {
+		if !statusRunning("helloworld", "authfix", outp) {
 			return outp, errors.New("Output should contain helloworld")
 		}
 		return outp, nil
