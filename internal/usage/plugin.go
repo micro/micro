@@ -40,6 +40,14 @@ func Plugin() plugin.Plugin {
 				service = c.Args().Get(0)
 			}
 
+			// service subcommand
+			if service == "service" {
+				// set as the sub command
+				if v := c.Args().Get(1); len(v) > 0 {
+					service = v
+				}
+			}
+
 			// kick off the tracker
 			go func() {
 				// new report
