@@ -22,8 +22,6 @@ ENV GOPATH /go
 ENV PATH /go/bin:$PATH
 RUN mkdir -p ${GOPATH}/src ${GOPATH}/bin
 
-RUN make ; rm -rf $GOPATH/pkg/mod
-
 RUN apk --no-cache add ca-certificates && \
     rm -rf /var/cache/apk/* /tmp/* && \
     [ ! -e /etc/nsswitch.conf ] && echo 'hosts: files dns' > /etc/nsswitch.conf

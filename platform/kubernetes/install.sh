@@ -5,6 +5,12 @@ ENV=$1
 # default to size for platform
 DB_SIZE=100Gi
 
+arrayGet() {
+    local array=$1 index=$2
+    local i="${array}_$index"
+    printf '%s' "${!i}"
+}
+
 # Run this script to install the platform on a kubernetes cluster. 
 
 # NOTE: This script will not set the cloudflare or slack tokens in the secret. Hence, the 
@@ -50,16 +56,15 @@ kubectl create secret generic micro-secrets \
 # Remove the files from tmp
 rm /tmp/jwt /tmp/jwt.pub /tmp/jwt-base64 /tmp/jwt-base64.pub
 
-# install the resources
-cd ./resource/cockroachdb;
-bash install.sh $DB_SIZE;
-cd ../etcd;
-bash install.sh;
-cd ../nats;
-bash install.sh;
+# declare any args you want to pass to the install script here as resource_args_<dir name>
+declare resource_args_cockroachdb="$DB_SIZE"
 
-# move to the /kubernetes folder and apply the deployments
-cd ../..;
+# install the resources
+for d in ./resource/*; do
+  pushd $d
+  bash install.sh $(arrayGet resource_args $(basename $d))
+  popd
+done
 
 # replace m3o.com with m3o.dev
 if [ $ENV == "staging" ]; then

@@ -4,7 +4,7 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 docker run -d -p 5000:5000 --restart=always --name kind-registry -v /tmp/docker-registry:/var/lib/registry registry:2
 $DIR/kind-build-micro.sh
 
-kind create cluster --config $DIR/kind-config.yaml 
+kind create cluster --config $DIR/kind/kind-config.yaml
 docker network connect "kind" "kind-registry"
 
 for node in $(kind get nodes); 
