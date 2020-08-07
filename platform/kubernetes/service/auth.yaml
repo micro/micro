@@ -32,7 +32,7 @@ spec:
         - name: MICRO_SERVICE_NAME
           value: auth
         - name: MICRO_PROXY
-          value: "micro-network:8443"
+          value: "micro-network.default.svc.cluster.local:8443"
         - name: MICRO_LOG_LEVEL
           value: "debug"
         - name: MICRO_BROKER_TLS_CA
@@ -62,7 +62,7 @@ spec:
         args:
         - service
         - auth
-        image: micro/micro
+        image: localhost:5000/micro
         imagePullPolicy: Always
         ports:
         - containerPort: 8000

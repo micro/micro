@@ -26,7 +26,7 @@ spec:
         - name: MICRO_SERVICE_NAME
           value: config
         - name: MICRO_PROXY
-          value: "micro-network:8443"
+          value: "micro-network.default.svc.cluster.local:8443"
         - name: MICRO_AUTH_PUBLIC_KEY
           valueFrom:
             secretKeyRef:
@@ -53,7 +53,7 @@ spec:
           value: "/certs/registry/key.pem"
         - name: MICRO_STORE_ADDRESS
           value: "postgresql://root@cockroachdb-cluster-public:26257?ssl=true&sslmode=require&sslrootcert=certs/store/ca.crt&sslkey=certs/store/key.pem&sslcert=certs/store/cert.pem"
-        image: micro/micro
+        image: localhost:5000/micro
         imagePullPolicy: Always
         args:
         - service

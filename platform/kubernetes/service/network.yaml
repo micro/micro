@@ -79,7 +79,7 @@ spec:
         args:
         - service
         - network
-        image: micro/micro
+        image: localhost:5000/micro
         imagePullPolicy: Always
         ports:
         - containerPort: 8443
