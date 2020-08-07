@@ -56,7 +56,7 @@ jobs:
     - name: Setup Kind
       uses: engineerd/setup-kind@v0.4.0
       with:
-        config: scripts/kind-config.yaml
+        config: scripts/kind/kind-config.yaml
         version: v0.8.1
     - name: Finish Kind registry setup
       run: |
