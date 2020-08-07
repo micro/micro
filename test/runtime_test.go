@@ -256,7 +256,7 @@ func testRunGithubSource(t *T) {
 			return outp, errors.New("Helloworld resonse is unexpected")
 		}
 		return outp, err
-	}, 20*time.Second); err != nil {
+	}, 60*time.Second); err != nil {
 		return
 	}
 
