@@ -5,7 +5,6 @@ package test
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"io/ioutil"
 	"os/exec"
 	"regexp"
@@ -201,6 +200,7 @@ func testRunGithubSource(t *T) {
 		t.Fatal("Git is not available")
 		return
 	}
+
 	serv := NewServer(t, WithLogin())
 	defer serv.Close()
 	if err := serv.Run(); err != nil {
@@ -229,25 +229,8 @@ func testRunGithubSource(t *T) {
 		return
 	}
 
-	if err := Try("Log helloworld", t, func() ([]byte, error) {
-		outp, err := cmd.Exec("logs", "-n", "250", "helloworld")
-		fmt.Println(string(outp), err)
-		if err != nil {
-			return outp, err
-		}
-		if !strings.Contains(string(outp), "Registering") {
-			return outp, errors.New("Service didn't register")
-		}
-		return outp, nil
-	}, 60*time.Second); err != nil {
-		return
-	}
-
 	if err := Try("Call helloworld", t, func() ([]byte, error) {
-		//outp, err := cmd.Exec("helloworld", "call", "--name=Joe")
-		outp, _ := cmd.Exec("logs", "helloworld")
-		t.Logf("helloworld logs %s", string(outp))
-		outp, err := cmd.Exec("call", "helloworld", "Helloworld.Call", `{"name":"Joe"}`)
+		outp, err := cmd.Exec("helloworld", "call", "--name=Joe")
 		if err != nil {
 			return outp, err
 		}
