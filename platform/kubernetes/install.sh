@@ -69,6 +69,7 @@ done
 # replace m3o.com with m3o.dev
 if [ $ENV == "staging" ]; then
   sed -i 's@m3o.com@m3o.dev@g' service/*.yaml
+  sed -i 's@m3o.app@m3o.dev@g' service/*.yaml
 fi
 
 # execute the yaml
@@ -76,6 +77,7 @@ kubectl apply -f service
 
 # replace back
 if [ $ENV == "staging" ]; then
+  sed -i 's@*.m3o.dev@*.m3o.com@g' service/*.yaml
   sed -i 's@m3o.dev@m3o.com@g' service/*.yaml
 fi
 
