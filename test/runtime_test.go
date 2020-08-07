@@ -229,6 +229,19 @@ func testRunGithubSource(t *T) {
 		return
 	}
 
+	if err := Try("Find helloworld in registry", t, func() ([]byte, error) {
+		outp, err = cmd.Exec("services")
+		if err != nil {
+			return outp, err
+		}
+		if !strings.Contains(string(outp), "helloworld") {
+			return outp, errors.New("helloworld is not running")
+		}
+		return outp, nil
+	}, 180*time.Second); err != nil {
+		return
+	}
+
 	if err := Try("Call helloworld", t, func() ([]byte, error) {
 		outp, err := cmd.Exec("helloworld", "call", "--name=Joe")
 		if err != nil {
@@ -243,7 +256,7 @@ func testRunGithubSource(t *T) {
 			return outp, errors.New("Helloworld resonse is unexpected")
 		}
 		return outp, err
-	}, 120*time.Second); err != nil {
+	}, 20*time.Second); err != nil {
 		return
 	}
 
