@@ -9,6 +9,7 @@ import (
 	"text/tabwriter"
 
 	"github.com/micro/cli/v2"
+	goclient "github.com/micro/go-micro/v3/client"
 	"github.com/micro/micro/v3/client/cli/namespace"
 	"github.com/micro/micro/v3/client/cli/util"
 	pb "github.com/micro/micro/v3/service/auth/proto"
@@ -17,16 +18,16 @@ import (
 )
 
 func listRules(ctx *cli.Context) error {
-	client := pb.NewRulesService("auth", client.DefaultClient)
+	cli := pb.NewRulesService("auth", client.DefaultClient)
 
 	ns, err := namespace.Get(util.GetEnv(ctx).Name)
 	if err != nil {
 		return fmt.Errorf("Error getting namespace: %v", err)
 	}
 
-	rsp, err := client.List(context.TODO(), &pb.ListRequest{
+	rsp, err := cli.List(context.TODO(), &pb.ListRequest{
 		Options: &pb.Options{Namespace: ns},
-	})
+	}, goclient.WithAuthToken())
 	if err != nil {
 		return fmt.Errorf("Error listing rules: %v", err)
 	}
@@ -71,7 +72,7 @@ func createRule(ctx *cli.Context) error {
 	cli := pb.NewRulesService("auth", client.DefaultClient)
 	_, err = cli.Create(context.TODO(), &pb.CreateRequest{
 		Rule: rule, Options: &pb.Options{Namespace: ns},
-	})
+	}, goclient.WithAuthToken())
 	if verr := errors.Parse(err); verr != nil {
 		return fmt.Errorf("Error: %v", verr.Detail)
 	} else if err != nil {
@@ -95,8 +96,8 @@ func deleteRule(ctx *cli.Context) error {
 	cli := pb.NewRulesService("auth", client.DefaultClient)
 	_, err = cli.Delete(context.TODO(), &pb.DeleteRequest{
 		Id: ctx.Args().First(), Options: &pb.Options{Namespace: ns},
-	})
-	if verr := errors.Parse(err); verr != nil {
+	}, goclient.WithAuthToken())
+	if verr := errors.Parse(err); err != nil {
 		return fmt.Errorf("Error: %v", verr.Detail)
 	} else if err != nil {
 		return err

@@ -282,6 +282,9 @@ func (c *command) Before(ctx *cli.Context) error {
 		server.WrapHandler(wrapper.HandlerStats()),
 	)
 
+	// initialize the server with the namespace so it knows which domain to register in
+	muserver.DefaultServer.Init(server.Namespace(ctx.String("namespace")))
+
 	// setup auth
 	authOpts := []auth.Option{}
 	if len(ctx.String("namespace")) > 0 {

@@ -50,6 +50,7 @@ func NewRouter(opts ...router.Option) router.Router {
 	if len(options.Address) > 0 {
 		s.callOpts = []goclient.CallOption{
 			goclient.WithAddress(options.Address),
+			goclient.WithAuthToken(),
 		}
 	}
 	// set the table

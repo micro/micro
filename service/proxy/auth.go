@@ -66,7 +66,7 @@ func authHandler() server.HandlerWrapper {
 			} else if err == goauth.ErrForbidden {
 				return errors.Unauthorized(req.Service(), "Unauthorized call made to %v:%v", req.Service(), req.Endpoint())
 			} else if err != nil {
-				return errors.InternalServerError(req.Service(), "Error authorizing request: %v", err)
+				return errors.InternalServerError("proxy", "Error authorizing request: %v", err)
 			}
 
 			// The user is authorised, allow the call

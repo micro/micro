@@ -37,7 +37,10 @@ func setupAuthForCLI(ctx *cli.Context) error {
 
 	// Check if token is valid
 	if time.Now().Before(tok.Expiry.Add(-15 * time.Second)) {
-		auth.DefaultAuth.Init(goauth.ClientToken(tok))
+		auth.DefaultAuth.Init(
+			goauth.ClientToken(tok),
+			goauth.Issuer(ns),
+		)
 		return nil
 	}
 
@@ -52,7 +55,10 @@ func setupAuthForCLI(ctx *cli.Context) error {
 	}
 
 	// Save the token to user config file
-	auth.DefaultAuth.Init(goauth.ClientToken(tok))
+	auth.DefaultAuth.Init(
+		goauth.ClientToken(tok),
+		goauth.Issuer(ns),
+	)
 	return clitoken.Save(env.Name, tok)
 }
 

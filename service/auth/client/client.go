@@ -29,6 +29,8 @@ func (s *srv) Init(opts ...auth.Option) {
 	for _, o := range opts {
 		o(&s.options)
 	}
+	s.auth = pb.NewAuthService("auth", client.DefaultClient)
+	s.rules = pb.NewRulesService("auth", client.DefaultClient)
 	s.setupJWT()
 }
 
@@ -276,6 +278,7 @@ func serializeRule(r *pb.Rule) *auth.Rule {
 func (s *srv) callOpts() []goclient.CallOption {
 	return []goclient.CallOption{
 		goclient.WithAddress(s.options.Addrs...),
+		goclient.WithAuthToken(),
 	}
 }
 
