@@ -256,7 +256,7 @@ func (c *command) Before(ctx *cli.Context) error {
 
 	// set the proxy address
 	var proxy string
-	if c.service {
+	if c.service || ctx.IsSet("proxy_address") {
 		// use the proxy address passed as a flag, this is normally
 		// the micro network
 		proxy = ctx.String("proxy_address")
@@ -281,6 +281,9 @@ func (c *command) Before(ctx *cli.Context) error {
 		server.WrapHandler(wrapper.TraceHandler()),
 		server.WrapHandler(wrapper.HandlerStats()),
 	)
+
+	// initialize the server with the namespace so it knows which domain to register in
+	muserver.DefaultServer.Init(server.Namespace(ctx.String("namespace")))
 
 	// setup auth
 	authOpts := []auth.Option{}

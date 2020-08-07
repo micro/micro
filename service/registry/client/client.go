@@ -23,7 +23,7 @@ type srv struct {
 }
 
 func (s *srv) callOpts() []goclient.CallOption {
-	var opts []goclient.CallOption
+	opts := []goclient.CallOption{goclient.WithAuthToken()}
 
 	// set registry address
 	if len(s.address) > 0 {

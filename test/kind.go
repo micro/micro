@@ -34,13 +34,13 @@ func newK8sServer(t *T, fname string, opts ...Option) Server {
 	configFile := configFile(fname)
 
 	s := &testK8sServer{ServerBase{
-		dir:    filepath.Dir(configFile),
-		config: configFile,
-		t:      t,
-		env:    strings.ToLower(fname),
-		port:   portnum,
-		opts:   options,
-		cmd:    exec.Command("kubectl", "port-forward", "--namespace", "default", "svc/micro-proxy", fmt.Sprintf("%d:443", portnum)),
+		dir:       filepath.Dir(configFile),
+		config:    configFile,
+		t:         t,
+		env:       strings.ToLower(fname),
+		proxyPort: portnum,
+		opts:      options,
+		cmd:       exec.Command("kubectl", "port-forward", "--namespace", "default", "svc/micro-proxy", fmt.Sprintf("%d:443", portnum)),
 	}}
 	s.namespace = s.env
 

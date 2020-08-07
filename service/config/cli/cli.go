@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/micro/cli/v2"
+	goclient "github.com/micro/go-micro/v3/client"
 	"github.com/micro/micro/v3/client/cli/namespace"
 	"github.com/micro/micro/v3/client/cli/util"
 	"github.com/micro/micro/v3/cmd"
@@ -63,7 +64,7 @@ func setConfig(ctx *cli.Context) error {
 				Timestamp: time.Now().Unix(),
 			},
 		},
-	})
+	}, goclient.WithAuthToken())
 	return err
 }
 
@@ -100,7 +101,7 @@ func getConfig(ctx *cli.Context) error {
 		Namespace: ns,
 		// The actual key for the val
 		Path: key,
-	})
+	}, goclient.WithAuthToken())
 	if err != nil {
 		return err
 	}
@@ -146,7 +147,7 @@ func delConfig(ctx *cli.Context) error {
 			// The actual key for the val
 			Path: key,
 		},
-	})
+	}, goclient.WithAuthToken())
 	return err
 }
 
