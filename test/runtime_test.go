@@ -231,7 +231,7 @@ func testRunGithubSource(t *T) {
 
 	if err := Try("Log helloworld", t, func() ([]byte, error) {
 		outp, err := cmd.Exec("logs", "-n", "250", "helloworld")
-		fmt.Println((outp), err)
+		fmt.Println(string(outp), err)
 		if err != nil {
 			return outp, err
 		}
