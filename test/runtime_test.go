@@ -244,7 +244,10 @@ func testRunGithubSource(t *T) {
 	}
 
 	if err := Try("Call helloworld", t, func() ([]byte, error) {
-		outp, err := cmd.Exec("helloworld", "call", "--name=Joe")
+		//outp, err := cmd.Exec("helloworld", "call", "--name=Joe")
+		outp, _ := cmd.Exec("logs", "helloworld")
+		t.Logf("helloworld logs %s", string(outp))
+		outp, err := cmd.Exec("call", "helloworld", "Helloworld.Call", `{"name":"Joe"}`)
 		if err != nil {
 			return outp, err
 		}
