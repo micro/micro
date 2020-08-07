@@ -54,7 +54,7 @@
          - name: MICRO_ACME_PROVIDER
            value: certmagic
          - name: MICRO_ACME_HOSTS
-           value: '*.m3o.com'
+           value: '*.m3o.app,api.m3o.com'
          - name: CF_API_TOKEN
            valueFrom:
              secretKeyRef:
