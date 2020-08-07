@@ -2,12 +2,12 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   namespace: default
-  name: micro-registry
+  name: micro-broker
   labels:
     micro: runtime
-    name: micro-registry
+    name: micro-broker
   annotations:
-    name: "registry"
+    name: "broker"
     version: "latest"
     source: "github.com/micro/micro"
     owner: "micro"
@@ -16,23 +16,23 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      name: micro-registry
+      name: micro-broker
       micro: runtime
   template:
     metadata:
       labels:
-        name: micro-registry
+        name: micro-broker
         micro: runtime
     spec:
       containers:
-      - name: registry
+      - name: broker
         env:
         - name: MICRO_PROFILE
           value: platform
         - name: MICRO_SERVICE_NAME
-          value: registry
+          value: broker
         - name: MICRO_PROXY
-          value: "micro-network.default.svc.cluster.local:8443"
+          value: "micro-network:8443"
         - name: MICRO_AUTH_PUBLIC_KEY
           valueFrom:
             secretKeyRef:
@@ -61,12 +61,12 @@ spec:
           value: "postgresql://root@cockroachdb-cluster-public:26257?ssl=true&sslmode=require&sslrootcert=certs/store/ca.crt&sslkey=certs/store/key.pem&sslcert=certs/store/cert.pem"
         args:
         - service
-        - registry
+        - broker
         image: micro/micro
         imagePullPolicy: Always
         ports:
-        - containerPort: 8000
-          name: registry-port
+        - containerPort: 8001
+          name: broker-port
         volumeMounts:
         - name: etcd-client-certs
           mountPath: "/certs/registry"

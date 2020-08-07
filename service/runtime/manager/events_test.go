@@ -25,7 +25,7 @@ func TestEvents(t *testing.T) {
 	go m.watchEvents()
 
 	// timeout async tests after 500ms
-	timeout := time.NewTimer(time.Millisecond * 500)
+	timeout := time.Millisecond * 500
 
 	// the service that should be passed to the runtime
 	testSrv := &runtime.Service{Name: "foo", Version: "latest"}
@@ -38,14 +38,12 @@ func TestEvents(t *testing.T) {
 			t.Errorf("Unexpected error when publishing events: %v", err)
 		}
 
-		timeout.Reset(time.Millisecond * 500)
-
 		select {
 		case srv := <-eventChan:
 			if srv.Name != testSrv.Name || srv.Version != testSrv.Version {
 				t.Errorf("Incorrect service passed to the runtime")
 			}
-		case <-timeout.C:
+		case <-time.After(timeout):
 			t.Fatalf("The runtime wasn't called")
 		}
 
@@ -61,14 +59,12 @@ func TestEvents(t *testing.T) {
 			t.Errorf("Unexpected error when publishing events: %v", err)
 		}
 
-		timeout.Reset(time.Millisecond * 500)
-
 		select {
 		case srv := <-eventChan:
 			if srv.Name != testSrv.Name || srv.Version != testSrv.Version {
 				t.Errorf("Incorrect service passed to the runtime")
 			}
-		case <-timeout.C:
+		case <-time.After(timeout):
 			t.Fatalf("The runtime wasn't called")
 		}
 
@@ -84,14 +80,12 @@ func TestEvents(t *testing.T) {
 			t.Errorf("Unexpected error when publishing events: %v", err)
 		}
 
-		timeout.Reset(time.Millisecond * 500)
-
 		select {
 		case srv := <-eventChan:
 			if srv.Name != testSrv.Name || srv.Version != testSrv.Version {
 				t.Errorf("Incorrect service passed to the runtime")
 			}
-		case <-timeout.C:
+		case <-time.After(timeout):
 			t.Fatalf("The runtime wasn't called")
 		}
 

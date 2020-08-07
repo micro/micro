@@ -2,31 +2,37 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   namespace: default
-  name: micro-store
+  name: micro-router
   labels:
-    name: micro-store
     micro: runtime
+    name: micro-router
+  annotations:
+    name: "router"
+    version: "latest"
+    source: "github.com/micro/micro"
+    owner: "micro"
+    group: "micro"
 spec:
   replicas: 1
   selector:
     matchLabels:
-      name: micro-store
+      name: micro-router
       micro: runtime
   template:
     metadata:
       labels:
-        name: micro-store
+        name: micro-router
         micro: runtime
     spec:
       containers:
-      - name: micro-store
+      - name: router
         env:
         - name: MICRO_PROFILE
           value: platform
         - name: MICRO_SERVICE_NAME
-          value: store
+          value: router
         - name: MICRO_PROXY
-          value: "micro-network.default.svc.cluster.local:8443"
+          value: "micro-network:8443"
         - name: MICRO_AUTH_PUBLIC_KEY
           valueFrom:
             secretKeyRef:
@@ -37,8 +43,6 @@ spec:
             secretKeyRef:
               name: micro-secrets
               key: auth_private_key
-        - name: MICRO_SERVER_ADDRESS
-          value: "0.0.0.0:8002"
         - name: MICRO_LOG_LEVEL
           value: "debug"
         - name: MICRO_BROKER_TLS_CA
@@ -53,16 +57,18 @@ spec:
           value: "/certs/registry/cert.pem"
         - name: MICRO_REGISTRY_TLS_KEY
           value: "/certs/registry/key.pem"
+        - name: MICRO_ENABLE_ACME
+          value: "true"
         - name: MICRO_STORE_ADDRESS
           value: "postgresql://root@cockroachdb-cluster-public:26257?ssl=true&sslmode=require&sslrootcert=certs/store/ca.crt&sslkey=certs/store/key.pem&sslcert=certs/store/cert.pem"
-        image: micro/micro
-        imagePullPolicy: Always
         args:
         - service
-        - store
+        - router
+        image: micro/micro
+        imagePullPolicy: Always
         ports:
-        - containerPort: 8002
-          name: service
+        - containerPort: 8084
+          name: router-port
         volumeMounts:
         - name: etcd-client-certs
           mountPath: "/certs/registry"

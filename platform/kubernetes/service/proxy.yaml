@@ -28,7 +28,7 @@ spec:
       - name: proxy
         env:
         - name: MICRO_PROXY
-          value: "micro-network.default.svc.cluster.local:8443"
+          value: "micro-network:8443"
         - name: MICRO_SERVICE_NAME
           value: client
         - name: MICRO_AUTH_PUBLIC_KEY
@@ -45,8 +45,6 @@ spec:
           value: "client"
         - name: MICRO_PROXY_ADDRESS
           value: "0.0.0.0:443"
-        - name: MICRO_SERVER_ADDRESS
-          value: "0.0.0.0:8081"
         - name: MICRO_LOG_LEVEL
           value: "trace"
         - name: MICRO_ENABLE_ACME

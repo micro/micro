@@ -17,7 +17,7 @@ import (
 
 var (
 	name    = "broker"
-	address = ":8001"
+	address = ":8003"
 )
 
 // Run the micro broker
