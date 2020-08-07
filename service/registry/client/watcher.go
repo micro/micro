@@ -1,6 +1,8 @@
 package client
 
 import (
+	"time"
+
 	"github.com/micro/go-micro/v3/registry"
 	pb "github.com/micro/micro/v3/service/registry/proto"
 	"github.com/micro/micro/v3/service/registry/util"
@@ -12,22 +14,42 @@ type serviceWatcher struct {
 }
 
 func (s *serviceWatcher) Next() (*registry.Result, error) {
-	// check if closed
-	select {
-	case <-s.closed:
-		return nil, registry.ErrWatcherStopped
-	default:
-	}
+	var i int
 
-	r, err := s.stream.Recv()
-	if err != nil {
-		return nil, err
-	}
+	for {
+		// check if closed
+		select {
+		case <-s.closed:
+			return nil, registry.ErrWatcherStopped
+		default:
+		}
 
-	return &registry.Result{
-		Action:  r.Action,
-		Service: util.ToService(r.Service),
-	}, nil
+		r, err := s.stream.Recv()
+		if err != nil {
+			return nil, err
+		}
+
+		// result is nil
+		if r == nil {
+			i++
+
+			// only process for 3 attempts if nil
+			if i > 3 {
+				return nil, registry.ErrWatcherStopped
+			}
+
+			// wait a moment
+			time.Sleep(time.Second)
+
+			// otherwise continue
+			continue
+		}
+
+		return &registry.Result{
+			Action:  r.Action,
+			Service: util.ToService(r.Service),
+		}, nil
+	}
 }
 
 func (s *serviceWatcher) Stop() {
