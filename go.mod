@@ -4,13 +4,11 @@ go 1.13
 
 require (
 	github.com/boltdb/bolt v1.3.1
-	github.com/bwmarrin/discordgo v0.20.2
 	github.com/chzyer/logex v1.1.10 // indirect
 	github.com/chzyer/readline v0.0.0-20180603132655-2972be24d48e
 	github.com/chzyer/test v0.0.0-20180213035817-a1ea475d72b1 // indirect
 	github.com/cloudflare/cloudflare-go v0.10.9 // indirect
 	github.com/dustin/go-humanize v1.0.0
-	github.com/forestgiant/sliceutil v0.0.0-20160425183142-94783f95db6c
 	github.com/fsnotify/fsnotify v1.4.7
 	github.com/go-acme/lego/v3 v3.4.0
 	github.com/golang/protobuf v1.4.2
@@ -24,7 +22,6 @@ require (
 	github.com/micro/cli/v2 v2.1.2
 	github.com/micro/go-micro/v3 v3.0.0-alpha.0.20200806215605-835343d6a568
 	github.com/netdata/go-orchestrator v0.0.0-20190905093727-c793edba0e8f
-	github.com/nlopes/slack v0.6.1-0.20191106133607-d06c2a2b3249
 	github.com/olekukonko/tablewriter v0.0.4
 	github.com/onsi/ginkgo v1.12.0 // indirect
 	github.com/pkg/errors v0.9.1
@@ -39,7 +36,6 @@ require (
 	google.golang.org/grpc v1.27.0
 	google.golang.org/protobuf v1.25.0 // indirect
 	gopkg.in/square/go-jose.v2 v2.4.1 // indirect
-	gopkg.in/telegram-bot-api.v4 v4.6.4
 	gopkg.in/yaml.v2 v2.2.8 // indirect
 )
 

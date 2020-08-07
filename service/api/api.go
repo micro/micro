@@ -19,6 +19,7 @@ import (
 	"github.com/micro/go-micro/v3/api/resolver/grpc"
 	"github.com/micro/go-micro/v3/api/resolver/host"
 	"github.com/micro/go-micro/v3/api/resolver/path"
+	"github.com/micro/go-micro/v3/api/resolver/subdomain"
 	"github.com/micro/go-micro/v3/api/router"
 	regRouter "github.com/micro/go-micro/v3/api/router/registry"
 	"github.com/micro/go-micro/v3/api/server"
@@ -184,6 +185,8 @@ func Run(ctx *cli.Context) error {
 	rr := rrmicro.NewResolver(ropts...)
 
 	switch Resolver {
+	case "subdomain":
+		rr = subdomain.NewResolver(rr)
 	case "host":
 		rr = host.NewResolver(ropts...)
 	case "path":

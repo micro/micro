@@ -31,6 +31,8 @@
        containers:
        - name: api
          env:
+         - name: MICRO_API_RESOLVER
+           value: subdomain
          - name: MICRO_AUTH_PUBLIC_KEY
            valueFrom:
              secretKeyRef:
@@ -52,7 +54,7 @@
          - name: MICRO_ACME_PROVIDER
            value: certmagic
          - name: MICRO_ACME_HOSTS
-           value: 'api.m3o.com'
+           value: '*.m3o.com'
          - name: CF_API_TOKEN
            valueFrom:
              secretKeyRef:
