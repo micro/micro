@@ -223,6 +223,10 @@ func (r *Registry) Watch(ctx context.Context, req *pb.WatchRequest, rsp pb.Regis
 			return errors.InternalServerError("registry.Registry.Watch", err.Error())
 		}
 
+		if next == nil || next.Service == nil {
+			continue
+		}
+
 		err = rsp.Send(&pb.Result{
 			Action:  next.Action,
 			Service: util.ToProto(next.Service),
