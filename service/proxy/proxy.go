@@ -94,6 +94,7 @@ func Run(ctx *cli.Context) error {
 	}
 
 	serverOpts := []server.Option{
+		server.Name(Name),
 		server.Address(Address),
 		server.Registry(rmem.NewRegistry()),
 		server.Broker(bmem.NewBroker()),
