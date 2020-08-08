@@ -181,9 +181,11 @@ func (r *Registry) ListServices(ctx context.Context, req *pb.ListRequest, rsp *p
 	}
 
 	// serialize the response
-	rsp.Services = make([]*pb.Service, len(services))
-	for i, srv := range services {
-		rsp.Services[i] = util.ToProto(srv)
+	for _, srv := range services {
+		if srv == nil {
+			continue
+		}
+		rsp.Services = append(rsp.Services, util.ToProto(srv))
 	}
 
 	return nil
