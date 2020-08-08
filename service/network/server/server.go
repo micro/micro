@@ -177,10 +177,10 @@ func Run(ctx *cli.Context) error {
 
 	// local tunnel router
 	rtr := murouter.DefaultRouter
+
 	rtr.Init(
 		router.Network(networkName),
 		router.Id(id),
-		router.Registry(muregistry.DefaultRegistry),
 		router.Advertise(strategy),
 		router.Gateway(gateway),
 		router.Precache(),
