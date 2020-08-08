@@ -1,6 +1,7 @@
 package client
 
 import (
+	"sync"
 	"time"
 
 	"github.com/micro/go-micro/v3/registry"
@@ -9,6 +10,7 @@ import (
 )
 
 type serviceWatcher struct {
+	mtx    sync.Mutex
 	stream pb.Registry_WatchService
 	closed chan bool
 }
@@ -53,6 +55,9 @@ func (s *serviceWatcher) Next() (*registry.Result, error) {
 }
 
 func (s *serviceWatcher) Stop() {
+	s.mtx.Lock()
+	defer s.mtx.Unlock()
+
 	select {
 	case <-s.closed:
 		return
