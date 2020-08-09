@@ -51,7 +51,7 @@ func ServerAuth(t *T) {
 		if err != nil {
 			return outp, err
 		}
-		if !strings.Contains(string(outp), "default") {
+		if !strings.Contains(string(outp), "admin") {
 			return outp, fmt.Errorf("Output should contain default rule")
 		}
 		return outp, nil
@@ -145,13 +145,13 @@ func lockdownSuite(serv Server, t *T) {
 		return
 	}
 
-	outp, err = cmd.Exec("auth", "delete", "rule", "default")
+	outp, err = cmd.Exec("auth", "delete", "rule", "admin")
 	if err != nil {
 		t.Fatal(string(outp), err)
 		return
 	}
 
-	outp, err = cmd.Exec("auth", "delete", "account", "default")
+	outp, err = cmd.Exec("auth", "delete", "account", "admin")
 	if err != nil {
 		t.Fatal(string(outp), err)
 		return
