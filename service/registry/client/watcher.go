@@ -32,7 +32,7 @@ func (s *serviceWatcher) Next() (*registry.Result, error) {
 		}
 
 		// result is nil
-		if r == nil {
+		if r == nil || r.Service == nil {
 			i++
 
 			// only process for 3 attempts if nil
