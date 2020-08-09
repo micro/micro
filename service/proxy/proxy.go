@@ -12,11 +12,11 @@ import (
 	"github.com/micro/go-micro/v3/api/server/acme/certmagic"
 	bmem "github.com/micro/go-micro/v3/broker/memory"
 	"github.com/micro/go-micro/v3/proxy"
+	"github.com/micro/go-micro/v3/proxy/grpc"
 	"github.com/micro/go-micro/v3/proxy/http"
 	"github.com/micro/go-micro/v3/proxy/mucp"
-	rmem "github.com/micro/go-micro/v3/registry/memory"
+	"github.com/micro/go-micro/v3/registry/noop"
 	"github.com/micro/go-micro/v3/server"
-	grpcSrv "github.com/micro/go-micro/v3/server/grpc"
 	sgrpc "github.com/micro/go-micro/v3/server/grpc"
 	"github.com/micro/go-micro/v3/sync/memory"
 	"github.com/micro/go-micro/v3/util/mux"
@@ -70,32 +70,28 @@ func Run(ctx *cli.Context) error {
 		proxy.WithClient(muclient.DefaultClient),
 	}
 
-	// new proxy
-	var p proxy.Proxy
-	// setup the default server
-	var srv server.Server
-
 	// set endpoint
 	if len(Endpoint) > 0 {
+		ep := Endpoint
+
 		switch {
 		case strings.HasPrefix(Endpoint, "grpc://"):
-			ep := strings.TrimPrefix(Endpoint, "grpc://")
-			popts = append(popts, proxy.WithEndpoint(ep))
+			ep = strings.TrimPrefix(Endpoint, "grpc://")
 			Protocol = "grpc"
 		case strings.HasPrefix(Endpoint, "http://"):
-			// TODO: strip prefix?
-			popts = append(popts, proxy.WithEndpoint(Endpoint))
 			Protocol = "http"
-		default:
-			// TODO: strip prefix?
-			popts = append(popts, proxy.WithEndpoint(Endpoint))
+		case strings.HasPrefix(Endpoint, "mucp://"):
+			ep = strings.TrimPrefix(Endpoint, "mucp://")
 			Protocol = "mucp"
 		}
+
+		popts = append(popts, proxy.WithEndpoint(ep))
 	}
 
 	serverOpts := []server.Option{
+		server.Name(Name),
 		server.Address(Address),
-		server.Registry(rmem.NewRegistry()),
+		server.Registry(noop.NewRegistry()),
 		server.Broker(bmem.NewBroker()),
 	}
 
@@ -160,32 +156,34 @@ func Run(ctx *cli.Context) error {
 		serverOpts = append(serverOpts, server.TLSConfig(config))
 	}
 
-	// wrap the proxy using the proxy's authHandler
-	authOpt := server.WrapHandler(authHandler())
-	serverOpts = append(serverOpts, authOpt)
+	// new proxy
+	var p proxy.Proxy
 
 	// set proxy
 	switch Protocol {
 	case "http":
 		p = http.NewProxy(popts...)
-		serverOpts = append(serverOpts, server.WithRouter(p))
 		// TODO: http server
-		srv = grpcSrv.NewServer(serverOpts...)
 	case "mucp":
 		p = mucp.NewProxy(popts...)
-		serverOpts = append(serverOpts, server.WithRouter(p))
-		srv = grpcSrv.NewServer(serverOpts...)
 	default:
-		p = mucp.NewProxy(popts...)
-		serverOpts = append(serverOpts, server.WithRouter(p))
-		srv = sgrpc.NewServer(serverOpts...)
+		// default to the grpc proxy
+		p = grpc.NewProxy(popts...)
 	}
+
+	// wrap the proxy using the proxy's authHandler
+	authOpt := server.WrapHandler(authHandler())
+	serverOpts = append(serverOpts, authOpt)
+	serverOpts = append(serverOpts, server.WithRouter(p))
 
 	if len(Endpoint) > 0 {
 		log.Infof("Proxy [%s] serving endpoint: %s", p.String(), Endpoint)
 	} else {
 		log.Infof("Proxy [%s] serving protocol: %s", p.String(), Protocol)
 	}
+
+	// create a new grpc server
+	srv := sgrpc.NewServer(serverOpts...)
 
 	// create a new proxy muxer which includes the debug handler
 	muxer := mux.New(Name, p)
