@@ -122,7 +122,7 @@ func lockdownSuite(serv Server, t *T) {
 		t.Fatal(rsp, errors.New("store list should be closed"), val)
 	}
 
-	Login(serv, t, "default", "password")
+	Login(serv, t, "admin", "micro")
 
 	email := "me@email.com"
 	pass := "mystrongpass"
