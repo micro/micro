@@ -31,6 +31,9 @@ func getEnv(c *cli.Context, args []string) ([]byte, error) {
 }
 
 func setEnv(c *cli.Context, args []string) ([]byte, error) {
+	if len(args) == 0 {
+		return nil, errors.New("name required")
+	}
 	cliutil.SetEnv(args[0])
 	return nil, nil
 }
