@@ -120,14 +120,19 @@ func Run(ctx *cli.Context) error {
 	if len(ctx.String("resolver")) > 0 {
 		resolver = ctx.String("resolver")
 	}
+
+	// setup the resolver used for internode networking
 	var r res.Resolver
+
 	switch resolver {
 	case "dns":
-		r = &dns.Resolver{}
+		r = new(dns.Resolver)
 	case "http":
-		r = &http.Resolver{}
+		r = new(http.Resolver)
 	case "registry":
-		r = &registry.Resolver{}
+		r = new(registry.Resolver)
+	default:
+		r = new(noop.Resolver)
 	}
 
 	// advertise the best routes
