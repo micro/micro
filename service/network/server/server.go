@@ -14,6 +14,7 @@ import (
 	"github.com/micro/go-micro/v3/network/resolver/dns"
 	"github.com/micro/go-micro/v3/network/resolver/http"
 	"github.com/micro/go-micro/v3/network/resolver/registry"
+	"github.com/micro/go-micro/v3/network/resolver/noop"
 	"github.com/micro/go-micro/v3/proxy"
 	mucpProxy "github.com/micro/go-micro/v3/proxy/mucp"
 	"github.com/micro/go-micro/v3/router"
@@ -42,7 +43,7 @@ var (
 	// set the advertise address
 	advertise = ""
 	// resolver is the network resolver
-	resolver = "registry"
+	resolver = "noop"
 	// the tunnel token
 	token = "micro"
 
