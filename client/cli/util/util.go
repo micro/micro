@@ -30,18 +30,17 @@ var (
 	// TODO: make use server/server list
 	services = []string{
 		// runtime services
-		"config",   // ????
 		"network",  // :8085 (peer), :8443 (proxy)
 		"runtime",  // :8088
 		"registry", // :8000
-		"broker",   // :8001
+		"config",   // :8001
 		"store",    // :8002
+		"broker",   // :8003
 		"router",   // :8084
 		"debug",    // :????
+		"auth",     // :8010
 		"proxy",    // :8081
 		"api",      // :8080
-		"auth",     // :8010
-		"web",      // :8082
 	}
 )
 

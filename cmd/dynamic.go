@@ -110,7 +110,7 @@ func callService(srv *goregistry.Service, ctx *cli.Context) error {
 	// construct and execute the request using the json content type
 	req := client.NewRequest(srv.Name, endpoint, body, goclient.WithContentType("application/json"))
 	var rsp json.RawMessage
-	if err := client.Call(ctx.Context, req, &rsp); err != nil {
+	if err := client.Call(ctx.Context, req, &rsp, goclient.WithAuthToken()); err != nil {
 		return err
 	}
 
@@ -120,6 +120,7 @@ func callService(srv *goregistry.Service, ctx *cli.Context) error {
 	if err := json.Indent(&out, rsp, "", "\t"); err != nil {
 		return err
 	}
+	out.Write([]byte("\n"))
 	out.WriteTo(os.Stdout)
 
 	return nil

@@ -6,9 +6,15 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io/ioutil"
+	"net/http"
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/micro/micro/v3/client/cli/namespace"
+	"github.com/micro/micro/v3/client/cli/token"
+	"github.com/micro/micro/v3/internal/config"
 )
 
 func TestServerAuth(t *testing.T) {
@@ -83,10 +89,10 @@ func ServerAuth(t *T) {
 }
 
 func TestServerLockdown(t *testing.T) {
-	TrySuite(t, ServerAuth, retryCount)
+	TrySuite(t, testServerLockdown, retryCount)
 }
 
-func ServerLockdown(t *T) {
+func testServerLockdown(t *T) {
 	t.Parallel()
 	serv := NewServer(t)
 	defer serv.Close()
@@ -102,35 +108,38 @@ func lockdownSuite(serv Server, t *T) {
 
 	// Execute first command in read to wait for store service
 	// to start up
-	if err := Try("Calling micro auth list rules", t, func() ([]byte, error) {
-		outp, err := cmd.Exec("auth", "list", "rules")
-		if err != nil {
-			return outp, err
-		}
-		if !strings.Contains(string(outp), "default") {
-			return outp, fmt.Errorf("Output should contain default rule")
-		}
-		return outp, nil
-	}, 15*time.Second); err != nil {
-		return
+	ns, err := namespace.Get(serv.Env())
+	if err != nil {
+		t.Fatal(err)
 	}
+	t.Log("Namespace is", ns)
+
+	rsp, _ := curl(serv, "store/list")
+	if rsp == nil {
+		t.Fatal(rsp, errors.New("store list should have response"))
+	}
+	if val, ok := rsp["Code"].(float64); !ok || val != 401 {
+		t.Fatal(rsp, errors.New("store list should be closed"), val)
+	}
+
+	Login(serv, t, "default", "password")
 
 	email := "me@email.com"
 	pass := "mystrongpass"
 
-	outp, err := cmd.Exec("auth", "create", "account", "--secret", pass, "--scopes", "admin", email)
+	outp, err := cmd.Exec("auth", "create", "account", "--secret", pass, email)
 	if err != nil {
 		t.Fatal(string(outp), err)
 		return
 	}
 
-	outp, err = cmd.Exec("auth", "create", "rule", "--access=granted", "--scope='*'", "--resource='*:*:*'", "onlyloggedin")
+	outp, err = cmd.Exec("auth", "create", "rule", "--access=granted", "--scope=*", "--resource=*:*:*", "onlyloggedin")
 	if err != nil {
 		t.Fatal(string(outp), err)
 		return
 	}
 
-	outp, err = cmd.Exec("auth", "create", "rule", "--access=granted", "--scope=''", "authpublic")
+	outp, err = cmd.Exec("auth", "create", "rule", "--access=granted", "--resource=service:auth:Auth.Token", "authpublic")
 	if err != nil {
 		t.Fatal(string(outp), err)
 		return
@@ -148,17 +157,39 @@ func lockdownSuite(serv Server, t *T) {
 		return
 	}
 
+	// set the local config file to be the same as the one micro will be configured to use.
+	// todo: consider adding a micro logout command.
+	config.SetConfig(cmd.Config)
+	err = token.Remove(serv.Env())
+	if err != nil {
+		t.Fatal(err)
+		return
+	}
+
 	if err := Try("Listing rules should fail before login", t, func() ([]byte, error) {
 		outp, err := cmd.Exec("auth", "list", "rules")
 		if err == nil {
 			return outp, errors.New("List rules should fail")
 		}
-		return outp, err
-	}, 31*time.Second); err != nil {
+		return outp, nil
+	}, 40*time.Second); err != nil {
 		return
 	}
 
-	Login(serv, t, "me@email.com", "mystrongpass")
+	// auth rules are cached so this could take a few seconds (until the authpublic rule takes
+	// effect in both the proxy and the auth service)
+	if err := Try("Logging in with "+email, t, func() ([]byte, error) {
+		out, err := cmd.Exec("login", "--email", email, "--password", pass)
+		if err != nil {
+			return out, err
+		}
+		if !strings.Contains(string(out), "Success") {
+			return out, errors.New("Login output does not contain 'Success'")
+		}
+		return out, err
+	}, 40*time.Second); err != nil {
+		return
+	}
 
 	if err := Try("Listing rules should pass after login", t, func() ([]byte, error) {
 		outp, err := cmd.Exec("auth", "list", "rules")
@@ -169,7 +200,21 @@ func lockdownSuite(serv Server, t *T) {
 			return outp, errors.New("Can't find rules")
 		}
 		return outp, err
-	}, 31*time.Second); err != nil {
+	}, 40*time.Second); err != nil {
 		return
 	}
+}
+
+func curl(serv Server, path string) (map[string]interface{}, error) {
+	resp, err := http.Get(fmt.Sprintf("http://127.0.0.1:%v/%v", serv.APIPort(), path))
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+	m := map[string]interface{}{}
+	return m, json.Unmarshal(body, &m)
 }

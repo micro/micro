@@ -13,7 +13,7 @@ import (
 
 var (
 	name    = "broker"
-	address = ":8001"
+	address = ":8003"
 )
 
 type serviceBroker struct {
@@ -55,7 +55,7 @@ func (b *serviceBroker) Publish(topic string, msg *broker.Message, opts ...broke
 			Header: msg.Header,
 			Body:   msg.Body,
 		},
-	}, goclient.WithAddress(b.Addrs...))
+	}, goclient.WithAuthToken(), goclient.WithAddress(b.Addrs...))
 	return err
 }
 
@@ -70,7 +70,7 @@ func (b *serviceBroker) Subscribe(topic string, handler broker.Handler, opts ...
 	stream, err := b.Client.Subscribe(context.TODO(), &pb.SubscribeRequest{
 		Topic: topic,
 		Queue: options.Queue,
-	}, goclient.WithAddress(b.Addrs...), goclient.WithRequestTimeout(time.Hour))
+	}, goclient.WithAuthToken(), goclient.WithAddress(b.Addrs...), goclient.WithRequestTimeout(time.Hour))
 	if err != nil {
 		return nil, err
 	}

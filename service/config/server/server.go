@@ -4,13 +4,14 @@ import (
 	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro/v3/store"
 	"github.com/micro/micro/v3/service"
+	pb "github.com/micro/micro/v3/service/config/proto"
 	"github.com/micro/micro/v3/service/logger"
 	mustore "github.com/micro/micro/v3/service/store"
-	pb "github.com/micro/micro/v3/service/config/proto"
 )
 
 const (
-	name = "config"
+	name    = "config"
+	address = ":8001"
 )
 
 var (
@@ -30,7 +31,11 @@ func Run(c *cli.Context) error {
 		watchTopic = c.String("watch_topic")
 	}
 
-	srv := service.New(service.Name(name))
+	srv := service.New(
+		service.Name(name),
+		service.Address(address),
+	)
+
 	mustore.DefaultStore.Init(store.Table("config"))
 
 	// register the handler

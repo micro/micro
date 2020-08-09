@@ -32,3 +32,5 @@ coverage.out
 micro
 !micro/
 dist
+
+*.bak

@@ -1,0 +1,70 @@
+ apiVersion: apps/v1
+ kind: Deployment
+ metadata:
+   namespace: default
+   name: micro-api
+   labels:
+     micro: runtime
+     name: micro-api
+   annotations:
+     name: "api"
+     version: "latest"
+     source: "github.com/micro/micro"
+     owner: "micro"
+     group: "micro"
+ spec:
+   replicas: 1
+   selector:
+     matchLabels:
+       name: micro-api
+       micro: runtime
+   strategy:
+     rollingUpdate:
+       maxSurge: 0
+       maxUnavailable: 1
+   template:
+     metadata:
+       labels:
+         name: micro-api
+         micro: runtime
+     spec:
+       containers:
+       - name: api
+         env:
+         - name: MICRO_API_RESOLVER
+           value: subdomain
+         - name: MICRO_AUTH_PUBLIC_KEY
+           valueFrom:
+             secretKeyRef:
+               name: micro-secrets
+               key: auth_public_key
+         - name: MICRO_AUTH_PRIVATE_KEY
+           valueFrom:
+             secretKeyRef:
+               name: micro-secrets
+               key: auth_private_key
+         - name: MICRO_PROFILE
+           value: "client"
+         - name: MICRO_SERVICE_NAME
+           value: client
+         - name: MICRO_PROXY
+           value: "micro-network.default.svc.cluster.local:8443"
+         - name: MICRO_ENABLE_ACME
+           value: "true"
+         - name: MICRO_ACME_PROVIDER
+           value: certmagic
+         - name: MICRO_ACME_HOSTS
+           value: '*.m3o.app,api.m3o.com'
+         - name: CF_API_TOKEN
+           valueFrom:
+             secretKeyRef:
+               key: cloudflare
+               name: micro-secrets
+         args:
+         - service
+         - api
+         image: micro/micro
+         imagePullPolicy: Always
+         ports:
+         - containerPort: 443
+           name: api-port

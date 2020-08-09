@@ -200,6 +200,7 @@ func testRunGithubSource(t *T) {
 		t.Fatal("Git is not available")
 		return
 	}
+
 	serv := NewServer(t, WithLogin())
 	defer serv.Close()
 	if err := serv.Run(); err != nil {
@@ -214,7 +215,7 @@ func testRunGithubSource(t *T) {
 		return
 	}
 
-	if err := Try("Find helloworld", t, func() ([]byte, error) {
+	if err := Try("Find helloworld in runtime", t, func() ([]byte, error) {
 		outp, err = cmd.Exec("status")
 		if err != nil {
 			return outp, err
@@ -228,8 +229,21 @@ func testRunGithubSource(t *T) {
 		return
 	}
 
+	if err := Try("Find helloworld in registry", t, func() ([]byte, error) {
+		outp, err = cmd.Exec("services")
+		if err != nil {
+			return outp, err
+		}
+		if !strings.Contains(string(outp), "helloworld") {
+			return outp, errors.New("helloworld is not running")
+		}
+		return outp, nil
+	}, 180*time.Second); err != nil {
+		return
+	}
+
 	if err := Try("Call helloworld", t, func() ([]byte, error) {
-		outp, err := cmd.Exec("call", "helloworld", "Helloworld.Call", `{"name": "Joe"}`)
+		outp, err := cmd.Exec("call", "helloworld", "Helloworld.Call", "{\"name\":\"John\"}")
 		if err != nil {
 			return outp, err
 		}
@@ -238,7 +252,7 @@ func testRunGithubSource(t *T) {
 		if err != nil {
 			return outp, err
 		}
-		if rsp["msg"] != "Hello Joe" {
+		if rsp["msg"] != "Hello John" {
 			return outp, errors.New("Helloworld resonse is unexpected")
 		}
 		return outp, err

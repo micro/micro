@@ -47,6 +47,10 @@ type Server interface {
 	Command() *Command
 	// Name of the environment
 	Env() string
+	// APIPort is the port the api is exposed on
+	APIPort() int
+	// PoxyPort is the port the proxy is exposed on
+	ProxyPort() int
 }
 
 type Command struct {
@@ -64,12 +68,20 @@ type Command struct {
 
 func (c *Command) args(a ...string) []string {
 	arguments := []string{}
+
+	// disable jwt creds which are injected so the server can run
+	// but shouldn't be passed to the CLI
+	arguments = append(arguments, "-auth_public_key", "")
+	arguments = append(arguments, "-auth_private_key", "")
+
 	// add config flag
-	arguments = append(arguments, []string{"-c", c.Config}...)
+	arguments = append(arguments, "-c", c.Config)
+
 	// add env flag if not env command
 	if v := len(a); v > 0 && a[0] != "env" {
-		arguments = append(arguments, []string{"-e", c.Env}...)
+		arguments = append(arguments, "-e", c.Env)
 	}
+
 	return append(arguments, a...)
 }
 
@@ -128,8 +140,9 @@ func (c *Command) Output() ([]byte, error) {
 // happen without calling `t.Fatal`. The error value should be disregarded.
 func Try(blockName string, t *T, f cmdFunc, maxTime time.Duration) error {
 	// hack. k8s can be slow locally
-	maxTime = maxTimeMultiplier * maxTime
-
+	maxTime *= maxTimeMultiplier
+	// backoff, the retry logic is basically to cover up timing issues
+	maxTime *= time.Duration(t.attempt)
 	start := time.Now()
 	var outp []byte
 	var err error
@@ -172,8 +185,10 @@ type ServerBase struct {
 	dir string
 	// name of the environment
 	env string
-	// port number
-	port int
+	// proxyPort number
+	proxyPort int
+	// apiPort number
+	apiPort int
 	// name of the container
 	container string
 	// namespace of server
@@ -242,7 +257,8 @@ func newLocalServer(t *T, fname string, opts ...Option) Server {
 		o(&options)
 	}
 
-	portnum := rand.Intn(maxPort-minPort) + minPort
+	proxyPortnum := rand.Intn(maxPort-minPort) + minPort
+	apiPortNum := rand.Intn(maxPort-minPort) + minPort
 
 	// kill container, ignore error because it might not exist,
 	// we dont care about this that much
@@ -272,7 +288,8 @@ func newLocalServer(t *T, fname string, opts ...Option) Server {
 
 	// run the server
 	cmd := exec.Command("docker", "run", "--name", fname,
-		fmt.Sprintf("-p=%v:8081", portnum),
+		fmt.Sprintf("-p=%v:8081", proxyPortnum),
+		fmt.Sprintf("-p=%v:8080", apiPortNum),
 		"-e", "MICRO_AUTH_PRIVATE_KEY="+strings.Trim(string(privKey), "\n"),
 		"-e", "MICRO_AUTH_PUBLIC_KEY="+strings.Trim(string(pubKey), "\n"),
 		"-e", "MICRO_PROFILE=ci",
@@ -285,7 +302,8 @@ func newLocalServer(t *T, fname string, opts ...Option) Server {
 		t:         t,
 		env:       fname,
 		container: fname,
-		port:      portnum,
+		apiPort:   apiPortNum,
+		proxyPort: proxyPortnum,
 		opts:      options,
 		namespace: "micro",
 	}}
@@ -310,7 +328,7 @@ func (s *ServerBase) Run() error {
 
 	// add the environment
 	if err := Try("Adding micro env: "+s.env+" file: "+s.config, s.t, func() ([]byte, error) {
-		out, err := cmd.Exec("env", "add", s.env, fmt.Sprintf("127.0.0.1:%d", s.port))
+		out, err := cmd.Exec("env", "add", s.env, fmt.Sprintf("127.0.0.1:%d", s.ProxyPort()))
 		if err != nil {
 			return nil, err
 		}
@@ -399,12 +417,21 @@ func (s *ServerBase) Env() string {
 	return s.env
 }
 
+func (s *ServerBase) ProxyPort() int {
+	return s.proxyPort
+}
+
+func (s *ServerBase) APIPort() int {
+	return s.apiPort
+}
+
 type T struct {
 	counter int
 	failed  bool
 	format  string
 	values  []interface{}
 	t       *testing.T
+	attempt int
 }
 
 // Failed indicate whether the test failed
@@ -464,7 +491,7 @@ func (t *T) Parallel() {
 
 // New returns a new test framework
 func New(t *testing.T) *T {
-	return &T{t: t}
+	return &T{t: t, attempt: 1}
 }
 
 // TrySuite is designed to retry a TestXX function
@@ -493,6 +520,7 @@ func TrySuite(t *testing.T, f func(t *T), times int) {
 		if i != times-1 {
 			tee.failed = false
 		}
+		tee.attempt++
 		time.Sleep(200 * time.Millisecond)
 	}
 	if tee.failed {

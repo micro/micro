@@ -10,7 +10,6 @@ import (
 	"os/exec"
 	"sort"
 	"strings"
-	"sync"
 	"time"
 
 	"github.com/micro/go-micro/v3/broker"
@@ -54,12 +53,6 @@ type command struct {
 
 	// indicates whether this is a service
 	service bool
-
-	sync.Mutex
-	// exit is a channel which is closed
-	// on exit for anything that requires
-	// cleanup
-	exit chan bool
 }
 
 var (
@@ -198,7 +191,6 @@ func New(opts ...cmd.Option) cmd.Cmd {
 	}
 
 	cmd := new(command)
-	cmd.exit = make(chan bool)
 	cmd.opts = options
 	cmd.app = cli.NewApp()
 	cmd.app.Name = name
@@ -207,7 +199,6 @@ func New(opts ...cmd.Option) cmd.Cmd {
 	cmd.app.Flags = defaultFlags
 	cmd.app.Action = action
 	cmd.app.Before = beforeFromContext(options.Context, cmd.Before)
-	cmd.app.After = cmd.After
 
 	// if this option has been set, we're running a service
 	// and no action needs to be performed. The CMD package
@@ -226,21 +217,6 @@ func (c *command) App() *cli.App {
 
 func (c *command) Options() cmd.Options {
 	return c.opts
-}
-
-// After is executed after any subcommand
-func (c *command) After(ctx *cli.Context) error {
-	c.Lock()
-	defer c.Unlock()
-
-	select {
-	case <-c.exit:
-		return nil
-	default:
-		close(c.exit)
-	}
-
-	return nil
 }
 
 // Before is executed before any subcommand
@@ -280,7 +256,7 @@ func (c *command) Before(ctx *cli.Context) error {
 
 	// set the proxy address
 	var proxy string
-	if c.service {
+	if c.service || ctx.IsSet("proxy_address") {
 		// use the proxy address passed as a flag, this is normally
 		// the micro network
 		proxy = ctx.String("proxy_address")
@@ -305,6 +281,9 @@ func (c *command) Before(ctx *cli.Context) error {
 		server.WrapHandler(wrapper.TraceHandler()),
 		server.WrapHandler(wrapper.HandlerStats()),
 	)
+
+	// initialize the server with the namespace so it knows which domain to register in
+	muserver.DefaultServer.Init(server.Namespace(ctx.String("namespace")))
 
 	// setup auth
 	authOpts := []auth.Option{}
@@ -402,6 +381,9 @@ func (c *command) Before(ctx *cli.Context) error {
 	if len(ctx.String("namespace")) > 0 {
 		storeOpts = append(storeOpts, store.Database(ctx.String("namespace")))
 	}
+	if len(ctx.String("service_name")) > 0 {
+		storeOpts = append(storeOpts, store.Table(ctx.String("service_name")))
+	}
 	if err := mustore.DefaultStore.Init(storeOpts...); err != nil {
 		logger.Fatalf("Error configuring store: %v", err)
 	}
@@ -423,7 +405,7 @@ func (c *command) Before(ctx *cli.Context) error {
 	}
 
 	// refresh token periodically
-	go refreshAuthToken(c.exit)
+	go refreshAuthToken()
 
 	// Setup config. Do this after auth is configured since it'll load the config
 	// from the service immediately. We only do this if the action is nil, indicating

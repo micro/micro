@@ -26,7 +26,7 @@ jobs:
     - name: Get Date
       id: get-date
       run: |
-        echo "::set-output name=date::$(/bin/date -u "+%s")"
+        echo "::set-output name=date::$(/bin/date -u "+%Y%m%d")"
       shell: bash
     - name: Enable caching
       # We would use the official actions/cache@v2, but it doesn't save the cache if the build fails
@@ -35,8 +35,6 @@ jobs:
       with:
         path: ~/go/pkg/mod
         key: ${{ runner.os }}-go-kind-${{ steps.get-date.outputs.date }}
-        restore-keys: |
-          ${{ runner.os }}-go-kind-
     - name: Install micro
       id: install-micro
       run: |
@@ -58,7 +56,7 @@ jobs:
     - name: Setup Kind
       uses: engineerd/setup-kind@v0.4.0
       with:
-        config: scripts/kind-config.yaml
+        config: scripts/kind/kind-config.yaml
         version: v0.8.1
     - name: Finish Kind registry setup
       run: |
