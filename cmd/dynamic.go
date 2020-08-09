@@ -217,5 +217,8 @@ func serviceWithName(name, domain string) (*goregistry.Service, error) {
 	} else if err != nil {
 		return nil, err
 	}
+	if len(srvs) == 0 {
+		return nil, nil
+	}
 	return srvs[0], nil
 }

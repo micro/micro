@@ -14,6 +14,7 @@ import (
 	"github.com/micro/go-micro/v3/network/resolver/dns"
 	"github.com/micro/go-micro/v3/network/resolver/http"
 	"github.com/micro/go-micro/v3/network/resolver/registry"
+	"github.com/micro/go-micro/v3/network/resolver/noop"
 	"github.com/micro/go-micro/v3/proxy"
 	mucpProxy "github.com/micro/go-micro/v3/proxy/mucp"
 	"github.com/micro/go-micro/v3/router"
@@ -42,7 +43,7 @@ var (
 	// set the advertise address
 	advertise = ""
 	// resolver is the network resolver
-	resolver = "registry"
+	resolver = "noop"
 	// the tunnel token
 	token = "micro"
 
@@ -119,14 +120,19 @@ func Run(ctx *cli.Context) error {
 	if len(ctx.String("resolver")) > 0 {
 		resolver = ctx.String("resolver")
 	}
+
+	// setup the resolver used for internode networking
 	var r res.Resolver
+
 	switch resolver {
 	case "dns":
-		r = &dns.Resolver{}
+		r = new(dns.Resolver)
 	case "http":
-		r = &http.Resolver{}
+		r = new(http.Resolver)
 	case "registry":
-		r = &registry.Resolver{}
+		r = new(registry.Resolver)
+	default:
+		r = new(noop.Resolver)
 	}
 
 	// advertise the best routes
