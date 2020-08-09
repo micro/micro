@@ -28,7 +28,7 @@ const (
 
 var (
 	retryCount        = 2
-	isParallel        = false
+	isParallel        = true
 	ignoreThisError   = errors.New("Do not use this error")
 	errFatal          = errors.New("Fatal error")
 	testFilter        = []string{}
