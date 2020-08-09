@@ -3,7 +3,6 @@ package proxy
 
 import (
 	"os"
-	"strings"
 
 	"github.com/go-acme/lego/v3/providers/dns/cloudflare"
 	"github.com/micro/cli/v2"
@@ -12,11 +11,9 @@ import (
 	"github.com/micro/go-micro/v3/api/server/acme/certmagic"
 	bmem "github.com/micro/go-micro/v3/broker/memory"
 	"github.com/micro/go-micro/v3/proxy"
-	"github.com/micro/go-micro/v3/proxy/http"
 	"github.com/micro/go-micro/v3/proxy/mucp"
-	rmem "github.com/micro/go-micro/v3/registry/memory"
+	"github.com/micro/go-micro/v3/registry/noop"
 	"github.com/micro/go-micro/v3/server"
-	grpcSrv "github.com/micro/go-micro/v3/server/grpc"
 	sgrpc "github.com/micro/go-micro/v3/server/grpc"
 	"github.com/micro/go-micro/v3/sync/memory"
 	"github.com/micro/go-micro/v3/util/mux"
@@ -35,9 +32,7 @@ var (
 	// The address of the proxy
 	Address = ":8081"
 	// the proxy protocol
-	Protocol = "grpc"
-	// The endpoint host to route to
-	Endpoint string
+	protocol = "grpc"
 	// ACME (Cert management)
 	ACMEProvider          = "autocert"
 	ACMEChallengeProvider = "cloudflare"
@@ -50,12 +45,6 @@ func Run(ctx *cli.Context) error {
 	}
 	if len(ctx.String("address")) > 0 {
 		Address = ctx.String("address")
-	}
-	if len(ctx.String("endpoint")) > 0 {
-		Endpoint = ctx.String("endpoint")
-	}
-	if len(ctx.String("protocol")) > 0 {
-		Protocol = ctx.String("protocol")
 	}
 	if len(ctx.String("acme_provider")) > 0 {
 		ACMEProvider = ctx.String("acme_provider")
@@ -70,32 +59,12 @@ func Run(ctx *cli.Context) error {
 		proxy.WithClient(muclient.DefaultClient),
 	}
 
-	// new proxy
-	var p proxy.Proxy
-	// setup the default server
-	var srv server.Server
-
-	// set endpoint
-	if len(Endpoint) > 0 {
-		switch {
-		case strings.HasPrefix(Endpoint, "grpc://"):
-			ep := strings.TrimPrefix(Endpoint, "grpc://")
-			popts = append(popts, proxy.WithEndpoint(ep))
-			Protocol = "grpc"
-		case strings.HasPrefix(Endpoint, "http://"):
-			// TODO: strip prefix?
-			popts = append(popts, proxy.WithEndpoint(Endpoint))
-			Protocol = "http"
-		default:
-			// TODO: strip prefix?
-			popts = append(popts, proxy.WithEndpoint(Endpoint))
-			Protocol = "mucp"
-		}
-	}
-
+	// TODO: should not have to set broker/registry 
+	// if not used more likely pull it all out server
+	// into service
 	serverOpts := []server.Option{
 		server.Address(Address),
-		server.Registry(rmem.NewRegistry()),
+		server.Registry(noop.NewRegistry()),
 		server.Broker(bmem.NewBroker()),
 	}
 
@@ -164,28 +133,9 @@ func Run(ctx *cli.Context) error {
 	authOpt := server.WrapHandler(authHandler())
 	serverOpts = append(serverOpts, authOpt)
 
-	// set proxy
-	switch Protocol {
-	case "http":
-		p = http.NewProxy(popts...)
-		serverOpts = append(serverOpts, server.WithRouter(p))
-		// TODO: http server
-		srv = grpcSrv.NewServer(serverOpts...)
-	case "mucp":
-		p = mucp.NewProxy(popts...)
-		serverOpts = append(serverOpts, server.WithRouter(p))
-		srv = grpcSrv.NewServer(serverOpts...)
-	default:
-		p = mucp.NewProxy(popts...)
-		serverOpts = append(serverOpts, server.WithRouter(p))
-		srv = sgrpc.NewServer(serverOpts...)
-	}
-
-	if len(Endpoint) > 0 {
-		log.Infof("Proxy [%s] serving endpoint: %s", p.String(), Endpoint)
-	} else {
-		log.Infof("Proxy [%s] serving protocol: %s", p.String(), Protocol)
-	}
+	p := mucp.NewProxy(popts...)
+	serverOpts = append(serverOpts, server.WithRouter(p))
+	srv := sgrpc.NewServer(serverOpts...)
 
 	// create a new proxy muxer which includes the debug handler
 	muxer := mux.New(Name, p)
@@ -219,16 +169,6 @@ var (
 			Name:    "address",
 			Usage:   "Set the proxy http address e.g 0.0.0.0:8081",
 			EnvVars: []string{"MICRO_PROXY_ADDRESS"},
-		},
-		&cli.StringFlag{
-			Name:    "protocol",
-			Usage:   "Set the protocol used for proxying e.g mucp, grpc, http",
-			EnvVars: []string{"MICRO_PROXY_PROTOCOL"},
-		},
-		&cli.StringFlag{
-			Name:    "endpoint",
-			Usage:   "Set the endpoint to route to e.g greeter or localhost:9090",
-			EnvVars: []string{"MICRO_PROXY_ENDPOINT"},
 		},
 	)
 )
