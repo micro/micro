@@ -44,7 +44,7 @@ spec:
       - name: shared-data
         emptyDir: {}
       containers:
-      - name: network
+      - name: micro
         env:
         - name: MICRO_AUTH_PUBLIC_KEY
           valueFrom:

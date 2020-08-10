@@ -100,7 +100,7 @@ spec:
       serviceAccount: micro-runtime
       serviceAccountName: micro-runtime
       containers:
-      - name: runtime
+      - name: micro
         env:
         - name: MICRO_PROFILE
           value: platform
