@@ -41,7 +41,7 @@ func testNamespaceConfigIsolationSuite(serv Server, t *T) {
 		return
 	}
 
-	Login(serv, t, "default", "password")
+	Login(serv, t, "admin", "micro")
 	if t.failed {
 		return
 	}
@@ -81,7 +81,7 @@ func testNamespaceConfigIsolationSuite(serv Server, t *T) {
 	// This call is only here to trigger default account generation
 	cmd.Exec("auth", "list", "accounts")
 
-	Login(serv, t, "default", "password")
+	Login(serv, t, "admin", "micro")
 	if t.failed {
 		return
 	}
@@ -104,7 +104,7 @@ func testNamespaceConfigIsolationSuite(serv Server, t *T) {
 		t.Fatalf("Error changing namespace %s", err)
 	}
 
-	if err := Login(serv, t, "default", "password"); err != nil {
+	if err := Login(serv, t, "admin", "micro"); err != nil {
 		return
 	}
 
