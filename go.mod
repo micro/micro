@@ -4,16 +4,13 @@ go 1.13
 
 require (
 	github.com/boltdb/bolt v1.3.1
-	github.com/bwmarrin/discordgo v0.20.2 // indirect
 	github.com/chzyer/logex v1.1.10 // indirect
 	github.com/chzyer/readline v0.0.0-20180603132655-2972be24d48e
 	github.com/chzyer/test v0.0.0-20180213035817-a1ea475d72b1 // indirect
 	github.com/cloudflare/cloudflare-go v0.10.9 // indirect
 	github.com/dustin/go-humanize v1.0.0
-	github.com/forestgiant/sliceutil v0.0.0-20160425183142-94783f95db6c // indirect
 	github.com/fsnotify/fsnotify v1.4.7
 	github.com/go-acme/lego/v3 v3.4.0
-	github.com/go-telegram-bot-api/telegram-bot-api v4.6.4+incompatible // indirect
 	github.com/golang/protobuf v1.4.2
 	github.com/google/uuid v1.1.1
 	github.com/gorilla/handlers v1.4.2
@@ -21,27 +18,22 @@ require (
 	github.com/hashicorp/go-version v1.2.1
 	github.com/juju/fslock v0.0.0-20160525022230-4d5c94c67b4b
 	github.com/kr/pretty v0.2.0 // indirect
-	github.com/mattn/go-isatty v0.0.12 // indirect
 	github.com/micro/cli/v2 v2.1.2
 	github.com/micro/go-micro/v3 v3.0.0-alpha.0.20200810150406-769ba5fa7600
-	github.com/netdata/go-orchestrator v0.0.0-20190905093727-c793edba0e8f
-	github.com/nlopes/slack v0.6.1-0.20191106133607-d06c2a2b3249 // indirect
 	github.com/olekukonko/tablewriter v0.0.4
 	github.com/onsi/ginkgo v1.12.0 // indirect
 	github.com/pkg/errors v0.9.1
 	github.com/prometheus/client_golang v1.7.0 // indirect
 	github.com/serenize/snaker v0.0.0-20171204205717-a683aaf2d516
 	github.com/stretchr/testify v1.5.1
-	github.com/technoweenie/multipartstreamer v1.0.1 // indirect
 	github.com/xlab/treeprint v0.0.0-20181112141820-a009c3971eca
 	golang.org/x/crypto v0.0.0-20200709230013-948cd5f35899
 	golang.org/x/net v0.0.0-20200520182314-0ba52f642ac2
 	golang.org/x/tools v0.0.0-20200117065230-39095c1d176c // indirect
 	google.golang.org/genproto v0.0.0-20200526211855-cb27e3aa2013
 	google.golang.org/grpc v1.27.0
-	google.golang.org/protobuf v1.25.0 // indirect
+	google.golang.org/protobuf v1.25.0
 	gopkg.in/square/go-jose.v2 v2.4.1 // indirect
-	gopkg.in/telegram-bot-api.v4 v4.6.4 // indirect
 	gopkg.in/yaml.v2 v2.2.8 // indirect
 )
 

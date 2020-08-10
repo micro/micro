@@ -10,13 +10,13 @@ import (
 
 	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro/v3/client"
-	debug "github.com/micro/go-micro/v3/debug/service/handler"
 	"github.com/micro/go-micro/v3/model"
 	"github.com/micro/go-micro/v3/server"
 	signalutil "github.com/micro/go-micro/v3/util/signal"
 	"github.com/micro/micro/v3/cmd"
 	muclient "github.com/micro/micro/v3/service/client"
 	mudebug "github.com/micro/micro/v3/service/debug"
+	debug "github.com/micro/micro/v3/service/debug/handler"
 	"github.com/micro/micro/v3/service/logger"
 	mumodel "github.com/micro/micro/v3/service/model"
 	muserver "github.com/micro/micro/v3/service/server"
@@ -170,9 +170,9 @@ func (s *Service) Run() error {
 	}
 
 	// register the debug handler
-	muserver.DefaultServer.Handle(
-		muserver.DefaultServer.NewHandler(
-			debug.NewHandler(muclient.DefaultClient),
+	s.Server().Handle(
+		s.Server().NewHandler(
+			debug.NewHandler(s.Client()),
 			server.InternalHandler(true),
 		),
 	)

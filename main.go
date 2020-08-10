@@ -20,7 +20,6 @@ import (
 	_ "github.com/micro/micro/v3/service/auth/cli"
 	_ "github.com/micro/micro/v3/service/cli"
 	_ "github.com/micro/micro/v3/service/config/cli"
-	_ "github.com/micro/micro/v3/service/debug/cli"
 	_ "github.com/micro/micro/v3/service/network/cli"
 	_ "github.com/micro/micro/v3/service/runtime/cli"
 	_ "github.com/micro/micro/v3/service/store/cli"
