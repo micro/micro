@@ -40,7 +40,15 @@ import (
 	muserver "github.com/micro/micro/v3/service/server"
 	mustore "github.com/micro/micro/v3/service/store"
 
-        _ "github.com/micro/micro/v3/internal/usage"
+	// used for tracking usage of oss
+	_ "github.com/micro/micro/v3/internal/usage"
+
+	// plugins which augment the system
+	_ "github.com/micro/micro/v3/plugin/auth"
+	_ "github.com/micro/micro/v3/plugin/cache"
+	_ "github.com/micro/micro/v3/plugin/log"
+	_ "github.com/micro/micro/v3/plugin/stats"
+	_ "github.com/micro/micro/v3/plugin/trace"
 )
 
 type command struct {

@@ -8,9 +8,6 @@ import (
 
 	"github.com/micro/micro/v3/cmd"
 
-	// internal packages
-	_ "github.com/micro/micro/v3/internal/usage"
-
 	// load packages so they can register commands
 	_ "github.com/micro/micro/v3/client/cli"
 	_ "github.com/micro/micro/v3/client/cli/new"
@@ -23,13 +20,6 @@ import (
 	_ "github.com/micro/micro/v3/service/network/cli"
 	_ "github.com/micro/micro/v3/service/runtime/cli"
 	_ "github.com/micro/micro/v3/service/store/cli"
-
-	// plugins which augment the system
-	_ "github.com/micro/micro/v3/plugin/auth"
-	_ "github.com/micro/micro/v3/plugin/cache"
-	_ "github.com/micro/micro/v3/plugin/log"
-	_ "github.com/micro/micro/v3/plugin/stats"
-	_ "github.com/micro/micro/v3/plugin/trace"
 )
 
 func main() {
