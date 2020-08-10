@@ -26,8 +26,8 @@ func setupAuthForCLI(ctx *cli.Context) error {
 	}
 
 	tok, err := clitoken.Get(env.Name)
-	if err != nil {
-		return err
+	if err != nil || tok == nil {
+		return nil
 	}
 
 	// If there is no refresh token, do not try to refresh it
