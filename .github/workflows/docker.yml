@@ -29,5 +29,5 @@ jobs:
         name: micro/micro
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
-        tags: "latest,${{ env.RELEASE_VERSION }}"
+        tags: ${{ env.RELEASE_VERSION }}
         tag_names: true
