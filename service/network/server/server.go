@@ -23,6 +23,7 @@ import (
 	"github.com/micro/go-micro/v3/transport"
 	"github.com/micro/go-micro/v3/transport/quic"
 	"github.com/micro/go-micro/v3/tunnel"
+	tmucp "github.com/micro/go-micro/v3/tunnel/mucp"
 	"github.com/micro/micro/v3/internal/helper"
 	"github.com/micro/micro/v3/internal/mux"
 	"github.com/micro/micro/v3/service"
@@ -178,7 +179,7 @@ func Run(ctx *cli.Context) error {
 	}
 
 	gateway := ctx.String("gateway")
-	tun := tunnel.NewTunnel(tunOpts...)
+	tun := tmucp.NewTunnel(tunOpts...)
 	id := service.Server().Options().Id
 
 	// local tunnel router
