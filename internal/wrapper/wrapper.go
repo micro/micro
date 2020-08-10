@@ -85,6 +85,11 @@ func AuthHandler() server.HandlerWrapper {
 			// Inspect the token and decode an account
 			account, _ := auth.Inspect(token)
 
+			// There is an account, set it in the context
+			if account != nil {
+				ctx = goauth.ContextWithAccount(ctx, account)
+			}
+
 			// ensure only accounts with the correct namespace can access this namespace,
 			// since the auth package will verify access below, and some endpoints could
 			// be public, we allow nil accounts access using the namespace.Public option.
@@ -111,11 +116,6 @@ func AuthHandler() server.HandlerWrapper {
 				return errors.Unauthorized(req.Service(), "Unauthorized call made to %v:%v", req.Service(), req.Endpoint())
 			} else if err != nil {
 				return errors.InternalServerError(req.Service(), "Error authorizing request: %v", err)
-			}
-
-			// There is an account, set it in the context
-			if account != nil {
-				ctx = goauth.ContextWithAccount(ctx, account)
 			}
 
 			// The user is authorised, allow the call
