@@ -53,7 +53,7 @@ func testCorruptedLogin(t *T) {
 	}
 
 	outp, _ = cmd.Exec("status")
-	if !strings.Contains(string(outp), "Account can't be found for refresh token") {
+	if !strings.Contains(string(outp), "Unauthorized") {
 		t.Fatalf("Call should have failed: %s", outp)
 	}
 	outp, _ = cmd.Exec("login", "--email", serv.Env(), "--password", "password")
