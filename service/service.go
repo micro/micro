@@ -60,6 +60,9 @@ func New(opts ...Option) *Service {
 		if v := ctx.String("service_version"); len(v) > 0 {
 			opts = append([]Option{Version(v)}, opts...)
 		}
+		if a := ctx.String("service_address"); len(a) > 0 {
+			opts = append([]Option{Address(a)}, opts...)
+		}
 		return nil
 	}
 

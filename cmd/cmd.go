@@ -177,6 +177,11 @@ var (
 			Usage:   "Version of the micro service",
 			EnvVars: []string{"MICRO_SERVICE_VERSION"},
 		},
+		&cli.StringFlag{
+			Name:    "service_address",
+			Usage:   "Address to run the service on",
+			EnvVars: []string{"MICRO_SERVICE_ADDRESS"},
+		},
 	}
 )
 
