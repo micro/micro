@@ -25,14 +25,12 @@ import (
 	auth "github.com/micro/micro/v3/service/auth/server"
 	broker "github.com/micro/micro/v3/service/broker/server"
 	config "github.com/micro/micro/v3/service/config/server"
-	debug "github.com/micro/micro/v3/service/debug/server"
 	network "github.com/micro/micro/v3/service/network/server"
 	proxy "github.com/micro/micro/v3/service/proxy"
 	registry "github.com/micro/micro/v3/service/registry/server"
 	router "github.com/micro/micro/v3/service/router/server"
 	runtime "github.com/micro/micro/v3/service/runtime/server"
 	store "github.com/micro/micro/v3/service/store/server"
-	tunnel "github.com/micro/micro/v3/service/tunnel/server"
 
 	// misc commands
 	"github.com/micro/micro/v3/service/handler/exec"
@@ -163,11 +161,6 @@ var srvCommands = []srvCommand{
 		Flags:   config.Flags,
 	},
 	{
-		Name:    "debug",
-		Command: debug.Run,
-		Flags:   debug.Flags,
-	},
-	{
 		Name:    "health",
 		Command: health.Run,
 		Flags:   health.Flags,
@@ -199,11 +192,6 @@ var srvCommands = []srvCommand{
 	{
 		Name:    "store",
 		Command: store.Run,
-	},
-	{
-		Name:    "tunnel",
-		Command: tunnel.Run,
-		Flags:   tunnel.Flags,
 	},
 }
 
