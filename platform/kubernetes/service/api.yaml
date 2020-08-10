@@ -29,7 +29,7 @@
          micro: runtime
      spec:
        containers:
-       - name: api
+       - name: micro
          env:
          - name: MICRO_API_RESOLVER
            value: subdomain
