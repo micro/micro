@@ -156,6 +156,8 @@ func splitCmdArgs(ctx *cli.Context) ([]string, map[string]string, error) {
 func constructEndpoint(args []string) (string, error) {
 	var epComps []string
 	switch len(args) {
+	case 1:
+		epComps = append(args, "call")
 	case 2:
 		epComps = args
 	case 3:
