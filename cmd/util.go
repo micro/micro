@@ -50,8 +50,7 @@ func setupAuthForCLI(ctx *cli.Context) error {
 		goauth.WithTokenIssuer(ns),
 	)
 	if err != nil {
-		clitoken.Remove(env.Name)
-		return nil
+		return err
 	}
 
 	// Save the token to user config file
