@@ -178,6 +178,8 @@ func (m *manager) runtimeEnv(srv *gorun.Service, options *gorun.CreateOptions) [
 		// pass the service's name and version
 		"MICRO_SERVICE_NAME":    nameFromService(srv.Name),
 		"MICRO_SERVICE_VERSION": srv.Version,
+		// bind to port 8080, this is what the tcp readiness check will ping
+		"MICRO_SERVICE_ADDRESS": "127.0.0.1:8080",
 		// set the proxy for the service to use (e.g. micro network)
 		// using the proxy which has been configured for the runtime
 		"MICRO_PROXY": client.DefaultClient.Options().Proxy,
