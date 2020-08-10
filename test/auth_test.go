@@ -51,7 +51,7 @@ func ServerAuth(t *T) {
 		if err != nil {
 			return outp, err
 		}
-		if !strings.Contains(string(outp), "admin") {
+		if !strings.Contains(string(outp), "default") {
 			return outp, fmt.Errorf("Output should contain default rule")
 		}
 		return outp, nil
