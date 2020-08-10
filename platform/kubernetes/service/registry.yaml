@@ -25,7 +25,7 @@ spec:
         micro: runtime
     spec:
       containers:
-      - name: registry
+      - name: micro
         env:
         - name: MICRO_PROFILE
           value: platform
