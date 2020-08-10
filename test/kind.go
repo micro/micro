@@ -70,7 +70,6 @@ func (s *testK8sServer) Run() error {
 			!strings.Contains(string(outp), "registry") ||
 			!strings.Contains(string(outp), "broker") ||
 			!strings.Contains(string(outp), "config") ||
-			!strings.Contains(string(outp), "debug") ||
 			!strings.Contains(string(outp), "proxy") ||
 			!strings.Contains(string(outp), "auth") ||
 			!strings.Contains(string(outp), "store") {

@@ -246,7 +246,7 @@ func networkRoutes(c *cli.Context, args []string) ([]byte, error) {
 	var rsp map[string]interface{}
 
 	req := client.NewRequest("network", "Network.Routes", request, goclient.WithContentType("application/json"))
-	err := client.Call(context.TODO(), req, &rsp)
+	err := client.Call(context.TODO(), req, &rsp, goclient.WithAuthToken())
 	if err != nil {
 		return nil, err
 	}
@@ -318,7 +318,7 @@ func networkServices(c *cli.Context, args []string) ([]byte, error) {
 	var rsp map[string]interface{}
 
 	req := client.NewRequest("network", "Network.Services", map[string]interface{}{}, goclient.WithContentType("application/json"))
-	err := client.Call(context.TODO(), req, &rsp)
+	err := client.Call(context.TODO(), req, &rsp, goclient.WithAuthToken())
 	if err != nil {
 		return nil, err
 	}

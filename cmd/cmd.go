@@ -274,12 +274,14 @@ func (c *command) Before(ctx *cli.Context) error {
 	muclient.DefaultClient = wrapper.CacheClient(muclient.DefaultClient)
 	muclient.DefaultClient = wrapper.TraceCall(muclient.DefaultClient)
 	muclient.DefaultClient = wrapper.FromService(muclient.DefaultClient)
+	muclient.DefaultClient = wrapper.LogClient(muclient.DefaultClient)
 
 	// wrap the server
 	muserver.DefaultServer.Init(
 		server.WrapHandler(wrapper.AuthHandler()),
 		server.WrapHandler(wrapper.TraceHandler()),
 		server.WrapHandler(wrapper.HandlerStats()),
+		server.WrapHandler(wrapper.LogHandler()),
 	)
 
 	// initialize the server with the namespace so it knows which domain to register in

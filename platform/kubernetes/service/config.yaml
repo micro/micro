@@ -19,7 +19,7 @@ spec:
         micro: runtime
     spec:
       containers:
-      - name: micro-config
+      - name: micro
         env:
         - name: MICRO_PROFILE
           value: platform

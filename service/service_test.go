@@ -7,8 +7,8 @@ import (
 	"testing"
 
 	"github.com/micro/go-micro/v3/client"
-	proto "github.com/micro/go-micro/v3/debug/service/proto"
 	"github.com/micro/micro/v3/profile"
+	proto "github.com/micro/micro/v3/service/debug/proto"
 )
 
 func testShutdown(wg *sync.WaitGroup, cancel func()) {

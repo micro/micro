@@ -13,12 +13,12 @@ import (
 	"github.com/micro/cli/v2"
 	goclient "github.com/micro/go-micro/v3/client"
 	cbytes "github.com/micro/go-micro/v3/codec/bytes"
-	proto "github.com/micro/go-micro/v3/debug/service/proto"
 	"github.com/micro/go-micro/v3/metadata"
 	goregistry "github.com/micro/go-micro/v3/registry"
 	"github.com/micro/micro/v3/client/cli/namespace"
 	"github.com/micro/micro/v3/client/cli/util"
 	"github.com/micro/micro/v3/service/client"
+	proto "github.com/micro/micro/v3/service/debug/proto"
 	"github.com/micro/micro/v3/service/registry"
 
 	"github.com/serenize/snaker"

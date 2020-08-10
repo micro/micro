@@ -13,11 +13,11 @@ import (
 	"github.com/micro/cli/v2"
 
 	goclient "github.com/micro/go-micro/v3/client"
-	proto "github.com/micro/go-micro/v3/debug/service/proto"
 	goregistry "github.com/micro/go-micro/v3/registry"
 	"github.com/micro/micro/v3/client/cli/namespace"
 	"github.com/micro/micro/v3/client/cli/util"
 	"github.com/micro/micro/v3/service/client"
+	proto "github.com/micro/micro/v3/service/debug/proto"
 	"github.com/micro/micro/v3/service/registry"
 )
 
