@@ -32,7 +32,7 @@ import (
 	"github.com/micro/micro/v3/internal/handler"
 	"github.com/micro/micro/v3/internal/helper"
 	rrmicro "github.com/micro/micro/v3/internal/resolver/api"
-	"github.com/micro/micro/v3/internal/stats"
+	"github.com/micro/micro/v3/plugin"
 	"github.com/micro/micro/v3/service"
 	"github.com/micro/micro/v3/service/api/auth"
 	log "github.com/micro/micro/v3/service/logger"
@@ -45,15 +45,43 @@ var (
 	Address               = ":8080"
 	Handler               = "meta"
 	Resolver              = "micro"
-	RPCPath               = "/rpc"
 	APIPath               = "/"
 	ProxyPath             = "/{service:[a-zA-Z0-9]+}"
 	Namespace             = ""
-	HeaderPrefix          = "X-Micro-"
-	EnableRPC             = false
 	ACMEProvider          = "autocert"
 	ACMEChallengeProvider = "cloudflare"
 	ACMECA                = acme.LetsEncryptProductionCA
+)
+
+var (
+	Flags = append(client.Flags,
+		&cli.StringFlag{
+			Name:    "address",
+			Usage:   "Set the api address e.g 0.0.0.0:8080",
+			EnvVars: []string{"MICRO_API_ADDRESS"},
+		},
+		&cli.StringFlag{
+			Name:    "handler",
+			Usage:   "Specify the request handler to be used for mapping HTTP requests to services; {api, event, http, rpc}",
+			EnvVars: []string{"MICRO_API_HANDLER"},
+		},
+		&cli.StringFlag{
+			Name:    "namespace",
+			Usage:   "Set the namespace used by the API e.g. com.example",
+			EnvVars: []string{"MICRO_API_NAMESPACE"},
+		},
+		&cli.StringFlag{
+			Name:    "resolver",
+			Usage:   "Set the hostname resolver used by the API {host, path, grpc}",
+			EnvVars: []string{"MICRO_API_RESOLVER"},
+		},
+		&cli.BoolFlag{
+			Name:    "enable_cors",
+			Usage:   "Enable CORS, allowing the API to be called by frontend applications",
+			EnvVars: []string{"MICRO_API_ENABLE_CORS"},
+			Value:   true,
+		},
+	)
 )
 
 func Run(ctx *cli.Context) error {
@@ -68,9 +96,6 @@ func Run(ctx *cli.Context) error {
 	}
 	if len(ctx.String("resolver")) > 0 {
 		Resolver = ctx.String("resolver")
-	}
-	if len(ctx.String("enable_rpc")) > 0 {
-		EnableRPC = ctx.Bool("enable_rpc")
 	}
 	if len(ctx.String("acme_provider")) > 0 {
 		ACMEProvider = ctx.String("acme_provider")
@@ -154,14 +179,6 @@ func Run(ctx *cli.Context) error {
 	r := mux.NewRouter()
 	h = r
 
-	if ctx.Bool("enable_stats") {
-		st := stats.New()
-		r.HandleFunc("/stats", st.StatsHandler)
-		h = st.ServeHTTP(r)
-		st.Start()
-		defer st.Stop()
-	}
-
 	// return version and list of services
 	r.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == "OPTIONS" {
@@ -193,12 +210,6 @@ func Run(ctx *cli.Context) error {
 		rr = path.NewResolver(ropts...)
 	case "grpc":
 		rr = grpc.NewResolver(ropts...)
-	}
-
-	// register rpc handler
-	if EnableRPC {
-		log.Infof("Registering RPC Handler at %s", RPCPath)
-		r.Handle(RPCPath, handler.NewRPCHandler(rr))
 	}
 
 	switch Handler {
@@ -276,11 +287,21 @@ func Run(ctx *cli.Context) error {
 		r.PathPrefix(APIPath).Handler(handler.Meta(srv, rt, Namespace))
 	}
 
-	// create the auth wrapper and the server
-	authWrapper := auth.Wrapper(rr, Namespace)
-	api := httpapi.NewServer(Address, server.WrapHandler(authWrapper))
+	// register all the http handler plugins
+	for _, p := range plugin.Plugins() {
+		if v := p.Handler(); v != nil {
+			h = v(h)
+		}
+	}
 
+	// append the auth wrapper
+	h = auth.Wrapper(rr, Namespace)(h)
+
+	// create a new api server with wrappers
+	api := httpapi.NewServer(Address)
+	// initialise
 	api.Init(opts...)
+	// register the handler
 	api.Handle("/", h)
 
 	// Start API
@@ -300,44 +321,3 @@ func Run(ctx *cli.Context) error {
 
 	return nil
 }
-
-var (
-	Flags = append(client.Flags,
-		&cli.StringFlag{
-			Name:    "address",
-			Usage:   "Set the api address e.g 0.0.0.0:8080",
-			EnvVars: []string{"MICRO_API_ADDRESS"},
-		},
-		&cli.StringFlag{
-			Name:    "handler",
-			Usage:   "Specify the request handler to be used for mapping HTTP requests to services; {api, event, http, rpc}",
-			EnvVars: []string{"MICRO_API_HANDLER"},
-		},
-		&cli.StringFlag{
-			Name:    "namespace",
-			Usage:   "Set the namespace used by the API e.g. com.example",
-			EnvVars: []string{"MICRO_API_NAMESPACE"},
-		},
-		&cli.StringFlag{
-			Name:    "type",
-			Usage:   "Set the service type used by the API e.g. api",
-			EnvVars: []string{"MICRO_API_TYPE"},
-		},
-		&cli.StringFlag{
-			Name:    "resolver",
-			Usage:   "Set the hostname resolver used by the API {host, path, grpc}",
-			EnvVars: []string{"MICRO_API_RESOLVER"},
-		},
-		&cli.BoolFlag{
-			Name:    "enable_rpc",
-			Usage:   "Enable call the backend directly via /rpc",
-			EnvVars: []string{"MICRO_API_ENABLE_RPC"},
-		},
-		&cli.BoolFlag{
-			Name:    "enable_cors",
-			Usage:   "Enable CORS, allowing the API to be called by frontend applications",
-			EnvVars: []string{"MICRO_API_ENABLE_CORS"},
-			Value:   true,
-		},
-	)
-)
