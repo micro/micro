@@ -25,8 +25,6 @@ import (
 	"github.com/micro/micro/v3/client/cli/util"
 	uconf "github.com/micro/micro/v3/internal/config"
 	"github.com/micro/micro/v3/internal/helper"
-	_ "github.com/micro/micro/v3/internal/usage"
-	"github.com/micro/micro/v3/internal/wrapper"
 	"github.com/micro/micro/v3/plugin"
 	"github.com/micro/micro/v3/profile"
 	"github.com/micro/micro/v3/service/logger"
@@ -41,6 +39,8 @@ import (
 	muruntime "github.com/micro/micro/v3/service/runtime"
 	muserver "github.com/micro/micro/v3/service/server"
 	mustore "github.com/micro/micro/v3/service/store"
+
+        _ "github.com/micro/micro/v3/internal/usage"
 )
 
 type command struct {
@@ -226,13 +226,6 @@ func (c *command) Before(ctx *cli.Context) error {
 		uconf.SetConfig(cf)
 	}
 
-	// initialize plugins
-	for _, p := range plugin.Plugins() {
-		if err := p.Init(ctx); err != nil {
-			return err
-		}
-	}
-
 	// default the profile for the server
 	prof := ctx.String("profile")
 
@@ -269,20 +262,12 @@ func (c *command) Before(ctx *cli.Context) error {
 		muclient.DefaultClient.Init(client.Proxy(proxy))
 	}
 
-	// wrap the client
-	muclient.DefaultClient = wrapper.AuthClient(muclient.DefaultClient)
-	muclient.DefaultClient = wrapper.CacheClient(muclient.DefaultClient)
-	muclient.DefaultClient = wrapper.TraceCall(muclient.DefaultClient)
-	muclient.DefaultClient = wrapper.FromService(muclient.DefaultClient)
-	muclient.DefaultClient = wrapper.LogClient(muclient.DefaultClient)
-
-	// wrap the server
-	muserver.DefaultServer.Init(
-		server.WrapHandler(wrapper.AuthHandler()),
-		server.WrapHandler(wrapper.TraceHandler()),
-		server.WrapHandler(wrapper.HandlerStats()),
-		server.WrapHandler(wrapper.LogHandler()),
-	)
+	// initialize plugins after setup
+	for _, p := range plugin.Plugins() {
+		if err := p.Init(ctx); err != nil {
+			return err
+		}
+	}
 
 	// initialize the server with the namespace so it knows which domain to register in
 	muserver.DefaultServer.Init(server.Namespace(ctx.String("namespace")))
