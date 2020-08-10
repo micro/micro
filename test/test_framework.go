@@ -365,7 +365,6 @@ func (s *ServerDefault) Run() error {
 			!strings.Contains(string(out), "registry") ||
 			!strings.Contains(string(out), "broker") ||
 			!strings.Contains(string(out), "config") ||
-			!strings.Contains(string(out), "debug") ||
 			!strings.Contains(string(out), "proxy") ||
 			!strings.Contains(string(out), "auth") ||
 			!strings.Contains(string(out), "store") {
