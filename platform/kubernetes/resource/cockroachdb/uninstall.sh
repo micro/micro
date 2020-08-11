@@ -7,3 +7,4 @@ helm delete cockroachdb-cluster;
 kubectl delete secret cockroachdb-client-certs;
 kubectl delete secret cockroachdb-server-certs;
 kubectl delete secret cockroachdb-peer-certs;
+kubectl delete secret cockroachdb-debug-certs;

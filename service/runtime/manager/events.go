@@ -183,6 +183,11 @@ func (m *manager) runtimeEnv(srv *gorun.Service, options *gorun.CreateOptions) [
 		"MICRO_PROXY": client.DefaultClient.Options().Proxy,
 	}
 
+	// bind to port 8080, this is what the k8s tcp readiness check will use
+	if runtime.DefaultRuntime.String() == "kubernetes" {
+		env["MICRO_SERVICE_ADDRESS"] = ":8080"
+	}
+
 	// set the env vars provided
 	setEnv(options.Env, env)
 
