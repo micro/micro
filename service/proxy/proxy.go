@@ -21,7 +21,7 @@ import (
 	"github.com/micro/go-micro/v3/sync/memory"
 	"github.com/micro/micro/v3/client"
 	"github.com/micro/micro/v3/internal/helper"
-	"github.com/micro/micro/v3/internal/mux"
+	"github.com/micro/micro/v3/internal/muxer"
 	"github.com/micro/micro/v3/service"
 	muclient "github.com/micro/micro/v3/service/client"
 	log "github.com/micro/micro/v3/service/logger"
@@ -186,7 +186,7 @@ func Run(ctx *cli.Context) error {
 	srv := sgrpc.NewServer(serverOpts...)
 
 	// create a new proxy muxer which includes the debug handler
-	muxer := mux.New(Name, p)
+	muxer := muxer.New(Name, p)
 
 	// set the router
 	service.Server().Init(
