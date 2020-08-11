@@ -92,7 +92,7 @@ func AuthHandler() server.HandlerWrapper {
 				// the rule set.
 				ctx = goauth.ContextWithAccount(ctx, a)
 				acc = a
-			} else if err == nil && a.Issuer == namespace.DefaultNamespace {
+			} else if err == nil && ns == namespace.DefaultNamespace {
 				// for the default domain, we want to inject the account into the context so that the
 				// server can access it (since it's designed for multi-tenancy), however we don't want to
 				// use it when verifying against the auth rules, since this will allow any user access to the
