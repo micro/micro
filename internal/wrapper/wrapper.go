@@ -83,13 +83,15 @@ func AuthHandler() server.HandlerWrapper {
 				token = strings.TrimPrefix(header, goauth.BearerScheme)
 			}
 
-			// Inspect the token and decode an account
-			account, _ := auth.Inspect(token)
-
-			// There is an account, set it in the context
+			// Determine the namespace
 			ns := auth.DefaultAuth.Options().Issuer
-			if account != nil && account.Issuer == ns {
-				ctx = goauth.ContextWithAccount(ctx, account)
+
+			// Inspect the token and decode an account. We only care about accounts
+			// issued by the same issuer of the service's account
+			var acc *goauth.Account
+			if a, err := auth.Inspect(token); err == nil && a.Issuer == ns {
+				ctx = goauth.ContextWithAccount(ctx, a)
+				acc = a
 			}
 
 			// ensure only accounts with the correct namespace can access this namespace,
@@ -110,9 +112,9 @@ func AuthHandler() server.HandlerWrapper {
 			}
 
 			// Verify the caller has access to the resource.
-			err = auth.Verify(account, res, goauth.VerifyNamespace(ns))
-			if err == goauth.ErrForbidden && account != nil {
-				return errors.Forbidden(req.Service(), "Forbidden call made to %v:%v by %v", req.Service(), req.Endpoint(), account.ID)
+			err = auth.Verify(acc, res, goauth.VerifyNamespace(ns))
+			if err == goauth.ErrForbidden && acc != nil {
+				return errors.Forbidden(req.Service(), "Forbidden call made to %v:%v by %v", req.Service(), req.Endpoint(), acc.ID)
 			} else if err == goauth.ErrForbidden {
 				return errors.Unauthorized(req.Service(), "Unauthorized call made to %v:%v", req.Service(), req.Endpoint())
 			} else if err != nil {
