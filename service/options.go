@@ -4,10 +4,10 @@ import (
 	"time"
 
 	"github.com/micro/go-micro/v3/client"
-	"github.com/micro/go-micro/v3/cmd"
 	"github.com/micro/go-micro/v3/server"
 
-	mucmd "github.com/micro/micro/v3/cmd"
+	// TODO: replace with micro/v3/service/cli
+	"github.com/micro/micro/v3/cmd"
 	muclient "github.com/micro/micro/v3/service/client"
 	muserver "github.com/micro/micro/v3/service/server"
 )
@@ -30,7 +30,7 @@ type Options struct {
 
 func newOptions(opts ...Option) Options {
 	opt := Options{
-		Cmd:    mucmd.DefaultCmd,
+		Cmd:    cmd.DefaultCmd,
 		Signal: true,
 	}
 
