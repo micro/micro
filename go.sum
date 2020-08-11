@@ -304,8 +304,6 @@ github.com/matttproud/golang_protobuf_extensions v1.0.1/go.mod h1:D8He9yQNgCq6Z5
 github.com/micro/cli/v2 v2.1.2 h1:43J1lChg/rZCC1rvdqZNFSQDrGT7qfMrtp6/ztpIkEM=
 github.com/micro/cli/v2 v2.1.2/go.mod h1:EguNh6DAoWKm9nmk+k/Rg0H3lQnDxqzu5x5srOtGtYg=
 github.com/micro/go-micro/v3 v3.0.0-alpha.0.20200804104301-07fef9fd33c2/go.mod h1:NmdVm6JkvzciCS0RW++AkY4VhiuzhY68Qe/WXIdCwk4=
-github.com/micro/go-micro/v3 v3.0.0-alpha.0.20200811073830-1263806a39d9 h1:VZFzbDJlKe1VjZitaPv6k5DJKzdRuunhlg1J9M+96xQ=
-github.com/micro/go-micro/v3 v3.0.0-alpha.0.20200811073830-1263806a39d9/go.mod h1:q+sw6+JM26x1uhfNMiYrL82rsUUOV6ki1AGuvo014AA=
 github.com/micro/go-micro/v3 v3.0.0-alpha.0.20200811215730-375b67ee16d1 h1:FQ6WrkvDc2OeR182pg1/geq6t+UYuL8k5fhikXCCE2E=
 github.com/micro/go-micro/v3 v3.0.0-alpha.0.20200811215730-375b67ee16d1/go.mod h1:ZIQxqtXGq4xXRbJ7wubPspLvp3o0aH/Y86FxH4IZ4zA=
 github.com/micro/micro/v3 v3.0.0-alpha.0.20200804151614-7b733e61add7/go.mod h1:qK+GXtvoB2Aly5mniYq5wt0qCFjX61XGQeWTtK6hI9I=
