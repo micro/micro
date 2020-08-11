@@ -91,8 +91,8 @@ func testNamespaceConfigIsolationSuite(serv Server, t *T) {
 		if err == nil {
 			return outp, errors.New("getting somekey should fail")
 		}
-		if !strings.Contains(string(outp), "Not found") {
-			return outp, errors.New("Expected 'not found\n'")
+		if !strings.Contains(string(outp), "Unauthorized") {
+			return outp, errors.New("Expected 'Unauthorized\n'")
 		}
 		return outp, nil
 	}, 8*time.Second); err != nil {
