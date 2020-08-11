@@ -83,18 +83,26 @@ func AuthHandler() server.HandlerWrapper {
 				token = strings.TrimPrefix(header, goauth.BearerScheme)
 			}
 
-			// Inspect the token and decode an account
-			account, _ := auth.Inspect(token)
+			// Determine the namespace
+			ns := auth.DefaultAuth.Options().Issuer
 
-			// There is an account, set it in the context
-			if account != nil {
-				ctx = goauth.ContextWithAccount(ctx, account)
+			var acc *goauth.Account
+			if a, err := auth.Inspect(token); err == nil && a.Issuer == ns {
+				// We only use accounts issued by the same namespace as the service when verifying against
+				// the rule set.
+				ctx = goauth.ContextWithAccount(ctx, a)
+				acc = a
+			} else if err == nil && ns == namespace.DefaultNamespace {
+				// for the default domain, we want to inject the account into the context so that the
+				// server can access it (since it's designed for multi-tenancy), however we don't want to
+				// use it when verifying against the auth rules, since this will allow any user access to the
+				// services running in the micro namespace
+				ctx = goauth.ContextWithAccount(ctx, a)
 			}
 
 			// ensure only accounts with the correct namespace can access this namespace,
 			// since the auth package will verify access below, and some endpoints could
 			// be public, we allow nil accounts access using the namespace.Public option.
-			ns := auth.DefaultAuth.Options().Issuer
 			err := namespace.Authorize(ctx, ns, namespace.Public(ns))
 			if err == namespace.ErrForbidden {
 				return errors.Forbidden(req.Service(), err.Error())
@@ -110,9 +118,9 @@ func AuthHandler() server.HandlerWrapper {
 			}
 
 			// Verify the caller has access to the resource.
-			err = auth.Verify(account, res, goauth.VerifyNamespace(ns))
-			if err == goauth.ErrForbidden && account != nil {
-				return errors.Forbidden(req.Service(), "Forbidden call made to %v:%v by %v", req.Service(), req.Endpoint(), account.ID)
+			err = auth.Verify(acc, res, goauth.VerifyNamespace(ns))
+			if err == goauth.ErrForbidden && acc != nil {
+				return errors.Forbidden(req.Service(), "Forbidden call made to %v:%v by %v", req.Service(), req.Endpoint(), acc.ID)
 			} else if err == goauth.ErrForbidden {
 				return errors.Unauthorized(req.Service(), "Unauthorized call made to %v:%v", req.Service(), req.Endpoint())
 			} else if err != nil {
