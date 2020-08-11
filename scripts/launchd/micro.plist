@@ -7,6 +7,7 @@
 	<key>ProgramArguments</key>
 	<array>
 		<string>/usr/local/bin/micro</string>
+		<string>server</string>
 	</array>
 
 	<key>RunAtLoad</key>
