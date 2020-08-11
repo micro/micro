@@ -87,14 +87,14 @@ func AuthHandler() server.HandlerWrapper {
 			account, _ := auth.Inspect(token)
 
 			// There is an account, set it in the context
-			if account != nil {
+			ns := auth.DefaultAuth.Options().Issuer
+			if account != nil && account.Issuer == ns {
 				ctx = goauth.ContextWithAccount(ctx, account)
 			}
 
 			// ensure only accounts with the correct namespace can access this namespace,
 			// since the auth package will verify access below, and some endpoints could
 			// be public, we allow nil accounts access using the namespace.Public option.
-			ns := auth.DefaultAuth.Options().Issuer
 			err := namespace.Authorize(ctx, ns, namespace.Public(ns))
 			if err == namespace.ErrForbidden {
 				return errors.Forbidden(req.Service(), err.Error())
