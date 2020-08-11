@@ -86,12 +86,18 @@ func AuthHandler() server.HandlerWrapper {
 			// Determine the namespace
 			ns := auth.DefaultAuth.Options().Issuer
 
-			// Inspect the token and decode an account. We only care about accounts
-			// issued by the same issuer of the service's account
 			var acc *goauth.Account
 			if a, err := auth.Inspect(token); err == nil && a.Issuer == ns {
+				// We only use accounts issued by the same namespace as the service when verifying against
+				// the rule set.
 				ctx = goauth.ContextWithAccount(ctx, a)
 				acc = a
+			} else if err == nil && a.Issuer == namespace.DefaultNamespace {
+				// for the default domain, we want to inject the account into the context so that the
+				// server can access it (since it's designed for multi-tenancy), however we don't want to
+				// use it when verifying against the auth rules, since this will allow any user access to the
+				// services running in the micro namespace
+				ctx = goauth.ContextWithAccount(ctx, a)
 			}
 
 			// ensure only accounts with the correct namespace can access this namespace,
