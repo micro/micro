@@ -19,6 +19,10 @@ type testRuntime struct {
 	runtime.Runtime
 }
 
+func (r *testRuntime) String() string {
+	return "test"
+}
+
 func (r *testRuntime) Reset() {
 	r.createCount = 0
 	r.readCount = 0
