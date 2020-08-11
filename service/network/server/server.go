@@ -25,7 +25,7 @@ import (
 	"github.com/micro/go-micro/v3/tunnel"
 	tmucp "github.com/micro/go-micro/v3/tunnel/mucp"
 	"github.com/micro/micro/v3/internal/helper"
-	"github.com/micro/micro/v3//internal/muxer"
+	"github.com/micro/micro/v3///internal/muxerer"
 	"github.com/micro/micro/v3/service"
 	log "github.com/micro/micro/v3/service/logger"
 	muregistry "github.com/micro/micro/v3/service/registry"
