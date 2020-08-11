@@ -1,5 +1,5 @@
-// Package mux provides proxy muxing
-package mux
+// Package muxer provides proxy muxing
+package muxer
 
 import (
 	"context"
