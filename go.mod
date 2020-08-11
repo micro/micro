@@ -26,6 +26,7 @@ require (
 	github.com/prometheus/client_golang v1.7.0 // indirect
 	github.com/serenize/snaker v0.0.0-20171204205717-a683aaf2d516
 	github.com/stretchr/testify v1.5.1
+	github.com/teris-io/shortid v0.0.0-20171029131806-771a37caa5cf
 	github.com/xlab/treeprint v0.0.0-20181112141820-a009c3971eca
 	golang.org/x/crypto v0.0.0-20200709230013-948cd5f35899
 	golang.org/x/net v0.0.0-20200520182314-0ba52f642ac2

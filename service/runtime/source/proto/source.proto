@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package go.micro.server;
+
+// Source is used to upload source code
+service Source {
+	rpc Upload(UploadRequest) returns (stream Data) {};
+	rpc Download(DownloadRequest) returns (stream Data) {};
+}
+
+message UploadRequest {
+	string source = 1;
+}
+
+message DownloadRequest {
+	string source = 1;
+}
+
+message Data {
+	bytes chunk = 1;
+}

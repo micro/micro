@@ -17,7 +17,7 @@ import (
 	"github.com/micro/cli/v2"
 	golog "github.com/micro/go-micro/v3/logger"
 	goruntime "github.com/micro/go-micro/v3/runtime"
-	"github.com/micro/go-micro/v3/runtime/local/git"
+	"github.com/micro/micro/v3/internal/git"
 	"github.com/micro/go-micro/v3/util/file"
 	"github.com/micro/micro/v3/client/cli/namespace"
 	"github.com/micro/micro/v3/client/cli/util"
@@ -286,7 +286,7 @@ func upload(ctx *cli.Context, source *git.Source) (string, error) {
 		return "", err
 	}
 	cli := muclient.DefaultClient
-	err = file.New("server", cli).Upload(uploadedFileName, path)
+	err = file.New("runtime", cli).Upload(uploadedFileName, path)
 	if err != nil {
 		return "", err
 	}
