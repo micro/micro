@@ -20,7 +20,6 @@ import (
 
 	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro/v3/auth"
-	"github.com/micro/go-micro/v3/cmd"
 	"github.com/micro/go-micro/v3/registry"
 	"github.com/micro/micro/v3/client/cli/util"
 	uconf "github.com/micro/micro/v3/internal/config"
@@ -43,8 +42,22 @@ import (
 	mustore "github.com/micro/micro/v3/service/store"
 )
 
+type Cmd interface {
+	// Init initialises options
+	// Note: Use Run to parse command line
+	Init(opts ...Option) error
+	// Options set within this command
+	Options() Options
+	// The cli app within this cmd
+	App() *cli.App
+	// Run executes the command
+	Run() error
+	// Implementation
+	String() string
+}
+
 type command struct {
-	opts cmd.Options
+	opts Options
 	app  *cli.App
 
 	// before is a function which should
@@ -56,7 +69,7 @@ type command struct {
 }
 
 var (
-	DefaultCmd cmd.Cmd = New()
+	DefaultCmd Cmd = New()
 
 	// name of the binary
 	name = "micro"
@@ -189,8 +202,8 @@ func init() {
 	rand.Seed(time.Now().Unix())
 }
 
-func New(opts ...cmd.Option) cmd.Cmd {
-	options := cmd.Options{}
+func New(opts ...Option) *command {
+	options := Options{}
 	for _, o := range opts {
 		o(&options)
 	}
@@ -220,7 +233,7 @@ func (c *command) App() *cli.App {
 	return c.app
 }
 
-func (c *command) Options() cmd.Options {
+func (c *command) Options() Options {
 	return c.opts
 }
 
@@ -432,7 +445,7 @@ func (c *command) Before(ctx *cli.Context) error {
 	return nil
 }
 
-func (c *command) Init(opts ...cmd.Option) error {
+func (c *command) Init(opts ...Option) error {
 	for _, o := range opts {
 		o(&c.opts)
 	}
