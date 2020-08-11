@@ -4,16 +4,76 @@ import (
 	"context"
 
 	"github.com/micro/cli/v2"
-
-	"github.com/micro/go-micro/v3/cmd"
 )
+
+type Option func(o *Options)
+
+type Options struct {
+	// Name of the application
+	Name string
+	// Description of the application
+	Description string
+	// Version of the application
+	Version string
+	// Action to execute when Run is called and there is no subcommand
+	Action func(*cli.Context) error
+	// TODO replace with built in command definition
+	Commands []*cli.Command
+	// TODO replace with built in flags definition
+	Flags []cli.Flag
+	// Other options for implementations of the interface
+	// can be stored in a context
+	Context context.Context
+}
+
+// Command line Name
+func Name(n string) Option {
+	return func(o *Options) {
+		o.Name = n
+	}
+}
+
+// Command line Description
+func Description(d string) Option {
+	return func(o *Options) {
+		o.Description = d
+	}
+}
+
+// Command line Version
+func Version(v string) Option {
+	return func(o *Options) {
+		o.Version = v
+	}
+}
+
+// Commands to add
+func Commands(c ...*cli.Command) Option {
+	return func(o *Options) {
+		o.Commands = c
+	}
+}
+
+// Flags to add
+func Flags(f ...cli.Flag) Option {
+	return func(o *Options) {
+		o.Flags = f
+	}
+}
+
+// Action to execute
+func Action(a func(*cli.Context) error) Option {
+	return func(o *Options) {
+		o.Action = a
+	}
+}
 
 type beforeKey struct{}
 type setupOnlyKey struct{}
 
 // Before sets a function to be called before micro is setup
-func Before(f cli.BeforeFunc) cmd.Option {
-	return func(o *cmd.Options) {
+func Before(f cli.BeforeFunc) Option {
+	return func(o *Options) {
 		if o.Context == nil {
 			o.Context = context.Background()
 		}
@@ -40,9 +100,9 @@ func beforeFromContext(ctx context.Context, def cli.BeforeFunc) cli.BeforeFunc {
 	}
 }
 
-// SetupOnly for cmd to execute
-func SetupOnly() cmd.Option {
-	return func(o *cmd.Options) {
+// SetupOnly for to execute
+func SetupOnly() Option {
+	return func(o *Options) {
 		if o.Context == nil {
 			o.Context = context.Background()
 		}
