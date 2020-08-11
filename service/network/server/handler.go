@@ -205,6 +205,15 @@ func (n *Network) Routes(ctx context.Context, req *pb.RoutesRequest, resp *pb.Ro
 
 // Services returns a list of services based on the routing table
 func (n *Network) Services(ctx context.Context, req *pb.ServicesRequest, resp *pb.ServicesResponse) error {
+	// authorize the request. only accounts issued by micro (root accounts) can access this endpoint
+	if err := namespace.Authorize(ctx, namespace.DefaultNamespace); err == namespace.ErrForbidden {
+		return errors.Forbidden("network.Network.Services", err.Error())
+	} else if err == namespace.ErrUnauthorized {
+		return errors.Unauthorized("network.Network.Services", err.Error())
+	} else if err != nil {
+		return errors.InternalServerError("network.Network.Services", err.Error())
+	}
+
 	routes, err := n.Network.Options().Router.Table().List()
 	if err != nil {
 		return errors.InternalServerError("network.Network.Services", "failed to list services: %s", err)
