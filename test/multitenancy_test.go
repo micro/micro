@@ -92,7 +92,7 @@ func testNamespaceConfigIsolationSuite(serv Server, t *T) {
 			return outp, errors.New("getting somekey should fail")
 		}
 		if !strings.Contains(string(outp), "Not found") {
-			return outp, errors.New("Expected 'not found\n'")
+			return outp, errors.New("Expected 'Not found\n'")
 		}
 		return outp, nil
 	}, 8*time.Second); err != nil {
