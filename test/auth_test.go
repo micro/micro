@@ -38,8 +38,7 @@ func ServerAuth(t *T) {
 		if err != nil {
 			return outp, err
 		}
-		if !strings.Contains(string(outp), "admin") ||
-			!strings.Contains(string(outp), "default") {
+		if !strings.Contains(string(outp), "admin") {
 			return outp, fmt.Errorf("Output should contain default admin account")
 		}
 		return outp, nil
@@ -61,7 +60,7 @@ func ServerAuth(t *T) {
 	}
 
 	if err := Try("Try to get token with default account", t, func() ([]byte, error) {
-		outp, err := cmd.Exec("call", "auth", "Auth.Token", `{"id":"default","secret":"password"}`)
+		outp, err := cmd.Exec("call", "auth", "Auth.Token", `{"id":"admin","secret":"micro"}`)
 		if err != nil {
 			return outp, err
 		}
@@ -123,7 +122,7 @@ func lockdownSuite(serv Server, t *T) {
 		t.Fatal(rsp, errors.New("store list should be closed"), val)
 	}
 
-	Login(serv, t, "default", "password")
+	Login(serv, t, "admin", "micro")
 
 	email := "me@email.com"
 	pass := "mystrongpass"
@@ -146,13 +145,13 @@ func lockdownSuite(serv Server, t *T) {
 		return
 	}
 
-	outp, err = cmd.Exec("auth", "delete", "rule", "default")
+	outp, err = cmd.Exec("auth", "delete", "rule", "admin")
 	if err != nil {
 		t.Fatal(string(outp), err)
 		return
 	}
 
-	outp, err = cmd.Exec("auth", "delete", "account", "default")
+	outp, err = cmd.Exec("auth", "delete", "account", "admin")
 	if err != nil {
 		t.Fatal(string(outp), err)
 		return

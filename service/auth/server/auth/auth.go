@@ -28,10 +28,10 @@ const (
 )
 
 var defaultAccount = auth.Account{
-	ID:     "default",
+	ID:     "admin",
 	Type:   "user",
 	Scopes: []string{"admin"},
-	Secret: "password",
+	Secret: "micro",
 }
 
 // Auth processes RPC calls
