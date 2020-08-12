@@ -84,10 +84,6 @@ func (s *testK8sServer) Run() error {
 	// switch to the namespace
 	ChangeNamespace(s.Command(), s.Env(), s.Env())
 
-	if !s.opts.Login {
-		return nil
-	}
-
 	// login to the admin account which is generated for each namespace
 	Login(s, s.t, "admin", "micro")
 
@@ -107,6 +103,16 @@ func (s *testK8sServer) Run() error {
 	outp, err = s.Command().Exec("auth", "delete", "account", "admin")
 	if err != nil {
 		s.t.Fatalf("Error deleting admin account: %s, %s", err, outp)
+	}
+
+	// unset the login creds
+	if !s.opts.Login {
+		if _, err := s.Command().Exec("user", "config", "set", "micro.auth."+serv.Env()+".refresh-token", ""); err != nil {
+			t.Fatalf("Error setting refresh token value %s", err)
+		}
+		if _, err := s.Command().Exec("user", "config", "set", "micro.auth."+serv.Env()+".expiry", "0"); err != nil {
+			t.Fatalf("Error getting refresh token expiry %s", err)
+		}
 	}
 
 	return nil
