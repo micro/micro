@@ -89,9 +89,7 @@ func (s *testK8sServer) Run() error {
 	}
 
 	// login to the admin account which is generated for each namespace
-	if s.opts.Login {
-		Login(s, s.t, "admin", "micro")
-	}
+	Login(s, s.t, "admin", "micro")
 
 	// generate a new admin account for the env : user=ENV_NAME pass=password
 	outp, err := s.Command().Exec("auth", "create", "account", "--secret", "micro", s.Env())
