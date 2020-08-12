@@ -102,7 +102,7 @@ func (s *testK8sServer) Run() error {
 	Login(s, s.t, s.Env(), "micro")
 
 	// delete the admin account
-	outp, err := s.Command().Exec("auth", "delete", "account", "admin")
+	outp, err = s.Command().Exec("auth", "delete", "account", "admin")
 	if err != nil {
 		s.t.Fatalf("Error deleting admin account: %s, %s", err, outp)
 	}
