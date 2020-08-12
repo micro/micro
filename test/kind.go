@@ -92,7 +92,9 @@ func (s *testK8sServer) Run() error {
 	Login(s, s.t, "admin", "micro")
 
 	// generate a new admin account for the env : user=ENV_NAME pass=password
-	outp, err := s.Command().Exec("auth", "create", "account", "--secret", "micro", s.Env())
+	// do this using call to ensure the JWT creds aren't used to issue the account
+	req := fmt.Sprintf(`{"id":"%s", "secret":"micro"}`, s.Env())
+	outp, err := s.Command().Exec("call", "auth", "Auth.Generate", req)
 	if err != nil {
 		s.t.Fatalf("Error generating auth: %s, %s", err, outp)
 		return err
