@@ -119,7 +119,7 @@ func Signup(ctx *cli.Context) error {
 	// print the message returned from the verification process
 	if len(rsp.Message) > 0 {
 		// print with space
-		fmt.Sprintf("\n%s\n", rsp.Message)
+		fmt.Printf("\n%s\n", rsp.Message)
 	}
 
 	// payment required
