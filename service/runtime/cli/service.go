@@ -438,13 +438,10 @@ func getService(ctx *cli.Context) error {
 			build = build[:7]
 		}
 
-		// if there is an error, display this in metadata (there is no error field), otherwise
-		// display the owner and the group
-		var metadata string
+		// if there is an error, display this in metadata (there is no error field)
+		metadata := fmt.Sprintf("owner=%s, group=%s", parse(service.Metadata["owner"]), parse(service.Metadata["group"]))
 		if status == "error" {
-			metadata = fmt.Sprintf("error=%v", service.Metadata["error"])
-		} else {
-			metadata = fmt.Sprintf("owner=%s, group=%s", parse(service.Metadata["owner"]), parse(service.Metadata["group"]))
+			metadata = fmt.Sprintf("%v, error=%v", metadata, parse(service.Metadata["error"]))
 		}
 
 		// parse when the service was started
