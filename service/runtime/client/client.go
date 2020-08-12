@@ -71,7 +71,7 @@ func (s *svc) Create(svc *runtime.Service, opts ...runtime.CreateOption) error {
 	return nil
 }
 
-func (s *svc) Logs(service *runtime.Service, opts ...runtime.LogsOption) (runtime.LogStream, error) {
+func (s *svc) Logs(service *runtime.Service, opts ...runtime.LogsOption) (runtime.Logs, error) {
 	var options runtime.LogsOptions
 	for _, o := range opts {
 		o(&options)
@@ -92,9 +92,9 @@ func (s *svc) Logs(service *runtime.Service, opts ...runtime.LogsOption) (runtim
 	if err != nil {
 		return nil, err
 	}
-	logStream := &serviceLogStream{
+	logStream := &serviceLogs{
 		service: service.Name,
-		stream:  make(chan runtime.LogRecord),
+		stream:  make(chan runtime.Log),
 		stop:    make(chan bool),
 	}
 
@@ -128,7 +128,7 @@ func (s *svc) Logs(service *runtime.Service, opts ...runtime.LogsOption) (runtim
 					logStream.Stop()
 					return
 				}
-				logStream.stream <- runtime.LogRecord{
+				logStream.stream <- runtime.Log{
 					Message:  record.GetMessage(),
 					Metadata: record.GetMetadata(),
 				}
@@ -138,23 +138,23 @@ func (s *svc) Logs(service *runtime.Service, opts ...runtime.LogsOption) (runtim
 	return logStream, nil
 }
 
-type serviceLogStream struct {
+type serviceLogs struct {
 	service string
-	stream  chan runtime.LogRecord
+	stream  chan runtime.Log
 	sync.Mutex
 	stop chan bool
 	err  error
 }
 
-func (l *serviceLogStream) Error() error {
+func (l *serviceLogs) Error() error {
 	return l.err
 }
 
-func (l *serviceLogStream) Chan() chan runtime.LogRecord {
+func (l *serviceLogs) Chan() chan runtime.Log {
 	return l.stream
 }
 
-func (l *serviceLogStream) Stop() error {
+func (l *serviceLogs) Stop() error {
 	l.Lock()
 	defer l.Unlock()
 	select {
