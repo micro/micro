@@ -41,14 +41,14 @@ func testCorruptedLogin(t *T) {
 		t.Fatalf("Call should receive no output: %s", outp)
 	}
 	// munge token
-	tok, err := cmd.Exec("user", "config", "get", "micro.auth.admin.refresh-token")
+	tok, err := cmd.Exec("user", "config", "get", "micro.auth."+serv.Env()+".refresh-token")
 	if err != nil {
 		t.Fatalf("Error getting refresh token value %s", err)
 	}
-	if _, err := cmd.Exec("user", "config", "set", "micro.auth.admin.refresh-token", strings.TrimSpace(string(tok))+"a"); err != nil {
+	if _, err := cmd.Exec("user", "config", "set", "micro.auth."+serv.Env()+".refresh-token", strings.TrimSpace(string(tok))+"a"); err != nil {
 		t.Fatalf("Error setting refresh token value %s", err)
 	}
-	if _, err := cmd.Exec("user", "config", "set", "micro.auth.admin.expiry", fmt.Sprintf("%d", time.Now().Add(-1*time.Hour).Unix())); err != nil {
+	if _, err := cmd.Exec("user", "config", "set", "micro.auth."+serv.Env()+".expiry", fmt.Sprintf("%d", time.Now().Add(-1*time.Hour).Unix())); err != nil {
 		t.Fatalf("Error getting refresh token expiry %s", err)
 	}
 
