@@ -149,6 +149,8 @@ func setupServiceMeta(ctx context.Context, service *runtime.Service) {
 			service.Metadata = map[string]string{}
 		}
 		service.Metadata["owner"] = account.ID
+		// This is a hack - we don't want vanilla `micro server` users where the auth is noop
+		// to have long uuid as owners, so we put micro here - not great, not terrible.
 		if auth.DefaultAuth.String() == "noop" {
 			service.Metadata["owner"] = "micro"
 		}
