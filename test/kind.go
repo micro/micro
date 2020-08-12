@@ -84,9 +84,29 @@ func (s *testK8sServer) Run() error {
 	// switch to the namespace
 	ChangeNamespace(s.Command(), s.Env(), s.Env())
 
+	if !s.opts.Login {
+		return nil
+	}
+
 	// login to the admin account which is generated for each namespace
 	if s.opts.Login {
 		Login(s, s.t, "admin", "micro")
+	}
+
+	// generate a new admin account for the env : user=ENV_NAME pass=password
+	outp, err := s.Command().Exec("auth", "create", "account", "--secret", "micro", s.Env())
+	if err != nil {
+		s.t.Fatalf("Error generating auth: %s, %s", err, outp)
+		return err
+	}
+
+	// login with this new account
+	Login(s, s.t, s.Env(), "micro")
+
+	// delete the admin account
+	outp, err := s.Command().Exec("auth", "delete", "account", "admin")
+	if err != nil {
+		s.t.Fatalf("Error deleting admin account: %s, %s", err, outp)
 	}
 
 	return nil
