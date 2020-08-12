@@ -118,7 +118,8 @@ func Signup(ctx *cli.Context) error {
 
 	// print the message returned from the verification process
 	if len(rsp.Message) > 0 {
-		fmt.Print(rsp.Message)
+		// print with space
+		fmt.Printf("\n%s\n", rsp.Message)
 	}
 
 	// payment required
@@ -165,7 +166,7 @@ func Signup(ctx *cli.Context) error {
 
 	// the user has now signed up and logged in
 	// @todo save the namespace from the last call and use that.
-	fmt.Println("Successfully logged in.")
+	fmt.Println("Signup complete! You're now logged in.")
 	report.Success(ctx, email)
 	return nil
 }
