@@ -81,17 +81,12 @@ func (s *testK8sServer) Run() error {
 		return err
 	}
 
-	// generate a new admin account for the env : user=ENV_NAME pass=password
-	req := fmt.Sprintf(`{"id":"%s", "secret":"micro", "options":{"namespace":"%s"}}`, s.Env(), s.namespace)
-	outp, err := s.Command().Exec("call", "auth", "Auth.Generate", req)
-	if err != nil && !strings.Contains(string(outp), "already exists") { // until auth.Delete is implemented
-		s.t.Fatalf("Error generating auth: %s, %s", err, outp)
-		return err
-	}
-
+	// switch to the namespace
 	ChangeNamespace(s.Command(), s.Env(), s.Env())
+
+	// login to the admin account which is generated for each namespace
 	if s.opts.Login {
-		Login(s, s.t, s.Env(), "micro")
+		Login(s, s.t, "admin", "micro")
 	}
 
 	return nil
