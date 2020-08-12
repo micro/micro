@@ -128,6 +128,12 @@ func (h *handler) Read(ctx context.Context, req *pb.ReadRequest, rsp *pb.ReadRes
 	if req.Options.Prefix {
 		opts = append(opts, gostore.ReadPrefix())
 	}
+	if req.Options.Limit > 0 {
+		opts = append(opts, gostore.ReadLimit(uint(req.Options.Limit)))
+	}
+	if req.Options.Offset > 0 {
+		opts = append(opts, gostore.ReadOffset(uint(req.Options.Offset)))
+	}
 
 	// read from the database
 	vals, err := store.Read(req.Key, opts...)
