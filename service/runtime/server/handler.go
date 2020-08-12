@@ -143,11 +143,11 @@ func (r *Runtime) Update(ctx context.Context, req *pb.UpdateRequest, rsp *pb.Upd
 }
 
 func setupServiceMeta(ctx context.Context, service *runtime.Service) {
+	if service.Metadata == nil {
+		service.Metadata = map[string]string{}
+	}
 	account, accOk := goauth.AccountFromContext(ctx)
-	if accOk && account != nil {
-		if service.Metadata == nil {
-			service.Metadata = map[string]string{}
-		}
+	if accOk {
 		service.Metadata["owner"] = account.ID
 		// This is a hack - we don't want vanilla `micro server` users where the auth is noop
 		// to have long uuid as owners, so we put micro here - not great, not terrible.
