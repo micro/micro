@@ -48,7 +48,7 @@ func Signup(ctx *cli.Context) error {
 		os.Exit(1)
 	}
 
-	fmt.Print("We have sent you an email with a one time password. Please enter here: ")
+	fmt.Print("Enter the OTP sent to your email address: ")
 	otp, _ := reader.ReadString('\n')
 	otp = strings.TrimSpace(otp)
 
@@ -92,13 +92,13 @@ func Signup(ctx *cli.Context) error {
 	password := ctx.String("password")
 	if len(password) == 0 {
 		for {
-			fmt.Print("Please create a new password: ")
+			fmt.Print("Enter a new password: ")
 			bytePw, _ := terminal.ReadPassword(int(syscall.Stdin))
 			pw := string(bytePw)
 			pw = strings.TrimSpace(pw)
 			fmt.Println()
 
-			fmt.Print("Please verify your password: ")
+			fmt.Print("Verify your password: ")
 			bytePwVer, _ := terminal.ReadPassword(int(syscall.Stdin))
 			pwVer := string(bytePwVer)
 			pwVer = strings.TrimSpace(pwVer)
