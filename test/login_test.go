@@ -32,7 +32,7 @@ func testCorruptedLogin(t *T) {
 	if !strings.Contains(string(outp), "Unauthorized") {
 		t.Fatalf("Call should need authorization")
 	}
-	outp, _ = cmd.Exec("login", "--email", admin, "--password", "micro")
+	outp, _ = cmd.Exec("login", "--email", "admin", "--password", "micro")
 	if !strings.Contains(string(outp), "Successfully logged in.") {
 		t.Fatalf("Login failed: %s", outp)
 	}
