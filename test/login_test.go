@@ -32,10 +32,11 @@ func testCorruptedLogin(t *T) {
 	if !strings.Contains(string(outp), "Unauthorized") {
 		t.Fatalf("Call should need authorization")
 	}
-	outp, _ = cmd.Exec("login", "--email", serv.Env(), "--password", "micro")
-	if !strings.Contains(string(outp), "Successfully logged in.") {
-		t.Fatalf("Login failed: %s", outp)
+
+	if err := Login(serv, t, serv.Env(), "micro"); err != nil {
+		return
 	}
+
 	outp, _ = cmd.Exec("status")
 	if string(outp) != "" {
 		t.Fatalf("Call should receive no output: %s", outp)
@@ -56,9 +57,8 @@ func testCorruptedLogin(t *T) {
 	if !strings.Contains(string(outp), "Unauthorized") {
 		t.Fatalf("Call should have failed: %s", outp)
 	}
-	outp, _ = cmd.Exec("login", "--email", serv.Env(), "--password", "micro")
-	if !strings.Contains(string(outp), "Successfully logged in.") {
-		t.Fatalf("Login failed: %s", outp)
-	}
 
+	if err := Login(serv, t, serv.Env(), "micro"); err != nil {
+		return
+	}
 }
