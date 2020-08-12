@@ -92,7 +92,7 @@ func Signup(ctx *cli.Context) error {
 	password := ctx.String("password")
 	if len(password) == 0 {
 		for {
-			fmt.Print("Please enter your password: ")
+			fmt.Print("Please create a new password: ")
 			bytePw, _ := terminal.ReadPassword(int(syscall.Stdin))
 			pw := string(bytePw)
 			pw = strings.TrimSpace(pw)
