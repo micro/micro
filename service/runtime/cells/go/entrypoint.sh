@@ -31,9 +31,16 @@ echo "Repo is $REPO"
 echo "Path is $P"
 echo "Ref is $REF"
 
+if [[ -z "$GIT_CREDENTIALS" ]]; then 
+  echo "Cloning $REPO"
+  CLONE_URL = https://$REPO
+else
+  echo "Cloning $REPO with credentials"
+  CLONE_URL = https://$GIT_CREDENTIALS@$REPO
+fi
+
 # clone the repo
-echo "Cloning $REPO"
-git clone https://$REPO  --branch $REF --single-branch .
+git clone $CLONE_URL --branch $REF --single-branch .
 if [ $? -eq 0 ]; then
     echo "Successfully cloned branch"
 else
