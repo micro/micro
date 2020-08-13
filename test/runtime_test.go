@@ -566,7 +566,7 @@ func testRunPrivateSource(t *T) {
 	// get the git credentials, injected by the k8s integration test
 	pat := os.Getenv("GITHUB_PAT")
 	if len(pat) == 0 {
-		t.Skipped()
+		t.Logf("Skipping test, missing GITHUB_PAT")
 		return
 	}
 
@@ -583,7 +583,7 @@ func testRunPrivateSource(t *T) {
 	}
 
 	// call the service
-	if err := Try("CallService", func() ([]byte, error) {
+	if err := Try("Calling helloworld", t, func() ([]byte, error) {
 		return cmd.Exec("helloworld", "--name", "John")
 	}, 120*time.Second); err != nil {
 		return
