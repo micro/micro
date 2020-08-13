@@ -101,7 +101,7 @@ jobs:
       working-directory: ./test
       env:
         IN_TRAVIS_CI: yes
-        GITHUB_PAT: ${{ secrets.GitHubPAT }}
+        GITHUB_PAT: ${{ secrets.MICRO_ACTIONS_PAT }}
       run: |
           # Generate keys for JWT tests
           ssh-keygen -f /tmp/sshkey -m pkcs8 -q -N ""
