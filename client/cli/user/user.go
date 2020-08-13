@@ -147,6 +147,16 @@ func current(ctx *cli.Context) error {
 		return err
 	}
 
+	gitcreds, err := config.Get("git", "credentials")
+	if err != nil {
+		return err
+	}
+	if len(gitcreds) > 0 {
+		gitcreds = "[hidden]"
+	} else {
+		gitcreds = "n/a"
+	}
+
 	id := "n/a"
 
 	// Inspect the token
@@ -158,6 +168,7 @@ func current(ctx *cli.Context) error {
 	fmt.Println("user:", id)
 	fmt.Println("namespace:", ns)
 	fmt.Println("environment:", env)
+	fmt.Println("git.credentials:", gitcreds)
 	return nil
 }
 

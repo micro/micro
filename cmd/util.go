@@ -70,7 +70,7 @@ func setupAuthForService() error {
 	accSecret := opts.Secret
 
 	// if no credentials were provided, self generate an account
-	if len(accID) == 0 && len(accSecret) == 0 {
+	if len(accID) == 0 || len(accSecret) == 0 {
 		opts := []goauth.GenerateOption{
 			goauth.WithType("service"),
 			goauth.WithScopes("service"),
