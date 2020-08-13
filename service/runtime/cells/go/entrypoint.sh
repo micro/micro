@@ -31,12 +31,13 @@ echo "Repo is $REPO"
 echo "Path is $P"
 echo "Ref is $REF"
 
+
 if [[ -z "$GIT_CREDENTIALS" ]]; then 
   echo "Cloning $REPO"
-  CLONE_URL = https://$REPO
+  CLONE_URL=https://$REPO
 else
   echo "Cloning $REPO with credentials"
-  CLONE_URL = https://$GIT_CREDENTIALS@$REPO
+  CLONE_URL=https://$GIT_CREDENTIALS@$REPO
 fi
 
 # clone the repo
