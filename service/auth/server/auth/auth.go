@@ -192,6 +192,55 @@ func (a *Auth) createAccount(acc *auth.Account) error {
 	return nil
 }
 
+// ChangePassword by providing a refresh token and a new secret
+func (a *Auth) ChangePassword(ctx context.Context, req *pb.ChangePasswordRequest, rsp *pb.ChangePasswordResponse) error {
+	// set defaults
+	if req.Options == nil {
+		req.Options = &pb.Options{}
+	}
+	if len(req.Options.Namespace) == 0 {
+		req.Options.Namespace = namespace.DefaultNamespace
+	}
+
+	// Lookup the account in the store
+	key := strings.Join([]string{storePrefixAccounts, req.Options.Namespace, req.Id}, joinKey)
+	recs, err := store.Read(key)
+	if err == gostore.ErrNotFound {
+		return errors.BadRequest("auth.Auth.ChangePassword", "Account not found with this ID")
+	} else if err != nil {
+		return errors.InternalServerError("auth.Auth.ChangePassword", "Unable to read from store: %v", err)
+	}
+
+	// Unmarshal the record
+	var acc *auth.Account
+	if err := json.Unmarshal(recs[0].Value, &acc); err != nil {
+		return errors.InternalServerError("auth.Auth.ChangePassword", "Unable to unmarshal account: %v", err)
+	}
+
+	if !secretsMatch(acc.Secret, req.OldSecret) {
+		return errors.BadRequest("auth.Auth.ChangePassword", "Secret not correct")
+	}
+
+	// hash the secret
+	secret, err := hashSecret(acc.Secret)
+	if err != nil {
+		return errors.InternalServerError("auth.Auth.Generate", "Unable to hash password: %v", err)
+	}
+	acc.Secret = secret
+
+	// marshal to json
+	bytes, err := json.Marshal(acc)
+	if err != nil {
+		return errors.InternalServerError("auth.Auth.Generate", "Unable to marshal json: %v", err)
+	}
+
+	// write to the store
+	if err := store.Write(&gostore.Record{Key: key, Value: bytes}); err != nil {
+		return errors.InternalServerError("auth.Auth.Generate", "Unable to write account to store: %v", err)
+	}
+	return nil
+}
+
 // Inspect a token and retrieve the account
 func (a *Auth) Inspect(ctx context.Context, req *pb.InspectRequest, rsp *pb.InspectResponse) error {
 	acc, err := a.TokenProvider.Inspect(req.Token)

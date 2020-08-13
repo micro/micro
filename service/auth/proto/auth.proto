@@ -8,6 +8,7 @@ service Auth {
 	rpc Generate(GenerateRequest) returns (GenerateResponse) {};
 	rpc Inspect(InspectRequest) returns (InspectResponse) {};		
 	rpc Token(TokenRequest) returns (TokenResponse) {};
+	rpc ChangePassword(ChangePasswordRequest) returns (ChangePasswordResponse) {};
 }
 
 service Accounts {
@@ -147,4 +148,14 @@ message ListRequest {
 
 message ListResponse {
 	repeated Rule rules = 1;
+	string a = 2;
 }
+
+message ChangePasswordRequest{
+	string id = 1;
+	string old_secret = 2;
+	string new_secret = 3;
+	Options options = 4;
+}
+
+message ChangePasswordResponse{}
