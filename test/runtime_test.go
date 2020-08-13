@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"errors"
 	"io/ioutil"
+	"os"
 	"os/exec"
 	"regexp"
 	"strings"
@@ -582,7 +583,7 @@ func testRunPrivateSource(t *testing.T) {
 	}
 
 	// call the service
-	Try("CallService", func() ([]byte, error) {
+	if Try("CallService", func() ([]byte, error) {
 		return cmd.Exec("helloworld", "--name", "John")
 	}, 120*time.Second); err != nil {
 		return
