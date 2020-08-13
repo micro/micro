@@ -130,8 +130,12 @@ func (m *manager) processEvent(key string) {
 			gorun.WithArgs(ev.Options.Args...),
 			gorun.WithCommand(ev.Options.Command...),
 			gorun.WithEnv(m.runtimeEnv(ev.Service, ev.Options)),
-			gorun.WithSecret("MICRO_AUTH_ID", acc.ID),
-			gorun.WithSecret("MICRO_AUTH_SECRET", acc.Secret),
+		}
+
+		// inject the credentials into the service if present
+		if len(acc.ID) > 0 && len(acc.Secret) > 0 {
+			options = append(options, gorun.WithSecret("MICRO_AUTH_ID", acc.ID))
+			options = append(options, gorun.WithSecret("MICRO_AUTH_SECRET", acc.Secret))
 		}
 
 		// add the secrets

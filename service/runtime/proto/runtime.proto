@@ -45,6 +45,8 @@ message CreateOptions {
 	string image = 6;
 	// namespace to create the service in
 	string namespace = 7;
+	// secrets to use for the service
+	map<string,string> secrets = 8;
 }
 
 message CreateRequest {

@@ -198,11 +198,15 @@ func (m *manager) watchServices() {
 				gorun.WithArgs(srv.Options.Args...),
 				gorun.WithCommand(srv.Options.Command...),
 				gorun.WithEnv(m.runtimeEnv(srv.Service, srv.Options)),
-				gorun.WithSecret("MICRO_AUTH_ID", acc.ID),
-				gorun.WithSecret("MICRO_AUTH_SECRET", acc.Secret),
 			}
 
-			// add the secrets
+			// inject the credentials into the service if present
+			if len(acc.ID) > 0 && len(acc.Secret) > 0 {
+				options = append(options, gorun.WithSecret("MICRO_AUTH_ID", acc.ID))
+				options = append(options, gorun.WithSecret("MICRO_AUTH_SECRET", acc.Secret))
+			}
+
+			// add the secrets provided by the client
 			for key, value := range srv.Options.Secrets {
 				options = append(options, gorun.WithSecret(key, value))
 			}

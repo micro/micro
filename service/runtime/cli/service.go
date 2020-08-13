@@ -22,6 +22,7 @@ import (
 	"github.com/micro/micro/v3/client/cli/namespace"
 	"github.com/micro/micro/v3/client/cli/util"
 	cliutil "github.com/micro/micro/v3/client/cli/util"
+	"github.com/micro/micro/v3/internal/config"
 	muclient "github.com/micro/micro/v3/service/client"
 	"github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/runtime"
@@ -80,14 +81,25 @@ func sourceExists(source *git.Source) error {
 	if ref == "" || ref == "latest" {
 		ref = "master"
 	}
-	url := fmt.Sprintf("https://%v/tree/%v/%v", source.Repo, ref, source.Folder)
-	resp, err := http.Get(url)
+
+	repo := strings.ReplaceAll(source.Repo, "github.com/", "")
+	url := fmt.Sprintf("https://api.github.com/repos/%v/contents/%v?ref=%v", repo, source.Folder, ref)
+	req, _ := http.NewRequest("GET", url, nil)
+
+	// add the git credentials if set
+	if tok, err := config.Get("git", "credentials"); err == nil && len(tok) > 0 {
+		req.Header.Set("Authorization", "token "+tok)
+	}
+
+	client := new(http.Client)
+	resp, err := client.Do(req)
+
 	// @todo gracefully degrade?
 	if err != nil {
 		return err
 	}
 	if resp.StatusCode >= 400 && resp.StatusCode < 500 {
-		return fmt.Errorf("service at '%v' not found", url)
+		return fmt.Errorf("service at %v@%v not found", source.Repo, ref)
 	}
 	return nil
 }
@@ -141,12 +153,12 @@ func runService(ctx *cli.Context) error {
 	var image = DefaultImage
 	if ctx.IsSet("image") {
 		image = ctx.String("image")
-	} else {
-		// when using the micro/cells:go image, we pass the source as the argument
-		args = runtimeSource
-		if len(source.Ref) > 0 {
-			args += "@" + source.Ref
-		}
+	}
+
+	// when using the micro/cells:go image, we pass the source as the argument
+	args = runtimeSource
+	if len(source.Ref) > 0 {
+		args += "@" + source.Ref
 	}
 
 	// specify the options
@@ -185,6 +197,11 @@ func runService(ctx *cli.Context) error {
 		return err
 	}
 	opts = append(opts, goruntime.CreateNamespace(ns))
+
+	// add the git credentials if set
+	if creds, err := config.Get("git", "credentials"); err == nil && len(creds) > 0 {
+		opts = append(opts, goruntime.WithSecret("GIT_CREDENTIALS", creds))
+	}
 
 	// run the service
 	service := &goruntime.Service{
