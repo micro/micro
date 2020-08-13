@@ -121,7 +121,7 @@ func changePassword(ctx *cli.Context) error {
 		os.Exit(1)
 	}
 
-	accountService := pb.NewAccountsService("accounts", client.DefaultClient)
+	accountService := pb.NewAccountsService("auth", client.DefaultClient)
 	_, err = accountService.ChangePassword(context.TODO(), &pb.ChangePasswordRequest{
 		Id:        acc.ID,
 		OldSecret: oldPassword,
