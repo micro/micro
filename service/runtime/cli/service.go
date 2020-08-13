@@ -81,14 +81,25 @@ func sourceExists(source *git.Source) error {
 	if ref == "" || ref == "latest" {
 		ref = "master"
 	}
-	url := fmt.Sprintf("https://%v/tree/%v/%v", source.Repo, ref, source.Folder)
-	resp, err := http.Get(url)
+
+	repo := strings.ReplaceAll(source.Repo, "github.com/", "")
+	url := fmt.Sprintf("https://api.github.com/repos/%v/contents/%v?ref=%v", repo, source.Folder, ref)
+	req, _ := http.NewRequest("GET", url, nil)
+
+	// add the git credentials if set
+	if tok, err := config.Get("git", "credentials"); err == nil && len(tok) > 0 {
+		req.Header.Set("Authorization", "token "+tok)
+	}
+
+	client := new(http.Client)
+	resp, err := client.Do(req)
+
 	// @todo gracefully degrade?
 	if err != nil {
 		return err
 	}
 	if resp.StatusCode >= 400 && resp.StatusCode < 500 {
-		return fmt.Errorf("service at '%v' not found", url)
+		return fmt.Errorf("service at %v@%v not found", source.Repo, ref)
 	}
 	return nil
 }
