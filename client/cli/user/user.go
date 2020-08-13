@@ -72,17 +72,9 @@ func init() {
 
 // get current user settings
 func changePassword(ctx *cli.Context) error {
-	env, err := config.Get("env")
-	if err != nil || len(env) == 0 {
-		env = "n/a"
-	}
+	env := util.GetEnv(ctx)
 
-	ns, err := config.Get("namespaces", env, "current")
-	if err != nil || len(ns) == 0 {
-		ns = "n/a"
-	}
-
-	token, err := config.Get("micro", "auth", env, "token")
+	token, err := config.Get("micro", "auth", env.Name, "token")
 	if err != nil {
 		return err
 	}
@@ -129,7 +121,7 @@ func changePassword(ctx *cli.Context) error {
 		os.Exit(1)
 	}
 
-	accountService := pb.NewAccountsService("auth", client.DefaultClient)
+	accountService := pb.NewAccountsService("accounts", client.DefaultClient)
 	accountService.ChangePassword(context.TODO(), &pb.ChangePasswordRequest{
 		Id:        acc.ID,
 		OldSecret: oldPassword,

@@ -132,35 +132,35 @@ func (a *Auth) ChangePassword(ctx context.Context, req *pb.ChangePasswordRequest
 	if err == gostore.ErrNotFound {
 		return errors.BadRequest("auth.Auth.ChangePassword", "Account not found with this ID")
 	} else if err != nil {
-		return errors.InternalServerError("auth.Auth.ChangePassword", "Unable to read from store: %v", err)
+		return errors.InternalServerError("auth.Accounts.ChangePassword", "Unable to read from store: %v", err)
 	}
 
 	// Unmarshal the record
 	var acc *auth.Account
 	if err := json.Unmarshal(recs[0].Value, &acc); err != nil {
-		return errors.InternalServerError("auth.Auth.ChangePassword", "Unable to unmarshal account: %v", err)
+		return errors.InternalServerError("auth.Accounts.ChangePassword", "Unable to unmarshal account: %v", err)
 	}
 
 	if !secretsMatch(acc.Secret, req.OldSecret) {
-		return errors.BadRequest("auth.Auth.ChangePassword", "Secret not correct")
+		return errors.BadRequest("auth.Accounts.ChangePassword", "Secret not correct")
 	}
 
 	// hash the secret
-	secret, err := hashSecret(acc.Secret)
+	secret, err := hashSecret(req.NewSecret)
 	if err != nil {
-		return errors.InternalServerError("auth.Auth.Generate", "Unable to hash password: %v", err)
+		return errors.InternalServerError("auth.Accounts.Generate", "Unable to hash password: %v", err)
 	}
 	acc.Secret = secret
 
 	// marshal to json
 	bytes, err := json.Marshal(acc)
 	if err != nil {
-		return errors.InternalServerError("auth.Auth.Generate", "Unable to marshal json: %v", err)
+		return errors.InternalServerError("auth.Accounts.Generate", "Unable to marshal json: %v", err)
 	}
 
 	// write to the store
 	if err := a.Options.Store.Write(&gostore.Record{Key: key, Value: bytes}); err != nil {
-		return errors.InternalServerError("auth.Auth.Generate", "Unable to write account to store: %v", err)
+		return errors.InternalServerError("auth.Accounts.Generate", "Unable to write account to store: %v", err)
 	}
 	return nil
 }

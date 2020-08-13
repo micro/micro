@@ -205,6 +205,34 @@ func lockdownSuite(serv Server, t *T) {
 	}
 }
 
+func TestPasswordChange(t *testing.T) {
+	TrySuite(t, changePassword, retryCount)
+}
+
+func changePassword(t *T) {
+	t.Parallel()
+	serv := NewServer(t, WithLogin())
+	defer serv.Close()
+	if err := serv.Run(); err != nil {
+		return
+	}
+
+	cmd := serv.Command()
+	newPass := "shinyNewPass"
+	outp, err := cmd.Exec("user", "set", "password", "--old-password", "micro", "--new-password", newPass)
+	if err != nil {
+		t.Fatal(string(outp))
+		return
+	}
+
+	time.Sleep(1 * time.Second)
+	outp, err = cmd.Exec("login", "--email", "admin", "--password", newPass)
+	if err != nil {
+		t.Fatal(string(outp))
+		return
+	}
+}
+
 func curl(serv Server, path string) (map[string]interface{}, error) {
 	resp, err := http.Get(fmt.Sprintf("http://127.0.0.1:%v/%v", serv.APIPort(), path))
 	if err != nil {
