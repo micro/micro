@@ -69,6 +69,11 @@ spec:
         ports:
         - containerPort: 8084
           name: router-port
+        readinessProbe:
+          tcpSocket:
+            port: router-port
+          initialDelaySeconds: 5
+          periodSeconds: 10
         volumeMounts:
         - name: etcd-client-certs
           mountPath: "/certs/registry"

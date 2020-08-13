@@ -437,14 +437,17 @@ func getService(ctx *cli.Context) error {
 	fmt.Fprintln(writer, "NAME\tVERSION\tSOURCE\tSTATUS\tBUILD\tUPDATED\tMETADATA")
 	for _, service := range services {
 		status := parse(service.Metadata["status"])
-		if status == "error" {
-			status = service.Metadata["error"]
-		}
 
 		// cut the commit down to first 7 characters
 		build := parse(service.Metadata["build"])
 		if len(build) > 7 {
 			build = build[:7]
+		}
+
+		// if there is an error, display this in metadata (there is no error field)
+		metadata := fmt.Sprintf("owner=%s, group=%s", parse(service.Metadata["owner"]), parse(service.Metadata["group"]))
+		if status == "error" {
+			metadata = fmt.Sprintf("%v, error=%v", metadata, parse(service.Metadata["error"]))
 		}
 
 		// parse when the service was started
@@ -457,7 +460,7 @@ func getService(ctx *cli.Context) error {
 			strings.ToLower(status),
 			build,
 			updated,
-			fmt.Sprintf("owner=%s,group=%s", parse(service.Metadata["owner"]), parse(service.Metadata["group"])))
+			metadata)
 	}
 	writer.Flush()
 	return nil

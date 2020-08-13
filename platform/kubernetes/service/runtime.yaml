@@ -139,6 +139,14 @@ spec:
         - runtime
         image: micro/micro
         imagePullPolicy: Always
+        ports:
+        - containerPort: 8088
+          name: runtime-port
+        readinessProbe:
+          tcpSocket:
+            port: runtime-port
+          initialDelaySeconds: 5
+          periodSeconds: 10
         volumeMounts:
         - name: etcd-client-certs
           mountPath: "/certs/registry"

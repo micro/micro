@@ -4,9 +4,11 @@ import (
 	"context"
 	"time"
 
+	goauth "github.com/micro/go-micro/v3/auth"
 	"github.com/micro/go-micro/v3/runtime"
 	"github.com/micro/micro/v3/internal/namespace"
 	"github.com/micro/micro/v3/service"
+	"github.com/micro/micro/v3/service/auth"
 	"github.com/micro/micro/v3/service/errors"
 	log "github.com/micro/micro/v3/service/logger"
 	pb "github.com/micro/micro/v3/service/runtime/proto"
@@ -75,6 +77,8 @@ func (r *Runtime) Create(ctx context.Context, req *pb.CreateRequest, rsp *pb.Cre
 
 	// create the service
 	service := toService(req.Service)
+	setupServiceMeta(ctx, service)
+
 	options := toCreateOptions(ctx, req.Options)
 
 	log.Infof("Creating service %s version %s source %s", service.Name, service.Version, service.Source)
@@ -117,6 +121,8 @@ func (r *Runtime) Update(ctx context.Context, req *pb.UpdateRequest, rsp *pb.Upd
 	}
 
 	service := toService(req.Service)
+	setupServiceMeta(ctx, service)
+
 	options := toUpdateOptions(ctx, req.Options)
 
 	log.Infof("Updating service %s version %s source %s", service.Name, service.Version, service.Source)
@@ -134,6 +140,23 @@ func (r *Runtime) Update(ctx context.Context, req *pb.UpdateRequest, rsp *pb.Upd
 	})
 
 	return nil
+}
+
+func setupServiceMeta(ctx context.Context, service *runtime.Service) {
+	if service.Metadata == nil {
+		service.Metadata = map[string]string{}
+	}
+	account, accOk := goauth.AccountFromContext(ctx)
+	if accOk {
+		service.Metadata["owner"] = account.ID
+		// This is a hack - we don't want vanilla `micro server` users where the auth is noop
+		// to have long uuid as owners, so we put micro here - not great, not terrible.
+		if auth.DefaultAuth.String() == "noop" {
+			service.Metadata["owner"] = "micro"
+		}
+		service.Metadata["group"] = account.Issuer
+	}
+	service.Metadata["started"] = time.Now().Format(time.RFC3339)
 }
 
 func (r *Runtime) Delete(ctx context.Context, req *pb.DeleteRequest, rsp *pb.DeleteResponse) error {

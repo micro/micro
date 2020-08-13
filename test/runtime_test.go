@@ -224,6 +224,12 @@ func testRunGithubSource(t *T) {
 		if !statusRunning("helloworld", "master", outp) {
 			return outp, errors.New("Output should contain helloworld")
 		}
+		if !strings.Contains(string(outp), "owner=admin") || !(strings.Contains(string(outp), "group=micro") || strings.Contains(string(outp), "group="+serv.Env())) {
+			return outp, errors.New("micro status does not have correct owner or group")
+		}
+		if strings.Contains(string(outp), "unknown") {
+			return outp, errors.New("there should be no unknown in the micro status output")
+		}
 		return outp, nil
 	}, 60*time.Second); err != nil {
 		return
