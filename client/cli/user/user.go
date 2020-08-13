@@ -122,11 +122,15 @@ func changePassword(ctx *cli.Context) error {
 	}
 
 	accountService := pb.NewAccountsService("accounts", client.DefaultClient)
-	accountService.ChangePassword(context.TODO(), &pb.ChangePasswordRequest{
+	_, err = accountService.ChangePassword(context.TODO(), &pb.ChangePasswordRequest{
 		Id:        acc.ID,
 		OldSecret: oldPassword,
 		NewSecret: newPassword,
 	}, goclient.WithAuthToken())
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
 	return nil
 }
 

@@ -225,7 +225,12 @@ func changePassword(t *T) {
 		return
 	}
 
-	time.Sleep(1 * time.Second)
+	time.Sleep(3 * time.Second)
+	outp, err = cmd.Exec("login", "--email", "admin", "--password", "micro")
+	if err == nil {
+		t.Fatal("Old password should not be usable anymore")
+		return
+	}
 	outp, err = cmd.Exec("login", "--email", "admin", "--password", newPass)
 	if err != nil {
 		t.Fatal(string(outp))
