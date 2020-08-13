@@ -7,6 +7,7 @@ import (
 
 	"github.com/micro/go-micro/v3/auth"
 	"github.com/micro/go-micro/v3/store"
+	gostore "github.com/micro/go-micro/v3/store"
 	"github.com/micro/micro/v3/internal/namespace"
 	pb "github.com/micro/micro/v3/service/auth/proto"
 	"github.com/micro/micro/v3/service/errors"
@@ -112,6 +113,55 @@ func (a *Auth) Delete(ctx context.Context, req *pb.DeleteAccountRequest, rsp *pb
 	delete(a.namespaces, req.Options.Namespace)
 	a.Unlock()
 
+	return nil
+}
+
+// ChangePassword by providing a refresh token and a new secret
+func (a *Auth) ChangePassword(ctx context.Context, req *pb.ChangePasswordRequest, rsp *pb.ChangePasswordResponse) error {
+	// set defaults
+	if req.Options == nil {
+		req.Options = &pb.Options{}
+	}
+	if len(req.Options.Namespace) == 0 {
+		req.Options.Namespace = namespace.DefaultNamespace
+	}
+
+	// Lookup the account in the store
+	key := strings.Join([]string{storePrefixAccounts, req.Options.Namespace, req.Id}, joinKey)
+	recs, err := a.Options.Store.Read(key)
+	if err == gostore.ErrNotFound {
+		return errors.BadRequest("auth.Auth.ChangePassword", "Account not found with this ID")
+	} else if err != nil {
+		return errors.InternalServerError("auth.Auth.ChangePassword", "Unable to read from store: %v", err)
+	}
+
+	// Unmarshal the record
+	var acc *auth.Account
+	if err := json.Unmarshal(recs[0].Value, &acc); err != nil {
+		return errors.InternalServerError("auth.Auth.ChangePassword", "Unable to unmarshal account: %v", err)
+	}
+
+	if !secretsMatch(acc.Secret, req.OldSecret) {
+		return errors.BadRequest("auth.Auth.ChangePassword", "Secret not correct")
+	}
+
+	// hash the secret
+	secret, err := hashSecret(acc.Secret)
+	if err != nil {
+		return errors.InternalServerError("auth.Auth.Generate", "Unable to hash password: %v", err)
+	}
+	acc.Secret = secret
+
+	// marshal to json
+	bytes, err := json.Marshal(acc)
+	if err != nil {
+		return errors.InternalServerError("auth.Auth.Generate", "Unable to marshal json: %v", err)
+	}
+
+	// write to the store
+	if err := a.Options.Store.Write(&gostore.Record{Key: key, Value: bytes}); err != nil {
+		return errors.InternalServerError("auth.Auth.Generate", "Unable to write account to store: %v", err)
+	}
 	return nil
 }
 

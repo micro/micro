@@ -45,7 +45,6 @@ type AuthService interface {
 	Generate(ctx context.Context, in *GenerateRequest, opts ...client.CallOption) (*GenerateResponse, error)
 	Inspect(ctx context.Context, in *InspectRequest, opts ...client.CallOption) (*InspectResponse, error)
 	Token(ctx context.Context, in *TokenRequest, opts ...client.CallOption) (*TokenResponse, error)
-	ChangePassword(ctx context.Context, in *ChangePasswordRequest, opts ...client.CallOption) (*ChangePasswordResponse, error)
 }
 
 type authService struct {
@@ -90,23 +89,12 @@ func (c *authService) Token(ctx context.Context, in *TokenRequest, opts ...clien
 	return out, nil
 }
 
-func (c *authService) ChangePassword(ctx context.Context, in *ChangePasswordRequest, opts ...client.CallOption) (*ChangePasswordResponse, error) {
-	req := c.c.NewRequest(c.name, "Auth.ChangePassword", in)
-	out := new(ChangePasswordResponse)
-	err := c.c.Call(ctx, req, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 // Server API for Auth service
 
 type AuthHandler interface {
 	Generate(context.Context, *GenerateRequest, *GenerateResponse) error
 	Inspect(context.Context, *InspectRequest, *InspectResponse) error
 	Token(context.Context, *TokenRequest, *TokenResponse) error
-	ChangePassword(context.Context, *ChangePasswordRequest, *ChangePasswordResponse) error
 }
 
 func RegisterAuthHandler(s server.Server, hdlr AuthHandler, opts ...server.HandlerOption) error {
@@ -114,7 +102,6 @@ func RegisterAuthHandler(s server.Server, hdlr AuthHandler, opts ...server.Handl
 		Generate(ctx context.Context, in *GenerateRequest, out *GenerateResponse) error
 		Inspect(ctx context.Context, in *InspectRequest, out *InspectResponse) error
 		Token(ctx context.Context, in *TokenRequest, out *TokenResponse) error
-		ChangePassword(ctx context.Context, in *ChangePasswordRequest, out *ChangePasswordResponse) error
 	}
 	type Auth struct {
 		auth
@@ -139,10 +126,6 @@ func (h *authHandler) Token(ctx context.Context, in *TokenRequest, out *TokenRes
 	return h.AuthHandler.Token(ctx, in, out)
 }
 
-func (h *authHandler) ChangePassword(ctx context.Context, in *ChangePasswordRequest, out *ChangePasswordResponse) error {
-	return h.AuthHandler.ChangePassword(ctx, in, out)
-}
-
 // Api Endpoints for Accounts service
 
 func NewAccountsEndpoints() []*api.Endpoint {
@@ -154,6 +137,7 @@ func NewAccountsEndpoints() []*api.Endpoint {
 type AccountsService interface {
 	List(ctx context.Context, in *ListAccountsRequest, opts ...client.CallOption) (*ListAccountsResponse, error)
 	Delete(ctx context.Context, in *DeleteAccountRequest, opts ...client.CallOption) (*DeleteAccountResponse, error)
+	ChangePassword(ctx context.Context, in *ChangePasswordRequest, opts ...client.CallOption) (*ChangePasswordResponse, error)
 }
 
 type accountsService struct {
@@ -188,17 +172,29 @@ func (c *accountsService) Delete(ctx context.Context, in *DeleteAccountRequest, 
 	return out, nil
 }
 
+func (c *accountsService) ChangePassword(ctx context.Context, in *ChangePasswordRequest, opts ...client.CallOption) (*ChangePasswordResponse, error) {
+	req := c.c.NewRequest(c.name, "Accounts.ChangePassword", in)
+	out := new(ChangePasswordResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // Server API for Accounts service
 
 type AccountsHandler interface {
 	List(context.Context, *ListAccountsRequest, *ListAccountsResponse) error
 	Delete(context.Context, *DeleteAccountRequest, *DeleteAccountResponse) error
+	ChangePassword(context.Context, *ChangePasswordRequest, *ChangePasswordResponse) error
 }
 
 func RegisterAccountsHandler(s server.Server, hdlr AccountsHandler, opts ...server.HandlerOption) error {
 	type accounts interface {
 		List(ctx context.Context, in *ListAccountsRequest, out *ListAccountsResponse) error
 		Delete(ctx context.Context, in *DeleteAccountRequest, out *DeleteAccountResponse) error
+		ChangePassword(ctx context.Context, in *ChangePasswordRequest, out *ChangePasswordResponse) error
 	}
 	type Accounts struct {
 		accounts
@@ -217,6 +213,10 @@ func (h *accountsHandler) List(ctx context.Context, in *ListAccountsRequest, out
 
 func (h *accountsHandler) Delete(ctx context.Context, in *DeleteAccountRequest, out *DeleteAccountResponse) error {
 	return h.AccountsHandler.Delete(ctx, in, out)
+}
+
+func (h *accountsHandler) ChangePassword(ctx context.Context, in *ChangePasswordRequest, out *ChangePasswordResponse) error {
+	return h.AccountsHandler.ChangePassword(ctx, in, out)
 }
 
 // Api Endpoints for Rules service
