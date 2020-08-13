@@ -65,8 +65,13 @@ spec:
         image: micro/micro
         imagePullPolicy: Always
         ports:
-        - containerPort: 8001
+        - containerPort: 8003
           name: broker-port
+        readinessProbe:
+          tcpSocket:
+            port: broker-port
+          initialDelaySeconds: 5
+          periodSeconds: 10
         volumeMounts:
         - name: etcd-client-certs
           mountPath: "/certs/registry"

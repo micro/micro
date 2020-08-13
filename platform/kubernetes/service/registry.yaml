@@ -67,6 +67,11 @@ spec:
         ports:
         - containerPort: 8000
           name: registry-port
+        readinessProbe:
+          tcpSocket:
+            port: registry-port
+          initialDelaySeconds: 5
+          periodSeconds: 10
         volumeMounts:
         - name: etcd-client-certs
           mountPath: "/certs/registry"
