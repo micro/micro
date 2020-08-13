@@ -68,3 +68,8 @@ spec:
           name: https-port
         - containerPort: 8081
           name: proxy-port
+        readinessProbe:
+          tcpSocket:
+            port: https-port
+          initialDelaySeconds: 5
+          periodSeconds: 10

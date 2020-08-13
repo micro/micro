@@ -68,3 +68,8 @@
          ports:
          - containerPort: 443
            name: api-port
+         readinessProbe:
+           tcpSocket:
+             port: api-port
+           initialDelaySeconds: 5
+           periodSeconds: 10

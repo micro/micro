@@ -8,7 +8,7 @@ metadata:
     micro: runtime
 spec:
   ports:
-  - port: 8001
+  - port: 8003
     protocol: TCP
   selector:
     name: micro-broker

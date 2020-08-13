@@ -9,7 +9,7 @@ metadata:
   annotations:
     name: "router"
     version: "latest"
-    source: "github.com/micro/micro"
+    source: "github.com/micro/micro:2020081308541165334e"
     owner: "micro"
     group: "micro"
 spec:
@@ -69,6 +69,11 @@ spec:
         ports:
         - containerPort: 8084
           name: router-port
+        readinessProbe:
+          tcpSocket:
+            port: router-port
+          initialDelaySeconds: 5
+          periodSeconds: 10
         volumeMounts:
         - name: etcd-client-certs
           mountPath: "/certs/registry"
