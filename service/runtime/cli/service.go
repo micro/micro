@@ -22,6 +22,7 @@ import (
 	"github.com/micro/micro/v3/client/cli/namespace"
 	"github.com/micro/micro/v3/client/cli/util"
 	cliutil "github.com/micro/micro/v3/client/cli/util"
+	"github.com/micro/micro/v3/internal/config"
 	muclient "github.com/micro/micro/v3/service/client"
 	"github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/runtime"
@@ -185,6 +186,11 @@ func runService(ctx *cli.Context) error {
 		return err
 	}
 	opts = append(opts, goruntime.CreateNamespace(ns))
+
+	// add the git credentials if set
+	if creds, err := config.Get("git", "credentials"); err == nil && len(creds) > 0 {
+		opts = append(opts, goruntime.WithSecret("GIT_CREDENTIALS", creds))
+	}
 
 	// run the service
 	service := &goruntime.Service{
