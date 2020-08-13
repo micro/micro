@@ -547,3 +547,44 @@ func testParentDependency(t *T) {
 		return
 	}
 }
+
+func TestRunPrivateSource(t *testing.T) {
+	TrySuite(t testRunPrivateSource, retryCount)
+}
+
+func testRunPrivateSource(t *testing.T) {
+	t.Parallel()
+	serv := NewServer(t, WithLogin())
+	defer serv.Close()
+	if err := serv.Run(); err != nil {
+		return
+	}
+
+	cmd := serv.Command()
+
+	// get the git credentials, injected by the k8s integration test
+	pat := os.Getenv("GITHUB_PAT")
+	if len(pat) == 0 {
+		t.Skipped()
+		return
+	}
+
+	// set the pat in the users config
+	if outp, err := cmd.Exec("user", "config", "set", "git.credentials", pat); err != nil {
+		t.Fatalf("Expected no error, got %v %v", err, string(outp))
+		return
+	}
+
+	// run the service
+	if outp, err := cmd.Exec("run", "--image", "localhost:5000", "github.com/micro/test/helloworld"); err != nil {
+		t.Fatalf("Expected no error, got %v %v", err, string(outp))
+		return
+	}
+
+	// call the service
+	Try("CallService", func() ([]byte, error) {
+		return cmd.Exec("helloworld", "--name", "John")
+	}, 120*time.Second); err != nil {
+		return
+	}
+}

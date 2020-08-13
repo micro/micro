@@ -46,7 +46,7 @@ jobs:
       run: |
         docker run -d -p 5000:5000 --restart=always --name kind-registry -v /tmp/docker-registry:/var/lib/registry registry:2 && npx wait-on tcp:5000
     # Now let's build an image and push to our local registry. 
-    - name: Build and push micro to local registry
+    - name: Build and push cells to local registry
       id: build-push-reg-micro
       run: |
         DIR=service/runtime/cells/go
@@ -101,6 +101,7 @@ jobs:
       working-directory: ./test
       env:
         IN_TRAVIS_CI: yes
+        GITHUB_PAT: ${{ secrets.GitHubPAT }}
       run: |
           # Generate keys for JWT tests
           ssh-keygen -f /tmp/sshkey -m pkcs8 -q -N ""

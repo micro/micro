@@ -142,12 +142,12 @@ func runService(ctx *cli.Context) error {
 	var image = DefaultImage
 	if ctx.IsSet("image") {
 		image = ctx.String("image")
-	} else {
-		// when using the micro/cells:go image, we pass the source as the argument
-		args = runtimeSource
-		if len(source.Ref) > 0 {
-			args += "@" + source.Ref
-		}
+	}
+
+	// when using the micro/cells:go image, we pass the source as the argument
+	args = runtimeSource
+	if len(source.Ref) > 0 {
+		args += "@" + source.Ref
 	}
 
 	// specify the options
