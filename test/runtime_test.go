@@ -549,7 +549,7 @@ func testParentDependency(t *T) {
 }
 
 func TestRunPrivateSource(t *testing.T) {
-	TrySuite(t testRunPrivateSource, retryCount)
+	TrySuite(t, testRunPrivateSource, retryCount)
 }
 
 func testRunPrivateSource(t *testing.T) {
