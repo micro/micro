@@ -582,10 +582,26 @@ func testRunPrivateSource(t *T) {
 		return
 	}
 
+	if err := Try("Find micro/test/helloworld", t, func() ([]byte, error) {
+		outp, err := cmd.Exec("status")
+		if err != nil {
+			return outp, err
+		}
+
+		// The started service should have the runtime name of "micro/test/helloworld",
+		// as the runtime name is the relative path inside a repo.
+		if !statusRunning("micro/test/helloworld", "latest", outp) {
+			return outp, errors.New("Can't find helloworld service in runtime")
+		}
+		return outp, err
+	}, 120*time.Second); err != nil {
+		return
+	}
+
 	// call the service
 	if err := Try("Calling helloworld", t, func() ([]byte, error) {
 		return cmd.Exec("helloworld", "--name", "John")
-	}, 120*time.Second); err != nil {
+	}, 30*time.Second); err != nil {
 		return
 	}
 }
