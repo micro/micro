@@ -553,7 +553,7 @@ func TestRunPrivateSource(t *testing.T) {
 	TrySuite(t, testRunPrivateSource, retryCount)
 }
 
-func testRunPrivateSource(t *testing.T) {
+func testRunPrivateSource(t *T) {
 	t.Parallel()
 	serv := NewServer(t, WithLogin())
 	defer serv.Close()
@@ -583,7 +583,7 @@ func testRunPrivateSource(t *testing.T) {
 	}
 
 	// call the service
-	if Try("CallService", func() ([]byte, error) {
+	if err := Try("CallService", func() ([]byte, error) {
 		return cmd.Exec("helloworld", "--name", "John")
 	}, 120*time.Second); err != nil {
 		return
