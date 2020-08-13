@@ -1,0 +1,13 @@
+name: Build for all platforms
+on: pull_request
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+
+    - name: Clone repo
+      uses: actions/checkout@v2
+
+    - name: Build on all platforms
+      run: scripts/build_all_platforms.sh
