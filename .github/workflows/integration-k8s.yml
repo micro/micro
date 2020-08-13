@@ -49,8 +49,8 @@ jobs:
     - name: Build and push micro to local registry
       id: build-push-reg-micro
       run: |
-        DIR = service/runtime/cells/go
-        docker build -f $DIR/Dockerfile $DIR  -t micro
+        DIR=service/runtime/cells/go
+        docker build -f $DIR/Dockerfile $DIR -t micro
         docker tag micro localhost:5000/cells 
         docker push localhost:5000/cells
     
