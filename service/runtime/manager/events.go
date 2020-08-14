@@ -123,14 +123,14 @@ func (m *manager) processEvent(key string) {
 		}
 
 		// construct the options
-		options := []gorun.CreateOption{
+		options := append(m.defaultOptions,
 			gorun.CreateImage(ev.Options.Image),
 			gorun.CreateType(ev.Options.Type),
 			gorun.CreateNamespace(ns),
 			gorun.WithArgs(ev.Options.Args...),
 			gorun.WithCommand(ev.Options.Command...),
 			gorun.WithEnv(m.runtimeEnv(ev.Service, ev.Options)),
-		}
+		)
 
 		// inject the credentials into the service if present
 		if len(acc.ID) > 0 && len(acc.Secret) > 0 {

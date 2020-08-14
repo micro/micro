@@ -191,14 +191,14 @@ func (m *manager) watchServices() {
 			}
 
 			// construct the options
-			options := []gorun.CreateOption{
+			options := append(m.defaultOptions,
 				gorun.CreateImage(srv.Options.Image),
 				gorun.CreateType(srv.Options.Type),
 				gorun.CreateNamespace(ns),
 				gorun.WithArgs(srv.Options.Args...),
 				gorun.WithCommand(srv.Options.Command...),
 				gorun.WithEnv(m.runtimeEnv(srv.Service, srv.Options)),
-			}
+			)
 
 			// inject the credentials into the service if present
 			if len(acc.ID) > 0 && len(acc.Secret) > 0 {
@@ -246,12 +246,36 @@ type manager struct {
 	// fileCache is a cache store used to store any information we don't want to write to the
 	// global store but want to persist across restarts, e.g. events consumed
 	fileCache store.Store
+	// defaultOptions which are provided to all new services, this contains options such as CPU limits
+	// which are universal
+	defaultOptions []gorun.CreateOption
+}
+
+// Options which can be used to configure the runtime manager
+type Options struct {
+	CreateOptions []gorun.CreateOption
+}
+
+// Option sets an option for the runtime manager
+type Option func(o *Options)
+
+// WithCreateOption sets a create option
+func WithCreateOption(co gorun.CreateOption) Option {
+	return func(o *Options) {
+		o.CreateOptions = append(o.CreateOptions, co)
+	}
 }
 
 // New returns a manager for the runtime
-func New() gorun.Runtime {
+func New(opts ...Option) gorun.Runtime {
+	var options Options
+	for _, o := range opts {
+		o(&options)
+	}
+
 	return &manager{
-		cache:     memory.NewStore(),
-		fileCache: cachest.NewStore(filest.NewStore()),
+		cache:          memory.NewStore(),
+		fileCache:      cachest.NewStore(filest.NewStore()),
+		defaultOptions: options.CreateOptions,
 	}
 }

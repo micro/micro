@@ -130,6 +130,12 @@ spec:
           value: "/certs/registry/cert.pem"
         - name: MICRO_REGISTRY_TLS_KEY
           value: "/certs/registry/key.pem"
+        - name: MICRO_RUNTIME_LIMIT_CPU
+          value: "500"
+        - name: MICRO_RUNTIME_LIMIT_DISK
+          value: "512"
+        - name: MICRO_RUNTIME_LIMIT_MEMORY
+          value: "256"
         - name: MICRO_LOG_LEVEL
           value: "debug"
         - name: MICRO_STORE_ADDRESS

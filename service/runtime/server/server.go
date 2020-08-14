@@ -30,6 +30,21 @@ var (
 			Usage:   "Set the max retries per service",
 			EnvVars: []string{"MICRO_RUNTIME_RETRIES"},
 		},
+		&cli.IntFlag{
+			Name:    "limit_cpu",
+			Usage:   "Set the CPU limit for services created by the runtime, e.g. 500 for 0.5 CPU",
+			EnvVars: []string{"MICRO_RUNTIME_LIMIT_CPU"},
+		},
+		&cli.IntFlag{
+			Name:    "limit_memory",
+			Usage:   "Set the memory limit for services created by the runtime, e.g. 512 for 512 MiB",
+			EnvVars: []string{"MICRO_RUNTIME_LIMIT_MEMORY"},
+		},
+		&cli.IntFlag{
+			Name:    "limit_disk",
+			Usage:   "Set the disk limit for services created by the runtime, e.g. 512 for 512 MiB",
+			EnvVars: []string{"MICRO_RUNTIME_LIMIT_DISK"},
+		},
 	}
 )
 
@@ -59,8 +74,19 @@ func Run(ctx *cli.Context) error {
 	// new service
 	srv := service.New(srvOpts...)
 
+	var mOpts []manager.Option
+	if l := ctx.Int("limit_cpu"); l > 0 {
+		mOpts = append(mOpts, manager.WithCreateOption(goruntime.CPULimit(l)))
+	}
+	if l := ctx.Int("limit_disk"); l > 0 {
+		mOpts = append(mOpts, manager.WithCreateOption(goruntime.DiskLimit(l)))
+	}
+	if l := ctx.Int("limit_memory"); l > 0 {
+		mOpts = append(mOpts, manager.WithCreateOption(goruntime.MemoryLimit(l)))
+	}
+
 	// create a new runtime manager
-	manager := manager.New()
+	manager := manager.New(mOpts...)
 
 	// start the manager
 	if err := manager.Start(); err != nil {
