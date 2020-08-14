@@ -116,7 +116,7 @@ func (a *Auth) Delete(ctx context.Context, req *pb.DeleteAccountRequest, rsp *pb
 	return nil
 }
 
-// ChangePassword by providing a refresh token and a new secret
+// ChangeSecret by providing a refresh token and a new secret
 func (a *Auth) ChangeSecret(ctx context.Context, req *pb.ChangeSecretRequest, rsp *pb.ChangeSecretResponse) error {
 	// set defaults
 	if req.Options == nil {
@@ -128,30 +128,30 @@ func (a *Auth) ChangeSecret(ctx context.Context, req *pb.ChangeSecretRequest, rs
 
 	// authorize the request
 	if err := namespace.Authorize(ctx, req.Options.Namespace); err == namespace.ErrForbidden {
-		return errors.Forbidden("auth.Accounts.List", err.Error())
+		return errors.Forbidden("auth.Accounts.ChangeSecret", err.Error())
 	} else if err == namespace.ErrUnauthorized {
-		return errors.Unauthorized("auth.Accounts.List", err.Error())
+		return errors.Unauthorized("auth.Accounts.ChangeSecret", err.Error())
 	} else if err != nil {
-		return errors.InternalServerError("auth.Accounts.List", err.Error())
+		return errors.InternalServerError("auth.Accounts.ChangeSecret", err.Error())
 	}
 
 	// Lookup the account in the store
 	key := strings.Join([]string{storePrefixAccounts, req.Options.Namespace, req.Id}, joinKey)
 	recs, err := a.Options.Store.Read(key)
 	if err == gostore.ErrNotFound {
-		return errors.BadRequest("auth.Auth.ChangePassword", "Account not found with this ID")
+		return errors.BadRequest("auth.Auth.ChangeSecret", "Account not found with this ID")
 	} else if err != nil {
-		return errors.InternalServerError("auth.Accounts.ChangePassword", "Unable to read from store: %v", err)
+		return errors.InternalServerError("auth.Accounts.ChangeSecret", "Unable to read from store: %v", err)
 	}
 
 	// Unmarshal the record
 	var acc *auth.Account
 	if err := json.Unmarshal(recs[0].Value, &acc); err != nil {
-		return errors.InternalServerError("auth.Accounts.ChangePassword", "Unable to unmarshal account: %v", err)
+		return errors.InternalServerError("auth.Accounts.ChangeSecret", "Unable to unmarshal account: %v", err)
 	}
 
 	if !secretsMatch(acc.Secret, req.OldSecret) {
-		return errors.BadRequest("auth.Accounts.ChangePassword", "Secret not correct")
+		return errors.BadRequest("auth.Accounts.ChangeSecret", "Secret not correct")
 	}
 
 	// hash the secret
