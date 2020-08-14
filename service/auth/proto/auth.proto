@@ -13,6 +13,7 @@ service Auth {
 service Accounts {
 	rpc List(ListAccountsRequest) returns (ListAccountsResponse) {};
 	rpc Delete(DeleteAccountRequest) returns (DeleteAccountResponse) {};
+	rpc ChangeSecret(ChangeSecretRequest) returns (ChangeSecretResponse) {};
 }
 
 service Rules {
@@ -148,3 +149,12 @@ message ListRequest {
 message ListResponse {
 	repeated Rule rules = 1;
 }
+
+message ChangeSecretRequest{
+	string id = 1;
+	string old_secret = 2;
+	string new_secret = 3;
+	Options options = 4;
+}
+
+message ChangeSecretResponse{}
