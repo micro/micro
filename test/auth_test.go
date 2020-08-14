@@ -219,7 +219,15 @@ func changePassword(t *T) {
 
 	cmd := serv.Command()
 	newPass := "shinyNewPass"
-	outp, err := cmd.Exec("user", "set", "password", "--old-password", "micro", "--new-password", newPass)
+
+	// Bad password should not succeed
+	outp, err := cmd.Exec("user", "set", "password", "--old-password", "micro121212", "--new-password", newPass)
+	if err == nil {
+		t.Fatal("Incorrect existing password should make password change fail")
+		return
+	}
+
+	outp, err = cmd.Exec("user", "set", "password", "--old-password", "micro", "--new-password", newPass)
 	if err != nil {
 		t.Fatal(string(outp))
 		return
