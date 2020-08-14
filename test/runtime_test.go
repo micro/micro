@@ -74,7 +74,7 @@ func testRunLocalSource(t *T) {
 
 		// The started service should have the runtime name of "service/example",
 		// as the runtime name is the relative path inside a repo.
-		if !statusRunning("service/example", "latest", outp) {
+		if !statusRunning("example", "latest", outp) {
 			return outp, errors.New("Can't find example service in runtime")
 		}
 		return outp, err
@@ -122,9 +122,7 @@ func testRunAndKill(t *T) {
 			return outp, err
 		}
 
-		// The started service should have the runtime name of "service/example",
-		// as the runtime name is the relative path inside a repo.
-		if !statusRunning("service/example", "latest", outp) {
+		if !statusRunning("example", "latest", outp) {
 			return outp, errors.New("Can't find example service in runtime")
 		}
 		return outp, err
@@ -296,9 +294,8 @@ func testRunLocalUpdateAndCall(t *T) {
 			return outp, err
 		}
 
-		// The started service should have the runtime name of "service/example",
-		// as the runtime name is the relative path inside a repo.
-		if !statusRunning("service/example", "latest", outp) {
+		// The started service should have the runtime name of "example".
+		if !statusRunning("example", "latest", outp) {
 			return outp, errors.New("can't find service in runtime")
 		}
 		return outp, err
@@ -588,9 +585,7 @@ func testRunPrivateSource(t *T) {
 			return outp, err
 		}
 
-		// The started service should have the runtime name of "micro/test/helloworld",
-		// as the runtime name is the relative path inside a repo.
-		if !statusRunning("micro/test/helloworld", "latest", outp) {
+		if !statusRunning("helloworld", "latest", outp) {
 			return outp, errors.New("Can't find helloworld service in runtime")
 		}
 		return outp, err

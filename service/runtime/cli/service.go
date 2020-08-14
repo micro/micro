@@ -113,7 +113,7 @@ func appendSourceBase(ctx *cli.Context, workDir, source string) string {
 			baseURL, _ = config.Get("git", "baseurl")
 		}
 		if len(baseURL) == 0 {
-			return source
+			return path.Join("github.com/micro/services", source)
 		}
 		return path.Join(baseURL, source)
 	}
