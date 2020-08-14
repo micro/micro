@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"path"
 	"path/filepath"
 	"sort"
 	"strings"
@@ -104,6 +105,21 @@ func sourceExists(source *git.Source) error {
 	return nil
 }
 
+func appendSourceBase(ctx *cli.Context, workDir, source string) string {
+	isLocal, _ := git.IsLocal(workDir, source)
+	if !isLocal && !strings.Contains(source, "github.com") {
+		baseURL, _ := config.Get("git", util.GetEnv(ctx).Name, "baseurl")
+		if len(baseURL) == 0 {
+			baseURL, _ = config.Get("git", "baseurl")
+		}
+		if len(baseURL) == 0 {
+			return source
+		}
+		return path.Join(baseURL, source)
+	}
+	return source
+}
+
 func runService(ctx *cli.Context) error {
 	// we need some args to run
 	if ctx.Args().Len() == 0 {
@@ -115,7 +131,8 @@ func runService(ctx *cli.Context) error {
 	if err != nil {
 		return err
 	}
-	source, err := git.ParseSourceLocal(wd, ctx.Args().Get(0))
+
+	source, err := git.ParseSourceLocal(wd, appendSourceBase(ctx, wd, ctx.Args().Get(0)))
 	if err != nil {
 		return err
 	}
@@ -238,7 +255,7 @@ func killService(ctx *cli.Context) error {
 	if err != nil {
 		return err
 	}
-	source, err := git.ParseSourceLocal(wd, ctx.Args().Get(0))
+	source, err := git.ParseSourceLocal(wd, appendSourceBase(ctx, wd, ctx.Args().Get(0)))
 	if err != nil {
 		return err
 	}
@@ -321,7 +338,7 @@ func updateService(ctx *cli.Context) error {
 	if err != nil {
 		return err
 	}
-	source, err := git.ParseSourceLocal(wd, ctx.Args().Get(0))
+	source, err := git.ParseSourceLocal(wd, appendSourceBase(ctx, wd, ctx.Args().Get(0)))
 	if err != nil {
 		return err
 	}

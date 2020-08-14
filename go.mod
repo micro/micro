@@ -29,3 +29,6 @@ require (
 )
 
 replace google.golang.org/grpc => google.golang.org/grpc v1.26.0
+
+// replace github.com/micro/go-micro/v3 => /home/crufter/code/src/github.com/micro/go-micro
+replace github.com/micro/go-micro/v3 => github.com/micro/go-micro/v3 baseurl
