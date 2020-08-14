@@ -118,6 +118,10 @@ func (a *Auth) Delete(ctx context.Context, req *pb.DeleteAccountRequest, rsp *pb
 
 // ChangeSecret by providing a refresh token and a new secret
 func (a *Auth) ChangeSecret(ctx context.Context, req *pb.ChangeSecretRequest, rsp *pb.ChangeSecretResponse) error {
+	if len(req.NewSecret) == 0 {
+		return errors.BadRequest("auth.Auth.ChangeSecret", "New secret should not be blank")
+	}
+
 	// set defaults
 	if req.Options == nil {
 		req.Options = &pb.Options{}
