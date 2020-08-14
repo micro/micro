@@ -161,19 +161,19 @@ func (a *Auth) ChangeSecret(ctx context.Context, req *pb.ChangeSecretRequest, rs
 	// hash the secret
 	secret, err := hashSecret(req.NewSecret)
 	if err != nil {
-		return errors.InternalServerError("auth.Accounts.Generate", "Unable to hash password: %v", err)
+		return errors.InternalServerError("auth.Accounts.ChangeSecret", "Unable to hash password: %v", err)
 	}
 	acc.Secret = secret
 
 	// marshal to json
 	bytes, err := json.Marshal(acc)
 	if err != nil {
-		return errors.InternalServerError("auth.Accounts.Generate", "Unable to marshal json: %v", err)
+		return errors.InternalServerError("auth.Accounts.ChangeSecret", "Unable to marshal json: %v", err)
 	}
 
 	// write to the store
 	if err := a.Options.Store.Write(&gostore.Record{Key: key, Value: bytes}); err != nil {
-		return errors.InternalServerError("auth.Accounts.Generate", "Unable to write account to store: %v", err)
+		return errors.InternalServerError("auth.Accounts.ChangeSecret", "Unable to write account to store: %v", err)
 	}
 	return nil
 }
