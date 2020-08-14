@@ -165,7 +165,7 @@ func testConfigReadFromService(t *T) {
 	}
 
 	if err := Try("Try logs read", t, func() ([]byte, error) {
-		outp, err := cmd.Exec("logs", "test/service/config")
+		outp, err := cmd.Exec("logs", "config")
 		if err != nil {
 			return outp, err
 		}
