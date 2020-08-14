@@ -54,6 +54,10 @@ func init() {
 							Action: changePassword,
 							Flags: []cli.Flag{
 								&cli.StringFlag{
+									Name:  "email",
+									Usage: "Email to use for password change",
+								},
+								&cli.StringFlag{
 									Name:  "old-password",
 									Usage: "Existing password, the one that is used currently.",
 								},
@@ -72,11 +76,21 @@ func init() {
 
 // get current user settings
 func changePassword(ctx *cli.Context) error {
-	env := util.GetEnv(ctx)
+	email := ctx.String("email")
+	if len(email) == 0 {
+		env := util.GetEnv(ctx)
+		token, err := config.Get("micro", "auth", env.Name, "token")
+		if err != nil {
+			return err
+		}
 
-	token, err := config.Get("micro", "auth", env.Name, "token")
-	if err != nil {
-		return err
+		// Inspect the token
+		acc, err := auth.Inspect(token)
+		if err != nil {
+			fmt.Println("You are not logged in")
+			return err
+		}
+		email = acc.ID
 	}
 
 	oldPassword := ctx.String("old-password")
@@ -114,24 +128,13 @@ func changePassword(ctx *cli.Context) error {
 		}
 	}
 
-	// Inspect the token
-	acc, err := auth.Inspect(token)
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
-
 	accountService := pb.NewAccountsService("auth", client.DefaultClient)
-	_, err = accountService.ChangePassword(context.TODO(), &pb.ChangePasswordRequest{
-		Id:        acc.ID,
+	_, err := accountService.ChangePassword(context.TODO(), &pb.ChangePasswordRequest{
+		Id:        email,
 		OldSecret: oldPassword,
 		NewSecret: newPassword,
 	}, goclient.WithAuthToken())
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
-	return nil
+	return err
 }
 
 // get current user settings
