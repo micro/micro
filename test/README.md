@@ -94,4 +94,4 @@ If you prefer not having to push your images to docker hub for them to be pulled
 2. `./scripts/kind-build-micro.sh` - build and push micro to the local registry
 3. `./scripts/kind-launch.sh` - install micro in to the cluster
 
-When you make any changes you can build and push using `kind-build-micro.sh` and then bounce all the micro pods `kubectl delete po -l micro=runtime` to pick up the new version.
+When you make any changes you can build and push using `kind-build-micro.sh` and then bounce all the micro pods `kubectl delete pod -l micro=runtime` to pick up the new version.
