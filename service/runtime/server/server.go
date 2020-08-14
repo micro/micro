@@ -74,19 +74,14 @@ func Run(ctx *cli.Context) error {
 	// new service
 	srv := service.New(srvOpts...)
 
-	var mOpts []manager.Option
-	if l := ctx.Int("limit_cpu"); l > 0 {
-		mOpts = append(mOpts, manager.WithCreateOption(goruntime.CPULimit(l)))
-	}
-	if l := ctx.Int("limit_disk"); l > 0 {
-		mOpts = append(mOpts, manager.WithCreateOption(goruntime.DiskLimit(l)))
-	}
-	if l := ctx.Int("limit_memory"); l > 0 {
-		mOpts = append(mOpts, manager.WithCreateOption(goruntime.MemoryLimit(l)))
+	limits := &goruntime.ResourceLimits{
+		CPU:  ctx.Int("limit_cpu"),
+		Mem:  ctx.Int("limit_memory"),
+		Disk: ctx.Int("limit_disk"),
 	}
 
 	// create a new runtime manager
-	manager := manager.New(mOpts...)
+	manager := manager.New(manager.WithCreateOption(goruntime.ResourceLimits(limits)))
 
 	// start the manager
 	if err := manager.Start(); err != nil {
