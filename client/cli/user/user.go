@@ -2,14 +2,21 @@
 package user
 
 import (
+	"context"
 	"fmt"
 	"os"
+	"strings"
+	"syscall"
 
 	"github.com/micro/cli/v2"
+	goclient "github.com/micro/go-micro/v3/client"
 	"github.com/micro/micro/v3/client/cli/util"
 	"github.com/micro/micro/v3/cmd"
 	"github.com/micro/micro/v3/internal/config"
 	"github.com/micro/micro/v3/service/auth"
+	pb "github.com/micro/micro/v3/service/auth/proto"
+	"github.com/micro/micro/v3/service/client"
+	"golang.org/x/crypto/ssh/terminal"
 )
 
 func init() {
@@ -37,9 +44,97 @@ func init() {
 					Usage:  "Get the current namespace",
 					Action: getNamespace,
 				},
+				{
+					Name:  "set",
+					Usage: "Set various user based properties, eg. password",
+					Subcommands: []*cli.Command{
+						{
+							Name:   "password",
+							Usage:  "Set password",
+							Action: changePassword,
+							Flags: []cli.Flag{
+								&cli.StringFlag{
+									Name:  "email",
+									Usage: "Email to use for password change",
+								},
+								&cli.StringFlag{
+									Name:  "old-password",
+									Usage: "Existing password, the one that is used currently.",
+								},
+								&cli.StringFlag{
+									Name:  "new-password",
+									Usage: "New password you want to set.",
+								},
+							},
+						},
+					},
+				},
 			},
 		},
 	)
+}
+
+// get current user settings
+func changePassword(ctx *cli.Context) error {
+	email := ctx.String("email")
+	if len(email) == 0 {
+		env := util.GetEnv(ctx)
+		token, err := config.Get("micro", "auth", env.Name, "token")
+		if err != nil {
+			return err
+		}
+
+		// Inspect the token
+		acc, err := auth.Inspect(token)
+		if err != nil {
+			fmt.Println("You are not logged in")
+			return err
+		}
+		email = acc.ID
+	}
+
+	oldPassword := ctx.String("old-password")
+	newPassword := ctx.String("new-password")
+
+	if len(oldPassword) == 0 {
+		fmt.Print("Enter current password: ")
+		bytePw, _ := terminal.ReadPassword(int(syscall.Stdin))
+		pw := string(bytePw)
+		pw = strings.TrimSpace(pw)
+		fmt.Println()
+		oldPassword = pw
+	}
+
+	if len(newPassword) == 0 {
+		for {
+			fmt.Print("Enter a new password: ")
+			bytePw, _ := terminal.ReadPassword(int(syscall.Stdin))
+			pw := string(bytePw)
+			pw = strings.TrimSpace(pw)
+			fmt.Println()
+
+			fmt.Print("Verify your password: ")
+			bytePwVer, _ := terminal.ReadPassword(int(syscall.Stdin))
+			pwVer := string(bytePwVer)
+			pwVer = strings.TrimSpace(pwVer)
+			fmt.Println()
+
+			if pw != pwVer {
+				fmt.Println("Passwords do not match. Please try again.")
+				continue
+			}
+			newPassword = pw
+			break
+		}
+	}
+
+	accountService := pb.NewAccountsService("auth", client.DefaultClient)
+	_, err := accountService.ChangeSecret(context.TODO(), &pb.ChangeSecretRequest{
+		Id:        email,
+		OldSecret: oldPassword,
+		NewSecret: newPassword,
+	}, goclient.WithAuthToken())
+	return err
 }
 
 // get current user settings
