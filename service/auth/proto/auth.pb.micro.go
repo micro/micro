@@ -137,7 +137,7 @@ func NewAccountsEndpoints() []*api.Endpoint {
 type AccountsService interface {
 	List(ctx context.Context, in *ListAccountsRequest, opts ...client.CallOption) (*ListAccountsResponse, error)
 	Delete(ctx context.Context, in *DeleteAccountRequest, opts ...client.CallOption) (*DeleteAccountResponse, error)
-	ChangePassword(ctx context.Context, in *ChangePasswordRequest, opts ...client.CallOption) (*ChangePasswordResponse, error)
+	ChangeSecret(ctx context.Context, in *ChangeSecretRequest, opts ...client.CallOption) (*ChangeSecretResponse, error)
 }
 
 type accountsService struct {
@@ -172,9 +172,9 @@ func (c *accountsService) Delete(ctx context.Context, in *DeleteAccountRequest, 
 	return out, nil
 }
 
-func (c *accountsService) ChangePassword(ctx context.Context, in *ChangePasswordRequest, opts ...client.CallOption) (*ChangePasswordResponse, error) {
-	req := c.c.NewRequest(c.name, "Accounts.ChangePassword", in)
-	out := new(ChangePasswordResponse)
+func (c *accountsService) ChangeSecret(ctx context.Context, in *ChangeSecretRequest, opts ...client.CallOption) (*ChangeSecretResponse, error) {
+	req := c.c.NewRequest(c.name, "Accounts.ChangeSecret", in)
+	out := new(ChangeSecretResponse)
 	err := c.c.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
@@ -187,14 +187,14 @@ func (c *accountsService) ChangePassword(ctx context.Context, in *ChangePassword
 type AccountsHandler interface {
 	List(context.Context, *ListAccountsRequest, *ListAccountsResponse) error
 	Delete(context.Context, *DeleteAccountRequest, *DeleteAccountResponse) error
-	ChangePassword(context.Context, *ChangePasswordRequest, *ChangePasswordResponse) error
+	ChangeSecret(context.Context, *ChangeSecretRequest, *ChangeSecretResponse) error
 }
 
 func RegisterAccountsHandler(s server.Server, hdlr AccountsHandler, opts ...server.HandlerOption) error {
 	type accounts interface {
 		List(ctx context.Context, in *ListAccountsRequest, out *ListAccountsResponse) error
 		Delete(ctx context.Context, in *DeleteAccountRequest, out *DeleteAccountResponse) error
-		ChangePassword(ctx context.Context, in *ChangePasswordRequest, out *ChangePasswordResponse) error
+		ChangeSecret(ctx context.Context, in *ChangeSecretRequest, out *ChangeSecretResponse) error
 	}
 	type Accounts struct {
 		accounts
@@ -215,8 +215,8 @@ func (h *accountsHandler) Delete(ctx context.Context, in *DeleteAccountRequest, 
 	return h.AccountsHandler.Delete(ctx, in, out)
 }
 
-func (h *accountsHandler) ChangePassword(ctx context.Context, in *ChangePasswordRequest, out *ChangePasswordResponse) error {
-	return h.AccountsHandler.ChangePassword(ctx, in, out)
+func (h *accountsHandler) ChangeSecret(ctx context.Context, in *ChangeSecretRequest, out *ChangeSecretResponse) error {
+	return h.AccountsHandler.ChangeSecret(ctx, in, out)
 }
 
 // Api Endpoints for Rules service

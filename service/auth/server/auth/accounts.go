@@ -117,13 +117,22 @@ func (a *Auth) Delete(ctx context.Context, req *pb.DeleteAccountRequest, rsp *pb
 }
 
 // ChangePassword by providing a refresh token and a new secret
-func (a *Auth) ChangePassword(ctx context.Context, req *pb.ChangePasswordRequest, rsp *pb.ChangePasswordResponse) error {
+func (a *Auth) ChangeSecret(ctx context.Context, req *pb.ChangeSecretRequest, rsp *pb.ChangeSecretResponse) error {
 	// set defaults
 	if req.Options == nil {
 		req.Options = &pb.Options{}
 	}
 	if len(req.Options.Namespace) == 0 {
 		req.Options.Namespace = namespace.DefaultNamespace
+	}
+
+	// authorize the request
+	if err := namespace.Authorize(ctx, req.Options.Namespace); err == namespace.ErrForbidden {
+		return errors.Forbidden("auth.Accounts.List", err.Error())
+	} else if err == namespace.ErrUnauthorized {
+		return errors.Unauthorized("auth.Accounts.List", err.Error())
+	} else if err != nil {
+		return errors.InternalServerError("auth.Accounts.List", err.Error())
 	}
 
 	// Lookup the account in the store
