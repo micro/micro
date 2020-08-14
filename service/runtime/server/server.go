@@ -74,7 +74,7 @@ func Run(ctx *cli.Context) error {
 	// new service
 	srv := service.New(srvOpts...)
 
-	limits := &goruntime.ResourceLimits{
+	limits := &goruntime.Resources{
 		CPU:  ctx.Int("limit_cpu"),
 		Mem:  ctx.Int("limit_memory"),
 		Disk: ctx.Int("limit_disk"),
