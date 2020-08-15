@@ -16,7 +16,6 @@ import (
 	"github.com/micro/go-micro/v3/network/resolver/noop"
 	"github.com/micro/go-micro/v3/network/resolver/registry"
 	"github.com/micro/go-micro/v3/proxy"
-	grpcProxy "github.com/micro/go-micro/v3/proxy/grpc"
 	mucpProxy "github.com/micro/go-micro/v3/proxy/mucp"
 	"github.com/micro/go-micro/v3/router"
 	"github.com/micro/go-micro/v3/server"
@@ -184,13 +183,6 @@ func Run(ctx *cli.Context) error {
 		net.Resolver(r),
 	)
 
-	// local grpc proxy
-	// TODO: set the gateway to ourselves
-	localProxy := grpcProxy.NewProxy(
-		proxy.WithRouter(rtr),
-		proxy.WithClient(service.Client()),
-	)
-
 	// network proxy
 	// used by the network nodes to cluster
 	// and share routes or route through
@@ -209,15 +201,12 @@ func Run(ctx *cli.Context) error {
 	// register the handler
 	mucpServer.DefaultRouter.Handle(h)
 
-	// create a new muxer
-	localMux := muxer.New(name, localProxy)
-
 	// network mux
 	networkMux := muxer.New(name, networkProxy)
 
 	// init the local server
 	service.Server().Init(
-		server.WithRouter(localMux),
+		server.WithRouter(networkMux),
 	)
 
 	// set network server to proxy
