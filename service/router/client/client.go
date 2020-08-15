@@ -2,11 +2,8 @@ package client
 
 import (
 	"context"
-	"fmt"
-	"io"
 	"net/http"
 	"sync"
-	"time"
 
 	goclient "github.com/micro/go-micro/v3/client"
 	"github.com/micro/go-micro/v3/router"
@@ -86,118 +83,6 @@ func (s *svc) Options() router.Options {
 // Table returns routing table
 func (s *svc) Table() router.Table {
 	return s.table
-}
-
-func (s *svc) advertiseEvents(advertChan chan *router.Advert, stream pb.Router_AdvertiseService) error {
-	go func() {
-		<-s.exit
-		stream.Close()
-	}()
-
-	var advErr error
-
-	for {
-		resp, err := stream.Recv()
-		if err != nil {
-			if err != io.EOF {
-				advErr = err
-			}
-			break
-		}
-
-		events := make([]*router.Event, len(resp.Events))
-		for i, event := range resp.Events {
-			route := router.Route{
-				Service:  event.Route.Service,
-				Address:  event.Route.Address,
-				Gateway:  event.Route.Gateway,
-				Network:  event.Route.Network,
-				Link:     event.Route.Link,
-				Metric:   event.Route.Metric,
-				Metadata: event.Route.Metadata,
-			}
-
-			events[i] = &router.Event{
-				Id:        event.Id,
-				Type:      router.EventType(event.Type),
-				Timestamp: time.Unix(0, event.Timestamp),
-				Route:     route,
-			}
-		}
-
-		advert := &router.Advert{
-			Id:        resp.Id,
-			Type:      router.AdvertType(resp.Type),
-			Timestamp: time.Unix(0, resp.Timestamp),
-			TTL:       time.Duration(resp.Ttl),
-			Events:    events,
-		}
-
-		select {
-		case advertChan <- advert:
-		case <-s.exit:
-			close(advertChan)
-			return nil
-		}
-	}
-
-	// close the channel on exit
-	close(advertChan)
-
-	return advErr
-}
-
-// Advertise advertises routes to the network
-func (s *svc) Advertise() (<-chan *router.Advert, error) {
-	s.Lock()
-	defer s.Unlock()
-
-	stream, err := s.router.Advertise(context.Background(), &pb.Request{}, s.callOpts...)
-	if err != nil {
-		return nil, fmt.Errorf("failed getting advert stream: %s", err)
-	}
-
-	// create advertise and event channels
-	advertChan := make(chan *router.Advert)
-	go s.advertiseEvents(advertChan, stream)
-
-	return advertChan, nil
-}
-
-// Process processes incoming adverts
-func (s *svc) Process(advert *router.Advert) error {
-	events := make([]*pb.Event, 0, len(advert.Events))
-	for _, event := range advert.Events {
-		route := &pb.Route{
-			Service:  event.Route.Service,
-			Address:  event.Route.Address,
-			Gateway:  event.Route.Gateway,
-			Network:  event.Route.Network,
-			Link:     event.Route.Link,
-			Metric:   event.Route.Metric,
-			Metadata: event.Route.Metadata,
-		}
-		e := &pb.Event{
-			Id:        event.Id,
-			Type:      pb.EventType(event.Type),
-			Timestamp: event.Timestamp.UnixNano(),
-			Route:     route,
-		}
-		events = append(events, e)
-	}
-
-	advertReq := &pb.Advert{
-		Id:        s.Options().Id,
-		Type:      pb.AdvertType(advert.Type),
-		Timestamp: advert.Timestamp.UnixNano(),
-		Events:    events,
-	}
-
-	if _, err := s.router.Process(context.Background(), advertReq, s.callOpts...); err != nil {
-		return err
-	}
-
-	return nil
 }
 
 // Remote router cannot be closed
