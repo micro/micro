@@ -304,8 +304,8 @@ func testRunGitlabSource(t *T) {
 			return outp, err
 		}
 
-		if !statusRunning("basic-micro-service", "master", outp) {
-			return outp, errors.New("Output should contain helloworld")
+		if !statusRunning("basic-micro-service", "latest", outp) {
+			return outp, errors.New("Output should contain basic-micro-service")
 		}
 		return outp, nil
 	}, 60*time.Second); err != nil {
