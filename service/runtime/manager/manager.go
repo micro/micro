@@ -41,7 +41,7 @@ func (m *manager) Create(srv *gorun.Service, opts ...gorun.CreateOption) error {
 	}
 
 	// publish the event, this will apply it aysnc to the runtime
-	return m.publishEvent(gorun.Create, srv, &options)
+	return m.publishEvent(gorun.CreatedEvent, srv, &options)
 }
 
 // Read returns the service which matches the criteria provided
@@ -99,7 +99,7 @@ func (m *manager) Update(srv *gorun.Service, opts ...gorun.UpdateOption) error {
 	}
 
 	// publish the update event which will trigger an update in the runtime
-	return m.publishEvent(gorun.Update, srv, &gorun.CreateOptions{Namespace: options.Namespace})
+	return m.publishEvent(gorun.UpdatedEvent, srv, &gorun.CreateOptions{Namespace: options.Namespace})
 }
 
 // Remove a service
@@ -124,7 +124,7 @@ func (m *manager) Delete(srv *gorun.Service, opts ...gorun.DeleteOption) error {
 	}
 
 	// publish the event which will trigger a delete in the runtime
-	return m.publishEvent(gorun.Delete, srv, &gorun.CreateOptions{Namespace: options.Namespace})
+	return m.publishEvent(gorun.DeletedEvent, srv, &gorun.CreateOptions{Namespace: options.Namespace})
 }
 
 // Starts the manager
