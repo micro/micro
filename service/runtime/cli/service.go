@@ -49,7 +49,7 @@ var (
 	// DefaultRetries which should be attempted when starting a service
 	DefaultRetries = 3
 	// DefaultImage which should be run
-	DefaultImage = "micro/cells:go"
+	DefaultImage = "micro/cells:micro"
 )
 
 // timeAgo returns the time passed
@@ -155,7 +155,7 @@ func runService(ctx *cli.Context) error {
 		image = ctx.String("image")
 	}
 
-	// when using the micro/cells:go image, we pass the source as the argument
+	// when using the micro/cells:micro image, we pass the source as the argument
 	args = runtimeSource
 	if len(source.Ref) > 0 {
 		args += "@" + source.Ref
