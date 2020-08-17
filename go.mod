@@ -4,7 +4,9 @@ go 1.13
 
 require (
 	github.com/boltdb/bolt v1.3.1
+	github.com/chzyer/logex v1.1.10 // indirect
 	github.com/chzyer/readline v0.0.0-20180603132655-2972be24d48e
+	github.com/chzyer/test v0.0.0-20180213035817-a1ea475d72b1 // indirect
 	github.com/dustin/go-humanize v1.0.0
 	github.com/fsnotify/fsnotify v1.4.7
 	github.com/go-acme/lego/v3 v3.4.0
@@ -32,4 +34,4 @@ replace google.golang.org/grpc => google.golang.org/grpc v1.26.0
 
 // replace github.com/micro/go-micro/v3 => /home/crufter/code/src/github.com/micro/go-micro
 
-replace github.com/micro/go-micro/v3 => github.com/micro/go-micro/v3 v3.0.0-beta.0.20200814154331-ee80e7b9f0a5
+replace github.com/micro/go-micro/v3 => github.com/micro/go-micro/v3 baseurl

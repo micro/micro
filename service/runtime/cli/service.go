@@ -303,7 +303,7 @@ func upload(ctx *cli.Context, source *git.Source) (string, error) {
 	if err := grepMain(source.FullPath); err != nil {
 		return "", err
 	}
-	uploadedFileName := strings.ReplaceAll(source.Folder, string(filepath.Separator), "-") + ".tar.gz"
+	uploadedFileName := filepath.Base(source.Folder) + ".tar.gz"
 	path := filepath.Join(os.TempDir(), uploadedFileName)
 
 	var err error
@@ -324,7 +324,14 @@ func upload(ctx *cli.Context, source *git.Source) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return uploadedFileName, nil
+	// ie. if relative folder path to repo root is `test/service/example`
+	// file name becomes `example.tar.gz/test/service`
+	parts := strings.Split(source.Folder, "/")
+	if len(parts) == 1 {
+		return fmt.Sprintf("%v/%v", uploadedFileName), nil
+	}
+	allButLastDir := parts[0 : len(parts)-1]
+	return filepath.Join(append([]string{uploadedFileName}, allButLastDir...)...), nil
 }
 
 func updateService(ctx *cli.Context) error {
