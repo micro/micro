@@ -7,6 +7,8 @@ git version
 mkdir /app
 cd app
 
+URL=$1
+
 REF=""
 if [[ $URL == *"@"* ]]; then
    # Save the ref
