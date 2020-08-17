@@ -32,12 +32,10 @@ const (
 
 // publishEvent will write the event to the global store and immediately process the event
 func (m *manager) publishEvent(eType string, srv *gorun.Service, opts *gorun.CreateOptions) error {
-	payload := gorun.EventPayload{
+	payload, err := json.Marshal(gorun.EventPayload{
 		Service: srv,
 		Options: opts,
-	}
-
-	bytes, err := json.Marshal(payload)
+	})
 	if err != nil {
 		return err
 	}
@@ -45,7 +43,12 @@ func (m *manager) publishEvent(eType string, srv *gorun.Service, opts *gorun.Cre
 	e := &events.Event{
 		ID:      uuid.New().String(),
 		Topic:   eType,
-		Payload: bytes,
+		Payload: payload,
+	}
+
+	bytes, err := json.Marshal(e)
+	if err != nil {
+		return err
 	}
 
 	record := &gostore.Record{

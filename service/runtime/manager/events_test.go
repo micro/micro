@@ -34,7 +34,7 @@ func TestEvents(t *testing.T) {
 	t.Run("Create", func(t *testing.T) {
 		defer rt.Reset()
 
-		if err := m.publishEvent(runtime.Create, testSrv, opts); err != nil {
+		if err := m.publishEvent(runtime.CreatedEvent, testSrv, opts); err != nil {
 			t.Errorf("Unexpected error when publishing events: %v", err)
 		}
 
@@ -55,7 +55,7 @@ func TestEvents(t *testing.T) {
 	t.Run("Update", func(t *testing.T) {
 		defer rt.Reset()
 
-		if err := m.publishEvent(runtime.Update, testSrv, opts); err != nil {
+		if err := m.publishEvent(runtime.UpdatedEvent, testSrv, opts); err != nil {
 			t.Errorf("Unexpected error when publishing events: %v", err)
 		}
 
@@ -76,7 +76,7 @@ func TestEvents(t *testing.T) {
 	t.Run("Delete", func(t *testing.T) {
 		defer rt.Reset()
 
-		if err := m.publishEvent(runtime.Delete, testSrv, opts); err != nil {
+		if err := m.publishEvent(runtime.DeletedEvent, testSrv, opts); err != nil {
 			t.Errorf("Unexpected error when publishing events: %v", err)
 		}
 
