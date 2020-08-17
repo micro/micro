@@ -89,7 +89,7 @@ func (c *Command) args(a ...string) []string {
 func (c *Command) Exec(args ...string) ([]byte, error) {
 	arguments := c.args(args...)
 	// exec the command
-	// c.t.Logf("Executing command: micro %s\n", strings.Join(arguments, " "))
+	//c.t.Logf("Executing command: micro %s\n", strings.Join(arguments, " "))
 	return exec.Command("micro", arguments...).CombinedOutput()
 }
 
@@ -141,8 +141,6 @@ func (c *Command) Output() ([]byte, error) {
 func Try(blockName string, t *T, f cmdFunc, maxTime time.Duration) error {
 	// hack. k8s can be slow locally
 	maxTime *= maxTimeMultiplier
-	// backoff, the retry logic is basically to cover up timing issues
-	maxTime *= time.Duration(t.attempt)
 	start := time.Now()
 	var outp []byte
 	var err error

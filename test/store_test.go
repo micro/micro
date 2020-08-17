@@ -141,4 +141,59 @@ func testStore(t *T) {
 		t.Fatalf("Expected output not present, got: '%v'", string(outp))
 		return
 	}
+
+}
+
+func TestStoreImpl(t *testing.T) {
+	TrySuite(t, testStoreImpl, 5)
+}
+
+func testStoreImpl(t *T) {
+	t.Parallel()
+	serv := NewServer(t, WithLogin())
+	//defer serv.Close()
+	if err := serv.Run(); err != nil {
+		return
+	}
+
+	cmd := serv.Command()
+	outp, err := cmd.Exec("run", "./service/storeexample")
+	if err != nil {
+		t.Fatalf("micro run failure, output: %v", string(outp))
+		return
+	}
+
+	if err := Try("Find test/example", t, func() ([]byte, error) {
+		outp, err := cmd.Exec("status")
+		if err != nil {
+			return outp, err
+		}
+
+		// The started service should have the runtime name of "service/example",
+		// as the runtime name is the relative path inside a repo.
+		if !statusRunning("test/service/storeexample", "latest", outp) {
+			return outp, errors.New("Can't find example service in runtime")
+		}
+		return outp, err
+	}, 15*time.Second); err != nil {
+		return
+	}
+
+	if err := Try("Call service", t, func() ([]byte, error) {
+		outp, err := cmd.Exec("logs", "test/service/storeexample")
+		if err != nil {
+			return nil, err
+		}
+		if !strings.Contains(string(outp), "Listening on") {
+			return nil, fmt.Errorf("Service not ready")
+		}
+		return nil, nil
+	}, 60*time.Second); err != nil {
+		return
+	}
+	outp, err = cmd.Exec("call", "--request_timeout=15s", "example", "Example.TestExpiry")
+	if err != nil {
+		t.Fatalf("Error %s, %s", err, outp)
+	}
+
 }
