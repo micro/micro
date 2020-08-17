@@ -267,6 +267,52 @@ func testRunGithubSource(t *T) {
 
 }
 
+// Note: @todo this method should truly be the same as TestGithubSource.
+func TestRunGitlabSource(t *testing.T) {
+	TrySuite(t, testRunGitlabSource, retryCount)
+}
+
+func testRunGitlabSource(t *T) {
+	t.Parallel()
+	p, err := exec.LookPath("git")
+	if err != nil {
+		t.Fatal(err)
+		return
+	}
+	if len(p) == 0 {
+		t.Fatal("Git is not available")
+		return
+	}
+
+	serv := NewServer(t, WithLogin())
+	defer serv.Close()
+	if err := serv.Run(); err != nil {
+		return
+	}
+
+	cmd := serv.Command()
+
+	outp, err := cmd.Exec("run", "gitlab.com/micro-test/basic-micro-service")
+	if err != nil {
+		t.Fatalf("micro run failure, output: %v", string(outp))
+		return
+	}
+
+	if err := Try("Find helloworld in runtime", t, func() ([]byte, error) {
+		outp, err = cmd.Exec("status")
+		if err != nil {
+			return outp, err
+		}
+
+		if !statusRunning("basic-micro-service", "master", outp) {
+			return outp, errors.New("Output should contain helloworld")
+		}
+		return outp, nil
+	}, 60*time.Second); err != nil {
+		return
+	}
+}
+
 func TestRunLocalUpdateAndCall(t *testing.T) {
 	TrySuite(t, testRunLocalUpdateAndCall, retryCount)
 }
