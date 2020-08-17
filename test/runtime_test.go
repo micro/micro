@@ -627,7 +627,7 @@ func testRunPrivateSource(t *T) {
 			return outp, err
 		}
 		if !strings.Contains(string(outp), "helloworld") {
-			return outp, errors.New("Does not contain helloworldd")
+			return outp, errors.New("Does not contain helloworld")
 		}
 		return outp, err
 	}, 120*time.Second); err != nil {
