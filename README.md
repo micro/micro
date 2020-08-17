@@ -90,4 +90,4 @@ See the [docs](https://github.com/micro/docs) for detailed information on the ar
 
 ## License
 
-Micro is Apache 2.0 Licensed
+Micro is Polyform Shield Licensed
