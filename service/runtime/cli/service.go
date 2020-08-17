@@ -328,7 +328,7 @@ func upload(ctx *cli.Context, source *git.Source) (string, error) {
 	// file name becomes `example.tar.gz/test/service`
 	parts := strings.Split(source.Folder, "/")
 	if len(parts) == 1 {
-		return fmt.Sprintf("%v/%v", uploadedFileName), nil
+		return uploadedFileName, nil
 	}
 	allButLastDir := parts[0 : len(parts)-1]
 	return filepath.Join(append([]string{uploadedFileName}, allButLastDir...)...), nil
