@@ -617,7 +617,7 @@ func testRunPrivateSource(t *T) {
 			return outp, errors.New("Can't find helloworld service in runtime")
 		}
 		return outp, err
-	}, 120*time.Second); err != nil {
+	}, 60*time.Second); err != nil {
 		return
 	}
 
@@ -631,13 +631,15 @@ func testRunPrivateSource(t *T) {
 		}
 		return outp, err
 	}, 120*time.Second); err != nil {
+		outp, _ := cmd.Exec("logs", "helloworld")
+		t.Log(string(outp))
 		return
 	}
 
 	// call the service
 	if err := Try("Calling helloworld", t, func() ([]byte, error) {
 		return cmd.Exec("helloworld", "--name=John")
-	}, 60*time.Second); err != nil {
+	}, 10*time.Second); err != nil {
 		return
 	}
 }
