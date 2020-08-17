@@ -9,6 +9,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/micro/go-micro/v3/events"
 	"github.com/micro/go-micro/v3/runtime"
 	log "github.com/micro/micro/v3/service/logger"
 )
@@ -38,7 +39,7 @@ type notifier struct {
 	// version is current version
 	version time.Time
 	// events is notifications channel
-	events chan runtime.Event
+	events chan events.Event
 	// indicates if we're running
 	running bool
 	// used to stop the runtime
@@ -139,9 +140,9 @@ func (h *notifier) run() {
 			}
 
 			// fire the event
-			h.events <- runtime.Event{
+			h.events <- events.Event{
 				// new update
-				Type: runtime.Update,
+				Topic: runtime.UpdatedEvent,
 				// timestamp of the update
 				Timestamp: buildTime,
 			}
@@ -153,7 +154,7 @@ func (h *notifier) run() {
 }
 
 // Notify polls for new build and returns a channel to consume the events
-func (h *notifier) Notify() (<-chan runtime.Event, error) {
+func (h *notifier) Notify() (<-chan events.Event, error) {
 	h.Lock()
 	defer h.Unlock()
 
@@ -165,7 +166,7 @@ func (h *notifier) Notify() (<-chan runtime.Event, error) {
 	// set running
 	h.running = true
 	h.closed = make(chan bool)
-	h.events = make(chan runtime.Event)
+	h.events = make(chan events.Event)
 
 	// runt the notifier
 	go h.run()
