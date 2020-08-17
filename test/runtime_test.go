@@ -7,7 +7,6 @@ import (
 	"errors"
 	"io/ioutil"
 	"os"
-	"os/exec"
 	"regexp"
 	"strings"
 	"testing"
@@ -190,15 +189,6 @@ func TestRunGithubSource(t *testing.T) {
 
 func testRunGithubSource(t *T) {
 	t.Parallel()
-	p, err := exec.LookPath("git")
-	if err != nil {
-		t.Fatal(err)
-		return
-	}
-	if len(p) == 0 {
-		t.Fatal("Git is not available")
-		return
-	}
 
 	serv := NewServer(t, WithLogin())
 	defer serv.Close()
@@ -268,21 +258,12 @@ func testRunGithubSource(t *T) {
 }
 
 // Note: @todo this method should truly be the same as TestGithubSource.
-func TestRunGitlabSource(t *testing.T) {
+func TestRunGitlabSourceAndBaseURL(t *testing.T) {
 	TrySuite(t, testRunGitlabSource, retryCount)
 }
 
 func testRunGitlabSource(t *T) {
 	t.Parallel()
-	p, err := exec.LookPath("git")
-	if err != nil {
-		t.Fatal(err)
-		return
-	}
-	if len(p) == 0 {
-		t.Fatal("Git is not available")
-		return
-	}
 
 	serv := NewServer(t, WithLogin())
 	defer serv.Close()
@@ -291,8 +272,9 @@ func testRunGitlabSource(t *T) {
 	}
 
 	cmd := serv.Command()
+	cmd.Exec("user", "config", "set", "git."+serv.Env()+".baseurl", "gitlab.com/micro-test")
 
-	outp, err := cmd.Exec("run", "gitlab.com/micro-test/basic-micro-service")
+	outp, err := cmd.Exec("run", "basic-micro-service")
 	if err != nil {
 		t.Fatalf("micro run failure, output: %v", string(outp))
 		return
