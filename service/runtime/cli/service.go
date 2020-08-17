@@ -83,31 +83,46 @@ func sourceExists(source *git.Source) error {
 		ref = "master"
 	}
 
-	repo := strings.ReplaceAll(source.Repo, "github.com/", "")
-	url := fmt.Sprintf("https://api.github.com/repos/%v/contents/%v?ref=%v", repo, source.Folder, ref)
-	req, _ := http.NewRequest("GET", url, nil)
+	sourceExistsAt := func(url string, source *git.Source) error {
+		req, _ := http.NewRequest("GET", url, nil)
 
-	// add the git credentials if set
-	if tok, err := config.Get("git", "credentials"); err == nil && len(tok) > 0 {
-		req.Header.Set("Authorization", "token "+tok)
+		// add the git credentials if set
+		if tok, err := config.Get("git", "credentials"); err == nil && len(tok) > 0 {
+			req.Header.Set("Authorization", "token "+tok)
+		}
+
+		client := new(http.Client)
+		resp, err := client.Do(req)
+
+		// @todo gracefully degrade?
+		if err != nil {
+			return err
+		}
+		if resp.StatusCode >= 400 && resp.StatusCode < 500 {
+			return fmt.Errorf("service at %v@%v not found", source.Repo, ref)
+		}
+		return nil
 	}
 
-	client := new(http.Client)
-	resp, err := client.Do(req)
+	if strings.Contains(source.Repo, "github") {
+		// Github specific existence checs
+		repo := strings.ReplaceAll(source.Repo, "github.com/", "")
+		url := fmt.Sprintf("https://api.github.com/repos/%v/contents/%v?ref=%v", repo, source.Folder, ref)
+		return sourceExistsAt(url, source)
+	} else if strings.Contains(source.Repo, "gitlab") {
+		// Gitlab specific existence checks
 
-	// @todo gracefully degrade?
-	if err != nil {
-		return err
-	}
-	if resp.StatusCode >= 400 && resp.StatusCode < 500 {
-		return fmt.Errorf("service at %v@%v not found", source.Repo, ref)
+		// @todo better check for gitlab
+		url := fmt.Sprintf("https://%v", source.Repo)
+		return sourceExistsAt(url, source)
 	}
 	return nil
 }
 
 func appendSourceBase(ctx *cli.Context, workDir, source string) string {
 	isLocal, _ := git.IsLocal(workDir, source)
-	if !isLocal && !strings.Contains(source, "github.com") {
+	// @todo add list of supported hosts here or do this check better
+	if !isLocal && !strings.Contains(source, "github.com") && !strings.Contains(source, "gitlab.com") {
 		baseURL, _ := config.Get("git", util.GetEnv(ctx).Name, "baseurl")
 		if len(baseURL) == 0 {
 			baseURL, _ = config.Get("git", "baseurl")
