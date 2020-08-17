@@ -37,7 +37,7 @@ func (e *Example) TestExpiry(ctx context.Context, req *pb.Request, rsp *pb.Respo
 	recs, err = mstore.Read("foo")
 	if err != store.ErrNotFound {
 		log.Errorf("Error reading %s", err)
-		fmt.Errorf("Error reading record. Expected not found. Received %s and %d records", err, len(recs))
+		return fmt.Errorf("Error reading record. Expected not found. Received %s and %d records", err, len(recs))
 	}
 
 	rsp.Msg = "Success"
