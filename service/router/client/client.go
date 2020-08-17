@@ -25,7 +25,6 @@ type svc struct {
 	table      *table
 	exit       chan bool
 	errChan    chan error
-	advertChan chan *router.Advert
 }
 
 // NewRouter creates new service router and returns it
