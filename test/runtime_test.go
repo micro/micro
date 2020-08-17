@@ -633,7 +633,7 @@ func testRunPrivateSource(t *T) {
 			return outp, errors.New("Does not contain helloworld")
 		}
 		return outp, err
-	}, 180*time.Second); err != nil {
+	}, 300*time.Second); err != nil {
 		outp, _ := cmd.Exec("logs", "helloworld")
 		t.Log(string(outp))
 		return
