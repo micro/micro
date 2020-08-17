@@ -16,10 +16,11 @@ func init() {
 	testFilter = []string{
 		"TestRunGithubSource",
 		"TestStore",
+		"TestStoreImpl",
 		"TestCorruptedTokenLogin",
 		"TestRunPrivateSource",
 	}
-	maxTimeMultiplier = 3
+	maxTimeMultiplier = 2
 	isParallel = false // in theory should work in parallel
 	newSrv = newK8sServer
 	retryCount = 1

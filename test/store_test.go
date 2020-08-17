@@ -157,7 +157,7 @@ func testStoreImpl(t *T) {
 	}
 
 	cmd := serv.Command()
-	outp, err := cmd.Exec("run", "./service/storeexample")
+	outp, err := cmd.Exec("run", "github.com/micro/micro/test/service/storeexample@886d5de1f3779f7b5f07a526c3a81e728361ffe6")
 	if err != nil {
 		t.Fatalf("micro run failure, output: %v", string(outp))
 		return
@@ -171,7 +171,7 @@ func testStoreImpl(t *T) {
 
 		// The started service should have the runtime name of "service/example",
 		// as the runtime name is the relative path inside a repo.
-		if !statusRunning("test/service/storeexample", "latest", outp) {
+		if !statusRunning("test/service/storeexample", "886d5de1f3779f7b5f07a526c3a81e728361ffe6", outp) {
 			return outp, errors.New("Can't find example service in runtime")
 		}
 		return outp, err
