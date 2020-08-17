@@ -90,4 +90,4 @@ See the [docs](https://github.com/micro/docs) for detailed information on the ar
 
 ## License
 
-See [LICENSE)(LICENSE) which makes use of [Polyform Shield](https://polyformproject.org/licenses/shield/1.0.0/).
+See [LICENSE](LICENSE) which makes use of [Polyform Shield](https://polyformproject.org/licenses/shield/1.0.0/).
