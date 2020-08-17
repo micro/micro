@@ -373,7 +373,7 @@ func testExistingLogs(t *T) {
 	}
 
 	if err := Try("logger logs", t, func() ([]byte, error) {
-		outp, err = cmd.Exec("logs", "test/service/logger")
+		outp, err = cmd.Exec("logs", "logger")
 		if err != nil {
 			return outp, err
 		}
@@ -408,7 +408,7 @@ func testBranchCheckout(t *T) {
 	}
 
 	if err := Try("logger logs", t, func() ([]byte, error) {
-		outp, err = cmd.Exec("logs", "micro/micro/test/service/logger")
+		outp, err = cmd.Exec("logs", "logger")
 		if err != nil {
 			return outp, err
 		}
@@ -444,7 +444,7 @@ func testStreamLogsAndThirdPartyRepo(t *T) {
 	}
 
 	if err := Try("logger logs", t, func() ([]byte, error) {
-		outp, err = cmd.Exec("logs", "micro/micro/test/service/logger")
+		outp, err = cmd.Exec("logs", "logger")
 		if err != nil {
 			return outp, err
 		}
@@ -457,7 +457,7 @@ func testStreamLogsAndThirdPartyRepo(t *T) {
 		return
 	}
 
-	cmd.Start("logs", "-n", "1", "-f", "micro/micro/test/service/logger")
+	cmd.Start("logs", "-n", "1", "-f", "logger")
 
 	time.Sleep(7 * time.Second)
 
