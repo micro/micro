@@ -180,7 +180,7 @@ func testStoreImpl(t *T) {
 	}
 
 	if err := Try("Call service", t, func() ([]byte, error) {
-		outp, err := cmd.Exec("logs", "test/service/storeexample")
+		outp, err := cmd.Exec("logs", "micro/micro/test/service/storeexample")
 		if err != nil {
 			return nil, err
 		}
