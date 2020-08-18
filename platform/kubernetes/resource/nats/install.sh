@@ -19,8 +19,14 @@ kubectl create secret generic nats-peer-certs --from-file=ca.pem --from-file=rou
 # move back into the nats directory
 cd ../;
 
-# install the cluster 
+# install the nats cluster
 kubectl apply -f https://github.com/nats-io/nats-operator/releases/latest/download/00-prereqs.yaml;
 kubectl apply -f https://github.com/nats-io/nats-operator/releases/latest/download/10-deployment.yaml;
 kubectl wait --timeout=180s -n default --for=condition=available deployment/nats-operator
+
+# install the streaming cluster
+kubectl apply -f https://raw.githubusercontent.com/nats-io/nats-streaming-operator/master/deploy/default-rbac.yaml
+kubectl apply -f https://raw.githubusercontent.com/nats-io/nats-streaming-operator/master/deploy/deployment.yaml
+kubectl wait --timeout=180s -n default --for=condition=available deployment/nats-streaming-operator
+
 kubectl apply -f nats.yaml;
