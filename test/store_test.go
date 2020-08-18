@@ -164,7 +164,7 @@ func testStoreImpl(t *T) {
 		return
 	}
 
-	if err := Try("Find test/example", t, func() ([]byte, error) {
+	if err := Try("Find storeexample", t, func() ([]byte, error) {
 		outp, err := cmd.Exec("status")
 		if err != nil {
 			return outp, err
@@ -172,7 +172,7 @@ func testStoreImpl(t *T) {
 
 		// The started service should have the runtime name of "service/example",
 		// as the runtime name is the relative path inside a repo.
-		if !statusRunning("test/service/storeexample", "latest", outp) {
+		if !statusRunning("storeexample", "latest", outp) {
 			return outp, errors.New("Can't find example service in runtime")
 		}
 		return outp, err
@@ -180,9 +180,9 @@ func testStoreImpl(t *T) {
 		return
 	}
 
-	if err := Try("Call service", t, func() ([]byte, error) {
+	if err := Try("Check logs", t, func() ([]byte, error) {
 		//outp, err := cmd.Exec("logs", "micro/micro/test/service/storeexample")
-		outp, err := cmd.Exec("logs", "test/service/storeexample")
+		outp, err := cmd.Exec("logs", "storeexample")
 		if err != nil {
 			return nil, err
 		}
