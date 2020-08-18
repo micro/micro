@@ -29,19 +29,6 @@ func testEventsStream(t *T) {
 		return
 	}
 
-	if err := Try("Wait for service to register", t, func() ([]byte, error) {
-		outp, err := cmd.Exec("services")
-		if err != nil {
-			return outp, err
-		}
-		if !strings.Contains(string(outp), "stream") {
-			return outp, errors.New("Can't find stream service in list")
-		}
-		return outp, err
-	}, 50*time.Second); err != nil {
-		return
-	}
-
 	if err := Try("Check logs for success", t, func() ([]byte, error) {
 		outp, err := cmd.Exec("logs", "stream")
 		if err != nil {
@@ -54,7 +41,7 @@ func testEventsStream(t *T) {
 			return outp, errors.New("Recieved event log not found")
 		}
 		return outp, nil
-	}, 15*time.Second); err != nil {
+	}, 90*time.Second); err != nil {
 		return
 	}
 }
