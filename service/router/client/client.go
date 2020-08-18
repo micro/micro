@@ -1,12 +1,12 @@
 package client
 
 import (
-	"context"
 	"net/http"
 	"sync"
 
 	goclient "github.com/micro/go-micro/v3/client"
 	"github.com/micro/go-micro/v3/router"
+	"github.com/micro/micro/v3/service/context"
 	"github.com/micro/micro/v3/service/client"
 	"github.com/micro/micro/v3/service/errors"
 	pb "github.com/micro/micro/v3/service/router/proto"
@@ -104,7 +104,7 @@ func (s *svc) Lookup(q ...router.QueryOption) ([]router.Route, error) {
 	// call the router
 	query := router.NewQuery(q...)
 
-	resp, err := s.router.Lookup(context.Background(), &pb.LookupRequest{
+	resp, err := s.router.Lookup(context.DefaultContext, &pb.LookupRequest{
 		Query: &pb.Query{
 			Service: query.Service,
 			Gateway: query.Gateway,
@@ -136,7 +136,7 @@ func (s *svc) Lookup(q ...router.QueryOption) ([]router.Route, error) {
 
 // Watch returns a watcher which allows to track updates to the routing table
 func (s *svc) Watch(opts ...router.WatchOption) (router.Watcher, error) {
-	rsp, err := s.router.Watch(context.Background(), &pb.WatchRequest{}, s.callOpts...)
+	rsp, err := s.router.Watch(context.DefaultContext, &pb.WatchRequest{}, s.callOpts...)
 	if err != nil {
 		return nil, err
 	}
