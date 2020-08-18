@@ -62,6 +62,8 @@ jobs:
 
     - name: Test micro server
       working-directory: ./test
+      env:
+        GITHUB_PAT: ${{ secrets.MICRO_ACTIONS_PAT }}
       run: |
           # Generate keys for JWT tests
           ssh-keygen -f /tmp/sshkey -m pkcs8 -q -N ""
