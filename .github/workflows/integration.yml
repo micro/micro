@@ -64,6 +64,7 @@ jobs:
       working-directory: ./test
       env:
         GITHUB_PAT: ${{ secrets.MICRO_ACTIONS_PAT }}
+        GITLAB_PAT: ${{ secrets.GITLAB_PAT }}
       run: |
           # Generate keys for JWT tests
           ssh-keygen -f /tmp/sshkey -m pkcs8 -q -N ""
