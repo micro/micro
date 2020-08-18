@@ -26,7 +26,10 @@ func init() {
 }
 
 func newK8sServer(t *T, fname string, opts ...Option) Server {
-	var options Options
+	options := Options{
+		Namespace: strings.ToLower(fname),
+		Login:     false,
+	}
 	for _, o := range opts {
 		o(&options)
 	}
@@ -38,7 +41,7 @@ func newK8sServer(t *T, fname string, opts ...Option) Server {
 		dir:       filepath.Dir(configFile),
 		config:    configFile,
 		t:         t,
-		env:       strings.ToLower(fname),
+		env:       options.Namespace,
 		proxyPort: portnum,
 		opts:      options,
 		cmd:       exec.Command("kubectl", "port-forward", "--namespace", "default", "svc/micro-proxy", fmt.Sprintf("%d:443", portnum)),
