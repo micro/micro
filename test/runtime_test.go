@@ -710,3 +710,73 @@ func testRunPrivateSource(t *T) {
 		return
 	}
 }
+
+func TestRunPrivateGitlabSource(t *testing.T) {
+	TrySuite(t, testRunPrivateGitlabSource, retryCount)
+}
+
+func testRunPrivateGitlabSource(t *T) {
+	t.Parallel()
+	serv := NewServer(t, WithLogin())
+	defer serv.Close()
+	if err := serv.Run(); err != nil {
+		return
+	}
+
+	cmd := serv.Command()
+
+	// get the git credentials, injected by the k8s integration test
+	pat := os.Getenv("GITLAB_PAT")
+	if len(pat) == 0 {
+		t.Logf("Skipping test, missing GITLAB_PAT")
+		return
+	}
+
+	// set the pat in the users config
+	if outp, err := cmd.Exec("user", "config", "set", "git.credentials", pat); err != nil {
+		t.Fatalf("Expected no error, got %v %v", err, string(outp))
+		return
+	}
+
+	// run the service
+	if outp, err := cmd.Exec("run", "--image", "localhost:5000/cells:go", "gitlab.com/micro-test/private-monorepo-test/subfolder-test"); err != nil {
+		t.Fatalf("Expected no error, got %v %v", err, string(outp))
+		return
+	}
+
+	if err := Try("Find micro/test/helloworld in runtime", t, func() ([]byte, error) {
+		outp, err := cmd.Exec("status")
+		if err != nil {
+			return outp, err
+		}
+
+		if !statusRunning("subfolder-test", "latest", outp) {
+			return outp, errors.New("Can't find helloworld service in runtime")
+		}
+		return outp, err
+	}, 60*time.Second); err != nil {
+		return
+	}
+
+	if err := Try("Find helloworld in registry", t, func() ([]byte, error) {
+		outp, err := cmd.Exec("services")
+		if err != nil {
+			return outp, err
+		}
+		if !strings.Contains(string(outp), "helloworld") {
+			return outp, errors.New("Does not contain helloworld")
+		}
+		return outp, err
+	}, 300*time.Second); err != nil {
+		outp, _ := cmd.Exec("logs", "helloworld")
+		t.Log(string(outp))
+		return
+	}
+
+	// call the service
+	if err := Try("Calling helloworld", t, func() ([]byte, error) {
+		return cmd.Exec("helloworld", "--name=John")
+	}, 30*time.Second); err != nil {
+		return
+	}
+}
