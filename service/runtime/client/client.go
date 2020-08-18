@@ -1,12 +1,12 @@
 package client
 
 import (
-	"context"
 	"io"
 	"sync"
 
 	goclient "github.com/micro/go-micro/v3/client"
 	"github.com/micro/go-micro/v3/runtime"
+	"github.com/micro/micro/v3/service/context"
 	"github.com/micro/micro/v3/service/client"
 	pb "github.com/micro/micro/v3/service/runtime/proto"
 )
@@ -38,7 +38,7 @@ func (s *svc) Create(svc *runtime.Service, opts ...runtime.CreateOption) error {
 		o(&options)
 	}
 	if options.Context == nil {
-		options.Context = context.Background()
+		options.Context = context.DefaultContext
 	}
 
 	// set the default source from MICRO_RUNTIME_SOURCE
@@ -79,7 +79,7 @@ func (s *svc) Logs(service *runtime.Service, opts ...runtime.LogsOption) (runtim
 	}
 
 	if options.Context == nil {
-		options.Context = context.Background()
+		options.Context = context.DefaultContext
 	}
 
 	ls, err := s.runtime.Logs(options.Context, &pb.LogsRequest{
@@ -175,7 +175,7 @@ func (s *svc) Read(opts ...runtime.ReadOption) ([]*runtime.Service, error) {
 		o(&options)
 	}
 	if options.Context == nil {
-		options.Context = context.Background()
+		options.Context = context.DefaultContext
 	}
 
 	// runtime service create request
@@ -214,7 +214,7 @@ func (s *svc) Update(svc *runtime.Service, opts ...runtime.UpdateOption) error {
 		o(&options)
 	}
 	if options.Context == nil {
-		options.Context = context.Background()
+		options.Context = context.DefaultContext
 	}
 
 	// runtime service create request
@@ -244,7 +244,7 @@ func (s *svc) Delete(svc *runtime.Service, opts ...runtime.DeleteOption) error {
 		o(&options)
 	}
 	if options.Context == nil {
-		options.Context = context.Background()
+		options.Context = context.DefaultContext
 	}
 
 	// runtime service create request
