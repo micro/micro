@@ -157,8 +157,7 @@ func testStoreImpl(t *T) {
 	}
 
 	cmd := serv.Command()
-	//outp, err := cmd.Exec("run", "github.com/micro/micro/test/service/storeexample@bugfix/store-tests")
-	outp, err := cmd.Exec("run", "./service/storeexample")
+	outp, err := cmd.Exec("run", "github.com/micro/micro/test/service/storeexample")
 	if err != nil {
 		t.Fatalf("micro run failure, output: %v", string(outp))
 		return
@@ -181,7 +180,6 @@ func testStoreImpl(t *T) {
 	}
 
 	if err := Try("Check logs", t, func() ([]byte, error) {
-		//outp, err := cmd.Exec("logs", "micro/micro/test/service/storeexample")
 		outp, err := cmd.Exec("logs", "storeexample")
 		if err != nil {
 			return nil, err
