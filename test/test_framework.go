@@ -367,8 +367,8 @@ func (s *ServerDefault) Run() error {
 			!strings.Contains(string(out), "config") ||
 			!strings.Contains(string(out), "proxy") ||
 			!strings.Contains(string(out), "auth") ||
+			!strings.Contains(string(out), "events") ||
 			!strings.Contains(string(out), "store") {
-			!strings.Contains(string(out), "events") {
 			return out, errors.New("Not ready")
 		}
 
