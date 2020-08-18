@@ -10,11 +10,6 @@ import (
 	"github.com/micro/cli/v2"
 	net "github.com/micro/go-micro/v3/network"
 	"github.com/micro/go-micro/v3/network/mucp"
-	res "github.com/micro/go-micro/v3/network/resolver"
-	"github.com/micro/go-micro/v3/network/resolver/dns"
-	"github.com/micro/go-micro/v3/network/resolver/http"
-	"github.com/micro/go-micro/v3/network/resolver/noop"
-	"github.com/micro/go-micro/v3/network/resolver/registry"
 	"github.com/micro/go-micro/v3/proxy"
 	mucpProxy "github.com/micro/go-micro/v3/proxy/mucp"
 	"github.com/micro/go-micro/v3/router"
@@ -43,8 +38,6 @@ var (
 	peerAddress = ":8085"
 	// set the advertise address
 	advertise = ""
-	// resolver is the network resolver
-	resolver = "noop"
 	// the tunnel token
 	token = "micro"
 
@@ -80,11 +73,6 @@ var (
 			Usage:   "Set the micro network token for authentication",
 			EnvVars: []string{"MICRO_NETWORK_TOKEN"},
 		},
-		&cli.StringFlag{
-			Name:    "resolver",
-			Usage:   "Set the micro network resolver. This can be a comma separated list.",
-			EnvVars: []string{"MICRO_NETWORK_RESOLVER"},
-		},
 	}
 )
 
@@ -112,23 +100,6 @@ func Run(ctx *cli.Context) error {
 	var nodes []string
 	if len(ctx.String("nodes")) > 0 {
 		nodes = strings.Split(ctx.String("nodes"), ",")
-	}
-	if len(ctx.String("resolver")) > 0 {
-		resolver = ctx.String("resolver")
-	}
-
-	// setup the resolver used for internode networking
-	var r res.Resolver
-
-	switch resolver {
-	case "dns":
-		r = new(dns.Resolver)
-	case "http":
-		r = new(http.Resolver)
-	case "registry":
-		r = new(registry.Resolver)
-	default:
-		r = new(noop.Resolver)
 	}
 
 	// Initialise the local service
@@ -180,7 +151,6 @@ func Run(ctx *cli.Context) error {
 		net.Nodes(nodes...),
 		net.Tunnel(tun),
 		net.Router(rtr),
-		net.Resolver(r),
 	)
 
 	// network proxy
