@@ -172,10 +172,19 @@ func current(ctx *cli.Context) error {
 		id = acc.ID
 	}
 
+	baseURL, _ := config.Get("git", util.GetEnv(ctx).Name, "baseurl")
+	if len(baseURL) == 0 {
+		baseURL, _ = config.Get("git", "baseurl")
+	}
+	if len(baseURL) == 0 {
+		baseURL = "n/a"
+	}
+
 	fmt.Println("user:", id)
 	fmt.Println("namespace:", ns)
 	fmt.Println("environment:", env)
 	fmt.Println("git.credentials:", gitcreds)
+	fmt.Println("git.baseurl", baseURL)
 	return nil
 }
 

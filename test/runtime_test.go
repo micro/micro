@@ -293,6 +293,21 @@ func testRunGitlabSource(t *T) {
 	}, 60*time.Second); err != nil {
 		return
 	}
+
+	if err := Try("Find helloworld in registry", t, func() ([]byte, error) {
+		outp, err := cmd.Exec("services")
+		if err != nil {
+			return outp, err
+		}
+		if !strings.Contains(string(outp), "basic-micro-service") {
+			return outp, errors.New("Does not basic-micro-service")
+		}
+		return outp, err
+	}, 120*time.Second); err != nil {
+		outp, _ := cmd.Exec("logs", "basic-micro-serviced")
+		t.Log(string(outp))
+		return
+	}
 }
 
 func TestRunLocalUpdateAndCall(t *testing.T) {
