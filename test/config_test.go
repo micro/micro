@@ -158,14 +158,14 @@ func testConfigReadFromService(t *T) {
 		return
 	}
 
-	outp, err := cmd.Exec("run", "./service/config")
+	outp, err := cmd.Exec("run", "./service/config-example")
 	if err != nil {
 		t.Fatalf("micro run failure, output: %v", string(outp))
 		return
 	}
 
 	if err := Try("Try logs read", t, func() ([]byte, error) {
-		outp, err := cmd.Exec("logs", "test/service/config")
+		outp, err := cmd.Exec("logs", "config-example")
 		if err != nil {
 			return outp, err
 		}
@@ -174,7 +174,7 @@ func testConfigReadFromService(t *T) {
 			return outp, fmt.Errorf("Expected val1 in output, got: %v", string(outp))
 		}
 		return outp, err
-	}, 20*time.Second); err != nil {
+	}, 25*time.Second); err != nil {
 		return
 	}
 }
