@@ -669,7 +669,7 @@ func testRunPrivateSource(t *T) {
 	}
 
 	// run the service
-	if outp, err := cmd.Exec("run", "--image", "localhost:5000/cells:go", "github.com/micro/test/helloworld"); err != nil {
+	if outp, err := cmd.Exec("run" /*"--image", "localhost:5000/cells:go",*/, "github.com/micro/test/helloworld"); err != nil {
 		t.Fatalf("Expected no error, got %v %v", err, string(outp))
 		return
 	}
