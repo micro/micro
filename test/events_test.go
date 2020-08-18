@@ -54,5 +54,7 @@ func testEventsStream(t *T) {
 			return outp, errors.New("Recieved event log not found")
 		}
 		return outp, nil
+	}, 15*time.Second); err != nil {
+		return
 	}
 }
