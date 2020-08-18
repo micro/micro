@@ -141,6 +141,9 @@ func (c *Command) Output() ([]byte, error) {
 func Try(blockName string, t *T, f cmdFunc, maxTime time.Duration) error {
 	// hack. k8s can be slow locally
 	maxTime *= maxTimeMultiplier
+	// backoff, the retry logic is basically to cover up timing issues
+	// @todo consider reintroducing this backoff while also respecting hard overall time limits
+	// maxTime *= time.Duration(t.attempt)
 	start := time.Now()
 	var outp []byte
 	var err error

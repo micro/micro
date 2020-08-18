@@ -8,9 +8,6 @@ mkdir /app
 cd app
 
 URL=$1
-if [[ $1 != *"github"* ]]; then
-  URL="github.com/micro/services/$URL"
-fi
 
 REF=""
 if [[ $URL == *"@"* ]]; then
