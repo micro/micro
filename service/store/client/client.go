@@ -1,7 +1,6 @@
 package client
 
 import (
-	"context"
 	"fmt"
 	"io"
 	"reflect"
@@ -10,6 +9,7 @@ import (
 	goclient "github.com/micro/go-micro/v3/client"
 	"github.com/micro/go-micro/v3/metadata"
 	"github.com/micro/go-micro/v3/store"
+	"github.com/micro/micro/v3/service/context"
 	"github.com/micro/micro/v3/service/client"
 	"github.com/micro/micro/v3/service/errors"
 	pb "github.com/micro/micro/v3/service/store/proto"
@@ -47,7 +47,7 @@ func (s *srv) Init(opts ...store.Option) error {
 }
 
 func (s *srv) Context() context.Context {
-	ctx := context.Background()
+	ctx := context.DefaultContext
 	md := make(metadata.Metadata)
 	if len(s.Database) > 0 {
 		md["Micro-Database"] = s.Database
