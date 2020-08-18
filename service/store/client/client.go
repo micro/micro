@@ -1,6 +1,7 @@
 package client
 
 import (
+	goctx "context"
 	"fmt"
 	"io"
 	"reflect"
@@ -46,7 +47,7 @@ func (s *srv) Init(opts ...store.Option) error {
 	return nil
 }
 
-func (s *srv) Context() context.Context {
+func (s *srv) Context() goctx.Context {
 	ctx := context.DefaultContext
 	md := make(metadata.Metadata)
 	if len(s.Database) > 0 {
