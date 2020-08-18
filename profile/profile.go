@@ -109,7 +109,7 @@ var Client = &Profile{
 // Local profile to run locally
 var Local = &Profile{
 	Name: "local",
-	Setup: func(ctx *cli.Context) error {
+	Setup: func(ctx *cli.Context) (err error) {
 		microAuth.DefaultAuth = noop.NewAuth()
 		microRuntime.DefaultRuntime = local.NewRuntime()
 		microStore.DefaultStore = file.NewStore()
@@ -117,7 +117,9 @@ var Local = &Profile{
 		setBroker(http.NewBroker())
 		setRegistry(mdns.NewRegistry())
 		setupJWTRules()
-		return nil
+
+		microEvents.DefaultStream, err = memEvents.NewStream()
+		return err
 	},
 }
 

@@ -76,6 +76,7 @@ func (s *stream) Subscribe(opts ...events.SubscribeOption) (<-chan events.Event,
 				close(evChan)
 				return
 			}
+
 			evChan <- events.Event{
 				ID:        ev.Id,
 				Topic:     ev.Topic,

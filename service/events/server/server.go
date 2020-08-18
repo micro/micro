@@ -97,24 +97,23 @@ func (h *handler) Subscribe(ctx context.Context, req *pb.SubscribeRequest, rsp p
 		return errors.InternalServerError("events.Stream.Subscribe", err.Error())
 	}
 
-	go func() {
-		for {
-			ev, ok := <-evChan
-			if !ok {
-				rsp.Close()
-				return
-			}
-
-			// todo: handle error, don't ack the event
-			rsp.Send(&pb.Event{
-				Id:        ev.ID,
-				Topic:     ev.Topic,
-				Metadata:  ev.Metadata,
-				Payload:   ev.Payload,
-				Timestamp: ev.Timestamp.Unix(),
-			})
+	for {
+		ev, ok := <-evChan
+		if !ok {
+			rsp.Close()
+			return nil
 		}
-	}()
 
-	return nil
+		pbEvent := &pb.Event{
+			Id:        ev.ID,
+			Topic:     ev.Topic,
+			Metadata:  ev.Metadata,
+			Payload:   ev.Payload,
+			Timestamp: ev.Timestamp.Unix(),
+		}
+
+		if err := rsp.Send(pbEvent); err != nil {
+			return err
+		}
+	}
 }
