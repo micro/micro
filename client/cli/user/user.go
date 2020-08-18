@@ -184,7 +184,7 @@ func current(ctx *cli.Context) error {
 	fmt.Println("namespace:", ns)
 	fmt.Println("environment:", env)
 	fmt.Println("git.credentials:", gitcreds)
-	fmt.Println("git.baseurl", baseURL)
+	fmt.Println("git.baseurl:", baseURL)
 	return nil
 }
 

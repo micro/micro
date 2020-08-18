@@ -258,11 +258,11 @@ func testRunGithubSource(t *T) {
 }
 
 // Note: @todo this method should truly be the same as TestGithubSource.
-func TestRunGitlabSourceMonoRepo(t *testing.T) {
-	TrySuite(t, testRunGitlabSourceMonoRepo, retryCount)
+func TestRunGitlabSource(t *testing.T) {
+	TrySuite(t, testRunGitlabSource, retryCount)
 }
 
-func testRunGitlabSourceMonoRepo(t *T) {
+func testRunGitlabSource(t *T) {
 	t.Parallel()
 
 	serv := NewServer(t, WithLogin())
@@ -310,11 +310,11 @@ func testRunGitlabSourceMonoRepo(t *T) {
 	}
 }
 
-func TestRunGitlabSource(t *testing.T) {
-	TrySuite(t, testRunGitlabSource, retryCount)
+func TestRunGitlabSourceMonoRepo(t *testing.T) {
+	TrySuite(t, testRunGitlabSourceMonoRepo, retryCount)
 }
 
-func testRunGitlabSource(t *T) {
+func testRunGitlabSourceMonoRepo(t *T) {
 	t.Parallel()
 
 	serv := NewServer(t, WithLogin())
@@ -339,7 +339,7 @@ func testRunGitlabSource(t *T) {
 		}
 
 		if !statusRunning("subfolder-test", "latest", outp) {
-			return outp, errors.New("Output should contain basic-micro-service")
+			return outp, errors.New("Output should contain subfolder-test")
 		}
 		return outp, nil
 	}, 60*time.Second); err != nil {
