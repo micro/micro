@@ -19,12 +19,12 @@ var (
 
 type svc struct {
 	sync.RWMutex
-	opts       router.Options
-	callOpts   []goclient.CallOption
-	router     pb.RouterService
-	table      *table
-	exit       chan bool
-	errChan    chan error
+	opts     router.Options
+	callOpts []goclient.CallOption
+	router   pb.RouterService
+	table    *table
+	exit     chan bool
+	errChan  chan error
 }
 
 // NewRouter creates new service router and returns it
