@@ -299,8 +299,8 @@ func testRunGitlabSourceMonoRepo(t *T) {
 		if err != nil {
 			return outp, err
 		}
-		if !strings.Contains(string(outp), "basic-micro-service") {
-			return outp, errors.New("Does not basic-micro-service")
+		if !strings.Contains(string(outp), "example") {
+			return outp, errors.New("Does not example")
 		}
 		return outp, err
 	}, 120*time.Second); err != nil {
@@ -351,8 +351,8 @@ func testRunGitlabSource(t *T) {
 		if err != nil {
 			return outp, err
 		}
-		if !strings.Contains(string(outp), "subfolder-test") {
-			return outp, errors.New("Does not basic-micro-service")
+		if !strings.Contains(string(outp), "example") {
+			return outp, errors.New("Does not contain example")
 		}
 		return outp, err
 	}, 120*time.Second); err != nil {
