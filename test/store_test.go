@@ -151,14 +151,14 @@ func TestStoreImpl(t *testing.T) {
 func testStoreImpl(t *T) {
 	t.Parallel()
 	serv := NewServer(t, WithLogin())
-	//defer serv.Close()
+	defer serv.Close()
 	if err := serv.Run(); err != nil {
 		return
 	}
 
 	cmd := serv.Command()
-	// TODO - change this to point to local source rather than github when k8s supports it
-	outp, err := cmd.Exec("run", "github.com/micro/micro/test/service/storeexample@21f7d73ad1767199289c32e517e0026bc7a86e11")
+	//outp, err := cmd.Exec("run", "github.com/micro/micro/test/service/storeexample@bugfix/store-tests")
+	outp, err := cmd.Exec("run", "./service/storeexample")
 	if err != nil {
 		t.Fatalf("micro run failure, output: %v", string(outp))
 		return
@@ -172,7 +172,7 @@ func testStoreImpl(t *T) {
 
 		// The started service should have the runtime name of "service/example",
 		// as the runtime name is the relative path inside a repo.
-		if !statusRunning("test/service/storeexample", "21f7d73ad1767199289c32e517e0026bc7a86e11", outp) {
+		if !statusRunning("test/service/storeexample", "latest", outp) {
 			return outp, errors.New("Can't find example service in runtime")
 		}
 		return outp, err
@@ -181,7 +181,8 @@ func testStoreImpl(t *T) {
 	}
 
 	if err := Try("Call service", t, func() ([]byte, error) {
-		outp, err := cmd.Exec("logs", "micro/micro/test/service/storeexample")
+		//outp, err := cmd.Exec("logs", "micro/micro/test/service/storeexample")
+		outp, err := cmd.Exec("logs", "test/service/storeexample")
 		if err != nil {
 			return nil, err
 		}
