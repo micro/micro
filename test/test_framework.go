@@ -229,6 +229,8 @@ func myCaller() string {
 type Options struct {
 	// Login specifies whether to login to the server
 	Login bool
+	// Namespace to use, defaults to the test name
+	Namespace string
 }
 
 type Option func(o *Options)
@@ -236,6 +238,12 @@ type Option func(o *Options)
 func WithLogin() Option {
 	return func(o *Options) {
 		o.Login = true
+	}
+}
+
+func WithNamespace(ns string) Option {
+	return func(o *Options) {
+		o.Namespace = ns
 	}
 }
 
@@ -253,7 +261,10 @@ type ServerDefault struct {
 }
 
 func newLocalServer(t *T, fname string, opts ...Option) Server {
-	var options Options
+	options := Options{
+		Namespace: fname,
+		Login:     false,
+	}
 	for _, o := range opts {
 		o(&options)
 	}
@@ -301,7 +312,7 @@ func newLocalServer(t *T, fname string, opts ...Option) Server {
 		config:    configFile,
 		cmd:       cmd,
 		t:         t,
-		env:       fname,
+		env:       options.Namespace,
 		container: fname,
 		apiPort:   apiPortNum,
 		proxyPort: proxyPortnum,
