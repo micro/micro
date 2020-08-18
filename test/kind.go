@@ -20,7 +20,7 @@ func init() {
 		"TestCorruptedTokenLogin",
 		"TestRunPrivateSource",
 	}
-	maxTimeMultiplier = 2
+	maxTimeMultiplier = 3
 	isParallel = false // in theory should work in parallel
 	newSrv = newK8sServer
 	retryCount = 1

@@ -32,7 +32,7 @@ var (
 	ignoreThisError   = errors.New("Do not use this error")
 	errFatal          = errors.New("Fatal error")
 	testFilter        = []string{}
-	maxTimeMultiplier = time.Duration(1)
+	maxTimeMultiplier = 1
 )
 
 type cmdFunc func() ([]byte, error)
@@ -140,10 +140,10 @@ func (c *Command) Output() ([]byte, error) {
 // happen without calling `t.Fatal`. The error value should be disregarded.
 func Try(blockName string, t *T, f cmdFunc, maxTime time.Duration) error {
 	// hack. k8s can be slow locally
-	maxTime *= maxTimeMultiplier
+	maxNano := float64(maxTime.Nanoseconds())
+	maxNano *= float64(maxTimeMultiplier)
 	// backoff, the retry logic is basically to cover up timing issues
-	// @todo consider reintroducing this backoff while also respecting hard overall time limits
-	// maxTime *= time.Duration(t.attempt)
+	maxNano += maxNano * float64(1-1/t.attempt)
 	start := time.Now()
 	var outp []byte
 	var err error
@@ -152,7 +152,7 @@ func Try(blockName string, t *T, f cmdFunc, maxTime time.Duration) error {
 		if t.failed {
 			return ignoreThisError
 		}
-		if time.Since(start) > maxTime {
+		if time.Since(start) > time.Duration(maxNano) {
 			_, file, line, _ := runtime.Caller(1)
 			fname := filepath.Base(file)
 			if err != nil {
