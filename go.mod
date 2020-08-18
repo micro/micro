@@ -18,10 +18,8 @@ require (
 	github.com/gorilla/mux v1.7.3
 	github.com/hashicorp/go-version v1.2.1
 	github.com/juju/fslock v0.0.0-20160525022230-4d5c94c67b4b
-	github.com/micro/cli v0.2.0
 	github.com/micro/cli/v2 v2.1.2
 	github.com/micro/go-micro/v3 v3.0.0-beta.0.20200817135310-9ebf7ac19f2e
-	github.com/micro/micro v1.18.0
 	github.com/olekukonko/tablewriter v0.0.4
 	github.com/pkg/errors v0.9.1
 	github.com/serenize/snaker v0.0.0-20171204205717-a683aaf2d516
@@ -31,7 +29,6 @@ require (
 	golang.org/x/net v0.0.0-20200520182314-0ba52f642ac2
 	google.golang.org/genproto v0.0.0-20200526211855-cb27e3aa2013
 	google.golang.org/grpc v1.27.0
-	google.golang.org/protobuf v1.25.0
 )
 
 replace google.golang.org/grpc => google.golang.org/grpc v1.26.0
