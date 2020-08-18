@@ -393,6 +393,11 @@ func updateService(ctx *cli.Context) error {
 		return err
 	}
 
+	opts := []goruntime.UpdateOption{goruntime.UpdateNamespace(ns)}
+	// add the git credentials if set
+	if creds, err := config.Get("git", "credentials"); err == nil && len(creds) > 0 {
+		opts = append(opts, goruntime.UpdateSecret("GIT_CREDENTIALS", creds))
+	}
 	return runtime.Update(service, goruntime.UpdateNamespace(ns))
 }
 
