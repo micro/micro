@@ -175,6 +175,11 @@ func (s *srv) Write(record *store.Record, opts ...store.WriteOption) error {
 		Database: options.Database,
 		Table:    options.Table,
 	}
+	if !options.Expiry.IsZero() {
+		writeOpts.Expiry = options.Expiry.Unix()
+	} else if options.TTL != 0 {
+		writeOpts.Ttl = int64(options.TTL.Seconds())
+	}
 
 	metadata := make(map[string]*pb.Field)
 
