@@ -252,7 +252,7 @@ func Run(ctx *cli.Context) error {
 			ahandler.WithClient(srv.Client()),
 		)
 		r.PathPrefix(APIPath).Handler(ev)
-	case "http", "proxy":
+	case "http":
 		log.Infof("Registering API HTTP Handler at %s", ProxyPath)
 		rt := regRouter.NewRouter(
 			router.WithHandler(ahttp.Handler),
