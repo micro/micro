@@ -763,19 +763,19 @@ func testRunPrivateGitlabSource(t *T) {
 		if err != nil {
 			return outp, err
 		}
-		if !strings.Contains(string(outp), "helloworld") {
-			return outp, errors.New("Does not contain helloworld")
+		if !strings.Contains(string(outp), "example") {
+			return outp, errors.New("Does not contain example")
 		}
 		return outp, err
 	}, 300*time.Second); err != nil {
-		outp, _ := cmd.Exec("logs", "helloworld")
+		outp, _ := cmd.Exec("logs", "subfolder-test")
 		t.Log(string(outp))
 		return
 	}
 
 	// call the service
-	if err := Try("Calling helloworld", t, func() ([]byte, error) {
-		return cmd.Exec("helloworld", "--name=John")
+	if err := Try("Calling example", t, func() ([]byte, error) {
+		return cmd.Exec("example", "--name=John")
 	}, 30*time.Second); err != nil {
 		return
 	}
