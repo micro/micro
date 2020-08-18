@@ -19,7 +19,7 @@ require (
 	github.com/hashicorp/go-version v1.2.1
 	github.com/juju/fslock v0.0.0-20160525022230-4d5c94c67b4b
 	github.com/micro/cli/v2 v2.1.2
-	github.com/micro/go-micro/v3 v3.0.0-beta.0.20200818162614-2b2dc2f811d2
+	github.com/micro/go-micro/v3 v3.0.0-beta.0.20200818203829-5d6b7b3d7d3c
 	github.com/olekukonko/tablewriter v0.0.4
 	github.com/pkg/errors v0.9.1
 	github.com/serenize/snaker v0.0.0-20171204205717-a683aaf2d516
