@@ -2,7 +2,6 @@
 package user
 
 import (
-	"context"
 	"fmt"
 	"os"
 	"strings"
@@ -15,6 +14,7 @@ import (
 	"github.com/micro/micro/v3/internal/config"
 	"github.com/micro/micro/v3/service/auth"
 	pb "github.com/micro/micro/v3/service/auth/proto"
+	"github.com/micro/micro/v3/service/context"
 	"github.com/micro/micro/v3/service/client"
 	"golang.org/x/crypto/ssh/terminal"
 )
@@ -129,7 +129,7 @@ func changePassword(ctx *cli.Context) error {
 	}
 
 	accountService := pb.NewAccountsService("auth", client.DefaultClient)
-	_, err := accountService.ChangeSecret(context.TODO(), &pb.ChangeSecretRequest{
+	_, err := accountService.ChangeSecret(context.DefaultContext, &pb.ChangeSecretRequest{
 		Id:        email,
 		OldSecret: oldPassword,
 		NewSecret: newPassword,
