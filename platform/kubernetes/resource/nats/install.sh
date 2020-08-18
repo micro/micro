@@ -19,14 +19,32 @@ kubectl create secret generic nats-peer-certs --from-file=ca.pem --from-file=rou
 # move back into the nats directory
 cd ../;
 
-# install the nats cluster
-kubectl apply -f https://github.com/nats-io/nats-operator/releases/latest/download/00-prereqs.yaml;
-kubectl apply -f https://github.com/nats-io/nats-operator/releases/latest/download/10-deployment.yaml;
-kubectl wait --timeout=180s -n default --for=condition=available deployment/nats-operator
+# add the nats helm chart
+helm repo add nats https://nats-io.github.io/k8s/helm/charts/
 
-# install the streaming cluster
-kubectl apply -f https://raw.githubusercontent.com/nats-io/nats-streaming-operator/master/deploy/default-rbac.yaml
-kubectl apply -f https://raw.githubusercontent.com/nats-io/nats-streaming-operator/master/deploy/deployment.yaml
-kubectl wait --timeout=180s -n default --for=condition=available deployment/nats-streaming-operator
+helm install nats-cluster nats/nats \
+  --set nats.tls.secret.name=nats-server-certs \
+  --set nats.tls.ca=ca.pem \
+  --set nats.tls.cert=server.pem \
+  --set nats.tls.key=server-key.pem \
+  --set cluster.tls.secret.name=nats-peer-certs \
+  --set cluster.tls.ca=ca.pem \
+  --set cluster.tls.cert=route.pem \
+  --set cluster.tls.key=route-key.pem \
+  --set cluster.enabled=true \
+  --set cluster.replicas=1
 
-kubectl apply -f nats.yaml;
+# wait for the nats cluster to start before we start the streaming cluster
+kubectl wait --for=condition=Ready pod/nats-cluster-0 --timeout=180s
+
+helm install nats-streaming-cluster nats/stan \
+  --set stan.nats.url=nats://nats-cluster:4222 \
+  --set stan.tls.enabled=true \
+  --set stan.tls.secretName=nats-client-certs \
+  --set stan.tls.settings.client_cert=/etc/nats/certs/cert.pem \
+  --set stan.tls.settings.client_key=/etc/nats/certs/key.pem \
+  --set stan.tls.settings.client_ca=/etc/nats/certs/ca.crt \
+  --set stan.replicas=1
+
+# wait for the nats streaming cluster to start before we exit
+kubectl wait --for=condition=Ready pod/nats-streaming-cluster-0 --timeout=180s
