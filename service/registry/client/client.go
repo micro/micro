@@ -1,11 +1,11 @@
 package client
 
 import (
-	"context"
 	"time"
 
 	goclient "github.com/micro/go-micro/v3/client"
 	"github.com/micro/go-micro/v3/registry"
+	"github.com/micro/micro/v3/service/context"
 	"github.com/micro/micro/v3/service/client"
 	"github.com/micro/micro/v3/service/errors"
 	pb "github.com/micro/micro/v3/service/registry/proto"
@@ -61,7 +61,7 @@ func (s *srv) Register(srv *registry.Service, opts ...registry.RegisterOption) e
 		o(&options)
 	}
 	if options.Context == nil {
-		options.Context = context.TODO()
+		options.Context = context.DefaultContext
 	}
 
 	// encode srv into protobuf and pack TTL and domain into it
@@ -80,7 +80,7 @@ func (s *srv) Deregister(srv *registry.Service, opts ...registry.DeregisterOptio
 		o(&options)
 	}
 	if options.Context == nil {
-		options.Context = context.TODO()
+		options.Context = context.DefaultContext
 	}
 
 	// encode srv into protobuf and pack domain into it
@@ -98,7 +98,7 @@ func (s *srv) GetService(name string, opts ...registry.GetOption) ([]*registry.S
 		o(&options)
 	}
 	if options.Context == nil {
-		options.Context = context.TODO()
+		options.Context = context.DefaultContext
 	}
 
 	rsp, err := s.client.GetService(options.Context, &pb.GetRequest{
@@ -124,7 +124,7 @@ func (s *srv) ListServices(opts ...registry.ListOption) ([]*registry.Service, er
 		o(&options)
 	}
 	if options.Context == nil {
-		options.Context = context.TODO()
+		options.Context = context.DefaultContext
 	}
 
 	req := &pb.ListRequest{Options: &pb.Options{Domain: options.Domain}}
@@ -147,7 +147,7 @@ func (s *srv) Watch(opts ...registry.WatchOption) (registry.Watcher, error) {
 		o(&options)
 	}
 	if options.Context == nil {
-		options.Context = context.TODO()
+		options.Context = context.DefaultContext
 	}
 
 	stream, err := s.client.Watch(options.Context, &pb.WatchRequest{
