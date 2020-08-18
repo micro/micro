@@ -32,7 +32,7 @@ var (
 	ignoreThisError   = errors.New("Do not use this error")
 	errFatal          = errors.New("Fatal error")
 	testFilter        = []string{}
-	maxTimeMultiplier = time.Duration(1)
+	maxTimeMultiplier = 1
 )
 
 type cmdFunc func() ([]byte, error)
@@ -89,7 +89,7 @@ func (c *Command) args(a ...string) []string {
 func (c *Command) Exec(args ...string) ([]byte, error) {
 	arguments := c.args(args...)
 	// exec the command
-	// c.t.Logf("Executing command: micro %s\n", strings.Join(arguments, " "))
+	//c.t.Logf("Executing command: micro %s\n", strings.Join(arguments, " "))
 	return exec.Command("micro", arguments...).CombinedOutput()
 }
 
@@ -140,10 +140,10 @@ func (c *Command) Output() ([]byte, error) {
 // happen without calling `t.Fatal`. The error value should be disregarded.
 func Try(blockName string, t *T, f cmdFunc, maxTime time.Duration) error {
 	// hack. k8s can be slow locally
-	maxTime *= maxTimeMultiplier
+	maxNano := float64(maxTime.Nanoseconds())
+	maxNano *= float64(maxTimeMultiplier)
 	// backoff, the retry logic is basically to cover up timing issues
-	// @todo consider reintroducing this backoff while also respecting hard overall time limits
-	// maxTime *= time.Duration(t.attempt)
+	maxNano += maxNano * float64(1-1/t.attempt)
 	start := time.Now()
 	var outp []byte
 	var err error
@@ -152,7 +152,7 @@ func Try(blockName string, t *T, f cmdFunc, maxTime time.Duration) error {
 		if t.failed {
 			return ignoreThisError
 		}
-		if time.Since(start) > maxTime {
+		if time.Since(start) > time.Duration(maxNano) {
 			_, file, line, _ := runtime.Caller(1)
 			fname := filepath.Base(file)
 			if err != nil {
@@ -229,6 +229,8 @@ func myCaller() string {
 type Options struct {
 	// Login specifies whether to login to the server
 	Login bool
+	// Namespace to use, defaults to the test name
+	Namespace string
 }
 
 type Option func(o *Options)
@@ -236,6 +238,12 @@ type Option func(o *Options)
 func WithLogin() Option {
 	return func(o *Options) {
 		o.Login = true
+	}
+}
+
+func WithNamespace(ns string) Option {
+	return func(o *Options) {
+		o.Namespace = ns
 	}
 }
 
@@ -253,7 +261,10 @@ type ServerDefault struct {
 }
 
 func newLocalServer(t *T, fname string, opts ...Option) Server {
-	var options Options
+	options := Options{
+		Namespace: fname,
+		Login:     false,
+	}
 	for _, o := range opts {
 		o(&options)
 	}
@@ -301,7 +312,7 @@ func newLocalServer(t *T, fname string, opts ...Option) Server {
 		config:    configFile,
 		cmd:       cmd,
 		t:         t,
-		env:       fname,
+		env:       options.Namespace,
 		container: fname,
 		apiPort:   apiPortNum,
 		proxyPort: proxyPortnum,
