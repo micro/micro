@@ -621,9 +621,6 @@ func testRunPrivateSource(t *T) {
 		return
 	}
 
-	outp, err := cmd.Exec("logs", "helloworld")
-	t.Log(string(outp), err)
-
 	if err := Try("Find helloworld in registry", t, func() ([]byte, error) {
 		outp, err := cmd.Exec("services")
 		if err != nil {
