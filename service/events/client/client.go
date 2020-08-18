@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"time"
 
+	goclient "github.com/micro/go-micro/v3/client"
 	"github.com/micro/go-micro/v3/events"
 	"github.com/micro/micro/v3/service/client"
 	pb "github.com/micro/micro/v3/service/events/proto"
@@ -46,7 +47,7 @@ func (s *stream) Publish(topic string, opts ...events.PublishOption) error {
 		Payload:   payload,
 		Metadata:  options.Metadata,
 		Timestamp: options.Timestamp.Unix(),
-	})
+	}, goclient.WithAuthToken())
 
 	return err
 }
@@ -63,7 +64,7 @@ func (s *stream) Subscribe(opts ...events.SubscribeOption) (<-chan events.Event,
 		Queue:       options.Queue,
 		Topic:       options.Topic,
 		StartAtTime: options.StartAtTime.Unix(),
-	})
+	}, goclient.WithAuthToken())
 	if err != nil {
 		return nil, err
 	}
