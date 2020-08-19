@@ -84,3 +84,7 @@ func (e *Example) TestExpiry(ctx context.Context, req *pb.Request, rsp *pb.Respo
 	rsp.Msg = "Success"
 	return nil
 }
+
+func (e *Example) TestList(ctx context.Context, req *pb.Request, rsp *pb.Response) error {
+	mstore.List()
+}
