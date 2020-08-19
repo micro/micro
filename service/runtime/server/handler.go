@@ -5,18 +5,19 @@ import (
 	"time"
 
 	goauth "github.com/micro/go-micro/v3/auth"
-	"github.com/micro/go-micro/v3/runtime"
+	goevents "github.com/micro/go-micro/v3/events"
+	gorun "github.com/micro/go-micro/v3/runtime"
 	"github.com/micro/micro/v3/internal/namespace"
-	"github.com/micro/micro/v3/service"
 	"github.com/micro/micro/v3/service/auth"
 	"github.com/micro/micro/v3/service/errors"
+	"github.com/micro/micro/v3/service/events"
 	log "github.com/micro/micro/v3/service/logger"
+	"github.com/micro/micro/v3/service/runtime"
 	pb "github.com/micro/micro/v3/service/runtime/proto"
 )
 
 type Runtime struct {
-	Runtime runtime.Runtime
-	Event   *service.Event
+	Runtime gorun.Runtime
 }
 
 func (r *Runtime) Read(ctx context.Context, req *pb.ReadRequest, rsp *pb.ReadResponse) error {
@@ -87,14 +88,16 @@ func (r *Runtime) Create(ctx context.Context, req *pb.CreateRequest, rsp *pb.Cre
 	}
 
 	// publish the create event
-	r.Event.Publish(ctx, &pb.Event{
-		Type:      "create",
-		Timestamp: time.Now().Unix(),
-		Service:   req.Service.Name,
-		Version:   req.Service.Version,
-	})
-
-	return nil
+	return events.Publish(runtime.EventServiceCreated,
+		goevents.WithPayload(&runtime.EventPayload{
+			Service:   service,
+			Namespace: req.Options.Namespace,
+		}),
+		goevents.WithMetadata(map[string]string{
+			"service":   service.Name,
+			"namespace": req.Options.Namespace,
+		}),
+	)
 }
 
 func (r *Runtime) Update(ctx context.Context, req *pb.UpdateRequest, rsp *pb.UpdateResponse) error {
@@ -132,17 +135,19 @@ func (r *Runtime) Update(ctx context.Context, req *pb.UpdateRequest, rsp *pb.Upd
 	}
 
 	// publish the update event
-	r.Event.Publish(ctx, &pb.Event{
-		Type:      "update",
-		Timestamp: time.Now().Unix(),
-		Service:   req.Service.Name,
-		Version:   req.Service.Version,
-	})
-
-	return nil
+	return events.Publish(runtime.EventServiceUpdated,
+		goevents.WithPayload(&runtime.EventPayload{
+			Service:   service,
+			Namespace: req.Options.Namespace,
+		}),
+		goevents.WithMetadata(map[string]string{
+			"service":   service.Name,
+			"namespace": req.Options.Namespace,
+		}),
+	)
 }
 
-func setupServiceMeta(ctx context.Context, service *runtime.Service) {
+func setupServiceMeta(ctx context.Context, service *gorun.Service) {
 	if service.Metadata == nil {
 		service.Metadata = map[string]string{}
 	}
@@ -192,14 +197,16 @@ func (r *Runtime) Delete(ctx context.Context, req *pb.DeleteRequest, rsp *pb.Del
 	}
 
 	// publish the delete event
-	r.Event.Publish(ctx, &pb.Event{
-		Type:      "delete",
-		Timestamp: time.Now().Unix(),
-		Service:   req.Service.Name,
-		Version:   req.Service.Version,
-	})
-
-	return nil
+	return events.Publish(runtime.EventServiceDeleted,
+		goevents.WithPayload(&runtime.EventPayload{
+			Service:   service,
+			Namespace: req.Options.Namespace,
+		}),
+		goevents.WithMetadata(map[string]string{
+			"service":   service.Name,
+			"namespace": req.Options.Namespace,
+		}),
+	)
 }
 
 func (r *Runtime) Logs(ctx context.Context, req *pb.LogsRequest, stream pb.Runtime_LogsStream) error {
@@ -224,13 +231,13 @@ func (r *Runtime) Logs(ctx context.Context, req *pb.LogsRequest, stream pb.Runti
 
 	// options passed in the request
 	if req.GetCount() > 0 {
-		opts = append(opts, runtime.LogsCount(req.GetCount()))
+		opts = append(opts, gorun.LogsCount(req.GetCount()))
 	}
 	if req.GetStream() {
-		opts = append(opts, runtime.LogsStream(req.GetStream()))
+		opts = append(opts, gorun.LogsStream(req.GetStream()))
 	}
 
-	logStream, err := r.Runtime.Logs(&runtime.Service{
+	logStream, err := r.Runtime.Logs(&gorun.Service{
 		Name: req.GetService(),
 	}, opts...)
 	if err != nil {
