@@ -25,6 +25,7 @@ import (
 	cliutil "github.com/micro/micro/v3/client/cli/util"
 	"github.com/micro/micro/v3/internal/config"
 	muclient "github.com/micro/micro/v3/service/client"
+	"github.com/micro/micro/v3/service/context"
 	"github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/runtime"
 	"github.com/micro/micro/v3/service/runtime/server"
@@ -357,7 +358,7 @@ func upload(ctx *cli.Context, source *git.Source) (string, error) {
 		return "", err
 	}
 	cli := muclient.DefaultClient
-	err = file.New("server", cli).Upload(uploadedFileName, path)
+	err = file.New("server", cli, file.WithContext(context.DefaultContext)).Upload(uploadedFileName, path)
 	if err != nil {
 		return "", err
 	}

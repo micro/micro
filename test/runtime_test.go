@@ -229,7 +229,6 @@ func testRunGithubSource(t *T) {
 		if err != nil {
 			return outp, err
 		}
-		t.Logf("The output of micro services: %+v\n", string(outp))
 		if !strings.Contains(string(outp), "helloworld") {
 			return outp, errors.New("helloworld is not running")
 		}
