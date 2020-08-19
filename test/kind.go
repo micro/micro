@@ -19,6 +19,7 @@ func init() {
 		//"TestStoreImpl",
 		"TestCorruptedTokenLogin",
 		"TestRunPrivateSource",
+		"TestEventsStream",
 	}
 	maxTimeMultiplier = 3
 	isParallel = false // in theory should work in parallel
