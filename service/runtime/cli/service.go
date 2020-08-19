@@ -50,7 +50,7 @@ var (
 	// DefaultRetries which should be attempted when starting a service
 	DefaultRetries = 3
 	// DefaultImage which should be run
-	DefaultImage = "micro/cells:go"
+	DefaultImage = "micro/cells:micro"
 )
 
 // timeAgo returns the time passed

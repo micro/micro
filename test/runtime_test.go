@@ -740,7 +740,7 @@ func testRunPrivateGitlabSource(t *T) {
 	}
 
 	// run the service
-	if outp, err := cmd.Exec("run", "--image", "localhost:5000/cells:go", "gitlab.com/micro-test/private-monorepo-test/subfolder-test"); err != nil {
+	if outp, err := cmd.Exec("run", "--image", "localhost:5000/cells:micro", "gitlab.com/micro-test/private-monorepo-test/subfolder-test"); err != nil {
 		t.Fatalf("Expected no error, got %v %v", err, string(outp))
 		return
 	}
