@@ -14,6 +14,8 @@ import (
 	"github.com/micro/go-micro/v3/broker/nats"
 	"github.com/micro/go-micro/v3/client"
 	"github.com/micro/go-micro/v3/config"
+	memEvents "github.com/micro/go-micro/v3/events/memory"
+	natsEvents "github.com/micro/go-micro/v3/events/nats"
 	"github.com/micro/go-micro/v3/registry"
 	"github.com/micro/go-micro/v3/registry/etcd"
 	"github.com/micro/go-micro/v3/registry/mdns"
@@ -34,6 +36,7 @@ import (
 	microBroker "github.com/micro/micro/v3/service/broker"
 	microClient "github.com/micro/micro/v3/service/client"
 	microConfig "github.com/micro/micro/v3/service/config"
+	microEvents "github.com/micro/micro/v3/service/events"
 	microRegistry "github.com/micro/micro/v3/service/registry"
 	microRouter "github.com/micro/micro/v3/service/router"
 	microRuntime "github.com/micro/micro/v3/service/runtime"
@@ -89,6 +92,7 @@ var CI = &Profile{
 		microRuntime.DefaultRuntime = local.NewRuntime()
 		microStore.DefaultStore = file.NewStore()
 		microConfig.DefaultConfig, _ = config.NewConfig()
+		microEvents.DefaultStream, _ = memEvents.NewStream()
 		setBroker(http.NewBroker())
 		setRegistry(etcd.NewRegistry())
 		setupJWTRules()
@@ -105,7 +109,7 @@ var Client = &Profile{
 // Local profile to run locally
 var Local = &Profile{
 	Name: "local",
-	Setup: func(ctx *cli.Context) error {
+	Setup: func(ctx *cli.Context) (err error) {
 		microAuth.DefaultAuth = noop.NewAuth()
 		microRuntime.DefaultRuntime = local.NewRuntime()
 		microStore.DefaultStore = file.NewStore()
@@ -113,7 +117,9 @@ var Local = &Profile{
 		setBroker(http.NewBroker())
 		setRegistry(mdns.NewRegistry())
 		setupJWTRules()
-		return nil
+
+		microEvents.DefaultStream, err = memEvents.NewStream()
+		return err
 	},
 }
 
@@ -135,13 +141,21 @@ var Kubernetes = &Profile{
 // Platform is for running the micro platform
 var Platform = &Profile{
 	Name: "platform",
-	Setup: func(ctx *cli.Context) error {
+	Setup: func(ctx *cli.Context) (err error) {
 		microAuth.DefaultAuth = jwt.NewAuth()
 		microConfig.DefaultConfig, _ = config.NewConfig()
 		microRuntime.DefaultRuntime = kubernetes.NewRuntime()
 		setBroker(nats.NewBroker(broker.Addrs("nats-cluster")))
 		setRegistry(etcd.NewRegistry(registry.Addrs("etcd-cluster")))
 		setupJWTRules()
+
+		microEvents.DefaultStream, err = natsEvents.NewStream(
+			natsEvents.Address("nats-cluster:4222"),
+			natsEvents.ClusterID("nats-streaming-cluster"),
+		)
+		if err != nil {
+			return err
+		}
 
 		// the cockroach store will connect immediately so the address must be passed
 		// when the store is created. The cockroach store address contains the location
