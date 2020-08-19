@@ -88,13 +88,14 @@ func (r *Runtime) Create(ctx context.Context, req *pb.CreateRequest, rsp *pb.Cre
 	}
 
 	// publish the create event
-	return events.Publish(runtime.EventServiceCreated,
+	return events.Publish(runtime.EventTopic,
 		goevents.WithPayload(&runtime.EventPayload{
 			Service:   service,
 			Namespace: req.Options.Namespace,
+			Type:      runtime.EventServiceCreated,
 		}),
 		goevents.WithMetadata(map[string]string{
-			"service":   service.Name,
+			"type":      runtime.EventServiceCreated,
 			"namespace": req.Options.Namespace,
 		}),
 	)
@@ -135,13 +136,14 @@ func (r *Runtime) Update(ctx context.Context, req *pb.UpdateRequest, rsp *pb.Upd
 	}
 
 	// publish the update event
-	return events.Publish(runtime.EventServiceUpdated,
+	return events.Publish(runtime.EventTopic,
 		goevents.WithPayload(&runtime.EventPayload{
 			Service:   service,
 			Namespace: req.Options.Namespace,
+			Type:      runtime.EventServiceUpdated,
 		}),
 		goevents.WithMetadata(map[string]string{
-			"service":   service.Name,
+			"type":      runtime.EventServiceUpdated,
 			"namespace": req.Options.Namespace,
 		}),
 	)
@@ -197,13 +199,14 @@ func (r *Runtime) Delete(ctx context.Context, req *pb.DeleteRequest, rsp *pb.Del
 	}
 
 	// publish the delete event
-	return events.Publish(runtime.EventServiceDeleted,
+	return events.Publish(runtime.EventTopic,
 		goevents.WithPayload(&runtime.EventPayload{
-			Service:   service,
+			Type:      runtime.EventServiceDeleted,
 			Namespace: req.Options.Namespace,
+			Service:   service,
 		}),
 		goevents.WithMetadata(map[string]string{
-			"service":   service.Name,
+			"type":      runtime.EventServiceDeleted,
 			"namespace": req.Options.Namespace,
 		}),
 	)
