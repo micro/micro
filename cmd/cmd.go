@@ -500,10 +500,9 @@ func action(c *cli.Context) error {
 		// execute the Config.Set RPC, setting the flags in the
 		// request.
 		if srv, err := lookupService(c); err != nil {
-			cmdStr := strings.Join(c.Args().Slice(), " ")
-			fmt.Printf("Error querying registry for service %v: %v", cmdStr, err)
+			fmt.Printf("Error querying registry for service %v: %v", c.Args().First(), err)
 			os.Exit(1)
-		} else if srv != nil && c.Args().Len() == 1 {
+		} else if srv != nil && shouldRenderHelp(c) {
 			fmt.Println(formatServiceUsage(srv, c.Args().First()))
 			os.Exit(1)
 		} else if srv != nil {
