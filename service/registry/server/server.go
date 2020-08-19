@@ -5,9 +5,11 @@ import (
 	"time"
 
 	"github.com/micro/cli/v2"
+	metricsWrapper "github.com/micro/go-micro/v3/metrics/wrapper"
 	"github.com/micro/go-micro/v3/registry"
 	"github.com/micro/micro/v3/service"
 	log "github.com/micro/micro/v3/service/logger"
+	metricsRegistry "github.com/micro/micro/v3/service/registry/metrics"
 	pb "github.com/micro/micro/v3/service/registry/proto"
 	"github.com/micro/micro/v3/service/registry/util"
 )
@@ -82,8 +84,10 @@ func Run(ctx *cli.Context) error {
 		address = ctx.String("address")
 	}
 
+	metricsHandlerWrapper := metricsWrapper.New(metricsRegistry.DefaultMetricsReporter)
+
 	// service opts
-	srvOpts := []service.Option{service.Name(name)}
+	srvOpts := []service.Option{service.Name(name), service.WrapHandler(metricsHandlerWrapper.HandlerFunc)}
 	if i := time.Duration(ctx.Int("register_ttl")); i > 0 {
 		srvOpts = append(srvOpts, service.RegisterTTL(i*time.Second))
 	}

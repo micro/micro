@@ -11,6 +11,7 @@ import (
 	"github.com/micro/go-micro/v3/api/server/acme/autocert"
 	"github.com/micro/go-micro/v3/api/server/acme/certmagic"
 	bmem "github.com/micro/go-micro/v3/broker/memory"
+	metricsWrapper "github.com/micro/go-micro/v3/metrics/wrapper"
 	"github.com/micro/go-micro/v3/proxy"
 	"github.com/micro/go-micro/v3/proxy/grpc"
 	"github.com/micro/go-micro/v3/proxy/http"
@@ -25,6 +26,7 @@ import (
 	"github.com/micro/micro/v3/service"
 	muclient "github.com/micro/micro/v3/service/client"
 	log "github.com/micro/micro/v3/service/logger"
+	metricsProxy "github.com/micro/micro/v3/service/proxy/metrics"
 	murouter "github.com/micro/micro/v3/service/router"
 	"github.com/micro/micro/v3/service/store"
 )
@@ -61,8 +63,13 @@ func Run(ctx *cli.Context) error {
 		ACMEProvider = ctx.String("acme_provider")
 	}
 
+	metricsHandlerWrapper := metricsWrapper.New(metricsProxy.DefaultMetricsReporter)
+
 	// new service
-	service := service.New(service.Name(Name))
+	service := service.New(
+		service.Name(Name),
+		service.WrapHandler(metricsHandlerWrapper.HandlerFunc),
+	)
 
 	// set the context
 	popts := []proxy.Option{

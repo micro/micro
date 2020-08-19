@@ -4,11 +4,13 @@ import (
 	"os"
 
 	"github.com/micro/cli/v2"
+	metricsWrapper "github.com/micro/go-micro/v3/metrics/wrapper"
 	goruntime "github.com/micro/go-micro/v3/runtime"
 	"github.com/micro/micro/v3/service"
 	log "github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/runtime"
 	"github.com/micro/micro/v3/service/runtime/manager"
+	metricsRuntime "github.com/micro/micro/v3/service/runtime/metrics"
 	pb "github.com/micro/micro/v3/service/runtime/proto"
 )
 
@@ -53,8 +55,10 @@ func Run(ctx *cli.Context) error {
 		runtime.DefaultRuntime.Init(goruntime.WithSource(ctx.String("source")))
 	}
 
+	metricsHandlerWrapper := metricsWrapper.New(metricsRuntime.DefaultMetricsReporter)
+
 	// append name
-	srvOpts = append(srvOpts, service.Name(name))
+	srvOpts = append(srvOpts, service.Name(name), service.WrapHandler(metricsHandlerWrapper.HandlerFunc))
 
 	// new service
 	srv := service.New(srvOpts...)

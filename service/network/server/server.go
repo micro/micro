@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/micro/cli/v2"
+	metricsWrapper "github.com/micro/go-micro/v3/metrics/wrapper"
 	net "github.com/micro/go-micro/v3/network"
 	"github.com/micro/go-micro/v3/network/mucp"
 	"github.com/micro/go-micro/v3/proxy"
@@ -24,6 +25,7 @@ import (
 	"github.com/micro/micro/v3/internal/muxer"
 	"github.com/micro/micro/v3/service"
 	log "github.com/micro/micro/v3/service/logger"
+	metricsNetwork "github.com/micro/micro/v3/service/network/metrics"
 	muregistry "github.com/micro/micro/v3/service/registry"
 	murouter "github.com/micro/micro/v3/service/router"
 )
@@ -98,6 +100,8 @@ func Run(ctx *cli.Context) error {
 		token = ctx.String("token")
 	}
 
+	metricsHandlerWrapper := metricsWrapper.New(metricsNetwork.DefaultMetricsReporter)
+
 	var nodes []string
 	if len(ctx.String("nodes")) > 0 {
 		nodes = strings.Split(ctx.String("nodes"), ",")
@@ -107,6 +111,7 @@ func Run(ctx *cli.Context) error {
 	service := service.New(
 		service.Name(name),
 		service.Address(address),
+		service.WrapHandler(metricsHandlerWrapper.HandlerFunc),
 	)
 
 	// create a tunnel

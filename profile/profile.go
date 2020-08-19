@@ -20,6 +20,7 @@ import (
 	evStore "github.com/micro/go-micro/v3/events/store"
 	memStream "github.com/micro/go-micro/v3/events/stream/memory"
 	natsStream "github.com/micro/go-micro/v3/events/stream/nats"
+	metricsPrometheus "github.com/micro/go-micro/v3/metrics/prometheus"
 	"github.com/micro/go-micro/v3/registry"
 	"github.com/micro/go-micro/v3/registry/etcd"
 	"github.com/micro/go-micro/v3/registry/mdns"
@@ -36,6 +37,11 @@ import (
 	"github.com/micro/micro/v3/service/logger"
 
 	inAuth "github.com/micro/micro/v3/internal/auth"
+	metricsNetwork "github.com/micro/micro/v3/service/network/metrics"
+	metricsProxy "github.com/micro/micro/v3/service/proxy/metrics"
+	metricsRegistry "github.com/micro/micro/v3/service/registry/metrics"
+	metricsRuntime "github.com/micro/micro/v3/service/runtime/metrics"
+
 	microAuth "github.com/micro/micro/v3/service/auth"
 	microBroker "github.com/micro/micro/v3/service/broker"
 	microClient "github.com/micro/micro/v3/service/client"
@@ -143,6 +149,14 @@ var Kubernetes = &Profile{
 		// config configmap
 		// store ...
 		microAuth.DefaultAuth = jwt.NewAuth()
+		prometheusReporter, err := metricsPrometheus.New()
+		if err != nil {
+			return err
+		}
+		metricsNetwork.DefaultMetricsReporter = prometheusReporter
+		metricsProxy.DefaultMetricsReporter = prometheusReporter
+		metricsRegistry.DefaultMetricsReporter = prometheusReporter
+		metricsRuntime.DefaultMetricsReporter = prometheusReporter
 		setupJWTRules()
 		return nil
 	},
@@ -155,11 +169,18 @@ var Platform = &Profile{
 		microAuth.DefaultAuth = jwt.NewAuth()
 		microConfig.DefaultConfig, _ = config.NewConfig()
 		microRuntime.DefaultRuntime = kubernetes.NewRuntime()
+		prometheusReporter, err := metricsPrometheus.New()
+		if err != nil {
+			return err
+		}
+		metricsNetwork.DefaultMetricsReporter = prometheusReporter
+		metricsProxy.DefaultMetricsReporter = prometheusReporter
+		metricsRegistry.DefaultMetricsReporter = prometheusReporter
+		metricsRuntime.DefaultMetricsReporter = prometheusReporter
 		setBroker(nats.NewBroker(broker.Addrs("nats-cluster")))
 		setRegistry(etcd.NewRegistry(registry.Addrs("etcd-cluster")))
 		setupJWTRules()
 
-		var err error
 		microEvents.DefaultStream, err = natsStream.NewStream(natsStreamOpts(ctx)...)
 		if err != nil {
 			logger.Fatalf("Error configuring stream: %v", err)
