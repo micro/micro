@@ -4,7 +4,10 @@
 package profile
 
 import (
+	"crypto/tls"
+	"crypto/x509"
 	"fmt"
+	"io/ioutil"
 
 	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro/v3/auth/jwt"
@@ -109,7 +112,7 @@ var Client = &Profile{
 // Local profile to run locally
 var Local = &Profile{
 	Name: "local",
-	Setup: func(ctx *cli.Context) (err error) {
+	Setup: func(ctx *cli.Context) error {
 		microAuth.DefaultAuth = noop.NewAuth()
 		microRuntime.DefaultRuntime = local.NewRuntime()
 		microStore.DefaultStore = file.NewStore()
@@ -118,8 +121,13 @@ var Local = &Profile{
 		setRegistry(mdns.NewRegistry())
 		setupJWTRules()
 
+		var err error
 		microEvents.DefaultStream, err = memEvents.NewStream()
-		return err
+		if err != nil {
+			logger.Fatalf("Error configuring stream: %v", err)
+		}
+
+		return nil
 	},
 }
 
@@ -141,7 +149,7 @@ var Kubernetes = &Profile{
 // Platform is for running the micro platform
 var Platform = &Profile{
 	Name: "platform",
-	Setup: func(ctx *cli.Context) (err error) {
+	Setup: func(ctx *cli.Context) error {
 		microAuth.DefaultAuth = jwt.NewAuth()
 		microConfig.DefaultConfig, _ = config.NewConfig()
 		microRuntime.DefaultRuntime = kubernetes.NewRuntime()
@@ -149,12 +157,10 @@ var Platform = &Profile{
 		setRegistry(etcd.NewRegistry(registry.Addrs("etcd-cluster")))
 		setupJWTRules()
 
-		microEvents.DefaultStream, err = natsEvents.NewStream(
-			natsEvents.Address("nats-cluster:4222"),
-			natsEvents.ClusterID("nats-streaming-cluster"),
-		)
+		var err error
+		microEvents.DefaultStream, err = natsEvents.NewStream(natsEventsOpts(ctx)...)
 		if err != nil {
-			return err
+			logger.Fatalf("Error configuring stream: %v", err)
 		}
 
 		// the cockroach store will connect immediately so the address must be passed
@@ -202,4 +208,35 @@ func setupJWTRules() {
 			logger.Fatal("Error creating default rule: %v", err)
 		}
 	}
+}
+
+// natsEventsOpts returns a slice of options which should be used to configure nats
+func natsEventsOpts(ctx *cli.Context) []natsEvents.Option {
+	opts := []natsEvents.Option{
+		natsEvents.Address("nats://nats-cluster:4222"),
+		natsEvents.ClusterID("nats-streaming-cluster"),
+	}
+
+	// Parse event TLS certs
+	if len(ctx.String("events_tls_cert")) > 0 || len(ctx.String("events_tls_key")) > 0 {
+		cert, err := tls.LoadX509KeyPair(ctx.String("events_tls_cert"), ctx.String("events_tls_key"))
+		if err != nil {
+			logger.Fatalf("Error loading event TLS cert: %v", err)
+		}
+
+		// load custom certificate authority
+		caCertPool := x509.NewCertPool()
+		if len(ctx.String("events_tls_ca")) > 0 {
+			crt, err := ioutil.ReadFile(ctx.String("events_tls_ca"))
+			if err != nil {
+				logger.Fatalf("Error loading event TLS certificate authority: %v", err)
+			}
+			caCertPool.AppendCertsFromPEM(crt)
+		}
+
+		cfg := &tls.Config{Certificates: []tls.Certificate{cert}, RootCAs: caCertPool}
+		opts = append(opts, natsEvents.TLSConfig(cfg))
+	}
+
+	return opts
 }

@@ -150,6 +150,21 @@ var (
 			Usage:   "Comma-separated list of broker addresses",
 		},
 		&cli.StringFlag{
+			Name:    "events_tls_ca",
+			Usage:   "Certificate authority for TLS with events",
+			EnvVars: []string{"MICRO_EVENTS_TLS_CA"},
+		},
+		&cli.StringFlag{
+			Name:    "events_tls_cert",
+			Usage:   "Client cert for TLS with events",
+			EnvVars: []string{"MICRO_EVENTS_TLS_CERT"},
+		},
+		&cli.StringFlag{
+			Name:    "events_tls_key",
+			Usage:   "Client key for TLS with events",
+			EnvVars: []string{"MICRO_EVENTS_TLS_KEY"},
+		},
+		&cli.StringFlag{
 			Name:    "broker_tls_ca",
 			Usage:   "Certificate authority for TLS with broker",
 			EnvVars: []string{"MICRO_BROKER_TLS_CA"},

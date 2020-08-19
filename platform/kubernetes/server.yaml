@@ -112,6 +112,12 @@ spec:
           value: "/certs/broker/cert.pem"
         - name: MICRO_BROKER_TLS_KEY
           value: "/certs/broker/key.pem"
+        - name: MICRO_EVENTS_TLS_CA
+          value: "/certs/events/ca.crt"
+        - name: MICRO_EVENTS_TLS_CERT
+          value: "/certs/events/cert.pem"
+        - name: MICRO_EVENTS_TLS_KEY
+          value: "/certs/events/key.pem"
           value: "true"
         - name: MICRO_REGISTRY_TLS_CA
           value: "/certs/registry/ca.crt"
@@ -140,6 +146,12 @@ spec:
           readOnly: true
         - name: nats-client-certs
           mountPath: "/certs/broker"
+          readOnly: true
+        - name: nats-client-certs
+          mountPath: "/certs/events"
+          readOnly: true
+        - name: nats-client-certs
+          mountPath: "/certs/events"
           readOnly: true
         - name: cockroachdb-client-certs
           mountPath: "/certs/store"
