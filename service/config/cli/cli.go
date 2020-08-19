@@ -1,7 +1,6 @@
 package config
 
 import (
-	"context"
 	"fmt"
 	"os"
 	"strings"
@@ -16,6 +15,7 @@ import (
 	"github.com/micro/micro/v3/internal/helper"
 	"github.com/micro/micro/v3/service/client"
 	proto "github.com/micro/micro/v3/service/config/proto"
+	"github.com/micro/micro/v3/service/context"
 	log "github.com/micro/micro/v3/service/logger"
 )
 
@@ -50,7 +50,7 @@ func setConfig(ctx *cli.Context) error {
 
 	// TODO: allow the specifying of a config.Key. This will be service name
 	// The actuall key-val set is a path e.g micro/accounts/key
-	_, err = pb.Update(context.TODO(), &proto.UpdateRequest{
+	_, err = pb.Update(context.DefaultContext, &proto.UpdateRequest{
 		Change: &proto.Change{
 			// the current namespace
 			Namespace: ns,
@@ -96,7 +96,7 @@ func getConfig(ctx *cli.Context) error {
 	// TODO: allow the specifying of a config.Key. This will be service name
 	// The actuall key-val set is a path e.g micro/accounts/key
 	pb := proto.NewConfigService("config", client.DefaultClient)
-	rsp, err := pb.Read(context.TODO(), &proto.ReadRequest{
+	rsp, err := pb.Read(context.DefaultContext, &proto.ReadRequest{
 		// The current namespace,
 		Namespace: ns,
 		// The actual key for the val
@@ -140,7 +140,7 @@ func delConfig(ctx *cli.Context) error {
 	// TODO: allow the specifying of a config.Key. This will be service name
 	// The actuall key-val set is a path e.g micro/accounts/key
 	pb := proto.NewConfigService("config", client.DefaultClient)
-	_, err = pb.Delete(context.TODO(), &proto.DeleteRequest{
+	_, err = pb.Delete(context.DefaultContext, &proto.DeleteRequest{
 		Change: &proto.Change{
 			// The current namespace
 			Namespace: ns,

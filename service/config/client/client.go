@@ -1,13 +1,13 @@
 package client
 
 import (
-	"context"
 	"net/http"
 
 	goclient "github.com/micro/go-micro/v3/client"
 	"github.com/micro/go-micro/v3/config/source"
 	"github.com/micro/micro/v3/service/client"
 	proto "github.com/micro/micro/v3/service/config/proto"
+	"github.com/micro/micro/v3/service/context"
 	"github.com/micro/micro/v3/service/errors"
 	"github.com/micro/micro/v3/service/logger"
 )
@@ -27,7 +27,7 @@ type srv struct {
 }
 
 func (m *srv) Read() (set *source.ChangeSet, err error) {
-	req, err := m.client.Read(context.Background(), &proto.ReadRequest{
+	req, err := m.client.Read(context.DefaultContext, &proto.ReadRequest{
 		Namespace: m.namespace,
 		Path:      m.path,
 	}, goclient.WithAuthToken())
@@ -41,7 +41,7 @@ func (m *srv) Read() (set *source.ChangeSet, err error) {
 }
 
 func (m *srv) Watch() (w source.Watcher, err error) {
-	stream, err := m.client.Watch(context.Background(), &proto.WatchRequest{
+	stream, err := m.client.Watch(context.DefaultContext, &proto.WatchRequest{
 		Namespace: m.namespace,
 		Path:      m.path,
 	}, goclient.WithAuthToken())

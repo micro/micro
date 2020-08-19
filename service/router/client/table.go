@@ -1,10 +1,9 @@
 package client
 
 import (
-	"context"
-
 	"github.com/micro/go-micro/v3/client"
 	"github.com/micro/go-micro/v3/router"
+	"github.com/micro/micro/v3/service/context"
 	pb "github.com/micro/micro/v3/service/router/proto"
 )
 
@@ -24,7 +23,7 @@ func (t *table) Create(r router.Route) error {
 		Metric:  r.Metric,
 	}
 
-	if _, err := t.table.Create(context.Background(), route, t.callOpts...); err != nil {
+	if _, err := t.table.Create(context.DefaultContext, route, t.callOpts...); err != nil {
 		return err
 	}
 
@@ -42,7 +41,7 @@ func (t *table) Delete(r router.Route) error {
 		Metric:  r.Metric,
 	}
 
-	if _, err := t.table.Delete(context.Background(), route, t.callOpts...); err != nil {
+	if _, err := t.table.Delete(context.DefaultContext, route, t.callOpts...); err != nil {
 		return err
 	}
 
@@ -60,7 +59,7 @@ func (t *table) Update(r router.Route) error {
 		Metric:  r.Metric,
 	}
 
-	if _, err := t.table.Update(context.Background(), route, t.callOpts...); err != nil {
+	if _, err := t.table.Update(context.DefaultContext, route, t.callOpts...); err != nil {
 		return err
 	}
 
@@ -69,7 +68,7 @@ func (t *table) Update(r router.Route) error {
 
 // List returns the list of all routes in the table
 func (t *table) List() ([]router.Route, error) {
-	resp, err := t.table.List(context.Background(), &pb.Request{}, t.callOpts...)
+	resp, err := t.table.List(context.DefaultContext, &pb.Request{}, t.callOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -94,7 +93,7 @@ func (t *table) Query(q ...router.QueryOption) ([]router.Route, error) {
 	query := router.NewQuery(q...)
 
 	// call the router
-	resp, err := t.table.Query(context.Background(), &pb.QueryRequest{
+	resp, err := t.table.Query(context.DefaultContext, &pb.QueryRequest{
 		Query: &pb.Query{
 			Service: query.Service,
 			Gateway: query.Gateway,

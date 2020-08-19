@@ -141,10 +141,14 @@ func splitCmdArgs(ctx *cli.Context) ([]string, map[string]string, error) {
 
 		// comps would be "foo", "bar" for "--foo=bar"
 		comps := strings.Split(strings.TrimPrefix(a, "--"), "=")
-		if len(comps) != 2 {
+		switch len(comps) {
+		case 1:
+			flags[comps[0]] = ""
+		case 2:
+			flags[comps[0]] = comps[1]
+		default:
 			return nil, nil, fmt.Errorf("Invalid flag: %v. Expected format: --foo=bar", a)
 		}
-		flags[comps[0]] = comps[1]
 	}
 
 	return args, flags, nil
@@ -169,6 +173,17 @@ func constructEndpoint(args []string) (string, error) {
 	// transform the endpoint components, e.g ["helloworld", "call"] to the
 	// endpoint name: "Helloworld.Call".
 	return fmt.Sprintf("%v.%v", strings.Title(epComps[0]), strings.Title(epComps[1])), nil
+}
+
+// shouldRenderHelp returns true if the help flag was passed
+func shouldRenderHelp(ctx *cli.Context) bool {
+	_, flags, _ := splitCmdArgs(ctx)
+	for key := range flags {
+		if key == "help" {
+			return true
+		}
+	}
+	return false
 }
 
 // flagsToRequeest parses a set of flags, e.g {name:"Foo", "options_surname","Bar"} and
