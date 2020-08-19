@@ -408,9 +408,15 @@ func (c *command) Before(ctx *cli.Context) error {
 		logger.Fatalf("Error configuring store: %v", err)
 	}
 
-	// set the registry in the client and server
-	muclient.DefaultClient.Init(client.Registry(muregistry.DefaultRegistry))
-	muserver.DefaultServer.Init(server.Registry(muregistry.DefaultRegistry))
+	// set the registry and broker in the client and server
+	muclient.DefaultClient.Init(
+		client.Broker(mubroker.DefaultBroker),
+		client.Registry(muregistry.DefaultRegistry),
+	)
+	muserver.DefaultServer.Init(
+		server.Broker(mubroker.DefaultBroker),
+		server.Registry(muregistry.DefaultRegistry),
+	)
 
 	// setup auth credentials, use local credentials for the CLI and injected creds
 	// for the service.
