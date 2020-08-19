@@ -2,26 +2,20 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   namespace: default
-  name: micro-registry
+  name: micro-events
   labels:
+    name: micro-events
     micro: runtime
-    name: micro-registry
-  annotations:
-    name: "registry"
-    version: "latest"
-    source: "github.com/micro/micro"
-    owner: "micro"
-    group: "micro"
 spec:
   replicas: 1
   selector:
     matchLabels:
-      name: micro-registry
+      name: micro-events
       micro: runtime
   template:
     metadata:
       labels:
-        name: micro-registry
+        name: micro-events
         micro: runtime
     spec:
       containers:
@@ -30,7 +24,9 @@ spec:
         - name: MICRO_PROFILE
           value: platform
         - name: MICRO_SERVICE_NAME
-          value: registry
+          value: events
+        - name: MICRO_SERVICE_ADDRESS
+          value: ":8080"
         - name: MICRO_PROXY
           value: "micro-network.default.svc.cluster.local:8443"
         - name: MICRO_AUTH_PUBLIC_KEY
@@ -65,17 +61,17 @@ spec:
           value: "/certs/registry/key.pem"
         - name: MICRO_STORE_ADDRESS
           value: "postgresql://root@cockroachdb-cluster-public:26257?ssl=true&sslmode=require&sslrootcert=certs/store/ca.crt&sslkey=certs/store/key.pem&sslcert=certs/store/cert.pem"
-        args:
-        - service
-        - registry
         image: localhost:5000/micro
         imagePullPolicy: Always
+        args:
+        - service
+        - events
         ports:
-        - containerPort: 8000
-          name: registry-port
+        - containerPort: 8080
+          name: events-port
         readinessProbe:
           tcpSocket:
-            port: registry-port
+            port: events-port
           initialDelaySeconds: 5
           periodSeconds: 10
         volumeMounts:
