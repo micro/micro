@@ -362,6 +362,59 @@ func testRunGitlabSourceMonoRepo(t *T) {
 	}
 }
 
+// This test exists to test the path of "generic git checkout", not just bitbucket
+func TestRunGenericRemote(t *testing.T) {
+	TrySuite(t, testRunGenericRemote, retryCount)
+}
+
+func testRunGenericRemote(t *T) {
+	t.Parallel()
+
+	serv := NewServer(t, WithLogin())
+	defer serv.Close()
+	if err := serv.Run(); err != nil {
+		return
+	}
+
+	cmd := serv.Command()
+	cmd.Exec("user", "config", "set", "git."+serv.Env()+".baseurl", "bitbucket.org/micro-test/monorepo-test")
+
+	outp, err := cmd.Exec("run", "subfolder-test")
+	if err != nil {
+		t.Fatalf("micro run failure, output: %v", string(outp))
+		return
+	}
+
+	if err := Try("Find helloworld in runtime", t, func() ([]byte, error) {
+		outp, err = cmd.Exec("status")
+		if err != nil {
+			return outp, err
+		}
+
+		if !statusRunning("subfolder-test", "latest", outp) {
+			return outp, errors.New("Output should contain subfolder-test")
+		}
+		return outp, nil
+	}, 60*time.Second); err != nil {
+		return
+	}
+
+	if err := Try("Find helloworld in registry", t, func() ([]byte, error) {
+		outp, err := cmd.Exec("services")
+		if err != nil {
+			return outp, err
+		}
+		if !strings.Contains(string(outp), "example") {
+			return outp, errors.New("Does not contain example")
+		}
+		return outp, err
+	}, 120*time.Second); err != nil {
+		outp, _ := cmd.Exec("logs", "subfolder-test")
+		t.Log(string(outp))
+		return
+	}
+}
+
 func TestRunLocalUpdateAndCall(t *testing.T) {
 	TrySuite(t, testRunLocalUpdateAndCall, retryCount)
 }
