@@ -1,0 +1,32 @@
+syntax = "proto3";
+
+package events;
+option go_package = "github.com/micro/micro/v3/service/event/proto;events";
+
+service Stream {
+  rpc Publish(PublishRequest) returns (PublishResponse);
+  rpc Subscribe(SubscribeRequest) returns (stream Event);
+}
+
+message PublishRequest {
+  string topic = 1;
+  map<string, string> metadata = 2;
+  bytes payload = 3;
+  int64 timestamp = 4;
+}
+
+message PublishResponse {}
+
+message SubscribeRequest {
+  string queue = 1;
+  string topic = 2;
+  int64 start_at_time = 3;
+}
+
+message Event {
+  string id = 1;
+  string topic = 2;
+  map<string, string> metadata = 3;
+  bytes payload = 4;
+  int64 timestamp = 5;
+} 

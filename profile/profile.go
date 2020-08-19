@@ -4,7 +4,10 @@
 package profile
 
 import (
+	"crypto/tls"
+	"crypto/x509"
 	"fmt"
+	"io/ioutil"
 
 	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro/v3/auth/jwt"
@@ -14,6 +17,8 @@ import (
 	"github.com/micro/go-micro/v3/broker/nats"
 	"github.com/micro/go-micro/v3/client"
 	"github.com/micro/go-micro/v3/config"
+	memEvents "github.com/micro/go-micro/v3/events/memory"
+	natsEvents "github.com/micro/go-micro/v3/events/nats"
 	"github.com/micro/go-micro/v3/registry"
 	"github.com/micro/go-micro/v3/registry/etcd"
 	"github.com/micro/go-micro/v3/registry/mdns"
@@ -34,6 +39,7 @@ import (
 	microBroker "github.com/micro/micro/v3/service/broker"
 	microClient "github.com/micro/micro/v3/service/client"
 	microConfig "github.com/micro/micro/v3/service/config"
+	microEvents "github.com/micro/micro/v3/service/events"
 	microRegistry "github.com/micro/micro/v3/service/registry"
 	microRouter "github.com/micro/micro/v3/service/router"
 	microRuntime "github.com/micro/micro/v3/service/runtime"
@@ -89,6 +95,7 @@ var CI = &Profile{
 		microRuntime.DefaultRuntime = local.NewRuntime()
 		microStore.DefaultStore = file.NewStore()
 		microConfig.DefaultConfig, _ = config.NewConfig()
+		microEvents.DefaultStream, _ = memEvents.NewStream()
 		setBroker(http.NewBroker())
 		setRegistry(etcd.NewRegistry())
 		setupJWTRules()
@@ -113,6 +120,13 @@ var Local = &Profile{
 		setBroker(http.NewBroker())
 		setRegistry(mdns.NewRegistry())
 		setupJWTRules()
+
+		var err error
+		microEvents.DefaultStream, err = memEvents.NewStream()
+		if err != nil {
+			logger.Fatalf("Error configuring stream: %v", err)
+		}
+
 		return nil
 	},
 }
@@ -142,6 +156,12 @@ var Platform = &Profile{
 		setBroker(nats.NewBroker(broker.Addrs("nats-cluster")))
 		setRegistry(etcd.NewRegistry(registry.Addrs("etcd-cluster")))
 		setupJWTRules()
+
+		var err error
+		microEvents.DefaultStream, err = natsEvents.NewStream(natsEventsOpts(ctx)...)
+		if err != nil {
+			logger.Fatalf("Error configuring stream: %v", err)
+		}
 
 		// the cockroach store will connect immediately so the address must be passed
 		// when the store is created. The cockroach store address contains the location
@@ -188,4 +208,35 @@ func setupJWTRules() {
 			logger.Fatal("Error creating default rule: %v", err)
 		}
 	}
+}
+
+// natsEventsOpts returns a slice of options which should be used to configure nats
+func natsEventsOpts(ctx *cli.Context) []natsEvents.Option {
+	opts := []natsEvents.Option{
+		natsEvents.Address("nats://nats-cluster:4222"),
+		natsEvents.ClusterID("nats-streaming-cluster"),
+	}
+
+	// Parse event TLS certs
+	if len(ctx.String("events_tls_cert")) > 0 || len(ctx.String("events_tls_key")) > 0 {
+		cert, err := tls.LoadX509KeyPair(ctx.String("events_tls_cert"), ctx.String("events_tls_key"))
+		if err != nil {
+			logger.Fatalf("Error loading event TLS cert: %v", err)
+		}
+
+		// load custom certificate authority
+		caCertPool := x509.NewCertPool()
+		if len(ctx.String("events_tls_ca")) > 0 {
+			crt, err := ioutil.ReadFile(ctx.String("events_tls_ca"))
+			if err != nil {
+				logger.Fatalf("Error loading event TLS certificate authority: %v", err)
+			}
+			caCertPool.AppendCertsFromPEM(crt)
+		}
+
+		cfg := &tls.Config{Certificates: []tls.Certificate{cert}, RootCAs: caCertPool}
+		opts = append(opts, natsEvents.TLSConfig(cfg))
+	}
+
+	return opts
 }
