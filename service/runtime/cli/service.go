@@ -54,6 +54,10 @@ var (
 	DefaultImage = "micro/cells:go"
 )
 
+const (
+	credentialsKey = "GIT_CREDENTIALS"
+)
+
 // timeAgo returns the time passed
 func timeAgo(v string) string {
 	if len(v) == 0 {
@@ -88,8 +92,8 @@ func sourceExists(source *git.Source) error {
 		req, _ := http.NewRequest("GET", url, nil)
 
 		// add the git credentials if set
-		if tok, err := config.Get("git", "credentials"); err == nil && len(tok) > 0 {
-			req.Header.Set("Authorization", "token "+tok)
+		if creds, ok := getGitCredentials(source.Repo); ok {
+			req.Header.Set("Authorization", "token "+creds)
 		}
 
 		client := new(http.Client)
@@ -123,7 +127,7 @@ func sourceExists(source *git.Source) error {
 func appendSourceBase(ctx *cli.Context, workDir, source string) string {
 	isLocal, _ := git.IsLocal(workDir, source)
 	// @todo add list of supported hosts here or do this check better
-	if !isLocal && !strings.Contains(source, "github.com") && !strings.Contains(source, "gitlab.com") {
+	if !isLocal && !strings.Contains(source, ".com") && !strings.Contains(source, ".org") && !strings.Contains(source, ".net") {
 		baseURL, _ := config.Get("git", util.GetEnv(ctx).Name, "baseurl")
 		if len(baseURL) == 0 {
 			baseURL, _ = config.Get("git", "baseurl")
@@ -230,10 +234,9 @@ func runService(ctx *cli.Context) error {
 		return err
 	}
 	opts = append(opts, goruntime.CreateNamespace(ns))
-
-	// add the git credentials if set
-	if creds, err := config.Get("git", "credentials"); err == nil && len(creds) > 0 {
-		opts = append(opts, goruntime.WithSecret("GIT_CREDENTIALS", creds))
+	gitCreds, ok := getGitCredentials(source.Repo)
+	if ok {
+		opts = append(opts, goruntime.WithSecret(credentialsKey, gitCreds))
 	}
 
 	// run the service
@@ -258,6 +261,25 @@ func runService(ctx *cli.Context) error {
 	}
 
 	return nil
+}
+
+func getGitCredentials(repo string) (string, bool) {
+	repo = strings.Split(repo, "/")[0]
+	switch {
+	case strings.Contains(repo, "github"):
+		if creds, err := config.Get("git", "github", "credentials"); err == nil && len(creds) > 0 {
+			return creds, true
+		}
+	case strings.Contains(repo, "gitlab"):
+		if creds, err := config.Get("git", "gitlab", "credentials"); err == nil && len(creds) > 0 {
+			return creds, true
+		}
+	case strings.Contains(repo, "bitbucket"):
+		if creds, err := config.Get("git", "bitbucket", "credentials"); err == nil && len(creds) > 0 {
+			return creds, true
+		}
+	}
+	return "", false
 }
 
 func killService(ctx *cli.Context) error {
@@ -395,9 +417,9 @@ func updateService(ctx *cli.Context) error {
 	}
 
 	opts := []goruntime.UpdateOption{goruntime.UpdateNamespace(ns)}
-	// add the git credentials if set
-	if creds, err := config.Get("git", "credentials"); err == nil && len(creds) > 0 {
-		opts = append(opts, goruntime.UpdateSecret("GIT_CREDENTIALS", creds))
+	gitCreds, ok := getGitCredentials(source.Repo)
+	if ok {
+		opts = append(opts, goruntime.UpdateSecret(credentialsKey, gitCreds))
 	}
 	return runtime.Update(service, goruntime.UpdateNamespace(ns))
 }
