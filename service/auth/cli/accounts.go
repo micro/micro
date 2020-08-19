@@ -1,7 +1,6 @@
 package cli
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -16,6 +15,7 @@ import (
 	"github.com/micro/micro/v3/service/auth"
 	pb "github.com/micro/micro/v3/service/auth/proto"
 	"github.com/micro/micro/v3/service/client"
+	"github.com/micro/micro/v3/service/context"
 )
 
 func listAccounts(ctx *cli.Context) error {
@@ -26,7 +26,7 @@ func listAccounts(ctx *cli.Context) error {
 		return fmt.Errorf("Error getting namespace: %v", err)
 	}
 
-	rsp, err := cli.List(context.TODO(), &pb.ListAccountsRequest{
+	rsp, err := cli.List(context.DefaultContext, &pb.ListAccountsRequest{
 		Options: &pb.Options{Namespace: ns},
 	}, goclient.WithAuthToken())
 	if err != nil {
@@ -95,7 +95,7 @@ func deleteAccount(ctx *cli.Context) error {
 		return fmt.Errorf("Error getting namespace: %v", err)
 	}
 
-	_, err = cli.Delete(context.TODO(), &pb.DeleteAccountRequest{
+	_, err = cli.Delete(context.DefaultContext, &pb.DeleteAccountRequest{
 		Id:      ctx.Args().First(),
 		Options: &pb.Options{Namespace: ns},
 	}, goclient.WithAuthToken())
