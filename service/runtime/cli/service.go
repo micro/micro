@@ -91,8 +91,8 @@ func sourceExists(source *git.Source) error {
 		req, _ := http.NewRequest("GET", url, nil)
 
 		// add the git credentials if set
-		if tok, err := config.Get("git", "credentials"); err == nil && len(tok) > 0 {
-			req.Header.Set("Authorization", "token "+tok)
+		if creds, ok := getGitCredentials(source.Repo); ok {
+			req.Header.Set("Authorization", "token "+creds)
 		}
 
 		client := new(http.Client)
