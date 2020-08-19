@@ -4,6 +4,7 @@ package test
 
 import (
 	"errors"
+	"os"
 	"strings"
 	"testing"
 	"time"
@@ -23,9 +24,16 @@ func testEventsStream(t *T) {
 
 	cmd := serv.Command()
 
-	if err := Try("Run service", t, func() ([]byte, error) {
-		return cmd.Exec("run", "./service/stream")
-	}, 30*time.Second); err != nil {
+	var err error
+	// Temp fix to support k8s tests until we have file upload to remote server
+	if ref := os.Getenv("GITHUB_REF"); len(ref) > 0 {
+		t.Logf("Running service from the %v branch of micro", ref)
+		_, err = cmd.Exec("run", "github.com/micro/micro/v3/test/service/stream@"+ref)
+	} else {
+		_, err = cmd.Exec("run", "./service/stream")
+	}
+	if err != nil {
+		t.Fatalf("Error running service: %v", err)
 		return
 	}
 

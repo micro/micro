@@ -96,12 +96,19 @@ jobs:
       run: |
         kubectl get pods -n platform | awk '{print $1}' | xargs -n1 kubectl logs -n platform
 
+    # Get the branch name so we can use it in the tests
+    - name: Extract branch name
+      shell: bash
+      run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
+      id: extract_branch
+
     # Finally, we can actually run the tests
     - name: Test micro server
       working-directory: ./test
       env:
         IN_TRAVIS_CI: yes
         GITHUB_PAT: ${{ secrets.MICRO_ACTIONS_PAT }}
+        GITHUB_REF: ${{ steps.extract_branch.outputs.branch }}
       run: |
           # Generate keys for JWT tests
           ssh-keygen -f /tmp/sshkey -m pkcs8 -q -N ""
