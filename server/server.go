@@ -15,6 +15,7 @@ import (
 	"github.com/micro/micro/v3/cmd"
 	"github.com/micro/micro/v3/service"
 	"github.com/micro/micro/v3/service/client"
+	"github.com/micro/micro/v3/service/context"
 	log "github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/runtime"
 )
@@ -51,7 +52,7 @@ func upload(ctx *cli.Context, args []string) ([]byte, error) {
 	filename := ctx.Args().Get(0)
 	localfile := ctx.Args().Get(1)
 
-	fileClient := file.New("server", client.DefaultClient)
+	fileClient := file.New("server", client.DefaultClient, file.WithContext(context.DefaultContext))
 	return nil, fileClient.Upload(filename, localfile)
 }
 
