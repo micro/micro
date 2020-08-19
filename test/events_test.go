@@ -23,9 +23,9 @@ func testEventsStream(t *T) {
 
 	cmd := serv.Command()
 
-	outp, err := cmd.Exec("run", "./service/stream")
-	if err != nil {
-		t.Fatalf("micro run failure, output: %v", string(outp))
+	if err := Try("Run service", t, func() ([]byte, error) {
+		return cmd.Exec("run", "./service/stream")
+	}, 30*time.Second); err != nil {
 		return
 	}
 
