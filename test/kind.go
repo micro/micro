@@ -19,6 +19,10 @@ func init() {
 		//"TestStoreImpl",
 		"TestCorruptedTokenLogin",
 		"TestRunPrivateSource",
+		"TestRunGenericRemote",
+		"TestRunPrivateGenericRemote",
+		"TestRunGitlabSource",
+		"TestRunPrivateGitlabSource",
 	}
 	maxTimeMultiplier = 3
 	isParallel = false // in theory should work in parallel
