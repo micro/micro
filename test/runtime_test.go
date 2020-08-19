@@ -707,6 +707,8 @@ func testRunPrivateSource(t *T) {
 	if err := Try("Calling helloworld", t, func() ([]byte, error) {
 		return cmd.Exec("helloworld", "--name=John")
 	}, 30*time.Second); err != nil {
+		outp, _ := cmd.Exec("logs", "helloworld")
+		t.Log(string(outp))
 		return
 	}
 }
