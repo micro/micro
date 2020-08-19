@@ -87,6 +87,11 @@ spec:
         - containerPort: 8085
           name: network-port
           protocol: UDP
+        readinessProbe:
+          tcpSocket:
+            port: service-port
+          initialDelaySeconds: 5
+          periodSeconds: 10
         volumeMounts:
         - name: etcd-client-certs
           mountPath: "/certs/registry"

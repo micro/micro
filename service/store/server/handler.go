@@ -128,6 +128,12 @@ func (h *handler) Read(ctx context.Context, req *pb.ReadRequest, rsp *pb.ReadRes
 	if req.Options.Prefix {
 		opts = append(opts, gostore.ReadPrefix())
 	}
+	if req.Options.Limit > 0 {
+		opts = append(opts, gostore.ReadLimit(uint(req.Options.Limit)))
+	}
+	if req.Options.Offset > 0 {
+		opts = append(opts, gostore.ReadOffset(uint(req.Options.Offset)))
+	}
 
 	// read from the database
 	vals, err := store.Read(req.Key, opts...)
@@ -191,6 +197,11 @@ func (h *handler) Write(ctx context.Context, req *pb.WriteRequest, rsp *pb.Write
 	// setup the options
 	opts := []gostore.WriteOption{
 		gostore.WriteTo(req.Options.Database, req.Options.Table),
+	}
+	if req.Options.Expiry != 0 {
+		opts = append(opts, gostore.WriteExpiry(time.Unix(req.Options.Expiry, 0)))
+	} else if req.Options.Ttl != 0 {
+		opts = append(opts, gostore.WriteTTL(time.Duration(req.Options.Ttl)*time.Second))
 	}
 
 	// construct the record

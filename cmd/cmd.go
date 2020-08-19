@@ -24,6 +24,7 @@ import (
 	"github.com/micro/micro/v3/client/cli/util"
 	uconf "github.com/micro/micro/v3/internal/config"
 	"github.com/micro/micro/v3/internal/helper"
+	"github.com/micro/micro/v3/internal/network"
 	_ "github.com/micro/micro/v3/internal/usage"
 	"github.com/micro/micro/v3/internal/wrapper"
 	"github.com/micro/micro/v3/plugin"
@@ -287,6 +288,11 @@ func (c *command) Before(ctx *cli.Context) error {
 		muclient.DefaultClient.Init(client.Proxy(proxy))
 	}
 
+	// use the internal network lookup
+	muclient.DefaultClient.Init(
+		client.Lookup(network.Lookup),
+	)
+
 	// wrap the client
 	muclient.DefaultClient = wrapper.AuthClient(muclient.DefaultClient)
 	muclient.DefaultClient = wrapper.CacheClient(muclient.DefaultClient)
@@ -408,9 +414,15 @@ func (c *command) Before(ctx *cli.Context) error {
 		logger.Fatalf("Error configuring store: %v", err)
 	}
 
-	// set the registry in the client and server
-	muclient.DefaultClient.Init(client.Registry(muregistry.DefaultRegistry))
-	muserver.DefaultServer.Init(server.Registry(muregistry.DefaultRegistry))
+	// set the registry and broker in the client and server
+	muclient.DefaultClient.Init(
+		client.Broker(mubroker.DefaultBroker),
+		client.Registry(muregistry.DefaultRegistry),
+	)
+	muserver.DefaultServer.Init(
+		server.Broker(mubroker.DefaultBroker),
+		server.Registry(muregistry.DefaultRegistry),
+	)
 
 	// setup auth credentials, use local credentials for the CLI and injected creds
 	// for the service.

@@ -90,10 +90,10 @@ func (h *handler) Subscribe(ctx context.Context, req *pb.SubscribeRequest, strea
 	}
 
 	// message handler to stream back messages from broker
-	handler := func(p broker.Event) error {
+	handler := func(m *broker.Message) error {
 		if err := stream.Send(&pb.Message{
-			Header: p.Message().Header,
-			Body:   p.Message().Body,
+			Header: m.Header,
+			Body:   m.Body,
 		}); err != nil {
 			select {
 			case errChan <- err:

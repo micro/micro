@@ -2,7 +2,7 @@
     "CN": "nats-cluster",
     "hosts": [
         "nats-cluster.default.svc.cluster.local",
-        "*.nats-cluster-mgmt.default.svc",
+        "*.nats-cluster.default.svc",
         "nats-cluster"
     ],
     "key": {

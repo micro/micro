@@ -59,8 +59,13 @@ spec:
         - service
         - config
         ports:
-        - containerPort: 8080
-          name: service
+        - containerPort: 8001
+          name: config-port
+        readinessProbe:
+          tcpSocket:
+            port: config-port
+          initialDelaySeconds: 5
+          periodSeconds: 10
         volumeMounts:
         - name: etcd-client-certs
           mountPath: "/certs/registry"

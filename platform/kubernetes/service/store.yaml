@@ -60,7 +60,12 @@ spec:
         - store
         ports:
         - containerPort: 8002
-          name: service
+          name: store-port
+        readinessProbe:
+          tcpSocket:
+            port: store-port
+          initialDelaySeconds: 5
+          periodSeconds: 10
         volumeMounts:
         - name: etcd-client-certs
           mountPath: "/certs/registry"

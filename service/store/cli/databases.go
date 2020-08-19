@@ -1,13 +1,14 @@
 package cli
 
 import (
-	"context"
 	"fmt"
 
 	"github.com/micro/cli/v2"
+	goclient "github.com/micro/go-micro/v3/client"
 	"github.com/micro/micro/v3/client/cli/namespace"
 	"github.com/micro/micro/v3/client/cli/util"
 	"github.com/micro/micro/v3/service/client"
+	"github.com/micro/micro/v3/service/context"
 	pb "github.com/micro/micro/v3/service/store/proto"
 )
 
@@ -15,7 +16,7 @@ import (
 func databases(ctx *cli.Context) error {
 	dbReq := client.NewRequest(ctx.String("store"), "Store.Databases", &pb.DatabasesRequest{})
 	dbRsp := &pb.DatabasesResponse{}
-	if err := client.Call(context.TODO(), dbReq, dbRsp); err != nil {
+	if err := client.Call(context.DefaultContext, dbReq, dbRsp, goclient.WithAuthToken()); err != nil {
 		return err
 	}
 	for _, db := range dbRsp.Databases {
@@ -35,7 +36,7 @@ func tables(ctx *cli.Context) error {
 		Database: ns,
 	})
 	tRsp := &pb.TablesResponse{}
-	if err := client.Call(context.TODO(), tReq, tRsp); err != nil {
+	if err := client.Call(context.DefaultContext, tReq, tRsp, goclient.WithAuthToken()); err != nil {
 		return err
 	}
 	for _, table := range tRsp.Tables {

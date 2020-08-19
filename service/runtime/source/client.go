@@ -9,8 +9,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/micro/micro/v3/internal/git"
 	"github.com/micro/go-micro/v3/client"
+	"github.com/micro/micro/v3/internal/git"
 	pb "github.com/micro/micro/v3/service/runtime/source/proto"
 )
 
@@ -42,26 +42,26 @@ type src struct {
 }
 
 func grepMain(path string) error {
-        files, err := ioutil.ReadDir(path)
-        if err != nil {
-                return err
-        }
+	files, err := ioutil.ReadDir(path)
+	if err != nil {
+		return err
+	}
 
-        for _, f := range files {
-                if !strings.HasSuffix(f.Name(), ".go") {
-                        continue
-                }
-                file := filepath.Join(path, f.Name())
-                b, err := ioutil.ReadFile(file)
-                if err != nil {
-                        continue
-                }
-                if strings.Contains(string(b), "package main") {
-                        return nil
-                }
-        }
+	for _, f := range files {
+		if !strings.HasSuffix(f.Name(), ".go") {
+			continue
+		}
+		file := filepath.Join(path, f.Name())
+		b, err := ioutil.ReadFile(file)
+		if err != nil {
+			continue
+		}
+		if strings.Contains(string(b), "package main") {
+			return nil
+		}
+	}
 
-        return fmt.Errorf("Directory does not contain a main package")
+	return fmt.Errorf("Directory does not contain a main package")
 }
 
 // Package the source
@@ -72,12 +72,12 @@ func (s *src) Package(source, dest string) error {
 		return err
 	}
 	// look for main
-        if err := grepMain(abs); err != nil {
-                return err
-        }
+	if err := grepMain(abs); err != nil {
+		return err
+	}
 
 	// compress as a tarball
-        return git.Compress(abs, dest)
+	return git.Compress(abs, dest)
 }
 
 // Download source from the destination
@@ -86,14 +86,14 @@ func (s *src) Download(source, dest string) error {
 		return err
 	}
 
-        flags := os.O_CREATE | os.O_RDWR | os.O_TRUNC
+	flags := os.O_CREATE | os.O_RDWR | os.O_TRUNC
 
-        // TODO: replace with write to backend store
-        // create, open and truncate the file
-        file, err := os.OpenFile(dest, flags, 0666)
-        if err != nil {
-                return err
-        }
+	// TODO: replace with write to backend store
+	// create, open and truncate the file
+	file, err := os.OpenFile(dest, flags, 0666)
+	if err != nil {
+		return err
+	}
 	defer file.Close()
 
 	// start the download request
@@ -142,24 +142,24 @@ func (s *src) Upload(source, dest string) error {
 	defer stream.Close()
 
 	// stream all the chunks of the file
-        for {
-                data := new(pb.Data)
-                // read a megabyte at a time
-                data.Chunk = make([]byte, 1024*1024)
+	for {
+		data := new(pb.Data)
+		// read a megabyte at a time
+		data.Chunk = make([]byte, 1024*1024)
 
-                n, err := file.Read(data.Chunk)
-                if n > 0 {
-                        if err := stream.Send(data); err != nil {
-                                return err
-                        }
-                }
-                if err == io.EOF {
-                        return nil
-                }
-                if err != nil {
-                        return err
-                }
-        }
+		n, err := file.Read(data.Chunk)
+		if n > 0 {
+			if err := stream.Send(data); err != nil {
+				return err
+			}
+		}
+		if err == io.EOF {
+			return nil
+		}
+		if err != nil {
+			return err
+		}
+	}
 
 	return nil
 }

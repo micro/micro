@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	goauth "github.com/micro/go-micro/v3/auth"
 	gorun "github.com/micro/go-micro/v3/runtime"
 	gostore "github.com/micro/go-micro/v3/store"
 	"github.com/micro/micro/v3/internal/namespace"
@@ -117,7 +118,8 @@ func (m *manager) processEvent(key string) {
 		err = runtime.Update(ev.Service, gorun.UpdateNamespace(ns))
 	case gorun.Create:
 		// generate an auth account for the service to use
-		acc, err := m.generateAccount(ev.Service, ns)
+		var acc *goauth.Account
+		acc, err = m.generateAccount(ev.Service, ns)
 		if err != nil {
 			return
 		}
@@ -130,8 +132,12 @@ func (m *manager) processEvent(key string) {
 			gorun.WithArgs(ev.Options.Args...),
 			gorun.WithCommand(ev.Options.Command...),
 			gorun.WithEnv(m.runtimeEnv(ev.Service, ev.Options)),
-			gorun.WithSecret("MICRO_AUTH_ID", acc.ID),
-			gorun.WithSecret("MICRO_AUTH_SECRET", acc.Secret),
+		}
+
+		// inject the credentials into the service if present
+		if len(acc.ID) > 0 && len(acc.Secret) > 0 {
+			options = append(options, gorun.WithSecret("MICRO_AUTH_ID", acc.ID))
+			options = append(options, gorun.WithSecret("MICRO_AUTH_SECRET", acc.Secret))
 		}
 
 		// add the secrets

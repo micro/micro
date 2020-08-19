@@ -32,6 +32,6 @@ func Delete(srv *runtime.Service, opts ...runtime.DeleteOption) error {
 }
 
 // Logs returns the logs for a service
-func Logs(srv *runtime.Service, opts ...runtime.LogsOption) (runtime.LogStream, error) {
+func Logs(srv *runtime.Service, opts ...runtime.LogsOption) (runtime.Logs, error) {
 	return DefaultRuntime.Logs(srv, opts...)
 }

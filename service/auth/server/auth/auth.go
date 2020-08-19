@@ -121,7 +121,7 @@ func (a *Auth) Generate(ctx context.Context, req *pb.GenerateRequest, rsp *pb.Ge
 		req.Options = &pb.Options{}
 	}
 	if len(req.Options.Namespace) == 0 {
-		req.Options.Namespace = namespace.DefaultNamespace
+		req.Options.Namespace = namespace.FromContext(ctx)
 	}
 
 	// authorize the request

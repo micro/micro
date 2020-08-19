@@ -62,6 +62,11 @@ func toCreateOptions(ctx context.Context, opts *pb.CreateOptions) []runtime.Crea
 		options = append(options, runtime.CreateImage(opts.Image))
 	}
 
+	// inject the secrets
+	for k, v := range opts.Secrets {
+		options = append(options, runtime.WithSecret(k, v))
+	}
+
 	// TODO: output options
 
 	return options
