@@ -24,6 +24,7 @@ import (
 	"github.com/micro/micro/v3/client/cli/util"
 	uconf "github.com/micro/micro/v3/internal/config"
 	"github.com/micro/micro/v3/internal/helper"
+	"github.com/micro/micro/v3/internal/network"
 	_ "github.com/micro/micro/v3/internal/usage"
 	"github.com/micro/micro/v3/internal/wrapper"
 	"github.com/micro/micro/v3/plugin"
@@ -286,6 +287,11 @@ func (c *command) Before(ctx *cli.Context) error {
 	if len(proxy) > 0 {
 		muclient.DefaultClient.Init(client.Proxy(proxy))
 	}
+
+	// use the internal network lookup
+	muclient.DefaultClient.Init(
+		client.Lookup(network.Lookup),
+	)
 
 	// wrap the client
 	muclient.DefaultClient = wrapper.AuthClient(muclient.DefaultClient)
