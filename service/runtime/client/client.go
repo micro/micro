@@ -37,9 +37,6 @@ func (s *svc) Create(svc *runtime.Service, opts ...runtime.CreateOption) error {
 	for _, o := range opts {
 		o(&options)
 	}
-	if options.Context == nil {
-		options.Context = context.DefaultContext
-	}
 
 	// set the default source from MICRO_RUNTIME_SOURCE
 	if len(svc.Source) == 0 {
@@ -65,7 +62,7 @@ func (s *svc) Create(svc *runtime.Service, opts ...runtime.CreateOption) error {
 		},
 	}
 
-	if _, err := s.runtime.Create(options.Context, req, goclient.WithAuthToken()); err != nil {
+	if _, err := s.runtime.Create(context.DefaultContext, req, goclient.WithAuthToken()); err != nil {
 		return err
 	}
 
@@ -78,11 +75,7 @@ func (s *svc) Logs(service *runtime.Service, opts ...runtime.LogsOption) (runtim
 		o(&options)
 	}
 
-	if options.Context == nil {
-		options.Context = context.DefaultContext
-	}
-
-	ls, err := s.runtime.Logs(options.Context, &pb.LogsRequest{
+	ls, err := s.runtime.Logs(context.DefaultContext, &pb.LogsRequest{
 		Service: service.Name,
 		Stream:  options.Stream,
 		Count:   options.Count,
@@ -174,9 +167,6 @@ func (s *svc) Read(opts ...runtime.ReadOption) ([]*runtime.Service, error) {
 	for _, o := range opts {
 		o(&options)
 	}
-	if options.Context == nil {
-		options.Context = context.DefaultContext
-	}
 
 	// runtime service create request
 	req := &pb.ReadRequest{
@@ -188,7 +178,7 @@ func (s *svc) Read(opts ...runtime.ReadOption) ([]*runtime.Service, error) {
 		},
 	}
 
-	resp, err := s.runtime.Read(options.Context, req, goclient.WithAuthToken())
+	resp, err := s.runtime.Read(context.DefaultContext, req, goclient.WithAuthToken())
 	if err != nil {
 		return nil, err
 	}
@@ -213,8 +203,8 @@ func (s *svc) Update(svc *runtime.Service, opts ...runtime.UpdateOption) error {
 	for _, o := range opts {
 		o(&options)
 	}
-	if options.Context == nil {
-		options.Context = context.DefaultContext
+	if context.DefaultContext == nil {
+		context.DefaultContext = context.DefaultContext
 	}
 
 	// runtime service create request
@@ -230,7 +220,7 @@ func (s *svc) Update(svc *runtime.Service, opts ...runtime.UpdateOption) error {
 		},
 	}
 
-	if _, err := s.runtime.Update(options.Context, req, goclient.WithAuthToken()); err != nil {
+	if _, err := s.runtime.Update(context.DefaultContext, req, goclient.WithAuthToken()); err != nil {
 		return err
 	}
 
@@ -242,9 +232,6 @@ func (s *svc) Delete(svc *runtime.Service, opts ...runtime.DeleteOption) error {
 	var options runtime.DeleteOptions
 	for _, o := range opts {
 		o(&options)
-	}
-	if options.Context == nil {
-		options.Context = context.DefaultContext
 	}
 
 	// runtime service create request
@@ -260,7 +247,7 @@ func (s *svc) Delete(svc *runtime.Service, opts ...runtime.DeleteOption) error {
 		},
 	}
 
-	if _, err := s.runtime.Delete(options.Context, req, goclient.WithAuthToken()); err != nil {
+	if _, err := s.runtime.Delete(context.DefaultContext, req, goclient.WithAuthToken()); err != nil {
 		return err
 	}
 
