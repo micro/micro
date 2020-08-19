@@ -43,6 +43,9 @@ func NewExampleEndpoints() []*api.Endpoint {
 
 type ExampleService interface {
 	TestExpiry(ctx context.Context, in *Request, opts ...client.CallOption) (*Response, error)
+	TestList(ctx context.Context, in *Request, opts ...client.CallOption) (*Response, error)
+	TestListLimit(ctx context.Context, in *Request, opts ...client.CallOption) (*Response, error)
+	TestListOffset(ctx context.Context, in *Request, opts ...client.CallOption) (*Response, error)
 }
 
 type exampleService struct {
@@ -67,15 +70,51 @@ func (c *exampleService) TestExpiry(ctx context.Context, in *Request, opts ...cl
 	return out, nil
 }
 
+func (c *exampleService) TestList(ctx context.Context, in *Request, opts ...client.CallOption) (*Response, error) {
+	req := c.c.NewRequest(c.name, "Example.TestList", in)
+	out := new(Response)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *exampleService) TestListLimit(ctx context.Context, in *Request, opts ...client.CallOption) (*Response, error) {
+	req := c.c.NewRequest(c.name, "Example.TestListLimit", in)
+	out := new(Response)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *exampleService) TestListOffset(ctx context.Context, in *Request, opts ...client.CallOption) (*Response, error) {
+	req := c.c.NewRequest(c.name, "Example.TestListOffset", in)
+	out := new(Response)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // Server API for Example service
 
 type ExampleHandler interface {
 	TestExpiry(context.Context, *Request, *Response) error
+	TestList(context.Context, *Request, *Response) error
+	TestListLimit(context.Context, *Request, *Response) error
+	TestListOffset(context.Context, *Request, *Response) error
 }
 
 func RegisterExampleHandler(s server.Server, hdlr ExampleHandler, opts ...server.HandlerOption) error {
 	type example interface {
 		TestExpiry(ctx context.Context, in *Request, out *Response) error
+		TestList(ctx context.Context, in *Request, out *Response) error
+		TestListLimit(ctx context.Context, in *Request, out *Response) error
+		TestListOffset(ctx context.Context, in *Request, out *Response) error
 	}
 	type Example struct {
 		example
@@ -90,4 +129,16 @@ type exampleHandler struct {
 
 func (h *exampleHandler) TestExpiry(ctx context.Context, in *Request, out *Response) error {
 	return h.ExampleHandler.TestExpiry(ctx, in, out)
+}
+
+func (h *exampleHandler) TestList(ctx context.Context, in *Request, out *Response) error {
+	return h.ExampleHandler.TestList(ctx, in, out)
+}
+
+func (h *exampleHandler) TestListLimit(ctx context.Context, in *Request, out *Response) error {
+	return h.ExampleHandler.TestListLimit(ctx, in, out)
+}
+
+func (h *exampleHandler) TestListOffset(ctx context.Context, in *Request, out *Response) error {
+	return h.ExampleHandler.TestListOffset(ctx, in, out)
 }
