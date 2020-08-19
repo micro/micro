@@ -53,6 +53,10 @@ var (
 	DefaultImage = "micro/cells:go"
 )
 
+const (
+	credentialsKey = "GIT_CREDENTIALS"
+)
+
 // timeAgo returns the time passed
 func timeAgo(v string) string {
 	if len(v) == 0 {
@@ -229,10 +233,9 @@ func runService(ctx *cli.Context) error {
 		return err
 	}
 	opts = append(opts, goruntime.CreateNamespace(ns))
-
-	// add the git credentials if set
-	if creds, err := config.Get("git", "credentials"); err == nil && len(creds) > 0 {
-		opts = append(opts, goruntime.WithSecret("GIT_CREDENTIALS", creds))
+	gitCreds, ok := getGitCredentials(source.Repo)
+	if ok {
+		opts = append(opts, goruntime.WithSecret(credentialsKey, gitCreds))
 	}
 
 	// run the service
@@ -257,6 +260,25 @@ func runService(ctx *cli.Context) error {
 	}
 
 	return nil
+}
+
+func getGitCredentials(repo string) (string, bool) {
+	repo = strings.Split(repo, "/")[0]
+	switch {
+	case strings.Contains(repo, "github"):
+		if creds, err := config.Get("git", "github", "credentials"); err == nil && len(creds) > 0 {
+			return creds, true
+		}
+	case strings.Contains(repo, "gitlab"):
+		if creds, err := config.Get("git", "gitlab", "credentials"); err == nil && len(creds) > 0 {
+			return creds, true
+		}
+	case strings.Contains(repo, "bitbucket"):
+		if creds, err := config.Get("git", "bitbucket", "credentials"); err == nil && len(creds) > 0 {
+			return creds, true
+		}
+	}
+	return "", false
 }
 
 func killService(ctx *cli.Context) error {
@@ -394,9 +416,9 @@ func updateService(ctx *cli.Context) error {
 	}
 
 	opts := []goruntime.UpdateOption{goruntime.UpdateNamespace(ns)}
-	// add the git credentials if set
-	if creds, err := config.Get("git", "credentials"); err == nil && len(creds) > 0 {
-		opts = append(opts, goruntime.UpdateSecret("GIT_CREDENTIALS", creds))
+	gitCreds, ok := getGitCredentials(source.Repo)
+	if ok {
+		opts = append(opts, goruntime.UpdateSecret(credentialsKey, gitCreds))
 	}
 	return runtime.Update(service, goruntime.UpdateNamespace(ns))
 }
