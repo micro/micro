@@ -706,6 +706,10 @@ func testRunPrivateSource(t *T) {
 
 	// call the service
 	if err := Try("Calling helloworld", t, func() ([]byte, error) {
+		outp, _ := cmd.Exec("logs", "hellworld")
+		t.Log(string(outp))
+		outp, _ = cmd.Exec("network", "routes")
+		t.Log(string(outp))
 		return cmd.Exec("helloworld", "--name=John")
 	}, 30*time.Second); err != nil {
 		outp, _ := cmd.Exec("logs", "hellworld")
