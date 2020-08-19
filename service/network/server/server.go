@@ -11,7 +11,7 @@ import (
 	net "github.com/micro/go-micro/v3/network"
 	"github.com/micro/go-micro/v3/network/mucp"
 	"github.com/micro/go-micro/v3/proxy"
-	grpcProxy "github.com/micro/go-micro/v3/proxy/grpc"
+	//grpcProxy "github.com/micro/go-micro/v3/proxy/grpc"
 	mucpProxy "github.com/micro/go-micro/v3/proxy/mucp"
 	"github.com/micro/go-micro/v3/router"
 	"github.com/micro/go-micro/v3/server"
@@ -155,10 +155,11 @@ func Run(ctx *cli.Context) error {
 	)
 
 	// local proxy using grpc
-	localProxy := grpcProxy.NewProxy(
-		proxy.WithRouter(rtr),
-		proxy.WithClient(service.Client()),
-	)
+	// TODO: reenable after PR
+	//localProxy := grpcProxy.NewProxy(
+	//	proxy.WithRouter(rtr),
+	//	proxy.WithClient(service.Client()),
+	//)
 
 	// network proxy
 	// used by the network nodes to cluster
@@ -179,14 +180,14 @@ func Run(ctx *cli.Context) error {
 	mucpServer.DefaultRouter.Handle(h)
 
 	// local mux
-	localMux := muxer.New(name, localProxy)
+	//localMux := muxer.New(name, localProxy)
 
 	// network mux
 	networkMux := muxer.New(name, networkProxy)
 
 	// init the local grpc server
 	service.Server().Init(
-		server.WithRouter(localMux),
+		server.WithRouter(networkMux),
 	)
 
 	// set network server to proxy
