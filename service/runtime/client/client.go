@@ -203,10 +203,6 @@ func (s *svc) Update(svc *runtime.Service, opts ...runtime.UpdateOption) error {
 	for _, o := range opts {
 		o(&options)
 	}
-	if context.DefaultContext == nil {
-		context.DefaultContext = context.DefaultContext
-	}
-
 	// runtime service create request
 	req := &pb.UpdateRequest{
 		Service: &pb.Service{
