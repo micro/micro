@@ -1,13 +1,13 @@
 package client
 
 import (
-	"context"
 	"encoding/json"
 	"time"
 
 	goclient "github.com/micro/go-micro/v3/client"
 	"github.com/micro/go-micro/v3/events"
 	"github.com/micro/micro/v3/service/client"
+	"github.com/micro/micro/v3/service/context"
 	pb "github.com/micro/micro/v3/service/events/proto"
 )
 
@@ -42,7 +42,7 @@ func (s *stream) Publish(topic string, opts ...events.PublishOption) error {
 	}
 
 	// execute the RPC
-	_, err := s.client().Publish(context.TODO(), &pb.PublishRequest{
+	_, err := s.client().Publish(context.DefaultContext, &pb.PublishRequest{
 		Topic:     topic,
 		Payload:   payload,
 		Metadata:  options.Metadata,
@@ -60,7 +60,7 @@ func (s *stream) Subscribe(opts ...events.SubscribeOption) (<-chan events.Event,
 	}
 
 	// start the stream
-	stream, err := s.client().Subscribe(context.TODO(), &pb.SubscribeRequest{
+	stream, err := s.client().Subscribe(context.DefaultContext, &pb.SubscribeRequest{
 		Queue:       options.Queue,
 		Topic:       options.Topic,
 		StartAtTime: options.StartAtTime.Unix(),
