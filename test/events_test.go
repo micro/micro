@@ -15,7 +15,7 @@ func TestEventsStream(t *testing.T) {
 
 func testEventsStream(t *T) {
 	t.Parallel()
-	serv := NewServer(t, WithLogin(), WithNamespace("micro"))
+	serv := NewServer(t, WithLogin()) //, WithNamespace("micro"))
 	defer serv.Close()
 	if err := serv.Run(); err != nil {
 		return
