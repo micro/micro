@@ -26,10 +26,7 @@ func main() {
 		ticker := time.NewTicker(time.Second)
 
 		for {
-			err := events.Publish("test",
-				goevents.WithPayload(payload),
-				goevents.WithMetadata(metadata),
-			)
+			err := events.Publish("test", payload, goevents.WithMetadata(metadata))
 
 			if err != nil {
 				logger.Errorf("Error publishing event: %v", err)
@@ -41,7 +38,7 @@ func main() {
 		}
 	}()
 
-	evChan, err := events.Subscribe(goevents.WithTopic("test"))
+	evChan, err := events.Subscribe("test")
 	if err != nil {
 		logger.Fatalf("Error creating subscriber: %v", err)
 	}
