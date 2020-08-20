@@ -52,6 +52,6 @@ func (s *evStore) Read(ctx context.Context, req *pb.ReadRequest, rsp *pb.ReadRes
 	return nil
 }
 
-func (s *evStore) Write(ctx context.Context, req *pb.WriteRequest, rsp pb.WriteRequest) error {
+func (s *evStore) Write(ctx context.Context, req *pb.WriteRequest, rsp *pb.WriteResponse) error {
 	return errors.NotImplemented("events.Store.Write", "Writing to the store directly is not supported")
 }
