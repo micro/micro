@@ -5,15 +5,24 @@ import (
 	"github.com/micro/micro/v3/service/events/client"
 )
 
-// DefaultStream is the default events stream implementation
-var DefaultStream events.Stream = client.NewStream()
+var (
+	// DefaultStream is the default events stream implementation
+	DefaultStream events.Stream = client.NewStream()
+	// DefaultStore is the default events store implementation
+	DefaultStore events.Store = client.NewStore()
+)
 
 // Publish an event to a topic
-func Publish(topic string, opts ...events.PublishOption) error {
-	return DefaultStream.Publish(topic, opts...)
+func Publish(topic string, msg interface{}, opts ...events.PublishOption) error {
+	return DefaultStream.Publish(topic, msg, opts...)
 }
 
 // Subscribe to events
-func Subscribe(opts ...events.SubscribeOption) (<-chan events.Event, error) {
-	return DefaultStream.Subscribe(opts...)
+func Subscribe(topic string, opts ...events.SubscribeOption) (<-chan events.Event, error) {
+	return DefaultStream.Subscribe(topic, opts...)
+}
+
+// Read events for a topic
+func Read(topic string, opts ...events.ReadOption) ([]*events.Event, error) {
+	return DefaultStore.Read(topic, opts...)
 }
