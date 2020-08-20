@@ -20,7 +20,7 @@ type stream struct {
 	Client pb.StreamService
 }
 
-func (s *stream) Publish(topic string, opts ...events.PublishOption) error {
+func (s *stream) Publish(topic string, msg interface{}, opts ...events.PublishOption) error {
 	// parse the options
 	options := events.PublishOptions{
 		Timestamp: time.Now(),
@@ -31,10 +31,10 @@ func (s *stream) Publish(topic string, opts ...events.PublishOption) error {
 
 	// encode the message if it's not already encoded
 	var payload []byte
-	if p, ok := options.Payload.([]byte); ok {
+	if p, ok := msg.([]byte); ok {
 		payload = p
 	} else {
-		p, err := json.Marshal(options.Payload)
+		p, err := json.Marshal(msg)
 		if err != nil {
 			return events.ErrEncodingMessage
 		}
@@ -52,7 +52,7 @@ func (s *stream) Publish(topic string, opts ...events.PublishOption) error {
 	return err
 }
 
-func (s *stream) Subscribe(opts ...events.SubscribeOption) (<-chan events.Event, error) {
+func (s *stream) Subscribe(topic string, opts ...events.SubscribeOption) (<-chan events.Event, error) {
 	// parse options
 	var options events.SubscribeOptions
 	for _, o := range opts {
@@ -61,8 +61,8 @@ func (s *stream) Subscribe(opts ...events.SubscribeOption) (<-chan events.Event,
 
 	// start the stream
 	stream, err := s.client().Subscribe(context.DefaultContext, &pb.SubscribeRequest{
+		Topic:       topic,
 		Queue:       options.Queue,
-		Topic:       options.Topic,
 		StartAtTime: options.StartAtTime.Unix(),
 	}, goclient.WithAuthToken())
 	if err != nil {
