@@ -16,7 +16,6 @@ func init() {
 	testFilter = []string{
 		"TestRunGithubSource",
 		"TestStore",
-		"TestStoreImpl",
 		"TestCorruptedTokenLogin",
 		"TestRunPrivateSource",
 		"TestEventsStream",

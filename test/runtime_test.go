@@ -751,8 +751,6 @@ func testRunPrivateSource(t *T) {
 		}
 		return outp, err
 	}, 300*time.Second); err != nil {
-		outp, _ := cmd.Exec("logs", "helloworld")
-		t.Log(string(outp))
 		return
 	}
 
