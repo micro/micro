@@ -70,7 +70,6 @@ func Run(ctx *cli.Context) error {
 
 	// register the runtime handler
 	pb.RegisterRuntimeHandler(srv.Server(), &Runtime{
-		Event:   service.NewEvent("runtime.events"),
 		Runtime: manager,
 	})
 
