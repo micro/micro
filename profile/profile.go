@@ -17,6 +17,7 @@ import (
 	"github.com/micro/go-micro/v3/broker/nats"
 	"github.com/micro/go-micro/v3/client"
 	"github.com/micro/go-micro/v3/config"
+	evStore "github.com/micro/go-micro/v3/events/store"
 	memStream "github.com/micro/go-micro/v3/events/stream/memory"
 	natsStream "github.com/micro/go-micro/v3/events/stream/nats"
 	"github.com/micro/go-micro/v3/registry"
@@ -96,6 +97,7 @@ var CI = &Profile{
 		microStore.DefaultStore = file.NewStore()
 		microConfig.DefaultConfig, _ = config.NewConfig()
 		microEvents.DefaultStream, _ = memStream.NewStream()
+		microEvents.DefaultStore = evStore.NewStore(evStore.WithStore(microStore.DefaultStore))
 		setBroker(http.NewBroker())
 		setRegistry(etcd.NewRegistry())
 		setupJWTRules()
@@ -167,6 +169,7 @@ var Platform = &Profile{
 		// when the store is created. The cockroach store address contains the location
 		// of certs so it can't be defaulted like the broker and registry.
 		microStore.DefaultStore = cockroach.NewStore(store.Nodes(ctx.String("store_address")))
+		microEvents.DefaultStore = evStore.NewStore(evStore.WithStore(microStore.DefaultStore))
 		return nil
 	},
 }
