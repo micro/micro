@@ -31,19 +31,19 @@ var (
 			EnvVars: []string{"MICRO_RUNTIME_RETRIES"},
 		},
 		&cli.IntFlag{
-			Name:    "limit_cpu",
+			Name:    "cpu_limit",
 			Usage:   "Set the CPU limit for services created by the runtime, e.g. 500 for 0.5 CPU",
-			EnvVars: []string{"MICRO_RUNTIME_LIMIT_CPU"},
+			EnvVars: []string{"MICRO_RUNTIME_CPU_LIMIT"},
 		},
 		&cli.IntFlag{
-			Name:    "limit_memory",
+			Name:    "memory_limit",
 			Usage:   "Set the memory limit for services created by the runtime, e.g. 512 for 512 MiB",
-			EnvVars: []string{"MICRO_RUNTIME_LIMIT_MEMORY"},
+			EnvVars: []string{"MICRO_RUNTIME_MEMORY_LIMIT"},
 		},
 		&cli.IntFlag{
-			Name:    "limit_disk",
+			Name:    "disk_limit",
 			Usage:   "Set the disk limit for services created by the runtime, e.g. 512 for 512 MiB",
-			EnvVars: []string{"MICRO_RUNTIME_LIMIT_DISK"},
+			EnvVars: []string{"MICRO_RUNTIME_DISK_LIMIT"},
 		},
 	}
 )
@@ -75,9 +75,9 @@ func Run(ctx *cli.Context) error {
 	srv := service.New(srvOpts...)
 
 	limits := &goruntime.Resources{
-		CPU:  ctx.Int("limit_cpu"),
-		Mem:  ctx.Int("limit_memory"),
-		Disk: ctx.Int("limit_disk"),
+		CPU:  ctx.Int("cpu_limit"),
+		Mem:  ctx.Int("memory_limit"),
+		Disk: ctx.Int("disk_limit"),
 	}
 
 	// create a new runtime manager
