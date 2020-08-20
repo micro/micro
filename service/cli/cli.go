@@ -25,6 +25,7 @@ import (
 	auth "github.com/micro/micro/v3/service/auth/server"
 	broker "github.com/micro/micro/v3/service/broker/server"
 	config "github.com/micro/micro/v3/service/config/server"
+	events "github.com/micro/micro/v3/service/events/server"
 	network "github.com/micro/micro/v3/service/network/server"
 	proxy "github.com/micro/micro/v3/service/proxy"
 	registry "github.com/micro/micro/v3/service/registry/server"
@@ -159,6 +160,10 @@ var srvCommands = []srvCommand{
 		Name:    "config",
 		Command: config.Run,
 		Flags:   config.Flags,
+	},
+	{
+		Name:    "events",
+		Command: events.Run,
 	},
 	{
 		Name:    "health",

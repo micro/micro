@@ -2,7 +2,6 @@
 package user
 
 import (
-	"context"
 	"fmt"
 	"os"
 	"strings"
@@ -16,6 +15,7 @@ import (
 	"github.com/micro/micro/v3/service/auth"
 	pb "github.com/micro/micro/v3/service/auth/proto"
 	"github.com/micro/micro/v3/service/client"
+	"github.com/micro/micro/v3/service/context"
 	"golang.org/x/crypto/ssh/terminal"
 )
 
@@ -129,7 +129,7 @@ func changePassword(ctx *cli.Context) error {
 	}
 
 	accountService := pb.NewAccountsService("auth", client.DefaultClient)
-	_, err := accountService.ChangeSecret(context.TODO(), &pb.ChangeSecretRequest{
+	_, err := accountService.ChangeSecret(context.DefaultContext, &pb.ChangeSecretRequest{
 		Id:        email,
 		OldSecret: oldPassword,
 		NewSecret: newPassword,
@@ -172,10 +172,19 @@ func current(ctx *cli.Context) error {
 		id = acc.ID
 	}
 
+	baseURL, _ := config.Get("git", util.GetEnv(ctx).Name, "baseurl")
+	if len(baseURL) == 0 {
+		baseURL, _ = config.Get("git", "baseurl")
+	}
+	if len(baseURL) == 0 {
+		baseURL = "n/a"
+	}
+
 	fmt.Println("user:", id)
 	fmt.Println("namespace:", ns)
 	fmt.Println("environment:", env)
 	fmt.Println("git.credentials:", gitcreds)
+	fmt.Println("git.baseurl:", baseURL)
 	return nil
 }
 

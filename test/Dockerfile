@@ -1,5 +1,5 @@
 FROM alpine:latest
-RUN apk --no-cache add make git go gcc libtool musl-dev curl bash
+RUN apk add make git go gcc libtool musl-dev curl bash
 
 # Configure Go
 ENV GOROOT /usr/lib/go

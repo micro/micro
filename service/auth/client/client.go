@@ -1,7 +1,6 @@
 package client
 
 import (
-	"context"
 	"strings"
 	"time"
 
@@ -11,6 +10,7 @@ import (
 	"github.com/micro/go-micro/v3/util/token/jwt"
 	pb "github.com/micro/micro/v3/service/auth/proto"
 	"github.com/micro/micro/v3/service/client"
+	"github.com/micro/micro/v3/service/context"
 )
 
 // srv is the service implementation of the Auth interface
@@ -66,7 +66,7 @@ func (s *srv) Generate(id string, opts ...auth.GenerateOption) (*auth.Account, e
 		return acc, nil
 	}
 
-	rsp, err := s.auth.Generate(context.TODO(), &pb.GenerateRequest{
+	rsp, err := s.auth.Generate(context.DefaultContext, &pb.GenerateRequest{
 		Id:       id,
 		Type:     options.Type,
 		Secret:   options.Secret,
@@ -93,7 +93,7 @@ func (s *srv) Grant(rule *auth.Rule) error {
 		access = pb.Access_DENIED
 	}
 
-	_, err := s.rules.Create(context.TODO(), &pb.CreateRequest{
+	_, err := s.rules.Create(context.DefaultContext, &pb.CreateRequest{
 		Rule: &pb.Rule{
 			Id:       rule.ID,
 			Scope:    rule.Scope,
@@ -115,7 +115,7 @@ func (s *srv) Grant(rule *auth.Rule) error {
 
 // Revoke access to a resource
 func (s *srv) Revoke(rule *auth.Rule) error {
-	_, err := s.rules.Delete(context.TODO(), &pb.DeleteRequest{
+	_, err := s.rules.Delete(context.DefaultContext, &pb.DeleteRequest{
 		Id: rule.ID, Options: &pb.Options{
 			Namespace: s.Options().Issuer,
 		},
@@ -130,7 +130,7 @@ func (s *srv) Rules(opts ...auth.RulesOption) ([]*auth.Rule, error) {
 		o(&options)
 	}
 	if options.Context == nil {
-		options.Context = context.TODO()
+		options.Context = context.DefaultContext
 	}
 	if len(options.Namespace) == 0 {
 		options.Namespace = s.options.Issuer
@@ -179,7 +179,7 @@ func (s *srv) Inspect(token string) (*auth.Account, error) {
 
 	// the token is not a JWT or we do not have the keys to decode it,
 	// fall back to the auth service
-	rsp, err := s.auth.Inspect(context.TODO(), &pb.InspectRequest{
+	rsp, err := s.auth.Inspect(context.DefaultContext, &pb.InspectRequest{
 		Token: token, Options: &pb.Options{Namespace: s.Options().Issuer},
 	}, s.callOpts()...)
 	if err != nil {
@@ -219,7 +219,7 @@ func (s *srv) Token(opts ...auth.TokenOption) (*auth.Token, error) {
 		}, nil
 	}
 
-	rsp, err := s.auth.Token(context.Background(), &pb.TokenRequest{
+	rsp, err := s.auth.Token(context.DefaultContext, &pb.TokenRequest{
 		Id:           options.ID,
 		Secret:       options.Secret,
 		RefreshToken: options.RefreshToken,

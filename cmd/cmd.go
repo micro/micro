@@ -24,6 +24,7 @@ import (
 	"github.com/micro/micro/v3/client/cli/util"
 	uconf "github.com/micro/micro/v3/internal/config"
 	"github.com/micro/micro/v3/internal/helper"
+	"github.com/micro/micro/v3/internal/network"
 	_ "github.com/micro/micro/v3/internal/usage"
 	"github.com/micro/micro/v3/internal/wrapper"
 	"github.com/micro/micro/v3/plugin"
@@ -148,6 +149,21 @@ var (
 			Name:    "broker_address",
 			EnvVars: []string{"MICRO_BROKER_ADDRESS"},
 			Usage:   "Comma-separated list of broker addresses",
+		},
+		&cli.StringFlag{
+			Name:    "events_tls_ca",
+			Usage:   "Certificate authority for TLS with events",
+			EnvVars: []string{"MICRO_EVENTS_TLS_CA"},
+		},
+		&cli.StringFlag{
+			Name:    "events_tls_cert",
+			Usage:   "Client cert for TLS with events",
+			EnvVars: []string{"MICRO_EVENTS_TLS_CERT"},
+		},
+		&cli.StringFlag{
+			Name:    "events_tls_key",
+			Usage:   "Client key for TLS with events",
+			EnvVars: []string{"MICRO_EVENTS_TLS_KEY"},
 		},
 		&cli.StringFlag{
 			Name:    "broker_tls_ca",
@@ -287,6 +303,11 @@ func (c *command) Before(ctx *cli.Context) error {
 		muclient.DefaultClient.Init(client.Proxy(proxy))
 	}
 
+	// use the internal network lookup
+	muclient.DefaultClient.Init(
+		client.Lookup(network.Lookup),
+	)
+
 	// wrap the client
 	muclient.DefaultClient = wrapper.AuthClient(muclient.DefaultClient)
 	muclient.DefaultClient = wrapper.CacheClient(muclient.DefaultClient)
@@ -408,9 +429,15 @@ func (c *command) Before(ctx *cli.Context) error {
 		logger.Fatalf("Error configuring store: %v", err)
 	}
 
-	// set the registry in the client and server
-	muclient.DefaultClient.Init(client.Registry(muregistry.DefaultRegistry))
-	muserver.DefaultServer.Init(server.Registry(muregistry.DefaultRegistry))
+	// set the registry and broker in the client and server
+	muclient.DefaultClient.Init(
+		client.Broker(mubroker.DefaultBroker),
+		client.Registry(muregistry.DefaultRegistry),
+	)
+	muserver.DefaultServer.Init(
+		server.Broker(mubroker.DefaultBroker),
+		server.Registry(muregistry.DefaultRegistry),
+	)
 
 	// setup auth credentials, use local credentials for the CLI and injected creds
 	// for the service.
@@ -488,10 +515,9 @@ func action(c *cli.Context) error {
 		// execute the Config.Set RPC, setting the flags in the
 		// request.
 		if srv, err := lookupService(c); err != nil {
-			cmdStr := strings.Join(c.Args().Slice(), " ")
-			fmt.Printf("Error querying registry for service %v: %v", cmdStr, err)
+			fmt.Printf("Error querying registry for service %v: %v", c.Args().First(), err)
 			os.Exit(1)
-		} else if srv != nil && c.Args().Len() == 1 {
+		} else if srv != nil && shouldRenderHelp(c) {
 			fmt.Println(formatServiceUsage(srv, c.Args().First()))
 			os.Exit(1)
 		} else if srv != nil {

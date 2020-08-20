@@ -39,7 +39,7 @@ func (m *metaHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	case aweb.Handler:
 		aweb.WithService(service, handler.WithClient(m.c)).ServeHTTP(w, r)
 	// proxy handler
-	case "proxy", ahttp.Handler:
+	case ahttp.Handler:
 		ahttp.WithService(service, handler.WithClient(m.c)).ServeHTTP(w, r)
 	// rpcx handler
 	case arpc.Handler:

@@ -3,7 +3,6 @@ package cli
 
 import (
 	"bufio"
-	"context"
 	"fmt"
 	"os"
 	"strings"
@@ -20,6 +19,7 @@ import (
 	"github.com/micro/micro/v3/internal/report"
 	pb "github.com/micro/micro/v3/platform/proto/signup"
 	"github.com/micro/micro/v3/service/client"
+	"github.com/micro/micro/v3/service/context"
 	"golang.org/x/crypto/ssh/terminal"
 )
 
@@ -39,7 +39,7 @@ func Signup(ctx *cli.Context) error {
 
 	// send a verification email to the user
 	signupService := pb.NewSignupService("signup", client.DefaultClient)
-	_, err := signupService.SendVerificationEmail(context.TODO(), &pb.SendVerificationEmailRequest{
+	_, err := signupService.SendVerificationEmail(context.DefaultContext, &pb.SendVerificationEmailRequest{
 		Email: email,
 	}, cl.WithRequestTimeout(10*time.Second))
 	if err != nil {
@@ -53,7 +53,7 @@ func Signup(ctx *cli.Context) error {
 	otp = strings.TrimSpace(otp)
 
 	// verify the email and password entered
-	rsp, err := signupService.Verify(context.TODO(), &pb.VerifyRequest{
+	rsp, err := signupService.Verify(context.DefaultContext, &pb.VerifyRequest{
 		Email: email,
 		Token: otp,
 	}, cl.WithRequestTimeout(10*time.Second))
@@ -129,7 +129,7 @@ func Signup(ctx *cli.Context) error {
 	}
 
 	// complete the signup flow
-	signupRsp, err := signupService.CompleteSignup(context.TODO(), &pb.CompleteSignupRequest{
+	signupRsp, err := signupService.CompleteSignup(context.DefaultContext, &pb.CompleteSignupRequest{
 		Email:           email,
 		Token:           otp,
 		PaymentMethodID: paymentMethodID,
