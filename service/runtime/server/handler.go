@@ -88,15 +88,16 @@ func (r *Runtime) Create(ctx context.Context, req *pb.CreateRequest, rsp *pb.Cre
 	}
 
 	// publish the create event
-	return events.Publish(runtime.EventTopic, &runtime.EventPayload{
+	ev := &runtime.EventPayload{
 		Service:   service,
 		Namespace: req.Options.Namespace,
 		Type:      runtime.EventServiceCreated,
-	}, goevents.WithMetadata(map[string]string{
+	}
+
+	return events.Publish(runtime.EventTopic, ev, goevents.WithMetadata(map[string]string{
 		"type":      runtime.EventServiceCreated,
 		"namespace": req.Options.Namespace,
-	}),
-	)
+	}))
 }
 
 func (r *Runtime) Update(ctx context.Context, req *pb.UpdateRequest, rsp *pb.UpdateResponse) error {
@@ -134,15 +135,16 @@ func (r *Runtime) Update(ctx context.Context, req *pb.UpdateRequest, rsp *pb.Upd
 	}
 
 	// publish the update event
-	return events.Publish(runtime.EventTopic, &runtime.EventPayload{
+	ev := &runtime.EventPayload{
 		Service:   service,
 		Namespace: req.Options.Namespace,
 		Type:      runtime.EventServiceUpdated,
-	}, goevents.WithMetadata(map[string]string{
+	}
+
+	return events.Publish(runtime.EventTopic, ev, goevents.WithMetadata(map[string]string{
 		"type":      runtime.EventServiceUpdated,
 		"namespace": req.Options.Namespace,
-	}),
-	)
+	}))
 }
 
 func setupServiceMeta(ctx context.Context, service *gorun.Service) {
@@ -195,15 +197,16 @@ func (r *Runtime) Delete(ctx context.Context, req *pb.DeleteRequest, rsp *pb.Del
 	}
 
 	// publish the delete event
-	return events.Publish(runtime.EventTopic, &runtime.EventPayload{
+	ev := &runtime.EventPayload{
 		Type:      runtime.EventServiceDeleted,
 		Namespace: req.Options.Namespace,
 		Service:   service,
-	}, goevents.WithMetadata(map[string]string{
+	}
+
+	return events.Publish(runtime.EventTopic, ev, goevents.WithMetadata(map[string]string{
 		"type":      runtime.EventServiceDeleted,
 		"namespace": req.Options.Namespace,
-	}),
-	)
+	}))
 }
 
 func (r *Runtime) Logs(ctx context.Context, req *pb.LogsRequest, stream pb.Runtime_LogsStream) error {
