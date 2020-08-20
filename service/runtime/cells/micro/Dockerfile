@@ -1,4 +1,3 @@
-FROM micro/go-micro
 FROM micro/micro
 
 WORKDIR /
