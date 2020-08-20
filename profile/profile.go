@@ -17,8 +17,9 @@ import (
 	"github.com/micro/go-micro/v3/broker/nats"
 	"github.com/micro/go-micro/v3/client"
 	"github.com/micro/go-micro/v3/config"
-	memEvents "github.com/micro/go-micro/v3/events/memory"
-	natsEvents "github.com/micro/go-micro/v3/events/nats"
+	evStore "github.com/micro/go-micro/v3/events/store"
+	memStream "github.com/micro/go-micro/v3/events/stream/memory"
+	natsStream "github.com/micro/go-micro/v3/events/stream/nats"
 	"github.com/micro/go-micro/v3/registry"
 	"github.com/micro/go-micro/v3/registry/etcd"
 	"github.com/micro/go-micro/v3/registry/mdns"
@@ -95,7 +96,8 @@ var CI = &Profile{
 		microRuntime.DefaultRuntime = local.NewRuntime()
 		microStore.DefaultStore = file.NewStore()
 		microConfig.DefaultConfig, _ = config.NewConfig()
-		microEvents.DefaultStream, _ = memEvents.NewStream()
+		microEvents.DefaultStream, _ = memStream.NewStream()
+		microEvents.DefaultStore = evStore.NewStore(evStore.WithStore(microStore.DefaultStore))
 		setBroker(http.NewBroker())
 		setRegistry(etcd.NewRegistry())
 		setupJWTRules()
@@ -122,7 +124,7 @@ var Local = &Profile{
 		setupJWTRules()
 
 		var err error
-		microEvents.DefaultStream, err = memEvents.NewStream()
+		microEvents.DefaultStream, err = memStream.NewStream()
 		if err != nil {
 			logger.Fatalf("Error configuring stream: %v", err)
 		}
@@ -158,7 +160,7 @@ var Platform = &Profile{
 		setupJWTRules()
 
 		var err error
-		microEvents.DefaultStream, err = natsEvents.NewStream(natsEventsOpts(ctx)...)
+		microEvents.DefaultStream, err = natsStream.NewStream(natsStreamOpts(ctx)...)
 		if err != nil {
 			logger.Fatalf("Error configuring stream: %v", err)
 		}
@@ -167,6 +169,7 @@ var Platform = &Profile{
 		// when the store is created. The cockroach store address contains the location
 		// of certs so it can't be defaulted like the broker and registry.
 		microStore.DefaultStore = cockroach.NewStore(store.Nodes(ctx.String("store_address")))
+		microEvents.DefaultStore = evStore.NewStore(evStore.WithStore(microStore.DefaultStore))
 		return nil
 	},
 }
@@ -210,11 +213,11 @@ func setupJWTRules() {
 	}
 }
 
-// natsEventsOpts returns a slice of options which should be used to configure nats
-func natsEventsOpts(ctx *cli.Context) []natsEvents.Option {
-	opts := []natsEvents.Option{
-		natsEvents.Address("nats://nats-cluster:4222"),
-		natsEvents.ClusterID("nats-streaming-cluster"),
+// natsStreamOpts returns a slice of options which should be used to configure nats
+func natsStreamOpts(ctx *cli.Context) []natsStream.Option {
+	opts := []natsStream.Option{
+		natsStream.Address("nats://nats-cluster:4222"),
+		natsStream.ClusterID("nats-streaming-cluster"),
 	}
 
 	// Parse event TLS certs
@@ -235,7 +238,7 @@ func natsEventsOpts(ctx *cli.Context) []natsEvents.Option {
 		}
 
 		cfg := &tls.Config{Certificates: []tls.Certificate{cert}, RootCAs: caCertPool}
-		opts = append(opts, natsEvents.TLSConfig(cfg))
+		opts = append(opts, natsStream.TLSConfig(cfg))
 	}
 
 	return opts
