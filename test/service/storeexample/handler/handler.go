@@ -93,12 +93,12 @@ func writeWithExpiry(key, val string, duration time.Duration) error {
 func (e *Example) TestList(ctx context.Context, req *pb.Request, rsp *pb.Response) error {
 	// Test Limit()
 	for i := 0; i < 3; i++ {
-		if err := writeWithExpiry(fmt.Sprintf("List%d", i), "bar", 5*time.Second); err != nil {
+		if err := writeWithExpiry(fmt.Sprintf("TestList%d", i), "bar", 5*time.Second); err != nil {
 			return err
 		}
 	}
 
-	recs, err := mstore.List()
+	recs, err := mstore.List(store.ListPrefix("TestList"))
 	if err != nil {
 		return fmt.Errorf("Error listing from store %s", err)
 	}
@@ -112,12 +112,12 @@ func (e *Example) TestList(ctx context.Context, req *pb.Request, rsp *pb.Respons
 
 func (e *Example) TestListLimit(ctx context.Context, req *pb.Request, rsp *pb.Response) error {
 	for i := 0; i < 10; i++ {
-		if err := writeWithExpiry(fmt.Sprintf("ListLimit%d", i), "bar", 5*time.Second); err != nil {
+		if err := writeWithExpiry(fmt.Sprintf("TestListLimit%d", i), "bar", 5*time.Second); err != nil {
 			return err
 		}
 	}
 
-	recs, err := mstore.List(store.ListLimit(2))
+	recs, err := mstore.List(store.ListPrefix("TestListLimit"), store.ListLimit(2))
 	if err != nil {
 		return fmt.Errorf("Error listing from store %s", err)
 	}
@@ -130,14 +130,13 @@ func (e *Example) TestListLimit(ctx context.Context, req *pb.Request, rsp *pb.Re
 }
 
 func (e *Example) TestListOffset(ctx context.Context, req *pb.Request, rsp *pb.Response) error {
-	rsp.Msg = "Success"
 	for i := 0; i < 20; i++ {
-		if err := writeWithExpiry(fmt.Sprintf("ListOffset%d", i), "bar", 5*time.Second); err != nil {
+		if err := writeWithExpiry(fmt.Sprintf("TestListOffset%d", i), "bar", 5*time.Second); err != nil {
 			return err
 		}
 	}
 
-	recs, err := mstore.List(store.ListOffset(5))
+	recs, err := mstore.List(store.ListPrefix("TestListOffset"), store.ListOffset(5))
 	if err != nil {
 		return fmt.Errorf("Error listing from store %s", err)
 	}
