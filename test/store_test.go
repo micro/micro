@@ -157,7 +157,7 @@ func testStoreImpl(t *T) {
 	}
 
 	cmd := serv.Command()
-	outp, err := cmd.Exec("run", "test/service/storeexample")
+	outp, err := cmd.Exec("run", "./service/storeexample")
 	if err != nil {
 		t.Fatalf("micro run failure, output: %v", string(outp))
 		return
