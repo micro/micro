@@ -57,7 +57,7 @@ func (s *srv) Context() goctx.Context {
 	if len(s.Table) > 0 {
 		md["Micro-Table"] = s.Table
 	}
-	return metadata.NewContext(ctx, md)
+	return metadata.MergeContext(ctx, md, true)
 }
 
 // Sync all the known records
