@@ -38,19 +38,12 @@ else
 fi
 
 # clone the repo
-git clone $CLONE_URL --branch $REF --single-branch .
-if [ $? -eq 0 ]; then
-    echo "Successfully cloned branch"
-else
-    # Clone the full repo if the REF was not a branch.
-    # In case of a commit REF we will git reset later.
-    git clone https://$REPO .
-fi
-
-# Try to check out commit and do not care if it fails
-git reset --hard $REF
-
+git clone $CLONE_URL --depth=1
 cd $P
+
+git fetch origin $REF --depth 1
+
+git checkout $REF
 
 # run the source
 echo "Running service"
