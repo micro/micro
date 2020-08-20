@@ -24,6 +24,7 @@ import (
 	"github.com/micro/micro/v3/client/cli/util"
 	uconf "github.com/micro/micro/v3/internal/config"
 	"github.com/micro/micro/v3/internal/helper"
+	"github.com/micro/micro/v3/internal/network"
 	_ "github.com/micro/micro/v3/internal/usage"
 	"github.com/micro/micro/v3/internal/wrapper"
 	"github.com/micro/micro/v3/plugin"
@@ -148,6 +149,21 @@ var (
 			Name:    "broker_address",
 			EnvVars: []string{"MICRO_BROKER_ADDRESS"},
 			Usage:   "Comma-separated list of broker addresses",
+		},
+		&cli.StringFlag{
+			Name:    "events_tls_ca",
+			Usage:   "Certificate authority for TLS with events",
+			EnvVars: []string{"MICRO_EVENTS_TLS_CA"},
+		},
+		&cli.StringFlag{
+			Name:    "events_tls_cert",
+			Usage:   "Client cert for TLS with events",
+			EnvVars: []string{"MICRO_EVENTS_TLS_CERT"},
+		},
+		&cli.StringFlag{
+			Name:    "events_tls_key",
+			Usage:   "Client key for TLS with events",
+			EnvVars: []string{"MICRO_EVENTS_TLS_KEY"},
 		},
 		&cli.StringFlag{
 			Name:    "broker_tls_ca",
@@ -286,6 +302,11 @@ func (c *command) Before(ctx *cli.Context) error {
 	if len(proxy) > 0 {
 		muclient.DefaultClient.Init(client.Proxy(proxy))
 	}
+
+	// use the internal network lookup
+	muclient.DefaultClient.Init(
+		client.Lookup(network.Lookup),
+	)
 
 	// wrap the client
 	muclient.DefaultClient = wrapper.AuthClient(muclient.DefaultClient)
@@ -494,10 +515,9 @@ func action(c *cli.Context) error {
 		// execute the Config.Set RPC, setting the flags in the
 		// request.
 		if srv, err := lookupService(c); err != nil {
-			cmdStr := strings.Join(c.Args().Slice(), " ")
-			fmt.Printf("Error querying registry for service %v: %v", cmdStr, err)
+			fmt.Printf("Error querying registry for service %v: %v", c.Args().First(), err)
 			os.Exit(1)
-		} else if srv != nil && c.Args().Len() == 1 {
+		} else if srv != nil && shouldRenderHelp(c) {
 			fmt.Println(formatServiceUsage(srv, c.Args().First()))
 			os.Exit(1)
 		} else if srv != nil {
