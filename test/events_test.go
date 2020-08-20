@@ -30,9 +30,9 @@ func testEventsStream(t *T) {
 	if ref := os.Getenv("GITHUB_REF"); len(ref) > 0 {
 		ref = strings.TrimPrefix(ref, "refs/heads/")
 		t.Logf("Running service from the %v branch of micro", ref)
-		outp, err = cmd.Exec("run", "github.com/micro/micro/test/service/stream@"+ref)
+		outp, err = cmd.Exec("run", "--image", "localhost:5000/cells:micro", "github.com/micro/micro/test/service/stream@"+ref)
 	} else {
-		outp, err = cmd.Exec("run", "./service/stream")
+		outp, err = cmd.Exec("run", "--image", "localhost:5000/cells:micro", "./service/stream")
 	}
 	if err != nil {
 		t.Fatalf("Error running service: %v, %v", err, string(outp))
