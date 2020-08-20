@@ -198,7 +198,7 @@ func testRunGithubSource(t *T) {
 
 	cmd := serv.Command()
 
-	outp, err := cmd.Exec("run", "github.com/micro/services/helloworld@master")
+	outp, err := cmd.Exec("run", "--image", "localhost:5000/cells:micro", "github.com/micro/services/helloworld@master")
 	if err != nil {
 		t.Fatalf("micro run failure, output: %v", string(outp))
 		return
