@@ -94,10 +94,7 @@ func (t *Table) List(ctx context.Context, req *pb.Request, resp *pb.ListResponse
 }
 
 func (t *Table) Query(ctx context.Context, req *pb.QueryRequest, resp *pb.QueryResponse) error {
-	routes, err := t.Router.Table().Query(
-		router.QueryService(req.Query.Service),
-		router.QueryNetwork(req.Query.Network),
-	)
+	routes, err := t.Router.Table().Query(req.Service)
 	if err != nil {
 		return errors.InternalServerError("router.Table.Query", "failed to lookup routes: %s", err)
 	}
