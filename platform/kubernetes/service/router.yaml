@@ -121,5 +121,5 @@ spec:
     kind: Deployment
     name: micro-router
   minReplicas: 1
-  maxReplicas: 10
+  maxReplicas: 3
   targetCPUUtilizationPercentage: 50
