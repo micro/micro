@@ -312,8 +312,8 @@ github.com/matttproud/golang_protobuf_extensions v1.0.1 h1:4hp9jkHxhMHkqkrB3Ix0j
 github.com/matttproud/golang_protobuf_extensions v1.0.1/go.mod h1:D8He9yQNgCq6Z5Ld7szi9bcBfOoFv/3dc6xSMkL2PC0=
 github.com/micro/cli/v2 v2.1.2 h1:43J1lChg/rZCC1rvdqZNFSQDrGT7qfMrtp6/ztpIkEM=
 github.com/micro/cli/v2 v2.1.2/go.mod h1:EguNh6DAoWKm9nmk+k/Rg0H3lQnDxqzu5x5srOtGtYg=
-github.com/micro/go-micro/v3 v3.0.0-beta.0.20200820102804-329bc2f2655b h1:V2Y3p4YmBHDhRWZ7NJanpvl8X0E/3mi92wMRgmtNg2Y=
-github.com/micro/go-micro/v3 v3.0.0-beta.0.20200820102804-329bc2f2655b/go.mod h1:9sBWZtNnZsNq9V688m620UtNyeMsGxA3AW8rddPSpJQ=
+github.com/micro/go-micro/v3 v3.0.0-beta.0.20200821101742-6cda6ef92e50 h1:iOua84gieoC9TaRbmSI9izL2aAE9pFpYOrg6Ew2/33g=
+github.com/micro/go-micro/v3 v3.0.0-beta.0.20200821101742-6cda6ef92e50/go.mod h1:9sBWZtNnZsNq9V688m620UtNyeMsGxA3AW8rddPSpJQ=
 github.com/miekg/dns v1.1.15/go.mod h1:W1PPwlIAgtquWBMBEV9nkV9Cazfe8ScdGz/Lj7v3Nrg=
 github.com/miekg/dns v1.1.27 h1:aEH/kqUzUxGJ/UHcEKdJY+ugH6WEzsEBBSPa8zuy1aM=
 github.com/miekg/dns v1.1.27/go.mod h1:KNUDUusw/aVsxyTYZM1oqvCicbwhgbNgztCETuNZ7xM=

@@ -19,7 +19,7 @@ require (
 	github.com/hashicorp/go-version v1.2.1
 	github.com/juju/fslock v0.0.0-20160525022230-4d5c94c67b4b
 	github.com/micro/cli/v2 v2.1.2
-	github.com/micro/go-micro/v3 v3.0.0-beta.0.20200820102804-329bc2f2655b
+	github.com/micro/go-micro/v3 v3.0.0-beta.0.20200821101742-6cda6ef92e50
 	github.com/olekukonko/tablewriter v0.0.4
 	github.com/pkg/errors v0.9.1
 	github.com/serenize/snaker v0.0.0-20171204205717-a683aaf2d516
@@ -32,5 +32,3 @@ require (
 )
 
 replace google.golang.org/grpc => google.golang.org/grpc v1.26.0
-
-replace github.com/micro/go-micro/v3 => ../go-micro
