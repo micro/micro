@@ -1,6 +1,7 @@
 #!/bin/dumb-init /bin/sh
 
-set -x  
+set -x
+set -e
 
 git version
 
@@ -52,6 +53,9 @@ git reset --hard $REF
 
 cd $P
 
+# find the entrypoint using the util
+ENTRYPOINT=$(entrypoint)
+
 # run the source
 echo "Running service"
-go run .
+go run $ENTRYPOINT
