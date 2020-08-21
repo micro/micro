@@ -1,6 +1,7 @@
 #!/bin/dumb-init /bin/sh
 
-set -x  
+set -x
+set -e
 
 git version
 
@@ -52,12 +53,8 @@ git reset --hard $REF
 
 cd $P
 
-# find the entrypoint
-ENTRYPOINT=$(find . -name "main.go")
-if [[ -z "$ENTRYPOINT" ]]; then
-  echo "No main.go file in path"
-  exit 1
-fi
+# find the entrypoint using the util
+ENTRYPOINT=$(entrypoint)
 
 # run the source
 echo "Running service"
