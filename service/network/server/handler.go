@@ -160,31 +160,43 @@ func (n *Network) Routes(ctx context.Context, req *pb.RoutesRequest, resp *pb.Ro
 	}
 
 	// build query
-	var qOpts []router.QueryOption
-	if len(req.Query.Service) > 0 {
-		qOpts = append(qOpts, router.QueryService(req.Query.Service))
-	}
+	var qOpts []router.LookupOption
 	if len(req.Query.Address) > 0 {
-		qOpts = append(qOpts, router.QueryAddress(req.Query.Address))
+		qOpts = append(qOpts, router.LookupAddress(req.Query.Address))
 	}
 	if len(req.Query.Gateway) > 0 {
-		qOpts = append(qOpts, router.QueryGateway(req.Query.Gateway))
+		qOpts = append(qOpts, router.LookupGateway(req.Query.Gateway))
 	}
 	if len(req.Query.Router) > 0 {
-		qOpts = append(qOpts, router.QueryRouter(req.Query.Router))
+		qOpts = append(qOpts, router.LookupRouter(req.Query.Router))
 	}
 
 	// for users in the default namespace, allow access to all namespaces
 	if req.Query.Network != namespace.DefaultNamespace {
-		qOpts = append(qOpts, router.QueryNetwork(req.Query.Network))
+		qOpts = append(qOpts, router.LookupNetwork(req.Query.Network))
 	}
 
-	routes, err := n.Network.Options().Router.Table().Query(qOpts...)
+	var routes []router.Route
+	var err error
+
+	// if a service is specified to a router Lookup
+	if len(req.Query.Service) > 0 {
+		routes, err = n.Network.Options().Router.Lookup(req.Query.Service, qOpts...)
+	} else {
+		// otherwise list and filter
+		routes, err := n.Network.Options().Router.Table().List()
+		if err == nil {
+			// filter the routes
+			routes = router.Filter(routes, router.NewLookup(qOpts...))
+		}
+	}
+
 	if err != nil {
 		return errors.InternalServerError("network.Network.Routes", "failed to list routes: %s", err)
 	}
 
 	respRoutes := make([]*pbRtr.Route, 0, len(routes))
+
 	for _, route := range routes {
 		respRoute := &pbRtr.Route{
 			Service: route.Service,

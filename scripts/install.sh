@@ -136,10 +136,11 @@ installFile() {
         exit 1
     fi
 
-    # export bin path
-    which micro > /dev/null
-    if [ $? -eq 1 ]; then
-	    export PATH=$PATH:$MICRO_INSTALL_DIR
+    if [ "$MICRO_CLI_PATH" != "$(which micro)" ]; then
+        # From https://stackoverflow.com/questions/5947742/how-to-change-the-output-color-of-echo-in-linux
+        YELLOW='\033[1;33m'
+        NC='\033[0m' # No Color
+        printf "${YELLOW}Looks like there is an other micro installation in your path under \"$(which micro)\" already.\nPlease put \"export PATH=$MICRO_INSTALL_DIR:\$PATH\" in your bashrc.${NC}\n"
     fi
 }
 
