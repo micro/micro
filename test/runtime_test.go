@@ -716,7 +716,7 @@ func testRunPrivateSource(t *T) {
 	}
 
 	// set the pat in the users config
-	if outp, err := cmd.Exec("user", "config", "set", "git.github.credentials", pat); err != nil {
+	if outp, err := cmd.Exec("user", "config", "set", "git.credentials.github", pat); err != nil {
 		t.Fatalf("Expected no error, got %v %v", err, string(outp))
 		return
 	}
@@ -788,7 +788,7 @@ func testRunPrivateGitlabSource(t *T) {
 	}
 
 	// set the pat in the users config
-	if outp, err := cmd.Exec("user", "config", "set", "git.gitlab.credentials", pat); err != nil {
+	if outp, err := cmd.Exec("user", "config", "set", "git.credentials.gitlab", pat); err != nil {
 		t.Fatalf("Expected no error, got %v %v", err, string(outp))
 		return
 	}
@@ -905,7 +905,7 @@ func testRunPrivateGenericRemote(t *T) {
 	}
 
 	// set the pat in the users config
-	if outp, err := cmd.Exec("user", "config", "set", "git.bitbucket.credentials", pat); err != nil {
+	if outp, err := cmd.Exec("user", "config", "set", "git.credentials.bitbucket", pat); err != nil {
 		t.Fatalf("Expected no error, got %v %v", err, string(outp))
 		return
 	}
