@@ -20,6 +20,7 @@ func init() {
 		"TestCorruptedTokenLogin",
 		"TestRunPrivateSource",
 		"TestEventsStream",
+		"TestIdiomaticFolderStructure",
 	}
 	maxTimeMultiplier = 3
 	isParallel = false // in theory should work in parallel

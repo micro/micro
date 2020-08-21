@@ -997,3 +997,49 @@ func testRunPrivateGenericRemote(t *T) {
 		return
 	}
 }
+
+func TestIdiomaticFolderStructure(t *testing.T) {
+	TrySuite(t, testIdiomaticFolderStructure, retryCount)
+}
+
+func testIdiomaticFolderStructure(t *T) {
+	t.Parallel()
+	serv := NewServer(t, WithLogin())
+	defer serv.Close()
+	if err := serv.Run(); err != nil {
+		return
+	}
+
+	cmd := serv.Command()
+
+	// Temp fix to support k8s tests until we have file upload to remote server
+	var branch string
+	if ref := os.Getenv("GITHUB_REF"); len(ref) > 0 {
+		branch = strings.TrimPrefix(ref, "refs/heads/")
+	} else {
+		branch = "master"
+	}
+
+	t.Logf("Running idiomatic service from the %v branch of micro", branch)
+	src := "github.com/micro/micro/test/service/idiomatic@" + branch
+	if outp, err := cmd.Exec("run", "--image", "localhost:5000/cells:go", src); err != nil {
+		t.Fatalf("Error running service: %v, %v", err, string(outp))
+		return
+	}
+
+	if err := Try("Find idiomatic service in the registry", t, func() ([]byte, error) {
+		outp, err := cmd.Exec("status")
+		if err != nil {
+			return outp, err
+		}
+
+		// The started service should have the runtime name of "service/example",
+		// as the runtime name is the relative path inside a repo.
+		if !statusRunning("idiomatic", branch, outp) {
+			return outp, errors.New("Can't find idiomatic service in runtime")
+		}
+		return outp, err
+	}, 120*time.Second); err != nil {
+		return
+	}
+}
