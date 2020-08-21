@@ -48,11 +48,12 @@ func (r *Resolver) Resolve(req *http.Request, opts ...res.ResolveOption) (*res.E
 	}
 
 	// lookup the routes for the service
-	query := []router.LookupOption{
-		router.LookupNetwork(options.Domain),
+	query := []router.QueryOption{
+		router.QueryService(name),
+		router.QueryNetwork(options.Domain),
 	}
 
-	routes, err := r.Router.Lookup(name, query...)
+	routes, err := r.Router.Lookup(query...)
 	if err == router.ErrRouteNotFound {
 		return nil, res.ErrNotFound
 	} else if err != nil {

@@ -15,27 +15,10 @@ type Router struct {
 
 // Lookup looks up routes in the routing table and returns them
 func (r *Router) Lookup(ctx context.Context, req *pb.LookupRequest, resp *pb.LookupResponse) error {
-	// build the options
-	var options []router.LookupOption
-	if v := req.Options; v != nil {
-		if len(v.Address) > 0 {
-			options = append(options, router.LookupAddress(v.Address))
-		}
-		if len(v.Gateway) > 0 {
-			options = append(options, router.LookupGateway(v.Gateway))
-		}
-		if len(v.Router) > 0 {
-			options = append(options, router.LookupRouter(v.Router))
-		}
-		if len(v.Network) > 0 {
-			options = append(options, router.LookupNetwork(v.Network))
-		}
-		if len(v.Link) > 0 {
-			options = append(options, router.LookupLink(v.Link))
-		}
-	}
-
-	routes, err := r.Router.Lookup(req.Service, options...)
+	routes, err := r.Router.Lookup(
+		router.QueryService(req.Query.Service),
+		router.QueryNetwork(req.Query.Network),
+	)
 	if err == router.ErrRouteNotFound {
 		return errors.NotFound("router.Router.Lookup", err.Error())
 	} else if err != nil {

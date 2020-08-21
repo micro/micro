@@ -100,18 +100,15 @@ func (s *svc) Close() error {
 }
 
 // Lookup looks up routes in the routing table and returns them
-func (s *svc) Lookup(service string, q ...router.LookupOption) ([]router.Route, error) {
+func (s *svc) Lookup(q ...router.QueryOption) ([]router.Route, error) {
 	// call the router
-	query := router.NewLookup(q...)
+	query := router.NewQuery(q...)
 
 	resp, err := s.router.Lookup(context.DefaultContext, &pb.LookupRequest{
-		Service: service,
-		Options: &pb.LookupOptions{
-			Address: query.Address,
+		Query: &pb.Query{
+			Service: query.Service,
 			Gateway: query.Gateway,
 			Network: query.Network,
-			Router:  query.Router,
-			Link:    query.Link,
 		},
 	}, s.callOpts...)
 

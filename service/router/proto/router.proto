@@ -31,8 +31,7 @@ message ListResponse {
 
 // LookupRequest is made to Lookup
 message LookupRequest {
-  string service = 1;
-  LookupOptions options = 2;
+  Query query = 1;
 }
 
 // LookupResponse is returned by Lookup
@@ -42,7 +41,7 @@ message LookupResponse {
 
 // QueryRequest queries Table for Routes
 message QueryRequest{
-  string service = 1;
+  Query query = 1;
 }
 
 // QueryResponse is returned by Query
@@ -81,13 +80,14 @@ message Event {
   Route route = 4;
 }
 
-// LookupOptions are passed in a LookupRequest
-message LookupOptions {
-  string address = 1;
+// Query is passed in a LookupRequest
+message Query {
+  // service to lookup
+  string service = 1;
+  // gateway to lookup
   string gateway = 2;
+  // network to lookup
   string network = 3;
-  string router = 4;
-  string link = 5;
 }
 
 // Route is a service route
