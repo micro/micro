@@ -63,31 +63,21 @@ func Signup(ctx *cli.Context) error {
 		os.Exit(1)
 	}
 
-	// Already registered users can just get logged in.
-	tok := rsp.AuthToken
-	if rsp.AuthToken != nil {
-
-		err = clinamespace.Add(rsp.Namespace, env.Name)
-		if err != nil {
-			return err
+	isJoining := false
+	if len(rsp.Namespaces) > 0 {
+		fmt.Printf("You have been invited to the '%v' namespace. Do you want to join it or create your own namespace? Please type \"own\" or \"join\": ", rsp.Namespaces[0])
+		for {
+			answer, _ := reader.ReadString('\n')
+			answer = strings.TrimSpace(answer)
+			switch answer {
+			case "join":
+				isJoining = true
+			case "own":
+			default:
+				fmt.Printf("Valid answers are: \"own\" or \"join\": ")
+			}
 		}
-		err = clinamespace.Set(rsp.Namespace, env.Name)
-		if err != nil {
-			return err
-		}
-		if err := clitoken.Save(env.Name, &auth.Token{
-			AccessToken:  tok.AccessToken,
-			RefreshToken: tok.RefreshToken,
-			Expiry:       time.Unix(tok.Expiry, 0),
-		}); err != nil {
-			return err
-		}
-		fmt.Println("Successfully logged in.")
-		report.Success(ctx, email)
-		return nil
 	}
-
-	// For users who don't have an account yet, this flow will proceed
 
 	password := ctx.String("password")
 	if len(password) == 0 {
@@ -129,11 +119,16 @@ func Signup(ctx *cli.Context) error {
 	}
 
 	// complete the signup flow
+	signupNamespace := ""
+	if isJoining && len(rsp.Namespaces) > 0 {
+		signupNamespace = rsp.Namespaces[0]
+	}
 	signupRsp, err := signupService.CompleteSignup(context.DefaultContext, &pb.CompleteSignupRequest{
 		Email:           email,
 		Token:           otp,
 		PaymentMethodID: paymentMethodID,
 		Secret:          password,
+		Namespace:       signupNamespace,
 	}, cl.WithRequestTimeout(30*time.Second))
 	if err != nil {
 		fmt.Printf("Error completing signup: %s\n", err)
@@ -141,7 +136,7 @@ func Signup(ctx *cli.Context) error {
 		os.Exit(1)
 	}
 
-	tok = signupRsp.AuthToken
+	tok := signupRsp.AuthToken
 	if err := clinamespace.Add(signupRsp.Namespace, env.Name); err != nil {
 		fmt.Printf("Error adding namespace: %s\n", err)
 		report.Errorf(ctx, "Error adding namespace: %s", err)
