@@ -20,6 +20,8 @@ import (
 	evStore "github.com/micro/go-micro/v3/events/store"
 	memStream "github.com/micro/go-micro/v3/events/stream/memory"
 	natsStream "github.com/micro/go-micro/v3/events/stream/nats"
+	metricsLogging "github.com/micro/go-micro/v3/metrics/logging"
+	metricsPrometheus "github.com/micro/go-micro/v3/metrics/prometheus"
 	"github.com/micro/go-micro/v3/registry"
 	"github.com/micro/go-micro/v3/registry/etcd"
 	"github.com/micro/go-micro/v3/registry/mdns"
@@ -35,6 +37,7 @@ import (
 	"github.com/micro/go-micro/v3/store/file"
 	mem "github.com/micro/go-micro/v3/store/memory"
 	"github.com/micro/micro/v3/service/logger"
+	microMetrics "github.com/micro/micro/v3/service/metrics"
 
 	inAuth "github.com/micro/micro/v3/internal/auth"
 	microAuth "github.com/micro/micro/v3/service/auth"
@@ -123,6 +126,8 @@ var Local = &Profile{
 		setBroker(http.NewBroker())
 		setRegistry(mdns.NewRegistry())
 		setupJWTRules()
+		loggingReporter := metricsLogging.New()
+		microMetrics.DefaultMetricsReporter = loggingReporter
 
 		var err error
 		microEvents.DefaultStream, err = memStream.NewStream()
@@ -146,6 +151,11 @@ var Kubernetes = &Profile{
 		// store ...
 		microAuth.DefaultAuth = jwt.NewAuth()
 		setupJWTRules()
+		prometheusReporter, err := metricsPrometheus.New()
+		if err != nil {
+			return err
+		}
+		microMetrics.DefaultMetricsReporter = prometheusReporter
 		return nil
 	},
 }
@@ -160,8 +170,12 @@ var Platform = &Profile{
 		setBroker(nats.NewBroker(broker.Addrs("nats-cluster")))
 		setRegistry(etcd.NewRegistry(registry.Addrs("etcd-cluster")))
 		setupJWTRules()
+		prometheusReporter, err := metricsPrometheus.New()
+		if err != nil {
+			return err
+		}
+		microMetrics.DefaultMetricsReporter = prometheusReporter
 
-		var err error
 		microEvents.DefaultStream, err = natsStream.NewStream(natsStreamOpts(ctx)...)
 		if err != nil {
 			logger.Fatalf("Error configuring stream: %v", err)
