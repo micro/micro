@@ -89,18 +89,11 @@ func (t *table) List() ([]router.Route, error) {
 }
 
 // Lookup looks up routes in the routing table and returns them
-func (t *table) Query(q ...router.QueryOption) ([]router.Route, error) {
-	query := router.NewQuery(q...)
-
+func (t *table) Query(service string) ([]router.Route, error) {
 	// call the router
 	resp, err := t.table.Query(context.DefaultContext, &pb.QueryRequest{
-		Query: &pb.Query{
-			Service: query.Service,
-			Gateway: query.Gateway,
-			Network: query.Network,
-		},
+		Service: service,
 	}, t.callOpts...)
-
 	// errored out
 	if err != nil {
 		return nil, err
