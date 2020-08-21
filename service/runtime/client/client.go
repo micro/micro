@@ -250,6 +250,28 @@ func (s *svc) Delete(svc *runtime.Service, opts ...runtime.DeleteOption) error {
 	return nil
 }
 
+func (s *svc) CreateNamespace(ns string) error {
+	req := &pb.CreateNamespaceRequest{
+		Namespace: ns,
+	}
+	if _, err := s.runtime.CreateNamespace(context.DefaultContext, req, goclient.WithAuthToken()); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (s *svc) DeleteNamespace(ns string) error {
+	req := &pb.DeleteNamespaceRequest{
+		Namespace: ns,
+	}
+	if _, err := s.runtime.DeleteNamespace(context.DefaultContext, req, goclient.WithAuthToken()); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // Start starts the runtime
 func (s *svc) Start() error {
 	// NOTE: nothing to be done here

@@ -266,3 +266,51 @@ func (r *Runtime) Logs(ctx context.Context, req *pb.LogsRequest, stream pb.Runti
 		}
 	}
 }
+
+func (r *Runtime) CreateNamespace(ctx context.Context, req *pb.CreateNamespaceRequest, rsp *pb.CreateNamespaceResponse) error {
+	// authorize the request, only admins/core services should be able to call
+	if err := namespace.Authorize(ctx, namespace.DefaultNamespace); err == namespace.ErrForbidden {
+		return errors.Forbidden("runtime.Runtime.CreateNamespace", err.Error())
+	} else if err == namespace.ErrUnauthorized {
+		return errors.Unauthorized("runtime.Runtime.CreateNamespace", err.Error())
+	} else if err != nil {
+		return errors.InternalServerError("runtime.Runtime.CreateNamespace", err.Error())
+	}
+
+	if err := r.Runtime.CreateNamespace(req.Namespace); err != nil {
+		return err
+	}
+
+	ev := &runtime.EventNamespacePayload{
+		Type:      runtime.EventNamespaceCreated,
+		Namespace: req.Namespace,
+	}
+	return events.Publish(runtime.EventTopic, ev, goevents.WithMetadata(map[string]string{
+		"type":      runtime.EventNamespaceCreated,
+		"namespace": req.Namespace,
+	}))
+}
+
+func (r *Runtime) DeleteNamespace(ctx context.Context, req *pb.DeleteNamespaceRequest, rsp *pb.DeleteNamespaceResponse) error {
+	// authorize the request, only admins/core services should be able to call
+	if err := namespace.Authorize(ctx, namespace.DefaultNamespace); err == namespace.ErrForbidden {
+		return errors.Forbidden("runtime.Runtime.DeleteNamespace", err.Error())
+	} else if err == namespace.ErrUnauthorized {
+		return errors.Unauthorized("runtime.Runtime.DeleteNamespace", err.Error())
+	} else if err != nil {
+		return errors.InternalServerError("runtime.Runtime.DeleteNamespace", err.Error())
+	}
+
+	if err := r.Runtime.DeleteNamespace(req.Namespace); err != nil {
+		return err
+	}
+
+	ev := &runtime.EventNamespacePayload{
+		Type:      runtime.EventNamespaceDeleted,
+		Namespace: req.Namespace,
+	}
+	return events.Publish(runtime.EventTopic, ev, goevents.WithMetadata(map[string]string{
+		"type":      runtime.EventNamespaceDeleted,
+		"namespace": req.Namespace,
+	}))
+}
