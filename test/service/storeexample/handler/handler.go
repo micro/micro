@@ -16,10 +16,7 @@ import (
 
 type Example struct{}
 
-// TestExpiry tests writing a record with expiry / TTL in all the ways that we support
-// - Record.Expiry
-// - WriteExpiry
-// - WriteTTL
+// TestExpiry tests writing a record with expiry
 func (e *Example) TestExpiry(ctx context.Context, req *pb.Request, rsp *pb.Response) error {
 	if err := writeWithExpiry("WriteExpiry", "bar", 5*time.Second); err != nil {
 		return err
@@ -38,7 +35,7 @@ func (e *Example) TestExpiry(ctx context.Context, req *pb.Request, rsp *pb.Respo
 		return err
 	}
 
-	recs, err = mstore.Read("Record.Expiry")
+	recs, err := mstore.Read("Record.Expiry")
 	if err != nil {
 		log.Errorf("Error reading %s", err)
 		return fmt.Errorf("Error reading record Record.Expiry with expiry %s", err)
@@ -61,20 +58,10 @@ func (e *Example) TestExpiry(ctx context.Context, req *pb.Request, rsp *pb.Respo
 	}
 
 	time.Sleep(6 * time.Second)
-	recs, err = mstore.Read("WriteExpiry")
-	if err != store.ErrNotFound {
-		log.Errorf("Error reading %s", err)
-		return fmt.Errorf("Error reading record WriteExpiry. Expected not found. Received %s and %d records", err, len(recs))
-	}
 	recs, err = mstore.Read("Record.Expiry")
 	if err != store.ErrNotFound {
 		log.Errorf("Error reading %s", err)
 		return fmt.Errorf("Error reading record Record.Expiry. Expected not found. Received %s and %d records", err, len(recs))
-	}
-	recs, err = mstore.Read("WriteTTL")
-	if err != store.ErrNotFound {
-		log.Errorf("Error reading %s", err)
-		return fmt.Errorf("Error reading record WriteTTL. Expected not found. Received %s and %d records", err, len(recs))
 	}
 
 	rsp.Msg = "Success"
@@ -82,7 +69,7 @@ func (e *Example) TestExpiry(ctx context.Context, req *pb.Request, rsp *pb.Respo
 }
 
 func writeWithExpiry(key, val string, duration time.Duration) error {
-	if err := mstore.Write(&store.Record{Key: key, Value: []byte(val)},
+	if err := mstore.Write(&store.Record{Key: key, Value: []byte(val), Expiry: time.Now().Add(duration)},
 		store.WriteExpiry(time.Now().Add(duration))); err != nil {
 		log.Errorf("Error writing %s", err)
 		return fmt.Errorf("Error writing record %s with expiry %s", key, err)
