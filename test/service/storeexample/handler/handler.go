@@ -16,15 +16,10 @@ import (
 
 type Example struct{}
 
-// TestExpiry tests writing a record with expiry / TTL in all the ways that we support
-// - Record.Expiry
-// - WriteExpiry
-// - WriteTTL
+// TestExpiry tests writing a record with expiry
 func (e *Example) TestExpiry(ctx context.Context, req *pb.Request, rsp *pb.Response) error {
-	if err := mstore.Write(&store.Record{Key: "WriteExpiry", Value: []byte("bar")},
-		store.WriteExpiry(time.Now().Add(5*time.Second))); err != nil {
-		log.Errorf("Error writing %s", err)
-		return fmt.Errorf("Error writing record WriteExpiry with expiry %s", err)
+	if err := writeWithExpiry("WriteExpiry", "bar", 5*time.Second); err != nil {
+		return err
 	}
 
 	recs, err := mstore.Read("WriteExpiry")
@@ -36,9 +31,8 @@ func (e *Example) TestExpiry(ctx context.Context, req *pb.Request, rsp *pb.Respo
 		return fmt.Errorf("Error reading record WriteExpiry, expected 1 record. Received %d", len(recs))
 	}
 
-	if err := mstore.Write(&store.Record{Key: "Record.Expiry", Value: []byte("bar"), Expiry: 5 * time.Second}); err != nil {
-		log.Errorf("Error writing %s", err)
-		return fmt.Errorf("Error writing record Record.Expiry with expiry %s", err)
+	if err := writeWithExpiry("Record.Expiry", "bar", 5*time.Second); err != nil {
+		return err
 	}
 
 	recs, err = mstore.Read("Record.Expiry")
@@ -50,9 +44,8 @@ func (e *Example) TestExpiry(ctx context.Context, req *pb.Request, rsp *pb.Respo
 		return fmt.Errorf("Error reading record Record.Expiry, expected 1 record. Received %d", len(recs))
 	}
 
-	if err := mstore.Write(&store.Record{Key: "WriteTTL", Value: []byte("bar")}, store.WriteTTL(5*time.Second)); err != nil {
-		log.Errorf("Error writing %s", err)
-		return fmt.Errorf("Error writing record WriteTTL with expiry %s", err)
+	if err := writeWithExpiry("WriteTTL", "bar", 5*time.Second); err != nil {
+		return err
 	}
 
 	recs, err = mstore.Read("WriteTTL")
@@ -65,22 +58,80 @@ func (e *Example) TestExpiry(ctx context.Context, req *pb.Request, rsp *pb.Respo
 	}
 
 	time.Sleep(6 * time.Second)
-	recs, err = mstore.Read("WriteExpiry")
-	if err != store.ErrNotFound {
-		log.Errorf("Error reading %s", err)
-		return fmt.Errorf("Error reading record WriteExpiry. Expected not found. Received %s and %d records", err, len(recs))
-	}
 	recs, err = mstore.Read("Record.Expiry")
 	if err != store.ErrNotFound {
 		log.Errorf("Error reading %s", err)
 		return fmt.Errorf("Error reading record Record.Expiry. Expected not found. Received %s and %d records", err, len(recs))
 	}
-	recs, err = mstore.Read("WriteTTL")
-	if err != store.ErrNotFound {
-		log.Errorf("Error reading %s", err)
-		return fmt.Errorf("Error reading record WriteTTL. Expected not found. Received %s and %d records", err, len(recs))
+
+	rsp.Msg = "Success"
+	return nil
+}
+
+func writeWithExpiry(key, val string, duration time.Duration) error {
+	if err := mstore.Write(&store.Record{Key: key, Value: []byte(val), Expiry: duration}); err != nil {
+		log.Errorf("Error writing %s", err)
+		return fmt.Errorf("Error writing record %s with expiry %s", key, err)
+	}
+	return nil
+}
+
+func (e *Example) TestList(ctx context.Context, req *pb.Request, rsp *pb.Response) error {
+	// Test Limit()
+	for i := 0; i < 3; i++ {
+		if err := writeWithExpiry(fmt.Sprintf("TestList%d", i), "bar", 5*time.Second); err != nil {
+			return err
+		}
+	}
+
+	recs, err := mstore.List(store.ListPrefix("TestList"))
+	if err != nil {
+		return fmt.Errorf("Error listing from store %s", err)
+	}
+	log.Infof("Recs %+v", recs)
+	if len(recs) != 3 {
+		return fmt.Errorf("Error listing records, expected 3, received %d", len(recs))
+	}
+	rsp.Msg = "Success"
+	return nil
+}
+
+func (e *Example) TestListLimit(ctx context.Context, req *pb.Request, rsp *pb.Response) error {
+	for i := 0; i < 10; i++ {
+		if err := writeWithExpiry(fmt.Sprintf("TestListLimit%d", i), "bar", 5*time.Second); err != nil {
+			return err
+		}
+	}
+
+	recs, err := mstore.List(store.ListPrefix("TestListLimit"), store.ListLimit(2))
+	if err != nil {
+		return fmt.Errorf("Error listing from store %s", err)
+	}
+	log.Infof("Recs limit %+v", recs)
+	if len(recs) != 2 {
+		return fmt.Errorf("Error listing records with limit, expected 2, received %d", len(recs))
+	}
+	rsp.Msg = "Success"
+	return nil
+}
+
+func (e *Example) TestListOffset(ctx context.Context, req *pb.Request, rsp *pb.Response) error {
+	for i := 0; i < 20; i++ {
+		if err := writeWithExpiry(fmt.Sprintf("TestListOffset%d", i), "bar", 5*time.Second); err != nil {
+			return err
+		}
+	}
+
+	recs, err := mstore.List(store.ListPrefix("TestListOffset"), store.ListOffset(5))
+	if err != nil {
+		return fmt.Errorf("Error listing from store %s", err)
+	}
+	log.Infof("Recs offset %+v", recs)
+	if len(recs) != 15 {
+		return fmt.Errorf("Error listing records with offset, expected 15, received %d", len(recs))
 	}
 
 	rsp.Msg = "Success"
 	return nil
+
 }
