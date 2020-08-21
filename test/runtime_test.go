@@ -716,7 +716,7 @@ func testRunPrivateSource(t *T) {
 	}
 
 	// set the pat in the users config
-	if outp, err := cmd.Exec("user", "config", "set", "git.github.credentials", pat); err != nil {
+	if outp, err := cmd.Exec("user", "config", "set", "git.credentials.github", pat); err != nil {
 		t.Fatalf("Expected no error, got %v %v", err, string(outp))
 		return
 	}
@@ -752,12 +752,14 @@ func testRunPrivateSource(t *T) {
 		return outp, err
 	}, 300*time.Second); err != nil {
 		outp, _ := cmd.Exec("logs", "helloworld")
-		t.Log(string(outp))
+		t.Logf("logs %s", string(outp))
 		return
 	}
 
 	// call the service
 	if err := Try("Calling helloworld", t, func() ([]byte, error) {
+		outp, _ := cmd.Exec("logs", "helloworld")
+		t.Logf("logs %s", string(outp))
 		return cmd.Exec("helloworld", "--name=John")
 	}, 30*time.Second); err != nil {
 		return
@@ -786,7 +788,7 @@ func testRunPrivateGitlabSource(t *T) {
 	}
 
 	// set the pat in the users config
-	if outp, err := cmd.Exec("user", "config", "set", "git.gitlab.credentials", pat); err != nil {
+	if outp, err := cmd.Exec("user", "config", "set", "git.credentials.gitlab", pat); err != nil {
 		t.Fatalf("Expected no error, got %v %v", err, string(outp))
 		return
 	}
@@ -903,7 +905,7 @@ func testRunPrivateGenericRemote(t *T) {
 	}
 
 	// set the pat in the users config
-	if outp, err := cmd.Exec("user", "config", "set", "git.bitbucket.credentials", pat); err != nil {
+	if outp, err := cmd.Exec("user", "config", "set", "git.credentials.bitbucket", pat); err != nil {
 		t.Fatalf("Expected no error, got %v %v", err, string(outp))
 		return
 	}
@@ -994,6 +996,52 @@ func testRunPrivateGenericRemote(t *T) {
 	if err := Try("Calling example", t, func() ([]byte, error) {
 		return cmd.Exec("example", "--name=John")
 	}, 30*time.Second); err != nil {
+		return
+	}
+}
+
+func TestIdiomaticFolderStructure(t *testing.T) {
+	TrySuite(t, testIdiomaticFolderStructure, retryCount)
+}
+
+func testIdiomaticFolderStructure(t *T) {
+	t.Parallel()
+	serv := NewServer(t, WithLogin())
+	defer serv.Close()
+	if err := serv.Run(); err != nil {
+		return
+	}
+
+	cmd := serv.Command()
+
+	// Temp fix to support k8s tests until we have file upload to remote server
+	var branch string
+	if ref := os.Getenv("GITHUB_REF"); len(ref) > 0 {
+		branch = strings.TrimPrefix(ref, "refs/heads/")
+	} else {
+		branch = "master"
+	}
+
+	t.Logf("Running idiomatic service from the %v branch of micro", branch)
+	src := "github.com/micro/micro/test/service/idiomatic@" + branch
+	if outp, err := cmd.Exec("run", "--image", "localhost:5000/cells:go", src); err != nil {
+		t.Fatalf("Error running service: %v, %v", err, string(outp))
+		return
+	}
+
+	if err := Try("Find idiomatic service in the registry", t, func() ([]byte, error) {
+		outp, err := cmd.Exec("status")
+		if err != nil {
+			return outp, err
+		}
+
+		// The started service should have the runtime name of "service/example",
+		// as the runtime name is the relative path inside a repo.
+		if !statusRunning("idiomatic", branch, outp) {
+			return outp, errors.New("Can't find idiomatic service in runtime")
+		}
+		return outp, err
+	}, 120*time.Second); err != nil {
 		return
 	}
 }

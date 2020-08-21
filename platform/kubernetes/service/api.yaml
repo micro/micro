@@ -18,10 +18,6 @@
      matchLabels:
        name: micro-api
        micro: runtime
-   strategy:
-     rollingUpdate:
-       maxSurge: 0
-       maxUnavailable: 1
    template:
      metadata:
        labels:

@@ -52,6 +52,8 @@ var (
 	DefaultRetries = 3
 	// DefaultImage which should be run
 	DefaultImage = "micro/cells:go"
+	// Git orgs we currently support for credentials
+	GitOrgs = []string{"github", "bitbucket", "gitlab"}
 )
 
 const (
@@ -265,20 +267,19 @@ func runService(ctx *cli.Context) error {
 
 func getGitCredentials(repo string) (string, bool) {
 	repo = strings.Split(repo, "/")[0]
-	switch {
-	case strings.Contains(repo, "github"):
-		if creds, err := config.Get("git", "github", "credentials"); err == nil && len(creds) > 0 {
-			return creds, true
+
+	for _, org := range GitOrgs {
+		if !strings.Contains(repo, org) {
+			continue
 		}
-	case strings.Contains(repo, "gitlab"):
-		if creds, err := config.Get("git", "gitlab", "credentials"); err == nil && len(creds) > 0 {
-			return creds, true
-		}
-	case strings.Contains(repo, "bitbucket"):
-		if creds, err := config.Get("git", "bitbucket", "credentials"); err == nil && len(creds) > 0 {
+
+		// check the creds for the org
+		creds, err := config.Get("git", "credentials", org)
+		if err == nil && len(creds) > 0 {
 			return creds, true
 		}
 	}
+
 	return "", false
 }
 
