@@ -143,7 +143,7 @@ func Try(blockName string, t *T, f cmdFunc, maxTime time.Duration) error {
 	maxNano := float64(maxTime.Nanoseconds())
 	maxNano *= float64(maxTimeMultiplier)
 	// backoff, the retry logic is basically to cover up timing issues
-	maxNano += maxNano * float64(1-1/t.attempt)
+	maxNano += maxNano * float64(0.5) * float64(t.attempt-1)
 	start := time.Now()
 	var outp []byte
 	var err error

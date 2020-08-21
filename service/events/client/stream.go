@@ -9,6 +9,7 @@ import (
 	"github.com/micro/micro/v3/service/client"
 	"github.com/micro/micro/v3/service/context"
 	pb "github.com/micro/micro/v3/service/events/proto"
+	"github.com/micro/micro/v3/service/events/util"
 )
 
 // NewStream returns an initialized stream service
@@ -78,13 +79,7 @@ func (s *stream) Subscribe(topic string, opts ...events.SubscribeOption) (<-chan
 				return
 			}
 
-			evChan <- events.Event{
-				ID:        ev.Id,
-				Topic:     ev.Topic,
-				Metadata:  ev.Metadata,
-				Payload:   ev.Payload,
-				Timestamp: time.Unix(ev.Timestamp, 0),
-			}
+			evChan <- util.DeserializeEvent(ev)
 		}
 	}()
 

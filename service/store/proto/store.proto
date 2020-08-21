@@ -52,10 +52,6 @@ message ReadResponse {
 message WriteOptions {
 	string database = 1;
 	string table = 2;
-	// time.Time
-	int64 expiry = 3;
-	// time.Duration
-	int64 ttl = 4;
 }
 
 message WriteRequest {

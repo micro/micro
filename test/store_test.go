@@ -157,7 +157,6 @@ func testStoreImpl(t *T) {
 	}
 
 	cmd := serv.Command()
-	//outp, err := cmd.Exec("run", "github.com/micro/micro/test/service/storeexample@bugfix/store-tests")
 	outp, err := cmd.Exec("run", "./service/storeexample")
 	if err != nil {
 		t.Fatalf("micro run failure, output: %v", string(outp))
@@ -181,7 +180,6 @@ func testStoreImpl(t *T) {
 	}
 
 	if err := Try("Check logs", t, func() ([]byte, error) {
-		//outp, err := cmd.Exec("logs", "micro/micro/test/service/storeexample")
 		outp, err := cmd.Exec("logs", "storeexample")
 		if err != nil {
 			return nil, err
@@ -194,6 +192,20 @@ func testStoreImpl(t *T) {
 		return
 	}
 	outp, err = cmd.Exec("call", "--request_timeout=15s", "example", "Example.TestExpiry")
+	if err != nil {
+		t.Fatalf("Error %s, %s", err, outp)
+	}
+
+	outp, err = cmd.Exec("call", "--request_timeout=15s", "example", "Example.TestList")
+	if err != nil {
+		t.Fatalf("Error %s, %s", err, outp)
+	}
+
+	outp, err = cmd.Exec("call", "--request_timeout=15s", "example", "Example.TestListLimit")
+	if err != nil {
+		t.Fatalf("Error %s, %s", err, outp)
+	}
+	outp, err = cmd.Exec("call", "--request_timeout=15s", "example", "Example.TestListOffset")
 	if err != nil {
 		t.Fatalf("Error %s, %s", err, outp)
 	}

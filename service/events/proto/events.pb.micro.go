@@ -183,3 +183,79 @@ func (x *streamSubscribeStream) RecvMsg(m interface{}) error {
 func (x *streamSubscribeStream) Send(m *Event) error {
 	return x.stream.Send(m)
 }
+
+// Api Endpoints for Store service
+
+func NewStoreEndpoints() []*api.Endpoint {
+	return []*api.Endpoint{}
+}
+
+// Client API for Store service
+
+type StoreService interface {
+	Read(ctx context.Context, in *ReadRequest, opts ...client.CallOption) (*ReadResponse, error)
+	Write(ctx context.Context, in *WriteRequest, opts ...client.CallOption) (*WriteResponse, error)
+}
+
+type storeService struct {
+	c    client.Client
+	name string
+}
+
+func NewStoreService(name string, c client.Client) StoreService {
+	return &storeService{
+		c:    c,
+		name: name,
+	}
+}
+
+func (c *storeService) Read(ctx context.Context, in *ReadRequest, opts ...client.CallOption) (*ReadResponse, error) {
+	req := c.c.NewRequest(c.name, "Store.Read", in)
+	out := new(ReadResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *storeService) Write(ctx context.Context, in *WriteRequest, opts ...client.CallOption) (*WriteResponse, error) {
+	req := c.c.NewRequest(c.name, "Store.Write", in)
+	out := new(WriteResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// Server API for Store service
+
+type StoreHandler interface {
+	Read(context.Context, *ReadRequest, *ReadResponse) error
+	Write(context.Context, *WriteRequest, *WriteResponse) error
+}
+
+func RegisterStoreHandler(s server.Server, hdlr StoreHandler, opts ...server.HandlerOption) error {
+	type store interface {
+		Read(ctx context.Context, in *ReadRequest, out *ReadResponse) error
+		Write(ctx context.Context, in *WriteRequest, out *WriteResponse) error
+	}
+	type Store struct {
+		store
+	}
+	h := &storeHandler{hdlr}
+	return s.Handle(s.NewHandler(&Store{h}, opts...))
+}
+
+type storeHandler struct {
+	StoreHandler
+}
+
+func (h *storeHandler) Read(ctx context.Context, in *ReadRequest, out *ReadResponse) error {
+	return h.StoreHandler.Read(ctx, in, out)
+}
+
+func (h *storeHandler) Write(ctx context.Context, in *WriteRequest, out *WriteResponse) error {
+	return h.StoreHandler.Write(ctx, in, out)
+}
