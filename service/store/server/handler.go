@@ -198,11 +198,6 @@ func (h *handler) Write(ctx context.Context, req *pb.WriteRequest, rsp *pb.Write
 	opts := []gostore.WriteOption{
 		gostore.WriteTo(req.Options.Database, req.Options.Table),
 	}
-	if req.Options.Expiry != 0 {
-		opts = append(opts, gostore.WriteExpiry(time.Unix(req.Options.Expiry, 0)))
-	} else if req.Options.Ttl != 0 {
-		opts = append(opts, gostore.WriteTTL(time.Duration(req.Options.Ttl)*time.Second))
-	}
 
 	// construct the record
 	metadata := make(map[string]interface{})
