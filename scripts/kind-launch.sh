@@ -16,6 +16,7 @@ yq write -i platform/kubernetes/service/proxy.yaml "spec.template.spec.container
 yq delete -i platform/kubernetes/service/proxy.yaml "spec.template.spec.containers[0].env.(name==CF_API_TOKEN)"
 yq write -i platform/kubernetes/service/api.yaml "spec.template.spec.containers[0].env.(name==MICRO_ENABLE_ACME).value" --tag '!!str' 'false'
 yq delete -i platform/kubernetes/service/api.yaml "spec.template.spec.containers[0].env.(name==CF_API_TOKEN)"
+yq write -i platform/kubernetes/service/api.yaml "spec.template.spec.containers[0].ports.(name==api-port).containerPort" 8080
 
 # install metrics server
 kubectl apply -f scripts/kind/metrics/components.yaml
