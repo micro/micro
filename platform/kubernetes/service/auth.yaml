@@ -73,10 +73,15 @@ spec:
         ports:
         - containerPort: 8010
           name: auth-port
+        resources:
+          limits:
+            cpu: 500m
+          requests:
+            cpu: 200m
         readinessProbe:
           tcpSocket:
             port: auth-port
-          initialDelaySeconds: 5
+          initialDelaySeconds: 15
           periodSeconds: 10
         volumeMounts:
         - name: etcd-client-certs
@@ -102,3 +107,17 @@ spec:
         secret:
           secretName: cockroachdb-client-certs
           defaultMode: 0600
+---
+apiVersion: autoscaling/v1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: micro-auth
+  namespace: default
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1beta1
+    kind: Deployment
+    name: micro-auth
+  minReplicas: 1
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 50

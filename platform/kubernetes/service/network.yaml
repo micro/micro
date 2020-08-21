@@ -92,8 +92,13 @@ spec:
         readinessProbe:
           tcpSocket:
             port: service-port
-          initialDelaySeconds: 5
+          initialDelaySeconds: 15
           periodSeconds: 10
+        resources:
+          limits:
+            cpu: 500m
+          requests:
+            cpu: 200m
         volumeMounts:
         - name: etcd-client-certs
           mountPath: "/certs/registry"
@@ -118,3 +123,17 @@ spec:
         secret:
           secretName: cockroachdb-client-certs
           defaultMode: 0600
+---
+apiVersion: autoscaling/v1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: micro-network
+  namespace: default
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1beta1
+    kind: Deployment
+    name: micro-network
+  minReplicas: 1
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 50
