@@ -35,7 +35,7 @@ func (e *Example) TestExpiry(ctx context.Context, req *pb.Request, rsp *pb.Respo
 		return err
 	}
 
-	recs, err := mstore.Read("Record.Expiry")
+	recs, err = mstore.Read("Record.Expiry")
 	if err != nil {
 		log.Errorf("Error reading %s", err)
 		return fmt.Errorf("Error reading record Record.Expiry with expiry %s", err)
@@ -69,8 +69,7 @@ func (e *Example) TestExpiry(ctx context.Context, req *pb.Request, rsp *pb.Respo
 }
 
 func writeWithExpiry(key, val string, duration time.Duration) error {
-	if err := mstore.Write(&store.Record{Key: key, Value: []byte(val), Expiry: time.Now().Add(duration)},
-		store.WriteExpiry(time.Now().Add(duration))); err != nil {
+	if err := mstore.Write(&store.Record{Key: key, Value: []byte(val), Expiry: duration}); err != nil {
 		log.Errorf("Error writing %s", err)
 		return fmt.Errorf("Error writing record %s with expiry %s", key, err)
 	}
