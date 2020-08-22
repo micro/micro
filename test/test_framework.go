@@ -419,7 +419,7 @@ func (s *ServerDefault) Close() {
 	if s.cmd.Process != nil {
 		s.cmd.Process.Signal(syscall.SIGKILL)
 	}
-	exec.Command("docker", "network", "rm", fname)
+	exec.Command("docker", "network", "rm", s.container)
 }
 
 func (s *ServerBase) Command() *Command {
