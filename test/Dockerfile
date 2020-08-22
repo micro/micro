@@ -8,7 +8,7 @@ ENV PATH /go/bin:$PATH
 
 RUN mkdir -p ${GOPATH}/src ${GOPATH}/bin
 
-RUN apk add avahi-daemon avahi-utils libnss-mdns
+RUN apk add avahi avahi-tools
 
 RUN systemctl enable avahi-daemon
 
