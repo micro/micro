@@ -17,7 +17,7 @@ import (
 	"github.com/micro/go-micro/v3/server"
 	mucpServer "github.com/micro/go-micro/v3/server/mucp"
 	"github.com/micro/go-micro/v3/transport"
-	"github.com/micro/go-micro/v3/transport/quic"
+	"github.com/micro/go-micro/v3/transport/grpc"
 	"github.com/micro/go-micro/v3/tunnel"
 	tmucp "github.com/micro/go-micro/v3/tunnel/mucp"
 	"github.com/micro/micro/v3/internal/helper"
@@ -124,7 +124,7 @@ func Run(ctx *cli.Context) error {
 		config.InsecureSkipVerify = true
 
 		tunOpts = append(tunOpts, tunnel.Transport(
-			quic.NewTransport(transport.TLSConfig(config)),
+			grpc.NewTransport(transport.TLSConfig(config)),
 		))
 	}
 
