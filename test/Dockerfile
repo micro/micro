@@ -10,7 +10,7 @@ RUN mkdir -p ${GOPATH}/src ${GOPATH}/bin
 
 RUN apk add avahi avahi-tools
 
-RUN echo -e '!#/bin/bash\navahi-daemon &' > run.sh && chmod +x run.sh && ./run.sh
+RUN echo -e '#!/bin/bash\navahi-daemon &' > run.sh && chmod +x run.sh && ./run.sh
 
 RUN apk add ca-certificates && \
     rm -rf /var/cache/apk/* /tmp/* && \
