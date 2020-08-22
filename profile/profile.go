@@ -100,7 +100,7 @@ var CI = &Profile{
 		microEvents.DefaultStream, _ = memStream.NewStream()
 		microEvents.DefaultStore = evStore.NewStore(evStore.WithStore(microStore.DefaultStore))
 		setBroker(http.NewBroker())
-		setRegistry(etcd.NewRegistry())
+		setRegistry(mdns.NewRegistry())
 		setupJWTRules()
 		return nil
 	},
