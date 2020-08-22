@@ -8,9 +8,7 @@ ENV PATH /go/bin:$PATH
 
 RUN mkdir -p ${GOPATH}/src ${GOPATH}/bin
 
-RUN apt-get update && \
-    apt-get install -yq \
-      avahi-daemon avahi-utils libnss-mdns
+RUN apk add avahi-daemon avahi-utils libnss-mdns
 
 RUN systemctl enable avahi-daemon
 
