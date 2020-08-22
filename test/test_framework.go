@@ -299,7 +299,7 @@ func newLocalServer(t *T, fname string, opts ...Option) Server {
 	}
 
 	// create the container network
-	exec.Command("docker", "network", "create", "--driver=bridge", fname)
+	exec.Command("docker", "network", "create", "-d=bridge", fname)
 
 	// run the server
 	cmd := exec.Command("docker", "run", "--name", fname,
