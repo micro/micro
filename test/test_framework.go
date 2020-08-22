@@ -298,8 +298,12 @@ func newLocalServer(t *T, fname string, opts ...Option) Server {
 		panic("pubKey has not been set")
 	}
 
+	// create the container network
+	exec.Command("docker", "network", "create", "--driver=bridge", fname)
+
 	// run the server
 	cmd := exec.Command("docker", "run", "--name", fname,
+		fmt.Sprintf("--network=%s", fname),
 		fmt.Sprintf("-p=%v:8081", proxyPortnum),
 		fmt.Sprintf("-p=%v:8080", apiPortNum),
 		"-e", "MICRO_AUTH_PRIVATE_KEY="+strings.Trim(string(privKey), "\n"),
@@ -415,6 +419,7 @@ func (s *ServerDefault) Close() {
 	if s.cmd.Process != nil {
 		s.cmd.Process.Signal(syscall.SIGKILL)
 	}
+	exec.Command("docker", "network", "rm", fname)
 }
 
 func (s *ServerBase) Command() *Command {
