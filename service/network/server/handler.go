@@ -184,7 +184,7 @@ func (n *Network) Routes(ctx context.Context, req *pb.RoutesRequest, resp *pb.Ro
 		routes, err = n.Network.Options().Router.Lookup(req.Query.Service, qOpts...)
 	} else {
 		// otherwise list and filter
-		routes, err := n.Network.Options().Router.Table().List()
+		routes, err := n.Network.Options().Router.Table().Read()
 		if err == nil {
 			// filter the routes
 			routes = router.Filter(routes, router.NewLookup(qOpts...))
@@ -226,7 +226,7 @@ func (n *Network) Services(ctx context.Context, req *pb.ServicesRequest, resp *p
 		return errors.InternalServerError("network.Network.Services", err.Error())
 	}
 
-	routes, err := n.Network.Options().Router.Table().List()
+	routes, err := n.Network.Options().Router.Table().Read()
 	if err != nil {
 		return errors.InternalServerError("network.Network.Services", "failed to list services: %s", err)
 	}
