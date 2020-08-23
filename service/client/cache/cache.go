@@ -75,10 +75,16 @@ func key(ctx context.Context, req client.Request) string {
 }
 
 func SetOptions(ctx context.Context, opts *Options) context.Context {
+	if ctx == nil {
+		ctx = context.Background()
+	}
 	return context.WithValue(ctx, optionsKey{}, opts)
 }
 
 func GetOptions(ctx context.Context) (*Options, bool) {
+	if ctx == nil {
+		return nil, false
+	}
 	opts, ok := ctx.Value(optionsKey{}).(*Options)
 	return opts, ok
 }
