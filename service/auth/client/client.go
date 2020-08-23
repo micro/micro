@@ -10,6 +10,7 @@ import (
 	"github.com/micro/go-micro/v3/util/token/jwt"
 	pb "github.com/micro/micro/v3/service/auth/proto"
 	"github.com/micro/micro/v3/service/client"
+	"github.com/micro/micro/v3/service/client/cache"
 	"github.com/micro/micro/v3/service/context"
 )
 
@@ -136,7 +137,7 @@ func (s *srv) Rules(opts ...auth.RulesOption) ([]*auth.Rule, error) {
 		options.Namespace = s.options.Issuer
 	}
 
-	callOpts := append(s.callOpts(), goclient.WithCache(time.Second*30))
+	callOpts := append(s.callOpts(), cache.CallExpiry(time.Second*30))
 	rsp, err := s.rules.List(options.Context, &pb.ListRequest{
 		Options: &pb.Options{Namespace: options.Namespace},
 	}, callOpts...)
