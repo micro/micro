@@ -14,7 +14,7 @@ import (
 )
 
 func TestServerModeCall(t *testing.T) {
-	TrySuite(t, ServerModeCall, RetryCount)
+	TrySuite(t, ServerModeCall, retryCount)
 }
 
 func ServerModeCall(t *T) {
@@ -46,7 +46,7 @@ func ServerModeCall(t *T) {
 }
 
 func TestRunLocalSource(t *testing.T) {
-	TrySuite(t, testRunLocalSource, RetryCount)
+	TrySuite(t, testRunLocalSource, retryCount)
 }
 
 func testRunLocalSource(t *T) {
@@ -96,7 +96,7 @@ func testRunLocalSource(t *T) {
 }
 
 func TestRunAndKill(t *testing.T) {
-	TrySuite(t, testRunAndKill, RetryCount)
+	TrySuite(t, testRunAndKill, retryCount)
 }
 
 func testRunAndKill(t *T) {
@@ -184,7 +184,7 @@ func statusRunning(service, branch string, statusOutput []byte) bool {
 }
 
 func TestRunGithubSource(t *testing.T) {
-	TrySuite(t, testRunGithubSource, RetryCount)
+	TrySuite(t, testRunGithubSource, retryCount)
 }
 
 func testRunGithubSource(t *T) {
@@ -259,7 +259,7 @@ func testRunGithubSource(t *T) {
 
 // Note: @todo this method should truly be the same as TestGithubSource.
 func TestRunGitlabSource(t *testing.T) {
-	TrySuite(t, testRunGitlabSource, RetryCount)
+	TrySuite(t, testRunGitlabSource, retryCount)
 }
 
 func testRunGitlabSource(t *T) {
@@ -311,7 +311,7 @@ func testRunGitlabSource(t *T) {
 }
 
 func TestRunGitlabSourceMonoRepo(t *testing.T) {
-	TrySuite(t, testRunGitlabSourceMonoRepo, RetryCount)
+	TrySuite(t, testRunGitlabSourceMonoRepo, retryCount)
 }
 
 func testRunGitlabSourceMonoRepo(t *T) {
@@ -364,7 +364,7 @@ func testRunGitlabSourceMonoRepo(t *T) {
 
 // This test exists to test the path of "generic git checkout", not just bitbucket
 func TestRunGenericRemote(t *testing.T) {
-	TrySuite(t, testRunGenericRemote, RetryCount)
+	TrySuite(t, testRunGenericRemote, retryCount)
 }
 
 func testRunGenericRemote(t *T) {
@@ -416,7 +416,7 @@ func testRunGenericRemote(t *T) {
 }
 
 func TestRunLocalUpdateAndCall(t *testing.T) {
-	TrySuite(t, testRunLocalUpdateAndCall, RetryCount)
+	TrySuite(t, testRunLocalUpdateAndCall, retryCount)
 }
 
 func testRunLocalUpdateAndCall(t *T) {
@@ -501,7 +501,7 @@ func testRunLocalUpdateAndCall(t *T) {
 }
 
 func TestExistingLogs(t *testing.T) {
-	TrySuite(t, testExistingLogs, RetryCount)
+	TrySuite(t, testExistingLogs, retryCount)
 }
 
 func testExistingLogs(t *T) {
@@ -536,7 +536,7 @@ func testExistingLogs(t *T) {
 }
 
 func TestBranchCheckout(t *testing.T) {
-	TrySuite(t, testBranchCheckout, RetryCount)
+	TrySuite(t, testBranchCheckout, retryCount)
 }
 
 func testBranchCheckout(t *T) {
@@ -572,7 +572,7 @@ func testBranchCheckout(t *T) {
 }
 
 func TestStreamLogsAndThirdPartyRepo(t *testing.T) {
-	TrySuite(t, testStreamLogsAndThirdPartyRepo, RetryCount)
+	TrySuite(t, testStreamLogsAndThirdPartyRepo, retryCount)
 }
 
 func testStreamLogsAndThirdPartyRepo(t *T) {
@@ -660,7 +660,7 @@ func replaceStringInFile(t *T, filepath string, original, newone string) {
 }
 
 func TestParentDependency(t *testing.T) {
-	TrySuite(t, testParentDependency, RetryCount)
+	TrySuite(t, testParentDependency, retryCount)
 }
 
 func testParentDependency(t *T) {
@@ -695,7 +695,7 @@ func testParentDependency(t *T) {
 }
 
 func TestRunPrivateSource(t *testing.T) {
-	TrySuite(t, testRunPrivateSource, RetryCount)
+	TrySuite(t, testRunPrivateSource, retryCount)
 }
 
 func testRunPrivateSource(t *T) {
@@ -767,7 +767,7 @@ func testRunPrivateSource(t *T) {
 }
 
 func TestRunPrivateGitlabSource(t *testing.T) {
-	TrySuite(t, testRunPrivateGitlabSource, RetryCount)
+	TrySuite(t, testRunPrivateGitlabSource, retryCount)
 }
 
 func testRunPrivateGitlabSource(t *T) {
@@ -884,7 +884,7 @@ func testRunPrivateGitlabSource(t *T) {
 }
 
 func TestRunPrivateGenericRemote(t *testing.T) {
-	TrySuite(t, testRunPrivateGenericRemote, RetryCount)
+	TrySuite(t, testRunPrivateGenericRemote, retryCount)
 }
 
 func testRunPrivateGenericRemote(t *T) {
@@ -1001,7 +1001,7 @@ func testRunPrivateGenericRemote(t *T) {
 }
 
 func TestIdiomaticFolderStructure(t *testing.T) {
-	TrySuite(t, testIdiomaticFolderStructure, RetryCount)
+	TrySuite(t, testIdiomaticFolderStructure, retryCount)
 }
 
 func testIdiomaticFolderStructure(t *T) {

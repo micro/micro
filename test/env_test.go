@@ -9,7 +9,7 @@ import (
 )
 
 func TestEnvBasic(t *testing.T) {
-	TrySuite(t, testEnvOverrides, RetryCount)
+	TrySuite(t, testEnvOverrides, retryCount)
 }
 
 func testEnvBasic(t *T) {
@@ -28,7 +28,7 @@ func testEnvBasic(t *T) {
 }
 
 func TestEnvOverrides(t *testing.T) {
-	TrySuite(t, testEnvOverrides, RetryCount)
+	TrySuite(t, testEnvOverrides, retryCount)
 }
 
 func testEnvOverrides(t *T) {
@@ -54,7 +54,7 @@ func testEnvOverrides(t *T) {
 }
 
 func TestEnvOps(t *testing.T) {
-	TrySuite(t, testEnvOps, RetryCount)
+	TrySuite(t, testEnvOps, retryCount)
 }
 
 func testEnvOps(t *T) {

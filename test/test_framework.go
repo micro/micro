@@ -27,7 +27,7 @@ const (
 )
 
 var (
-	RetryCount        = 2
+	retryCount        = 2
 	isParallel        = true
 	ignoreThisError   = errors.New("Do not use this error")
 	errFatal          = errors.New("Fatal error")

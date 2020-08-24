@@ -11,7 +11,7 @@ import (
 )
 
 func TestNew(t *testing.T) {
-	TrySuite(t, testNew, RetryCount)
+	TrySuite(t, testNew, retryCount)
 }
 
 func testNew(t *T) {
@@ -96,7 +96,7 @@ func testNew(t *T) {
 }
 
 func TestWrongCommands(t *testing.T) {
-	TrySuite(t, testWrongCommands, RetryCount)
+	TrySuite(t, testWrongCommands, retryCount)
 }
 
 func testWrongCommands(t *T) {
@@ -147,7 +147,7 @@ func testWrongCommands(t *T) {
 
 // TestHelps ensures all `micro [command name] help` && `micro [command name] --help` commands are working.
 func TestHelps(t *testing.T) {
-	TrySuite(t, testHelps, RetryCount)
+	TrySuite(t, testHelps, retryCount)
 }
 
 func testHelps(t *T) {
@@ -182,7 +182,7 @@ func testHelps(t *T) {
 }
 
 func TestUnrecognisedCommand(t *testing.T) {
-	TrySuite(t, testUnrecognisedCommand, RetryCount)
+	TrySuite(t, testUnrecognisedCommand, retryCount)
 }
 
 func testUnrecognisedCommand(t *T) {

@@ -15,7 +15,7 @@ import (
 // Test for making sure config and store values across namespaces
 // are correctly isolated
 func TestNamespaceConfigIsolation(t *testing.T) {
-	TrySuite(t, testNamespaceConfigIsolation, RetryCount)
+	TrySuite(t, testNamespaceConfigIsolation, retryCount)
 }
 
 func testNamespaceConfigIsolation(t *T) {
