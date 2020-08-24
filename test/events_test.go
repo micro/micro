@@ -11,7 +11,7 @@ import (
 )
 
 func TestEventsStream(t *testing.T) {
-	TrySuite(t, testEventsStream, retryCount)
+	TrySuite(t, testEventsStream, RetryCount)
 }
 
 func testEventsStream(t *T) {

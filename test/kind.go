@@ -24,7 +24,7 @@ func init() {
 	maxTimeMultiplier = 3
 	isParallel = false // in theory should work in parallel
 	newSrv = newK8sServer
-	retryCount = 1
+	RetryCount = 1
 }
 
 func newK8sServer(t *T, fname string, opts ...Option) Server {

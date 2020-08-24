@@ -18,7 +18,7 @@ import (
 )
 
 func TestServerAuth(t *testing.T) {
-	TrySuite(t, ServerAuth, retryCount)
+	TrySuite(t, ServerAuth, RetryCount)
 }
 
 func ServerAuth(t *T) {
@@ -89,7 +89,7 @@ func ServerAuth(t *T) {
 }
 
 func TestServerLockdown(t *testing.T) {
-	TrySuite(t, testServerLockdown, retryCount)
+	TrySuite(t, testServerLockdown, RetryCount)
 }
 
 func testServerLockdown(t *T) {
@@ -206,7 +206,7 @@ func lockdownSuite(serv Server, t *T) {
 }
 
 func TestPasswordChange(t *testing.T) {
-	TrySuite(t, changePassword, retryCount)
+	TrySuite(t, changePassword, RetryCount)
 }
 
 func changePassword(t *T) {

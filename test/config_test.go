@@ -11,7 +11,7 @@ import (
 )
 
 func TestConfig(t *testing.T) {
-	TrySuite(t, testConfig, retryCount)
+	TrySuite(t, testConfig, RetryCount)
 }
 
 func testConfig(t *T) {
@@ -115,7 +115,7 @@ func testConfig(t *T) {
 }
 
 func TestConfigReadFromService(t *testing.T) {
-	TrySuite(t, testConfigReadFromService, retryCount)
+	TrySuite(t, testConfigReadFromService, RetryCount)
 }
 
 func testConfigReadFromService(t *T) {

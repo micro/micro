@@ -13,7 +13,7 @@ import (
 // to allow the user to login again rather than leave them in a state of limbo where they have to munge the config
 // themselves
 func TestCorruptedTokenLogin(t *testing.T) {
-	TrySuite(t, testCorruptedLogin, retryCount)
+	TrySuite(t, testCorruptedLogin, RetryCount)
 }
 
 func testCorruptedLogin(t *T) {
