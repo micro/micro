@@ -196,8 +196,7 @@ type TableService interface {
 	Create(ctx context.Context, in *Route, opts ...client.CallOption) (*CreateResponse, error)
 	Delete(ctx context.Context, in *Route, opts ...client.CallOption) (*DeleteResponse, error)
 	Update(ctx context.Context, in *Route, opts ...client.CallOption) (*UpdateResponse, error)
-	List(ctx context.Context, in *Request, opts ...client.CallOption) (*ListResponse, error)
-	Query(ctx context.Context, in *QueryRequest, opts ...client.CallOption) (*QueryResponse, error)
+	Read(ctx context.Context, in *ReadRequest, opts ...client.CallOption) (*ReadResponse, error)
 }
 
 type tableService struct {
@@ -242,19 +241,9 @@ func (c *tableService) Update(ctx context.Context, in *Route, opts ...client.Cal
 	return out, nil
 }
 
-func (c *tableService) List(ctx context.Context, in *Request, opts ...client.CallOption) (*ListResponse, error) {
-	req := c.c.NewRequest(c.name, "Table.List", in)
-	out := new(ListResponse)
-	err := c.c.Call(ctx, req, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *tableService) Query(ctx context.Context, in *QueryRequest, opts ...client.CallOption) (*QueryResponse, error) {
-	req := c.c.NewRequest(c.name, "Table.Query", in)
-	out := new(QueryResponse)
+func (c *tableService) Read(ctx context.Context, in *ReadRequest, opts ...client.CallOption) (*ReadResponse, error) {
+	req := c.c.NewRequest(c.name, "Table.Read", in)
+	out := new(ReadResponse)
 	err := c.c.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
@@ -268,8 +257,7 @@ type TableHandler interface {
 	Create(context.Context, *Route, *CreateResponse) error
 	Delete(context.Context, *Route, *DeleteResponse) error
 	Update(context.Context, *Route, *UpdateResponse) error
-	List(context.Context, *Request, *ListResponse) error
-	Query(context.Context, *QueryRequest, *QueryResponse) error
+	Read(context.Context, *ReadRequest, *ReadResponse) error
 }
 
 func RegisterTableHandler(s server.Server, hdlr TableHandler, opts ...server.HandlerOption) error {
@@ -277,8 +265,7 @@ func RegisterTableHandler(s server.Server, hdlr TableHandler, opts ...server.Han
 		Create(ctx context.Context, in *Route, out *CreateResponse) error
 		Delete(ctx context.Context, in *Route, out *DeleteResponse) error
 		Update(ctx context.Context, in *Route, out *UpdateResponse) error
-		List(ctx context.Context, in *Request, out *ListResponse) error
-		Query(ctx context.Context, in *QueryRequest, out *QueryResponse) error
+		Read(ctx context.Context, in *ReadRequest, out *ReadResponse) error
 	}
 	type Table struct {
 		table
@@ -303,10 +290,6 @@ func (h *tableHandler) Update(ctx context.Context, in *Route, out *UpdateRespons
 	return h.TableHandler.Update(ctx, in, out)
 }
 
-func (h *tableHandler) List(ctx context.Context, in *Request, out *ListResponse) error {
-	return h.TableHandler.List(ctx, in, out)
-}
-
-func (h *tableHandler) Query(ctx context.Context, in *QueryRequest, out *QueryResponse) error {
-	return h.TableHandler.Query(ctx, in, out)
+func (h *tableHandler) Read(ctx context.Context, in *ReadRequest, out *ReadResponse) error {
+	return h.TableHandler.Read(ctx, in, out)
 }

@@ -72,7 +72,7 @@ micro run helloworld
 micro services
 
 # call a service
-micro call helloworld Helloworld.Call '{"name": "Alice"}'
+micro helloworld --name=Alice
 
 # curl via the api
 curl -d '{"name": "Alice"}' http://localhost:8080/helloworld

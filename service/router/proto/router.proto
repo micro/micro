@@ -14,19 +14,17 @@ service Table {
   rpc Create(Route) returns (CreateResponse) {};
   rpc Delete(Route) returns (DeleteResponse) {};
   rpc Update(Route) returns (UpdateResponse) {};
-  rpc List(Request) returns (ListResponse) {};
-  rpc Query(QueryRequest) returns (QueryResponse) {};
+  rpc Read(ReadRequest) returns (ReadResponse) {};
 }
 
 // Empty request
-message Request {}
+message ReadRequest {
+	string service = 1;
+}
 
 // Empty response
-message Response {}
-
-// ListResponse is returned by List
-message ListResponse {
-  repeated Route routes = 1;
+message ReadResponse {
+	repeated Route routes = 1;
 }
 
 // LookupRequest is made to Lookup
@@ -37,16 +35,6 @@ message LookupRequest {
 
 // LookupResponse is returned by Lookup
 message LookupResponse {
-  repeated Route routes = 1;
-}
-
-// QueryRequest queries Table for Routes
-message QueryRequest{
-  string service = 1;
-}
-
-// QueryResponse is returned by Query
-message QueryResponse {
   repeated Route routes = 1;
 }
 

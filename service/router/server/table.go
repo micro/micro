@@ -66,37 +66,10 @@ func (t *Table) Delete(ctx context.Context, route *pb.Route, resp *pb.DeleteResp
 	return nil
 }
 
-// List returns all routes in the routing table
-func (t *Table) List(ctx context.Context, req *pb.Request, resp *pb.ListResponse) error {
-	routes, err := t.Router.Table().List()
+func (t *Table) Read(ctx context.Context, req *pb.ReadRequest, resp *pb.ReadResponse) error {
+	routes, err := t.Router.Table().Read(router.ReadService(req.Service))
 	if err != nil {
-		return errors.InternalServerError("router.Table.List", "failed to list routes: %s", err)
-	}
-
-	respRoutes := make([]*pb.Route, 0, len(routes))
-	for _, route := range routes {
-		respRoute := &pb.Route{
-			Service:  route.Service,
-			Address:  route.Address,
-			Gateway:  route.Gateway,
-			Network:  route.Network,
-			Router:   route.Router,
-			Link:     route.Link,
-			Metric:   route.Metric,
-			Metadata: route.Metadata,
-		}
-		respRoutes = append(respRoutes, respRoute)
-	}
-
-	resp.Routes = respRoutes
-
-	return nil
-}
-
-func (t *Table) Query(ctx context.Context, req *pb.QueryRequest, resp *pb.QueryResponse) error {
-	routes, err := t.Router.Table().Query(req.Service)
-	if err != nil {
-		return errors.InternalServerError("router.Table.Query", "failed to lookup routes: %s", err)
+		return errors.InternalServerError("router.Table.Read", "failed to lookup routes: %s", err)
 	}
 
 	respRoutes := make([]*pb.Route, 0, len(routes))
