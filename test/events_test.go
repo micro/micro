@@ -39,6 +39,8 @@ func testEventsStream(t *T) {
 	}
 
 	if err := Try("Check logs for success", t, func() ([]byte, error) {
+		outp, _ := cmd.Exec("status")
+		t.Logf("Status %s", string(outp))
 		outp, err := cmd.Exec("logs", "-n", "200", "stream")
 		if err != nil {
 			return outp, err
