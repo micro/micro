@@ -69,12 +69,19 @@ func Signup(ctx *cli.Context) error {
 		for {
 			answer, _ := reader.ReadString('\n')
 			answer = strings.TrimSpace(answer)
+			validAnswer := false
 			switch answer {
 			case "join":
 				isJoining = true
+				validAnswer = true
+				break
 			case "own":
+				validAnswer = true
 			default:
-				fmt.Printf("Valid answers are: \"own\" or \"join\": ")
+				fmt.Printf("Answer \"%v\" is invalid. Valid answers are: \"own\" or \"join\": ", answer)
+			}
+			if validAnswer {
+				break
 			}
 		}
 	}
