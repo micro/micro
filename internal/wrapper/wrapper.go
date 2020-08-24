@@ -12,7 +12,7 @@ import (
 	"github.com/micro/go-micro/v3/server"
 	"github.com/micro/micro/v3/internal/namespace"
 	"github.com/micro/micro/v3/service/auth"
-	muclient "github.com/micro/micro/v3/service/client"
+	"github.com/micro/micro/v3/service/client/cache"
 	"github.com/micro/micro/v3/service/debug"
 	"github.com/micro/micro/v3/service/errors"
 	"github.com/micro/micro/v3/service/logger"
@@ -262,6 +262,7 @@ func TraceHandler() server.HandlerWrapper {
 }
 
 type cacheWrapper struct {
+	Cache *cache.Cache
 	client.Client
 }
 
@@ -275,23 +276,22 @@ func (c *cacheWrapper) Call(ctx context.Context, req client.Request, rsp interfa
 	}
 
 	// if the client doesn't have a cacbe setup don't continue
-	cache := muclient.DefaultClient.Options().Cache
-	if cache == nil {
+	if c.Cache == nil {
+		return c.Client.Call(ctx, req, rsp, opts...)
+	}
+
+	cacheOpts, ok := cache.GetOptions(options.Context)
+	if !ok {
 		return c.Client.Call(ctx, req, rsp, opts...)
 	}
 
 	// if the cache expiry is not set, execute the call without the cache
-	if options.CacheExpiry == 0 {
-		return c.Client.Call(ctx, req, rsp, opts...)
-	}
-
-	// if the response is nil don't call the cache since we can't assign the response
-	if rsp == nil {
+	if cacheOpts.Expiry == 0 || rsp == nil {
 		return c.Client.Call(ctx, req, rsp, opts...)
 	}
 
 	// check to see if there is a response cached, if there is assign it
-	if r, ok := cache.Get(ctx, req); ok {
+	if r, ok := c.Cache.Get(ctx, req); ok {
 		val := reflect.ValueOf(rsp).Elem()
 		val.Set(reflect.ValueOf(r).Elem())
 		return nil
@@ -303,11 +303,14 @@ func (c *cacheWrapper) Call(ctx context.Context, req client.Request, rsp interfa
 	}
 
 	// set the result in the cache
-	cache.Set(ctx, req, rsp, options.CacheExpiry)
+	c.Cache.Set(ctx, req, rsp, cacheOpts.Expiry)
 	return nil
 }
 
 // CacheClient wraps requests with the cache wrapper
 func CacheClient(c client.Client) client.Client {
-	return &cacheWrapper{c}
+	return &cacheWrapper{
+		Cache:  cache.New(),
+		Client: c,
+	}
 }

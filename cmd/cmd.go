@@ -514,14 +514,14 @@ func action(c *cli.Context) error {
 		// exists within the current namespace, then it would
 		// execute the Config.Set RPC, setting the flags in the
 		// request.
-		if srv, err := lookupService(c); err != nil {
+		if srv, ns, err := lookupService(c); err != nil {
 			fmt.Printf("Error querying registry for service %v: %v", c.Args().First(), err)
 			os.Exit(1)
 		} else if srv != nil && shouldRenderHelp(c) {
 			fmt.Println(formatServiceUsage(srv, c.Args().First()))
 			os.Exit(1)
 		} else if srv != nil {
-			if err := callService(srv, c); err != nil {
+			if err := callService(srv, ns, c); err != nil {
 				fmt.Println(err)
 				os.Exit(1)
 			}
