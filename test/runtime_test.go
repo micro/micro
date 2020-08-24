@@ -1024,7 +1024,7 @@ func testIdiomaticFolderStructure(t *T) {
 
 	t.Logf("Running idiomatic service from the %v branch of micro", branch)
 	src := "github.com/micro/micro/test/service/idiomatic@" + branch
-	if outp, err := cmd.Exec("run", "--image", "localhost:5000/cells:go", src); err != nil {
+	if outp, err := cmd.Exec("run", "--image", "localhost:5000/cells:micro", src); err != nil {
 		t.Fatalf("Error running service: %v, %v", err, string(outp))
 		return
 	}
