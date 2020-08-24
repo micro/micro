@@ -26,6 +26,7 @@ import (
 	"github.com/micro/go-micro/v3/registry/memory"
 	"github.com/micro/go-micro/v3/router"
 	regRouter "github.com/micro/go-micro/v3/router/registry"
+	"github.com/micro/go-micro/v3/router/static"
 	"github.com/micro/go-micro/v3/runtime/kubernetes"
 	"github.com/micro/go-micro/v3/runtime/local"
 	"github.com/micro/go-micro/v3/server"
@@ -138,8 +139,9 @@ var Kubernetes = &Profile{
 	Name: "kubernetes",
 	Setup: func(ctx *cli.Context) error {
 		// TODO: implement
+		// using a static router so queries are routed based on service name
+		microRouter.DefaultRouter = static.NewRouter()
 		// registry kubernetes
-		// router static
 		// config configmap
 		// store ...
 		microAuth.DefaultAuth = jwt.NewAuth()

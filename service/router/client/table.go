@@ -66,33 +66,15 @@ func (t *table) Update(r router.Route) error {
 	return nil
 }
 
-// List returns the list of all routes in the table
-func (t *table) List() ([]router.Route, error) {
-	resp, err := t.table.List(context.DefaultContext, &pb.Request{}, t.callOpts...)
-	if err != nil {
-		return nil, err
+// Read looks up routes in the routing table and returns them
+func (t *table) Read(opts ...router.ReadOption) ([]router.Route, error) {
+	var options router.ReadOptions
+	for _, o := range opts {
+		o(&options)
 	}
-
-	routes := make([]router.Route, len(resp.Routes))
-	for i, route := range resp.Routes {
-		routes[i] = router.Route{
-			Service: route.Service,
-			Address: route.Address,
-			Gateway: route.Gateway,
-			Network: route.Network,
-			Link:    route.Link,
-			Metric:  route.Metric,
-		}
-	}
-
-	return routes, nil
-}
-
-// Lookup looks up routes in the routing table and returns them
-func (t *table) Query(service string) ([]router.Route, error) {
 	// call the router
-	resp, err := t.table.Query(context.DefaultContext, &pb.QueryRequest{
-		Service: service,
+	resp, err := t.table.Read(context.DefaultContext, &pb.ReadRequest{
+		Service: options.Service,
 	}, t.callOpts...)
 	// errored out
 	if err != nil {
