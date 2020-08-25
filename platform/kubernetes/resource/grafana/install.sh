@@ -10,4 +10,5 @@ helm repo add stable https://kubernetes-charts.storage.googleapis.com
 # Install Grafana using Helm:
 helm install grafana stable/grafana \
     --namespace ${MONITORING_NAMESPACE} \
-    --set persistence.enabled=true
+    --set persistence.enabled=true \
+    --set persistence.size=1Gi

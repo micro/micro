@@ -11,4 +11,6 @@ helm repo add stable https://kubernetes-charts.storage.googleapis.com
 helm install prometheus stable/prometheus \
     --namespace ${MONITORING_NAMESPACE} \
     --set alertmanager.enabled=false \
-    --set pushgateway.enabled=false
+    --set alertmanager.persistentVolume.enabled=false \
+    --set pushgateway.enabled=false \
+    --set server.persistentVolume.enabled=false
