@@ -113,16 +113,20 @@ func Signup(ctx *cli.Context) error {
 	// payment method id read from user input
 	var paymentMethodID string
 
-	// print the message returned from the verification process
-	if len(rsp.Message) > 0 {
-		// print with space
-		fmt.Printf("\n%s\n", rsp.Message)
-	}
+	// Only take payment method if not joining, ie. creating their own namespace
+	// and M3O platform subscription
+	if !isJoining {
+		// print the message returned from the verification process
+		if len(rsp.Message) > 0 {
+			// print with space
+			fmt.Printf("\n%s\n", rsp.Message)
+		}
 
-	// payment required
-	if rsp.PaymentRequired {
-		paymentMethodID, _ = reader.ReadString('\n')
-		paymentMethodID = strings.TrimSpace(paymentMethodID)
+		// payment required
+		if rsp.PaymentRequired {
+			paymentMethodID, _ = reader.ReadString('\n')
+			paymentMethodID = strings.TrimSpace(paymentMethodID)
+		}
 	}
 
 	// complete the signup flow
