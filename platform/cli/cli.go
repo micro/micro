@@ -64,8 +64,10 @@ func Signup(ctx *cli.Context) error {
 	}
 
 	isJoining := false
-	if len(rsp.Namespaces) > 0 {
-		fmt.Printf("You have been invited to the '%v' namespace. Do you want to join it or create your own namespace? Please type \"own\" or \"join\": ", rsp.Namespaces[0])
+
+	if ns := rsp.Namespaces; len(ns) > 0 {
+		fmt.Printf("\nYou've been invited to the '%v' namespace.\nDo you want to join it or create your own? Please type \"own\" or \"join\": ", ns[0])
+		
 		for {
 			answer, _ := reader.ReadString('\n')
 			answer = strings.TrimSpace(answer)
@@ -87,6 +89,7 @@ func Signup(ctx *cli.Context) error {
 	}
 
 	password := ctx.String("password")
+
 	if len(password) == 0 {
 		for {
 			fmt.Print("Enter a new password: ")
@@ -172,7 +175,7 @@ func Signup(ctx *cli.Context) error {
 
 	// the user has now signed up and logged in
 	// @todo save the namespace from the last call and use that.
-	fmt.Println("Signup complete! You're now logged in.")
+	fmt.Println("\nSignup complete! You're now logged in.")
 	report.Success(ctx, email)
 	return nil
 }
