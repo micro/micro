@@ -127,6 +127,15 @@ func (m *manager) Delete(srv *gorun.Service, opts ...gorun.DeleteOption) error {
 	return m.publishEvent(gorun.Delete, srv, &gorun.CreateOptions{Namespace: options.Namespace})
 }
 
+func (m *manager) CreateNamespace(ns string) error {
+	// Do we need to store this locally?
+	return runtime.CreateNamespace(ns)
+}
+
+func (m *manager) DeleteNamespace(ns string) error {
+	return runtime.DeleteNamespace(ns)
+}
+
 // Starts the manager
 func (m *manager) Start() error {
 	if m.running {

@@ -10,6 +10,8 @@ service Runtime {
 	rpc Delete(DeleteRequest) returns (DeleteResponse) {};
 	rpc Update(UpdateRequest) returns (UpdateResponse) {};
 	rpc Logs(LogsRequest) returns (stream LogRecord) {};
+	rpc CreateNamespace(CreateNamespaceRequest) returns (CreateNamespaceResponse) {};
+	rpc DeleteNamespace(DeleteNamespaceRequest) returns (DeleteNamespaceResponse) {};
 }
 
 message Service {
@@ -134,3 +136,16 @@ message LogRecord {
 	string message = 3;
 }
 
+message CreateNamespaceRequest {
+	// the name of the namespace
+	string namespace = 1;
+}
+
+message CreateNamespaceResponse {}
+
+message DeleteNamespaceRequest {
+	// the name of the namespace
+	string namespace = 1;
+}
+
+message DeleteNamespaceResponse {}

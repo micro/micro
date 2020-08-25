@@ -35,3 +35,13 @@ func Delete(srv *runtime.Service, opts ...runtime.DeleteOption) error {
 func Logs(srv *runtime.Service, opts ...runtime.LogsOption) (runtime.Logs, error) {
 	return DefaultRuntime.Logs(srv, opts...)
 }
+
+// CreateNamespace creates a new namespace
+func CreateNamespace(ns string) error {
+	return DefaultRuntime.CreateNamespace(ns)
+}
+
+// DeleteNamespace deletes a namespace
+func DeleteNamespace(ns string) error {
+	return DefaultRuntime.DeleteNamespace(ns)
+}
