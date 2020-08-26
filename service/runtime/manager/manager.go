@@ -1,6 +1,8 @@
 package manager
 
 import (
+	"time"
+
 	gorun "github.com/micro/go-micro/v3/runtime"
 	"github.com/micro/go-micro/v3/store"
 	cachest "github.com/micro/go-micro/v3/store/cache"
@@ -77,6 +79,9 @@ func (m *manager) Read(opts ...gorun.ReadOption) ([]*gorun.Service, error) {
 		}
 		srv.Service.Metadata["status"] = md.Status
 		srv.Service.Metadata["error"] = md.Error
+		if !md.Updated.IsZero() {
+			srv.Service.Metadata["started"] = md.Updated.Format(time.RFC3339)
+		}
 	}
 
 	return ret, nil
