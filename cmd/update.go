@@ -5,13 +5,19 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/micro/cli/v2"
 	"github.com/blang/semver"
 	"github.com/rhysd/go-github-selfupdate/selfupdate"
 )
 
 // confirmAndSelfUpdate looks for a new release of micro and upgrades in place
 // we only execute this for select CLI commands rather than everything
-func confirmAndSelfUpdate() (bool, error) {
+func confirmAndSelfUpdate(ctx *cli.Context) (bool, error) {
+	// if its not enabled via the update prompt bail out
+	if !ctx.Bool("prompt_update") {
+		return false, nil
+	}
+
 	latest, found, err := selfupdate.DetectLatest("micro/micro")
 	if err != nil {
 		return false, fmt.Errorf("Error occurred while detecting version: %s", err)

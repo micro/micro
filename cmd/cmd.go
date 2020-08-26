@@ -211,6 +211,12 @@ var (
 			Usage:   "Address to run the service on",
 			EnvVars: []string{"MICRO_SERVICE_ADDRESS"},
 		},
+		&cli.BoolFlag{
+			Name: "prompt_update",
+			Usage: "Provide an update prompt when a new binary is available. Enabled for release binaries.",
+			Value: false,
+			EnvVars: []string{"MICRO_PROMPT_UPDATE"},
+		},
 	}
 )
 
@@ -264,7 +270,7 @@ func (c *command) Before(ctx *cli.Context) error {
 			// otherwise check
 			// TODO: write a local file to detect
 			// when we last checked so we don't do it often
-			updated, err := confirmAndSelfUpdate()
+			updated, err := confirmAndSelfUpdate(ctx)
 			if err != nil {
 				return err
 			}
