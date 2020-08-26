@@ -14,7 +14,7 @@ import (
 func confirmAndSelfUpdate() (bool, error) {
 	latest, found, err := selfupdate.DetectLatest("micro/micro")
 	if err != nil {
-		return false, fmt.Errorf("Error occurred while detecting version:", err)
+		return false, fmt.Errorf("Error occurred while detecting version: %s", err)
 		return false, err
 	}
 
