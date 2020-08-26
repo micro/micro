@@ -14,7 +14,7 @@ import (
 func confirmAndSelfUpdate() (bool, error) {
 	latest, found, err := selfupdate.DetectLatest("micro/micro")
 	if err != nil {
-		return false, fmt.Errorf("Error occurred while detecting version:", err)
+		return false, fmt.Errorf("Error occurred while detecting version: %s", err)
 		return false, err
 	}
 
@@ -24,7 +24,7 @@ func confirmAndSelfUpdate() (bool, error) {
 		return false, nil
 	}
 
-	fmt.Print("Do you want to update to", latest.Version, "? (yes/no): ")
+	fmt.Print("Do you want to update to ", latest.Version, "? (yes/no): ")
 	input, err := bufio.NewReader(os.Stdin).ReadString('\n')
 	if err != nil || (input != "yes\n" && input != "no\n") {
 		return false, fmt.Errorf("Invalid response")
@@ -38,7 +38,7 @@ func confirmAndSelfUpdate() (bool, error) {
 		return false, fmt.Errorf("Could not locate executable path")
 	}
 	if err := selfupdate.UpdateTo(latest.AssetURL, exe); err != nil {
-		return false, fmt.Errorf("Error occurred while updating binary:", err)
+		return false, fmt.Errorf("Error occurred while updating binary: %s", err)
 	}
 
 	fmt.Println("Successfully updated to version", latest.Version)

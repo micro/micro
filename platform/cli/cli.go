@@ -63,33 +63,33 @@ func Signup(ctx *cli.Context) error {
 		os.Exit(1)
 	}
 
-	// Already registered users can just get logged in.
-	tok := rsp.AuthToken
-	if rsp.AuthToken != nil {
+	isJoining := false
 
-		err = clinamespace.Add(rsp.Namespace, env.Name)
-		if err != nil {
-			return err
+	if ns := rsp.Namespaces; len(ns) > 0 {
+		fmt.Printf("\nYou've been invited to the '%v' namespace.\nDo you want to join it or create your own? Please type \"own\" or \"join\": ", ns[0])
+		
+		for {
+			answer, _ := reader.ReadString('\n')
+			answer = strings.TrimSpace(answer)
+			validAnswer := false
+			switch answer {
+			case "join":
+				isJoining = true
+				validAnswer = true
+				break
+			case "own":
+				validAnswer = true
+			default:
+				fmt.Printf("Answer \"%v\" is invalid. Valid answers are: \"own\" or \"join\": ", answer)
+			}
+			if validAnswer {
+				break
+			}
 		}
-		err = clinamespace.Set(rsp.Namespace, env.Name)
-		if err != nil {
-			return err
-		}
-		if err := clitoken.Save(env.Name, &auth.Token{
-			AccessToken:  tok.AccessToken,
-			RefreshToken: tok.RefreshToken,
-			Expiry:       time.Unix(tok.Expiry, 0),
-		}); err != nil {
-			return err
-		}
-		fmt.Println("Successfully logged in.")
-		report.Success(ctx, email)
-		return nil
 	}
 
-	// For users who don't have an account yet, this flow will proceed
-
 	password := ctx.String("password")
+
 	if len(password) == 0 {
 		for {
 			fmt.Print("Enter a new password: ")
@@ -116,24 +116,33 @@ func Signup(ctx *cli.Context) error {
 	// payment method id read from user input
 	var paymentMethodID string
 
-	// print the message returned from the verification process
-	if len(rsp.Message) > 0 {
-		// print with space
-		fmt.Printf("\n%s\n", rsp.Message)
-	}
+	// Only take payment method if not joining, ie. creating their own namespace
+	// and M3O platform subscription
+	if !isJoining {
+		// print the message returned from the verification process
+		if len(rsp.Message) > 0 {
+			// print with space
+			fmt.Printf("\n%s\n", rsp.Message)
+		}
 
-	// payment required
-	if rsp.PaymentRequired {
-		paymentMethodID, _ = reader.ReadString('\n')
-		paymentMethodID = strings.TrimSpace(paymentMethodID)
+		// payment required
+		if rsp.PaymentRequired {
+			paymentMethodID, _ = reader.ReadString('\n')
+			paymentMethodID = strings.TrimSpace(paymentMethodID)
+		}
 	}
 
 	// complete the signup flow
+	signupNamespace := ""
+	if isJoining && len(rsp.Namespaces) > 0 {
+		signupNamespace = rsp.Namespaces[0]
+	}
 	signupRsp, err := signupService.CompleteSignup(context.DefaultContext, &pb.CompleteSignupRequest{
 		Email:           email,
 		Token:           otp,
 		PaymentMethodID: paymentMethodID,
 		Secret:          password,
+		Namespace:       signupNamespace,
 	}, cl.WithRequestTimeout(30*time.Second))
 	if err != nil {
 		fmt.Printf("Error completing signup: %s\n", err)
@@ -141,7 +150,7 @@ func Signup(ctx *cli.Context) error {
 		os.Exit(1)
 	}
 
-	tok = signupRsp.AuthToken
+	tok := signupRsp.AuthToken
 	if err := clinamespace.Add(signupRsp.Namespace, env.Name); err != nil {
 		fmt.Printf("Error adding namespace: %s\n", err)
 		report.Errorf(ctx, "Error adding namespace: %s", err)
@@ -166,7 +175,7 @@ func Signup(ctx *cli.Context) error {
 
 	// the user has now signed up and logged in
 	// @todo save the namespace from the last call and use that.
-	fmt.Println("Signup complete! You're now logged in.")
+	fmt.Println("\nSignup complete! You're now logged in.")
 	report.Success(ctx, email)
 	return nil
 }
