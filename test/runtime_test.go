@@ -142,7 +142,7 @@ func testRunAndKill(t *T) {
 		return
 	}
 
-	outp, err = cmd.Exec("kill", "service/example")
+	outp, err = cmd.Exec("kill", "example")
 	if err != nil {
 		t.Fatalf("micro kill failure, output: %v", string(outp))
 		return
