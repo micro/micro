@@ -212,9 +212,9 @@ var (
 			EnvVars: []string{"MICRO_SERVICE_ADDRESS"},
 		},
 		&cli.BoolFlag{
-			Name: "prompt_update",
-			Usage: "Provide an update prompt when a new binary is available. Enabled for release binaries only.",
-			Value: true,
+			Name:    "prompt_update",
+			Usage:   "Provide an update prompt when a new binary is available. Enabled for release binaries only.",
+			Value:   true,
 			EnvVars: []string{"MICRO_PROMPT_UPDATE"},
 		},
 	}

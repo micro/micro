@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/micro/cli/v2"
 	"github.com/blang/semver"
+	"github.com/micro/cli/v2"
 	"github.com/rhysd/go-github-selfupdate/selfupdate"
 )
 
@@ -29,7 +29,10 @@ func confirmAndSelfUpdate(ctx *cli.Context) (bool, error) {
 		return false, fmt.Errorf("Error occurred while detecting version: %s", err)
 	}
 
-	v := semver.MustParse(buildVersion())
+	v, err := semver.ParseTolerant(buildVersion())
+	if err != nil {
+		return false, fmt.Errorf("Failed to parse build version: %v", err)
+	}
 	if !found || latest.Version.LTE(v) {
 		// current version is the latest
 		return false, nil

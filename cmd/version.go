@@ -9,7 +9,7 @@ import (
 var (
 	// populated by ldflags
 	GitCommit string
-	GitTag string
+	GitTag    string
 	BuildDate string
 
 	version    = "v3.0.0"
