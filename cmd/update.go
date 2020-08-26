@@ -18,7 +18,7 @@ func confirmAndSelfUpdate() (bool, error) {
 		return false, err
 	}
 
-	v := semver.MustParse(version)
+	v := semver.MustParse(buildVersion())
 	if !found || latest.Version.LTE(v) {
 		// current version is the latest
 		return false, nil
