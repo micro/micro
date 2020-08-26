@@ -9,7 +9,11 @@ Monitoring Stack
     - `kctl port-forward service/grafana 8080:80`
 3) Configure a Prometheus datasource (server is "http://prometheus-server")
 4) Import some dashboards from Grafana.com:
-    - 10000 is "Cluster Monitoring for Kubernetes"
-    - 2279 is "NATS Server Dashboard"
-    - 11074 is "Node Exporter for Prometheus Dashboard EN"
+    - 10000: Cluster Monitoring for Kubernetes
+    - 2279: NATS Server
+    - 11074: Node Exporter for Prometheus
+    - 11465: Cockroach SQL
+    - 11463: Cockroach Runtime
+    - 11466: Cockroach Replicas
+    - 11464: Cockroach Storage
 5) Configure a Grafana alert plugin for OpsGenie
