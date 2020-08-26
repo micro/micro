@@ -120,7 +120,7 @@ func networkConnect(c *cli.Context, args []string) ([]byte, error) {
 	var rsp map[string]interface{}
 
 	req := client.NewRequest("network", "Network.Connect", request, goclient.WithContentType("application/json"))
-	err := client.Call(context.DefaultContext, req, &rsp)
+	err := client.Call(context.DefaultContext, req, &rsp, goclient.WithAuthToken())
 	if err != nil {
 		return nil, err
 	}
@@ -138,7 +138,7 @@ func networkConnections(c *cli.Context, args []string) ([]byte, error) {
 	var rsp map[string]interface{}
 
 	req := client.NewRequest("network", "Network.Graph", request, goclient.WithContentType("application/json"))
-	err := client.Call(context.DefaultContext, req, &rsp)
+	err := client.Call(context.DefaultContext, req, &rsp, goclient.WithAuthToken())
 	if err != nil {
 		return nil, err
 	}
@@ -179,7 +179,7 @@ func networkGraph(c *cli.Context, args []string) ([]byte, error) {
 	var rsp map[string]interface{}
 
 	req := client.NewRequest("network", "Network.Graph", map[string]interface{}{}, goclient.WithContentType("application/json"))
-	err := client.Call(context.DefaultContext, req, &rsp)
+	err := client.Call(context.DefaultContext, req, &rsp, goclient.WithAuthToken())
 	if err != nil {
 		return nil, err
 	}
@@ -194,7 +194,7 @@ func networkNodes(c *cli.Context, args []string) ([]byte, error) {
 
 	// TODO: change to list nodes
 	req := client.NewRequest("network", "Network.Nodes", map[string]interface{}{}, goclient.WithContentType("application/json"))
-	err := client.Call(context.DefaultContext, req, &rsp)
+	err := client.Call(context.DefaultContext, req, &rsp, goclient.WithAuthToken())
 	if err != nil {
 		return nil, err
 	}
