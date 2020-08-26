@@ -286,22 +286,22 @@ func getGitCredentials(repo string) (string, bool) {
 func killService(ctx *cli.Context) error {
 	// we need some args to run
 	if ctx.Args().Len() == 0 {
-		fmt.Println(RunUsage)
+		fmt.Println(KillUsage)
 		return nil
 	}
 
-	wd, err := os.Getwd()
-	if err != nil {
-		return err
+	name := ctx.Args().Get(0)
+	ref := ""
+	if parts := strings.Split(name, "@"); len(parts) > 1 {
+		name = parts[0]
+		ref = parts[1]
 	}
-	source, err := git.ParseSourceLocal(wd, appendSourceBase(ctx, wd, ctx.Args().Get(0)))
-	if err != nil {
-		return err
+	if ref == "" {
+		ref = "latest"
 	}
 	service := &goruntime.Service{
-		Name:    source.RuntimeName(),
-		Source:  source.RuntimeSource(),
-		Version: source.Ref,
+		Name:    name,
+		Version: ref,
 	}
 
 	// determine the namespace
@@ -394,21 +394,28 @@ func updateService(ctx *cli.Context) error {
 		if err != nil {
 			return err
 		}
-	} else {
-		err := sourceExists(source)
-		if err != nil {
-			return err
-		}
 	}
 
+	runtimeName := source.RuntimeName()
 	runtimeSource := source.RuntimeSource()
+	ref := source.Ref
 	if source.Local {
 		runtimeSource = newSource
+	} else {
+		runtimeSource = ""
+		name := ctx.Args().Get(0)
+		if parts := strings.Split(name, "@"); len(parts) > 1 {
+			runtimeName = parts[0]
+			ref = parts[1]
+		}
+	}
+	if ref == "" {
+		ref = "latest"
 	}
 	service := &goruntime.Service{
-		Name:    source.RuntimeName(),
+		Name:    runtimeName,
 		Source:  runtimeSource,
-		Version: source.Ref,
+		Version: ref,
 	}
 
 	// determine the namespace
