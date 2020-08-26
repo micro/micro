@@ -38,7 +38,7 @@ func confirmAndSelfUpdate() (bool, error) {
 		return false, fmt.Errorf("Could not locate executable path")
 	}
 	if err := selfupdate.UpdateTo(latest.AssetURL, exe); err != nil {
-		return false, fmt.Errorf("Error occurred while updating binary:", err)
+		return false, fmt.Errorf("Error occurred while updating binary: %s", err)
 	}
 
 	fmt.Println("Successfully updated to version", latest.Version)
