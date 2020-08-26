@@ -3,6 +3,7 @@ module github.com/micro/micro/v3
 go 1.13
 
 require (
+	github.com/blang/semver v3.5.1+incompatible
 	github.com/boltdb/bolt v1.3.1
 	github.com/chzyer/logex v1.1.10 // indirect
 	github.com/chzyer/readline v0.0.0-20180603132655-2972be24d48e
@@ -24,6 +25,7 @@ require (
 	github.com/onsi/ginkgo v1.12.0 // indirect
 	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/pkg/errors v0.9.1
+	github.com/rhysd/go-github-selfupdate v1.2.2
 	github.com/serenize/snaker v0.0.0-20171204205717-a683aaf2d516
 	github.com/stretchr/testify v1.5.1
 	github.com/xlab/treeprint v0.0.0-20181112141820-a009c3971eca
