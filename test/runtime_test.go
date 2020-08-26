@@ -142,7 +142,7 @@ func testRunAndKill(t *T) {
 		return
 	}
 
-	outp, err = cmd.Exec("kill", "service/example")
+	outp, err = cmd.Exec("kill", "example")
 	if err != nil {
 		t.Fatalf("micro kill failure, output: %v", string(outp))
 		return
@@ -198,7 +198,7 @@ func testRunGithubSource(t *T) {
 
 	cmd := serv.Command()
 
-	outp, err := cmd.Exec("run", "github.com/micro/services/helloworld@master")
+	outp, err := cmd.Exec("run", "--image", "localhost:5000/cells:micro", "github.com/micro/services/helloworld@master")
 	if err != nil {
 		t.Fatalf("micro run failure, output: %v", string(outp))
 		return
@@ -722,7 +722,7 @@ func testRunPrivateSource(t *T) {
 	}
 
 	// run the service
-	if outp, err := cmd.Exec("run", "--image", "localhost:5000/cells:go", "github.com/micro/test/helloworld"); err != nil {
+	if outp, err := cmd.Exec("run", "--image", "localhost:5000/cells:micro", "github.com/micro/test/helloworld"); err != nil {
 		t.Fatalf("Expected no run error, got %v %v", err, string(outp))
 		return
 	}
@@ -794,7 +794,7 @@ func testRunPrivateGitlabSource(t *T) {
 	}
 
 	// run the service
-	if outp, err := cmd.Exec("run", "--image", "localhost:5000/cells:go", "gitlab.com/micro-test/private-monorepo-test/subfolder-test"); err != nil {
+	if outp, err := cmd.Exec("run", "--image", "localhost:5000/cells:micro", "gitlab.com/micro-test/private-monorepo-test/subfolder-test"); err != nil {
 		t.Fatalf("Expected no error, got %v %v", err, string(outp))
 		return
 	}
@@ -838,7 +838,7 @@ func testRunPrivateGitlabSource(t *T) {
 	// update service
 
 	// run the service
-	if outp, err := cmd.Exec("run", "--image", "localhost:5000/cells:go", "gitlab.com/micro-test/private-monorepo-test/subfolder-test"); err != nil {
+	if outp, err := cmd.Exec("run", "--image", "localhost:5000/cells:micro", "gitlab.com/micro-test/private-monorepo-test/subfolder-test"); err != nil {
 		t.Fatalf("Expected no error, got %v %v", err, string(outp))
 		return
 	}
@@ -911,7 +911,7 @@ func testRunPrivateGenericRemote(t *T) {
 	}
 
 	// run the service
-	if outp, err := cmd.Exec("run", "--image", "localhost:5000/cells:go", "bitbucket.org/micro-test/private-monorepo-test/subfolder-test"); err != nil {
+	if outp, err := cmd.Exec("run", "--image", "localhost:5000/cells:micro", "bitbucket.org/micro-test/private-monorepo-test/subfolder-test"); err != nil {
 		t.Fatalf("Expected no error, got %v %v", err, string(outp))
 		return
 	}
@@ -955,7 +955,7 @@ func testRunPrivateGenericRemote(t *T) {
 	// update service
 
 	// run the service
-	if outp, err := cmd.Exec("run", "--image", "localhost:5000/cells:go", "gitlab.com/micro-test/private-monorepo-test/subfolder-test"); err != nil {
+	if outp, err := cmd.Exec("run", "--image", "localhost:5000/cells:micro", "gitlab.com/micro-test/private-monorepo-test/subfolder-test"); err != nil {
 		t.Fatalf("Expected no error, got %v %v", err, string(outp))
 		return
 	}
@@ -996,6 +996,52 @@ func testRunPrivateGenericRemote(t *T) {
 	if err := Try("Calling example", t, func() ([]byte, error) {
 		return cmd.Exec("example", "--name=John")
 	}, 30*time.Second); err != nil {
+		return
+	}
+}
+
+func TestIdiomaticFolderStructure(t *testing.T) {
+	TrySuite(t, testIdiomaticFolderStructure, retryCount)
+}
+
+func testIdiomaticFolderStructure(t *T) {
+	t.Parallel()
+	serv := NewServer(t, WithLogin())
+	defer serv.Close()
+	if err := serv.Run(); err != nil {
+		return
+	}
+
+	cmd := serv.Command()
+
+	// Temp fix to support k8s tests until we have file upload to remote server
+	var branch string
+	if ref := os.Getenv("GITHUB_REF"); len(ref) > 0 {
+		branch = strings.TrimPrefix(ref, "refs/heads/")
+	} else {
+		branch = "master"
+	}
+
+	t.Logf("Running idiomatic service from the %v branch of micro", branch)
+	src := "github.com/micro/micro/test/service/idiomatic@" + branch
+	if outp, err := cmd.Exec("run", "--image", "localhost:5000/cells:micro", src); err != nil {
+		t.Fatalf("Error running service: %v, %v", err, string(outp))
+		return
+	}
+
+	if err := Try("Find idiomatic service in the registry", t, func() ([]byte, error) {
+		outp, err := cmd.Exec("status")
+		if err != nil {
+			return outp, err
+		}
+
+		// The started service should have the runtime name of "service/example",
+		// as the runtime name is the relative path inside a repo.
+		if !statusRunning("idiomatic", branch, outp) {
+			return outp, errors.New("Can't find idiomatic service in runtime")
+		}
+		return outp, err
+	}, 120*time.Second); err != nil {
 		return
 	}
 }

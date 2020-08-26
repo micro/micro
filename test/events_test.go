@@ -33,12 +33,14 @@ func testEventsStream(t *T) {
 	}
 
 	t.Logf("Running service from the %v branch of micro", branch)
-	if outp, err := cmd.Exec("run", "github.com/micro/micro/test/service/stream@"+branch); err != nil {
+	if outp, err := cmd.Exec("run", "--image", "localhost:5000/cells:micro", "github.com/micro/micro/test/service/stream@"+branch); err != nil {
 		t.Fatalf("Error running service: %v, %v", err, string(outp))
 		return
 	}
 
 	if err := Try("Check logs for success", t, func() ([]byte, error) {
+		outp, _ := cmd.Exec("status")
+		t.Logf("Status %s", string(outp))
 		outp, err := cmd.Exec("logs", "-n", "200", "stream")
 		if err != nil {
 			return outp, err

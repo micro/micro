@@ -1,6 +1,8 @@
 package manager
 
 import (
+	"time"
+
 	gorun "github.com/micro/go-micro/v3/runtime"
 	"github.com/micro/go-micro/v3/store"
 	cachest "github.com/micro/go-micro/v3/store/cache"
@@ -77,6 +79,9 @@ func (m *manager) Read(opts ...gorun.ReadOption) ([]*gorun.Service, error) {
 		}
 		srv.Service.Metadata["status"] = md.Status
 		srv.Service.Metadata["error"] = md.Error
+		if !md.Updated.IsZero() {
+			srv.Service.Metadata["started"] = md.Updated.Format(time.RFC3339)
+		}
 	}
 
 	return ret, nil
@@ -125,6 +130,15 @@ func (m *manager) Delete(srv *gorun.Service, opts ...gorun.DeleteOption) error {
 
 	// publish the event which will trigger a delete in the runtime
 	return m.publishEvent(gorun.Delete, srv, &gorun.CreateOptions{Namespace: options.Namespace})
+}
+
+func (m *manager) CreateNamespace(ns string) error {
+	// Do we need to store this locally?
+	return runtime.CreateNamespace(ns)
+}
+
+func (m *manager) DeleteNamespace(ns string) error {
+	return runtime.DeleteNamespace(ns)
 }
 
 // Starts the manager

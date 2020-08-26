@@ -27,7 +27,7 @@ func main() {
 	dep.RegisterDepHandler(srv.Server(), new(handler.Dep))
 
 	// Register Struct as Subscriber
-	service.RegisterSubscriber("dep", srv.Server(), new(subscriber.Dep))
+	service.Subscribe("dep", new(subscriber.Dep))
 
 	// Run service
 	if err := srv.Run(); err != nil {

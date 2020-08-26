@@ -211,6 +211,12 @@ var (
 			Usage:   "Address to run the service on",
 			EnvVars: []string{"MICRO_SERVICE_ADDRESS"},
 		},
+		&cli.BoolFlag{
+			Name:    "prompt_update",
+			Usage:   "Provide an update prompt when a new binary is available. Enabled for release binaries only.",
+			Value:   true,
+			EnvVars: []string{"MICRO_PROMPT_UPDATE"},
+		},
 	}
 )
 
@@ -255,6 +261,28 @@ func (c *command) Options() Options {
 
 // Before is executed before any subcommand
 func (c *command) Before(ctx *cli.Context) error {
+	// check for the latest release
+	if v := ctx.Args().First(); len(v) > 0 {
+		switch v {
+		case "service", "server":
+			// do nothing
+		default:
+			// otherwise check
+			// TODO: write a local file to detect
+			// when we last checked so we don't do it often
+			updated, err := confirmAndSelfUpdate(ctx)
+			if err != nil {
+				return err
+			}
+			// if updated we expect to re-execute the command
+			// TODO: maybe require relogin or update of the
+			// config...
+			if updated {
+				return nil
+			}
+		}
+	}
+
 	// set the config file if specified
 	if cf := ctx.String("c"); len(cf) > 0 {
 		uconf.SetConfig(cf)
@@ -514,14 +542,14 @@ func action(c *cli.Context) error {
 		// exists within the current namespace, then it would
 		// execute the Config.Set RPC, setting the flags in the
 		// request.
-		if srv, err := lookupService(c); err != nil {
+		if srv, ns, err := lookupService(c); err != nil {
 			fmt.Printf("Error querying registry for service %v: %v", c.Args().First(), err)
 			os.Exit(1)
 		} else if srv != nil && shouldRenderHelp(c) {
 			fmt.Println(formatServiceUsage(srv, c.Args().First()))
 			os.Exit(1)
 		} else if srv != nil {
-			if err := callService(srv, c); err != nil {
+			if err := callService(srv, ns, c); err != nil {
 				fmt.Println(err)
 				os.Exit(1)
 			}
