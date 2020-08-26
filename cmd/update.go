@@ -23,7 +23,7 @@ func confirmAndSelfUpdate() (bool, error) {
 		return false, nil
 	}
 
-	fmt.Print("Do you want to update to ", latest.Version, "? (yes/no): ")
+	fmt.Print("New version found. Do you want to update to ", latest.Version, "? (yes/no): ")
 	input, err := bufio.NewReader(os.Stdin).ReadString('\n')
 	if err != nil || (input != "yes\n" && input != "no\n") {
 		return false, fmt.Errorf("Invalid response")
