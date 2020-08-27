@@ -21,8 +21,8 @@ func Run(ctx *cli.Context) error {
 	)
 
 	// register the handlers
-	pb.RegisterStreamHandler(srv.Server(), new(evStream))
-	pb.RegisterStoreHandler(srv.Server(), new(evStore))
+	pb.RegisterStreamHandler(srv.Server(), new(Stream))
+	pb.RegisterStoreHandler(srv.Server(), new(Store))
 
 	// subscribe to the system topics
 	for _, topic := range systemTopics {
