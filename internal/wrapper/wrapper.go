@@ -4,11 +4,13 @@ import (
 	"context"
 	"reflect"
 	"strings"
+	"time"
 
 	goauth "github.com/micro/go-micro/v3/auth"
 	"github.com/micro/go-micro/v3/client"
 	"github.com/micro/go-micro/v3/debug/trace"
 	"github.com/micro/go-micro/v3/metadata"
+	"github.com/micro/go-micro/v3/metrics"
 	"github.com/micro/go-micro/v3/server"
 	"github.com/micro/micro/v3/internal/namespace"
 	"github.com/micro/micro/v3/service/auth"
@@ -16,6 +18,7 @@ import (
 	"github.com/micro/micro/v3/service/debug"
 	"github.com/micro/micro/v3/service/errors"
 	"github.com/micro/micro/v3/service/logger"
+	microMetrics "github.com/micro/micro/v3/service/metrics"
 	muserver "github.com/micro/micro/v3/service/server"
 )
 
@@ -312,5 +315,43 @@ func CacheClient(c client.Client) client.Client {
 	return &cacheWrapper{
 		Cache:  cache.New(),
 		Client: c,
+	}
+}
+
+// MetricsHandler wraps a server handler to instrument calls
+func MetricsHandler() server.HandlerWrapper {
+	// return a handler wrapper
+	return func(h server.HandlerFunc) server.HandlerFunc {
+		// return a function that returns a function
+		return func(ctx context.Context, req server.Request, rsp interface{}) error {
+
+			// Don't instrument debug calls:
+			if strings.HasPrefix(req.Endpoint(), "Debug.") {
+				return h(ctx, req, rsp)
+			}
+
+			// Build some tags to describe the call:
+			tags := metrics.Tags{
+				"method": req.Method(),
+			}
+
+			// Start the clock:
+			callTime := time.Now()
+
+			// Run the handlerFunction:
+			err := h(ctx, req, rsp)
+
+			// Add a result tag:
+			if err != nil {
+				tags["result"] = "failure"
+			} else {
+				tags["result"] = "failure"
+			}
+
+			// Instrument the result (if the DefaultClient has been configured):
+			microMetrics.Timing("service.handler", time.Since(callTime), tags)
+
+			return err
+		}
 	}
 }
