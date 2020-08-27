@@ -345,7 +345,7 @@ func MetricsHandler() server.HandlerWrapper {
 			if err != nil {
 				tags["result"] = "failure"
 			} else {
-				tags["result"] = "failure"
+				tags["result"] = "success"
 			}
 
 			// Instrument the result (if the DefaultClient has been configured):
