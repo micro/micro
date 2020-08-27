@@ -30,7 +30,6 @@ import (
 	"github.com/micro/micro/v3/plugin"
 	"github.com/micro/micro/v3/profile"
 	"github.com/micro/micro/v3/service/logger"
-	microMetrics "github.com/micro/micro/v3/service/metrics"
 
 	configCli "github.com/micro/micro/v3/service/config/client"
 
@@ -350,7 +349,7 @@ func (c *command) Before(ctx *cli.Context) error {
 		server.WrapHandler(wrapper.TraceHandler()),
 		server.WrapHandler(wrapper.HandlerStats()),
 		server.WrapHandler(wrapper.LogHandler()),
-		server.WrapHandler(microMetrics.Wrapper().HandlerFunc),
+		server.WrapHandler(wrapper.MetricsHandler()),
 	)
 
 	// initialize the server with the namespace so it knows which domain to register in

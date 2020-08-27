@@ -127,7 +127,7 @@ var Local = &Profile{
 		setRegistry(mdns.NewRegistry())
 		setupJWTRules()
 		loggingReporter := metricsLogging.New()
-		microMetrics.DefaultMetricsReporter = loggingReporter
+		microMetrics.SetDefaultMetricsReporter(loggingReporter)
 
 		var err error
 		microEvents.DefaultStream, err = memStream.NewStream()
@@ -155,7 +155,7 @@ var Kubernetes = &Profile{
 		if err != nil {
 			return err
 		}
-		microMetrics.DefaultMetricsReporter = prometheusReporter
+		microMetrics.SetDefaultMetricsReporter(prometheusReporter)
 		return nil
 	},
 }
@@ -174,7 +174,7 @@ var Platform = &Profile{
 		if err != nil {
 			return err
 		}
-		microMetrics.DefaultMetricsReporter = prometheusReporter
+		microMetrics.SetDefaultMetricsReporter(prometheusReporter)
 
 		microEvents.DefaultStream, err = natsStream.NewStream(natsStreamOpts(ctx)...)
 		if err != nil {
