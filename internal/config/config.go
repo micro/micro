@@ -15,11 +15,13 @@ import (
 )
 
 var (
+	baseDir = ".micro"
+
 	// lock in single process
 	mtx sync.Mutex
 
 	// file for global micro config
-	file = ".micro/config.json"
+	file = filepath.Join(baseDir, "config.json")
 
 	// full path to file
 	path, _ = filePath()

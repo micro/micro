@@ -4,9 +4,11 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/blang/semver"
 	"github.com/micro/cli/v2"
+	"github.com/micro/micro/v3/internal/config"
 	"github.com/rhysd/go-github-selfupdate/selfupdate"
 )
 
@@ -24,17 +26,45 @@ func confirmAndSelfUpdate(ctx *cli.Context) (bool, error) {
 		return false, nil
 	}
 
+	// get the current version of the binary
+	version := buildVersion()
+	// we're going to update the binary
+	update := true
+
+	defer func() {
+		// don't write new version unless told to
+		if !update {
+			return
+		}
+
+		// write the version at the end
+		config.WriteVersion(version)
+	}()
+
+	// get the current version from .micro/version
+	if ver, err := config.GetVersion(); err == nil {
+		// check no more than once a day
+		if !ver.Updated.IsZero() && time.Since(ver.Updated) < (time.Hour*24) {
+			// don't update
+			update = false
+			return false, nil
+		}
+	}
+
+	// look for an update
 	latest, found, err := selfupdate.DetectLatest("micro/micro")
 	if err != nil {
 		return false, fmt.Errorf("Error occurred while detecting version: %s", err)
 	}
 
+	// check against the current version
 	v, err := semver.ParseTolerant(buildVersion())
 	if err != nil {
 		return false, fmt.Errorf("Failed to parse build version: %v", err)
 	}
 	if !found || latest.Version.LTE(v) {
 		// current version is the latest
+		// write an update to state we checked
 		return false, nil
 	}
 
@@ -59,6 +89,9 @@ func confirmAndSelfUpdate(ctx *cli.Context) (bool, error) {
 	if err := selfupdate.UpdateTo(latest.AssetURL, exe); err != nil {
 		return false, fmt.Errorf("Error occurred while updating binary: %s", err)
 	}
+
+	// set the version, it'll be written at the very end
+	version = latest.Version.String()
 
 	fmt.Println("Successfully updated to version", latest.Version)
 	return true, nil

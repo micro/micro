@@ -278,6 +278,9 @@ func (c *command) Before(ctx *cli.Context) error {
 			// TODO: maybe require relogin or update of the
 			// config...
 			if updated {
+				// considering nil actually continues
+				// we need to os.Exit(0)
+				os.Exit(0)
 				return nil
 			}
 		}
