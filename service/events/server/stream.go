@@ -12,9 +12,9 @@ import (
 	"github.com/micro/micro/v3/service/events/util"
 )
 
-type evStream struct{}
+type Stream struct{}
 
-func (s *evStream) Publish(ctx context.Context, req *pb.PublishRequest, rsp *pb.PublishResponse) error {
+func (s *Stream) Publish(ctx context.Context, req *pb.PublishRequest, rsp *pb.PublishResponse) error {
 	// authorize the request
 	if err := namespace.Authorize(ctx, namespace.DefaultNamespace); err == namespace.ErrForbidden {
 		return errors.Forbidden("events.Stream.Publish", err.Error())
@@ -46,7 +46,7 @@ func (s *evStream) Publish(ctx context.Context, req *pb.PublishRequest, rsp *pb.
 	return nil
 }
 
-func (s *evStream) Subscribe(ctx context.Context, req *pb.SubscribeRequest, rsp pb.Stream_SubscribeStream) error {
+func (s *Stream) Subscribe(ctx context.Context, req *pb.SubscribeRequest, rsp pb.Stream_SubscribeStream) error {
 	// authorize the request
 	if err := namespace.Authorize(ctx, namespace.DefaultNamespace); err == namespace.ErrForbidden {
 		return errors.Forbidden("events.Stream.Publish", err.Error())
