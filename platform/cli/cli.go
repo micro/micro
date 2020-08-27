@@ -67,7 +67,7 @@ func Signup(ctx *cli.Context) error {
 
 	if ns := rsp.Namespaces; len(ns) > 0 {
 		fmt.Printf("\nYou've been invited to the '%v' namespace.\nDo you want to join it or create your own? Please type \"own\" or \"join\": ", ns[0])
-		
+
 		for {
 			answer, _ := reader.ReadString('\n')
 			answer = strings.TrimSpace(answer)
