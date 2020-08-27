@@ -349,6 +349,7 @@ func (c *command) Before(ctx *cli.Context) error {
 		server.WrapHandler(wrapper.TraceHandler()),
 		server.WrapHandler(wrapper.HandlerStats()),
 		server.WrapHandler(wrapper.LogHandler()),
+		server.WrapHandler(wrapper.MetricsHandler()),
 	)
 
 	// initialize the server with the namespace so it knows which domain to register in
