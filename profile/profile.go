@@ -20,7 +20,6 @@ import (
 	evStore "github.com/micro/go-micro/v3/events/store"
 	memStream "github.com/micro/go-micro/v3/events/stream/memory"
 	natsStream "github.com/micro/go-micro/v3/events/stream/nats"
-	metricsLogging "github.com/micro/go-micro/v3/metrics/logging"
 	metricsPrometheus "github.com/micro/go-micro/v3/metrics/prometheus"
 	"github.com/micro/go-micro/v3/registry"
 	"github.com/micro/go-micro/v3/registry/etcd"
@@ -126,8 +125,6 @@ var Local = &Profile{
 		setBroker(http.NewBroker())
 		setRegistry(mdns.NewRegistry())
 		setupJWTRules()
-		loggingReporter := metricsLogging.New()
-		microMetrics.SetDefaultMetricsReporter(loggingReporter)
 
 		var err error
 		microEvents.DefaultStream, err = memStream.NewStream()
