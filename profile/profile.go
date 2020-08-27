@@ -148,11 +148,16 @@ var Kubernetes = &Profile{
 		// store ...
 		microAuth.DefaultAuth = jwt.NewAuth()
 		setupJWTRules()
-		prometheusReporter, err := metricsPrometheus.New()
-		if err != nil {
-			return err
+
+		// Set up a default metrics reporter (being careful not to clash with any that have already been set):
+		if !microMetrics.IsSet() {
+			prometheusReporter, err := metricsPrometheus.New()
+			if err != nil {
+				return err
+			}
+			microMetrics.SetDefaultMetricsReporter(prometheusReporter)
 		}
-		microMetrics.SetDefaultMetricsReporter(prometheusReporter)
+
 		return nil
 	},
 }
@@ -167,12 +172,17 @@ var Platform = &Profile{
 		setBroker(nats.NewBroker(broker.Addrs("nats-cluster")))
 		setRegistry(etcd.NewRegistry(registry.Addrs("etcd-cluster")))
 		setupJWTRules()
-		prometheusReporter, err := metricsPrometheus.New()
-		if err != nil {
-			return err
-		}
-		microMetrics.SetDefaultMetricsReporter(prometheusReporter)
 
+		// Set up a default metrics reporter (being careful not to clash with any that have already been set):
+		if !microMetrics.IsSet() {
+			prometheusReporter, err := metricsPrometheus.New()
+			if err != nil {
+				return err
+			}
+			microMetrics.SetDefaultMetricsReporter(prometheusReporter)
+		}
+
+		var err error
 		microEvents.DefaultStream, err = natsStream.NewStream(natsStreamOpts(ctx)...)
 		if err != nil {
 			logger.Fatalf("Error configuring stream: %v", err)

@@ -16,6 +16,13 @@ var (
 	initialisedMutex       sync.Mutex
 )
 
+// IsSet lets you know if the DefaultMetricsReporter has been set already:
+func IsSet() bool {
+	initialisedMutex.Lock()
+	defer initialisedMutex.Unlock()
+	return initialised
+}
+
 // SetDefaultMetricsReporter allows other packages (such as profiles) to set the DefaultMetricsReporter
 // The "initialised" flag prevents this from being overwritten (because other packages may already be using it)
 func SetDefaultMetricsReporter(defaultReporter metrics.Reporter) {
