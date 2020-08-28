@@ -26,6 +26,14 @@ import (
 // Signup flow for the Micro Platform
 func Signup(ctx *cli.Context) error {
 	email := ctx.String("email")
+	if ctx.Bool("recover") {
+		signupService := pb.NewSignupService("signup", client.DefaultClient)
+		_, err := signupService.Recover(context.DefaultContext, &pb.RecoverRequest{
+			Email: email,
+		}, cl.WithRequestTimeout(10*time.Second), cl.WithAuthToken())
+		return err
+	}
+
 	env := cliutil.GetEnv(ctx)
 	reader := bufio.NewReader(os.Stdin)
 
@@ -201,6 +209,10 @@ func init() {
 			&cli.StringFlag{
 				Name:  "password",
 				Usage: "Password to use for login. If not provided, will be asked for during login. Useful for automated scripts",
+			},
+			&cli.BoolFlag{
+				Name:  "recover",
+				Usage: "Emails you the namespaces you have access to. micro signup --recover --email=youremail@domain.com",
 			},
 		},
 	})

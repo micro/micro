@@ -9,6 +9,7 @@ service Signup {
 	rpc Verify(VerifyRequest) returns (VerifyResponse);
 	// Creates a subscription and an account
 	rpc CompleteSignup(CompleteSignupRequest) returns (CompleteSignupResponse);
+	rpc Recover(RecoverRequest) returns (RecoverResponse);
 }
 
 message SendVerificationEmailRequest {
@@ -71,3 +72,9 @@ message AuthToken {
 	int64 created = 3;
 	int64 expiry = 4;
 }
+
+message RecoverRequest {
+	string email = 1;
+}
+
+message RecoverResponse {}

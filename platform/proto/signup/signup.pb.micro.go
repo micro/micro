@@ -48,6 +48,7 @@ type SignupService interface {
 	Verify(ctx context.Context, in *VerifyRequest, opts ...client.CallOption) (*VerifyResponse, error)
 	// Creates a subscription and an account
 	CompleteSignup(ctx context.Context, in *CompleteSignupRequest, opts ...client.CallOption) (*CompleteSignupResponse, error)
+	Recover(ctx context.Context, in *RecoverRequest, opts ...client.CallOption) (*RecoverResponse, error)
 }
 
 type signupService struct {
@@ -92,6 +93,16 @@ func (c *signupService) CompleteSignup(ctx context.Context, in *CompleteSignupRe
 	return out, nil
 }
 
+func (c *signupService) Recover(ctx context.Context, in *RecoverRequest, opts ...client.CallOption) (*RecoverResponse, error) {
+	req := c.c.NewRequest(c.name, "Signup.Recover", in)
+	out := new(RecoverResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // Server API for Signup service
 
 type SignupHandler interface {
@@ -101,6 +112,7 @@ type SignupHandler interface {
 	Verify(context.Context, *VerifyRequest, *VerifyResponse) error
 	// Creates a subscription and an account
 	CompleteSignup(context.Context, *CompleteSignupRequest, *CompleteSignupResponse) error
+	Recover(context.Context, *RecoverRequest, *RecoverResponse) error
 }
 
 func RegisterSignupHandler(s server.Server, hdlr SignupHandler, opts ...server.HandlerOption) error {
@@ -108,6 +120,7 @@ func RegisterSignupHandler(s server.Server, hdlr SignupHandler, opts ...server.H
 		SendVerificationEmail(ctx context.Context, in *SendVerificationEmailRequest, out *SendVerificationEmailResponse) error
 		Verify(ctx context.Context, in *VerifyRequest, out *VerifyResponse) error
 		CompleteSignup(ctx context.Context, in *CompleteSignupRequest, out *CompleteSignupResponse) error
+		Recover(ctx context.Context, in *RecoverRequest, out *RecoverResponse) error
 	}
 	type Signup struct {
 		signup
@@ -130,4 +143,8 @@ func (h *signupHandler) Verify(ctx context.Context, in *VerifyRequest, out *Veri
 
 func (h *signupHandler) CompleteSignup(ctx context.Context, in *CompleteSignupRequest, out *CompleteSignupResponse) error {
 	return h.SignupHandler.CompleteSignup(ctx, in, out)
+}
+
+func (h *signupHandler) Recover(ctx context.Context, in *RecoverRequest, out *RecoverResponse) error {
+	return h.SignupHandler.Recover(ctx, in, out)
 }
