@@ -30,7 +30,7 @@ func Signup(ctx *cli.Context) error {
 		signupService := pb.NewSignupService("signup", client.DefaultClient)
 		_, err := signupService.Recover(context.DefaultContext, &pb.RecoverRequest{
 			Email: email,
-		}, cl.WithRequestTimeout(10*time.Second), cl.WithAuthToken())
+		}, cl.WithRequestTimeout(10*time.Second))
 		return err
 	}
 
