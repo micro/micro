@@ -141,7 +141,7 @@ spec:
         - name: MICRO_RUNTIME_DISK_LIMIT
           value: "1024"
         - name: MICRO_RUNTIME_MEMORY_LIMIT
-          value: "512"
+          value: "128"
         - name: MICRO_LOG_LEVEL
           value: "debug"
         - name: MICRO_STORE_ADDRESS
