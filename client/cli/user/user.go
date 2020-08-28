@@ -2,6 +2,7 @@
 package user
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"strings"
@@ -43,6 +44,13 @@ func init() {
 					Name:   "namespace",
 					Usage:  "Get the current namespace",
 					Action: getNamespace,
+					Subcommands: []*cli.Command{
+						{
+							Name:   "set",
+							Usage:  "Set namespace in the current environment",
+							Action: setNamespace,
+						},
+					},
 				},
 				{
 					Name:  "set",
@@ -214,6 +222,18 @@ func getNamespace(ctx *cli.Context) error {
 	}
 	fmt.Println(namespace)
 	return nil
+}
+
+// set namespace in current env
+func setNamespace(ctx *cli.Context) error {
+	if len(ctx.Args().First()) == 0 {
+		return errors.New("No namespace specified")
+	}
+	env, err := config.Get("env")
+	if err != nil {
+		return err
+	}
+	return config.Set(ctx.Args().First(), "namespaces", env, "current")
 }
 
 // user returns info about the logged in user
