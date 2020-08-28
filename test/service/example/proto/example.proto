@@ -9,6 +9,7 @@ service Example {
 message Request {
 	string name = 1;
 	bool caps = 2;
+	int64 number = 3;
 }
 
 message Response {
