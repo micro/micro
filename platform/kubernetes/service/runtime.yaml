@@ -96,6 +96,10 @@ spec:
       labels:
         name: micro-runtime
         micro: runtime
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/path: /metrics
+        prometheus.io/port: "9000"
     spec:
       serviceAccount: micro-runtime
       serviceAccountName: micro-runtime

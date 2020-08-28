@@ -1,0 +1,14 @@
+- job_name: 'cockroachdb'
+  metrics_path: '/_status/vars'
+  scheme: 'https'
+  tls_config:
+    insecure_skip_verify: true
+  static_configs:
+  - targets: ['cockroachdb-cluster-public.default:8080']
+- job_name: 'etcd'
+  metrics_path: '/metrics'
+  scheme: 'https'
+  tls_config:
+    insecure_skip_verify: true
+  static_configs:
+  - targets: ['etcd-cluster.default:2379']

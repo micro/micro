@@ -11,9 +11,9 @@ import (
 	"github.com/micro/micro/v3/service/events/util"
 )
 
-type evStore struct{}
+type Store struct{}
 
-func (s *evStore) Read(ctx context.Context, req *pb.ReadRequest, rsp *pb.ReadResponse) error {
+func (s *Store) Read(ctx context.Context, req *pb.ReadRequest, rsp *pb.ReadResponse) error {
 	// authorize the request
 	if err := namespace.Authorize(ctx, namespace.DefaultNamespace); err == namespace.ErrForbidden {
 		return errors.Forbidden("events.Store.Read", err.Error())
@@ -52,6 +52,6 @@ func (s *evStore) Read(ctx context.Context, req *pb.ReadRequest, rsp *pb.ReadRes
 	return nil
 }
 
-func (s *evStore) Write(ctx context.Context, req *pb.WriteRequest, rsp *pb.WriteResponse) error {
+func (s *Store) Write(ctx context.Context, req *pb.WriteRequest, rsp *pb.WriteResponse) error {
 	return errors.NotImplemented("events.Store.Write", "Writing to the store directly is not supported")
 }

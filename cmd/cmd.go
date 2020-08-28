@@ -278,6 +278,9 @@ func (c *command) Before(ctx *cli.Context) error {
 			// TODO: maybe require relogin or update of the
 			// config...
 			if updated {
+				// considering nil actually continues
+				// we need to os.Exit(0)
+				os.Exit(0)
 				return nil
 			}
 		}
@@ -349,6 +352,7 @@ func (c *command) Before(ctx *cli.Context) error {
 		server.WrapHandler(wrapper.TraceHandler()),
 		server.WrapHandler(wrapper.HandlerStats()),
 		server.WrapHandler(wrapper.LogHandler()),
+		server.WrapHandler(wrapper.MetricsHandler()),
 	)
 
 	// initialize the server with the namespace so it knows which domain to register in
