@@ -452,7 +452,7 @@ func testRunLocalUpdateAndCall(t *T) {
 	}
 
 	if err := Try("Call example service", t, func() ([]byte, error) {
-		outp, err := cmd.Exec("call", "example", "Example.Call", `{"name": "Joe"}`)
+		outp, err := cmd.Exec("example", "--name=Joe", "--caps=true", "--number=2")
 		if err != nil {
 			return outp, err
 		}
@@ -461,7 +461,7 @@ func testRunLocalUpdateAndCall(t *T) {
 		if err != nil {
 			return outp, err
 		}
-		if rsp["msg"] != "Hello Joe" {
+		if rsp["msg"] != "HELLO JOE 2" {
 			return outp, errors.New("Response is unexpected")
 		}
 		return outp, err
