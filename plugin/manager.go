@@ -61,7 +61,7 @@ func (m *manager) Register(plugin Plugin, opts ...PluginOption) error {
 		m.registered[options.Module][name] = true
 	}
 
-	if _, ok := m.plugins[options.Module]; !ok {
+	if _, ok := m.plugins[options.Module]; ok {
 		m.plugins[options.Module] = append(m.plugins[options.Module], plugin)
 	} else {
 		m.plugins[options.Module] = []Plugin{plugin}
