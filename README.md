@@ -7,7 +7,7 @@ Micro is a cloud native development framework built for developers.
 Micro addresses the key requirements for building cloud native services. It leverages the microservices
 architecture pattern and provides a set of services which act as the building blocks of a platform. Micro deals
 with the complexity of distributed systems and provides simpler programmable abstractions to build on. 
-For hosting see [m3o.com](https://m3o.com).
+For a hosted platform see [m3o.com](https://m3o.com).
 
 ## Features
 
