@@ -7,7 +7,6 @@ Micro is a cloud native development framework built for developers.
 Micro addresses the key requirements for building cloud native services. It leverages the microservices
 architecture pattern and provides a set of services which act as the building blocks of a platform. Micro deals
 with the complexity of distributed systems and provides simpler programmable abstractions to build on. 
-For a hosted platform see [m3o.com](https://m3o.com).
 
 ## Features
 
@@ -92,3 +91,7 @@ See the [docs](https://github.com/micro/docs) for detailed information on the ar
 ## License
 
 See [LICENSE](LICENSE) which makes use of [Polyform Shield](https://polyformproject.org/licenses/shield/1.0.0/).
+
+## Hosting
+
+If you're interested in a hosted version of Micro see [m3o.com](https://m3o.com).
