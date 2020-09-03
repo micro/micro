@@ -160,8 +160,8 @@ func testStoreImpl(t *T) {
 	cmd := serv.Command()
 
 	runTarget := "./service/storeexample"
+	branch := "latest"
 	if os.Getenv("MICRO_IS_KIND_TEST") == "true" {
-		var branch string
 		if ref := os.Getenv("GITHUB_REF"); len(ref) > 0 {
 			branch = strings.TrimPrefix(ref, "refs/heads/")
 		} else {
@@ -185,7 +185,7 @@ func testStoreImpl(t *T) {
 
 		// The started service should have the runtime name of "service/example",
 		// as the runtime name is the relative path inside a repo.
-		if !statusRunning("storeexample", "latest", outp) {
+		if !statusRunning("storeexample", branch, outp) {
 			return outp, errors.New("Can't find example service in runtime")
 		}
 		return outp, err
