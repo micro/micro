@@ -5,6 +5,7 @@ package test
 import (
 	"errors"
 	"fmt"
+	"os"
 	"strings"
 	"testing"
 	"time"
@@ -157,7 +158,20 @@ func testStoreImpl(t *T) {
 	}
 
 	cmd := serv.Command()
-	outp, err := cmd.Exec("run", "./service/storeexample")
+
+	runTarget := "./service/storeexample"
+	if os.Getenv("MICRO_IS_KIND_TEST") == "true" {
+		var branch string
+		if ref := os.Getenv("GITHUB_REF"); len(ref) > 0 {
+			branch = strings.TrimPrefix(ref, "refs/heads/")
+		} else {
+			branch = "master"
+		}
+		runTarget = "github.com/micro/micro/test/service/storeexample@" + branch
+		t.Logf("Running service from the %v branch of micro", branch)
+	}
+
+	outp, err := cmd.Exec("run", runTarget)
 	if err != nil {
 		t.Fatalf("micro run failure, output: %v", string(outp))
 		return
