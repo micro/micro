@@ -10,6 +10,7 @@ import (
 	"github.com/micro/micro/v3/service/context"
 	pb "github.com/micro/micro/v3/service/events/proto"
 	"github.com/micro/micro/v3/service/events/util"
+	log "github.com/micro/micro/v3/service/logger"
 )
 
 // NewStream returns an initialized stream service
@@ -64,35 +65,33 @@ func (s *stream) Subscribe(topic string, opts ...events.SubscribeOption) (<-chan
 		Topic:       topic,
 		Queue:       options.Queue,
 		StartAtTime: options.StartAtTime.Unix(),
+		AutoAck:     options.AutoAck,
+		AckWait:     options.AckWait.Nanoseconds(),
+		RetryLimit:  int64(options.GetRetryLimit()),
 	}
-	if !options.AutoAck {
-		subReq.AutoAck = options.AutoAck
-		subReq.AckWait = options.AckWait.Nanoseconds()
-
-	}
-	subReq.RetryLimit = int64(options.GetRetryLimit())
 
 	// start the stream
 	stream, err := s.client().Subscribe(context.DefaultContext, subReq, goclient.WithAuthToken())
 	if err != nil {
 		return nil, err
 	}
-
 	evChan := make(chan events.Event)
 	go func() {
 		for {
+
 			ev, err := stream.Recv()
 			if err != nil {
+				log.Errorf("Error receiving from stream %s", err)
 				close(evChan)
 				return
 			}
 			evt := util.DeserializeEvent(ev)
 			if !options.AutoAck {
 				evt.SetNackFunc(func() error {
-					return stream.SendMsg(pb.AckRequest{Id: evt.ID, Success: false})
+					return stream.SendMsg(&pb.AckRequest{Id: evt.ID, Success: false})
 				})
 				evt.SetAckFunc(func() error {
-					return stream.SendMsg(pb.AckRequest{Id: evt.ID, Success: true})
+					return stream.SendMsg(&pb.AckRequest{Id: evt.ID, Success: true})
 				})
 			}
 			evChan <- evt

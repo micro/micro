@@ -45,10 +45,7 @@ func testEventsStream(t *T) {
 		if err != nil {
 			return outp, err
 		}
-		if !strings.Contains(string(outp), "TEST1: Published event ok") {
-			return outp, errors.New("Published event log not found")
-		}
-		if !strings.Contains(string(outp), "TEST1: Received event ok") {
+		if !strings.Contains(string(outp), "TEST1: Finished ok") {
 			return outp, errors.New("Received event log not found")
 		}
 		if !strings.Contains(string(outp), "TEST2: Finished ok") {

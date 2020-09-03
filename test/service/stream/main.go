@@ -23,26 +23,24 @@ func main() {
 	srv := service.New()
 	srv.Init()
 
-	wg := sync.WaitGroup{}
-	wg.Add(1)
-
 	go func() { // test 1, ordinary sub with autoack
-		defer wg.Done()
 		evChan, err := events.Subscribe("test1")
 		if err != nil {
 			logger.Fatalf("Error creating subscriber: %v", err)
 		}
 
+		logger.Infof("Event chan 1 ", evChan)
+
 		err = events.Publish("test1", payload, goevents.WithMetadata(metadata))
 		if err != nil {
 			logger.Errorf("Error publishing event: %v", err)
-		} else {
-			logger.Infof("TEST1: Published event ok")
+			return
 		}
 
 		event, ok := <-evChan
 		if !ok {
-			logger.Fatal("Channel closed")
+			logger.Error("Channel closed")
+			return
 		}
 
 		if event.Topic != "test1" {
@@ -64,29 +62,28 @@ func main() {
 			return
 		}
 
-		logger.Infof("TEST1: Received event ok")
+		logger.Infof("TEST1: Finished ok")
 
 	}()
 
-	wg.Add(1)
 	go func() { // test 2, sub with manual ack
-		defer wg.Done()
 		evChan, err := events.Subscribe("test2", goevents.WithAutoAck(false, 5*time.Second))
 		if err != nil {
-			logger.Fatalf("Error creating subscriber: %v", err)
+			logger.Errorf("Error creating subscriber: %v", err)
+			return
 		}
 
 		err = events.Publish("test2", payload, goevents.WithMetadata(metadata))
 
 		if err != nil {
 			logger.Errorf("Error publishing event: %v", err)
-		} else {
-			logger.Infof("TEST2: Published event ok")
+			return
 		}
 
 		event, ok := <-evChan
 		if !ok {
-			logger.Fatal("Channel closed")
+			logger.Errorf("Channel closed")
+			return
 		}
 
 		if event.Topic != "test2" {
@@ -109,20 +106,37 @@ func main() {
 		}
 		id := event.ID
 		// nack the event to put it back on the queue
+		logger.Infof("Nacking the event")
 		event.Nack()
 
 		select {
 		case event := <-evChan:
 			if event.ID != id {
 				logger.Errorf("Unexpected event received, expected %s, received %s", id, event.ID)
+				return
 			}
+			logger.Infof("Acking the event")
+			event.Ack()
+
 		case <-time.After(10 * time.Second):
 			logger.Errorf("Timed out waiting for event")
+			return
+		}
+
+		// we've acked so should receive nothing else
+		select {
+		case event := <-evChan:
+			logger.Errorf("Unexpected event received %s", event.ID)
+			return
+		case <-time.After(10 * time.Second):
+
 		}
 
 		logger.Infof("TEST2: Finished ok")
 
 	}()
-
+	wg := sync.WaitGroup{}
+	wg.Add(1)
+	// wait indefinitely so this only runs once
 	wg.Wait()
 }
