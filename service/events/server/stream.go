@@ -57,12 +57,15 @@ func (s *Stream) Subscribe(ctx context.Context, req *pb.SubscribeRequest, rsp pb
 	}
 
 	// parse options
-	var opts []goevents.SubscribeOption
+	opts := []goevents.SubscribeOption{goevents.WithRetryLimit(int(req.RetryLimit))}
 	if req.StartAtTime > 0 {
 		opts = append(opts, goevents.WithStartAtTime(time.Unix(req.StartAtTime, 0)))
 	}
 	if len(req.Queue) > 0 {
 		opts = append(opts, goevents.WithQueue(req.Queue))
+	}
+	if !req.AutoAck {
+		opts = append(opts, goevents.WithAutoAck(req.AutoAck, time.Duration(req.AckWait)/time.Nanosecond))
 	}
 
 	// create the subscriber
@@ -71,11 +74,61 @@ func (s *Stream) Subscribe(ctx context.Context, req *pb.SubscribeRequest, rsp pb
 		return errors.InternalServerError("events.Stream.Subscribe", err.Error())
 	}
 
+	type eventSent struct {
+		sent  time.Time
+		event goevents.Event
+	}
+	ackMap := map[string]eventSent{}
+	ackChan := make(chan pb.AckRequest, 1)
+	go func() {
+		for {
+			req := pb.AckRequest{}
+			if err := rsp.RecvMsg(&req); err != nil {
+				close(ackChan)
+				return
+			}
+			ackChan <- req
+		}
+	}()
 	for {
+		// check for responses first
+		select {
+		case ackReq, chOk := <-ackChan:
+			if !chOk {
+				break
+			}
+			ev, ok := ackMap[ackReq.Id]
+			if !ok {
+				// not found, probably timed out after ackWait
+				break
+			}
+			if ackReq.Success {
+				ev.event.Ack()
+			} else {
+				ev.event.Nack()
+			}
+			delete(ackMap, ackReq.Id)
+		default:
+			// nothing to process
+		}
+		// Do any clean up of ackMap where we haven't got a response
+		now := time.Now()
+		for k, v := range ackMap {
+			if v.sent.Add(time.Duration(req.AckWait)).After(now) {
+				delete(ackMap, k)
+			}
+		}
+
+		// process any outgoing messages
 		ev, ok := <-evChan
 		if !ok {
 			rsp.Close()
 			return nil
+		}
+
+		if !req.AutoAck {
+			// track the acks
+			ackMap[ev.ID] = eventSent{event: ev, sent: time.Now()}
 		}
 
 		if err := rsp.Send(util.SerializeEvent(&ev)); err != nil {

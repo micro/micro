@@ -55,17 +55,25 @@ func (s *stream) Publish(topic string, msg interface{}, opts ...events.PublishOp
 
 func (s *stream) Subscribe(topic string, opts ...events.SubscribeOption) (<-chan events.Event, error) {
 	// parse options
-	var options events.SubscribeOptions
+	options := events.SubscribeOptions{AutoAck: true}
 	for _, o := range opts {
 		o(&options)
 	}
 
-	// start the stream
-	stream, err := s.client().Subscribe(context.DefaultContext, &pb.SubscribeRequest{
+	subReq := &pb.SubscribeRequest{
 		Topic:       topic,
 		Queue:       options.Queue,
 		StartAtTime: options.StartAtTime.Unix(),
-	}, goclient.WithAuthToken())
+	}
+	if !options.AutoAck {
+		subReq.AutoAck = options.AutoAck
+		subReq.AckWait = options.AckWait.Nanoseconds()
+
+	}
+	subReq.RetryLimit = int64(options.GetRetryLimit())
+
+	// start the stream
+	stream, err := s.client().Subscribe(context.DefaultContext, subReq, goclient.WithAuthToken())
 	if err != nil {
 		return nil, err
 	}
@@ -78,8 +86,16 @@ func (s *stream) Subscribe(topic string, opts ...events.SubscribeOption) (<-chan
 				close(evChan)
 				return
 			}
-
-			evChan <- util.DeserializeEvent(ev)
+			evt := util.DeserializeEvent(ev)
+			if !options.AutoAck {
+				evt.SetNackFunc(func() error {
+					return stream.SendMsg(pb.AckRequest{Id: evt.ID, Success: false})
+				})
+				evt.SetAckFunc(func() error {
+					return stream.SendMsg(pb.AckRequest{Id: evt.ID, Success: true})
+				})
+			}
+			evChan <- evt
 		}
 	}()
 
