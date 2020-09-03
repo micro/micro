@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"sort"
+	"strconv"
 	"strings"
 
 	"github.com/micro/cli/v2"
@@ -216,13 +217,32 @@ func shouldRenderHelp(ctx *cli.Context) bool {
 // error will be returned.
 func flagsToRequest(flags map[string]string, req *goregistry.Value) (map[string]interface{}, error) {
 	result := map[string]interface{}{}
+	coerceValue := func(valueType, value string) (interface{}, error) {
+		switch valueType {
+		case "bool":
+			return strconv.ParseBool(value)
+		case "int32":
+			return strconv.Atoi(value)
+		case "int64":
+			return strconv.ParseInt(value, 0, 64)
+		case "float64":
+			return strconv.ParseFloat(value, 64)
+		default:
+			return value, nil
+		}
 
+	}
 loop:
 	for key, value := range flags {
 		for _, attr := range req.Values {
+
 			// matches at a top level
 			if attr.Name == key {
-				result[key] = value
+				parsed, err := coerceValue(attr.Type, value)
+				if err != nil {
+					return nil, err
+				}
+				result[key] = parsed
 				continue loop
 			}
 

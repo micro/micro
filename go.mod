@@ -20,7 +20,7 @@ require (
 	github.com/hashicorp/go-version v1.2.1
 	github.com/juju/fslock v0.0.0-20160525022230-4d5c94c67b4b
 	github.com/micro/cli/v2 v2.1.2
-	github.com/micro/go-micro/v3 v3.0.0-beta.0.20200825081046-bf8b3aeac796
+	github.com/micro/go-micro/v3 v3.0.0-beta.0.20200902122854-6bdf33c4eede
 	github.com/olekukonko/tablewriter v0.0.4
 	github.com/onsi/ginkgo v1.12.0 // indirect
 	github.com/patrickmn/go-cache v2.1.0+incompatible
