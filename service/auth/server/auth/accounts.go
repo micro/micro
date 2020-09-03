@@ -93,6 +93,24 @@ func (a *Auth) Delete(ctx context.Context, req *pb.DeleteAccountRequest, rsp *pb
 		return errors.BadRequest("auth.Accounts.Delete", "Error querying accounts: %v", err)
 	}
 
+	acc, ok := auth.AccountFromContext(ctx)
+	if !ok {
+		return errors.Unauthorized("billing.Updates", "Unauthorized")
+	}
+	switch {
+	case acc.Issuer == namespace.DefaultNamespace:
+	default:
+		// get the records from the store
+		key := strings.Join([]string{storePrefixAccounts, req.Options.Namespace, ""}, joinKey)
+		recs, err := a.Options.Store.Read(key, store.ReadPrefix())
+		if err != nil {
+			return errors.InternalServerError("auth.Accounts.Delete", "Unable to read from store: %v", err)
+		}
+		if len(recs) == 1 {
+			return errors.BadRequest("auth.Accounts.Delete", "Can't delete last user")
+		}
+	}
+
 	// delete the refresh token linked to the account
 	tok, err := a.refreshTokenForAccount(req.Options.Namespace, req.Id)
 	if err != nil {
