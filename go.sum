@@ -200,6 +200,8 @@ github.com/google/pprof v0.0.0-20190515194954-54271f7e092f/go.mod h1:zfwlbNMJ+OI
 github.com/google/renameio v0.1.0/go.mod h1:KWCgfxg9yswjAJkECMjeO8J8rahYeXnNhOm40UhjYkI=
 github.com/google/uuid v1.1.1 h1:Gkbcsh/GbpXz7lPftLA3P6TYMwjCLYm83jiFQZF/3gY=
 github.com/google/uuid v1.1.1/go.mod h1:TIyPZe4MgqvfeYDBFedMoGGpEw/LqOeaOT+nhxU+yHo=
+github.com/google/uuid v1.1.2 h1:EVhdT+1Kseyi1/pUmXKaFxYsDNy9RQYkMWRH68J/W7Y=
+github.com/google/uuid v1.1.2/go.mod h1:TIyPZe4MgqvfeYDBFedMoGGpEw/LqOeaOT+nhxU+yHo=
 github.com/googleapis/gax-go/v2 v2.0.4/go.mod h1:0Wqv26UfaUD9n4G6kQubkQ+KchISgw+vpHVxEJEs9eg=
 github.com/googleapis/gax-go/v2 v2.0.5/go.mod h1:DWXyrwAJ9X0FpwwEdw+IPEYBICEFu5mhpdKc/us6bOk=
 github.com/gophercloud/gophercloud v0.3.0/go.mod h1:vxM41WHh5uqHVBMZHzuwNOHh8XEoIEcSTewFxm1c5g8=
@@ -303,10 +305,8 @@ github.com/matttproud/golang_protobuf_extensions v1.0.1 h1:4hp9jkHxhMHkqkrB3Ix0j
 github.com/matttproud/golang_protobuf_extensions v1.0.1/go.mod h1:D8He9yQNgCq6Z5Ld7szi9bcBfOoFv/3dc6xSMkL2PC0=
 github.com/micro/cli/v2 v2.1.2 h1:43J1lChg/rZCC1rvdqZNFSQDrGT7qfMrtp6/ztpIkEM=
 github.com/micro/cli/v2 v2.1.2/go.mod h1:EguNh6DAoWKm9nmk+k/Rg0H3lQnDxqzu5x5srOtGtYg=
-github.com/micro/go-micro/v3 v3.0.0-beta.0.20200902122854-6bdf33c4eede h1:mfQ24cgzr4e5eSO6E2wqCSADLW2wTbgwWEvcoCC+Y8k=
-github.com/micro/go-micro/v3 v3.0.0-beta.0.20200902122854-6bdf33c4eede/go.mod h1:8VQzHPkol6RwDYO4vhxJk3irqb2XDz/mM8S6j7QNXjQ=
-github.com/micro/go-micro/v3 v3.0.0-beta.0.20200903214737-d660e62a69d2 h1:81a9zfNiumkEpWPd+LEfsqLUDNoArDNrHhkTORS6KE8=
-github.com/micro/go-micro/v3 v3.0.0-beta.0.20200903214737-d660e62a69d2/go.mod h1:8VQzHPkol6RwDYO4vhxJk3irqb2XDz/mM8S6j7QNXjQ=
+github.com/micro/go-micro/v3 v3.0.0-beta.0.20200904073149-724e2b583082 h1:Ny11i8ZYzyCl/vMDZmQPQ0AYqcxEAnWe99TPgI19MVM=
+github.com/micro/go-micro/v3 v3.0.0-beta.0.20200904073149-724e2b583082/go.mod h1:8VQzHPkol6RwDYO4vhxJk3irqb2XDz/mM8S6j7QNXjQ=
 github.com/miekg/dns v1.1.15/go.mod h1:W1PPwlIAgtquWBMBEV9nkV9Cazfe8ScdGz/Lj7v3Nrg=
 github.com/miekg/dns v1.1.27 h1:aEH/kqUzUxGJ/UHcEKdJY+ugH6WEzsEBBSPa8zuy1aM=
 github.com/miekg/dns v1.1.27/go.mod h1:KNUDUusw/aVsxyTYZM1oqvCicbwhgbNgztCETuNZ7xM=
