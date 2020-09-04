@@ -93,6 +93,14 @@ func (a *Auth) Delete(ctx context.Context, req *pb.DeleteAccountRequest, rsp *pb
 		return errors.BadRequest("auth.Accounts.Delete", "Error querying accounts: %v", err)
 	}
 
+	acc, ok := auth.AccountFromContext(ctx)
+	if !ok {
+		return errors.Unauthorized("auth.Accounts.Delete", "Unauthorized")
+	}
+	if req.Id == acc.ID {
+		return errors.BadRequest("auth.Accounts.Delete", "Can't delete your own account")
+	}
+
 	// delete the refresh token linked to the account
 	tok, err := a.refreshTokenForAccount(req.Options.Namespace, req.Id)
 	if err != nil {

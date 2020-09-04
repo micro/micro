@@ -151,12 +151,6 @@ func lockdownSuite(serv Server, t *T) {
 		return
 	}
 
-	outp, err = cmd.Exec("auth", "delete", "account", "admin")
-	if err != nil {
-		t.Fatal(string(outp), err)
-		return
-	}
-
 	// set the local config file to be the same as the one micro will be configured to use.
 	// todo: consider adding a micro logout command.
 	config.SetConfig(cmd.Config)

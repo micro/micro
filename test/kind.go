@@ -9,6 +9,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
+	"testing"
 	"time"
 )
 
@@ -102,4 +103,23 @@ func (s *testK8sServer) Close() {
 	s.ServerBase.Close()
 	// kill the port forward
 	s.cmd.Process.Kill()
+}
+
+func TestDeleteOwnAccount(t *testing.T) {
+	TrySuite(t, testDeleteOwnAccount, retryCount)
+}
+
+func testDeleteOwnAccount(t *T) {
+	t.Parallel()
+	serv := NewServer(t, WithLogin())
+	defer serv.Close()
+	if err := serv.Run(); err != nil {
+		return
+	}
+
+	cmd := serv.Command()
+	outp, err := cmd.Exec("auth", "delete", "account", "admin")
+	if err == nil {
+		t.Fatal(string(outp))
+	}
 }
