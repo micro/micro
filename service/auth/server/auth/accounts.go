@@ -97,12 +97,8 @@ func (a *Auth) Delete(ctx context.Context, req *pb.DeleteAccountRequest, rsp *pb
 	if !ok {
 		return errors.Unauthorized("auth.Accounts.Delete", "Unauthorized")
 	}
-	switch {
-	case acc.Issuer == namespace.DefaultNamespace:
-	default:
-		if req.Id == acc.ID {
-			return errors.BadRequest("auth.Accounts.Delete", "Can't delete your own account")
-		}
+	if req.Id == acc.ID {
+		return errors.BadRequest("auth.Accounts.Delete", "Can't delete your own account")
 	}
 
 	// delete the refresh token linked to the account
