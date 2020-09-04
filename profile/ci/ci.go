@@ -20,6 +20,10 @@ import (
 	microStore "github.com/micro/micro/v3/service/store"
 )
 
+func init() {
+	profile.Register("ci", Profile)
+}
+
 // CI profile to use for CI tests
 var Profile = &profile.Profile{
 	Name: "ci",
