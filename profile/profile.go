@@ -118,7 +118,7 @@ var Client = &Profile{
 var Local = &Profile{
 	Name: "local",
 	Setup: func(ctx *cli.Context) error {
-		microAuth.DefaultAuth = noop.NewAuth()
+		microAuth.DefaultAuth = jwt.NewAuth()
 		microRuntime.DefaultRuntime = local.NewRuntime()
 		microStore.DefaultStore = file.NewStore()
 		microConfig.DefaultConfig, _ = config.NewConfig()

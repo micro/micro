@@ -33,12 +33,11 @@ func Run(ctx *cli.Context) error {
 	// setup the auth handler to use JWTs
 	pubKey := ctx.String("auth_public_key")
 	privKey := ctx.String("auth_private_key")
-	if len(pubKey) > 0 || len(privKey) > 0 {
-		authH.TokenProvider = jwt.NewTokenProvider(
-			token.WithPublicKey(pubKey),
-			token.WithPrivateKey(privKey),
-		)
-	}
+
+	authH.TokenProvider = jwt.NewTokenProvider(
+		token.WithPublicKey(pubKey),
+		token.WithPrivateKey(privKey),
+	)
 
 	// set the handlers store
 	mustore.DefaultStore.Init(store.Table("auth"))

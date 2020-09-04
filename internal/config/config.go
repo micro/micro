@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
-	"os/user"
+	osuser "os/user"
 	"path/filepath"
 	"strings"
 	"sync"
@@ -12,16 +12,16 @@ import (
 	"github.com/juju/fslock"
 	conf "github.com/micro/go-micro/v3/config"
 	fs "github.com/micro/go-micro/v3/config/source/file"
+	"github.com/micro/micro/v3/internal/user"
 )
 
 var (
-	baseDir = ".micro"
 
 	// lock in single process
 	mtx sync.Mutex
 
 	// file for global micro config
-	file = filepath.Join(baseDir, "config.json")
+	file = filepath.Join(user.Dir, "config.json")
 
 	// full path to file
 	path, _ = filePath()
@@ -106,7 +106,7 @@ func Set(value string, p ...string) error {
 }
 
 func filePath() (string, error) {
-	usr, err := user.Current()
+	usr, err := osuser.Current()
 	if err != nil {
 		return "", err
 	}

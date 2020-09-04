@@ -371,12 +371,28 @@ func (c *command) Before(ctx *cli.Context) error {
 			ctx.String("auth_id"), ctx.String("auth_secret"),
 		))
 	}
+	pubKey := ctx.String("auth_public_key")
+	privKey := ctx.String("auth_private_key")
+	var priv, pub string
+	if len(privKey) == 0 || len(pubKey) == 0 {
+		privB, pubB, err := getKeys()
+		if err != nil {
+			logger.Fatalf("Error getting keys; %v", err)
+		}
+		priv = string(privB)
+		pub = string(pubB)
+	}
 	if len(ctx.String("auth_public_key")) > 0 {
 		authOpts = append(authOpts, auth.PublicKey(ctx.String("auth_public_key")))
+	} else {
+		authOpts = append(authOpts, auth.PublicKey(pub))
 	}
 	if len(ctx.String("auth_private_key")) > 0 {
 		authOpts = append(authOpts, auth.PrivateKey(ctx.String("auth_private_key")))
+	} else {
+		authOpts = append(authOpts, auth.PrivateKey(priv))
 	}
+
 	muauth.DefaultAuth.Init(authOpts...)
 
 	// setup registry
