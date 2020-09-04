@@ -95,19 +95,13 @@ func (a *Auth) Delete(ctx context.Context, req *pb.DeleteAccountRequest, rsp *pb
 
 	acc, ok := auth.AccountFromContext(ctx)
 	if !ok {
-		return errors.Unauthorized("billing.Updates", "Unauthorized")
+		return errors.Unauthorized("auth.Accounts.Delete", "Unauthorized")
 	}
 	switch {
 	case acc.Issuer == namespace.DefaultNamespace:
 	default:
-		// get the records from the store
-		key := strings.Join([]string{storePrefixAccounts, req.Options.Namespace, ""}, joinKey)
-		recs, err := a.Options.Store.Read(key, store.ReadPrefix())
-		if err != nil {
-			return errors.InternalServerError("auth.Accounts.Delete", "Unable to read from store: %v", err)
-		}
-		if len(recs) == 1 {
-			return errors.BadRequest("auth.Accounts.Delete", "Can't delete last user")
+		if req.Id == acc.ID {
+			return errors.BadRequest("auth.Accounts.Delete", "Can't delete your own account")
 		}
 	}
 
