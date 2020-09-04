@@ -26,6 +26,10 @@ message SubscribeRequest {
   string queue = 1;
   string topic = 2;
   int64 start_at_time = 3;
+  bool auto_ack = 4;
+  // duration in nanoseconds
+  int64 ack_wait = 5;
+  int64 retry_limit = 6;
 }
 
 message Event {
@@ -52,3 +56,8 @@ message WriteRequest {
 }
 
 message WriteResponse {}
+
+message AckRequest {
+  string id = 1;
+  bool success = 2;
+}
