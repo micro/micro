@@ -29,36 +29,37 @@ func main() {
 			logger.Fatalf("Error creating subscriber: %v", err)
 		}
 
-		logger.Infof("Event chan 1 ", evChan)
+		logger.Infof("TEST1: publishing event")
 
 		err = events.Publish("test1", payload, goevents.WithMetadata(metadata))
 		if err != nil {
-			logger.Errorf("Error publishing event: %v", err)
+			logger.Errorf("TEST1: Error publishing event: %v", err)
 			return
 		}
 
+		logger.Infof("TEST1: waiting for event")
 		event, ok := <-evChan
 		if !ok {
-			logger.Error("Channel closed")
+			logger.Error("TEST1: Channel closed")
 			return
 		}
 
 		if event.Topic != "test1" {
-			logger.Errorf("Incorrect topic: %v", event.Topic)
+			logger.Errorf("TEST1: Incorrect topic: %v", event.Topic)
 			return
 		}
 		if event.Metadata == nil || event.Metadata["foo"] != metadata["foo"] {
-			logger.Errorf("Incorrect metadata: %v", event.Metadata)
+			logger.Errorf("TEST1: Incorrect metadata: %v", event.Metadata)
 			return
 		}
 
 		var result testPayload
 		if err := event.Unmarshal(&result); err != nil {
-			logger.Errorf("Error decoding result: %v. Payload was %v", err, string(event.Payload))
+			logger.Errorf("TEST1: Error decoding result: %v. Payload was %v", err, string(event.Payload))
 			return
 		}
 		if result.Message != payload.Message {
-			logger.Errorf("Incorrect message: %v", result.Message)
+			logger.Errorf("TEST1: Incorrect message: %v", result.Message)
 			return
 		}
 
@@ -69,53 +70,56 @@ func main() {
 	go func() { // test 2, sub with manual ack
 		evChan, err := events.Subscribe("test2", goevents.WithAutoAck(false, 5*time.Second))
 		if err != nil {
-			logger.Errorf("Error creating subscriber: %v", err)
+			logger.Errorf("TEST2: Error creating subscriber: %v", err)
 			return
 		}
 
+		logger.Infof("TEST2: publishing event")
 		err = events.Publish("test2", payload, goevents.WithMetadata(metadata))
 
 		if err != nil {
-			logger.Errorf("Error publishing event: %v", err)
+			logger.Errorf("TEST2: Error publishing event: %v", err)
 			return
 		}
 
+		logger.Infof("TEST2: waiting for event")
 		event, ok := <-evChan
 		if !ok {
-			logger.Errorf("Channel closed")
+			logger.Errorf("TEST2: Channel closed")
 			return
 		}
 
 		if event.Topic != "test2" {
-			logger.Errorf("Incorrect topic: %v", event.Topic)
+			logger.Errorf("TEST2: Incorrect topic: %v", event.Topic)
 			return
 		}
 		if event.Metadata == nil || event.Metadata["foo"] != metadata["foo"] {
-			logger.Errorf("Incorrect metadata: %v", event.Metadata)
+			logger.Errorf("TEST2: Incorrect metadata: %v", event.Metadata)
 			return
 		}
 
 		var result testPayload
 		if err := event.Unmarshal(&result); err != nil {
-			logger.Errorf("Error decoding result: %v. Payload was %v", err, string(event.Payload))
+			logger.Errorf("TEST2: Error decoding result: %v. Payload was %v", err, string(event.Payload))
 			return
 		}
 		if result.Message != payload.Message {
-			logger.Errorf("Incorrect message: %v", result.Message)
+			logger.Errorf("TEST2: Incorrect message: %v", result.Message)
 			return
 		}
 		id := event.ID
 		// nack the event to put it back on the queue
-		logger.Infof("Nacking the event")
+		logger.Infof("TEST2: Nacking the event")
 		event.Nack()
 
+		logger.Infof("TEST2: waiting for event")
 		select {
 		case event := <-evChan:
 			if event.ID != id {
 				logger.Errorf("Unexpected event received, expected %s, received %s", id, event.ID)
 				return
 			}
-			logger.Infof("Acking the event")
+			logger.Infof("TEST2: Acking the event")
 			event.Ack()
 
 		case <-time.After(10 * time.Second):
@@ -124,6 +128,7 @@ func main() {
 		}
 
 		// we've acked so should receive nothing else
+		logger.Infof("TEST2: Waiting for timeout")
 		select {
 		case event := <-evChan:
 			logger.Errorf("Unexpected event received %s", event.ID)
