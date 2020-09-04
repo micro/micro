@@ -26,6 +26,7 @@ import (
 	"github.com/micro/micro/v3/internal/helper"
 	"github.com/micro/micro/v3/internal/network"
 	_ "github.com/micro/micro/v3/internal/usage"
+	"github.com/micro/micro/v3/internal/user"
 	"github.com/micro/micro/v3/internal/wrapper"
 	"github.com/micro/micro/v3/plugin"
 	"github.com/micro/micro/v3/profile"
@@ -375,7 +376,7 @@ func (c *command) Before(ctx *cli.Context) error {
 	privKey := ctx.String("auth_private_key")
 	var priv, pub string
 	if len(privKey) == 0 || len(pubKey) == 0 {
-		privB, pubB, err := getKeys()
+		privB, pubB, err := user.GetKeys()
 		if err != nil {
 			logger.Fatalf("Error getting keys; %v", err)
 		}
