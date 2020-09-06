@@ -25,15 +25,19 @@ func testEventsStream(t *T) {
 	cmd := serv.Command()
 
 	// Temp fix to support k8s tests until we have file upload to remote server
-	var branch string
-	if ref := os.Getenv("GITHUB_REF"); len(ref) > 0 {
-		branch = strings.TrimPrefix(ref, "refs/heads/")
-	} else {
-		branch = "master"
+	runTarget := "./service/stream"
+	if os.Getenv("MICRO_IS_KIND_TEST") == "true" {
+		var branch string
+		if ref := os.Getenv("GITHUB_REF"); len(ref) > 0 {
+			branch = strings.TrimPrefix(ref, "refs/heads/")
+		} else {
+			branch = "master"
+		}
+		runTarget = "github.com/micro/micro/test/service/stream@" + branch
+		t.Logf("Running service from the %v branch of micro", branch)
 	}
 
-	t.Logf("Running service from the %v branch of micro", branch)
-	if outp, err := cmd.Exec("run", "--image", "localhost:5000/cells:micro", "github.com/micro/micro/test/service/stream@"+branch); err != nil {
+	if outp, err := cmd.Exec("run", "--image", "localhost:5000/cells:micro", runTarget); err != nil {
 		t.Fatalf("Error running service: %v, %v", err, string(outp))
 		return
 	}
@@ -45,11 +49,11 @@ func testEventsStream(t *T) {
 		if err != nil {
 			return outp, err
 		}
-		if !strings.Contains(string(outp), "Published event ok") {
-			return outp, errors.New("Published event log not found")
+		if !strings.Contains(string(outp), "TEST1: Finished ok") {
+			return outp, errors.New("Received event log not found")
 		}
-		if !strings.Contains(string(outp), "Recieved event ok") {
-			return outp, errors.New("Recieved event log not found")
+		if !strings.Contains(string(outp), "TEST2: Finished ok") {
+			return outp, errors.New("Test 2 not finished")
 		}
 		return outp, nil
 	}, 180*time.Second); err != nil {
