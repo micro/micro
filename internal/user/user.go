@@ -27,7 +27,10 @@ func init() {
 		log.Fatalf(err.Error())
 	}
 	Dir = filepath.Join(user.HomeDir, path)
-	os.MkdirAll(Dir, 0600)
+	err = os.MkdirAll(Dir, 0600)
+	if err != nil {
+		log.Fatalf(err.Error())
+	}
 }
 
 func GetKeys() ([]byte, []byte, error) {
