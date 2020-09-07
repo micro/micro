@@ -35,19 +35,18 @@ func Run(ctx *cli.Context) error {
 	// setup the auth handler to use JWTs
 	pubKey := ctx.String("auth_public_key")
 	privKey := ctx.String("auth_private_key")
-	var priv, pub string
 	if len(privKey) == 0 || len(pubKey) == 0 {
 		privB, pubB, err := user.GetKeys()
 		if err != nil {
 			logger.Fatalf("Error getting keys; %v", err)
 		}
-		priv = string(privB)
-		pub = string(pubB)
+		privKey = string(privB)
+		pubKey = string(pubB)
 	}
 
 	authH.TokenProvider = jwt.NewTokenProvider(
-		token.WithPublicKey(pub),
-		token.WithPrivateKey(priv),
+		token.WithPublicKey(pubKey),
+		token.WithPrivateKey(privKey),
 	)
 
 	// set the handlers store
