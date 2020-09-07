@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
-	osuser "os/user"
 	"path/filepath"
 	"strings"
 	"sync"
@@ -106,11 +105,7 @@ func Set(value string, p ...string) error {
 }
 
 func filePath() (string, error) {
-	usr, err := osuser.Current()
-	if err != nil {
-		return "", err
-	}
-	return filepath.Join(usr.HomeDir, file), nil
+	return file, nil
 }
 
 func moveConfig(from, to string) error {
