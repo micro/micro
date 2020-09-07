@@ -14,7 +14,7 @@ import (
 	"github.com/micro/go-micro/v3/util/token"
 	"github.com/micro/go-micro/v3/util/token/basic"
 	"github.com/micro/micro/v3/internal/namespace"
-	pb "github.com/micro/micro/v3/service/auth/proto"
+	pb "github.com/micro/micro/v3/proto/auth"
 	"github.com/micro/micro/v3/service/errors"
 	"github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/store"

@@ -7,7 +7,7 @@ import (
 	"github.com/micro/micro/v3/internal/namespace"
 	"github.com/micro/micro/v3/service/errors"
 	"github.com/micro/micro/v3/service/events"
-	pb "github.com/micro/micro/v3/service/events/proto"
+	pb "github.com/micro/micro/v3/proto/events"
 	"github.com/micro/micro/v3/service/events/util"
 )
 

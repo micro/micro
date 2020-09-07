@@ -9,7 +9,7 @@ import (
 	"github.com/micro/micro/v3/internal/namespace"
 	"github.com/micro/micro/v3/service"
 	mubroker "github.com/micro/micro/v3/service/broker"
-	pb "github.com/micro/micro/v3/service/broker/proto"
+	pb "github.com/micro/micro/v3/proto/broker"
 	"github.com/micro/micro/v3/service/errors"
 	"github.com/micro/micro/v3/service/logger"
 	log "github.com/micro/micro/v3/service/logger"

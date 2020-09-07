@@ -9,7 +9,7 @@ import (
 	"github.com/micro/micro/v3/client/cli/util"
 	"github.com/micro/micro/v3/service/client"
 	"github.com/micro/micro/v3/service/context"
-	pb "github.com/micro/micro/v3/service/store/proto"
+	pb "github.com/micro/micro/v3/proto/store"
 )
 
 // databases is the entrypoint for micro store databases
