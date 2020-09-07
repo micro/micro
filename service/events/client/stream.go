@@ -6,9 +6,9 @@ import (
 
 	goclient "github.com/micro/go-micro/v3/client"
 	"github.com/micro/go-micro/v3/events"
+	pb "github.com/micro/micro/v3/proto/events"
 	"github.com/micro/micro/v3/service/client"
 	"github.com/micro/micro/v3/service/context"
-	pb "github.com/micro/micro/v3/proto/events"
 	"github.com/micro/micro/v3/service/events/util"
 	log "github.com/micro/micro/v3/service/logger"
 )

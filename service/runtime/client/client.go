@@ -6,9 +6,9 @@ import (
 
 	goclient "github.com/micro/go-micro/v3/client"
 	"github.com/micro/go-micro/v3/runtime"
+	pb "github.com/micro/micro/v3/proto/runtime"
 	"github.com/micro/micro/v3/service/client"
 	"github.com/micro/micro/v3/service/context"
-	pb "github.com/micro/micro/v3/proto/runtime"
 )
 
 type svc struct {
