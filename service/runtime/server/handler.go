@@ -13,7 +13,7 @@ import (
 	"github.com/micro/micro/v3/service/events"
 	log "github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/runtime"
-	pb "github.com/micro/micro/v3/service/runtime/proto"
+	pb "github.com/micro/micro/v3/proto/runtime"
 )
 
 type Runtime struct {

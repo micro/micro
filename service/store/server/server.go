@@ -4,7 +4,7 @@ import (
 	"github.com/micro/cli/v2"
 	"github.com/micro/micro/v3/service"
 	log "github.com/micro/micro/v3/service/logger"
-	pb "github.com/micro/micro/v3/service/store/proto"
+	pb "github.com/micro/micro/v3/proto/store"
 )
 
 var (

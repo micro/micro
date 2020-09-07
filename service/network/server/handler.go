@@ -9,9 +9,9 @@ import (
 	"github.com/micro/micro/v3/internal/namespace"
 	"github.com/micro/micro/v3/service/errors"
 	log "github.com/micro/micro/v3/service/logger"
-	pb "github.com/micro/micro/v3/service/network/proto"
+	pb "github.com/micro/micro/v3/proto/network"
 	"github.com/micro/micro/v3/service/network/util"
-	pbRtr "github.com/micro/micro/v3/service/router/proto"
+	pbRtr "github.com/micro/micro/v3/proto/router"
 )
 
 // Network implements network handler

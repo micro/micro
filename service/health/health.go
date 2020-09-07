@@ -10,7 +10,7 @@ import (
 	"github.com/micro/micro/v3/client/cli/util"
 	qcli "github.com/micro/micro/v3/internal/command"
 	"github.com/micro/micro/v3/service/client"
-	proto "github.com/micro/micro/v3/service/debug/proto"
+	proto "github.com/micro/micro/v3/proto/debug"
 	"github.com/micro/micro/v3/service/logger"
 	"golang.org/x/net/context"
 )

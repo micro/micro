@@ -14,7 +14,7 @@ import (
 	cliconfig "github.com/micro/micro/v3/internal/config"
 	"github.com/micro/micro/v3/internal/helper"
 	"github.com/micro/micro/v3/service/client"
-	proto "github.com/micro/micro/v3/service/config/proto"
+	proto "github.com/micro/micro/v3/proto/config"
 	"github.com/micro/micro/v3/service/context"
 	log "github.com/micro/micro/v3/service/logger"
 )

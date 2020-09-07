@@ -14,7 +14,7 @@ import (
 	"github.com/micro/micro/v3/cmd"
 	"github.com/micro/micro/v3/internal/config"
 	"github.com/micro/micro/v3/service/auth"
-	pb "github.com/micro/micro/v3/service/auth/proto"
+	pb "github.com/micro/micro/v3/proto/auth"
 	"github.com/micro/micro/v3/service/client"
 	"github.com/micro/micro/v3/service/context"
 	"golang.org/x/crypto/ssh/terminal"

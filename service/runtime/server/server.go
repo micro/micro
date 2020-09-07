@@ -9,7 +9,7 @@ import (
 	log "github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/runtime"
 	"github.com/micro/micro/v3/service/runtime/manager"
-	pb "github.com/micro/micro/v3/service/runtime/proto"
+	pb "github.com/micro/micro/v3/proto/runtime"
 )
 
 var (
