@@ -89,7 +89,7 @@ func (c *Command) args(a ...string) []string {
 func (c *Command) Exec(args ...string) ([]byte, error) {
 	arguments := c.args(args...)
 	// exec the command
-	//c.t.Logf("Executing command: micro %s\n", strings.Join(arguments, " "))
+	// c.t.Logf("Executing command: micro %s\n", strings.Join(arguments, " "))
 	return exec.Command("micro", arguments...).CombinedOutput()
 }
 
@@ -370,21 +370,17 @@ func (s *ServerDefault) Run() error {
 		return err
 	}
 
+	servicesRequired := []string{"runtime", "registry", "broker", "config", "config", "proxy", "auth", "events", "store"}
 	if err := Try("Calling micro server", s.t, func() ([]byte, error) {
 		out, err := s.Command().Exec("services")
-		if !strings.Contains(string(out), "runtime") ||
-			!strings.Contains(string(out), "registry") ||
-			!strings.Contains(string(out), "broker") ||
-			!strings.Contains(string(out), "config") ||
-			!strings.Contains(string(out), "proxy") ||
-			!strings.Contains(string(out), "auth") ||
-			!strings.Contains(string(out), "events") ||
-			!strings.Contains(string(out), "store") {
-			return out, errors.New("Not ready")
+		for _, s := range servicesRequired {
+			if !strings.Contains(string(out), s) {
+				return out, fmt.Errorf("Can't find %v: %v", s, err)
+			}
 		}
 
 		return out, err
-	}, 60*time.Second); err != nil {
+	}, 20*time.Second); err != nil {
 		return err
 	}
 
