@@ -7,7 +7,6 @@ import (
 	"math/rand"
 	"os"
 	"os/exec"
-	"os/user"
 	"path/filepath"
 	"runtime"
 	"runtime/debug"
@@ -19,6 +18,7 @@ import (
 
 	"github.com/micro/micro/v3/client/cli/namespace"
 	"github.com/micro/micro/v3/client/cli/token"
+	"github.com/micro/micro/v3/internal/user"
 )
 
 const (
@@ -322,8 +322,7 @@ func newLocalServer(t *T, fname string, opts ...Option) Server {
 }
 
 func configFile(fname string) string {
-	userDir, _ := user.Current()
-	dir := filepath.Join(userDir.HomeDir, ".micro/test")
+	dir := filepath.Join(user.Dir, "test")
 	return filepath.Join(dir, "config-"+fname+".json")
 }
 

@@ -4,6 +4,7 @@ import (
 	"log"
 	"os/user"
 	"path/filepath"
+	"runtime/debug"
 
 	"crypto/rand"
 	"crypto/rsa"
@@ -30,6 +31,7 @@ func init() {
 }
 
 func GetKeys() ([]byte, []byte, error) {
+	debug.PrintStack()
 	privKey := filepath.Join(Dir, "id_rsa")
 	pubKey := filepath.Join(Dir, "id_rsa.pub")
 
