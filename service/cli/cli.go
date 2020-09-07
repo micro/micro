@@ -32,6 +32,7 @@ import (
 	router "github.com/micro/micro/v3/service/router/server"
 	runtime "github.com/micro/micro/v3/service/runtime/server"
 	store "github.com/micro/micro/v3/service/store/server"
+	updater "github.com/micro/micro/v3/service/updater"
 
 	// misc commands
 	"github.com/micro/micro/v3/service/handler/exec"
@@ -197,6 +198,10 @@ var srvCommands = []srvCommand{
 	{
 		Name:    "store",
 		Command: store.Run,
+	},
+	{
+		Name:    "updater",
+		Command: updater.Run,
 	},
 }
 
