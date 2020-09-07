@@ -37,6 +37,7 @@ func GetKeys() ([]byte, []byte, error) {
 	privKey := filepath.Join(Dir, "id_rsa")
 	pubKey := filepath.Join(Dir, "id_rsa.pub")
 
+	logger.Infof("Loading keys %v and %v", privKey, pubKey)
 	if !fileExists(privKey) || !fileExists(pubKey) {
 		err := setupKeys(privKey, pubKey)
 		if err != nil {
@@ -55,6 +56,7 @@ func GetKeys() ([]byte, []byte, error) {
 }
 
 func setupKeys(privKey, pubKey string) error {
+	logger.Infof("Setting up keys for JWT at %v and %v", privKey, pubKey)
 	bitSize := 4096
 	privateKey, err := generatePrivateKey(bitSize)
 	if err != nil {
