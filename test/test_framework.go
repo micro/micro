@@ -27,7 +27,7 @@ const (
 )
 
 var (
-	retryCount        = 2
+	retryCount        = 1
 	isParallel        = true
 	ignoreThisError   = errors.New("Do not use this error")
 	errFatal          = errors.New("Fatal error")
@@ -341,20 +341,20 @@ func (s *ServerBase) Run() error {
 	if err := Try("Adding micro env: "+s.env+" file: "+s.config, s.t, func() ([]byte, error) {
 		out, err := cmd.Exec("env", "add", s.env, fmt.Sprintf("127.0.0.1:%d", s.ProxyPort()))
 		if err != nil {
-			return nil, err
+			return out, err
 		}
 
 		if len(out) > 0 {
-			return nil, errors.New("Not added")
+			return out, errors.New("Unexpected output when adding env")
 		}
 
 		out, err = cmd.Exec("env")
 		if err != nil {
-			return nil, err
+			return out, err
 		}
 
 		if !strings.Contains(string(out), s.env) {
-			return nil, errors.New("Not added")
+			return out, errors.New("Can't find env added")
 		}
 
 		return out, nil
