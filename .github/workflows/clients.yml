@@ -1,0 +1,53 @@
+name: Generate Client SDKs
+
+on:
+  push:
+    paths:
+      - 'proto/**'
+      - 'scripts/**'
+      - '.github/workflows/**'
+    branches:
+      - master
+    tags:
+      - 'v*.*.*'
+  pull_request:             
+    paths:          
+      - 'proto/**'  
+      - 'scripts/**'
+      - '.github/workflows/**'
+
+jobs:
+  generate:
+    name: generate
+    runs-on: ubuntu-latest
+    steps:
+
+    - name: Set up Go 1.13
+      uses: actions/setup-go@v1
+      with:
+        go-version: 1.13
+      id: go
+
+    - name: Check out code into the Go module directory
+      uses: actions/checkout@v2
+
+    - name: Get dependencies
+      run: |
+        ./scripts/generate-clients.sh
+
+    - name: Generate
+      run: |
+        cd client && rm -rf sdk
+        PATH=$PATH:$(go env GOPATH)/bin:$(npm bin):/usr/local/bin/ protoc-gen-client -srcdir proto/ -dstdir sdk/ -langs go,python,java,ruby,js,rust
+        rm -rf go.mod go.sum node_modules/ package-lock.json
+
+    - name: Commit files
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add sdk/ && git commit -m "regenerate from proto" || true
+
+    - name: Push changes
+      uses: ad-m/github-push-action@master
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
