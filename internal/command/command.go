@@ -17,8 +17,8 @@ import (
 	goregistry "github.com/micro/go-micro/v3/registry"
 	"github.com/micro/micro/v3/client/cli/namespace"
 	"github.com/micro/micro/v3/client/cli/util"
-	"github.com/micro/micro/v3/service/client"
 	proto "github.com/micro/micro/v3/proto/debug"
+	"github.com/micro/micro/v3/service/client"
 	"github.com/micro/micro/v3/service/registry"
 
 	"github.com/serenize/snaker"
