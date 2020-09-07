@@ -27,7 +27,7 @@ func init() {
 		log.Fatalf(err.Error())
 	}
 	Dir = filepath.Join(user.HomeDir, path)
-	err = os.MkdirAll(Dir, 0600)
+	err = os.MkdirAll(Dir, 0700)
 	if err != nil {
 		log.Fatalf(err.Error())
 	}
