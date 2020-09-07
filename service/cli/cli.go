@@ -202,6 +202,7 @@ var srvCommands = []srvCommand{
 	{
 		Name:    "updater",
 		Command: updater.Run,
+		Flags:   updater.Flags,
 	},
 }
 

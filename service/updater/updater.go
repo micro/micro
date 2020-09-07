@@ -12,7 +12,6 @@ import (
 	"github.com/micro/cli/v2"
 	goruntime "github.com/micro/go-micro/v3/runtime"
 	"github.com/micro/micro/v3/service"
-	"github.com/micro/micro/v3/service/config"
 	"github.com/micro/micro/v3/service/runtime"
 )
 
@@ -27,10 +26,32 @@ var (
 	// client to use for http requests
 	client = new(http.Client)
 	// updateFrequency is the time interval at which GitHub will be polled to check for changes
-	updateFrequency = time.Second * 15
+	updateFrequency = time.Minute * 2
 	// mux is used to make the application thread safe, however the update frequence should be high
 	// enough so that multiple gorountines aren't running at once
 	mux = new(sync.Mutex)
+
+	// Flags specific to the updater service
+	Flags = []cli.Flag{
+		&cli.StringFlag{
+			Name:    "repository",
+			Usage:   "Set the repository, e.g. micro/micro",
+			EnvVars: []string{"MICRO_UPDATER_REPOSITORY"},
+			Value:   "micro/micro",
+		},
+		&cli.StringFlag{
+			Name:    "reference",
+			Usage:   "Set the reference, e.g. latest",
+			EnvVars: []string{"MICRO_UPDATER_REFERENCE"},
+			Value:   "master",
+		},
+		&cli.StringFlag{
+			Name:    "latest_commit",
+			Usage:   "Set the latest commit SHA",
+			EnvVars: []string{"MICR_UPDATER_LATEST_COMMIT"},
+			Value:   "",
+		},
+	}
 )
 
 // Run the updater service
@@ -42,9 +63,9 @@ func Run(cli *cli.Context) error {
 	)
 
 	// load the configuration
-	repository = config.Get("micro", "updater", "repository").String("micro/micro")
-	reference = config.Get("micro", "updater", "reference").String("master")
-	latestCommit = config.Get("micro", "updater", "latestCommit").String("")
+	repository = cli.String("repository")
+	reference = cli.String("reference")
+	latestCommit = cli.String("latest_commit")
 	fmt.Printf("Updater setup for %v:%v. Latest commit: '%v'\n", repository, reference, latestCommit)
 
 	// updates periodically async
@@ -179,6 +200,9 @@ func getLatestCommit() (string, error) {
 	bytes, err := ioutil.ReadAll(rsp.Body)
 	if err != nil {
 		return "", err
+	}
+	if rsp.StatusCode != http.StatusOK {
+		return "", fmt.Errorf("Error getting commits %v. Body: %v", rsp.Status, string(bytes))
 	}
 	rsp.Body.Close()
 

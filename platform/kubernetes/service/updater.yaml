@@ -73,6 +73,8 @@ spec:
           value: "debug"
         - name: MICRO_STORE_ADDRESS
           value: "postgresql://root@cockroachdb-cluster-public:26257?ssl=true&sslmode=require&sslrootcert=certs/store/ca.crt&sslkey=certs/store/key.pem&sslcert=certs/store/cert.pem"
+        - name: MICRO_UPDATER_REFERENCE
+          value: "updater"
         args:
         - service
         - updater
