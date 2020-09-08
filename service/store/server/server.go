@@ -2,9 +2,9 @@ package server
 
 import (
 	"github.com/micro/cli/v2"
+	pb "github.com/micro/micro/v3/proto/store"
 	"github.com/micro/micro/v3/service"
 	log "github.com/micro/micro/v3/service/logger"
-	pb "github.com/micro/micro/v3/service/store/proto"
 )
 
 var (

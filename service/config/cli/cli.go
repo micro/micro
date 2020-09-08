@@ -13,8 +13,8 @@ import (
 	"github.com/micro/micro/v3/cmd"
 	cliconfig "github.com/micro/micro/v3/internal/config"
 	"github.com/micro/micro/v3/internal/helper"
+	proto "github.com/micro/micro/v3/proto/config"
 	"github.com/micro/micro/v3/service/client"
-	proto "github.com/micro/micro/v3/service/config/proto"
 	"github.com/micro/micro/v3/service/context"
 	log "github.com/micro/micro/v3/service/logger"
 )
