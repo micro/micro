@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/micro/cli/v2"
 	"github.com/micro/micro/v3/internal/config"
@@ -22,7 +23,7 @@ const (
 	// localProxyAddress is the default proxy address for environment server
 	localProxyAddress = "127.0.0.1:8081"
 	// platformProxyAddress is teh default proxy address for environment platform
-	platformProxyAddress = "proxy.m3o.com:443"
+	platformProxyAddress = "proxy.m3o.com"
 )
 
 var (
@@ -86,7 +87,11 @@ func CLIProxyAddress(ctx *cli.Context) string {
 		return ""
 	}
 
-	return GetEnv(ctx).ProxyAddress
+	addr := GetEnv(ctx).ProxyAddress
+	if !strings.Contains(addr, ":") {
+		return fmt.Sprintf("%v:443", addr)
+	}
+	return addr
 }
 
 type Env struct {
