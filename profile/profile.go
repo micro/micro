@@ -15,7 +15,6 @@ import (
 	"github.com/micro/go-micro/v3/client"
 	"github.com/micro/go-micro/v3/config"
 	memStream "github.com/micro/go-micro/v3/events/stream/memory"
-	metricsPrometheus "github.com/micro/go-micro/v3/metrics/prometheus"
 	"github.com/micro/go-micro/v3/registry"
 	"github.com/micro/go-micro/v3/registry/mdns"
 	"github.com/micro/go-micro/v3/registry/memory"
@@ -27,7 +26,6 @@ import (
 	"github.com/micro/go-micro/v3/store/file"
 	mem "github.com/micro/go-micro/v3/store/memory"
 	"github.com/micro/micro/v3/service/logger"
-	microMetrics "github.com/micro/micro/v3/service/metrics"
 
 	inAuth "github.com/micro/micro/v3/internal/auth"
 	"github.com/micro/micro/v3/internal/user"
@@ -121,15 +119,6 @@ var Kubernetes = &Profile{
 		// store ...
 		microAuth.DefaultAuth = jwt.NewAuth()
 		SetupJWT(ctx)
-
-		// Set up a default metrics reporter (being careful not to clash with any that have already been set):
-		if !microMetrics.IsSet() {
-			prometheusReporter, err := metricsPrometheus.New()
-			if err != nil {
-				return err
-			}
-			microMetrics.SetDefaultMetricsReporter(prometheusReporter)
-		}
 
 		return nil
 	},
