@@ -26,7 +26,7 @@ var (
 	// client to use for http requests
 	client = new(http.Client)
 	// updateFrequency is the time interval at which GitHub will be polled to check for changes
-	updateFrequency = time.Minute * 2
+	updateFrequency = time.Minute * 5
 	// mux is used to make the application thread safe, however the update frequence should be high
 	// enough so that multiple gorountines aren't running at once
 	mux = new(sync.Mutex)
@@ -48,7 +48,7 @@ var (
 		&cli.StringFlag{
 			Name:    "latest_commit",
 			Usage:   "Set the latest commit SHA",
-			EnvVars: []string{"MICR_UPDATER_LATEST_COMMIT"},
+			EnvVars: []string{"MICRO_UPDATER_LATEST_COMMIT"},
 			Value:   "",
 		},
 	}
@@ -143,13 +143,18 @@ func checkForUpdates() {
 		fmt.Printf("Updating all services\n")
 		// logger.Debugf("Updating all services")
 
-		srvs, err := runtime.Read()
+		srvs, err := runtime.Read(goruntime.ReadNamespace("default"))
 		if err != nil {
 			fmt.Printf("Error reading services from runtime: %v\n", err)
 			// logger.Errorf("Error reading services from runtime: %v", err)
 			return
 		}
 		for _, srv := range srvs {
+			if len(srv.Name) == 0 || srv.Name == "updater" {
+				fmt.Printf("Skipping service '%v'\n", srv.Name)
+				continue
+			}
+
 			fmt.Printf("Updating service %v\n", srv.Name)
 			// logger.Debugf("Updating service %v", srv.Name)
 
@@ -165,7 +170,7 @@ func checkForUpdates() {
 
 	// update all the services which had a file changed
 	for name := range serviceNames {
-		srvs, err := runtime.Read(goruntime.ReadService(name))
+		srvs, err := runtime.Read(goruntime.ReadService(name), goruntime.ReadNamespace("default"))
 		if err != nil {
 			fmt.Printf("Error reading service: %v\n", err)
 			// logger.Errorf("Error reading service: %v", err)
