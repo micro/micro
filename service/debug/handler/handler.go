@@ -9,8 +9,8 @@ import (
 	"github.com/micro/go-micro/v3/debug/log"
 	"github.com/micro/go-micro/v3/debug/stats"
 	"github.com/micro/go-micro/v3/debug/trace"
+	pb "github.com/micro/micro/v3/proto/debug"
 	"github.com/micro/micro/v3/service/debug"
-	pb "github.com/micro/micro/v3/service/debug/proto"
 )
 
 // NewHandler returns an instance of the Debug Handler

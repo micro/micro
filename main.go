@@ -23,6 +23,10 @@ import (
 	_ "github.com/micro/micro/v3/service/network/cli"
 	_ "github.com/micro/micro/v3/service/runtime/cli"
 	_ "github.com/micro/micro/v3/service/store/cli"
+
+	// additional profiles
+	_ "github.com/micro/micro/v3/profile/ci"
+	_ "github.com/micro/micro/v3/profile/platform"
 )
 
 func main() {
