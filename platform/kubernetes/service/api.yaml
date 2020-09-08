@@ -32,38 +32,38 @@ spec:
       containers:
       - name: micro
         env:
-          - name: MICRO_API_RESOLVER
-            value: subdomain
-          - name: MICRO_AUTH_PUBLIC_KEY
-            valueFrom:
-              secretKeyRef:
-                name: micro-secrets
-                key: auth_public_key
-          - name: MICRO_AUTH_PRIVATE_KEY
-            valueFrom:
-              secretKeyRef:
-                name: micro-secrets
-                key: auth_private_key
-          - name: MICRO_PROFILE
-            value: "client"
-          - name: MICRO_SERVICE_NAME
-            value: client
-          - name: MICRO_PROXY
-            value: "micro-network.default.svc.cluster.local:8443"
-          - name: MICRO_ENABLE_ACME
-            value: "false"
-          - name: MICRO_ACME_PROVIDER
-            value: certmagic
-          - name: MICRO_ACME_HOSTS
-            value: '*.m3o.app,api.m3o.com'
+        - name: MICRO_API_RESOLVER
+          value: subdomain
+        - name: MICRO_AUTH_PUBLIC_KEY
+          valueFrom:
+            secretKeyRef:
+              name: micro-secrets
+              key: auth_public_key
+        - name: MICRO_AUTH_PRIVATE_KEY
+          valueFrom:
+            secretKeyRef:
+              name: micro-secrets
+              key: auth_private_key
+        - name: MICRO_PROFILE
+          value: "client"
+        - name: MICRO_SERVICE_NAME
+          value: client
+        - name: MICRO_PROXY
+          value: "micro-network.default.svc.cluster.local:8443"
+        - name: MICRO_ENABLE_ACME
+          value: "false"
+        - name: MICRO_ACME_PROVIDER
+          value: certmagic
+        - name: MICRO_ACME_HOSTS
+          value: '*.m3o.app,api.m3o.com'
         args:
-          - service
-          - api
+        - service
+        - api
         image: micro/micro
         imagePullPolicy: Always
         ports:
-          - containerPort: 8080
-            name: api-port
+        - containerPort: 8080
+          name: api-port
         readinessProbe:
           tcpSocket:
             port: api-port
