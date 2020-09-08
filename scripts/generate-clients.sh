@@ -14,5 +14,8 @@ pip3 install --no-cache-dir grpcio-tools
 npm i grpc-tools
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 cargo install protobuf-codegen grpc-compiler
-go mod init clients
-GOBIN=$(go env GOPATH)/bin go get github.com/micro/micro/v3/cmd/protoc-gen-client@master github.com/golang/protobuf/protoc-gen-go@v1.4.1 github.com/micro/micro/v3/cmd/protoc-gen-micro github.com/micro/go-micro/v3@latest
+GOBIN=$(go env GOPATH)/bin go get \
+github.com/micro/micro/v3/cmd/protoc-gen-client@master \
+github.com/golang/protobuf/protoc-gen-go@v1.4.1 \
+github.com/micro/micro/v3/cmd/protoc-gen-micro \
+github.com/micro/go-micro/v3@latest

@@ -38,7 +38,7 @@ jobs:
     - name: Generate
       run: |
         cd client && rm -rf sdk
-        PATH=$PATH:$(go env GOPATH)/bin:$(npm bin):/usr/local/bin/ protoc-gen-client -srcdir proto/ -dstdir sdk/ -langs go,python,java,ruby,js,rust
+        PATH=$PATH:$(go env GOPATH)/bin:$(npm bin):/usr/local/bin/ protoc-gen-client -srcdir ../proto/ -dstdir sdk/ -langs go,python,java,ruby,js,rust
         rm -rf go.mod go.sum node_modules/ package-lock.json
 
     - name: Commit files
