@@ -38,7 +38,7 @@ var Profile = &profile.Profile{
 		microEvents.DefaultStore = evStore.NewStore(evStore.WithStore(microStore.DefaultStore))
 		profile.SetupBroker(http.NewBroker())
 		profile.SetupRegistry(etcd.NewRegistry())
-		profile.SetupJWTRules()
+		profile.SetupJWT(ctx)
 		return nil
 	},
 }

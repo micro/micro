@@ -371,12 +371,14 @@ func (c *command) Before(ctx *cli.Context) error {
 			ctx.String("auth_id"), ctx.String("auth_secret"),
 		))
 	}
+
 	if len(ctx.String("auth_public_key")) > 0 {
 		authOpts = append(authOpts, auth.PublicKey(ctx.String("auth_public_key")))
 	}
 	if len(ctx.String("auth_private_key")) > 0 {
 		authOpts = append(authOpts, auth.PrivateKey(ctx.String("auth_private_key")))
 	}
+
 	muauth.DefaultAuth.Init(authOpts...)
 
 	// setup registry
