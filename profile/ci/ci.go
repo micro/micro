@@ -8,7 +8,6 @@ import (
 	"github.com/micro/go-micro/v3/config"
 	evStore "github.com/micro/go-micro/v3/events/store"
 	memStream "github.com/micro/go-micro/v3/events/stream/memory"
-	"github.com/micro/go-micro/v3/registry/etcd"
 	"github.com/micro/go-micro/v3/runtime/local"
 	"github.com/micro/go-micro/v3/store/file"
 	"github.com/micro/micro/v3/profile"
@@ -18,6 +17,9 @@ import (
 	microEvents "github.com/micro/micro/v3/service/events"
 	microRuntime "github.com/micro/micro/v3/service/runtime"
 	microStore "github.com/micro/micro/v3/service/store"
+
+	// external plugins
+	"github.com/micro/go-plugins/registry/etcd/v3"
 )
 
 func init() {
@@ -36,7 +38,7 @@ var Profile = &profile.Profile{
 		microEvents.DefaultStore = evStore.NewStore(evStore.WithStore(microStore.DefaultStore))
 		profile.SetupBroker(http.NewBroker())
 		profile.SetupRegistry(etcd.NewRegistry())
-		profile.SetupJWTRules()
+		profile.SetupJWT(ctx)
 		return nil
 	},
 }

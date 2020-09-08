@@ -3,8 +3,8 @@ package client
 import (
 	"github.com/micro/go-micro/v3/client"
 	"github.com/micro/go-micro/v3/router"
-	"github.com/micro/micro/v3/service/context"
 	pb "github.com/micro/micro/v3/proto/router"
+	"github.com/micro/micro/v3/service/context"
 )
 
 type table struct {

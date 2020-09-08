@@ -5,11 +5,11 @@ import (
 
 	"github.com/micro/cli/v2"
 	goruntime "github.com/micro/go-micro/v3/runtime"
+	pb "github.com/micro/micro/v3/proto/runtime"
 	"github.com/micro/micro/v3/service"
 	log "github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/runtime"
 	"github.com/micro/micro/v3/service/runtime/manager"
-	pb "github.com/micro/micro/v3/proto/runtime"
 )
 
 var (
