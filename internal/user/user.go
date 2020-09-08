@@ -33,7 +33,10 @@ func init() {
 	}
 }
 
-func GetKeys() ([]byte, []byte, error) {
+// GetJWTCerts returns local keys or generates and returns them for JWT auth.GetJWTCerts
+// This is only here for "0 dep", so people don't have to create and load the certs themselves,
+// not really intended for serious production use.
+func GetJWTCerts() ([]byte, []byte, error) {
 	privKey := filepath.Join(Dir, "id_rsa")
 	pubKey := filepath.Join(Dir, "id_rsa.pub")
 

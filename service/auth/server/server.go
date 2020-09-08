@@ -36,7 +36,7 @@ func Run(ctx *cli.Context) error {
 	pubKey := ctx.String("auth_public_key")
 	privKey := ctx.String("auth_private_key")
 	if len(privKey) == 0 || len(pubKey) == 0 {
-		privB, pubB, err := user.GetKeys()
+		privB, pubB, err := user.GetJWTCerts()
 		if err != nil {
 			logger.Fatalf("Error getting keys; %v", err)
 		}
