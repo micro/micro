@@ -17,7 +17,7 @@ import (
 	cliutil "github.com/micro/micro/v3/client/cli/util"
 	"github.com/micro/micro/v3/cmd"
 	"github.com/micro/micro/v3/internal/report"
-	pb "github.com/micro/micro/v3/platform/proto/signup"
+	pb "github.com/micro/micro/v3/proto/signup"
 	"github.com/micro/micro/v3/service/client"
 	"github.com/micro/micro/v3/service/context"
 	"golang.org/x/crypto/ssh/terminal"
