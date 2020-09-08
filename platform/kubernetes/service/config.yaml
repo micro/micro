@@ -8,7 +8,7 @@ metadata:
     name: config
     version: latest
   annotations:
-    name: "events"
+    name: "config"
     version: "latest"
     source: "github.com/micro/micro"
     owner: "micro"
@@ -28,7 +28,7 @@ spec:
         prometheus.io/scrape: "true"
         prometheus.io/path: /metrics
         prometheus.io/port: "9000"
-        name: "events"
+        name: "config"
         version: "latest"
         source: "github.com/micro/micro"
         owner: "micro"
