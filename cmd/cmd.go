@@ -376,7 +376,7 @@ func (c *command) Before(ctx *cli.Context) error {
 	// Only set this up for core services
 	// Won't work for multi node environments, could use
 	// the file store for that.
-	if c.service && !ctx.IsSet("proxy_address") {
+	if c.service && ctx.String("namespace") == "micro" {
 		pubKey := ctx.String("auth_public_key")
 		privKey := ctx.String("auth_private_key")
 		var priv, pub string
