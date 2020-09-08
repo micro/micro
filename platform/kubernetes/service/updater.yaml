@@ -2,10 +2,11 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   namespace: default
-  name: micro-updater
+  name: micro-updater-latest
   labels:
     micro: runtime
-    name: micro-updater
+    name: updater
+    version: latest
   annotations:
     name: "micro-updater"
     version: "latest"
@@ -75,10 +76,12 @@ spec:
           value: "postgresql://root@cockroachdb-cluster-public:26257?ssl=true&sslmode=require&sslrootcert=certs/store/ca.crt&sslkey=certs/store/key.pem&sslcert=certs/store/cert.pem"
         - name: MICRO_UPDATER_REFERENCE
           value: "updater"
+        - name: MICRO_UPDATER_LATEST_COMMIT
+          value: "0d5ac546e6ede6ffe29673872f31a76ed6f7bf53"
         args:
         - service
         - updater
-        image: bentoogood/micro
+        image: localhost:5000/micro
         imagePullPolicy: Always
         ports:
         - containerPort: 8080

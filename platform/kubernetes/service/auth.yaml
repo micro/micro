@@ -2,10 +2,11 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   namespace: default
-  name: micro-auth
+  name: micro-auth-latest
   labels:
     micro: runtime
-    name: micro-auth
+    name: auth
+    version: latest
   annotations:
     name: "auth"
     version: "latest"
@@ -72,7 +73,7 @@ spec:
         args:
         - service
         - auth
-        image: micro/micro
+        image: localhost:5000/micro
         imagePullPolicy: Always
         ports:
         - containerPort: 8010

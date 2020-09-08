@@ -2,10 +2,11 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   namespace: default
-  name: micro-router
+  name: micro-router-latest
   labels:
     micro: runtime
-    name: micro-router
+    name: router
+    version: latest
   annotations:
     name: "router"
     version: "latest"
@@ -74,7 +75,7 @@ spec:
           args:
             - service
             - router
-          image: micro/micro
+          image: localhost:5000/micro
           imagePullPolicy: Always
           ports:
             - containerPort: 8084

@@ -2,10 +2,11 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   namespace: default
-  name: micro-network
+  name: micro-network-latest
   labels:
     micro: runtime
-    name: micro-network
+    name: network
+    version: latest
   annotations:
     name: "network"
     version: "latest"
@@ -85,7 +86,7 @@ spec:
         args:
         - service
         - network
-        image: micro/micro
+        image: localhost:5000/micro
         imagePullPolicy: Always
         ports:
         - containerPort: 8443

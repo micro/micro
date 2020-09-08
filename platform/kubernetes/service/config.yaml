@@ -2,10 +2,17 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   namespace: default
-  name: micro-config
+  name: micro-config-latest
   labels:
-    name: micro-config
     micro: runtime
+    name: config
+    version: latest
+  annotations:
+    name: "events"
+    version: "latest"
+    source: "github.com/micro/micro"
+    owner: "micro"
+    group: "micro"
 spec:
   replicas: 1
   selector:
@@ -21,6 +28,11 @@ spec:
         prometheus.io/scrape: "true"
         prometheus.io/path: /metrics
         prometheus.io/port: "9000"
+        name: "events"
+        version: "latest"
+        source: "github.com/micro/micro"
+        owner: "micro"
+        group: "micro"
     spec:
       containers:
       - name: micro
@@ -63,7 +75,7 @@ spec:
           value: "/certs/registry/key.pem"
         - name: MICRO_STORE_ADDRESS
           value: "postgresql://root@cockroachdb-cluster-public:26257?ssl=true&sslmode=require&sslrootcert=certs/store/ca.crt&sslkey=certs/store/key.pem&sslcert=certs/store/cert.pem"
-        image: micro/micro
+        image: localhost:5000/micro
         imagePullPolicy: Always
         args:
         - service

@@ -4,8 +4,9 @@
    name: micro-api
    namespace: default
    labels:
-     name: micro-api
      micro: runtime
+     name: api
+     version: latest
  spec:
    ports:
    - name: https

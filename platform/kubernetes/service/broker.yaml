@@ -2,10 +2,11 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   namespace: default
-  name: micro-broker
+  name: micro-broker-latest
   labels:
     micro: runtime
-    name: micro-broker
+    name: broker
+    version: latest
   annotations:
     name: "broker"
     version: "latest"
@@ -72,7 +73,7 @@ spec:
         args:
         - service
         - broker
-        image: micro/micro
+        image: localhost:5000/micro
         imagePullPolicy: Always
         ports:
         - containerPort: 8003

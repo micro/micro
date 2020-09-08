@@ -4,8 +4,9 @@ metadata:
   name: micro-broker
   namespace: default
   labels:
-    name: micro-broker
     micro: runtime
+    name: broker
+    version: latest
 spec:
   ports:
   - port: 8003
