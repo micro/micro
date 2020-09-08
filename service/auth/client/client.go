@@ -8,7 +8,7 @@ import (
 	goclient "github.com/micro/go-micro/v3/client"
 	"github.com/micro/go-micro/v3/util/token"
 	"github.com/micro/go-micro/v3/util/token/jwt"
-	pb "github.com/micro/micro/v3/service/auth/proto"
+	pb "github.com/micro/micro/v3/proto/auth"
 	"github.com/micro/micro/v3/service/client"
 	"github.com/micro/micro/v3/service/client/cache"
 	"github.com/micro/micro/v3/service/context"

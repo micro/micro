@@ -20,7 +20,7 @@ import (
 	"github.com/micro/cli/v2"
 	"github.com/micro/micro/v3/client/cli/util"
 	"github.com/micro/micro/v3/internal/helper"
-	alertproto "github.com/micro/micro/v3/platform/proto/alert"
+	pb "github.com/micro/micro/v3/proto/alert"
 	"github.com/micro/micro/v3/service/client"
 )
 
@@ -170,13 +170,13 @@ func TrackEvent(ctx *cli.Context, td TrackingData) error {
 
 // send event to alert service
 func sendEvent(ctx *cli.Context, td TrackingData) error {
-	alertService := alertproto.NewAlertService("alert", client.DefaultClient)
+	alertService := pb.NewAlertService("alert", client.DefaultClient)
 	val := uint64(0)
 	if td.Value != nil {
 		val = *td.Value
 	}
-	_, err := alertService.ReportEvent(context.TODO(), &alertproto.ReportEventRequest{
-		Event: &alertproto.Event{
+	_, err := alertService.ReportEvent(context.TODO(), &pb.ReportEventRequest{
+		Event: &pb.Event{
 			Category: td.Category,
 			Action:   td.Action,
 			Label:    td.Label,
