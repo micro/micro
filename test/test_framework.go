@@ -380,6 +380,7 @@ func (s *ServerDefault) Run() error {
 			!strings.Contains(string(out), "proxy") ||
 			!strings.Contains(string(out), "auth") ||
 			!strings.Contains(string(out), "events") ||
+			!strings.Contains(string(out), "updater") ||
 			!strings.Contains(string(out), "store") {
 			return out, errors.New("Not ready")
 		}
