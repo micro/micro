@@ -51,18 +51,23 @@ spec:
         - name: MICRO_PROXY
           value: "micro-network.default.svc.cluster.local:8443"
         - name: MICRO_ENABLE_ACME
-          value: "false"
+          value: "true"
         - name: MICRO_ACME_PROVIDER
           value: certmagic
         - name: MICRO_ACME_HOSTS
           value: '*.m3o.app,api.m3o.com'
+        - name: CF_API_TOKEN
+          valueFrom:
+            secretKeyRef:
+              key: cloudflare
+              name: micro-secrets
         args:
         - service
         - api
         image: micro/micro
         imagePullPolicy: Always
         ports:
-        - containerPort: 8080
+        - containerPort: 443
           name: api-port
         readinessProbe:
           tcpSocket:
