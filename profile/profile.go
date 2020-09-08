@@ -5,6 +5,7 @@ package profile
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro/v3/auth/jwt"
@@ -185,8 +186,8 @@ func SetupJWT(ctx *cli.Context) {
 		if err != nil {
 			logger.Fatalf("Error getting keys; %v", err)
 		}
-		ctx.Set("auth_private_key", string(privB))
-		ctx.Set("auth_public_key", string(pubB))
+		os.Setenv("MICRO_AUTH_PRIVATE_KEY", string(privB))
+		os.Setenv("MICRO_AUTH_PUBLIC_KEY", string(pubB))
 	}
 
 }
