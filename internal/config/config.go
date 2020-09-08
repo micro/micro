@@ -152,7 +152,7 @@ func newConfig() (conf.Config, error) {
 
 	// now write the file if it does not exist
 	if _, err := os.Stat(path); os.IsNotExist(err) {
-		ioutil.WriteFile(path, []byte(`{}`), 0644)
+		ioutil.WriteFile(path, []byte(`{"env":"local"}`), 0644)
 	} else if err != nil {
 		return nil, fmt.Errorf("Failed to write config file %s: %v", path, err)
 	}
