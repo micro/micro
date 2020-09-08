@@ -76,12 +76,10 @@ spec:
           value: "postgresql://root@cockroachdb-cluster-public:26257?ssl=true&sslmode=require&sslrootcert=certs/store/ca.crt&sslkey=certs/store/key.pem&sslcert=certs/store/cert.pem"
         - name: MICRO_UPDATER_REFERENCE
           value: "updater"
-        - name: MICRO_UPDATER_LATEST_COMMIT
-          value: "0d5ac546e6ede6ffe29673872f31a76ed6f7bf53"
         args:
         - service
         - updater
-        image: localhost:5000/micro
+        image: micro/micro
         imagePullPolicy: Always
         ports:
         - containerPort: 8080
