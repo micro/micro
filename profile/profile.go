@@ -29,6 +29,7 @@ import (
 	microMetrics "github.com/micro/micro/v3/service/metrics"
 
 	inAuth "github.com/micro/micro/v3/internal/auth"
+	"github.com/micro/micro/v3/internal/user"
 	microAuth "github.com/micro/micro/v3/service/auth"
 	microBroker "github.com/micro/micro/v3/service/broker"
 	microClient "github.com/micro/micro/v3/service/client"
@@ -95,7 +96,7 @@ var Local = &Profile{
 		microConfig.DefaultConfig, _ = config.NewConfig()
 		SetupBroker(http.NewBroker())
 		SetupRegistry(mdns.NewRegistry())
-		SetupJWTRules()
+		SetupJWT(ctx)
 
 		var err error
 		microEvents.DefaultStream, err = memStream.NewStream()
@@ -118,7 +119,7 @@ var Kubernetes = &Profile{
 		// config configmap
 		// store ...
 		microAuth.DefaultAuth = jwt.NewAuth()
-		SetupJWTRules()
+		SetupJWT(ctx)
 
 		// Set up a default metrics reporter (being careful not to clash with any that have already been set):
 		if !microMetrics.IsSet() {
@@ -167,10 +168,25 @@ func SetupBroker(b broker.Broker) {
 }
 
 // SetupJWTRules configures the default internal system rules
-func SetupJWTRules() {
+func SetupJWT(ctx *cli.Context) {
 	for _, rule := range inAuth.SystemRules {
 		if err := microAuth.DefaultAuth.Grant(rule); err != nil {
 			logger.Fatal("Error creating default rule: %v", err)
 		}
 	}
+	// Only set this up for core services
+	// Won't work for multi node environments, could use
+	// the file store for that.
+
+	pubKey := ctx.String("auth_public_key")
+	privKey := ctx.String("auth_private_key")
+	if len(privKey) == 0 || len(pubKey) == 0 {
+		privB, pubB, err := user.GetKeys()
+		if err != nil {
+			logger.Fatalf("Error getting keys; %v", err)
+		}
+		ctx.Set("auth_private_key", string(privB))
+		ctx.Set("auth_public_key", string(pubB))
+	}
+
 }

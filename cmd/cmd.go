@@ -26,7 +26,6 @@ import (
 	"github.com/micro/micro/v3/internal/helper"
 	"github.com/micro/micro/v3/internal/network"
 	_ "github.com/micro/micro/v3/internal/usage"
-	"github.com/micro/micro/v3/internal/user"
 	"github.com/micro/micro/v3/internal/wrapper"
 	"github.com/micro/micro/v3/plugin"
 	"github.com/micro/micro/v3/profile"
@@ -373,31 +372,11 @@ func (c *command) Before(ctx *cli.Context) error {
 		))
 	}
 
-	// Only set this up for core services
-	// Won't work for multi node environments, could use
-	// the file store for that.
-	if c.service && ctx.String("namespace") == "micro" {
-		pubKey := ctx.String("auth_public_key")
-		privKey := ctx.String("auth_private_key")
-		var priv, pub string
-		if len(privKey) == 0 || len(pubKey) == 0 {
-			privB, pubB, err := user.GetKeys()
-			if err != nil {
-				logger.Fatalf("Error getting keys; %v", err)
-			}
-			priv = string(privB)
-			pub = string(pubB)
-		}
-		if len(ctx.String("auth_public_key")) > 0 {
-			authOpts = append(authOpts, auth.PublicKey(ctx.String("auth_public_key")))
-		} else {
-			authOpts = append(authOpts, auth.PublicKey(pub))
-		}
-		if len(ctx.String("auth_private_key")) > 0 {
-			authOpts = append(authOpts, auth.PrivateKey(ctx.String("auth_private_key")))
-		} else {
-			authOpts = append(authOpts, auth.PrivateKey(priv))
-		}
+	if len(ctx.String("auth_public_key")) > 0 {
+		authOpts = append(authOpts, auth.PublicKey(ctx.String("auth_public_key")))
+	}
+	if len(ctx.String("auth_private_key")) > 0 {
+		authOpts = append(authOpts, auth.PrivateKey(ctx.String("auth_private_key")))
 	}
 
 	muauth.DefaultAuth.Init(authOpts...)
