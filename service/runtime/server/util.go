@@ -139,7 +139,7 @@ func compress(src string, buf io.Writer) error {
 			return err
 		}
 
-		// must provide real name
+		// must provide real name.
 		// (see https://golang.org/src/archive/tar/common.go?#L626)
 
 		srcWithSlash := src

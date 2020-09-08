@@ -67,7 +67,7 @@ func Run(cli *cli.Context) error {
 	repository = cli.String("repository")
 	reference = cli.String("reference")
 	latestCommit = cli.String("latest_commit")
-	logger.Infof("Updater setup for %v:%v. Latest commit: '%v'\n", repository, reference, latestCommit)
+	logger.Infof("Updater setup for %v:%v. Latest commit: '%v'", repository, reference, latestCommit)
 
 	// updates periodically async
 	t := time.NewTicker(updateFrequency)
@@ -98,13 +98,13 @@ func checkForUpdates() {
 	// this is the first time we loaded the commit, don't restart any services
 	if len(latestCommit) == 0 {
 		latestCommit = commit
-		logger.Debugf("Latest commit has been initialized as %v", latestCommit)
+		logger.Infof("Latest commit has been initialized as %v", latestCommit)
 		return
 	}
 
 	// commit hasn't changed since last time we checked
 	if latestCommit == commit {
-		logger.Debugf("Latest commit is still %v", latestCommit)
+		logger.Infof("Latest commit is still %v", latestCommit)
 		return
 	}
 
@@ -137,7 +137,7 @@ func checkForUpdates() {
 
 	// update all the services and then exit
 	if updateAll {
-		logger.Debugf("Updating all services")
+		logger.Infof("Updating all services")
 
 		srvs, err := runtime.Read(
 			goruntime.ReadNamespace("default"),
@@ -149,11 +149,11 @@ func checkForUpdates() {
 		}
 		for _, srv := range srvs {
 			if len(srv.Name) == 0 || srv.Name == "updater" {
-				logger.Debugf("Skipping service '%v'\n", srv.Name)
+				logger.Infof("Skipping service '%v'", srv.Name)
 				continue
 			}
 
-			logger.Debugf("Updating service %v", srv.Name)
+			logger.Infof("Updating service %v", srv.Name)
 
 			if err := runtime.Update(srv); err != nil {
 				logger.Errorf("Error updating %v service: %v", srv.Name, err)
@@ -167,7 +167,7 @@ func checkForUpdates() {
 	// update all the services which had a file changed
 	for name := range serviceNames {
 		if name == "updater" {
-			logger.Debugf("Skipping service '%v'\n", name)
+			logger.Infof("Skipping service '%v'", name)
 			continue
 		}
 
@@ -180,11 +180,11 @@ func checkForUpdates() {
 			logger.Errorf("Error reading service: %v", err)
 			continue
 		} else if len(srvs) == 0 {
-			logger.Debugf("Service %v not found", name)
+			logger.Infof("Service %v not found", name)
 			continue
 		}
 
-		logger.Debugf("Updating service %v", name)
+		logger.Infof("Updating service %v", name)
 		if err := runtime.Update(srvs[0]); err != nil {
 			logger.Errorf("Error updating %v service: %v", srvs[0].Name, err)
 		}
