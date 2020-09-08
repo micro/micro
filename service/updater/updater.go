@@ -12,6 +12,7 @@ import (
 	"github.com/micro/cli/v2"
 	goruntime "github.com/micro/go-micro/v3/runtime"
 	"github.com/micro/micro/v3/service"
+	"github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/runtime"
 )
 
@@ -66,13 +67,13 @@ func Run(cli *cli.Context) error {
 	repository = cli.String("repository")
 	reference = cli.String("reference")
 	latestCommit = cli.String("latest_commit")
-	fmt.Printf("Updater setup for %v:%v. Latest commit: '%v'\n", repository, reference, latestCommit)
+	logger.Infof("Updater setup for %v:%v. Latest commit: '%v'\n", repository, reference, latestCommit)
 
 	// updates periodically async
 	t := time.NewTicker(updateFrequency)
 	go func() {
 		for {
-			fmt.Println("Checking for updates")
+			logger.Info("Checking for updates")
 			checkForUpdates()
 			<-t.C
 		}
@@ -90,31 +91,27 @@ func checkForUpdates() {
 
 	commit, err := getLatestCommit()
 	if err != nil {
-		fmt.Printf("Error getting latest commit: %v\n", err)
-		// logger.Errorf("Error getting latest commit: %v", err)
+		logger.Errorf("Error getting latest commit: %v", err)
 		return
 	}
 
 	// this is the first time we loaded the commit, don't restart any services
 	if len(latestCommit) == 0 {
 		latestCommit = commit
-		fmt.Printf("Latest commit has been initialized as %v\n", latestCommit)
-		// logger.Debugf("Latest commit has been initialized as %v", latestCommit)
+		logger.Debugf("Latest commit has been initialized as %v", latestCommit)
 		return
 	}
 
 	// commit hasn't changed since last time we checked
 	if latestCommit == commit {
-		fmt.Printf("Latest commit is still %v\n", latestCommit)
-		// logger.Debugf("Latest commit is still %v", latestCommit)
+		logger.Debugf("Latest commit is still %v", latestCommit)
 		return
 	}
 
 	// determine which files have changed since the service last changed
 	files, err := getFilesChanged(latestCommit, commit)
 	if err != nil {
-		fmt.Printf("Error loading files changed since last commit: %v\n", err)
-		// logger.Errorf("Error loading files changed since last commit: %v", err)
+		logger.Errorf("Error loading files changed since last commit: %v", err)
 		return
 	}
 
@@ -124,14 +121,14 @@ func checkForUpdates() {
 
 	// serviceNames is a map containing all the names of the services. Services reside at services/[name].
 	// We are using a map to prevent duplicate values.
-	var serviceNames map[string]bool
+	serviceNames := make(map[string]bool)
 
 	for _, f := range files {
 		// add the service name, e.g. "runtime" if the file is within a service/[name] directory, e.g.
 		// service/runtime/server/server.go. If ths service does not match this pattern, the file could
 		// apply to any service so we want to update them all
 		if comps := strings.Split(f, "/"); len(comps) > 2 && comps[0] == "service" {
-			serviceNames[string(comps[0])] = true
+			serviceNames[string(comps[1])] = true
 		} else {
 			updateAll = true
 			break
@@ -140,27 +137,26 @@ func checkForUpdates() {
 
 	// update all the services and then exit
 	if updateAll {
-		fmt.Printf("Updating all services\n")
-		// logger.Debugf("Updating all services")
+		logger.Debugf("Updating all services")
 
-		srvs, err := runtime.Read(goruntime.ReadNamespace("default"))
+		srvs, err := runtime.Read(
+			goruntime.ReadNamespace("default"),
+			goruntime.ReadType("runtime"),
+		)
 		if err != nil {
-			fmt.Printf("Error reading services from runtime: %v\n", err)
-			// logger.Errorf("Error reading services from runtime: %v", err)
+			logger.Errorf("Error reading services from runtime: %v", err)
 			return
 		}
 		for _, srv := range srvs {
 			if len(srv.Name) == 0 || srv.Name == "updater" {
-				fmt.Printf("Skipping service '%v'\n", srv.Name)
+				logger.Debugf("Skipping service '%v'\n", srv.Name)
 				continue
 			}
 
-			fmt.Printf("Updating service %v\n", srv.Name)
-			// logger.Debugf("Updating service %v", srv.Name)
+			logger.Debugf("Updating service %v", srv.Name)
 
 			if err := runtime.Update(srv); err != nil {
-				fmt.Printf("Error updating %v service: %v\n", srv.Name, err)
-				// logger.Errorf("Error updating %v service: %v", srv.Name, err)
+				logger.Errorf("Error updating %v service: %v", srv.Name, err)
 			}
 		}
 
@@ -170,24 +166,31 @@ func checkForUpdates() {
 
 	// update all the services which had a file changed
 	for name := range serviceNames {
-		srvs, err := runtime.Read(goruntime.ReadService(name), goruntime.ReadNamespace("default"))
-		if err != nil {
-			fmt.Printf("Error reading service: %v\n", err)
-			// logger.Errorf("Error reading service: %v", err)
-			continue
-		} else if len(srvs) == 0 {
-			fmt.Printf("Service %v not found\n", name)
-			// logger.Debugf("Service %v not found", name)
+		if name == "updater" {
+			logger.Debugf("Skipping service '%v'\n", name)
 			continue
 		}
 
-		fmt.Printf("Updating service %v\n", name)
-		// logger.Debugf("Updating service %v", name)
+		srvs, err := runtime.Read(
+			goruntime.ReadService(name),
+			goruntime.ReadNamespace("default"),
+			goruntime.ReadType("runtime"),
+		)
+		if err != nil {
+			logger.Errorf("Error reading service: %v", err)
+			continue
+		} else if len(srvs) == 0 {
+			logger.Debugf("Service %v not found", name)
+			continue
+		}
+
+		logger.Debugf("Updating service %v", name)
 		if err := runtime.Update(srvs[0]); err != nil {
-			fmt.Printf("Error updating %v service: %v\n", srvs[0].Name, err)
-			// logger.Errorf("Error updating %v service: %v", srvs[0].Name, err)
+			logger.Errorf("Error updating %v service: %v", srvs[0].Name, err)
 		}
 	}
+
+	latestCommit = commit
 }
 
 // getLatestCommit returns the latest commit SHA
