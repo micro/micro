@@ -123,5 +123,11 @@ func init() {
 				},
 			},
 		},
+		&cli.Command{
+			Name:        "logout",
+			Usage:       `Logout.`,
+			Description: "Use 'micro logout' to delete your token in your current environment.",
+			Action:      logout,
+		},
 	)
 }
