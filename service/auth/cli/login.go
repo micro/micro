@@ -31,20 +31,20 @@ func login(ctx *cli.Context) error {
 	// get the environment
 	env := util.GetEnv(ctx)
 	// get the email address
-	email := ctx.String("email")
+	username := ctx.String("username")
 
 	// email is blank
-	if len(email) == 0 {
+	if len(username) == 0 {
 		fmt.Print("Enter email address: ")
 		// read out the email from prompt if blank
 		reader := bufio.NewReader(os.Stdin)
-		email, _ = reader.ReadString('\n')
-		email = strings.TrimSpace(email)
+		username, _ = reader.ReadString('\n')
+		username = strings.TrimSpace(username)
 	}
 
 	// clear tokens and try again
 	if err := token.Remove(env.Name); err != nil {
-		report.Errorf(ctx, "%v: Token remove: %v", email, err.Error())
+		report.Errorf(ctx, "%v: Token remove: %v", username, err.Error())
 		return err
 	}
 	ns, err := namespace.Get(env.Name)
@@ -61,15 +61,15 @@ func login(ctx *cli.Context) error {
 		password = strings.TrimSpace(pw)
 		fmt.Println()
 	}
-	tok, err := auth.Token(goauth.WithCredentials(email, password), goauth.WithTokenIssuer(ns))
+	tok, err := auth.Token(goauth.WithCredentials(username, password), goauth.WithTokenIssuer(ns))
 	if err != nil {
-		report.Errorf(ctx, "%v: Getting token: %v", email, err.Error())
+		report.Errorf(ctx, "%v: Getting token: %v", username, err.Error())
 		return err
 	}
 	token.Save(env.Name, tok)
 
 	fmt.Println("Successfully logged in.")
-	report.Success(ctx, email)
+	report.Success(ctx, username)
 	return nil
 }
 
