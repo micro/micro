@@ -82,6 +82,7 @@ func (s *testK8sServer) Run() error {
 			!strings.Contains(string(outp), "config") ||
 			!strings.Contains(string(outp), "proxy") ||
 			!strings.Contains(string(outp), "auth") ||
+			!strings.Contains(string(outp), "updater") ||
 			!strings.Contains(string(outp), "store") {
 			return outp, errors.New("Not ready")
 		}

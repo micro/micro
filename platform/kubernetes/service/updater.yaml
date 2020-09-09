@@ -2,13 +2,13 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   namespace: default
-  name: micro-config-latest
+  name: micro-updater-latest
   labels:
     micro: runtime
-    name: config
+    name: updater
     version: latest
   annotations:
-    name: "config"
+    name: "micro-updater"
     version: "latest"
     source: "github.com/micro/micro"
     owner: "micro"
@@ -17,30 +17,29 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      name: micro-config
+      name: micro-updater
       micro: runtime
   template:
     metadata:
       labels:
-        name: micro-config
+        name: micro-updater
         micro: runtime
       annotations:
         prometheus.io/scrape: "true"
         prometheus.io/path: /metrics
         prometheus.io/port: "9000"
-        name: "config"
-        version: "latest"
-        source: "github.com/micro/micro"
-        owner: "micro"
-        group: "micro"
     spec:
+      serviceAccount: micro-runtime
+      serviceAccountName: micro-runtime
       containers:
       - name: micro
         env:
         - name: MICRO_PROFILE
           value: platform
         - name: MICRO_SERVICE_NAME
-          value: config
+          value: updater
+        - name: MICRO_SERVICE_ADDRESS
+          value: ":8080"
         - name: MICRO_PROXY
           value: "micro-network.default.svc.cluster.local:8443"
         - name: MICRO_AUTH_PUBLIC_KEY
@@ -53,8 +52,6 @@ spec:
             secretKeyRef:
               name: micro-secrets
               key: auth_private_key
-        - name: MICRO_LOG_LEVEL
-          value: "debug"
         - name: MICRO_BROKER_TLS_CA
           value: "/certs/broker/ca.crt"
         - name: MICRO_BROKER_TLS_CERT
@@ -73,19 +70,21 @@ spec:
           value: "/certs/registry/cert.pem"
         - name: MICRO_REGISTRY_TLS_KEY
           value: "/certs/registry/key.pem"
+        - name: MICRO_LOG_LEVEL
+          value: "debug"
         - name: MICRO_STORE_ADDRESS
           value: "postgresql://root@cockroachdb-cluster-public:26257?ssl=true&sslmode=require&sslrootcert=certs/store/ca.crt&sslkey=certs/store/key.pem&sslcert=certs/store/cert.pem"
-        image: micro/micro
-        imagePullPolicy: Always
         args:
         - service
-        - config
+        - updater
+        image: micro/micro
+        imagePullPolicy: Always
         ports:
-        - containerPort: 8001
-          name: config-port
+        - containerPort: 8080
+          name: updater-port
         readinessProbe:
           tcpSocket:
-            port: config-port
+            port: updater-port
           initialDelaySeconds: 5
           periodSeconds: 10
         volumeMounts:
