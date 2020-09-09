@@ -200,7 +200,7 @@ func (a *Auth) createAccount(acc *auth.Account) error {
 	}
 
 	// set a refresh token
-	if err := a.setRefreshToken(acc.Issuer, acc.ID, acc.Metadata["username"], uuid.New().String()); err != nil {
+	if err := a.setRefreshToken(acc.Issuer, acc.ID, uuid.New().String()); err != nil {
 		return errors.InternalServerError("auth.Auth.Generate", "Unable to set a refresh token: %v", err)
 	}
 
@@ -322,7 +322,7 @@ func (a *Auth) Token(ctx context.Context, req *pb.TokenRequest, rsp *pb.TokenRes
 }
 
 // set the refresh token for an account
-func (a *Auth) setRefreshToken(ns, id, username, token string) error {
+func (a *Auth) setRefreshToken(ns, id, token string) error {
 	key := strings.Join([]string{storePrefixRefreshTokens, ns, id, token}, joinKey)
 	return store.Write(&gostore.Record{Key: key})
 }
