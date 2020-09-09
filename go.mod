@@ -35,6 +35,7 @@ require (
 	github.com/stretchr/testify v1.6.1
 	github.com/xlab/treeprint v0.0.0-20181112141820-a009c3971eca
 	golang.org/x/crypto v0.0.0-20200709230013-948cd5f35899
+	github.com/xlab/treeprint v0.0.0-20181112141820-a009c3971eca
 	golang.org/x/net v0.0.0-20200707034311-ab3426394381
 	google.golang.org/genproto v0.0.0-20200526211855-cb27e3aa2013
 	google.golang.org/grpc v1.27.0
