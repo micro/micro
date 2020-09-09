@@ -281,4 +281,10 @@ func testUsernameLogin(t *T) {
 		t.Fatalf("Error logging in with ID %s %s", outp, err)
 	}
 
+	outp, err = cmd.Exec("call", "auth", "Auth.Generate", `{"id":"someID2", "metadata":{"username":"someUsername"}, "secret":"password1"}`)
+	if err == nil {
+		// shouldn't let us create something with the same username
+		t.Fatalf("Expected error when generating account %s %s", outp, err)
+	}
+
 }
