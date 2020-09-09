@@ -26,7 +26,7 @@ to use a new tag (with zero downtime), run the following command:
 
 ```
 kubectl set image deployments micro=micro/micro:20200810104423b10609 -l micro=runtime
-```. 
+```
 
 The -l flag indicates we only want to do this to deployments with the micro=runtime label. 
 The `micro=` part of the argument indicates the container name.
