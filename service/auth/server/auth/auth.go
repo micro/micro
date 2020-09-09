@@ -25,6 +25,9 @@ const (
 	joinKey                  = "/"
 	storePrefixAccounts      = "account"
 	storePrefixRefreshTokens = "refresh"
+
+	// used to enable login with username rather than ID (username can change e.g. email, id is stable)
+	storePrefixAccountsByUserName = "accountUsername"
 )
 
 var defaultAccount = auth.Account{
@@ -184,8 +187,20 @@ func (a *Auth) createAccount(acc *auth.Account) error {
 		return errors.InternalServerError("auth.Auth.Generate", "Unable to write account to store: %v", err)
 	}
 
+	if acc.Metadata == nil {
+		acc.Metadata = map[string]string{}
+	}
+	if acc.Metadata["username"] == "" {
+		acc.Metadata["username"] = acc.ID
+	}
+
+	usernameKey := strings.Join([]string{storePrefixAccountsByUserName, acc.Issuer, acc.Metadata["username"]}, joinKey)
+	if err := store.Write(&gostore.Record{Key: usernameKey, Value: bytes}); err != nil {
+		return errors.InternalServerError("auth.Auth.Generate", "Unable to write account to store: %v", err)
+	}
+
 	// set a refresh token
-	if err := a.setRefreshToken(acc.Issuer, acc.ID, uuid.New().String()); err != nil {
+	if err := a.setRefreshToken(acc.Issuer, acc.ID, acc.Metadata["username"], uuid.New().String()); err != nil {
 		return errors.InternalServerError("auth.Auth.Generate", "Unable to set a refresh token: %v", err)
 	}
 
@@ -261,10 +276,19 @@ func (a *Auth) Token(ctx context.Context, req *pb.TokenRequest, rsp *pb.TokenRes
 	// Lookup the account in the store
 	key := strings.Join([]string{storePrefixAccounts, req.Options.Namespace, accountID}, joinKey)
 	recs, err := store.Read(key)
-	if err == gostore.ErrNotFound {
-		return errors.BadRequest("auth.Auth.Token", "Account not found with this ID")
-	} else if err != nil {
+	if err != nil && err != gostore.ErrNotFound {
 		return errors.InternalServerError("auth.Auth.Token", "Unable to read from store: %v", err)
+	}
+	if err == gostore.ErrNotFound {
+		// maybe req.ID is the username and not the actual ID
+		key = strings.Join([]string{storePrefixAccountsByUserName, req.Options.Namespace, accountID}, joinKey)
+		recs, err = store.Read(key)
+		if err == gostore.ErrNotFound {
+			return errors.BadRequest("auth.Auth.Token", "Account not found with this ID")
+		}
+		if err != nil {
+			return errors.InternalServerError("auth.Auth.Token", "Unable to read from store: %v", err)
+		}
 	}
 
 	// Unmarshal the record
@@ -298,12 +322,12 @@ func (a *Auth) Token(ctx context.Context, req *pb.TokenRequest, rsp *pb.TokenRes
 }
 
 // set the refresh token for an account
-func (a *Auth) setRefreshToken(ns, id, token string) error {
+func (a *Auth) setRefreshToken(ns, id, username, token string) error {
 	key := strings.Join([]string{storePrefixRefreshTokens, ns, id, token}, joinKey)
 	return store.Write(&gostore.Record{Key: key})
 }
 
-// get the refresh token for an accutn
+// get the refresh token for an account
 func (a *Auth) refreshTokenForAccount(ns, id string) (string, error) {
 	prefix := strings.Join([]string{storePrefixRefreshTokens, ns, id, ""}, joinKey)
 
