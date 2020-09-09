@@ -83,3 +83,8 @@ func getPassword() (string, error) {
 	password := string(bytePassword)
 	return strings.TrimSpace(password), nil
 }
+
+func logout(ctx *cli.Context) error {
+	env := util.GetEnv(ctx)
+	return token.Remove(env.Name)
+}
