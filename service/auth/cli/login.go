@@ -10,10 +10,10 @@ import (
 	"github.com/micro/cli/v2"
 	goauth "github.com/micro/go-micro/v3/auth"
 	"github.com/micro/micro/v3/client/cli/namespace"
+	"github.com/micro/micro/v3/client/cli/signup"
 	"github.com/micro/micro/v3/client/cli/token"
 	"github.com/micro/micro/v3/client/cli/util"
 	"github.com/micro/micro/v3/internal/report"
-	platform "github.com/micro/micro/v3/platform/cli"
 	"github.com/micro/micro/v3/service/auth"
 	"golang.org/x/crypto/ssh/terminal"
 )
@@ -23,7 +23,7 @@ import (
 func login(ctx *cli.Context) error {
 	// assuming --otp go to platform.Signup
 	if isOTP := ctx.Bool("otp"); isOTP {
-		return platform.Signup(ctx)
+		return signup.Run(ctx)
 	}
 
 	// otherwise assume username/password login
@@ -82,4 +82,9 @@ func getPassword() (string, error) {
 	}
 	password := string(bytePassword)
 	return strings.TrimSpace(password), nil
+}
+
+func logout(ctx *cli.Context) error {
+	env := util.GetEnv(ctx)
+	return token.Remove(env.Name)
 }
