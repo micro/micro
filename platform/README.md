@@ -12,7 +12,6 @@ related source code and documentation.
 ## Contents
 
 - [kubernetes](kubernetes) - include the config to deploy to k8s
-- [runbook](runbook) - a directory dedicated to platform operations
 
 ## TODO
 
