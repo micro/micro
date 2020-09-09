@@ -168,6 +168,16 @@ func (a *Auth) createAccount(acc *auth.Account) error {
 	if _, err := store.Read(key); err != gostore.ErrNotFound {
 		return errors.BadRequest("auth.Auth.Generate", "Account with this ID already exists")
 	}
+	if acc.Metadata == nil {
+		acc.Metadata = map[string]string{}
+	}
+	if acc.Metadata["username"] == "" {
+		acc.Metadata["username"] = acc.ID
+	}
+	usernameKey := strings.Join([]string{storePrefixAccountsByUserName, acc.Issuer, acc.Metadata["username"]}, joinKey)
+	if _, err := store.Read(usernameKey); err != gostore.ErrNotFound {
+		return errors.BadRequest("auth.Auth.Generate", "Account with this ID already exists")
+	}
 
 	// hash the secret
 	secret, err := hashSecret(acc.Secret)
@@ -187,14 +197,6 @@ func (a *Auth) createAccount(acc *auth.Account) error {
 		return errors.InternalServerError("auth.Auth.Generate", "Unable to write account to store: %v", err)
 	}
 
-	if acc.Metadata == nil {
-		acc.Metadata = map[string]string{}
-	}
-	if acc.Metadata["username"] == "" {
-		acc.Metadata["username"] = acc.ID
-	}
-
-	usernameKey := strings.Join([]string{storePrefixAccountsByUserName, acc.Issuer, acc.Metadata["username"]}, joinKey)
 	if err := store.Write(&gostore.Record{Key: usernameKey, Value: bytes}); err != nil {
 		return errors.InternalServerError("auth.Auth.Generate", "Unable to write account to store: %v", err)
 	}
