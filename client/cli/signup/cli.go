@@ -1,5 +1,5 @@
-// Package platform/cli is for platform specific commands that are not yet dynamically generated
-package cli
+// Package signup is for the signup command backed by a signup service
+package signup
 
 import (
 	"bufio"
@@ -23,8 +23,8 @@ import (
 	"golang.org/x/crypto/ssh/terminal"
 )
 
-// Signup flow for the Micro Platform
-func Signup(ctx *cli.Context) error {
+// Run execs flow for the signup
+func Run(ctx *cli.Context) error {
 	email := ctx.String("email")
 	if ctx.Bool("recover") {
 		signupService := pb.NewSignupService("signup", client.DefaultClient)
@@ -193,7 +193,7 @@ func init() {
 		Name:        "signup",
 		Usage:       "Signup to the Micro Platform",
 		Description: "Enables signup to the Micro Platform which can then be accessed via `micro env set platform` and `micro login`",
-		Action:      Signup,
+		Action:      Run,
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:  "email",
