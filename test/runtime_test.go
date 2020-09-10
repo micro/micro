@@ -7,6 +7,9 @@ import (
 	"errors"
 	"io/ioutil"
 	"os"
+	"os/exec"
+	"os/user"
+	"path/filepath"
 	"regexp"
 	"strings"
 	"testing"
@@ -498,6 +501,58 @@ func testRunLocalUpdateAndCall(t *T) {
 	}, 15*time.Second); err != nil {
 		return
 	}
+}
+
+func TestRunCurrentFolder(t *testing.T) {
+	TrySuite(t, testRunCurrentFolder, retryCount)
+}
+
+func testRunCurrentFolder(t *T) {
+	t.Parallel()
+	serv := NewServer(t, WithLogin())
+	defer serv.Close()
+	if err := serv.Run(); err != nil {
+		return
+	}
+
+	cmd := serv.Command()
+	usr, err := user.Current()
+	if err != nil {
+		t.Fatal(err)
+	}
+	cmd.Dir = usr.HomeDir
+	err = os.RemoveAll(filepath.Join(usr.HomeDir, "helloworld"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	//if err != nil {
+	//	t.Fatal(string(outp))
+	//}
+
+	outp, err := cmd.Exec("new", "helloworld")
+	if err != nil {
+		t.Fatal(string(outp))
+	}
+	makeProt := exec.Command("make", "proto")
+	makeProt.Dir = filepath.Join(usr.HomeDir, "helloworld")
+	outp, err = makeProt.CombinedOutput()
+	if err != nil {
+		t.Fatal(string(outp))
+	}
+
+	cmd.Dir = filepath.Join(usr.HomeDir, "helloworld")
+	outp, err = cmd.Exec("run", ".")
+	if err != nil {
+		t.Fatal(outp)
+	}
+
+	Try("Find helloworld", t, func() ([]byte, error) {
+		outp, err = cmd.Exec("status")
+		if !statusRunning("helloworld", "latest", outp) {
+			return outp, errors.New("Can't find helloworld")
+		}
+		return outp, err
+	}, 20*time.Second)
 }
 
 func TestExistingLogs(t *testing.T) {

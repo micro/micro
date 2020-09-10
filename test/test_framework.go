@@ -56,6 +56,7 @@ type Server interface {
 type Command struct {
 	Env    string
 	Config string
+	Dir    string
 
 	sync.Mutex
 	// in the event an async command is run
@@ -90,7 +91,11 @@ func (c *Command) Exec(args ...string) ([]byte, error) {
 	arguments := c.args(args...)
 	// exec the command
 	// c.t.Logf("Executing command: micro %s\n", strings.Join(arguments, " "))
-	return exec.Command("micro", arguments...).CombinedOutput()
+	com := exec.Command("micro", arguments...)
+	if len(c.Dir) > 0 {
+		com.Dir = c.Dir
+	}
+	return com.CombinedOutput()
 }
 
 // Starts a new command
