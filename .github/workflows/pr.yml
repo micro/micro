@@ -20,7 +20,9 @@ jobs:
     - name: Check Go mod sanity
       run: |
         echo "Checking if go mod has unneeded comments"
-        ! grep -R "\n//" go.mod
+        while read p; do
+          ! grep -R "$p" go.mod
+        done <./test/gomod_forbidden_words.txt
   
     - name: Get dependencies
       run: |
