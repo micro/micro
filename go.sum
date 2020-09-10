@@ -347,6 +347,9 @@ github.com/micro/go-micro/v3 v3.0.0-beta.2.0.20200909134002-acd3bea0c6ec h1:Yr1M
 github.com/micro/go-micro/v3 v3.0.0-beta.2.0.20200909134002-acd3bea0c6ec/go.mod h1:dx3ZCcO8zr6Za0Ri05Jk0F7APdTgj15wGBHje9+S++c=
 github.com/micro/go-micro/v3 v3.0.0-beta.2.0.20200910094029-65bbbf5f6634 h1:hnk3Cx/OsDm8eHxCbMI+HAbq1EtpAFemEQzGa3cHVSQ=
 github.com/micro/go-micro/v3 v3.0.0-beta.2.0.20200910094029-65bbbf5f6634/go.mod h1:dx3ZCcO8zr6Za0Ri05Jk0F7APdTgj15wGBHje9+S++c=
+github.com/micro/go-micro/v3 v3.0.0-beta.2.0.20200910123636-04d2aa469605/go.mod h1:dx3ZCcO8zr6Za0Ri05Jk0F7APdTgj15wGBHje9+S++c=
+github.com/micro/go-micro/v3 v3.0.0-beta.2.0.20200910150737-d2728b498ca8 h1:mcBiGz6lemuCxmyeLRiczuX+j+QXQktfJiLww3nd7Jc=
+github.com/micro/go-micro/v3 v3.0.0-beta.2.0.20200910150737-d2728b498ca8/go.mod h1:dx3ZCcO8zr6Za0Ri05Jk0F7APdTgj15wGBHje9+S++c=
 github.com/micro/go-plugins/broker/nats/v3 v3.0.0-20200908121001-4ea6f6760baf h1:UV67mmbendjSk/r6WDc1IspluL/MMV3rCcjV8ye4JRg=
 github.com/micro/go-plugins/broker/nats/v3 v3.0.0-20200908121001-4ea6f6760baf/go.mod h1:tO2vsiYt8UmWhgFxhEAhzjyf8kYLLujuqaMcJguywbU=
 github.com/micro/go-plugins/events/stream/nats/v3 v3.0.0-20200908121001-4ea6f6760baf h1:D9kwmcjzoVG8nkFui7Q78ZMO1/DfIqlqk3mhGTVp/9M=
