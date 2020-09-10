@@ -268,7 +268,7 @@ func testUsernameLogin(t *T) {
 	}
 
 	cmd := serv.Command()
-	outp, err := cmd.Exec("call", "auth", "Auth.Generate", `{"id":"someID", "name":"someUsername", "secret":"password"}`)
+	outp, err := cmd.Exec("auth", "generate", "--id", "someID", `--name", "someUsername", "--secret", "password"}`)
 	if err != nil {
 		t.Fatalf("Error generating account %s %s", string(outp), err)
 	}
@@ -277,6 +277,11 @@ func testUsernameLogin(t *T) {
 		t.Fatalf("Error logging in with user name %s %s", string(outp), err)
 	}
 	outp, err = cmd.Exec("login", "--username", "someID", "--password", "password")
+	if err != nil {
+		t.Fatalf("Error logging in with ID %s %s", string(outp), err)
+	}
+	// test the email alias
+	outp, err = cmd.Exec("login", "--email", "someID", "--password", "password")
 	if err != nil {
 		t.Fatalf("Error logging in with ID %s %s", string(outp), err)
 	}
@@ -292,7 +297,7 @@ func testUsernameLogin(t *T) {
 	if err != nil {
 		t.Fatalf("Error listing accounts %s %s", string(outp), err)
 	}
-	if !strings.Contains(string(outp), `"someUsername"`) {
+	if !strings.Contains(string(outp), "someUsername") {
 		t.Fatalf("Error listing accounts, name is missing from %s", string(outp))
 	}
 
