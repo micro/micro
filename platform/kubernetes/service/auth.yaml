@@ -2,10 +2,11 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   namespace: default
-  name: micro-auth
+  name: micro-auth-latest
   labels:
     micro: runtime
-    name: micro-auth
+    name: auth
+    version: latest
   annotations:
     name: "auth"
     version: "latest"
