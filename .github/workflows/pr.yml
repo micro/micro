@@ -19,12 +19,8 @@ jobs:
 
     - name: Check Go mod sanity
       run: |
-        grep -R "\n//" go.mod
-        exit_status=$?
-        if [ $exit_status -eq 0 ]; then
-          echo "Go mod has comments"
-          exit 1
-        fi
+        echo "Checking if go mod has unneeded comments"
+        ! grep -R "\n//" go.mod
   
     - name: Get dependencies
       run: |
