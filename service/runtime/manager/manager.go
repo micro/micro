@@ -77,7 +77,7 @@ func (m *manager) Read(opts ...gorun.ReadOption) ([]*gorun.Service, error) {
 		if !ok {
 			continue
 		}
-		srv.Service.Metadata["status"] = md.Status
+		srv.Service.Status = md.Status
 		srv.Service.Metadata["error"] = md.Error
 		if !md.Updated.IsZero() {
 			srv.Service.Metadata["started"] = md.Updated.Format(time.RFC3339)
