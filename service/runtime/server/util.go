@@ -20,6 +20,7 @@ func toProto(s *runtime.Service) *pb.Service {
 		Version:  s.Version,
 		Source:   s.Source,
 		Metadata: s.Metadata,
+		Status:   int32(s.Status),
 	}
 }
 
@@ -29,6 +30,7 @@ func toService(s *pb.Service) *runtime.Service {
 		Version:  s.Version,
 		Source:   s.Source,
 		Metadata: s.Metadata,
+		Status:   runtime.ServiceStatus(s.Status),
 	}
 }
 
