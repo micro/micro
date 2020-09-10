@@ -36,7 +36,7 @@ jobs:
     - name: Install Protoc
       uses: arduino/setup-protoc@master
 
-    - name: Install Protoc Gen Nicro
+    - name: Install Protoc Gen Micro
       working-directory: ./cmd/protoc-gen-micro
       run: go install
 

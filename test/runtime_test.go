@@ -521,7 +521,10 @@ func testRunCurrentFolder(t *T) {
 		t.Fatal(err)
 	}
 	cmd.Dir = usr.HomeDir
-	exec.Command("rm -rf ~/helloworld").CombinedOutput()
+	err = os.RemoveAll(filepath.Join(usr.HomeDir, "helloworld"))
+	if err != nil {
+		t.Fatal(err)
+	}
 	//if err != nil {
 	//	t.Fatal(string(outp))
 	//}
