@@ -77,7 +77,7 @@ spec:
         args:
         - service
         - updater
-        image: localhost:5000/micro
+        image: micro/micro
         imagePullPolicy: Always
         ports:
         - containerPort: 8080

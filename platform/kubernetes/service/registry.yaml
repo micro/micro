@@ -73,7 +73,7 @@ spec:
         args:
         - service
         - registry
-        image: localhost:5000/micro
+        image: micro/micro
         imagePullPolicy: Always
         ports:
         - containerPort: 8000
