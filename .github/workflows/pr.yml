@@ -19,7 +19,7 @@ jobs:
 
     - name: Check Go mod sanity
       run: |
-        grep -R "//" go.mod
+        grep -R "\n//" go.mod
         exit_status=$?
         if [ $exit_status -eq 0 ]; then
           echo "Go mod has comments"
