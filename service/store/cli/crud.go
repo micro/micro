@@ -39,6 +39,12 @@ func read(ctx *cli.Context) error {
 	if ctx.Bool("prefix") {
 		opts = append(opts, gostore.ReadPrefix())
 	}
+	if ctx.Uint("limit") != 0 {
+		opts = append(opts, gostore.ReadLimit(ctx.Uint("limit")))
+	}
+	if ctx.Uint("offset") != 0 {
+		opts = append(opts, gostore.ReadLimit(ctx.Uint("offset")))
+	}
 
 	records, err := store.Read(ctx.Args().First(), opts...)
 	if err != nil {
