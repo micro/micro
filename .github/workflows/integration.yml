@@ -36,6 +36,13 @@ jobs:
     - name: Install Protoc
       uses: arduino/setup-protoc@master
 
+    - name: Install Protoc Gen Micro
+      working-directory: ./cmd/protoc-gen-micro
+      run: go install
+
+    - name: Install Protoc Gen Go
+      run: go get -u github.com/golang/protobuf/protoc-gen-go
+
     - name: Install micro
       run: |
         go install # this is used by the tests themselves
@@ -69,5 +76,5 @@ jobs:
           # Generate keys for JWT tests
           ssh-keygen -f /tmp/sshkey -m pkcs8 -q -N ""
           ssh-keygen -f /tmp/sshkey -e  -m pkcs8 > /tmp/sshkey.pub
-          go clean -testcache && go test --tags=integration -v ./...
+          go clean -testcache && go test --tags=integration -v -run ./...
         
