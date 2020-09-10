@@ -2,10 +2,11 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   namespace: default
-  name: micro-proxy
+  name: micro-proxy-latest
   labels:
     micro: runtime
-    name: micro-proxy
+    name: proxy
+    version: latest
   annotations:
     name: "proxy"
     version: "latest"

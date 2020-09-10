@@ -2,10 +2,15 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   namespace: default
-  name: micro-store
+  name: micro-store-latest
   labels:
-    name: micro-store
     micro: runtime
+    name: store
+    version: latest
+  annotations:
+    name: "store"
+    version: "latest"
+    source: "github.com/micro/micro"
 spec:
   replicas: 1
   selector:

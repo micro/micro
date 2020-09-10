@@ -4,8 +4,9 @@ metadata:
   name: micro-registry
   namespace: default
   labels:
-    name: micro-registry
     micro: runtime
+    name: registry
+    version: latest
 spec:
   ports:
   - port: 8000

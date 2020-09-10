@@ -4,8 +4,9 @@ metadata:
   name: micro-auth
   namespace: default
   labels:
-    name: micro-auth
     micro: runtime
+    name: auth
+    version: latest
 spec:
   ports:
   - port: 8010

@@ -5,6 +5,7 @@ package profile
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro/v3/auth/jwt"
@@ -14,21 +15,21 @@ import (
 	"github.com/micro/go-micro/v3/client"
 	"github.com/micro/go-micro/v3/config"
 	memStream "github.com/micro/go-micro/v3/events/stream/memory"
-	metricsPrometheus "github.com/micro/go-micro/v3/metrics/prometheus"
 	"github.com/micro/go-micro/v3/registry"
 	"github.com/micro/go-micro/v3/registry/mdns"
 	"github.com/micro/go-micro/v3/registry/memory"
 	"github.com/micro/go-micro/v3/router"
 	regRouter "github.com/micro/go-micro/v3/router/registry"
 	"github.com/micro/go-micro/v3/router/static"
+	"github.com/micro/go-micro/v3/runtime/kubernetes"
 	"github.com/micro/go-micro/v3/runtime/local"
 	"github.com/micro/go-micro/v3/server"
 	"github.com/micro/go-micro/v3/store/file"
 	mem "github.com/micro/go-micro/v3/store/memory"
 	"github.com/micro/micro/v3/service/logger"
-	microMetrics "github.com/micro/micro/v3/service/metrics"
 
 	inAuth "github.com/micro/micro/v3/internal/auth"
+	"github.com/micro/micro/v3/internal/user"
 	microAuth "github.com/micro/micro/v3/service/auth"
 	microBroker "github.com/micro/micro/v3/service/broker"
 	microClient "github.com/micro/micro/v3/service/client"
@@ -89,13 +90,13 @@ var Client = &Profile{
 var Local = &Profile{
 	Name: "local",
 	Setup: func(ctx *cli.Context) error {
-		microAuth.DefaultAuth = noop.NewAuth()
+		microAuth.DefaultAuth = jwt.NewAuth()
 		microRuntime.DefaultRuntime = local.NewRuntime()
 		microStore.DefaultStore = file.NewStore()
 		microConfig.DefaultConfig, _ = config.NewConfig()
 		SetupBroker(http.NewBroker())
 		SetupRegistry(mdns.NewRegistry())
-		SetupJWTRules()
+		SetupJWT(ctx)
 
 		var err error
 		microEvents.DefaultStream, err = memStream.NewStream()
@@ -114,20 +115,13 @@ var Kubernetes = &Profile{
 		// TODO: implement
 		// using a static router so queries are routed based on service name
 		microRouter.DefaultRouter = static.NewRouter()
+		// Using the kubernetes runtime
+		microRuntime.DefaultRuntime = kubernetes.NewRuntime()
 		// registry kubernetes
 		// config configmap
 		// store ...
 		microAuth.DefaultAuth = jwt.NewAuth()
-		SetupJWTRules()
-
-		// Set up a default metrics reporter (being careful not to clash with any that have already been set):
-		if !microMetrics.IsSet() {
-			prometheusReporter, err := metricsPrometheus.New()
-			if err != nil {
-				return err
-			}
-			microMetrics.SetDefaultMetricsReporter(prometheusReporter)
-		}
+		SetupJWT(ctx)
 
 		return nil
 	},
@@ -167,10 +161,25 @@ func SetupBroker(b broker.Broker) {
 }
 
 // SetupJWTRules configures the default internal system rules
-func SetupJWTRules() {
+func SetupJWT(ctx *cli.Context) {
 	for _, rule := range inAuth.SystemRules {
 		if err := microAuth.DefaultAuth.Grant(rule); err != nil {
 			logger.Fatal("Error creating default rule: %v", err)
 		}
 	}
+	// Only set this up for core services
+	// Won't work for multi node environments, could use
+	// the file store for that.
+
+	pubKey := ctx.String("auth_public_key")
+	privKey := ctx.String("auth_private_key")
+	if len(privKey) == 0 || len(pubKey) == 0 {
+		privB, pubB, err := user.GetJWTCerts()
+		if err != nil {
+			logger.Fatalf("Error getting keys; %v", err)
+		}
+		os.Setenv("MICRO_AUTH_PRIVATE_KEY", string(privB))
+		os.Setenv("MICRO_AUTH_PUBLIC_KEY", string(pubB))
+	}
+
 }

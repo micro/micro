@@ -4,8 +4,9 @@ metadata:
   name: micro-network
   namespace: default
   labels:
-    name: micro-network
     micro: runtime
+    name: network
+    version: latest
 spec:
   ports:
   - port: 8085

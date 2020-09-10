@@ -4,8 +4,9 @@ metadata:
   name: micro-proxy
   namespace: default
   labels:
-    name: micro-proxy
     micro: runtime
+    name: proxy
+    version: latest
 spec:
   ports:
   - name: https

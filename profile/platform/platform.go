@@ -9,25 +9,27 @@ import (
 	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro/v3/auth/jwt"
 	"github.com/micro/go-micro/v3/broker"
-	"github.com/micro/go-micro/v3/broker/nats"
 	"github.com/micro/go-micro/v3/config"
 	evStore "github.com/micro/go-micro/v3/events/store"
-	natsStream "github.com/micro/go-micro/v3/events/stream/nats"
-	metricsPrometheus "github.com/micro/go-micro/v3/metrics/prometheus"
 	"github.com/micro/go-micro/v3/registry"
-	"github.com/micro/go-micro/v3/registry/etcd"
 	"github.com/micro/go-micro/v3/runtime/kubernetes"
 	"github.com/micro/go-micro/v3/store"
-	"github.com/micro/go-micro/v3/store/cockroach"
 	"github.com/micro/micro/v3/profile"
 	"github.com/micro/micro/v3/service/logger"
-	microMetrics "github.com/micro/micro/v3/service/metrics"
 
 	microAuth "github.com/micro/micro/v3/service/auth"
 	microConfig "github.com/micro/micro/v3/service/config"
 	microEvents "github.com/micro/micro/v3/service/events"
+	microMetrics "github.com/micro/micro/v3/service/metrics"
 	microRuntime "github.com/micro/micro/v3/service/runtime"
 	microStore "github.com/micro/micro/v3/service/store"
+
+	// plugins
+	"github.com/micro/go-plugins/broker/nats/v3"
+	natsStream "github.com/micro/go-plugins/events/stream/nats/v3"
+	metricsPrometheus "github.com/micro/go-plugins/metrics/prometheus/v3"
+	"github.com/micro/go-plugins/registry/etcd/v3"
+	"github.com/micro/go-plugins/store/cockroach/v3"
 )
 
 func init() {
@@ -43,7 +45,7 @@ var Profile = &profile.Profile{
 		microRuntime.DefaultRuntime = kubernetes.NewRuntime()
 		profile.SetupBroker(nats.NewBroker(broker.Addrs("nats-cluster")))
 		profile.SetupRegistry(etcd.NewRegistry(registry.Addrs("etcd-cluster")))
-		profile.SetupJWTRules()
+		profile.SetupJWT(ctx)
 
 		// Set up a default metrics reporter (being careful not to clash with any that have already been set):
 		if !microMetrics.IsSet() {
