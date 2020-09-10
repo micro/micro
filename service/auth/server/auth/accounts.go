@@ -193,5 +193,6 @@ func serializeAccount(a *auth.Account) *pb.Account {
 		Scopes:   a.Scopes,
 		Issuer:   a.Issuer,
 		Metadata: a.Metadata,
+		Name:     a.Name,
 	}
 }

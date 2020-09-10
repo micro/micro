@@ -75,7 +75,7 @@ func login(ctx *cli.Context) error {
 
 // taken from https://stackoverflow.com/questions/2137357/getpasswd-functionality-in-go
 func getPassword() (string, error) {
-	fmt.Print("Enter Password: ")
+	fmt.Print("Enter password: ")
 	bytePassword, err := terminal.ReadPassword(int(syscall.Stdin))
 	if err != nil {
 		return "", err
