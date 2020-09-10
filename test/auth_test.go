@@ -288,11 +288,11 @@ func testUsernameLogin(t *T) {
 		t.Fatalf("Expected error when generating account %s %s", string(outp), err)
 	}
 
-	outp, err = cmd.Exec("call", "auth", "Accounts.List", `{}`)
+	outp, err = cmd.Exec("auth", "list", "accounts")
 	if err != nil {
 		t.Fatalf("Error listing accounts %s %s", string(outp), err)
 	}
-	if !strings.Contains(string(outp), `"name": "someUserName"`) {
+	if !strings.Contains(string(outp), `"someUserName"`) {
 		t.Fatalf("Error listing accounts, name is missing from json %s", string(outp))
 	}
 
