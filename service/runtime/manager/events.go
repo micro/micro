@@ -152,7 +152,8 @@ func (m *manager) processEvent(key string) {
 	// if there was an error update the status in the cache
 	if err != nil {
 		logger.Warnf("Error processing %v event for service %v:%v in namespace %v: %v", ev.Type, ev.Service.Name, ev.Service.Version, ns, err)
-		ev.Service.Metadata = map[string]string{"status": "error", "error": err.Error()}
+		ev.Service.Status = gorun.Error
+		ev.Service.Metadata = map[string]string{"error": err.Error()}
 		m.cacheStatus(ns, ev.Service)
 	} else if ev.Type != gorun.Delete {
 		m.cacheStatus(ns, ev.Service)

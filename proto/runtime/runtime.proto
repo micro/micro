@@ -23,6 +23,8 @@ message Service {
 	string source = 3;
 	// service metadata
 	map<string,string> metadata = 4;
+	// status of the service
+	int32 status = 5;
 }
 
 message CreateOptions {
