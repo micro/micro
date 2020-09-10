@@ -37,7 +37,8 @@ jobs:
       uses: arduino/setup-protoc@master
 
     - name: Install Protoc Gen micro
-      run: go install cmd/protoc-gen-micro
+      working-directory: ./cmd/protoc-gen-micro
+      run: go install
 
     - name: Install micro
       run: |
