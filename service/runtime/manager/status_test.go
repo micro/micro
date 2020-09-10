@@ -62,12 +62,14 @@ func TestStatus(t *testing.T) {
 		&runtime.Service{
 			Name:     "foo",
 			Version:  "latest",
-			Metadata: map[string]string{"status": "starting"},
+			Status:   runtime.Starting,
+			Metadata: map[string]string{},
 		},
 		&runtime.Service{
 			Name:     "bar",
 			Version:  "2.0.0",
-			Metadata: map[string]string{"status": "error", "error": "Crashed on L1"},
+			Status:   runtime.Error,
+			Metadata: map[string]string{"error": "Crashed on L1"},
 		},
 	}
 
@@ -91,8 +93,8 @@ func TestStatus(t *testing.T) {
 			t.Errorf("Missing status for %v:%v", srv.Name, srv.Version)
 			continue
 		}
-		if s.Status != srv.Metadata["status"] {
-			t.Errorf("Incorrect status for %v:%v, expepcted %v but got %v", srv.Name, srv.Version, srv.Metadata["status"], s.Status)
+		if s.Status != srv.Status {
+			t.Errorf("Incorrect status for %v:%v, expepcted %v but got %v", srv.Name, srv.Version, srv.Status, s.Status)
 		}
 		if s.Error != srv.Metadata["error"] {
 			t.Errorf("Incorrect error for %v:%v, expepcted %v but got %v", srv.Name, srv.Version, srv.Metadata["error"], s.Error)
@@ -101,7 +103,7 @@ func TestStatus(t *testing.T) {
 
 	// update the status for a service and check it correctly updated
 	srv := testServices[0]
-	srv.Metadata["status"] = "running"
+	srv.Status = runtime.Running
 	if err := m.cacheStatus(namespace.DefaultNamespace, srv); err != nil {
 		t.Fatalf("Unexpected error when caching status: %v", err)
 	}
@@ -117,8 +119,8 @@ func TestStatus(t *testing.T) {
 	if !ok {
 		t.Errorf("Missing status for %v:%v", srv.Name, srv.Version)
 	}
-	if s.Status != srv.Metadata["status"] {
-		t.Errorf("Incorrect status for %v:%v, expepcted %v but got %v", srv.Name, srv.Version, srv.Metadata["status"], s.Status)
+	if s.Status != srv.Status {
+		t.Errorf("Incorrect status for %v:%v, expepcted %v but got %v", srv.Name, srv.Version, srv.Status, s.Status)
 	}
 	if s.Error != srv.Metadata["error"] {
 		t.Errorf("Incorrect error for %v:%v, expepcted %v but got %v", srv.Name, srv.Version, srv.Metadata["error"], s.Error)

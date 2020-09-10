@@ -522,8 +522,6 @@ func getService(ctx *cli.Context) error {
 	writer := tabwriter.NewWriter(os.Stdout, 0, 8, 1, '\t', tabwriter.AlignRight)
 	fmt.Fprintln(writer, "NAME\tVERSION\tSOURCE\tSTATUS\tBUILD\tUPDATED\tMETADATA")
 	for _, service := range services {
-		status := parse(service.Metadata["status"])
-
 		// cut the commit down to first 7 characters
 		build := parse(service.Metadata["build"])
 		if len(build) > 7 {
@@ -532,7 +530,7 @@ func getService(ctx *cli.Context) error {
 
 		// if there is an error, display this in metadata (there is no error field)
 		metadata := fmt.Sprintf("owner=%s, group=%s", parse(service.Metadata["owner"]), parse(service.Metadata["group"]))
-		if status == "error" {
+		if service.Status == goruntime.Error {
 			metadata = fmt.Sprintf("%v, error=%v", metadata, parse(service.Metadata["error"]))
 		}
 
@@ -543,7 +541,7 @@ func getService(ctx *cli.Context) error {
 			service.Name,
 			parse(service.Version),
 			parse(service.Source),
-			strings.ToLower(status),
+			humanizeStatus(service.Status),
 			build,
 			updated,
 			metadata)
@@ -629,5 +627,26 @@ func getLogs(ctx *cli.Context) error {
 
 			}
 		}
+	}
+}
+
+func humanizeStatus(status goruntime.ServiceStatus) string {
+	switch status {
+	case goruntime.Pending:
+		return "pending"
+	case goruntime.Building:
+		return "building"
+	case goruntime.Starting:
+		return "starting"
+	case goruntime.Running:
+		return "running"
+	case goruntime.Stopping:
+		return "stopping"
+	case goruntime.Stopped:
+		return "stopped"
+	case goruntime.Error:
+		return "error"
+	default:
+		return "unknown"
 	}
 }
