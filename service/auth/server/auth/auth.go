@@ -27,7 +27,7 @@ const (
 	storePrefixRefreshTokens = "refresh"
 
 	// used to enable login with username rather than ID (username can change e.g. email, id is stable)
-	storePrefixAccountsByUserName = "accountUsername"
+	storePrefixAccountsByName = "accountByName"
 )
 
 var defaultAccount = auth.Account{
@@ -150,6 +150,7 @@ func (a *Auth) Generate(ctx context.Context, req *pb.GenerateRequest, rsp *pb.Ge
 		Metadata: req.Metadata,
 		Issuer:   req.Options.Namespace,
 		Secret:   req.Secret,
+		Name:     req.Name,
 	}
 
 	// create the account
@@ -171,12 +172,12 @@ func (a *Auth) createAccount(acc *auth.Account) error {
 	if acc.Metadata == nil {
 		acc.Metadata = map[string]string{}
 	}
-	if acc.Metadata["username"] == "" {
-		acc.Metadata["username"] = acc.ID
+	if acc.Name == "" {
+		acc.Name = acc.ID
 	}
-	usernameKey := strings.Join([]string{storePrefixAccountsByUserName, acc.Issuer, acc.Metadata["username"]}, joinKey)
+	usernameKey := strings.Join([]string{storePrefixAccountsByName, acc.Issuer, acc.Name}, joinKey)
 	if _, err := store.Read(usernameKey); err != gostore.ErrNotFound {
-		return errors.BadRequest("auth.Auth.Generate", "Account with this ID already exists")
+		return errors.BadRequest("auth.Auth.Generate", "Account with this Name already exists")
 	}
 
 	// hash the secret
@@ -283,7 +284,7 @@ func (a *Auth) Token(ctx context.Context, req *pb.TokenRequest, rsp *pb.TokenRes
 	}
 	if err == gostore.ErrNotFound {
 		// maybe req.ID is the username and not the actual ID
-		key = strings.Join([]string{storePrefixAccountsByUserName, req.Options.Namespace, accountID}, joinKey)
+		key = strings.Join([]string{storePrefixAccountsByName, req.Options.Namespace, accountID}, joinKey)
 		recs, err = store.Read(key)
 		if err == gostore.ErrNotFound {
 			return errors.BadRequest("auth.Auth.Token", "Account not found with this ID")

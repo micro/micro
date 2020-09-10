@@ -30,13 +30,13 @@ func login(ctx *cli.Context) error {
 
 	// get the environment
 	env := util.GetEnv(ctx)
-	// get the email address
+	// get the username
 	username := ctx.String("username")
 
-	// email is blank
+	// username is blank
 	if len(username) == 0 {
-		fmt.Print("Enter email address: ")
-		// read out the email from prompt if blank
+		fmt.Print("Enter username: ")
+		// read out the username from prompt if blank
 		reader := bufio.NewReader(os.Stdin)
 		username, _ = reader.ReadString('\n')
 		username = strings.TrimSpace(username)
