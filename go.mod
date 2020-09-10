@@ -43,7 +43,3 @@ require (
 )
 
 replace google.golang.org/grpc => google.golang.org/grpc v1.26.0
-
-replace github.com/micro/go-micro/v3 => github.com/micro/go-micro/v3 v3.0.0-beta.2.0.20200910094029-65bbbf5f6634
-
-// replace github.com/micro/go-micro/v3 => /home/crufter/code/src/github.com/micro/go-micro
