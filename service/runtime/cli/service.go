@@ -538,8 +538,11 @@ func getService(ctx *cli.Context) error {
 		// also allows backwards compatability.
 		status := humanizeStatus(service.Status)
 		if s, ok := service.Metadata["status"]; ok {
-			status = parse(s)
 			metadata = fmt.Sprintf("%v, status=%v", metadata, parse(s))
+
+			if service.Status == goruntime.Unknown {
+				status = parse(s)
+			}
 		}
 
 		// parse when the service was started

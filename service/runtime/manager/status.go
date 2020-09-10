@@ -24,7 +24,7 @@ type serviceStatus struct {
 }
 
 // statusPollFrequency is the max frequency the manager will check for new statuses in the runtime
-var statusPollFrequency = time.Second * 30
+var statusPollFrequency = time.Second * 15
 
 // watchStatus calls syncStatus periodically and should be run in a seperate go routine
 func (m *manager) watchStatus() {

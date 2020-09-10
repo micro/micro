@@ -30,51 +30,46 @@ spec:
         prometheus.io/port: "9000"
     spec:
       containers:
-      - name: micro
-        env:
-        - name: MICRO_PROXY
-          value: "micro-network.default.svc.cluster.local:8443"
-        - name: MICRO_SERVICE_NAME
-          value: client
-        - name: MICRO_AUTH_PUBLIC_KEY
-          valueFrom:
-            secretKeyRef:
-              name: micro-secrets
-              key: auth_public_key
-        - name: MICRO_AUTH_PRIVATE_KEY
-          valueFrom:
-            secretKeyRef:
-              name: micro-secrets
-              key: auth_private_key
-        - name: MICRO_PROFILE
-          value: "client"
-        - name: MICRO_PROXY_ADDRESS
-          value: "0.0.0.0:443"
-        - name: MICRO_LOG_LEVEL
-          value: "trace"
-        - name: MICRO_ENABLE_ACME
-          value: "true"
-        - name: MICRO_ACME_PROVIDER
-          value: certmagic
-        - name: MICRO_ACME_HOSTS
-          value: 'proxy.m3o.com'
-        - name: CF_API_TOKEN
-          valueFrom:
-            secretKeyRef:
-              key: cloudflare
-              name: micro-secrets
-        args:
-        - service
-        - proxy
-        image: micro/micro
-        imagePullPolicy: Always
-        ports:
-        - containerPort: 443
-          name: https-port
-        - containerPort: 8081
-          name: proxy-port
-        readinessProbe:
-          tcpSocket:
-            port: https-port
-          initialDelaySeconds: 5
-          periodSeconds: 10
+        - name: micro
+          env:
+            - name: MICRO_PROXY
+              value: "micro-network.default.svc.cluster.local:8443"
+            - name: MICRO_SERVICE_NAME
+              value: client
+            - name: MICRO_AUTH_PUBLIC_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: micro-secrets
+                  key: auth_public_key
+            - name: MICRO_AUTH_PRIVATE_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: micro-secrets
+                  key: auth_private_key
+            - name: MICRO_PROFILE
+              value: "client"
+            - name: MICRO_PROXY_ADDRESS
+              value: "0.0.0.0:443"
+            - name: MICRO_LOG_LEVEL
+              value: "trace"
+            - name: MICRO_ENABLE_ACME
+              value: "false"
+            - name: MICRO_ACME_PROVIDER
+              value: certmagic
+            - name: MICRO_ACME_HOSTS
+              value: 'proxy.m3o.com'
+          args:
+            - service
+            - proxy
+          image: localhost:5000/micro
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 443
+              name: https-port
+            - containerPort: 8081
+              name: proxy-port
+          readinessProbe:
+            tcpSocket:
+              port: https-port
+            initialDelaySeconds: 5
+            periodSeconds: 10

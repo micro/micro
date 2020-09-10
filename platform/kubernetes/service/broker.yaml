@@ -73,7 +73,7 @@ spec:
         args:
         - service
         - broker
-        image: micro/micro
+        image: localhost:5000/micro
         imagePullPolicy: Always
         ports:
         - containerPort: 8003
