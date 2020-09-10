@@ -292,8 +292,8 @@ func testUsernameLogin(t *T) {
 	if err != nil {
 		t.Fatalf("Error listing accounts %s %s", string(outp), err)
 	}
-	if !strings.Contains(string(outp), `"someUserName"`) {
-		t.Fatalf("Error listing accounts, name is missing from json %s", string(outp))
+	if !strings.Contains(string(outp), `"someUsername"`) {
+		t.Fatalf("Error listing accounts, name is missing from %s", string(outp))
 	}
 
 }
