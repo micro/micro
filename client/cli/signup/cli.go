@@ -142,6 +142,7 @@ func Run(ctx *cli.Context) error {
 				if err == nil && hasRsp != nil && hasRsp.Has {
 					break
 				}
+				fmt.Println("err", err, hasRsp.Has)
 				time.Sleep(2 * time.Second)
 			}
 		}
