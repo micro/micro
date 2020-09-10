@@ -268,7 +268,7 @@ func testUsernameLogin(t *T) {
 	}
 
 	cmd := serv.Command()
-	outp, err := cmd.Exec("auth", "generate", "--id", "someID", `--name", "someUsername", "--secret", "password"}`)
+	outp, err := cmd.Exec("call", "auth", "Auth.Generate", `{"id":"someID", "name":"someUsername", "secret":"password"}`)
 	if err != nil {
 		t.Fatalf("Error generating account %s %s", string(outp), err)
 	}
