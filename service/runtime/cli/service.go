@@ -534,17 +534,6 @@ func getService(ctx *cli.Context) error {
 			metadata = fmt.Sprintf("%v, error=%v", metadata, parse(service.Metadata["error"]))
 		}
 
-		// if the status was unknown, the underlying runtime can pass the status in the metadata. This
-		// also allows backwards compatability.
-		status := humanizeStatus(service.Status)
-		if s, ok := service.Metadata["status"]; ok {
-			metadata = fmt.Sprintf("%v, status=%v", metadata, parse(s))
-
-			if service.Status == goruntime.Unknown {
-				status = parse(s)
-			}
-		}
-
 		// parse when the service was started
 		updated := parse(timeAgo(service.Metadata["started"]))
 
@@ -552,7 +541,7 @@ func getService(ctx *cli.Context) error {
 			service.Name,
 			parse(service.Version),
 			parse(service.Source),
-			status,
+			humanizeStatus(service.Status),
 			build,
 			updated,
 			metadata)
