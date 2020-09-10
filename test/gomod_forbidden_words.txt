@@ -1,0 +1,3 @@
+//replace
+// replace
+replace github.com/micro/go-micro
