@@ -67,7 +67,7 @@ Remove-Item $zipFilePath -Force
 # Add MicroInstallDir directory to User Path environment variable
 Write-Output "Attempting to add $MicroInstallDir to User Path Environment variable..."
 $UserPathEnvionmentVar = [Environment]::GetEnvironmentVariable("PATH", "User")
-if($UserPathEnvionmentVar -like '*micro*') {
+if($UserPathEnvionmentVar -like "*$MicroInstallDir*") {
     Write-Output "Skipping to add $MicroInstallDir to User Path - $UserPathEnvionmentVar"
 } else {
     [System.Environment]::SetEnvironmentVariable("PATH", $UserPathEnvionmentVar + ";$MicroInstallDir", "User")
