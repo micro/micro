@@ -135,8 +135,15 @@ func Run(ctx *cli.Context) error {
 
 		// payment required
 		if rsp.PaymentRequired {
-			paymentMethodID, _ = reader.ReadString('\n')
-			paymentMethodID = strings.TrimSpace(paymentMethodID)
+			for {
+				hasRsp, err := signupService.HasPaymentMethod(context.DefaultContext, &pb.HasPaymentMethodRequest{
+					Token: otp,
+				})
+				if err == nil && hasRsp != nil && hasRsp.Has {
+					break
+				}
+				time.Sleep(2 * time.Second)
+			}
 		}
 	}
 
