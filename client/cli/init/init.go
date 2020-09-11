@@ -3,17 +3,17 @@ package init
 
 import (
 	"fmt"
-	"strings"
 	"os"
 	"path/filepath"
+	"strings"
 
-	"github.com/micro/micro/v3/cmd"
 	"github.com/micro/cli/v2"
+	"github.com/micro/micro/v3/cmd"
 )
 
 var (
 	// The import path we use for profiles
-	Import = "github.com/micro/micro/profile"
+	Import = "github.com/micro/micro/v3/profile"
 )
 
 func Run(ctx *cli.Context) error {
@@ -43,14 +43,13 @@ func Run(ctx *cli.Context) error {
 		}
 	}
 
-
 	fmt.Fprint(f, "package main\n\n")
 	fmt.Fprint(f, "import (\n")
 
 	// write the profiles
 	for _, profile := range profiles {
 		path := filepath.Join(Import, profile)
-		line := fmt.Sprintf("\t\"%s\"\n", path)
+		line := fmt.Sprintf("\t_ \"%s\"\n", path)
 		fmt.Fprint(f, line)
 	}
 
@@ -59,22 +58,22 @@ func Run(ctx *cli.Context) error {
 }
 
 func init() {
-        cmd.Register(&cli.Command{
-                Name:        "init",
-                Usage:       "Generate a profile for micro plugins",
-                Description: `'micro init' generates a profile.go file defining plugins and profiles`,
-                Action:      Run,
+	cmd.Register(&cli.Command{
+		Name:        "init",
+		Usage:       "Generate a profile for micro plugins",
+		Description: `'micro init' generates a profile.go file defining plugins and profiles`,
+		Action:      Run,
 		Flags: []cli.Flag{
 			&cli.StringSliceFlag{
-				Name: "profile",
+				Name:  "profile",
 				Usage: "A comma separated list of profiles to load",
 				Value: cli.NewStringSlice(),
 			},
 			&cli.StringFlag{
-				Name: "output",
+				Name:  "output",
 				Usage: "Where to output the file, by default stdout",
 				Value: "stdout",
 			},
 		},
-        })
+	})
 }
