@@ -14,22 +14,13 @@ import (
 	"strings"
 
 	"github.com/micro/cli/v2"
-	"github.com/micro/micro/v3/client/cli/util"
 	"github.com/micro/micro/v3/internal/helper"
 	pb "github.com/micro/micro/v3/proto/alert"
 	"github.com/micro/micro/v3/service/client"
 )
 
-const (
-	envToTrack = "staging"
-)
-
 // Error is a helper function to record error events
 func Error(ctx *cli.Context, a ...interface{}) {
-	env := util.GetEnv(ctx)
-	if env.Name != envToTrack {
-		return
-	}
 	val := uint64(1)
 	err := TrackEvent(ctx, TrackingData{
 		Category: getTrackingCategory(ctx),
@@ -44,10 +35,6 @@ func Error(ctx *cli.Context, a ...interface{}) {
 
 // Errorf is a helper function to record error events
 func Errorf(ctx *cli.Context, format string, a ...interface{}) {
-	env := util.GetEnv(ctx)
-	if env.Name != envToTrack {
-		return
-	}
 	val := uint64(1)
 	err := TrackEvent(ctx, TrackingData{
 		Category: getTrackingCategory(ctx),
@@ -62,10 +49,6 @@ func Errorf(ctx *cli.Context, format string, a ...interface{}) {
 
 // Success is a helper function to record success events
 func Success(ctx *cli.Context, a ...interface{}) {
-	env := util.GetEnv(ctx)
-	if env.Name != envToTrack {
-		return
-	}
 	val := uint64(0)
 	err := TrackEvent(ctx, TrackingData{
 		Category: getTrackingCategory(ctx),
@@ -80,10 +63,6 @@ func Success(ctx *cli.Context, a ...interface{}) {
 
 // Successf is a helper function to record success events
 func Successf(ctx *cli.Context, format string, a ...interface{}) {
-	env := util.GetEnv(ctx)
-	if env.Name != envToTrack {
-		return
-	}
 	val := uint64(0)
 	err := TrackEvent(ctx, TrackingData{
 		Category: getTrackingCategory(ctx),
