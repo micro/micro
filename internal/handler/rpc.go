@@ -127,7 +127,7 @@ func (h *rpcHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// create request/response
 	var response json.RawMessage
 	var err error
-	req := client.NewRequest(service, endpoint, request, goclient.WithContentType("application/json"))
+	req := client.DefaultClient.NewRequest(service, endpoint, request, goclient.WithContentType("application/json"))
 
 	// create context
 	ctx := helper.RequestToContext(r)
@@ -154,7 +154,7 @@ func (h *rpcHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// remote call
-	err = client.Call(ctx, req, &response, opts...)
+	err = client.DefaultClient.Call(ctx, req, &response, opts...)
 	if err != nil {
 		ce := goerrors.Parse(err.Error())
 		switch ce.Code {

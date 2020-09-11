@@ -134,9 +134,9 @@ func callService(srv *goregistry.Service, namespace string, ctx *cli.Context) er
 	// TODO: parse out --header or --metadata
 
 	// construct and execute the request using the json content type
-	req := client.NewRequest(srv.Name, endpoint, body, goclient.WithContentType("application/json"))
+	req := client.DefaultClient.NewRequest(srv.Name, endpoint, body, goclient.WithContentType("application/json"))
 	var rsp json.RawMessage
-	if err := client.Call(callCtx, req, &rsp, goclient.WithAuthToken()); err != nil {
+	if err := client.DefaultClient.Call(callCtx, req, &rsp, goclient.WithAuthToken()); err != nil {
 		return err
 	}
 

@@ -85,7 +85,7 @@ func QueryStats(c *cli.Context, args []string) ([]byte, error) {
 			var err error
 
 			// call using client
-			err = client.Call(context.Background(), req, rsp, goclient.WithAddress(address))
+			err = client.DefaultClient.Call(context.Background(), req, rsp, goclient.WithAddress(address))
 
 			var started, uptime, memory, gc string
 			if err == nil {

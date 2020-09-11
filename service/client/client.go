@@ -20,26 +20,26 @@ type (
 )
 
 // NewMessage returns a message which can be published
-func NewMessage(topic string, msg interface{}, opts ...client.MessageOption) Message {
-	return DefaultClient.NewMessage(topic, msg, opts...)
+func NewMessage(topic string, msg interface{}) Message {
+	return DefaultClient.NewMessage(topic, msg)
 }
 
 // NewRequest returns a request can which be executed using Call or Stream
-func NewRequest(service, endpoint string, req interface{}, reqOpts ...client.RequestOption) Request {
-	return DefaultClient.NewRequest(service, endpoint, req, reqOpts...)
+func NewRequest(service, endpoint string, req interface{}) Request {
+	return DefaultClient.NewRequest(service, endpoint, req)
 }
 
 // Call performs a request
-func Call(ctx context.Context, req Request, rsp interface{}, opts ...client.CallOption) error {
-	return DefaultClient.Call(ctx, req, rsp, opts...)
+func Call(ctx context.Context, req Request, rsp interface{}) error {
+	return DefaultClient.Call(ctx, req, rsp)
 }
 
 // Stream performs a streaming request
-func Stream(ctx context.Context, req Request, opts ...client.CallOption) (Connection, error) {
-	return DefaultClient.Stream(ctx, req, opts...)
+func Stream(ctx context.Context, req Request) (Connection, error) {
+	return DefaultClient.Stream(ctx, req)
 }
 
 // Publish a message
-func Publish(ctx context.Context, msg Message, opts ...client.PublishOption) error {
-	return DefaultClient.Publish(ctx, msg, opts...)
+func Publish(ctx context.Context, msg Message) error {
+	return DefaultClient.Publish(ctx, msg)
 }
