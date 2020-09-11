@@ -8,6 +8,8 @@ import (
 var (
 	// DefaultStore implementation
 	DefaultStore store.Store = client.NewStore()
+	// ErrNotFound is returned when a key doesn't exist
+	ErrNotFound = store.ErrNotFound
 )
 
 type (
@@ -24,7 +26,8 @@ func Read(key string, opts ...Option) ([]*Record, error) {
 
 	// convert the options
 	var readOpts []store.ReadOption
-	if options.Prefix {
+	if len(options.Prefix) > 0 {
+		key = options.Prefix
 		readOpts = append(readOpts, store.ReadPrefix())
 	}
 	if options.Limit > 0 {
@@ -57,6 +60,9 @@ func List(opts ...Option) ([]string, error) {
 
 	// convert the options
 	var listOpts []store.ListOption
+	if len(options.Prefix) > 0 {
+		listOpts = append(listOpts, store.ListPrefix(options.Prefix))
+	}
 	if options.Limit > 0 {
 		listOpts = append(listOpts, store.ListLimit(options.Limit))
 	}

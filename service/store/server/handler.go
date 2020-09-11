@@ -70,7 +70,7 @@ func (h *handler) List(ctx context.Context, req *pb.ListRequest, stream pb.Store
 	}
 
 	// list from the store
-	vals, err := store.List(opts...)
+	vals, err := store.DefaultStore.List(opts...)
 	if err != nil && err == gostore.ErrNotFound {
 		return errors.NotFound("store.Store.List", err.Error())
 	} else if err != nil {
@@ -136,7 +136,7 @@ func (h *handler) Read(ctx context.Context, req *pb.ReadRequest, rsp *pb.ReadRes
 	}
 
 	// read from the database
-	vals, err := store.Read(req.Key, opts...)
+	vals, err := store.DefaultStore.Read(req.Key, opts...)
 	if err != nil && err == gostore.ErrNotFound {
 		return errors.NotFound("store.Store.Read", err.Error())
 	} else if err != nil {
@@ -212,7 +212,7 @@ func (h *handler) Write(ctx context.Context, req *pb.WriteRequest, rsp *pb.Write
 	}
 
 	// write to the store
-	err := store.Write(record, opts...)
+	err := store.DefaultStore.Write(record, opts...)
 	if err != nil && err == gostore.ErrNotFound {
 		return errors.NotFound("store.Store.Write", err.Error())
 	} else if err != nil {
@@ -254,7 +254,7 @@ func (h *handler) Delete(ctx context.Context, req *pb.DeleteRequest, rsp *pb.Del
 	}
 
 	// delete from the store
-	if err := store.Delete(req.Key, opts...); err == gostore.ErrNotFound {
+	if err := store.DefaultStore.Delete(req.Key, opts...); err == gostore.ErrNotFound {
 		return errors.NotFound("store.Store.Delete", err.Error())
 	} else if err != nil {
 		return errors.InternalServerError("store.Store.Delete", err.Error())
@@ -279,7 +279,7 @@ func (h *handler) Databases(ctx context.Context, req *pb.DatabasesRequest, rsp *
 		gostore.ReadPrefix(),
 		gostore.ReadFrom(defaultDatabase, internalTable),
 	}
-	recs, err := store.Read("databases/", opts...)
+	recs, err := store.DefaultStore.Read("databases/", opts...)
 	if err != nil {
 		return errors.InternalServerError("store.Store.Databases", err.Error())
 	}
@@ -316,7 +316,7 @@ func (h *handler) Tables(ctx context.Context, req *pb.TablesRequest, rsp *pb.Tab
 
 	// perform the query
 	query := fmt.Sprintf("tables/%v/", req.Database)
-	recs, err := store.Read(query, opts...)
+	recs, err := store.DefaultStore.Read(query, opts...)
 	if err != nil {
 		return errors.InternalServerError("store.Store.Tables", err.Error())
 	}
@@ -342,13 +342,13 @@ func (h *handler) setupTable(database, table string) error {
 	// record the new database in the internal store
 	opt := gostore.WriteTo(defaultDatabase, internalTable)
 	dbRecord := &gostore.Record{Key: "databases/" + database, Value: []byte{}}
-	if err := store.Write(dbRecord, opt); err != nil {
+	if err := store.DefaultStore.Write(dbRecord, opt); err != nil {
 		return fmt.Errorf("Error writing new database to internal table: %v", err)
 	}
 
 	// record the new table in the internal store
 	tableRecord := &gostore.Record{Key: "tables/" + database + "/" + table, Value: []byte{}}
-	if err := store.Write(tableRecord, opt); err != nil {
+	if err := store.DefaultStore.Write(tableRecord, opt); err != nil {
 		return fmt.Errorf("Error writing new table to internal table: %v", err)
 	}
 

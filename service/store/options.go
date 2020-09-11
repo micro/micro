@@ -2,8 +2,8 @@ package store
 
 // Options to use when reading from the store
 type Options struct {
-	// Prefix returns all records that are prefixed with key
-	Prefix bool
+	// Prefix scopes the query to records that are prefixed with key
+	Prefix string
 	// Limit limits the number of returned records
 	Limit uint
 	// Offset when combined with Limit supports pagination
@@ -14,9 +14,9 @@ type Options struct {
 type Option func(o *Options)
 
 // Prefix returns all records that are prefixed with key
-func Prefix() Option {
+func Prefix(p string) Option {
 	return func(r *Options) {
-		r.Prefix = true
+		r.Prefix = p
 	}
 }
 

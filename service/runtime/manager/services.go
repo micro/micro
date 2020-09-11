@@ -51,7 +51,7 @@ func (m *manager) readServices(namespace string, srv *runtime.Service) ([]*servi
 		prefix += srv.Version
 	}
 
-	recs, err := store.Read(prefix, gostore.ReadPrefix())
+	recs, err := store.Read("", store.Prefix(prefix))
 	if err != nil {
 		return nil, err
 	} else if len(recs) == 0 {
@@ -78,7 +78,7 @@ func (m *manager) deleteService(namespace string, srv *runtime.Service) error {
 
 // listNamespaces of the services in the store
 func (m *manager) listNamespaces() ([]string, error) {
-	recs, err := store.Read(servicePrefix, gostore.ReadPrefix())
+	recs, err := store.Read("", store.Prefix(servicePrefix))
 	if err != nil {
 		return nil, err
 	}

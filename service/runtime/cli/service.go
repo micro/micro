@@ -601,7 +601,7 @@ func getLogs(ctx *cli.Context) error {
 	}
 	options = append(options, goruntime.LogsNamespace(ns))
 
-	logs, err := runtime.Logs(&goruntime.Service{Name: name}, options...)
+	logs, err := runtime.Log(&goruntime.Service{Name: name}, options...)
 
 	if err != nil {
 		return err

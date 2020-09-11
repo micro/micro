@@ -169,7 +169,7 @@ func (m *manager) Start() error {
 
 // Logs for a service
 func (m *manager) Logs(srv *gorun.Service, opts ...gorun.LogsOption) (gorun.Logs, error) {
-	return runtime.Logs(srv, opts...)
+	return runtime.Log(srv, opts...)
 }
 
 func (m *manager) watchServices() {

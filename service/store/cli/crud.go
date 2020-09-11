@@ -46,7 +46,7 @@ func read(ctx *cli.Context) error {
 		opts = append(opts, gostore.ReadLimit(ctx.Uint("offset")))
 	}
 
-	records, err := store.Read(ctx.Args().First(), opts...)
+	records, err := store.DefaultStore.Read(ctx.Args().First(), opts...)
 	if err != nil {
 		if err.Error() == "not found" {
 			return err
@@ -119,7 +119,7 @@ func write(ctx *cli.Context) error {
 		return err
 	}
 
-	if err := store.Write(record, gostore.WriteTo(ns, ctx.String("table"))); err != nil {
+	if err := store.DefaultStore.Write(record, gostore.WriteTo(ns, ctx.String("table"))); err != nil {
 		return errors.Wrap(err, "couldn't write")
 	}
 	return nil
@@ -150,7 +150,7 @@ func list(ctx *cli.Context) error {
 		opts = append(opts, gostore.ListLimit(ctx.Uint("offset")))
 	}
 
-	keys, err := store.List(opts...)
+	keys, err := store.DefaultStore.List(opts...)
 	if err != nil {
 		return errors.Wrap(err, "couldn't list")
 	}
@@ -184,7 +184,7 @@ func delete(ctx *cli.Context) error {
 		return err
 	}
 
-	if err := store.Delete(ctx.Args().First(), gostore.DeleteFrom(ns, ctx.String("table"))); err != nil {
+	if err := store.DefaultStore.Delete(ctx.Args().First(), gostore.DeleteFrom(ns, ctx.String("table"))); err != nil {
 		return errors.Wrapf(err, "couldn't delete key %s", ctx.Args().First())
 	}
 	return nil
