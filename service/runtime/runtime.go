@@ -11,28 +11,35 @@ var (
 	DefaultRuntime runtime.Runtime = client.NewRuntime()
 )
 
+type (
+	// xLogs is an alias for runtime.Logs
+	xLogs = runtime.Logs
+	// Service is an alias for runtime.Service
+	Service = runtime.Service
+)
+
 // Create registers a service
-func Create(srv *runtime.Service, opts ...runtime.CreateOption) error {
+func Create(srv *Service, opts ...runtime.CreateOption) error {
 	return DefaultRuntime.Create(srv, opts...)
 }
 
 // Read returns the service
-func Read(opts ...runtime.ReadOption) ([]*runtime.Service, error) {
+func Read(opts ...runtime.ReadOption) ([]*Service, error) {
 	return DefaultRuntime.Read(opts...)
 }
 
 // Update the service in place
-func Update(srv *runtime.Service, opts ...runtime.UpdateOption) error {
+func Update(srv *Service, opts ...runtime.UpdateOption) error {
 	return DefaultRuntime.Update(srv, opts...)
 }
 
 // Delete a service
-func Delete(srv *runtime.Service, opts ...runtime.DeleteOption) error {
+func Delete(srv *Service, opts ...runtime.DeleteOption) error {
 	return DefaultRuntime.Delete(srv, opts...)
 }
 
 // Logs returns the logs for a service
-func Logs(srv *runtime.Service, opts ...runtime.LogsOption) (runtime.Logs, error) {
+func Logs(srv *Service, opts ...runtime.LogsOption) (xLogs, error) {
 	return DefaultRuntime.Logs(srv, opts...)
 }
 
