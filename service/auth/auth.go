@@ -9,12 +9,12 @@ import (
 var DefaultAuth auth.Auth = client.NewAuth()
 
 type (
+	// AccessToken is an alias for auth.Token
+	AccessToken = auth.Token
 	// Account is an alias for auth.Account
 	Account = auth.Account
 	// Resource is an alias for auth.Resource
 	Resource = auth.Resource
-	// xToken is an alias for auth.Token
-	xToken = auth.Token
 	// Rule is an alias for auth.Rule
 	Rule = auth.Rule
 )
@@ -35,7 +35,7 @@ func Inspect(token string) (*Account, error) {
 }
 
 // Token generated using refresh token or credentials
-func Token(opts ...auth.TokenOption) (*xToken, error) {
+func Token(opts ...auth.TokenOption) (*AccessToken, error) {
 	return DefaultAuth.Token(opts...)
 }
 

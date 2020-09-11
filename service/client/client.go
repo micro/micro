@@ -11,12 +11,12 @@ import (
 var DefaultClient client.Client = grpc.NewClient()
 
 type (
+	// Connection is an alias for client.Stream
+	Connection = client.Stream
 	// Message is an alias for client.Message
 	Message = client.Message
 	// Request is an alias for client.Request
 	Request = client.Request
-	// xStream is an alias for client.Stream
-	xStream = client.Stream
 )
 
 // NewMessage returns a message which can be published
@@ -35,7 +35,7 @@ func Call(ctx context.Context, req Request, rsp interface{}, opts ...client.Call
 }
 
 // Stream performs a streaming request
-func Stream(ctx context.Context, req Request, opts ...client.CallOption) (xStream, error) {
+func Stream(ctx context.Context, req Request, opts ...client.CallOption) (Connection, error) {
 	return DefaultClient.Stream(ctx, req, opts...)
 }
 

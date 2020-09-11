@@ -12,8 +12,8 @@ var (
 )
 
 type (
-	// xLogs is an alias for runtime.Logs
-	xLogs = runtime.Logs
+	// Logs is an alias for runtime.Logs
+	Logs = runtime.Logs
 	// Service is an alias for runtime.Service
 	Service = runtime.Service
 )
@@ -38,8 +38,8 @@ func Delete(srv *Service, opts ...runtime.DeleteOption) error {
 	return DefaultRuntime.Delete(srv, opts...)
 }
 
-// Logs returns the logs for a service
-func Logs(srv *Service, opts ...runtime.LogsOption) (xLogs, error) {
+// Log returns the logs for a service
+func Log(srv *Service, opts ...runtime.LogsOption) (Logs, error) {
 	return DefaultRuntime.Logs(srv, opts...)
 }
 
