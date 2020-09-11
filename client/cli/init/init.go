@@ -13,7 +13,7 @@ import (
 
 var (
 	// The import path we use for profiles
-	Import = "github.com/micro/micro/v3/profile"
+	Import = "github.com/micro/micro/profile"
 )
 
 func Run(ctx *cli.Context) error {
