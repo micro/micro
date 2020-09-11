@@ -49,12 +49,19 @@ jobs:
         go get github.com/micro/services/helloworld
         bash -c 'for d in $(find test -name "main.go" | xargs -n 1 dirname); do pushd $d && go get && popd; done'
 
+    # Install micro binary and then build micro with the profile inside a tmp directory. We do this
+    # to not alter the original go.mod & go.sum, which the test services reference directly with 
+    # replace statements. TODO: find a simpler way of achieving this.
     - name: Install micro
       id: install-micro
       run: |
         go install
+        out=$(pwd)/micro
+        mkdir /tmp/micro
+        cp -R . /tmp/micro
+        cd /tmp/micro
         micro init --profile=ci --output=profile.go
-        GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build
+        GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o $out
     
     # This sets up a local docker registry to push and pull our test docker image so that we can persist 
     # Based on https://dev.to/dtinth/caching-docker-builds-in-github-actions-which-approach-is-the-fastest-a-research-18ei
