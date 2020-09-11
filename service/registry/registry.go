@@ -11,27 +11,34 @@ var (
 	DefaultRegistry registry.Registry = client.NewRegistry()
 )
 
+type (
+	// Service is an alias for registry.Service
+	Service = registry.Service
+	// Watcher is an alias for registry.Watcher
+	Watcher = registry.Watcher
+)
+
 // Register a service
-func Register(service *registry.Service, opts ...registry.RegisterOption) error {
+func Register(service *Service, opts ...registry.RegisterOption) error {
 	return DefaultRegistry.Register(service, opts...)
 }
 
 // Deregister a service
-func Deregister(service *registry.Service, opts ...registry.DeregisterOption) error {
+func Deregister(service *Service, opts ...registry.DeregisterOption) error {
 	return DefaultRegistry.Deregister(service, opts...)
 }
 
 // GetService from the registry
-func GetService(service string, opts ...registry.GetOption) ([]*registry.Service, error) {
+func GetService(service string, opts ...registry.GetOption) ([]*Service, error) {
 	return DefaultRegistry.GetService(service, opts...)
 }
 
 // ListServices in the registry
-func ListServices(opts ...registry.ListOption) ([]*registry.Service, error) {
+func ListServices(opts ...registry.ListOption) ([]*Service, error) {
 	return DefaultRegistry.ListServices(opts...)
 }
 
 // Watch the registry for updates
-func Watch(opts ...registry.WatchOption) (registry.Watcher, error) {
+func Watch(opts ...registry.WatchOption) (Watcher, error) {
 	return DefaultRegistry.Watch(opts...)
 }
