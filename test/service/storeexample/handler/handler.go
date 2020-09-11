@@ -93,7 +93,7 @@ func (e *Example) TestList(ctx context.Context, req *pb.Request, rsp *pb.Respons
 	return nil
 }
 
-func (e *Example) TestLimit(ctx context.Context, req *pb.Request, rsp *pb.Response) error {
+func (e *Example) TestListLimit(ctx context.Context, req *pb.Request, rsp *pb.Response) error {
 	for i := 0; i < 10; i++ {
 		if err := writeWithExpiry(fmt.Sprintf("TestLimit%d", i), "bar", 5*time.Second); err != nil {
 			return err
@@ -112,7 +112,7 @@ func (e *Example) TestLimit(ctx context.Context, req *pb.Request, rsp *pb.Respon
 	return nil
 }
 
-func (e *Example) TestOffset(ctx context.Context, req *pb.Request, rsp *pb.Response) error {
+func (e *Example) TestListOffset(ctx context.Context, req *pb.Request, rsp *pb.Response) error {
 	for i := 0; i < 20; i++ {
 		if err := writeWithExpiry(fmt.Sprintf("TestOffset%d", i), "bar", 5*time.Second); err != nil {
 			return err
