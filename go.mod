@@ -44,4 +44,4 @@ require (
 
 replace google.golang.org/grpc => google.golang.org/grpc v1.26.0
 
-replace github.com/micro/go-micro/v3 => github.com/micro/go-micro/v3 fixsubb
+replace github.com/micro/go-micro/v3 => github.com/micro/go-micro/v3 v3.0.0-beta.2.0.20200911100110-50b5f2f42160
