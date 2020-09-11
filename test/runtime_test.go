@@ -619,7 +619,7 @@ func testRunParentFolder(t *T) {
 			return outp, errors.New("Can't find example service in list")
 		}
 		return outp, err
-	}, 50*time.Second); err != nil {
+	}, 90*time.Second); err != nil {
 		return
 	}
 }
