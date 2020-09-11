@@ -271,7 +271,11 @@ func user(ctx *cli.Context) error {
 		fmt.Println(err)
 		os.Exit(1)
 	}
-
-	fmt.Println(acc.ID)
+	// backward compatibility
+	user := acc.Name
+	if len(user) == 0 {
+		user = acc.ID
+	}
+	fmt.Println(user)
 	return nil
 }
