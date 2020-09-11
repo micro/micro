@@ -19,11 +19,11 @@ type (
 )
 
 // Publish a message to a topic
-func Publish(topic string, m *Message, opts ...broker.PublishOption) error {
-	return DefaultBroker.Publish(topic, m, opts...)
+func Publish(topic string, m *Message) error {
+	return DefaultBroker.Publish(topic, m)
 }
 
 // Subscribe to a topic
-func Subscribe(topic string, h Handler, opts ...broker.SubscribeOption) (Subscriber, error) {
-	return DefaultBroker.Subscribe(topic, h, opts...)
+func Subscribe(topic string, h Handler) (Subscriber, error) {
+	return DefaultBroker.Subscribe(topic, h)
 }
