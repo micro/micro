@@ -5,11 +5,11 @@ import (
 	"encoding/json"
 	"strings"
 
-	"github.com/micro/go-micro/v3/auth"
 	"github.com/micro/go-micro/v3/store"
 	gostore "github.com/micro/go-micro/v3/store"
 	"github.com/micro/micro/v3/internal/auth/namespace"
 	pb "github.com/micro/micro/v3/proto/auth"
+	"github.com/micro/micro/v3/service/auth"
 	"github.com/micro/micro/v3/service/errors"
 )
 
@@ -86,7 +86,7 @@ func (a *Auth) Delete(ctx context.Context, req *pb.DeleteAccountRequest, rsp *pb
 	}
 
 	// check the account exists
-	accToDelete, err := a.getAccountForID(req.Id, req.Options.Namespace)
+	accToDelete, err := a.getAccountForID(req.Id, req.Options.Namespace, "auth.Accounts.Delete")
 	if err != nil {
 		return err
 	}
@@ -151,7 +151,7 @@ func (a *Auth) ChangeSecret(ctx context.Context, req *pb.ChangeSecretRequest, rs
 		return errors.InternalServerError("auth.Accounts.ChangeSecret", err.Error())
 	}
 
-	acc, err := a.getAccountForID(req.Id, req.Options.Namespace)
+	acc, err := a.getAccountForID(req.Id, req.Options.Namespace, "auth.Accounts.ChangeSecret")
 	if err != nil {
 		return err
 	}
