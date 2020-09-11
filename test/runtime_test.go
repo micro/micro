@@ -560,6 +560,9 @@ func TestRunParentFolder(t *testing.T) {
 }
 
 func testRunParentFolder(t *T) {
+	defer func() {
+		os.RemoveAll("../test-top-level")
+	}()
 	t.Parallel()
 	serv := NewServer(t, WithLogin())
 	defer serv.Close()
@@ -568,13 +571,25 @@ func testRunParentFolder(t *T) {
 	}
 
 	cmd := serv.Command()
-	err := os.MkdirAll("../parent/folder/test", 0777)
+	cmd.Dir = ".."
+	outp, err := cmd.Exec("new", "test-top-level")
+	if err != nil {
+		t.Fatal(string(outp))
+	}
+	makeProt := exec.Command("make", "proto")
+	makeProt.Dir = "../test-top-level"
+	outp, err = makeProt.CombinedOutput()
+	if err != nil {
+		t.Fatal(string(outp))
+	}
+
+	err = os.MkdirAll("../parent/folder/test", 0777)
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	cmd.Dir = "../parent/folder/test"
-	outp, err := cmd.Exec("run", "../../../test-top-level")
+	outp, err = cmd.Exec("run", "../../../test-top-level")
 	if err != nil {
 		t.Fatal(string(outp))
 	}
@@ -600,7 +615,7 @@ func testRunParentFolder(t *T) {
 		if err != nil {
 			return outp, err
 		}
-		if !strings.Contains(string(outp), "example") {
+		if !strings.Contains(string(outp), "test-top-level") {
 			return outp, errors.New("Can't find example service in list")
 		}
 		return outp, err
