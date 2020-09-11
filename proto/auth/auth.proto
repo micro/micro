@@ -51,6 +51,7 @@ message Account {
 	repeated string scopes = 5;
 	string issuer = 6;
 	string secret = 7;
+	string name = 8;
 }
 
 message Resource{
@@ -67,6 +68,7 @@ message GenerateRequest {
 	string type = 6;
 	string provider = 7;
 	Options options = 8;
+	string name = 9;
 }
 
 message GenerateResponse {
