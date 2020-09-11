@@ -4,7 +4,6 @@ import (
 	"context"
 	"time"
 
-	goauth "github.com/micro/go-micro/v3/auth"
 	goevents "github.com/micro/go-micro/v3/events"
 	gorun "github.com/micro/go-micro/v3/runtime"
 	"github.com/micro/micro/v3/internal/namespace"
@@ -151,7 +150,7 @@ func setupServiceMeta(ctx context.Context, service *gorun.Service) {
 	if service.Metadata == nil {
 		service.Metadata = map[string]string{}
 	}
-	account, accOk := goauth.AccountFromContext(ctx)
+	account, accOk := auth.AccountFromContext(ctx)
 	if accOk {
 		service.Metadata["owner"] = account.ID
 		// This is a hack - we don't want vanilla `micro server` users where the auth is noop

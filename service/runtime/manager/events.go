@@ -6,9 +6,9 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	goauth "github.com/micro/go-micro/v3/auth"
 	gorun "github.com/micro/go-micro/v3/runtime"
 	"github.com/micro/micro/v3/internal/namespace"
+	"github.com/micro/micro/v3/service/auth"
 	"github.com/micro/micro/v3/service/client"
 	"github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/runtime"
@@ -117,7 +117,7 @@ func (m *manager) processEvent(key string) {
 		err = runtime.Update(ev.Service, gorun.UpdateNamespace(ns))
 	case gorun.Create:
 		// generate an auth account for the service to use
-		var acc *goauth.Account
+		var acc *auth.Account
 		acc, err = m.generateAccount(ev.Service, ns)
 		if err != nil {
 			return

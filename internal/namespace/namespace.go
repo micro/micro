@@ -4,8 +4,8 @@ import (
 	"context"
 	"errors"
 
-	"github.com/micro/go-micro/v3/auth"
 	"github.com/micro/go-micro/v3/metadata"
+	"github.com/micro/micro/v3/service/auth"
 )
 
 var (
