@@ -10,7 +10,7 @@ import (
 	cr "github.com/micro/go-micro/v3/config/reader"
 	jr "github.com/micro/go-micro/v3/config/reader/json"
 	"github.com/micro/go-micro/v3/config/source"
-	"github.com/micro/micro/v3/internal/namespace"
+	"github.com/micro/micro/v3/internal/auth/namespace"
 	pb "github.com/micro/micro/v3/proto/config"
 	muclient "github.com/micro/micro/v3/service/client"
 	"github.com/micro/micro/v3/service/errors"

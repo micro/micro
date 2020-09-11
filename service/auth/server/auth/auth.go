@@ -12,6 +12,7 @@ import (
 	"github.com/micro/go-micro/v3/auth"
 	"github.com/micro/go-micro/v3/util/token"
 	"github.com/micro/go-micro/v3/util/token/basic"
+	authns "github.com/micro/micro/v3/internal/auth/namespace"
 	"github.com/micro/micro/v3/internal/namespace"
 	pb "github.com/micro/micro/v3/proto/auth"
 	"github.com/micro/micro/v3/service/errors"
@@ -127,9 +128,9 @@ func (a *Auth) Generate(ctx context.Context, req *pb.GenerateRequest, rsp *pb.Ge
 	}
 
 	// authorize the request
-	if err := namespace.Authorize(ctx, req.Options.Namespace); err == namespace.ErrForbidden {
+	if err := authns.Authorize(ctx, req.Options.Namespace); err == authns.ErrForbidden {
 		return errors.Forbidden("auth.Auth.Generate", err.Error())
-	} else if err == namespace.ErrUnauthorized {
+	} else if err == authns.ErrUnauthorized {
 		return errors.Unauthorized("auth.Auth.Generate", err.Error())
 	} else if err != nil {
 		return errors.InternalServerError("auth.Auth.Generate", err.Error())

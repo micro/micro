@@ -5,7 +5,7 @@ import (
 	"time"
 
 	goregistry "github.com/micro/go-micro/v3/registry"
-	"github.com/micro/micro/v3/internal/namespace"
+	"github.com/micro/micro/v3/internal/auth/namespace"
 	pb "github.com/micro/micro/v3/proto/registry"
 	"github.com/micro/micro/v3/service"
 	"github.com/micro/micro/v3/service/errors"

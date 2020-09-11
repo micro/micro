@@ -11,7 +11,7 @@ import (
 	"github.com/micro/go-micro/v3/metadata"
 	"github.com/micro/go-micro/v3/metrics"
 	"github.com/micro/go-micro/v3/server"
-	"github.com/micro/micro/v3/internal/namespace"
+	"github.com/micro/micro/v3/internal/auth/namespace"
 	"github.com/micro/micro/v3/service/auth"
 	"github.com/micro/micro/v3/service/client/cache"
 	"github.com/micro/micro/v3/service/debug"
