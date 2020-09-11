@@ -6,13 +6,12 @@ import (
 	"strings"
 	"time"
 
-	goauth "github.com/micro/go-micro/v3/auth"
 	"github.com/micro/go-micro/v3/client"
 	"github.com/micro/go-micro/v3/debug/trace"
 	"github.com/micro/go-micro/v3/metadata"
 	"github.com/micro/go-micro/v3/metrics"
 	"github.com/micro/go-micro/v3/server"
-	"github.com/micro/micro/v3/internal/namespace"
+	"github.com/micro/micro/v3/internal/auth/namespace"
 	"github.com/micro/micro/v3/service/auth"
 	"github.com/micro/micro/v3/service/client/cache"
 	"github.com/micro/micro/v3/service/debug"
@@ -56,7 +55,7 @@ func (a *authWrapper) wrapContext(ctx context.Context, opts ...client.CallOption
 
 	// check to see if we have a valid access token
 	if authOpts.Token != nil && !authOpts.Token.Expired() {
-		ctx = metadata.Set(ctx, "Authorization", goauth.BearerScheme+authOpts.Token.AccessToken)
+		ctx = metadata.Set(ctx, "Authorization", auth.BearerScheme+authOpts.Token.AccessToken)
 		return ctx
 	}
 
@@ -78,29 +77,29 @@ func AuthHandler() server.HandlerWrapper {
 			var token string
 			if header, ok := metadata.Get(ctx, "Authorization"); ok {
 				// Ensure the correct scheme is being used
-				if !strings.HasPrefix(header, goauth.BearerScheme) {
+				if !strings.HasPrefix(header, auth.BearerScheme) {
 					return errors.Unauthorized(req.Service(), "invalid authorization header. expected Bearer schema")
 				}
 
 				// Strip the bearer scheme prefix
-				token = strings.TrimPrefix(header, goauth.BearerScheme)
+				token = strings.TrimPrefix(header, auth.BearerScheme)
 			}
 
 			// Determine the namespace
 			ns := auth.DefaultAuth.Options().Issuer
 
-			var acc *goauth.Account
+			var acc *auth.Account
 			if a, err := auth.Inspect(token); err == nil && a.Issuer == ns {
 				// We only use accounts issued by the same namespace as the service when verifying against
 				// the rule set.
-				ctx = goauth.ContextWithAccount(ctx, a)
+				ctx = auth.ContextWithAccount(ctx, a)
 				acc = a
 			} else if err == nil && ns == namespace.DefaultNamespace {
 				// for the default domain, we want to inject the account into the context so that the
 				// server can access it (since it's designed for multi-tenancy), however we don't want to
 				// use it when verifying against the auth rules, since this will allow any user access to the
 				// services running in the micro namespace
-				ctx = goauth.ContextWithAccount(ctx, a)
+				ctx = auth.ContextWithAccount(ctx, a)
 			}
 
 			// ensure only accounts with the correct namespace can access this namespace,
@@ -114,17 +113,17 @@ func AuthHandler() server.HandlerWrapper {
 			}
 
 			// construct the resource
-			res := &goauth.Resource{
+			res := &auth.Resource{
 				Type:     "service",
 				Name:     req.Service(),
 				Endpoint: req.Endpoint(),
 			}
 
 			// Verify the caller has access to the resource.
-			err = auth.Verify(acc, res, goauth.VerifyNamespace(ns))
-			if err == goauth.ErrForbidden && acc != nil {
+			err = auth.Verify(acc, res, auth.VerifyNamespace(ns))
+			if err == auth.ErrForbidden && acc != nil {
 				return errors.Forbidden(req.Service(), "Forbidden call made to %v:%v by %v", req.Service(), req.Endpoint(), acc.ID)
-			} else if err == goauth.ErrForbidden {
+			} else if err == auth.ErrForbidden {
 				return errors.Unauthorized(req.Service(), "Unauthorized call made to %v:%v", req.Service(), req.Endpoint())
 			} else if err != nil {
 				return errors.InternalServerError(req.Service(), "Error authorizing request: %v", err)

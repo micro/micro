@@ -6,10 +6,9 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	goauth "github.com/micro/go-micro/v3/auth"
 	gorun "github.com/micro/go-micro/v3/runtime"
-	gostore "github.com/micro/go-micro/v3/store"
 	"github.com/micro/micro/v3/internal/namespace"
+	"github.com/micro/micro/v3/service/auth"
 	"github.com/micro/micro/v3/service/client"
 	"github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/runtime"
@@ -44,7 +43,7 @@ func (m *manager) publishEvent(eType gorun.EventType, srv *gorun.Service, opts *
 		return err
 	}
 
-	record := &gostore.Record{
+	record := &store.Record{
 		Key:    eventPrefix + e.ID,
 		Value:  bytes,
 		Expiry: eventTTL,
@@ -65,7 +64,7 @@ func (m *manager) watchEvents() {
 
 	for {
 		// get the keys of the events
-		events, err := store.Read(eventPrefix, gostore.ReadPrefix())
+		events, err := store.Read("", store.Prefix(eventPrefix))
 		if err != nil {
 			logger.Warn("Error listing events: %v", err)
 			continue
@@ -86,7 +85,7 @@ func (m *manager) watchEvents() {
 // is not point stripping and then re-prefixing.
 func (m *manager) processEvent(key string) {
 	// check to see if the event has been processed before
-	if _, err := m.fileCache.Read(eventProcessedPrefix + key); err != gostore.ErrNotFound {
+	if _, err := m.fileCache.Read(eventProcessedPrefix + key); err != store.ErrNotFound {
 		return
 	}
 
@@ -118,7 +117,7 @@ func (m *manager) processEvent(key string) {
 		err = runtime.Update(ev.Service, gorun.UpdateNamespace(ns))
 	case gorun.Create:
 		// generate an auth account for the service to use
-		var acc *goauth.Account
+		var acc *auth.Account
 		acc, err = m.generateAccount(ev.Service, ns)
 		if err != nil {
 			return
@@ -161,7 +160,7 @@ func (m *manager) processEvent(key string) {
 
 	// write to the store indicating the event has been consumed. We double the ttl to safely know the
 	// event will expire before this record
-	m.fileCache.Write(&gostore.Record{Key: eventProcessedPrefix + key, Expiry: eventTTL * 2})
+	m.fileCache.Write(&store.Record{Key: eventProcessedPrefix + key, Expiry: eventTTL * 2})
 
 }
 

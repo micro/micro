@@ -87,7 +87,7 @@ func GetService(c *cli.Context, args []string) ([]byte, error) {
 	var output []string
 	var srv []*goregistry.Service
 
-	srv, err = registry.GetService(args[0], goregistry.GetDomain(ns))
+	srv, err = registry.DefaultRegistry.GetService(args[0], goregistry.GetDomain(ns))
 	if err != nil {
 		return nil, err
 	}
@@ -159,7 +159,7 @@ func ListServices(c *cli.Context) ([]byte, error) {
 		return nil, err
 	}
 
-	rsp, err = registry.ListServices(goregistry.ListDomain(ns))
+	rsp, err = registry.DefaultRegistry.ListServices(goregistry.ListDomain(ns))
 	if err != nil {
 		return nil, err
 	}
@@ -197,7 +197,7 @@ func Publish(c *cli.Context, args []string) error {
 	}
 
 	ctx := callContext(c)
-	m := client.NewMessage(topic, msg, ct)
+	m := client.DefaultClient.NewMessage(topic, msg, ct)
 	return client.Publish(ctx, m)
 }
 
@@ -231,7 +231,7 @@ func CallService(c *cli.Context, args []string) ([]byte, error) {
 
 	ctx := callContext(c)
 
-	creq := client.NewRequest(service, endpoint, request, goclient.WithContentType("application/json"))
+	creq := client.DefaultClient.NewRequest(service, endpoint, request, goclient.WithContentType("application/json"))
 
 	opts := []goclient.CallOption{goclient.WithAuthToken()}
 	if timeout := c.String("request_timeout"); timeout != "" {
@@ -249,12 +249,12 @@ func CallService(c *cli.Context, args []string) ([]byte, error) {
 	var err error
 	if output := c.String("output"); output == "raw" {
 		rsp := cbytes.Frame{}
-		err = client.Call(ctx, creq, &rsp, opts...)
+		err = client.DefaultClient.Call(ctx, creq, &rsp, opts...)
 		// set the raw output
 		response = rsp.Data
 	} else {
 		var rsp json.RawMessage
-		err = client.Call(ctx, creq, &rsp, opts...)
+		err = client.DefaultClient.Call(ctx, creq, &rsp, opts...)
 		// set the response
 		if err == nil {
 			var out bytes.Buffer
@@ -288,7 +288,7 @@ func QueryHealth(c *cli.Context, args []string) ([]byte, error) {
 	// if the address is specified then we just call it
 	if addr := c.String("address"); len(addr) > 0 {
 		rsp := &proto.HealthResponse{}
-		err := client.Call(
+		err := client.DefaultClient.Call(
 			context.Background(),
 			req,
 			rsp,
@@ -301,7 +301,7 @@ func QueryHealth(c *cli.Context, args []string) ([]byte, error) {
 	}
 
 	// otherwise get the service and call each instance individually
-	service, err := registry.GetService(args[0], goregistry.GetDomain(ns))
+	service, err := registry.DefaultRegistry.GetService(args[0], goregistry.GetDomain(ns))
 	if err != nil {
 		return nil, err
 	}
@@ -327,7 +327,7 @@ func QueryHealth(c *cli.Context, args []string) ([]byte, error) {
 			var err error
 
 			// call using client
-			err = client.Call(
+			err = client.DefaultClient.Call(
 				context.Background(),
 				req,
 				rsp,
