@@ -2,10 +2,11 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   namespace: default
-  name: micro-registry
+  name: micro-registry-latest
   labels:
     micro: runtime
-    name: micro-registry
+    name: registry
+    version: latest
   annotations:
     name: "registry"
     version: "latest"

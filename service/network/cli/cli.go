@@ -119,8 +119,8 @@ func networkConnect(c *cli.Context, args []string) ([]byte, error) {
 
 	var rsp map[string]interface{}
 
-	req := client.NewRequest("network", "Network.Connect", request, goclient.WithContentType("application/json"))
-	err := client.Call(context.DefaultContext, req, &rsp, goclient.WithAuthToken())
+	req := client.DefaultClient.NewRequest("network", "Network.Connect", request, goclient.WithContentType("application/json"))
+	err := client.DefaultClient.Call(context.DefaultContext, req, &rsp, goclient.WithAuthToken())
 	if err != nil {
 		return nil, err
 	}
@@ -137,8 +137,8 @@ func networkConnections(c *cli.Context, args []string) ([]byte, error) {
 
 	var rsp map[string]interface{}
 
-	req := client.NewRequest("network", "Network.Graph", request, goclient.WithContentType("application/json"))
-	err := client.Call(context.DefaultContext, req, &rsp, goclient.WithAuthToken())
+	req := client.DefaultClient.NewRequest("network", "Network.Graph", request, goclient.WithContentType("application/json"))
+	err := client.DefaultClient.Call(context.DefaultContext, req, &rsp, goclient.WithAuthToken())
 	if err != nil {
 		return nil, err
 	}
@@ -178,8 +178,8 @@ func networkGraph(c *cli.Context, args []string) ([]byte, error) {
 
 	var rsp map[string]interface{}
 
-	req := client.NewRequest("network", "Network.Graph", map[string]interface{}{}, goclient.WithContentType("application/json"))
-	err := client.Call(context.DefaultContext, req, &rsp, goclient.WithAuthToken())
+	req := client.DefaultClient.NewRequest("network", "Network.Graph", map[string]interface{}{}, goclient.WithContentType("application/json"))
+	err := client.DefaultClient.Call(context.DefaultContext, req, &rsp, goclient.WithAuthToken())
 	if err != nil {
 		return nil, err
 	}
@@ -193,8 +193,8 @@ func networkNodes(c *cli.Context, args []string) ([]byte, error) {
 	var rsp map[string]interface{}
 
 	// TODO: change to list nodes
-	req := client.NewRequest("network", "Network.Nodes", map[string]interface{}{}, goclient.WithContentType("application/json"))
-	err := client.Call(context.DefaultContext, req, &rsp, goclient.WithAuthToken())
+	req := client.DefaultClient.NewRequest("network", "Network.Nodes", map[string]interface{}{}, goclient.WithContentType("application/json"))
+	err := client.DefaultClient.Call(context.DefaultContext, req, &rsp, goclient.WithAuthToken())
 	if err != nil {
 		return nil, err
 	}
@@ -245,8 +245,8 @@ func networkRoutes(c *cli.Context, args []string) ([]byte, error) {
 
 	var rsp map[string]interface{}
 
-	req := client.NewRequest("network", "Network.Routes", request, goclient.WithContentType("application/json"))
-	err := client.Call(context.DefaultContext, req, &rsp, goclient.WithAuthToken())
+	req := client.DefaultClient.NewRequest("network", "Network.Routes", request, goclient.WithContentType("application/json"))
+	err := client.DefaultClient.Call(context.DefaultContext, req, &rsp, goclient.WithAuthToken())
 	if err != nil {
 		return nil, err
 	}
@@ -317,8 +317,8 @@ func networkServices(c *cli.Context, args []string) ([]byte, error) {
 
 	var rsp map[string]interface{}
 
-	req := client.NewRequest("network", "Network.Services", map[string]interface{}{}, goclient.WithContentType("application/json"))
-	err := client.Call(context.DefaultContext, req, &rsp, goclient.WithAuthToken())
+	req := client.DefaultClient.NewRequest("network", "Network.Services", map[string]interface{}{}, goclient.WithContentType("application/json"))
+	err := client.DefaultClient.Call(context.DefaultContext, req, &rsp, goclient.WithAuthToken())
 	if err != nil {
 		return nil, err
 	}

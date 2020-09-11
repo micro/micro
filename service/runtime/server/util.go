@@ -20,15 +20,46 @@ func toProto(s *runtime.Service) *pb.Service {
 		Version:  s.Version,
 		Source:   s.Source,
 		Metadata: s.Metadata,
+		Status:   int32(s.Status),
 	}
 }
 
 func toService(s *pb.Service) *runtime.Service {
+	// add status to metadata to enable backwards compatability
+	md := s.Metadata
+	if md == nil {
+		md = map[string]string{"status": humanizeStatus(s.Status)}
+	} else {
+		md["status"] = humanizeStatus(s.Status)
+	}
+
 	return &runtime.Service{
 		Name:     s.Name,
 		Version:  s.Version,
 		Source:   s.Source,
-		Metadata: s.Metadata,
+		Metadata: md,
+		Status:   runtime.ServiceStatus(s.Status),
+	}
+}
+
+func humanizeStatus(status int32) string {
+	switch runtime.ServiceStatus(status) {
+	case runtime.Pending:
+		return "pending"
+	case runtime.Building:
+		return "building"
+	case runtime.Starting:
+		return "starting"
+	case runtime.Running:
+		return "running"
+	case runtime.Stopping:
+		return "stopping"
+	case runtime.Stopped:
+		return "stopped"
+	case runtime.Error:
+		return "error"
+	default:
+		return "unknown"
 	}
 }
 

@@ -4,7 +4,7 @@ import (
 	"context"
 
 	goevents "github.com/micro/go-micro/v3/events"
-	"github.com/micro/micro/v3/internal/namespace"
+	"github.com/micro/micro/v3/internal/auth/namespace"
 	pb "github.com/micro/micro/v3/proto/events"
 	"github.com/micro/micro/v3/service/errors"
 	"github.com/micro/micro/v3/service/events"

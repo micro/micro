@@ -10,8 +10,7 @@ import (
 	cr "github.com/micro/go-micro/v3/config/reader"
 	jr "github.com/micro/go-micro/v3/config/reader/json"
 	"github.com/micro/go-micro/v3/config/source"
-	gostore "github.com/micro/go-micro/v3/store"
-	"github.com/micro/micro/v3/internal/namespace"
+	"github.com/micro/micro/v3/internal/auth/namespace"
 	pb "github.com/micro/micro/v3/proto/config"
 	muclient "github.com/micro/micro/v3/service/client"
 	"github.com/micro/micro/v3/service/errors"
@@ -49,7 +48,7 @@ func (c *Config) Read(ctx context.Context, req *pb.ReadRequest, rsp *pb.ReadResp
 	}
 
 	ch, err := store.Read(req.Namespace)
-	if err == gostore.ErrNotFound {
+	if err == store.ErrNotFound {
 		return errors.NotFound("config.Config.Read", "Not found")
 	} else if err != nil {
 		return errors.BadRequest("config.Config.Read", "read error: %v: %v", err, req.Namespace)
@@ -125,7 +124,7 @@ func (c *Config) Create(ctx context.Context, req *pb.CreateRequest, rsp *pb.Crea
 
 	req.Change.ChangeSet.Timestamp = time.Now().Unix()
 
-	record := &gostore.Record{Key: req.Change.Namespace}
+	record := &store.Record{Key: req.Change.Namespace}
 
 	var err error
 	record.Value, err = json.Marshal(req.Change)
@@ -164,14 +163,14 @@ func (c *Config) Update(ctx context.Context, req *pb.UpdateRequest, rsp *pb.Upda
 	oldCh := &pb.Change{}
 
 	// Get the current change set
-	var record *gostore.Record
+	var record *store.Record
 	records, err := store.Read(req.Change.Namespace)
 	if err != nil {
 		if err.Error() != "not found" {
 			return errors.BadRequest("config.Config.Update", "read old value error: %v", err)
 		}
 		// create new record
-		record = new(gostore.Record)
+		record = new(store.Record)
 		record.Key = req.Change.Namespace
 	} else {
 		// Unmarshal value
@@ -358,7 +357,7 @@ func (c *Config) List(ctx context.Context, req *pb.ListRequest, rsp *pb.ListResp
 		return errors.InternalServerError("config.Config.List", err.Error())
 	}
 
-	list, err := store.List(gostore.ListPrefix(req.Namespace))
+	list, err := store.List(store.Prefix(req.Namespace))
 	if err != nil {
 		return errors.BadRequest("config.Config.List", "query value error: %v", err)
 	}

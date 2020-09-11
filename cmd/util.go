@@ -46,8 +46,8 @@ func setupAuthForCLI(ctx *cli.Context) error {
 
 	// Get new access token from refresh token if it's close to expiry
 	tok, err = auth.Token(
-		goauth.WithToken(tok.RefreshToken),
-		goauth.WithTokenIssuer(ns),
+		auth.WithToken(tok.RefreshToken),
+		auth.WithTokenIssuer(ns),
 	)
 	if err != nil {
 		return nil
@@ -71,9 +71,9 @@ func setupAuthForService() error {
 
 	// if no credentials were provided, self generate an account
 	if len(accID) == 0 || len(accSecret) == 0 {
-		opts := []goauth.GenerateOption{
-			goauth.WithType("service"),
-			goauth.WithScopes("service"),
+		opts := []auth.GenerateOption{
+			auth.WithType("service"),
+			auth.WithScopes("service"),
 		}
 
 		acc, err := auth.Generate(uuid.New().String(), opts...)
@@ -90,8 +90,8 @@ func setupAuthForService() error {
 
 	// generate the first token
 	token, err := auth.Token(
-		goauth.WithCredentials(accID, accSecret),
-		goauth.WithExpiry(time.Minute*10),
+		auth.WithCredentials(accID, accSecret),
+		auth.WithExpiry(time.Minute*10),
 	)
 	if err != nil {
 		return err
@@ -126,8 +126,8 @@ func refreshAuthToken() {
 
 			// generate the first token
 			tok, err := auth.Token(
-				goauth.WithToken(tok.RefreshToken),
-				goauth.WithExpiry(time.Minute*10),
+				auth.WithToken(tok.RefreshToken),
+				auth.WithExpiry(time.Minute*10),
 			)
 			if err != nil {
 				logger.Warnf("[Auth] Error refreshing token: %v", err)

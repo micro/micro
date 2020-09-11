@@ -1,5 +1,5 @@
-// Package platform/cli is for platform specific commands that are not yet dynamically generated
-package cli
+// Package signup is for the signup command backed by a signup service
+package signup
 
 import (
 	"bufio"
@@ -10,7 +10,6 @@ import (
 	"time"
 
 	"github.com/micro/cli/v2"
-	"github.com/micro/go-micro/v3/auth"
 	cl "github.com/micro/go-micro/v3/client"
 	clinamespace "github.com/micro/micro/v3/client/cli/namespace"
 	clitoken "github.com/micro/micro/v3/client/cli/token"
@@ -18,13 +17,14 @@ import (
 	"github.com/micro/micro/v3/cmd"
 	"github.com/micro/micro/v3/internal/report"
 	pb "github.com/micro/micro/v3/proto/signup"
+	"github.com/micro/micro/v3/service/auth"
 	"github.com/micro/micro/v3/service/client"
 	"github.com/micro/micro/v3/service/context"
 	"golang.org/x/crypto/ssh/terminal"
 )
 
-// Signup flow for the Micro Platform
-func Signup(ctx *cli.Context) error {
+// Run execs flow for the signup
+func Run(ctx *cli.Context) error {
 	email := ctx.String("email")
 	if ctx.Bool("recover") {
 		signupService := pb.NewSignupService("signup", client.DefaultClient)
@@ -171,7 +171,7 @@ func Signup(ctx *cli.Context) error {
 		os.Exit(1)
 	}
 
-	if err := clitoken.Save(env.Name, &auth.Token{
+	if err := clitoken.Save(env.Name, &auth.AccountToken{
 		AccessToken:  tok.AccessToken,
 		RefreshToken: tok.RefreshToken,
 		Expiry:       time.Unix(tok.Expiry, 0),
@@ -193,7 +193,7 @@ func init() {
 		Name:        "signup",
 		Usage:       "Signup to the Micro Platform",
 		Description: "Enables signup to the Micro Platform which can then be accessed via `micro env set platform` and `micro login`",
-		Action:      Signup,
+		Action:      Run,
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:  "email",

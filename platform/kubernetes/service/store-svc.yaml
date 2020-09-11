@@ -4,8 +4,9 @@ metadata:
   name: micro-store
   namespace: default
   labels:
-    name: micro-store
     micro: runtime
+    name: store
+    version: latest
 spec:
   ports:
   - port: 8002

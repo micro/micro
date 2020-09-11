@@ -8,7 +8,7 @@ import (
 	"github.com/micro/go-micro/v3/auth"
 	"github.com/micro/go-micro/v3/store"
 	gostore "github.com/micro/go-micro/v3/store"
-	"github.com/micro/micro/v3/internal/namespace"
+	"github.com/micro/micro/v3/internal/auth/namespace"
 	pb "github.com/micro/micro/v3/proto/auth"
 	"github.com/micro/micro/v3/service/errors"
 )
@@ -193,5 +193,6 @@ func serializeAccount(a *auth.Account) *pb.Account {
 		Scopes:   a.Scopes,
 		Issuer:   a.Issuer,
 		Metadata: a.Metadata,
+		Name:     a.Name,
 	}
 }

@@ -4,8 +4,9 @@ metadata:
   name: micro-router
   namespace: default
   labels:
-    name: micro-router
     micro: runtime
+    name: router
+    version: latest
 spec:
   ports:
   - port: 8084

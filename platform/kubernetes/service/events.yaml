@@ -2,10 +2,17 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   namespace: default
-  name: micro-events
+  name: micro-events-latest
   labels:
-    name: micro-events
     micro: runtime
+    name: events
+    version: latest
+  annotations:
+    name: "events"
+    version: "latest"
+    source: "github.com/micro/micro"
+    owner: "micro"
+    group: "micro"
 spec:
   replicas: 1
   selector:
@@ -16,7 +23,14 @@ spec:
     metadata:
       labels:
         name: micro-events
+        version: latest
         micro: runtime
+      annotations:
+        name: "events"
+        version: "latest"
+        source: "github.com/micro/micro"
+        owner: "micro"
+        group: "micro"
     spec:
       containers:
       - name: micro

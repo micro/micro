@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: micro-config
+  namespace: default
+  labels:
+    micro: runtime
+    name: config
+    version: latest
+spec:
+  ports:
+  - port: 8081
+    protocol: TCP
+  selector:
+    name: micro-config
+    micro: runtime

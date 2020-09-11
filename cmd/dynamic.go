@@ -134,9 +134,9 @@ func callService(srv *goregistry.Service, namespace string, ctx *cli.Context) er
 	// TODO: parse out --header or --metadata
 
 	// construct and execute the request using the json content type
-	req := client.NewRequest(srv.Name, endpoint, body, goclient.WithContentType("application/json"))
+	req := client.DefaultClient.NewRequest(srv.Name, endpoint, body, goclient.WithContentType("application/json"))
 	var rsp json.RawMessage
-	if err := client.Call(callCtx, req, &rsp, goclient.WithAuthToken()); err != nil {
+	if err := client.DefaultClient.Call(callCtx, req, &rsp, goclient.WithAuthToken()); err != nil {
 		return err
 	}
 
@@ -273,7 +273,7 @@ loop:
 
 // find a service in a domain matching the name
 func serviceWithName(name, domain string) (*goregistry.Service, error) {
-	srvs, err := registry.GetService(name, goregistry.GetDomain(domain))
+	srvs, err := registry.DefaultRegistry.GetService(name, goregistry.GetDomain(domain))
 	if err == goregistry.ErrNotFound {
 		return nil, nil
 	} else if err != nil {

@@ -6,6 +6,7 @@ import (
 
 	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro/v3/broker"
+	authns "github.com/micro/micro/v3/internal/auth/namespace"
 	"github.com/micro/micro/v3/internal/namespace"
 	pb "github.com/micro/micro/v3/proto/broker"
 	"github.com/micro/micro/v3/service"
@@ -56,9 +57,9 @@ func (h *handler) Publish(ctx context.Context, req *pb.PublishRequest, rsp *pb.E
 	ns := namespace.FromContext(ctx)
 
 	// authorize the request
-	if err := namespace.Authorize(ctx, ns); err == namespace.ErrForbidden {
+	if err := authns.Authorize(ctx, ns); err == authns.ErrForbidden {
 		return errors.Forbidden("broker.Broker.Publish", err.Error())
-	} else if err == namespace.ErrUnauthorized {
+	} else if err == authns.ErrUnauthorized {
 		return errors.Unauthorized("broker.Broker.Publish", err.Error())
 	} else if err != nil {
 		return errors.InternalServerError("broker.Broker.Publish", err.Error())
@@ -81,9 +82,9 @@ func (h *handler) Subscribe(ctx context.Context, req *pb.SubscribeRequest, strea
 	errChan := make(chan error, 1)
 
 	// authorize the request
-	if err := namespace.Authorize(ctx, ns); err == namespace.ErrForbidden {
+	if err := authns.Authorize(ctx, ns); err == authns.ErrForbidden {
 		return errors.Forbidden("broker.Broker.Subscribe", err.Error())
-	} else if err == namespace.ErrUnauthorized {
+	} else if err == authns.ErrUnauthorized {
 		return errors.Unauthorized("broker.Broker.Subscribe", err.Error())
 	} else if err != nil {
 		return errors.InternalServerError("broker.Broker.Subscribe", err.Error())

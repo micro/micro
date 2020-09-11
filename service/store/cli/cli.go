@@ -41,6 +41,16 @@ func init() {
 						Usage:   "read prefix",
 						Value:   false,
 					},
+					&cli.UintFlag{
+						Name:    "limit",
+						Aliases: []string{"l"},
+						Usage:   "list limit",
+					},
+					&cli.UintFlag{
+						Name:    "offset",
+						Aliases: []string{"o"},
+						Usage:   "list offset",
+					},
 					&cli.BoolFlag{
 						Name:    "verbose",
 						Aliases: []string{"v"},
