@@ -18,27 +18,17 @@ type (
 	Watcher = registry.Watcher
 )
 
-// Register a service
-func Register(service *Service, opts ...registry.RegisterOption) error {
-	return DefaultRegistry.Register(service, opts...)
-}
-
-// Deregister a service
-func Deregister(service *Service, opts ...registry.DeregisterOption) error {
-	return DefaultRegistry.Deregister(service, opts...)
-}
-
 // GetService from the registry
-func GetService(service string, opts ...registry.GetOption) ([]*Service, error) {
-	return DefaultRegistry.GetService(service, opts...)
+func GetService(service string) ([]*Service, error) {
+	return DefaultRegistry.GetService(service)
 }
 
 // ListServices in the registry
-func ListServices(opts ...registry.ListOption) ([]*Service, error) {
-	return DefaultRegistry.ListServices(opts...)
+func ListServices() ([]*Service, error) {
+	return DefaultRegistry.ListServices()
 }
 
 // Watch the registry for updates
-func Watch(opts ...registry.WatchOption) (Watcher, error) {
-	return DefaultRegistry.Watch(opts...)
+func Watch() (Watcher, error) {
+	return DefaultRegistry.Watch()
 }

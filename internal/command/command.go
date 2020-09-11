@@ -87,7 +87,7 @@ func GetService(c *cli.Context, args []string) ([]byte, error) {
 	var output []string
 	var srv []*goregistry.Service
 
-	srv, err = registry.GetService(args[0], goregistry.GetDomain(ns))
+	srv, err = registry.DefaultRegistry.GetService(args[0], goregistry.GetDomain(ns))
 	if err != nil {
 		return nil, err
 	}
@@ -159,7 +159,7 @@ func ListServices(c *cli.Context) ([]byte, error) {
 		return nil, err
 	}
 
-	rsp, err = registry.ListServices(goregistry.ListDomain(ns))
+	rsp, err = registry.DefaultRegistry.ListServices(goregistry.ListDomain(ns))
 	if err != nil {
 		return nil, err
 	}
@@ -301,7 +301,7 @@ func QueryHealth(c *cli.Context, args []string) ([]byte, error) {
 	}
 
 	// otherwise get the service and call each instance individually
-	service, err := registry.GetService(args[0], goregistry.GetDomain(ns))
+	service, err := registry.DefaultRegistry.GetService(args[0], goregistry.GetDomain(ns))
 	if err != nil {
 		return nil, err
 	}

@@ -56,7 +56,7 @@ func QueryStats(c *cli.Context, args []string) ([]byte, error) {
 		return nil, err
 	}
 
-	service, err := registry.GetService(args[0], goregistry.GetDomain(ns))
+	service, err := registry.DefaultRegistry.GetService(args[0], goregistry.GetDomain(ns))
 	if err != nil {
 		return nil, err
 	}

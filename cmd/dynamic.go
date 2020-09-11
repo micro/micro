@@ -273,7 +273,7 @@ loop:
 
 // find a service in a domain matching the name
 func serviceWithName(name, domain string) (*goregistry.Service, error) {
-	srvs, err := registry.GetService(name, goregistry.GetDomain(domain))
+	srvs, err := registry.DefaultRegistry.GetService(name, goregistry.GetDomain(domain))
 	if err == goregistry.ErrNotFound {
 		return nil, nil
 	} else if err != nil {
