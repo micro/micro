@@ -86,33 +86,37 @@ func (a *Auth) Delete(ctx context.Context, req *pb.DeleteAccountRequest, rsp *pb
 	}
 
 	// check the account exists
-	key := strings.Join([]string{storePrefixAccounts, req.Options.Namespace, req.Id}, joinKey)
-	if _, err := a.Options.Store.Read(key); err == store.ErrNotFound {
-		return errors.BadRequest("auth.Accounts.Delete", "Account not found with this ID")
-	} else if err != nil {
-		return errors.BadRequest("auth.Accounts.Delete", "Error querying accounts: %v", err)
+	accToDelete, err := a.getAccountForID(req.Id, req.Options.Namespace)
+	if err != nil {
+		return err
 	}
 
 	acc, ok := auth.AccountFromContext(ctx)
 	if !ok {
 		return errors.Unauthorized("auth.Accounts.Delete", "Unauthorized")
 	}
-	if req.Id == acc.ID {
+	if req.Id == acc.ID || req.Id == acc.Name {
 		return errors.BadRequest("auth.Accounts.Delete", "Can't delete your own account")
 	}
 
 	// delete the refresh token linked to the account
-	tok, err := a.refreshTokenForAccount(req.Options.Namespace, req.Id)
+	tok, err := a.refreshTokenForAccount(req.Options.Namespace, accToDelete.ID)
 	if err != nil {
 		return errors.InternalServerError("auth.Accounts.Delete", "Error finding refresh token")
 	}
-	refreshKey := strings.Join([]string{storePrefixRefreshTokens, req.Options.Namespace, req.Id, tok}, joinKey)
+	refreshKey := strings.Join([]string{storePrefixRefreshTokens, req.Options.Namespace, accToDelete.ID, tok}, joinKey)
 	if err := a.Options.Store.Delete(refreshKey); err != nil {
 		return errors.InternalServerError("auth.Accounts.Delete", "Error deleting refresh token: %v", err)
 	}
 
+	key := strings.Join([]string{storePrefixAccounts, req.Options.Namespace, accToDelete.ID}, joinKey)
 	// delete the account
 	if err := a.Options.Store.Delete(key); err != nil {
+		return errors.BadRequest("auth.Accounts.Delete", "Error deleting account: %v", err)
+	}
+	keyByName := strings.Join([]string{storePrefixAccountsByName, req.Options.Namespace, accToDelete.Name}, joinKey)
+	// delete the account
+	if err := a.Options.Store.Delete(keyByName); err != nil {
 		return errors.BadRequest("auth.Accounts.Delete", "Error deleting account: %v", err)
 	}
 
@@ -147,19 +151,9 @@ func (a *Auth) ChangeSecret(ctx context.Context, req *pb.ChangeSecretRequest, rs
 		return errors.InternalServerError("auth.Accounts.ChangeSecret", err.Error())
 	}
 
-	// Lookup the account in the store
-	key := strings.Join([]string{storePrefixAccounts, req.Options.Namespace, req.Id}, joinKey)
-	recs, err := a.Options.Store.Read(key)
-	if err == gostore.ErrNotFound {
-		return errors.BadRequest("auth.Auth.ChangeSecret", "Account not found with this ID")
-	} else if err != nil {
-		return errors.InternalServerError("auth.Accounts.ChangeSecret", "Unable to read from store: %v", err)
-	}
-
-	// Unmarshal the record
-	var acc *auth.Account
-	if err := json.Unmarshal(recs[0].Value, &acc); err != nil {
-		return errors.InternalServerError("auth.Accounts.ChangeSecret", "Unable to unmarshal account: %v", err)
+	acc, err := a.getAccountForID(req.Id, req.Options.Namespace)
+	if err != nil {
+		return err
 	}
 
 	if !secretsMatch(acc.Secret, req.OldSecret) {
@@ -179,10 +173,16 @@ func (a *Auth) ChangeSecret(ctx context.Context, req *pb.ChangeSecretRequest, rs
 		return errors.InternalServerError("auth.Accounts.ChangeSecret", "Unable to marshal json: %v", err)
 	}
 
+	key := strings.Join([]string{storePrefixAccounts, acc.Issuer, acc.ID}, joinKey)
 	// write to the store
 	if err := a.Options.Store.Write(&gostore.Record{Key: key, Value: bytes}); err != nil {
 		return errors.InternalServerError("auth.Accounts.ChangeSecret", "Unable to write account to store: %v", err)
 	}
+	usernameKey := strings.Join([]string{storePrefixAccountsByName, acc.Issuer, acc.Name}, joinKey)
+	if err := a.Options.Store.Write(&gostore.Record{Key: usernameKey, Value: bytes}); err != nil {
+		return errors.InternalServerError("auth.Accounts.ChangeSecret", "Unable to write account to store: %v", err)
+	}
+
 	return nil
 }
 

@@ -182,7 +182,10 @@ func current(ctx *cli.Context) error {
 	// Inspect the token
 	acc, err := auth.Inspect(token)
 	if err == nil {
-		id = acc.ID
+		id = acc.Name
+		if len(id) == 0 {
+			id = acc.ID
+		}
 	}
 
 	baseURL, _ := config.Get("git", util.GetEnv(ctx).Name, "baseurl")
