@@ -307,10 +307,8 @@ github.com/matttproud/golang_protobuf_extensions v1.0.1/go.mod h1:D8He9yQNgCq6Z5
 github.com/micro/cli/v2 v2.1.2 h1:43J1lChg/rZCC1rvdqZNFSQDrGT7qfMrtp6/ztpIkEM=
 github.com/micro/cli/v2 v2.1.2/go.mod h1:EguNh6DAoWKm9nmk+k/Rg0H3lQnDxqzu5x5srOtGtYg=
 github.com/micro/go-micro/v3 v3.0.0-beta.2/go.mod h1:8VQzHPkol6RwDYO4vhxJk3irqb2XDz/mM8S6j7QNXjQ=
-github.com/micro/go-micro/v3 v3.0.0-beta.2.0.20200910150737-d2728b498ca8 h1:mcBiGz6lemuCxmyeLRiczuX+j+QXQktfJiLww3nd7Jc=
-github.com/micro/go-micro/v3 v3.0.0-beta.2.0.20200910150737-d2728b498ca8/go.mod h1:dx3ZCcO8zr6Za0Ri05Jk0F7APdTgj15wGBHje9+S++c=
-github.com/micro/go-micro/v3 v3.0.0-beta.2.0.20200911100110-50b5f2f42160 h1:BR12Ux5SsbpfI87nryzU1l38BvAe7OPpCtyXxO6Jw5I=
-github.com/micro/go-micro/v3 v3.0.0-beta.2.0.20200911100110-50b5f2f42160/go.mod h1:dx3ZCcO8zr6Za0Ri05Jk0F7APdTgj15wGBHje9+S++c=
+github.com/micro/go-micro/v3 v3.0.0-beta.2.0.20200911105723-275e92be3288 h1:Q/kYKD8KdTBcYKbDMcds4dvPFFopELq3hs4AJV+LZ84=
+github.com/micro/go-micro/v3 v3.0.0-beta.2.0.20200911105723-275e92be3288/go.mod h1:dx3ZCcO8zr6Za0Ri05Jk0F7APdTgj15wGBHje9+S++c=
 github.com/micro/go-plugins/broker/nats/v3 v3.0.0-20200908121001-4ea6f6760baf h1:UV67mmbendjSk/r6WDc1IspluL/MMV3rCcjV8ye4JRg=
 github.com/micro/go-plugins/broker/nats/v3 v3.0.0-20200908121001-4ea6f6760baf/go.mod h1:tO2vsiYt8UmWhgFxhEAhzjyf8kYLLujuqaMcJguywbU=
 github.com/micro/go-plugins/events/stream/nats/v3 v3.0.0-20200908121001-4ea6f6760baf h1:D9kwmcjzoVG8nkFui7Q78ZMO1/DfIqlqk3mhGTVp/9M=
