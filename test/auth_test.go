@@ -333,4 +333,19 @@ func testUsernameLogin(t *T) {
 		t.Fatalf("Error changing password %s %s", string(outp), err)
 	}
 
+	outp, err = cmd.Exec("run", "github.com/micro/examples/helloworld")
+	if err != nil {
+		t.Fatalf("Error running helloworld %s %s", string(outp), err)
+	}
+	Try("Check helloworld status", t, func() ([]byte, error) {
+		outp, err = cmd.Exec("status")
+		if err != nil {
+			return outp, fmt.Errorf("Error getting status %s", err)
+		}
+		if !strings.Contains(string(outp), "owner=someUsername") {
+			return outp, fmt.Errorf("Can't find owner")
+		}
+		return nil, nil
+	}, 30*time.Second)
+
 }
