@@ -38,7 +38,6 @@ jobs:
     - name: Install micro
       id: install-micro
       run: |
-        go install
         micro init --profile=ci --output=profile.go
         go install
 
