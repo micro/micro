@@ -39,7 +39,7 @@ jobs:
       id: install-micro
       run: |
         go install
-        micro init --profile=ci --output=profile.go
+        micro init --profile=platform --output=profile.go
         go install
 
     # We set up a local docker registry to push to and pull from. We need to set up the Kind cluster to pull from this
