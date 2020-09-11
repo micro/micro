@@ -152,8 +152,8 @@ func changePassword(ctx *cli.Context) error {
 
 // get current user settings
 func current(ctx *cli.Context) error {
-	env, err := config.Get("env")
-	if err != nil || len(env) == 0 {
+	env := util.GetEnv(ctx).Name
+	if len(env) == 0 {
 		env = "n/a"
 	}
 

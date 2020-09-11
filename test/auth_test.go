@@ -301,6 +301,12 @@ func testUsernameLogin(t *T) {
 		t.Fatalf("Error listing accounts, name is missing from %s", string(outp))
 	}
 
+	outp, err = cmd.Exec("login", "--username", "someID", "--password", "password")
+	if err != nil {
+		t.Fatalf("Error logging in with ID %s %s", string(outp), err)
+	}
+
+	// make sure user sees username and not ID
 	outp, err = cmd.Exec("user")
 	if err != nil {
 		t.Fatalf("Error running user command %s %s", string(outp), err)
@@ -308,7 +314,7 @@ func testUsernameLogin(t *T) {
 	if !strings.Contains(string(outp), "someUsername") {
 		t.Fatalf("Error running user command. Unexpected result %s", string(outp))
 	}
-
+	// make sure user sees username and not ID
 	outp, err = cmd.Exec("user", "config")
 	if err != nil {
 		t.Fatalf("Error running user config command %s %s", string(outp), err)
@@ -316,15 +322,7 @@ func testUsernameLogin(t *T) {
 	if !strings.Contains(string(outp), "someUsername") {
 		t.Fatalf("Error running user config command. Unexpected result %s", string(outp))
 	}
-
-	outp, err = cmd.Exec("user", "config")
-	if err != nil {
-		t.Fatalf("Error running user config command %s %s", string(outp), err)
-	}
-	if !strings.Contains(string(outp), "someUsername") {
-		t.Fatalf("Error running user config command. Unexpected result %s", string(outp))
-	}
-
+	// make sure change password works correctly for username
 	outp, err = cmd.Exec("user", "set", "password", "--old-password", "password", "--new-password", "password1")
 	if err != nil {
 		t.Fatalf("Error changing password %s %s", string(outp), err)
