@@ -9,13 +9,18 @@ import (
 // be refactored following the updated config interface.
 var DefaultConfig config.Config
 
+type (
+	// Value is an alias for reader.Value
+	Value = reader.Value
+)
+
 // Bytes representation of config
 func Bytes() []byte {
 	return DefaultConfig.Bytes()
 }
 
 // Get a value at the path
-func Get(path ...string) reader.Value {
+func Get(path ...string) Value {
 	return DefaultConfig.Get(path...)
 }
 

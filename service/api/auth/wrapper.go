@@ -10,7 +10,6 @@ import (
 	"github.com/micro/go-micro/v3/api/resolver"
 	"github.com/micro/go-micro/v3/api/resolver/subdomain"
 	"github.com/micro/go-micro/v3/api/server"
-	goauth "github.com/micro/go-micro/v3/auth"
 	"github.com/micro/go-micro/v3/util/ctx"
 	inauth "github.com/micro/micro/v3/internal/auth"
 	"github.com/micro/micro/v3/internal/namespace"
@@ -65,14 +64,14 @@ func (a authWrapper) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	var token string
 	if header := req.Header.Get("Authorization"); len(header) > 0 {
 		// Extract the auth token from the request
-		if strings.HasPrefix(header, goauth.BearerScheme) {
-			token = header[len(goauth.BearerScheme):]
+		if strings.HasPrefix(header, auth.BearerScheme) {
+			token = header[len(auth.BearerScheme):]
 		}
 	} else {
 		// Get the token out the cookies if not provided in headers
 		if c, err := req.Cookie("micro-token"); err == nil && c != nil {
 			token = strings.TrimPrefix(c.Value, inauth.TokenCookieName+"=")
-			req.Header.Set("Authorization", goauth.BearerScheme+token)
+			req.Header.Set("Authorization", auth.BearerScheme+token)
 		}
 	}
 
@@ -112,19 +111,19 @@ func (a authWrapper) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	}
 
 	// Options to use when verifying the request
-	verifyOpts := []goauth.VerifyOption{
-		goauth.VerifyContext(req.Context()),
-		goauth.VerifyNamespace(ns),
+	verifyOpts := []auth.VerifyOption{
+		auth.VerifyContext(req.Context()),
+		auth.VerifyNamespace(ns),
 	}
 
 	// Perform the verification check to see if the account has access to
 	// the resource they're requesting
-	res := &goauth.Resource{Type: "service", Name: resName, Endpoint: resEndpoint}
+	res := &auth.Resource{Type: "service", Name: resName, Endpoint: resEndpoint}
 	if err := auth.Verify(acc, res, verifyOpts...); err == nil {
 		// The account has the necessary permissions to access the resource
 		a.handler.ServeHTTP(w, req)
 		return
-	} else if err != goauth.ErrForbidden {
+	} else if err != auth.ErrForbidden {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 

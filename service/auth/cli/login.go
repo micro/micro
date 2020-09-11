@@ -8,7 +8,6 @@ import (
 	"syscall"
 
 	"github.com/micro/cli/v2"
-	goauth "github.com/micro/go-micro/v3/auth"
 	"github.com/micro/micro/v3/client/cli/namespace"
 	"github.com/micro/micro/v3/client/cli/signup"
 	"github.com/micro/micro/v3/client/cli/token"
@@ -61,7 +60,7 @@ func login(ctx *cli.Context) error {
 		password = strings.TrimSpace(pw)
 		fmt.Println()
 	}
-	tok, err := auth.Token(goauth.WithCredentials(username, password), goauth.WithTokenIssuer(ns))
+	tok, err := auth.Token(auth.WithCredentials(username, password), auth.WithTokenIssuer(ns))
 	if err != nil {
 		report.Errorf(ctx, "%v: Getting token: %v", username, err.Error())
 		return err

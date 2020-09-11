@@ -8,7 +8,6 @@ import (
 	"text/tabwriter"
 
 	"github.com/micro/cli/v2"
-	goauth "github.com/micro/go-micro/v3/auth"
 	goclient "github.com/micro/go-micro/v3/client"
 	"github.com/micro/micro/v3/client/cli/namespace"
 	"github.com/micro/micro/v3/client/cli/util"
@@ -67,12 +66,12 @@ func createAccount(ctx *cli.Context) error {
 		return fmt.Errorf("Error getting namespace: %v", err)
 	}
 
-	options := []goauth.GenerateOption{goauth.WithIssuer(ns)}
+	options := []auth.GenerateOption{auth.WithIssuer(ns)}
 	if len(ctx.StringSlice("scopes")) > 0 {
-		options = append(options, goauth.WithScopes(ctx.StringSlice("scopes")...))
+		options = append(options, auth.WithScopes(ctx.StringSlice("scopes")...))
 	}
 	if len(ctx.String("secret")) > 0 {
-		options = append(options, goauth.WithSecret(ctx.String("secret")))
+		options = append(options, auth.WithSecret(ctx.String("secret")))
 	}
 	acc, err := auth.Generate(ctx.Args().First(), options...)
 	if err != nil {

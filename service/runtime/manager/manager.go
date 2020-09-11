@@ -19,9 +19,9 @@ func (m *manager) Init(...gorun.Option) error {
 }
 
 // Create registers a service
-func (m *manager) Create(srv *gorun.Service, opts ...gorun.CreateOption) error {
+func (m *manager) Create(srv *runtime.Service, opts ...runtime.CreateOption) error {
 	// parse the options
-	var options gorun.CreateOptions
+	var options runtime.CreateOptions
 	for _, o := range opts {
 		o(&options)
 	}
@@ -47,9 +47,9 @@ func (m *manager) Create(srv *gorun.Service, opts ...gorun.CreateOption) error {
 }
 
 // Read returns the service which matches the criteria provided
-func (m *manager) Read(opts ...gorun.ReadOption) ([]*gorun.Service, error) {
+func (m *manager) Read(opts ...runtime.ReadOption) ([]*runtime.Service, error) {
 	// parse the options
-	var options gorun.ReadOptions
+	var options runtime.ReadOptions
 	for _, o := range opts {
 		o(&options)
 	}
@@ -58,7 +58,7 @@ func (m *manager) Read(opts ...gorun.ReadOption) ([]*gorun.Service, error) {
 	}
 
 	// query the store. TODO: query by type? (it isn't an attr of srv)
-	srvs, err := m.readServices(options.Namespace, &gorun.Service{
+	srvs, err := m.readServices(options.Namespace, &runtime.Service{
 		Name:    options.Service,
 		Version: options.Version,
 	})
@@ -70,7 +70,7 @@ func (m *manager) Read(opts ...gorun.ReadOption) ([]*gorun.Service, error) {
 	if err != nil {
 		return nil, err
 	}
-	ret := []*gorun.Service{}
+	ret := []*runtime.Service{}
 	for _, srv := range srvs {
 		ret = append(ret, srv.Service)
 		md, ok := statuses[srv.Service.Name+":"+srv.Service.Version]
@@ -88,9 +88,9 @@ func (m *manager) Read(opts ...gorun.ReadOption) ([]*gorun.Service, error) {
 }
 
 // Update the service in place
-func (m *manager) Update(srv *gorun.Service, opts ...gorun.UpdateOption) error {
+func (m *manager) Update(srv *runtime.Service, opts ...runtime.UpdateOption) error {
 	// parse the options
-	var options gorun.UpdateOptions
+	var options runtime.UpdateOptions
 	for _, o := range opts {
 		o(&options)
 	}
@@ -104,13 +104,13 @@ func (m *manager) Update(srv *gorun.Service, opts ...gorun.UpdateOption) error {
 	}
 
 	// publish the update event which will trigger an update in the runtime
-	return m.publishEvent(gorun.Update, srv, &gorun.CreateOptions{Namespace: options.Namespace})
+	return m.publishEvent(gorun.Update, srv, &runtime.CreateOptions{Namespace: options.Namespace})
 }
 
 // Remove a service
-func (m *manager) Delete(srv *gorun.Service, opts ...gorun.DeleteOption) error {
+func (m *manager) Delete(srv *runtime.Service, opts ...runtime.DeleteOption) error {
 	// parse the options
-	var options gorun.DeleteOptions
+	var options runtime.DeleteOptions
 	for _, o := range opts {
 		o(&options)
 	}
@@ -129,16 +129,16 @@ func (m *manager) Delete(srv *gorun.Service, opts ...gorun.DeleteOption) error {
 	}
 
 	// publish the event which will trigger a delete in the runtime
-	return m.publishEvent(gorun.Delete, srv, &gorun.CreateOptions{Namespace: options.Namespace})
+	return m.publishEvent(gorun.Delete, srv, &runtime.CreateOptions{Namespace: options.Namespace})
 }
 
 func (m *manager) CreateNamespace(ns string) error {
 	// Do we need to store this locally?
-	return runtime.CreateNamespace(ns)
+	return runtime.DefaultRuntime.CreateNamespace(ns)
 }
 
 func (m *manager) DeleteNamespace(ns string) error {
-	return runtime.DeleteNamespace(ns)
+	return runtime.DefaultRuntime.DeleteNamespace(ns)
 }
 
 // Starts the manager
@@ -168,8 +168,8 @@ func (m *manager) Start() error {
 }
 
 // Logs for a service
-func (m *manager) Logs(srv *gorun.Service, opts ...gorun.LogsOption) (gorun.Logs, error) {
-	return runtime.Logs(srv, opts...)
+func (m *manager) Logs(srv *runtime.Service, opts ...runtime.LogsOption) (runtime.Logs, error) {
+	return runtime.Log(srv, opts...)
 }
 
 func (m *manager) watchServices() {
@@ -180,14 +180,14 @@ func (m *manager) watchServices() {
 	}
 
 	for _, ns := range nss {
-		srvs, err := m.readServices(ns, &gorun.Service{})
+		srvs, err := m.readServices(ns, &runtime.Service{})
 		if err != nil {
 			logger.Warnf("Error reading services from the %v namespace: %v", ns, err)
 			return
 		}
 
-		running := map[string]*gorun.Service{}
-		curr, _ := runtime.Read(gorun.ReadNamespace(ns))
+		running := map[string]*runtime.Service{}
+		curr, _ := runtime.Read(runtime.ReadNamespace(ns))
 		for _, v := range curr {
 			running[v.Name+":"+v.Version+":"+v.Source] = v
 		}
@@ -205,24 +205,24 @@ func (m *manager) watchServices() {
 			}
 
 			// construct the options
-			options := []gorun.CreateOption{
-				gorun.CreateImage(srv.Options.Image),
-				gorun.CreateType(srv.Options.Type),
-				gorun.CreateNamespace(ns),
-				gorun.WithArgs(srv.Options.Args...),
-				gorun.WithCommand(srv.Options.Command...),
-				gorun.WithEnv(m.runtimeEnv(srv.Service, srv.Options)),
+			options := []runtime.CreateOption{
+				runtime.CreateImage(srv.Options.Image),
+				runtime.CreateType(srv.Options.Type),
+				runtime.CreateNamespace(ns),
+				runtime.WithArgs(srv.Options.Args...),
+				runtime.WithCommand(srv.Options.Command...),
+				runtime.WithEnv(m.runtimeEnv(srv.Service, srv.Options)),
 			}
 
 			// inject the credentials into the service if present
 			if len(acc.ID) > 0 && len(acc.Secret) > 0 {
-				options = append(options, gorun.WithSecret("MICRO_AUTH_ID", acc.ID))
-				options = append(options, gorun.WithSecret("MICRO_AUTH_SECRET", acc.Secret))
+				options = append(options, runtime.WithSecret("MICRO_AUTH_ID", acc.ID))
+				options = append(options, runtime.WithSecret("MICRO_AUTH_SECRET", acc.Secret))
 			}
 
 			// add the secrets provided by the client
 			for key, value := range srv.Options.Secrets {
-				options = append(options, gorun.WithSecret(key, value))
+				options = append(options, runtime.WithSecret(key, value))
 			}
 
 			// create the service
