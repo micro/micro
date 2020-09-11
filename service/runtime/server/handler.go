@@ -153,7 +153,12 @@ func setupServiceMeta(ctx context.Context, service *gorun.Service) {
 	}
 	account, accOk := goauth.AccountFromContext(ctx)
 	if accOk {
-		service.Metadata["owner"] = account.ID
+		// Try to use the account name as it's more user friendly. If none, fall back to ID
+		owner := account.Name
+		if len(owner) == 0 {
+			owner = account.ID
+		}
+		service.Metadata["owner"] = owner
 		// This is a hack - we don't want vanilla `micro server` users where the auth is noop
 		// to have long uuid as owners, so we put micro here - not great, not terrible.
 		if auth.DefaultAuth.String() == "noop" {
