@@ -6,6 +6,7 @@ import (
 	"github.com/micro/go-micro/v3/network"
 	"github.com/micro/go-micro/v3/network/mucp"
 	"github.com/micro/go-micro/v3/router"
+	authns "github.com/micro/micro/v3/internal/auth/namespace"
 	"github.com/micro/micro/v3/internal/namespace"
 	pb "github.com/micro/micro/v3/proto/network"
 	pbRtr "github.com/micro/micro/v3/proto/router"
@@ -151,9 +152,9 @@ func (n *Network) Routes(ctx context.Context, req *pb.RoutesRequest, resp *pb.Ro
 	}
 
 	// authorize the request
-	if err := namespace.Authorize(ctx, req.Query.Network); err == namespace.ErrForbidden {
+	if err := authns.Authorize(ctx, req.Query.Network); err == authns.ErrForbidden {
 		return errors.Forbidden("network.Network.Routes", err.Error())
-	} else if err == namespace.ErrUnauthorized {
+	} else if err == authns.ErrUnauthorized {
 		return errors.Unauthorized("network.Network.Routes", err.Error())
 	} else if err != nil {
 		return errors.InternalServerError("network.Network.Routes", err.Error())
@@ -218,9 +219,9 @@ func (n *Network) Routes(ctx context.Context, req *pb.RoutesRequest, resp *pb.Ro
 // Services returns a list of services based on the routing table
 func (n *Network) Services(ctx context.Context, req *pb.ServicesRequest, resp *pb.ServicesResponse) error {
 	// authorize the request. only accounts issued by micro (root accounts) can access this endpoint
-	if err := namespace.Authorize(ctx, namespace.DefaultNamespace); err == namespace.ErrForbidden {
+	if err := authns.Authorize(ctx, namespace.DefaultNamespace); err == authns.ErrForbidden {
 		return errors.Forbidden("network.Network.Services", err.Error())
-	} else if err == namespace.ErrUnauthorized {
+	} else if err == authns.ErrUnauthorized {
 		return errors.Unauthorized("network.Network.Services", err.Error())
 	} else if err != nil {
 		return errors.InternalServerError("network.Network.Services", err.Error())

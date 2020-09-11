@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"github.com/micro/cli/v2"
-	gorun "github.com/micro/go-micro/v3/runtime"
 	"github.com/micro/go-micro/v3/util/file"
 	"github.com/micro/micro/v3/client/cli/util"
 	"github.com/micro/micro/v3/cmd"
@@ -168,16 +167,16 @@ func Run(context *cli.Context) error {
 		cmdArgs = append(cmdArgs, service)
 
 		// runtime based on environment we run the service in
-		args := []gorun.CreateOption{
-			gorun.WithCommand(os.Args[0]),
-			gorun.WithArgs(cmdArgs...),
-			gorun.WithEnv(env),
-			gorun.WithRetries(10),
-			gorun.CreateImage("micro/micro"),
+		args := []runtime.CreateOption{
+			runtime.WithCommand(os.Args[0]),
+			runtime.WithArgs(cmdArgs...),
+			runtime.WithEnv(env),
+			runtime.WithRetries(10),
+			runtime.CreateImage("micro/micro"),
 		}
 
 		// NOTE: we use Version right now to check for the latest release
-		muService := &gorun.Service{Name: name, Version: fmt.Sprintf("%d", time.Now().Unix())}
+		muService := &runtime.Service{Name: name, Version: fmt.Sprintf("%d", time.Now().Unix())}
 		if err := runtime.Create(muService, args...); err != nil {
 			log.Errorf("Failed to create runtime environment: %v", err)
 			return err

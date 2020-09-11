@@ -16,7 +16,7 @@ import (
 func databases(ctx *cli.Context) error {
 	dbReq := client.NewRequest(ctx.String("store"), "Store.Databases", &pb.DatabasesRequest{})
 	dbRsp := &pb.DatabasesResponse{}
-	if err := client.Call(context.DefaultContext, dbReq, dbRsp, goclient.WithAuthToken()); err != nil {
+	if err := client.DefaultClient.Call(context.DefaultContext, dbReq, dbRsp, goclient.WithAuthToken()); err != nil {
 		return err
 	}
 	for _, db := range dbRsp.Databases {
@@ -36,7 +36,7 @@ func tables(ctx *cli.Context) error {
 		Database: ns,
 	})
 	tRsp := &pb.TablesResponse{}
-	if err := client.Call(context.DefaultContext, tReq, tRsp, goclient.WithAuthToken()); err != nil {
+	if err := client.DefaultClient.Call(context.DefaultContext, tReq, tRsp, goclient.WithAuthToken()); err != nil {
 		return err
 	}
 	for _, table := range tRsp.Tables {

@@ -53,7 +53,7 @@ func Run(ctx *cli.Context) error {
 		req := client.NewRequest(serverName, "Debug.Health", &proto.HealthRequest{})
 		rsp := &proto.HealthResponse{}
 
-		err := client.Call(context.TODO(), req, rsp, goclient.WithAddress(serverAddress))
+		err := client.DefaultClient.Call(context.TODO(), req, rsp, goclient.WithAddress(serverAddress))
 		if err != nil || rsp.Status != "ok" {
 			w.WriteHeader(http.StatusInternalServerError)
 			fmt.Fprint(w, "NOT_HEALTHY")

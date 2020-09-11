@@ -118,8 +118,9 @@ func init() {
 					Usage: "Password to use for login. If not provided, will be asked for during login. Useful for automated scripts",
 				},
 				&cli.StringFlag{
-					Name:  "email",
-					Usage: "Email address to use for login",
+					Name:    "username",
+					Usage:   "Username to use for login",
+					Aliases: []string{"email"},
 				},
 			},
 		},
