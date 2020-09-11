@@ -14,13 +14,13 @@ func Handle(hdlr server.Handler) error {
 }
 
 // Create a new handler
-func NewHandler(hdlr interface{}, opts ...server.HandlerOption) server.Handler {
-	return DefaultServer.NewHandler(hdlr, opts...)
+func NewHandler(hdlr interface{}) server.Handler {
+	return DefaultServer.NewHandler(hdlr)
 }
 
 // Create a new subscriber
-func NewSubscriber(topic string, hdlr interface{}, opts ...server.SubscriberOption) server.Subscriber {
-	return DefaultServer.NewSubscriber(topic, hdlr, opts...)
+func NewSubscriber(topic string, hdlr interface{}) server.Subscriber {
+	return DefaultServer.NewSubscriber(topic, hdlr)
 }
 
 // Register a subscriber

@@ -4,10 +4,9 @@ import (
 	"context"
 	"strings"
 
-	goauth "github.com/micro/go-micro/v3/auth"
 	"github.com/micro/go-micro/v3/metadata"
 	"github.com/micro/go-micro/v3/server"
-	"github.com/micro/micro/v3/internal/namespace"
+	"github.com/micro/micro/v3/internal/auth/namespace"
 	"github.com/micro/micro/v3/service/auth"
 	"github.com/micro/micro/v3/service/errors"
 )
@@ -21,12 +20,12 @@ func authHandler() server.HandlerWrapper {
 			var token string
 			if header, ok := metadata.Get(ctx, "Authorization"); ok {
 				// Ensure the correct scheme is being used
-				if !strings.HasPrefix(header, goauth.BearerScheme) {
+				if !strings.HasPrefix(header, auth.BearerScheme) {
 					return errors.Unauthorized(req.Service(), "invalid authorization header. expected Bearer schema")
 				}
 
 				// Strip the bearer scheme prefix
-				token = strings.TrimPrefix(header, goauth.BearerScheme)
+				token = strings.TrimPrefix(header, auth.BearerScheme)
 			}
 
 			// Inspect the token and decode an account
@@ -53,17 +52,17 @@ func authHandler() server.HandlerWrapper {
 			}
 
 			// construct the resource
-			res := &goauth.Resource{
+			res := &auth.Resource{
 				Type:     "service",
 				Name:     req.Service(),
 				Endpoint: req.Endpoint(),
 			}
 
 			// Verify the caller has access to the resource.
-			err = auth.Verify(account, res, goauth.VerifyNamespace(ns))
-			if err == goauth.ErrForbidden && account != nil {
+			err = auth.Verify(account, res, auth.VerifyNamespace(ns))
+			if err == auth.ErrForbidden && account != nil {
 				return errors.Forbidden(req.Service(), "Forbidden call made to %v:%v by %v", req.Service(), req.Endpoint(), account.ID)
-			} else if err == goauth.ErrForbidden {
+			} else if err == auth.ErrForbidden {
 				return errors.Unauthorized(req.Service(), "Unauthorized call made to %v:%v", req.Service(), req.Endpoint())
 			} else if err != nil {
 				return errors.InternalServerError("proxy", "Error authorizing request: %v", err)

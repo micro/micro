@@ -10,7 +10,6 @@ import (
 	"time"
 
 	"github.com/micro/cli/v2"
-	goruntime "github.com/micro/go-micro/v3/runtime"
 	"github.com/micro/micro/v3/service"
 	"github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/runtime"
@@ -140,8 +139,8 @@ func checkForUpdates() {
 		logger.Infof("Updating all services")
 
 		srvs, err := runtime.Read(
-			goruntime.ReadNamespace("default"),
-			goruntime.ReadType("runtime"),
+			runtime.ReadNamespace("default"),
+			runtime.ReadType("runtime"),
 		)
 		if err != nil {
 			logger.Errorf("Error reading services from runtime: %v", err)
@@ -172,9 +171,9 @@ func checkForUpdates() {
 		}
 
 		srvs, err := runtime.Read(
-			goruntime.ReadService(name),
-			goruntime.ReadNamespace("default"),
-			goruntime.ReadType("runtime"),
+			runtime.ReadService(name),
+			runtime.ReadNamespace("default"),
+			runtime.ReadType("runtime"),
 		)
 		if err != nil {
 			logger.Errorf("Error reading service: %v", err)

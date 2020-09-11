@@ -6,10 +6,7 @@ import (
 	"time"
 
 	log "github.com/micro/go-micro/v3/logger"
-
-	"github.com/micro/go-micro/v3/store"
-
-	mstore "github.com/micro/micro/v3/service/store"
+	store "github.com/micro/micro/v3/service/store"
 
 	pb "example/proto"
 )
@@ -22,7 +19,7 @@ func (e *Example) TestExpiry(ctx context.Context, req *pb.Request, rsp *pb.Respo
 		return err
 	}
 
-	recs, err := mstore.Read("WriteExpiry")
+	recs, err := store.Read("WriteExpiry")
 	if err != nil {
 		log.Errorf("Error reading %s", err)
 		return fmt.Errorf("Error reading record WriteExpiry with expiry %s", err)
@@ -35,7 +32,7 @@ func (e *Example) TestExpiry(ctx context.Context, req *pb.Request, rsp *pb.Respo
 		return err
 	}
 
-	recs, err = mstore.Read("Record.Expiry")
+	recs, err = store.Read("Record.Expiry")
 	if err != nil {
 		log.Errorf("Error reading %s", err)
 		return fmt.Errorf("Error reading record Record.Expiry with expiry %s", err)
@@ -48,7 +45,7 @@ func (e *Example) TestExpiry(ctx context.Context, req *pb.Request, rsp *pb.Respo
 		return err
 	}
 
-	recs, err = mstore.Read("WriteTTL")
+	recs, err = store.Read("WriteTTL")
 	if err != nil {
 		log.Errorf("Error reading %s", err)
 		return fmt.Errorf("Error reading record WriteTTL with expiry %s", err)
@@ -58,7 +55,7 @@ func (e *Example) TestExpiry(ctx context.Context, req *pb.Request, rsp *pb.Respo
 	}
 
 	time.Sleep(6 * time.Second)
-	recs, err = mstore.Read("Record.Expiry")
+	recs, err = store.Read("Record.Expiry")
 	if err != store.ErrNotFound {
 		log.Errorf("Error reading %s", err)
 		return fmt.Errorf("Error reading record Record.Expiry. Expected not found. Received %s and %d records", err, len(recs))
@@ -69,7 +66,7 @@ func (e *Example) TestExpiry(ctx context.Context, req *pb.Request, rsp *pb.Respo
 }
 
 func writeWithExpiry(key, val string, duration time.Duration) error {
-	if err := mstore.Write(&store.Record{Key: key, Value: []byte(val), Expiry: duration}); err != nil {
+	if err := store.Write(&store.Record{Key: key, Value: []byte(val), Expiry: duration}); err != nil {
 		log.Errorf("Error writing %s", err)
 		return fmt.Errorf("Error writing record %s with expiry %s", key, err)
 	}
@@ -84,7 +81,7 @@ func (e *Example) TestList(ctx context.Context, req *pb.Request, rsp *pb.Respons
 		}
 	}
 
-	recs, err := mstore.List(store.ListPrefix("TestList"))
+	recs, err := store.List(store.Prefix("TestList"))
 	if err != nil {
 		return fmt.Errorf("Error listing from store %s", err)
 	}
@@ -98,12 +95,12 @@ func (e *Example) TestList(ctx context.Context, req *pb.Request, rsp *pb.Respons
 
 func (e *Example) TestListLimit(ctx context.Context, req *pb.Request, rsp *pb.Response) error {
 	for i := 0; i < 10; i++ {
-		if err := writeWithExpiry(fmt.Sprintf("TestListLimit%d", i), "bar", 5*time.Second); err != nil {
+		if err := writeWithExpiry(fmt.Sprintf("TestLimit%d", i), "bar", 5*time.Second); err != nil {
 			return err
 		}
 	}
 
-	recs, err := mstore.List(store.ListPrefix("TestListLimit"), store.ListLimit(2))
+	recs, err := store.List(store.Prefix("TestLimit"), store.Limit(2))
 	if err != nil {
 		return fmt.Errorf("Error listing from store %s", err)
 	}
@@ -117,12 +114,12 @@ func (e *Example) TestListLimit(ctx context.Context, req *pb.Request, rsp *pb.Re
 
 func (e *Example) TestListOffset(ctx context.Context, req *pb.Request, rsp *pb.Response) error {
 	for i := 0; i < 20; i++ {
-		if err := writeWithExpiry(fmt.Sprintf("TestListOffset%d", i), "bar", 5*time.Second); err != nil {
+		if err := writeWithExpiry(fmt.Sprintf("TestOffset%d", i), "bar", 5*time.Second); err != nil {
 			return err
 		}
 	}
 
-	recs, err := mstore.List(store.ListPrefix("TestListOffset"), store.ListOffset(5))
+	recs, err := store.List(store.Prefix("TestOffset"), store.Offset(5))
 	if err != nil {
 		return fmt.Errorf("Error listing from store %s", err)
 	}

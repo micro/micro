@@ -4,10 +4,9 @@ import (
 	"context"
 	"time"
 
-	goauth "github.com/micro/go-micro/v3/auth"
 	goevents "github.com/micro/go-micro/v3/events"
 	gorun "github.com/micro/go-micro/v3/runtime"
-	"github.com/micro/micro/v3/internal/namespace"
+	"github.com/micro/micro/v3/internal/auth/namespace"
 	pb "github.com/micro/micro/v3/proto/runtime"
 	"github.com/micro/micro/v3/service/auth"
 	"github.com/micro/micro/v3/service/errors"
@@ -147,11 +146,11 @@ func (r *Runtime) Update(ctx context.Context, req *pb.UpdateRequest, rsp *pb.Upd
 	}))
 }
 
-func setupServiceMeta(ctx context.Context, service *gorun.Service) {
+func setupServiceMeta(ctx context.Context, service *runtime.Service) {
 	if service.Metadata == nil {
 		service.Metadata = map[string]string{}
 	}
-	account, accOk := goauth.AccountFromContext(ctx)
+	account, accOk := auth.AccountFromContext(ctx)
 	if accOk {
 		// Try to use the account name as it's more user friendly. If none, fall back to ID
 		owner := account.Name
@@ -236,13 +235,13 @@ func (r *Runtime) Logs(ctx context.Context, req *pb.LogsRequest, stream pb.Runti
 
 	// options passed in the request
 	if req.GetCount() > 0 {
-		opts = append(opts, gorun.LogsCount(req.GetCount()))
+		opts = append(opts, runtime.LogsCount(req.GetCount()))
 	}
 	if req.GetStream() {
-		opts = append(opts, gorun.LogsStream(req.GetStream()))
+		opts = append(opts, runtime.LogsStream(req.GetStream()))
 	}
 
-	logStream, err := r.Runtime.Logs(&gorun.Service{
+	logStream, err := r.Runtime.Logs(&runtime.Service{
 		Name: req.GetService(),
 	}, opts...)
 	if err != nil {

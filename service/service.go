@@ -225,8 +225,8 @@ type Event struct {
 }
 
 // Publish a message to an event
-func (e *Event) Publish(ctx context.Context, msg interface{}, opts ...client.PublishOption) error {
-	return muclient.Publish(ctx, muclient.NewMessage(e.topic, msg), opts...)
+func (e *Event) Publish(ctx context.Context, msg interface{}) error {
+	return muclient.Publish(ctx, muclient.NewMessage(e.topic, msg))
 }
 
 // NewEvent creates a new event publisher
