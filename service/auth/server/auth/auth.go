@@ -175,7 +175,7 @@ func (a *Auth) createAccount(acc *auth.Account) error {
 		acc.Name = acc.ID
 	}
 	usernameKey := strings.Join([]string{storePrefixAccountsByName, acc.Issuer, acc.Name}, joinKey)
-	if _, err := store.Read(usernameKey); err != gostore.ErrNotFound {
+	if _, err := store.Read(usernameKey); err != store.ErrNotFound {
 		return errors.BadRequest("auth.Auth.Generate", "Account with this Name already exists")
 	}
 
@@ -197,7 +197,7 @@ func (a *Auth) createAccount(acc *auth.Account) error {
 		return errors.InternalServerError("auth.Auth.Generate", "Unable to write account to store: %v", err)
 	}
 
-	if err := store.Write(&gostore.Record{Key: usernameKey, Value: bytes}); err != nil {
+	if err := store.Write(&store.Record{Key: usernameKey, Value: bytes}); err != nil {
 		return errors.InternalServerError("auth.Auth.Generate", "Unable to write account to store: %v", err)
 	}
 
@@ -281,11 +281,11 @@ func (a *Auth) Token(ctx context.Context, req *pb.TokenRequest, rsp *pb.TokenRes
 	if err != nil && err != store.ErrNotFound {
 		return errors.InternalServerError("auth.Auth.Token", "Unable to read from store: %v", err)
 	}
-	if err == gostore.ErrNotFound {
+	if err == store.ErrNotFound {
 		// maybe req.ID is the username and not the actual ID
 		key = strings.Join([]string{storePrefixAccountsByName, req.Options.Namespace, accountID}, joinKey)
 		recs, err = store.Read(key)
-		if err == gostore.ErrNotFound {
+		if err == store.ErrNotFound {
 			return errors.BadRequest("auth.Auth.Token", "Account not found with this ID")
 		}
 		if err != nil {
