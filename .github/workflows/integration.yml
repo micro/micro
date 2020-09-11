@@ -43,13 +43,19 @@ jobs:
     - name: Install Protoc Gen Go
       run: go get -u github.com/golang/protobuf/protoc-gen-go
 
+    - name: Preload dependancies
+      run: |
+        go get github.com/micro/services
+        go get github.com/micro/services/helloworld
+        bash -c 'for d in $(find test -name "main.go" | xargs -n 1 dirname); do pushd $d && go get && popd; done'
+
     - name: Install micro
       id: install-micro
       run: |
         go install
         micro init --profile=ci --output=profile.go
         GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build
-
+    
     # This sets up a local docker registry to push and pull our test docker image so that we can persist 
     # Based on https://dev.to/dtinth/caching-docker-builds-in-github-actions-which-approach-is-the-fastest-a-research-18ei
     - name: Setup docker caching
