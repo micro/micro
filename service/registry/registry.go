@@ -12,6 +12,8 @@ var (
 )
 
 type (
+	// Node is an alias for registry.Node
+	Node = registry.Node
 	// Service is an alias for registry.Service
 	Service = registry.Service
 	// Watcher is an alias for registry.Watcher
