@@ -171,7 +171,7 @@ func Run(ctx *cli.Context) error {
 		os.Exit(1)
 	}
 
-	if err := clitoken.Save(env.Name, &auth.AccessToken{
+	if err := clitoken.Save(env.Name, &auth.AccountToken{
 		AccessToken:  tok.AccessToken,
 		RefreshToken: tok.RefreshToken,
 		Expiry:       time.Unix(tok.Expiry, 0),

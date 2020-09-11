@@ -22,8 +22,8 @@ var (
 )
 
 type (
-	// AccessToken is an alias for auth.Token
-	AccessToken = auth.Token
+	// AccountToken is an alias for auth.Token
+	AccountToken = auth.Token
 	// Account is an alias for auth.Account
 	Account = auth.Account
 	// Resource is an alias for auth.Resource
@@ -48,7 +48,7 @@ func Inspect(token string) (*Account, error) {
 }
 
 // Token generated using refresh token or credentials
-func Token(opts ...TokenOption) (*AccessToken, error) {
+func Token(opts ...TokenOption) (*AccountToken, error) {
 	return DefaultAuth.Token(opts...)
 }
 
