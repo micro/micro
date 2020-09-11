@@ -14,6 +14,8 @@ import (
 var (
 	// The import path we use for profiles
 	Import = "github.com/micro/micro/profile"
+	// Vesion of micro
+	Version = "v3"
 )
 
 func Run(ctx *cli.Context) error {
@@ -48,7 +50,7 @@ func Run(ctx *cli.Context) error {
 
 	// write the profiles
 	for _, profile := range profiles {
-		path := filepath.Join(Import, profile)
+		path := filepath.Join(Import, profile, Version)
 		line := fmt.Sprintf("\t_ \"%s\"\n", path)
 		fmt.Fprint(f, line)
 	}
