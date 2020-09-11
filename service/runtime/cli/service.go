@@ -17,7 +17,6 @@ import (
 
 	"github.com/micro/cli/v2"
 	golog "github.com/micro/go-micro/v3/logger"
-	goruntime "github.com/micro/go-micro/v3/runtime"
 	"github.com/micro/go-micro/v3/runtime/local/source/git"
 	"github.com/micro/go-micro/v3/util/file"
 	"github.com/micro/micro/v3/client/cli/namespace"
@@ -201,11 +200,11 @@ func runService(ctx *cli.Context) error {
 	}
 
 	// specify the options
-	opts := []goruntime.CreateOption{
-		goruntime.WithOutput(os.Stdout),
-		goruntime.WithRetries(retries),
-		goruntime.CreateImage(image),
-		goruntime.CreateType(typ),
+	opts := []runtime.CreateOption{
+		runtime.WithOutput(os.Stdout),
+		runtime.WithRetries(retries),
+		runtime.CreateImage(image),
+		runtime.CreateType(typ),
 	}
 
 	// add environment variable passed in via cli
@@ -219,15 +218,15 @@ func runService(ctx *cli.Context) error {
 	}
 
 	if len(environment) > 0 {
-		opts = append(opts, goruntime.WithEnv(environment))
+		opts = append(opts, runtime.WithEnv(environment))
 	}
 
 	if len(command) > 0 {
-		opts = append(opts, goruntime.WithCommand(strings.Split(command, " ")...))
+		opts = append(opts, runtime.WithCommand(strings.Split(command, " ")...))
 	}
 
 	if len(args) > 0 {
-		opts = append(opts, goruntime.WithArgs(strings.Split(args, " ")...))
+		opts = append(opts, runtime.WithArgs(strings.Split(args, " ")...))
 	}
 
 	// determine the namespace
@@ -235,14 +234,14 @@ func runService(ctx *cli.Context) error {
 	if err != nil {
 		return err
 	}
-	opts = append(opts, goruntime.CreateNamespace(ns))
+	opts = append(opts, runtime.CreateNamespace(ns))
 	gitCreds, ok := getGitCredentials(source.Repo)
 	if ok {
-		opts = append(opts, goruntime.WithSecret(credentialsKey, gitCreds))
+		opts = append(opts, runtime.WithSecret(credentialsKey, gitCreds))
 	}
 
 	// run the service
-	service := &goruntime.Service{
+	service := &runtime.Service{
 		Name:     source.RuntimeName(),
 		Source:   runtimeSource,
 		Version:  source.Ref,
@@ -299,7 +298,7 @@ func killService(ctx *cli.Context) error {
 	if ref == "" {
 		ref = "latest"
 	}
-	service := &goruntime.Service{
+	service := &runtime.Service{
 		Name:    name,
 		Version: ref,
 	}
@@ -310,7 +309,7 @@ func killService(ctx *cli.Context) error {
 		return err
 	}
 
-	if err := runtime.Delete(service, goruntime.DeleteNamespace(ns)); err != nil {
+	if err := runtime.Delete(service, runtime.DeleteNamespace(ns)); err != nil {
 		return err
 	}
 
@@ -412,7 +411,7 @@ func updateService(ctx *cli.Context) error {
 	if ref == "" {
 		ref = "latest"
 	}
-	service := &goruntime.Service{
+	service := &runtime.Service{
 		Name:    runtimeName,
 		Source:  runtimeSource,
 		Version: ref,
@@ -424,12 +423,12 @@ func updateService(ctx *cli.Context) error {
 		return err
 	}
 
-	opts := []goruntime.UpdateOption{goruntime.UpdateNamespace(ns)}
+	opts := []runtime.UpdateOption{runtime.UpdateNamespace(ns)}
 	gitCreds, ok := getGitCredentials(source.Repo)
 	if ok {
-		opts = append(opts, goruntime.UpdateSecret(credentialsKey, gitCreds))
+		opts = append(opts, runtime.UpdateSecret(credentialsKey, gitCreds))
 	}
-	return runtime.Update(service, goruntime.UpdateNamespace(ns))
+	return runtime.Update(service, runtime.UpdateNamespace(ns))
 }
 
 func getService(ctx *cli.Context) error {
@@ -461,15 +460,15 @@ func getService(ctx *cli.Context) error {
 		list = true
 	}
 
-	var services []*goruntime.Service
-	var readOpts []goruntime.ReadOption
+	var services []*runtime.Service
+	var readOpts []runtime.ReadOption
 
 	// return a list of services
 	switch list {
 	case true:
 		// return specific type listing
 		if len(typ) > 0 {
-			readOpts = append(readOpts, goruntime.ReadType(typ))
+			readOpts = append(readOpts, runtime.ReadType(typ))
 		}
 	// return one service
 	default:
@@ -480,14 +479,14 @@ func getService(ctx *cli.Context) error {
 		}
 
 		// get service with name and version
-		readOpts = []goruntime.ReadOption{
-			goruntime.ReadService(name),
-			goruntime.ReadVersion(version),
+		readOpts = []runtime.ReadOption{
+			runtime.ReadService(name),
+			runtime.ReadVersion(version),
 		}
 
 		// return the runtime services
 		if len(typ) > 0 {
-			readOpts = append(readOpts, goruntime.ReadType(typ))
+			readOpts = append(readOpts, runtime.ReadType(typ))
 		}
 	}
 
@@ -496,7 +495,7 @@ func getService(ctx *cli.Context) error {
 	if err != nil {
 		return err
 	}
-	readOpts = append(readOpts, goruntime.ReadNamespace(ns))
+	readOpts = append(readOpts, runtime.ReadNamespace(ns))
 
 	// read the service
 	services, err = runtime.Read(readOpts...)
@@ -530,7 +529,7 @@ func getService(ctx *cli.Context) error {
 
 		// if there is an error, display this in metadata (there is no error field)
 		metadata := fmt.Sprintf("owner=%s, group=%s", parse(service.Metadata["owner"]), parse(service.Metadata["group"]))
-		if service.Status == goruntime.Error {
+		if service.Status == runtime.Error {
 			metadata = fmt.Sprintf("%v, error=%v", metadata, parse(service.Metadata["error"]))
 		}
 
@@ -571,19 +570,19 @@ func getLogs(ctx *cli.Context) error {
 	}
 
 	// get the args
-	options := []goruntime.LogsOption{}
+	options := []runtime.LogsOption{}
 
 	count := ctx.Int("lines")
 	if count > 0 {
-		options = append(options, goruntime.LogsCount(int64(count)))
+		options = append(options, runtime.LogsCount(int64(count)))
 	} else {
-		options = append(options, goruntime.LogsCount(int64(15)))
+		options = append(options, runtime.LogsCount(int64(15)))
 	}
 
 	follow := ctx.Bool("follow")
 
 	if follow {
-		options = append(options, goruntime.LogsStream(follow))
+		options = append(options, runtime.LogsStream(follow))
 	}
 
 	// @todo reintroduce since
@@ -599,9 +598,9 @@ func getLogs(ctx *cli.Context) error {
 	if err != nil {
 		return err
 	}
-	options = append(options, goruntime.LogsNamespace(ns))
+	options = append(options, runtime.LogsNamespace(ns))
 
-	logs, err := runtime.Log(&goruntime.Service{Name: name}, options...)
+	logs, err := runtime.Log(&runtime.Service{Name: name}, options...)
 
 	if err != nil {
 		return err
@@ -630,21 +629,21 @@ func getLogs(ctx *cli.Context) error {
 	}
 }
 
-func humanizeStatus(status goruntime.ServiceStatus) string {
+func humanizeStatus(status runtime.ServiceStatus) string {
 	switch status {
-	case goruntime.Pending:
+	case runtime.Pending:
 		return "pending"
-	case goruntime.Building:
+	case runtime.Building:
 		return "building"
-	case goruntime.Starting:
+	case runtime.Starting:
 		return "starting"
-	case goruntime.Running:
+	case runtime.Running:
 		return "running"
-	case goruntime.Stopping:
+	case runtime.Stopping:
 		return "stopping"
-	case goruntime.Stopped:
+	case runtime.Stopped:
 		return "stopped"
-	case goruntime.Error:
+	case runtime.Error:
 		return "error"
 	default:
 		return "unknown"

@@ -146,7 +146,7 @@ func (r *Runtime) Update(ctx context.Context, req *pb.UpdateRequest, rsp *pb.Upd
 	}))
 }
 
-func setupServiceMeta(ctx context.Context, service *gorun.Service) {
+func setupServiceMeta(ctx context.Context, service *runtime.Service) {
 	if service.Metadata == nil {
 		service.Metadata = map[string]string{}
 	}
@@ -230,13 +230,13 @@ func (r *Runtime) Logs(ctx context.Context, req *pb.LogsRequest, stream pb.Runti
 
 	// options passed in the request
 	if req.GetCount() > 0 {
-		opts = append(opts, gorun.LogsCount(req.GetCount()))
+		opts = append(opts, runtime.LogsCount(req.GetCount()))
 	}
 	if req.GetStream() {
-		opts = append(opts, gorun.LogsStream(req.GetStream()))
+		opts = append(opts, runtime.LogsStream(req.GetStream()))
 	}
 
-	logStream, err := r.Runtime.Logs(&gorun.Service{
+	logStream, err := r.Runtime.Logs(&runtime.Service{
 		Name: req.GetService(),
 	}, opts...)
 	if err != nil {
