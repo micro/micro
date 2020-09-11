@@ -1,8 +1,5 @@
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
-GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build
-
-# rebuild with the platform profile
 micro init --profile=platform --output=profile.go
 
 GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build
