@@ -253,3 +253,52 @@ func curl(serv Server, path string) (map[string]interface{}, error) {
 	m := map[string]interface{}{}
 	return m, json.Unmarshal(body, &m)
 }
+
+// TestUsernameLogin tests whether we can login using both ID and username e.g. UUID and email
+func TestUsernameLogin(t *testing.T) {
+	TrySuite(t, testUsernameLogin, retryCount)
+}
+
+func testUsernameLogin(t *T) {
+	t.Parallel()
+	serv := NewServer(t, WithLogin())
+	defer serv.Close()
+	if err := serv.Run(); err != nil {
+		return
+	}
+
+	cmd := serv.Command()
+	outp, err := cmd.Exec("call", "auth", "Auth.Generate", `{"id":"someID", "name":"someUsername", "secret":"password"}`)
+	if err != nil {
+		t.Fatalf("Error generating account %s %s", string(outp), err)
+	}
+	outp, err = cmd.Exec("login", "--username", "someUsername", "--password", "password")
+	if err != nil {
+		t.Fatalf("Error logging in with user name %s %s", string(outp), err)
+	}
+	outp, err = cmd.Exec("login", "--username", "someID", "--password", "password")
+	if err != nil {
+		t.Fatalf("Error logging in with ID %s %s", string(outp), err)
+	}
+	// test the email alias
+	outp, err = cmd.Exec("login", "--email", "someID", "--password", "password")
+	if err != nil {
+		t.Fatalf("Error logging in with ID %s %s", string(outp), err)
+	}
+
+	// test we can't create an account with the same name but different ID
+	outp, err = cmd.Exec("call", "auth", "Auth.Generate", `{"id":"someID2", "name":"someUsername", "secret":"password1"}`)
+	if err == nil {
+		// shouldn't let us create something with the same username
+		t.Fatalf("Expected error when generating account %s %s", string(outp), err)
+	}
+
+	outp, err = cmd.Exec("auth", "list", "accounts")
+	if err != nil {
+		t.Fatalf("Error listing accounts %s %s", string(outp), err)
+	}
+	if !strings.Contains(string(outp), "someUsername") {
+		t.Fatalf("Error listing accounts, name is missing from %s", string(outp))
+	}
+
+}

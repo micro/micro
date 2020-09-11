@@ -36,11 +36,11 @@ func listAccounts(ctx *cli.Context) error {
 	w := tabwriter.NewWriter(os.Stdout, 0, 8, 1, '\t', 0)
 	defer w.Flush()
 
-	fmt.Fprintln(w, strings.Join([]string{"ID", "Scopes", "Metadata"}, "\t\t"))
+	fmt.Fprintln(w, strings.Join([]string{"ID", "Name", "Scopes", "Metadata"}, "\t\t"))
 	for _, r := range rsp.Accounts {
 		var metadata string
 		for k, v := range r.Metadata {
-			metadata = fmt.Sprintf("%v %v=%v ", metadata, k, v)
+			metadata = fmt.Sprintf("%v%v=%v ", metadata, k, v)
 		}
 		scopes := strings.Join(r.Scopes, ", ")
 
@@ -51,7 +51,7 @@ func listAccounts(ctx *cli.Context) error {
 			scopes = "n/a"
 		}
 
-		fmt.Fprintln(w, strings.Join([]string{r.Id, scopes, metadata}, "\t\t"))
+		fmt.Fprintln(w, strings.Join([]string{r.Id, r.Name, scopes, metadata}, "\t\t"))
 	}
 
 	return nil

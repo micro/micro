@@ -77,6 +77,7 @@ func (s *srv) Generate(id string, opts ...auth.GenerateOption) (*auth.Account, e
 		Options: &pb.Options{
 			Namespace: options.Issuer,
 		},
+		Name: options.Name,
 	}, s.callOpts()...)
 	if err != nil {
 		return nil, err
@@ -252,6 +253,7 @@ func serializeAccount(a *pb.Account) *auth.Account {
 		Issuer:   a.Issuer,
 		Metadata: a.Metadata,
 		Scopes:   a.Scopes,
+		Name:     a.Name,
 	}
 }
 
