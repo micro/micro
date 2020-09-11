@@ -555,6 +555,75 @@ func testRunCurrentFolder(t *T) {
 	}, 20*time.Second)
 }
 
+func TestRunParentFolder(t *testing.T) {
+	TrySuite(t, testRunParentFolder, retryCount)
+}
+
+func testRunParentFolder(t *T) {
+	defer func() {
+		os.RemoveAll("../test-top-level")
+	}()
+	t.Parallel()
+	serv := NewServer(t, WithLogin())
+	defer serv.Close()
+	if err := serv.Run(); err != nil {
+		return
+	}
+
+	cmd := serv.Command()
+	cmd.Dir = ".."
+	outp, err := cmd.Exec("new", "test-top-level")
+	if err != nil {
+		t.Fatal(string(outp))
+	}
+	makeProt := exec.Command("make", "proto")
+	makeProt.Dir = "../test-top-level"
+	outp, err = makeProt.CombinedOutput()
+	if err != nil {
+		t.Fatal(string(outp))
+	}
+
+	err = os.MkdirAll("../parent/folder/test", 0777)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	cmd.Dir = "../parent/folder/test"
+	outp, err = cmd.Exec("run", "../../../test-top-level")
+	if err != nil {
+		t.Fatal(string(outp))
+	}
+
+	if err := Try("Find example", t, func() ([]byte, error) {
+		outp, err := cmd.Exec("status")
+		if err != nil {
+			return outp, err
+		}
+
+		// The started service should have the runtime name of "service/example",
+		// as the runtime name is the relative path inside a repo.
+		if !statusRunning("test-top-level", "latest", outp) {
+			return outp, errors.New("Can't find example service in runtime")
+		}
+		return outp, err
+	}, 15*time.Second); err != nil {
+		return
+	}
+
+	if err := Try("Find example in list", t, func() ([]byte, error) {
+		outp, err := cmd.Exec("services")
+		if err != nil {
+			return outp, err
+		}
+		if !strings.Contains(string(outp), "test-top-level") {
+			return outp, errors.New("Can't find example service in list")
+		}
+		return outp, err
+	}, 50*time.Second); err != nil {
+		return
+	}
+}
+
 func TestExistingLogs(t *testing.T) {
 	TrySuite(t, testExistingLogs, retryCount)
 }
