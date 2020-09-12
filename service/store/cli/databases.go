@@ -3,13 +3,13 @@ package cli
 import (
 	"fmt"
 
-	"github.com/micro/cli/v2"
 	goclient "github.com/micro/go-micro/v3/client"
 	"github.com/micro/micro/v3/client/cli/namespace"
 	"github.com/micro/micro/v3/client/cli/util"
 	pb "github.com/micro/micro/v3/proto/store"
 	"github.com/micro/micro/v3/service/client"
 	"github.com/micro/micro/v3/service/context"
+	"github.com/urfave/cli/v2"
 )
 
 // databases is the entrypoint for micro store databases

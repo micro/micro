@@ -8,7 +8,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro/v3/util/file"
 	"github.com/micro/micro/v3/client/cli/util"
 	"github.com/micro/micro/v3/cmd"
@@ -17,6 +16,7 @@ import (
 	"github.com/micro/micro/v3/service/context"
 	log "github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/runtime"
+	"github.com/urfave/cli/v2"
 )
 
 var (

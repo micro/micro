@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/micro/cli/v2"
+	"github.com/urfave/cli/v2"
 )
 
 var (

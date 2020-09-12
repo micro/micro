@@ -8,7 +8,6 @@ import (
 
 	"github.com/go-acme/lego/v3/providers/dns/cloudflare"
 	"github.com/gorilla/mux"
-	"github.com/micro/cli/v2"
 	ahandler "github.com/micro/go-micro/v3/api/handler"
 	aapi "github.com/micro/go-micro/v3/api/handler/api"
 	"github.com/micro/go-micro/v3/api/handler/event"
@@ -38,6 +37,7 @@ import (
 	log "github.com/micro/micro/v3/service/logger"
 	muregistry "github.com/micro/micro/v3/service/registry"
 	"github.com/micro/micro/v3/service/store"
+	"github.com/urfave/cli/v2"
 )
 
 var (

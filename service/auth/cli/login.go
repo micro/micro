@@ -7,13 +7,13 @@ import (
 	"strings"
 	"syscall"
 
-	"github.com/micro/cli/v2"
 	"github.com/micro/micro/v3/client/cli/namespace"
 	"github.com/micro/micro/v3/client/cli/signup"
 	"github.com/micro/micro/v3/client/cli/token"
 	"github.com/micro/micro/v3/client/cli/util"
 	"github.com/micro/micro/v3/internal/report"
 	"github.com/micro/micro/v3/service/auth"
+	"github.com/urfave/cli/v2"
 	"golang.org/x/crypto/ssh/terminal"
 )
 

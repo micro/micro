@@ -9,7 +9,6 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/micro/cli/v2"
 	goclient "github.com/micro/go-micro/v3/client"
 	goregistry "github.com/micro/go-micro/v3/registry"
 	"github.com/micro/micro/v3/client/cli/namespace"
@@ -17,6 +16,7 @@ import (
 	"github.com/micro/micro/v3/service/client"
 	"github.com/micro/micro/v3/service/context"
 	"github.com/micro/micro/v3/service/registry"
+	"github.com/urfave/cli/v2"
 )
 
 // lookupService queries the service for a service with the given alias. If

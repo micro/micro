@@ -2,7 +2,6 @@
 package ci
 
 import (
-	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro/v3/auth/jwt"
 	"github.com/micro/go-micro/v3/broker/http"
 	"github.com/micro/go-micro/v3/config"
@@ -11,6 +10,7 @@ import (
 	"github.com/micro/go-micro/v3/runtime/local"
 	"github.com/micro/go-micro/v3/store/file"
 	"github.com/micro/micro/v3/profile"
+	"github.com/urfave/cli/v2"
 
 	microAuth "github.com/micro/micro/v3/service/auth"
 	microConfig "github.com/micro/micro/v3/service/config"
