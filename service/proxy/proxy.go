@@ -6,7 +6,6 @@ import (
 	"strings"
 
 	"github.com/go-acme/lego/v3/providers/dns/cloudflare"
-	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro/v3/api/server/acme"
 	"github.com/micro/go-micro/v3/api/server/acme/autocert"
 	"github.com/micro/go-micro/v3/api/server/acme/certmagic"
@@ -27,6 +26,7 @@ import (
 	log "github.com/micro/micro/v3/service/logger"
 	murouter "github.com/micro/micro/v3/service/router"
 	"github.com/micro/micro/v3/service/store"
+	"github.com/urfave/cli/v2"
 )
 
 var (

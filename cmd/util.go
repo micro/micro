@@ -4,13 +4,13 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/micro/cli/v2"
 	goauth "github.com/micro/go-micro/v3/auth"
 	"github.com/micro/go-micro/v3/logger"
 	"github.com/micro/micro/v3/client/cli/namespace"
 	clitoken "github.com/micro/micro/v3/client/cli/token"
 	"github.com/micro/micro/v3/client/cli/util"
 	"github.com/micro/micro/v3/service/auth"
+	"github.com/urfave/cli/v2"
 )
 
 // setupAuthForCLI handles exchanging refresh tokens to access tokens

@@ -9,7 +9,6 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/micro/cli/v2"
 	cl "github.com/micro/go-micro/v3/client"
 	clinamespace "github.com/micro/micro/v3/client/cli/namespace"
 	clitoken "github.com/micro/micro/v3/client/cli/token"
@@ -20,6 +19,7 @@ import (
 	"github.com/micro/micro/v3/service/auth"
 	"github.com/micro/micro/v3/service/client"
 	"github.com/micro/micro/v3/service/context"
+	"github.com/urfave/cli/v2"
 	"golang.org/x/crypto/ssh/terminal"
 )
 
