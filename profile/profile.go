@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro/v3/auth/jwt"
 	"github.com/micro/go-micro/v3/auth/noop"
 	"github.com/micro/go-micro/v3/broker"
@@ -27,6 +26,7 @@ import (
 	"github.com/micro/go-micro/v3/store/file"
 	mem "github.com/micro/go-micro/v3/store/memory"
 	"github.com/micro/micro/v3/service/logger"
+	"github.com/urfave/cli/v2"
 
 	inAuth "github.com/micro/micro/v3/internal/auth"
 	"github.com/micro/micro/v3/internal/user"

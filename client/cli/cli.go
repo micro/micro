@@ -8,9 +8,9 @@ import (
 	"strings"
 
 	"github.com/chzyer/readline"
-	"github.com/micro/cli/v2"
 	"github.com/micro/micro/v3/client/cli/util"
 	"github.com/micro/micro/v3/cmd"
+	"github.com/urfave/cli/v2"
 )
 
 var (

@@ -4,7 +4,6 @@ import (
 	"context"
 	"time"
 
-	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro/v3/broker"
 	authns "github.com/micro/micro/v3/internal/auth/namespace"
 	"github.com/micro/micro/v3/internal/namespace"
@@ -14,6 +13,7 @@ import (
 	"github.com/micro/micro/v3/service/errors"
 	"github.com/micro/micro/v3/service/logger"
 	log "github.com/micro/micro/v3/service/logger"
+	"github.com/urfave/cli/v2"
 )
 
 var (

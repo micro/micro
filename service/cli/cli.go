@@ -6,7 +6,6 @@ import (
 	"os"
 	"strings"
 
-	ccli "github.com/micro/cli/v2"
 	golog "github.com/micro/go-micro/v3/logger"
 	prox "github.com/micro/go-micro/v3/proxy"
 	"github.com/micro/go-micro/v3/proxy/grpc"
@@ -19,6 +18,7 @@ import (
 	"github.com/micro/micro/v3/service"
 	log "github.com/micro/micro/v3/service/logger"
 	muruntime "github.com/micro/micro/v3/service/runtime"
+	ccli "github.com/urfave/cli/v2"
 
 	// services
 	api "github.com/micro/micro/v3/service/api"

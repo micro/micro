@@ -10,7 +10,7 @@ import (
 	"text/tabwriter"
 	"time"
 
-	"github.com/micro/cli/v2"
+	"github.com/urfave/cli/v2"
 
 	goclient "github.com/micro/go-micro/v3/client"
 	goregistry "github.com/micro/go-micro/v3/registry"

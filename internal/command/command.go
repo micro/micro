@@ -10,7 +10,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/micro/cli/v2"
 	goclient "github.com/micro/go-micro/v3/client"
 	cbytes "github.com/micro/go-micro/v3/codec/bytes"
 	"github.com/micro/go-micro/v3/metadata"
@@ -20,6 +19,7 @@ import (
 	proto "github.com/micro/micro/v3/proto/debug"
 	"github.com/micro/micro/v3/service/client"
 	"github.com/micro/micro/v3/service/registry"
+	"github.com/urfave/cli/v2"
 
 	"github.com/serenize/snaker"
 )

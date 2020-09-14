@@ -8,7 +8,6 @@ import (
 	"os/signal"
 	"runtime"
 
-	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro/v3/client"
 	"github.com/micro/go-micro/v3/model"
 	"github.com/micro/go-micro/v3/server"
@@ -20,6 +19,7 @@ import (
 	"github.com/micro/micro/v3/service/logger"
 	mumodel "github.com/micro/micro/v3/service/model"
 	muserver "github.com/micro/micro/v3/service/server"
+	"github.com/urfave/cli/v2"
 )
 
 var (

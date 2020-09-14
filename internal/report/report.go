@@ -13,10 +13,10 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/micro/cli/v2"
 	"github.com/micro/micro/v3/internal/helper"
 	pb "github.com/micro/micro/v3/proto/alert"
 	"github.com/micro/micro/v3/service/client"
+	"github.com/urfave/cli/v2"
 )
 
 // Error is a helper function to record error events

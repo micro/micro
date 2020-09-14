@@ -7,9 +7,9 @@ import (
 	"time"
 
 	"github.com/blang/semver"
-	"github.com/micro/cli/v2"
 	"github.com/micro/micro/v3/internal/config"
 	"github.com/rhysd/go-github-selfupdate/selfupdate"
+	"github.com/urfave/cli/v2"
 )
 
 var (
