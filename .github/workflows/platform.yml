@@ -18,11 +18,6 @@ jobs:
     - name: Fetch tags
       run: git fetch --prune --unshallow
 
-    - name: Install micro
-      id: install-micro
-      run: |
-        go install
-
     - name: Replace platform profile
       id: replace-profile
       run: |
@@ -30,7 +25,8 @@ jobs:
         go mod edit -replace google.golang.org/grpc=google.golang.org/grpc@v1.26.0
 
     - name: Build profile
-      run: micro init --profile=platform --output=profile.go
+      run: |
+        go run . init --profile=platform --output=profile.go
 
     - name: Publish to Registry
       uses: elgohr/Publish-Docker-Github-Action@master
