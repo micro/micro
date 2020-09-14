@@ -90,8 +90,6 @@ func testRunLocalSource(t *T) {
 			return outp, err
 		}
 		if !strings.Contains(string(outp), "example") {
-			logOutp, _ := cmd.Exec("logs", "example")
-			t.Logf("Example Logs: %v", string(logOutp))
 			return outp, errors.New("Can't find example service in list")
 		}
 		return outp, err
@@ -143,7 +141,7 @@ func testRunAndKill(t *T) {
 			return outp, errors.New("Can't find example service in list")
 		}
 		return outp, err
-	}, 50*time.Second); err != nil {
+	}, 90*time.Second); err != nil {
 		return
 	}
 
@@ -656,7 +654,7 @@ func testExistingLogs(t *T) {
 			return outp, errors.New("Output does not contain expected")
 		}
 		return outp, nil
-	}, 50*time.Second); err != nil {
+	}, 90*time.Second); err != nil {
 		return
 	}
 }
