@@ -18,6 +18,11 @@ jobs:
     - name: Fetch tags
       run: git fetch --prune --unshallow
 
+    - name: Install micro
+      id: install-micro
+      run: |
+        go install
+
     - name: Replace platform profile
       id: replace-profile
       run: |
