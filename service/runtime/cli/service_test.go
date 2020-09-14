@@ -20,7 +20,7 @@ func TestFmtDuration(t *testing.T) {
 		{seconds: 82808, expected: "23h0m8s"},
 		{seconds: 86400, expected: "1d0h0m0s"},
 		{seconds: 1006400, expected: "11d15h33m20s"},
-		{seconds: 111006360, expected: "11d15h33m0s"},
+		{seconds: 111006360, expected: "1284d19h6m0s"},
 	}
 
 	for i, tc := range tcs {
