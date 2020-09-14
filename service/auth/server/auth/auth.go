@@ -276,28 +276,9 @@ func (a *Auth) Token(ctx context.Context, req *pb.TokenRequest, rsp *pb.TokenRes
 		accountID = accID
 	}
 
-	// Lookup the account in the store
-	key := strings.Join([]string{storePrefixAccounts, req.Options.Namespace, accountID}, joinKey)
-	recs, err := store.Read(key)
-	if err != nil && err != store.ErrNotFound {
-		return errors.InternalServerError("auth.Auth.Token", "Unable to read from store: %v", err)
-	}
-	if err == store.ErrNotFound {
-		// maybe req.ID is the username and not the actual ID
-		key = strings.Join([]string{storePrefixAccountsByName, req.Options.Namespace, accountID}, joinKey)
-		recs, err = store.Read(key)
-		if err == store.ErrNotFound {
-			return errors.BadRequest("auth.Auth.Token", "Account not found with this ID")
-		}
-		if err != nil {
-			return errors.InternalServerError("auth.Auth.Token", "Unable to read from store: %v", err)
-		}
-	}
-
-	// Unmarshal the record
-	var acc *auth.Account
-	if err := json.Unmarshal(recs[0].Value, &acc); err != nil {
-		return errors.InternalServerError("auth.Auth.Token", "Unable to unmarshal account: %v", err)
+	acc, err := a.getAccountForID(accountID, req.Options.Namespace, "auth.Auth.Token")
+	if err != nil {
+		return err
 	}
 
 	// If the refresh token was not used, validate the secrets match and then set the refresh token
@@ -322,6 +303,33 @@ func (a *Auth) Token(ctx context.Context, req *pb.TokenRequest, rsp *pb.TokenRes
 
 	rsp.Token = serializeToken(tok, refreshToken)
 	return nil
+}
+
+func (a *Auth) getAccountForID(id, namespace, errCode string) (*auth.Account, error) {
+	// Lookup the account in the store
+	key := strings.Join([]string{storePrefixAccounts, namespace, id}, joinKey)
+	recs, err := store.Read(key)
+	if err != nil && err != store.ErrNotFound {
+		return nil, errors.InternalServerError(errCode, "Unable to read from store: %v", err)
+	}
+	if err == store.ErrNotFound {
+		// maybe id is the username and not the actual ID
+		key = strings.Join([]string{storePrefixAccountsByName, namespace, id}, joinKey)
+		recs, err = store.Read(key)
+		if err == store.ErrNotFound {
+			return nil, errors.BadRequest(errCode, "Account not found with this ID")
+		}
+		if err != nil {
+			return nil, errors.InternalServerError(errCode, "Unable to read from store: %v", err)
+		}
+	}
+
+	// Unmarshal the record
+	var acc *auth.Account
+	if err := json.Unmarshal(recs[0].Value, &acc); err != nil {
+		return nil, errors.InternalServerError(errCode, "Unable to unmarshal account: %v", err)
+	}
+	return acc, nil
 }
 
 // set the refresh token for an account

@@ -15,7 +15,6 @@ import (
 	"text/tabwriter"
 	"time"
 
-	"github.com/micro/cli/v2"
 	golog "github.com/micro/go-micro/v3/logger"
 	"github.com/micro/go-micro/v3/runtime/local/source/git"
 	"github.com/micro/go-micro/v3/util/file"
@@ -28,6 +27,7 @@ import (
 	"github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/runtime"
 	"github.com/micro/micro/v3/service/runtime/server"
+	"github.com/urfave/cli/v2"
 	"google.golang.org/grpc/status"
 )
 
