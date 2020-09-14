@@ -27,8 +27,7 @@ jobs:
 
     - name: Build profile
       run: |
-        go install  
-        micro init --profile=platform --output=profile.go
+        go run . init --profile=platform --output=profile.go
 
     - name: Publish to Registry
       uses: elgohr/Publish-Docker-Github-Action@master
