@@ -49,6 +49,11 @@ jobs:
         go get github.com/micro/services/helloworld
         bash -c 'for d in $(find test -name "main.go" | xargs -n 1 dirname); do pushd $d && go get && popd; done'
 
+    - name: Replace CI profile
+      id: replace-profile
+      run: |
+        echo '\n\nreplace github.com/micro/micro/profile/ci/v3 => ./profile/ci' | tee -a go.mod
+
     # Install micro binary and then build micro with the profile inside a tmp directory. We do this
     # to not alter the original go.mod & go.sum, which the test services reference directly with 
     # replace statements. TODO: find a simpler way of achieving this.
