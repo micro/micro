@@ -40,7 +40,6 @@ jobs:
       run: |
         go mod edit -replace github.com/micro/micro/profile/platform/v3=./profile/platform
         go mod edit -replace google.golang.org/grpc=google.golang.org/grpc@v1.26.0
-        cat go.mod
     - name: Install micro
       id: install-micro
       run: |
