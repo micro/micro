@@ -36,8 +36,6 @@ require (
 	google.golang.org/protobuf v1.25.0
 )
 
-replace google.golang.org/grpc => google.golang.org/grpc v1.26.0
-
 // once the profiles are merged to master these replace statements can be removed
 
 replace github.com/micro/micro/profile/ci/v3 => ./profile/ci
