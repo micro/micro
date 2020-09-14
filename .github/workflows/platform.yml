@@ -21,7 +21,7 @@ jobs:
     - name: Replace platform profile
       id: replace-profile
       run: |
-        echo '\n\nreplace github.com/micro/micro/profile/platform/v3 => ./profile/platform' | tee -a go.mod
+        echo '\n\nreplace github.com/micro/micro/profile/platform/v3 => ./profile/platform' >> go.mod
 
     - name: Build profile
       run: micro init --profile=platform --output=profile.go
