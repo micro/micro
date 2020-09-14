@@ -55,7 +55,7 @@ package main
 
 import (
 	"log"
-	"github.com/micro/cli/v2"
+	"github.com/urfave/cli/v2"
 	"github.com/micro/micro/plugin"
 )
 

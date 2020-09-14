@@ -9,12 +9,12 @@ import (
 	"strings"
 	"text/tabwriter"
 
-	"github.com/micro/cli/v2"
 	goclient "github.com/micro/go-micro/v3/client"
 	cbytes "github.com/micro/go-micro/v3/codec/bytes"
 	cliutil "github.com/micro/micro/v3/client/cli/util"
 	clic "github.com/micro/micro/v3/internal/command"
 	"github.com/micro/micro/v3/service/client"
+	"github.com/urfave/cli/v2"
 )
 
 func listServices(c *cli.Context, args []string) ([]byte, error) {

@@ -5,6 +5,7 @@ var (
 
 import (
 	"{{.Dir}}/handler"
+	pb "{{.Dir}}/proto"
 
 	"github.com/micro/micro/v3/service"
 	"github.com/micro/micro/v3/service/logger"
@@ -18,7 +19,7 @@ func main() {
 	)
 
 	// Register handler
-	srv.Handle(new(handler.{{title .Alias}}))
+	pb.Register{{title .Alias}}Handler(srv.Server(), new(handler.{{title .Alias}}))
 
 	// Run service
 	if err := srv.Run(); err != nil {
