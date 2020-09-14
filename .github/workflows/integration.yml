@@ -53,6 +53,7 @@ jobs:
       id: replace-profile
       run: |
         go mod edit -replace github.com/micro/micro/profile/ci/v3=./profile/ci
+        go mod edit -replace google.golang.org/grpc=google.golang.org/grpc@v1.26.0
 
     # Install micro binary and then build micro with the profile inside a tmp directory. We do this
     # to not alter the original go.mod & go.sum, which the test services reference directly with 
