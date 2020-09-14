@@ -39,6 +39,7 @@ jobs:
       id: replace-profile
       run: |
         echo '\n\nreplace github.com/micro/micro/profile/platform/v3 => ./profile/platform' >> go.mod
+        cat go.mod
     - name: Install micro
       id: install-micro
       run: |
