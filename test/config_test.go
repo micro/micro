@@ -174,7 +174,7 @@ func testConfigReadFromService(t *T) {
 			return outp, fmt.Errorf("Expected val1 in output, got: %v", string(outp))
 		}
 		return outp, err
-	}, 25*time.Second); err != nil {
+	}, 60*time.Second); err != nil {
 		return
 	}
 }

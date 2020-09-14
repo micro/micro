@@ -93,7 +93,7 @@ func testRunLocalSource(t *T) {
 			return outp, errors.New("Can't find example service in list")
 		}
 		return outp, err
-	}, 50*time.Second); err != nil {
+	}, 90*time.Second); err != nil {
 		return
 	}
 }
@@ -128,7 +128,7 @@ func testRunAndKill(t *T) {
 			return outp, errors.New("Can't find example service in runtime")
 		}
 		return outp, err
-	}, 15*time.Second); err != nil {
+	}, 30*time.Second); err != nil {
 		return
 	}
 
@@ -141,7 +141,7 @@ func testRunAndKill(t *T) {
 			return outp, errors.New("Can't find example service in list")
 		}
 		return outp, err
-	}, 50*time.Second); err != nil {
+	}, 90*time.Second); err != nil {
 		return
 	}
 
@@ -619,7 +619,7 @@ func testRunParentFolder(t *T) {
 			return outp, errors.New("Can't find example service in list")
 		}
 		return outp, err
-	}, 50*time.Second); err != nil {
+	}, 90*time.Second); err != nil {
 		return
 	}
 }
@@ -654,7 +654,7 @@ func testExistingLogs(t *T) {
 			return outp, errors.New("Output does not contain expected")
 		}
 		return outp, nil
-	}, 50*time.Second); err != nil {
+	}, 90*time.Second); err != nil {
 		return
 	}
 }
@@ -690,7 +690,7 @@ func testBranchCheckout(t *T) {
 			return outp, errors.New("Output does not contain expected")
 		}
 		return outp, nil
-	}, 30*time.Second); err != nil {
+	}, 60*time.Second); err != nil {
 		return
 	}
 }
@@ -725,7 +725,7 @@ func testStreamLogsAndThirdPartyRepo(t *T) {
 			return outp, errors.New("Output does not contain expected")
 		}
 		return outp, nil
-	}, 50*time.Second); err != nil {
+	}, 90*time.Second); err != nil {
 		return
 	}
 
@@ -882,8 +882,6 @@ func testRunPrivateSource(t *T) {
 
 	// call the service
 	if err := Try("Calling helloworld", t, func() ([]byte, error) {
-		outp, _ := cmd.Exec("logs", "helloworld")
-		t.Logf("logs %s", string(outp))
 		return cmd.Exec("helloworld", "--name=John")
 	}, 30*time.Second); err != nil {
 		return

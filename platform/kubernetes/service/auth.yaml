@@ -73,7 +73,7 @@ spec:
         args:
         - service
         - auth
-        image: micro/micro
+        image: micro/platform
         imagePullPolicy: Always
         ports:
         - containerPort: 8010
