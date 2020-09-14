@@ -8,7 +8,6 @@ import (
 	"strings"
 	"syscall"
 
-	"github.com/micro/cli/v2"
 	goclient "github.com/micro/go-micro/v3/client"
 	"github.com/micro/micro/v3/client/cli/util"
 	"github.com/micro/micro/v3/cmd"
@@ -17,6 +16,7 @@ import (
 	"github.com/micro/micro/v3/service/auth"
 	"github.com/micro/micro/v3/service/client"
 	"github.com/micro/micro/v3/service/context"
+	"github.com/urfave/cli/v2"
 	"golang.org/x/crypto/ssh/terminal"
 )
 
@@ -152,8 +152,8 @@ func changePassword(ctx *cli.Context) error {
 
 // get current user settings
 func current(ctx *cli.Context) error {
-	env, err := config.Get("env")
-	if err != nil || len(env) == 0 {
+	env := util.GetEnv(ctx).Name
+	if len(env) == 0 {
 		env = "n/a"
 	}
 
@@ -182,7 +182,10 @@ func current(ctx *cli.Context) error {
 	// Inspect the token
 	acc, err := auth.Inspect(token)
 	if err == nil {
-		id = acc.ID
+		id = acc.Name
+		if len(id) == 0 {
+			id = acc.ID
+		}
 	}
 
 	baseURL, _ := config.Get("git", util.GetEnv(ctx).Name, "baseurl")
@@ -271,7 +274,11 @@ func user(ctx *cli.Context) error {
 		fmt.Println(err)
 		os.Exit(1)
 	}
-
-	fmt.Println(acc.ID)
+	// backward compatibility
+	user := acc.Name
+	if len(user) == 0 {
+		user = acc.ID
+	}
+	fmt.Println(user)
 	return nil
 }

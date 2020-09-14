@@ -17,11 +17,11 @@ import (
 	"strings"
 
 	"github.com/google/uuid"
-	"github.com/micro/cli/v2"
 	"github.com/micro/micro/v3/client/cli/util"
 	"github.com/micro/micro/v3/internal/helper"
 	pb "github.com/micro/micro/v3/proto/alert"
 	"github.com/micro/micro/v3/service/client"
+	"github.com/urfave/cli/v2"
 )
 
 const (

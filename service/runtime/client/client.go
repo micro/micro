@@ -190,6 +190,7 @@ func (s *svc) Read(opts ...runtime.ReadOption) ([]*runtime.Service, error) {
 			Version:  service.Version,
 			Source:   service.Source,
 			Metadata: service.Metadata,
+			Status:   runtime.ServiceStatus(service.Status),
 		}
 		services = append(services, svc)
 	}
@@ -230,7 +231,7 @@ func (s *svc) Delete(svc *runtime.Service, opts ...runtime.DeleteOption) error {
 		o(&options)
 	}
 
-	// runtime service create request
+	// runtime service dekete request
 	req := &pb.DeleteRequest{
 		Service: &pb.Service{
 			Name:     svc.Name,

@@ -9,8 +9,6 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/micro/cli/v2"
-	"github.com/micro/go-micro/v3/auth"
 	cl "github.com/micro/go-micro/v3/client"
 	clinamespace "github.com/micro/micro/v3/client/cli/namespace"
 	clitoken "github.com/micro/micro/v3/client/cli/token"
@@ -18,8 +16,10 @@ import (
 	"github.com/micro/micro/v3/cmd"
 	"github.com/micro/micro/v3/internal/report"
 	pb "github.com/micro/micro/v3/proto/signup"
+	"github.com/micro/micro/v3/service/auth"
 	"github.com/micro/micro/v3/service/client"
 	"github.com/micro/micro/v3/service/context"
+	"github.com/urfave/cli/v2"
 	"golang.org/x/crypto/ssh/terminal"
 )
 
@@ -178,7 +178,7 @@ func Run(ctx *cli.Context) error {
 		os.Exit(1)
 	}
 
-	if err := clitoken.Save(env.Name, &auth.Token{
+	if err := clitoken.Save(env.Name, &auth.AccountToken{
 		AccessToken:  tok.AccessToken,
 		RefreshToken: tok.RefreshToken,
 		Expiry:       time.Unix(tok.Expiry, 0),

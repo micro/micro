@@ -6,7 +6,6 @@ import (
 	"crypto/x509"
 	"io/ioutil"
 
-	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro/v3/auth/jwt"
 	"github.com/micro/go-micro/v3/broker"
 	"github.com/micro/go-micro/v3/config"
@@ -16,6 +15,7 @@ import (
 	"github.com/micro/go-micro/v3/store"
 	"github.com/micro/micro/v3/profile"
 	"github.com/micro/micro/v3/service/logger"
+	"github.com/urfave/cli/v2"
 
 	microAuth "github.com/micro/micro/v3/service/auth"
 	microConfig "github.com/micro/micro/v3/service/config"

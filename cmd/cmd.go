@@ -18,7 +18,6 @@ import (
 	"github.com/micro/go-micro/v3/server"
 	"github.com/micro/go-micro/v3/store"
 
-	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro/v3/auth"
 	"github.com/micro/go-micro/v3/registry"
 	"github.com/micro/micro/v3/client/cli/util"
@@ -30,6 +29,7 @@ import (
 	"github.com/micro/micro/v3/plugin"
 	"github.com/micro/micro/v3/profile"
 	"github.com/micro/micro/v3/service/logger"
+	"github.com/urfave/cli/v2"
 
 	configCli "github.com/micro/micro/v3/service/config/client"
 
