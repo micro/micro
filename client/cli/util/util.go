@@ -66,12 +66,6 @@ func IsBuiltInService(command string) bool {
 
 // CLIProxyAddress returns the proxy address which should be set for the client
 func CLIProxyAddress(ctx *cli.Context) string {
-	// This makes `micro [command name] --help` work without a server
-	for _, arg := range os.Args {
-		if arg == "--help" || arg == "-h" {
-			return ""
-		}
-	}
 	switch ctx.Args().First() {
 	case "new", "server", "help", "env":
 		return ""
