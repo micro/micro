@@ -90,10 +90,12 @@ func testRunLocalSource(t *T) {
 			return outp, err
 		}
 		if !strings.Contains(string(outp), "example") {
+			logOutp, _ := cmd.Exec("logs", "example")
+			t.Logf("Example Logs: %v", string(logOutp))
 			return outp, errors.New("Can't find example service in list")
 		}
 		return outp, err
-	}, 50*time.Second); err != nil {
+	}, 90*time.Second); err != nil {
 		return
 	}
 }
@@ -128,7 +130,7 @@ func testRunAndKill(t *T) {
 			return outp, errors.New("Can't find example service in runtime")
 		}
 		return outp, err
-	}, 15*time.Second); err != nil {
+	}, 30*time.Second); err != nil {
 		return
 	}
 
@@ -883,7 +885,6 @@ func testRunPrivateSource(t *T) {
 	// call the service
 	if err := Try("Calling helloworld", t, func() ([]byte, error) {
 		outp, _ := cmd.Exec("logs", "helloworld")
-		t.Logf("logs %s", string(outp))
 		return cmd.Exec("helloworld", "--name=John")
 	}, 30*time.Second); err != nil {
 		return
