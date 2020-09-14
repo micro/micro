@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - master
-      - platform-fix
     tags:
       - v2.*
       - v3.*
