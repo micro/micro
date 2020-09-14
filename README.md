@@ -94,7 +94,7 @@ See [LICENSE](LICENSE) which makes use of [Polyform Shield](https://polyformproj
 
 ## Hosting
 
-If you're interested in a hosted version of Micro see [m3o.com](https://m3o.com).
+If you're interested in a hosted version of Micro see [m3o.com](https://m3o.com). Docs at [m3o.dev](https://m3o.dev).
 
 ## Commercial Use
 
