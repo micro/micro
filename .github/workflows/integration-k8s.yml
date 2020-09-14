@@ -38,7 +38,7 @@ jobs:
     - name: Replace platform profile
       id: replace-profile
       run: |
-        echo '\n\nreplace github.com/micro/micro/profile/platform/v3 => ./profile/platform' | tee -a go.mod
+        echo "\n\nreplace github.com/micro/micro/profile/platform/v3 => ./profile/platform" | tee -a go.mod
         cat go.mod
     - name: Install micro
       id: install-micro
