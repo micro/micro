@@ -46,6 +46,8 @@ type SignupService interface {
 	SendVerificationEmail(ctx context.Context, in *SendVerificationEmailRequest, opts ...client.CallOption) (*SendVerificationEmailResponse, error)
 	// Verify kicks off the process of verification
 	Verify(ctx context.Context, in *VerifyRequest, opts ...client.CallOption) (*VerifyResponse, error)
+	SetPaymentMethod(ctx context.Context, in *SetPaymentMethodRequest, opts ...client.CallOption) (*SetPaymentMethodResponse, error)
+	HasPaymentMethod(ctx context.Context, in *HasPaymentMethodRequest, opts ...client.CallOption) (*HasPaymentMethodResponse, error)
 	// Creates a subscription and an account
 	CompleteSignup(ctx context.Context, in *CompleteSignupRequest, opts ...client.CallOption) (*CompleteSignupResponse, error)
 	Recover(ctx context.Context, in *RecoverRequest, opts ...client.CallOption) (*RecoverResponse, error)
@@ -83,6 +85,26 @@ func (c *signupService) Verify(ctx context.Context, in *VerifyRequest, opts ...c
 	return out, nil
 }
 
+func (c *signupService) SetPaymentMethod(ctx context.Context, in *SetPaymentMethodRequest, opts ...client.CallOption) (*SetPaymentMethodResponse, error) {
+	req := c.c.NewRequest(c.name, "Signup.SetPaymentMethod", in)
+	out := new(SetPaymentMethodResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *signupService) HasPaymentMethod(ctx context.Context, in *HasPaymentMethodRequest, opts ...client.CallOption) (*HasPaymentMethodResponse, error) {
+	req := c.c.NewRequest(c.name, "Signup.HasPaymentMethod", in)
+	out := new(HasPaymentMethodResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *signupService) CompleteSignup(ctx context.Context, in *CompleteSignupRequest, opts ...client.CallOption) (*CompleteSignupResponse, error) {
 	req := c.c.NewRequest(c.name, "Signup.CompleteSignup", in)
 	out := new(CompleteSignupResponse)
@@ -110,6 +132,8 @@ type SignupHandler interface {
 	SendVerificationEmail(context.Context, *SendVerificationEmailRequest, *SendVerificationEmailResponse) error
 	// Verify kicks off the process of verification
 	Verify(context.Context, *VerifyRequest, *VerifyResponse) error
+	SetPaymentMethod(context.Context, *SetPaymentMethodRequest, *SetPaymentMethodResponse) error
+	HasPaymentMethod(context.Context, *HasPaymentMethodRequest, *HasPaymentMethodResponse) error
 	// Creates a subscription and an account
 	CompleteSignup(context.Context, *CompleteSignupRequest, *CompleteSignupResponse) error
 	Recover(context.Context, *RecoverRequest, *RecoverResponse) error
@@ -119,6 +143,8 @@ func RegisterSignupHandler(s server.Server, hdlr SignupHandler, opts ...server.H
 	type signup interface {
 		SendVerificationEmail(ctx context.Context, in *SendVerificationEmailRequest, out *SendVerificationEmailResponse) error
 		Verify(ctx context.Context, in *VerifyRequest, out *VerifyResponse) error
+		SetPaymentMethod(ctx context.Context, in *SetPaymentMethodRequest, out *SetPaymentMethodResponse) error
+		HasPaymentMethod(ctx context.Context, in *HasPaymentMethodRequest, out *HasPaymentMethodResponse) error
 		CompleteSignup(ctx context.Context, in *CompleteSignupRequest, out *CompleteSignupResponse) error
 		Recover(ctx context.Context, in *RecoverRequest, out *RecoverResponse) error
 	}
@@ -139,6 +165,14 @@ func (h *signupHandler) SendVerificationEmail(ctx context.Context, in *SendVerif
 
 func (h *signupHandler) Verify(ctx context.Context, in *VerifyRequest, out *VerifyResponse) error {
 	return h.SignupHandler.Verify(ctx, in, out)
+}
+
+func (h *signupHandler) SetPaymentMethod(ctx context.Context, in *SetPaymentMethodRequest, out *SetPaymentMethodResponse) error {
+	return h.SignupHandler.SetPaymentMethod(ctx, in, out)
+}
+
+func (h *signupHandler) HasPaymentMethod(ctx context.Context, in *HasPaymentMethodRequest, out *HasPaymentMethodResponse) error {
+	return h.SignupHandler.HasPaymentMethod(ctx, in, out)
 }
 
 func (h *signupHandler) CompleteSignup(ctx context.Context, in *CompleteSignupRequest, out *CompleteSignupResponse) error {
