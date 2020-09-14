@@ -40,6 +40,6 @@ replace google.golang.org/grpc => google.golang.org/grpc v1.26.0
 
 // once the profiles are merged to master these replace statements can be removed
 
-replace github.com/micro/micro/profile/ci/v3 => github.com/micro/micro/profile/ci/v3 v3.0.0-20200911154509-596a7ec86ba6
+replace github.com/micro/micro/profile/ci/v3 => github.com/micro/micro/profile/ci/v3 v3.0.0-20200914075626-f173397c53c8
 
-replace github.com/micro/micro/profile/platform/v3 => github.com/micro/micro/profile/platform/v3 v3.0.0-20200911154509-596a7ec86ba6
+replace github.com/micro/micro/profile/platform/v3 => github.com/micro/micro/profile/platform/v3 v3.0.0-20200914075626-f173397c53c8
