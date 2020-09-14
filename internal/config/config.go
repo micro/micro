@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
-	"os/user"
 	"path/filepath"
 	"strings"
 	"sync"
@@ -12,16 +11,16 @@ import (
 	"github.com/juju/fslock"
 	conf "github.com/micro/go-micro/v3/config"
 	fs "github.com/micro/go-micro/v3/config/source/file"
+	"github.com/micro/micro/v3/internal/user"
 )
 
 var (
-	baseDir = ".micro"
 
 	// lock in single process
 	mtx sync.Mutex
 
 	// file for global micro config
-	file = filepath.Join(baseDir, "config.json")
+	file = filepath.Join(user.Dir, "config.json")
 
 	// full path to file
 	path, _ = filePath()
@@ -106,11 +105,7 @@ func Set(value string, p ...string) error {
 }
 
 func filePath() (string, error) {
-	usr, err := user.Current()
-	if err != nil {
-		return "", err
-	}
-	return filepath.Join(usr.HomeDir, file), nil
+	return file, nil
 }
 
 func moveConfig(from, to string) error {
@@ -157,7 +152,7 @@ func newConfig() (conf.Config, error) {
 
 	// now write the file if it does not exist
 	if _, err := os.Stat(path); os.IsNotExist(err) {
-		ioutil.WriteFile(path, []byte(`{}`), 0644)
+		ioutil.WriteFile(path, []byte(`{"env":"local"}`), 0644)
 	} else if err != nil {
 		return nil, fmt.Errorf("Failed to write config file %s: %v", path, err)
 	}

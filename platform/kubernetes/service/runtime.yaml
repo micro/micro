@@ -75,10 +75,11 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   namespace: default
-  name: micro-runtime
+  name: micro-runtime-latest
   labels:
     micro: runtime
-    name: micro-runtime
+    name: runtime
+    version: latest
   annotations:
     name: "runtime"
     version: "latest"

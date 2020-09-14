@@ -7,7 +7,6 @@ import (
 	"math/rand"
 	"os"
 	"os/exec"
-	"os/user"
 	"path/filepath"
 	"runtime"
 	"runtime/debug"
@@ -19,6 +18,7 @@ import (
 
 	"github.com/micro/micro/v3/client/cli/namespace"
 	"github.com/micro/micro/v3/client/cli/token"
+	"github.com/micro/micro/v3/internal/user"
 )
 
 const (
@@ -27,7 +27,7 @@ const (
 )
 
 var (
-	retryCount        = 2
+	retryCount        = 1
 	isParallel        = true
 	ignoreThisError   = errors.New("Do not use this error")
 	errFatal          = errors.New("Fatal error")
@@ -56,6 +56,7 @@ type Server interface {
 type Command struct {
 	Env    string
 	Config string
+	Dir    string
 
 	sync.Mutex
 	// in the event an async command is run
@@ -89,8 +90,12 @@ func (c *Command) args(a ...string) []string {
 func (c *Command) Exec(args ...string) ([]byte, error) {
 	arguments := c.args(args...)
 	// exec the command
-	//c.t.Logf("Executing command: micro %s\n", strings.Join(arguments, " "))
-	return exec.Command("micro", arguments...).CombinedOutput()
+	// c.t.Logf("Executing command: micro %s\n", strings.Join(arguments, " "))
+	com := exec.Command("micro", arguments...)
+	if len(c.Dir) > 0 {
+		com.Dir = c.Dir
+	}
+	return com.CombinedOutput()
 }
 
 // Starts a new command
@@ -322,8 +327,7 @@ func newLocalServer(t *T, fname string, opts ...Option) Server {
 }
 
 func configFile(fname string) string {
-	userDir, _ := user.Current()
-	dir := filepath.Join(userDir.HomeDir, ".micro/test")
+	dir := filepath.Join(user.Dir, "test")
 	return filepath.Join(dir, "config-"+fname+".json")
 }
 
@@ -342,20 +346,20 @@ func (s *ServerBase) Run() error {
 	if err := Try("Adding micro env: "+s.env+" file: "+s.config, s.t, func() ([]byte, error) {
 		out, err := cmd.Exec("env", "add", s.env, fmt.Sprintf("127.0.0.1:%d", s.ProxyPort()))
 		if err != nil {
-			return nil, err
+			return out, err
 		}
 
 		if len(out) > 0 {
-			return nil, errors.New("Not added")
+			return out, errors.New("Unexpected output when adding env")
 		}
 
 		out, err = cmd.Exec("env")
 		if err != nil {
-			return nil, err
+			return out, err
 		}
 
 		if !strings.Contains(string(out), s.env) {
-			return nil, errors.New("Not added")
+			return out, errors.New("Can't find env added")
 		}
 
 		return out, nil
@@ -371,21 +375,17 @@ func (s *ServerDefault) Run() error {
 		return err
 	}
 
+	servicesRequired := []string{"runtime", "registry", "broker", "config", "config", "proxy", "auth", "events", "store"}
 	if err := Try("Calling micro server", s.t, func() ([]byte, error) {
 		out, err := s.Command().Exec("services")
-		if !strings.Contains(string(out), "runtime") ||
-			!strings.Contains(string(out), "registry") ||
-			!strings.Contains(string(out), "broker") ||
-			!strings.Contains(string(out), "config") ||
-			!strings.Contains(string(out), "proxy") ||
-			!strings.Contains(string(out), "auth") ||
-			!strings.Contains(string(out), "events") ||
-			!strings.Contains(string(out), "store") {
-			return out, errors.New("Not ready")
+		for _, s := range servicesRequired {
+			if !strings.Contains(string(out), s) {
+				return out, fmt.Errorf("Can't find %v: %v", s, err)
+			}
 		}
 
 		return out, err
-	}, 60*time.Second); err != nil {
+	}, 20*time.Second); err != nil {
 		return err
 	}
 

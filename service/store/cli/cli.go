@@ -6,9 +6,9 @@
 package cli
 
 import (
-	"github.com/micro/cli/v2"
 	"github.com/micro/micro/v3/cmd"
 	"github.com/micro/micro/v3/internal/helper"
+	"github.com/urfave/cli/v2"
 )
 
 func init() {
@@ -40,6 +40,16 @@ func init() {
 						Aliases: []string{"p"},
 						Usage:   "read prefix",
 						Value:   false,
+					},
+					&cli.UintFlag{
+						Name:    "limit",
+						Aliases: []string{"l"},
+						Usage:   "list limit",
+					},
+					&cli.UintFlag{
+						Name:    "offset",
+						Aliases: []string{"o"},
+						Usage:   "list offset",
 					},
 					&cli.BoolFlag{
 						Name:    "verbose",

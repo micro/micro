@@ -6,9 +6,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"strings"
 
-	"github.com/micro/cli/v2"
 	"github.com/micro/micro/v3/internal/config"
+	"github.com/urfave/cli/v2"
 )
 
 const (
@@ -22,7 +23,7 @@ const (
 	// localProxyAddress is the default proxy address for environment server
 	localProxyAddress = "127.0.0.1:8081"
 	// platformProxyAddress is teh default proxy address for environment platform
-	platformProxyAddress = "proxy.m3o.com:443"
+	platformProxyAddress = "proxy.m3o.com"
 )
 
 var (
@@ -65,12 +66,6 @@ func IsBuiltInService(command string) bool {
 
 // CLIProxyAddress returns the proxy address which should be set for the client
 func CLIProxyAddress(ctx *cli.Context) string {
-	// This makes `micro [command name] --help` work without a server
-	for _, arg := range os.Args {
-		if arg == "--help" || arg == "-h" {
-			return ""
-		}
-	}
 	switch ctx.Args().First() {
 	case "new", "server", "help", "env":
 		return ""
@@ -86,7 +81,11 @@ func CLIProxyAddress(ctx *cli.Context) string {
 		return ""
 	}
 
-	return GetEnv(ctx).ProxyAddress
+	addr := GetEnv(ctx).ProxyAddress
+	if !strings.Contains(addr, ":") {
+		return fmt.Sprintf("%v:443", addr)
+	}
+	return addr
 }
 
 type Env struct {

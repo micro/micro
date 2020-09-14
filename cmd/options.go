@@ -3,7 +3,7 @@ package cmd
 import (
 	"context"
 
-	"github.com/micro/cli/v2"
+	"github.com/urfave/cli/v2"
 )
 
 type Option func(o *Options)

@@ -4,10 +4,9 @@ go 1.13
 
 replace google.golang.org/grpc => google.golang.org/grpc v1.26.0
 
-replace github.com/micro/micro/v3 => ../../..
-
 require (
-	github.com/micro/go-micro/v3 v3.0.0-beta.0.20200820082929-29e8cdbfe9b9
-	github.com/micro/micro/v3 v3.0.0-beta.0.20200817215434-d519cfc25878
-	github.com/micro/services v0.10.0 // indirect
+	github.com/micro/go-micro/v3 v3.0.0-beta.2.0.20200910150737-d2728b498ca8
+	github.com/micro/micro/v3 v3.0.0-beta.3.0.20200910154135-e222e73e9a5c
 )
+
+replace github.com/micro/micro/v3 => ../../..

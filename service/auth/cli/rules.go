@@ -7,14 +7,14 @@ import (
 	"strings"
 	"text/tabwriter"
 
-	"github.com/micro/cli/v2"
 	goclient "github.com/micro/go-micro/v3/client"
 	"github.com/micro/micro/v3/client/cli/namespace"
 	"github.com/micro/micro/v3/client/cli/util"
-	pb "github.com/micro/micro/v3/service/auth/proto"
+	pb "github.com/micro/micro/v3/proto/auth"
 	"github.com/micro/micro/v3/service/client"
 	"github.com/micro/micro/v3/service/context"
 	"github.com/micro/micro/v3/service/errors"
+	"github.com/urfave/cli/v2"
 )
 
 func listRules(ctx *cli.Context) error {

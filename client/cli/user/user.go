@@ -8,15 +8,15 @@ import (
 	"strings"
 	"syscall"
 
-	"github.com/micro/cli/v2"
 	goclient "github.com/micro/go-micro/v3/client"
 	"github.com/micro/micro/v3/client/cli/util"
 	"github.com/micro/micro/v3/cmd"
 	"github.com/micro/micro/v3/internal/config"
+	pb "github.com/micro/micro/v3/proto/auth"
 	"github.com/micro/micro/v3/service/auth"
-	pb "github.com/micro/micro/v3/service/auth/proto"
 	"github.com/micro/micro/v3/service/client"
 	"github.com/micro/micro/v3/service/context"
+	"github.com/urfave/cli/v2"
 	"golang.org/x/crypto/ssh/terminal"
 )
 
@@ -135,20 +135,25 @@ func changePassword(ctx *cli.Context) error {
 			break
 		}
 	}
+	ns, err := currNamespace(ctx)
+	if err != nil {
+		return err
+	}
 
 	accountService := pb.NewAccountsService("auth", client.DefaultClient)
-	_, err := accountService.ChangeSecret(context.DefaultContext, &pb.ChangeSecretRequest{
+	_, err = accountService.ChangeSecret(context.DefaultContext, &pb.ChangeSecretRequest{
 		Id:        email,
 		OldSecret: oldPassword,
 		NewSecret: newPassword,
+		Options:   &pb.Options{Namespace: ns},
 	}, goclient.WithAuthToken())
 	return err
 }
 
 // get current user settings
 func current(ctx *cli.Context) error {
-	env, err := config.Get("env")
-	if err != nil || len(env) == 0 {
+	env := util.GetEnv(ctx).Name
+	if len(env) == 0 {
 		env = "n/a"
 	}
 
@@ -177,7 +182,10 @@ func current(ctx *cli.Context) error {
 	// Inspect the token
 	acc, err := auth.Inspect(token)
 	if err == nil {
-		id = acc.ID
+		id = acc.Name
+		if len(id) == 0 {
+			id = acc.ID
+		}
 	}
 
 	baseURL, _ := config.Get("git", util.GetEnv(ctx).Name, "baseurl")
@@ -212,16 +220,24 @@ func getToken(ctx *cli.Context) error {
 
 // get namespace in current env
 func getNamespace(ctx *cli.Context) error {
-	env, err := config.Get("env")
-	if err != nil {
-		return err
-	}
-	namespace, err := config.Get("namespaces", env, "current")
+	namespace, err := currNamespace(ctx)
 	if err != nil {
 		return err
 	}
 	fmt.Println(namespace)
 	return nil
+}
+
+func currNamespace(ctx *cli.Context) (string, error) {
+	env, err := config.Get("env")
+	if err != nil {
+		return "", err
+	}
+	namespace, err := config.Get("namespaces", env, "current")
+	if err != nil {
+		return "", err
+	}
+	return namespace, nil
 }
 
 // set namespace in current env
@@ -258,7 +274,11 @@ func user(ctx *cli.Context) error {
 		fmt.Println(err)
 		os.Exit(1)
 	}
-
-	fmt.Println(acc.ID)
+	// backward compatibility
+	user := acc.Name
+	if len(user) == 0 {
+		user = acc.ID
+	}
+	fmt.Println(user)
 	return nil
 }

@@ -1,17 +1,19 @@
 package server
 
 import (
-	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro/v3/auth"
 	"github.com/micro/go-micro/v3/store"
 	"github.com/micro/go-micro/v3/util/token"
 	"github.com/micro/go-micro/v3/util/token/jwt"
+	"github.com/micro/micro/v3/internal/user"
+	pb "github.com/micro/micro/v3/proto/auth"
 	"github.com/micro/micro/v3/service"
-	pb "github.com/micro/micro/v3/service/auth/proto"
 	authHandler "github.com/micro/micro/v3/service/auth/server/auth"
 	rulesHandler "github.com/micro/micro/v3/service/auth/server/rules"
+	"github.com/micro/micro/v3/service/logger"
 	log "github.com/micro/micro/v3/service/logger"
 	mustore "github.com/micro/micro/v3/service/store"
+	"github.com/urfave/cli/v2"
 )
 
 const (
@@ -33,12 +35,19 @@ func Run(ctx *cli.Context) error {
 	// setup the auth handler to use JWTs
 	pubKey := ctx.String("auth_public_key")
 	privKey := ctx.String("auth_private_key")
-	if len(pubKey) > 0 || len(privKey) > 0 {
-		authH.TokenProvider = jwt.NewTokenProvider(
-			token.WithPublicKey(pubKey),
-			token.WithPrivateKey(privKey),
-		)
+	if len(privKey) == 0 || len(pubKey) == 0 {
+		privB, pubB, err := user.GetJWTCerts()
+		if err != nil {
+			logger.Fatalf("Error getting keys; %v", err)
+		}
+		privKey = string(privB)
+		pubKey = string(pubB)
 	}
+
+	authH.TokenProvider = jwt.NewTokenProvider(
+		token.WithPublicKey(pubKey),
+		token.WithPrivateKey(privKey),
+	)
 
 	// set the handlers store
 	mustore.DefaultStore.Init(store.Table("auth"))

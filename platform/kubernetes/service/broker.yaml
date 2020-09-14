@@ -2,10 +2,11 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   namespace: default
-  name: micro-broker
+  name: micro-broker-latest
   labels:
     micro: runtime
-    name: micro-broker
+    name: broker
+    version: latest
   annotations:
     name: "broker"
     version: "latest"

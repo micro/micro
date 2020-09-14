@@ -2,13 +2,14 @@ package server
 
 import (
 	"context"
+	"sync"
 	"time"
 
 	goevents "github.com/micro/go-micro/v3/events"
-	"github.com/micro/micro/v3/internal/namespace"
+	"github.com/micro/micro/v3/internal/auth/namespace"
+	pb "github.com/micro/micro/v3/proto/events"
 	"github.com/micro/micro/v3/service/errors"
 	"github.com/micro/micro/v3/service/events"
-	pb "github.com/micro/micro/v3/service/events/proto"
 	"github.com/micro/micro/v3/service/events/util"
 )
 
@@ -47,6 +48,7 @@ func (s *Stream) Publish(ctx context.Context, req *pb.PublishRequest, rsp *pb.Pu
 }
 
 func (s *Stream) Subscribe(ctx context.Context, req *pb.SubscribeRequest, rsp pb.Stream_SubscribeStream) error {
+
 	// authorize the request
 	if err := namespace.Authorize(ctx, namespace.DefaultNamespace); err == namespace.ErrForbidden {
 		return errors.Forbidden("events.Stream.Publish", err.Error())
@@ -57,12 +59,18 @@ func (s *Stream) Subscribe(ctx context.Context, req *pb.SubscribeRequest, rsp pb
 	}
 
 	// parse options
-	var opts []goevents.SubscribeOption
+	opts := []goevents.SubscribeOption{}
 	if req.StartAtTime > 0 {
 		opts = append(opts, goevents.WithStartAtTime(time.Unix(req.StartAtTime, 0)))
 	}
 	if len(req.Queue) > 0 {
 		opts = append(opts, goevents.WithQueue(req.Queue))
+	}
+	if !req.AutoAck {
+		opts = append(opts, goevents.WithAutoAck(req.AutoAck, time.Duration(req.AckWait)/time.Nanosecond))
+	}
+	if req.RetryLimit > -1 {
+		opts = append(opts, goevents.WithRetryLimit(int(req.RetryLimit)))
 	}
 
 	// create the subscriber
@@ -71,11 +79,55 @@ func (s *Stream) Subscribe(ctx context.Context, req *pb.SubscribeRequest, rsp pb
 		return errors.InternalServerError("events.Stream.Subscribe", err.Error())
 	}
 
+	type eventSent struct {
+		sent  time.Time
+		event goevents.Event
+	}
+	ackMap := map[string]eventSent{}
+	mutex := sync.RWMutex{}
+	go func() {
+		for {
+			req := pb.AckRequest{}
+			if err := rsp.RecvMsg(&req); err != nil {
+				return
+			}
+			mutex.RLock()
+			ev, ok := ackMap[req.Id]
+			mutex.RUnlock()
+			if !ok {
+				// not found, probably timed out after ackWait
+				continue
+			}
+			if req.Success {
+				ev.event.Ack()
+			} else {
+				ev.event.Nack()
+			}
+			mutex.Lock()
+			delete(ackMap, req.Id)
+			mutex.Unlock()
+		}
+	}()
 	for {
+		// Do any clean up of ackMap where we haven't got a response
+		now := time.Now()
+		for k, v := range ackMap {
+			if v.sent.Add(2 * time.Duration(req.AckWait)).Before(now) {
+				mutex.Lock()
+				delete(ackMap, k)
+				mutex.Unlock()
+			}
+		}
 		ev, ok := <-evChan
 		if !ok {
 			rsp.Close()
 			return nil
+		}
+		if !req.AutoAck {
+			// track the acks
+			mutex.Lock()
+			ackMap[ev.ID] = eventSent{event: ev, sent: time.Now()}
+			mutex.Unlock()
 		}
 
 		if err := rsp.Send(util.SerializeEvent(&ev)); err != nil {

@@ -5,8 +5,8 @@ import (
 
 	goclient "github.com/micro/go-micro/v3/client"
 	"github.com/micro/go-micro/v3/config/source"
+	proto "github.com/micro/micro/v3/proto/config"
 	"github.com/micro/micro/v3/service/client"
-	proto "github.com/micro/micro/v3/service/config/proto"
 	"github.com/micro/micro/v3/service/context"
 	"github.com/micro/micro/v3/service/errors"
 	"github.com/micro/micro/v3/service/logger"

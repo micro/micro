@@ -2,10 +2,11 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   namespace: default
-  name: micro-router
+  name: micro-router-latest
   labels:
     micro: runtime
-    name: micro-router
+    name: router
+    version: latest
   annotations:
     name: "router"
     version: "latest"

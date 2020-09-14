@@ -18,7 +18,6 @@ import (
 	"github.com/micro/go-micro/v3/server"
 	"github.com/micro/go-micro/v3/store"
 
-	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro/v3/auth"
 	"github.com/micro/go-micro/v3/registry"
 	"github.com/micro/micro/v3/client/cli/util"
@@ -30,6 +29,7 @@ import (
 	"github.com/micro/micro/v3/plugin"
 	"github.com/micro/micro/v3/profile"
 	"github.com/micro/micro/v3/service/logger"
+	"github.com/urfave/cli/v2"
 
 	configCli "github.com/micro/micro/v3/service/config/client"
 
@@ -371,12 +371,14 @@ func (c *command) Before(ctx *cli.Context) error {
 			ctx.String("auth_id"), ctx.String("auth_secret"),
 		))
 	}
+
 	if len(ctx.String("auth_public_key")) > 0 {
 		authOpts = append(authOpts, auth.PublicKey(ctx.String("auth_public_key")))
 	}
 	if len(ctx.String("auth_private_key")) > 0 {
 		authOpts = append(authOpts, auth.PrivateKey(ctx.String("auth_private_key")))
 	}
+
 	muauth.DefaultAuth.Init(authOpts...)
 
 	// setup registry

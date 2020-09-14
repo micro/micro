@@ -2,7 +2,7 @@ package client
 
 import (
 	"github.com/micro/go-micro/v3/broker"
-	pb "github.com/micro/micro/v3/service/broker/proto"
+	pb "github.com/micro/micro/v3/proto/broker"
 	"github.com/micro/micro/v3/service/logger"
 )
 

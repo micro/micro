@@ -10,10 +10,10 @@ import (
 	goclient "github.com/micro/go-micro/v3/client"
 	"github.com/micro/go-micro/v3/metadata"
 	"github.com/micro/go-micro/v3/store"
+	pb "github.com/micro/micro/v3/proto/store"
 	"github.com/micro/micro/v3/service/client"
 	"github.com/micro/micro/v3/service/context"
 	"github.com/micro/micro/v3/service/errors"
-	pb "github.com/micro/micro/v3/service/store/proto"
 )
 
 type srv struct {

@@ -14,8 +14,8 @@ import (
 	// load packages so they can register commands
 	_ "github.com/micro/micro/v3/client/cli"
 	_ "github.com/micro/micro/v3/client/cli/new"
+	_ "github.com/micro/micro/v3/client/cli/signup"
 	_ "github.com/micro/micro/v3/client/cli/user"
-	_ "github.com/micro/micro/v3/platform/cli"
 	_ "github.com/micro/micro/v3/server"
 	_ "github.com/micro/micro/v3/service/auth/cli"
 	_ "github.com/micro/micro/v3/service/cli"
@@ -23,6 +23,10 @@ import (
 	_ "github.com/micro/micro/v3/service/network/cli"
 	_ "github.com/micro/micro/v3/service/runtime/cli"
 	_ "github.com/micro/micro/v3/service/store/cli"
+
+	// additional profiles
+	_ "github.com/micro/micro/v3/profile/ci"
+	_ "github.com/micro/micro/v3/profile/platform"
 )
 
 func main() {

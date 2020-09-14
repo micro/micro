@@ -4,7 +4,7 @@ import (
 	"time"
 
 	"github.com/micro/go-micro/v3/events"
-	pb "github.com/micro/micro/v3/service/events/proto"
+	pb "github.com/micro/micro/v3/proto/events"
 )
 
 func SerializeEvent(ev *events.Event) *pb.Event {

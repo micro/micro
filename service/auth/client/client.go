@@ -8,7 +8,7 @@ import (
 	goclient "github.com/micro/go-micro/v3/client"
 	"github.com/micro/go-micro/v3/util/token"
 	"github.com/micro/go-micro/v3/util/token/jwt"
-	pb "github.com/micro/micro/v3/service/auth/proto"
+	pb "github.com/micro/micro/v3/proto/auth"
 	"github.com/micro/micro/v3/service/client"
 	"github.com/micro/micro/v3/service/client/cache"
 	"github.com/micro/micro/v3/service/context"
@@ -77,6 +77,7 @@ func (s *srv) Generate(id string, opts ...auth.GenerateOption) (*auth.Account, e
 		Options: &pb.Options{
 			Namespace: options.Issuer,
 		},
+		Name: options.Name,
 	}, s.callOpts()...)
 	if err != nil {
 		return nil, err
@@ -252,6 +253,7 @@ func serializeAccount(a *pb.Account) *auth.Account {
 		Issuer:   a.Issuer,
 		Metadata: a.Metadata,
 		Scopes:   a.Scopes,
+		Name:     a.Name,
 	}
 }
 
