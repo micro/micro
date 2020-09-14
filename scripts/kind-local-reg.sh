@@ -12,6 +12,6 @@ do
   kubectl annotate node "${node}" "kind.x-k8s.io/registry=localhost:5000"
 done
 
-sed_expression="s/: micro\/micro/: localhost:5000\/micro/g"
+sed_expression="s/: micro\/platform/: localhost:5000\/micro/g"
 sed -e "$sed_expression" -i.bak $DIR/../platform/kubernetes/service/*.yaml
 
