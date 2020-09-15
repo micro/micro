@@ -380,7 +380,7 @@ func (s *ServerDefault) Run() error {
 		out, err := s.Command().Exec("services")
 		for _, s := range servicesRequired {
 			if !strings.Contains(string(out), s) {
-				return out, fmt.Errorf("Can't find %v: %v, output:", s, err, string(out))
+				return out, fmt.Errorf("Can't find %v: %v, output: %v", s, err, string(out))
 			}
 		}
 
