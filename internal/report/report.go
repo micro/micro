@@ -84,6 +84,9 @@ type TrackingData struct {
 }
 
 func getTrackingCategory(ctx *cli.Context) string {
+	if ctx == nil {
+		return "cli"
+	}
 	command := helper.Command(ctx)
 	subcommand := helper.Subcommand(ctx)
 	if len(strings.TrimSpace(subcommand)) == 0 {
