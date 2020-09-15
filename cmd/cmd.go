@@ -8,6 +8,7 @@ import (
 	"math/rand"
 	"os"
 	"os/exec"
+	"runtime/debug"
 	"sort"
 	"strings"
 	"time"
@@ -24,6 +25,7 @@ import (
 	uconf "github.com/micro/micro/v3/internal/config"
 	"github.com/micro/micro/v3/internal/helper"
 	"github.com/micro/micro/v3/internal/network"
+	"github.com/micro/micro/v3/internal/report"
 	_ "github.com/micro/micro/v3/internal/usage"
 	"github.com/micro/micro/v3/internal/wrapper"
 	"github.com/micro/micro/v3/plugin"
@@ -523,6 +525,12 @@ func (c *command) Init(opts ...Option) error {
 }
 
 func (c *command) Run() error {
+	defer func() {
+		if r := recover(); r != nil {
+			report.Errorf(nil, fmt.Sprintf("panic: %v", string(debug.Stack())))
+			panic(r)
+		}
+	}()
 	return c.app.Run(os.Args)
 }
 

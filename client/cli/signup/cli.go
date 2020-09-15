@@ -67,7 +67,6 @@ func Run(ctx *cli.Context) error {
 	}, cl.WithRequestTimeout(10*time.Second))
 	if err != nil {
 		fmt.Printf("Error verifying: %s\n", err)
-		report.Errorf(ctx, "%v: Error verifying: %s", email, err)
 		os.Exit(1)
 	}
 
@@ -161,7 +160,6 @@ func Run(ctx *cli.Context) error {
 	}, cl.WithRequestTimeout(30*time.Second))
 	if err != nil {
 		fmt.Printf("Error completing signup: %s\n", err)
-		report.Errorf(ctx, "Error completing signup: %s", err)
 		os.Exit(1)
 	}
 
