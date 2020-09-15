@@ -309,7 +309,6 @@ func newLocalServer(t *T, fname string, opts ...Option) Server {
 		fmt.Sprintf("-p=%v:8080", apiPortNum),
 		"-e", "MICRO_AUTH_PRIVATE_KEY="+strings.Trim(string(privKey), "\n"),
 		"-e", "MICRO_AUTH_PUBLIC_KEY="+strings.Trim(string(pubKey), "\n"),
-		"-e", "MICRO_PROFILE=ci",
 		"micro", "server")
 	configFile := configFile(fname)
 	return &ServerDefault{ServerBase{
