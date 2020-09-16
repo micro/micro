@@ -267,10 +267,7 @@ func (c *command) Before(ctx *cli.Context) error {
 	if v := ctx.Args().First(); len(v) > 0 {
 		switch v {
 		case "service", "server":
-			// micro has already been configured
-			if c.service {
-				return nil
-			}
+			// do nothing
 		default:
 			// otherwise check
 			// TODO: write a local file to detect
