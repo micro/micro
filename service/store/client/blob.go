@@ -91,11 +91,13 @@ func (b *blob) Write(key string, blob io.Reader, opts ...store.BlobOption) error
 	} else if err != nil {
 		return err
 	}
+	defer stream.Close()
 
 	// read from the blob and stream it to the server
 	buffer := make([]byte, bufferSize)
 	for {
-		if _, err := blob.Read(buffer); err == io.EOF {
+		num, err := blob.Read(buffer)
+		if err == io.EOF {
 			break
 		} else if err != nil {
 			return err
@@ -106,7 +108,7 @@ func (b *blob) Write(key string, blob io.Reader, opts ...store.BlobOption) error
 			Options: &pb.BlobOptions{
 				Namespace: options.Namespace,
 			},
-			Blob: buffer,
+			Blob: buffer[:num],
 		}
 
 		if err := stream.Send(req); err != nil {
@@ -114,7 +116,7 @@ func (b *blob) Write(key string, blob io.Reader, opts ...store.BlobOption) error
 		}
 	}
 
-	return stream.Close()
+	return nil
 }
 
 func (b *blob) Delete(key string, opts ...store.BlobOption) error {

@@ -47,13 +47,14 @@ func (b *blobHandler) Read(ctx context.Context, req *pb.BlobReadRequest, stream 
 	// read from the blob and stream it to the client
 	buffer := make([]byte, bufferSize)
 	for {
-		if _, err := blob.Read(buffer); err == io.EOF {
+		num, err := blob.Read(buffer)
+		if err == io.EOF {
 			break
 		} else if err != nil {
 			return err
 		}
 
-		if err := stream.Send(&pb.BlobReadResponse{Blob: buffer}); err != nil {
+		if err := stream.Send(&pb.BlobReadResponse{Blob: buffer[:num]}); err != nil {
 			return err
 		}
 	}
