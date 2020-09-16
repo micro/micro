@@ -3,7 +3,6 @@ package client
 import (
 	"bytes"
 	"context"
-	"fmt"
 	"io"
 	"net/http"
 
@@ -60,10 +59,8 @@ func (b *blob) Read(key string, opts ...store.BlobOption) (io.Reader, error) {
 	buf := bytes.NewBuffer(nil)
 
 	// keep recieving bytes from the stream until it's closed by the server
-	fmt.Println("Waiting to rec")
 	for {
 		res, err := stream.Recv()
-		fmt.Println("Rec", string(res.Blob), err)
 		if err == io.EOF {
 			break
 		} else if err != nil {
@@ -87,9 +84,6 @@ func (b *blob) Write(key string, blob io.Reader, opts ...store.BlobOption) error
 	var options store.BlobOptions
 	for _, o := range opts {
 		o(&options)
-	}
-	if len(options.Namespace) == 0 {
-		options.Namespace = "micro"
 	}
 
 	// open the stream
