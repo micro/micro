@@ -68,7 +68,33 @@ func timeAgo(v string) string {
 	if err != nil {
 		return v
 	}
-	return fmt.Sprintf("%v ago", time.Since(t).Truncate(time.Second))
+
+	return fmt.Sprintf("%v ago", fmtDuration(time.Since(t)))
+}
+
+func fmtDuration(d time.Duration) string {
+	// round to secs
+	d = d.Round(time.Second)
+
+	var resStr string
+	days := d / (time.Hour * 24)
+	if days > 0 {
+		d -= days * time.Hour * 24
+		resStr = fmt.Sprintf("%dd", days)
+	}
+	h := d / time.Hour
+	if len(resStr) > 0 || h > 0 {
+		d -= h * time.Hour
+		resStr = fmt.Sprintf("%s%dh", resStr, h)
+	}
+	m := d / time.Minute
+	if len(resStr) > 0 || m > 0 {
+		d -= m * time.Minute
+		resStr = fmt.Sprintf("%s%dm", resStr, m)
+	}
+	s := d / time.Second
+	resStr = fmt.Sprintf("%s%ds", resStr, s)
+	return resStr
 }
 
 // exists returns whether the given file or directory exists
