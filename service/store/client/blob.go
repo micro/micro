@@ -17,9 +17,7 @@ const bufferSize = 100
 
 // NewBlobStore returns a new store service implementation
 func NewBlobStore() store.BlobStore {
-	return &blob{
-		client: pb.NewBlobStoreService("store", client.DefaultClient),
-	}
+	return &blob{}
 }
 
 type blob struct {
@@ -39,7 +37,7 @@ func (b *blob) Read(key string, opts ...store.BlobOption) (io.Reader, error) {
 	}
 
 	// execute the rpc
-	stream, err := b.client.Read(context.TODO(), &pb.BlobReadRequest{
+	stream, err := b.cli().Read(context.TODO(), &pb.BlobReadRequest{
 		Key: key,
 		Options: &pb.BlobOptions{
 			Namespace: options.Namespace,
@@ -87,7 +85,7 @@ func (b *blob) Write(key string, blob io.Reader, opts ...store.BlobOption) error
 	}
 
 	// open the stream
-	stream, err := b.client.Write(context.TODO(), goclient.WithAuthToken())
+	stream, err := b.cli().Write(context.TODO(), goclient.WithAuthToken())
 	if verr := errors.Parse(err); verr != nil {
 		return verr
 	} else if err != nil {
@@ -132,7 +130,7 @@ func (b *blob) Delete(key string, opts ...store.BlobOption) error {
 	}
 
 	// execute the rpc
-	_, err := b.client.Delete(context.TODO(), &pb.BlobDeleteRequest{
+	_, err := b.cli().Delete(context.TODO(), &pb.BlobDeleteRequest{
 		Key: key,
 		Options: &pb.BlobOptions{
 			Namespace: options.Namespace,
@@ -147,4 +145,11 @@ func (b *blob) Delete(key string, opts ...store.BlobOption) error {
 	}
 
 	return err
+}
+
+func (b *blob) cli() pb.BlobStoreService {
+	if b.client == nil {
+		b.client = pb.NewBlobStoreService("store", client.DefaultClient)
+	}
+	return b.client
 }
