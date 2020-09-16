@@ -82,6 +82,20 @@ func (b *blobHandler) Write(ctx context.Context, stream pb.BlobStore_WriteStream
 			buf = bytes.NewBuffer(req.Blob)
 			key = req.Key
 			options = req.Options
+
+			// parse the options
+			if options == nil || len(options.Namespace) == 0 {
+				options = &pb.BlobOptions{Namespace: namespace.FromContext(ctx)}
+			}
+
+			// authorize the request. do this inside the loop so we fail fast
+			if err := authns.Authorize(ctx, options.Namespace); err == authns.ErrForbidden {
+				return errors.Forbidden("store.Blob.Write", err.Error())
+			} else if err == authns.ErrUnauthorized {
+				return errors.Unauthorized("store.Blob.Write", err.Error())
+			} else if err != nil {
+				return errors.InternalServerError("store.Blob.Write", err.Error())
+			}
 		} else {
 			// subsequent message recieved from the stream
 			buf.Write(req.Blob)
@@ -91,20 +105,6 @@ func (b *blobHandler) Write(ctx context.Context, stream pb.BlobStore_WriteStream
 	// ensure the blob was sent over the stream
 	if buf == nil {
 		return errors.BadRequest("store.Blob.Write", "No blob was sent")
-	}
-
-	// parse the options
-	if options == nil || len(options.Namespace) == 0 {
-		options = &pb.BlobOptions{Namespace: namespace.FromContext(ctx)}
-	}
-
-	// authorize the request
-	if err := authns.Authorize(ctx, options.Namespace); err == authns.ErrForbidden {
-		return errors.Forbidden("store.Blob.Write", err.Error())
-	} else if err == authns.ErrUnauthorized {
-		return errors.Unauthorized("store.Blob.Write", err.Error())
-	} else if err != nil {
-		return errors.InternalServerError("store.Blob.Write", err.Error())
 	}
 
 	// execute the request
