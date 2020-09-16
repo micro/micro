@@ -73,7 +73,7 @@ func (b *blobHandler) Write(ctx context.Context, stream pb.BlobStore_WriteStream
 		if err == io.EOF {
 			break
 		} else if err != nil {
-			return err
+			return errors.InternalServerError("store.Blob.Write", err.Error())
 		}
 
 		if buf == nil {
@@ -85,6 +85,11 @@ func (b *blobHandler) Write(ctx context.Context, stream pb.BlobStore_WriteStream
 			// subsequent message recieved from the stream
 			buf.Write(req.Blob)
 		}
+	}
+
+	// ensure the blob was sent over the stream
+	if buf == nil {
+		return errors.BadRequest("store.Blob.Write", "No blob was sent")
 	}
 
 	// parse the options
