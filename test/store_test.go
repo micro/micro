@@ -278,7 +278,7 @@ func testBlobStore(t *T) {
 			return nil, err
 		}
 		if !strings.Contains(string(outp), "Read from blob store: world") {
-			return nil, fmt.Errorf("Didn't read from the blob store")
+			return outp, fmt.Errorf("Didn't read from the blob store")
 		}
 		return nil, nil
 	}, 60*time.Second); err != nil {
