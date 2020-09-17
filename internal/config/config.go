@@ -25,10 +25,10 @@ var (
 	file = filepath.Join(user.Dir, "config.json")
 
 	// full path to file
-	path, _ = filePath()
+	fpath, _ = filePath()
 
 	// a global lock for the config
-	lock = fslock.New(path)
+	lock = fslock.New(fpath)
 )
 
 // SetConfig sets the config file
@@ -37,11 +37,11 @@ func SetConfig(f string) {
 	defer mtx.Unlock()
 
 	// path is the full path
-	path = f
+	fpath = f
 	// the name of the file
 	file = filepath.Base(f)
 	// new lock for the file
-	lock = fslock.New(path)
+	lock = fslock.New(fpath)
 }
 
 // config is a singleton which is required to ensure
@@ -83,7 +83,7 @@ func Get(path string) (string, error) {
 }
 
 // Set a value in the .micro file
-func Set(value string, p ...string) error {
+func Set(value string, path string) error {
 	mtx.Lock()
 	defer mtx.Unlock()
 
@@ -98,10 +98,10 @@ func Set(value string, p ...string) error {
 	defer lock.Unlock()
 
 	// set the value
-	config.Set(value, p...)
+	config.Set(value, path)
 
 	// write to the file
-	return ioutil.WriteFile(path, config.Bytes(), 0644)
+	return ioutil.WriteFile(fpath, config.Bytes(), 0644)
 }
 
 func filePath() (string, error) {
@@ -129,7 +129,7 @@ func moveConfig(from, to string) error {
 // newConfig returns a loaded config
 func newConfig() (*conf.JSONValues, error) {
 	// check if the directory exists, otherwise create it
-	dir := filepath.Dir(path)
+	dir := filepath.Dir(fpath)
 
 	// for legacy purposes check if .micro is a file or directory
 	if f, err := os.Stat(dir); err != nil {
@@ -144,20 +144,20 @@ func newConfig() (*conf.JSONValues, error) {
 	} else {
 		// if not a directory, copy and move the config
 		if !f.IsDir() {
-			if err := moveConfig(dir, path); err != nil {
-				return nil, fmt.Errorf("Failed to move config from %s to %s: %v", dir, path, err)
+			if err := moveConfig(dir, fpath); err != nil {
+				return nil, fmt.Errorf("Failed to move config from %s to %s: %v", dir, fpath, err)
 			}
 		}
 	}
 
 	// now write the file if it does not exist
-	if _, err := os.Stat(path); os.IsNotExist(err) {
-		ioutil.WriteFile(path, []byte(`{"env":"local"}`), 0644)
+	if _, err := os.Stat(fpath); os.IsNotExist(err) {
+		ioutil.WriteFile(fpath, []byte(`{"env":"local"}`), 0644)
 	} else if err != nil {
-		return nil, fmt.Errorf("Failed to write config file %s: %v", path, err)
+		return nil, fmt.Errorf("Failed to write config file %s: %v", fpath, err)
 	}
 
-	contents, err := ioutil.ReadFile(path)
+	contents, err := ioutil.ReadFile(fpath)
 	if err != nil {
 		return nil, err
 	}

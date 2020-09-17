@@ -55,7 +55,7 @@ func Add(namespace, env string) error {
 		values = namespace
 	}
 
-	return config.Set(values, "namespaces", env, "all")
+	return config.Set(values, config.Path("namespaces", env, "all"))
 }
 
 // Remove a namespace from an environment
@@ -104,7 +104,7 @@ func Remove(namespace, env string) error {
 	}
 
 	values := strings.Join(namespaces, seperator)
-	return config.Set(values, "namespaces", env, "all")
+	return config.Set(values, config.Path("namespaces", env, "all"))
 }
 
 // Set the current namespace for an environment
@@ -134,7 +134,7 @@ func Set(namespace, env string) error {
 		return errors.New("Namespace does not exists")
 	}
 
-	return config.Set(namespace, "namespaces", env, "current")
+	return config.Set(namespace, config.Path("namespaces", env, "current"))
 }
 
 // Get the current namespace for an environment
