@@ -2,7 +2,6 @@ package server
 
 import (
 	"context"
-	"strings"
 	"sync"
 
 	"github.com/micro/go-micro/v3/config"
@@ -59,11 +58,8 @@ func (c *Config) Get(ctx context.Context, req *pb.GetRequest, rsp *pb.GetRespons
 		return err
 	}
 
-	// peel apart the path
-	parts := strings.Split(req.Path, pathSplitter)
-
 	// we just want to pass back bytes
-	rsp.Value.Data = string(values.Get(parts...).Bytes())
+	rsp.Value.Data = string(values.Get(req.Path).Bytes())
 
 	return nil
 }
@@ -98,9 +94,7 @@ func (c *Config) Set(ctx context.Context, req *pb.SetRequest, rsp *pb.SetRespons
 		return err
 	}
 
-	// peel apart the path
-	parts := strings.Split(req.Path, pathSplitter)
-	values.Set(req.Value.Data, parts...)
+	values.Set(req.Value.Data, req.Path)
 	return store.Write(&store.Record{
 		Key:   req.Namespace,
 		Value: values.Bytes(),
@@ -134,9 +128,7 @@ func (c *Config) Delete(ctx context.Context, req *pb.DeleteRequest, rsp *pb.Dele
 		return err
 	}
 
-	// peel apart the path
-	parts := strings.Split(req.Path, pathSplitter)
-	values.Delete(parts...)
+	values.Delete(req.Path)
 	return store.Write(&store.Record{
 		Key:   req.Namespace,
 		Value: values.Bytes(),

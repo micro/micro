@@ -3,7 +3,6 @@ package config
 import (
 	"fmt"
 	"os"
-	"strings"
 
 	goclient "github.com/micro/go-micro/v3/client"
 	"github.com/micro/micro/v3/client/cli/namespace"
@@ -34,7 +33,7 @@ func setConfig(ctx *cli.Context) error {
 	val := args.Get(1)
 
 	if ctx.Bool("local") {
-		return cliconfig.Set(val, strings.Split(key, ".")...)
+		return cliconfig.Set(val, key)
 	}
 	pb := proto.NewConfigService("config", client.DefaultClient)
 

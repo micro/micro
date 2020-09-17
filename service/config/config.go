@@ -14,13 +14,13 @@ type (
 )
 
 // Get a value at the path
-func Get(path ...string) Value {
-	return DefaultConfig.Get(path...)
+func Get(path string) Value {
+	return DefaultConfig.Get(path)
 }
 
 // Set the value at a path
-func Set(val interface{}, path ...string) {
-	DefaultConfig.Set(val)
+func Set(val interface{}, path string) {
+	DefaultConfig.Set(val, path)
 }
 
 // Delete the value at a path
