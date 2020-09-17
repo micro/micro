@@ -41,6 +41,10 @@ var Profile = &profile.Profile{
 	Name: "platform",
 	Setup: func(ctx *cli.Context) error {
 		microAuth.DefaultAuth = jwt.NewAuth()
+		// the cockroach store will connect immediately so the address must be passed
+		// when the store is created. The cockroach store address contains the location
+		// of certs so it can't be defaulted like the broker and registry.
+		microStore.DefaultStore = cockroach.NewStore(store.Nodes(ctx.String("store_address")))
 		microConfig.DefaultConfig, _ = config.NewConfig()
 		microRuntime.DefaultRuntime = kubernetes.NewRuntime()
 		profile.SetupBroker(nats.NewBroker(broker.Addrs("nats-cluster")))
@@ -62,10 +66,6 @@ var Profile = &profile.Profile{
 			logger.Fatalf("Error configuring stream: %v", err)
 		}
 
-		// the cockroach store will connect immediately so the address must be passed
-		// when the store is created. The cockroach store address contains the location
-		// of certs so it can't be defaulted like the broker and registry.
-		microStore.DefaultStore = cockroach.NewStore(store.Nodes(ctx.String("store_address")))
 		microEvents.DefaultStore = evStore.NewStore(evStore.WithStore(microStore.DefaultStore))
 		return nil
 	},
