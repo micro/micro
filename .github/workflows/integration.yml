@@ -45,8 +45,8 @@ jobs:
 
     - name: Preload dependencies
       run: |
-        go get github.com/micro/services
-        go get github.com/micro/services/helloworld
+        go get github.com/micro/services@cedfd05
+        go get github.com/micro/services/helloworld@cedfd05
         bash -c 'for d in $(find test -name "main.go" | xargs -n 1 dirname); do pushd $d && go get && popd; done'
 
     - name: Replace CI profile
