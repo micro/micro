@@ -13,7 +13,7 @@ func main() {
 	go func() {
 		for {
 			time.Sleep(time.Second)
-			fmt.Println("Value of key.subkey: ", config.Get("key", "subkey").String(""))
+			fmt.Println("Value of key.subkey: ", config.Get("key.subkey").String(""))
 		}
 	}()
 
