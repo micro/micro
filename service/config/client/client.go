@@ -4,12 +4,11 @@ import (
 	"net/http"
 
 	goclient "github.com/micro/go-micro/v3/client"
-	"github.com/micro/go-micro/v3/config/source"
+	"github.com/micro/go-micro/v3/config"
 	proto "github.com/micro/micro/v3/proto/config"
 	"github.com/micro/micro/v3/service/client"
 	"github.com/micro/micro/v3/service/context"
 	"github.com/micro/micro/v3/service/errors"
-	"github.com/micro/micro/v3/service/logger"
 )
 
 var (
@@ -20,14 +19,14 @@ var (
 
 type srv struct {
 	serviceName string
+	opts        config.Options
 	namespace   string
 	path        string
-	opts        source.Options
 	client      proto.ConfigService
 }
 
-func (m *srv) Read() (set *source.ChangeSet, err error) {
-	req, err := m.client.Read(context.DefaultContext, &proto.ReadRequest{
+func (m *srv) Get() (set *proto.Value, err error) {
+	req, err := m.client.Get(context.DefaultContext, &proto.GetRequest{
 		Namespace: m.namespace,
 		Path:      m.path,
 	}, goclient.WithAuthToken())
@@ -37,25 +36,11 @@ func (m *srv) Read() (set *source.ChangeSet, err error) {
 		return nil, err
 	}
 
-	return toChangeSet(req.Change.ChangeSet), nil
-}
-
-func (m *srv) Watch() (w source.Watcher, err error) {
-	stream, err := m.client.Watch(context.DefaultContext, &proto.WatchRequest{
-		Namespace: m.namespace,
-		Path:      m.path,
-	}, goclient.WithAuthToken())
-	if err != nil {
-		if logger.V(logger.ErrorLevel, logger.DefaultLogger) {
-			logger.Error("watch err: ", err)
-		}
-		return
-	}
-	return newWatcher(stream)
+	return req.Value, nil
 }
 
 // Write is unsupported
-func (m *srv) Write(cs *source.ChangeSet) error {
+func (m *srv) Write() error {
 	return nil
 }
 
@@ -63,8 +48,8 @@ func (m *srv) String() string {
 	return "service"
 }
 
-func NewSource(opts ...source.Option) source.Source {
-	var options source.Options
+func NewSource(opts ...config.Option) *srv {
+	var options config.Options
 	for _, o := range opts {
 		o(&options)
 	}

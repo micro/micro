@@ -15,9 +15,9 @@ import (
 // incomplete or corrupted user config.
 func Get(envName string) (*auth.AccountToken, error) {
 	path := []string{"micro", "auth", envName}
-	accessToken, _ := config.Get(append(path, "token")...)
+	accessToken, _ := config.Get(config.Path(append(path, "token")...))
 
-	refreshToken, err := config.Get(append(path, "refresh-token")...)
+	refreshToken, err := config.Get(config.Path(append(path, "refresh-token")...))
 	if err != nil {
 		// Gracefully degrading here in case the user only has a temporary access token at hand.
 		// The call will fail on the receiving end.
@@ -27,7 +27,7 @@ func Get(envName string) (*auth.AccountToken, error) {
 	}
 
 	// See if the access token has expired
-	expiry, _ := config.Get(append(path, "expiry")...)
+	expiry, _ := config.Get(config.Path(append(path, "expiry")...))
 	if len(expiry) == 0 {
 		return &auth.AccountToken{
 			AccessToken:  accessToken,

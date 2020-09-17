@@ -17,20 +17,16 @@ const (
 var (
 	// Flags specific to the config service
 	Flags = []cli.Flag{
-		&cli.StringFlag{
-			Name:    "watch_topic",
-			EnvVars: []string{"MICRO_CONFIG_WATCH_TOPIC"},
-			Usage:   "watch the change event.",
-		},
+		//&cli.StringFlag{
+		//	Name:    "watch_topic",
+		//	EnvVars: []string{"MICRO_CONFIG_WATCH_TOPIC"},
+		//	Usage:   "watch the change event.",
+		//},
 	}
 )
 
 // Run micro config
 func Run(c *cli.Context) error {
-	if len(c.String("watch_topic")) > 0 {
-		watchTopic = c.String("watch_topic")
-	}
-
 	srv := service.New(
 		service.Name(name),
 		service.Address(address),
@@ -41,7 +37,7 @@ func Run(c *cli.Context) error {
 	// register the handler
 	pb.RegisterConfigHandler(srv.Server(), new(Config))
 	// register the subscriber
-	srv.Subscribe(watchTopic, new(watcher))
+	//srv.Subscribe(watchTopic, new(watcher))
 
 	if err := srv.Run(); err != nil {
 		logger.Fatal(err)

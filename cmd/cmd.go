@@ -33,8 +33,6 @@ import (
 	"github.com/micro/micro/v3/service/logger"
 	"github.com/urfave/cli/v2"
 
-	configCli "github.com/micro/micro/v3/service/config/client"
-
 	muauth "github.com/micro/micro/v3/service/auth"
 	mubroker "github.com/micro/micro/v3/service/broker"
 	muclient "github.com/micro/micro/v3/service/client"
@@ -494,15 +492,13 @@ func (c *command) Before(ctx *cli.Context) error {
 	// from the service immediately. We only do this if the action is nil, indicating
 	// a service is being run
 	if c.service && muconfig.DefaultConfig == nil {
-		conf, err := config.NewConfig(config.WithSource(configCli.NewSource(
-			configCli.Namespace(ctx.String("namespace")),
-		)))
+		conf, err := config.NewConfig(mustore.DefaultStore)
 		if err != nil {
 			logger.Fatalf("Error configuring config: %v", err)
 		}
 		muconfig.DefaultConfig = conf
 	} else if muconfig.DefaultConfig == nil {
-		muconfig.DefaultConfig, _ = config.NewConfig()
+		muconfig.DefaultConfig, _ = config.NewConfig(mustore.DefaultStore)
 	}
 
 	return nil

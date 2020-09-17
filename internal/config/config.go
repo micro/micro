@@ -1,3 +1,6 @@
+// Package config contains helper methods for
+// client side config management (`~/.micro/config.json` file).
+// It uses the `JSONValues` helper
 package config
 
 import (
@@ -10,7 +13,6 @@ import (
 
 	"github.com/juju/fslock"
 	conf "github.com/micro/go-micro/v3/config"
-	fs "github.com/micro/go-micro/v3/config/source/file"
 	"github.com/micro/micro/v3/internal/user"
 )
 
@@ -47,7 +49,7 @@ func SetConfig(f string) {
 // from disk
 
 // Get a value from the .micro file
-func Get(path ...string) (string, error) {
+func Get(path string) (string, error) {
 	mtx.Lock()
 	defer mtx.Unlock()
 
@@ -55,7 +57,6 @@ func Get(path ...string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	defer config.Close()
 
 	// acquire lock
 	if err := lock.Lock(); err != nil {
@@ -63,7 +64,7 @@ func Get(path ...string) (string, error) {
 	}
 	defer lock.Unlock()
 
-	val := config.Get(path...)
+	val := config.Get(path)
 	v := strings.TrimSpace(val.String(""))
 	if len(v) > 0 {
 		return v, nil
@@ -90,7 +91,6 @@ func Set(value string, p ...string) error {
 	if err != nil {
 		return err
 	}
-	defer config.Close()
 	// acquire lock
 	if err := lock.Lock(); err != nil {
 		return err
@@ -127,7 +127,7 @@ func moveConfig(from, to string) error {
 }
 
 // newConfig returns a loaded config
-func newConfig() (conf.Config, error) {
+func newConfig() (*conf.JSONValues, error) {
 	// check if the directory exists, otherwise create it
 	dir := filepath.Dir(path)
 
@@ -157,23 +157,20 @@ func newConfig() (conf.Config, error) {
 		return nil, fmt.Errorf("Failed to write config file %s: %v", path, err)
 	}
 
-	// create a new config
-	c, err := conf.NewConfig(
-		conf.WithSource(
-			fs.NewSource(
-				fs.WithPath(path),
-			),
-		),
-	)
+	contents, err := ioutil.ReadFile(path)
 	if err != nil {
 		return nil, err
 	}
 
-	// load the config
-	if err := c.Load(); err != nil {
+	c, err := conf.NewJSONValues(contents)
+	if err != nil {
 		return nil, err
 	}
 
 	// return the conf
 	return c, nil
+}
+
+func Path(paths ...string) string {
+	return strings.Join(paths, ".")
 }

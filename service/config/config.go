@@ -2,7 +2,6 @@ package config
 
 import (
 	"github.com/micro/go-micro/v3/config"
-	"github.com/micro/go-micro/v3/config/reader"
 )
 
 // DefaultConfig implementation. Setup in the cmd package, this will
@@ -11,13 +10,8 @@ var DefaultConfig config.Config
 
 type (
 	// Value is an alias for reader.Value
-	Value = reader.Value
+	Value = config.Value
 )
-
-// Bytes representation of config
-func Bytes() []byte {
-	return DefaultConfig.Bytes()
-}
 
 // Get a value at the path
 func Get(path ...string) Value {
@@ -30,16 +24,6 @@ func Set(val interface{}, path ...string) {
 }
 
 // Delete the value at a path
-func Delete(path ...string) {
-	DefaultConfig.Del(path...)
-}
-
-// Map represesentation of config
-func Map() map[string]interface{} {
-	return DefaultConfig.Map()
-}
-
-// Scan config into the value provided
-func Scan(v interface{}) error {
-	return DefaultConfig.Scan(v)
+func Delete(path string) {
+	DefaultConfig.Delete(path)
 }

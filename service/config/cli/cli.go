@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"os"
 	"strings"
-	"time"
 
 	goclient "github.com/micro/go-micro/v3/client"
 	"github.com/micro/micro/v3/client/cli/namespace"
@@ -50,19 +49,15 @@ func setConfig(ctx *cli.Context) error {
 
 	// TODO: allow the specifying of a config.Key. This will be service name
 	// The actuall key-val set is a path e.g micro/accounts/key
-	_, err = pb.Update(context.DefaultContext, &proto.UpdateRequest{
-		Change: &proto.Change{
-			// the current namespace
-			Namespace: ns,
-			// actual key for the value
-			Path: key,
-			// The value
-			ChangeSet: &proto.ChangeSet{
-				Data:      string(val),
-				Format:    "json",
-				Source:    "cli",
-				Timestamp: time.Now().Unix(),
-			},
+	_, err = pb.Set(context.DefaultContext, &proto.SetRequest{
+		// the current namespace
+		Namespace: ns,
+		// actual key for the value
+		Path: key,
+		// The value
+		Value: &proto.Value{
+			Data: string(val),
+			//Format: "json",
 		},
 	}, goclient.WithAuthToken())
 	return err
@@ -81,7 +76,7 @@ func getConfig(ctx *cli.Context) error {
 	}
 
 	if ctx.Bool("local") {
-		val, err := cliconfig.Get(strings.Split(key, ".")...)
+		val, err := cliconfig.Get(key)
 		if err == nil {
 			fmt.Println(val)
 		}
@@ -96,7 +91,7 @@ func getConfig(ctx *cli.Context) error {
 	// TODO: allow the specifying of a config.Key. This will be service name
 	// The actuall key-val set is a path e.g micro/accounts/key
 	pb := proto.NewConfigService("config", client.DefaultClient)
-	rsp, err := pb.Read(context.DefaultContext, &proto.ReadRequest{
+	rsp, err := pb.Get(context.DefaultContext, &proto.GetRequest{
 		// The current namespace,
 		Namespace: ns,
 		// The actual key for the val
@@ -106,16 +101,7 @@ func getConfig(ctx *cli.Context) error {
 		return err
 	}
 
-	if rsp.Change == nil || rsp.Change.ChangeSet == nil {
-		return fmt.Errorf("not found")
-	}
-
-	// don't do it
-	if v := rsp.Change.ChangeSet.Data; len(v) == 0 || string(v) == "null" {
-		return fmt.Errorf("not found")
-	}
-
-	fmt.Println(string(rsp.Change.ChangeSet.Data))
+	fmt.Println(string(rsp.Value.Data))
 	return nil
 }
 
@@ -141,12 +127,10 @@ func delConfig(ctx *cli.Context) error {
 	// The actuall key-val set is a path e.g micro/accounts/key
 	pb := proto.NewConfigService("config", client.DefaultClient)
 	_, err = pb.Delete(context.DefaultContext, &proto.DeleteRequest{
-		Change: &proto.Change{
-			// The current namespace
-			Namespace: ns,
-			// The actual key for the val
-			Path: key,
-		},
+		// The current namespace
+		Namespace: ns,
+		// The actual key for the val
+		Path: key,
 	}, goclient.WithAuthToken())
 	return err
 }
