@@ -405,11 +405,12 @@ func (g *micro) generateClientMethod(reqServ, servName, serviceDescVar string, m
 	if genSend && !genRecv {
 		// client streaming, the server will send a response upon close
 		g.P("func (x *", streamType, ") CloseAndRecv() (*", outType, ", error) {")
-		g.P("r := new(", outType, ")")
-		g.P("if err := x.RecvMsg(r); err != nil {")
+		g.P("if err := x.stream.Close(); err != nil {")
 		g.P("return nil, err")
 		g.P("}")
-		g.P("return r, x.stream.Close()")
+		g.P("r := new(", outType, ")")
+		g.P("err := x.RecvMsg(r)")
+		g.P("return r, err")
 		g.P("}")
 		g.P()
 	} else {

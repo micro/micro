@@ -58,17 +58,13 @@ func (r *RouteGuide) RecordRoute(ctx context.Context, stream pb.RouteGuide_Recor
 		point, err := stream.Recv()
 		if err == io.EOF {
 			endTime := time.Now()
-			summary := &pb.RouteSummary{
+
+			return stream.SendAndClose(&pb.RouteSummary{
 				PointCount:   pointCount,
 				FeatureCount: featureCount,
 				Distance:     distance,
 				ElapsedTime:  int32(endTime.Sub(startTime).Seconds()),
-			}
-
-			// return stream.SendAndClose(summary)
-
-			_ = summary
-			return nil
+			})
 		}
 		if err != nil {
 			return err

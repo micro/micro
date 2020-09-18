@@ -5,14 +5,16 @@ package stream
 
 import (
 	fmt "fmt"
-	proto "github.com/golang/protobuf/proto"
 	math "math"
-)
 
-import (
+	proto "github.com/golang/protobuf/proto"
+
 	context "context"
+
 	api "github.com/micro/go-micro/v3/api"
+
 	client "github.com/micro/go-micro/v3/client"
+
 	server "github.com/micro/go-micro/v3/server"
 )
 
@@ -141,7 +143,7 @@ type RouteGuide_RecordRouteService interface {
 	Context() context.Context
 	SendMsg(interface{}) error
 	RecvMsg(interface{}) error
-	Close() error
+	CloseAndRecv() (*RouteSummary, error)
 	Send(*Point) error
 }
 
@@ -149,8 +151,13 @@ type routeGuideServiceRecordRoute struct {
 	stream client.Stream
 }
 
-func (x *routeGuideServiceRecordRoute) Close() error {
-	return x.stream.Close()
+func (x *routeGuideServiceRecordRoute) CloseAndRecv() (*RouteSummary, error) {
+	if err := x.stream.Close(); err != nil {
+		return nil, err
+	}
+	r := new(RouteSummary)
+	err := x.RecvMsg(r)
+	return r, err
 }
 
 func (x *routeGuideServiceRecordRoute) Context() context.Context {
@@ -308,7 +315,7 @@ type RouteGuide_RecordRouteStream interface {
 	Context() context.Context
 	SendMsg(interface{}) error
 	RecvMsg(interface{}) error
-	Close() error
+	SendAndClose(*RouteSummary) error
 	Recv() (*Point, error)
 }
 
@@ -316,7 +323,10 @@ type routeGuideRecordRouteStream struct {
 	stream server.Stream
 }
 
-func (x *routeGuideRecordRouteStream) Close() error {
+func (x *routeGuideRecordRouteStream) SendAndClose(in *RouteSummary) error {
+	if err := x.SendMsg(in); err != nil {
+		return err
+	}
 	return x.stream.Close()
 }
 

@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"io"
 	"log"
 	"math/rand"
@@ -90,14 +91,13 @@ func runRecordRoute(client pb.RouteGuideService) {
 			log.Fatalf("%v.Send(%v) = %v", stream, point, err)
 		}
 	}
-	if err := stream.Close(); err != nil {
-		log.Fatalf("%v.Close() got error: %v, want %v", stream, err, nil)
+
+	fmt.Println("Closing and waiting to recv")
+	summary, err := stream.CloseAndRecv()
+	if err != nil {
+		log.Fatalf("%v.CloseAndRecv() got error %v, want %v", stream, err, nil)
 	}
-	// reply, err := stream.CloseAndRecv()
-	// if err != nil {
-	// 	log.Fatalf("%v.CloseAndRecv() got error %v, want %v", stream, err, nil)
-	// }
-	// log.Printf("Route summary: %v", reply)
+	log.Printf("Route summary: %v", summary)
 }
 
 // runRouteChat receives a sequence of route notes, while sending notes for various locations.
