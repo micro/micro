@@ -68,6 +68,12 @@ func testRPC(t *T) {
 		t.Logf("Running service from the %v branch of micro", branch)
 	}
 
+	outp, err := cmd.Exec("run", runTarget)
+	if err != nil {
+		t.Fatalf("micro run failure, output: %v", string(outp))
+		return
+	}
+
 	if err := Try("Check logs", t, func() ([]byte, error) {
 		outp, err := cmd.Exec("logs", "rpc-client")
 		if err != nil {
