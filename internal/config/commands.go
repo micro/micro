@@ -46,7 +46,7 @@ func set(ctx *cli.Context) error {
 	key := args.Get(0)
 	val := args.Get(1)
 
-	return Set(val, key)
+	return Set(key, val)
 }
 
 func del(ctx *cli.Context) error {
@@ -58,5 +58,5 @@ func del(ctx *cli.Context) error {
 	}
 
 	// TODO: actually delete the key also
-	return Set("", key)
+	return Set(key, "")
 }

@@ -249,7 +249,7 @@ func setNamespace(ctx *cli.Context) error {
 	if err != nil {
 		return err
 	}
-	return config.Set(ctx.Args().First(), config.Path("namespaces", env, "current"))
+	return config.Set(config.Path("namespaces", env, "current"), ctx.Args().First())
 }
 
 // user returns info about the logged in user

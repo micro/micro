@@ -10,20 +10,22 @@ var DefaultConfig config.Config
 
 type (
 	// Value is an alias for reader.Value
-	Value = config.Value
+	Value   = config.Value
+	Options = config.Options
+	Option  = config.Option
 )
 
 // Get a value at the path
-func Get(path string) Value {
-	return DefaultConfig.Get(path)
+func Get(path string, options ...Option) Value {
+	return DefaultConfig.Get(path, options...)
 }
 
 // Set the value at a path
-func Set(val interface{}, path string) {
-	DefaultConfig.Set(val, path)
+func Set(path string, val interface{}, options ...Option) {
+	DefaultConfig.Set(path, val, options...)
 }
 
 // Delete the value at a path
-func Delete(path string) {
-	DefaultConfig.Delete(path)
+func Delete(path string, options ...Option) {
+	DefaultConfig.Delete(path, options...)
 }

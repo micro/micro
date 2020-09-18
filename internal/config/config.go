@@ -83,7 +83,7 @@ func Get(path string) (string, error) {
 }
 
 // Set a value in the .micro file
-func Set(value string, path string) error {
+func Set(path, value string) error {
 	mtx.Lock()
 	defer mtx.Unlock()
 
@@ -98,7 +98,7 @@ func Set(value string, path string) error {
 	defer lock.Unlock()
 
 	// set the value
-	config.Set(value, path)
+	config.Set(path, value)
 
 	// write to the file
 	return ioutil.WriteFile(fpath, config.Bytes(), 0644)

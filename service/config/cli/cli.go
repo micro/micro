@@ -33,7 +33,7 @@ func setConfig(ctx *cli.Context) error {
 	val := args.Get(1)
 
 	if ctx.Bool("local") {
-		return cliconfig.Set(val, key)
+		return cliconfig.Set(key, val)
 	}
 	pb := proto.NewConfigService("config", client.DefaultClient)
 
