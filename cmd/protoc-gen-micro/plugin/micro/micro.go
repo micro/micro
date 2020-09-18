@@ -380,7 +380,13 @@ func (g *micro) generateClientMethod(reqServ, servName, serviceDescVar string, m
 	g.P("Context() context.Context")
 	g.P("SendMsg(interface{}) error")
 	g.P("RecvMsg(interface{}) error")
-	g.P("Close() error")
+
+	if genSend && !genRecv {
+		// client streaming, the server will send a response upon close
+		g.P("CloseAndRecv() (*", outType, ", error)")
+	} else {
+		g.P("Close() error")
+	}
 
 	if genSend {
 		g.P("Send(*", inType, ") error")
@@ -396,10 +402,23 @@ func (g *micro) generateClientMethod(reqServ, servName, serviceDescVar string, m
 	g.P("}")
 	g.P()
 
-	g.P("func (x *", streamType, ") Close() error {")
-	g.P("return x.stream.Close()")
-	g.P("}")
-	g.P()
+	if genSend && !genRecv {
+		// client streaming, the server will send a response upon close
+		g.P("func (x *", streamType, ") CloseAndRecv() (*", outType, ", error) {")
+		g.P("if err := x.stream.Close(); err != nil {")
+		g.P("return nil, err")
+		g.P("}")
+		g.P("r := new(", outType, ")")
+		g.P("err := x.RecvMsg(r)")
+		g.P("return r, err")
+		g.P("}")
+		g.P()
+	} else {
+		g.P("func (x *", streamType, ") Close() error {")
+		g.P("return x.stream.Close()")
+		g.P("}")
+		g.P()
+	}
 
 	g.P("func (x *", streamType, ") Context() context.Context {")
 	g.P("return x.stream.Context()")
@@ -495,7 +514,13 @@ func (g *micro) generateServerMethod(servName string, method *pb.MethodDescripto
 	g.P("Context() context.Context")
 	g.P("SendMsg(interface{}) error")
 	g.P("RecvMsg(interface{}) error")
-	g.P("Close() error")
+
+	if !genSend {
+		// client streaming, the server will send a response upon close
+		g.P("SendAndClose(*", outType, ")  error")
+	} else {
+		g.P("Close() error")
+	}
 
 	if genSend {
 		g.P("Send(*", outType, ") error")
@@ -513,10 +538,22 @@ func (g *micro) generateServerMethod(servName string, method *pb.MethodDescripto
 	g.P("}")
 	g.P()
 
-	g.P("func (x *", streamType, ") Close() error {")
-	g.P("return x.stream.Close()")
-	g.P("}")
-	g.P()
+	if !genSend {
+		// client streaming, the server will send a response upon close
+		g.P("func (x *", streamType, ") SendAndClose(in *", outType, ") error {")
+		g.P("if err := x.SendMsg(in); err != nil {")
+		g.P("return err")
+		g.P("}")
+		g.P("return x.stream.Close()")
+		g.P("}")
+		g.P()
+	} else {
+		// other types of rpc don't send a response when the stream closes
+		g.P("func (x *", streamType, ") Close() error {")
+		g.P("return x.stream.Close()")
+		g.P("}")
+		g.P()
+	}
 
 	g.P("func (x *", streamType, ") Context() context.Context {")
 	g.P("return x.stream.Context()")
