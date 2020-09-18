@@ -30,18 +30,18 @@ func (c *Config) Get(ctx context.Context, req *pb.GetRequest, rsp *pb.GetRespons
 
 	// authorize the request
 	if err := namespace.Authorize(ctx, req.Namespace); err == namespace.ErrForbidden {
-		return errors.Forbidden("config.Config.Read", err.Error())
+		return errors.Forbidden("config.Config.Get", err.Error())
 	} else if err == namespace.ErrUnauthorized {
-		return errors.Unauthorized("config.Config.Read", err.Error())
+		return errors.Unauthorized("config.Config.Get", err.Error())
 	} else if err != nil {
-		return errors.InternalServerError("config.Config.Read", err.Error())
+		return errors.InternalServerError("config.Config.Get", err.Error())
 	}
 
 	ch, err := store.Read(req.Namespace)
 	if err == store.ErrNotFound {
-		return errors.NotFound("config.Config.Read", "Not found")
+		return errors.NotFound("config.Config.Get", "Not found")
 	} else if err != nil {
-		return errors.BadRequest("config.Config.Read", "read error: %v: %v", err, req.Namespace)
+		return errors.BadRequest("config.Config.Get", "read error: %v: %v", err, req.Namespace)
 	}
 
 	rsp.Value = &pb.Value{
@@ -83,18 +83,22 @@ func (c *Config) Set(ctx context.Context, req *pb.SetRequest, rsp *pb.SetRespons
 	}
 
 	ch, err := store.Read(req.Namespace)
+	dat := []byte{}
 	if err == store.ErrNotFound {
-		return errors.NotFound("config.Config.Read", "Not found")
+		dat = []byte("{}")
 	} else if err != nil {
-		return errors.BadRequest("config.Config.Read", "read error: %v: %v", err, req.Namespace)
+		return errors.BadRequest("config.Config.Set", "read error: %v: %v", err, req.Namespace)
 	}
 
-	values, err := config.NewJSONValues(ch[0].Value)
+	if len(ch) > 0 {
+		dat = ch[0].Value
+	}
+	values, err := config.NewJSONValues(dat)
 	if err != nil {
 		return err
 	}
 
-	values.Set(req.Value.Data, req.Path)
+	values.Set(req.Path, req.Value.Data)
 	return store.Write(&store.Record{
 		Key:   req.Namespace,
 		Value: values.Bytes(),
@@ -118,9 +122,9 @@ func (c *Config) Delete(ctx context.Context, req *pb.DeleteRequest, rsp *pb.Dele
 
 	ch, err := store.Read(req.Namespace)
 	if err == store.ErrNotFound {
-		return errors.NotFound("config.Config.Read", "Not found")
+		return errors.NotFound("config.Config.Delete", "Not found")
 	} else if err != nil {
-		return errors.BadRequest("config.Config.Read", "read error: %v: %v", err, req.Namespace)
+		return errors.BadRequest("config.Config.Delete", "read error: %v: %v", err, req.Namespace)
 	}
 
 	values, err := config.NewJSONValues(ch[0].Value)

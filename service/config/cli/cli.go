@@ -8,7 +8,6 @@ import (
 	"github.com/micro/micro/v3/client/cli/namespace"
 	"github.com/micro/micro/v3/client/cli/util"
 	"github.com/micro/micro/v3/cmd"
-	cliconfig "github.com/micro/micro/v3/internal/config"
 	"github.com/micro/micro/v3/internal/helper"
 	proto "github.com/micro/micro/v3/proto/config"
 	"github.com/micro/micro/v3/service/client"
@@ -17,24 +16,12 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
-var (
-	subcommandFlags = []cli.Flag{
-		&cli.BoolFlag{
-			Name:  "local",
-			Usage: "Connect to local user micro config file and not to micro server config",
-		},
-	}
-)
-
 func setConfig(ctx *cli.Context) error {
 	args := ctx.Args()
 	// key val
 	key := args.Get(0)
 	val := args.Get(1)
 
-	if ctx.Bool("local") {
-		return cliconfig.Set(key, val)
-	}
 	pb := proto.NewConfigService("config", client.DefaultClient)
 
 	if args.Len() == 0 {
@@ -72,14 +59,6 @@ func getConfig(ctx *cli.Context) error {
 	key := args.Get(0)
 	if len(key) == 0 {
 		return fmt.Errorf("key cannot be blank")
-	}
-
-	if ctx.Bool("local") {
-		val, err := cliconfig.Get(key)
-		if err == nil {
-			fmt.Println(val)
-		}
-		return err
 	}
 
 	ns, err := namespace.Get(util.GetEnv(ctx).Name)
@@ -145,19 +124,16 @@ func init() {
 					Name:   "get",
 					Usage:  "Get a value; micro config get key",
 					Action: getConfig,
-					Flags:  subcommandFlags,
 				},
 				{
 					Name:   "set",
 					Usage:  "Set a key-val; micro config set key val",
 					Action: setConfig,
-					Flags:  subcommandFlags,
 				},
 				{
 					Name:   "del",
 					Usage:  "Delete a value; micro config del key",
 					Action: delConfig,
-					Flags:  subcommandFlags,
 				},
 			},
 		},
