@@ -8,7 +8,8 @@ kubectl create namespace ${MONITORING_NAMESPACE}
 helm repo add stable https://kubernetes-charts.storage.googleapis.com
 
 # Install Grafana using Helm:
-helm install grafana stable/grafana \
+helm upgrade grafana stable/grafana \
+    --install \
     --namespace ${MONITORING_NAMESPACE} \
     --set persistence.enabled=true \
     --set persistence.size=1Gi
