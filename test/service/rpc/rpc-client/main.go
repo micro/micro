@@ -8,12 +8,12 @@ import (
 
 	"github.com/micro/micro/v3/service"
 	"github.com/micro/micro/v3/service/logger"
-	pb "github.com/micro/micro/v3/test/service/stream/proto"
+	pb "github.com/micro/micro/v3/test/service/rpc/proto"
 )
 
 func main() {
 	srv := service.New()
-	cli := pb.NewRouteGuideService("stream", srv.Client())
+	cli := pb.NewRouteGuideService("rpc", srv.Client())
 
 	// Looking for a valid feature
 	logger.Infof("Testing Unary... Starting")

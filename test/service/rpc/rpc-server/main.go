@@ -7,14 +7,14 @@ import (
 	"github.com/micro/micro/v3/service"
 	"github.com/micro/micro/v3/service/logger"
 
-	pb "github.com/micro/micro/v3/test/service/stream/proto"
-	"github.com/micro/micro/v3/test/service/stream/server/handler"
+	pb "github.com/micro/micro/v3/test/service/rpc/proto"
+	"github.com/micro/micro/v3/test/service/rpc/rpc-server/handler"
 )
 
 func main() {
 	// Create the service
 	srv := service.New(
-		service.Name("stream"),
+		service.Name("rpc"),
 		service.Version("latest"),
 	)
 

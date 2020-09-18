@@ -23,6 +23,7 @@ func init() {
 		"TestRunPrivateSource",
 		"TestEventsStream",
 		"TestIdiomaticFolderStructure",
+		"TestRPC",
 	}
 	maxTimeMultiplier = 3
 	isParallel = false // in theory should work in parallel
