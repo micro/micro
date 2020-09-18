@@ -62,7 +62,7 @@ func Test(t *testing.T) {
 			}
 
 			for k, v := range tc.values {
-				if err := Set(v, k); err != nil {
+				if err := Set(k, v); err != nil {
 					t.Error(err)
 				}
 			}
