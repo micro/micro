@@ -332,9 +332,9 @@ func testRunGitlabSourceMonoRepo(t *T) {
 	}
 
 	cmd := serv.Command()
-	cmd.Exec("user", "config", "set", "git."+serv.Env()+".baseurl", "gitlab.com/micro-test/monorepo-test"+branch)
+	cmd.Exec("user", "config", "set", "git."+serv.Env()+".baseurl", "gitlab.com/micro-test/monorepo-test")
 
-	outp, err := cmd.Exec("run", "subfolder-test")
+	outp, err := cmd.Exec("run", "subfolder-test"+branch)
 	if err != nil {
 		t.Fatalf("micro run failure, output: %v", string(outp))
 		return
@@ -678,7 +678,7 @@ func testBranchCheckout(t *T) {
 
 	cmd := serv.Command()
 
-	outp, err := cmd.Exec("run", "./service/logger@master")
+	outp, err := cmd.Exec("run", "./service/logger")
 	if err != nil {
 		t.Fatalf("micro run failure, output: %v", string(outp))
 		return
