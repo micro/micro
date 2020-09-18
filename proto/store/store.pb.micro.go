@@ -340,7 +340,7 @@ type BlobStore_WriteService interface {
 	Context() context.Context
 	SendMsg(interface{}) error
 	RecvMsg(interface{}) error
-	Close() error
+	CloseAndRecv() (*BlobWriteResponse, error)
 	Send(*BlobWriteRequest) error
 }
 
@@ -348,8 +348,13 @@ type blobStoreServiceWrite struct {
 	stream client.Stream
 }
 
-func (x *blobStoreServiceWrite) Close() error {
-	return x.stream.Close()
+func (x *blobStoreServiceWrite) CloseAndRecv() (*BlobWriteResponse, error) {
+	if err := x.stream.Close(); err != nil {
+		return nil, err
+	}
+	r := new(BlobWriteResponse)
+	err := x.RecvMsg(r)
+	return r, err
 }
 
 func (x *blobStoreServiceWrite) Context() context.Context {
@@ -451,7 +456,7 @@ type BlobStore_WriteStream interface {
 	Context() context.Context
 	SendMsg(interface{}) error
 	RecvMsg(interface{}) error
-	Close() error
+	SendAndClose(*BlobWriteResponse) error
 	Recv() (*BlobWriteRequest, error)
 }
 
@@ -459,7 +464,10 @@ type blobStoreWriteStream struct {
 	stream server.Stream
 }
 
-func (x *blobStoreWriteStream) Close() error {
+func (x *blobStoreWriteStream) SendAndClose(in *BlobWriteResponse) error {
+	if err := x.SendMsg(in); err != nil {
+		return err
+	}
 	return x.stream.Close()
 }
 

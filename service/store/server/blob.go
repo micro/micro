@@ -115,7 +115,8 @@ func (b *blobHandler) Write(ctx context.Context, stream pb.BlobStore_WriteStream
 		return errors.InternalServerError("store.Blob.Write", err.Error())
 	}
 
-	return nil
+	// close the stream
+	return stream.SendAndClose(&pb.BlobWriteResponse{})
 }
 
 func (b *blobHandler) Delete(ctx context.Context, req *pb.BlobDeleteRequest, rsp *pb.BlobDeleteResponse) error {

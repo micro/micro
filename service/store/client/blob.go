@@ -84,14 +84,17 @@ func (b *blob) Write(key string, blob io.Reader, opts ...store.BlobOption) error
 		o(&options)
 	}
 
+	// setup a context
+	ctx, cancel := context.WithCancel(context.TODO())
+	defer cancel()
+
 	// open the stream
-	stream, err := b.cli().Write(context.TODO(), goclient.WithAuthToken())
+	stream, err := b.cli().Write(ctx, goclient.WithAuthToken())
 	if verr := errors.Parse(err); verr != nil {
 		return verr
 	} else if err != nil {
 		return err
 	}
-	defer stream.Close()
 
 	// read from the blob and stream it to the server
 	buffer := make([]byte, bufferSize)
@@ -116,7 +119,9 @@ func (b *blob) Write(key string, blob io.Reader, opts ...store.BlobOption) error
 		}
 	}
 
-	return nil
+	// wait for the server to process the blob
+	_, err = stream.CloseAndRecv()
+	return err
 }
 
 func (b *blob) Delete(key string, opts ...store.BlobOption) error {
