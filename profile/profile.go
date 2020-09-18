@@ -104,6 +104,11 @@ var Local = &Profile{
 			logger.Fatalf("Error configuring stream: %v", err)
 		}
 
+		microStore.DefaultBlobStore, err = file.NewBlobStore()
+		if err != nil {
+			logger.Fatalf("Error configuring file blob store: %v", err)
+		}
+
 		return nil
 	},
 }

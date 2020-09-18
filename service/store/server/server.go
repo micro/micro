@@ -34,6 +34,9 @@ func Run(ctx *cli.Context) error {
 		stores: make(map[string]bool),
 	})
 
+	// the blob store handler
+	pb.RegisterBlobStoreHandler(service.Server(), new(blobHandler))
+
 	// start the service
 	if err := service.Run(); err != nil {
 		log.Fatal(err)

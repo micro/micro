@@ -225,3 +225,63 @@ func testStoreImpl(t *T) {
 	}
 
 }
+
+func TestBlobStore(t *testing.T) {
+	TrySuite(t, testBlobStore, retryCount)
+}
+
+func testBlobStore(t *T) {
+	t.Parallel()
+	serv := NewServer(t, WithLogin())
+	defer serv.Close()
+	if err := serv.Run(); err != nil {
+		return
+	}
+
+	cmd := serv.Command()
+
+	runTarget := "./service/blob-store"
+	branch := "latest"
+	if os.Getenv("MICRO_IS_KIND_TEST") == "true" {
+		if ref := os.Getenv("GITHUB_REF"); len(ref) > 0 {
+			branch = strings.TrimPrefix(ref, "refs/heads/")
+		} else {
+			branch = "master"
+		}
+		runTarget = "github.com/micro/micro/test/service/blob-store@" + branch
+		t.Logf("Running service from the %v branch of micro", branch)
+	}
+
+	outp, err := cmd.Exec("run", runTarget)
+	if err != nil {
+		t.Fatalf("micro run failure, output: %v", string(outp))
+		return
+	}
+
+	if err := Try("Find blob-store", t, func() ([]byte, error) {
+		outp, err := cmd.Exec("status")
+		if err != nil {
+			return outp, err
+		}
+
+		if !statusRunning("blob-store", branch, outp) {
+			return outp, errors.New("Can't find blob-store service in runtime")
+		}
+		return outp, err
+	}, 15*time.Second); err != nil {
+		return
+	}
+
+	if err := Try("Check logs", t, func() ([]byte, error) {
+		outp, err := cmd.Exec("logs", "blob-store")
+		if err != nil {
+			return nil, err
+		}
+		if !strings.Contains(string(outp), "Read from blob store: world") {
+			return outp, fmt.Errorf("Didn't read from the blob store")
+		}
+		return nil, nil
+	}, 60*time.Second); err != nil {
+		return
+	}
+}

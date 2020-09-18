@@ -1,4 +1,4 @@
-module github.com/micro/micro/test/service/stream
+module github.com/micro/micro/test/service/events
 
 go 1.13
 

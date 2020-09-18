@@ -13,6 +13,12 @@ service Store {
 	rpc Tables(TablesRequest) returns (TablesResponse) {};
 }
 
+service BlobStore {
+	rpc Read(BlobReadRequest) returns (stream BlobReadResponse) {};
+	rpc Write(stream BlobWriteRequest) returns (BlobWriteResponse) {};
+	rpc Delete(BlobDeleteRequest) returns (BlobDeleteResponse) {};
+}
+
 message Field {
 	// type of value e.g string, int, int64, bool, float64
 	string type = 1;
@@ -105,3 +111,31 @@ message TablesRequest {
 message TablesResponse {
 	repeated string tables = 1;
 }
+
+message BlobOptions {
+	string namespace = 1;
+}
+
+message BlobReadRequest {
+	string key = 1;
+	BlobOptions options = 2;
+}
+
+message BlobReadResponse {
+	bytes blob = 1;
+}
+
+message BlobWriteRequest {
+	string key = 1;
+	BlobOptions options = 2;
+	bytes blob = 3;
+}
+
+message BlobWriteResponse {}
+
+message BlobDeleteRequest {
+	string key = 1;
+	BlobOptions options = 2;
+}
+
+message BlobDeleteResponse {}
