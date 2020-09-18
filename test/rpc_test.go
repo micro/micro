@@ -49,12 +49,10 @@ func testRPC(t *T) {
 			return outp, err
 		}
 		if !strings.Contains(string(outp), "rpc") {
-			l, _ := cmd.Exec("logs", "rpc-server")
-			t.Log("Error finding rpc service in registry", string(l))
 			return outp, errors.New("Can't find rpc service in registry")
 		}
 		return nil, nil
-	}, 45*time.Second); err != nil {
+	}, 90*time.Second); err != nil {
 		return
 	}
 
