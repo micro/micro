@@ -19,6 +19,8 @@ message SetRequest {
     string namespace = 1;
     string path = 2;
     Value Value = 3;
+    // Is it an encrypted value?
+    bool secret = 4;
 }
 
 message SetResponse {}
@@ -33,6 +35,8 @@ message DeleteResponse {}
 message GetRequest {
     string namespace = 1;
     string path = 2;
+    // Is it an encrypted value?
+    bool secret = 3;
 }
 
 message GetResponse {
