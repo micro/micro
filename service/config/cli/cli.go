@@ -79,6 +79,10 @@ func getConfig(ctx *cli.Context) error {
 		return err
 	}
 
+	if v := rsp.Value.Data; len(v) == 0 || string(v) == "null" {
+		return fmt.Errorf("not found")
+	}
+
 	fmt.Println(string(rsp.Value.Data))
 	return nil
 }
