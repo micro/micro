@@ -4,7 +4,7 @@ go 1.15
 
 require (
 	github.com/cpuguy83/go-md2man/v2 v2.0.0 // indirect
-	github.com/micro/go-micro/v3 v3.0.0-beta.2.0.20200918112555-9168c7c61064
+	github.com/micro/go-micro/v3 v3.0.0-beta.2.0.20200918154437-960ef3f30838
 	github.com/micro/go-plugins/broker/nats/v3 v3.0.0-20200908121001-4ea6f6760baf
 	github.com/micro/go-plugins/events/stream/nats/v3 v3.0.0-20200908121001-4ea6f6760baf
 	github.com/micro/go-plugins/metrics/prometheus/v3 v3.0.0-20200908121001-4ea6f6760baf

@@ -1,6 +1,7 @@
 package client
 
 import (
+	"encoding/json"
 	"net/http"
 
 	goclient "github.com/micro/go-micro/v3/client"
@@ -9,38 +10,60 @@ import (
 	"github.com/micro/micro/v3/service/client"
 	"github.com/micro/micro/v3/service/context"
 	"github.com/micro/micro/v3/service/errors"
+	"github.com/micro/micro/v3/service/logger"
 )
 
 var (
 	defaultNamespace = "micro"
-	defaultPath      = ""
 	name             = "config"
 )
 
 type srv struct {
-	serviceName string
-	opts        config.Options
-	namespace   string
-	path        string
-	client      proto.ConfigService
+	opts      config.Options
+	namespace string
+	client    proto.ConfigService
 }
 
-func (m *srv) Get() (set *proto.Value, err error) {
+func (m *srv) Get(path string, options ...config.Option) config.Value {
 	req, err := m.client.Get(context.DefaultContext, &proto.GetRequest{
 		Namespace: m.namespace,
-		Path:      m.path,
+		Path:      path,
 	}, goclient.WithAuthToken())
 	if verr := errors.Parse(err); verr != nil && verr.Code == http.StatusNotFound {
-		return nil, nil
+		return config.NewJSONValue([]byte("null"))
 	} else if err != nil {
-		return nil, err
+		logger.Error(err)
+		return config.NewJSONValue([]byte("null"))
 	}
 
-	return req.Value, nil
+	return config.NewJSONValue([]byte(req.Value.Data))
 }
 
-// Write is unsupported
-func (m *srv) Write() error {
+func (m *srv) Set(path string, value interface{}, options ...config.Option) {
+	dat, _ := json.Marshal(value)
+	_, err := m.client.Set(context.DefaultContext, &proto.SetRequest{
+		Namespace: m.namespace,
+		Path:      path,
+		Value: &proto.Value{
+			Data: string(dat),
+		},
+	}, goclient.WithAuthToken())
+	if err != nil {
+		logger.Error(err)
+	}
+}
+
+func (m *srv) Delete(path string, options ...config.Option) {
+	_, err := m.client.Delete(context.DefaultContext, &proto.DeleteRequest{
+		Namespace: m.namespace,
+		Path:      path,
+	}, goclient.WithAuthToken())
+	if err != nil {
+		logger.Error(err)
+	}
+}
+
+func (m *srv) Init(opts ...config.Option) error {
 	return nil
 }
 
@@ -48,7 +71,7 @@ func (m *srv) String() string {
 	return "service"
 }
 
-func NewSource(opts ...config.Option) *srv {
+func NewConfig(opts ...config.Option) *srv {
 	var options config.Options
 	for _, o := range opts {
 		o(&options)
@@ -56,7 +79,9 @@ func NewSource(opts ...config.Option) *srv {
 
 	addr := name
 	namespace := defaultNamespace
-	path := defaultPath
+	if len(options.Key) > 0 {
+		namespace = options.Key
+	}
 
 	if options.Context != nil {
 		a, ok := options.Context.Value(serviceNameKey{}).(string)
@@ -68,11 +93,6 @@ func NewSource(opts ...config.Option) *srv {
 		if ok {
 			namespace = k
 		}
-
-		p, ok := options.Context.Value(pathKey{}).(string)
-		if ok {
-			path = p
-		}
 	}
 
 	if options.Client == nil {
@@ -80,11 +100,9 @@ func NewSource(opts ...config.Option) *srv {
 	}
 
 	s := &srv{
-		serviceName: addr,
-		opts:        options,
-		namespace:   namespace,
-		path:        path,
-		client:      proto.NewConfigService(addr, options.Client),
+		opts:      options,
+		namespace: namespace,
+		client:    proto.NewConfigService(addr, options.Client),
 	}
 
 	return s
