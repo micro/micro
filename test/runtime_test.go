@@ -673,7 +673,7 @@ func testBranchCheckout(t *T) {
 
 	cmd := serv.Command()
 
-	outp, err := cmd.Exec("run", "github.com/micro/micro/test/service/logger@master")
+	outp, err := cmd.Exec("run", "./service/logger@master")
 	if err != nil {
 		t.Fatalf("micro run failure, output: %v", string(outp))
 		return
@@ -709,7 +709,7 @@ func testStreamLogsAndThirdPartyRepo(t *T) {
 
 	cmd := serv.Command()
 
-	outp, err := cmd.Exec("run", "github.com/micro/micro/test/service/logger")
+	outp, err := cmd.Exec("run", "./test/service/logger")
 	if err != nil {
 		t.Fatalf("micro run failure, output: %v", string(outp))
 		return
@@ -1136,16 +1136,7 @@ func testIdiomaticFolderStructure(t *T) {
 
 	cmd := serv.Command()
 
-	// Temp fix to support k8s tests until we have file upload to remote server
-	var branch string
-	if ref := os.Getenv("GITHUB_REF"); len(ref) > 0 {
-		branch = strings.TrimPrefix(ref, "refs/heads/")
-	} else {
-		branch = "master"
-	}
-
-	t.Logf("Running idiomatic service from the %v branch of micro", branch)
-	src := "github.com/micro/micro/test/service/idiomatic@" + branch
+	src := "./service/idiomatic"
 	if outp, err := cmd.Exec("run", "--image", "localhost:5000/cells:micro", src); err != nil {
 		t.Fatalf("Error running service: %v, %v", err, string(outp))
 		return
@@ -1159,7 +1150,7 @@ func testIdiomaticFolderStructure(t *T) {
 
 		// The started service should have the runtime name of "service/example",
 		// as the runtime name is the relative path inside a repo.
-		if !statusRunning("idiomatic", branch, outp) {
+		if !statusRunning("idiomatic", "latest", outp) {
 			return outp, errors.New("Can't find idiomatic service in runtime")
 		}
 		return outp, err
