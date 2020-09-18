@@ -49,6 +49,8 @@ func testRPC(t *T) {
 			return outp, err
 		}
 		if !strings.Contains(string(outp), "rpc") {
+			l, _ := cmd.Exec("logs", "rpc-server")
+			t.Logf(l)
 			return outp, errors.New("Can't find rpc service in registry")
 		}
 		return nil, nil
