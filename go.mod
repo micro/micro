@@ -44,4 +44,4 @@ require (
 
 // replace github.com/micro/go-micro/v3 => /home/crufter/code/src/github.com/micro/go-micro
 
-replace github.com/micro/go-micro/v3 => github.com/micro/go-micro/v3 reworkconfig
+replace github.com/micro/go-micro/v3 => github.com/micro/go-micro/v3 v3.0.0-beta.2.0.20200918112555-9168c7c61064
