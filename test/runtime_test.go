@@ -584,10 +584,28 @@ func testRunParentFolder(t *T) {
 	}
 	makeProt := exec.Command("make", "proto")
 	makeProt.Dir = "../test-top-level"
+
 	outp, err = makeProt.CombinedOutput()
 	if err != nil {
 		t.Fatal(string(outp))
 	}
+
+	// for tests, update the micro import to use the current version of the code.
+	fname := fmt.Sprintf(makeProt.Dir + "/go.mod")
+	f, err := os.OpenFile(fname, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		t.Fatal(string(outp))
+		return
+	}
+	if _, err := f.WriteString("\nreplace github.com/micro/micro/v3 => ../.."); err != nil {
+		t.Fatal(string(outp))
+		return
+	}
+	if _, err := f.WriteString("\nreplace github.com/micro/go-micro/v3 => github.com/micro/go-micro/v3 master"); err != nil {
+		t.Fatal(string(outp))
+		return
+	}
+	f.Close()
 
 	err = os.MkdirAll("../parent/folder/test", 0777)
 	if err != nil {
