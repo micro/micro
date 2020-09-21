@@ -5,7 +5,7 @@ go 1.15
 require (
 	github.com/micro/go-micro/v3 v3.0.0-beta.2.0.20200921135327-3015b08bff09
 	github.com/micro/go-plugins/registry/etcd/v3 v3.0.0-20200908121001-4ea6f6760baf
-	github.com/micro/micro/v3 v3.0.0-beta.4.0.20200916121553-fe97adbaf454
+	github.com/micro/micro/v3 v3.0.0-beta.4.0.20200921142158-2bd7b9b88beb
 	github.com/urfave/cli/v2 v2.2.0
 )
 

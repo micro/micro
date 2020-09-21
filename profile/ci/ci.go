@@ -34,7 +34,7 @@ var Profile = &profile.Profile{
 		microAuth.DefaultAuth = jwt.NewAuth()
 		microRuntime.DefaultRuntime = local.NewRuntime()
 		microStore.DefaultStore = file.NewStore()
-		microConfig.DefaultConfig, _ = config.NewConfig(microStore.DefaultStore)
+		microConfig.DefaultConfig, _ = config.NewConfig(microStore.DefaultStore, "")
 		microEvents.DefaultStream, _ = memStream.NewStream()
 		microEvents.DefaultStore = evStore.NewStore(evStore.WithStore(microStore.DefaultStore))
 		profile.SetupBroker(http.NewBroker())

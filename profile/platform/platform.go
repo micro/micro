@@ -45,7 +45,7 @@ var Profile = &profile.Profile{
 		// when the store is created. The cockroach store address contains the location
 		// of certs so it can't be defaulted like the broker and registry.
 		microStore.DefaultStore = cockroach.NewStore(store.Nodes(ctx.String("store_address")))
-		microConfig.DefaultConfig, _ = config.NewConfig(microStore.DefaultStore)
+		microConfig.DefaultConfig, _ = config.NewConfig(microStore.DefaultStore, "")
 		microRuntime.DefaultRuntime = kubernetes.NewRuntime()
 		profile.SetupBroker(nats.NewBroker(broker.Addrs("nats-cluster")))
 		profile.SetupRegistry(etcd.NewRegistry(registry.Addrs("etcd-cluster")))
