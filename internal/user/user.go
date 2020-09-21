@@ -33,6 +33,42 @@ func init() {
 	}
 }
 
+// GetConfigSecretKey returns local keys or generates and returns them for
+// config secret encoding/decoding.
+func GetConfigSecretKey() (string, error) {
+	key := filepath.Join(Dir, "config_secret_key")
+	if !fileExists(key) {
+		err := setupConfigSecretKey(key)
+		if err != nil {
+			return "", err
+		}
+	}
+	dat, err := ioutil.ReadFile(key)
+	if err != nil {
+		return "", err
+	}
+	return string(dat), nil
+}
+
+func setupConfigSecretKey(path string) error {
+	bytes := make([]byte, 32) //generate a random 32 byte key for AES-256
+	if _, err := rand.Read(bytes); err != nil {
+		return err
+	}
+	file, err := os.OpenFile(path, os.O_RDONLY|os.O_CREATE, 0644)
+	if err != nil {
+		return err
+	}
+	file.Close()
+
+	err = ioutil.WriteFile(path, bytes, 0600)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // GetJWTCerts returns local keys or generates and returns them for JWT auth.GetJWTCerts
 // This is only here for "0 dep", so people don't have to create and load the certs themselves,
 // not really intended for serious production use.
@@ -44,7 +80,7 @@ func GetJWTCerts() ([]byte, []byte, error) {
 	if !fileExists(privKey) || !fileExists(pubKey) {
 		err := setupKeys(privKey, pubKey)
 		if err != nil {
-			logger.Fatalf("Error setting up keys: %v", err)
+			return nil, nil, err
 		}
 	}
 	privDat, err := ioutil.ReadFile(privKey)

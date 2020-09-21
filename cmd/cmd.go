@@ -218,6 +218,12 @@ var (
 			Value:   true,
 			EnvVars: []string{"MICRO_PROMPT_UPDATE"},
 		},
+		&cli.StringFlag{
+			Name:    "config_secret_key",
+			Usage:   "Key to use when encoding/decoding secret config values. Will be generated and saved to file if not provided.",
+			Value:   "",
+			EnvVars: []string{"MICRO_CONFIG_SECRET_KEY"},
+		},
 	}
 )
 

@@ -97,6 +97,7 @@ var Local = &Profile{
 		SetupBroker(http.NewBroker())
 		SetupRegistry(mdns.NewRegistry())
 		SetupJWT(ctx)
+		SetupConfigSecretKey(ctx)
 
 		var err error
 		microEvents.DefaultStream, err = memStream.NewStream()
@@ -127,6 +128,7 @@ var Kubernetes = &Profile{
 		// store ...
 		microAuth.DefaultAuth = jwt.NewAuth()
 		SetupJWT(ctx)
+		SetupConfigSecretKey(ctx)
 
 		return nil
 	},
@@ -181,10 +183,21 @@ func SetupJWT(ctx *cli.Context) {
 	if len(privKey) == 0 || len(pubKey) == 0 {
 		privB, pubB, err := user.GetJWTCerts()
 		if err != nil {
-			logger.Fatalf("Error getting keys; %v", err)
+			logger.Fatalf("Error getting keys: %v", err)
 		}
 		os.Setenv("MICRO_AUTH_PRIVATE_KEY", string(privB))
 		os.Setenv("MICRO_AUTH_PUBLIC_KEY", string(pubB))
 	}
 
+}
+
+func SetupConfigSecretKey(ctx *cli.Context) {
+	key := ctx.String("config_secret_key")
+	if len(key) == 0 {
+		k, err := user.GetConfigSecretKey()
+		if err != nil {
+			logger.Fatal("Error getting config secret: %v", err)
+		}
+		os.Setenv("MICRO_CONFIG_SECRET_KEY", k)
+	}
 }

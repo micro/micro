@@ -50,6 +50,7 @@ var Profile = &profile.Profile{
 		profile.SetupBroker(nats.NewBroker(broker.Addrs("nats-cluster")))
 		profile.SetupRegistry(etcd.NewRegistry(registry.Addrs("etcd-cluster")))
 		profile.SetupJWT(ctx)
+		profile.SetupConfigSecretKeys(ctx)
 
 		// Set up a default metrics reporter (being careful not to clash with any that have already been set):
 		if !microMetrics.IsSet() {
