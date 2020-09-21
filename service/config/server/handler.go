@@ -29,6 +29,9 @@ type Config struct {
 }
 
 func NewConfig(key string) *Config {
+	if len(key) == 0 {
+		logger.Fatalf("No encryption key provided")
+	}
 	dec, err := base64.StdEncoding.DecodeString(key)
 	if err != nil {
 		logger.Fatalf("Error decoding key: %v", err)
