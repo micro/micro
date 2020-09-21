@@ -15,7 +15,7 @@ import (
 
 	"github.com/micro/go-micro/v3/broker"
 	"github.com/micro/go-micro/v3/client"
-	"github.com/micro/go-micro/v3/config"
+	config "github.com/micro/go-micro/v3/config/store"
 	"github.com/micro/go-micro/v3/server"
 	"github.com/micro/go-micro/v3/store"
 

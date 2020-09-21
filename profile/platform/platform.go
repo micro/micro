@@ -8,7 +8,7 @@ import (
 
 	"github.com/micro/go-micro/v3/auth/jwt"
 	"github.com/micro/go-micro/v3/broker"
-	"github.com/micro/go-micro/v3/config"
+	config "github.com/micro/go-micro/v3/config/store"
 	evStore "github.com/micro/go-micro/v3/events/store"
 	"github.com/micro/go-micro/v3/registry"
 	"github.com/micro/go-micro/v3/runtime/kubernetes"
