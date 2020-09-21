@@ -79,23 +79,22 @@ func (c *Config) Get(ctx context.Context, req *pb.GetRequest, rsp *pb.GetRespons
 
 	// we just want to pass back bytes
 	rsp.Value.Data = string(values.Get(req.Path).Bytes())
-	rsp.Value.Data = leavesToValues(rsp.Value.Data, !req.Secret)
-	fmt.Println(rsp.Value.Data)
+	dat := leavesToValues(rsp.Value.Data, !req.Secret)
+
 	if req.Secret {
-		// due to json marshal the value is "string" and not string
-		str := ""
-		json.Unmarshal([]byte(rsp.Value.Data), &str)
-		dec, err := base64.StdEncoding.DecodeString(str)
+		dec, err := base64.StdEncoding.DecodeString(fmt.Sprintf("%v", dat))
 		if err != nil {
 			return errors.InternalServerError("config.Config.Get", "Badly encoded secret")
 		}
 		rsp.Value.Data = decrypt(string(dec), c.secret)
 	}
 
+	bs, _ := json.Marshal(dat)
+	rsp.Value.Data = string(bs)
 	return nil
 }
 
-func leavesToValues(data string, maskSecrets bool) string {
+func leavesToValues(data string, maskSecrets bool) interface{} {
 	if data == "null" {
 		return data
 	}
@@ -104,11 +103,7 @@ func leavesToValues(data string, maskSecrets bool) string {
 	if err != nil {
 		return data
 	}
-	outp, err := json.Marshal(traverse(m, maskSecrets))
-	if err != nil {
-		return data
-	}
-	return string(outp)
+	return traverse(m, maskSecrets)
 }
 
 func traverse(i interface{}, maskSecrets bool) interface{} {
