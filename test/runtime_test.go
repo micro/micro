@@ -577,6 +577,7 @@ func testRunParentFolder(t *T) {
 
 	cmd := serv.Command()
 	cmd.Dir = ".."
+
 	outp, err := cmd.Exec("new", "test-top-level")
 	if err != nil {
 		t.Fatal(string(outp))
