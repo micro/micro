@@ -331,34 +331,31 @@ func updateService(ctx *cli.Context) error {
 	if err != nil {
 		return err
 	}
-	var newSource string
-	if source.Local {
-		newSource, err = upload(ctx, source)
-		if err != nil {
+
+	// if the source isn't local, ensure it exists
+	if !source.Local {
+		if err := sourceExists(source); err != nil {
 			return err
 		}
 	}
 
-	runtimeName := source.RuntimeName()
-	runtimeSource := source.RuntimeSource()
-	ref := source.Ref
+	var runtimeSource string
 	if source.Local {
-		runtimeSource = newSource
-	} else {
-		runtimeSource = ""
-		name := ctx.Args().Get(0)
-		if parts := strings.Split(name, "@"); len(parts) > 1 {
-			runtimeName = parts[0]
-			ref = parts[1]
+		// for local source, upload it to the server and use the resulting source ID
+		runtimeSource, err = upload(ctx, source)
+		if err != nil {
+			return err
 		}
+	} else {
+		// if we're running a remote git repository, pass this as the source
+		runtimeSource = source.RuntimeSource()
 	}
-	if ref == "" {
-		ref = "latest"
-	}
-	service := &runtime.Service{
-		Name:    runtimeName,
-		Source:  runtimeSource,
-		Version: ref,
+
+	// when the repo root doesn't match the full path (e.g. in cases where a mono-repo is being
+	// used), find the relative path and pass this in the metadata as entrypoint
+	metadata := map[string]string{}
+	if source.Local && source.LocalRepoRoot != source.FullPath {
+		metadata["entrypoint"], _ = filepath.Rel(source.LocalRepoRoot, source.FullPath)
 	}
 
 	// determine the namespace
@@ -372,7 +369,12 @@ func updateService(ctx *cli.Context) error {
 	if ok {
 		opts = append(opts, runtime.UpdateSecret(credentialsKey, gitCreds))
 	}
-	return runtime.Update(service, runtime.UpdateNamespace(ns))
+	return runtime.Update(&runtime.Service{
+		Name:     source.RuntimeName(),
+		Source:   runtimeSource,
+		Version:  source.Ref,
+		Metadata: metadata,
+	}, runtime.UpdateNamespace(ns))
 }
 
 func getService(ctx *cli.Context) error {
