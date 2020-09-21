@@ -9,7 +9,7 @@ require (
 	github.com/micro/go-plugins/metrics/prometheus/v3 v3.0.0-20200908121001-4ea6f6760baf
 	github.com/micro/go-plugins/registry/etcd/v3 v3.0.0-20200908121001-4ea6f6760baf
 	github.com/micro/go-plugins/store/cockroach/v3 v3.0.0-20200908121001-4ea6f6760baf
-	github.com/micro/micro/v3 v3.0.0-beta.4.0.20200921142158-2bd7b9b88beb
+	github.com/micro/micro/v3 v3.0.0-beta.4.0.20200921153036-e3221acaefd1
 	github.com/urfave/cli/v2 v2.2.0
 )
 
