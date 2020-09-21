@@ -63,46 +63,19 @@ func (m *srv) Delete(path string, options ...config.Option) {
 	}
 }
 
-func (m *srv) Init(opts ...config.Option) error {
-	return nil
-}
-
 func (m *srv) String() string {
 	return "service"
 }
 
-func NewConfig(opts ...config.Option) *srv {
-	var options config.Options
-	for _, o := range opts {
-		o(&options)
-	}
-
+func NewConfig(namespace string) *srv {
 	addr := name
-	namespace := defaultNamespace
-	if len(options.Key) > 0 {
-		namespace = options.Key
-	}
-
-	if options.Context != nil {
-		a, ok := options.Context.Value(serviceNameKey{}).(string)
-		if ok {
-			addr = a
-		}
-
-		k, ok := options.Context.Value(namespaceKey{}).(string)
-		if ok {
-			namespace = k
-		}
-	}
-
-	if options.Client == nil {
-		options.Client = client.DefaultClient
+	if len(namespace) == 0 {
+		namespace = defaultNamespace
 	}
 
 	s := &srv{
-		opts:      options,
 		namespace: namespace,
-		client:    proto.NewConfigService(addr, options.Client),
+		client:    proto.NewConfigService(addr, client.DefaultClient),
 	}
 
 	return s

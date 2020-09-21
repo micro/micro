@@ -499,9 +499,9 @@ func (c *command) Before(ctx *cli.Context) error {
 	// from the service immediately. We only do this if the action is nil, indicating
 	// a service is being run
 	if c.service && muconfig.DefaultConfig == nil {
-		muconfig.DefaultConfig = configCli.NewConfig(config.Key(ctx.String("namespace")))
+		muconfig.DefaultConfig = configCli.NewConfig(ctx.String("namespace"))
 	} else if muconfig.DefaultConfig == nil {
-		muconfig.DefaultConfig, _ = config.NewConfig(mustore.DefaultStore)
+		muconfig.DefaultConfig, _ = config.NewConfig(mustore.DefaultStore, ctx.String("namespace"))
 	}
 
 	return nil

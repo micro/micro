@@ -94,7 +94,7 @@ var Local = &Profile{
 		microRuntime.DefaultRuntime = local.NewRuntime()
 		microStore.DefaultStore = file.NewStore()
 		SetupConfigSecretKey(ctx)
-		microConfig.DefaultConfig, _ = config.NewConfig(microStore.DefaultStore)
+		microConfig.DefaultConfig, _ = config.NewConfig(microStore.DefaultStore, "")
 		SetupBroker(http.NewBroker())
 		SetupRegistry(mdns.NewRegistry())
 		SetupJWT(ctx)
@@ -146,7 +146,7 @@ var Test = &Profile{
 	Setup: func(ctx *cli.Context) error {
 		microAuth.DefaultAuth = noop.NewAuth()
 		microStore.DefaultStore = mem.NewStore()
-		microConfig.DefaultConfig, _ = config.NewConfig(microStore.DefaultStore)
+		microConfig.DefaultConfig, _ = config.NewConfig(microStore.DefaultStore, "")
 		SetupRegistry(memory.NewRegistry())
 		return nil
 	},
