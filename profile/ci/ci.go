@@ -40,7 +40,7 @@ var Profile = &profile.Profile{
 		profile.SetupBroker(http.NewBroker())
 		profile.SetupRegistry(etcd.NewRegistry())
 		profile.SetupJWT(ctx)
-		profile.SetupConfigSecretKeys(ctx)
+		profile.SetupConfigSecretKey(ctx)
 
 		var err error
 		microStore.DefaultBlobStore, err = file.NewBlobStore()
