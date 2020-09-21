@@ -75,7 +75,7 @@ func Get(path string) (string, error) {
 	v = strings.TrimSpace(v)
 
 	// don't return nil decoded value
-	if v == "null" {
+	if strings.TrimSpace(v) == "null" {
 		return "", nil
 	}
 
