@@ -8,8 +8,12 @@ import (
 var (
 	// DefaultStore implementation
 	DefaultStore store.Store = client.NewStore()
+	// DefaultBlobStore implementation
+	DefaultBlobStore store.BlobStore = client.NewBlobStore()
 	// ErrNotFound is returned when a key doesn't exist
 	ErrNotFound = store.ErrNotFound
+	// ErrMissingKey is returned when a key wasn't provided
+	ErrMissingKey = store.ErrMissingKey
 )
 
 type (

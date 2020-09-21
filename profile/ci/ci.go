@@ -10,6 +10,7 @@ import (
 	"github.com/micro/go-micro/v3/runtime/local"
 	"github.com/micro/go-micro/v3/store/file"
 	"github.com/micro/micro/v3/profile"
+	"github.com/micro/micro/v3/service/logger"
 	"github.com/urfave/cli/v2"
 
 	microAuth "github.com/micro/micro/v3/service/auth"
@@ -39,6 +40,13 @@ var Profile = &profile.Profile{
 		profile.SetupBroker(http.NewBroker())
 		profile.SetupRegistry(etcd.NewRegistry())
 		profile.SetupJWT(ctx)
+
+		var err error
+		microStore.DefaultBlobStore, err = file.NewBlobStore()
+		if err != nil {
+			logger.Fatalf("Error configuring file blob store: %v", err)
+		}
+
 		return nil
 	},
 }
