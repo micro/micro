@@ -34,4 +34,4 @@ require (
 	google.golang.org/protobuf v1.25.0
 )
 
-replace github.com/micro/go-micro/v3 => github.com/micro/go-micro/v3 reworkconfig
+replace github.com/micro/go-micro/v3 => github.com/micro/go-micro/v3 v3.0.0-beta.2.0.20200921152652-961215bab1f5
