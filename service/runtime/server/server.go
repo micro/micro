@@ -73,6 +73,9 @@ func Run(ctx *cli.Context) error {
 		Runtime: manager,
 	})
 
+	// register the source handler
+	pb.RegisterSourceHandler(srv.Server(), &Source{})
+
 	// start runtime service
 	if err := srv.Run(); err != nil {
 		log.Errorf("error running service: %v", err)
