@@ -162,10 +162,7 @@ func newConfig() (*conf.JSONValues, error) {
 		return nil, err
 	}
 
-	c, err := conf.NewJSONValues(contents)
-	if err != nil {
-		return nil, err
-	}
+	c := conf.NewJSONValues(contents)
 
 	// return the conf
 	return c, nil

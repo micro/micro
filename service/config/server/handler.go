@@ -72,10 +72,7 @@ func (c *Config) Get(ctx context.Context, req *pb.GetRequest, rsp *pb.GetRespons
 		return nil
 	}
 
-	values, err := config.NewJSONValues(ch[0].Value)
-	if err != nil {
-		return err
-	}
+	values := config.NewJSONValues(ch[0].Value)
 
 	// we just want to pass back bytes
 	rsp.Value.Data = string(values.Get(req.Path).Bytes())
@@ -177,10 +174,7 @@ func (c *Config) Set(ctx context.Context, req *pb.SetRequest, rsp *pb.SetRespons
 	if len(ch) > 0 {
 		dat = ch[0].Value
 	}
-	values, err := config.NewJSONValues(dat)
-	if err != nil {
-		return err
-	}
+	values := config.NewJSONValues(dat)
 
 	data := req.Value.Data
 	if req.Secret {
@@ -226,10 +220,7 @@ func (c *Config) Delete(ctx context.Context, req *pb.DeleteRequest, rsp *pb.Dele
 		return errors.BadRequest("config.Config.Delete", "read error: %v: %v", err, req.Namespace)
 	}
 
-	values, err := config.NewJSONValues(ch[0].Value)
-	if err != nil {
-		return err
-	}
+	values := config.NewJSONValues(ch[0].Value)
 
 	values.Delete(req.Path)
 	return store.Write(&store.Record{
