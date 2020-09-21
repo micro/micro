@@ -3,6 +3,7 @@ package server
 import (
 	"context"
 	"encoding/base64"
+	"encoding/json"
 	"sync"
 
 	"github.com/micro/go-micro/v3/config"
@@ -74,6 +75,8 @@ func (c *Config) Get(ctx context.Context, req *pb.GetRequest, rsp *pb.GetRespons
 
 	// we just want to pass back bytes
 	rsp.Value.Data = string(values.Get(req.Path).Bytes())
+	rsp.Value.Data = leavesToValues(rsp.Value.Data)
+
 	if req.Secret {
 		dec, err := base64.StdEncoding.DecodeString(rsp.Value.Data)
 		if err != nil {
@@ -83,6 +86,53 @@ func (c *Config) Get(ctx context.Context, req *pb.GetRequest, rsp *pb.GetRespons
 	}
 
 	return nil
+}
+
+func leavesToValues(data string) string {
+	if data == "null" {
+		return data
+	}
+	m := map[string]interface{}{}
+	err := json.Unmarshal([]byte(data), &m)
+	if err != nil {
+		return data
+	}
+	outp, err := json.Marshal(traverse(m))
+	if err != nil {
+		return data
+	}
+	return string(outp)
+}
+
+func traverse(i interface{}) interface{} {
+	switch v := i.(type) {
+	case map[string]interface{}:
+		if val, ok := v["leaf"].(bool); ok && val {
+			isSecret, isSecretOk := v["secret"].(bool)
+			if isSecretOk && isSecret {
+				return "[secret]"
+			}
+			value, valueOk := v["value"].(string)
+			if valueOk {
+				return value
+			}
+			return ""
+		}
+		ret := map[string]interface{}{}
+		for key, val := range v {
+			ret[key] = traverse(val)
+		}
+		return ret
+	case []interface{}:
+		for _, e := range v {
+			ret := []interface{}{}
+			ret = append(ret, traverse(e))
+			return ret
+		}
+	default:
+		return i
+	}
+	return i
 }
 
 func (c *Config) Set(ctx context.Context, req *pb.SetRequest, rsp *pb.SetResponse) error {
@@ -122,9 +172,19 @@ func (c *Config) Set(ctx context.Context, req *pb.SetRequest, rsp *pb.SetRespons
 	data := req.Value.Data
 	if req.Secret {
 		data = string(base64.StdEncoding.EncodeToString([]byte(encrypt(data, c.secret))))
+		// Need to save metainformation with secret values too
+		values.Set(req.Path, map[string]interface{}{
+			"secret": true,
+			"value":  data,
+			"leaf":   true,
+		})
+	} else {
+		values.Set(req.Path, map[string]interface{}{
+			"value": data,
+			"leaf":  true,
+		})
 	}
 
-	values.Set(req.Path, data)
 	return store.Write(&store.Record{
 		Key:   req.Namespace,
 		Value: values.Bytes(),
