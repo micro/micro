@@ -3,6 +3,7 @@ package config
 import (
 	"fmt"
 	"os"
+	"strings"
 
 	goclient "github.com/micro/go-micro/v3/client"
 	"github.com/micro/micro/v3/client/cli/namespace"
@@ -85,6 +86,10 @@ func getConfig(ctx *cli.Context) error {
 		return fmt.Errorf("not found")
 	}
 
+	if strings.HasPrefix(rsp.Value.Data, "\"") && strings.HasSuffix(rsp.Value.Data, "\"") {
+		fmt.Println(rsp.Value.Data[1 : len(rsp.Value.Data)-1])
+		return nil
+	}
 	fmt.Println(string(rsp.Value.Data))
 	return nil
 }
