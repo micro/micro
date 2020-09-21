@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"path"
+	"path/filepath"
 	"sort"
 	"strings"
 	"text/tabwriter"
@@ -208,7 +209,13 @@ func runService(ctx *cli.Context) error {
 		// if we're running a remote git repository, pass this as the source
 		runtimeSource = source.RuntimeSource()
 	}
-	fmt.Println("Running", runtimeSource)
+
+	// when the repo root doesn't match the full path (e.g. in cases where a mono-repo is being
+	// used), find the relative path and pass this in the metadata as entrypoint
+	metadata := map[string]string{}
+	if source.Local && source.LocalRepoRoot != source.FullPath {
+		metadata["entrypoint"], _ = filepath.Rel(source.LocalRepoRoot, source.FullPath)
+	}
 
 	// specify the options
 	opts := []runtime.CreateOption{
@@ -253,7 +260,7 @@ func runService(ctx *cli.Context) error {
 		Name:     source.RuntimeName(),
 		Source:   runtimeSource,
 		Version:  source.Ref,
-		Metadata: make(map[string]string),
+		Metadata: metadata,
 	}, opts...)
 }
 
