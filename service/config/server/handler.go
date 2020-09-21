@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/base64"
 	"encoding/json"
+	"fmt"
 	"sync"
 
 	"github.com/micro/go-micro/v3/config"
@@ -78,10 +79,13 @@ func (c *Config) Get(ctx context.Context, req *pb.GetRequest, rsp *pb.GetRespons
 
 	// we just want to pass back bytes
 	rsp.Value.Data = string(values.Get(req.Path).Bytes())
-	rsp.Value.Data = leavesToValues(rsp.Value.Data)
-
+	rsp.Value.Data = leavesToValues(rsp.Value.Data, !req.Secret)
+	fmt.Println(rsp.Value.Data)
 	if req.Secret {
-		dec, err := base64.StdEncoding.DecodeString(rsp.Value.Data)
+		// due to json marshal the value is "string" and not string
+		str := ""
+		json.Unmarshal([]byte(rsp.Value.Data), &str)
+		dec, err := base64.StdEncoding.DecodeString(str)
 		if err != nil {
 			return errors.InternalServerError("config.Config.Get", "Badly encoded secret")
 		}
@@ -91,7 +95,7 @@ func (c *Config) Get(ctx context.Context, req *pb.GetRequest, rsp *pb.GetRespons
 	return nil
 }
 
-func leavesToValues(data string) string {
+func leavesToValues(data string, maskSecrets bool) string {
 	if data == "null" {
 		return data
 	}
@@ -100,19 +104,19 @@ func leavesToValues(data string) string {
 	if err != nil {
 		return data
 	}
-	outp, err := json.Marshal(traverse(m))
+	outp, err := json.Marshal(traverse(m, maskSecrets))
 	if err != nil {
 		return data
 	}
 	return string(outp)
 }
 
-func traverse(i interface{}) interface{} {
+func traverse(i interface{}, maskSecrets bool) interface{} {
 	switch v := i.(type) {
 	case map[string]interface{}:
 		if val, ok := v["leaf"].(bool); ok && val {
 			isSecret, isSecretOk := v["secret"].(bool)
-			if isSecretOk && isSecret {
+			if isSecretOk && isSecret && maskSecrets {
 				return "[secret]"
 			}
 			value, valueOk := v["value"].(string)
@@ -123,13 +127,13 @@ func traverse(i interface{}) interface{} {
 		}
 		ret := map[string]interface{}{}
 		for key, val := range v {
-			ret[key] = traverse(val)
+			ret[key] = traverse(val, maskSecrets)
 		}
 		return ret
 	case []interface{}:
 		for _, e := range v {
 			ret := []interface{}{}
-			ret = append(ret, traverse(e))
+			ret = append(ret, traverse(e, maskSecrets))
 			return ret
 		}
 	default:
