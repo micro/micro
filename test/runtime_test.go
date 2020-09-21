@@ -17,8 +17,8 @@ import (
 )
 
 const (
-	branch  = "@reworkconfig"
-	version = "reworkconfig"
+	branch  = ""
+	version = "latest"
 )
 
 func TestServerModeCall(t *testing.T) {
