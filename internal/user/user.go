@@ -1,7 +1,6 @@
 package user
 
 import (
-	"log"
 	"os/user"
 	"path/filepath"
 
@@ -24,12 +23,12 @@ var (
 func init() {
 	user, err := user.Current()
 	if err != nil {
-		log.Fatalf(err.Error())
+		logger.Fatalf(err.Error())
 	}
 	Dir = filepath.Join(user.HomeDir, path)
 	err = os.MkdirAll(Dir, 0700)
 	if err != nil {
-		log.Fatalf(err.Error())
+		logger.Fatalf(err.Error())
 	}
 }
 
@@ -43,6 +42,7 @@ func GetConfigSecretKey() (string, error) {
 			return "", err
 		}
 	}
+	logger.Infof("Loading config key from %v", key)
 	dat, err := ioutil.ReadFile(key)
 	if err != nil {
 		return "", err
@@ -51,6 +51,7 @@ func GetConfigSecretKey() (string, error) {
 }
 
 func setupConfigSecretKey(path string) error {
+	logger.Infof("Setting up config key to %v", path)
 	bytes := make([]byte, 32) //generate a random 32 byte key for AES-256
 	if _, err := rand.Read(bytes); err != nil {
 		return err
@@ -61,7 +62,7 @@ func setupConfigSecretKey(path string) error {
 	}
 	file.Close()
 
-	err = ioutil.WriteFile(path, bytes, 0600)
+	err = ioutil.WriteFile(path, []byte(base64.StdEncoding.EncodeToString(bytes)), 0600)
 	if err != nil {
 		return err
 	}

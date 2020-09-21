@@ -93,11 +93,11 @@ var Local = &Profile{
 		microAuth.DefaultAuth = jwt.NewAuth()
 		microRuntime.DefaultRuntime = local.NewRuntime()
 		microStore.DefaultStore = file.NewStore()
+		SetupConfigSecretKey(ctx)
 		microConfig.DefaultConfig, _ = config.NewConfig(microStore.DefaultStore)
 		SetupBroker(http.NewBroker())
 		SetupRegistry(mdns.NewRegistry())
 		SetupJWT(ctx)
-		SetupConfigSecretKey(ctx)
 
 		var err error
 		microEvents.DefaultStream, err = memStream.NewStream()

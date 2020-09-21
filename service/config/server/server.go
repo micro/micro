@@ -17,11 +17,11 @@ const (
 var (
 	// Flags specific to the config service
 	Flags = []cli.Flag{
-		//&cli.StringFlag{
-		//	Name:    "watch_topic",
-		//	EnvVars: []string{"MICRO_CONFIG_WATCH_TOPIC"},
-		//	Usage:   "watch the change event.",
-		//},
+		&cli.StringFlag{
+			Name:    "watch_topic",
+			EnvVars: []string{"MICRO_CONFIG_SECRET_KEY"},
+			Usage:   "watch the change event.",
+		},
 	}
 )
 
@@ -35,7 +35,7 @@ func Run(c *cli.Context) error {
 	mustore.DefaultStore.Init(store.Table("config"))
 
 	// register the handler
-	pb.RegisterConfigHandler(srv.Server(), new(Config))
+	pb.RegisterConfigHandler(srv.Server(), NewConfig(c.String("config_secret_key")))
 	// register the subscriber
 	//srv.Subscribe(watchTopic, new(watcher))
 

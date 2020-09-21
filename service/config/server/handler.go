@@ -2,12 +2,14 @@ package server
 
 import (
 	"context"
+	"encoding/base64"
 	"sync"
 
 	"github.com/micro/go-micro/v3/config"
 	"github.com/micro/micro/v3/internal/auth/namespace"
 	pb "github.com/micro/micro/v3/proto/config"
 	"github.com/micro/micro/v3/service/errors"
+	"github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/store"
 )
 
@@ -21,7 +23,19 @@ var (
 	mtx sync.RWMutex
 )
 
-type Config struct{}
+type Config struct {
+	secret []byte
+}
+
+func NewConfig(key string) *Config {
+	dec, err := base64.StdEncoding.DecodeString(key)
+	if err != nil {
+		logger.Fatalf("Error decoding key: %v", err)
+	}
+	return &Config{
+		secret: dec,
+	}
+}
 
 func (c *Config) Get(ctx context.Context, req *pb.GetRequest, rsp *pb.GetResponse) error {
 	if len(req.Namespace) == 0 {
@@ -60,6 +74,13 @@ func (c *Config) Get(ctx context.Context, req *pb.GetRequest, rsp *pb.GetRespons
 
 	// we just want to pass back bytes
 	rsp.Value.Data = string(values.Get(req.Path).Bytes())
+	if req.Secret {
+		dec, err := base64.StdEncoding.DecodeString(rsp.Value.Data)
+		if err != nil {
+			return errors.InternalServerError("config.Config.Get", "Badly encoded secret")
+		}
+		rsp.Value.Data = decrypt(string(dec), c.secret)
+	}
 
 	return nil
 }
@@ -98,7 +119,12 @@ func (c *Config) Set(ctx context.Context, req *pb.SetRequest, rsp *pb.SetRespons
 		return err
 	}
 
-	values.Set(req.Path, req.Value.Data)
+	data := req.Value.Data
+	if req.Secret {
+		data = string(base64.StdEncoding.EncodeToString([]byte(encrypt(data, c.secret))))
+	}
+
+	values.Set(req.Path, data)
 	return store.Write(&store.Record{
 		Key:   req.Namespace,
 		Value: values.Bytes(),

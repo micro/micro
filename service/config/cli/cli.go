@@ -45,6 +45,7 @@ func setConfig(ctx *cli.Context) error {
 			Data: string(val),
 			//Format: "json",
 		},
+		Secret: ctx.Bool("secret"),
 	}, goclient.WithAuthToken())
 	return err
 }
@@ -73,7 +74,8 @@ func getConfig(ctx *cli.Context) error {
 		// The current namespace,
 		Namespace: ns,
 		// The actual key for the val
-		Path: key,
+		Path:   key,
+		Secret: ctx.Bool("secret"),
 	}, goclient.WithAuthToken())
 	if err != nil {
 		return err
@@ -128,11 +130,25 @@ func init() {
 					Name:   "get",
 					Usage:  "Get a value; micro config get key",
 					Action: getConfig,
+					Flags: []cli.Flag{
+						&cli.BoolFlag{
+							Name:    "secret",
+							Aliases: []string{"s"},
+							Usage:   "Set it as a secret value",
+						},
+					},
 				},
 				{
 					Name:   "set",
 					Usage:  "Set a key-val; micro config set key val",
 					Action: setConfig,
+					Flags: []cli.Flag{
+						&cli.BoolFlag{
+							Name:    "secret",
+							Aliases: []string{"s"},
+							Usage:   "Set it as a secret value",
+						},
+					},
 				},
 				{
 					Name:   "del",
