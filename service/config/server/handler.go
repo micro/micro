@@ -89,14 +89,25 @@ func (c *Config) Get(ctx context.Context, req *pb.GetRequest, rsp *pb.GetRespons
 		rsp.Value.Data = decrypt(string(dec), c.secret)
 	}
 
-	bs, _ := json.Marshal(dat)
-	rsp.Value.Data = string(bs)
+	switch v := dat.(type) {
+	case string:
+		rsp.Value.Data = v
+	case nil:
+		rsp.Value.Data = "null"
+	case int64:
+		rsp.Value.Data = fmt.Sprintf("%v", v)
+	case bool:
+		rsp.Value.Data = fmt.Sprintf("%v", v)
+	default:
+		bs, _ := json.Marshal(dat)
+		rsp.Value.Data = string(bs)
+	}
 	return nil
 }
 
 func leavesToValues(data string, maskSecrets bool) interface{} {
 	if data == "null" {
-		return data
+		return nil
 	}
 	m := map[string]interface{}{}
 	err := json.Unmarshal([]byte(data), &m)
