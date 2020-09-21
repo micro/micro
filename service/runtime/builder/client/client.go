@@ -2,12 +2,13 @@ package client
 
 import (
 	"bytes"
-	"context"
 	"io"
 
+	goclient "github.com/micro/go-micro/v3/client"
 	build "github.com/micro/go-micro/v3/runtime/builder"
 	pb "github.com/micro/micro/v3/proto/runtime/builder"
 	"github.com/micro/micro/v3/service/client"
+	"github.com/micro/micro/v3/service/context"
 )
 
 const bufferSize = 100
@@ -29,7 +30,7 @@ func (b *builder) Build(src io.Reader, opts ...build.Option) (io.Reader, error) 
 	}
 
 	// start the stream
-	stream, err := b.client().Build(context.Background())
+	stream, err := b.client().Build(context.WithNamespace("micro"), goclient.WithAuthToken())
 	if err != nil {
 		return nil, err
 	}
