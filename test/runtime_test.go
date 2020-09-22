@@ -632,6 +632,8 @@ func testRunParentFolder(t *T) {
 		}
 		return outp, err
 	}, 15*time.Second); err != nil {
+		outp, err := cmd.Exec("logs", "test-top-level")
+		t.Log(string(outp), err)
 		return
 	}
 
@@ -645,6 +647,8 @@ func testRunParentFolder(t *T) {
 		}
 		return outp, err
 	}, 90*time.Second); err != nil {
+		outp, err := cmd.Exec("logs", "test-top-level")
+		t.Log(string(outp), err)
 		return
 	}
 }
