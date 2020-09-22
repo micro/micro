@@ -174,12 +174,12 @@ func (c *Config) Set(ctx context.Context, req *pb.SetRequest, rsp *pb.SetRespons
 		return errors.InternalServerError("config.Config.Update", err.Error())
 	}
 
-	ch, err := store.Read(req.Namespace)
+	ch, err := store.Read(ns)
 	dat := []byte{}
 	if err == store.ErrNotFound {
 		dat = []byte("{}")
 	} else if err != nil {
-		return errors.BadRequest("config.Config.Set", "read error: %v: %v", err, req.Namespace)
+		return errors.BadRequest("config.Config.Set", "read error: %v: %v", err, ns)
 	}
 
 	if len(ch) > 0 {
@@ -231,18 +231,18 @@ func (c *Config) Delete(ctx context.Context, req *pb.DeleteRequest, rsp *pb.Dele
 		return errors.InternalServerError("config.Config.Delete", err.Error())
 	}
 
-	ch, err := store.Read(req.Namespace)
+	ch, err := store.Read(ns)
 	if err == store.ErrNotFound {
 		return errors.NotFound("config.Config.Delete", "Not found")
 	} else if err != nil {
-		return errors.BadRequest("config.Config.Delete", "read error: %v: %v", err, req.Namespace)
+		return errors.BadRequest("config.Config.Delete", "read error: %v: %v", err, ns)
 	}
 
 	values := config.NewJSONValues(ch[0].Value)
 
 	values.Delete(req.Path)
 	return store.Write(&store.Record{
-		Key:   req.Namespace,
+		Key:   ns,
 		Value: values.Bytes(),
 	})
 }
