@@ -43,12 +43,6 @@ jobs:
     - name: Install Protoc Gen Go
       run: go get -u github.com/golang/protobuf/protoc-gen-go
 
-    - name: Preload dependencies
-      run: |
-        GOPROXY=direct go get github.com/micro/services
-        GOPROXY=direct go get github.com/micro/services/helloworld
-        bash -c 'for d in $(find test -name "main.go" | xargs -n 1 dirname); do pushd $d && go get && popd; done'
-
     - name: Replace CI profile
       id: replace-profile
       run: |
