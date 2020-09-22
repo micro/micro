@@ -16,16 +16,16 @@ type (
 )
 
 // Get a value at the path
-func Get(path string, options ...Option) Value {
+func Get(path string, options ...Option) (Value, error) {
 	return DefaultConfig.Get(path, options...)
 }
 
 // Set the value at a path
-func Set(path string, val interface{}, options ...Option) {
-	DefaultConfig.Set(path, val, options...)
+func Set(path string, val interface{}, options ...Option) error {
+	return DefaultConfig.Set(path, val, options...)
 }
 
 // Delete the value at a path
-func Delete(path string, options ...Option) {
-	DefaultConfig.Delete(path, options...)
+func Delete(path string, options ...Option) error {
+	return DefaultConfig.Delete(path, options...)
 }

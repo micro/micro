@@ -90,7 +90,11 @@ func (c *Config) Get(ctx context.Context, req *pb.GetRequest, rsp *pb.GetRespons
 		if err != nil {
 			return errors.InternalServerError("config.Config.Get", "Badly encoded secret")
 		}
-		rsp.Value.Data = decrypt(string(dec), c.secret)
+		decrypted, err := decrypt(string(dec), c.secret)
+		if err != nil {
+			return errors.InternalServerError("config.Config.Get", "Failed to decrypt", err)
+		}
+		rsp.Value.Data = decrypted
 	}
 
 	switch v := dat.(type) {
@@ -188,7 +192,11 @@ func (c *Config) Set(ctx context.Context, req *pb.SetRequest, rsp *pb.SetRespons
 		if len(c.secret) == 0 {
 			return errors.InternalServerError("config.Config.Set", "Can't encode secret: secret key is not set")
 		}
-		data = string(base64.StdEncoding.EncodeToString([]byte(encrypt(data, c.secret))))
+		encrypted, err := encrypt(data, c.secret)
+		if err != nil {
+			return errors.InternalServerError("config.Config.Set", "Failed to encrypt", err)
+		}
+		data = string(base64.StdEncoding.EncodeToString([]byte(encrypted)))
 		// Need to save metainformation with secret values too
 		values.Set(req.Path, map[string]interface{}{
 			"secret": true,

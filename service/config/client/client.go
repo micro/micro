@@ -10,7 +10,6 @@ import (
 	"github.com/micro/micro/v3/service/client"
 	"github.com/micro/micro/v3/service/context"
 	"github.com/micro/micro/v3/service/errors"
-	"github.com/micro/micro/v3/service/logger"
 )
 
 var (
@@ -24,22 +23,21 @@ type srv struct {
 	client    proto.ConfigService
 }
 
-func (m *srv) Get(path string, options ...config.Option) config.Value {
+func (m *srv) Get(path string, options ...config.Option) (config.Value, error) {
 	req, err := m.client.Get(context.DefaultContext, &proto.GetRequest{
 		Namespace: m.namespace,
 		Path:      path,
 	}, goclient.WithAuthToken())
 	if verr := errors.Parse(err); verr != nil && verr.Code == http.StatusNotFound {
-		return config.NewJSONValue([]byte("null"))
+		return config.NewJSONValue([]byte("null")), nil
 	} else if err != nil {
-		logger.Error(err)
-		return config.NewJSONValue([]byte("null"))
+		return nil, err
 	}
 
-	return config.NewJSONValue([]byte(req.Value.Data))
+	return config.NewJSONValue([]byte(req.Value.Data)), nil
 }
 
-func (m *srv) Set(path string, value interface{}, options ...config.Option) {
+func (m *srv) Set(path string, value interface{}, options ...config.Option) error {
 	dat, _ := json.Marshal(value)
 	_, err := m.client.Set(context.DefaultContext, &proto.SetRequest{
 		Namespace: m.namespace,
@@ -48,19 +46,15 @@ func (m *srv) Set(path string, value interface{}, options ...config.Option) {
 			Data: string(dat),
 		},
 	}, goclient.WithAuthToken())
-	if err != nil {
-		logger.Error(err)
-	}
+	return err
 }
 
-func (m *srv) Delete(path string, options ...config.Option) {
+func (m *srv) Delete(path string, options ...config.Option) error {
 	_, err := m.client.Delete(context.DefaultContext, &proto.DeleteRequest{
 		Namespace: m.namespace,
 		Path:      path,
 	}, goclient.WithAuthToken())
-	if err != nil {
-		logger.Error(err)
-	}
+	return err
 }
 
 func (m *srv) String() string {
