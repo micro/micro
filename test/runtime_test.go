@@ -621,6 +621,8 @@ func testRunParentFolder(t *T) {
 
 	if err := Try("Find example", t, func() ([]byte, error) {
 		outp, err := cmd.Exec("status")
+		outp1, _ := cmd.Exec("logs", "test-top-level")
+		outp = append(outp, outp1...)
 		if err != nil {
 			return outp, err
 		}
@@ -632,13 +634,13 @@ func testRunParentFolder(t *T) {
 		}
 		return outp, err
 	}, 15*time.Second); err != nil {
-		outp, err := cmd.Exec("logs", "test-top-level")
-		t.Log(string(outp), err)
 		return
 	}
 
 	if err := Try("Find example in list", t, func() ([]byte, error) {
 		outp, err := cmd.Exec("services")
+		outp1, _ := cmd.Exec("logs", "test-top-level")
+		outp = append(outp, outp1...)
 		if err != nil {
 			return outp, err
 		}
@@ -647,8 +649,6 @@ func testRunParentFolder(t *T) {
 		}
 		return outp, err
 	}, 90*time.Second); err != nil {
-		outp, err := cmd.Exec("logs", "test-top-level")
-		t.Log(string(outp), err)
 		return
 	}
 }
