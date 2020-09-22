@@ -1,24 +1,20 @@
 package runtime
 
 import (
-	"archive/tar"
-	"bytes"
 	"io"
-	"io/ioutil"
-	"os"
-	"path/filepath"
 
 	goclient "github.com/micro/go-micro/v3/client"
 	"github.com/micro/go-micro/v3/runtime/local/source/git"
 	"github.com/micro/micro/v3/client/cli/namespace"
-	"github.com/micro/micro/v3/client/cli/util"
+	cliutil "github.com/micro/micro/v3/client/cli/util"
 	pb "github.com/micro/micro/v3/proto/runtime"
 	"github.com/micro/micro/v3/service/client"
 	"github.com/micro/micro/v3/service/context"
+	"github.com/micro/micro/v3/service/runtime/util"
 	"github.com/urfave/cli/v2"
 )
 
-const bufferSize = 100
+const bufferSize = 1024
 
 // upload source to the server. will return the source id, e.g. source://foo-bar and an error if
 // one occured. The ID returned can be used as a source in runtime.Create.
@@ -28,16 +24,16 @@ func upload(ctx *cli.Context, source *git.Source) (string, error) {
 	var tar io.Reader
 	var err error
 	if len(source.LocalRepoRoot) > 0 {
-		tar, err = archive(source.LocalRepoRoot)
+		tar, err = util.Archive(source.LocalRepoRoot)
 	} else {
-		tar, err = archive(source.FullPath)
+		tar, err = util.Archive(source.FullPath)
 	}
 	if err != nil {
 		return "", err
 	}
 
 	// get the namespace of the client
-	ns, err := namespace.Get(util.GetEnv(ctx).Name)
+	ns, err := namespace.Get(cliutil.GetEnv(ctx).Name)
 	if err != nil {
 		return "", err
 	}
@@ -70,53 +66,4 @@ func upload(ctx *cli.Context, source *git.Source) (string, error) {
 		return "", err
 	}
 	return rsp.Id, nil
-}
-
-// archive a local directory into a tar gzip, ready for streaming to a server.
-func archive(dir string) (io.Reader, error) {
-	// Create a tar writer and a buffer to store the archive
-	tf := bytes.NewBuffer(nil)
-	tw := tar.NewWriter(tf)
-	defer tw.Close()
-
-	// walkFn archives each file in the directory
-	walkFn := func(path string, info os.FileInfo, err error) error {
-		// get the relative path, e.g. cmd/main.go
-		relpath, err := filepath.Rel(dir, path)
-		if err != nil {
-			return err
-		}
-
-		// generate and write tar header
-		header, err := tar.FileInfoHeader(info, relpath)
-		if err != nil {
-			return err
-		}
-		if err := tw.WriteHeader(header); err != nil {
-			return err
-		}
-
-		// there is no body if it's a directory
-		if info.IsDir() {
-			return nil
-		}
-
-		// read the contents of the file
-		bytes, err := ioutil.ReadFile(path)
-		if err != nil {
-			return err
-		}
-
-		// write the contents of the file to the tar
-		_, err = tw.Write([]byte(bytes))
-		return err
-	}
-
-	// Add the files to the archive
-	if err := filepath.Walk(dir, walkFn); err != nil {
-		return nil, err
-	}
-
-	// Return the archive
-	return tf, nil
 }

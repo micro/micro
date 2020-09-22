@@ -22,8 +22,8 @@ import (
 var (
 	// list of services managed
 	services = []string{
-		"network",  // :8443
-		"runtime",  // :8088
+		"network", // :8443
+		// "runtime",  // :8088
 		"registry", // :8000
 		"config",   // :8001
 		"store",    // :8002

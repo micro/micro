@@ -13,7 +13,7 @@ import (
 	"github.com/micro/micro/v3/service/errors"
 )
 
-const bufferSize = 100
+const bufferSize = 1024
 
 // NewBlobStore returns a new store service implementation
 func NewBlobStore() store.BlobStore {

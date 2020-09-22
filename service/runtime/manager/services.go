@@ -30,6 +30,11 @@ func (s *service) Key() string {
 
 // createService writes the service to the store
 func (m *manager) createService(srv *runtime.Service, opts *runtime.CreateOptions) error {
+	return m.updateService(srv, opts)
+}
+
+// updateService writes the service to the store
+func (m *manager) updateService(srv *runtime.Service, opts *runtime.CreateOptions) error {
 	s := &service{srv, opts}
 
 	bytes, err := json.Marshal(s)

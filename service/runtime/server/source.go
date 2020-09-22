@@ -5,13 +5,12 @@ import (
 	"context"
 	"io"
 
-	"github.com/google/uuid"
-	gostore "github.com/micro/go-micro/v3/store"
+	"github.com/micro/micro/v3/service/runtime/util"
+
 	authns "github.com/micro/micro/v3/internal/auth/namespace"
 	"github.com/micro/micro/v3/internal/namespace"
 	pb "github.com/micro/micro/v3/proto/runtime"
 	"github.com/micro/micro/v3/service/errors"
-	"github.com/micro/micro/v3/service/store"
 )
 
 const (
@@ -55,19 +54,14 @@ func (s *Source) Upload(ctx context.Context, stream pb.Source_UploadStream) erro
 		return errors.BadRequest("runtime.Source.Upload", "No blob was sent")
 	}
 
-	// generate a key to use as the source
-	key := sourcePrefix + uuid.New().String()
-
-	// execute the request
-	err := store.DefaultBlobStore.Write(key, buf, gostore.BlobNamespace(blobNamespacePrefix+namespace))
-	if err == gostore.ErrMissingKey {
-		return errors.BadRequest("runtime.Source.Upload", "Missing key")
-	} else if err != nil {
-		return errors.InternalServerError("runtime.Source.Upload", err.Error())
+	// write the source to the store
+	key, err := util.WriteSource(namespace, buf)
+	if err != nil {
+		return err
 	}
 
 	// todo: implement cleanup logic. write to the normal store and have a cleanup func loop through
-	// the records every X minutes.
+	// the records every X minutes. Note: we only want to do this if the builder is set.
 
 	// close the stream
 	return stream.SendAndClose(&pb.UploadResponse{Id: key})

@@ -2,16 +2,21 @@ package manager
 
 import (
 	"encoding/json"
+	"fmt"
+	"io/ioutil"
+	"os"
+	"path/filepath"
 	"strings"
 	"time"
 
 	"github.com/google/uuid"
 	gorun "github.com/micro/go-micro/v3/runtime"
+	"github.com/micro/go-micro/v3/runtime/builder"
 	"github.com/micro/micro/v3/internal/namespace"
-	"github.com/micro/micro/v3/service/auth"
 	"github.com/micro/micro/v3/service/client"
 	"github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/runtime"
+	"github.com/micro/micro/v3/service/runtime/util"
 	"github.com/micro/micro/v3/service/store"
 )
 
@@ -101,61 +106,42 @@ func (m *manager) processEvent(key string) {
 	}
 
 	// determine the namespace
-	ns := namespace.DefaultNamespace
-	if ev.Options != nil && len(ev.Options.Namespace) > 0 {
-		ns = ev.Options.Namespace
+	if ev.Options == nil {
+		ev.Options = &runtime.CreateOptions{}
+	}
+	if len(ev.Options.Namespace) == 0 {
+		ev.Options.Namespace = namespace.DefaultNamespace
 	}
 
 	// log the event
-	logger.Infof("Processing %v event for service %v:%v in namespace %v", ev.Type, ev.Service.Name, ev.Service.Version, ns)
+	logger.Infof("Processing %v event for service %v:%v in namespace %v", ev.Type, ev.Service.Name, ev.Service.Version, ev.Options.Namespace)
 
 	// apply the event to the managed runtime
 	switch ev.Type {
 	case gorun.Delete:
-		err = runtime.Delete(ev.Service, gorun.DeleteNamespace(ns))
+		err = runtime.Delete(ev.Service, gorun.DeleteNamespace(ev.Options.Namespace))
 	case gorun.Update:
-		err = runtime.Update(ev.Service, gorun.UpdateNamespace(ns))
+		err = runtime.Update(ev.Service, gorun.UpdateNamespace(ev.Options.Namespace))
 	case gorun.Create:
 		// generate an auth account for the service to use
-		var acc *auth.Account
-		acc, err = m.generateAccount(ev.Service, ns)
-		if err != nil {
-			return
-		}
-
-		// construct the options
-		options := []gorun.CreateOption{
-			gorun.CreateImage(ev.Options.Image),
-			gorun.CreateType(ev.Options.Type),
-			gorun.CreateNamespace(ns),
-			gorun.WithArgs(ev.Options.Args...),
-			gorun.WithCommand(ev.Options.Command...),
-			gorun.WithEnv(m.runtimeEnv(ev.Service, ev.Options)),
-		}
-
-		// inject the credentials into the service if present
-		if len(acc.ID) > 0 && len(acc.Secret) > 0 {
-			options = append(options, gorun.WithSecret("MICRO_AUTH_ID", acc.ID))
-			options = append(options, gorun.WithSecret("MICRO_AUTH_SECRET", acc.Secret))
-		}
-
-		// add the secrets
-		for key, value := range ev.Options.Secrets {
-			options = append(options, gorun.WithSecret(key, value))
-		}
-
-		// create the service
-		err = runtime.Create(ev.Service, options...)
+		err = m.handleCreateEvent(ev.Service, ev.Options)
 	}
 
 	// if there was an error update the status in the cache
 	if err != nil {
-		logger.Warnf("Error processing %v event for service %v:%v in namespace %v: %v", ev.Type, ev.Service.Name, ev.Service.Version, ns, err)
+		logger.Warnf("Error processing %v event for service %v:%v in namespace %v: %v",
+			ev.Type,
+			ev.Service.Name,
+			ev.Service.Version,
+			ev.Options.Namespace,
+			err,
+		)
+
 		ev.Service.Status = gorun.Error
 		ev.Service.Metadata = map[string]string{"error": err.Error()}
-		m.cacheStatus(ns, ev.Service)
+		m.cacheStatus(ev.Options.Namespace, ev.Service)
 	} else if ev.Type != gorun.Delete {
-		m.cacheStatus(ns, ev.Service)
+		m.cacheStatus(ev.Options.Namespace, ev.Service)
 	}
 
 	// write to the store indicating the event has been consumed. We double the ttl to safely know the
@@ -220,4 +206,99 @@ func nameFromService(name string) string {
 		return ""
 	}
 	return comps[len(comps)-1]
+}
+
+func (m *manager) handleCreateEvent(srv *runtime.Service, opts *runtime.CreateOptions) error {
+	// load the source, this could either be source previously uploaded and written to the blob store,
+	// or it could be a git remote which we'll need to checkout and compress
+	src, err := util.ReadSource(srv, opts.Secrets, opts.Namespace)
+	if err != nil {
+		return err
+	}
+
+	// check if a builder is configured
+	if m.builder != nil {
+		// we always use tar gzip to archive source
+		buildOpts := []builder.Option{builder.Archive("tar")}
+
+		// if the source was a mono-repo, the entrypoint could be somewhere other than the top level
+		// of the source, the builder needs to know this since there may be many entrypoints in the
+		// repo
+		if ep := srv.Metadata["entrypoint"]; len(ep) > 0 {
+			buildOpts = append(buildOpts, builder.Entrypoint(ep))
+		}
+
+		// build the source into a single binary
+		build, err := m.builder.Build(src, buildOpts...)
+		if err != nil {
+			return err
+		}
+
+		// write the build to the blob store
+		srv.Source, err = util.WriteBuild(opts.Namespace, build)
+		if err != nil {
+			return err
+		}
+
+		// update the service in the store to save the build id
+		if err := m.updateService(srv, opts); err != nil {
+			return err
+		}
+	}
+
+	// if the source is a blob, we must pull it and save it to a tmp dir so it can be accessed
+	// by the local runtime which has no concept of the blob store
+	if strings.HasPrefix(srv.Source, "source://") {
+		// create a tmp dir to store the source in
+		dir, err := ioutil.TempDir(os.TempDir(), fmt.Sprintf("source-%v-*", srv.Name))
+		if err != nil {
+			return err
+		}
+
+		// pull the source from the blob store
+		src, err := util.ReadSource(srv, opts.Secrets, opts.Namespace)
+		if err != nil {
+			return err
+		}
+
+		// unarchive the tar into the directory
+		if err := util.Unarchive(src, dir); err != nil {
+			return err
+		}
+
+		// set the service's source to the tmp dir, but don't write this back to the store. the service
+		// might not be at the top level of the source (e.g. in the case of a mono-repo) so we'll join
+		// the entrypoint
+		srv.Source = filepath.Join(dir, srv.Metadata["entrypoint"])
+	}
+
+	// generate an auth account for the service to use
+	acc, err := m.generateAccount(srv, opts.Namespace)
+	if err != nil {
+		return err
+	}
+
+	// construct the options
+	options := []gorun.CreateOption{
+		gorun.CreateImage(opts.Image),
+		gorun.CreateType(opts.Type),
+		gorun.CreateNamespace(opts.Namespace),
+		gorun.WithArgs(opts.Args...),
+		gorun.WithCommand(opts.Command...),
+		gorun.WithEnv(m.runtimeEnv(srv, opts)),
+	}
+
+	// inject the credentials into the service if present
+	if len(acc.ID) > 0 && len(acc.Secret) > 0 {
+		options = append(options, gorun.WithSecret("MICRO_AUTH_ID", acc.ID))
+		options = append(options, gorun.WithSecret("MICRO_AUTH_SECRET", acc.Secret))
+	}
+
+	// add the secrets
+	for key, value := range opts.Secrets {
+		options = append(options, gorun.WithSecret(key, value))
+	}
+
+	// create the service
+	return runtime.Create(srv, options...)
 }

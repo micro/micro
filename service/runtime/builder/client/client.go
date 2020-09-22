@@ -11,7 +11,7 @@ import (
 	"github.com/micro/micro/v3/service/context"
 )
 
-const bufferSize = 100
+const bufferSize = 1024
 
 // NewBuilder returns an initialized builder
 func NewBuilder() build.Builder {

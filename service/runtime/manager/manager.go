@@ -261,8 +261,7 @@ type manager struct {
 	// fileCache is a cache store used to store any information we don't want to write to the
 	// global store but want to persist across restarts, e.g. events consumed
 	fileCache store.Store
-	// builder is used to prebuild source. When the builder is nil, the source should be run by
-	// the runtime directly
+	// builder is used to prebuild source. it can be nil.
 	builder builder.Builder
 }
 
@@ -277,5 +276,17 @@ func New(opts ...Option) gorun.Runtime {
 		builder:   options.Builder,
 		cache:     memory.NewStore(),
 		fileCache: cachest.NewStore(filest.NewStore()),
+	}
+}
+
+type Options struct {
+	Builder builder.Builder
+}
+
+type Option func(o *Options)
+
+func Builder(b builder.Builder) Option {
+	return func(o *Options) {
+		o.Builder = b
 	}
 }

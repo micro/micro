@@ -217,6 +217,13 @@ func runService(ctx *cli.Context) error {
 		metadata["entrypoint"], _ = filepath.Rel(source.LocalRepoRoot, source.FullPath)
 	}
 
+	// for local source, the srv.Source attribute will be remapped to the id of the source upload.
+	// however this won't make sense from a user experience perspective, so we'll pass the argument
+	// they used in metadata, e.g. ./helloworld
+	if source.Local {
+		metadata["source"] = ctx.Args().First()
+	}
+
 	// specify the options
 	opts := []runtime.CreateOption{
 		runtime.WithOutput(os.Stdout),
@@ -481,6 +488,12 @@ func getService(ctx *cli.Context) error {
 
 		// parse when the service was started
 		updated := parse(timeAgo(service.Metadata["started"]))
+
+		// sometimes the services's source can be remapped to the build id etc, however the original
+		// argument passed to micro run is always kept in the source attribute of service metadata
+		if src, ok := service.Metadata["source"]; ok {
+			service.Source = src
+		}
 
 		fmt.Fprintf(writer, "%s\t%s\t%s\t%s\t%s\t%s\t%s\n",
 			service.Name,
