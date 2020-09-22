@@ -211,7 +211,7 @@ func runService(ctx *cli.Context) error {
 	}
 
 	// when the repo root doesn't match the full path (e.g. in cases where a mono-repo is being
-	// used), find the relative path and pass this in the metadata as entrypoint
+	// used), find the relative path and pass this in the metadata as entrypoint.
 	metadata := map[string]string{}
 	if source.Local && source.LocalRepoRoot != source.FullPath {
 		metadata["entrypoint"], _ = filepath.Rel(source.LocalRepoRoot, source.FullPath)
@@ -220,9 +220,7 @@ func runService(ctx *cli.Context) error {
 	// for local source, the srv.Source attribute will be remapped to the id of the source upload.
 	// however this won't make sense from a user experience perspective, so we'll pass the argument
 	// they used in metadata, e.g. ./helloworld
-	if source.Local {
-		metadata["source"] = ctx.Args().First()
-	}
+	metadata["source"] = source.RuntimeSource()
 
 	// specify the options
 	opts := []runtime.CreateOption{
