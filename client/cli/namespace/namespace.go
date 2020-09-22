@@ -16,7 +16,7 @@ func List(env string) ([]string, error) {
 		return nil, errors.New("Missing env value")
 	}
 
-	values, err := config.Get("namespaces", env, "all")
+	values, err := config.Get(config.Path("namespaces", env, "all"))
 	if err != nil {
 		return nil, err
 	}
@@ -48,14 +48,14 @@ func Add(namespace, env string) error {
 		}
 	}
 
-	values, _ := config.Get("namespaces", env, "all")
+	values, _ := config.Get(config.Path("namespaces", env, "all"))
 	if len(values) > 0 {
 		values = strings.Join([]string{values, namespace}, seperator)
 	} else {
 		values = namespace
 	}
 
-	return config.Set(values, "namespaces", env, "all")
+	return config.Set(config.Path("namespaces", env, "all"), values)
 }
 
 // Remove a namespace from an environment
@@ -104,7 +104,7 @@ func Remove(namespace, env string) error {
 	}
 
 	values := strings.Join(namespaces, seperator)
-	return config.Set(values, "namespaces", env, "all")
+	return config.Set(config.Path("namespaces", env, "all"), values)
 }
 
 // Set the current namespace for an environment
@@ -134,7 +134,7 @@ func Set(namespace, env string) error {
 		return errors.New("Namespace does not exists")
 	}
 
-	return config.Set(namespace, "namespaces", env, "current")
+	return config.Set(config.Path("namespaces", env, "current"), namespace)
 }
 
 // Get the current namespace for an environment
@@ -143,7 +143,7 @@ func Get(env string) (string, error) {
 		return "", errors.New("Missing env value")
 	}
 
-	if ns, err := config.Get("namespaces", env, "current"); err != nil {
+	if ns, err := config.Get(config.Path("namespaces", env, "current")); err != nil {
 		return "", err
 	} else if len(ns) > 0 {
 		return ns, nil

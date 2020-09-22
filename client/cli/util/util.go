@@ -125,7 +125,7 @@ func setEnvs(envs map[string]Env) {
 		fmt.Println(err)
 		os.Exit(1)
 	}
-	err = config.Set(string(envsJSON), "envs")
+	err = config.Set("envs", string(envsJSON))
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
@@ -186,7 +186,7 @@ func SetEnv(envName string) {
 		fmt.Printf("Environment '%v' does not exist\n", envName)
 		os.Exit(1)
 	}
-	config.Set(envName, "env")
+	config.Set("env", envName)
 }
 
 // DelEnv deletes an env from config

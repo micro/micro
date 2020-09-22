@@ -2,7 +2,6 @@ package config
 
 import (
 	"fmt"
-	"strings"
 
 	"github.com/urfave/cli/v2"
 )
@@ -33,7 +32,7 @@ func get(ctx *cli.Context) error {
 	key := args.Get(0)
 	val := args.Get(1)
 
-	val, err := Get(strings.Split(key, ".")...)
+	val, err := Get(key)
 	if err != nil {
 		return err
 	}
@@ -47,7 +46,7 @@ func set(ctx *cli.Context) error {
 	key := args.Get(0)
 	val := args.Get(1)
 
-	return Set(val, strings.Split(key, ".")...)
+	return Set(key, val)
 }
 
 func del(ctx *cli.Context) error {
@@ -59,5 +58,5 @@ func del(ctx *cli.Context) error {
 	}
 
 	// TODO: actually delete the key also
-	return Set("", strings.Split(key, ".")...)
+	return Set(key, "")
 }

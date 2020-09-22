@@ -87,7 +87,7 @@ func changePassword(ctx *cli.Context) error {
 	email := ctx.String("email")
 	if len(email) == 0 {
 		env := util.GetEnv(ctx)
-		token, err := config.Get("micro", "auth", env.Name, "token")
+		token, err := config.Get(config.Path("micro", "auth", env.Name, "token"))
 		if err != nil {
 			return err
 		}
@@ -157,17 +157,17 @@ func current(ctx *cli.Context) error {
 		env = "n/a"
 	}
 
-	ns, err := config.Get("namespaces", env, "current")
+	ns, err := config.Get(config.Path("namespaces", env, "current"))
 	if err != nil || len(ns) == 0 {
 		ns = "n/a"
 	}
 
-	token, err := config.Get("micro", "auth", env, "token")
+	token, err := config.Get(config.Path("micro", "auth", env, "token"))
 	if err != nil {
 		return err
 	}
 
-	gitcreds, err := config.Get("git", "credentials")
+	gitcreds, err := config.Get(config.Path("git", "credentials"))
 	if err != nil {
 		return err
 	}
@@ -188,9 +188,9 @@ func current(ctx *cli.Context) error {
 		}
 	}
 
-	baseURL, _ := config.Get("git", util.GetEnv(ctx).Name, "baseurl")
+	baseURL, _ := config.Get(config.Path("git", util.GetEnv(ctx).Name, "baseurl"))
 	if len(baseURL) == 0 {
-		baseURL, _ = config.Get("git", "baseurl")
+		baseURL, _ = config.Get(config.Path("git", "baseurl"))
 	}
 	if len(baseURL) == 0 {
 		baseURL = "n/a"
@@ -210,7 +210,7 @@ func getToken(ctx *cli.Context) error {
 	if err != nil {
 		return err
 	}
-	token, err := config.Get("micro", "auth", env, "token")
+	token, err := config.Get(config.Path("micro", "auth", env, "token"))
 	if err != nil {
 		return err
 	}
@@ -233,7 +233,7 @@ func currNamespace(ctx *cli.Context) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	namespace, err := config.Get("namespaces", env, "current")
+	namespace, err := config.Get(config.Path("namespaces", env, "current"))
 	if err != nil {
 		return "", err
 	}
@@ -249,7 +249,7 @@ func setNamespace(ctx *cli.Context) error {
 	if err != nil {
 		return err
 	}
-	return config.Set(ctx.Args().First(), "namespaces", env, "current")
+	return config.Set(config.Path("namespaces", env, "current"), ctx.Args().First())
 }
 
 // user returns info about the logged in user
@@ -257,7 +257,7 @@ func user(ctx *cli.Context) error {
 	env := util.GetEnv(ctx)
 
 	// Get the token from micro config
-	token, err := config.Get("micro", "auth", env.Name, "token")
+	token, err := config.Get(config.Path("micro", "auth", env.Name, "token"))
 	if err != nil {
 		fmt.Println("You are not logged in")
 		os.Exit(1)
