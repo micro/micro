@@ -61,8 +61,11 @@ func ReadSource(srv *runtime.Service, secrets map[string]string, namespace strin
 
 	// CheckoutSource requires secrets incase they contain any Git credentials (todo: replace this
 	// with an option).
-	gitSrc := &git.Source{Repo: srv.Source, Ref: srv.Version}
-	if err := git.CheckoutSource(tmpDir, gitSrc, secrets); err != nil {
+	src, err := git.ParseSource(srv.Source)
+	if err != nil {
+		return nil, err
+	}
+	if err := git.CheckoutSource(tmpDir, src, secrets); err != nil {
 		return nil, err
 	}
 
