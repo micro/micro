@@ -190,6 +190,11 @@ func compress(src string, buf io.Writer) error {
 			return nil
 		}
 
+		// skip .git folder
+		if strings.Contains(file, "/.git") {
+			return nil
+		}
+
 		// write header
 		if err := tw.WriteHeader(header); err != nil {
 			return err
