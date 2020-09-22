@@ -190,8 +190,8 @@ func compress(src string, buf io.Writer) error {
 			return nil
 		}
 
-		// skip .git folder
-		if strings.Contains(file, "/.git") {
+		// skip all hidden folder
+		if strings.Contains(file, "/.") {
 			return nil
 		}
 
