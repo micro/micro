@@ -35,7 +35,7 @@ func Test(t *testing.T) {
 	// change the config path for the lifetime
 	// of this test
 	saveFile := file
-	savePath := path
+	savePath := fpath
 	saveLock := lock
 
 	file = filepath.Join(user.Dir, "config-test.json")
@@ -62,7 +62,7 @@ func Test(t *testing.T) {
 			}
 
 			for k, v := range tc.values {
-				if err := Set(v, k); err != nil {
+				if err := Set(k, v); err != nil {
 					t.Error(err)
 				}
 			}

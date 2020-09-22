@@ -9,7 +9,7 @@ import (
 
 	"github.com/micro/go-micro/v3/auth/jwt"
 	"github.com/micro/go-micro/v3/broker"
-	"github.com/micro/go-micro/v3/config"
+	config "github.com/micro/go-micro/v3/config/store"
 	evStore "github.com/micro/go-micro/v3/events/store"
 	"github.com/micro/go-micro/v3/registry"
 	"github.com/micro/go-micro/v3/runtime"
@@ -45,10 +45,15 @@ var Profile = &profile.Profile{
 	Name: "platform",
 	Setup: func(ctx *cli.Context) error {
 		microAuth.DefaultAuth = jwt.NewAuth()
-		microConfig.DefaultConfig, _ = config.NewConfig()
+		// the cockroach store will connect immediately so the address must be passed
+		// when the store is created. The cockroach store address contains the location
+		// of certs so it can't be defaulted like the broker and registry.
+		microStore.DefaultStore = cockroach.NewStore(store.Nodes(ctx.String("store_address")))
+		microConfig.DefaultConfig, _ = config.NewConfig(microStore.DefaultStore, "")
 		profile.SetupBroker(nats.NewBroker(broker.Addrs("nats-cluster")))
 		profile.SetupRegistry(etcd.NewRegistry(registry.Addrs("etcd-cluster")))
 		profile.SetupJWT(ctx)
+		profile.SetupConfigSecretKey(ctx)
 
 		// Set up a default metrics reporter (being careful not to clash with any that have already been set):
 		if !microMetrics.IsSet() {
@@ -64,11 +69,6 @@ var Profile = &profile.Profile{
 		if err != nil {
 			logger.Fatalf("Error configuring stream: %v", err)
 		}
-
-		// the cockroach store will connect immediately so the address must be passed
-		// when the store is created. The cockroach store address contains the location
-		// of certs so it can't be defaulted like the broker and registry.
-		microStore.DefaultStore = cockroach.NewStore(store.Nodes(ctx.String("store_address")))
 
 		// only configure the blob store for the store and runtime services
 		if ctx.Args().Get(1) == "runtime" || ctx.Args().Get(1) == "store" {

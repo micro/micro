@@ -106,6 +106,7 @@ jobs:
     - name: Install failed, show platform logs
       if: ${{ failure() }}
       run: |
+        kubectl get pods -n | awk '{print $1}' | xargs -n1 kubectl logs
         kubectl get pods -n platform | awk '{print $1}' | xargs -n1 kubectl logs -n platform
 
     # Finally, we can actually run the tests

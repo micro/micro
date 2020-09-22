@@ -4,7 +4,7 @@ package ci
 import (
 	"github.com/micro/go-micro/v3/auth/jwt"
 	"github.com/micro/go-micro/v3/broker/http"
-	"github.com/micro/go-micro/v3/config"
+	config "github.com/micro/go-micro/v3/config/store"
 	evStore "github.com/micro/go-micro/v3/events/store"
 	memStream "github.com/micro/go-micro/v3/events/stream/memory"
 	"github.com/micro/go-micro/v3/runtime/local"
@@ -34,12 +34,13 @@ var Profile = &profile.Profile{
 		microAuth.DefaultAuth = jwt.NewAuth()
 		microRuntime.DefaultRuntime = local.NewRuntime()
 		microStore.DefaultStore = file.NewStore()
-		microConfig.DefaultConfig, _ = config.NewConfig()
+		microConfig.DefaultConfig, _ = config.NewConfig(microStore.DefaultStore, "")
 		microEvents.DefaultStream, _ = memStream.NewStream()
 		microEvents.DefaultStore = evStore.NewStore(evStore.WithStore(microStore.DefaultStore))
 		profile.SetupBroker(http.NewBroker())
 		profile.SetupRegistry(etcd.NewRegistry())
 		profile.SetupJWT(ctx)
+		profile.SetupConfigSecretKey(ctx)
 
 		var err error
 		microStore.DefaultBlobStore, err = file.NewBlobStore()

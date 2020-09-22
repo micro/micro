@@ -1,105 +1,75 @@
 package client
 
 import (
+	"encoding/json"
 	"net/http"
 
 	goclient "github.com/micro/go-micro/v3/client"
-	"github.com/micro/go-micro/v3/config/source"
+	"github.com/micro/go-micro/v3/config"
 	proto "github.com/micro/micro/v3/proto/config"
 	"github.com/micro/micro/v3/service/client"
 	"github.com/micro/micro/v3/service/context"
 	"github.com/micro/micro/v3/service/errors"
-	"github.com/micro/micro/v3/service/logger"
 )
 
 var (
 	defaultNamespace = "micro"
-	defaultPath      = ""
 	name             = "config"
 )
 
 type srv struct {
-	serviceName string
-	namespace   string
-	path        string
-	opts        source.Options
-	client      proto.ConfigService
+	opts      config.Options
+	namespace string
+	client    proto.ConfigService
 }
 
-func (m *srv) Read() (set *source.ChangeSet, err error) {
-	req, err := m.client.Read(context.DefaultContext, &proto.ReadRequest{
+func (m *srv) Get(path string, options ...config.Option) (config.Value, error) {
+	req, err := m.client.Get(context.DefaultContext, &proto.GetRequest{
 		Namespace: m.namespace,
-		Path:      m.path,
+		Path:      path,
 	}, goclient.WithAuthToken())
 	if verr := errors.Parse(err); verr != nil && verr.Code == http.StatusNotFound {
-		return nil, nil
+		return config.NewJSONValue([]byte("null")), nil
 	} else if err != nil {
 		return nil, err
 	}
 
-	return toChangeSet(req.Change.ChangeSet), nil
+	return config.NewJSONValue([]byte(req.Value.Data)), nil
 }
 
-func (m *srv) Watch() (w source.Watcher, err error) {
-	stream, err := m.client.Watch(context.DefaultContext, &proto.WatchRequest{
+func (m *srv) Set(path string, value interface{}, options ...config.Option) error {
+	dat, _ := json.Marshal(value)
+	_, err := m.client.Set(context.DefaultContext, &proto.SetRequest{
 		Namespace: m.namespace,
-		Path:      m.path,
+		Path:      path,
+		Value: &proto.Value{
+			Data: string(dat),
+		},
 	}, goclient.WithAuthToken())
-	if err != nil {
-		if logger.V(logger.ErrorLevel, logger.DefaultLogger) {
-			logger.Error("watch err: ", err)
-		}
-		return
-	}
-	return newWatcher(stream)
+	return err
 }
 
-// Write is unsupported
-func (m *srv) Write(cs *source.ChangeSet) error {
-	return nil
+func (m *srv) Delete(path string, options ...config.Option) error {
+	_, err := m.client.Delete(context.DefaultContext, &proto.DeleteRequest{
+		Namespace: m.namespace,
+		Path:      path,
+	}, goclient.WithAuthToken())
+	return err
 }
 
 func (m *srv) String() string {
 	return "service"
 }
 
-func NewSource(opts ...source.Option) source.Source {
-	var options source.Options
-	for _, o := range opts {
-		o(&options)
-	}
-
+func NewConfig(namespace string) *srv {
 	addr := name
-	namespace := defaultNamespace
-	path := defaultPath
-
-	if options.Context != nil {
-		a, ok := options.Context.Value(serviceNameKey{}).(string)
-		if ok {
-			addr = a
-		}
-
-		k, ok := options.Context.Value(namespaceKey{}).(string)
-		if ok {
-			namespace = k
-		}
-
-		p, ok := options.Context.Value(pathKey{}).(string)
-		if ok {
-			path = p
-		}
-	}
-
-	if options.Client == nil {
-		options.Client = client.DefaultClient
+	if len(namespace) == 0 {
+		namespace = defaultNamespace
 	}
 
 	s := &srv{
-		serviceName: addr,
-		opts:        options,
-		namespace:   namespace,
-		path:        path,
-		client:      proto.NewConfigService(addr, options.Client),
+		namespace: namespace,
+		client:    proto.NewConfigService(addr, client.DefaultClient),
 	}
 
 	return s
