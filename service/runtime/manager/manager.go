@@ -1,6 +1,11 @@
 package manager
 
 import (
+	"fmt"
+	"io/ioutil"
+	"os"
+	"path/filepath"
+	"strings"
 	"time"
 
 	gorun "github.com/micro/go-micro/v3/runtime"
@@ -12,6 +17,7 @@ import (
 	"github.com/micro/micro/v3/internal/namespace"
 	"github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/runtime"
+	"github.com/micro/micro/v3/service/runtime/util"
 )
 
 // Init initializes the runtime
@@ -197,6 +203,41 @@ func (m *manager) watchServices() {
 			if _, ok := running[srv.Service.Name+":"+srv.Service.Version+":"+srv.Service.Source]; ok {
 				// already running, don't need to start again
 				continue
+			}
+
+			// if the source is a blob, we must pull it and save it to a tmp dir so it can be accessed
+			// by the local runtime which has no concept of the blob store
+			if strings.HasPrefix(srv.Service.Source, "source://") {
+				// create a tmp dir to store the source in
+				dir, err := ioutil.TempDir(os.TempDir(), fmt.Sprintf("source-%v-*", srv.Service.Name))
+				if err != nil {
+					if logger.V(logger.ErrorLevel, logger.DefaultLogger) {
+						logger.Errorf("Error restarting service %v: %v", srv.Service.Name, err)
+					}
+					continue
+				}
+
+				// pull the source from the blob store
+				src, err := util.ReadSource(srv.Service, srv.Options.Secrets, ns)
+				if err != nil {
+					if logger.V(logger.ErrorLevel, logger.DefaultLogger) {
+						logger.Errorf("Error restarting service %v: %v", srv.Service.Name, err)
+					}
+					continue
+				}
+
+				// unarchive the tar into the directory
+				if err := util.Unarchive(src, dir); err != nil {
+					if logger.V(logger.ErrorLevel, logger.DefaultLogger) {
+						logger.Errorf("Error restarting service %v: %v", srv.Service.Name, err)
+					}
+					continue
+				}
+
+				// set the service's source to the tmp dir, but don't write this back to the store. the service
+				// might not be at the top level of the source (e.g. in the case of a mono-repo) so we'll join
+				// the entrypoint
+				srv.Service.Source = filepath.Join(dir, srv.Service.Metadata["entrypoint"])
 			}
 
 			// generate an auth account for the service to use
