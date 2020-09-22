@@ -30,13 +30,17 @@ type Config struct {
 }
 
 func NewConfig(key string) *Config {
+	var dec []byte
+	var err error
 	if len(key) == 0 {
-		logger.Fatalf("No encryption key provided")
+		logger.Warn("No encryption key provided")
+	} else {
+		dec, err = base64.StdEncoding.DecodeString(key)
+		if err != nil {
+			logger.Warnf("Error decoding key: %v", err)
+		}
 	}
-	dec, err := base64.StdEncoding.DecodeString(key)
-	if err != nil {
-		logger.Fatalf("Error decoding key: %v", err)
-	}
+
 	return &Config{
 		secret: dec,
 	}
@@ -79,6 +83,9 @@ func (c *Config) Get(ctx context.Context, req *pb.GetRequest, rsp *pb.GetRespons
 	dat := leavesToValues(rsp.Value.Data, !req.Secret)
 
 	if req.Secret {
+		if len(c.secret) == 0 {
+			return errors.InternalServerError("config.Config.Get", "Can't decode secret: secret key is not set")
+		}
 		dec, err := base64.StdEncoding.DecodeString(fmt.Sprintf("%v", dat))
 		if err != nil {
 			return errors.InternalServerError("config.Config.Get", "Badly encoded secret")
@@ -178,6 +185,9 @@ func (c *Config) Set(ctx context.Context, req *pb.SetRequest, rsp *pb.SetRespons
 
 	data := req.Value.Data
 	if req.Secret {
+		if len(c.secret) == 0 {
+			return errors.InternalServerError("config.Config.Set", "Can't encode secret: secret key is not set")
+		}
 		data = string(base64.StdEncoding.EncodeToString([]byte(encrypt(data, c.secret))))
 		// Need to save metainformation with secret values too
 		values.Set(req.Path, map[string]interface{}{
