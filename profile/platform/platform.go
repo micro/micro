@@ -5,6 +5,7 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"io/ioutil"
+	"os"
 
 	"github.com/micro/go-micro/v3/auth/jwt"
 	"github.com/micro/go-micro/v3/broker"
@@ -14,6 +15,7 @@ import (
 	"github.com/micro/go-micro/v3/runtime"
 	"github.com/micro/go-micro/v3/runtime/kubernetes"
 	"github.com/micro/go-micro/v3/store"
+	"github.com/micro/go-micro/v3/store/s3"
 	"github.com/micro/micro/v3/profile"
 	"github.com/micro/micro/v3/service/logger"
 	buildSrv "github.com/micro/micro/v3/service/runtime/builder/client"
@@ -44,7 +46,6 @@ var Profile = &profile.Profile{
 	Setup: func(ctx *cli.Context) error {
 		microAuth.DefaultAuth = jwt.NewAuth()
 		microConfig.DefaultConfig, _ = config.NewConfig()
-		microRuntime.DefaultRuntime = kubernetes.NewRuntime(runtime.WithBuilder(buildSrv.NewBuilder()))
 		profile.SetupBroker(nats.NewBroker(broker.Addrs("nats-cluster")))
 		profile.SetupRegistry(etcd.NewRegistry(registry.Addrs("etcd-cluster")))
 		profile.SetupJWT(ctx)
@@ -68,6 +69,31 @@ var Profile = &profile.Profile{
 		// when the store is created. The cockroach store address contains the location
 		// of certs so it can't be defaulted like the broker and registry.
 		microStore.DefaultStore = cockroach.NewStore(store.Nodes(ctx.String("store_address")))
+
+		// only configure the blob store for the store and runtime services
+		if ctx.Args().Get(1) == "runtime" || ctx.Args().Get(1) == "store" {
+			microStore.DefaultBlobStore, err = s3.NewBlobStore(
+				s3.Region(os.Getenv("S3_REGION")),
+				s3.Endpoint(os.Getenv("S3_ENDPOINT")),
+				s3.Credentials(os.Getenv("S3_ACCESS_KEY"), os.Getenv("S3_SECRET_KEY")),
+			)
+			if err != nil {
+				logger.Fatalf("Error configuring s3 blob store: %v", err)
+			}
+		}
+
+		// only configure the k8s runtime for the runtime service
+		if ctx.Args().Get(1) == "runtime" {
+			microRuntime.DefaultRuntime = kubernetes.NewRuntime(
+				// builder to use for building binaries
+				runtime.WithBuilder(buildSrv.NewBuilder()),
+				// blob store to use for persisting builds
+				runtime.WithBlobStore(microStore.DefaultBlobStore),
+				// store for persisting information such as build status
+				runtime.WithStore(microStore.DefaultStore),
+			)
+		}
+
 		microEvents.DefaultStore = evStore.NewStore(evStore.WithStore(microStore.DefaultStore))
 		return nil
 	},

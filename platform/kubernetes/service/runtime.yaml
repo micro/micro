@@ -123,6 +123,26 @@ spec:
             secretKeyRef:
               name: micro-secrets
               key: auth_private_key
+        - name: S3_REGION
+          valueFrom:
+            secretKeyRef:
+              name: micro-secrets
+              key: s3_region
+        - name: S3_ENDPOINT
+          valueFrom:
+            secretKeyRef:
+              name: micro-secrets
+              key: s3_region
+        - name: S3_ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              name: micro-secrets
+              key: s3_region
+        - name: S3_SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: micro-secrets
+              key: s3_region
         - name: MICRO_BROKER_TLS_CA
           value: "/certs/broker/ca.crt"
         - name: MICRO_BROKER_TLS_CERT
