@@ -20,12 +20,14 @@ import (
 	"github.com/micro/go-micro/v3/router"
 	regRouter "github.com/micro/go-micro/v3/router/registry"
 	"github.com/micro/go-micro/v3/router/static"
+	"github.com/micro/go-micro/v3/runtime"
 	"github.com/micro/go-micro/v3/runtime/kubernetes"
 	"github.com/micro/go-micro/v3/runtime/local"
 	"github.com/micro/go-micro/v3/server"
 	"github.com/micro/go-micro/v3/store/file"
 	mem "github.com/micro/go-micro/v3/store/memory"
 	"github.com/micro/micro/v3/service/logger"
+	buildSrv "github.com/micro/micro/v3/service/runtime/builder/client"
 	"github.com/urfave/cli/v2"
 
 	inAuth "github.com/micro/micro/v3/internal/auth"
@@ -91,12 +93,15 @@ var Local = &Profile{
 	Name: "local",
 	Setup: func(ctx *cli.Context) error {
 		microAuth.DefaultAuth = jwt.NewAuth()
-		microRuntime.DefaultRuntime = local.NewRuntime()
 		microStore.DefaultStore = file.NewStore()
 		microConfig.DefaultConfig, _ = config.NewConfig()
 		SetupBroker(http.NewBroker())
 		SetupRegistry(mdns.NewRegistry())
 		SetupJWT(ctx)
+
+		// use the local runtime, note: the local runtime is designed to run source code directly so
+		// the runtime builder should NOT be set when using this implementation
+		microRuntime.DefaultRuntime = local.NewRuntime()
 
 		var err error
 		microEvents.DefaultStream, err = memStream.NewStream()
@@ -121,7 +126,7 @@ var Kubernetes = &Profile{
 		// using a static router so queries are routed based on service name
 		microRouter.DefaultRouter = static.NewRouter()
 		// Using the kubernetes runtime
-		microRuntime.DefaultRuntime = kubernetes.NewRuntime()
+		microRuntime.DefaultRuntime = kubernetes.NewRuntime(runtime.WithBuilder(buildSrv.NewBuilder()))
 		// registry kubernetes
 		// config configmap
 		// store ...

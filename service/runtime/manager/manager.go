@@ -9,7 +9,6 @@ import (
 	"time"
 
 	gorun "github.com/micro/go-micro/v3/runtime"
-	"github.com/micro/go-micro/v3/runtime/builder"
 	"github.com/micro/go-micro/v3/store"
 	cachest "github.com/micro/go-micro/v3/store/cache"
 	filest "github.com/micro/go-micro/v3/store/file"
@@ -302,32 +301,12 @@ type manager struct {
 	// fileCache is a cache store used to store any information we don't want to write to the
 	// global store but want to persist across restarts, e.g. events consumed
 	fileCache store.Store
-	// builder is used to prebuild source. it can be nil.
-	builder builder.Builder
 }
 
 // New returns a manager for the runtime
-func New(opts ...Option) gorun.Runtime {
-	var options Options
-	for _, o := range opts {
-		o(&options)
-	}
-
+func New() gorun.Runtime {
 	return &manager{
-		builder:   options.Builder,
 		cache:     memory.NewStore(),
 		fileCache: cachest.NewStore(filest.NewStore()),
-	}
-}
-
-type Options struct {
-	Builder builder.Builder
-}
-
-type Option func(o *Options)
-
-func Builder(b builder.Builder) Option {
-	return func(o *Options) {
-		o.Builder = b
 	}
 }

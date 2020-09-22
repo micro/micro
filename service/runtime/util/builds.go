@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	buildPrefix = "source://"
+	buildPrefix = "build://"
 )
 
 // WriteBuild to the blob store. Returns the key and an error if one occurs.

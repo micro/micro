@@ -11,10 +11,12 @@ import (
 	"github.com/micro/go-micro/v3/config"
 	evStore "github.com/micro/go-micro/v3/events/store"
 	"github.com/micro/go-micro/v3/registry"
+	"github.com/micro/go-micro/v3/runtime"
 	"github.com/micro/go-micro/v3/runtime/kubernetes"
 	"github.com/micro/go-micro/v3/store"
 	"github.com/micro/micro/v3/profile"
 	"github.com/micro/micro/v3/service/logger"
+	buildSrv "github.com/micro/micro/v3/service/runtime/builder/client"
 	"github.com/urfave/cli/v2"
 
 	microAuth "github.com/micro/micro/v3/service/auth"
@@ -42,7 +44,7 @@ var Profile = &profile.Profile{
 	Setup: func(ctx *cli.Context) error {
 		microAuth.DefaultAuth = jwt.NewAuth()
 		microConfig.DefaultConfig, _ = config.NewConfig()
-		microRuntime.DefaultRuntime = kubernetes.NewRuntime()
+		microRuntime.DefaultRuntime = kubernetes.NewRuntime(runtime.WithBuilder(buildSrv.NewBuilder()))
 		profile.SetupBroker(nats.NewBroker(broker.Addrs("nats-cluster")))
 		profile.SetupRegistry(etcd.NewRegistry(registry.Addrs("etcd-cluster")))
 		profile.SetupJWT(ctx)

@@ -11,7 +11,6 @@ import (
 
 	"github.com/google/uuid"
 	gorun "github.com/micro/go-micro/v3/runtime"
-	"github.com/micro/go-micro/v3/runtime/builder"
 	"github.com/micro/micro/v3/internal/namespace"
 	"github.com/micro/micro/v3/service/client"
 	"github.com/micro/micro/v3/service/logger"
@@ -209,45 +208,8 @@ func nameFromService(name string) string {
 }
 
 func (m *manager) handleCreateEvent(srv *runtime.Service, opts *runtime.CreateOptions) error {
-	// load the source, this could either be source previously uploaded and written to the blob store,
-	// or it could be a git remote which we'll need to checkout and compress
-	src, err := util.ReadSource(srv, opts.Secrets, opts.Namespace)
-	if err != nil {
-		return err
-	}
-
-	// check if a builder is configured
-	if m.builder != nil {
-		// we always use tar gzip to archive source
-		buildOpts := []builder.Option{builder.Archive("tar")}
-
-		// if the source was a mono-repo, the entrypoint could be somewhere other than the top level
-		// of the source, the builder needs to know this since there may be many entrypoints in the
-		// repo
-		if ep := srv.Metadata["entrypoint"]; len(ep) > 0 {
-			buildOpts = append(buildOpts, builder.Entrypoint(ep))
-		}
-
-		// build the source into a single binary
-		build, err := m.builder.Build(src, buildOpts...)
-		if err != nil {
-			return err
-		}
-
-		// write the build to the blob store
-		srv.Source, err = util.WriteBuild(opts.Namespace, build)
-		if err != nil {
-			return err
-		}
-
-		// update the service in the store to save the build id
-		if err := m.updateService(srv, opts); err != nil {
-			return err
-		}
-	}
-
 	// if the source is a blob, we must pull it and save it to a tmp dir so it can be accessed
-	// by the local runtime which has no concept of the blob store
+	// by the runtimes which have no concept of a blob store
 	if strings.HasPrefix(srv.Source, "source://") {
 		// create a tmp dir to store the source in
 		dir, err := ioutil.TempDir(os.TempDir(), fmt.Sprintf("source-%v-*", srv.Name))

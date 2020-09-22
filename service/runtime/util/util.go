@@ -39,7 +39,6 @@ func Unarchive(src io.Reader, dir string) error {
 		}
 
 		if err != nil {
-			fmt.Println("GOT ERR", err, path, "/", hdr.Name)
 			return err
 		}
 	}
