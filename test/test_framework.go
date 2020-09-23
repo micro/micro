@@ -385,7 +385,7 @@ func (s *ServerDefault) Run() error {
 		}
 
 		return out, err
-	}, 30*time.Second); err != nil {
+	}, 60*time.Second); err != nil {
 		return err
 	}
 
