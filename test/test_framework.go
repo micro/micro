@@ -578,9 +578,9 @@ func TrySuite(t *testing.T, f func(t *T), times int) {
 				actualStart = tee.started
 			}
 			t.Fatalf("%v:%v, %v (failed after %v)", fname, line, caller, time.Since(actualStart))
-			break
+			return
 		case <-done:
-			break
+			return
 		}
 	}
 }
