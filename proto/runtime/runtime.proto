@@ -21,6 +21,11 @@ service Source {
 	rpc Upload(stream UploadRequest) returns (UploadResponse) {};
 }
 
+// Build service is used by containers to pull prebuilt binaries
+service Build {
+	rpc Read(Service) returns (stream BuildReadResponse) {};
+}
+
 message Service {
 	// name of the service
 	string name = 1;
@@ -170,4 +175,8 @@ message UploadRequest {
 
 message UploadResponse {
 	string id = 1;
+}
+
+message BuildReadResponse {
+	bytes data = 1;	
 }
