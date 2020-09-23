@@ -159,9 +159,6 @@ func testConfigReadFromService(t *T) {
 		if !strings.Contains(string(outp), "val1") {
 			return outp, fmt.Errorf("Expected output to contain val1, got: %v", string(outp))
 		}
-		if !strings.Contains(string(outp), "42") {
-			return outp, fmt.Errorf("Expected output to contain 42, got: %v", string(outp))
-		}
 
 		return outp, err
 	}, 5*time.Second); err != nil {
@@ -182,6 +179,9 @@ func testConfigReadFromService(t *T) {
 
 		if !strings.Contains(string(outp), "val1") {
 			return outp, fmt.Errorf("Expected val1 in output, got: %v", string(outp))
+		}
+		if !strings.Contains(string(outp), "42") {
+			return outp, fmt.Errorf("Expected output to contain 42, got: %v", string(outp))
 		}
 		return outp, err
 	}, 60*time.Second); err != nil {
