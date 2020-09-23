@@ -444,6 +444,8 @@ type T struct {
 	values  []interface{}
 	t       *testing.T
 	attempt int
+	waiting bool
+	started time.Time
 }
 
 // Failed indicate whether the test failed
@@ -496,7 +498,10 @@ func doPanic() {
 
 func (t *T) Parallel() {
 	if t.counter == 0 && isParallel {
+		t.waiting = true
 		t.t.Parallel()
+		t.started = time.Now()
+		t.waiting = false
 	}
 	t.counter++
 }
@@ -522,7 +527,6 @@ func TrySuite(t *testing.T, f func(t *T), times int) {
 			t.Skip()
 		}
 	}
-	start := time.Now()
 	timeout := os.Getenv("MICRO_TEST_TIMEOUT")
 	td, err := time.ParseDuration(timeout)
 	if err != nil {
@@ -530,8 +534,9 @@ func TrySuite(t *testing.T, f func(t *T), times int) {
 	}
 	timeoutCh := time.After(td)
 	done := make(chan bool)
+	start := time.Now()
+	tee := New(t)
 	go func() {
-		tee := New(t)
 		for i := 0; i < times; i++ {
 			wrapF(tee, f)
 			if !tee.failed {
@@ -553,12 +558,28 @@ func TrySuite(t *testing.T, f func(t *T), times int) {
 			done <- true
 		}
 	}()
-	select {
-	case <-timeoutCh:
-		_, file, line, _ := runtime.Caller(1)
-		fname := filepath.Base(file)
-		t.Fatalf("%v:%v, %v (failed after %v)", fname, line, caller, time.Since(start))
-	case <-done:
+	for {
+		select {
+		case <-timeoutCh:
+			if tee.waiting {
+				// not started yet, let's check back later
+				timeoutCh = time.After(td)
+				continue
+			}
+			if !tee.started.IsZero() && time.Since(tee.started) < td {
+				// not timed out since the actual start time, reset
+				timeoutCh = time.After(td - time.Since(tee.started))
+				continue
+			}
+			_, file, line, _ := runtime.Caller(1)
+			fname := filepath.Base(file)
+			actualStart := start
+			if !tee.started.IsZero() {
+				actualStart = tee.started
+			}
+			t.Fatalf("%v:%v, %v (failed after %v)", fname, line, caller, time.Since(actualStart))
+		case <-done:
+		}
 	}
 }
 
