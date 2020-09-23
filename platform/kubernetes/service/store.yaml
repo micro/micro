@@ -77,17 +77,17 @@ spec:
           valueFrom:
             secretKeyRef:
               name: micro-secrets
-              key: s3_region
+              key: s3_endpoint
         - name: S3_ACCESS_KEY
           valueFrom:
             secretKeyRef:
               name: micro-secrets
-              key: s3_region
+              key: s3_access_key
         - name: S3_SECRET_KEY
           valueFrom:
             secretKeyRef:
               name: micro-secrets
-              key: s3_region
+              key: s3_secret_key
         image: micro/platform
         imagePullPolicy: Always
         args:
