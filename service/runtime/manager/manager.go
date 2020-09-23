@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
-	"path/filepath"
 	"strings"
 	"time"
 
@@ -13,6 +12,7 @@ import (
 	cachest "github.com/micro/go-micro/v3/store/cache"
 	filest "github.com/micro/go-micro/v3/store/file"
 	"github.com/micro/go-micro/v3/store/memory"
+	"github.com/micro/go-micro/v3/util/tar"
 	"github.com/micro/micro/v3/internal/namespace"
 	"github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/runtime"
@@ -226,17 +226,15 @@ func (m *manager) watchServices() {
 				}
 
 				// unarchive the tar into the directory
-				if err := util.Unarchive(src, dir); err != nil {
+				if err := tar.Unarchive(src, dir); err != nil {
 					if logger.V(logger.ErrorLevel, logger.DefaultLogger) {
 						logger.Errorf("Error restarting service %v: %v", srv.Service.Name, err)
 					}
 					continue
 				}
 
-				// set the service's source to the tmp dir, but don't write this back to the store. the service
-				// might not be at the top level of the source (e.g. in the case of a mono-repo) so we'll join
-				// the entrypoint
-				srv.Service.Source = filepath.Join(dir, srv.Service.Metadata["entrypoint"])
+				// set the service's source to the tmp dir, but don't write this back to the store
+				srv.Service.Source = dir
 			}
 
 			// generate an auth account for the service to use

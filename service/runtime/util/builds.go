@@ -4,7 +4,6 @@ import (
 	"io"
 
 	"github.com/google/uuid"
-	gostore "github.com/micro/go-micro/v3/store"
 	"github.com/micro/micro/v3/service/store"
 )
 
@@ -18,7 +17,7 @@ func WriteBuild(namespace string, src io.Reader) (string, error) {
 	key := buildPrefix + uuid.New().String()
 
 	// write it to the blob store
-	err := store.DefaultBlobStore.Write(key, src, gostore.BlobNamespace(blobNamespacePrefix+namespace))
+	err := store.DefaultBlobStore.Write(key, src)
 	if err != nil {
 		return "", err
 	}

@@ -2,6 +2,7 @@ package server
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/micro/go-micro/v3/runtime"
 	pb "github.com/micro/micro/v3/proto/runtime"
@@ -57,8 +58,11 @@ func humanizeStatus(status int32) string {
 }
 
 func toCreateOptions(ctx context.Context, opts *pb.CreateOptions) []runtime.CreateOption {
+	fmt.Println("TO CREATE OPTIONS", opts.Entrypoint)
+
 	options := []runtime.CreateOption{
 		runtime.CreateNamespace(opts.Namespace),
+		runtime.CreateEntrypoint(opts.Entrypoint),
 	}
 
 	// command options
@@ -117,6 +121,7 @@ func toReadOptions(ctx context.Context, opts *pb.ReadOptions) []runtime.ReadOpti
 func toUpdateOptions(ctx context.Context, opts *pb.UpdateOptions) []runtime.UpdateOption {
 	return []runtime.UpdateOption{
 		runtime.UpdateNamespace(opts.Namespace),
+		runtime.UpdateEntrypoint(opts.Entrypoint),
 	}
 }
 

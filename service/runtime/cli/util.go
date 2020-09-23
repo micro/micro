@@ -5,12 +5,12 @@ import (
 
 	goclient "github.com/micro/go-micro/v3/client"
 	"github.com/micro/go-micro/v3/runtime/local/source/git"
+	"github.com/micro/go-micro/v3/util/tar"
 	"github.com/micro/micro/v3/client/cli/namespace"
 	cliutil "github.com/micro/micro/v3/client/cli/util"
 	pb "github.com/micro/micro/v3/proto/runtime"
 	"github.com/micro/micro/v3/service/client"
 	"github.com/micro/micro/v3/service/context"
-	"github.com/micro/micro/v3/service/runtime/util"
 	"github.com/urfave/cli/v2"
 )
 
@@ -21,12 +21,12 @@ const bufferSize = 1024
 func upload(ctx *cli.Context, source *git.Source) (string, error) {
 	// if the source exists within a local git repository, archive the whole repository, otherwise
 	// just archive the folder
-	var tar io.Reader
+	var data io.Reader
 	var err error
 	if len(source.LocalRepoRoot) > 0 {
-		tar, err = util.Archive(source.LocalRepoRoot)
+		data, err = tar.Archive(source.LocalRepoRoot)
 	} else {
-		tar, err = util.Archive(source.FullPath)
+		data, err = tar.Archive(source.FullPath)
 	}
 	if err != nil {
 		return "", err
@@ -48,7 +48,7 @@ func upload(ctx *cli.Context, source *git.Source) (string, error) {
 	// read bytes from the tar and stream it to the server
 	buffer := make([]byte, bufferSize)
 	for {
-		num, err := tar.Read(buffer)
+		num, err := data.Read(buffer)
 		if err == io.EOF {
 			break
 		} else if err != nil {

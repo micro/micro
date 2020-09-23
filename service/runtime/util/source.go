@@ -9,14 +9,13 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/micro/go-micro/v3/runtime/local/source/git"
-	gostore "github.com/micro/go-micro/v3/store"
+	"github.com/micro/go-micro/v3/util/tar"
 	"github.com/micro/micro/v3/service/runtime"
 	"github.com/micro/micro/v3/service/store"
 )
 
 const (
-	sourcePrefix        = "source://"
-	blobNamespacePrefix = "micro/runtime/"
+	sourcePrefix = "source://"
 )
 
 // WriteSource to the blob store. Returns the key and an error if one occurs.
@@ -25,9 +24,9 @@ func WriteSource(namespace string, src io.Reader) (string, error) {
 	key := sourcePrefix + uuid.New().String()
 
 	// write it to the blob store
-	err := store.DefaultBlobStore.Write(key, src, gostore.BlobNamespace(blobNamespacePrefix+namespace))
+	err := store.DefaultBlobStore.Write(key, src)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("Error writing source to blob store: %v", err)
 	}
 
 	// return the key
@@ -48,8 +47,7 @@ func ReadSource(srv *runtime.Service, secrets map[string]string, namespace strin
 
 	// source was previously uploaded to the blob store
 	if strings.HasPrefix(srv.Source, sourcePrefix) {
-		nsOpt := gostore.BlobNamespace(blobNamespacePrefix + namespace)
-		return store.DefaultBlobStore.Read(srv.Source, nsOpt)
+		return store.DefaultBlobStore.Read(srv.Source)
 	}
 
 	// by process of elimination, the source is a git remote. we'll now load it. the go-micro git package
@@ -70,5 +68,5 @@ func ReadSource(srv *runtime.Service, secrets map[string]string, namespace strin
 	}
 
 	// Archive the source and then return
-	return Archive(tmpDir)
+	return tar.Archive(tmpDir)
 }

@@ -5,12 +5,12 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
-	"path/filepath"
 	"strings"
 	"time"
 
 	"github.com/google/uuid"
 	gorun "github.com/micro/go-micro/v3/runtime"
+	"github.com/micro/go-micro/v3/util/tar"
 	"github.com/micro/micro/v3/internal/namespace"
 	"github.com/micro/micro/v3/service/client"
 	"github.com/micro/micro/v3/service/logger"
@@ -224,14 +224,12 @@ func (m *manager) handleCreateEvent(srv *runtime.Service, opts *runtime.CreateOp
 		}
 
 		// unarchive the tar into the directory
-		if err := util.Unarchive(src, dir); err != nil {
+		if err := tar.Unarchive(src, dir); err != nil {
 			return err
 		}
 
-		// set the service's source to the tmp dir, but don't write this back to the store. the service
-		// might not be at the top level of the source (e.g. in the case of a mono-repo) so we'll join
-		// the entrypoint
-		srv.Source = filepath.Join(dir, srv.Metadata["entrypoint"])
+		// set the service's source to the tmp dir, but don't write this back to the store
+		srv.Source = dir
 	}
 
 	// generate an auth account for the service to use
@@ -245,6 +243,7 @@ func (m *manager) handleCreateEvent(srv *runtime.Service, opts *runtime.CreateOp
 		gorun.CreateImage(opts.Image),
 		gorun.CreateType(opts.Type),
 		gorun.CreateNamespace(opts.Namespace),
+		gorun.CreateEntrypoint(opts.Entrypoint),
 		gorun.WithArgs(opts.Args...),
 		gorun.WithCommand(opts.Command...),
 		gorun.WithEnv(m.runtimeEnv(srv, opts)),

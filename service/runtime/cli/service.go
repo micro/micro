@@ -210,17 +210,12 @@ func runService(ctx *cli.Context) error {
 		runtimeSource = source.RuntimeSource()
 	}
 
-	// when the repo root doesn't match the full path (e.g. in cases where a mono-repo is being
-	// used), find the relative path and pass this in the metadata as entrypoint.
-	metadata := map[string]string{}
-	if source.Local && source.LocalRepoRoot != source.FullPath {
-		metadata["entrypoint"], _ = filepath.Rel(source.LocalRepoRoot, source.FullPath)
-	}
-
 	// for local source, the srv.Source attribute will be remapped to the id of the source upload.
 	// however this won't make sense from a user experience perspective, so we'll pass the argument
 	// they used in metadata, e.g. ./helloworld
-	metadata["source"] = source.RuntimeSource()
+	metadata := map[string]string{
+		"source": source.RuntimeSource(),
+	}
 
 	// specify the options
 	opts := []runtime.CreateOption{
@@ -234,6 +229,13 @@ func runService(ctx *cli.Context) error {
 	}
 	if len(args) > 0 {
 		opts = append(opts, runtime.WithArgs(strings.Split(args, " ")...))
+	}
+
+	// when the repo root doesn't match the full path (e.g. in cases where a mono-repo is being
+	// used), find the relative path and pass this in the metadata as entrypoint.
+	if source.Local && source.LocalRepoRoot != source.FullPath {
+		ep, _ := filepath.Rel(source.LocalRepoRoot, source.FullPath)
+		opts = append(opts, runtime.CreateEntrypoint(ep))
 	}
 
 	// add environment variable passed in via cli
@@ -358,9 +360,10 @@ func updateService(ctx *cli.Context) error {
 
 	// when the repo root doesn't match the full path (e.g. in cases where a mono-repo is being
 	// used), find the relative path and pass this in the metadata as entrypoint
-	metadata := map[string]string{}
+	var opts []runtime.UpdateOption
 	if source.Local && source.LocalRepoRoot != source.FullPath {
-		metadata["entrypoint"], _ = filepath.Rel(source.LocalRepoRoot, source.FullPath)
+		ep, _ := filepath.Rel(source.LocalRepoRoot, source.FullPath)
+		opts = append(opts, runtime.UpdateEntrypoint(ep))
 	}
 
 	// determine the namespace
@@ -368,18 +371,19 @@ func updateService(ctx *cli.Context) error {
 	if err != nil {
 		return err
 	}
+	opts = append(opts, runtime.UpdateNamespace(ns))
 
-	opts := []runtime.UpdateOption{runtime.UpdateNamespace(ns)}
+	// pass git credentials incase a private repo needs to be pulled
 	gitCreds, ok := getGitCredentials(source.Repo)
 	if ok {
 		opts = append(opts, runtime.UpdateSecret(credentialsKey, gitCreds))
 	}
+
 	return runtime.Update(&runtime.Service{
-		Name:     source.RuntimeName(),
-		Source:   runtimeSource,
-		Version:  source.Ref,
-		Metadata: metadata,
-	}, runtime.UpdateNamespace(ns))
+		Name:    source.RuntimeName(),
+		Source:  runtimeSource,
+		Version: source.Ref,
+	}, opts...)
 }
 
 func getService(ctx *cli.Context) error {
