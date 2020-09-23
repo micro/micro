@@ -51,6 +51,8 @@ message CreateOptions {
 	string namespace = 7;
 	// secrets to use for the service
 	map<string,string> secrets = 8;
+	// entrypoint within the source
+	string entrypoint = 9;
 }
 
 message CreateRequest {
@@ -94,6 +96,8 @@ message DeleteResponse {}
 message UpdateOptions {
 	// namespace of the service
 	string namespace = 1;
+	// entrypoint within the source
+	string entrypoint = 2;
 }
 
 message UpdateRequest {
