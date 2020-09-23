@@ -32,6 +32,4 @@ require (
 	google.golang.org/protobuf v1.25.0
 )
 
-replace github.com/micro/micro/profile/platform/v3 => ./profile/platform
-
 replace google.golang.org/grpc => google.golang.org/grpc v1.26.0

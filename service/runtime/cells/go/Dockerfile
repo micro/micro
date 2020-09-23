@@ -1,12 +1,17 @@
-FROM alpine:latest AS builder
-RUN apk --no-cache add make git go gcc libtool musl-dev
-ENV GOROOT /usr/lib/go
-ENV GOPATH /go
-ENV PATH /go/bin:$PATH
-WORKDIR loader
-COPY loader .
-RUN go build  .
+FROM golang:1.13.8
 
-FROM alpine:latest
-COPY --from=builder loader/loader loader
-ENTRYPOINT ["loader"]
+WORKDIR /
+RUN apt-get update && \
+    apt-get upgrade -y && \
+    apt-get install -y git && \
+    git version
+
+# install the entrypoint helper (finds the main.go)
+COPY util util
+WORKDIR util/entrypoint
+RUN go install
+
+WORKDIR /
+COPY entrypoint.sh /
+RUN chmod 755 entrypoint.sh
+ENTRYPOINT ["bash", "/entrypoint.sh"]

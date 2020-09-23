@@ -22,6 +22,7 @@ func main() {
 	version := getEnv("MICRO_SERVICE_VERSION")
 
 	// stream the binary from the runtime
+	logger.Info("Downloading service %v:%v", name, version)
 	svc := &runtime.Service{Name: name, Version: version}
 	stream, err := cli.Read(context.Background(), svc, client.WithAuthToken())
 	if err != nil {
@@ -38,7 +39,6 @@ func main() {
 	}
 
 	// write the build to the local file
-	logger.Info("Downloading service")
 	for {
 		req, err := stream.Recv()
 		if err == io.EOF {
@@ -52,6 +52,9 @@ func main() {
 			logger.Fatalf("Error writing data to the file: %v", err)
 		}
 	}
+	if err := file.Close(); err != nil {
+		logger.Fatalf("Error closing the file: %v", err)
+	}
 
 	// execute the binary
 	logger.Info("Starting service")
@@ -60,6 +63,12 @@ func main() {
 	cmd.Stderr = os.Stderr
 	if err := cmd.Start(); err != nil {
 		logger.Fatalf("Error starting service: %v", err)
+	}
+
+	if err = cmd.Wait(); err != nil {
+		logger.Fatalf("Service exited: %v", err)
+	} else {
+		logger.Fatalf("Service finished")
 	}
 }
 
