@@ -62,7 +62,7 @@ jobs:
     - name: Build and push micro to local registry
       id: build-push-reg-cells
       run: |
-        docker build -f test/Dockerfile-kind . -t micro
+        docker build -f Dockerfile . -t micro
         docker tag micro localhost:5000/micro 
         docker push localhost:5000/micro
 
