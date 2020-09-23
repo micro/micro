@@ -13,12 +13,12 @@ import (
 	evStore "github.com/micro/go-micro/v3/events/store"
 	"github.com/micro/go-micro/v3/registry"
 	"github.com/micro/go-micro/v3/runtime"
+	"github.com/micro/go-micro/v3/runtime/builder/golang"
 	"github.com/micro/go-micro/v3/runtime/kubernetes"
 	"github.com/micro/go-micro/v3/store"
 	"github.com/micro/go-micro/v3/store/s3"
 	"github.com/micro/micro/v3/profile"
 	"github.com/micro/micro/v3/service/logger"
-	buildSrv "github.com/micro/micro/v3/service/runtime/builder/client"
 	"github.com/urfave/cli/v2"
 
 	microAuth "github.com/micro/micro/v3/service/auth"
@@ -84,9 +84,14 @@ var Profile = &profile.Profile{
 
 		// only configure the k8s runtime for the runtime service
 		if ctx.Args().Get(1) == "runtime" {
+			gobuilder, err := golang.NewBuilder()
+			if err != nil {
+				logger.Fatalf("Error loading golang builder: %v", err)
+			}
+
 			microRuntime.DefaultRuntime = kubernetes.NewRuntime(
 				// builder to use for building binaries
-				runtime.WithBuilder(buildSrv.NewBuilder()),
+				runtime.WithBuilder(gobuilder),
 				// blob store to use for persisting builds
 				runtime.WithBlobStore(microStore.DefaultBlobStore),
 				// store for persisting information such as build status

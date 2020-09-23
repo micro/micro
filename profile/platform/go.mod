@@ -9,7 +9,7 @@ require (
 	github.com/micro/go-plugins/metrics/prometheus/v3 v3.0.0-20200908121001-4ea6f6760baf
 	github.com/micro/go-plugins/registry/etcd/v3 v3.0.0-20200908121001-4ea6f6760baf
 	github.com/micro/go-plugins/store/cockroach/v3 v3.0.0-20200908121001-4ea6f6760baf
-	github.com/micro/micro/v3 v3.0.0-beta.3.0.20200913073948-c44509882f8c
+	github.com/micro/micro/v3 v3.0.0-beta.4
 	github.com/nats-io/nats-streaming-server v0.18.0 // indirect
 	github.com/urfave/cli/v2 v2.2.0
 )

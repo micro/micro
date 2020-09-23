@@ -382,6 +382,7 @@ github.com/micro/go-plugins/store/cockroach/v3 v3.0.0-20200908121001-4ea6f6760ba
 github.com/micro/go-plugins/store/cockroach/v3 v3.0.0-20200908121001-4ea6f6760baf/go.mod h1:PU7joUtgK+z+sAAjz/TPdM8xHQPTlfLSOPoBuG8oKuk=
 github.com/micro/mdns v0.3.0 h1:bYycYe+98AXR3s8Nq5qvt6C573uFTDPIYzJemWON0QE=
 github.com/micro/mdns v0.3.0/go.mod h1:KJ0dW7KmicXU2BV++qkLlmHYcVv7/hHnbtguSWt9Aoc=
+github.com/micro/micro/profile/platform/v3 v3.0.0-20200922123651-2bc730ad54f2/go.mod h1:bAT0EoA2xwH8mC6oZyITBemnWYRWniq00JzzwKIWwC0=
 github.com/micro/protoc-gen-micro v1.0.0/go.mod h1:C8ij4DJhapBmypcT00AXdb0cZ675/3PqUO02buWWqbE=
 github.com/miekg/dns v1.1.3/go.mod h1:W1PPwlIAgtquWBMBEV9nkV9Cazfe8ScdGz/Lj7v3Nrg=
 github.com/miekg/dns v1.1.15/go.mod h1:W1PPwlIAgtquWBMBEV9nkV9Cazfe8ScdGz/Lj7v3Nrg=
