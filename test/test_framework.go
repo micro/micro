@@ -509,8 +509,8 @@ func New(t *testing.T) *T {
 // TrySuite is designed to retry a TestXX function
 func TrySuite(t *testing.T, f func(t *T), times int) {
 	t.Helper()
+	caller := strings.Split(getFrame(1).Function, ".")[2]
 	if len(testFilter) > 0 {
-		caller := strings.Split(getFrame(1).Function, ".")[2]
 		runit := false
 		for _, test := range testFilter {
 			if test == caller {
@@ -522,25 +522,42 @@ func TrySuite(t *testing.T, f func(t *T), times int) {
 			t.Skip()
 		}
 	}
-
-	tee := New(t)
-	for i := 0; i < times; i++ {
-		wrapF(tee, f)
-		if !tee.failed {
-			return
-		}
-		if i != times-1 {
-			tee.failed = false
-		}
-		tee.attempt++
-		time.Sleep(200 * time.Millisecond)
+	start := time.Now()
+	timeout := os.Getenv("MICRO_TEST_TIMEOUT")
+	td, err := time.ParseDuration(timeout)
+	if err != nil {
+		td = 3 * time.Minute
 	}
-	if tee.failed {
-		if len(tee.format) > 0 {
-			t.Fatalf(tee.format, tee.values...)
-		} else {
-			t.Fatal(tee.values...)
+	timeoutCh := time.After(td)
+	done := make(chan bool)
+	go func() {
+		tee := New(t)
+		for i := 0; i < times; i++ {
+			wrapF(tee, f)
+			if !tee.failed {
+				done <- true
+				return
+			}
+			if i != times-1 {
+				tee.failed = false
+			}
+			tee.attempt++
+			time.Sleep(200 * time.Millisecond)
 		}
+		if tee.failed {
+			if len(tee.format) > 0 {
+				t.Fatalf(tee.format, tee.values...)
+			} else {
+				t.Fatal(tee.values...)
+			}
+		}
+	}()
+	select {
+	case <-timeoutCh:
+		_, file, line, _ := runtime.Caller(1)
+		fname := filepath.Base(file)
+		t.Fatalf("%v:%v, %v (failed after %v)", fname, line, caller, time.Since(start))
+	case <-done:
 	}
 }
 
