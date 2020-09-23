@@ -385,7 +385,7 @@ func (s *ServerDefault) Run() error {
 		}
 
 		return out, err
-	}, 60*time.Second); err != nil {
+	}, 90*time.Second); err != nil {
 		return err
 	}
 
@@ -550,6 +550,7 @@ func TrySuite(t *testing.T, f func(t *T), times int) {
 			} else {
 				t.Fatal(tee.values...)
 			}
+			done <- true
 		}
 	}()
 	select {
