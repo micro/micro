@@ -26,9 +26,7 @@ jobs:
         echo "::set-output name=date::$(/bin/date -u "+%Y%m%d")"
       shell: bash
     - name: Enable caching
-      # We would use the official actions/cache@v2, but it doesn't save the cache if the build fails
-      # caches are scoped to a branch but will also check the default branch upon cache miss
-      uses: pat-s/always-upload-cache@v2.0.0 
+      uses: actions/cache@v2
       with:
         path: ~/go/pkg/mod
         key: ${{ runner.os }}-go-int-${{ steps.get-date.outputs.date }}
@@ -67,9 +65,7 @@ jobs:
     # Based on https://dev.to/dtinth/caching-docker-builds-in-github-actions-which-approach-is-the-fastest-a-research-18ei
     - name: Setup docker caching
       id: cache-docker
-      # We would use the official actions/cache@v2, but it doesn't save the cache if the build fails
-      # caches are scoped to a branch but will also check the default branch upon cache miss
-      uses: pat-s/always-upload-cache@v2.0.0
+      uses: actions/cache@v2
       with:
         path: /tmp/docker-registry
         key: docker-registry-int-${{ steps.get-date.outputs.date }}
@@ -92,4 +88,4 @@ jobs:
           # Generate keys for JWT tests
           ssh-keygen -f /tmp/sshkey -m pkcs8 -q -N ""
           ssh-keygen -f /tmp/sshkey -e  -m pkcs8 > /tmp/sshkey.pub
-          go clean -testcache && go test --tags=integration -v -run ./... -timeout 20m
+          go clean -testcache && GOMAXPROCS=4 go test --tags=integration -v -run ./... -timeout 20m
