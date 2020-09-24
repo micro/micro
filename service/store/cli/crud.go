@@ -27,8 +27,12 @@ func read(ctx *cli.Context) error {
 		return errors.New("Key arg is required")
 	}
 
+	env, err := util.GetEnv(ctx)
+	if err != nil {
+		return err
+	}
 	// get the namespace
-	ns, err := namespace.Get(util.GetEnv(ctx).Name)
+	ns, err := namespace.Get(env.Name)
 	if err != nil {
 		return err
 	}
@@ -113,8 +117,12 @@ func write(ctx *cli.Context) error {
 		record.Expiry = d
 	}
 
+	env, err := util.GetEnv(ctx)
+	if err != nil {
+		return err
+	}
 	// get the namespace
-	ns, err := namespace.Get(util.GetEnv(ctx).Name)
+	ns, err := namespace.Get(env.Name)
 	if err != nil {
 		return err
 	}
@@ -131,8 +139,12 @@ func list(ctx *cli.Context) error {
 		return err
 	}
 
+	env, err := util.GetEnv(ctx)
+	if err != nil {
+		return err
+	}
 	// get the namespace
-	ns, err := namespace.Get(util.GetEnv(ctx).Name)
+	ns, err := namespace.Get(env.Name)
 	if err != nil {
 		return err
 	}
@@ -178,8 +190,12 @@ func delete(ctx *cli.Context) error {
 		return errors.New("key is required")
 	}
 
+	env, err := util.GetEnv(ctx)
+	if err != nil {
+		return err
+	}
 	// get the namespace
-	ns, err := namespace.Get(util.GetEnv(ctx).Name)
+	ns, err := namespace.Get(env.Name)
 	if err != nil {
 		return err
 	}

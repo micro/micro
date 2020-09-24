@@ -335,7 +335,11 @@ func (c *command) Before(ctx *cli.Context) error {
 	} else {
 		// for CLI, use the external proxy which is loaded from the
 		// local config
-		proxy = util.CLIProxyAddress(ctx)
+		var err error
+		proxy, err = util.CLIProxyAddress(ctx)
+		if err != nil {
+			return err
+		}
 	}
 	if len(proxy) > 0 {
 		muclient.DefaultClient.Init(client.Proxy(proxy))
