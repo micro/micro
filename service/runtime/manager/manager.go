@@ -4,10 +4,10 @@ import (
 	"time"
 
 	gorun "github.com/micro/go-micro/v3/runtime"
-	"github.com/micro/go-micro/v3/runtime/cache"
 	"github.com/micro/micro/v3/internal/namespace"
 	"github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/runtime"
+	"github.com/micro/micro/v3/service/runtime/manager/util"
 )
 
 // Create registers a service
@@ -278,6 +278,6 @@ type manager struct {
 // New returns a manager for the runtime
 func New() gorun.Runtime {
 	return &manager{
-		Runtime: cache.NewCache(runtime.DefaultRuntime),
+		Runtime: util.NewCache(runtime.DefaultRuntime),
 	}
 }
