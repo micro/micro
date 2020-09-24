@@ -5,69 +5,40 @@ package config;
 option go_package = "github.com/micro/micro/v3/proto/config;config";
 
 service Config {
-	rpc Create (CreateRequest) returns (CreateResponse) {}
-	rpc Update (UpdateRequest) returns (UpdateResponse) {}
-	rpc Delete (DeleteRequest) returns (DeleteResponse) {}
-	rpc List (ListRequest) returns (ListResponse) {}
-	rpc Read (ReadRequest) returns (ReadResponse) {}
-	rpc Watch (WatchRequest) returns (stream WatchResponse) {}
+    rpc Get(GetRequest) returns (GetResponse) {}
+	rpc Set(SetRequest) returns (SetResponse) {}
+	rpc Delete(DeleteRequest) returns (DeleteResponse) {}
 }
 
-message ChangeSet {
+message Value {
     string data = 1;
-    string checksum = 2;
-    string format = 3;
-    string source = 4;
-    int64 timestamp = 5;
+    string format = 2;
 }
 
-message Change {
+message SetRequest {
     string namespace = 1;
     string path = 2;
-    ChangeSet changeSet = 3;
+    Value Value = 3;
+    // Is it an encrypted value?
+    bool secret = 4;
 }
 
-message CreateRequest {
-    Change change = 1;
-}
-
-message CreateResponse {}
-
-message UpdateRequest {
-    Change change = 1;
-}
-
-message UpdateResponse {}
+message SetResponse {}
 
 message DeleteRequest {
-    Change change = 1;
+    string namespace = 1;
+    string path = 2;
 }
 
 message DeleteResponse {}
 
-message ListRequest {
-    string namespace = 1;
-}
-
-message ListResponse {
-    repeated Change values = 1;
-}
-
-message ReadRequest {
+message GetRequest {
     string namespace = 1;
     string path = 2;
+    // Is it an encrypted value?
+    bool secret = 3;
 }
 
-message ReadResponse {
-    Change change = 1;
-}
-
-message WatchRequest {
-    string namespace = 1;
-    string path = 2;
-}
-
-message WatchResponse {
-    string namespace = 1;
-    ChangeSet changeSet = 2;
+message GetResponse {
+    Value value = 1;
 }

@@ -15,9 +15,7 @@ import (
 	"text/tabwriter"
 	"time"
 
-	"github.com/micro/cli/v2"
 	golog "github.com/micro/go-micro/v3/logger"
-	goruntime "github.com/micro/go-micro/v3/runtime"
 	"github.com/micro/go-micro/v3/runtime/local/source/git"
 	"github.com/micro/go-micro/v3/util/file"
 	"github.com/micro/micro/v3/client/cli/namespace"
@@ -29,6 +27,7 @@ import (
 	"github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/runtime"
 	"github.com/micro/micro/v3/service/runtime/server"
+	"github.com/urfave/cli/v2"
 	"google.golang.org/grpc/status"
 )
 
@@ -69,7 +68,33 @@ func timeAgo(v string) string {
 	if err != nil {
 		return v
 	}
-	return fmt.Sprintf("%v ago", time.Since(t).Truncate(time.Second))
+
+	return fmt.Sprintf("%v ago", fmtDuration(time.Since(t)))
+}
+
+func fmtDuration(d time.Duration) string {
+	// round to secs
+	d = d.Round(time.Second)
+
+	var resStr string
+	days := d / (time.Hour * 24)
+	if days > 0 {
+		d -= days * time.Hour * 24
+		resStr = fmt.Sprintf("%dd", days)
+	}
+	h := d / time.Hour
+	if len(resStr) > 0 || h > 0 {
+		d -= h * time.Hour
+		resStr = fmt.Sprintf("%s%dh", resStr, h)
+	}
+	m := d / time.Minute
+	if len(resStr) > 0 || m > 0 {
+		d -= m * time.Minute
+		resStr = fmt.Sprintf("%s%dm", resStr, m)
+	}
+	s := d / time.Second
+	resStr = fmt.Sprintf("%s%ds", resStr, s)
+	return resStr
 }
 
 // exists returns whether the given file or directory exists
@@ -130,9 +155,9 @@ func appendSourceBase(ctx *cli.Context, workDir, source string) string {
 	isLocal, _ := git.IsLocal(workDir, source)
 	// @todo add list of supported hosts here or do this check better
 	if !isLocal && !strings.Contains(source, ".com") && !strings.Contains(source, ".org") && !strings.Contains(source, ".net") {
-		baseURL, _ := config.Get("git", util.GetEnv(ctx).Name, "baseurl")
+		baseURL, _ := config.Get(config.Path("git", util.GetEnv(ctx).Name, "baseurl"))
 		if len(baseURL) == 0 {
-			baseURL, _ = config.Get("git", "baseurl")
+			baseURL, _ = config.Get(config.Path("git", "baseurl"))
 		}
 		if len(baseURL) == 0 {
 			return path.Join("github.com/micro/services", source)
@@ -201,11 +226,11 @@ func runService(ctx *cli.Context) error {
 	}
 
 	// specify the options
-	opts := []goruntime.CreateOption{
-		goruntime.WithOutput(os.Stdout),
-		goruntime.WithRetries(retries),
-		goruntime.CreateImage(image),
-		goruntime.CreateType(typ),
+	opts := []runtime.CreateOption{
+		runtime.WithOutput(os.Stdout),
+		runtime.WithRetries(retries),
+		runtime.CreateImage(image),
+		runtime.CreateType(typ),
 	}
 
 	// add environment variable passed in via cli
@@ -219,15 +244,15 @@ func runService(ctx *cli.Context) error {
 	}
 
 	if len(environment) > 0 {
-		opts = append(opts, goruntime.WithEnv(environment))
+		opts = append(opts, runtime.WithEnv(environment))
 	}
 
 	if len(command) > 0 {
-		opts = append(opts, goruntime.WithCommand(strings.Split(command, " ")...))
+		opts = append(opts, runtime.WithCommand(strings.Split(command, " ")...))
 	}
 
 	if len(args) > 0 {
-		opts = append(opts, goruntime.WithArgs(strings.Split(args, " ")...))
+		opts = append(opts, runtime.WithArgs(strings.Split(args, " ")...))
 	}
 
 	// determine the namespace
@@ -235,14 +260,14 @@ func runService(ctx *cli.Context) error {
 	if err != nil {
 		return err
 	}
-	opts = append(opts, goruntime.CreateNamespace(ns))
+	opts = append(opts, runtime.CreateNamespace(ns))
 	gitCreds, ok := getGitCredentials(source.Repo)
 	if ok {
-		opts = append(opts, goruntime.WithSecret(credentialsKey, gitCreds))
+		opts = append(opts, runtime.WithSecret(credentialsKey, gitCreds))
 	}
 
 	// run the service
-	service := &goruntime.Service{
+	service := &runtime.Service{
 		Name:     source.RuntimeName(),
 		Source:   runtimeSource,
 		Version:  source.Ref,
@@ -274,7 +299,7 @@ func getGitCredentials(repo string) (string, bool) {
 		}
 
 		// check the creds for the org
-		creds, err := config.Get("git", "credentials", org)
+		creds, err := config.Get(config.Path("git", "credentials", org))
 		if err == nil && len(creds) > 0 {
 			return creds, true
 		}
@@ -299,7 +324,7 @@ func killService(ctx *cli.Context) error {
 	if ref == "" {
 		ref = "latest"
 	}
-	service := &goruntime.Service{
+	service := &runtime.Service{
 		Name:    name,
 		Version: ref,
 	}
@@ -310,7 +335,7 @@ func killService(ctx *cli.Context) error {
 		return err
 	}
 
-	if err := runtime.Delete(service, goruntime.DeleteNamespace(ns)); err != nil {
+	if err := runtime.Delete(service, runtime.DeleteNamespace(ns)); err != nil {
 		return err
 	}
 
@@ -412,7 +437,7 @@ func updateService(ctx *cli.Context) error {
 	if ref == "" {
 		ref = "latest"
 	}
-	service := &goruntime.Service{
+	service := &runtime.Service{
 		Name:    runtimeName,
 		Source:  runtimeSource,
 		Version: ref,
@@ -424,12 +449,12 @@ func updateService(ctx *cli.Context) error {
 		return err
 	}
 
-	opts := []goruntime.UpdateOption{goruntime.UpdateNamespace(ns)}
+	opts := []runtime.UpdateOption{runtime.UpdateNamespace(ns)}
 	gitCreds, ok := getGitCredentials(source.Repo)
 	if ok {
-		opts = append(opts, goruntime.UpdateSecret(credentialsKey, gitCreds))
+		opts = append(opts, runtime.UpdateSecret(credentialsKey, gitCreds))
 	}
-	return runtime.Update(service, goruntime.UpdateNamespace(ns))
+	return runtime.Update(service, runtime.UpdateNamespace(ns))
 }
 
 func getService(ctx *cli.Context) error {
@@ -461,15 +486,15 @@ func getService(ctx *cli.Context) error {
 		list = true
 	}
 
-	var services []*goruntime.Service
-	var readOpts []goruntime.ReadOption
+	var services []*runtime.Service
+	var readOpts []runtime.ReadOption
 
 	// return a list of services
 	switch list {
 	case true:
 		// return specific type listing
 		if len(typ) > 0 {
-			readOpts = append(readOpts, goruntime.ReadType(typ))
+			readOpts = append(readOpts, runtime.ReadType(typ))
 		}
 	// return one service
 	default:
@@ -480,14 +505,14 @@ func getService(ctx *cli.Context) error {
 		}
 
 		// get service with name and version
-		readOpts = []goruntime.ReadOption{
-			goruntime.ReadService(name),
-			goruntime.ReadVersion(version),
+		readOpts = []runtime.ReadOption{
+			runtime.ReadService(name),
+			runtime.ReadVersion(version),
 		}
 
 		// return the runtime services
 		if len(typ) > 0 {
-			readOpts = append(readOpts, goruntime.ReadType(typ))
+			readOpts = append(readOpts, runtime.ReadType(typ))
 		}
 	}
 
@@ -496,7 +521,7 @@ func getService(ctx *cli.Context) error {
 	if err != nil {
 		return err
 	}
-	readOpts = append(readOpts, goruntime.ReadNamespace(ns))
+	readOpts = append(readOpts, runtime.ReadNamespace(ns))
 
 	// read the service
 	services, err = runtime.Read(readOpts...)
@@ -522,8 +547,6 @@ func getService(ctx *cli.Context) error {
 	writer := tabwriter.NewWriter(os.Stdout, 0, 8, 1, '\t', tabwriter.AlignRight)
 	fmt.Fprintln(writer, "NAME\tVERSION\tSOURCE\tSTATUS\tBUILD\tUPDATED\tMETADATA")
 	for _, service := range services {
-		status := parse(service.Metadata["status"])
-
 		// cut the commit down to first 7 characters
 		build := parse(service.Metadata["build"])
 		if len(build) > 7 {
@@ -532,7 +555,7 @@ func getService(ctx *cli.Context) error {
 
 		// if there is an error, display this in metadata (there is no error field)
 		metadata := fmt.Sprintf("owner=%s, group=%s", parse(service.Metadata["owner"]), parse(service.Metadata["group"]))
-		if status == "error" {
+		if service.Status == runtime.Error {
 			metadata = fmt.Sprintf("%v, error=%v", metadata, parse(service.Metadata["error"]))
 		}
 
@@ -543,7 +566,7 @@ func getService(ctx *cli.Context) error {
 			service.Name,
 			parse(service.Version),
 			parse(service.Source),
-			strings.ToLower(status),
+			humanizeStatus(service.Status),
 			build,
 			updated,
 			metadata)
@@ -573,19 +596,19 @@ func getLogs(ctx *cli.Context) error {
 	}
 
 	// get the args
-	options := []goruntime.LogsOption{}
+	options := []runtime.LogsOption{}
 
 	count := ctx.Int("lines")
 	if count > 0 {
-		options = append(options, goruntime.LogsCount(int64(count)))
+		options = append(options, runtime.LogsCount(int64(count)))
 	} else {
-		options = append(options, goruntime.LogsCount(int64(15)))
+		options = append(options, runtime.LogsCount(int64(15)))
 	}
 
 	follow := ctx.Bool("follow")
 
 	if follow {
-		options = append(options, goruntime.LogsStream(follow))
+		options = append(options, runtime.LogsStream(follow))
 	}
 
 	// @todo reintroduce since
@@ -601,9 +624,9 @@ func getLogs(ctx *cli.Context) error {
 	if err != nil {
 		return err
 	}
-	options = append(options, goruntime.LogsNamespace(ns))
+	options = append(options, runtime.LogsNamespace(ns))
 
-	logs, err := runtime.Logs(&goruntime.Service{Name: name}, options...)
+	logs, err := runtime.Log(&runtime.Service{Name: name}, options...)
 
 	if err != nil {
 		return err
@@ -629,5 +652,26 @@ func getLogs(ctx *cli.Context) error {
 
 			}
 		}
+	}
+}
+
+func humanizeStatus(status runtime.ServiceStatus) string {
+	switch status {
+	case runtime.Pending:
+		return "pending"
+	case runtime.Building:
+		return "building"
+	case runtime.Starting:
+		return "starting"
+	case runtime.Running:
+		return "running"
+	case runtime.Stopping:
+		return "stopping"
+	case runtime.Stopped:
+		return "stopped"
+	case runtime.Error:
+		return "error"
+	default:
+		return "unknown"
 	}
 }

@@ -86,7 +86,7 @@ spec:
         args:
         - service
         - network
-        image: micro/micro
+        image: micro/platform
         imagePullPolicy: Always
         ports:
         - containerPort: 8443

@@ -1,6 +1,6 @@
 package client
 
-import "github.com/micro/cli/v2"
+import "github.com/urfave/cli/v2"
 
 // Flags common to all clients
 var Flags = []cli.Flag{

@@ -9,12 +9,21 @@ import (
 // DefaultBroker implementation
 var DefaultBroker broker.Broker = client.NewBroker()
 
+type (
+	// Handler is an alias for broker.Handler
+	Handler = broker.Handler
+	// Message is an alias for broker.Message
+	Message = broker.Message
+	// Subscriber is an alias for broker.Subscriber
+	Subscriber = broker.Subscriber
+)
+
 // Publish a message to a topic
-func Publish(topic string, m *broker.Message, opts ...broker.PublishOption) error {
-	return DefaultBroker.Publish(topic, m, opts...)
+func Publish(topic string, m *Message) error {
+	return DefaultBroker.Publish(topic, m)
 }
 
 // Subscribe to a topic
-func Subscribe(topic string, h broker.Handler, opts ...broker.SubscribeOption) (broker.Subscriber, error) {
-	return DefaultBroker.Subscribe(topic, h, opts...)
+func Subscribe(topic string, h Handler) (Subscriber, error) {
+	return DefaultBroker.Subscribe(topic, h)
 }

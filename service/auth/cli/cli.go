@@ -1,9 +1,9 @@
 package cli
 
 import (
-	"github.com/micro/cli/v2"
 	"github.com/micro/micro/v3/cmd"
 	"github.com/micro/micro/v3/internal/helper"
+	"github.com/urfave/cli/v2"
 	// imported specifically for signup
 )
 
@@ -118,8 +118,9 @@ func init() {
 					Usage: "Password to use for login. If not provided, will be asked for during login. Useful for automated scripts",
 				},
 				&cli.StringFlag{
-					Name:  "email",
-					Usage: "Email address to use for login",
+					Name:    "username",
+					Usage:   "Username to use for login",
+					Aliases: []string{"email"},
 				},
 			},
 		},

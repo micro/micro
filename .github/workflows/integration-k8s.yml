@@ -35,9 +35,16 @@ jobs:
       with:
         path: ~/go/pkg/mod
         key: ${{ runner.os }}-go-kind-${{ steps.get-date.outputs.date }}
+    - name: Replace platform profile
+      id: replace-profile
+      run: |
+        go mod edit -replace github.com/micro/micro/profile/platform/v3=./profile/platform
+        go mod edit -replace google.golang.org/grpc=google.golang.org/grpc@v1.26.0
     - name: Install micro
       id: install-micro
       run: |
+        go install
+        micro init --profile=platform --output=profile.go
         go install
 
     # We set up a local docker registry to push to and pull from. We need to set up the Kind cluster to pull from this
@@ -94,6 +101,7 @@ jobs:
     - name: Install failed, show platform logs
       if: ${{ failure() }}
       run: |
+        kubectl get pods -n | awk '{print $1}' | xargs -n1 kubectl logs
         kubectl get pods -n platform | awk '{print $1}' | xargs -n1 kubectl logs -n platform
 
     # Finally, we can actually run the tests
@@ -106,4 +114,4 @@ jobs:
           # Generate keys for JWT tests
           ssh-keygen -f /tmp/sshkey -m pkcs8 -q -N ""
           ssh-keygen -f /tmp/sshkey -e  -m pkcs8 > /tmp/sshkey.pub
-          go clean -testcache && go test --tags=integration,kind -v ./...
+          go clean -testcache && go test --tags=integration,kind -v ./... -timeout 20m

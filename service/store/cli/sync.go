@@ -1,8 +1,8 @@
 package cli
 
 import (
-	"github.com/micro/cli/v2"
 	"github.com/pkg/errors"
+	"github.com/urfave/cli/v2"
 )
 
 // sync is the entrypoint for micro store sync

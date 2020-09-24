@@ -7,13 +7,12 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro/v3/auth/jwt"
 	"github.com/micro/go-micro/v3/auth/noop"
 	"github.com/micro/go-micro/v3/broker"
 	"github.com/micro/go-micro/v3/broker/http"
 	"github.com/micro/go-micro/v3/client"
-	"github.com/micro/go-micro/v3/config"
+	config "github.com/micro/go-micro/v3/config/store"
 	memStream "github.com/micro/go-micro/v3/events/stream/memory"
 	"github.com/micro/go-micro/v3/registry"
 	"github.com/micro/go-micro/v3/registry/mdns"
@@ -27,6 +26,7 @@ import (
 	"github.com/micro/go-micro/v3/store/file"
 	mem "github.com/micro/go-micro/v3/store/memory"
 	"github.com/micro/micro/v3/service/logger"
+	"github.com/urfave/cli/v2"
 
 	inAuth "github.com/micro/micro/v3/internal/auth"
 	"github.com/micro/micro/v3/internal/user"
@@ -93,7 +93,8 @@ var Local = &Profile{
 		microAuth.DefaultAuth = jwt.NewAuth()
 		microRuntime.DefaultRuntime = local.NewRuntime()
 		microStore.DefaultStore = file.NewStore()
-		microConfig.DefaultConfig, _ = config.NewConfig()
+		SetupConfigSecretKey(ctx)
+		microConfig.DefaultConfig, _ = config.NewConfig(microStore.DefaultStore, "")
 		SetupBroker(http.NewBroker())
 		SetupRegistry(mdns.NewRegistry())
 		SetupJWT(ctx)
@@ -102,6 +103,11 @@ var Local = &Profile{
 		microEvents.DefaultStream, err = memStream.NewStream()
 		if err != nil {
 			logger.Fatalf("Error configuring stream: %v", err)
+		}
+
+		microStore.DefaultBlobStore, err = file.NewBlobStore()
+		if err != nil {
+			logger.Fatalf("Error configuring file blob store: %v", err)
 		}
 
 		return nil
@@ -122,6 +128,7 @@ var Kubernetes = &Profile{
 		// store ...
 		microAuth.DefaultAuth = jwt.NewAuth()
 		SetupJWT(ctx)
+		SetupConfigSecretKey(ctx)
 
 		return nil
 	},
@@ -139,7 +146,7 @@ var Test = &Profile{
 	Setup: func(ctx *cli.Context) error {
 		microAuth.DefaultAuth = noop.NewAuth()
 		microStore.DefaultStore = mem.NewStore()
-		microConfig.DefaultConfig, _ = config.NewConfig()
+		microConfig.DefaultConfig, _ = config.NewConfig(microStore.DefaultStore, "")
 		SetupRegistry(memory.NewRegistry())
 		return nil
 	},
@@ -176,10 +183,21 @@ func SetupJWT(ctx *cli.Context) {
 	if len(privKey) == 0 || len(pubKey) == 0 {
 		privB, pubB, err := user.GetJWTCerts()
 		if err != nil {
-			logger.Fatalf("Error getting keys; %v", err)
+			logger.Fatalf("Error getting keys: %v", err)
 		}
 		os.Setenv("MICRO_AUTH_PRIVATE_KEY", string(privB))
 		os.Setenv("MICRO_AUTH_PUBLIC_KEY", string(pubB))
 	}
 
+}
+
+func SetupConfigSecretKey(ctx *cli.Context) {
+	key := ctx.String("config_secret_key")
+	if len(key) == 0 {
+		k, err := user.GetConfigSecretKey()
+		if err != nil {
+			logger.Fatal("Error getting config secret: %v", err)
+		}
+		os.Setenv("MICRO_CONFIG_SECRET_KEY", k)
+	}
 }

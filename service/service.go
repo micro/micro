@@ -8,7 +8,6 @@ import (
 	"os/signal"
 	"runtime"
 
-	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro/v3/client"
 	"github.com/micro/go-micro/v3/model"
 	"github.com/micro/go-micro/v3/server"
@@ -20,6 +19,7 @@ import (
 	"github.com/micro/micro/v3/service/logger"
 	mumodel "github.com/micro/micro/v3/service/model"
 	muserver "github.com/micro/micro/v3/service/server"
+	"github.com/urfave/cli/v2"
 )
 
 var (
@@ -225,8 +225,8 @@ type Event struct {
 }
 
 // Publish a message to an event
-func (e *Event) Publish(ctx context.Context, msg interface{}, opts ...client.PublishOption) error {
-	return muclient.Publish(ctx, muclient.NewMessage(e.topic, msg), opts...)
+func (e *Event) Publish(ctx context.Context, msg interface{}) error {
+	return muclient.Publish(ctx, muclient.NewMessage(e.topic, msg))
 }
 
 // NewEvent creates a new event publisher

@@ -22,12 +22,10 @@ VOLUME      /data
 EXPOSE      2379 2380 4001 7001
 ADD         scripts/run-etcd.sh /bin/run.sh
 
-ENV MICRO_REGISTRY=etcd
-
-# Speeding up tests by predownloading and building dependencies for services used.
 COPY . .
 RUN go get github.com/micro/services
 RUN go get github.com/micro/services/helloworld
-RUN bash -c 'for d in $(find test -name "main.go" | xargs -n 1 dirname); do pushd $d && go get && popd; done'
+# RUN bash -c 'for d in $(find test -name "main.go" | xargs -n 1 dirname); do pushd $d && go get && popd; done'
+
 COPY ./micro /micro
 ENTRYPOINT ["sh", "/bin/run.sh"]

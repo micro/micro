@@ -7,7 +7,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/micro/cli/v2"
 	net "github.com/micro/go-micro/v3/network"
 	"github.com/micro/go-micro/v3/network/mucp"
 	"github.com/micro/go-micro/v3/network/transport"
@@ -26,6 +25,7 @@ import (
 	log "github.com/micro/micro/v3/service/logger"
 	muregistry "github.com/micro/micro/v3/service/registry"
 	murouter "github.com/micro/micro/v3/service/router"
+	"github.com/urfave/cli/v2"
 )
 
 var (

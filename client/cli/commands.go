@@ -10,7 +10,7 @@ import (
 	"text/tabwriter"
 	"time"
 
-	"github.com/micro/cli/v2"
+	"github.com/urfave/cli/v2"
 
 	goclient "github.com/micro/go-micro/v3/client"
 	goregistry "github.com/micro/go-micro/v3/registry"
@@ -56,7 +56,7 @@ func QueryStats(c *cli.Context, args []string) ([]byte, error) {
 		return nil, err
 	}
 
-	service, err := registry.GetService(args[0], goregistry.GetDomain(ns))
+	service, err := registry.DefaultRegistry.GetService(args[0], goregistry.GetDomain(ns))
 	if err != nil {
 		return nil, err
 	}
@@ -85,7 +85,7 @@ func QueryStats(c *cli.Context, args []string) ([]byte, error) {
 			var err error
 
 			// call using client
-			err = client.Call(context.Background(), req, rsp, goclient.WithAddress(address))
+			err = client.DefaultClient.Call(context.Background(), req, rsp, goclient.WithAddress(address))
 
 			var started, uptime, memory, gc string
 			if err == nil {

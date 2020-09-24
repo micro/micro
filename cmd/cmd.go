@@ -8,30 +8,31 @@ import (
 	"math/rand"
 	"os"
 	"os/exec"
+	"runtime/debug"
 	"sort"
 	"strings"
 	"time"
 
 	"github.com/micro/go-micro/v3/broker"
 	"github.com/micro/go-micro/v3/client"
-	"github.com/micro/go-micro/v3/config"
+	config "github.com/micro/go-micro/v3/config/store"
 	"github.com/micro/go-micro/v3/server"
 	"github.com/micro/go-micro/v3/store"
 
-	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro/v3/auth"
 	"github.com/micro/go-micro/v3/registry"
 	"github.com/micro/micro/v3/client/cli/util"
 	uconf "github.com/micro/micro/v3/internal/config"
 	"github.com/micro/micro/v3/internal/helper"
 	"github.com/micro/micro/v3/internal/network"
+	"github.com/micro/micro/v3/internal/report"
 	_ "github.com/micro/micro/v3/internal/usage"
 	"github.com/micro/micro/v3/internal/wrapper"
 	"github.com/micro/micro/v3/plugin"
 	"github.com/micro/micro/v3/profile"
-	"github.com/micro/micro/v3/service/logger"
-
 	configCli "github.com/micro/micro/v3/service/config/client"
+	"github.com/micro/micro/v3/service/logger"
+	"github.com/urfave/cli/v2"
 
 	muauth "github.com/micro/micro/v3/service/auth"
 	mubroker "github.com/micro/micro/v3/service/broker"
@@ -216,6 +217,12 @@ var (
 			Usage:   "Provide an update prompt when a new binary is available. Enabled for release binaries only.",
 			Value:   true,
 			EnvVars: []string{"MICRO_PROMPT_UPDATE"},
+		},
+		&cli.StringFlag{
+			Name:    "config_secret_key",
+			Usage:   "Key to use when encoding/decoding secret config values. Will be generated and saved to file if not provided.",
+			Value:   "",
+			EnvVars: []string{"MICRO_CONFIG_SECRET_KEY"},
 		},
 	}
 )
@@ -492,15 +499,9 @@ func (c *command) Before(ctx *cli.Context) error {
 	// from the service immediately. We only do this if the action is nil, indicating
 	// a service is being run
 	if c.service && muconfig.DefaultConfig == nil {
-		conf, err := config.NewConfig(config.WithSource(configCli.NewSource(
-			configCli.Namespace(ctx.String("namespace")),
-		)))
-		if err != nil {
-			logger.Fatalf("Error configuring config: %v", err)
-		}
-		muconfig.DefaultConfig = conf
+		muconfig.DefaultConfig = configCli.NewConfig(ctx.String("namespace"))
 	} else if muconfig.DefaultConfig == nil {
-		muconfig.DefaultConfig, _ = config.NewConfig()
+		muconfig.DefaultConfig, _ = config.NewConfig(mustore.DefaultStore, ctx.String("namespace"))
 	}
 
 	return nil
@@ -523,6 +524,12 @@ func (c *command) Init(opts ...Option) error {
 }
 
 func (c *command) Run() error {
+	defer func() {
+		if r := recover(); r != nil {
+			report.Errorf(nil, fmt.Sprintf("panic: %v", string(debug.Stack())))
+			panic(r)
+		}
+	}()
 	return c.app.Run(os.Args)
 }
 

@@ -22,7 +22,9 @@ func init() {
 		"TestCorruptedTokenLogin",
 		"TestRunPrivateSource",
 		"TestEventsStream",
-		"TestIdiomaticFolderStructure",
+		// TestIdiomatic does source to running which is not supported on k8s yet
+		//"TestIdiomaticFolderStructure",
+		"TestRPC",
 	}
 	maxTimeMultiplier = 3
 	isParallel = false // in theory should work in parallel
