@@ -4,13 +4,14 @@ import (
 	"context"
 	"encoding/base64"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"sync"
 
 	"github.com/micro/go-micro/v3/config"
 	"github.com/micro/micro/v3/internal/auth/namespace"
 	pb "github.com/micro/micro/v3/proto/config"
-	"github.com/micro/micro/v3/service/errors"
+	merrors "github.com/micro/micro/v3/service/errors"
 	"github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/store"
 )
@@ -53,112 +54,105 @@ func (c *Config) Get(ctx context.Context, req *pb.GetRequest, rsp *pb.GetRespons
 
 	// authorize the request
 	if err := namespace.Authorize(ctx, req.Namespace); err == namespace.ErrForbidden {
-		return errors.Forbidden("config.Config.Get", err.Error())
+		return merrors.Forbidden("config.Config.Get", err.Error())
 	} else if err == namespace.ErrUnauthorized {
-		return errors.Unauthorized("config.Config.Get", err.Error())
+		return merrors.Unauthorized("config.Config.Get", err.Error())
 	} else if err != nil {
-		return errors.InternalServerError("config.Config.Get", err.Error())
+		return merrors.InternalServerError("config.Config.Get", err.Error())
 	}
 
 	ch, err := store.Read(req.Namespace)
 	if err == store.ErrNotFound {
-		return errors.NotFound("config.Config.Get", "Not found")
+		return merrors.NotFound("config.Config.Get", "Not found")
 	} else if err != nil {
-		return errors.BadRequest("config.Config.Get", "read error: %v: %v", err, req.Namespace)
+		return merrors.BadRequest("config.Config.Get", "read error: %v: %v", err, req.Namespace)
 	}
 
-	rsp.Value = &pb.Value{
-		Data: string(ch[0].Value),
-	}
-
-	// if dont need path, we return all of the data
-	if len(req.Path) == 0 {
-		return nil
-	}
+	rsp.Value = &pb.Value{}
 
 	values := config.NewJSONValues(ch[0].Value)
 
 	// we just want to pass back bytes
-	rsp.Value.Data = string(values.Get(req.Path).Bytes())
-	dat := leavesToValues(rsp.Value.Data, !req.Secret)
-
-	if req.Secret {
-		if len(c.secret) == 0 {
-			return errors.InternalServerError("config.Config.Get", "Can't decode secret: secret key is not set")
-		}
-		dec, err := base64.StdEncoding.DecodeString(fmt.Sprintf("%v", dat))
-		if err != nil {
-			return errors.InternalServerError("config.Config.Get", "Badly encoded secret")
-		}
-		decrypted, err := decrypt(string(dec), c.secret)
-		if err != nil {
-			return errors.InternalServerError("config.Config.Get", "Failed to decrypt", err)
-		}
-		rsp.Value.Data = decrypted
+	bytes := values.Get(req.Path).Bytes()
+	dat, err := leavesToValues(string(bytes), req.Secret, string(c.secret))
+	if err != nil {
+		return merrors.InternalServerError("config.config.Get", "Error in config structure: %v", err)
 	}
 
-	switch v := dat.(type) {
-	case string:
-		rsp.Value.Data = v
-	case nil:
-		rsp.Value.Data = "null"
-	case int64:
-		rsp.Value.Data = fmt.Sprintf("%v", v)
-	case bool:
-		rsp.Value.Data = fmt.Sprintf("%v", v)
-	default:
-		bs, _ := json.Marshal(dat)
-		rsp.Value.Data = string(bs)
-	}
+	response, _ := json.Marshal(dat)
+	rsp.Value.Data = string(response)
+
 	return nil
 }
 
-func leavesToValues(data string, maskSecrets bool) interface{} {
-	if data == "null" {
-		return nil
-	}
-	m := map[string]interface{}{}
+func leavesToValues(data string, decodeSecrets bool, encryptionKey string) (interface{}, error) {
+	var m interface{}
 	err := json.Unmarshal([]byte(data), &m)
 	if err != nil {
-		return data
+		return m, err
 	}
-	return traverse(m, maskSecrets)
+	return traverse(m, decodeSecrets, encryptionKey)
 }
 
-func traverse(i interface{}, maskSecrets bool) interface{} {
+func traverse(i interface{}, decodeSecrets bool, encryptionKey string) (interface{}, error) {
 	switch v := i.(type) {
 	case map[string]interface{}:
 		if val, ok := v["leaf"].(bool); ok && val {
 			isSecret, isSecretOk := v["secret"].(bool)
-			if isSecretOk && isSecret && maskSecrets {
-				return "[secret]"
+			if isSecretOk && isSecret && !decodeSecrets {
+				return "[secret]", nil
 			}
-			value, valueOk := v["value"].(string)
-			if valueOk {
-				return value
+			marshalledValue, ok := v["value"].(string)
+			if !ok {
+				return nil, fmt.Errorf("Value field in leaf %v can't be found", v)
 			}
-			return ""
+			if isSecretOk && isSecret {
+				if len(encryptionKey) == 0 {
+					return nil, errors.New("Can't decode secret: secret key is not set")
+				}
+				dec, err := base64.StdEncoding.DecodeString(marshalledValue)
+				if err != nil {
+					fmt.Println("marshalled value", marshalledValue)
+					return nil, errors.New("Badly encoded secret")
+				}
+				decrypted, err := decrypt(string(dec), []byte(encryptionKey))
+				if err != nil {
+					return nil, fmt.Errorf("Failed to decrypt: %v", err)
+				}
+				marshalledValue = decrypted
+			}
+			var value interface{}
+			err := json.Unmarshal([]byte(marshalledValue), &value)
+			return value, err
 		}
 		ret := map[string]interface{}{}
 		for key, val := range v {
-			ret[key] = traverse(val, maskSecrets)
+			value, err := traverse(val, decodeSecrets, encryptionKey)
+			if err != nil {
+				return ret, err
+			}
+			ret[key] = value
 		}
-		return ret
+		return ret, nil
 	case []interface{}:
 		for _, e := range v {
 			ret := []interface{}{}
-			ret = append(ret, traverse(e, maskSecrets))
-			return ret
+			value, err := traverse(e, decodeSecrets, encryptionKey)
+			if err != nil {
+				return ret, err
+			}
+			ret = append(ret, value)
+			return ret, nil
 		}
 	default:
-		return i
+		return i, nil
 	}
-	return i
+	return i, nil
 }
 
 func (c *Config) Set(ctx context.Context, req *pb.SetRequest, rsp *pb.SetResponse) error {
 	if req.Value == nil {
-		return errors.BadRequest("config.Config.Update", "invalid change")
+		return merrors.BadRequest("config.Config.Update", "invalid change")
 	}
 	ns := req.Namespace
 	if len(ns) == 0 {
@@ -167,11 +161,11 @@ func (c *Config) Set(ctx context.Context, req *pb.SetRequest, rsp *pb.SetRespons
 
 	// authorize the request
 	if err := namespace.Authorize(ctx, ns); err == namespace.ErrForbidden {
-		return errors.Forbidden("config.Config.Update", err.Error())
+		return merrors.Forbidden("config.Config.Update", err.Error())
 	} else if err == namespace.ErrUnauthorized {
-		return errors.Unauthorized("config.Config.Update", err.Error())
+		return merrors.Unauthorized("config.Config.Update", err.Error())
 	} else if err != nil {
-		return errors.InternalServerError("config.Config.Update", err.Error())
+		return merrors.InternalServerError("config.Config.Update", err.Error())
 	}
 
 	ch, err := store.Read(ns)
@@ -179,7 +173,7 @@ func (c *Config) Set(ctx context.Context, req *pb.SetRequest, rsp *pb.SetRespons
 	if err == store.ErrNotFound {
 		dat = []byte("{}")
 	} else if err != nil {
-		return errors.BadRequest("config.Config.Set", "read error: %v: %v", err, ns)
+		return merrors.BadRequest("config.Config.Set", "read error: %v: %v", err, ns)
 	}
 
 	if len(ch) > 0 {
@@ -187,14 +181,15 @@ func (c *Config) Set(ctx context.Context, req *pb.SetRequest, rsp *pb.SetRespons
 	}
 	values := config.NewJSONValues(dat)
 
+	// req.Value.Data is a json encoded value
 	data := req.Value.Data
 	if req.Secret {
 		if len(c.secret) == 0 {
-			return errors.InternalServerError("config.Config.Set", "Can't encode secret: secret key is not set")
+			return merrors.InternalServerError("config.Config.Set", "Can't encode secret: secret key is not set")
 		}
 		encrypted, err := encrypt(data, c.secret)
 		if err != nil {
-			return errors.InternalServerError("config.Config.Set", "Failed to encrypt", err)
+			return merrors.InternalServerError("config.Config.Set", "Failed to encrypt", err)
 		}
 		data = string(base64.StdEncoding.EncodeToString([]byte(encrypted)))
 		// Need to save metainformation with secret values too
@@ -224,18 +219,18 @@ func (c *Config) Delete(ctx context.Context, req *pb.DeleteRequest, rsp *pb.Dele
 
 	// authorize the request
 	if err := namespace.Authorize(ctx, ns); err == namespace.ErrForbidden {
-		return errors.Forbidden("config.Config.Delete", err.Error())
+		return merrors.Forbidden("config.Config.Delete", err.Error())
 	} else if err == namespace.ErrUnauthorized {
-		return errors.Unauthorized("config.Config.Delete", err.Error())
+		return merrors.Unauthorized("config.Config.Delete", err.Error())
 	} else if err != nil {
-		return errors.InternalServerError("config.Config.Delete", err.Error())
+		return merrors.InternalServerError("config.Config.Delete", err.Error())
 	}
 
 	ch, err := store.Read(ns)
 	if err == store.ErrNotFound {
-		return errors.NotFound("config.Config.Delete", "Not found")
+		return merrors.NotFound("config.Config.Delete", "Not found")
 	} else if err != nil {
-		return errors.BadRequest("config.Config.Delete", "read error: %v: %v", err, ns)
+		return merrors.BadRequest("config.Config.Delete", "read error: %v: %v", err, ns)
 	}
 
 	values := config.NewJSONValues(ch[0].Value)
