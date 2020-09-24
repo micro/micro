@@ -37,7 +37,7 @@ func (m *manager) Create(srv *runtime.Service, opts ...runtime.CreateOption) err
 	}
 
 	// create the service in the underlying runtime
-	if err := m.createServiceInRuntime(service); err != nil {
+	if err := m.createServiceInRuntime(service); err != nil && err != runtime.ErrAlreadyExists {
 		return err
 	}
 
