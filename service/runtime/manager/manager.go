@@ -29,17 +29,20 @@ func (m *manager) Create(srv *runtime.Service, opts ...runtime.CreateOption) err
 		srv.Version = "latest"
 	}
 
+	// construct the service object
+	service := &service{
+		Service:   srv,
+		Options:   &options,
+		UpdatedAt: time.Now(),
+	}
+
 	// create the service in the underlying runtime
-	if err := m.Runtime.Create(srv, opts...); err != nil {
+	if err := m.createServiceInRuntime(service); err != nil {
 		return err
 	}
 
 	// write the object to the store
-	return m.writeService(&service{
-		Service:   srv,
-		Options:   &options,
-		UpdatedAt: time.Now(),
-	})
+	return m.writeService(service)
 }
 
 // Read returns the service which matches the criteria provided
@@ -81,6 +84,12 @@ func (m *manager) Read(opts ...runtime.ReadOption) ([]*runtime.Service, error) {
 		// check for a status on the service, this could be building, stopping etc
 		if s.Status != gorun.Unknown {
 			result[i].Status = s.Status
+		}
+
+		// set the last updated, todo: check why this is 'started' and not 'updated'. Consider adding
+		// this as an attribute on runtime.Service
+		if !s.UpdatedAt.IsZero() {
+			result[i].Metadata["started"] = s.UpdatedAt.Format(time.RFC3339)
 		}
 
 		// the service might still be building and not have been created in the underlying runtime yet
