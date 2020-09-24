@@ -5,6 +5,7 @@ package test
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"os"
 	"os/exec"
@@ -589,6 +590,24 @@ func testRunParentFolder(t *T) {
 	if err != nil {
 		t.Fatal(string(outp))
 	}
+
+	// for tests, update the micro import to use the current version of the code.
+	fname := fmt.Sprintf(makeProt.Dir + "/go.mod")
+	f, err := os.OpenFile(fname, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		t.Fatal(string(outp))
+		return
+	}
+	if _, err := f.WriteString("\nreplace github.com/micro/micro/v3 => ../"); err != nil {
+		t.Fatal(string(outp))
+		return
+	}
+	// This should point to master, but GOPROXY is not on in the runtime. Remove later.
+	if _, err := f.WriteString("\nreplace github.com/micro/go-micro/v3 => github.com/micro/go-micro/v3 v3.0.0-beta.2.0.20200924134216-1c358b41b897"); err != nil {
+		t.Fatal(string(outp))
+		return
+	}
+	f.Close()
 
 	err = os.MkdirAll("../parent/folder/test", 0777)
 	if err != nil {
