@@ -27,7 +27,7 @@ func main() {
 
 			val, _ = config.Get("key", config.Secret(true))
 			c := conf{}
-			err = val.Scan(&c)
+			err = val.Scan(&c.Key)
 			fmt.Println("Value of key.subkey1: ", c.Key.Subkey1, err)
 		}
 	}()
