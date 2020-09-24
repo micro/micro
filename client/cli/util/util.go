@@ -109,7 +109,7 @@ func AddEnv(env Env) error {
 func getEnvs() (map[string]Env, error) {
 	envsJSON, err := config.Get("envs")
 	if err != nil {
-		return nil, fmt.Errorf("Error getting environment: %v")
+		return nil, fmt.Errorf("Error getting environment: %v", err)
 	}
 	envs := map[string]Env{}
 	if len(envsJSON) > 0 {
