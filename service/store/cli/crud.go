@@ -69,10 +69,6 @@ func read(ctx *cli.Context) error {
 				key = r.Key
 				if isPrintable(r.Value) {
 					value = string(r.Value)
-					if len(value) > 50 {
-						runes := []rune(value)
-						value = string(runes[:50]) + "..."
-					}
 				} else {
 					value = fmt.Sprintf("%#x", r.Value[:20])
 				}
