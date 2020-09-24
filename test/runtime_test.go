@@ -591,11 +591,9 @@ func testRunParentFolder(t *T) {
 	}
 
 	// for tests, update the micro import to use the current version of the code.
-	cmd, err := cmd.Exec("go mod edit -replace github.com/micro/micro/v3=../")
-	cmd.Dir = makeProt.Dir
-	if _, er := cmd.Exec(); err != nil {
-		t.Fatal(err)
-		return
+	outp, err = exec.Command("go mod edit -replace github.com/micro/micro/v3=../").CombinedOutput()
+	if err != nil {
+		t.Fatal(string(outp))
 	}
 
 	err = os.MkdirAll("../parent/folder/test", 0777)
