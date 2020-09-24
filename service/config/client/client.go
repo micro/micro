@@ -24,14 +24,15 @@ type srv struct {
 }
 
 func (m *srv) Get(path string, options ...config.Option) (config.Value, error) {
+	nullValue := config.NewJSONValue([]byte("null"))
 	req, err := m.client.Get(context.DefaultContext, &proto.GetRequest{
 		Namespace: m.namespace,
 		Path:      path,
 	}, goclient.WithAuthToken())
 	if verr := errors.Parse(err); verr != nil && verr.Code == http.StatusNotFound {
-		return config.NewJSONValue([]byte("null")), nil
+		return nullValue, nil
 	} else if err != nil {
-		return nil, err
+		return nullValue, err
 	}
 
 	return config.NewJSONValue([]byte(req.Value.Data)), nil

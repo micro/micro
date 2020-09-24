@@ -1272,8 +1272,9 @@ func testIdiomaticFolderStructure(t *T) {
 
 	if err := Try("Find idiomatic service in the registry", t, func() ([]byte, error) {
 		outp, err := cmd.Exec("status")
+		outp1, _ := cmd.Exec("logs", "idiomatic")
 		if err != nil {
-			return outp, err
+			return append(outp, outp1...), err
 		}
 
 		// The started service should have the runtime name of "service/example",
