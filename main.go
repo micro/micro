@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/micro/go-micro/v3/errors"
 	"github.com/micro/micro/v3/cmd"
 
 	// internal packages
@@ -28,7 +29,16 @@ import (
 
 func main() {
 	if err := cmd.DefaultCmd.Run(); err != nil {
-		fmt.Println(err)
+		fmt.Println(formatErr(err))
 		os.Exit(1)
+	}
+}
+
+func formatErr(err error) string {
+	switch v := err.(type) {
+	case *errors.Error:
+		return v.Detail
+	default:
+		return err.Error()
 	}
 }
