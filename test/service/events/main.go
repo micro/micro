@@ -28,6 +28,9 @@ func main() {
 		if err != nil {
 			logger.Fatalf("Error creating subscriber: %v", err)
 		}
+		// Is there a race condition here with publish coming straight after subscribe? Seems to be according to this
+		// test so sleep for a bit to wait for nats to register subscription properly
+		time.Sleep(2 * time.Second)
 
 		logger.Infof("TEST1: publishing event")
 
