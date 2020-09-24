@@ -128,10 +128,11 @@ func (m *manager) processEvent(key string) {
 
 	// if there was an error update the status in the cache
 	if err != nil {
-		logger.Warnf("Error processing %v event for service %v:%v in namespace %v: %v",
+		logger.Warnf("Error processing %v event for service %v:%v (src: %v) in namespace %v: %v",
 			ev.Type,
 			ev.Service.Name,
 			ev.Service.Version,
+			ev.Service.Source,
 			ev.Options.Namespace,
 			err,
 		)

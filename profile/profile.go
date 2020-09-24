@@ -151,6 +151,7 @@ var Test = &Profile{
 	Setup: func(ctx *cli.Context) error {
 		microAuth.DefaultAuth = noop.NewAuth()
 		microStore.DefaultStore = mem.NewStore()
+		microStore.DefaultBlobStore, _ = file.NewBlobStore()
 		microConfig.DefaultConfig, _ = config.NewConfig(microStore.DefaultStore, "")
 		SetupRegistry(memory.NewRegistry())
 		return nil
