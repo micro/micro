@@ -582,17 +582,17 @@ func testRunParentFolder(t *T) {
 	if err != nil {
 		t.Fatal(string(outp))
 	}
+
 	makeProt := exec.Command("make", "proto")
 	makeProt.Dir = "../test-top-level"
-
-	outp, err = makeProt.CombinedOutput()
-	if err != nil {
+	if outp, err := makeProt.CombinedOutput(); err != nil {
 		t.Fatal(string(outp))
 	}
 
 	// for tests, update the micro import to use the current version of the code.
-	outp, err = exec.Command("go mod edit -replace github.com/micro/micro/v3=../").CombinedOutput()
-	if err != nil {
+	editGoMod := exec.Command("go mod edit -replace github.com/micro/micro/v3=../")
+	editGoMod.Dir = "../test-top-level"
+	if outp, err := editGoMod.CombinedOutput(); err != nil {
 		t.Fatal(string(outp))
 	}
 
