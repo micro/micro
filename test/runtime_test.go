@@ -589,13 +589,6 @@ func testRunParentFolder(t *T) {
 		t.Fatal(string(outp))
 	}
 
-	// for tests, update the micro import to use the current version of the code.
-	editGoMod := exec.Command("go mod edit -replace github.com/micro/micro/v3=../")
-	editGoMod.Dir = "../test-top-level"
-	if outp, err := editGoMod.CombinedOutput(); err != nil {
-		t.Fatal(string(outp))
-	}
-
 	err = os.MkdirAll("../parent/folder/test", 0777)
 	if err != nil {
 		t.Fatal(err)
