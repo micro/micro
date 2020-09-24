@@ -22,8 +22,6 @@ func init() {
 		"TestCorruptedTokenLogin",
 		"TestRunPrivateSource",
 		"TestEventsStream",
-		// TestIdiomatic does source to running which is not supported on k8s yet
-		//"TestIdiomaticFolderStructure",
 		"TestRPC",
 	}
 	maxTimeMultiplier = 3
