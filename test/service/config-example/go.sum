@@ -171,6 +171,7 @@ github.com/gobwas/httphead v0.0.0-20180130184737-2c6c146eadee h1:s+21KNqlpePfkah
 github.com/gobwas/httphead v0.0.0-20180130184737-2c6c146eadee/go.mod h1:L0fX3K22YWvt/FAX9NnzrNzcI4wNYi9Yku4O0LKYflo=
 github.com/gobwas/pool v0.2.0 h1:QEmUOlnSjWtnpRGHF3SauEiOsy82Cup83Vf2LcMlnc8=
 github.com/gobwas/pool v0.2.0/go.mod h1:q8bcK0KcYlCgd9e7WYLm9LpyS+YeLd8JVDW6WezmKEw=
+github.com/gobwas/pool v0.2.1/go.mod h1:q8bcK0KcYlCgd9e7WYLm9LpyS+YeLd8JVDW6WezmKEw=
 github.com/gobwas/ws v1.0.3 h1:ZOigqf7iBxkA4jdQ3am7ATzdlOFp9YzA6NmuvEEZc9g=
 github.com/gobwas/ws v1.0.3/go.mod h1:szmBTxLgaFppYjEmNtny/v3w89xOydFnnZMcgRRu/EM=
 github.com/godbus/dbus v0.0.0-20190422162347-ade71ed3457e/go.mod h1:bBOAhwG1umN6/6ZUMtDFBMQR8jRg9O75tm9K00oMsK4=
@@ -346,6 +347,10 @@ github.com/micro/go-micro/v3 v3.0.0-beta.2.0.20200917131714-7750f542b4c2 h1:2Duo
 github.com/micro/go-micro/v3 v3.0.0-beta.2.0.20200917131714-7750f542b4c2/go.mod h1:uOClwKuoS4hmK6LdY6azBEqDVh8EKx0r9pSenum3z48=
 github.com/micro/go-micro/v3 v3.0.0-beta.2.0.20200918112555-9168c7c61064 h1:H3TSt+2Z/FAv4xy8UwhuqF8iYOg0GX57bDwPB6AXxIg=
 github.com/micro/go-micro/v3 v3.0.0-beta.2.0.20200918112555-9168c7c61064/go.mod h1:uOClwKuoS4hmK6LdY6azBEqDVh8EKx0r9pSenum3z48=
+github.com/micro/go-micro/v3 v3.0.0-beta.2.0.20200923201616-af8d55eb7f43 h1:xqAUZ0infw4vhez3brqGhkvmoyEeQm1Fza2BgK+uxNE=
+github.com/micro/go-micro/v3 v3.0.0-beta.2.0.20200923201616-af8d55eb7f43/go.mod h1:DiwYchJ8kCWOZVXMsZwuFcNDAdSCS6aEbYfEni4LvK4=
+github.com/micro/go-micro/v3 v3.0.0-beta.2.0.20200924134216-1c358b41b897 h1:494dBTQVD/rKmnc5l839cyZLksC4Q0wN6EQU/XoFUr0=
+github.com/micro/go-micro/v3 v3.0.0-beta.2.0.20200924134216-1c358b41b897/go.mod h1:DiwYchJ8kCWOZVXMsZwuFcNDAdSCS6aEbYfEni4LvK4=
 github.com/micro/mdns v0.3.0/go.mod h1:KJ0dW7KmicXU2BV++qkLlmHYcVv7/hHnbtguSWt9Aoc=
 github.com/micro/protoc-gen-micro v1.0.0/go.mod h1:C8ij4DJhapBmypcT00AXdb0cZ675/3PqUO02buWWqbE=
 github.com/miekg/dns v1.1.3/go.mod h1:W1PPwlIAgtquWBMBEV9nkV9Cazfe8ScdGz/Lj7v3Nrg=
