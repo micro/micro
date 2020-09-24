@@ -155,9 +155,9 @@ func appendSourceBase(ctx *cli.Context, workDir, source string) string {
 	isLocal, _ := git.IsLocal(workDir, source)
 	// @todo add list of supported hosts here or do this check better
 	if !isLocal && !strings.Contains(source, ".com") && !strings.Contains(source, ".org") && !strings.Contains(source, ".net") {
-		baseURL, _ := config.Get("git", util.GetEnv(ctx).Name, "baseurl")
+		baseURL, _ := config.Get(config.Path("git", util.GetEnv(ctx).Name, "baseurl"))
 		if len(baseURL) == 0 {
-			baseURL, _ = config.Get("git", "baseurl")
+			baseURL, _ = config.Get(config.Path("git", "baseurl"))
 		}
 		if len(baseURL) == 0 {
 			return path.Join("github.com/micro/services", source)
@@ -299,7 +299,7 @@ func getGitCredentials(repo string) (string, bool) {
 		}
 
 		// check the creds for the org
-		creds, err := config.Get("git", "credentials", org)
+		creds, err := config.Get(config.Path("git", "credentials", org))
 		if err == nil && len(creds) > 0 {
 			return creds, true
 		}
