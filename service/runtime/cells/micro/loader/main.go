@@ -22,7 +22,7 @@ func main() {
 	version := getEnv("MICRO_SERVICE_VERSION")
 
 	// stream the binary from the runtime
-	logger.Info("Downloading service %v:%v", name, version)
+	logger.Infof("Downloading service %v:%v", name, version)
 	svc := &runtime.Service{Name: name, Version: version}
 	stream, err := cli.Read(context.Background(), svc, client.WithAuthToken())
 	if err != nil {

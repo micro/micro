@@ -10,12 +10,12 @@ import (
 
 	"github.com/google/uuid"
 	gorun "github.com/micro/go-micro/v3/runtime"
+	"github.com/micro/go-micro/v3/runtime/local/source/git"
 	"github.com/micro/go-micro/v3/util/tar"
 	"github.com/micro/micro/v3/internal/namespace"
 	"github.com/micro/micro/v3/service/client"
 	"github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/runtime"
-	"github.com/micro/micro/v3/service/runtime/util"
 	"github.com/micro/micro/v3/service/store"
 )
 
@@ -208,28 +208,45 @@ func nameFromService(name string) string {
 }
 
 func (m *manager) handleCreateEvent(srv *runtime.Service, opts *runtime.CreateOptions) error {
-	// if the source is a blob, we must pull it and save it to a tmp dir so it can be accessed
-	// by the runtimes which have no concept of a blob store
 	if strings.HasPrefix(srv.Source, "source://") {
-		// create a tmp dir to store the source in
+		// source is in the blob store. create a tmp dir to store it in
 		dir, err := ioutil.TempDir(os.TempDir(), fmt.Sprintf("source-%v-*", srv.Name))
 		if err != nil {
 			return err
 		}
 
-		// pull the source from the blob store
-		src, err := util.ReadSource(srv, opts.Secrets, opts.Namespace)
+		// read the source from the blob store
+		blob, err := store.DefaultBlobStore.Read(srv.Source)
 		if err != nil {
 			return err
 		}
 
-		// unarchive the tar into the directory
-		if err := tar.Unarchive(src, dir); err != nil {
+		// unarchive the source into the destination
+		if err := tar.Unarchive(blob, dir); err != nil {
 			return err
 		}
 
-		// set the service's source to the tmp dir, but don't write this back to the store
 		srv.Source = dir
+	} else {
+		// source is a git remote, parse the source to split the repo and folder
+		src, err := git.ParseSource(srv.Source)
+		if err != nil {
+			return err
+		}
+
+		// checkout the source
+		tmpdir, err := ioutil.TempDir(os.TempDir(), "source-*")
+		if err != nil {
+			return err
+		}
+		if err := git.CheckoutSource(tmpdir, src, opts.Secrets); err != nil {
+			return err
+		}
+
+		// the git package rewrites the git source location, todo: refactor this to write directly to
+		// the tmpdirs
+		srv.Source = src.FullPath
+		opts.Entrypoint = src.Folder
 	}
 
 	// generate an auth account for the service to use

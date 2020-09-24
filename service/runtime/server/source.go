@@ -3,14 +3,15 @@ package server
 import (
 	"bytes"
 	"context"
+	"fmt"
 	"io"
 
-	"github.com/micro/micro/v3/service/runtime/util"
-
+	"github.com/google/uuid"
 	authns "github.com/micro/micro/v3/internal/auth/namespace"
 	"github.com/micro/micro/v3/internal/namespace"
 	pb "github.com/micro/micro/v3/proto/runtime"
 	"github.com/micro/micro/v3/service/errors"
+	"github.com/micro/micro/v3/service/store"
 )
 
 const (
@@ -55,9 +56,9 @@ func (s *Source) Upload(ctx context.Context, stream pb.Source_UploadStream) erro
 	}
 
 	// write the source to the store
-	key, err := util.WriteSource(namespace, buf)
-	if err != nil {
-		return err
+	key := "source://" + uuid.New().String()
+	if err := store.DefaultBlobStore.Write(key, buf); err != nil {
+		return fmt.Errorf("Error writing source to blob store: %v", err)
 	}
 
 	// todo: implement cleanup logic. write to the normal store and have a cleanup func loop through

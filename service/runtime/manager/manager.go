@@ -1,10 +1,6 @@
 package manager
 
 import (
-	"fmt"
-	"io/ioutil"
-	"os"
-	"strings"
 	"time"
 
 	gorun "github.com/micro/go-micro/v3/runtime"
@@ -12,11 +8,9 @@ import (
 	cachest "github.com/micro/go-micro/v3/store/cache"
 	filest "github.com/micro/go-micro/v3/store/file"
 	"github.com/micro/go-micro/v3/store/memory"
-	"github.com/micro/go-micro/v3/util/tar"
 	"github.com/micro/micro/v3/internal/namespace"
 	"github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/runtime"
-	"github.com/micro/micro/v3/service/runtime/util"
 )
 
 // Init initializes the runtime
@@ -204,38 +198,8 @@ func (m *manager) watchServices() {
 				continue
 			}
 
-			// if the source is a blob, we must pull it and save it to a tmp dir so it can be accessed
-			// by the local runtime which has no concept of the blob store
-			if strings.HasPrefix(srv.Service.Source, "source://") {
-				// create a tmp dir to store the source in
-				dir, err := ioutil.TempDir(os.TempDir(), fmt.Sprintf("source-%v-*", srv.Service.Name))
-				if err != nil {
-					if logger.V(logger.ErrorLevel, logger.DefaultLogger) {
-						logger.Errorf("Error restarting service %v: %v", srv.Service.Name, err)
-					}
-					continue
-				}
-
-				// pull the source from the blob store
-				src, err := util.ReadSource(srv.Service, srv.Options.Secrets, ns)
-				if err != nil {
-					if logger.V(logger.ErrorLevel, logger.DefaultLogger) {
-						logger.Errorf("Error restarting service %v: %v", srv.Service.Name, err)
-					}
-					continue
-				}
-
-				// unarchive the tar into the directory
-				if err := tar.Unarchive(src, dir); err != nil {
-					if logger.V(logger.ErrorLevel, logger.DefaultLogger) {
-						logger.Errorf("Error restarting service %v: %v", srv.Service.Name, err)
-					}
-					continue
-				}
-
-				// set the service's source to the tmp dir, but don't write this back to the store
-				srv.Service.Source = dir
-			}
+			// todo: prep source
+			continue
 
 			// generate an auth account for the service to use
 			acc, err := m.generateAccount(srv.Service, ns)

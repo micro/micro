@@ -16,7 +16,7 @@ require (
 	github.com/gorilla/mux v1.7.3
 	github.com/hashicorp/go-version v1.2.1
 	github.com/juju/fslock v0.0.0-20160525022230-4d5c94c67b4b
-	github.com/micro/go-micro/v3 v3.0.0-beta.2.0.20200923121919-a8253adfc441
+	github.com/micro/go-micro/v3 v3.0.0-beta.2.0.20200924091645-4e2230c7e4d3
 	github.com/olekukonko/tablewriter v0.0.4
 	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/pkg/errors v0.9.1
