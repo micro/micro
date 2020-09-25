@@ -11,6 +11,7 @@ import (
 type keyConfig struct {
 	Subkey  string `json:"subkey"`
 	Subkey1 int    `json:"subkey1"`
+	Subkey2 string `json:"subkey2"`
 }
 
 type conf struct {
@@ -29,6 +30,7 @@ func main() {
 			c := conf{}
 			err = val.Scan(&c.Key)
 			fmt.Println("Value of key.subkey1: ", c.Key.Subkey1, err)
+			fmt.Println("Value of key.subkey2: ", c.Key.Subkey2)
 		}
 	}()
 
