@@ -20,7 +20,11 @@ require (
 	github.com/gorilla/mux v1.7.3
 	github.com/hashicorp/go-version v1.2.1
 	github.com/juju/fslock v0.0.0-20160525022230-4d5c94c67b4b
+<<<<<<< HEAD
 	github.com/micro/go-micro/v3 v3.0.0-beta.2.0.20200925142320-a603ff1f9e1b
+=======
+	github.com/micro/go-micro/v3 v3.0.0-beta.2.0.20200925150945-19f64d644c03
+>>>>>>> a0d8ed27... debugging
 	github.com/olekukonko/tablewriter v0.0.4
 	github.com/onsi/ginkgo v1.12.0 // indirect
 	github.com/patrickmn/go-cache v2.1.0+incompatible
