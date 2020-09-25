@@ -50,7 +50,9 @@ func setConfig(ctx *cli.Context) error {
 			Data: string(v),
 			//Format: "json",
 		},
-		Secret: ctx.Bool("secret"),
+		Options: &proto.Options{
+			Secret: ctx.Bool("secret"),
+		},
 	}, goclient.WithAuthToken())
 	return err
 }
@@ -95,8 +97,10 @@ func getConfig(ctx *cli.Context) error {
 		// The current namespace,
 		Namespace: ns,
 		// The actual key for the val
-		Path:   key,
-		Secret: ctx.Bool("secret"),
+		Path: key,
+		Options: &proto.Options{
+			Secret: ctx.Bool("secret"),
+		},
 	}, goclient.WithAuthToken())
 	if err != nil {
 		return err

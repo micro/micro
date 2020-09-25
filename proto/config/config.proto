@@ -15,12 +15,16 @@ message Value {
     string format = 2;
 }
 
+message Options {
+    // Is it an encrypted value?
+    bool secret = 1;
+}
+
 message SetRequest {
     string namespace = 1;
     string path = 2;
-    Value Value = 3;
-    // Is it an encrypted value?
-    bool secret = 4;
+    Value value = 3;
+    Options options = 4;
 }
 
 message SetResponse {}
@@ -35,8 +39,7 @@ message DeleteResponse {}
 message GetRequest {
     string namespace = 1;
     string path = 2;
-    // Is it an encrypted value?
-    bool secret = 3;
+    Options options = 3;
 }
 
 message GetResponse {

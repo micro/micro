@@ -24,10 +24,17 @@ type srv struct {
 }
 
 func (m *srv) Get(path string, options ...config.Option) (config.Value, error) {
+	o := config.Options{}
+	for _, option := range options {
+		option(&o)
+	}
 	nullValue := config.NewJSONValue([]byte("null"))
 	req, err := m.client.Get(context.DefaultContext, &proto.GetRequest{
 		Namespace: m.namespace,
 		Path:      path,
+		Options: &proto.Options{
+			Secret: o.Secret,
+		},
 	}, goclient.WithAuthToken())
 	if verr := errors.Parse(err); verr != nil && verr.Code == http.StatusNotFound {
 		return nullValue, nil
@@ -39,12 +46,19 @@ func (m *srv) Get(path string, options ...config.Option) (config.Value, error) {
 }
 
 func (m *srv) Set(path string, value interface{}, options ...config.Option) error {
+	o := config.Options{}
+	for _, option := range options {
+		option(&o)
+	}
 	dat, _ := json.Marshal(value)
 	_, err := m.client.Set(context.DefaultContext, &proto.SetRequest{
 		Namespace: m.namespace,
 		Path:      path,
 		Value: &proto.Value{
 			Data: string(dat),
+		},
+		Options: &proto.Options{
+			Secret: o.Secret,
 		},
 	}, goclient.WithAuthToken())
 	return err
