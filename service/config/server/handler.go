@@ -68,13 +68,19 @@ func (c *Config) Get(ctx context.Context, req *pb.GetRequest, rsp *pb.GetRespons
 		return merrors.BadRequest("config.Config.Get", "read error: %v: %v", err, req.Namespace)
 	}
 
+	// get secret from options
+	var secret bool
+	if req.GetOptions().GetSecret() {
+		secret = true
+	}
+
 	rsp.Value = &pb.Value{}
 
 	values := config.NewJSONValues(ch[0].Value)
 
 	// we just want to pass back bytes
 	bytes := values.Get(req.Path).Bytes()
-	dat, err := leavesToValues(string(bytes), req.Secret, string(c.secret))
+	dat, err := leavesToValues(string(bytes), secret, string(c.secret))
 	if err != nil {
 		return merrors.InternalServerError("config.config.Get", "Error in config structure: %v", err)
 	}
@@ -181,9 +187,15 @@ func (c *Config) Set(ctx context.Context, req *pb.SetRequest, rsp *pb.SetRespons
 	}
 	values := config.NewJSONValues(dat)
 
+	// get secret from options
+	var secret bool
+	if req.GetOptions().GetSecret() {
+		secret = true
+	}
+
 	// req.Value.Data is a json encoded value
 	data := req.Value.Data
-	if req.Secret {
+	if secret {
 		if len(c.secret) == 0 {
 			return merrors.InternalServerError("config.Config.Set", "Can't encode secret: secret key is not set")
 		}
