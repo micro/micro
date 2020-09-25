@@ -646,6 +646,9 @@ func testRunParentFolder(t *T) {
 			return outp, err
 		}
 		if !strings.Contains(string(outp), "test-top-level") {
+			// tmp debugging
+			soutp, _ := cmd.Exec("status")
+			t.Logf(string(soutp))
 			return outp, errors.New("Can't find example service in list")
 		}
 		return outp, err
