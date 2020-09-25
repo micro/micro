@@ -205,6 +205,9 @@ func testConfigReadFromService(t *T) {
 		if !strings.Contains(string(outp), "Micro Test <test@m3o.com>") {
 			return outp, fmt.Errorf("Expected output to contain \"Micro Test <test@m3o.com>\", got: %v", string(outp))
 		}
+		if !strings.Contains(string(outp), "Default Hello") {
+			return outp, fmt.Errorf("Expected output to contain \"Default Hello\", got: %v", string(outp))
+		}
 		return outp, err
 	}, 60*time.Second); err != nil {
 		return

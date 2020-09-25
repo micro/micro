@@ -34,6 +34,10 @@ func main() {
 
 			val, _ = config.Get("key.subkey3")
 			fmt.Println("Value of key.subkey3: ", val.String(""))
+
+			// Test defaults
+			val, _ = config.Get("key.subkey_does_not_exist")
+			fmt.Println("Default", val.String("Hello"))
 		}
 	}()
 
