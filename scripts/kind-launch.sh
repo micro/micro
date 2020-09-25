@@ -7,10 +7,24 @@
 #   - yq - https://github.com/mikefarah/yq
 # 
 # Warning: This script will modify some yaml files so please don't commit the modifications
+#!/bin/bash
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 set -e
+set -x
 # safety first
 kubectl config use-context kind-kind
 
+tmp=$TMPDIR
+if [[ ! $tmp ]]; then
+  tmp=/tmp
+fi
+
+if [[ ! -d $tmp/micro-kind ]]; then
+  mkdir $tmp/micro-kind
+  cp -R $DIR/../* $tmp/micro-kind/
+fi
+
+pushd $tmp/micro-kind
 yq write -i platform/kubernetes/service/router.yaml "spec.template.spec.containers[0].env.(name==MICRO_ENABLE_ACME).value" --tag '!!str' 'false'
 yq write -i platform/kubernetes/service/proxy.yaml "spec.template.spec.containers[0].env.(name==MICRO_ENABLE_ACME).value" --tag '!!str' 'false'
 yq delete -i platform/kubernetes/service/proxy.yaml "spec.template.spec.containers[0].env.(name==CF_API_TOKEN)"
@@ -23,5 +37,7 @@ kubectl apply -f scripts/kind/metrics/components.yaml
 
 pushd platform/kubernetes
 ./install.sh dev
-kubectl wait deployment --all --timeout=180s -n default --for=condition=available 
+kubectl wait deployment --all --timeout=180s -n default --for=condition=available
+popd
+
 popd

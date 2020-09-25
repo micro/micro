@@ -92,6 +92,8 @@ jobs:
 
     # Everything is set up so let's install the platform
     - name: Install the platform
+      env:
+        TMPDIR: ${{ runner.temp }}
       run: |
         bash scripts/kind-launch.sh
     - name: Install failed, show platform logs
