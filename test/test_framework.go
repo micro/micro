@@ -550,6 +550,10 @@ func TrySuite(t *testing.T, f func(t *T), times int) {
 			time.Sleep(200 * time.Millisecond)
 		}
 		if tee.failed {
+			if t.Failed() {
+				done <- true
+				return
+			}
 			if len(tee.format) > 0 {
 				t.Fatalf(tee.format, tee.values...)
 			} else {
