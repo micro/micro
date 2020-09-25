@@ -153,6 +153,14 @@ func testConfigReadFromService(t *T) {
 		if string(outp) != "" {
 			return outp, fmt.Errorf("Expected no output, got: %v", string(outp))
 		}
+		// Setting an other key for `val.String` test
+		outp, err = cmd.Exec("config", "set", "--secret", "key.subkey3", "\"Micro Test <test@m3o.com>\"")
+		if err != nil {
+			return outp, err
+		}
+		if string(outp) != "" {
+			return outp, fmt.Errorf("Expected no output, got: %v", string(outp))
+		}
 		return outp, err
 	}, 5*time.Second); err != nil {
 		return
@@ -191,8 +199,11 @@ func testConfigReadFromService(t *T) {
 		if !strings.Contains(string(outp), "42") {
 			return outp, fmt.Errorf("Expected output to contain 42, got: %v", string(outp))
 		}
-		if !strings.Contains(string(outp), "Micro Team BREAKING THE TEST <support@m3o.com>") {
+		if !strings.Contains(string(outp), "Micro Team <support@m3o.com>") {
 			return outp, fmt.Errorf("Expected output to contain \"Micro Team <support@m3o.com>\", got: %v", string(outp))
+		}
+		if !strings.Contains(string(outp), "Micro Test <test@m3o.com>") {
+			return outp, fmt.Errorf("Expected output to contain \"Micro Test <test@m3o.com>>\", got: %v", string(outp))
 		}
 		return outp, err
 	}, 60*time.Second); err != nil {

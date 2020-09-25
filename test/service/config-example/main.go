@@ -31,6 +31,9 @@ func main() {
 			err = val.Scan(&c.Key)
 			fmt.Println("Value of key.subkey1: ", c.Key.Subkey1, err)
 			fmt.Println("Value of key.subkey2: ", c.Key.Subkey2)
+
+			val, _ = config.Get("key.subkey3")
+			fmt.Println("Value of key.subkey3: ", val.String(""))
 		}
 	}()
 
