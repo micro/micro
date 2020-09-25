@@ -5,10 +5,10 @@ import (
 	"io"
 
 	goclient "github.com/micro/go-micro/v3/client"
-	build "github.com/micro/go-micro/v3/runtime/builder"
 	pb "github.com/micro/micro/v3/proto/runtime/build"
 	"github.com/micro/micro/v3/service/client"
 	"github.com/micro/micro/v3/service/context"
+	build "github.com/micro/micro/v3/service/runtime/builder"
 )
 
 const bufferSize = 100
