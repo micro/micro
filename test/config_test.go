@@ -154,7 +154,7 @@ func testConfigReadFromService(t *T) {
 			return outp, fmt.Errorf("Expected no output, got: %v", string(outp))
 		}
 		// Setting an other key for `val.String` test
-		outp, err = cmd.Exec("config", "set", "--secret", "key.subkey3", "\"Micro Test <test@m3o.com>\"")
+		outp, err = cmd.Exec("config", "set", "key.subkey3", "\"Micro Test <test@m3o.com>\"")
 		if err != nil {
 			return outp, err
 		}
