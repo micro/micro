@@ -11,12 +11,17 @@ set -e
 # safety first
 kubectl config use-context kind-kind
 
-if [[ ! -d $TMPDIR/micro-kind ]]; then
-  mkdir $TMPDIR/micro-kind
-  cp -R $DIR/../* $TMPDIR/micro-kind/
+tmp=$TMPDIR
+if [[ ! $tmp ]]; then
+  $tmp=/tmp
 fi
 
-pushd $TMPDIR/micro-kind
+if [[ ! -d $tmp/micro-kind ]]; then
+  mkdir $tmp/micro-kind
+  cp -R $DIR/../* $tmp/micro-kind/
+fi
+
+pushd $tmp/micro-kind
 yq write -i platform/kubernetes/service/router.yaml "spec.template.spec.containers[0].env.(name==MICRO_ENABLE_ACME).value" --tag '!!str' 'false'
 yq write -i platform/kubernetes/service/proxy.yaml "spec.template.spec.containers[0].env.(name==MICRO_ENABLE_ACME).value" --tag '!!str' 'false'
 yq delete -i platform/kubernetes/service/proxy.yaml "spec.template.spec.containers[0].env.(name==CF_API_TOKEN)"
