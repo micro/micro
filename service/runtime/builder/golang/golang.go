@@ -1,8 +1,6 @@
 package golang
 
 import (
-	"archive/tar"
-	"archive/zip"
 	"bytes"
 	"errors"
 	"fmt"
@@ -14,6 +12,8 @@ import (
 
 	"github.com/micro/go-micro/v3/runtime/local"
 	"github.com/micro/micro/v3/service/runtime/builder"
+	"github.com/micro/micro/v3/service/runtime/util/tar"
+	"github.com/micro/micro/v3/service/runtime/util/zip"
 )
 
 // NewBuilder returns a golang builder which can build a go binary given some source
@@ -55,9 +55,9 @@ func (g *golang) Build(src io.Reader, opts ...builder.Option) (io.Reader, error)
 	case "":
 		err = writeFile(src, dir)
 	case "tar":
-		err = unarchiveTar(src, dir)
+		err = tar.Unarchive(src, dir)
 	case "zip":
-		err = unarchiveZip(src, dir)
+		err = zip.Unarchive(src, dir)
 	default:
 		return nil, errors.New("Invalid Archive")
 	}
@@ -103,72 +103,6 @@ func writeFile(src io.Reader, dir string) error {
 	// os.ModeTemp. This is okay because we delete all the files in the tmp dir at the end of this
 	// function.
 	return ioutil.WriteFile(filepath.Join(dir, "main.go"), bytes, os.ModePerm)
-}
-
-// unarchiveTar decodes the source in a tar and writes it to a directory
-func unarchiveTar(src io.Reader, dir string) error {
-	tr := tar.NewReader(src)
-	for {
-		hdr, err := tr.Next()
-		if err == io.EOF {
-			break
-		} else if err != nil {
-			return err
-		}
-
-		path := filepath.Join(dir, hdr.Name)
-		bytes, err := ioutil.ReadAll(tr)
-		if err != nil {
-			return err
-		}
-
-		if err := ioutil.WriteFile(path, bytes, os.ModePerm); err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
-// unarchiveZip decodes the source in a zip and writes it to a directory
-func unarchiveZip(src io.Reader, dir string) error {
-	// create a new buffer with the source, this is required because zip.NewReader takes a io.ReaderAt
-	// and not an io.Reader
-	buff := bytes.NewBuffer([]byte{})
-	size, err := io.Copy(buff, src)
-	if err != nil {
-		return err
-	}
-
-	// create the zip
-	reader := bytes.NewReader(buff.Bytes())
-	zip, err := zip.NewReader(reader, size)
-	if err != nil {
-		return err
-	}
-
-	// write the files in the zip to our tmp dir
-	for _, f := range zip.File {
-		rc, err := f.Open()
-		if err != nil {
-			return err
-		}
-
-		bytes, err := ioutil.ReadAll(rc)
-		if err != nil {
-			return err
-		}
-
-		path := filepath.Join(dir, f.Name)
-		if err := ioutil.WriteFile(path, bytes, os.ModePerm); err != nil {
-			return err
-		}
-
-		if err := rc.Close(); err != nil {
-			return err
-		}
-	}
-
-	return nil
 }
 
 // locateGo locates the go command
