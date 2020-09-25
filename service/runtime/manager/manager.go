@@ -107,6 +107,9 @@ func (m *manager) Read(opts ...runtime.ReadOption) ([]*runtime.Service, error) {
 		if s.Status != gorun.Unknown {
 			result[i].Status = s.Status
 		}
+		if len(s.Error) > 0 {
+			result[i].Metadata["error"] = s.Error
+		}
 
 		// set the last updated, todo: check why this is 'started' and not 'updated'. Consider adding
 		// this as an attribute on runtime.Service
@@ -202,7 +205,7 @@ func (m *manager) Delete(srv *runtime.Service, opts ...runtime.DeleteOption) err
 	}
 
 	// delete from the underlying runtime
-	if err := m.Runtime.Delete(srv); err != nil {
+	if err := m.Runtime.Delete(srv); err != nil && err != runtime.ErrNotFound {
 		return err
 	}
 

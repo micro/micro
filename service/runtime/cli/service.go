@@ -43,8 +43,7 @@ var (
 	// DefaultRetries which should be attempted when starting a service
 	DefaultRetries = 3
 	// DefaultImage which should be run
-	// DefaultImage = "micro/cells:micro"
-	DefaultImage = "localhost:5000/cells:micro"
+	DefaultImage = "micro/cells:micro"
 	// Git orgs we currently support for credentials
 	GitOrgs = []string{"github", "bitbucket", "gitlab"}
 )

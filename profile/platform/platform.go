@@ -17,7 +17,7 @@ import (
 	"github.com/micro/go-micro/v3/store/s3"
 	"github.com/micro/micro/v3/profile"
 	"github.com/micro/micro/v3/service/logger"
-	buildSrv "github.com/micro/micro/v3/service/runtime/builder/client"
+	"github.com/micro/micro/v3/service/runtime/builder/golang"
 	"github.com/urfave/cli/v2"
 
 	microAuth "github.com/micro/micro/v3/service/auth"
@@ -82,8 +82,13 @@ var Profile = &profile.Profile{
 			}
 		}
 
+		// microBuilder.DefaultBuilder = buildSrv.NewBuilder()
+		microBuilder.DefaultBuilder, err = golang.NewBuilder()
+		if err != nil {
+			logger.Fatalf("Error configuring golang builder: %v", err)
+		}
+
 		microRuntime.DefaultRuntime = kubernetes.NewRuntime()
-		microBuilder.DefaultBuilder = buildSrv.NewBuilder()
 		microEvents.DefaultStore = evStore.NewStore(evStore.WithStore(microStore.DefaultStore))
 		return nil
 	},

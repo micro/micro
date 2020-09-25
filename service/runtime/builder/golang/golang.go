@@ -10,7 +10,6 @@ import (
 	"os/exec"
 	"path/filepath"
 
-	"github.com/micro/go-micro/v3/runtime/local"
 	"github.com/micro/micro/v3/service/runtime/builder"
 	"github.com/micro/micro/v3/service/runtime/util/tar"
 	"github.com/micro/micro/v3/service/runtime/util/zip"
@@ -65,25 +64,20 @@ func (g *golang) Build(src io.Reader, opts ...builder.Option) (io.Reader, error)
 		return nil, err
 	}
 
-	// determine the entrypoint if one wasn't provided
-	if len(options.Entrypoint) == 0 {
-		ep, err := local.Entrypoint(dir)
-		if err != nil {
-			return nil, err
-		}
-		options.Entrypoint = ep
-	}
-
 	// build the binary
-	cmd := exec.Command(g.cmdPath, "build", "-o", "micro_build", filepath.Dir(options.Entrypoint))
+	cmd := exec.Command(g.cmdPath, "build", "-o", "micro_build", ".")
 	cmd.Env = append(os.Environ(), "GO111MODULE=auto")
-	cmd.Dir = dir
+	cmd.Dir = filepath.Join(dir, options.Entrypoint)
+
+	outp := bytes.NewBuffer(nil)
+	cmd.Stderr = outp
+
 	if err := cmd.Run(); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("%v: %v", err, outp.String())
 	}
 
 	// read the bytes from the file
-	dst, err := ioutil.ReadFile(filepath.Join(dir, "micro_build"))
+	dst, err := ioutil.ReadFile(filepath.Join(cmd.Dir, "micro_build"))
 	if err != nil {
 		return nil, err
 	}

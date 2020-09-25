@@ -39,3 +39,7 @@ require (
 )
 
 replace google.golang.org/grpc => google.golang.org/grpc v1.26.0
+
+replace github.com/micro/micro/profile/platform/v3 => ./profile/platform
+
+replace github.com/micro/go-micro/v3 => ../go-micro

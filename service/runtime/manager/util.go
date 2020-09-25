@@ -21,6 +21,7 @@ import (
 )
 
 func (m *manager) buildAndRun(srv *service) {
+	logger.Infof("Building source %v", srv.Service.Source)
 	// set the service status to building
 	srv.Status = runtime.Building
 	m.writeService(srv)
@@ -80,7 +81,8 @@ func (m *manager) buildAndRun(srv *service) {
 	// which the cell (container) can then pull via the Runtime.Build.Read RPC.
 	if m.Runtime.String() != "local" {
 		nsOpt := gostore.BlobNamespace(srv.Options.Namespace)
-		if err := store.DefaultBlobStore.Write(srv.Service.Source, build, nsOpt); err != nil {
+		key := fmt.Sprintf("build://%v:%v", srv.Service.Name, srv.Service.Version)
+		if err := store.DefaultBlobStore.Write(key, build, nsOpt); err != nil {
 			handleError(err, "Error uploading build")
 			return
 		}
@@ -90,9 +92,9 @@ func (m *manager) buildAndRun(srv *service) {
 	// this function won't be called for the local runtime.
 	srv.Status = runtime.Starting
 	m.writeService(srv)
-	// if err := m.createServiceInRuntime(srv); err != nil {
-	// 	handleError(err, "Error creating service")
-	// }
+	if err := m.createServiceInRuntime(srv); err != nil {
+		handleError(err, "Error creating service")
+	}
 }
 
 // createServiceInRuntime will add all the required env vars and secrets and then create the service
