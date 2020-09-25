@@ -7,6 +7,8 @@
 #   - yq - https://github.com/mikefarah/yq
 # 
 # Warning: This script will modify some yaml files so please don't commit the modifications
+#!/bin/bash
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 set -e
 set -x
 # safety first
