@@ -8,6 +8,7 @@
 # 
 # Warning: This script will modify some yaml files so please don't commit the modifications
 set -e
+set -x
 # safety first
 kubectl config use-context kind-kind
 
