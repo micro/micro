@@ -43,7 +43,7 @@ func (m *manager) buildAndUpdate(srv *service) {
 	srv.Status = runtime.Starting
 	m.writeService(srv)
 
-	if err := m.Runtime.Update(srv.Service); err != nil {
+	if err := m.updateServiceInRuntime(srv); err != nil {
 		srv.Status = runtime.Error
 		srv.Error = fmt.Sprintf("Error updating service: %v", err)
 		m.writeService(srv)
@@ -120,6 +120,22 @@ func (m *manager) build(srv *service) error {
 	}
 
 	return nil
+}
+
+func (m *manager) updateServiceInRuntime(srv *service) error {
+	// construct the options
+	options := []gorun.UpdateOption{
+		gorun.UpdateEntrypoint(srv.Options.Entrypoint),
+		gorun.UpdateNamespace(srv.Options.Namespace),
+	}
+
+	// add the secrets
+	for key, value := range srv.Options.Secrets {
+		options = append(options, gorun.UpdateSecret(key, value))
+	}
+
+	// update the service
+	return m.Runtime.Update(srv.Service, options...)
 }
 
 // createServiceInRuntime will add all the required env vars and secrets and then create the service

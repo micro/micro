@@ -171,13 +171,13 @@ func (m *manager) Update(srv *runtime.Service, opts ...runtime.UpdateOption) err
 		// the source could be a git remote or a reference to the blob store, parse it before we run
 		// the service
 		var err error
-		srv.Source, err = m.checkoutSource(service)
+		service.Service.Source, err = m.checkoutSource(service)
 		if err != nil {
 			return err
 		}
 
 		// create the service in the underlying runtime
-		if err := m.Runtime.Update(srv); err != nil {
+		if err := m.updateServiceInRuntime(service); err != nil {
 			return err
 		}
 
