@@ -138,6 +138,13 @@ func testConfigReadFromService(t *T) {
 		if string(outp) != "" {
 			return outp, fmt.Errorf("Expected no output, got: %v", string(outp))
 		}
+		outp, err = cmd.Exec("config", "set", "--secret", "key.subkey1", "42")
+		if err != nil {
+			return outp, err
+		}
+		if string(outp) != "" {
+			return outp, fmt.Errorf("Expected no output, got: %v", string(outp))
+		}
 		return outp, err
 	}, 5*time.Second); err != nil {
 		return
@@ -172,6 +179,9 @@ func testConfigReadFromService(t *T) {
 
 		if !strings.Contains(string(outp), "val1") {
 			return outp, fmt.Errorf("Expected val1 in output, got: %v", string(outp))
+		}
+		if !strings.Contains(string(outp), "42") {
+			return outp, fmt.Errorf("Expected output to contain 42, got: %v", string(outp))
 		}
 		return outp, err
 	}, 60*time.Second); err != nil {

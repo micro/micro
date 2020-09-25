@@ -1,8 +1,10 @@
 package config
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
+	"strconv"
 	"strings"
 
 	goclient "github.com/micro/go-micro/v3/client"
@@ -34,6 +36,8 @@ func setConfig(ctx *cli.Context) error {
 		return err
 	}
 
+	v, _ := json.Marshal(parseValue(val))
+
 	// TODO: allow the specifying of a config.Key. This will be service name
 	// The actuall key-val set is a path e.g micro/accounts/key
 	_, err = pb.Set(context.DefaultContext, &proto.SetRequest{
@@ -43,12 +47,30 @@ func setConfig(ctx *cli.Context) error {
 		Path: key,
 		// The value
 		Value: &proto.Value{
-			Data: string(val),
+			Data: string(v),
 			//Format: "json",
 		},
-		Secret: ctx.Bool("secret"),
+		Options: &proto.Options{
+			Secret: ctx.Bool("secret"),
+		},
 	}, goclient.WithAuthToken())
 	return err
+}
+
+func parseValue(s string) interface{} {
+	b, err := strconv.ParseBool(s)
+	if err == nil {
+		return b
+	}
+	f, err := strconv.ParseFloat(s, 64)
+	if err == nil {
+		return f
+	}
+	i, err := strconv.ParseInt(s, 10, 64)
+	if err == nil {
+		return i
+	}
+	return s
 }
 
 func getConfig(ctx *cli.Context) error {
@@ -75,8 +97,10 @@ func getConfig(ctx *cli.Context) error {
 		// The current namespace,
 		Namespace: ns,
 		// The actual key for the val
-		Path:   key,
-		Secret: ctx.Bool("secret"),
+		Path: key,
+		Options: &proto.Options{
+			Secret: ctx.Bool("secret"),
+		},
 	}, goclient.WithAuthToken())
 	if err != nil {
 		return err

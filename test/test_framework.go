@@ -385,7 +385,7 @@ func (s *ServerDefault) Run() error {
 		}
 
 		return out, err
-	}, 20*time.Second); err != nil {
+	}, 90*time.Second); err != nil {
 		return err
 	}
 
@@ -444,6 +444,8 @@ type T struct {
 	values  []interface{}
 	t       *testing.T
 	attempt int
+	waiting bool
+	started time.Time
 }
 
 // Failed indicate whether the test failed
@@ -496,7 +498,10 @@ func doPanic() {
 
 func (t *T) Parallel() {
 	if t.counter == 0 && isParallel {
+		t.waiting = true
 		t.t.Parallel()
+		t.started = time.Now()
+		t.waiting = false
 	}
 	t.counter++
 }
@@ -509,8 +514,8 @@ func New(t *testing.T) *T {
 // TrySuite is designed to retry a TestXX function
 func TrySuite(t *testing.T, f func(t *T), times int) {
 	t.Helper()
+	caller := strings.Split(getFrame(1).Function, ".")[2]
 	if len(testFilter) > 0 {
-		caller := strings.Split(getFrame(1).Function, ".")[2]
 		runit := false
 		for _, test := range testFilter {
 			if test == caller {
@@ -522,24 +527,60 @@ func TrySuite(t *testing.T, f func(t *T), times int) {
 			t.Skip()
 		}
 	}
-
-	tee := New(t)
-	for i := 0; i < times; i++ {
-		wrapF(tee, f)
-		if !tee.failed {
-			return
-		}
-		if i != times-1 {
-			tee.failed = false
-		}
-		tee.attempt++
-		time.Sleep(200 * time.Millisecond)
+	timeout := os.Getenv("MICRO_TEST_TIMEOUT")
+	td, err := time.ParseDuration(timeout)
+	if err != nil {
+		td = 3 * time.Minute
 	}
-	if tee.failed {
-		if len(tee.format) > 0 {
-			t.Fatalf(tee.format, tee.values...)
-		} else {
-			t.Fatal(tee.values...)
+	timeoutCh := time.After(td)
+	done := make(chan bool)
+	start := time.Now()
+	tee := New(t)
+	go func() {
+		for i := 0; i < times; i++ {
+			wrapF(tee, f)
+			if !tee.failed {
+				done <- true
+				return
+			}
+			if i != times-1 {
+				tee.failed = false
+			}
+			tee.attempt++
+			time.Sleep(200 * time.Millisecond)
+		}
+		if tee.failed {
+			if len(tee.format) > 0 {
+				t.Fatalf(tee.format, tee.values...)
+			} else {
+				t.Fatal(tee.values...)
+			}
+			done <- true
+		}
+	}()
+	for {
+		select {
+		case <-timeoutCh:
+			if tee.waiting {
+				// not started yet, let's check back later
+				timeoutCh = time.After(td)
+				continue
+			}
+			if !tee.started.IsZero() && time.Since(tee.started) < td {
+				// not timed out since the actual start time, reset
+				timeoutCh = time.After(td - time.Since(tee.started))
+				continue
+			}
+			_, file, line, _ := runtime.Caller(1)
+			fname := filepath.Base(file)
+			actualStart := start
+			if !tee.started.IsZero() {
+				actualStart = tee.started
+			}
+			t.Fatalf("%v:%v, %v (failed after %v)", fname, line, caller, time.Since(actualStart))
+			return
+		case <-done:
+			return
 		}
 	}
 }

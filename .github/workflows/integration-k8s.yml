@@ -29,9 +29,7 @@ jobs:
         echo "::set-output name=date::$(/bin/date -u "+%Y%m%d")"
       shell: bash
     - name: Enable caching
-      # We would use the official actions/cache@v2, but it doesn't save the cache if the build fails
-      # caches are scoped to a branch but will also check the default branch upon cache miss
-      uses: pat-s/always-upload-cache@v2.0.0 
+      uses: actions/cache@v2
       with:
         path: ~/go/pkg/mod
         key: ${{ runner.os }}-go-kind-${{ steps.get-date.outputs.date }}
@@ -84,9 +82,7 @@ jobs:
         bash .github/workflows/update-image.sh
     # cache the prereqs
     - name: Cache pre-reqs
-      # We would use the official actions/cache@v2, but it doesn't save the cache if the build fails
-      # caches are scoped to a branch but will also check the default branch upon cache miss
-      uses: pat-s/always-upload-cache@v2.0.0 
+      uses: actions/cache@v2
       with:
         path: ./cfssl
         key: ${{ runner.os }}-kind-cfssl
@@ -119,4 +115,4 @@ jobs:
           # Generate keys for JWT tests
           ssh-keygen -f /tmp/sshkey -m pkcs8 -q -N ""
           ssh-keygen -f /tmp/sshkey -e  -m pkcs8 > /tmp/sshkey.pub
-          go clean -testcache && go test --tags=integration,kind -v ./... -timeout 20m
+          go clean -testcache && GOMAXPROCS=4 go test --tags=integration,kind -v ./... -timeout 20m

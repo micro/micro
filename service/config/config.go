@@ -29,3 +29,5 @@ func Set(path string, val interface{}, options ...Option) error {
 func Delete(path string, options ...Option) error {
 	return DefaultConfig.Delete(path, options...)
 }
+
+var Secret = config.Secret
