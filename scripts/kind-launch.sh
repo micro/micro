@@ -11,6 +11,12 @@ set -e
 # safety first
 kubectl config use-context kind-kind
 
+if [[ ! -d $TMPDIR/micro-kind ]]; then
+  mkdir $TMPDIR/micro-kind
+  cp -R $DIR/../* $TMPDIR/micro-kind/
+fi
+
+pushd $TMPDIR/micro-kind
 yq write -i platform/kubernetes/service/router.yaml "spec.template.spec.containers[0].env.(name==MICRO_ENABLE_ACME).value" --tag '!!str' 'false'
 yq write -i platform/kubernetes/service/proxy.yaml "spec.template.spec.containers[0].env.(name==MICRO_ENABLE_ACME).value" --tag '!!str' 'false'
 yq delete -i platform/kubernetes/service/proxy.yaml "spec.template.spec.containers[0].env.(name==CF_API_TOKEN)"
@@ -23,5 +29,7 @@ kubectl apply -f scripts/kind/metrics/components.yaml
 
 pushd platform/kubernetes
 ./install.sh dev
-kubectl wait deployment --all --timeout=180s -n default --for=condition=available 
+kubectl wait deployment --all --timeout=180s -n default --for=condition=available
+popd
+
 popd
