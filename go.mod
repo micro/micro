@@ -5,7 +5,6 @@ go 1.13
 require (
 	github.com/blang/semver v3.5.1+incompatible
 	github.com/boltdb/bolt v1.3.1
-	github.com/bradfitz/gomemcache v0.0.0-20190913173617-a41fca850d0b // indirect
 	github.com/chzyer/logex v1.1.10 // indirect
 	github.com/chzyer/readline v0.0.0-20180603132655-2972be24d48e
 	github.com/chzyer/test v0.0.0-20180213035817-a1ea475d72b1 // indirect
@@ -20,10 +19,8 @@ require (
 	github.com/gorilla/handlers v1.4.2
 	github.com/gorilla/mux v1.7.3
 	github.com/hashicorp/go-version v1.2.1
-	github.com/imdario/mergo v0.3.9 // indirect
 	github.com/juju/fslock v0.0.0-20160525022230-4d5c94c67b4b
-	github.com/micro/go-micro v1.18.0 // indirect
-	github.com/micro/go-micro/v3 v3.0.0-beta.2.0.20200925090249-4028e0156b3f
+	github.com/micro/go-micro/v3 v3.0.0-beta.2.0.20200924134216-1c358b41b897
 	github.com/olekukonko/tablewriter v0.0.4
 	github.com/onsi/ginkgo v1.12.0 // indirect
 	github.com/patrickmn/go-cache v2.1.0+incompatible
@@ -42,3 +39,4 @@ require (
 )
 
 replace google.golang.org/grpc => google.golang.org/grpc v1.26.0
+replace github.com/micro/go-micro/v3 => ../go-micro
