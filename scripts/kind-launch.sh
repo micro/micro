@@ -13,7 +13,7 @@ kubectl config use-context kind-kind
 
 tmp=$TMPDIR
 if [[ ! $tmp ]]; then
-  $tmp=/tmp
+  tmp=/tmp
 fi
 
 if [[ ! -d $tmp/micro-kind ]]; then

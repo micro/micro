@@ -3,7 +3,7 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
 tmp=$TMPDIR
 if [[ ! $tmp ]]; then
-  $tmp=/tmp
+  tmp=/tmp
 fi
 
 if [[ ! -d $tmp/micro-kind ]]; then
