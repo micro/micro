@@ -3,7 +3,9 @@ module github.com/micro/micro/profile/platform/v3
 go 1.15
 
 require (
-	github.com/micro/go-micro/v3 v3.0.0-beta.2.0.20200918132042-8975184b88a7
+	github.com/coreos/go-semver v0.3.0 // indirect
+	github.com/coreos/pkg v0.0.0-20180928190104-399ea9e2e55f // indirect
+	github.com/micro/go-micro/v3 v3.0.0-beta.2.0.20200924094507-c23a43372c97
 	github.com/micro/go-plugins/broker/nats/v3 v3.0.0-20200908121001-4ea6f6760baf
 	github.com/micro/go-plugins/events/stream/nats/v3 v3.0.0-20200908121001-4ea6f6760baf
 	github.com/micro/go-plugins/metrics/prometheus/v3 v3.0.0-20200908121001-4ea6f6760baf

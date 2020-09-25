@@ -20,14 +20,13 @@ import (
 	"github.com/micro/go-micro/v3/router"
 	regRouter "github.com/micro/go-micro/v3/router/registry"
 	"github.com/micro/go-micro/v3/router/static"
-	"github.com/micro/go-micro/v3/runtime"
 	"github.com/micro/go-micro/v3/runtime/kubernetes"
 	"github.com/micro/go-micro/v3/runtime/local"
 	"github.com/micro/go-micro/v3/server"
 	"github.com/micro/go-micro/v3/store/file"
 	mem "github.com/micro/go-micro/v3/store/memory"
 	"github.com/micro/micro/v3/service/logger"
-	buildSrv "github.com/micro/micro/v3/service/runtime/builder/client"
+	"github.com/micro/micro/v3/service/runtime/builder/golang"
 	"github.com/urfave/cli/v2"
 
 	inAuth "github.com/micro/micro/v3/internal/auth"
@@ -40,6 +39,7 @@ import (
 	microRegistry "github.com/micro/micro/v3/service/registry"
 	microRouter "github.com/micro/micro/v3/service/router"
 	microRuntime "github.com/micro/micro/v3/service/runtime"
+	microBuilder "github.com/micro/micro/v3/service/runtime/builder"
 	microServer "github.com/micro/micro/v3/service/server"
 	microStore "github.com/micro/micro/v3/service/store"
 )
@@ -115,6 +115,11 @@ var Local = &Profile{
 			logger.Fatalf("Error configuring file blob store: %v", err)
 		}
 
+		microBuilder.DefaultBuilder, err = golang.NewBuilder()
+		if err != nil {
+			logger.Fatalf("Error configuring golang builder: %v", err)
+		}
+
 		return nil
 	},
 }
@@ -127,7 +132,7 @@ var Kubernetes = &Profile{
 		// using a static router so queries are routed based on service name
 		microRouter.DefaultRouter = static.NewRouter()
 		// Using the kubernetes runtime
-		microRuntime.DefaultRuntime = kubernetes.NewRuntime(runtime.WithBuilder(buildSrv.NewBuilder()))
+		microRuntime.DefaultRuntime = kubernetes.NewRuntime()
 		// registry kubernetes
 		// config configmap
 		// store ...
