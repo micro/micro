@@ -32,7 +32,9 @@ func (m *srv) Get(path string, options ...config.Option) (config.Value, error) {
 	req, err := m.client.Get(context.DefaultContext, &proto.GetRequest{
 		Namespace: m.namespace,
 		Path:      path,
-		Secret:    o.Secret,
+		Options: &proto.Options{
+			Secret: o.Secret,
+		},
 	}, goclient.WithAuthToken())
 	if verr := errors.Parse(err); verr != nil && verr.Code == http.StatusNotFound {
 		return nullValue, nil
@@ -52,9 +54,11 @@ func (m *srv) Set(path string, value interface{}, options ...config.Option) erro
 	_, err := m.client.Set(context.DefaultContext, &proto.SetRequest{
 		Namespace: m.namespace,
 		Path:      path,
-		Secret:    o.Secret,
 		Value: &proto.Value{
 			Data: string(dat),
+		},
+		Options: &proto.Options{
+			Secret: o.Secret,
 		},
 	}, goclient.WithAuthToken())
 	return err
