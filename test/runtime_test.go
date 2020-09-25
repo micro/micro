@@ -603,7 +603,7 @@ func testRunParentFolder(t *T) {
 		return
 	}
 	// This should point to master, but GOPROXY is not on in the runtime. Remove later.
-	if _, err := f.WriteString("\nreplace github.com/micro/go-micro/v3 => github.com/micro/go-micro/v3 v3.0.0-beta.2.0.20200922112322-927d4f8eced6"); err != nil {
+	if _, err := f.WriteString("\nreplace github.com/micro/go-micro/v3 => github.com/micro/go-micro/v3 v3.0.0-beta.2.0.20200924134216-1c358b41b897"); err != nil {
 		t.Fatal(string(outp))
 		return
 	}
