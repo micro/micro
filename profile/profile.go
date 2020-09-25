@@ -26,7 +26,6 @@ import (
 	"github.com/micro/go-micro/v3/store/file"
 	mem "github.com/micro/go-micro/v3/store/memory"
 	"github.com/micro/micro/v3/service/logger"
-	"github.com/micro/micro/v3/service/runtime/builder/golang"
 	"github.com/urfave/cli/v2"
 
 	inAuth "github.com/micro/micro/v3/internal/auth"
@@ -39,7 +38,6 @@ import (
 	microRegistry "github.com/micro/micro/v3/service/registry"
 	microRouter "github.com/micro/micro/v3/service/router"
 	microRuntime "github.com/micro/micro/v3/service/runtime"
-	microBuilder "github.com/micro/micro/v3/service/runtime/builder"
 	microServer "github.com/micro/micro/v3/service/server"
 	microStore "github.com/micro/micro/v3/service/store"
 )
@@ -113,11 +111,6 @@ var Local = &Profile{
 		microStore.DefaultBlobStore, err = file.NewBlobStore()
 		if err != nil {
 			logger.Fatalf("Error configuring file blob store: %v", err)
-		}
-
-		microBuilder.DefaultBuilder, err = golang.NewBuilder()
-		if err != nil {
-			logger.Fatalf("Error configuring golang builder: %v", err)
 		}
 
 		return nil

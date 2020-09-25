@@ -7,6 +7,7 @@ import (
 	"github.com/micro/micro/v3/internal/namespace"
 	"github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/runtime"
+	"github.com/micro/micro/v3/service/runtime/builder"
 	"github.com/micro/micro/v3/service/runtime/manager/util"
 )
 
@@ -36,13 +37,34 @@ func (m *manager) Create(srv *runtime.Service, opts ...runtime.CreateOption) err
 		UpdatedAt: time.Now(),
 	}
 
-	// create the service in the underlying runtime
-	if err := m.createServiceInRuntime(service); err != nil && err != runtime.ErrAlreadyExists {
+	// if there is not a builder configured, start the service and then write it to the store
+	if builder.DefaultBuilder == nil {
+		// the source could be a git remote or a reference to the blob store, parse it before we run
+		// the service
+		var err error
+		srv.Source, err = m.checkoutSource(service)
+		if err != nil {
+			return err
+		}
+
+		// create the service in the underlying runtime
+		if err := m.createServiceInRuntime(service); err != nil && err != runtime.ErrAlreadyExists {
+			return err
+		}
+
+		// write the object to the store
+		return m.writeService(service)
+	}
+
+	// building ths service can take some time so we'll write the service to the store and then
+	// perform the build process async
+	service.Status = gorun.Pending
+	if err := m.writeService(service); err != nil {
 		return err
 	}
 
-	// write the object to the store
-	return m.writeService(service)
+	go m.buildAndRun(service)
+	return nil
 }
 
 // Read returns the service which matches the criteria provided

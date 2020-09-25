@@ -16,8 +16,9 @@ import (
 type service struct {
 	Service   *runtime.Service       `json:"service"`
 	Options   *runtime.CreateOptions `json:"options"`
-	UpdatedAt time.Time              `json:"last_updated"`
 	Status    runtime.ServiceStatus  `json:"status"`
+	UpdatedAt time.Time              `json:"last_updated"`
+	Error     string                 `json:"error"`
 }
 
 const (

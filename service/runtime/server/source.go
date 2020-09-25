@@ -7,6 +7,7 @@ import (
 	"io"
 
 	"github.com/google/uuid"
+	gostore "github.com/micro/go-micro/v3/store"
 	authns "github.com/micro/micro/v3/internal/auth/namespace"
 	"github.com/micro/micro/v3/internal/namespace"
 	pb "github.com/micro/micro/v3/proto/runtime"
@@ -57,7 +58,8 @@ func (s *Source) Upload(ctx context.Context, stream pb.Source_UploadStream) erro
 
 	// write the source to the store
 	key := "source://" + uuid.New().String()
-	if err := store.DefaultBlobStore.Write(key, buf); err != nil {
+	opt := gostore.BlobNamespace(namespace)
+	if err := store.DefaultBlobStore.Write(key, buf, opt); err != nil {
 		return fmt.Errorf("Error writing source to blob store: %v", err)
 	}
 

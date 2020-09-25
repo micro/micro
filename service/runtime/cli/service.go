@@ -125,7 +125,7 @@ func sourceExists(source *git.Source) error {
 			return err
 		}
 		if resp.StatusCode >= 400 && resp.StatusCode < 500 {
-			return fmt.Errorf("service at %v@%v not found", source.Repo, ref)
+			return fmt.Errorf("service at %v@%v not found", source.RuntimeSource(), ref)
 		}
 		return nil
 	}
