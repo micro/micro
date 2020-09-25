@@ -21,6 +21,36 @@ import (
 )
 
 func (m *manager) buildAndRun(srv *service) {
+	if err := m.build(srv); err != nil {
+		return
+	}
+
+	srv.Status = runtime.Starting
+	m.writeService(srv)
+
+	if err := m.createServiceInRuntime(srv); err != nil {
+		srv.Status = runtime.Error
+		srv.Error = fmt.Sprintf("Error creating service: %v", err)
+		m.writeService(srv)
+	}
+}
+
+func (m *manager) buildAndUpdate(srv *service) {
+	if err := m.build(srv); err != nil {
+		return
+	}
+
+	srv.Status = runtime.Starting
+	m.writeService(srv)
+
+	if err := m.Runtime.Update(srv.Service); err != nil {
+		srv.Status = runtime.Error
+		srv.Error = fmt.Sprintf("Error updating service: %v", err)
+		m.writeService(srv)
+	}
+}
+
+func (m *manager) build(srv *service) error {
 	logger.Infof("Building source %v", srv.Service.Source)
 	// set the service status to building
 	srv.Status = runtime.Building
@@ -45,6 +75,7 @@ func (m *manager) buildAndRun(srv *service) {
 		gitSrc, err := git.ParseSource(srv.Service.Source)
 		if err != nil {
 			handleError(err, "Error parsing git source")
+			return err
 		}
 		if len(srv.Options.Entrypoint) == 0 {
 			srv.Options.Entrypoint = gitSrc.Folder
@@ -54,7 +85,7 @@ func (m *manager) buildAndRun(srv *service) {
 		dir, err := git.CheckoutSource(gitSrc, srv.Options.Secrets)
 		if err != nil {
 			handleError(err, "Error fetching git source")
-			return
+			return err
 		}
 
 		// archive the source so it can be passed to the builder
@@ -62,7 +93,7 @@ func (m *manager) buildAndRun(srv *service) {
 	}
 	if err != nil {
 		handleError(err, "Error loading source")
-		return
+		return err
 	}
 
 	// build the source. TODO: detect the m3o/services repo and override to use the local golang builder
@@ -73,7 +104,7 @@ func (m *manager) buildAndRun(srv *service) {
 	)
 	if err != nil {
 		handleError(err, "Error building service")
-		return
+		return err
 	}
 
 	// for the kubernetes runtime, the container needs to pull the source (it's not got access to the
@@ -84,17 +115,11 @@ func (m *manager) buildAndRun(srv *service) {
 		key := fmt.Sprintf("build://%v:%v", srv.Service.Name, srv.Service.Version)
 		if err := store.DefaultBlobStore.Write(key, build, nsOpt); err != nil {
 			handleError(err, "Error uploading build")
-			return
+			return err
 		}
 	}
 
-	// start the service. TODO: find a way of running binaries in the local runtime, at the moment,
-	// this function won't be called for the local runtime.
-	srv.Status = runtime.Starting
-	m.writeService(srv)
-	if err := m.createServiceInRuntime(srv); err != nil {
-		handleError(err, "Error creating service")
-	}
+	return nil
 }
 
 // createServiceInRuntime will add all the required env vars and secrets and then create the service

@@ -334,7 +334,9 @@ func updateService(ctx *cli.Context) error {
 	if err != nil {
 		return err
 	}
-	source, err := git.ParseSourceLocal(wd, appendSourceBase(ctx, wd, ctx.Args().Get(0)))
+
+	// determine the type of source input, i.e. is it a local folder or a remote git repo
+	source, err := git.ParseSourceLocal(wd, appendSourceBase(ctx, wd, ctx.Args().First()))
 	if err != nil {
 		return err
 	}
@@ -345,7 +347,6 @@ func updateService(ctx *cli.Context) error {
 			return err
 		}
 	}
-
 	var runtimeSource string
 	if source.Local {
 		// for local source, upload it to the server and use the resulting source ID
@@ -356,6 +357,13 @@ func updateService(ctx *cli.Context) error {
 	} else {
 		// if we're running a remote git repository, pass this as the source
 		runtimeSource = source.RuntimeSource()
+	}
+
+	// for local source, the srv.Source attribute will be remapped to the id of the source upload.
+	// however this won't make sense from a user experience perspective, so we'll pass the argument
+	// they used in metadata, e.g. ./helloworld
+	metadata := map[string]string{
+		"source": source.RuntimeSource(),
 	}
 
 	// when the repo root doesn't match the full path (e.g. in cases where a mono-repo is being
@@ -380,9 +388,10 @@ func updateService(ctx *cli.Context) error {
 	}
 
 	return runtime.Update(&runtime.Service{
-		Name:    source.RuntimeName(),
-		Source:  runtimeSource,
-		Version: source.Ref,
+		Name:     source.RuntimeName(),
+		Source:   runtimeSource,
+		Version:  source.Ref,
+		Metadata: metadata,
 	}, opts...)
 }
 

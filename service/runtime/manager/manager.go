@@ -161,18 +161,40 @@ func (m *manager) Update(srv *runtime.Service, opts ...runtime.UpdateOption) err
 		return gorun.ErrNotFound
 	}
 
-	// update the service in the underlying runtime
-	if err := m.Runtime.Update(srv, opts...); err != nil {
+	// update the service
+	service := srvs[0]
+	service.Service.Source = srv.Source
+	service.UpdatedAt = time.Now()
+
+	// if there is not a builder configured, update the service and then write it to the store
+	if builder.DefaultBuilder == nil {
+		// the source could be a git remote or a reference to the blob store, parse it before we run
+		// the service
+		var err error
+		srv.Source, err = m.checkoutSource(service)
+		if err != nil {
+			return err
+		}
+
+		// create the service in the underlying runtime
+		if err := m.Runtime.Update(srv); err != nil {
+			return err
+		}
+
+		// write the object to the store
+		service.Status = runtime.Starting
+		service.Error = ""
+		return m.writeService(service)
+	}
+
+	// building ths service can take some time so we'll write the service to the store and then
+	// perform the build process async
+	service.Status = gorun.Pending
+	if err := m.writeService(service); err != nil {
 		return err
 	}
 
-	// update the service in the store
-	service := srvs[0]
-	service.UpdatedAt = time.Now()
-	if err := m.writeService(service); err != nil {
-		logger.Errorf("error saving service: %v", err)
-	}
-
+	go m.buildAndUpdate(service)
 	return nil
 }
 
