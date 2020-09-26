@@ -99,3 +99,7 @@ If you're interested in a hosted version of Micro see [m3o.com](https://m3o.com)
 ## Commercial Use
 
 If you want to sell or offer Micro as a Service please email [contact@m3o.com](mailto:contact@m3o.com)
+
+## Community
+
+Join us on [slack](https://slack.micro.mu) or follow us on [Twitter](https://twitter.com/microhq)
