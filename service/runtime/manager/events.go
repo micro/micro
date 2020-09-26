@@ -2,6 +2,7 @@ package manager
 
 import (
 	"encoding/json"
+	"fmt"
 	"strings"
 	"time"
 
@@ -155,6 +156,10 @@ func (m *manager) processEvent(key string) {
 		ev.Service.Metadata = map[string]string{"error": err.Error()}
 		m.cacheStatus(ns, ev.Service)
 	} else if ev.Type != gorun.Delete {
+		if ev.Service.Metadata == nil {
+			ev.Service.Metadata = map[string]string{}
+		}
+		ev.Service.Metadata["updated"] = fmt.Sprintf("%d", time.Now().Unix())
 		m.cacheStatus(ns, ev.Service)
 	}
 

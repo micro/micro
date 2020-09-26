@@ -45,6 +45,7 @@ func (m *manager) syncStatus() {
 	}
 
 	for _, ns := range namespaces {
+		statuses, _ := m.listStatuses(ns) // ignore error, best efforts
 		srvs, err := runtime.Read(runtime.ReadNamespace(ns))
 		if err != nil {
 			logger.Warnf("Error reading namespace %v: %v", ns, err)
@@ -52,6 +53,10 @@ func (m *manager) syncStatus() {
 		}
 
 		for _, srv := range srvs {
+			s := statuses[srv.Name+":"+srv.Version]
+			if s != nil && !s.Updated.IsZero() {
+				srv.Metadata["updated"] = fmt.Sprintf("%d", s.Updated.Unix())
+			}
 			if err := m.cacheStatus(ns, srv); err != nil {
 				logger.Warnf("Error caching status: %v", err)
 				return
