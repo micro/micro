@@ -1,4 +1,4 @@
-# Platform
+# Micro Platform
 
 This directory serves as platform bootstrapping for Micro.
 
@@ -11,7 +11,24 @@ related source code and documentation.
 
 ## Contents
 
+- [main.go](main.go) - The main program that includes the installer
 - [kubernetes](kubernetes) - include the config to deploy to k8s
+
+## Usage
+
+To install the platform on an existing Kubernetes cluster
+
+```
+platform install
+```
+
+To uninstall
+
+```
+platform uninstall
+```
+
+The installer assumes the kubernetes directory is in the current directory.
 
 ## TODO
 
