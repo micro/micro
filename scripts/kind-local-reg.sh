@@ -1,8 +1,11 @@
 #!/bin/bash
+
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+
 if [[ ! -d $TMPDIR/micro-kind ]]; then
   mkdir $TMPDIR/micro-kind
 fi
+
 # start with a clean dir
 rm -rf $TMPDIR/micro-kind/*
 cp -R $DIR/../* $TMPDIR/micro-kind/
@@ -20,6 +23,6 @@ do
 done
 
 sed_expression="s/: micro\/platform/: localhost:5000\/micro/g"
-sed -e "$sed_expression" -i.bak ./platform/kubernetes/service/*.yaml
+sed -e "$sed_expression" -i.bak $DIR/../cmd/platform/kubernetes/service/*.yaml
 
 popd
