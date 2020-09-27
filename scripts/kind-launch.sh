@@ -41,7 +41,7 @@ yq write -i $KUBE_DIR/service/api.yaml "spec.template.spec.containers[0].ports.(
 # install metrics server
 kubectl apply -f scripts/kind/metrics/components.yaml
 
-pushd $DIR
+pushd $KUBE_DIR
 ./install.sh dev
 kubectl wait deployment --all --timeout=180s -n default --for=condition=available
 popd
