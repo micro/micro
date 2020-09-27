@@ -9,7 +9,7 @@ fi
 if [[ ! -d $tmp/micro-kind ]]; then
   mkdir $tmp/micro-kind
 fi
-rsync -av --exclude=$DIR/platform/kubernetes $DIR/../* $tmp/micro-kind/
+rsync -av --exclude=$DIR/../platform/kubernetes $DIR/../* $tmp/micro-kind/
 
 pushd $tmp/micro-kind
 micro init --profile=platform --output=profile.go
