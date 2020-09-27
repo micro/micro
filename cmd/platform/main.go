@@ -7,16 +7,19 @@ import (
 )
 
 func main() {
-	usage := fmt.Sprintf("%s {install|uninstall}", os.Args[0])
+	usage := fmt.Sprintf("%s {install|uninstall} {dev|staging|platform}", os.Args[0])
 
-	if len(os.Args) == 1 {
+	if len(os.Args) < 3 {
 		fmt.Println(usage)
 		return
 	}
 
 	switch os.Args[1] {
 	case "install", "uninstall":
-		cmd := exec.Command("bash", os.Args[1]+".sh")
+		action := os.Args[1] + ".sh"
+		args := []string{action}
+		args = append(args, os.Args[2:]...)
+		cmd := exec.Command("bash", args...)
 		cmd.Dir = "./kubernetes"
 		cmd.Stdout = os.Stdout
 		cmd.Stderr = os.Stderr
