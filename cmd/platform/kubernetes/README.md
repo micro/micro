@@ -8,7 +8,6 @@ The platform consists of the following
 
 - **resource** - shared resources that must be run to support the platform
 - **service** - the micro services run on top of the shared infra as a platform
-- **server.yaml** - experimental single yaml deployment of a self managed micro server for dev
 
 ## Dependencies
 
