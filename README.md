@@ -1,6 +1,6 @@
 # Micro [![License](https://img.shields.io/badge/license-polyform:shield-blue)](https://polyformproject.org/licenses/shield/1.0.0/) [![Go.Dev reference](https://img.shields.io/badge/go.dev-reference-007d9c?logo=go&logoColor=white&style=flat-square)](https://pkg.go.dev/github.com/micro/micro/v3?tab=overview) [![Travis CI](https://travis-ci.org/micro/micro.svg?branch=master)](https://travis-ci.org/micro/micro) [![Go Report Card](https://goreportcard.com/badge/micro/micro)](https://goreportcard.com/report/github.com/micro/micro) [<img src="https://img.shields.io/badge/slack-micro-yellow.svg?logo=slack" />](https://slack.micro.mu)
 
-Micro is a cloud native development framework built for developers.
+Micro is a Go cloud services development framework.
 
 ## Overview
 
@@ -99,3 +99,7 @@ If you're interested in a hosted version of Micro see [m3o.com](https://m3o.com)
 ## Commercial Use
 
 If you want to sell or offer Micro as a Service please email [contact@m3o.com](mailto:contact@m3o.com)
+
+## Community
+
+Join us on [slack](https://slack.micro.mu) or follow us on [Twitter](https://twitter.com/microhq)
