@@ -2,9 +2,11 @@ package cmd
 
 import (
 	"time"
+	"unicode"
 
 	"github.com/google/uuid"
 	goauth "github.com/micro/go-micro/v3/auth"
+	"github.com/micro/go-micro/v3/errors"
 	"github.com/micro/go-micro/v3/logger"
 	"github.com/micro/micro/v3/client/cli/namespace"
 	clitoken "github.com/micro/micro/v3/client/cli/token"
