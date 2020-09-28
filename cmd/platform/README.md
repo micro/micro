@@ -45,6 +45,12 @@ kubectl set image deployments micro=micro/micro:20200810104423b10609 -l micro=ru
 The -l flag indicates we only want to do this to deployments with the micro=runtime label. 
 The `micro=` part of the argument indicates the container name.
 
+The platform binary bakes in micro with the platform profile. Type help for the micro commands.
+
+```
+platform --help
+```
+
 ## TODO
 
 - Add config - post deployment bootstrapping config
