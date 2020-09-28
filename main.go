@@ -3,11 +3,6 @@ package main
 //go:generate ./scripts/generate.sh
 
 import (
-	"fmt"
-	"os"
-	"unicode"
-
-	"github.com/micro/go-micro/v3/errors"
 	"github.com/micro/micro/v3/cmd"
 
 	// internal packages
