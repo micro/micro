@@ -43,7 +43,7 @@ jobs:
       run: |
         go install
         micro init --profile=platform --output=profile.go
-        go build
+        go install
 
     # We set up a local docker registry to push to and pull from. We need to set up the Kind cluster to pull from this
     # We don't currently cache this because it doesn't seem to speed up the build 

@@ -36,7 +36,7 @@ func setupAuthForCLI(ctx *cli.Context) error {
 	}
 
 	// Check if token is valid
-	if time.Now().Before(tok.Expiry.Add(-15 * time.Second)) {
+	if time.Now().Before(tok.Expiry.Add(time.Minute)) {
 		auth.DefaultAuth.Init(
 			goauth.ClientToken(tok),
 			goauth.Issuer(ns),
@@ -48,6 +48,7 @@ func setupAuthForCLI(ctx *cli.Context) error {
 	tok, err = auth.Token(
 		auth.WithToken(tok.RefreshToken),
 		auth.WithTokenIssuer(ns),
+		auth.WithExpiry(time.Minute*10),
 	)
 	if err != nil {
 		return nil
@@ -135,6 +136,7 @@ func refreshAuthToken() {
 			}
 
 			// set the token
+			logger.Debugf("Auth token refreshed, expires at %v", tok.Expiry.Format(time.UnixDate))
 			auth.DefaultAuth.Init(goauth.ClientToken(tok))
 		}
 	}

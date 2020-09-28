@@ -63,6 +63,11 @@ func Archive(dir string) (io.Reader, error) {
 			return err
 		}
 
+		// don't upload git history
+		if filepath.HasPrefix(relpath, ".git") {
+			return nil
+		}
+
 		// generate and write tar header
 		header, err := tar.FileInfoHeader(info, relpath)
 		if err != nil {
@@ -73,6 +78,7 @@ func Archive(dir string) (io.Reader, error) {
 		// necessary to modify Header.Name to provide the full path name of the file. See:
 		// https://golang.org/src/archive/tar/common.go?s=22088:22153#L626
 		header.Name = relpath
+		fmt.Println("archive", relpath)
 
 		// write the header to the archive
 		if err := tw.WriteHeader(header); err != nil {
