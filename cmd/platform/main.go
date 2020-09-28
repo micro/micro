@@ -17,7 +17,8 @@ import (
 )
 
 var (
-	image = "micro/platform"
+	image   = "micro/platform"
+	profile = "platform"
 )
 
 func main() {
@@ -65,6 +66,9 @@ func main() {
 			return
 		}
 	default:
+		// set the profile
+		os.Setenv("MICRO_PROFILE", profile)
+
 		// run micro by default
 		cmd.Run()
 		return
