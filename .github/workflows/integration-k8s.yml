@@ -82,7 +82,7 @@ jobs:
     - name: Cache pre-reqs
       uses: actions/cache@v2
       with:
-        path: ./cfssl
+        path: /tmp/cfssl
         key: ${{ runner.os }}-kind-cfssl
     - name: Install the prerequisites
       run: |

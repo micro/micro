@@ -1,5 +1,4 @@
 # this script installs the prerequisites to get kind install working
-cd /tmp
 git clone https://github.com/cloudflare/cfssl.git
 pushd cfssl 
 make

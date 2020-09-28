@@ -65,7 +65,7 @@ func Archive(dir string) (io.Reader, error) {
 		}
 
 		// skip non go files
-		if !info.IsDir() && !strings.HasPrefix(relpath, ".go") {
+		if !info.IsDir() && !strings.HasSuffix(relpath, ".go") {
 			fmt.Println("skipping", relpath)
 			return nil
 		}
