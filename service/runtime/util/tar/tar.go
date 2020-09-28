@@ -64,9 +64,13 @@ func Archive(dir string) (io.Reader, error) {
 			return err
 		}
 
+		// skip git files
+		if filepath.HasPrefix(relpath, ".git") {
+			return nil
+		}
+
 		// skip non go files
 		if !info.IsDir() && !strings.HasSuffix(relpath, ".go") {
-			fmt.Println("skipping", relpath)
 			return nil
 		}
 
@@ -80,7 +84,6 @@ func Archive(dir string) (io.Reader, error) {
 		// necessary to modify Header.Name to provide the full path name of the file. See:
 		// https://golang.org/src/archive/tar/common.go?s=22088:22153#L626
 		header.Name = relpath
-		fmt.Println("archive", relpath)
 
 		// write the header to the archive
 		if err := tw.WriteHeader(header); err != nil {
