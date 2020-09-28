@@ -11,6 +11,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 // Unarchive decodes the source in a tar and writes it to a directory
@@ -63,8 +64,9 @@ func Archive(dir string) (io.Reader, error) {
 			return err
 		}
 
-		// don't upload git history
-		if filepath.HasPrefix(relpath, ".git") {
+		// skip non go files
+		if !info.IsDir() && !strings.HasPrefix(relpath, ".go") {
+			fmt.Println("skipping", relpath)
 			return nil
 		}
 

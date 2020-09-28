@@ -201,7 +201,9 @@ func runService(ctx *cli.Context) error {
 	var runtimeSource string
 	if source.Local {
 		// for local source, upload it to the server and use the resulting source ID
+		fmt.Println("UPLOAD STARTING")
 		runtimeSource, err = upload(ctx, source)
+		fmt.Println("UPLOAD FINISHED", err)
 		if err != nil {
 			return err
 		}
