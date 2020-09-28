@@ -13,6 +13,22 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
+func formatErr(err error) string {
+	switch v := err.(type) {
+	case *errors.Error:
+		return upcaseInitial(v.Detail)
+	default:
+		return upcaseInitial(err.Error())
+	}
+}
+
+func upcaseInitial(str string) string {
+	for i, v := range str {
+		return string(unicode.ToUpper(v)) + str[i+1:]
+	}
+	return ""
+}
+
 // setupAuthForCLI handles exchanging refresh tokens to access tokens
 // The structure of the local micro userconfig file is the following:
 // micro.auth.[envName].token: temporary access token

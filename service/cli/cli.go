@@ -38,6 +38,12 @@ import (
 	"github.com/micro/micro/v3/service/handler/exec"
 	"github.com/micro/micro/v3/service/handler/file"
 	"github.com/micro/micro/v3/service/health"
+
+	_ "github.com/micro/micro/v3/service/auth/cli"
+	_ "github.com/micro/micro/v3/service/config/cli"
+	_ "github.com/micro/micro/v3/service/network/cli"
+	_ "github.com/micro/micro/v3/service/runtime/cli"
+	_ "github.com/micro/micro/v3/service/store/cli"
 )
 
 // Run starts a micro service sidecar to encapsulate any app
