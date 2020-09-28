@@ -27,7 +27,11 @@ func databases(ctx *cli.Context) error {
 
 // tables is the entrypoint for micro store tables
 func tables(ctx *cli.Context) error {
-	ns, err := namespace.Get(util.GetEnv(ctx).Name)
+	env, err := util.GetEnv(ctx)
+	if err != nil {
+		return err
+	}
+	ns, err := namespace.Get(env.Name)
 	if err != nil {
 		return err
 	}

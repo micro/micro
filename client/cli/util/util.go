@@ -65,27 +65,31 @@ func IsBuiltInService(command string) bool {
 }
 
 // CLIProxyAddress returns the proxy address which should be set for the client
-func CLIProxyAddress(ctx *cli.Context) string {
+func CLIProxyAddress(ctx *cli.Context) (string, error) {
 	switch ctx.Args().First() {
 	case "new", "server", "help", "env":
-		return ""
+		return "", nil
 	}
 
 	// fix for "micro service [command]", e.g "micro service auth"
 	if ctx.Args().First() == "service" && IsBuiltInService(ctx.Args().Get(1)) {
-		return ""
+		return "", nil
 	}
 
 	// don't set the proxy address on the proxy
 	if ctx.Args().First() == "proxy" {
-		return ""
+		return "", nil
 	}
 
-	addr := GetEnv(ctx).ProxyAddress
-	if !strings.Contains(addr, ":") {
-		return fmt.Sprintf("%v:443", addr)
+	env, err := GetEnv(ctx)
+	if err != nil {
+		return "", err
 	}
-	return addr
+	addr := env.ProxyAddress
+	if !strings.Contains(addr, ":") {
+		return fmt.Sprintf("%v:443", addr), nil
+	}
+	return addr, nil
 }
 
 type Env struct {
@@ -93,56 +97,51 @@ type Env struct {
 	ProxyAddress string
 }
 
-func AddEnv(env Env) {
-	envs := getEnvs()
+func AddEnv(env Env) error {
+	envs, err := getEnvs()
+	if err != nil {
+		return err
+	}
 	envs[env.Name] = env
-	setEnvs(envs)
+	return setEnvs(envs)
 }
 
-func getEnvs() map[string]Env {
+func getEnvs() (map[string]Env, error) {
 	envsJSON, err := config.Get("envs")
 	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+		return nil, fmt.Errorf("Error getting environment: %v", err)
 	}
 	envs := map[string]Env{}
 	if len(envsJSON) > 0 {
 		err := json.Unmarshal([]byte(envsJSON), &envs)
 		if err != nil {
-			fmt.Println(err)
-			os.Exit(1)
+			return nil, err
 		}
 	}
 	for k, v := range defaultEnvs {
 		envs[k] = v
 	}
-	return envs
+	return envs, nil
 }
 
-func setEnvs(envs map[string]Env) {
+func setEnvs(envs map[string]Env) error {
 	envsJSON, err := json.Marshal(envs)
 	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+		return err
 	}
-	err = config.Set("envs", string(envsJSON))
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
+	return config.Set("envs", string(envsJSON))
 }
 
 // GetEnv returns the current selected environment
 // Does not take
-func GetEnv(ctx *cli.Context) Env {
+func GetEnv(ctx *cli.Context) (Env, error) {
 	var envName string
 	if len(ctx.String("env")) > 0 {
 		envName = ctx.String("env")
 	} else {
 		env, err := config.Get("env")
 		if err != nil {
-			fmt.Println(err)
-			os.Exit(1)
+			return Env{}, err
 		}
 		if env == "" {
 			env = EnvLocal
@@ -153,19 +152,23 @@ func GetEnv(ctx *cli.Context) Env {
 	return GetEnvByName(envName)
 }
 
-func GetEnvByName(env string) Env {
-	envs := getEnvs()
-
+func GetEnvByName(env string) (Env, error) {
+	envs, err := getEnvs()
+	if err != nil {
+		return Env{}, err
+	}
 	envir, ok := envs[env]
 	if !ok {
-		fmt.Println(fmt.Sprintf("Env \"%s\" not found. See `micro env` for available environments.", env))
-		os.Exit(1)
+		return Env{}, fmt.Errorf("Env \"%s\" not found. See `micro env` for available environments.", env)
 	}
-	return envir
+	return envir, nil
 }
 
-func GetEnvs() []Env {
-	envs := getEnvs()
+func GetEnvs() ([]Env, error) {
+	envs, err := getEnvs()
+	if err != nil {
+		return nil, err
+	}
 	ret := []Env{defaultEnvs[EnvLocal], defaultEnvs[EnvPlatform]}
 	nonDefaults := []Env{}
 	for _, env := range envs {
@@ -175,34 +178,42 @@ func GetEnvs() []Env {
 	}
 	// @todo order nondefault envs alphabetically
 	ret = append(ret, nonDefaults...)
-	return ret
+	return ret, nil
 }
 
 // SetEnv selects an environment to be used.
-func SetEnv(envName string) {
-	envs := getEnvs()
+func SetEnv(envName string) error {
+	envs, err := getEnvs()
+	if err != nil {
+		return err
+	}
 	_, ok := envs[envName]
 	if !ok {
-		fmt.Printf("Environment '%v' does not exist\n", envName)
-		os.Exit(1)
+		return fmt.Errorf("Environment '%v' does not exist\n", envName)
 	}
-	config.Set("env", envName)
+	return config.Set("env", envName)
 }
 
 // DelEnv deletes an env from config
-func DelEnv(envName string) {
-	envs := getEnvs()
+func DelEnv(envName string) error {
+	envs, err := getEnvs()
+	if err != nil {
+		return err
+	}
 	_, ok := envs[envName]
 	if !ok {
-		fmt.Printf("Environment '%v' does not exist\n", envName)
-		os.Exit(1)
+		return fmt.Errorf("Environment '%v' does not exist\n", envName)
 	}
 	delete(envs, envName)
-	setEnvs(envs)
+	return setEnvs(envs)
 }
 
 func IsPlatform(ctx *cli.Context) bool {
-	return GetEnv(ctx).Name == EnvPlatform
+	env, err := GetEnv(ctx)
+	if err == nil && env.Name == EnvPlatform {
+		return true
+	}
+	return false
 }
 
 type Exec func(*cli.Context, []string) ([]byte, error)

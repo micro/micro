@@ -20,7 +20,11 @@ import (
 func listRules(ctx *cli.Context) error {
 	cli := pb.NewRulesService("auth", client.DefaultClient)
 
-	ns, err := namespace.Get(util.GetEnv(ctx).Name)
+	env, err := util.GetEnv(ctx)
+	if err != nil {
+		return err
+	}
+	ns, err := namespace.Get(env.Name)
 	if err != nil {
 		return fmt.Errorf("Error getting namespace: %v", err)
 	}
@@ -59,7 +63,11 @@ func listRules(ctx *cli.Context) error {
 }
 
 func createRule(ctx *cli.Context) error {
-	ns, err := namespace.Get(util.GetEnv(ctx).Name)
+	env, err := util.GetEnv(ctx)
+	if err != nil {
+		return err
+	}
+	ns, err := namespace.Get(env.Name)
 	if err != nil {
 		return fmt.Errorf("Error getting namespace: %v", err)
 	}
@@ -88,7 +96,11 @@ func deleteRule(ctx *cli.Context) error {
 		return fmt.Errorf("Expected one argument: ID")
 	}
 
-	ns, err := namespace.Get(util.GetEnv(ctx).Name)
+	env, err := util.GetEnv(ctx)
+	if err != nil {
+		return err
+	}
+	ns, err := namespace.Get(env.Name)
 	if err != nil {
 		return fmt.Errorf("Error getting namespace: %v", err)
 	}

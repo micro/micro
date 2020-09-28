@@ -28,7 +28,10 @@ func login(ctx *cli.Context) error {
 	// otherwise assume username/password login
 
 	// get the environment
-	env := util.GetEnv(ctx)
+	env, err := util.GetEnv(ctx)
+	if err != nil {
+		return err
+	}
 	// get the username
 	username := ctx.String("username")
 
@@ -84,6 +87,9 @@ func getPassword() (string, error) {
 }
 
 func logout(ctx *cli.Context) error {
-	env := util.GetEnv(ctx)
+	env, err := util.GetEnv(ctx)
+	if err != nil {
+		return err
+	}
 	return token.Remove(env.Name)
 }

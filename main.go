@@ -5,7 +5,9 @@ package main
 import (
 	"fmt"
 	"os"
+	"unicode"
 
+	"github.com/micro/go-micro/v3/errors"
 	"github.com/micro/micro/v3/cmd"
 
 	// internal packages
@@ -28,7 +30,23 @@ import (
 
 func main() {
 	if err := cmd.DefaultCmd.Run(); err != nil {
-		fmt.Println(err)
+		fmt.Println(formatErr(err))
 		os.Exit(1)
 	}
+}
+
+func formatErr(err error) string {
+	switch v := err.(type) {
+	case *errors.Error:
+		return upcaseInitial(v.Detail)
+	default:
+		return upcaseInitial(err.Error())
+	}
+}
+
+func upcaseInitial(str string) string {
+	for i, v := range str {
+		return string(unicode.ToUpper(v)) + str[i+1:]
+	}
+	return ""
 }
