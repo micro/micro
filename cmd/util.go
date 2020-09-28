@@ -19,7 +19,10 @@ import (
 // micro.auth.[envName].refresh-token: long lived refresh token
 // micro.auth.[envName].expiry: expiration time of the access token, seconds since Unix epoch.
 func setupAuthForCLI(ctx *cli.Context) error {
-	env := util.GetEnv(ctx)
+	env, err := util.GetEnv(ctx)
+	if err != nil {
+		return err
+	}
 	ns, err := namespace.Get(env.Name)
 	if err != nil {
 		return err

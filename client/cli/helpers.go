@@ -11,6 +11,7 @@ import (
 
 	goclient "github.com/micro/go-micro/v3/client"
 	cbytes "github.com/micro/go-micro/v3/codec/bytes"
+	"github.com/micro/micro/v3/client/cli/util"
 	cliutil "github.com/micro/micro/v3/client/cli/util"
 	clic "github.com/micro/micro/v3/internal/command"
 	"github.com/micro/micro/v3/service/client"
@@ -26,7 +27,10 @@ func callService(c *cli.Context, args []string) ([]byte, error) {
 }
 
 func getEnv(c *cli.Context, args []string) ([]byte, error) {
-	env := cliutil.GetEnv(c)
+	env, err := util.GetEnv(c)
+	if err != nil {
+		return nil, err
+	}
 	return []byte(env.Name), nil
 }
 
@@ -39,8 +43,14 @@ func setEnv(c *cli.Context, args []string) ([]byte, error) {
 }
 
 func listEnvs(c *cli.Context, args []string) ([]byte, error) {
-	envs := cliutil.GetEnvs()
-	current := cliutil.GetEnv(c)
+	envs, err := cliutil.GetEnvs()
+	if err != nil {
+		return nil, err
+	}
+	current, err := util.GetEnv(c)
+	if err != nil {
+		return nil, err
+	}
 
 	byt := bytes.NewBuffer([]byte{})
 

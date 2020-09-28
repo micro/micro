@@ -32,9 +32,7 @@ func Run(c *cli.Context) error {
 
 	r, err := readline.New(prompt)
 	if err != nil {
-		// TODO return err
-		fmt.Fprint(os.Stdout, err)
-		os.Exit(1)
+		return err
 	}
 	defer r.Close()
 

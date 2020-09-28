@@ -3,6 +3,7 @@ package runtime
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -151,20 +152,24 @@ func sourceExists(source *git.Source) error {
 	return nil
 }
 
-func appendSourceBase(ctx *cli.Context, workDir, source string) string {
+func appendSourceBase(ctx *cli.Context, workDir, source string) (string, error) {
 	isLocal, _ := git.IsLocal(workDir, source)
 	// @todo add list of supported hosts here or do this check better
 	if !isLocal && !strings.Contains(source, ".com") && !strings.Contains(source, ".org") && !strings.Contains(source, ".net") {
-		baseURL, _ := config.Get(config.Path("git", util.GetEnv(ctx).Name, "baseurl"))
+		env, err := util.GetEnv(ctx)
+		if err != nil {
+			return "", nil
+		}
+		baseURL, _ := config.Get(config.Path("git", env.Name, "baseurl"))
 		if len(baseURL) == 0 {
 			baseURL, _ = config.Get(config.Path("git", "baseurl"))
 		}
 		if len(baseURL) == 0 {
-			return path.Join("github.com/micro/services", source)
+			return path.Join("github.com/micro/services", source), nil
 		}
-		return path.Join(baseURL, source)
+		return path.Join(baseURL, source), nil
 	}
-	return source
+	return source, nil
 }
 
 func runService(ctx *cli.Context) error {
@@ -179,15 +184,18 @@ func runService(ctx *cli.Context) error {
 		return err
 	}
 
-	source, err := git.ParseSourceLocal(wd, appendSourceBase(ctx, wd, ctx.Args().Get(0)))
+	a, err := appendSourceBase(ctx, wd, ctx.Args().Get(0))
+	if err != nil {
+		return err
+	}
+	source, err := git.ParseSourceLocal(wd, a)
 	if err != nil {
 		return err
 	}
 	var newSource string
 	if source.Local {
 		if cliutil.IsPlatform(ctx) {
-			fmt.Println("Local sources are not yet supported on m3o. It's coming soon though!")
-			os.Exit(1)
+			return errors.New("Local sources are not yet supported on m3o. It's coming soon though!")
 		}
 		newSource, err = upload(ctx, source)
 		if err != nil {
@@ -255,8 +263,12 @@ func runService(ctx *cli.Context) error {
 		opts = append(opts, runtime.WithArgs(strings.Split(args, " ")...))
 	}
 
+	env, err := util.GetEnv(ctx)
+	if err != nil {
+		return err
+	}
 	// determine the namespace
-	ns, err := namespace.Get(util.GetEnv(ctx).Name)
+	ns, err := namespace.Get(env.Name)
 	if err != nil {
 		return err
 	}
@@ -329,8 +341,12 @@ func killService(ctx *cli.Context) error {
 		Version: ref,
 	}
 
+	env, err := util.GetEnv(ctx)
+	if err != nil {
+		return err
+	}
 	// determine the namespace
-	ns, err := namespace.Get(util.GetEnv(ctx).Name)
+	ns, err := namespace.Get(env.Name)
 	if err != nil {
 		return err
 	}
@@ -409,7 +425,11 @@ func updateService(ctx *cli.Context) error {
 	if err != nil {
 		return err
 	}
-	source, err := git.ParseSourceLocal(wd, appendSourceBase(ctx, wd, ctx.Args().Get(0)))
+	a, err := appendSourceBase(ctx, wd, ctx.Args().Get(0))
+	if err != nil {
+		return err
+	}
+	source, err := git.ParseSourceLocal(wd, a)
 	if err != nil {
 		return err
 	}
@@ -443,8 +463,12 @@ func updateService(ctx *cli.Context) error {
 		Version: ref,
 	}
 
+	env, err := util.GetEnv(ctx)
+	if err != nil {
+		return err
+	}
 	// determine the namespace
-	ns, err := namespace.Get(util.GetEnv(ctx).Name)
+	ns, err := namespace.Get(env.Name)
 	if err != nil {
 		return err
 	}
@@ -516,8 +540,12 @@ func getService(ctx *cli.Context) error {
 		}
 	}
 
+	env, err := util.GetEnv(ctx)
+	if err != nil {
+		return err
+	}
 	// determine the namespace
-	ns, err := namespace.Get(util.GetEnv(ctx).Name)
+	ns, err := namespace.Get(env.Name)
 	if err != nil {
 		return err
 	}
@@ -619,8 +647,12 @@ func getLogs(ctx *cli.Context) error {
 	//	readSince = time.Now().Add(-d)
 	//}
 
+	env, err := util.GetEnv(ctx)
+	if err != nil {
+		return err
+	}
 	// determine the namespace
-	ns, err := namespace.Get(util.GetEnv(ctx).Name)
+	ns, err := namespace.Get(env.Name)
 	if err != nil {
 		return err
 	}
@@ -638,8 +670,7 @@ func getLogs(ctx *cli.Context) error {
 		case record, ok := <-logs.Chan():
 			if !ok {
 				if err := logs.Error(); err != nil {
-					fmt.Printf("Error reading logs: %s\n", status.Convert(err).Message())
-					os.Exit(1)
+					return fmt.Errorf("Error reading logs: %s\n", status.Convert(err).Message())
 				}
 				return nil
 			}

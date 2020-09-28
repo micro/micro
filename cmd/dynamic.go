@@ -34,8 +34,12 @@ func lookupService(ctx *cli.Context) (*goregistry.Service, string, error) {
 		return srv, goregistry.DefaultDomain, err
 	}
 
+	env, err := util.GetEnv(ctx)
+	if err != nil {
+		return nil, "", err
+	}
 	// get the namespace to query the services from
-	domain, err := namespace.Get(util.GetEnv(ctx).Name)
+	domain, err := namespace.Get(env.Name)
 	if err != nil {
 		return nil, "", err
 	}
