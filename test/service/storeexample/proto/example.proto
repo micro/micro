@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package srv.test_example;
+
+service Example {
+	rpc TestExpiry(Request) returns (Response) {}
+	rpc TestList(Request) returns (Response) {}
+	rpc TestListLimit(Request) returns (Response) {}
+	rpc TestListOffset(Request) returns (Response) {}
+}
+
+message Request {
+}
+
+message Response {
+	string msg = 1;
+}

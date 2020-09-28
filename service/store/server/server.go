@@ -1,10 +1,10 @@
 package server
 
 import (
-	"github.com/micro/cli/v2"
+	pb "github.com/micro/micro/v3/proto/store"
 	"github.com/micro/micro/v3/service"
 	log "github.com/micro/micro/v3/service/logger"
-	pb "github.com/micro/micro/v3/service/store/proto"
+	"github.com/urfave/cli/v2"
 )
 
 var (
@@ -33,6 +33,9 @@ func Run(ctx *cli.Context) error {
 	pb.RegisterStoreHandler(service.Server(), &handler{
 		stores: make(map[string]bool),
 	})
+
+	// the blob store handler
+	pb.RegisterBlobStoreHandler(service.Server(), new(blobHandler))
 
 	// start the service
 	if err := service.Run(); err != nil {

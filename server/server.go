@@ -8,15 +8,15 @@ import (
 	"strings"
 	"time"
 
-	"github.com/micro/cli/v2"
-	gorun "github.com/micro/go-micro/v3/runtime"
 	"github.com/micro/go-micro/v3/util/file"
 	"github.com/micro/micro/v3/client/cli/util"
 	"github.com/micro/micro/v3/cmd"
 	"github.com/micro/micro/v3/service"
 	"github.com/micro/micro/v3/service/client"
+	"github.com/micro/micro/v3/service/context"
 	log "github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/runtime"
+	"github.com/urfave/cli/v2"
 )
 
 var (
@@ -28,6 +28,7 @@ var (
 		"config",   // :8001
 		"store",    // :8002
 		"broker",   // :8003
+		"events",   // :unset
 		"auth",     // :8010
 		"proxy",    // :8081
 		"api",      // :8080
@@ -50,7 +51,7 @@ func upload(ctx *cli.Context, args []string) ([]byte, error) {
 	filename := ctx.Args().Get(0)
 	localfile := ctx.Args().Get(1)
 
-	fileClient := file.New("server", client.DefaultClient)
+	fileClient := file.New("server", client.DefaultClient, file.WithContext(context.DefaultContext))
 	return nil, fileClient.Upload(filename, localfile)
 }
 
@@ -166,16 +167,16 @@ func Run(context *cli.Context) error {
 		cmdArgs = append(cmdArgs, service)
 
 		// runtime based on environment we run the service in
-		args := []gorun.CreateOption{
-			gorun.WithCommand(os.Args[0]),
-			gorun.WithArgs(cmdArgs...),
-			gorun.WithEnv(env),
-			gorun.WithRetries(10),
-			gorun.CreateImage("micro/micro"),
+		args := []runtime.CreateOption{
+			runtime.WithCommand(os.Args[0]),
+			runtime.WithArgs(cmdArgs...),
+			runtime.WithEnv(env),
+			runtime.WithRetries(10),
+			runtime.CreateImage("micro/micro"),
 		}
 
 		// NOTE: we use Version right now to check for the latest release
-		muService := &gorun.Service{Name: name, Version: fmt.Sprintf("%d", time.Now().Unix())}
+		muService := &runtime.Service{Name: name, Version: fmt.Sprintf("%d", time.Now().Unix())}
 		if err := runtime.Create(muService, args...); err != nil {
 			log.Errorf("Failed to create runtime environment: %v", err)
 			return err

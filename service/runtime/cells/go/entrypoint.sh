@@ -1,6 +1,7 @@
 #!/bin/dumb-init /bin/sh
 
-set -x  
+set -x
+set -e
 
 git version
 
@@ -8,9 +9,6 @@ mkdir /app
 cd app
 
 URL=$1
-if [[ $1 != *"github"* ]]; then
-  URL="github.com/micro/services/$URL"
-fi
 
 REF=""
 if [[ $URL == *"@"* ]]; then
@@ -55,6 +53,9 @@ git reset --hard $REF
 
 cd $P
 
+# find the entrypoint using the util
+ENTRYPOINT=$(entrypoint)
+
 # run the source
 echo "Running service"
-go run .
+go run $ENTRYPOINT

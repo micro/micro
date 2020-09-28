@@ -8,29 +8,31 @@ import (
 	"math/rand"
 	"os"
 	"os/exec"
+	"runtime/debug"
 	"sort"
 	"strings"
 	"time"
 
 	"github.com/micro/go-micro/v3/broker"
 	"github.com/micro/go-micro/v3/client"
-	"github.com/micro/go-micro/v3/config"
+	config "github.com/micro/go-micro/v3/config/store"
 	"github.com/micro/go-micro/v3/server"
 	"github.com/micro/go-micro/v3/store"
 
-	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro/v3/auth"
 	"github.com/micro/go-micro/v3/registry"
 	"github.com/micro/micro/v3/client/cli/util"
 	uconf "github.com/micro/micro/v3/internal/config"
 	"github.com/micro/micro/v3/internal/helper"
+	"github.com/micro/micro/v3/internal/network"
+	"github.com/micro/micro/v3/internal/report"
 	_ "github.com/micro/micro/v3/internal/usage"
 	"github.com/micro/micro/v3/internal/wrapper"
 	"github.com/micro/micro/v3/plugin"
 	"github.com/micro/micro/v3/profile"
-	"github.com/micro/micro/v3/service/logger"
-
 	configCli "github.com/micro/micro/v3/service/config/client"
+	"github.com/micro/micro/v3/service/logger"
+	"github.com/urfave/cli/v2"
 
 	muauth "github.com/micro/micro/v3/service/auth"
 	mubroker "github.com/micro/micro/v3/service/broker"
@@ -150,6 +152,21 @@ var (
 			Usage:   "Comma-separated list of broker addresses",
 		},
 		&cli.StringFlag{
+			Name:    "events_tls_ca",
+			Usage:   "Certificate authority for TLS with events",
+			EnvVars: []string{"MICRO_EVENTS_TLS_CA"},
+		},
+		&cli.StringFlag{
+			Name:    "events_tls_cert",
+			Usage:   "Client cert for TLS with events",
+			EnvVars: []string{"MICRO_EVENTS_TLS_CERT"},
+		},
+		&cli.StringFlag{
+			Name:    "events_tls_key",
+			Usage:   "Client key for TLS with events",
+			EnvVars: []string{"MICRO_EVENTS_TLS_KEY"},
+		},
+		&cli.StringFlag{
 			Name:    "broker_tls_ca",
 			Usage:   "Certificate authority for TLS with broker",
 			EnvVars: []string{"MICRO_BROKER_TLS_CA"},
@@ -195,6 +212,18 @@ var (
 			Usage:   "Address to run the service on",
 			EnvVars: []string{"MICRO_SERVICE_ADDRESS"},
 		},
+		&cli.BoolFlag{
+			Name:    "prompt_update",
+			Usage:   "Provide an update prompt when a new binary is available. Enabled for release binaries only.",
+			Value:   true,
+			EnvVars: []string{"MICRO_PROMPT_UPDATE"},
+		},
+		&cli.StringFlag{
+			Name:    "config_secret_key",
+			Usage:   "Key to use when encoding/decoding secret config values. Will be generated and saved to file if not provided.",
+			Value:   "",
+			EnvVars: []string{"MICRO_CONFIG_SECRET_KEY"},
+		},
 	}
 )
 
@@ -239,6 +268,31 @@ func (c *command) Options() Options {
 
 // Before is executed before any subcommand
 func (c *command) Before(ctx *cli.Context) error {
+	// check for the latest release
+	if v := ctx.Args().First(); len(v) > 0 {
+		switch v {
+		case "service", "server":
+			// do nothing
+		default:
+			// otherwise check
+			// TODO: write a local file to detect
+			// when we last checked so we don't do it often
+			updated, err := confirmAndSelfUpdate(ctx)
+			if err != nil {
+				return err
+			}
+			// if updated we expect to re-execute the command
+			// TODO: maybe require relogin or update of the
+			// config...
+			if updated {
+				// considering nil actually continues
+				// we need to os.Exit(0)
+				os.Exit(0)
+				return nil
+			}
+		}
+	}
+
 	// set the config file if specified
 	if cf := ctx.String("c"); len(cf) > 0 {
 		uconf.SetConfig(cf)
@@ -281,11 +335,20 @@ func (c *command) Before(ctx *cli.Context) error {
 	} else {
 		// for CLI, use the external proxy which is loaded from the
 		// local config
-		proxy = util.CLIProxyAddress(ctx)
+		var err error
+		proxy, err = util.CLIProxyAddress(ctx)
+		if err != nil {
+			return err
+		}
 	}
 	if len(proxy) > 0 {
 		muclient.DefaultClient.Init(client.Proxy(proxy))
 	}
+
+	// use the internal network lookup
+	muclient.DefaultClient.Init(
+		client.Lookup(network.Lookup),
+	)
 
 	// wrap the client
 	muclient.DefaultClient = wrapper.AuthClient(muclient.DefaultClient)
@@ -300,6 +363,7 @@ func (c *command) Before(ctx *cli.Context) error {
 		server.WrapHandler(wrapper.TraceHandler()),
 		server.WrapHandler(wrapper.HandlerStats()),
 		server.WrapHandler(wrapper.LogHandler()),
+		server.WrapHandler(wrapper.MetricsHandler()),
 	)
 
 	// initialize the server with the namespace so it knows which domain to register in
@@ -318,12 +382,14 @@ func (c *command) Before(ctx *cli.Context) error {
 			ctx.String("auth_id"), ctx.String("auth_secret"),
 		))
 	}
+
 	if len(ctx.String("auth_public_key")) > 0 {
 		authOpts = append(authOpts, auth.PublicKey(ctx.String("auth_public_key")))
 	}
 	if len(ctx.String("auth_private_key")) > 0 {
 		authOpts = append(authOpts, auth.PrivateKey(ctx.String("auth_private_key")))
 	}
+
 	muauth.DefaultAuth.Init(authOpts...)
 
 	// setup registry
@@ -437,15 +503,9 @@ func (c *command) Before(ctx *cli.Context) error {
 	// from the service immediately. We only do this if the action is nil, indicating
 	// a service is being run
 	if c.service && muconfig.DefaultConfig == nil {
-		conf, err := config.NewConfig(config.WithSource(configCli.NewSource(
-			configCli.Namespace(ctx.String("namespace")),
-		)))
-		if err != nil {
-			logger.Fatalf("Error configuring config: %v", err)
-		}
-		muconfig.DefaultConfig = conf
+		muconfig.DefaultConfig = configCli.NewConfig(ctx.String("namespace"))
 	} else if muconfig.DefaultConfig == nil {
-		muconfig.DefaultConfig, _ = config.NewConfig()
+		muconfig.DefaultConfig, _ = config.NewConfig(mustore.DefaultStore, ctx.String("namespace"))
 	}
 
 	return nil
@@ -468,6 +528,12 @@ func (c *command) Init(opts ...Option) error {
 }
 
 func (c *command) Run() error {
+	defer func() {
+		if r := recover(); r != nil {
+			report.Errorf(nil, fmt.Sprintf("panic: %v", string(debug.Stack())))
+			panic(r)
+		}
+	}()
 	return c.app.Run(os.Args)
 }
 
@@ -493,15 +559,14 @@ func action(c *cli.Context) error {
 		// exists within the current namespace, then it would
 		// execute the Config.Set RPC, setting the flags in the
 		// request.
-		if srv, err := lookupService(c); err != nil {
-			cmdStr := strings.Join(c.Args().Slice(), " ")
-			fmt.Printf("Error querying registry for service %v: %v", cmdStr, err)
+		if srv, ns, err := lookupService(c); err != nil {
+			fmt.Printf("Error querying registry for service %v: %v", c.Args().First(), err)
 			os.Exit(1)
-		} else if srv != nil && c.Args().Len() == 1 {
+		} else if srv != nil && shouldRenderHelp(c) {
 			fmt.Println(formatServiceUsage(srv, c.Args().First()))
 			os.Exit(1)
 		} else if srv != nil {
-			if err := callService(srv, c); err != nil {
+			if err := callService(srv, ns, c); err != nil {
 				fmt.Println(err)
 				os.Exit(1)
 			}

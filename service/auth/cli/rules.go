@@ -1,31 +1,35 @@
 package cli
 
 import (
-	"context"
 	"fmt"
 	"os"
 	"sort"
 	"strings"
 	"text/tabwriter"
 
-	"github.com/micro/cli/v2"
 	goclient "github.com/micro/go-micro/v3/client"
 	"github.com/micro/micro/v3/client/cli/namespace"
 	"github.com/micro/micro/v3/client/cli/util"
-	pb "github.com/micro/micro/v3/service/auth/proto"
+	pb "github.com/micro/micro/v3/proto/auth"
 	"github.com/micro/micro/v3/service/client"
+	"github.com/micro/micro/v3/service/context"
 	"github.com/micro/micro/v3/service/errors"
+	"github.com/urfave/cli/v2"
 )
 
 func listRules(ctx *cli.Context) error {
 	cli := pb.NewRulesService("auth", client.DefaultClient)
 
-	ns, err := namespace.Get(util.GetEnv(ctx).Name)
+	env, err := util.GetEnv(ctx)
+	if err != nil {
+		return err
+	}
+	ns, err := namespace.Get(env.Name)
 	if err != nil {
 		return fmt.Errorf("Error getting namespace: %v", err)
 	}
 
-	rsp, err := cli.List(context.TODO(), &pb.ListRequest{
+	rsp, err := cli.List(context.DefaultContext, &pb.ListRequest{
 		Options: &pb.Options{Namespace: ns},
 	}, goclient.WithAuthToken())
 	if err != nil {
@@ -59,7 +63,11 @@ func listRules(ctx *cli.Context) error {
 }
 
 func createRule(ctx *cli.Context) error {
-	ns, err := namespace.Get(util.GetEnv(ctx).Name)
+	env, err := util.GetEnv(ctx)
+	if err != nil {
+		return err
+	}
+	ns, err := namespace.Get(env.Name)
 	if err != nil {
 		return fmt.Errorf("Error getting namespace: %v", err)
 	}
@@ -70,7 +78,7 @@ func createRule(ctx *cli.Context) error {
 	}
 
 	cli := pb.NewRulesService("auth", client.DefaultClient)
-	_, err = cli.Create(context.TODO(), &pb.CreateRequest{
+	_, err = cli.Create(context.DefaultContext, &pb.CreateRequest{
 		Rule: rule, Options: &pb.Options{Namespace: ns},
 	}, goclient.WithAuthToken())
 	if verr := errors.Parse(err); verr != nil {
@@ -88,13 +96,17 @@ func deleteRule(ctx *cli.Context) error {
 		return fmt.Errorf("Expected one argument: ID")
 	}
 
-	ns, err := namespace.Get(util.GetEnv(ctx).Name)
+	env, err := util.GetEnv(ctx)
+	if err != nil {
+		return err
+	}
+	ns, err := namespace.Get(env.Name)
 	if err != nil {
 		return fmt.Errorf("Error getting namespace: %v", err)
 	}
 
 	cli := pb.NewRulesService("auth", client.DefaultClient)
-	_, err = cli.Delete(context.TODO(), &pb.DeleteRequest{
+	_, err = cli.Delete(context.DefaultContext, &pb.DeleteRequest{
 		Id: ctx.Args().First(), Options: &pb.Options{Namespace: ns},
 	}, goclient.WithAuthToken())
 	if verr := errors.Parse(err); err != nil {

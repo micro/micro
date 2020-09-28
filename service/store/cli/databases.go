@@ -1,22 +1,22 @@
 package cli
 
 import (
-	"context"
 	"fmt"
 
-	"github.com/micro/cli/v2"
 	goclient "github.com/micro/go-micro/v3/client"
 	"github.com/micro/micro/v3/client/cli/namespace"
 	"github.com/micro/micro/v3/client/cli/util"
+	pb "github.com/micro/micro/v3/proto/store"
 	"github.com/micro/micro/v3/service/client"
-	pb "github.com/micro/micro/v3/service/store/proto"
+	"github.com/micro/micro/v3/service/context"
+	"github.com/urfave/cli/v2"
 )
 
 // databases is the entrypoint for micro store databases
 func databases(ctx *cli.Context) error {
 	dbReq := client.NewRequest(ctx.String("store"), "Store.Databases", &pb.DatabasesRequest{})
 	dbRsp := &pb.DatabasesResponse{}
-	if err := client.Call(context.TODO(), dbReq, dbRsp, goclient.WithAuthToken()); err != nil {
+	if err := client.DefaultClient.Call(context.DefaultContext, dbReq, dbRsp, goclient.WithAuthToken()); err != nil {
 		return err
 	}
 	for _, db := range dbRsp.Databases {
@@ -27,7 +27,11 @@ func databases(ctx *cli.Context) error {
 
 // tables is the entrypoint for micro store tables
 func tables(ctx *cli.Context) error {
-	ns, err := namespace.Get(util.GetEnv(ctx).Name)
+	env, err := util.GetEnv(ctx)
+	if err != nil {
+		return err
+	}
+	ns, err := namespace.Get(env.Name)
 	if err != nil {
 		return err
 	}
@@ -36,7 +40,7 @@ func tables(ctx *cli.Context) error {
 		Database: ns,
 	})
 	tRsp := &pb.TablesResponse{}
-	if err := client.Call(context.TODO(), tReq, tRsp, goclient.WithAuthToken()); err != nil {
+	if err := client.DefaultClient.Call(context.DefaultContext, tReq, tRsp, goclient.WithAuthToken()); err != nil {
 		return err
 	}
 	for _, table := range tRsp.Tables {

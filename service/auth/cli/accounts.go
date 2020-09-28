@@ -1,32 +1,35 @@
 package cli
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
 	"os"
 	"strings"
 	"text/tabwriter"
 
-	"github.com/micro/cli/v2"
-	goauth "github.com/micro/go-micro/v3/auth"
 	goclient "github.com/micro/go-micro/v3/client"
 	"github.com/micro/micro/v3/client/cli/namespace"
 	"github.com/micro/micro/v3/client/cli/util"
+	pb "github.com/micro/micro/v3/proto/auth"
 	"github.com/micro/micro/v3/service/auth"
-	pb "github.com/micro/micro/v3/service/auth/proto"
 	"github.com/micro/micro/v3/service/client"
+	"github.com/micro/micro/v3/service/context"
+	"github.com/urfave/cli/v2"
 )
 
 func listAccounts(ctx *cli.Context) error {
 	cli := pb.NewAccountsService("auth", client.DefaultClient)
 
-	ns, err := namespace.Get(util.GetEnv(ctx).Name)
+	env, err := util.GetEnv(ctx)
+	if err != nil {
+		return err
+	}
+	ns, err := namespace.Get(env.Name)
 	if err != nil {
 		return fmt.Errorf("Error getting namespace: %v", err)
 	}
 
-	rsp, err := cli.List(context.TODO(), &pb.ListAccountsRequest{
+	rsp, err := cli.List(context.DefaultContext, &pb.ListAccountsRequest{
 		Options: &pb.Options{Namespace: ns},
 	}, goclient.WithAuthToken())
 	if err != nil {
@@ -36,11 +39,11 @@ func listAccounts(ctx *cli.Context) error {
 	w := tabwriter.NewWriter(os.Stdout, 0, 8, 1, '\t', 0)
 	defer w.Flush()
 
-	fmt.Fprintln(w, strings.Join([]string{"ID", "Scopes", "Metadata"}, "\t\t"))
+	fmt.Fprintln(w, strings.Join([]string{"ID", "Name", "Scopes", "Metadata"}, "\t\t"))
 	for _, r := range rsp.Accounts {
 		var metadata string
 		for k, v := range r.Metadata {
-			metadata = fmt.Sprintf("%v %v=%v ", metadata, k, v)
+			metadata = fmt.Sprintf("%v%v=%v ", metadata, k, v)
 		}
 		scopes := strings.Join(r.Scopes, ", ")
 
@@ -51,7 +54,7 @@ func listAccounts(ctx *cli.Context) error {
 			scopes = "n/a"
 		}
 
-		fmt.Fprintln(w, strings.Join([]string{r.Id, scopes, metadata}, "\t\t"))
+		fmt.Fprintln(w, strings.Join([]string{r.Id, r.Name, scopes, metadata}, "\t\t"))
 	}
 
 	return nil
@@ -62,17 +65,21 @@ func createAccount(ctx *cli.Context) error {
 		return fmt.Errorf("Missing argument: ID")
 	}
 
-	ns, err := namespace.Get(util.GetEnv(ctx).Name)
+	env, err := util.GetEnv(ctx)
+	if err != nil {
+		return err
+	}
+	ns, err := namespace.Get(env.Name)
 	if err != nil {
 		return fmt.Errorf("Error getting namespace: %v", err)
 	}
 
-	options := []goauth.GenerateOption{goauth.WithIssuer(ns)}
+	options := []auth.GenerateOption{auth.WithIssuer(ns)}
 	if len(ctx.StringSlice("scopes")) > 0 {
-		options = append(options, goauth.WithScopes(ctx.StringSlice("scopes")...))
+		options = append(options, auth.WithScopes(ctx.StringSlice("scopes")...))
 	}
 	if len(ctx.String("secret")) > 0 {
-		options = append(options, goauth.WithSecret(ctx.String("secret")))
+		options = append(options, auth.WithSecret(ctx.String("secret")))
 	}
 	acc, err := auth.Generate(ctx.Args().First(), options...)
 	if err != nil {
@@ -90,12 +97,16 @@ func deleteAccount(ctx *cli.Context) error {
 	}
 	cli := pb.NewAccountsService("auth", client.DefaultClient)
 
-	ns, err := namespace.Get(util.GetEnv(ctx).Name)
+	env, err := util.GetEnv(ctx)
+	if err != nil {
+		return err
+	}
+	ns, err := namespace.Get(env.Name)
 	if err != nil {
 		return fmt.Errorf("Error getting namespace: %v", err)
 	}
 
-	_, err = cli.Delete(context.TODO(), &pb.DeleteAccountRequest{
+	_, err = cli.Delete(context.DefaultContext, &pb.DeleteAccountRequest{
 		Id:      ctx.Args().First(),
 		Options: &pb.Options{Namespace: ns},
 	}, goclient.WithAuthToken())

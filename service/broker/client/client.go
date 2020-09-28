@@ -1,13 +1,13 @@
 package client
 
 import (
-	"context"
 	"time"
 
 	"github.com/micro/go-micro/v3/broker"
 	goclient "github.com/micro/go-micro/v3/client"
-	pb "github.com/micro/micro/v3/service/broker/proto"
+	pb "github.com/micro/micro/v3/proto/broker"
 	"github.com/micro/micro/v3/service/client"
+	"github.com/micro/micro/v3/service/context"
 	"github.com/micro/micro/v3/service/logger"
 )
 
@@ -49,7 +49,7 @@ func (b *serviceBroker) Publish(topic string, msg *broker.Message, opts ...broke
 	if logger.V(logger.DebugLevel, logger.DefaultLogger) {
 		logger.Debugf("Publishing to topic %s broker %v", topic, b.Addrs)
 	}
-	_, err := b.Client.Publish(context.TODO(), &pb.PublishRequest{
+	_, err := b.Client.Publish(context.DefaultContext, &pb.PublishRequest{
 		Topic: topic,
 		Message: &pb.Message{
 			Header: msg.Header,
@@ -67,7 +67,7 @@ func (b *serviceBroker) Subscribe(topic string, handler broker.Handler, opts ...
 	if logger.V(logger.DebugLevel, logger.DefaultLogger) {
 		logger.Debugf("Subscribing to topic %s queue %s broker %v", topic, options.Queue, b.Addrs)
 	}
-	stream, err := b.Client.Subscribe(context.TODO(), &pb.SubscribeRequest{
+	stream, err := b.Client.Subscribe(context.DefaultContext, &pb.SubscribeRequest{
 		Topic: topic,
 		Queue: options.Queue,
 	}, goclient.WithAuthToken(), goclient.WithAddress(b.Addrs...), goclient.WithRequestTimeout(time.Hour))
@@ -101,7 +101,7 @@ func (b *serviceBroker) Subscribe(topic string, handler broker.Handler, opts ...
 					if logger.V(logger.DebugLevel, logger.DefaultLogger) {
 						logger.Debugf("Resubscribing to topic %s broker %v", topic, b.Addrs)
 					}
-					stream, err := b.Client.Subscribe(context.TODO(), &pb.SubscribeRequest{
+					stream, err := b.Client.Subscribe(context.DefaultContext, &pb.SubscribeRequest{
 						Topic: topic,
 						Queue: options.Queue,
 					}, goclient.WithAddress(b.Addrs...), goclient.WithRequestTimeout(time.Hour))

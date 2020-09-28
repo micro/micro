@@ -4,13 +4,13 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/micro/cli/v2"
 	goauth "github.com/micro/go-micro/v3/auth"
 	"github.com/micro/go-micro/v3/logger"
 	"github.com/micro/micro/v3/client/cli/namespace"
 	clitoken "github.com/micro/micro/v3/client/cli/token"
 	"github.com/micro/micro/v3/client/cli/util"
 	"github.com/micro/micro/v3/service/auth"
+	"github.com/urfave/cli/v2"
 )
 
 // setupAuthForCLI handles exchanging refresh tokens to access tokens
@@ -19,7 +19,10 @@ import (
 // micro.auth.[envName].refresh-token: long lived refresh token
 // micro.auth.[envName].expiry: expiration time of the access token, seconds since Unix epoch.
 func setupAuthForCLI(ctx *cli.Context) error {
-	env := util.GetEnv(ctx)
+	env, err := util.GetEnv(ctx)
+	if err != nil {
+		return err
+	}
 	ns, err := namespace.Get(env.Name)
 	if err != nil {
 		return err
@@ -46,8 +49,8 @@ func setupAuthForCLI(ctx *cli.Context) error {
 
 	// Get new access token from refresh token if it's close to expiry
 	tok, err = auth.Token(
-		goauth.WithToken(tok.RefreshToken),
-		goauth.WithTokenIssuer(ns),
+		auth.WithToken(tok.RefreshToken),
+		auth.WithTokenIssuer(ns),
 	)
 	if err != nil {
 		return nil
@@ -71,9 +74,9 @@ func setupAuthForService() error {
 
 	// if no credentials were provided, self generate an account
 	if len(accID) == 0 || len(accSecret) == 0 {
-		opts := []goauth.GenerateOption{
-			goauth.WithType("service"),
-			goauth.WithScopes("service"),
+		opts := []auth.GenerateOption{
+			auth.WithType("service"),
+			auth.WithScopes("service"),
 		}
 
 		acc, err := auth.Generate(uuid.New().String(), opts...)
@@ -90,8 +93,8 @@ func setupAuthForService() error {
 
 	// generate the first token
 	token, err := auth.Token(
-		goauth.WithCredentials(accID, accSecret),
-		goauth.WithExpiry(time.Minute*10),
+		auth.WithCredentials(accID, accSecret),
+		auth.WithExpiry(time.Minute*10),
 	)
 	if err != nil {
 		return err
@@ -126,8 +129,8 @@ func refreshAuthToken() {
 
 			// generate the first token
 			tok, err := auth.Token(
-				goauth.WithToken(tok.RefreshToken),
-				goauth.WithExpiry(time.Minute*10),
+				auth.WithToken(tok.RefreshToken),
+				auth.WithExpiry(time.Minute*10),
 			)
 			if err != nil {
 				logger.Warnf("[Auth] Error refreshing token: %v", err)

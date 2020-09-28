@@ -4,18 +4,20 @@ import (
 	"context"
 	"reflect"
 	"strings"
+	"time"
 
-	goauth "github.com/micro/go-micro/v3/auth"
 	"github.com/micro/go-micro/v3/client"
 	"github.com/micro/go-micro/v3/debug/trace"
 	"github.com/micro/go-micro/v3/metadata"
+	"github.com/micro/go-micro/v3/metrics"
 	"github.com/micro/go-micro/v3/server"
-	"github.com/micro/micro/v3/internal/namespace"
+	"github.com/micro/micro/v3/internal/auth/namespace"
 	"github.com/micro/micro/v3/service/auth"
-	muclient "github.com/micro/micro/v3/service/client"
+	"github.com/micro/micro/v3/service/client/cache"
 	"github.com/micro/micro/v3/service/debug"
 	"github.com/micro/micro/v3/service/errors"
 	"github.com/micro/micro/v3/service/logger"
+	microMetrics "github.com/micro/micro/v3/service/metrics"
 	muserver "github.com/micro/micro/v3/service/server"
 )
 
@@ -53,7 +55,7 @@ func (a *authWrapper) wrapContext(ctx context.Context, opts ...client.CallOption
 
 	// check to see if we have a valid access token
 	if authOpts.Token != nil && !authOpts.Token.Expired() {
-		ctx = metadata.Set(ctx, "Authorization", goauth.BearerScheme+authOpts.Token.AccessToken)
+		ctx = metadata.Set(ctx, "Authorization", auth.BearerScheme+authOpts.Token.AccessToken)
 		return ctx
 	}
 
@@ -75,29 +77,29 @@ func AuthHandler() server.HandlerWrapper {
 			var token string
 			if header, ok := metadata.Get(ctx, "Authorization"); ok {
 				// Ensure the correct scheme is being used
-				if !strings.HasPrefix(header, goauth.BearerScheme) {
+				if !strings.HasPrefix(header, auth.BearerScheme) {
 					return errors.Unauthorized(req.Service(), "invalid authorization header. expected Bearer schema")
 				}
 
 				// Strip the bearer scheme prefix
-				token = strings.TrimPrefix(header, goauth.BearerScheme)
+				token = strings.TrimPrefix(header, auth.BearerScheme)
 			}
 
 			// Determine the namespace
 			ns := auth.DefaultAuth.Options().Issuer
 
-			var acc *goauth.Account
+			var acc *auth.Account
 			if a, err := auth.Inspect(token); err == nil && a.Issuer == ns {
 				// We only use accounts issued by the same namespace as the service when verifying against
 				// the rule set.
-				ctx = goauth.ContextWithAccount(ctx, a)
+				ctx = auth.ContextWithAccount(ctx, a)
 				acc = a
 			} else if err == nil && ns == namespace.DefaultNamespace {
 				// for the default domain, we want to inject the account into the context so that the
 				// server can access it (since it's designed for multi-tenancy), however we don't want to
 				// use it when verifying against the auth rules, since this will allow any user access to the
 				// services running in the micro namespace
-				ctx = goauth.ContextWithAccount(ctx, a)
+				ctx = auth.ContextWithAccount(ctx, a)
 			}
 
 			// ensure only accounts with the correct namespace can access this namespace,
@@ -111,17 +113,17 @@ func AuthHandler() server.HandlerWrapper {
 			}
 
 			// construct the resource
-			res := &goauth.Resource{
+			res := &auth.Resource{
 				Type:     "service",
 				Name:     req.Service(),
 				Endpoint: req.Endpoint(),
 			}
 
 			// Verify the caller has access to the resource.
-			err = auth.Verify(acc, res, goauth.VerifyNamespace(ns))
-			if err == goauth.ErrForbidden && acc != nil {
+			err = auth.Verify(acc, res, auth.VerifyNamespace(ns))
+			if err == auth.ErrForbidden && acc != nil {
 				return errors.Forbidden(req.Service(), "Forbidden call made to %v:%v by %v", req.Service(), req.Endpoint(), acc.ID)
-			} else if err == goauth.ErrForbidden {
+			} else if err == auth.ErrForbidden {
 				return errors.Unauthorized(req.Service(), "Unauthorized call made to %v:%v", req.Service(), req.Endpoint())
 			} else if err != nil {
 				return errors.InternalServerError(req.Service(), "Error authorizing request: %v", err)
@@ -262,6 +264,7 @@ func TraceHandler() server.HandlerWrapper {
 }
 
 type cacheWrapper struct {
+	Cache *cache.Cache
 	client.Client
 }
 
@@ -275,23 +278,22 @@ func (c *cacheWrapper) Call(ctx context.Context, req client.Request, rsp interfa
 	}
 
 	// if the client doesn't have a cacbe setup don't continue
-	cache := muclient.DefaultClient.Options().Cache
-	if cache == nil {
+	if c.Cache == nil {
+		return c.Client.Call(ctx, req, rsp, opts...)
+	}
+
+	cacheOpts, ok := cache.GetOptions(options.Context)
+	if !ok {
 		return c.Client.Call(ctx, req, rsp, opts...)
 	}
 
 	// if the cache expiry is not set, execute the call without the cache
-	if options.CacheExpiry == 0 {
-		return c.Client.Call(ctx, req, rsp, opts...)
-	}
-
-	// if the response is nil don't call the cache since we can't assign the response
-	if rsp == nil {
+	if cacheOpts.Expiry == 0 || rsp == nil {
 		return c.Client.Call(ctx, req, rsp, opts...)
 	}
 
 	// check to see if there is a response cached, if there is assign it
-	if r, ok := cache.Get(ctx, req); ok {
+	if r, ok := c.Cache.Get(ctx, req); ok {
 		val := reflect.ValueOf(rsp).Elem()
 		val.Set(reflect.ValueOf(r).Elem())
 		return nil
@@ -303,11 +305,52 @@ func (c *cacheWrapper) Call(ctx context.Context, req client.Request, rsp interfa
 	}
 
 	// set the result in the cache
-	cache.Set(ctx, req, rsp, options.CacheExpiry)
+	c.Cache.Set(ctx, req, rsp, cacheOpts.Expiry)
 	return nil
 }
 
 // CacheClient wraps requests with the cache wrapper
 func CacheClient(c client.Client) client.Client {
-	return &cacheWrapper{c}
+	return &cacheWrapper{
+		Cache:  cache.New(),
+		Client: c,
+	}
+}
+
+// MetricsHandler wraps a server handler to instrument calls
+func MetricsHandler() server.HandlerWrapper {
+	// return a handler wrapper
+	return func(h server.HandlerFunc) server.HandlerFunc {
+		// return a function that returns a function
+		return func(ctx context.Context, req server.Request, rsp interface{}) error {
+
+			// Don't instrument debug calls:
+			if strings.HasPrefix(req.Endpoint(), "Debug.") {
+				return h(ctx, req, rsp)
+			}
+
+			// Build some tags to describe the call:
+			tags := metrics.Tags{
+				"method": req.Method(),
+			}
+
+			// Start the clock:
+			callTime := time.Now()
+
+			// Run the handlerFunction:
+			err := h(ctx, req, rsp)
+
+			// Add a result tag:
+			if err != nil {
+				tags["result"] = "failure"
+			} else {
+				tags["result"] = "success"
+			}
+
+			// Instrument the result (if the DefaultClient has been configured):
+			microMetrics.Timing("service.handler", time.Since(callTime), tags)
+
+			return err
+		}
+	}
 }

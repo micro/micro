@@ -151,12 +151,6 @@ func lockdownSuite(serv Server, t *T) {
 		return
 	}
 
-	outp, err = cmd.Exec("auth", "delete", "account", "admin")
-	if err != nil {
-		t.Fatal(string(outp), err)
-		return
-	}
-
 	// set the local config file to be the same as the one micro will be configured to use.
 	// todo: consider adding a micro logout command.
 	config.SetConfig(cmd.Config)
@@ -258,4 +252,100 @@ func curl(serv Server, path string) (map[string]interface{}, error) {
 	}
 	m := map[string]interface{}{}
 	return m, json.Unmarshal(body, &m)
+}
+
+// TestUsernameLogin tests whether we can login using both ID and username e.g. UUID and email
+func TestUsernameLogin(t *testing.T) {
+	TrySuite(t, testUsernameLogin, retryCount)
+}
+
+func testUsernameLogin(t *T) {
+	t.Parallel()
+	serv := NewServer(t, WithLogin())
+	defer serv.Close()
+	if err := serv.Run(); err != nil {
+		return
+	}
+
+	cmd := serv.Command()
+	outp, err := cmd.Exec("call", "auth", "Auth.Generate", `{"id":"someID", "name":"someUsername", "secret":"password"}`)
+	if err != nil {
+		t.Fatalf("Error generating account %s %s", string(outp), err)
+	}
+	outp, err = cmd.Exec("login", "--username", "someUsername", "--password", "password")
+	if err != nil {
+		t.Fatalf("Error logging in with user name %s %s", string(outp), err)
+	}
+	outp, err = cmd.Exec("login", "--username", "someID", "--password", "password")
+	if err != nil {
+		t.Fatalf("Error logging in with ID %s %s", string(outp), err)
+	}
+	// test the email alias
+	outp, err = cmd.Exec("login", "--email", "someID", "--password", "password")
+	if err != nil {
+		t.Fatalf("Error logging in with ID %s %s", string(outp), err)
+	}
+
+	// test we can't create an account with the same name but different ID
+	outp, err = cmd.Exec("call", "auth", "Auth.Generate", `{"id":"someID2", "name":"someUsername", "secret":"password1"}`)
+	if err == nil {
+		// shouldn't let us create something with the same username
+		t.Fatalf("Expected error when generating account %s %s", string(outp), err)
+	}
+
+	outp, err = cmd.Exec("auth", "list", "accounts")
+	if err != nil {
+		t.Fatalf("Error listing accounts %s %s", string(outp), err)
+	}
+	if !strings.Contains(string(outp), "someUsername") {
+		t.Fatalf("Error listing accounts, name is missing from %s", string(outp))
+	}
+
+	outp, err = cmd.Exec("login", "--username", "someID", "--password", "password")
+	if err != nil {
+		t.Fatalf("Error logging in with ID %s %s", string(outp), err)
+	}
+
+	// make sure user sees username and not ID
+	outp, err = cmd.Exec("user")
+	if err != nil {
+		t.Fatalf("Error running user command %s %s", string(outp), err)
+	}
+	if !strings.Contains(string(outp), "someUsername") {
+		t.Fatalf("Error running user command. Unexpected result %s", string(outp))
+	}
+	// make sure user sees username and not ID
+	outp, err = cmd.Exec("user", "config")
+	if err != nil {
+		t.Fatalf("Error running user config command %s %s", string(outp), err)
+	}
+	if !strings.Contains(string(outp), "someUsername") {
+		t.Fatalf("Error running user config command. Unexpected result %s", string(outp))
+	}
+	// make sure change password works correctly for username
+	outp, err = cmd.Exec("user", "set", "password", "--old-password", "password", "--new-password", "password1")
+	if err != nil {
+		t.Fatalf("Error changing password %s %s", string(outp), err)
+	}
+
+	outp, err = cmd.Exec("login", "--username", "someUsername", "--password", "password1")
+	if err != nil {
+		t.Fatalf("Error changing password %s %s", string(outp), err)
+	}
+
+	outp, err = cmd.Exec("run", "github.com/micro/examples/helloworld")
+	if err != nil {
+		t.Fatalf("Error running helloworld %s %s", string(outp), err)
+	}
+	Try("Check helloworld status", t, func() ([]byte, error) {
+		outp, err = cmd.Exec("status")
+		if err != nil {
+			return outp, fmt.Errorf("Error getting status %s", err)
+		}
+		if !strings.Contains(string(outp), "owner=someUsername") {
+			return outp, fmt.Errorf("Can't find owner")
+		}
+		return nil, nil
+	}, 30*time.Second)
+
 }

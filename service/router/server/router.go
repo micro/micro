@@ -2,12 +2,10 @@ package server
 
 import (
 	"context"
-	"io"
-	"time"
 
 	"github.com/micro/go-micro/v3/router"
+	pb "github.com/micro/micro/v3/proto/router"
 	"github.com/micro/micro/v3/service/errors"
-	pb "github.com/micro/micro/v3/service/router/proto"
 )
 
 // Router implements router handler
@@ -17,10 +15,27 @@ type Router struct {
 
 // Lookup looks up routes in the routing table and returns them
 func (r *Router) Lookup(ctx context.Context, req *pb.LookupRequest, resp *pb.LookupResponse) error {
-	routes, err := r.Router.Lookup(
-		router.QueryService(req.Query.Service),
-		router.QueryNetwork(req.Query.Network),
-	)
+	// build the options
+	var options []router.LookupOption
+	if v := req.Options; v != nil {
+		if len(v.Address) > 0 {
+			options = append(options, router.LookupAddress(v.Address))
+		}
+		if len(v.Gateway) > 0 {
+			options = append(options, router.LookupGateway(v.Gateway))
+		}
+		if len(v.Router) > 0 {
+			options = append(options, router.LookupRouter(v.Router))
+		}
+		if len(v.Network) > 0 {
+			options = append(options, router.LookupNetwork(v.Network))
+		}
+		if len(v.Link) > 0 {
+			options = append(options, router.LookupLink(v.Link))
+		}
+	}
+
+	routes, err := r.Router.Lookup(req.Service, options...)
 	if err == router.ErrRouteNotFound {
 		return errors.NotFound("router.Router.Lookup", err.Error())
 	} else if err != nil {
@@ -43,93 +58,6 @@ func (r *Router) Lookup(ctx context.Context, req *pb.LookupRequest, resp *pb.Loo
 	}
 
 	resp.Routes = respRoutes
-
-	return nil
-}
-
-// Advertise streams router advertisements
-func (r *Router) Advertise(ctx context.Context, req *pb.Request, stream pb.Router_AdvertiseStream) error {
-	advertChan, err := r.Router.Advertise()
-	if err != nil {
-		return errors.InternalServerError("router.Router.Advertise", "failed to get adverts: %v", err)
-	}
-
-	for advert := range advertChan {
-		var events []*pb.Event
-		for _, event := range advert.Events {
-			route := &pb.Route{
-				Service:  event.Route.Service,
-				Address:  event.Route.Address,
-				Gateway:  event.Route.Gateway,
-				Network:  event.Route.Network,
-				Router:   event.Route.Router,
-				Link:     event.Route.Link,
-				Metric:   event.Route.Metric,
-				Metadata: event.Route.Metadata,
-			}
-			e := &pb.Event{
-				Id:        event.Id,
-				Type:      pb.EventType(event.Type),
-				Timestamp: event.Timestamp.UnixNano(),
-				Route:     route,
-			}
-			events = append(events, e)
-		}
-
-		advert := &pb.Advert{
-			Id:        advert.Id,
-			Type:      pb.AdvertType(advert.Type),
-			Timestamp: advert.Timestamp.UnixNano(),
-			Events:    events,
-		}
-
-		// send the advert
-		err := stream.Send(advert)
-		if err == io.EOF {
-			return nil
-		}
-		if err != nil {
-			return errors.InternalServerError("router.Router.Advertise", "error sending message %v", err)
-		}
-	}
-
-	return nil
-}
-
-// Process processes advertisements
-func (r *Router) Process(ctx context.Context, req *pb.Advert, rsp *pb.ProcessResponse) error {
-	events := make([]*router.Event, len(req.Events))
-	for i, event := range req.Events {
-		route := router.Route{
-			Service:  event.Route.Service,
-			Address:  event.Route.Address,
-			Gateway:  event.Route.Gateway,
-			Network:  event.Route.Network,
-			Router:   event.Route.Router,
-			Link:     event.Route.Link,
-			Metric:   event.Route.Metric,
-			Metadata: event.Route.Metadata,
-		}
-
-		events[i] = &router.Event{
-			Id:        event.Id,
-			Type:      router.EventType(event.Type),
-			Timestamp: time.Unix(0, event.Timestamp),
-			Route:     route,
-		}
-	}
-
-	advert := &router.Advert{
-		Id:        req.Id,
-		Type:      router.AdvertType(req.Type),
-		Timestamp: time.Unix(0, req.Timestamp),
-		TTL:       time.Duration(req.Ttl),
-		Events:    events,
-	}
-
-	if err := r.Router.Process(advert); err != nil {
-		return errors.InternalServerError("router.Router.Process", "error publishing advert: %v", err)
-	}
 
 	return nil
 }

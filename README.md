@@ -1,12 +1,12 @@
-# Micro [![License](https://img.shields.io/:license-apache-blue.svg)](https://opensource.org/licenses/Apache-2.0) [![Go.Dev reference](https://img.shields.io/badge/go.dev-reference-007d9c?logo=go&logoColor=white&style=flat-square)](https://pkg.go.dev/github.com/micro/micro/v3?tab=overview) [![Travis CI](https://travis-ci.org/micro/micro.svg?branch=master)](https://travis-ci.org/micro/micro) [![Go Report Card](https://goreportcard.com/badge/micro/micro)](https://goreportcard.com/report/github.com/micro/micro) [<img src="https://img.shields.io/badge/slack-micro-yellow.svg?logo=slack" />](https://slack.micro.mu)
+# Micro [![License](https://img.shields.io/badge/license-polyform:shield-blue)](https://polyformproject.org/licenses/shield/1.0.0/) [![Go.Dev reference](https://img.shields.io/badge/go.dev-reference-007d9c?logo=go&logoColor=white&style=flat-square)](https://pkg.go.dev/github.com/micro/micro/v3?tab=overview) [![Travis CI](https://travis-ci.org/micro/micro.svg?branch=master)](https://travis-ci.org/micro/micro) [![Go Report Card](https://goreportcard.com/badge/micro/micro)](https://goreportcard.com/report/github.com/micro/micro) [<img src="https://img.shields.io/badge/slack-micro-yellow.svg?logo=slack" />](https://slack.micro.mu)
 
-Micro is a framework for cloud native development.
+Micro is a Go cloud services development framework.
 
 ## Overview
 
 Micro addresses the key requirements for building cloud native services. It leverages the microservices
 architecture pattern and provides a set of services which act as the building blocks of a platform. Micro deals
-with the complexity of distributed systems and provides simpler programmable abstractions to build on.
+with the complexity of distributed systems and provides simpler programmable abstractions to build on. 
 
 ## Features
 
@@ -72,7 +72,7 @@ micro run helloworld
 micro services
 
 # call a service
-micro call helloworld Helloworld.Call '{"name": "Alice"}'
+micro helloworld --name=Alice
 
 # curl via the api
 curl -d '{"name": "Alice"}' http://localhost:8080/helloworld
@@ -90,4 +90,16 @@ See the [docs](https://github.com/micro/docs) for detailed information on the ar
 
 ## License
 
-Micro is Apache 2.0 Licensed
+See [LICENSE](LICENSE) which makes use of [Polyform Shield](https://polyformproject.org/licenses/shield/1.0.0/).
+
+## Hosting
+
+If you're interested in a hosted version of Micro see [m3o.com](https://m3o.com). Docs at [m3o.dev](https://m3o.dev).
+
+## Commercial Use
+
+If you want to sell or offer Micro as a Service please email [contact@m3o.com](mailto:contact@m3o.com)
+
+## Community
+
+Join us on [slack](https://slack.micro.mu) or follow us on [Twitter](https://twitter.com/microhq)

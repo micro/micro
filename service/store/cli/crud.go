@@ -10,12 +10,12 @@ import (
 	"unicode/utf8"
 
 	"github.com/dustin/go-humanize"
-	"github.com/micro/cli/v2"
 	gostore "github.com/micro/go-micro/v3/store"
 	"github.com/micro/micro/v3/client/cli/namespace"
 	"github.com/micro/micro/v3/client/cli/util"
 	"github.com/micro/micro/v3/service/store"
 	"github.com/pkg/errors"
+	"github.com/urfave/cli/v2"
 )
 
 // read gets something from the store
@@ -27,8 +27,12 @@ func read(ctx *cli.Context) error {
 		return errors.New("Key arg is required")
 	}
 
+	env, err := util.GetEnv(ctx)
+	if err != nil {
+		return err
+	}
 	// get the namespace
-	ns, err := namespace.Get(util.GetEnv(ctx).Name)
+	ns, err := namespace.Get(env.Name)
 	if err != nil {
 		return err
 	}
@@ -39,8 +43,14 @@ func read(ctx *cli.Context) error {
 	if ctx.Bool("prefix") {
 		opts = append(opts, gostore.ReadPrefix())
 	}
+	if ctx.Uint("limit") != 0 {
+		opts = append(opts, gostore.ReadLimit(ctx.Uint("limit")))
+	}
+	if ctx.Uint("offset") != 0 {
+		opts = append(opts, gostore.ReadLimit(ctx.Uint("offset")))
+	}
 
-	records, err := store.Read(ctx.Args().First(), opts...)
+	records, err := store.DefaultStore.Read(ctx.Args().First(), opts...)
 	if err != nil {
 		if err.Error() == "not found" {
 			return err
@@ -63,10 +73,6 @@ func read(ctx *cli.Context) error {
 				key = r.Key
 				if isPrintable(r.Value) {
 					value = string(r.Value)
-					if len(value) > 50 {
-						runes := []rune(value)
-						value = string(runes[:50]) + "..."
-					}
 				} else {
 					value = fmt.Sprintf("%#x", r.Value[:20])
 				}
@@ -107,13 +113,17 @@ func write(ctx *cli.Context) error {
 		record.Expiry = d
 	}
 
+	env, err := util.GetEnv(ctx)
+	if err != nil {
+		return err
+	}
 	// get the namespace
-	ns, err := namespace.Get(util.GetEnv(ctx).Name)
+	ns, err := namespace.Get(env.Name)
 	if err != nil {
 		return err
 	}
 
-	if err := store.Write(record, gostore.WriteTo(ns, ctx.String("table"))); err != nil {
+	if err := store.DefaultStore.Write(record, gostore.WriteTo(ns, ctx.String("table"))); err != nil {
 		return errors.Wrap(err, "couldn't write")
 	}
 	return nil
@@ -125,8 +135,12 @@ func list(ctx *cli.Context) error {
 		return err
 	}
 
+	env, err := util.GetEnv(ctx)
+	if err != nil {
+		return err
+	}
 	// get the namespace
-	ns, err := namespace.Get(util.GetEnv(ctx).Name)
+	ns, err := namespace.Get(env.Name)
 	if err != nil {
 		return err
 	}
@@ -144,7 +158,7 @@ func list(ctx *cli.Context) error {
 		opts = append(opts, gostore.ListLimit(ctx.Uint("offset")))
 	}
 
-	keys, err := store.List(opts...)
+	keys, err := store.DefaultStore.List(opts...)
 	if err != nil {
 		return errors.Wrap(err, "couldn't list")
 	}
@@ -172,13 +186,17 @@ func delete(ctx *cli.Context) error {
 		return errors.New("key is required")
 	}
 
+	env, err := util.GetEnv(ctx)
+	if err != nil {
+		return err
+	}
 	// get the namespace
-	ns, err := namespace.Get(util.GetEnv(ctx).Name)
+	ns, err := namespace.Get(env.Name)
 	if err != nil {
 		return err
 	}
 
-	if err := store.Delete(ctx.Args().First(), gostore.DeleteFrom(ns, ctx.String("table"))); err != nil {
+	if err := store.DefaultStore.Delete(ctx.Args().First(), gostore.DeleteFrom(ns, ctx.String("table"))); err != nil {
 		return errors.Wrapf(err, "couldn't delete key %s", ctx.Args().First())
 	}
 	return nil

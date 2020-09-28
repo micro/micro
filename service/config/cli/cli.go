@@ -1,31 +1,22 @@
 package config
 
 import (
-	"context"
+	"encoding/json"
+	"errors"
 	"fmt"
-	"os"
+	"strconv"
 	"strings"
-	"time"
 
-	"github.com/micro/cli/v2"
 	goclient "github.com/micro/go-micro/v3/client"
 	"github.com/micro/micro/v3/client/cli/namespace"
 	"github.com/micro/micro/v3/client/cli/util"
 	"github.com/micro/micro/v3/cmd"
-	cliconfig "github.com/micro/micro/v3/internal/config"
 	"github.com/micro/micro/v3/internal/helper"
+	proto "github.com/micro/micro/v3/proto/config"
 	"github.com/micro/micro/v3/service/client"
-	proto "github.com/micro/micro/v3/service/config/proto"
+	"github.com/micro/micro/v3/service/context"
 	log "github.com/micro/micro/v3/service/logger"
-)
-
-var (
-	subcommandFlags = []cli.Flag{
-		&cli.BoolFlag{
-			Name:  "local",
-			Usage: "Connect to local user micro config file and not to micro server config",
-		},
-	}
+	"github.com/urfave/cli/v2"
 )
 
 func setConfig(ctx *cli.Context) error {
@@ -34,38 +25,56 @@ func setConfig(ctx *cli.Context) error {
 	key := args.Get(0)
 	val := args.Get(1)
 
-	if ctx.Bool("local") {
-		return cliconfig.Set(val, strings.Split(key, ".")...)
-	}
 	pb := proto.NewConfigService("config", client.DefaultClient)
 
 	if args.Len() == 0 {
 		return fmt.Errorf("Required usage: micro config set key val")
 	}
 
-	ns, err := namespace.Get(util.GetEnv(ctx).Name)
+	env, err := util.GetEnv(ctx)
+	if err != nil {
+		return err
+	}
+	ns, err := namespace.Get(env.Name)
 	if err != nil {
 		return err
 	}
 
+	v, _ := json.Marshal(parseValue(val))
+
 	// TODO: allow the specifying of a config.Key. This will be service name
 	// The actuall key-val set is a path e.g micro/accounts/key
-	_, err = pb.Update(context.TODO(), &proto.UpdateRequest{
-		Change: &proto.Change{
-			// the current namespace
-			Namespace: ns,
-			// actual key for the value
-			Path: key,
-			// The value
-			ChangeSet: &proto.ChangeSet{
-				Data:      string(val),
-				Format:    "json",
-				Source:    "cli",
-				Timestamp: time.Now().Unix(),
-			},
+	_, err = pb.Set(context.DefaultContext, &proto.SetRequest{
+		// the current namespace
+		Namespace: ns,
+		// actual key for the value
+		Path: key,
+		// The value
+		Value: &proto.Value{
+			Data: string(v),
+			//Format: "json",
+		},
+		Options: &proto.Options{
+			Secret: ctx.Bool("secret"),
 		},
 	}, goclient.WithAuthToken())
 	return err
+}
+
+func parseValue(s string) interface{} {
+	b, err := strconv.ParseBool(s)
+	if err == nil {
+		return b
+	}
+	f, err := strconv.ParseFloat(s, 64)
+	if err == nil {
+		return f
+	}
+	i, err := strconv.ParseInt(s, 10, 64)
+	if err == nil {
+		return i
+	}
+	return s
 }
 
 func getConfig(ctx *cli.Context) error {
@@ -80,15 +89,11 @@ func getConfig(ctx *cli.Context) error {
 		return fmt.Errorf("key cannot be blank")
 	}
 
-	if ctx.Bool("local") {
-		val, err := cliconfig.Get(strings.Split(key, ".")...)
-		if err == nil {
-			fmt.Println(val)
-		}
+	env, err := util.GetEnv(ctx)
+	if err != nil {
 		return err
 	}
-
-	ns, err := namespace.Get(util.GetEnv(ctx).Name)
+	ns, err := namespace.Get(env.Name)
 	if err != nil {
 		return err
 	}
@@ -96,26 +101,28 @@ func getConfig(ctx *cli.Context) error {
 	// TODO: allow the specifying of a config.Key. This will be service name
 	// The actuall key-val set is a path e.g micro/accounts/key
 	pb := proto.NewConfigService("config", client.DefaultClient)
-	rsp, err := pb.Read(context.TODO(), &proto.ReadRequest{
+	rsp, err := pb.Get(context.DefaultContext, &proto.GetRequest{
 		// The current namespace,
 		Namespace: ns,
 		// The actual key for the val
 		Path: key,
+		Options: &proto.Options{
+			Secret: ctx.Bool("secret"),
+		},
 	}, goclient.WithAuthToken())
 	if err != nil {
 		return err
 	}
 
-	if rsp.Change == nil || rsp.Change.ChangeSet == nil {
+	if v := rsp.Value.Data; len(v) == 0 || strings.TrimSpace(string(v)) == "null" {
 		return fmt.Errorf("not found")
 	}
 
-	// don't do it
-	if v := rsp.Change.ChangeSet.Data; len(v) == 0 || string(v) == "null" {
-		return fmt.Errorf("not found")
+	if strings.HasPrefix(rsp.Value.Data, "\"") && strings.HasSuffix(rsp.Value.Data, "\"") {
+		fmt.Println(rsp.Value.Data[1 : len(rsp.Value.Data)-1])
+		return nil
 	}
-
-	fmt.Println(string(rsp.Change.ChangeSet.Data))
+	fmt.Println(string(rsp.Value.Data))
 	return nil
 }
 
@@ -123,8 +130,7 @@ func delConfig(ctx *cli.Context) error {
 	args := ctx.Args()
 
 	if args.Len() == 0 {
-		fmt.Println("Required usage: micro config get key")
-		os.Exit(1)
+		return errors.New("Required usage: micro config get key")
 	}
 	// key val
 	key := args.Get(0)
@@ -132,7 +138,11 @@ func delConfig(ctx *cli.Context) error {
 		log.Fatal("key cannot be blank")
 	}
 
-	ns, err := namespace.Get(util.GetEnv(ctx).Name)
+	env, err := util.GetEnv(ctx)
+	if err != nil {
+		return err
+	}
+	ns, err := namespace.Get(env.Name)
 	if err != nil {
 		return err
 	}
@@ -140,13 +150,11 @@ func delConfig(ctx *cli.Context) error {
 	// TODO: allow the specifying of a config.Key. This will be service name
 	// The actuall key-val set is a path e.g micro/accounts/key
 	pb := proto.NewConfigService("config", client.DefaultClient)
-	_, err = pb.Delete(context.TODO(), &proto.DeleteRequest{
-		Change: &proto.Change{
-			// The current namespace
-			Namespace: ns,
-			// The actual key for the val
-			Path: key,
-		},
+	_, err = pb.Delete(context.DefaultContext, &proto.DeleteRequest{
+		// The current namespace
+		Namespace: ns,
+		// The actual key for the val
+		Path: key,
 	}, goclient.WithAuthToken())
 	return err
 }
@@ -162,19 +170,30 @@ func init() {
 					Name:   "get",
 					Usage:  "Get a value; micro config get key",
 					Action: getConfig,
-					Flags:  subcommandFlags,
+					Flags: []cli.Flag{
+						&cli.BoolFlag{
+							Name:    "secret",
+							Aliases: []string{"s"},
+							Usage:   "Set it as a secret value",
+						},
+					},
 				},
 				{
 					Name:   "set",
 					Usage:  "Set a key-val; micro config set key val",
 					Action: setConfig,
-					Flags:  subcommandFlags,
+					Flags: []cli.Flag{
+						&cli.BoolFlag{
+							Name:    "secret",
+							Aliases: []string{"s"},
+							Usage:   "Set it as a secret value",
+						},
+					},
 				},
 				{
 					Name:   "del",
 					Usage:  "Delete a value; micro config del key",
 					Action: delConfig,
-					Flags:  subcommandFlags,
 				},
 			},
 		},

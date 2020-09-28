@@ -29,15 +29,20 @@ jobs:
         echo "::set-output name=date::$(/bin/date -u "+%Y%m%d")"
       shell: bash
     - name: Enable caching
-      # We would use the official actions/cache@v2, but it doesn't save the cache if the build fails
-      # caches are scoped to a branch but will also check the default branch upon cache miss
-      uses: pat-s/always-upload-cache@v2.0.0 
+      uses: actions/cache@v2
       with:
         path: ~/go/pkg/mod
         key: ${{ runner.os }}-go-kind-${{ steps.get-date.outputs.date }}
+    - name: Replace platform profile
+      id: replace-profile
+      run: |
+        go mod edit -replace github.com/micro/micro/profile/platform/v3=./profile/platform
+        go mod edit -replace google.golang.org/grpc=google.golang.org/grpc@v1.26.0
     - name: Install micro
       id: install-micro
       run: |
+        go install
+        micro init --profile=platform --output=profile.go
         go install
 
     # We set up a local docker registry to push to and pull from. We need to set up the Kind cluster to pull from this
@@ -49,10 +54,10 @@ jobs:
     - name: Build and push cells to local registry
       id: build-push-reg-micro
       run: |
-        DIR=service/runtime/cells/go
+        DIR=service/runtime/cells/micro
         docker build -f $DIR/Dockerfile $DIR -t micro
-        docker tag micro localhost:5000/cells:go 
-        docker push localhost:5000/cells:go
+        docker tag micro localhost:5000/cells:micro
+        docker push localhost:5000/cells:micro
     
     - name: Build and push micro to local registry
       id: build-push-reg-cells
@@ -74,26 +79,27 @@ jobs:
 
     - name: Update the image
       run: |
-        bash .github/workflows/update-image.sh
+        bash scripts/update-image.sh
     # cache the prereqs
     - name: Cache pre-reqs
-      # We would use the official actions/cache@v2, but it doesn't save the cache if the build fails
-      # caches are scoped to a branch but will also check the default branch upon cache miss
-      uses: pat-s/always-upload-cache@v2.0.0 
+      uses: actions/cache@v2
       with:
         path: ./cfssl
         key: ${{ runner.os }}-kind-cfssl
     - name: Install the prerequisites
       run: |
-        bash .github/workflows/kind-prereqs.sh
+        bash scripts/kind-prereqs.sh
 
     # Everything is set up so let's install the platform
     - name: Install the platform
+      env:
+        TMPDIR: ${{ runner.temp }}
       run: |
         bash scripts/kind-launch.sh
     - name: Install failed, show platform logs
       if: ${{ failure() }}
       run: |
+        kubectl get pods -n | awk '{print $1}' | xargs -n1 kubectl logs
         kubectl get pods -n platform | awk '{print $1}' | xargs -n1 kubectl logs -n platform
 
     # Finally, we can actually run the tests
@@ -106,4 +112,4 @@ jobs:
           # Generate keys for JWT tests
           ssh-keygen -f /tmp/sshkey -m pkcs8 -q -N ""
           ssh-keygen -f /tmp/sshkey -e  -m pkcs8 > /tmp/sshkey.pub
-          go clean -testcache && go test --tags=integration,kind -v ./...
+          go clean -testcache && GOMAXPROCS=4 go test --tags=integration,kind -v ./... -timeout 20m

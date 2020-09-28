@@ -2,7 +2,7 @@ package client
 
 import (
 	"github.com/micro/go-micro/v3/broker"
-	pb "github.com/micro/micro/v3/service/broker/proto"
+	pb "github.com/micro/micro/v3/proto/broker"
 	"github.com/micro/micro/v3/service/logger"
 )
 
@@ -78,14 +78,14 @@ func (s *serviceSub) run() error {
 			return err
 		}
 
-		p := &serviceEvent{
-			topic: s.topic,
-			message: &broker.Message{
-				Header: msg.Header,
-				Body:   msg.Body,
-			},
+		m := &broker.Message{
+			Header: msg.Header,
+			Body:   msg.Body,
 		}
-		p.err = s.handler(p)
+
+		// TODO: exec the subscriber error handler
+		// in the event of an error
+		s.handler(m)
 	}
 }
 

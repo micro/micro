@@ -8,9 +8,9 @@ import (
 	"strings"
 
 	"github.com/chzyer/readline"
-	"github.com/micro/cli/v2"
 	"github.com/micro/micro/v3/client/cli/util"
 	"github.com/micro/micro/v3/cmd"
+	"github.com/urfave/cli/v2"
 )
 
 var (
@@ -32,9 +32,7 @@ func Run(c *cli.Context) error {
 
 	r, err := readline.New(prompt)
 	if err != nil {
-		// TODO return err
-		fmt.Fprint(os.Stdout, err)
-		os.Exit(1)
+		return err
 	}
 	defer r.Close()
 
@@ -95,6 +93,10 @@ func init() {
 					Name:    "metadata",
 					Usage:   "A list of key-value pairs to be forwarded as metadata",
 					EnvVars: []string{"MICRO_METADATA"},
+				},
+				&cli.StringFlag{
+					Name:  "request_timeout",
+					Usage: "timeout duration",
 				},
 			},
 		},

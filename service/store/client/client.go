@@ -1,7 +1,7 @@
 package client
 
 import (
-	"context"
+	goctx "context"
 	"fmt"
 	"io"
 	"reflect"
@@ -10,9 +10,10 @@ import (
 	goclient "github.com/micro/go-micro/v3/client"
 	"github.com/micro/go-micro/v3/metadata"
 	"github.com/micro/go-micro/v3/store"
+	pb "github.com/micro/micro/v3/proto/store"
 	"github.com/micro/micro/v3/service/client"
+	"github.com/micro/micro/v3/service/context"
 	"github.com/micro/micro/v3/service/errors"
-	pb "github.com/micro/micro/v3/service/store/proto"
 )
 
 type srv struct {
@@ -46,8 +47,8 @@ func (s *srv) Init(opts ...store.Option) error {
 	return nil
 }
 
-func (s *srv) Context() context.Context {
-	ctx := context.Background()
+func (s *srv) Context() goctx.Context {
+	ctx := context.DefaultContext
 	md := make(metadata.Metadata)
 	if len(s.Database) > 0 {
 		md["Micro-Database"] = s.Database
@@ -56,7 +57,7 @@ func (s *srv) Context() context.Context {
 	if len(s.Table) > 0 {
 		md["Micro-Table"] = s.Table
 	}
-	return metadata.NewContext(ctx, md)
+	return metadata.MergeContext(ctx, md, true)
 }
 
 // Sync all the known records

@@ -3,13 +3,13 @@ package server
 import (
 	"os"
 
-	"github.com/micro/cli/v2"
 	goruntime "github.com/micro/go-micro/v3/runtime"
+	pb "github.com/micro/micro/v3/proto/runtime"
 	"github.com/micro/micro/v3/service"
 	log "github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/runtime"
 	"github.com/micro/micro/v3/service/runtime/manager"
-	pb "github.com/micro/micro/v3/service/runtime/proto"
+	"github.com/urfave/cli/v2"
 )
 
 var (
@@ -70,7 +70,6 @@ func Run(ctx *cli.Context) error {
 
 	// register the runtime handler
 	pb.RegisterRuntimeHandler(srv.Server(), &Runtime{
-		Event:   service.NewEvent("runtime.events"),
 		Runtime: manager,
 	})
 

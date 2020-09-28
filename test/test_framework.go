@@ -7,7 +7,6 @@ import (
 	"math/rand"
 	"os"
 	"os/exec"
-	"os/user"
 	"path/filepath"
 	"runtime"
 	"runtime/debug"
@@ -19,6 +18,7 @@ import (
 
 	"github.com/micro/micro/v3/client/cli/namespace"
 	"github.com/micro/micro/v3/client/cli/token"
+	"github.com/micro/micro/v3/internal/user"
 )
 
 const (
@@ -27,12 +27,12 @@ const (
 )
 
 var (
-	retryCount        = 2
+	retryCount        = 1
 	isParallel        = true
 	ignoreThisError   = errors.New("Do not use this error")
 	errFatal          = errors.New("Fatal error")
 	testFilter        = []string{}
-	maxTimeMultiplier = time.Duration(1)
+	maxTimeMultiplier = 1
 )
 
 type cmdFunc func() ([]byte, error)
@@ -56,6 +56,7 @@ type Server interface {
 type Command struct {
 	Env    string
 	Config string
+	Dir    string
 
 	sync.Mutex
 	// in the event an async command is run
@@ -90,7 +91,11 @@ func (c *Command) Exec(args ...string) ([]byte, error) {
 	arguments := c.args(args...)
 	// exec the command
 	// c.t.Logf("Executing command: micro %s\n", strings.Join(arguments, " "))
-	return exec.Command("micro", arguments...).CombinedOutput()
+	com := exec.Command("micro", arguments...)
+	if len(c.Dir) > 0 {
+		com.Dir = c.Dir
+	}
+	return com.CombinedOutput()
 }
 
 // Starts a new command
@@ -140,9 +145,10 @@ func (c *Command) Output() ([]byte, error) {
 // happen without calling `t.Fatal`. The error value should be disregarded.
 func Try(blockName string, t *T, f cmdFunc, maxTime time.Duration) error {
 	// hack. k8s can be slow locally
-	maxTime *= maxTimeMultiplier
+	maxNano := float64(maxTime.Nanoseconds())
+	maxNano *= float64(maxTimeMultiplier)
 	// backoff, the retry logic is basically to cover up timing issues
-	maxTime *= time.Duration(t.attempt)
+	maxNano += maxNano * float64(0.5) * float64(t.attempt-1)
 	start := time.Now()
 	var outp []byte
 	var err error
@@ -151,7 +157,7 @@ func Try(blockName string, t *T, f cmdFunc, maxTime time.Duration) error {
 		if t.failed {
 			return ignoreThisError
 		}
-		if time.Since(start) > maxTime {
+		if time.Since(start) > time.Duration(maxNano) {
 			_, file, line, _ := runtime.Caller(1)
 			fname := filepath.Base(file)
 			if err != nil {
@@ -228,6 +234,8 @@ func myCaller() string {
 type Options struct {
 	// Login specifies whether to login to the server
 	Login bool
+	// Namespace to use, defaults to the test name
+	Namespace string
 }
 
 type Option func(o *Options)
@@ -235,6 +243,12 @@ type Option func(o *Options)
 func WithLogin() Option {
 	return func(o *Options) {
 		o.Login = true
+	}
+}
+
+func WithNamespace(ns string) Option {
+	return func(o *Options) {
+		o.Namespace = ns
 	}
 }
 
@@ -252,7 +266,10 @@ type ServerDefault struct {
 }
 
 func newLocalServer(t *T, fname string, opts ...Option) Server {
-	var options Options
+	options := Options{
+		Namespace: fname,
+		Login:     false,
+	}
 	for _, o := range opts {
 		o(&options)
 	}
@@ -300,7 +317,7 @@ func newLocalServer(t *T, fname string, opts ...Option) Server {
 		config:    configFile,
 		cmd:       cmd,
 		t:         t,
-		env:       fname,
+		env:       options.Namespace,
 		container: fname,
 		apiPort:   apiPortNum,
 		proxyPort: proxyPortnum,
@@ -310,8 +327,7 @@ func newLocalServer(t *T, fname string, opts ...Option) Server {
 }
 
 func configFile(fname string) string {
-	userDir, _ := user.Current()
-	dir := filepath.Join(userDir.HomeDir, ".micro/test")
+	dir := filepath.Join(user.Dir, "test")
 	return filepath.Join(dir, "config-"+fname+".json")
 }
 
@@ -330,20 +346,20 @@ func (s *ServerBase) Run() error {
 	if err := Try("Adding micro env: "+s.env+" file: "+s.config, s.t, func() ([]byte, error) {
 		out, err := cmd.Exec("env", "add", s.env, fmt.Sprintf("127.0.0.1:%d", s.ProxyPort()))
 		if err != nil {
-			return nil, err
+			return out, err
 		}
 
 		if len(out) > 0 {
-			return nil, errors.New("Not added")
+			return out, errors.New("Unexpected output when adding env")
 		}
 
 		out, err = cmd.Exec("env")
 		if err != nil {
-			return nil, err
+			return out, err
 		}
 
 		if !strings.Contains(string(out), s.env) {
-			return nil, errors.New("Not added")
+			return out, errors.New("Can't find env added")
 		}
 
 		return out, nil
@@ -359,20 +375,17 @@ func (s *ServerDefault) Run() error {
 		return err
 	}
 
+	servicesRequired := []string{"runtime", "registry", "broker", "config", "config", "proxy", "auth", "events", "store"}
 	if err := Try("Calling micro server", s.t, func() ([]byte, error) {
 		out, err := s.Command().Exec("services")
-		if !strings.Contains(string(out), "runtime") ||
-			!strings.Contains(string(out), "registry") ||
-			!strings.Contains(string(out), "broker") ||
-			!strings.Contains(string(out), "config") ||
-			!strings.Contains(string(out), "proxy") ||
-			!strings.Contains(string(out), "auth") ||
-			!strings.Contains(string(out), "store") {
-			return out, errors.New("Not ready")
+		for _, s := range servicesRequired {
+			if !strings.Contains(string(out), s) {
+				return out, fmt.Errorf("Can't find %v: %v", s, err)
+			}
 		}
 
 		return out, err
-	}, 60*time.Second); err != nil {
+	}, 90*time.Second); err != nil {
 		return err
 	}
 
@@ -431,6 +444,8 @@ type T struct {
 	values  []interface{}
 	t       *testing.T
 	attempt int
+	waiting bool
+	started time.Time
 }
 
 // Failed indicate whether the test failed
@@ -483,7 +498,10 @@ func doPanic() {
 
 func (t *T) Parallel() {
 	if t.counter == 0 && isParallel {
+		t.waiting = true
 		t.t.Parallel()
+		t.started = time.Now()
+		t.waiting = false
 	}
 	t.counter++
 }
@@ -496,8 +514,8 @@ func New(t *testing.T) *T {
 // TrySuite is designed to retry a TestXX function
 func TrySuite(t *testing.T, f func(t *T), times int) {
 	t.Helper()
+	caller := strings.Split(getFrame(1).Function, ".")[2]
 	if len(testFilter) > 0 {
-		caller := strings.Split(getFrame(1).Function, ".")[2]
 		runit := false
 		for _, test := range testFilter {
 			if test == caller {
@@ -509,24 +527,64 @@ func TrySuite(t *testing.T, f func(t *T), times int) {
 			t.Skip()
 		}
 	}
-
-	tee := New(t)
-	for i := 0; i < times; i++ {
-		wrapF(tee, f)
-		if !tee.failed {
-			return
-		}
-		if i != times-1 {
-			tee.failed = false
-		}
-		tee.attempt++
-		time.Sleep(200 * time.Millisecond)
+	timeout := os.Getenv("MICRO_TEST_TIMEOUT")
+	td, err := time.ParseDuration(timeout)
+	if err != nil {
+		td = 3 * time.Minute
 	}
-	if tee.failed {
-		if len(tee.format) > 0 {
-			t.Fatalf(tee.format, tee.values...)
-		} else {
-			t.Fatal(tee.values...)
+	timeoutCh := time.After(td)
+	done := make(chan bool)
+	start := time.Now()
+	tee := New(t)
+	go func() {
+		for i := 0; i < times; i++ {
+			wrapF(tee, f)
+			if !tee.failed {
+				done <- true
+				return
+			}
+			if i != times-1 {
+				tee.failed = false
+			}
+			tee.attempt++
+			time.Sleep(200 * time.Millisecond)
+		}
+		if tee.failed {
+			if t.Failed() {
+				done <- true
+				return
+			}
+			if len(tee.format) > 0 {
+				t.Fatalf(tee.format, tee.values...)
+			} else {
+				t.Fatal(tee.values...)
+			}
+			done <- true
+		}
+	}()
+	for {
+		select {
+		case <-timeoutCh:
+			if tee.waiting {
+				// not started yet, let's check back later
+				timeoutCh = time.After(td)
+				continue
+			}
+			if !tee.started.IsZero() && time.Since(tee.started) < td {
+				// not timed out since the actual start time, reset
+				timeoutCh = time.After(td - time.Since(tee.started))
+				continue
+			}
+			_, file, line, _ := runtime.Caller(1)
+			fname := filepath.Base(file)
+			actualStart := start
+			if !tee.started.IsZero() {
+				actualStart = tee.started
+			}
+			t.Fatalf("%v:%v, %v (failed after %v)", fname, line, caller, time.Since(actualStart))
+			return
+		case <-done:
+			return
 		}
 	}
 }

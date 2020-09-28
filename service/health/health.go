@@ -5,13 +5,13 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/micro/cli/v2"
 	goclient "github.com/micro/go-micro/v3/client"
 	"github.com/micro/micro/v3/client/cli/util"
 	qcli "github.com/micro/micro/v3/internal/command"
+	proto "github.com/micro/micro/v3/proto/debug"
 	"github.com/micro/micro/v3/service/client"
-	proto "github.com/micro/micro/v3/service/debug/proto"
 	"github.com/micro/micro/v3/service/logger"
+	"github.com/urfave/cli/v2"
 	"golang.org/x/net/context"
 )
 
@@ -53,7 +53,7 @@ func Run(ctx *cli.Context) error {
 		req := client.NewRequest(serverName, "Debug.Health", &proto.HealthRequest{})
 		rsp := &proto.HealthResponse{}
 
-		err := client.Call(context.TODO(), req, rsp, goclient.WithAddress(serverAddress))
+		err := client.DefaultClient.Call(context.TODO(), req, rsp, goclient.WithAddress(serverAddress))
 		if err != nil || rsp.Status != "ok" {
 			w.WriteHeader(http.StatusInternalServerError)
 			fmt.Fprint(w, "NOT_HEALTHY")

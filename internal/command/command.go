@@ -10,16 +10,16 @@ import (
 	"strings"
 	"time"
 
-	"github.com/micro/cli/v2"
 	goclient "github.com/micro/go-micro/v3/client"
 	cbytes "github.com/micro/go-micro/v3/codec/bytes"
 	"github.com/micro/go-micro/v3/metadata"
 	goregistry "github.com/micro/go-micro/v3/registry"
 	"github.com/micro/micro/v3/client/cli/namespace"
 	"github.com/micro/micro/v3/client/cli/util"
+	proto "github.com/micro/micro/v3/proto/debug"
 	"github.com/micro/micro/v3/service/client"
-	proto "github.com/micro/micro/v3/service/debug/proto"
 	"github.com/micro/micro/v3/service/registry"
+	"github.com/urfave/cli/v2"
 
 	"github.com/serenize/snaker"
 )
@@ -79,7 +79,11 @@ func GetService(c *cli.Context, args []string) ([]byte, error) {
 		return nil, errors.New("service required")
 	}
 
-	ns, err := namespace.Get(util.GetEnv(c).Name)
+	env, err := util.GetEnv(c)
+	if err != nil {
+		return nil, err
+	}
+	ns, err := namespace.Get(env.Name)
 	if err != nil {
 		return nil, err
 	}
@@ -87,7 +91,7 @@ func GetService(c *cli.Context, args []string) ([]byte, error) {
 	var output []string
 	var srv []*goregistry.Service
 
-	srv, err = registry.GetService(args[0], goregistry.GetDomain(ns))
+	srv, err = registry.DefaultRegistry.GetService(args[0], goregistry.GetDomain(ns))
 	if err != nil {
 		return nil, err
 	}
@@ -154,12 +158,16 @@ func ListServices(c *cli.Context) ([]byte, error) {
 	var rsp []*goregistry.Service
 	var err error
 
-	ns, err := namespace.Get(util.GetEnv(c).Name)
+	env, err := util.GetEnv(c)
+	if err != nil {
+		return nil, err
+	}
+	ns, err := namespace.Get(env.Name)
 	if err != nil {
 		return nil, err
 	}
 
-	rsp, err = registry.ListServices(goregistry.ListDomain(ns))
+	rsp, err = registry.DefaultRegistry.ListServices(goregistry.ListDomain(ns))
 	if err != nil {
 		return nil, err
 	}
@@ -197,7 +205,7 @@ func Publish(c *cli.Context, args []string) error {
 	}
 
 	ctx := callContext(c)
-	m := client.NewMessage(topic, msg, ct)
+	m := client.DefaultClient.NewMessage(topic, msg, ct)
 	return client.Publish(ctx, m)
 }
 
@@ -231,9 +239,16 @@ func CallService(c *cli.Context, args []string) ([]byte, error) {
 
 	ctx := callContext(c)
 
-	creq := client.NewRequest(service, endpoint, request, goclient.WithContentType("application/json"))
+	creq := client.DefaultClient.NewRequest(service, endpoint, request, goclient.WithContentType("application/json"))
 
 	opts := []goclient.CallOption{goclient.WithAuthToken()}
+	if timeout := c.String("request_timeout"); timeout != "" {
+		duration, err := time.ParseDuration(timeout)
+		if err != nil {
+			return nil, err
+		}
+		opts = append(opts, goclient.WithRequestTimeout(duration))
+	}
 
 	if addr := c.String("address"); len(addr) > 0 {
 		opts = append(opts, goclient.WithAddress(addr))
@@ -242,12 +257,12 @@ func CallService(c *cli.Context, args []string) ([]byte, error) {
 	var err error
 	if output := c.String("output"); output == "raw" {
 		rsp := cbytes.Frame{}
-		err = client.Call(ctx, creq, &rsp, opts...)
+		err = client.DefaultClient.Call(ctx, creq, &rsp, opts...)
 		// set the raw output
 		response = rsp.Data
 	} else {
 		var rsp json.RawMessage
-		err = client.Call(ctx, creq, &rsp, opts...)
+		err = client.DefaultClient.Call(ctx, creq, &rsp, opts...)
 		// set the response
 		if err == nil {
 			var out bytes.Buffer
@@ -271,7 +286,11 @@ func QueryHealth(c *cli.Context, args []string) ([]byte, error) {
 		return nil, errors.New("require service name")
 	}
 
-	ns, err := namespace.Get(util.GetEnv(c).Name)
+	env, err := util.GetEnv(c)
+	if err != nil {
+		return nil, err
+	}
+	ns, err := namespace.Get(env.Name)
 	if err != nil {
 		return nil, err
 	}
@@ -281,7 +300,7 @@ func QueryHealth(c *cli.Context, args []string) ([]byte, error) {
 	// if the address is specified then we just call it
 	if addr := c.String("address"); len(addr) > 0 {
 		rsp := &proto.HealthResponse{}
-		err := client.Call(
+		err := client.DefaultClient.Call(
 			context.Background(),
 			req,
 			rsp,
@@ -294,7 +313,7 @@ func QueryHealth(c *cli.Context, args []string) ([]byte, error) {
 	}
 
 	// otherwise get the service and call each instance individually
-	service, err := registry.GetService(args[0], goregistry.GetDomain(ns))
+	service, err := registry.DefaultRegistry.GetService(args[0], goregistry.GetDomain(ns))
 	if err != nil {
 		return nil, err
 	}
@@ -320,7 +339,7 @@ func QueryHealth(c *cli.Context, args []string) ([]byte, error) {
 			var err error
 
 			// call using client
-			err = client.Call(
+			err = client.DefaultClient.Call(
 				context.Background(),
 				req,
 				rsp,

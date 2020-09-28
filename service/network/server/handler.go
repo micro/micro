@@ -6,12 +6,13 @@ import (
 	"github.com/micro/go-micro/v3/network"
 	"github.com/micro/go-micro/v3/network/mucp"
 	"github.com/micro/go-micro/v3/router"
+	authns "github.com/micro/micro/v3/internal/auth/namespace"
 	"github.com/micro/micro/v3/internal/namespace"
+	pb "github.com/micro/micro/v3/proto/network"
+	pbRtr "github.com/micro/micro/v3/proto/router"
 	"github.com/micro/micro/v3/service/errors"
 	log "github.com/micro/micro/v3/service/logger"
-	pb "github.com/micro/micro/v3/service/network/proto"
 	"github.com/micro/micro/v3/service/network/util"
-	pbRtr "github.com/micro/micro/v3/service/router/proto"
 )
 
 // Network implements network handler
@@ -151,40 +152,52 @@ func (n *Network) Routes(ctx context.Context, req *pb.RoutesRequest, resp *pb.Ro
 	}
 
 	// authorize the request
-	if err := namespace.Authorize(ctx, req.Query.Network); err == namespace.ErrForbidden {
+	if err := authns.Authorize(ctx, req.Query.Network); err == authns.ErrForbidden {
 		return errors.Forbidden("network.Network.Routes", err.Error())
-	} else if err == namespace.ErrUnauthorized {
+	} else if err == authns.ErrUnauthorized {
 		return errors.Unauthorized("network.Network.Routes", err.Error())
 	} else if err != nil {
 		return errors.InternalServerError("network.Network.Routes", err.Error())
 	}
 
 	// build query
-	var qOpts []router.QueryOption
-	if len(req.Query.Service) > 0 {
-		qOpts = append(qOpts, router.QueryService(req.Query.Service))
-	}
+	var qOpts []router.LookupOption
 	if len(req.Query.Address) > 0 {
-		qOpts = append(qOpts, router.QueryAddress(req.Query.Address))
+		qOpts = append(qOpts, router.LookupAddress(req.Query.Address))
 	}
 	if len(req.Query.Gateway) > 0 {
-		qOpts = append(qOpts, router.QueryGateway(req.Query.Gateway))
+		qOpts = append(qOpts, router.LookupGateway(req.Query.Gateway))
 	}
 	if len(req.Query.Router) > 0 {
-		qOpts = append(qOpts, router.QueryRouter(req.Query.Router))
+		qOpts = append(qOpts, router.LookupRouter(req.Query.Router))
 	}
 
 	// for users in the default namespace, allow access to all namespaces
 	if req.Query.Network != namespace.DefaultNamespace {
-		qOpts = append(qOpts, router.QueryNetwork(req.Query.Network))
+		qOpts = append(qOpts, router.LookupNetwork(req.Query.Network))
 	}
 
-	routes, err := n.Network.Options().Router.Table().Query(qOpts...)
+	var routes []router.Route
+	var err error
+
+	// if a service is specified to a router Lookup
+	if len(req.Query.Service) > 0 {
+		routes, err = n.Network.Options().Router.Lookup(req.Query.Service, qOpts...)
+	} else {
+		// otherwise list and filter
+		routes, err := n.Network.Options().Router.Table().Read()
+		if err == nil {
+			// filter the routes
+			routes = router.Filter(routes, router.NewLookup(qOpts...))
+		}
+	}
+
 	if err != nil {
 		return errors.InternalServerError("network.Network.Routes", "failed to list routes: %s", err)
 	}
 
 	respRoutes := make([]*pbRtr.Route, 0, len(routes))
+
 	for _, route := range routes {
 		respRoute := &pbRtr.Route{
 			Service: route.Service,
@@ -206,15 +219,15 @@ func (n *Network) Routes(ctx context.Context, req *pb.RoutesRequest, resp *pb.Ro
 // Services returns a list of services based on the routing table
 func (n *Network) Services(ctx context.Context, req *pb.ServicesRequest, resp *pb.ServicesResponse) error {
 	// authorize the request. only accounts issued by micro (root accounts) can access this endpoint
-	if err := namespace.Authorize(ctx, namespace.DefaultNamespace); err == namespace.ErrForbidden {
+	if err := authns.Authorize(ctx, namespace.DefaultNamespace); err == authns.ErrForbidden {
 		return errors.Forbidden("network.Network.Services", err.Error())
-	} else if err == namespace.ErrUnauthorized {
+	} else if err == authns.ErrUnauthorized {
 		return errors.Unauthorized("network.Network.Services", err.Error())
 	} else if err != nil {
 		return errors.InternalServerError("network.Network.Services", err.Error())
 	}
 
-	routes, err := n.Network.Options().Router.Table().List()
+	routes, err := n.Network.Options().Router.Table().Read()
 	if err != nil {
 		return errors.InternalServerError("network.Network.Services", "failed to list services: %s", err)
 	}

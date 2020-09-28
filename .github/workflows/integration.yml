@@ -26,9 +26,7 @@ jobs:
         echo "::set-output name=date::$(/bin/date -u "+%Y%m%d")"
       shell: bash
     - name: Enable caching
-      # We would use the official actions/cache@v2, but it doesn't save the cache if the build fails
-      # caches are scoped to a branch but will also check the default branch upon cache miss
-      uses: pat-s/always-upload-cache@v2.0.0 
+      uses: actions/cache@v2
       with:
         path: ~/go/pkg/mod
         key: ${{ runner.os }}-go-int-${{ steps.get-date.outputs.date }}
@@ -36,17 +34,38 @@ jobs:
     - name: Install Protoc
       uses: arduino/setup-protoc@master
 
-    - name: Install micro
+    - name: Install Protoc Gen Micro
+      working-directory: ./cmd/protoc-gen-micro
+      run: go install
+
+    - name: Install Protoc Gen Go
+      run: go get -u github.com/golang/protobuf/protoc-gen-go
+
+    - name: Replace CI profile
+      id: replace-profile
       run: |
-        go install # this is used by the tests themselves
-        GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build
+        go mod edit -replace github.com/micro/micro/profile/ci/v3=./profile/ci
+        go mod edit -replace google.golang.org/grpc=google.golang.org/grpc@v1.26.0
+
+    # Install micro binary and then build micro with the profile inside a tmp directory. We do this
+    # to not alter the original go.mod & go.sum, which the test services reference directly with 
+    # replace statements. TODO: find a simpler way of achieving this.
+    - name: Install micro
+      id: install-micro
+      run: |
+        go install
+        out=$(pwd)/micro
+        mkdir /tmp/micro
+        cp -R . /tmp/micro
+        cd /tmp/micro
+        micro init --profile=ci --output=profile.go
+        GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o $out
+    
     # This sets up a local docker registry to push and pull our test docker image so that we can persist 
     # Based on https://dev.to/dtinth/caching-docker-builds-in-github-actions-which-approach-is-the-fastest-a-research-18ei
     - name: Setup docker caching
       id: cache-docker
-      # We would use the official actions/cache@v2, but it doesn't save the cache if the build fails
-      # caches are scoped to a branch but will also check the default branch upon cache miss
-      uses: pat-s/always-upload-cache@v2.0.0
+      uses: actions/cache@v2
       with:
         path: /tmp/docker-registry
         key: docker-registry-int-${{ steps.get-date.outputs.date }}
@@ -62,9 +81,11 @@ jobs:
 
     - name: Test micro server
       working-directory: ./test
+      env:
+        GITHUB_PAT: ${{ secrets.MICRO_ACTIONS_PAT }}
+        GITLAB_PAT: ${{ secrets.GITLAB_PAT }}
       run: |
           # Generate keys for JWT tests
           ssh-keygen -f /tmp/sshkey -m pkcs8 -q -N ""
           ssh-keygen -f /tmp/sshkey -e  -m pkcs8 > /tmp/sshkey.pub
-          go clean -testcache && go test --tags=integration -v ./...
-        
+          go clean -testcache && go test --tags=integration -v -run ./... -timeout 20m

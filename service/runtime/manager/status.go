@@ -3,10 +3,10 @@ package manager
 import (
 	"encoding/json"
 	"fmt"
+	"strconv"
 	"strings"
 	"time"
 
-	gorun "github.com/micro/go-micro/v3/runtime"
 	"github.com/micro/go-micro/v3/store"
 	"github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/runtime"
@@ -17,12 +17,13 @@ const statusPrefix = "status:"
 
 // serviceStatus contains the runtime specific information for a service
 type serviceStatus struct {
-	Status string
-	Error  string
+	Status  runtime.ServiceStatus
+	Updated time.Time
+	Error   string
 }
 
 // statusPollFrequency is the max frequency the manager will check for new statuses in the runtime
-var statusPollFrequency = time.Second * 30
+var statusPollFrequency = time.Second * 15
 
 // watchStatus calls syncStatus periodically and should be run in a seperate go routine
 func (m *manager) watchStatus() {
@@ -44,13 +45,18 @@ func (m *manager) syncStatus() {
 	}
 
 	for _, ns := range namespaces {
-		srvs, err := runtime.Read(gorun.ReadNamespace(ns))
+		statuses, _ := m.listStatuses(ns) // ignore error, best efforts
+		srvs, err := runtime.Read(runtime.ReadNamespace(ns))
 		if err != nil {
 			logger.Warnf("Error reading namespace %v: %v", ns, err)
 			return
 		}
 
 		for _, srv := range srvs {
+			s := statuses[srv.Name+":"+srv.Version]
+			if s != nil && !s.Updated.IsZero() {
+				srv.Metadata["updated"] = fmt.Sprintf("%d", s.Updated.Unix())
+			}
 			if err := m.cacheStatus(ns, srv); err != nil {
 				logger.Warnf("Error caching status: %v", err)
 				return
@@ -60,16 +66,22 @@ func (m *manager) syncStatus() {
 }
 
 // cacheStatus writes a services status to the memory store which is then later returned in service
-// metadata on gorun.Read
-func (m *manager) cacheStatus(ns string, srv *gorun.Service) error {
+// metadata on runtime.Read
+func (m *manager) cacheStatus(ns string, srv *runtime.Service) error {
 	// errors / status is returned from the underlying runtime using srv.Metadata. TODO: Consider
-	// changing this so status / error are attributes on gorun.Service.
+	// changing this so status / error are attributes on runtime.Service.
 	if srv.Metadata == nil {
 		return fmt.Errorf("Service %v:%v (%v) is missing metadata", srv.Name, srv.Version, ns)
 	}
 
 	key := fmt.Sprintf("%v%v:%v:%v", statusPrefix, ns, srv.Name, srv.Version)
-	val := &serviceStatus{Status: srv.Metadata["status"], Error: srv.Metadata["error"]}
+	val := &serviceStatus{Status: srv.Status, Error: srv.Metadata["error"]}
+	if len(srv.Metadata["updated"]) > 0 {
+		ts, err := strconv.ParseInt(srv.Metadata["updated"], 10, 64)
+		if err == nil {
+			val.Updated = time.Unix(ts, 0)
+		}
+	}
 
 	bytes, err := json.Marshal(val)
 	if err != nil {

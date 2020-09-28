@@ -8,24 +8,71 @@ import (
 var (
 	// DefaultStore implementation
 	DefaultStore store.Store = client.NewStore()
+	// DefaultBlobStore implementation
+	DefaultBlobStore store.BlobStore = client.NewBlobStore()
+	// ErrNotFound is returned when a key doesn't exist
+	ErrNotFound = store.ErrNotFound
+	// ErrMissingKey is returned when a key wasn't provided
+	ErrMissingKey = store.ErrMissingKey
 )
 
-// Read takes a single key name and optional ReadOptions. It returns matching []*Record or an error.
-func Read(key string, opts ...store.ReadOption) ([]*store.Record, error) {
-	return DefaultStore.Read(key, opts...)
+type (
+	// Record is an alias for store.Record
+	Record = store.Record
+)
+
+// Read records
+func Read(key string, opts ...Option) ([]*Record, error) {
+	var options Options
+	for _, o := range opts {
+		o(&options)
+	}
+
+	// convert the options
+	var readOpts []store.ReadOption
+	if len(options.Prefix) > 0 {
+		key = options.Prefix
+		readOpts = append(readOpts, store.ReadPrefix())
+	}
+	if options.Limit > 0 {
+		readOpts = append(readOpts, store.ReadLimit(options.Limit))
+	}
+	if options.Offset > 0 {
+		readOpts = append(readOpts, store.ReadOffset(options.Offset))
+	}
+
+	// execute the query
+	return DefaultStore.Read(key, readOpts...)
 }
 
-// Write a record to the store, and returns an error if the record was not written.
-func Write(r *store.Record, opts ...store.WriteOption) error {
-	return DefaultStore.Write(r, opts...)
+// Write a record to the store
+func Write(r *Record) error {
+	return DefaultStore.Write(r)
 }
 
 // Delete removes the record with the corresponding key from the store.
-func Delete(key string, opts ...store.DeleteOption) error {
-	return DefaultStore.Delete(key, opts...)
+func Delete(key string) error {
+	return DefaultStore.Delete(key)
 }
 
 // List returns any keys that match, or an empty list with no error if none matched.
-func List(opts ...store.ListOption) ([]string, error) {
-	return DefaultStore.List(opts...)
+func List(opts ...Option) ([]string, error) {
+	var options Options
+	for _, o := range opts {
+		o(&options)
+	}
+
+	// convert the options
+	var listOpts []store.ListOption
+	if len(options.Prefix) > 0 {
+		listOpts = append(listOpts, store.ListPrefix(options.Prefix))
+	}
+	if options.Limit > 0 {
+		listOpts = append(listOpts, store.ListLimit(options.Limit))
+	}
+	if options.Offset > 0 {
+		listOpts = append(listOpts, store.ListOffset(options.Offset))
+	}
+
+	return DefaultStore.List(listOpts...)
 }

@@ -10,6 +10,8 @@ RUN mkdir -p ${GOPATH}/src ${GOPATH}/bin
 
 COPY go.mod .
 COPY go.sum .
+# The next line can be removed once the profile go.mod's are merged into master
+COPY profile profile
 RUN go mod download
 COPY . /
 RUN make ; rm -rf $GOPATH/pkg/mod

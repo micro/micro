@@ -11,27 +11,56 @@ var (
 	DefaultRuntime runtime.Runtime = client.NewRuntime()
 )
 
+type (
+	// Logs is an alias for runtime.Logs
+	Logs = runtime.Logs
+	// Service is an alias for runtime.Service
+	Service = runtime.Service
+	// ServiceStatus is an alias for runtime.ServiceStatus
+	ServiceStatus = runtime.ServiceStatus
+)
+
+const (
+	// Unknown indicates the status of the service is not known
+	Unknown = runtime.Unknown
+	// Pending is the initial status of a service
+	Pending = runtime.Pending
+	// Building is the status when the service is being built
+	Building = runtime.Building
+	// Starting is the status when the service has been started but is not yet ready to accept traffic
+	Starting = runtime.Starting
+	// Running is the status when the service is active and accepting traffic
+	Running = runtime.Running
+	// Stopping is the status when a service is stopping
+	Stopping = runtime.Stopping
+	// Stopped is the status when a service has been stopped or has completed
+	Stopped = runtime.Stopped
+	// Error is the status when an error occured, this could be a build error or a run error. The error
+	// details can be found within the service's metadata
+	Error = runtime.Error
+)
+
 // Create registers a service
-func Create(srv *runtime.Service, opts ...runtime.CreateOption) error {
+func Create(srv *Service, opts ...CreateOption) error {
 	return DefaultRuntime.Create(srv, opts...)
 }
 
 // Read returns the service
-func Read(opts ...runtime.ReadOption) ([]*runtime.Service, error) {
+func Read(opts ...ReadOption) ([]*Service, error) {
 	return DefaultRuntime.Read(opts...)
 }
 
 // Update the service in place
-func Update(srv *runtime.Service, opts ...runtime.UpdateOption) error {
+func Update(srv *Service, opts ...UpdateOption) error {
 	return DefaultRuntime.Update(srv, opts...)
 }
 
 // Delete a service
-func Delete(srv *runtime.Service, opts ...runtime.DeleteOption) error {
+func Delete(srv *Service, opts ...DeleteOption) error {
 	return DefaultRuntime.Delete(srv, opts...)
 }
 
-// Logs returns the logs for a service
-func Logs(srv *runtime.Service, opts ...runtime.LogsOption) (runtime.Logs, error) {
+// Log returns the logs for a service
+func Log(srv *Service, opts ...LogsOption) (Logs, error) {
 	return DefaultRuntime.Logs(srv, opts...)
 }

@@ -4,19 +4,19 @@ import (
 	"context"
 	"time"
 
-	goauth "github.com/micro/go-micro/v3/auth"
-	"github.com/micro/go-micro/v3/runtime"
-	"github.com/micro/micro/v3/internal/namespace"
-	"github.com/micro/micro/v3/service"
+	goevents "github.com/micro/go-micro/v3/events"
+	gorun "github.com/micro/go-micro/v3/runtime"
+	"github.com/micro/micro/v3/internal/auth/namespace"
+	pb "github.com/micro/micro/v3/proto/runtime"
 	"github.com/micro/micro/v3/service/auth"
 	"github.com/micro/micro/v3/service/errors"
+	"github.com/micro/micro/v3/service/events"
 	log "github.com/micro/micro/v3/service/logger"
-	pb "github.com/micro/micro/v3/service/runtime/proto"
+	"github.com/micro/micro/v3/service/runtime"
 )
 
 type Runtime struct {
-	Runtime runtime.Runtime
-	Event   *service.Event
+	Runtime gorun.Runtime
 }
 
 func (r *Runtime) Read(ctx context.Context, req *pb.ReadRequest, rsp *pb.ReadResponse) error {
@@ -87,14 +87,16 @@ func (r *Runtime) Create(ctx context.Context, req *pb.CreateRequest, rsp *pb.Cre
 	}
 
 	// publish the create event
-	r.Event.Publish(ctx, &pb.Event{
-		Type:      "create",
-		Timestamp: time.Now().Unix(),
-		Service:   req.Service.Name,
-		Version:   req.Service.Version,
-	})
+	ev := &runtime.EventPayload{
+		Service:   service,
+		Namespace: req.Options.Namespace,
+		Type:      runtime.EventServiceCreated,
+	}
 
-	return nil
+	return events.Publish(runtime.EventTopic, ev, goevents.WithMetadata(map[string]string{
+		"type":      runtime.EventServiceCreated,
+		"namespace": req.Options.Namespace,
+	}))
 }
 
 func (r *Runtime) Update(ctx context.Context, req *pb.UpdateRequest, rsp *pb.UpdateResponse) error {
@@ -132,23 +134,30 @@ func (r *Runtime) Update(ctx context.Context, req *pb.UpdateRequest, rsp *pb.Upd
 	}
 
 	// publish the update event
-	r.Event.Publish(ctx, &pb.Event{
-		Type:      "update",
-		Timestamp: time.Now().Unix(),
-		Service:   req.Service.Name,
-		Version:   req.Service.Version,
-	})
+	ev := &runtime.EventPayload{
+		Service:   service,
+		Namespace: req.Options.Namespace,
+		Type:      runtime.EventServiceUpdated,
+	}
 
-	return nil
+	return events.Publish(runtime.EventTopic, ev, goevents.WithMetadata(map[string]string{
+		"type":      runtime.EventServiceUpdated,
+		"namespace": req.Options.Namespace,
+	}))
 }
 
 func setupServiceMeta(ctx context.Context, service *runtime.Service) {
 	if service.Metadata == nil {
 		service.Metadata = map[string]string{}
 	}
-	account, accOk := goauth.AccountFromContext(ctx)
+	account, accOk := auth.AccountFromContext(ctx)
 	if accOk {
-		service.Metadata["owner"] = account.ID
+		// Try to use the account name as it's more user friendly. If none, fall back to ID
+		owner := account.Name
+		if len(owner) == 0 {
+			owner = account.ID
+		}
+		service.Metadata["owner"] = owner
 		// This is a hack - we don't want vanilla `micro server` users where the auth is noop
 		// to have long uuid as owners, so we put micro here - not great, not terrible.
 		if auth.DefaultAuth.String() == "noop" {
@@ -192,14 +201,16 @@ func (r *Runtime) Delete(ctx context.Context, req *pb.DeleteRequest, rsp *pb.Del
 	}
 
 	// publish the delete event
-	r.Event.Publish(ctx, &pb.Event{
-		Type:      "delete",
-		Timestamp: time.Now().Unix(),
-		Service:   req.Service.Name,
-		Version:   req.Service.Version,
-	})
+	ev := &runtime.EventPayload{
+		Type:      runtime.EventServiceDeleted,
+		Namespace: req.Options.Namespace,
+		Service:   service,
+	}
 
-	return nil
+	return events.Publish(runtime.EventTopic, ev, goevents.WithMetadata(map[string]string{
+		"type":      runtime.EventServiceDeleted,
+		"namespace": req.Options.Namespace,
+	}))
 }
 
 func (r *Runtime) Logs(ctx context.Context, req *pb.LogsRequest, stream pb.Runtime_LogsStream) error {
@@ -258,4 +269,52 @@ func (r *Runtime) Logs(ctx context.Context, req *pb.LogsRequest, stream pb.Runti
 			return nil
 		}
 	}
+}
+
+func (r *Runtime) CreateNamespace(ctx context.Context, req *pb.CreateNamespaceRequest, rsp *pb.CreateNamespaceResponse) error {
+	// authorize the request, only admins/core services should be able to call
+	if err := namespace.Authorize(ctx, namespace.DefaultNamespace); err == namespace.ErrForbidden {
+		return errors.Forbidden("runtime.Runtime.CreateNamespace", err.Error())
+	} else if err == namespace.ErrUnauthorized {
+		return errors.Unauthorized("runtime.Runtime.CreateNamespace", err.Error())
+	} else if err != nil {
+		return errors.InternalServerError("runtime.Runtime.CreateNamespace", err.Error())
+	}
+
+	if err := r.Runtime.CreateNamespace(req.Namespace); err != nil {
+		return err
+	}
+
+	ev := &runtime.EventNamespacePayload{
+		Type:      runtime.EventNamespaceCreated,
+		Namespace: req.Namespace,
+	}
+	return events.Publish(runtime.EventTopic, ev, goevents.WithMetadata(map[string]string{
+		"type":      runtime.EventNamespaceCreated,
+		"namespace": req.Namespace,
+	}))
+}
+
+func (r *Runtime) DeleteNamespace(ctx context.Context, req *pb.DeleteNamespaceRequest, rsp *pb.DeleteNamespaceResponse) error {
+	// authorize the request, only admins/core services should be able to call
+	if err := namespace.Authorize(ctx, namespace.DefaultNamespace); err == namespace.ErrForbidden {
+		return errors.Forbidden("runtime.Runtime.DeleteNamespace", err.Error())
+	} else if err == namespace.ErrUnauthorized {
+		return errors.Unauthorized("runtime.Runtime.DeleteNamespace", err.Error())
+	} else if err != nil {
+		return errors.InternalServerError("runtime.Runtime.DeleteNamespace", err.Error())
+	}
+
+	if err := r.Runtime.DeleteNamespace(req.Namespace); err != nil {
+		return err
+	}
+
+	ev := &runtime.EventNamespacePayload{
+		Type:      runtime.EventNamespaceDeleted,
+		Namespace: req.Namespace,
+	}
+	return events.Publish(runtime.EventTopic, ev, goevents.WithMetadata(map[string]string{
+		"type":      runtime.EventNamespaceDeleted,
+		"namespace": req.Namespace,
+	}))
 }

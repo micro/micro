@@ -1,14 +1,14 @@
 package client
 
 import (
-	"context"
 	"time"
 
 	goclient "github.com/micro/go-micro/v3/client"
 	"github.com/micro/go-micro/v3/registry"
+	pb "github.com/micro/micro/v3/proto/registry"
 	"github.com/micro/micro/v3/service/client"
+	"github.com/micro/micro/v3/service/context"
 	"github.com/micro/micro/v3/service/errors"
-	pb "github.com/micro/micro/v3/service/registry/proto"
 	"github.com/micro/micro/v3/service/registry/util"
 )
 
@@ -60,9 +60,6 @@ func (s *srv) Register(srv *registry.Service, opts ...registry.RegisterOption) e
 	for _, o := range opts {
 		o(&options)
 	}
-	if options.Context == nil {
-		options.Context = context.TODO()
-	}
 
 	// encode srv into protobuf and pack TTL and domain into it
 	pbSrv := util.ToProto(srv)
@@ -70,7 +67,7 @@ func (s *srv) Register(srv *registry.Service, opts ...registry.RegisterOption) e
 	pbSrv.Options.Domain = options.Domain
 
 	// register the service
-	_, err := s.client.Register(options.Context, pbSrv, s.callOpts()...)
+	_, err := s.client.Register(context.DefaultContext, pbSrv, s.callOpts()...)
 	return err
 }
 
@@ -79,16 +76,13 @@ func (s *srv) Deregister(srv *registry.Service, opts ...registry.DeregisterOptio
 	for _, o := range opts {
 		o(&options)
 	}
-	if options.Context == nil {
-		options.Context = context.TODO()
-	}
 
 	// encode srv into protobuf and pack domain into it
 	pbSrv := util.ToProto(srv)
 	pbSrv.Options.Domain = options.Domain
 
 	// deregister the service
-	_, err := s.client.Deregister(options.Context, pbSrv, s.callOpts()...)
+	_, err := s.client.Deregister(context.DefaultContext, pbSrv, s.callOpts()...)
 	return err
 }
 
@@ -97,11 +91,8 @@ func (s *srv) GetService(name string, opts ...registry.GetOption) ([]*registry.S
 	for _, o := range opts {
 		o(&options)
 	}
-	if options.Context == nil {
-		options.Context = context.TODO()
-	}
 
-	rsp, err := s.client.GetService(options.Context, &pb.GetRequest{
+	rsp, err := s.client.GetService(context.DefaultContext, &pb.GetRequest{
 		Service: name, Options: &pb.Options{Domain: options.Domain},
 	}, s.callOpts()...)
 
@@ -123,12 +114,9 @@ func (s *srv) ListServices(opts ...registry.ListOption) ([]*registry.Service, er
 	for _, o := range opts {
 		o(&options)
 	}
-	if options.Context == nil {
-		options.Context = context.TODO()
-	}
 
 	req := &pb.ListRequest{Options: &pb.Options{Domain: options.Domain}}
-	rsp, err := s.client.ListServices(options.Context, req, s.callOpts()...)
+	rsp, err := s.client.ListServices(context.DefaultContext, req, s.callOpts()...)
 	if err != nil {
 		return nil, err
 	}
@@ -146,11 +134,8 @@ func (s *srv) Watch(opts ...registry.WatchOption) (registry.Watcher, error) {
 	for _, o := range opts {
 		o(&options)
 	}
-	if options.Context == nil {
-		options.Context = context.TODO()
-	}
 
-	stream, err := s.client.Watch(options.Context, &pb.WatchRequest{
+	stream, err := s.client.Watch(context.DefaultContext, &pb.WatchRequest{
 		Service: options.Service, Options: &pb.Options{Domain: options.Domain},
 	}, s.callOpts()...)
 

@@ -15,13 +15,13 @@ jobs:
         name: Checkout
         uses: actions/checkout@master
       -
+        name: Fetch tags
+        run: git fetch --prune --unshallow --tags -f
+      -
         name: Set up Go
         uses: actions/setup-go@v1
         with:
           go-version: '1.13'
-      -
-        name: Install upx
-        run: sudo apt install upx -y
       -
         name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v2
