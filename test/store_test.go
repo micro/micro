@@ -5,7 +5,6 @@ package test
 import (
 	"errors"
 	"fmt"
-	"os"
 	"strings"
 	"testing"
 	"time"
@@ -158,20 +157,7 @@ func testStoreImpl(t *T) {
 	}
 
 	cmd := serv.Command()
-
-	runTarget := "./service/storeexample"
-	branch := "latest"
-	if os.Getenv("MICRO_IS_KIND_TEST") == "true" {
-		if ref := os.Getenv("GITHUB_REF"); len(ref) > 0 {
-			branch = strings.TrimPrefix(ref, "refs/heads/")
-		} else {
-			branch = "master"
-		}
-		runTarget = "github.com/micro/micro/test/service/storeexample@" + branch
-		t.Logf("Running service from the %v branch of micro", branch)
-	}
-
-	outp, err := cmd.Exec("run", runTarget)
+	outp, err := cmd.Exec("run", "./service/storeexample")
 	if err != nil {
 		t.Fatalf("micro run failure, output: %v", string(outp))
 		return
@@ -185,7 +171,7 @@ func testStoreImpl(t *T) {
 
 		// The started service should have the runtime name of "service/example",
 		// as the runtime name is the relative path inside a repo.
-		if !statusRunning("storeexample", branch, outp) {
+		if !statusRunning("storeexample", "latest", outp) {
 			return outp, errors.New("Can't find example service in runtime")
 		}
 		return outp, err
@@ -239,20 +225,7 @@ func testBlobStore(t *T) {
 	}
 
 	cmd := serv.Command()
-
-	runTarget := "./service/blob-store"
-	branch := "latest"
-	if os.Getenv("MICRO_IS_KIND_TEST") == "true" {
-		if ref := os.Getenv("GITHUB_REF"); len(ref) > 0 {
-			branch = strings.TrimPrefix(ref, "refs/heads/")
-		} else {
-			branch = "master"
-		}
-		runTarget = "github.com/micro/micro/test/service/blob-store@" + branch
-		t.Logf("Running service from the %v branch of micro", branch)
-	}
-
-	outp, err := cmd.Exec("run", runTarget)
+	outp, err := cmd.Exec("run", "./service/blob-store")
 	if err != nil {
 		t.Fatalf("micro run failure, output: %v", string(outp))
 		return
@@ -264,7 +237,7 @@ func testBlobStore(t *T) {
 			return outp, err
 		}
 
-		if !statusRunning("blob-store", branch, outp) {
+		if !statusRunning("blob-store", "latest", outp) {
 			return outp, errors.New("Can't find blob-store service in runtime")
 		}
 		return outp, err

@@ -5,7 +5,6 @@ package test
 import (
 	"errors"
 	"fmt"
-	"os"
 	"strings"
 	"testing"
 	"time"
@@ -24,20 +23,7 @@ func testRPC(t *T) {
 	}
 
 	cmd := serv.Command()
-
-	runTarget := "./service/rpc/rpc-server"
-	branch := "latest"
-	if os.Getenv("MICRO_IS_KIND_TEST") == "true" {
-		if ref := os.Getenv("GITHUB_REF"); len(ref) > 0 {
-			branch = strings.TrimPrefix(ref, "refs/heads/")
-		} else {
-			branch = "master"
-		}
-		runTarget = "github.com/micro/micro/test/service/rpc/rpc-server@" + branch
-		t.Logf("Running service from the %v branch of micro", branch)
-	}
-
-	outp, err := cmd.Exec("run", runTarget)
+	outp, err := cmd.Exec("run", "./service/rpc/rpc-server")
 	if err != nil {
 		t.Fatalf("micro run failure, output: %v", string(outp))
 		return
@@ -56,19 +42,7 @@ func testRPC(t *T) {
 		return
 	}
 
-	runTarget = "./service/rpc/rpc-client"
-	branch = "latest"
-	if os.Getenv("MICRO_IS_KIND_TEST") == "true" {
-		if ref := os.Getenv("GITHUB_REF"); len(ref) > 0 {
-			branch = strings.TrimPrefix(ref, "refs/heads/")
-		} else {
-			branch = "master"
-		}
-		runTarget = "github.com/micro/micro/test/service/rpc/rpc-client@" + branch
-		t.Logf("Running service from the %v branch of micro", branch)
-	}
-
-	outp, err = cmd.Exec("run", runTarget)
+	outp, err = cmd.Exec("run", "./service/rpc/rpc-client")
 	if err != nil {
 		t.Fatalf("micro run failure, output: %v", string(outp))
 		return
@@ -86,5 +60,4 @@ func testRPC(t *T) {
 	}, 60*time.Second); err != nil {
 		return
 	}
-
 }
