@@ -43,7 +43,7 @@ jobs:
       run: |
         go install
         micro init --profile=platform --output=profile.go
-        go install
+        go build
 
     # We set up a local docker registry to push to and pull from. We need to set up the Kind cluster to pull from this
     # We don't currently cache this because it doesn't seem to speed up the build 
@@ -55,15 +55,13 @@ jobs:
       id: build-push-reg-micro
       run: |
         DIR=service/runtime/cells/micro
-        docker build -f $DIR/Dockerfile $DIR -t micro
-        docker tag micro localhost:5000/cells:micro
+        docker build -f $DIR/Dockerfile $DIR -t localhost:5000/cells:micro
         docker push localhost:5000/cells:micro
     
     - name: Build and push micro to local registry
       id: build-push-reg-cells
       run: |
-        docker build -f Dockerfile . -t micro
-        docker tag micro localhost:5000/micro 
+        docker build -f Dockerfile . -t localhost:5000/micro 
         docker push localhost:5000/micro
 
     - name: Setup Kind
