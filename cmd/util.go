@@ -2,9 +2,11 @@ package cmd
 
 import (
 	"time"
+	"unicode"
 
 	"github.com/google/uuid"
 	goauth "github.com/micro/go-micro/v3/auth"
+	"github.com/micro/go-micro/v3/errors"
 	"github.com/micro/go-micro/v3/logger"
 	"github.com/micro/micro/v3/client/cli/namespace"
 	clitoken "github.com/micro/micro/v3/client/cli/token"
@@ -12,6 +14,22 @@ import (
 	"github.com/micro/micro/v3/service/auth"
 	"github.com/urfave/cli/v2"
 )
+
+func formatErr(err error) string {
+	switch v := err.(type) {
+	case *errors.Error:
+		return upcaseInitial(v.Detail)
+	default:
+		return upcaseInitial(err.Error())
+	}
+}
+
+func upcaseInitial(str string) string {
+	for i, v := range str {
+		return string(unicode.ToUpper(v)) + str[i+1:]
+	}
+	return ""
+}
 
 // setupAuthForCLI handles exchanging refresh tokens to access tokens
 // The structure of the local micro userconfig file is the following:

@@ -4,6 +4,16 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+
+	"github.com/micro/micro/v3/cmd"
+
+	// load packages so they can register commands
+	_ "github.com/micro/micro/v3/client/cli"
+	_ "github.com/micro/micro/v3/server"
+	_ "github.com/micro/micro/v3/service/cli"
+
+	// include the platform profile
+	_ "github.com/micro/micro/profile/platform/v3"
 )
 
 var (
@@ -55,7 +65,8 @@ func main() {
 			return
 		}
 	default:
-		fmt.Println(usage)
+		// run micro by default
+		cmd.Run()
 		return
 	}
 }
