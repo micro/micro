@@ -5,7 +5,6 @@ package test
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"io/ioutil"
 	"os"
 	"os/exec"
