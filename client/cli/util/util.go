@@ -15,14 +15,18 @@ import (
 const (
 	// EnvLocal is a builtin environment, it represents your local `micro server`
 	EnvLocal = "local"
-	// EnvPlatform is a builtin environment, the One True Micro Live(tm) environment.
+	// EnvDev is a builtin staging / dev environment in the cloud
+	EnvDev = "dev"
+	// EnvPlatform is a builtin highly available environment in the cloud,
 	EnvPlatform = "platform"
 )
 
 const (
 	// localProxyAddress is the default proxy address for environment server
 	localProxyAddress = "127.0.0.1:8081"
-	// platformProxyAddress is teh default proxy address for environment platform
+	// devProxyAddress is the address for the proxy server in the dev environment
+	devProxyAddress = "proxy.m3o.dev"
+	// platformProxyAddress is the default proxy address for environment platform
 	platformProxyAddress = "proxy.m3o.com"
 )
 
@@ -48,6 +52,10 @@ var defaultEnvs = map[string]Env{
 	EnvLocal: {
 		Name:         EnvLocal,
 		ProxyAddress: localProxyAddress,
+	},
+	EnvDev: {
+		Name:         EnvDev,
+		ProxyAddress: devProxyAddress,
 	},
 	EnvPlatform: {
 		Name:         EnvPlatform,
@@ -169,15 +177,25 @@ func GetEnvs() ([]Env, error) {
 	if err != nil {
 		return nil, err
 	}
-	ret := []Env{defaultEnvs[EnvLocal], defaultEnvs[EnvPlatform]}
-	nonDefaults := []Env{}
+
+	var ret []Env
+
+	// populate the default environments
+	for _, env := range defaultEnvs {
+		ret = append(ret, env)
+	}
+
+	var nonDefaults []Env
+
 	for _, env := range envs {
 		if _, isDefault := defaultEnvs[env.Name]; !isDefault {
 			nonDefaults = append(nonDefaults, env)
 		}
 	}
+
 	// @todo order nondefault envs alphabetically
 	ret = append(ret, nonDefaults...)
+
 	return ret, nil
 }
 
