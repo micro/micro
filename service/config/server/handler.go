@@ -94,7 +94,7 @@ func (c *Config) Get(ctx context.Context, req *pb.GetRequest, rsp *pb.GetRespons
 	if err != nil {
 		return merrors.BadRequest("config.Config.Get", "JSOn encode error: %v", err)
 	}
-	rsp.Value.Data = buf.String()
+	rsp.Value.Data = strings.TrimSpace(buf.String())
 
 	return nil
 }
