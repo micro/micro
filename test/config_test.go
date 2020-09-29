@@ -174,7 +174,7 @@ func testConfig(t *T) {
 		return
 	}
 	if string(outp) != "Value with <> signs" {
-		t.Fatal("Expected 'Value with <> signs', got: %v", string(outp))
+		t.Fatalf("Expected 'Value with <> signs', got: %v", string(outp))
 		return
 	}
 }
