@@ -227,7 +227,7 @@ func (m *manager) Delete(srv *runtime.Service, opts ...runtime.DeleteOption) err
 	}
 
 	// delete from the underlying runtime
-	if err := m.Runtime.Delete(srv); err != nil && err != runtime.ErrNotFound {
+	if err := m.Runtime.Delete(srv, opts...); err != nil && err != runtime.ErrNotFound {
 		return err
 	}
 

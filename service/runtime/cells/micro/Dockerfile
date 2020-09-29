@@ -6,7 +6,4 @@ ENV PATH /go/bin:$PATH
 WORKDIR loader
 COPY loader .
 RUN go build  .
-
-FROM alpine:latest
-COPY --from=builder loader/loader loader
 CMD ./loader

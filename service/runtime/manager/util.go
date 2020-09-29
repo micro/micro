@@ -51,7 +51,6 @@ func (m *manager) buildAndUpdate(srv *service) {
 }
 
 func (m *manager) build(srv *service) error {
-	logger.Infof("Building source %v", srv.Service.Source)
 	// set the service status to building
 	srv.Status = runtime.Building
 	m.writeService(srv)
@@ -82,6 +81,7 @@ func (m *manager) build(srv *service) error {
 		}
 
 		// checkout the source
+		gitSrc.Ref = srv.Service.Version
 		dir, err := git.CheckoutSource(gitSrc, srv.Options.Secrets)
 		if err != nil {
 			handleError(err, "Error fetching git source")
