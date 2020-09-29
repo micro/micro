@@ -231,6 +231,43 @@ func init() {
 	rand.Seed(time.Now().Unix())
 }
 
+func action(c *cli.Context) error {
+	if c.Args().Len() > 0 {
+		// if an executable is available with the name of
+		// the command, execute it with the arguments from
+		// index 1 on.
+		v, err := exec.LookPath("micro-" + c.Args().First())
+		if err == nil {
+			ce := exec.Command(v, c.Args().Slice()[1:]...)
+			ce.Stdout = os.Stdout
+			ce.Stderr = os.Stderr
+			return ce.Run()
+		}
+
+		// lookup the service, e.g. "micro config set" would
+		// firstly check to see if the service, e.g. config
+		// exists within the current namespace, then it would
+		// execute the Config.Set RPC, setting the flags in the
+		// request.
+		if srv, ns, err := lookupService(c); err != nil {
+			fmt.Printf("Error querying registry for service %v: %v", c.Args().First(), err)
+			os.Exit(1)
+		} else if srv != nil && shouldRenderHelp(c) {
+			fmt.Println(formatServiceUsage(srv, c.Args().First()))
+			os.Exit(1)
+		} else if srv != nil {
+			if err := callService(srv, ns, c); err != nil {
+				fmt.Println(err)
+				os.Exit(1)
+			}
+			os.Exit(0)
+		}
+
+	}
+
+	return helper.MissingCommand(c)
+}
+
 func New(opts ...Option) *command {
 	options := Options{}
 	for _, o := range opts {
@@ -335,7 +372,11 @@ func (c *command) Before(ctx *cli.Context) error {
 	} else {
 		// for CLI, use the external proxy which is loaded from the
 		// local config
-		proxy = util.CLIProxyAddress(ctx)
+		var err error
+		proxy, err = util.CLIProxyAddress(ctx)
+		if err != nil {
+			return err
+		}
 	}
 	if len(proxy) > 0 {
 		muclient.DefaultClient.Init(client.Proxy(proxy))
@@ -537,43 +578,6 @@ func (c *command) String() string {
 	return "micro"
 }
 
-func action(c *cli.Context) error {
-	if c.Args().Len() > 0 {
-		// if an executable is available with the name of
-		// the command, execute it with the arguments from
-		// index 1 on.
-		v, err := exec.LookPath("micro-" + c.Args().First())
-		if err == nil {
-			ce := exec.Command(v, c.Args().Slice()[1:]...)
-			ce.Stdout = os.Stdout
-			ce.Stderr = os.Stderr
-			return ce.Run()
-		}
-
-		// lookup the service, e.g. "micro config set" would
-		// firstly check to see if the service, e.g. config
-		// exists within the current namespace, then it would
-		// execute the Config.Set RPC, setting the flags in the
-		// request.
-		if srv, ns, err := lookupService(c); err != nil {
-			fmt.Printf("Error querying registry for service %v: %v", c.Args().First(), err)
-			os.Exit(1)
-		} else if srv != nil && shouldRenderHelp(c) {
-			fmt.Println(formatServiceUsage(srv, c.Args().First()))
-			os.Exit(1)
-		} else if srv != nil {
-			if err := callService(srv, ns, c); err != nil {
-				fmt.Println(err)
-				os.Exit(1)
-			}
-			os.Exit(0)
-		}
-
-	}
-
-	return helper.MissingCommand(c)
-}
-
 // Register CLI commands
 func Register(cmds ...*cli.Command) {
 	app := DefaultCmd.App()
@@ -585,4 +589,12 @@ func Register(cmds ...*cli.Command) {
 	sort.Slice(app.Commands, func(i, j int) bool {
 		return app.Commands[i].Name < app.Commands[j].Name
 	})
+}
+
+// Run the default command
+func Run() {
+	if err := DefaultCmd.Run(); err != nil {
+		fmt.Println(formatErr(err))
+		os.Exit(1)
+	}
 }

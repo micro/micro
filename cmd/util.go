@@ -2,9 +2,11 @@ package cmd
 
 import (
 	"time"
+	"unicode"
 
 	"github.com/google/uuid"
 	goauth "github.com/micro/go-micro/v3/auth"
+	"github.com/micro/go-micro/v3/errors"
 	"github.com/micro/go-micro/v3/logger"
 	"github.com/micro/micro/v3/client/cli/namespace"
 	clitoken "github.com/micro/micro/v3/client/cli/token"
@@ -13,13 +15,32 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
+func formatErr(err error) string {
+	switch v := err.(type) {
+	case *errors.Error:
+		return upcaseInitial(v.Detail)
+	default:
+		return upcaseInitial(err.Error())
+	}
+}
+
+func upcaseInitial(str string) string {
+	for i, v := range str {
+		return string(unicode.ToUpper(v)) + str[i+1:]
+	}
+	return ""
+}
+
 // setupAuthForCLI handles exchanging refresh tokens to access tokens
 // The structure of the local micro userconfig file is the following:
 // micro.auth.[envName].token: temporary access token
 // micro.auth.[envName].refresh-token: long lived refresh token
 // micro.auth.[envName].expiry: expiration time of the access token, seconds since Unix epoch.
 func setupAuthForCLI(ctx *cli.Context) error {
-	env := util.GetEnv(ctx)
+	env, err := util.GetEnv(ctx)
+	if err != nil {
+		return err
+	}
 	ns, err := namespace.Get(env.Name)
 	if err != nil {
 		return err

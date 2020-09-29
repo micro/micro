@@ -11,6 +11,11 @@ import (
 	"github.com/micro/micro/v3/client/cli/util"
 	"github.com/micro/micro/v3/cmd"
 	"github.com/urfave/cli/v2"
+
+	_ "github.com/micro/micro/v3/client/cli/init"
+	_ "github.com/micro/micro/v3/client/cli/new"
+	_ "github.com/micro/micro/v3/client/cli/signup"
+	_ "github.com/micro/micro/v3/client/cli/user"
 )
 
 var (
@@ -32,9 +37,7 @@ func Run(c *cli.Context) error {
 
 	r, err := readline.New(prompt)
 	if err != nil {
-		// TODO return err
-		fmt.Fprint(os.Stdout, err)
-		os.Exit(1)
+		return err
 	}
 	defer r.Close()
 
