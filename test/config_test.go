@@ -3,8 +3,10 @@
 package test
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
+	"reflect"
 	"strings"
 	"testing"
 	"time"
@@ -110,6 +112,49 @@ func testConfig(t *T) {
 		}
 		return outp, err
 	}, 8*time.Second); err != nil {
+		return
+	}
+
+	// Test merges
+
+	// Testing dot notation
+	outp, err = cmd.Exec("config", "set", "mergekey", `'{"a":1}`)
+	if err != nil {
+		t.Fatal(err)
+		return
+	}
+	if string(outp) != "" {
+		t.Fatalf("Expected no output, got: %v", string(outp))
+		return
+	}
+
+	outp, err = cmd.Exec("config", "set", "mergekey", `'{"b":2}`)
+	if err != nil {
+		t.Fatal(err)
+		return
+	}
+	if string(outp) != "" {
+		t.Fatalf("Expected no output, got: %v", string(outp))
+		return
+	}
+
+	outp, err = cmd.Exec("config", "get", "mergekey")
+	if err != nil {
+		t.Fatal(err)
+		return
+	}
+	var m map[string]interface{}
+	err = json.Unmarshal(outp, &m)
+	if err != nil {
+		t.Fatal(err)
+		return
+	}
+	expected := map[string]interface{}{
+		"a": float64(1),
+		"b": float64(2),
+	}
+	if !reflect.DeepEqual(m, expected) {
+		t.Fatalf("Output is %v, expected: %v", m, expected)
 		return
 	}
 }
