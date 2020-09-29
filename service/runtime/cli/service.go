@@ -148,7 +148,8 @@ func appendSourceBase(ctx *cli.Context, workDir, source string) string {
 	isLocal, _ := git.IsLocal(workDir, source)
 	// @todo add list of supported hosts here or do this check better
 	if !isLocal && !strings.Contains(source, ".com") && !strings.Contains(source, ".org") && !strings.Contains(source, ".net") {
-		baseURL, _ := config.Get(config.Path("git", util.GetEnv(ctx).Name, "baseurl"))
+		env, _ := util.GetEnv(ctx)
+		baseURL, _ := config.Get(config.Path("git", env.Name, "baseurl"))
 		if len(baseURL) == 0 {
 			baseURL, _ = config.Get(config.Path("git", "baseurl"))
 		}
@@ -250,12 +251,24 @@ func runService(ctx *cli.Context) error {
 	if len(environment) > 0 {
 		opts = append(opts, runtime.WithEnv(environment))
 	}
+	if len(command) > 0 {
+		opts = append(opts, runtime.WithCommand(strings.Split(command, " ")...))
+	}
+
+	if len(args) > 0 {
+		opts = append(opts, runtime.WithArgs(strings.Split(args, " ")...))
+	}
 
 	// determine the namespace
-	ns, err := namespace.Get(util.GetEnv(ctx).Name)
+	env, err := util.GetEnv(ctx)
 	if err != nil {
 		return err
 	}
+	ns, err := namespace.Get(env.Name)
+	if err != nil {
+		return err
+	}
+
 	opts = append(opts, runtime.CreateNamespace(ns))
 	gitCreds, ok := getGitCredentials(source.Repo)
 	if ok {
@@ -311,7 +324,11 @@ func killService(ctx *cli.Context) error {
 	}
 
 	// determine the namespace
-	ns, err := namespace.Get(util.GetEnv(ctx).Name)
+	env, err := util.GetEnv(ctx)
+	if err != nil {
+		return err
+	}
+	ns, err := namespace.Get(env.Name)
 	if err != nil {
 		return err
 	}
@@ -375,7 +392,11 @@ func updateService(ctx *cli.Context) error {
 	}
 
 	// determine the namespace
-	ns, err := namespace.Get(util.GetEnv(ctx).Name)
+	env, err := util.GetEnv(ctx)
+	if err != nil {
+		return err
+	}
+	ns, err := namespace.Get(env.Name)
 	if err != nil {
 		return err
 	}
@@ -455,7 +476,11 @@ func getService(ctx *cli.Context) error {
 	}
 
 	// determine the namespace
-	ns, err := namespace.Get(util.GetEnv(ctx).Name)
+	env, err := util.GetEnv(ctx)
+	if err != nil {
+		return err
+	}
+	ns, err := namespace.Get(env.Name)
 	if err != nil {
 		return err
 	}
@@ -564,7 +589,11 @@ func getLogs(ctx *cli.Context) error {
 	//}
 
 	// determine the namespace
-	ns, err := namespace.Get(util.GetEnv(ctx).Name)
+	env, err := util.GetEnv(ctx)
+	if err != nil {
+		return err
+	}
+	ns, err := namespace.Get(env.Name)
 	if err != nil {
 		return err
 	}
