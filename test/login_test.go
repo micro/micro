@@ -29,7 +29,8 @@ func testCorruptedLogin(t *T) {
 	cmd := serv.Command()
 
 	outp, _ := cmd.Exec("status")
-	if !strings.Contains(string(outp), "Unauthorized") {
+	unauthorizedMessage := "account is required"
+	if !strings.Contains(string(outp), unauthorizedMessage) {
 		t.Fatalf("Call should need authorization")
 	}
 	outp, _ = cmd.Exec("login", "--email", "admin", "--password", "micro")
@@ -53,7 +54,7 @@ func testCorruptedLogin(t *T) {
 	}
 
 	outp, _ = cmd.Exec("status")
-	if !strings.Contains(string(outp), "Unauthorized") {
+	if !strings.Contains(string(outp), unauthorizedMessage) {
 		t.Fatalf("Call should have failed: %s", outp)
 	}
 	outp, _ = cmd.Exec("login", "--email", "admin", "--password", "micro")

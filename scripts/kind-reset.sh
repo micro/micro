@@ -1,7 +1,7 @@
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 # safety first
 kubectl config use-context kind-kind
-pushd $DIR/../platform/kubernetes
+pushd $DIR/../cmd/platform/kubernetes
 ./uninstall.sh
 popd
 # delete all the namespaces we've added

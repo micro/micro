@@ -2,8 +2,8 @@ package config
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
-	"os"
 	"strconv"
 	"strings"
 
@@ -31,7 +31,11 @@ func setConfig(ctx *cli.Context) error {
 		return fmt.Errorf("Required usage: micro config set key val")
 	}
 
-	ns, err := namespace.Get(util.GetEnv(ctx).Name)
+	env, err := util.GetEnv(ctx)
+	if err != nil {
+		return err
+	}
+	ns, err := namespace.Get(env.Name)
 	if err != nil {
 		return err
 	}
@@ -85,7 +89,11 @@ func getConfig(ctx *cli.Context) error {
 		return fmt.Errorf("key cannot be blank")
 	}
 
-	ns, err := namespace.Get(util.GetEnv(ctx).Name)
+	env, err := util.GetEnv(ctx)
+	if err != nil {
+		return err
+	}
+	ns, err := namespace.Get(env.Name)
 	if err != nil {
 		return err
 	}
@@ -122,8 +130,7 @@ func delConfig(ctx *cli.Context) error {
 	args := ctx.Args()
 
 	if args.Len() == 0 {
-		fmt.Println("Required usage: micro config get key")
-		os.Exit(1)
+		return errors.New("Required usage: micro config get key")
 	}
 	// key val
 	key := args.Get(0)
@@ -131,7 +138,11 @@ func delConfig(ctx *cli.Context) error {
 		log.Fatal("key cannot be blank")
 	}
 
-	ns, err := namespace.Get(util.GetEnv(ctx).Name)
+	env, err := util.GetEnv(ctx)
+	if err != nil {
+		return err
+	}
+	ns, err := namespace.Get(env.Name)
 	if err != nil {
 		return err
 	}

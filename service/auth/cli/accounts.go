@@ -20,7 +20,11 @@ import (
 func listAccounts(ctx *cli.Context) error {
 	cli := pb.NewAccountsService("auth", client.DefaultClient)
 
-	ns, err := namespace.Get(util.GetEnv(ctx).Name)
+	env, err := util.GetEnv(ctx)
+	if err != nil {
+		return err
+	}
+	ns, err := namespace.Get(env.Name)
 	if err != nil {
 		return fmt.Errorf("Error getting namespace: %v", err)
 	}
@@ -61,7 +65,11 @@ func createAccount(ctx *cli.Context) error {
 		return fmt.Errorf("Missing argument: ID")
 	}
 
-	ns, err := namespace.Get(util.GetEnv(ctx).Name)
+	env, err := util.GetEnv(ctx)
+	if err != nil {
+		return err
+	}
+	ns, err := namespace.Get(env.Name)
 	if err != nil {
 		return fmt.Errorf("Error getting namespace: %v", err)
 	}
@@ -89,7 +97,11 @@ func deleteAccount(ctx *cli.Context) error {
 	}
 	cli := pb.NewAccountsService("auth", client.DefaultClient)
 
-	ns, err := namespace.Get(util.GetEnv(ctx).Name)
+	env, err := util.GetEnv(ctx)
+	if err != nil {
+		return err
+	}
+	ns, err := namespace.Get(env.Name)
 	if err != nil {
 		return fmt.Errorf("Error getting namespace: %v", err)
 	}

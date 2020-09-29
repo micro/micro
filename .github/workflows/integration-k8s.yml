@@ -73,7 +73,7 @@ jobs:
 
     - name: Update the image
       run: |
-        bash .github/workflows/update-image.sh
+        bash scripts/update-image.sh
     # cache the prereqs
     - name: Cache pre-reqs
       uses: actions/cache@v2
@@ -82,7 +82,7 @@ jobs:
         key: ${{ runner.os }}-kind-cfssl
     - name: Install the prerequisites
       run: |
-        bash .github/workflows/kind-prereqs.sh
+        bash scripts/kind-prereqs.sh
 
     # Everything is set up so let's install the platform
     - name: Install the platform
@@ -91,6 +91,7 @@ jobs:
         S3_ENDPOINT: ${{ secrets.S3_ENDPOINT }}
         S3_ACCESS_KEY: ${{ secrets.S3_ACCESS_KEY }}
         S3_SECRET_KEY: ${{ secrets.S3_SECRET_KEY }}
+        TMPDIR: ${{ runner.temp }}
       run: |
         bash scripts/kind-launch.sh
     - name: Install failed, show platform logs

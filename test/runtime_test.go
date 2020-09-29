@@ -498,7 +498,7 @@ func testRunLocalUpdateAndCall(t *T) {
 			return outp, errors.New("Response is not what's expected")
 		}
 		return outp, err
-	}, 15*time.Second); err != nil {
+	}, 45*time.Second); err != nil {
 		return
 	}
 }

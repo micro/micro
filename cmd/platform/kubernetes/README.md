@@ -8,7 +8,6 @@ The platform consists of the following
 
 - **resource** - shared resources that must be run to support the platform
 - **service** - the micro services run on top of the shared infra as a platform
-- **server.yaml** - experimental single yaml deployment of a self managed micro server for dev
 
 ## Dependencies
 
@@ -31,6 +30,5 @@ For production
 All 443 with certs managed by certmagic/acme/letsencrypt. Cloudflare used for DNS.
 
 - api.m3o.com -> micro api
-- web.m3o.com -> micro web
 - proxy.m3o.com -> micro proxy
 

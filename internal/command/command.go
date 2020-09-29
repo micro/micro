@@ -79,7 +79,11 @@ func GetService(c *cli.Context, args []string) ([]byte, error) {
 		return nil, errors.New("service required")
 	}
 
-	ns, err := namespace.Get(util.GetEnv(c).Name)
+	env, err := util.GetEnv(c)
+	if err != nil {
+		return nil, err
+	}
+	ns, err := namespace.Get(env.Name)
 	if err != nil {
 		return nil, err
 	}
@@ -154,7 +158,11 @@ func ListServices(c *cli.Context) ([]byte, error) {
 	var rsp []*goregistry.Service
 	var err error
 
-	ns, err := namespace.Get(util.GetEnv(c).Name)
+	env, err := util.GetEnv(c)
+	if err != nil {
+		return nil, err
+	}
+	ns, err := namespace.Get(env.Name)
 	if err != nil {
 		return nil, err
 	}
@@ -278,7 +286,11 @@ func QueryHealth(c *cli.Context, args []string) ([]byte, error) {
 		return nil, errors.New("require service name")
 	}
 
-	ns, err := namespace.Get(util.GetEnv(c).Name)
+	env, err := util.GetEnv(c)
+	if err != nil {
+		return nil, err
+	}
+	ns, err := namespace.Get(env.Name)
 	if err != nil {
 		return nil, err
 	}
