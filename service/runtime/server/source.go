@@ -8,9 +8,8 @@ import (
 
 	"github.com/google/uuid"
 	gostore "github.com/micro/go-micro/v3/store"
-	authns "github.com/micro/micro/v3/internal/auth/namespace"
-	"github.com/micro/micro/v3/internal/namespace"
 	pb "github.com/micro/micro/v3/proto/runtime"
+	"github.com/micro/micro/v3/service/auth"
 	"github.com/micro/micro/v3/service/errors"
 	"github.com/micro/micro/v3/service/store"
 )
@@ -26,14 +25,11 @@ type Source struct{}
 // Upload source to the server
 func (s *Source) Upload(ctx context.Context, stream pb.Source_UploadStream) error {
 	// authorize the request
-	namespace := namespace.FromContext(ctx)
-	if err := authns.Authorize(ctx, namespace); err == authns.ErrForbidden {
-		return errors.Forbidden("runtime.Source.Upload", err.Error())
-	} else if err == authns.ErrUnauthorized {
-		return errors.Unauthorized("runtime.Source.Upload", err.Error())
-	} else if err != nil {
-		return errors.InternalServerError("runtime.Source.Upload", err.Error())
+	acc, ok := auth.AccountFromContext(ctx)
+	if !ok {
+		return errors.Unauthorized("runtime.Source.Upload", "An account is required to upload source")
 	}
+	namespace := acc.Issuer
 
 	// recieve the source from the client
 	buf := bytes.NewBuffer(nil)

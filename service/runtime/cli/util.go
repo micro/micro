@@ -5,8 +5,6 @@ import (
 
 	goclient "github.com/micro/go-micro/v3/client"
 	"github.com/micro/go-micro/v3/runtime/local/source/git"
-	"github.com/micro/micro/v3/client/cli/namespace"
-	cliutil "github.com/micro/micro/v3/client/cli/util"
 	pb "github.com/micro/micro/v3/proto/runtime"
 	"github.com/micro/micro/v3/service/client"
 	"github.com/micro/micro/v3/service/context"
@@ -32,15 +30,9 @@ func upload(ctx *cli.Context, source *git.Source) (string, error) {
 		return "", err
 	}
 
-	// get the namespace of the client
-	ns, err := namespace.Get(cliutil.GetEnv(ctx).Name)
-	if err != nil {
-		return "", err
-	}
-
 	// create an upload stream
 	cli := pb.NewSourceService("runtime", client.DefaultClient)
-	stream, err := cli.Upload(context.WithNamespace(ns), goclient.WithAuthToken())
+	stream, err := cli.Upload(context.DefaultContext, goclient.WithAuthToken())
 	if err != nil {
 		return "", err
 	}
