@@ -102,7 +102,9 @@ jobs:
     
     - name: Run the build service
       run: |
-        micro run github.com/m3o/services/build@rename-builder  
+        kubectl port-forward service/micro-proxy 8081:443 & \
+          micro run github.com/m3o/services/build@rename-builder & \
+          micro login --username=admin --password=micro
 
         until [[ "$(micro status | grep build)" == *"running"* ]] 
         do
