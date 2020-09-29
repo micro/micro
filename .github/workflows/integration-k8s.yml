@@ -33,22 +33,6 @@ jobs:
       with:
         path: ~/go/pkg/mod
         key: ${{ runner.os }}-go-kind-${{ steps.get-date.outputs.date }}
-    - name: Replace platform profile
-      id: replace-profile
-      run: |
-        go mod edit -replace github.com/micro/micro/profile/platform/v3=./profile/platform
-        go mod edit -replace google.golang.org/grpc=google.golang.org/grpc@v1.26.0
-
-    - name: Install micro
-      id: install-micro
-      run: |
-        go install
-        out=$(pwd)/micro
-        mkdir /tmp/micro
-        cp -R . /tmp/micro
-        cd /tmp/micro
-        micro init --profile=platform --output=profile.go
-        GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o $out
 
     # We set up a local docker registry to push to and pull from. We need to set up the Kind cluster to pull from this
     # We don't currently cache this because it doesn't seem to speed up the build 
@@ -57,15 +41,22 @@ jobs:
         docker run -d -p 5000:5000 --restart=always --name kind-registry -v /tmp/docker-registry:/var/lib/registry registry:2 && npx wait-on tcp:5000
     # Now let's build an image and push to our local registry. 
     - name: Build and push cells to local registry
-      id: build-push-reg-micro
+      id: build-push-reg-cell
       run: |
         DIR=service/runtime/cells/micro
         docker build -f $DIR/Dockerfile $DIR -t localhost:5000/cells:micro
         docker push localhost:5000/cells:micro
     
     - name: Build and push micro to local registry
-      id: build-push-reg-cells
+      id: build-push-reg-micro
       run: |
+        mkdir /tmp/micro
+        cp -R . /tmp/micro
+        cd /tmp/micro
+        go mod edit -replace github.com/micro/micro/profile/platform/v3=./profile/platform
+        go mod edit -replace google.golang.org/grpc=google.golang.org/grpc@v1.26.0
+        go install
+        micro init --profile=platform --output=profile.go
         docker build -f Dockerfile . -t localhost:5000/micro 
         docker push localhost:5000/micro
 
