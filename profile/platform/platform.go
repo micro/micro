@@ -19,13 +19,13 @@ import (
 	"github.com/micro/micro/v3/service/logger"
 	"github.com/urfave/cli/v2"
 
-	buildSrv "github.com/micro/micro/v3/runtime/builder/client"
 	microAuth "github.com/micro/micro/v3/service/auth"
 	microConfig "github.com/micro/micro/v3/service/config"
 	microEvents "github.com/micro/micro/v3/service/events"
 	microMetrics "github.com/micro/micro/v3/service/metrics"
 	microRuntime "github.com/micro/micro/v3/service/runtime"
 	microBuilder "github.com/micro/micro/v3/service/runtime/builder"
+	buildSrv "github.com/micro/micro/v3/service/runtime/builder/client"
 	microStore "github.com/micro/micro/v3/service/store"
 
 	// plugins
