@@ -38,6 +38,7 @@ jobs:
       run: |
         go mod edit -replace github.com/micro/micro/profile/platform/v3=./profile/platform
         go mod edit -replace google.golang.org/grpc=google.golang.org/grpc@v1.26.0
+
     - name: Install micro
       id: install-micro
       run: |
@@ -46,7 +47,7 @@ jobs:
         mkdir /tmp/micro
         cp -R . /tmp/micro
         cd /tmp/micro
-        micro init --profile=profile --output=profile.go
+        micro init --profile=platform --output=profile.go
         GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o $out
 
     # We set up a local docker registry to push to and pull from. We need to set up the Kind cluster to pull from this
