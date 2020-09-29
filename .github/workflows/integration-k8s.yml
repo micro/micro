@@ -108,7 +108,7 @@ jobs:
 
         until [[ "$(micro status | grep build)" == *"running"* ]] 
         do
-          echo Waiting for build service to start: $srvStatus
+          echo Waiting for build service to start: $(micro status | grep build)
           sleep 5s
         done
 
