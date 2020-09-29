@@ -250,6 +250,7 @@ github.com/mattn/go-tty v0.0.0-20180219170247-931426f7535a/go.mod h1:XPvLUNfbS4f
 github.com/matttproud/golang_protobuf_extensions v1.0.1/go.mod h1:D8He9yQNgCq6Z5Ld7szi9bcBfOoFv/3dc6xSMkL2PC0=
 github.com/micro/go-micro/v3 v3.0.0-beta.2.0.20200929123717-2008746875f5 h1:H7Or8ADZM1EUA7Lj3S/N30u6YyZGJan6ykeWTxXef8k=
 github.com/micro/go-micro/v3 v3.0.0-beta.2.0.20200929123717-2008746875f5/go.mod h1:DiwYchJ8kCWOZVXMsZwuFcNDAdSCS6aEbYfEni4LvK4=
+github.com/micro/micro v1.18.0 h1:v+xiQOXbT9xxotLwu1nJM81t4FbruBxZSSyIdhUfujM=
 github.com/miekg/dns v1.1.15/go.mod h1:W1PPwlIAgtquWBMBEV9nkV9Cazfe8ScdGz/Lj7v3Nrg=
 github.com/miekg/dns v1.1.27 h1:aEH/kqUzUxGJ/UHcEKdJY+ugH6WEzsEBBSPa8zuy1aM=
 github.com/miekg/dns v1.1.27/go.mod h1:KNUDUusw/aVsxyTYZM1oqvCicbwhgbNgztCETuNZ7xM=

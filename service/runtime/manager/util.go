@@ -7,15 +7,15 @@ import (
 	"os"
 	"strings"
 
-	"github.com/micro/go-micro/v3/runtime/local/source/git"
-
 	gorun "github.com/micro/go-micro/v3/runtime"
+	"github.com/micro/go-micro/v3/runtime/local/source/git"
 	gostore "github.com/micro/go-micro/v3/store"
 	"github.com/micro/micro/v3/service/auth"
 	"github.com/micro/micro/v3/service/client"
 	"github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/runtime"
 	"github.com/micro/micro/v3/service/runtime/builder"
+	"github.com/micro/micro/v3/service/runtime/builder/golang"
 	"github.com/micro/micro/v3/service/runtime/util/tar"
 	"github.com/micro/micro/v3/service/store"
 )
@@ -96,9 +96,15 @@ func (m *manager) build(srv *service) error {
 		return err
 	}
 
-	// build the source. TODO: detect the m3o/services repo and override to use the local golang builder
-	// since the build service could not yet be running
-	build, err := builder.DefaultBuilder.Build(source,
+	// if we're building the build service, override the default builder implementation to prevent
+	// a circular dependancy
+	bldr := builder.DefaultBuilder
+	if srv.Service.Source == "github.com/m3o/services/build" {
+		bldr, _ = golang.NewBuilder()
+	}
+
+	// build the source
+	build, err := bldr.Build(source,
 		builder.Archive("tar"),
 		builder.Entrypoint(srv.Options.Entrypoint),
 	)
@@ -212,6 +218,7 @@ func (m *manager) checkoutGitSource(srv *service) (string, error) {
 	if err != nil {
 		return "", err
 	}
+	gitSrc.Ref = srv.Service.Version
 
 	dir, err := git.CheckoutSource(gitSrc, srv.Options.Secrets)
 	if err != nil {
