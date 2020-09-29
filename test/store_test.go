@@ -175,7 +175,7 @@ func testStoreImpl(t *T) {
 			return outp, errors.New("Can't find example service in runtime")
 		}
 		return outp, err
-	}, 15*time.Second); err != nil {
+	}, 90*time.Second); err != nil {
 		return
 	}
 
@@ -209,7 +209,6 @@ func testStoreImpl(t *T) {
 	if err != nil {
 		t.Fatalf("Error %s, %s", err, outp)
 	}
-
 }
 
 func TestBlobStore(t *testing.T) {
