@@ -316,6 +316,14 @@ func getGitCredentials(repo string) (string, bool) {
 			return creds, true
 		}
 	}
+	if credURL, err := config.Get(config.Path("git", "credentials", "url")); err == nil && len(credURL) > 0 {
+		if strings.Contains(repo, credURL) {
+			creds, err := config.Get(config.Path("git", "credentials", "token"))
+			if err == nil && len(creds) > 0 {
+				return creds, true
+			}
+		}
+	}
 
 	return "", false
 }
