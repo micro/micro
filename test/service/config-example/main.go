@@ -24,19 +24,19 @@ func main() {
 		for {
 			time.Sleep(time.Second)
 			// Test merge
-			err = config.Set("key", map[string]interface{}{
+			err := config.Set("key", map[string]interface{}{
 				"Subkey3": "Merge",
 			})
 			if err != nil {
 				fmt.Println("ERROR: ", err)
 			}
 
-			val, _ = config.Get("key.subkey3")
+			val, _ := config.Get("key.subkey3")
 			if val.String("") != "Merge" {
 				fmt.Println("ERROR: key.subkey3 should be 'Merge' but it is:", val.String(""))
 			}
 
-			val, err := config.Get("key.subkey")
+			val, err = config.Get("key.subkey")
 			fmt.Println("Value of key.subkey: ", val.String(""), err)
 
 			val, _ = config.Get("key", config.Secret(true))
