@@ -118,7 +118,7 @@ func testConfig(t *T) {
 	// Test merges
 
 	// Testing dot notation
-	outp, err = cmd.Exec("config", "set", "mergekey", `'{"a":1}`)
+	outp, err = cmd.Exec("config", "set", "mergekey", `'{"a":1}'`)
 	if err != nil {
 		t.Fatal(err)
 		return
@@ -128,7 +128,7 @@ func testConfig(t *T) {
 		return
 	}
 
-	outp, err = cmd.Exec("config", "set", "mergekey", `'{"b":2}`)
+	outp, err = cmd.Exec("config", "set", "mergekey", `'{"b":2}'`)
 	if err != nil {
 		t.Fatal(err)
 		return
