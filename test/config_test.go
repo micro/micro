@@ -157,6 +157,26 @@ func testConfig(t *T) {
 		t.Fatalf("Output is %v, expected: %v", m, expected)
 		return
 	}
+
+	// Testing JSON escape
+	outp, err = cmd.Exec("config", "set", "jsonescape", `Value with <> signs`)
+	if err != nil {
+		t.Fatal(err)
+		return
+	}
+	if string(outp) != "" {
+		t.Fatalf("Expected no output, got: %v", string(outp))
+		return
+	}
+	outp, err = cmd.Exec("config", "get", "mergekey")
+	if err != nil {
+		t.Fatal(err)
+		return
+	}
+	if string(outp) != "Value with <> signs" {
+		t.Fatal("Expected 'Value with <> signs', got: %v", string(outp))
+		return
+	}
 }
 
 func TestConfigReadFromService(t *testing.T) {
