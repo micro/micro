@@ -6,9 +6,8 @@ import (
 	"io"
 
 	gostore "github.com/micro/go-micro/v3/store"
-	auth "github.com/micro/micro/v3/internal/auth/namespace"
-	"github.com/micro/micro/v3/internal/namespace"
 	pb "github.com/micro/micro/v3/proto/runtime"
+	"github.com/micro/micro/v3/service/auth"
 	"github.com/micro/micro/v3/service/errors"
 	"github.com/micro/micro/v3/service/store"
 )
@@ -22,13 +21,9 @@ func (b *Build) Read(ctx context.Context, req *pb.Service, stream pb.Build_ReadS
 	defer stream.Close()
 
 	// authorize the request
-	ns := namespace.FromContext(ctx)
-	if err := auth.Authorize(ctx, ns); err == auth.ErrForbidden {
-		return errors.Forbidden("runtime.Build.Read", err.Error())
-	} else if err == auth.ErrUnauthorized {
-		return errors.Unauthorized("runtime.Build.Read", err.Error())
-	} else if err != nil {
-		return errors.InternalServerError("runtime.Build.Read", err.Error())
+	acc, ok := auth.AccountFromContext(ctx)
+	if !ok {
+		return errors.Unauthorized("runtime.Build.Read", "An account is required to read builds")
 	}
 
 	// validate the request
@@ -41,7 +36,7 @@ func (b *Build) Read(ctx context.Context, req *pb.Service, stream pb.Build_ReadS
 
 	// lookup the build from the blob store
 	key := fmt.Sprintf("build://%v:%v", req.Name, req.Version)
-	build, err := store.DefaultBlobStore.Read(key, gostore.BlobNamespace(ns))
+	build, err := store.DefaultBlobStore.Read(key, gostore.BlobNamespace(acc.Issuer))
 	if err == store.ErrNotFound {
 		return errors.NotFound("runtime.Build.Read", "Build not found")
 	} else if err != nil {

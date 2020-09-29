@@ -42,8 +42,12 @@ jobs:
       id: install-micro
       run: |
         go install
-        micro init --profile=platform --output=profile.go
-        go install
+        out=$(pwd)/micro
+        mkdir /tmp/micro
+        cp -R . /tmp/micro
+        cd /tmp/micro
+        micro init --profile=profile --output=profile.go
+        GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o $out
 
     # We set up a local docker registry to push to and pull from. We need to set up the Kind cluster to pull from this
     # We don't currently cache this because it doesn't seem to speed up the build 

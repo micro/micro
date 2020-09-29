@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"io"
 	"os"
 	"os/exec"
@@ -9,6 +8,7 @@ import (
 	"github.com/micro/go-micro/v3/client"
 	runtime "github.com/micro/micro/v3/proto/runtime"
 	"github.com/micro/micro/v3/service"
+	"github.com/micro/micro/v3/service/context"
 	"github.com/micro/micro/v3/service/logger"
 )
 
@@ -24,7 +24,7 @@ func main() {
 	// stream the binary from the runtime
 	logger.Infof("Downloading service %v:%v", name, version)
 	svc := &runtime.Service{Name: name, Version: version}
-	stream, err := cli.Read(context.Background(), svc, client.WithAuthToken())
+	stream, err := cli.Read(context.DefaultContext, svc, client.WithAuthToken())
 	if err != nil {
 		logger.Fatalf("Error starting stream: %v", err)
 	}
