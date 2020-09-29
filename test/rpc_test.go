@@ -23,7 +23,7 @@ func testRPC(t *T) {
 	}
 
 	cmd := serv.Command()
-	outp, err := cmd.Exec("run", "./service/rpc/rpc-server")
+	outp, err := cmd.Exec("run", "--image", "localhost:5000/cells:micro", "./service/rpc/rpc-server")
 	if err != nil {
 		t.Fatalf("micro run failure, output: %v", string(outp))
 		return
@@ -38,11 +38,11 @@ func testRPC(t *T) {
 			return outp, errors.New("Can't find rpc service in registry")
 		}
 		return nil, nil
-	}, 90*time.Second); err != nil {
+	}, 120*time.Second); err != nil {
 		return
 	}
 
-	outp, err = cmd.Exec("run", "./service/rpc/rpc-client")
+	outp, err = cmd.Exec("run", "--image", "localhost:5000/cells:micro", "./service/rpc/rpc-client")
 	if err != nil {
 		t.Fatalf("micro run failure, output: %v", string(outp))
 		return
@@ -57,7 +57,7 @@ func testRPC(t *T) {
 			return outp, fmt.Errorf("Client did not complete ok")
 		}
 		return nil, nil
-	}, 60*time.Second); err != nil {
+	}, 120*time.Second); err != nil {
 		return
 	}
 }

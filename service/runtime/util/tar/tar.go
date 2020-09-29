@@ -69,8 +69,8 @@ func Archive(dir string) (io.Reader, error) {
 			return nil
 		}
 
-		// skip non go files
-		if !info.IsDir() && !strings.HasSuffix(relpath, ".go") {
+		// skip irrelevent files
+		if !info.IsDir() && !shouldArchive(relpath) {
 			return nil
 		}
 
@@ -113,4 +113,19 @@ func Archive(dir string) (io.Reader, error) {
 
 	// Return the archive
 	return tf, nil
+}
+
+// shouldArchive is a helper func which indicates if a file should be archived. TODO: implement a
+// smarter check which just excludes executables
+func shouldArchive(file string) bool {
+	if strings.HasSuffix(file, ".go") {
+		return true
+	}
+	if strings.HasSuffix(file, "go.sum") {
+		return true
+	}
+	if strings.HasSuffix(file, "go.mod") {
+		return true
+	}
+	return false
 }

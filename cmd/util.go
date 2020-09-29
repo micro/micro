@@ -36,7 +36,7 @@ func setupAuthForCLI(ctx *cli.Context) error {
 	}
 
 	// Check if token is valid
-	if time.Now().Before(tok.Expiry.Add(time.Minute)) {
+	if time.Now().Before(tok.Expiry.Add(time.Minute * -1)) {
 		auth.DefaultAuth.Init(
 			goauth.ClientToken(tok),
 			goauth.Issuer(ns),
