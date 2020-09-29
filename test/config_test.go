@@ -117,18 +117,18 @@ func testConfig(t *T) {
 
 	// Test merges
 
-	// Testing dot notation
-	outp, err = cmd.Exec("config", "set", "mergekey", `'{"a":1}'`)
+	outp, err = cmd.Exec("config", "set", "mergekey", `{"a":1}`)
 	if err != nil {
 		t.Fatal(err)
 		return
 	}
+
 	if string(outp) != "" {
 		t.Fatalf("Expected no output, got: %v", string(outp))
 		return
 	}
 
-	outp, err = cmd.Exec("config", "set", "mergekey", `'{"b":2}'`)
+	outp, err = cmd.Exec("config", "set", "mergekey", `{"b":2}`)
 	if err != nil {
 		t.Fatal(err)
 		return
@@ -159,7 +159,7 @@ func testConfig(t *T) {
 	}
 
 	// Testing JSON escape
-	outp, err = cmd.Exec("config", "set", "jsonescape", `Value with <> signs`)
+	outp, err = cmd.Exec("config", "set", "jsonescape", `"Value with <> signs"`)
 	if err != nil {
 		t.Fatal(err)
 		return
@@ -168,15 +168,17 @@ func testConfig(t *T) {
 		t.Fatalf("Expected no output, got: %v", string(outp))
 		return
 	}
-	outp, err = cmd.Exec("config", "get", "mergekey")
+	outp, err = cmd.Exec("config", "get", "jsonescape")
 	if err != nil {
 		t.Fatal(err)
 		return
 	}
-	if string(outp) != "Value with <> signs" {
-		t.Fatalf("Expected 'Value with <> signs', got: %v", string(outp))
+
+	if strings.TrimSpace(string(outp)) != "Value with <> signs" {
+		t.Fatalf("Expected 'Value with <> signs', got: '%v'", string(outp))
 		return
 	}
+
 }
 
 func TestConfigReadFromService(t *testing.T) {
