@@ -37,7 +37,3 @@ require (
 	google.golang.org/protobuf v1.25.0
 	gopkg.in/yaml.v2 v2.3.0 // indirect
 )
-
-replace github.com/micro/micro/profile/ci/v3 => ./profile/ci
-
-replace google.golang.org/grpc => google.golang.org/grpc v1.26.0
