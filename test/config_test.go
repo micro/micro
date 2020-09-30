@@ -210,7 +210,7 @@ func testConfig(t *T) {
 			"c": float64(3),
 			"d": float64(4),
 		}
-		outp, err = cmd.Exec("config", "get", "complexmerge", `{"d":4,"b":{"b2":2.2}}`)
+		outp, err = cmd.Exec("config", "get", "complexmerge")
 		if err != nil {
 			t.Fatal(err)
 			return
@@ -223,6 +223,69 @@ func testConfig(t *T) {
 		}
 		if !reflect.DeepEqual(result, expected) {
 			t.Fatalf("Expected %v is different from result %v", expected, result)
+			return
+		}
+	})
+
+	t.T().Run("Test plain old type being overwritten by map", func(tee *testing.T) {
+		outp, err := cmd.Exec("config", "set", "pod", "hi")
+		if err != nil {
+			t.Fatal(err)
+			return
+		}
+		if string(outp) != "" {
+			t.Fatalf("Expected no output, got: %v", string(outp))
+			return
+		}
+		outp, err = cmd.Exec("config", "set", "pod", `{"a":1}`)
+		if err != nil {
+			t.Fatal(err)
+			return
+		}
+
+		expected := map[string]interface{}{
+			"a": float64(1),
+		}
+		outp, err = cmd.Exec("config", "get", "pod")
+		if err != nil {
+			t.Fatal(err)
+			return
+		}
+		result := map[string]interface{}{}
+		err = json.Unmarshal(outp, &result)
+		if err != nil {
+			t.Fatal(err)
+			return
+		}
+		if !reflect.DeepEqual(result, expected) {
+			t.Fatalf("Expected %v is different from result %v", expected, result)
+			return
+		}
+	})
+
+	t.T().Run("Test plain old type being overwritten by pod", func(tee *testing.T) {
+		outp, err := cmd.Exec("config", "set", "pod", "hi")
+		if err != nil {
+			t.Fatal(err)
+			return
+		}
+		if string(outp) != "" {
+			t.Fatalf("Expected no output, got: %v", string(outp))
+			return
+		}
+		outp, err = cmd.Exec("config", "set", "pod", "hello")
+		if err != nil {
+			tee.Fatal(err)
+			return
+		}
+		outp, err = cmd.Exec("config", "get", "pod")
+		if err != nil {
+			t.Fatal(err)
+			return
+		}
+		expected := "hello"
+		if !reflect.DeepEqual(strings.TrimSpace(string(outp)), expected) {
+			tee.Fatalf("Expected %v is different from result %v", expected, strings.TrimSpace(string(outp)))
 			return
 		}
 	})
