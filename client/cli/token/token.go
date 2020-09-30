@@ -2,8 +2,9 @@
 package token
 
 import (
-	"errors"
+	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"strconv"
 	"time"
 
@@ -15,7 +16,7 @@ import (
 // Might have missing `RefreshToken` or `Expiry` fields in case of
 // incomplete or corrupted user config.
 func Get(envName, namespace string) (*auth.AccountToken, error) {
-	tok, err := getFromFile(envName)
+	tok, err := getFromFile(envName, namespace)
 	if err == nil {
 		return tok, nil
 	}
@@ -31,8 +32,44 @@ type token struct {
 	Expiry int64 `json:"expiry"`
 }
 
-func getFromFile(envName string) (*auth.AccountToken, error) {
-	return nil, errors.New("Not implemented yet")
+func tokensFilePath() string {
+	return config.File + "-tokens.json"
+}
+
+func getFromFile(envName, namespace string) (*auth.AccountToken, error) {
+	tokens, err := getTokens()
+	if err != nil {
+		return nil, err
+	}
+	key := fmt.Sprintf("%v:%v", envName, namespace)
+	tok, ok := tokens[key]
+	if !ok {
+		return nil, fmt.Errorf("Token not found under %v in file %v", key, tokensFilePath())
+	}
+	return &auth.AccountToken{
+		AccessToken:  tok.AccessToken,
+		RefreshToken: tok.RefreshToken,
+		Created:      time.Unix(tok.Created, 0),
+		Expiry:       time.Unix(tok.Expiry, 0),
+	}, nil
+}
+
+func getTokens() (map[string]token, error) {
+	// @todo work on the path as `~/.micro/config.json-tokens` is not nice enough
+	dat, err := ioutil.ReadFile(tokensFilePath())
+	if err != nil {
+		return nil, err
+	}
+	m := map[string]token{}
+	return m, json.Unmarshal(dat, &m)
+}
+
+func saveTokens(m map[string]token) error {
+	dat, err := json.Marshal(m)
+	if err != nil {
+		return err
+	}
+	return ioutil.WriteFile(tokensFilePath(), dat, 0700)
 }
 
 func getFromUserConfig(envName string) (*auth.AccountToken, error) {
@@ -69,10 +106,24 @@ func getFromUserConfig(envName string) (*auth.AccountToken, error) {
 
 // Save saves the auth token to the user's local config file
 func Save(envName, namespace string, token *auth.AccountToken) error {
-	return saveTokenToUserConfig(envName, token)
+	return saveToFile(envName, namespace, token)
 }
 
-func saveTokenToUserConfig(envName string, token *auth.AccountToken) error {
+func saveToFile(envName, namespace string, authToken *auth.AccountToken) error {
+	tokens, err := getTokens()
+	if err != nil {
+		return err
+	}
+	tokens[fmt.Sprintf("%v:%v", envName, namespace)] = token{
+		AccessToken:  authToken.AccessToken,
+		RefreshToken: authToken.RefreshToken,
+		Created:      authToken.Created.Unix(),
+		Expiry:       authToken.Expiry.Unix(),
+	}
+	return saveTokens(tokens)
+}
+
+func saveToUserConfig(envName string, token *auth.AccountToken) error {
 	if err := config.Set(config.Path("micro", "auth", envName, "token"), token.AccessToken); err != nil {
 		return err
 	}
@@ -88,7 +139,16 @@ func saveTokenToUserConfig(envName string, token *auth.AccountToken) error {
 // for example at testing: not having a token is a different state
 // than having an invalid token.
 func Remove(envName, namespace string) error {
-	return removeFromUserConfig(envName)
+	return removeFromFile(envName, namespace)
+}
+
+func removeFromFile(envName, namespace string) error {
+	tokens, err := getTokens()
+	if err != nil {
+		return err
+	}
+	delete(tokens, fmt.Sprintf("%v:%v", envName, namespace))
+	return saveTokens(tokens)
 }
 
 func removeFromUserConfig(envName string) error {
