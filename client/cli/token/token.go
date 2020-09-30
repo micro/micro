@@ -12,6 +12,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -29,17 +30,13 @@ const tokenPath = "-tokens.json"
 // Might have missing `RefreshToken` or `Expiry` fields in case of
 // incomplete or corrupted user config.
 func Get(ctx *cli.Context) (*auth.AccountToken, error) {
+	tok, err := getFromFile(ctx)
+	if err == nil {
+		return tok, nil
+	}
 	env, err := util.GetEnv(ctx)
 	if err != nil {
 		return nil, err
-	}
-	ns, err := namespace.Get(env.Name)
-	if err != nil {
-		return nil, err
-	}
-	tok, err := getFromFile(env.Name, ns)
-	if err == nil {
-		return tok, nil
 	}
 	return getFromUserConfig(env.Name)
 }
@@ -60,15 +57,29 @@ func tokensFilePath() string {
 	return config.File + tokenPath
 }
 
-func getFromFile(envName, namespace string) (*auth.AccountToken, error) {
+func getFromFile(ctx *cli.Context) (*auth.AccountToken, error) {
 	tokens, err := getTokens()
 	if err != nil {
 		return nil, err
 	}
-	key := fmt.Sprintf("%v:%v", envName, namespace)
-	tok, ok := tokens[key]
-	if !ok {
-		return nil, fmt.Errorf("Token not found under %v in file %v", key, tokensFilePath())
+	env, err := util.GetEnv(ctx)
+	if err != nil {
+		return nil, err
+	}
+	ns, err := namespace.Get(env.Name)
+	if err != nil {
+		return nil, err
+	}
+	var tok token
+	var found bool
+	for key, t := range tokens {
+		if strings.Contains(key, env.Name) && strings.Contains(key, ns) {
+			tok = t
+			found = true
+		}
+	}
+	if !found {
+		return nil, fmt.Errorf("Can't find token for address %v and namespace %v", env.ProxyAddress, ns)
 	}
 	return &auth.AccountToken{
 		AccessToken:  tok.AccessToken,
@@ -79,8 +90,11 @@ func getFromFile(envName, namespace string) (*auth.AccountToken, error) {
 }
 
 func getTokens() (map[string]token, error) {
-	// @todo work on the path as `~/.micro/config.json-tokens` is not nice enough
-	dat, err := ioutil.ReadFile(tokensFilePath())
+	f, err := os.OpenFile(tokensFilePath(), os.O_RDONLY|os.O_CREATE, 0700)
+	if err != nil {
+		return nil, err
+	}
+	dat, err := ioutil.ReadAll(f)
 	if err != nil {
 		return nil, err
 	}
@@ -91,36 +105,20 @@ func getTokens() (map[string]token, error) {
 		if len(parts) < 3 {
 			continue
 		}
-		key := strings.Join(parts[0:2], ":")
-		base64Encoded := parts[3]
+		key := strings.Join(parts[0:len(parts)-1], ":")
+		base64Encoded := parts[len(parts)-1]
 		jsonMarshalled, err := base64.StdEncoding.DecodeString(base64Encoded)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("Error base64 decoding token: %v", err)
 		}
 		tok := token{}
 		err = json.Unmarshal(jsonMarshalled, &tok)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("Error unmarshalling token: %v", err)
 		}
 		ret[key] = tok
 	}
 	return ret, nil
-}
-
-func saveTokens(tokens map[string]token) error {
-	buf := bytes.NewBuffer([]byte{})
-	for key, t := range tokens {
-		marshalledToken, err := json.Marshal(t)
-		if err != nil {
-			return err
-		}
-		base64Token := base64.StdEncoding.EncodeToString(marshalledToken)
-		_, err = buf.WriteString(key + ":" + base64Token)
-		if err != nil {
-			return err
-		}
-	}
-	return ioutil.WriteFile(tokensFilePath(), buf.Bytes(), 0700)
 }
 
 func getFromUserConfig(envName string) (*auth.AccountToken, error) {
@@ -157,23 +155,51 @@ func getFromUserConfig(envName string) (*auth.AccountToken, error) {
 
 // Save saves the auth token to the user's local config file
 func Save(ctx *cli.Context, token *auth.AccountToken) error {
+	return saveToFile(ctx, token)
+}
+
+func tokenKey(ctx *cli.Context, authToken string) (string, error) {
 	env, err := util.GetEnv(ctx)
 	if err != nil {
-		return err
+		return "", err
 	}
 	ns, err := namespace.Get(env.Name)
 	if err != nil {
-		return err
+		return "", err
 	}
-	return saveToFile(env.Name, ns, token)
+	account, err := auth.Inspect(authToken)
+	if err != nil {
+		return "", err
+	}
+	return fmt.Sprintf("micro://%v/%v/%v", env.ProxyAddress, ns, account.ID), nil
 }
 
-func saveToFile(envName, namespace string, authToken *auth.AccountToken) error {
+func saveTokens(tokens map[string]token) error {
+	buf := bytes.NewBuffer([]byte{})
+	for key, t := range tokens {
+		marshalledToken, err := json.Marshal(t)
+		if err != nil {
+			return err
+		}
+		base64Token := base64.StdEncoding.EncodeToString(marshalledToken)
+		_, err = buf.WriteString(key + ":" + base64Token + "\n")
+		if err != nil {
+			return err
+		}
+	}
+	return ioutil.WriteFile(tokensFilePath(), buf.Bytes(), 0700)
+}
+
+func saveToFile(ctx *cli.Context, authToken *auth.AccountToken) error {
 	tokens, err := getTokens()
 	if err != nil {
 		return err
 	}
-	tokens[fmt.Sprintf("%v:%v", envName, namespace)] = token{
+	key, err := tokenKey(ctx, authToken.AccessToken)
+	if err != nil {
+		return err
+	}
+	tokens[key] = token{
 		AccessToken:  authToken.AccessToken,
 		RefreshToken: authToken.RefreshToken,
 		Created:      authToken.Created.Unix(),
