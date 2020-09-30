@@ -2,11 +2,9 @@ package server
 
 import (
 	"errors"
-	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
-	"time"
 
 	"github.com/micro/go-micro/v3/util/file"
 	"github.com/micro/micro/v3/client/cli/util"
@@ -38,7 +36,7 @@ var (
 var (
 	// Name of the server microservice
 	Name = "server"
-	// Address is the router microservice bind address
+	// Address is the server address
 	Address = ":10001"
 )
 
@@ -109,46 +107,52 @@ func Run(context *cli.Context) error {
 
 	log.Info("Starting server")
 
-	for _, service := range services {
-		name := service
+	// parse the env vars
+	var envvars []string
+	for _, val := range os.Environ() {
+		comps := strings.Split(val, "=")
+		if len(comps) != 2 {
+			continue
+		}
 
+		// only process MICRO_ values
+		if !strings.HasPrefix(comps[0], "MICRO_") {
+			continue
+		}
+
+		// skip the profile and proxy, that's set below since it can be service specific
+		if comps[0] == "MICRO_PROFILE" || comps[0] == "MICRO_PROXY" {
+			continue
+		}
+
+		// don't pass keys (e.g. MICRO_AUTH_PRIVATE_KEY) as an env var, these should be mounted
+		// as secrets
+		if strings.HasSuffix(comps[0], "_KEY") {
+			continue
+		}
+
+		envvars = append(envvars, val)
+	}
+
+	// start the services
+	for _, service := range services {
 		// set the proxy addres, default to the network running locally
 		proxy := context.String("proxy_address")
 		if len(proxy) == 0 {
 			proxy = "127.0.0.1:8443"
 		}
 
-		log.Infof("Registering %s", name)
-		// @todo this is a hack
-		env := []string{}
+		log.Infof("Registering %s", service)
+
 		// all things run by the server are `micro service [name]`
 		cmdArgs := []string{"service"}
 
-		switch service {
-		case "proxy", "api":
-			// pull the values we care about from environment
-			for _, val := range os.Environ() {
-				// only process MICRO_ values
-				if !strings.HasPrefix(val, "MICRO_") {
-					continue
-				}
-				// override any profile value because clients
-				// talk to services, these may be started
-				// differently in future as a `micro client`
-				if strings.HasPrefix(val, "MICRO_PROFILE=") {
-					val = "MICRO_PROFILE=client"
-				}
-				env = append(env, val)
-			}
-		default:
-			// pull the values we care about from environment
-			for _, val := range os.Environ() {
-				// only process MICRO_ values
-				if !strings.HasPrefix(val, "MICRO_") {
-					continue
-				}
-				env = append(env, val)
-			}
+		// override the profile for api & proxy
+		env := envvars
+		if service == "proxy" || service == "api" {
+			env = append(env, "MICRO_PROFILE=client")
+		} else {
+			env = append(env, "MICRO_PROFILE="+context.String("profile"))
 		}
 
 		// inject the proxy address for all services but the network, as we don't want
@@ -172,11 +176,11 @@ func Run(context *cli.Context) error {
 			runtime.WithArgs(cmdArgs...),
 			runtime.WithEnv(env),
 			runtime.WithRetries(10),
-			runtime.CreateImage("micro/micro"),
+			runtime.CreateImage("localhost:5000/micro"),
 		}
 
 		// NOTE: we use Version right now to check for the latest release
-		muService := &runtime.Service{Name: name, Version: fmt.Sprintf("%d", time.Now().Unix())}
+		muService := &runtime.Service{Name: service, Version: "latest"}
 		if err := runtime.Create(muService, args...); err != nil {
 			log.Errorf("Failed to create runtime environment: %v", err)
 			return err

@@ -11,6 +11,7 @@ import (
 	config "github.com/micro/go-micro/v3/config/store"
 	evStore "github.com/micro/go-micro/v3/events/store"
 	"github.com/micro/go-micro/v3/registry"
+	regRouter "github.com/micro/go-micro/v3/router/registry"
 	"github.com/micro/go-micro/v3/runtime/kubernetes"
 	"github.com/micro/go-micro/v3/store"
 	"github.com/micro/micro/v3/profile"
@@ -48,6 +49,7 @@ var Profile = &profile.Profile{
 		microConfig.DefaultConfig, _ = config.NewConfig(microStore.DefaultStore, "")
 		microRuntime.DefaultRuntime = kubernetes.NewRuntime()
 		profile.SetupBroker(nats.NewBroker(broker.Addrs("nats-cluster")))
+		profile.SetupRouter(regRouter.NewRouter())
 		profile.SetupRegistry(etcd.NewRegistry(registry.Addrs("etcd-cluster")))
 		profile.SetupJWT(ctx)
 		profile.SetupConfigSecretKey(ctx)

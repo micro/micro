@@ -1,0 +1,149 @@
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+  name: store-pv
+  namespace: default
+spec:
+  claimRef:
+    name: store-pvc
+    namespace: default
+  storageClassName: standard
+  capacity:
+    storage: 2Gi
+  accessModes:
+  - ReadWriteOnce
+  hostPath:
+    path: "/data"
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: store-pvc
+  namespace: default
+spec:
+  storageClassName: standard
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: server
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: server
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - pods
+  - pods/log
+  - services
+  - secrets
+  - namespaces
+  verbs:
+  - get
+  - create
+  - update
+  - delete
+  - list
+  - patch
+  - watch
+- apiGroups:
+  - "apps"
+  resources:
+  - deployments
+  verbs:
+  - create
+  - update
+  - delete
+  - list
+  - patch
+  - watch
+- apiGroups:
+  - ""
+  resources:
+  - secrets
+  - pods
+  - pods/logs
+  verbs:
+  - get
+  - watch
+  - list
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: server
+subjects:
+- kind: ServiceAccount
+  name: server
+  namespace: default
+roleRef:
+  kind: ClusterRole
+  name: server
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: server
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: server
+subjects:
+- kind: ServiceAccount
+  name: server
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: default
+  name: server-latest
+  labels:
+    micro: runtime
+    name: server
+    version: latest
+  annotations:
+    name: "server"
+    version: "latest"
+    source: "github.com/micro/micro"
+    owner: "micro"
+    group: "micro"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: server
+      micro: runtime
+  template:
+    metadata:
+      labels:
+        name: server
+        micro: runtime
+    spec:
+      serviceAccountName: server
+      containers:
+      - name: micro
+        env:
+        - name: MICRO_PROFILE
+          value: kubernetes
+        - name: MICRO_PROXY
+          value: "network-latest.default.svc.cluster.local:8443"
+        args:
+        - server
+        image: localhost:5000/micro
+        imagePullPolicy: Always
+        volumeMounts:
+        - mountPath: "/store"
+          name: store-mount
+      volumes: 
+      - name: store-mount
+        persistentVolumeClaim:
+          claimName: store-pvc

@@ -96,6 +96,7 @@ var Local = &Profile{
 		SetupConfigSecretKey(ctx)
 		microConfig.DefaultConfig, _ = config.NewConfig(microStore.DefaultStore, "")
 		SetupBroker(http.NewBroker())
+		SetupRouter(regRouter.NewRouter())
 		SetupRegistry(mdns.NewRegistry())
 		SetupJWT(ctx)
 
@@ -118,18 +119,32 @@ var Local = &Profile{
 var Kubernetes = &Profile{
 	Name: "kubernetes",
 	Setup: func(ctx *cli.Context) error {
-		// TODO: implement
-		// using a static router so queries are routed based on service name
-		microRouter.DefaultRouter = static.NewRouter()
-		// Using the kubernetes runtime
-		microRuntime.DefaultRuntime = kubernetes.NewRuntime()
-		// registry kubernetes
-		// config configmap
-		// store ...
 		microAuth.DefaultAuth = jwt.NewAuth()
+		microRuntime.DefaultRuntime = kubernetes.NewRuntime()
+
+		var err error
+		microEvents.DefaultStream, err = memStream.NewStream()
+		if err != nil {
+			logger.Fatalf("Error configuring stream: %v", err)
+		}
+
+		// todo: configure to use the mounted pv
+		microStore.DefaultStore = file.NewStore()
+		microStore.DefaultBlobStore, err = file.NewBlobStore()
+		if err != nil {
+			logger.Fatalf("Error configuring file blob store: %v", err)
+		}
+
+		// todo: implement and use a store registry
+		SetupRouter(static.NewRouter())
+		SetupRegistry(memory.NewRegistry())
+
+		// todo: check this works in k8s
+		SetupBroker(http.NewBroker())
+
+		// todo: write the auto-generated JWT to the store so it's persisted between restarts
 		SetupJWT(ctx)
 		SetupConfigSecretKey(ctx)
-
 		return nil
 	},
 }
@@ -147,6 +162,7 @@ var Test = &Profile{
 		microAuth.DefaultAuth = noop.NewAuth()
 		microStore.DefaultStore = mem.NewStore()
 		microConfig.DefaultConfig, _ = config.NewConfig(microStore.DefaultStore, "")
+		SetupRouter(regRouter.NewRouter())
 		SetupRegistry(memory.NewRegistry())
 		return nil
 	},
@@ -155,9 +171,15 @@ var Test = &Profile{
 // SetupRegistry configures the registry
 func SetupRegistry(reg registry.Registry) {
 	microRegistry.DefaultRegistry = reg
-	microRouter.DefaultRouter = regRouter.NewRouter(router.Registry(reg))
+	microRouter.DefaultRouter.Init(router.Registry(reg))
 	microServer.DefaultServer.Init(server.Registry(reg))
 	microClient.DefaultClient.Init(client.Registry(reg))
+}
+
+// SetupRouter configures the router. Should be called before SetupRegistry.
+func SetupRouter(rtr router.Router) {
+	microRouter.DefaultRouter = rtr
+	microClient.DefaultClient.Init(client.Router(rtr))
 }
 
 // SetupBroker configures the broker
