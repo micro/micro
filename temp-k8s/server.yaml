@@ -135,7 +135,7 @@ spec:
         - name: MICRO_PROFILE
           value: kubernetes
         - name: MICRO_PROXY
-          value: "network-latest.default.svc.cluster.local:8443"
+          value: "network-latest.default.svc.cluster.local:8080"
         args:
         - server
         image: localhost:5000/micro

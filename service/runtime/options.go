@@ -99,6 +99,17 @@ func WithEnv(env []string) CreateOption {
 	}
 }
 
+// WithVolume adds a volume to be mounted
+func WithVolume(name, path string) CreateOption {
+	return func(o *CreateOptions) {
+		if o.Volumes == nil {
+			o.Volumes = map[string]string{name: path}
+		} else {
+			o.Volumes[name] = path
+		}
+	}
+}
+
 // WithOutput sets the arg output
 func WithOutput(out io.Writer) CreateOption {
 	return func(o *CreateOptions) {

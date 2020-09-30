@@ -134,6 +134,13 @@ func Run(context *cli.Context) error {
 		envvars = append(envvars, val)
 	}
 
+	// bind to port 8080, this is what the k8s service will use (enabling routing) and the readiness
+	// checks will use. this logic exists in the runtime manager but since that's not used by the
+	// server, the logic had to be duplicated here
+	if runtime.DefaultRuntime.String() == "kubernetes" {
+		envvars = append(envvars, "MICRO_SERVICE_ADDRESS=:8080")
+	}
+
 	// start the services
 	for _, service := range services {
 		// set the proxy addres, default to the network running locally
@@ -176,6 +183,7 @@ func Run(context *cli.Context) error {
 			runtime.WithArgs(cmdArgs...),
 			runtime.WithEnv(env),
 			runtime.WithRetries(10),
+			runtime.WithVolume("store-pvc", "/store"),
 			runtime.CreateImage("localhost:5000/micro"),
 		}
 

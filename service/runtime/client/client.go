@@ -59,6 +59,7 @@ func (s *svc) Create(svc *runtime.Service, opts ...runtime.CreateOption) error {
 			Image:     options.Image,
 			Namespace: options.Namespace,
 			Secrets:   options.Secrets,
+			Volumes:   options.Volumes,
 		},
 	}
 
