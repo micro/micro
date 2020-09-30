@@ -1,16 +1,26 @@
 // Package token contains CLI client token related helpers
+// tToken files consist of one line per token, each token having
+// the structure of `micro://envAddress/namespace[/id]:token`, ie.
+// micro://m3o.com/foo-bar-baz/asim@aslam.me:afsafasfasfaceevqcCEWVEWV
+// or
+// micro://m3o.com/foo-bar-baz:afsafasfasfaceevqcCEWVEWV
 package token
 
 import (
+	"bytes"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/micro/micro/v3/internal/config"
 	"github.com/micro/micro/v3/service/auth"
 )
+
+const tokenPath = "-tokens.json"
 
 // Get tries a best effort read of auth token from user config.
 // Might have missing `RefreshToken` or `Expiry` fields in case of
@@ -33,7 +43,10 @@ type token struct {
 }
 
 func tokensFilePath() string {
-	return config.File + "-tokens.json"
+	if strings.HasSuffix(config.File, ".json") {
+		return strings.ReplaceAll(config.File, ".json", "") + tokenPath
+	}
+	return config.File + tokenPath
 }
 
 func getFromFile(envName, namespace string) (*auth.AccountToken, error) {
@@ -60,16 +73,43 @@ func getTokens() (map[string]token, error) {
 	if err != nil {
 		return nil, err
 	}
-	m := map[string]token{}
-	return m, json.Unmarshal(dat, &m)
+	lines := strings.Split(string(dat), "\n")
+	ret := map[string]token{}
+	for _, line := range lines {
+		parts := strings.Split(line, ":")
+		if len(parts) < 3 {
+			continue
+		}
+		key := strings.Join(parts[0:2], ":")
+		base64Encoded := parts[3]
+		jsonMarshalled, err := base64.StdEncoding.DecodeString(base64Encoded)
+		if err != nil {
+			return nil, err
+		}
+		tok := token{}
+		err = json.Unmarshal(jsonMarshalled, &tok)
+		if err != nil {
+			return nil, err
+		}
+		ret[key] = tok
+	}
+	return ret, nil
 }
 
-func saveTokens(m map[string]token) error {
-	dat, err := json.Marshal(m)
-	if err != nil {
-		return err
+func saveTokens(tokens map[string]token) error {
+	buf := bytes.NewBuffer([]byte{})
+	for key, t := range tokens {
+		marshalledToken, err := json.Marshal(t)
+		if err != nil {
+			return err
+		}
+		base64Token := base64.StdEncoding.EncodeToString(marshalledToken)
+		_, err = buf.WriteString(key + ":" + base64Token)
+		if err != nil {
+			return err
+		}
 	}
-	return ioutil.WriteFile(tokensFilePath(), dat, 0700)
+	return ioutil.WriteFile(tokensFilePath(), buf.Bytes(), 0700)
 }
 
 func getFromUserConfig(envName string) (*auth.AccountToken, error) {
