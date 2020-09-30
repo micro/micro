@@ -3,6 +3,7 @@ module github.com/micro/micro/v3
 go 1.13
 
 require (
+	github.com/astaxie/beego v1.12.2
 	github.com/blang/semver v3.5.1+incompatible
 	github.com/boltdb/bolt v1.3.1
 	github.com/chzyer/readline v0.0.0-20180603132655-2972be24d48e

@@ -50,7 +50,7 @@ func login(ctx *cli.Context) error {
 	}
 
 	// clear tokens and try again
-	if err := token.Remove(env.Name, ns); err != nil {
+	if err := token.Remove(ctx); err != nil {
 		report.Errorf(ctx, "%v: Token remove: %v", username, err.Error())
 		return err
 	}
@@ -69,7 +69,7 @@ func login(ctx *cli.Context) error {
 		report.Errorf(ctx, "%v: Getting token: %v", username, err.Error())
 		return err
 	}
-	token.Save(env.Name, ns, tok)
+	token.Save(ctx, tok)
 
 	fmt.Println("Successfully logged in.")
 	report.Success(ctx, username)
@@ -88,13 +88,5 @@ func getPassword() (string, error) {
 }
 
 func logout(ctx *cli.Context) error {
-	env, err := util.GetEnv(ctx)
-	if err != nil {
-		return err
-	}
-	ns, err := namespace.Get(env.Name)
-	if err != nil {
-		return err
-	}
-	return token.Remove(env.Name, ns)
+	return token.Remove(ctx)
 }

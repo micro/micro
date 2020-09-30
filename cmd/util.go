@@ -46,7 +46,7 @@ func setupAuthForCLI(ctx *cli.Context) error {
 		return err
 	}
 
-	tok, err := clitoken.Get(env.Name, ns)
+	tok, err := clitoken.Get(ctx)
 	if err != nil {
 		return err
 	}
@@ -79,7 +79,7 @@ func setupAuthForCLI(ctx *cli.Context) error {
 		goauth.ClientToken(tok),
 		goauth.Issuer(ns),
 	)
-	return clitoken.Save(env.Name, ns, tok)
+	return clitoken.Save(ctx, tok)
 }
 
 // setupAuthForService generates auth credentials for the service

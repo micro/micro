@@ -16,8 +16,11 @@ import (
 	"strings"
 	"time"
 
+	"github.com/micro/micro/v3/client/cli/namespace"
+	"github.com/micro/micro/v3/client/cli/util"
 	"github.com/micro/micro/v3/internal/config"
 	"github.com/micro/micro/v3/service/auth"
+	"github.com/urfave/cli/v2"
 )
 
 const tokenPath = "-tokens.json"
@@ -25,12 +28,20 @@ const tokenPath = "-tokens.json"
 // Get tries a best effort read of auth token from user config.
 // Might have missing `RefreshToken` or `Expiry` fields in case of
 // incomplete or corrupted user config.
-func Get(envName, namespace string) (*auth.AccountToken, error) {
-	tok, err := getFromFile(envName, namespace)
+func Get(ctx *cli.Context) (*auth.AccountToken, error) {
+	env, err := util.GetEnv(ctx)
+	if err != nil {
+		return nil, err
+	}
+	ns, err := namespace.Get(env.Name)
+	if err != nil {
+		return nil, err
+	}
+	tok, err := getFromFile(env.Name, ns)
 	if err == nil {
 		return tok, nil
 	}
-	return getFromUserConfig(envName)
+	return getFromUserConfig(env.Name)
 }
 
 type token struct {
@@ -145,8 +156,16 @@ func getFromUserConfig(envName string) (*auth.AccountToken, error) {
 }
 
 // Save saves the auth token to the user's local config file
-func Save(envName, namespace string, token *auth.AccountToken) error {
-	return saveToFile(envName, namespace, token)
+func Save(ctx *cli.Context, token *auth.AccountToken) error {
+	env, err := util.GetEnv(ctx)
+	if err != nil {
+		return err
+	}
+	ns, err := namespace.Get(env.Name)
+	if err != nil {
+		return err
+	}
+	return saveToFile(env.Name, ns, token)
 }
 
 func saveToFile(envName, namespace string, authToken *auth.AccountToken) error {
@@ -178,8 +197,16 @@ func saveToUserConfig(envName string, token *auth.AccountToken) error {
 // Remove deletes a token. Useful when trying to reset test
 // for example at testing: not having a token is a different state
 // than having an invalid token.
-func Remove(envName, namespace string) error {
-	return removeFromFile(envName, namespace)
+func Remove(ctx *cli.Context) error {
+	env, err := util.GetEnv(ctx)
+	if err != nil {
+		return err
+	}
+	ns, err := namespace.Get(env.Name)
+	if err != nil {
+		return err
+	}
+	return removeFromFile(env.Name, ns)
 }
 
 func removeFromFile(envName, namespace string) error {
