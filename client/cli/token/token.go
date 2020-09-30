@@ -2,6 +2,7 @@
 package token
 
 import (
+	"errors"
 	"fmt"
 	"strconv"
 	"time"
@@ -13,7 +14,28 @@ import (
 // Get tries a best effort read of auth token from user config.
 // Might have missing `RefreshToken` or `Expiry` fields in case of
 // incomplete or corrupted user config.
-func Get(envName string) (*auth.AccountToken, error) {
+func Get(envName, namespace string) (*auth.AccountToken, error) {
+	tok, err := getFromFile(envName)
+	if err == nil {
+		return tok, nil
+	}
+	return getFromUserConfig(envName)
+}
+
+type token struct {
+	AccessToken  string `json:"access_token"`
+	RefreshToken string `json:"refresh_token"`
+	// unix timestamp
+	Created int64 `json:"created"`
+	// unix timestamp
+	Expiry int64 `json:"expiry"`
+}
+
+func getFromFile(envName string) (*auth.AccountToken, error) {
+	return nil, errors.New("Not implemented yet")
+}
+
+func getFromUserConfig(envName string) (*auth.AccountToken, error) {
 	path := []string{"micro", "auth", envName}
 	accessToken, _ := config.Get(config.Path(append(path, "token")...))
 
@@ -46,7 +68,11 @@ func Get(envName string) (*auth.AccountToken, error) {
 }
 
 // Save saves the auth token to the user's local config file
-func Save(envName string, token *auth.AccountToken) error {
+func Save(envName, namespace string, token *auth.AccountToken) error {
+	return saveTokenToUserConfig(envName, token)
+}
+
+func saveTokenToUserConfig(envName string, token *auth.AccountToken) error {
 	if err := config.Set(config.Path("micro", "auth", envName, "token"), token.AccessToken); err != nil {
 		return err
 	}
@@ -61,7 +87,11 @@ func Save(envName string, token *auth.AccountToken) error {
 // Remove deletes a token. Useful when trying to reset test
 // for example at testing: not having a token is a different state
 // than having an invalid token.
-func Remove(envName string) error {
+func Remove(envName, namespace string) error {
+	return removeFromUserConfig(envName)
+}
+
+func removeFromUserConfig(envName string) error {
 	if err := config.Set(config.Path("micro", "auth", envName, "token"), ""); err != nil {
 		return err
 	}
