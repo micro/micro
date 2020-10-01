@@ -24,7 +24,7 @@ Documentation, guides and quick starts for Micro
 - [Roadmap](roadmap) - Stuff on our agenda over the long haul
 - [Users](users) - Developers and companies using Micro in production
 - [FAQ](faq) - Frequently asked questions
-- [v2](v2) - For v1/v2 documentation please see the v2 directory
+- [Blog](blog) - For the latest from us
 
 ## Contributing
 
