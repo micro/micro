@@ -155,7 +155,7 @@ func (c *Config) Read(ctx context.Context, req *pb.ReadRequest, rsp *pb.ReadResp
 	}
 	rsp.Change.ChangeSet.Data = strings.TrimSpace(buf.String())
 	rsp.Change.ChangeSet.Format = "json"
-	fmt.Println(string(rsp.Change.ChangeSet.Data))
+
 	return nil
 }
 
