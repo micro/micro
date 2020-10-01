@@ -29,6 +29,7 @@ import (
 	"github.com/micro/micro/v3/service/runtime"
 	"github.com/micro/micro/v3/service/runtime/server"
 	"github.com/urfave/cli/v2"
+	"golang.org/x/net/publicsuffix"
 	"google.golang.org/grpc/status"
 )
 
@@ -155,7 +156,9 @@ func sourceExists(source *git.Source) error {
 func appendSourceBase(ctx *cli.Context, workDir, source string) (string, error) {
 	isLocal, _ := git.IsLocal(workDir, source)
 	// @todo add list of supported hosts here or do this check better
-	if !isLocal && !strings.Contains(source, ".com") && !strings.Contains(source, ".org") && !strings.Contains(source, ".net") {
+	domain := strings.Split(source, "/")[0]
+	_, err := publicsuffix.EffectiveTLDPlusOne(domain)
+	if !isLocal && err != nil {
 		env, err := util.GetEnv(ctx)
 		if err != nil {
 			return "", nil
