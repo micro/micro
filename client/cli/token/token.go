@@ -62,6 +62,7 @@ func getFromFile(ctx *cli.Context) (*auth.AccountToken, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	env, err := util.GetEnv(ctx)
 	if err != nil {
 		return nil, err
@@ -73,11 +74,12 @@ func getFromFile(ctx *cli.Context) (*auth.AccountToken, error) {
 	var tok token
 	var found bool
 	for key, t := range tokens {
-		if strings.Contains(key, env.Name) && strings.Contains(key, ns) {
+		if strings.Contains(key, env.ProxyAddress) && strings.Contains(key, ns) {
 			tok = t
 			found = true
 		}
 	}
+
 	if !found {
 		return nil, fmt.Errorf("Can't find token for address %v and namespace %v", env.ProxyAddress, ns)
 	}
