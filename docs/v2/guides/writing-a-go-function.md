@@ -316,4 +316,3 @@ fmt.Println(rsp.Greeter)
 
 The full example is can be found at [go-micro/examples/function](https://github.com/micro/examples/tree/master/function).
 
-{% include docs/links.html %}

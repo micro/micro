@@ -99,4 +99,3 @@ Output
 }
 ```
 
-{% include docs/links.html %}

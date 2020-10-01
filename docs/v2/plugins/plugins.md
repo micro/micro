@@ -80,4 +80,3 @@ Browse [go-plugins](https://github.com/micro/go-plugins) to get a better idea of
 The open source plugins can be found at [github.com/micro/go-plugins](https://github.com/micro/go-plugins).
 
 
-{% include docs/links.html %}

@@ -64,4 +64,3 @@ if err != nil {
 }
 ```
 
-{% include docs/links.html %}

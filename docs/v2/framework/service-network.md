@@ -73,4 +73,3 @@ MICRO_NETWORK_TOKEN=foobar micro network
 Nodes must provide a valid and matching token to join the network. The default token is "go.micro.tunnel" which allows 
 any node to join and communicate between them.
 
-{% include docs/links.html %}

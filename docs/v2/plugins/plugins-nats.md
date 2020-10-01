@@ -300,4 +300,3 @@ to the community.
 
 Find the source for the NATS plugins at [github.com/micro/go-plugins](https://github.com/micro/go-plugins).
 
-{% include docs/links.html %}

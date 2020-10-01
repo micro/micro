@@ -39,4 +39,3 @@ A list of external resources, videos, tutorials and blog posts are below. Feel f
 - [Simplifying Microservices](https://www.youtube.com/watch?v=xspaDovwk34) by Asim Aslam
 - [Microservices in Go using Micro](https://www.youtube.com/watch?v=OcjMi9cXItY) by Brian Ketelsen
 
-{% include docs/links.html %}

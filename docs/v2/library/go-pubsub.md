@@ -48,4 +48,3 @@ micro.RegisterSubscriber("events", ProcessEvent)
 
 See [examples/pubsub](https://github.com/micro/examples/tree/master/pubsub) for a complete example.
 
-{% include docs/links.html %}

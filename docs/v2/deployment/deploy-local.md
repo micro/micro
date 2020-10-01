@@ -45,4 +45,3 @@ To run the server
 micro server
 ```
 
-{% include docs/links.html %}
