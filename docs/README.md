@@ -7,6 +7,14 @@ Micro addresses the key requirements for building services in the cloud. It leve
 architecture pattern and provides a set of services which act as the building blocks of a platform. Micro deals
 with the complexity of distributed systems and provides simpler programmable abstractions to build on. 
 
+## Source
+
+[GitHub Repo](https://github.com/micro/micro)
+
+## Release
+
+[Latest Release](https://github.com/micro/micro/releases/latest)
+
 ## Docs
 
 Documentation, guides and quick starts for Micro
@@ -24,11 +32,7 @@ Open a PR and start hacking away at the docs.
 
 ## Community
 
-Join us on [slack](https://slack.micro.mu).
-
-## Updates
-
-Follow [@microhq](https://twitter.com/microhq) on twitter.
+Join us on [Slack](https://slack.micro.mu). Follow [@microhq](https://twitter.com/microhq) on Twitter for updates.
 
 ## License
 
