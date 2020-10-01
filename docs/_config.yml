@@ -21,11 +21,12 @@
 title: Micro
 email: asim@micro.mu
 description: >- # this means to ignore newlines until "baseurl:"
-  Documentation for the open source framework Micro
+  Website and docs for the open source development framework Micro
 baseurl: "" # the subpath of your site, e.g. /blog
 url: "" # the base hostname & protocol for your site, e.g. http://example.com
 twitter_username: microhq
 github_username:  micro
+logo: "/images/logo.png"
 
 # Build settings
 theme: jekyll-theme-primer
