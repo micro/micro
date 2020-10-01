@@ -71,12 +71,30 @@ func getFromFile(ctx *cli.Context) (*auth.AccountToken, error) {
 	if err != nil {
 		return nil, err
 	}
+	// We save the current user
+	userID, err := config.Get(config.Path(env.Name, "current-user"))
+	if err != nil {
+		return nil, err
+	}
+
 	var tok token
 	var found bool
+	// Try to get the token matching the user id if possible
 	for key, t := range tokens {
-		if strings.Contains(key, env.ProxyAddress) && strings.Contains(key, ns) {
+		if len(userID) > 0 && strings.Contains(key, env.ProxyAddress) &&
+			strings.Contains(key, ns) && strings.Contains(key, userID) {
 			tok = t
 			found = true
+			break
+		}
+	}
+	if !found {
+		for key, t := range tokens {
+			if strings.Contains(key, env.ProxyAddress) && strings.Contains(key, ns) {
+				tok = t
+				found = true
+				break
+			}
 		}
 	}
 
@@ -156,6 +174,8 @@ func getFromUserConfig(envName string) (*auth.AccountToken, error) {
 }
 
 // Save saves the auth token to the user's local config file
+// Caution: it overwrites $env.current-user with the accountID
+// that the account token represents.
 func Save(ctx *cli.Context, token *auth.AccountToken) error {
 	return saveToFile(ctx, token)
 }
@@ -193,10 +213,21 @@ func saveToFile(ctx *cli.Context, authToken *auth.AccountToken) error {
 	if err != nil {
 		return err
 	}
-	account, err := auth.Inspect(authToken)
+	account, err := auth.Inspect(authToken.AccessToken)
 	if err != nil {
-		return "", err
+		return err
 	}
+
+	env, err := util.GetEnv(ctx)
+	if err != nil {
+		return err
+	}
+	// We save the current user
+	err = config.Set(config.Path(env.Name, "current-user"), account.ID)
+	if err != nil {
+		return err
+	}
+
 	key, err := tokenKey(ctx, authToken.AccessToken, account.ID)
 	if err != nil {
 		return err
