@@ -7,11 +7,13 @@ permalink: /getting-started
 summary: A getting started guide for Micro
 ---
 
-## What is Micro?
+## Getting Started
 
-Micro is a cloud native development framework
+This a quick start for getting to grips with Micro.
 
-Key components of Micro are as follows:
+## Overview
+
+The key components of Micro are as follows.
 
 * **Server**: a runtime environment for managing services including auth, config, discovery, networking, storage
 * **Clients**: a http api, grpc proxy and command line for accessing services
@@ -422,4 +424,4 @@ interested in learning more Micro magic, have a look at the following sources:
 
 - Read the [docs](../)
 - Learn by [example](https://github.com/micro/services)
-- Join us on [slack](https://slack.mmicro.mu)
+- Join us on [slack](https://slack.micro.mu)

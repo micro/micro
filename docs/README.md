@@ -28,7 +28,7 @@ Documentation, guides and quick starts for Micro
 
 ## Contributing
 
-Open a PR and start hacking away at the docs.
+See the [TODO](/todo) list, open a PR and start hacking away at the docs.
 
 ## Community
 
