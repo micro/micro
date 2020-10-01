@@ -1,6 +1,12 @@
 
 Micro is a framework for cloud native development.
 
+## Overview
+
+Micro addresses the key requirements for building services in the cloud. It leverages the microservices
+architecture pattern and provides a set of services which act as the building blocks of a platform. Micro deals
+with the complexity of distributed systems and provides simpler programmable abstractions to build on. 
+
 ## Docs
 
 Documentation, guides and quick starts for Micro
@@ -18,12 +24,12 @@ Open a PR and start hacking away at the docs.
 
 ## Community
 
-Go to [slack.micro.mu](https://slack.micro.mu)
+Join us on [slack](https://slack.micro.mu).
 
 ## Updates
 
-Follow [@microhq](https://twitter.com/microhq)
+Follow [@microhq](https://twitter.com/microhq) on twitter.
 
 ## License
 
-Polyform Shield. Free to use but stops AWS from running it as a service.
+[Polyform Shield](https://polyformproject.org/licenses/shield/1.0.0/)
