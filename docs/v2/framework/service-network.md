@@ -3,7 +3,7 @@ title: Service Network
 keywords: network
 tags: [network]
 sidebar: home_sidebar
-permalink: /docs/service-network.html
+permalink: /service-network
 summary: The micro network service is a multi-cloud service networking solution
 ---
 

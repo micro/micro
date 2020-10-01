@@ -3,7 +3,7 @@ title: Local Development
 keywords: runtime
 tags: [micro, runtime, dev]
 sidebar: home_sidebar
-permalink: /docs/local-development.html
+permalink: /local-development
 summary: Run a service with the micro runtime
 ---
 

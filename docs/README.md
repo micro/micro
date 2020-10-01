@@ -1,8 +1,9 @@
-# Docs
+
+Micro is a framework for cloud native development.
+
+## Docs
 
 Documentation, guides and quick starts for Micro
-
-## Contents
 
 - [Getting Started](getting-started) - The helloworld quickstart guide
 - [Resources](resources) - External resources for reference
@@ -14,3 +15,15 @@ Documentation, guides and quick starts for Micro
 ## Contributing
 
 Open a PR and start hacking away at the docs.
+
+## Community
+
+Go to [slack.micro.mu](https://slack.micro.mu)
+
+## Updates
+
+Follow [@microhq](https://twitter.com/microhq)
+
+## License
+
+Polyform Shield. Free to use but stops AWS from running it as a service.

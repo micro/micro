@@ -3,7 +3,7 @@ title: Users
 keywords: users
 tags: [users]
 sidebar: home_sidebar
-permalink: /docs/users.html
+permalink: /users
 summary: 
 ---
 

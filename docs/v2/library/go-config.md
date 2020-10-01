@@ -3,7 +3,7 @@ title: Go Config
 keywords: config
 tags: [config]
 sidebar: home_sidebar
-permalink: /docs/go-config.html
+permalink: /go-config
 summary: Go Config is a pluggable dynamic config library
 ---
 

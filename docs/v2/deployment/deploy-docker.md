@@ -3,7 +3,7 @@ title: Docker Deployment
 keywords: docker
 tags: [docker]
 sidebar: home_sidebar
-permalink: /docs/deploy-docker.html
+permalink: /deploy-docker
 summary: 
 ---
 

@@ -3,7 +3,7 @@ title: Errors
 keywords: go-micro, framework, errors
 tags: [go-micro, framework, errors]
 sidebar: home_sidebar
-permalink: "/docs/go-errors.html"
+permalink: /go-errors
 summary: Error handling and errors produced by Go Micro
 ---
 

@@ -3,7 +3,7 @@ title: Web Dashboard
 keywords: web, dashboard
 tags: [web, dashboard]
 sidebar: home_sidebar
-permalink: /docs/web.html
+permalink: /web
 summary: Micro Web provides a dashboard to visualise and explore services
 ---
 

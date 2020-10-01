@@ -3,7 +3,7 @@ title: Run
 keywords: run
 tags: [run]
 sidebar: home_sidebar
-permalink: /docs/run.html
+permalink: /run
 summary: 
 ---
 

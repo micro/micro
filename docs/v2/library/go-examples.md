@@ -3,7 +3,7 @@ title: Examples
 keywords: go-micro, framework, examples
 tags: [go-micro, framework, examples]
 sidebar: home_sidebar
-permalink: "/docs/go-examples.html"
+permalink: /go-examples
 summary: Examples of using Go Micro
 ---
 
