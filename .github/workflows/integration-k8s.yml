@@ -87,10 +87,6 @@ jobs:
     # Everything is set up so let's install the platform
     - name: Install the platform
       env:
-        S3_REGION: ${{ secrets.S3_REGION }}
-        S3_ENDPOINT: ${{ secrets.S3_ENDPOINT }}
-        S3_ACCESS_KEY: ${{ secrets.S3_ACCESS_KEY }}
-        S3_SECRET_KEY: ${{ secrets.S3_SECRET_KEY }}
         TMPDIR: ${{ runner.temp }}
       run: |
         bash scripts/kind-launch.sh
