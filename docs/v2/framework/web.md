@@ -62,4 +62,3 @@ your service should be called; `namespace + path`.
 <img src="images/web4.png">
 
 
-{% include docs/links.html %}

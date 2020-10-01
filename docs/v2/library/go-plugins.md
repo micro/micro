@@ -113,4 +113,3 @@ type Registry interface {
 
 Browse [go-plugins](https://github.com/micro/go-plugins) to get a better idea of implementation details.
 
-{% include docs/links.html %}

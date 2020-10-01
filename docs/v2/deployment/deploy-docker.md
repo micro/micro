@@ -41,4 +41,3 @@ git clone https://github.com/micro/micro
 cd micro && docker build -t micro .
 ```
 
-{% include docs/links.html %}

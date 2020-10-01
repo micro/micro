@@ -99,4 +99,3 @@ a higher level abstraction which allows us to switch out communication mechanism
 supports bidirectional streaming. This is powerful for client side push to the server.
 
 
-{% include docs/links.html %}

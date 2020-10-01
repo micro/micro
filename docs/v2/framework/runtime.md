@@ -377,4 +377,3 @@ micro --registry=etcdv3 --transport=nats --broker=kafka [command]
 MICRO_REGISTRY=etcdv3 MICRO_TRANSPORT=nats MICRO_BROKER=kafka micro [command]
 ```
 
-{% include docs/links.html %}

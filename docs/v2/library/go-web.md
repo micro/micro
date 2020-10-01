@@ -108,5 +108,4 @@ service := web.NewService(
 
 ```
 
-{% include docs/links.html %}
 
