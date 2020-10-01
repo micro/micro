@@ -26,7 +26,7 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
-const tokensFileName = "tokens.json"
+const tokensFileName = "tokens"
 
 // Get tries a best effort read of auth token from user config.
 // Might have missing `RefreshToken` or `Expiry` fields in case of
