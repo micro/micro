@@ -58,4 +58,3 @@ To see if a service is running and responding to RPC queries
 micro health [service]
 ```
 
-{% include docs/links.html %}

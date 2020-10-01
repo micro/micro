@@ -303,4 +303,3 @@ fmt.Println(rsp.Greeting)
 
 The full example is can be found at [go-micro/examples/service](https://github.com/micro/examples/tree/master/service).
 
-{% include docs/links.html %}

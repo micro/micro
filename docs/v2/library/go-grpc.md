@@ -99,4 +99,3 @@ The micro gRPC plugins seamlessly integrates with the gRPC ecosystem. This means
 
 Find an example greeter api at [examples/grpc/gateway](https://github.com/micro/examples/tree/master/grpc/gateway).
 
-{% include docs/links.html %}

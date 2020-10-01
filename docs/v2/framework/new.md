@@ -71,4 +71,3 @@ OPTIONS:
    --fqdn 			FQDN of service e.g com.example.srv.service (defaults to namespace.type.alias)
    --alias 			Alias is the short name used as part of combined name if specified
 ```
-{% include docs/links.html %}

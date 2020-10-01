@@ -83,4 +83,3 @@ store := service.Options().Store
 ```
 
 
-{% include docs/links.html %}

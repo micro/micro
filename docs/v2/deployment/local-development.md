@@ -27,4 +27,3 @@ micro server
 micro run --server examples/greeter/srv
 ```
 
-{% include docs/links.html %}

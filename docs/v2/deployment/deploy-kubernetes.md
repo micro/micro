@@ -241,4 +241,3 @@ spec:
           name: web-port
 ```
 
-{% include docs/links.html %}

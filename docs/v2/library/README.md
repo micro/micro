@@ -104,4 +104,3 @@ go get ./...
 
 Go checkout the [hello world](helloworld.html) example to get started
 
-{% include docs/links.html %}

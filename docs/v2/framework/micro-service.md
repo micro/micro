@@ -86,4 +86,3 @@ micro service --name helloworld --endpoint exec:///tmp/hellworld.sh
 micro call -o raw helloworld .
 ```
 
-{% include docs/links.html %}

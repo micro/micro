@@ -61,4 +61,3 @@ If you're using Micro, feel free to add your company
 - [VXLab](https://www.vxlab.com/) - Visual programming platform
 - [Wonderbly](https://www.wonderbly.com/) - Childrens book company
 
-{% include docs/links.html %}

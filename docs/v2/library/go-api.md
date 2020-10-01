@@ -115,4 +115,3 @@ The web handler is a http reverse proxy with built in service discovery and web 
 - Resolver: Path is used to resolve service name
 
 
-{% include docs/links.html %}

@@ -70,4 +70,3 @@ micro proxy
 
 All requests to helloworld will be sent to the backend at localhost:10001
 
-{% include docs/links.html %}

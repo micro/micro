@@ -469,4 +469,3 @@ $ micro logs example-service
 Value of key.subkey:  val
 ```
 
-{% include docs/links.html %}
