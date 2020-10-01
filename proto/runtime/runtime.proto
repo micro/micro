@@ -171,8 +171,8 @@ message DeleteNamespaceRequest {
 message DeleteNamespaceResponse {}
 
 message UploadRequest {
-	bytes data = 1;	
-	Service service = 2;
+	Service service = 1;
+	bytes data = 2;	
 }
 
 message UploadResponse {
