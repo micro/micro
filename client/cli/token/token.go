@@ -180,7 +180,7 @@ func Save(ctx *cli.Context, token *auth.AccountToken) error {
 	return saveToFile(ctx, token)
 }
 
-func tokenKey(ctx *cli.Context, authToken, accountID string) (string, error) {
+func tokenKey(ctx *cli.Context, accountID string) (string, error) {
 	env, err := util.GetEnv(ctx)
 	if err != nil {
 		return "", err
@@ -228,7 +228,7 @@ func saveToFile(ctx *cli.Context, authToken *auth.AccountToken) error {
 		return err
 	}
 
-	key, err := tokenKey(ctx, authToken.AccessToken, account.ID)
+	key, err := tokenKey(ctx, account.ID)
 	if err != nil {
 		return err
 	}
@@ -257,23 +257,27 @@ func saveToUserConfig(envName string, token *auth.AccountToken) error {
 // for example at testing: not having a token is a different state
 // than having an invalid token.
 func Remove(ctx *cli.Context) error {
-	env, err := util.GetEnv(ctx)
-	if err != nil {
-		return err
-	}
-	ns, err := namespace.Get(env.Name)
-	if err != nil {
-		return err
-	}
-	return removeFromFile(env.Name, ns)
+	return removeFromFile(ctx)
 }
 
-func removeFromFile(envName, namespace string) error {
+func removeFromFile(ctx *cli.Context) error {
 	tokens, err := getTokens()
 	if err != nil {
 		return err
 	}
-	delete(tokens, fmt.Sprintf("%v:%v", envName, namespace))
+	env, err := util.GetEnv(ctx)
+	if err != nil {
+		return err
+	}
+	userID, err := config.Get(config.Path(env.Name, "current-user"))
+	if err != nil {
+		return err
+	}
+	key, err := tokenKey(ctx, userID)
+	if err != nil {
+		return err
+	}
+	delete(tokens, key)
 	return saveTokens(tokens)
 }
 
