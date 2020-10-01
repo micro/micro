@@ -406,4 +406,3 @@ it can later be merged by the reader.
 In some cases source data may not actually be key-value so it's easier to represent it as bytes and defer decoding to 
 the reader.
 
-{% include docs/links.html %}

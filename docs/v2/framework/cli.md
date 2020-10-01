@@ -145,4 +145,3 @@ COMMANDS:
     web		Run the micro web app
 ```
 
-{% include docs/links.html %}

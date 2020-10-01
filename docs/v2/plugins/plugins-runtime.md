@@ -95,4 +95,3 @@ go build -o micro ./main.go ./plugin.go
 
 The plugins for the toolkit can be found in [github.com/micro/go-plugins/micro](https://github.com/micro/go-plugins/tree/master/micro).
 
-{% include docs/links.html %}

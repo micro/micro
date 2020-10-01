@@ -252,4 +252,3 @@ func main() {
 }
 ```
 
-{% include docs/links.html %}

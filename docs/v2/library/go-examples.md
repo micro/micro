@@ -25,4 +25,3 @@ If you want a complet end to end example have a look at the [greeter](https://gi
 This includes the backend service, api and web apps. It will also show you how to run the micro api and web services.
 
 
-{% include docs/links.html %}

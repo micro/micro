@@ -57,4 +57,3 @@ The Micro CLI is a command line version of go-micro which provides a way of obse
 
 Plugins are a way of adding additional functionality to the runtime. See the [overview](runtime-plugins.html).
 
-{% include docs/links.html %}

@@ -53,4 +53,3 @@ MICRO_TUNNEL_TOKEN=foobar go run main.go
 
 By default the token "micro" is used allowing anyone to connect via the tunnel.
 
-{% include docs/links.html %}

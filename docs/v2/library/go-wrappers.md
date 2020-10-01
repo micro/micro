@@ -75,4 +75,3 @@ service := micro.NewService(
 )
 ```
 
-{% include docs/links.html %}

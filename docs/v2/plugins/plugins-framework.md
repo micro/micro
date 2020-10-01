@@ -150,4 +150,3 @@ micro --registry=etcdv3 --transport=nats --broker=kafka
 The go-micro plugins can be found in [github.com/micro/go-plugins](https://github.com/micro/go-plugins).
 
 
-{% include docs/links.html %}

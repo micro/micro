@@ -39,4 +39,3 @@ Watch as your service is started, sees the file change, rebuilds and starts agai
 We'll be adding the ability to send the command to run a service to the `micro runtime` service as well as 
 querying status, killing the service, etc. 
 
-{% include docs/links.html %}
