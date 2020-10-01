@@ -199,22 +199,27 @@ func runService(ctx *cli.Context) error {
 		image = ctx.String("image")
 	}
 
-	var runtimeSource string
+	// construct the service
+	srv := &runtime.Service{
+		Name:    source.RuntimeName(),
+		Version: source.Ref,
+	}
+
 	if source.Local {
 		// for local source, upload it to the server and use the resulting source ID
-		runtimeSource, err = upload(ctx, source)
+		srv.Source, err = upload(ctx, srv, source)
 		if err != nil {
 			return err
 		}
 	} else {
 		// if we're running a remote git repository, pass this as the source
-		runtimeSource = source.RuntimeSource()
+		srv.Source = source.RuntimeSource()
 	}
 
 	// for local source, the srv.Source attribute will be remapped to the id of the source upload.
 	// however this won't make sense from a user experience perspective, so we'll pass the argument
 	// they used in metadata, e.g. ./helloworld
-	metadata := map[string]string{
+	srv.Metadata = map[string]string{
 		"source": source.RuntimeSource(),
 	}
 
@@ -276,12 +281,7 @@ func runService(ctx *cli.Context) error {
 	}
 
 	// run the service
-	return runtime.Create(&runtime.Service{
-		Name:     source.RuntimeName(),
-		Source:   runtimeSource,
-		Version:  source.Ref,
-		Metadata: metadata,
-	}, opts...)
+	return runtime.Create(srv, opts...)
 }
 
 func getGitCredentials(repo string) (string, bool) {
@@ -364,22 +364,28 @@ func updateService(ctx *cli.Context) error {
 			return err
 		}
 	}
-	var runtimeSource string
+
+	// construct the service
+	srv := &runtime.Service{
+		Name:    source.RuntimeName(),
+		Version: source.Ref,
+	}
+
 	if source.Local {
 		// for local source, upload it to the server and use the resulting source ID
-		runtimeSource, err = upload(ctx, source)
+		srv.Source, err = upload(ctx, srv, source)
 		if err != nil {
 			return err
 		}
 	} else {
 		// if we're running a remote git repository, pass this as the source
-		runtimeSource = source.RuntimeSource()
+		srv.Source = source.RuntimeSource()
 	}
 
 	// for local source, the srv.Source attribute will be remapped to the id of the source upload.
 	// however this won't make sense from a user experience perspective, so we'll pass the argument
 	// they used in metadata, e.g. ./helloworld
-	metadata := map[string]string{
+	srv.Metadata = map[string]string{
 		"source": source.RuntimeSource(),
 	}
 
@@ -408,12 +414,7 @@ func updateService(ctx *cli.Context) error {
 		opts = append(opts, runtime.UpdateSecret(credentialsKey, gitCreds))
 	}
 
-	return runtime.Update(&runtime.Service{
-		Name:     source.RuntimeName(),
-		Source:   runtimeSource,
-		Version:  source.Ref,
-		Metadata: metadata,
-	}, opts...)
+	return runtime.Update(srv, opts...)
 }
 
 func getService(ctx *cli.Context) error {

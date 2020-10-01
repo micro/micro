@@ -304,3 +304,25 @@ func (m *manager) generateAccount(srv *service) (*auth.Account, error) {
 
 	return acc, nil
 }
+
+// cleanupBlobStore deletes the source code and build from the blob store once the service finishes
+// running.
+func (m *manager) cleanupBlobStore(srv *service) {
+	// delete the raw source code
+	opt := gostore.BlobNamespace(srv.Options.Namespace)
+	srcKey := fmt.Sprintf("source://%v:%v", srv.Service.Name, srv.Service.Version)
+	if err := store.DefaultBlobStore.Delete(srcKey, opt); err != nil && err != store.ErrNotFound {
+		logger.Warnf("Error deleting source %v: %v", srcKey, err)
+	}
+
+	// if there is no builder enabled, there won't be any build to delete
+	if builder.DefaultBuilder == nil {
+		return
+	}
+
+	// delete the binary
+	buildKey := fmt.Sprintf("build://%v:%v", srv.Service.Name, srv.Service.Version)
+	if err := store.DefaultBlobStore.Delete(buildKey, opt); err != nil && err != store.ErrNotFound {
+		logger.Warnf("Error deleting build %v: %v", srcKey, err)
+	}
+}

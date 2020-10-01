@@ -232,7 +232,13 @@ func (m *manager) Delete(srv *runtime.Service, opts ...runtime.DeleteOption) err
 	}
 
 	// delete from the store
-	return m.deleteService(srvs[0])
+	if err := m.deleteService(srvs[0]); err != nil {
+		return err
+	}
+
+	// delete the source and binary from the blob store async
+	go m.cleanupBlobStore(srvs[0])
+	return nil
 }
 
 // Starts the manager
