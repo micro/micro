@@ -256,6 +256,12 @@ func saveToUserConfig(envName string, token *auth.AccountToken) error {
 // for example at testing: not having a token is a different state
 // than having an invalid token.
 func Remove(ctx *cli.Context) error {
+	env, err := util.GetEnv(ctx)
+	if err != nil {
+		return err
+	}
+	// intentionally ignoring the errors here
+	removeFromUserConfig(env.Name)
 	return removeFromFile(ctx)
 }
 
