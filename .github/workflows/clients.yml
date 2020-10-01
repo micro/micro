@@ -3,7 +3,7 @@ name: Generate Client SDKs
 on:
  schedule:
     # * is a special character in YAML so you have to quote this string
-    - cron:  '30 2 * * *'
+    - cron:  '30 09 * * *'
 
 jobs:
   generate:
