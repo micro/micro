@@ -47,8 +47,6 @@ type RuntimeService interface {
 	Delete(ctx context.Context, in *DeleteRequest, opts ...client.CallOption) (*DeleteResponse, error)
 	Update(ctx context.Context, in *UpdateRequest, opts ...client.CallOption) (*UpdateResponse, error)
 	Logs(ctx context.Context, in *LogsRequest, opts ...client.CallOption) (Runtime_LogsService, error)
-	CreateNamespace(ctx context.Context, in *CreateNamespaceRequest, opts ...client.CallOption) (*CreateNamespaceResponse, error)
-	DeleteNamespace(ctx context.Context, in *DeleteNamespaceRequest, opts ...client.CallOption) (*DeleteNamespaceResponse, error)
 }
 
 type runtimeService struct {
@@ -152,26 +150,6 @@ func (x *runtimeServiceLogs) Recv() (*LogRecord, error) {
 	return m, nil
 }
 
-func (c *runtimeService) CreateNamespace(ctx context.Context, in *CreateNamespaceRequest, opts ...client.CallOption) (*CreateNamespaceResponse, error) {
-	req := c.c.NewRequest(c.name, "Runtime.CreateNamespace", in)
-	out := new(CreateNamespaceResponse)
-	err := c.c.Call(ctx, req, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *runtimeService) DeleteNamespace(ctx context.Context, in *DeleteNamespaceRequest, opts ...client.CallOption) (*DeleteNamespaceResponse, error) {
-	req := c.c.NewRequest(c.name, "Runtime.DeleteNamespace", in)
-	out := new(DeleteNamespaceResponse)
-	err := c.c.Call(ctx, req, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 // Server API for Runtime service
 
 type RuntimeHandler interface {
@@ -180,8 +158,6 @@ type RuntimeHandler interface {
 	Delete(context.Context, *DeleteRequest, *DeleteResponse) error
 	Update(context.Context, *UpdateRequest, *UpdateResponse) error
 	Logs(context.Context, *LogsRequest, Runtime_LogsStream) error
-	CreateNamespace(context.Context, *CreateNamespaceRequest, *CreateNamespaceResponse) error
-	DeleteNamespace(context.Context, *DeleteNamespaceRequest, *DeleteNamespaceResponse) error
 }
 
 func RegisterRuntimeHandler(s server.Server, hdlr RuntimeHandler, opts ...server.HandlerOption) error {
@@ -191,8 +167,6 @@ func RegisterRuntimeHandler(s server.Server, hdlr RuntimeHandler, opts ...server
 		Delete(ctx context.Context, in *DeleteRequest, out *DeleteResponse) error
 		Update(ctx context.Context, in *UpdateRequest, out *UpdateResponse) error
 		Logs(ctx context.Context, stream server.Stream) error
-		CreateNamespace(ctx context.Context, in *CreateNamespaceRequest, out *CreateNamespaceResponse) error
-		DeleteNamespace(ctx context.Context, in *DeleteNamespaceRequest, out *DeleteNamespaceResponse) error
 	}
 	type Runtime struct {
 		runtime
@@ -261,14 +235,6 @@ func (x *runtimeLogsStream) Send(m *LogRecord) error {
 	return x.stream.Send(m)
 }
 
-func (h *runtimeHandler) CreateNamespace(ctx context.Context, in *CreateNamespaceRequest, out *CreateNamespaceResponse) error {
-	return h.RuntimeHandler.CreateNamespace(ctx, in, out)
-}
-
-func (h *runtimeHandler) DeleteNamespace(ctx context.Context, in *DeleteNamespaceRequest, out *DeleteNamespaceResponse) error {
-	return h.RuntimeHandler.DeleteNamespace(ctx, in, out)
-}
-
 // Api Endpoints for Source service
 
 func NewSourceEndpoints() []*api.Endpoint {
@@ -306,7 +272,7 @@ type Source_UploadService interface {
 	Context() context.Context
 	SendMsg(interface{}) error
 	RecvMsg(interface{}) error
-	CloseAndRecv() (*UploadResponse, error)
+	Close() error
 	Send(*UploadRequest) error
 }
 
@@ -314,13 +280,8 @@ type sourceServiceUpload struct {
 	stream client.Stream
 }
 
-func (x *sourceServiceUpload) CloseAndRecv() (*UploadResponse, error) {
-	if err := x.stream.Close(); err != nil {
-		return nil, err
-	}
-	r := new(UploadResponse)
-	err := x.RecvMsg(r)
-	return r, err
+func (x *sourceServiceUpload) Close() error {
+	return x.stream.Close()
 }
 
 func (x *sourceServiceUpload) Context() context.Context {
@@ -368,7 +329,7 @@ type Source_UploadStream interface {
 	Context() context.Context
 	SendMsg(interface{}) error
 	RecvMsg(interface{}) error
-	SendAndClose(*UploadResponse) error
+	Close() error
 	Recv() (*UploadRequest, error)
 }
 
@@ -376,10 +337,7 @@ type sourceUploadStream struct {
 	stream server.Stream
 }
 
-func (x *sourceUploadStream) SendAndClose(in *UploadResponse) error {
-	if err := x.SendMsg(in); err != nil {
-		return err
-	}
+func (x *sourceUploadStream) Close() error {
 	return x.stream.Close()
 }
 
