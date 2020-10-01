@@ -7,23 +7,24 @@ permalink: /getting-started
 summary: A getting started guide for Micro
 ---
 
-## What is Micro?
+## Getting Started
 
-Micro is a cloud native development framework
+This a quick start for getting to grips with Micro.
 
-Key components of Micro are as follows:
+## Overview
 
-* **Server**: a runtime environment for managing services including auth, config, discovery, networking, storage. 
+The key components of Micro are as follows.
+
+* **Server**: a runtime environment for managing services including auth, config, discovery, networking, storage
 * **Clients**: a http api, grpc proxy and command line for accessing services
-* **Library**: a Go library for writing services to be run in the micro runtime.
-* **Clients**: multi-language clients to enable other programs to access Micro services.
+* **Library**: a Go library for writing services to be run in the micro runtime
 
 ## Install
 
 Using Go:
 
 ```sh
-go install github.com/micro/micro/v3
+go get github.com/micro/micro/v3
 ```
 
 Or by downloading the binary
@@ -415,18 +416,12 @@ key: mykey, value: Hi there
 
 Nice! The example service read the value from the store successfully.
 
-## Clients
-
-Beyond this we're working on multi-language clients which you can find and contribute to 
-on github at [github.com/micro/clients](https://github.com/micro/clients). We'd love to 
-discuss this further but it's not quite ready.
-
 ## Further reading
 
 This is just a brief getting started guide for quickly getting up and running with Micro. 
 Come back from time to time to learn more as this guide gets continually upgraded. If you're 
 interested in learning more Micro magic, have a look at the following sources:
 
-- Read the [docs](https://micro.mu.docs)
-- Learn by [examples](https://github.com/micro/examples)
-- Come join us on [Slack](https://slack.m3o.com) and ask quesions
+- Read the [docs](../)
+- Learn by [example](https://github.com/micro/services)
+- Join us on [slack](https://slack.micro.mu)
