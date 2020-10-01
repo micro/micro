@@ -3,7 +3,7 @@ title: Hello World
 keywords: micro, framework, helloworld
 tags: [micro, framework, helloworld]
 sidebar: home_sidebar
-permalink: "/docs/helloworld.html"
+permalink: /helloworld
 summary: A hello world example using Micro
 ---
 

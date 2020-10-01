@@ -3,7 +3,7 @@ title: PubSub
 keywords: go-micro, framework, pubsub
 tags: [go-micro, framework, pubsub]
 sidebar: home_sidebar
-permalink: "/docs/go-pubsub.html"
+permalink: /go-pubsub
 summary: Go Micro builds in PubSub for event driven microservices
 ---
 

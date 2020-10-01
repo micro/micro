@@ -3,7 +3,7 @@ title: Resources
 keywords: resources
 tags: [resources]
 sidebar: home_sidebar
-permalink: /docs/resources.html
+permalink: /resources
 summary: 
 ---
 

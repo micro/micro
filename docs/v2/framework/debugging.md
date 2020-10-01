@@ -3,7 +3,7 @@ title: Debugging
 keywords: debug
 tags: [debug]
 sidebar: home_sidebar
-permalink: /docs/debugging.html
+permalink: /debugging
 summary: 
 ---
 

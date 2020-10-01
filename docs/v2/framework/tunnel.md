@@ -3,7 +3,7 @@ title: Service Tunnel
 keywords: tunnel
 tags: [tunnel]
 sidebar: home_sidebar
-permalink: /docs/tunnel.html
+permalink: /tunnel
 summary: The micro tunnel is a point to point tunnel.
 ---
 

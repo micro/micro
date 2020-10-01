@@ -3,7 +3,7 @@ title: FAQ
 keywords: faq
 tags: [faq]
 sidebar: home_sidebar
-permalink: /docs/faq.html
+permalink: /faq
 summary:
 ---
 

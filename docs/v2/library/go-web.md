@@ -3,7 +3,7 @@ title: Go Web
 keywords: go-web
 tags: [go-web]
 sidebar: home_sidebar
-permalink: "/docs/go-web.html"
+permalink: /go-web
 summary: Go Web provides an interface for micro web apps
 ---
 
