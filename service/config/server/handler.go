@@ -80,8 +80,12 @@ func (c *Config) Get(ctx context.Context, req *pb.GetRequest, rsp *pb.GetRespons
 
 	values := config.NewJSONValues(ch[0].Value)
 
-	// we just want to pass back bytes
-	bs := values.Get(req.Path).Bytes()
+	var bs []byte
+	if len(req.Path) > 0 {
+		bs = values.Get(req.Path).Bytes()
+	} else {
+		bs = values.Bytes()
+	}
 	dat, err := leavesToValues(string(bs), secret, string(c.secret))
 	if err != nil {
 		return merrors.InternalServerError("config.config.Get", "Error in config structure: %v", err)
@@ -101,6 +105,7 @@ func (c *Config) Get(ctx context.Context, req *pb.GetRequest, rsp *pb.GetRespons
 
 // Read method is only here for backwards compatibility
 func (c *Config) Read(ctx context.Context, req *pb.ReadRequest, rsp *pb.ReadResponse) error {
+	logger.Info("doing config read", req.Path, req.Namespace)
 	if len(req.Namespace) == 0 {
 		req.Namespace = defaultNamespace
 	}
@@ -129,8 +134,13 @@ func (c *Config) Read(ctx context.Context, req *pb.ReadRequest, rsp *pb.ReadResp
 
 	values := config.NewJSONValues(ch[0].Value)
 
-	// we just want to pass back bytes
-	bs := values.Get(req.Path).Bytes()
+	var bs []byte
+	if len(req.Path) > 0 {
+		bs = values.Get(req.Path).Bytes()
+	} else {
+		bs = values.Bytes()
+	}
+
 	dat, err := leavesToValues(string(bs), false, string(c.secret))
 	if err != nil {
 		return merrors.InternalServerError("config.config.Read", "Error in config structure: %v", err)
@@ -145,7 +155,7 @@ func (c *Config) Read(ctx context.Context, req *pb.ReadRequest, rsp *pb.ReadResp
 	}
 	rsp.Change.ChangeSet.Data = strings.TrimSpace(buf.String())
 	rsp.Change.ChangeSet.Format = "json"
-
+	fmt.Println(string(rsp.Change.ChangeSet.Data))
 	return nil
 }
 
