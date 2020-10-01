@@ -51,11 +51,7 @@ base64 /tmp/jwt.pub > /tmp/jwt-base64.pub
 # Create the k8s secret
 kubectl create secret generic micro-secrets \
   --from-file=auth_public_key=/tmp/jwt-base64.pub \
-  --from-file=auth_private_key=/tmp/jwt-base64 \
-  --from-literal=s3_region=$S3_REGION \
-  --from-literal=s3_endpoint=$S3_ENDPOINT \
-  --from-literal=s3_access_key=$S3_ACCESS_KEY \
-  --from-literal=s3_secret_key=$S3_SECRET_KEY
+  --from-file=auth_private_key=/tmp/jwt-base64
 
 # Remove the files from tmp
 rm /tmp/jwt /tmp/jwt.pub /tmp/jwt-base64 /tmp/jwt-base64.pub

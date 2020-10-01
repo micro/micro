@@ -19,7 +19,7 @@ require (
 	github.com/grpc-ecosystem/go-grpc-prometheus v1.2.0 // indirect
 	github.com/grpc-ecosystem/grpc-gateway v1.9.5 // indirect
 	github.com/jonboulle/clockwork v0.1.0 // indirect
-	github.com/micro/go-micro/v3 v3.0.0-beta.3.0.20201001090448-ccd61ba995d9
+	github.com/micro/go-micro/v3 v3.0.0-beta.3.0.20201001100334-03f2bb209dce
 	github.com/micro/micro/profile/platform/v3 v3.0.0-20200928084632-c6281c58b123
 	github.com/micro/micro/v3 v3.0.0-beta.4.0.20200928084632-c6281c58b123
 	github.com/mitchellh/hashstructure v1.0.0 // indirect

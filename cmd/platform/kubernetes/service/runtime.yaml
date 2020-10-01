@@ -123,26 +123,6 @@ spec:
             secretKeyRef:
               name: micro-secrets
               key: auth_private_key
-        - name: S3_REGION
-          valueFrom:
-            secretKeyRef:
-              name: micro-secrets
-              key: s3_region
-        - name: S3_ENDPOINT
-          valueFrom:
-            secretKeyRef:
-              name: micro-secrets
-              key: s3_endpoint
-        - name: S3_ACCESS_KEY
-          valueFrom:
-            secretKeyRef:
-              name: micro-secrets
-              key: s3_access_key
-        - name: S3_SECRET_KEY
-          valueFrom:
-            secretKeyRef:
-              name: micro-secrets
-              key: s3_secret_key
         - name: MICRO_BROKER_TLS_CA
           value: "/certs/broker/ca.crt"
         - name: MICRO_BROKER_TLS_CERT
@@ -161,6 +141,16 @@ spec:
           value: "/certs/registry/cert.pem"
         - name: MICRO_REGISTRY_TLS_KEY
           value: "/certs/registry/key.pem"
+        - name: MICRO_BLOB_STORE_ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              name: minio-creds
+              key: access_key
+        - name: MICRO_BLOB_STORE_SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: minio-creds
+              key: secret_key
         - name: MICRO_LOG_LEVEL
           value: "debug"
         - name: MICRO_STORE_ADDRESS
