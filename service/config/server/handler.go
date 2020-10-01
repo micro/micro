@@ -99,6 +99,56 @@ func (c *Config) Get(ctx context.Context, req *pb.GetRequest, rsp *pb.GetRespons
 	return nil
 }
 
+// Read method is only here for backwards compatibility
+func (c *Config) Read(ctx context.Context, req *pb.ReadRequest, rsp *pb.ReadResponse) error {
+	if len(req.Namespace) == 0 {
+		req.Namespace = defaultNamespace
+	}
+
+	// authorize the request
+	if err := namespace.Authorize(ctx, req.Namespace); err == namespace.ErrForbidden {
+		return merrors.Forbidden("config.Config.Read", err.Error())
+	} else if err == namespace.ErrUnauthorized {
+		return merrors.Unauthorized("config.Config.Read", err.Error())
+	} else if err != nil {
+		return merrors.InternalServerError("config.Config.Read", err.Error())
+	}
+
+	ch, err := store.Read(req.Namespace)
+	if err == store.ErrNotFound {
+		return merrors.NotFound("config.Config.Read", "Not found")
+	} else if err != nil {
+		return merrors.BadRequest("config.Config.Read", "read error: %v: %v", err, req.Namespace)
+	}
+
+	rsp.Change = &pb.Change{
+		Namespace: req.Namespace,
+		Path:      req.Path,
+		ChangeSet: &pb.ChangeSet{},
+	}
+
+	values := config.NewJSONValues(ch[0].Value)
+
+	// we just want to pass back bytes
+	bs := values.Get(req.Path).Bytes()
+	dat, err := leavesToValues(string(bs), false, string(c.secret))
+	if err != nil {
+		return merrors.InternalServerError("config.config.Read", "Error in config structure: %v", err)
+	}
+
+	buf := new(bytes.Buffer)
+	enc := json.NewEncoder(buf)
+	enc.SetEscapeHTML(false)
+	err = enc.Encode(dat)
+	if err != nil {
+		return merrors.BadRequest("config.Config.Read", "JSOn encode error: %v", err)
+	}
+	rsp.Change.ChangeSet.Data = strings.TrimSpace(buf.String())
+	rsp.Change.ChangeSet.Format = "json"
+
+	return nil
+}
+
 func leavesToValues(data string, decodeSecrets bool, encryptionKey string) (interface{}, error) {
 	var m interface{}
 	err := json.Unmarshal([]byte(data), &m)
