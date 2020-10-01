@@ -5,6 +5,7 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"io/ioutil"
+	"os"
 
 	"github.com/micro/go-micro/v3/auth/jwt"
 	"github.com/micro/go-micro/v3/broker"
@@ -70,9 +71,19 @@ var Profile = &profile.Profile{
 		}
 
 		// only configure the blob store for the store and runtime services
-		microStore.DefaultBlobStore, err = s3.NewBlobStore(s3.Endpoint("minio-cluster"))
-		if err != nil {
-			logger.Fatalf("Error configuring s3 blob store: %v", err)
+		if ctx.Args().Get(1) == "runtime" || ctx.Args().Get(1) == "store" {
+			microStore.DefaultBlobStore, err = s3.NewBlobStore(
+				s3.Credentials(
+					os.Getenv("MICRO_BLOB_STORE_ACCESS_KEY"),
+					os.Getenv("MICRO_BLOB_STORE_SECRET_KEY"),
+				),
+				s3.Endpoint("minio-cluster:9000"),
+				s3.Region("micro"),
+				s3.Insecure(),
+			)
+			if err != nil {
+				logger.Fatalf("Error configuring s3 blob store: %v", err)
+			}
 		}
 
 		microBuilder.DefaultBuilder = buildSrv.NewBuilder()
