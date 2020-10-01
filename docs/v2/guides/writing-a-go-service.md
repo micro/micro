@@ -3,7 +3,7 @@ title: Writing a Service
 keywords: development
 tags: [development]
 sidebar: home_sidebar
-permalink: /docs/writing-a-go-service.html
+permalink: /writing-a-go-service
 summary: 
 ---
 

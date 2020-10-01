@@ -3,7 +3,7 @@ title: Install Guide
 keywords: install
 tags: [install]
 sidebar: home_sidebar
-permalink: /docs/installation.html
+permalink: /installation
 summary: 
 ---
 

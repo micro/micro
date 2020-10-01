@@ -3,7 +3,7 @@ title: CLI
 keywords: cli
 tags: [cli]
 sidebar: home_sidebar
-permalink: /docs/cli.html
+permalink: /cli
 summary: 
 ---
 

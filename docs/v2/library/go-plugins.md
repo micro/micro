@@ -3,7 +3,7 @@ title: Plugins
 keywords: go-micro, framework, plugins
 tags: [go-micro, framework, plugins]
 sidebar: home_sidebar
-permalink: "/docs/go-plugins.html"
+permalink: /go-plugins
 summary: Go Micro is a pluggable framework
 ---
 

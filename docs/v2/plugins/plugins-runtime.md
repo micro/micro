@@ -3,7 +3,7 @@ title: Runtime Plugins
 keywords: plugins
 tags: [plugins]
 sidebar: home_sidebar
-permalink: /docs/plugins-runtime.html
+permalink: /plugins-runtime
 summary: 
 ---
 

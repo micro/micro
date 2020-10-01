@@ -3,7 +3,7 @@ title: Run Service
 keywords: runtime
 tags: [micro, runtime]
 sidebar: home_sidebar
-permalink: /docs/run-service.html
+permalink: /run-service
 summary: Run a service with the micro runtime
 ---
 

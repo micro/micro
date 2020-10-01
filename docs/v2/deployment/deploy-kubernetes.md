@@ -3,7 +3,7 @@ title: Kubernetes Deployment
 keywords: kubernetes
 tags: [kubernetes]
 sidebar: home_sidebar
-permalink: /docs/deploy-kubernetes.html
+permalink: /deploy-kubernetes
 summary: 
 ---
 

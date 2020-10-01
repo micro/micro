@@ -3,7 +3,7 @@ title: Architecture
 keywords: architecture
 tags: [architecture]
 sidebar: home_sidebar
-permalink: /docs/architecture.html
+permalink: /architecture
 summary: 
 ---
 

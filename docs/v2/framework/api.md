@@ -3,7 +3,7 @@ title: API Gateway
 keywords: api
 tags: [api]
 sidebar: home_sidebar
-permalink: /docs/api.html
+permalink: /api
 summary: The micro api is an api gateway
 ---
 

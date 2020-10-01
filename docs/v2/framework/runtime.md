@@ -3,7 +3,7 @@ title: Runtime
 keywords: runtime
 tags: [micro, runtime]
 sidebar: home_sidebar
-permalink: /docs/runtime.html
+permalink: /runtime
 summary: Micro is a runtime for microservices development
 ---
 

@@ -3,7 +3,7 @@ title: Service Proxy
 keywords: proxy
 tags: [proxy]
 sidebar: home_sidebar
-permalink: /docs/proxy.html
+permalink: /proxy
 summary: The micro proxy is a service-to-service proxy.
 ---
 

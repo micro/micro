@@ -3,7 +3,7 @@ title: Wrappers
 keywords: go-micro, framework, wrappers
 tags: [go-micro, framework, wrappers]
 sidebar: home_sidebar
-permalink: "/docs/go-wrappers.html"
+permalink: /go-wrappers
 summary: Wrappers are middleware for Go Micro
 ---
 

@@ -3,7 +3,7 @@ title: New Template
 keywords: new
 tags: [new]
 sidebar: home_sidebar
-permalink: /docs/new.html
+permalink: /new
 summary: 
 ---
 
