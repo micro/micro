@@ -3,7 +3,7 @@ title: Options
 keywords: go-micro, framework
 tags: [go-micro, framework]
 sidebar: home_sidebar
-permalink: "/docs/go-options.html"
+permalink: /go-options
 summary: Setting and using Go Micro options
 ---
 

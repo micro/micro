@@ -3,7 +3,7 @@ title: Local Deployment
 keywords: local
 tags: [local]
 sidebar: home_sidebar
-permalink: /docs/deploy-local.html
+permalink: /deploy-local
 summary: 
 ---
 

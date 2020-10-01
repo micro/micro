@@ -3,7 +3,7 @@ title: Getting Started with Micro
 keywords: micro
 tags: [micro]
 sidebar: home_sidebar
-permalink: /docs/getting-started.html
+permalink: /getting-started
 summary: A getting started guide for Micro
 ---
 

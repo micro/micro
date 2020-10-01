@@ -3,7 +3,7 @@ title: gRPC Service
 keywords: grpc
 tags: [go-grpc]
 sidebar: home_sidebar
-permalink: "/docs/go-grpc.html"
+permalink: /go-grpc
 summary: gRPC service integration with go-micro
 ---
 

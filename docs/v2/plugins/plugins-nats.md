@@ -3,7 +3,7 @@ title: NATS
 keywords: plugins, nats
 tags: [plugins, nats]
 sidebar: home_sidebar
-permalink: /docs/plugins-nats.html
+permalink: /plugins-nats
 summary: 
 ---
 

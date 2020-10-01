@@ -3,7 +3,7 @@ title: Framework Plugins
 keywords: plugins
 tags: [plugins]
 sidebar: home_sidebar
-permalink: /docs/plugins-framework.html
+permalink: /plugins-framework
 summary: 
 ---
 

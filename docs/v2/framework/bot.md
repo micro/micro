@@ -3,7 +3,7 @@ title: Bot
 keywords: bot
 tags: [bot]
 sidebar: home_sidebar
-permalink: /docs/bot.html
+permalink: /bot
 summary: 
 ---
 

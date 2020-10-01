@@ -3,7 +3,7 @@ title: Interfaces
 keywords: go-micro, interfaces
 tags: [go-micro, interfaces]
 sidebar: home_sidebar
-permalink: /docs/go-interfaces.html
+permalink: /go-interfaces
 summary: A description of the go-micro interfaces
 ---
 

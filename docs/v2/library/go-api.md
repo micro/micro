@@ -3,7 +3,7 @@ title: Go API
 keywords: go-api
 tags: [go-micro]
 sidebar: home_sidebar
-permalink: "/docs/go-api.html"
+permalink: /go-api
 summary: a package for defining api routes and handlers
 ---
 

@@ -3,7 +3,7 @@ title: Writing a Go Function
 keywords: development
 tags: [development]
 sidebar: home_sidebar
-permalink: /docs/writing-a-go-function.html
+permalink: /writing-a-go-function
 summary: 
 ---
 
