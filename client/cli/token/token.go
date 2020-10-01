@@ -160,7 +160,7 @@ func Save(ctx *cli.Context, token *auth.AccountToken) error {
 	return saveToFile(ctx, token)
 }
 
-func tokenKey(ctx *cli.Context, authToken string) (string, error) {
+func tokenKey(ctx *cli.Context, authToken, accountID string) (string, error) {
 	env, err := util.GetEnv(ctx)
 	if err != nil {
 		return "", err
@@ -169,11 +169,7 @@ func tokenKey(ctx *cli.Context, authToken string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	account, err := auth.Inspect(authToken)
-	if err != nil {
-		return "", err
-	}
-	return fmt.Sprintf("micro://%v/%v/%v", env.ProxyAddress, ns, account.ID), nil
+	return fmt.Sprintf("micro://%v/%v/%v", env.ProxyAddress, ns, accountID), nil
 }
 
 func saveTokens(tokens map[string]token) error {
@@ -197,7 +193,11 @@ func saveToFile(ctx *cli.Context, authToken *auth.AccountToken) error {
 	if err != nil {
 		return err
 	}
-	key, err := tokenKey(ctx, authToken.AccessToken)
+	account, err := auth.Inspect(authToken)
+	if err != nil {
+		return "", err
+	}
+	key, err := tokenKey(ctx, authToken.AccessToken, account.ID)
 	if err != nil {
 		return err
 	}
