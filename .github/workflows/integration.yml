@@ -79,10 +79,11 @@ jobs:
       run: |
         docker tag micro localhost:5000/micro && docker push localhost:5000/micro || true
 
-    - name: Check out services repo
-      run: |
-        mkdir /tmp/services
-        git clone git@github.com:micro/services.git /tmp/services
+    - name: Check out services
+      uses: actions/checkout@v2
+      with:
+        repository: 'micro/services'
+        path: '/tmp/services'
 
     - name: Test micro server
       working-directory: ./test
