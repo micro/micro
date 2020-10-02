@@ -17,7 +17,6 @@ import (
 	"time"
 
 	"github.com/micro/micro/v3/client/cli/namespace"
-	"github.com/micro/micro/v3/client/cli/token"
 	"github.com/micro/micro/v3/internal/user"
 )
 
@@ -379,7 +378,7 @@ func (s *ServerBase) Close() {
 	os.Remove(s.config)
 
 	// remove the credentials so they aren't reused on next run
-	token.Remove(s.env)
+	s.Command().Exec("logout")
 
 	// reset back to the default namespace
 	namespace.Set("micro", s.env)

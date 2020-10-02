@@ -32,26 +32,18 @@ func Test(t *testing.T) {
 		},
 	}
 
-	// change the config path for the lifetime
-	// of this test
-	saveFile := file
-	savePath := fpath
 	saveLock := lock
+	saveFile := File
 
-	file = filepath.Join(user.Dir, "config-test.json")
-	path, _ := filePath()
-	lock = fslock.New(path)
+	File = filepath.Join(user.Dir, "config-test.json")
+	lock = fslock.New(File)
 
 	defer func() {
-		file = saveFile
-		path = savePath
+		File = saveFile
 		lock = saveLock
 	}()
 
-	fp, err := filePath()
-	if err != nil {
-		t.Fatal(err)
-	}
+	fp := File
 
 	for _, tc := range tt {
 		t.Run(tc.name, func(t *testing.T) {
