@@ -450,7 +450,7 @@ func testRunLocalUpdateAndCall(t *T) {
 		}
 
 		// The started service should have the runtime name of "example".
-		if !statusRunning("example", "latest", outp) {
+		if !statusRunning("helloworld", "latest", outp) {
 			return outp, errors.New("can't find service in runtime")
 		}
 		return outp, err
@@ -459,7 +459,7 @@ func testRunLocalUpdateAndCall(t *T) {
 	}
 
 	if err := Try("Call example service", t, func() ([]byte, error) {
-		outp, err := cmd.Exec("example", "--name=Joe", "--caps=true", "--number=2")
+		outp, err := cmd.Exec("helloworld", "--name=Joe")
 		if err != nil {
 			return outp, err
 		}
@@ -468,7 +468,7 @@ func testRunLocalUpdateAndCall(t *T) {
 		if err != nil {
 			return outp, err
 		}
-		if rsp["msg"] != "HELLO JOE 2" {
+		if rsp["msg"] != "Hello Joe" {
 			return outp, errors.New("Response is unexpected")
 		}
 		return outp, err
