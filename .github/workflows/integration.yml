@@ -87,8 +87,8 @@ jobs:
     
     - name: Delete go mod
       run: |
-        rm go.mod
-        rm go.sum
+        rm ./test/services/go.mod
+        rm ./test/services/go.sum
 
     - name: Test micro server
       working-directory: ./test
