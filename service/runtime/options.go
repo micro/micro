@@ -58,6 +58,13 @@ func CreateContext(ctx context.Context) CreateOption {
 	}
 }
 
+// CreateEntrypoint sets the entrypoint
+func CreateEntrypoint(e string) CreateOption {
+	return func(o *CreateOptions) {
+		o.Entrypoint = e
+	}
+}
+
 // WithSecret sets a secret to provide the service with
 func WithSecret(key, value string) CreateOption {
 	return func(o *CreateOptions) {
@@ -156,6 +163,13 @@ func UpdateSecret(key, value string) UpdateOption {
 		} else {
 			o.Secrets[key] = value
 		}
+	}
+}
+
+// UpdateEntrypoint sets the entrypoint
+func UpdateEntrypoint(e string) UpdateOption {
+	return func(o *UpdateOptions) {
+		o.Entrypoint = e
 	}
 }
 

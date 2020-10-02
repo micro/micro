@@ -7,6 +7,7 @@ import (
 	"github.com/micro/micro/v3/internal/namespace"
 	"github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/runtime"
+	"github.com/micro/micro/v3/service/runtime/builder"
 	"github.com/micro/micro/v3/service/runtime/manager/util"
 )
 
@@ -36,13 +37,34 @@ func (m *manager) Create(srv *runtime.Service, opts ...runtime.CreateOption) err
 		UpdatedAt: time.Now(),
 	}
 
-	// create the service in the underlying runtime
-	if err := m.createServiceInRuntime(service); err != nil && err != runtime.ErrAlreadyExists {
+	// if there is not a builder configured, start the service and then write it to the store
+	if builder.DefaultBuilder == nil {
+		// the source could be a git remote or a reference to the blob store, parse it before we run
+		// the service
+		var err error
+		srv.Source, err = m.checkoutSource(service)
+		if err != nil {
+			return err
+		}
+
+		// create the service in the underlying runtime
+		if err := m.createServiceInRuntime(service); err != nil && err != runtime.ErrAlreadyExists {
+			return err
+		}
+
+		// write the object to the store
+		return m.writeService(service)
+	}
+
+	// building ths service can take some time so we'll write the service to the store and then
+	// perform the build process async
+	service.Status = gorun.Pending
+	if err := m.writeService(service); err != nil {
 		return err
 	}
 
-	// write the object to the store
-	return m.writeService(service)
+	go m.buildAndRun(service)
+	return nil
 }
 
 // Read returns the service which matches the criteria provided
@@ -84,6 +106,9 @@ func (m *manager) Read(opts ...runtime.ReadOption) ([]*runtime.Service, error) {
 		// check for a status on the service, this could be building, stopping etc
 		if s.Status != gorun.Unknown {
 			result[i].Status = s.Status
+		}
+		if len(s.Error) > 0 {
+			result[i].Metadata["error"] = s.Error
 		}
 
 		// set the last updated, todo: check why this is 'started' and not 'updated'. Consider adding
@@ -136,18 +161,40 @@ func (m *manager) Update(srv *runtime.Service, opts ...runtime.UpdateOption) err
 		return gorun.ErrNotFound
 	}
 
-	// update the service in the underlying runtime
-	if err := m.Runtime.Update(srv, opts...); err != nil {
+	// update the service
+	service := srvs[0]
+	service.Service.Source = srv.Source
+	service.UpdatedAt = time.Now()
+
+	// if there is not a builder configured, update the service and then write it to the store
+	if builder.DefaultBuilder == nil {
+		// the source could be a git remote or a reference to the blob store, parse it before we run
+		// the service
+		var err error
+		service.Service.Source, err = m.checkoutSource(service)
+		if err != nil {
+			return err
+		}
+
+		// create the service in the underlying runtime
+		if err := m.updateServiceInRuntime(service); err != nil {
+			return err
+		}
+
+		// write the object to the store
+		service.Status = runtime.Starting
+		service.Error = ""
+		return m.writeService(service)
+	}
+
+	// building ths service can take some time so we'll write the service to the store and then
+	// perform the build process async
+	service.Status = gorun.Pending
+	if err := m.writeService(service); err != nil {
 		return err
 	}
 
-	// update the service in the store
-	service := srvs[0]
-	service.UpdatedAt = time.Now()
-	if err := m.writeService(service); err != nil {
-		logger.Errorf("error saving service: %v", err)
-	}
-
+	go m.buildAndUpdate(service)
 	return nil
 }
 
@@ -180,12 +227,18 @@ func (m *manager) Delete(srv *runtime.Service, opts ...runtime.DeleteOption) err
 	}
 
 	// delete from the underlying runtime
-	if err := m.Runtime.Delete(srv); err != nil {
+	if err := m.Runtime.Delete(srv, opts...); err != nil && err != runtime.ErrNotFound {
 		return err
 	}
 
 	// delete from the store
-	return m.deleteService(srvs[0])
+	if err := m.deleteService(srvs[0]); err != nil {
+		return err
+	}
+
+	// delete the source and binary from the blob store async
+	go m.cleanupBlobStore(srvs[0])
+	return nil
 }
 
 // Starts the manager

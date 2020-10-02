@@ -11,6 +11,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 // Unarchive decodes the source in a tar and writes it to a directory
@@ -63,6 +64,16 @@ func Archive(dir string) (io.Reader, error) {
 			return err
 		}
 
+		// skip git files
+		if filepath.HasPrefix(relpath, ".git") {
+			return nil
+		}
+
+		// skip irrelevent files
+		if !info.IsDir() && !shouldArchive(relpath) {
+			return nil
+		}
+
 		// generate and write tar header
 		header, err := tar.FileInfoHeader(info, relpath)
 		if err != nil {
@@ -102,4 +113,19 @@ func Archive(dir string) (io.Reader, error) {
 
 	// Return the archive
 	return tf, nil
+}
+
+// shouldArchive is a helper func which indicates if a file should be archived. TODO: implement a
+// smarter check which just excludes executables
+func shouldArchive(file string) bool {
+	if strings.HasSuffix(file, ".go") {
+		return true
+	}
+	if strings.HasSuffix(file, "go.sum") {
+		return true
+	}
+	if strings.HasSuffix(file, "go.mod") {
+		return true
+	}
+	return false
 }

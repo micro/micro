@@ -4,10 +4,8 @@ package runtime
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"net/http"
 	"os"
-	"os/signal"
 	"path"
 	"path/filepath"
 	"sort"
@@ -17,16 +15,11 @@ import (
 
 	golog "github.com/micro/go-micro/v3/logger"
 	"github.com/micro/go-micro/v3/runtime/local/source/git"
-	"github.com/micro/go-micro/v3/util/file"
 	"github.com/micro/micro/v3/client/cli/namespace"
 	"github.com/micro/micro/v3/client/cli/util"
-	cliutil "github.com/micro/micro/v3/client/cli/util"
 	"github.com/micro/micro/v3/internal/config"
-	muclient "github.com/micro/micro/v3/service/client"
-	"github.com/micro/micro/v3/service/context"
 	"github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/runtime"
-	"github.com/micro/micro/v3/service/runtime/server"
 	"github.com/urfave/cli/v2"
 	"google.golang.org/grpc/status"
 )
@@ -131,7 +124,7 @@ func sourceExists(source *git.Source) error {
 			return err
 		}
 		if resp.StatusCode >= 400 && resp.StatusCode < 500 {
-			return fmt.Errorf("service at %v@%v not found", source.Repo, ref)
+			return fmt.Errorf("service at %v@%v not found", source.RuntimeSource(), ref)
 		}
 		return nil
 	}
@@ -180,50 +173,54 @@ func runService(ctx *cli.Context) error {
 		return err
 	}
 
+	// determine the type of source input, i.e. is it a local folder or a remote git repo
 	source, err := git.ParseSourceLocal(wd, appendSourceBase(ctx, wd, ctx.Args().Get(0)))
 	if err != nil {
 		return err
 	}
-	var newSource string
-	if source.Local {
-		if cliutil.IsPlatform(ctx) {
-			fmt.Println("Local sources are not yet supported on m3o. It's coming soon though!")
-			os.Exit(1)
-		}
-		newSource, err = upload(ctx, source)
-		if err != nil {
-			return err
-		}
-	} else {
-		err := sourceExists(source)
-		if err != nil {
+
+	// if the source isn't local, ensure it exists
+	if !source.Local {
+		if err := sourceExists(source); err != nil {
 			return err
 		}
 	}
 
+	// parse the various flags
 	typ := ctx.String("type")
 	command := strings.TrimSpace(ctx.String("command"))
 	args := strings.TrimSpace(ctx.String("args"))
-
-	runtimeSource := source.RuntimeSource()
-	if source.Local {
-		runtimeSource = newSource
-	}
-
-	var retries = DefaultRetries
+	retries := DefaultRetries
+	image := DefaultImage
 	if ctx.IsSet("retries") {
 		retries = ctx.Int("retries")
 	}
-
-	var image = DefaultImage
 	if ctx.IsSet("image") {
 		image = ctx.String("image")
 	}
 
-	// when using the micro/cells:go image, we pass the source as the argument
-	args = runtimeSource
-	if len(source.Ref) > 0 {
-		args += "@" + source.Ref
+	// construct the service
+	srv := &runtime.Service{
+		Name:    source.RuntimeName(),
+		Version: source.Ref,
+	}
+
+	if source.Local {
+		// for local source, upload it to the server and use the resulting source ID
+		srv.Source, err = upload(ctx, srv, source)
+		if err != nil {
+			return err
+		}
+	} else {
+		// if we're running a remote git repository, pass this as the source
+		srv.Source = source.RuntimeSource()
+	}
+
+	// for local source, the srv.Source attribute will be remapped to the id of the source upload.
+	// however this won't make sense from a user experience perspective, so we'll pass the argument
+	// they used in metadata, e.g. ./helloworld
+	srv.Metadata = map[string]string{
+		"source": source.RuntimeSource(),
 	}
 
 	// specify the options
@@ -232,6 +229,19 @@ func runService(ctx *cli.Context) error {
 		runtime.WithRetries(retries),
 		runtime.CreateImage(image),
 		runtime.CreateType(typ),
+	}
+	if len(command) > 0 {
+		opts = append(opts, runtime.WithCommand(strings.Split(command, " ")...))
+	}
+	if len(args) > 0 {
+		opts = append(opts, runtime.WithArgs(strings.Split(args, " ")...))
+	}
+
+	// when the repo root doesn't match the full path (e.g. in cases where a mono-repo is being
+	// used), find the relative path and pass this in the metadata as entrypoint.
+	if source.Local && source.LocalRepoRoot != source.FullPath {
+		ep, _ := filepath.Rel(source.LocalRepoRoot, source.FullPath)
+		opts = append(opts, runtime.CreateEntrypoint(ep))
 	}
 
 	// add environment variable passed in via cli
@@ -243,11 +253,9 @@ func runService(ctx *cli.Context) error {
 			}
 		}
 	}
-
 	if len(environment) > 0 {
 		opts = append(opts, runtime.WithEnv(environment))
 	}
-
 	if len(command) > 0 {
 		opts = append(opts, runtime.WithCommand(strings.Split(command, " ")...))
 	}
@@ -273,27 +281,7 @@ func runService(ctx *cli.Context) error {
 	}
 
 	// run the service
-	service := &runtime.Service{
-		Name:     source.RuntimeName(),
-		Source:   runtimeSource,
-		Version:  source.Ref,
-		Metadata: make(map[string]string),
-	}
-
-	if err := runtime.Create(service, opts...); err != nil {
-		return err
-	}
-
-	if runtime.DefaultRuntime.String() == "local" {
-		// we need to wait
-		ch := make(chan os.Signal, 1)
-		signal.Notify(ch, os.Interrupt)
-		<-ch
-		// delete the service
-		return runtime.Delete(service)
-	}
-
-	return nil
+	return runtime.Create(srv, opts...)
 }
 
 func getGitCredentials(repo string) (string, bool) {
@@ -352,62 +340,6 @@ func killService(ctx *cli.Context) error {
 	return nil
 }
 
-func grepMain(path string) error {
-	files, err := ioutil.ReadDir(path)
-	if err != nil {
-		return err
-	}
-	for _, f := range files {
-		if !strings.HasSuffix(f.Name(), ".go") {
-			continue
-		}
-		file := filepath.Join(path, f.Name())
-		b, err := ioutil.ReadFile(file)
-		if err != nil {
-			continue
-		}
-		if strings.Contains(string(b), "package main") {
-			return nil
-		}
-	}
-	return fmt.Errorf("Directory does not contain a main package")
-}
-
-func upload(ctx *cli.Context, source *git.Source) (string, error) {
-	if err := grepMain(source.FullPath); err != nil {
-		return "", err
-	}
-	uploadedFileName := filepath.Base(source.Folder) + ".tar.gz"
-	path := filepath.Join(os.TempDir(), uploadedFileName)
-
-	var err error
-	if len(source.LocalRepoRoot) > 0 {
-		// @todo currently this uploads the whole repo all the time to support local dependencies
-		// in parents (ie service path is `repo/a/b/c` and it depends on `repo/a/b`).
-		// Optimise this by only uploading things that are needed.
-		err = server.Compress(source.LocalRepoRoot, path)
-	} else {
-		err = server.Compress(source.FullPath, path)
-	}
-
-	if err != nil {
-		return "", err
-	}
-	cli := muclient.DefaultClient
-	err = file.New("server", cli, file.WithContext(context.DefaultContext)).Upload(uploadedFileName, path)
-	if err != nil {
-		return "", err
-	}
-	// ie. if relative folder path to repo root is `test/service/example`
-	// file name becomes `example.tar.gz/test/service`
-	parts := strings.Split(source.Folder, "/")
-	if len(parts) == 1 {
-		return uploadedFileName, nil
-	}
-	allButLastDir := parts[0 : len(parts)-1]
-	return filepath.Join(append([]string{uploadedFileName}, allButLastDir...)...), nil
-}
-
 func updateService(ctx *cli.Context) error {
 	// we need some args to run
 	if ctx.Args().Len() == 0 {
@@ -419,38 +351,50 @@ func updateService(ctx *cli.Context) error {
 	if err != nil {
 		return err
 	}
-	source, err := git.ParseSourceLocal(wd, appendSourceBase(ctx, wd, ctx.Args().Get(0)))
+
+	// determine the type of source input, i.e. is it a local folder or a remote git repo
+	source, err := git.ParseSourceLocal(wd, appendSourceBase(ctx, wd, ctx.Args().First()))
 	if err != nil {
 		return err
 	}
-	var newSource string
-	if source.Local {
-		newSource, err = upload(ctx, source)
-		if err != nil {
+
+	// if the source isn't local, ensure it exists
+	if !source.Local {
+		if err := sourceExists(source); err != nil {
 			return err
 		}
 	}
 
-	runtimeName := source.RuntimeName()
-	runtimeSource := source.RuntimeSource()
-	ref := source.Ref
+	// construct the service
+	srv := &runtime.Service{
+		Name:    source.RuntimeName(),
+		Version: source.Ref,
+	}
+
 	if source.Local {
-		runtimeSource = newSource
-	} else {
-		runtimeSource = ""
-		name := ctx.Args().Get(0)
-		if parts := strings.Split(name, "@"); len(parts) > 1 {
-			runtimeName = parts[0]
-			ref = parts[1]
+		// for local source, upload it to the server and use the resulting source ID
+		srv.Source, err = upload(ctx, srv, source)
+		if err != nil {
+			return err
 		}
+	} else {
+		// if we're running a remote git repository, pass this as the source
+		srv.Source = source.RuntimeSource()
 	}
-	if ref == "" {
-		ref = "latest"
+
+	// for local source, the srv.Source attribute will be remapped to the id of the source upload.
+	// however this won't make sense from a user experience perspective, so we'll pass the argument
+	// they used in metadata, e.g. ./helloworld
+	srv.Metadata = map[string]string{
+		"source": source.RuntimeSource(),
 	}
-	service := &runtime.Service{
-		Name:    runtimeName,
-		Source:  runtimeSource,
-		Version: ref,
+
+	// when the repo root doesn't match the full path (e.g. in cases where a mono-repo is being
+	// used), find the relative path and pass this in the metadata as entrypoint
+	var opts []runtime.UpdateOption
+	if source.Local && source.LocalRepoRoot != source.FullPath {
+		ep, _ := filepath.Rel(source.LocalRepoRoot, source.FullPath)
+		opts = append(opts, runtime.UpdateEntrypoint(ep))
 	}
 
 	// determine the namespace
@@ -462,13 +406,15 @@ func updateService(ctx *cli.Context) error {
 	if err != nil {
 		return err
 	}
+	opts = append(opts, runtime.UpdateNamespace(ns))
 
-	opts := []runtime.UpdateOption{runtime.UpdateNamespace(ns)}
+	// pass git credentials incase a private repo needs to be pulled
 	gitCreds, ok := getGitCredentials(source.Repo)
 	if ok {
 		opts = append(opts, runtime.UpdateSecret(credentialsKey, gitCreds))
 	}
-	return runtime.Update(service, runtime.UpdateNamespace(ns))
+
+	return runtime.Update(srv, opts...)
 }
 
 func getService(ctx *cli.Context) error {
@@ -579,6 +525,12 @@ func getService(ctx *cli.Context) error {
 
 		// parse when the service was started
 		updated := parse(timeAgo(service.Metadata["started"]))
+
+		// sometimes the services's source can be remapped to the build id etc, however the original
+		// argument passed to micro run is always kept in the source attribute of service metadata
+		if src, ok := service.Metadata["source"]; ok {
+			service.Source = src
+		}
 
 		fmt.Fprintf(writer, "%s\t%s\t%s\t%s\t%s\t%s\t%s\n",
 			service.Name,

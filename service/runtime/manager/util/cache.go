@@ -7,6 +7,8 @@ import (
 	"github.com/micro/go-micro/v3/runtime"
 )
 
+var cacheTTL = time.Second * 10
+
 // NewCache wraps a runtime with a cache
 func NewCache(r runtime.Runtime) runtime.Runtime {
 	return &cache{
@@ -152,5 +154,5 @@ func (c *cache) String() string {
 // cacheIsValid returns a boolean indicating if a cache initialized at the time provided is still
 // valid now
 func cacheIsValid(t time.Time) bool {
-	return t.After(time.Now().Add(time.Second * -30))
+	return t.After(time.Now().Add(-cacheTTL))
 }
