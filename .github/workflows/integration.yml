@@ -81,7 +81,8 @@ jobs:
 
     - name: Check out services repo
       run: |
-        git clone git@github.com:micro/services.git /services
+        mkdir /tmp/services
+        git clone git@github.com:micro/services.git /tmp/services
 
     - name: Test micro server
       working-directory: ./test
