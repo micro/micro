@@ -6,7 +6,7 @@ date:	2020-05-05 10:00:00
 ---
 
 <br>
-Today we're announcing M3O - a cloud native platform for Micro services development. A vastly simpler method of building distributed systems in the Cloud and beyond without having to manage the infrastructure. M3O (pronounced "em-3-oh" and derived from the word `M[icr]o`) is the culmination of many years of experience doing distributed systems development and today we want to shed more light on what we're working on.
+Today we're announcing [M3O](https://m3o.com) - a cloud native platform for Micro services development. A vastly simpler method of building distributed systems in the Cloud and beyond without having to manage the infrastructure. M3O (pronounced "em-3-oh" and derived from the word `M[icr]o`) is the culmination of many years of experience doing distributed systems development and today we want to shed more light on what we're working on.
 
 Before we do, let's talk about how we got here and what developers have had to deal with over the past decade, as all attempts to focus on software development has been thwarted by the new era of Cloud computing.
 <br>
