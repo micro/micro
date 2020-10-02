@@ -29,10 +29,15 @@ github_username:  micro
 google_analytics: "UA-70478210-1"
 logo: "/images/logo.png"
 
+# Pagination
+paginate: 15
+paginate_path: "/blog/page:num/"
+
 # Build settings
 theme: jekyll-theme-primer
 plugins:
   - jekyll-feed
+  - jekyll-paginate
 kramdown: 
   parse_block_html: true
 # Exclude from processing.
