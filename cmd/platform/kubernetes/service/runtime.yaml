@@ -141,6 +141,16 @@ spec:
           value: "/certs/registry/cert.pem"
         - name: MICRO_REGISTRY_TLS_KEY
           value: "/certs/registry/key.pem"
+        - name: MICRO_BLOB_STORE_ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              name: minio-creds
+              key: access_key
+        - name: MICRO_BLOB_STORE_SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: minio-creds
+              key: secret_key
         - name: MICRO_LOG_LEVEL
           value: "debug"
         - name: MICRO_STORE_ADDRESS

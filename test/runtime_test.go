@@ -5,7 +5,6 @@ package test
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"io/ioutil"
 	"os"
 	"os/exec"
@@ -206,8 +205,7 @@ func testRunGithubSource(t *T) {
 	}
 
 	cmd := serv.Command()
-
-	outp, err := cmd.Exec("run", "--image", "localhost:5000/cells:micro", "github.com/micro/services/helloworld"+branch)
+	outp, err := cmd.Exec("run", "--image", "localhost:5000/cells:v3", "github.com/micro/services/helloworld@"+branch)
 	if err != nil {
 		t.Fatalf("micro run failure, output: %v", string(outp))
 		return
@@ -578,36 +576,16 @@ func testRunParentFolder(t *T) {
 
 	cmd := serv.Command()
 	cmd.Dir = ".."
-
 	outp, err := cmd.Exec("new", "test-top-level")
 	if err != nil {
 		t.Fatal(string(outp))
 	}
 	makeProt := exec.Command("make", "proto")
 	makeProt.Dir = "../test-top-level"
-
 	outp, err = makeProt.CombinedOutput()
 	if err != nil {
 		t.Fatal(string(outp))
 	}
-
-	// for tests, update the micro import to use the current version of the code.
-	fname := fmt.Sprintf(makeProt.Dir + "/go.mod")
-	f, err := os.OpenFile(fname, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-	if err != nil {
-		t.Fatal(string(outp))
-		return
-	}
-	if _, err := f.WriteString("\nreplace github.com/micro/micro/v3 => ../"); err != nil {
-		t.Fatal(string(outp))
-		return
-	}
-	// This should point to master, but GOPROXY is not on in the runtime. Remove later.
-	if _, err := f.WriteString("\nreplace github.com/micro/go-micro/v3 => github.com/micro/go-micro/v3 v3.0.0-beta.2.0.20200922112322-927d4f8eced6"); err != nil {
-		t.Fatal(string(outp))
-		return
-	}
-	f.Close()
 
 	err = os.MkdirAll("../parent/folder/test", 0777)
 	if err != nil {
@@ -622,8 +600,6 @@ func testRunParentFolder(t *T) {
 
 	if err := Try("Find example", t, func() ([]byte, error) {
 		outp, err := cmd.Exec("status")
-		outp1, _ := cmd.Exec("logs", "test-top-level")
-		outp = append(outp, outp1...)
 		if err != nil {
 			return outp, err
 		}
@@ -640,8 +616,6 @@ func testRunParentFolder(t *T) {
 
 	if err := Try("Find example in list", t, func() ([]byte, error) {
 		outp, err := cmd.Exec("services")
-		outp1, _ := cmd.Exec("logs", "test-top-level")
-		outp = append(outp, outp1...)
 		if err != nil {
 			return outp, err
 		}
@@ -876,7 +850,7 @@ func testRunPrivateSource(t *T) {
 	}
 
 	// run the service
-	if outp, err := cmd.Exec("run", "--image", "localhost:5000/cells:micro", "github.com/micro/test/helloworld"+branch); err != nil {
+	if outp, err := cmd.Exec("run", "--image", "localhost:5000/cells:v3", "github.com/micro/test/helloworld@"+branch); err != nil {
 		t.Fatalf("Expected no run error, got %v %v", err, string(outp))
 		return
 	}
@@ -951,7 +925,7 @@ func testRunCustomCredentials(t *T) {
 	}
 
 	// run the service
-	if outp, err := cmd.Exec("run", "--image", "localhost:5000/cells:micro", "github.com/micro/test/helloworld"+branch); err != nil {
+	if outp, err := cmd.Exec("run", "--image", "localhost:5000/cells:v3", "github.com/micro/test/helloworld"+branch); err != nil {
 		t.Fatalf("Expected no run error, got %v %v", err, string(outp))
 		return
 	}
@@ -1021,7 +995,7 @@ func testRunPrivateGitlabSource(t *T) {
 	}
 
 	// run the service
-	if outp, err := cmd.Exec("run", "--image", "localhost:5000/cells:micro", "gitlab.com/micro-test/private-monorepo-test/subfolder-test"+branch); err != nil {
+	if outp, err := cmd.Exec("run", "--image", "localhost:5000/cells:v3", "gitlab.com/micro-test/private-monorepo-test/subfolder-test@"+branch); err != nil {
 		t.Fatalf("Expected no error, got %v %v", err, string(outp))
 		return
 	}
@@ -1065,7 +1039,7 @@ func testRunPrivateGitlabSource(t *T) {
 	// update service
 
 	// run the service
-	if outp, err := cmd.Exec("run", "--image", "localhost:5000/cells:micro", "gitlab.com/micro-test/private-monorepo-test/subfolder-test"+branch); err != nil {
+	if outp, err := cmd.Exec("run", "--image", "localhost:5000/cells:v3", "gitlab.com/micro-test/private-monorepo-test/subfolder-test"+branch); err != nil {
 		t.Fatalf("Expected no error, got %v %v", err, string(outp))
 		return
 	}
@@ -1138,7 +1112,7 @@ func testRunPrivateGenericRemote(t *T) {
 	}
 
 	// run the service
-	if outp, err := cmd.Exec("run", "--image", "localhost:5000/cells:micro", "bitbucket.org/micro-test/private-monorepo-test/subfolder-test"); err != nil {
+	if outp, err := cmd.Exec("run", "--image", "localhost:5000/cells:v3", "bitbucket.org/micro-test/private-monorepo-test/subfolder-test"); err != nil {
 		t.Fatalf("Expected no error, got %v %v", err, string(outp))
 		return
 	}
@@ -1149,7 +1123,7 @@ func testRunPrivateGenericRemote(t *T) {
 			return outp, err
 		}
 
-		if !statusRunning("subfolder-test", "latest", outp) {
+		if !statusRunning("subfolder-test", version, outp) {
 			return outp, errors.New("Can't find helloworld service in runtime")
 		}
 		return outp, err
@@ -1182,7 +1156,7 @@ func testRunPrivateGenericRemote(t *T) {
 	// update service
 
 	// run the service
-	if outp, err := cmd.Exec("run", "--image", "localhost:5000/cells:micro", "gitlab.com/micro-test/private-monorepo-test/subfolder-test"+branch); err != nil {
+	if outp, err := cmd.Exec("run", "--image", "localhost:5000/cells:v3", "gitlab.com/micro-test/private-monorepo-test/subfolder-test"+branch); err != nil {
 		t.Fatalf("Expected no error, got %v %v", err, string(outp))
 		return
 	}
@@ -1240,9 +1214,8 @@ func testIdiomaticFolderStructure(t *T) {
 	}
 
 	cmd := serv.Command()
-
 	src := "./service/idiomatic"
-	if outp, err := cmd.Exec("run", "--image", "localhost:5000/cells:micro", src); err != nil {
+	if outp, err := cmd.Exec("run", "--image", "localhost:5000/cells:v3", src); err != nil {
 		t.Fatalf("Error running service: %v, %v", err, string(outp))
 		return
 	}

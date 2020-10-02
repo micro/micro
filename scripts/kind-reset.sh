@@ -8,7 +8,7 @@ popd
 namespaces=$(kubectl get namespaces -o name | sed 's/namespace\///g')
 for ns in $namespaces 
 do
-    if [[ $ns == "kube-system" || $ns == "kube-node-lease" || $ns == "default" || $ns == "kube-public" || $ns == "local-path-storage" || $ns == "default" ]]; then
+    if [[ $ns == "kube-system" || $ns == "kube-node-lease" || $ns == "default" || $ns == "kube-public" || $ns == "local-path-storage" || $ns == "default" || $ns == "monitoring" ]]; then
         continue
     fi
     kubectl delete namespace $ns

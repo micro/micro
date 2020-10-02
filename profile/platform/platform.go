@@ -5,6 +5,7 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"io/ioutil"
+	"os"
 
 	"github.com/micro/go-micro/v3/auth/jwt"
 	"github.com/micro/go-micro/v3/broker"
@@ -13,6 +14,7 @@ import (
 	"github.com/micro/go-micro/v3/registry"
 	"github.com/micro/go-micro/v3/runtime/kubernetes"
 	"github.com/micro/go-micro/v3/store"
+	"github.com/micro/go-micro/v3/store/s3"
 	"github.com/micro/micro/v3/profile"
 	"github.com/micro/micro/v3/service/logger"
 	"github.com/urfave/cli/v2"
@@ -22,6 +24,8 @@ import (
 	microEvents "github.com/micro/micro/v3/service/events"
 	microMetrics "github.com/micro/micro/v3/service/metrics"
 	microRuntime "github.com/micro/micro/v3/service/runtime"
+	microBuilder "github.com/micro/micro/v3/service/runtime/builder"
+	buildSrv "github.com/micro/micro/v3/service/runtime/builder/client"
 	microStore "github.com/micro/micro/v3/service/store"
 
 	// plugins
@@ -46,7 +50,6 @@ var Profile = &profile.Profile{
 		// of certs so it can't be defaulted like the broker and registry.
 		microStore.DefaultStore = cockroach.NewStore(store.Nodes(ctx.String("store_address")))
 		microConfig.DefaultConfig, _ = config.NewConfig(microStore.DefaultStore, "")
-		microRuntime.DefaultRuntime = kubernetes.NewRuntime()
 		profile.SetupBroker(nats.NewBroker(broker.Addrs("nats-cluster")))
 		profile.SetupRegistry(etcd.NewRegistry(registry.Addrs("etcd-cluster")))
 		profile.SetupJWT(ctx)
@@ -67,6 +70,24 @@ var Profile = &profile.Profile{
 			logger.Fatalf("Error configuring stream: %v", err)
 		}
 
+		// only configure the blob store for the store and runtime services
+		if ctx.Args().Get(1) == "runtime" || ctx.Args().Get(1) == "store" {
+			microStore.DefaultBlobStore, err = s3.NewBlobStore(
+				s3.Credentials(
+					os.Getenv("MICRO_BLOB_STORE_ACCESS_KEY"),
+					os.Getenv("MICRO_BLOB_STORE_SECRET_KEY"),
+				),
+				s3.Endpoint("minio-cluster:9000"),
+				s3.Region("micro"),
+				s3.Insecure(),
+			)
+			if err != nil {
+				logger.Fatalf("Error configuring s3 blob store: %v", err)
+			}
+		}
+
+		microBuilder.DefaultBuilder = buildSrv.NewBuilder()
+		microRuntime.DefaultRuntime = kubernetes.NewRuntime()
 		microEvents.DefaultStore = evStore.NewStore(evStore.WithStore(microStore.DefaultStore))
 		return nil
 	},
