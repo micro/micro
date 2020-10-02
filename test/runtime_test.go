@@ -205,8 +205,7 @@ func testRunGithubSource(t *T) {
 	}
 
 	cmd := serv.Command()
-
-	outp, err := cmd.Exec("run", "--image", "localhost:5000/cells:micro", "github.com/micro/services/helloworld"+branch)
+	outp, err := cmd.Exec("run", "--image", "localhost:5000/cells:micro", "github.com/micro/services/helloworld@"+branch)
 	if err != nil {
 		t.Fatalf("micro run failure, output: %v", string(outp))
 		return
@@ -218,7 +217,7 @@ func testRunGithubSource(t *T) {
 			return outp, err
 		}
 
-		if !statusRunning("helloworld", "master", outp) {
+		if !statusRunning("helloworld", branch, outp) {
 			return outp, errors.New("Output should contain helloworld")
 		}
 		if !strings.Contains(string(outp), "owner=admin") || !(strings.Contains(string(outp), "group=micro") || strings.Contains(string(outp), "group="+serv.Env())) {
