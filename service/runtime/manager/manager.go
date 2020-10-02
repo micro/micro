@@ -11,8 +11,14 @@ import (
 	"github.com/micro/micro/v3/service/runtime/manager/util"
 )
 
-// Create registers a service
-func (m *manager) Create(srv *runtime.Service, opts ...runtime.CreateOption) error {
+// Init initializes the runtime
+func (m *manager) Init(...gorun.Option) error {
+	return nil
+}
+
+// Create a resource
+func (m *manager) Create(resource gorun.Resource, opts ...runtime.CreateOption) error {
+
 	// parse the options
 	var options runtime.CreateOptions
 	for _, o := range opts {
@@ -22,49 +28,95 @@ func (m *manager) Create(srv *runtime.Service, opts ...runtime.CreateOption) err
 		options.Namespace = namespace.DefaultNamespace
 	}
 
-	// set defaults
-	if srv.Metadata == nil {
-		srv.Metadata = make(map[string]string)
-	}
-	if len(srv.Version) == 0 {
-		srv.Version = "latest"
-	}
+	// Handle the various different types of resources:
+	switch resource.Type() {
+	case gorun.TypeNamespace:
 
-	// construct the service object
-	service := &service{
-		Service:   srv,
-		Options:   &options,
-		UpdatedAt: time.Now(),
-	}
+		// Assert the resource back into a *runtime.Namespace
+		namespace, ok := resource.(*gorun.Namespace)
+		if !ok {
+			return gorun.ErrInvalidResource
+		}
 
-	// if there is not a builder configured, start the service and then write it to the store
-	if builder.DefaultBuilder == nil {
-		// the source could be a git remote or a reference to the blob store, parse it before we run
-		// the service
-		var err error
-		srv.Source, err = m.checkoutSource(service)
-		if err != nil {
+		// Allow the options to take precedence
+		if options.Namespace != "" {
+			namespace.Name = options.Namespace
+		}
+
+		// Do we need to store this locally?
+		return runtime.DefaultRuntime.Create(namespace)
+
+	case gorun.TypeNetworkPolicy:
+
+		// Assert the resource back into a *runtime.NetworkPolicy
+		networkPolicy, ok := resource.(*gorun.NetworkPolicy)
+		if !ok {
+			return gorun.ErrInvalidResource
+		}
+
+		// Allow the options to take precedence
+		if options.Namespace != "" {
+			networkPolicy.Namespace = options.Namespace
+		}
+
+		// Do we need to store this locally?
+		return runtime.DefaultRuntime.Create(networkPolicy)
+
+	case gorun.TypeService:
+
+		// Assert the resource back into a *runtime.Service
+		srv, ok := resource.(*gorun.Service)
+		if !ok {
+			return gorun.ErrInvalidResource
+		}
+
+		// set defaults
+		if srv.Metadata == nil {
+			srv.Metadata = make(map[string]string)
+		}
+		if len(srv.Version) == 0 {
+			srv.Version = "latest"
+		}
+
+		// construct the service object
+		service := &service{
+			Service:   srv,
+			Options:   &options,
+			UpdatedAt: time.Now(),
+		}
+
+		// if there is not a builder configured, start the service and then write it to the store
+		if builder.DefaultBuilder == nil {
+			// the source could be a git remote or a reference to the blob store, parse it before we run
+			// the service
+			var err error
+			srv.Source, err = m.checkoutSource(service)
+			if err != nil {
+				return err
+			}
+
+			// create the service in the underlying runtime
+			if err := m.createServiceInRuntime(service); err != nil && err != runtime.ErrAlreadyExists {
+				return err
+			}
+
+			// write the object to the store
+			return m.writeService(service)
+		}
+
+		// building ths service can take some time so we'll write the service to the store and then
+		// perform the build process async
+		service.Status = gorun.Pending
+		if err := m.writeService(service); err != nil {
 			return err
 		}
 
-		// create the service in the underlying runtime
-		if err := m.createServiceInRuntime(service); err != nil && err != runtime.ErrAlreadyExists {
-			return err
-		}
+		go m.buildAndRun(service)
+		return nil
 
-		// write the object to the store
-		return m.writeService(service)
+	default:
+		return gorun.ErrInvalidResource
 	}
-
-	// building ths service can take some time so we'll write the service to the store and then
-	// perform the build process async
-	service.Status = gorun.Pending
-	if err := m.writeService(service); err != nil {
-		return err
-	}
-
-	go m.buildAndRun(service)
-	return nil
 }
 
 // Read returns the service which matches the criteria provided
@@ -133,8 +185,9 @@ func (m *manager) Read(opts ...runtime.ReadOption) ([]*runtime.Service, error) {
 	return result, nil
 }
 
-// Update the service in place
-func (m *manager) Update(srv *runtime.Service, opts ...runtime.UpdateOption) error {
+// Update a resource
+func (m *manager) Update(resource gorun.Resource, opts ...runtime.UpdateOption) error {
+
 	// parse the options
 	var options runtime.UpdateOptions
 	for _, o := range opts {
@@ -144,64 +197,111 @@ func (m *manager) Update(srv *runtime.Service, opts ...runtime.UpdateOption) err
 		options.Namespace = namespace.DefaultNamespace
 	}
 
-	// set default
-	if len(srv.Version) == 0 {
-		srv.Version = "latest"
-	}
+	// Handle the various different types of resources:
+	switch resource.Type() {
+	case gorun.TypeNamespace:
 
-	// read the service from the store
-	srvs, err := m.readServices(options.Namespace, &runtime.Service{
-		Name:    srv.Name,
-		Version: srv.Version,
-	})
-	if err != nil {
-		return err
-	}
-	if len(srvs) == 0 {
-		return gorun.ErrNotFound
-	}
+		// Assert the resource back into a *runtime.Namespace
+		namespace, ok := resource.(*gorun.Namespace)
+		if !ok {
+			return gorun.ErrInvalidResource
+		}
 
-	// update the service
-	service := srvs[0]
-	service.Service.Source = srv.Source
-	service.UpdatedAt = time.Now()
+		// Allow the options to take precedence
+		if options.Namespace != "" {
+			namespace.Name = options.Namespace
+		}
 
-	// if there is not a builder configured, update the service and then write it to the store
-	if builder.DefaultBuilder == nil {
-		// the source could be a git remote or a reference to the blob store, parse it before we run
-		// the service
-		var err error
-		service.Service.Source, err = m.checkoutSource(service)
+		// Do we need to store this locally?
+		return runtime.DefaultRuntime.Update(namespace)
+
+	case gorun.TypeNetworkPolicy:
+
+		// Assert the resource back into a *runtime.NetworkPolicy
+		networkPolicy, ok := resource.(*gorun.NetworkPolicy)
+		if !ok {
+			return gorun.ErrInvalidResource
+		}
+
+		// Allow the options to take precedence
+		if options.Namespace != "" {
+			networkPolicy.Namespace = options.Namespace
+		}
+
+		// Do we need to store this locally?
+		return runtime.DefaultRuntime.Update(networkPolicy)
+
+	case gorun.TypeService:
+
+		// Assert the resource back into a *runtime.Service
+		srv, ok := resource.(*gorun.Service)
+		if !ok {
+			return gorun.ErrInvalidResource
+		}
+
+		// set defaults
+		if len(srv.Version) == 0 {
+			srv.Version = "latest"
+		}
+
+		// read the service from the store
+		srvs, err := m.readServices(options.Namespace, &runtime.Service{
+			Name:    srv.Name,
+			Version: srv.Version,
+		})
 		if err != nil {
 			return err
 		}
+		if len(srvs) == 0 {
+			return gorun.ErrNotFound
+		}
 
-		// create the service in the underlying runtime
-		if err := m.updateServiceInRuntime(service); err != nil {
+		// update the service
+		service := srvs[0]
+		service.Service.Source = srv.Source
+		service.UpdatedAt = time.Now()
+
+		// if there is not a builder configured, update the service and then write it to the store
+		if builder.DefaultBuilder == nil {
+			// the source could be a git remote or a reference to the blob store, parse it before we run
+			// the service
+			var err error
+			service.Service.Source, err = m.checkoutSource(service)
+			if err != nil {
+				return err
+			}
+
+			// create the service in the underlying runtime
+			if err := m.updateServiceInRuntime(service); err != nil {
+				return err
+			}
+
+			// write the object to the store
+			service.Status = runtime.Starting
+			service.Error = ""
+			return m.writeService(service)
+		}
+
+		// building ths service can take some time so we'll write the service to the store and then
+		// perform the build process async
+		service.Status = gorun.Pending
+		if err := m.writeService(service); err != nil {
 			return err
 		}
 
-		// write the object to the store
-		service.Status = runtime.Starting
-		service.Error = ""
-		return m.writeService(service)
-	}
+		go m.buildAndUpdate(service)
+		return nil
 
-	// building ths service can take some time so we'll write the service to the store and then
-	// perform the build process async
-	service.Status = gorun.Pending
-	if err := m.writeService(service); err != nil {
-		return err
+	default:
+		return gorun.ErrInvalidResource
 	}
-
-	go m.buildAndUpdate(service)
-	return nil
 }
 
-// Delete a service
-func (m *manager) Delete(srv *runtime.Service, opts ...runtime.DeleteOption) error {
+// Delete a resource
+func (m *manager) Delete(resource gorun.Resource, opts ...runtime.DeleteOption) error {
+
 	// parse the options
-	var options runtime.DeleteOptions
+	var options gorun.DeleteOptions
 	for _, o := range opts {
 		o(&options)
 	}
@@ -209,36 +309,82 @@ func (m *manager) Delete(srv *runtime.Service, opts ...runtime.DeleteOption) err
 		options.Namespace = namespace.DefaultNamespace
 	}
 
-	// set defaults
-	if len(srv.Version) == 0 {
-		srv.Version = "latest"
-	}
+	// Handle the various different types of resources:
+	switch resource.Type() {
+	case gorun.TypeNamespace:
 
-	// read the service from the store
-	srvs, err := m.readServices(options.Namespace, &runtime.Service{
-		Name:    srv.Name,
-		Version: srv.Version,
-	})
-	if err != nil {
-		return err
-	}
-	if len(srvs) == 0 {
-		return gorun.ErrNotFound
-	}
+		// Assert the resource back into a *runtime.Namespace
+		namespace, ok := resource.(*gorun.Namespace)
+		if !ok {
+			return gorun.ErrInvalidResource
+		}
 
-	// delete from the underlying runtime
-	if err := m.Runtime.Delete(srv, opts...); err != nil && err != runtime.ErrNotFound {
-		return err
-	}
+		// Allow the options to take precedence
+		if options.Namespace != "" {
+			namespace.Name = options.Namespace
+		}
 
-	// delete from the store
-	if err := m.deleteService(srvs[0]); err != nil {
-		return err
-	}
+		// Do we need to store this locally?
+		return runtime.DefaultRuntime.Delete(namespace)
 
-	// delete the source and binary from the blob store async
-	go m.cleanupBlobStore(srvs[0])
-	return nil
+	case gorun.TypeNetworkPolicy:
+
+		// Assert the resource back into a *runtime.NetworkPolicy
+		networkPolicy, ok := resource.(*gorun.NetworkPolicy)
+		if !ok {
+			return gorun.ErrInvalidResource
+		}
+
+		// Allow the options to take precedence
+		if options.Namespace != "" {
+			networkPolicy.Namespace = options.Namespace
+		}
+
+		// Do we need to store this locally?
+		return runtime.DefaultRuntime.Delete(networkPolicy)
+
+	case gorun.TypeService:
+
+		// Assert the resource back into a *runtime.Service
+		srv, ok := resource.(*gorun.Service)
+		if !ok {
+			return gorun.ErrInvalidResource
+		}
+
+		// set defaults
+		if len(srv.Version) == 0 {
+			srv.Version = "latest"
+		}
+
+		// read the service from the store
+		srvs, err := m.readServices(options.Namespace, &runtime.Service{
+			Name:    srv.Name,
+			Version: srv.Version,
+		})
+		if err != nil {
+			return err
+		}
+		if len(srvs) == 0 {
+			return gorun.ErrNotFound
+		}
+
+		// delete from the underlying runtime
+		if err := m.Runtime.Delete(srv, opts...); err != nil && err != runtime.ErrNotFound {
+			return err
+		}
+
+		// delete from the store
+		if err := m.deleteService(srvs[0]); err != nil {
+			return err
+		}
+
+		// delete the source and binary from the blob store async
+		go m.cleanupBlobStore(srvs[0])
+		return nil
+
+	default:
+		return gorun.ErrInvalidResource
+	}
 }
 
 // Starts the manager
@@ -257,6 +403,24 @@ func (m *manager) Start() error {
 	go m.watchServices()
 
 	return nil
+}
+
+// Logs for a resource
+func (m *manager) Logs(resource gorun.Resource, opts ...runtime.LogsOption) (runtime.Logs, error) {
+	// Handle the various different types of resources:
+	switch resource.Type() {
+	case gorun.TypeService:
+
+		// Assert the resource back into a *runtime.Service
+		srv, ok := resource.(*gorun.Service)
+		if !ok {
+			return nil, gorun.ErrInvalidResource
+		}
+
+		return runtime.Log(srv, opts...)
+	default:
+		return nil, gorun.ErrInvalidResource
+	}
 }
 
 func (m *manager) watchServices() {
