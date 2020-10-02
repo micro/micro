@@ -8,22 +8,6 @@ Micro addresses the key requirements for building cloud native services. It leve
 architecture pattern and provides a set of services which act as the building blocks of a platform. Micro deals
 with the complexity of distributed systems and provides simpler programmable abstractions to build on. 
 
-## Features
-
-The framework is composed of the following features:
-
-- **Server:** A distributed systems runtime composed of building block services which abstract away the underlying infrastructure 
-and provide a programmable abstraction layer. Authentication, configuration, messaging, storage and more built in.
-
-- **Clients:** Multiple entrypoints through which you can access your services. Write services once and access them through every means 
-you've already come to know. A HTTP api, gRPC proxy and commmand line interface.
-
-- **Library:** A Go library which makes it drop dead simple to write your services without having to piece together lines and lines of 
-boilerplate. Auto configured and initialised by default, just import and get started quickly.
-
-- **Plugins:** Micro is runtime and infrastructure agnostic. Each underlying building block service uses the Go Micro standard library 
-to provide a pluggable foundation. We make it simple to use by pre-initialising for local use and the cloud.
-
 ## Install
 
 Install from source
@@ -77,6 +61,22 @@ micro helloworld --name=Alice
 # curl via the api
 curl -d '{"name": "Alice"}' http://localhost:8080/helloworld
 ```
+
+## Features
+
+The framework is composed of the following features:
+
+- **Server:** A distributed systems runtime composed of building block services which abstract away the underlying infrastructure 
+and provide a programmable abstraction layer. Authentication, configuration, messaging, storage and more built in.
+
+- **Clients:** Multiple entrypoints through which you can access your services. Write services once and access them through every means 
+you've already come to know. A HTTP api, gRPC proxy and commmand line interface.
+
+- **Library:** A Go library which makes it drop dead simple to write your services without having to piece together lines and lines of 
+boilerplate. Auto configured and initialised by default, just import and get started quickly.
+
+- **Plugins:** Micro is runtime and infrastructure agnostic. Each underlying building block service uses the Go Micro standard library 
+to provide a pluggable foundation. We make it simple to use by pre-initialising for local use and the cloud.
 
 ## Usage
 
