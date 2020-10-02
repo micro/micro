@@ -124,6 +124,10 @@ func sourceExists(source *git.Source) error {
 		if err != nil {
 			return err
 		}
+		// if the client was rate-limited, fall back to assuming the service url is valid
+		if resp.StatusCode == 403 {
+			return nil
+		}
 		if resp.StatusCode >= 400 && resp.StatusCode < 500 {
 			return fmt.Errorf("service at %v@%v not found", source.RuntimeSource(), ref)
 		}
