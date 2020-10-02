@@ -151,10 +151,7 @@ func appendSourceBase(ctx *cli.Context, workDir, source string) string {
 	domain := strings.Split(source, "/")[0]
 	_, err := publicsuffix.EffectiveTLDPlusOne(domain)
 	if !isLocal && err != nil {
-		env, err := util.GetEnv(ctx)
-		if err != nil {
-			return "", nil
-		}
+		env, _ := util.GetEnv(ctx)
 		baseURL, _ := config.Get(config.Path("git", env.Name, "baseurl"))
 		if len(baseURL) == 0 {
 			baseURL, _ = config.Get(config.Path("git", "baseurl"))
