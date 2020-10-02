@@ -26,7 +26,7 @@ func testEventsStream(t *T) {
 	cmd := serv.Command()
 
 	// Temp fix to support k8s tests until we have file upload to remote server
-	if outp, err := cmd.Exec("run", "--image", "localhost:5000/cells:v3", "./service/events"); err != nil {
+	if outp, err := cmd.Exec("run", "--image", "localhost:5000/cells:v3", "/service/events"); err != nil {
 		t.Fatalf("Error running service: %v, %v", err, string(outp))
 		return
 	}

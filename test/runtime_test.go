@@ -67,13 +67,13 @@ func testRunLocalSource(t *T) {
 
 	cmd := serv.Command()
 
-	outp, err := cmd.Exec("run", "./service/example")
+	outp, err := cmd.Exec("run", "/service/helloworld")
 	if err != nil {
 		t.Fatalf("micro run failure, output: %v", string(outp))
 		return
 	}
 
-	if err := Try("Find test/example", t, func() ([]byte, error) {
+	if err := Try("Find helloworld", t, func() ([]byte, error) {
 		outp, err := cmd.Exec("status")
 		if err != nil {
 			return outp, err
@@ -81,20 +81,20 @@ func testRunLocalSource(t *T) {
 
 		// The started service should have the runtime name of "service/example",
 		// as the runtime name is the relative path inside a repo.
-		if !statusRunning("example", "latest", outp) {
-			return outp, errors.New("Can't find example service in runtime")
+		if !statusRunning("helloworld", "latest", outp) {
+			return outp, errors.New("Can't find helloworld service in runtime")
 		}
 		return outp, err
 	}, 15*time.Second); err != nil {
 		return
 	}
 
-	if err := Try("Find example in list", t, func() ([]byte, error) {
+	if err := Try("Find helloworld in list", t, func() ([]byte, error) {
 		outp, err := cmd.Exec("services")
 		if err != nil {
 			return outp, err
 		}
-		if !strings.Contains(string(outp), "example") {
+		if !strings.Contains(string(outp), "helloworld") {
 			return outp, errors.New("Can't find example service in list")
 		}
 		return outp, err
@@ -117,7 +117,7 @@ func testRunAndKill(t *T) {
 
 	cmd := serv.Command()
 
-	outp, err := cmd.Exec("run", "./service/example")
+	outp, err := cmd.Exec("run", "/service/helloworld")
 	if err != nil {
 		t.Fatalf("micro run failure, output: %v", string(outp))
 		return
@@ -129,7 +129,7 @@ func testRunAndKill(t *T) {
 			return outp, err
 		}
 
-		if !statusRunning("example", "latest", outp) {
+		if !statusRunning("helloworld", "latest", outp) {
 			return outp, errors.New("Can't find example service in runtime")
 		}
 		return outp, err
@@ -137,12 +137,12 @@ func testRunAndKill(t *T) {
 		return
 	}
 
-	if err := Try("Find example in list", t, func() ([]byte, error) {
+	if err := Try("Find helloworld in list", t, func() ([]byte, error) {
 		outp, err := cmd.Exec("services")
 		if err != nil {
 			return outp, err
 		}
-		if !strings.Contains(string(outp), "example") {
+		if !strings.Contains(string(outp), "helloworld") {
 			return outp, errors.New("Can't find example service in list")
 		}
 		return outp, err
@@ -150,13 +150,13 @@ func testRunAndKill(t *T) {
 		return
 	}
 
-	outp, err = cmd.Exec("kill", "example")
+	outp, err = cmd.Exec("kill", "helloworld")
 	if err != nil {
 		t.Fatalf("micro kill failure, output: %v", string(outp))
 		return
 	}
 
-	if err := Try("Find test/example", t, func() ([]byte, error) {
+	if err := Try("Find test/helloworld", t, func() ([]byte, error) {
 		outp, err = cmd.Exec("status")
 		if err != nil {
 			return outp, err
@@ -164,7 +164,7 @@ func testRunAndKill(t *T) {
 
 		// The started service should have the runtime name of "service/example",
 		// as the runtime name is the relative path inside a repo.
-		if strings.Contains(string(outp), "service/example") {
+		if strings.Contains(string(outp), "helloworld") {
 			return outp, errors.New("Should not find example service in runtime")
 		}
 		return outp, err
@@ -172,13 +172,13 @@ func testRunAndKill(t *T) {
 		return
 	}
 
-	if err := Try("Find example in list", t, func() ([]byte, error) {
+	if err := Try("Find helloworld in list", t, func() ([]byte, error) {
 		outp, err := cmd.Exec("services")
 		if err != nil {
 			return outp, err
 		}
-		if strings.Contains(string(outp), "example") {
-			return outp, errors.New("Should not find example service in list")
+		if strings.Contains(string(outp), "helloworld") {
+			return outp, errors.New("Should not find helloworld service in list")
 		}
 		return outp, err
 	}, 20*time.Second); err != nil {
@@ -437,7 +437,7 @@ func testRunLocalUpdateAndCall(t *T) {
 	cmd := serv.Command()
 
 	// Run the example service
-	outp, err := cmd.Exec("run", "./service/example")
+	outp, err := cmd.Exec("run", "/service/helloworld")
 	if err != nil {
 		t.Fatalf("micro run failure, output: %v", string(outp))
 		return
@@ -476,20 +476,20 @@ func testRunLocalUpdateAndCall(t *T) {
 		return
 	}
 
-	replaceStringInFile(t, "./service/example/handler/handler.go", "Hello", "Hi")
+	replaceStringInFile(t, "/services/helloworld/handler/handler.go", "Hello", "Hi")
 	defer func() {
 		// Change file back
-		replaceStringInFile(t, "./service/example/handler/handler.go", "Hi", "Hello")
+		replaceStringInFile(t, "/services/helloworld/handler/handler.go", "Hi", "Hello")
 	}()
 
-	outp, err = cmd.Exec("update", "./service/example")
+	outp, err = cmd.Exec("update", "/service/helloworld")
 	if err != nil {
 		t.Fatal(err)
 		return
 	}
 
 	if err := Try("Call example service after modification", t, func() ([]byte, error) {
-		outp, err := cmd.Exec("call", "example", "Example.Call", `{"name": "Joe"}`)
+		outp, err := cmd.Exec("call", "helloworld", "Helloworld.Call", `{"name": "Joe"}`)
 		if err != nil {
 			return outp, err
 		}
@@ -642,7 +642,7 @@ func testExistingLogs(t *T) {
 
 	cmd := serv.Command()
 
-	outp, err := cmd.Exec("run", "./service/logger")
+	outp, err := cmd.Exec("run", "/service/logger")
 	if err != nil {
 		t.Fatalf("micro run failure, output: %v", string(outp))
 		return
@@ -677,7 +677,7 @@ func testBranchCheckout(t *T) {
 
 	cmd := serv.Command()
 
-	outp, err := cmd.Exec("run", "./service/logger")
+	outp, err := cmd.Exec("run", "/service/logger")
 	if err != nil {
 		t.Fatalf("micro run failure, output: %v", string(outp))
 		return
@@ -713,7 +713,7 @@ func testStreamLogsAndThirdPartyRepo(t *T) {
 
 	cmd := serv.Command()
 
-	outp, err := cmd.Exec("run", "./service/logger")
+	outp, err := cmd.Exec("run", "/service/logger")
 	if err != nil {
 		t.Fatalf("micro run failure, output: %v", string(outp))
 		return
@@ -1214,7 +1214,7 @@ func testIdiomaticFolderStructure(t *T) {
 	}
 
 	cmd := serv.Command()
-	src := "./service/idiomatic"
+	src := "/service/idiomatic"
 	if outp, err := cmd.Exec("run", "--image", "localhost:5000/cells:v3", src); err != nil {
 		t.Fatalf("Error running service: %v, %v", err, string(outp))
 		return

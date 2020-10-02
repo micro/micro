@@ -108,6 +108,10 @@ jobs:
           sleep 5s
         done
 
+    - name: Check out services repo
+      run: |
+        git clone git@github.com:micro/services.git /services
+
     # Finally, we can actually run the tests
     - name: Test micro server
       working-directory: ./test
