@@ -44,7 +44,7 @@ var (
 	// DefaultRetries which should be attempted when starting a service
 	DefaultRetries = 3
 	// DefaultImage which should be run
-	DefaultImage = "micro/cells:micro"
+	DefaultImage = "micro/cells:v3"
 	// Git orgs we currently support for credentials
 	GitOrgs = []string{"github", "bitbucket", "gitlab"}
 )
@@ -152,6 +152,7 @@ func appendSourceBase(ctx *cli.Context, workDir, source string) string {
 	_, err := publicsuffix.EffectiveTLDPlusOne(domain)
 	if !isLocal && err != nil {
 		env, _ := util.GetEnv(ctx)
+
 		baseURL, _ := config.Get(config.Path("git", env.Name, "baseurl"))
 		if len(baseURL) == 0 {
 			baseURL, _ = config.Get(config.Path("git", "baseurl"))

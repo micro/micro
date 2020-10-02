@@ -205,7 +205,7 @@ func testRunGithubSource(t *T) {
 	}
 
 	cmd := serv.Command()
-	outp, err := cmd.Exec("run", "--image", "localhost:5000/cells:micro", "github.com/micro/services/helloworld@"+branch)
+	outp, err := cmd.Exec("run", "--image", "localhost:5000/cells:v3", "github.com/micro/services/helloworld@"+branch)
 	if err != nil {
 		t.Fatalf("micro run failure, output: %v", string(outp))
 		return
@@ -850,7 +850,7 @@ func testRunPrivateSource(t *T) {
 	}
 
 	// run the service
-	if outp, err := cmd.Exec("run", "--image", "localhost:5000/cells:micro", "github.com/micro/test/helloworld@"+branch); err != nil {
+	if outp, err := cmd.Exec("run", "--image", "localhost:5000/cells:v3", "github.com/micro/test/helloworld@"+branch); err != nil {
 		t.Fatalf("Expected no run error, got %v %v", err, string(outp))
 		return
 	}
@@ -925,7 +925,7 @@ func testRunCustomCredentials(t *T) {
 	}
 
 	// run the service
-	if outp, err := cmd.Exec("run", "--image", "localhost:5000/cells:micro", "github.com/micro/test/helloworld"+branch); err != nil {
+	if outp, err := cmd.Exec("run", "--image", "localhost:5000/cells:v3", "github.com/micro/test/helloworld"+branch); err != nil {
 		t.Fatalf("Expected no run error, got %v %v", err, string(outp))
 		return
 	}
@@ -995,7 +995,7 @@ func testRunPrivateGitlabSource(t *T) {
 	}
 
 	// run the service
-	if outp, err := cmd.Exec("run", "--image", "localhost:5000/cells:micro", "gitlab.com/micro-test/private-monorepo-test/subfolder-test@"+branch); err != nil {
+	if outp, err := cmd.Exec("run", "--image", "localhost:5000/cells:v3", "gitlab.com/micro-test/private-monorepo-test/subfolder-test@"+branch); err != nil {
 		t.Fatalf("Expected no error, got %v %v", err, string(outp))
 		return
 	}
@@ -1039,7 +1039,7 @@ func testRunPrivateGitlabSource(t *T) {
 	// update service
 
 	// run the service
-	if outp, err := cmd.Exec("run", "--image", "localhost:5000/cells:micro", "gitlab.com/micro-test/private-monorepo-test/subfolder-test"+branch); err != nil {
+	if outp, err := cmd.Exec("run", "--image", "localhost:5000/cells:v3", "gitlab.com/micro-test/private-monorepo-test/subfolder-test"+branch); err != nil {
 		t.Fatalf("Expected no error, got %v %v", err, string(outp))
 		return
 	}
@@ -1112,7 +1112,7 @@ func testRunPrivateGenericRemote(t *T) {
 	}
 
 	// run the service
-	if outp, err := cmd.Exec("run", "--image", "localhost:5000/cells:micro", "bitbucket.org/micro-test/private-monorepo-test/subfolder-test"); err != nil {
+	if outp, err := cmd.Exec("run", "--image", "localhost:5000/cells:v3", "bitbucket.org/micro-test/private-monorepo-test/subfolder-test"); err != nil {
 		t.Fatalf("Expected no error, got %v %v", err, string(outp))
 		return
 	}
@@ -1156,7 +1156,7 @@ func testRunPrivateGenericRemote(t *T) {
 	// update service
 
 	// run the service
-	if outp, err := cmd.Exec("run", "--image", "localhost:5000/cells:micro", "gitlab.com/micro-test/private-monorepo-test/subfolder-test"+branch); err != nil {
+	if outp, err := cmd.Exec("run", "--image", "localhost:5000/cells:v3", "gitlab.com/micro-test/private-monorepo-test/subfolder-test"+branch); err != nil {
 		t.Fatalf("Expected no error, got %v %v", err, string(outp))
 		return
 	}
@@ -1215,7 +1215,7 @@ func testIdiomaticFolderStructure(t *T) {
 
 	cmd := serv.Command()
 	src := "./service/idiomatic"
-	if outp, err := cmd.Exec("run", "--image", "localhost:5000/cells:micro", src); err != nil {
+	if outp, err := cmd.Exec("run", "--image", "localhost:5000/cells:v3", src); err != nil {
 		t.Fatalf("Error running service: %v, %v", err, string(outp))
 		return
 	}

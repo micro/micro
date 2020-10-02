@@ -1,9 +1,12 @@
-FROM alpine:latest AS builder
-RUN apk --no-cache add make git go gcc libtool musl-dev
-ENV GOROOT /usr/lib/go
-ENV GOPATH /go
-ENV PATH /go/bin:$PATH
-WORKDIR loader
-COPY loader .
-RUN go build  .
-CMD ./loader
+FROM micro/micro
+
+WORKDIR /
+
+# This is just a hack to download most of the dependencies micro and go micro has
+# We don't care it's not the latest version, just an approximation
+RUN cd go && git clone https://github.com/micro/micro && \
+    cd micro && go install
+
+COPY entrypoint.sh /
+RUN chmod 755 entrypoint.sh
+ENTRYPOINT ["bash", "/entrypoint.sh"]

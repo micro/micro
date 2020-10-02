@@ -43,9 +43,9 @@ jobs:
     - name: Build and push cells to local registry
       id: build-push-reg-cell
       run: |
-        DIR=service/runtime/cells/micro
-        docker build -f $DIR/Dockerfile $DIR -t localhost:5000/cells:micro
-        docker push localhost:5000/cells:micro
+        DIR=service/runtime/cells/v3
+        docker build -f $DIR/Dockerfile $DIR -t localhost:5000/cells:v3
+        docker push localhost:5000/cells:v3
     
     - name: Build and push micro to local registry
       id: build-push-reg-micro
@@ -100,7 +100,7 @@ jobs:
       run: |
         kubectl port-forward service/micro-proxy 8081:443 & sleep 2s
         micro login --username=admin --password=micro
-        micro run --image=localhost:5000/cells:micro github.com/m3o/services/build@rename-builder
+        micro run --image=localhost:5000/cells:v3 github.com/m3o/services/build@rename-builder
 
         until [[ "$(micro status | grep build)" == *"running"* ]] 
         do
