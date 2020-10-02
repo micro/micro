@@ -16,6 +16,11 @@ import (
 	"time"
 )
 
+const (
+	branch  = ""
+	version = "latest"
+)
+
 func TestServerModeCall(t *testing.T) {
 	TrySuite(t, ServerModeCall, retryCount)
 }
@@ -201,7 +206,7 @@ func testRunGithubSource(t *T) {
 
 	cmd := serv.Command()
 
-	outp, err := cmd.Exec("run", "--image", "localhost:5000/cells:micro", "github.com/micro/services/helloworld@master")
+	outp, err := cmd.Exec("run", "--image", "localhost:5000/cells:micro", "github.com/micro/services/helloworld"+branch)
 	if err != nil {
 		t.Fatalf("micro run failure, output: %v", string(outp))
 		return
@@ -277,7 +282,7 @@ func testRunGitlabSource(t *T) {
 	cmd := serv.Command()
 	cmd.Exec("user", "config", "set", "git."+serv.Env()+".baseurl", "gitlab.com/micro-test")
 
-	outp, err := cmd.Exec("run", "basic-micro-service")
+	outp, err := cmd.Exec("run", "basic-micro-service"+branch)
 	if err != nil {
 		t.Fatalf("micro run failure, output: %v", string(outp))
 		return
@@ -289,7 +294,7 @@ func testRunGitlabSource(t *T) {
 			return outp, err
 		}
 
-		if !statusRunning("basic-micro-service", "latest", outp) {
+		if !statusRunning("basic-micro-service", version, outp) {
 			return outp, errors.New("Output should contain basic-micro-service")
 		}
 		return outp, nil
@@ -329,7 +334,7 @@ func testRunGitlabSourceMonoRepo(t *T) {
 	cmd := serv.Command()
 	cmd.Exec("user", "config", "set", "git."+serv.Env()+".baseurl", "gitlab.com/micro-test/monorepo-test")
 
-	outp, err := cmd.Exec("run", "subfolder-test")
+	outp, err := cmd.Exec("run", "subfolder-test"+branch)
 	if err != nil {
 		t.Fatalf("micro run failure, output: %v", string(outp))
 		return
@@ -341,7 +346,7 @@ func testRunGitlabSourceMonoRepo(t *T) {
 			return outp, err
 		}
 
-		if !statusRunning("subfolder-test", "latest", outp) {
+		if !statusRunning("subfolder-test", version, outp) {
 			return outp, errors.New("Output should contain subfolder-test")
 		}
 		return outp, nil
@@ -382,7 +387,7 @@ func testRunGenericRemote(t *T) {
 	cmd := serv.Command()
 	cmd.Exec("user", "config", "set", "git."+serv.Env()+".baseurl", "bitbucket.org/micro-test/monorepo-test")
 
-	outp, err := cmd.Exec("run", "subfolder-test")
+	outp, err := cmd.Exec("run", "subfolder-test"+branch)
 	if err != nil {
 		t.Fatalf("micro run failure, output: %v", string(outp))
 		return
@@ -394,7 +399,7 @@ func testRunGenericRemote(t *T) {
 			return outp, err
 		}
 
-		if !statusRunning("subfolder-test", "latest", outp) {
+		if !statusRunning("subfolder-test", version, outp) {
 			return outp, errors.New("Output should contain subfolder-test")
 		}
 		return outp, nil
@@ -932,7 +937,7 @@ func testRunCustomCredentials(t *T) {
 			return outp, err
 		}
 
-		if !statusRunning("helloworld", version, outp) {
+		if !statusRunning("helloworld", "master", outp) {
 			return outp, errors.New("Can't find helloworld service in runtime")
 		}
 		return outp, err
@@ -1002,7 +1007,7 @@ func testRunPrivateGitlabSource(t *T) {
 			return outp, err
 		}
 
-		if !statusRunning("subfolder-test", "latest", outp) {
+		if !statusRunning("subfolder-test", version, outp) {
 			return outp, errors.New("Can't find helloworld service in runtime")
 		}
 		return outp, err
@@ -1035,7 +1040,7 @@ func testRunPrivateGitlabSource(t *T) {
 	// update service
 
 	// run the service
-	if outp, err := cmd.Exec("run", "--image", "localhost:5000/cells:micro", "gitlab.com/micro-test/private-monorepo-test/subfolder-test"); err != nil {
+	if outp, err := cmd.Exec("run", "--image", "localhost:5000/cells:micro", "gitlab.com/micro-test/private-monorepo-test/subfolder-test"+branch); err != nil {
 		t.Fatalf("Expected no error, got %v %v", err, string(outp))
 		return
 	}
@@ -1049,7 +1054,7 @@ func testRunPrivateGitlabSource(t *T) {
 			return outp, err
 		}
 
-		if !statusRunning("subfolder-test", "latest", outp) {
+		if !statusRunning("subfolder-test", version, outp) {
 			return outp, errors.New("Can't find helloworld service in runtime")
 		}
 		return outp, err
@@ -1119,7 +1124,7 @@ func testRunPrivateGenericRemote(t *T) {
 			return outp, err
 		}
 
-		if !statusRunning("subfolder-test", "latest", outp) {
+		if !statusRunning("subfolder-test", version, outp) {
 			return outp, errors.New("Can't find helloworld service in runtime")
 		}
 		return outp, err
@@ -1152,7 +1157,7 @@ func testRunPrivateGenericRemote(t *T) {
 	// update service
 
 	// run the service
-	if outp, err := cmd.Exec("run", "--image", "localhost:5000/cells:micro", "gitlab.com/micro-test/private-monorepo-test/subfolder-test"); err != nil {
+	if outp, err := cmd.Exec("run", "--image", "localhost:5000/cells:micro", "gitlab.com/micro-test/private-monorepo-test/subfolder-test"+branch); err != nil {
 		t.Fatalf("Expected no error, got %v %v", err, string(outp))
 		return
 	}
@@ -1166,7 +1171,7 @@ func testRunPrivateGenericRemote(t *T) {
 			return outp, err
 		}
 
-		if !statusRunning("subfolder-test", "latest", outp) {
+		if !statusRunning("subfolder-test", version, outp) {
 			return outp, errors.New("Can't find helloworld service in runtime")
 		}
 		return outp, err
@@ -1210,17 +1215,7 @@ func testIdiomaticFolderStructure(t *T) {
 	}
 
 	cmd := serv.Command()
-
-	// Temp fix to support k8s tests until we have file upload to remote server
-	var branch string
-	if ref := os.Getenv("GITHUB_REF"); len(ref) > 0 {
-		branch = strings.TrimPrefix(ref, "refs/heads/")
-	} else {
-		branch = "master"
-	}
-
-	t.Logf("Running idiomatic service from the %v branch of micro", branch)
-	src := "github.com/micro/micro/test/service/idiomatic@" + branch
+	src := "./test/service/idiomatic"
 	if outp, err := cmd.Exec("run", "--image", "localhost:5000/cells:micro", src); err != nil {
 		t.Fatalf("Error running service: %v, %v", err, string(outp))
 		return
@@ -1235,7 +1230,7 @@ func testIdiomaticFolderStructure(t *T) {
 
 		// The started service should have the runtime name of "service/example",
 		// as the runtime name is the relative path inside a repo.
-		if !statusRunning("idiomatic", branch, outp) {
+		if !statusRunning("idiomatic", "latest", outp) {
 			return outp, errors.New("Can't find idiomatic service in runtime")
 		}
 		return outp, err
