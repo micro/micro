@@ -21,6 +21,7 @@ import (
 	"github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/runtime"
 	"github.com/urfave/cli/v2"
+	"golang.org/x/net/publicsuffix"
 	"google.golang.org/grpc/status"
 )
 
@@ -147,8 +148,13 @@ func sourceExists(source *git.Source) error {
 func appendSourceBase(ctx *cli.Context, workDir, source string) string {
 	isLocal, _ := git.IsLocal(workDir, source)
 	// @todo add list of supported hosts here or do this check better
-	if !isLocal && !strings.Contains(source, ".com") && !strings.Contains(source, ".org") && !strings.Contains(source, ".net") {
-		env, _ := util.GetEnv(ctx)
+	domain := strings.Split(source, "/")[0]
+	_, err := publicsuffix.EffectiveTLDPlusOne(domain)
+	if !isLocal && err != nil {
+		env, err := util.GetEnv(ctx)
+		if err != nil {
+			return "", nil
+		}
 		baseURL, _ := config.Get(config.Path("git", env.Name, "baseurl"))
 		if len(baseURL) == 0 {
 			baseURL, _ = config.Get(config.Path("git", "baseurl"))
@@ -296,6 +302,14 @@ func getGitCredentials(repo string) (string, bool) {
 		creds, err := config.Get(config.Path("git", "credentials", org))
 		if err == nil && len(creds) > 0 {
 			return creds, true
+		}
+	}
+	if credURL, err := config.Get(config.Path("git", "credentials", "url")); err == nil && len(credURL) > 0 {
+		if strings.Contains(repo, credURL) {
+			creds, err := config.Get(config.Path("git", "credentials", "token"))
+			if err == nil && len(creds) > 0 {
+				return creds, true
+			}
 		}
 	}
 
