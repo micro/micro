@@ -5,7 +5,7 @@ set -e
 
 GO_PATH=$(go env GOPATH)
 GO=$GO_PATH/bin/go
-PATH=$PATH:$GO_BIN:$(npm bin):/usr/local/bin/ 
+PATH=$PATH:$GO_BIN:$(npm bin):/usr/local/bin/:$HOME/.cargo/bin
 
 ### UBUNTU BIONIC ###
 echo "deb https://packages.le-vert.net/tensorflow/ubuntu bionic main" | sudo tee -a /etc/apt/sources.list
@@ -32,6 +32,6 @@ go get github.com/golang/protobuf/protoc-gen-go@v1.4.2
 # delete the existing sdk directory
 rm -rf client/sdk
 # generate the clients
-protoc-gen-client -srcdir proto/ -dstdir sdk/ -langs go,python,java,ruby,js,rust
+PATH=$PATH:$GO_BIN:$(npm bin):/usr/local/bin/:$HOME/.cargo/bin protoc-gen-client -srcdir proto/ -dstdir sdk/ -langs go,python,java,ruby,js,rust
 # remove node garbage
 rm -rf node_modules/ package-lock.json
