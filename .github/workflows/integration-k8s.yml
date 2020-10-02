@@ -114,6 +114,16 @@ jobs:
         repository: 'micro/services'
         path: 'test/services'
 
+    - name: Delete go mod
+      run: |
+        rm ./test/services/go.mod
+        rm ./test/services/go.sum
+
+    - name: Replace paths
+      working-directory: ./test/services
+      run: |
+        grep -rl github.com/micro/services . | xargs sed -i 's/github.com\/micro\/services/github.com\/micro\/test\/services/g'
+
     # Finally, we can actually run the tests
     - name: Test micro server
       working-directory: ./test
