@@ -23,7 +23,7 @@ func testRPC(t *T) {
 	}
 
 	cmd := serv.Command()
-	outp, err := cmd.Exec("run", "--image", "localhost:5000/cells:v3", "/service/rpc/rpc-server")
+	outp, err := cmd.Exec("run", "--image", "localhost:5000/cells:v3", "./services/rpc/rpc-server")
 	if err != nil {
 		t.Fatalf("micro run failure, output: %v", string(outp))
 		return
