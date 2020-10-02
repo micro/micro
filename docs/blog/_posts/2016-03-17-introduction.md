@@ -54,7 +54,7 @@ Each team being responsible for a business function composed of many microservic
 independently from other teams.
 
 <div class="text-center">
-    <img src="{{ site.baseurl }}/blog/images/micro-service-architecture.png" style="width: 100%; height: auto;" />
+<img src="{{ site.baseurl }}/blog/images/micro-service-architecture.png" style="width: 100%; height: auto;" />
 </div>
 
 We've seen through first hand experience that microservice systems enable faster development cycles, 
