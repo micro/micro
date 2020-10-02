@@ -55,7 +55,7 @@ func testRPC(t *T) {
 		return
 	}
 
-	outp, err = cmd.Exec("run", "--image", "localhost:5000/cells:v3", "/tmp/services/rpc/rpc-client")
+	outp, err = cmd.Exec("run", "--image", "localhost:5000/cells:v3", "./services/rpc/rpc-client")
 	if err != nil {
 		t.Fatalf("micro run failure, output: %v", string(outp))
 		return

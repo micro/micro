@@ -476,10 +476,10 @@ func testRunLocalUpdateAndCall(t *T) {
 		return
 	}
 
-	replaceStringInFile(t, "/tmp/services/helloworld/handler/handler.go", "Hello", "Hi")
+	replaceStringInFile(t, "./services/helloworld/handler/handler.go", "Hello", "Hi")
 	defer func() {
 		// Change file back
-		replaceStringInFile(t, "/tmp/services/helloworld/handler/handler.go", "Hi", "Hello")
+		replaceStringInFile(t, "./services/helloworld/handler/handler.go", "Hi", "Hello")
 	}()
 
 	outp, err = cmd.Exec("update", "/service/helloworld")

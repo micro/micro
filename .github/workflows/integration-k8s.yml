@@ -112,7 +112,12 @@ jobs:
       uses: actions/checkout@v2
       with:
         repository: 'micro/services'
-        path: '/tmp/services'
+        path: 'test/services'
+    
+    - name: Delete go mod
+      run: |
+        rm go.mod
+        rm go.sum
 
     # Finally, we can actually run the tests
     - name: Test micro server
