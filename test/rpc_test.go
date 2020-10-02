@@ -42,6 +42,19 @@ func testRPC(t *T) {
 		return
 	}
 
+	if err := Try("Find rpc service in registry", t, func() ([]byte, error) {
+		outp, err := cmd.Exec("services")
+		if err != nil {
+			return outp, err
+		}
+		if !strings.Contains(string(outp), "rpc") {
+			return outp, errors.New("Can't find rpc service in registry")
+		}
+		return nil, nil
+	}, 120*time.Second); err != nil {
+		return
+	}
+
 	outp, err = cmd.Exec("run", "--image", "localhost:5000/cells:v3", "./service/rpc/rpc-client")
 	if err != nil {
 		t.Fatalf("micro run failure, output: %v", string(outp))
