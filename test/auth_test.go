@@ -13,7 +13,6 @@ import (
 	"time"
 
 	"github.com/micro/micro/v3/client/cli/namespace"
-	"github.com/micro/micro/v3/client/cli/token"
 	"github.com/micro/micro/v3/internal/config"
 )
 
@@ -154,9 +153,9 @@ func lockdownSuite(serv Server, t *T) {
 	// set the local config file to be the same as the one micro will be configured to use.
 	// todo: consider adding a micro logout command.
 	config.SetConfig(cmd.Config)
-	err = token.Remove(serv.Env())
+	outp, err = cmd.Exec("logout")
 	if err != nil {
-		t.Fatal(err)
+		t.Fatal(string(outp))
 		return
 	}
 
