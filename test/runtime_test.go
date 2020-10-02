@@ -67,7 +67,7 @@ func testRunLocalSource(t *T) {
 
 	cmd := serv.Command()
 
-	outp, err := cmd.Exec("run", "/service/helloworld")
+	outp, err := cmd.Exec("run", "./services/helloworld")
 	if err != nil {
 		t.Fatalf("micro run failure, output: %v", string(outp))
 		return
@@ -117,7 +117,7 @@ func testRunAndKill(t *T) {
 
 	cmd := serv.Command()
 
-	outp, err := cmd.Exec("run", "/service/helloworld")
+	outp, err := cmd.Exec("run", "./services/helloworld")
 	if err != nil {
 		t.Fatalf("micro run failure, output: %v", string(outp))
 		return
@@ -437,7 +437,7 @@ func testRunLocalUpdateAndCall(t *T) {
 	cmd := serv.Command()
 
 	// Run the example service
-	outp, err := cmd.Exec("run", "/service/helloworld")
+	outp, err := cmd.Exec("run", "./services/helloworld")
 	if err != nil {
 		t.Fatalf("micro run failure, output: %v", string(outp))
 		return
@@ -482,7 +482,7 @@ func testRunLocalUpdateAndCall(t *T) {
 		replaceStringInFile(t, "./services/helloworld/handler/handler.go", "Hi", "Hello")
 	}()
 
-	outp, err = cmd.Exec("update", "/service/helloworld")
+	outp, err = cmd.Exec("update", "./services/helloworld")
 	if err != nil {
 		t.Fatal(err)
 		return
@@ -642,7 +642,7 @@ func testExistingLogs(t *T) {
 
 	cmd := serv.Command()
 
-	outp, err := cmd.Exec("run", "/service/logger")
+	outp, err := cmd.Exec("run", "./services/logger")
 	if err != nil {
 		t.Fatalf("micro run failure, output: %v", string(outp))
 		return
@@ -677,7 +677,7 @@ func testBranchCheckout(t *T) {
 
 	cmd := serv.Command()
 
-	outp, err := cmd.Exec("run", "/service/logger")
+	outp, err := cmd.Exec("run", "./services/logger")
 	if err != nil {
 		t.Fatalf("micro run failure, output: %v", string(outp))
 		return
@@ -713,7 +713,7 @@ func testStreamLogsAndThirdPartyRepo(t *T) {
 
 	cmd := serv.Command()
 
-	outp, err := cmd.Exec("run", "/service/logger")
+	outp, err := cmd.Exec("run", "./services/logger")
 	if err != nil {
 		t.Fatalf("micro run failure, output: %v", string(outp))
 		return
@@ -1214,23 +1214,23 @@ func testIdiomaticFolderStructure(t *T) {
 	}
 
 	cmd := serv.Command()
-	src := "/service/idiomatic"
+	src := "./services/template"
 	if outp, err := cmd.Exec("run", "--image", "localhost:5000/cells:v3", src); err != nil {
 		t.Fatalf("Error running service: %v, %v", err, string(outp))
 		return
 	}
 
-	if err := Try("Find idiomatic service in the registry", t, func() ([]byte, error) {
+	if err := Try("Find template service in the registry", t, func() ([]byte, error) {
 		outp, err := cmd.Exec("status")
-		outp1, _ := cmd.Exec("logs", "idiomatic")
+		outp1, _ := cmd.Exec("logs", "template")
 		if err != nil {
 			return append(outp, outp1...), err
 		}
 
 		// The started service should have the runtime name of "service/example",
 		// as the runtime name is the relative path inside a repo.
-		if !statusRunning("idiomatic", "latest", outp) {
-			return outp, errors.New("Can't find idiomatic service in runtime")
+		if !statusRunning("templatec", "latest", outp) {
+			return outp, errors.New("Can't find template service in runtime")
 		}
 		return outp, err
 	}, 120*time.Second); err != nil {
