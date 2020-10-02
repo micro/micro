@@ -62,6 +62,16 @@ micro helloworld --name=Alice
 curl -d '{"name": "Alice"}' http://localhost:8080/helloworld
 ```
 
+## Usage
+
+See all the options
+
+```
+micro --help
+```
+
+See the [docs](https://micro.mu) for detailed information on the architecture, installation and use of the platform.
+
 ## Features
 
 The framework is composed of the following features:
@@ -77,16 +87,6 @@ boilerplate. Auto configured and initialised by default, just import and get sta
 
 - **Plugins:** Micro is runtime and infrastructure agnostic. Each underlying building block service uses the Go Micro standard library 
 to provide a pluggable foundation. We make it simple to use by pre-initialising for local use and the cloud.
-
-## Usage
-
-See all the options
-
-```
-micro --help
-```
-
-See the [docs](https://github.com/micro/docs) for detailed information on the architecture, installation and use of the platform.
 
 ## License
 
