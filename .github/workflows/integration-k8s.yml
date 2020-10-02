@@ -113,11 +113,6 @@ jobs:
       with:
         repository: 'micro/services'
         path: 'test/services'
-    
-    - name: Delete go mod
-      run: |
-        rm ./test/services/go.mod
-        rm ./test/services/go.sum
 
     # Finally, we can actually run the tests
     - name: Test micro server
