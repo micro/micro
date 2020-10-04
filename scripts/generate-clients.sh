@@ -4,6 +4,7 @@ set -x
 set -e
 
 GO_PATH=$(go env GOPATH)
+GO_BIN=$GO_PATH/bin
 GO=$GO_PATH/bin/go
 PATH=$PATH:$GO_BIN:$(npm bin):/usr/local/bin/:$HOME/.cargo/bin
 
