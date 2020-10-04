@@ -31,10 +31,6 @@ pagination:
       <h1 class="post-header">Blog</h1>
     </div>
 
-    <div class="extra-pagination inner">
-        {% include pagination.html %}
-    </div>
-
     {% for post in paginator.posts %}
 
     <article class="post">
@@ -57,6 +53,7 @@ pagination:
 
     {% endfor %}
 
+    <br>
     {% include pagination.html %}
 
 </main>
