@@ -487,6 +487,22 @@ func testRunLocalUpdateAndCall(t *T) {
 		return
 	}
 
+	if err := Try("Finding helloworld service with micro status", t, func() ([]byte, error) {
+		outp, err = cmd.Exec("status")
+		if err != nil {
+			return outp, err
+		}
+
+		// The started service should have the runtime name of "example".
+		if !statusRunning("helloworld", "latest", outp) {
+			outp1, _ := cmd.Exec("logs", "helloworld")
+			return append(outp, outp1...), errors.New("can't find service in runtime")
+		}
+		return outp, err
+	}, 15*time.Second); err != nil {
+		return
+	}
+
 	if err := Try("Call helloworld service after modification", t, func() ([]byte, error) {
 		outp, err := cmd.Exec("helloworld", "--name=Joe")
 		if err != nil {
