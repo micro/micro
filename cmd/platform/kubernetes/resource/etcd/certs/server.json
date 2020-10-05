@@ -2,6 +2,7 @@
     "CN": "etcd-cluster",
     "hosts": [
         "etcd-cluster.default.svc.cluster.local",
+        "*.etcd-cluster.default.svc",
         "etcd-cluster"
     ],
     "key": {
