@@ -551,7 +551,6 @@ func TrySuite(t *testing.T, f func(t *T), times int) {
 		case <-done:
 			if tee.failed {
 				if t.Failed() {
-					done <- true
 					return
 				}
 				if len(tee.format) > 0 {
@@ -559,7 +558,6 @@ func TrySuite(t *testing.T, f func(t *T), times int) {
 				} else {
 					t.Fatal(tee.values...)
 				}
-				done <- true
 			}
 			return
 		}
