@@ -121,7 +121,7 @@ func testRunAndKill(t *T) {
 		return
 	}
 
-	if err := Try("Find test/example", t, func() ([]byte, error) {
+	if err := Try("Find helloworld", t, func() ([]byte, error) {
 		outp, err = cmd.Exec("status")
 		if err != nil {
 			return outp, err
@@ -141,7 +141,8 @@ func testRunAndKill(t *T) {
 			return outp, err
 		}
 		if !strings.Contains(string(outp), "helloworld") {
-			return outp, errors.New("Can't find example service in list")
+			outp1, _ := cmd.Exec("logs", "helloworld")
+			return append(outp, outp1...), errors.New("Can't find helloworld service in list")
 		}
 		return outp, err
 	}, 90*time.Second); err != nil {
@@ -154,7 +155,7 @@ func testRunAndKill(t *T) {
 		return
 	}
 
-	if err := Try("Find test/helloworld", t, func() ([]byte, error) {
+	if err := Try("Find helloworld", t, func() ([]byte, error) {
 		outp, err = cmd.Exec("status")
 		if err != nil {
 			return outp, err
