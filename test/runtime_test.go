@@ -79,8 +79,6 @@ func testRunLocalSource(t *T) {
 			return outp, err
 		}
 
-		// The started service should have the runtime name of "service/example",
-		// as the runtime name is the relative path inside a repo.
 		if !statusRunning("helloworld", "latest", outp) {
 			return outp, errors.New("Can't find helloworld service in runtime")
 		}
@@ -443,7 +441,7 @@ func testRunLocalUpdateAndCall(t *T) {
 		return
 	}
 
-	if err := Try("Finding example service with micro status", t, func() ([]byte, error) {
+	if err := Try("Finding helloworld service with micro status", t, func() ([]byte, error) {
 		outp, err = cmd.Exec("status")
 		if err != nil {
 			return outp, err
@@ -458,7 +456,7 @@ func testRunLocalUpdateAndCall(t *T) {
 		return
 	}
 
-	if err := Try("Call example service", t, func() ([]byte, error) {
+	if err := Try("Call helloworld service", t, func() ([]byte, error) {
 		outp, err := cmd.Exec("helloworld", "--name=Joe")
 		if err != nil {
 			return outp, err
@@ -488,8 +486,8 @@ func testRunLocalUpdateAndCall(t *T) {
 		return
 	}
 
-	if err := Try("Call example service after modification", t, func() ([]byte, error) {
-		outp, err := cmd.Exec("call", "helloworld", "Helloworld.Call", `{"name": "Joe"}`)
+	if err := Try("Call helloworld service after modification", t, func() ([]byte, error) {
+		outp, err := cmd.Exec("helloworld", "--name=Joe")
 		if err != nil {
 			return outp, err
 		}
