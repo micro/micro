@@ -7,5 +7,5 @@ git clone https://github.com/micro/services
 cd services
 rm go.mod
 rm go.sum
-grep -rl github.com/micro/services . | xargs sed -i 's/github.com\/micro\/services/github.com\/micro\/test\/services/g'
+grep -rl github.com/micro/services . | xargs sed -i 's/github.com\/micro\/services/github.com\/micro\/micro\/test\/services/g'
 rm -rf .git
