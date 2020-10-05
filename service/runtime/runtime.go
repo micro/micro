@@ -18,6 +18,8 @@ var (
 type (
 	// Logs is an alias for runtime.Logs
 	Logs = runtime.Logs
+	// Resource is an alias for runtime.Resource
+	Resource = runtime.Resource
 	// Service is an alias for runtime.Service
 	Service = runtime.Service
 	// ServiceStatus is an alias for runtime.ServiceStatus
@@ -44,9 +46,9 @@ const (
 	Error = runtime.Error
 )
 
-// Create registers a service
-func Create(srv *Service, opts ...CreateOption) error {
-	return DefaultRuntime.Create(srv, opts...)
+// Create a resource
+func Create(resource Resource, opts ...CreateOption) error {
+	return DefaultRuntime.Create(resource, opts...)
 }
 
 // Read returns the service
@@ -54,17 +56,17 @@ func Read(opts ...ReadOption) ([]*Service, error) {
 	return DefaultRuntime.Read(opts...)
 }
 
-// Update the service in place
-func Update(srv *Service, opts ...UpdateOption) error {
-	return DefaultRuntime.Update(srv, opts...)
+// Update the resource in place
+func Update(resource Resource, opts ...UpdateOption) error {
+	return DefaultRuntime.Update(resource, opts...)
 }
 
-// Delete a service
-func Delete(srv *Service, opts ...DeleteOption) error {
-	return DefaultRuntime.Delete(srv, opts...)
+// Delete a resource
+func Delete(resource Resource, opts ...DeleteOption) error {
+	return DefaultRuntime.Delete(resource, opts...)
 }
 
-// Log returns the logs for a service
-func Log(srv *Service, opts ...LogsOption) (Logs, error) {
-	return DefaultRuntime.Logs(srv, opts...)
+// Log returns the logs for a resource (service)
+func Log(resource Resource, opts ...LogsOption) (Logs, error) {
+	return DefaultRuntime.Logs(resource, opts...)
 }
