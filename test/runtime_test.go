@@ -506,7 +506,8 @@ func testRunLocalUpdateAndCall(t *T) {
 	if err := Try("Call helloworld service after modification", t, func() ([]byte, error) {
 		outp, err := cmd.Exec("helloworld", "--name=Joe")
 		if err != nil {
-			return outp, err
+			outp1, _ := cmd.Exec("logs", "helloworld")
+			return append(outp, outp1...), err
 		}
 		rsp := map[string]string{}
 		err = json.Unmarshal(outp, &rsp)
@@ -1244,7 +1245,7 @@ func testIdiomaticFolderStructure(t *T) {
 
 		// The started service should have the runtime name of "service/example",
 		// as the runtime name is the relative path inside a repo.
-		if !statusRunning("templatec", "latest", outp) {
+		if !statusRunning("template", "latest", outp) {
 			return outp, errors.New("Can't find template service in runtime")
 		}
 		return outp, err
