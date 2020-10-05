@@ -19,9 +19,10 @@ Key points:
 
 Although the tests run in docker, the containers and envs are named so you can easily interact with them. Some useful tricks:
 
-First, we have to build a local docker image:
+First, we have to build a local docker image and check out the services repo:
 ```
 bash scripts/test-docker.sh
+bash scripts/checkout-services.sh
 ```
 
 To start a test, cd into the `test` folder and then:

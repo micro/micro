@@ -10,11 +10,11 @@ import (
 	"time"
 )
 
-func TestRPC(t *testing.T) {
-	TrySuite(t, testRPC, retryCount)
+func Testroutes(t *testing.T) {
+	TrySuite(t, testroutes, retryCount)
 }
 
-func testRPC(t *T) {
+func testroutes(t *T) {
 	t.Parallel()
 	serv := NewServer(t, WithLogin())
 	defer serv.Close()
@@ -23,51 +23,51 @@ func testRPC(t *T) {
 	}
 
 	cmd := serv.Command()
-	outp, err := cmd.Exec("run", "--image", "localhost:5000/cells:v3", "./service/rpc/rpc-server")
+	outp, err := cmd.Exec("run", "--image", "localhost:5000/cells:v3", "./services/routes/routes-server")
 	if err != nil {
 		t.Fatalf("micro run failure, output: %v", string(outp))
 		return
 	}
 
-	if err := Try("Find rpc-server in runtime", t, func() ([]byte, error) {
+	if err := Try("Find routes-server in runtime", t, func() ([]byte, error) {
 		outp, err := cmd.Exec("status")
 		if err != nil {
 			return outp, err
 		}
-		if !statusRunning("rpc-server", "latest", outp) {
-			return outp, errors.New("Can't find rpc-server in runtime")
+		if !statusRunning("routes-server", "latest", outp) {
+			return outp, errors.New("Can't find routes-server in runtime")
 		}
 		return nil, nil
 	}, 120*time.Second); err != nil {
 		return
 	}
 
-	if err := Try("Find rpc service in registry", t, func() ([]byte, error) {
+	if err := Try("Find routes service in registry", t, func() ([]byte, error) {
 		outp, err := cmd.Exec("services")
 		if err != nil {
 			return outp, err
 		}
-		if !strings.Contains(string(outp), "rpc") {
-			return outp, errors.New("Can't find rpc service in registry")
+		if !strings.Contains(string(outp), "routes") {
+			return outp, errors.New("Can't find routes service in registry")
 		}
 		return nil, nil
 	}, 120*time.Second); err != nil {
 		return
 	}
 
-	outp, err = cmd.Exec("run", "--image", "localhost:5000/cells:v3", "./service/rpc/rpc-client")
+	outp, err = cmd.Exec("run", "--image", "localhost:5000/cells:v3", "./services/routes/routes-client")
 	if err != nil {
 		t.Fatalf("micro run failure, output: %v", string(outp))
 		return
 	}
 
-	if err := Try("Find rpc-client in runtime", t, func() ([]byte, error) {
+	if err := Try("Find routes-client in runtime", t, func() ([]byte, error) {
 		outp, err := cmd.Exec("status")
 		if err != nil {
 			return outp, err
 		}
-		if !statusRunning("rpc-client", "latest", outp) {
-			return outp, errors.New("Can't find rpc-client in runtime")
+		if !statusRunning("routes-client", "latest", outp) {
+			return outp, errors.New("Can't find routes-client in runtime")
 		}
 		return nil, nil
 	}, 60*time.Second); err != nil {
@@ -75,7 +75,7 @@ func testRPC(t *T) {
 	}
 
 	if err := Try("Check logs", t, func() ([]byte, error) {
-		outp, err := cmd.Exec("logs", "rpc-client")
+		outp, err := cmd.Exec("logs", "routes-client")
 		if err != nil {
 			return nil, err
 		}

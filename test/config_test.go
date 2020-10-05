@@ -358,14 +358,14 @@ func testConfigReadFromService(t *T) {
 		return
 	}
 
-	outp, err := cmd.Exec("run", "./service/config-example")
+	outp, err := cmd.Exec("run", "./services/conf")
 	if err != nil {
 		t.Fatalf("micro run failure, output: %v", string(outp))
 		return
 	}
 
 	if err := Try("Try logs read", t, func() ([]byte, error) {
-		outp, err := cmd.Exec("logs", "config-example")
+		outp, err := cmd.Exec("logs", "conf")
 		if err != nil {
 			return outp, err
 		}

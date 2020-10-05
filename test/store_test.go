@@ -157,13 +157,13 @@ func testStoreImpl(t *T) {
 	}
 
 	cmd := serv.Command()
-	outp, err := cmd.Exec("run", "--image", "localhost:5000/cells:v3", "./service/storeexample")
+	outp, err := cmd.Exec("run", "--image", "localhost:5000/cells:v3", "./services/kv")
 	if err != nil {
 		t.Fatalf("micro run failure, output: %v", string(outp))
 		return
 	}
 
-	if err := Try("Find storeexample", t, func() ([]byte, error) {
+	if err := Try("Find store", t, func() ([]byte, error) {
 		outp, err := cmd.Exec("status")
 		if err != nil {
 			return outp, err
@@ -171,7 +171,7 @@ func testStoreImpl(t *T) {
 
 		// The started service should have the runtime name of "service/example",
 		// as the runtime name is the relative path inside a repo.
-		if !statusRunning("storeexample", "latest", outp) {
+		if !statusRunning("kv", "latest", outp) {
 			return outp, errors.New("Can't find example service in runtime")
 		}
 		return outp, err
@@ -180,7 +180,7 @@ func testStoreImpl(t *T) {
 	}
 
 	if err := Try("Check logs", t, func() ([]byte, error) {
-		outp, err := cmd.Exec("logs", "storeexample")
+		outp, err := cmd.Exec("logs", "kv")
 		if err != nil {
 			return nil, err
 		}
@@ -224,7 +224,7 @@ func testBlobStore(t *T) {
 	}
 
 	cmd := serv.Command()
-	outp, err := cmd.Exec("run", "--image", "localhost:5000/cells:v3", "./service/blob-store")
+	outp, err := cmd.Exec("run", "--image", "localhost:5000/cells:v3", "./services/blob-store")
 	if err != nil {
 		t.Fatalf("micro run failure, output: %v", string(outp))
 		return
