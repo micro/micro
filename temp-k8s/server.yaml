@@ -31,12 +31,12 @@ spec:
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: server
+  name: micro
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: server
+  name: micro
 rules:
 - apiGroups:
   - ""
@@ -79,27 +79,27 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
-  name: server
+  name: micro
 subjects:
 - kind: ServiceAccount
-  name: server
+  name: micro
   namespace: default
 roleRef:
   kind: ClusterRole
-  name: server
+  name: micro
   apiGroup: rbac.authorization.k8s.io
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
-  name: server
+  name: micro
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: server
+  name: micro
 subjects:
 - kind: ServiceAccount
-  name: server
+  name: micro
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -128,14 +128,14 @@ spec:
         name: server
         micro: runtime
     spec:
-      serviceAccountName: server
+      serviceAccountName: micro
       containers:
       - name: micro
         env:
         - name: MICRO_PROFILE
           value: kubernetes
         - name: MICRO_PROXY
-          value: "network-latest.default.svc.cluster.local:8080"
+          value: "network.default.svc.cluster.local:8080"
         args:
         - server
         image: localhost:5000/micro

@@ -117,6 +117,13 @@ func WithVolume(name, path string) CreateOption {
 	}
 }
 
+// WithServiceAccount sets the ServiceAccount
+func WithServiceAccount(s string) CreateOption {
+	return func(o *CreateOptions) {
+		o.ServiceAccount = s
+	}
+}
+
 // WithOutput sets the arg output
 func WithOutput(out io.Writer) CreateOption {
 	return func(o *CreateOptions) {

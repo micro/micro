@@ -11,6 +11,7 @@ import (
 	"github.com/micro/micro/v3/client/cli/util"
 	"github.com/micro/micro/v3/cmd"
 	"github.com/micro/micro/v3/service"
+	"github.com/micro/micro/v3/service/auth"
 	"github.com/micro/micro/v3/service/client"
 	"github.com/micro/micro/v3/service/context"
 	log "github.com/micro/micro/v3/service/logger"
@@ -126,12 +127,6 @@ func Run(context *cli.Context) error {
 			continue
 		}
 
-		// don't pass keys (e.g. MICRO_AUTH_PRIVATE_KEY) as an env var, these should be mounted
-		// as secrets
-		if strings.HasSuffix(comps[0], "_KEY") {
-			continue
-		}
-
 		envvars = append(envvars, val)
 	}
 
@@ -178,14 +173,27 @@ func Run(context *cli.Context) error {
 		}
 		cmdArgs = append(cmdArgs, service)
 
+		// generate an auth account for each service, not all services will just JWT auth (e.g. the api
+		// and the proxy) so these accounts are still required
+		acc, err := auth.Generate("service", auth.WithType("service"))
+		if err != nil {
+			log.Errorf("Error generating auth account: %v", err)
+			continue
+		}
+
 		// runtime based on environment we run the service in
 		args := []runtime.CreateOption{
 			runtime.WithCommand(os.Args[0]),
 			runtime.WithArgs(cmdArgs...),
 			runtime.WithEnv(env),
 			runtime.WithRetries(10),
+			runtime.WithServiceAccount("micro"),
 			runtime.WithVolume("store-pvc", "/store"),
 			runtime.CreateImage("localhost:5000/micro"),
+			runtime.WithSecret("MICRO_AUTH_ID", acc.ID),
+			runtime.WithSecret("MICRO_AUTH_SECRET", acc.Secret),
+			runtime.WithSecret("MICRO_AUTH_PUBLIC_KEY", auth.DefaultAuth.Options().PublicKey),
+			runtime.WithSecret("MICRO_AUTH_PRIVATE_KEY", auth.DefaultAuth.Options().PrivateKey),
 		}
 
 		// NOTE: we use Version right now to check for the latest release

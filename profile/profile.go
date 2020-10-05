@@ -7,6 +7,8 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/micro/go-micro/v3/auth"
+
 	"github.com/micro/go-micro/v3/auth/jwt"
 	"github.com/micro/go-micro/v3/auth/noop"
 	"github.com/micro/go-micro/v3/broker"
@@ -123,6 +125,8 @@ var Kubernetes = &Profile{
 	Name: "kubernetes",
 	Setup: func(ctx *cli.Context) error {
 		microAuth.DefaultAuth = jwt.NewAuth()
+		SetupJWT(ctx)
+
 		microRuntime.DefaultRuntime = kubernetes.NewRuntime()
 
 		var err error
@@ -138,15 +142,15 @@ var Kubernetes = &Profile{
 			logger.Fatalf("Error configuring file blob store: %v", err)
 		}
 
-		// todo: implement and use a store registry
 		SetupRouter(static.NewRouter())
+
+		// todo: implement and use a store registry
 		SetupRegistry(memory.NewRegistry())
 
 		// todo: check this works in k8s
 		SetupBroker(http.NewBroker())
 
-		// todo: write the auto-generated JWT to the store so it's persisted between restarts
-		SetupJWT(ctx)
+		microConfig.DefaultConfig, _ = config.NewConfig(microStore.DefaultStore, "")
 		SetupConfigSecretKey(ctx)
 		return nil
 	},
@@ -193,28 +197,28 @@ func SetupBroker(b broker.Broker) {
 	microServer.DefaultServer.Init(server.Broker(b))
 }
 
-// SetupJWTRules configures the default internal system rules
+// SetupJWT configures the default internal system rules
 func SetupJWT(ctx *cli.Context) {
 	for _, rule := range inAuth.SystemRules {
 		if err := microAuth.DefaultAuth.Grant(rule); err != nil {
 			logger.Fatal("Error creating default rule: %v", err)
 		}
 	}
-	// Only set this up for core services
-	// Won't work for multi node environments, could use
-	// the file store for that.
 
+	// Generate public and private keys if none are provided
 	pubKey := ctx.String("auth_public_key")
 	privKey := ctx.String("auth_private_key")
 	if len(privKey) == 0 || len(pubKey) == 0 {
-		privB, pubB, err := user.GetJWTCerts()
+		var err error
+		privKey, pubKey, err = user.GetJWTCerts()
 		if err != nil {
 			logger.Fatalf("Error getting keys: %v", err)
 		}
-		os.Setenv("MICRO_AUTH_PRIVATE_KEY", string(privB))
-		os.Setenv("MICRO_AUTH_PUBLIC_KEY", string(pubB))
 	}
-
+	microAuth.DefaultAuth.Init(
+		auth.PrivateKey(privKey),
+		auth.PublicKey(pubKey),
+	)
 }
 
 func SetupConfigSecretKey(ctx *cli.Context) {
