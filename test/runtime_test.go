@@ -1055,7 +1055,7 @@ func testRunPrivateGitlabSource(t *T) {
 	// update service
 
 	// run the service
-	if outp, err := cmd.Exec("run", "--image", "localhost:5000/cells:v3", "gitlab.com/micro-test/private-monorepo-test/subfolder-test"+branch); err != nil {
+	if outp, err := cmd.Exec("update", "subfolder-test"+branch); err != nil {
 		t.Fatalf("Expected no error, got %v %v", err, string(outp))
 		return
 	}
