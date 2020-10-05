@@ -90,6 +90,7 @@ jobs:
       run: |
         rm ./services/go.mod
         rm ./services/go.sum
+        rm -rf ./services/.git
   
     - name: Replace paths
       working-directory: ./test/services
