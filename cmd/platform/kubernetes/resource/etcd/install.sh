@@ -21,14 +21,4 @@ cd ../;
 
 # install the cluster using helm
 helm repo add bitnami https://charts.bitnami.com/bitnami
-helm install etcd-cluster bitnami/etcd \
-	--set auth.rbac.enabled=false \
-	--set auth.peer.secureTransport=true \
-	--set auth.peer.enableAuthentication=true \
-	--set auth.peer.existingSecret=etcd-peer-certs \
-	--set auth.client.secureTransport=true \
-	--set auth.client.enableAuthentication=true \
-	--set auth.client.existingSecret=etcd-server-certs \
-	--set statefulset.replicaCount=1 \
-	--set livenessProbe.enabled=false \
-	--set readinessProbe.enabled=false
+helm install etcd-cluster bitnami/etcd -f values.yaml
