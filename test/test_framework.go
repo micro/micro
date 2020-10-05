@@ -525,18 +525,7 @@ func TrySuite(t *testing.T, f func(t *T), times int) {
 			tee.attempt++
 			time.Sleep(200 * time.Millisecond)
 		}
-		if tee.failed {
-			if t.Failed() {
-				done <- true
-				return
-			}
-			if len(tee.format) > 0 {
-				t.Fatalf(tee.format, tee.values...)
-			} else {
-				t.Fatal(tee.values...)
-			}
-			done <- true
-		}
+		done <- true
 	}()
 	for {
 		select {
@@ -560,6 +549,16 @@ func TrySuite(t *testing.T, f func(t *T), times int) {
 			t.Fatalf("%v:%v, %v (failed after %v)", fname, line, caller, time.Since(actualStart))
 			return
 		case <-done:
+			if tee.failed {
+				if t.Failed() {
+					return
+				}
+				if len(tee.format) > 0 {
+					t.Fatalf(tee.format, tee.values...)
+				} else {
+					t.Fatal(tee.values...)
+				}
+			}
 			return
 		}
 	}
