@@ -46,7 +46,7 @@ func setupAuthForCLI(ctx *cli.Context) error {
 		return err
 	}
 
-	tok, err := clitoken.Get(env.Name)
+	tok, err := clitoken.Get(ctx)
 	if err != nil {
 		return err
 	}
@@ -57,7 +57,7 @@ func setupAuthForCLI(ctx *cli.Context) error {
 	}
 
 	// Check if token is valid
-	if time.Now().Before(tok.Expiry.Add(-15 * time.Second)) {
+	if time.Now().Before(tok.Expiry.Add(time.Minute * -1)) {
 		auth.DefaultAuth.Init(
 			goauth.ClientToken(tok),
 			goauth.Issuer(ns),
@@ -69,6 +69,7 @@ func setupAuthForCLI(ctx *cli.Context) error {
 	tok, err = auth.Token(
 		auth.WithToken(tok.RefreshToken),
 		auth.WithTokenIssuer(ns),
+		auth.WithExpiry(time.Minute*10),
 	)
 	if err != nil {
 		return nil
@@ -79,7 +80,7 @@ func setupAuthForCLI(ctx *cli.Context) error {
 		goauth.ClientToken(tok),
 		goauth.Issuer(ns),
 	)
-	return clitoken.Save(env.Name, tok)
+	return clitoken.Save(ctx, tok)
 }
 
 // setupAuthForService generates auth credentials for the service
@@ -156,6 +157,7 @@ func refreshAuthToken() {
 			}
 
 			// set the token
+			logger.Debugf("Auth token refreshed, expires at %v", tok.Expiry.Format(time.UnixDate))
 			auth.DefaultAuth.Init(goauth.ClientToken(tok))
 		}
 	}

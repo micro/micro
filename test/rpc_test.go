@@ -5,7 +5,6 @@ package test
 import (
 	"errors"
 	"fmt"
-	"os"
 	"strings"
 	"testing"
 	"time"
@@ -24,26 +23,26 @@ func testRPC(t *T) {
 	}
 
 	cmd := serv.Command()
-
-	runTarget := "./service/rpc/rpc-server"
-	branch := "latest"
-	if os.Getenv("MICRO_IS_KIND_TEST") == "true" {
-		if ref := os.Getenv("GITHUB_REF"); len(ref) > 0 {
-			branch = strings.TrimPrefix(ref, "refs/heads/")
-		} else {
-			branch = "master"
-		}
-		runTarget = "github.com/micro/micro/test/service/rpc/rpc-server@" + branch
-		t.Logf("Running service from the %v branch of micro", branch)
-	}
-
-	outp, err := cmd.Exec("run", runTarget)
+	outp, err := cmd.Exec("run", "--image", "localhost:5000/cells:v3", "./service/rpc/rpc-server")
 	if err != nil {
 		t.Fatalf("micro run failure, output: %v", string(outp))
 		return
 	}
 
-	if err := Try("Find rpc-server", t, func() ([]byte, error) {
+	if err := Try("Find rpc-server in runtime", t, func() ([]byte, error) {
+		outp, err := cmd.Exec("status")
+		if err != nil {
+			return outp, err
+		}
+		if !statusRunning("rpc-server", "latest", outp) {
+			return outp, errors.New("Can't find rpc-server in runtime")
+		}
+		return nil, nil
+	}, 120*time.Second); err != nil {
+		return
+	}
+
+	if err := Try("Find rpc service in registry", t, func() ([]byte, error) {
 		outp, err := cmd.Exec("services")
 		if err != nil {
 			return outp, err
@@ -52,25 +51,26 @@ func testRPC(t *T) {
 			return outp, errors.New("Can't find rpc service in registry")
 		}
 		return nil, nil
-	}, 90*time.Second); err != nil {
+	}, 120*time.Second); err != nil {
 		return
 	}
 
-	runTarget = "./service/rpc/rpc-client"
-	branch = "latest"
-	if os.Getenv("MICRO_IS_KIND_TEST") == "true" {
-		if ref := os.Getenv("GITHUB_REF"); len(ref) > 0 {
-			branch = strings.TrimPrefix(ref, "refs/heads/")
-		} else {
-			branch = "master"
-		}
-		runTarget = "github.com/micro/micro/test/service/rpc/rpc-client@" + branch
-		t.Logf("Running service from the %v branch of micro", branch)
-	}
-
-	outp, err = cmd.Exec("run", runTarget)
+	outp, err = cmd.Exec("run", "--image", "localhost:5000/cells:v3", "./service/rpc/rpc-client")
 	if err != nil {
 		t.Fatalf("micro run failure, output: %v", string(outp))
+		return
+	}
+
+	if err := Try("Find rpc-client in runtime", t, func() ([]byte, error) {
+		outp, err := cmd.Exec("status")
+		if err != nil {
+			return outp, err
+		}
+		if !statusRunning("rpc-client", "latest", outp) {
+			return outp, errors.New("Can't find rpc-client in runtime")
+		}
+		return nil, nil
+	}, 60*time.Second); err != nil {
 		return
 	}
 
@@ -83,8 +83,7 @@ func testRPC(t *T) {
 			return outp, fmt.Errorf("Client did not complete ok")
 		}
 		return nil, nil
-	}, 60*time.Second); err != nil {
+	}, 120*time.Second); err != nil {
 		return
 	}
-
 }

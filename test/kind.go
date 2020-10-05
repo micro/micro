@@ -6,7 +6,6 @@ import (
 	"errors"
 	"fmt"
 	"math/rand"
-	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
@@ -28,7 +27,6 @@ func init() {
 	isParallel = false // in theory should work in parallel
 	newSrv = newK8sServer
 	retryCount = 1
-	os.Setenv("MICRO_IS_KIND_TEST", "true")
 }
 
 func newK8sServer(t *T, fname string, opts ...Option) Server {

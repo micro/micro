@@ -1,3 +1,4 @@
+// Package server is the micro server which runs the whole system
 package server
 
 import (

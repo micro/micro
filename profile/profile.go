@@ -91,7 +91,6 @@ var Local = &Profile{
 	Name: "local",
 	Setup: func(ctx *cli.Context) error {
 		microAuth.DefaultAuth = jwt.NewAuth()
-		microRuntime.DefaultRuntime = local.NewRuntime()
 		microStore.DefaultStore = file.NewStore()
 		SetupConfigSecretKey(ctx)
 		microConfig.DefaultConfig, _ = config.NewConfig(microStore.DefaultStore, "")
@@ -99,6 +98,10 @@ var Local = &Profile{
 		SetupRouter(regRouter.NewRouter())
 		SetupRegistry(mdns.NewRegistry())
 		SetupJWT(ctx)
+
+		// use the local runtime, note: the local runtime is designed to run source code directly so
+		// the runtime builder should NOT be set when using this implementation
+		microRuntime.DefaultRuntime = local.NewRuntime()
 
 		var err error
 		microEvents.DefaultStream, err = memStream.NewStream()
@@ -161,6 +164,7 @@ var Test = &Profile{
 	Setup: func(ctx *cli.Context) error {
 		microAuth.DefaultAuth = noop.NewAuth()
 		microStore.DefaultStore = mem.NewStore()
+		microStore.DefaultBlobStore, _ = file.NewBlobStore()
 		microConfig.DefaultConfig, _ = config.NewConfig(microStore.DefaultStore, "")
 		SetupRouter(regRouter.NewRouter())
 		SetupRegistry(memory.NewRegistry())

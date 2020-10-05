@@ -80,8 +80,12 @@ func (c *Config) Get(ctx context.Context, req *pb.GetRequest, rsp *pb.GetRespons
 
 	values := config.NewJSONValues(ch[0].Value)
 
-	// we just want to pass back bytes
-	bs := values.Get(req.Path).Bytes()
+	var bs []byte
+	if len(req.Path) > 0 {
+		bs = values.Get(req.Path).Bytes()
+	} else {
+		bs = values.Bytes()
+	}
 	dat, err := leavesToValues(string(bs), secret, string(c.secret))
 	if err != nil {
 		return merrors.InternalServerError("config.config.Get", "Error in config structure: %v", err)
@@ -95,6 +99,62 @@ func (c *Config) Get(ctx context.Context, req *pb.GetRequest, rsp *pb.GetRespons
 		return merrors.BadRequest("config.Config.Get", "JSOn encode error: %v", err)
 	}
 	rsp.Value.Data = strings.TrimSpace(buf.String())
+
+	return nil
+}
+
+// Read method is only here for backwards compatibility
+func (c *Config) Read(ctx context.Context, req *pb.ReadRequest, rsp *pb.ReadResponse) error {
+	logger.Info("doing config read", req.Path, req.Namespace)
+	if len(req.Namespace) == 0 {
+		req.Namespace = defaultNamespace
+	}
+
+	// authorize the request
+	if err := namespace.Authorize(ctx, req.Namespace); err == namespace.ErrForbidden {
+		return merrors.Forbidden("config.Config.Read", err.Error())
+	} else if err == namespace.ErrUnauthorized {
+		return merrors.Unauthorized("config.Config.Read", err.Error())
+	} else if err != nil {
+		return merrors.InternalServerError("config.Config.Read", err.Error())
+	}
+
+	ch, err := store.Read(req.Namespace)
+	if err == store.ErrNotFound {
+		return merrors.NotFound("config.Config.Read", "Not found")
+	} else if err != nil {
+		return merrors.BadRequest("config.Config.Read", "read error: %v: %v", err, req.Namespace)
+	}
+
+	rsp.Change = &pb.Change{
+		Namespace: req.Namespace,
+		Path:      req.Path,
+		ChangeSet: &pb.ChangeSet{},
+	}
+
+	values := config.NewJSONValues(ch[0].Value)
+
+	var bs []byte
+	if len(req.Path) > 0 {
+		bs = values.Get(req.Path).Bytes()
+	} else {
+		bs = values.Bytes()
+	}
+
+	dat, err := leavesToValues(string(bs), false, string(c.secret))
+	if err != nil {
+		return merrors.InternalServerError("config.config.Read", "Error in config structure: %v", err)
+	}
+
+	buf := new(bytes.Buffer)
+	enc := json.NewEncoder(buf)
+	enc.SetEscapeHTML(false)
+	err = enc.Encode(dat)
+	if err != nil {
+		return merrors.BadRequest("config.Config.Read", "JSOn encode error: %v", err)
+	}
+	rsp.Change.ChangeSet.Data = strings.TrimSpace(buf.String())
+	rsp.Change.ChangeSet.Format = "json"
 
 	return nil
 }
@@ -228,6 +288,8 @@ func (c *Config) Set(ctx context.Context, req *pb.SetRequest, rsp *pb.SetRespons
 	m, ok := i.(map[string]interface{})
 	// If it's a map, we do a merge
 	if ok {
+		// Need to nuke top level metadata as traverseMaps won't handle this
+		cleanNode(values, req.Path)
 		err = traverseMaps(m, strings.Split(req.Path, "."), func(p string, value interface{}) error {
 			val, err := json.Marshal(value)
 			if err != nil {
@@ -245,7 +307,17 @@ func (c *Config) Set(ctx context.Context, req *pb.SetRequest, rsp *pb.SetRespons
 	})
 }
 
+func cleanNode(values *config.JSONValues, path string) {
+	// Whatever the new value is being set, we need to delete
+	// old metadat to prevent making a mess and introducing weird bugs,
+	// ie. see `TestConfig/Test_plain_old_type_being_overwritten_by_map`
+	values.Delete(path + ".leaf")
+	values.Delete(path + ".value")
+	values.Delete(path + ".secret")
+}
+
 func (c *Config) setValue(values *config.JSONValues, secret bool, path, data string) error {
+	cleanNode(values, path)
 	if secret {
 		if len(c.secret) == 0 {
 			return merrors.InternalServerError("config.Config.Set", "Can't encode secret: secret key is not set")

@@ -51,7 +51,7 @@ base64 /tmp/jwt.pub > /tmp/jwt-base64.pub
 # Create the k8s secret
 kubectl create secret generic micro-secrets \
   --from-file=auth_public_key=/tmp/jwt-base64.pub \
-  --from-file=auth_private_key=/tmp/jwt-base64;
+  --from-file=auth_private_key=/tmp/jwt-base64
 
 # Remove the files from tmp
 rm /tmp/jwt /tmp/jwt.pub /tmp/jwt-base64 /tmp/jwt-base64.pub

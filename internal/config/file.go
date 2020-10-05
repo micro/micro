@@ -18,11 +18,7 @@ type Version struct {
 // This indicates the current version and the last time we updated the binary.
 // Its only used where self update is
 func WriteVersion(v string) error {
-	path, err := filePath()
-	if err != nil {
-		return err
-	}
-	dir := filepath.Dir(path)
+	dir := filepath.Dir(File)
 	if err := os.MkdirAll(dir, 0755); err != nil {
 		return err
 	}
@@ -39,11 +35,7 @@ func WriteVersion(v string) error {
 
 // GetVersion returns the version from .micro/version. If it does not exist
 func GetVersion() (*Version, error) {
-	path, err := filePath()
-	if err != nil {
-		return nil, err
-	}
-	dir := filepath.Dir(path)
+	dir := filepath.Dir(File)
 	f := filepath.Join(dir, "version")
 	b, err := ioutil.ReadFile(f)
 	if err != nil {

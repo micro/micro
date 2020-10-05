@@ -85,7 +85,4 @@ jobs:
         GITHUB_PAT: ${{ secrets.MICRO_ACTIONS_PAT }}
         GITLAB_PAT: ${{ secrets.GITLAB_PAT }}
       run: |
-          # Generate keys for JWT tests
-          ssh-keygen -f /tmp/sshkey -m pkcs8 -q -N ""
-          ssh-keygen -f /tmp/sshkey -e  -m pkcs8 > /tmp/sshkey.pub
-          go clean -testcache && go test --tags=integration -v -run ./... -timeout 20m
+        go clean -testcache && go test --tags=integration -v -run ./... -timeout 20m
