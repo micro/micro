@@ -359,10 +359,11 @@ func (s *svc) Update(resource runtime.Resource, opts ...runtime.UpdateOption) er
 		req := &pb.UpdateRequest{
 			Resource: &pb.Resource{
 				Service: &pb.Service{
-				Name:     svc.Name,
-				Version:  svc.Version,
-				Source:   svc.Source,
-				Metadata: svc.Metadata,
+					Name:     svc.Name,
+					Version:  svc.Version,
+					Source:   svc.Source,
+					Metadata: svc.Metadata,
+				},
 			},
 			Options: &pb.UpdateOptions{
 				Namespace:  options.Namespace,
