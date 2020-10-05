@@ -102,4 +102,4 @@ If you want to sell or offer Micro as a Service please email [contact@m3o.com](m
 
 ## Community
 
-Join us on [slack](https://slack.micro.mu) or follow us on [Twitter](https://twitter.com/microhq)
+Join us on [Slack](https://slack.micro.mu) or follow on [Twitter](https://twitter.com/microhq) for updates.
