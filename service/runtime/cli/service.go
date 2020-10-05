@@ -374,13 +374,6 @@ func updateService(ctx *cli.Context) error {
 		return err
 	}
 
-	// if the source isn't local, ensure it exists
-	if !source.Local {
-		if err := sourceExists(source); err != nil {
-			return err
-		}
-	}
-
 	// construct the service
 	srv := &runtime.Service{
 		Name:    source.RuntimeName(),
