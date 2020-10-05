@@ -2,6 +2,7 @@
 # folder, and makes the same modifications as what the github
 # workflow files do so test can run those services.
 
+rm -rf test/services
 cd test
 git clone https://github.com/micro/services
 cd services
