@@ -30,6 +30,7 @@ var (
 	isParallel        = true
 	ignoreThisError   = errors.New("Do not use this error")
 	errFatal          = errors.New("Fatal error")
+	testFilter        = []string{}
 	maxTimeMultiplier = 1
 )
 
@@ -490,6 +491,18 @@ func New(t *testing.T) *T {
 func TrySuite(t *testing.T, f func(t *T), times int) {
 	t.Helper()
 	caller := strings.Split(getFrame(1).Function, ".")[2]
+	if len(testFilter) > 0 {
+		runit := false
+		for _, test := range testFilter {
+			if test == caller {
+				runit = true
+				break
+			}
+		}
+		if !runit {
+			t.Skip()
+		}
+	}
 	timeout := os.Getenv("MICRO_TEST_TIMEOUT")
 	td, err := time.ParseDuration(timeout)
 	if err != nil {
@@ -512,18 +525,7 @@ func TrySuite(t *testing.T, f func(t *T), times int) {
 			tee.attempt++
 			time.Sleep(200 * time.Millisecond)
 		}
-		if tee.failed {
-			if t.Failed() {
-				done <- true
-				return
-			}
-			if len(tee.format) > 0 {
-				t.Fatalf(tee.format, tee.values...)
-			} else {
-				t.Fatal(tee.values...)
-			}
-			done <- true
-		}
+		done <- true
 	}()
 	for {
 		select {
@@ -547,6 +549,16 @@ func TrySuite(t *testing.T, f func(t *T), times int) {
 			t.Fatalf("%v:%v, %v (failed after %v)", fname, line, caller, time.Since(actualStart))
 			return
 		case <-done:
+			if tee.failed {
+				if t.Failed() {
+					return
+				}
+				if len(tee.format) > 0 {
+					t.Fatalf(tee.format, tee.values...)
+				} else {
+					t.Fatal(tee.values...)
+				}
+			}
 			return
 		}
 	}

@@ -37,6 +37,11 @@ func upcaseInitial(str string) string {
 // micro.auth.[envName].refresh-token: long lived refresh token
 // micro.auth.[envName].expiry: expiration time of the access token, seconds since Unix epoch.
 func setupAuthForCLI(ctx *cli.Context) error {
+	// dont' setup auth if we're just switching envs
+	if ctx.Args().First() == "env" {
+		return nil
+	}
+
 	env, err := util.GetEnv(ctx)
 	if err != nil {
 		return err

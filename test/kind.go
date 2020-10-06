@@ -15,6 +15,15 @@ import (
 )
 
 func init() {
+	testFilter = []string{
+		"TestRunGithubSource",
+		"TestStore",
+		"TestStoreImpl",
+		"TestCorruptedTokenLogin",
+		"TestRunPrivateSource",
+		"TestEventsStream",
+		"TestRPC",
+	}
 	maxTimeMultiplier = 3
 	isParallel = false // in theory should work in parallel
 	newSrv = newK8sServer
@@ -79,7 +88,6 @@ func (s *testK8sServer) Run() error {
 			!strings.Contains(string(outp), "config") ||
 			!strings.Contains(string(outp), "proxy") ||
 			!strings.Contains(string(outp), "auth") ||
-			!strings.Contains(string(outp), "updater") ||
 			!strings.Contains(string(outp), "store") {
 			return outp, errors.New("Not ready")
 		}
