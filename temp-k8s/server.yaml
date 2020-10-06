@@ -1,12 +1,17 @@
+kind: Namespace
+apiVersion: v1
+metadata:
+  name: micro
+---
 kind: PersistentVolume
 apiVersion: v1
 metadata:
   name: store-pv
-  namespace: default
+  namespace: micro
 spec:
   claimRef:
     name: store-pvc
-    namespace: default
+    namespace: micro
   storageClassName: standard
   capacity:
     storage: 2Gi
@@ -19,7 +24,7 @@ kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
   name: store-pvc
-  namespace: default
+  namespace: micro
 spec:
   storageClassName: standard
   accessModes:
@@ -32,11 +37,13 @@ apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: micro
+  namespace: micro
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
   name: micro
+  namespace: micro
 rules:
 - apiGroups:
   - ""
@@ -80,10 +87,11 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
   name: micro
+  namespace: micro
 subjects:
 - kind: ServiceAccount
   name: micro
-  namespace: default
+  namespace: micro
 roleRef:
   kind: ClusterRole
   name: micro
@@ -93,6 +101,7 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
   name: micro
+  namespace: micro
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
@@ -104,7 +113,7 @@ subjects:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  namespace: default
+  namespace: micro
   name: server-latest
   labels:
     micro: runtime
@@ -135,7 +144,7 @@ spec:
         - name: MICRO_PROFILE
           value: kubernetes
         - name: MICRO_PROXY
-          value: "network.default.svc.cluster.local:8080"
+          value: "network.micro.svc.cluster.local:8080"
         args:
         - server
         image: localhost:5000/micro

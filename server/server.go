@@ -106,11 +106,10 @@ func Run(context *cli.Context) error {
 
 	// TODO: reimplement peering of servers e.g --peer=node1,node2,node3
 	// peers are configured as network nodes to cluster between
-
 	log.Info("Starting server")
 
 	// parse the env vars
-	var envvars []string
+	envvars := []string{"MICRO_LOG_LEVEL=debug"}
 	for _, val := range os.Environ() {
 		comps := strings.Split(val, "=")
 		if len(comps) != 2 {
@@ -190,6 +189,7 @@ func Run(context *cli.Context) error {
 			runtime.WithServiceAccount("micro"),
 			runtime.WithVolume("store-pvc", "/store"),
 			runtime.CreateImage("localhost:5000/micro"),
+			runtime.CreateNamespace("micro"),
 			runtime.WithSecret("MICRO_AUTH_ID", acc.ID),
 			runtime.WithSecret("MICRO_AUTH_SECRET", acc.Secret),
 			runtime.WithSecret("MICRO_AUTH_PUBLIC_KEY", auth.DefaultAuth.Options().PublicKey),
