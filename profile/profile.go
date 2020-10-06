@@ -12,6 +12,7 @@ import (
 	"github.com/micro/go-micro/v3/auth/noop"
 	"github.com/micro/go-micro/v3/broker"
 	"github.com/micro/go-micro/v3/broker/http"
+	memBroker "github.com/micro/go-micro/v3/broker/memory"
 	"github.com/micro/go-micro/v3/client"
 	config "github.com/micro/go-micro/v3/config/store"
 	memStream "github.com/micro/go-micro/v3/events/stream/memory"
@@ -119,7 +120,7 @@ var Local = &Profile{
 	},
 }
 
-// Kubernetes profile to run on kubernetes
+// Kubernetes profile to run on kubernetes with zero deps. Designed for use with the micro helm chart
 var Kubernetes = &Profile{
 	Name: "kubernetes",
 	Setup: func(ctx *cli.Context) error {
@@ -127,6 +128,7 @@ var Kubernetes = &Profile{
 		SetupJWT(ctx)
 
 		microRuntime.DefaultRuntime = kubernetes.NewRuntime()
+		SetupRouter(k8sRouter.NewRouter())
 
 		var err error
 		microEvents.DefaultStream, err = memStream.NewStream()
@@ -134,22 +136,30 @@ var Kubernetes = &Profile{
 			logger.Fatalf("Error configuring stream: %v", err)
 		}
 
-		// todo: configure to use the mounted pv
-		microStore.DefaultStore = file.NewStore()
-		microStore.DefaultBlobStore, err = file.NewBlobStore()
+		microStore.DefaultStore = file.NewStore(file.WithDir("/store"))
+		microStore.DefaultBlobStore, err = file.NewBlobStore(file.WithDir("/store/blob"))
 		if err != nil {
 			logger.Fatalf("Error configuring file blob store: %v", err)
 		}
 
-		SetupRouter(k8sRouter.NewRouter())
-		// todo: implement and use a store registry
-		SetupRegistry(memory.NewRegistry())
+		// the registry service uses the memory registry, the other core services will use the default
+		// rpc client and call the registry service
+		if ctx.Args().Get(1) == "registry" {
+			SetupRegistry(memory.NewRegistry())
+		}
 
-		// todo: check this works in k8s
-		SetupBroker(http.NewBroker())
+		// the broker service uses the memory broker, the other core services will use the default
+		// rpc client and call the broker service
+		if ctx.Args().Get(1) == "broker" {
+			SetupBroker(memBroker.NewBroker())
+		}
 
-		microConfig.DefaultConfig, _ = config.NewConfig(microStore.DefaultStore, "")
+		microConfig.DefaultConfig, err = config.NewConfig(microStore.DefaultStore, "")
+		if err != nil {
+			logger.Fatalf("Error configuring config: %v", err)
+		}
 		SetupConfigSecretKey(ctx)
+
 		return nil
 	},
 }
