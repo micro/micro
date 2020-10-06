@@ -4,8 +4,6 @@ on:
   push:
     branches:
       - master
-      # We want custom per developer branches to be pushed
-      - new_runtime_interface
     tags:
       - v2.*
       - v3.*
