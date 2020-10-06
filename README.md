@@ -85,9 +85,6 @@ you've already come to know. A HTTP api, gRPC proxy and commmand line interface.
 - **Library:** A Go library which makes it drop dead simple to write your services without having to piece together lines and lines of 
 boilerplate. Auto configured and initialised by default, just import and get started quickly.
 
-- **Plugins:** Micro is runtime and infrastructure agnostic. Each underlying building block service uses the Go Micro standard library 
-to provide a pluggable foundation. We make it simple to use by pre-initialising for local use and the cloud.
-
 ## License
 
 See [LICENSE](LICENSE) which makes use of [Polyform Shield](https://polyformproject.org/licenses/shield/1.0.0/).
@@ -102,4 +99,4 @@ If you want to sell or offer Micro as a Service please email [contact@m3o.com](m
 
 ## Community
 
-Join us on [Slack](https://slack.micro.mu) or follow on [Twitter](https://twitter.com/microhq) for updates.
+Join us on [Discord](https://discord.gg/hbmJEct), [Slack](https://slack.micro.mu) or follow on [Twitter](https://twitter.com/microhq) for updates.

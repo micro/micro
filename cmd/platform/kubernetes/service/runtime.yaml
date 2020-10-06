@@ -151,6 +151,11 @@ spec:
             secretKeyRef:
               name: minio-creds
               key: secret_key
+        - name: MICRO_BLOB_STORE_REGION
+          valueFrom:
+            secretKeyRef:
+              name: minio-creds
+              key: region
         - name: MICRO_LOG_LEVEL
           value: "debug"
         - name: MICRO_STORE_ADDRESS
