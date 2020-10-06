@@ -128,7 +128,7 @@ spec:
           value: "network.micro.svc.cluster.local:8443"
         args:
         - server
-        image: localhost:5000/micro
+        image: "{{ .Values.image.repo }}:{{ .Values.image.tag }}"
         imagePullPolicy: Always
         volumeMounts:
         - mountPath: "/store"
