@@ -33,7 +33,6 @@ jobs:
 
     - name: Create Pull Request
       uses: peter-evans/create-pull-request@v3
-      commit-message: "Regenerate client sdks from proto"
-      branch: pr/regen-clients
-      delete-branch: true
-      title: "Regenerate client sdks from proto"
+      with:
+        branch: pr/regen-clients
+        title: "Regenerate client sdks from proto"
