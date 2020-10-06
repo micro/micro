@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - master
+      - s3region
     tags:
       - v2.*
       - v3.*
