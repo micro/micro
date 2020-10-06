@@ -52,12 +52,10 @@ jobs:
         docker network connect "kind" "kind-registry"
         for node in $(kind get nodes); do kubectl annotate node "${node}" "kind.x-k8s.io/registry=localhost:5000"; done
 
-    - name: Setup Helm
-      uses: azure/setup-helm@v1
-
     - name: Install the platform
       run: |
         helm install micro ./helm --set image.repo=localhost:5000/micro
+        sleep 5s
         kubectl wait deployment --all --for=condition=available -n micro --timeout=180s
 
     - name: Install failed, show platform logs
