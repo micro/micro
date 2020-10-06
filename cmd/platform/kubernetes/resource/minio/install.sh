@@ -3,9 +3,12 @@
 # generate a set of credentials
 accessKey=$(LC_ALL=C tr -dc 'A-Za-z0-9' </dev/urandom | head -c 20 ; echo)
 secretKey=$(LC_ALL=C tr -dc 'A-Za-z0-9' </dev/urandom | head -c 40 ; echo)
-
+region=$S3_REGION
+if [[ ! $region ]]; then
+  region=fr-par # default
+fi
 # create the secret to store the creds
-kubectl create secret generic minio-creds --from-literal=access_key=$accessKey --from-literal=secret_key=$secretKey
+kubectl create secret generic minio-creds --from-literal=access_key=$accessKey --from-literal=secret_key=$secretKey --from-literal=region=$region
 
 # add the nats helm chart
 helm repo add minio https://helm.min.io/

@@ -78,7 +78,7 @@ var Profile = &profile.Profile{
 					os.Getenv("MICRO_BLOB_STORE_SECRET_KEY"),
 				),
 				s3.Endpoint("minio-cluster:9000"),
-				s3.Region("micro"),
+				s3.Region(os.Getenv("MICRO_BLOB_STORE_REGION")),
 				s3.Insecure(),
 			)
 			if err != nil {
