@@ -14,7 +14,7 @@ import (
 func main() {
 	// Create the service
 	srv := service.New(
-		service.Name("rpc"),
+		service.Name("rpc-server"),
 		service.Version("latest"),
 	)
 

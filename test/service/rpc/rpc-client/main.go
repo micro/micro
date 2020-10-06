@@ -13,7 +13,7 @@ import (
 
 func main() {
 	srv := service.New()
-	cli := pb.NewRouteGuideService("rpc", srv.Client())
+	cli := pb.NewRouteGuideService("rpc-server", srv.Client())
 
 	// Looking for a valid feature
 	logger.Infof("Testing Unary... Starting")
