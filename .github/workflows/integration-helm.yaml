@@ -35,13 +35,6 @@ jobs:
     - name: Setup docker registry
       run: |
         docker run -d -p 5000:5000 --restart=always --name kind-registry -v /tmp/docker-registry:/var/lib/registry registry:2 && npx wait-on tcp:5000
-    # Now let's build an image and push to our local registry. 
-    - name: Build and push cells to local registry
-      id: build-push-reg-cell
-      run: |
-        DIR=service/runtime/cells/v3
-        docker build -f $DIR/Dockerfile $DIR -t localhost:5000/cells:v3
-        docker push localhost:5000/cells:v3
     
     - name: Build and push micro to local registry
       id: build-push-reg-micro
@@ -59,6 +52,9 @@ jobs:
         docker network connect "kind" "kind-registry"
         for node in $(kind get nodes); do kubectl annotate node "${node}" "kind.x-k8s.io/registry=localhost:5000"; done
 
+    - name: Setup Helm
+      uses: azure/setup-helm@v1
+
     - name: Install the platform
       run: |
         helm install micro ./helm --set image.repo=localhost:5000/micro
@@ -70,6 +66,14 @@ jobs:
         kubectl get pods -n | awk '{print $1}' | xargs -n1 kubectl logs
         kubectl get pods -n platform | awk '{print $1}' | xargs -n1 kubectl logs -n platform
     
+    # Do this after the helm install to give the services time to register etc
+    - name: Build and push cells to local registry
+      id: build-push-reg-cell
+      run: |
+        DIR=service/runtime/cells/v3
+        docker build -f $DIR/Dockerfile $DIR -t localhost:5000/cells:v3
+        docker push localhost:5000/cells:v3
+
     - name: Run the build service
       run: |
         kubectl port-forward service/micro-proxy 8081:443 & sleep 2s
