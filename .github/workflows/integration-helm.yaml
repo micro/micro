@@ -82,6 +82,7 @@ jobs:
       working-directory: ./test
       env:
         IN_TRAVIS_CI: yes
+        IN_HELM_TEST: yes
         GITHUB_PAT: ${{ secrets.MICRO_ACTIONS_PAT }}
       run: |
         go clean -testcache && GOMAXPROCS=4 go test --tags=integration,kind -v -run ./... -timeout 20m
