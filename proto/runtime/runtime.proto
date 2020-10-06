@@ -14,6 +14,20 @@ service Runtime {
 	rpc DeleteNamespace(DeleteNamespaceRequest) returns (DeleteNamespaceResponse) {};
 }
 
+// Source service is used by the CLI to upload source to the service. The service will return
+// a unique ID representing the location of that source. This ID can then be used as a source
+// for the service when doing Runtime.Create. The server will handle cleanup of uploaded source.
+service Source {
+	rpc Upload(stream UploadRequest) returns (UploadResponse) {};
+}
+
+// Build service is used by containers to download prebuilt binaries. The client will pass the 
+// service (name and version are required attributed) and the server will then stream the latest
+// binary to the client.
+service Build {
+	rpc Read(Service) returns (stream BuildReadResponse) {};
+}
+
 message Service {
 	// name of the service
 	string name = 1;
@@ -44,6 +58,8 @@ message CreateOptions {
 	string namespace = 7;
 	// secrets to use for the service
 	map<string,string> secrets = 8;
+	// entrypoint within the source
+	string entrypoint = 9;
 }
 
 message CreateRequest {
@@ -87,6 +103,8 @@ message DeleteResponse {}
 message UpdateOptions {
 	// namespace of the service
 	string namespace = 1;
+	// entrypoint within the source
+	string entrypoint = 2;
 }
 
 message UpdateRequest {
@@ -151,3 +169,16 @@ message DeleteNamespaceRequest {
 }
 
 message DeleteNamespaceResponse {}
+
+message UploadRequest {
+	Service service = 1;
+	bytes data = 2;	
+}
+
+message UploadResponse {
+	string id = 1;
+}
+
+message BuildReadResponse {
+	bytes data = 1;	
+}

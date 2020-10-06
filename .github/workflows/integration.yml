@@ -79,13 +79,28 @@ jobs:
       run: |
         docker tag micro localhost:5000/micro && docker push localhost:5000/micro || true
 
+    - name: Check out services
+      uses: actions/checkout@v2
+      with:
+        repository: 'micro/services'
+        path: 'test/services'
+
+    - name: Delete go mod
+      working-directory: ./test
+      run: |
+        rm ./services/go.mod
+        rm ./services/go.sum
+        rm -rf ./services/.git
+  
+    - name: Replace paths
+      working-directory: ./test/services
+      run: |
+        grep -rl github.com/micro/services . | xargs sed -i 's/github.com\/micro\/services/github.com\/micro\/micro\/v3\/test\/services/g'
+
     - name: Test micro server
       working-directory: ./test
       env:
         GITHUB_PAT: ${{ secrets.MICRO_ACTIONS_PAT }}
         GITLAB_PAT: ${{ secrets.GITLAB_PAT }}
       run: |
-          # Generate keys for JWT tests
-          ssh-keygen -f /tmp/sshkey -m pkcs8 -q -N ""
-          ssh-keygen -f /tmp/sshkey -e  -m pkcs8 > /tmp/sshkey.pub
-          go clean -testcache && go test --tags=integration -v -run ./... -timeout 20m
+        go clean -testcache && go test --tags=integration -v -run ./... -timeout 20m

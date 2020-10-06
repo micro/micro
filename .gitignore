@@ -34,3 +34,5 @@ micro
 dist
 
 *.bak
+
+test/services

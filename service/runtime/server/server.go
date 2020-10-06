@@ -68,10 +68,10 @@ func Run(ctx *cli.Context) error {
 		os.Exit(1)
 	}
 
-	// register the runtime handler
-	pb.RegisterRuntimeHandler(srv.Server(), &Runtime{
-		Runtime: manager,
-	})
+	// register the handlers
+	pb.RegisterRuntimeHandler(srv.Server(), &Runtime{Runtime: manager})
+	pb.RegisterBuildHandler(srv.Server(), new(Build))
+	pb.RegisterSourceHandler(srv.Server(), new(Source))
 
 	// start runtime service
 	if err := srv.Run(); err != nil {

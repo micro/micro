@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"strconv"
 	"strings"
 
 	goclient "github.com/micro/go-micro/v3/client"
@@ -40,7 +39,11 @@ func setConfig(ctx *cli.Context) error {
 		return err
 	}
 
-	v, _ := json.Marshal(parseValue(val))
+	parsedVal, err := parseValue(val)
+	if err != nil {
+		return err
+	}
+	v, _ := json.Marshal(parsedVal)
 
 	// TODO: allow the specifying of a config.Key. This will be service name
 	// The actuall key-val set is a path e.g micro/accounts/key
@@ -61,20 +64,14 @@ func setConfig(ctx *cli.Context) error {
 	return err
 }
 
-func parseValue(s string) interface{} {
-	b, err := strconv.ParseBool(s)
-	if err == nil {
-		return b
+func parseValue(s string) (interface{}, error) {
+	var i interface{}
+	err := json.Unmarshal([]byte(s), &i)
+	if err != nil {
+		// special exception for strings
+		return i, json.Unmarshal([]byte(fmt.Sprintf("\"%v\"", s)), &i)
 	}
-	f, err := strconv.ParseFloat(s, 64)
-	if err == nil {
-		return f
-	}
-	i, err := strconv.ParseInt(s, 10, 64)
-	if err == nil {
-		return i
-	}
-	return s
+	return i, nil
 }
 
 func getConfig(ctx *cli.Context) error {
