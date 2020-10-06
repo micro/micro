@@ -110,32 +110,13 @@ subjects:
 - kind: ServiceAccount
   name: micro
 ---
-apiVersion: apps/v1
-kind: Deployment
+apiVersion: batch/v1
+kind: Job
 metadata:
   namespace: micro
-  name: server-latest
-  labels:
-    micro: runtime
-    name: server
-    version: latest
-  annotations:
-    name: "server"
-    version: "latest"
-    source: "github.com/micro/micro"
-    owner: "micro"
-    group: "micro"
+  name: micro
 spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      name: server
-      micro: runtime
   template:
-    metadata:
-      labels:
-        name: server
-        micro: runtime
     spec:
       serviceAccountName: micro
       containers:
@@ -156,3 +137,4 @@ spec:
       - name: store-mount
         persistentVolumeClaim:
           claimName: store-pvc
+      restartPolicy: OnFailure

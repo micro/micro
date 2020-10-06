@@ -4,7 +4,6 @@ package server
 import (
 	"errors"
 	"os"
-	"path/filepath"
 	"strings"
 
 	"github.com/micro/go-micro/v3/util/file"
@@ -218,6 +217,11 @@ func Run(context *cli.Context) error {
 		}
 	}
 
+	// server is deployed as a pod in k8s, meaning it should exit once the services have been created.
+	if runtime.DefaultRuntime.String() == "kubernetes" {
+		return nil
+	}
+
 	log.Info("Starting server runtime")
 
 	// start the runtime
@@ -233,17 +237,11 @@ func Run(context *cli.Context) error {
 		service.Address(Address),
 	)
 
-	// @todo make this configurable
-	uploadDir := filepath.Join(os.TempDir(), "micro", "uploads")
-	os.MkdirAll(uploadDir, 0777)
-	file.RegisterHandler(srv.Server(), uploadDir)
-
 	// start the server
 	if err := srv.Run(); err != nil {
 		log.Fatalf("Error running server: %v", err)
 	}
 
 	log.Info("Stopped server")
-
 	return nil
 }
