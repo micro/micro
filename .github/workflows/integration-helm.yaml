@@ -55,8 +55,6 @@ jobs:
     - name: Install the platform
       run: |
         helm install micro ./helm --set image.repo=localhost:5000/micro
-        sleep 5s
-        kubectl wait deployment --all --for=condition=available -n micro --timeout=180s
 
     - name: Install failed, show platform logs
       if: ${{ failure() }}
@@ -74,7 +72,8 @@ jobs:
 
     - name: Run the build service
       run: |
-        kubectl port-forward service/micro-proxy 8081:443 & sleep 2s
+        kubectl wait deployment --all --for=condition=available -n micro --timeout=180s
+        kubectl port-forward svc/proxy -n micro 8081:8081 & sleep 2s
         micro login --username=admin --password=micro
         micro run --image=localhost:5000/cells:v3 github.com/m3o/services/build@rename-builder
 
