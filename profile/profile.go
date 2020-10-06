@@ -20,7 +20,6 @@ import (
 	"github.com/micro/go-micro/v3/registry/mdns"
 	"github.com/micro/go-micro/v3/registry/memory"
 	"github.com/micro/go-micro/v3/router"
-	k8sRouter "github.com/micro/go-micro/v3/router/kubernetes"
 	regRouter "github.com/micro/go-micro/v3/router/registry"
 	"github.com/micro/go-micro/v3/runtime/kubernetes"
 	"github.com/micro/go-micro/v3/runtime/local"
@@ -28,6 +27,7 @@ import (
 	"github.com/micro/go-micro/v3/store/file"
 	mem "github.com/micro/go-micro/v3/store/memory"
 	"github.com/micro/micro/v3/service/logger"
+	"github.com/micro/micro/v3/service/runtime/builder/golang"
 	"github.com/urfave/cli/v2"
 
 	inAuth "github.com/micro/micro/v3/internal/auth"
@@ -123,14 +123,16 @@ var Local = &Profile{
 // Kubernetes profile to run on kubernetes with zero deps. Designed for use with the micro helm chart
 var Kubernetes = &Profile{
 	Name: "kubernetes",
-	Setup: func(ctx *cli.Context) error {
+	Setup: func(ctx *cli.Context) (err error) {
 		microAuth.DefaultAuth = jwt.NewAuth()
 		SetupJWT(ctx)
 
 		microRuntime.DefaultRuntime = kubernetes.NewRuntime()
-		SetupRouter(k8sRouter.NewRouter())
+		microBuilder.DefaultBuilder, err = golang.NewBuilder()
+		if err != nil {
+			logger.Fatalf("Error configuring golang builder: %v", err)
+		}
 
-		var err error
 		microEvents.DefaultStream, err = memStream.NewStream()
 		if err != nil {
 			logger.Fatalf("Error configuring stream: %v", err)
@@ -160,6 +162,7 @@ var Kubernetes = &Profile{
 		}
 		SetupConfigSecretKey(ctx)
 
+		SetupRouter(k8sRouter.NewRouter())
 		return nil
 	},
 }
