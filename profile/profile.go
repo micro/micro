@@ -20,6 +20,7 @@ import (
 	"github.com/micro/go-micro/v3/registry/mdns"
 	"github.com/micro/go-micro/v3/registry/memory"
 	"github.com/micro/go-micro/v3/router"
+	k8sRouter "github.com/micro/go-micro/v3/router/kubernetes"
 	regRouter "github.com/micro/go-micro/v3/router/registry"
 	"github.com/micro/go-micro/v3/runtime/kubernetes"
 	"github.com/micro/go-micro/v3/runtime/local"
@@ -40,6 +41,7 @@ import (
 	microRegistry "github.com/micro/micro/v3/service/registry"
 	microRouter "github.com/micro/micro/v3/service/router"
 	microRuntime "github.com/micro/micro/v3/service/runtime"
+	microBuilder "github.com/micro/micro/v3/service/runtime/builder"
 	microServer "github.com/micro/micro/v3/service/server"
 	microStore "github.com/micro/micro/v3/service/store"
 )
