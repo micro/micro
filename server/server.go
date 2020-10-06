@@ -162,9 +162,11 @@ func Run(context *cli.Context) error {
 				// don't want the internal service to conflict.
 				port = "8080"
 			case "proxy":
-				port = "8081"
+				// run the proxy on :443, the standard port for HTTPs
+				port = "443"
+				env = append(env, "MICRO_PROXY_ADDRESS=:443")
 				// pass :8080 for the internal service address, since this is the default port used for the
-				// static (k8s) router. Because the grpc proxy will register on :8081 it won't conflict
+				// static (k8s) router. Because the grpc proxy will register on :443 it won't conflict
 				env = append(env, "MICRO_SERVICE_ADDRESS=:8080")
 			case "network":
 				port = "8443"
