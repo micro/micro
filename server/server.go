@@ -129,21 +129,8 @@ func Run(context *cli.Context) error {
 		envvars = append(envvars, val)
 	}
 
-	// bind to port 8080, this is what the k8s service will use (enabling routing) and the readiness
-	// checks will use. this logic exists in the runtime manager but since that's not used by the
-	// server, the logic had to be duplicated here
-	if runtime.DefaultRuntime.String() == "kubernetes" {
-		envvars = append(envvars, "MICRO_SERVICE_ADDRESS=:8080")
-	}
-
 	// start the services
 	for _, service := range services {
-		// set the proxy addres, default to the network running locally
-		proxy := context.String("proxy_address")
-		if len(proxy) == 0 {
-			proxy = "127.0.0.1:8443"
-		}
-
 		log.Infof("Registering %s", service)
 
 		// all things run by the server are `micro service [name]`
@@ -157,10 +144,36 @@ func Run(context *cli.Context) error {
 			env = append(env, "MICRO_PROFILE="+context.String("profile"))
 		}
 
-		// inject the proxy address for all services but the network, as we don't want
-		// that calling itself
-		if len(proxy) > 0 && service != "network" {
+		// set the proxy addres, default to the network running locally
+		if service != "network" {
+			proxy := context.String("proxy_address")
+			if len(proxy) == 0 {
+				proxy = "127.0.0.1:8443"
+			}
 			env = append(env, "MICRO_PROXY="+proxy)
+		}
+
+		// for kubernetes we want to provide a port and instruct the service to bind to it. we don't do
+		// this locally because the services are not isolated and the ports will
+		var port string
+		if runtime.DefaultRuntime.String() == "kubernetes" {
+			switch service {
+			case "api":
+				// don't set the service address for the api. The http server will register on :8080 and we
+				// don't want the internal service to conflict.
+				port = "8080"
+			case "proxy":
+				port = "8081"
+				// pass :8080 for the internal service address, since this is the default port used for the
+				// static (k8s) router. Because the grpc proxy will register on :8081 it won't conflict
+				env = append(env, "MICRO_SERVICE_ADDRESS=:8080")
+			case "network":
+				port = "8443"
+				env = append(env, "MICRO_SERVICE_ADDRESS=:8443")
+			default:
+				port = "8080"
+				env = append(env, "MICRO_SERVICE_ADDRESS=:8080")
+			}
 		}
 
 		// we want to pass through the global args so go up one level in the context lineage
@@ -185,6 +198,7 @@ func Run(context *cli.Context) error {
 			runtime.WithCommand(os.Args[0]),
 			runtime.WithArgs(cmdArgs...),
 			runtime.WithEnv(env),
+			runtime.WithPort(port),
 			runtime.WithRetries(10),
 			runtime.WithServiceAccount("micro"),
 			runtime.WithVolume("store-pvc", "/store"),

@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"net/http"
 	"os"
-	"os/signal"
 
 	"github.com/go-acme/lego/v3/providers/dns/cloudflare"
 	"github.com/gorilla/mux"
@@ -28,7 +27,6 @@ import (
 	"github.com/micro/go-micro/v3/api/server/acme/certmagic"
 	httpapi "github.com/micro/go-micro/v3/api/server/http"
 	"github.com/micro/go-micro/v3/sync/memory"
-	signalutil "github.com/micro/go-micro/v3/util/signal"
 	"github.com/micro/micro/v3/client"
 	"github.com/micro/micro/v3/internal/handler"
 	"github.com/micro/micro/v3/internal/helper"
@@ -311,12 +309,10 @@ func Run(ctx *cli.Context) error {
 		log.Fatal(err)
 	}
 
-	// Wait for the application to be terminated
-	ch := make(chan os.Signal, 1)
-	if srv.Options().Signal {
-		signal.Notify(ch, signalutil.Shutdown()...)
+	// Run server
+	if err := srv.Run(); err != nil {
+		log.Fatal(err)
 	}
-	<-ch
 
 	// Stop API
 	if err := api.Stop(); err != nil {

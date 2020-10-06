@@ -131,6 +131,13 @@ func WithOutput(out io.Writer) CreateOption {
 	}
 }
 
+// WithPort sets the port to expose
+func WithPort(p string) CreateOption {
+	return func(o *CreateOptions) {
+		o.Port = p
+	}
+}
+
 // ResourceLimits sets the resources for the service to use
 func ResourceLimits(r *runtime.Resources) CreateOption {
 	return func(o *CreateOptions) {

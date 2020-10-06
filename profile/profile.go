@@ -8,7 +8,6 @@ import (
 	"os"
 
 	"github.com/micro/go-micro/v3/auth"
-
 	"github.com/micro/go-micro/v3/auth/jwt"
 	"github.com/micro/go-micro/v3/auth/noop"
 	"github.com/micro/go-micro/v3/broker"
