@@ -79,10 +79,10 @@ spec:
               name: minio-creds
               key: secret_key
         - name: MICRO_BLOB_STORE_REGION
-            valueFrom:
-              secretKeyRef:
-                name: minio-creds
-                key: region
+          valueFrom:
+            secretKeyRef:
+              name: minio-creds
+              key: region
         image: micro/platform
         imagePullPolicy: Always
         args:
