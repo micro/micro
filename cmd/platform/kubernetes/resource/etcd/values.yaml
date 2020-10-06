@@ -50,33 +50,10 @@ auth:
 ## Enable persistence using Persistent Volume Claims
 ## ref: http://kubernetes.io/docs/user-guide/persistent-volumes/
 ##
-# TODO change this to not use PVCs
 persistence:
   ## If true, use a Persistent Volume Claim, If false, use emptyDir
   ##
-  enabled: true
-  ## Persistent Volume Storage Class
-  ## If defined, storageClassName: <storageClass>
-  ## If set to "-", storageClassName: "", which disables dynamic provisioning
-  ## If undefined (the default) or set to null, no storageClassName spec is
-  ##   set, choosing the default provisioner.  (gp2 on AWS, standard on
-  ##   GKE, AWS & OpenStack)
-  ##
-  # storageClass: "-"
-  ## Persistent Volume Claim annotations
-  ##
-  annotations: {}
-  ## Persistent Volume Access Mode
-  ##
-  accessModes:
-    - ReadWriteOnce
-  ## Persistent Volume size
-  ##
-  size: 8Gi
-  ## Persistent Volume selector
-  ## Can specify a label selector to further filter the set of volumes.
-  ## ref: https://kubernetes.io/docs/concepts/storage/persistent-volumes/#selector
-  selector: {}
+  enabled: false
 
 
 ## Etcd containers' liveness and readiness probes
@@ -93,12 +70,13 @@ readinessProbe:
 ##
 affinity:
   podAntiAffinity:
-    requiredDuringSchedulingIgnoredDuringExecution:
-      - labelSelector:
-          matchExpressions:
-            - key: app.kubernetes.io/name
-              operator: In
-              values:
-                - etcd
-        topologyKey: "kubernetes.io/hostname"
-
+    preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+        podAffinityTerm:
+          labelSelector:
+            matchExpressions:
+              - key: app
+                operator: In
+                values:
+                  - etcd
+          topologyKey: "kubernetes.io/hostname"

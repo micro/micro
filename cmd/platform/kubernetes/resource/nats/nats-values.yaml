@@ -19,23 +19,29 @@ nats:
 
   tls:
     secret:
-     name: nats-server-certs
+      name: nats-server-certs
     ca: "ca.pem"
     cert: "server.pem"
-key: "server-key.pem"
+    key: "server-key.pem"
+
+  # TODO migrate to this
+  jetstream:
+    enabled: false
 
 # Affinity for pod assignment
 # ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity
 affinity:
   podAntiAffinity:
-    requiredDuringSchedulingIgnoredDuringExecution:
-      - labelSelector:
-          matchExpressions:
-            - key: app
-              operator: In
-              values:
-                - nats-cluster
-        topologyKey: "kubernetes.io/hostname"
+    preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+        podAffinityTerm:
+          labelSelector:
+            matchExpressions:
+              - key: app
+                operator: In
+                values:
+                  - nats-cluster
+          topologyKey: "kubernetes.io/hostname"
 
 cluster:
   enabled: true
@@ -46,3 +52,4 @@ cluster:
     ca: "ca.pem"
     cert: "route.pem"
     key: "route-key.pem"
+
