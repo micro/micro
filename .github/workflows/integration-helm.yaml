@@ -70,6 +70,9 @@ jobs:
         docker build -f $DIR/Dockerfile $DIR -t localhost:5000/cells:v3
         docker push localhost:5000/cells:v3
 
+    - name: Install micro
+      run: go install
+
     - name: Wait for micro to be ready
       run: |
         kubectl wait deployment --all --for=condition=available -n micro --timeout=180s

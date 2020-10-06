@@ -158,9 +158,12 @@ func Run(context *cli.Context) error {
 		if runtime.DefaultRuntime.String() == "kubernetes" {
 			switch service {
 			case "api":
-				// don't set the service address for the api. The http server will register on :8080 and we
-				// don't want the internal service to conflict.
-				port = "8080"
+				// run the api on :443, the standard port for HTTPs
+				port = "443"
+				env = append(env, "MICRO_API_ADDRESS=:443")
+				// pass :8080 for the internal service address, since this is the default port used for the
+				// static (k8s) router. Because the http api will register on :443 it won't conflict
+				env = append(env, "MICRO_SERVICE_ADDRESS=:8080")
 			case "proxy":
 				// run the proxy on :443, the standard port for HTTPs
 				port = "443"

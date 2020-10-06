@@ -85,9 +85,6 @@ The tests can then be run:
 2. `./scripts/kind-launch.sh` - install micro in to the cluster
 3. `cd test && go clean -testcache && IN_TRAVIS_CI=yes go test --tags=integration,kind -v -run ./...` - run the tests
 
-#### Adding more tests
-Not all integration tests use a server so only a subset of the tests need to run against our Kind cluster. New tests should be defined in the usual way and then added to the `testFilter` slice defined near the top of [kind.go](kind.go). This is the list of all tests to be run against Kind. 
-
 #### Running a local registry
 If you prefer not having to push your images to docker hub for them to be pulled down by your Kind cluster, you can run a local registry and build and push your images to it. We have some handy scripts to get it working.
 1. `./scripts/kind-local-reg.sh` - install and run a local registry, set up and launch the cluster to use it

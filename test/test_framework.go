@@ -30,7 +30,6 @@ var (
 	isParallel        = true
 	ignoreThisError   = errors.New("Do not use this error")
 	errFatal          = errors.New("Fatal error")
-	testFilter        = []string{}
 	maxTimeMultiplier = 1
 )
 
@@ -491,18 +490,6 @@ func New(t *testing.T) *T {
 func TrySuite(t *testing.T, f func(t *T), times int) {
 	t.Helper()
 	caller := strings.Split(getFrame(1).Function, ".")[2]
-	if len(testFilter) > 0 {
-		runit := false
-		for _, test := range testFilter {
-			if test == caller {
-				runit = true
-				break
-			}
-		}
-		if !runit {
-			t.Skip()
-		}
-	}
 	timeout := os.Getenv("MICRO_TEST_TIMEOUT")
 	td, err := time.ParseDuration(timeout)
 	if err != nil {
