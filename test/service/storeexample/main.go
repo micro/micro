@@ -7,7 +7,7 @@ import (
 )
 
 func main() {
-	srv := service.New(service.Name("example"))
+	srv := service.New(service.Name("storeexample"))
 
 	srv.Handle(new(handler.Example))
 

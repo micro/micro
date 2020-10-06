@@ -172,7 +172,7 @@ func testStoreImpl(t *T) {
 		// The started service should have the runtime name of "service/example",
 		// as the runtime name is the relative path inside a repo.
 		if !statusRunning("storeexample", "latest", outp) {
-			return outp, errors.New("Can't find example service in runtime")
+			return outp, errors.New("Can't find storeexample service in runtime")
 		}
 		return outp, err
 	}, 90*time.Second); err != nil {
@@ -191,21 +191,21 @@ func testStoreImpl(t *T) {
 	}, 60*time.Second); err != nil {
 		return
 	}
-	outp, err = cmd.Exec("call", "--request_timeout=15s", "example", "Example.TestExpiry")
+	outp, err = cmd.Exec("call", "--request_timeout=15s", "storeexample", "Example.TestExpiry")
 	if err != nil {
 		t.Fatalf("Error %s, %s", err, outp)
 	}
 
-	outp, err = cmd.Exec("call", "--request_timeout=15s", "example", "Example.TestList")
+	outp, err = cmd.Exec("call", "--request_timeout=15s", "storeexample", "Example.TestList")
 	if err != nil {
 		t.Fatalf("Error %s, %s", err, outp)
 	}
 
-	outp, err = cmd.Exec("call", "--request_timeout=15s", "example", "Example.TestListLimit")
+	outp, err = cmd.Exec("call", "--request_timeout=15s", "storeexample", "Example.TestListLimit")
 	if err != nil {
 		t.Fatalf("Error %s, %s", err, outp)
 	}
-	outp, err = cmd.Exec("call", "--request_timeout=15s", "example", "Example.TestListOffset")
+	outp, err = cmd.Exec("call", "--request_timeout=15s", "storeexample", "Example.TestListOffset")
 	if err != nil {
 		t.Fatalf("Error %s, %s", err, outp)
 	}
