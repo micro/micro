@@ -20,8 +20,8 @@ import (
 	"github.com/micro/go-micro/v3/registry/mdns"
 	"github.com/micro/go-micro/v3/registry/memory"
 	"github.com/micro/go-micro/v3/router"
+	k8sRouter "github.com/micro/go-micro/v3/router/kubernetes"
 	regRouter "github.com/micro/go-micro/v3/router/registry"
-	"github.com/micro/go-micro/v3/router/static"
 	"github.com/micro/go-micro/v3/runtime/kubernetes"
 	"github.com/micro/go-micro/v3/runtime/local"
 	"github.com/micro/go-micro/v3/server"
@@ -142,8 +142,7 @@ var Kubernetes = &Profile{
 			logger.Fatalf("Error configuring file blob store: %v", err)
 		}
 
-		SetupRouter(static.NewRouter())
-
+		SetupRouter(k8sRouter.NewRouter())
 		// todo: implement and use a store registry
 		SetupRegistry(memory.NewRegistry())
 
