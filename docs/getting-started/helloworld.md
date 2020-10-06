@@ -54,12 +54,13 @@ Successfully logged in.
 
 If all goes well you'll see log output from the server listing the services as it starts them. Just to verify that everything is in order, let's see what services are running:
 
-```
+```sh
 $ micro services
 api
 auth
 broker
 config
+events
 network
 proxy
 registry
@@ -72,13 +73,15 @@ All those services are ones started by our `micro server`. This is pretty cool, 
 
 The command to run services is `micro run`.
 
-```
-micro run github.com/micro/services/helloworld
+```sh
+$ micro status
+NAME		VERSION	SOURCE					STATUS	BUILD	UPDATED	METADATA
+helloworld	latest	github.com/micro/services/helloworld	running	n/a	4s ago	owner=admin, group=micro
 ```
 
 
 If we take a look at the running services using `micro status`, we should see the service listed:
-```
+```sh
 NAME		VERSION	SOURCE		STATUS	BUILD	UPDATED	METADATA
 helloworld	latest	helloworld	running	n/a	unknown	owner=n/a,group=n/a
 ```
@@ -87,10 +90,9 @@ We can also have a look at logs of the service to verify it's running.
 
 ```sh
 $ micro logs helloworld
-micro@Bens-MBP-3 micro % micro logs helloworld
-2020-08-11 15:18:33  file=service/service.go:192 level=info Starting [service] helloworld
-2020-08-11 15:18:33  file=grpc/grpc.go:902 level=info Server [grpc] Listening on [::]:49602
-2020-08-11 15:18:33  file=grpc/grpc.go:728 level=info Registry [service] Registering node: helloworld-c49ee2a3-e9d0-4411-9b9b-5fe6aea6b49d
+2020-10-06 17:52:21  file=service/service.go:195 level=info Starting [service] helloworld
+2020-10-06 17:52:21  file=grpc/grpc.go:902 level=info Server [grpc] Listening on [::]:33975
+2020-10-06 17:52:21  file=grpc/grpc.go:732 level=info Registry [service] Registering node: helloworld-67627b23-3336-4b92-a032-09d8d13ecf95
 ```
 
 So since our service is running happily, let's try to call it! That's what services are for.
@@ -112,10 +114,10 @@ $ micro helloworld --name=Jane
 
 ```
 
-That worked! If we wonder what nodes and endpoints a service has we can run the following command:
+That worked! If we wonder what endpoints a service has we can run the following command:
 
 ```sh
-micro get service helloworld
+micro helloworld --help
 ```
 
 ### With the framework
@@ -161,8 +163,8 @@ func main() {
 }
 ```
 
-Save the example locally. For ease of following this guide, name the folder `example-service`.
-After doing a `cd example-service && go mod init example`, we are ready to run this service with `micro run`:
+Save the example locally. For ease of following this guide, name the folder `example`.
+After doing a `cd example && go mod init example`, we are ready to run this service with `micro run`:
 
 ```
 micro run .
@@ -172,9 +174,9 @@ micro run .
 
 ```
 $ micro status
-NAME							VERSION		SOURCE																	STATUS		BUILD	UPDATED		METADATA
-example-service		latest		example-service													starting	n/a		4s ago		owner=n/a,group=n/a
-helloworld				latest		github.com/micro/services/helloworld		running		n/a		unknown		owner=n/a,group=n/a
+NAME		VERSION	SOURCE					                STATUS	BUILD	UPDATED		METADATA
+example		latest	example.tar.gz				            running	n/a 	2s ago		owner=admin, group=micro
+helloworld	latest	github.com/micro/services/helloworld	running	n/a	    5m59s ago	owner=admin, group=micro
 ```
 
 Now, since our example-service client is also running, we should be able to see it's logs:
@@ -196,18 +198,15 @@ To create a new service, use the `micro new` command. It should output something
 
 ```sh
 $ micro new helloworld
-Creating service helloworld in helloworld
+Creating service helloworld
 
 .
 ├── main.go
 ├── generate.go
-├── plugin.go
 ├── handler
-│   └── helloworld.go
-├── subscriber
-│   └── helloworld.go
-├── proto/helloworld
-│   └── helloworld.proto
+│   └── helloworld.go
+├── proto
+│   └── helloworld.proto
 ├── Dockerfile
 ├── Makefile
 ├── README.md
@@ -215,17 +214,20 @@ Creating service helloworld in helloworld
 └── go.mod
 
 
+download protoc zip packages (protoc-$VERSION-$PLATFORM.zip) and install:
+
+visit https://github.com/protocolbuffers/protobuf/releases
+
 download protobuf for micro:
 
-brew install protobuf
 go get -u github.com/golang/protobuf/proto
 go get -u github.com/golang/protobuf/protoc-gen-go
-go get github.com/micro/micro/v3/cmd/protoc-gen-micro@master
+go get github.com/micro/micro/v3/cmd/protoc-gen-micro
 
 compile the proto file helloworld.proto:
 
 cd helloworld
-protoc --proto_path=.:$GOPATH/src --go_out=. --micro_out=. proto/helloworld/helloworld.proto
+make proto
 ```
 
 As can be seen from the output above, before building the first service, the following tools must be installed:
@@ -236,12 +238,12 @@ As can be seen from the output above, before building the first service, the fol
 They are all needed to translate proto files to actual Go code.
 Protos exist to provide a language agnostic way to describe service endpoints, their input and output types, and to have an efficient serialization format at hand.
 
-Currently Micro is  Go focused (apart from the [clients](#-from-other-languages) mentioned before), but this will change soon.
+Currently Micro is Go focused (apart from the [clients](#-from-other-languages) mentioned before), but this will change soon.
 
 So once all tools are installed, being inside the service root, we can issue the following command to generate the Go code from the protos:
 
-```
-protoc --proto_path=.:$GOPATH/src --go_out=. --micro_out=. proto/helloworld.proto
+```sh
+make proto
 ```
 
 The generated code must be committed to source control, to enable other services to import the proto when making service calls (see previous section [Calling a service](#-calling-a-service).
