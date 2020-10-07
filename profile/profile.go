@@ -191,7 +191,6 @@ var Test = &Profile{
 // SetupRegistry configures the registry
 func SetupRegistry(reg registry.Registry) {
 	microRegistry.DefaultRegistry = reg
-	microRouter.DefaultRouter.Init(router.Registry(reg))
 	microServer.DefaultServer.Init(server.Registry(reg))
 	microClient.DefaultClient.Init(client.Registry(reg))
 }
