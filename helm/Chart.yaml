@@ -1,0 +1,6 @@
+apiVersion: v2
+name: micro
+description: A Helm chart for deploying Micro on Kubernete
+type: application
+version: 0.1.0
+appVersion: 3.0.0

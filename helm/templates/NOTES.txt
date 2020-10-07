@@ -1,0 +1,8 @@
+Wait for the deployment to finish by running this command
+  kubectl wait deployment --all --for=condition=available -n micro --timeout=180s
+
+Connect to Micro by port-forwarding to the proxy
+  kubectl port-forward svc/proxy -n micro 8081:443
+
+And then run this command to list your services in a new window
+  micro services
