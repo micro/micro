@@ -9,7 +9,7 @@ summary: Reference - a comprehensive look at topics
 
 # Reference
 
-References are in depth explorations of various Micro topics.
+Reference entries are in depth explorations of various Micro topics.
 
 - [Environments](environments)
 - [Self hosting](self-hosting)
