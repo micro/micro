@@ -34,5 +34,4 @@ jobs:
     - name: Create Pull Request
       uses: peter-evans/create-pull-request@v3
       with:
-        branch: pr/regen-clients
         title: "Regenerate client sdks from proto"
