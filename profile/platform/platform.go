@@ -52,7 +52,8 @@ var Profile = &profile.Profile{
 		microConfig.DefaultConfig, _ = config.NewConfig(microStore.DefaultStore, "")
 		profile.SetupBroker(nats.NewBroker(broker.Addrs("nats-cluster")))
 		profile.SetupRegistry(etcd.NewRegistry(registry.Addrs("etcd-cluster")))
-		profile.SetupJWT(ctx)
+		profile.SetupAuthRules(ctx)
+		profile.SetupAuthKeys(ctx)
 		profile.SetupConfigSecretKey(ctx)
 
 		// Set up a default metrics reporter (being careful not to clash with any that have already been set):

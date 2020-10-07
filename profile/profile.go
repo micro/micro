@@ -83,8 +83,11 @@ func Load(name string) (*Profile, error) {
 
 // Client profile is for any entrypoint that behaves as a client
 var Client = &Profile{
-	Name:  "client",
-	Setup: func(ctx *cli.Context) error { return nil },
+	Name: "client",
+	Setup: func(ctx *cli.Context) error {
+		SetupAuthKeys(ctx)
+		return nil
+	},
 }
 
 // Local profile to run locally
@@ -97,7 +100,8 @@ var Local = &Profile{
 		microConfig.DefaultConfig, _ = config.NewConfig(microStore.DefaultStore, "")
 		SetupBroker(http.NewBroker())
 		SetupRegistry(mdns.NewRegistry())
-		SetupJWT(ctx)
+		SetupAuthRules(ctx)
+		SetupAuthKeys(ctx)
 
 		// use the local runtime, note: the local runtime is designed to run source code directly so
 		// the runtime builder should NOT be set when using this implementation
@@ -131,9 +135,10 @@ var Kubernetes = &Profile{
 		// config configmap
 		// store ...
 		microAuth.DefaultAuth = jwt.NewAuth()
-		SetupJWT(ctx)
-		SetupConfigSecretKey(ctx)
+		SetupAuthKeys(ctx)
+		SetupAuthRules(ctx)
 
+		SetupConfigSecretKey(ctx)
 		return nil
 	},
 }
@@ -172,15 +177,17 @@ func SetupBroker(b broker.Broker) {
 	microServer.DefaultServer.Init(server.Broker(b))
 }
 
-// SetupJWT configures the default internal system rules
-func SetupJWT(ctx *cli.Context) {
+// SetupAuthRules configures the default internal system rules
+func SetupAuthRules(ctx *cli.Context) {
 	for _, rule := range inAuth.SystemRules {
 		if err := microAuth.DefaultAuth.Grant(rule); err != nil {
 			logger.Fatal("Error creating default rule: %v", err)
 		}
 	}
+}
 
-	// Generate public and private keys if none are provided
+// SetupAuthKeys will load the JWT keys
+func SetupAuthKeys(ctx *cli.Context) {
 	pubKey := ctx.String("auth_public_key")
 	privKey := ctx.String("auth_private_key")
 	if len(privKey) == 0 || len(pubKey) == 0 {
@@ -190,6 +197,7 @@ func SetupJWT(ctx *cli.Context) {
 			logger.Fatalf("Error getting keys: %v", err)
 		}
 	}
+
 	microAuth.DefaultAuth.Init(
 		auth.PrivateKey(privKey),
 		auth.PublicKey(pubKey),

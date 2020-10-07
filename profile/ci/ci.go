@@ -39,7 +39,8 @@ var Profile = &profile.Profile{
 		microEvents.DefaultStore = evStore.NewStore(evStore.WithStore(microStore.DefaultStore))
 		profile.SetupBroker(http.NewBroker())
 		profile.SetupRegistry(etcd.NewRegistry())
-		profile.SetupJWT(ctx)
+		profile.SetupAuthRules(ctx)
+		profile.SetupAuthKeys(ctx)
 		profile.SetupConfigSecretKey(ctx)
 
 		var err error
