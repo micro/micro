@@ -289,6 +289,25 @@ M3O and Micro 3.0 look at the state of distributed systems development in the cl
 try to drastically simplify that experience with a platform that bakes in the development model 
 so you can just get back to writing code.
 
+## Go Micro
+
+We will now be ending support for [go-micro](https://github.com/micro/go-micro). Having personally 
+spent 6 years since inception on go-micro I feel as though its time to finally let it go. What 
+started as a tiny library to help write Kubernetes-as-a-Service back in 2014 turned into a widely 
+used open source framework for Go microservices development. Having now amassed more than 14k stars 
+you might wonder why we leave it behind. The truth is, while it solved a problem for many it never 
+became what I had expected it to be.
+
+Go Micro was built on the premise that developers needs a simpler way to build distributed systems. 
+With strongly defined abstractions and a pluggable architecture it did that well but that became 
+really unweidly to manage. With an MxN matrix of complexity, Go Micro became the thing it was 
+trying to fight against. As we attempted to hone on this platform effort, it just became very 
+clear that to do that we'd need to start fresh.
+
+Go Micro will live on as an independent library under my own personal account on GitHub but 
+it will no longer be supported as an official Micro project. Hopefully it finds second life in 
+some other ways but for now we say goodbye.
+
 ## Next Steps
 
 For now our hosted offering is invite only. We want to ensure the experience provided to every developer and 
@@ -299,3 +318,5 @@ You can use the Micro 3.O as a self-hosted open source solution locally, on a VP
 whatever works for you. Come join [Discord](https://discord.gg/hbmJEct) or [Slack](https://slack.m3o.com) 
 to chat more about it.
 
+<br>
+_Written by Asim Aslam_
