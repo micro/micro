@@ -90,11 +90,6 @@ func init() {
 					EnvVars: []string{"MICRO_ADDRESS"},
 				},
 				&cli.StringFlag{
-					Name:    "network",
-					Usage:   "Set the network of the service instance to call",
-					EnvVars: []string{"MICRO_NETWORK"},
-				},
-				&cli.StringFlag{
 					Name:    "output, o",
 					Usage:   "Set the output format; json (default), raw",
 					EnvVars: []string{"MICRO_OUTPUT"},

@@ -191,21 +191,21 @@ func testStoreImpl(t *T) {
 	}, 60*time.Second); err != nil {
 		return
 	}
-	outp, err = cmd.Exec("call", "--request_timeout=15s", "storeexample", "Example.TestExpiry")
+	outp, err = cmd.Exec("call", "--request_timeout=15s", "example", "Example.TestExpiry")
 	if err != nil {
 		t.Fatalf("Error %s, %s", err, outp)
 	}
 
-	outp, err = cmd.Exec("call", "--request_timeout=15s", "storeexample", "Example.TestList")
+	outp, err = cmd.Exec("call", "--request_timeout=15s", "example", "Example.TestList")
 	if err != nil {
 		t.Fatalf("Error %s, %s", err, outp)
 	}
 
-	outp, err = cmd.Exec("call", "--request_timeout=15s", "storeexample", "Example.TestListLimit")
+	outp, err = cmd.Exec("call", "--request_timeout=15s", "example", "Example.TestListLimit")
 	if err != nil {
 		t.Fatalf("Error %s, %s", err, outp)
 	}
-	outp, err = cmd.Exec("call", "--request_timeout=15s", "storeexample", "Example.TestListOffset")
+	outp, err = cmd.Exec("call", "--request_timeout=15s", "example", "Example.TestListOffset")
 	if err != nil {
 		t.Fatalf("Error %s, %s", err, outp)
 	}
