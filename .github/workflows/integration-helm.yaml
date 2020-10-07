@@ -1,9 +1,9 @@
-name: Kubernetes profile integration tests
+name: Kubernetes profile
 on: [push]
 
 jobs:
   test:
-    name: K8s integration tests
+    name: Integration tests
     runs-on: ubuntu-latest
     env: 
       DOCKER_BUILDKIT: '1'

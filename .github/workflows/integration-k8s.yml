@@ -1,4 +1,4 @@
-name: K8s integration tests
+name: Platform psrofile
 on: [push]
   # schedule:
   #   # * is a special character in YAML so you have to quote this string
@@ -7,7 +7,7 @@ on: [push]
 jobs:
 
   test:
-    name: K8s integration tests
+    name: Integration tests
     runs-on: ubuntu-latest
     env: 
       DOCKER_BUILDKIT: '1'
