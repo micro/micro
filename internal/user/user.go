@@ -73,7 +73,7 @@ func setupConfigSecretKey(path string) error {
 // GetJWTCerts returns local keys or generates and returns them for JWT auth.GetJWTCerts
 // This is only here for "0 dep", so people don't have to create and load the certs themselves,
 // not really intended for serious production use.
-func GetJWTCerts() ([]byte, []byte, error) {
+func GetJWTCerts() (string, string, error) {
 	privKey := filepath.Join(Dir, "id_rsa")
 	pubKey := filepath.Join(Dir, "id_rsa.pub")
 
@@ -81,18 +81,18 @@ func GetJWTCerts() ([]byte, []byte, error) {
 	if !fileExists(privKey) || !fileExists(pubKey) {
 		err := setupKeys(privKey, pubKey)
 		if err != nil {
-			return nil, nil, err
+			return "", "", err
 		}
 	}
 	privDat, err := ioutil.ReadFile(privKey)
 	if err != nil {
-		return nil, nil, err
+		return "", "", err
 	}
 	pubDat, err := ioutil.ReadFile(pubKey)
 	if err != nil {
-		return nil, nil, err
+		return "", "", err
 	}
-	return privDat, pubDat, nil
+	return string(privDat), string(pubDat), nil
 }
 
 func setupKeys(privKey, pubKey string) error {
