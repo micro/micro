@@ -1,23 +1,32 @@
 ## Roadmap
 
-This is a high level overview for the open source. See [m3o/dev](https://github.com/m3o/dev) for further info.
+This is a high level overview for the open source software.
+
+## Overview
+
+The roadmap is currently a work in progress. You can see the majority of the work being done at 
+[m3o/dev](https://github.com/m3o/dev).
+
+## High Level
+
+Below are high level features or things we want to get done.
 
 - [X] consolidate all libraries into go-micro
 - [X] gRPC API for the micro proxy
 - [X] quic as a default transport
 - [X] nats as a default broker
-- [x] [gRPC](design/framework/grpc.md) integration and interop
+- [x] gRPC integration and interop
 - [x] embedded nats as the default broker
-- [x] go, java, typescript, ruby, python [clients](https://github.com/micro/clients)
+- [x] go, java, typescript, ruby, python clients
 - [x] standalone micro server
 - [x] better documentation and end to end tutorials
-- [ ] simpler kubernetes integration by default
-- [ ] pluggable wrappers for go-micro itself
-- [ ] dynamically defined cli, flags and env vars
-- [ ] improved micro api configuration
+- [x] dynamically defined cli, flags and env vars
+- [ ] simpler kubernetes integration and deployment using helm
+- [ ] pluggable wrappers for micro for cors, tracing, logging
+- [ ] improved micro api configuration to define endpoints and hosts
 - [ ] graphql handler for the micro api
 - [ ] wireguard support in the micro network
 - [ ] reusable foundation [services](https://github.com/micro/services)
-- [ ] define the mucp protocol
-- [ ] define the mu language spec
+- [ ] define the mucp protocol for server to server communication
+- [ ] define the mu language spec as a high level DSL
 - [ ] implement the [wasm](https://github.com/bytecodealliance/wasm-micro-runtime) runtime
