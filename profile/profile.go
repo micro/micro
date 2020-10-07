@@ -99,7 +99,6 @@ var Local = &Profile{
 		microConfig.DefaultConfig, _ = config.NewConfig(microStore.DefaultStore, "")
 		SetupBroker(http.NewBroker())
 		SetupRegistry(mdns.NewRegistry())
-		SetupRouter(regRouter.NewRouter(router.Registry(microRegistry.DefaultRegistry)))
 		SetupJWT(ctx)
 
 		// use the local runtime, note: the local runtime is designed to run source code directly so
@@ -148,7 +147,7 @@ var Kubernetes = &Profile{
 		// the registry service uses the memory registry, the other core services will use the default
 		// rpc client and call the registry service
 		if ctx.Args().Get(1) == "registry" {
-			SetupRegistry(memory.NewRegistry())
+			microRegistry.DefaultRegistry = memory.NewRegistry()
 		}
 
 		// the broker service uses the memory broker, the other core services will use the default
@@ -163,7 +162,7 @@ var Kubernetes = &Profile{
 		}
 		SetupConfigSecretKey(ctx)
 
-		SetupRouter(k8sRouter.NewRouter())
+		microRouter.DefaultRouter = k8sRouter.NewRouter()
 		return nil
 	},
 }
@@ -183,7 +182,6 @@ var Test = &Profile{
 		microStore.DefaultBlobStore, _ = file.NewBlobStore()
 		microConfig.DefaultConfig, _ = config.NewConfig(microStore.DefaultStore, "")
 		SetupRegistry(memory.NewRegistry())
-		SetupRouter(regRouter.NewRouter(router.Registry(microRegistry.DefaultRegistry)))
 		return nil
 	},
 }
@@ -191,14 +189,7 @@ var Test = &Profile{
 // SetupRegistry configures the registry
 func SetupRegistry(reg registry.Registry) {
 	microRegistry.DefaultRegistry = reg
-	microServer.DefaultServer.Init(server.Registry(reg))
-	microClient.DefaultClient.Init(client.Registry(reg))
-}
-
-// SetupRouter configures the router. Should be called before SetupRegistry.
-func SetupRouter(rtr router.Router) {
-	microRouter.DefaultRouter = rtr
-	microClient.DefaultClient.Init(client.Router(rtr))
+	microRouter.DefaultRouter = regRouter.NewRouter(router.Registry(reg))
 }
 
 // SetupBroker configures the broker

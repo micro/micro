@@ -39,6 +39,7 @@ import (
 	muclient "github.com/micro/micro/v3/service/client"
 	muconfig "github.com/micro/micro/v3/service/config"
 	muregistry "github.com/micro/micro/v3/service/registry"
+	murouter "github.com/micro/micro/v3/service/router"
 	muruntime "github.com/micro/micro/v3/service/runtime"
 	muserver "github.com/micro/micro/v3/service/server"
 	mustore "github.com/micro/micro/v3/service/store"
@@ -515,6 +516,7 @@ func (c *command) Before(ctx *cli.Context) error {
 	muclient.DefaultClient.Init(
 		client.Broker(mubroker.DefaultBroker),
 		client.Registry(muregistry.DefaultRegistry),
+		client.Router(murouter.DefaultRouter),
 	)
 	muserver.DefaultServer.Init(
 		server.Broker(mubroker.DefaultBroker),
