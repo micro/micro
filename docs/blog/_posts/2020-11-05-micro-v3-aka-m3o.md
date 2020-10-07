@@ -2,7 +2,7 @@
 layout:	post
 author: Asim Aslam
 title:	"Micro 3.0 aka M3O is a platform for cloud native development"
-date:	2020-10-05 10:00:00
+date:	2020-11-05 10:00:00
 ---
 
 This is the official announcement for the release of Micro 3.0 better known as M3O. Our 3.0 release is a 
@@ -338,7 +338,7 @@ You can find other interesting resources at [Awesome Micro](https://github.com/m
 
 We really believe that writing software for the cloud is too hard. That there's far too much choice and 
 time wasted focusing on how to piece everything together. There are tradeoffs to adopting a PaaS but 
-ultimately what our focus is **developer productivity**. By choosing one tool and one way we stop thinking 
+ultimately our focus is **developer productivity**. By choosing one tool and one way we stop thinking 
 about the how and just get down to what we're trying to build.
 
 M3O and Micro 3.0 look at the state of distributed systems development in the cloud native era and 
@@ -354,7 +354,7 @@ used open source framework for Go microservices development. Having now amassed 
 you might wonder why we leave it behind. The truth is, while it solved a problem for many it never 
 became what I had expected it to be.
 
-Go Micro was built on the premise that developers needs a simpler way to build distributed systems. 
+Go Micro was built on the premise that developers need a simpler way to build distributed systems. 
 With strongly defined abstractions and a pluggable architecture it did that well but that became 
 really unweidly to manage. With an MxN matrix of complexity, Go Micro became the thing it was 
 trying to fight against. As we attempted to hone on this platform effort, it just became very 
