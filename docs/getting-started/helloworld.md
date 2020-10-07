@@ -117,7 +117,32 @@ $ micro helloworld --name=Jane
 That worked! If we wonder what endpoints a service has we can run the following command:
 
 ```sh
-micro helloworld --help
+$ micro helloworld --help
+NAME:
+	micro helloworld
+
+VERSION:
+	latest
+
+USAGE:
+	micro helloworld [command]
+
+COMMANDS:
+	call
+```
+
+To see the flags for subcommands of `helloworld`:
+
+```sh
+$ micro helloworld call --help
+NAME:
+	micro helloworld call
+
+USAGE:
+	micro helloworld call [flags]
+
+FLAGS:
+	--name string
 ```
 
 ### With the framework
@@ -179,9 +204,9 @@ example		latest	example.tar.gz				            running	n/a 	2s ago		owner=admin, 
 helloworld	latest	github.com/micro/services/helloworld	running	n/a	    5m59s ago	owner=admin, group=micro
 ```
 
-Now, since our example-service client is also running, we should be able to see it's logs:
+Now, since our example service client is also running, we should be able to see it's logs:
 ```sh
-$ micro logs example-service
+$ micro logs example
 # some go build output here
 Response:  Hello John
 ```
@@ -254,23 +279,6 @@ We have everything at our fingertips, but there are still some missing pieces to
 ## Storage
 
 Amongst many other useful built-in services Micro includes a persistent storage service for storing data.
-
-### Interfaces as building blocks
-
-A quick side note. Micro (the server/CLI) and Go Micro (the framework) are centered around strongly defined interfaces which are pluggable and provide an abstraction for underlying distributed systems concepts. What does this mean?
-
-Let's take our current case of the [store interface](https://github.com/micro/go-micro/blob/master/store/store.go). It's aimed to enable service writers data storage with a couple of different implementations:
-
-* in memory
-* file storage (default when running `micro server`)
-* cockroachdb
-
-Similarly, the [runtime](https://github.com/micro/go-micro/blob/master/runtime/runtime.go) interface, that allows you to run services in a completely runtime agnostic way has a few implementations:
-
-* local, which just runs actual processes - aimed at local development
-* kubernetes - for running containers in a highly available and distributed way
-
-This is a recurring theme across Micro interfaces. Let's take a look at the default store when running `micro server`.
 
 ### Using the Store
 
@@ -367,40 +375,33 @@ Now since the example service is running (can be easily verified by `micro statu
 
 We can simply issue the update command (remember to switch back to the root directory of the example service first):
 
-```
+```sh
 micro update .
 ```
 
-And verify both with the micro server output:
+And verify both with micro status:
 
-```
-Updating service example-service version latest source /home/username/example-service
-Processing update event example-service:latest in namespace default
-```
-
-and micro status:
-
-```
-$ micro status example-service
-NAME			VERSION	SOURCE							STATUS		BUILD	UPDATED		METADATA
-example-service	latest	example-service.tar.gz			running	n/a	unknown	owner=n/a,group=n/a
+```sh
+$ micro status example
+NAME	VERSION	SOURCE	STATUS	BUILD	UPDATED	METADATA
+example	latest	n/a		running	n/a		7s ago	owner=admin, group=micro
 ```
 
 that it was updated.
 
 If things for some reason go haywire, we can try the time tested "turning it off and on again" solution and do:
 
-```
-micro kill example-service
-micro run example-service
+```sh
+micro kill example
+micro run .
 ```
 
 to start with a clean slate.
 
 So once we did update the example service, we should see the following in the logs:
 
-```
-$ micro logs example-service
+```sh
+$ micro logs example
 key: mykey, value: Hi there
 ```
 
@@ -461,13 +462,14 @@ func main() {
 	srv.Init()
 
 	// read config value
-	fmt.Println("Value of key.subkey: ", config.Get("key", "subkey").String(""))
+	val, _ := config.Get("key", "subkey")
+	fmt.Println("Value of key.subkey: ", val.String(""))
 }
 ```
 
-Assuming the folder name for this service is still `example-service` (to update the existing service, [see updating a service](#-updating-a-service)):
+Assuming the folder name for this service is still `example` (to update the existing service, [see updating a service](#-updating-a-service)):
 ```
-$ micro logs example-service
+$ micro logs example
 Value of key.subkey:  val
 ```
 
