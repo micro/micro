@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/micro/go-micro/v3/auth"
 	"github.com/micro/go-micro/v3/auth/jwt"
 	"github.com/micro/go-micro/v3/auth/noop"
 	"github.com/micro/go-micro/v3/broker"
@@ -210,28 +209,28 @@ func SetupBroker(b broker.Broker) {
 	microServer.DefaultServer.Init(server.Broker(b))
 }
 
-// SetupJWT configures the default internal system rules
+// SetupJWTRules configures the default internal system rules
 func SetupJWT(ctx *cli.Context) {
 	for _, rule := range inAuth.SystemRules {
 		if err := microAuth.DefaultAuth.Grant(rule); err != nil {
 			logger.Fatal("Error creating default rule: %v", err)
 		}
 	}
+	// Only set this up for core services
+	// Won't work for multi node environments, could use
+	// the file store for that.
 
-	// Generate public and private keys if none are provided
 	pubKey := ctx.String("auth_public_key")
 	privKey := ctx.String("auth_private_key")
 	if len(privKey) == 0 || len(pubKey) == 0 {
-		var err error
-		privKey, pubKey, err = user.GetJWTCerts()
+		privB, pubB, err := user.GetJWTCerts()
 		if err != nil {
 			logger.Fatalf("Error getting keys: %v", err)
 		}
+		os.Setenv("MICRO_AUTH_PRIVATE_KEY", string(privB))
+		os.Setenv("MICRO_AUTH_PUBLIC_KEY", string(pubB))
 	}
-	microAuth.DefaultAuth.Init(
-		auth.PrivateKey(privKey),
-		auth.PublicKey(pubKey),
-	)
+
 }
 
 func SetupConfigSecretKey(ctx *cli.Context) {
