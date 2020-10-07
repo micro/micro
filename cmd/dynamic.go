@@ -8,6 +8,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"unicode"
 
 	goclient "github.com/micro/go-micro/v3/client"
 	goregistry "github.com/micro/go-micro/v3/registry"
@@ -71,7 +72,11 @@ func formatServiceUsage(srv *goregistry.Service, c *cli.Context) string {
 	endpoints := make([]*goregistry.Endpoint, len(srv.Endpoints))
 	for i, e := range srv.Endpoints {
 		// map "Helloworld.Call" to "helloworld.call"
-		name := strings.ToLower(e.Name)
+		parts := strings.Split(e.Name, ".")
+		for i, part := range parts {
+			parts[i] = lowcaseInitial(part)
+		}
+		name := strings.Join(parts, ".")
 
 		// remove the prefix if it is the service name, e.g. rather than
 		// "micro run helloworld helloworld call", it would be
@@ -107,6 +112,13 @@ func formatServiceUsage(srv *goregistry.Service, c *cli.Context) string {
 	}
 
 	return result
+}
+
+func lowcaseInitial(str string) string {
+	for i, v := range str {
+		return string(unicode.ToLower(v)) + str[i+1:]
+	}
+	return ""
 }
 
 func renderFlags(endpoint *goregistry.Endpoint) string {
