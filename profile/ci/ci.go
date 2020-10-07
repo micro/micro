@@ -7,6 +7,7 @@ import (
 	config "github.com/micro/go-micro/v3/config/store"
 	evStore "github.com/micro/go-micro/v3/events/store"
 	memStream "github.com/micro/go-micro/v3/events/stream/memory"
+	"github.com/micro/go-micro/v3/router"
 	regRouter "github.com/micro/go-micro/v3/router/registry"
 	"github.com/micro/go-micro/v3/runtime/local"
 	"github.com/micro/go-micro/v3/store/file"
@@ -17,6 +18,7 @@ import (
 	microAuth "github.com/micro/micro/v3/service/auth"
 	microConfig "github.com/micro/micro/v3/service/config"
 	microEvents "github.com/micro/micro/v3/service/events"
+	microRegistry "github.com/micro/micro/v3/service/registry"
 	microRuntime "github.com/micro/micro/v3/service/runtime"
 	microStore "github.com/micro/micro/v3/service/store"
 
@@ -39,8 +41,8 @@ var Profile = &profile.Profile{
 		microEvents.DefaultStream, _ = memStream.NewStream()
 		microEvents.DefaultStore = evStore.NewStore(evStore.WithStore(microStore.DefaultStore))
 		profile.SetupBroker(http.NewBroker())
-		profile.SetupRouter(regRouter.NewRouter())
 		profile.SetupRegistry(etcd.NewRegistry())
+		profile.SetupRouter(regRouter.NewRouter(router.Registry(microRegistry.DefaultRegistry)))
 		profile.SetupJWT(ctx)
 		profile.SetupConfigSecretKey(ctx)
 

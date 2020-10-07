@@ -99,8 +99,8 @@ var Local = &Profile{
 		SetupConfigSecretKey(ctx)
 		microConfig.DefaultConfig, _ = config.NewConfig(microStore.DefaultStore, "")
 		SetupBroker(http.NewBroker())
-		SetupRouter(regRouter.NewRouter())
 		SetupRegistry(mdns.NewRegistry())
+		SetupRouter(regRouter.NewRouter(router.Registry(microRegistry.DefaultRegistry)))
 		SetupJWT(ctx)
 
 		// use the local runtime, note: the local runtime is designed to run source code directly so
@@ -183,8 +183,8 @@ var Test = &Profile{
 		microStore.DefaultStore = mem.NewStore()
 		microStore.DefaultBlobStore, _ = file.NewBlobStore()
 		microConfig.DefaultConfig, _ = config.NewConfig(microStore.DefaultStore, "")
-		SetupRouter(regRouter.NewRouter())
 		SetupRegistry(memory.NewRegistry())
+		SetupRouter(regRouter.NewRouter(router.Registry(microRegistry.DefaultRegistry)))
 		return nil
 	},
 }

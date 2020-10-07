@@ -12,6 +12,7 @@ import (
 	config "github.com/micro/go-micro/v3/config/store"
 	evStore "github.com/micro/go-micro/v3/events/store"
 	"github.com/micro/go-micro/v3/registry"
+	"github.com/micro/go-micro/v3/router"
 	regRouter "github.com/micro/go-micro/v3/router/registry"
 	"github.com/micro/go-micro/v3/runtime/kubernetes"
 	"github.com/micro/go-micro/v3/store"
@@ -24,6 +25,7 @@ import (
 	microConfig "github.com/micro/micro/v3/service/config"
 	microEvents "github.com/micro/micro/v3/service/events"
 	microMetrics "github.com/micro/micro/v3/service/metrics"
+	microRegistry "github.com/micro/micro/v3/service/registry"
 	microRuntime "github.com/micro/micro/v3/service/runtime"
 	microBuilder "github.com/micro/micro/v3/service/runtime/builder"
 	buildSrv "github.com/micro/micro/v3/service/runtime/builder/client"
@@ -52,7 +54,7 @@ var Profile = &profile.Profile{
 		microStore.DefaultStore = cockroach.NewStore(store.Nodes(ctx.String("store_address")))
 		microConfig.DefaultConfig, _ = config.NewConfig(microStore.DefaultStore, "")
 		profile.SetupBroker(nats.NewBroker(broker.Addrs("nats-cluster")))
-		profile.SetupRouter(regRouter.NewRouter())
+		profile.SetupRouter(regRouter.NewRouter(router.Registry(microRegistry.DefaultRegistry)))
 		profile.SetupRegistry(etcd.NewRegistry(registry.Addrs("etcd-cluster")))
 		profile.SetupJWT(ctx)
 		profile.SetupConfigSecretKey(ctx)
