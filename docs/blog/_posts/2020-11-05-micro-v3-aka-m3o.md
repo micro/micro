@@ -301,7 +301,7 @@ NAMESPACE=$(micro user namespace)
 curl "https://$NAMESPACE.m3o.app/helloworld?name=Alice"
 ```
 
-Easy right? We see this as the common flow for most service development. Its a fast iterative step 
+Easy right? We see this as the common flow for most service development. Its a fast iterative loop
 from generating a new template to shipping it and querying to make sure it works. There's 
 additional stuff in the developer experience like actually writing the service but we think that's 
 a separate post.
