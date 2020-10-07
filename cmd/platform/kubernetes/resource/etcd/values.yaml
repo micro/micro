@@ -1,0 +1,70 @@
+## Global Docker image parameters
+## Please, note that this will override the image parameters, including dependencies, configured to use the global value
+## Current available global Docker image parameters: imageRegistry and imagePullSecrets
+##
+# global:
+#   imageRegistry: myRegistryName
+#   imagePullSecrets:
+#     - myRegistryKeySecretName
+#   storageClass: myStorageClass
+
+## Statefulset parameters
+##
+statefulset:
+  ## Number of replicas
+  ##
+  replicaCount: 3
+
+
+## Authentication parameteres
+## https://github.com/bitnami/bitnami-docker-etcd#security
+##
+auth:
+  rbac:
+    enabled: false
+
+  client:
+    ## Switch to encrypt client communication using TLS certificates
+    ##
+    secureTransport: true
+    ## Switch to enable host authentication using TLS certificates. Requires existing secret.
+    ##
+    enableAuthentication: true
+    ## Name of the existing secret containing cert files for client communication.
+    ##
+    existingSecret: etcd-server-certs
+
+  peer:
+    ## Switch to encrypt peer communication using TLS certificates
+    ##
+    secureTransport: true
+    ## Switch to enable host authentication using TLS certificates. Requires existing secret.
+    ##
+    enableAuthentication: true
+    ## Name of the existing secret containing cert files for peer communication.
+    ##
+    existingSecret: etcd-peer-certs
+
+
+## Etcd containers' liveness and readiness probes
+## ref: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/#container-probes
+##
+livenessProbe:
+  enabled: false
+
+readinessProbe:
+  enabled: false
+
+## Affinity for pod assignment
+## Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity
+##
+affinity:
+  podAntiAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+    - labelSelector:
+        matchExpressions:
+          - key: app.kubernetes.io/name
+            operator: In
+            values:
+              - etcd
+      topologyKey: "kubernetes.io/hostname"
