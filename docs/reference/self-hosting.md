@@ -18,8 +18,8 @@ Once the server is running and its 8081 port is exposed to the outside world, it
 
 ## Using etcd for service discovery
 
-TODO
+@TODO
 
 ## Using kubernetes for runtime
 
-TODO
+@TODO
