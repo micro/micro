@@ -15,9 +15,9 @@ Below are high level features or things we want to get done.
 - [X] gRPC API for the micro proxy
 - [X] quic as a default transport
 - [X] nats as a default broker
-- [x] [gRPC](design/framework/grpc.md) integration and interop
+- [x] gRPC integration and interop
 - [x] embedded nats as the default broker
-- [x] go, java, typescript, ruby, python [clients](https://github.com/micro/clients)
+- [x] go, java, typescript, ruby, python clients
 - [x] standalone micro server
 - [x] better documentation and end to end tutorials
 - [x] dynamically defined cli, flags and env vars
