@@ -253,7 +253,7 @@ gives too much back. We're looking for a happy medium. One that doesn't require 
 containers but on the other side doesn't limit us to monolithic development.
 
 Micro has always focused on the practice of distributed systems development or microservices. The idea 
-or breaking down large monolithic apps into smaller separate services that do one thing well. To do 
+of breaking down large monolithic apps into smaller separate services that do one thing well. To do 
 this we think you really have to bake the development model into the platform.
 
 What we include is the concept of a Service which contains a Client and Server for both handling 
