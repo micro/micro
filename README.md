@@ -43,6 +43,13 @@ Run the server locally
 micro server
 ```
 
+Login to the server
+
+```
+# user: admin pass: micro
+micro login
+```
+
 Create a service
 
 ```
