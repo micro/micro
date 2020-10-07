@@ -59,7 +59,7 @@ func ServerAuth(t *T) {
 	}
 
 	if err := Try("Try to get token with default account", t, func() ([]byte, error) {
-		outp, err := cmd.Exec("call", "--network", "micro", "auth", "Auth.Token", `{"id":"admin","secret":"micro"}`)
+		outp, err := cmd.Exec("call", "auth", "Auth.Token", `{"id":"admin","secret":"micro"}`)
 		if err != nil {
 			return outp, err
 		}
@@ -267,7 +267,7 @@ func testUsernameLogin(t *T) {
 	}
 
 	cmd := serv.Command()
-	outp, err := cmd.Exec("call", "--network", "micro", "auth", "Auth.Generate", `{"id":"someID", "name":"someUsername", "secret":"password"}`)
+	outp, err := cmd.Exec("call", "auth", "Auth.Generate", `{"id":"someID", "name":"someUsername", "secret":"password"}`)
 	if err != nil {
 		t.Fatalf("Error generating account %s %s", string(outp), err)
 	}
@@ -286,7 +286,7 @@ func testUsernameLogin(t *T) {
 	}
 
 	// test we can't create an account with the same name but different ID
-	outp, err = cmd.Exec("call", "--network", "micro", "auth", "Auth.Generate", `{"id":"someID2", "name":"someUsername", "secret":"password1"}`)
+	outp, err = cmd.Exec("call", "auth", "Auth.Generate", `{"id":"someID2", "name":"someUsername", "secret":"password1"}`)
 	if err == nil {
 		// shouldn't let us create something with the same username
 		t.Fatalf("Expected error when generating account %s %s", string(outp), err)

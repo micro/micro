@@ -18,7 +18,6 @@ import (
 	"github.com/micro/micro/v3/client/cli/util"
 	proto "github.com/micro/micro/v3/proto/debug"
 	"github.com/micro/micro/v3/service/client"
-	mucontext "github.com/micro/micro/v3/service/context"
 	"github.com/micro/micro/v3/service/registry"
 	"github.com/urfave/cli/v2"
 
@@ -239,9 +238,6 @@ func CallService(c *cli.Context, args []string) ([]byte, error) {
 	}
 
 	ctx := callContext(c)
-	if ns := c.String("network"); len(ns) > 0 {
-		ctx = mucontext.WithNamespace(ns)
-	}
 
 	creq := client.DefaultClient.NewRequest(service, endpoint, request, goclient.WithContentType("application/json"))
 
