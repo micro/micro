@@ -7,7 +7,6 @@ require (
 	github.com/boltdb/bolt v1.3.1
 	github.com/chzyer/readline v0.0.0-20180603132655-2972be24d48e
 	github.com/dustin/go-humanize v1.0.0
-	github.com/fsnotify/fsnotify v1.4.9
 	github.com/go-acme/lego/v3 v3.4.0
 	github.com/golang/protobuf v1.4.2
 	github.com/google/uuid v1.1.2
