@@ -60,6 +60,8 @@ message CreateOptions {
 	map<string,string> secrets = 8;
 	// entrypoint within the source
 	string entrypoint = 9;
+	// volumes to mount
+	map<string,string> volumes = 10;
 }
 
 message CreateRequest {
