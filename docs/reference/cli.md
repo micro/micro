@@ -3,7 +3,7 @@ title: CLI usage
 keywords: micro
 tags: [micro]
 sidebar: home_sidebar
-permalink: /reference-cli
+permalink: /reference/cli
 summary: A CLI usage guide
 ---
 
