@@ -106,7 +106,7 @@ func formatServiceUsage(srv *goregistry.Service, c *cli.Context) string {
 	} else {
 		result += fmt.Sprintf("NAME:\n\tmicro %v\n\n", alias)
 		result += fmt.Sprintf("VERSION:\n\t%v\n\n", srv.Version)
-		result += fmt.Sprintf("USAGE:\n\tmicro %v [flags] [command]\n\n", alias)
+		result += fmt.Sprintf("USAGE:\n\tmicro %v [command]\n\n", alias)
 		result += fmt.Sprintf("COMMANDS:\n\t%v\n", strings.Join(commands, "\n\t"))
 
 	}
