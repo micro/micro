@@ -2,7 +2,7 @@
 layout:	post
 author: Asim Aslam
 title:	"Micro 3.0 aka M3O is a platform for cloud native development"
-date:	2020-11-05 10:00:00
+date:	2020-10-05 10:00:00
 ---
 
 This is the official announcement for the release of Micro 3.0 better known as M3O. Our 3.0 release is a 
@@ -34,32 +34,50 @@ question and one we've covered before. We saw go-micro as a framework and micro 
 words were basically empty and meaningless because multiple projects working in coordination really need a 
 crisp story that makes sense and we didn't have one.
 
-In 2020 we're looking to rectify that but let's first let's talk about platforms in 2020.
+In 2020 we're looking to rectify that but let's first let's talk about platforms.
 
 ## PaaS in 2020
 
-The world exploded with a proliferation of "cloud native" tooling in the past 5 years as containers and 
-container orchestration took centre stage. More specifically, Docker and Kubernetes have redefined the 
+5 years ago the world exploded with a proliferation of "cloud native" tooling as containers and 
+container orchestration took centre stage. More specifically, Docker and Kubernetes redefined the 
 technology landscape along with a more conscious move towards building software in the cloud.
 
 Micro took a forward looking view even as far back as 2015. It was clear distributed systems and cloud native 
-was going to become the dominant model for backend services development over the coming years but it wasn't clear 
-just how long we'd spend wrangling all sorts tools like docker, kubernetes, grpc, istio and everything else. 
-It felt like we were rebuilding the stack and weren't really ready to talk about development.
+was going to become the dominant model for backend services development over the coming years but, what wasn't clear 
+is just how long we'd spend wrangling all sorts tools like docker, kubernetes, grpc, istio and everything else. 
+It felt like we were rebuilding the stack and weren't really ready to talk about development aspects of it all.
 
-In fact in that time, people mostly wanted to kick the tyres on all these tools and piece something together. 
+In fact at that time, people mostly wanted to kick the tyres on all these tools and piece something together. 
 Running kubernetes yourself became all the rage and even using service mesh as the holy grail for solving 
-all your distributed systems problems. However people have come to realise while all of this tech is fun 
-it's not actually solving developer problems.  
+all your distributed systems problems. Many of us have come to realise while all of this tech is fun 
+it's not actually solving development problems.  
 
 We've gotten to the point of managed kubernetes and even things like Google Cloud Run or DigitalOcean App 
 Platform, but none of these things are helping with a development model for a cloud native era. Our 
 frustrations with the existing developer experience have grown and Micro felt like something that 
-could solve for all that, if we took a drastic step to overhaul it.
+could solve for all that, but only if we took a drastic step to overhaul it.
 
 We think PaaS 3.0 is not just about running your container or even your source code but something that 
 encapsulates the entire developer experience including a model for writing code for the cloud. Based on that 
 Micro 3.0 aka M3O is a platform for cloud native development.
+
+## Cloud Native
+
+What is cloud native? What does it mean to build for the cloud? What is a cloud service?
+
+Cloud native is basically a descriptive term for something that was built to run in the cloud. That's it. It's not 
+magic, it might sound like a buzzword, but the reality is it simply means, that piece of software was built 
+to run in the cloud. How does that differ from the way we used to build before? Well the idea behind the cloud 
+is that its ephemeral, scalable and everything can be accessed via an API.
+
+Our expectation for services running in the cloud is that they're mostly stateless, leveraging external services 
+for the persistence, that they are identified by name rather than IP address and they themselves provide an 
+API that can be consumed by multiple clients such as web, mobile and cli or other services. 
+
+Cloud native applications are horizontally scalable and operate within domain boundaries that divide them as 
+separate apps which communicate over the network via their APIs rather than as one monolithic entity. 
+We think cloud services require a fundamentally different approach to software creation and why Micro 3.0 
+was designed with this in mind.
 
 ## Micro 3.0 aka M3O
 
@@ -123,10 +141,10 @@ see Go as the dominant language for the cloud and believe most backend services 
 that reason we continue to include a Service Library which acts as a framework for building your services and accessing 
 the underlying systems of the server.
 
-The Service Library provides everything packaged in a convenient `service.New` function which lets you register 
-endpoints and run it all without having to think about the details. It pre-initialises all the dependencies and 
-gets out of your way.
-
+The Service Library provides pre-initialised packages for all of the features of the server and creates a convenient 
+initialiser for defining your own services starting with `service.New`. A Service has a name, endpoints, contains 
+a server of its own and a client to query other services. The library does enough for you but then attempts to 
+get out of your way so the rest is up to you.
 
 A main package for a Micro service looks something like this
 
@@ -155,7 +173,7 @@ func main() {
 }
 ```
 
-When you want to make use of something like Config
+When you want to make use of something like the Config service just import it like so.
 
 ```
 import "github.com/micro/micro/v3/service/config"
@@ -214,7 +232,40 @@ get's a namespace. That namespace has its own isolated set of users and resource
 When you make any request as a user or service, a JWT token is passed with that so the 
 underlying systems can route to the appropriate resources.
 
-## Source to Running in Just Ten Commands
+### Source to Running 
+
+Micro was built out of a frustration with the existing tools out there. One of the things I've really 
+been saying for a long time is that I wanted "source to running" in just one command. With 
+Heroku we sort of got that but it really took too much away from us. Back in 2010 Heroku was focused 
+on monolithic Rails development. Since then I've really said Heroku took too much away and AWS gave 
+too much back. We needed something in between.
+
+Micro can take your source code, from a local directory or a repo thats hosted on github, gitlab or bitbucket. 
+In one command it will upload or pull from the relevant place, package it as a container and 
+run it. That's it. Source to running in just one command. No more dealing need to deal with the pipeline, 
+no more hacking away at containers and the container registries. Write some code and run it.
+
+### Development Model
+
+Source to running is cool. It's what a PaaS is really for but one thing that's really been lacking even 
+with the new PaaS boom is a development model. As I eluded to, Heroku takes too much away and AWS 
+gives too much back. We're looking for a happy medium. One that doesn't require us to rely on VMs or 
+containers but on the other side doesn't limit us to monolithic development.
+
+Micro has always focused on the practice of distributed systems development or microservices. The idea 
+or breaking down large monolithic apps into smaller separate services that do one thing well. To do 
+this we think you really have to bake the development model into the platform.
+
+What we include is the concept of a Service which contains a Client and Server for both handling 
+requests and making queries to other services. We focus on standardisation around protobuf for API 
+definitions and using gRPC for the networking layering. 
+
+Not only that we're including pubsub for an event streaming architecture and other pieces like 
+nosql key-value storage and dynamic config management. We believe there are specific primitives 
+required to start building microservices and distributed systems and that's what Micro looks 
+to provide.
+
+### Ten Commands
 
 Alright so we talk a good game, but how easy is it? Well lets show you.
 
@@ -250,6 +301,11 @@ NAMESPACE=$(micro user namespace)
 curl "https://$NAMESPACE.m3o.app/helloworld?name=Alice"
 ```
 
+Easy right? We see this as the common flow for most service development. Its a fast iterative step 
+from generating a new template to shipping it and querying to make sure it works. There's 
+additional stuff in the developer experience like actually writing the service but we think that's 
+a separate post.
+
 ### Local Environment
 
 If you're using the server locally a few subsitutions.
@@ -270,7 +326,7 @@ curl -H "Micro-Namespace: $NAMESPACE" "http://localhost:8080/helloworld?name=Ali
 
 If you're using the dev environment URLs are `*.m3o.dev`. Find more details at [m3o.dev](https://m3o.dev)
 
-## Docs, Tutorials and Everything Else
+## Documentation
 
 Another thing we really learned from the past is nothing like this works without great documentation 
 and tutorials. So we've written a whole suite of docs for Micro available at [micro.mu](https://micro.mu) 
@@ -278,7 +334,7 @@ and provide help for using the M3O on [m3o.dev](https://m3o.dev/).
 
 You can find other interesting resources at [Awesome Micro](https://github.com/micro/awesome-micro).
 
-## Our Motivations
+## Motivations
 
 We really believe that writing software for the cloud is too hard. That there's far too much choice and 
 time wasted focusing on how to piece everything together. There are tradeoffs to adopting a PaaS but 
