@@ -6,7 +6,6 @@ import (
 	"errors"
 	"fmt"
 	"math/rand"
-	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
@@ -43,13 +42,6 @@ func newK8sServer(t *T, fname string, opts ...Option) Server {
 	portnum := rand.Intn(maxPort-minPort) + minPort
 	configFile := configFile(fname)
 
-	var cmd *exec.Cmd
-	if v := os.Getenv("IN_HELM_TEST"); len(v) > 0 {
-		cmd = exec.Command("kubectl", "port-forward", "--namespace", "micro", "svc/proxy", fmt.Sprintf("%d:443", portnum))
-	} else {
-		cmd = exec.Command("kubectl", "port-forward", "--namespace", "default", "svc/micro-proxy", fmt.Sprintf("%d:443", portnum))
-	}
-
 	s := &testK8sServer{ServerBase{
 		dir:       filepath.Dir(configFile),
 		config:    configFile,
@@ -57,7 +49,7 @@ func newK8sServer(t *T, fname string, opts ...Option) Server {
 		env:       options.Namespace,
 		proxyPort: portnum,
 		opts:      options,
-		cmd:       cmd,
+		cmd:       exec.Command("kubectl", "port-forward", "--namespace", "default", "svc/micro-proxy", fmt.Sprintf("%d:443", portnum)),
 	}}
 	s.namespace = s.env
 
@@ -89,6 +81,7 @@ func (s *testK8sServer) Run() error {
 			!strings.Contains(string(outp), "config") ||
 			!strings.Contains(string(outp), "proxy") ||
 			!strings.Contains(string(outp), "auth") ||
+			!strings.Contains(string(outp), "updater") ||
 			!strings.Contains(string(outp), "store") {
 			return outp, errors.New("Not ready")
 		}

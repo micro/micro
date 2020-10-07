@@ -1,4 +1,4 @@
-name: Platform profile
+name: K8s integration tests
 on: [push]
   # schedule:
   #   # * is a special character in YAML so you have to quote this string
@@ -7,7 +7,7 @@ on: [push]
 jobs:
 
   test:
-    name: Integration tests
+    name: K8s integration tests
     runs-on: ubuntu-latest
     env: 
       DOCKER_BUILDKIT: '1'
