@@ -23,7 +23,7 @@ There's a slack community with thousands of members. Invite yourself at [slack.m
 
 ## Where do I start?
 
-Start by checking out the project itself at [github.com/micro/micro](https:/github.com/micro/micro)
+Start by checking out the project itself at [github.com/micro/micro](https://github.com/micro/micro)
 
 ## Who's using Micro?
 
