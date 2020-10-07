@@ -1,4 +1,4 @@
-name: Platform psrofile
+name: Platform profile
 on: [push]
   # schedule:
   #   # * is a special character in YAML so you have to quote this string
