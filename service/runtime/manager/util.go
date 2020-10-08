@@ -51,12 +51,15 @@ func (m *manager) buildAndUpdate(srv *service) {
 }
 
 func (m *manager) build(srv *service) error {
+	logger.Infof("Preparing to build %v:%v", srv.Service.Name, srv.Service.Version)
+
 	// set the service status to building
 	srv.Status = runtime.Building
 	m.writeService(srv)
 
 	// handleError will set the error status on the service
 	handleError := func(err error, msg string) {
+		logger.Warnf("Build failed %v:%v: %v %v", srv.Service.Name, srv.Service.Version, msg, err)
 		srv.Status = runtime.Error
 		srv.Error = fmt.Sprintf("%v: %v", msg, err)
 		m.writeService(srv)
@@ -100,14 +103,23 @@ func (m *manager) build(srv *service) error {
 	// a circular dependancy
 	bldr := builder.DefaultBuilder
 	if srv.Service.Source == "github.com/m3o/services/build" {
-		bldr, _ = golang.NewBuilder()
+		logger.Infof("Building build service using golang builder")
+
+		var err error
+		bldr, err = golang.NewBuilder()
+		if err != nil {
+			handleError(err, "Golang builder could not be configured")
+			return err
+		}
 	}
 
 	// build the source
+	logger.Infof("Build starting %v:%v", srv.Service.Name, srv.Service.Version)
 	build, err := bldr.Build(source,
 		builder.Archive("tar"),
 		builder.Entrypoint(srv.Options.Entrypoint),
 	)
+	logger.Infof("Build finished %v:%v %v", srv.Service.Name, srv.Service.Version, err)
 	if err != nil {
 		handleError(err, "Error building service")
 		return err
@@ -117,6 +129,7 @@ func (m *manager) build(srv *service) error {
 	// local filesystem like the local runtime does). hence we'll upload the source to the blob store
 	// which the cell (container) can then pull via the Runtime.Build.Read RPC.
 	if m.Runtime.String() != "local" {
+		logger.Infof("Uploading build %v:%v", srv.Service.Name, srv.Service.Version)
 		nsOpt := gostore.BlobNamespace(srv.Options.Namespace)
 		key := fmt.Sprintf("build://%v:%v", srv.Service.Name, srv.Service.Version)
 		if err := store.DefaultBlobStore.Write(key, build, nsOpt); err != nil {
