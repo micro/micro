@@ -204,7 +204,6 @@ func traverse(i interface{}, decodeSecrets bool, encryptionKey string) (interfac
 				}
 				dec, err := base64.StdEncoding.DecodeString(marshalledValue)
 				if err != nil {
-					fmt.Println("marshalled value", marshalledValue)
 					return nil, errors.New("Badly encoded secret")
 				}
 				decrypted, err := decrypt(string(dec), []byte(encryptionKey))

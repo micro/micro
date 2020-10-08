@@ -1,5 +1,4 @@
 #!/bin/bash
-
 # move into the certs directory
 cd certs;
 
@@ -19,16 +18,10 @@ kubectl create secret generic etcd-peer-certs --from-file=ca.crt=ca.pem --from-f
 # move back into the /etcd directory
 cd ../;
 
+if [[ $MICRO_ENV == "dev" ]]; then
+  overrides="--set statefulset.replicaCount=1"
+fi
+
 # install the cluster using helm
 helm repo add bitnami https://charts.bitnami.com/bitnami
-helm install etcd-cluster bitnami/etcd \
-	--set auth.rbac.enabled=false \
-	--set auth.peer.secureTransport=true \
-	--set auth.peer.enableAuthentication=true \
-	--set auth.peer.existingSecret=etcd-peer-certs \
-	--set auth.client.secureTransport=true \
-	--set auth.client.enableAuthentication=true \
-	--set auth.client.existingSecret=etcd-server-certs \
-	--set statefulset.replicaCount=1 \
-	--set livenessProbe.enabled=false \
-	--set readinessProbe.enabled=false
+helm install etcd-cluster bitnami/etcd -f values.yaml $overrides

@@ -1,0 +1,87 @@
+##################################
+#                                #
+#  NATS Streaming Configuration  #
+#                                #
+##################################
+
+# Copied from https://github.com/nats-io/k8s/blob/master/helm/charts/stan/values.yaml with minor modifications
+stan:
+  replicas: 3
+
+
+  # In case of NATS not being embedded then
+  # an URL for NATS is required.
+  nats:
+    url: nats://nats-cluster:4222
+
+  # TLS
+  # Enabled must be true, and a secret name specified for this to work
+  tls:
+    enabled: true
+    # the secret containing the client ca.crt, tls.crt, and tls.key for STAN
+    secretName: nats-client-certs
+    # Reference
+    # https://docs.nats.io/nats-streaming-server/configuring/cfgfile#tls-configuration
+    settings:
+      client_cert: "/etc/nats/certs/cert.pem"
+      client_key: "/etc/nats/certs/key.pem"
+      client_ca: "/etc/nats/certs/ca.crt"
+
+
+# Affinity for pod assignment
+# ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity
+affinity:
+  podAntiAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+        podAffinityTerm:
+          labelSelector:
+            matchExpressions:
+              - key: app
+                operator: In
+                values:
+                  - nats-streaming-cluster
+          topologyKey: "kubernetes.io/hostname"
+
+
+
+###########################
+#                         #
+#  Storage configuration  #
+#                         #
+###########################
+store:
+  # One value possible out of: "file" | "sql" | "memory"
+  type: file
+
+  #
+  # Volume claim configuration. Required if the store type is `file` or if
+  # cluster is enabled.
+  #
+  volume:
+    enabled: true
+    mount: /data/stan
+    storageSize: 3Gi
+    accessModes: ReadWriteOnce
+    storageClass:
+
+  #
+  # File storage settings.
+  #
+  file:
+    path: /data/stan/store
+    # Configures streaming/file_options as is.
+    #
+    # NOTE: Section in snake case since they will become
+    # the same objects.
+    #
+    # Look at the NATS Streaming configuration for this:
+    #
+    # https://docs.nats.io/nats-streaming-server/configuring/cfgfile#file-options-configuration
+    #
+    options: {}
+
+  # In case of using file or sql storage, sets up a 3 node cluster.
+  cluster:
+    enabled: true
+    logPath: /data/stan/log
