@@ -53,7 +53,7 @@ func newK8sServer(t *T, fname string, opts ...Option) Server {
 		apiPort:   apiPortnum,
 		opts:      options,
 		// Note: the child process spawned here will never get killed when the server stops
-		cmd: exec.Command("/bin/sh", "-c", fmt.Sprintf("kubectl port-forward --namespace default svc/micro-api %d:8080 &; kubectl port-forward --namespace default svc/micro-proxy %d:443", apiPortnum, portnum)),
+		cmd: exec.Command("/bin/sh", "-c", fmt.Sprintf("kubectl port-forward --namespace default svc/micro-api %d:443 & kubectl port-forward --namespace default svc/micro-proxy %d:443;", apiPortnum, portnum)),
 	}}
 	s.namespace = s.env
 
@@ -66,6 +66,7 @@ type testK8sServer struct {
 
 func (s *testK8sServer) Run() error {
 	if err := s.ServerBase.Run(); err != nil {
+		s.t.Fatalf("Error running baseserver %s", err)
 		return err
 	}
 
