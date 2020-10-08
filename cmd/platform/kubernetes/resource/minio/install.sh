@@ -20,7 +20,7 @@ else
   overrides="--set s3gateway.serviceEndpoint=$S3_ENDPOINT --set s3gateway.accessKey=$S3_ACCESS_KEY --set s3gateway.secretKey=$S3_SECRET_KEY"
 fi
 
-helm install minio-cluster minio/minio $overrides -f values.yaml \
+helm install minio-cluster minio/minio --version 7.1.2 $overrides -f values.yaml \
   --set accessKey=$accessKey \
   --set secretKey=$secretKey \
   --set resources.requests.memory=512
