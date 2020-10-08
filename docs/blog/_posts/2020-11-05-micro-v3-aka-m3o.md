@@ -242,7 +242,7 @@ too much back. We needed something in between.
 
 Micro can take your source code, from a local directory or a repo thats hosted on github, gitlab or bitbucket. 
 In one command it will upload or pull from the relevant place, package it as a container and 
-run it. That's it. Source to running in just one command. No more dealing need to deal with the pipeline, 
+run it. That's it. Source to running in just one command. No more need to deal with the pipeline, 
 no more hacking away at containers and the container registries. Write some code and run it.
 
 ### Development Model
