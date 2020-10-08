@@ -33,6 +33,6 @@ fi
 
 # install the cluster using helm
 helm repo add cockroachdb https://charts.cockroachdb.com/
-helm install cockroachdb-cluster cockroachdb/cockroachdb $overrides \
+helm install cockroachdb-cluster cockroachdb/cockroachdb --version 4.1.8 $overrides \
   --set storage.persistentVolume.size=$SIZE \
   -f values.yaml

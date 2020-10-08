@@ -24,4 +24,4 @@ fi
 
 # install the cluster using helm
 helm repo add bitnami https://charts.bitnami.com/bitnami
-helm install etcd-cluster bitnami/etcd -f values.yaml $overrides
+helm install etcd-cluster bitnami/etcd --version 4.11.1 -f values.yaml $overrides
