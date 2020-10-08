@@ -306,6 +306,49 @@ func (c *command) Options() Options {
 
 // Before is executed before any subcommand
 func (c *command) Before(ctx *cli.Context) error {
+	// setup auth
+	authOpts := []auth.Option{}
+	if len(ctx.String("namespace")) > 0 {
+		authOpts = append(authOpts, auth.Issuer(ctx.String("namespace")))
+	}
+	if len(ctx.String("auth_address")) > 0 {
+		authOpts = append(authOpts, auth.Addrs(ctx.String("auth_address")))
+	}
+	if len(ctx.String("auth_id")) > 0 || len(ctx.String("auth_secret")) > 0 {
+		authOpts = append(authOpts, auth.Credentials(
+			ctx.String("auth_id"), ctx.String("auth_secret"),
+		))
+	}
+
+	// load the jwt private and public keys, in the case of the server we want to generate them if not
+	// present. The server will inject these creds into the core services, if the services generated
+	// the credentials themselves then they wouldn't match
+	if len(ctx.String("auth_public_key")) > 0 || len(ctx.String("auth_private_key")) > 0 {
+		authOpts = append(authOpts, auth.PublicKey(ctx.String("auth_public_key")))
+		authOpts = append(authOpts, auth.PrivateKey(ctx.String("auth_private_key")))
+	} else if ctx.Args().First() == "server" {
+		privKey, pubKey, err := user.GetJWTCerts()
+		if err != nil {
+			logger.Fatalf("Error getting keys: %v", err)
+		}
+		authOpts = append(authOpts, auth.PublicKey(string(pubKey)), auth.PrivateKey(string(privKey)))
+	}
+
+	muauth.DefaultAuth.Init(authOpts...)
+
+	// setup auth credentials, use local credentials for the CLI and injected creds
+	// for the service.
+	var err error
+	if c.service {
+		err = setupAuthForService()
+	} else {
+		err = setupAuthForCLI(ctx)
+	}
+	if err != nil {
+		logger.Fatalf("Error setting up auth: %v", err)
+	}
+	go refreshAuthToken()
+
 	if v := ctx.Args().First(); len(v) > 0 {
 		switch v {
 		case "service", "server":
@@ -410,36 +453,6 @@ func (c *command) Before(ctx *cli.Context) error {
 	// initialize the server with the namespace so it knows which domain to register in
 	muserver.DefaultServer.Init(server.Namespace(ctx.String("namespace")))
 
-	// setup auth
-	authOpts := []auth.Option{}
-	if len(ctx.String("namespace")) > 0 {
-		authOpts = append(authOpts, auth.Issuer(ctx.String("namespace")))
-	}
-	if len(ctx.String("auth_address")) > 0 {
-		authOpts = append(authOpts, auth.Addrs(ctx.String("auth_address")))
-	}
-	if len(ctx.String("auth_id")) > 0 || len(ctx.String("auth_secret")) > 0 {
-		authOpts = append(authOpts, auth.Credentials(
-			ctx.String("auth_id"), ctx.String("auth_secret"),
-		))
-	}
-
-	// load the jwt private and public keys, in the case of the server we want to generate them if not
-	// present. The server will inject these creds into the core services, if the services generated
-	// the credentials themselves then they wouldn't match
-	if len(ctx.String("auth_public_key")) > 0 || len(ctx.String("auth_private_key")) > 0 {
-		authOpts = append(authOpts, auth.PublicKey(ctx.String("auth_public_key")))
-		authOpts = append(authOpts, auth.PrivateKey(ctx.String("auth_private_key")))
-	} else if ctx.Args().First() == "server" {
-		privKey, pubKey, err := user.GetJWTCerts()
-		if err != nil {
-			logger.Fatalf("Error getting keys: %v", err)
-		}
-		authOpts = append(authOpts, auth.PublicKey(string(pubKey)), auth.PrivateKey(string(privKey)))
-	}
-
-	muauth.DefaultAuth.Init(authOpts...)
-
 	// setup registry
 	registryOpts := []registry.Option{}
 
@@ -531,19 +544,6 @@ func (c *command) Before(ctx *cli.Context) error {
 		server.Broker(mubroker.DefaultBroker),
 		server.Registry(muregistry.DefaultRegistry),
 	)
-
-	// setup auth credentials, use local credentials for the CLI and injected creds
-	// for the service.
-	var err error
-	if c.service {
-		err = setupAuthForService()
-	} else {
-		err = setupAuthForCLI(ctx)
-	}
-	if err != nil {
-		logger.Fatalf("Error setting up auth: %v", err)
-	}
-	go refreshAuthToken()
 
 	// Setup config. Do this after auth is configured since it'll load the config
 	// from the service immediately. We only do this if the action is nil, indicating
