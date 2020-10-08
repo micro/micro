@@ -15,15 +15,15 @@ import (
 
 func init() {
 	testFilter = []string{
-		"TestRunGithubSource",
-		"TestStore",
+		//"TestRunGithubSource",
+		//"TestStore",
 		// @todo Reactivate this once source to running works in kind
 		// "TestStoreImpl",
-		"TestCorruptedTokenLogin",
-		"TestRunPrivateSource",
-		"TestEventsStream",
+		//"TestCorruptedTokenLogin",
+		//"TestRunPrivateSource",
+		//"TestEventsStream",
 		"TestServerLockdown",
-		"TestRPC",
+		//"TestRPC",
 	}
 	maxTimeMultiplier = 3
 	isParallel = false // in theory should work in parallel
@@ -41,6 +41,7 @@ func newK8sServer(t *T, fname string, opts ...Option) Server {
 	}
 
 	portnum := rand.Intn(maxPort-minPort) + minPort
+	apiPortnum := rand.Intn(maxPort-minPort) + minPort
 	configFile := configFile(fname)
 
 	s := &testK8sServer{ServerBase{
@@ -49,8 +50,10 @@ func newK8sServer(t *T, fname string, opts ...Option) Server {
 		t:         t,
 		env:       options.Namespace,
 		proxyPort: portnum,
+		apiPort:   apiPortnum,
 		opts:      options,
-		cmd:       exec.Command("kubectl", "port-forward", "--namespace", "default", "svc/micro-proxy", fmt.Sprintf("%d:443", portnum)),
+		// Note: the child process spawned here will never get killed when the server stops
+		cmd: exec.Command("/bin/sh", "-c", fmt.Sprintf("kubectl port-forward --namespace default svc/micro-api %d:8080 &; kubectl port-forward --namespace default svc/micro-proxy %d:443", apiPortnum, portnum)),
 	}}
 	s.namespace = s.env
 
