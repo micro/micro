@@ -1,4 +1,4 @@
-name: Integration tests
+name: CI Profile
 on: [push]
 
 jobs:
