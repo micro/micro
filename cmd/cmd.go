@@ -27,6 +27,7 @@ import (
 	"github.com/micro/micro/v3/internal/network"
 	"github.com/micro/micro/v3/internal/report"
 	_ "github.com/micro/micro/v3/internal/usage"
+	"github.com/micro/micro/v3/internal/user"
 	"github.com/micro/micro/v3/internal/wrapper"
 	"github.com/micro/micro/v3/plugin"
 	"github.com/micro/micro/v3/profile"
@@ -305,13 +306,16 @@ func (c *command) Options() Options {
 
 // Before is executed before any subcommand
 func (c *command) Before(ctx *cli.Context) error {
-	// check for the latest release
 	if v := ctx.Args().First(); len(v) > 0 {
 		switch v {
 		case "service", "server":
-			// do nothing
+			// the core services import cmd/cmd twice (once because of the CLI, secondly when they register a
+			// new service). We want to exit the second time here to prevent duplicate initialization.
+			if c.service {
+				return nil
+			}
 		default:
-			// otherwise check
+			// check for the latest release
 			// TODO: write a local file to detect
 			// when we last checked so we don't do it often
 			updated, err := confirmAndSelfUpdate(ctx)
@@ -420,11 +424,18 @@ func (c *command) Before(ctx *cli.Context) error {
 		))
 	}
 
-	if len(ctx.String("auth_public_key")) > 0 {
+	// load the jwt private and public keys, in the case of the server we want to generate them if not
+	// present. The server will inject these creds into the core services, if the services generated
+	// the credentials themselves then they wouldn't match
+	if len(ctx.String("auth_public_key")) > 0 || len(ctx.String("auth_private_key")) > 0 {
 		authOpts = append(authOpts, auth.PublicKey(ctx.String("auth_public_key")))
-	}
-	if len(ctx.String("auth_private_key")) > 0 {
 		authOpts = append(authOpts, auth.PrivateKey(ctx.String("auth_private_key")))
+	} else if ctx.Args().First() == "server" {
+		privKey, pubKey, err := user.GetJWTCerts()
+		if err != nil {
+			logger.Fatalf("Error getting keys: %v", err)
+		}
+		authOpts = append(authOpts, auth.PublicKey(string(pubKey)), auth.PrivateKey(string(privKey)))
 	}
 
 	muauth.DefaultAuth.Init(authOpts...)
@@ -532,8 +543,6 @@ func (c *command) Before(ctx *cli.Context) error {
 	if err != nil {
 		logger.Fatalf("Error setting up auth: %v", err)
 	}
-
-	// refresh token periodically
 	go refreshAuthToken()
 
 	// Setup config. Do this after auth is configured since it'll load the config

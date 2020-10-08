@@ -13,6 +13,7 @@ import (
 	"github.com/micro/micro/v3/client/cli/util"
 	"github.com/micro/micro/v3/cmd"
 	"github.com/micro/micro/v3/service"
+	"github.com/micro/micro/v3/service/auth"
 	"github.com/micro/micro/v3/service/client"
 	"github.com/micro/micro/v3/service/context"
 	log "github.com/micro/micro/v3/service/logger"
@@ -174,6 +175,8 @@ func Run(context *cli.Context) error {
 			runtime.WithEnv(env),
 			runtime.WithRetries(10),
 			runtime.CreateImage("micro/micro"),
+			runtime.WithSecret("MICRO_AUTH_PUBLIC_KEY", auth.DefaultAuth.Options().PublicKey),
+			runtime.WithSecret("MICRO_AUTH_PRIVATE_KEY", auth.DefaultAuth.Options().PrivateKey),
 		}
 
 		// NOTE: we use Version right now to check for the latest release
