@@ -14,7 +14,7 @@ metadata:
     owner: "micro"
     group: "micro"
 spec:
-  replicas: 1
+  replicas: 0
   selector:
     matchLabels:
       name: micro-updater
