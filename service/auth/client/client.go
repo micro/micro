@@ -174,6 +174,11 @@ func (s *srv) Verify(acc *auth.Account, res *auth.Resource, opts ...auth.VerifyO
 
 // Inspect a token
 func (s *srv) Inspect(token string) (*auth.Account, error) {
+	// validate the request
+	if len(token) == 0 {
+		return nil, auth.ErrInvalidToken
+	}
+
 	// try to decode JWT locally and fall back to srv if an error occurs
 	if len(strings.Split(token, ".")) == 3 && len(s.options.PublicKey) > 0 {
 		return s.token.Inspect(token)

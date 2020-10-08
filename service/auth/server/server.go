@@ -34,7 +34,7 @@ func Run(ctx *cli.Context) error {
 	// setup the auth handler to use JWTs
 	authH.TokenProvider = jwt.NewTokenProvider(
 		token.WithPublicKey(muauth.DefaultAuth.Options().PublicKey),
-		token.WithPrivateKey(muauth.DefaultAuth.Options().PublicKey),
+		token.WithPrivateKey(muauth.DefaultAuth.Options().PrivateKey),
 	)
 
 	// set the handlers store
