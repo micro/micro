@@ -46,15 +46,19 @@ func testPublicAPI(t *T) {
 		return
 	}
 
-	outp, err = cmd.Exec("user")
-	if err != nil || strings.TrimSpace(string(outp)) != "admin" {
-		t.Fatal(string(outp), err)
+	if err := Try("Find helloworld", t, func() ([]byte, error) {
+		outp, err = cmd.Exec("user")
+		if err != nil || strings.TrimSpace(string(outp)) != "admin" {
+			return outp, err
+		}
+		return outp, err
+	}, 5*time.Second); err != nil {
 		return
 	}
 
-	outp, err = cmd.Exec("run", "helloworld")
-	if err != nil {
-		t.Fatal(string(outp))
+	if err := Try("Find helloworld", t, func() ([]byte, error) {
+		return cmd.Exec("run", "helloworld")
+	}, 5*time.Second); err != nil {
 		return
 	}
 
@@ -83,7 +87,7 @@ func testPublicAPI(t *T) {
 			return []byte(bod), fmt.Errorf("Helloworld is not saying hello, response body: '%v'", bod)
 		}
 		return []byte(bod), nil
-	}, 15*time.Second); err != nil {
+	}, 30*time.Second); err != nil {
 		return
 	}
 }
