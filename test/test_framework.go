@@ -589,14 +589,12 @@ func Login(serv Server, t *T, email, password string) error {
 }
 
 func ChangeNamespace(cmd *Command, env, namespace string) error {
-	if _, err := cmd.Exec("user", "config", "set", "namespaces."+env+".all", namespace); err != nil {
-		return err
+	if outp, err := cmd.Exec("logout"); err != nil {
+		return errors.New(string(outp))
 	}
-	if _, err := cmd.Exec("user", "config", "set", "namespaces."+env+".current", namespace); err != nil {
-		return err
+	if outp, err := cmd.Exec("user", "namespace", "set", namespace); err != nil {
+		return errors.New(string(outp))
 	}
-	if _, err := cmd.Exec("logout"); err != nil {
-		return err
-	}
+
 	return nil
 }

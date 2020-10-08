@@ -29,14 +29,30 @@ func testPublicAPI(t *T) {
 	}
 
 	cmd := serv.Command()
-	ChangeNamespace(cmd, serv.Env(), "random-namespace")
+	err := ChangeNamespace(cmd, serv.Env(), "random-namespace")
+	if err != nil {
+		t.Fatal(err)
+		return
+	}
 	// login to admin account
 	if err := Login(serv, t, "admin", "micro"); err != nil {
 		t.Fatalf("Error logging in %s", err)
 		return
 	}
 
-	outp, err := cmd.Exec("run", "helloworld")
+	outp, err := cmd.Exec("user", "namespace")
+	if err != nil || strings.TrimSpace(string(outp)) != "random-namespace" {
+		t.Fatal(string(outp), err)
+		return
+	}
+
+	outp, err = cmd.Exec("user")
+	if err != nil || strings.TrimSpace(string(outp)) != "admin" {
+		t.Fatal(string(outp), err)
+		return
+	}
+
+	outp, err = cmd.Exec("run", "helloworld")
 	if err != nil {
 		t.Fatal(string(outp))
 		return
@@ -58,12 +74,17 @@ func testPublicAPI(t *T) {
 		return
 	}
 
-	bod, rsp, err := curl(serv, "random-namespace", "helloworld?name=Jane")
-	if rsp == nil {
-		t.Fatal(bod, rsp, err, errors.New("helloworld should have response"))
-	}
-	if _, ok := rsp["Msg"].(string); !ok {
-		t.Fatalf("Helloworld is not saying hello, response body: '%v'", bod)
+	if err := Try("Find helloworld", t, func() ([]byte, error) {
+		bod, rsp, err := curl(serv, "random-namespace", "helloworld?name=Jane")
+		if rsp == nil {
+			return []byte(bod), fmt.Errorf("helloworld should have response, err: %v", err)
+		}
+		if _, ok := rsp["Msg"].(string); !ok {
+			return []byte(bod), fmt.Errorf("Helloworld is not saying hello, response body: '%v'", bod)
+		}
+		return []byte(bod), nil
+	}, 15*time.Second); err != nil {
+		return
 	}
 }
 
