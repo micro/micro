@@ -22,6 +22,7 @@ func init() {
 		"TestCorruptedTokenLogin",
 		"TestRunPrivateSource",
 		"TestEventsStream",
+		"TestServerLockdown",
 		"TestRPC",
 	}
 	maxTimeMultiplier = 3
