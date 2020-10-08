@@ -29,6 +29,22 @@ spec:
         prometheus.io/path: /metrics
         prometheus.io/port: "9000"
     spec:
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: name
+                      operator: In
+                      values:
+                        - micro-registry
+                    - key: micro
+                      operator: In
+                      values:
+                        - runtime
+                topologyKey: "kubernetes.io/hostname"
       containers:
       - name: micro
         env:
