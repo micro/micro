@@ -52,7 +52,7 @@ func testPublicAPI(t *T) {
 			return outp, err
 		}
 		return outp, err
-	}, 5*time.Second); err != nil {
+	}, 10*time.Second); err != nil {
 		return
 	}
 
@@ -79,6 +79,20 @@ func testPublicAPI(t *T) {
 	}
 
 	if err := Try("Find helloworld", t, func() ([]byte, error) {
+		outp, err := cmd.Exec("helloworld --name=joe")
+		if err != nil {
+			outp1, _ := cmd.Exec("logs", "helloworld")
+			return append(outp, outp1...), err
+		}
+		if !strings.Contains(string(outp), "Msg") {
+			return outp, err
+		}
+		return outp, err
+	}, 60*time.Second); err != nil {
+		return
+	}
+
+	if err := Try("curl helloworld", t, func() ([]byte, error) {
 		bod, rsp, err := curl(serv, "random-namespace", "helloworld?name=Jane")
 		if rsp == nil {
 			return []byte(bod), fmt.Errorf("helloworld should have response, err: %v", err)
@@ -87,7 +101,7 @@ func testPublicAPI(t *T) {
 			return []byte(bod), fmt.Errorf("Helloworld is not saying hello, response body: '%v'", bod)
 		}
 		return []byte(bod), nil
-	}, 30*time.Second); err != nil {
+	}, 60*time.Second); err != nil {
 		return
 	}
 }
