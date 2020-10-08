@@ -27,13 +27,12 @@ kubectl create secret generic cockroachdb-debug-certs --from-file=ca.crt=ca.pem 
 # move back into the /cockroachdb directory
 cd ../;
 
+if [[ $MICRO_ENV == "dev" ]]; then
+  overrides="--set statefulset.replicas=1"
+fi
+
 # install the cluster using helm
 helm repo add cockroachdb https://charts.cockroachdb.com/
-helm install cockroachdb-cluster cockroachdb/cockroachdb \
-  --set statefulset.replicas=1 \
+helm install cockroachdb-cluster cockroachdb/cockroachdb $overrides \
   --set storage.persistentVolume.size=$SIZE \
-  --set tls.certs.clientRootSecret=cockroachdb-peer-certs \
-  --set tls.certs.nodeSecret=cockroachdb-server-certs \
-  --set tls.certs.tlsSecret=true \
-  --set tls.certs.provided=true \
-  --set tls.enabled=true
+  -f values.yaml
