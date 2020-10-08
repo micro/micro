@@ -311,8 +311,10 @@ func configFile(fname string) string {
 // in case of error.
 func (s *ServerBase) Run() error {
 	go func() {
-		if err := s.cmd.Start(); err != nil {
-			s.t.Fatal(err)
+		if outp, err := s.cmd.CombinedOutput(); err != nil {
+			if !s.t.T().Failed() {
+				s.t.Fatal(err, string(outp))
+			}
 		}
 	}()
 

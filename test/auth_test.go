@@ -1,4 +1,4 @@
-// +build integration
+// +build integration kind
 
 package test
 
@@ -113,7 +113,7 @@ func lockdownSuite(serv Server, t *T) {
 	}
 	t.Log("Namespace is", ns)
 
-	rsp, _ := curl(serv, "store/list")
+	rsp, err := curl(serv, "store/list")
 	if rsp == nil {
 		t.Fatal(rsp, errors.New("store list should have response"))
 	}
