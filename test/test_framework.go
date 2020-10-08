@@ -595,13 +595,7 @@ func ChangeNamespace(cmd *Command, env, namespace string) error {
 	if _, err := cmd.Exec("user", "config", "set", "namespaces."+env+".current", namespace); err != nil {
 		return err
 	}
-	if _, err := cmd.Exec("user", "config", "set", "micro.auth."+env+".token", ""); err != nil {
-		return err
-	}
-	if _, err := cmd.Exec("user", "config", "set", "micro.auth."+env+".refresh-token", ""); err != nil {
-		return err
-	}
-	if _, err := cmd.Exec("user", "config", "set", "micro.auth."+env+".expiry", ""); err != nil {
+	if _, err := cmd.Exec("logout"); err != nil {
 		return err
 	}
 	return nil

@@ -16,6 +16,57 @@ import (
 	"github.com/micro/micro/v3/internal/config"
 )
 
+func TestPublicAPI(t *testing.T) {
+	TrySuite(t, testPublicAPI, retryCount)
+}
+
+func testPublicAPI(t *T) {
+	t.Parallel()
+	serv := NewServer(t, WithLogin())
+	defer serv.Close()
+	if err := serv.Run(); err != nil {
+		return
+	}
+
+	cmd := serv.Command()
+	ChangeNamespace(cmd, serv.Env(), "random-namespace")
+	// login to admin account
+	if err := Login(serv, t, "admin", "micro"); err != nil {
+		t.Fatalf("Error logging in %s", err)
+		return
+	}
+
+	outp, err := cmd.Exec("run", "helloworld")
+	if err != nil {
+		t.Fatal(string(outp))
+		return
+	}
+
+	if err := Try("Find helloworld", t, func() ([]byte, error) {
+		outp, err := cmd.Exec("status")
+		if err != nil {
+			return outp, err
+		}
+
+		// The started service should have the runtime name of "service/example",
+		// as the runtime name is the relative path inside a repo.
+		if !statusRunning("helloworld", "latest", outp) {
+			return outp, errors.New("Can't find example helloworld in runtime")
+		}
+		return outp, err
+	}, 15*time.Second); err != nil {
+		return
+	}
+
+	bod, rsp, err := curl(serv, "random-namespace", "helloworld?name=Jane")
+	if rsp == nil {
+		t.Fatal(bod, rsp, err, errors.New("helloworld should have response"))
+	}
+	if _, ok := rsp["Msg"].(string); !ok {
+		t.Fatalf("Helloworld is not saying hello, response body: '%v'", bod)
+	}
+}
+
 func TestServerAuth(t *testing.T) {
 	TrySuite(t, ServerAuth, retryCount)
 }
@@ -113,7 +164,7 @@ func lockdownSuite(serv Server, t *T) {
 	}
 	t.Log("Namespace is", ns)
 
-	rsp, _ := curl(serv, "store/list")
+	_, rsp, _ := curl(serv, "micro", "store/list")
 	if rsp == nil {
 		t.Fatal(rsp, errors.New("store list should have response"))
 	}
@@ -239,18 +290,24 @@ func changePassword(t *T) {
 	}
 }
 
-func curl(serv Server, path string) (map[string]interface{}, error) {
-	resp, err := http.Get(fmt.Sprintf("http://127.0.0.1:%v/%v", serv.APIPort(), path))
+func curl(serv Server, namespace, path string) (string, map[string]interface{}, error) {
+	client := &http.Client{}
+	url := fmt.Sprintf("http://127.0.0.1:%v/%v", serv.APIPort(), path)
+
+	req, _ := http.NewRequest("GET", url, nil)
+	req.Header.Set("Micro-Namespace", namespace)
+	resp, err := client.Do(req)
 	if err != nil {
-		return nil, err
+		return "", nil, err
 	}
 	defer resp.Body.Close()
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return nil, err
+		return "", nil, err
 	}
+
 	m := map[string]interface{}{}
-	return m, json.Unmarshal(body, &m)
+	return string(body), m, json.Unmarshal(body, &m)
 }
 
 // TestUsernameLogin tests whether we can login using both ID and username e.g. UUID and email
