@@ -11,7 +11,6 @@ require (
 	github.com/cloudflare/cloudflare-go v0.10.9 // indirect
 	github.com/cpuguy83/go-md2man/v2 v2.0.0 // indirect
 	github.com/dustin/go-humanize v1.0.0
-	github.com/fsnotify/fsnotify v1.4.9
 	github.com/go-acme/lego/v3 v3.4.0
 	github.com/gobwas/pool v0.2.1 // indirect
 	github.com/golang/protobuf v1.4.2

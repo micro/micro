@@ -125,6 +125,7 @@ func (a authWrapper) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		return
 	} else if err != auth.ErrForbidden {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
 
 	// The account is set, but they don't have enough permissions, hence
