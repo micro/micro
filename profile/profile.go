@@ -147,7 +147,7 @@ var Kubernetes = &Profile{
 		// the registry service uses the memory registry, the other core services will use the default
 		// rpc client and call the registry service
 		if ctx.Args().Get(1) == "registry" {
-			microRegistry.DefaultRegistry = memory.NewRegistry()
+			SetupRegistry(memory.NewRegistry())
 		}
 
 		// the broker service uses the memory broker, the other core services will use the default
@@ -163,6 +163,7 @@ var Kubernetes = &Profile{
 		SetupConfigSecretKey(ctx)
 
 		microRouter.DefaultRouter = k8sRouter.NewRouter()
+		microClient.DefaultClient.Init(client.Router(microRouter.DefaultRouter))
 		return nil
 	},
 }

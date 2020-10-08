@@ -16,8 +16,6 @@ var name = "registry"
 
 type srv struct {
 	opts registry.Options
-	// address
-	address []string
 	// client to call registry
 	client pb.RegistryService
 }
@@ -26,8 +24,8 @@ func (s *srv) callOpts() []goclient.CallOption {
 	opts := []goclient.CallOption{goclient.WithAuthToken()}
 
 	// set registry address
-	if len(s.address) > 0 {
-		opts = append(opts, goclient.WithAddress(s.address...))
+	if len(s.opts.Addrs) > 0 {
+		opts = append(opts, goclient.WithAddress(s.opts.Addrs...))
 	}
 
 	// set timeout
@@ -43,11 +41,6 @@ func (s *srv) Init(opts ...registry.Option) error {
 	for _, o := range opts {
 		o(&s.opts)
 	}
-
-	if len(s.opts.Addrs) > 0 {
-		s.address = s.opts.Addrs
-	}
-
 	return nil
 }
 
@@ -157,18 +150,8 @@ func NewRegistry(opts ...registry.Option) registry.Registry {
 		o(&options)
 	}
 
-	// the registry address
-	addrs := options.Addrs
-
-	// don't default the address if a proxy is being used, as the
-	// address will take precedent, circumventing the proxy.
-	if len(addrs) == 0 {
-		addrs = []string{"127.0.0.1:8000"}
-	}
-
 	return &srv{
-		opts:    options,
-		address: addrs,
-		client:  pb.NewRegistryService(name, client.DefaultClient),
+		opts:   options,
+		client: pb.NewRegistryService(name, client.DefaultClient),
 	}
 }

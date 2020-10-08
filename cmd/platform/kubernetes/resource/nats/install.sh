@@ -20,7 +20,7 @@ kubectl create secret generic nats-peer-certs --from-file=ca.pem --from-file=rou
 cd ../;
 
 if [[ $MICRO_ENV == "dev" ]]; then
-  overrides="--set cluster.enabled=false"
+  overrides="--set cluster.enabled=false --set stan.replicas=1 --set nats.cluster.enabled=false --set store.cluster.enabled=false"
 fi
 
 # add the nats helm chart
