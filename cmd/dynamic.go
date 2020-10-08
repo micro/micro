@@ -8,6 +8,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"unicode"
 
 	goclient "github.com/micro/go-micro/v3/client"
 	goregistry "github.com/micro/go-micro/v3/registry"
@@ -63,11 +64,19 @@ func lookupService(ctx *cli.Context) (*goregistry.Service, string, error) {
 }
 
 // formatServiceUsage returns a string containing the service usage.
-func formatServiceUsage(srv *goregistry.Service, alias string) string {
+func formatServiceUsage(srv *goregistry.Service, c *cli.Context) string {
+	alias := c.Args().First()
+	subcommand := c.Args().Get(1)
+
 	commands := make([]string, len(srv.Endpoints))
+	endpoints := make([]*goregistry.Endpoint, len(srv.Endpoints))
 	for i, e := range srv.Endpoints {
 		// map "Helloworld.Call" to "helloworld.call"
-		name := strings.ToLower(e.Name)
+		parts := strings.Split(e.Name, ".")
+		for i, part := range parts {
+			parts[i] = lowcaseInitial(part)
+		}
+		name := strings.Join(parts, ".")
 
 		// remove the prefix if it is the service name, e.g. rather than
 		// "micro run helloworld helloworld call", it would be
@@ -77,16 +86,58 @@ func formatServiceUsage(srv *goregistry.Service, alias string) string {
 		// instead of "micro run helloworld foo.bar", the command should
 		// be "micro run helloworld foo bar".
 		commands[i] = strings.Replace(name, ".", " ", 1)
+		endpoints[i] = e
 	}
 
 	// sort the command names alphabetically
 	sort.Strings(commands)
 
-	result := fmt.Sprintf("NAME:\n\t%v\n\n", srv.Name)
-	result += fmt.Sprintf("VERSION:\n\t%v\n\n", srv.Version)
-	result += fmt.Sprintf("USAGE:\n\tmicro %v [flags] [command]\n\n", alias)
-	result += fmt.Sprintf("COMMANDS:\n\t%v\n\n", strings.Join(commands, "\n\t"))
+	result := ""
+	if len(subcommand) > 0 && subcommand != "--help" {
+		result += fmt.Sprintf("NAME:\n\tmicro %v %v\n\n", alias, subcommand)
+		result += fmt.Sprintf("USAGE:\n\tmicro %v %v [flags]\n\n", alias, subcommand)
+		result += fmt.Sprintf("FLAGS:\n")
+
+		for i, command := range commands {
+			if command == subcommand {
+				result += renderFlags(endpoints[i])
+			}
+		}
+	} else {
+		result += fmt.Sprintf("NAME:\n\tmicro %v\n\n", alias)
+		result += fmt.Sprintf("VERSION:\n\t%v\n\n", srv.Version)
+		result += fmt.Sprintf("USAGE:\n\tmicro %v [command]\n\n", alias)
+		result += fmt.Sprintf("COMMANDS:\n\t%v\n", strings.Join(commands, "\n\t"))
+
+	}
+
 	return result
+}
+
+func lowcaseInitial(str string) string {
+	for i, v := range str {
+		return string(unicode.ToLower(v)) + str[i+1:]
+	}
+	return ""
+}
+
+func renderFlags(endpoint *goregistry.Endpoint) string {
+	ret := ""
+	for _, value := range endpoint.Request.Values {
+		ret += renderValue([]string{}, value) + "\n"
+	}
+	return ret
+}
+
+func renderValue(path []string, value *goregistry.Value) string {
+	if len(value.Values) > 0 {
+		renders := []string{}
+		for _, v := range value.Values {
+			renders = append(renders, renderValue(append(path, value.Name), v))
+		}
+		return strings.Join(renders, "\n")
+	}
+	return fmt.Sprintf("\t--%v %v", strings.Join(append(path, value.Name), "_"), value.Type)
 }
 
 // callService will call a service using the arguments and flags provided

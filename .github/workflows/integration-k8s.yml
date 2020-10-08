@@ -100,7 +100,7 @@ jobs:
       run: |
         kubectl port-forward service/micro-proxy 8081:443 & sleep 2s
         micro login --username=admin --password=micro
-        micro run --image=localhost:5000/cells:v3 github.com/m3o/services/build@rename-builder
+        micro run --image=localhost:5000/cells:v3 github.com/m3o/services/build
 
         until [[ "$(micro status | grep build)" == *"running"* ]] 
         do
