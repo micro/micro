@@ -79,7 +79,7 @@ func testPublicAPI(t *T) {
 		if rsp == nil {
 			return []byte(bod), fmt.Errorf("helloworld should have response, err: %v", err)
 		}
-		if _, ok := rsp["Msg"].(string); !ok {
+		if _, ok := rsp["msg"].(string); !ok {
 			return []byte(bod), fmt.Errorf("Helloworld is not saying hello, response body: '%v'", bod)
 		}
 		return []byte(bod), nil
