@@ -253,7 +253,7 @@ func action(c *cli.Context) error {
 			fmt.Printf("Error querying registry for service %v: %v", c.Args().First(), err)
 			os.Exit(1)
 		} else if srv != nil && shouldRenderHelp(c) {
-			fmt.Println(formatServiceUsage(srv, c.Args().First()))
+			fmt.Println(formatServiceUsage(srv, c))
 			os.Exit(1)
 		} else if srv != nil {
 			if err := callService(srv, ns, c); err != nil {
