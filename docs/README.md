@@ -20,7 +20,7 @@ with the complexity of distributed systems and provides simpler programmable abs
 Documentation, guides and quick starts for Micro
 
 - [Getting Started](getting-started) - The helloworld quickstart guide
-- [Reference](reference) - External resources for reference
+- [Reference](reference) - In-depth reference for Micro CLI and services
 - [Resources](resources) - External resources for reference
 - [Roadmap](roadmap) - Stuff on our agenda over the long haul
 - [Users](users) - Developers and companies using Micro in production
