@@ -3,6 +3,7 @@
     "hosts": [
         "etcd-cluster.default.svc.cluster.local",
         "*.etcd-cluster.default.svc",
+        "*.etcd-cluster-headless.default.svc",
         "etcd-cluster"
     ],
     "key": {
