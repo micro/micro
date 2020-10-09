@@ -6,8 +6,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io/ioutil"
-	"net/http"
 	"strings"
 	"testing"
 	"time"
@@ -15,6 +13,80 @@ import (
 	"github.com/micro/micro/v3/client/cli/namespace"
 	"github.com/micro/micro/v3/internal/config"
 )
+
+func TestPublicAPI(t *testing.T) {
+	TrySuite(t, testPublicAPI, retryCount)
+}
+
+func testPublicAPI(t *T) {
+	t.Parallel()
+	serv := NewServer(t, WithLogin())
+	defer serv.Close()
+	if err := serv.Run(); err != nil {
+		return
+	}
+
+	cmd := serv.Command()
+	err := ChangeNamespace(cmd, serv.Env(), "random-namespace")
+	if err != nil {
+		t.Fatal(err)
+		return
+	}
+	// login to admin account
+	if err := Login(serv, t, "admin", "micro"); err != nil {
+		t.Fatalf("Error logging in %s", err)
+		return
+	}
+
+	if err := Try("Find helloworld", t, func() ([]byte, error) {
+		return cmd.Exec("run", "helloworld")
+	}, 5*time.Second); err != nil {
+		return
+	}
+
+	if err := Try("Find helloworld", t, func() ([]byte, error) {
+		outp, err := cmd.Exec("status")
+		if err != nil {
+			return outp, err
+		}
+
+		// The started service should have the runtime name of "service/example",
+		// as the runtime name is the relative path inside a repo.
+		if !statusRunning("helloworld", "latest", outp) {
+			return outp, errors.New("Can't find example helloworld in runtime")
+		}
+		return outp, err
+	}, 15*time.Second); err != nil {
+		return
+	}
+
+	if err := Try("Call helloworld", t, func() ([]byte, error) {
+		outp, err := cmd.Exec("helloworld", "--name=joe")
+		if err != nil {
+			outp1, _ := cmd.Exec("logs", "helloworld")
+			return append(outp, outp1...), err
+		}
+		if !strings.Contains(string(outp), "Msg") {
+			return outp, err
+		}
+		return outp, err
+	}, 90*time.Second); err != nil {
+		return
+	}
+
+	if err := Try("curl helloworld", t, func() ([]byte, error) {
+		bod, rsp, err := curl(serv, "random-namespace", "helloworld?name=Jane")
+		if rsp == nil {
+			return []byte(bod), fmt.Errorf("helloworld should have response, err: %v", err)
+		}
+		if _, ok := rsp["msg"].(string); !ok {
+			return []byte(bod), fmt.Errorf("Helloworld is not saying hello, response body: '%v'", bod)
+		}
+		return []byte(bod), nil
+	}, 90*time.Second); err != nil {
+		return
+	}
+}
 
 func TestServerAuth(t *testing.T) {
 	TrySuite(t, ServerAuth, retryCount)
@@ -113,7 +185,7 @@ func lockdownSuite(serv Server, t *T) {
 	}
 	t.Log("Namespace is", ns)
 
-	rsp, _ := curl(serv, "store/list")
+	_, rsp, _ := curl(serv, "micro", "store/list")
 	if rsp == nil {
 		t.Fatal(rsp, errors.New("store list should have response"))
 	}
@@ -237,20 +309,6 @@ func changePassword(t *T) {
 		t.Fatal(string(outp))
 		return
 	}
-}
-
-func curl(serv Server, path string) (map[string]interface{}, error) {
-	resp, err := http.Get(fmt.Sprintf("http://127.0.0.1:%v/%v", serv.APIPort(), path))
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return nil, err
-	}
-	m := map[string]interface{}{}
-	return m, json.Unmarshal(body, &m)
 }
 
 // TestUsernameLogin tests whether we can login using both ID and username e.g. UUID and email

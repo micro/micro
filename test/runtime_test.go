@@ -10,7 +10,6 @@ import (
 	"os/exec"
 	"os/user"
 	"path/filepath"
-	"regexp"
 	"strings"
 	"testing"
 	"time"
@@ -183,11 +182,6 @@ func testRunAndKill(t *T) {
 	}, 20*time.Second); err != nil {
 		return
 	}
-}
-
-func statusRunning(service, branch string, statusOutput []byte) bool {
-	reg, _ := regexp.Compile(service + "\\s+" + branch + "\\s+\\S+\\s+running")
-	return reg.Match(statusOutput)
 }
 
 func TestRunGithubSource(t *testing.T) {
