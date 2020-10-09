@@ -84,6 +84,12 @@ func testPublicAPI(t *T) {
 	}
 
 	cmd := serv.Command()
+	outp, err := cmd.Exec("auth", "create", "account", "--secret", "micro", "--namespace", "random-namespace", "admin")
+	if err != nil {
+		t.Fatal(string(outp), err)
+		return
+	}
+
 	err := ChangeNamespace(cmd, serv.Env(), "random-namespace")
 	if err != nil {
 		t.Fatal(err)
