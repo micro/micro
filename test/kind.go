@@ -81,7 +81,6 @@ func (s *testK8sServer) Run() error {
 			!strings.Contains(string(outp), "config") ||
 			!strings.Contains(string(outp), "proxy") ||
 			!strings.Contains(string(outp), "auth") ||
-			!strings.Contains(string(outp), "updater") ||
 			!strings.Contains(string(outp), "store") {
 			return outp, errors.New("Not ready")
 		}
@@ -90,6 +89,10 @@ func (s *testK8sServer) Run() error {
 	}, 60*time.Second); err != nil {
 		return err
 	}
+
+	// generate account in new namespace
+	// ignore errors because it is not an idempotent call
+	s.Command().Exec("auth", "create", "account", "--secret", "micro", "--namespace", s.Env(), "admin")
 
 	// switch to the namespace
 	ChangeNamespace(s.Command(), s.Env(), s.Env())

@@ -14,6 +14,63 @@ import (
 	"github.com/micro/micro/v3/internal/config"
 )
 
+// Test no default account generation in non-default namespaces
+func TestNoDefaultAccount(t *testing.T) {
+	TrySuite(t, testNoDefaultAccount, retryCount)
+}
+
+func testNoDefaultAccount(t *T) {
+	t.Parallel()
+	serv := NewServer(t, WithLogin())
+	defer serv.Close()
+	if err := serv.Run(); err != nil {
+		return
+	}
+
+	cmd := serv.Command()
+
+	ns := "random-namespace"
+
+	err := ChangeNamespace(cmd, serv.Env(), ns)
+	if err != nil {
+		t.Fatal(err)
+		return
+	}
+
+	Try("Log in with user should fail", t, func() ([]byte, error) {
+		out, err := serv.Command().Exec("login", "--email", "admin", "--password", "micro")
+		if err == nil {
+			return out, errors.New("Loggin in should error")
+		}
+		if strings.Contains(string(out), "Success") {
+			return out, errors.New("Loggin in should error")
+		}
+		return out, nil
+	}, 5*time.Second)
+
+	Try("Run helloworld", t, func() ([]byte, error) {
+		outp, err := cmd.Exec("run", "helloworld")
+		if err == nil {
+			return outp, errors.New("Run should error")
+		}
+		return outp, nil
+	}, 5*time.Second)
+
+	Try("Find helloworld", t, func() ([]byte, error) {
+		outp, err := cmd.Exec("status")
+		if err == nil {
+			return outp, errors.New("Should not be able to do status")
+		}
+
+		// The started service should have the runtime name of "service/example",
+		// as the runtime name is the relative path inside a repo.
+		if statusRunning("helloworld", "latest", outp) {
+			return outp, errors.New("Shouldn't find example helloworld in runtime")
+		}
+		return outp, nil
+	}, 15*time.Second)
+}
+
 func TestPublicAPI(t *testing.T) {
 	TrySuite(t, testPublicAPI, retryCount)
 }
@@ -27,18 +84,24 @@ func testPublicAPI(t *T) {
 	}
 
 	cmd := serv.Command()
-	err := ChangeNamespace(cmd, serv.Env(), "random-namespace")
+	outp, err := cmd.Exec("auth", "create", "account", "--secret", "micro", "--namespace", "random-namespace", "admin")
+	if err != nil {
+		t.Fatal(string(outp), err)
+		return
+	}
+
+	err = ChangeNamespace(cmd, serv.Env(), "random-namespace")
 	if err != nil {
 		t.Fatal(err)
 		return
 	}
 	// login to admin account
-	if err := Login(serv, t, "admin", "micro"); err != nil {
+	if err = Login(serv, t, "admin", "micro"); err != nil {
 		t.Fatalf("Error logging in %s", err)
 		return
 	}
 
-	if err := Try("Find helloworld", t, func() ([]byte, error) {
+	if err := Try("Run helloworld", t, func() ([]byte, error) {
 		return cmd.Exec("run", "helloworld")
 	}, 5*time.Second); err != nil {
 		return

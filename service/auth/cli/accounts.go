@@ -73,6 +73,9 @@ func createAccount(ctx *cli.Context) error {
 	if err != nil {
 		return fmt.Errorf("Error getting namespace: %v", err)
 	}
+	if len(ctx.String("namespace")) > 0 {
+		ns = ctx.String("namespace")
+	}
 
 	options := []auth.GenerateOption{auth.WithIssuer(ns)}
 	if len(ctx.StringSlice("scopes")) > 0 {

@@ -5,16 +5,24 @@ import (
 	"github.com/micro/go-micro/v3/store"
 	"github.com/micro/go-micro/v3/util/token"
 	"github.com/micro/go-micro/v3/util/token/jwt"
-	"github.com/micro/micro/v3/internal/user"
 	pb "github.com/micro/micro/v3/proto/auth"
 	"github.com/micro/micro/v3/service"
+	muauth "github.com/micro/micro/v3/service/auth"
 	authHandler "github.com/micro/micro/v3/service/auth/server/auth"
 	rulesHandler "github.com/micro/micro/v3/service/auth/server/rules"
-	"github.com/micro/micro/v3/service/logger"
 	log "github.com/micro/micro/v3/service/logger"
 	mustore "github.com/micro/micro/v3/service/store"
 	"github.com/urfave/cli/v2"
 )
+
+// Flags specific to the router
+var Flags = []cli.Flag{
+	&cli.BoolFlag{
+		Name:    "disable_admin",
+		EnvVars: []string{"MICRO_AUTH_DISABLE_ADMIN"},
+		Usage:   "Prevent generation of default accounts in namespaces",
+	},
+}
 
 const (
 	name    = "auth"
@@ -30,23 +38,14 @@ func Run(ctx *cli.Context) error {
 
 	// setup the handlers
 	ruleH := &rulesHandler.Rules{}
-	authH := &authHandler.Auth{}
-
-	// setup the auth handler to use JWTs
-	pubKey := ctx.String("auth_public_key")
-	privKey := ctx.String("auth_private_key")
-	if len(privKey) == 0 || len(pubKey) == 0 {
-		privB, pubB, err := user.GetJWTCerts()
-		if err != nil {
-			logger.Fatalf("Error getting keys; %v", err)
-		}
-		privKey = string(privB)
-		pubKey = string(pubB)
+	authH := &authHandler.Auth{
+		DisableAdmin: ctx.Bool("disable_admin"),
 	}
 
+	// setup the auth handler to use JWTs
 	authH.TokenProvider = jwt.NewTokenProvider(
-		token.WithPublicKey(pubKey),
-		token.WithPrivateKey(privKey),
+		token.WithPublicKey(muauth.DefaultAuth.Options().PublicKey),
+		token.WithPrivateKey(muauth.DefaultAuth.Options().PrivateKey),
 	)
 
 	// set the handlers store
