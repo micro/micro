@@ -865,7 +865,7 @@ func testRunPrivateSource(t *T) {
 		return
 	}
 
-	if err := Try("Find micro/test/helloworld in runtime", t, func() ([]byte, error) {
+	if err := Try("Find helloworld in runtime", t, func() ([]byte, error) {
 		outp, err := cmd.Exec("status")
 		if err != nil {
 			return outp, err

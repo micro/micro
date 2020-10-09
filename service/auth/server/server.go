@@ -15,6 +15,15 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
+// Flags specific to the router
+var Flags = []cli.Flag{
+	&cli.BoolFlag{
+		Name:    "disable_admin",
+		EnvVars: []string{"MICRO_AUTH_DISABLE_ADMIN"},
+		Usage:   "Prevent generation of default accounts in namespaces",
+	},
+}
+
 const (
 	name    = "auth"
 	address = ":8010"
@@ -29,7 +38,9 @@ func Run(ctx *cli.Context) error {
 
 	// setup the handlers
 	ruleH := &rulesHandler.Rules{}
-	authH := &authHandler.Auth{}
+	authH := &authHandler.Auth{
+		DisableAdmin: ctx.Bool("disable_admin"),
+	}
 
 	// setup the auth handler to use JWTs
 	authH.TokenProvider = jwt.NewTokenProvider(
