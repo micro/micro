@@ -61,6 +61,9 @@ func (a *Auth) Init(opts ...auth.Option) {
 }
 
 func (a *Auth) setupDefaultAccount(ns string) error {
+	if ns != namespace.DefaultNamespace {
+		return nil
+	}
 	if a.DisableAdmin {
 		return nil
 	}
