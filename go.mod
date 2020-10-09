@@ -5,9 +5,14 @@ go 1.13
 require (
 	github.com/blang/semver v3.5.1+incompatible
 	github.com/boltdb/bolt v1.3.1
+	github.com/chzyer/logex v1.1.10 // indirect
 	github.com/chzyer/readline v0.0.0-20180603132655-2972be24d48e
+	github.com/chzyer/test v0.0.0-20180213035817-a1ea475d72b1 // indirect
+	github.com/cloudflare/cloudflare-go v0.10.9 // indirect
+	github.com/cpuguy83/go-md2man/v2 v2.0.0 // indirect
 	github.com/dustin/go-humanize v1.0.0
 	github.com/go-acme/lego/v3 v3.4.0
+	github.com/gobwas/pool v0.2.1 // indirect
 	github.com/golang/protobuf v1.4.2
 	github.com/google/uuid v1.1.2
 	github.com/gorilla/handlers v1.4.2
@@ -15,9 +20,9 @@ require (
 	github.com/gosimple/slug v1.9.0
 	github.com/hashicorp/go-version v1.2.1
 	github.com/juju/fslock v0.0.0-20160525022230-4d5c94c67b4b
-	github.com/micro/go-micro/v3 v3.0.0-beta.3.0.20201007113728-c701f96a09da
-	github.com/micro/micro/profile/ci/v3 v3.0.0-20201007140823-d39333513b55
+	github.com/micro/go-micro/v3 v3.0.0-beta.3.0.20201009122815-dad05be95ee0
 	github.com/olekukonko/tablewriter v0.0.4
+	github.com/onsi/ginkgo v1.12.0 // indirect
 	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/pkg/errors v0.9.1
 	github.com/rhysd/go-github-selfupdate v1.2.2
@@ -30,4 +35,5 @@ require (
 	google.golang.org/genproto v0.0.0-20200526211855-cb27e3aa2013
 	google.golang.org/grpc v1.27.0
 	google.golang.org/protobuf v1.25.0
+	gopkg.in/yaml.v2 v2.3.0 // indirect
 )
