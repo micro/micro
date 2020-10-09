@@ -14,16 +14,14 @@ import (
 	"github.com/micro/micro/v3/internal/config"
 )
 
-// Other tests rely on the default account generation, so there
-// is no need to test that. However the no default account flag must be
-// tested, this test does that.
+// Test no default account generation in non-default namespaces
 func TestNoDefaultAccount(t *testing.T) {
 	TrySuite(t, testNoDefaultAccount, retryCount)
 }
 
 func testNoDefaultAccount(t *T) {
 	t.Parallel()
-	serv := NewServer(t, WithDisableAdmin())
+	serv := NewServer(t, WithLogin())
 	defer serv.Close()
 	if err := serv.Run(); err != nil {
 		return
@@ -32,13 +30,8 @@ func testNoDefaultAccount(t *T) {
 	cmd := serv.Command()
 
 	ns := "random-namespace"
-	outp, err := cmd.Exec("auth", "create", "account", "--secret", "admin", "--namespace", ns, "micro")
-	if err != nil {
-		t.Fatal(string(outp), err)
-		return
-	}
 
-	err = ChangeNamespace(cmd, serv.Env(), ns)
+	err := ChangeNamespace(cmd, serv.Env(), ns)
 	if err != nil {
 		t.Fatal(err)
 		return
