@@ -56,6 +56,8 @@ spec:
           value: "micro-network.default.svc.cluster.local:8443"
         - name: MICRO_LOG_LEVEL
           value: "debug"
+        - name: MICRO_AUTH_DISABLE_ADMIN
+          value: "true"
         - name: MICRO_BROKER_TLS_CA
           value: "/certs/broker/ca.crt"
         - name: MICRO_BROKER_TLS_CERT
