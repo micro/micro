@@ -90,13 +90,13 @@ func testPublicAPI(t *T) {
 		return
 	}
 
-	err := ChangeNamespace(cmd, serv.Env(), "random-namespace")
+	err = ChangeNamespace(cmd, serv.Env(), "random-namespace")
 	if err != nil {
 		t.Fatal(err)
 		return
 	}
 	// login to admin account
-	if err := Login(serv, t, "admin", "micro"); err != nil {
+	if err = Login(serv, t, "admin", "micro"); err != nil {
 		t.Fatalf("Error logging in %s", err)
 		return
 	}
