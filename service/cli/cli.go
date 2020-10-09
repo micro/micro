@@ -37,7 +37,6 @@ import (
 	// misc commands
 	"github.com/micro/micro/v3/service/handler/exec"
 	"github.com/micro/micro/v3/service/handler/file"
-	"github.com/micro/micro/v3/service/health"
 
 	_ "github.com/micro/micro/v3/service/auth/cli"
 	_ "github.com/micro/micro/v3/service/config/cli"
@@ -171,11 +170,6 @@ var srvCommands = []srvCommand{
 	{
 		Name:    "events",
 		Command: events.Run,
-	},
-	{
-		Name:    "health",
-		Command: health.Run,
-		Flags:   health.Flags,
 	},
 	{
 		Name:    "network",
