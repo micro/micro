@@ -15,6 +15,15 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
+// Flags specific to the router
+var Flags = []cli.Flag{
+	&cli.BoolFlag{
+		Name:    "disable_admin",
+		EnvVars: []string{"MICRO_AUTH_DISABLE_ADMIN"},
+		Usage:   "Prevent generation of default accounts in namespaces",
+	},
+}
+
 const (
 	name    = "auth"
 	address = ":8010"
