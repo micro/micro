@@ -52,7 +52,8 @@ jobs:
         for node in $(kind get nodes); do kubectl annotate node "${node}" "kind.x-k8s.io/registry=localhost:5000"; done
     - name: Install the platform
       run: |
-        helm install micro ./helm --set image.repo=localhost:5000/micro
+        helm repo add micro https://micro.github.io/helm
+        helm install micro micro/micro --set image.repo=localhost:5000/micro
     - name: Install failed, show platform logs
       if: ${{ failure() }}
       run: |
