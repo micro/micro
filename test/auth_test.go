@@ -14,6 +14,34 @@ import (
 	"github.com/micro/micro/v3/internal/config"
 )
 
+// Other tests rely on the default account generation, so there
+// is no need to test that. However the no default account flag must be
+// tested, this test does that.
+func TestNoDefaultAccount(t *testing.T) {
+	TrySuite(t, testNoDefaultAccount, retryCount)
+}
+
+func testNoDefaultAccount(t *T) {
+	t.Parallel()
+	serv := NewServer(t, WithLogin(), WithNoDefaultAccount())
+	defer serv.Close()
+	if err := serv.Run(); err != nil {
+		return
+	}
+
+	cmd := serv.Command()
+	err := ChangeNamespace(cmd, serv.Env(), "random-namespace")
+	if err != nil {
+		t.Fatal(err)
+		return
+	}
+	// login to admin account
+	if err := Login(serv, t, "admin", "micro"); err == nil {
+		t.Fatal("Loggin in should error")
+		return
+	}
+}
+
 func TestPublicAPI(t *testing.T) {
 	TrySuite(t, testPublicAPI, retryCount)
 }

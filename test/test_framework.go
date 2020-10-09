@@ -235,6 +235,8 @@ type Options struct {
 	Login bool
 	// Namespace to use, defaults to the test name
 	Namespace string
+	// Prevent generating default account
+	NoDefaultAccount bool
 }
 
 type Option func(o *Options)
@@ -242,6 +244,12 @@ type Option func(o *Options)
 func WithLogin() Option {
 	return func(o *Options) {
 		o.Login = true
+	}
+}
+
+func WithNoDefaultAccount() Option {
+	return func(o *Options) {
+		o.NoDefaultAccount = true
 	}
 }
 
@@ -286,6 +294,7 @@ func newLocalServer(t *T, fname string, opts ...Option) Server {
 		fmt.Sprintf("-p=%v:8081", proxyPortnum),
 		fmt.Sprintf("-p=%v:8080", apiPortNum),
 		"-e", "MICRO_PROFILE=ci",
+		"-e", "MICRO_AUTH_NO_DEFAULT_ACCOUNT", fmt.Sprintf("%v", options.NoDefaultAccount),
 		"micro", "server")
 	configFile := configFile(fname)
 	return &ServerDefault{ServerBase{
