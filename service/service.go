@@ -60,8 +60,11 @@ func New(opts ...Option) *Service {
 		if v := ctx.String("service_version"); len(v) > 0 {
 			opts = append([]Option{Version(v)}, opts...)
 		}
+
+		// service address injected by the runtime takes priority as the service port must match the
+		// port the server is running on
 		if a := ctx.String("service_address"); len(a) > 0 {
-			opts = append([]Option{Address(a)}, opts...)
+			opts = append(opts, Address(a))
 		}
 		return nil
 	}
