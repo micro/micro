@@ -294,7 +294,7 @@ func newLocalServer(t *T, fname string, opts ...Option) Server {
 		fmt.Sprintf("-p=%v:8081", proxyPortnum),
 		fmt.Sprintf("-p=%v:8080", apiPortNum),
 		"-e", "MICRO_PROFILE=ci",
-		"-e", "MICRO_AUTH_NO_DEFAULT_ACCOUNT", fmt.Sprintf("%v", options.NoDefaultAccount),
+		"-e", fmt.Sprintf("MICRO_AUTH_DISABLE_ADMIN=%v", options.NoDefaultAccount),
 		"micro", "server")
 	configFile := configFile(fname)
 	return &ServerDefault{ServerBase{

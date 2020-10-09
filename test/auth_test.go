@@ -23,7 +23,7 @@ func TestNoDefaultAccount(t *testing.T) {
 
 func testNoDefaultAccount(t *T) {
 	t.Parallel()
-	serv := NewServer(t, WithLogin(), WithNoDefaultAccount())
+	serv := NewServer(t, WithNoDefaultAccount())
 	defer serv.Close()
 	if err := serv.Run(); err != nil {
 		return
@@ -35,11 +35,39 @@ func testNoDefaultAccount(t *T) {
 		t.Fatal(err)
 		return
 	}
-	// login to admin account
-	if err := Login(serv, t, "admin", "micro"); err == nil {
-		t.Fatal("Loggin in should error")
-		return
-	}
+
+	Try("Log in with user should fail", t, func() ([]byte, error) {
+		out, err := serv.Command().Exec("login", "--email", "admin", "--password", "micro")
+		if err == nil {
+			return out, errors.New("Loggin in should error")
+		}
+		if strings.Contains(string(out), "Success") {
+			return out, errors.New("Loggin in should error")
+		}
+		return out, nil
+	}, 5*time.Second)
+
+	Try("Run helloworld", t, func() ([]byte, error) {
+		outp, err := cmd.Exec("run", "helloworld")
+		if err == nil {
+			return outp, errors.New("Run should error")
+		}
+		return outp, nil
+	}, 5*time.Second)
+
+	Try("Find helloworld", t, func() ([]byte, error) {
+		outp, err := cmd.Exec("status")
+		if err == nil {
+			return outp, errors.New("Should not be able to do status")
+		}
+
+		// The started service should have the runtime name of "service/example",
+		// as the runtime name is the relative path inside a repo.
+		if statusRunning("helloworld", "latest", outp) {
+			return outp, errors.New("Shouldn't find example helloworld in runtime")
+		}
+		return outp, nil
+	}, 15*time.Second)
 }
 
 func TestPublicAPI(t *testing.T) {
@@ -66,7 +94,7 @@ func testPublicAPI(t *T) {
 		return
 	}
 
-	if err := Try("Find helloworld", t, func() ([]byte, error) {
+	if err := Try("Run helloworld", t, func() ([]byte, error) {
 		return cmd.Exec("run", "helloworld")
 	}, 5*time.Second); err != nil {
 		return
