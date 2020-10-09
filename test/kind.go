@@ -91,11 +91,8 @@ func (s *testK8sServer) Run() error {
 	}
 
 	// generate account in new namespace
-	outp, err := s.Command().Exec("auth", "create", "account", "--secret", "micro", "--namespace", s.Env(), "admin")
-	if err != nil {
-		s.t.Fatal(string(outp), err)
-		return err
-	}
+	// ignore errors because it is not an idempotent call
+	s.Command().Exec("auth", "create", "account", "--secret", "micro", "--namespace", s.Env(), "admin")
 
 	// switch to the namespace
 	ChangeNamespace(s.Command(), s.Env(), s.Env())
