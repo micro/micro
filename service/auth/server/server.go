@@ -31,7 +31,7 @@ func Run(ctx *cli.Context) error {
 	// setup the handlers
 	ruleH := &rulesHandler.Rules{}
 	authH := &authHandler.Auth{
-		NoDefaultAccount: ctx.Bool("disable_admin"),
+		DisableAdmin: ctx.Bool("disable_admin"),
 	}
 
 	// setup the auth handler to use JWTs

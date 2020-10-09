@@ -23,7 +23,7 @@ func TestNoDefaultAccount(t *testing.T) {
 
 func testNoDefaultAccount(t *T) {
 	t.Parallel()
-	serv := NewServer(t, WithNoDefaultAccount())
+	serv := NewServer(t, WithDisableAdmin())
 	defer serv.Close()
 	if err := serv.Run(); err != nil {
 		return
