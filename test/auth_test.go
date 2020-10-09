@@ -30,7 +30,15 @@ func testNoDefaultAccount(t *T) {
 	}
 
 	cmd := serv.Command()
-	err := ChangeNamespace(cmd, serv.Env(), "random-namespace")
+
+	ns := "random-namespace"
+	outp, err := cmd.Exec("auth", "create", "account", "--secret", "admin", "--namespace", ns, "micro")
+	if err != nil {
+		t.Fatal(string(outp), err)
+		return
+	}
+
+	err = ChangeNamespace(cmd, serv.Env(), ns)
 	if err != nil {
 		t.Fatal(err)
 		return

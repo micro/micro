@@ -73,13 +73,16 @@ func testNamespaceConfigIsolationSuite(serv Server, t *T) {
 	}, 8*time.Second); err != nil {
 		return
 	}
+
+	outp, err := cmd.Exec("auth", "create", "account", "--secret", "admin", "--namespace", "random", "micro")
+	if err != nil {
+		t.Fatal(string(outp), err)
+		return
+	}
 	currNamespace, _ := cmd.Exec("user", "namespace")
 	if err := ChangeNamespace(cmd, serv.Env(), "random"); err != nil {
 		t.Fatalf("Error changing namespace %s", err)
 	}
-
-	// This call is only here to trigger default account generation
-	cmd.Exec("auth", "list", "accounts")
 
 	Login(serv, t, "admin", "micro")
 	if t.failed {
