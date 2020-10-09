@@ -46,7 +46,7 @@ func (r *Runtime) Create(ctx context.Context, req *pb.CreateRequest, rsp *pb.Cre
 			return err
 		}
 
-		if err := r.Runtime.Create(ns); err != nil {
+		if err := r.Runtime.Create(ns, gorun.CreateNamespace(req.Resource.Namespace.Name)); err != nil {
 			return err
 		}
 
@@ -66,7 +66,7 @@ func (r *Runtime) Create(ctx context.Context, req *pb.CreateRequest, rsp *pb.Cre
 			return err
 		}
 
-		if err := r.Runtime.Create(np); err != nil {
+		if err := r.Runtime.Create(np, gorun.CreateNamespace(req.Resource.Networkpolicy.Namespace)); err != nil {
 			return err
 		}
 

@@ -50,7 +50,7 @@ func (r *Runtime) Update(ctx context.Context, req *pb.UpdateRequest, rsp *pb.Upd
 			return err
 		}
 
-		if err := r.Runtime.Update(np); err != nil {
+		if err := r.Runtime.Update(np, gorun.UpdateNamespace(req.Resource.Networkpolicy.Namespace)); err != nil {
 			return err
 		}
 

@@ -46,7 +46,7 @@ func (r *Runtime) Delete(ctx context.Context, req *pb.DeleteRequest, rsp *pb.Del
 			return err
 		}
 
-		if err := r.Runtime.Delete(ns); err != nil {
+		if err := r.Runtime.Delete(ns, gorun.DeleteNamespace(req.Resource.Namespace.Name)); err != nil {
 			return err
 		}
 
@@ -66,7 +66,7 @@ func (r *Runtime) Delete(ctx context.Context, req *pb.DeleteRequest, rsp *pb.Del
 			return err
 		}
 
-		if err := r.Runtime.Delete(np); err != nil {
+		if err := r.Runtime.Delete(np, gorun.DeleteNamespace(req.Resource.Networkpolicy.Namespace)); err != nil {
 			return err
 		}
 
