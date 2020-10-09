@@ -30,7 +30,9 @@ func Run(ctx *cli.Context) error {
 
 	// setup the handlers
 	ruleH := &rulesHandler.Rules{}
-	authH := &authHandler.Auth{}
+	authH := &authHandler.Auth{
+		NoDefaultAccount: ctx.Bool("auth_no_default_account"),
+	}
 
 	// setup the auth handler to use JWTs
 	pubKey := ctx.String("auth_public_key")

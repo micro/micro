@@ -44,6 +44,8 @@ type Auth struct {
 
 	namespaces map[string]bool
 	sync.Mutex
+	// Prevent the generation of default accounts
+	NoDefaultAccount bool
 }
 
 // Init the auth
@@ -59,6 +61,9 @@ func (a *Auth) Init(opts ...auth.Option) {
 }
 
 func (a *Auth) setupDefaultAccount(ns string) error {
+	if a.NoDefaultAccount {
+		return nil
+	}
 	a.Lock()
 	defer a.Unlock()
 

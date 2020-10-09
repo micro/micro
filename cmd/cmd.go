@@ -126,6 +126,11 @@ var (
 			EnvVars: []string{"MICRO_AUTH_PRIVATE_KEY"},
 			Usage:   "Private key for JWT auth (base64 encoded PEM)",
 		},
+		&cli.BoolFlag{
+			Name:    "no_default_account",
+			EnvVars: []string{"MICRO_AUTH_NO_DEFAULT_ACCOUNT"},
+			Usage:   "Prevent generation of default accounts in namespaces",
+		},
 		&cli.StringFlag{
 			Name:    "registry_address",
 			EnvVars: []string{"MICRO_REGISTRY_ADDRESS"},
