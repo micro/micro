@@ -1,8 +1,12 @@
-Wait for the deployment to finish by running this command
-  kubectl wait deployment --all --for=condition=available -n micro --timeout=180s
+Wait for the deployment to finish by running these commands 
+  1) kubectl wait job --all --for=condition=complete -n micro --timeout=120s 
+  2) kubectl wait deployment --all --for=condition=available -n micro --timeout=120s
 
-Connect to Micro by port-forwarding to the proxy
-  kubectl port-forward svc/proxy -n micro 8081:443
+Connect to Micro by port-forwarding to the proxy. Test the connections by listing the services:
+  1) kubectl port-forward svc/proxy -n micro 8081:443
+  2) micro services
 
-And then run this command to list your services in a new window
-  micro services
+To connect to the JSON API, run the following commands. Test the connecton by listing services, a 200 
+status indicates the API is connected
+  1) kubectl port-forward svc/api -n micro 8080:443
+  2) curl -I http://localhost:8080/registry/ListServices
