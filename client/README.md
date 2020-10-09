@@ -32,3 +32,5 @@ The client/cli directory contains code that enables CLI commands to be built and
 
 - [ ] Publish client sdks to the relevant package managers
 - [ ] Add additional clients for different forms of access
+  * api http client
+  * web typescript
