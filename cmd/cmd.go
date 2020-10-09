@@ -446,12 +446,6 @@ func (c *command) Before(ctx *cli.Context) error {
 	}
 	go refreshAuthToken()
 
-	// the core services import cmd/cmd twice (once because of the CLI, secondly when they register a
-	// new service). We want to exit the second time here to prevent duplicate initialization.
-	if c.service && (ctx.Args().First() == "server" || ctx.Args().First() == "service") {
-		return nil
-	}
-
 	// initialize the server with the namespace so it knows which domain to register in
 	muserver.DefaultServer.Init(server.Namespace(ctx.String("namespace")))
 

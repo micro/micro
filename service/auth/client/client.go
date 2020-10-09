@@ -139,7 +139,7 @@ func (s *srv) Rules(opts ...auth.RulesOption) ([]*auth.Rule, error) {
 	}
 
 	callOpts := append(s.callOpts(), cache.CallExpiry(time.Second*30))
-	rsp, err := s.rules.List(options.Context, &pb.ListRequest{
+	rsp, err := s.rules.List(context.DefaultContext, &pb.ListRequest{
 		Options: &pb.Options{Namespace: options.Namespace},
 	}, callOpts...)
 	if err != nil {

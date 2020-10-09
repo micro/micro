@@ -73,7 +73,7 @@ func testNamespaceConfigIsolationSuite(serv Server, t *T) {
 	}, 8*time.Second); err != nil {
 		return
 	}
-	currNamespace, _ := cmd.Exec("user", "config", "get", "namespaces."+serv.Env()+".current")
+	currNamespace, _ := cmd.Exec("user", "namespace")
 	if err := ChangeNamespace(cmd, serv.Env(), "random"); err != nil {
 		t.Fatalf("Error changing namespace %s", err)
 	}
