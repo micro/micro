@@ -55,11 +55,12 @@ func (s *svc) Create(svc *runtime.Service, opts ...runtime.CreateOption) error {
 			Command:    options.Command,
 			Args:       options.Args,
 			Env:        options.Env,
+			Entrypoint: options.Entrypoint,
 			Type:       options.Type,
 			Image:      options.Image,
 			Namespace:  options.Namespace,
 			Secrets:    options.Secrets,
-			Entrypoint: options.Entrypoint,
+			Volumes:    options.Volumes,
 		},
 	}
 
