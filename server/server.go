@@ -153,7 +153,7 @@ func Run(context *cli.Context) error {
 		}
 
 		// for kubernetes we want to provide a port and instruct the service to bind to it. we don't do
-		// this locally because the services are not isolated and the ports will
+		// this locally because the services are not isolated and the ports will conflict
 		var port string
 		if runtime.DefaultRuntime.String() == "kubernetes" {
 			switch service {
