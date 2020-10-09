@@ -13,3 +13,4 @@ Reference entries are in depth explorations of various Micro topics.
 
 - [Environments](environments)
 - [CLI usage](cli)
+- [Install using Helm](helm)
