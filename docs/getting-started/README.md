@@ -395,7 +395,7 @@ key2   val2    None
 
 There is more to the store, but this knowledge already enables us to be dangerous!
 
-#### With the framework
+#### With the Library
 
 Accessing the same data we have just manipulated from our Go Micro services could not be easier.
 First let's create an entry that our service can read. This time we will specify the table for the `micro store write` command too, as each service has its own table in the store:
@@ -475,7 +475,7 @@ $ micro config get key
 {"othersubkey":"val2","subkey":"val"}
 ```
 
-### With the framework
+### With the Library
 
 Micro configs work very similarly when being called from [Go code too](https://pkg.go.dev/github.com/micro/go-micro/v3/config?tab=doc):
 
@@ -505,8 +505,6 @@ Assuming the folder name for this service is still `example` (to update the exis
 $ micro logs example
 Value of key.subkey:  val
 ```
-
-
 
 ## Further Resources
 
