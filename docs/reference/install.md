@@ -35,3 +35,25 @@ wget -q  https://raw.githubusercontent.com/micro/micro/master/scripts/install.sh
 # Windows
 powershell -Command "iwr -useb https://raw.githubusercontent.com/micro/micro/master/scripts/install.ps1 | iex"
 ```
+
+## Server Usage
+
+To start the server simply run
+
+```
+micro server
+```
+
+This will boot the entire system and services including a http api on :8080 and grpc proxy on :8081
+
+## Verify Install
+
+```
+micro --help
+```
+
+```
+micro env	# should point to local
+micro status	# returns empty response
+micro services	# returns empty response
+```
