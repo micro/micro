@@ -172,7 +172,15 @@ FLAGS:
 	--name string
 ```
 
-### With the framework
+### With the API
+
+Micro exposes a http API on port 8080 so you can just curl your service like so.
+
+```
+curl "http://localhost:8080/helloworld?name=John"
+```
+
+### With the Framework
 
 Let's write a small client we can use to call the helloworld service.
 Normally you'll make a service call inside another service so this is just a sample of a function you may write. We'll [learn how to write a full fledged service soon](#-writing-a-service).
@@ -240,9 +248,9 @@ Response:  Hello John
 
 Great! That response is coming straight from the helloworld service we started earlier!
 
-### From other languages
+### Multi-Language Clients
 
-In the [clients repo](https://github.com/micro/clients) there are Micro clients for various languages and frameworks. They are designed to connect easily to the live Micro environment or your local one, but more about environments later.
+Soon we'll be releasing multi language grpc generated clients to query services and use micro also.
 
 ## Creating a service
 
@@ -290,8 +298,6 @@ As can be seen from the output above, before building the first service, the fol
 They are all needed to translate proto files to actual Go code.
 Protos exist to provide a language agnostic way to describe service endpoints, their input and output types, and to have an efficient serialization format at hand.
 
-Currently Micro is Go focused (apart from the [clients](#-from-other-languages) mentioned before), but this will change soon.
-
 So once all tools are installed, being inside the service root, we can issue the following command to generate the Go code from the protos:
 
 ```sh
@@ -303,13 +309,47 @@ The generated code must be committed to source control, to enable other services
 At this point, we know how to write a service, run it, and call other services too.
 We have everything at our fingertips, but there are still some missing pieces to write applications. One of such pieces is the store interface, which helps with persistent data storage even without a database.
 
+## Updating a service
+
+Now since the example service is running (can be easily verified by `micro status`), we should not use `micro run`, but rather `micro update` to deploy it.
+
+We can simply issue the update command (remember to switch back to the root directory of the example service first):
+
+```sh
+micro update .
+```
+
+And verify both with micro status:
+
+```sh
+$ micro status example
+NAME	VERSION	SOURCE	STATUS	BUILD	UPDATED	METADATA
+example	latest	n/a		running	n/a		7s ago	owner=admin, group=micro
+```
+
+that it was updated.
+
+If things for some reason go haywire, we can try the time tested "turning it off and on again" solution and do:
+
+```sh
+micro kill example
+micro run .
+```
+
+to start with a clean slate.
+
+So once we did update the example service, we should see the following in the logs:
+
+```sh
+$ micro logs example
+key: mykey, value: Hi there
+```
+
 ## Storage
 
 Amongst many other useful built-in services Micro includes a persistent storage service for storing data.
 
-### Using the Store
-
-#### With the CLI
+### With the CLI
 
 First, let's go over the more basic store CLI commands.
 
@@ -353,7 +393,7 @@ key2   val2    None
 
 There is more to the store, but this knowledge already enables us to be dangerous!
 
-#### With the framework
+### With the Framework
 
 Accessing the same data we have just manipulated from our Go Micro services could not be easier.
 First let's create an entry that our service can read. This time we will specify the table for the `micro store write` command too, as each service has its own table in the store:
@@ -396,47 +436,11 @@ func main() {
 }
 ```
 
-## Updating a service
-
-Now since the example service is running (can be easily verified by `micro status`), we should not use `micro run`, but rather `micro update` to deploy it.
-
-We can simply issue the update command (remember to switch back to the root directory of the example service first):
-
-```sh
-micro update .
-```
-
-And verify both with micro status:
-
-```sh
-$ micro status example
-NAME	VERSION	SOURCE	STATUS	BUILD	UPDATED	METADATA
-example	latest	n/a		running	n/a		7s ago	owner=admin, group=micro
-```
-
-that it was updated.
-
-If things for some reason go haywire, we can try the time tested "turning it off and on again" solution and do:
-
-```sh
-micro kill example
-micro run .
-```
-
-to start with a clean slate.
-
-So once we did update the example service, we should see the following in the logs:
-
-```sh
-$ micro logs example
-key: mykey, value: Hi there
-```
-
 ## Config
 
 Configuration and secrets is an essential part of any production system - let's see how the Micro config works.
 
-### CLI
+### With the CLI
 
 The most basic example of config usage is the following:
 
@@ -469,7 +473,7 @@ $ micro config get key
 {"othersubkey":"val2","subkey":"val"}
 ```
 
-### With the framework
+### With the Framework
 
 Micro configs work very similarly when being called from [Go code too](https://pkg.go.dev/github.com/micro/go-micro/v3/config?tab=doc):
 
@@ -500,9 +504,7 @@ $ micro logs example
 Value of key.subkey:  val
 ```
 
-
-
-## Further reading
+## Further Resources
 
 This is just a brief getting started guide for quickly getting up and running with Micro. 
 Come back from time to time to learn more as this guide gets continually upgraded. If you're 
