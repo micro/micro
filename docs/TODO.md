@@ -1,5 +1,5 @@
 ---
-title: TODOFAQ
+title: TODO
 keywords: todo
 tags: [todo]
 sidebar: home_sidebar
