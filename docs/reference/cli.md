@@ -26,6 +26,7 @@ login
 run
 update
 kill
+services
 logs
 status
 env
