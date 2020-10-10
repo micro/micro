@@ -21,6 +21,7 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     optional :namespace, :string, 7
     map :secrets, :string, :string, 8
     optional :entrypoint, :string, 9
+    map :volumes, :string, :string, 10
   end
   add_message "runtime.CreateRequest" do
     optional :service, :message, 1, "runtime.Service"
