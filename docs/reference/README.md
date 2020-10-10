@@ -247,7 +247,12 @@ wget -q  https://raw.githubusercontent.com/micro/micro/master/scripts/install.sh
 powershell -Command "iwr -useb https://raw.githubusercontent.com/micro/micro/master/scripts/install.ps1 | iex"
 ```
 
-## Server Usage
+## Server
+
+The micro service is a distributed systems runtime for the Cloud and beyond. It provides the building 
+blocks for distributed systems development as a set of microservices and framework.
+
+### Usage
 
 To start the server simply run
 
@@ -257,7 +262,7 @@ micro server
 
 This will boot the entire system and services including a http api on :8080 and grpc proxy on :8081
 
-##  Verify Install
+### Verify Status
 
 Check help text is output with no errors
 ```
@@ -288,3 +293,51 @@ Remove the service
 ```
 micro kill helloworld
 ```
+
+### Services
+
+The Micro Server is not a monolithic process. Instead it is composed of many separate services.
+
+Below we describe the list of services provided by the Micro Server. Each service is considered a 
+building block primitive for a platform and distributed systems development. The proto 
+interfaces for each can be found in [micro/proto/auth](https://github.com/micro/micro/blob/master/proto/auth/auth.proto) 
+and the Go library, client and server implementations in [micro/service/auth](https://github.com/micro/micro/tree/master/service/auth).
+
+### Auth
+
+The auth service provides both authentication and authorization.
+The auth service stores accounts and access rules. It provides the single source of truth for all authentication 
+and authorization within the Micro runtime. Every service and user requires an account to operate. When a service 
+is started by the runtime an account is generated for it. Core services and services run by Micro load rules 
+periodically and manage the access to their resources on a per request basis.
+
+### Config
+
+The config service provides dynamic configuration for services. Config can be stored and loaded separately to 
+the application itself for configuring business logic, api keys, etc. We read and write these as key-value 
+pairs which also support nesting of JSON values. The config interface also supports storing secrets by 
+defining the secret key as an option at the time of writing the value.
+
+### Broker
+
+TODO
+
+### Events
+
+TODO
+
+### Network
+
+TODO
+
+### Registry
+
+TODO
+
+### Runtime
+
+TODO
+
+### Store
+
+TODO
