@@ -294,7 +294,7 @@ Remove the service
 micro kill helloworld
 ```
 
-### Services
+## Services
 
 The Micro Server is not a monolithic process. Instead it is composed of many separate services.
 
