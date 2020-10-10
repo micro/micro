@@ -8,10 +8,13 @@ permalink: /reference/environments
 
 # Environments
 
-Micro is built with the conviction that with a single CLI (the Micro CLI) the user should be able to use any micro environments the same way - regardless
-if  the environment is a local `micro server` using file/in memory implementation of different functionalities or a full scaled production server.
+Micro is built with a federated and multi-environment model in mind. Our development normally maps through local, staging and production, so Micro takes 
+this forward looking view and builds in the notion of environments which are completely isolated micro environments you can interact with through the CLI. 
+This reference explains environments.
 
-To achieve this the `micro env` command was introduced.
+## Usage
+
+Environments can be displayed using the `micro env` command.
 
 ```sh
 $ micro env
@@ -20,8 +23,8 @@ $ micro env
   platform   proxy.m3o.com
 ```
 
-There are three builtin environments, `local` being the default one, and two [`m3o` specific](m3o.com) ones.
-These just exist for convenience reasons.
+There are three builtin environments, `local` being the default one, and two [`m3o` specific](m3o.com) ones; dev and platform.
+These exist for convenience and speed of development.
 
 The beauty of the Micro envs are however that users can add their own. This is extremely useful when one wants to interact with one's own self hosted Micro server instance.
 
