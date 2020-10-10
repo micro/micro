@@ -511,7 +511,7 @@ Value of key.subkey:  val
 
 
 
-## Further reading
+## Further Resources
 
 This is just a brief getting started guide for quickly getting up and running with Micro. 
 Come back from time to time to learn more as this guide gets continually upgraded. If you're 
