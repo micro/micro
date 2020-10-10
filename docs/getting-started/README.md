@@ -440,7 +440,7 @@ func main() {
 
 Configuration and secrets is an essential part of any production system - let's see how the Micro config works.
 
-### CLI
+### With the CLI
 
 The most basic example of config usage is the following:
 
