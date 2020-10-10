@@ -7,6 +7,8 @@ permalink: /reference/cli
 summary: A CLI usage guide
 ---
 
+## CLI
+
 Micro is driven entirely through a CLI experience. This reference highlights the CLI design.
 
 ## Overview
