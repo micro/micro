@@ -12,19 +12,19 @@ with the complexity of distributed systems and provides simpler programmable abs
 
 Install from source
 
-```
+```sh
 go get github.com/micro/micro/v3
 ```
 
 Using a docker image
 
-```
+```sh
 docker pull micro/micro
 ```
 
 Latest release binaries
 
-```
+```sh
 # MacOS
 curl -fsSL https://raw.githubusercontent.com/micro/micro/master/scripts/install.sh | /bin/bash
 
@@ -52,7 +52,7 @@ micro login
 
 Create a service
 
-```
+```sh
 # generate a service (follow instructions in output)
 micro new helloworld
 
@@ -71,13 +71,22 @@ curl -d '{"name": "Alice"}' http://localhost:8080/helloworld
 
 ## Usage
 
-See all the options
+See the [docs](https://micro.mu) for detailed information on the architecture, installation and use of the platform.
 
-```
+To see all the micro commands:
+
+```sh
 micro --help
 ```
 
-See the [docs](https://micro.mu) for detailed information on the architecture, installation and use of the platform.
+Subcommand also accept the `--help` flags all the way down, ie
+
+```
+micro store --help
+micro store write --help
+```
+
+are all valid.
 
 ## Features
 
