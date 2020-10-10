@@ -14,7 +14,28 @@ Micro is driven entirely through a CLI experience. This reference highlights the
 The CLI speaks to the `micro server` through the gRPC proxy running locally by default on :8081. All requests are proxied based on your environment 
 configuration. The CLI provides the sole interaction for controlling services and environments.
 
-# Dynamic commands
+## Builtin Commands
+
+Built in commands are system or configuration level commands for interacting with the server or 
+changing user config. For the most part this is syntactic sugar for user convenience. Here's a 
+subset of well known commands.
+
+```
+signup
+login
+run
+update
+kill
+logs
+status
+env
+user
+```
+
+The micro binary and each subcommand has a --help flag to provide a usage guide. The majority should be 
+obvious to the user. We will go through a few in more detail.
+
+## Dynamic Commands
 
 When issuing a command to the Micro CLI (ie. `micro command`), if the command is not a builtin, Micro will try to dynamically resolve this command and call
 a service running. Let's take the `micro registry` command, because although the registry is a core service that's running by default on a local Micro setup,
