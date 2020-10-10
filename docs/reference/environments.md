@@ -6,7 +6,7 @@ sidebar: home_sidebar
 permalink: /reference/environments
 ---
 
-# Environments
+## Environments
 
 Micro is built with a federated and multi-environment model in mind. Our development normally maps through local, staging and production, so Micro takes 
 this forward looking view and builds in the notion of environments which are completely isolated micro environments you can interact with through the CLI. 
