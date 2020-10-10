@@ -40,7 +40,7 @@ $ micro env
   foobar    example.com
 ```
 
-## Set Environment
+### Set Environment
 
 The `*` marks wich environment is selected. Let's select the newly added:
 
@@ -54,7 +54,7 @@ $ micro env
 * foobar     example.com
 ```
 
-## Login to an Environment
+### Login to an Environment
 
 Each environment is effectively an isolated deployment with its own authentication, storage, etc. So each env requires signup and login. 
 At this point we have to log in to the `example` env with `micro login`. If you don't have the credentials to the environment, you have to ask the admin.
