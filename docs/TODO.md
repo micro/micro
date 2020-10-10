@@ -18,6 +18,7 @@ Things that need to be documented for v3
 - [x] FAQ: What problem is Micro solving
 - [x] FAQ: What environments does Micro run in
 - [x] Getting Started: Installation
+- [x] Environments
 - [ ] Architecture
 - [ ] Concepts
 - [ ] Tutorials
@@ -36,7 +37,6 @@ Things that need to be documented for v3
 - [ ] PubSub Messaging
 - [ ] Event Streaming
 - [ ] Load Balancing
-- [ ] Environments
 - [ ] Running on Kubernetes
 - [ ] Example services
 - [ ] Example design patterns
