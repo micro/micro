@@ -349,9 +349,7 @@ key: mykey, value: Hi there
 
 Amongst many other useful built-in services Micro includes a persistent storage service for storing data.
 
-### Using the Store
-
-#### With the CLI
+### With the CLI
 
 First, let's go over the more basic store CLI commands.
 
@@ -395,7 +393,7 @@ key2   val2    None
 
 There is more to the store, but this knowledge already enables us to be dangerous!
 
-#### With the Framework
+### With the Framework
 
 Accessing the same data we have just manipulated from our Go Micro services could not be easier.
 First let's create an entry that our service can read. This time we will specify the table for the `micro store write` command too, as each service has its own table in the store:
