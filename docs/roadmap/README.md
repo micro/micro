@@ -21,7 +21,7 @@ Below are high level features or things we want to get done.
 - [x] standalone micro server
 - [x] better documentation and end to end tutorials
 - [x] dynamically defined cli, flags and env vars
-- [ ] simpler kubernetes integration and deployment using helm
+- [x] simpler kubernetes integration and deployment using helm
 - [ ] pluggable wrappers for micro for cors, tracing, logging
 - [ ] improved micro api configuration to define endpoints and hosts
 - [ ] graphql handler for the micro api
