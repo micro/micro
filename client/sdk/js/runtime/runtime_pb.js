@@ -351,7 +351,8 @@ proto.runtime.CreateOptions.toObject = function(includeInstance, msg) {
     image: jspb.Message.getFieldWithDefault(msg, 6, ""),
     namespace: jspb.Message.getFieldWithDefault(msg, 7, ""),
     secretsMap: (f = msg.getSecretsMap()) ? f.toObject(includeInstance, undefined) : [],
-    entrypoint: jspb.Message.getFieldWithDefault(msg, 9, "")
+    entrypoint: jspb.Message.getFieldWithDefault(msg, 9, ""),
+    volumesMap: (f = msg.getVolumesMap()) ? f.toObject(includeInstance, undefined) : []
   };
 
   if (includeInstance) {
@@ -425,6 +426,12 @@ proto.runtime.CreateOptions.deserializeBinaryFromReader = function(msg, reader) 
     case 9:
       var value = /** @type {string} */ (reader.readString());
       msg.setEntrypoint(value);
+      break;
+    case 10:
+      var value = msg.getVolumesMap();
+      reader.readMessage(value, function(message, reader) {
+        jspb.Map.deserializeBinary(message, reader, jspb.BinaryReader.prototype.readString, jspb.BinaryReader.prototype.readString, null, "");
+         });
       break;
     default:
       reader.skipField();
@@ -514,6 +521,10 @@ proto.runtime.CreateOptions.serializeBinaryToWriter = function(message, writer) 
       9,
       f
     );
+  }
+  f = message.getVolumesMap(true);
+  if (f && f.getLength() > 0) {
+    f.serializeBinary(10, writer, jspb.BinaryWriter.prototype.writeString, jspb.BinaryWriter.prototype.writeString);
   }
 };
 
@@ -695,6 +706,24 @@ proto.runtime.CreateOptions.prototype.getEntrypoint = function() {
 /** @param {string} value */
 proto.runtime.CreateOptions.prototype.setEntrypoint = function(value) {
   jspb.Message.setProto3StringField(this, 9, value);
+};
+
+
+/**
+ * map<string, string> volumes = 10;
+ * @param {boolean=} opt_noLazyCreate Do not create the map if
+ * empty, instead returning `undefined`
+ * @return {!jspb.Map<string,string>}
+ */
+proto.runtime.CreateOptions.prototype.getVolumesMap = function(opt_noLazyCreate) {
+  return /** @type {!jspb.Map<string,string>} */ (
+      jspb.Message.getMapField(this, 10, opt_noLazyCreate,
+      null));
+};
+
+
+proto.runtime.CreateOptions.prototype.clearVolumesMap = function() {
+  this.getVolumesMap().clear();
 };
 
 
