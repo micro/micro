@@ -240,9 +240,18 @@ Response:  Hello John
 
 Great! That response is coming straight from the helloworld service we started earlier!
 
-### From other languages
+### From the API
 
-In the [clients repo](https://github.com/micro/clients) there are Micro clients for various languages and frameworks. They are designed to connect easily to the live Micro environment or your local one, but more about environments later.
+Micro exposes a http API on port 8080 so you can just curl your service like so.
+
+```
+curl "http://localhost:8080/helloworld?name=John"
+```
+
+### Multi Language Clients
+
+Soon we'll be releasing multi language grpc generated clients to query services 
+and use micro also.
 
 ## Creating a service
 
