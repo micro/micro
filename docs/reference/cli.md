@@ -7,6 +7,13 @@ permalink: /reference/cli
 summary: A CLI usage guide
 ---
 
+Micro is driven entirely through a CLI experience. This reference highlights the CLI design.
+
+## Overview
+
+The CLI speaks to the `micro server` through the gRPC running locally by default on :8081. All requests are proxied based on your environment 
+configuration. The CLI provides the sole interaction for controlling services and environments.
+
 # Dynamic commands
 
 When issuing a command to the Micro CLI (ie. `micro command`), if the command is not a builtin, Micro will try to dynamically resolve this command and call
