@@ -27,6 +27,7 @@ import (
 	"github.com/micro/micro/v3/internal/network"
 	"github.com/micro/micro/v3/internal/report"
 	_ "github.com/micro/micro/v3/internal/usage"
+	"github.com/micro/micro/v3/internal/user"
 	"github.com/micro/micro/v3/internal/wrapper"
 	"github.com/micro/micro/v3/plugin"
 	"github.com/micro/micro/v3/profile"
@@ -253,7 +254,7 @@ func action(c *cli.Context) error {
 			fmt.Printf("Error querying registry for service %v: %v", c.Args().First(), err)
 			os.Exit(1)
 		} else if srv != nil && shouldRenderHelp(c) {
-			fmt.Println(formatServiceUsage(srv, c.Args().First()))
+			fmt.Println(formatServiceUsage(srv, c))
 			os.Exit(1)
 		} else if srv != nil {
 			if err := callService(srv, ns, c); err != nil {
@@ -305,13 +306,12 @@ func (c *command) Options() Options {
 
 // Before is executed before any subcommand
 func (c *command) Before(ctx *cli.Context) error {
-	// check for the latest release
 	if v := ctx.Args().First(); len(v) > 0 {
 		switch v {
 		case "service", "server":
 			// do nothing
 		default:
-			// otherwise check
+			// check for the latest release
 			// TODO: write a local file to detect
 			// when we last checked so we don't do it often
 			updated, err := confirmAndSelfUpdate(ctx)
@@ -403,9 +403,6 @@ func (c *command) Before(ctx *cli.Context) error {
 		server.WrapHandler(wrapper.MetricsHandler()),
 	)
 
-	// initialize the server with the namespace so it knows which domain to register in
-	muserver.DefaultServer.Init(server.Namespace(ctx.String("namespace")))
-
 	// setup auth
 	authOpts := []auth.Option{}
 	if len(ctx.String("namespace")) > 0 {
@@ -420,14 +417,37 @@ func (c *command) Before(ctx *cli.Context) error {
 		))
 	}
 
-	if len(ctx.String("auth_public_key")) > 0 {
+	// load the jwt private and public keys, in the case of the server we want to generate them if not
+	// present. The server will inject these creds into the core services, if the services generated
+	// the credentials themselves then they wouldn't match
+	if len(ctx.String("auth_public_key")) > 0 || len(ctx.String("auth_private_key")) > 0 {
 		authOpts = append(authOpts, auth.PublicKey(ctx.String("auth_public_key")))
-	}
-	if len(ctx.String("auth_private_key")) > 0 {
 		authOpts = append(authOpts, auth.PrivateKey(ctx.String("auth_private_key")))
+	} else if ctx.Args().First() == "server" {
+		privKey, pubKey, err := user.GetJWTCerts()
+		if err != nil {
+			logger.Fatalf("Error getting keys: %v", err)
+		}
+		authOpts = append(authOpts, auth.PublicKey(string(pubKey)), auth.PrivateKey(string(privKey)))
 	}
 
 	muauth.DefaultAuth.Init(authOpts...)
+
+	// setup auth credentials, use local credentials for the CLI and injected creds
+	// for the service.
+	var err error
+	if c.service {
+		err = setupAuthForService()
+	} else {
+		err = setupAuthForCLI(ctx)
+	}
+	if err != nil {
+		logger.Fatalf("Error setting up auth: %v", err)
+	}
+	go refreshAuthToken()
+
+	// initialize the server with the namespace so it knows which domain to register in
+	muserver.DefaultServer.Init(server.Namespace(ctx.String("namespace")))
 
 	// setup registry
 	registryOpts := []registry.Option{}
@@ -520,21 +540,6 @@ func (c *command) Before(ctx *cli.Context) error {
 		server.Broker(mubroker.DefaultBroker),
 		server.Registry(muregistry.DefaultRegistry),
 	)
-
-	// setup auth credentials, use local credentials for the CLI and injected creds
-	// for the service.
-	var err error
-	if c.service {
-		err = setupAuthForService()
-	} else {
-		err = setupAuthForCLI(ctx)
-	}
-	if err != nil {
-		logger.Fatalf("Error setting up auth: %v", err)
-	}
-
-	// refresh token periodically
-	go refreshAuthToken()
 
 	// Setup config. Do this after auth is configured since it'll load the config
 	// from the service immediately. We only do this if the action is nil, indicating

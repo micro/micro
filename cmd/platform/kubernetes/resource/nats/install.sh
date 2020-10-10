@@ -20,18 +20,18 @@ kubectl create secret generic nats-peer-certs --from-file=ca.pem --from-file=rou
 cd ../;
 
 if [[ $MICRO_ENV == "dev" ]]; then
-  overrides="--set cluster.enabled=false"
+  overrides="--set cluster.enabled=false --set stan.replicas=1 --set nats.cluster.enabled=false --set store.cluster.enabled=false"
 fi
 
 # add the nats helm chart
 helm repo add nats https://nats-io.github.io/k8s/helm/charts/
 
-helm install nats-cluster nats/nats -f nats-values.yaml $overrides
+helm install nats-cluster nats/nats --version 0.5.6 -f nats-values.yaml $overrides 
 
 # wait for the nats cluster to start before we start the streaming cluster
 kubectl wait --for=condition=Ready pod/nats-cluster-0 --timeout=180s
 
-helm install nats-streaming-cluster nats/stan -f stan-values.yaml $overrides
+helm install nats-streaming-cluster nats/stan --version 0.5.6 -f stan-values.yaml $overrides
 
 # wait for the nats streaming cluster to start before we exit
 kubectl wait --for=condition=Ready pod/nats-streaming-cluster-0 --timeout=180s 

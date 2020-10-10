@@ -92,6 +92,11 @@ func toCreateOptions(ctx context.Context, opts *pb.CreateOptions) []runtime.Crea
 		options = append(options, runtime.WithSecret(k, v))
 	}
 
+	// mount the volumes
+	for name, path := range opts.Volumes {
+		options = append(options, runtime.WithVolume(name, path))
+	}
+
 	// TODO: output options
 
 	return options

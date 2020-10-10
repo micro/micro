@@ -1,4 +1,4 @@
-name: K8s integration tests
+name: Platform profile
 on: [push]
   # schedule:
   #   # * is a special character in YAML so you have to quote this string
@@ -7,7 +7,7 @@ on: [push]
 jobs:
 
   test:
-    name: K8s integration tests
+    name: Integration tests
     runs-on: ubuntu-latest
     env: 
       DOCKER_BUILDKIT: '1'
@@ -100,11 +100,12 @@ jobs:
       run: |
         kubectl port-forward service/micro-proxy 8081:443 & sleep 2s
         micro login --username=admin --password=micro
-        micro run --image=localhost:5000/cells:v3 github.com/m3o/services/build@rename-builder
+        micro run --image=localhost:5000/cells:v3 github.com/m3o/services/build
 
-        until [[ "$(micro status | grep build)" == *"running"* ]] 
+        until [[ "$(micro status build)" == *"running"* ]] 
         do
-          echo Waiting for build service to start: $(micro status | grep build)
+          echo Waiting for build service to start:
+          micro status build
           sleep 5s
         done
 

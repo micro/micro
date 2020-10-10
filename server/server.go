@@ -3,16 +3,14 @@ package server
 
 import (
 	"errors"
-	"fmt"
 	"os"
-	"path/filepath"
 	"strings"
-	"time"
 
 	"github.com/micro/go-micro/v3/util/file"
 	"github.com/micro/micro/v3/client/cli/util"
 	"github.com/micro/micro/v3/cmd"
 	"github.com/micro/micro/v3/service"
+	"github.com/micro/micro/v3/service/auth"
 	"github.com/micro/micro/v3/service/client"
 	"github.com/micro/micro/v3/service/context"
 	log "github.com/micro/micro/v3/service/logger"
@@ -39,7 +37,7 @@ var (
 var (
 	// Name of the server microservice
 	Name = "server"
-	// Address is the router microservice bind address
+	// Address is the server address
 	Address = ":10001"
 )
 
@@ -107,55 +105,79 @@ func Run(context *cli.Context) error {
 
 	// TODO: reimplement peering of servers e.g --peer=node1,node2,node3
 	// peers are configured as network nodes to cluster between
-
 	log.Info("Starting server")
 
-	for _, service := range services {
-		name := service
-
-		// set the proxy addres, default to the network running locally
-		proxy := context.String("proxy_address")
-		if len(proxy) == 0 {
-			proxy = "127.0.0.1:8443"
+	// parse the env vars
+	envvars := []string{"MICRO_LOG_LEVEL=debug"}
+	for _, val := range os.Environ() {
+		comps := strings.Split(val, "=")
+		if len(comps) != 2 {
+			continue
 		}
 
-		log.Infof("Registering %s", name)
-		// @todo this is a hack
-		env := []string{}
+		// only process MICRO_ values
+		if !strings.HasPrefix(comps[0], "MICRO_") {
+			continue
+		}
+
+		// skip the profile and proxy, that's set below since it can be service specific
+		if comps[0] == "MICRO_PROFILE" || comps[0] == "MICRO_PROXY" {
+			continue
+		}
+
+		envvars = append(envvars, val)
+	}
+
+	// start the services
+	for _, service := range services {
+		log.Infof("Registering %s", service)
+
 		// all things run by the server are `micro service [name]`
 		cmdArgs := []string{"service"}
 
-		switch service {
-		case "proxy", "api":
-			// pull the values we care about from environment
-			for _, val := range os.Environ() {
-				// only process MICRO_ values
-				if !strings.HasPrefix(val, "MICRO_") {
-					continue
-				}
-				// override any profile value because clients
-				// talk to services, these may be started
-				// differently in future as a `micro client`
-				if strings.HasPrefix(val, "MICRO_PROFILE=") {
-					val = "MICRO_PROFILE=client"
-				}
-				env = append(env, val)
-			}
-		default:
-			// pull the values we care about from environment
-			for _, val := range os.Environ() {
-				// only process MICRO_ values
-				if !strings.HasPrefix(val, "MICRO_") {
-					continue
-				}
-				env = append(env, val)
-			}
+		// override the profile for api & proxy
+		env := envvars
+		if service == "proxy" || service == "api" {
+			env = append(env, "MICRO_PROFILE=client")
+		} else {
+			env = append(env, "MICRO_PROFILE="+context.String("profile"))
 		}
 
-		// inject the proxy address for all services but the network, as we don't want
-		// that calling itself
-		if len(proxy) > 0 && service != "network" {
+		// set the proxy addres, default to the network running locally
+		if service != "network" {
+			proxy := context.String("proxy_address")
+			if len(proxy) == 0 {
+				proxy = "127.0.0.1:8443"
+			}
 			env = append(env, "MICRO_PROXY="+proxy)
+		}
+
+		// for kubernetes we want to provide a port and instruct the service to bind to it. we don't do
+		// this locally because the services are not isolated and the ports will conflict
+		var port string
+		if runtime.DefaultRuntime.String() == "kubernetes" {
+			switch service {
+			case "api":
+				// run the api on :443, the standard port for HTTPs
+				port = "443"
+				env = append(env, "MICRO_API_ADDRESS=:443")
+				// pass :8080 for the internal service address, since this is the default port used for the
+				// static (k8s) router. Because the http api will register on :443 it won't conflict
+				env = append(env, "MICRO_SERVICE_ADDRESS=:8080")
+			case "proxy":
+				// run the proxy on :443, the standard port for HTTPs
+				port = "443"
+				env = append(env, "MICRO_PROXY_ADDRESS=:443")
+				// pass :8080 for the internal service address, since this is the default port used for the
+				// static (k8s) router. Because the grpc proxy will register on :443 it won't conflict
+				env = append(env, "MICRO_SERVICE_ADDRESS=:8080")
+			case "network":
+				port = "8443"
+				env = append(env, "MICRO_SERVICE_ADDRESS=:8443")
+			default:
+				port = "8080"
+				env = append(env, "MICRO_SERVICE_ADDRESS=:8080")
+			}
 		}
 
 		// we want to pass through the global args so go up one level in the context lineage
@@ -172,16 +194,27 @@ func Run(context *cli.Context) error {
 			runtime.WithCommand(os.Args[0]),
 			runtime.WithArgs(cmdArgs...),
 			runtime.WithEnv(env),
+			runtime.WithPort(port),
 			runtime.WithRetries(10),
-			runtime.CreateImage("micro/micro"),
+			runtime.WithServiceAccount("micro"),
+			runtime.WithVolume("store-pvc", "/store"),
+			runtime.CreateImage("localhost:5000/micro"),
+			runtime.CreateNamespace("micro"),
+			runtime.WithSecret("MICRO_AUTH_PUBLIC_KEY", auth.DefaultAuth.Options().PublicKey),
+			runtime.WithSecret("MICRO_AUTH_PRIVATE_KEY", auth.DefaultAuth.Options().PrivateKey),
 		}
 
 		// NOTE: we use Version right now to check for the latest release
-		muService := &runtime.Service{Name: name, Version: fmt.Sprintf("%d", time.Now().Unix())}
+		muService := &runtime.Service{Name: service, Version: "latest"}
 		if err := runtime.Create(muService, args...); err != nil {
 			log.Errorf("Failed to create runtime environment: %v", err)
 			return err
 		}
+	}
+
+	// server is deployed as a pod in k8s, meaning it should exit once the services have been created.
+	if runtime.DefaultRuntime.String() == "kubernetes" {
+		return nil
 	}
 
 	log.Info("Starting server runtime")
@@ -199,17 +232,11 @@ func Run(context *cli.Context) error {
 		service.Address(Address),
 	)
 
-	// @todo make this configurable
-	uploadDir := filepath.Join(os.TempDir(), "micro", "uploads")
-	os.MkdirAll(uploadDir, 0777)
-	file.RegisterHandler(srv.Server(), uploadDir)
-
 	// start the server
 	if err := srv.Run(); err != nil {
 		log.Fatalf("Error running server: %v", err)
 	}
 
 	log.Info("Stopped server")
-
 	return nil
 }

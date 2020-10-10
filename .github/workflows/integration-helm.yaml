@@ -1,0 +1,84 @@
+name: Kubernetes profile
+on: [push]
+
+jobs:
+  test:
+    name: Integration tests
+    runs-on: ubuntu-latest
+    env: 
+      DOCKER_BUILDKIT: '1'
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v1
+    - name: Set up Go 1.13
+      uses: actions/setup-go@v2
+      with:
+        go-version: 1.13
+      id: go
+    - name: Install Protoc
+      uses: arduino/setup-protoc@master
+
+    # http://man7.org/linux/man-pages/man1/date.1.html
+    - name: Get Date
+      id: get-date
+      run: |
+        echo "::set-output name=date::$(/bin/date -u "+%Y%m%d")"
+      shell: bash
+    - name: Enable caching
+      uses: actions/cache@v2
+      with:
+        path: ~/go/pkg/mod
+        key: ${{ runner.os }}-go-kind-${{ steps.get-date.outputs.date }}
+
+    # We set up a local docker registry to push to and pull from. We need to set up the Kind cluster to pull from this
+    # We don't currently cache this because it doesn't seem to speed up the build 
+    - name: Setup docker registry
+      run: |
+        docker run -d -p 5000:5000 --restart=always --name kind-registry -v /tmp/docker-registry:/var/lib/registry registry:2 && npx wait-on tcp:5000
+    
+    - name: Build and push micro to local registry
+      id: build-push-reg-micro
+      run: |
+        docker build -f Dockerfile . -t localhost:5000/micro 
+        docker push localhost:5000/micro
+    - name: Setup Kind
+      uses: engineerd/setup-kind@v0.4.0
+      with:
+        config: scripts/kind/kind-config.yaml
+        version: v0.8.1
+    - name: Finish Kind registry setup
+      run: |
+        docker network connect "kind" "kind-registry"
+        for node in $(kind get nodes); do kubectl annotate node "${node}" "kind.x-k8s.io/registry=localhost:5000"; done
+    - name: Install the platform
+      run: |
+        helm repo add micro https://micro.github.io/helm
+        helm install micro micro/micro --set image.repo=localhost:5000/micro
+    - name: Install failed, show platform logs
+      if: ${{ failure() }}
+      run: |
+        kubectl get pods -n | awk '{print $1}' | xargs -n1 kubectl logs
+        kubectl get pods -n platform | awk '{print $1}' | xargs -n1 kubectl logs -n platform
+    
+    # Do this after the helm install to give the services time to register etc
+    - name: Build and push cells to local registry
+      id: build-push-reg-cell
+      run: |
+        DIR=service/runtime/cells/v3
+        docker build -f $DIR/Dockerfile $DIR -t localhost:5000/cells:v3
+        docker push localhost:5000/cells:v3
+    - name: Install micro
+      run: go install
+
+    - name: Wait for micro to be ready
+      run: |
+        kubectl wait deployment --all --for=condition=available -n micro --timeout=180s
+    # Finally, we can actually run the tests
+    - name: Test micro server
+      working-directory: ./test
+      env:
+        IN_TRAVIS_CI: yes
+        IN_HELM_TEST: yes
+        GITHUB_PAT: ${{ secrets.MICRO_ACTIONS_PAT }}
+      run: |
+        go clean -testcache && GOMAXPROCS=4 go test --tags=integration,kind -v -run ./... -timeout 20m

@@ -28,7 +28,6 @@ jobs:
       run: |
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
-        git branch pr/regen-clients && git checkout pr/regen-clients
         git add client/sdk/ && git commit -m "Regenerate client sdks from proto" || true
 
     - name: Create Pull Request

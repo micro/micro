@@ -11,6 +11,7 @@ import (
 	"github.com/micro/go-micro/v3/auth/noop"
 	"github.com/micro/go-micro/v3/broker"
 	"github.com/micro/go-micro/v3/broker/http"
+	memBroker "github.com/micro/go-micro/v3/broker/memory"
 	"github.com/micro/go-micro/v3/client"
 	config "github.com/micro/go-micro/v3/config/store"
 	memStream "github.com/micro/go-micro/v3/events/stream/memory"
@@ -18,14 +19,15 @@ import (
 	"github.com/micro/go-micro/v3/registry/mdns"
 	"github.com/micro/go-micro/v3/registry/memory"
 	"github.com/micro/go-micro/v3/router"
+	k8sRouter "github.com/micro/go-micro/v3/router/kubernetes"
 	regRouter "github.com/micro/go-micro/v3/router/registry"
-	"github.com/micro/go-micro/v3/router/static"
 	"github.com/micro/go-micro/v3/runtime/kubernetes"
 	"github.com/micro/go-micro/v3/runtime/local"
 	"github.com/micro/go-micro/v3/server"
 	"github.com/micro/go-micro/v3/store/file"
 	mem "github.com/micro/go-micro/v3/store/memory"
 	"github.com/micro/micro/v3/service/logger"
+	"github.com/micro/micro/v3/service/runtime/builder/golang"
 	"github.com/urfave/cli/v2"
 
 	inAuth "github.com/micro/micro/v3/internal/auth"
@@ -38,6 +40,7 @@ import (
 	microRegistry "github.com/micro/micro/v3/service/registry"
 	microRouter "github.com/micro/micro/v3/service/router"
 	microRuntime "github.com/micro/micro/v3/service/runtime"
+	microBuilder "github.com/micro/micro/v3/service/runtime/builder"
 	microServer "github.com/micro/micro/v3/service/server"
 	microStore "github.com/micro/micro/v3/service/store"
 )
@@ -117,22 +120,50 @@ var Local = &Profile{
 	},
 }
 
-// Kubernetes profile to run on kubernetes
+// Kubernetes profile to run on kubernetes with zero deps. Designed for use with the micro helm chart
 var Kubernetes = &Profile{
 	Name: "kubernetes",
-	Setup: func(ctx *cli.Context) error {
-		// TODO: implement
-		// using a static router so queries are routed based on service name
-		microRouter.DefaultRouter = static.NewRouter()
-		// Using the kubernetes runtime
-		microRuntime.DefaultRuntime = kubernetes.NewRuntime()
-		// registry kubernetes
-		// config configmap
-		// store ...
+	Setup: func(ctx *cli.Context) (err error) {
 		microAuth.DefaultAuth = jwt.NewAuth()
 		SetupJWT(ctx)
+
+		microRuntime.DefaultRuntime = kubernetes.NewRuntime()
+		microBuilder.DefaultBuilder, err = golang.NewBuilder()
+		if err != nil {
+			logger.Fatalf("Error configuring golang builder: %v", err)
+		}
+
+		microEvents.DefaultStream, err = memStream.NewStream()
+		if err != nil {
+			logger.Fatalf("Error configuring stream: %v", err)
+		}
+
+		microStore.DefaultStore = file.NewStore(file.WithDir("/store"))
+		microStore.DefaultBlobStore, err = file.NewBlobStore(file.WithDir("/store/blob"))
+		if err != nil {
+			logger.Fatalf("Error configuring file blob store: %v", err)
+		}
+
+		// the registry service uses the memory registry, the other core services will use the default
+		// rpc client and call the registry service
+		if ctx.Args().Get(1) == "registry" {
+			SetupRegistry(memory.NewRegistry())
+		}
+
+		// the broker service uses the memory broker, the other core services will use the default
+		// rpc client and call the broker service
+		if ctx.Args().Get(1) == "broker" {
+			SetupBroker(memBroker.NewBroker())
+		}
+
+		microConfig.DefaultConfig, err = config.NewConfig(microStore.DefaultStore, "")
+		if err != nil {
+			logger.Fatalf("Error configuring config: %v", err)
+		}
 		SetupConfigSecretKey(ctx)
 
+		microRouter.DefaultRouter = k8sRouter.NewRouter()
+		microClient.DefaultClient.Init(client.Router(microRouter.DefaultRouter))
 		return nil
 	},
 }
@@ -171,28 +202,13 @@ func SetupBroker(b broker.Broker) {
 	microServer.DefaultServer.Init(server.Broker(b))
 }
 
-// SetupJWTRules configures the default internal system rules
+// SetupJWT configures the default internal system rules
 func SetupJWT(ctx *cli.Context) {
 	for _, rule := range inAuth.SystemRules {
 		if err := microAuth.DefaultAuth.Grant(rule); err != nil {
 			logger.Fatal("Error creating default rule: %v", err)
 		}
 	}
-	// Only set this up for core services
-	// Won't work for multi node environments, could use
-	// the file store for that.
-
-	pubKey := ctx.String("auth_public_key")
-	privKey := ctx.String("auth_private_key")
-	if len(privKey) == 0 || len(pubKey) == 0 {
-		privB, pubB, err := user.GetJWTCerts()
-		if err != nil {
-			logger.Fatalf("Error getting keys: %v", err)
-		}
-		os.Setenv("MICRO_AUTH_PRIVATE_KEY", string(privB))
-		os.Setenv("MICRO_AUTH_PUBLIC_KEY", string(pubB))
-	}
-
 }
 
 func SetupConfigSecretKey(ctx *cli.Context) {
