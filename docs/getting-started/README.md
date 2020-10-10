@@ -180,7 +180,7 @@ Micro exposes a http API on port 8080 so you can just curl your service like so.
 curl "http://localhost:8080/helloworld?name=John"
 ```
 
-### With the Library
+### With the Framework
 
 Let's write a small client we can use to call the helloworld service.
 Normally you'll make a service call inside another service so this is just a sample of a function you may write. We'll [learn how to write a full fledged service soon](#-writing-a-service).
@@ -395,7 +395,7 @@ key2   val2    None
 
 There is more to the store, but this knowledge already enables us to be dangerous!
 
-#### With the Library
+#### With the Framework
 
 Accessing the same data we have just manipulated from our Go Micro services could not be easier.
 First let's create an entry that our service can read. This time we will specify the table for the `micro store write` command too, as each service has its own table in the store:
@@ -475,7 +475,7 @@ $ micro config get key
 {"othersubkey":"val2","subkey":"val"}
 ```
 
-### With the Library
+### With the Framework
 
 Micro configs work very similarly when being called from [Go code too](https://pkg.go.dev/github.com/micro/go-micro/v3/config?tab=doc):
 
