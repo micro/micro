@@ -11,7 +11,7 @@ Micro is driven entirely through a CLI experience. This reference highlights the
 
 ## Overview
 
-The CLI speaks to the `micro server` through the gRPC running locally by default on :8081. All requests are proxied based on your environment 
+The CLI speaks to the `micro server` through the gRPC proxy running locally by default on :8081. All requests are proxied based on your environment 
 configuration. The CLI provides the sole interaction for controlling services and environments.
 
 # Dynamic commands
