@@ -7,7 +7,9 @@ permalink: /getting-started
 summary: A getting started guide for Micro
 ---
 
-# Overview
+Micro is a framework for cloud native development.
+
+## Overview
 
 The key components of Micro are as follows.
 
@@ -15,7 +17,28 @@ The key components of Micro are as follows.
 - Clients: a http api, grpc proxy and command line for accessing services
 - Library: a Go library for writing services to be run in the micro runtime
 
-## Installation
+
+## Contents
+
+* TOC
+{:toc}
+
+## Dependencies
+
+You will need protoc-gen-micro for code generation
+
+- [protobuf](https://github.com/golang/protobuf)
+- [protoc-gen-go](https://github.com/golang/protobuf/tree/master/protoc-gen-go)
+- [protoc-gen-micro](https://github.com/micro/micro/tree/master/cmd/protoc-gen-micro)
+
+```
+# Download latest proto releaes
+# https://github.com/protocolbuffers/protobuf/releases
+go get github.com/golang/protobuf/protoc-gen-go
+go get github.com/micro/micro/v3/cmd/protoc-gen-micro
+```
+
+## Install
 
 Using Go:
 

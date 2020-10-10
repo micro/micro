@@ -38,6 +38,7 @@ theme: jekyll-theme-primer
 plugins:
   - jekyll-feed
   - jekyll-paginate
+markdown: kramdown
 kramdown: 
   parse_block_html: true
 # Exclude from processing.

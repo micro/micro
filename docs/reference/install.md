@@ -48,12 +48,32 @@ This will boot the entire system and services including a http api on :8080 and 
 
 ## Verify Install
 
+Check help text is output with no errors
 ```
 micro --help
 ```
+
+Run helloworld
 
 ```
 micro env	# should point to local
 micro status	# returns empty response
 micro services	# returns empty response
+micro run github.com/micro/services/helloworld # run helloworld
+micro status 	# wait for status running
+```
+
+Call the service and verify output
+
+```shell
+$ micro helloworld --name=John
+{
+        "msg": "Hello John"
+}
+```
+
+Remove the service
+
+```
+micro kill helloworld
 ```
