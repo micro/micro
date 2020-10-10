@@ -11,6 +11,6 @@ summary: Reference - a comprehensive look at topics
 
 Reference entries are in depth explorations of various Micro topics.
 
-- [CLI usage](cli)
-- [Environments](environments)
-- [Install using Helm](helm)
+- [CLI usage](/reference/cli)
+- [Environments](/reference/environments)
+- [Install using Helm](/reference/helm)
