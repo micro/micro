@@ -17,7 +17,7 @@ configuration. The CLI provides the sole interaction for controlling services an
 # Dynamic commands
 
 When issuing a command to the Micro CLI (ie. `micro command`), if the command is not a builtin, Micro will try to dynamically resolve this command and call
-a service running. Let's take the `micro registry` command, because although t he registry is core service that's running by default on a local Micro setup,
+a service running. Let's take the `micro registry` command, because although the registry is a core service that's running by default on a local Micro setup,
 the `registry` command is not a builtin one.
 
 With the `--help` flag, we can get information about available subcommands and flags
