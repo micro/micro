@@ -136,14 +136,9 @@ func NewRequest(service, endpoint string, req interface{}) Request {
 	return DefaultClient.NewRequest(service, endpoint, req)
 }
 
-// PerformCall performs a request
-func PerformCall(ctx context.Context, req Request, rsp interface{}) error {
+// Call performs a request
+func Call(ctx context.Context, req Request, rsp interface{}) error {
 	return DefaultClient.Call(ctx, req, rsp)
-}
-
-// PerformStream performs a streaming request
-func PerformStream(ctx context.Context, req Request) (Stream, error) {
-	return DefaultClient.Stream(ctx, req)
 }
 
 // Publish a message

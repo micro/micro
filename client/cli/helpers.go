@@ -106,7 +106,8 @@ func streamService(c *cli.Context, args []string) ([]byte, error) {
 	// ignore error
 	json.Unmarshal([]byte(strings.Join(args[2:], " ")), &request)
 
-	stream, err := client.Stream(context.Background(), req)
+	req := client.DefaultClient.NewRequest(service, endpoint, request, client.WithContentType("application/json"))
+	stream, err := client.DefaultClient.Stream(context.Background(), req)
 	if err != nil {
 		return nil, fmt.Errorf("error calling %s.%s: %v", service, endpoint, err)
 	}

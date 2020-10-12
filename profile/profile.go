@@ -7,8 +7,6 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/micro/go-micro/v3/auth/jwt"
-	"github.com/micro/go-micro/v3/auth/noop"
 	"github.com/micro/go-micro/v3/broker"
 	"github.com/micro/go-micro/v3/broker/http"
 	memBroker "github.com/micro/go-micro/v3/broker/memory"
@@ -25,6 +23,8 @@ import (
 	"github.com/micro/go-micro/v3/server"
 	"github.com/micro/go-micro/v3/store/file"
 	mem "github.com/micro/go-micro/v3/store/memory"
+	"github.com/micro/micro/v3/service/auth/jwt"
+	"github.com/micro/micro/v3/service/auth/noop"
 	"github.com/micro/micro/v3/service/client"
 	"github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/runtime/builder/golang"

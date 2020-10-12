@@ -1,6 +1,8 @@
 package cmd
 
 import (
+	"github.com/micro/micro/v3/service/auth"
+	authSrv "github.com/micro/micro/v3/service/auth/client"
 	"github.com/micro/micro/v3/service/client"
 	"github.com/micro/micro/v3/service/client/grpc"
 )
@@ -10,5 +12,8 @@ import (
 func setupDefaults() {
 	if client.DefaultClient == nil {
 		client.DefaultClient = grpc.NewClient()
+	}
+	if auth.DefaultAuth == nil {
+		auth.DefaultAuth = authSrv.NewAuth()
 	}
 }

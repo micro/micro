@@ -28,7 +28,7 @@ import (
 	"github.com/gobwas/httphead"
 	"github.com/gobwas/ws"
 	"github.com/gobwas/ws/wsutil"
-	"github.com/micro/go-micro/v3/client"
+	"github.com/micro/micro/v3/service/client"
 	raw "github.com/micro/go-micro/v3/codec/bytes"
 	"github.com/micro/go-micro/v3/logger"
 	"github.com/micro/go-micro/v3/util/router"

@@ -24,8 +24,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/micro/go-micro/v3/client"
-	gcli "github.com/micro/go-micro/v3/client/grpc"
+	"github.com/micro/micro/v3/service/client"
+	gcli "github.com/micro/micro/v3/service/client/grpc"
 	rmemory "github.com/micro/go-micro/v3/registry/memory"
 	rt "github.com/micro/go-micro/v3/router"
 	regRouter "github.com/micro/go-micro/v3/router/registry"

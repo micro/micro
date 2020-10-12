@@ -25,7 +25,7 @@ import (
 	"strings"
 
 	jsonpatch "github.com/evanphx/json-patch/v5"
-	"github.com/micro/go-micro/v3/client"
+	"github.com/micro/micro/v3/service/client"
 	"github.com/micro/go-micro/v3/codec"
 	"github.com/micro/go-micro/v3/codec/bytes"
 	"github.com/micro/go-micro/v3/codec/jsonrpc"
