@@ -4,7 +4,7 @@ import (
 	"time"
 
 	"github.com/micro/go-micro/v3/client"
-	"github.com/micro/go-micro/v3/server"
+	"github.com/micro/micro/v3/service/server"
 
 	// TODO: replace with micro/v3/service/cli
 	"github.com/micro/micro/v3/cmd"

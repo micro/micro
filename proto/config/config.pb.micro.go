@@ -12,8 +12,8 @@ import (
 import (
 	context "context"
 	client "github.com/micro/go-micro/v3/client"
-	server "github.com/micro/go-micro/v3/server"
 	api "github.com/micro/micro/v3/service/api"
+	server "github.com/micro/micro/v3/service/server"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.

@@ -21,13 +21,13 @@ import (
 	regRouter "github.com/micro/go-micro/v3/router/registry"
 	"github.com/micro/go-micro/v3/runtime/kubernetes"
 	"github.com/micro/go-micro/v3/runtime/local"
-	"github.com/micro/go-micro/v3/server"
 	"github.com/micro/go-micro/v3/store/file"
 	mem "github.com/micro/go-micro/v3/store/memory"
 	"github.com/micro/micro/v3/service/auth/jwt"
 	"github.com/micro/micro/v3/service/auth/noop"
 	"github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/runtime/builder/golang"
+	"github.com/micro/micro/v3/service/server"
 	"github.com/urfave/cli/v2"
 
 	inAuth "github.com/micro/micro/v3/internal/auth"
@@ -41,7 +41,6 @@ import (
 	microRouter "github.com/micro/micro/v3/service/router"
 	microRuntime "github.com/micro/micro/v3/service/runtime"
 	microBuilder "github.com/micro/micro/v3/service/runtime/builder"
-	microServer "github.com/micro/micro/v3/service/server"
 	microStore "github.com/micro/micro/v3/service/store"
 )
 
@@ -191,7 +190,7 @@ var Test = &Profile{
 func SetupRegistry(reg registry.Registry) {
 	microRegistry.DefaultRegistry = reg
 	microRouter.DefaultRouter = regRouter.NewRouter(router.Registry(reg))
-	microServer.DefaultServer.Init(server.Registry(reg))
+	server.DefaultServer.Init(server.Registry(reg))
 	microClient.DefaultClient.Init(client.Registry(reg))
 }
 
@@ -199,7 +198,7 @@ func SetupRegistry(reg registry.Registry) {
 func SetupBroker(b broker.Broker) {
 	microBroker.DefaultBroker = b
 	microClient.DefaultClient.Init(client.Broker(b))
-	microServer.DefaultServer.Init(server.Broker(b))
+	server.DefaultServer.Init(server.Broker(b))
 }
 
 // SetupJWT configures the default internal system rules

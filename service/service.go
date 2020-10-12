@@ -10,7 +10,7 @@ import (
 
 	"github.com/micro/go-micro/v3/client"
 	"github.com/micro/go-micro/v3/model"
-	"github.com/micro/go-micro/v3/server"
+	"github.com/micro/micro/v3/service/server"
 	signalutil "github.com/micro/go-micro/v3/util/signal"
 	"github.com/micro/micro/v3/cmd"
 	muclient "github.com/micro/micro/v3/service/client"

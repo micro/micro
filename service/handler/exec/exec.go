@@ -9,7 +9,7 @@ import (
 	"strings"
 
 	"github.com/micro/go-micro/v3/proxy"
-	"github.com/micro/go-micro/v3/server"
+	"github.com/micro/micro/v3/service/server"
 	"github.com/micro/micro/v3/service/errors"
 )
 
