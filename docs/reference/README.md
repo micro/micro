@@ -357,11 +357,106 @@ curl -H "Authorization: Bearer $MICRO_API_TOKEN" http://127.0.0.1:8080/helloworl
 
 ### Auth
 
+#### Overview
+
 The auth service provides both authentication and authorization.
 The auth service stores accounts and access rules. It provides the single source of truth for all authentication 
 and authorization within the Micro runtime. Every service and user requires an account to operate. When a service 
 is started by the runtime an account is generated for it. Core services and services run by Micro load rules 
 periodically and manage the access to their resources on a per request basis.
+
+For CLI command help use `micro auth --help` or auth subcommand help such as `micro auth create --help`.
+
+By default `micro server`
+
+```
+$ micro login
+Enter email address: admin
+Enter Password: 
+Successfully logged in.
+```
+
+#### Rules
+
+Rules determine what resource a user can access. The default rule is the following:
+
+```sh
+$ micro auth list rules
+ID          Scope           Access      Resource        Priority
+default     <public>        GRANTED     *:*:*           0
+```
+
+The `default` rule makes all services callable that appear in the `micro status` output.
+Let's see an example of this.
+
+```sh
+$ micro run helloworld
+# Wait for the service to accept calls
+$ curl 127.0.0.1:8080/helloworld/call?name=Alice
+{"msg":"Hello Alice"}
+```
+
+If we want to prevent unauthorized users from calling our services, we can create the following rule
+
+```sh
+# This command creates a rule that enables only logged in users to call the micro server
+micro auth create rule  --access=granted --scope='*' --resource="*:*:*" onlyloggedin
+```
+
+and delete the default one.
+Here, the scope `*` is markedly different from the `<public>` scope we have seen earlier when doing a `micro auth list rules`:
+
+```sh
+$ micro auth list rules
+ID			    Scope			Access		Resource		Priority
+onlyloggedin	*			    GRANTED		*:*:*			0
+default			<public>		GRANTED		*:*:*			0
+```
+
+Now, let's remove the default rule.
+
+```sh
+# This command deletes the 'default' rule - the rule which enabled anyone to call the 'micro server'.
+$ micro auth delete rule default
+Rule deleted
+```
+
+Let's try curling our service again:
+
+```sh
+$ curl 127.0.0.1:8080/helloworld/call?name=Alice
+{"Id":"helloworld","Code":401,"Detail":"Unauthorized call made to helloworld:Helloworld.Call","Status":"Unauthorized"}
+```
+
+Our `onlyloggedin` rule took effect. We can still call the service with a token:
+
+```sh
+$ token=$(micro user token)
+# Locally:
+# curl "Authorization: Bearer $token" 127.0.0.1:8080/helloworld/call?name=Alice
+{"msg":"Hello Alice"}
+```
+
+(Please note tokens have a limited lifetime so the line `$ token=$(micro user token)` has to be reissued from time to time, or the command must be used inline.)
+
+#### Accounts
+
+Auth service supports the concept of accounts. The default account used to access the `micro server` is the admin account.
+
+```sh
+$ micro auth list accounts
+ID		Name		Scopes		Metadata
+admin		admin		admin		n/a
+```
+
+We can create accounts for teammates and coworkers with `micro auth create account`:
+
+```sh
+$ micro auth create account --scopes=admin jane
+Account created: {"id":"jane","type":"","issuer":"micro","metadata":null,"scopes":["admin"],"secret":"bb7c1a96-c0c6-4ff5-a0e9-13d456f3db0a","name":"jane"}
+```
+
+The freshly created account can be used with `micro login` by using the `jane` id and `bb7c1a96-c0c6-4ff5-a0e9-13d456f3db0a` password.
 
 ### Config
 
@@ -369,6 +464,9 @@ The config service provides dynamic configuration for services. Config can be st
 the application itself for configuring business logic, api keys, etc. We read and write these as key-value 
 pairs which also support nesting of JSON values. The config interface also supports storing secrets by 
 defining the secret key as an option at the time of writing the value.
+
+Further reading
+- [A comprehensive config tutorial](https://m3o.dev/tutorials/config)
 
 ### Broker
 
