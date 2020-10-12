@@ -4,11 +4,12 @@ import (
 	"strings"
 	"time"
 
-	"github.com/micro/go-micro/v3/auth"
 	goclient "github.com/micro/go-micro/v3/client"
-	"github.com/micro/go-micro/v3/util/token"
-	"github.com/micro/go-micro/v3/util/token/jwt"
+	"github.com/micro/micro/v3/internal/auth/rules"
+	"github.com/micro/micro/v3/internal/auth/token"
+	"github.com/micro/micro/v3/internal/auth/token/jwt"
 	pb "github.com/micro/micro/v3/proto/auth"
+	"github.com/micro/micro/v3/service/auth"
 	"github.com/micro/micro/v3/service/client"
 	"github.com/micro/micro/v3/service/client/cache"
 	"github.com/micro/micro/v3/service/context"
@@ -169,7 +170,7 @@ func (s *srv) Verify(acc *auth.Account, res *auth.Resource, opts ...auth.VerifyO
 		return err
 	}
 
-	return auth.VerifyAccess(rs, acc, res)
+	return rules.VerifyAccess(rs, acc, res)
 }
 
 // Inspect a token
@@ -196,7 +197,7 @@ func (s *srv) Inspect(token string) (*auth.Account, error) {
 }
 
 // Token generation using an account ID and secret
-func (s *srv) Token(opts ...auth.TokenOption) (*auth.Token, error) {
+func (s *srv) Token(opts ...auth.TokenOption) (*auth.AccountToken, error) {
 	options := auth.NewTokenOptions(opts...)
 	if len(options.Issuer) == 0 {
 		options.Issuer = s.options.Issuer
@@ -219,7 +220,7 @@ func (s *srv) Token(opts ...auth.TokenOption) (*auth.Token, error) {
 			return nil, err
 		}
 
-		return &auth.Token{
+		return &auth.AccountToken{
 			Expiry:       token.Expiry,
 			AccessToken:  token.Token,
 			RefreshToken: tok,
@@ -242,8 +243,8 @@ func (s *srv) Token(opts ...auth.TokenOption) (*auth.Token, error) {
 	return serializeToken(rsp.Token), nil
 }
 
-func serializeToken(t *pb.Token) *auth.Token {
-	return &auth.Token{
+func serializeToken(t *pb.Token) *auth.AccountToken {
+	return &auth.AccountToken{
 		AccessToken:  t.AccessToken,
 		RefreshToken: t.RefreshToken,
 		Created:      time.Unix(t.Created, 0),

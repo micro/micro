@@ -19,7 +19,6 @@ import (
 	"github.com/micro/go-micro/v3/server"
 	"github.com/micro/go-micro/v3/store"
 
-	"github.com/micro/go-micro/v3/auth"
 	"github.com/micro/go-micro/v3/registry"
 	"github.com/micro/micro/v3/client/cli/util"
 	uconf "github.com/micro/micro/v3/internal/config"
@@ -31,6 +30,7 @@ import (
 	"github.com/micro/micro/v3/internal/wrapper"
 	"github.com/micro/micro/v3/plugin"
 	"github.com/micro/micro/v3/profile"
+	"github.com/micro/micro/v3/service/auth"
 	configCli "github.com/micro/micro/v3/service/config/client"
 	"github.com/micro/micro/v3/service/logger"
 	"github.com/urfave/cli/v2"
@@ -362,6 +362,9 @@ func (c *command) Before(ctx *cli.Context) error {
 		// load the profile
 		profile.Setup(ctx)
 	}
+
+	// configure defaults for any packages which weren't configurd by the profile
+	setupDefaults()
 
 	// set the proxy address
 	var proxy string

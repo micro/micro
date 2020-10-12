@@ -3,7 +3,7 @@ module github.com/micro/micro/profile/platform/v3
 go 1.15
 
 require (
-	github.com/micro/go-micro/v3 v3.0.0-beta.3.0.20201001100334-03f2bb209dce
+	github.com/micro/go-micro/v3 v3.0.0-beta.3.0.20201009122815-dad05be95ee0
 	github.com/micro/go-plugins/broker/nats/v3 v3.0.0-20200908121001-4ea6f6760baf
 	github.com/micro/go-plugins/events/stream/nats/v3 v3.0.0-20200908121001-4ea6f6760baf
 	github.com/micro/go-plugins/metrics/prometheus/v3 v3.0.0-20200908121001-4ea6f6760baf
