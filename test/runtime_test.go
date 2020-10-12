@@ -598,6 +598,12 @@ func testRunParentFolder(t *T) {
 		t.Fatal(string(outp))
 	}
 
+	gomod := exec.Command("go", "mod", "edit", "-replace", "github.com/micro/micro/v3=../micro")
+	gomod.Dir = "../test-top-level"
+	if outp, err := gomod.CombinedOutput(); err != nil {
+		t.Fatal(string(outp))
+	}
+
 	err = os.MkdirAll("../parent/folder/test", 0777)
 	if err != nil {
 		t.Fatal(err)
