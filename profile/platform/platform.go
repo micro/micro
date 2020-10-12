@@ -8,7 +8,6 @@ import (
 	"os"
 
 	"github.com/micro/go-micro/v3/auth/jwt"
-	"github.com/micro/go-micro/v3/broker"
 	config "github.com/micro/go-micro/v3/config/store"
 	evStore "github.com/micro/go-micro/v3/events/store"
 	"github.com/micro/go-micro/v3/registry"
@@ -16,6 +15,7 @@ import (
 	"github.com/micro/go-micro/v3/store"
 	"github.com/micro/go-micro/v3/store/s3"
 	"github.com/micro/micro/v3/profile"
+	"github.com/micro/micro/v3/service/broker"
 	"github.com/micro/micro/v3/service/logger"
 	"github.com/urfave/cli/v2"
 

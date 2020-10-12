@@ -13,14 +13,12 @@ import (
 	"strings"
 	"time"
 
-	"github.com/micro/go-micro/v3/broker"
+	"github.com/micro/go-micro/v3/auth"
 	"github.com/micro/go-micro/v3/client"
 	config "github.com/micro/go-micro/v3/config/store"
+	"github.com/micro/go-micro/v3/registry"
 	"github.com/micro/go-micro/v3/server"
 	"github.com/micro/go-micro/v3/store"
-
-	"github.com/micro/go-micro/v3/auth"
-	"github.com/micro/go-micro/v3/registry"
 	"github.com/micro/micro/v3/client/cli/util"
 	uconf "github.com/micro/micro/v3/internal/config"
 	"github.com/micro/micro/v3/internal/helper"
@@ -31,12 +29,12 @@ import (
 	"github.com/micro/micro/v3/internal/wrapper"
 	"github.com/micro/micro/v3/plugin"
 	"github.com/micro/micro/v3/profile"
+	"github.com/micro/micro/v3/service/broker"
 	configCli "github.com/micro/micro/v3/service/config/client"
 	"github.com/micro/micro/v3/service/logger"
 	"github.com/urfave/cli/v2"
 
 	muauth "github.com/micro/micro/v3/service/auth"
-	mubroker "github.com/micro/micro/v3/service/broker"
 	muclient "github.com/micro/micro/v3/service/client"
 	muconfig "github.com/micro/micro/v3/service/config"
 	muregistry "github.com/micro/micro/v3/service/registry"
@@ -363,6 +361,9 @@ func (c *command) Before(ctx *cli.Context) error {
 		profile.Setup(ctx)
 	}
 
+	// configure defaults for any packages which weren't configurd by the profile
+	setupDefaults()
+
 	// set the proxy address
 	var proxy string
 	if c.service || ctx.IsSet("proxy_address") {
@@ -506,7 +507,7 @@ func (c *command) Before(ctx *cli.Context) error {
 		cfg := &tls.Config{Certificates: []tls.Certificate{cert}, RootCAs: caCertPool}
 		brokerOpts = append(brokerOpts, broker.TLSConfig(cfg))
 	}
-	if err := mubroker.DefaultBroker.Init(brokerOpts...); err != nil {
+	if err := broker.DefaultBroker.Init(brokerOpts...); err != nil {
 		logger.Fatalf("Error configuring broker: %v", err)
 	}
 
@@ -533,11 +534,11 @@ func (c *command) Before(ctx *cli.Context) error {
 
 	// set the registry and broker in the client and server
 	muclient.DefaultClient.Init(
-		client.Broker(mubroker.DefaultBroker),
+		client.Broker(broker.DefaultBroker),
 		client.Registry(muregistry.DefaultRegistry),
 	)
 	muserver.DefaultServer.Init(
-		server.Broker(mubroker.DefaultBroker),
+		server.Broker(broker.DefaultBroker),
 		server.Registry(muregistry.DefaultRegistry),
 	)
 

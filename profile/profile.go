@@ -9,9 +9,6 @@ import (
 
 	"github.com/micro/go-micro/v3/auth/jwt"
 	"github.com/micro/go-micro/v3/auth/noop"
-	"github.com/micro/go-micro/v3/broker"
-	"github.com/micro/go-micro/v3/broker/http"
-	memBroker "github.com/micro/go-micro/v3/broker/memory"
 	"github.com/micro/go-micro/v3/client"
 	config "github.com/micro/go-micro/v3/config/store"
 	memStream "github.com/micro/go-micro/v3/events/stream/memory"
@@ -26,6 +23,9 @@ import (
 	"github.com/micro/go-micro/v3/server"
 	"github.com/micro/go-micro/v3/store/file"
 	mem "github.com/micro/go-micro/v3/store/memory"
+	"github.com/micro/micro/v3/service/broker"
+	"github.com/micro/micro/v3/service/broker/http"
+	memBroker "github.com/micro/micro/v3/service/broker/memory"
 	"github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/runtime/builder/golang"
 	"github.com/urfave/cli/v2"
@@ -33,7 +33,6 @@ import (
 	inAuth "github.com/micro/micro/v3/internal/auth"
 	"github.com/micro/micro/v3/internal/user"
 	microAuth "github.com/micro/micro/v3/service/auth"
-	microBroker "github.com/micro/micro/v3/service/broker"
 	microClient "github.com/micro/micro/v3/service/client"
 	microConfig "github.com/micro/micro/v3/service/config"
 	microEvents "github.com/micro/micro/v3/service/events"
@@ -197,7 +196,7 @@ func SetupRegistry(reg registry.Registry) {
 
 // SetupBroker configures the broker
 func SetupBroker(b broker.Broker) {
-	microBroker.DefaultBroker = b
+	broker.DefaultBroker = b
 	microClient.DefaultClient.Init(client.Broker(b))
 	microServer.DefaultServer.Init(server.Broker(b))
 }
