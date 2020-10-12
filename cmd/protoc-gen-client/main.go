@@ -1,3 +1,4 @@
+// Apache 2.0 => https://github.com/microhq/clients
 package main
 
 import (
