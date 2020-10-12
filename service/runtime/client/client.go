@@ -52,13 +52,15 @@ func (s *svc) Create(svc *runtime.Service, opts ...runtime.CreateOption) error {
 			Metadata: svc.Metadata,
 		},
 		Options: &pb.CreateOptions{
-			Command:   options.Command,
-			Args:      options.Args,
-			Env:       options.Env,
-			Type:      options.Type,
-			Image:     options.Image,
-			Namespace: options.Namespace,
-			Secrets:   options.Secrets,
+			Command:    options.Command,
+			Args:       options.Args,
+			Env:        options.Env,
+			Entrypoint: options.Entrypoint,
+			Type:       options.Type,
+			Image:      options.Image,
+			Namespace:  options.Namespace,
+			Secrets:    options.Secrets,
+			Volumes:    options.Volumes,
 		},
 	}
 
@@ -213,7 +215,8 @@ func (s *svc) Update(svc *runtime.Service, opts ...runtime.UpdateOption) error {
 			Metadata: svc.Metadata,
 		},
 		Options: &pb.UpdateOptions{
-			Namespace: options.Namespace,
+			Namespace:  options.Namespace,
+			Entrypoint: options.Entrypoint,
 		},
 	}
 

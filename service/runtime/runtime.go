@@ -9,6 +9,10 @@ import (
 var (
 	// DefaultRuntime implementation
 	DefaultRuntime runtime.Runtime = client.NewRuntime()
+	// ErrAlreadyExists is an alias for runtime.ErrAlreadyExists
+	ErrAlreadyExists = runtime.ErrAlreadyExists
+	// ErrNotFound is an alias for runtime.ErrNotFound
+	ErrNotFound = runtime.ErrNotFound
 )
 
 type (

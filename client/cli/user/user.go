@@ -8,6 +8,7 @@ import (
 	"syscall"
 
 	goclient "github.com/micro/go-micro/v3/client"
+	"github.com/micro/micro/v3/client/cli/token"
 	"github.com/micro/micro/v3/client/cli/util"
 	"github.com/micro/micro/v3/cmd"
 	"github.com/micro/micro/v3/internal/config"
@@ -85,17 +86,13 @@ func init() {
 func changePassword(ctx *cli.Context) error {
 	email := ctx.String("email")
 	if len(email) == 0 {
-		env, err := util.GetEnv(ctx)
-		if err != nil {
-			return err
-		}
-		token, err := config.Get(config.Path("micro", "auth", env.Name, "token"))
+		token, err := token.Get(ctx)
 		if err != nil {
 			return err
 		}
 
 		// Inspect the token
-		acc, err := auth.Inspect(token)
+		acc, err := auth.Inspect(token.AccessToken)
 		if err != nil {
 			fmt.Println("You are not logged in")
 			return err
@@ -168,7 +165,7 @@ func current(ctx *cli.Context) error {
 		ns = "n/a"
 	}
 
-	token, err := config.Get(config.Path("micro", "auth", env.Name, "token"))
+	token, err := token.Get(ctx)
 	if err != nil {
 		return err
 	}
@@ -186,7 +183,7 @@ func current(ctx *cli.Context) error {
 	id := "n/a"
 
 	// Inspect the token
-	acc, err := auth.Inspect(token)
+	acc, err := auth.Inspect(token.AccessToken)
 	if err == nil {
 		id = acc.Name
 		if len(id) == 0 {
@@ -212,15 +209,11 @@ func current(ctx *cli.Context) error {
 
 // get token for current env
 func getToken(ctx *cli.Context) error {
-	env, err := config.Get("env")
+	token, err := token.Get(ctx)
 	if err != nil {
 		return err
 	}
-	token, err := config.Get(config.Path("micro", "auth", env, "token"))
-	if err != nil {
-		return err
-	}
-	fmt.Println(token)
+	fmt.Println(token.AccessToken)
 	return nil
 }
 
@@ -260,24 +253,16 @@ func setNamespace(ctx *cli.Context) error {
 
 // user returns info about the logged in user
 func user(ctx *cli.Context) error {
-	env, err := util.GetEnv(ctx)
-	if err != nil {
-		return err
-	}
 
 	notLoggedIn := errors.New("You are not logged in")
 	// Get the token from micro config
-	token, err := config.Get(config.Path("micro", "auth", env.Name, "token"))
+	token, err := token.Get(ctx)
 	if err != nil {
-		return notLoggedIn
-	}
-
-	if len(token) == 0 {
 		return notLoggedIn
 	}
 
 	// Inspect the token
-	acc, err := auth.Inspect(token)
+	acc, err := auth.Inspect(token.AccessToken)
 	if err != nil {
 		return err
 	}

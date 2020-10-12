@@ -38,6 +38,7 @@ func (b *serviceBroker) Init(opts ...broker.Option) error {
 	for _, o := range opts {
 		o(&b.options)
 	}
+	b.Client = pb.NewBrokerService(name, client.DefaultClient)
 	return nil
 }
 

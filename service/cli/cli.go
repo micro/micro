@@ -32,12 +32,10 @@ import (
 	router "github.com/micro/micro/v3/service/router/server"
 	runtime "github.com/micro/micro/v3/service/runtime/server"
 	store "github.com/micro/micro/v3/service/store/server"
-	updater "github.com/micro/micro/v3/service/updater"
 
 	// misc commands
 	"github.com/micro/micro/v3/service/handler/exec"
 	"github.com/micro/micro/v3/service/handler/file"
-	"github.com/micro/micro/v3/service/health"
 
 	_ "github.com/micro/micro/v3/service/auth/cli"
 	_ "github.com/micro/micro/v3/service/config/cli"
@@ -158,6 +156,7 @@ var srvCommands = []srvCommand{
 	{
 		Name:    "auth",
 		Command: auth.Run,
+		Flags:   auth.Flags,
 	},
 	{
 		Name:    "broker",
@@ -171,11 +170,6 @@ var srvCommands = []srvCommand{
 	{
 		Name:    "events",
 		Command: events.Run,
-	},
-	{
-		Name:    "health",
-		Command: health.Run,
-		Flags:   health.Flags,
 	},
 	{
 		Name:    "network",
@@ -204,11 +198,6 @@ var srvCommands = []srvCommand{
 	{
 		Name:    "store",
 		Command: store.Run,
-	},
-	{
-		Name:    "updater",
-		Command: updater.Run,
-		Flags:   updater.Flags,
 	},
 }
 

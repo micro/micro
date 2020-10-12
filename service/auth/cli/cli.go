@@ -76,9 +76,12 @@ func init() {
 							Action: createRule,
 						},
 						{
-							Name:   "account",
-							Usage:  "Create an auth account",
-							Flags:  accountFlags,
+							Name:  "account",
+							Usage: "Create an auth account",
+							Flags: append(accountFlags, &cli.StringFlag{
+								Name:  "namespace",
+								Usage: "Namespace to use when creating the account",
+							}),
 							Action: createAccount,
 						},
 					},

@@ -58,6 +58,13 @@ func CreateContext(ctx context.Context) CreateOption {
 	}
 }
 
+// CreateEntrypoint sets the entrypoint
+func CreateEntrypoint(e string) CreateOption {
+	return func(o *CreateOptions) {
+		o.Entrypoint = e
+	}
+}
+
 // WithSecret sets a secret to provide the service with
 func WithSecret(key, value string) CreateOption {
 	return func(o *CreateOptions) {
@@ -99,10 +106,35 @@ func WithEnv(env []string) CreateOption {
 	}
 }
 
+// WithVolume adds a volume to be mounted
+func WithVolume(name, path string) CreateOption {
+	return func(o *CreateOptions) {
+		if o.Volumes == nil {
+			o.Volumes = map[string]string{name: path}
+		} else {
+			o.Volumes[name] = path
+		}
+	}
+}
+
+// WithServiceAccount sets the ServiceAccount
+func WithServiceAccount(s string) CreateOption {
+	return func(o *CreateOptions) {
+		o.ServiceAccount = s
+	}
+}
+
 // WithOutput sets the arg output
 func WithOutput(out io.Writer) CreateOption {
 	return func(o *CreateOptions) {
 		o.Output = out
+	}
+}
+
+// WithPort sets the port to expose
+func WithPort(p string) CreateOption {
+	return func(o *CreateOptions) {
+		o.Port = p
 	}
 }
 
@@ -156,6 +188,13 @@ func UpdateSecret(key, value string) UpdateOption {
 		} else {
 			o.Secrets[key] = value
 		}
+	}
+}
+
+// UpdateEntrypoint sets the entrypoint
+func UpdateEntrypoint(e string) UpdateOption {
+	return func(o *UpdateOptions) {
+		o.Entrypoint = e
 	}
 }
 

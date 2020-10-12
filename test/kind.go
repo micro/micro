@@ -18,7 +18,8 @@ func init() {
 	testFilter = []string{
 		"TestRunGithubSource",
 		"TestStore",
-		"TestStoreImpl",
+		// @todo Reactivate this once source to running works in kind
+		// "TestStoreImpl",
 		"TestCorruptedTokenLogin",
 		"TestRunPrivateSource",
 		"TestEventsStream",
@@ -28,7 +29,6 @@ func init() {
 	isParallel = false // in theory should work in parallel
 	newSrv = newK8sServer
 	retryCount = 1
-	os.Setenv("MICRO_IS_KIND_TEST", "true")
 }
 
 func newK8sServer(t *T, fname string, opts ...Option) Server {
@@ -43,6 +43,13 @@ func newK8sServer(t *T, fname string, opts ...Option) Server {
 	portnum := rand.Intn(maxPort-minPort) + minPort
 	configFile := configFile(fname)
 
+	var cmd *exec.Cmd
+	if v := os.Getenv("IN_HELM_TEST"); len(v) > 0 {
+		cmd = exec.Command("kubectl", "port-forward", "--namespace", "micro", "svc/proxy", fmt.Sprintf("%d:443", portnum))
+	} else {
+		cmd = exec.Command("kubectl", "port-forward", "--namespace", "default", "svc/micro-proxy", fmt.Sprintf("%d:443", portnum))
+	}
+
 	s := &testK8sServer{ServerBase{
 		dir:       filepath.Dir(configFile),
 		config:    configFile,
@@ -50,7 +57,7 @@ func newK8sServer(t *T, fname string, opts ...Option) Server {
 		env:       options.Namespace,
 		proxyPort: portnum,
 		opts:      options,
-		cmd:       exec.Command("kubectl", "port-forward", "--namespace", "default", "svc/micro-proxy", fmt.Sprintf("%d:443", portnum)),
+		cmd:       cmd,
 	}}
 	s.namespace = s.env
 
@@ -82,7 +89,6 @@ func (s *testK8sServer) Run() error {
 			!strings.Contains(string(outp), "config") ||
 			!strings.Contains(string(outp), "proxy") ||
 			!strings.Contains(string(outp), "auth") ||
-			!strings.Contains(string(outp), "updater") ||
 			!strings.Contains(string(outp), "store") {
 			return outp, errors.New("Not ready")
 		}
@@ -91,6 +97,10 @@ func (s *testK8sServer) Run() error {
 	}, 60*time.Second); err != nil {
 		return err
 	}
+
+	// generate account in new namespace
+	// ignore errors because it is not an idempotent call
+	s.Command().Exec("auth", "create", "account", "--secret", "micro", "--namespace", s.Env(), "admin")
 
 	// switch to the namespace
 	ChangeNamespace(s.Command(), s.Env(), s.Env())

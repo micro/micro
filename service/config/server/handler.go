@@ -204,7 +204,6 @@ func traverse(i interface{}, decodeSecrets bool, encryptionKey string) (interfac
 				}
 				dec, err := base64.StdEncoding.DecodeString(marshalledValue)
 				if err != nil {
-					fmt.Println("marshalled value", marshalledValue)
 					return nil, errors.New("Badly encoded secret")
 				}
 				decrypted, err := decrypt(string(dec), []byte(encryptionKey))
@@ -288,6 +287,8 @@ func (c *Config) Set(ctx context.Context, req *pb.SetRequest, rsp *pb.SetRespons
 	m, ok := i.(map[string]interface{})
 	// If it's a map, we do a merge
 	if ok {
+		// Need to nuke top level metadata as traverseMaps won't handle this
+		cleanNode(values, req.Path)
 		err = traverseMaps(m, strings.Split(req.Path, "."), func(p string, value interface{}) error {
 			val, err := json.Marshal(value)
 			if err != nil {
@@ -305,7 +306,17 @@ func (c *Config) Set(ctx context.Context, req *pb.SetRequest, rsp *pb.SetRespons
 	})
 }
 
+func cleanNode(values *config.JSONValues, path string) {
+	// Whatever the new value is being set, we need to delete
+	// old metadat to prevent making a mess and introducing weird bugs,
+	// ie. see `TestConfig/Test_plain_old_type_being_overwritten_by_map`
+	values.Delete(path + ".leaf")
+	values.Delete(path + ".value")
+	values.Delete(path + ".secret")
+}
+
 func (c *Config) setValue(values *config.JSONValues, secret bool, path, data string) error {
+	cleanNode(values, path)
 	if secret {
 		if len(c.secret) == 0 {
 			return merrors.InternalServerError("config.Config.Set", "Can't encode secret: secret key is not set")

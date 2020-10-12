@@ -23,6 +23,17 @@ if [ "$ENV" == "" ]; then
   exit 1
 fi
 
+if [ "$ENV" != "dev" ]; then
+  envvars=$(grep -hr "^# REQUIRED MICRO ENV " resource | sed 's/# REQUIRED MICRO ENV //')
+  echo "Required env vars"
+  echo "${envvars}"
+  echo "Have you specified all the required secrets as env vars? [y/N]"
+  read -r ans
+  if [ "$ans" != "y" ]; then
+    exit 1
+  fi
+fi
+
 ## Set DB to smaller size for staging
 if [ "$ENV" != "platform" ]; then
   DB_SIZE=25Gi
@@ -51,7 +62,7 @@ base64 /tmp/jwt.pub > /tmp/jwt-base64.pub
 # Create the k8s secret
 kubectl create secret generic micro-secrets \
   --from-file=auth_public_key=/tmp/jwt-base64.pub \
-  --from-file=auth_private_key=/tmp/jwt-base64;
+  --from-file=auth_private_key=/tmp/jwt-base64
 
 # Remove the files from tmp
 rm /tmp/jwt /tmp/jwt.pub /tmp/jwt-base64 /tmp/jwt-base64.pub
@@ -60,9 +71,9 @@ rm /tmp/jwt /tmp/jwt.pub /tmp/jwt-base64 /tmp/jwt-base64.pub
 declare resource_args_cockroachdb="$DB_SIZE"
 
 # install the resources
-for d in ./resource/*; do
+for d in ./resource/*/; do
   pushd $d
-  bash install.sh $(arrayGet resource_args $(basename $d))
+  MICRO_ENV=$ENV bash install.sh $(arrayGet resource_args $(basename $d))
   popd
 done
 

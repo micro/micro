@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/micro/go-micro/v3/runtime"
 	gostore "github.com/micro/go-micro/v3/store"
@@ -13,8 +14,11 @@ import (
 
 // service is the object persisted in the store
 type service struct {
-	Service *runtime.Service       `json:"service"`
-	Options *runtime.CreateOptions `json:"options"`
+	Service   *runtime.Service       `json:"service"`
+	Options   *runtime.CreateOptions `json:"options"`
+	Status    runtime.ServiceStatus  `json:"status"`
+	UpdatedAt time.Time              `json:"last_updated"`
+	Error     string                 `json:"error"`
 }
 
 const (
@@ -28,16 +32,19 @@ func (s *service) Key() string {
 	return servicePrefix + s.Options.Namespace + ":" + s.Service.Name + ":" + s.Service.Version
 }
 
-// createService writes the service to the store
-func (m *manager) createService(srv *runtime.Service, opts *runtime.CreateOptions) error {
-	s := &service{srv, opts}
-
-	bytes, err := json.Marshal(s)
+// writeService to the store
+func (m *manager) writeService(srv *service) error {
+	bytes, err := json.Marshal(srv)
 	if err != nil {
 		return err
 	}
 
-	return store.Write(&gostore.Record{Key: s.Key(), Value: bytes})
+	return store.Write(&gostore.Record{Key: srv.Key(), Value: bytes})
+}
+
+// deleteService from the store
+func (m *manager) deleteService(srv *service) error {
+	return store.Delete(srv.Key())
 }
 
 // readServices returns all the services in a given namespace. If a service name and
@@ -70,13 +77,8 @@ func (m *manager) readServices(namespace string, srv *runtime.Service) ([]*servi
 	return srvs, nil
 }
 
-// deleteSevice from the store
-func (m *manager) deleteService(namespace string, srv *runtime.Service) error {
-	obj := &service{srv, &runtime.CreateOptions{Namespace: namespace}}
-	return store.Delete(obj.Key())
-}
-
-// listNamespaces of the services in the store
+// listNamespaces of the services in the store. todo: remove this and have the watchServices func
+// query the store directly
 func (m *manager) listNamespaces() ([]string, error) {
 	recs, err := store.Read("", store.Prefix(servicePrefix))
 	if err != nil {

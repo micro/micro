@@ -13,7 +13,7 @@ import (
 	"github.com/micro/micro/v3/service/store"
 )
 
-const bufferSize = 100
+const bufferSize = 1024
 
 type blobHandler struct{}
 
