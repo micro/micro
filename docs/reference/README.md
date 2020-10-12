@@ -305,7 +305,7 @@ and the Go library, client and server implementations in [micro/service/auth](ht
 
 ### API
 
-The API enables calling services with JSON over HTTP.
+The API service is a http API gateway which acts as a public entrypoint and converts http/json to RPC.
 
 In the default `local` [environment](#environments) the API address is `127.0.0.1:8080`.
 Each service running is callable through this API.
