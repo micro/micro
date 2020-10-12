@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-// Original source: github.com/micro/go-micro/v3/internal/token/basic/basic_test.go
+// Original source: github.com/micro/go-micro/v3/util/token/basic/basic_test.go
 
 package basic
 

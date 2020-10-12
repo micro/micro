@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-// Original source: github.com/micro/go-micro/v3/internal/token/token.go
+// Original source: github.com/micro/go-micro/v3/util/token/token.go
 
 package token
 
