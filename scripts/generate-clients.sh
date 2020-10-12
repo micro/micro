@@ -33,6 +33,6 @@ go get github.com/golang/protobuf/protoc-gen-go@v1.4.2
 # delete the existing sdk directory
 rm -rf client/sdk
 # generate the clients
-PATH=$PATH:$GO_BIN:$(npm bin):/usr/local/bin/:$HOME/.cargo/bin protoc-gen-client -srcdir proto/ -dstdir client/sdk/ -langs go,python,java,ruby,js,rust
+PATH=$PATH:$GO_BIN:$(npm bin):/usr/local/bin/:$HOME/.cargo/bin protoc-gen-client -srcdir proto/ -dstdir client/sdk/ -langs go,python,java,ruby,node,rust
 # remove node garbage
 rm -rf node_modules/ package-lock.json
