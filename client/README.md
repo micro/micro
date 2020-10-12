@@ -12,7 +12,7 @@ automatically based on the protos and the CLI is hand maintained code for specif
 - CLI
 - Go
 - Java
-- JS
+- Node
 - Python
 - Ruby
 - Rust
