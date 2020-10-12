@@ -340,13 +340,11 @@ TODO
 
 ### Store
 
-TODO
-
-## The Store
+Micro's store interface is for persistent key-value storage.
 
 For a good beginner level doc on the Store, please see the [helloworld tutorial](/helloworld).
 
-Micro's store interface is a key value store with support for odering of keys.
+## Overview
 
 Key-value stores that support ordering of keys can be used to build complex applications.
 Due to their very limited feature set, key-value stores generally scale easily and reliably, often linearly with the number of nodes added.
