@@ -598,7 +598,7 @@ func testRunParentFolder(t *T) {
 		t.Fatal(string(outp))
 	}
 
-	gomod := exec.Command("go", "mod", "edit", "-replace", "github.com/micro/micro/v3=../micro")
+	gomod := exec.Command("go", "mod", "edit", "-replace", "github.com/micro/micro/v3=github.com/micro/micro/v3@v3.0.0-beta.6.0.20201012112625-25acb13f1f05")
 	gomod.Dir = "../test-top-level"
 	if outp, err := gomod.CombinedOutput(); err != nil {
 		t.Fatal(string(outp))
