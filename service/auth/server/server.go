@@ -1,13 +1,12 @@
 package server
 
 import (
-	"github.com/micro/go-micro/v3/auth"
 	"github.com/micro/go-micro/v3/store"
-	"github.com/micro/go-micro/v3/util/token"
-	"github.com/micro/go-micro/v3/util/token/jwt"
+	"github.com/micro/micro/v3/internal/auth/token"
+	"github.com/micro/micro/v3/internal/auth/token/jwt"
 	pb "github.com/micro/micro/v3/proto/auth"
 	"github.com/micro/micro/v3/service"
-	muauth "github.com/micro/micro/v3/service/auth"
+	"github.com/micro/micro/v3/service/auth"
 	authHandler "github.com/micro/micro/v3/service/auth/server/auth"
 	rulesHandler "github.com/micro/micro/v3/service/auth/server/rules"
 	log "github.com/micro/micro/v3/service/logger"
@@ -44,8 +43,8 @@ func Run(ctx *cli.Context) error {
 
 	// setup the auth handler to use JWTs
 	authH.TokenProvider = jwt.NewTokenProvider(
-		token.WithPublicKey(muauth.DefaultAuth.Options().PublicKey),
-		token.WithPrivateKey(muauth.DefaultAuth.Options().PrivateKey),
+		token.WithPublicKey(auth.DefaultAuth.Options().PublicKey),
+		token.WithPrivateKey(auth.DefaultAuth.Options().PrivateKey),
 	)
 
 	// set the handlers store
