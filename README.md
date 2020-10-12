@@ -79,15 +79,6 @@ To see all the micro commands:
 micro --help
 ```
 
-Subcommand also accept the `--help` flags all the way down, ie
-
-```
-micro store --help
-micro store write --help
-```
-
-are all valid.
-
 ## Features
 
 The framework is composed of the following features:
