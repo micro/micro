@@ -5,6 +5,7 @@ package test
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"os"
 	"os/exec"
@@ -631,7 +632,7 @@ func testRunParentFolder(t *T) {
 		}
 		if !strings.Contains(string(outp), "test-top-level") {
 			l, _ := cmd.Exec("logs", "test-top-level")
-			return outp, errors.New("Can't find example service in list. \nLogs: %v", string(l))
+			return outp, fmt.Errorf("Can't find example service in list. \nLogs: %v", string(l))
 		}
 		return outp, err
 	}, 90*time.Second); err != nil {
