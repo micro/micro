@@ -6,9 +6,9 @@ import (
 	"strings"
 
 	"github.com/go-acme/lego/v3/providers/dns/cloudflare"
-	"github.com/micro/go-micro/v3/api/server/acme"
-	"github.com/micro/go-micro/v3/api/server/acme/autocert"
-	"github.com/micro/go-micro/v3/api/server/acme/certmagic"
+	"github.com/micro/micro/v3/internal/api/server/acme"
+	"github.com/micro/micro/v3/internal/api/server/acme/autocert"
+	"github.com/micro/micro/v3/internal/api/server/acme/certmagic"
 	bmem "github.com/micro/go-micro/v3/broker/memory"
 	"github.com/micro/go-micro/v3/proxy"
 	"github.com/micro/go-micro/v3/proxy/grpc"
