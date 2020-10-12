@@ -1,7 +1,7 @@
 package client
 
 import (
-	goclient "github.com/micro/go-micro/v3/client"
+	goclient "github.com/micro/micro/v3/service/client"
 	"github.com/micro/go-micro/v3/events"
 	pb "github.com/micro/micro/v3/proto/events"
 	"github.com/micro/micro/v3/service/client"

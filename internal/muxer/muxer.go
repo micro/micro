@@ -5,10 +5,10 @@ import (
 	"context"
 	"sync"
 
-	"github.com/micro/go-micro/v3/client/grpc"
 	"github.com/micro/go-micro/v3/proxy"
 	"github.com/micro/go-micro/v3/server"
 	"github.com/micro/go-micro/v3/server/mucp"
+	"github.com/micro/micro/v3/service/client/grpc"
 	debug "github.com/micro/micro/v3/service/debug/handler"
 )
 

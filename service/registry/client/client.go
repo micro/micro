@@ -3,7 +3,6 @@ package client
 import (
 	"time"
 
-	goclient "github.com/micro/go-micro/v3/client"
 	"github.com/micro/go-micro/v3/registry"
 	pb "github.com/micro/micro/v3/proto/registry"
 	"github.com/micro/micro/v3/service/client"
@@ -20,17 +19,17 @@ type srv struct {
 	client pb.RegistryService
 }
 
-func (s *srv) callOpts() []goclient.CallOption {
-	opts := []goclient.CallOption{goclient.WithAuthToken()}
+func (s *srv) callOpts() []client.CallOption {
+	opts := []client.CallOption{client.WithAuthToken()}
 
 	// set registry address
 	if len(s.opts.Addrs) > 0 {
-		opts = append(opts, goclient.WithAddress(s.opts.Addrs...))
+		opts = append(opts, client.WithAddress(s.opts.Addrs...))
 	}
 
 	// set timeout
 	if s.opts.Timeout > time.Duration(0) {
-		opts = append(opts, goclient.WithRequestTimeout(s.opts.Timeout))
+		opts = append(opts, client.WithRequestTimeout(s.opts.Timeout))
 	}
 
 	s.client = pb.NewRegistryService(name, client.DefaultClient)

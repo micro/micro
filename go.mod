@@ -23,6 +23,7 @@ require (
 	github.com/micro/go-micro/v3 v3.0.0-beta.3.0.20201009122815-dad05be95ee0
 	github.com/olekukonko/tablewriter v0.0.4
 	github.com/onsi/ginkgo v1.12.0 // indirect
+	github.com/oxtoacart/bpool v0.0.0-20190530202638-03653db5a59c
 	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/pkg/errors v0.9.1
 	github.com/rhysd/go-github-selfupdate v1.2.2

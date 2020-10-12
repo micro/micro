@@ -6,7 +6,7 @@ import (
 	"io"
 	"net/http"
 
-	goclient "github.com/micro/go-micro/v3/client"
+	goclient "github.com/micro/micro/v3/service/client"
 	"github.com/micro/go-micro/v3/store"
 	pb "github.com/micro/micro/v3/proto/store"
 	"github.com/micro/micro/v3/service/client"

@@ -17,7 +17,7 @@ import (
 const (
 	apiPkgPath     = "github.com/micro/go-micro/v3/api"
 	contextPkgPath = "context"
-	clientPkgPath  = "github.com/micro/go-micro/v3/client"
+	clientPkgPath  = "github.com/micro/micro/v3/service/client"
 	serverPkgPath  = "github.com/micro/go-micro/v3/server"
 )
 

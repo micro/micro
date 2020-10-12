@@ -3,12 +3,11 @@ package service
 import (
 	"time"
 
-	"github.com/micro/go-micro/v3/client"
 	"github.com/micro/go-micro/v3/server"
 
 	// TODO: replace with micro/v3/service/cli
 	"github.com/micro/micro/v3/cmd"
-	muclient "github.com/micro/micro/v3/service/client"
+	"github.com/micro/micro/v3/service/client"
 	muserver "github.com/micro/micro/v3/service/server"
 )
 
@@ -102,7 +101,7 @@ func WrapClient(w ...client.Wrapper) Option {
 	return func(o *Options) {
 		// apply in reverse
 		for i := len(w); i > 0; i-- {
-			muclient.DefaultClient = w[i-1](muclient.DefaultClient)
+			client.DefaultClient = w[i-1](client.DefaultClient)
 		}
 	}
 }
@@ -110,7 +109,7 @@ func WrapClient(w ...client.Wrapper) Option {
 // WrapCall is a convenience method for wrapping a Client CallFunc
 func WrapCall(w ...client.CallWrapper) Option {
 	return func(o *Options) {
-		muclient.DefaultClient.Init(client.WrapCall(w...))
+		client.DefaultClient.Init(client.WrapCall(w...))
 	}
 }
 

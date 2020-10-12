@@ -12,7 +12,6 @@ import (
 	"github.com/micro/go-micro/v3/broker"
 	"github.com/micro/go-micro/v3/broker/http"
 	memBroker "github.com/micro/go-micro/v3/broker/memory"
-	"github.com/micro/go-micro/v3/client"
 	config "github.com/micro/go-micro/v3/config/store"
 	memStream "github.com/micro/go-micro/v3/events/stream/memory"
 	"github.com/micro/go-micro/v3/registry"
@@ -26,6 +25,7 @@ import (
 	"github.com/micro/go-micro/v3/server"
 	"github.com/micro/go-micro/v3/store/file"
 	mem "github.com/micro/go-micro/v3/store/memory"
+	"github.com/micro/micro/v3/service/client"
 	"github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/runtime/builder/golang"
 	"github.com/urfave/cli/v2"
@@ -34,7 +34,6 @@ import (
 	"github.com/micro/micro/v3/internal/user"
 	microAuth "github.com/micro/micro/v3/service/auth"
 	microBroker "github.com/micro/micro/v3/service/broker"
-	microClient "github.com/micro/micro/v3/service/client"
 	microConfig "github.com/micro/micro/v3/service/config"
 	microEvents "github.com/micro/micro/v3/service/events"
 	microRegistry "github.com/micro/micro/v3/service/registry"
@@ -163,7 +162,7 @@ var Kubernetes = &Profile{
 		SetupConfigSecretKey(ctx)
 
 		microRouter.DefaultRouter = k8sRouter.NewRouter()
-		microClient.DefaultClient.Init(client.Router(microRouter.DefaultRouter))
+		client.DefaultClient.Init(client.Router(microRouter.DefaultRouter))
 		return nil
 	},
 }
@@ -192,13 +191,13 @@ func SetupRegistry(reg registry.Registry) {
 	microRegistry.DefaultRegistry = reg
 	microRouter.DefaultRouter = regRouter.NewRouter(router.Registry(reg))
 	microServer.DefaultServer.Init(server.Registry(reg))
-	microClient.DefaultClient.Init(client.Registry(reg))
+	client.DefaultClient.Init(client.Registry(reg))
 }
 
 // SetupBroker configures the broker
 func SetupBroker(b broker.Broker) {
 	microBroker.DefaultBroker = b
-	microClient.DefaultClient.Init(client.Broker(b))
+	client.DefaultClient.Init(client.Broker(b))
 	microServer.DefaultServer.Init(server.Broker(b))
 }
 
