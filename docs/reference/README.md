@@ -492,7 +492,7 @@ TODO
 
 Micro's store interface is for persistent key-value storage.
 
-For a good beginner level doc on the Store, please see the [helloworld tutorial](/helloworld).
+For a good beginner level doc on the Store, please see the [Getting started tutorial](/getting-started).
 
 #### Overview
 
