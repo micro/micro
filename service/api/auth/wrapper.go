@@ -7,10 +7,10 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/micro/go-micro/v3/api/resolver"
-	"github.com/micro/go-micro/v3/api/resolver/subdomain"
-	"github.com/micro/go-micro/v3/api/server"
 	"github.com/micro/go-micro/v3/util/ctx"
+	"github.com/micro/micro/v3/internal/api/resolver"
+	"github.com/micro/micro/v3/internal/api/resolver/subdomain"
+	"github.com/micro/micro/v3/internal/api/server"
 	inauth "github.com/micro/micro/v3/internal/auth"
 	"github.com/micro/micro/v3/internal/namespace"
 	"github.com/micro/micro/v3/service/auth"
@@ -64,14 +64,14 @@ func (a authWrapper) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	var token string
 	if header := req.Header.Get("Authorization"); len(header) > 0 {
 		// Extract the auth token from the request
-		if strings.HasPrefix(header, auth.BearerScheme) {
-			token = header[len(auth.BearerScheme):]
+		if strings.HasPrefix(header, inauth.BearerScheme) {
+			token = header[len(inauth.BearerScheme):]
 		}
 	} else {
 		// Get the token out the cookies if not provided in headers
 		if c, err := req.Cookie("micro-token"); err == nil && c != nil {
 			token = strings.TrimPrefix(c.Value, inauth.TokenCookieName+"=")
-			req.Header.Set("Authorization", auth.BearerScheme+token)
+			req.Header.Set("Authorization", inauth.BearerScheme+token)
 		}
 	}
 
