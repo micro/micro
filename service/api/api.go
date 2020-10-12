@@ -1,323 +1,165 @@
-// Package api is an API Gateway
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     https://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+// Original source: github.com/micro/go-micro/v3/api/api.go
+
 package api
 
 import (
-	"fmt"
-	"net/http"
-	"os"
+	"errors"
+	"regexp"
+	"strings"
 
-	"github.com/go-acme/lego/v3/providers/dns/cloudflare"
-	"github.com/gorilla/mux"
-	ahandler "github.com/micro/go-micro/v3/api/handler"
-	aapi "github.com/micro/go-micro/v3/api/handler/api"
-	"github.com/micro/go-micro/v3/api/handler/event"
-	ahttp "github.com/micro/go-micro/v3/api/handler/http"
-	arpc "github.com/micro/go-micro/v3/api/handler/rpc"
-	"github.com/micro/go-micro/v3/api/handler/web"
-	"github.com/micro/go-micro/v3/api/resolver"
-	"github.com/micro/go-micro/v3/api/resolver/grpc"
-	"github.com/micro/go-micro/v3/api/resolver/host"
-	"github.com/micro/go-micro/v3/api/resolver/path"
-	"github.com/micro/go-micro/v3/api/resolver/subdomain"
-	"github.com/micro/go-micro/v3/api/router"
-	regRouter "github.com/micro/go-micro/v3/api/router/registry"
-	"github.com/micro/go-micro/v3/api/server"
-	"github.com/micro/go-micro/v3/api/server/acme"
-	"github.com/micro/go-micro/v3/api/server/acme/autocert"
-	"github.com/micro/go-micro/v3/api/server/acme/certmagic"
-	httpapi "github.com/micro/go-micro/v3/api/server/http"
-	"github.com/micro/go-micro/v3/sync/memory"
-	"github.com/micro/micro/v3/client"
-	"github.com/micro/micro/v3/internal/handler"
-	"github.com/micro/micro/v3/internal/helper"
-	rrmicro "github.com/micro/micro/v3/internal/resolver/api"
-	"github.com/micro/micro/v3/plugin"
-	"github.com/micro/micro/v3/service"
-	"github.com/micro/micro/v3/service/api/auth"
-	log "github.com/micro/micro/v3/service/logger"
-	muregistry "github.com/micro/micro/v3/service/registry"
-	"github.com/micro/micro/v3/service/store"
-	"github.com/urfave/cli/v2"
+	"github.com/micro/go-micro/v3/registry"
+	"github.com/micro/go-micro/v3/server"
 )
 
-var (
-	Name                  = "api"
-	Address               = ":8080"
-	Handler               = "meta"
-	Resolver              = "micro"
-	APIPath               = "/"
-	ProxyPath             = "/{service:[a-zA-Z0-9]+}"
-	Namespace             = ""
-	ACMEProvider          = "autocert"
-	ACMEChallengeProvider = "cloudflare"
-	ACMECA                = acme.LetsEncryptProductionCA
-)
+type API interface {
+	// Initialise options
+	Init(...Option) error
+	// Get the options
+	Options() Options
+	// Register a http handler
+	Register(*Endpoint) error
+	// Register a route
+	Deregister(*Endpoint) error
+	// Implementation of api
+	String() string
+}
 
-var (
-	Flags = append(client.Flags,
-		&cli.StringFlag{
-			Name:    "address",
-			Usage:   "Set the api address e.g 0.0.0.0:8080",
-			EnvVars: []string{"MICRO_API_ADDRESS"},
-		},
-		&cli.StringFlag{
-			Name:    "handler",
-			Usage:   "Specify the request handler to be used for mapping HTTP requests to services; {api, event, http, rpc}",
-			EnvVars: []string{"MICRO_API_HANDLER"},
-		},
-		&cli.StringFlag{
-			Name:    "namespace",
-			Usage:   "Set the namespace used by the API e.g. com.example",
-			EnvVars: []string{"MICRO_API_NAMESPACE"},
-		},
-		&cli.StringFlag{
-			Name:    "resolver",
-			Usage:   "Set the hostname resolver used by the API {host, path, grpc}",
-			EnvVars: []string{"MICRO_API_RESOLVER"},
-		},
-		&cli.BoolFlag{
-			Name:    "enable_cors",
-			Usage:   "Enable CORS, allowing the API to be called by frontend applications",
-			EnvVars: []string{"MICRO_API_ENABLE_CORS"},
-			Value:   true,
-		},
-	)
-)
+type Options struct{}
 
-func Run(ctx *cli.Context) error {
-	if len(ctx.String("server_name")) > 0 {
-		Name = ctx.String("server_name")
-	}
-	if len(ctx.String("address")) > 0 {
-		Address = ctx.String("address")
-	}
-	if len(ctx.String("handler")) > 0 {
-		Handler = ctx.String("handler")
-	}
-	if len(ctx.String("resolver")) > 0 {
-		Resolver = ctx.String("resolver")
-	}
-	if len(ctx.String("acme_provider")) > 0 {
-		ACMEProvider = ctx.String("acme_provider")
-	}
-	if len(ctx.String("namespace")) > 0 {
-		Namespace = ctx.String("namespace")
-	}
-	if len(ctx.String("api_handler")) > 0 {
-		Handler = ctx.String("api_handler")
-	}
-	if len(ctx.String("api_address")) > 0 {
-		Address = ctx.String("api_address")
-	}
-	// initialise service
-	srv := service.New(service.Name(Name))
+type Option func(*Options) error
 
-	// Init API
-	var opts []server.Option
+// Endpoint is a mapping between an RPC method and HTTP endpoint
+type Endpoint struct {
+	// RPC Method e.g. Greeter.Hello
+	Name string
+	// Description e.g what's this endpoint for
+	Description string
+	// API Handler e.g rpc, proxy
+	Handler string
+	// HTTP Host e.g example.com
+	Host []string
+	// HTTP Methods e.g GET, POST
+	Method []string
+	// HTTP Path e.g /greeter. Expect POSIX regex
+	Path []string
+	// Body destination
+	// "*" or "" - top level message value
+	// "string" - inner message value
+	Body string
+	// Stream flag
+	Stream bool
+}
 
-	if ctx.Bool("enable_acme") {
-		hosts := helper.ACMEHosts(ctx)
-		opts = append(opts, server.EnableACME(true))
-		opts = append(opts, server.ACMEHosts(hosts...))
-		switch ACMEProvider {
-		case "autocert":
-			opts = append(opts, server.ACMEProvider(autocert.NewProvider()))
-		case "certmagic":
-			if ACMEChallengeProvider != "cloudflare" {
-				log.Fatal("The only implemented DNS challenge provider is cloudflare")
-			}
+// Service represents an API service
+type Service struct {
+	// Name of service
+	Name string
+	// The endpoint for this service
+	Endpoint *Endpoint
+	// Versions of this service
+	Services []*registry.Service
+}
 
-			apiToken := os.Getenv("CF_API_TOKEN")
-			if len(apiToken) == 0 {
-				log.Fatal("env variables CF_API_TOKEN and CF_ACCOUNT_ID must be set")
-			}
-
-			storage := certmagic.NewStorage(
-				memory.NewSync(),
-				store.DefaultStore,
-			)
-
-			config := cloudflare.NewDefaultConfig()
-			config.AuthToken = apiToken
-			config.ZoneToken = apiToken
-			challengeProvider, err := cloudflare.NewDNSProviderConfig(config)
-			if err != nil {
-				log.Fatal(err.Error())
-			}
-
-			opts = append(opts,
-				server.ACMEProvider(
-					certmagic.NewProvider(
-						acme.AcceptToS(true),
-						acme.CA(ACMECA),
-						acme.Cache(storage),
-						acme.ChallengeProvider(challengeProvider),
-						acme.OnDemand(false),
-					),
-				),
-			)
-		default:
-			log.Fatalf("%s is not a valid ACME provider\n", ACMEProvider)
-		}
-	} else if ctx.Bool("enable_tls") {
-		config, err := helper.TLSConfig(ctx)
-		if err != nil {
-			fmt.Println(err.Error())
-			return err
-		}
-
-		opts = append(opts, server.EnableTLS(true))
-		opts = append(opts, server.TLSConfig(config))
+// Encode encodes an endpoint to endpoint metadata
+func Encode(e *Endpoint) map[string]string {
+	if e == nil {
+		return nil
 	}
 
-	if ctx.Bool("enable_cors") {
-		opts = append(opts, server.EnableCORS(true))
-	}
+	// endpoint map
+	ep := make(map[string]string)
 
-	// create the router
-	var h http.Handler
-	r := mux.NewRouter()
-	h = r
-
-	// return version and list of services
-	r.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		if r.Method == "OPTIONS" {
+	// set vals only if they exist
+	set := func(k, v string) {
+		if len(v) == 0 {
 			return
 		}
-
-		response := fmt.Sprintf(`{"version": "%s"}`, ctx.App.Version)
-		w.Write([]byte(response))
-	})
-
-	// strip favicon.ico
-	r.HandleFunc("/favicon.ico", func(w http.ResponseWriter, r *http.Request) {})
-
-	// resolver options
-	ropts := []resolver.Option{
-		resolver.WithServicePrefix(Namespace),
-		resolver.WithHandler(Handler),
+		ep[k] = v
 	}
 
-	// default resolver
-	rr := rrmicro.NewResolver(ropts...)
+	set("endpoint", e.Name)
+	set("description", e.Description)
+	set("handler", e.Handler)
+	set("method", strings.Join(e.Method, ","))
+	set("path", strings.Join(e.Path, ","))
+	set("host", strings.Join(e.Host, ","))
 
-	switch Resolver {
-	case "subdomain":
-		rr = subdomain.NewResolver(rr)
-	case "host":
-		rr = host.NewResolver(ropts...)
-	case "path":
-		rr = path.NewResolver(ropts...)
-	case "grpc":
-		rr = grpc.NewResolver(ropts...)
+	return ep
+}
+
+// Decode decodes endpoint metadata into an endpoint
+func Decode(e map[string]string) *Endpoint {
+	if e == nil {
+		return nil
 	}
 
-	switch Handler {
-	case "rpc":
-		log.Infof("Registering API RPC Handler at %s", APIPath)
-		rt := regRouter.NewRouter(
-			router.WithHandler(arpc.Handler),
-			router.WithResolver(rr),
-			router.WithRegistry(muregistry.DefaultRegistry),
-		)
-		rp := arpc.NewHandler(
-			ahandler.WithNamespace(Namespace),
-			ahandler.WithRouter(rt),
-			ahandler.WithClient(srv.Client()),
-		)
-		r.PathPrefix(APIPath).Handler(rp)
-	case "api":
-		log.Infof("Registering API Request Handler at %s", APIPath)
-		rt := regRouter.NewRouter(
-			router.WithHandler(aapi.Handler),
-			router.WithResolver(rr),
-			router.WithRegistry(muregistry.DefaultRegistry),
-		)
-		ap := aapi.NewHandler(
-			ahandler.WithNamespace(Namespace),
-			ahandler.WithRouter(rt),
-			ahandler.WithClient(srv.Client()),
-		)
-		r.PathPrefix(APIPath).Handler(ap)
-	case "event":
-		log.Infof("Registering API Event Handler at %s", APIPath)
-		rt := regRouter.NewRouter(
-			router.WithHandler(event.Handler),
-			router.WithResolver(rr),
-			router.WithRegistry(muregistry.DefaultRegistry),
-		)
-		ev := event.NewHandler(
-			ahandler.WithNamespace(Namespace),
-			ahandler.WithRouter(rt),
-			ahandler.WithClient(srv.Client()),
-		)
-		r.PathPrefix(APIPath).Handler(ev)
-	case "http":
-		log.Infof("Registering API HTTP Handler at %s", ProxyPath)
-		rt := regRouter.NewRouter(
-			router.WithHandler(ahttp.Handler),
-			router.WithResolver(rr),
-			router.WithRegistry(muregistry.DefaultRegistry),
-		)
-		ht := ahttp.NewHandler(
-			ahandler.WithNamespace(Namespace),
-			ahandler.WithRouter(rt),
-			ahandler.WithClient(srv.Client()),
-		)
-		r.PathPrefix(ProxyPath).Handler(ht)
-	case "web":
-		log.Infof("Registering API Web Handler at %s", APIPath)
-		rt := regRouter.NewRouter(
-			router.WithHandler(web.Handler),
-			router.WithResolver(rr),
-			router.WithRegistry(muregistry.DefaultRegistry),
-		)
-		w := web.NewHandler(
-			ahandler.WithNamespace(Namespace),
-			ahandler.WithRouter(rt),
-			ahandler.WithClient(srv.Client()),
-		)
-		r.PathPrefix(APIPath).Handler(w)
-	default:
-		log.Infof("Registering API Default Handler at %s", APIPath)
-		rt := regRouter.NewRouter(
-			router.WithResolver(rr),
-			router.WithRegistry(muregistry.DefaultRegistry),
-		)
-		r.PathPrefix(APIPath).Handler(handler.Meta(srv, rt, Namespace))
+	return &Endpoint{
+		Name:        e["endpoint"],
+		Description: e["description"],
+		Method:      slice(e["method"]),
+		Path:        slice(e["path"]),
+		Host:        slice(e["host"]),
+		Handler:     e["handler"],
+	}
+}
+
+// Validate validates an endpoint to guarantee it won't blow up when being served
+func Validate(e *Endpoint) error {
+	if e == nil {
+		return errors.New("endpoint is nil")
 	}
 
-	// register all the http handler plugins
-	for _, p := range plugin.Plugins() {
-		if v := p.Handler(); v != nil {
-			h = v(h)
+	if len(e.Name) == 0 {
+		return errors.New("name required")
+	}
+
+	for _, p := range e.Path {
+		ps := p[0]
+		pe := p[len(p)-1]
+
+		if ps == '^' && pe == '$' {
+			_, err := regexp.CompilePOSIX(p)
+			if err != nil {
+				return err
+			}
+		} else if ps == '^' && pe != '$' {
+			return errors.New("invalid path")
+		} else if ps != '^' && pe == '$' {
+			return errors.New("invalid path")
 		}
 	}
 
-	// append the auth wrapper
-	h = auth.Wrapper(rr, Namespace)(h)
-
-	// create a new api server with wrappers
-	api := httpapi.NewServer(Address)
-	// initialise
-	api.Init(opts...)
-	// register the handler
-	api.Handle("/", h)
-
-	// Start API
-	if err := api.Start(); err != nil {
-		log.Fatal(err)
-	}
-
-	// Run server
-	if err := srv.Run(); err != nil {
-		log.Fatal(err)
-	}
-
-	// Stop API
-	if err := api.Stop(); err != nil {
-		log.Fatal(err)
+	if len(e.Handler) == 0 {
+		return errors.New("invalid handler")
 	}
 
 	return nil
+}
+
+func WithEndpoint(e *Endpoint) server.HandlerOption {
+	return server.EndpointMetadata(e.Name, Encode(e))
+}
+
+func slice(s string) []string {
+	var sl []string
+
+	for _, p := range strings.Split(s, ",") {
+		if str := strings.TrimSpace(p); len(str) > 0 {
+			sl = append(sl, strings.TrimSpace(p))
+		}
+	}
+
+	return sl
 }

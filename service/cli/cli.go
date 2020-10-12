@@ -21,7 +21,7 @@ import (
 	ccli "github.com/urfave/cli/v2"
 
 	// services
-	api "github.com/micro/micro/v3/service/api"
+	api "github.com/micro/micro/v3/service/api/server"
 	auth "github.com/micro/micro/v3/service/auth/server"
 	broker "github.com/micro/micro/v3/service/broker/server"
 	config "github.com/micro/micro/v3/service/config/server"

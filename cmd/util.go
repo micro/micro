@@ -5,7 +5,6 @@ import (
 	"unicode"
 
 	"github.com/google/uuid"
-	goauth "github.com/micro/go-micro/v3/auth"
 	"github.com/micro/go-micro/v3/errors"
 	"github.com/micro/go-micro/v3/logger"
 	"github.com/micro/micro/v3/client/cli/namespace"
@@ -59,8 +58,8 @@ func setupAuthForCLI(ctx *cli.Context) error {
 	// Check if token is valid
 	if time.Now().Before(tok.Expiry.Add(time.Minute * -1)) {
 		auth.DefaultAuth.Init(
-			goauth.ClientToken(tok),
-			goauth.Issuer(ns),
+			auth.ClientToken(tok),
+			auth.Issuer(ns),
 		)
 		return nil
 	}
@@ -77,8 +76,8 @@ func setupAuthForCLI(ctx *cli.Context) error {
 
 	// Save the token to user config file
 	auth.DefaultAuth.Init(
-		goauth.ClientToken(tok),
-		goauth.Issuer(ns),
+		auth.ClientToken(tok),
+		auth.Issuer(ns),
 	)
 	return clitoken.Save(ctx, tok)
 }
@@ -121,8 +120,8 @@ func setupAuthForService() error {
 
 	// set the credentials and token in auth options
 	auth.DefaultAuth.Init(
-		goauth.ClientToken(token),
-		goauth.Credentials(accID, accSecret),
+		auth.ClientToken(token),
+		auth.Credentials(accID, accSecret),
 	)
 	return nil
 }
@@ -158,7 +157,7 @@ func refreshAuthToken() {
 
 			// set the token
 			logger.Debugf("Auth token refreshed, expires at %v", tok.Expiry.Format(time.UnixDate))
-			auth.DefaultAuth.Init(goauth.ClientToken(tok))
+			auth.DefaultAuth.Init(auth.ClientToken(tok))
 		}
 	}
 }

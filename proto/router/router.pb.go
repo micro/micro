@@ -8,6 +8,8 @@ import (
 	fmt "fmt"
 	proto "github.com/golang/protobuf/proto"
 	grpc "google.golang.org/grpc"
+	codes "google.golang.org/grpc/codes"
+	status "google.golang.org/grpc/status"
 	math "math"
 )
 
@@ -721,6 +723,17 @@ type RouterServer interface {
 	Watch(*WatchRequest, Router_WatchServer) error
 }
 
+// UnimplementedRouterServer can be embedded to have forward compatible implementations.
+type UnimplementedRouterServer struct {
+}
+
+func (*UnimplementedRouterServer) Lookup(ctx context.Context, req *LookupRequest) (*LookupResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Lookup not implemented")
+}
+func (*UnimplementedRouterServer) Watch(req *WatchRequest, srv Router_WatchServer) error {
+	return status.Errorf(codes.Unimplemented, "method Watch not implemented")
+}
+
 func RegisterRouterServer(s *grpc.Server, srv RouterServer) {
 	s.RegisterService(&_Router_serviceDesc, srv)
 }
@@ -843,6 +856,23 @@ type TableServer interface {
 	Delete(context.Context, *Route) (*DeleteResponse, error)
 	Update(context.Context, *Route) (*UpdateResponse, error)
 	Read(context.Context, *ReadRequest) (*ReadResponse, error)
+}
+
+// UnimplementedTableServer can be embedded to have forward compatible implementations.
+type UnimplementedTableServer struct {
+}
+
+func (*UnimplementedTableServer) Create(ctx context.Context, req *Route) (*CreateResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Create not implemented")
+}
+func (*UnimplementedTableServer) Delete(ctx context.Context, req *Route) (*DeleteResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Delete not implemented")
+}
+func (*UnimplementedTableServer) Update(ctx context.Context, req *Route) (*UpdateResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Update not implemented")
+}
+func (*UnimplementedTableServer) Read(ctx context.Context, req *ReadRequest) (*ReadResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Read not implemented")
 }
 
 func RegisterTableServer(s *grpc.Server, srv TableServer) {
