@@ -205,8 +205,8 @@ You will need to be connected to a Kubernetes cluster
 Install micro with the following commands:
 
 ```shell
-helm repo add micro https://ben-toogood.github.io/micro-helm
-helm install micro micro/micro --set image.repo=localhost:5000/micro
+helm repo add micro https://micro.github.io/helm
+helm install micro micro/micro
 ```
 
 #### Uninstall
