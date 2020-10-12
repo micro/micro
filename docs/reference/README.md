@@ -303,6 +303,58 @@ building block primitive for a platform and distributed systems development. The
 interfaces for each can be found in [micro/proto/auth](https://github.com/micro/micro/blob/master/proto/auth/auth.proto) 
 and the Go library, client and server implementations in [micro/service/auth](https://github.com/micro/micro/tree/master/service/auth).
 
+### API
+
+The API enables calling services with JSON over HTTP.
+
+In the default `local` [environment](#environments) the API address is `127.0.0.1:8080`.
+Each service running is callable through this API.
+
+```sh
+$ curl http://127.0.0.1:8080/
+{"version": "v3.0.0-beta"}
+```
+
+An example call would be listing services in the registry:
+
+```sh
+$ curl http://127.0.0.1:8080/registry/listServices
+```
+
+The format is 
+```
+curl http://127.0.0.1:8080/[servicename]/[endpointName]
+```
+
+The endpoint name is lower camelcase.
+
+The parameters can be passed on as query params
+
+```sh
+$ curl http://127.0.0.1:8080/helloworld/call?name=Joe
+{"msg":"Hello Joe"}
+```
+
+or JSON body:
+
+```sh
+curl -XPOST --header "Content-Type: application/json" -d '{"name":"Joe"}' http://127.0.0.1:8080/helloworld/call
+{"msg":"Hello Joe"}
+```
+
+To specify a namespace when calling the API, the `Micro-Namespace` header can be used:
+
+```sh
+$ curl -H "Micro-Namespace: foobar" http://127.0.0.1:8080/helloworld/call?name=Joe
+```
+
+To call a [non-public service/endpoint](#auth), the `Authorization` header can be used:
+
+```sh
+MICRO_API_TOKEN=`micro user token`
+curl -H "Authorization: Bearer $MICRO_API_TOKEN" http://127.0.0.1:8080/helloworld/call?name=Joe
+```
+
 ### Auth
 
 The auth service provides both authentication and authorization.
