@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-// Original source: github.com/micro/go-micro/v3/api/server/acme/server/cors/cors.go
+// Original source: github.com/micro/go-micro/v3/api/server/cors/cors.go
 
 package cors
 
