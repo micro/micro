@@ -8,6 +8,8 @@ import (
 	fmt "fmt"
 	proto "github.com/golang/protobuf/proto"
 	grpc "google.golang.org/grpc"
+	codes "google.golang.org/grpc/codes"
+	status "google.golang.org/grpc/status"
 	math "math"
 )
 
@@ -297,6 +299,17 @@ func (x *brokerSubscribeClient) Recv() (*Message, error) {
 type BrokerServer interface {
 	Publish(context.Context, *PublishRequest) (*Empty, error)
 	Subscribe(*SubscribeRequest, Broker_SubscribeServer) error
+}
+
+// UnimplementedBrokerServer can be embedded to have forward compatible implementations.
+type UnimplementedBrokerServer struct {
+}
+
+func (*UnimplementedBrokerServer) Publish(ctx context.Context, req *PublishRequest) (*Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Publish not implemented")
+}
+func (*UnimplementedBrokerServer) Subscribe(req *SubscribeRequest, srv Broker_SubscribeServer) error {
+	return status.Errorf(codes.Unimplemented, "method Subscribe not implemented")
 }
 
 func RegisterBrokerServer(s *grpc.Server, srv BrokerServer) {

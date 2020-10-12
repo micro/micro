@@ -5,6 +5,7 @@ package test
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"os"
 	"os/exec"
@@ -597,6 +598,12 @@ func testRunParentFolder(t *T) {
 		t.Fatal(string(outp))
 	}
 
+	gomod := exec.Command("go", "mod", "edit", "-replace", "github.com/micro/micro/v3=github.com/micro/micro/v3@v3.0.0-beta.6.0.20201012112625-25acb13f1f05")
+	gomod.Dir = "../test-top-level"
+	if outp, err := gomod.CombinedOutput(); err != nil {
+		t.Fatal(string(outp))
+	}
+
 	err = os.MkdirAll("../parent/folder/test", 0777)
 	if err != nil {
 		t.Fatal(err)
@@ -630,7 +637,8 @@ func testRunParentFolder(t *T) {
 			return outp, err
 		}
 		if !strings.Contains(string(outp), "test-top-level") {
-			return outp, errors.New("Can't find example service in list")
+			l, _ := cmd.Exec("logs", "test-top-level")
+			return outp, fmt.Errorf("Can't find example service in list. \nLogs: %v", string(l))
 		}
 		return outp, err
 	}, 90*time.Second); err != nil {

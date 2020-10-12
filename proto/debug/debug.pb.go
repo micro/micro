@@ -8,6 +8,8 @@ import (
 	fmt "fmt"
 	proto "github.com/golang/protobuf/proto"
 	grpc "google.golang.org/grpc"
+	codes "google.golang.org/grpc/codes"
+	status "google.golang.org/grpc/status"
 	math "math"
 )
 
@@ -713,6 +715,23 @@ type DebugServer interface {
 	Health(context.Context, *HealthRequest) (*HealthResponse, error)
 	Stats(context.Context, *StatsRequest) (*StatsResponse, error)
 	Trace(context.Context, *TraceRequest) (*TraceResponse, error)
+}
+
+// UnimplementedDebugServer can be embedded to have forward compatible implementations.
+type UnimplementedDebugServer struct {
+}
+
+func (*UnimplementedDebugServer) Log(ctx context.Context, req *LogRequest) (*LogResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Log not implemented")
+}
+func (*UnimplementedDebugServer) Health(ctx context.Context, req *HealthRequest) (*HealthResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Health not implemented")
+}
+func (*UnimplementedDebugServer) Stats(ctx context.Context, req *StatsRequest) (*StatsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Stats not implemented")
+}
+func (*UnimplementedDebugServer) Trace(ctx context.Context, req *TraceRequest) (*TraceResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Trace not implemented")
 }
 
 func RegisterDebugServer(s *grpc.Server, srv DebugServer) {
