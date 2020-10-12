@@ -8,6 +8,8 @@ import (
 
 	"github.com/go-acme/lego/v3/providers/dns/cloudflare"
 	"github.com/gorilla/mux"
+	"github.com/micro/go-micro/v3/sync/memory"
+	"github.com/micro/micro/v3/client"
 	ahandler "github.com/micro/micro/v3/internal/api/handler"
 	aapi "github.com/micro/micro/v3/internal/api/handler/api"
 	"github.com/micro/micro/v3/internal/api/handler/event"
@@ -26,8 +28,6 @@ import (
 	"github.com/micro/micro/v3/internal/api/server/acme/autocert"
 	"github.com/micro/micro/v3/internal/api/server/acme/certmagic"
 	httpapi "github.com/micro/micro/v3/internal/api/server/http"
-	"github.com/micro/go-micro/v3/sync/memory"
-	"github.com/micro/micro/v3/client"
 	"github.com/micro/micro/v3/internal/handler"
 	"github.com/micro/micro/v3/internal/helper"
 	rrmicro "github.com/micro/micro/v3/internal/resolver/api"
