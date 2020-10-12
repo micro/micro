@@ -2,17 +2,11 @@
 package server
 
 import (
-	"errors"
 	"os"
 	"strings"
 
-	"github.com/micro/go-micro/v3/util/file"
-	"github.com/micro/micro/v3/client/cli/util"
-	"github.com/micro/micro/v3/cmd"
 	"github.com/micro/micro/v3/service"
 	"github.com/micro/micro/v3/service/auth"
-	"github.com/micro/micro/v3/service/client"
-	"github.com/micro/micro/v3/service/context"
 	log "github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/runtime"
 	"github.com/urfave/cli/v2"
@@ -40,67 +34,6 @@ var (
 	// Address is the server address
 	Address = ":10001"
 )
-
-// upload is used for file uploads to the server
-func upload(ctx *cli.Context, args []string) ([]byte, error) {
-	if ctx.Args().Len() == 0 {
-		return nil, errors.New("Required filename to upload")
-	}
-
-	filename := ctx.Args().Get(0)
-	localfile := ctx.Args().Get(1)
-
-	fileClient := file.New("server", client.DefaultClient, file.WithContext(context.DefaultContext))
-	return nil, fileClient.Upload(filename, localfile)
-}
-
-func init() {
-	command := &cli.Command{
-		Name:  "server",
-		Usage: "Run the micro server",
-		Description: `Launching the micro server ('micro server') will enable one to connect to it by
-		setting the appropriate Micro environment (see 'micro env' && 'micro env --help') commands.`,
-		Flags: []cli.Flag{
-			&cli.StringFlag{
-				Name:    "address",
-				Usage:   "Set the micro server address :10001",
-				EnvVars: []string{"MICRO_SERVER_ADDRESS"},
-			},
-			&cli.StringFlag{
-				Name:    "image",
-				Usage:   "Set the micro server image",
-				EnvVars: []string{"MICRO_SERVER_IMAGE"},
-				Value:   "micro/micro:latest",
-			},
-		},
-		Action: func(ctx *cli.Context) error {
-			Run(ctx)
-			return nil
-		},
-		Subcommands: []*cli.Command{{
-			Name:  "file",
-			Usage: "Move files between your local machine and the server",
-			Subcommands: []*cli.Command{
-				{
-					Name:   "upload",
-					Action: util.Print(upload),
-				},
-			},
-		}},
-	}
-
-	for _, p := range Plugins() {
-		if cmds := p.Commands(); len(cmds) > 0 {
-			command.Subcommands = append(command.Subcommands, cmds...)
-		}
-
-		if flags := p.Flags(); len(flags) > 0 {
-			command.Flags = append(command.Flags, flags...)
-		}
-	}
-
-	cmd.Register(command)
-}
 
 // Run runs the entire platform
 func Run(context *cli.Context) error {
