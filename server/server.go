@@ -66,6 +66,12 @@ func init() {
 				Usage:   "Set the micro server address :10001",
 				EnvVars: []string{"MICRO_SERVER_ADDRESS"},
 			},
+			&cli.StringFlag{
+				Name:    "image",
+				Usage:   "Set the micro server image",
+				EnvVars: []string{"MICRO_SERVER_IMAGE"},
+				Value:   "micro/micro:latest",
+			},
 		},
 		Action: func(ctx *cli.Context) error {
 			Run(ctx)
@@ -198,7 +204,7 @@ func Run(context *cli.Context) error {
 			runtime.WithRetries(10),
 			runtime.WithServiceAccount("micro"),
 			runtime.WithVolume("store-pvc", "/store"),
-			runtime.CreateImage("localhost:5000/micro"),
+			runtime.CreateImage(context.String("image")),
 			runtime.CreateNamespace("micro"),
 			runtime.WithSecret("MICRO_AUTH_PUBLIC_KEY", auth.DefaultAuth.Options().PublicKey),
 			runtime.WithSecret("MICRO_AUTH_PRIVATE_KEY", auth.DefaultAuth.Options().PrivateKey),
