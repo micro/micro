@@ -359,17 +359,22 @@ curl -H "Authorization: Bearer $MICRO_API_TOKEN" http://127.0.0.1:8080/helloworl
 
 ### Auth
 
+The auth service provides both authentication and authorization.
+
 #### Overview
 
-The auth service provides both authentication and authorization.
 The auth service stores accounts and access rules. It provides the single source of truth for all authentication 
 and authorization within the Micro runtime. Every service and user requires an account to operate. When a service 
 is started by the runtime an account is generated for it. Core services and services run by Micro load rules 
 periodically and manage the access to their resources on a per request basis.
 
+#### Usage
+
 For CLI command help use `micro auth --help` or auth subcommand help such as `micro auth create --help`.
 
-By default `micro server`
+#### Login
+
+To login to a server simply so the following
 
 ```
 $ micro login
@@ -377,6 +382,8 @@ Enter email address: admin
 Enter Password: 
 Successfully logged in.
 ```
+
+Assuming you are pointing to the right environment. It defaults to the local `micro server`.
 
 #### Rules
 
