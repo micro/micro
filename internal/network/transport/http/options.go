@@ -1,5 +1,3 @@
-// Copyright 2020 Asim Aslam
-//
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
@@ -12,40 +10,28 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-// Original source: github.com/micro/go-micro/v3/client/mucp/mucp_response.go
+// Original source: "github.com/micro/micro/v3/internal/network/transport/http/options.go
 
-package mucp
+package http
 
 import (
-	"github.com/micro/go-micro/v3/codec"
+	"context"
+	"net/http"
+
 	"github.com/micro/micro/v3/internal/network/transport"
 )
 
-type rpcResponse struct {
-	header map[string]string
-	body   []byte
-	socket transport.Socket
-	codec  codec.Codec
-}
-
-func (r *rpcResponse) Codec() codec.Reader {
-	return r.codec
-}
-
-func (r *rpcResponse) Header() map[string]string {
-	return r.header
-}
-
-func (r *rpcResponse) Read() ([]byte, error) {
-	var msg transport.Message
-
-	if err := r.socket.Recv(&msg); err != nil {
-		return nil, err
+// Handle registers the handler for the given pattern.
+func Handle(pattern string, handler http.Handler) transport.Option {
+	return func(o *transport.Options) {
+		if o.Context == nil {
+			o.Context = context.Background()
+		}
+		handlers, ok := o.Context.Value("http_handlers").(map[string]http.Handler)
+		if !ok {
+			handlers = make(map[string]http.Handler)
+		}
+		handlers[pattern] = handler
+		o.Context = context.WithValue(o.Context, "http_handlers", handlers)
 	}
-
-	// set internals
-	r.header = msg.Header
-	r.body = msg.Body
-
-	return msg.Body, nil
 }
