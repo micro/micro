@@ -263,21 +263,22 @@ micro server
 
 This will boot the entire system and services including a http api on :8080 and grpc proxy on :8081
 
-### Verify Status
+### Help
 
-Check help text is output with no errors
-```sh
+Run the following command to check help output
+```
 micro --help
 ```
 
-Run helloworld
+### Commands
 
-```sh
-micro env		# should point to local
-micro status	# returns empty response
-micro services	# returns empty response
+Run helloworld and check its status
+
+```
+micro env	# should point to local
 micro run github.com/micro/services/helloworld # run helloworld
 micro status 	# wait for status running
+micro services	# should display helloworld
 ```
 
 Call the service and verify output
@@ -307,6 +308,8 @@ and the Go library, client and server implementations in [micro/service/auth](ht
 ### API
 
 The API service is a http API gateway which acts as a public entrypoint and converts http/json to RPC.
+
+#### Usage
 
 In the default `local` [environment](#environments) the API address is `127.0.0.1:8080`.
 Each service running is callable through this API.
@@ -358,17 +361,22 @@ curl -H "Authorization: Bearer $MICRO_API_TOKEN" http://127.0.0.1:8080/helloworl
 
 ### Auth
 
+The auth service provides both authentication and authorization.
+
 #### Overview
 
-The auth service provides both authentication and authorization.
 The auth service stores accounts and access rules. It provides the single source of truth for all authentication 
 and authorization within the Micro runtime. Every service and user requires an account to operate. When a service 
 is started by the runtime an account is generated for it. Core services and services run by Micro load rules 
 periodically and manage the access to their resources on a per request basis.
 
+#### Usage
+
 For CLI command help use `micro auth --help` or auth subcommand help such as `micro auth create --help`.
 
-By default `micro server`
+#### Login
+
+To login to a server simply so the following
 
 ```
 $ micro login
@@ -376,6 +384,8 @@ Enter email address: admin
 Enter Password: 
 Successfully logged in.
 ```
+
+Assuming you are pointing to the right environment. It defaults to the local `micro server`.
 
 #### Rules
 
@@ -461,7 +471,11 @@ The freshly created account can be used with `micro login` by using the `jane` i
 
 ### Config
 
-The config service provides dynamic configuration for services. Config can be stored and loaded separately to 
+The config service provides dynamic configuration for services. 
+
+#### Overview
+
+Config can be stored and loaded separately to 
 the application itself for configuring business logic, api keys, etc. We read and write these as key-value 
 pairs which also support nesting of JSON values. The config interface also supports storing secrets by 
 defining the secret key as an option at the time of writing the value.
@@ -659,7 +673,31 @@ To specify the secret for the micro server either the envaf `MICRO_CONFIG_SECRET
 
 ### Broker
 
-TODO
+The broker is a message broker for pubsub messaging.
+
+#### Overview
+
+The broker provides a simple abstraction for pubsub messaging. It focuses on simple semantics for fire-and-forget 
+asynchronous communication. The goal here is to provide a pattern for async notifications where some update or 
+event occurred but that does not require persistence. The client and server build in the ability to publish 
+on one side and subscribe on the other.
+
+While a Service is normally called by name, messaging focuses on Topics that can have multiple publishers and 
+subscribers. The broker is abstracting away in the service's client/server which includes message encoding/decoding 
+so you don't have to spent all your time marshalling.
+
+##### Client
+
+The client containes the `Publish` method which takes a proto message, encodes it and publishes onto the broker 
+on a given topic. It takes the metadata from the client context and includes these as headers in the message 
+including the content-type so the subscribe side knows how to deal with it.
+
+##### Server
+
+The server supports a `Subscribe` method which allows you to register a handler as you would for handling requests. 
+In this way we can mirror the handler behaviour and deserialise the message when consuming from the broker. In 
+this model the server handles connecting to the broker, subscribing, consuming and executing your subscriber
+function.
 
 ### Events
 
