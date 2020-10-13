@@ -22,7 +22,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/micro/go-micro/v3/codec"
+	"github.com/micro/micro/v3/internal/codec"
 	"github.com/micro/go-micro/v3/debug/trace"
 	"github.com/micro/go-micro/v3/registry"
 	"github.com/micro/go-micro/v3/registry/mdns"

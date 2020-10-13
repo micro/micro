@@ -21,7 +21,7 @@ import (
 	"crypto/tls"
 	"net"
 
-	"github.com/micro/go-micro/v3/codec"
+	"github.com/micro/micro/v3/internal/codec"
 	"github.com/micro/go-micro/v3/registry/mdns"
 	"github.com/micro/micro/v3/service/broker/http"
 	"github.com/micro/micro/v3/service/server"

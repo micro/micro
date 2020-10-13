@@ -21,7 +21,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/micro/go-micro/v3/codec"
+	"github.com/micro/micro/v3/internal/codec"
 )
 
 var (

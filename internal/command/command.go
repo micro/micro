@@ -10,7 +10,7 @@ import (
 	"strings"
 	"time"
 
-	cbytes "github.com/micro/go-micro/v3/codec/bytes"
+	cbytes "github.com/micro/micro/v3/internal/codec/bytes"
 	"github.com/micro/go-micro/v3/metadata"
 	goregistry "github.com/micro/go-micro/v3/registry"
 	"github.com/micro/micro/v3/client/cli/namespace"

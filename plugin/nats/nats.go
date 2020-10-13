@@ -23,7 +23,6 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/micro/go-micro/v3/codec/json"
 	"github.com/micro/go-micro/v3/registry/mdns"
 	"github.com/micro/micro/v3/service/broker"
 	"github.com/micro/micro/v3/service/logger"
@@ -296,7 +295,7 @@ func (n *natsBroker) onDisconnectedError(conn *nats.Conn, err error) {
 func NewBroker(opts ...broker.Option) broker.Broker {
 	options := broker.Options{
 		// Default codec
-		Codec:    json.Marshaler{},
+		Codec:    Marshaler{},
 		Context:  context.Background(),
 		Registry: mdns.NewRegistry(),
 	}
