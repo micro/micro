@@ -262,21 +262,22 @@ micro server
 
 This will boot the entire system and services including a http api on :8080 and grpc proxy on :8081
 
-### Verify Status
+### Help
 
-Check help text is output with no errors
+Run the following command to check help output
 ```
 micro --help
 ```
 
-Run helloworld
+### Commands
+
+Run helloworld and check its status
 
 ```
 micro env	# should point to local
-micro status	# returns empty response
-micro services	# returns empty response
 micro run github.com/micro/services/helloworld # run helloworld
 micro status 	# wait for status running
+micro services	# should display helloworld
 ```
 
 Call the service and verify output
