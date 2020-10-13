@@ -9,7 +9,6 @@ import (
 	"runtime"
 
 	"github.com/micro/go-micro/v3/model"
-	"github.com/micro/micro/v3/service/server"
 	signalutil "github.com/micro/go-micro/v3/util/signal"
 	"github.com/micro/micro/v3/cmd"
 	"github.com/micro/micro/v3/service/client"
@@ -17,7 +16,7 @@ import (
 	debug "github.com/micro/micro/v3/service/debug/handler"
 	"github.com/micro/micro/v3/service/logger"
 	mumodel "github.com/micro/micro/v3/service/model"
-	muserver "github.com/micro/micro/v3/service/server"
+	"github.com/micro/micro/v3/service/server"
 	"github.com/urfave/cli/v2"
 )
 
@@ -111,7 +110,7 @@ func (s *Service) Client() client.Client {
 }
 
 func (s *Service) Server() server.Server {
-	return muserver.DefaultServer
+	return server.DefaultServer
 }
 
 func (s *Service) Model() model.Model {
@@ -151,7 +150,7 @@ func (s *Service) Stop() error {
 		}
 	}
 
-	if err := muserver.DefaultServer.Stop(); err != nil {
+	if err := server.DefaultServer.Stop(); err != nil {
 		return err
 	}
 
@@ -213,12 +212,12 @@ func (s *Service) Run() error {
 
 // Handle is syntactic sugar for registering a handler
 func Handle(h interface{}, opts ...server.HandlerOption) error {
-	return muserver.DefaultServer.Handle(muserver.DefaultServer.NewHandler(h, opts...))
+	return server.DefaultServer.Handle(server.DefaultServer.NewHandler(h, opts...))
 }
 
 // Subscribe is syntactic sugar for registering a subscriber
 func Subscribe(topic string, h interface{}, opts ...server.SubscriberOption) error {
-	return muserver.DefaultServer.Subscribe(muserver.DefaultServer.NewSubscriber(topic, h, opts...))
+	return server.DefaultServer.Subscribe(server.DefaultServer.NewSubscriber(topic, h, opts...))
 }
 
 // Event is an object messages are published to

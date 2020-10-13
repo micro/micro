@@ -9,7 +9,6 @@ import (
 	"github.com/micro/go-micro/v3/debug/trace"
 	"github.com/micro/go-micro/v3/metadata"
 	"github.com/micro/go-micro/v3/metrics"
-	"github.com/micro/micro/v3/service/server"
 	inauth "github.com/micro/micro/v3/internal/auth"
 	"github.com/micro/micro/v3/internal/auth/namespace"
 	"github.com/micro/micro/v3/service/auth"
@@ -19,7 +18,7 @@ import (
 	"github.com/micro/micro/v3/service/errors"
 	"github.com/micro/micro/v3/service/logger"
 	microMetrics "github.com/micro/micro/v3/service/metrics"
-	muserver "github.com/micro/micro/v3/service/server"
+	"github.com/micro/micro/v3/service/server"
 )
 
 type authWrapper struct {
@@ -145,9 +144,7 @@ var (
 )
 
 func (f *fromServiceWrapper) setHeaders(ctx context.Context) context.Context {
-	return metadata.MergeContext(ctx, metadata.Metadata{
-		HeaderPrefix + "From-Service": muserver.DefaultServer.Options().Name,
-	}, false)
+	return metadata.MergeContext(ctx, metadata.Metadata{}, false)
 }
 
 func (f *fromServiceWrapper) Call(ctx context.Context, req client.Request, rsp interface{}, opts ...client.CallOption) error {
