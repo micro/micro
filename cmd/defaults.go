@@ -11,21 +11,13 @@ import (
 	grpcSvr "github.com/micro/micro/v3/service/server/grpc"
 )
 
-// setupDefaults sets the default auth, broker etc implementations incase they werent configured by
+// setupDefaults sets the default auth, broker etc implementations incase they arent configured by
 // a profile. The default implementations are always the RPC implementations.
 func setupDefaults() {
-	if client.DefaultClient == nil {
-		client.DefaultClient = grpcCli.NewClient()
-	}
-	if server.DefaultServer == nil {
-		server.DefaultServer = grpcSvr.NewServer()
-	}
-	if network.DefaultNetwork == nil {
-		network.DefaultNetwork = mucpNet.NewNetwork()
-	}
+	client.DefaultClient = grpcCli.NewClient()
+	server.DefaultServer = grpcSvr.NewServer()
+	network.DefaultNetwork = mucpNet.NewNetwork()
 
 	// setup rpc implementations after the client is configured
-	if auth.DefaultAuth == nil {
-		auth.DefaultAuth = authSrv.NewAuth()
-	}
+	auth.DefaultAuth = authSrv.NewAuth()
 }

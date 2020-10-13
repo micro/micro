@@ -302,6 +302,9 @@ func (c *command) Options() Options {
 
 // Before is executed before any subcommand
 func (c *command) Before(ctx *cli.Context) error {
+	// configure defaults for all packages
+	setupDefaults()
+
 	if v := ctx.Args().First(); len(v) > 0 {
 		switch v {
 		case "service", "server":
@@ -358,9 +361,6 @@ func (c *command) Before(ctx *cli.Context) error {
 		// load the profile
 		profile.Setup(ctx)
 	}
-
-	// configure defaults for any packages which weren't configurd by the profile
-	setupDefaults()
 
 	// set the proxy address
 	var proxy string

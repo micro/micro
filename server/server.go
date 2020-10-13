@@ -5,6 +5,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/micro/micro/v3/cmd"
 	"github.com/micro/micro/v3/service"
 	"github.com/micro/micro/v3/service/auth"
 	log "github.com/micro/micro/v3/service/logger"
@@ -34,6 +35,44 @@ var (
 	// Address is the server address
 	Address = ":10001"
 )
+
+func init() {
+	command := &cli.Command{
+		Name:  "server",
+		Usage: "Run the micro server",
+		Description: `Launching the micro server ('micro server') will enable one to connect to it by
+		setting the appropriate Micro environment (see 'micro env' && 'micro env --help') commands.`,
+		Flags: []cli.Flag{
+			&cli.StringFlag{
+				Name:    "address",
+				Usage:   "Set the micro server address :10001",
+				EnvVars: []string{"MICRO_SERVER_ADDRESS"},
+			},
+			&cli.StringFlag{
+				Name:    "image",
+				Usage:   "Set the micro server image",
+				EnvVars: []string{"MICRO_SERVER_IMAGE"},
+				Value:   "micro/micro:latest",
+			},
+		},
+		Action: func(ctx *cli.Context) error {
+			Run(ctx)
+			return nil
+		},
+	}
+
+	for _, p := range Plugins() {
+		if cmds := p.Commands(); len(cmds) > 0 {
+			command.Subcommands = append(command.Subcommands, cmds...)
+		}
+
+		if flags := p.Flags(); len(flags) > 0 {
+			command.Flags = append(command.Flags, flags...)
+		}
+	}
+
+	cmd.Register(command)
+}
 
 // Run runs the entire platform
 func Run(context *cli.Context) error {
