@@ -6,13 +6,12 @@ import (
 	"os"
 	"strings"
 
-	golog "github.com/micro/go-micro/v3/logger"
 	rt "github.com/micro/go-micro/v3/runtime"
 	"github.com/micro/go-micro/v3/server"
 	"github.com/micro/micro/v3/cmd"
 	"github.com/micro/micro/v3/plugin"
 	"github.com/micro/micro/v3/service"
-	log "github.com/micro/micro/v3/service/logger"
+	"github.com/micro/micro/v3/service/logger"
 	prox "github.com/micro/micro/v3/service/proxy"
 	"github.com/micro/micro/v3/service/proxy/grpc"
 	"github.com/micro/micro/v3/service/proxy/http"
@@ -124,7 +123,7 @@ func Run(ctx *ccli.Context) {
 		}()
 	}
 
-	log.Infof("Service [%s] Serving %s at endpoint %s\n", p.String(), name, endpoint)
+	logger.Infof("Service [%s] Serving %s at endpoint %s\n", p.String(), name, endpoint)
 
 	// new service
 	srv := service.New(opts...)
@@ -206,8 +205,8 @@ func init() {
 	// set the scope of the variable
 	newAction := func(c srvCommand) func(ctx *ccli.Context) error {
 		return func(ctx *ccli.Context) error {
-			// configure the logger
-			log.DefaultLogger.Init(golog.WithFields(map[string]interface{}{"service": c.Name}))
+			// configure the loggerger
+			logger.DefaultLogger.Init(logger.WithFields(map[string]interface{}{"service": c.Name}))
 
 			// run the service
 			c.Command(ctx)

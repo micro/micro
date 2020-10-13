@@ -31,13 +31,13 @@ import (
 	"github.com/micro/go-micro/v3/codec/jsonrpc"
 	"github.com/micro/go-micro/v3/codec/protorpc"
 	"github.com/micro/go-micro/v3/errors"
-	"github.com/micro/go-micro/v3/logger"
 	"github.com/micro/go-micro/v3/metadata"
 	"github.com/micro/go-micro/v3/util/ctx"
 	"github.com/micro/go-micro/v3/util/qson"
 	"github.com/micro/go-micro/v3/util/router"
 	"github.com/micro/micro/v3/internal/api/handler"
 	"github.com/micro/micro/v3/service/api"
+	"github.com/micro/micro/v3/service/logger"
 	"github.com/oxtoacart/bpool"
 )
 
