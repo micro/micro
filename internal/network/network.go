@@ -4,7 +4,7 @@ package network
 import (
 	"context"
 
-	"github.com/micro/go-micro/v3/metadata"
+	"github.com/micro/micro/v3/service/metadata"
 	"github.com/micro/micro/v3/service/client"
 )
 

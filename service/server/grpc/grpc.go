@@ -33,7 +33,7 @@ import (
 	"github.com/golang/protobuf/proto"
 	"github.com/micro/micro/v3/service/errors"
 	pberr "github.com/micro/micro/v3/proto/errors"
-	meta "github.com/micro/go-micro/v3/metadata"
+	meta "github.com/micro/micro/v3/service/metadata"
 	"github.com/micro/go-micro/v3/registry"
 	"github.com/micro/go-micro/v3/util/addr"
 	"github.com/micro/go-micro/v3/util/backoff"
