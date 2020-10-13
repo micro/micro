@@ -5,8 +5,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/micro/go-micro/v3/metrics"
-	"github.com/micro/go-micro/v3/metrics/noop"
+	"github.com/micro/micro/v3/internal/metrics"
+	"github.com/micro/micro/v3/internal/metrics/noop"
 )
 
 var (
