@@ -23,11 +23,15 @@ Micro is a framework for cloud native development. It takes the concept of distr
 design pattern using microservices and related primitives. The overall goal of Micro is to abstract away cloud infrastructure 
 and to define a set of building blocks which can be used to write cloud services aka microservices, APIs or distributed systems.
 
+## Design
+
 Micro in v3 has undergone a major overhaul, it encompasses three things:
 
 - Server - A single server which acts as the runtime for a cloud platform
 - Clients - Entrypoints via command line, api gateway and gRPC proxy/sdks
 - Library - A Go service library specifically designed to write Micro services
+
+## In-Depth
 
 For in-depth material see the [Reference](/reference). This doc will otherwise cover things at a high level.
 
