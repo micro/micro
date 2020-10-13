@@ -29,11 +29,11 @@ import (
 	microStore "github.com/micro/micro/v3/service/store"
 
 	// plugins
-	"github.com/micro/go-plugins/broker/nats/v3"
 	natsStream "github.com/micro/go-plugins/events/stream/nats/v3"
 	metricsPrometheus "github.com/micro/go-plugins/metrics/prometheus/v3"
 	"github.com/micro/go-plugins/registry/etcd/v3"
 	"github.com/micro/go-plugins/store/cockroach/v3"
+	"github.com/micro/micro/plugin/nats/v3"
 )
 
 func init() {
