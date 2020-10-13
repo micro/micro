@@ -377,13 +377,11 @@ some other ways but for now we say goodbye.
 
 ## Next Steps
 
-For now our hosted offering is invite only. We want to ensure the experience provided to every developer and 
-team is a reliable one. Our goal is really not just to deliver PaaS 3.0 but to become the platform team for 
-developers everywhere.
-
 You can use the Micro 3.O as a self-hosted open source solution locally, on a VPS or managed kubernetes, 
-whatever works for you. Come join [Discord](https://discord.gg/hbmJEct) or [Slack](https://slack.m3o.com) 
-to chat more about it.
+whatever works for you. Our goal is to facilitate a vastly superior developer experience for building 
+services in the Cloud. Come join [Discord](https://discord.gg/hbmJEct) or [Slack](https://slack.m3o.com) 
+to chat more about it. And lastly head to to [m3o.com](https://m3o.com) if you're tired of the way you're 
+building software for today and want to learn of a better way that's going to make you 10x more productive.
 
 <br>
 _Written by Asim Aslam_
