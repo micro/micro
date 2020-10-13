@@ -35,7 +35,7 @@ func (m *srv) Get(path string, options ...config.Option) (config.Value, error) {
 			Secret: o.Secret,
 		},
 	}, client.WithAuthToken())
-	if verr := errors.Parse(err); verr != nil && verr.Code == http.StatusNotFound {
+	if verr := errors.FromError(err); verr != nil && verr.Code == http.StatusNotFound {
 		return nullValue, nil
 	} else if err != nil {
 		return nullValue, err

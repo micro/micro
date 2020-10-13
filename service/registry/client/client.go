@@ -88,7 +88,7 @@ func (s *srv) GetService(name string, opts ...registry.GetOption) ([]*registry.S
 		Service: name, Options: &pb.Options{Domain: options.Domain},
 	}, s.callOpts()...)
 
-	if verr := errors.Parse(err); verr != nil && verr.Code == 404 {
+	if verr := errors.FromError(err); verr != nil && verr.Code == 404 {
 		return nil, registry.ErrNotFound
 	} else if err != nil {
 		return nil, err

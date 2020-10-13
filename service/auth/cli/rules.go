@@ -80,7 +80,7 @@ func createRule(ctx *cli.Context) error {
 	_, err = cli.Create(context.DefaultContext, &pb.CreateRequest{
 		Rule: rule, Options: &pb.Options{Namespace: ns},
 	}, client.WithAuthToken())
-	if verr := errors.Parse(err); verr != nil {
+	if verr := errors.FromError(err); verr != nil {
 		return fmt.Errorf("Error: %v", verr.Detail)
 	} else if err != nil {
 		return err
@@ -108,7 +108,7 @@ func deleteRule(ctx *cli.Context) error {
 	_, err = cli.Delete(context.DefaultContext, &pb.DeleteRequest{
 		Id: ctx.Args().First(), Options: &pb.Options{Namespace: ns},
 	}, client.WithAuthToken())
-	if verr := errors.Parse(err); err != nil {
+	if verr := errors.FromError(err); err != nil {
 		return fmt.Errorf("Error: %v", verr.Detail)
 	} else if err != nil {
 		return err
