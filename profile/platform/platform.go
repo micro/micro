@@ -7,7 +7,7 @@ import (
 	"io/ioutil"
 	"os"
 
-	evStore "github.com/micro/go-micro/v3/events/store"
+	evStore "github.com/micro/micro/v3/service/events/store"
 	"github.com/micro/go-micro/v3/registry"
 	"github.com/micro/go-micro/v3/runtime/kubernetes"
 	"github.com/micro/go-micro/v3/store"

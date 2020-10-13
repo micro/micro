@@ -2,8 +2,6 @@
 package ci
 
 import (
-	evStore "github.com/micro/go-micro/v3/events/store"
-	memStream "github.com/micro/go-micro/v3/events/stream/memory"
 	"github.com/micro/go-micro/v3/runtime/local"
 	"github.com/micro/go-micro/v3/store/file"
 	"github.com/micro/micro/v3/profile"
@@ -11,6 +9,8 @@ import (
 	"github.com/micro/micro/v3/service/broker/http"
 	"github.com/micro/micro/v3/service/config"
 	storeConfig "github.com/micro/micro/v3/service/config/store"
+	evStore "github.com/micro/micro/v3/service/events/store"
+	memStream "github.com/micro/micro/v3/service/events/stream/memory"
 	"github.com/micro/micro/v3/service/logger"
 	"github.com/urfave/cli/v2"
 

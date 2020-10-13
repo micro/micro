@@ -301,6 +301,8 @@ github.com/micro/go-micro/v3 v3.0.0-beta.2 h1:LYaTCdw0T8So1EC74F/5c/8oBGT2L25ogT
 github.com/micro/go-micro/v3 v3.0.0-beta.2/go.mod h1:8VQzHPkol6RwDYO4vhxJk3irqb2XDz/mM8S6j7QNXjQ=
 github.com/micro/go-micro/v3 v3.0.0-beta.3.0.20201009122815-dad05be95ee0 h1:2OBn8BEb/zOqaxoyp6QzsXj10zDW5fbhv3+JcsHoKRE=
 github.com/micro/go-micro/v3 v3.0.0-beta.3.0.20201009122815-dad05be95ee0/go.mod h1:DiwYchJ8kCWOZVXMsZwuFcNDAdSCS6aEbYfEni4LvK4=
+github.com/micro/go-micro/v3 v3.0.0-beta.3.0.20201013135405-1a962e46fd3a h1:wuoj1zDdq0rAkJ2q+JaJuJd7eOTVsvhfcjPoTRQY0+k=
+github.com/micro/go-micro/v3 v3.0.0-beta.3.0.20201013135405-1a962e46fd3a/go.mod h1:DiwYchJ8kCWOZVXMsZwuFcNDAdSCS6aEbYfEni4LvK4=
 github.com/micro/go-plugins/registry/etcd/v3 v3.0.0-20200908121001-4ea6f6760baf h1:GRwH8I/MKlGABbpnGJVl5iJeaQ9o2Hc0csh+LY9n8/4=
 github.com/micro/go-plugins/registry/etcd/v3 v3.0.0-20200908121001-4ea6f6760baf/go.mod h1:m1oOc/fLZH+uFri7u5c+6bVQ10bd5nB5MFjE47Z9l0w=
 github.com/miekg/dns v1.1.15/go.mod h1:W1PPwlIAgtquWBMBEV9nkV9Cazfe8ScdGz/Lj7v3Nrg=
