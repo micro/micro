@@ -7,7 +7,6 @@ import (
 	"strings"
 	"syscall"
 
-	goclient "github.com/micro/go-micro/v3/client"
 	"github.com/micro/micro/v3/client/cli/token"
 	"github.com/micro/micro/v3/client/cli/util"
 	"github.com/micro/micro/v3/cmd"
@@ -145,7 +144,7 @@ func changePassword(ctx *cli.Context) error {
 		OldSecret: oldPassword,
 		NewSecret: newPassword,
 		Options:   &pb.Options{Namespace: ns},
-	}, goclient.WithAuthToken())
+	}, client.WithAuthToken())
 	return err
 }
 

@@ -20,7 +20,7 @@ import (
 	"strings"
 
 	"github.com/micro/go-micro/v3/registry"
-	"github.com/micro/go-micro/v3/server"
+	"github.com/micro/micro/v3/service/server"
 )
 
 type API interface {

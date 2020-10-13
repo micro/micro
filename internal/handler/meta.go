@@ -3,11 +3,11 @@ package handler
 import (
 	"net/http"
 
-	"github.com/micro/go-micro/v3/client"
 	"github.com/micro/micro/v3/internal/api/handler"
 	"github.com/micro/micro/v3/internal/api/handler/event"
 	"github.com/micro/micro/v3/internal/api/router"
 	"github.com/micro/micro/v3/service"
+	"github.com/micro/micro/v3/service/client"
 	"github.com/micro/micro/v3/service/errors"
 
 	// TODO: only import handler package

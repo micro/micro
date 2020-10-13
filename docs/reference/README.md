@@ -470,7 +470,11 @@ The freshly created account can be used with `micro login` by using the `jane` i
 
 ### Config
 
-The config service provides dynamic configuration for services. Config can be stored and loaded separately to 
+The config service provides dynamic configuration for services. 
+
+#### Overview
+
+Config can be stored and loaded separately to 
 the application itself for configuring business logic, api keys, etc. We read and write these as key-value 
 pairs which also support nesting of JSON values. The config interface also supports storing secrets by 
 defining the secret key as an option at the time of writing the value.
@@ -480,19 +484,83 @@ Further reading
 
 ### Broker
 
-TODO
+The broker is a message broker for pubsub messaging.
+
+#### Overview
+
+The broker provides a simple abstraction for pubsub messaging. It focuses on simple semantics for fire-and-forget 
+asynchronous communication. The goal here is to provide a pattern for async notifications where some update or 
+event occurred but that does not require persistence. The client and server build in the ability to publish 
+on one side and subscribe on the other. The broker provides no message ordering guarantees.
+
+While a Service is normally called by name, messaging focuses on Topics that can have multiple publishers and 
+subscribers. The broker is abstracting away in the service's client/server which includes message encoding/decoding 
+so you don't have to spent all your time marshalling.
+
+##### Client
+
+The client containes the `Publish` method which takes a proto message, encodes it and publishes onto the broker 
+on a given topic. It takes the metadata from the client context and includes these as headers in the message 
+including the content-type so the subscribe side knows how to deal with it.
+
+##### Server
+
+The server supports a `Subscribe` method which allows you to register a handler as you would for handling requests. 
+In this way we can mirror the handler behaviour and deserialise the message when consuming from the broker. In 
+this model the server handles connecting to the broker, subscribing, consuming and executing your subscriber
+function.
 
 ### Events
 
-TODO
+The events service is a service for event streaming and persistent storage of events.
+
+#### Overview
+
+Event streaming differs from pubsub messaging in that it provides an ordered stream of events that can be consumed 
+or replayed from any given point in the past. If you have experience with Kafka then you know its basically a 
+distributed log which allows you to read a file from different offsets and stream it.
+
+The event service and interface provide the event streaming abstraction for writing and reading events along with 
+consuming from any given offset. It also supports acking and error handling where appropriate.
+
+Events also different from the broker in that it provides a fixed Event type where you fill in the details and 
+handle the decoding of the message body yourself. Events could have large payloads so we don't want to 
+unnecessarily decode where you may just want to hand off to a storage system.
 
 ### Network
 
-TODO
+The network is a service to service network for request proxying
+
+#### Overview
+
+The network provides a service to service networking abstraction that includes proxying, authentication, 
+tenancy isolation and makes use of the existing service discovery and routing system. The goal here 
+is not to provide service mesh but a higher level control plane for routing that can govern access 
+based on the existing system. The network requires every service to be pointed to it, making 
+an explicit choice for routing.
+
+Beneath the covers cilium, envoy and other service mesh tools can be used to provide a highly 
+resilient mesh.
 
 ### Registry
 
-TODO
+The registry is a service directory and endpoint explorer
+
+#### Overview
+
+The service registry provides a single source of truth for all services and their APIs. All services 
+on startup will register their name, version, address and endpoints with the registry service. They 
+then periodically re-register to "heartbeat", otherwise being expired based on a pre-defined TTL 
+of 90 seconds. 
+
+The goal of the registry is to allow the user to explore APIs and services within a running system.
+
+The simplest form of access is the below command to list services.
+
+```
+micro services
+```
+
 
 ### Runtime
 
