@@ -7,6 +7,8 @@ import (
 	brokerSrv "github.com/micro/micro/v3/service/broker/client"
 	"github.com/micro/micro/v3/service/client"
 	grpcCli "github.com/micro/micro/v3/service/client/grpc"
+	"github.com/micro/micro/v3/service/metrics"
+	noopMet "github.com/micro/micro/v3/service/metrics/noop"
 	"github.com/micro/micro/v3/service/network"
 	mucpNet "github.com/micro/micro/v3/service/network/mucp"
 	"github.com/micro/micro/v3/service/server"
@@ -19,6 +21,7 @@ func setupDefaults() {
 	client.DefaultClient = grpcCli.NewClient()
 	server.DefaultServer = grpcSvr.NewServer()
 	network.DefaultNetwork = mucpNet.NewNetwork()
+	metrics.DefaultMetricsReporter = noopMet.New()
 
 	// setup rpc implementations after the client is configured
 	auth.DefaultAuth = authSrv.NewAuth()

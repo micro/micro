@@ -18,7 +18,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/micro/micro/v3/internal/metrics"
+	"github.com/micro/micro/v3/service/metrics"
 	"github.com/stretchr/testify/assert"
 )
 

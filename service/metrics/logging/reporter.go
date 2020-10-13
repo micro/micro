@@ -10,14 +10,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-// Original source: github.com/micro/micro/v3/metrics/noop/reporter.go
+// Original source: github.com/micro/micro/v3/metrics/logging/reporter.go
 
-package noop
+package logging
 
 import (
 	"time"
 
-	"github.com/micro/micro/v3/internal/metrics"
+	"github.com/micro/micro/v3/service/logger"
+	"github.com/micro/micro/v3/service/metrics"
+)
+
+const (
+	defaultLoggingLevel = logger.TraceLevel
 )
 
 // Reporter is an implementation of metrics.Reporter:
@@ -25,8 +30,10 @@ type Reporter struct {
 	options metrics.Options
 }
 
-// New returns a configured noop reporter:
+// New returns a configured logging reporter:
 func New(opts ...metrics.Option) *Reporter {
+	logger.Logf(logger.InfoLevel, "Metrics/Logging - metrics will be logged (at %s level)", defaultLoggingLevel.String())
+
 	return &Reporter{
 		options: metrics.NewOptions(opts...),
 	}
@@ -34,15 +41,27 @@ func New(opts ...metrics.Option) *Reporter {
 
 // Count implements the metrics.Reporter interface Count method:
 func (r *Reporter) Count(metricName string, value int64, tags metrics.Tags) error {
+	logger.Logf(defaultLoggingLevel, "Count metric: (%s: %d) %s", metricName, value, tags)
 	return nil
 }
 
 // Gauge implements the metrics.Reporter interface Gauge method:
 func (r *Reporter) Gauge(metricName string, value float64, tags metrics.Tags) error {
+	logger.Logf(defaultLoggingLevel, "Gauge metric: (%s: %f) %s", metricName, value, tags)
 	return nil
 }
 
 // Timing implements the metrics.Reporter interface Timing method:
 func (r *Reporter) Timing(metricName string, value time.Duration, tags metrics.Tags) error {
+	logger.Logf(defaultLoggingLevel, "Timing metric: (%s: %s) %s", metricName, value.String(), tags)
 	return nil
+}
+
+// convertTags turns Tags into prometheus labels:
+func convertTags(tags metrics.Tags) map[string]interface{} {
+	labels := make(map[string]interface{})
+	for key, value := range tags {
+		labels[key] = value
+	}
+	return labels
 }
