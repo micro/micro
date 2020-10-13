@@ -470,7 +470,11 @@ The freshly created account can be used with `micro login` by using the `jane` i
 
 ### Config
 
-The config service provides dynamic configuration for services. Config can be stored and loaded separately to 
+The config service provides dynamic configuration for services. 
+
+#### Overview
+
+Config can be stored and loaded separately to 
 the application itself for configuring business logic, api keys, etc. We read and write these as key-value 
 pairs which also support nesting of JSON values. The config interface also supports storing secrets by 
 defining the secret key as an option at the time of writing the value.
@@ -480,7 +484,31 @@ Further reading
 
 ### Broker
 
-TODO
+The broker is a message broker for pubsub messaging.
+
+#### Overview
+
+The broker provides a simple abstraction for pubsub messaging. It focuses on simple semantics for fire-and-forget 
+asynchronous communication. The goal here is to provide a pattern for async notifications where some update or 
+event occurred but that does not require persistence. The client and server build in the ability to publish 
+on one side and subscribe on the other.
+
+While a Service is normally called by name, messaging focuses on Topics that can have multiple publishers and 
+subscribers. The broker is abstracting away in the service's client/server which includes message encoding/decoding 
+so you don't have to spent all your time marshalling.
+
+##### Client
+
+The client containes the `Publish` method which takes a proto message, encodes it and publishes onto the broker 
+on a given topic. It takes the metadata from the client context and includes these as headers in the message 
+including the content-type so the subscribe side knows how to deal with it.
+
+##### Server
+
+The server supports a `Subscribe` method which allows you to register a handler as you would for handling requests. 
+In this way we can mirror the handler behaviour and deserialise the message when consuming from the broker. In 
+this model the server handles connecting to the broker, subscribing, consuming and executing your subscriber
+function.
 
 ### Events
 
