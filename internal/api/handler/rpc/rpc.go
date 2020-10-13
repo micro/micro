@@ -25,7 +25,7 @@ import (
 	"strings"
 
 	jsonpatch "github.com/evanphx/json-patch/v5"
-	"github.com/micro/go-micro/v3/errors"
+	"github.com/micro/micro/v3/service/errors"
 	"github.com/micro/go-micro/v3/metadata"
 	"github.com/micro/go-micro/v3/util/ctx"
 	"github.com/micro/go-micro/v3/util/qson"

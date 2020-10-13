@@ -26,7 +26,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/micro/micro/v3/internal/codec"
 	raw "github.com/micro/micro/v3/internal/codec/bytes"
-	"github.com/micro/go-micro/v3/errors"
+	"github.com/micro/micro/v3/service/errors"
 	"github.com/micro/go-micro/v3/metadata"
 	"github.com/micro/micro/v3/internal/client/buf"
 	"github.com/micro/micro/v3/internal/client/pool"

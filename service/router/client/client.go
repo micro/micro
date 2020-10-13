@@ -114,7 +114,7 @@ func (s *svc) Lookup(service string, q ...router.LookupOption) ([]router.Route, 
 		},
 	}, s.callOpts...)
 
-	if verr := errors.Parse(err); verr != nil && verr.Code == http.StatusNotFound {
+	if verr := errors.FromError(err); verr != nil && verr.Code == http.StatusNotFound {
 		return nil, router.ErrRouteNotFound
 	} else if err != nil {
 		return nil, err

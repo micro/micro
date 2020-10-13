@@ -17,7 +17,7 @@ package grpc
 import (
 	"runtime/debug"
 
-	"github.com/micro/go-micro/v3/errors"
+	"github.com/micro/micro/v3/service/errors"
 	"github.com/micro/micro/v3/internal/network/transport"
 	pb "github.com/micro/micro/v3/proto/transport"
 	"github.com/micro/micro/v3/service/logger"

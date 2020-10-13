@@ -26,7 +26,7 @@ import (
 	"net/url"
 	"path"
 
-	"github.com/micro/go-micro/v3/errors"
+	"github.com/micro/micro/v3/service/errors"
 	"github.com/micro/micro/v3/service/proxy"
 	"github.com/micro/micro/v3/service/server"
 )
