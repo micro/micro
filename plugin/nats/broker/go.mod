@@ -1,4 +1,4 @@
-module github.com/micro/micro/plugin/nats/v3
+module github.com/micro/micro/plugin/nats/broker/v3
 
 go 1.13
 
@@ -11,4 +11,4 @@ require (
 	github.com/oxtoacart/bpool v0.0.0-20190530202638-03653db5a59c
 )
 
-replace github.com/micro/micro/v3 => ../..
+replace github.com/micro/micro/v3 => ../../..

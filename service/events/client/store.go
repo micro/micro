@@ -1,7 +1,7 @@
 package client
 
 import (
-	"github.com/micro/go-micro/v3/events"
+	"github.com/micro/micro/v3/service/events"
 	pb "github.com/micro/micro/v3/proto/events"
 	"github.com/micro/micro/v3/service/client"
 	"github.com/micro/micro/v3/service/context"

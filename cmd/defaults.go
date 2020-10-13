@@ -9,6 +9,8 @@ import (
 	grpcCli "github.com/micro/micro/v3/service/client/grpc"
 	"github.com/micro/micro/v3/service/model"
 	"github.com/micro/micro/v3/service/model/mud"
+	"github.com/micro/micro/v3/service/events"
+	eventsSrv "github.com/micro/micro/v3/service/events/client"
 	"github.com/micro/micro/v3/service/network"
 	mucpNet "github.com/micro/micro/v3/service/network/mucp"
 	"github.com/micro/micro/v3/service/server"
@@ -26,4 +28,6 @@ func setupDefaults() {
 	// setup rpc implementations after the client is configured
 	auth.DefaultAuth = authSrv.NewAuth()
 	broker.DefaultBroker = brokerSrv.NewBroker()
+	events.DefaultStream = eventsSrv.NewStream()
+	events.DefaultStore = eventsSrv.NewStore()
 }
