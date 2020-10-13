@@ -31,7 +31,6 @@ import (
 	"time"
 
 	"github.com/golang/protobuf/proto"
-	"github.com/micro/go-micro/v3/broker"
 	"github.com/micro/go-micro/v3/errors"
 	pberr "github.com/micro/go-micro/v3/errors/proto"
 	meta "github.com/micro/go-micro/v3/metadata"
@@ -40,6 +39,7 @@ import (
 	"github.com/micro/go-micro/v3/util/backoff"
 	mgrpc "github.com/micro/go-micro/v3/util/grpc"
 	mnet "github.com/micro/go-micro/v3/util/net"
+	"github.com/micro/micro/v3/service/broker"
 	"github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/server"
 	"golang.org/x/net/netutil"

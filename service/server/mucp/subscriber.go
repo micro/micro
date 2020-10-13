@@ -20,9 +20,9 @@ import (
 	"fmt"
 	"reflect"
 
-	"github.com/micro/go-micro/v3/broker"
 	"github.com/micro/go-micro/v3/registry"
 	"github.com/micro/micro/v3/internal/network/transport"
+	"github.com/micro/micro/v3/service/broker"
 	"github.com/micro/micro/v3/service/server"
 )
 

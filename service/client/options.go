@@ -20,8 +20,6 @@ import (
 	"context"
 	"time"
 
-	"github.com/micro/go-micro/v3/broker"
-	"github.com/micro/go-micro/v3/broker/http"
 	"github.com/micro/go-micro/v3/codec"
 	"github.com/micro/go-micro/v3/registry"
 	"github.com/micro/go-micro/v3/router"
@@ -30,6 +28,8 @@ import (
 	"github.com/micro/go-micro/v3/selector/roundrobin"
 	"github.com/micro/micro/v3/internal/network/transport"
 	thttp "github.com/micro/micro/v3/internal/network/transport/http"
+	"github.com/micro/micro/v3/service/broker"
+	"github.com/micro/micro/v3/service/broker/http"
 )
 
 type Options struct {

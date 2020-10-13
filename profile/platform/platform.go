@@ -7,7 +7,6 @@ import (
 	"io/ioutil"
 	"os"
 
-	"github.com/micro/go-micro/v3/broker"
 	config "github.com/micro/go-micro/v3/config/store"
 	evStore "github.com/micro/go-micro/v3/events/store"
 	"github.com/micro/go-micro/v3/registry"
@@ -16,6 +15,7 @@ import (
 	"github.com/micro/go-micro/v3/store/s3"
 	"github.com/micro/micro/v3/profile"
 	"github.com/micro/micro/v3/service/auth/jwt"
+	"github.com/micro/micro/v3/service/broker"
 	"github.com/micro/micro/v3/service/logger"
 	"github.com/urfave/cli/v2"
 
@@ -29,11 +29,11 @@ import (
 	microStore "github.com/micro/micro/v3/service/store"
 
 	// plugins
-	"github.com/micro/go-plugins/broker/nats/v3"
 	natsStream "github.com/micro/go-plugins/events/stream/nats/v3"
 	metricsPrometheus "github.com/micro/go-plugins/metrics/prometheus/v3"
 	"github.com/micro/go-plugins/registry/etcd/v3"
 	"github.com/micro/go-plugins/store/cockroach/v3"
+	"github.com/micro/micro/plugin/nats/v3"
 )
 
 func init() {

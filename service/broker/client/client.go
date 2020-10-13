@@ -3,8 +3,8 @@ package client
 import (
 	"time"
 
-	"github.com/micro/go-micro/v3/broker"
 	pb "github.com/micro/micro/v3/proto/broker"
+	"github.com/micro/micro/v3/service/broker"
 	"github.com/micro/micro/v3/service/client"
 	"github.com/micro/micro/v3/service/context"
 	"github.com/micro/micro/v3/service/logger"

@@ -13,7 +13,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/micro/go-micro/v3/broker"
 	config "github.com/micro/go-micro/v3/config/store"
 	"github.com/micro/go-micro/v3/registry"
 	"github.com/micro/go-micro/v3/store"
@@ -28,13 +27,13 @@ import (
 	"github.com/micro/micro/v3/plugin"
 	"github.com/micro/micro/v3/profile"
 	"github.com/micro/micro/v3/service/auth"
+	"github.com/micro/micro/v3/service/broker"
 	"github.com/micro/micro/v3/service/client"
 	configCli "github.com/micro/micro/v3/service/config/client"
 	"github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/server"
 	"github.com/urfave/cli/v2"
 
-	mubroker "github.com/micro/micro/v3/service/broker"
 	muconfig "github.com/micro/micro/v3/service/config"
 	muregistry "github.com/micro/micro/v3/service/registry"
 	muruntime "github.com/micro/micro/v3/service/runtime"
@@ -505,7 +504,7 @@ func (c *command) Before(ctx *cli.Context) error {
 		cfg := &tls.Config{Certificates: []tls.Certificate{cert}, RootCAs: caCertPool}
 		brokerOpts = append(brokerOpts, broker.TLSConfig(cfg))
 	}
-	if err := mubroker.DefaultBroker.Init(brokerOpts...); err != nil {
+	if err := broker.DefaultBroker.Init(brokerOpts...); err != nil {
 		logger.Fatalf("Error configuring broker: %v", err)
 	}
 
@@ -532,11 +531,11 @@ func (c *command) Before(ctx *cli.Context) error {
 
 	// set the registry and broker in the client and server
 	client.DefaultClient.Init(
-		client.Broker(mubroker.DefaultBroker),
+		client.Broker(broker.DefaultBroker),
 		client.Registry(muregistry.DefaultRegistry),
 	)
 	server.DefaultServer.Init(
-		server.Broker(mubroker.DefaultBroker),
+		server.Broker(broker.DefaultBroker),
 		server.Registry(muregistry.DefaultRegistry),
 	)
 

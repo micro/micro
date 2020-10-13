@@ -6,7 +6,6 @@ import (
 	"strings"
 
 	"github.com/go-acme/lego/v3/providers/dns/cloudflare"
-	bmem "github.com/micro/go-micro/v3/broker/memory"
 	"github.com/micro/go-micro/v3/registry/noop"
 	"github.com/micro/go-micro/v3/sync/memory"
 	"github.com/micro/micro/v3/client"
@@ -16,6 +15,7 @@ import (
 	"github.com/micro/micro/v3/internal/helper"
 	"github.com/micro/micro/v3/internal/muxer"
 	"github.com/micro/micro/v3/service"
+	bmem "github.com/micro/micro/v3/service/broker/memory"
 	muclient "github.com/micro/micro/v3/service/client"
 	log "github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/proxy"

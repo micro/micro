@@ -3,6 +3,8 @@ package cmd
 import (
 	"github.com/micro/micro/v3/service/auth"
 	authSrv "github.com/micro/micro/v3/service/auth/client"
+	"github.com/micro/micro/v3/service/broker"
+	brokerSrv "github.com/micro/micro/v3/service/broker/client"
 	"github.com/micro/micro/v3/service/client"
 	grpcCli "github.com/micro/micro/v3/service/client/grpc"
 	"github.com/micro/micro/v3/service/network"
@@ -20,4 +22,5 @@ func setupDefaults() {
 
 	// setup rpc implementations after the client is configured
 	auth.DefaultAuth = authSrv.NewAuth()
+	broker.DefaultBroker = brokerSrv.NewBroker()
 }

@@ -24,7 +24,6 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/micro/go-micro/v3/broker"
 	"github.com/micro/go-micro/v3/codec"
 	raw "github.com/micro/go-micro/v3/codec/bytes"
 	"github.com/micro/go-micro/v3/errors"
@@ -32,6 +31,7 @@ import (
 	"github.com/micro/micro/v3/internal/client/buf"
 	"github.com/micro/micro/v3/internal/client/pool"
 	"github.com/micro/micro/v3/internal/network/transport"
+	"github.com/micro/micro/v3/service/broker"
 	"github.com/micro/micro/v3/service/client"
 )
 
