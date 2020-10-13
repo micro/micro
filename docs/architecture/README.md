@@ -44,27 +44,6 @@ as a separate service and process. Its the unix philosophy done well for softwar
 micro is a single monolithic codebase after many separate libraries were consolidated and inevitably go-micro got 
 folded into micro itself.
 
-### Services
-
-The services provided by the server are below. These are identified as the core concerns for a platform and distributed systems 
-development. In time this may evolve to include synchronization (locking & leadership election), sagas pattern, etc but for 
-now we want to provide just the core primitives.
-
-- API - public http api gateway served on port :8080
-- Auth - authentication and authorization
-- Broker - pubsub messaging for async comms
-- Config - dynamic configuration and secrets
-- Events - event streaming and persistent messaging
-- Network - service to service communication
-- Proxy - identity aware proxy for external access
-- Registry - service discovery and api explorer
-- Runtime - service runtime and process manager
-- Store - key-value persistent storage
-
-The assumptions made are by building as independent services we can scope the concerns and domain boundaries appropriately but 
-cohesively build a whole system that acts as a platform or a cloud operating system. Much like Android for Mobile we think 
-Micro could become a definitive server for the Cloud.
-
 ## Clients
 
 Clients are effectively entrypoints or forms of access for the Micro server. The server runs both an API gateway and gRPC proxy. 
@@ -98,3 +77,61 @@ build actually starts with putting something in the hands of the developer. Impo
 import various packages as needed when you have to get config, check auth, store key-value data. Then run your service using 
 Micro itself. The server abstracts away the infra, the service is built to run on Micro and everything else is taken care of.
 
+## Services
+
+The services provided by the server are below. These are identified as the core concerns for a platform and distributed systems 
+development. In time this may evolve to include synchronization (locking & leadership election), sagas pattern, etc but for 
+now we want to provide just the core primitives.
+
+- API - public http api gateway served on port :8080
+- Auth - authentication and authorization
+- Broker - pubsub messaging for async comms
+- Config - dynamic configuration and secrets
+- Events - event streaming and persistent messaging
+- Network - service to service communication
+- Proxy - identity aware proxy for external access
+- Registry - service discovery and api explorer
+- Runtime - service runtime and process manager
+- Store - key-value persistent storage
+
+The assumptions made are by building as independent services we can scope the concerns and domain boundaries appropriately but 
+cohesively build a whole system that acts as a platform or a cloud operating system. Much like Android for Mobile we think 
+Micro could become a definitive server for the Cloud.
+
+## Environments
+
+Environments are a concept introduced in v3 which name basically what we already understand as separate development or runtime 
+environments whether it be local, staging, production or something by another name. You can think of it as a deployment of 
+Micro targeted by the micro proxy which runs within every server.
+
+Environments as a concept allow us to switch between them using a single tool. In kubernetes this is known as contexts, in Micro 
+we still to what we understand as entire running environments for our software. To us it just makes sense. An environment might 
+be a deployment in AWS on managed k8s or multiple separate regional deployments identified be [name]-[region] or similar.
+
+Environments are homed by the micro proxy. By default locally this runs on :8081 and you simply do `micro env set local` to have 
+all commands run against it. The CLI basically proxies its commands to the proxy and in turn to the relevant services hosted 
+by the Micro server.
+
+Micro bakes in 3 environments by default; local, dev (free cloud hosted), platform (paid cloud hosted). The goal is to move 
+beyond open source into something that seamless integrates the cloud for all developers everywhere.
+
+## Namespaces
+
+Namespaces in Micro are a form of resource isolation and multi-tenancy. Most people know namespacing from linux lxc or kubernetes. 
+This overlaps but also evolves from how micro previously used it. Micro used to use logical namespacing through names prefixed 
+with a namespace. This allowed multiple tenants to exist in a single environment and using explicit naming to identify them. 
+
+As we're starting to see Micro as more of a platform and cloud operating system there was a need to codify this concept across 
+all resources. Namespacing is incorporated across every service so that your services are isolated in the registry and network, 
+so that your data is isolated in their specific databases and tables and so authentication and accounts are tied to individual 
+namespaces.
+
+Namespaces encapsulate accounts, resources and networking routing.
+
+## Glossary
+
+- Server - the micro server which encapsulates infrastructure and distributed systems concerns
+- Clients - entrypoints for accessing the server and services run by Micro
+- Library - the Go service library used to write Micro services
+- Environment - an instance of the micro service running locally or in a remote environment
+- Namespaces - isolated resources and multi-tenancy as a concept across Micro
