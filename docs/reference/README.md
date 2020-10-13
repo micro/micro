@@ -809,7 +809,76 @@ This is an especially useful feature for writing custom meta tools like API expl
 
 ### Runtime
 
-TODO
+#### Overview
+
+The runtime service is responsible for running, updating and deleting binaries or containers (depending on the platform - eg. binaries locally, pods on k8s etc) and their logs.
+
+#### Running a service
+
+The `micro run` command tells the runtime to run a service. The following are all valid examples:
+
+```sh
+micro run github.com/micro/services/helloworld
+micro run .  # deploy local folder to your local micro server
+micro run ../path/to/folder # deploy local folder to your local micro server
+micro run helloworld # deploy latest version, translates to micro run github.com/micro/services/helloworld or your custom base url
+micro run helloworld@9342934e6180 # deploy certain version
+micro run helloworld@branchname  # deploy certain branch
+```
+
+#### Running a local folder
+
+If the first parameter is an existing local folder, ie
+
+```sh
+micro run ./foobar
+```
+
+Then the CLI will upload that folder to the runtime and the runtime runs that.
+
+#### Running a git source
+
+If the first paremeter to `micro run` points to a git repository (be it on GitHub, GitLab, Bitbucket or any other provider), then the address gets sent to the runtime and the runtime downloads the code and runs it.
+
+##### Using references
+
+References are the part of the first parameter passed to run after the `@` sign. It can either be a branch name (no reference means version `latest` which equals to master in git terminology) or a commit hash.
+
+When branch names are passed in, the latest commit of the code will run.
+
+#### Listing runtime objects
+
+The `micro status` command lists all things running in the runtime:
+
+```sh
+$ micro status
+NAME		VERSION	SOURCE					STATUS	BUILD	UPDATED		METADATA
+helloworld	latest	github.com/micro/services/helloworld	running	n/a	20h43m45s ago	owner=admin, group=micro
+```
+
+The output includes the error if there is one. Commands like `micro kill`, `micro logs`, `micro update` accept the name returned by the `micro status` as first parameter (and not the service name as that might differ).
+
+#### Updating a service
+
+The `micro update` command makes the runtime pull the latest commit in the branch and restarts the service.
+
+In case of local code it requires not the runtime name (returned by `micro status`) but the local path. For commit hash deploys it just restarts the service.
+
+Examples: `micro update helloworld`, `micro update helloworld@branch`, `micro update helloworld@commit`, `micro update ./helloworld`.
+
+#### Deleting a service
+
+The `micro kill` command removes a runtime object from the runtime. It accepts the name returned by `micro status`.
+
+Examples: `micro kill helloworld`.
+
+#### Logs
+
+The `micro logs` command shows logs for a runtime object. It accepts the name returned by `micro status`.
+
+The `-f` flag makes the command stream logs continously.
+
+Examples: `micro logs helloworld`, `micro logs -f helloworld`.
 
 ### Store
 
