@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - master
-      - new_runtime_interface
     tags:
       - v2.*
       - v3.*
