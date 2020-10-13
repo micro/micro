@@ -10,7 +10,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-// Original source: github.com/micro/go-micro/v3/codec/grppc/grpc.go
+// Original source: github.com/micro/go-micro/v3/codec/grpc/grpc.go
 
 // Package grpc provides a grpc codec
 package grpc
