@@ -9,9 +9,9 @@ import (
 	"strings"
 	"text/tabwriter"
 
-	cbytes "github.com/micro/go-micro/v3/codec/bytes"
 	"github.com/micro/micro/v3/client/cli/util"
 	cliutil "github.com/micro/micro/v3/client/cli/util"
+	cbytes "github.com/micro/micro/v3/internal/codec/bytes"
 	clic "github.com/micro/micro/v3/internal/command"
 	"github.com/micro/micro/v3/service/client"
 	"github.com/urfave/cli/v2"

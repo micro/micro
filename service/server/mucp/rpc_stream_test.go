@@ -26,8 +26,8 @@ import (
 	"time"
 
 	"github.com/golang/protobuf/proto"
-	"github.com/micro/go-micro/v3/codec/json"
-	protoCodec "github.com/micro/go-micro/v3/codec/proto"
+	"github.com/micro/micro/v3/internal/codec/json"
+	protoCodec "github.com/micro/micro/v3/internal/codec/proto"
 )
 
 // protoStruct implements proto.Message
