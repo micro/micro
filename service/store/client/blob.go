@@ -6,7 +6,6 @@ import (
 	"io"
 	"net/http"
 
-	goclient "github.com/micro/go-micro/v3/client"
 	"github.com/micro/go-micro/v3/store"
 	pb "github.com/micro/micro/v3/proto/store"
 	"github.com/micro/micro/v3/service/client"
@@ -42,7 +41,7 @@ func (b *blob) Read(key string, opts ...store.BlobOption) (io.Reader, error) {
 		Options: &pb.BlobOptions{
 			Namespace: options.Namespace,
 		},
-	}, goclient.WithAuthToken())
+	}, client.WithAuthToken())
 
 	// handle the error
 	if verr := errors.Parse(err); verr != nil && verr.Code == http.StatusNotFound {
@@ -89,7 +88,7 @@ func (b *blob) Write(key string, blob io.Reader, opts ...store.BlobOption) error
 	defer cancel()
 
 	// open the stream
-	stream, err := b.cli().Write(ctx, goclient.WithAuthToken())
+	stream, err := b.cli().Write(ctx, client.WithAuthToken())
 	if verr := errors.Parse(err); verr != nil {
 		return verr
 	} else if err != nil {
@@ -142,7 +141,7 @@ func (b *blob) Delete(key string, opts ...store.BlobOption) error {
 		Options: &pb.BlobOptions{
 			Namespace: options.Namespace,
 		},
-	}, goclient.WithAuthToken())
+	}, client.WithAuthToken())
 
 	// handle the error
 	if verr := errors.Parse(err); verr != nil && verr.Code == http.StatusNotFound {

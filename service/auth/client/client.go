@@ -4,7 +4,6 @@ import (
 	"strings"
 	"time"
 
-	goclient "github.com/micro/go-micro/v3/client"
 	"github.com/micro/micro/v3/internal/auth/rules"
 	"github.com/micro/micro/v3/internal/auth/token"
 	"github.com/micro/micro/v3/internal/auth/token/jwt"
@@ -284,10 +283,10 @@ func serializeRule(r *pb.Rule) *auth.Rule {
 	}
 }
 
-func (s *srv) callOpts() []goclient.CallOption {
-	return []goclient.CallOption{
-		goclient.WithAddress(s.options.Addrs...),
-		goclient.WithAuthToken(),
+func (s *srv) callOpts() []client.CallOption {
+	return []client.CallOption{
+		client.WithAddress(s.options.Addrs...),
+		client.WithAuthToken(),
 	}
 }
 

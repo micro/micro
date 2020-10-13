@@ -6,20 +6,19 @@ import (
 	"strings"
 	"time"
 
-	"github.com/micro/go-micro/v3/client"
 	"github.com/micro/go-micro/v3/debug/trace"
 	"github.com/micro/go-micro/v3/metadata"
 	"github.com/micro/go-micro/v3/metrics"
-	"github.com/micro/go-micro/v3/server"
 	inauth "github.com/micro/micro/v3/internal/auth"
 	"github.com/micro/micro/v3/internal/auth/namespace"
 	"github.com/micro/micro/v3/service/auth"
+	"github.com/micro/micro/v3/service/client"
 	"github.com/micro/micro/v3/service/client/cache"
 	"github.com/micro/micro/v3/service/debug"
 	"github.com/micro/micro/v3/service/errors"
 	"github.com/micro/micro/v3/service/logger"
 	microMetrics "github.com/micro/micro/v3/service/metrics"
-	muserver "github.com/micro/micro/v3/service/server"
+	"github.com/micro/micro/v3/service/server"
 )
 
 type authWrapper struct {
@@ -146,7 +145,7 @@ var (
 
 func (f *fromServiceWrapper) setHeaders(ctx context.Context) context.Context {
 	return metadata.MergeContext(ctx, metadata.Metadata{
-		HeaderPrefix + "From-Service": muserver.DefaultServer.Options().Name,
+		HeaderPrefix + "From-Service": server.DefaultServer.Options().Name,
 	}, false)
 }
 

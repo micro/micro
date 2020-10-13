@@ -2,17 +2,12 @@
 package server
 
 import (
-	"errors"
 	"os"
 	"strings"
 
-	"github.com/micro/go-micro/v3/util/file"
-	"github.com/micro/micro/v3/client/cli/util"
 	"github.com/micro/micro/v3/cmd"
 	"github.com/micro/micro/v3/service"
 	"github.com/micro/micro/v3/service/auth"
-	"github.com/micro/micro/v3/service/client"
-	"github.com/micro/micro/v3/service/context"
 	log "github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/runtime"
 	"github.com/urfave/cli/v2"
@@ -41,19 +36,6 @@ var (
 	Address = ":10001"
 )
 
-// upload is used for file uploads to the server
-func upload(ctx *cli.Context, args []string) ([]byte, error) {
-	if ctx.Args().Len() == 0 {
-		return nil, errors.New("Required filename to upload")
-	}
-
-	filename := ctx.Args().Get(0)
-	localfile := ctx.Args().Get(1)
-
-	fileClient := file.New("server", client.DefaultClient, file.WithContext(context.DefaultContext))
-	return nil, fileClient.Upload(filename, localfile)
-}
-
 func init() {
 	command := &cli.Command{
 		Name:  "server",
@@ -77,16 +59,6 @@ func init() {
 			Run(ctx)
 			return nil
 		},
-		Subcommands: []*cli.Command{{
-			Name:  "file",
-			Usage: "Move files between your local machine and the server",
-			Subcommands: []*cli.Command{
-				{
-					Name:   "upload",
-					Action: util.Print(upload),
-				},
-			},
-		}},
 	}
 
 	for _, p := range Plugins() {

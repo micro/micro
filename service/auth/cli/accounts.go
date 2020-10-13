@@ -7,7 +7,6 @@ import (
 	"strings"
 	"text/tabwriter"
 
-	goclient "github.com/micro/go-micro/v3/client"
 	"github.com/micro/micro/v3/client/cli/namespace"
 	"github.com/micro/micro/v3/client/cli/util"
 	pb "github.com/micro/micro/v3/proto/auth"
@@ -31,7 +30,7 @@ func listAccounts(ctx *cli.Context) error {
 
 	rsp, err := cli.List(context.DefaultContext, &pb.ListAccountsRequest{
 		Options: &pb.Options{Namespace: ns},
-	}, goclient.WithAuthToken())
+	}, client.WithAuthToken())
 	if err != nil {
 		return fmt.Errorf("Error listing accounts: %v", err)
 	}
@@ -112,7 +111,7 @@ func deleteAccount(ctx *cli.Context) error {
 	_, err = cli.Delete(context.DefaultContext, &pb.DeleteAccountRequest{
 		Id:      ctx.Args().First(),
 		Options: &pb.Options{Namespace: ns},
-	}, goclient.WithAuthToken())
+	}, client.WithAuthToken())
 	if err != nil {
 		return fmt.Errorf("Error deleting account: %v", err)
 	}

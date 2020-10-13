@@ -3,7 +3,6 @@ package runtime
 import (
 	"io"
 
-	goclient "github.com/micro/go-micro/v3/client"
 	"github.com/micro/go-micro/v3/runtime/local/source/git"
 	pb "github.com/micro/micro/v3/proto/runtime"
 	"github.com/micro/micro/v3/service/client"
@@ -33,7 +32,7 @@ func upload(ctx *cli.Context, srv *runtime.Service, source *git.Source) (string,
 
 	// create an upload stream
 	cli := pb.NewSourceService("runtime", client.DefaultClient)
-	stream, err := cli.Upload(context.DefaultContext, goclient.WithAuthToken())
+	stream, err := cli.Upload(context.DefaultContext, client.WithAuthToken())
 	if err != nil {
 		return "", err
 	}

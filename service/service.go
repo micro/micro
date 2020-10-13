@@ -8,17 +8,15 @@ import (
 	"os/signal"
 	"runtime"
 
-	"github.com/micro/go-micro/v3/client"
 	"github.com/micro/go-micro/v3/model"
-	"github.com/micro/go-micro/v3/server"
 	signalutil "github.com/micro/go-micro/v3/util/signal"
 	"github.com/micro/micro/v3/cmd"
-	muclient "github.com/micro/micro/v3/service/client"
+	"github.com/micro/micro/v3/service/client"
 	mudebug "github.com/micro/micro/v3/service/debug"
 	debug "github.com/micro/micro/v3/service/debug/handler"
 	"github.com/micro/micro/v3/service/logger"
 	mumodel "github.com/micro/micro/v3/service/model"
-	muserver "github.com/micro/micro/v3/service/server"
+	"github.com/micro/micro/v3/service/server"
 	"github.com/urfave/cli/v2"
 )
 
@@ -108,11 +106,11 @@ func (s *Service) Options() Options {
 }
 
 func (s *Service) Client() client.Client {
-	return muclient.DefaultClient
+	return client.DefaultClient
 }
 
 func (s *Service) Server() server.Server {
-	return muserver.DefaultServer
+	return server.DefaultServer
 }
 
 func (s *Service) Model() model.Model {
@@ -152,7 +150,7 @@ func (s *Service) Stop() error {
 		}
 	}
 
-	if err := muserver.DefaultServer.Stop(); err != nil {
+	if err := server.DefaultServer.Stop(); err != nil {
 		return err
 	}
 
@@ -214,12 +212,12 @@ func (s *Service) Run() error {
 
 // Handle is syntactic sugar for registering a handler
 func Handle(h interface{}, opts ...server.HandlerOption) error {
-	return muserver.DefaultServer.Handle(muserver.DefaultServer.NewHandler(h, opts...))
+	return server.DefaultServer.Handle(server.DefaultServer.NewHandler(h, opts...))
 }
 
 // Subscribe is syntactic sugar for registering a subscriber
 func Subscribe(topic string, h interface{}, opts ...server.SubscriberOption) error {
-	return muserver.DefaultServer.Subscribe(muserver.DefaultServer.NewSubscriber(topic, h, opts...))
+	return server.DefaultServer.Subscribe(server.DefaultServer.NewSubscriber(topic, h, opts...))
 }
 
 // Event is an object messages are published to
@@ -229,7 +227,7 @@ type Event struct {
 
 // Publish a message to an event
 func (e *Event) Publish(ctx context.Context, msg interface{}) error {
-	return muclient.Publish(ctx, muclient.NewMessage(e.topic, msg))
+	return client.Publish(ctx, client.NewMessage(e.topic, msg))
 }
 
 // NewEvent creates a new event publisher

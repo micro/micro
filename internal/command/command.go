@@ -10,7 +10,6 @@ import (
 	"strings"
 	"time"
 
-	goclient "github.com/micro/go-micro/v3/client"
 	cbytes "github.com/micro/go-micro/v3/codec/bytes"
 	"github.com/micro/go-micro/v3/metadata"
 	goregistry "github.com/micro/go-micro/v3/registry"
@@ -192,7 +191,7 @@ func Publish(c *cli.Context, args []string) error {
 	topic := args[0]
 	message := args[1]
 
-	ct := func(o *goclient.MessageOptions) {
+	ct := func(o *client.MessageOptions) {
 		o.ContentType = "application/json"
 	}
 
@@ -239,19 +238,19 @@ func CallService(c *cli.Context, args []string) ([]byte, error) {
 
 	ctx := callContext(c)
 
-	creq := client.DefaultClient.NewRequest(service, endpoint, request, goclient.WithContentType("application/json"))
+	creq := client.DefaultClient.NewRequest(service, endpoint, request, client.WithContentType("application/json"))
 
-	opts := []goclient.CallOption{goclient.WithAuthToken()}
+	opts := []client.CallOption{client.WithAuthToken()}
 	if timeout := c.String("request_timeout"); timeout != "" {
 		duration, err := time.ParseDuration(timeout)
 		if err != nil {
 			return nil, err
 		}
-		opts = append(opts, goclient.WithRequestTimeout(duration))
+		opts = append(opts, client.WithRequestTimeout(duration))
 	}
 
 	if addr := c.String("address"); len(addr) > 0 {
-		opts = append(opts, goclient.WithAddress(addr))
+		opts = append(opts, client.WithAddress(addr))
 	}
 
 	var err error
@@ -304,7 +303,7 @@ func QueryHealth(c *cli.Context, args []string) ([]byte, error) {
 			context.Background(),
 			req,
 			rsp,
-			goclient.WithAddress(addr),
+			client.WithAddress(addr),
 		)
 		if err != nil {
 			return nil, err
@@ -343,7 +342,7 @@ func QueryHealth(c *cli.Context, args []string) ([]byte, error) {
 				context.Background(),
 				req,
 				rsp,
-				goclient.WithAddress(address),
+				client.WithAddress(address),
 			)
 
 			var status string

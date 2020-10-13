@@ -9,7 +9,6 @@ import (
 	"syscall"
 	"time"
 
-	cl "github.com/micro/go-micro/v3/client"
 	clinamespace "github.com/micro/micro/v3/client/cli/namespace"
 	clitoken "github.com/micro/micro/v3/client/cli/token"
 	cliutil "github.com/micro/micro/v3/client/cli/util"
@@ -30,7 +29,7 @@ func Run(ctx *cli.Context) error {
 		signupService := pb.NewSignupService("signup", client.DefaultClient)
 		_, err := signupService.Recover(context.DefaultContext, &pb.RecoverRequest{
 			Email: email,
-		}, cl.WithRequestTimeout(10*time.Second))
+		}, client.WithRequestTimeout(10*time.Second))
 		return err
 	}
 
@@ -52,7 +51,7 @@ func Run(ctx *cli.Context) error {
 	signupService := pb.NewSignupService("signup", client.DefaultClient)
 	_, err = signupService.SendVerificationEmail(context.DefaultContext, &pb.SendVerificationEmailRequest{
 		Email: email,
-	}, cl.WithRequestTimeout(10*time.Second))
+	}, client.WithRequestTimeout(10*time.Second))
 	if err != nil {
 		report.Errorf(ctx, "Error sending email to %v during signup: %s", email, err)
 		return err
@@ -66,7 +65,7 @@ func Run(ctx *cli.Context) error {
 	rsp, err := signupService.Verify(context.DefaultContext, &pb.VerifyRequest{
 		Email: email,
 		Token: otp,
-	}, cl.WithRequestTimeout(10*time.Second))
+	}, client.WithRequestTimeout(10*time.Second))
 	if err != nil {
 		report.Errorf(ctx, "Error verifying %v: %s", email, err)
 		return err
@@ -159,7 +158,7 @@ func Run(ctx *cli.Context) error {
 		PaymentMethodID: paymentMethodID,
 		Secret:          password,
 		Namespace:       signupNamespace,
-	}, cl.WithRequestTimeout(30*time.Second))
+	}, client.WithRequestTimeout(30*time.Second))
 	if err != nil {
 		report.Errorf(ctx, "Error completing signup: %s", err)
 		return err

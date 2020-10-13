@@ -14,12 +14,9 @@ import (
 	"time"
 
 	"github.com/micro/go-micro/v3/broker"
-	"github.com/micro/go-micro/v3/client"
 	config "github.com/micro/go-micro/v3/config/store"
-	"github.com/micro/go-micro/v3/server"
-	"github.com/micro/go-micro/v3/store"
-
 	"github.com/micro/go-micro/v3/registry"
+	"github.com/micro/go-micro/v3/store"
 	"github.com/micro/micro/v3/client/cli/util"
 	uconf "github.com/micro/micro/v3/internal/config"
 	"github.com/micro/micro/v3/internal/helper"
@@ -31,17 +28,16 @@ import (
 	"github.com/micro/micro/v3/plugin"
 	"github.com/micro/micro/v3/profile"
 	"github.com/micro/micro/v3/service/auth"
+	"github.com/micro/micro/v3/service/client"
 	configCli "github.com/micro/micro/v3/service/config/client"
 	"github.com/micro/micro/v3/service/logger"
+	"github.com/micro/micro/v3/service/server"
 	"github.com/urfave/cli/v2"
 
-	muauth "github.com/micro/micro/v3/service/auth"
 	mubroker "github.com/micro/micro/v3/service/broker"
-	muclient "github.com/micro/micro/v3/service/client"
 	muconfig "github.com/micro/micro/v3/service/config"
 	muregistry "github.com/micro/micro/v3/service/registry"
 	muruntime "github.com/micro/micro/v3/service/runtime"
-	muserver "github.com/micro/micro/v3/service/server"
 	mustore "github.com/micro/micro/v3/service/store"
 )
 
@@ -230,6 +226,9 @@ var (
 
 func init() {
 	rand.Seed(time.Now().Unix())
+
+	// configure defaults for all packages
+	setupDefaults()
 }
 
 func action(c *cli.Context) error {
@@ -363,9 +362,6 @@ func (c *command) Before(ctx *cli.Context) error {
 		profile.Setup(ctx)
 	}
 
-	// configure defaults for any packages which weren't configurd by the profile
-	setupDefaults()
-
 	// set the proxy address
 	var proxy string
 	if c.service || ctx.IsSet("proxy_address") {
@@ -382,23 +378,23 @@ func (c *command) Before(ctx *cli.Context) error {
 		}
 	}
 	if len(proxy) > 0 {
-		muclient.DefaultClient.Init(client.Proxy(proxy))
+		client.DefaultClient.Init(client.Proxy(proxy))
 	}
 
 	// use the internal network lookup
-	muclient.DefaultClient.Init(
+	client.DefaultClient.Init(
 		client.Lookup(network.Lookup),
 	)
 
 	// wrap the client
-	muclient.DefaultClient = wrapper.AuthClient(muclient.DefaultClient)
-	muclient.DefaultClient = wrapper.CacheClient(muclient.DefaultClient)
-	muclient.DefaultClient = wrapper.TraceCall(muclient.DefaultClient)
-	muclient.DefaultClient = wrapper.FromService(muclient.DefaultClient)
-	muclient.DefaultClient = wrapper.LogClient(muclient.DefaultClient)
+	client.DefaultClient = wrapper.AuthClient(client.DefaultClient)
+	client.DefaultClient = wrapper.CacheClient(client.DefaultClient)
+	client.DefaultClient = wrapper.TraceCall(client.DefaultClient)
+	client.DefaultClient = wrapper.FromService(client.DefaultClient)
+	client.DefaultClient = wrapper.LogClient(client.DefaultClient)
 
 	// wrap the server
-	muserver.DefaultServer.Init(
+	server.DefaultServer.Init(
 		server.WrapHandler(wrapper.AuthHandler()),
 		server.WrapHandler(wrapper.TraceHandler()),
 		server.WrapHandler(wrapper.HandlerStats()),
@@ -434,7 +430,7 @@ func (c *command) Before(ctx *cli.Context) error {
 		authOpts = append(authOpts, auth.PublicKey(string(pubKey)), auth.PrivateKey(string(privKey)))
 	}
 
-	muauth.DefaultAuth.Init(authOpts...)
+	auth.DefaultAuth.Init(authOpts...)
 
 	// setup auth credentials, use local credentials for the CLI and injected creds
 	// for the service.
@@ -450,7 +446,7 @@ func (c *command) Before(ctx *cli.Context) error {
 	go refreshAuthToken()
 
 	// initialize the server with the namespace so it knows which domain to register in
-	muserver.DefaultServer.Init(server.Namespace(ctx.String("namespace")))
+	server.DefaultServer.Init(server.Namespace(ctx.String("namespace")))
 
 	// setup registry
 	registryOpts := []registry.Option{}
@@ -535,11 +531,11 @@ func (c *command) Before(ctx *cli.Context) error {
 	}
 
 	// set the registry and broker in the client and server
-	muclient.DefaultClient.Init(
+	client.DefaultClient.Init(
 		client.Broker(mubroker.DefaultBroker),
 		client.Registry(muregistry.DefaultRegistry),
 	)
-	muserver.DefaultServer.Init(
+	server.DefaultServer.Init(
 		server.Broker(mubroker.DefaultBroker),
 		server.Registry(muregistry.DefaultRegistry),
 	)
