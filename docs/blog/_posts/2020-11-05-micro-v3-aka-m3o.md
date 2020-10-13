@@ -15,8 +15,9 @@ the hosted offering.
 
 ## Overview
 
-Micro focuses on developer productivity for the backend. It's clear that the Cloud has become infinitely more complex over the years. 
-Micro attempts to create order out of that chaos by distilling it all down to a handful of primitives for Go services development.
+Micro focuses on developer productivity for the backend. It's clear that the Cloud has become infinitely more complex 
+over the past few years. Micro attempts to create order out of that chaos by distilling it all down to a handful of 
+primitives for Go services development.
 
 Why should you care? If you're reading this you've no doubt encountered the tedious nature of infrastructure management, 
 wrangling a kubernetes cluster on AWS or the thousands of things you need to do to cobble together a platform before 
