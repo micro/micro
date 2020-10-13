@@ -10,7 +10,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-// Original source: "github.com/micro/micro/v3/internal/network/transport/http/options.go
+// Original source: "github.com/micro/go-micro/v3/network/transport/http/options.go
 
 package http
 
