@@ -23,7 +23,7 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/micro/go-micro/v3/codec/json"
+	"github.com/micro/micro/v3/internal/codec/json"
 	"github.com/micro/go-micro/v3/registry/mdns"
 	"github.com/micro/micro/v3/service/broker"
 	"github.com/micro/micro/v3/service/logger"
