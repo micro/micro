@@ -33,7 +33,7 @@ type cache struct {
 }
 
 // Create a service
-func (c *cache) Create(srv *runtime.Service, opts ...runtime.CreateOption) error {
+func (c *cache) Create(resource runtime.Resource, opts ...runtime.CreateOption) error {
 	// parse the options
 	var options runtime.CreateOptions
 	for _, o := range opts {
@@ -41,6 +41,12 @@ func (c *cache) Create(srv *runtime.Service, opts ...runtime.CreateOption) error
 	}
 	if options.Namespace == "" {
 		options.Namespace = "micro"
+	}
+
+	// Assert the resource back into a *runtime.Service
+	srv, ok := resource.(*runtime.Service)
+	if !ok {
+		return runtime.ErrInvalidResource
 	}
 
 	// call the underlying runtime
@@ -97,7 +103,7 @@ func (c *cache) Read(opts ...runtime.ReadOption) ([]*runtime.Service, error) {
 }
 
 // Update the service in place
-func (c *cache) Update(srv *runtime.Service, opts ...runtime.UpdateOption) error {
+func (c *cache) Update(resource runtime.Resource, opts ...runtime.UpdateOption) error {
 	// parse the options
 	var options runtime.UpdateOptions
 	for _, o := range opts {
@@ -105,6 +111,12 @@ func (c *cache) Update(srv *runtime.Service, opts ...runtime.UpdateOption) error
 	}
 	if options.Namespace == "" {
 		options.Namespace = "micro"
+	}
+
+	// Assert the resource back into a *runtime.Service
+	srv, ok := resource.(*runtime.Service)
+	if !ok {
+		return runtime.ErrInvalidResource
 	}
 
 	// call the underlying runtime
@@ -122,7 +134,7 @@ func (c *cache) Update(srv *runtime.Service, opts ...runtime.UpdateOption) error
 }
 
 // Remove a service
-func (c *cache) Delete(srv *runtime.Service, opts ...runtime.DeleteOption) error {
+func (c *cache) Delete(resource runtime.Resource, opts ...runtime.DeleteOption) error {
 	// parse the options
 	var options runtime.DeleteOptions
 	for _, o := range opts {
@@ -130,6 +142,12 @@ func (c *cache) Delete(srv *runtime.Service, opts ...runtime.DeleteOption) error
 	}
 	if options.Namespace == "" {
 		options.Namespace = "micro"
+	}
+
+	// Assert the resource back into a *runtime.Service
+	srv, ok := resource.(*runtime.Service)
+	if !ok {
+		return runtime.ErrInvalidResource
 	}
 
 	// call the underlying runtime

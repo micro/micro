@@ -30,107 +30,193 @@ func (s *svc) Init(opts ...runtime.Option) error {
 	return nil
 }
 
-// Create registers a service in the runtime
-func (s *svc) Create(svc *runtime.Service, opts ...runtime.CreateOption) error {
+// Create a resource
+func (s *svc) Create(resource runtime.Resource, opts ...runtime.CreateOption) error {
 	var options runtime.CreateOptions
 	for _, o := range opts {
 		o(&options)
 	}
 
-	// set the default source from MICRO_RUNTIME_SOURCE
-	if len(svc.Source) == 0 {
-		svc.Source = s.options.Source
-	}
+	// Handle the various different types of resources:
+	switch resource.Type() {
+	case runtime.TypeNamespace:
 
-	// runtime service create request
-	req := &pb.CreateRequest{
-		Service: &pb.Service{
-			Name:     svc.Name,
-			Version:  svc.Version,
-			Source:   svc.Source,
-			Metadata: svc.Metadata,
-		},
-		Options: &pb.CreateOptions{
-			Command:    options.Command,
-			Args:       options.Args,
-			Env:        options.Env,
-			Entrypoint: options.Entrypoint,
-			Type:       options.Type,
-			Image:      options.Image,
-			Namespace:  options.Namespace,
-			Secrets:    options.Secrets,
-			Volumes:    options.Volumes,
-		},
-	}
+		// Assert the resource back into a *runtime.Namespace
+		namespace, ok := resource.(*runtime.Namespace)
+		if !ok {
+			return runtime.ErrInvalidResource
+		}
 
-	if _, err := s.runtime.Create(context.DefaultContext, req, client.WithAuthToken()); err != nil {
-		return err
+		// Allow the options to take precedence
+		if options.Namespace != "" {
+			namespace.Name = options.Namespace
+		}
+
+		// runtime namespace create request
+		req := &pb.CreateRequest{
+			Resource: &pb.Resource{
+				Namespace: &pb.Namespace{
+					Name: namespace.Name,
+				},
+			},
+		}
+
+		if _, err := s.runtime.Create(context.DefaultContext, req, client.WithAuthToken()); err != nil {
+			return err
+		}
+
+	case runtime.TypeNetworkPolicy:
+		// Assert the resource back into a *runtime.NetworkPolicy
+		networkPolicy, ok := resource.(*runtime.NetworkPolicy)
+		if !ok {
+			return runtime.ErrInvalidResource
+		}
+
+		// Allow the options to take precedence
+		if options.Namespace != "" {
+			networkPolicy.Namespace = options.Namespace
+		}
+
+		// runtime namespace create request
+		req := &pb.CreateRequest{
+			Resource: &pb.Resource{
+				Networkpolicy: &pb.NetworkPolicy{
+					Name:      networkPolicy.Name,
+					Namespace: networkPolicy.Namespace,
+				},
+			},
+		}
+
+		if _, err := s.runtime.Create(context.DefaultContext, req, client.WithAuthToken()); err != nil {
+			return err
+		}
+
+	case runtime.TypeService:
+
+		// Assert the resource back into a *runtime.Service
+		svc, ok := resource.(*runtime.Service)
+		if !ok {
+			return runtime.ErrInvalidResource
+		}
+
+		// set the default source from MICRO_RUNTIME_SOURCE
+		if len(svc.Source) == 0 {
+			svc.Source = s.options.Source
+		}
+
+		// runtime service create request
+		req := &pb.CreateRequest{
+			Resource: &pb.Resource{
+				Service: &pb.Service{
+					Name:     svc.Name,
+					Version:  svc.Version,
+					Source:   svc.Source,
+					Metadata: svc.Metadata,
+				},
+			},
+			Options: &pb.CreateOptions{
+				Command:    options.Command,
+				Args:       options.Args,
+				Env:        options.Env,
+				Type:       options.Type,
+				Image:      options.Image,
+				Namespace:  options.Namespace,
+				Secrets:    options.Secrets,
+				Entrypoint: options.Entrypoint,
+				Volumes:    options.Volumes,
+			},
+		}
+
+		if _, err := s.runtime.Create(context.DefaultContext, req, client.WithAuthToken()); err != nil {
+			return err
+		}
+	default:
+		return runtime.ErrInvalidResource
 	}
 
 	return nil
 }
 
-func (s *svc) Logs(service *runtime.Service, opts ...runtime.LogsOption) (runtime.Logs, error) {
-	var options runtime.LogsOptions
-	for _, o := range opts {
-		o(&options)
+func (s *svc) Logs(resource runtime.Resource, options ...runtime.LogsOption) (runtime.Logs, error) {
+	var opts runtime.LogsOptions
+	for _, o := range options {
+		o(&opts)
 	}
 
-	ls, err := s.runtime.Logs(context.DefaultContext, &pb.LogsRequest{
-		Service: service.Name,
-		Stream:  options.Stream,
-		Count:   options.Count,
-		Options: &pb.LogsOptions{
-			Namespace: options.Namespace,
-		},
-	}, client.WithAuthToken())
-	if err != nil {
-		return nil, err
-	}
-	logStream := &serviceLogs{
-		service: service.Name,
-		stream:  make(chan runtime.Log),
-		stop:    make(chan bool),
-	}
+	// Handle the various different types of resources:
+	switch resource.Type() {
+	case runtime.TypeNamespace:
+		// noop (Namespace is not supported by *kubernetes.Logs())
+		return nil, nil
+	case runtime.TypeNetworkPolicy:
+		// noop (NetworkPolicy is not supported by *kubernetes.Logs()))
+		return nil, nil
+	case runtime.TypeService:
 
-	go func() {
-		for {
-			select {
-			// @todo this never seems to return, investigate
-			case <-ls.Context().Done():
-				logStream.Stop()
-			}
+		// Assert the resource back into a *runtime.Service
+		service, ok := resource.(*runtime.Service)
+		if !ok {
+			return nil, runtime.ErrInvalidResource
 		}
-	}()
 
-	go func() {
-		for {
-			select {
-			// @todo this never seems to return, investigate
-			case <-ls.Context().Done():
-				return
-			case _, ok := <-logStream.stream:
-				if !ok {
-					return
-				}
-			default:
-				record := pb.LogRecord{}
-				err := ls.RecvMsg(&record)
-				if err != nil {
-					if err != io.EOF {
-						logStream.err = err
-					}
+		ls, err := s.runtime.Logs(context.DefaultContext, &pb.LogsRequest{
+			Service: service.Name,
+			Stream:  opts.Stream,
+			Count:   opts.Count,
+			Options: &pb.LogsOptions{
+				Namespace: opts.Namespace,
+			},
+		}, client.WithAuthToken())
+		if err != nil {
+			return nil, err
+		}
+		logStream := &serviceLogs{
+			service: service.Name,
+			stream:  make(chan runtime.Log),
+			stop:    make(chan bool),
+		}
+
+		go func() {
+			for {
+				select {
+				// @todo this never seems to return, investigate
+				case <-ls.Context().Done():
 					logStream.Stop()
-					return
-				}
-				logStream.stream <- runtime.Log{
-					Message:  record.GetMessage(),
-					Metadata: record.GetMetadata(),
 				}
 			}
-		}
-	}()
-	return logStream, nil
+		}()
+
+		go func() {
+			for {
+				select {
+				// @todo this never seems to return, investigate
+				case <-ls.Context().Done():
+					return
+				case _, ok := <-logStream.stream:
+					if !ok {
+						return
+					}
+				default:
+					record := pb.LogRecord{}
+					err := ls.RecvMsg(&record)
+					if err != nil {
+						if err != io.EOF {
+							logStream.err = err
+						}
+						logStream.Stop()
+						return
+					}
+					logStream.stream <- runtime.Log{
+						Message:  record.GetMessage(),
+						Metadata: record.GetMetadata(),
+					}
+				}
+			}
+		}()
+		return logStream, nil
+	default:
+		return nil, runtime.ErrInvalidResource
+	}
 }
 
 type serviceLogs struct {
@@ -199,77 +285,190 @@ func (s *svc) Read(opts ...runtime.ReadOption) ([]*runtime.Service, error) {
 	return services, nil
 }
 
-// Update updates the running service
-func (s *svc) Update(svc *runtime.Service, opts ...runtime.UpdateOption) error {
+// Update a resource
+func (s *svc) Update(resource runtime.Resource, opts ...runtime.UpdateOption) error {
 	var options runtime.UpdateOptions
 	for _, o := range opts {
 		o(&options)
 	}
-	// runtime service create request
-	req := &pb.UpdateRequest{
-		Service: &pb.Service{
-			Name:     svc.Name,
-			Version:  svc.Version,
-			Source:   svc.Source,
-			Metadata: svc.Metadata,
-		},
-		Options: &pb.UpdateOptions{
-			Namespace:  options.Namespace,
-			Entrypoint: options.Entrypoint,
-		},
-	}
 
-	if _, err := s.runtime.Update(context.DefaultContext, req, client.WithAuthToken()); err != nil {
-		return err
+	// Handle the various different types of resources:
+	switch resource.Type() {
+	case runtime.TypeNamespace:
+
+		// Assert the resource back into a *runtime.Namespace
+		namespace, ok := resource.(*runtime.Namespace)
+		if !ok {
+			return runtime.ErrInvalidResource
+		}
+
+		// Allow the options to take precedence
+		if options.Namespace != "" {
+			namespace.Name = options.Namespace
+		}
+
+		// runtime namespace update request
+		req := &pb.UpdateRequest{
+			Resource: &pb.Resource{
+				Namespace: &pb.Namespace{
+					Name: namespace.Name,
+				},
+			},
+		}
+
+		if _, err := s.runtime.Update(context.DefaultContext, req, client.WithAuthToken()); err != nil {
+			return err
+		}
+
+	case runtime.TypeNetworkPolicy:
+		// Assert the resource back into a *runtime.NetworkPolicy
+		networkPolicy, ok := resource.(*runtime.NetworkPolicy)
+		if !ok {
+			return runtime.ErrInvalidResource
+		}
+
+		// Allow the options to take precedence
+		if options.Namespace != "" {
+			networkPolicy.Namespace = options.Namespace
+		}
+
+		// runtime namespace update request
+		req := &pb.UpdateRequest{
+			Resource: &pb.Resource{
+				Networkpolicy: &pb.NetworkPolicy{
+					Name:      networkPolicy.Name,
+					Namespace: networkPolicy.Namespace,
+				},
+			},
+		}
+
+		if _, err := s.runtime.Update(context.DefaultContext, req, client.WithAuthToken()); err != nil {
+			return err
+		}
+
+	case runtime.TypeService:
+
+		// Assert the resource back into a *runtime.Service
+		svc, ok := resource.(*runtime.Service)
+		if !ok {
+			return runtime.ErrInvalidResource
+		}
+
+		// runtime service create request
+		req := &pb.UpdateRequest{
+			Resource: &pb.Resource{
+				Service: &pb.Service{
+					Name:     svc.Name,
+					Version:  svc.Version,
+					Source:   svc.Source,
+					Metadata: svc.Metadata,
+				},
+			},
+			Options: &pb.UpdateOptions{
+				Namespace:  options.Namespace,
+				Entrypoint: options.Entrypoint,
+			},
+		}
+
+		if _, err := s.runtime.Update(context.DefaultContext, req, client.WithAuthToken()); err != nil {
+			return err
+		}
+	default:
+		return runtime.ErrInvalidResource
 	}
 
 	return nil
 }
 
-// Delete stops and removes the service from the runtime
-func (s *svc) Delete(svc *runtime.Service, opts ...runtime.DeleteOption) error {
+// Delete a resource
+func (s *svc) Delete(resource runtime.Resource, opts ...runtime.DeleteOption) error {
 	var options runtime.DeleteOptions
 	for _, o := range opts {
 		o(&options)
 	}
 
-	// runtime service dekete request
-	req := &pb.DeleteRequest{
-		Service: &pb.Service{
-			Name:     svc.Name,
-			Version:  svc.Version,
-			Source:   svc.Source,
-			Metadata: svc.Metadata,
-		},
-		Options: &pb.DeleteOptions{
-			Namespace: options.Namespace,
-		},
-	}
+	// Handle the various different types of resources:
+	switch resource.Type() {
+	case runtime.TypeNamespace:
 
-	if _, err := s.runtime.Delete(context.DefaultContext, req, client.WithAuthToken()); err != nil {
-		return err
-	}
+		// Assert the resource back into a *runtime.Namespace
+		namespace, ok := resource.(*runtime.Namespace)
+		if !ok {
+			return runtime.ErrInvalidResource
+		}
 
-	return nil
-}
+		// Allow the options to take precedence
+		if options.Namespace != "" {
+			namespace.Name = options.Namespace
+		}
 
-func (s *svc) CreateNamespace(ns string) error {
-	req := &pb.CreateNamespaceRequest{
-		Namespace: ns,
-	}
-	if _, err := s.runtime.CreateNamespace(context.DefaultContext, req, client.WithAuthToken()); err != nil {
-		return err
-	}
+		// runtime namespace delete request
+		req := &pb.DeleteRequest{
+			Resource: &pb.Resource{
+				Namespace: &pb.Namespace{
+					Name: namespace.Name,
+				},
+			},
+		}
 
-	return nil
-}
+		if _, err := s.runtime.Delete(context.DefaultContext, req, client.WithAuthToken()); err != nil {
+			return err
+		}
 
-func (s *svc) DeleteNamespace(ns string) error {
-	req := &pb.DeleteNamespaceRequest{
-		Namespace: ns,
-	}
-	if _, err := s.runtime.DeleteNamespace(context.DefaultContext, req, client.WithAuthToken()); err != nil {
-		return err
+	case runtime.TypeNetworkPolicy:
+		// Assert the resource back into a *runtime.NetworkPolicy
+		networkPolicy, ok := resource.(*runtime.NetworkPolicy)
+		if !ok {
+			return runtime.ErrInvalidResource
+		}
+
+		// Allow the options to take precedence
+		if options.Namespace != "" {
+			networkPolicy.Namespace = options.Namespace
+		}
+
+		// runtime namespace delete request
+		req := &pb.DeleteRequest{
+			Resource: &pb.Resource{
+				Networkpolicy: &pb.NetworkPolicy{
+					Name:      networkPolicy.Name,
+					Namespace: networkPolicy.Namespace,
+				},
+			},
+		}
+
+		if _, err := s.runtime.Delete(context.DefaultContext, req, client.WithAuthToken()); err != nil {
+			return err
+		}
+
+	case runtime.TypeService:
+
+		// Assert the resource back into a *runtime.Service
+		svc, ok := resource.(*runtime.Service)
+		if !ok {
+			return runtime.ErrInvalidResource
+		}
+
+		// runtime service dekete request
+		req := &pb.DeleteRequest{
+			Resource: &pb.Resource{
+				Service: &pb.Service{
+					Name:     svc.Name,
+					Version:  svc.Version,
+					Source:   svc.Source,
+					Metadata: svc.Metadata,
+				},
+			},
+			Options: &pb.DeleteOptions{
+				Namespace: options.Namespace,
+			},
+		}
+
+		if _, err := s.runtime.Delete(context.DefaultContext, req, client.WithAuthToken()); err != nil {
+			return err
+		}
+	default:
+		return runtime.ErrInvalidResource
 	}
 
 	return nil
