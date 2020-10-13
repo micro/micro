@@ -30,9 +30,9 @@ import (
 	"github.com/gobwas/ws/wsutil"
 	"github.com/micro/micro/v3/service/client"
 	raw "github.com/micro/go-micro/v3/codec/bytes"
-	"github.com/micro/go-micro/v3/logger"
 	"github.com/micro/go-micro/v3/util/router"
 	"github.com/micro/micro/v3/service/api"
+	"github.com/micro/micro/v3/service/logger"
 )
 
 // serveWebsocket will stream rpc back over websockets assuming json
