@@ -16,9 +16,7 @@ import (
 	"github.com/micro/go-micro/v3/broker"
 	config "github.com/micro/go-micro/v3/config/store"
 	"github.com/micro/go-micro/v3/registry"
-	"github.com/micro/go-micro/v3/server"
 	"github.com/micro/go-micro/v3/store"
-
 	"github.com/micro/micro/v3/client/cli/util"
 	uconf "github.com/micro/micro/v3/internal/config"
 	"github.com/micro/micro/v3/internal/helper"
@@ -33,14 +31,13 @@ import (
 	"github.com/micro/micro/v3/service/client"
 	configCli "github.com/micro/micro/v3/service/config/client"
 	"github.com/micro/micro/v3/service/logger"
+	"github.com/micro/micro/v3/service/server"
 	"github.com/urfave/cli/v2"
 
-	muauth "github.com/micro/micro/v3/service/auth"
 	mubroker "github.com/micro/micro/v3/service/broker"
 	muconfig "github.com/micro/micro/v3/service/config"
 	muregistry "github.com/micro/micro/v3/service/registry"
 	muruntime "github.com/micro/micro/v3/service/runtime"
-	muserver "github.com/micro/micro/v3/service/server"
 	mustore "github.com/micro/micro/v3/service/store"
 )
 
@@ -397,7 +394,7 @@ func (c *command) Before(ctx *cli.Context) error {
 	client.DefaultClient = wrapper.LogClient(client.DefaultClient)
 
 	// wrap the server
-	muserver.DefaultServer.Init(
+	server.DefaultServer.Init(
 		server.WrapHandler(wrapper.AuthHandler()),
 		server.WrapHandler(wrapper.TraceHandler()),
 		server.WrapHandler(wrapper.HandlerStats()),
@@ -433,8 +430,6 @@ func (c *command) Before(ctx *cli.Context) error {
 		authOpts = append(authOpts, auth.PublicKey(string(pubKey)), auth.PrivateKey(string(privKey)))
 	}
 
-	muauth.DefaultAuth.Init(authOpts...)
-
 	// setup auth credentials, use local credentials for the CLI and injected creds
 	// for the service.
 	var err error
@@ -449,7 +444,6 @@ func (c *command) Before(ctx *cli.Context) error {
 	go refreshAuthToken()
 
 	// initialize the server with the namespace so it knows which domain to register in
-	muserver.DefaultServer.Init(server.Namespace(ctx.String("namespace")))
 
 	// setup registry
 	registryOpts := []registry.Option{}
@@ -538,7 +532,7 @@ func (c *command) Before(ctx *cli.Context) error {
 		client.Broker(mubroker.DefaultBroker),
 		client.Registry(muregistry.DefaultRegistry),
 	)
-	muserver.DefaultServer.Init(
+	server.DefaultServer.Init(
 		server.Broker(mubroker.DefaultBroker),
 		server.Registry(muregistry.DefaultRegistry),
 	)

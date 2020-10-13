@@ -8,8 +8,8 @@ import (
 	"time"
 
 	"github.com/micro/go-micro/v3/router"
-	"github.com/micro/go-micro/v3/server"
-	mucpServer "github.com/micro/go-micro/v3/server/mucp"
+	"github.com/micro/micro/v3/service/server"
+	mucpServer "github.com/micro/micro/v3/service/server/mucp"
 	"github.com/micro/micro/v3/internal/helper"
 	"github.com/micro/micro/v3/internal/muxer"
 	"github.com/micro/micro/v3/internal/network/transport"

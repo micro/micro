@@ -7,7 +7,7 @@ import (
 	"strings"
 
 	rt "github.com/micro/go-micro/v3/runtime"
-	"github.com/micro/go-micro/v3/server"
+	"github.com/micro/micro/v3/service/server"
 	"github.com/micro/micro/v3/cmd"
 	"github.com/micro/micro/v3/plugin"
 	"github.com/micro/micro/v3/service"

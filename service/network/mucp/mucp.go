@@ -28,8 +28,6 @@ import (
 	"github.com/micro/go-micro/v3/proxy"
 	"github.com/micro/go-micro/v3/registry/noop"
 	"github.com/micro/go-micro/v3/router"
-	"github.com/micro/go-micro/v3/server"
-	smucp "github.com/micro/go-micro/v3/server/mucp"
 	"github.com/micro/go-micro/v3/util/backoff"
 	"github.com/micro/micro/v3/internal/network/resolver/dns"
 	"github.com/micro/micro/v3/internal/network/transport"
@@ -41,6 +39,8 @@ import (
 	"github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/network"
 	pb "github.com/micro/micro/v3/service/network/mucp/proto"
+	"github.com/micro/micro/v3/service/server"
+	smucp "github.com/micro/micro/v3/service/server/mucp"
 )
 
 var (

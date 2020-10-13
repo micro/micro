@@ -18,7 +18,7 @@ const (
 	apiPkgPath     = "github.com/micro/micro/v3/service/api"
 	contextPkgPath = "context"
 	clientPkgPath  = "github.com/micro/micro/v3/service/client"
-	serverPkgPath  = "github.com/micro/go-micro/v3/server"
+	serverPkgPath  = "github.com/micro/micro/v3/service/server"
 )
 
 func init() {

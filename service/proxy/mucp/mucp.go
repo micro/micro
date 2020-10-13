@@ -34,11 +34,11 @@ import (
 	"github.com/micro/go-micro/v3/router/registry"
 	"github.com/micro/go-micro/v3/selector"
 	"github.com/micro/go-micro/v3/selector/roundrobin"
-	"github.com/micro/go-micro/v3/server"
 	"github.com/micro/micro/v3/service/client"
 	grpcc "github.com/micro/micro/v3/service/client/grpc"
 	"github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/proxy"
+	"github.com/micro/micro/v3/service/server"
 	"google.golang.org/grpc"
 )
 

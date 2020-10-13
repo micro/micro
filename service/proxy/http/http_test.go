@@ -26,10 +26,10 @@ import (
 	"github.com/micro/go-micro/v3/registry/memory"
 	"github.com/micro/go-micro/v3/router"
 	"github.com/micro/go-micro/v3/router/registry"
-	"github.com/micro/go-micro/v3/server"
-	"github.com/micro/go-micro/v3/server/mucp"
 	"github.com/micro/micro/v3/service/client"
 	cmucp "github.com/micro/micro/v3/service/client/mucp"
+	"github.com/micro/micro/v3/service/server"
+	"github.com/micro/micro/v3/service/server/mucp"
 )
 
 type testHandler struct{}

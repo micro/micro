@@ -16,8 +16,8 @@
 package network
 
 import (
-	"github.com/micro/go-micro/v3/server"
 	"github.com/micro/micro/v3/service/client"
+	"github.com/micro/micro/v3/service/server"
 )
 
 var (
