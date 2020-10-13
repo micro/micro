@@ -31,8 +31,8 @@ import (
 	"time"
 
 	"github.com/golang/protobuf/proto"
-	"github.com/micro/go-micro/v3/errors"
-	pberr "github.com/micro/go-micro/v3/errors/proto"
+	"github.com/micro/micro/v3/service/errors"
+	pberr "github.com/micro/micro/v3/proto/errors"
 	meta "github.com/micro/go-micro/v3/metadata"
 	"github.com/micro/go-micro/v3/registry"
 	"github.com/micro/go-micro/v3/util/addr"

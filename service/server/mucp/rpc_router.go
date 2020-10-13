@@ -34,7 +34,7 @@ import (
 	"unicode"
 	"unicode/utf8"
 
-	merrors "github.com/micro/go-micro/v3/errors"
+	merrors "github.com/micro/micro/v3/service/errors"
 	"github.com/micro/micro/v3/internal/codec"
 	"github.com/micro/micro/v3/service/server"
 )

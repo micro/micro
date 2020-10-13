@@ -323,7 +323,7 @@ func (c *Config) setValue(values *config.JSONValues, secret bool, path, data str
 		}
 		encrypted, err := encrypt(data, c.secret)
 		if err != nil {
-			return merrors.InternalServerError("config.Config.Set", "Failed to encrypt", err)
+			return merrors.InternalServerError("config.Config.Set", "Failed to encrypt: %v", err)
 		}
 		data = string(base64.StdEncoding.EncodeToString([]byte(encrypted)))
 		// Need to save metainformation with secret values too

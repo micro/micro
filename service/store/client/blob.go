@@ -44,7 +44,7 @@ func (b *blob) Read(key string, opts ...store.BlobOption) (io.Reader, error) {
 	}, client.WithAuthToken())
 
 	// handle the error
-	if verr := errors.Parse(err); verr != nil && verr.Code == http.StatusNotFound {
+	if verr := errors.FromError(err); verr != nil && verr.Code == http.StatusNotFound {
 		return nil, store.ErrNotFound
 	} else if verr != nil {
 		return nil, verr
@@ -89,7 +89,7 @@ func (b *blob) Write(key string, blob io.Reader, opts ...store.BlobOption) error
 
 	// open the stream
 	stream, err := b.cli().Write(ctx, client.WithAuthToken())
-	if verr := errors.Parse(err); verr != nil {
+	if verr := errors.FromError(err); verr != nil {
 		return verr
 	} else if err != nil {
 		return err
@@ -144,7 +144,7 @@ func (b *blob) Delete(key string, opts ...store.BlobOption) error {
 	}, client.WithAuthToken())
 
 	// handle the error
-	if verr := errors.Parse(err); verr != nil && verr.Code == http.StatusNotFound {
+	if verr := errors.FromError(err); verr != nil && verr.Code == http.StatusNotFound {
 		return store.ErrNotFound
 	} else if verr != nil {
 		return verr

@@ -35,7 +35,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/micro/micro/v3/internal/codec/json"
-	merr "github.com/micro/go-micro/v3/errors"
+	merr "github.com/micro/micro/v3/service/errors"
 	"github.com/micro/go-micro/v3/registry"
 	"github.com/micro/go-micro/v3/registry/cache"
 	"github.com/micro/go-micro/v3/registry/mdns"
