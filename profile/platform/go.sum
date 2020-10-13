@@ -325,6 +325,8 @@ github.com/micro/go-micro/v3 v3.0.0-beta.3.0.20201001100334-03f2bb209dce h1:YsJO
 github.com/micro/go-micro/v3 v3.0.0-beta.3.0.20201001100334-03f2bb209dce/go.mod h1:DiwYchJ8kCWOZVXMsZwuFcNDAdSCS6aEbYfEni4LvK4=
 github.com/micro/go-micro/v3 v3.0.0-beta.3.0.20201009122815-dad05be95ee0 h1:2OBn8BEb/zOqaxoyp6QzsXj10zDW5fbhv3+JcsHoKRE=
 github.com/micro/go-micro/v3 v3.0.0-beta.3.0.20201009122815-dad05be95ee0/go.mod h1:DiwYchJ8kCWOZVXMsZwuFcNDAdSCS6aEbYfEni4LvK4=
+github.com/micro/go-micro/v3 v3.0.0-beta.3.0.20201013135405-1a962e46fd3a h1:wuoj1zDdq0rAkJ2q+JaJuJd7eOTVsvhfcjPoTRQY0+k=
+github.com/micro/go-micro/v3 v3.0.0-beta.3.0.20201013135405-1a962e46fd3a/go.mod h1:DiwYchJ8kCWOZVXMsZwuFcNDAdSCS6aEbYfEni4LvK4=
 github.com/micro/go-plugins/broker/nats/v3 v3.0.0-20200908121001-4ea6f6760baf h1:UV67mmbendjSk/r6WDc1IspluL/MMV3rCcjV8ye4JRg=
 github.com/micro/go-plugins/broker/nats/v3 v3.0.0-20200908121001-4ea6f6760baf/go.mod h1:tO2vsiYt8UmWhgFxhEAhzjyf8kYLLujuqaMcJguywbU=
 github.com/micro/go-plugins/events/stream/nats/v3 v3.0.0-20200908121001-4ea6f6760baf h1:D9kwmcjzoVG8nkFui7Q78ZMO1/DfIqlqk3mhGTVp/9M=
@@ -336,6 +338,8 @@ github.com/micro/go-plugins/registry/etcd/v3 v3.0.0-20200908121001-4ea6f6760baf/
 github.com/micro/go-plugins/store/cockroach/v3 v3.0.0-20200908121001-4ea6f6760baf h1:faz8DoAs2ZCZ324QOMBMVa/6WRZfASKcDmrTjnG/168=
 github.com/micro/go-plugins/store/cockroach/v3 v3.0.0-20200908121001-4ea6f6760baf/go.mod h1:PU7joUtgK+z+sAAjz/TPdM8xHQPTlfLSOPoBuG8oKuk=
 github.com/micro/micro v1.18.0 h1:v+xiQOXbT9xxotLwu1nJM81t4FbruBxZSSyIdhUfujM=
+github.com/micro/micro/plugin/nats/v3 v3.0.0-20201013150344-d7a769ff00da h1:M2fcbT4IISJWjurZxKvtrClbWYOBbMempACrPFHe/GY=
+github.com/micro/micro/plugin/nats/v3 v3.0.0-20201013150344-d7a769ff00da/go.mod h1:ehxdTNOU1zHBiGiSrle77R1P4DGIEO9G4AKE2vvSEJE=
 github.com/miekg/dns v1.1.15/go.mod h1:W1PPwlIAgtquWBMBEV9nkV9Cazfe8ScdGz/Lj7v3Nrg=
 github.com/miekg/dns v1.1.27 h1:aEH/kqUzUxGJ/UHcEKdJY+ugH6WEzsEBBSPa8zuy1aM=
 github.com/miekg/dns v1.1.27/go.mod h1:KNUDUusw/aVsxyTYZM1oqvCicbwhgbNgztCETuNZ7xM=
@@ -364,6 +368,7 @@ github.com/nats-io/jwt v0.3.2 h1:+RB5hMpXUUA2dfxuhBTEkMOrYmM+gKIZYS1KjSostMI=
 github.com/nats-io/jwt v0.3.2/go.mod h1:/euKqTS1ZD+zzjYrY7pseZrTtWQSjujC7xjPc8wL6eU=
 github.com/nats-io/nats-server/v2 v2.1.7 h1:jCoQwDvRYJy3OpOTHeYfvIPLP46BMeDmH7XEJg/r42I=
 github.com/nats-io/nats-server/v2 v2.1.7/go.mod h1:rbRrRE/Iv93O/rUvZ9dh4NfT0Cm9HWjW/BqOWLGgYiE=
+github.com/nats-io/nats-server/v2 v2.1.8/go.mod h1:rbRrRE/Iv93O/rUvZ9dh4NfT0Cm9HWjW/BqOWLGgYiE=
 github.com/nats-io/nats-streaming-server v0.18.0 h1:+RDozeN9scwCm0Wc2fYlvGcP144hvxvSOtxZ8FE21ME=
 github.com/nats-io/nats-streaming-server v0.18.0/go.mod h1:Y9Aiif2oANuoKazQrs4wXtF3jqt6p97ODQg68lR5TnY=
 github.com/nats-io/nats.go v1.10.0 h1:L8qnKaofSfNFbXg0C5F71LdjPRnmQwSsA4ukmkt1TvY=
