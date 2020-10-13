@@ -144,7 +144,9 @@ var (
 )
 
 func (f *fromServiceWrapper) setHeaders(ctx context.Context) context.Context {
-	return metadata.MergeContext(ctx, metadata.Metadata{}, false)
+	return metadata.MergeContext(ctx, metadata.Metadata{
+		HeaderPrefix + "From-Service": server.DefaultServer.Options().Name,
+	}, false)
 }
 
 func (f *fromServiceWrapper) Call(ctx context.Context, req client.Request, rsp interface{}, opts ...client.CallOption) error {
