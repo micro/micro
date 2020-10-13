@@ -16,12 +16,12 @@ package network
 
 import (
 	"github.com/google/uuid"
-	"github.com/micro/go-micro/v3/proxy"
-	"github.com/micro/go-micro/v3/proxy/mucp"
 	"github.com/micro/go-micro/v3/router"
 	regRouter "github.com/micro/go-micro/v3/router/registry"
 	"github.com/micro/micro/v3/internal/network/tunnel"
 	tmucp "github.com/micro/micro/v3/internal/network/tunnel/mucp"
+	"github.com/micro/micro/v3/service/proxy"
+	"github.com/micro/micro/v3/service/proxy/mucp"
 )
 
 type Option func(*Options)

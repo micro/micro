@@ -25,9 +25,9 @@ import (
 
 	"github.com/micro/go-micro/v3/broker"
 	"github.com/micro/go-micro/v3/errors"
-	"github.com/micro/go-micro/v3/logger"
 	"github.com/micro/go-micro/v3/metadata"
 	"github.com/micro/go-micro/v3/registry"
+	"github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/server"
 )
 

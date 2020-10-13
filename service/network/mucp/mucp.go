@@ -25,7 +25,6 @@ import (
 	"time"
 
 	"github.com/golang/protobuf/proto"
-	"github.com/micro/go-micro/v3/proxy"
 	"github.com/micro/go-micro/v3/registry/noop"
 	"github.com/micro/go-micro/v3/router"
 	"github.com/micro/go-micro/v3/util/backoff"
@@ -39,6 +38,7 @@ import (
 	"github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/network"
 	pb "github.com/micro/micro/v3/service/network/mucp/proto"
+	"github.com/micro/micro/v3/service/proxy"
 	"github.com/micro/micro/v3/service/server"
 	smucp "github.com/micro/micro/v3/service/server/mucp"
 )
