@@ -10,7 +10,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-// Original source: "github.com/micro/go-micro/v3/network/resolver/static/static.go
+// Original source: github.com/micro/go-micro/v3/network/resolver/static/static.go
 
 // Package static is a static resolver
 package static

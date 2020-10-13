@@ -10,7 +10,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-// Original source: "github.com/micro/go-micro/v3/network/resolver/registry/registry.go
+// Original source: github.com/micro/go-micro/v3/network/resolver/registry/registry.go
 
 // Package registry resolves names using the go-micro registry
 package registry
