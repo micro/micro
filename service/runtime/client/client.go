@@ -4,7 +4,6 @@ import (
 	"io"
 	"sync"
 
-	goclient "github.com/micro/go-micro/v3/client"
 	"github.com/micro/go-micro/v3/runtime"
 	pb "github.com/micro/micro/v3/proto/runtime"
 	"github.com/micro/micro/v3/service/client"
@@ -62,7 +61,7 @@ func (s *svc) Create(resource runtime.Resource, opts ...runtime.CreateOption) er
 			},
 		}
 
-		if _, err := s.runtime.Create(context.DefaultContext, req, goclient.WithAuthToken()); err != nil {
+		if _, err := s.runtime.Create(context.DefaultContext, req, client.WithAuthToken()); err != nil {
 			return err
 		}
 
@@ -88,7 +87,7 @@ func (s *svc) Create(resource runtime.Resource, opts ...runtime.CreateOption) er
 			},
 		}
 
-		if _, err := s.runtime.Create(context.DefaultContext, req, goclient.WithAuthToken()); err != nil {
+		if _, err := s.runtime.Create(context.DefaultContext, req, client.WithAuthToken()); err != nil {
 			return err
 		}
 
@@ -128,7 +127,7 @@ func (s *svc) Create(resource runtime.Resource, opts ...runtime.CreateOption) er
 			},
 		}
 
-		if _, err := s.runtime.Create(context.DefaultContext, req, goclient.WithAuthToken()); err != nil {
+		if _, err := s.runtime.Create(context.DefaultContext, req, client.WithAuthToken()); err != nil {
 			return err
 		}
 	default:
@@ -167,7 +166,7 @@ func (s *svc) Logs(resource runtime.Resource, options ...runtime.LogsOption) (ru
 			Options: &pb.LogsOptions{
 				Namespace: opts.Namespace,
 			},
-		}, goclient.WithAuthToken())
+		}, client.WithAuthToken())
 		if err != nil {
 			return nil, err
 		}
@@ -266,7 +265,7 @@ func (s *svc) Read(opts ...runtime.ReadOption) ([]*runtime.Service, error) {
 		},
 	}
 
-	resp, err := s.runtime.Read(context.DefaultContext, req, goclient.WithAuthToken())
+	resp, err := s.runtime.Read(context.DefaultContext, req, client.WithAuthToken())
 	if err != nil {
 		return nil, err
 	}
@@ -317,7 +316,7 @@ func (s *svc) Update(resource runtime.Resource, opts ...runtime.UpdateOption) er
 			},
 		}
 
-		if _, err := s.runtime.Update(context.DefaultContext, req, goclient.WithAuthToken()); err != nil {
+		if _, err := s.runtime.Update(context.DefaultContext, req, client.WithAuthToken()); err != nil {
 			return err
 		}
 
@@ -343,7 +342,7 @@ func (s *svc) Update(resource runtime.Resource, opts ...runtime.UpdateOption) er
 			},
 		}
 
-		if _, err := s.runtime.Update(context.DefaultContext, req, goclient.WithAuthToken()); err != nil {
+		if _, err := s.runtime.Update(context.DefaultContext, req, client.WithAuthToken()); err != nil {
 			return err
 		}
 
@@ -371,7 +370,7 @@ func (s *svc) Update(resource runtime.Resource, opts ...runtime.UpdateOption) er
 			},
 		}
 
-		if _, err := s.runtime.Update(context.DefaultContext, req, goclient.WithAuthToken()); err != nil {
+		if _, err := s.runtime.Update(context.DefaultContext, req, client.WithAuthToken()); err != nil {
 			return err
 		}
 	default:
@@ -412,7 +411,7 @@ func (s *svc) Delete(resource runtime.Resource, opts ...runtime.DeleteOption) er
 			},
 		}
 
-		if _, err := s.runtime.Delete(context.DefaultContext, req, goclient.WithAuthToken()); err != nil {
+		if _, err := s.runtime.Delete(context.DefaultContext, req, client.WithAuthToken()); err != nil {
 			return err
 		}
 
@@ -438,7 +437,7 @@ func (s *svc) Delete(resource runtime.Resource, opts ...runtime.DeleteOption) er
 			},
 		}
 
-		if _, err := s.runtime.Delete(context.DefaultContext, req, goclient.WithAuthToken()); err != nil {
+		if _, err := s.runtime.Delete(context.DefaultContext, req, client.WithAuthToken()); err != nil {
 			return err
 		}
 
@@ -465,7 +464,7 @@ func (s *svc) Delete(resource runtime.Resource, opts ...runtime.DeleteOption) er
 			},
 		}
 
-		if _, err := s.runtime.Delete(context.DefaultContext, req, goclient.WithAuthToken()); err != nil {
+		if _, err := s.runtime.Delete(context.DefaultContext, req, client.WithAuthToken()); err != nil {
 			return err
 		}
 	default:

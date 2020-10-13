@@ -7,20 +7,20 @@ import (
 	"io/ioutil"
 	"os"
 
-	"github.com/micro/go-micro/v3/broker"
-	config "github.com/micro/go-micro/v3/config/store"
 	evStore "github.com/micro/go-micro/v3/events/store"
 	"github.com/micro/go-micro/v3/registry"
 	"github.com/micro/go-micro/v3/runtime/kubernetes"
 	"github.com/micro/go-micro/v3/store"
 	"github.com/micro/go-micro/v3/store/s3"
 	"github.com/micro/micro/v3/profile"
+	"github.com/micro/micro/v3/service/auth"
 	"github.com/micro/micro/v3/service/auth/jwt"
+	"github.com/micro/micro/v3/service/broker"
+	"github.com/micro/micro/v3/service/config"
+	storeConfig "github.com/micro/micro/v3/service/config/store"
 	"github.com/micro/micro/v3/service/logger"
 	"github.com/urfave/cli/v2"
 
-	microAuth "github.com/micro/micro/v3/service/auth"
-	microConfig "github.com/micro/micro/v3/service/config"
 	microEvents "github.com/micro/micro/v3/service/events"
 	microMetrics "github.com/micro/micro/v3/service/metrics"
 	microRuntime "github.com/micro/micro/v3/service/runtime"
@@ -29,11 +29,11 @@ import (
 	microStore "github.com/micro/micro/v3/service/store"
 
 	// plugins
-	"github.com/micro/go-plugins/broker/nats/v3"
 	natsStream "github.com/micro/go-plugins/events/stream/nats/v3"
 	metricsPrometheus "github.com/micro/go-plugins/metrics/prometheus/v3"
 	"github.com/micro/go-plugins/registry/etcd/v3"
 	"github.com/micro/go-plugins/store/cockroach/v3"
+	"github.com/micro/micro/plugin/nats/v3"
 )
 
 func init() {
@@ -44,12 +44,12 @@ func init() {
 var Profile = &profile.Profile{
 	Name: "platform",
 	Setup: func(ctx *cli.Context) error {
-		microAuth.DefaultAuth = jwt.NewAuth()
+		auth.DefaultAuth = jwt.NewAuth()
 		// the cockroach store will connect immediately so the address must be passed
 		// when the store is created. The cockroach store address contains the location
 		// of certs so it can't be defaulted like the broker and registry.
 		microStore.DefaultStore = cockroach.NewStore(store.Nodes(ctx.String("store_address")))
-		microConfig.DefaultConfig, _ = config.NewConfig(microStore.DefaultStore, "")
+		config.DefaultConfig, _ = storeConfig.NewConfig(microStore.DefaultStore, "")
 		profile.SetupBroker(nats.NewBroker(broker.Addrs("nats-cluster")))
 		profile.SetupRegistry(etcd.NewRegistry(registry.Addrs("etcd-cluster")))
 		profile.SetupJWT(ctx)

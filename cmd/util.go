@@ -6,11 +6,11 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/micro/go-micro/v3/errors"
-	"github.com/micro/go-micro/v3/logger"
 	"github.com/micro/micro/v3/client/cli/namespace"
 	clitoken "github.com/micro/micro/v3/client/cli/token"
 	"github.com/micro/micro/v3/client/cli/util"
 	"github.com/micro/micro/v3/service/auth"
+	"github.com/micro/micro/v3/service/logger"
 	"github.com/urfave/cli/v2"
 )
 

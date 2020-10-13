@@ -53,6 +53,7 @@ jobs:
         mkdir /tmp/micro
         cp -R . /tmp/micro
         cd /tmp/micro
+        go mod edit -replace github.com/micro/micro/plugin/nats/v3=./plugin/nats
         go mod edit -replace github.com/micro/micro/profile/platform/v3=./profile/platform
         go mod edit -replace google.golang.org/grpc=google.golang.org/grpc@v1.26.0
         go install

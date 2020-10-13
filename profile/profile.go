@@ -7,11 +7,6 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/micro/go-micro/v3/broker"
-	"github.com/micro/go-micro/v3/broker/http"
-	memBroker "github.com/micro/go-micro/v3/broker/memory"
-	"github.com/micro/go-micro/v3/client"
-	config "github.com/micro/go-micro/v3/config/store"
 	memStream "github.com/micro/go-micro/v3/events/stream/memory"
 	"github.com/micro/go-micro/v3/registry"
 	"github.com/micro/go-micro/v3/registry/mdns"
@@ -21,27 +16,29 @@ import (
 	regRouter "github.com/micro/go-micro/v3/router/registry"
 	"github.com/micro/go-micro/v3/runtime/kubernetes"
 	"github.com/micro/go-micro/v3/runtime/local"
-	"github.com/micro/go-micro/v3/server"
 	"github.com/micro/go-micro/v3/store/file"
 	mem "github.com/micro/go-micro/v3/store/memory"
 	"github.com/micro/micro/v3/service/auth/jwt"
 	"github.com/micro/micro/v3/service/auth/noop"
+	"github.com/micro/micro/v3/service/broker"
+	"github.com/micro/micro/v3/service/broker/http"
+	memBroker "github.com/micro/micro/v3/service/broker/memory"
+	"github.com/micro/micro/v3/service/client"
+	"github.com/micro/micro/v3/service/config"
+	storeConfig "github.com/micro/micro/v3/service/config/store"
 	"github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/runtime/builder/golang"
+	"github.com/micro/micro/v3/service/server"
 	"github.com/urfave/cli/v2"
 
 	inAuth "github.com/micro/micro/v3/internal/auth"
 	"github.com/micro/micro/v3/internal/user"
 	microAuth "github.com/micro/micro/v3/service/auth"
-	microBroker "github.com/micro/micro/v3/service/broker"
-	microClient "github.com/micro/micro/v3/service/client"
-	microConfig "github.com/micro/micro/v3/service/config"
 	microEvents "github.com/micro/micro/v3/service/events"
 	microRegistry "github.com/micro/micro/v3/service/registry"
 	microRouter "github.com/micro/micro/v3/service/router"
 	microRuntime "github.com/micro/micro/v3/service/runtime"
 	microBuilder "github.com/micro/micro/v3/service/runtime/builder"
-	microServer "github.com/micro/micro/v3/service/server"
 	microStore "github.com/micro/micro/v3/service/store"
 )
 
@@ -96,7 +93,7 @@ var Local = &Profile{
 		microAuth.DefaultAuth = jwt.NewAuth()
 		microStore.DefaultStore = file.NewStore()
 		SetupConfigSecretKey(ctx)
-		microConfig.DefaultConfig, _ = config.NewConfig(microStore.DefaultStore, "")
+		config.DefaultConfig, _ = storeConfig.NewConfig(microStore.DefaultStore, "")
 		SetupBroker(http.NewBroker())
 		SetupRegistry(mdns.NewRegistry())
 		SetupJWT(ctx)
@@ -156,14 +153,14 @@ var Kubernetes = &Profile{
 			SetupBroker(memBroker.NewBroker())
 		}
 
-		microConfig.DefaultConfig, err = config.NewConfig(microStore.DefaultStore, "")
+		config.DefaultConfig, err = storeConfig.NewConfig(microStore.DefaultStore, "")
 		if err != nil {
 			logger.Fatalf("Error configuring config: %v", err)
 		}
 		SetupConfigSecretKey(ctx)
 
 		microRouter.DefaultRouter = k8sRouter.NewRouter()
-		microClient.DefaultClient.Init(client.Router(microRouter.DefaultRouter))
+		client.DefaultClient.Init(client.Router(microRouter.DefaultRouter))
 		return nil
 	},
 }
@@ -181,7 +178,7 @@ var Test = &Profile{
 		microAuth.DefaultAuth = noop.NewAuth()
 		microStore.DefaultStore = mem.NewStore()
 		microStore.DefaultBlobStore, _ = file.NewBlobStore()
-		microConfig.DefaultConfig, _ = config.NewConfig(microStore.DefaultStore, "")
+		config.DefaultConfig, _ = storeConfig.NewConfig(microStore.DefaultStore, "")
 		SetupRegistry(memory.NewRegistry())
 		return nil
 	},
@@ -191,15 +188,15 @@ var Test = &Profile{
 func SetupRegistry(reg registry.Registry) {
 	microRegistry.DefaultRegistry = reg
 	microRouter.DefaultRouter = regRouter.NewRouter(router.Registry(reg))
-	microServer.DefaultServer.Init(server.Registry(reg))
-	microClient.DefaultClient.Init(client.Registry(reg))
+	client.DefaultClient.Init(client.Registry(reg))
+	server.DefaultServer.Init(server.Registry(reg))
 }
 
 // SetupBroker configures the broker
 func SetupBroker(b broker.Broker) {
-	microBroker.DefaultBroker = b
-	microClient.DefaultClient.Init(client.Broker(b))
-	microServer.DefaultServer.Init(server.Broker(b))
+	broker.DefaultBroker = b
+	client.DefaultClient.Init(client.Broker(b))
+	server.DefaultServer.Init(server.Broker(b))
 }
 
 // SetupJWT configures the default internal system rules

@@ -7,12 +7,11 @@ import (
 	"strings"
 	"time"
 
+	goerrors "github.com/micro/go-micro/v3/errors"
 	"github.com/micro/micro/v3/internal/api/handler"
 	"github.com/micro/micro/v3/internal/api/resolver"
 	"github.com/micro/micro/v3/internal/api/resolver/subdomain"
 	"github.com/micro/micro/v3/internal/api/server/cors"
-	goclient "github.com/micro/go-micro/v3/client"
-	goerrors "github.com/micro/go-micro/v3/errors"
 	"github.com/micro/micro/v3/internal/helper"
 	"github.com/micro/micro/v3/service/client"
 	"github.com/micro/micro/v3/service/errors"
@@ -127,29 +126,29 @@ func (h *rpcHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// create request/response
 	var response json.RawMessage
 	var err error
-	req := client.DefaultClient.NewRequest(service, endpoint, request, goclient.WithContentType("application/json"))
+	req := client.DefaultClient.NewRequest(service, endpoint, request, client.WithContentType("application/json"))
 
 	// create context
 	ctx := helper.RequestToContext(r)
 
-	var opts []goclient.CallOption
+	var opts []client.CallOption
 
 	timeout, _ := strconv.Atoi(r.Header.Get("Timeout"))
 	// set timeout
 	if timeout > 0 {
-		opts = append(opts, goclient.WithRequestTimeout(time.Duration(timeout)*time.Second))
+		opts = append(opts, client.WithRequestTimeout(time.Duration(timeout)*time.Second))
 	}
 
 	// remote call
 	if len(address) > 0 {
-		opts = append(opts, goclient.WithAddress(address))
+		opts = append(opts, client.WithAddress(address))
 	}
 
 	// since services can be running in many domains, we'll use the resolver to determine the domain
 	// which should be used on the call
 	if resolver, ok := h.resolver.(*subdomain.Resolver); ok {
 		if dom := resolver.Domain(r); len(dom) > 0 {
-			opts = append(opts, goclient.WithNetwork(dom))
+			opts = append(opts, client.WithNetwork(dom))
 		}
 	}
 

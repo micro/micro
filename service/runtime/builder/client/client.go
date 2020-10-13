@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"io"
 
-	goclient "github.com/micro/go-micro/v3/client"
 	pb "github.com/micro/micro/v3/proto/runtime/build"
 	"github.com/micro/micro/v3/service/client"
 	"github.com/micro/micro/v3/service/context"
@@ -30,7 +29,7 @@ func (b *builder) Build(src io.Reader, opts ...build.Option) (io.Reader, error) 
 	}
 
 	// start the stream
-	stream, err := b.client().Build(context.WithNamespace("micro"), goclient.WithAuthToken())
+	stream, err := b.client().Build(context.WithNamespace("micro"), client.WithAuthToken())
 	if err != nil {
 		return nil, err
 	}

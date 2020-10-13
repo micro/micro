@@ -3,6 +3,7 @@ module github.com/micro/micro/v3
 go 1.13
 
 require (
+	github.com/bitly/go-simplejson v0.5.0
 	github.com/blang/semver v3.5.1+incompatible
 	github.com/boltdb/bolt v1.3.1
 	github.com/caddyserver/certmagic v0.10.6
@@ -22,9 +23,11 @@ require (
 	github.com/google/uuid v1.1.2
 	github.com/gorilla/handlers v1.4.2
 	github.com/gorilla/mux v1.7.3
+	github.com/gosimple/slug v1.9.0
 	github.com/hashicorp/go-version v1.2.1
 	github.com/juju/fslock v0.0.0-20160525022230-4d5c94c67b4b
-	github.com/micro/go-micro/v3 v3.0.0-beta.3.0.20201012165743-ba1308f58920
+	github.com/micro/go-micro/v3 v3.0.0-beta.3.0.20201013135405-1a962e46fd3a
+	github.com/miekg/dns v1.1.27
 	github.com/olekukonko/tablewriter v0.0.4
 	github.com/onsi/ginkgo v1.12.0 // indirect
 	github.com/oxtoacart/bpool v0.0.0-20190530202638-03653db5a59c
