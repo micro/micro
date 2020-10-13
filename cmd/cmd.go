@@ -226,6 +226,9 @@ var (
 
 func init() {
 	rand.Seed(time.Now().Unix())
+
+	// configure defaults for all packages
+	setupDefaults()
 }
 
 func action(c *cli.Context) error {
@@ -302,9 +305,6 @@ func (c *command) Options() Options {
 
 // Before is executed before any subcommand
 func (c *command) Before(ctx *cli.Context) error {
-	// configure defaults for all packages
-	setupDefaults()
-
 	if v := ctx.Args().First(); len(v) > 0 {
 		switch v {
 		case "service", "server":
