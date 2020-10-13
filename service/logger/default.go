@@ -24,7 +24,7 @@ import (
 	"sync"
 	"time"
 
-	dlog "github.com/micro/go-micro/v3/debug/log"
+	dlog "github.com/micro/micro/v3/internal/debug/log"
 )
 
 func init() {
