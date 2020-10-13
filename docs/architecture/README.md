@@ -23,13 +23,40 @@ Micro is a framework for cloud native development. It takes the concept of distr
 design pattern using microservices and related primitives. The overall goal of Micro is to abstract away cloud infrastructure 
 and to define a set of building blocks which can be used to write cloud services aka microservices, APIs or distributed systems.
 
+## Rationale
+
+Micro was born out of a pain with existing development models in the cloud. The majority of time has been spent coming to grips 
+with complex cloud native infrastructure as opposed to software design. Cloud is in its infance, predominantly focused on 
+computing and infrastructure services. Development has largely lagged behind and there has been no vertically integrated 
+solution to make sense of it all.
+
+PaaS in prior generations like Heroku provided a full solution for web application development using Rails as the developer angle. 
+As they and others iterated though, multi-language became an attractive solution and one that really muted its opinionated approach 
+and diluted the overall focus of developer productivity.
+
+Our focus is developer productivity and we see that as one achieved through constraints. Every dominant platform constrained itself 
+to a specific model and then software exploded to leverage it. We think Cloud is much like Mobile in the sense that it requires 
+an iPhone or Android like approach to managing its complexity. Cloud needs a development model, it needs an operating system and 
+we think Micro can provide that through a completely vertically integrated solution.
+
+Micro is Android for Cloud. PaaS 3.0. Or better known as a cloud operating system. As a framework Rails went far but it was incomplete 
+without the likes of Heroku to host it. Spring fell short as well and was acquired by VMWare to try make sense of this platform model. 
+We think Micro needs to take inspiration from Android, to encapsulate all the concerns of cloud, abstract away the hardware and 
+define a sofware lifecycle, development and consumption model for it.
+
 ## Design
 
-Micro in v3 has undergone a major overhaul, it encompasses three things:
+Micro is designed as 3 core components:
 
 - Server - A single server which acts as the runtime for a cloud platform
 - Clients - Entrypoints via command line, api gateway and gRPC proxy/sdks
 - Library - A Go service library specifically designed to write Micro services
+
+Micro services are defined as:
+
+- Domain Driven - APIs are written in protobuf format and act as the API contract for the service
+- Engineered by Design - Written using the micro service library so that they employ a standard model
+- Reusable building blocks - Each service acts as a building block for the next. In this model, everything is a service
 
 For in-depth material see the [Reference](/reference). This doc will otherwise cover things at a high level.
 
