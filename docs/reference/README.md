@@ -8,10 +8,12 @@ summary: Reference - a comprehensive guide to Micro
 ---
 
 ## Reference
+{: .no_toc }
 
 Reference entries are in depth look at the technical details and usage of Micro
 
 ## Contents
+{: .no_toc }
 
 * TOC
 {:toc}
@@ -164,12 +166,12 @@ Environment addresses point to the micro proxy which defaults to :8081.
 The command `micro env --help` provides a summary of usage. Here's an example of how to add an environment.
 
 ```sh
-$ micro env add myown stunningproject.com
+$ micro env add foobar example.com
 $ micro env
 * local      127.0.0.1:8081
   dev        proxy.m3o.dev
   platform   proxy.m3o.com
-  foobar    example.com
+  foobar     example.com
 ```
 
 ### Set Environment
@@ -177,8 +179,7 @@ $ micro env
 The `*` marks wich environment is selected. Let's select the newly added:
 
 ```sh
-$ micro env set myown
-$ micro env
+$ micro env set foobar
 $ micro env
   local      127.0.0.1:8081
   dev        proxy.m3o.dev
@@ -230,13 +231,13 @@ go get github.com/micro/micro/v3
 
 #### Docker
 
-```
+```sh
 docker pull micro/micro
 ```
 
 #### Release Binaries
 
-```
+```sh
 # MacOS
 curl -fsSL https://raw.githubusercontent.com/micro/micro/master/scripts/install.sh | /bin/bash
 
@@ -256,7 +257,7 @@ blocks for distributed systems development as a set of microservices and framewo
 
 To start the server simply run
 
-```
+```sh
 micro server
 ```
 
@@ -282,7 +283,7 @@ micro services	# should display helloworld
 
 Call the service and verify output
 
-```shell
+```sh
 $ micro helloworld --name=John
 {
         "msg": "Hello John"
@@ -479,8 +480,196 @@ the application itself for configuring business logic, api keys, etc. We read an
 pairs which also support nesting of JSON values. The config interface also supports storing secrets by 
 defining the secret key as an option at the time of writing the value.
 
-Further reading
-- [A comprehensive config tutorial](https://m3o.dev/tutorials/config)
+#### CLI usage
+
+Let's assume we have a service called `helloworld` from which we want to read configuration data.
+First we have to insert said data with the cli. Config data can be organized under different "paths" with the dot notation.
+It's a good convention to save all config data belonging to a service under a top level path segment matching the service name:
+
+```sh
+$ micro config set helloworld.somekey hello
+$ micro config get helloworld.somekey
+hello
+```
+
+We can save an other key too and read all values in one go with the dot notation:
+
+```sh
+$ micro config set helloworld.someotherkey "Hi there!"
+$ micro config get helloworld
+{"somekey":"hello","someotherkey":"Hi there!"}
+```
+
+As it can be seen, the config (by default) stores configuration data as JSONs.
+We can save any type:
+
+```sh
+$ micro config set helloworld.someboolkey true
+$ micro config get helloworld.someboolkey
+true
+$ micro config get helloworld
+{"someboolkey":true,"somekey":"hello","someotherkey":"Hi there!"}
+```
+
+So far we have only saved top level keys. Let's explore the advantages of the dot notation.
+
+```sh
+$ micro config set helloworld.keywithsubs.subkey1 "So easy!"
+{"keywithsubs":{"subkey1":"So easy!"},"someboolkey":true,"somekey":"hello","someotherkey":"Hi there!"}
+```
+
+Some of the example keys are getting in our way, let's learn how to delete:
+
+```sh
+$ micro config del helloworld.someotherkey
+$ micro config get helloworld
+{"keywithsubs":{"subkey1":"So easy!"},"someboolkey":true,"somekey":"hello"}
+```
+
+We can of course delete not just `leaf` level keys, but top level ones too:
+
+```sh
+$ micro config del helloworld.keywithsubs
+$ micro config get helloworld
+{"someboolkey":true,"somekey":"hello"}
+```
+
+##### Secrets
+
+The config also supports secrets - values encrypted at rest. This helps in case of leaks, be it a security one or an accidental copypaste.
+They are fairly easy to save:
+
+```sh
+$ micro config set --secret helloworld.hushkey "Very secret stuff" 
+$ micro config get helloworld.hushkey
+[secret]
+
+$ micro config get --secret helloworld.hushkey
+Very secret stuff
+
+$ micro config get helloworld
+{"hushkey":"[secret]","someboolkey":true,"somekey":"hello"}
+
+$ micro config get --secret helloworld
+{"hushkey":"Very secret stuff","someboolkey":true,"somekey":"hello"}
+```
+
+Even bool or number values can be saved as secrets, and they will appear as the string constant `[secret]` unless decrypted:
+
+```sh
+$ micro config set --secret helloworld.hush_number_key 42
+$ micro config get helloworld
+{"hush_number_key":"[secret]","hushkey":"[secret]","someboolkey":true,"somekey":"hello"}
+
+# micro config get --secret helloworld
+{"hush_number_key":42,"hushkey":"Very secret stuff","someboolkey":true,"somekey":"hello"}
+```
+
+#### Service usage
+
+It is simiarly easy to access and set config values from a service.
+A good example of reading values is [the config example test service](https://github.com/micro/micro/tree/master/test/service/config-example):
+
+```go
+package main
+
+import (
+	"fmt"
+	"time"
+
+	"github.com/micro/micro/v3/service"
+	"github.com/micro/micro/v3/service/config"
+)
+
+type keyConfig struct {
+	Subkey  string `json:"subkey"`
+	Subkey1 int    `json:"subkey1"`
+}
+
+type conf struct {
+	Key keyConfig `json:"key"`
+}
+
+func main() {
+	go func() {
+		for {
+			time.Sleep(time.Second)
+			val, err := config.Get("key.subkey")
+			fmt.Println("Value of key.subkey: ", val.String(""), err)
+
+			val, err = config.Get("key", config.Secret(true))
+			if err != nil {
+				fmt.Println(err)
+			}
+			c := conf{}
+			err = val.Scan(&c.Key)
+			fmt.Println("Value of key.subkey1: ", c.Key.Subkey1, err)
+		}
+	}()
+
+	// run the service
+	service.Run()
+}
+```
+
+The above service will print the value of `key.subkey` and `key.subkey` every second.
+By passing in the `config.Secret(true)` option, we tell config to decrypt secret values for us, similarly to the `--secret` CLI flag.
+
+The [config interface](https://github.com/micro/go-micro/blob/master/config/config.go) specifies not just `Get` `Set` and `Delete` to access values,
+but a few convenience functions too in the `Value` interface.
+
+It is worth noting that `String` `Int` etc methods will do a best effort try at coercing types, ie. if the value saved is a string, `Int` will try to parse it.
+However, the same does not apply to the `Scan` method, which uses `json.Unmarshal` under the hood, which we all know fails when encountering type mismatches.
+
+`Get` should, in all cases, return a non nil `Value`, so even if the `Get` errors, `Value.Int()` and other operations should never panic.
+
+#### Advanced Concepts
+
+##### Merging Config Values
+
+When saving a string with the CLI that is a valid JSON map, it gets expanded to be saved as a proper map structure, instead of a string, ie
+
+```sh
+$ micro config set helloworld '{"a": "val1", "b": "val2"}'
+$ micro config get helloworld.a
+val1
+# If the string would be saved as is, `helloworld.a` would be a nonexistent path
+```
+
+The advantages of this become particularly visible when `Set`ting a complex type with the library:
+
+```go
+type conf struct {
+	A string `json:"a"`
+	B string `json:"b"`
+}
+
+c1 := conf{"val1", "val2"}
+config.Set("key", c1)
+
+v, _ := config.Get("key")
+c2 := &conf{}
+v.Scan(c2)
+// c1 and c2 should be equal
+```
+
+Or with the following example
+
+```sh
+$ micro config del helloworld
+$ micro config set helloworld '{"a":1}'
+$ micro config get helloworld
+{"a":1}
+$ micro config set helloworld '{"b":2}'
+$ micro config get helloworld
+{"a":1,"b":2}
+```
+
+#### Secret encryption keys for `micro server`
+
+By default, if not specified, `micro server` generates and saves an encryption key to the location `~/.micro/config_secret_key`. This is intended for local zero dependency use, but not for production.
+
+To specify the secret for the micro server either the envaf `MICRO_CONFIG_SECRET_KEY` or the flag `config_secret_key` key must be specified.
 
 ### Broker
 
@@ -561,10 +750,135 @@ The simplest form of access is the below command to list services.
 micro services
 ```
 
+#### Get service endpoint
+
+The get service endpoint returns information about a service including response parameters parameters for endpoints:
+
+```sh
+$ micro registry getService --service=helloworld
+{
+	"services": [
+		{
+			"name": "helloworld",
+			"version": "latest",
+			"endpoints": [
+				{
+					"name": "Helloworld.Call",
+					"request": {
+						"name": "Request",
+						"type": "Request",
+						"values": [
+							{
+								"name": "name",
+								"type": "string"
+							}
+						]
+					},
+					"response": {
+						"name": "Response",
+						"type": "Response",
+						"values": [
+							{
+								"name": "msg",
+								"type": "string"
+							}
+						]
+					}
+				}
+			],
+			"nodes": [
+				{
+					"id": "helloworld-3a0d02be-f98e-4d9d-a8fa-24e942580848",
+					"address": "192.168.43.193:34321",
+					"metadata": {
+						"broker": "service",
+						"protocol": "grpc",
+						"registry": "service",
+						"server": "grpc",
+						"transport": "grpc"
+					}
+				}
+			],
+			"options": {}
+		}
+	]
+}
+```
+
+This is an especially useful feature for writing custom meta tools like API explorers.
 
 ### Runtime
 
-TODO
+#### Overview
+
+The runtime service is responsible for running, updating and deleting binaries or containers (depending on the platform - eg. binaries locally, pods on k8s etc) and their logs.
+
+#### Running a service
+
+The `micro run` command tells the runtime to run a service. The following are all valid examples:
+
+```sh
+micro run github.com/micro/services/helloworld
+micro run .  # deploy local folder to your local micro server
+micro run ../path/to/folder # deploy local folder to your local micro server
+micro run helloworld # deploy latest version, translates to micro run github.com/micro/services/helloworld or your custom base url
+micro run helloworld@9342934e6180 # deploy certain version
+micro run helloworld@branchname  # deploy certain branch
+```
+
+#### Running a local folder
+
+If the first parameter is an existing local folder, ie
+
+```sh
+micro run ./foobar
+```
+
+Then the CLI will upload that folder to the runtime and the runtime runs that.
+
+#### Running a git source
+
+If the first paremeter to `micro run` points to a git repository (be it on GitHub, GitLab, Bitbucket or any other provider), then the address gets sent to the runtime and the runtime downloads the code and runs it.
+
+##### Using references
+
+References are the part of the first parameter passed to run after the `@` sign. It can either be a branch name (no reference means version `latest` which equals to master in git terminology) or a commit hash.
+
+When branch names are passed in, the latest commit of the code will run.
+
+#### Listing runtime objects
+
+The `micro status` command lists all things running in the runtime:
+
+```sh
+$ micro status
+NAME		VERSION	SOURCE					STATUS	BUILD	UPDATED		METADATA
+helloworld	latest	github.com/micro/services/helloworld	running	n/a	20h43m45s ago	owner=admin, group=micro
+```
+
+The output includes the error if there is one. Commands like `micro kill`, `micro logs`, `micro update` accept the name returned by the `micro status` as first parameter (and not the service name as that might differ).
+
+#### Updating a service
+
+The `micro update` command makes the runtime pull the latest commit in the branch and restarts the service.
+
+In case of local code it requires not the runtime name (returned by `micro status`) but the local path. For commit hash deploys it just restarts the service.
+
+Examples: `micro update helloworld`, `micro update helloworld@branch`, `micro update helloworld@commit`, `micro update ./helloworld`.
+
+#### Deleting a service
+
+The `micro kill` command removes a runtime object from the runtime. It accepts the name returned by `micro status`.
+
+Examples: `micro kill helloworld`.
+
+#### Logs
+
+The `micro logs` command shows logs for a runtime object. It accepts the name returned by `micro status`.
+
+The `-f` flag makes the command stream logs continously.
+
+Examples: `micro logs helloworld`, `micro logs -f helloworld`.
 
 ### Store
 
