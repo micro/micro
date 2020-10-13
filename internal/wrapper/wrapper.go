@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/micro/go-micro/v3/debug/trace"
+	"github.com/micro/micro/v3/internal/debug/trace"
 	"github.com/micro/go-micro/v3/metadata"
 	"github.com/micro/go-micro/v3/metrics"
 	inauth "github.com/micro/micro/v3/internal/auth"
