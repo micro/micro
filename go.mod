@@ -3,6 +3,7 @@ module github.com/micro/micro/v3
 go 1.13
 
 require (
+	github.com/bitly/go-simplejson v0.5.0
 	github.com/blang/semver v3.5.1+incompatible
 	github.com/boltdb/bolt v1.3.1
 	github.com/caddyserver/certmagic v0.10.6

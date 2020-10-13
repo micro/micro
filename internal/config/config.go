@@ -12,8 +12,8 @@ import (
 	"sync"
 
 	"github.com/juju/fslock"
-	conf "github.com/micro/go-micro/v3/config"
 	"github.com/micro/micro/v3/internal/user"
+	conf "github.com/micro/micro/v3/service/config"
 )
 
 var (

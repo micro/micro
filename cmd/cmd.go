@@ -13,7 +13,6 @@ import (
 	"strings"
 	"time"
 
-	config "github.com/micro/go-micro/v3/config/store"
 	"github.com/micro/go-micro/v3/registry"
 	"github.com/micro/go-micro/v3/store"
 	"github.com/micro/micro/v3/client/cli/util"
@@ -29,12 +28,13 @@ import (
 	"github.com/micro/micro/v3/service/auth"
 	"github.com/micro/micro/v3/service/broker"
 	"github.com/micro/micro/v3/service/client"
+	"github.com/micro/micro/v3/service/config"
 	configCli "github.com/micro/micro/v3/service/config/client"
+	storeConf "github.com/micro/micro/v3/service/config/store"
 	"github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/server"
 	"github.com/urfave/cli/v2"
 
-	muconfig "github.com/micro/micro/v3/service/config"
 	muregistry "github.com/micro/micro/v3/service/registry"
 	muruntime "github.com/micro/micro/v3/service/runtime"
 	mustore "github.com/micro/micro/v3/service/store"
@@ -542,10 +542,10 @@ func (c *command) Before(ctx *cli.Context) error {
 	// Setup config. Do this after auth is configured since it'll load the config
 	// from the service immediately. We only do this if the action is nil, indicating
 	// a service is being run
-	if c.service && muconfig.DefaultConfig == nil {
-		muconfig.DefaultConfig = configCli.NewConfig(ctx.String("namespace"))
-	} else if muconfig.DefaultConfig == nil {
-		muconfig.DefaultConfig, _ = config.NewConfig(mustore.DefaultStore, ctx.String("namespace"))
+	if c.service && config.DefaultConfig == nil {
+		config.DefaultConfig = configCli.NewConfig(ctx.String("namespace"))
+	} else if config.DefaultConfig == nil {
+		config.DefaultConfig, _ = storeConf.NewConfig(mustore.DefaultStore, ctx.String("namespace"))
 	}
 
 	return nil
