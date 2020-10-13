@@ -13,7 +13,6 @@ import (
 	"text/tabwriter"
 	"time"
 
-	golog "github.com/micro/go-micro/v3/logger"
 	"github.com/micro/go-micro/v3/runtime/local/source/git"
 	"github.com/micro/micro/v3/client/cli/namespace"
 	"github.com/micro/micro/v3/client/cli/util"
@@ -567,7 +566,7 @@ const (
 )
 
 func getLogs(ctx *cli.Context) error {
-	logger.DefaultLogger.Init(golog.WithFields(map[string]interface{}{"service": "runtime"}))
+	logger.DefaultLogger.Init(logger.WithFields(map[string]interface{}{"service": "runtime"}))
 	if ctx.Args().Len() == 0 {
 		fmt.Println("Service name is required")
 		return nil

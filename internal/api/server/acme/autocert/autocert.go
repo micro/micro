@@ -23,8 +23,8 @@ import (
 	"net"
 	"os"
 
-	"github.com/micro/go-micro/v3/logger"
 	"github.com/micro/micro/v3/internal/api/server/acme"
+	"github.com/micro/micro/v3/service/logger"
 	"golang.org/x/crypto/acme/autocert"
 )
 

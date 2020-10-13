@@ -73,21 +73,6 @@ curl -d '{"name": "Alice"}' http://localhost:8080/helloworld
 
 See the [docs](https://micro.mu) for detailed information on the architecture, installation and use of the platform.
 
-To see all the micro commands:
-
-```sh
-micro --help
-```
-
-Subcommand also accept the `--help` flags all the way down, ie
-
-```
-micro store --help
-micro store write --help
-```
-
-are all valid.
-
 ## Features
 
 The framework is composed of the following features:
