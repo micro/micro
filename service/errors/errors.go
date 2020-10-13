@@ -46,6 +46,9 @@ func New(id, detail string, code int32) error {
 
 // FromError try to convert go error to *Error
 func FromError(err error) *Error {
+	if err == nil {
+		return nil
+	}
 	if verr, ok := err.(*Error); ok && verr != nil {
 		return verr
 	}
