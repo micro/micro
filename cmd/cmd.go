@@ -430,6 +430,8 @@ func (c *command) Before(ctx *cli.Context) error {
 		authOpts = append(authOpts, auth.PublicKey(string(pubKey)), auth.PrivateKey(string(privKey)))
 	}
 
+	auth.DefaultAuth.Init(authOpts...)
+
 	// setup auth credentials, use local credentials for the CLI and injected creds
 	// for the service.
 	var err error
@@ -444,6 +446,7 @@ func (c *command) Before(ctx *cli.Context) error {
 	go refreshAuthToken()
 
 	// initialize the server with the namespace so it knows which domain to register in
+	server.DefaultServer.Init(server.Namespace(ctx.String("namespace")))
 
 	// setup registry
 	registryOpts := []registry.Option{}
