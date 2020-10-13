@@ -7,7 +7,6 @@ import (
 	"io/ioutil"
 	"os"
 
-	evStore "github.com/micro/go-micro/v3/events/store"
 	"github.com/micro/go-micro/v3/registry"
 	"github.com/micro/go-micro/v3/runtime/kubernetes"
 	"github.com/micro/go-micro/v3/store"
@@ -18,6 +17,7 @@ import (
 	"github.com/micro/micro/v3/service/broker"
 	"github.com/micro/micro/v3/service/config"
 	storeConfig "github.com/micro/micro/v3/service/config/store"
+	evStore "github.com/micro/micro/v3/service/events/store"
 	"github.com/micro/micro/v3/service/logger"
 	"github.com/urfave/cli/v2"
 
@@ -29,11 +29,11 @@ import (
 	microStore "github.com/micro/micro/v3/service/store"
 
 	// plugins
-	natsStream "github.com/micro/go-plugins/events/stream/nats/v3"
 	metricsPrometheus "github.com/micro/go-plugins/metrics/prometheus/v3"
 	"github.com/micro/go-plugins/registry/etcd/v3"
 	"github.com/micro/go-plugins/store/cockroach/v3"
-	"github.com/micro/micro/plugin/nats/v3"
+	natsBroker "github.com/micro/micro/plugin/nats/broker/v3"
+	natsStream "github.com/micro/micro/plugin/nats/stream/v3"
 )
 
 func init() {
@@ -50,7 +50,7 @@ var Profile = &profile.Profile{
 		// of certs so it can't be defaulted like the broker and registry.
 		microStore.DefaultStore = cockroach.NewStore(store.Nodes(ctx.String("store_address")))
 		config.DefaultConfig, _ = storeConfig.NewConfig(microStore.DefaultStore, "")
-		profile.SetupBroker(nats.NewBroker(broker.Addrs("nats-cluster")))
+		profile.SetupBroker(natsBroker.NewBroker(broker.Addrs("nats-cluster")))
 		profile.SetupRegistry(etcd.NewRegistry(registry.Addrs("etcd-cluster")))
 		profile.SetupJWT(ctx)
 		profile.SetupConfigSecretKey(ctx)
