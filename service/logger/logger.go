@@ -1,117 +1,57 @@
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     https://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+// Original source: github.com/micro/go-micro/v3/logger/logger.go
+
+// Package log provides a log interface
 package logger
 
-import (
-	"os"
-
-	"github.com/micro/go-micro/v3/logger"
-)
-
-type Level = logger.Level
-
 var (
-	TraceLevel = logger.TraceLevel
-	DebugLevel = logger.DebugLevel
-	InfoLevel  = logger.InfoLevel
-	WarnLevel  = logger.WarnLevel
-	ErrorLevel = logger.ErrorLevel
-	FatalLevel = logger.FatalLevel
+	// Default logger
+	DefaultLogger Logger = NewHelper(NewLogger())
 )
 
-var (
-	// DefaultLogger to use for logging
-	DefaultLogger logger.Logger = logger.NewLogger()
-
-	// fields to use when logging
-	fields map[string]interface{}
-)
-
-func Info(args ...interface{}) {
-	if !V(logger.InfoLevel, DefaultLogger) {
-		return
-	}
-	DefaultLogger.Fields(fields).Log(logger.InfoLevel, args...)
+// Logger is a generic logging interface
+type Logger interface {
+	// Init initialises options
+	Init(options ...Option) error
+	// The Logger options
+	Options() Options
+	// Fields set fields to always be logged
+	Fields(fields map[string]interface{}) Logger
+	// Log writes a log entry
+	Log(level Level, v ...interface{})
+	// Logf writes a formatted log entry
+	Logf(level Level, format string, v ...interface{})
+	// String returns the name of logger
+	String() string
 }
 
-func Infof(template string, args ...interface{}) {
-	if !V(logger.InfoLevel, DefaultLogger) {
-		return
-	}
-	DefaultLogger.Fields(fields).Logf(logger.InfoLevel, template, args...)
+func Init(opts ...Option) error {
+	return DefaultLogger.Init(opts...)
 }
 
-func Trace(args ...interface{}) {
-	if !V(logger.TraceLevel, DefaultLogger) {
-		return
-	}
-	DefaultLogger.Fields(fields).Log(logger.TraceLevel, args...)
+func Fields(fields map[string]interface{}) Logger {
+	return DefaultLogger.Fields(fields)
 }
 
-func Tracef(template string, args ...interface{}) {
-	if !V(logger.TraceLevel, DefaultLogger) {
-		return
-	}
-	DefaultLogger.Fields(fields).Logf(logger.TraceLevel, template, args...)
+func Log(level Level, v ...interface{}) {
+	DefaultLogger.Log(level, v...)
 }
 
-func Debug(args ...interface{}) {
-	if !V(logger.DebugLevel, DefaultLogger) {
-		return
-	}
-	DefaultLogger.Fields(fields).Log(logger.DebugLevel, args...)
+func Logf(level Level, format string, v ...interface{}) {
+	DefaultLogger.Logf(level, format, v...)
 }
 
-func Debugf(template string, args ...interface{}) {
-	if !V(logger.DebugLevel, DefaultLogger) {
-		return
-	}
-	DefaultLogger.Fields(fields).Logf(logger.DebugLevel, template, args...)
-}
-
-func Warn(args ...interface{}) {
-	if !V(logger.WarnLevel, DefaultLogger) {
-		return
-	}
-	DefaultLogger.Fields(fields).Log(logger.WarnLevel, args...)
-}
-
-func Warnf(template string, args ...interface{}) {
-	if !V(logger.WarnLevel, DefaultLogger) {
-		return
-	}
-	DefaultLogger.Fields(fields).Logf(logger.WarnLevel, template, args...)
-}
-
-func Error(args ...interface{}) {
-	if !V(logger.ErrorLevel, DefaultLogger) {
-		return
-	}
-	DefaultLogger.Fields(fields).Log(logger.ErrorLevel, args...)
-}
-
-func Errorf(template string, args ...interface{}) {
-	if !V(logger.ErrorLevel, DefaultLogger) {
-		return
-	}
-	DefaultLogger.Fields(fields).Logf(logger.ErrorLevel, template, args...)
-}
-
-func Fatal(args ...interface{}) {
-	if !V(logger.FatalLevel, DefaultLogger) {
-		return
-	}
-	DefaultLogger.Fields(fields).Log(logger.FatalLevel, args...)
-	os.Exit(1)
-}
-
-func Fatalf(template string, args ...interface{}) {
-	if !V(logger.FatalLevel, DefaultLogger) {
-		return
-	}
-	DefaultLogger.Fields(fields).Logf(logger.FatalLevel, template, args...)
-	os.Exit(1)
-}
-
-// V returns true if the given level is at or lower the current logger level
-func V(lvl Level, logger logger.Logger) bool {
-	return logger.Options().Level <= lvl
+func String() string {
+	return DefaultLogger.String()
 }

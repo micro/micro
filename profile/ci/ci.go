@@ -2,13 +2,13 @@
 package ci
 
 import (
-	"github.com/micro/go-micro/v3/auth/jwt"
 	config "github.com/micro/go-micro/v3/config/store"
 	evStore "github.com/micro/go-micro/v3/events/store"
 	memStream "github.com/micro/go-micro/v3/events/stream/memory"
 	"github.com/micro/go-micro/v3/runtime/local"
 	"github.com/micro/go-micro/v3/store/file"
 	"github.com/micro/micro/v3/profile"
+	"github.com/micro/micro/v3/service/auth/jwt"
 	"github.com/micro/micro/v3/service/broker/http"
 	"github.com/micro/micro/v3/service/logger"
 	"github.com/urfave/cli/v2"

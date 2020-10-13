@@ -11,6 +11,7 @@ import (
 	"github.com/micro/go-micro/v3/metadata"
 	"github.com/micro/go-micro/v3/metrics"
 	"github.com/micro/go-micro/v3/server"
+	inauth "github.com/micro/micro/v3/internal/auth"
 	"github.com/micro/micro/v3/internal/auth/namespace"
 	"github.com/micro/micro/v3/service/auth"
 	"github.com/micro/micro/v3/service/client/cache"
@@ -55,7 +56,7 @@ func (a *authWrapper) wrapContext(ctx context.Context, opts ...client.CallOption
 
 	// check to see if we have a valid access token
 	if authOpts.Token != nil && !authOpts.Token.Expired() {
-		ctx = metadata.Set(ctx, "Authorization", auth.BearerScheme+authOpts.Token.AccessToken)
+		ctx = metadata.Set(ctx, "Authorization", inauth.BearerScheme+authOpts.Token.AccessToken)
 		return ctx
 	}
 
@@ -77,12 +78,12 @@ func AuthHandler() server.HandlerWrapper {
 			var token string
 			if header, ok := metadata.Get(ctx, "Authorization"); ok {
 				// Ensure the correct scheme is being used
-				if !strings.HasPrefix(header, auth.BearerScheme) {
+				if !strings.HasPrefix(header, inauth.BearerScheme) {
 					return errors.Unauthorized(req.Service(), "invalid authorization header. expected Bearer schema")
 				}
 
 				// Strip the bearer scheme prefix
-				token = strings.TrimPrefix(header, auth.BearerScheme)
+				token = strings.TrimPrefix(header, inauth.BearerScheme)
 			}
 
 			// Determine the namespace
