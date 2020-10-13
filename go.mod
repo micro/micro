@@ -25,7 +25,6 @@ require (
 	github.com/gosimple/slug v1.9.0
 	github.com/hashicorp/go-version v1.2.1
 	github.com/juju/fslock v0.0.0-20160525022230-4d5c94c67b4b
-	github.com/micro/go-micro v1.18.0
 	github.com/micro/go-micro/v3 v3.0.0-beta.3.0.20201009122815-dad05be95ee0
 	github.com/miekg/dns v1.1.27
 	github.com/olekukonko/tablewriter v0.0.4
