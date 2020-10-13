@@ -2,7 +2,6 @@
 package ci
 
 import (
-	config "github.com/micro/go-micro/v3/config/store"
 	evStore "github.com/micro/go-micro/v3/events/store"
 	memStream "github.com/micro/go-micro/v3/events/stream/memory"
 	"github.com/micro/go-micro/v3/runtime/local"
@@ -10,11 +9,12 @@ import (
 	"github.com/micro/micro/v3/profile"
 	"github.com/micro/micro/v3/service/auth/jwt"
 	"github.com/micro/micro/v3/service/broker/http"
+	"github.com/micro/micro/v3/service/config"
+	storeConfig "github.com/micro/micro/v3/service/config/store"
 	"github.com/micro/micro/v3/service/logger"
 	"github.com/urfave/cli/v2"
 
 	microAuth "github.com/micro/micro/v3/service/auth"
-	microConfig "github.com/micro/micro/v3/service/config"
 	microEvents "github.com/micro/micro/v3/service/events"
 	microRuntime "github.com/micro/micro/v3/service/runtime"
 	microStore "github.com/micro/micro/v3/service/store"
@@ -34,7 +34,7 @@ var Profile = &profile.Profile{
 		microAuth.DefaultAuth = jwt.NewAuth()
 		microRuntime.DefaultRuntime = local.NewRuntime()
 		microStore.DefaultStore = file.NewStore()
-		microConfig.DefaultConfig, _ = config.NewConfig(microStore.DefaultStore, "")
+		config.DefaultConfig, _ = storeConfig.NewConfig(microStore.DefaultStore, "")
 		microEvents.DefaultStream, _ = memStream.NewStream()
 		microEvents.DefaultStore = evStore.NewStore(evStore.WithStore(microStore.DefaultStore))
 		profile.SetupBroker(http.NewBroker())

@@ -4,9 +4,9 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/micro/go-micro/v3/config"
 	proto "github.com/micro/micro/v3/proto/config"
 	"github.com/micro/micro/v3/service/client"
+	"github.com/micro/micro/v3/service/config"
 	"github.com/micro/micro/v3/service/context"
 	"github.com/micro/micro/v3/service/errors"
 )

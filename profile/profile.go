@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"os"
 
-	config "github.com/micro/go-micro/v3/config/store"
 	memStream "github.com/micro/go-micro/v3/events/stream/memory"
 	"github.com/micro/go-micro/v3/registry"
 	"github.com/micro/go-micro/v3/registry/mdns"
@@ -25,6 +24,8 @@ import (
 	"github.com/micro/micro/v3/service/broker/http"
 	memBroker "github.com/micro/micro/v3/service/broker/memory"
 	"github.com/micro/micro/v3/service/client"
+	"github.com/micro/micro/v3/service/config"
+	storeConfig "github.com/micro/micro/v3/service/config/store"
 	"github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/runtime/builder/golang"
 	"github.com/micro/micro/v3/service/server"
@@ -33,7 +34,6 @@ import (
 	inAuth "github.com/micro/micro/v3/internal/auth"
 	"github.com/micro/micro/v3/internal/user"
 	microAuth "github.com/micro/micro/v3/service/auth"
-	microConfig "github.com/micro/micro/v3/service/config"
 	microEvents "github.com/micro/micro/v3/service/events"
 	microRegistry "github.com/micro/micro/v3/service/registry"
 	microRouter "github.com/micro/micro/v3/service/router"
@@ -93,7 +93,7 @@ var Local = &Profile{
 		microAuth.DefaultAuth = jwt.NewAuth()
 		microStore.DefaultStore = file.NewStore()
 		SetupConfigSecretKey(ctx)
-		microConfig.DefaultConfig, _ = config.NewConfig(microStore.DefaultStore, "")
+		config.DefaultConfig, _ = storeConfig.NewConfig(microStore.DefaultStore, "")
 		SetupBroker(http.NewBroker())
 		SetupRegistry(mdns.NewRegistry())
 		SetupJWT(ctx)
@@ -153,7 +153,7 @@ var Kubernetes = &Profile{
 			SetupBroker(memBroker.NewBroker())
 		}
 
-		microConfig.DefaultConfig, err = config.NewConfig(microStore.DefaultStore, "")
+		config.DefaultConfig, err = storeConfig.NewConfig(microStore.DefaultStore, "")
 		if err != nil {
 			logger.Fatalf("Error configuring config: %v", err)
 		}
@@ -178,7 +178,7 @@ var Test = &Profile{
 		microAuth.DefaultAuth = noop.NewAuth()
 		microStore.DefaultStore = mem.NewStore()
 		microStore.DefaultBlobStore, _ = file.NewBlobStore()
-		microConfig.DefaultConfig, _ = config.NewConfig(microStore.DefaultStore, "")
+		config.DefaultConfig, _ = storeConfig.NewConfig(microStore.DefaultStore, "")
 		SetupRegistry(memory.NewRegistry())
 		return nil
 	},
