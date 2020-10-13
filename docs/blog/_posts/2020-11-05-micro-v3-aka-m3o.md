@@ -13,6 +13,16 @@ Read on to learn more or go straight to the
 [latest release](https://github.com/micro/micro/releases/latest). Head to [m3o.com](https://m3o.com) for 
 the hosted offering.
 
+## Overview
+
+Micro focuses on developer productivity for the backend. It's clear that the Cloud has become infinitely more complex over the years. 
+Micro attempts to create order out of that chaos by distilling it all down to a handful of primitives for Go services development.
+
+Why should you care? If you're reading this you've no doubt encountered the tedious nature of infrastructure management, 
+wrangling a kubernetes cluster on AWS or the thousands of things you need to do to cobble together a platform before 
+starting to build a product. We think we've nailed the solution for that just as Android did for Mobile. Keep reading 
+it you want to find out more.
+
 ## Quick Flashback
 
 Micro started out as a [toolkit for microservices](/blog/2016/03/20/micro.html) development, 
@@ -61,7 +71,7 @@ We think PaaS 3.0 is not just about running your container or even your source c
 encapsulates the entire developer experience including a model for writing code for the cloud. Based on that 
 Micro 3.0 aka M3O is a platform for cloud native development.
 
-## Cloud Native
+## What even is Cloud Native?
 
 What is cloud native? What does it mean to build for the cloud? What is a cloud service?
 
@@ -79,7 +89,7 @@ separate apps which communicate over the network via their APIs rather than as o
 We think cloud services require a fundamentally different approach to software creation and why Micro 3.0 
 was designed with this in mind.
 
-## Micro 3.0 aka M3O
+## Micro 3.0 aka M3O aka PaaS 3.0
 
 Micro 3.0 reimagines Micro as a platform for cloud native development. What does that mean? Well we think of 
 it as PaaS 3.0, a complete solution for source to running and beyond. Micro has moved from just being a Go 
