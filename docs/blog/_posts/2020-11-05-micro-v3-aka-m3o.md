@@ -384,4 +384,4 @@ to chat more about it. And lastly head to to [m3o.com](https://m3o.com) if you'r
 building software for today and want to learn of a better way that's going to make you 10x more productive.
 
 <br>
-_Written by Asim Aslam_
+*Written by Asim Aslam*
