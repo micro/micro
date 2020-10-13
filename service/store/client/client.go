@@ -7,7 +7,6 @@ import (
 	"reflect"
 	"time"
 
-	goclient "github.com/micro/go-micro/v3/client"
 	"github.com/micro/go-micro/v3/metadata"
 	"github.com/micro/go-micro/v3/store"
 	pb "github.com/micro/micro/v3/proto/store"
@@ -80,7 +79,7 @@ func (s *srv) List(opts ...store.ListOption) ([]string, error) {
 		Offset:   uint64(options.Offset),
 	}
 
-	stream, err := s.Client.List(s.Context(), &pb.ListRequest{Options: listOpts}, goclient.WithAddress(s.Nodes...), goclient.WithAuthToken())
+	stream, err := s.Client.List(s.Context(), &pb.ListRequest{Options: listOpts}, client.WithAddress(s.Nodes...), client.WithAuthToken())
 	if err != nil && errors.Equal(err, errors.NotFound("", "")) {
 		return nil, store.ErrNotFound
 	} else if err != nil {
@@ -130,7 +129,7 @@ func (s *srv) Read(key string, opts ...store.ReadOption) ([]*store.Record, error
 	rsp, err := s.Client.Read(s.Context(), &pb.ReadRequest{
 		Key:     key,
 		Options: readOpts,
-	}, goclient.WithAddress(s.Nodes...), goclient.WithAuthToken())
+	}, client.WithAddress(s.Nodes...), client.WithAuthToken())
 	if err != nil && errors.Equal(err, errors.NotFound("", "")) {
 		return nil, store.ErrNotFound
 	} else if err != nil {
@@ -193,7 +192,7 @@ func (s *srv) Write(record *store.Record, opts ...store.WriteOption) error {
 			Expiry:   int64(record.Expiry.Seconds()),
 			Metadata: metadata,
 		},
-		Options: writeOpts}, goclient.WithAddress(s.Nodes...), goclient.WithAuthToken())
+		Options: writeOpts}, client.WithAddress(s.Nodes...), client.WithAuthToken())
 	if err != nil && errors.Equal(err, errors.NotFound("", "")) {
 		return store.ErrNotFound
 	}
@@ -220,7 +219,7 @@ func (s *srv) Delete(key string, opts ...store.DeleteOption) error {
 	_, err := s.Client.Delete(s.Context(), &pb.DeleteRequest{
 		Key:     key,
 		Options: deleteOpts,
-	}, goclient.WithAddress(s.Nodes...), goclient.WithAuthToken())
+	}, client.WithAddress(s.Nodes...), client.WithAuthToken())
 	if err != nil && errors.Equal(err, errors.NotFound("", "")) {
 		return store.ErrNotFound
 	}

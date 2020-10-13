@@ -10,7 +10,6 @@ import (
 	"strconv"
 	"strings"
 
-	goclient "github.com/micro/go-micro/v3/client"
 	"github.com/micro/micro/v3/client/cli/util"
 	"github.com/micro/micro/v3/cmd"
 	clic "github.com/micro/micro/v3/internal/command"
@@ -119,8 +118,8 @@ func networkConnect(c *cli.Context, args []string) ([]byte, error) {
 
 	var rsp map[string]interface{}
 
-	req := client.DefaultClient.NewRequest("network", "Network.Connect", request, goclient.WithContentType("application/json"))
-	err := client.DefaultClient.Call(context.DefaultContext, req, &rsp, goclient.WithAuthToken())
+	req := client.DefaultClient.NewRequest("network", "Network.Connect", request, client.WithContentType("application/json"))
+	err := client.DefaultClient.Call(context.DefaultContext, req, &rsp, client.WithAuthToken())
 	if err != nil {
 		return nil, err
 	}
@@ -137,8 +136,8 @@ func networkConnections(c *cli.Context, args []string) ([]byte, error) {
 
 	var rsp map[string]interface{}
 
-	req := client.DefaultClient.NewRequest("network", "Network.Graph", request, goclient.WithContentType("application/json"))
-	err := client.DefaultClient.Call(context.DefaultContext, req, &rsp, goclient.WithAuthToken())
+	req := client.DefaultClient.NewRequest("network", "Network.Graph", request, client.WithContentType("application/json"))
+	err := client.DefaultClient.Call(context.DefaultContext, req, &rsp, client.WithAuthToken())
 	if err != nil {
 		return nil, err
 	}
@@ -178,8 +177,8 @@ func networkGraph(c *cli.Context, args []string) ([]byte, error) {
 
 	var rsp map[string]interface{}
 
-	req := client.DefaultClient.NewRequest("network", "Network.Graph", map[string]interface{}{}, goclient.WithContentType("application/json"))
-	err := client.DefaultClient.Call(context.DefaultContext, req, &rsp, goclient.WithAuthToken())
+	req := client.DefaultClient.NewRequest("network", "Network.Graph", map[string]interface{}{}, client.WithContentType("application/json"))
+	err := client.DefaultClient.Call(context.DefaultContext, req, &rsp, client.WithAuthToken())
 	if err != nil {
 		return nil, err
 	}
@@ -193,8 +192,8 @@ func networkNodes(c *cli.Context, args []string) ([]byte, error) {
 	var rsp map[string]interface{}
 
 	// TODO: change to list nodes
-	req := client.DefaultClient.NewRequest("network", "Network.Nodes", map[string]interface{}{}, goclient.WithContentType("application/json"))
-	err := client.DefaultClient.Call(context.DefaultContext, req, &rsp, goclient.WithAuthToken())
+	req := client.DefaultClient.NewRequest("network", "Network.Nodes", map[string]interface{}{}, client.WithContentType("application/json"))
+	err := client.DefaultClient.Call(context.DefaultContext, req, &rsp, client.WithAuthToken())
 	if err != nil {
 		return nil, err
 	}
@@ -245,8 +244,8 @@ func networkRoutes(c *cli.Context, args []string) ([]byte, error) {
 
 	var rsp map[string]interface{}
 
-	req := client.DefaultClient.NewRequest("network", "Network.Routes", request, goclient.WithContentType("application/json"))
-	err := client.DefaultClient.Call(context.DefaultContext, req, &rsp, goclient.WithAuthToken())
+	req := client.DefaultClient.NewRequest("network", "Network.Routes", request, client.WithContentType("application/json"))
+	err := client.DefaultClient.Call(context.DefaultContext, req, &rsp, client.WithAuthToken())
 	if err != nil {
 		return nil, err
 	}
@@ -317,8 +316,8 @@ func networkServices(c *cli.Context, args []string) ([]byte, error) {
 
 	var rsp map[string]interface{}
 
-	req := client.DefaultClient.NewRequest("network", "Network.Services", map[string]interface{}{}, goclient.WithContentType("application/json"))
-	err := client.DefaultClient.Call(context.DefaultContext, req, &rsp, goclient.WithAuthToken())
+	req := client.DefaultClient.NewRequest("network", "Network.Services", map[string]interface{}{}, client.WithContentType("application/json"))
+	err := client.DefaultClient.Call(context.DefaultContext, req, &rsp, client.WithAuthToken())
 	if err != nil {
 		return nil, err
 	}

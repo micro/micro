@@ -1,7 +1,6 @@
 package client
 
 import (
-	goclient "github.com/micro/go-micro/v3/client"
 	"github.com/micro/go-micro/v3/events"
 	pb "github.com/micro/micro/v3/proto/events"
 	"github.com/micro/micro/v3/service/client"
@@ -30,7 +29,7 @@ func (s *store) Read(topic string, opts ...events.ReadOption) ([]*events.Event, 
 		Topic:  topic,
 		Limit:  uint64(options.Limit),
 		Offset: uint64(options.Offset),
-	}, goclient.WithAuthToken())
+	}, client.WithAuthToken())
 	if err != nil {
 		return nil, err
 	}
@@ -61,7 +60,7 @@ func (s *store) Write(ev *events.Event, opts ...events.WriteOption) error {
 			Payload:   ev.Payload,
 			Timestamp: ev.Timestamp.Unix(),
 		},
-	}, goclient.WithAuthToken())
+	}, client.WithAuthToken())
 
 	return err
 }

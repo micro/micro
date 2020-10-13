@@ -10,7 +10,6 @@ import (
 	"strings"
 	"unicode"
 
-	goclient "github.com/micro/go-micro/v3/client"
 	goregistry "github.com/micro/go-micro/v3/registry"
 	"github.com/micro/micro/v3/client/cli/namespace"
 	"github.com/micro/micro/v3/client/cli/util"
@@ -189,9 +188,9 @@ func callService(srv *goregistry.Service, namespace string, ctx *cli.Context) er
 	// TODO: parse out --header or --metadata
 
 	// construct and execute the request using the json content type
-	req := client.DefaultClient.NewRequest(srv.Name, endpoint, body, goclient.WithContentType("application/json"))
+	req := client.DefaultClient.NewRequest(srv.Name, endpoint, body, client.WithContentType("application/json"))
 	var rsp json.RawMessage
-	if err := client.DefaultClient.Call(callCtx, req, &rsp, goclient.WithAuthToken()); err != nil {
+	if err := client.DefaultClient.Call(callCtx, req, &rsp, client.WithAuthToken()); err != nil {
 		return err
 	}
 

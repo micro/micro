@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"net/http"
 
-	goclient "github.com/micro/go-micro/v3/client"
 	"github.com/micro/go-micro/v3/config"
 	proto "github.com/micro/micro/v3/proto/config"
 	"github.com/micro/micro/v3/service/client"
@@ -35,7 +34,7 @@ func (m *srv) Get(path string, options ...config.Option) (config.Value, error) {
 		Options: &proto.Options{
 			Secret: o.Secret,
 		},
-	}, goclient.WithAuthToken())
+	}, client.WithAuthToken())
 	if verr := errors.Parse(err); verr != nil && verr.Code == http.StatusNotFound {
 		return nullValue, nil
 	} else if err != nil {
@@ -60,7 +59,7 @@ func (m *srv) Set(path string, value interface{}, options ...config.Option) erro
 		Options: &proto.Options{
 			Secret: o.Secret,
 		},
-	}, goclient.WithAuthToken())
+	}, client.WithAuthToken())
 	return err
 }
 
@@ -68,7 +67,7 @@ func (m *srv) Delete(path string, options ...config.Option) error {
 	_, err := m.client.Delete(context.DefaultContext, &proto.DeleteRequest{
 		Namespace: m.namespace,
 		Path:      path,
-	}, goclient.WithAuthToken())
+	}, client.WithAuthToken())
 	return err
 }
 

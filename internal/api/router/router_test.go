@@ -24,20 +24,20 @@ import (
 	"testing"
 	"time"
 
-	"github.com/micro/go-micro/v3/client"
-	gcli "github.com/micro/go-micro/v3/client/grpc"
+	"github.com/micro/micro/v3/service/client"
+	gcli "github.com/micro/micro/v3/service/client/grpc"
 	rmemory "github.com/micro/go-micro/v3/registry/memory"
 	rt "github.com/micro/go-micro/v3/router"
 	regRouter "github.com/micro/go-micro/v3/router/registry"
-	"github.com/micro/go-micro/v3/server"
-	gsrv "github.com/micro/go-micro/v3/server/grpc"
-	pb "github.com/micro/go-micro/v3/server/grpc/proto"
 	"github.com/micro/micro/v3/internal/api/handler"
 	"github.com/micro/micro/v3/internal/api/handler/rpc"
 	"github.com/micro/micro/v3/internal/api/router"
 	rregistry "github.com/micro/micro/v3/internal/api/router/registry"
 	rstatic "github.com/micro/micro/v3/internal/api/router/static"
 	"github.com/micro/micro/v3/service/api"
+	"github.com/micro/micro/v3/service/server"
+	gsrv "github.com/micro/micro/v3/service/server/grpc"
+	pb "github.com/micro/micro/v3/service/server/grpc/proto"
 )
 
 // server is used to implement helloworld.GreeterServer.

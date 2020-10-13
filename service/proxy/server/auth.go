@@ -5,7 +5,7 @@ import (
 	"strings"
 
 	"github.com/micro/go-micro/v3/metadata"
-	"github.com/micro/go-micro/v3/server"
+	"github.com/micro/micro/v3/service/server"
 	inauth "github.com/micro/micro/v3/internal/auth"
 	"github.com/micro/micro/v3/internal/auth/namespace"
 	"github.com/micro/micro/v3/service/auth"

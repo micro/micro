@@ -17,8 +17,8 @@
 package handler
 
 import (
-	"github.com/micro/go-micro/v3/client"
-	"github.com/micro/go-micro/v3/client/grpc"
+	"github.com/micro/micro/v3/service/client"
+	"github.com/micro/micro/v3/service/client/grpc"
 	"github.com/micro/micro/v3/internal/api/router"
 )
 

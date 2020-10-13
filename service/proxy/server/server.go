@@ -8,8 +8,6 @@ import (
 	"github.com/go-acme/lego/v3/providers/dns/cloudflare"
 	bmem "github.com/micro/go-micro/v3/broker/memory"
 	"github.com/micro/go-micro/v3/registry/noop"
-	"github.com/micro/go-micro/v3/server"
-	sgrpc "github.com/micro/go-micro/v3/server/grpc"
 	"github.com/micro/go-micro/v3/sync/memory"
 	"github.com/micro/micro/v3/client"
 	"github.com/micro/micro/v3/internal/api/server/acme"
@@ -25,6 +23,8 @@ import (
 	"github.com/micro/micro/v3/service/proxy/http"
 	"github.com/micro/micro/v3/service/proxy/mucp"
 	murouter "github.com/micro/micro/v3/service/router"
+	"github.com/micro/micro/v3/service/server"
+	sgrpc "github.com/micro/micro/v3/service/server/grpc"
 	"github.com/micro/micro/v3/service/store"
 	"github.com/urfave/cli/v2"
 )
