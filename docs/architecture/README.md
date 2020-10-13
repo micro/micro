@@ -31,8 +31,6 @@ Micro in v3 has undergone a major overhaul, it encompasses three things:
 - Clients - Entrypoints via command line, api gateway and gRPC proxy/sdks
 - Library - A Go service library specifically designed to write Micro services
 
-## In-Depth
-
 For in-depth material see the [Reference](/reference). This doc will otherwise cover things at a high level.
 
 ## Server
