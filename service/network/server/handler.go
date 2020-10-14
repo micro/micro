@@ -3,7 +3,7 @@ package server
 import (
 	"context"
 
-	"github.com/micro/go-micro/v3/router"
+	"github.com/micro/micro/v3/service/router"
 	authns "github.com/micro/micro/v3/internal/auth/namespace"
 	"github.com/micro/micro/v3/internal/namespace"
 	pb "github.com/micro/micro/v3/proto/network"

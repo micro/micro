@@ -22,8 +22,8 @@ import (
 	"testing"
 
 	rmemory "github.com/micro/go-micro/v3/registry/memory"
-	"github.com/micro/go-micro/v3/router"
-	rtreg "github.com/micro/go-micro/v3/router/registry"
+	"github.com/micro/micro/v3/service/router"
+	rtreg "github.com/micro/micro/v3/service/router/registry"
 	tgrpc "github.com/micro/micro/v3/internal/network/transport/grpc"
 	pberr "github.com/micro/micro/v3/proto/errors"
 	bmemory "github.com/micro/micro/v3/service/broker/memory"
