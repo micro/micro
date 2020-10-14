@@ -18,7 +18,7 @@ package process
 import (
 	"io"
 
-	"github.com/micro/go-micro/v3/build"
+	"github.com/micro/micro/v3/internal/build"
 )
 
 // Process manages a running process
