@@ -8,7 +8,7 @@ import (
 
 	"github.com/go-acme/lego/v3/providers/dns/cloudflare"
 	"github.com/gorilla/mux"
-	"github.com/micro/go-micro/v3/sync/memory"
+	"github.com/micro/micro/v3/internal/sync/memory"
 	"github.com/micro/micro/v3/client"
 	ahandler "github.com/micro/micro/v3/internal/api/handler"
 	aapi "github.com/micro/micro/v3/internal/api/handler/api"
