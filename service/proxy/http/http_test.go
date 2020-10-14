@@ -24,8 +24,8 @@ import (
 	"testing"
 
 	"github.com/micro/go-micro/v3/registry/memory"
-	"github.com/micro/go-micro/v3/router"
-	"github.com/micro/go-micro/v3/router/registry"
+	"github.com/micro/micro/v3/service/router"
+	"github.com/micro/micro/v3/service/router/registry"
 	"github.com/micro/micro/v3/service/client"
 	cmucp "github.com/micro/micro/v3/service/client/mucp"
 	"github.com/micro/micro/v3/service/server"
