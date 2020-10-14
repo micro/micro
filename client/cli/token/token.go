@@ -76,20 +76,17 @@ func getFromFile(ctx *cli.Context) (*auth.AccountToken, error) {
 		return nil, err
 	}
 
-	var tok token
-	var found bool
 	// Try to get the token matching the user id if possible
-	for key, t := range tokens {
-		if len(userID) > 0 && strings.Contains(key, env.ProxyAddress) &&
-			strings.Contains(key, ns) && strings.Contains(key, userID) {
-			tok = t
-			found = true
-			break
-		}
+	tk, err := tokenKey(ctx, userID)
+	if err != nil {
+		return nil, err
 	}
+	tok, found := tokens[tk]
 	if !found {
+		// fallback to no user ID
+		tk, err = tokenKey(ctx, "")
 		for key, t := range tokens {
-			if strings.Contains(key, env.ProxyAddress) && strings.Contains(key, ns) {
+			if strings.HasPrefix(key, tk) {
 				tok = t
 				found = true
 				break
