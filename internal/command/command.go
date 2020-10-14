@@ -11,7 +11,7 @@ import (
 	"time"
 
 	cbytes "github.com/micro/micro/v3/internal/codec/bytes"
-	"github.com/micro/micro/v3/service/metadata"
+	"github.com/micro/micro/v3/service/context/metadata"
 	goregistry "github.com/micro/go-micro/v3/registry"
 	"github.com/micro/micro/v3/client/cli/namespace"
 	"github.com/micro/micro/v3/client/cli/util"

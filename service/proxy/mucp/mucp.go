@@ -29,7 +29,7 @@ import (
 	"github.com/micro/micro/v3/internal/codec"
 	"github.com/micro/micro/v3/internal/codec/bytes"
 	"github.com/micro/micro/v3/service/errors"
-	"github.com/micro/micro/v3/service/metadata"
+	"github.com/micro/micro/v3/service/context/metadata"
 	"github.com/micro/go-micro/v3/router"
 	"github.com/micro/go-micro/v3/router/registry"
 	"github.com/micro/go-micro/v3/selector"

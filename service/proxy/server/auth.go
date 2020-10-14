@@ -4,7 +4,7 @@ import (
 	"context"
 	"strings"
 
-	"github.com/micro/micro/v3/service/metadata"
+	"github.com/micro/micro/v3/service/context/metadata"
 	"github.com/micro/micro/v3/service/server"
 	inauth "github.com/micro/micro/v3/internal/auth"
 	"github.com/micro/micro/v3/internal/auth/namespace"

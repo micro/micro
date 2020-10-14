@@ -24,7 +24,7 @@ import (
 	"strings"
 
 	"github.com/micro/micro/v3/service/errors"
-	"github.com/micro/micro/v3/service/metadata"
+	"github.com/micro/micro/v3/service/context/metadata"
 	"github.com/micro/go-micro/v3/registry"
 	"github.com/micro/micro/v3/service/broker"
 	"github.com/micro/micro/v3/service/logger"

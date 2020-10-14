@@ -11,7 +11,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/micro/micro/v3/service/metadata"
+	"github.com/micro/micro/v3/service/context/metadata"
 	"github.com/urfave/cli/v2"
 )
 

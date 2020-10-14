@@ -7,7 +7,7 @@ import (
 	"reflect"
 	"time"
 
-	"github.com/micro/micro/v3/service/metadata"
+	"github.com/micro/micro/v3/service/context/metadata"
 	"github.com/micro/go-micro/v3/store"
 	pb "github.com/micro/micro/v3/proto/store"
 	"github.com/micro/micro/v3/service/client"
