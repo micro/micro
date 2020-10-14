@@ -25,7 +25,7 @@ import (
 	"time"
 
 	"github.com/golang/protobuf/proto"
-	"github.com/micro/go-micro/v3/util/backoff"
+	"github.com/micro/micro/v3/internal/backoff"
 	"github.com/micro/micro/v3/internal/network/resolver/dns"
 	"github.com/micro/micro/v3/internal/network/transport"
 	"github.com/micro/micro/v3/internal/network/tunnel"
