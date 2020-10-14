@@ -44,6 +44,7 @@ jobs:
     - name: Replace CI profile
       id: replace-profile
       run: |
+        go mod edit -replace github.com/micro/micro/plugin/etcd/v3=./plugin/etcd
         go mod edit -replace github.com/micro/micro/profile/ci/v3=./profile/ci
         go mod edit -replace google.golang.org/grpc=google.golang.org/grpc@v1.26.0
 
