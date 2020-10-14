@@ -29,7 +29,6 @@ import (
 	microStore "github.com/micro/micro/v3/service/store"
 
 	// plugins
-	natsStream "github.com/micro/go-plugins/events/stream/nats/v3"
 	"github.com/micro/go-plugins/registry/etcd/v3"
 	"github.com/micro/go-plugins/store/cockroach/v3"
 	natsBroker "github.com/micro/micro/plugin/nats/broker/v3"
