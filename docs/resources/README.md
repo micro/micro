@@ -18,6 +18,7 @@ A list of external resources, videos, tutorials and blog posts are below. Feel f
 
 # Podcasts
 
+- [Micro on InfoQ](https://www.infoq.com/podcasts/microservices-go-micro-paas3/) - Asim on Micro, the future of Cloud and PaaS 3.0
 - [Micro on GoTime](https://changelog.com/gotime/8) with Asim, Brian, Erik and Carlisia
 
 # Tutorials

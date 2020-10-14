@@ -338,6 +338,8 @@ github.com/micro/go-plugins/registry/etcd/v3 v3.0.0-20200908121001-4ea6f6760baf/
 github.com/micro/go-plugins/store/cockroach/v3 v3.0.0-20200908121001-4ea6f6760baf h1:faz8DoAs2ZCZ324QOMBMVa/6WRZfASKcDmrTjnG/168=
 github.com/micro/go-plugins/store/cockroach/v3 v3.0.0-20200908121001-4ea6f6760baf/go.mod h1:PU7joUtgK+z+sAAjz/TPdM8xHQPTlfLSOPoBuG8oKuk=
 github.com/micro/micro v1.18.0 h1:v+xiQOXbT9xxotLwu1nJM81t4FbruBxZSSyIdhUfujM=
+github.com/micro/micro/plugin/nats/v3 v3.0.0-20201013150344-d7a769ff00da h1:M2fcbT4IISJWjurZxKvtrClbWYOBbMempACrPFHe/GY=
+github.com/micro/micro/plugin/nats/v3 v3.0.0-20201013150344-d7a769ff00da/go.mod h1:ehxdTNOU1zHBiGiSrle77R1P4DGIEO9G4AKE2vvSEJE=
 github.com/miekg/dns v1.1.15/go.mod h1:W1PPwlIAgtquWBMBEV9nkV9Cazfe8ScdGz/Lj7v3Nrg=
 github.com/miekg/dns v1.1.27 h1:aEH/kqUzUxGJ/UHcEKdJY+ugH6WEzsEBBSPa8zuy1aM=
 github.com/miekg/dns v1.1.27/go.mod h1:KNUDUusw/aVsxyTYZM1oqvCicbwhgbNgztCETuNZ7xM=
