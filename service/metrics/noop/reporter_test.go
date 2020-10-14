@@ -1,5 +1,3 @@
-// Copyright 2020 Asim Aslam
-//
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
@@ -12,22 +10,24 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-// Original source: github.com/micro/go-plugins/v3/broker/nats/context.go
+// Original source: github.com/micro/micro/v3/metrics/noop/reporter_test.go
 
-package nats
+package noop
 
 import (
-	"context"
+	"testing"
 
-	"github.com/micro/micro/v3/service/broker"
+	"github.com/micro/micro/v3/service/metrics"
+	"github.com/stretchr/testify/assert"
 )
 
-// setBrokerOption returns a function to setup a context with given value
-func setBrokerOption(k, v interface{}) broker.Option {
-	return func(o *broker.Options) {
-		if o.Context == nil {
-			o.Context = context.Background()
-		}
-		o.Context = context.WithValue(o.Context, k, v)
-	}
+func TestNoopReporter(t *testing.T) {
+
+	// Make a Reporter:
+	reporter := New(metrics.Path("/noop"))
+	assert.NotNil(t, reporter)
+	assert.Equal(t, "/noop", reporter.options.Path)
+
+	// Check that our implementation is valid:
+	assert.Implements(t, new(metrics.Reporter), reporter)
 }
