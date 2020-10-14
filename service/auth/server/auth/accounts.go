@@ -5,8 +5,8 @@ import (
 	"encoding/json"
 	"strings"
 
-	"github.com/micro/go-micro/v3/store"
-	gostore "github.com/micro/go-micro/v3/store"
+	"github.com/micro/micro/v3/service/store"
+	gostore "github.com/micro/micro/v3/service/store"
 	"github.com/micro/micro/v3/internal/auth/namespace"
 	pb "github.com/micro/micro/v3/proto/auth"
 	"github.com/micro/micro/v3/service/auth"

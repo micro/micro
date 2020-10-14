@@ -3,7 +3,7 @@ package ci
 
 import (
 	"github.com/micro/go-micro/v3/runtime/local"
-	"github.com/micro/go-micro/v3/store/file"
+	"github.com/micro/micro/v3/service/store/file"
 	"github.com/micro/micro/v3/profile"
 	"github.com/micro/micro/v3/service/auth/jwt"
 	"github.com/micro/micro/v3/service/broker/http"

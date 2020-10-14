@@ -14,7 +14,7 @@
 
 package memory
 
-import "github.com/micro/go-micro/v3/store"
+import "github.com/micro/micro/v3/service/store"
 
 // Options which are used to configure the in-memory stream
 type Options struct {
