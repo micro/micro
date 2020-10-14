@@ -19,7 +19,7 @@ Things that need to be documented for v3
 - [x] FAQ: What environments does Micro run in
 - [x] Getting Started: Installation
 - [x] Environments
-- [ ] Architecture
+- [x] Architecture
 - [ ] Concepts
 - [ ] Tutorials
 - [ ] Reference Guide
