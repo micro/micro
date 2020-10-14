@@ -24,6 +24,691 @@
 // const _PROTOBUF_VERSION_CHECK: () = ::protobuf::VERSION_2_18_0;
 
 #[derive(PartialEq,Clone,Default)]
+pub struct Resource {
+    // message fields
+    pub namespace: ::protobuf::SingularPtrField<Namespace>,
+    pub networkpolicy: ::protobuf::SingularPtrField<NetworkPolicy>,
+    pub service: ::protobuf::SingularPtrField<Service>,
+    // special fields
+    pub unknown_fields: ::protobuf::UnknownFields,
+    pub cached_size: ::protobuf::CachedSize,
+}
+
+impl<'a> ::std::default::Default for &'a Resource {
+    fn default() -> &'a Resource {
+        <Resource as ::protobuf::Message>::default_instance()
+    }
+}
+
+impl Resource {
+    pub fn new() -> Resource {
+        ::std::default::Default::default()
+    }
+
+    // .runtime.Namespace namespace = 1;
+
+
+    pub fn get_namespace(&self) -> &Namespace {
+        self.namespace.as_ref().unwrap_or_else(|| <Namespace as ::protobuf::Message>::default_instance())
+    }
+    pub fn clear_namespace(&mut self) {
+        self.namespace.clear();
+    }
+
+    pub fn has_namespace(&self) -> bool {
+        self.namespace.is_some()
+    }
+
+    // Param is passed by value, moved
+    pub fn set_namespace(&mut self, v: Namespace) {
+        self.namespace = ::protobuf::SingularPtrField::some(v);
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_namespace(&mut self) -> &mut Namespace {
+        if self.namespace.is_none() {
+            self.namespace.set_default();
+        }
+        self.namespace.as_mut().unwrap()
+    }
+
+    // Take field
+    pub fn take_namespace(&mut self) -> Namespace {
+        self.namespace.take().unwrap_or_else(|| Namespace::new())
+    }
+
+    // .runtime.NetworkPolicy networkpolicy = 2;
+
+
+    pub fn get_networkpolicy(&self) -> &NetworkPolicy {
+        self.networkpolicy.as_ref().unwrap_or_else(|| <NetworkPolicy as ::protobuf::Message>::default_instance())
+    }
+    pub fn clear_networkpolicy(&mut self) {
+        self.networkpolicy.clear();
+    }
+
+    pub fn has_networkpolicy(&self) -> bool {
+        self.networkpolicy.is_some()
+    }
+
+    // Param is passed by value, moved
+    pub fn set_networkpolicy(&mut self, v: NetworkPolicy) {
+        self.networkpolicy = ::protobuf::SingularPtrField::some(v);
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_networkpolicy(&mut self) -> &mut NetworkPolicy {
+        if self.networkpolicy.is_none() {
+            self.networkpolicy.set_default();
+        }
+        self.networkpolicy.as_mut().unwrap()
+    }
+
+    // Take field
+    pub fn take_networkpolicy(&mut self) -> NetworkPolicy {
+        self.networkpolicy.take().unwrap_or_else(|| NetworkPolicy::new())
+    }
+
+    // .runtime.Service service = 3;
+
+
+    pub fn get_service(&self) -> &Service {
+        self.service.as_ref().unwrap_or_else(|| <Service as ::protobuf::Message>::default_instance())
+    }
+    pub fn clear_service(&mut self) {
+        self.service.clear();
+    }
+
+    pub fn has_service(&self) -> bool {
+        self.service.is_some()
+    }
+
+    // Param is passed by value, moved
+    pub fn set_service(&mut self, v: Service) {
+        self.service = ::protobuf::SingularPtrField::some(v);
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_service(&mut self) -> &mut Service {
+        if self.service.is_none() {
+            self.service.set_default();
+        }
+        self.service.as_mut().unwrap()
+    }
+
+    // Take field
+    pub fn take_service(&mut self) -> Service {
+        self.service.take().unwrap_or_else(|| Service::new())
+    }
+}
+
+impl ::protobuf::Message for Resource {
+    fn is_initialized(&self) -> bool {
+        for v in &self.namespace {
+            if !v.is_initialized() {
+                return false;
+            }
+        };
+        for v in &self.networkpolicy {
+            if !v.is_initialized() {
+                return false;
+            }
+        };
+        for v in &self.service {
+            if !v.is_initialized() {
+                return false;
+            }
+        };
+        true
+    }
+
+    fn merge_from(&mut self, is: &mut ::protobuf::CodedInputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        while !is.eof()? {
+            let (field_number, wire_type) = is.read_tag_unpack()?;
+            match field_number {
+                1 => {
+                    ::protobuf::rt::read_singular_message_into(wire_type, is, &mut self.namespace)?;
+                },
+                2 => {
+                    ::protobuf::rt::read_singular_message_into(wire_type, is, &mut self.networkpolicy)?;
+                },
+                3 => {
+                    ::protobuf::rt::read_singular_message_into(wire_type, is, &mut self.service)?;
+                },
+                _ => {
+                    ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
+                },
+            };
+        }
+        ::std::result::Result::Ok(())
+    }
+
+    // Compute sizes of nested messages
+    #[allow(unused_variables)]
+    fn compute_size(&self) -> u32 {
+        let mut my_size = 0;
+        if let Some(ref v) = self.namespace.as_ref() {
+            let len = v.compute_size();
+            my_size += 1 + ::protobuf::rt::compute_raw_varint32_size(len) + len;
+        }
+        if let Some(ref v) = self.networkpolicy.as_ref() {
+            let len = v.compute_size();
+            my_size += 1 + ::protobuf::rt::compute_raw_varint32_size(len) + len;
+        }
+        if let Some(ref v) = self.service.as_ref() {
+            let len = v.compute_size();
+            my_size += 1 + ::protobuf::rt::compute_raw_varint32_size(len) + len;
+        }
+        my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
+        self.cached_size.set(my_size);
+        my_size
+    }
+
+    fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        if let Some(ref v) = self.namespace.as_ref() {
+            os.write_tag(1, ::protobuf::wire_format::WireTypeLengthDelimited)?;
+            os.write_raw_varint32(v.get_cached_size())?;
+            v.write_to_with_cached_sizes(os)?;
+        }
+        if let Some(ref v) = self.networkpolicy.as_ref() {
+            os.write_tag(2, ::protobuf::wire_format::WireTypeLengthDelimited)?;
+            os.write_raw_varint32(v.get_cached_size())?;
+            v.write_to_with_cached_sizes(os)?;
+        }
+        if let Some(ref v) = self.service.as_ref() {
+            os.write_tag(3, ::protobuf::wire_format::WireTypeLengthDelimited)?;
+            os.write_raw_varint32(v.get_cached_size())?;
+            v.write_to_with_cached_sizes(os)?;
+        }
+        os.write_unknown_fields(self.get_unknown_fields())?;
+        ::std::result::Result::Ok(())
+    }
+
+    fn get_cached_size(&self) -> u32 {
+        self.cached_size.get()
+    }
+
+    fn get_unknown_fields(&self) -> &::protobuf::UnknownFields {
+        &self.unknown_fields
+    }
+
+    fn mut_unknown_fields(&mut self) -> &mut ::protobuf::UnknownFields {
+        &mut self.unknown_fields
+    }
+
+    fn as_any(&self) -> &dyn (::std::any::Any) {
+        self as &dyn (::std::any::Any)
+    }
+    fn as_any_mut(&mut self) -> &mut dyn (::std::any::Any) {
+        self as &mut dyn (::std::any::Any)
+    }
+    fn into_any(self: ::std::boxed::Box<Self>) -> ::std::boxed::Box<dyn (::std::any::Any)> {
+        self
+    }
+
+    fn descriptor(&self) -> &'static ::protobuf::reflect::MessageDescriptor {
+        Self::descriptor_static()
+    }
+
+    fn new() -> Resource {
+        Resource::new()
+    }
+
+    fn descriptor_static() -> &'static ::protobuf::reflect::MessageDescriptor {
+        static descriptor: ::protobuf::rt::LazyV2<::protobuf::reflect::MessageDescriptor> = ::protobuf::rt::LazyV2::INIT;
+        descriptor.get(|| {
+            let mut fields = ::std::vec::Vec::new();
+            fields.push(::protobuf::reflect::accessor::make_singular_ptr_field_accessor::<_, ::protobuf::types::ProtobufTypeMessage<Namespace>>(
+                "namespace",
+                |m: &Resource| { &m.namespace },
+                |m: &mut Resource| { &mut m.namespace },
+            ));
+            fields.push(::protobuf::reflect::accessor::make_singular_ptr_field_accessor::<_, ::protobuf::types::ProtobufTypeMessage<NetworkPolicy>>(
+                "networkpolicy",
+                |m: &Resource| { &m.networkpolicy },
+                |m: &mut Resource| { &mut m.networkpolicy },
+            ));
+            fields.push(::protobuf::reflect::accessor::make_singular_ptr_field_accessor::<_, ::protobuf::types::ProtobufTypeMessage<Service>>(
+                "service",
+                |m: &Resource| { &m.service },
+                |m: &mut Resource| { &mut m.service },
+            ));
+            ::protobuf::reflect::MessageDescriptor::new_pb_name::<Resource>(
+                "Resource",
+                fields,
+                file_descriptor_proto()
+            )
+        })
+    }
+
+    fn default_instance() -> &'static Resource {
+        static instance: ::protobuf::rt::LazyV2<Resource> = ::protobuf::rt::LazyV2::INIT;
+        instance.get(Resource::new)
+    }
+}
+
+impl ::protobuf::Clear for Resource {
+    fn clear(&mut self) {
+        self.namespace.clear();
+        self.networkpolicy.clear();
+        self.service.clear();
+        self.unknown_fields.clear();
+    }
+}
+
+impl ::std::fmt::Debug for Resource {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        ::protobuf::text_format::fmt(self, f)
+    }
+}
+
+impl ::protobuf::reflect::ProtobufValue for Resource {
+    fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
+        ::protobuf::reflect::ReflectValueRef::Message(self)
+    }
+}
+
+#[derive(PartialEq,Clone,Default)]
+pub struct Namespace {
+    // message fields
+    pub name: ::std::string::String,
+    // special fields
+    pub unknown_fields: ::protobuf::UnknownFields,
+    pub cached_size: ::protobuf::CachedSize,
+}
+
+impl<'a> ::std::default::Default for &'a Namespace {
+    fn default() -> &'a Namespace {
+        <Namespace as ::protobuf::Message>::default_instance()
+    }
+}
+
+impl Namespace {
+    pub fn new() -> Namespace {
+        ::std::default::Default::default()
+    }
+
+    // string name = 1;
+
+
+    pub fn get_name(&self) -> &str {
+        &self.name
+    }
+    pub fn clear_name(&mut self) {
+        self.name.clear();
+    }
+
+    // Param is passed by value, moved
+    pub fn set_name(&mut self, v: ::std::string::String) {
+        self.name = v;
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_name(&mut self) -> &mut ::std::string::String {
+        &mut self.name
+    }
+
+    // Take field
+    pub fn take_name(&mut self) -> ::std::string::String {
+        ::std::mem::replace(&mut self.name, ::std::string::String::new())
+    }
+}
+
+impl ::protobuf::Message for Namespace {
+    fn is_initialized(&self) -> bool {
+        true
+    }
+
+    fn merge_from(&mut self, is: &mut ::protobuf::CodedInputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        while !is.eof()? {
+            let (field_number, wire_type) = is.read_tag_unpack()?;
+            match field_number {
+                1 => {
+                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.name)?;
+                },
+                _ => {
+                    ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
+                },
+            };
+        }
+        ::std::result::Result::Ok(())
+    }
+
+    // Compute sizes of nested messages
+    #[allow(unused_variables)]
+    fn compute_size(&self) -> u32 {
+        let mut my_size = 0;
+        if !self.name.is_empty() {
+            my_size += ::protobuf::rt::string_size(1, &self.name);
+        }
+        my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
+        self.cached_size.set(my_size);
+        my_size
+    }
+
+    fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        if !self.name.is_empty() {
+            os.write_string(1, &self.name)?;
+        }
+        os.write_unknown_fields(self.get_unknown_fields())?;
+        ::std::result::Result::Ok(())
+    }
+
+    fn get_cached_size(&self) -> u32 {
+        self.cached_size.get()
+    }
+
+    fn get_unknown_fields(&self) -> &::protobuf::UnknownFields {
+        &self.unknown_fields
+    }
+
+    fn mut_unknown_fields(&mut self) -> &mut ::protobuf::UnknownFields {
+        &mut self.unknown_fields
+    }
+
+    fn as_any(&self) -> &dyn (::std::any::Any) {
+        self as &dyn (::std::any::Any)
+    }
+    fn as_any_mut(&mut self) -> &mut dyn (::std::any::Any) {
+        self as &mut dyn (::std::any::Any)
+    }
+    fn into_any(self: ::std::boxed::Box<Self>) -> ::std::boxed::Box<dyn (::std::any::Any)> {
+        self
+    }
+
+    fn descriptor(&self) -> &'static ::protobuf::reflect::MessageDescriptor {
+        Self::descriptor_static()
+    }
+
+    fn new() -> Namespace {
+        Namespace::new()
+    }
+
+    fn descriptor_static() -> &'static ::protobuf::reflect::MessageDescriptor {
+        static descriptor: ::protobuf::rt::LazyV2<::protobuf::reflect::MessageDescriptor> = ::protobuf::rt::LazyV2::INIT;
+        descriptor.get(|| {
+            let mut fields = ::std::vec::Vec::new();
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
+                "name",
+                |m: &Namespace| { &m.name },
+                |m: &mut Namespace| { &mut m.name },
+            ));
+            ::protobuf::reflect::MessageDescriptor::new_pb_name::<Namespace>(
+                "Namespace",
+                fields,
+                file_descriptor_proto()
+            )
+        })
+    }
+
+    fn default_instance() -> &'static Namespace {
+        static instance: ::protobuf::rt::LazyV2<Namespace> = ::protobuf::rt::LazyV2::INIT;
+        instance.get(Namespace::new)
+    }
+}
+
+impl ::protobuf::Clear for Namespace {
+    fn clear(&mut self) {
+        self.name.clear();
+        self.unknown_fields.clear();
+    }
+}
+
+impl ::std::fmt::Debug for Namespace {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        ::protobuf::text_format::fmt(self, f)
+    }
+}
+
+impl ::protobuf::reflect::ProtobufValue for Namespace {
+    fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
+        ::protobuf::reflect::ReflectValueRef::Message(self)
+    }
+}
+
+#[derive(PartialEq,Clone,Default)]
+pub struct NetworkPolicy {
+    // message fields
+    pub allowedlabels: ::std::collections::HashMap<::std::string::String, ::std::string::String>,
+    pub name: ::std::string::String,
+    pub namespace: ::std::string::String,
+    // special fields
+    pub unknown_fields: ::protobuf::UnknownFields,
+    pub cached_size: ::protobuf::CachedSize,
+}
+
+impl<'a> ::std::default::Default for &'a NetworkPolicy {
+    fn default() -> &'a NetworkPolicy {
+        <NetworkPolicy as ::protobuf::Message>::default_instance()
+    }
+}
+
+impl NetworkPolicy {
+    pub fn new() -> NetworkPolicy {
+        ::std::default::Default::default()
+    }
+
+    // repeated .runtime.NetworkPolicy.AllowedlabelsEntry allowedlabels = 1;
+
+
+    pub fn get_allowedlabels(&self) -> &::std::collections::HashMap<::std::string::String, ::std::string::String> {
+        &self.allowedlabels
+    }
+    pub fn clear_allowedlabels(&mut self) {
+        self.allowedlabels.clear();
+    }
+
+    // Param is passed by value, moved
+    pub fn set_allowedlabels(&mut self, v: ::std::collections::HashMap<::std::string::String, ::std::string::String>) {
+        self.allowedlabels = v;
+    }
+
+    // Mutable pointer to the field.
+    pub fn mut_allowedlabels(&mut self) -> &mut ::std::collections::HashMap<::std::string::String, ::std::string::String> {
+        &mut self.allowedlabels
+    }
+
+    // Take field
+    pub fn take_allowedlabels(&mut self) -> ::std::collections::HashMap<::std::string::String, ::std::string::String> {
+        ::std::mem::replace(&mut self.allowedlabels, ::std::collections::HashMap::new())
+    }
+
+    // string name = 2;
+
+
+    pub fn get_name(&self) -> &str {
+        &self.name
+    }
+    pub fn clear_name(&mut self) {
+        self.name.clear();
+    }
+
+    // Param is passed by value, moved
+    pub fn set_name(&mut self, v: ::std::string::String) {
+        self.name = v;
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_name(&mut self) -> &mut ::std::string::String {
+        &mut self.name
+    }
+
+    // Take field
+    pub fn take_name(&mut self) -> ::std::string::String {
+        ::std::mem::replace(&mut self.name, ::std::string::String::new())
+    }
+
+    // string namespace = 3;
+
+
+    pub fn get_namespace(&self) -> &str {
+        &self.namespace
+    }
+    pub fn clear_namespace(&mut self) {
+        self.namespace.clear();
+    }
+
+    // Param is passed by value, moved
+    pub fn set_namespace(&mut self, v: ::std::string::String) {
+        self.namespace = v;
+    }
+
+    // Mutable pointer to the field.
+    // If field is not initialized, it is initialized with default value first.
+    pub fn mut_namespace(&mut self) -> &mut ::std::string::String {
+        &mut self.namespace
+    }
+
+    // Take field
+    pub fn take_namespace(&mut self) -> ::std::string::String {
+        ::std::mem::replace(&mut self.namespace, ::std::string::String::new())
+    }
+}
+
+impl ::protobuf::Message for NetworkPolicy {
+    fn is_initialized(&self) -> bool {
+        true
+    }
+
+    fn merge_from(&mut self, is: &mut ::protobuf::CodedInputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        while !is.eof()? {
+            let (field_number, wire_type) = is.read_tag_unpack()?;
+            match field_number {
+                1 => {
+                    ::protobuf::rt::read_map_into::<::protobuf::types::ProtobufTypeString, ::protobuf::types::ProtobufTypeString>(wire_type, is, &mut self.allowedlabels)?;
+                },
+                2 => {
+                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.name)?;
+                },
+                3 => {
+                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.namespace)?;
+                },
+                _ => {
+                    ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
+                },
+            };
+        }
+        ::std::result::Result::Ok(())
+    }
+
+    // Compute sizes of nested messages
+    #[allow(unused_variables)]
+    fn compute_size(&self) -> u32 {
+        let mut my_size = 0;
+        my_size += ::protobuf::rt::compute_map_size::<::protobuf::types::ProtobufTypeString, ::protobuf::types::ProtobufTypeString>(1, &self.allowedlabels);
+        if !self.name.is_empty() {
+            my_size += ::protobuf::rt::string_size(2, &self.name);
+        }
+        if !self.namespace.is_empty() {
+            my_size += ::protobuf::rt::string_size(3, &self.namespace);
+        }
+        my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
+        self.cached_size.set(my_size);
+        my_size
+    }
+
+    fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::ProtobufResult<()> {
+        ::protobuf::rt::write_map_with_cached_sizes::<::protobuf::types::ProtobufTypeString, ::protobuf::types::ProtobufTypeString>(1, &self.allowedlabels, os)?;
+        if !self.name.is_empty() {
+            os.write_string(2, &self.name)?;
+        }
+        if !self.namespace.is_empty() {
+            os.write_string(3, &self.namespace)?;
+        }
+        os.write_unknown_fields(self.get_unknown_fields())?;
+        ::std::result::Result::Ok(())
+    }
+
+    fn get_cached_size(&self) -> u32 {
+        self.cached_size.get()
+    }
+
+    fn get_unknown_fields(&self) -> &::protobuf::UnknownFields {
+        &self.unknown_fields
+    }
+
+    fn mut_unknown_fields(&mut self) -> &mut ::protobuf::UnknownFields {
+        &mut self.unknown_fields
+    }
+
+    fn as_any(&self) -> &dyn (::std::any::Any) {
+        self as &dyn (::std::any::Any)
+    }
+    fn as_any_mut(&mut self) -> &mut dyn (::std::any::Any) {
+        self as &mut dyn (::std::any::Any)
+    }
+    fn into_any(self: ::std::boxed::Box<Self>) -> ::std::boxed::Box<dyn (::std::any::Any)> {
+        self
+    }
+
+    fn descriptor(&self) -> &'static ::protobuf::reflect::MessageDescriptor {
+        Self::descriptor_static()
+    }
+
+    fn new() -> NetworkPolicy {
+        NetworkPolicy::new()
+    }
+
+    fn descriptor_static() -> &'static ::protobuf::reflect::MessageDescriptor {
+        static descriptor: ::protobuf::rt::LazyV2<::protobuf::reflect::MessageDescriptor> = ::protobuf::rt::LazyV2::INIT;
+        descriptor.get(|| {
+            let mut fields = ::std::vec::Vec::new();
+            fields.push(::protobuf::reflect::accessor::make_map_accessor::<_, ::protobuf::types::ProtobufTypeString, ::protobuf::types::ProtobufTypeString>(
+                "allowedlabels",
+                |m: &NetworkPolicy| { &m.allowedlabels },
+                |m: &mut NetworkPolicy| { &mut m.allowedlabels },
+            ));
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
+                "name",
+                |m: &NetworkPolicy| { &m.name },
+                |m: &mut NetworkPolicy| { &mut m.name },
+            ));
+            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
+                "namespace",
+                |m: &NetworkPolicy| { &m.namespace },
+                |m: &mut NetworkPolicy| { &mut m.namespace },
+            ));
+            ::protobuf::reflect::MessageDescriptor::new_pb_name::<NetworkPolicy>(
+                "NetworkPolicy",
+                fields,
+                file_descriptor_proto()
+            )
+        })
+    }
+
+    fn default_instance() -> &'static NetworkPolicy {
+        static instance: ::protobuf::rt::LazyV2<NetworkPolicy> = ::protobuf::rt::LazyV2::INIT;
+        instance.get(NetworkPolicy::new)
+    }
+}
+
+impl ::protobuf::Clear for NetworkPolicy {
+    fn clear(&mut self) {
+        self.allowedlabels.clear();
+        self.name.clear();
+        self.namespace.clear();
+        self.unknown_fields.clear();
+    }
+}
+
+impl ::std::fmt::Debug for NetworkPolicy {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        ::protobuf::text_format::fmt(self, f)
+    }
+}
+
+impl ::protobuf::reflect::ProtobufValue for NetworkPolicy {
+    fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
+        ::protobuf::reflect::ReflectValueRef::Message(self)
+    }
+}
+
+#[derive(PartialEq,Clone,Default)]
 pub struct Service {
     // message fields
     pub name: ::std::string::String,
@@ -865,7 +1550,7 @@ impl ::protobuf::reflect::ProtobufValue for CreateOptions {
 #[derive(PartialEq,Clone,Default)]
 pub struct CreateRequest {
     // message fields
-    pub service: ::protobuf::SingularPtrField<Service>,
+    pub resource: ::protobuf::SingularPtrField<Resource>,
     pub options: ::protobuf::SingularPtrField<CreateOptions>,
     // special fields
     pub unknown_fields: ::protobuf::UnknownFields,
@@ -883,37 +1568,37 @@ impl CreateRequest {
         ::std::default::Default::default()
     }
 
-    // .runtime.Service service = 1;
+    // .runtime.Resource resource = 1;
 
 
-    pub fn get_service(&self) -> &Service {
-        self.service.as_ref().unwrap_or_else(|| <Service as ::protobuf::Message>::default_instance())
+    pub fn get_resource(&self) -> &Resource {
+        self.resource.as_ref().unwrap_or_else(|| <Resource as ::protobuf::Message>::default_instance())
     }
-    pub fn clear_service(&mut self) {
-        self.service.clear();
+    pub fn clear_resource(&mut self) {
+        self.resource.clear();
     }
 
-    pub fn has_service(&self) -> bool {
-        self.service.is_some()
+    pub fn has_resource(&self) -> bool {
+        self.resource.is_some()
     }
 
     // Param is passed by value, moved
-    pub fn set_service(&mut self, v: Service) {
-        self.service = ::protobuf::SingularPtrField::some(v);
+    pub fn set_resource(&mut self, v: Resource) {
+        self.resource = ::protobuf::SingularPtrField::some(v);
     }
 
     // Mutable pointer to the field.
     // If field is not initialized, it is initialized with default value first.
-    pub fn mut_service(&mut self) -> &mut Service {
-        if self.service.is_none() {
-            self.service.set_default();
+    pub fn mut_resource(&mut self) -> &mut Resource {
+        if self.resource.is_none() {
+            self.resource.set_default();
         }
-        self.service.as_mut().unwrap()
+        self.resource.as_mut().unwrap()
     }
 
     // Take field
-    pub fn take_service(&mut self) -> Service {
-        self.service.take().unwrap_or_else(|| Service::new())
+    pub fn take_resource(&mut self) -> Resource {
+        self.resource.take().unwrap_or_else(|| Resource::new())
     }
 
     // .runtime.CreateOptions options = 2;
@@ -952,7 +1637,7 @@ impl CreateRequest {
 
 impl ::protobuf::Message for CreateRequest {
     fn is_initialized(&self) -> bool {
-        for v in &self.service {
+        for v in &self.resource {
             if !v.is_initialized() {
                 return false;
             }
@@ -970,7 +1655,7 @@ impl ::protobuf::Message for CreateRequest {
             let (field_number, wire_type) = is.read_tag_unpack()?;
             match field_number {
                 1 => {
-                    ::protobuf::rt::read_singular_message_into(wire_type, is, &mut self.service)?;
+                    ::protobuf::rt::read_singular_message_into(wire_type, is, &mut self.resource)?;
                 },
                 2 => {
                     ::protobuf::rt::read_singular_message_into(wire_type, is, &mut self.options)?;
@@ -987,7 +1672,7 @@ impl ::protobuf::Message for CreateRequest {
     #[allow(unused_variables)]
     fn compute_size(&self) -> u32 {
         let mut my_size = 0;
-        if let Some(ref v) = self.service.as_ref() {
+        if let Some(ref v) = self.resource.as_ref() {
             let len = v.compute_size();
             my_size += 1 + ::protobuf::rt::compute_raw_varint32_size(len) + len;
         }
@@ -1001,7 +1686,7 @@ impl ::protobuf::Message for CreateRequest {
     }
 
     fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::ProtobufResult<()> {
-        if let Some(ref v) = self.service.as_ref() {
+        if let Some(ref v) = self.resource.as_ref() {
             os.write_tag(1, ::protobuf::wire_format::WireTypeLengthDelimited)?;
             os.write_raw_varint32(v.get_cached_size())?;
             v.write_to_with_cached_sizes(os)?;
@@ -1049,10 +1734,10 @@ impl ::protobuf::Message for CreateRequest {
         static descriptor: ::protobuf::rt::LazyV2<::protobuf::reflect::MessageDescriptor> = ::protobuf::rt::LazyV2::INIT;
         descriptor.get(|| {
             let mut fields = ::std::vec::Vec::new();
-            fields.push(::protobuf::reflect::accessor::make_singular_ptr_field_accessor::<_, ::protobuf::types::ProtobufTypeMessage<Service>>(
-                "service",
-                |m: &CreateRequest| { &m.service },
-                |m: &mut CreateRequest| { &mut m.service },
+            fields.push(::protobuf::reflect::accessor::make_singular_ptr_field_accessor::<_, ::protobuf::types::ProtobufTypeMessage<Resource>>(
+                "resource",
+                |m: &CreateRequest| { &m.resource },
+                |m: &mut CreateRequest| { &mut m.resource },
             ));
             fields.push(::protobuf::reflect::accessor::make_singular_ptr_field_accessor::<_, ::protobuf::types::ProtobufTypeMessage<CreateOptions>>(
                 "options",
@@ -1075,7 +1760,7 @@ impl ::protobuf::Message for CreateRequest {
 
 impl ::protobuf::Clear for CreateRequest {
     fn clear(&mut self) {
-        self.service.clear();
+        self.resource.clear();
         self.options.clear();
         self.unknown_fields.clear();
     }
@@ -1996,7 +2681,7 @@ impl ::protobuf::reflect::ProtobufValue for DeleteOptions {
 #[derive(PartialEq,Clone,Default)]
 pub struct DeleteRequest {
     // message fields
-    pub service: ::protobuf::SingularPtrField<Service>,
+    pub resource: ::protobuf::SingularPtrField<Resource>,
     pub options: ::protobuf::SingularPtrField<DeleteOptions>,
     // special fields
     pub unknown_fields: ::protobuf::UnknownFields,
@@ -2014,37 +2699,37 @@ impl DeleteRequest {
         ::std::default::Default::default()
     }
 
-    // .runtime.Service service = 1;
+    // .runtime.Resource resource = 1;
 
 
-    pub fn get_service(&self) -> &Service {
-        self.service.as_ref().unwrap_or_else(|| <Service as ::protobuf::Message>::default_instance())
+    pub fn get_resource(&self) -> &Resource {
+        self.resource.as_ref().unwrap_or_else(|| <Resource as ::protobuf::Message>::default_instance())
     }
-    pub fn clear_service(&mut self) {
-        self.service.clear();
+    pub fn clear_resource(&mut self) {
+        self.resource.clear();
     }
 
-    pub fn has_service(&self) -> bool {
-        self.service.is_some()
+    pub fn has_resource(&self) -> bool {
+        self.resource.is_some()
     }
 
     // Param is passed by value, moved
-    pub fn set_service(&mut self, v: Service) {
-        self.service = ::protobuf::SingularPtrField::some(v);
+    pub fn set_resource(&mut self, v: Resource) {
+        self.resource = ::protobuf::SingularPtrField::some(v);
     }
 
     // Mutable pointer to the field.
     // If field is not initialized, it is initialized with default value first.
-    pub fn mut_service(&mut self) -> &mut Service {
-        if self.service.is_none() {
-            self.service.set_default();
+    pub fn mut_resource(&mut self) -> &mut Resource {
+        if self.resource.is_none() {
+            self.resource.set_default();
         }
-        self.service.as_mut().unwrap()
+        self.resource.as_mut().unwrap()
     }
 
     // Take field
-    pub fn take_service(&mut self) -> Service {
-        self.service.take().unwrap_or_else(|| Service::new())
+    pub fn take_resource(&mut self) -> Resource {
+        self.resource.take().unwrap_or_else(|| Resource::new())
     }
 
     // .runtime.DeleteOptions options = 2;
@@ -2083,7 +2768,7 @@ impl DeleteRequest {
 
 impl ::protobuf::Message for DeleteRequest {
     fn is_initialized(&self) -> bool {
-        for v in &self.service {
+        for v in &self.resource {
             if !v.is_initialized() {
                 return false;
             }
@@ -2101,7 +2786,7 @@ impl ::protobuf::Message for DeleteRequest {
             let (field_number, wire_type) = is.read_tag_unpack()?;
             match field_number {
                 1 => {
-                    ::protobuf::rt::read_singular_message_into(wire_type, is, &mut self.service)?;
+                    ::protobuf::rt::read_singular_message_into(wire_type, is, &mut self.resource)?;
                 },
                 2 => {
                     ::protobuf::rt::read_singular_message_into(wire_type, is, &mut self.options)?;
@@ -2118,7 +2803,7 @@ impl ::protobuf::Message for DeleteRequest {
     #[allow(unused_variables)]
     fn compute_size(&self) -> u32 {
         let mut my_size = 0;
-        if let Some(ref v) = self.service.as_ref() {
+        if let Some(ref v) = self.resource.as_ref() {
             let len = v.compute_size();
             my_size += 1 + ::protobuf::rt::compute_raw_varint32_size(len) + len;
         }
@@ -2132,7 +2817,7 @@ impl ::protobuf::Message for DeleteRequest {
     }
 
     fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::ProtobufResult<()> {
-        if let Some(ref v) = self.service.as_ref() {
+        if let Some(ref v) = self.resource.as_ref() {
             os.write_tag(1, ::protobuf::wire_format::WireTypeLengthDelimited)?;
             os.write_raw_varint32(v.get_cached_size())?;
             v.write_to_with_cached_sizes(os)?;
@@ -2180,10 +2865,10 @@ impl ::protobuf::Message for DeleteRequest {
         static descriptor: ::protobuf::rt::LazyV2<::protobuf::reflect::MessageDescriptor> = ::protobuf::rt::LazyV2::INIT;
         descriptor.get(|| {
             let mut fields = ::std::vec::Vec::new();
-            fields.push(::protobuf::reflect::accessor::make_singular_ptr_field_accessor::<_, ::protobuf::types::ProtobufTypeMessage<Service>>(
-                "service",
-                |m: &DeleteRequest| { &m.service },
-                |m: &mut DeleteRequest| { &mut m.service },
+            fields.push(::protobuf::reflect::accessor::make_singular_ptr_field_accessor::<_, ::protobuf::types::ProtobufTypeMessage<Resource>>(
+                "resource",
+                |m: &DeleteRequest| { &m.resource },
+                |m: &mut DeleteRequest| { &mut m.resource },
             ));
             fields.push(::protobuf::reflect::accessor::make_singular_ptr_field_accessor::<_, ::protobuf::types::ProtobufTypeMessage<DeleteOptions>>(
                 "options",
@@ -2206,7 +2891,7 @@ impl ::protobuf::Message for DeleteRequest {
 
 impl ::protobuf::Clear for DeleteRequest {
     fn clear(&mut self) {
-        self.service.clear();
+        self.resource.clear();
         self.options.clear();
         self.unknown_fields.clear();
     }
@@ -2544,7 +3229,7 @@ impl ::protobuf::reflect::ProtobufValue for UpdateOptions {
 #[derive(PartialEq,Clone,Default)]
 pub struct UpdateRequest {
     // message fields
-    pub service: ::protobuf::SingularPtrField<Service>,
+    pub resource: ::protobuf::SingularPtrField<Resource>,
     pub options: ::protobuf::SingularPtrField<UpdateOptions>,
     // special fields
     pub unknown_fields: ::protobuf::UnknownFields,
@@ -2562,37 +3247,37 @@ impl UpdateRequest {
         ::std::default::Default::default()
     }
 
-    // .runtime.Service service = 1;
+    // .runtime.Resource resource = 1;
 
 
-    pub fn get_service(&self) -> &Service {
-        self.service.as_ref().unwrap_or_else(|| <Service as ::protobuf::Message>::default_instance())
+    pub fn get_resource(&self) -> &Resource {
+        self.resource.as_ref().unwrap_or_else(|| <Resource as ::protobuf::Message>::default_instance())
     }
-    pub fn clear_service(&mut self) {
-        self.service.clear();
+    pub fn clear_resource(&mut self) {
+        self.resource.clear();
     }
 
-    pub fn has_service(&self) -> bool {
-        self.service.is_some()
+    pub fn has_resource(&self) -> bool {
+        self.resource.is_some()
     }
 
     // Param is passed by value, moved
-    pub fn set_service(&mut self, v: Service) {
-        self.service = ::protobuf::SingularPtrField::some(v);
+    pub fn set_resource(&mut self, v: Resource) {
+        self.resource = ::protobuf::SingularPtrField::some(v);
     }
 
     // Mutable pointer to the field.
     // If field is not initialized, it is initialized with default value first.
-    pub fn mut_service(&mut self) -> &mut Service {
-        if self.service.is_none() {
-            self.service.set_default();
+    pub fn mut_resource(&mut self) -> &mut Resource {
+        if self.resource.is_none() {
+            self.resource.set_default();
         }
-        self.service.as_mut().unwrap()
+        self.resource.as_mut().unwrap()
     }
 
     // Take field
-    pub fn take_service(&mut self) -> Service {
-        self.service.take().unwrap_or_else(|| Service::new())
+    pub fn take_resource(&mut self) -> Resource {
+        self.resource.take().unwrap_or_else(|| Resource::new())
     }
 
     // .runtime.UpdateOptions options = 2;
@@ -2631,7 +3316,7 @@ impl UpdateRequest {
 
 impl ::protobuf::Message for UpdateRequest {
     fn is_initialized(&self) -> bool {
-        for v in &self.service {
+        for v in &self.resource {
             if !v.is_initialized() {
                 return false;
             }
@@ -2649,7 +3334,7 @@ impl ::protobuf::Message for UpdateRequest {
             let (field_number, wire_type) = is.read_tag_unpack()?;
             match field_number {
                 1 => {
-                    ::protobuf::rt::read_singular_message_into(wire_type, is, &mut self.service)?;
+                    ::protobuf::rt::read_singular_message_into(wire_type, is, &mut self.resource)?;
                 },
                 2 => {
                     ::protobuf::rt::read_singular_message_into(wire_type, is, &mut self.options)?;
@@ -2666,7 +3351,7 @@ impl ::protobuf::Message for UpdateRequest {
     #[allow(unused_variables)]
     fn compute_size(&self) -> u32 {
         let mut my_size = 0;
-        if let Some(ref v) = self.service.as_ref() {
+        if let Some(ref v) = self.resource.as_ref() {
             let len = v.compute_size();
             my_size += 1 + ::protobuf::rt::compute_raw_varint32_size(len) + len;
         }
@@ -2680,7 +3365,7 @@ impl ::protobuf::Message for UpdateRequest {
     }
 
     fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::ProtobufResult<()> {
-        if let Some(ref v) = self.service.as_ref() {
+        if let Some(ref v) = self.resource.as_ref() {
             os.write_tag(1, ::protobuf::wire_format::WireTypeLengthDelimited)?;
             os.write_raw_varint32(v.get_cached_size())?;
             v.write_to_with_cached_sizes(os)?;
@@ -2728,10 +3413,10 @@ impl ::protobuf::Message for UpdateRequest {
         static descriptor: ::protobuf::rt::LazyV2<::protobuf::reflect::MessageDescriptor> = ::protobuf::rt::LazyV2::INIT;
         descriptor.get(|| {
             let mut fields = ::std::vec::Vec::new();
-            fields.push(::protobuf::reflect::accessor::make_singular_ptr_field_accessor::<_, ::protobuf::types::ProtobufTypeMessage<Service>>(
-                "service",
-                |m: &UpdateRequest| { &m.service },
-                |m: &mut UpdateRequest| { &mut m.service },
+            fields.push(::protobuf::reflect::accessor::make_singular_ptr_field_accessor::<_, ::protobuf::types::ProtobufTypeMessage<Resource>>(
+                "resource",
+                |m: &UpdateRequest| { &m.resource },
+                |m: &mut UpdateRequest| { &mut m.resource },
             ));
             fields.push(::protobuf::reflect::accessor::make_singular_ptr_field_accessor::<_, ::protobuf::types::ProtobufTypeMessage<UpdateOptions>>(
                 "options",
@@ -2754,7 +3439,7 @@ impl ::protobuf::Message for UpdateRequest {
 
 impl ::protobuf::Clear for UpdateRequest {
     fn clear(&mut self) {
-        self.service.clear();
+        self.resource.clear();
         self.options.clear();
         self.unknown_fields.clear();
     }
@@ -4099,556 +4784,6 @@ impl ::protobuf::reflect::ProtobufValue for LogRecord {
 }
 
 #[derive(PartialEq,Clone,Default)]
-pub struct CreateNamespaceRequest {
-    // message fields
-    pub namespace: ::std::string::String,
-    // special fields
-    pub unknown_fields: ::protobuf::UnknownFields,
-    pub cached_size: ::protobuf::CachedSize,
-}
-
-impl<'a> ::std::default::Default for &'a CreateNamespaceRequest {
-    fn default() -> &'a CreateNamespaceRequest {
-        <CreateNamespaceRequest as ::protobuf::Message>::default_instance()
-    }
-}
-
-impl CreateNamespaceRequest {
-    pub fn new() -> CreateNamespaceRequest {
-        ::std::default::Default::default()
-    }
-
-    // string namespace = 1;
-
-
-    pub fn get_namespace(&self) -> &str {
-        &self.namespace
-    }
-    pub fn clear_namespace(&mut self) {
-        self.namespace.clear();
-    }
-
-    // Param is passed by value, moved
-    pub fn set_namespace(&mut self, v: ::std::string::String) {
-        self.namespace = v;
-    }
-
-    // Mutable pointer to the field.
-    // If field is not initialized, it is initialized with default value first.
-    pub fn mut_namespace(&mut self) -> &mut ::std::string::String {
-        &mut self.namespace
-    }
-
-    // Take field
-    pub fn take_namespace(&mut self) -> ::std::string::String {
-        ::std::mem::replace(&mut self.namespace, ::std::string::String::new())
-    }
-}
-
-impl ::protobuf::Message for CreateNamespaceRequest {
-    fn is_initialized(&self) -> bool {
-        true
-    }
-
-    fn merge_from(&mut self, is: &mut ::protobuf::CodedInputStream<'_>) -> ::protobuf::ProtobufResult<()> {
-        while !is.eof()? {
-            let (field_number, wire_type) = is.read_tag_unpack()?;
-            match field_number {
-                1 => {
-                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.namespace)?;
-                },
-                _ => {
-                    ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
-                },
-            };
-        }
-        ::std::result::Result::Ok(())
-    }
-
-    // Compute sizes of nested messages
-    #[allow(unused_variables)]
-    fn compute_size(&self) -> u32 {
-        let mut my_size = 0;
-        if !self.namespace.is_empty() {
-            my_size += ::protobuf::rt::string_size(1, &self.namespace);
-        }
-        my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
-        self.cached_size.set(my_size);
-        my_size
-    }
-
-    fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::ProtobufResult<()> {
-        if !self.namespace.is_empty() {
-            os.write_string(1, &self.namespace)?;
-        }
-        os.write_unknown_fields(self.get_unknown_fields())?;
-        ::std::result::Result::Ok(())
-    }
-
-    fn get_cached_size(&self) -> u32 {
-        self.cached_size.get()
-    }
-
-    fn get_unknown_fields(&self) -> &::protobuf::UnknownFields {
-        &self.unknown_fields
-    }
-
-    fn mut_unknown_fields(&mut self) -> &mut ::protobuf::UnknownFields {
-        &mut self.unknown_fields
-    }
-
-    fn as_any(&self) -> &dyn (::std::any::Any) {
-        self as &dyn (::std::any::Any)
-    }
-    fn as_any_mut(&mut self) -> &mut dyn (::std::any::Any) {
-        self as &mut dyn (::std::any::Any)
-    }
-    fn into_any(self: ::std::boxed::Box<Self>) -> ::std::boxed::Box<dyn (::std::any::Any)> {
-        self
-    }
-
-    fn descriptor(&self) -> &'static ::protobuf::reflect::MessageDescriptor {
-        Self::descriptor_static()
-    }
-
-    fn new() -> CreateNamespaceRequest {
-        CreateNamespaceRequest::new()
-    }
-
-    fn descriptor_static() -> &'static ::protobuf::reflect::MessageDescriptor {
-        static descriptor: ::protobuf::rt::LazyV2<::protobuf::reflect::MessageDescriptor> = ::protobuf::rt::LazyV2::INIT;
-        descriptor.get(|| {
-            let mut fields = ::std::vec::Vec::new();
-            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
-                "namespace",
-                |m: &CreateNamespaceRequest| { &m.namespace },
-                |m: &mut CreateNamespaceRequest| { &mut m.namespace },
-            ));
-            ::protobuf::reflect::MessageDescriptor::new_pb_name::<CreateNamespaceRequest>(
-                "CreateNamespaceRequest",
-                fields,
-                file_descriptor_proto()
-            )
-        })
-    }
-
-    fn default_instance() -> &'static CreateNamespaceRequest {
-        static instance: ::protobuf::rt::LazyV2<CreateNamespaceRequest> = ::protobuf::rt::LazyV2::INIT;
-        instance.get(CreateNamespaceRequest::new)
-    }
-}
-
-impl ::protobuf::Clear for CreateNamespaceRequest {
-    fn clear(&mut self) {
-        self.namespace.clear();
-        self.unknown_fields.clear();
-    }
-}
-
-impl ::std::fmt::Debug for CreateNamespaceRequest {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-        ::protobuf::text_format::fmt(self, f)
-    }
-}
-
-impl ::protobuf::reflect::ProtobufValue for CreateNamespaceRequest {
-    fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
-        ::protobuf::reflect::ReflectValueRef::Message(self)
-    }
-}
-
-#[derive(PartialEq,Clone,Default)]
-pub struct CreateNamespaceResponse {
-    // special fields
-    pub unknown_fields: ::protobuf::UnknownFields,
-    pub cached_size: ::protobuf::CachedSize,
-}
-
-impl<'a> ::std::default::Default for &'a CreateNamespaceResponse {
-    fn default() -> &'a CreateNamespaceResponse {
-        <CreateNamespaceResponse as ::protobuf::Message>::default_instance()
-    }
-}
-
-impl CreateNamespaceResponse {
-    pub fn new() -> CreateNamespaceResponse {
-        ::std::default::Default::default()
-    }
-}
-
-impl ::protobuf::Message for CreateNamespaceResponse {
-    fn is_initialized(&self) -> bool {
-        true
-    }
-
-    fn merge_from(&mut self, is: &mut ::protobuf::CodedInputStream<'_>) -> ::protobuf::ProtobufResult<()> {
-        while !is.eof()? {
-            let (field_number, wire_type) = is.read_tag_unpack()?;
-            match field_number {
-                _ => {
-                    ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
-                },
-            };
-        }
-        ::std::result::Result::Ok(())
-    }
-
-    // Compute sizes of nested messages
-    #[allow(unused_variables)]
-    fn compute_size(&self) -> u32 {
-        let mut my_size = 0;
-        my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
-        self.cached_size.set(my_size);
-        my_size
-    }
-
-    fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::ProtobufResult<()> {
-        os.write_unknown_fields(self.get_unknown_fields())?;
-        ::std::result::Result::Ok(())
-    }
-
-    fn get_cached_size(&self) -> u32 {
-        self.cached_size.get()
-    }
-
-    fn get_unknown_fields(&self) -> &::protobuf::UnknownFields {
-        &self.unknown_fields
-    }
-
-    fn mut_unknown_fields(&mut self) -> &mut ::protobuf::UnknownFields {
-        &mut self.unknown_fields
-    }
-
-    fn as_any(&self) -> &dyn (::std::any::Any) {
-        self as &dyn (::std::any::Any)
-    }
-    fn as_any_mut(&mut self) -> &mut dyn (::std::any::Any) {
-        self as &mut dyn (::std::any::Any)
-    }
-    fn into_any(self: ::std::boxed::Box<Self>) -> ::std::boxed::Box<dyn (::std::any::Any)> {
-        self
-    }
-
-    fn descriptor(&self) -> &'static ::protobuf::reflect::MessageDescriptor {
-        Self::descriptor_static()
-    }
-
-    fn new() -> CreateNamespaceResponse {
-        CreateNamespaceResponse::new()
-    }
-
-    fn descriptor_static() -> &'static ::protobuf::reflect::MessageDescriptor {
-        static descriptor: ::protobuf::rt::LazyV2<::protobuf::reflect::MessageDescriptor> = ::protobuf::rt::LazyV2::INIT;
-        descriptor.get(|| {
-            let fields = ::std::vec::Vec::new();
-            ::protobuf::reflect::MessageDescriptor::new_pb_name::<CreateNamespaceResponse>(
-                "CreateNamespaceResponse",
-                fields,
-                file_descriptor_proto()
-            )
-        })
-    }
-
-    fn default_instance() -> &'static CreateNamespaceResponse {
-        static instance: ::protobuf::rt::LazyV2<CreateNamespaceResponse> = ::protobuf::rt::LazyV2::INIT;
-        instance.get(CreateNamespaceResponse::new)
-    }
-}
-
-impl ::protobuf::Clear for CreateNamespaceResponse {
-    fn clear(&mut self) {
-        self.unknown_fields.clear();
-    }
-}
-
-impl ::std::fmt::Debug for CreateNamespaceResponse {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-        ::protobuf::text_format::fmt(self, f)
-    }
-}
-
-impl ::protobuf::reflect::ProtobufValue for CreateNamespaceResponse {
-    fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
-        ::protobuf::reflect::ReflectValueRef::Message(self)
-    }
-}
-
-#[derive(PartialEq,Clone,Default)]
-pub struct DeleteNamespaceRequest {
-    // message fields
-    pub namespace: ::std::string::String,
-    // special fields
-    pub unknown_fields: ::protobuf::UnknownFields,
-    pub cached_size: ::protobuf::CachedSize,
-}
-
-impl<'a> ::std::default::Default for &'a DeleteNamespaceRequest {
-    fn default() -> &'a DeleteNamespaceRequest {
-        <DeleteNamespaceRequest as ::protobuf::Message>::default_instance()
-    }
-}
-
-impl DeleteNamespaceRequest {
-    pub fn new() -> DeleteNamespaceRequest {
-        ::std::default::Default::default()
-    }
-
-    // string namespace = 1;
-
-
-    pub fn get_namespace(&self) -> &str {
-        &self.namespace
-    }
-    pub fn clear_namespace(&mut self) {
-        self.namespace.clear();
-    }
-
-    // Param is passed by value, moved
-    pub fn set_namespace(&mut self, v: ::std::string::String) {
-        self.namespace = v;
-    }
-
-    // Mutable pointer to the field.
-    // If field is not initialized, it is initialized with default value first.
-    pub fn mut_namespace(&mut self) -> &mut ::std::string::String {
-        &mut self.namespace
-    }
-
-    // Take field
-    pub fn take_namespace(&mut self) -> ::std::string::String {
-        ::std::mem::replace(&mut self.namespace, ::std::string::String::new())
-    }
-}
-
-impl ::protobuf::Message for DeleteNamespaceRequest {
-    fn is_initialized(&self) -> bool {
-        true
-    }
-
-    fn merge_from(&mut self, is: &mut ::protobuf::CodedInputStream<'_>) -> ::protobuf::ProtobufResult<()> {
-        while !is.eof()? {
-            let (field_number, wire_type) = is.read_tag_unpack()?;
-            match field_number {
-                1 => {
-                    ::protobuf::rt::read_singular_proto3_string_into(wire_type, is, &mut self.namespace)?;
-                },
-                _ => {
-                    ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
-                },
-            };
-        }
-        ::std::result::Result::Ok(())
-    }
-
-    // Compute sizes of nested messages
-    #[allow(unused_variables)]
-    fn compute_size(&self) -> u32 {
-        let mut my_size = 0;
-        if !self.namespace.is_empty() {
-            my_size += ::protobuf::rt::string_size(1, &self.namespace);
-        }
-        my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
-        self.cached_size.set(my_size);
-        my_size
-    }
-
-    fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::ProtobufResult<()> {
-        if !self.namespace.is_empty() {
-            os.write_string(1, &self.namespace)?;
-        }
-        os.write_unknown_fields(self.get_unknown_fields())?;
-        ::std::result::Result::Ok(())
-    }
-
-    fn get_cached_size(&self) -> u32 {
-        self.cached_size.get()
-    }
-
-    fn get_unknown_fields(&self) -> &::protobuf::UnknownFields {
-        &self.unknown_fields
-    }
-
-    fn mut_unknown_fields(&mut self) -> &mut ::protobuf::UnknownFields {
-        &mut self.unknown_fields
-    }
-
-    fn as_any(&self) -> &dyn (::std::any::Any) {
-        self as &dyn (::std::any::Any)
-    }
-    fn as_any_mut(&mut self) -> &mut dyn (::std::any::Any) {
-        self as &mut dyn (::std::any::Any)
-    }
-    fn into_any(self: ::std::boxed::Box<Self>) -> ::std::boxed::Box<dyn (::std::any::Any)> {
-        self
-    }
-
-    fn descriptor(&self) -> &'static ::protobuf::reflect::MessageDescriptor {
-        Self::descriptor_static()
-    }
-
-    fn new() -> DeleteNamespaceRequest {
-        DeleteNamespaceRequest::new()
-    }
-
-    fn descriptor_static() -> &'static ::protobuf::reflect::MessageDescriptor {
-        static descriptor: ::protobuf::rt::LazyV2<::protobuf::reflect::MessageDescriptor> = ::protobuf::rt::LazyV2::INIT;
-        descriptor.get(|| {
-            let mut fields = ::std::vec::Vec::new();
-            fields.push(::protobuf::reflect::accessor::make_simple_field_accessor::<_, ::protobuf::types::ProtobufTypeString>(
-                "namespace",
-                |m: &DeleteNamespaceRequest| { &m.namespace },
-                |m: &mut DeleteNamespaceRequest| { &mut m.namespace },
-            ));
-            ::protobuf::reflect::MessageDescriptor::new_pb_name::<DeleteNamespaceRequest>(
-                "DeleteNamespaceRequest",
-                fields,
-                file_descriptor_proto()
-            )
-        })
-    }
-
-    fn default_instance() -> &'static DeleteNamespaceRequest {
-        static instance: ::protobuf::rt::LazyV2<DeleteNamespaceRequest> = ::protobuf::rt::LazyV2::INIT;
-        instance.get(DeleteNamespaceRequest::new)
-    }
-}
-
-impl ::protobuf::Clear for DeleteNamespaceRequest {
-    fn clear(&mut self) {
-        self.namespace.clear();
-        self.unknown_fields.clear();
-    }
-}
-
-impl ::std::fmt::Debug for DeleteNamespaceRequest {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-        ::protobuf::text_format::fmt(self, f)
-    }
-}
-
-impl ::protobuf::reflect::ProtobufValue for DeleteNamespaceRequest {
-    fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
-        ::protobuf::reflect::ReflectValueRef::Message(self)
-    }
-}
-
-#[derive(PartialEq,Clone,Default)]
-pub struct DeleteNamespaceResponse {
-    // special fields
-    pub unknown_fields: ::protobuf::UnknownFields,
-    pub cached_size: ::protobuf::CachedSize,
-}
-
-impl<'a> ::std::default::Default for &'a DeleteNamespaceResponse {
-    fn default() -> &'a DeleteNamespaceResponse {
-        <DeleteNamespaceResponse as ::protobuf::Message>::default_instance()
-    }
-}
-
-impl DeleteNamespaceResponse {
-    pub fn new() -> DeleteNamespaceResponse {
-        ::std::default::Default::default()
-    }
-}
-
-impl ::protobuf::Message for DeleteNamespaceResponse {
-    fn is_initialized(&self) -> bool {
-        true
-    }
-
-    fn merge_from(&mut self, is: &mut ::protobuf::CodedInputStream<'_>) -> ::protobuf::ProtobufResult<()> {
-        while !is.eof()? {
-            let (field_number, wire_type) = is.read_tag_unpack()?;
-            match field_number {
-                _ => {
-                    ::protobuf::rt::read_unknown_or_skip_group(field_number, wire_type, is, self.mut_unknown_fields())?;
-                },
-            };
-        }
-        ::std::result::Result::Ok(())
-    }
-
-    // Compute sizes of nested messages
-    #[allow(unused_variables)]
-    fn compute_size(&self) -> u32 {
-        let mut my_size = 0;
-        my_size += ::protobuf::rt::unknown_fields_size(self.get_unknown_fields());
-        self.cached_size.set(my_size);
-        my_size
-    }
-
-    fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::ProtobufResult<()> {
-        os.write_unknown_fields(self.get_unknown_fields())?;
-        ::std::result::Result::Ok(())
-    }
-
-    fn get_cached_size(&self) -> u32 {
-        self.cached_size.get()
-    }
-
-    fn get_unknown_fields(&self) -> &::protobuf::UnknownFields {
-        &self.unknown_fields
-    }
-
-    fn mut_unknown_fields(&mut self) -> &mut ::protobuf::UnknownFields {
-        &mut self.unknown_fields
-    }
-
-    fn as_any(&self) -> &dyn (::std::any::Any) {
-        self as &dyn (::std::any::Any)
-    }
-    fn as_any_mut(&mut self) -> &mut dyn (::std::any::Any) {
-        self as &mut dyn (::std::any::Any)
-    }
-    fn into_any(self: ::std::boxed::Box<Self>) -> ::std::boxed::Box<dyn (::std::any::Any)> {
-        self
-    }
-
-    fn descriptor(&self) -> &'static ::protobuf::reflect::MessageDescriptor {
-        Self::descriptor_static()
-    }
-
-    fn new() -> DeleteNamespaceResponse {
-        DeleteNamespaceResponse::new()
-    }
-
-    fn descriptor_static() -> &'static ::protobuf::reflect::MessageDescriptor {
-        static descriptor: ::protobuf::rt::LazyV2<::protobuf::reflect::MessageDescriptor> = ::protobuf::rt::LazyV2::INIT;
-        descriptor.get(|| {
-            let fields = ::std::vec::Vec::new();
-            ::protobuf::reflect::MessageDescriptor::new_pb_name::<DeleteNamespaceResponse>(
-                "DeleteNamespaceResponse",
-                fields,
-                file_descriptor_proto()
-            )
-        })
-    }
-
-    fn default_instance() -> &'static DeleteNamespaceResponse {
-        static instance: ::protobuf::rt::LazyV2<DeleteNamespaceResponse> = ::protobuf::rt::LazyV2::INIT;
-        instance.get(DeleteNamespaceResponse::new)
-    }
-}
-
-impl ::protobuf::Clear for DeleteNamespaceResponse {
-    fn clear(&mut self) {
-        self.unknown_fields.clear();
-    }
-}
-
-impl ::std::fmt::Debug for DeleteNamespaceResponse {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-        ::protobuf::text_format::fmt(self, f)
-    }
-}
-
-impl ::protobuf::reflect::ProtobufValue for DeleteNamespaceResponse {
-    fn as_ref(&self) -> ::protobuf::reflect::ReflectValueRef {
-        ::protobuf::reflect::ReflectValueRef::Message(self)
-    }
-}
-
-#[derive(PartialEq,Clone,Default)]
 pub struct UploadRequest {
     // message fields
     pub service: ::protobuf::SingularPtrField<Service>,
@@ -5183,334 +5318,353 @@ impl ::protobuf::reflect::ProtobufValue for BuildReadResponse {
 }
 
 static file_descriptor_proto_data: &'static [u8] = b"\
-    \n\x15runtime/runtime.proto\x12\x07runtime\"\xe0\x01\n\x07Service\x12\
-    \x12\n\x04name\x18\x01\x20\x01(\tR\x04name\x12\x18\n\x07version\x18\x02\
-    \x20\x01(\tR\x07version\x12\x16\n\x06source\x18\x03\x20\x01(\tR\x06sourc\
-    e\x12:\n\x08metadata\x18\x04\x20\x03(\x0b2\x1e.runtime.Service.MetadataE\
-    ntryR\x08metadata\x12\x16\n\x06status\x18\x05\x20\x01(\x05R\x06status\
-    \x1a;\n\rMetadataEntry\x12\x10\n\x03key\x18\x01\x20\x01(\tR\x03key\x12\
-    \x14\n\x05value\x18\x02\x20\x01(\tR\x05value:\x028\x01\"\xc5\x03\n\rCrea\
-    teOptions\x12\x18\n\x07command\x18\x01\x20\x03(\tR\x07command\x12\x12\n\
-    \x04args\x18\x02\x20\x03(\tR\x04args\x12\x10\n\x03env\x18\x03\x20\x03(\t\
-    R\x03env\x12\x16\n\x06output\x18\x04\x20\x01(\tR\x06output\x12\x12\n\x04\
-    type\x18\x05\x20\x01(\tR\x04type\x12\x14\n\x05image\x18\x06\x20\x01(\tR\
-    \x05image\x12\x1c\n\tnamespace\x18\x07\x20\x01(\tR\tnamespace\x12=\n\x07\
-    secrets\x18\x08\x20\x03(\x0b2#.runtime.CreateOptions.SecretsEntryR\x07se\
-    crets\x12\x1e\n\nentrypoint\x18\t\x20\x01(\tR\nentrypoint\x12=\n\x07volu\
-    mes\x18\n\x20\x03(\x0b2#.runtime.CreateOptions.VolumesEntryR\x07volumes\
-    \x1a:\n\x0cSecretsEntry\x12\x10\n\x03key\x18\x01\x20\x01(\tR\x03key\x12\
-    \x14\n\x05value\x18\x02\x20\x01(\tR\x05value:\x028\x01\x1a:\n\x0cVolumes\
-    Entry\x12\x10\n\x03key\x18\x01\x20\x01(\tR\x03key\x12\x14\n\x05value\x18\
-    \x02\x20\x01(\tR\x05value:\x028\x01\"m\n\rCreateRequest\x12*\n\x07servic\
-    e\x18\x01\x20\x01(\x0b2\x10.runtime.ServiceR\x07service\x120\n\x07option\
-    s\x18\x02\x20\x01(\x0b2\x16.runtime.CreateOptionsR\x07options\"\x10\n\
-    \x0eCreateResponse\"s\n\x0bReadOptions\x12\x18\n\x07service\x18\x01\x20\
-    \x01(\tR\x07service\x12\x18\n\x07version\x18\x02\x20\x01(\tR\x07version\
-    \x12\x12\n\x04type\x18\x03\x20\x01(\tR\x04type\x12\x1c\n\tnamespace\x18\
-    \x04\x20\x01(\tR\tnamespace\"=\n\x0bReadRequest\x12.\n\x07options\x18\
-    \x01\x20\x01(\x0b2\x14.runtime.ReadOptionsR\x07options\"<\n\x0cReadRespo\
-    nse\x12,\n\x08services\x18\x01\x20\x03(\x0b2\x10.runtime.ServiceR\x08ser\
-    vices\"-\n\rDeleteOptions\x12\x1c\n\tnamespace\x18\x01\x20\x01(\tR\tname\
-    space\"m\n\rDeleteRequest\x12*\n\x07service\x18\x01\x20\x01(\x0b2\x10.ru\
-    ntime.ServiceR\x07service\x120\n\x07options\x18\x02\x20\x01(\x0b2\x16.ru\
-    ntime.DeleteOptionsR\x07options\"\x10\n\x0eDeleteResponse\"M\n\rUpdateOp\
-    tions\x12\x1c\n\tnamespace\x18\x01\x20\x01(\tR\tnamespace\x12\x1e\n\nent\
-    rypoint\x18\x02\x20\x01(\tR\nentrypoint\"m\n\rUpdateRequest\x12*\n\x07se\
-    rvice\x18\x01\x20\x01(\x0b2\x10.runtime.ServiceR\x07service\x120\n\x07op\
-    tions\x18\x02\x20\x01(\x0b2\x16.runtime.UpdateOptionsR\x07options\"\x10\
-    \n\x0eUpdateResponse\"+\n\x0bListOptions\x12\x1c\n\tnamespace\x18\x01\
-    \x20\x01(\tR\tnamespace\"=\n\x0bListRequest\x12.\n\x07options\x18\x01\
-    \x20\x01(\x0b2\x14.runtime.ListOptionsR\x07options\"<\n\x0cListResponse\
-    \x12,\n\x08services\x18\x01\x20\x03(\x0b2\x10.runtime.ServiceR\x08servic\
-    es\"+\n\x0bLogsOptions\x12\x1c\n\tnamespace\x18\x01\x20\x01(\tR\tnamespa\
-    ce\"\x9b\x01\n\x0bLogsRequest\x12\x18\n\x07service\x18\x01\x20\x01(\tR\
-    \x07service\x12\x16\n\x06stream\x18\x02\x20\x01(\x08R\x06stream\x12\x14\
-    \n\x05count\x18\x03\x20\x01(\x03R\x05count\x12\x14\n\x05since\x18\x04\
-    \x20\x01(\x03R\x05since\x12.\n\x07options\x18\x05\x20\x01(\x0b2\x14.runt\
-    ime.LogsOptionsR\x07options\"\xbe\x01\n\tLogRecord\x12\x1c\n\ttimestamp\
-    \x18\x01\x20\x01(\x03R\ttimestamp\x12<\n\x08metadata\x18\x02\x20\x03(\
-    \x0b2\x20.runtime.LogRecord.MetadataEntryR\x08metadata\x12\x18\n\x07mess\
-    age\x18\x03\x20\x01(\tR\x07message\x1a;\n\rMetadataEntry\x12\x10\n\x03ke\
-    y\x18\x01\x20\x01(\tR\x03key\x12\x14\n\x05value\x18\x02\x20\x01(\tR\x05v\
-    alue:\x028\x01\"6\n\x16CreateNamespaceRequest\x12\x1c\n\tnamespace\x18\
-    \x01\x20\x01(\tR\tnamespace\"\x19\n\x17CreateNamespaceResponse\"6\n\x16D\
-    eleteNamespaceRequest\x12\x1c\n\tnamespace\x18\x01\x20\x01(\tR\tnamespac\
-    e\"\x19\n\x17DeleteNamespaceResponse\"O\n\rUploadRequest\x12*\n\x07servi\
-    ce\x18\x01\x20\x01(\x0b2\x10.runtime.ServiceR\x07service\x12\x12\n\x04da\
-    ta\x18\x02\x20\x01(\x0cR\x04data\"\x20\n\x0eUploadResponse\x12\x0e\n\x02\
-    id\x18\x01\x20\x01(\tR\x02id\"'\n\x11BuildReadResponse\x12\x12\n\x04data\
-    \x18\x01\x20\x01(\x0cR\x04data2\xdd\x03\n\x07Runtime\x12;\n\x06Create\
-    \x12\x16.runtime.CreateRequest\x1a\x17.runtime.CreateResponse\"\0\x125\n\
-    \x04Read\x12\x14.runtime.ReadRequest\x1a\x15.runtime.ReadResponse\"\0\
-    \x12;\n\x06Delete\x12\x16.runtime.DeleteRequest\x1a\x17.runtime.DeleteRe\
-    sponse\"\0\x12;\n\x06Update\x12\x16.runtime.UpdateRequest\x1a\x17.runtim\
-    e.UpdateResponse\"\0\x124\n\x04Logs\x12\x14.runtime.LogsRequest\x1a\x12.\
-    runtime.LogRecord\"\00\x01\x12V\n\x0fCreateNamespace\x12\x1f.runtime.Cre\
-    ateNamespaceRequest\x1a\x20.runtime.CreateNamespaceResponse\"\0\x12V\n\
-    \x0fDeleteNamespace\x12\x1f.runtime.DeleteNamespaceRequest\x1a\x20.runti\
-    me.DeleteNamespaceResponse\"\02G\n\x06Source\x12=\n\x06Upload\x12\x16.ru\
-    ntime.UploadRequest\x1a\x17.runtime.UploadResponse\"\0(\x012A\n\x05Build\
-    \x128\n\x04Read\x12\x10.runtime.Service\x1a\x1a.runtime.BuildReadRespons\
-    e\"\00\x01B1Z/github.com/micro/micro/v3/proto/runtime;runtimeJ\xa00\n\
-    \x07\x12\x05\0\0\xb9\x01\x01\n\x08\n\x01\x0c\x12\x03\0\0\x12\n\x08\n\x01\
-    \x02\x12\x03\x02\x08\x0f\n\x08\n\x01\x08\x12\x03\x04\0F\n\t\n\x02\x08\
-    \x0b\x12\x03\x04\0F\n\n\n\x02\x06\0\x12\x04\x06\0\x0e\x01\n\n\n\x03\x06\
-    \0\x01\x12\x03\x06\x08\x0f\n\x0b\n\x04\x06\0\x02\0\x12\x03\x07\x08=\n\
-    \x0c\n\x05\x06\0\x02\0\x01\x12\x03\x07\x0c\x12\n\x0c\n\x05\x06\0\x02\0\
-    \x02\x12\x03\x07\x13\x20\n\x0c\n\x05\x06\0\x02\0\x03\x12\x03\x07+9\n\x0b\
-    \n\x04\x06\0\x02\x01\x12\x03\x08\x087\n\x0c\n\x05\x06\0\x02\x01\x01\x12\
-    \x03\x08\x0c\x10\n\x0c\n\x05\x06\0\x02\x01\x02\x12\x03\x08\x11\x1c\n\x0c\
-    \n\x05\x06\0\x02\x01\x03\x12\x03\x08'3\n\x0b\n\x04\x06\0\x02\x02\x12\x03\
-    \t\x08=\n\x0c\n\x05\x06\0\x02\x02\x01\x12\x03\t\x0c\x12\n\x0c\n\x05\x06\
-    \0\x02\x02\x02\x12\x03\t\x13\x20\n\x0c\n\x05\x06\0\x02\x02\x03\x12\x03\t\
-    +9\n\x0b\n\x04\x06\0\x02\x03\x12\x03\n\x08=\n\x0c\n\x05\x06\0\x02\x03\
-    \x01\x12\x03\n\x0c\x12\n\x0c\n\x05\x06\0\x02\x03\x02\x12\x03\n\x13\x20\n\
-    \x0c\n\x05\x06\0\x02\x03\x03\x12\x03\n+9\n\x0b\n\x04\x06\0\x02\x04\x12\
-    \x03\x0b\x08;\n\x0c\n\x05\x06\0\x02\x04\x01\x12\x03\x0b\x0c\x10\n\x0c\n\
-    \x05\x06\0\x02\x04\x02\x12\x03\x0b\x11\x1c\n\x0c\n\x05\x06\0\x02\x04\x06\
-    \x12\x03\x0b'-\n\x0c\n\x05\x06\0\x02\x04\x03\x12\x03\x0b.7\n\x0b\n\x04\
-    \x06\0\x02\x05\x12\x03\x0c\x08X\n\x0c\n\x05\x06\0\x02\x05\x01\x12\x03\
-    \x0c\x0c\x1b\n\x0c\n\x05\x06\0\x02\x05\x02\x12\x03\x0c\x1c2\n\x0c\n\x05\
-    \x06\0\x02\x05\x03\x12\x03\x0c=T\n\x0b\n\x04\x06\0\x02\x06\x12\x03\r\x08\
-    X\n\x0c\n\x05\x06\0\x02\x06\x01\x12\x03\r\x0c\x1b\n\x0c\n\x05\x06\0\x02\
-    \x06\x02\x12\x03\r\x1c2\n\x0c\n\x05\x06\0\x02\x06\x03\x12\x03\r=T\n\xa4\
-    \x02\n\x02\x06\x01\x12\x04\x13\0\x15\x01\x1a\x97\x02\x20Source\x20servic\
-    e\x20is\x20used\x20by\x20the\x20CLI\x20to\x20upload\x20source\x20to\x20t\
-    he\x20service.\x20The\x20service\x20will\x20return\n\x20a\x20unique\x20I\
-    D\x20representing\x20the\x20location\x20of\x20that\x20source.\x20This\
-    \x20ID\x20can\x20then\x20be\x20used\x20as\x20a\x20source\n\x20for\x20the\
-    \x20service\x20when\x20doing\x20Runtime.Create.\x20The\x20server\x20will\
-    \x20handle\x20cleanup\x20of\x20uploaded\x20source.\n\n\n\n\x03\x06\x01\
-    \x01\x12\x03\x13\x08\x0e\n\x0b\n\x04\x06\x01\x02\0\x12\x03\x14\x08D\n\
-    \x0c\n\x05\x06\x01\x02\0\x01\x12\x03\x14\x0c\x12\n\x0c\n\x05\x06\x01\x02\
-    \0\x05\x12\x03\x14\x13\x19\n\x0c\n\x05\x06\x01\x02\0\x02\x12\x03\x14\x1a\
-    '\n\x0c\n\x05\x06\x01\x02\0\x03\x12\x03\x142@\n\xe1\x01\n\x02\x06\x02\
-    \x12\x04\x1a\0\x1c\x01\x1a\xd4\x01\x20Build\x20service\x20is\x20used\x20\
-    by\x20containers\x20to\x20download\x20prebuilt\x20binaries.\x20The\x20cl\
-    ient\x20will\x20pass\x20the\x20\n\x20service\x20(name\x20and\x20version\
-    \x20are\x20required\x20attributed)\x20and\x20the\x20server\x20will\x20th\
-    en\x20stream\x20the\x20latest\n\x20binary\x20to\x20the\x20client.\n\n\n\
-    \n\x03\x06\x02\x01\x12\x03\x1a\x08\r\n\x0b\n\x04\x06\x02\x02\0\x12\x03\
-    \x1b\x08?\n\x0c\n\x05\x06\x02\x02\0\x01\x12\x03\x1b\x0c\x10\n\x0c\n\x05\
-    \x06\x02\x02\0\x02\x12\x03\x1b\x11\x18\n\x0c\n\x05\x06\x02\x02\0\x06\x12\
-    \x03\x1b#)\n\x0c\n\x05\x06\x02\x02\0\x03\x12\x03\x1b*;\n\n\n\x02\x04\0\
-    \x12\x04\x1e\0)\x01\n\n\n\x03\x04\0\x01\x12\x03\x1e\x08\x0f\n\"\n\x04\
-    \x04\0\x02\0\x12\x03\x20\x08\x18\x1a\x15\x20name\x20of\x20the\x20service\
-    \n\n\r\n\x05\x04\0\x02\0\x04\x12\x04\x20\x08\x1e\x11\n\x0c\n\x05\x04\0\
-    \x02\0\x05\x12\x03\x20\x08\x0e\n\x0c\n\x05\x04\0\x02\0\x01\x12\x03\x20\
-    \x0f\x13\n\x0c\n\x05\x04\0\x02\0\x03\x12\x03\x20\x16\x17\n%\n\x04\x04\0\
-    \x02\x01\x12\x03\"\x08\x1b\x1a\x18\x20version\x20of\x20the\x20service\n\
-    \n\r\n\x05\x04\0\x02\x01\x04\x12\x04\"\x08\x20\x18\n\x0c\n\x05\x04\0\x02\
-    \x01\x05\x12\x03\"\x08\x0e\n\x0c\n\x05\x04\0\x02\x01\x01\x12\x03\"\x0f\
-    \x16\n\x0c\n\x05\x04\0\x02\x01\x03\x12\x03\"\x19\x1a\n$\n\x04\x04\0\x02\
-    \x02\x12\x03$\x08\x1a\x1a\x17\x20git\x20url\x20of\x20the\x20source\n\n\r\
-    \n\x05\x04\0\x02\x02\x04\x12\x04$\x08\"\x1b\n\x0c\n\x05\x04\0\x02\x02\
-    \x05\x12\x03$\x08\x0e\n\x0c\n\x05\x04\0\x02\x02\x01\x12\x03$\x0f\x15\n\
-    \x0c\n\x05\x04\0\x02\x02\x03\x12\x03$\x18\x19\n\x1f\n\x04\x04\0\x02\x03\
-    \x12\x03&\x08(\x1a\x12\x20service\x20metadata\n\n\r\n\x05\x04\0\x02\x03\
-    \x04\x12\x04&\x08$\x1a\n\x0c\n\x05\x04\0\x02\x03\x06\x12\x03&\x08\x1a\n\
-    \x0c\n\x05\x04\0\x02\x03\x01\x12\x03&\x1b#\n\x0c\n\x05\x04\0\x02\x03\x03\
-    \x12\x03&&'\n$\n\x04\x04\0\x02\x04\x12\x03(\x08\x19\x1a\x17\x20status\
-    \x20of\x20the\x20service\n\n\r\n\x05\x04\0\x02\x04\x04\x12\x04(\x08&(\n\
-    \x0c\n\x05\x04\0\x02\x04\x05\x12\x03(\x08\r\n\x0c\n\x05\x04\0\x02\x04\
-    \x01\x12\x03(\x0e\x14\n\x0c\n\x05\x04\0\x02\x04\x03\x12\x03(\x17\x18\n\n\
-    \n\x02\x04\x01\x12\x04+\0@\x01\n\n\n\x03\x04\x01\x01\x12\x03+\x08\x15\n!\
-    \n\x04\x04\x01\x02\0\x12\x03-\x08$\x1a\x14\x20command\x20to\x20pass\x20i\
-    n\n\n\x0c\n\x05\x04\x01\x02\0\x04\x12\x03-\x08\x10\n\x0c\n\x05\x04\x01\
-    \x02\0\x05\x12\x03-\x11\x17\n\x0c\n\x05\x04\x01\x02\0\x01\x12\x03-\x18\
-    \x1f\n\x0c\n\x05\x04\x01\x02\0\x03\x12\x03-\"#\n(\n\x04\x04\x01\x02\x01\
-    \x12\x03/\x08!\x1a\x1b\x20args\x20to\x20pass\x20into\x20command\n\n\x0c\
-    \n\x05\x04\x01\x02\x01\x04\x12\x03/\x08\x10\n\x0c\n\x05\x04\x01\x02\x01\
-    \x05\x12\x03/\x11\x17\n\x0c\n\x05\x04\x01\x02\x01\x01\x12\x03/\x18\x1c\n\
-    \x0c\n\x05\x04\x01\x02\x01\x03\x12\x03/\x1f\x20\n%\n\x04\x04\x01\x02\x02\
-    \x12\x031\x08\x20\x1a\x18\x20environment\x20to\x20pass\x20in\n\n\x0c\n\
-    \x05\x04\x01\x02\x02\x04\x12\x031\x08\x10\n\x0c\n\x05\x04\x01\x02\x02\
-    \x05\x12\x031\x11\x17\n\x0c\n\x05\x04\x01\x02\x02\x01\x12\x031\x18\x1b\n\
-    \x0c\n\x05\x04\x01\x02\x02\x03\x12\x031\x1e\x1f\n\x20\n\x04\x04\x01\x02\
-    \x03\x12\x033\x08\x1a\x1a\x13\x20output\x20to\x20send\x20to\n\n\r\n\x05\
-    \x04\x01\x02\x03\x04\x12\x043\x081\x20\n\x0c\n\x05\x04\x01\x02\x03\x05\
-    \x12\x033\x08\x0e\n\x0c\n\x05\x04\x01\x02\x03\x01\x12\x033\x0f\x15\n\x0c\
-    \n\x05\x04\x01\x02\x03\x03\x12\x033\x18\x19\n%\n\x04\x04\x01\x02\x04\x12\
-    \x035\x08\x18\x1a\x18\x20create\x20type\x20of\x20service\n\n\r\n\x05\x04\
-    \x01\x02\x04\x04\x12\x045\x083\x1a\n\x0c\n\x05\x04\x01\x02\x04\x05\x12\
-    \x035\x08\x0e\n\x0c\n\x05\x04\x01\x02\x04\x01\x12\x035\x0f\x13\n\x0c\n\
-    \x05\x04\x01\x02\x04\x03\x12\x035\x16\x17\n\x1b\n\x04\x04\x01\x02\x05\
-    \x12\x037\x08\x19\x1a\x0e\x20image\x20to\x20use\n\n\r\n\x05\x04\x01\x02\
-    \x05\x04\x12\x047\x085\x18\n\x0c\n\x05\x04\x01\x02\x05\x05\x12\x037\x08\
-    \x0e\n\x0c\n\x05\x04\x01\x02\x05\x01\x12\x037\x0f\x14\n\x0c\n\x05\x04\
-    \x01\x02\x05\x03\x12\x037\x17\x18\n1\n\x04\x04\x01\x02\x06\x12\x039\x08\
+    \n\x15runtime/runtime.proto\x12\x07runtime\"\xa6\x01\n\x08Resource\x120\
+    \n\tnamespace\x18\x01\x20\x01(\x0b2\x12.runtime.NamespaceR\tnamespace\
+    \x12<\n\rnetworkpolicy\x18\x02\x20\x01(\x0b2\x16.runtime.NetworkPolicyR\
+    \rnetworkpolicy\x12*\n\x07service\x18\x03\x20\x01(\x0b2\x10.runtime.Serv\
+    iceR\x07service\"\x1f\n\tNamespace\x12\x12\n\x04name\x18\x01\x20\x01(\tR\
+    \x04name\"\xd4\x01\n\rNetworkPolicy\x12O\n\rallowedlabels\x18\x01\x20\
+    \x03(\x0b2).runtime.NetworkPolicy.AllowedlabelsEntryR\rallowedlabels\x12\
+    \x12\n\x04name\x18\x02\x20\x01(\tR\x04name\x12\x1c\n\tnamespace\x18\x03\
+    \x20\x01(\tR\tnamespace\x1a@\n\x12AllowedlabelsEntry\x12\x10\n\x03key\
+    \x18\x01\x20\x01(\tR\x03key\x12\x14\n\x05value\x18\x02\x20\x01(\tR\x05va\
+    lue:\x028\x01\"\xe0\x01\n\x07Service\x12\x12\n\x04name\x18\x01\x20\x01(\
+    \tR\x04name\x12\x18\n\x07version\x18\x02\x20\x01(\tR\x07version\x12\x16\
+    \n\x06source\x18\x03\x20\x01(\tR\x06source\x12:\n\x08metadata\x18\x04\
+    \x20\x03(\x0b2\x1e.runtime.Service.MetadataEntryR\x08metadata\x12\x16\n\
+    \x06status\x18\x05\x20\x01(\x05R\x06status\x1a;\n\rMetadataEntry\x12\x10\
+    \n\x03key\x18\x01\x20\x01(\tR\x03key\x12\x14\n\x05value\x18\x02\x20\x01(\
+    \tR\x05value:\x028\x01\"\xc5\x03\n\rCreateOptions\x12\x18\n\x07command\
+    \x18\x01\x20\x03(\tR\x07command\x12\x12\n\x04args\x18\x02\x20\x03(\tR\
+    \x04args\x12\x10\n\x03env\x18\x03\x20\x03(\tR\x03env\x12\x16\n\x06output\
+    \x18\x04\x20\x01(\tR\x06output\x12\x12\n\x04type\x18\x05\x20\x01(\tR\x04\
+    type\x12\x14\n\x05image\x18\x06\x20\x01(\tR\x05image\x12\x1c\n\tnamespac\
+    e\x18\x07\x20\x01(\tR\tnamespace\x12=\n\x07secrets\x18\x08\x20\x03(\x0b2\
+    #.runtime.CreateOptions.SecretsEntryR\x07secrets\x12\x1e\n\nentrypoint\
+    \x18\t\x20\x01(\tR\nentrypoint\x12=\n\x07volumes\x18\n\x20\x03(\x0b2#.ru\
+    ntime.CreateOptions.VolumesEntryR\x07volumes\x1a:\n\x0cSecretsEntry\x12\
+    \x10\n\x03key\x18\x01\x20\x01(\tR\x03key\x12\x14\n\x05value\x18\x02\x20\
+    \x01(\tR\x05value:\x028\x01\x1a:\n\x0cVolumesEntry\x12\x10\n\x03key\x18\
+    \x01\x20\x01(\tR\x03key\x12\x14\n\x05value\x18\x02\x20\x01(\tR\x05value:\
+    \x028\x01\"p\n\rCreateRequest\x12-\n\x08resource\x18\x01\x20\x01(\x0b2\
+    \x11.runtime.ResourceR\x08resource\x120\n\x07options\x18\x02\x20\x01(\
+    \x0b2\x16.runtime.CreateOptionsR\x07options\"\x10\n\x0eCreateResponse\"s\
+    \n\x0bReadOptions\x12\x18\n\x07service\x18\x01\x20\x01(\tR\x07service\
+    \x12\x18\n\x07version\x18\x02\x20\x01(\tR\x07version\x12\x12\n\x04type\
+    \x18\x03\x20\x01(\tR\x04type\x12\x1c\n\tnamespace\x18\x04\x20\x01(\tR\tn\
+    amespace\"=\n\x0bReadRequest\x12.\n\x07options\x18\x01\x20\x01(\x0b2\x14\
+    .runtime.ReadOptionsR\x07options\"<\n\x0cReadResponse\x12,\n\x08services\
+    \x18\x01\x20\x03(\x0b2\x10.runtime.ServiceR\x08services\"-\n\rDeleteOpti\
+    ons\x12\x1c\n\tnamespace\x18\x01\x20\x01(\tR\tnamespace\"p\n\rDeleteRequ\
+    est\x12-\n\x08resource\x18\x01\x20\x01(\x0b2\x11.runtime.ResourceR\x08re\
+    source\x120\n\x07options\x18\x02\x20\x01(\x0b2\x16.runtime.DeleteOptions\
+    R\x07options\"\x10\n\x0eDeleteResponse\"M\n\rUpdateOptions\x12\x1c\n\tna\
+    mespace\x18\x01\x20\x01(\tR\tnamespace\x12\x1e\n\nentrypoint\x18\x02\x20\
+    \x01(\tR\nentrypoint\"p\n\rUpdateRequest\x12-\n\x08resource\x18\x01\x20\
+    \x01(\x0b2\x11.runtime.ResourceR\x08resource\x120\n\x07options\x18\x02\
+    \x20\x01(\x0b2\x16.runtime.UpdateOptionsR\x07options\"\x10\n\x0eUpdateRe\
+    sponse\"+\n\x0bListOptions\x12\x1c\n\tnamespace\x18\x01\x20\x01(\tR\tnam\
+    espace\"=\n\x0bListRequest\x12.\n\x07options\x18\x01\x20\x01(\x0b2\x14.r\
+    untime.ListOptionsR\x07options\"<\n\x0cListResponse\x12,\n\x08services\
+    \x18\x01\x20\x03(\x0b2\x10.runtime.ServiceR\x08services\"+\n\x0bLogsOpti\
+    ons\x12\x1c\n\tnamespace\x18\x01\x20\x01(\tR\tnamespace\"\x9b\x01\n\x0bL\
+    ogsRequest\x12\x18\n\x07service\x18\x01\x20\x01(\tR\x07service\x12\x16\n\
+    \x06stream\x18\x02\x20\x01(\x08R\x06stream\x12\x14\n\x05count\x18\x03\
+    \x20\x01(\x03R\x05count\x12\x14\n\x05since\x18\x04\x20\x01(\x03R\x05sinc\
+    e\x12.\n\x07options\x18\x05\x20\x01(\x0b2\x14.runtime.LogsOptionsR\x07op\
+    tions\"\xbe\x01\n\tLogRecord\x12\x1c\n\ttimestamp\x18\x01\x20\x01(\x03R\
+    \ttimestamp\x12<\n\x08metadata\x18\x02\x20\x03(\x0b2\x20.runtime.LogReco\
+    rd.MetadataEntryR\x08metadata\x12\x18\n\x07message\x18\x03\x20\x01(\tR\
+    \x07message\x1a;\n\rMetadataEntry\x12\x10\n\x03key\x18\x01\x20\x01(\tR\
+    \x03key\x12\x14\n\x05value\x18\x02\x20\x01(\tR\x05value:\x028\x01\"O\n\r\
+    UploadRequest\x12*\n\x07service\x18\x01\x20\x01(\x0b2\x10.runtime.Servic\
+    eR\x07service\x12\x12\n\x04data\x18\x02\x20\x01(\x0cR\x04data\"\x20\n\
+    \x0eUploadResponse\x12\x0e\n\x02id\x18\x01\x20\x01(\tR\x02id\"'\n\x11Bui\
+    ldReadResponse\x12\x12\n\x04data\x18\x01\x20\x01(\x0cR\x04data2\xad\x02\
+    \n\x07Runtime\x12;\n\x06Create\x12\x16.runtime.CreateRequest\x1a\x17.run\
+    time.CreateResponse\"\0\x125\n\x04Read\x12\x14.runtime.ReadRequest\x1a\
+    \x15.runtime.ReadResponse\"\0\x12;\n\x06Delete\x12\x16.runtime.DeleteReq\
+    uest\x1a\x17.runtime.DeleteResponse\"\0\x12;\n\x06Update\x12\x16.runtime\
+    .UpdateRequest\x1a\x17.runtime.UpdateResponse\"\0\x124\n\x04Logs\x12\x14\
+    .runtime.LogsRequest\x1a\x12.runtime.LogRecord\"\00\x012G\n\x06Source\
+    \x12=\n\x06Upload\x12\x16.runtime.UploadRequest\x1a\x17.runtime.UploadRe\
+    sponse\"\0(\x012A\n\x05Build\x128\n\x04Read\x12\x10.runtime.Service\x1a\
+    \x1a.runtime.BuildReadResponse\"\00\x01B1Z/github.com/micro/micro/v3/pro\
+    to/runtime;runtimeJ\xde2\n\x07\x12\x05\0\0\xbd\x01\x01\n\x08\n\x01\x0c\
+    \x12\x03\0\0\x12\n\x08\n\x01\x02\x12\x03\x02\x08\x0f\n\x08\n\x01\x08\x12\
+    \x03\x04\0F\n\t\n\x02\x08\x0b\x12\x03\x04\0F\n\n\n\x02\x06\0\x12\x04\x06\
+    \0\x0c\x01\n\n\n\x03\x06\0\x01\x12\x03\x06\x08\x0f\n\x0b\n\x04\x06\0\x02\
+    \0\x12\x03\x07\x08=\n\x0c\n\x05\x06\0\x02\0\x01\x12\x03\x07\x0c\x12\n\
+    \x0c\n\x05\x06\0\x02\0\x02\x12\x03\x07\x13\x20\n\x0c\n\x05\x06\0\x02\0\
+    \x03\x12\x03\x07+9\n\x0b\n\x04\x06\0\x02\x01\x12\x03\x08\x087\n\x0c\n\
+    \x05\x06\0\x02\x01\x01\x12\x03\x08\x0c\x10\n\x0c\n\x05\x06\0\x02\x01\x02\
+    \x12\x03\x08\x11\x1c\n\x0c\n\x05\x06\0\x02\x01\x03\x12\x03\x08'3\n\x0b\n\
+    \x04\x06\0\x02\x02\x12\x03\t\x08=\n\x0c\n\x05\x06\0\x02\x02\x01\x12\x03\
+    \t\x0c\x12\n\x0c\n\x05\x06\0\x02\x02\x02\x12\x03\t\x13\x20\n\x0c\n\x05\
+    \x06\0\x02\x02\x03\x12\x03\t+9\n\x0b\n\x04\x06\0\x02\x03\x12\x03\n\x08=\
+    \n\x0c\n\x05\x06\0\x02\x03\x01\x12\x03\n\x0c\x12\n\x0c\n\x05\x06\0\x02\
+    \x03\x02\x12\x03\n\x13\x20\n\x0c\n\x05\x06\0\x02\x03\x03\x12\x03\n+9\n\
+    \x0b\n\x04\x06\0\x02\x04\x12\x03\x0b\x08;\n\x0c\n\x05\x06\0\x02\x04\x01\
+    \x12\x03\x0b\x0c\x10\n\x0c\n\x05\x06\0\x02\x04\x02\x12\x03\x0b\x11\x1c\n\
+    \x0c\n\x05\x06\0\x02\x04\x06\x12\x03\x0b'-\n\x0c\n\x05\x06\0\x02\x04\x03\
+    \x12\x03\x0b.7\n\n\n\x02\x04\0\x12\x04\x0e\0\x12\x01\n\n\n\x03\x04\0\x01\
+    \x12\x03\x0e\x08\x10\n\x0b\n\x04\x04\0\x02\0\x12\x03\x0f\x08\x20\n\r\n\
+    \x05\x04\0\x02\0\x04\x12\x04\x0f\x08\x0e\x12\n\x0c\n\x05\x04\0\x02\0\x06\
+    \x12\x03\x0f\x08\x11\n\x0c\n\x05\x04\0\x02\0\x01\x12\x03\x0f\x12\x1b\n\
+    \x0c\n\x05\x04\0\x02\0\x03\x12\x03\x0f\x1e\x1f\n\x0b\n\x04\x04\0\x02\x01\
+    \x12\x03\x10\x08(\n\r\n\x05\x04\0\x02\x01\x04\x12\x04\x10\x08\x0f\x20\n\
+    \x0c\n\x05\x04\0\x02\x01\x06\x12\x03\x10\x08\x15\n\x0c\n\x05\x04\0\x02\
+    \x01\x01\x12\x03\x10\x16#\n\x0c\n\x05\x04\0\x02\x01\x03\x12\x03\x10&'\n\
+    \x0b\n\x04\x04\0\x02\x02\x12\x03\x11\x08\x1c\n\r\n\x05\x04\0\x02\x02\x04\
+    \x12\x04\x11\x08\x10(\n\x0c\n\x05\x04\0\x02\x02\x06\x12\x03\x11\x08\x0f\
+    \n\x0c\n\x05\x04\0\x02\x02\x01\x12\x03\x11\x10\x17\n\x0c\n\x05\x04\0\x02\
+    \x02\x03\x12\x03\x11\x1a\x1b\n\n\n\x02\x04\x01\x12\x04\x14\0\x17\x01\n\n\
+    \n\x03\x04\x01\x01\x12\x03\x14\x08\x11\n$\n\x04\x04\x01\x02\0\x12\x03\
+    \x16\x08\x18\x1a\x17\x20name\x20of\x20the\x20namespace\n\n\r\n\x05\x04\
+    \x01\x02\0\x04\x12\x04\x16\x08\x14\x13\n\x0c\n\x05\x04\x01\x02\0\x05\x12\
+    \x03\x16\x08\x0e\n\x0c\n\x05\x04\x01\x02\0\x01\x12\x03\x16\x0f\x13\n\x0c\
+    \n\x05\x04\x01\x02\0\x03\x12\x03\x16\x16\x17\n\n\n\x02\x04\x02\x12\x04\
+    \x19\0\x20\x01\n\n\n\x03\x04\x02\x01\x12\x03\x19\x08\x15\n8\n\x04\x04\
+    \x02\x02\0\x12\x03\x1b\x08-\x1a+\x20the\x20labels\x20allowed\x20ingress\
+    \x20by\x20this\x20policy\n\n\r\n\x05\x04\x02\x02\0\x04\x12\x04\x1b\x08\
+    \x19\x17\n\x0c\n\x05\x04\x02\x02\0\x06\x12\x03\x1b\x08\x1a\n\x0c\n\x05\
+    \x04\x02\x02\0\x01\x12\x03\x1b\x1b(\n\x0c\n\x05\x04\x02\x02\0\x03\x12\
+    \x03\x1b+,\n)\n\x04\x04\x02\x02\x01\x12\x03\x1d\x08\x18\x1a\x1c\x20name\
+    \x20of\x20the\x20network\x20policy\n\n\r\n\x05\x04\x02\x02\x01\x04\x12\
+    \x04\x1d\x08\x1b-\n\x0c\n\x05\x04\x02\x02\x01\x05\x12\x03\x1d\x08\x0e\n\
+    \x0c\n\x05\x04\x02\x02\x01\x01\x12\x03\x1d\x0f\x13\n\x0c\n\x05\x04\x02\
+    \x02\x01\x03\x12\x03\x1d\x16\x17\n6\n\x04\x04\x02\x02\x02\x12\x03\x1f\
+    \x08\x1d\x1a)\x20namespace\x20the\x20network\x20policy\x20belongs\x20to\
+    \n\n\r\n\x05\x04\x02\x02\x02\x04\x12\x04\x1f\x08\x1d\x18\n\x0c\n\x05\x04\
+    \x02\x02\x02\x05\x12\x03\x1f\x08\x0e\n\x0c\n\x05\x04\x02\x02\x02\x01\x12\
+    \x03\x1f\x0f\x18\n\x0c\n\x05\x04\x02\x02\x02\x03\x12\x03\x1f\x1b\x1c\n\
+    \xa4\x02\n\x02\x06\x01\x12\x04%\0'\x01\x1a\x97\x02\x20Source\x20service\
+    \x20is\x20used\x20by\x20the\x20CLI\x20to\x20upload\x20source\x20to\x20th\
+    e\x20service.\x20The\x20service\x20will\x20return\n\x20a\x20unique\x20ID\
+    \x20representing\x20the\x20location\x20of\x20that\x20source.\x20This\x20\
+    ID\x20can\x20then\x20be\x20used\x20as\x20a\x20source\n\x20for\x20the\x20\
+    service\x20when\x20doing\x20Runtime.Create.\x20The\x20server\x20will\x20\
+    handle\x20cleanup\x20of\x20uploaded\x20source.\n\n\n\n\x03\x06\x01\x01\
+    \x12\x03%\x08\x0e\n\x0b\n\x04\x06\x01\x02\0\x12\x03&\x08D\n\x0c\n\x05\
+    \x06\x01\x02\0\x01\x12\x03&\x0c\x12\n\x0c\n\x05\x06\x01\x02\0\x05\x12\
+    \x03&\x13\x19\n\x0c\n\x05\x06\x01\x02\0\x02\x12\x03&\x1a'\n\x0c\n\x05\
+    \x06\x01\x02\0\x03\x12\x03&2@\n\xe1\x01\n\x02\x06\x02\x12\x04,\0.\x01\
+    \x1a\xd4\x01\x20Build\x20service\x20is\x20used\x20by\x20containers\x20to\
+    \x20download\x20prebuilt\x20binaries.\x20The\x20client\x20will\x20pass\
+    \x20the\x20\n\x20service\x20(name\x20and\x20version\x20are\x20required\
+    \x20attributed)\x20and\x20the\x20server\x20will\x20then\x20stream\x20the\
+    \x20latest\n\x20binary\x20to\x20the\x20client.\n\n\n\n\x03\x06\x02\x01\
+    \x12\x03,\x08\r\n\x0b\n\x04\x06\x02\x02\0\x12\x03-\x08?\n\x0c\n\x05\x06\
+    \x02\x02\0\x01\x12\x03-\x0c\x10\n\x0c\n\x05\x06\x02\x02\0\x02\x12\x03-\
+    \x11\x18\n\x0c\n\x05\x06\x02\x02\0\x06\x12\x03-#)\n\x0c\n\x05\x06\x02\
+    \x02\0\x03\x12\x03-*;\n\n\n\x02\x04\x03\x12\x040\0;\x01\n\n\n\x03\x04\
+    \x03\x01\x12\x030\x08\x0f\n\"\n\x04\x04\x03\x02\0\x12\x032\x08\x18\x1a\
+    \x15\x20name\x20of\x20the\x20service\n\n\r\n\x05\x04\x03\x02\0\x04\x12\
+    \x042\x080\x11\n\x0c\n\x05\x04\x03\x02\0\x05\x12\x032\x08\x0e\n\x0c\n\
+    \x05\x04\x03\x02\0\x01\x12\x032\x0f\x13\n\x0c\n\x05\x04\x03\x02\0\x03\
+    \x12\x032\x16\x17\n%\n\x04\x04\x03\x02\x01\x12\x034\x08\x1b\x1a\x18\x20v\
+    ersion\x20of\x20the\x20service\n\n\r\n\x05\x04\x03\x02\x01\x04\x12\x044\
+    \x082\x18\n\x0c\n\x05\x04\x03\x02\x01\x05\x12\x034\x08\x0e\n\x0c\n\x05\
+    \x04\x03\x02\x01\x01\x12\x034\x0f\x16\n\x0c\n\x05\x04\x03\x02\x01\x03\
+    \x12\x034\x19\x1a\n$\n\x04\x04\x03\x02\x02\x12\x036\x08\x1a\x1a\x17\x20g\
+    it\x20url\x20of\x20the\x20source\n\n\r\n\x05\x04\x03\x02\x02\x04\x12\x04\
+    6\x084\x1b\n\x0c\n\x05\x04\x03\x02\x02\x05\x12\x036\x08\x0e\n\x0c\n\x05\
+    \x04\x03\x02\x02\x01\x12\x036\x0f\x15\n\x0c\n\x05\x04\x03\x02\x02\x03\
+    \x12\x036\x18\x19\n\x1f\n\x04\x04\x03\x02\x03\x12\x038\x08(\x1a\x12\x20s\
+    ervice\x20metadata\n\n\r\n\x05\x04\x03\x02\x03\x04\x12\x048\x086\x1a\n\
+    \x0c\n\x05\x04\x03\x02\x03\x06\x12\x038\x08\x1a\n\x0c\n\x05\x04\x03\x02\
+    \x03\x01\x12\x038\x1b#\n\x0c\n\x05\x04\x03\x02\x03\x03\x12\x038&'\n$\n\
+    \x04\x04\x03\x02\x04\x12\x03:\x08\x19\x1a\x17\x20status\x20of\x20the\x20\
+    service\n\n\r\n\x05\x04\x03\x02\x04\x04\x12\x04:\x088(\n\x0c\n\x05\x04\
+    \x03\x02\x04\x05\x12\x03:\x08\r\n\x0c\n\x05\x04\x03\x02\x04\x01\x12\x03:\
+    \x0e\x14\n\x0c\n\x05\x04\x03\x02\x04\x03\x12\x03:\x17\x18\n\n\n\x02\x04\
+    \x04\x12\x04=\0R\x01\n\n\n\x03\x04\x04\x01\x12\x03=\x08\x15\n!\n\x04\x04\
+    \x04\x02\0\x12\x03?\x08$\x1a\x14\x20command\x20to\x20pass\x20in\n\n\x0c\
+    \n\x05\x04\x04\x02\0\x04\x12\x03?\x08\x10\n\x0c\n\x05\x04\x04\x02\0\x05\
+    \x12\x03?\x11\x17\n\x0c\n\x05\x04\x04\x02\0\x01\x12\x03?\x18\x1f\n\x0c\n\
+    \x05\x04\x04\x02\0\x03\x12\x03?\"#\n(\n\x04\x04\x04\x02\x01\x12\x03A\x08\
+    !\x1a\x1b\x20args\x20to\x20pass\x20into\x20command\n\n\x0c\n\x05\x04\x04\
+    \x02\x01\x04\x12\x03A\x08\x10\n\x0c\n\x05\x04\x04\x02\x01\x05\x12\x03A\
+    \x11\x17\n\x0c\n\x05\x04\x04\x02\x01\x01\x12\x03A\x18\x1c\n\x0c\n\x05\
+    \x04\x04\x02\x01\x03\x12\x03A\x1f\x20\n%\n\x04\x04\x04\x02\x02\x12\x03C\
+    \x08\x20\x1a\x18\x20environment\x20to\x20pass\x20in\n\n\x0c\n\x05\x04\
+    \x04\x02\x02\x04\x12\x03C\x08\x10\n\x0c\n\x05\x04\x04\x02\x02\x05\x12\
+    \x03C\x11\x17\n\x0c\n\x05\x04\x04\x02\x02\x01\x12\x03C\x18\x1b\n\x0c\n\
+    \x05\x04\x04\x02\x02\x03\x12\x03C\x1e\x1f\n\x20\n\x04\x04\x04\x02\x03\
+    \x12\x03E\x08\x1a\x1a\x13\x20output\x20to\x20send\x20to\n\n\r\n\x05\x04\
+    \x04\x02\x03\x04\x12\x04E\x08C\x20\n\x0c\n\x05\x04\x04\x02\x03\x05\x12\
+    \x03E\x08\x0e\n\x0c\n\x05\x04\x04\x02\x03\x01\x12\x03E\x0f\x15\n\x0c\n\
+    \x05\x04\x04\x02\x03\x03\x12\x03E\x18\x19\n%\n\x04\x04\x04\x02\x04\x12\
+    \x03G\x08\x18\x1a\x18\x20create\x20type\x20of\x20service\n\n\r\n\x05\x04\
+    \x04\x02\x04\x04\x12\x04G\x08E\x1a\n\x0c\n\x05\x04\x04\x02\x04\x05\x12\
+    \x03G\x08\x0e\n\x0c\n\x05\x04\x04\x02\x04\x01\x12\x03G\x0f\x13\n\x0c\n\
+    \x05\x04\x04\x02\x04\x03\x12\x03G\x16\x17\n\x1b\n\x04\x04\x04\x02\x05\
+    \x12\x03I\x08\x19\x1a\x0e\x20image\x20to\x20use\n\n\r\n\x05\x04\x04\x02\
+    \x05\x04\x12\x04I\x08G\x18\n\x0c\n\x05\x04\x04\x02\x05\x05\x12\x03I\x08\
+    \x0e\n\x0c\n\x05\x04\x04\x02\x05\x01\x12\x03I\x0f\x14\n\x0c\n\x05\x04\
+    \x04\x02\x05\x03\x12\x03I\x17\x18\n1\n\x04\x04\x04\x02\x06\x12\x03K\x08\
     \x1d\x1a$\x20namespace\x20to\x20create\x20the\x20service\x20in\n\n\r\n\
-    \x05\x04\x01\x02\x06\x04\x12\x049\x087\x19\n\x0c\n\x05\x04\x01\x02\x06\
-    \x05\x12\x039\x08\x0e\n\x0c\n\x05\x04\x01\x02\x06\x01\x12\x039\x0f\x18\n\
-    \x0c\n\x05\x04\x01\x02\x06\x03\x12\x039\x1b\x1c\n-\n\x04\x04\x01\x02\x07\
-    \x12\x03;\x08'\x1a\x20\x20secrets\x20to\x20use\x20for\x20the\x20service\
-    \n\n\r\n\x05\x04\x01\x02\x07\x04\x12\x04;\x089\x1d\n\x0c\n\x05\x04\x01\
-    \x02\x07\x06\x12\x03;\x08\x1a\n\x0c\n\x05\x04\x01\x02\x07\x01\x12\x03;\
-    \x1b\"\n\x0c\n\x05\x04\x01\x02\x07\x03\x12\x03;%&\n+\n\x04\x04\x01\x02\
-    \x08\x12\x03=\x08\x1e\x1a\x1e\x20entrypoint\x20within\x20the\x20source\n\
-    \n\r\n\x05\x04\x01\x02\x08\x04\x12\x04=\x08;'\n\x0c\n\x05\x04\x01\x02\
-    \x08\x05\x12\x03=\x08\x0e\n\x0c\n\x05\x04\x01\x02\x08\x01\x12\x03=\x0f\
-    \x19\n\x0c\n\x05\x04\x01\x02\x08\x03\x12\x03=\x1c\x1d\n\x1f\n\x04\x04\
-    \x01\x02\t\x12\x03?\x08(\x1a\x12\x20volumes\x20to\x20mount\n\n\r\n\x05\
-    \x04\x01\x02\t\x04\x12\x04?\x08=\x1e\n\x0c\n\x05\x04\x01\x02\t\x06\x12\
-    \x03?\x08\x1a\n\x0c\n\x05\x04\x01\x02\t\x01\x12\x03?\x1b\"\n\x0c\n\x05\
-    \x04\x01\x02\t\x03\x12\x03?%'\n\n\n\x02\x04\x02\x12\x04B\0E\x01\n\n\n\
-    \x03\x04\x02\x01\x12\x03B\x08\x15\n\x0b\n\x04\x04\x02\x02\0\x12\x03C\x08\
-    \x1c\n\r\n\x05\x04\x02\x02\0\x04\x12\x04C\x08B\x17\n\x0c\n\x05\x04\x02\
-    \x02\0\x06\x12\x03C\x08\x0f\n\x0c\n\x05\x04\x02\x02\0\x01\x12\x03C\x10\
-    \x17\n\x0c\n\x05\x04\x02\x02\0\x03\x12\x03C\x1a\x1b\n\x0b\n\x04\x04\x02\
-    \x02\x01\x12\x03D\x08\"\n\r\n\x05\x04\x02\x02\x01\x04\x12\x04D\x08C\x1c\
-    \n\x0c\n\x05\x04\x02\x02\x01\x06\x12\x03D\x08\x15\n\x0c\n\x05\x04\x02\
-    \x02\x01\x01\x12\x03D\x16\x1d\n\x0c\n\x05\x04\x02\x02\x01\x03\x12\x03D\
-    \x20!\n\t\n\x02\x04\x03\x12\x03G\0\x19\n\n\n\x03\x04\x03\x01\x12\x03G\
-    \x08\x16\n\n\n\x02\x04\x04\x12\x04I\0R\x01\n\n\n\x03\x04\x04\x01\x12\x03\
-    I\x08\x13\n\x1b\n\x04\x04\x04\x02\0\x12\x03K\x08\x1b\x1a\x0e\x20service\
-    \x20name\n\n\r\n\x05\x04\x04\x02\0\x04\x12\x04K\x08I\x15\n\x0c\n\x05\x04\
-    \x04\x02\0\x05\x12\x03K\x08\x0e\n\x0c\n\x05\x04\x04\x02\0\x01\x12\x03K\
-    \x0f\x16\n\x0c\n\x05\x04\x04\x02\0\x03\x12\x03K\x19\x1a\n%\n\x04\x04\x04\
-    \x02\x01\x12\x03M\x08\x1b\x1a\x18\x20version\x20of\x20the\x20service\n\n\
-    \r\n\x05\x04\x04\x02\x01\x04\x12\x04M\x08K\x1b\n\x0c\n\x05\x04\x04\x02\
-    \x01\x05\x12\x03M\x08\x0e\n\x0c\n\x05\x04\x04\x02\x01\x01\x12\x03M\x0f\
-    \x16\n\x0c\n\x05\x04\x04\x02\x01\x03\x12\x03M\x19\x1a\n\x1e\n\x04\x04\
-    \x04\x02\x02\x12\x03O\x08\x18\x1a\x11\x20type\x20of\x20service\n\n\r\n\
-    \x05\x04\x04\x02\x02\x04\x12\x04O\x08M\x1b\n\x0c\n\x05\x04\x04\x02\x02\
-    \x05\x12\x03O\x08\x0e\n\x0c\n\x05\x04\x04\x02\x02\x01\x12\x03O\x0f\x13\n\
-    \x0c\n\x05\x04\x04\x02\x02\x03\x12\x03O\x16\x17\n'\n\x04\x04\x04\x02\x03\
-    \x12\x03Q\x08\x1d\x1a\x1a\x20namespace\x20of\x20the\x20service\n\n\r\n\
-    \x05\x04\x04\x02\x03\x04\x12\x04Q\x08O\x18\n\x0c\n\x05\x04\x04\x02\x03\
-    \x05\x12\x03Q\x08\x0e\n\x0c\n\x05\x04\x04\x02\x03\x01\x12\x03Q\x0f\x18\n\
-    \x0c\n\x05\x04\x04\x02\x03\x03\x12\x03Q\x1b\x1c\n\n\n\x02\x04\x05\x12\
-    \x04T\0V\x01\n\n\n\x03\x04\x05\x01\x12\x03T\x08\x13\n\x0b\n\x04\x04\x05\
-    \x02\0\x12\x03U\x08\x20\n\r\n\x05\x04\x05\x02\0\x04\x12\x04U\x08T\x15\n\
-    \x0c\n\x05\x04\x05\x02\0\x06\x12\x03U\x08\x13\n\x0c\n\x05\x04\x05\x02\0\
-    \x01\x12\x03U\x14\x1b\n\x0c\n\x05\x04\x05\x02\0\x03\x12\x03U\x1e\x1f\n\n\
-    \n\x02\x04\x06\x12\x04X\0Z\x01\n\n\n\x03\x04\x06\x01\x12\x03X\x08\x14\n\
-    \x0b\n\x04\x04\x06\x02\0\x12\x03Y\x08&\n\x0c\n\x05\x04\x06\x02\0\x04\x12\
-    \x03Y\x08\x10\n\x0c\n\x05\x04\x06\x02\0\x06\x12\x03Y\x11\x18\n\x0c\n\x05\
-    \x04\x06\x02\0\x01\x12\x03Y\x19!\n\x0c\n\x05\x04\x06\x02\0\x03\x12\x03Y$\
-    %\n\n\n\x02\x04\x07\x12\x04\\\0_\x01\n\n\n\x03\x04\x07\x01\x12\x03\\\x08\
-    \x15\n'\n\x04\x04\x07\x02\0\x12\x03^\x08\x1d\x1a\x1a\x20namespace\x20of\
-    \x20the\x20service\n\n\r\n\x05\x04\x07\x02\0\x04\x12\x04^\x08\\\x17\n\
-    \x0c\n\x05\x04\x07\x02\0\x05\x12\x03^\x08\x0e\n\x0c\n\x05\x04\x07\x02\0\
-    \x01\x12\x03^\x0f\x18\n\x0c\n\x05\x04\x07\x02\0\x03\x12\x03^\x1b\x1c\n\n\
-    \n\x02\x04\x08\x12\x04a\0d\x01\n\n\n\x03\x04\x08\x01\x12\x03a\x08\x15\n\
-    \x0b\n\x04\x04\x08\x02\0\x12\x03b\x08\x1c\n\r\n\x05\x04\x08\x02\0\x04\
-    \x12\x04b\x08a\x17\n\x0c\n\x05\x04\x08\x02\0\x06\x12\x03b\x08\x0f\n\x0c\
-    \n\x05\x04\x08\x02\0\x01\x12\x03b\x10\x17\n\x0c\n\x05\x04\x08\x02\0\x03\
-    \x12\x03b\x1a\x1b\n\x0b\n\x04\x04\x08\x02\x01\x12\x03c\x08\"\n\r\n\x05\
-    \x04\x08\x02\x01\x04\x12\x04c\x08b\x1c\n\x0c\n\x05\x04\x08\x02\x01\x06\
-    \x12\x03c\x08\x15\n\x0c\n\x05\x04\x08\x02\x01\x01\x12\x03c\x16\x1d\n\x0c\
-    \n\x05\x04\x08\x02\x01\x03\x12\x03c\x20!\n\t\n\x02\x04\t\x12\x03f\0\x19\
-    \n\n\n\x03\x04\t\x01\x12\x03f\x08\x16\n\n\n\x02\x04\n\x12\x04h\0m\x01\n\
-    \n\n\x03\x04\n\x01\x12\x03h\x08\x15\n'\n\x04\x04\n\x02\0\x12\x03j\x08\
-    \x1d\x1a\x1a\x20namespace\x20of\x20the\x20service\n\n\r\n\x05\x04\n\x02\
-    \0\x04\x12\x04j\x08h\x17\n\x0c\n\x05\x04\n\x02\0\x05\x12\x03j\x08\x0e\n\
-    \x0c\n\x05\x04\n\x02\0\x01\x12\x03j\x0f\x18\n\x0c\n\x05\x04\n\x02\0\x03\
-    \x12\x03j\x1b\x1c\n+\n\x04\x04\n\x02\x01\x12\x03l\x08\x1e\x1a\x1e\x20ent\
-    rypoint\x20within\x20the\x20source\n\n\r\n\x05\x04\n\x02\x01\x04\x12\x04\
-    l\x08j\x1d\n\x0c\n\x05\x04\n\x02\x01\x05\x12\x03l\x08\x0e\n\x0c\n\x05\
-    \x04\n\x02\x01\x01\x12\x03l\x0f\x19\n\x0c\n\x05\x04\n\x02\x01\x03\x12\
-    \x03l\x1c\x1d\n\n\n\x02\x04\x0b\x12\x04o\0r\x01\n\n\n\x03\x04\x0b\x01\
-    \x12\x03o\x08\x15\n\x0b\n\x04\x04\x0b\x02\0\x12\x03p\x08\x1c\n\r\n\x05\
-    \x04\x0b\x02\0\x04\x12\x04p\x08o\x17\n\x0c\n\x05\x04\x0b\x02\0\x06\x12\
-    \x03p\x08\x0f\n\x0c\n\x05\x04\x0b\x02\0\x01\x12\x03p\x10\x17\n\x0c\n\x05\
-    \x04\x0b\x02\0\x03\x12\x03p\x1a\x1b\n\x0b\n\x04\x04\x0b\x02\x01\x12\x03q\
-    \x08\"\n\r\n\x05\x04\x0b\x02\x01\x04\x12\x04q\x08p\x1c\n\x0c\n\x05\x04\
-    \x0b\x02\x01\x06\x12\x03q\x08\x15\n\x0c\n\x05\x04\x0b\x02\x01\x01\x12\
-    \x03q\x16\x1d\n\x0c\n\x05\x04\x0b\x02\x01\x03\x12\x03q\x20!\n\t\n\x02\
-    \x04\x0c\x12\x03t\0\x19\n\n\n\x03\x04\x0c\x01\x12\x03t\x08\x16\n\n\n\x02\
-    \x04\r\x12\x04v\0y\x01\n\n\n\x03\x04\r\x01\x12\x03v\x08\x13\n'\n\x04\x04\
-    \r\x02\0\x12\x03x\x08\x1d\x1a\x1a\x20namespace\x20of\x20the\x20service\n\
-    \n\r\n\x05\x04\r\x02\0\x04\x12\x04x\x08v\x15\n\x0c\n\x05\x04\r\x02\0\x05\
-    \x12\x03x\x08\x0e\n\x0c\n\x05\x04\r\x02\0\x01\x12\x03x\x0f\x18\n\x0c\n\
-    \x05\x04\r\x02\0\x03\x12\x03x\x1b\x1c\n\n\n\x02\x04\x0e\x12\x04{\0}\x01\
-    \n\n\n\x03\x04\x0e\x01\x12\x03{\x08\x13\n\x0b\n\x04\x04\x0e\x02\0\x12\
-    \x03|\x08\x20\n\r\n\x05\x04\x0e\x02\0\x04\x12\x04|\x08{\x15\n\x0c\n\x05\
-    \x04\x0e\x02\0\x06\x12\x03|\x08\x13\n\x0c\n\x05\x04\x0e\x02\0\x01\x12\
-    \x03|\x14\x1b\n\x0c\n\x05\x04\x0e\x02\0\x03\x12\x03|\x1e\x1f\n\x0b\n\x02\
-    \x04\x0f\x12\x05\x7f\0\x81\x01\x01\n\n\n\x03\x04\x0f\x01\x12\x03\x7f\x08\
-    \x14\n\x0c\n\x04\x04\x0f\x02\0\x12\x04\x80\x01\x08&\n\r\n\x05\x04\x0f\
-    \x02\0\x04\x12\x04\x80\x01\x08\x10\n\r\n\x05\x04\x0f\x02\0\x06\x12\x04\
-    \x80\x01\x11\x18\n\r\n\x05\x04\x0f\x02\0\x01\x12\x04\x80\x01\x19!\n\r\n\
-    \x05\x04\x0f\x02\0\x03\x12\x04\x80\x01$%\n\x0c\n\x02\x04\x10\x12\x06\x83\
-    \x01\0\x86\x01\x01\n\x0b\n\x03\x04\x10\x01\x12\x04\x83\x01\x08\x13\n(\n\
-    \x04\x04\x10\x02\0\x12\x04\x85\x01\x08\x1d\x1a\x1a\x20namespace\x20of\
-    \x20the\x20service\n\n\x0f\n\x05\x04\x10\x02\0\x04\x12\x06\x85\x01\x08\
-    \x83\x01\x15\n\r\n\x05\x04\x10\x02\0\x05\x12\x04\x85\x01\x08\x0e\n\r\n\
-    \x05\x04\x10\x02\0\x01\x12\x04\x85\x01\x0f\x18\n\r\n\x05\x04\x10\x02\0\
-    \x03\x12\x04\x85\x01\x1b\x1c\n\x0c\n\x02\x04\x11\x12\x06\x88\x01\0\x95\
-    \x01\x01\n\x0b\n\x03\x04\x11\x01\x12\x04\x88\x01\x08\x13\n+\n\x04\x04\
-    \x11\x02\0\x12\x04\x8a\x01\x08\x1b\x1a\x1d\x20service\x20to\x20request\
-    \x20logs\x20for\n\n\x0f\n\x05\x04\x11\x02\0\x04\x12\x06\x8a\x01\x08\x88\
-    \x01\x14\n\r\n\x05\x04\x11\x02\0\x05\x12\x04\x8a\x01\x08\x0e\n\r\n\x05\
-    \x04\x11\x02\0\x01\x12\x04\x8a\x01\x0f\x16\n\r\n\x05\x04\x11\x02\0\x03\
-    \x12\x04\x8a\x01\x19\x1a\n+\n\x04\x04\x11\x02\x01\x12\x04\x8c\x01\x08\
-    \x18\x1a\x1d\x20stream\x20records\x20continuously\n\n\x0f\n\x05\x04\x11\
-    \x02\x01\x04\x12\x06\x8c\x01\x08\x8a\x01\x1b\n\r\n\x05\x04\x11\x02\x01\
-    \x05\x12\x04\x8c\x01\x08\x0c\n\r\n\x05\x04\x11\x02\x01\x01\x12\x04\x8c\
-    \x01\r\x13\n\r\n\x05\x04\x11\x02\x01\x03\x12\x04\x8c\x01\x16\x17\n+\n\
-    \x04\x04\x11\x02\x02\x12\x04\x8e\x01\x08\x18\x1a\x1d\x20count\x20of\x20r\
-    ecords\x20to\x20request\n\n\x0f\n\x05\x04\x11\x02\x02\x04\x12\x06\x8e\
-    \x01\x08\x8c\x01\x18\n\r\n\x05\x04\x11\x02\x02\x05\x12\x04\x8e\x01\x08\r\
-    \n\r\n\x05\x04\x11\x02\x02\x01\x12\x04\x8e\x01\x0e\x13\n\r\n\x05\x04\x11\
-    \x02\x02\x03\x12\x04\x8e\x01\x16\x17\nZ\n\x04\x04\x11\x02\x03\x12\x04\
-    \x92\x01\x08\x18\x1aL\x20relative\x20time\x20in\x20seconds\n\x20before\
-    \x20the\x20current\x20time\n\x20from\x20which\x20to\x20show\x20logs\n\n\
-    \x0f\n\x05\x04\x11\x02\x03\x04\x12\x06\x92\x01\x08\x8e\x01\x18\n\r\n\x05\
-    \x04\x11\x02\x03\x05\x12\x04\x92\x01\x08\r\n\r\n\x05\x04\x11\x02\x03\x01\
-    \x12\x04\x92\x01\x0e\x13\n\r\n\x05\x04\x11\x02\x03\x03\x12\x04\x92\x01\
-    \x16\x17\n\x1e\n\x04\x04\x11\x02\x04\x12\x04\x94\x01\x08\x20\x1a\x10\x20\
-    options\x20to\x20use\n\n\x0f\n\x05\x04\x11\x02\x04\x04\x12\x06\x94\x01\
-    \x08\x92\x01\x18\n\r\n\x05\x04\x11\x02\x04\x06\x12\x04\x94\x01\x08\x13\n\
-    \r\n\x05\x04\x11\x02\x04\x01\x12\x04\x94\x01\x14\x1b\n\r\n\x05\x04\x11\
-    \x02\x04\x03\x12\x04\x94\x01\x1e\x1f\n\x0c\n\x02\x04\x12\x12\x06\x97\x01\
-    \0\x9e\x01\x01\n\x0b\n\x03\x04\x12\x01\x12\x04\x97\x01\x08\x11\n'\n\x04\
-    \x04\x12\x02\0\x12\x04\x99\x01\x08\x1c\x1a\x19\x20timestamp\x20of\x20log\
-    \x20record\n\n\x0f\n\x05\x04\x12\x02\0\x04\x12\x06\x99\x01\x08\x97\x01\
-    \x13\n\r\n\x05\x04\x12\x02\0\x05\x12\x04\x99\x01\x08\r\n\r\n\x05\x04\x12\
-    \x02\0\x01\x12\x04\x99\x01\x0e\x17\n\r\n\x05\x04\x12\x02\0\x03\x12\x04\
-    \x99\x01\x1a\x1b\n\x1f\n\x04\x04\x12\x02\x01\x12\x04\x9b\x01\x08(\x1a\
-    \x11\x20record\x20metadata\n\n\x0f\n\x05\x04\x12\x02\x01\x04\x12\x06\x9b\
-    \x01\x08\x99\x01\x1c\n\r\n\x05\x04\x12\x02\x01\x06\x12\x04\x9b\x01\x08\
-    \x1a\n\r\n\x05\x04\x12\x02\x01\x01\x12\x04\x9b\x01\x1b#\n\r\n\x05\x04\
-    \x12\x02\x01\x03\x12\x04\x9b\x01&'\n\x17\n\x04\x04\x12\x02\x02\x12\x04\
-    \x9d\x01\x08\x1b\x1a\t\x20message\n\n\x0f\n\x05\x04\x12\x02\x02\x04\x12\
-    \x06\x9d\x01\x08\x9b\x01(\n\r\n\x05\x04\x12\x02\x02\x05\x12\x04\x9d\x01\
-    \x08\x0e\n\r\n\x05\x04\x12\x02\x02\x01\x12\x04\x9d\x01\x0f\x16\n\r\n\x05\
-    \x04\x12\x02\x02\x03\x12\x04\x9d\x01\x19\x1a\n\x0c\n\x02\x04\x13\x12\x06\
-    \xa0\x01\0\xa3\x01\x01\n\x0b\n\x03\x04\x13\x01\x12\x04\xa0\x01\x08\x1e\n\
-    )\n\x04\x04\x13\x02\0\x12\x04\xa2\x01\x08\x1d\x1a\x1b\x20the\x20name\x20\
-    of\x20the\x20namespace\n\n\x0f\n\x05\x04\x13\x02\0\x04\x12\x06\xa2\x01\
-    \x08\xa0\x01\x20\n\r\n\x05\x04\x13\x02\0\x05\x12\x04\xa2\x01\x08\x0e\n\r\
-    \n\x05\x04\x13\x02\0\x01\x12\x04\xa2\x01\x0f\x18\n\r\n\x05\x04\x13\x02\0\
-    \x03\x12\x04\xa2\x01\x1b\x1c\n\n\n\x02\x04\x14\x12\x04\xa5\x01\0\"\n\x0b\
-    \n\x03\x04\x14\x01\x12\x04\xa5\x01\x08\x1f\n\x0c\n\x02\x04\x15\x12\x06\
-    \xa7\x01\0\xaa\x01\x01\n\x0b\n\x03\x04\x15\x01\x12\x04\xa7\x01\x08\x1e\n\
-    )\n\x04\x04\x15\x02\0\x12\x04\xa9\x01\x08\x1d\x1a\x1b\x20the\x20name\x20\
-    of\x20the\x20namespace\n\n\x0f\n\x05\x04\x15\x02\0\x04\x12\x06\xa9\x01\
-    \x08\xa7\x01\x20\n\r\n\x05\x04\x15\x02\0\x05\x12\x04\xa9\x01\x08\x0e\n\r\
-    \n\x05\x04\x15\x02\0\x01\x12\x04\xa9\x01\x0f\x18\n\r\n\x05\x04\x15\x02\0\
-    \x03\x12\x04\xa9\x01\x1b\x1c\n\n\n\x02\x04\x16\x12\x04\xac\x01\0\"\n\x0b\
-    \n\x03\x04\x16\x01\x12\x04\xac\x01\x08\x1f\n\x0c\n\x02\x04\x17\x12\x06\
-    \xae\x01\0\xb1\x01\x01\n\x0b\n\x03\x04\x17\x01\x12\x04\xae\x01\x08\x15\n\
-    \x0c\n\x04\x04\x17\x02\0\x12\x04\xaf\x01\x08\x1c\n\x0f\n\x05\x04\x17\x02\
-    \0\x04\x12\x06\xaf\x01\x08\xae\x01\x17\n\r\n\x05\x04\x17\x02\0\x06\x12\
-    \x04\xaf\x01\x08\x0f\n\r\n\x05\x04\x17\x02\0\x01\x12\x04\xaf\x01\x10\x17\
-    \n\r\n\x05\x04\x17\x02\0\x03\x12\x04\xaf\x01\x1a\x1b\n\x0c\n\x04\x04\x17\
-    \x02\x01\x12\x04\xb0\x01\x08\x17\n\x0f\n\x05\x04\x17\x02\x01\x04\x12\x06\
-    \xb0\x01\x08\xaf\x01\x1c\n\r\n\x05\x04\x17\x02\x01\x05\x12\x04\xb0\x01\
-    \x08\r\n\r\n\x05\x04\x17\x02\x01\x01\x12\x04\xb0\x01\x0e\x12\n\r\n\x05\
-    \x04\x17\x02\x01\x03\x12\x04\xb0\x01\x15\x16\n\x0c\n\x02\x04\x18\x12\x06\
-    \xb3\x01\0\xb5\x01\x01\n\x0b\n\x03\x04\x18\x01\x12\x04\xb3\x01\x08\x16\n\
-    \x0c\n\x04\x04\x18\x02\0\x12\x04\xb4\x01\x08\x16\n\x0f\n\x05\x04\x18\x02\
-    \0\x04\x12\x06\xb4\x01\x08\xb3\x01\x18\n\r\n\x05\x04\x18\x02\0\x05\x12\
-    \x04\xb4\x01\x08\x0e\n\r\n\x05\x04\x18\x02\0\x01\x12\x04\xb4\x01\x0f\x11\
-    \n\r\n\x05\x04\x18\x02\0\x03\x12\x04\xb4\x01\x14\x15\n\x0c\n\x02\x04\x19\
-    \x12\x06\xb7\x01\0\xb9\x01\x01\n\x0b\n\x03\x04\x19\x01\x12\x04\xb7\x01\
-    \x08\x19\n\x0c\n\x04\x04\x19\x02\0\x12\x04\xb8\x01\x08\x17\n\x0f\n\x05\
-    \x04\x19\x02\0\x04\x12\x06\xb8\x01\x08\xb7\x01\x1b\n\r\n\x05\x04\x19\x02\
-    \0\x05\x12\x04\xb8\x01\x08\r\n\r\n\x05\x04\x19\x02\0\x01\x12\x04\xb8\x01\
-    \x0e\x12\n\r\n\x05\x04\x19\x02\0\x03\x12\x04\xb8\x01\x15\x16b\x06proto3\
+    \x05\x04\x04\x02\x06\x04\x12\x04K\x08I\x19\n\x0c\n\x05\x04\x04\x02\x06\
+    \x05\x12\x03K\x08\x0e\n\x0c\n\x05\x04\x04\x02\x06\x01\x12\x03K\x0f\x18\n\
+    \x0c\n\x05\x04\x04\x02\x06\x03\x12\x03K\x1b\x1c\n-\n\x04\x04\x04\x02\x07\
+    \x12\x03M\x08'\x1a\x20\x20secrets\x20to\x20use\x20for\x20the\x20service\
+    \n\n\r\n\x05\x04\x04\x02\x07\x04\x12\x04M\x08K\x1d\n\x0c\n\x05\x04\x04\
+    \x02\x07\x06\x12\x03M\x08\x1a\n\x0c\n\x05\x04\x04\x02\x07\x01\x12\x03M\
+    \x1b\"\n\x0c\n\x05\x04\x04\x02\x07\x03\x12\x03M%&\n+\n\x04\x04\x04\x02\
+    \x08\x12\x03O\x08\x1e\x1a\x1e\x20entrypoint\x20within\x20the\x20source\n\
+    \n\r\n\x05\x04\x04\x02\x08\x04\x12\x04O\x08M'\n\x0c\n\x05\x04\x04\x02\
+    \x08\x05\x12\x03O\x08\x0e\n\x0c\n\x05\x04\x04\x02\x08\x01\x12\x03O\x0f\
+    \x19\n\x0c\n\x05\x04\x04\x02\x08\x03\x12\x03O\x1c\x1d\n\x1f\n\x04\x04\
+    \x04\x02\t\x12\x03Q\x08(\x1a\x12\x20volumes\x20to\x20mount\n\n\r\n\x05\
+    \x04\x04\x02\t\x04\x12\x04Q\x08O\x1e\n\x0c\n\x05\x04\x04\x02\t\x06\x12\
+    \x03Q\x08\x1a\n\x0c\n\x05\x04\x04\x02\t\x01\x12\x03Q\x1b\"\n\x0c\n\x05\
+    \x04\x04\x02\t\x03\x12\x03Q%'\n\n\n\x02\x04\x05\x12\x04T\0W\x01\n\n\n\
+    \x03\x04\x05\x01\x12\x03T\x08\x15\n\x0b\n\x04\x04\x05\x02\0\x12\x03U\x08\
+    \x1e\n\r\n\x05\x04\x05\x02\0\x04\x12\x04U\x08T\x17\n\x0c\n\x05\x04\x05\
+    \x02\0\x06\x12\x03U\x08\x10\n\x0c\n\x05\x04\x05\x02\0\x01\x12\x03U\x11\
+    \x19\n\x0c\n\x05\x04\x05\x02\0\x03\x12\x03U\x1c\x1d\n\x0b\n\x04\x04\x05\
+    \x02\x01\x12\x03V\x08\"\n\r\n\x05\x04\x05\x02\x01\x04\x12\x04V\x08U\x1e\
+    \n\x0c\n\x05\x04\x05\x02\x01\x06\x12\x03V\x08\x15\n\x0c\n\x05\x04\x05\
+    \x02\x01\x01\x12\x03V\x16\x1d\n\x0c\n\x05\x04\x05\x02\x01\x03\x12\x03V\
+    \x20!\n\t\n\x02\x04\x06\x12\x03Y\0\x19\n\n\n\x03\x04\x06\x01\x12\x03Y\
+    \x08\x16\n\n\n\x02\x04\x07\x12\x04[\0d\x01\n\n\n\x03\x04\x07\x01\x12\x03\
+    [\x08\x13\n\x1b\n\x04\x04\x07\x02\0\x12\x03]\x08\x1b\x1a\x0e\x20service\
+    \x20name\n\n\r\n\x05\x04\x07\x02\0\x04\x12\x04]\x08[\x15\n\x0c\n\x05\x04\
+    \x07\x02\0\x05\x12\x03]\x08\x0e\n\x0c\n\x05\x04\x07\x02\0\x01\x12\x03]\
+    \x0f\x16\n\x0c\n\x05\x04\x07\x02\0\x03\x12\x03]\x19\x1a\n%\n\x04\x04\x07\
+    \x02\x01\x12\x03_\x08\x1b\x1a\x18\x20version\x20of\x20the\x20service\n\n\
+    \r\n\x05\x04\x07\x02\x01\x04\x12\x04_\x08]\x1b\n\x0c\n\x05\x04\x07\x02\
+    \x01\x05\x12\x03_\x08\x0e\n\x0c\n\x05\x04\x07\x02\x01\x01\x12\x03_\x0f\
+    \x16\n\x0c\n\x05\x04\x07\x02\x01\x03\x12\x03_\x19\x1a\n\x1e\n\x04\x04\
+    \x07\x02\x02\x12\x03a\x08\x18\x1a\x11\x20type\x20of\x20service\n\n\r\n\
+    \x05\x04\x07\x02\x02\x04\x12\x04a\x08_\x1b\n\x0c\n\x05\x04\x07\x02\x02\
+    \x05\x12\x03a\x08\x0e\n\x0c\n\x05\x04\x07\x02\x02\x01\x12\x03a\x0f\x13\n\
+    \x0c\n\x05\x04\x07\x02\x02\x03\x12\x03a\x16\x17\n'\n\x04\x04\x07\x02\x03\
+    \x12\x03c\x08\x1d\x1a\x1a\x20namespace\x20of\x20the\x20service\n\n\r\n\
+    \x05\x04\x07\x02\x03\x04\x12\x04c\x08a\x18\n\x0c\n\x05\x04\x07\x02\x03\
+    \x05\x12\x03c\x08\x0e\n\x0c\n\x05\x04\x07\x02\x03\x01\x12\x03c\x0f\x18\n\
+    \x0c\n\x05\x04\x07\x02\x03\x03\x12\x03c\x1b\x1c\n\n\n\x02\x04\x08\x12\
+    \x04f\0h\x01\n\n\n\x03\x04\x08\x01\x12\x03f\x08\x13\n\x0b\n\x04\x04\x08\
+    \x02\0\x12\x03g\x08\x20\n\r\n\x05\x04\x08\x02\0\x04\x12\x04g\x08f\x15\n\
+    \x0c\n\x05\x04\x08\x02\0\x06\x12\x03g\x08\x13\n\x0c\n\x05\x04\x08\x02\0\
+    \x01\x12\x03g\x14\x1b\n\x0c\n\x05\x04\x08\x02\0\x03\x12\x03g\x1e\x1f\n\n\
+    \n\x02\x04\t\x12\x04j\0l\x01\n\n\n\x03\x04\t\x01\x12\x03j\x08\x14\n\x0b\
+    \n\x04\x04\t\x02\0\x12\x03k\x08&\n\x0c\n\x05\x04\t\x02\0\x04\x12\x03k\
+    \x08\x10\n\x0c\n\x05\x04\t\x02\0\x06\x12\x03k\x11\x18\n\x0c\n\x05\x04\t\
+    \x02\0\x01\x12\x03k\x19!\n\x0c\n\x05\x04\t\x02\0\x03\x12\x03k$%\n\n\n\
+    \x02\x04\n\x12\x04n\0q\x01\n\n\n\x03\x04\n\x01\x12\x03n\x08\x15\n'\n\x04\
+    \x04\n\x02\0\x12\x03p\x08\x1d\x1a\x1a\x20namespace\x20of\x20the\x20servi\
+    ce\n\n\r\n\x05\x04\n\x02\0\x04\x12\x04p\x08n\x17\n\x0c\n\x05\x04\n\x02\0\
+    \x05\x12\x03p\x08\x0e\n\x0c\n\x05\x04\n\x02\0\x01\x12\x03p\x0f\x18\n\x0c\
+    \n\x05\x04\n\x02\0\x03\x12\x03p\x1b\x1c\n\n\n\x02\x04\x0b\x12\x04s\0v\
+    \x01\n\n\n\x03\x04\x0b\x01\x12\x03s\x08\x15\n\x0b\n\x04\x04\x0b\x02\0\
+    \x12\x03t\x08\x1e\n\r\n\x05\x04\x0b\x02\0\x04\x12\x04t\x08s\x17\n\x0c\n\
+    \x05\x04\x0b\x02\0\x06\x12\x03t\x08\x10\n\x0c\n\x05\x04\x0b\x02\0\x01\
+    \x12\x03t\x11\x19\n\x0c\n\x05\x04\x0b\x02\0\x03\x12\x03t\x1c\x1d\n\x0b\n\
+    \x04\x04\x0b\x02\x01\x12\x03u\x08\"\n\r\n\x05\x04\x0b\x02\x01\x04\x12\
+    \x04u\x08t\x1e\n\x0c\n\x05\x04\x0b\x02\x01\x06\x12\x03u\x08\x15\n\x0c\n\
+    \x05\x04\x0b\x02\x01\x01\x12\x03u\x16\x1d\n\x0c\n\x05\x04\x0b\x02\x01\
+    \x03\x12\x03u\x20!\n\t\n\x02\x04\x0c\x12\x03x\0\x19\n\n\n\x03\x04\x0c\
+    \x01\x12\x03x\x08\x16\n\n\n\x02\x04\r\x12\x04z\0\x7f\x01\n\n\n\x03\x04\r\
+    \x01\x12\x03z\x08\x15\n'\n\x04\x04\r\x02\0\x12\x03|\x08\x1d\x1a\x1a\x20n\
+    amespace\x20of\x20the\x20service\n\n\r\n\x05\x04\r\x02\0\x04\x12\x04|\
+    \x08z\x17\n\x0c\n\x05\x04\r\x02\0\x05\x12\x03|\x08\x0e\n\x0c\n\x05\x04\r\
+    \x02\0\x01\x12\x03|\x0f\x18\n\x0c\n\x05\x04\r\x02\0\x03\x12\x03|\x1b\x1c\
+    \n+\n\x04\x04\r\x02\x01\x12\x03~\x08\x1e\x1a\x1e\x20entrypoint\x20within\
+    \x20the\x20source\n\n\r\n\x05\x04\r\x02\x01\x04\x12\x04~\x08|\x1d\n\x0c\
+    \n\x05\x04\r\x02\x01\x05\x12\x03~\x08\x0e\n\x0c\n\x05\x04\r\x02\x01\x01\
+    \x12\x03~\x0f\x19\n\x0c\n\x05\x04\r\x02\x01\x03\x12\x03~\x1c\x1d\n\x0c\n\
+    \x02\x04\x0e\x12\x06\x81\x01\0\x84\x01\x01\n\x0b\n\x03\x04\x0e\x01\x12\
+    \x04\x81\x01\x08\x15\n\x0c\n\x04\x04\x0e\x02\0\x12\x04\x82\x01\x08\x1e\n\
+    \x0f\n\x05\x04\x0e\x02\0\x04\x12\x06\x82\x01\x08\x81\x01\x17\n\r\n\x05\
+    \x04\x0e\x02\0\x06\x12\x04\x82\x01\x08\x10\n\r\n\x05\x04\x0e\x02\0\x01\
+    \x12\x04\x82\x01\x11\x19\n\r\n\x05\x04\x0e\x02\0\x03\x12\x04\x82\x01\x1c\
+    \x1d\n\x0c\n\x04\x04\x0e\x02\x01\x12\x04\x83\x01\x08\"\n\x0f\n\x05\x04\
+    \x0e\x02\x01\x04\x12\x06\x83\x01\x08\x82\x01\x1e\n\r\n\x05\x04\x0e\x02\
+    \x01\x06\x12\x04\x83\x01\x08\x15\n\r\n\x05\x04\x0e\x02\x01\x01\x12\x04\
+    \x83\x01\x16\x1d\n\r\n\x05\x04\x0e\x02\x01\x03\x12\x04\x83\x01\x20!\n\n\
+    \n\x02\x04\x0f\x12\x04\x86\x01\0\x19\n\x0b\n\x03\x04\x0f\x01\x12\x04\x86\
+    \x01\x08\x16\n\x0c\n\x02\x04\x10\x12\x06\x88\x01\0\x8b\x01\x01\n\x0b\n\
+    \x03\x04\x10\x01\x12\x04\x88\x01\x08\x13\n(\n\x04\x04\x10\x02\0\x12\x04\
+    \x8a\x01\x08\x1d\x1a\x1a\x20namespace\x20of\x20the\x20service\n\n\x0f\n\
+    \x05\x04\x10\x02\0\x04\x12\x06\x8a\x01\x08\x88\x01\x15\n\r\n\x05\x04\x10\
+    \x02\0\x05\x12\x04\x8a\x01\x08\x0e\n\r\n\x05\x04\x10\x02\0\x01\x12\x04\
+    \x8a\x01\x0f\x18\n\r\n\x05\x04\x10\x02\0\x03\x12\x04\x8a\x01\x1b\x1c\n\
+    \x0c\n\x02\x04\x11\x12\x06\x8d\x01\0\x8f\x01\x01\n\x0b\n\x03\x04\x11\x01\
+    \x12\x04\x8d\x01\x08\x13\n\x0c\n\x04\x04\x11\x02\0\x12\x04\x8e\x01\x08\
+    \x20\n\x0f\n\x05\x04\x11\x02\0\x04\x12\x06\x8e\x01\x08\x8d\x01\x15\n\r\n\
+    \x05\x04\x11\x02\0\x06\x12\x04\x8e\x01\x08\x13\n\r\n\x05\x04\x11\x02\0\
+    \x01\x12\x04\x8e\x01\x14\x1b\n\r\n\x05\x04\x11\x02\0\x03\x12\x04\x8e\x01\
+    \x1e\x1f\n\x0c\n\x02\x04\x12\x12\x06\x91\x01\0\x93\x01\x01\n\x0b\n\x03\
+    \x04\x12\x01\x12\x04\x91\x01\x08\x14\n\x0c\n\x04\x04\x12\x02\0\x12\x04\
+    \x92\x01\x08&\n\r\n\x05\x04\x12\x02\0\x04\x12\x04\x92\x01\x08\x10\n\r\n\
+    \x05\x04\x12\x02\0\x06\x12\x04\x92\x01\x11\x18\n\r\n\x05\x04\x12\x02\0\
+    \x01\x12\x04\x92\x01\x19!\n\r\n\x05\x04\x12\x02\0\x03\x12\x04\x92\x01$%\
+    \n\x0c\n\x02\x04\x13\x12\x06\x95\x01\0\x98\x01\x01\n\x0b\n\x03\x04\x13\
+    \x01\x12\x04\x95\x01\x08\x13\n(\n\x04\x04\x13\x02\0\x12\x04\x97\x01\x08\
+    \x1d\x1a\x1a\x20namespace\x20of\x20the\x20service\n\n\x0f\n\x05\x04\x13\
+    \x02\0\x04\x12\x06\x97\x01\x08\x95\x01\x15\n\r\n\x05\x04\x13\x02\0\x05\
+    \x12\x04\x97\x01\x08\x0e\n\r\n\x05\x04\x13\x02\0\x01\x12\x04\x97\x01\x0f\
+    \x18\n\r\n\x05\x04\x13\x02\0\x03\x12\x04\x97\x01\x1b\x1c\n\x0c\n\x02\x04\
+    \x14\x12\x06\x9a\x01\0\xa7\x01\x01\n\x0b\n\x03\x04\x14\x01\x12\x04\x9a\
+    \x01\x08\x13\n+\n\x04\x04\x14\x02\0\x12\x04\x9c\x01\x08\x1b\x1a\x1d\x20s\
+    ervice\x20to\x20request\x20logs\x20for\n\n\x0f\n\x05\x04\x14\x02\0\x04\
+    \x12\x06\x9c\x01\x08\x9a\x01\x14\n\r\n\x05\x04\x14\x02\0\x05\x12\x04\x9c\
+    \x01\x08\x0e\n\r\n\x05\x04\x14\x02\0\x01\x12\x04\x9c\x01\x0f\x16\n\r\n\
+    \x05\x04\x14\x02\0\x03\x12\x04\x9c\x01\x19\x1a\n+\n\x04\x04\x14\x02\x01\
+    \x12\x04\x9e\x01\x08\x18\x1a\x1d\x20stream\x20records\x20continuously\n\
+    \n\x0f\n\x05\x04\x14\x02\x01\x04\x12\x06\x9e\x01\x08\x9c\x01\x1b\n\r\n\
+    \x05\x04\x14\x02\x01\x05\x12\x04\x9e\x01\x08\x0c\n\r\n\x05\x04\x14\x02\
+    \x01\x01\x12\x04\x9e\x01\r\x13\n\r\n\x05\x04\x14\x02\x01\x03\x12\x04\x9e\
+    \x01\x16\x17\n+\n\x04\x04\x14\x02\x02\x12\x04\xa0\x01\x08\x18\x1a\x1d\
+    \x20count\x20of\x20records\x20to\x20request\n\n\x0f\n\x05\x04\x14\x02\
+    \x02\x04\x12\x06\xa0\x01\x08\x9e\x01\x18\n\r\n\x05\x04\x14\x02\x02\x05\
+    \x12\x04\xa0\x01\x08\r\n\r\n\x05\x04\x14\x02\x02\x01\x12\x04\xa0\x01\x0e\
+    \x13\n\r\n\x05\x04\x14\x02\x02\x03\x12\x04\xa0\x01\x16\x17\nZ\n\x04\x04\
+    \x14\x02\x03\x12\x04\xa4\x01\x08\x18\x1aL\x20relative\x20time\x20in\x20s\
+    econds\n\x20before\x20the\x20current\x20time\n\x20from\x20which\x20to\
+    \x20show\x20logs\n\n\x0f\n\x05\x04\x14\x02\x03\x04\x12\x06\xa4\x01\x08\
+    \xa0\x01\x18\n\r\n\x05\x04\x14\x02\x03\x05\x12\x04\xa4\x01\x08\r\n\r\n\
+    \x05\x04\x14\x02\x03\x01\x12\x04\xa4\x01\x0e\x13\n\r\n\x05\x04\x14\x02\
+    \x03\x03\x12\x04\xa4\x01\x16\x17\n\x1e\n\x04\x04\x14\x02\x04\x12\x04\xa6\
+    \x01\x08\x20\x1a\x10\x20options\x20to\x20use\n\n\x0f\n\x05\x04\x14\x02\
+    \x04\x04\x12\x06\xa6\x01\x08\xa4\x01\x18\n\r\n\x05\x04\x14\x02\x04\x06\
+    \x12\x04\xa6\x01\x08\x13\n\r\n\x05\x04\x14\x02\x04\x01\x12\x04\xa6\x01\
+    \x14\x1b\n\r\n\x05\x04\x14\x02\x04\x03\x12\x04\xa6\x01\x1e\x1f\n\x0c\n\
+    \x02\x04\x15\x12\x06\xa9\x01\0\xb0\x01\x01\n\x0b\n\x03\x04\x15\x01\x12\
+    \x04\xa9\x01\x08\x11\n'\n\x04\x04\x15\x02\0\x12\x04\xab\x01\x08\x1c\x1a\
+    \x19\x20timestamp\x20of\x20log\x20record\n\n\x0f\n\x05\x04\x15\x02\0\x04\
+    \x12\x06\xab\x01\x08\xa9\x01\x13\n\r\n\x05\x04\x15\x02\0\x05\x12\x04\xab\
+    \x01\x08\r\n\r\n\x05\x04\x15\x02\0\x01\x12\x04\xab\x01\x0e\x17\n\r\n\x05\
+    \x04\x15\x02\0\x03\x12\x04\xab\x01\x1a\x1b\n\x1f\n\x04\x04\x15\x02\x01\
+    \x12\x04\xad\x01\x08(\x1a\x11\x20record\x20metadata\n\n\x0f\n\x05\x04\
+    \x15\x02\x01\x04\x12\x06\xad\x01\x08\xab\x01\x1c\n\r\n\x05\x04\x15\x02\
+    \x01\x06\x12\x04\xad\x01\x08\x1a\n\r\n\x05\x04\x15\x02\x01\x01\x12\x04\
+    \xad\x01\x1b#\n\r\n\x05\x04\x15\x02\x01\x03\x12\x04\xad\x01&'\n\x17\n\
+    \x04\x04\x15\x02\x02\x12\x04\xaf\x01\x08\x1b\x1a\t\x20message\n\n\x0f\n\
+    \x05\x04\x15\x02\x02\x04\x12\x06\xaf\x01\x08\xad\x01(\n\r\n\x05\x04\x15\
+    \x02\x02\x05\x12\x04\xaf\x01\x08\x0e\n\r\n\x05\x04\x15\x02\x02\x01\x12\
+    \x04\xaf\x01\x0f\x16\n\r\n\x05\x04\x15\x02\x02\x03\x12\x04\xaf\x01\x19\
+    \x1a\n\x0c\n\x02\x04\x16\x12\x06\xb2\x01\0\xb5\x01\x01\n\x0b\n\x03\x04\
+    \x16\x01\x12\x04\xb2\x01\x08\x15\n\x0c\n\x04\x04\x16\x02\0\x12\x04\xb3\
+    \x01\x08\x1c\n\x0f\n\x05\x04\x16\x02\0\x04\x12\x06\xb3\x01\x08\xb2\x01\
+    \x17\n\r\n\x05\x04\x16\x02\0\x06\x12\x04\xb3\x01\x08\x0f\n\r\n\x05\x04\
+    \x16\x02\0\x01\x12\x04\xb3\x01\x10\x17\n\r\n\x05\x04\x16\x02\0\x03\x12\
+    \x04\xb3\x01\x1a\x1b\n\x0c\n\x04\x04\x16\x02\x01\x12\x04\xb4\x01\x08\x17\
+    \n\x0f\n\x05\x04\x16\x02\x01\x04\x12\x06\xb4\x01\x08\xb3\x01\x1c\n\r\n\
+    \x05\x04\x16\x02\x01\x05\x12\x04\xb4\x01\x08\r\n\r\n\x05\x04\x16\x02\x01\
+    \x01\x12\x04\xb4\x01\x0e\x12\n\r\n\x05\x04\x16\x02\x01\x03\x12\x04\xb4\
+    \x01\x15\x16\n\x0c\n\x02\x04\x17\x12\x06\xb7\x01\0\xb9\x01\x01\n\x0b\n\
+    \x03\x04\x17\x01\x12\x04\xb7\x01\x08\x16\n\x0c\n\x04\x04\x17\x02\0\x12\
+    \x04\xb8\x01\x08\x16\n\x0f\n\x05\x04\x17\x02\0\x04\x12\x06\xb8\x01\x08\
+    \xb7\x01\x18\n\r\n\x05\x04\x17\x02\0\x05\x12\x04\xb8\x01\x08\x0e\n\r\n\
+    \x05\x04\x17\x02\0\x01\x12\x04\xb8\x01\x0f\x11\n\r\n\x05\x04\x17\x02\0\
+    \x03\x12\x04\xb8\x01\x14\x15\n\x0c\n\x02\x04\x18\x12\x06\xbb\x01\0\xbd\
+    \x01\x01\n\x0b\n\x03\x04\x18\x01\x12\x04\xbb\x01\x08\x19\n\x0c\n\x04\x04\
+    \x18\x02\0\x12\x04\xbc\x01\x08\x17\n\x0f\n\x05\x04\x18\x02\0\x04\x12\x06\
+    \xbc\x01\x08\xbb\x01\x1b\n\r\n\x05\x04\x18\x02\0\x05\x12\x04\xbc\x01\x08\
+    \r\n\r\n\x05\x04\x18\x02\0\x01\x12\x04\xbc\x01\x0e\x12\n\r\n\x05\x04\x18\
+    \x02\0\x03\x12\x04\xbc\x01\x15\x16b\x06proto3\
 ";
 
 static file_descriptor_proto_lazy: ::protobuf::rt::LazyV2<::protobuf::descriptor::FileDescriptorProto> = ::protobuf::rt::LazyV2::INIT;

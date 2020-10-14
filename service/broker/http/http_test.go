@@ -22,8 +22,8 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/micro/go-micro/v3/registry"
-	"github.com/micro/go-micro/v3/registry/memory"
+	"github.com/micro/micro/v3/service/registry"
+	"github.com/micro/micro/v3/service/registry/memory"
 	"github.com/micro/micro/v3/service/broker"
 )
 

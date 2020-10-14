@@ -4,6 +4,19 @@
 require 'google/protobuf'
 
 Google::Protobuf::DescriptorPool.generated_pool.build do
+  add_message "runtime.Resource" do
+    optional :namespace, :message, 1, "runtime.Namespace"
+    optional :networkpolicy, :message, 2, "runtime.NetworkPolicy"
+    optional :service, :message, 3, "runtime.Service"
+  end
+  add_message "runtime.Namespace" do
+    optional :name, :string, 1
+  end
+  add_message "runtime.NetworkPolicy" do
+    map :allowedlabels, :string, :string, 1
+    optional :name, :string, 2
+    optional :namespace, :string, 3
+  end
   add_message "runtime.Service" do
     optional :name, :string, 1
     optional :version, :string, 2
@@ -24,7 +37,7 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     map :volumes, :string, :string, 10
   end
   add_message "runtime.CreateRequest" do
-    optional :service, :message, 1, "runtime.Service"
+    optional :resource, :message, 1, "runtime.Resource"
     optional :options, :message, 2, "runtime.CreateOptions"
   end
   add_message "runtime.CreateResponse" do
@@ -45,7 +58,7 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     optional :namespace, :string, 1
   end
   add_message "runtime.DeleteRequest" do
-    optional :service, :message, 1, "runtime.Service"
+    optional :resource, :message, 1, "runtime.Resource"
     optional :options, :message, 2, "runtime.DeleteOptions"
   end
   add_message "runtime.DeleteResponse" do
@@ -55,7 +68,7 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     optional :entrypoint, :string, 2
   end
   add_message "runtime.UpdateRequest" do
-    optional :service, :message, 1, "runtime.Service"
+    optional :resource, :message, 1, "runtime.Resource"
     optional :options, :message, 2, "runtime.UpdateOptions"
   end
   add_message "runtime.UpdateResponse" do
@@ -84,16 +97,6 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     map :metadata, :string, :string, 2
     optional :message, :string, 3
   end
-  add_message "runtime.CreateNamespaceRequest" do
-    optional :namespace, :string, 1
-  end
-  add_message "runtime.CreateNamespaceResponse" do
-  end
-  add_message "runtime.DeleteNamespaceRequest" do
-    optional :namespace, :string, 1
-  end
-  add_message "runtime.DeleteNamespaceResponse" do
-  end
   add_message "runtime.UploadRequest" do
     optional :service, :message, 1, "runtime.Service"
     optional :data, :bytes, 2
@@ -107,6 +110,9 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
 end
 
 module Runtime
+  Resource = Google::Protobuf::DescriptorPool.generated_pool.lookup("runtime.Resource").msgclass
+  Namespace = Google::Protobuf::DescriptorPool.generated_pool.lookup("runtime.Namespace").msgclass
+  NetworkPolicy = Google::Protobuf::DescriptorPool.generated_pool.lookup("runtime.NetworkPolicy").msgclass
   Service = Google::Protobuf::DescriptorPool.generated_pool.lookup("runtime.Service").msgclass
   CreateOptions = Google::Protobuf::DescriptorPool.generated_pool.lookup("runtime.CreateOptions").msgclass
   CreateRequest = Google::Protobuf::DescriptorPool.generated_pool.lookup("runtime.CreateRequest").msgclass
@@ -126,10 +132,6 @@ module Runtime
   LogsOptions = Google::Protobuf::DescriptorPool.generated_pool.lookup("runtime.LogsOptions").msgclass
   LogsRequest = Google::Protobuf::DescriptorPool.generated_pool.lookup("runtime.LogsRequest").msgclass
   LogRecord = Google::Protobuf::DescriptorPool.generated_pool.lookup("runtime.LogRecord").msgclass
-  CreateNamespaceRequest = Google::Protobuf::DescriptorPool.generated_pool.lookup("runtime.CreateNamespaceRequest").msgclass
-  CreateNamespaceResponse = Google::Protobuf::DescriptorPool.generated_pool.lookup("runtime.CreateNamespaceResponse").msgclass
-  DeleteNamespaceRequest = Google::Protobuf::DescriptorPool.generated_pool.lookup("runtime.DeleteNamespaceRequest").msgclass
-  DeleteNamespaceResponse = Google::Protobuf::DescriptorPool.generated_pool.lookup("runtime.DeleteNamespaceResponse").msgclass
   UploadRequest = Google::Protobuf::DescriptorPool.generated_pool.lookup("runtime.UploadRequest").msgclass
   UploadResponse = Google::Protobuf::DescriptorPool.generated_pool.lookup("runtime.UploadResponse").msgclass
   BuildReadResponse = Google::Protobuf::DescriptorPool.generated_pool.lookup("runtime.BuildReadResponse").msgclass

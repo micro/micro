@@ -182,68 +182,6 @@ public final class RuntimeGrpc {
     return getLogsMethod;
   }
 
-  private static volatile io.grpc.MethodDescriptor<runtime.RuntimeOuterClass.CreateNamespaceRequest,
-      runtime.RuntimeOuterClass.CreateNamespaceResponse> getCreateNamespaceMethod;
-
-  @io.grpc.stub.annotations.RpcMethod(
-      fullMethodName = SERVICE_NAME + '/' + "CreateNamespace",
-      requestType = runtime.RuntimeOuterClass.CreateNamespaceRequest.class,
-      responseType = runtime.RuntimeOuterClass.CreateNamespaceResponse.class,
-      methodType = io.grpc.MethodDescriptor.MethodType.UNARY)
-  public static io.grpc.MethodDescriptor<runtime.RuntimeOuterClass.CreateNamespaceRequest,
-      runtime.RuntimeOuterClass.CreateNamespaceResponse> getCreateNamespaceMethod() {
-    io.grpc.MethodDescriptor<runtime.RuntimeOuterClass.CreateNamespaceRequest, runtime.RuntimeOuterClass.CreateNamespaceResponse> getCreateNamespaceMethod;
-    if ((getCreateNamespaceMethod = RuntimeGrpc.getCreateNamespaceMethod) == null) {
-      synchronized (RuntimeGrpc.class) {
-        if ((getCreateNamespaceMethod = RuntimeGrpc.getCreateNamespaceMethod) == null) {
-          RuntimeGrpc.getCreateNamespaceMethod = getCreateNamespaceMethod =
-              io.grpc.MethodDescriptor.<runtime.RuntimeOuterClass.CreateNamespaceRequest, runtime.RuntimeOuterClass.CreateNamespaceResponse>newBuilder()
-              .setType(io.grpc.MethodDescriptor.MethodType.UNARY)
-              .setFullMethodName(generateFullMethodName(SERVICE_NAME, "CreateNamespace"))
-              .setSampledToLocalTracing(true)
-              .setRequestMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
-                  runtime.RuntimeOuterClass.CreateNamespaceRequest.getDefaultInstance()))
-              .setResponseMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
-                  runtime.RuntimeOuterClass.CreateNamespaceResponse.getDefaultInstance()))
-              .setSchemaDescriptor(new RuntimeMethodDescriptorSupplier("CreateNamespace"))
-              .build();
-        }
-      }
-    }
-    return getCreateNamespaceMethod;
-  }
-
-  private static volatile io.grpc.MethodDescriptor<runtime.RuntimeOuterClass.DeleteNamespaceRequest,
-      runtime.RuntimeOuterClass.DeleteNamespaceResponse> getDeleteNamespaceMethod;
-
-  @io.grpc.stub.annotations.RpcMethod(
-      fullMethodName = SERVICE_NAME + '/' + "DeleteNamespace",
-      requestType = runtime.RuntimeOuterClass.DeleteNamespaceRequest.class,
-      responseType = runtime.RuntimeOuterClass.DeleteNamespaceResponse.class,
-      methodType = io.grpc.MethodDescriptor.MethodType.UNARY)
-  public static io.grpc.MethodDescriptor<runtime.RuntimeOuterClass.DeleteNamespaceRequest,
-      runtime.RuntimeOuterClass.DeleteNamespaceResponse> getDeleteNamespaceMethod() {
-    io.grpc.MethodDescriptor<runtime.RuntimeOuterClass.DeleteNamespaceRequest, runtime.RuntimeOuterClass.DeleteNamespaceResponse> getDeleteNamespaceMethod;
-    if ((getDeleteNamespaceMethod = RuntimeGrpc.getDeleteNamespaceMethod) == null) {
-      synchronized (RuntimeGrpc.class) {
-        if ((getDeleteNamespaceMethod = RuntimeGrpc.getDeleteNamespaceMethod) == null) {
-          RuntimeGrpc.getDeleteNamespaceMethod = getDeleteNamespaceMethod =
-              io.grpc.MethodDescriptor.<runtime.RuntimeOuterClass.DeleteNamespaceRequest, runtime.RuntimeOuterClass.DeleteNamespaceResponse>newBuilder()
-              .setType(io.grpc.MethodDescriptor.MethodType.UNARY)
-              .setFullMethodName(generateFullMethodName(SERVICE_NAME, "DeleteNamespace"))
-              .setSampledToLocalTracing(true)
-              .setRequestMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
-                  runtime.RuntimeOuterClass.DeleteNamespaceRequest.getDefaultInstance()))
-              .setResponseMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
-                  runtime.RuntimeOuterClass.DeleteNamespaceResponse.getDefaultInstance()))
-              .setSchemaDescriptor(new RuntimeMethodDescriptorSupplier("DeleteNamespace"))
-              .build();
-        }
-      }
-    }
-    return getDeleteNamespaceMethod;
-  }
-
   /**
    * Creates a new async stub that supports all call types for the service
    */
@@ -327,20 +265,6 @@ public final class RuntimeGrpc {
       asyncUnimplementedUnaryCall(getLogsMethod(), responseObserver);
     }
 
-    /**
-     */
-    public void createNamespace(runtime.RuntimeOuterClass.CreateNamespaceRequest request,
-        io.grpc.stub.StreamObserver<runtime.RuntimeOuterClass.CreateNamespaceResponse> responseObserver) {
-      asyncUnimplementedUnaryCall(getCreateNamespaceMethod(), responseObserver);
-    }
-
-    /**
-     */
-    public void deleteNamespace(runtime.RuntimeOuterClass.DeleteNamespaceRequest request,
-        io.grpc.stub.StreamObserver<runtime.RuntimeOuterClass.DeleteNamespaceResponse> responseObserver) {
-      asyncUnimplementedUnaryCall(getDeleteNamespaceMethod(), responseObserver);
-    }
-
     @java.lang.Override public final io.grpc.ServerServiceDefinition bindService() {
       return io.grpc.ServerServiceDefinition.builder(getServiceDescriptor())
           .addMethod(
@@ -378,20 +302,6 @@ public final class RuntimeGrpc {
                 runtime.RuntimeOuterClass.LogsRequest,
                 runtime.RuntimeOuterClass.LogRecord>(
                   this, METHODID_LOGS)))
-          .addMethod(
-            getCreateNamespaceMethod(),
-            asyncUnaryCall(
-              new MethodHandlers<
-                runtime.RuntimeOuterClass.CreateNamespaceRequest,
-                runtime.RuntimeOuterClass.CreateNamespaceResponse>(
-                  this, METHODID_CREATE_NAMESPACE)))
-          .addMethod(
-            getDeleteNamespaceMethod(),
-            asyncUnaryCall(
-              new MethodHandlers<
-                runtime.RuntimeOuterClass.DeleteNamespaceRequest,
-                runtime.RuntimeOuterClass.DeleteNamespaceResponse>(
-                  this, METHODID_DELETE_NAMESPACE)))
           .build();
     }
   }
@@ -449,22 +359,6 @@ public final class RuntimeGrpc {
       asyncServerStreamingCall(
           getChannel().newCall(getLogsMethod(), getCallOptions()), request, responseObserver);
     }
-
-    /**
-     */
-    public void createNamespace(runtime.RuntimeOuterClass.CreateNamespaceRequest request,
-        io.grpc.stub.StreamObserver<runtime.RuntimeOuterClass.CreateNamespaceResponse> responseObserver) {
-      asyncUnaryCall(
-          getChannel().newCall(getCreateNamespaceMethod(), getCallOptions()), request, responseObserver);
-    }
-
-    /**
-     */
-    public void deleteNamespace(runtime.RuntimeOuterClass.DeleteNamespaceRequest request,
-        io.grpc.stub.StreamObserver<runtime.RuntimeOuterClass.DeleteNamespaceResponse> responseObserver) {
-      asyncUnaryCall(
-          getChannel().newCall(getDeleteNamespaceMethod(), getCallOptions()), request, responseObserver);
-    }
   }
 
   /**
@@ -516,20 +410,6 @@ public final class RuntimeGrpc {
       return blockingServerStreamingCall(
           getChannel(), getLogsMethod(), getCallOptions(), request);
     }
-
-    /**
-     */
-    public runtime.RuntimeOuterClass.CreateNamespaceResponse createNamespace(runtime.RuntimeOuterClass.CreateNamespaceRequest request) {
-      return blockingUnaryCall(
-          getChannel(), getCreateNamespaceMethod(), getCallOptions(), request);
-    }
-
-    /**
-     */
-    public runtime.RuntimeOuterClass.DeleteNamespaceResponse deleteNamespace(runtime.RuntimeOuterClass.DeleteNamespaceRequest request) {
-      return blockingUnaryCall(
-          getChannel(), getDeleteNamespaceMethod(), getCallOptions(), request);
-    }
   }
 
   /**
@@ -577,22 +457,6 @@ public final class RuntimeGrpc {
       return futureUnaryCall(
           getChannel().newCall(getUpdateMethod(), getCallOptions()), request);
     }
-
-    /**
-     */
-    public com.google.common.util.concurrent.ListenableFuture<runtime.RuntimeOuterClass.CreateNamespaceResponse> createNamespace(
-        runtime.RuntimeOuterClass.CreateNamespaceRequest request) {
-      return futureUnaryCall(
-          getChannel().newCall(getCreateNamespaceMethod(), getCallOptions()), request);
-    }
-
-    /**
-     */
-    public com.google.common.util.concurrent.ListenableFuture<runtime.RuntimeOuterClass.DeleteNamespaceResponse> deleteNamespace(
-        runtime.RuntimeOuterClass.DeleteNamespaceRequest request) {
-      return futureUnaryCall(
-          getChannel().newCall(getDeleteNamespaceMethod(), getCallOptions()), request);
-    }
   }
 
   private static final int METHODID_CREATE = 0;
@@ -600,8 +464,6 @@ public final class RuntimeGrpc {
   private static final int METHODID_DELETE = 2;
   private static final int METHODID_UPDATE = 3;
   private static final int METHODID_LOGS = 4;
-  private static final int METHODID_CREATE_NAMESPACE = 5;
-  private static final int METHODID_DELETE_NAMESPACE = 6;
 
   private static final class MethodHandlers<Req, Resp> implements
       io.grpc.stub.ServerCalls.UnaryMethod<Req, Resp>,
@@ -639,14 +501,6 @@ public final class RuntimeGrpc {
         case METHODID_LOGS:
           serviceImpl.logs((runtime.RuntimeOuterClass.LogsRequest) request,
               (io.grpc.stub.StreamObserver<runtime.RuntimeOuterClass.LogRecord>) responseObserver);
-          break;
-        case METHODID_CREATE_NAMESPACE:
-          serviceImpl.createNamespace((runtime.RuntimeOuterClass.CreateNamespaceRequest) request,
-              (io.grpc.stub.StreamObserver<runtime.RuntimeOuterClass.CreateNamespaceResponse>) responseObserver);
-          break;
-        case METHODID_DELETE_NAMESPACE:
-          serviceImpl.deleteNamespace((runtime.RuntimeOuterClass.DeleteNamespaceRequest) request,
-              (io.grpc.stub.StreamObserver<runtime.RuntimeOuterClass.DeleteNamespaceResponse>) responseObserver);
           break;
         default:
           throw new AssertionError();
@@ -714,8 +568,6 @@ public final class RuntimeGrpc {
               .addMethod(getDeleteMethod())
               .addMethod(getUpdateMethod())
               .addMethod(getLogsMethod())
-              .addMethod(getCreateNamespaceMethod())
-              .addMethod(getDeleteNamespaceMethod())
               .build();
         }
       }

@@ -12,7 +12,7 @@ import (
 
 	cbytes "github.com/micro/micro/v3/internal/codec/bytes"
 	"github.com/micro/go-micro/v3/metadata"
-	goregistry "github.com/micro/go-micro/v3/registry"
+	goregistry "github.com/micro/micro/v3/service/registry"
 	"github.com/micro/micro/v3/client/cli/namespace"
 	"github.com/micro/micro/v3/client/cli/util"
 	proto "github.com/micro/micro/v3/proto/debug"

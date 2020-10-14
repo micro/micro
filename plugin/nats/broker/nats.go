@@ -23,7 +23,7 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/micro/go-micro/v3/registry/mdns"
+	"github.com/micro/micro/v3/service/registry/mdns"
 	"github.com/micro/micro/v3/service/broker"
 	"github.com/micro/micro/v3/service/logger"
 	nats "github.com/nats-io/nats.go"

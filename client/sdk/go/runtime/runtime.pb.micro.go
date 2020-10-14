@@ -11,9 +11,9 @@ import (
 
 import (
 	context "context"
-	client "github.com/micro/go-micro/v3/client"
-	server "github.com/micro/go-micro/v3/server"
 	api "github.com/micro/micro/v3/service/api"
+	client "github.com/micro/micro/v3/service/client"
+	server "github.com/micro/micro/v3/service/server"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -47,8 +47,6 @@ type RuntimeService interface {
 	Delete(ctx context.Context, in *DeleteRequest, opts ...client.CallOption) (*DeleteResponse, error)
 	Update(ctx context.Context, in *UpdateRequest, opts ...client.CallOption) (*UpdateResponse, error)
 	Logs(ctx context.Context, in *LogsRequest, opts ...client.CallOption) (Runtime_LogsService, error)
-	CreateNamespace(ctx context.Context, in *CreateNamespaceRequest, opts ...client.CallOption) (*CreateNamespaceResponse, error)
-	DeleteNamespace(ctx context.Context, in *DeleteNamespaceRequest, opts ...client.CallOption) (*DeleteNamespaceResponse, error)
 }
 
 type runtimeService struct {
@@ -152,26 +150,6 @@ func (x *runtimeServiceLogs) Recv() (*LogRecord, error) {
 	return m, nil
 }
 
-func (c *runtimeService) CreateNamespace(ctx context.Context, in *CreateNamespaceRequest, opts ...client.CallOption) (*CreateNamespaceResponse, error) {
-	req := c.c.NewRequest(c.name, "Runtime.CreateNamespace", in)
-	out := new(CreateNamespaceResponse)
-	err := c.c.Call(ctx, req, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *runtimeService) DeleteNamespace(ctx context.Context, in *DeleteNamespaceRequest, opts ...client.CallOption) (*DeleteNamespaceResponse, error) {
-	req := c.c.NewRequest(c.name, "Runtime.DeleteNamespace", in)
-	out := new(DeleteNamespaceResponse)
-	err := c.c.Call(ctx, req, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 // Server API for Runtime service
 
 type RuntimeHandler interface {
@@ -180,8 +158,6 @@ type RuntimeHandler interface {
 	Delete(context.Context, *DeleteRequest, *DeleteResponse) error
 	Update(context.Context, *UpdateRequest, *UpdateResponse) error
 	Logs(context.Context, *LogsRequest, Runtime_LogsStream) error
-	CreateNamespace(context.Context, *CreateNamespaceRequest, *CreateNamespaceResponse) error
-	DeleteNamespace(context.Context, *DeleteNamespaceRequest, *DeleteNamespaceResponse) error
 }
 
 func RegisterRuntimeHandler(s server.Server, hdlr RuntimeHandler, opts ...server.HandlerOption) error {
@@ -191,8 +167,6 @@ func RegisterRuntimeHandler(s server.Server, hdlr RuntimeHandler, opts ...server
 		Delete(ctx context.Context, in *DeleteRequest, out *DeleteResponse) error
 		Update(ctx context.Context, in *UpdateRequest, out *UpdateResponse) error
 		Logs(ctx context.Context, stream server.Stream) error
-		CreateNamespace(ctx context.Context, in *CreateNamespaceRequest, out *CreateNamespaceResponse) error
-		DeleteNamespace(ctx context.Context, in *DeleteNamespaceRequest, out *DeleteNamespaceResponse) error
 	}
 	type Runtime struct {
 		runtime
@@ -259,14 +233,6 @@ func (x *runtimeLogsStream) RecvMsg(m interface{}) error {
 
 func (x *runtimeLogsStream) Send(m *LogRecord) error {
 	return x.stream.Send(m)
-}
-
-func (h *runtimeHandler) CreateNamespace(ctx context.Context, in *CreateNamespaceRequest, out *CreateNamespaceResponse) error {
-	return h.RuntimeHandler.CreateNamespace(ctx, in, out)
-}
-
-func (h *runtimeHandler) DeleteNamespace(ctx context.Context, in *DeleteNamespaceRequest, out *DeleteNamespaceResponse) error {
-	return h.RuntimeHandler.DeleteNamespace(ctx, in, out)
 }
 
 // Api Endpoints for Source service

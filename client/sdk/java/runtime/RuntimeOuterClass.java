@@ -14,6 +14,2722 @@ public final class RuntimeOuterClass {
     registerAllExtensions(
         (com.google.protobuf.ExtensionRegistryLite) registry);
   }
+  public interface ResourceOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:runtime.Resource)
+      com.google.protobuf.MessageOrBuilder {
+
+    /**
+     * <code>.runtime.Namespace namespace = 1;</code>
+     */
+    boolean hasNamespace();
+    /**
+     * <code>.runtime.Namespace namespace = 1;</code>
+     */
+    runtime.RuntimeOuterClass.Namespace getNamespace();
+    /**
+     * <code>.runtime.Namespace namespace = 1;</code>
+     */
+    runtime.RuntimeOuterClass.NamespaceOrBuilder getNamespaceOrBuilder();
+
+    /**
+     * <code>.runtime.NetworkPolicy networkpolicy = 2;</code>
+     */
+    boolean hasNetworkpolicy();
+    /**
+     * <code>.runtime.NetworkPolicy networkpolicy = 2;</code>
+     */
+    runtime.RuntimeOuterClass.NetworkPolicy getNetworkpolicy();
+    /**
+     * <code>.runtime.NetworkPolicy networkpolicy = 2;</code>
+     */
+    runtime.RuntimeOuterClass.NetworkPolicyOrBuilder getNetworkpolicyOrBuilder();
+
+    /**
+     * <code>.runtime.Service service = 3;</code>
+     */
+    boolean hasService();
+    /**
+     * <code>.runtime.Service service = 3;</code>
+     */
+    runtime.RuntimeOuterClass.Service getService();
+    /**
+     * <code>.runtime.Service service = 3;</code>
+     */
+    runtime.RuntimeOuterClass.ServiceOrBuilder getServiceOrBuilder();
+  }
+  /**
+   * Protobuf type {@code runtime.Resource}
+   */
+  public  static final class Resource extends
+      com.google.protobuf.GeneratedMessageV3 implements
+      // @@protoc_insertion_point(message_implements:runtime.Resource)
+      ResourceOrBuilder {
+  private static final long serialVersionUID = 0L;
+    // Use Resource.newBuilder() to construct.
+    private Resource(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
+      super(builder);
+    }
+    private Resource() {
+    }
+
+    @java.lang.Override
+    public final com.google.protobuf.UnknownFieldSet
+    getUnknownFields() {
+      return this.unknownFields;
+    }
+    private Resource(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      this();
+      if (extensionRegistry == null) {
+        throw new java.lang.NullPointerException();
+      }
+      int mutable_bitField0_ = 0;
+      com.google.protobuf.UnknownFieldSet.Builder unknownFields =
+          com.google.protobuf.UnknownFieldSet.newBuilder();
+      try {
+        boolean done = false;
+        while (!done) {
+          int tag = input.readTag();
+          switch (tag) {
+            case 0:
+              done = true;
+              break;
+            case 10: {
+              runtime.RuntimeOuterClass.Namespace.Builder subBuilder = null;
+              if (namespace_ != null) {
+                subBuilder = namespace_.toBuilder();
+              }
+              namespace_ = input.readMessage(runtime.RuntimeOuterClass.Namespace.parser(), extensionRegistry);
+              if (subBuilder != null) {
+                subBuilder.mergeFrom(namespace_);
+                namespace_ = subBuilder.buildPartial();
+              }
+
+              break;
+            }
+            case 18: {
+              runtime.RuntimeOuterClass.NetworkPolicy.Builder subBuilder = null;
+              if (networkpolicy_ != null) {
+                subBuilder = networkpolicy_.toBuilder();
+              }
+              networkpolicy_ = input.readMessage(runtime.RuntimeOuterClass.NetworkPolicy.parser(), extensionRegistry);
+              if (subBuilder != null) {
+                subBuilder.mergeFrom(networkpolicy_);
+                networkpolicy_ = subBuilder.buildPartial();
+              }
+
+              break;
+            }
+            case 26: {
+              runtime.RuntimeOuterClass.Service.Builder subBuilder = null;
+              if (service_ != null) {
+                subBuilder = service_.toBuilder();
+              }
+              service_ = input.readMessage(runtime.RuntimeOuterClass.Service.parser(), extensionRegistry);
+              if (subBuilder != null) {
+                subBuilder.mergeFrom(service_);
+                service_ = subBuilder.buildPartial();
+              }
+
+              break;
+            }
+            default: {
+              if (!parseUnknownFieldProto3(
+                  input, unknownFields, extensionRegistry, tag)) {
+                done = true;
+              }
+              break;
+            }
+          }
+        }
+      } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+        throw e.setUnfinishedMessage(this);
+      } catch (java.io.IOException e) {
+        throw new com.google.protobuf.InvalidProtocolBufferException(
+            e).setUnfinishedMessage(this);
+      } finally {
+        this.unknownFields = unknownFields.build();
+        makeExtensionsImmutable();
+      }
+    }
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+      return runtime.RuntimeOuterClass.internal_static_runtime_Resource_descriptor;
+    }
+
+    @java.lang.Override
+    protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return runtime.RuntimeOuterClass.internal_static_runtime_Resource_fieldAccessorTable
+          .ensureFieldAccessorsInitialized(
+              runtime.RuntimeOuterClass.Resource.class, runtime.RuntimeOuterClass.Resource.Builder.class);
+    }
+
+    public static final int NAMESPACE_FIELD_NUMBER = 1;
+    private runtime.RuntimeOuterClass.Namespace namespace_;
+    /**
+     * <code>.runtime.Namespace namespace = 1;</code>
+     */
+    public boolean hasNamespace() {
+      return namespace_ != null;
+    }
+    /**
+     * <code>.runtime.Namespace namespace = 1;</code>
+     */
+    public runtime.RuntimeOuterClass.Namespace getNamespace() {
+      return namespace_ == null ? runtime.RuntimeOuterClass.Namespace.getDefaultInstance() : namespace_;
+    }
+    /**
+     * <code>.runtime.Namespace namespace = 1;</code>
+     */
+    public runtime.RuntimeOuterClass.NamespaceOrBuilder getNamespaceOrBuilder() {
+      return getNamespace();
+    }
+
+    public static final int NETWORKPOLICY_FIELD_NUMBER = 2;
+    private runtime.RuntimeOuterClass.NetworkPolicy networkpolicy_;
+    /**
+     * <code>.runtime.NetworkPolicy networkpolicy = 2;</code>
+     */
+    public boolean hasNetworkpolicy() {
+      return networkpolicy_ != null;
+    }
+    /**
+     * <code>.runtime.NetworkPolicy networkpolicy = 2;</code>
+     */
+    public runtime.RuntimeOuterClass.NetworkPolicy getNetworkpolicy() {
+      return networkpolicy_ == null ? runtime.RuntimeOuterClass.NetworkPolicy.getDefaultInstance() : networkpolicy_;
+    }
+    /**
+     * <code>.runtime.NetworkPolicy networkpolicy = 2;</code>
+     */
+    public runtime.RuntimeOuterClass.NetworkPolicyOrBuilder getNetworkpolicyOrBuilder() {
+      return getNetworkpolicy();
+    }
+
+    public static final int SERVICE_FIELD_NUMBER = 3;
+    private runtime.RuntimeOuterClass.Service service_;
+    /**
+     * <code>.runtime.Service service = 3;</code>
+     */
+    public boolean hasService() {
+      return service_ != null;
+    }
+    /**
+     * <code>.runtime.Service service = 3;</code>
+     */
+    public runtime.RuntimeOuterClass.Service getService() {
+      return service_ == null ? runtime.RuntimeOuterClass.Service.getDefaultInstance() : service_;
+    }
+    /**
+     * <code>.runtime.Service service = 3;</code>
+     */
+    public runtime.RuntimeOuterClass.ServiceOrBuilder getServiceOrBuilder() {
+      return getService();
+    }
+
+    private byte memoizedIsInitialized = -1;
+    @java.lang.Override
+    public final boolean isInitialized() {
+      byte isInitialized = memoizedIsInitialized;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
+
+      memoizedIsInitialized = 1;
+      return true;
+    }
+
+    @java.lang.Override
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
+      if (namespace_ != null) {
+        output.writeMessage(1, getNamespace());
+      }
+      if (networkpolicy_ != null) {
+        output.writeMessage(2, getNetworkpolicy());
+      }
+      if (service_ != null) {
+        output.writeMessage(3, getService());
+      }
+      unknownFields.writeTo(output);
+    }
+
+    @java.lang.Override
+    public int getSerializedSize() {
+      int size = memoizedSize;
+      if (size != -1) return size;
+
+      size = 0;
+      if (namespace_ != null) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(1, getNamespace());
+      }
+      if (networkpolicy_ != null) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(2, getNetworkpolicy());
+      }
+      if (service_ != null) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(3, getService());
+      }
+      size += unknownFields.getSerializedSize();
+      memoizedSize = size;
+      return size;
+    }
+
+    @java.lang.Override
+    public boolean equals(final java.lang.Object obj) {
+      if (obj == this) {
+       return true;
+      }
+      if (!(obj instanceof runtime.RuntimeOuterClass.Resource)) {
+        return super.equals(obj);
+      }
+      runtime.RuntimeOuterClass.Resource other = (runtime.RuntimeOuterClass.Resource) obj;
+
+      boolean result = true;
+      result = result && (hasNamespace() == other.hasNamespace());
+      if (hasNamespace()) {
+        result = result && getNamespace()
+            .equals(other.getNamespace());
+      }
+      result = result && (hasNetworkpolicy() == other.hasNetworkpolicy());
+      if (hasNetworkpolicy()) {
+        result = result && getNetworkpolicy()
+            .equals(other.getNetworkpolicy());
+      }
+      result = result && (hasService() == other.hasService());
+      if (hasService()) {
+        result = result && getService()
+            .equals(other.getService());
+      }
+      result = result && unknownFields.equals(other.unknownFields);
+      return result;
+    }
+
+    @java.lang.Override
+    public int hashCode() {
+      if (memoizedHashCode != 0) {
+        return memoizedHashCode;
+      }
+      int hash = 41;
+      hash = (19 * hash) + getDescriptor().hashCode();
+      if (hasNamespace()) {
+        hash = (37 * hash) + NAMESPACE_FIELD_NUMBER;
+        hash = (53 * hash) + getNamespace().hashCode();
+      }
+      if (hasNetworkpolicy()) {
+        hash = (37 * hash) + NETWORKPOLICY_FIELD_NUMBER;
+        hash = (53 * hash) + getNetworkpolicy().hashCode();
+      }
+      if (hasService()) {
+        hash = (37 * hash) + SERVICE_FIELD_NUMBER;
+        hash = (53 * hash) + getService().hashCode();
+      }
+      hash = (29 * hash) + unknownFields.hashCode();
+      memoizedHashCode = hash;
+      return hash;
+    }
+
+    public static runtime.RuntimeOuterClass.Resource parseFrom(
+        java.nio.ByteBuffer data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static runtime.RuntimeOuterClass.Resource parseFrom(
+        java.nio.ByteBuffer data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static runtime.RuntimeOuterClass.Resource parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static runtime.RuntimeOuterClass.Resource parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static runtime.RuntimeOuterClass.Resource parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static runtime.RuntimeOuterClass.Resource parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static runtime.RuntimeOuterClass.Resource parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input);
+    }
+    public static runtime.RuntimeOuterClass.Resource parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input, extensionRegistry);
+    }
+    public static runtime.RuntimeOuterClass.Resource parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseDelimitedWithIOException(PARSER, input);
+    }
+    public static runtime.RuntimeOuterClass.Resource parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
+    }
+    public static runtime.RuntimeOuterClass.Resource parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input);
+    }
+    public static runtime.RuntimeOuterClass.Resource parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input, extensionRegistry);
+    }
+
+    @java.lang.Override
+    public Builder newBuilderForType() { return newBuilder(); }
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
+    }
+    public static Builder newBuilder(runtime.RuntimeOuterClass.Resource prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    @java.lang.Override
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
+
+    @java.lang.Override
+    protected Builder newBuilderForType(
+        com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+      Builder builder = new Builder(parent);
+      return builder;
+    }
+    /**
+     * Protobuf type {@code runtime.Resource}
+     */
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:runtime.Resource)
+        runtime.RuntimeOuterClass.ResourceOrBuilder {
+      public static final com.google.protobuf.Descriptors.Descriptor
+          getDescriptor() {
+        return runtime.RuntimeOuterClass.internal_static_runtime_Resource_descriptor;
+      }
+
+      @java.lang.Override
+      protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+          internalGetFieldAccessorTable() {
+        return runtime.RuntimeOuterClass.internal_static_runtime_Resource_fieldAccessorTable
+            .ensureFieldAccessorsInitialized(
+                runtime.RuntimeOuterClass.Resource.class, runtime.RuntimeOuterClass.Resource.Builder.class);
+      }
+
+      // Construct using runtime.RuntimeOuterClass.Resource.newBuilder()
+      private Builder() {
+        maybeForceBuilderInitialization();
+      }
+
+      private Builder(
+          com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+        super(parent);
+        maybeForceBuilderInitialization();
+      }
+      private void maybeForceBuilderInitialization() {
+        if (com.google.protobuf.GeneratedMessageV3
+                .alwaysUseFieldBuilders) {
+        }
+      }
+      @java.lang.Override
+      public Builder clear() {
+        super.clear();
+        if (namespaceBuilder_ == null) {
+          namespace_ = null;
+        } else {
+          namespace_ = null;
+          namespaceBuilder_ = null;
+        }
+        if (networkpolicyBuilder_ == null) {
+          networkpolicy_ = null;
+        } else {
+          networkpolicy_ = null;
+          networkpolicyBuilder_ = null;
+        }
+        if (serviceBuilder_ == null) {
+          service_ = null;
+        } else {
+          service_ = null;
+          serviceBuilder_ = null;
+        }
+        return this;
+      }
+
+      @java.lang.Override
+      public com.google.protobuf.Descriptors.Descriptor
+          getDescriptorForType() {
+        return runtime.RuntimeOuterClass.internal_static_runtime_Resource_descriptor;
+      }
+
+      @java.lang.Override
+      public runtime.RuntimeOuterClass.Resource getDefaultInstanceForType() {
+        return runtime.RuntimeOuterClass.Resource.getDefaultInstance();
+      }
+
+      @java.lang.Override
+      public runtime.RuntimeOuterClass.Resource build() {
+        runtime.RuntimeOuterClass.Resource result = buildPartial();
+        if (!result.isInitialized()) {
+          throw newUninitializedMessageException(result);
+        }
+        return result;
+      }
+
+      @java.lang.Override
+      public runtime.RuntimeOuterClass.Resource buildPartial() {
+        runtime.RuntimeOuterClass.Resource result = new runtime.RuntimeOuterClass.Resource(this);
+        if (namespaceBuilder_ == null) {
+          result.namespace_ = namespace_;
+        } else {
+          result.namespace_ = namespaceBuilder_.build();
+        }
+        if (networkpolicyBuilder_ == null) {
+          result.networkpolicy_ = networkpolicy_;
+        } else {
+          result.networkpolicy_ = networkpolicyBuilder_.build();
+        }
+        if (serviceBuilder_ == null) {
+          result.service_ = service_;
+        } else {
+          result.service_ = serviceBuilder_.build();
+        }
+        onBuilt();
+        return result;
+      }
+
+      @java.lang.Override
+      public Builder clone() {
+        return (Builder) super.clone();
+      }
+      @java.lang.Override
+      public Builder setField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          java.lang.Object value) {
+        return (Builder) super.setField(field, value);
+      }
+      @java.lang.Override
+      public Builder clearField(
+          com.google.protobuf.Descriptors.FieldDescriptor field) {
+        return (Builder) super.clearField(field);
+      }
+      @java.lang.Override
+      public Builder clearOneof(
+          com.google.protobuf.Descriptors.OneofDescriptor oneof) {
+        return (Builder) super.clearOneof(oneof);
+      }
+      @java.lang.Override
+      public Builder setRepeatedField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          int index, java.lang.Object value) {
+        return (Builder) super.setRepeatedField(field, index, value);
+      }
+      @java.lang.Override
+      public Builder addRepeatedField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          java.lang.Object value) {
+        return (Builder) super.addRepeatedField(field, value);
+      }
+      @java.lang.Override
+      public Builder mergeFrom(com.google.protobuf.Message other) {
+        if (other instanceof runtime.RuntimeOuterClass.Resource) {
+          return mergeFrom((runtime.RuntimeOuterClass.Resource)other);
+        } else {
+          super.mergeFrom(other);
+          return this;
+        }
+      }
+
+      public Builder mergeFrom(runtime.RuntimeOuterClass.Resource other) {
+        if (other == runtime.RuntimeOuterClass.Resource.getDefaultInstance()) return this;
+        if (other.hasNamespace()) {
+          mergeNamespace(other.getNamespace());
+        }
+        if (other.hasNetworkpolicy()) {
+          mergeNetworkpolicy(other.getNetworkpolicy());
+        }
+        if (other.hasService()) {
+          mergeService(other.getService());
+        }
+        this.mergeUnknownFields(other.unknownFields);
+        onChanged();
+        return this;
+      }
+
+      @java.lang.Override
+      public final boolean isInitialized() {
+        return true;
+      }
+
+      @java.lang.Override
+      public Builder mergeFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        runtime.RuntimeOuterClass.Resource parsedMessage = null;
+        try {
+          parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+          parsedMessage = (runtime.RuntimeOuterClass.Resource) e.getUnfinishedMessage();
+          throw e.unwrapIOException();
+        } finally {
+          if (parsedMessage != null) {
+            mergeFrom(parsedMessage);
+          }
+        }
+        return this;
+      }
+
+      private runtime.RuntimeOuterClass.Namespace namespace_ = null;
+      private com.google.protobuf.SingleFieldBuilderV3<
+          runtime.RuntimeOuterClass.Namespace, runtime.RuntimeOuterClass.Namespace.Builder, runtime.RuntimeOuterClass.NamespaceOrBuilder> namespaceBuilder_;
+      /**
+       * <code>.runtime.Namespace namespace = 1;</code>
+       */
+      public boolean hasNamespace() {
+        return namespaceBuilder_ != null || namespace_ != null;
+      }
+      /**
+       * <code>.runtime.Namespace namespace = 1;</code>
+       */
+      public runtime.RuntimeOuterClass.Namespace getNamespace() {
+        if (namespaceBuilder_ == null) {
+          return namespace_ == null ? runtime.RuntimeOuterClass.Namespace.getDefaultInstance() : namespace_;
+        } else {
+          return namespaceBuilder_.getMessage();
+        }
+      }
+      /**
+       * <code>.runtime.Namespace namespace = 1;</code>
+       */
+      public Builder setNamespace(runtime.RuntimeOuterClass.Namespace value) {
+        if (namespaceBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          namespace_ = value;
+          onChanged();
+        } else {
+          namespaceBuilder_.setMessage(value);
+        }
+
+        return this;
+      }
+      /**
+       * <code>.runtime.Namespace namespace = 1;</code>
+       */
+      public Builder setNamespace(
+          runtime.RuntimeOuterClass.Namespace.Builder builderForValue) {
+        if (namespaceBuilder_ == null) {
+          namespace_ = builderForValue.build();
+          onChanged();
+        } else {
+          namespaceBuilder_.setMessage(builderForValue.build());
+        }
+
+        return this;
+      }
+      /**
+       * <code>.runtime.Namespace namespace = 1;</code>
+       */
+      public Builder mergeNamespace(runtime.RuntimeOuterClass.Namespace value) {
+        if (namespaceBuilder_ == null) {
+          if (namespace_ != null) {
+            namespace_ =
+              runtime.RuntimeOuterClass.Namespace.newBuilder(namespace_).mergeFrom(value).buildPartial();
+          } else {
+            namespace_ = value;
+          }
+          onChanged();
+        } else {
+          namespaceBuilder_.mergeFrom(value);
+        }
+
+        return this;
+      }
+      /**
+       * <code>.runtime.Namespace namespace = 1;</code>
+       */
+      public Builder clearNamespace() {
+        if (namespaceBuilder_ == null) {
+          namespace_ = null;
+          onChanged();
+        } else {
+          namespace_ = null;
+          namespaceBuilder_ = null;
+        }
+
+        return this;
+      }
+      /**
+       * <code>.runtime.Namespace namespace = 1;</code>
+       */
+      public runtime.RuntimeOuterClass.Namespace.Builder getNamespaceBuilder() {
+        
+        onChanged();
+        return getNamespaceFieldBuilder().getBuilder();
+      }
+      /**
+       * <code>.runtime.Namespace namespace = 1;</code>
+       */
+      public runtime.RuntimeOuterClass.NamespaceOrBuilder getNamespaceOrBuilder() {
+        if (namespaceBuilder_ != null) {
+          return namespaceBuilder_.getMessageOrBuilder();
+        } else {
+          return namespace_ == null ?
+              runtime.RuntimeOuterClass.Namespace.getDefaultInstance() : namespace_;
+        }
+      }
+      /**
+       * <code>.runtime.Namespace namespace = 1;</code>
+       */
+      private com.google.protobuf.SingleFieldBuilderV3<
+          runtime.RuntimeOuterClass.Namespace, runtime.RuntimeOuterClass.Namespace.Builder, runtime.RuntimeOuterClass.NamespaceOrBuilder> 
+          getNamespaceFieldBuilder() {
+        if (namespaceBuilder_ == null) {
+          namespaceBuilder_ = new com.google.protobuf.SingleFieldBuilderV3<
+              runtime.RuntimeOuterClass.Namespace, runtime.RuntimeOuterClass.Namespace.Builder, runtime.RuntimeOuterClass.NamespaceOrBuilder>(
+                  getNamespace(),
+                  getParentForChildren(),
+                  isClean());
+          namespace_ = null;
+        }
+        return namespaceBuilder_;
+      }
+
+      private runtime.RuntimeOuterClass.NetworkPolicy networkpolicy_ = null;
+      private com.google.protobuf.SingleFieldBuilderV3<
+          runtime.RuntimeOuterClass.NetworkPolicy, runtime.RuntimeOuterClass.NetworkPolicy.Builder, runtime.RuntimeOuterClass.NetworkPolicyOrBuilder> networkpolicyBuilder_;
+      /**
+       * <code>.runtime.NetworkPolicy networkpolicy = 2;</code>
+       */
+      public boolean hasNetworkpolicy() {
+        return networkpolicyBuilder_ != null || networkpolicy_ != null;
+      }
+      /**
+       * <code>.runtime.NetworkPolicy networkpolicy = 2;</code>
+       */
+      public runtime.RuntimeOuterClass.NetworkPolicy getNetworkpolicy() {
+        if (networkpolicyBuilder_ == null) {
+          return networkpolicy_ == null ? runtime.RuntimeOuterClass.NetworkPolicy.getDefaultInstance() : networkpolicy_;
+        } else {
+          return networkpolicyBuilder_.getMessage();
+        }
+      }
+      /**
+       * <code>.runtime.NetworkPolicy networkpolicy = 2;</code>
+       */
+      public Builder setNetworkpolicy(runtime.RuntimeOuterClass.NetworkPolicy value) {
+        if (networkpolicyBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          networkpolicy_ = value;
+          onChanged();
+        } else {
+          networkpolicyBuilder_.setMessage(value);
+        }
+
+        return this;
+      }
+      /**
+       * <code>.runtime.NetworkPolicy networkpolicy = 2;</code>
+       */
+      public Builder setNetworkpolicy(
+          runtime.RuntimeOuterClass.NetworkPolicy.Builder builderForValue) {
+        if (networkpolicyBuilder_ == null) {
+          networkpolicy_ = builderForValue.build();
+          onChanged();
+        } else {
+          networkpolicyBuilder_.setMessage(builderForValue.build());
+        }
+
+        return this;
+      }
+      /**
+       * <code>.runtime.NetworkPolicy networkpolicy = 2;</code>
+       */
+      public Builder mergeNetworkpolicy(runtime.RuntimeOuterClass.NetworkPolicy value) {
+        if (networkpolicyBuilder_ == null) {
+          if (networkpolicy_ != null) {
+            networkpolicy_ =
+              runtime.RuntimeOuterClass.NetworkPolicy.newBuilder(networkpolicy_).mergeFrom(value).buildPartial();
+          } else {
+            networkpolicy_ = value;
+          }
+          onChanged();
+        } else {
+          networkpolicyBuilder_.mergeFrom(value);
+        }
+
+        return this;
+      }
+      /**
+       * <code>.runtime.NetworkPolicy networkpolicy = 2;</code>
+       */
+      public Builder clearNetworkpolicy() {
+        if (networkpolicyBuilder_ == null) {
+          networkpolicy_ = null;
+          onChanged();
+        } else {
+          networkpolicy_ = null;
+          networkpolicyBuilder_ = null;
+        }
+
+        return this;
+      }
+      /**
+       * <code>.runtime.NetworkPolicy networkpolicy = 2;</code>
+       */
+      public runtime.RuntimeOuterClass.NetworkPolicy.Builder getNetworkpolicyBuilder() {
+        
+        onChanged();
+        return getNetworkpolicyFieldBuilder().getBuilder();
+      }
+      /**
+       * <code>.runtime.NetworkPolicy networkpolicy = 2;</code>
+       */
+      public runtime.RuntimeOuterClass.NetworkPolicyOrBuilder getNetworkpolicyOrBuilder() {
+        if (networkpolicyBuilder_ != null) {
+          return networkpolicyBuilder_.getMessageOrBuilder();
+        } else {
+          return networkpolicy_ == null ?
+              runtime.RuntimeOuterClass.NetworkPolicy.getDefaultInstance() : networkpolicy_;
+        }
+      }
+      /**
+       * <code>.runtime.NetworkPolicy networkpolicy = 2;</code>
+       */
+      private com.google.protobuf.SingleFieldBuilderV3<
+          runtime.RuntimeOuterClass.NetworkPolicy, runtime.RuntimeOuterClass.NetworkPolicy.Builder, runtime.RuntimeOuterClass.NetworkPolicyOrBuilder> 
+          getNetworkpolicyFieldBuilder() {
+        if (networkpolicyBuilder_ == null) {
+          networkpolicyBuilder_ = new com.google.protobuf.SingleFieldBuilderV3<
+              runtime.RuntimeOuterClass.NetworkPolicy, runtime.RuntimeOuterClass.NetworkPolicy.Builder, runtime.RuntimeOuterClass.NetworkPolicyOrBuilder>(
+                  getNetworkpolicy(),
+                  getParentForChildren(),
+                  isClean());
+          networkpolicy_ = null;
+        }
+        return networkpolicyBuilder_;
+      }
+
+      private runtime.RuntimeOuterClass.Service service_ = null;
+      private com.google.protobuf.SingleFieldBuilderV3<
+          runtime.RuntimeOuterClass.Service, runtime.RuntimeOuterClass.Service.Builder, runtime.RuntimeOuterClass.ServiceOrBuilder> serviceBuilder_;
+      /**
+       * <code>.runtime.Service service = 3;</code>
+       */
+      public boolean hasService() {
+        return serviceBuilder_ != null || service_ != null;
+      }
+      /**
+       * <code>.runtime.Service service = 3;</code>
+       */
+      public runtime.RuntimeOuterClass.Service getService() {
+        if (serviceBuilder_ == null) {
+          return service_ == null ? runtime.RuntimeOuterClass.Service.getDefaultInstance() : service_;
+        } else {
+          return serviceBuilder_.getMessage();
+        }
+      }
+      /**
+       * <code>.runtime.Service service = 3;</code>
+       */
+      public Builder setService(runtime.RuntimeOuterClass.Service value) {
+        if (serviceBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          service_ = value;
+          onChanged();
+        } else {
+          serviceBuilder_.setMessage(value);
+        }
+
+        return this;
+      }
+      /**
+       * <code>.runtime.Service service = 3;</code>
+       */
+      public Builder setService(
+          runtime.RuntimeOuterClass.Service.Builder builderForValue) {
+        if (serviceBuilder_ == null) {
+          service_ = builderForValue.build();
+          onChanged();
+        } else {
+          serviceBuilder_.setMessage(builderForValue.build());
+        }
+
+        return this;
+      }
+      /**
+       * <code>.runtime.Service service = 3;</code>
+       */
+      public Builder mergeService(runtime.RuntimeOuterClass.Service value) {
+        if (serviceBuilder_ == null) {
+          if (service_ != null) {
+            service_ =
+              runtime.RuntimeOuterClass.Service.newBuilder(service_).mergeFrom(value).buildPartial();
+          } else {
+            service_ = value;
+          }
+          onChanged();
+        } else {
+          serviceBuilder_.mergeFrom(value);
+        }
+
+        return this;
+      }
+      /**
+       * <code>.runtime.Service service = 3;</code>
+       */
+      public Builder clearService() {
+        if (serviceBuilder_ == null) {
+          service_ = null;
+          onChanged();
+        } else {
+          service_ = null;
+          serviceBuilder_ = null;
+        }
+
+        return this;
+      }
+      /**
+       * <code>.runtime.Service service = 3;</code>
+       */
+      public runtime.RuntimeOuterClass.Service.Builder getServiceBuilder() {
+        
+        onChanged();
+        return getServiceFieldBuilder().getBuilder();
+      }
+      /**
+       * <code>.runtime.Service service = 3;</code>
+       */
+      public runtime.RuntimeOuterClass.ServiceOrBuilder getServiceOrBuilder() {
+        if (serviceBuilder_ != null) {
+          return serviceBuilder_.getMessageOrBuilder();
+        } else {
+          return service_ == null ?
+              runtime.RuntimeOuterClass.Service.getDefaultInstance() : service_;
+        }
+      }
+      /**
+       * <code>.runtime.Service service = 3;</code>
+       */
+      private com.google.protobuf.SingleFieldBuilderV3<
+          runtime.RuntimeOuterClass.Service, runtime.RuntimeOuterClass.Service.Builder, runtime.RuntimeOuterClass.ServiceOrBuilder> 
+          getServiceFieldBuilder() {
+        if (serviceBuilder_ == null) {
+          serviceBuilder_ = new com.google.protobuf.SingleFieldBuilderV3<
+              runtime.RuntimeOuterClass.Service, runtime.RuntimeOuterClass.Service.Builder, runtime.RuntimeOuterClass.ServiceOrBuilder>(
+                  getService(),
+                  getParentForChildren(),
+                  isClean());
+          service_ = null;
+        }
+        return serviceBuilder_;
+      }
+      @java.lang.Override
+      public final Builder setUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return super.setUnknownFieldsProto3(unknownFields);
+      }
+
+      @java.lang.Override
+      public final Builder mergeUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return super.mergeUnknownFields(unknownFields);
+      }
+
+
+      // @@protoc_insertion_point(builder_scope:runtime.Resource)
+    }
+
+    // @@protoc_insertion_point(class_scope:runtime.Resource)
+    private static final runtime.RuntimeOuterClass.Resource DEFAULT_INSTANCE;
+    static {
+      DEFAULT_INSTANCE = new runtime.RuntimeOuterClass.Resource();
+    }
+
+    public static runtime.RuntimeOuterClass.Resource getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    private static final com.google.protobuf.Parser<Resource>
+        PARSER = new com.google.protobuf.AbstractParser<Resource>() {
+      @java.lang.Override
+      public Resource parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        return new Resource(input, extensionRegistry);
+      }
+    };
+
+    public static com.google.protobuf.Parser<Resource> parser() {
+      return PARSER;
+    }
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<Resource> getParserForType() {
+      return PARSER;
+    }
+
+    @java.lang.Override
+    public runtime.RuntimeOuterClass.Resource getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
+  }
+
+  public interface NamespaceOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:runtime.Namespace)
+      com.google.protobuf.MessageOrBuilder {
+
+    /**
+     * <pre>
+     * name of the namespace
+     * </pre>
+     *
+     * <code>string name = 1;</code>
+     */
+    java.lang.String getName();
+    /**
+     * <pre>
+     * name of the namespace
+     * </pre>
+     *
+     * <code>string name = 1;</code>
+     */
+    com.google.protobuf.ByteString
+        getNameBytes();
+  }
+  /**
+   * Protobuf type {@code runtime.Namespace}
+   */
+  public  static final class Namespace extends
+      com.google.protobuf.GeneratedMessageV3 implements
+      // @@protoc_insertion_point(message_implements:runtime.Namespace)
+      NamespaceOrBuilder {
+  private static final long serialVersionUID = 0L;
+    // Use Namespace.newBuilder() to construct.
+    private Namespace(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
+      super(builder);
+    }
+    private Namespace() {
+      name_ = "";
+    }
+
+    @java.lang.Override
+    public final com.google.protobuf.UnknownFieldSet
+    getUnknownFields() {
+      return this.unknownFields;
+    }
+    private Namespace(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      this();
+      if (extensionRegistry == null) {
+        throw new java.lang.NullPointerException();
+      }
+      int mutable_bitField0_ = 0;
+      com.google.protobuf.UnknownFieldSet.Builder unknownFields =
+          com.google.protobuf.UnknownFieldSet.newBuilder();
+      try {
+        boolean done = false;
+        while (!done) {
+          int tag = input.readTag();
+          switch (tag) {
+            case 0:
+              done = true;
+              break;
+            case 10: {
+              java.lang.String s = input.readStringRequireUtf8();
+
+              name_ = s;
+              break;
+            }
+            default: {
+              if (!parseUnknownFieldProto3(
+                  input, unknownFields, extensionRegistry, tag)) {
+                done = true;
+              }
+              break;
+            }
+          }
+        }
+      } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+        throw e.setUnfinishedMessage(this);
+      } catch (java.io.IOException e) {
+        throw new com.google.protobuf.InvalidProtocolBufferException(
+            e).setUnfinishedMessage(this);
+      } finally {
+        this.unknownFields = unknownFields.build();
+        makeExtensionsImmutable();
+      }
+    }
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+      return runtime.RuntimeOuterClass.internal_static_runtime_Namespace_descriptor;
+    }
+
+    @java.lang.Override
+    protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return runtime.RuntimeOuterClass.internal_static_runtime_Namespace_fieldAccessorTable
+          .ensureFieldAccessorsInitialized(
+              runtime.RuntimeOuterClass.Namespace.class, runtime.RuntimeOuterClass.Namespace.Builder.class);
+    }
+
+    public static final int NAME_FIELD_NUMBER = 1;
+    private volatile java.lang.Object name_;
+    /**
+     * <pre>
+     * name of the namespace
+     * </pre>
+     *
+     * <code>string name = 1;</code>
+     */
+    public java.lang.String getName() {
+      java.lang.Object ref = name_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        name_ = s;
+        return s;
+      }
+    }
+    /**
+     * <pre>
+     * name of the namespace
+     * </pre>
+     *
+     * <code>string name = 1;</code>
+     */
+    public com.google.protobuf.ByteString
+        getNameBytes() {
+      java.lang.Object ref = name_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        name_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
+    private byte memoizedIsInitialized = -1;
+    @java.lang.Override
+    public final boolean isInitialized() {
+      byte isInitialized = memoizedIsInitialized;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
+
+      memoizedIsInitialized = 1;
+      return true;
+    }
+
+    @java.lang.Override
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
+      if (!getNameBytes().isEmpty()) {
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 1, name_);
+      }
+      unknownFields.writeTo(output);
+    }
+
+    @java.lang.Override
+    public int getSerializedSize() {
+      int size = memoizedSize;
+      if (size != -1) return size;
+
+      size = 0;
+      if (!getNameBytes().isEmpty()) {
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(1, name_);
+      }
+      size += unknownFields.getSerializedSize();
+      memoizedSize = size;
+      return size;
+    }
+
+    @java.lang.Override
+    public boolean equals(final java.lang.Object obj) {
+      if (obj == this) {
+       return true;
+      }
+      if (!(obj instanceof runtime.RuntimeOuterClass.Namespace)) {
+        return super.equals(obj);
+      }
+      runtime.RuntimeOuterClass.Namespace other = (runtime.RuntimeOuterClass.Namespace) obj;
+
+      boolean result = true;
+      result = result && getName()
+          .equals(other.getName());
+      result = result && unknownFields.equals(other.unknownFields);
+      return result;
+    }
+
+    @java.lang.Override
+    public int hashCode() {
+      if (memoizedHashCode != 0) {
+        return memoizedHashCode;
+      }
+      int hash = 41;
+      hash = (19 * hash) + getDescriptor().hashCode();
+      hash = (37 * hash) + NAME_FIELD_NUMBER;
+      hash = (53 * hash) + getName().hashCode();
+      hash = (29 * hash) + unknownFields.hashCode();
+      memoizedHashCode = hash;
+      return hash;
+    }
+
+    public static runtime.RuntimeOuterClass.Namespace parseFrom(
+        java.nio.ByteBuffer data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static runtime.RuntimeOuterClass.Namespace parseFrom(
+        java.nio.ByteBuffer data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static runtime.RuntimeOuterClass.Namespace parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static runtime.RuntimeOuterClass.Namespace parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static runtime.RuntimeOuterClass.Namespace parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static runtime.RuntimeOuterClass.Namespace parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static runtime.RuntimeOuterClass.Namespace parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input);
+    }
+    public static runtime.RuntimeOuterClass.Namespace parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input, extensionRegistry);
+    }
+    public static runtime.RuntimeOuterClass.Namespace parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseDelimitedWithIOException(PARSER, input);
+    }
+    public static runtime.RuntimeOuterClass.Namespace parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
+    }
+    public static runtime.RuntimeOuterClass.Namespace parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input);
+    }
+    public static runtime.RuntimeOuterClass.Namespace parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input, extensionRegistry);
+    }
+
+    @java.lang.Override
+    public Builder newBuilderForType() { return newBuilder(); }
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
+    }
+    public static Builder newBuilder(runtime.RuntimeOuterClass.Namespace prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    @java.lang.Override
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
+
+    @java.lang.Override
+    protected Builder newBuilderForType(
+        com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+      Builder builder = new Builder(parent);
+      return builder;
+    }
+    /**
+     * Protobuf type {@code runtime.Namespace}
+     */
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:runtime.Namespace)
+        runtime.RuntimeOuterClass.NamespaceOrBuilder {
+      public static final com.google.protobuf.Descriptors.Descriptor
+          getDescriptor() {
+        return runtime.RuntimeOuterClass.internal_static_runtime_Namespace_descriptor;
+      }
+
+      @java.lang.Override
+      protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+          internalGetFieldAccessorTable() {
+        return runtime.RuntimeOuterClass.internal_static_runtime_Namespace_fieldAccessorTable
+            .ensureFieldAccessorsInitialized(
+                runtime.RuntimeOuterClass.Namespace.class, runtime.RuntimeOuterClass.Namespace.Builder.class);
+      }
+
+      // Construct using runtime.RuntimeOuterClass.Namespace.newBuilder()
+      private Builder() {
+        maybeForceBuilderInitialization();
+      }
+
+      private Builder(
+          com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+        super(parent);
+        maybeForceBuilderInitialization();
+      }
+      private void maybeForceBuilderInitialization() {
+        if (com.google.protobuf.GeneratedMessageV3
+                .alwaysUseFieldBuilders) {
+        }
+      }
+      @java.lang.Override
+      public Builder clear() {
+        super.clear();
+        name_ = "";
+
+        return this;
+      }
+
+      @java.lang.Override
+      public com.google.protobuf.Descriptors.Descriptor
+          getDescriptorForType() {
+        return runtime.RuntimeOuterClass.internal_static_runtime_Namespace_descriptor;
+      }
+
+      @java.lang.Override
+      public runtime.RuntimeOuterClass.Namespace getDefaultInstanceForType() {
+        return runtime.RuntimeOuterClass.Namespace.getDefaultInstance();
+      }
+
+      @java.lang.Override
+      public runtime.RuntimeOuterClass.Namespace build() {
+        runtime.RuntimeOuterClass.Namespace result = buildPartial();
+        if (!result.isInitialized()) {
+          throw newUninitializedMessageException(result);
+        }
+        return result;
+      }
+
+      @java.lang.Override
+      public runtime.RuntimeOuterClass.Namespace buildPartial() {
+        runtime.RuntimeOuterClass.Namespace result = new runtime.RuntimeOuterClass.Namespace(this);
+        result.name_ = name_;
+        onBuilt();
+        return result;
+      }
+
+      @java.lang.Override
+      public Builder clone() {
+        return (Builder) super.clone();
+      }
+      @java.lang.Override
+      public Builder setField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          java.lang.Object value) {
+        return (Builder) super.setField(field, value);
+      }
+      @java.lang.Override
+      public Builder clearField(
+          com.google.protobuf.Descriptors.FieldDescriptor field) {
+        return (Builder) super.clearField(field);
+      }
+      @java.lang.Override
+      public Builder clearOneof(
+          com.google.protobuf.Descriptors.OneofDescriptor oneof) {
+        return (Builder) super.clearOneof(oneof);
+      }
+      @java.lang.Override
+      public Builder setRepeatedField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          int index, java.lang.Object value) {
+        return (Builder) super.setRepeatedField(field, index, value);
+      }
+      @java.lang.Override
+      public Builder addRepeatedField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          java.lang.Object value) {
+        return (Builder) super.addRepeatedField(field, value);
+      }
+      @java.lang.Override
+      public Builder mergeFrom(com.google.protobuf.Message other) {
+        if (other instanceof runtime.RuntimeOuterClass.Namespace) {
+          return mergeFrom((runtime.RuntimeOuterClass.Namespace)other);
+        } else {
+          super.mergeFrom(other);
+          return this;
+        }
+      }
+
+      public Builder mergeFrom(runtime.RuntimeOuterClass.Namespace other) {
+        if (other == runtime.RuntimeOuterClass.Namespace.getDefaultInstance()) return this;
+        if (!other.getName().isEmpty()) {
+          name_ = other.name_;
+          onChanged();
+        }
+        this.mergeUnknownFields(other.unknownFields);
+        onChanged();
+        return this;
+      }
+
+      @java.lang.Override
+      public final boolean isInitialized() {
+        return true;
+      }
+
+      @java.lang.Override
+      public Builder mergeFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        runtime.RuntimeOuterClass.Namespace parsedMessage = null;
+        try {
+          parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+          parsedMessage = (runtime.RuntimeOuterClass.Namespace) e.getUnfinishedMessage();
+          throw e.unwrapIOException();
+        } finally {
+          if (parsedMessage != null) {
+            mergeFrom(parsedMessage);
+          }
+        }
+        return this;
+      }
+
+      private java.lang.Object name_ = "";
+      /**
+       * <pre>
+       * name of the namespace
+       * </pre>
+       *
+       * <code>string name = 1;</code>
+       */
+      public java.lang.String getName() {
+        java.lang.Object ref = name_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          name_ = s;
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <pre>
+       * name of the namespace
+       * </pre>
+       *
+       * <code>string name = 1;</code>
+       */
+      public com.google.protobuf.ByteString
+          getNameBytes() {
+        java.lang.Object ref = name_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          name_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <pre>
+       * name of the namespace
+       * </pre>
+       *
+       * <code>string name = 1;</code>
+       */
+      public Builder setName(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  
+        name_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * name of the namespace
+       * </pre>
+       *
+       * <code>string name = 1;</code>
+       */
+      public Builder clearName() {
+        
+        name_ = getDefaultInstance().getName();
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * name of the namespace
+       * </pre>
+       *
+       * <code>string name = 1;</code>
+       */
+      public Builder setNameBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  checkByteStringIsUtf8(value);
+        
+        name_ = value;
+        onChanged();
+        return this;
+      }
+      @java.lang.Override
+      public final Builder setUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return super.setUnknownFieldsProto3(unknownFields);
+      }
+
+      @java.lang.Override
+      public final Builder mergeUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return super.mergeUnknownFields(unknownFields);
+      }
+
+
+      // @@protoc_insertion_point(builder_scope:runtime.Namespace)
+    }
+
+    // @@protoc_insertion_point(class_scope:runtime.Namespace)
+    private static final runtime.RuntimeOuterClass.Namespace DEFAULT_INSTANCE;
+    static {
+      DEFAULT_INSTANCE = new runtime.RuntimeOuterClass.Namespace();
+    }
+
+    public static runtime.RuntimeOuterClass.Namespace getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    private static final com.google.protobuf.Parser<Namespace>
+        PARSER = new com.google.protobuf.AbstractParser<Namespace>() {
+      @java.lang.Override
+      public Namespace parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        return new Namespace(input, extensionRegistry);
+      }
+    };
+
+    public static com.google.protobuf.Parser<Namespace> parser() {
+      return PARSER;
+    }
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<Namespace> getParserForType() {
+      return PARSER;
+    }
+
+    @java.lang.Override
+    public runtime.RuntimeOuterClass.Namespace getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
+  }
+
+  public interface NetworkPolicyOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:runtime.NetworkPolicy)
+      com.google.protobuf.MessageOrBuilder {
+
+    /**
+     * <pre>
+     * the labels allowed ingress by this policy
+     * </pre>
+     *
+     * <code>map&lt;string, string&gt; allowedlabels = 1;</code>
+     */
+    int getAllowedlabelsCount();
+    /**
+     * <pre>
+     * the labels allowed ingress by this policy
+     * </pre>
+     *
+     * <code>map&lt;string, string&gt; allowedlabels = 1;</code>
+     */
+    boolean containsAllowedlabels(
+        java.lang.String key);
+    /**
+     * Use {@link #getAllowedlabelsMap()} instead.
+     */
+    @java.lang.Deprecated
+    java.util.Map<java.lang.String, java.lang.String>
+    getAllowedlabels();
+    /**
+     * <pre>
+     * the labels allowed ingress by this policy
+     * </pre>
+     *
+     * <code>map&lt;string, string&gt; allowedlabels = 1;</code>
+     */
+    java.util.Map<java.lang.String, java.lang.String>
+    getAllowedlabelsMap();
+    /**
+     * <pre>
+     * the labels allowed ingress by this policy
+     * </pre>
+     *
+     * <code>map&lt;string, string&gt; allowedlabels = 1;</code>
+     */
+
+    java.lang.String getAllowedlabelsOrDefault(
+        java.lang.String key,
+        java.lang.String defaultValue);
+    /**
+     * <pre>
+     * the labels allowed ingress by this policy
+     * </pre>
+     *
+     * <code>map&lt;string, string&gt; allowedlabels = 1;</code>
+     */
+
+    java.lang.String getAllowedlabelsOrThrow(
+        java.lang.String key);
+
+    /**
+     * <pre>
+     * name of the network policy
+     * </pre>
+     *
+     * <code>string name = 2;</code>
+     */
+    java.lang.String getName();
+    /**
+     * <pre>
+     * name of the network policy
+     * </pre>
+     *
+     * <code>string name = 2;</code>
+     */
+    com.google.protobuf.ByteString
+        getNameBytes();
+
+    /**
+     * <pre>
+     * namespace the network policy belongs to
+     * </pre>
+     *
+     * <code>string namespace = 3;</code>
+     */
+    java.lang.String getNamespace();
+    /**
+     * <pre>
+     * namespace the network policy belongs to
+     * </pre>
+     *
+     * <code>string namespace = 3;</code>
+     */
+    com.google.protobuf.ByteString
+        getNamespaceBytes();
+  }
+  /**
+   * Protobuf type {@code runtime.NetworkPolicy}
+   */
+  public  static final class NetworkPolicy extends
+      com.google.protobuf.GeneratedMessageV3 implements
+      // @@protoc_insertion_point(message_implements:runtime.NetworkPolicy)
+      NetworkPolicyOrBuilder {
+  private static final long serialVersionUID = 0L;
+    // Use NetworkPolicy.newBuilder() to construct.
+    private NetworkPolicy(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
+      super(builder);
+    }
+    private NetworkPolicy() {
+      name_ = "";
+      namespace_ = "";
+    }
+
+    @java.lang.Override
+    public final com.google.protobuf.UnknownFieldSet
+    getUnknownFields() {
+      return this.unknownFields;
+    }
+    private NetworkPolicy(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      this();
+      if (extensionRegistry == null) {
+        throw new java.lang.NullPointerException();
+      }
+      int mutable_bitField0_ = 0;
+      com.google.protobuf.UnknownFieldSet.Builder unknownFields =
+          com.google.protobuf.UnknownFieldSet.newBuilder();
+      try {
+        boolean done = false;
+        while (!done) {
+          int tag = input.readTag();
+          switch (tag) {
+            case 0:
+              done = true;
+              break;
+            case 10: {
+              if (!((mutable_bitField0_ & 0x00000001) == 0x00000001)) {
+                allowedlabels_ = com.google.protobuf.MapField.newMapField(
+                    AllowedlabelsDefaultEntryHolder.defaultEntry);
+                mutable_bitField0_ |= 0x00000001;
+              }
+              com.google.protobuf.MapEntry<java.lang.String, java.lang.String>
+              allowedlabels__ = input.readMessage(
+                  AllowedlabelsDefaultEntryHolder.defaultEntry.getParserForType(), extensionRegistry);
+              allowedlabels_.getMutableMap().put(
+                  allowedlabels__.getKey(), allowedlabels__.getValue());
+              break;
+            }
+            case 18: {
+              java.lang.String s = input.readStringRequireUtf8();
+
+              name_ = s;
+              break;
+            }
+            case 26: {
+              java.lang.String s = input.readStringRequireUtf8();
+
+              namespace_ = s;
+              break;
+            }
+            default: {
+              if (!parseUnknownFieldProto3(
+                  input, unknownFields, extensionRegistry, tag)) {
+                done = true;
+              }
+              break;
+            }
+          }
+        }
+      } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+        throw e.setUnfinishedMessage(this);
+      } catch (java.io.IOException e) {
+        throw new com.google.protobuf.InvalidProtocolBufferException(
+            e).setUnfinishedMessage(this);
+      } finally {
+        this.unknownFields = unknownFields.build();
+        makeExtensionsImmutable();
+      }
+    }
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+      return runtime.RuntimeOuterClass.internal_static_runtime_NetworkPolicy_descriptor;
+    }
+
+    @SuppressWarnings({"rawtypes"})
+    @java.lang.Override
+    protected com.google.protobuf.MapField internalGetMapField(
+        int number) {
+      switch (number) {
+        case 1:
+          return internalGetAllowedlabels();
+        default:
+          throw new RuntimeException(
+              "Invalid map field number: " + number);
+      }
+    }
+    @java.lang.Override
+    protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return runtime.RuntimeOuterClass.internal_static_runtime_NetworkPolicy_fieldAccessorTable
+          .ensureFieldAccessorsInitialized(
+              runtime.RuntimeOuterClass.NetworkPolicy.class, runtime.RuntimeOuterClass.NetworkPolicy.Builder.class);
+    }
+
+    private int bitField0_;
+    public static final int ALLOWEDLABELS_FIELD_NUMBER = 1;
+    private static final class AllowedlabelsDefaultEntryHolder {
+      static final com.google.protobuf.MapEntry<
+          java.lang.String, java.lang.String> defaultEntry =
+              com.google.protobuf.MapEntry
+              .<java.lang.String, java.lang.String>newDefaultInstance(
+                  runtime.RuntimeOuterClass.internal_static_runtime_NetworkPolicy_AllowedlabelsEntry_descriptor, 
+                  com.google.protobuf.WireFormat.FieldType.STRING,
+                  "",
+                  com.google.protobuf.WireFormat.FieldType.STRING,
+                  "");
+    }
+    private com.google.protobuf.MapField<
+        java.lang.String, java.lang.String> allowedlabels_;
+    private com.google.protobuf.MapField<java.lang.String, java.lang.String>
+    internalGetAllowedlabels() {
+      if (allowedlabels_ == null) {
+        return com.google.protobuf.MapField.emptyMapField(
+            AllowedlabelsDefaultEntryHolder.defaultEntry);
+      }
+      return allowedlabels_;
+    }
+
+    public int getAllowedlabelsCount() {
+      return internalGetAllowedlabels().getMap().size();
+    }
+    /**
+     * <pre>
+     * the labels allowed ingress by this policy
+     * </pre>
+     *
+     * <code>map&lt;string, string&gt; allowedlabels = 1;</code>
+     */
+
+    public boolean containsAllowedlabels(
+        java.lang.String key) {
+      if (key == null) { throw new java.lang.NullPointerException(); }
+      return internalGetAllowedlabels().getMap().containsKey(key);
+    }
+    /**
+     * Use {@link #getAllowedlabelsMap()} instead.
+     */
+    @java.lang.Deprecated
+    public java.util.Map<java.lang.String, java.lang.String> getAllowedlabels() {
+      return getAllowedlabelsMap();
+    }
+    /**
+     * <pre>
+     * the labels allowed ingress by this policy
+     * </pre>
+     *
+     * <code>map&lt;string, string&gt; allowedlabels = 1;</code>
+     */
+
+    public java.util.Map<java.lang.String, java.lang.String> getAllowedlabelsMap() {
+      return internalGetAllowedlabels().getMap();
+    }
+    /**
+     * <pre>
+     * the labels allowed ingress by this policy
+     * </pre>
+     *
+     * <code>map&lt;string, string&gt; allowedlabels = 1;</code>
+     */
+
+    public java.lang.String getAllowedlabelsOrDefault(
+        java.lang.String key,
+        java.lang.String defaultValue) {
+      if (key == null) { throw new java.lang.NullPointerException(); }
+      java.util.Map<java.lang.String, java.lang.String> map =
+          internalGetAllowedlabels().getMap();
+      return map.containsKey(key) ? map.get(key) : defaultValue;
+    }
+    /**
+     * <pre>
+     * the labels allowed ingress by this policy
+     * </pre>
+     *
+     * <code>map&lt;string, string&gt; allowedlabels = 1;</code>
+     */
+
+    public java.lang.String getAllowedlabelsOrThrow(
+        java.lang.String key) {
+      if (key == null) { throw new java.lang.NullPointerException(); }
+      java.util.Map<java.lang.String, java.lang.String> map =
+          internalGetAllowedlabels().getMap();
+      if (!map.containsKey(key)) {
+        throw new java.lang.IllegalArgumentException();
+      }
+      return map.get(key);
+    }
+
+    public static final int NAME_FIELD_NUMBER = 2;
+    private volatile java.lang.Object name_;
+    /**
+     * <pre>
+     * name of the network policy
+     * </pre>
+     *
+     * <code>string name = 2;</code>
+     */
+    public java.lang.String getName() {
+      java.lang.Object ref = name_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        name_ = s;
+        return s;
+      }
+    }
+    /**
+     * <pre>
+     * name of the network policy
+     * </pre>
+     *
+     * <code>string name = 2;</code>
+     */
+    public com.google.protobuf.ByteString
+        getNameBytes() {
+      java.lang.Object ref = name_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        name_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
+    public static final int NAMESPACE_FIELD_NUMBER = 3;
+    private volatile java.lang.Object namespace_;
+    /**
+     * <pre>
+     * namespace the network policy belongs to
+     * </pre>
+     *
+     * <code>string namespace = 3;</code>
+     */
+    public java.lang.String getNamespace() {
+      java.lang.Object ref = namespace_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        namespace_ = s;
+        return s;
+      }
+    }
+    /**
+     * <pre>
+     * namespace the network policy belongs to
+     * </pre>
+     *
+     * <code>string namespace = 3;</code>
+     */
+    public com.google.protobuf.ByteString
+        getNamespaceBytes() {
+      java.lang.Object ref = namespace_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        namespace_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
+    private byte memoizedIsInitialized = -1;
+    @java.lang.Override
+    public final boolean isInitialized() {
+      byte isInitialized = memoizedIsInitialized;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
+
+      memoizedIsInitialized = 1;
+      return true;
+    }
+
+    @java.lang.Override
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
+      com.google.protobuf.GeneratedMessageV3
+        .serializeStringMapTo(
+          output,
+          internalGetAllowedlabels(),
+          AllowedlabelsDefaultEntryHolder.defaultEntry,
+          1);
+      if (!getNameBytes().isEmpty()) {
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 2, name_);
+      }
+      if (!getNamespaceBytes().isEmpty()) {
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 3, namespace_);
+      }
+      unknownFields.writeTo(output);
+    }
+
+    @java.lang.Override
+    public int getSerializedSize() {
+      int size = memoizedSize;
+      if (size != -1) return size;
+
+      size = 0;
+      for (java.util.Map.Entry<java.lang.String, java.lang.String> entry
+           : internalGetAllowedlabels().getMap().entrySet()) {
+        com.google.protobuf.MapEntry<java.lang.String, java.lang.String>
+        allowedlabels__ = AllowedlabelsDefaultEntryHolder.defaultEntry.newBuilderForType()
+            .setKey(entry.getKey())
+            .setValue(entry.getValue())
+            .build();
+        size += com.google.protobuf.CodedOutputStream
+            .computeMessageSize(1, allowedlabels__);
+      }
+      if (!getNameBytes().isEmpty()) {
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(2, name_);
+      }
+      if (!getNamespaceBytes().isEmpty()) {
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(3, namespace_);
+      }
+      size += unknownFields.getSerializedSize();
+      memoizedSize = size;
+      return size;
+    }
+
+    @java.lang.Override
+    public boolean equals(final java.lang.Object obj) {
+      if (obj == this) {
+       return true;
+      }
+      if (!(obj instanceof runtime.RuntimeOuterClass.NetworkPolicy)) {
+        return super.equals(obj);
+      }
+      runtime.RuntimeOuterClass.NetworkPolicy other = (runtime.RuntimeOuterClass.NetworkPolicy) obj;
+
+      boolean result = true;
+      result = result && internalGetAllowedlabels().equals(
+          other.internalGetAllowedlabels());
+      result = result && getName()
+          .equals(other.getName());
+      result = result && getNamespace()
+          .equals(other.getNamespace());
+      result = result && unknownFields.equals(other.unknownFields);
+      return result;
+    }
+
+    @java.lang.Override
+    public int hashCode() {
+      if (memoizedHashCode != 0) {
+        return memoizedHashCode;
+      }
+      int hash = 41;
+      hash = (19 * hash) + getDescriptor().hashCode();
+      if (!internalGetAllowedlabels().getMap().isEmpty()) {
+        hash = (37 * hash) + ALLOWEDLABELS_FIELD_NUMBER;
+        hash = (53 * hash) + internalGetAllowedlabels().hashCode();
+      }
+      hash = (37 * hash) + NAME_FIELD_NUMBER;
+      hash = (53 * hash) + getName().hashCode();
+      hash = (37 * hash) + NAMESPACE_FIELD_NUMBER;
+      hash = (53 * hash) + getNamespace().hashCode();
+      hash = (29 * hash) + unknownFields.hashCode();
+      memoizedHashCode = hash;
+      return hash;
+    }
+
+    public static runtime.RuntimeOuterClass.NetworkPolicy parseFrom(
+        java.nio.ByteBuffer data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static runtime.RuntimeOuterClass.NetworkPolicy parseFrom(
+        java.nio.ByteBuffer data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static runtime.RuntimeOuterClass.NetworkPolicy parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static runtime.RuntimeOuterClass.NetworkPolicy parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static runtime.RuntimeOuterClass.NetworkPolicy parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static runtime.RuntimeOuterClass.NetworkPolicy parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static runtime.RuntimeOuterClass.NetworkPolicy parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input);
+    }
+    public static runtime.RuntimeOuterClass.NetworkPolicy parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input, extensionRegistry);
+    }
+    public static runtime.RuntimeOuterClass.NetworkPolicy parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseDelimitedWithIOException(PARSER, input);
+    }
+    public static runtime.RuntimeOuterClass.NetworkPolicy parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
+    }
+    public static runtime.RuntimeOuterClass.NetworkPolicy parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input);
+    }
+    public static runtime.RuntimeOuterClass.NetworkPolicy parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input, extensionRegistry);
+    }
+
+    @java.lang.Override
+    public Builder newBuilderForType() { return newBuilder(); }
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
+    }
+    public static Builder newBuilder(runtime.RuntimeOuterClass.NetworkPolicy prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    @java.lang.Override
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
+
+    @java.lang.Override
+    protected Builder newBuilderForType(
+        com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+      Builder builder = new Builder(parent);
+      return builder;
+    }
+    /**
+     * Protobuf type {@code runtime.NetworkPolicy}
+     */
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:runtime.NetworkPolicy)
+        runtime.RuntimeOuterClass.NetworkPolicyOrBuilder {
+      public static final com.google.protobuf.Descriptors.Descriptor
+          getDescriptor() {
+        return runtime.RuntimeOuterClass.internal_static_runtime_NetworkPolicy_descriptor;
+      }
+
+      @SuppressWarnings({"rawtypes"})
+      protected com.google.protobuf.MapField internalGetMapField(
+          int number) {
+        switch (number) {
+          case 1:
+            return internalGetAllowedlabels();
+          default:
+            throw new RuntimeException(
+                "Invalid map field number: " + number);
+        }
+      }
+      @SuppressWarnings({"rawtypes"})
+      protected com.google.protobuf.MapField internalGetMutableMapField(
+          int number) {
+        switch (number) {
+          case 1:
+            return internalGetMutableAllowedlabels();
+          default:
+            throw new RuntimeException(
+                "Invalid map field number: " + number);
+        }
+      }
+      @java.lang.Override
+      protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+          internalGetFieldAccessorTable() {
+        return runtime.RuntimeOuterClass.internal_static_runtime_NetworkPolicy_fieldAccessorTable
+            .ensureFieldAccessorsInitialized(
+                runtime.RuntimeOuterClass.NetworkPolicy.class, runtime.RuntimeOuterClass.NetworkPolicy.Builder.class);
+      }
+
+      // Construct using runtime.RuntimeOuterClass.NetworkPolicy.newBuilder()
+      private Builder() {
+        maybeForceBuilderInitialization();
+      }
+
+      private Builder(
+          com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+        super(parent);
+        maybeForceBuilderInitialization();
+      }
+      private void maybeForceBuilderInitialization() {
+        if (com.google.protobuf.GeneratedMessageV3
+                .alwaysUseFieldBuilders) {
+        }
+      }
+      @java.lang.Override
+      public Builder clear() {
+        super.clear();
+        internalGetMutableAllowedlabels().clear();
+        name_ = "";
+
+        namespace_ = "";
+
+        return this;
+      }
+
+      @java.lang.Override
+      public com.google.protobuf.Descriptors.Descriptor
+          getDescriptorForType() {
+        return runtime.RuntimeOuterClass.internal_static_runtime_NetworkPolicy_descriptor;
+      }
+
+      @java.lang.Override
+      public runtime.RuntimeOuterClass.NetworkPolicy getDefaultInstanceForType() {
+        return runtime.RuntimeOuterClass.NetworkPolicy.getDefaultInstance();
+      }
+
+      @java.lang.Override
+      public runtime.RuntimeOuterClass.NetworkPolicy build() {
+        runtime.RuntimeOuterClass.NetworkPolicy result = buildPartial();
+        if (!result.isInitialized()) {
+          throw newUninitializedMessageException(result);
+        }
+        return result;
+      }
+
+      @java.lang.Override
+      public runtime.RuntimeOuterClass.NetworkPolicy buildPartial() {
+        runtime.RuntimeOuterClass.NetworkPolicy result = new runtime.RuntimeOuterClass.NetworkPolicy(this);
+        int from_bitField0_ = bitField0_;
+        int to_bitField0_ = 0;
+        result.allowedlabels_ = internalGetAllowedlabels();
+        result.allowedlabels_.makeImmutable();
+        result.name_ = name_;
+        result.namespace_ = namespace_;
+        result.bitField0_ = to_bitField0_;
+        onBuilt();
+        return result;
+      }
+
+      @java.lang.Override
+      public Builder clone() {
+        return (Builder) super.clone();
+      }
+      @java.lang.Override
+      public Builder setField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          java.lang.Object value) {
+        return (Builder) super.setField(field, value);
+      }
+      @java.lang.Override
+      public Builder clearField(
+          com.google.protobuf.Descriptors.FieldDescriptor field) {
+        return (Builder) super.clearField(field);
+      }
+      @java.lang.Override
+      public Builder clearOneof(
+          com.google.protobuf.Descriptors.OneofDescriptor oneof) {
+        return (Builder) super.clearOneof(oneof);
+      }
+      @java.lang.Override
+      public Builder setRepeatedField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          int index, java.lang.Object value) {
+        return (Builder) super.setRepeatedField(field, index, value);
+      }
+      @java.lang.Override
+      public Builder addRepeatedField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          java.lang.Object value) {
+        return (Builder) super.addRepeatedField(field, value);
+      }
+      @java.lang.Override
+      public Builder mergeFrom(com.google.protobuf.Message other) {
+        if (other instanceof runtime.RuntimeOuterClass.NetworkPolicy) {
+          return mergeFrom((runtime.RuntimeOuterClass.NetworkPolicy)other);
+        } else {
+          super.mergeFrom(other);
+          return this;
+        }
+      }
+
+      public Builder mergeFrom(runtime.RuntimeOuterClass.NetworkPolicy other) {
+        if (other == runtime.RuntimeOuterClass.NetworkPolicy.getDefaultInstance()) return this;
+        internalGetMutableAllowedlabels().mergeFrom(
+            other.internalGetAllowedlabels());
+        if (!other.getName().isEmpty()) {
+          name_ = other.name_;
+          onChanged();
+        }
+        if (!other.getNamespace().isEmpty()) {
+          namespace_ = other.namespace_;
+          onChanged();
+        }
+        this.mergeUnknownFields(other.unknownFields);
+        onChanged();
+        return this;
+      }
+
+      @java.lang.Override
+      public final boolean isInitialized() {
+        return true;
+      }
+
+      @java.lang.Override
+      public Builder mergeFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        runtime.RuntimeOuterClass.NetworkPolicy parsedMessage = null;
+        try {
+          parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+          parsedMessage = (runtime.RuntimeOuterClass.NetworkPolicy) e.getUnfinishedMessage();
+          throw e.unwrapIOException();
+        } finally {
+          if (parsedMessage != null) {
+            mergeFrom(parsedMessage);
+          }
+        }
+        return this;
+      }
+      private int bitField0_;
+
+      private com.google.protobuf.MapField<
+          java.lang.String, java.lang.String> allowedlabels_;
+      private com.google.protobuf.MapField<java.lang.String, java.lang.String>
+      internalGetAllowedlabels() {
+        if (allowedlabels_ == null) {
+          return com.google.protobuf.MapField.emptyMapField(
+              AllowedlabelsDefaultEntryHolder.defaultEntry);
+        }
+        return allowedlabels_;
+      }
+      private com.google.protobuf.MapField<java.lang.String, java.lang.String>
+      internalGetMutableAllowedlabels() {
+        onChanged();;
+        if (allowedlabels_ == null) {
+          allowedlabels_ = com.google.protobuf.MapField.newMapField(
+              AllowedlabelsDefaultEntryHolder.defaultEntry);
+        }
+        if (!allowedlabels_.isMutable()) {
+          allowedlabels_ = allowedlabels_.copy();
+        }
+        return allowedlabels_;
+      }
+
+      public int getAllowedlabelsCount() {
+        return internalGetAllowedlabels().getMap().size();
+      }
+      /**
+       * <pre>
+       * the labels allowed ingress by this policy
+       * </pre>
+       *
+       * <code>map&lt;string, string&gt; allowedlabels = 1;</code>
+       */
+
+      public boolean containsAllowedlabels(
+          java.lang.String key) {
+        if (key == null) { throw new java.lang.NullPointerException(); }
+        return internalGetAllowedlabels().getMap().containsKey(key);
+      }
+      /**
+       * Use {@link #getAllowedlabelsMap()} instead.
+       */
+      @java.lang.Deprecated
+      public java.util.Map<java.lang.String, java.lang.String> getAllowedlabels() {
+        return getAllowedlabelsMap();
+      }
+      /**
+       * <pre>
+       * the labels allowed ingress by this policy
+       * </pre>
+       *
+       * <code>map&lt;string, string&gt; allowedlabels = 1;</code>
+       */
+
+      public java.util.Map<java.lang.String, java.lang.String> getAllowedlabelsMap() {
+        return internalGetAllowedlabels().getMap();
+      }
+      /**
+       * <pre>
+       * the labels allowed ingress by this policy
+       * </pre>
+       *
+       * <code>map&lt;string, string&gt; allowedlabels = 1;</code>
+       */
+
+      public java.lang.String getAllowedlabelsOrDefault(
+          java.lang.String key,
+          java.lang.String defaultValue) {
+        if (key == null) { throw new java.lang.NullPointerException(); }
+        java.util.Map<java.lang.String, java.lang.String> map =
+            internalGetAllowedlabels().getMap();
+        return map.containsKey(key) ? map.get(key) : defaultValue;
+      }
+      /**
+       * <pre>
+       * the labels allowed ingress by this policy
+       * </pre>
+       *
+       * <code>map&lt;string, string&gt; allowedlabels = 1;</code>
+       */
+
+      public java.lang.String getAllowedlabelsOrThrow(
+          java.lang.String key) {
+        if (key == null) { throw new java.lang.NullPointerException(); }
+        java.util.Map<java.lang.String, java.lang.String> map =
+            internalGetAllowedlabels().getMap();
+        if (!map.containsKey(key)) {
+          throw new java.lang.IllegalArgumentException();
+        }
+        return map.get(key);
+      }
+
+      public Builder clearAllowedlabels() {
+        internalGetMutableAllowedlabels().getMutableMap()
+            .clear();
+        return this;
+      }
+      /**
+       * <pre>
+       * the labels allowed ingress by this policy
+       * </pre>
+       *
+       * <code>map&lt;string, string&gt; allowedlabels = 1;</code>
+       */
+
+      public Builder removeAllowedlabels(
+          java.lang.String key) {
+        if (key == null) { throw new java.lang.NullPointerException(); }
+        internalGetMutableAllowedlabels().getMutableMap()
+            .remove(key);
+        return this;
+      }
+      /**
+       * Use alternate mutation accessors instead.
+       */
+      @java.lang.Deprecated
+      public java.util.Map<java.lang.String, java.lang.String>
+      getMutableAllowedlabels() {
+        return internalGetMutableAllowedlabels().getMutableMap();
+      }
+      /**
+       * <pre>
+       * the labels allowed ingress by this policy
+       * </pre>
+       *
+       * <code>map&lt;string, string&gt; allowedlabels = 1;</code>
+       */
+      public Builder putAllowedlabels(
+          java.lang.String key,
+          java.lang.String value) {
+        if (key == null) { throw new java.lang.NullPointerException(); }
+        if (value == null) { throw new java.lang.NullPointerException(); }
+        internalGetMutableAllowedlabels().getMutableMap()
+            .put(key, value);
+        return this;
+      }
+      /**
+       * <pre>
+       * the labels allowed ingress by this policy
+       * </pre>
+       *
+       * <code>map&lt;string, string&gt; allowedlabels = 1;</code>
+       */
+
+      public Builder putAllAllowedlabels(
+          java.util.Map<java.lang.String, java.lang.String> values) {
+        internalGetMutableAllowedlabels().getMutableMap()
+            .putAll(values);
+        return this;
+      }
+
+      private java.lang.Object name_ = "";
+      /**
+       * <pre>
+       * name of the network policy
+       * </pre>
+       *
+       * <code>string name = 2;</code>
+       */
+      public java.lang.String getName() {
+        java.lang.Object ref = name_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          name_ = s;
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <pre>
+       * name of the network policy
+       * </pre>
+       *
+       * <code>string name = 2;</code>
+       */
+      public com.google.protobuf.ByteString
+          getNameBytes() {
+        java.lang.Object ref = name_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          name_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <pre>
+       * name of the network policy
+       * </pre>
+       *
+       * <code>string name = 2;</code>
+       */
+      public Builder setName(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  
+        name_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * name of the network policy
+       * </pre>
+       *
+       * <code>string name = 2;</code>
+       */
+      public Builder clearName() {
+        
+        name_ = getDefaultInstance().getName();
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * name of the network policy
+       * </pre>
+       *
+       * <code>string name = 2;</code>
+       */
+      public Builder setNameBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  checkByteStringIsUtf8(value);
+        
+        name_ = value;
+        onChanged();
+        return this;
+      }
+
+      private java.lang.Object namespace_ = "";
+      /**
+       * <pre>
+       * namespace the network policy belongs to
+       * </pre>
+       *
+       * <code>string namespace = 3;</code>
+       */
+      public java.lang.String getNamespace() {
+        java.lang.Object ref = namespace_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          namespace_ = s;
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <pre>
+       * namespace the network policy belongs to
+       * </pre>
+       *
+       * <code>string namespace = 3;</code>
+       */
+      public com.google.protobuf.ByteString
+          getNamespaceBytes() {
+        java.lang.Object ref = namespace_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          namespace_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <pre>
+       * namespace the network policy belongs to
+       * </pre>
+       *
+       * <code>string namespace = 3;</code>
+       */
+      public Builder setNamespace(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  
+        namespace_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * namespace the network policy belongs to
+       * </pre>
+       *
+       * <code>string namespace = 3;</code>
+       */
+      public Builder clearNamespace() {
+        
+        namespace_ = getDefaultInstance().getNamespace();
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * namespace the network policy belongs to
+       * </pre>
+       *
+       * <code>string namespace = 3;</code>
+       */
+      public Builder setNamespaceBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  checkByteStringIsUtf8(value);
+        
+        namespace_ = value;
+        onChanged();
+        return this;
+      }
+      @java.lang.Override
+      public final Builder setUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return super.setUnknownFieldsProto3(unknownFields);
+      }
+
+      @java.lang.Override
+      public final Builder mergeUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return super.mergeUnknownFields(unknownFields);
+      }
+
+
+      // @@protoc_insertion_point(builder_scope:runtime.NetworkPolicy)
+    }
+
+    // @@protoc_insertion_point(class_scope:runtime.NetworkPolicy)
+    private static final runtime.RuntimeOuterClass.NetworkPolicy DEFAULT_INSTANCE;
+    static {
+      DEFAULT_INSTANCE = new runtime.RuntimeOuterClass.NetworkPolicy();
+    }
+
+    public static runtime.RuntimeOuterClass.NetworkPolicy getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    private static final com.google.protobuf.Parser<NetworkPolicy>
+        PARSER = new com.google.protobuf.AbstractParser<NetworkPolicy>() {
+      @java.lang.Override
+      public NetworkPolicy parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        return new NetworkPolicy(input, extensionRegistry);
+      }
+    };
+
+    public static com.google.protobuf.Parser<NetworkPolicy> parser() {
+      return PARSER;
+    }
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<NetworkPolicy> getParserForType() {
+      return PARSER;
+    }
+
+    @java.lang.Override
+    public runtime.RuntimeOuterClass.NetworkPolicy getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
+  }
+
   public interface ServiceOrBuilder extends
       // @@protoc_insertion_point(interface_extends:runtime.Service)
       com.google.protobuf.MessageOrBuilder {
@@ -4178,17 +6894,17 @@ public final class RuntimeOuterClass {
       com.google.protobuf.MessageOrBuilder {
 
     /**
-     * <code>.runtime.Service service = 1;</code>
+     * <code>.runtime.Resource resource = 1;</code>
      */
-    boolean hasService();
+    boolean hasResource();
     /**
-     * <code>.runtime.Service service = 1;</code>
+     * <code>.runtime.Resource resource = 1;</code>
      */
-    runtime.RuntimeOuterClass.Service getService();
+    runtime.RuntimeOuterClass.Resource getResource();
     /**
-     * <code>.runtime.Service service = 1;</code>
+     * <code>.runtime.Resource resource = 1;</code>
      */
-    runtime.RuntimeOuterClass.ServiceOrBuilder getServiceOrBuilder();
+    runtime.RuntimeOuterClass.ResourceOrBuilder getResourceOrBuilder();
 
     /**
      * <code>.runtime.CreateOptions options = 2;</code>
@@ -4243,14 +6959,14 @@ public final class RuntimeOuterClass {
               done = true;
               break;
             case 10: {
-              runtime.RuntimeOuterClass.Service.Builder subBuilder = null;
-              if (service_ != null) {
-                subBuilder = service_.toBuilder();
+              runtime.RuntimeOuterClass.Resource.Builder subBuilder = null;
+              if (resource_ != null) {
+                subBuilder = resource_.toBuilder();
               }
-              service_ = input.readMessage(runtime.RuntimeOuterClass.Service.parser(), extensionRegistry);
+              resource_ = input.readMessage(runtime.RuntimeOuterClass.Resource.parser(), extensionRegistry);
               if (subBuilder != null) {
-                subBuilder.mergeFrom(service_);
-                service_ = subBuilder.buildPartial();
+                subBuilder.mergeFrom(resource_);
+                resource_ = subBuilder.buildPartial();
               }
 
               break;
@@ -4300,25 +7016,25 @@ public final class RuntimeOuterClass {
               runtime.RuntimeOuterClass.CreateRequest.class, runtime.RuntimeOuterClass.CreateRequest.Builder.class);
     }
 
-    public static final int SERVICE_FIELD_NUMBER = 1;
-    private runtime.RuntimeOuterClass.Service service_;
+    public static final int RESOURCE_FIELD_NUMBER = 1;
+    private runtime.RuntimeOuterClass.Resource resource_;
     /**
-     * <code>.runtime.Service service = 1;</code>
+     * <code>.runtime.Resource resource = 1;</code>
      */
-    public boolean hasService() {
-      return service_ != null;
+    public boolean hasResource() {
+      return resource_ != null;
     }
     /**
-     * <code>.runtime.Service service = 1;</code>
+     * <code>.runtime.Resource resource = 1;</code>
      */
-    public runtime.RuntimeOuterClass.Service getService() {
-      return service_ == null ? runtime.RuntimeOuterClass.Service.getDefaultInstance() : service_;
+    public runtime.RuntimeOuterClass.Resource getResource() {
+      return resource_ == null ? runtime.RuntimeOuterClass.Resource.getDefaultInstance() : resource_;
     }
     /**
-     * <code>.runtime.Service service = 1;</code>
+     * <code>.runtime.Resource resource = 1;</code>
      */
-    public runtime.RuntimeOuterClass.ServiceOrBuilder getServiceOrBuilder() {
-      return getService();
+    public runtime.RuntimeOuterClass.ResourceOrBuilder getResourceOrBuilder() {
+      return getResource();
     }
 
     public static final int OPTIONS_FIELD_NUMBER = 2;
@@ -4356,8 +7072,8 @@ public final class RuntimeOuterClass {
     @java.lang.Override
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
-      if (service_ != null) {
-        output.writeMessage(1, getService());
+      if (resource_ != null) {
+        output.writeMessage(1, getResource());
       }
       if (options_ != null) {
         output.writeMessage(2, getOptions());
@@ -4371,9 +7087,9 @@ public final class RuntimeOuterClass {
       if (size != -1) return size;
 
       size = 0;
-      if (service_ != null) {
+      if (resource_ != null) {
         size += com.google.protobuf.CodedOutputStream
-          .computeMessageSize(1, getService());
+          .computeMessageSize(1, getResource());
       }
       if (options_ != null) {
         size += com.google.protobuf.CodedOutputStream
@@ -4395,10 +7111,10 @@ public final class RuntimeOuterClass {
       runtime.RuntimeOuterClass.CreateRequest other = (runtime.RuntimeOuterClass.CreateRequest) obj;
 
       boolean result = true;
-      result = result && (hasService() == other.hasService());
-      if (hasService()) {
-        result = result && getService()
-            .equals(other.getService());
+      result = result && (hasResource() == other.hasResource());
+      if (hasResource()) {
+        result = result && getResource()
+            .equals(other.getResource());
       }
       result = result && (hasOptions() == other.hasOptions());
       if (hasOptions()) {
@@ -4416,9 +7132,9 @@ public final class RuntimeOuterClass {
       }
       int hash = 41;
       hash = (19 * hash) + getDescriptor().hashCode();
-      if (hasService()) {
-        hash = (37 * hash) + SERVICE_FIELD_NUMBER;
-        hash = (53 * hash) + getService().hashCode();
+      if (hasResource()) {
+        hash = (37 * hash) + RESOURCE_FIELD_NUMBER;
+        hash = (53 * hash) + getResource().hashCode();
       }
       if (hasOptions()) {
         hash = (37 * hash) + OPTIONS_FIELD_NUMBER;
@@ -4557,11 +7273,11 @@ public final class RuntimeOuterClass {
       @java.lang.Override
       public Builder clear() {
         super.clear();
-        if (serviceBuilder_ == null) {
-          service_ = null;
+        if (resourceBuilder_ == null) {
+          resource_ = null;
         } else {
-          service_ = null;
-          serviceBuilder_ = null;
+          resource_ = null;
+          resourceBuilder_ = null;
         }
         if (optionsBuilder_ == null) {
           options_ = null;
@@ -4595,10 +7311,10 @@ public final class RuntimeOuterClass {
       @java.lang.Override
       public runtime.RuntimeOuterClass.CreateRequest buildPartial() {
         runtime.RuntimeOuterClass.CreateRequest result = new runtime.RuntimeOuterClass.CreateRequest(this);
-        if (serviceBuilder_ == null) {
-          result.service_ = service_;
+        if (resourceBuilder_ == null) {
+          result.resource_ = resource_;
         } else {
-          result.service_ = serviceBuilder_.build();
+          result.resource_ = resourceBuilder_.build();
         }
         if (optionsBuilder_ == null) {
           result.options_ = options_;
@@ -4653,8 +7369,8 @@ public final class RuntimeOuterClass {
 
       public Builder mergeFrom(runtime.RuntimeOuterClass.CreateRequest other) {
         if (other == runtime.RuntimeOuterClass.CreateRequest.getDefaultInstance()) return this;
-        if (other.hasService()) {
-          mergeService(other.getService());
+        if (other.hasResource()) {
+          mergeResource(other.getResource());
         }
         if (other.hasOptions()) {
           mergeOptions(other.getOptions());
@@ -4688,121 +7404,121 @@ public final class RuntimeOuterClass {
         return this;
       }
 
-      private runtime.RuntimeOuterClass.Service service_ = null;
+      private runtime.RuntimeOuterClass.Resource resource_ = null;
       private com.google.protobuf.SingleFieldBuilderV3<
-          runtime.RuntimeOuterClass.Service, runtime.RuntimeOuterClass.Service.Builder, runtime.RuntimeOuterClass.ServiceOrBuilder> serviceBuilder_;
+          runtime.RuntimeOuterClass.Resource, runtime.RuntimeOuterClass.Resource.Builder, runtime.RuntimeOuterClass.ResourceOrBuilder> resourceBuilder_;
       /**
-       * <code>.runtime.Service service = 1;</code>
+       * <code>.runtime.Resource resource = 1;</code>
        */
-      public boolean hasService() {
-        return serviceBuilder_ != null || service_ != null;
+      public boolean hasResource() {
+        return resourceBuilder_ != null || resource_ != null;
       }
       /**
-       * <code>.runtime.Service service = 1;</code>
+       * <code>.runtime.Resource resource = 1;</code>
        */
-      public runtime.RuntimeOuterClass.Service getService() {
-        if (serviceBuilder_ == null) {
-          return service_ == null ? runtime.RuntimeOuterClass.Service.getDefaultInstance() : service_;
+      public runtime.RuntimeOuterClass.Resource getResource() {
+        if (resourceBuilder_ == null) {
+          return resource_ == null ? runtime.RuntimeOuterClass.Resource.getDefaultInstance() : resource_;
         } else {
-          return serviceBuilder_.getMessage();
+          return resourceBuilder_.getMessage();
         }
       }
       /**
-       * <code>.runtime.Service service = 1;</code>
+       * <code>.runtime.Resource resource = 1;</code>
        */
-      public Builder setService(runtime.RuntimeOuterClass.Service value) {
-        if (serviceBuilder_ == null) {
+      public Builder setResource(runtime.RuntimeOuterClass.Resource value) {
+        if (resourceBuilder_ == null) {
           if (value == null) {
             throw new NullPointerException();
           }
-          service_ = value;
+          resource_ = value;
           onChanged();
         } else {
-          serviceBuilder_.setMessage(value);
+          resourceBuilder_.setMessage(value);
         }
 
         return this;
       }
       /**
-       * <code>.runtime.Service service = 1;</code>
+       * <code>.runtime.Resource resource = 1;</code>
        */
-      public Builder setService(
-          runtime.RuntimeOuterClass.Service.Builder builderForValue) {
-        if (serviceBuilder_ == null) {
-          service_ = builderForValue.build();
+      public Builder setResource(
+          runtime.RuntimeOuterClass.Resource.Builder builderForValue) {
+        if (resourceBuilder_ == null) {
+          resource_ = builderForValue.build();
           onChanged();
         } else {
-          serviceBuilder_.setMessage(builderForValue.build());
+          resourceBuilder_.setMessage(builderForValue.build());
         }
 
         return this;
       }
       /**
-       * <code>.runtime.Service service = 1;</code>
+       * <code>.runtime.Resource resource = 1;</code>
        */
-      public Builder mergeService(runtime.RuntimeOuterClass.Service value) {
-        if (serviceBuilder_ == null) {
-          if (service_ != null) {
-            service_ =
-              runtime.RuntimeOuterClass.Service.newBuilder(service_).mergeFrom(value).buildPartial();
+      public Builder mergeResource(runtime.RuntimeOuterClass.Resource value) {
+        if (resourceBuilder_ == null) {
+          if (resource_ != null) {
+            resource_ =
+              runtime.RuntimeOuterClass.Resource.newBuilder(resource_).mergeFrom(value).buildPartial();
           } else {
-            service_ = value;
+            resource_ = value;
           }
           onChanged();
         } else {
-          serviceBuilder_.mergeFrom(value);
+          resourceBuilder_.mergeFrom(value);
         }
 
         return this;
       }
       /**
-       * <code>.runtime.Service service = 1;</code>
+       * <code>.runtime.Resource resource = 1;</code>
        */
-      public Builder clearService() {
-        if (serviceBuilder_ == null) {
-          service_ = null;
+      public Builder clearResource() {
+        if (resourceBuilder_ == null) {
+          resource_ = null;
           onChanged();
         } else {
-          service_ = null;
-          serviceBuilder_ = null;
+          resource_ = null;
+          resourceBuilder_ = null;
         }
 
         return this;
       }
       /**
-       * <code>.runtime.Service service = 1;</code>
+       * <code>.runtime.Resource resource = 1;</code>
        */
-      public runtime.RuntimeOuterClass.Service.Builder getServiceBuilder() {
+      public runtime.RuntimeOuterClass.Resource.Builder getResourceBuilder() {
         
         onChanged();
-        return getServiceFieldBuilder().getBuilder();
+        return getResourceFieldBuilder().getBuilder();
       }
       /**
-       * <code>.runtime.Service service = 1;</code>
+       * <code>.runtime.Resource resource = 1;</code>
        */
-      public runtime.RuntimeOuterClass.ServiceOrBuilder getServiceOrBuilder() {
-        if (serviceBuilder_ != null) {
-          return serviceBuilder_.getMessageOrBuilder();
+      public runtime.RuntimeOuterClass.ResourceOrBuilder getResourceOrBuilder() {
+        if (resourceBuilder_ != null) {
+          return resourceBuilder_.getMessageOrBuilder();
         } else {
-          return service_ == null ?
-              runtime.RuntimeOuterClass.Service.getDefaultInstance() : service_;
+          return resource_ == null ?
+              runtime.RuntimeOuterClass.Resource.getDefaultInstance() : resource_;
         }
       }
       /**
-       * <code>.runtime.Service service = 1;</code>
+       * <code>.runtime.Resource resource = 1;</code>
        */
       private com.google.protobuf.SingleFieldBuilderV3<
-          runtime.RuntimeOuterClass.Service, runtime.RuntimeOuterClass.Service.Builder, runtime.RuntimeOuterClass.ServiceOrBuilder> 
-          getServiceFieldBuilder() {
-        if (serviceBuilder_ == null) {
-          serviceBuilder_ = new com.google.protobuf.SingleFieldBuilderV3<
-              runtime.RuntimeOuterClass.Service, runtime.RuntimeOuterClass.Service.Builder, runtime.RuntimeOuterClass.ServiceOrBuilder>(
-                  getService(),
+          runtime.RuntimeOuterClass.Resource, runtime.RuntimeOuterClass.Resource.Builder, runtime.RuntimeOuterClass.ResourceOrBuilder> 
+          getResourceFieldBuilder() {
+        if (resourceBuilder_ == null) {
+          resourceBuilder_ = new com.google.protobuf.SingleFieldBuilderV3<
+              runtime.RuntimeOuterClass.Resource, runtime.RuntimeOuterClass.Resource.Builder, runtime.RuntimeOuterClass.ResourceOrBuilder>(
+                  getResource(),
                   getParentForChildren(),
                   isClean());
-          service_ = null;
+          resource_ = null;
         }
-        return serviceBuilder_;
+        return resourceBuilder_;
       }
 
       private runtime.RuntimeOuterClass.CreateOptions options_ = null;
@@ -8471,17 +11187,17 @@ public final class RuntimeOuterClass {
       com.google.protobuf.MessageOrBuilder {
 
     /**
-     * <code>.runtime.Service service = 1;</code>
+     * <code>.runtime.Resource resource = 1;</code>
      */
-    boolean hasService();
+    boolean hasResource();
     /**
-     * <code>.runtime.Service service = 1;</code>
+     * <code>.runtime.Resource resource = 1;</code>
      */
-    runtime.RuntimeOuterClass.Service getService();
+    runtime.RuntimeOuterClass.Resource getResource();
     /**
-     * <code>.runtime.Service service = 1;</code>
+     * <code>.runtime.Resource resource = 1;</code>
      */
-    runtime.RuntimeOuterClass.ServiceOrBuilder getServiceOrBuilder();
+    runtime.RuntimeOuterClass.ResourceOrBuilder getResourceOrBuilder();
 
     /**
      * <code>.runtime.DeleteOptions options = 2;</code>
@@ -8536,14 +11252,14 @@ public final class RuntimeOuterClass {
               done = true;
               break;
             case 10: {
-              runtime.RuntimeOuterClass.Service.Builder subBuilder = null;
-              if (service_ != null) {
-                subBuilder = service_.toBuilder();
+              runtime.RuntimeOuterClass.Resource.Builder subBuilder = null;
+              if (resource_ != null) {
+                subBuilder = resource_.toBuilder();
               }
-              service_ = input.readMessage(runtime.RuntimeOuterClass.Service.parser(), extensionRegistry);
+              resource_ = input.readMessage(runtime.RuntimeOuterClass.Resource.parser(), extensionRegistry);
               if (subBuilder != null) {
-                subBuilder.mergeFrom(service_);
-                service_ = subBuilder.buildPartial();
+                subBuilder.mergeFrom(resource_);
+                resource_ = subBuilder.buildPartial();
               }
 
               break;
@@ -8593,25 +11309,25 @@ public final class RuntimeOuterClass {
               runtime.RuntimeOuterClass.DeleteRequest.class, runtime.RuntimeOuterClass.DeleteRequest.Builder.class);
     }
 
-    public static final int SERVICE_FIELD_NUMBER = 1;
-    private runtime.RuntimeOuterClass.Service service_;
+    public static final int RESOURCE_FIELD_NUMBER = 1;
+    private runtime.RuntimeOuterClass.Resource resource_;
     /**
-     * <code>.runtime.Service service = 1;</code>
+     * <code>.runtime.Resource resource = 1;</code>
      */
-    public boolean hasService() {
-      return service_ != null;
+    public boolean hasResource() {
+      return resource_ != null;
     }
     /**
-     * <code>.runtime.Service service = 1;</code>
+     * <code>.runtime.Resource resource = 1;</code>
      */
-    public runtime.RuntimeOuterClass.Service getService() {
-      return service_ == null ? runtime.RuntimeOuterClass.Service.getDefaultInstance() : service_;
+    public runtime.RuntimeOuterClass.Resource getResource() {
+      return resource_ == null ? runtime.RuntimeOuterClass.Resource.getDefaultInstance() : resource_;
     }
     /**
-     * <code>.runtime.Service service = 1;</code>
+     * <code>.runtime.Resource resource = 1;</code>
      */
-    public runtime.RuntimeOuterClass.ServiceOrBuilder getServiceOrBuilder() {
-      return getService();
+    public runtime.RuntimeOuterClass.ResourceOrBuilder getResourceOrBuilder() {
+      return getResource();
     }
 
     public static final int OPTIONS_FIELD_NUMBER = 2;
@@ -8649,8 +11365,8 @@ public final class RuntimeOuterClass {
     @java.lang.Override
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
-      if (service_ != null) {
-        output.writeMessage(1, getService());
+      if (resource_ != null) {
+        output.writeMessage(1, getResource());
       }
       if (options_ != null) {
         output.writeMessage(2, getOptions());
@@ -8664,9 +11380,9 @@ public final class RuntimeOuterClass {
       if (size != -1) return size;
 
       size = 0;
-      if (service_ != null) {
+      if (resource_ != null) {
         size += com.google.protobuf.CodedOutputStream
-          .computeMessageSize(1, getService());
+          .computeMessageSize(1, getResource());
       }
       if (options_ != null) {
         size += com.google.protobuf.CodedOutputStream
@@ -8688,10 +11404,10 @@ public final class RuntimeOuterClass {
       runtime.RuntimeOuterClass.DeleteRequest other = (runtime.RuntimeOuterClass.DeleteRequest) obj;
 
       boolean result = true;
-      result = result && (hasService() == other.hasService());
-      if (hasService()) {
-        result = result && getService()
-            .equals(other.getService());
+      result = result && (hasResource() == other.hasResource());
+      if (hasResource()) {
+        result = result && getResource()
+            .equals(other.getResource());
       }
       result = result && (hasOptions() == other.hasOptions());
       if (hasOptions()) {
@@ -8709,9 +11425,9 @@ public final class RuntimeOuterClass {
       }
       int hash = 41;
       hash = (19 * hash) + getDescriptor().hashCode();
-      if (hasService()) {
-        hash = (37 * hash) + SERVICE_FIELD_NUMBER;
-        hash = (53 * hash) + getService().hashCode();
+      if (hasResource()) {
+        hash = (37 * hash) + RESOURCE_FIELD_NUMBER;
+        hash = (53 * hash) + getResource().hashCode();
       }
       if (hasOptions()) {
         hash = (37 * hash) + OPTIONS_FIELD_NUMBER;
@@ -8850,11 +11566,11 @@ public final class RuntimeOuterClass {
       @java.lang.Override
       public Builder clear() {
         super.clear();
-        if (serviceBuilder_ == null) {
-          service_ = null;
+        if (resourceBuilder_ == null) {
+          resource_ = null;
         } else {
-          service_ = null;
-          serviceBuilder_ = null;
+          resource_ = null;
+          resourceBuilder_ = null;
         }
         if (optionsBuilder_ == null) {
           options_ = null;
@@ -8888,10 +11604,10 @@ public final class RuntimeOuterClass {
       @java.lang.Override
       public runtime.RuntimeOuterClass.DeleteRequest buildPartial() {
         runtime.RuntimeOuterClass.DeleteRequest result = new runtime.RuntimeOuterClass.DeleteRequest(this);
-        if (serviceBuilder_ == null) {
-          result.service_ = service_;
+        if (resourceBuilder_ == null) {
+          result.resource_ = resource_;
         } else {
-          result.service_ = serviceBuilder_.build();
+          result.resource_ = resourceBuilder_.build();
         }
         if (optionsBuilder_ == null) {
           result.options_ = options_;
@@ -8946,8 +11662,8 @@ public final class RuntimeOuterClass {
 
       public Builder mergeFrom(runtime.RuntimeOuterClass.DeleteRequest other) {
         if (other == runtime.RuntimeOuterClass.DeleteRequest.getDefaultInstance()) return this;
-        if (other.hasService()) {
-          mergeService(other.getService());
+        if (other.hasResource()) {
+          mergeResource(other.getResource());
         }
         if (other.hasOptions()) {
           mergeOptions(other.getOptions());
@@ -8981,121 +11697,121 @@ public final class RuntimeOuterClass {
         return this;
       }
 
-      private runtime.RuntimeOuterClass.Service service_ = null;
+      private runtime.RuntimeOuterClass.Resource resource_ = null;
       private com.google.protobuf.SingleFieldBuilderV3<
-          runtime.RuntimeOuterClass.Service, runtime.RuntimeOuterClass.Service.Builder, runtime.RuntimeOuterClass.ServiceOrBuilder> serviceBuilder_;
+          runtime.RuntimeOuterClass.Resource, runtime.RuntimeOuterClass.Resource.Builder, runtime.RuntimeOuterClass.ResourceOrBuilder> resourceBuilder_;
       /**
-       * <code>.runtime.Service service = 1;</code>
+       * <code>.runtime.Resource resource = 1;</code>
        */
-      public boolean hasService() {
-        return serviceBuilder_ != null || service_ != null;
+      public boolean hasResource() {
+        return resourceBuilder_ != null || resource_ != null;
       }
       /**
-       * <code>.runtime.Service service = 1;</code>
+       * <code>.runtime.Resource resource = 1;</code>
        */
-      public runtime.RuntimeOuterClass.Service getService() {
-        if (serviceBuilder_ == null) {
-          return service_ == null ? runtime.RuntimeOuterClass.Service.getDefaultInstance() : service_;
+      public runtime.RuntimeOuterClass.Resource getResource() {
+        if (resourceBuilder_ == null) {
+          return resource_ == null ? runtime.RuntimeOuterClass.Resource.getDefaultInstance() : resource_;
         } else {
-          return serviceBuilder_.getMessage();
+          return resourceBuilder_.getMessage();
         }
       }
       /**
-       * <code>.runtime.Service service = 1;</code>
+       * <code>.runtime.Resource resource = 1;</code>
        */
-      public Builder setService(runtime.RuntimeOuterClass.Service value) {
-        if (serviceBuilder_ == null) {
+      public Builder setResource(runtime.RuntimeOuterClass.Resource value) {
+        if (resourceBuilder_ == null) {
           if (value == null) {
             throw new NullPointerException();
           }
-          service_ = value;
+          resource_ = value;
           onChanged();
         } else {
-          serviceBuilder_.setMessage(value);
+          resourceBuilder_.setMessage(value);
         }
 
         return this;
       }
       /**
-       * <code>.runtime.Service service = 1;</code>
+       * <code>.runtime.Resource resource = 1;</code>
        */
-      public Builder setService(
-          runtime.RuntimeOuterClass.Service.Builder builderForValue) {
-        if (serviceBuilder_ == null) {
-          service_ = builderForValue.build();
+      public Builder setResource(
+          runtime.RuntimeOuterClass.Resource.Builder builderForValue) {
+        if (resourceBuilder_ == null) {
+          resource_ = builderForValue.build();
           onChanged();
         } else {
-          serviceBuilder_.setMessage(builderForValue.build());
+          resourceBuilder_.setMessage(builderForValue.build());
         }
 
         return this;
       }
       /**
-       * <code>.runtime.Service service = 1;</code>
+       * <code>.runtime.Resource resource = 1;</code>
        */
-      public Builder mergeService(runtime.RuntimeOuterClass.Service value) {
-        if (serviceBuilder_ == null) {
-          if (service_ != null) {
-            service_ =
-              runtime.RuntimeOuterClass.Service.newBuilder(service_).mergeFrom(value).buildPartial();
+      public Builder mergeResource(runtime.RuntimeOuterClass.Resource value) {
+        if (resourceBuilder_ == null) {
+          if (resource_ != null) {
+            resource_ =
+              runtime.RuntimeOuterClass.Resource.newBuilder(resource_).mergeFrom(value).buildPartial();
           } else {
-            service_ = value;
+            resource_ = value;
           }
           onChanged();
         } else {
-          serviceBuilder_.mergeFrom(value);
+          resourceBuilder_.mergeFrom(value);
         }
 
         return this;
       }
       /**
-       * <code>.runtime.Service service = 1;</code>
+       * <code>.runtime.Resource resource = 1;</code>
        */
-      public Builder clearService() {
-        if (serviceBuilder_ == null) {
-          service_ = null;
+      public Builder clearResource() {
+        if (resourceBuilder_ == null) {
+          resource_ = null;
           onChanged();
         } else {
-          service_ = null;
-          serviceBuilder_ = null;
+          resource_ = null;
+          resourceBuilder_ = null;
         }
 
         return this;
       }
       /**
-       * <code>.runtime.Service service = 1;</code>
+       * <code>.runtime.Resource resource = 1;</code>
        */
-      public runtime.RuntimeOuterClass.Service.Builder getServiceBuilder() {
+      public runtime.RuntimeOuterClass.Resource.Builder getResourceBuilder() {
         
         onChanged();
-        return getServiceFieldBuilder().getBuilder();
+        return getResourceFieldBuilder().getBuilder();
       }
       /**
-       * <code>.runtime.Service service = 1;</code>
+       * <code>.runtime.Resource resource = 1;</code>
        */
-      public runtime.RuntimeOuterClass.ServiceOrBuilder getServiceOrBuilder() {
-        if (serviceBuilder_ != null) {
-          return serviceBuilder_.getMessageOrBuilder();
+      public runtime.RuntimeOuterClass.ResourceOrBuilder getResourceOrBuilder() {
+        if (resourceBuilder_ != null) {
+          return resourceBuilder_.getMessageOrBuilder();
         } else {
-          return service_ == null ?
-              runtime.RuntimeOuterClass.Service.getDefaultInstance() : service_;
+          return resource_ == null ?
+              runtime.RuntimeOuterClass.Resource.getDefaultInstance() : resource_;
         }
       }
       /**
-       * <code>.runtime.Service service = 1;</code>
+       * <code>.runtime.Resource resource = 1;</code>
        */
       private com.google.protobuf.SingleFieldBuilderV3<
-          runtime.RuntimeOuterClass.Service, runtime.RuntimeOuterClass.Service.Builder, runtime.RuntimeOuterClass.ServiceOrBuilder> 
-          getServiceFieldBuilder() {
-        if (serviceBuilder_ == null) {
-          serviceBuilder_ = new com.google.protobuf.SingleFieldBuilderV3<
-              runtime.RuntimeOuterClass.Service, runtime.RuntimeOuterClass.Service.Builder, runtime.RuntimeOuterClass.ServiceOrBuilder>(
-                  getService(),
+          runtime.RuntimeOuterClass.Resource, runtime.RuntimeOuterClass.Resource.Builder, runtime.RuntimeOuterClass.ResourceOrBuilder> 
+          getResourceFieldBuilder() {
+        if (resourceBuilder_ == null) {
+          resourceBuilder_ = new com.google.protobuf.SingleFieldBuilderV3<
+              runtime.RuntimeOuterClass.Resource, runtime.RuntimeOuterClass.Resource.Builder, runtime.RuntimeOuterClass.ResourceOrBuilder>(
+                  getResource(),
                   getParentForChildren(),
                   isClean());
-          service_ = null;
+          resource_ = null;
         }
-        return serviceBuilder_;
+        return resourceBuilder_;
       }
 
       private runtime.RuntimeOuterClass.DeleteOptions options_ = null;
@@ -10443,17 +13159,17 @@ public final class RuntimeOuterClass {
       com.google.protobuf.MessageOrBuilder {
 
     /**
-     * <code>.runtime.Service service = 1;</code>
+     * <code>.runtime.Resource resource = 1;</code>
      */
-    boolean hasService();
+    boolean hasResource();
     /**
-     * <code>.runtime.Service service = 1;</code>
+     * <code>.runtime.Resource resource = 1;</code>
      */
-    runtime.RuntimeOuterClass.Service getService();
+    runtime.RuntimeOuterClass.Resource getResource();
     /**
-     * <code>.runtime.Service service = 1;</code>
+     * <code>.runtime.Resource resource = 1;</code>
      */
-    runtime.RuntimeOuterClass.ServiceOrBuilder getServiceOrBuilder();
+    runtime.RuntimeOuterClass.ResourceOrBuilder getResourceOrBuilder();
 
     /**
      * <code>.runtime.UpdateOptions options = 2;</code>
@@ -10508,14 +13224,14 @@ public final class RuntimeOuterClass {
               done = true;
               break;
             case 10: {
-              runtime.RuntimeOuterClass.Service.Builder subBuilder = null;
-              if (service_ != null) {
-                subBuilder = service_.toBuilder();
+              runtime.RuntimeOuterClass.Resource.Builder subBuilder = null;
+              if (resource_ != null) {
+                subBuilder = resource_.toBuilder();
               }
-              service_ = input.readMessage(runtime.RuntimeOuterClass.Service.parser(), extensionRegistry);
+              resource_ = input.readMessage(runtime.RuntimeOuterClass.Resource.parser(), extensionRegistry);
               if (subBuilder != null) {
-                subBuilder.mergeFrom(service_);
-                service_ = subBuilder.buildPartial();
+                subBuilder.mergeFrom(resource_);
+                resource_ = subBuilder.buildPartial();
               }
 
               break;
@@ -10565,25 +13281,25 @@ public final class RuntimeOuterClass {
               runtime.RuntimeOuterClass.UpdateRequest.class, runtime.RuntimeOuterClass.UpdateRequest.Builder.class);
     }
 
-    public static final int SERVICE_FIELD_NUMBER = 1;
-    private runtime.RuntimeOuterClass.Service service_;
+    public static final int RESOURCE_FIELD_NUMBER = 1;
+    private runtime.RuntimeOuterClass.Resource resource_;
     /**
-     * <code>.runtime.Service service = 1;</code>
+     * <code>.runtime.Resource resource = 1;</code>
      */
-    public boolean hasService() {
-      return service_ != null;
+    public boolean hasResource() {
+      return resource_ != null;
     }
     /**
-     * <code>.runtime.Service service = 1;</code>
+     * <code>.runtime.Resource resource = 1;</code>
      */
-    public runtime.RuntimeOuterClass.Service getService() {
-      return service_ == null ? runtime.RuntimeOuterClass.Service.getDefaultInstance() : service_;
+    public runtime.RuntimeOuterClass.Resource getResource() {
+      return resource_ == null ? runtime.RuntimeOuterClass.Resource.getDefaultInstance() : resource_;
     }
     /**
-     * <code>.runtime.Service service = 1;</code>
+     * <code>.runtime.Resource resource = 1;</code>
      */
-    public runtime.RuntimeOuterClass.ServiceOrBuilder getServiceOrBuilder() {
-      return getService();
+    public runtime.RuntimeOuterClass.ResourceOrBuilder getResourceOrBuilder() {
+      return getResource();
     }
 
     public static final int OPTIONS_FIELD_NUMBER = 2;
@@ -10621,8 +13337,8 @@ public final class RuntimeOuterClass {
     @java.lang.Override
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
-      if (service_ != null) {
-        output.writeMessage(1, getService());
+      if (resource_ != null) {
+        output.writeMessage(1, getResource());
       }
       if (options_ != null) {
         output.writeMessage(2, getOptions());
@@ -10636,9 +13352,9 @@ public final class RuntimeOuterClass {
       if (size != -1) return size;
 
       size = 0;
-      if (service_ != null) {
+      if (resource_ != null) {
         size += com.google.protobuf.CodedOutputStream
-          .computeMessageSize(1, getService());
+          .computeMessageSize(1, getResource());
       }
       if (options_ != null) {
         size += com.google.protobuf.CodedOutputStream
@@ -10660,10 +13376,10 @@ public final class RuntimeOuterClass {
       runtime.RuntimeOuterClass.UpdateRequest other = (runtime.RuntimeOuterClass.UpdateRequest) obj;
 
       boolean result = true;
-      result = result && (hasService() == other.hasService());
-      if (hasService()) {
-        result = result && getService()
-            .equals(other.getService());
+      result = result && (hasResource() == other.hasResource());
+      if (hasResource()) {
+        result = result && getResource()
+            .equals(other.getResource());
       }
       result = result && (hasOptions() == other.hasOptions());
       if (hasOptions()) {
@@ -10681,9 +13397,9 @@ public final class RuntimeOuterClass {
       }
       int hash = 41;
       hash = (19 * hash) + getDescriptor().hashCode();
-      if (hasService()) {
-        hash = (37 * hash) + SERVICE_FIELD_NUMBER;
-        hash = (53 * hash) + getService().hashCode();
+      if (hasResource()) {
+        hash = (37 * hash) + RESOURCE_FIELD_NUMBER;
+        hash = (53 * hash) + getResource().hashCode();
       }
       if (hasOptions()) {
         hash = (37 * hash) + OPTIONS_FIELD_NUMBER;
@@ -10822,11 +13538,11 @@ public final class RuntimeOuterClass {
       @java.lang.Override
       public Builder clear() {
         super.clear();
-        if (serviceBuilder_ == null) {
-          service_ = null;
+        if (resourceBuilder_ == null) {
+          resource_ = null;
         } else {
-          service_ = null;
-          serviceBuilder_ = null;
+          resource_ = null;
+          resourceBuilder_ = null;
         }
         if (optionsBuilder_ == null) {
           options_ = null;
@@ -10860,10 +13576,10 @@ public final class RuntimeOuterClass {
       @java.lang.Override
       public runtime.RuntimeOuterClass.UpdateRequest buildPartial() {
         runtime.RuntimeOuterClass.UpdateRequest result = new runtime.RuntimeOuterClass.UpdateRequest(this);
-        if (serviceBuilder_ == null) {
-          result.service_ = service_;
+        if (resourceBuilder_ == null) {
+          result.resource_ = resource_;
         } else {
-          result.service_ = serviceBuilder_.build();
+          result.resource_ = resourceBuilder_.build();
         }
         if (optionsBuilder_ == null) {
           result.options_ = options_;
@@ -10918,8 +13634,8 @@ public final class RuntimeOuterClass {
 
       public Builder mergeFrom(runtime.RuntimeOuterClass.UpdateRequest other) {
         if (other == runtime.RuntimeOuterClass.UpdateRequest.getDefaultInstance()) return this;
-        if (other.hasService()) {
-          mergeService(other.getService());
+        if (other.hasResource()) {
+          mergeResource(other.getResource());
         }
         if (other.hasOptions()) {
           mergeOptions(other.getOptions());
@@ -10953,121 +13669,121 @@ public final class RuntimeOuterClass {
         return this;
       }
 
-      private runtime.RuntimeOuterClass.Service service_ = null;
+      private runtime.RuntimeOuterClass.Resource resource_ = null;
       private com.google.protobuf.SingleFieldBuilderV3<
-          runtime.RuntimeOuterClass.Service, runtime.RuntimeOuterClass.Service.Builder, runtime.RuntimeOuterClass.ServiceOrBuilder> serviceBuilder_;
+          runtime.RuntimeOuterClass.Resource, runtime.RuntimeOuterClass.Resource.Builder, runtime.RuntimeOuterClass.ResourceOrBuilder> resourceBuilder_;
       /**
-       * <code>.runtime.Service service = 1;</code>
+       * <code>.runtime.Resource resource = 1;</code>
        */
-      public boolean hasService() {
-        return serviceBuilder_ != null || service_ != null;
+      public boolean hasResource() {
+        return resourceBuilder_ != null || resource_ != null;
       }
       /**
-       * <code>.runtime.Service service = 1;</code>
+       * <code>.runtime.Resource resource = 1;</code>
        */
-      public runtime.RuntimeOuterClass.Service getService() {
-        if (serviceBuilder_ == null) {
-          return service_ == null ? runtime.RuntimeOuterClass.Service.getDefaultInstance() : service_;
+      public runtime.RuntimeOuterClass.Resource getResource() {
+        if (resourceBuilder_ == null) {
+          return resource_ == null ? runtime.RuntimeOuterClass.Resource.getDefaultInstance() : resource_;
         } else {
-          return serviceBuilder_.getMessage();
+          return resourceBuilder_.getMessage();
         }
       }
       /**
-       * <code>.runtime.Service service = 1;</code>
+       * <code>.runtime.Resource resource = 1;</code>
        */
-      public Builder setService(runtime.RuntimeOuterClass.Service value) {
-        if (serviceBuilder_ == null) {
+      public Builder setResource(runtime.RuntimeOuterClass.Resource value) {
+        if (resourceBuilder_ == null) {
           if (value == null) {
             throw new NullPointerException();
           }
-          service_ = value;
+          resource_ = value;
           onChanged();
         } else {
-          serviceBuilder_.setMessage(value);
+          resourceBuilder_.setMessage(value);
         }
 
         return this;
       }
       /**
-       * <code>.runtime.Service service = 1;</code>
+       * <code>.runtime.Resource resource = 1;</code>
        */
-      public Builder setService(
-          runtime.RuntimeOuterClass.Service.Builder builderForValue) {
-        if (serviceBuilder_ == null) {
-          service_ = builderForValue.build();
+      public Builder setResource(
+          runtime.RuntimeOuterClass.Resource.Builder builderForValue) {
+        if (resourceBuilder_ == null) {
+          resource_ = builderForValue.build();
           onChanged();
         } else {
-          serviceBuilder_.setMessage(builderForValue.build());
+          resourceBuilder_.setMessage(builderForValue.build());
         }
 
         return this;
       }
       /**
-       * <code>.runtime.Service service = 1;</code>
+       * <code>.runtime.Resource resource = 1;</code>
        */
-      public Builder mergeService(runtime.RuntimeOuterClass.Service value) {
-        if (serviceBuilder_ == null) {
-          if (service_ != null) {
-            service_ =
-              runtime.RuntimeOuterClass.Service.newBuilder(service_).mergeFrom(value).buildPartial();
+      public Builder mergeResource(runtime.RuntimeOuterClass.Resource value) {
+        if (resourceBuilder_ == null) {
+          if (resource_ != null) {
+            resource_ =
+              runtime.RuntimeOuterClass.Resource.newBuilder(resource_).mergeFrom(value).buildPartial();
           } else {
-            service_ = value;
+            resource_ = value;
           }
           onChanged();
         } else {
-          serviceBuilder_.mergeFrom(value);
+          resourceBuilder_.mergeFrom(value);
         }
 
         return this;
       }
       /**
-       * <code>.runtime.Service service = 1;</code>
+       * <code>.runtime.Resource resource = 1;</code>
        */
-      public Builder clearService() {
-        if (serviceBuilder_ == null) {
-          service_ = null;
+      public Builder clearResource() {
+        if (resourceBuilder_ == null) {
+          resource_ = null;
           onChanged();
         } else {
-          service_ = null;
-          serviceBuilder_ = null;
+          resource_ = null;
+          resourceBuilder_ = null;
         }
 
         return this;
       }
       /**
-       * <code>.runtime.Service service = 1;</code>
+       * <code>.runtime.Resource resource = 1;</code>
        */
-      public runtime.RuntimeOuterClass.Service.Builder getServiceBuilder() {
+      public runtime.RuntimeOuterClass.Resource.Builder getResourceBuilder() {
         
         onChanged();
-        return getServiceFieldBuilder().getBuilder();
+        return getResourceFieldBuilder().getBuilder();
       }
       /**
-       * <code>.runtime.Service service = 1;</code>
+       * <code>.runtime.Resource resource = 1;</code>
        */
-      public runtime.RuntimeOuterClass.ServiceOrBuilder getServiceOrBuilder() {
-        if (serviceBuilder_ != null) {
-          return serviceBuilder_.getMessageOrBuilder();
+      public runtime.RuntimeOuterClass.ResourceOrBuilder getResourceOrBuilder() {
+        if (resourceBuilder_ != null) {
+          return resourceBuilder_.getMessageOrBuilder();
         } else {
-          return service_ == null ?
-              runtime.RuntimeOuterClass.Service.getDefaultInstance() : service_;
+          return resource_ == null ?
+              runtime.RuntimeOuterClass.Resource.getDefaultInstance() : resource_;
         }
       }
       /**
-       * <code>.runtime.Service service = 1;</code>
+       * <code>.runtime.Resource resource = 1;</code>
        */
       private com.google.protobuf.SingleFieldBuilderV3<
-          runtime.RuntimeOuterClass.Service, runtime.RuntimeOuterClass.Service.Builder, runtime.RuntimeOuterClass.ServiceOrBuilder> 
-          getServiceFieldBuilder() {
-        if (serviceBuilder_ == null) {
-          serviceBuilder_ = new com.google.protobuf.SingleFieldBuilderV3<
-              runtime.RuntimeOuterClass.Service, runtime.RuntimeOuterClass.Service.Builder, runtime.RuntimeOuterClass.ServiceOrBuilder>(
-                  getService(),
+          runtime.RuntimeOuterClass.Resource, runtime.RuntimeOuterClass.Resource.Builder, runtime.RuntimeOuterClass.ResourceOrBuilder> 
+          getResourceFieldBuilder() {
+        if (resourceBuilder_ == null) {
+          resourceBuilder_ = new com.google.protobuf.SingleFieldBuilderV3<
+              runtime.RuntimeOuterClass.Resource, runtime.RuntimeOuterClass.Resource.Builder, runtime.RuntimeOuterClass.ResourceOrBuilder>(
+                  getResource(),
                   getParentForChildren(),
                   isClean());
-          service_ = null;
+          resource_ = null;
         }
-        return serviceBuilder_;
+        return resourceBuilder_;
       }
 
       private runtime.RuntimeOuterClass.UpdateOptions options_ = null;
@@ -16360,2002 +19076,6 @@ public final class RuntimeOuterClass {
 
   }
 
-  public interface CreateNamespaceRequestOrBuilder extends
-      // @@protoc_insertion_point(interface_extends:runtime.CreateNamespaceRequest)
-      com.google.protobuf.MessageOrBuilder {
-
-    /**
-     * <pre>
-     * the name of the namespace
-     * </pre>
-     *
-     * <code>string namespace = 1;</code>
-     */
-    java.lang.String getNamespace();
-    /**
-     * <pre>
-     * the name of the namespace
-     * </pre>
-     *
-     * <code>string namespace = 1;</code>
-     */
-    com.google.protobuf.ByteString
-        getNamespaceBytes();
-  }
-  /**
-   * Protobuf type {@code runtime.CreateNamespaceRequest}
-   */
-  public  static final class CreateNamespaceRequest extends
-      com.google.protobuf.GeneratedMessageV3 implements
-      // @@protoc_insertion_point(message_implements:runtime.CreateNamespaceRequest)
-      CreateNamespaceRequestOrBuilder {
-  private static final long serialVersionUID = 0L;
-    // Use CreateNamespaceRequest.newBuilder() to construct.
-    private CreateNamespaceRequest(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
-      super(builder);
-    }
-    private CreateNamespaceRequest() {
-      namespace_ = "";
-    }
-
-    @java.lang.Override
-    public final com.google.protobuf.UnknownFieldSet
-    getUnknownFields() {
-      return this.unknownFields;
-    }
-    private CreateNamespaceRequest(
-        com.google.protobuf.CodedInputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      this();
-      if (extensionRegistry == null) {
-        throw new java.lang.NullPointerException();
-      }
-      int mutable_bitField0_ = 0;
-      com.google.protobuf.UnknownFieldSet.Builder unknownFields =
-          com.google.protobuf.UnknownFieldSet.newBuilder();
-      try {
-        boolean done = false;
-        while (!done) {
-          int tag = input.readTag();
-          switch (tag) {
-            case 0:
-              done = true;
-              break;
-            case 10: {
-              java.lang.String s = input.readStringRequireUtf8();
-
-              namespace_ = s;
-              break;
-            }
-            default: {
-              if (!parseUnknownFieldProto3(
-                  input, unknownFields, extensionRegistry, tag)) {
-                done = true;
-              }
-              break;
-            }
-          }
-        }
-      } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-        throw e.setUnfinishedMessage(this);
-      } catch (java.io.IOException e) {
-        throw new com.google.protobuf.InvalidProtocolBufferException(
-            e).setUnfinishedMessage(this);
-      } finally {
-        this.unknownFields = unknownFields.build();
-        makeExtensionsImmutable();
-      }
-    }
-    public static final com.google.protobuf.Descriptors.Descriptor
-        getDescriptor() {
-      return runtime.RuntimeOuterClass.internal_static_runtime_CreateNamespaceRequest_descriptor;
-    }
-
-    @java.lang.Override
-    protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
-        internalGetFieldAccessorTable() {
-      return runtime.RuntimeOuterClass.internal_static_runtime_CreateNamespaceRequest_fieldAccessorTable
-          .ensureFieldAccessorsInitialized(
-              runtime.RuntimeOuterClass.CreateNamespaceRequest.class, runtime.RuntimeOuterClass.CreateNamespaceRequest.Builder.class);
-    }
-
-    public static final int NAMESPACE_FIELD_NUMBER = 1;
-    private volatile java.lang.Object namespace_;
-    /**
-     * <pre>
-     * the name of the namespace
-     * </pre>
-     *
-     * <code>string namespace = 1;</code>
-     */
-    public java.lang.String getNamespace() {
-      java.lang.Object ref = namespace_;
-      if (ref instanceof java.lang.String) {
-        return (java.lang.String) ref;
-      } else {
-        com.google.protobuf.ByteString bs = 
-            (com.google.protobuf.ByteString) ref;
-        java.lang.String s = bs.toStringUtf8();
-        namespace_ = s;
-        return s;
-      }
-    }
-    /**
-     * <pre>
-     * the name of the namespace
-     * </pre>
-     *
-     * <code>string namespace = 1;</code>
-     */
-    public com.google.protobuf.ByteString
-        getNamespaceBytes() {
-      java.lang.Object ref = namespace_;
-      if (ref instanceof java.lang.String) {
-        com.google.protobuf.ByteString b = 
-            com.google.protobuf.ByteString.copyFromUtf8(
-                (java.lang.String) ref);
-        namespace_ = b;
-        return b;
-      } else {
-        return (com.google.protobuf.ByteString) ref;
-      }
-    }
-
-    private byte memoizedIsInitialized = -1;
-    @java.lang.Override
-    public final boolean isInitialized() {
-      byte isInitialized = memoizedIsInitialized;
-      if (isInitialized == 1) return true;
-      if (isInitialized == 0) return false;
-
-      memoizedIsInitialized = 1;
-      return true;
-    }
-
-    @java.lang.Override
-    public void writeTo(com.google.protobuf.CodedOutputStream output)
-                        throws java.io.IOException {
-      if (!getNamespaceBytes().isEmpty()) {
-        com.google.protobuf.GeneratedMessageV3.writeString(output, 1, namespace_);
-      }
-      unknownFields.writeTo(output);
-    }
-
-    @java.lang.Override
-    public int getSerializedSize() {
-      int size = memoizedSize;
-      if (size != -1) return size;
-
-      size = 0;
-      if (!getNamespaceBytes().isEmpty()) {
-        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(1, namespace_);
-      }
-      size += unknownFields.getSerializedSize();
-      memoizedSize = size;
-      return size;
-    }
-
-    @java.lang.Override
-    public boolean equals(final java.lang.Object obj) {
-      if (obj == this) {
-       return true;
-      }
-      if (!(obj instanceof runtime.RuntimeOuterClass.CreateNamespaceRequest)) {
-        return super.equals(obj);
-      }
-      runtime.RuntimeOuterClass.CreateNamespaceRequest other = (runtime.RuntimeOuterClass.CreateNamespaceRequest) obj;
-
-      boolean result = true;
-      result = result && getNamespace()
-          .equals(other.getNamespace());
-      result = result && unknownFields.equals(other.unknownFields);
-      return result;
-    }
-
-    @java.lang.Override
-    public int hashCode() {
-      if (memoizedHashCode != 0) {
-        return memoizedHashCode;
-      }
-      int hash = 41;
-      hash = (19 * hash) + getDescriptor().hashCode();
-      hash = (37 * hash) + NAMESPACE_FIELD_NUMBER;
-      hash = (53 * hash) + getNamespace().hashCode();
-      hash = (29 * hash) + unknownFields.hashCode();
-      memoizedHashCode = hash;
-      return hash;
-    }
-
-    public static runtime.RuntimeOuterClass.CreateNamespaceRequest parseFrom(
-        java.nio.ByteBuffer data)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return PARSER.parseFrom(data);
-    }
-    public static runtime.RuntimeOuterClass.CreateNamespaceRequest parseFrom(
-        java.nio.ByteBuffer data,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return PARSER.parseFrom(data, extensionRegistry);
-    }
-    public static runtime.RuntimeOuterClass.CreateNamespaceRequest parseFrom(
-        com.google.protobuf.ByteString data)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return PARSER.parseFrom(data);
-    }
-    public static runtime.RuntimeOuterClass.CreateNamespaceRequest parseFrom(
-        com.google.protobuf.ByteString data,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return PARSER.parseFrom(data, extensionRegistry);
-    }
-    public static runtime.RuntimeOuterClass.CreateNamespaceRequest parseFrom(byte[] data)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return PARSER.parseFrom(data);
-    }
-    public static runtime.RuntimeOuterClass.CreateNamespaceRequest parseFrom(
-        byte[] data,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return PARSER.parseFrom(data, extensionRegistry);
-    }
-    public static runtime.RuntimeOuterClass.CreateNamespaceRequest parseFrom(java.io.InputStream input)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageV3
-          .parseWithIOException(PARSER, input);
-    }
-    public static runtime.RuntimeOuterClass.CreateNamespaceRequest parseFrom(
-        java.io.InputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageV3
-          .parseWithIOException(PARSER, input, extensionRegistry);
-    }
-    public static runtime.RuntimeOuterClass.CreateNamespaceRequest parseDelimitedFrom(java.io.InputStream input)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageV3
-          .parseDelimitedWithIOException(PARSER, input);
-    }
-    public static runtime.RuntimeOuterClass.CreateNamespaceRequest parseDelimitedFrom(
-        java.io.InputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageV3
-          .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
-    }
-    public static runtime.RuntimeOuterClass.CreateNamespaceRequest parseFrom(
-        com.google.protobuf.CodedInputStream input)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageV3
-          .parseWithIOException(PARSER, input);
-    }
-    public static runtime.RuntimeOuterClass.CreateNamespaceRequest parseFrom(
-        com.google.protobuf.CodedInputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageV3
-          .parseWithIOException(PARSER, input, extensionRegistry);
-    }
-
-    @java.lang.Override
-    public Builder newBuilderForType() { return newBuilder(); }
-    public static Builder newBuilder() {
-      return DEFAULT_INSTANCE.toBuilder();
-    }
-    public static Builder newBuilder(runtime.RuntimeOuterClass.CreateNamespaceRequest prototype) {
-      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
-    }
-    @java.lang.Override
-    public Builder toBuilder() {
-      return this == DEFAULT_INSTANCE
-          ? new Builder() : new Builder().mergeFrom(this);
-    }
-
-    @java.lang.Override
-    protected Builder newBuilderForType(
-        com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
-      Builder builder = new Builder(parent);
-      return builder;
-    }
-    /**
-     * Protobuf type {@code runtime.CreateNamespaceRequest}
-     */
-    public static final class Builder extends
-        com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
-        // @@protoc_insertion_point(builder_implements:runtime.CreateNamespaceRequest)
-        runtime.RuntimeOuterClass.CreateNamespaceRequestOrBuilder {
-      public static final com.google.protobuf.Descriptors.Descriptor
-          getDescriptor() {
-        return runtime.RuntimeOuterClass.internal_static_runtime_CreateNamespaceRequest_descriptor;
-      }
-
-      @java.lang.Override
-      protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
-          internalGetFieldAccessorTable() {
-        return runtime.RuntimeOuterClass.internal_static_runtime_CreateNamespaceRequest_fieldAccessorTable
-            .ensureFieldAccessorsInitialized(
-                runtime.RuntimeOuterClass.CreateNamespaceRequest.class, runtime.RuntimeOuterClass.CreateNamespaceRequest.Builder.class);
-      }
-
-      // Construct using runtime.RuntimeOuterClass.CreateNamespaceRequest.newBuilder()
-      private Builder() {
-        maybeForceBuilderInitialization();
-      }
-
-      private Builder(
-          com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
-        super(parent);
-        maybeForceBuilderInitialization();
-      }
-      private void maybeForceBuilderInitialization() {
-        if (com.google.protobuf.GeneratedMessageV3
-                .alwaysUseFieldBuilders) {
-        }
-      }
-      @java.lang.Override
-      public Builder clear() {
-        super.clear();
-        namespace_ = "";
-
-        return this;
-      }
-
-      @java.lang.Override
-      public com.google.protobuf.Descriptors.Descriptor
-          getDescriptorForType() {
-        return runtime.RuntimeOuterClass.internal_static_runtime_CreateNamespaceRequest_descriptor;
-      }
-
-      @java.lang.Override
-      public runtime.RuntimeOuterClass.CreateNamespaceRequest getDefaultInstanceForType() {
-        return runtime.RuntimeOuterClass.CreateNamespaceRequest.getDefaultInstance();
-      }
-
-      @java.lang.Override
-      public runtime.RuntimeOuterClass.CreateNamespaceRequest build() {
-        runtime.RuntimeOuterClass.CreateNamespaceRequest result = buildPartial();
-        if (!result.isInitialized()) {
-          throw newUninitializedMessageException(result);
-        }
-        return result;
-      }
-
-      @java.lang.Override
-      public runtime.RuntimeOuterClass.CreateNamespaceRequest buildPartial() {
-        runtime.RuntimeOuterClass.CreateNamespaceRequest result = new runtime.RuntimeOuterClass.CreateNamespaceRequest(this);
-        result.namespace_ = namespace_;
-        onBuilt();
-        return result;
-      }
-
-      @java.lang.Override
-      public Builder clone() {
-        return (Builder) super.clone();
-      }
-      @java.lang.Override
-      public Builder setField(
-          com.google.protobuf.Descriptors.FieldDescriptor field,
-          java.lang.Object value) {
-        return (Builder) super.setField(field, value);
-      }
-      @java.lang.Override
-      public Builder clearField(
-          com.google.protobuf.Descriptors.FieldDescriptor field) {
-        return (Builder) super.clearField(field);
-      }
-      @java.lang.Override
-      public Builder clearOneof(
-          com.google.protobuf.Descriptors.OneofDescriptor oneof) {
-        return (Builder) super.clearOneof(oneof);
-      }
-      @java.lang.Override
-      public Builder setRepeatedField(
-          com.google.protobuf.Descriptors.FieldDescriptor field,
-          int index, java.lang.Object value) {
-        return (Builder) super.setRepeatedField(field, index, value);
-      }
-      @java.lang.Override
-      public Builder addRepeatedField(
-          com.google.protobuf.Descriptors.FieldDescriptor field,
-          java.lang.Object value) {
-        return (Builder) super.addRepeatedField(field, value);
-      }
-      @java.lang.Override
-      public Builder mergeFrom(com.google.protobuf.Message other) {
-        if (other instanceof runtime.RuntimeOuterClass.CreateNamespaceRequest) {
-          return mergeFrom((runtime.RuntimeOuterClass.CreateNamespaceRequest)other);
-        } else {
-          super.mergeFrom(other);
-          return this;
-        }
-      }
-
-      public Builder mergeFrom(runtime.RuntimeOuterClass.CreateNamespaceRequest other) {
-        if (other == runtime.RuntimeOuterClass.CreateNamespaceRequest.getDefaultInstance()) return this;
-        if (!other.getNamespace().isEmpty()) {
-          namespace_ = other.namespace_;
-          onChanged();
-        }
-        this.mergeUnknownFields(other.unknownFields);
-        onChanged();
-        return this;
-      }
-
-      @java.lang.Override
-      public final boolean isInitialized() {
-        return true;
-      }
-
-      @java.lang.Override
-      public Builder mergeFrom(
-          com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws java.io.IOException {
-        runtime.RuntimeOuterClass.CreateNamespaceRequest parsedMessage = null;
-        try {
-          parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
-        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-          parsedMessage = (runtime.RuntimeOuterClass.CreateNamespaceRequest) e.getUnfinishedMessage();
-          throw e.unwrapIOException();
-        } finally {
-          if (parsedMessage != null) {
-            mergeFrom(parsedMessage);
-          }
-        }
-        return this;
-      }
-
-      private java.lang.Object namespace_ = "";
-      /**
-       * <pre>
-       * the name of the namespace
-       * </pre>
-       *
-       * <code>string namespace = 1;</code>
-       */
-      public java.lang.String getNamespace() {
-        java.lang.Object ref = namespace_;
-        if (!(ref instanceof java.lang.String)) {
-          com.google.protobuf.ByteString bs =
-              (com.google.protobuf.ByteString) ref;
-          java.lang.String s = bs.toStringUtf8();
-          namespace_ = s;
-          return s;
-        } else {
-          return (java.lang.String) ref;
-        }
-      }
-      /**
-       * <pre>
-       * the name of the namespace
-       * </pre>
-       *
-       * <code>string namespace = 1;</code>
-       */
-      public com.google.protobuf.ByteString
-          getNamespaceBytes() {
-        java.lang.Object ref = namespace_;
-        if (ref instanceof String) {
-          com.google.protobuf.ByteString b = 
-              com.google.protobuf.ByteString.copyFromUtf8(
-                  (java.lang.String) ref);
-          namespace_ = b;
-          return b;
-        } else {
-          return (com.google.protobuf.ByteString) ref;
-        }
-      }
-      /**
-       * <pre>
-       * the name of the namespace
-       * </pre>
-       *
-       * <code>string namespace = 1;</code>
-       */
-      public Builder setNamespace(
-          java.lang.String value) {
-        if (value == null) {
-    throw new NullPointerException();
-  }
-  
-        namespace_ = value;
-        onChanged();
-        return this;
-      }
-      /**
-       * <pre>
-       * the name of the namespace
-       * </pre>
-       *
-       * <code>string namespace = 1;</code>
-       */
-      public Builder clearNamespace() {
-        
-        namespace_ = getDefaultInstance().getNamespace();
-        onChanged();
-        return this;
-      }
-      /**
-       * <pre>
-       * the name of the namespace
-       * </pre>
-       *
-       * <code>string namespace = 1;</code>
-       */
-      public Builder setNamespaceBytes(
-          com.google.protobuf.ByteString value) {
-        if (value == null) {
-    throw new NullPointerException();
-  }
-  checkByteStringIsUtf8(value);
-        
-        namespace_ = value;
-        onChanged();
-        return this;
-      }
-      @java.lang.Override
-      public final Builder setUnknownFields(
-          final com.google.protobuf.UnknownFieldSet unknownFields) {
-        return super.setUnknownFieldsProto3(unknownFields);
-      }
-
-      @java.lang.Override
-      public final Builder mergeUnknownFields(
-          final com.google.protobuf.UnknownFieldSet unknownFields) {
-        return super.mergeUnknownFields(unknownFields);
-      }
-
-
-      // @@protoc_insertion_point(builder_scope:runtime.CreateNamespaceRequest)
-    }
-
-    // @@protoc_insertion_point(class_scope:runtime.CreateNamespaceRequest)
-    private static final runtime.RuntimeOuterClass.CreateNamespaceRequest DEFAULT_INSTANCE;
-    static {
-      DEFAULT_INSTANCE = new runtime.RuntimeOuterClass.CreateNamespaceRequest();
-    }
-
-    public static runtime.RuntimeOuterClass.CreateNamespaceRequest getDefaultInstance() {
-      return DEFAULT_INSTANCE;
-    }
-
-    private static final com.google.protobuf.Parser<CreateNamespaceRequest>
-        PARSER = new com.google.protobuf.AbstractParser<CreateNamespaceRequest>() {
-      @java.lang.Override
-      public CreateNamespaceRequest parsePartialFrom(
-          com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws com.google.protobuf.InvalidProtocolBufferException {
-        return new CreateNamespaceRequest(input, extensionRegistry);
-      }
-    };
-
-    public static com.google.protobuf.Parser<CreateNamespaceRequest> parser() {
-      return PARSER;
-    }
-
-    @java.lang.Override
-    public com.google.protobuf.Parser<CreateNamespaceRequest> getParserForType() {
-      return PARSER;
-    }
-
-    @java.lang.Override
-    public runtime.RuntimeOuterClass.CreateNamespaceRequest getDefaultInstanceForType() {
-      return DEFAULT_INSTANCE;
-    }
-
-  }
-
-  public interface CreateNamespaceResponseOrBuilder extends
-      // @@protoc_insertion_point(interface_extends:runtime.CreateNamespaceResponse)
-      com.google.protobuf.MessageOrBuilder {
-  }
-  /**
-   * Protobuf type {@code runtime.CreateNamespaceResponse}
-   */
-  public  static final class CreateNamespaceResponse extends
-      com.google.protobuf.GeneratedMessageV3 implements
-      // @@protoc_insertion_point(message_implements:runtime.CreateNamespaceResponse)
-      CreateNamespaceResponseOrBuilder {
-  private static final long serialVersionUID = 0L;
-    // Use CreateNamespaceResponse.newBuilder() to construct.
-    private CreateNamespaceResponse(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
-      super(builder);
-    }
-    private CreateNamespaceResponse() {
-    }
-
-    @java.lang.Override
-    public final com.google.protobuf.UnknownFieldSet
-    getUnknownFields() {
-      return this.unknownFields;
-    }
-    private CreateNamespaceResponse(
-        com.google.protobuf.CodedInputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      this();
-      if (extensionRegistry == null) {
-        throw new java.lang.NullPointerException();
-      }
-      com.google.protobuf.UnknownFieldSet.Builder unknownFields =
-          com.google.protobuf.UnknownFieldSet.newBuilder();
-      try {
-        boolean done = false;
-        while (!done) {
-          int tag = input.readTag();
-          switch (tag) {
-            case 0:
-              done = true;
-              break;
-            default: {
-              if (!parseUnknownFieldProto3(
-                  input, unknownFields, extensionRegistry, tag)) {
-                done = true;
-              }
-              break;
-            }
-          }
-        }
-      } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-        throw e.setUnfinishedMessage(this);
-      } catch (java.io.IOException e) {
-        throw new com.google.protobuf.InvalidProtocolBufferException(
-            e).setUnfinishedMessage(this);
-      } finally {
-        this.unknownFields = unknownFields.build();
-        makeExtensionsImmutable();
-      }
-    }
-    public static final com.google.protobuf.Descriptors.Descriptor
-        getDescriptor() {
-      return runtime.RuntimeOuterClass.internal_static_runtime_CreateNamespaceResponse_descriptor;
-    }
-
-    @java.lang.Override
-    protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
-        internalGetFieldAccessorTable() {
-      return runtime.RuntimeOuterClass.internal_static_runtime_CreateNamespaceResponse_fieldAccessorTable
-          .ensureFieldAccessorsInitialized(
-              runtime.RuntimeOuterClass.CreateNamespaceResponse.class, runtime.RuntimeOuterClass.CreateNamespaceResponse.Builder.class);
-    }
-
-    private byte memoizedIsInitialized = -1;
-    @java.lang.Override
-    public final boolean isInitialized() {
-      byte isInitialized = memoizedIsInitialized;
-      if (isInitialized == 1) return true;
-      if (isInitialized == 0) return false;
-
-      memoizedIsInitialized = 1;
-      return true;
-    }
-
-    @java.lang.Override
-    public void writeTo(com.google.protobuf.CodedOutputStream output)
-                        throws java.io.IOException {
-      unknownFields.writeTo(output);
-    }
-
-    @java.lang.Override
-    public int getSerializedSize() {
-      int size = memoizedSize;
-      if (size != -1) return size;
-
-      size = 0;
-      size += unknownFields.getSerializedSize();
-      memoizedSize = size;
-      return size;
-    }
-
-    @java.lang.Override
-    public boolean equals(final java.lang.Object obj) {
-      if (obj == this) {
-       return true;
-      }
-      if (!(obj instanceof runtime.RuntimeOuterClass.CreateNamespaceResponse)) {
-        return super.equals(obj);
-      }
-      runtime.RuntimeOuterClass.CreateNamespaceResponse other = (runtime.RuntimeOuterClass.CreateNamespaceResponse) obj;
-
-      boolean result = true;
-      result = result && unknownFields.equals(other.unknownFields);
-      return result;
-    }
-
-    @java.lang.Override
-    public int hashCode() {
-      if (memoizedHashCode != 0) {
-        return memoizedHashCode;
-      }
-      int hash = 41;
-      hash = (19 * hash) + getDescriptor().hashCode();
-      hash = (29 * hash) + unknownFields.hashCode();
-      memoizedHashCode = hash;
-      return hash;
-    }
-
-    public static runtime.RuntimeOuterClass.CreateNamespaceResponse parseFrom(
-        java.nio.ByteBuffer data)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return PARSER.parseFrom(data);
-    }
-    public static runtime.RuntimeOuterClass.CreateNamespaceResponse parseFrom(
-        java.nio.ByteBuffer data,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return PARSER.parseFrom(data, extensionRegistry);
-    }
-    public static runtime.RuntimeOuterClass.CreateNamespaceResponse parseFrom(
-        com.google.protobuf.ByteString data)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return PARSER.parseFrom(data);
-    }
-    public static runtime.RuntimeOuterClass.CreateNamespaceResponse parseFrom(
-        com.google.protobuf.ByteString data,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return PARSER.parseFrom(data, extensionRegistry);
-    }
-    public static runtime.RuntimeOuterClass.CreateNamespaceResponse parseFrom(byte[] data)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return PARSER.parseFrom(data);
-    }
-    public static runtime.RuntimeOuterClass.CreateNamespaceResponse parseFrom(
-        byte[] data,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return PARSER.parseFrom(data, extensionRegistry);
-    }
-    public static runtime.RuntimeOuterClass.CreateNamespaceResponse parseFrom(java.io.InputStream input)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageV3
-          .parseWithIOException(PARSER, input);
-    }
-    public static runtime.RuntimeOuterClass.CreateNamespaceResponse parseFrom(
-        java.io.InputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageV3
-          .parseWithIOException(PARSER, input, extensionRegistry);
-    }
-    public static runtime.RuntimeOuterClass.CreateNamespaceResponse parseDelimitedFrom(java.io.InputStream input)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageV3
-          .parseDelimitedWithIOException(PARSER, input);
-    }
-    public static runtime.RuntimeOuterClass.CreateNamespaceResponse parseDelimitedFrom(
-        java.io.InputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageV3
-          .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
-    }
-    public static runtime.RuntimeOuterClass.CreateNamespaceResponse parseFrom(
-        com.google.protobuf.CodedInputStream input)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageV3
-          .parseWithIOException(PARSER, input);
-    }
-    public static runtime.RuntimeOuterClass.CreateNamespaceResponse parseFrom(
-        com.google.protobuf.CodedInputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageV3
-          .parseWithIOException(PARSER, input, extensionRegistry);
-    }
-
-    @java.lang.Override
-    public Builder newBuilderForType() { return newBuilder(); }
-    public static Builder newBuilder() {
-      return DEFAULT_INSTANCE.toBuilder();
-    }
-    public static Builder newBuilder(runtime.RuntimeOuterClass.CreateNamespaceResponse prototype) {
-      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
-    }
-    @java.lang.Override
-    public Builder toBuilder() {
-      return this == DEFAULT_INSTANCE
-          ? new Builder() : new Builder().mergeFrom(this);
-    }
-
-    @java.lang.Override
-    protected Builder newBuilderForType(
-        com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
-      Builder builder = new Builder(parent);
-      return builder;
-    }
-    /**
-     * Protobuf type {@code runtime.CreateNamespaceResponse}
-     */
-    public static final class Builder extends
-        com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
-        // @@protoc_insertion_point(builder_implements:runtime.CreateNamespaceResponse)
-        runtime.RuntimeOuterClass.CreateNamespaceResponseOrBuilder {
-      public static final com.google.protobuf.Descriptors.Descriptor
-          getDescriptor() {
-        return runtime.RuntimeOuterClass.internal_static_runtime_CreateNamespaceResponse_descriptor;
-      }
-
-      @java.lang.Override
-      protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
-          internalGetFieldAccessorTable() {
-        return runtime.RuntimeOuterClass.internal_static_runtime_CreateNamespaceResponse_fieldAccessorTable
-            .ensureFieldAccessorsInitialized(
-                runtime.RuntimeOuterClass.CreateNamespaceResponse.class, runtime.RuntimeOuterClass.CreateNamespaceResponse.Builder.class);
-      }
-
-      // Construct using runtime.RuntimeOuterClass.CreateNamespaceResponse.newBuilder()
-      private Builder() {
-        maybeForceBuilderInitialization();
-      }
-
-      private Builder(
-          com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
-        super(parent);
-        maybeForceBuilderInitialization();
-      }
-      private void maybeForceBuilderInitialization() {
-        if (com.google.protobuf.GeneratedMessageV3
-                .alwaysUseFieldBuilders) {
-        }
-      }
-      @java.lang.Override
-      public Builder clear() {
-        super.clear();
-        return this;
-      }
-
-      @java.lang.Override
-      public com.google.protobuf.Descriptors.Descriptor
-          getDescriptorForType() {
-        return runtime.RuntimeOuterClass.internal_static_runtime_CreateNamespaceResponse_descriptor;
-      }
-
-      @java.lang.Override
-      public runtime.RuntimeOuterClass.CreateNamespaceResponse getDefaultInstanceForType() {
-        return runtime.RuntimeOuterClass.CreateNamespaceResponse.getDefaultInstance();
-      }
-
-      @java.lang.Override
-      public runtime.RuntimeOuterClass.CreateNamespaceResponse build() {
-        runtime.RuntimeOuterClass.CreateNamespaceResponse result = buildPartial();
-        if (!result.isInitialized()) {
-          throw newUninitializedMessageException(result);
-        }
-        return result;
-      }
-
-      @java.lang.Override
-      public runtime.RuntimeOuterClass.CreateNamespaceResponse buildPartial() {
-        runtime.RuntimeOuterClass.CreateNamespaceResponse result = new runtime.RuntimeOuterClass.CreateNamespaceResponse(this);
-        onBuilt();
-        return result;
-      }
-
-      @java.lang.Override
-      public Builder clone() {
-        return (Builder) super.clone();
-      }
-      @java.lang.Override
-      public Builder setField(
-          com.google.protobuf.Descriptors.FieldDescriptor field,
-          java.lang.Object value) {
-        return (Builder) super.setField(field, value);
-      }
-      @java.lang.Override
-      public Builder clearField(
-          com.google.protobuf.Descriptors.FieldDescriptor field) {
-        return (Builder) super.clearField(field);
-      }
-      @java.lang.Override
-      public Builder clearOneof(
-          com.google.protobuf.Descriptors.OneofDescriptor oneof) {
-        return (Builder) super.clearOneof(oneof);
-      }
-      @java.lang.Override
-      public Builder setRepeatedField(
-          com.google.protobuf.Descriptors.FieldDescriptor field,
-          int index, java.lang.Object value) {
-        return (Builder) super.setRepeatedField(field, index, value);
-      }
-      @java.lang.Override
-      public Builder addRepeatedField(
-          com.google.protobuf.Descriptors.FieldDescriptor field,
-          java.lang.Object value) {
-        return (Builder) super.addRepeatedField(field, value);
-      }
-      @java.lang.Override
-      public Builder mergeFrom(com.google.protobuf.Message other) {
-        if (other instanceof runtime.RuntimeOuterClass.CreateNamespaceResponse) {
-          return mergeFrom((runtime.RuntimeOuterClass.CreateNamespaceResponse)other);
-        } else {
-          super.mergeFrom(other);
-          return this;
-        }
-      }
-
-      public Builder mergeFrom(runtime.RuntimeOuterClass.CreateNamespaceResponse other) {
-        if (other == runtime.RuntimeOuterClass.CreateNamespaceResponse.getDefaultInstance()) return this;
-        this.mergeUnknownFields(other.unknownFields);
-        onChanged();
-        return this;
-      }
-
-      @java.lang.Override
-      public final boolean isInitialized() {
-        return true;
-      }
-
-      @java.lang.Override
-      public Builder mergeFrom(
-          com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws java.io.IOException {
-        runtime.RuntimeOuterClass.CreateNamespaceResponse parsedMessage = null;
-        try {
-          parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
-        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-          parsedMessage = (runtime.RuntimeOuterClass.CreateNamespaceResponse) e.getUnfinishedMessage();
-          throw e.unwrapIOException();
-        } finally {
-          if (parsedMessage != null) {
-            mergeFrom(parsedMessage);
-          }
-        }
-        return this;
-      }
-      @java.lang.Override
-      public final Builder setUnknownFields(
-          final com.google.protobuf.UnknownFieldSet unknownFields) {
-        return super.setUnknownFieldsProto3(unknownFields);
-      }
-
-      @java.lang.Override
-      public final Builder mergeUnknownFields(
-          final com.google.protobuf.UnknownFieldSet unknownFields) {
-        return super.mergeUnknownFields(unknownFields);
-      }
-
-
-      // @@protoc_insertion_point(builder_scope:runtime.CreateNamespaceResponse)
-    }
-
-    // @@protoc_insertion_point(class_scope:runtime.CreateNamespaceResponse)
-    private static final runtime.RuntimeOuterClass.CreateNamespaceResponse DEFAULT_INSTANCE;
-    static {
-      DEFAULT_INSTANCE = new runtime.RuntimeOuterClass.CreateNamespaceResponse();
-    }
-
-    public static runtime.RuntimeOuterClass.CreateNamespaceResponse getDefaultInstance() {
-      return DEFAULT_INSTANCE;
-    }
-
-    private static final com.google.protobuf.Parser<CreateNamespaceResponse>
-        PARSER = new com.google.protobuf.AbstractParser<CreateNamespaceResponse>() {
-      @java.lang.Override
-      public CreateNamespaceResponse parsePartialFrom(
-          com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws com.google.protobuf.InvalidProtocolBufferException {
-        return new CreateNamespaceResponse(input, extensionRegistry);
-      }
-    };
-
-    public static com.google.protobuf.Parser<CreateNamespaceResponse> parser() {
-      return PARSER;
-    }
-
-    @java.lang.Override
-    public com.google.protobuf.Parser<CreateNamespaceResponse> getParserForType() {
-      return PARSER;
-    }
-
-    @java.lang.Override
-    public runtime.RuntimeOuterClass.CreateNamespaceResponse getDefaultInstanceForType() {
-      return DEFAULT_INSTANCE;
-    }
-
-  }
-
-  public interface DeleteNamespaceRequestOrBuilder extends
-      // @@protoc_insertion_point(interface_extends:runtime.DeleteNamespaceRequest)
-      com.google.protobuf.MessageOrBuilder {
-
-    /**
-     * <pre>
-     * the name of the namespace
-     * </pre>
-     *
-     * <code>string namespace = 1;</code>
-     */
-    java.lang.String getNamespace();
-    /**
-     * <pre>
-     * the name of the namespace
-     * </pre>
-     *
-     * <code>string namespace = 1;</code>
-     */
-    com.google.protobuf.ByteString
-        getNamespaceBytes();
-  }
-  /**
-   * Protobuf type {@code runtime.DeleteNamespaceRequest}
-   */
-  public  static final class DeleteNamespaceRequest extends
-      com.google.protobuf.GeneratedMessageV3 implements
-      // @@protoc_insertion_point(message_implements:runtime.DeleteNamespaceRequest)
-      DeleteNamespaceRequestOrBuilder {
-  private static final long serialVersionUID = 0L;
-    // Use DeleteNamespaceRequest.newBuilder() to construct.
-    private DeleteNamespaceRequest(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
-      super(builder);
-    }
-    private DeleteNamespaceRequest() {
-      namespace_ = "";
-    }
-
-    @java.lang.Override
-    public final com.google.protobuf.UnknownFieldSet
-    getUnknownFields() {
-      return this.unknownFields;
-    }
-    private DeleteNamespaceRequest(
-        com.google.protobuf.CodedInputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      this();
-      if (extensionRegistry == null) {
-        throw new java.lang.NullPointerException();
-      }
-      int mutable_bitField0_ = 0;
-      com.google.protobuf.UnknownFieldSet.Builder unknownFields =
-          com.google.protobuf.UnknownFieldSet.newBuilder();
-      try {
-        boolean done = false;
-        while (!done) {
-          int tag = input.readTag();
-          switch (tag) {
-            case 0:
-              done = true;
-              break;
-            case 10: {
-              java.lang.String s = input.readStringRequireUtf8();
-
-              namespace_ = s;
-              break;
-            }
-            default: {
-              if (!parseUnknownFieldProto3(
-                  input, unknownFields, extensionRegistry, tag)) {
-                done = true;
-              }
-              break;
-            }
-          }
-        }
-      } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-        throw e.setUnfinishedMessage(this);
-      } catch (java.io.IOException e) {
-        throw new com.google.protobuf.InvalidProtocolBufferException(
-            e).setUnfinishedMessage(this);
-      } finally {
-        this.unknownFields = unknownFields.build();
-        makeExtensionsImmutable();
-      }
-    }
-    public static final com.google.protobuf.Descriptors.Descriptor
-        getDescriptor() {
-      return runtime.RuntimeOuterClass.internal_static_runtime_DeleteNamespaceRequest_descriptor;
-    }
-
-    @java.lang.Override
-    protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
-        internalGetFieldAccessorTable() {
-      return runtime.RuntimeOuterClass.internal_static_runtime_DeleteNamespaceRequest_fieldAccessorTable
-          .ensureFieldAccessorsInitialized(
-              runtime.RuntimeOuterClass.DeleteNamespaceRequest.class, runtime.RuntimeOuterClass.DeleteNamespaceRequest.Builder.class);
-    }
-
-    public static final int NAMESPACE_FIELD_NUMBER = 1;
-    private volatile java.lang.Object namespace_;
-    /**
-     * <pre>
-     * the name of the namespace
-     * </pre>
-     *
-     * <code>string namespace = 1;</code>
-     */
-    public java.lang.String getNamespace() {
-      java.lang.Object ref = namespace_;
-      if (ref instanceof java.lang.String) {
-        return (java.lang.String) ref;
-      } else {
-        com.google.protobuf.ByteString bs = 
-            (com.google.protobuf.ByteString) ref;
-        java.lang.String s = bs.toStringUtf8();
-        namespace_ = s;
-        return s;
-      }
-    }
-    /**
-     * <pre>
-     * the name of the namespace
-     * </pre>
-     *
-     * <code>string namespace = 1;</code>
-     */
-    public com.google.protobuf.ByteString
-        getNamespaceBytes() {
-      java.lang.Object ref = namespace_;
-      if (ref instanceof java.lang.String) {
-        com.google.protobuf.ByteString b = 
-            com.google.protobuf.ByteString.copyFromUtf8(
-                (java.lang.String) ref);
-        namespace_ = b;
-        return b;
-      } else {
-        return (com.google.protobuf.ByteString) ref;
-      }
-    }
-
-    private byte memoizedIsInitialized = -1;
-    @java.lang.Override
-    public final boolean isInitialized() {
-      byte isInitialized = memoizedIsInitialized;
-      if (isInitialized == 1) return true;
-      if (isInitialized == 0) return false;
-
-      memoizedIsInitialized = 1;
-      return true;
-    }
-
-    @java.lang.Override
-    public void writeTo(com.google.protobuf.CodedOutputStream output)
-                        throws java.io.IOException {
-      if (!getNamespaceBytes().isEmpty()) {
-        com.google.protobuf.GeneratedMessageV3.writeString(output, 1, namespace_);
-      }
-      unknownFields.writeTo(output);
-    }
-
-    @java.lang.Override
-    public int getSerializedSize() {
-      int size = memoizedSize;
-      if (size != -1) return size;
-
-      size = 0;
-      if (!getNamespaceBytes().isEmpty()) {
-        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(1, namespace_);
-      }
-      size += unknownFields.getSerializedSize();
-      memoizedSize = size;
-      return size;
-    }
-
-    @java.lang.Override
-    public boolean equals(final java.lang.Object obj) {
-      if (obj == this) {
-       return true;
-      }
-      if (!(obj instanceof runtime.RuntimeOuterClass.DeleteNamespaceRequest)) {
-        return super.equals(obj);
-      }
-      runtime.RuntimeOuterClass.DeleteNamespaceRequest other = (runtime.RuntimeOuterClass.DeleteNamespaceRequest) obj;
-
-      boolean result = true;
-      result = result && getNamespace()
-          .equals(other.getNamespace());
-      result = result && unknownFields.equals(other.unknownFields);
-      return result;
-    }
-
-    @java.lang.Override
-    public int hashCode() {
-      if (memoizedHashCode != 0) {
-        return memoizedHashCode;
-      }
-      int hash = 41;
-      hash = (19 * hash) + getDescriptor().hashCode();
-      hash = (37 * hash) + NAMESPACE_FIELD_NUMBER;
-      hash = (53 * hash) + getNamespace().hashCode();
-      hash = (29 * hash) + unknownFields.hashCode();
-      memoizedHashCode = hash;
-      return hash;
-    }
-
-    public static runtime.RuntimeOuterClass.DeleteNamespaceRequest parseFrom(
-        java.nio.ByteBuffer data)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return PARSER.parseFrom(data);
-    }
-    public static runtime.RuntimeOuterClass.DeleteNamespaceRequest parseFrom(
-        java.nio.ByteBuffer data,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return PARSER.parseFrom(data, extensionRegistry);
-    }
-    public static runtime.RuntimeOuterClass.DeleteNamespaceRequest parseFrom(
-        com.google.protobuf.ByteString data)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return PARSER.parseFrom(data);
-    }
-    public static runtime.RuntimeOuterClass.DeleteNamespaceRequest parseFrom(
-        com.google.protobuf.ByteString data,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return PARSER.parseFrom(data, extensionRegistry);
-    }
-    public static runtime.RuntimeOuterClass.DeleteNamespaceRequest parseFrom(byte[] data)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return PARSER.parseFrom(data);
-    }
-    public static runtime.RuntimeOuterClass.DeleteNamespaceRequest parseFrom(
-        byte[] data,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return PARSER.parseFrom(data, extensionRegistry);
-    }
-    public static runtime.RuntimeOuterClass.DeleteNamespaceRequest parseFrom(java.io.InputStream input)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageV3
-          .parseWithIOException(PARSER, input);
-    }
-    public static runtime.RuntimeOuterClass.DeleteNamespaceRequest parseFrom(
-        java.io.InputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageV3
-          .parseWithIOException(PARSER, input, extensionRegistry);
-    }
-    public static runtime.RuntimeOuterClass.DeleteNamespaceRequest parseDelimitedFrom(java.io.InputStream input)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageV3
-          .parseDelimitedWithIOException(PARSER, input);
-    }
-    public static runtime.RuntimeOuterClass.DeleteNamespaceRequest parseDelimitedFrom(
-        java.io.InputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageV3
-          .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
-    }
-    public static runtime.RuntimeOuterClass.DeleteNamespaceRequest parseFrom(
-        com.google.protobuf.CodedInputStream input)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageV3
-          .parseWithIOException(PARSER, input);
-    }
-    public static runtime.RuntimeOuterClass.DeleteNamespaceRequest parseFrom(
-        com.google.protobuf.CodedInputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageV3
-          .parseWithIOException(PARSER, input, extensionRegistry);
-    }
-
-    @java.lang.Override
-    public Builder newBuilderForType() { return newBuilder(); }
-    public static Builder newBuilder() {
-      return DEFAULT_INSTANCE.toBuilder();
-    }
-    public static Builder newBuilder(runtime.RuntimeOuterClass.DeleteNamespaceRequest prototype) {
-      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
-    }
-    @java.lang.Override
-    public Builder toBuilder() {
-      return this == DEFAULT_INSTANCE
-          ? new Builder() : new Builder().mergeFrom(this);
-    }
-
-    @java.lang.Override
-    protected Builder newBuilderForType(
-        com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
-      Builder builder = new Builder(parent);
-      return builder;
-    }
-    /**
-     * Protobuf type {@code runtime.DeleteNamespaceRequest}
-     */
-    public static final class Builder extends
-        com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
-        // @@protoc_insertion_point(builder_implements:runtime.DeleteNamespaceRequest)
-        runtime.RuntimeOuterClass.DeleteNamespaceRequestOrBuilder {
-      public static final com.google.protobuf.Descriptors.Descriptor
-          getDescriptor() {
-        return runtime.RuntimeOuterClass.internal_static_runtime_DeleteNamespaceRequest_descriptor;
-      }
-
-      @java.lang.Override
-      protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
-          internalGetFieldAccessorTable() {
-        return runtime.RuntimeOuterClass.internal_static_runtime_DeleteNamespaceRequest_fieldAccessorTable
-            .ensureFieldAccessorsInitialized(
-                runtime.RuntimeOuterClass.DeleteNamespaceRequest.class, runtime.RuntimeOuterClass.DeleteNamespaceRequest.Builder.class);
-      }
-
-      // Construct using runtime.RuntimeOuterClass.DeleteNamespaceRequest.newBuilder()
-      private Builder() {
-        maybeForceBuilderInitialization();
-      }
-
-      private Builder(
-          com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
-        super(parent);
-        maybeForceBuilderInitialization();
-      }
-      private void maybeForceBuilderInitialization() {
-        if (com.google.protobuf.GeneratedMessageV3
-                .alwaysUseFieldBuilders) {
-        }
-      }
-      @java.lang.Override
-      public Builder clear() {
-        super.clear();
-        namespace_ = "";
-
-        return this;
-      }
-
-      @java.lang.Override
-      public com.google.protobuf.Descriptors.Descriptor
-          getDescriptorForType() {
-        return runtime.RuntimeOuterClass.internal_static_runtime_DeleteNamespaceRequest_descriptor;
-      }
-
-      @java.lang.Override
-      public runtime.RuntimeOuterClass.DeleteNamespaceRequest getDefaultInstanceForType() {
-        return runtime.RuntimeOuterClass.DeleteNamespaceRequest.getDefaultInstance();
-      }
-
-      @java.lang.Override
-      public runtime.RuntimeOuterClass.DeleteNamespaceRequest build() {
-        runtime.RuntimeOuterClass.DeleteNamespaceRequest result = buildPartial();
-        if (!result.isInitialized()) {
-          throw newUninitializedMessageException(result);
-        }
-        return result;
-      }
-
-      @java.lang.Override
-      public runtime.RuntimeOuterClass.DeleteNamespaceRequest buildPartial() {
-        runtime.RuntimeOuterClass.DeleteNamespaceRequest result = new runtime.RuntimeOuterClass.DeleteNamespaceRequest(this);
-        result.namespace_ = namespace_;
-        onBuilt();
-        return result;
-      }
-
-      @java.lang.Override
-      public Builder clone() {
-        return (Builder) super.clone();
-      }
-      @java.lang.Override
-      public Builder setField(
-          com.google.protobuf.Descriptors.FieldDescriptor field,
-          java.lang.Object value) {
-        return (Builder) super.setField(field, value);
-      }
-      @java.lang.Override
-      public Builder clearField(
-          com.google.protobuf.Descriptors.FieldDescriptor field) {
-        return (Builder) super.clearField(field);
-      }
-      @java.lang.Override
-      public Builder clearOneof(
-          com.google.protobuf.Descriptors.OneofDescriptor oneof) {
-        return (Builder) super.clearOneof(oneof);
-      }
-      @java.lang.Override
-      public Builder setRepeatedField(
-          com.google.protobuf.Descriptors.FieldDescriptor field,
-          int index, java.lang.Object value) {
-        return (Builder) super.setRepeatedField(field, index, value);
-      }
-      @java.lang.Override
-      public Builder addRepeatedField(
-          com.google.protobuf.Descriptors.FieldDescriptor field,
-          java.lang.Object value) {
-        return (Builder) super.addRepeatedField(field, value);
-      }
-      @java.lang.Override
-      public Builder mergeFrom(com.google.protobuf.Message other) {
-        if (other instanceof runtime.RuntimeOuterClass.DeleteNamespaceRequest) {
-          return mergeFrom((runtime.RuntimeOuterClass.DeleteNamespaceRequest)other);
-        } else {
-          super.mergeFrom(other);
-          return this;
-        }
-      }
-
-      public Builder mergeFrom(runtime.RuntimeOuterClass.DeleteNamespaceRequest other) {
-        if (other == runtime.RuntimeOuterClass.DeleteNamespaceRequest.getDefaultInstance()) return this;
-        if (!other.getNamespace().isEmpty()) {
-          namespace_ = other.namespace_;
-          onChanged();
-        }
-        this.mergeUnknownFields(other.unknownFields);
-        onChanged();
-        return this;
-      }
-
-      @java.lang.Override
-      public final boolean isInitialized() {
-        return true;
-      }
-
-      @java.lang.Override
-      public Builder mergeFrom(
-          com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws java.io.IOException {
-        runtime.RuntimeOuterClass.DeleteNamespaceRequest parsedMessage = null;
-        try {
-          parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
-        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-          parsedMessage = (runtime.RuntimeOuterClass.DeleteNamespaceRequest) e.getUnfinishedMessage();
-          throw e.unwrapIOException();
-        } finally {
-          if (parsedMessage != null) {
-            mergeFrom(parsedMessage);
-          }
-        }
-        return this;
-      }
-
-      private java.lang.Object namespace_ = "";
-      /**
-       * <pre>
-       * the name of the namespace
-       * </pre>
-       *
-       * <code>string namespace = 1;</code>
-       */
-      public java.lang.String getNamespace() {
-        java.lang.Object ref = namespace_;
-        if (!(ref instanceof java.lang.String)) {
-          com.google.protobuf.ByteString bs =
-              (com.google.protobuf.ByteString) ref;
-          java.lang.String s = bs.toStringUtf8();
-          namespace_ = s;
-          return s;
-        } else {
-          return (java.lang.String) ref;
-        }
-      }
-      /**
-       * <pre>
-       * the name of the namespace
-       * </pre>
-       *
-       * <code>string namespace = 1;</code>
-       */
-      public com.google.protobuf.ByteString
-          getNamespaceBytes() {
-        java.lang.Object ref = namespace_;
-        if (ref instanceof String) {
-          com.google.protobuf.ByteString b = 
-              com.google.protobuf.ByteString.copyFromUtf8(
-                  (java.lang.String) ref);
-          namespace_ = b;
-          return b;
-        } else {
-          return (com.google.protobuf.ByteString) ref;
-        }
-      }
-      /**
-       * <pre>
-       * the name of the namespace
-       * </pre>
-       *
-       * <code>string namespace = 1;</code>
-       */
-      public Builder setNamespace(
-          java.lang.String value) {
-        if (value == null) {
-    throw new NullPointerException();
-  }
-  
-        namespace_ = value;
-        onChanged();
-        return this;
-      }
-      /**
-       * <pre>
-       * the name of the namespace
-       * </pre>
-       *
-       * <code>string namespace = 1;</code>
-       */
-      public Builder clearNamespace() {
-        
-        namespace_ = getDefaultInstance().getNamespace();
-        onChanged();
-        return this;
-      }
-      /**
-       * <pre>
-       * the name of the namespace
-       * </pre>
-       *
-       * <code>string namespace = 1;</code>
-       */
-      public Builder setNamespaceBytes(
-          com.google.protobuf.ByteString value) {
-        if (value == null) {
-    throw new NullPointerException();
-  }
-  checkByteStringIsUtf8(value);
-        
-        namespace_ = value;
-        onChanged();
-        return this;
-      }
-      @java.lang.Override
-      public final Builder setUnknownFields(
-          final com.google.protobuf.UnknownFieldSet unknownFields) {
-        return super.setUnknownFieldsProto3(unknownFields);
-      }
-
-      @java.lang.Override
-      public final Builder mergeUnknownFields(
-          final com.google.protobuf.UnknownFieldSet unknownFields) {
-        return super.mergeUnknownFields(unknownFields);
-      }
-
-
-      // @@protoc_insertion_point(builder_scope:runtime.DeleteNamespaceRequest)
-    }
-
-    // @@protoc_insertion_point(class_scope:runtime.DeleteNamespaceRequest)
-    private static final runtime.RuntimeOuterClass.DeleteNamespaceRequest DEFAULT_INSTANCE;
-    static {
-      DEFAULT_INSTANCE = new runtime.RuntimeOuterClass.DeleteNamespaceRequest();
-    }
-
-    public static runtime.RuntimeOuterClass.DeleteNamespaceRequest getDefaultInstance() {
-      return DEFAULT_INSTANCE;
-    }
-
-    private static final com.google.protobuf.Parser<DeleteNamespaceRequest>
-        PARSER = new com.google.protobuf.AbstractParser<DeleteNamespaceRequest>() {
-      @java.lang.Override
-      public DeleteNamespaceRequest parsePartialFrom(
-          com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws com.google.protobuf.InvalidProtocolBufferException {
-        return new DeleteNamespaceRequest(input, extensionRegistry);
-      }
-    };
-
-    public static com.google.protobuf.Parser<DeleteNamespaceRequest> parser() {
-      return PARSER;
-    }
-
-    @java.lang.Override
-    public com.google.protobuf.Parser<DeleteNamespaceRequest> getParserForType() {
-      return PARSER;
-    }
-
-    @java.lang.Override
-    public runtime.RuntimeOuterClass.DeleteNamespaceRequest getDefaultInstanceForType() {
-      return DEFAULT_INSTANCE;
-    }
-
-  }
-
-  public interface DeleteNamespaceResponseOrBuilder extends
-      // @@protoc_insertion_point(interface_extends:runtime.DeleteNamespaceResponse)
-      com.google.protobuf.MessageOrBuilder {
-  }
-  /**
-   * Protobuf type {@code runtime.DeleteNamespaceResponse}
-   */
-  public  static final class DeleteNamespaceResponse extends
-      com.google.protobuf.GeneratedMessageV3 implements
-      // @@protoc_insertion_point(message_implements:runtime.DeleteNamespaceResponse)
-      DeleteNamespaceResponseOrBuilder {
-  private static final long serialVersionUID = 0L;
-    // Use DeleteNamespaceResponse.newBuilder() to construct.
-    private DeleteNamespaceResponse(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
-      super(builder);
-    }
-    private DeleteNamespaceResponse() {
-    }
-
-    @java.lang.Override
-    public final com.google.protobuf.UnknownFieldSet
-    getUnknownFields() {
-      return this.unknownFields;
-    }
-    private DeleteNamespaceResponse(
-        com.google.protobuf.CodedInputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      this();
-      if (extensionRegistry == null) {
-        throw new java.lang.NullPointerException();
-      }
-      com.google.protobuf.UnknownFieldSet.Builder unknownFields =
-          com.google.protobuf.UnknownFieldSet.newBuilder();
-      try {
-        boolean done = false;
-        while (!done) {
-          int tag = input.readTag();
-          switch (tag) {
-            case 0:
-              done = true;
-              break;
-            default: {
-              if (!parseUnknownFieldProto3(
-                  input, unknownFields, extensionRegistry, tag)) {
-                done = true;
-              }
-              break;
-            }
-          }
-        }
-      } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-        throw e.setUnfinishedMessage(this);
-      } catch (java.io.IOException e) {
-        throw new com.google.protobuf.InvalidProtocolBufferException(
-            e).setUnfinishedMessage(this);
-      } finally {
-        this.unknownFields = unknownFields.build();
-        makeExtensionsImmutable();
-      }
-    }
-    public static final com.google.protobuf.Descriptors.Descriptor
-        getDescriptor() {
-      return runtime.RuntimeOuterClass.internal_static_runtime_DeleteNamespaceResponse_descriptor;
-    }
-
-    @java.lang.Override
-    protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
-        internalGetFieldAccessorTable() {
-      return runtime.RuntimeOuterClass.internal_static_runtime_DeleteNamespaceResponse_fieldAccessorTable
-          .ensureFieldAccessorsInitialized(
-              runtime.RuntimeOuterClass.DeleteNamespaceResponse.class, runtime.RuntimeOuterClass.DeleteNamespaceResponse.Builder.class);
-    }
-
-    private byte memoizedIsInitialized = -1;
-    @java.lang.Override
-    public final boolean isInitialized() {
-      byte isInitialized = memoizedIsInitialized;
-      if (isInitialized == 1) return true;
-      if (isInitialized == 0) return false;
-
-      memoizedIsInitialized = 1;
-      return true;
-    }
-
-    @java.lang.Override
-    public void writeTo(com.google.protobuf.CodedOutputStream output)
-                        throws java.io.IOException {
-      unknownFields.writeTo(output);
-    }
-
-    @java.lang.Override
-    public int getSerializedSize() {
-      int size = memoizedSize;
-      if (size != -1) return size;
-
-      size = 0;
-      size += unknownFields.getSerializedSize();
-      memoizedSize = size;
-      return size;
-    }
-
-    @java.lang.Override
-    public boolean equals(final java.lang.Object obj) {
-      if (obj == this) {
-       return true;
-      }
-      if (!(obj instanceof runtime.RuntimeOuterClass.DeleteNamespaceResponse)) {
-        return super.equals(obj);
-      }
-      runtime.RuntimeOuterClass.DeleteNamespaceResponse other = (runtime.RuntimeOuterClass.DeleteNamespaceResponse) obj;
-
-      boolean result = true;
-      result = result && unknownFields.equals(other.unknownFields);
-      return result;
-    }
-
-    @java.lang.Override
-    public int hashCode() {
-      if (memoizedHashCode != 0) {
-        return memoizedHashCode;
-      }
-      int hash = 41;
-      hash = (19 * hash) + getDescriptor().hashCode();
-      hash = (29 * hash) + unknownFields.hashCode();
-      memoizedHashCode = hash;
-      return hash;
-    }
-
-    public static runtime.RuntimeOuterClass.DeleteNamespaceResponse parseFrom(
-        java.nio.ByteBuffer data)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return PARSER.parseFrom(data);
-    }
-    public static runtime.RuntimeOuterClass.DeleteNamespaceResponse parseFrom(
-        java.nio.ByteBuffer data,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return PARSER.parseFrom(data, extensionRegistry);
-    }
-    public static runtime.RuntimeOuterClass.DeleteNamespaceResponse parseFrom(
-        com.google.protobuf.ByteString data)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return PARSER.parseFrom(data);
-    }
-    public static runtime.RuntimeOuterClass.DeleteNamespaceResponse parseFrom(
-        com.google.protobuf.ByteString data,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return PARSER.parseFrom(data, extensionRegistry);
-    }
-    public static runtime.RuntimeOuterClass.DeleteNamespaceResponse parseFrom(byte[] data)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return PARSER.parseFrom(data);
-    }
-    public static runtime.RuntimeOuterClass.DeleteNamespaceResponse parseFrom(
-        byte[] data,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return PARSER.parseFrom(data, extensionRegistry);
-    }
-    public static runtime.RuntimeOuterClass.DeleteNamespaceResponse parseFrom(java.io.InputStream input)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageV3
-          .parseWithIOException(PARSER, input);
-    }
-    public static runtime.RuntimeOuterClass.DeleteNamespaceResponse parseFrom(
-        java.io.InputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageV3
-          .parseWithIOException(PARSER, input, extensionRegistry);
-    }
-    public static runtime.RuntimeOuterClass.DeleteNamespaceResponse parseDelimitedFrom(java.io.InputStream input)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageV3
-          .parseDelimitedWithIOException(PARSER, input);
-    }
-    public static runtime.RuntimeOuterClass.DeleteNamespaceResponse parseDelimitedFrom(
-        java.io.InputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageV3
-          .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
-    }
-    public static runtime.RuntimeOuterClass.DeleteNamespaceResponse parseFrom(
-        com.google.protobuf.CodedInputStream input)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageV3
-          .parseWithIOException(PARSER, input);
-    }
-    public static runtime.RuntimeOuterClass.DeleteNamespaceResponse parseFrom(
-        com.google.protobuf.CodedInputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageV3
-          .parseWithIOException(PARSER, input, extensionRegistry);
-    }
-
-    @java.lang.Override
-    public Builder newBuilderForType() { return newBuilder(); }
-    public static Builder newBuilder() {
-      return DEFAULT_INSTANCE.toBuilder();
-    }
-    public static Builder newBuilder(runtime.RuntimeOuterClass.DeleteNamespaceResponse prototype) {
-      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
-    }
-    @java.lang.Override
-    public Builder toBuilder() {
-      return this == DEFAULT_INSTANCE
-          ? new Builder() : new Builder().mergeFrom(this);
-    }
-
-    @java.lang.Override
-    protected Builder newBuilderForType(
-        com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
-      Builder builder = new Builder(parent);
-      return builder;
-    }
-    /**
-     * Protobuf type {@code runtime.DeleteNamespaceResponse}
-     */
-    public static final class Builder extends
-        com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
-        // @@protoc_insertion_point(builder_implements:runtime.DeleteNamespaceResponse)
-        runtime.RuntimeOuterClass.DeleteNamespaceResponseOrBuilder {
-      public static final com.google.protobuf.Descriptors.Descriptor
-          getDescriptor() {
-        return runtime.RuntimeOuterClass.internal_static_runtime_DeleteNamespaceResponse_descriptor;
-      }
-
-      @java.lang.Override
-      protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
-          internalGetFieldAccessorTable() {
-        return runtime.RuntimeOuterClass.internal_static_runtime_DeleteNamespaceResponse_fieldAccessorTable
-            .ensureFieldAccessorsInitialized(
-                runtime.RuntimeOuterClass.DeleteNamespaceResponse.class, runtime.RuntimeOuterClass.DeleteNamespaceResponse.Builder.class);
-      }
-
-      // Construct using runtime.RuntimeOuterClass.DeleteNamespaceResponse.newBuilder()
-      private Builder() {
-        maybeForceBuilderInitialization();
-      }
-
-      private Builder(
-          com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
-        super(parent);
-        maybeForceBuilderInitialization();
-      }
-      private void maybeForceBuilderInitialization() {
-        if (com.google.protobuf.GeneratedMessageV3
-                .alwaysUseFieldBuilders) {
-        }
-      }
-      @java.lang.Override
-      public Builder clear() {
-        super.clear();
-        return this;
-      }
-
-      @java.lang.Override
-      public com.google.protobuf.Descriptors.Descriptor
-          getDescriptorForType() {
-        return runtime.RuntimeOuterClass.internal_static_runtime_DeleteNamespaceResponse_descriptor;
-      }
-
-      @java.lang.Override
-      public runtime.RuntimeOuterClass.DeleteNamespaceResponse getDefaultInstanceForType() {
-        return runtime.RuntimeOuterClass.DeleteNamespaceResponse.getDefaultInstance();
-      }
-
-      @java.lang.Override
-      public runtime.RuntimeOuterClass.DeleteNamespaceResponse build() {
-        runtime.RuntimeOuterClass.DeleteNamespaceResponse result = buildPartial();
-        if (!result.isInitialized()) {
-          throw newUninitializedMessageException(result);
-        }
-        return result;
-      }
-
-      @java.lang.Override
-      public runtime.RuntimeOuterClass.DeleteNamespaceResponse buildPartial() {
-        runtime.RuntimeOuterClass.DeleteNamespaceResponse result = new runtime.RuntimeOuterClass.DeleteNamespaceResponse(this);
-        onBuilt();
-        return result;
-      }
-
-      @java.lang.Override
-      public Builder clone() {
-        return (Builder) super.clone();
-      }
-      @java.lang.Override
-      public Builder setField(
-          com.google.protobuf.Descriptors.FieldDescriptor field,
-          java.lang.Object value) {
-        return (Builder) super.setField(field, value);
-      }
-      @java.lang.Override
-      public Builder clearField(
-          com.google.protobuf.Descriptors.FieldDescriptor field) {
-        return (Builder) super.clearField(field);
-      }
-      @java.lang.Override
-      public Builder clearOneof(
-          com.google.protobuf.Descriptors.OneofDescriptor oneof) {
-        return (Builder) super.clearOneof(oneof);
-      }
-      @java.lang.Override
-      public Builder setRepeatedField(
-          com.google.protobuf.Descriptors.FieldDescriptor field,
-          int index, java.lang.Object value) {
-        return (Builder) super.setRepeatedField(field, index, value);
-      }
-      @java.lang.Override
-      public Builder addRepeatedField(
-          com.google.protobuf.Descriptors.FieldDescriptor field,
-          java.lang.Object value) {
-        return (Builder) super.addRepeatedField(field, value);
-      }
-      @java.lang.Override
-      public Builder mergeFrom(com.google.protobuf.Message other) {
-        if (other instanceof runtime.RuntimeOuterClass.DeleteNamespaceResponse) {
-          return mergeFrom((runtime.RuntimeOuterClass.DeleteNamespaceResponse)other);
-        } else {
-          super.mergeFrom(other);
-          return this;
-        }
-      }
-
-      public Builder mergeFrom(runtime.RuntimeOuterClass.DeleteNamespaceResponse other) {
-        if (other == runtime.RuntimeOuterClass.DeleteNamespaceResponse.getDefaultInstance()) return this;
-        this.mergeUnknownFields(other.unknownFields);
-        onChanged();
-        return this;
-      }
-
-      @java.lang.Override
-      public final boolean isInitialized() {
-        return true;
-      }
-
-      @java.lang.Override
-      public Builder mergeFrom(
-          com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws java.io.IOException {
-        runtime.RuntimeOuterClass.DeleteNamespaceResponse parsedMessage = null;
-        try {
-          parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
-        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-          parsedMessage = (runtime.RuntimeOuterClass.DeleteNamespaceResponse) e.getUnfinishedMessage();
-          throw e.unwrapIOException();
-        } finally {
-          if (parsedMessage != null) {
-            mergeFrom(parsedMessage);
-          }
-        }
-        return this;
-      }
-      @java.lang.Override
-      public final Builder setUnknownFields(
-          final com.google.protobuf.UnknownFieldSet unknownFields) {
-        return super.setUnknownFieldsProto3(unknownFields);
-      }
-
-      @java.lang.Override
-      public final Builder mergeUnknownFields(
-          final com.google.protobuf.UnknownFieldSet unknownFields) {
-        return super.mergeUnknownFields(unknownFields);
-      }
-
-
-      // @@protoc_insertion_point(builder_scope:runtime.DeleteNamespaceResponse)
-    }
-
-    // @@protoc_insertion_point(class_scope:runtime.DeleteNamespaceResponse)
-    private static final runtime.RuntimeOuterClass.DeleteNamespaceResponse DEFAULT_INSTANCE;
-    static {
-      DEFAULT_INSTANCE = new runtime.RuntimeOuterClass.DeleteNamespaceResponse();
-    }
-
-    public static runtime.RuntimeOuterClass.DeleteNamespaceResponse getDefaultInstance() {
-      return DEFAULT_INSTANCE;
-    }
-
-    private static final com.google.protobuf.Parser<DeleteNamespaceResponse>
-        PARSER = new com.google.protobuf.AbstractParser<DeleteNamespaceResponse>() {
-      @java.lang.Override
-      public DeleteNamespaceResponse parsePartialFrom(
-          com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws com.google.protobuf.InvalidProtocolBufferException {
-        return new DeleteNamespaceResponse(input, extensionRegistry);
-      }
-    };
-
-    public static com.google.protobuf.Parser<DeleteNamespaceResponse> parser() {
-      return PARSER;
-    }
-
-    @java.lang.Override
-    public com.google.protobuf.Parser<DeleteNamespaceResponse> getParserForType() {
-      return PARSER;
-    }
-
-    @java.lang.Override
-    public runtime.RuntimeOuterClass.DeleteNamespaceResponse getDefaultInstanceForType() {
-      return DEFAULT_INSTANCE;
-    }
-
-  }
-
   public interface UploadRequestOrBuilder extends
       // @@protoc_insertion_point(interface_extends:runtime.UploadRequest)
       com.google.protobuf.MessageOrBuilder {
@@ -20059,6 +20779,26 @@ public final class RuntimeOuterClass {
   }
 
   private static final com.google.protobuf.Descriptors.Descriptor
+    internal_static_runtime_Resource_descriptor;
+  private static final 
+    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+      internal_static_runtime_Resource_fieldAccessorTable;
+  private static final com.google.protobuf.Descriptors.Descriptor
+    internal_static_runtime_Namespace_descriptor;
+  private static final 
+    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+      internal_static_runtime_Namespace_fieldAccessorTable;
+  private static final com.google.protobuf.Descriptors.Descriptor
+    internal_static_runtime_NetworkPolicy_descriptor;
+  private static final 
+    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+      internal_static_runtime_NetworkPolicy_fieldAccessorTable;
+  private static final com.google.protobuf.Descriptors.Descriptor
+    internal_static_runtime_NetworkPolicy_AllowedlabelsEntry_descriptor;
+  private static final 
+    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+      internal_static_runtime_NetworkPolicy_AllowedlabelsEntry_fieldAccessorTable;
+  private static final com.google.protobuf.Descriptors.Descriptor
     internal_static_runtime_Service_descriptor;
   private static final 
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
@@ -20174,26 +20914,6 @@ public final class RuntimeOuterClass {
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
       internal_static_runtime_LogRecord_MetadataEntry_fieldAccessorTable;
   private static final com.google.protobuf.Descriptors.Descriptor
-    internal_static_runtime_CreateNamespaceRequest_descriptor;
-  private static final 
-    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
-      internal_static_runtime_CreateNamespaceRequest_fieldAccessorTable;
-  private static final com.google.protobuf.Descriptors.Descriptor
-    internal_static_runtime_CreateNamespaceResponse_descriptor;
-  private static final 
-    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
-      internal_static_runtime_CreateNamespaceResponse_fieldAccessorTable;
-  private static final com.google.protobuf.Descriptors.Descriptor
-    internal_static_runtime_DeleteNamespaceRequest_descriptor;
-  private static final 
-    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
-      internal_static_runtime_DeleteNamespaceRequest_fieldAccessorTable;
-  private static final com.google.protobuf.Descriptors.Descriptor
-    internal_static_runtime_DeleteNamespaceResponse_descriptor;
-  private static final 
-    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
-      internal_static_runtime_DeleteNamespaceResponse_fieldAccessorTable;
-  private static final com.google.protobuf.Descriptors.Descriptor
     internal_static_runtime_UploadRequest_descriptor;
   private static final 
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
@@ -20217,71 +20937,71 @@ public final class RuntimeOuterClass {
       descriptor;
   static {
     java.lang.String[] descriptorData = {
-      "\n\025runtime/runtime.proto\022\007runtime\"\253\001\n\007Ser" +
-      "vice\022\014\n\004name\030\001 \001(\t\022\017\n\007version\030\002 \001(\t\022\016\n\006s" +
-      "ource\030\003 \001(\t\0220\n\010metadata\030\004 \003(\0132\036.runtime." +
-      "Service.MetadataEntry\022\016\n\006status\030\005 \001(\005\032/\n" +
-      "\rMetadataEntry\022\013\n\003key\030\001 \001(\t\022\r\n\005value\030\002 \001" +
-      "(\t:\0028\001\"\333\002\n\rCreateOptions\022\017\n\007command\030\001 \003(" +
-      "\t\022\014\n\004args\030\002 \003(\t\022\013\n\003env\030\003 \003(\t\022\016\n\006output\030\004" +
-      " \001(\t\022\014\n\004type\030\005 \001(\t\022\r\n\005image\030\006 \001(\t\022\021\n\tnam" +
-      "espace\030\007 \001(\t\0224\n\007secrets\030\010 \003(\0132#.runtime." +
-      "CreateOptions.SecretsEntry\022\022\n\nentrypoint" +
-      "\030\t \001(\t\0224\n\007volumes\030\n \003(\0132#.runtime.Create" +
-      "Options.VolumesEntry\032.\n\014SecretsEntry\022\013\n\003" +
-      "key\030\001 \001(\t\022\r\n\005value\030\002 \001(\t:\0028\001\032.\n\014VolumesE" +
-      "ntry\022\013\n\003key\030\001 \001(\t\022\r\n\005value\030\002 \001(\t:\0028\001\"[\n\r" +
-      "CreateRequest\022!\n\007service\030\001 \001(\0132\020.runtime" +
-      ".Service\022\'\n\007options\030\002 \001(\0132\026.runtime.Crea" +
-      "teOptions\"\020\n\016CreateResponse\"P\n\013ReadOptio" +
-      "ns\022\017\n\007service\030\001 \001(\t\022\017\n\007version\030\002 \001(\t\022\014\n\004" +
-      "type\030\003 \001(\t\022\021\n\tnamespace\030\004 \001(\t\"4\n\013ReadReq" +
-      "uest\022%\n\007options\030\001 \001(\0132\024.runtime.ReadOpti" +
-      "ons\"2\n\014ReadResponse\022\"\n\010services\030\001 \003(\0132\020." +
-      "runtime.Service\"\"\n\rDeleteOptions\022\021\n\tname" +
-      "space\030\001 \001(\t\"[\n\rDeleteRequest\022!\n\007service\030" +
-      "\001 \001(\0132\020.runtime.Service\022\'\n\007options\030\002 \001(\013" +
-      "2\026.runtime.DeleteOptions\"\020\n\016DeleteRespon" +
-      "se\"6\n\rUpdateOptions\022\021\n\tnamespace\030\001 \001(\t\022\022" +
-      "\n\nentrypoint\030\002 \001(\t\"[\n\rUpdateRequest\022!\n\007s" +
-      "ervice\030\001 \001(\0132\020.runtime.Service\022\'\n\007option" +
-      "s\030\002 \001(\0132\026.runtime.UpdateOptions\"\020\n\016Updat" +
-      "eResponse\" \n\013ListOptions\022\021\n\tnamespace\030\001 " +
-      "\001(\t\"4\n\013ListRequest\022%\n\007options\030\001 \001(\0132\024.ru" +
-      "ntime.ListOptions\"2\n\014ListResponse\022\"\n\010ser" +
-      "vices\030\001 \003(\0132\020.runtime.Service\" \n\013LogsOpt" +
-      "ions\022\021\n\tnamespace\030\001 \001(\t\"s\n\013LogsRequest\022\017" +
-      "\n\007service\030\001 \001(\t\022\016\n\006stream\030\002 \001(\010\022\r\n\005count" +
-      "\030\003 \001(\003\022\r\n\005since\030\004 \001(\003\022%\n\007options\030\005 \001(\0132\024" +
-      ".runtime.LogsOptions\"\224\001\n\tLogRecord\022\021\n\tti" +
-      "mestamp\030\001 \001(\003\0222\n\010metadata\030\002 \003(\0132 .runtim" +
-      "e.LogRecord.MetadataEntry\022\017\n\007message\030\003 \001" +
-      "(\t\032/\n\rMetadataEntry\022\013\n\003key\030\001 \001(\t\022\r\n\005valu" +
-      "e\030\002 \001(\t:\0028\001\"+\n\026CreateNamespaceRequest\022\021\n" +
-      "\tnamespace\030\001 \001(\t\"\031\n\027CreateNamespaceRespo" +
-      "nse\"+\n\026DeleteNamespaceRequest\022\021\n\tnamespa" +
-      "ce\030\001 \001(\t\"\031\n\027DeleteNamespaceResponse\"@\n\rU" +
-      "ploadRequest\022!\n\007service\030\001 \001(\0132\020.runtime." +
-      "Service\022\014\n\004data\030\002 \001(\014\"\034\n\016UploadResponse\022" +
-      "\n\n\002id\030\001 \001(\t\"!\n\021BuildReadResponse\022\014\n\004data" +
-      "\030\001 \001(\0142\335\003\n\007Runtime\022;\n\006Create\022\026.runtime.C" +
-      "reateRequest\032\027.runtime.CreateResponse\"\000\022" +
-      "5\n\004Read\022\024.runtime.ReadRequest\032\025.runtime." +
-      "ReadResponse\"\000\022;\n\006Delete\022\026.runtime.Delet" +
-      "eRequest\032\027.runtime.DeleteResponse\"\000\022;\n\006U" +
-      "pdate\022\026.runtime.UpdateRequest\032\027.runtime." +
-      "UpdateResponse\"\000\0224\n\004Logs\022\024.runtime.LogsR" +
-      "equest\032\022.runtime.LogRecord\"\0000\001\022V\n\017Create" +
-      "Namespace\022\037.runtime.CreateNamespaceReque" +
-      "st\032 .runtime.CreateNamespaceResponse\"\000\022V" +
-      "\n\017DeleteNamespace\022\037.runtime.DeleteNamesp" +
-      "aceRequest\032 .runtime.DeleteNamespaceResp" +
-      "onse\"\0002G\n\006Source\022=\n\006Upload\022\026.runtime.Upl" +
-      "oadRequest\032\027.runtime.UploadResponse\"\000(\0012" +
-      "A\n\005Build\0228\n\004Read\022\020.runtime.Service\032\032.run" +
-      "time.BuildReadResponse\"\0000\001B1Z/github.com" +
-      "/micro/micro/v3/proto/runtime;runtimeb\006p" +
-      "roto3"
+      "\n\025runtime/runtime.proto\022\007runtime\"\203\001\n\010Res" +
+      "ource\022%\n\tnamespace\030\001 \001(\0132\022.runtime.Names" +
+      "pace\022-\n\rnetworkpolicy\030\002 \001(\0132\026.runtime.Ne" +
+      "tworkPolicy\022!\n\007service\030\003 \001(\0132\020.runtime.S" +
+      "ervice\"\031\n\tNamespace\022\014\n\004name\030\001 \001(\t\"\250\001\n\rNe" +
+      "tworkPolicy\022@\n\rallowedlabels\030\001 \003(\0132).run" +
+      "time.NetworkPolicy.AllowedlabelsEntry\022\014\n" +
+      "\004name\030\002 \001(\t\022\021\n\tnamespace\030\003 \001(\t\0324\n\022Allowe" +
+      "dlabelsEntry\022\013\n\003key\030\001 \001(\t\022\r\n\005value\030\002 \001(\t" +
+      ":\0028\001\"\253\001\n\007Service\022\014\n\004name\030\001 \001(\t\022\017\n\007versio" +
+      "n\030\002 \001(\t\022\016\n\006source\030\003 \001(\t\0220\n\010metadata\030\004 \003(" +
+      "\0132\036.runtime.Service.MetadataEntry\022\016\n\006sta" +
+      "tus\030\005 \001(\005\032/\n\rMetadataEntry\022\013\n\003key\030\001 \001(\t\022" +
+      "\r\n\005value\030\002 \001(\t:\0028\001\"\333\002\n\rCreateOptions\022\017\n\007" +
+      "command\030\001 \003(\t\022\014\n\004args\030\002 \003(\t\022\013\n\003env\030\003 \003(\t" +
+      "\022\016\n\006output\030\004 \001(\t\022\014\n\004type\030\005 \001(\t\022\r\n\005image\030" +
+      "\006 \001(\t\022\021\n\tnamespace\030\007 \001(\t\0224\n\007secrets\030\010 \003(" +
+      "\0132#.runtime.CreateOptions.SecretsEntry\022\022" +
+      "\n\nentrypoint\030\t \001(\t\0224\n\007volumes\030\n \003(\0132#.ru" +
+      "ntime.CreateOptions.VolumesEntry\032.\n\014Secr" +
+      "etsEntry\022\013\n\003key\030\001 \001(\t\022\r\n\005value\030\002 \001(\t:\0028\001" +
+      "\032.\n\014VolumesEntry\022\013\n\003key\030\001 \001(\t\022\r\n\005value\030\002" +
+      " \001(\t:\0028\001\"]\n\rCreateRequest\022#\n\010resource\030\001 " +
+      "\001(\0132\021.runtime.Resource\022\'\n\007options\030\002 \001(\0132" +
+      "\026.runtime.CreateOptions\"\020\n\016CreateRespons" +
+      "e\"P\n\013ReadOptions\022\017\n\007service\030\001 \001(\t\022\017\n\007ver" +
+      "sion\030\002 \001(\t\022\014\n\004type\030\003 \001(\t\022\021\n\tnamespace\030\004 " +
+      "\001(\t\"4\n\013ReadRequest\022%\n\007options\030\001 \001(\0132\024.ru" +
+      "ntime.ReadOptions\"2\n\014ReadResponse\022\"\n\010ser" +
+      "vices\030\001 \003(\0132\020.runtime.Service\"\"\n\rDeleteO" +
+      "ptions\022\021\n\tnamespace\030\001 \001(\t\"]\n\rDeleteReque" +
+      "st\022#\n\010resource\030\001 \001(\0132\021.runtime.Resource\022" +
+      "\'\n\007options\030\002 \001(\0132\026.runtime.DeleteOptions" +
+      "\"\020\n\016DeleteResponse\"6\n\rUpdateOptions\022\021\n\tn" +
+      "amespace\030\001 \001(\t\022\022\n\nentrypoint\030\002 \001(\t\"]\n\rUp" +
+      "dateRequest\022#\n\010resource\030\001 \001(\0132\021.runtime." +
+      "Resource\022\'\n\007options\030\002 \001(\0132\026.runtime.Upda" +
+      "teOptions\"\020\n\016UpdateResponse\" \n\013ListOptio" +
+      "ns\022\021\n\tnamespace\030\001 \001(\t\"4\n\013ListRequest\022%\n\007" +
+      "options\030\001 \001(\0132\024.runtime.ListOptions\"2\n\014L" +
+      "istResponse\022\"\n\010services\030\001 \003(\0132\020.runtime." +
+      "Service\" \n\013LogsOptions\022\021\n\tnamespace\030\001 \001(" +
+      "\t\"s\n\013LogsRequest\022\017\n\007service\030\001 \001(\t\022\016\n\006str" +
+      "eam\030\002 \001(\010\022\r\n\005count\030\003 \001(\003\022\r\n\005since\030\004 \001(\003\022" +
+      "%\n\007options\030\005 \001(\0132\024.runtime.LogsOptions\"\224" +
+      "\001\n\tLogRecord\022\021\n\ttimestamp\030\001 \001(\003\0222\n\010metad" +
+      "ata\030\002 \003(\0132 .runtime.LogRecord.MetadataEn" +
+      "try\022\017\n\007message\030\003 \001(\t\032/\n\rMetadataEntry\022\013\n" +
+      "\003key\030\001 \001(\t\022\r\n\005value\030\002 \001(\t:\0028\001\"@\n\rUploadR" +
+      "equest\022!\n\007service\030\001 \001(\0132\020.runtime.Servic" +
+      "e\022\014\n\004data\030\002 \001(\014\"\034\n\016UploadResponse\022\n\n\002id\030" +
+      "\001 \001(\t\"!\n\021BuildReadResponse\022\014\n\004data\030\001 \001(\014" +
+      "2\255\002\n\007Runtime\022;\n\006Create\022\026.runtime.CreateR" +
+      "equest\032\027.runtime.CreateResponse\"\000\0225\n\004Rea" +
+      "d\022\024.runtime.ReadRequest\032\025.runtime.ReadRe" +
+      "sponse\"\000\022;\n\006Delete\022\026.runtime.DeleteReque" +
+      "st\032\027.runtime.DeleteResponse\"\000\022;\n\006Update\022" +
+      "\026.runtime.UpdateRequest\032\027.runtime.Update" +
+      "Response\"\000\0224\n\004Logs\022\024.runtime.LogsRequest" +
+      "\032\022.runtime.LogRecord\"\0000\0012G\n\006Source\022=\n\006Up" +
+      "load\022\026.runtime.UploadRequest\032\027.runtime.U" +
+      "ploadResponse\"\000(\0012A\n\005Build\0228\n\004Read\022\020.run" +
+      "time.Service\032\032.runtime.BuildReadResponse" +
+      "\"\0000\001B1Z/github.com/micro/micro/v3/proto/" +
+      "runtime;runtimeb\006proto3"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -20295,8 +21015,32 @@ public final class RuntimeOuterClass {
       .internalBuildGeneratedFileFrom(descriptorData,
         new com.google.protobuf.Descriptors.FileDescriptor[] {
         }, assigner);
-    internal_static_runtime_Service_descriptor =
+    internal_static_runtime_Resource_descriptor =
       getDescriptor().getMessageTypes().get(0);
+    internal_static_runtime_Resource_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
+        internal_static_runtime_Resource_descriptor,
+        new java.lang.String[] { "Namespace", "Networkpolicy", "Service", });
+    internal_static_runtime_Namespace_descriptor =
+      getDescriptor().getMessageTypes().get(1);
+    internal_static_runtime_Namespace_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
+        internal_static_runtime_Namespace_descriptor,
+        new java.lang.String[] { "Name", });
+    internal_static_runtime_NetworkPolicy_descriptor =
+      getDescriptor().getMessageTypes().get(2);
+    internal_static_runtime_NetworkPolicy_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
+        internal_static_runtime_NetworkPolicy_descriptor,
+        new java.lang.String[] { "Allowedlabels", "Name", "Namespace", });
+    internal_static_runtime_NetworkPolicy_AllowedlabelsEntry_descriptor =
+      internal_static_runtime_NetworkPolicy_descriptor.getNestedTypes().get(0);
+    internal_static_runtime_NetworkPolicy_AllowedlabelsEntry_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
+        internal_static_runtime_NetworkPolicy_AllowedlabelsEntry_descriptor,
+        new java.lang.String[] { "Key", "Value", });
+    internal_static_runtime_Service_descriptor =
+      getDescriptor().getMessageTypes().get(3);
     internal_static_runtime_Service_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_runtime_Service_descriptor,
@@ -20308,7 +21052,7 @@ public final class RuntimeOuterClass {
         internal_static_runtime_Service_MetadataEntry_descriptor,
         new java.lang.String[] { "Key", "Value", });
     internal_static_runtime_CreateOptions_descriptor =
-      getDescriptor().getMessageTypes().get(1);
+      getDescriptor().getMessageTypes().get(4);
     internal_static_runtime_CreateOptions_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_runtime_CreateOptions_descriptor,
@@ -20326,103 +21070,103 @@ public final class RuntimeOuterClass {
         internal_static_runtime_CreateOptions_VolumesEntry_descriptor,
         new java.lang.String[] { "Key", "Value", });
     internal_static_runtime_CreateRequest_descriptor =
-      getDescriptor().getMessageTypes().get(2);
+      getDescriptor().getMessageTypes().get(5);
     internal_static_runtime_CreateRequest_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_runtime_CreateRequest_descriptor,
-        new java.lang.String[] { "Service", "Options", });
+        new java.lang.String[] { "Resource", "Options", });
     internal_static_runtime_CreateResponse_descriptor =
-      getDescriptor().getMessageTypes().get(3);
+      getDescriptor().getMessageTypes().get(6);
     internal_static_runtime_CreateResponse_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_runtime_CreateResponse_descriptor,
         new java.lang.String[] { });
     internal_static_runtime_ReadOptions_descriptor =
-      getDescriptor().getMessageTypes().get(4);
+      getDescriptor().getMessageTypes().get(7);
     internal_static_runtime_ReadOptions_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_runtime_ReadOptions_descriptor,
         new java.lang.String[] { "Service", "Version", "Type", "Namespace", });
     internal_static_runtime_ReadRequest_descriptor =
-      getDescriptor().getMessageTypes().get(5);
+      getDescriptor().getMessageTypes().get(8);
     internal_static_runtime_ReadRequest_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_runtime_ReadRequest_descriptor,
         new java.lang.String[] { "Options", });
     internal_static_runtime_ReadResponse_descriptor =
-      getDescriptor().getMessageTypes().get(6);
+      getDescriptor().getMessageTypes().get(9);
     internal_static_runtime_ReadResponse_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_runtime_ReadResponse_descriptor,
         new java.lang.String[] { "Services", });
     internal_static_runtime_DeleteOptions_descriptor =
-      getDescriptor().getMessageTypes().get(7);
+      getDescriptor().getMessageTypes().get(10);
     internal_static_runtime_DeleteOptions_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_runtime_DeleteOptions_descriptor,
         new java.lang.String[] { "Namespace", });
     internal_static_runtime_DeleteRequest_descriptor =
-      getDescriptor().getMessageTypes().get(8);
+      getDescriptor().getMessageTypes().get(11);
     internal_static_runtime_DeleteRequest_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_runtime_DeleteRequest_descriptor,
-        new java.lang.String[] { "Service", "Options", });
+        new java.lang.String[] { "Resource", "Options", });
     internal_static_runtime_DeleteResponse_descriptor =
-      getDescriptor().getMessageTypes().get(9);
+      getDescriptor().getMessageTypes().get(12);
     internal_static_runtime_DeleteResponse_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_runtime_DeleteResponse_descriptor,
         new java.lang.String[] { });
     internal_static_runtime_UpdateOptions_descriptor =
-      getDescriptor().getMessageTypes().get(10);
+      getDescriptor().getMessageTypes().get(13);
     internal_static_runtime_UpdateOptions_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_runtime_UpdateOptions_descriptor,
         new java.lang.String[] { "Namespace", "Entrypoint", });
     internal_static_runtime_UpdateRequest_descriptor =
-      getDescriptor().getMessageTypes().get(11);
+      getDescriptor().getMessageTypes().get(14);
     internal_static_runtime_UpdateRequest_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_runtime_UpdateRequest_descriptor,
-        new java.lang.String[] { "Service", "Options", });
+        new java.lang.String[] { "Resource", "Options", });
     internal_static_runtime_UpdateResponse_descriptor =
-      getDescriptor().getMessageTypes().get(12);
+      getDescriptor().getMessageTypes().get(15);
     internal_static_runtime_UpdateResponse_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_runtime_UpdateResponse_descriptor,
         new java.lang.String[] { });
     internal_static_runtime_ListOptions_descriptor =
-      getDescriptor().getMessageTypes().get(13);
+      getDescriptor().getMessageTypes().get(16);
     internal_static_runtime_ListOptions_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_runtime_ListOptions_descriptor,
         new java.lang.String[] { "Namespace", });
     internal_static_runtime_ListRequest_descriptor =
-      getDescriptor().getMessageTypes().get(14);
+      getDescriptor().getMessageTypes().get(17);
     internal_static_runtime_ListRequest_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_runtime_ListRequest_descriptor,
         new java.lang.String[] { "Options", });
     internal_static_runtime_ListResponse_descriptor =
-      getDescriptor().getMessageTypes().get(15);
+      getDescriptor().getMessageTypes().get(18);
     internal_static_runtime_ListResponse_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_runtime_ListResponse_descriptor,
         new java.lang.String[] { "Services", });
     internal_static_runtime_LogsOptions_descriptor =
-      getDescriptor().getMessageTypes().get(16);
+      getDescriptor().getMessageTypes().get(19);
     internal_static_runtime_LogsOptions_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_runtime_LogsOptions_descriptor,
         new java.lang.String[] { "Namespace", });
     internal_static_runtime_LogsRequest_descriptor =
-      getDescriptor().getMessageTypes().get(17);
+      getDescriptor().getMessageTypes().get(20);
     internal_static_runtime_LogsRequest_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_runtime_LogsRequest_descriptor,
         new java.lang.String[] { "Service", "Stream", "Count", "Since", "Options", });
     internal_static_runtime_LogRecord_descriptor =
-      getDescriptor().getMessageTypes().get(18);
+      getDescriptor().getMessageTypes().get(21);
     internal_static_runtime_LogRecord_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_runtime_LogRecord_descriptor,
@@ -20433,44 +21177,20 @@ public final class RuntimeOuterClass {
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_runtime_LogRecord_MetadataEntry_descriptor,
         new java.lang.String[] { "Key", "Value", });
-    internal_static_runtime_CreateNamespaceRequest_descriptor =
-      getDescriptor().getMessageTypes().get(19);
-    internal_static_runtime_CreateNamespaceRequest_fieldAccessorTable = new
-      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
-        internal_static_runtime_CreateNamespaceRequest_descriptor,
-        new java.lang.String[] { "Namespace", });
-    internal_static_runtime_CreateNamespaceResponse_descriptor =
-      getDescriptor().getMessageTypes().get(20);
-    internal_static_runtime_CreateNamespaceResponse_fieldAccessorTable = new
-      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
-        internal_static_runtime_CreateNamespaceResponse_descriptor,
-        new java.lang.String[] { });
-    internal_static_runtime_DeleteNamespaceRequest_descriptor =
-      getDescriptor().getMessageTypes().get(21);
-    internal_static_runtime_DeleteNamespaceRequest_fieldAccessorTable = new
-      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
-        internal_static_runtime_DeleteNamespaceRequest_descriptor,
-        new java.lang.String[] { "Namespace", });
-    internal_static_runtime_DeleteNamespaceResponse_descriptor =
-      getDescriptor().getMessageTypes().get(22);
-    internal_static_runtime_DeleteNamespaceResponse_fieldAccessorTable = new
-      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
-        internal_static_runtime_DeleteNamespaceResponse_descriptor,
-        new java.lang.String[] { });
     internal_static_runtime_UploadRequest_descriptor =
-      getDescriptor().getMessageTypes().get(23);
+      getDescriptor().getMessageTypes().get(22);
     internal_static_runtime_UploadRequest_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_runtime_UploadRequest_descriptor,
         new java.lang.String[] { "Service", "Data", });
     internal_static_runtime_UploadResponse_descriptor =
-      getDescriptor().getMessageTypes().get(24);
+      getDescriptor().getMessageTypes().get(23);
     internal_static_runtime_UploadResponse_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_runtime_UploadResponse_descriptor,
         new java.lang.String[] { "Id", });
     internal_static_runtime_BuildReadResponse_descriptor =
-      getDescriptor().getMessageTypes().get(25);
+      getDescriptor().getMessageTypes().get(24);
     internal_static_runtime_BuildReadResponse_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_runtime_BuildReadResponse_descriptor,
