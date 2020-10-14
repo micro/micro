@@ -23,7 +23,7 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/micro/go-micro/v3/registry/memory"
+	"github.com/micro/micro/v3/service/registry/memory"
 	"github.com/micro/go-micro/v3/router"
 	"github.com/micro/go-micro/v3/router/registry"
 	"github.com/micro/micro/v3/service/client"

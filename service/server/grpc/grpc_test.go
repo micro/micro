@@ -21,7 +21,7 @@ import (
 	"fmt"
 	"testing"
 
-	rmemory "github.com/micro/go-micro/v3/registry/memory"
+	rmemory "github.com/micro/micro/v3/service/registry/memory"
 	"github.com/micro/go-micro/v3/router"
 	rtreg "github.com/micro/go-micro/v3/router/registry"
 	tgrpc "github.com/micro/micro/v3/internal/network/transport/grpc"

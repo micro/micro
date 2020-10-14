@@ -25,7 +25,7 @@ import (
 	"time"
 
 	"github.com/golang/protobuf/proto"
-	"github.com/micro/go-micro/v3/registry/noop"
+	"github.com/micro/micro/v3/service/registry/noop"
 	"github.com/micro/go-micro/v3/router"
 	"github.com/micro/go-micro/v3/util/backoff"
 	"github.com/micro/micro/v3/internal/network/resolver/dns"

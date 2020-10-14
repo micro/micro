@@ -4,7 +4,7 @@ import (
 	"errors"
 	"strings"
 
-	"github.com/micro/go-micro/v3/registry"
+	"github.com/micro/micro/v3/service/registry"
 	"github.com/micro/micro/v3/internal/config"
 )
 

@@ -26,7 +26,7 @@ import (
 
 	"github.com/micro/micro/v3/service/client"
 	gcli "github.com/micro/micro/v3/service/client/grpc"
-	rmemory "github.com/micro/go-micro/v3/registry/memory"
+	rmemory "github.com/micro/micro/v3/service/registry/memory"
 	rt "github.com/micro/go-micro/v3/router"
 	regRouter "github.com/micro/go-micro/v3/router/registry"
 	"github.com/micro/micro/v3/internal/api/handler"

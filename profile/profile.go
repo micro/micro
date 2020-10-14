@@ -7,9 +7,9 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/micro/go-micro/v3/registry"
-	"github.com/micro/go-micro/v3/registry/mdns"
-	"github.com/micro/go-micro/v3/registry/memory"
+	"github.com/micro/micro/v3/service/registry"
+	"github.com/micro/micro/v3/service/registry/mdns"
+	"github.com/micro/micro/v3/service/registry/memory"
 	"github.com/micro/go-micro/v3/router"
 	k8sRouter "github.com/micro/go-micro/v3/router/kubernetes"
 	regRouter "github.com/micro/go-micro/v3/router/registry"

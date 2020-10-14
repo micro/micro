@@ -7,12 +7,14 @@ import (
 	brokerSrv "github.com/micro/micro/v3/service/broker/client"
 	"github.com/micro/micro/v3/service/client"
 	grpcCli "github.com/micro/micro/v3/service/client/grpc"
-	"github.com/micro/micro/v3/service/model"
-	"github.com/micro/micro/v3/service/model/mud"
 	"github.com/micro/micro/v3/service/events"
 	eventsSrv "github.com/micro/micro/v3/service/events/client"
+	"github.com/micro/micro/v3/service/model"
+	"github.com/micro/micro/v3/service/model/mud"
 	"github.com/micro/micro/v3/service/network"
 	mucpNet "github.com/micro/micro/v3/service/network/mucp"
+	"github.com/micro/micro/v3/service/registry"
+	registrySrv "github.com/micro/micro/v3/service/registry/client"
 	"github.com/micro/micro/v3/service/server"
 	grpcSvr "github.com/micro/micro/v3/service/server/grpc"
 )
@@ -29,5 +31,5 @@ func setupDefaults() {
 	auth.DefaultAuth = authSrv.NewAuth()
 	broker.DefaultBroker = brokerSrv.NewBroker()
 	events.DefaultStream = eventsSrv.NewStream()
-	events.DefaultStore = eventsSrv.NewStore()
+	registry.DefaultRegistry = registrySrv.NewRegistry()
 }

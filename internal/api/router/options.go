@@ -17,8 +17,8 @@
 package router
 
 import (
-	"github.com/micro/go-micro/v3/registry"
-	"github.com/micro/go-micro/v3/registry/mdns"
+	"github.com/micro/micro/v3/service/registry"
+	"github.com/micro/micro/v3/service/registry/mdns"
 	"github.com/micro/micro/v3/internal/api/resolver"
 	"github.com/micro/micro/v3/internal/api/resolver/vpath"
 )

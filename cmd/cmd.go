@@ -13,7 +13,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/micro/go-micro/v3/registry"
+	"github.com/micro/micro/v3/service/registry"
 	"github.com/micro/go-micro/v3/store"
 	"github.com/micro/micro/v3/client/cli/util"
 	uconf "github.com/micro/micro/v3/internal/config"

@@ -23,8 +23,8 @@ import (
 
 	"github.com/micro/micro/v3/service/client"
 	"github.com/micro/micro/v3/service/errors"
-	"github.com/micro/go-micro/v3/registry"
-	"github.com/micro/go-micro/v3/registry/memory"
+	"github.com/micro/micro/v3/service/registry"
+	"github.com/micro/micro/v3/service/registry/memory"
 	"github.com/micro/go-micro/v3/router"
 	regRouter "github.com/micro/go-micro/v3/router/registry"
 	pgrpc "google.golang.org/grpc"

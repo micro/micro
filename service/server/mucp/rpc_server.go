@@ -29,7 +29,7 @@ import (
 	"time"
 
 	"github.com/micro/go-micro/v3/metadata"
-	"github.com/micro/go-micro/v3/registry"
+	"github.com/micro/micro/v3/service/registry"
 	"github.com/micro/go-micro/v3/util/addr"
 	"github.com/micro/go-micro/v3/util/backoff"
 	mnet "github.com/micro/go-micro/v3/util/net"

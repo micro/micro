@@ -27,8 +27,8 @@ import (
 	"time"
 
 	"github.com/micro/go-micro/v3/metadata"
-	"github.com/micro/go-micro/v3/registry"
-	"github.com/micro/go-micro/v3/registry/cache"
+	"github.com/micro/micro/v3/service/registry"
+	"github.com/micro/micro/v3/service/registry/cache"
 	util "github.com/micro/go-micro/v3/util/router"
 	"github.com/micro/micro/v3/internal/api/router"
 	"github.com/micro/micro/v3/service/api"
