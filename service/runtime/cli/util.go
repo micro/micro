@@ -3,7 +3,7 @@ package runtime
 import (
 	"io"
 
-	"github.com/micro/go-micro/v3/runtime/local/source/git"
+	"github.com/micro/micro/v3/service/runtime/local/source/git"
 	pb "github.com/micro/micro/v3/proto/runtime"
 	"github.com/micro/micro/v3/service/client"
 	"github.com/micro/micro/v3/service/context"

@@ -7,8 +7,8 @@ import (
 	"os"
 	"strings"
 
-	gorun "github.com/micro/go-micro/v3/runtime"
-	"github.com/micro/go-micro/v3/runtime/local/source/git"
+	gorun "github.com/micro/micro/v3/service/runtime"
+	"github.com/micro/micro/v3/service/runtime/local/source/git"
 	gostore "github.com/micro/micro/v3/service/store"
 	"github.com/micro/micro/v3/service/auth"
 	"github.com/micro/micro/v3/service/client"
