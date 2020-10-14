@@ -13,8 +13,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/micro/go-micro/v3/registry"
-	"github.com/micro/go-micro/v3/store"
 	"github.com/micro/micro/v3/client/cli/util"
 	uconf "github.com/micro/micro/v3/internal/config"
 	"github.com/micro/micro/v3/internal/helper"
@@ -32,7 +30,9 @@ import (
 	configCli "github.com/micro/micro/v3/service/config/client"
 	storeConf "github.com/micro/micro/v3/service/config/store"
 	"github.com/micro/micro/v3/service/logger"
+	"github.com/micro/micro/v3/service/registry"
 	"github.com/micro/micro/v3/service/server"
+	"github.com/micro/micro/v3/service/store"
 	"github.com/urfave/cli/v2"
 
 	muregistry "github.com/micro/micro/v3/service/registry"
@@ -515,7 +515,7 @@ func (c *command) Before(ctx *cli.Context) error {
 	}
 
 	// Setup store options
-	storeOpts := []store.Option{}
+	storeOpts := []store.StoreOption{}
 	if len(ctx.String("store_address")) > 0 {
 		storeOpts = append(storeOpts, store.Nodes(strings.Split(ctx.String("store_address"), ",")...))
 	}

@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/micro/go-micro/v3/runtime"
-	gostore "github.com/micro/go-micro/v3/store"
+	gostore "github.com/micro/micro/v3/service/store"
 	"github.com/micro/micro/v3/internal/namespace"
 	"github.com/micro/micro/v3/service/store"
 )

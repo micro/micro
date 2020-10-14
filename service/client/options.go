@@ -21,15 +21,15 @@ import (
 	"time"
 
 	"github.com/micro/micro/v3/internal/codec"
-	"github.com/micro/go-micro/v3/registry"
-	"github.com/micro/go-micro/v3/router"
-	regRouter "github.com/micro/go-micro/v3/router/registry"
-	"github.com/micro/go-micro/v3/selector"
-	"github.com/micro/go-micro/v3/selector/roundrobin"
 	"github.com/micro/micro/v3/internal/network/transport"
 	thttp "github.com/micro/micro/v3/internal/network/transport/http"
+	"github.com/micro/micro/v3/internal/selector"
+	"github.com/micro/micro/v3/internal/selector/roundrobin"
 	"github.com/micro/micro/v3/service/broker"
 	"github.com/micro/micro/v3/service/broker/http"
+	"github.com/micro/micro/v3/service/registry"
+	"github.com/micro/micro/v3/service/router"
+	regRouter "github.com/micro/micro/v3/service/router/registry"
 )
 
 type Options struct {

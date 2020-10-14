@@ -1,7 +1,7 @@
 package util
 
 import (
-	"github.com/micro/go-micro/v3/registry"
+	"github.com/micro/micro/v3/service/registry"
 	pb "github.com/micro/micro/v3/proto/registry"
 )
 

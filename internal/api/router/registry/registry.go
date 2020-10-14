@@ -26,13 +26,13 @@ import (
 	"sync"
 	"time"
 
-	"github.com/micro/micro/v3/service/context/metadata"
-	"github.com/micro/go-micro/v3/registry"
-	"github.com/micro/go-micro/v3/registry/cache"
-	util "github.com/micro/go-micro/v3/util/router"
 	"github.com/micro/micro/v3/internal/api/router"
+	util "github.com/micro/micro/v3/internal/router"
 	"github.com/micro/micro/v3/service/api"
+	"github.com/micro/micro/v3/service/context/metadata"
 	"github.com/micro/micro/v3/service/logger"
+	"github.com/micro/micro/v3/service/registry"
+	"github.com/micro/micro/v3/service/registry/cache"
 )
 
 // endpoint struct, that holds compiled pcre

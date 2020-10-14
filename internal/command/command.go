@@ -10,20 +10,19 @@ import (
 	"strings"
 	"time"
 
-	cbytes "github.com/micro/micro/v3/internal/codec/bytes"
-	"github.com/micro/micro/v3/service/context/metadata"
-	goregistry "github.com/micro/go-micro/v3/registry"
 	"github.com/micro/micro/v3/client/cli/namespace"
 	"github.com/micro/micro/v3/client/cli/util"
+	cbytes "github.com/micro/micro/v3/internal/codec/bytes"
 	proto "github.com/micro/micro/v3/proto/debug"
 	"github.com/micro/micro/v3/service/client"
+	"github.com/micro/micro/v3/service/context/metadata"
 	"github.com/micro/micro/v3/service/registry"
 	"github.com/urfave/cli/v2"
 
 	"github.com/serenize/snaker"
 )
 
-func formatEndpoint(v *goregistry.Value, r int) string {
+func formatEndpoint(v *registry.Value, r int) string {
 	// default format is tabbed plus the value plus new line
 	fparts := []string{"", "%s %s", "\n"}
 	for i := 0; i < r+1; i++ {
@@ -88,9 +87,9 @@ func GetService(c *cli.Context, args []string) ([]byte, error) {
 	}
 
 	var output []string
-	var srv []*goregistry.Service
+	var srv []*registry.Service
 
-	srv, err = registry.DefaultRegistry.GetService(args[0], goregistry.GetDomain(ns))
+	srv, err = registry.DefaultRegistry.GetService(args[0], registry.GetDomain(ns))
 	if err != nil {
 		return nil, err
 	}
@@ -154,7 +153,7 @@ func GetService(c *cli.Context, args []string) ([]byte, error) {
 }
 
 func ListServices(c *cli.Context) ([]byte, error) {
-	var rsp []*goregistry.Service
+	var rsp []*registry.Service
 	var err error
 
 	env, err := util.GetEnv(c)
@@ -166,7 +165,7 @@ func ListServices(c *cli.Context) ([]byte, error) {
 		return nil, err
 	}
 
-	rsp, err = registry.DefaultRegistry.ListServices(goregistry.ListDomain(ns))
+	rsp, err = registry.DefaultRegistry.ListServices(registry.ListDomain(ns))
 	if err != nil {
 		return nil, err
 	}
@@ -312,7 +311,7 @@ func QueryHealth(c *cli.Context, args []string) ([]byte, error) {
 	}
 
 	// otherwise get the service and call each instance individually
-	service, err := registry.DefaultRegistry.GetService(args[0], goregistry.GetDomain(ns))
+	service, err := registry.DefaultRegistry.GetService(args[0], registry.GetDomain(ns))
 	if err != nil {
 		return nil, err
 	}

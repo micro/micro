@@ -7,33 +7,31 @@ import (
 	"io/ioutil"
 	"os"
 
-	"github.com/micro/go-micro/v3/registry"
 	"github.com/micro/go-micro/v3/runtime/kubernetes"
-	"github.com/micro/go-micro/v3/store"
-	"github.com/micro/go-micro/v3/store/s3"
 	"github.com/micro/micro/v3/profile"
 	"github.com/micro/micro/v3/service/auth"
 	"github.com/micro/micro/v3/service/auth/jwt"
 	"github.com/micro/micro/v3/service/broker"
 	"github.com/micro/micro/v3/service/config"
 	storeConfig "github.com/micro/micro/v3/service/config/store"
+	"github.com/micro/micro/v3/service/events"
 	evStore "github.com/micro/micro/v3/service/events/store"
 	"github.com/micro/micro/v3/service/logger"
-	"github.com/urfave/cli/v2"
-
-	microEvents "github.com/micro/micro/v3/service/events"
-	microMetrics "github.com/micro/micro/v3/service/metrics"
+	"github.com/micro/micro/v3/service/metrics"
+	"github.com/micro/micro/v3/service/registry"
 	microRuntime "github.com/micro/micro/v3/service/runtime"
 	microBuilder "github.com/micro/micro/v3/service/runtime/builder"
 	buildSrv "github.com/micro/micro/v3/service/runtime/builder/client"
-	microStore "github.com/micro/micro/v3/service/store"
+	"github.com/micro/micro/v3/service/store"
+	"github.com/micro/micro/v3/service/store/s3"
+	"github.com/urfave/cli/v2"
 
 	// plugins
-	metricsPrometheus "github.com/micro/go-plugins/metrics/prometheus/v3"
-	"github.com/micro/go-plugins/registry/etcd/v3"
-	"github.com/micro/go-plugins/store/cockroach/v3"
+	"github.com/micro/micro/plugin/cockroach/v3"
+	"github.com/micro/micro/plugin/etcd/v3"
 	natsBroker "github.com/micro/micro/plugin/nats/broker/v3"
 	natsStream "github.com/micro/micro/plugin/nats/stream/v3"
+	"github.com/micro/micro/plugin/prometheus/v3"
 )
 
 func init() {
@@ -48,31 +46,31 @@ var Profile = &profile.Profile{
 		// the cockroach store will connect immediately so the address must be passed
 		// when the store is created. The cockroach store address contains the location
 		// of certs so it can't be defaulted like the broker and registry.
-		microStore.DefaultStore = cockroach.NewStore(store.Nodes(ctx.String("store_address")))
-		config.DefaultConfig, _ = storeConfig.NewConfig(microStore.DefaultStore, "")
+		store.DefaultStore = cockroach.NewStore(store.Nodes(ctx.String("store_address")))
+		config.DefaultConfig, _ = storeConfig.NewConfig(store.DefaultStore, "")
 		profile.SetupBroker(natsBroker.NewBroker(broker.Addrs("nats-cluster")))
 		profile.SetupRegistry(etcd.NewRegistry(registry.Addrs("etcd-cluster")))
 		profile.SetupJWT(ctx)
 		profile.SetupConfigSecretKey(ctx)
 
 		// Set up a default metrics reporter (being careful not to clash with any that have already been set):
-		if !microMetrics.IsSet() {
-			prometheusReporter, err := metricsPrometheus.New()
+		if !metrics.IsSet() {
+			prometheusReporter, err := prometheus.New()
 			if err != nil {
 				return err
 			}
-			microMetrics.SetDefaultMetricsReporter(prometheusReporter)
+			metrics.SetDefaultMetricsReporter(prometheusReporter)
 		}
 
 		var err error
-		microEvents.DefaultStream, err = natsStream.NewStream(natsStreamOpts(ctx)...)
+		events.DefaultStream, err = natsStream.NewStream(natsStreamOpts(ctx)...)
 		if err != nil {
 			logger.Fatalf("Error configuring stream: %v", err)
 		}
 
 		// only configure the blob store for the store and runtime services
 		if ctx.Args().Get(1) == "runtime" || ctx.Args().Get(1) == "store" {
-			microStore.DefaultBlobStore, err = s3.NewBlobStore(
+			store.DefaultBlobStore, err = s3.NewBlobStore(
 				s3.Credentials(
 					os.Getenv("MICRO_BLOB_STORE_ACCESS_KEY"),
 					os.Getenv("MICRO_BLOB_STORE_SECRET_KEY"),
@@ -88,7 +86,7 @@ var Profile = &profile.Profile{
 
 		microBuilder.DefaultBuilder = buildSrv.NewBuilder()
 		microRuntime.DefaultRuntime = kubernetes.NewRuntime()
-		microEvents.DefaultStore = evStore.NewStore(evStore.WithStore(microStore.DefaultStore))
+		events.DefaultStore = evStore.NewStore(evStore.WithStore(store.DefaultStore))
 		return nil
 	},
 }

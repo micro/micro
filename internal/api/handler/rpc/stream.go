@@ -30,7 +30,7 @@ import (
 	"github.com/gobwas/ws/wsutil"
 	"github.com/micro/micro/v3/service/client"
 	raw "github.com/micro/micro/v3/internal/codec/bytes"
-	"github.com/micro/go-micro/v3/util/router"
+	"github.com/micro/micro/v3/internal/router"
 	"github.com/micro/micro/v3/service/api"
 	"github.com/micro/micro/v3/service/logger"
 )

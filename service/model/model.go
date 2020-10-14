@@ -16,9 +16,9 @@
 package model
 
 import (
-	"github.com/micro/go-micro/v3/store"
 	"github.com/micro/go-micro/v3/sync"
 	"github.com/micro/micro/v3/internal/codec"
+	"github.com/micro/micro/v3/service/store"
 )
 
 var (

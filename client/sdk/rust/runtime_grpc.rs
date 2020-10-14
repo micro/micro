@@ -31,10 +31,6 @@ pub trait Runtime {
     fn update(&self, o: ::grpc::ServerHandlerContext, req: ::grpc::ServerRequestSingle<super::runtime::UpdateRequest>, resp: ::grpc::ServerResponseUnarySink<super::runtime::UpdateResponse>) -> ::grpc::Result<()>;
 
     fn logs(&self, o: ::grpc::ServerHandlerContext, req: ::grpc::ServerRequestSingle<super::runtime::LogsRequest>, resp: ::grpc::ServerResponseSink<super::runtime::LogRecord>) -> ::grpc::Result<()>;
-
-    fn create_namespace(&self, o: ::grpc::ServerHandlerContext, req: ::grpc::ServerRequestSingle<super::runtime::CreateNamespaceRequest>, resp: ::grpc::ServerResponseUnarySink<super::runtime::CreateNamespaceResponse>) -> ::grpc::Result<()>;
-
-    fn delete_namespace(&self, o: ::grpc::ServerHandlerContext, req: ::grpc::ServerRequestSingle<super::runtime::DeleteNamespaceRequest>, resp: ::grpc::ServerResponseUnarySink<super::runtime::DeleteNamespaceResponse>) -> ::grpc::Result<()>;
 }
 
 // client
@@ -100,26 +96,6 @@ impl RuntimeClient {
             resp_marshaller: ::grpc::rt::ArcOrStatic::Static(&::grpc_protobuf::MarshallerProtobuf),
         });
         self.grpc_client.call_server_streaming(o, req, descriptor)
-    }
-
-    pub fn create_namespace(&self, o: ::grpc::RequestOptions, req: super::runtime::CreateNamespaceRequest) -> ::grpc::SingleResponse<super::runtime::CreateNamespaceResponse> {
-        let descriptor = ::grpc::rt::ArcOrStatic::Static(&::grpc::rt::MethodDescriptor {
-            name: ::grpc::rt::StringOrStatic::Static("/runtime.Runtime/CreateNamespace"),
-            streaming: ::grpc::rt::GrpcStreaming::Unary,
-            req_marshaller: ::grpc::rt::ArcOrStatic::Static(&::grpc_protobuf::MarshallerProtobuf),
-            resp_marshaller: ::grpc::rt::ArcOrStatic::Static(&::grpc_protobuf::MarshallerProtobuf),
-        });
-        self.grpc_client.call_unary(o, req, descriptor)
-    }
-
-    pub fn delete_namespace(&self, o: ::grpc::RequestOptions, req: super::runtime::DeleteNamespaceRequest) -> ::grpc::SingleResponse<super::runtime::DeleteNamespaceResponse> {
-        let descriptor = ::grpc::rt::ArcOrStatic::Static(&::grpc::rt::MethodDescriptor {
-            name: ::grpc::rt::StringOrStatic::Static("/runtime.Runtime/DeleteNamespace"),
-            streaming: ::grpc::rt::GrpcStreaming::Unary,
-            req_marshaller: ::grpc::rt::ArcOrStatic::Static(&::grpc_protobuf::MarshallerProtobuf),
-            resp_marshaller: ::grpc::rt::ArcOrStatic::Static(&::grpc_protobuf::MarshallerProtobuf),
-        });
-        self.grpc_client.call_unary(o, req, descriptor)
     }
 }
 
@@ -191,30 +167,6 @@ impl RuntimeServer {
                     {
                         let handler_copy = handler_arc.clone();
                         ::grpc::rt::MethodHandlerServerStreaming::new(move |ctx, req, resp| (*handler_copy).logs(ctx, req, resp))
-                    },
-                ),
-                ::grpc::rt::ServerMethod::new(
-                    ::grpc::rt::ArcOrStatic::Static(&::grpc::rt::MethodDescriptor {
-                        name: ::grpc::rt::StringOrStatic::Static("/runtime.Runtime/CreateNamespace"),
-                        streaming: ::grpc::rt::GrpcStreaming::Unary,
-                        req_marshaller: ::grpc::rt::ArcOrStatic::Static(&::grpc_protobuf::MarshallerProtobuf),
-                        resp_marshaller: ::grpc::rt::ArcOrStatic::Static(&::grpc_protobuf::MarshallerProtobuf),
-                    }),
-                    {
-                        let handler_copy = handler_arc.clone();
-                        ::grpc::rt::MethodHandlerUnary::new(move |ctx, req, resp| (*handler_copy).create_namespace(ctx, req, resp))
-                    },
-                ),
-                ::grpc::rt::ServerMethod::new(
-                    ::grpc::rt::ArcOrStatic::Static(&::grpc::rt::MethodDescriptor {
-                        name: ::grpc::rt::StringOrStatic::Static("/runtime.Runtime/DeleteNamespace"),
-                        streaming: ::grpc::rt::GrpcStreaming::Unary,
-                        req_marshaller: ::grpc::rt::ArcOrStatic::Static(&::grpc_protobuf::MarshallerProtobuf),
-                        resp_marshaller: ::grpc::rt::ArcOrStatic::Static(&::grpc_protobuf::MarshallerProtobuf),
-                    }),
-                    {
-                        let handler_copy = handler_arc.clone();
-                        ::grpc::rt::MethodHandlerUnary::new(move |ctx, req, resp| (*handler_copy).delete_namespace(ctx, req, resp))
                     },
                 ),
             ],

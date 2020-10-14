@@ -3,7 +3,7 @@ package cli
 import (
 	"strings"
 
-	"github.com/micro/go-micro/v3/store"
+	"github.com/micro/micro/v3/service/store"
 	"github.com/pkg/errors"
 	"github.com/urfave/cli/v2"
 )
@@ -54,7 +54,7 @@ func makeStores(ctx *cli.Context) (store.Store, store.Store, error) {
 	return from, to, nil
 }
 
-func getStore(s string) (func(...store.Option) store.Store, error) {
+func getStore(s string) (func(...store.StoreOption) store.Store, error) {
 	// builtinStore, exists := cmd.DefaultStores[s]
 	// if !exists {
 	// 	return nil, errors.Errorf("store %s is not an implemented store - check your plugins", s)

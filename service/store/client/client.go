@@ -7,16 +7,16 @@ import (
 	"reflect"
 	"time"
 
-	"github.com/micro/micro/v3/service/context/metadata"
-	"github.com/micro/go-micro/v3/store"
 	pb "github.com/micro/micro/v3/proto/store"
 	"github.com/micro/micro/v3/service/client"
 	"github.com/micro/micro/v3/service/context"
+	"github.com/micro/micro/v3/service/context/metadata"
 	"github.com/micro/micro/v3/service/errors"
+	"github.com/micro/micro/v3/service/store"
 )
 
 type srv struct {
-	options store.Options
+	options store.StoreOptions
 
 	// The database to use
 	Database string
@@ -35,7 +35,7 @@ func (s *srv) Close() error {
 	return nil
 }
 
-func (s *srv) Init(opts ...store.Option) error {
+func (s *srv) Init(opts ...store.StoreOption) error {
 	for _, o := range opts {
 		o(&s.options)
 	}
@@ -231,13 +231,13 @@ func (s *srv) String() string {
 	return "service"
 }
 
-func (s *srv) Options() store.Options {
+func (s *srv) Options() store.StoreOptions {
 	return s.options
 }
 
 // NewStore returns a new store service implementation
-func NewStore(opts ...store.Option) store.Store {
-	var options store.Options
+func NewStore(opts ...store.StoreOption) store.Store {
+	var options store.StoreOptions
 	for _, o := range opts {
 		o(&options)
 	}
