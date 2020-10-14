@@ -66,38 +66,23 @@ func getFromFile(ctx *cli.Context) (*auth.AccountToken, error) {
 	if err != nil {
 		return nil, err
 	}
-	ns, err := namespace.Get(env.Name)
-	if err != nil {
-		return nil, err
-	}
 	// We save the current user
 	userID, err := config.Get(config.Path(env.Name, "current-user"))
 	if err != nil {
 		return nil, err
 	}
 
-	var tok token
-	var found bool
-	// Try to get the token matching the user id if possible
-	for key, t := range tokens {
-		if len(userID) > 0 && strings.Contains(key, env.ProxyAddress) &&
-			strings.Contains(key, ns) && strings.Contains(key, userID) {
-			tok = t
-			found = true
-			break
-		}
+	// Look up the token
+	tk, err := tokenKey(ctx, userID)
+	if err != nil {
+		return nil, err
 	}
+	tok, found := tokens[tk]
 	if !found {
-		for key, t := range tokens {
-			if strings.Contains(key, env.ProxyAddress) && strings.Contains(key, ns) {
-				tok = t
-				found = true
-				break
-			}
+		ns, err := namespace.Get(env.Name)
+		if err != nil {
+			return nil, err
 		}
-	}
-
-	if !found {
 		return nil, fmt.Errorf("Can't find token for address %v and namespace %v", env.ProxyAddress, ns)
 	}
 	return &auth.AccountToken{
