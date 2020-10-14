@@ -19,6 +19,8 @@ import (
 	registrySrv "github.com/micro/micro/v3/service/registry/client"
 	"github.com/micro/micro/v3/service/router"
 	routerSrv "github.com/micro/micro/v3/service/router/client"
+	"github.com/micro/micro/v3/service/runtime"
+	runtimeSrv "github.com/micro/micro/v3/service/runtime/client"
 	"github.com/micro/micro/v3/service/server"
 	grpcSvr "github.com/micro/micro/v3/service/server/grpc"
 	"github.com/micro/micro/v3/service/store"
@@ -42,4 +44,5 @@ func setupDefaults() {
 	router.DefaultRouter = routerSrv.NewRouter()
 	store.DefaultStore = storeSrv.NewStore()
 	store.DefaultBlobStore = storeSrv.NewBlobStore()
+	runtime.DefaultRuntime = runtimeSrv.NewRuntime()
 }

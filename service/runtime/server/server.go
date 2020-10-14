@@ -3,7 +3,7 @@ package server
 import (
 	"os"
 
-	goruntime "github.com/micro/go-micro/v3/runtime"
+	goruntime "github.com/micro/micro/v3/service/runtime"
 	pb "github.com/micro/micro/v3/proto/runtime"
 	"github.com/micro/micro/v3/service"
 	log "github.com/micro/micro/v3/service/logger"

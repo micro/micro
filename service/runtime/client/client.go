@@ -4,10 +4,10 @@ import (
 	"io"
 	"sync"
 
-	"github.com/micro/go-micro/v3/runtime"
 	pb "github.com/micro/micro/v3/proto/runtime"
 	"github.com/micro/micro/v3/service/client"
 	"github.com/micro/micro/v3/service/context"
+	"github.com/micro/micro/v3/service/runtime"
 )
 
 type svc struct {
@@ -137,7 +137,7 @@ func (s *svc) Create(resource runtime.Resource, opts ...runtime.CreateOption) er
 	return nil
 }
 
-func (s *svc) Logs(resource runtime.Resource, options ...runtime.LogsOption) (runtime.Logs, error) {
+func (s *svc) Logs(resource runtime.Resource, options ...runtime.LogsOption) (runtime.LogStream, error) {
 	var opts runtime.LogsOptions
 	for _, o := range options {
 		o(&opts)

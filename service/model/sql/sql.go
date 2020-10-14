@@ -16,7 +16,7 @@
 package sql
 
 import (
-	memsync "github.com/micro/go-micro/v3/sync/memory"
+	memsync "github.com/micro/micro/v3/internal/sync/memory"
 	"github.com/micro/micro/v3/internal/codec/json"
 	"github.com/micro/micro/v3/service/model"
 	"github.com/micro/micro/v3/service/store"

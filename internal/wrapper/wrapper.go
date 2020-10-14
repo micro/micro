@@ -6,18 +6,17 @@ import (
 	"strings"
 	"time"
 
-	"github.com/micro/go-micro/v3/metadata"
 	inauth "github.com/micro/micro/v3/internal/auth"
 	"github.com/micro/micro/v3/internal/auth/namespace"
 	"github.com/micro/micro/v3/internal/debug/trace"
 	"github.com/micro/micro/v3/service/auth"
 	"github.com/micro/micro/v3/service/client"
 	"github.com/micro/micro/v3/service/client/cache"
+	"github.com/micro/micro/v3/service/context/metadata"
 	"github.com/micro/micro/v3/service/debug"
 	"github.com/micro/micro/v3/service/errors"
 	"github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/metrics"
-	microMetrics "github.com/micro/micro/v3/service/metrics"
 	"github.com/micro/micro/v3/service/server"
 )
 
@@ -348,7 +347,7 @@ func MetricsHandler() server.HandlerWrapper {
 			}
 
 			// Instrument the result (if the DefaultClient has been configured):
-			microMetrics.Timing("service.handler", time.Since(callTime), tags)
+			metrics.Timing("service.handler", time.Since(callTime), tags)
 
 			return err
 		}
