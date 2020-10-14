@@ -20,11 +20,11 @@ import (
 	"context"
 	"time"
 
-	"github.com/micro/go-micro/v3/selector"
-	"github.com/micro/go-micro/v3/selector/roundrobin"
 	"github.com/micro/micro/v3/internal/codec"
 	"github.com/micro/micro/v3/internal/network/transport"
 	thttp "github.com/micro/micro/v3/internal/network/transport/http"
+	"github.com/micro/micro/v3/internal/selector"
+	"github.com/micro/micro/v3/internal/selector/roundrobin"
 	"github.com/micro/micro/v3/service/broker"
 	"github.com/micro/micro/v3/service/broker/http"
 	"github.com/micro/micro/v3/service/registry"

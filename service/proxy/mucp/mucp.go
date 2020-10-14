@@ -27,10 +27,10 @@ import (
 	"time"
 
 	"github.com/micro/go-micro/v3/metadata"
-	"github.com/micro/go-micro/v3/selector"
-	"github.com/micro/go-micro/v3/selector/roundrobin"
 	"github.com/micro/micro/v3/internal/codec"
 	"github.com/micro/micro/v3/internal/codec/bytes"
+	"github.com/micro/micro/v3/internal/selector"
+	"github.com/micro/micro/v3/internal/selector/roundrobin"
 	"github.com/micro/micro/v3/service/client"
 	grpcc "github.com/micro/micro/v3/service/client/grpc"
 	"github.com/micro/micro/v3/service/errors"
