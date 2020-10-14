@@ -3,6 +3,8 @@ package manager
 import (
 	"time"
 
+	"github.com/micro/go-micro/v3/util/kubernetes/client"
+
 	gorun "github.com/micro/go-micro/v3/runtime"
 	"github.com/micro/micro/v3/internal/namespace"
 	"github.com/micro/micro/v3/service/logger"
@@ -170,7 +172,7 @@ func (m *manager) Read(opts ...runtime.ReadOption) ([]*runtime.Service, error) {
 		}
 
 		// the service might still be building and not have been created in the underlying runtime yet
-		rs, ok := rSrvMap[s.Service.Name+":"+s.Service.Version]
+		rs, ok := rSrvMap[client.Format(s.Service.Name)+":"+client.Format(s.Service.Version)]
 		if !ok {
 			continue
 		}

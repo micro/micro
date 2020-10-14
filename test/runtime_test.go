@@ -256,6 +256,66 @@ func testRunGithubSource(t *T) {
 		return
 	}
 
+	cmd.Exec("kill", "helloworld")
+
+	// test it works for a branch with a funny name
+	outp, err = cmd.Exec("run", "--image", "localhost:5000/cells:v3", "github.com/micro/services/helloworld@test/branch_name")
+	if err != nil {
+		t.Fatalf("micro run failure, output: %v", string(outp))
+		return
+	}
+
+	if err := Try("Find helloworld in runtime", t, func() ([]byte, error) {
+		outp, err = cmd.Exec("status")
+		if err != nil {
+			return outp, err
+		}
+		//
+		if !statusRunning("helloworld", "test/branch_name", outp) {
+			return outp, errors.New("Output should contain helloworld")
+		}
+		if !strings.Contains(string(outp), "owner=admin") || !(strings.Contains(string(outp), "group=micro") || strings.Contains(string(outp), "group="+serv.Env())) {
+			return outp, errors.New("micro status does not have correct owner or group")
+		}
+		if strings.Contains(string(outp), "unknown") {
+			return outp, errors.New("there should be no unknown in the micro status output")
+		}
+		return outp, nil
+	}, 60*time.Second); err != nil {
+		return
+	}
+
+	if err := Try("Find helloworld in registry", t, func() ([]byte, error) {
+		outp, err = cmd.Exec("services")
+		if err != nil {
+			return outp, err
+		}
+		if !strings.Contains(string(outp), "helloworld") {
+			return outp, errors.New("helloworld is not running")
+		}
+		return outp, nil
+	}, 180*time.Second); err != nil {
+		return
+	}
+
+	if err := Try("Call helloworld", t, func() ([]byte, error) {
+		outp, err := cmd.Exec("call", "helloworld", "Helloworld.Call", "{\"name\":\"John\"}")
+		if err != nil {
+			return outp, err
+		}
+		rsp := map[string]string{}
+		err = json.Unmarshal(outp, &rsp)
+		if err != nil {
+			return outp, err
+		}
+		if rsp["msg"] != "Hello John" {
+			return outp, errors.New("Helloworld resonse is unexpected")
+		}
+		return outp, err
+	}, 60*time.Second); err != nil {
+		return
+	}
+
 }
 
 // Note: @todo this method should truly be the same as TestGithubSource.
