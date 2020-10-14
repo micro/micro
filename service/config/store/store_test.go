@@ -17,7 +17,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/micro/go-micro/v3/store/memory"
+	"github.com/micro/micro/v3/service/store/memory"
 	"github.com/micro/micro/v3/service/config"
 	"github.com/micro/micro/v3/service/config/secrets"
 )

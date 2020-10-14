@@ -9,7 +9,7 @@ import (
 
 	gorun "github.com/micro/go-micro/v3/runtime"
 	"github.com/micro/go-micro/v3/runtime/local/source/git"
-	gostore "github.com/micro/go-micro/v3/store"
+	gostore "github.com/micro/micro/v3/service/store"
 	"github.com/micro/micro/v3/service/auth"
 	"github.com/micro/micro/v3/service/client"
 	"github.com/micro/micro/v3/service/logger"

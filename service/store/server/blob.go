@@ -5,7 +5,7 @@ import (
 	"context"
 	"io"
 
-	gostore "github.com/micro/go-micro/v3/store"
+	gostore "github.com/micro/micro/v3/service/store"
 	authns "github.com/micro/micro/v3/internal/auth/namespace"
 	"github.com/micro/micro/v3/internal/namespace"
 	pb "github.com/micro/micro/v3/proto/store"

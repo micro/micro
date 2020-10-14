@@ -10,7 +10,7 @@ import (
 	"unicode/utf8"
 
 	"github.com/dustin/go-humanize"
-	gostore "github.com/micro/go-micro/v3/store"
+	gostore "github.com/micro/micro/v3/service/store"
 	"github.com/micro/micro/v3/client/cli/namespace"
 	"github.com/micro/micro/v3/client/cli/util"
 	"github.com/micro/micro/v3/service/store"
@@ -203,7 +203,7 @@ func delete(ctx *cli.Context) error {
 }
 
 func initStore(ctx *cli.Context) error {
-	opts := []gostore.Option{}
+	opts := []gostore.StoreOption{}
 
 	if len(ctx.String("database")) > 0 {
 		opts = append(opts, gostore.Database(ctx.String("database")))

@@ -21,6 +21,8 @@ import (
 	routerSrv "github.com/micro/micro/v3/service/router/client"
 	"github.com/micro/micro/v3/service/server"
 	grpcSvr "github.com/micro/micro/v3/service/server/grpc"
+	"github.com/micro/micro/v3/service/store"
+	storeSrv "github.com/micro/micro/v3/service/store/client"
 )
 
 // setupDefaults sets the default auth, broker etc implementations incase they arent configured by
@@ -38,4 +40,6 @@ func setupDefaults() {
 	events.DefaultStream = eventsSrv.NewStream()
 	registry.DefaultRegistry = registrySrv.NewRegistry()
 	router.DefaultRouter = routerSrv.NewRouter()
+	store.DefaultStore = storeSrv.NewStore()
+	store.DefaultBlobStore = storeSrv.NewBlobStore()
 }
