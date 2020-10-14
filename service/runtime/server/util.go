@@ -3,7 +3,7 @@ package server
 import (
 	"context"
 
-	"github.com/micro/go-micro/v3/runtime"
+	"github.com/micro/micro/v3/service/runtime"
 	pb "github.com/micro/micro/v3/proto/runtime"
 )
 

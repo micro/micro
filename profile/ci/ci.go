@@ -2,7 +2,7 @@
 package ci
 
 import (
-	"github.com/micro/go-micro/v3/runtime/local"
+	"github.com/micro/micro/v3/service/runtime/local"
 	"github.com/micro/micro/plugin/etcd/v3"
 	"github.com/micro/micro/v3/profile"
 	"github.com/micro/micro/v3/service/auth"

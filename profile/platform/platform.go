@@ -7,7 +7,7 @@ import (
 	"io/ioutil"
 	"os"
 
-	"github.com/micro/go-micro/v3/runtime/kubernetes"
+	"github.com/micro/micro/v3/service/runtime/kubernetes"
 	"github.com/micro/micro/v3/profile"
 	"github.com/micro/micro/v3/service/auth"
 	"github.com/micro/micro/v3/service/auth/jwt"

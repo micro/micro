@@ -1,7 +1,5 @@
 package runtime
 
-import "github.com/micro/go-micro/v3/runtime"
-
 const (
 	// EventTopic the events are published to
 	EventTopic = "runtime"
@@ -22,7 +20,7 @@ const (
 // EventPayload which is published with runtime events
 type EventPayload struct {
 	Type      string
-	Service   *runtime.Service
+	Service   *Service
 	Namespace string
 }
 

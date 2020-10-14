@@ -4,7 +4,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/micro/go-micro/v3/runtime"
+	"github.com/micro/micro/v3/service/runtime"
 )
 
 var cacheTTL = time.Second * 10

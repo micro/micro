@@ -3,12 +3,12 @@ package manager
 import (
 	"time"
 
-	"github.com/micro/go-micro/v3/util/kubernetes/client"
+	"github.com/micro/micro/v3/internal/kubernetes/client"
 
-	gorun "github.com/micro/go-micro/v3/runtime"
 	"github.com/micro/micro/v3/internal/namespace"
 	"github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/runtime"
+	gorun "github.com/micro/micro/v3/service/runtime"
 	"github.com/micro/micro/v3/service/runtime/builder"
 	"github.com/micro/micro/v3/service/runtime/manager/util"
 )
@@ -408,7 +408,7 @@ func (m *manager) Start() error {
 }
 
 // Logs for a resource
-func (m *manager) Logs(resource gorun.Resource, opts ...runtime.LogsOption) (runtime.Logs, error) {
+func (m *manager) Logs(resource gorun.Resource, opts ...runtime.LogsOption) (runtime.LogStream, error) {
 	// Handle the various different types of resources:
 	switch resource.Type() {
 	case gorun.TypeService:
@@ -419,7 +419,7 @@ func (m *manager) Logs(resource gorun.Resource, opts ...runtime.LogsOption) (run
 			return nil, gorun.ErrInvalidResource
 		}
 
-		return runtime.Log(srv, opts...)
+		return runtime.Logs(srv, opts...)
 	default:
 		return nil, gorun.ErrInvalidResource
 	}
