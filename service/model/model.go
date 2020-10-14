@@ -16,7 +16,7 @@
 package model
 
 import (
-	"github.com/micro/go-micro/v3/sync"
+	"github.com/micro/micro/v3/internal/sync"
 	"github.com/micro/micro/v3/internal/codec"
 	"github.com/micro/micro/v3/service/store"
 )
