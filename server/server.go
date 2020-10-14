@@ -86,7 +86,7 @@ func Run(context *cli.Context) error {
 	log.Info("Starting server")
 
 	// parse the env vars
-	envvars := []string{"MICRO_LOG_LEVEL=debug"}
+	var envvars []string
 	for _, val := range os.Environ() {
 		comps := strings.Split(val, "=")
 		if len(comps) != 2 {

@@ -29,7 +29,7 @@ import (
 	"github.com/micro/go-micro/v3/metadata"
 	"github.com/micro/go-micro/v3/util/ctx"
 	"github.com/micro/go-micro/v3/util/qson"
-	"github.com/micro/go-micro/v3/util/router"
+	"github.com/micro/micro/v3/internal/router"
 	"github.com/micro/micro/v3/internal/api/handler"
 	"github.com/micro/micro/v3/internal/codec"
 	"github.com/micro/micro/v3/internal/codec/bytes"
