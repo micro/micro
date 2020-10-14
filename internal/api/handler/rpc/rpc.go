@@ -27,7 +27,7 @@ import (
 	jsonpatch "github.com/evanphx/json-patch/v5"
 	"github.com/micro/micro/v3/service/errors"
 	"github.com/micro/micro/v3/service/context/metadata"
-	"github.com/micro/go-micro/v3/util/ctx"
+	"github.com/micro/micro/v3/internal/ctx
 	"github.com/micro/go-micro/v3/util/qson"
 	"github.com/micro/micro/v3/internal/router"
 	"github.com/micro/micro/v3/internal/api/handler"

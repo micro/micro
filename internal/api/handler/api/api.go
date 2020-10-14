@@ -20,7 +20,7 @@ package api
 import (
 	"net/http"
 
-	"github.com/micro/go-micro/v3/util/ctx"
+	"github.com/micro/micro/v3/internal/ctx
 	"github.com/micro/micro/v3/internal/router"
 	"github.com/micro/micro/v3/internal/api/handler"
 	api "github.com/micro/micro/v3/proto/api"

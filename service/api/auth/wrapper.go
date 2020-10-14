@@ -7,7 +7,7 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/micro/go-micro/v3/util/ctx"
+	"github.com/micro/micro/v3/internal/ctx
 	"github.com/micro/micro/v3/internal/api/resolver"
 	"github.com/micro/micro/v3/internal/api/resolver/subdomain"
 	"github.com/micro/micro/v3/internal/api/server"
