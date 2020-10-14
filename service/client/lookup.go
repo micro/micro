@@ -21,7 +21,7 @@ import (
 	"sort"
 
 	"github.com/micro/micro/v3/service/errors"
-	"github.com/micro/go-micro/v3/router"
+	"github.com/micro/micro/v3/service/router"
 )
 
 // LookupFunc is used to lookup routes for a service
