@@ -3,7 +3,7 @@ package client
 import (
 	"context"
 
-	"github.com/micro/go-micro/v3/registry"
+	"github.com/micro/micro/v3/service/registry"
 	"github.com/micro/micro/v3/service/client"
 )
 

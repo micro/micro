@@ -24,7 +24,6 @@ import (
 	"testing"
 	"time"
 
-	rmemory "github.com/micro/go-micro/v3/registry/memory"
 	"github.com/micro/micro/v3/internal/api/handler"
 	"github.com/micro/micro/v3/internal/api/handler/rpc"
 	"github.com/micro/micro/v3/internal/api/router"
@@ -33,6 +32,7 @@ import (
 	"github.com/micro/micro/v3/service/api"
 	"github.com/micro/micro/v3/service/client"
 	gcli "github.com/micro/micro/v3/service/client/grpc"
+	rmemory "github.com/micro/micro/v3/service/registry/memory"
 	rt "github.com/micro/micro/v3/service/router"
 	regRouter "github.com/micro/micro/v3/service/router/registry"
 	"github.com/micro/micro/v3/service/server"
