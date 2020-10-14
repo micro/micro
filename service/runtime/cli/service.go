@@ -13,12 +13,12 @@ import (
 	"text/tabwriter"
 	"time"
 
-	"github.com/micro/go-micro/v3/runtime/local/source/git"
 	"github.com/micro/micro/v3/client/cli/namespace"
 	"github.com/micro/micro/v3/client/cli/util"
 	"github.com/micro/micro/v3/internal/config"
 	"github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/runtime"
+	"github.com/micro/micro/v3/service/runtime/local/source/git"
 	"github.com/urfave/cli/v2"
 	"golang.org/x/net/publicsuffix"
 	"google.golang.org/grpc/status"
@@ -615,7 +615,7 @@ func getLogs(ctx *cli.Context) error {
 	}
 	options = append(options, runtime.LogsNamespace(ns))
 
-	logs, err := runtime.Log(&runtime.Service{Name: name}, options...)
+	logs, err := runtime.Logs(&runtime.Service{Name: name}, options...)
 
 	if err != nil {
 		return err

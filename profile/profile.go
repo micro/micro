@@ -7,10 +7,6 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/micro/go-micro/v3/runtime/kubernetes"
-	"github.com/micro/go-micro/v3/runtime/local"
-	"github.com/micro/micro/v3/service/store/file"
-	mem "github.com/micro/micro/v3/service/store/memory"
 	"github.com/micro/micro/v3/service/auth/jwt"
 	"github.com/micro/micro/v3/service/auth/noop"
 	"github.com/micro/micro/v3/service/broker"
@@ -28,7 +24,11 @@ import (
 	k8sRouter "github.com/micro/micro/v3/service/router/kubernetes"
 	regRouter "github.com/micro/micro/v3/service/router/registry"
 	"github.com/micro/micro/v3/service/runtime/builder/golang"
+	"github.com/micro/micro/v3/service/runtime/kubernetes"
+	"github.com/micro/micro/v3/service/runtime/local"
 	"github.com/micro/micro/v3/service/server"
+	"github.com/micro/micro/v3/service/store/file"
+	mem "github.com/micro/micro/v3/service/store/memory"
 	"github.com/urfave/cli/v2"
 
 	inAuth "github.com/micro/micro/v3/internal/auth"

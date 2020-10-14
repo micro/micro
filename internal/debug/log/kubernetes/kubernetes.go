@@ -25,7 +25,7 @@ import (
 	"time"
 
 	"github.com/micro/micro/v3/internal/debug/log"
-	"github.com/micro/go-micro/v3/util/kubernetes/client"
+	"github.com/micro/micro/v3/internal/kubernetes/client"
 )
 
 type klog struct {

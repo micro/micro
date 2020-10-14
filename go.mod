@@ -26,6 +26,7 @@ require (
 	github.com/gorilla/mux v1.7.3
 	github.com/gosimple/slug v1.9.0
 	github.com/hashicorp/go-version v1.2.1
+	github.com/hpcloud/tail v1.0.0
 	github.com/juju/fslock v0.0.0-20160525022230-4d5c94c67b4b
 	github.com/kr/pretty v0.2.0
 	github.com/micro/go-micro/v3 v3.0.0-beta.3.0.20201014103235-c49fef49b8af
@@ -39,7 +40,9 @@ require (
 	github.com/rhysd/go-github-selfupdate v1.2.2
 	github.com/serenize/snaker v0.0.0-20171204205717-a683aaf2d516
 	github.com/stretchr/testify v1.6.1
+	github.com/teris-io/shortid v0.0.0-20171029131806-771a37caa5cf
 	github.com/urfave/cli/v2 v2.2.0
+	github.com/xanzy/go-gitlab v0.35.1
 	github.com/xlab/treeprint v0.0.0-20181112141820-a009c3971eca
 	go.etcd.io/bbolt v1.3.5
 	golang.org/x/crypto v0.0.0-20200709230013-948cd5f35899
