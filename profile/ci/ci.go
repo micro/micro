@@ -14,13 +14,11 @@ import (
 	"github.com/micro/micro/v3/service/logger"
 	"github.com/urfave/cli/v2"
 
+	"github.com/micro/micro/plugin/etcd/v3"
 	microAuth "github.com/micro/micro/v3/service/auth"
 	microEvents "github.com/micro/micro/v3/service/events"
 	microRuntime "github.com/micro/micro/v3/service/runtime"
 	microStore "github.com/micro/micro/v3/service/store"
-
-	// external plugins
-	"github.com/micro/go-plugins/registry/etcd/v3"
 )
 
 func init() {

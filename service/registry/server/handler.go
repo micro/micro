@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	goregistry "github.com/micro/go-micro/v3/registry"
+	goregistry "github.com/micro/micro/v3/service/registry"
 	"github.com/micro/micro/v3/internal/auth/namespace"
 	pb "github.com/micro/micro/v3/proto/registry"
 	"github.com/micro/micro/v3/service"

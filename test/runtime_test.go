@@ -494,7 +494,7 @@ func testRunLocalUpdateAndCall(t *T) {
 			return append(outp, outp1...), errors.New("can't find service in runtime")
 		}
 		return outp, err
-	}, 15*time.Second); err != nil {
+	}, 45*time.Second); err != nil {
 		return
 	}
 

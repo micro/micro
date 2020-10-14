@@ -22,8 +22,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/micro/go-micro/v3/registry"
-	"github.com/micro/go-micro/v3/registry/memory"
+	"github.com/micro/micro/v3/service/registry"
+	"github.com/micro/micro/v3/service/registry/memory"
 	"github.com/micro/micro/v3/internal/api/handler"
 	"github.com/micro/micro/v3/internal/api/resolver"
 	"github.com/micro/micro/v3/internal/api/resolver/vpath"

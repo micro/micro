@@ -34,7 +34,7 @@ import (
 	"github.com/micro/micro/v3/service/errors"
 	pberr "github.com/micro/micro/v3/proto/errors"
 	meta "github.com/micro/go-micro/v3/metadata"
-	"github.com/micro/go-micro/v3/registry"
+	"github.com/micro/micro/v3/service/registry"
 	"github.com/micro/go-micro/v3/util/addr"
 	"github.com/micro/go-micro/v3/util/backoff"
 	mgrpc "github.com/micro/go-micro/v3/util/grpc"
