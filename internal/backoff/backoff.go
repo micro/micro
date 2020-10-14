@@ -1,5 +1,3 @@
-// Copyright 2020 Asim Aslam
-//
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
@@ -12,19 +10,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-// Original source: github.com/micro/go-micro/v3/client/backoff.go
+// Original source: github.com/micro/go-micro/v3/util/backoff/backoff.go
 
-package client
+// Package backoff provides backoff functionality
+package backoff
 
 import (
-	"context"
+	"math"
 	"time"
-
-	"github.com/micro/micro/v3/internal/backoff"
 )
 
-type BackoffFunc func(ctx context.Context, req Request, attempts int) (time.Duration, error)
-
-func exponentialBackoff(ctx context.Context, req Request, attempts int) (time.Duration, error) {
-	return backoff.Do(attempts), nil
+// Do is a function x^e multiplied by a factor of 0.1 second.
+// Result is limited to 2 minute.
+func Do(attempts int) time.Duration {
+	if attempts > 13 {
+		return 2 * time.Minute
+	}
+	return time.Duration(math.Pow(float64(attempts), math.E)) * time.Millisecond * 100
 }

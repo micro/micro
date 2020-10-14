@@ -20,7 +20,7 @@ import (
 	"time"
 
 	"github.com/micro/micro/v3/internal/debug/stats"
-	"github.com/micro/go-micro/v3/util/ring"
+	"github.com/micro/micro/v3/internal/ring"
 )
 
 type memoryStats struct {

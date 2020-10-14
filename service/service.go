@@ -8,7 +8,7 @@ import (
 	"os/signal"
 	"runtime"
 
-	signalutil "github.com/micro/go-micro/v3/util/signal"
+	signalutil "github.com/micro/micro/v3/internal/signal"
 	"github.com/micro/micro/v3/cmd"
 	"github.com/micro/micro/v3/service/client"
 	mudebug "github.com/micro/micro/v3/service/debug"

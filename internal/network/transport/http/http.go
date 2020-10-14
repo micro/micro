@@ -27,9 +27,9 @@ import (
 	"sync"
 	"time"
 
-	maddr "github.com/micro/go-micro/v3/util/addr"
-	mnet "github.com/micro/go-micro/v3/util/net"
-	mls "github.com/micro/go-micro/v3/util/tls"
+	maddr "github.com/micro/micro/v3/internal/addr"
+	mnet "github.com/micro/micro/v3/internal/net"
+	mls "github.com/micro/micro/v3/internal/tls"
 	"github.com/micro/micro/v3/internal/client/buf"
 	"github.com/micro/micro/v3/internal/network/transport"
 	"golang.org/x/net/http2"

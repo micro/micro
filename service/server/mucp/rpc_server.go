@@ -30,9 +30,9 @@ import (
 
 	"github.com/micro/go-micro/v3/metadata"
 	"github.com/micro/micro/v3/service/registry"
-	"github.com/micro/go-micro/v3/util/addr"
-	"github.com/micro/go-micro/v3/util/backoff"
-	mnet "github.com/micro/go-micro/v3/util/net"
+	"github.com/micro/micro/v3/internal/addr"
+	"github.com/micro/micro/v3/internal/backoff"
+	mnet "github.com/micro/micro/v3/internal/net"
 	"github.com/micro/micro/v3/internal/codec"
 	raw "github.com/micro/micro/v3/internal/codec/bytes"
 	"github.com/micro/micro/v3/internal/network/transport"

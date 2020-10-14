@@ -1,5 +1,3 @@
-// Copyright 2020 Asim Aslam
-//
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
@@ -12,19 +10,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-// Original source: github.com/micro/go-micro/v3/client/backoff.go
+// Original source: github.com/micro/go-micro/v3/util/signal/signal.go
 
-package client
+package signal
 
 import (
-	"context"
-	"time"
-
-	"github.com/micro/micro/v3/internal/backoff"
+	"os"
+	"syscall"
 )
 
-type BackoffFunc func(ctx context.Context, req Request, attempts int) (time.Duration, error)
-
-func exponentialBackoff(ctx context.Context, req Request, attempts int) (time.Duration, error) {
-	return backoff.Do(attempts), nil
+// ShutDownSignals returns all the signals that are being watched for to shut down services.
+func Shutdown() []os.Signal {
+	return []os.Signal{
+		syscall.SIGTERM, syscall.SIGINT, syscall.SIGQUIT, syscall.SIGKILL,
+	}
 }

@@ -25,8 +25,8 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	maddr "github.com/micro/go-micro/v3/util/addr"
-	mnet "github.com/micro/go-micro/v3/util/net"
+	maddr "github.com/micro/micro/v3/internal/addr"
+	mnet "github.com/micro/micro/v3/internal/net"
 	"github.com/micro/micro/v3/service/broker"
 )
 
