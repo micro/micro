@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"io"
 
-	gostore "github.com/micro/go-micro/v3/store"
+	gostore "github.com/micro/micro/v3/service/store"
 	pb "github.com/micro/micro/v3/proto/runtime"
 	"github.com/micro/micro/v3/service/auth"
 	"github.com/micro/micro/v3/service/errors"

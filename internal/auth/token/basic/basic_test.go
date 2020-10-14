@@ -19,7 +19,7 @@ package basic
 import (
 	"testing"
 
-	"github.com/micro/go-micro/v3/store/memory"
+	"github.com/micro/micro/v3/service/store/memory"
 	"github.com/micro/micro/v3/internal/auth/token"
 	"github.com/micro/micro/v3/service/auth"
 )

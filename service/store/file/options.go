@@ -10,33 +10,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-// Original source: github.com/micro/go-micro/v3/events/store/options.go
+// Original source: github.com/micro/go-micro/v3/store/file/options.go
 
-package store
+package file
 
 import (
-	"time"
+	"context"
 
 	"github.com/micro/micro/v3/service/store"
 )
 
-type Options struct {
-	Store store.Store
-	TTL   time.Duration
-}
+type dirKey struct{}
 
-type Option func(o *Options)
-
-// WithStore sets the underlying store to use
-func WithStore(s store.Store) Option {
-	return func(o *Options) {
-		o.Store = s
-	}
-}
-
-// WithTTL sets the default TTL
-func WithTTL(ttl time.Duration) Option {
-	return func(o *Options) {
-		o.TTL = ttl
+// WithDir sets the directory to store the files in
+func WithDir(dir string) store.StoreOption {
+	return func(o *store.StoreOptions) {
+		o.Context = context.WithValue(o.Context, dirKey{}, dir)
 	}
 }

@@ -9,8 +9,8 @@ import (
 
 	"github.com/micro/go-micro/v3/runtime/kubernetes"
 	"github.com/micro/go-micro/v3/runtime/local"
-	"github.com/micro/go-micro/v3/store/file"
-	mem "github.com/micro/go-micro/v3/store/memory"
+	"github.com/micro/micro/v3/service/store/file"
+	mem "github.com/micro/micro/v3/service/store/memory"
 	"github.com/micro/micro/v3/service/auth/jwt"
 	"github.com/micro/micro/v3/service/auth/noop"
 	"github.com/micro/micro/v3/service/broker"
