@@ -19,21 +19,21 @@ import (
 	storeConfig "github.com/micro/micro/v3/service/config/store"
 	evStore "github.com/micro/micro/v3/service/events/store"
 	"github.com/micro/micro/v3/service/logger"
+	"github.com/micro/micro/v3/service/metrics"
 	"github.com/urfave/cli/v2"
 
 	microEvents "github.com/micro/micro/v3/service/events"
-	microMetrics "github.com/micro/micro/v3/service/metrics"
 	microRuntime "github.com/micro/micro/v3/service/runtime"
 	microBuilder "github.com/micro/micro/v3/service/runtime/builder"
 	buildSrv "github.com/micro/micro/v3/service/runtime/builder/client"
 	microStore "github.com/micro/micro/v3/service/store"
 
 	// plugins
-	metricsPrometheus "github.com/micro/go-plugins/metrics/prometheus/v3"
 	"github.com/micro/go-plugins/registry/etcd/v3"
 	"github.com/micro/go-plugins/store/cockroach/v3"
 	natsBroker "github.com/micro/micro/plugin/nats/broker/v3"
 	natsStream "github.com/micro/micro/plugin/nats/stream/v3"
+	prometheus "github.com/micro/micro/plugin/prometheus/v3"
 )
 
 func init() {
@@ -56,12 +56,12 @@ var Profile = &profile.Profile{
 		profile.SetupConfigSecretKey(ctx)
 
 		// Set up a default metrics reporter (being careful not to clash with any that have already been set):
-		if !microMetrics.IsSet() {
-			prometheusReporter, err := metricsPrometheus.New()
+		if !metrics.IsSet() {
+			prometheusReporter, err := prometheus.New()
 			if err != nil {
 				return err
 			}
-			microMetrics.SetDefaultMetricsReporter(prometheusReporter)
+			metrics.SetDefaultMetricsReporter(prometheusReporter)
 		}
 
 		var err error
