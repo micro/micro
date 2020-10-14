@@ -29,7 +29,7 @@ import (
 
 	raw "github.com/micro/micro/v3/internal/codec/bytes"
 	"github.com/micro/micro/v3/service/errors"
-	"github.com/micro/go-micro/v3/metadata"
+	"github.com/micro/micro/v3/service/context/metadata"
 	"github.com/micro/micro/v3/service/broker"
 	"github.com/micro/micro/v3/service/client"
 
