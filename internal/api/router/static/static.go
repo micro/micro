@@ -25,9 +25,9 @@ import (
 	"sync"
 
 	"github.com/micro/go-micro/v3/metadata"
-	rutil "github.com/micro/go-micro/v3/util/registry"
-	util "github.com/micro/micro/v3/internal/router"
 	"github.com/micro/micro/v3/internal/api/router"
+	rutil "github.com/micro/micro/v3/internal/registry"
+	util "github.com/micro/micro/v3/internal/router"
 	"github.com/micro/micro/v3/service/api"
 	"github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/registry"
