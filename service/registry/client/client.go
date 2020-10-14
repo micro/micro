@@ -3,8 +3,7 @@ package client
 import (
 	"time"
 
-	goclient "github.com/micro/go-micro/v3/client"
-	"github.com/micro/go-micro/v3/registry"
+	"github.com/micro/micro/v3/service/registry"
 	pb "github.com/micro/micro/v3/proto/registry"
 	"github.com/micro/micro/v3/service/client"
 	"github.com/micro/micro/v3/service/context"
@@ -16,23 +15,21 @@ var name = "registry"
 
 type srv struct {
 	opts registry.Options
-	// address
-	address []string
 	// client to call registry
 	client pb.RegistryService
 }
 
-func (s *srv) callOpts() []goclient.CallOption {
-	opts := []goclient.CallOption{goclient.WithAuthToken()}
+func (s *srv) callOpts() []client.CallOption {
+	opts := []client.CallOption{client.WithAuthToken()}
 
 	// set registry address
-	if len(s.address) > 0 {
-		opts = append(opts, goclient.WithAddress(s.address...))
+	if len(s.opts.Addrs) > 0 {
+		opts = append(opts, client.WithAddress(s.opts.Addrs...))
 	}
 
 	// set timeout
 	if s.opts.Timeout > time.Duration(0) {
-		opts = append(opts, goclient.WithRequestTimeout(s.opts.Timeout))
+		opts = append(opts, client.WithRequestTimeout(s.opts.Timeout))
 	}
 
 	s.client = pb.NewRegistryService(name, client.DefaultClient)
@@ -43,11 +40,6 @@ func (s *srv) Init(opts ...registry.Option) error {
 	for _, o := range opts {
 		o(&s.opts)
 	}
-
-	if len(s.opts.Addrs) > 0 {
-		s.address = s.opts.Addrs
-	}
-
 	return nil
 }
 
@@ -96,7 +88,7 @@ func (s *srv) GetService(name string, opts ...registry.GetOption) ([]*registry.S
 		Service: name, Options: &pb.Options{Domain: options.Domain},
 	}, s.callOpts()...)
 
-	if verr := errors.Parse(err); verr != nil && verr.Code == 404 {
+	if verr := errors.FromError(err); verr != nil && verr.Code == 404 {
 		return nil, registry.ErrNotFound
 	} else if err != nil {
 		return nil, err
@@ -157,18 +149,8 @@ func NewRegistry(opts ...registry.Option) registry.Registry {
 		o(&options)
 	}
 
-	// the registry address
-	addrs := options.Addrs
-
-	// don't default the address if a proxy is being used, as the
-	// address will take precedent, circumventing the proxy.
-	if len(addrs) == 0 {
-		addrs = []string{"127.0.0.1:8000"}
-	}
-
 	return &srv{
-		opts:    options,
-		address: addrs,
-		client:  pb.NewRegistryService(name, client.DefaultClient),
+		opts:   options,
+		client: pb.NewRegistryService(name, client.DefaultClient),
 	}
 }

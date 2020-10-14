@@ -3,7 +3,6 @@ title: CLI
 keywords: cli
 tags: [cli]
 sidebar: home_sidebar
-permalink: /cli
 summary: 
 ---
 

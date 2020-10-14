@@ -10,9 +10,9 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/micro/go-micro/v3/config"
 	"github.com/micro/micro/v3/internal/auth/namespace"
 	pb "github.com/micro/micro/v3/proto/config"
+	"github.com/micro/micro/v3/service/config"
 	merrors "github.com/micro/micro/v3/service/errors"
 	"github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/store"
@@ -204,7 +204,6 @@ func traverse(i interface{}, decodeSecrets bool, encryptionKey string) (interfac
 				}
 				dec, err := base64.StdEncoding.DecodeString(marshalledValue)
 				if err != nil {
-					fmt.Println("marshalled value", marshalledValue)
 					return nil, errors.New("Badly encoded secret")
 				}
 				decrypted, err := decrypt(string(dec), []byte(encryptionKey))
@@ -324,7 +323,7 @@ func (c *Config) setValue(values *config.JSONValues, secret bool, path, data str
 		}
 		encrypted, err := encrypt(data, c.secret)
 		if err != nil {
-			return merrors.InternalServerError("config.Config.Set", "Failed to encrypt", err)
+			return merrors.InternalServerError("config.Config.Set", "Failed to encrypt: %v", err)
 		}
 		data = string(base64.StdEncoding.EncodeToString([]byte(encrypted)))
 		// Need to save metainformation with secret values too

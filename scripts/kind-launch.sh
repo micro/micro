@@ -14,7 +14,6 @@ set -e
 set -x
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
-KUBE_DIR=$DIR/../cmd/platform/kubernetes
 
 # safety first
 kubectl config use-context kind-kind
@@ -23,6 +22,8 @@ tmp=$TMPDIR
 if [[ ! $tmp ]]; then
   tmp=/tmp
 fi
+
+KUBE_DIR=$tmp/micro-kind/cmd/platform/kubernetes
 
 if [[ ! -d $tmp/micro-kind ]]; then
   mkdir $tmp/micro-kind

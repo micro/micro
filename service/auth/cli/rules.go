@@ -7,7 +7,6 @@ import (
 	"strings"
 	"text/tabwriter"
 
-	goclient "github.com/micro/go-micro/v3/client"
 	"github.com/micro/micro/v3/client/cli/namespace"
 	"github.com/micro/micro/v3/client/cli/util"
 	pb "github.com/micro/micro/v3/proto/auth"
@@ -31,7 +30,7 @@ func listRules(ctx *cli.Context) error {
 
 	rsp, err := cli.List(context.DefaultContext, &pb.ListRequest{
 		Options: &pb.Options{Namespace: ns},
-	}, goclient.WithAuthToken())
+	}, client.WithAuthToken())
 	if err != nil {
 		return fmt.Errorf("Error listing rules: %v", err)
 	}
@@ -80,8 +79,8 @@ func createRule(ctx *cli.Context) error {
 	cli := pb.NewRulesService("auth", client.DefaultClient)
 	_, err = cli.Create(context.DefaultContext, &pb.CreateRequest{
 		Rule: rule, Options: &pb.Options{Namespace: ns},
-	}, goclient.WithAuthToken())
-	if verr := errors.Parse(err); verr != nil {
+	}, client.WithAuthToken())
+	if verr := errors.FromError(err); verr != nil {
 		return fmt.Errorf("Error: %v", verr.Detail)
 	} else if err != nil {
 		return err
@@ -108,8 +107,8 @@ func deleteRule(ctx *cli.Context) error {
 	cli := pb.NewRulesService("auth", client.DefaultClient)
 	_, err = cli.Delete(context.DefaultContext, &pb.DeleteRequest{
 		Id: ctx.Args().First(), Options: &pb.Options{Namespace: ns},
-	}, goclient.WithAuthToken())
-	if verr := errors.Parse(err); err != nil {
+	}, client.WithAuthToken())
+	if verr := errors.FromError(err); err != nil {
 		return fmt.Errorf("Error: %v", verr.Detail)
 	} else if err != nil {
 		return err

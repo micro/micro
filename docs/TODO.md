@@ -1,5 +1,5 @@
 ---
-title: TODOFAQ
+title: TODO
 keywords: todo
 tags: [todo]
 sidebar: home_sidebar
@@ -18,9 +18,11 @@ Things that need to be documented for v3
 - [x] FAQ: What problem is Micro solving
 - [x] FAQ: What environments does Micro run in
 - [x] Getting Started: Installation
-- [ ] What is Micro's architecture
+- [x] Environments
+- [ ] Architecture
 - [ ] Concepts
-- [ ] How-tos
+- [ ] Tutorials
+- [ ] Reference Guide
 - [ ] Best practices
 - [ ] Service Library
 - [ ] Getting Started
@@ -35,7 +37,6 @@ Things that need to be documented for v3
 - [ ] PubSub Messaging
 - [ ] Event Streaming
 - [ ] Load Balancing
-- [ ] Environments
 - [ ] Running on Kubernetes
 - [ ] Example services
 - [ ] Example design patterns

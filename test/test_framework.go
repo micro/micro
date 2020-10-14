@@ -235,6 +235,8 @@ type Options struct {
 	Login bool
 	// Namespace to use, defaults to the test name
 	Namespace string
+	// Prevent generating default account
+	DisableAdmin bool
 }
 
 type Option func(o *Options)
@@ -242,6 +244,12 @@ type Option func(o *Options)
 func WithLogin() Option {
 	return func(o *Options) {
 		o.Login = true
+	}
+}
+
+func WithDisableAdmin() Option {
+	return func(o *Options) {
+		o.DisableAdmin = true
 	}
 }
 
@@ -286,6 +294,7 @@ func newLocalServer(t *T, fname string, opts ...Option) Server {
 		fmt.Sprintf("-p=%v:8081", proxyPortnum),
 		fmt.Sprintf("-p=%v:8080", apiPortNum),
 		"-e", "MICRO_PROFILE=ci",
+		"-e", fmt.Sprintf("MICRO_AUTH_DISABLE_ADMIN=%v", options.DisableAdmin),
 		"micro", "server")
 	configFile := configFile(fname)
 	return &ServerDefault{ServerBase{
@@ -589,19 +598,27 @@ func Login(serv Server, t *T, email, password string) error {
 }
 
 func ChangeNamespace(cmd *Command, env, namespace string) error {
-	if _, err := cmd.Exec("user", "config", "set", "namespaces."+env+".all", namespace); err != nil {
+	outp, err := cmd.Exec("user", "config", "get", "namespaces."+env+".all")
+	if err != nil {
+		return err
+	}
+	parts := strings.Split(string(outp), ".")
+	index := map[string]struct{}{}
+	for _, part := range parts {
+		if len(strings.TrimSpace(part)) == 0 {
+			continue
+		}
+		index[part] = struct{}{}
+	}
+	index[namespace] = struct{}{}
+	list := []string{}
+	for k, _ := range index {
+		list = append(list, k)
+	}
+	if _, err := cmd.Exec("user", "config", "set", "namespaces."+env+".all", strings.Join(list, ",")); err != nil {
 		return err
 	}
 	if _, err := cmd.Exec("user", "config", "set", "namespaces."+env+".current", namespace); err != nil {
-		return err
-	}
-	if _, err := cmd.Exec("user", "config", "set", "micro.auth."+env+".token", ""); err != nil {
-		return err
-	}
-	if _, err := cmd.Exec("user", "config", "set", "micro.auth."+env+".refresh-token", ""); err != nil {
-		return err
-	}
-	if _, err := cmd.Exec("user", "config", "set", "micro.auth."+env+".expiry", ""); err != nil {
 		return err
 	}
 	return nil

@@ -5,12 +5,12 @@ package test
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"os"
 	"os/exec"
 	"os/user"
 	"path/filepath"
-	"regexp"
 	"strings"
 	"testing"
 	"time"
@@ -185,11 +185,6 @@ func testRunAndKill(t *T) {
 	}
 }
 
-func statusRunning(service, branch string, statusOutput []byte) bool {
-	reg, _ := regexp.Compile(service + "\\s+" + branch + "\\s+\\S+\\s+running")
-	return reg.Match(statusOutput)
-}
-
 func TestRunGithubSource(t *testing.T) {
 	TrySuite(t, testRunGithubSource, retryCount)
 }
@@ -217,6 +212,66 @@ func testRunGithubSource(t *T) {
 		}
 
 		if !statusRunning("helloworld", version, outp) {
+			return outp, errors.New("Output should contain helloworld")
+		}
+		if !strings.Contains(string(outp), "owner=admin") || !(strings.Contains(string(outp), "group=micro") || strings.Contains(string(outp), "group="+serv.Env())) {
+			return outp, errors.New("micro status does not have correct owner or group")
+		}
+		if strings.Contains(string(outp), "unknown") {
+			return outp, errors.New("there should be no unknown in the micro status output")
+		}
+		return outp, nil
+	}, 60*time.Second); err != nil {
+		return
+	}
+
+	if err := Try("Find helloworld in registry", t, func() ([]byte, error) {
+		outp, err = cmd.Exec("services")
+		if err != nil {
+			return outp, err
+		}
+		if !strings.Contains(string(outp), "helloworld") {
+			return outp, errors.New("helloworld is not running")
+		}
+		return outp, nil
+	}, 180*time.Second); err != nil {
+		return
+	}
+
+	if err := Try("Call helloworld", t, func() ([]byte, error) {
+		outp, err := cmd.Exec("call", "helloworld", "Helloworld.Call", "{\"name\":\"John\"}")
+		if err != nil {
+			return outp, err
+		}
+		rsp := map[string]string{}
+		err = json.Unmarshal(outp, &rsp)
+		if err != nil {
+			return outp, err
+		}
+		if rsp["msg"] != "Hello John" {
+			return outp, errors.New("Helloworld resonse is unexpected")
+		}
+		return outp, err
+	}, 60*time.Second); err != nil {
+		return
+	}
+
+	cmd.Exec("kill", "helloworld")
+
+	// test it works for a branch with a funny name
+	outp, err = cmd.Exec("run", "--image", "localhost:5000/cells:v3", "github.com/micro/services/helloworld@test/branch_name")
+	if err != nil {
+		t.Fatalf("micro run failure, output: %v", string(outp))
+		return
+	}
+
+	if err := Try("Find helloworld in runtime", t, func() ([]byte, error) {
+		outp, err = cmd.Exec("status")
+		if err != nil {
+			return outp, err
+		}
+		//
+		if !statusRunning("helloworld", "test/branch_name", outp) {
 			return outp, errors.New("Output should contain helloworld")
 		}
 		if !strings.Contains(string(outp), "owner=admin") || !(strings.Contains(string(outp), "group=micro") || strings.Contains(string(outp), "group="+serv.Env())) {
@@ -499,7 +554,7 @@ func testRunLocalUpdateAndCall(t *T) {
 			return append(outp, outp1...), errors.New("can't find service in runtime")
 		}
 		return outp, err
-	}, 15*time.Second); err != nil {
+	}, 45*time.Second); err != nil {
 		return
 	}
 
@@ -603,6 +658,12 @@ func testRunParentFolder(t *T) {
 		t.Fatal(string(outp))
 	}
 
+	gomod := exec.Command("go", "mod", "edit", "-replace", "github.com/micro/micro/v3=github.com/micro/micro/v3@v3.0.0-beta.6.0.20201013100912-aa4b81397a6f")
+	gomod.Dir = "../test-top-level"
+	if outp, err := gomod.CombinedOutput(); err != nil {
+		t.Fatal(string(outp))
+	}
+
 	err = os.MkdirAll("../parent/folder/test", 0777)
 	if err != nil {
 		t.Fatal(err)
@@ -636,7 +697,8 @@ func testRunParentFolder(t *T) {
 			return outp, err
 		}
 		if !strings.Contains(string(outp), "test-top-level") {
-			return outp, errors.New("Can't find example service in list")
+			l, _ := cmd.Exec("logs", "test-top-level")
+			return outp, fmt.Errorf("Can't find example service in list. \nLogs: %v", string(l))
 		}
 		return outp, err
 	}, 90*time.Second); err != nil {
@@ -871,7 +933,7 @@ func testRunPrivateSource(t *T) {
 		return
 	}
 
-	if err := Try("Find micro/test/helloworld in runtime", t, func() ([]byte, error) {
+	if err := Try("Find helloworld in runtime", t, func() ([]byte, error) {
 		outp, err := cmd.Exec("status")
 		if err != nil {
 			return outp, err

@@ -1,3 +1,4 @@
+// Apache 2.0 => https://github.com/microhq/clients
 package main
 
 import (
@@ -74,7 +75,7 @@ func download(path string, lang string) error {
 			return nil
 		}
 		url = fmt.Sprintf(protocGenJavaURL, protocGenJavaVersion, protocGenJavaVersion)
-	case "js":
+	case "node":
 		if _, err := os.Stat(filepath.Join(toolPath, protocGenJsBin)); err == nil {
 			log.Printf("%s tool already installed", protocGenJsBin)
 			return nil
@@ -108,7 +109,7 @@ func download(path string, lang string) error {
 	}
 
 	switch lang {
-	case "js":
+	case "node":
 		if err = untar(filepath.Join(path, "tmpfile"), filepath.Join(path, fmt.Sprintf("%s-tool", lang))); err != nil {
 			return err
 		}
@@ -224,13 +225,13 @@ func generate(lang string, tool string, arg string, src string, dst string, args
 					fmt.Sprintf("--grpc_python_out=%s", dstpath),
 					fmt.Sprintf("%s", proto),
 				)
-			case "js":
+			case "node":
 				cmdargs = append(cmdargs,
 					"protoc",
 					fmt.Sprintf("-I%s", src),
 					fmt.Sprintf("-I%s", filepath.Dir(proto)),
 					fmt.Sprintf("-I%s", filepath.Join(src, "vendor")),
-					fmt.Sprintf("--%s_out=%s:%s", tool, arg, dstpath),
+					fmt.Sprintf("--js_out=%s:%s", arg, dstpath),
 					fmt.Sprintf("--grpc_out=%s", dstpath),
 					fmt.Sprintf("%s", proto),
 					fmt.Sprintf("%s", strings.Join(args, " ")),
@@ -387,7 +388,7 @@ func unzip(src string, dst string) error {
 var (
 	srcDir  = flag.String("srcdir", "", "source dir")
 	dstDir  = flag.String("dstdir", "", "target dir")
-	langs   = flag.String("langs", "go,java,js,python", "languages to generate")
+	langs   = flag.String("langs", "go,java,node,python", "languages to generate")
 	toolDir = flag.String("tooldir", "/tmp", "tool dir")
 )
 
@@ -437,13 +438,13 @@ func main() {
 			if err = generate(lang, "python", "", *srcDir, *dstDir); err != nil {
 				log.Fatal(err)
 			}
-		case "js":
+		case "node":
 			ppath, err := exec.LookPath("grpc_tools_node_protoc_plugin")
 			if err != nil {
 				log.Fatal(err)
 			}
 
-			if err = generate(lang, "js", "import_style=commonjs,binary", *srcDir, *dstDir, fmt.Sprintf("--plugin=protoc-gen-grpc=%s", ppath)); err != nil {
+			if err = generate(lang, "node", "import_style=commonjs,binary", *srcDir, *dstDir, fmt.Sprintf("--plugin=protoc-gen-grpc=%s", ppath)); err != nil {
 				log.Fatal(err)
 			}
 		}
