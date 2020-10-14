@@ -19,8 +19,6 @@ module Runtime
       rpc :Delete, ::Runtime::DeleteRequest, ::Runtime::DeleteResponse
       rpc :Update, ::Runtime::UpdateRequest, ::Runtime::UpdateResponse
       rpc :Logs, ::Runtime::LogsRequest, stream(::Runtime::LogRecord)
-      rpc :CreateNamespace, ::Runtime::CreateNamespaceRequest, ::Runtime::CreateNamespaceResponse
-      rpc :DeleteNamespace, ::Runtime::DeleteNamespaceRequest, ::Runtime::DeleteNamespaceResponse
     end
 
     Stub = Service.rpc_stub_class

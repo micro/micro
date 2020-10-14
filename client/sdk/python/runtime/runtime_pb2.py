@@ -19,10 +19,172 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   syntax='proto3',
   serialized_options=b'Z/github.com/micro/micro/v3/proto/runtime;runtime',
   create_key=_descriptor._internal_create_key,
-  serialized_pb=b'\n\x15runtime/runtime.proto\x12\x07runtime\"\xab\x01\n\x07Service\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x0f\n\x07version\x18\x02 \x01(\t\x12\x0e\n\x06source\x18\x03 \x01(\t\x12\x30\n\x08metadata\x18\x04 \x03(\x0b\x32\x1e.runtime.Service.MetadataEntry\x12\x0e\n\x06status\x18\x05 \x01(\x05\x1a/\n\rMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xdb\x02\n\rCreateOptions\x12\x0f\n\x07\x63ommand\x18\x01 \x03(\t\x12\x0c\n\x04\x61rgs\x18\x02 \x03(\t\x12\x0b\n\x03\x65nv\x18\x03 \x03(\t\x12\x0e\n\x06output\x18\x04 \x01(\t\x12\x0c\n\x04type\x18\x05 \x01(\t\x12\r\n\x05image\x18\x06 \x01(\t\x12\x11\n\tnamespace\x18\x07 \x01(\t\x12\x34\n\x07secrets\x18\x08 \x03(\x0b\x32#.runtime.CreateOptions.SecretsEntry\x12\x12\n\nentrypoint\x18\t \x01(\t\x12\x34\n\x07volumes\x18\n \x03(\x0b\x32#.runtime.CreateOptions.VolumesEntry\x1a.\n\x0cSecretsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x1a.\n\x0cVolumesEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"[\n\rCreateRequest\x12!\n\x07service\x18\x01 \x01(\x0b\x32\x10.runtime.Service\x12\'\n\x07options\x18\x02 \x01(\x0b\x32\x16.runtime.CreateOptions\"\x10\n\x0e\x43reateResponse\"P\n\x0bReadOptions\x12\x0f\n\x07service\x18\x01 \x01(\t\x12\x0f\n\x07version\x18\x02 \x01(\t\x12\x0c\n\x04type\x18\x03 \x01(\t\x12\x11\n\tnamespace\x18\x04 \x01(\t\"4\n\x0bReadRequest\x12%\n\x07options\x18\x01 \x01(\x0b\x32\x14.runtime.ReadOptions\"2\n\x0cReadResponse\x12\"\n\x08services\x18\x01 \x03(\x0b\x32\x10.runtime.Service\"\"\n\rDeleteOptions\x12\x11\n\tnamespace\x18\x01 \x01(\t\"[\n\rDeleteRequest\x12!\n\x07service\x18\x01 \x01(\x0b\x32\x10.runtime.Service\x12\'\n\x07options\x18\x02 \x01(\x0b\x32\x16.runtime.DeleteOptions\"\x10\n\x0e\x44\x65leteResponse\"6\n\rUpdateOptions\x12\x11\n\tnamespace\x18\x01 \x01(\t\x12\x12\n\nentrypoint\x18\x02 \x01(\t\"[\n\rUpdateRequest\x12!\n\x07service\x18\x01 \x01(\x0b\x32\x10.runtime.Service\x12\'\n\x07options\x18\x02 \x01(\x0b\x32\x16.runtime.UpdateOptions\"\x10\n\x0eUpdateResponse\" \n\x0bListOptions\x12\x11\n\tnamespace\x18\x01 \x01(\t\"4\n\x0bListRequest\x12%\n\x07options\x18\x01 \x01(\x0b\x32\x14.runtime.ListOptions\"2\n\x0cListResponse\x12\"\n\x08services\x18\x01 \x03(\x0b\x32\x10.runtime.Service\" \n\x0bLogsOptions\x12\x11\n\tnamespace\x18\x01 \x01(\t\"s\n\x0bLogsRequest\x12\x0f\n\x07service\x18\x01 \x01(\t\x12\x0e\n\x06stream\x18\x02 \x01(\x08\x12\r\n\x05\x63ount\x18\x03 \x01(\x03\x12\r\n\x05since\x18\x04 \x01(\x03\x12%\n\x07options\x18\x05 \x01(\x0b\x32\x14.runtime.LogsOptions\"\x94\x01\n\tLogRecord\x12\x11\n\ttimestamp\x18\x01 \x01(\x03\x12\x32\n\x08metadata\x18\x02 \x03(\x0b\x32 .runtime.LogRecord.MetadataEntry\x12\x0f\n\x07message\x18\x03 \x01(\t\x1a/\n\rMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"+\n\x16\x43reateNamespaceRequest\x12\x11\n\tnamespace\x18\x01 \x01(\t\"\x19\n\x17\x43reateNamespaceResponse\"+\n\x16\x44\x65leteNamespaceRequest\x12\x11\n\tnamespace\x18\x01 \x01(\t\"\x19\n\x17\x44\x65leteNamespaceResponse\"@\n\rUploadRequest\x12!\n\x07service\x18\x01 \x01(\x0b\x32\x10.runtime.Service\x12\x0c\n\x04\x64\x61ta\x18\x02 \x01(\x0c\"\x1c\n\x0eUploadResponse\x12\n\n\x02id\x18\x01 \x01(\t\"!\n\x11\x42uildReadResponse\x12\x0c\n\x04\x64\x61ta\x18\x01 \x01(\x0c\x32\xdd\x03\n\x07Runtime\x12;\n\x06\x43reate\x12\x16.runtime.CreateRequest\x1a\x17.runtime.CreateResponse\"\x00\x12\x35\n\x04Read\x12\x14.runtime.ReadRequest\x1a\x15.runtime.ReadResponse\"\x00\x12;\n\x06\x44\x65lete\x12\x16.runtime.DeleteRequest\x1a\x17.runtime.DeleteResponse\"\x00\x12;\n\x06Update\x12\x16.runtime.UpdateRequest\x1a\x17.runtime.UpdateResponse\"\x00\x12\x34\n\x04Logs\x12\x14.runtime.LogsRequest\x1a\x12.runtime.LogRecord\"\x00\x30\x01\x12V\n\x0f\x43reateNamespace\x12\x1f.runtime.CreateNamespaceRequest\x1a .runtime.CreateNamespaceResponse\"\x00\x12V\n\x0f\x44\x65leteNamespace\x12\x1f.runtime.DeleteNamespaceRequest\x1a .runtime.DeleteNamespaceResponse\"\x00\x32G\n\x06Source\x12=\n\x06Upload\x12\x16.runtime.UploadRequest\x1a\x17.runtime.UploadResponse\"\x00(\x01\x32\x41\n\x05\x42uild\x12\x38\n\x04Read\x12\x10.runtime.Service\x1a\x1a.runtime.BuildReadResponse\"\x00\x30\x01\x42\x31Z/github.com/micro/micro/v3/proto/runtime;runtimeb\x06proto3'
+  serialized_pb=b'\n\x15runtime/runtime.proto\x12\x07runtime\"\x83\x01\n\x08Resource\x12%\n\tnamespace\x18\x01 \x01(\x0b\x32\x12.runtime.Namespace\x12-\n\rnetworkpolicy\x18\x02 \x01(\x0b\x32\x16.runtime.NetworkPolicy\x12!\n\x07service\x18\x03 \x01(\x0b\x32\x10.runtime.Service\"\x19\n\tNamespace\x12\x0c\n\x04name\x18\x01 \x01(\t\"\xa8\x01\n\rNetworkPolicy\x12@\n\rallowedlabels\x18\x01 \x03(\x0b\x32).runtime.NetworkPolicy.AllowedlabelsEntry\x12\x0c\n\x04name\x18\x02 \x01(\t\x12\x11\n\tnamespace\x18\x03 \x01(\t\x1a\x34\n\x12\x41llowedlabelsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xab\x01\n\x07Service\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x0f\n\x07version\x18\x02 \x01(\t\x12\x0e\n\x06source\x18\x03 \x01(\t\x12\x30\n\x08metadata\x18\x04 \x03(\x0b\x32\x1e.runtime.Service.MetadataEntry\x12\x0e\n\x06status\x18\x05 \x01(\x05\x1a/\n\rMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xdb\x02\n\rCreateOptions\x12\x0f\n\x07\x63ommand\x18\x01 \x03(\t\x12\x0c\n\x04\x61rgs\x18\x02 \x03(\t\x12\x0b\n\x03\x65nv\x18\x03 \x03(\t\x12\x0e\n\x06output\x18\x04 \x01(\t\x12\x0c\n\x04type\x18\x05 \x01(\t\x12\r\n\x05image\x18\x06 \x01(\t\x12\x11\n\tnamespace\x18\x07 \x01(\t\x12\x34\n\x07secrets\x18\x08 \x03(\x0b\x32#.runtime.CreateOptions.SecretsEntry\x12\x12\n\nentrypoint\x18\t \x01(\t\x12\x34\n\x07volumes\x18\n \x03(\x0b\x32#.runtime.CreateOptions.VolumesEntry\x1a.\n\x0cSecretsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x1a.\n\x0cVolumesEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"]\n\rCreateRequest\x12#\n\x08resource\x18\x01 \x01(\x0b\x32\x11.runtime.Resource\x12\'\n\x07options\x18\x02 \x01(\x0b\x32\x16.runtime.CreateOptions\"\x10\n\x0e\x43reateResponse\"P\n\x0bReadOptions\x12\x0f\n\x07service\x18\x01 \x01(\t\x12\x0f\n\x07version\x18\x02 \x01(\t\x12\x0c\n\x04type\x18\x03 \x01(\t\x12\x11\n\tnamespace\x18\x04 \x01(\t\"4\n\x0bReadRequest\x12%\n\x07options\x18\x01 \x01(\x0b\x32\x14.runtime.ReadOptions\"2\n\x0cReadResponse\x12\"\n\x08services\x18\x01 \x03(\x0b\x32\x10.runtime.Service\"\"\n\rDeleteOptions\x12\x11\n\tnamespace\x18\x01 \x01(\t\"]\n\rDeleteRequest\x12#\n\x08resource\x18\x01 \x01(\x0b\x32\x11.runtime.Resource\x12\'\n\x07options\x18\x02 \x01(\x0b\x32\x16.runtime.DeleteOptions\"\x10\n\x0e\x44\x65leteResponse\"6\n\rUpdateOptions\x12\x11\n\tnamespace\x18\x01 \x01(\t\x12\x12\n\nentrypoint\x18\x02 \x01(\t\"]\n\rUpdateRequest\x12#\n\x08resource\x18\x01 \x01(\x0b\x32\x11.runtime.Resource\x12\'\n\x07options\x18\x02 \x01(\x0b\x32\x16.runtime.UpdateOptions\"\x10\n\x0eUpdateResponse\" \n\x0bListOptions\x12\x11\n\tnamespace\x18\x01 \x01(\t\"4\n\x0bListRequest\x12%\n\x07options\x18\x01 \x01(\x0b\x32\x14.runtime.ListOptions\"2\n\x0cListResponse\x12\"\n\x08services\x18\x01 \x03(\x0b\x32\x10.runtime.Service\" \n\x0bLogsOptions\x12\x11\n\tnamespace\x18\x01 \x01(\t\"s\n\x0bLogsRequest\x12\x0f\n\x07service\x18\x01 \x01(\t\x12\x0e\n\x06stream\x18\x02 \x01(\x08\x12\r\n\x05\x63ount\x18\x03 \x01(\x03\x12\r\n\x05since\x18\x04 \x01(\x03\x12%\n\x07options\x18\x05 \x01(\x0b\x32\x14.runtime.LogsOptions\"\x94\x01\n\tLogRecord\x12\x11\n\ttimestamp\x18\x01 \x01(\x03\x12\x32\n\x08metadata\x18\x02 \x03(\x0b\x32 .runtime.LogRecord.MetadataEntry\x12\x0f\n\x07message\x18\x03 \x01(\t\x1a/\n\rMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"@\n\rUploadRequest\x12!\n\x07service\x18\x01 \x01(\x0b\x32\x10.runtime.Service\x12\x0c\n\x04\x64\x61ta\x18\x02 \x01(\x0c\"\x1c\n\x0eUploadResponse\x12\n\n\x02id\x18\x01 \x01(\t\"!\n\x11\x42uildReadResponse\x12\x0c\n\x04\x64\x61ta\x18\x01 \x01(\x0c\x32\xad\x02\n\x07Runtime\x12;\n\x06\x43reate\x12\x16.runtime.CreateRequest\x1a\x17.runtime.CreateResponse\"\x00\x12\x35\n\x04Read\x12\x14.runtime.ReadRequest\x1a\x15.runtime.ReadResponse\"\x00\x12;\n\x06\x44\x65lete\x12\x16.runtime.DeleteRequest\x1a\x17.runtime.DeleteResponse\"\x00\x12;\n\x06Update\x12\x16.runtime.UpdateRequest\x1a\x17.runtime.UpdateResponse\"\x00\x12\x34\n\x04Logs\x12\x14.runtime.LogsRequest\x1a\x12.runtime.LogRecord\"\x00\x30\x01\x32G\n\x06Source\x12=\n\x06Upload\x12\x16.runtime.UploadRequest\x1a\x17.runtime.UploadResponse\"\x00(\x01\x32\x41\n\x05\x42uild\x12\x38\n\x04Read\x12\x10.runtime.Service\x1a\x1a.runtime.BuildReadResponse\"\x00\x30\x01\x42\x31Z/github.com/micro/micro/v3/proto/runtime;runtimeb\x06proto3'
 )
 
 
+
+
+_RESOURCE = _descriptor.Descriptor(
+  name='Resource',
+  full_name='runtime.Resource',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  create_key=_descriptor._internal_create_key,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='namespace', full_name='runtime.Resource.namespace', index=0,
+      number=1, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='networkpolicy', full_name='runtime.Resource.networkpolicy', index=1,
+      number=2, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='service', full_name='runtime.Resource.service', index=2,
+      number=3, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=35,
+  serialized_end=166,
+)
+
+
+_NAMESPACE = _descriptor.Descriptor(
+  name='Namespace',
+  full_name='runtime.Namespace',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  create_key=_descriptor._internal_create_key,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='name', full_name='runtime.Namespace.name', index=0,
+      number=1, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=168,
+  serialized_end=193,
+)
+
+
+_NETWORKPOLICY_ALLOWEDLABELSENTRY = _descriptor.Descriptor(
+  name='AllowedlabelsEntry',
+  full_name='runtime.NetworkPolicy.AllowedlabelsEntry',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  create_key=_descriptor._internal_create_key,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='key', full_name='runtime.NetworkPolicy.AllowedlabelsEntry.key', index=0,
+      number=1, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='value', full_name='runtime.NetworkPolicy.AllowedlabelsEntry.value', index=1,
+      number=2, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=b'8\001',
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=312,
+  serialized_end=364,
+)
+
+_NETWORKPOLICY = _descriptor.Descriptor(
+  name='NetworkPolicy',
+  full_name='runtime.NetworkPolicy',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  create_key=_descriptor._internal_create_key,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='allowedlabels', full_name='runtime.NetworkPolicy.allowedlabels', index=0,
+      number=1, type=11, cpp_type=10, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='name', full_name='runtime.NetworkPolicy.name', index=1,
+      number=2, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='namespace', full_name='runtime.NetworkPolicy.namespace', index=2,
+      number=3, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+  ],
+  extensions=[
+  ],
+  nested_types=[_NETWORKPOLICY_ALLOWEDLABELSENTRY, ],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=196,
+  serialized_end=364,
+)
 
 
 _SERVICE_METADATAENTRY = _descriptor.Descriptor(
@@ -59,8 +221,8 @@ _SERVICE_METADATAENTRY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=159,
-  serialized_end=206,
+  serialized_start=491,
+  serialized_end=538,
 )
 
 _SERVICE = _descriptor.Descriptor(
@@ -118,8 +280,8 @@ _SERVICE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=35,
-  serialized_end=206,
+  serialized_start=367,
+  serialized_end=538,
 )
 
 
@@ -157,8 +319,8 @@ _CREATEOPTIONS_SECRETSENTRY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=462,
-  serialized_end=508,
+  serialized_start=794,
+  serialized_end=840,
 )
 
 _CREATEOPTIONS_VOLUMESENTRY = _descriptor.Descriptor(
@@ -195,8 +357,8 @@ _CREATEOPTIONS_VOLUMESENTRY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=510,
-  serialized_end=556,
+  serialized_start=842,
+  serialized_end=888,
 )
 
 _CREATEOPTIONS = _descriptor.Descriptor(
@@ -289,8 +451,8 @@ _CREATEOPTIONS = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=209,
-  serialized_end=556,
+  serialized_start=541,
+  serialized_end=888,
 )
 
 
@@ -303,7 +465,7 @@ _CREATEREQUEST = _descriptor.Descriptor(
   create_key=_descriptor._internal_create_key,
   fields=[
     _descriptor.FieldDescriptor(
-      name='service', full_name='runtime.CreateRequest.service', index=0,
+      name='resource', full_name='runtime.CreateRequest.resource', index=0,
       number=1, type=11, cpp_type=10, label=1,
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
@@ -328,8 +490,8 @@ _CREATEREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=558,
-  serialized_end=649,
+  serialized_start=890,
+  serialized_end=983,
 )
 
 
@@ -353,8 +515,8 @@ _CREATERESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=651,
-  serialized_end=667,
+  serialized_start=985,
+  serialized_end=1001,
 )
 
 
@@ -406,8 +568,8 @@ _READOPTIONS = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=669,
-  serialized_end=749,
+  serialized_start=1003,
+  serialized_end=1083,
 )
 
 
@@ -438,8 +600,8 @@ _READREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=751,
-  serialized_end=803,
+  serialized_start=1085,
+  serialized_end=1137,
 )
 
 
@@ -470,8 +632,8 @@ _READRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=805,
-  serialized_end=855,
+  serialized_start=1139,
+  serialized_end=1189,
 )
 
 
@@ -502,8 +664,8 @@ _DELETEOPTIONS = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=857,
-  serialized_end=891,
+  serialized_start=1191,
+  serialized_end=1225,
 )
 
 
@@ -516,7 +678,7 @@ _DELETEREQUEST = _descriptor.Descriptor(
   create_key=_descriptor._internal_create_key,
   fields=[
     _descriptor.FieldDescriptor(
-      name='service', full_name='runtime.DeleteRequest.service', index=0,
+      name='resource', full_name='runtime.DeleteRequest.resource', index=0,
       number=1, type=11, cpp_type=10, label=1,
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
@@ -541,8 +703,8 @@ _DELETEREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=893,
-  serialized_end=984,
+  serialized_start=1227,
+  serialized_end=1320,
 )
 
 
@@ -566,8 +728,8 @@ _DELETERESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=986,
-  serialized_end=1002,
+  serialized_start=1322,
+  serialized_end=1338,
 )
 
 
@@ -605,8 +767,8 @@ _UPDATEOPTIONS = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1004,
-  serialized_end=1058,
+  serialized_start=1340,
+  serialized_end=1394,
 )
 
 
@@ -619,7 +781,7 @@ _UPDATEREQUEST = _descriptor.Descriptor(
   create_key=_descriptor._internal_create_key,
   fields=[
     _descriptor.FieldDescriptor(
-      name='service', full_name='runtime.UpdateRequest.service', index=0,
+      name='resource', full_name='runtime.UpdateRequest.resource', index=0,
       number=1, type=11, cpp_type=10, label=1,
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
@@ -644,8 +806,8 @@ _UPDATEREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1060,
-  serialized_end=1151,
+  serialized_start=1396,
+  serialized_end=1489,
 )
 
 
@@ -669,8 +831,8 @@ _UPDATERESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1153,
-  serialized_end=1169,
+  serialized_start=1491,
+  serialized_end=1507,
 )
 
 
@@ -701,8 +863,8 @@ _LISTOPTIONS = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1171,
-  serialized_end=1203,
+  serialized_start=1509,
+  serialized_end=1541,
 )
 
 
@@ -733,8 +895,8 @@ _LISTREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1205,
-  serialized_end=1257,
+  serialized_start=1543,
+  serialized_end=1595,
 )
 
 
@@ -765,8 +927,8 @@ _LISTRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1259,
-  serialized_end=1309,
+  serialized_start=1597,
+  serialized_end=1647,
 )
 
 
@@ -797,8 +959,8 @@ _LOGSOPTIONS = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1311,
-  serialized_end=1343,
+  serialized_start=1649,
+  serialized_end=1681,
 )
 
 
@@ -857,8 +1019,8 @@ _LOGSREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1345,
-  serialized_end=1460,
+  serialized_start=1683,
+  serialized_end=1798,
 )
 
 
@@ -896,8 +1058,8 @@ _LOGRECORD_METADATAENTRY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=159,
-  serialized_end=206,
+  serialized_start=491,
+  serialized_end=538,
 )
 
 _LOGRECORD = _descriptor.Descriptor(
@@ -941,122 +1103,8 @@ _LOGRECORD = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1463,
-  serialized_end=1611,
-)
-
-
-_CREATENAMESPACEREQUEST = _descriptor.Descriptor(
-  name='CreateNamespaceRequest',
-  full_name='runtime.CreateNamespaceRequest',
-  filename=None,
-  file=DESCRIPTOR,
-  containing_type=None,
-  create_key=_descriptor._internal_create_key,
-  fields=[
-    _descriptor.FieldDescriptor(
-      name='namespace', full_name='runtime.CreateNamespaceRequest.namespace', index=0,
-      number=1, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=b"".decode('utf-8'),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-  ],
-  extensions=[
-  ],
-  nested_types=[],
-  enum_types=[
-  ],
-  serialized_options=None,
-  is_extendable=False,
-  syntax='proto3',
-  extension_ranges=[],
-  oneofs=[
-  ],
-  serialized_start=1613,
-  serialized_end=1656,
-)
-
-
-_CREATENAMESPACERESPONSE = _descriptor.Descriptor(
-  name='CreateNamespaceResponse',
-  full_name='runtime.CreateNamespaceResponse',
-  filename=None,
-  file=DESCRIPTOR,
-  containing_type=None,
-  create_key=_descriptor._internal_create_key,
-  fields=[
-  ],
-  extensions=[
-  ],
-  nested_types=[],
-  enum_types=[
-  ],
-  serialized_options=None,
-  is_extendable=False,
-  syntax='proto3',
-  extension_ranges=[],
-  oneofs=[
-  ],
-  serialized_start=1658,
-  serialized_end=1683,
-)
-
-
-_DELETENAMESPACEREQUEST = _descriptor.Descriptor(
-  name='DeleteNamespaceRequest',
-  full_name='runtime.DeleteNamespaceRequest',
-  filename=None,
-  file=DESCRIPTOR,
-  containing_type=None,
-  create_key=_descriptor._internal_create_key,
-  fields=[
-    _descriptor.FieldDescriptor(
-      name='namespace', full_name='runtime.DeleteNamespaceRequest.namespace', index=0,
-      number=1, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=b"".decode('utf-8'),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-  ],
-  extensions=[
-  ],
-  nested_types=[],
-  enum_types=[
-  ],
-  serialized_options=None,
-  is_extendable=False,
-  syntax='proto3',
-  extension_ranges=[],
-  oneofs=[
-  ],
-  serialized_start=1685,
-  serialized_end=1728,
-)
-
-
-_DELETENAMESPACERESPONSE = _descriptor.Descriptor(
-  name='DeleteNamespaceResponse',
-  full_name='runtime.DeleteNamespaceResponse',
-  filename=None,
-  file=DESCRIPTOR,
-  containing_type=None,
-  create_key=_descriptor._internal_create_key,
-  fields=[
-  ],
-  extensions=[
-  ],
-  nested_types=[],
-  enum_types=[
-  ],
-  serialized_options=None,
-  is_extendable=False,
-  syntax='proto3',
-  extension_ranges=[],
-  oneofs=[
-  ],
-  serialized_start=1730,
-  serialized_end=1755,
+  serialized_start=1801,
+  serialized_end=1949,
 )
 
 
@@ -1094,8 +1142,8 @@ _UPLOADREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1757,
-  serialized_end=1821,
+  serialized_start=1951,
+  serialized_end=2015,
 )
 
 
@@ -1126,8 +1174,8 @@ _UPLOADRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1823,
-  serialized_end=1851,
+  serialized_start=2017,
+  serialized_end=2045,
 )
 
 
@@ -1158,23 +1206,28 @@ _BUILDREADRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1853,
-  serialized_end=1886,
+  serialized_start=2047,
+  serialized_end=2080,
 )
 
+_RESOURCE.fields_by_name['namespace'].message_type = _NAMESPACE
+_RESOURCE.fields_by_name['networkpolicy'].message_type = _NETWORKPOLICY
+_RESOURCE.fields_by_name['service'].message_type = _SERVICE
+_NETWORKPOLICY_ALLOWEDLABELSENTRY.containing_type = _NETWORKPOLICY
+_NETWORKPOLICY.fields_by_name['allowedlabels'].message_type = _NETWORKPOLICY_ALLOWEDLABELSENTRY
 _SERVICE_METADATAENTRY.containing_type = _SERVICE
 _SERVICE.fields_by_name['metadata'].message_type = _SERVICE_METADATAENTRY
 _CREATEOPTIONS_SECRETSENTRY.containing_type = _CREATEOPTIONS
 _CREATEOPTIONS_VOLUMESENTRY.containing_type = _CREATEOPTIONS
 _CREATEOPTIONS.fields_by_name['secrets'].message_type = _CREATEOPTIONS_SECRETSENTRY
 _CREATEOPTIONS.fields_by_name['volumes'].message_type = _CREATEOPTIONS_VOLUMESENTRY
-_CREATEREQUEST.fields_by_name['service'].message_type = _SERVICE
+_CREATEREQUEST.fields_by_name['resource'].message_type = _RESOURCE
 _CREATEREQUEST.fields_by_name['options'].message_type = _CREATEOPTIONS
 _READREQUEST.fields_by_name['options'].message_type = _READOPTIONS
 _READRESPONSE.fields_by_name['services'].message_type = _SERVICE
-_DELETEREQUEST.fields_by_name['service'].message_type = _SERVICE
+_DELETEREQUEST.fields_by_name['resource'].message_type = _RESOURCE
 _DELETEREQUEST.fields_by_name['options'].message_type = _DELETEOPTIONS
-_UPDATEREQUEST.fields_by_name['service'].message_type = _SERVICE
+_UPDATEREQUEST.fields_by_name['resource'].message_type = _RESOURCE
 _UPDATEREQUEST.fields_by_name['options'].message_type = _UPDATEOPTIONS
 _LISTREQUEST.fields_by_name['options'].message_type = _LISTOPTIONS
 _LISTRESPONSE.fields_by_name['services'].message_type = _SERVICE
@@ -1182,6 +1235,9 @@ _LOGSREQUEST.fields_by_name['options'].message_type = _LOGSOPTIONS
 _LOGRECORD_METADATAENTRY.containing_type = _LOGRECORD
 _LOGRECORD.fields_by_name['metadata'].message_type = _LOGRECORD_METADATAENTRY
 _UPLOADREQUEST.fields_by_name['service'].message_type = _SERVICE
+DESCRIPTOR.message_types_by_name['Resource'] = _RESOURCE
+DESCRIPTOR.message_types_by_name['Namespace'] = _NAMESPACE
+DESCRIPTOR.message_types_by_name['NetworkPolicy'] = _NETWORKPOLICY
 DESCRIPTOR.message_types_by_name['Service'] = _SERVICE
 DESCRIPTOR.message_types_by_name['CreateOptions'] = _CREATEOPTIONS
 DESCRIPTOR.message_types_by_name['CreateRequest'] = _CREATEREQUEST
@@ -1201,14 +1257,39 @@ DESCRIPTOR.message_types_by_name['ListResponse'] = _LISTRESPONSE
 DESCRIPTOR.message_types_by_name['LogsOptions'] = _LOGSOPTIONS
 DESCRIPTOR.message_types_by_name['LogsRequest'] = _LOGSREQUEST
 DESCRIPTOR.message_types_by_name['LogRecord'] = _LOGRECORD
-DESCRIPTOR.message_types_by_name['CreateNamespaceRequest'] = _CREATENAMESPACEREQUEST
-DESCRIPTOR.message_types_by_name['CreateNamespaceResponse'] = _CREATENAMESPACERESPONSE
-DESCRIPTOR.message_types_by_name['DeleteNamespaceRequest'] = _DELETENAMESPACEREQUEST
-DESCRIPTOR.message_types_by_name['DeleteNamespaceResponse'] = _DELETENAMESPACERESPONSE
 DESCRIPTOR.message_types_by_name['UploadRequest'] = _UPLOADREQUEST
 DESCRIPTOR.message_types_by_name['UploadResponse'] = _UPLOADRESPONSE
 DESCRIPTOR.message_types_by_name['BuildReadResponse'] = _BUILDREADRESPONSE
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
+
+Resource = _reflection.GeneratedProtocolMessageType('Resource', (_message.Message,), {
+  'DESCRIPTOR' : _RESOURCE,
+  '__module__' : 'runtime.runtime_pb2'
+  # @@protoc_insertion_point(class_scope:runtime.Resource)
+  })
+_sym_db.RegisterMessage(Resource)
+
+Namespace = _reflection.GeneratedProtocolMessageType('Namespace', (_message.Message,), {
+  'DESCRIPTOR' : _NAMESPACE,
+  '__module__' : 'runtime.runtime_pb2'
+  # @@protoc_insertion_point(class_scope:runtime.Namespace)
+  })
+_sym_db.RegisterMessage(Namespace)
+
+NetworkPolicy = _reflection.GeneratedProtocolMessageType('NetworkPolicy', (_message.Message,), {
+
+  'AllowedlabelsEntry' : _reflection.GeneratedProtocolMessageType('AllowedlabelsEntry', (_message.Message,), {
+    'DESCRIPTOR' : _NETWORKPOLICY_ALLOWEDLABELSENTRY,
+    '__module__' : 'runtime.runtime_pb2'
+    # @@protoc_insertion_point(class_scope:runtime.NetworkPolicy.AllowedlabelsEntry)
+    })
+  ,
+  'DESCRIPTOR' : _NETWORKPOLICY,
+  '__module__' : 'runtime.runtime_pb2'
+  # @@protoc_insertion_point(class_scope:runtime.NetworkPolicy)
+  })
+_sym_db.RegisterMessage(NetworkPolicy)
+_sym_db.RegisterMessage(NetworkPolicy.AllowedlabelsEntry)
 
 Service = _reflection.GeneratedProtocolMessageType('Service', (_message.Message,), {
 
@@ -1375,34 +1456,6 @@ LogRecord = _reflection.GeneratedProtocolMessageType('LogRecord', (_message.Mess
 _sym_db.RegisterMessage(LogRecord)
 _sym_db.RegisterMessage(LogRecord.MetadataEntry)
 
-CreateNamespaceRequest = _reflection.GeneratedProtocolMessageType('CreateNamespaceRequest', (_message.Message,), {
-  'DESCRIPTOR' : _CREATENAMESPACEREQUEST,
-  '__module__' : 'runtime.runtime_pb2'
-  # @@protoc_insertion_point(class_scope:runtime.CreateNamespaceRequest)
-  })
-_sym_db.RegisterMessage(CreateNamespaceRequest)
-
-CreateNamespaceResponse = _reflection.GeneratedProtocolMessageType('CreateNamespaceResponse', (_message.Message,), {
-  'DESCRIPTOR' : _CREATENAMESPACERESPONSE,
-  '__module__' : 'runtime.runtime_pb2'
-  # @@protoc_insertion_point(class_scope:runtime.CreateNamespaceResponse)
-  })
-_sym_db.RegisterMessage(CreateNamespaceResponse)
-
-DeleteNamespaceRequest = _reflection.GeneratedProtocolMessageType('DeleteNamespaceRequest', (_message.Message,), {
-  'DESCRIPTOR' : _DELETENAMESPACEREQUEST,
-  '__module__' : 'runtime.runtime_pb2'
-  # @@protoc_insertion_point(class_scope:runtime.DeleteNamespaceRequest)
-  })
-_sym_db.RegisterMessage(DeleteNamespaceRequest)
-
-DeleteNamespaceResponse = _reflection.GeneratedProtocolMessageType('DeleteNamespaceResponse', (_message.Message,), {
-  'DESCRIPTOR' : _DELETENAMESPACERESPONSE,
-  '__module__' : 'runtime.runtime_pb2'
-  # @@protoc_insertion_point(class_scope:runtime.DeleteNamespaceResponse)
-  })
-_sym_db.RegisterMessage(DeleteNamespaceResponse)
-
 UploadRequest = _reflection.GeneratedProtocolMessageType('UploadRequest', (_message.Message,), {
   'DESCRIPTOR' : _UPLOADREQUEST,
   '__module__' : 'runtime.runtime_pb2'
@@ -1426,6 +1479,7 @@ _sym_db.RegisterMessage(BuildReadResponse)
 
 
 DESCRIPTOR._options = None
+_NETWORKPOLICY_ALLOWEDLABELSENTRY._options = None
 _SERVICE_METADATAENTRY._options = None
 _CREATEOPTIONS_SECRETSENTRY._options = None
 _CREATEOPTIONS_VOLUMESENTRY._options = None
@@ -1438,8 +1492,8 @@ _RUNTIME = _descriptor.ServiceDescriptor(
   index=0,
   serialized_options=None,
   create_key=_descriptor._internal_create_key,
-  serialized_start=1889,
-  serialized_end=2366,
+  serialized_start=2083,
+  serialized_end=2384,
   methods=[
   _descriptor.MethodDescriptor(
     name='Create',
@@ -1491,26 +1545,6 @@ _RUNTIME = _descriptor.ServiceDescriptor(
     serialized_options=None,
     create_key=_descriptor._internal_create_key,
   ),
-  _descriptor.MethodDescriptor(
-    name='CreateNamespace',
-    full_name='runtime.Runtime.CreateNamespace',
-    index=5,
-    containing_service=None,
-    input_type=_CREATENAMESPACEREQUEST,
-    output_type=_CREATENAMESPACERESPONSE,
-    serialized_options=None,
-    create_key=_descriptor._internal_create_key,
-  ),
-  _descriptor.MethodDescriptor(
-    name='DeleteNamespace',
-    full_name='runtime.Runtime.DeleteNamespace',
-    index=6,
-    containing_service=None,
-    input_type=_DELETENAMESPACEREQUEST,
-    output_type=_DELETENAMESPACERESPONSE,
-    serialized_options=None,
-    create_key=_descriptor._internal_create_key,
-  ),
 ])
 _sym_db.RegisterServiceDescriptor(_RUNTIME)
 
@@ -1524,8 +1558,8 @@ _SOURCE = _descriptor.ServiceDescriptor(
   index=1,
   serialized_options=None,
   create_key=_descriptor._internal_create_key,
-  serialized_start=2368,
-  serialized_end=2439,
+  serialized_start=2386,
+  serialized_end=2457,
   methods=[
   _descriptor.MethodDescriptor(
     name='Upload',
@@ -1550,8 +1584,8 @@ _BUILD = _descriptor.ServiceDescriptor(
   index=2,
   serialized_options=None,
   create_key=_descriptor._internal_create_key,
-  serialized_start=2441,
-  serialized_end=2506,
+  serialized_start=2459,
+  serialized_end=2524,
   methods=[
   _descriptor.MethodDescriptor(
     name='Read',
