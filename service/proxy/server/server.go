@@ -7,7 +7,7 @@ import (
 
 	"github.com/go-acme/lego/v3/providers/dns/cloudflare"
 	"github.com/micro/micro/v3/service/registry/noop"
-	"github.com/micro/go-micro/v3/sync/memory"
+	"github.com/micro/micro/v3/internal/sync/memory"
 	"github.com/micro/micro/v3/client"
 	"github.com/micro/micro/v3/internal/api/server/acme"
 	"github.com/micro/micro/v3/internal/api/server/acme/autocert"
