@@ -22,7 +22,7 @@ primitives for Go services development.
 Why should you care? If you're reading this you've no doubt encountered the tedious nature of infrastructure management, 
 wrangling a kubernetes cluster on AWS or the thousands of things you need to do to cobble together a platform before 
 starting to build a product. We think we've nailed the solution for that just as Android did for Mobile. Keep reading 
-it you want to find out more.
+if you want to find out more.
 
 ## Quick Flashback
 
