@@ -15,28 +15,6 @@ function deserialize_runtime_BuildReadResponse(buffer_arg) {
   return runtime_runtime_pb.BuildReadResponse.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
-function serialize_runtime_CreateNamespaceRequest(arg) {
-  if (!(arg instanceof runtime_runtime_pb.CreateNamespaceRequest)) {
-    throw new Error('Expected argument of type runtime.CreateNamespaceRequest');
-  }
-  return Buffer.from(arg.serializeBinary());
-}
-
-function deserialize_runtime_CreateNamespaceRequest(buffer_arg) {
-  return runtime_runtime_pb.CreateNamespaceRequest.deserializeBinary(new Uint8Array(buffer_arg));
-}
-
-function serialize_runtime_CreateNamespaceResponse(arg) {
-  if (!(arg instanceof runtime_runtime_pb.CreateNamespaceResponse)) {
-    throw new Error('Expected argument of type runtime.CreateNamespaceResponse');
-  }
-  return Buffer.from(arg.serializeBinary());
-}
-
-function deserialize_runtime_CreateNamespaceResponse(buffer_arg) {
-  return runtime_runtime_pb.CreateNamespaceResponse.deserializeBinary(new Uint8Array(buffer_arg));
-}
-
 function serialize_runtime_CreateRequest(arg) {
   if (!(arg instanceof runtime_runtime_pb.CreateRequest)) {
     throw new Error('Expected argument of type runtime.CreateRequest');
@@ -57,28 +35,6 @@ function serialize_runtime_CreateResponse(arg) {
 
 function deserialize_runtime_CreateResponse(buffer_arg) {
   return runtime_runtime_pb.CreateResponse.deserializeBinary(new Uint8Array(buffer_arg));
-}
-
-function serialize_runtime_DeleteNamespaceRequest(arg) {
-  if (!(arg instanceof runtime_runtime_pb.DeleteNamespaceRequest)) {
-    throw new Error('Expected argument of type runtime.DeleteNamespaceRequest');
-  }
-  return Buffer.from(arg.serializeBinary());
-}
-
-function deserialize_runtime_DeleteNamespaceRequest(buffer_arg) {
-  return runtime_runtime_pb.DeleteNamespaceRequest.deserializeBinary(new Uint8Array(buffer_arg));
-}
-
-function serialize_runtime_DeleteNamespaceResponse(arg) {
-  if (!(arg instanceof runtime_runtime_pb.DeleteNamespaceResponse)) {
-    throw new Error('Expected argument of type runtime.DeleteNamespaceResponse');
-  }
-  return Buffer.from(arg.serializeBinary());
-}
-
-function deserialize_runtime_DeleteNamespaceResponse(buffer_arg) {
-  return runtime_runtime_pb.DeleteNamespaceResponse.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
 function serialize_runtime_DeleteRequest(arg) {
@@ -258,28 +214,6 @@ var RuntimeService = exports.RuntimeService = {
     requestDeserialize: deserialize_runtime_LogsRequest,
     responseSerialize: serialize_runtime_LogRecord,
     responseDeserialize: deserialize_runtime_LogRecord,
-  },
-  createNamespace: {
-    path: '/runtime.Runtime/CreateNamespace',
-    requestStream: false,
-    responseStream: false,
-    requestType: runtime_runtime_pb.CreateNamespaceRequest,
-    responseType: runtime_runtime_pb.CreateNamespaceResponse,
-    requestSerialize: serialize_runtime_CreateNamespaceRequest,
-    requestDeserialize: deserialize_runtime_CreateNamespaceRequest,
-    responseSerialize: serialize_runtime_CreateNamespaceResponse,
-    responseDeserialize: deserialize_runtime_CreateNamespaceResponse,
-  },
-  deleteNamespace: {
-    path: '/runtime.Runtime/DeleteNamespace',
-    requestStream: false,
-    responseStream: false,
-    requestType: runtime_runtime_pb.DeleteNamespaceRequest,
-    responseType: runtime_runtime_pb.DeleteNamespaceResponse,
-    requestSerialize: serialize_runtime_DeleteNamespaceRequest,
-    requestDeserialize: deserialize_runtime_DeleteNamespaceRequest,
-    responseSerialize: serialize_runtime_DeleteNamespaceResponse,
-    responseDeserialize: deserialize_runtime_DeleteNamespaceResponse,
   },
 };
 

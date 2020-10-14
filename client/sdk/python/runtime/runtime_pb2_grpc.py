@@ -39,16 +39,6 @@ class RuntimeStub(object):
                 request_serializer=runtime_dot_runtime__pb2.LogsRequest.SerializeToString,
                 response_deserializer=runtime_dot_runtime__pb2.LogRecord.FromString,
                 )
-        self.CreateNamespace = channel.unary_unary(
-                '/runtime.Runtime/CreateNamespace',
-                request_serializer=runtime_dot_runtime__pb2.CreateNamespaceRequest.SerializeToString,
-                response_deserializer=runtime_dot_runtime__pb2.CreateNamespaceResponse.FromString,
-                )
-        self.DeleteNamespace = channel.unary_unary(
-                '/runtime.Runtime/DeleteNamespace',
-                request_serializer=runtime_dot_runtime__pb2.DeleteNamespaceRequest.SerializeToString,
-                response_deserializer=runtime_dot_runtime__pb2.DeleteNamespaceResponse.FromString,
-                )
 
 
 class RuntimeServicer(object):
@@ -84,18 +74,6 @@ class RuntimeServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def CreateNamespace(self, request, context):
-        """Missing associated documentation comment in .proto file."""
-        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
-        context.set_details('Method not implemented!')
-        raise NotImplementedError('Method not implemented!')
-
-    def DeleteNamespace(self, request, context):
-        """Missing associated documentation comment in .proto file."""
-        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
-        context.set_details('Method not implemented!')
-        raise NotImplementedError('Method not implemented!')
-
 
 def add_RuntimeServicer_to_server(servicer, server):
     rpc_method_handlers = {
@@ -123,16 +101,6 @@ def add_RuntimeServicer_to_server(servicer, server):
                     servicer.Logs,
                     request_deserializer=runtime_dot_runtime__pb2.LogsRequest.FromString,
                     response_serializer=runtime_dot_runtime__pb2.LogRecord.SerializeToString,
-            ),
-            'CreateNamespace': grpc.unary_unary_rpc_method_handler(
-                    servicer.CreateNamespace,
-                    request_deserializer=runtime_dot_runtime__pb2.CreateNamespaceRequest.FromString,
-                    response_serializer=runtime_dot_runtime__pb2.CreateNamespaceResponse.SerializeToString,
-            ),
-            'DeleteNamespace': grpc.unary_unary_rpc_method_handler(
-                    servicer.DeleteNamespace,
-                    request_deserializer=runtime_dot_runtime__pb2.DeleteNamespaceRequest.FromString,
-                    response_serializer=runtime_dot_runtime__pb2.DeleteNamespaceResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -226,40 +194,6 @@ class Runtime(object):
         return grpc.experimental.unary_stream(request, target, '/runtime.Runtime/Logs',
             runtime_dot_runtime__pb2.LogsRequest.SerializeToString,
             runtime_dot_runtime__pb2.LogRecord.FromString,
-            options, channel_credentials,
-            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
-
-    @staticmethod
-    def CreateNamespace(request,
-            target,
-            options=(),
-            channel_credentials=None,
-            call_credentials=None,
-            insecure=False,
-            compression=None,
-            wait_for_ready=None,
-            timeout=None,
-            metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/runtime.Runtime/CreateNamespace',
-            runtime_dot_runtime__pb2.CreateNamespaceRequest.SerializeToString,
-            runtime_dot_runtime__pb2.CreateNamespaceResponse.FromString,
-            options, channel_credentials,
-            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
-
-    @staticmethod
-    def DeleteNamespace(request,
-            target,
-            options=(),
-            channel_credentials=None,
-            call_credentials=None,
-            insecure=False,
-            compression=None,
-            wait_for_ready=None,
-            timeout=None,
-            metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/runtime.Runtime/DeleteNamespace',
-            runtime_dot_runtime__pb2.DeleteNamespaceRequest.SerializeToString,
-            runtime_dot_runtime__pb2.DeleteNamespaceResponse.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
