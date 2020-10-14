@@ -35,8 +35,12 @@ import (
 	"github.com/micro/micro/v3/internal/codec/bytes"
 	"github.com/micro/micro/v3/internal/codec/jsonrpc"
 	"github.com/micro/micro/v3/internal/codec/protorpc"
+	"github.com/micro/micro/v3/internal/ctx"
+	"github.com/micro/micro/v3/internal/router"
 	"github.com/micro/micro/v3/service/api"
 	"github.com/micro/micro/v3/service/client"
+	"github.com/micro/micro/v3/service/context/metadata"
+	"github.com/micro/micro/v3/service/errors"
 	"github.com/micro/micro/v3/service/logger"
 	"github.com/oxtoacart/bpool"
 )

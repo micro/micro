@@ -40,7 +40,10 @@ import (
 	mgrpc "github.com/micro/micro/v3/internal/grpc"
 	mnet "github.com/micro/micro/v3/internal/net"
 	"github.com/micro/micro/v3/service/broker"
+	meta "github.com/micro/micro/v3/service/context/metadata"
+	"github.com/micro/micro/v3/service/errors"
 	"github.com/micro/micro/v3/service/logger"
+	"github.com/micro/micro/v3/service/registry"
 	"github.com/micro/micro/v3/service/server"
 	"golang.org/x/net/netutil"
 
