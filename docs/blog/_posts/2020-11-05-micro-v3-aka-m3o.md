@@ -1,7 +1,7 @@
 ---
 layout:	post
 author: Asim Aslam
-title:	"Micro 3.0 aka M3O is a platform for cloud native development"
+title:	"M3O aka Micro 3.0 is a platform for cloud native development"
 date:	2020-11-05 10:00:00
 ---
 
@@ -17,7 +17,7 @@ the hosted offering.
 
 Micro focuses on developer productivity for the backend. It's clear that the Cloud has become infinitely more complex 
 over the past few years. Micro attempts to create order out of that chaos by distilling it all down to a handful of 
-primitives for Go services development.
+primitives for distributed systems development.
 
 Why should you care? If you're reading this you've no doubt encountered the tedious nature of infrastructure management, 
 wrangling a kubernetes cluster on AWS or the thousands of things you need to do to cobble together a platform before 
@@ -90,16 +90,12 @@ separate apps which communicate over the network via their APIs rather than as o
 We think cloud services require a fundamentally different approach to software creation and why Micro 3.0 
 was designed with this in mind.
 
-## Micro 3.0 aka M3O aka PaaS 3.0
+## M3O aka Micro 3.0
 
 Micro 3.0 reimagines Micro as a platform for cloud native development. What does that mean? Well we think of 
 it as PaaS 3.0, a complete solution for source to running and beyond. Micro has moved from just being a Go 
 framework to incorporating a standalone server and hosted platform. Our hosted offering is called 
 [M3O](https://m3o.com), a hat tip to Micro 3.0 or M[icr]o, whichever way you want to see it. 
-
-Micro continues to remain open source but licensed using [Polyform Shield](https://polyformproject.org/licenses/shield/1.0.0/) 
-which prevents the software for being picked up and run as a service. This is to contend with AWS and others 
-running open source for profit without contributing back. It's a longer conversation for another day.
 
 ### Server
 
@@ -344,6 +340,12 @@ and tutorials. So we've written a whole suite of docs for Micro available at [mi
 and provide help for using the M3O on [m3o.dev](https://m3o.dev/).
 
 You can find other interesting resources at [Awesome Micro](https://github.com/micro/awesome-micro).
+
+## Licensing
+
+Micro continues to remain open source but licensed using [Polyform Shield](https://polyformproject.org/licenses/shield/1.0.0/) 
+which prevents the software for being picked up and run as a service. This is to contend with AWS and others 
+running open source for profit without contributing back. It's a longer conversation for another day.
 
 ## Motivations
 
