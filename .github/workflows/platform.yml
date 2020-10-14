@@ -21,6 +21,7 @@ jobs:
     - name: Replace platform profile
       id: replace-profile
       run: |
+        go mod edit -replace github.com/micro/micro/plugin/prometheus/v3=./plugin/prometheus
         go mod edit -replace github.com/micro/micro/plugin/nats/broker/v3=./plugin/nats/broker
         go mod edit -replace github.com/micro/micro/plugin/nats/stream/v3=./plugin/nats/stream
         go mod edit -replace github.com/micro/micro/profile/platform/v3=./profile/platform

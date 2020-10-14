@@ -9,12 +9,16 @@ import (
 	grpcCli "github.com/micro/micro/v3/service/client/grpc"
 	"github.com/micro/micro/v3/service/events"
 	eventsSrv "github.com/micro/micro/v3/service/events/client"
+	"github.com/micro/micro/v3/service/metrics"
+	noopMet "github.com/micro/micro/v3/service/metrics/noop"
 	"github.com/micro/micro/v3/service/model"
 	"github.com/micro/micro/v3/service/model/mud"
 	"github.com/micro/micro/v3/service/network"
 	mucpNet "github.com/micro/micro/v3/service/network/mucp"
 	"github.com/micro/micro/v3/service/registry"
 	registrySrv "github.com/micro/micro/v3/service/registry/client"
+	"github.com/micro/micro/v3/service/router"
+	routerSrv "github.com/micro/micro/v3/service/router/client"
 	"github.com/micro/micro/v3/service/server"
 	grpcSvr "github.com/micro/micro/v3/service/server/grpc"
 )
@@ -25,6 +29,7 @@ func setupDefaults() {
 	client.DefaultClient = grpcCli.NewClient()
 	server.DefaultServer = grpcSvr.NewServer()
 	network.DefaultNetwork = mucpNet.NewNetwork()
+	metrics.DefaultMetricsReporter = noopMet.New()
 	model.DefaultModel = mud.NewModel()
 
 	// setup rpc implementations after the client is configured
@@ -32,4 +37,5 @@ func setupDefaults() {
 	broker.DefaultBroker = brokerSrv.NewBroker()
 	events.DefaultStream = eventsSrv.NewStream()
 	registry.DefaultRegistry = registrySrv.NewRegistry()
+	router.DefaultRouter = routerSrv.NewRouter()
 }

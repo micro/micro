@@ -25,8 +25,8 @@ import (
 	"github.com/micro/micro/v3/service/errors"
 	"github.com/micro/micro/v3/service/registry"
 	"github.com/micro/micro/v3/service/registry/memory"
-	"github.com/micro/go-micro/v3/router"
-	regRouter "github.com/micro/go-micro/v3/router/registry"
+	"github.com/micro/micro/v3/service/router"
+	regRouter "github.com/micro/micro/v3/service/router/registry"
 )
 
 func newTestRouter() router.Router {
