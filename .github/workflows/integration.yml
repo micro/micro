@@ -86,11 +86,6 @@ jobs:
         repository: 'micro/services'
         path: 'test/services'
 
-    - name: Extract test services
-      working-directory: ./test/services
-      run: |
-        mv ./test/* .
-
     - name: Delete go mod
       working-directory: ./test
       run: |
