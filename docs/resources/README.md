@@ -7,6 +7,8 @@ permalink: /resources
 summary: 
 ---
 
+## Resources
+
 A list of external resources, videos, tutorials and blog posts are below. Feel free to contribute.
 
 ## Official

@@ -7,6 +7,8 @@ permalink: /faq
 summary:
 ---
 
+## FAQ
+
 The FAQ should provide quick answers to the most common questions.
 
 ## What is Micro?
