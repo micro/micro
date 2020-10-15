@@ -87,9 +87,9 @@ jobs:
         path: 'test/services'
 
     - name: Extract test services
-      working-directory: ./test
+      working-directory: ./test/services
       run: |
-        mv ./services/test .
+        mv ./test/* .
 
     - name: Delete go mod
       working-directory: ./test
