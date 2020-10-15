@@ -7,7 +7,7 @@ permalink: /introduction
 summary: Introduction - A high level introduction to Micro
 ---
 
-## Overview
+## Introduction
 {: .no_toc }
 
 This is a high level introduction to Micro
