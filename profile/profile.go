@@ -15,6 +15,7 @@ import (
 	"github.com/micro/micro/v3/service/client"
 	"github.com/micro/micro/v3/service/config"
 	storeConfig "github.com/micro/micro/v3/service/config/store"
+	evStore "github.com/micro/micro/v3/service/events/store"
 	memStream "github.com/micro/micro/v3/service/events/stream/memory"
 	"github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/registry"
@@ -107,6 +108,9 @@ var Local = &Profile{
 		if err != nil {
 			logger.Fatalf("Error configuring stream: %v", err)
 		}
+		microEvents.DefaultStore = evStore.NewStore(
+			evStore.WithStore(microStore.DefaultStore),
+		)
 
 		microStore.DefaultBlobStore, err = file.NewBlobStore()
 		if err != nil {
