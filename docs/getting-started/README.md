@@ -7,21 +7,22 @@ permalink: /getting-started
 summary: A getting started guide for Micro
 ---
 
-Micro is a framework for cloud native development.
+Micro is a platform for cloud native development.
+
+## Contents
+{: .no_toc }
+
+
+* TOC
+{:toc}
 
 ## Overview
 
-The key components of Micro are as follows.
+Micro is a platform for cloud native development. It includes the following components.
 
 - Server: a runtime environment for managing services including auth, config, discovery, networking, storage
 - Clients: a http api, grpc proxy and command line for accessing services
 - Library: a Go library for writing services to be run in the micro runtime
-
-
-## Contents
-
-* TOC
-{:toc}
 
 ## Dependencies
 
