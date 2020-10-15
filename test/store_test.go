@@ -185,7 +185,7 @@ func testStoreImpl(t *T) {
 			return nil, err
 		}
 		if !strings.Contains(string(outp), "Listening on") {
-			return nil, fmt.Errorf("Service not ready")
+			return outp, fmt.Errorf("Service not ready")
 		}
 		return nil, nil
 	}, 60*time.Second); err != nil {
