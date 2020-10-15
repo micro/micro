@@ -88,7 +88,7 @@ securely and access those services and resources with your credentials stored in
 
 You can assume not only are your services built for a Cloud first era but that your access to them is in that manner also.
 
-## Examples
+## Sample Services
 
 Check out the [micro/services](https://github.com/micro/services) open source repository for example services like the blog.
 
