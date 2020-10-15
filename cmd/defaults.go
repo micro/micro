@@ -40,6 +40,7 @@ func setupDefaults() {
 	auth.DefaultAuth = authSrv.NewAuth()
 	broker.DefaultBroker = brokerSrv.NewBroker()
 	events.DefaultStream = eventsSrv.NewStream()
+	events.DefaultStore = eventsSrv.NewStore()
 	registry.DefaultRegistry = registrySrv.NewRegistry()
 	router.DefaultRouter = routerSrv.NewRouter()
 	store.DefaultStore = storeSrv.NewStore()
