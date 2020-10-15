@@ -1,7 +1,7 @@
 ---
 layout:	post
 author: Asim Aslam
-title:	"Micro 3.0 is a platform for cloud native development"
+title:	"Micro 3.0 (M3O) is a platform for cloud native development"
 date:	2020-11-05 10:00:00
 ---
 
