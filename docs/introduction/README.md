@@ -1,16 +1,16 @@
 ---
-title: Overview
+title: Introduction
 keywords: micro
 tags: [micro, overview]
 sidebar: home_sidebar
-permalink: /overview
-summary: Overview - A high level summary of Micro
+permalink: /introduction
+summary: Introduction - A high level introduction to Micro
 ---
 
 ## Overview
 {: .no_toc }
 
-This is a high level overview of Micro
+This is a high level introduction to Micro
 
 ## Contents
 {: .no_toc }
