@@ -16,14 +16,6 @@ Micro is a platform for cloud native development.
 * TOC
 {:toc}
 
-## Overview
-
-Micro is a platform for cloud native development. It includes the following components.
-
-- Server: a runtime environment for managing services including auth, config, discovery, networking, storage
-- Clients: a http api, grpc proxy and command line for accessing services
-- Library: a Go library for writing services to be run in the micro runtime
-
 ## Dependencies
 
 You will need protoc-gen-micro for code generation
