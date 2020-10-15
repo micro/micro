@@ -1,17 +1,16 @@
 ---
 layout:	post
 author: Asim Aslam
-title:	"M3O aka Micro 3.0 is a platform for cloud native development"
+title:	"Micro 3.0 is a platform for cloud native development"
 date:	2020-11-05 10:00:00
 ---
 
-This is the official announcement for the release of Micro 3.0 better known as M3O. Our 3.0 release is a 
-major refactor, overhaul and consolidation of the existing tooling into something that looks more like a platform for 
-cloud native development. 
+This is the official announcement for the release of Micro 3.0 better known as M3O - a platform for cloud native development. 
+Our 3.0 release is a major refactor and consolidation of the existing tooling into something that addresses the entire workflow 
+of build, run, manage and consume all from the developers perspective.
 
-Read on to learn more or go straight to the 
-[latest release](https://github.com/micro/micro/releases/latest). Head to [m3o.com](https://m3o.com) for 
-the hosted offering.
+Read on to learn more or go straight to the [latest release](https://github.com/micro/micro/releases/latest). 
+Head to [m3o.com](https://m3o.com) for the hosted offering.
 
 ## Overview
 
@@ -92,10 +91,14 @@ was designed with this in mind.
 
 ## M3O aka Micro 3.0
 
-Micro 3.0 reimagines Micro as a platform for cloud native development. What does that mean? Well we think of 
+Micro 3.0 (M3O) reimagines Micro as a platform for cloud native development. What does that mean? Well we think of 
 it as PaaS 3.0, a complete solution for source to running and beyond. Micro has moved from just being a Go 
 framework to incorporating a standalone server and hosted platform. Our hosted offering is called 
 [M3O](https://m3o.com), a hat tip to Micro 3.0 or M[icr]o, whichever way you want to see it. 
+
+Another way to think about it. What Git is to GitHub, Micro is to the M3O platform. Let's dig into it.
+
+Micro 3.0 includes the following.
 
 ### Server
 
@@ -197,7 +200,7 @@ some form of local development followed by a push to staging and then production
 capturing that workflow effectively. Thinking about how to do this now we've built in environments as 
 a first class system.
 
-The platform offers 3 builtin environments for now; local, dev and platform.
+M3O offers 3 builtin environments; local, dev and platform.
 
 - **Local** - is Micro running on your local machine
 - **Dev** - is a free development environment in the cloud
@@ -220,6 +223,8 @@ micro env set platform
 # add a new environment
 micro env add foobar proxy.foo.com:443
 ```
+
+Micro isn't constrained to our built in environments. You can add others as you wish.
 
 ### Multi-Tenancy
 
