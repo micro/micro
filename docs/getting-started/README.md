@@ -40,11 +40,15 @@ go get github.com/micro/micro/v3/cmd/protoc-gen-micro
 
 ## Install
 
+### Go Get
+
 Using Go:
 
 ```sh
 go get github.com/micro/micro/v3
 ```
+
+### Release Binary
 
 Or by downloading the binary
 
@@ -57,6 +61,19 @@ wget -q  https://raw.githubusercontent.com/micro/micro/master/scripts/install.sh
 
 # Windows
 powershell -Command "iwr -useb https://raw.githubusercontent.com/micro/micro/master/scripts/install.ps1 | iex"
+```
+
+### Docker Image
+
+```
+docker pull micro/micro
+```
+
+### Helm Chart
+
+```
+helm repo add micro https://micro.github.io/helm
+helm install micro micro/micro
 ```
 
 ## Running a service
