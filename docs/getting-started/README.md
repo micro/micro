@@ -7,7 +7,7 @@ permalink: /getting-started
 summary: A getting started guide for Micro
 ---
 
-Micro is a platform for cloud native development.
+This is a getting started guide for Micro which teaches you how to go from install to helloworld and beyond.
 
 ## Contents
 {: .no_toc }
