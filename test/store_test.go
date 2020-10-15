@@ -182,7 +182,7 @@ func testStoreImpl(t *T) {
 	if err := Try("Check logs", t, func() ([]byte, error) {
 		outp, err := cmd.Exec("logs", "kv")
 		if err != nil {
-			return nil, err
+			return outp, err
 		}
 		if !strings.Contains(string(outp), "Listening on") {
 			return outp, fmt.Errorf("Service not ready")
