@@ -7,6 +7,8 @@ permalink: /getting-started
 summary: A getting started guide for Micro
 ---
 
+## Getting Started
+
 This is a getting started guide for Micro which teaches you how to go from install to helloworld and beyond.
 
 ## Contents
