@@ -120,6 +120,11 @@ jobs:
         repository: 'micro/services'
         path: 'test/services'
 
+    - name: Extract test services
+      working-directory: ./test
+      run: |
+        mv ./services/test .
+
     - name: Delete go mod
       run: |
         rm ./test/services/go.mod
