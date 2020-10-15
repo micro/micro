@@ -123,7 +123,7 @@ jobs:
     - name: Extract test services
       working-directory: ./test
       run: |
-        mv ./services/test .
+        mv ./services/test/* .
 
     - name: Delete go mod
       run: |
