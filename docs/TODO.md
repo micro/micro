@@ -25,20 +25,20 @@ Things that need to be documented for v3
 - [ ] Reference Guide
 - [ ] Best practices
 - [ ] Service Library
-- [ ] Getting Started
+- [x] Getting Started
 - [ ] Writing a service
-- [ ] Deploying a service
-- [ ] Calling a service
-- [ ] Api Usage
-- [ ] Proxy Usage
-- [ ] Authentication
-- [ ] Configuration Management
-- [ ] Key-Value storage
-- [ ] PubSub Messaging
-- [ ] Event Streaming
+- [x] Deploying a service
+- [x] Calling a service
+- [x] Api Usage
+- [x] Proxy Usage
+- [x] Authentication
+- [x] Configuration Management
+- [x] Key-Value storage
+- [x] PubSub Messaging
+- [x] Event Streaming
 - [ ] Load Balancing
 - [ ] Running on Kubernetes
 - [ ] Example services
 - [ ] Example design patterns
-- [ ] Loading external plugins e.g etcd 
+- [x] Loading external plugins e.g etcd 
 
