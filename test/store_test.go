@@ -157,7 +157,7 @@ func testStoreImpl(t *T) {
 	}
 
 	cmd := serv.Command()
-	outp, err := cmd.Exec("run", "--image", "localhost:5000/cells:v3", "./services/kv")
+	outp, err := cmd.Exec("run", "--image", "localhost:5000/cells:v3", "./services/test/kv")
 	if err != nil {
 		t.Fatalf("micro run failure, output: %v", string(outp))
 		return
@@ -224,7 +224,7 @@ func testBlobStore(t *T) {
 	}
 
 	cmd := serv.Command()
-	outp, err := cmd.Exec("run", "--image", "localhost:5000/cells:v3", "./services/blob-store")
+	outp, err := cmd.Exec("run", "--image", "localhost:5000/cells:v3", "./services/test/blob-store")
 	if err != nil {
 		t.Fatalf("micro run failure, output: %v", string(outp))
 		return

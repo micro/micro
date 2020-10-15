@@ -23,7 +23,7 @@ func testroutes(t *T) {
 	}
 
 	cmd := serv.Command()
-	outp, err := cmd.Exec("run", "--image", "localhost:5000/cells:v3", "./services/routes/routes-server")
+	outp, err := cmd.Exec("run", "--image", "localhost:5000/cells:v3", "./services/test/routes/routes-server")
 	if err != nil {
 		t.Fatalf("micro run failure, output: %v", string(outp))
 		return
@@ -55,7 +55,7 @@ func testroutes(t *T) {
 		return
 	}
 
-	outp, err = cmd.Exec("run", "--image", "localhost:5000/cells:v3", "./services/routes/routes-client")
+	outp, err = cmd.Exec("run", "--image", "localhost:5000/cells:v3", "./services/test/routes/routes-client")
 	if err != nil {
 		t.Fatalf("micro run failure, output: %v", string(outp))
 		return
