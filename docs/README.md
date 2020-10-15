@@ -19,6 +19,7 @@ with the complexity of distributed systems and provides simpler programmable abs
 
 Documentation, guides and quick starts for Micro
 
+- [Introduction](introduction) - A high level introduction to Micro
 - [Getting Started](getting-started) - The helloworld quickstart guide
 - [Architecture](architecture) - Describes the architecture, design and tradeoffs
 - [Reference](reference) - In-depth reference for Micro CLI and services

@@ -1,6 +1,6 @@
 # Micro [![License](https://img.shields.io/badge/license-polyform:shield-blue)](https://polyformproject.org/licenses/shield/1.0.0/) [![Go.Dev reference](https://img.shields.io/badge/go.dev-reference-007d9c?logo=go&logoColor=white&style=flat-square)](https://pkg.go.dev/github.com/micro/micro/v3?tab=overview) [![Travis CI](https://travis-ci.org/micro/micro.svg?branch=master)](https://travis-ci.org/micro/micro) [![Go Report Card](https://goreportcard.com/badge/micro/micro)](https://goreportcard.com/report/github.com/micro/micro) [<img src="https://img.shields.io/badge/slack-micro-yellow.svg?logo=slack" />](https://slack.micro.mu)
 
-Micro is a cloud native development framework.
+Micro is a platform for cloud native development.
 
 ## Overview
 
@@ -75,7 +75,7 @@ See the [docs](https://micro.mu) for detailed information on the architecture, i
 
 ## Features
 
-The framework is composed of the following features:
+Micro is composed of the following features:
 
 - **Server:** A distributed systems runtime composed of building block services which abstract away the underlying infrastructure 
 and provide a programmable abstraction layer. Authentication, configuration, messaging, storage and more built in.
