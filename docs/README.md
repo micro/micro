@@ -1,5 +1,5 @@
 
-Micro is a framework for cloud native development.
+Micro is a platform for cloud native development.
 
 ## Overview
 
