@@ -1173,11 +1173,13 @@ func (u *Users) List(ctx context.Context, req *pb.ListRequest, rsp *pb.ListRespo
 
 ## Plugins
 
+Micro is a pluggable architecture built on Go's interface types. Plugins enable swapping out underlying infrastructure.
+
+### Overview
+
 Micro is pluggable, meaning the implementation for each module can be replaced depending on the requirements. Plugins are applied to the micro server and not to services directly, this is done so the underlying infrastructure can change with zero code changes required in your services. 
 
 An example of a pluggable interface is the store. Locally micro will use a filestore to persist data, this is great because it requires zero dependancies and still offers persistance between restarts. When running micro in a test suite, this could be swapped to an in-memory cache which is better suited as it offers consistency between runs. In production, this can be swapped out for standalone infrastructure such as cockroachdb or etcd depending on the requirement.
-
-### How infrastructure is abstracted
 
 Let's take an example where our service wants to load data from the store. Our service would call `store.Read(userPrefix + userID)` to load the value, behind the scenes this will execute an RPC to the store service which will in-turn call `store.Read` on the current `DefaultStore` implementation configured for the server. 
 
