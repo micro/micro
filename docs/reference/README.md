@@ -699,7 +699,7 @@ In this way we can mirror the handler behaviour and deserialise the message when
 this model the server handles connecting to the broker, subscribing, consuming and executing your subscriber
 function.
 
-#### Example
+#### Usage
 
 Publisher:
 ```go
@@ -828,7 +828,7 @@ The simplest form of access is the below command to list services.
 micro services
 ```
 
-#### Get service endpoint
+#### Usage
 
 The get service endpoint returns information about a service including response parameters parameters for endpoints:
 
