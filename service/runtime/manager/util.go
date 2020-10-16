@@ -7,17 +7,16 @@ import (
 	"os"
 	"strings"
 
-	gorun "github.com/micro/micro/v3/service/runtime"
-	"github.com/micro/micro/v3/service/runtime/local/source/git"
-	gostore "github.com/micro/micro/v3/service/store"
 	"github.com/micro/micro/v3/service/auth"
 	"github.com/micro/micro/v3/service/client"
 	"github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/runtime"
+	gorun "github.com/micro/micro/v3/service/runtime"
 	"github.com/micro/micro/v3/service/runtime/builder"
-	"github.com/micro/micro/v3/service/runtime/builder/golang"
+	"github.com/micro/micro/v3/service/runtime/local/source/git"
 	"github.com/micro/micro/v3/service/runtime/util/tar"
 	"github.com/micro/micro/v3/service/store"
+	gostore "github.com/micro/micro/v3/service/store"
 )
 
 func (m *manager) buildAndRun(srv *service) {
@@ -99,23 +98,9 @@ func (m *manager) build(srv *service) error {
 		return err
 	}
 
-	// if we're building the build service, override the default builder implementation to prevent
-	// a circular dependancy
-	bldr := builder.DefaultBuilder
-	if srv.Service.Source == "github.com/m3o/services/build" {
-		logger.Infof("Building build service using golang builder")
-
-		var err error
-		bldr, err = golang.NewBuilder()
-		if err != nil {
-			handleError(err, "Golang builder could not be configured")
-			return err
-		}
-	}
-
 	// build the source
 	logger.Infof("Build starting %v:%v", srv.Service.Name, srv.Service.Version)
-	build, err := bldr.Build(source,
+	build, err := builder.DefaultBuilder.Build(source,
 		builder.Archive("tar"),
 		builder.Entrypoint(srv.Options.Entrypoint),
 	)

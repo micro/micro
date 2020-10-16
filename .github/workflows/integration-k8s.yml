@@ -101,19 +101,6 @@ jobs:
         kubectl get pods -n | awk '{print $1}' | xargs -n1 kubectl logs
         kubectl get pods -n platform | awk '{print $1}' | xargs -n1 kubectl logs -n platform
     
-    - name: Run the build service
-      run: |
-        kubectl port-forward service/micro-proxy 8081:443 & sleep 2s
-        micro login --username=admin --password=micro
-        micro run --image=localhost:5000/cells:v3 github.com/m3o/services/build
-
-        until [[ "$(micro status build)" == *"running"* ]] 
-        do
-          echo Waiting for build service to start:
-          micro status build
-          sleep 5s
-        done
-
     - name: Check out services
       uses: actions/checkout@v2
       with:
