@@ -469,6 +469,50 @@ Account created: {"id":"jane","type":"","issuer":"micro","metadata":null,"scopes
 
 The freshly created account can be used with `micro login` by using the `jane` id and `bb7c1a96-c0c6-4ff5-a0e9-13d456f3db0a` password.
 
+### Broker
+
+The broker service provides fire and forget pubsub. If persistance is required, use the Events service as documented below.
+
+#### Overview
+
+The broker has two functions: Publish and Subscribe. Example usage is outlined below:
+
+Publisher:
+```go
+bytes, err := json.Marshal(&Healthcheck{
+	Healthy: true,
+	Service: "foo",
+})
+if err != nil {
+	return err
+}
+
+return broker.Publish("health", &broker.Message{Body: bytes})
+```
+
+Subscriber:
+```go
+handler := func(msg *broker.Message) error {
+	var hc Healthcheck
+	if err := json.Unmarshal(msg.Body, &hc); err != nil {
+		return err
+	}
+	
+	if hc.Healthy {
+		logger.Infof("Service %v is healty", hc.Service)
+	} else {
+		logger.Infof("Service %v is not healty", hc.Service)
+	}
+
+	return nil
+}
+
+sub, err := broker.Subscribe("health", handler)
+if err != nil {
+	return err
+}
+```
+
 ### Config
 
 The config service provides dynamic configuration for services. 
