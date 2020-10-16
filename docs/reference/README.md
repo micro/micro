@@ -716,6 +716,42 @@ Events also different from the broker in that it provides a fixed Event type whe
 handle the decoding of the message body yourself. Events could have large payloads so we don't want to 
 unnecessarily decode where you may just want to hand off to a storage system.
 
+#### Functions
+
+The events package has two parts: Stream and Store. Stream is used to Publish and Subscribe to messages for a given topic. For example, in a chat application one user would Publish a message and another would subscribe. If you later needed to retrieve messages, you could either replay them using the Subscribe function and passing the StartAtTime option, or list them using the Read function.
+
+```go
+func Publish(topic string, msg interface{}, opts ...PublishOption) error 
+```
+The Publish function has two required arguments: topic and message. Topic is the channel you're publishing the event to, in the case of a chat application this would be the chat id. The message is any struct, e.g. the message being sent to the chat. When the subscriber recieves the event they'll be able to unmarshal this object. Publish has two supported options, WithMetadata to pass key/value pairs and WithTimestamp to override the default timestamp on the event.
+
+```go
+func Subscribe(topic string, opts ...SubscribeOption) (<-chan Event, error)
+```
+The subscribe function is used to consume events. In the case of a chat application, the client would pass the chat ID as the topic, and any events published to the stream will be sent to the event channel. Event has an Unmarshal function which can be used to access the message payload, as demonstrated below:
+
+```go
+for {
+	evChan, err := events.Subscribe(chatID)
+	if err != nil {
+		logger.Error("Error subscribing to topic %v: %v", chatID, err)
+		return err
+	}
+	for {
+		ev, ok := <- evChan
+		if !ok {
+			break
+		}
+		var msg Messsage
+		if err :=ev.Unmarshal(&msg); err != nil {
+			logger.Errorf("Error unmarshaling event %v: %v", ev.ID, err)
+			return err
+		}
+		logger.Infof("Recieved message: %v", msg.Subject)
+	}
+}
+```
+
 #### Example
 
 The [Chat Service](https://github.com/micro/services/tree/master/chat) examples usage of the events service, leveraging both the stream and store functions.
