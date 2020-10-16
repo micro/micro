@@ -341,7 +341,7 @@ If you're using the dev environment URLs are `*.m3o.dev`. Find more details at [
 ## Documentation
 
 Another thing we really learned from the past is nothing like this works without great documentation 
-and tutorials. So we've written a whole suite of docs for Micro available at [micro.mu](https://micro.mu) 
+and tutorials. So we've written a whole suite of docs for Micro available at [m3o.org](https://m3o.org) 
 and provide help for using the M3O on [m3o.dev](https://m3o.dev/).
 
 You can find other interesting resources at [Awesome Micro](https://github.com/micro/awesome-micro).
