@@ -309,6 +309,13 @@ and the Go library, client and server implementations in [micro/service/auth](ht
 
 The API service is a http API gateway which acts as a public entrypoint and converts http/json to RPC.
 
+#### Overview
+
+The micro API is the public entrypoint for all external access to services to be consumed by frontend, mobile, etc. The api 
+accepts http/json requests and uses path based routing to resolve to backend services. It converts the request to gRPC and 
+forward appropriately. The idea here is to focus on microservices on the backend and stitch everything together as a single 
+API for the frontend. 
+
 #### Usage
 
 In the default `local` [environment](#environments) the API address is `127.0.0.1:8080`.
