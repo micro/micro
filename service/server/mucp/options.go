@@ -17,10 +17,10 @@
 package mucp
 
 import (
-	"github.com/micro/micro/v3/service/registry/mdns"
 	"github.com/micro/micro/v3/internal/codec"
 	thttp "github.com/micro/micro/v3/internal/network/transport/http"
 	"github.com/micro/micro/v3/service/broker/http"
+	"github.com/micro/micro/v3/service/registry/mdns"
 	"github.com/micro/micro/v3/service/server"
 )
 

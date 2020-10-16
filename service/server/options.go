@@ -24,13 +24,13 @@ import (
 
 	"github.com/micro/micro/v3/internal/codec"
 	"github.com/micro/micro/v3/internal/debug/trace"
-	"github.com/micro/micro/v3/service/registry"
-	"github.com/micro/micro/v3/service/registry/mdns"
 	"github.com/micro/micro/v3/internal/network/transport"
 	thttp "github.com/micro/micro/v3/internal/network/transport/http"
 	"github.com/micro/micro/v3/service/auth"
 	"github.com/micro/micro/v3/service/broker"
 	"github.com/micro/micro/v3/service/broker/http"
+	"github.com/micro/micro/v3/service/registry"
+	"github.com/micro/micro/v3/service/registry/mdns"
 )
 
 type Options struct {

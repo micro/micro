@@ -28,10 +28,10 @@ import (
 	"time"
 
 	raw "github.com/micro/micro/v3/internal/codec/bytes"
-	"github.com/micro/micro/v3/service/errors"
-	"github.com/micro/micro/v3/service/context/metadata"
 	"github.com/micro/micro/v3/service/broker"
 	"github.com/micro/micro/v3/service/client"
+	"github.com/micro/micro/v3/service/context/metadata"
+	"github.com/micro/micro/v3/service/errors"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"

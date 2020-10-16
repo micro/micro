@@ -1,10 +1,10 @@
 package server
 
 import (
-	"github.com/micro/micro/v3/service/store"
 	pb "github.com/micro/micro/v3/proto/config"
 	"github.com/micro/micro/v3/service"
 	"github.com/micro/micro/v3/service/logger"
+	"github.com/micro/micro/v3/service/store"
 	mustore "github.com/micro/micro/v3/service/store"
 	"github.com/urfave/cli/v2"
 )

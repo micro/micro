@@ -6,8 +6,6 @@ import (
 	"os"
 	"strings"
 
-	rt "github.com/micro/micro/v3/service/runtime"
-	"github.com/micro/micro/v3/service/server"
 	"github.com/micro/micro/v3/cmd"
 	"github.com/micro/micro/v3/plugin"
 	"github.com/micro/micro/v3/service"
@@ -17,6 +15,8 @@ import (
 	"github.com/micro/micro/v3/service/proxy/http"
 	"github.com/micro/micro/v3/service/proxy/mucp"
 	muruntime "github.com/micro/micro/v3/service/runtime"
+	rt "github.com/micro/micro/v3/service/runtime"
+	"github.com/micro/micro/v3/service/server"
 	ccli "github.com/urfave/cli/v2"
 
 	// services
@@ -35,12 +35,6 @@ import (
 	// misc commands
 	"github.com/micro/micro/v3/service/handler/exec"
 	"github.com/micro/micro/v3/service/handler/file"
-
-	_ "github.com/micro/micro/v3/service/auth/cli"
-	_ "github.com/micro/micro/v3/service/config/cli"
-	_ "github.com/micro/micro/v3/service/network/cli"
-	_ "github.com/micro/micro/v3/service/runtime/cli"
-	_ "github.com/micro/micro/v3/service/store/cli"
 )
 
 // Run starts a micro service sidecar to encapsulate any app
