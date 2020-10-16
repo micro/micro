@@ -3,11 +3,11 @@ package server
 import (
 	"context"
 
-	goevents "github.com/micro/micro/v3/service/events"
 	"github.com/micro/micro/v3/internal/auth/namespace"
 	pb "github.com/micro/micro/v3/proto/events"
 	"github.com/micro/micro/v3/service/errors"
 	"github.com/micro/micro/v3/service/events"
+	goevents "github.com/micro/micro/v3/service/events"
 	"github.com/micro/micro/v3/service/events/util"
 )
 

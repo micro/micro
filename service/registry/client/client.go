@@ -3,11 +3,11 @@ package client
 import (
 	"time"
 
-	"github.com/micro/micro/v3/service/registry"
 	pb "github.com/micro/micro/v3/proto/registry"
 	"github.com/micro/micro/v3/service/client"
 	"github.com/micro/micro/v3/service/context"
 	"github.com/micro/micro/v3/service/errors"
+	"github.com/micro/micro/v3/service/registry"
 	"github.com/micro/micro/v3/service/registry/util"
 )
 

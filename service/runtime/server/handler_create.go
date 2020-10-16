@@ -3,14 +3,14 @@ package server
 import (
 	"context"
 
-	goevents "github.com/micro/micro/v3/service/events"
-	gorun "github.com/micro/micro/v3/service/runtime"
 	"github.com/micro/micro/v3/internal/auth/namespace"
 	pb "github.com/micro/micro/v3/proto/runtime"
 	"github.com/micro/micro/v3/service/errors"
 	"github.com/micro/micro/v3/service/events"
+	goevents "github.com/micro/micro/v3/service/events"
 	log "github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/runtime"
+	gorun "github.com/micro/micro/v3/service/runtime"
 )
 
 // Create a resource

@@ -20,8 +20,8 @@ import (
 	"sync"
 	"time"
 
-	pb "github.com/micro/micro/v3/service/network/mucp/proto"
 	"github.com/micro/micro/v3/service/network"
+	pb "github.com/micro/micro/v3/service/network/mucp/proto"
 )
 
 // nodeError tracks node errors

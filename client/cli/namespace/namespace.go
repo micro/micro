@@ -4,8 +4,8 @@ import (
 	"errors"
 	"strings"
 
-	"github.com/micro/micro/v3/service/registry"
 	"github.com/micro/micro/v3/internal/config"
+	"github.com/micro/micro/v3/service/registry"
 )
 
 const seperator = ","

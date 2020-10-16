@@ -22,9 +22,9 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/micro/micro/v3/service/store"
 	"github.com/micro/micro/v3/internal/auth/token"
 	"github.com/micro/micro/v3/service/auth"
+	"github.com/micro/micro/v3/service/store"
 )
 
 // Basic implementation of token provider, backed by the store

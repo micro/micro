@@ -34,15 +34,15 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	maddr "github.com/micro/micro/v3/internal/addr"
 	"github.com/micro/micro/v3/internal/codec/json"
+	mnet "github.com/micro/micro/v3/internal/net"
+	mls "github.com/micro/micro/v3/internal/tls"
+	"github.com/micro/micro/v3/service/broker"
 	merr "github.com/micro/micro/v3/service/errors"
 	"github.com/micro/micro/v3/service/registry"
 	"github.com/micro/micro/v3/service/registry/cache"
 	"github.com/micro/micro/v3/service/registry/mdns"
-	maddr "github.com/micro/micro/v3/internal/addr"
-	mnet "github.com/micro/micro/v3/internal/net"
-	mls "github.com/micro/micro/v3/internal/tls"
-	"github.com/micro/micro/v3/service/broker"
 	"golang.org/x/net/http2"
 )
 

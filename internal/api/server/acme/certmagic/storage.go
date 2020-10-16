@@ -26,8 +26,8 @@ import (
 	"time"
 
 	"github.com/caddyserver/certmagic"
-	"github.com/micro/micro/v3/service/store"
 	"github.com/micro/micro/v3/internal/sync"
+	"github.com/micro/micro/v3/service/store"
 )
 
 // File represents a "File" that will be stored in store.Store - the contents and last modified time
