@@ -1019,3 +1019,65 @@ fmt.Println(records[0].Value)
 // secondGrade/id2 {"id":"id2", "name":"Alice","class":"secondGrade",  "avgScore": 92}
 // secondGrade/id3 {"id":"id3", "name":"Joe",  "class":"secondGrade"   "avgScore": 89}
 ```
+
+## Plugins
+
+Micro is pluggable, meaning the implementation for each module can be replaced depending on the requirements. Plugins are applied to the micro server and not to services directly, this is done so the underlying infrastructure can change with zero code changes required in your services. 
+
+An example of a pluggable interface is the store. Locally micro will use a filestore to persist data, this is great because it requires zero dependancies and still offers persistance between restarts. When running micro in a test suite, this could be swapped to an in-memory cache which is better suited as it offers consistency between runs. In production, this can be swapped out for standalone infrastructure such as cockroachdb or etcd depending on the requirement.
+
+### How infrastructure is abstracted
+
+Let's take an example where our service wants to load data from the store. Our service would call `store.Read(userPrefix + userID)` to load the value, behind the scenes this will execute an RPC to the store service which will in-turn call `store.Read` on the current `DefaultStore` implementation configured for the server. 
+
+### Profiles
+
+Profiles are used to configure multiple plugins at once. Micro comes with a few profiles out the box, such as "local", "kubernetes" and "test". These profiles can be found in `profile/profile.go`. You can configure micro to use one of these profiles using the `MICRO_PROFILE` env var, for example: `MICRO_PROFILE=test micro server`. The default profile used is "local".
+
+### Writing a profile
+
+Profiles should be created as packages within the profile directory. Let's create a "staging" profile by creating `profile/staging/staging.go`. The example below shows how to override the default store to use an in-memory implementation:
+
+```go
+// Package staging configures micro for a staging environment
+package staging
+
+import (
+	"github.com/urfave/cli/v2"
+
+	"github.com/micro/micro/v3/profile"
+	"github.com/micro/micro/v3/service/store"
+	"github.com/micro/micro/v3/service/store/memory"
+)
+
+func init() {
+	profile.Register("staging", staging)
+}
+
+var staging = &profile.Profile{
+	Name: "staging",
+	Setup: func(ctx *cli.Context) error {
+		store.DefaultStore = memory.NewStore()
+		return nil
+	},
+}
+```
+
+### Using a custom profile
+
+You can load a custom profile using a couple of commands, the first adds a replace to your go mod, indicating it should look for your custom profile within the profile directory:
+
+```bash
+go mod edit -replace github.com/micro/micro/profile/staging/v3=./profile/staging
+```
+
+The second command creates a profile.go file which imports your profile. When your profile is imported, the init() function which is defined in staging.go is called, registering your profile.
+
+```
+micro init --profile=staging --output=profile.go
+```
+
+Now you can start your server using this profile:
+```
+MICRO_PROFILE=staging go run . server
+```
