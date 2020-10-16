@@ -10,7 +10,7 @@ summary: Reference - a comprehensive guide to Micro
 ## Reference
 {: .no_toc }
 
-Reference entries are in depth look at the technical details and usage of Micro
+This reference doc is an in depth guide for the technical details and usage of Micro
 
 ## Contents
 {: .no_toc }
@@ -18,12 +18,143 @@ Reference entries are in depth look at the technical details and usage of Micro
 * TOC
 {:toc}
 
-## CLI Overview
+## Overview
 
-Micro is driven entirely through a CLI experience. This reference highlights the CLI design.
+Micro is a platform for cloud native development. It consists of a server, command line interface and 
+service library which enable you to build, run, manage and consume Micro services. This reference 
+walks through the majority of Micro in depth and attempts to help guide you through any usage. It 
+should be thought of much like a language spec and will evolve over time.
 
-The CLI speaks to the `micro server` through the gRPC proxy running locally by default on :8081. All requests are proxied based on your environment 
-configuration. The CLI provides the sole interaction for controlling services and environments.
+## Installation
+
+Below are the instructions for installing micro locally, in docker or on kubernetes
+
+### Local 
+
+Micro can be installed locally in the following way. We assume for the most part a Linux env with Go and Git installed.
+
+#### Go Get
+
+```
+go get github.com/micro/micro/v3
+```
+
+#### Docker
+
+```sh
+docker pull micro/micro
+```
+
+#### Release Binaries
+
+```sh
+# MacOS
+curl -fsSL https://raw.githubusercontent.com/micro/micro/master/scripts/install.sh | /bin/bash
+
+# Linux
+wget -q  https://raw.githubusercontent.com/micro/micro/master/scripts/install.sh -O - | /bin/bash
+
+# Windows
+powershell -Command "iwr -useb https://raw.githubusercontent.com/micro/micro/master/scripts/install.ps1 | iex"
+```
+
+### Kubernetes
+
+Micro can be installed onto a Kubernetes cluster using helm. Micro will be deployed in full and leverage zero-dep implementations designed for Kubernetes. For example, micro store will internally leverage a file store on a persistant volume, meaning there are no infrastructure dependancies required.
+
+#### Dependencies
+
+You will need to be connected to a Kubernetes cluster
+
+#### Install
+
+Install micro with the following commands:
+
+```shell
+helm repo add micro https://micro.github.io/helm
+helm install micro micro/micro
+```
+
+#### Uninstall
+
+Uninstall micro with the following commands:
+
+```shell
+helm uninstall micro
+helm repo remove micro
+```
+
+## Server
+
+The micro server is a distributed systems runtime for the Cloud and beyond. It provides the building 
+blocks for distributed systems development as a set of services, command line and service library. 
+The server is much like a distributed operating system in the sense that each component runs 
+independent of each other but work together as one system. This composition allows us to use a 
+microservices architecture pattern even for the platform.
+
+### Features
+
+The server provides the below functionality as built in primitives for services development.
+
+- Authentication
+- Configuration
+- PubSub Messaging
+- Event Streaming
+- Service Discovery
+- Service Networking
+- Key-Value Storage
+- HTTP API Gateway
+- gRPC Identity Proxy
+
+### Usage
+
+To start the server simply run
+
+```sh
+micro server
+```
+
+This will boot the entire system and services including a http api on :8080 and grpc proxy on :8081
+
+### Help
+
+Run the following command to check help output
+```
+micro --help
+```
+
+### Commands
+
+Run helloworld and check its status
+
+```
+micro env	# should point to local
+micro run github.com/micro/services/helloworld # run helloworld
+micro status 	# wait for status running
+micro services	# should display helloworld
+```
+
+Call the service and verify output
+
+```sh
+$ micro helloworld --name=John
+{
+        "msg": "Hello John"
+}
+```
+
+Remove the service
+
+```
+micro kill helloworld
+```
+
+## Command Line
+
+The command line interface is the primary way to interact with a micro server. Its a simple binary that 
+can either be interacted with using simple commands or an interactive prompt. The CLI proxies all commands 
+as RPC calls to the Micro server. In many of the builtin commands it will perform formatting and additional 
+syntactic work.
 
 ### Builtin Commands
 
@@ -140,6 +271,12 @@ is equivalent to the following flags:
 micro registry getService --service=serviceName --options_domain=domainExample
 ```
 
+### User Config
+
+The command line uses local user config stores in ~/.micro for any form of state such as saved environments, 
+tokens, etc. It will always attempt to read from here unless specified otherwise. Currently we store all 
+config in a single file `config.json` and any auth tokens in a `tokens` file.
+
 ## Environments
 
 Micro is built with a federated and multi-environment model in mind. Our development normally maps through local, staging and production, so Micro takes 
@@ -191,114 +328,11 @@ $ micro env
 
 Each environment is effectively an isolated deployment with its own authentication, storage, etc. So each env requires signup and login. At this point we have to log in to the `example` env with `micro login`. If you don't have the credentials to the environment, you have to ask the admin.
 
-## Installation
-
-### Helm
-
-Micro can be installed onto a Kubernetes cluster using helm. Micro will be deployed in full and leverage zero-dep implementations designed for Kubernetes. For example, micro store will internally leverage a file store on a persistant volume, meaning there are no infrastructure dependancies required.
-
-#### Dependencies
-
-You will need to be connected to a Kubernetes cluster
-
-#### Install
-
-Install micro with the following commands:
-
-```shell
-helm repo add micro https://micro.github.io/helm
-helm install micro micro/micro
-```
-
-#### Uninstall
-
-Uninstall micro with the following commands:
-
-```shell
-helm uninstall micro
-helm repo remove micro
-```
-
-### Local 
-
-Micro can be installed locally in the following way. We assume for the most part a Linux env with Go and Git installed.
-
-#### Go Get
-
-```
-go get github.com/micro/micro/v3
-```
-
-#### Docker
-
-```sh
-docker pull micro/micro
-```
-
-#### Release Binaries
-
-```sh
-# MacOS
-curl -fsSL https://raw.githubusercontent.com/micro/micro/master/scripts/install.sh | /bin/bash
-
-# Linux
-wget -q  https://raw.githubusercontent.com/micro/micro/master/scripts/install.sh -O - | /bin/bash
-
-# Windows
-powershell -Command "iwr -useb https://raw.githubusercontent.com/micro/micro/master/scripts/install.ps1 | iex"
-```
-
-## Server
-
-The micro service is a distributed systems runtime for the Cloud and beyond. It provides the building 
-blocks for distributed systems development as a set of microservices and framework.
-
-### Usage
-
-To start the server simply run
-
-```sh
-micro server
-```
-
-This will boot the entire system and services including a http api on :8080 and grpc proxy on :8081
-
-### Help
-
-Run the following command to check help output
-```
-micro --help
-```
-
-### Commands
-
-Run helloworld and check its status
-
-```
-micro env	# should point to local
-micro run github.com/micro/services/helloworld # run helloworld
-micro status 	# wait for status running
-micro services	# should display helloworld
-```
-
-Call the service and verify output
-
-```sh
-$ micro helloworld --name=John
-{
-        "msg": "Hello John"
-}
-```
-
-Remove the service
-
-```
-micro kill helloworld
-```
-
 ## Services
 
-The Micro Server is not a monolithic process. Instead it is composed of many separate services.
+Micro is built as a distributed operating system leveraging the microservices architecture pattern.
+
+### Overview
 
 Below we describe the list of services provided by the Micro Server. Each service is considered a 
 building block primitive for a platform and distributed systems development. The proto 
@@ -308,6 +342,13 @@ and the Go library, client and server implementations in [micro/service/auth](ht
 ### API
 
 The API service is a http API gateway which acts as a public entrypoint and converts http/json to RPC.
+
+#### Overview
+
+The micro API is the public entrypoint for all external access to services to be consumed by frontend, mobile, etc. The api 
+accepts http/json requests and uses path based routing to resolve to backend services. It converts the request to gRPC and 
+forward appropriately. The idea here is to focus on microservices on the backend and stitch everything together as a single 
+API for the frontend. 
 
 #### Usage
 
@@ -469,6 +510,72 @@ Account created: {"id":"jane","type":"","issuer":"micro","metadata":null,"scopes
 
 The freshly created account can be used with `micro login` by using the `jane` id and `bb7c1a96-c0c6-4ff5-a0e9-13d456f3db0a` password.
 
+### Broker
+
+The broker is a message broker for asynchronous pubsub messaging.
+
+#### Overview
+
+The broker provides a simple abstraction for pubsub messaging. It focuses on simple semantics for fire-and-forget 
+asynchronous communication. The goal here is to provide a pattern for async notifications where some update or 
+event occurred but that does not require persistence. The client and server build in the ability to publish 
+on one side and subscribe on the other. The broker provides no message ordering guarantees.
+
+While a Service is normally called by name, messaging focuses on Topics that can have multiple publishers and 
+subscribers. The broker is abstracting away in the service's client/server which includes message encoding/decoding 
+so you don't have to spent all your time marshalling.
+
+##### Client
+
+The client containes the `Publish` method which takes a proto message, encodes it and publishes onto the broker 
+on a given topic. It takes the metadata from the client context and includes these as headers in the message 
+including the content-type so the subscribe side knows how to deal with it.
+
+##### Server
+
+The server supports a `Subscribe` method which allows you to register a handler as you would for handling requests. 
+In this way we can mirror the handler behaviour and deserialise the message when consuming from the broker. In 
+this model the server handles connecting to the broker, subscribing, consuming and executing your subscriber
+function.
+
+#### Usage
+
+Publisher:
+```go
+bytes, err := json.Marshal(&Healthcheck{
+	Healthy: true,
+	Service: "foo",
+})
+if err != nil {
+	return err
+}
+
+return broker.Publish("health", &broker.Message{Body: bytes})
+```
+
+Subscriber:
+```go
+handler := func(msg *broker.Message) error {
+	var hc Healthcheck
+	if err := json.Unmarshal(msg.Body, &hc); err != nil {
+		return err
+	}
+	
+	if hc.Healthy {
+		logger.Infof("Service %v is healty", hc.Service)
+	} else {
+		logger.Infof("Service %v is not healty", hc.Service)
+	}
+
+	return nil
+}
+
+sub, err := broker.Subscribe("health", handler)
+if err != nil {
+	return err
+}
+```
+
 ### Config
 
 The config service provides dynamic configuration for services. 
@@ -480,7 +587,7 @@ the application itself for configuring business logic, api keys, etc. We read an
 pairs which also support nesting of JSON values. The config interface also supports storing secrets by 
 defining the secret key as an option at the time of writing the value.
 
-#### CLI usage
+#### Usage
 
 Let's assume we have a service called `helloworld` from which we want to read configuration data.
 First we have to insert said data with the cli. Config data can be organized under different "paths" with the dot notation.
@@ -537,6 +644,7 @@ $ micro config get helloworld
 ##### Secrets
 
 The config also supports secrets - values encrypted at rest. This helps in case of leaks, be it a security one or an accidental copypaste.
+
 They are fairly easy to save:
 
 ```sh
@@ -565,7 +673,7 @@ $ micro config get helloworld
 {"hush_number_key":42,"hushkey":"Very secret stuff","someboolkey":true,"somekey":"hello"}
 ```
 
-#### Service usage
+#### Service Library
 
 It is simiarly easy to access and set config values from a service.
 A good example of reading values is [the config example test service](https://github.com/micro/micro/tree/master/test/service/config-example):
@@ -671,34 +779,6 @@ By default, if not specified, `micro server` generates and saves an encryption k
 
 To specify the secret for the micro server either the envaf `MICRO_CONFIG_SECRET_KEY` or the flag `config_secret_key` key must be specified.
 
-### Broker
-
-The broker is a message broker for pubsub messaging.
-
-#### Overview
-
-The broker provides a simple abstraction for pubsub messaging. It focuses on simple semantics for fire-and-forget 
-asynchronous communication. The goal here is to provide a pattern for async notifications where some update or 
-event occurred but that does not require persistence. The client and server build in the ability to publish 
-on one side and subscribe on the other. The broker provides no message ordering guarantees.
-
-While a Service is normally called by name, messaging focuses on Topics that can have multiple publishers and 
-subscribers. The broker is abstracting away in the service's client/server which includes message encoding/decoding 
-so you don't have to spent all your time marshalling.
-
-##### Client
-
-The client containes the `Publish` method which takes a proto message, encodes it and publishes onto the broker 
-on a given topic. It takes the metadata from the client context and includes these as headers in the message 
-including the content-type so the subscribe side knows how to deal with it.
-
-##### Server
-
-The server supports a `Subscribe` method which allows you to register a handler as you would for handling requests. 
-In this way we can mirror the handler behaviour and deserialise the message when consuming from the broker. In 
-this model the server handles connecting to the broker, subscribing, consuming and executing your subscriber
-function.
-
 ### Events
 
 The events service is a service for event streaming and persistent storage of events.
@@ -790,7 +870,7 @@ The simplest form of access is the below command to list services.
 micro services
 ```
 
-#### Get service endpoint
+#### Usage
 
 The get service endpoint returns information about a service including response parameters parameters for endpoints:
 
@@ -1060,13 +1140,48 @@ fmt.Println(records[0].Value)
 // secondGrade/id3 {"id":"id3", "name":"Joe",  "class":"secondGrade"   "avgScore": 89}
 ```
 
+### Metadata
+
+Metadata / headers can be passed via the context in RPC calls. The context/metadata package allows services to get and set metadata in a context. The Micro API will add request headers into context, for example if the "Foobar" header is set on an API call to "localhost:8080/users/List", the users service can access this value as follows:
+
+```go
+import (
+	"context"
+	"github.com/micro/micro/v3/service/context/metadata"
+)
+
+...
+
+func (u *Users) List(ctx context.Context, req *pb.ListRequest, rsp *pb.ListResponse) error {
+	val, ok := metadata.Get(ctx, "Foobar")
+	if !ok {
+		return fmt.Errorf("Missing Foobar header")
+	}
+
+	fmt.Println("Foobar header was set to: %v", val)
+	return nil
+}
+```
+
+Likewise, clients can set metadata in context using the metadata.Set function as follows:
+
+```go
+func (u *Users) List(ctx context.Context, req *pb.ListRequest, rsp *pb.ListResponse) error {
+	newCtx := metadata.Set(ctx, "Foobar", "mycustomval")
+	fRsp, err := u.foosrv.Call(newCtx, &foosrv.Request{})
+	...
+}
+```
+
 ## Plugins
+
+Micro is a pluggable architecture built on Go's interface types. Plugins enable swapping out underlying infrastructure.
+
+### Overview
 
 Micro is pluggable, meaning the implementation for each module can be replaced depending on the requirements. Plugins are applied to the micro server and not to services directly, this is done so the underlying infrastructure can change with zero code changes required in your services. 
 
 An example of a pluggable interface is the store. Locally micro will use a filestore to persist data, this is great because it requires zero dependancies and still offers persistance between restarts. When running micro in a test suite, this could be swapped to an in-memory cache which is better suited as it offers consistency between runs. In production, this can be swapped out for standalone infrastructure such as cockroachdb or etcd depending on the requirement.
-
-### How infrastructure is abstracted
 
 Let's take an example where our service wants to load data from the store. Our service would call `store.Read(userPrefix + userID)` to load the value, behind the scenes this will execute an RPC to the store service which will in-turn call `store.Read` on the current `DefaultStore` implementation configured for the server. 
 
