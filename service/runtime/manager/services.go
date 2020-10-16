@@ -6,10 +6,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/micro/micro/v3/service/runtime"
-	gostore "github.com/micro/micro/v3/service/store"
 	"github.com/micro/micro/v3/internal/namespace"
+	"github.com/micro/micro/v3/service/runtime"
 	"github.com/micro/micro/v3/service/store"
+	gostore "github.com/micro/micro/v3/service/store"
 )
 
 // service is the object persisted in the store

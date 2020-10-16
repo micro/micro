@@ -16,11 +16,11 @@
 package mud
 
 import (
+	"github.com/micro/micro/v3/internal/codec/json"
+	memsync "github.com/micro/micro/v3/internal/sync/memory"
+	"github.com/micro/micro/v3/service/model"
 	"github.com/micro/micro/v3/service/store"
 	"github.com/micro/micro/v3/service/store/memory"
-	memsync "github.com/micro/micro/v3/internal/sync/memory"
-	"github.com/micro/micro/v3/internal/codec/json"
-	"github.com/micro/micro/v3/service/model"
 )
 
 type mudModel struct {

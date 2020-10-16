@@ -3,11 +3,11 @@ package server
 import (
 	"os"
 
-	goruntime "github.com/micro/micro/v3/service/runtime"
 	pb "github.com/micro/micro/v3/proto/runtime"
 	"github.com/micro/micro/v3/service"
 	log "github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/runtime"
+	goruntime "github.com/micro/micro/v3/service/runtime"
 	"github.com/micro/micro/v3/service/runtime/manager"
 	"github.com/urfave/cli/v2"
 )

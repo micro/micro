@@ -7,9 +7,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/micro/micro/v3/service/router"
-	"github.com/micro/micro/v3/service/server"
-	mucpServer "github.com/micro/micro/v3/service/server/mucp"
 	"github.com/micro/micro/v3/internal/helper"
 	"github.com/micro/micro/v3/internal/muxer"
 	"github.com/micro/micro/v3/internal/network/transport"
@@ -24,7 +21,10 @@ import (
 	grpcProxy "github.com/micro/micro/v3/service/proxy/grpc"
 	mucpProxy "github.com/micro/micro/v3/service/proxy/mucp"
 	muregistry "github.com/micro/micro/v3/service/registry"
+	"github.com/micro/micro/v3/service/router"
 	murouter "github.com/micro/micro/v3/service/router"
+	"github.com/micro/micro/v3/service/server"
+	mucpServer "github.com/micro/micro/v3/service/server/mucp"
 	"github.com/urfave/cli/v2"
 )
 
