@@ -10,7 +10,7 @@ summary: Reference - a comprehensive guide to Micro
 ## Reference
 {: .no_toc }
 
-Reference entries are in depth look at the technical details and usage of Micro
+This reference doc is an in depth guide for the technical details and usage of Micro
 
 ## Contents
 {: .no_toc }
@@ -18,12 +18,24 @@ Reference entries are in depth look at the technical details and usage of Micro
 * TOC
 {:toc}
 
-## CLI Overview
+## Overview
 
-Micro is driven entirely through a CLI experience. This reference highlights the CLI design.
+Micro is a platform for cloud native development. It consists of a server, command line interface and 
+service library which enable you to build, run, manage and consume Micro services. This reference 
+walks through the majority of Micro in depth and attempts to help guide you through any usage. It 
+should be thought of much like a language spec and will evolve over time.
 
-The CLI speaks to the `micro server` through the gRPC proxy running locally by default on :8081. All requests are proxied based on your environment 
-configuration. The CLI provides the sole interaction for controlling services and environments.
+## Command Line
+
+The command line interface is the primary way to interact with a micro server. Its a simple binary that 
+can either be interacted with using simple commands or an interactive prompt. The CLI proxies all commands 
+as RPC calls to the Micro server. In many of the builtin commands it will perform formatting and additional 
+syntactic work.
+
+### User Config
+
+The command line uses local user config stores in ~/.micro for any form of state such as saved environments, 
+tokens, etc. It will always attempt to read from here unless specified otherwise. 
 
 ### Builtin Commands
 
