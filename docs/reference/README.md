@@ -1060,6 +1060,39 @@ fmt.Println(records[0].Value)
 // secondGrade/id3 {"id":"id3", "name":"Joe",  "class":"secondGrade"   "avgScore": 89}
 ```
 
+### Metadata
+
+Metadata / headers can be passed via the context in RPC calls. The context/metadata package allows services to get and set metadata in a context. The Micro API will add request headers into context, for example if the "Foobar" header is set on an API call to "localhost:8080/users/List", the users service can access this value as follows:
+
+```go
+import (
+	"context"
+	"github.com/micro/micro/v3/service/context/metadata"
+)
+
+...
+
+func (u *Users) List(ctx context.Context, req *pb.ListRequest, rsp *pb.ListResponse) error {
+	val, ok := metadata.Get(ctx, "Foobar")
+	if !ok {
+		return fmt.Errorf("Missing Foobar header")
+	}
+
+	fmt.Println("Foobar header was set to: %v", val)
+	return nil
+}
+```
+
+Likewise, clients can set metadata in context using the metadata.Set function as follows:
+
+```go
+func (u *Users) List(ctx context.Context, req *pb.ListRequest, rsp *pb.ListResponse) error {
+	newCtx := metadata.Set(ctx, "Foobar", "mycustomval")
+	fRsp, err := u.foosrv.Call(newCtx, &foosrv.Request{})
+	...
+}
+```
+
 ## Plugins
 
 Micro is pluggable, meaning the implementation for each module can be replaced depending on the requirements. Plugins are applied to the micro server and not to services directly, this is done so the underlying infrastructure can change with zero code changes required in your services. 
