@@ -4,10 +4,10 @@ import (
 	"bytes"
 	"io"
 
-	pb "github.com/micro/micro/v3/proto/runtime/build"
+	pb "github.com/micro/micro/v3/proto/build"
+	"github.com/micro/micro/v3/service/build"
 	"github.com/micro/micro/v3/service/client"
 	"github.com/micro/micro/v3/service/context"
-	build "github.com/micro/micro/v3/service/runtime/builder"
 )
 
 const bufferSize = 1024

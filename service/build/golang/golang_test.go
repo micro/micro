@@ -12,7 +12,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/micro/micro/v3/service/runtime/builder"
+	"github.com/micro/micro/v3/service/build"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -30,7 +30,7 @@ func TestGolangBuilder(t *testing.T) {
 
 	t.Run("InvalidArchive", func(t *testing.T) {
 		buf := bytes.NewBuffer([]byte(testMainGo))
-		err := testBuilder(t, buf, builder.Archive("foo"))
+		err := testBuilder(t, buf, build.Archive("foo"))
 		assert.Error(t, err, "An error should be returned")
 	})
 
@@ -63,7 +63,7 @@ func TestGolangBuilder(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		err := testBuilder(t, tf, builder.Archive("tar"))
+		err := testBuilder(t, tf, build.Archive("tar"))
 		assert.Nil(t, err, "No error should be returned")
 	})
 
@@ -96,20 +96,20 @@ func TestGolangBuilder(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		err := testBuilder(t, buf, builder.Archive("zip"))
+		err := testBuilder(t, buf, build.Archive("zip"))
 		assert.Nil(t, err, "No error should be returned")
 	})
 }
 
-func testBuilder(t *testing.T, buf io.Reader, opts ...builder.Option) error {
-	// setup the builder
-	builder, err := NewBuilder()
+func testBuilder(t *testing.T, buf io.Reader, opts ...build.Option) error {
+	// setup the build
+	build, err := NewBuilder()
 	if err != nil {
-		return fmt.Errorf("Error creating the builder: %v", err)
+		return fmt.Errorf("Error creating the build: %v", err)
 	}
 
 	// build the source
-	res, err := builder.Build(buf, opts...)
+	res, err := build.Build(buf, opts...)
 	if err != nil {
 		return fmt.Errorf("Error building source: %v", err)
 	}

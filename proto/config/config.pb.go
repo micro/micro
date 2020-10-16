@@ -8,8 +8,6 @@ import (
 	fmt "fmt"
 	proto "github.com/golang/protobuf/proto"
 	grpc "google.golang.org/grpc"
-	codes "google.golang.org/grpc/codes"
-	status "google.golang.org/grpc/status"
 	math "math"
 )
 
@@ -710,23 +708,6 @@ type ConfigServer interface {
 	Delete(context.Context, *DeleteRequest) (*DeleteResponse, error)
 	// These methods are here for backwards compatibility reasons
 	Read(context.Context, *ReadRequest) (*ReadResponse, error)
-}
-
-// UnimplementedConfigServer can be embedded to have forward compatible implementations.
-type UnimplementedConfigServer struct {
-}
-
-func (*UnimplementedConfigServer) Get(ctx context.Context, req *GetRequest) (*GetResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Get not implemented")
-}
-func (*UnimplementedConfigServer) Set(ctx context.Context, req *SetRequest) (*SetResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Set not implemented")
-}
-func (*UnimplementedConfigServer) Delete(ctx context.Context, req *DeleteRequest) (*DeleteResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Delete not implemented")
-}
-func (*UnimplementedConfigServer) Read(ctx context.Context, req *ReadRequest) (*ReadResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Read not implemented")
 }
 
 func RegisterConfigServer(s *grpc.Server, srv ConfigServer) {

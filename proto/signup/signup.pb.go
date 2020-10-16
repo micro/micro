@@ -8,8 +8,6 @@ import (
 	fmt "fmt"
 	proto "github.com/golang/protobuf/proto"
 	grpc "google.golang.org/grpc"
-	codes "google.golang.org/grpc/codes"
-	status "google.golang.org/grpc/status"
 	math "math"
 )
 
@@ -808,29 +806,6 @@ type SignupServer interface {
 	// Creates a subscription and an account
 	CompleteSignup(context.Context, *CompleteSignupRequest) (*CompleteSignupResponse, error)
 	Recover(context.Context, *RecoverRequest) (*RecoverResponse, error)
-}
-
-// UnimplementedSignupServer can be embedded to have forward compatible implementations.
-type UnimplementedSignupServer struct {
-}
-
-func (*UnimplementedSignupServer) SendVerificationEmail(ctx context.Context, req *SendVerificationEmailRequest) (*SendVerificationEmailResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method SendVerificationEmail not implemented")
-}
-func (*UnimplementedSignupServer) Verify(ctx context.Context, req *VerifyRequest) (*VerifyResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Verify not implemented")
-}
-func (*UnimplementedSignupServer) SetPaymentMethod(ctx context.Context, req *SetPaymentMethodRequest) (*SetPaymentMethodResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method SetPaymentMethod not implemented")
-}
-func (*UnimplementedSignupServer) HasPaymentMethod(ctx context.Context, req *HasPaymentMethodRequest) (*HasPaymentMethodResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method HasPaymentMethod not implemented")
-}
-func (*UnimplementedSignupServer) CompleteSignup(ctx context.Context, req *CompleteSignupRequest) (*CompleteSignupResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method CompleteSignup not implemented")
-}
-func (*UnimplementedSignupServer) Recover(ctx context.Context, req *RecoverRequest) (*RecoverResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Recover not implemented")
 }
 
 func RegisterSignupServer(s *grpc.Server, srv SignupServer) {
