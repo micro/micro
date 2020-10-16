@@ -779,6 +779,58 @@ By default, if not specified, `micro server` generates and saves an encryption k
 
 To specify the secret for the micro server either the envaf `MICRO_CONFIG_SECRET_KEY` or the flag `config_secret_key` key must be specified.
 
+### Broker
+
+The broker is a message broker for pubsub messaging.
+
+#### Overview
+
+The broker provides a simple abstraction for pubsub messaging. It focuses on simple semantics for fire-and-forget 
+asynchronous communication. The goal here is to provide a pattern for async notifications where some update or 
+event occurred but that does not require persistence. The client and server build in the ability to publish 
+on one side and subscribe on the other. The broker provides no message ordering guarantees.
+
+While a Service is normally called by name, messaging focuses on Topics that can have multiple publishers and 
+subscribers. The broker is abstracting away in the service's client/server which includes message encoding/decoding 
+so you don't have to spent all your time marshalling.
+
+##### Client
+
+The client containes the `Publish` method which takes a proto message, encodes it and publishes onto the broker 
+on a given topic. It takes the metadata from the client context and includes these as headers in the message 
+including the content-type so the subscribe side knows how to deal with it.
+
+##### Server
+
+The server supports a `Subscribe` method which allows you to register a handler as you would for handling requests. 
+In this way we can mirror the handler behaviour and deserialise the message when consuming from the broker. In 
+this model the server handles connecting to the broker, subscribing, consuming and executing your subscriber
+function.
+
+### Errors
+
+The errors package provides error types for most common HTTP status codes, e.g. BadRequest, InternalSeverError etc. It's reccomended when returning an error to an RPC handler, one of these errors are used. If any other type of error is returned, it's treaded as an InternalSeverError.
+
+Micro API detects these error types and will uses them to determine the response status code. For example, if your handler returns errors.BadRequest, the API will return a 400 status code. If no error is returned the API will return the default 200 status code.
+
+Error codes are also used when handling retries. If your service returns a 500 (InternalServerError) or 408 (Timeout) the the client will retry the request. Other status codes are treated as client error and won't be retried.
+
+#### Example:
+
+```go
+import (
+	"github.com/micro/micro/v3/service/errors"
+)
+
+func (u *Users) Read(ctx context.Context, req *pb.ReadRequest, rsp *pb.ReadResponse) error {
+	if len(req.Id) == 0 {
+		return errors.BadRequest("users.Read.MissingID", "Missing ID")
+	}
+
+	...
+}
+```
+
 ### Events
 
 The events service is a service for event streaming and persistent storage of events.
