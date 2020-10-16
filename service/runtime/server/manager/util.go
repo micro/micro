@@ -8,12 +8,12 @@ import (
 	"strings"
 
 	"github.com/micro/micro/v3/service/auth"
+	"github.com/micro/micro/v3/service/build"
+	"github.com/micro/micro/v3/service/build/util/tar"
 	"github.com/micro/micro/v3/service/client"
 	"github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/runtime"
 	gorun "github.com/micro/micro/v3/service/runtime"
-	"github.com/micro/micro/v3/service/runtime/builder"
-	"github.com/micro/micro/v3/service/runtime/builder/util/tar"
 	"github.com/micro/micro/v3/service/runtime/local/source/git"
 	"github.com/micro/micro/v3/service/store"
 	gostore "github.com/micro/micro/v3/service/store"
@@ -90,7 +90,7 @@ func (m *manager) build(srv *service) error {
 			return err
 		}
 
-		// archive the source so it can be passed to the builder
+		// archive the source so it can be passed to the build
 		source, err = tar.Archive(dir)
 	}
 	if err != nil {
@@ -100,9 +100,9 @@ func (m *manager) build(srv *service) error {
 
 	// build the source
 	logger.Infof("Build starting %v:%v", srv.Service.Name, srv.Service.Version)
-	build, err := builder.DefaultBuilder.Build(source,
-		builder.Archive("tar"),
-		builder.Entrypoint(srv.Options.Entrypoint),
+	build, err := build.DefaultBuilder.Build(source,
+		build.Archive("tar"),
+		build.Entrypoint(srv.Options.Entrypoint),
 	)
 	logger.Infof("Build finished %v:%v %v", srv.Service.Name, srv.Service.Version, err)
 	if err != nil {
@@ -313,8 +313,8 @@ func (m *manager) cleanupBlobStore(srv *service) {
 		logger.Warnf("Error deleting source %v: %v", srcKey, err)
 	}
 
-	// if there is no builder enabled, there won't be any build to delete
-	if builder.DefaultBuilder == nil {
+	// if there is no build enabled, there won't be any build to delete
+	if build.DefaultBuilder == nil {
 		return
 	}
 

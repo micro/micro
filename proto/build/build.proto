@@ -1,8 +1,8 @@
 syntax = "proto3";
 
-package runtime.build;
+package build;
 
-option go_package = "github.com/micro/micro/v3/proto/runtime/build;build";
+option go_package = "github.com/micro/micro/v3/proto/build;build";
 
 service Build {
   rpc Build(stream BuildRequest) returns (stream Result) {};

@@ -12,6 +12,7 @@ import (
 	"github.com/micro/micro/v3/service/broker"
 	"github.com/micro/micro/v3/service/broker/http"
 	memBroker "github.com/micro/micro/v3/service/broker/memory"
+	"github.com/micro/micro/v3/service/build/golang"
 	"github.com/micro/micro/v3/service/client"
 	"github.com/micro/micro/v3/service/config"
 	storeConfig "github.com/micro/micro/v3/service/config/store"
@@ -24,7 +25,6 @@ import (
 	"github.com/micro/micro/v3/service/router"
 	k8sRouter "github.com/micro/micro/v3/service/router/kubernetes"
 	regRouter "github.com/micro/micro/v3/service/router/registry"
-	"github.com/micro/micro/v3/service/runtime/builder/golang"
 	"github.com/micro/micro/v3/service/runtime/kubernetes"
 	"github.com/micro/micro/v3/service/runtime/local"
 	"github.com/micro/micro/v3/service/server"
@@ -35,11 +35,11 @@ import (
 	inAuth "github.com/micro/micro/v3/internal/auth"
 	"github.com/micro/micro/v3/internal/user"
 	microAuth "github.com/micro/micro/v3/service/auth"
+	microBuilder "github.com/micro/micro/v3/service/build"
 	microEvents "github.com/micro/micro/v3/service/events"
 	microRegistry "github.com/micro/micro/v3/service/registry"
 	microRouter "github.com/micro/micro/v3/service/router"
 	microRuntime "github.com/micro/micro/v3/service/runtime"
-	microBuilder "github.com/micro/micro/v3/service/runtime/builder"
 	microStore "github.com/micro/micro/v3/service/store"
 )
 

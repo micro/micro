@@ -6,10 +6,10 @@ import (
 	"github.com/micro/micro/v3/internal/kubernetes/client"
 
 	"github.com/micro/micro/v3/internal/namespace"
+	"github.com/micro/micro/v3/service/build"
 	"github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/runtime"
 	gorun "github.com/micro/micro/v3/service/runtime"
-	"github.com/micro/micro/v3/service/runtime/builder"
 )
 
 // Init initializes the runtime
@@ -86,8 +86,8 @@ func (m *manager) Create(resource gorun.Resource, opts ...runtime.CreateOption) 
 			UpdatedAt: time.Now(),
 		}
 
-		// if there is not a builder configured, start the service and then write it to the store
-		if builder.DefaultBuilder == nil {
+		// if there is not a build configured, start the service and then write it to the store
+		if build.DefaultBuilder == nil {
 			// the source could be a git remote or a reference to the blob store, parse it before we run
 			// the service
 			var err error
@@ -262,8 +262,8 @@ func (m *manager) Update(resource gorun.Resource, opts ...runtime.UpdateOption) 
 		service.Service.Source = srv.Source
 		service.UpdatedAt = time.Now()
 
-		// if there is not a builder configured, update the service and then write it to the store
-		if builder.DefaultBuilder == nil {
+		// if there is not a build configured, update the service and then write it to the store
+		if build.DefaultBuilder == nil {
 			// the source could be a git remote or a reference to the blob store, parse it before we run
 			// the service
 			var err error

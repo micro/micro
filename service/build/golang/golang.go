@@ -10,13 +10,13 @@ import (
 	"os/exec"
 	"path/filepath"
 
-	"github.com/micro/micro/v3/service/runtime/builder"
-	"github.com/micro/micro/v3/service/runtime/builder/util/tar"
-	"github.com/micro/micro/v3/service/runtime/builder/util/zip"
+	"github.com/micro/micro/v3/service/build"
+	"github.com/micro/micro/v3/service/build/util/tar"
+	"github.com/micro/micro/v3/service/build/util/zip"
 )
 
-// NewBuilder returns a golang builder which can build a go binary given some source
-func NewBuilder() (builder.Builder, error) {
+// NewBuilder returns a golang build which can build a go binary given some source
+func NewBuilder() (build.Builder, error) {
 	path, err := locateGo()
 	if err != nil {
 		return nil, fmt.Errorf("Error locating go binary: %v", err)
@@ -34,10 +34,10 @@ type golang struct {
 }
 
 // Build a binary using source. If an archive was used, e.g. tar, this should be specified in the
-// options. If no archive option is passed, the builder will treat the source as a single file.
-func (g *golang) Build(src io.Reader, opts ...builder.Option) (io.Reader, error) {
+// options. If no archive option is passed, the build will treat the source as a single file.
+func (g *golang) Build(src io.Reader, opts ...build.Option) (io.Reader, error) {
 	// parse the options
-	var options builder.Options
+	var options build.Options
 	for _, o := range opts {
 		o(&options)
 	}
@@ -93,7 +93,7 @@ func writeFile(src io.Reader, dir string) error {
 		return err
 	}
 
-	// write the file, note: in order for the golang builder to access the file, it cannot be
+	// write the file, note: in order for the golang build to access the file, it cannot be
 	// os.ModeTemp. This is okay because we delete all the files in the tmp dir at the end of this
 	// function.
 	return ioutil.WriteFile(filepath.Join(dir, "main.go"), bytes, os.ModePerm)

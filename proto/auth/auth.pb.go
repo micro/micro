@@ -8,8 +8,6 @@ import (
 	fmt "fmt"
 	proto "github.com/golang/protobuf/proto"
 	grpc "google.golang.org/grpc"
-	codes "google.golang.org/grpc/codes"
-	status "google.golang.org/grpc/status"
 	math "math"
 )
 
@@ -1517,20 +1515,6 @@ type AuthServer interface {
 	Token(context.Context, *TokenRequest) (*TokenResponse, error)
 }
 
-// UnimplementedAuthServer can be embedded to have forward compatible implementations.
-type UnimplementedAuthServer struct {
-}
-
-func (*UnimplementedAuthServer) Generate(ctx context.Context, req *GenerateRequest) (*GenerateResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Generate not implemented")
-}
-func (*UnimplementedAuthServer) Inspect(ctx context.Context, req *InspectRequest) (*InspectResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Inspect not implemented")
-}
-func (*UnimplementedAuthServer) Token(ctx context.Context, req *TokenRequest) (*TokenResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Token not implemented")
-}
-
 func RegisterAuthServer(s *grpc.Server, srv AuthServer) {
 	s.RegisterService(&_Auth_serviceDesc, srv)
 }
@@ -1661,20 +1645,6 @@ type AccountsServer interface {
 	ChangeSecret(context.Context, *ChangeSecretRequest) (*ChangeSecretResponse, error)
 }
 
-// UnimplementedAccountsServer can be embedded to have forward compatible implementations.
-type UnimplementedAccountsServer struct {
-}
-
-func (*UnimplementedAccountsServer) List(ctx context.Context, req *ListAccountsRequest) (*ListAccountsResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method List not implemented")
-}
-func (*UnimplementedAccountsServer) Delete(ctx context.Context, req *DeleteAccountRequest) (*DeleteAccountResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Delete not implemented")
-}
-func (*UnimplementedAccountsServer) ChangeSecret(ctx context.Context, req *ChangeSecretRequest) (*ChangeSecretResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ChangeSecret not implemented")
-}
-
 func RegisterAccountsServer(s *grpc.Server, srv AccountsServer) {
 	s.RegisterService(&_Accounts_serviceDesc, srv)
 }
@@ -1803,20 +1773,6 @@ type RulesServer interface {
 	Create(context.Context, *CreateRequest) (*CreateResponse, error)
 	Delete(context.Context, *DeleteRequest) (*DeleteResponse, error)
 	List(context.Context, *ListRequest) (*ListResponse, error)
-}
-
-// UnimplementedRulesServer can be embedded to have forward compatible implementations.
-type UnimplementedRulesServer struct {
-}
-
-func (*UnimplementedRulesServer) Create(ctx context.Context, req *CreateRequest) (*CreateResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Create not implemented")
-}
-func (*UnimplementedRulesServer) Delete(ctx context.Context, req *DeleteRequest) (*DeleteResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Delete not implemented")
-}
-func (*UnimplementedRulesServer) List(ctx context.Context, req *ListRequest) (*ListResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method List not implemented")
 }
 
 func RegisterRulesServer(s *grpc.Server, srv RulesServer) {

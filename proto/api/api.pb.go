@@ -8,8 +8,6 @@ import (
 	fmt "fmt"
 	proto "github.com/golang/protobuf/proto"
 	grpc "google.golang.org/grpc"
-	codes "google.golang.org/grpc/codes"
-	status "google.golang.org/grpc/status"
 	math "math"
 )
 
@@ -491,17 +489,6 @@ func (c *apiClient) Deregister(ctx context.Context, in *Endpoint, opts ...grpc.C
 type ApiServer interface {
 	Register(context.Context, *Endpoint) (*EmptyResponse, error)
 	Deregister(context.Context, *Endpoint) (*EmptyResponse, error)
-}
-
-// UnimplementedApiServer can be embedded to have forward compatible implementations.
-type UnimplementedApiServer struct {
-}
-
-func (*UnimplementedApiServer) Register(ctx context.Context, req *Endpoint) (*EmptyResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Register not implemented")
-}
-func (*UnimplementedApiServer) Deregister(ctx context.Context, req *Endpoint) (*EmptyResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Deregister not implemented")
 }
 
 func RegisterApiServer(s *grpc.Server, srv ApiServer) {

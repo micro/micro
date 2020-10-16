@@ -8,8 +8,6 @@ import (
 	fmt "fmt"
 	proto "github.com/golang/protobuf/proto"
 	grpc "google.golang.org/grpc"
-	codes "google.golang.org/grpc/codes"
-	status "google.golang.org/grpc/status"
 	math "math"
 )
 
@@ -616,17 +614,6 @@ type StreamServer interface {
 	Subscribe(*SubscribeRequest, Stream_SubscribeServer) error
 }
 
-// UnimplementedStreamServer can be embedded to have forward compatible implementations.
-type UnimplementedStreamServer struct {
-}
-
-func (*UnimplementedStreamServer) Publish(ctx context.Context, req *PublishRequest) (*PublishResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Publish not implemented")
-}
-func (*UnimplementedStreamServer) Subscribe(req *SubscribeRequest, srv Stream_SubscribeServer) error {
-	return status.Errorf(codes.Unimplemented, "method Subscribe not implemented")
-}
-
 func RegisterStreamServer(s *grpc.Server, srv StreamServer) {
 	s.RegisterService(&_Stream_serviceDesc, srv)
 }
@@ -727,17 +714,6 @@ func (c *storeClient) Write(ctx context.Context, in *WriteRequest, opts ...grpc.
 type StoreServer interface {
 	Read(context.Context, *ReadRequest) (*ReadResponse, error)
 	Write(context.Context, *WriteRequest) (*WriteResponse, error)
-}
-
-// UnimplementedStoreServer can be embedded to have forward compatible implementations.
-type UnimplementedStoreServer struct {
-}
-
-func (*UnimplementedStoreServer) Read(ctx context.Context, req *ReadRequest) (*ReadResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Read not implemented")
-}
-func (*UnimplementedStoreServer) Write(ctx context.Context, req *WriteRequest) (*WriteResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Write not implemented")
 }
 
 func RegisterStoreServer(s *grpc.Server, srv StoreServer) {

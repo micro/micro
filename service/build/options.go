@@ -1,4 +1,4 @@
-package builder
+package build
 
 // Options to use when building source
 type Options struct {

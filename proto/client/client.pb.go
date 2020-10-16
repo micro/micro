@@ -8,8 +8,6 @@ import (
 	fmt "fmt"
 	proto "github.com/golang/protobuf/proto"
 	grpc "google.golang.org/grpc"
-	codes "google.golang.org/grpc/codes"
-	status "google.golang.org/grpc/status"
 	math "math"
 )
 
@@ -296,20 +294,6 @@ type ClientServer interface {
 	Stream(Client_StreamServer) error
 	// Publish publishes a message and returns an empty Message
 	Publish(context.Context, *Message) (*Message, error)
-}
-
-// UnimplementedClientServer can be embedded to have forward compatible implementations.
-type UnimplementedClientServer struct {
-}
-
-func (*UnimplementedClientServer) Call(ctx context.Context, req *Request) (*Response, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Call not implemented")
-}
-func (*UnimplementedClientServer) Stream(srv Client_StreamServer) error {
-	return status.Errorf(codes.Unimplemented, "method Stream not implemented")
-}
-func (*UnimplementedClientServer) Publish(ctx context.Context, req *Message) (*Message, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Publish not implemented")
 }
 
 func RegisterClientServer(s *grpc.Server, srv ClientServer) {

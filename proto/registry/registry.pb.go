@@ -8,8 +8,6 @@ import (
 	fmt "fmt"
 	proto "github.com/golang/protobuf/proto"
 	grpc "google.golang.org/grpc"
-	codes "google.golang.org/grpc/codes"
-	status "google.golang.org/grpc/status"
 	math "math"
 )
 
@@ -905,26 +903,6 @@ type RegistryServer interface {
 	Deregister(context.Context, *Service) (*EmptyResponse, error)
 	ListServices(context.Context, *ListRequest) (*ListResponse, error)
 	Watch(*WatchRequest, Registry_WatchServer) error
-}
-
-// UnimplementedRegistryServer can be embedded to have forward compatible implementations.
-type UnimplementedRegistryServer struct {
-}
-
-func (*UnimplementedRegistryServer) GetService(ctx context.Context, req *GetRequest) (*GetResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetService not implemented")
-}
-func (*UnimplementedRegistryServer) Register(ctx context.Context, req *Service) (*EmptyResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Register not implemented")
-}
-func (*UnimplementedRegistryServer) Deregister(ctx context.Context, req *Service) (*EmptyResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Deregister not implemented")
-}
-func (*UnimplementedRegistryServer) ListServices(ctx context.Context, req *ListRequest) (*ListResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ListServices not implemented")
-}
-func (*UnimplementedRegistryServer) Watch(req *WatchRequest, srv Registry_WatchServer) error {
-	return status.Errorf(codes.Unimplemented, "method Watch not implemented")
 }
 
 func RegisterRegistryServer(s *grpc.Server, srv RegistryServer) {

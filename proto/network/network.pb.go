@@ -9,8 +9,6 @@ import (
 	proto "github.com/golang/protobuf/proto"
 	router "github.com/micro/micro/v3/proto/router"
 	grpc "google.golang.org/grpc"
-	codes "google.golang.org/grpc/codes"
-	status "google.golang.org/grpc/status"
 	math "math"
 )
 
@@ -1069,29 +1067,6 @@ type NetworkServer interface {
 	Services(context.Context, *ServicesRequest) (*ServicesResponse, error)
 	// Status returns network status
 	Status(context.Context, *StatusRequest) (*StatusResponse, error)
-}
-
-// UnimplementedNetworkServer can be embedded to have forward compatible implementations.
-type UnimplementedNetworkServer struct {
-}
-
-func (*UnimplementedNetworkServer) Connect(ctx context.Context, req *ConnectRequest) (*ConnectResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Connect not implemented")
-}
-func (*UnimplementedNetworkServer) Graph(ctx context.Context, req *GraphRequest) (*GraphResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Graph not implemented")
-}
-func (*UnimplementedNetworkServer) Nodes(ctx context.Context, req *NodesRequest) (*NodesResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Nodes not implemented")
-}
-func (*UnimplementedNetworkServer) Routes(ctx context.Context, req *RoutesRequest) (*RoutesResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Routes not implemented")
-}
-func (*UnimplementedNetworkServer) Services(ctx context.Context, req *ServicesRequest) (*ServicesResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Services not implemented")
-}
-func (*UnimplementedNetworkServer) Status(ctx context.Context, req *StatusRequest) (*StatusResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Status not implemented")
 }
 
 func RegisterNetworkServer(s *grpc.Server, srv NetworkServer) {

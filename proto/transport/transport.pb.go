@@ -8,8 +8,6 @@ import (
 	fmt "fmt"
 	proto "github.com/golang/protobuf/proto"
 	grpc "google.golang.org/grpc"
-	codes "google.golang.org/grpc/codes"
-	status "google.golang.org/grpc/status"
 	math "math"
 )
 
@@ -153,14 +151,6 @@ func (x *transportStreamClient) Recv() (*Message, error) {
 // TransportServer is the server API for Transport service.
 type TransportServer interface {
 	Stream(Transport_StreamServer) error
-}
-
-// UnimplementedTransportServer can be embedded to have forward compatible implementations.
-type UnimplementedTransportServer struct {
-}
-
-func (*UnimplementedTransportServer) Stream(srv Transport_StreamServer) error {
-	return status.Errorf(codes.Unimplemented, "method Stream not implemented")
 }
 
 func RegisterTransportServer(s *grpc.Server, srv TransportServer) {
