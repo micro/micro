@@ -12,6 +12,7 @@ import (
 	"github.com/micro/micro/v3/service/client"
 	"github.com/micro/micro/v3/service/client/cache"
 	"github.com/micro/micro/v3/service/context"
+	"github.com/micro/micro/v3/service/errors"
 )
 
 // srv is the service implementation of the Auth interface
@@ -235,7 +236,9 @@ func (s *srv) Token(opts ...auth.TokenOption) (*auth.AccountToken, error) {
 			Namespace: options.Issuer,
 		},
 	}, s.callOpts()...)
-	if err != nil {
+	if err != nil && errors.FromError(err).Detail == auth.ErrInvalidToken.Error() {
+		return nil, auth.ErrInvalidToken
+	} else if err != nil {
 		return nil, err
 	}
 
