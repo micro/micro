@@ -1,5 +1,5 @@
 // Package runtime is the micro runtime
-package runtime
+package cli
 
 import (
 	"github.com/micro/micro/v3/cmd"

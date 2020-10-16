@@ -28,10 +28,10 @@ import (
 	"time"
 
 	maddr "github.com/micro/micro/v3/internal/addr"
-	mnet "github.com/micro/micro/v3/internal/net"
-	mls "github.com/micro/micro/v3/internal/tls"
 	"github.com/micro/micro/v3/internal/client/buf"
+	mnet "github.com/micro/micro/v3/internal/net"
 	"github.com/micro/micro/v3/internal/network/transport"
+	mls "github.com/micro/micro/v3/internal/tls"
 	"golang.org/x/net/http2"
 	"golang.org/x/net/http2/h2c"
 )

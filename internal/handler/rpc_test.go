@@ -9,9 +9,9 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/micro/micro/v3/service/context/metadata"
 	"github.com/micro/micro/v3/profile"
 	"github.com/micro/micro/v3/service"
+	"github.com/micro/micro/v3/service/context/metadata"
 )
 
 type TestHandler struct {

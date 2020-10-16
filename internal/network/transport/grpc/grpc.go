@@ -22,8 +22,8 @@ import (
 
 	maddr "github.com/micro/micro/v3/internal/addr"
 	mnet "github.com/micro/micro/v3/internal/net"
-	mls "github.com/micro/micro/v3/internal/tls"
 	"github.com/micro/micro/v3/internal/network/transport"
+	mls "github.com/micro/micro/v3/internal/tls"
 	pb "github.com/micro/micro/v3/proto/transport"
 
 	"google.golang.org/grpc"

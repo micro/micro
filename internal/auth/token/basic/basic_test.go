@@ -19,9 +19,9 @@ package basic
 import (
 	"testing"
 
-	"github.com/micro/micro/v3/service/store/memory"
 	"github.com/micro/micro/v3/internal/auth/token"
 	"github.com/micro/micro/v3/service/auth"
+	"github.com/micro/micro/v3/service/store/memory"
 )
 
 func TestGenerate(t *testing.T) {
