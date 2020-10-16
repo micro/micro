@@ -27,31 +27,7 @@ should be thought of much like a language spec and will evolve over time.
 
 ## Installation
 
-### Helm
-
-Micro can be installed onto a Kubernetes cluster using helm. Micro will be deployed in full and leverage zero-dep implementations designed for Kubernetes. For example, micro store will internally leverage a file store on a persistant volume, meaning there are no infrastructure dependancies required.
-
-#### Dependencies
-
-You will need to be connected to a Kubernetes cluster
-
-#### Install
-
-Install micro with the following commands:
-
-```shell
-helm repo add micro https://micro.github.io/helm
-helm install micro micro/micro
-```
-
-#### Uninstall
-
-Uninstall micro with the following commands:
-
-```shell
-helm uninstall micro
-helm repo remove micro
-```
+Below are the instructions for installing micro locally, in docker or on kubernetes
 
 ### Local 
 
@@ -80,6 +56,32 @@ wget -q  https://raw.githubusercontent.com/micro/micro/master/scripts/install.sh
 
 # Windows
 powershell -Command "iwr -useb https://raw.githubusercontent.com/micro/micro/master/scripts/install.ps1 | iex"
+```
+
+### Kubernetes Helm
+
+Micro can be installed onto a Kubernetes cluster using helm. Micro will be deployed in full and leverage zero-dep implementations designed for Kubernetes. For example, micro store will internally leverage a file store on a persistant volume, meaning there are no infrastructure dependancies required.
+
+#### Dependencies
+
+You will need to be connected to a Kubernetes cluster
+
+#### Install
+
+Install micro with the following commands:
+
+```shell
+helm repo add micro https://micro.github.io/helm
+helm install micro micro/micro
+```
+
+#### Uninstall
+
+Uninstall micro with the following commands:
+
+```shell
+helm uninstall micro
+helm repo remove micro
 ```
 
 ## Server
