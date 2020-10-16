@@ -156,11 +156,6 @@ can either be interacted with using simple commands or an interactive prompt. Th
 as RPC calls to the Micro server. In many of the builtin commands it will perform formatting and additional 
 syntactic work.
 
-### User Config
-
-The command line uses local user config stores in ~/.micro for any form of state such as saved environments, 
-tokens, etc. It will always attempt to read from here unless specified otherwise. 
-
 ### Builtin Commands
 
 Built in commands are system or configuration level commands for interacting with the server or 
@@ -275,6 +270,12 @@ is equivalent to the following flags:
 ```sh
 micro registry getService --service=serviceName --options_domain=domainExample
 ```
+
+### User Config
+
+The command line uses local user config stores in ~/.micro for any form of state such as saved environments, 
+tokens, etc. It will always attempt to read from here unless specified otherwise. Currently we store all 
+config in a single file `config.json` and any auth tokens in a `tokens` file.
 
 ## Environments
 
