@@ -87,7 +87,24 @@ helm repo remove micro
 ## Server
 
 The micro server is a distributed systems runtime for the Cloud and beyond. It provides the building 
-blocks for distributed systems development as a set of services, command line and service library.
+blocks for distributed systems development as a set of services, command line and service library. 
+The server is much like a distributed operating system in the sense that each component runs 
+independent of each other but work together as one system. This composition allows us to use a 
+microservices architecture pattern even for the platform.
+
+### Overview
+
+The server provides the below functionality as built in primitives for services development.
+
+- Authentication
+- Configuration
+- PubSub Messaging
+- Event Streaming
+- Service Discovery
+- Service Networking
+- Key-Value Storage
+- HTTP API Gateway
+- gRPC Identity Proxy
 
 ### Usage
 
