@@ -150,7 +150,17 @@ func refreshAuthToken() {
 				auth.WithToken(tok.RefreshToken),
 				auth.WithExpiry(time.Minute*10),
 			)
-			if err != nil {
+			if err == auth.ErrInvalidToken {
+				logger.Warnf("[Auth] Refresh token expired, regenerating using account credentials")
+
+				tok, err = auth.Token(
+					auth.WithCredentials(
+						auth.DefaultAuth.Options().ID,
+						auth.DefaultAuth.Options().Secret,
+					),
+					auth.WithExpiry(time.Minute*10),
+				)
+			} else if err != nil {
 				logger.Warnf("[Auth] Error refreshing token: %v", err)
 				continue
 			}
