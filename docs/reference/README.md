@@ -330,7 +330,9 @@ Each environment is effectively an isolated deployment with its own authenticati
 
 ## Services
 
-The Micro Server is not a monolithic process. Instead it is composed of many separate services.
+Micro is built as a distributed operating system leveraging the microservices architecture pattern.
+
+### Overview
 
 Below we describe the list of services provided by the Micro Server. Each service is considered a 
 building block primitive for a platform and distributed systems development. The proto 
