@@ -8,8 +8,6 @@ import (
 	fmt "fmt"
 	proto "github.com/golang/protobuf/proto"
 	grpc "google.golang.org/grpc"
-	codes "google.golang.org/grpc/codes"
-	status "google.golang.org/grpc/status"
 	math "math"
 )
 
@@ -1348,29 +1346,6 @@ type StoreServer interface {
 	Tables(context.Context, *TablesRequest) (*TablesResponse, error)
 }
 
-// UnimplementedStoreServer can be embedded to have forward compatible implementations.
-type UnimplementedStoreServer struct {
-}
-
-func (*UnimplementedStoreServer) Read(ctx context.Context, req *ReadRequest) (*ReadResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Read not implemented")
-}
-func (*UnimplementedStoreServer) Write(ctx context.Context, req *WriteRequest) (*WriteResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Write not implemented")
-}
-func (*UnimplementedStoreServer) Delete(ctx context.Context, req *DeleteRequest) (*DeleteResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Delete not implemented")
-}
-func (*UnimplementedStoreServer) List(req *ListRequest, srv Store_ListServer) error {
-	return status.Errorf(codes.Unimplemented, "method List not implemented")
-}
-func (*UnimplementedStoreServer) Databases(ctx context.Context, req *DatabasesRequest) (*DatabasesResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Databases not implemented")
-}
-func (*UnimplementedStoreServer) Tables(ctx context.Context, req *TablesRequest) (*TablesResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Tables not implemented")
-}
-
 func RegisterStoreServer(s *grpc.Server, srv StoreServer) {
 	s.RegisterService(&_Store_serviceDesc, srv)
 }
@@ -1618,20 +1593,6 @@ type BlobStoreServer interface {
 	Read(*BlobReadRequest, BlobStore_ReadServer) error
 	Write(BlobStore_WriteServer) error
 	Delete(context.Context, *BlobDeleteRequest) (*BlobDeleteResponse, error)
-}
-
-// UnimplementedBlobStoreServer can be embedded to have forward compatible implementations.
-type UnimplementedBlobStoreServer struct {
-}
-
-func (*UnimplementedBlobStoreServer) Read(req *BlobReadRequest, srv BlobStore_ReadServer) error {
-	return status.Errorf(codes.Unimplemented, "method Read not implemented")
-}
-func (*UnimplementedBlobStoreServer) Write(srv BlobStore_WriteServer) error {
-	return status.Errorf(codes.Unimplemented, "method Write not implemented")
-}
-func (*UnimplementedBlobStoreServer) Delete(ctx context.Context, req *BlobDeleteRequest) (*BlobDeleteResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Delete not implemented")
 }
 
 func RegisterBlobStoreServer(s *grpc.Server, srv BlobStoreServer) {
