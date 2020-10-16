@@ -699,44 +699,6 @@ In this way we can mirror the handler behaviour and deserialise the message when
 this model the server handles connecting to the broker, subscribing, consuming and executing your subscriber
 function.
 
-#### Example
-
-Publisher:
-```go
-bytes, err := json.Marshal(&Healthcheck{
-	Healthy: true,
-	Service: "foo",
-})
-if err != nil {
-	return err
-}
-
-return broker.Publish("health", &broker.Message{Body: bytes})
-```
-
-Subscriber:
-```go
-handler := func(msg *broker.Message) error {
-	var hc Healthcheck
-	if err := json.Unmarshal(msg.Body, &hc); err != nil {
-		return err
-	}
-	
-	if hc.Healthy {
-		logger.Infof("Service %v is healty", hc.Service)
-	} else {
-		logger.Infof("Service %v is not healty", hc.Service)
-	}
-
-	return nil
-}
-
-sub, err := broker.Subscribe("health", handler)
-if err != nil {
-	return err
-}
-```
-
 ### Events
 
 The events service is a service for event streaming and persistent storage of events.
