@@ -277,7 +277,7 @@ func (a *Auth) Token(ctx context.Context, req *pb.TokenRequest, rsp *pb.TokenRes
 	if len(req.RefreshToken) > 0 {
 		accID, err := a.accountIDForRefreshToken(req.Options.Namespace, req.RefreshToken)
 		if err == store.ErrNotFound {
-			return errors.BadRequest("auth.Auth.Token", "Account can't be found for refresh token")
+			return errors.BadRequest("auth.Auth.Token", auth.ErrInvalidToken.Error())
 		} else if err != nil {
 			return errors.InternalServerError("auth.Auth.Token", "Unable to lookup token: %v", err)
 		}
