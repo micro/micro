@@ -13,8 +13,8 @@ import (
 	"github.com/micro/micro/v3/service/runtime"
 	gorun "github.com/micro/micro/v3/service/runtime"
 	"github.com/micro/micro/v3/service/runtime/builder"
+	"github.com/micro/micro/v3/service/runtime/builder/util/tar"
 	"github.com/micro/micro/v3/service/runtime/local/source/git"
-	"github.com/micro/micro/v3/service/runtime/util/tar"
 	"github.com/micro/micro/v3/service/store"
 	gostore "github.com/micro/micro/v3/service/store"
 )

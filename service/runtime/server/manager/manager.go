@@ -10,7 +10,6 @@ import (
 	"github.com/micro/micro/v3/service/runtime"
 	gorun "github.com/micro/micro/v3/service/runtime"
 	"github.com/micro/micro/v3/service/runtime/builder"
-	"github.com/micro/micro/v3/service/runtime/manager/util"
 )
 
 // Init initializes the runtime
@@ -497,6 +496,6 @@ type manager struct {
 // New returns a manager for the runtime
 func New() gorun.Runtime {
 	return &manager{
-		Runtime: util.NewCache(runtime.DefaultRuntime),
+		Runtime: NewCache(runtime.DefaultRuntime),
 	}
 }

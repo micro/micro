@@ -11,8 +11,8 @@ import (
 	"path/filepath"
 
 	"github.com/micro/micro/v3/service/runtime/builder"
-	"github.com/micro/micro/v3/service/runtime/util/tar"
-	"github.com/micro/micro/v3/service/runtime/util/zip"
+	"github.com/micro/micro/v3/service/runtime/builder/util/tar"
+	"github.com/micro/micro/v3/service/runtime/builder/util/zip"
 )
 
 // NewBuilder returns a golang builder which can build a go binary given some source
