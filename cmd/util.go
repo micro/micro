@@ -148,7 +148,7 @@ func refreshAuthToken() {
 			// generate the first token
 			tok, err := auth.Token(
 				auth.WithToken(tok.RefreshToken),
-				auth.WithExpiry(time.Second*10),
+				auth.WithExpiry(time.Minute*10),
 			)
 			if err == auth.ErrInvalidToken {
 				logger.Warnf("[Auth] Refresh token expired, regenerating using account credentials")
