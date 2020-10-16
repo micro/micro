@@ -25,6 +25,111 @@ service library which enable you to build, run, manage and consume Micro service
 walks through the majority of Micro in depth and attempts to help guide you through any usage. It 
 should be thought of much like a language spec and will evolve over time.
 
+## Installation
+
+### Helm
+
+Micro can be installed onto a Kubernetes cluster using helm. Micro will be deployed in full and leverage zero-dep implementations designed for Kubernetes. For example, micro store will internally leverage a file store on a persistant volume, meaning there are no infrastructure dependancies required.
+
+#### Dependencies
+
+You will need to be connected to a Kubernetes cluster
+
+#### Install
+
+Install micro with the following commands:
+
+```shell
+helm repo add micro https://micro.github.io/helm
+helm install micro micro/micro
+```
+
+#### Uninstall
+
+Uninstall micro with the following commands:
+
+```shell
+helm uninstall micro
+helm repo remove micro
+```
+
+### Local 
+
+Micro can be installed locally in the following way. We assume for the most part a Linux env with Go and Git installed.
+
+#### Go Get
+
+```
+go get github.com/micro/micro/v3
+```
+
+#### Docker
+
+```sh
+docker pull micro/micro
+```
+
+#### Release Binaries
+
+```sh
+# MacOS
+curl -fsSL https://raw.githubusercontent.com/micro/micro/master/scripts/install.sh | /bin/bash
+
+# Linux
+wget -q  https://raw.githubusercontent.com/micro/micro/master/scripts/install.sh -O - | /bin/bash
+
+# Windows
+powershell -Command "iwr -useb https://raw.githubusercontent.com/micro/micro/master/scripts/install.ps1 | iex"
+```
+
+## Server
+
+The micro server is a distributed systems runtime for the Cloud and beyond. It provides the building 
+blocks for distributed systems development as a set of services, command line and service library.
+
+### Usage
+
+To start the server simply run
+
+```sh
+micro server
+```
+
+This will boot the entire system and services including a http api on :8080 and grpc proxy on :8081
+
+### Help
+
+Run the following command to check help output
+```
+micro --help
+```
+
+### Commands
+
+Run helloworld and check its status
+
+```
+micro env	# should point to local
+micro run github.com/micro/services/helloworld # run helloworld
+micro status 	# wait for status running
+micro services	# should display helloworld
+```
+
+Call the service and verify output
+
+```sh
+$ micro helloworld --name=John
+{
+        "msg": "Hello John"
+}
+```
+
+Remove the service
+
+```
+micro kill helloworld
+```
+
 ## Command Line
 
 The command line interface is the primary way to interact with a micro server. Its a simple binary that 
@@ -202,111 +307,6 @@ $ micro env
 ### Login to an Environment
 
 Each environment is effectively an isolated deployment with its own authentication, storage, etc. So each env requires signup and login. At this point we have to log in to the `example` env with `micro login`. If you don't have the credentials to the environment, you have to ask the admin.
-
-## Installation
-
-### Helm
-
-Micro can be installed onto a Kubernetes cluster using helm. Micro will be deployed in full and leverage zero-dep implementations designed for Kubernetes. For example, micro store will internally leverage a file store on a persistant volume, meaning there are no infrastructure dependancies required.
-
-#### Dependencies
-
-You will need to be connected to a Kubernetes cluster
-
-#### Install
-
-Install micro with the following commands:
-
-```shell
-helm repo add micro https://micro.github.io/helm
-helm install micro micro/micro
-```
-
-#### Uninstall
-
-Uninstall micro with the following commands:
-
-```shell
-helm uninstall micro
-helm repo remove micro
-```
-
-### Local 
-
-Micro can be installed locally in the following way. We assume for the most part a Linux env with Go and Git installed.
-
-#### Go Get
-
-```
-go get github.com/micro/micro/v3
-```
-
-#### Docker
-
-```sh
-docker pull micro/micro
-```
-
-#### Release Binaries
-
-```sh
-# MacOS
-curl -fsSL https://raw.githubusercontent.com/micro/micro/master/scripts/install.sh | /bin/bash
-
-# Linux
-wget -q  https://raw.githubusercontent.com/micro/micro/master/scripts/install.sh -O - | /bin/bash
-
-# Windows
-powershell -Command "iwr -useb https://raw.githubusercontent.com/micro/micro/master/scripts/install.ps1 | iex"
-```
-
-## Server
-
-The micro service is a distributed systems runtime for the Cloud and beyond. It provides the building 
-blocks for distributed systems development as a set of microservices and framework.
-
-### Usage
-
-To start the server simply run
-
-```sh
-micro server
-```
-
-This will boot the entire system and services including a http api on :8080 and grpc proxy on :8081
-
-### Help
-
-Run the following command to check help output
-```
-micro --help
-```
-
-### Commands
-
-Run helloworld and check its status
-
-```
-micro env	# should point to local
-micro run github.com/micro/services/helloworld # run helloworld
-micro status 	# wait for status running
-micro services	# should display helloworld
-```
-
-Call the service and verify output
-
-```sh
-$ micro helloworld --name=John
-{
-        "msg": "Hello John"
-}
-```
-
-Remove the service
-
-```
-micro kill helloworld
-```
 
 ## Services
 
