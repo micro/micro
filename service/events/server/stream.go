@@ -5,12 +5,13 @@ import (
 	"sync"
 	"time"
 
-	goevents "github.com/micro/micro/v3/service/events"
+	"github.com/google/uuid"
 	"github.com/micro/micro/v3/internal/auth/namespace"
 	pb "github.com/micro/micro/v3/proto/events"
 	"github.com/micro/micro/v3/service/errors"
 	"github.com/micro/micro/v3/service/events"
 	"github.com/micro/micro/v3/service/events/util"
+	"github.com/micro/micro/v3/service/logger"
 )
 
 type Stream struct{}
@@ -27,16 +28,16 @@ func (s *Stream) Publish(ctx context.Context, req *pb.PublishRequest, rsp *pb.Pu
 
 	// validate the request
 	if len(req.Topic) == 0 {
-		return errors.BadRequest("events.Stream.Publish", goevents.ErrMissingTopic.Error())
+		return errors.BadRequest("events.Stream.Publish", events.ErrMissingTopic.Error())
 	}
 
 	// parse options
-	var opts []goevents.PublishOption
+	var opts []events.PublishOption
 	if req.Timestamp > 0 {
-		opts = append(opts, goevents.WithTimestamp(time.Unix(req.Timestamp, 0)))
+		opts = append(opts, events.WithTimestamp(time.Unix(req.Timestamp, 0)))
 	}
 	if req.Metadata != nil {
-		opts = append(opts, goevents.WithMetadata(req.Metadata))
+		opts = append(opts, events.WithMetadata(req.Metadata))
 	}
 
 	// publish the event
@@ -44,11 +45,22 @@ func (s *Stream) Publish(ctx context.Context, req *pb.PublishRequest, rsp *pb.Pu
 		return errors.InternalServerError("events.Stream.Publish", err.Error())
 	}
 
+	// write the event to the store
+	event := events.Event{
+		ID:        uuid.New().String(),
+		Metadata:  req.Metadata,
+		Payload:   req.Payload,
+		Topic:     req.Topic,
+		Timestamp: time.Unix(req.Timestamp, 0),
+	}
+	if err := events.DefaultStore.Write(&event, events.WithTTL(time.Hour*24)); err != nil {
+		logger.Errorf("Error writing event %v to store: %v", event.ID, err)
+	}
+
 	return nil
 }
 
 func (s *Stream) Subscribe(ctx context.Context, req *pb.SubscribeRequest, rsp pb.Stream_SubscribeStream) error {
-
 	// authorize the request
 	if err := namespace.Authorize(ctx, namespace.DefaultNamespace); err == namespace.ErrForbidden {
 		return errors.Forbidden("events.Stream.Publish", err.Error())
@@ -59,18 +71,18 @@ func (s *Stream) Subscribe(ctx context.Context, req *pb.SubscribeRequest, rsp pb
 	}
 
 	// parse options
-	opts := []goevents.SubscribeOption{}
+	opts := []events.SubscribeOption{}
 	if req.StartAtTime > 0 {
-		opts = append(opts, goevents.WithStartAtTime(time.Unix(req.StartAtTime, 0)))
+		opts = append(opts, events.WithStartAtTime(time.Unix(req.StartAtTime, 0)))
 	}
 	if len(req.Queue) > 0 {
-		opts = append(opts, goevents.WithQueue(req.Queue))
+		opts = append(opts, events.WithQueue(req.Queue))
 	}
 	if !req.AutoAck {
-		opts = append(opts, goevents.WithAutoAck(req.AutoAck, time.Duration(req.AckWait)/time.Nanosecond))
+		opts = append(opts, events.WithAutoAck(req.AutoAck, time.Duration(req.AckWait)/time.Nanosecond))
 	}
 	if req.RetryLimit > -1 {
-		opts = append(opts, goevents.WithRetryLimit(int(req.RetryLimit)))
+		opts = append(opts, events.WithRetryLimit(int(req.RetryLimit)))
 	}
 
 	// create the subscriber
@@ -81,7 +93,7 @@ func (s *Stream) Subscribe(ctx context.Context, req *pb.SubscribeRequest, rsp pb
 
 	type eventSent struct {
 		sent  time.Time
-		event goevents.Event
+		event events.Event
 	}
 	ackMap := map[string]eventSent{}
 	mutex := sync.RWMutex{}
