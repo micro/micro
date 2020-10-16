@@ -104,7 +104,7 @@ The server provides the below functionality as built in primitives for services 
 - Service Networking
 - Key-Value Storage
 - HTTP API Gateway
--gRPC Identity Proxy
+- gRPC Identity Proxy
 
 ### Usage
 
