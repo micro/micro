@@ -19,7 +19,7 @@ This document covers the architecture of micro, design decisions and tradeoffs m
 
 ## Overview
 
-Micro is a framework for cloud native development. It takes the concept of distributed systems and codifies it as a software 
+Micro is a platform for cloud native development. It takes the concept of distributed systems and codifies it as a software 
 design pattern using microservices and related primitives. The overall goal of Micro is to abstract away cloud infrastructure 
 and to define a set of building blocks which can be used to write cloud services aka microservices, APIs or distributed systems.
 
