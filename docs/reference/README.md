@@ -476,6 +476,72 @@ Account created: {"id":"jane","type":"","issuer":"micro","metadata":null,"scopes
 
 The freshly created account can be used with `micro login` by using the `jane` id and `bb7c1a96-c0c6-4ff5-a0e9-13d456f3db0a` password.
 
+### Broker
+
+The broker is a message broker for asynchronous pubsub messaging.
+
+#### Overview
+
+The broker provides a simple abstraction for pubsub messaging. It focuses on simple semantics for fire-and-forget 
+asynchronous communication. The goal here is to provide a pattern for async notifications where some update or 
+event occurred but that does not require persistence. The client and server build in the ability to publish 
+on one side and subscribe on the other. The broker provides no message ordering guarantees.
+
+While a Service is normally called by name, messaging focuses on Topics that can have multiple publishers and 
+subscribers. The broker is abstracting away in the service's client/server which includes message encoding/decoding 
+so you don't have to spent all your time marshalling.
+
+##### Client
+
+The client containes the `Publish` method which takes a proto message, encodes it and publishes onto the broker 
+on a given topic. It takes the metadata from the client context and includes these as headers in the message 
+including the content-type so the subscribe side knows how to deal with it.
+
+##### Server
+
+The server supports a `Subscribe` method which allows you to register a handler as you would for handling requests. 
+In this way we can mirror the handler behaviour and deserialise the message when consuming from the broker. In 
+this model the server handles connecting to the broker, subscribing, consuming and executing your subscriber
+function.
+
+#### Usage
+
+Publisher:
+```go
+bytes, err := json.Marshal(&Healthcheck{
+	Healthy: true,
+	Service: "foo",
+})
+if err != nil {
+	return err
+}
+
+return broker.Publish("health", &broker.Message{Body: bytes})
+```
+
+Subscriber:
+```go
+handler := func(msg *broker.Message) error {
+	var hc Healthcheck
+	if err := json.Unmarshal(msg.Body, &hc); err != nil {
+		return err
+	}
+	
+	if hc.Healthy {
+		logger.Infof("Service %v is healty", hc.Service)
+	} else {
+		logger.Infof("Service %v is not healty", hc.Service)
+	}
+
+	return nil
+}
+
+sub, err := broker.Subscribe("health", handler)
+if err != nil {
+	return err
+}
+```
+
 ### Config
 
 The config service provides dynamic configuration for services. 
@@ -487,7 +553,7 @@ the application itself for configuring business logic, api keys, etc. We read an
 pairs which also support nesting of JSON values. The config interface also supports storing secrets by 
 defining the secret key as an option at the time of writing the value.
 
-#### CLI usage
+#### Usage
 
 Let's assume we have a service called `helloworld` from which we want to read configuration data.
 First we have to insert said data with the cli. Config data can be organized under different "paths" with the dot notation.
@@ -544,6 +610,7 @@ $ micro config get helloworld
 ##### Secrets
 
 The config also supports secrets - values encrypted at rest. This helps in case of leaks, be it a security one or an accidental copypaste.
+
 They are fairly easy to save:
 
 ```sh
@@ -572,7 +639,7 @@ $ micro config get helloworld
 {"hush_number_key":42,"hushkey":"Very secret stuff","someboolkey":true,"somekey":"hello"}
 ```
 
-#### Service usage
+#### Service Library
 
 It is simiarly easy to access and set config values from a service.
 A good example of reading values is [the config example test service](https://github.com/micro/micro/tree/master/test/service/config-example):
@@ -677,72 +744,6 @@ $ micro config get helloworld
 By default, if not specified, `micro server` generates and saves an encryption key to the location `~/.micro/config_secret_key`. This is intended for local zero dependency use, but not for production.
 
 To specify the secret for the micro server either the envaf `MICRO_CONFIG_SECRET_KEY` or the flag `config_secret_key` key must be specified.
-
-### Broker
-
-The broker is a message broker for pubsub messaging.
-
-#### Overview
-
-The broker provides a simple abstraction for pubsub messaging. It focuses on simple semantics for fire-and-forget 
-asynchronous communication. The goal here is to provide a pattern for async notifications where some update or 
-event occurred but that does not require persistence. The client and server build in the ability to publish 
-on one side and subscribe on the other. The broker provides no message ordering guarantees.
-
-While a Service is normally called by name, messaging focuses on Topics that can have multiple publishers and 
-subscribers. The broker is abstracting away in the service's client/server which includes message encoding/decoding 
-so you don't have to spent all your time marshalling.
-
-##### Client
-
-The client containes the `Publish` method which takes a proto message, encodes it and publishes onto the broker 
-on a given topic. It takes the metadata from the client context and includes these as headers in the message 
-including the content-type so the subscribe side knows how to deal with it.
-
-##### Server
-
-The server supports a `Subscribe` method which allows you to register a handler as you would for handling requests. 
-In this way we can mirror the handler behaviour and deserialise the message when consuming from the broker. In 
-this model the server handles connecting to the broker, subscribing, consuming and executing your subscriber
-function.
-
-#### Usage
-
-Publisher:
-```go
-bytes, err := json.Marshal(&Healthcheck{
-	Healthy: true,
-	Service: "foo",
-})
-if err != nil {
-	return err
-}
-
-return broker.Publish("health", &broker.Message{Body: bytes})
-```
-
-Subscriber:
-```go
-handler := func(msg *broker.Message) error {
-	var hc Healthcheck
-	if err := json.Unmarshal(msg.Body, &hc); err != nil {
-		return err
-	}
-	
-	if hc.Healthy {
-		logger.Infof("Service %v is healty", hc.Service)
-	} else {
-		logger.Infof("Service %v is not healty", hc.Service)
-	}
-
-	return nil
-}
-
-sub, err := broker.Subscribe("health", handler)
-if err != nil {
-	return err
-}
-```
 
 ### Events
 
