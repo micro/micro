@@ -58,7 +58,7 @@ wget -q  https://raw.githubusercontent.com/micro/micro/master/scripts/install.sh
 powershell -Command "iwr -useb https://raw.githubusercontent.com/micro/micro/master/scripts/install.ps1 | iex"
 ```
 
-### Kubernetes Helm
+### Kubernetes
 
 Micro can be installed onto a Kubernetes cluster using helm. Micro will be deployed in full and leverage zero-dep implementations designed for Kubernetes. For example, micro store will internally leverage a file store on a persistant volume, meaning there are no infrastructure dependancies required.
 
