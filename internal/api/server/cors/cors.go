@@ -56,5 +56,5 @@ func SetHeaders(w http.ResponseWriter, r *http.Request) {
 
 	set(w, "Access-Control-Allow-Credentials", "true")
 	set(w, "Access-Control-Allow-Methods", "POST, PATCH, GET, OPTIONS, PUT, DELETE")
-	set(w, "Access-Control-Allow-Headers", "Accept, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, Namespace")
+	set(w, "Access-Control-Allow-Headers", "Accept, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, Micro-Namespace")
 }
