@@ -716,6 +716,10 @@ Events also different from the broker in that it provides a fixed Event type whe
 handle the decoding of the message body yourself. Events could have large payloads so we don't want to 
 unnecessarily decode where you may just want to hand off to a storage system.
 
+#### Example
+
+The [Chat Service](https://github.com/micro/services/tree/master/chat) examples usage of the events service, leveraging both the stream and store functions.
+
 ### Network
 
 The network is a service to service network for request proxying
