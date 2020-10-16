@@ -92,7 +92,7 @@ The server is much like a distributed operating system in the sense that each co
 independent of each other but work together as one system. This composition allows us to use a 
 microservices architecture pattern even for the platform.
 
-### Overview
+### Features
 
 The server provides the below functionality as built in primitives for services development.
 
