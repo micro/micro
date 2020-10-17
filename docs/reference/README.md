@@ -787,7 +787,7 @@ Micro API detects these error types and will uses them to determine the response
 
 Error codes are also used when handling retries. If your service returns a 500 (InternalServerError) or 408 (Timeout) the the client will retry the request. Other status codes are treated as client error and won't be retried.
 
-#### Example:
+#### Usage
 
 ```go
 import (
