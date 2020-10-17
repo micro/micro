@@ -38,7 +38,7 @@ Things that need to be documented for v3
 - [x] Event Streaming
 - [ ] Load Balancing
 - [ ] Running on Kubernetes
-- [ ] Example services
+- [x] Example services
 - [ ] Example design patterns
 - [x] Loading external plugins e.g etcd 
 
