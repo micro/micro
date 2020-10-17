@@ -1,4 +1,4 @@
-package runtime.build;
+package build;
 
 import static io.grpc.MethodDescriptor.generateFullMethodName;
 import static io.grpc.stub.ClientCalls.asyncBidiStreamingCall;
@@ -19,37 +19,37 @@ import static io.grpc.stub.ServerCalls.asyncUnimplementedUnaryCall;
  */
 @javax.annotation.Generated(
     value = "by gRPC proto compiler (version 1.28.0)",
-    comments = "Source: runtime/build/build.proto")
+    comments = "Source: build/build.proto")
 public final class BuildGrpc {
 
   private BuildGrpc() {}
 
-  public static final String SERVICE_NAME = "runtime.build.Build";
+  public static final String SERVICE_NAME = "build.Build";
 
   // Static method descriptors that strictly reflect the proto.
-  private static volatile io.grpc.MethodDescriptor<runtime.build.BuildOuterClass.BuildRequest,
-      runtime.build.BuildOuterClass.Result> getBuildMethod;
+  private static volatile io.grpc.MethodDescriptor<build.BuildOuterClass.BuildRequest,
+      build.BuildOuterClass.Result> getBuildMethod;
 
   @io.grpc.stub.annotations.RpcMethod(
       fullMethodName = SERVICE_NAME + '/' + "Build",
-      requestType = runtime.build.BuildOuterClass.BuildRequest.class,
-      responseType = runtime.build.BuildOuterClass.Result.class,
+      requestType = build.BuildOuterClass.BuildRequest.class,
+      responseType = build.BuildOuterClass.Result.class,
       methodType = io.grpc.MethodDescriptor.MethodType.BIDI_STREAMING)
-  public static io.grpc.MethodDescriptor<runtime.build.BuildOuterClass.BuildRequest,
-      runtime.build.BuildOuterClass.Result> getBuildMethod() {
-    io.grpc.MethodDescriptor<runtime.build.BuildOuterClass.BuildRequest, runtime.build.BuildOuterClass.Result> getBuildMethod;
+  public static io.grpc.MethodDescriptor<build.BuildOuterClass.BuildRequest,
+      build.BuildOuterClass.Result> getBuildMethod() {
+    io.grpc.MethodDescriptor<build.BuildOuterClass.BuildRequest, build.BuildOuterClass.Result> getBuildMethod;
     if ((getBuildMethod = BuildGrpc.getBuildMethod) == null) {
       synchronized (BuildGrpc.class) {
         if ((getBuildMethod = BuildGrpc.getBuildMethod) == null) {
           BuildGrpc.getBuildMethod = getBuildMethod =
-              io.grpc.MethodDescriptor.<runtime.build.BuildOuterClass.BuildRequest, runtime.build.BuildOuterClass.Result>newBuilder()
+              io.grpc.MethodDescriptor.<build.BuildOuterClass.BuildRequest, build.BuildOuterClass.Result>newBuilder()
               .setType(io.grpc.MethodDescriptor.MethodType.BIDI_STREAMING)
               .setFullMethodName(generateFullMethodName(SERVICE_NAME, "Build"))
               .setSampledToLocalTracing(true)
               .setRequestMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
-                  runtime.build.BuildOuterClass.BuildRequest.getDefaultInstance()))
+                  build.BuildOuterClass.BuildRequest.getDefaultInstance()))
               .setResponseMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
-                  runtime.build.BuildOuterClass.Result.getDefaultInstance()))
+                  build.BuildOuterClass.Result.getDefaultInstance()))
               .setSchemaDescriptor(new BuildMethodDescriptorSupplier("Build"))
               .build();
         }
@@ -108,8 +108,8 @@ public final class BuildGrpc {
 
     /**
      */
-    public io.grpc.stub.StreamObserver<runtime.build.BuildOuterClass.BuildRequest> build(
-        io.grpc.stub.StreamObserver<runtime.build.BuildOuterClass.Result> responseObserver) {
+    public io.grpc.stub.StreamObserver<build.BuildOuterClass.BuildRequest> build(
+        io.grpc.stub.StreamObserver<build.BuildOuterClass.Result> responseObserver) {
       return asyncUnimplementedStreamingCall(getBuildMethod(), responseObserver);
     }
 
@@ -119,8 +119,8 @@ public final class BuildGrpc {
             getBuildMethod(),
             asyncBidiStreamingCall(
               new MethodHandlers<
-                runtime.build.BuildOuterClass.BuildRequest,
-                runtime.build.BuildOuterClass.Result>(
+                build.BuildOuterClass.BuildRequest,
+                build.BuildOuterClass.Result>(
                   this, METHODID_BUILD)))
           .build();
     }
@@ -142,8 +142,8 @@ public final class BuildGrpc {
 
     /**
      */
-    public io.grpc.stub.StreamObserver<runtime.build.BuildOuterClass.BuildRequest> build(
-        io.grpc.stub.StreamObserver<runtime.build.BuildOuterClass.Result> responseObserver) {
+    public io.grpc.stub.StreamObserver<build.BuildOuterClass.BuildRequest> build(
+        io.grpc.stub.StreamObserver<build.BuildOuterClass.Result> responseObserver) {
       return asyncBidiStreamingCall(
           getChannel().newCall(getBuildMethod(), getCallOptions()), responseObserver);
     }
@@ -210,7 +210,7 @@ public final class BuildGrpc {
       switch (methodId) {
         case METHODID_BUILD:
           return (io.grpc.stub.StreamObserver<Req>) serviceImpl.build(
-              (io.grpc.stub.StreamObserver<runtime.build.BuildOuterClass.Result>) responseObserver);
+              (io.grpc.stub.StreamObserver<build.BuildOuterClass.Result>) responseObserver);
         default:
           throw new AssertionError();
       }
@@ -223,7 +223,7 @@ public final class BuildGrpc {
 
     @java.lang.Override
     public com.google.protobuf.Descriptors.FileDescriptor getFileDescriptor() {
-      return runtime.build.BuildOuterClass.getDescriptor();
+      return build.BuildOuterClass.getDescriptor();
     }
 
     @java.lang.Override

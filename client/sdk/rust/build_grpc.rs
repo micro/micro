@@ -42,7 +42,7 @@ impl ::grpc::ClientStub for BuildClient {
 impl BuildClient {
     pub fn build(&self, o: ::grpc::RequestOptions) -> impl ::std::future::Future<Output=::grpc::Result<(::grpc::ClientRequestSink<super::build::BuildRequest>, ::grpc::StreamingResponse<super::build::Result>)>> {
         let descriptor = ::grpc::rt::ArcOrStatic::Static(&::grpc::rt::MethodDescriptor {
-            name: ::grpc::rt::StringOrStatic::Static("/runtime.build.Build/Build"),
+            name: ::grpc::rt::StringOrStatic::Static("/build.Build/Build"),
             streaming: ::grpc::rt::GrpcStreaming::Bidi,
             req_marshaller: ::grpc::rt::ArcOrStatic::Static(&::grpc_protobuf::MarshallerProtobuf),
             resp_marshaller: ::grpc::rt::ArcOrStatic::Static(&::grpc_protobuf::MarshallerProtobuf),
@@ -59,11 +59,11 @@ pub struct BuildServer;
 impl BuildServer {
     pub fn new_service_def<H : Build + 'static + Sync + Send + 'static>(handler: H) -> ::grpc::rt::ServerServiceDefinition {
         let handler_arc = ::std::sync::Arc::new(handler);
-        ::grpc::rt::ServerServiceDefinition::new("/runtime.build.Build",
+        ::grpc::rt::ServerServiceDefinition::new("/build.Build",
             vec![
                 ::grpc::rt::ServerMethod::new(
                     ::grpc::rt::ArcOrStatic::Static(&::grpc::rt::MethodDescriptor {
-                        name: ::grpc::rt::StringOrStatic::Static("/runtime.build.Build/Build"),
+                        name: ::grpc::rt::StringOrStatic::Static("/build.Build/Build"),
                         streaming: ::grpc::rt::GrpcStreaming::Bidi,
                         req_marshaller: ::grpc::rt::ArcOrStatic::Static(&::grpc_protobuf::MarshallerProtobuf),
                         resp_marshaller: ::grpc::rt::ArcOrStatic::Static(&::grpc_protobuf::MarshallerProtobuf),
