@@ -4,7 +4,7 @@ Micro is a platform for cloud native development.
 
 ## Overview
 
-Micro addresses the key requirements for building cloud native services. It leverages the microservices
+Micro addresses the key requirements for building cloud services. It leverages the microservices
 architecture pattern and provides a set of services which act as the building blocks of a platform. Micro deals
 with the complexity of distributed systems and provides simpler programmable abstractions to build on. 
 
