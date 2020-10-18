@@ -197,7 +197,7 @@ func (s *stream) Consume(topic string, opts ...events.ConsumeOption) (<-chan eve
 	}
 
 	// connect the subscriber
-	_, err := s.conn.QueueConsume(topic, options.Queue, handleMsg, subOpts...)
+	_, err := s.conn.QueueSubscribe(topic, options.Queue, handleMsg, subOpts...)
 	if err != nil {
 		return nil, errors.Wrap(err, "Error subscribing to topic")
 	}
