@@ -190,7 +190,7 @@ func Run(ctx *cli.Context) error {
 		GoPath:    goPath,
 		UseGoPath: false,
 		Files: []file{
-			{"service.mu", tmpl.Service},
+			{"micro.mu", tmpl.Service},
 			{"main.go", tmpl.MainSRV},
 			{"generate.go", tmpl.GenerateFile},
 			{"handler/" + dir + ".go", tmpl.HandlerSRV},
