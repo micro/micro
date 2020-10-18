@@ -830,7 +830,7 @@ func Publish(topic string, msg interface{}, opts ...PublishOption) error
 The Publish function has two required arguments: topic and message. Topic is the channel you're publishing the event to, in the case of a chat application this would be the chat id. The message is any struct, e.g. the message being sent to the chat. When the subscriber recieves the event they'll be able to unmarshal this object. Publish has two supported options, WithMetadata to pass key/value pairs and WithTimestamp to override the default timestamp on the event.
 
 ```go
-func Consume(topic string, opts ...SubscribeOption) (<-chan Event, error)
+func Consume(topic string, opts ...ConsumeOption) (<-chan Event, error)
 ```
 The Consume function is used to consume events. In the case of a chat application, the client would pass the chat ID as the topic, and any events published to the stream will be sent to the event channel. Event has an Unmarshal function which can be used to access the message payload, as demonstrated below:
 
