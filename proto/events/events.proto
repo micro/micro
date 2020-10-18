@@ -5,7 +5,7 @@ option go_package = "github.com/micro/micro/v3/proto/event;events";
 
 service Stream {
   rpc Publish(PublishRequest) returns (PublishResponse);
-  rpc Subscribe(SubscribeRequest) returns (stream Event);
+  rpc Consume(ConsumeRequest) returns (stream Event);
 }
 
 service Store {
@@ -22,7 +22,7 @@ message PublishRequest {
 
 message PublishResponse {}
 
-message SubscribeRequest {
+message ConsumeRequest {
   string queue = 1;
   string topic = 2;
   int64 start_at_time = 3;

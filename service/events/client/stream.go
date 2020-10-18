@@ -53,14 +53,14 @@ func (s *stream) Publish(topic string, msg interface{}, opts ...events.PublishOp
 	return err
 }
 
-func (s *stream) Subscribe(topic string, opts ...events.SubscribeOption) (<-chan events.Event, error) {
+func (s *stream) Consume(topic string, opts ...events.ConsumeOption) (<-chan events.Event, error) {
 	// parse options
-	options := events.SubscribeOptions{AutoAck: true}
+	options := events.ConsumeOptions{AutoAck: true}
 	for _, o := range opts {
 		o(&options)
 	}
 
-	subReq := &pb.SubscribeRequest{
+	subReq := &pb.ConsumeRequest{
 		Topic:       topic,
 		Queue:       options.Queue,
 		StartAtTime: options.StartAtTime.Unix(),
@@ -70,7 +70,7 @@ func (s *stream) Subscribe(topic string, opts ...events.SubscribeOption) (<-chan
 	}
 
 	// start the stream
-	stream, err := s.client().Subscribe(context.DefaultContext, subReq, client.WithAuthToken())
+	stream, err := s.client().Consume(context.DefaultContext, subReq, client.WithAuthToken())
 	if err != nil {
 		return nil, err
 	}

@@ -822,7 +822,7 @@ unnecessarily decode where you may just want to hand off to a storage system.
 
 #### Functions
 
-The events package has two parts: Stream and Store. Stream is used to Publish and Subscribe to messages for a given topic. For example, in a chat application one user would Publish a message and another would subscribe. If you later needed to retrieve messages, you could either replay them using the Subscribe function and passing the StartAtTime option, or list them using the Read function.
+The events package has two parts: Stream and Store. Stream is used to Publish and Consume to messages for a given topic. For example, in a chat application one user would Publish a message and another would subscribe. If you later needed to retrieve messages, you could either replay them using the Subscribe function and passing the StartAtTime option, or list them using the Read function.
 
 ```go
 func Publish(topic string, msg interface{}, opts ...PublishOption) error 
@@ -830,13 +830,13 @@ func Publish(topic string, msg interface{}, opts ...PublishOption) error
 The Publish function has two required arguments: topic and message. Topic is the channel you're publishing the event to, in the case of a chat application this would be the chat id. The message is any struct, e.g. the message being sent to the chat. When the subscriber recieves the event they'll be able to unmarshal this object. Publish has two supported options, WithMetadata to pass key/value pairs and WithTimestamp to override the default timestamp on the event.
 
 ```go
-func Subscribe(topic string, opts ...SubscribeOption) (<-chan Event, error)
+func Consume(topic string, opts ...SubscribeOption) (<-chan Event, error)
 ```
-The subscribe function is used to consume events. In the case of a chat application, the client would pass the chat ID as the topic, and any events published to the stream will be sent to the event channel. Event has an Unmarshal function which can be used to access the message payload, as demonstrated below:
+The Consume function is used to consume events. In the case of a chat application, the client would pass the chat ID as the topic, and any events published to the stream will be sent to the event channel. Event has an Unmarshal function which can be used to access the message payload, as demonstrated below:
 
 ```go
 for {
-	evChan, err := events.Subscribe(chatID)
+	evChan, err := events.Consume(chatID)
 	if err != nil {
 		logger.Error("Error subscribing to topic %v: %v", chatID, err)
 		return err
@@ -851,7 +851,7 @@ for {
 			logger.Errorf("Error unmarshaling event %v: %v", ev.ID, err)
 			return err
 		}
-		logger.Infof("Recieved message: %v", msg.Subject)
+		logger.Infof("Received message: %v", msg.Subject)
 	}
 }
 ```

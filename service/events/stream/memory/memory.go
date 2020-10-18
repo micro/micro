@@ -114,14 +114,14 @@ func (m *mem) Publish(topic string, msg interface{}, opts ...events.PublishOptio
 	return nil
 }
 
-func (m *mem) Subscribe(topic string, opts ...events.SubscribeOption) (<-chan events.Event, error) {
+func (m *mem) Consume(topic string, opts ...events.ConsumeOption) (<-chan events.Event, error) {
 	// validate the topic
 	if len(topic) == 0 {
 		return nil, events.ErrMissingTopic
 	}
 
 	// parse the options
-	options := events.SubscribeOptions{
+	options := events.ConsumeOptions{
 		Queue:   uuid.New().String(),
 		AutoAck: true,
 	}
