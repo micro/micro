@@ -123,15 +123,15 @@ func (s *stream) Publish(topic string, msg interface{}, opts ...events.PublishOp
 	return nil
 }
 
-// Subscribe to a topic
-func (s *stream) Subscribe(topic string, opts ...events.SubscribeOption) (<-chan events.Event, error) {
+// Consume to a topic
+func (s *stream) Consume(topic string, opts ...events.ConsumeOption) (<-chan events.Event, error) {
 	// validate the topic
 	if len(topic) == 0 {
 		return nil, events.ErrMissingTopic
 	}
 
 	// parse the options
-	options := events.SubscribeOptions{
+	options := events.ConsumeOptions{
 		Queue:   uuid.New().String(),
 		AutoAck: true,
 	}
@@ -197,7 +197,7 @@ func (s *stream) Subscribe(topic string, opts ...events.SubscribeOption) (<-chan
 	}
 
 	// connect the subscriber
-	_, err := s.conn.QueueSubscribe(topic, options.Queue, handleMsg, subOpts...)
+	_, err := s.conn.QueueConsume(topic, options.Queue, handleMsg, subOpts...)
 	if err != nil {
 		return nil, errors.Wrap(err, "Error subscribing to topic")
 	}
