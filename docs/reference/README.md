@@ -21,7 +21,7 @@ This reference doc is an in depth guide for the technical details and usage of M
 ## Overview
 
 Micro is a platform for cloud native development. It consists of a server, command line interface and 
-service library which enable you to build, run, manage and consume Micro services. This reference 
+service library which enables you to build, run, manage and consume Micro services. This reference 
 walks through the majority of Micro in depth and attempts to help guide you through any usage. It 
 should be thought of much like a language spec and will evolve over time.
 
@@ -60,7 +60,7 @@ powershell -Command "iwr -useb https://raw.githubusercontent.com/micro/micro/mas
 
 ### Kubernetes
 
-Micro can be installed onto a Kubernetes cluster using helm. Micro will be deployed in full and leverage zero-dep implementations designed for Kubernetes. For example, micro store will internally leverage a file store on a persistant volume, meaning there are no infrastructure dependancies required.
+Micro can be installed onto a Kubernetes cluster using helm. Micro will be deployed in full and leverage zero-dep implementations designed for Kubernetes. For example, micro store will internally leverage a file store on a persistent volume, meaning there are no infrastructure dependencies required.
 
 #### Dependencies
 
@@ -151,7 +151,7 @@ micro kill helloworld
 
 ## Command Line
 
-The command line interface is the primary way to interact with a micro server. Its a simple binary that 
+The command line interface is the primary way to interact with a micro server. It's a simple binary that 
 can either be interacted with using simple commands or an interactive prompt. The CLI proxies all commands 
 as RPC calls to the Micro server. In many of the builtin commands it will perform formatting and additional 
 syntactic work.
@@ -181,7 +181,7 @@ obvious to the user. We will go through a few in more detail.
 #### Signup
 
 Signup is a command which attempts to query a "signup" to register a new account, this is env specific and requires a signup service to be 
-running. By default locally this will not exist and we expect the user to use the admin/micro credentials to administrate the system. 
+running. By default locally this will not exist and we expect the user to use the admin/micro credentials to administer the system. 
 You can then choose to run your own signup service conforming to the proto in micro/proto or use `micro auth create account`. 
 
 Signup is seen as a command for those who want to run their own micro server for others and potentially license the software to take payment.
@@ -313,7 +313,7 @@ $ micro env
 
 ### Set Environment
 
-The `*` marks wich environment is selected. Let's select the newly added:
+The `*` marks which environment is selected. Let's select the newly added:
 
 ```sh
 $ micro env set foobar
@@ -326,7 +326,7 @@ $ micro env
 
 ### Login to an Environment
 
-Each environment is effectively an isolated deployment with its own authentication, storage, etc. So each env requires signup and login. At this point we have to log in to the `example` env with `micro login`. If you don't have the credentials to the environment, you have to ask the admin.
+Each environment is effectively an isolated deployment with its own authentication, storage, etc. So each env requires signup and login. At this point we have to log in to the `example` env with `micro login`. If you don't have credentials to the environment, you have to ask the admin.
 
 ## Services
 
@@ -468,7 +468,7 @@ default			<public>		GRANTED		*:*:*			0
 Now, let's remove the default rule.
 
 ```sh
-# This command deletes the 'default' rule - the rule which enabled anyone to call the 'micro server'.
+# This command deletes the 'default' rule - the rule which enables anyone to call the 'micro server'.
 $ micro auth delete rule default
 Rule deleted
 ```
@@ -518,23 +518,23 @@ The broker is a message broker for asynchronous pubsub messaging.
 
 The broker provides a simple abstraction for pubsub messaging. It focuses on simple semantics for fire-and-forget 
 asynchronous communication. The goal here is to provide a pattern for async notifications where some update or 
-event occurred but that does not require persistence. The client and server build in the ability to publish 
+events occurred but that does not require persistence. The client and server build in the ability to publish 
 on one side and subscribe on the other. The broker provides no message ordering guarantees.
 
 While a Service is normally called by name, messaging focuses on Topics that can have multiple publishers and 
 subscribers. The broker is abstracting away in the service's client/server which includes message encoding/decoding 
-so you don't have to spent all your time marshalling.
+so you don't have to spend all your time marshalling.
 
 ##### Client
 
-The client containes the `Publish` method which takes a proto message, encodes it and publishes onto the broker 
+The client contains the `Publish` method which takes a proto message, encodes it and publishes onto the broker 
 on a given topic. It takes the metadata from the client context and includes these as headers in the message 
 including the content-type so the subscribe side knows how to deal with it.
 
 ##### Server
 
 The server supports a `Subscribe` method which allows you to register a handler as you would for handling requests. 
-In this way we can mirror the handler behaviour and deserialise the message when consuming from the broker. In 
+In this way we can mirror the handler behaviour and deserialize the message when consuming from the broker. In 
 this model the server handles connecting to the broker, subscribing, consuming and executing your subscriber
 function.
 
@@ -562,9 +562,9 @@ handler := func(msg *broker.Message) error {
 	}
 	
 	if hc.Healthy {
-		logger.Infof("Service %v is healty", hc.Service)
+		logger.Infof("Service %v is healthy", hc.Service)
 	} else {
-		logger.Infof("Service %v is not healty", hc.Service)
+		logger.Infof("Service %v is not healthy", hc.Service)
 	}
 
 	return nil
@@ -599,7 +599,7 @@ $ micro config get helloworld.somekey
 hello
 ```
 
-We can save an other key too and read all values in one go with the dot notation:
+We can save another key too and read all values in one go with the dot notation:
 
 ```sh
 $ micro config set helloworld.someotherkey "Hi there!"
@@ -643,7 +643,7 @@ $ micro config get helloworld
 
 ##### Secrets
 
-The config also supports secrets - values encrypted at rest. This helps in case of leaks, be it a security one or an accidental copypaste.
+The config also supports secrets - values encrypted at rest. This helps in case of leaks, be it a security one or an accidental copy paste.
 
 They are fairly easy to save:
 
@@ -675,7 +675,7 @@ $ micro config get helloworld
 
 #### Service Library
 
-It is simiarly easy to access and set config values from a service.
+It is similarly easy to access and set config values from a service.
 A good example of reading values is [the config example test service](https://github.com/micro/micro/tree/master/test/service/config-example):
 
 ```go
@@ -777,15 +777,15 @@ $ micro config get helloworld
 
 By default, if not specified, `micro server` generates and saves an encryption key to the location `~/.micro/config_secret_key`. This is intended for local zero dependency use, but not for production.
 
-To specify the secret for the micro server either the envaf `MICRO_CONFIG_SECRET_KEY` or the flag `config_secret_key` key must be specified.
+To specify the secret for the micro server either the envar `MICRO_CONFIG_SECRET_KEY` or the flag `config_secret_key` key must be specified.
 
 ### Errors
 
-The errors package provides error types for most common HTTP status codes, e.g. BadRequest, InternalSeverError etc. It's reccomended when returning an error to an RPC handler, one of these errors are used. If any other type of error is returned, it's treaded as an InternalSeverError.
+The errors package provides error types for most common HTTP status codes, e.g. BadRequest, InternalSeverError etc. It's recommended when returning an error to an RPC handler, one of these errors is used. If any other type of error is returned, it's treated as an InternalSeverError.
 
-Micro API detects these error types and will uses them to determine the response status code. For example, if your handler returns errors.BadRequest, the API will return a 400 status code. If no error is returned the API will return the default 200 status code.
+Micro API detects these error types and will use them to determine the response status code. For example, if your handler returns errors.BadRequest, the API will return a 400 status code. If no error is returned the API will return the default 200 status code.
 
-Error codes are also used when handling retries. If your service returns a 500 (InternalServerError) or 408 (Timeout) the the client will retry the request. Other status codes are treated as client error and won't be retried.
+Error codes are also used when handling retries. If your service returns a 500 (InternalServerError) or 408 (Timeout) then the client will retry the request. Other status codes are treated as client error and won't be retried.
 
 #### Usage
 
@@ -810,7 +810,7 @@ The events service is a service for event streaming and persistent storage of ev
 #### Overview
 
 Event streaming differs from pubsub messaging in that it provides an ordered stream of events that can be consumed 
-or replayed from any given point in the past. If you have experience with Kafka then you know its basically a 
+or replayed from any given point in the past. If you have experience with Kafka then you know it's basically a 
 distributed log which allows you to read a file from different offsets and stream it.
 
 The event service and interface provide the event streaming abstraction for writing and reading events along with 
@@ -827,7 +827,7 @@ The events package has two parts: Stream and Store. Stream is used to Publish an
 ```go
 func Publish(topic string, msg interface{}, opts ...PublishOption) error 
 ```
-The Publish function has two required arguments: topic and message. Topic is the channel you're publishing the event to, in the case of a chat application this would be the chat id. The message is any struct, e.g. the message being sent to the chat. When the subscriber recieves the event they'll be able to unmarshal this object. Publish has two supported options, WithMetadata to pass key/value pairs and WithTimestamp to override the default timestamp on the event.
+The Publish function has two required arguments: topic and message. Topic is the channel you're publishing the event to, in the case of a chat application this would be the chat id. The message is any struct, e.g. the message being sent to the chat. When the subscriber receives the event they'll be able to unmarshal this object. Publish has two supported options, WithMetadata to pass key/value pairs and WithTimestamp to override the default timestamp on the event.
 
 ```go
 func Subscribe(topic string, opts ...SubscribeOption) (<-chan Event, error)
@@ -846,12 +846,12 @@ for {
 		if !ok {
 			break
 		}
-		var msg Messsage
+		var msg Message
 		if err :=ev.Unmarshal(&msg); err != nil {
 			logger.Errorf("Error unmarshaling event %v: %v", ev.ID, err)
 			return err
 		}
-		logger.Infof("Recieved message: %v", msg.Subject)
+		logger.Infof("Received message: %v", msg.Subject)
 	}
 }
 ```
@@ -982,7 +982,7 @@ Then the CLI will upload that folder to the runtime and the runtime runs that.
 
 #### Running a git source
 
-If the first paremeter to `micro run` points to a git repository (be it on GitHub, GitLab, Bitbucket or any other provider), then the address gets sent to the runtime and the runtime downloads the code and runs it.
+If the first parameter to `micro run` points to a git repository (be it on GitHub, GitLab, Bitbucket or any other provider), then the address gets sent to the runtime and the runtime downloads the code and runs it.
 
 ##### Using references
 
@@ -1000,7 +1000,7 @@ NAME		VERSION	SOURCE					STATUS	BUILD	UPDATED		METADATA
 helloworld	latest	github.com/micro/services/helloworld	running	n/a	20h43m45s ago	owner=admin, group=micro
 ```
 
-The output includes the error if there is one. Commands like `micro kill`, `micro logs`, `micro update` accept the name returned by the `micro status` as first parameter (and not the service name as that might differ).
+The output includes the error if there is one. Commands like `micro kill`, `micro logs`, `micro update` accept the name returned by the `micro status` as the first parameter (and not the service name as that might differ).
 
 #### Updating a service
 
@@ -1020,7 +1020,7 @@ Examples: `micro kill helloworld`.
 
 The `micro logs` command shows logs for a runtime object. It accepts the name returned by `micro status`.
 
-The `-f` flag makes the command stream logs continously.
+The `-f` flag makes the command stream logs continuously.
 
 Examples: `micro logs helloworld`, `micro logs -f helloworld`.
 
@@ -1035,11 +1035,11 @@ For a good beginner level doc on the Store, please see the [Getting started tuto
 Key-value stores that support ordering of keys can be used to build complex applications.
 Due to their very limited feature set, key-value stores generally scale easily and reliably, often linearly with the number of nodes added.
 
-This scalability comes at the expense of inconvenience and mental overhead when writing business logic. For usecases where linear scalability is important, this tradeoff is preferred.
+This scalability comes at the expense of inconvenience and mental overhead when writing business logic. For use cases where linear scalability is important, this trade-off is preferred.
 
 #### Query by ID
 
-Reading by ID is the archetypical job for key value stores. Storing data to enable this ID works just like in any other database:
+Reading by ID is the archetypal job for key value stores. Storing data to enable this ID works just like in any other database:
 
 ```sh
 # entries designed for querying "users by id"
@@ -1067,9 +1067,9 @@ Given this data structure, we can do two queries:
 - if the keys are ordered, we can ask for X number of entries after a key (get 3 entries after "id2")
 
 Finding values in an ordered set is possibly the simplest task we can ask a database.
-The problem with the above data structure is that it's not very useful to ask "find me keys coming in the order after "id2". To enable other kind of queries, the data must be saved with different keys.
+The problem with the above data structure is that it's not very useful to ask "find me keys coming in the order after "id2". To enable other kinds of queries, the data must be saved with different keys.
 
-In the case of the schoold students, let's say we wan't to list by class. To do this, having the query in mind, we can copy the data over to an other table named after the query we want to do:
+In the case of the schoold students, let's say we wan't to list by class. To do this, having the query in mind, we can copy the data over to another table named after the query we want to do:
 
 #### Query by Field Value Equality
 
@@ -1118,7 +1118,7 @@ At the moment Micro's store does not support this kind of query, this example is
 
 #### Tables Usage
 
-Micro services only have access to one Store table. This means all keys take live in the same namespace and can collide. A very useful pattern is to separate the entries by their intended query pattern, ie taking the "users by id" and users by class records above:
+Micro services only have access to one Store table. This means all keys live in the same namespace and can collide. A very useful pattern is to separate the entries by their intended query pattern, ie taking the "users by id" and users by class records above:
 
 ```sh
 KEY         VALUE
@@ -1205,7 +1205,7 @@ Micro is a pluggable architecture built on Go's interface types. Plugins enable 
 
 Micro is pluggable, meaning the implementation for each module can be replaced depending on the requirements. Plugins are applied to the micro server and not to services directly, this is done so the underlying infrastructure can change with zero code changes required in your services. 
 
-An example of a pluggable interface is the store. Locally micro will use a filestore to persist data, this is great because it requires zero dependancies and still offers persistance between restarts. When running micro in a test suite, this could be swapped to an in-memory cache which is better suited as it offers consistency between runs. In production, this can be swapped out for standalone infrastructure such as cockroachdb or etcd depending on the requirement.
+An example of a pluggable interface is the store. Locally micro will use a filestore to persist data, this is great because it requires zero dependencies and still offers persistence between restarts. When running micro in a test suite, this could be swapped to an in-memory cache which is better suited as it offers consistency between runs. In production, this can be swapped out for standalone infrastructure such as cockroachdb or etcd depending on the requirement.
 
 Let's take an example where our service wants to load data from the store. Our service would call `store.Read(userPrefix + userID)` to load the value, behind the scenes this will execute an RPC to the store service which will in-turn call `store.Read` on the current `DefaultStore` implementation configured for the server. 
 
