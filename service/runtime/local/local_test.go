@@ -25,23 +25,23 @@ import (
 func TestEntrypoint(t *testing.T) {
 	wd, _ := os.Getwd()
 
-	// test a service with idiomatic folder structure
-	result, err := Entrypoint(filepath.Join(wd, "test"))
+	// test a service with a single .mu file
+	result, err := Entrypoint(filepath.Join(wd, "test/bar"))
 	assert.Nil(t, err, "Didn'expected entrypoint to return an error")
-	assert.Equal(t, "cmd/test/main.go", result, "Expected entrypoint to return cmd/test/main.go")
+	assert.Equal(t, "bar.mu", result, "Expected entrypoint to return bar.mu")
 
-	// test a service with a top level main.go
-	result, err = Entrypoint(filepath.Join(wd, "test/bar"))
-	assert.Nil(t, err, "Didn'expected entrypoint to return an error")
-	assert.Equal(t, "main.go", result, "Expected entrypoint to return main.go")
-
-	// test a service with multiple main.go files within the cmd folder
+	// test a service with multiple .mu files within the cmd folder
 	result, err = Entrypoint(filepath.Join(wd, "test/foo"))
-	assert.Error(t, err, "Expected entrypoint to return an error when multiple main.go files exist")
+	assert.Error(t, err, "Expected entrypoint to return an error when multiple .mu files exist")
 	assert.Equal(t, "", result, "Expected entrypoint to not return a result")
 
-	// test a service with no main.go files
+	// test a service with no .mu or main.go files
 	result, err = Entrypoint(filepath.Join(wd, "test/empty"))
-	assert.Error(t, err, "Expected entrypoint to return an error when no main.go files exist")
+	assert.Error(t, err, "Expected entrypoint to return an error when no .mu files exist and no main.go files exist")
 	assert.Equal(t, "", result, "Expected entrypoint to not return a result")
+
+	// test a service with idiomatic folder structure and no .mu file
+	result, err = Entrypoint(filepath.Join(wd, "test/qux"))
+	assert.Nil(t, err, "Didn't expecte entrypoint to return an error")
+	assert.Equal(t, "cmd/test/main.go", result, "Expected entrypoint to return cmd/test/main.go")
 }
