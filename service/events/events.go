@@ -38,7 +38,7 @@ var (
 // Stream is an event streaming interface
 type Stream interface {
 	Publish(topic string, msg interface{}, opts ...PublishOption) error
-	Subscribe(topic string, opts ...SubscribeOption) (<-chan Event, error)
+	Consume(topic string, opts ...ConsumeOption) (<-chan Event, error)
 }
 
 // Store is an event store interface
@@ -95,9 +95,9 @@ func Publish(topic string, msg interface{}, opts ...PublishOption) error {
 	return DefaultStream.Publish(topic, msg, opts...)
 }
 
-// Subscribe to events
-func Subscribe(topic string, opts ...SubscribeOption) (<-chan Event, error) {
-	return DefaultStream.Subscribe(topic, opts...)
+// Consume to events
+func Consume(topic string, opts ...ConsumeOption) (<-chan Event, error) {
+	return DefaultStream.Consume(topic, opts...)
 }
 
 // Read events for a topic
