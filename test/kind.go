@@ -22,6 +22,7 @@ func init() {
 		// "TestStoreImpl",
 		"TestCorruptedTokenLogin",
 		"TestRunPrivateSource",
+		"TestRunVendorDeps",
 		"TestEventsStream",
 		"TestRPC",
 	}

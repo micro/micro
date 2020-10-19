@@ -224,6 +224,19 @@ func testRunVendorDeps(t *T) {
 	}, 60*time.Second); err != nil {
 		return
 	}
+
+	if err := Try("Find vendortest in registry", t, func() ([]byte, error) {
+		outp, err = cmd.Exec("services")
+		if err != nil {
+			return outp, err
+		}
+		if !strings.Contains(string(outp), "vendortest") {
+			return outp, errors.New("vendortest is not running")
+		}
+		return outp, nil
+	}, 60*time.Second); err != nil {
+		return
+	}
 }
 
 func TestRunGithubSource(t *testing.T) {
