@@ -127,13 +127,8 @@ func (r *localRuntime) Create(resource runtime.Resource, opts ...runtime.CreateO
 			s.Source = filepath.Join(s.Source, options.Entrypoint)
 		}
 		if len(options.Command) == 0 {
-			ep, err := Entrypoint(s.Source)
-			if err != nil {
-				return err
-			}
-
 			options.Command = []string{"go"}
-			options.Args = []string{"run", ep}
+			options.Args = []string{"run", "."}
 		}
 
 		// pass secrets as env vars
