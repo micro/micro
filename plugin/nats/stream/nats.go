@@ -189,8 +189,8 @@ func (s *stream) Consume(topic string, opts ...events.ConsumeOption) (<-chan eve
 		stan.DurableName(topic),
 		stan.SetManualAckMode(),
 	}
-	if options.StartAtTime.Unix() > 0 {
-		subOpts = append(subOpts, stan.StartAtTime(options.StartAtTime))
+	if options.Offset.Unix() > 0 {
+		subOpts = append(subOpts, stan.StartAtTime(options.Offset))
 	}
 	if options.AckWait > 0 {
 		subOpts = append(subOpts, stan.AckWait(options.AckWait))

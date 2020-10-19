@@ -61,12 +61,12 @@ func (s *stream) Consume(topic string, opts ...events.ConsumeOption) (<-chan eve
 	}
 
 	subReq := &pb.ConsumeRequest{
-		Topic:       topic,
-		Queue:       options.Queue,
-		StartAtTime: options.StartAtTime.Unix(),
-		AutoAck:     options.AutoAck,
-		AckWait:     options.AckWait.Nanoseconds(),
-		RetryLimit:  int64(options.GetRetryLimit()),
+		Topic:      topic,
+		Queue:      options.Queue,
+		Offset:     options.Offset.Unix(),
+		AutoAck:    options.AutoAck,
+		AckWait:    options.AckWait.Nanoseconds(),
+		RetryLimit: int64(options.GetRetryLimit()),
 	}
 
 	// start the stream

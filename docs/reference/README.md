@@ -822,7 +822,7 @@ unnecessarily decode where you may just want to hand off to a storage system.
 
 #### Functions
 
-The events package has two parts: Stream and Store. Stream is used to Publish and Consume to messages for a given topic. For example, in a chat application one user would Publish a message and another would subscribe. If you later needed to retrieve messages, you could either replay them using the Subscribe function and passing the StartAtTime option, or list them using the Read function.
+The events package has two parts: Stream and Store. Stream is used to Publish and Consume to messages for a given topic. For example, in a chat application one user would Publish a message and another would subscribe. If you later needed to retrieve messages, you could either replay them using the Subscribe function and passing the Offset option, or list them using the Read function.
 
 ```go
 func Publish(topic string, msg interface{}, opts ...PublishOption) error 

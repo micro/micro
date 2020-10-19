@@ -72,8 +72,8 @@ func (s *Stream) Consume(ctx context.Context, req *pb.ConsumeRequest, rsp pb.Str
 
 	// parse options
 	opts := []events.ConsumeOption{}
-	if req.StartAtTime > 0 {
-		opts = append(opts, events.WithStartAtTime(time.Unix(req.StartAtTime, 0)))
+	if req.Offset > 0 {
+		opts = append(opts, events.WithOffset(time.Unix(req.Offset, 0)))
 	}
 	if len(req.Queue) > 0 {
 		opts = append(opts, events.WithQueue(req.Queue))

@@ -154,8 +154,8 @@ func (m *mem) Consume(topic string, opts ...events.ConsumeOption) (<-chan events
 	m.Unlock()
 
 	// lookup previous events if the start time option was passed
-	if options.StartAtTime.Unix() > 0 {
-		go m.lookupPreviousEvents(sub, options.StartAtTime)
+	if options.Offset.Unix() > 0 {
+		go m.lookupPreviousEvents(sub, options.Offset)
 	}
 
 	// return the channel

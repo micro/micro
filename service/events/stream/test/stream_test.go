@@ -141,7 +141,7 @@ func runTestStream(t *testing.T, stream events.Stream) {
 		// create the second subscriber
 		evChan2, err := stream.Subscribe(topic,
 			events.WithQueue("second_queue"),
-			events.WithStartAtTime(time.Now().Add(time.Minute*-1)),
+			events.WithOffset(time.Now().Add(time.Minute*-1)),
 		)
 		assert.Nilf(t, err, "Subscribe should not return an error")
 

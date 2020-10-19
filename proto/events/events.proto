@@ -25,7 +25,7 @@ message PublishResponse {}
 message ConsumeRequest {
   string queue = 1;
   string topic = 2;
-  int64 start_at_time = 3;
+  int64 offset = 3;
   bool auto_ack = 4;
   // duration in nanoseconds
   int64 ack_wait = 5;
