@@ -7,17 +7,20 @@ permalink: /resources
 summary: 
 ---
 
+## Resources
+
 A list of external resources, videos, tutorials and blog posts are below. Feel free to contribute.
 
 ## Official
 
-- Join [slack](https://slack.micro.mu) for the official community
+- Join [Discord](https://discord.gg/hbmJEct) or [Slack](https://slack.micro.mu) for discussions
 - See [M3O](https://m3o.com) for the hosted platform
 - Follow [@microhq](https://twitter.com/microhq) for the latest news
 - Checkout [Awesome Micro](https://github.com/micro/awesome-micro) for more resources
 
 # Podcasts
 
+- [Micro on InfoQ](https://www.infoq.com/podcasts/microservices-go-micro-paas3/) - Asim on Micro, the future of Cloud and PaaS 3.0
 - [Micro on GoTime](https://changelog.com/gotime/8) with Asim, Brian, Erik and Carlisia
 
 # Tutorials

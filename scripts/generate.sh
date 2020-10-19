@@ -1,4 +1,5 @@
 #!/bin/bash -e
+cd ./proto
 
 find . -type f -name '*.pb.*.go' -o -name '*.pb.go' -a ! -name 'message.pb.go' -delete
 PROTOS=$(find . -type f -name '*.proto' | grep -v proto/google/api)
@@ -13,3 +14,5 @@ for PROTO in $PROTOS; do
 done
 
 rm -r proto
+
+cd ..

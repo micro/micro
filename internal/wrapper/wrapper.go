@@ -6,19 +6,18 @@ import (
 	"strings"
 	"time"
 
-	"github.com/micro/go-micro/v3/client"
-	"github.com/micro/go-micro/v3/debug/trace"
-	"github.com/micro/go-micro/v3/metadata"
-	"github.com/micro/go-micro/v3/metrics"
-	"github.com/micro/go-micro/v3/server"
+	inauth "github.com/micro/micro/v3/internal/auth"
 	"github.com/micro/micro/v3/internal/auth/namespace"
+	"github.com/micro/micro/v3/internal/debug/trace"
 	"github.com/micro/micro/v3/service/auth"
+	"github.com/micro/micro/v3/service/client"
 	"github.com/micro/micro/v3/service/client/cache"
+	"github.com/micro/micro/v3/service/context/metadata"
 	"github.com/micro/micro/v3/service/debug"
 	"github.com/micro/micro/v3/service/errors"
 	"github.com/micro/micro/v3/service/logger"
-	microMetrics "github.com/micro/micro/v3/service/metrics"
-	muserver "github.com/micro/micro/v3/service/server"
+	"github.com/micro/micro/v3/service/metrics"
+	"github.com/micro/micro/v3/service/server"
 )
 
 type authWrapper struct {
@@ -55,7 +54,7 @@ func (a *authWrapper) wrapContext(ctx context.Context, opts ...client.CallOption
 
 	// check to see if we have a valid access token
 	if authOpts.Token != nil && !authOpts.Token.Expired() {
-		ctx = metadata.Set(ctx, "Authorization", auth.BearerScheme+authOpts.Token.AccessToken)
+		ctx = metadata.Set(ctx, "Authorization", inauth.BearerScheme+authOpts.Token.AccessToken)
 		return ctx
 	}
 
@@ -77,12 +76,12 @@ func AuthHandler() server.HandlerWrapper {
 			var token string
 			if header, ok := metadata.Get(ctx, "Authorization"); ok {
 				// Ensure the correct scheme is being used
-				if !strings.HasPrefix(header, auth.BearerScheme) {
+				if !strings.HasPrefix(header, inauth.BearerScheme) {
 					return errors.Unauthorized(req.Service(), "invalid authorization header. expected Bearer schema")
 				}
 
 				// Strip the bearer scheme prefix
-				token = strings.TrimPrefix(header, auth.BearerScheme)
+				token = strings.TrimPrefix(header, inauth.BearerScheme)
 			}
 
 			// Determine the namespace
@@ -145,7 +144,7 @@ var (
 
 func (f *fromServiceWrapper) setHeaders(ctx context.Context) context.Context {
 	return metadata.MergeContext(ctx, metadata.Metadata{
-		HeaderPrefix + "From-Service": muserver.DefaultServer.Options().Name,
+		HeaderPrefix + "From-Service": server.DefaultServer.Options().Name,
 	}, false)
 }
 
@@ -348,7 +347,7 @@ func MetricsHandler() server.HandlerWrapper {
 			}
 
 			// Instrument the result (if the DefaultClient has been configured):
-			microMetrics.Timing("service.handler", time.Since(callTime), tags)
+			metrics.Timing("service.handler", time.Since(callTime), tags)
 
 			return err
 		}

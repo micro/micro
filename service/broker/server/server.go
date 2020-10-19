@@ -4,12 +4,11 @@ import (
 	"context"
 	"time"
 
-	"github.com/micro/go-micro/v3/broker"
 	authns "github.com/micro/micro/v3/internal/auth/namespace"
 	"github.com/micro/micro/v3/internal/namespace"
 	pb "github.com/micro/micro/v3/proto/broker"
 	"github.com/micro/micro/v3/service"
-	mubroker "github.com/micro/micro/v3/service/broker"
+	"github.com/micro/micro/v3/service/broker"
 	"github.com/micro/micro/v3/service/errors"
 	"github.com/micro/micro/v3/service/logger"
 	log "github.com/micro/micro/v3/service/logger"
@@ -39,7 +38,7 @@ func Run(ctx *cli.Context) error {
 	srv := service.New(srvOpts...)
 
 	// connect to the broker
-	mubroker.DefaultBroker.Connect()
+	broker.DefaultBroker.Connect()
 
 	// register the broker handler
 	pb.RegisterBrokerHandler(srv.Server(), new(handler))
@@ -66,7 +65,7 @@ func (h *handler) Publish(ctx context.Context, req *pb.PublishRequest, rsp *pb.E
 	}
 
 	log.Debugf("Publishing message to %s topic in the %v namespace", req.Topic, ns)
-	err := mubroker.DefaultBroker.Publish(ns+"."+req.Topic, &broker.Message{
+	err := broker.DefaultBroker.Publish(ns+"."+req.Topic, &broker.Message{
 		Header: req.Message.Header,
 		Body:   req.Message.Body,
 	})
@@ -107,7 +106,7 @@ func (h *handler) Subscribe(ctx context.Context, req *pb.SubscribeRequest, strea
 	}
 
 	log.Debugf("Subscribing to %s topic in namespace %v", req.Topic, ns)
-	sub, err := mubroker.DefaultBroker.Subscribe(ns+"."+req.Topic, handler, broker.Queue(ns+"."+req.Queue))
+	sub, err := broker.DefaultBroker.Subscribe(ns+"."+req.Topic, handler, broker.Queue(ns+"."+req.Queue))
 	if err != nil {
 		return errors.InternalServerError("broker.Broker.Subscribe", err.Error())
 	}

@@ -30,7 +30,7 @@ jobs:
         git config --local user.name "GitHub Action"
         git add client/sdk/ && git commit -m "Regenerate client sdks from proto" || true
 
-    - name: Push changes
-      uses: ad-m/github-push-action@master
+    - name: Create Pull Request
+      uses: peter-evans/create-pull-request@v3
       with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
+        title: "Regenerate client sdks from proto"

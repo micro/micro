@@ -5,13 +5,12 @@ import (
 	"unicode"
 
 	"github.com/google/uuid"
-	goauth "github.com/micro/go-micro/v3/auth"
-	"github.com/micro/go-micro/v3/errors"
-	"github.com/micro/go-micro/v3/logger"
 	"github.com/micro/micro/v3/client/cli/namespace"
 	clitoken "github.com/micro/micro/v3/client/cli/token"
 	"github.com/micro/micro/v3/client/cli/util"
 	"github.com/micro/micro/v3/service/auth"
+	"github.com/micro/micro/v3/service/errors"
+	"github.com/micro/micro/v3/service/logger"
 	"github.com/urfave/cli/v2"
 )
 
@@ -59,8 +58,8 @@ func setupAuthForCLI(ctx *cli.Context) error {
 	// Check if token is valid
 	if time.Now().Before(tok.Expiry.Add(time.Minute * -1)) {
 		auth.DefaultAuth.Init(
-			goauth.ClientToken(tok),
-			goauth.Issuer(ns),
+			auth.ClientToken(tok),
+			auth.Issuer(ns),
 		)
 		return nil
 	}
@@ -77,8 +76,8 @@ func setupAuthForCLI(ctx *cli.Context) error {
 
 	// Save the token to user config file
 	auth.DefaultAuth.Init(
-		goauth.ClientToken(tok),
-		goauth.Issuer(ns),
+		auth.ClientToken(tok),
+		auth.Issuer(ns),
 	)
 	return clitoken.Save(ctx, tok)
 }
@@ -121,8 +120,8 @@ func setupAuthForService() error {
 
 	// set the credentials and token in auth options
 	auth.DefaultAuth.Init(
-		goauth.ClientToken(token),
-		goauth.Credentials(accID, accSecret),
+		auth.ClientToken(token),
+		auth.Credentials(accID, accSecret),
 	)
 	return nil
 }
@@ -151,14 +150,24 @@ func refreshAuthToken() {
 				auth.WithToken(tok.RefreshToken),
 				auth.WithExpiry(time.Minute*10),
 			)
-			if err != nil {
+			if err == auth.ErrInvalidToken {
+				logger.Warnf("[Auth] Refresh token expired, regenerating using account credentials")
+
+				tok, err = auth.Token(
+					auth.WithCredentials(
+						auth.DefaultAuth.Options().ID,
+						auth.DefaultAuth.Options().Secret,
+					),
+					auth.WithExpiry(time.Minute*10),
+				)
+			} else if err != nil {
 				logger.Warnf("[Auth] Error refreshing token: %v", err)
 				continue
 			}
 
 			// set the token
 			logger.Debugf("Auth token refreshed, expires at %v", tok.Expiry.Format(time.UnixDate))
-			auth.DefaultAuth.Init(goauth.ClientToken(tok))
+			auth.DefaultAuth.Init(auth.ClientToken(tok))
 		}
 	}
 }

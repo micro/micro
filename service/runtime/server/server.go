@@ -3,12 +3,13 @@ package server
 import (
 	"os"
 
-	goruntime "github.com/micro/go-micro/v3/runtime"
 	pb "github.com/micro/micro/v3/proto/runtime"
 	"github.com/micro/micro/v3/service"
 	log "github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/runtime"
-	"github.com/micro/micro/v3/service/runtime/manager"
+	goruntime "github.com/micro/micro/v3/service/runtime"
+	"github.com/micro/micro/v3/service/runtime/server/handler"
+	"github.com/micro/micro/v3/service/runtime/server/manager"
 	"github.com/urfave/cli/v2"
 )
 
@@ -69,7 +70,7 @@ func Run(ctx *cli.Context) error {
 	}
 
 	// register the handlers
-	pb.RegisterRuntimeHandler(srv.Server(), &Runtime{Runtime: manager})
+	pb.RegisterRuntimeHandler(srv.Server(), &handler.Runtime{Runtime: manager})
 	pb.RegisterBuildHandler(srv.Server(), new(Build))
 	pb.RegisterSourceHandler(srv.Server(), new(Source))
 

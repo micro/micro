@@ -45,6 +45,20 @@ rules:
   - get
   - watch
   - list
+- apiGroups:
+  - "networking.k8s.io"
+  resources:
+  - networkpolicy
+  - networkpolicies
+  verbs:
+  - get
+  - create
+  - update
+  - delete
+  - deletecollection
+  - list
+  - patch
+  - watch
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
@@ -104,6 +118,22 @@ spec:
     spec:
       serviceAccount: micro-runtime
       serviceAccountName: micro-runtime
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: name
+                      operator: In
+                      values:
+                        - micro-runtime
+                    - key: micro
+                      operator: In
+                      values:
+                        - runtime
+                topologyKey: "kubernetes.io/hostname"
       containers:
       - name: micro
         env:
@@ -151,6 +181,11 @@ spec:
             secretKeyRef:
               name: minio-creds
               key: secret_key
+        - name: MICRO_BLOB_STORE_REGION
+          valueFrom:
+            secretKeyRef:
+              name: minio-creds
+              key: region
         - name: MICRO_LOG_LEVEL
           value: "debug"
         - name: MICRO_STORE_ADDRESS

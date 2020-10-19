@@ -27,6 +27,22 @@ spec:
         prometheus.io/path: /metrics
         prometheus.io/port: "9000"
     spec:
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: name
+                      operator: In
+                      values:
+                        - micro-store
+                    - key: micro
+                      operator: In
+                      values:
+                        - runtime
+                topologyKey: "kubernetes.io/hostname"
       containers:
       - name: micro
         env:
@@ -78,6 +94,11 @@ spec:
             secretKeyRef:
               name: minio-creds
               key: secret_key
+        - name: MICRO_BLOB_STORE_REGION
+          valueFrom:
+            secretKeyRef:
+              name: minio-creds
+              key: region
         image: micro/platform
         imagePullPolicy: Always
         args:

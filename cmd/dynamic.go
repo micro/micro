@@ -8,14 +8,14 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"unicode"
 
-	goclient "github.com/micro/go-micro/v3/client"
-	goregistry "github.com/micro/go-micro/v3/registry"
 	"github.com/micro/micro/v3/client/cli/namespace"
 	"github.com/micro/micro/v3/client/cli/util"
 	"github.com/micro/micro/v3/service/client"
 	"github.com/micro/micro/v3/service/context"
 	"github.com/micro/micro/v3/service/registry"
+	goregistry "github.com/micro/micro/v3/service/registry"
 	"github.com/urfave/cli/v2"
 )
 
@@ -63,11 +63,19 @@ func lookupService(ctx *cli.Context) (*goregistry.Service, string, error) {
 }
 
 // formatServiceUsage returns a string containing the service usage.
-func formatServiceUsage(srv *goregistry.Service, alias string) string {
+func formatServiceUsage(srv *goregistry.Service, c *cli.Context) string {
+	alias := c.Args().First()
+	subcommand := c.Args().Get(1)
+
 	commands := make([]string, len(srv.Endpoints))
+	endpoints := make([]*goregistry.Endpoint, len(srv.Endpoints))
 	for i, e := range srv.Endpoints {
 		// map "Helloworld.Call" to "helloworld.call"
-		name := strings.ToLower(e.Name)
+		parts := strings.Split(e.Name, ".")
+		for i, part := range parts {
+			parts[i] = lowcaseInitial(part)
+		}
+		name := strings.Join(parts, ".")
 
 		// remove the prefix if it is the service name, e.g. rather than
 		// "micro run helloworld helloworld call", it would be
@@ -77,16 +85,58 @@ func formatServiceUsage(srv *goregistry.Service, alias string) string {
 		// instead of "micro run helloworld foo.bar", the command should
 		// be "micro run helloworld foo bar".
 		commands[i] = strings.Replace(name, ".", " ", 1)
+		endpoints[i] = e
 	}
 
 	// sort the command names alphabetically
 	sort.Strings(commands)
 
-	result := fmt.Sprintf("NAME:\n\t%v\n\n", srv.Name)
-	result += fmt.Sprintf("VERSION:\n\t%v\n\n", srv.Version)
-	result += fmt.Sprintf("USAGE:\n\tmicro %v [flags] [command]\n\n", alias)
-	result += fmt.Sprintf("COMMANDS:\n\t%v\n\n", strings.Join(commands, "\n\t"))
+	result := ""
+	if len(subcommand) > 0 && subcommand != "--help" {
+		result += fmt.Sprintf("NAME:\n\tmicro %v %v\n\n", alias, subcommand)
+		result += fmt.Sprintf("USAGE:\n\tmicro %v %v [flags]\n\n", alias, subcommand)
+		result += fmt.Sprintf("FLAGS:\n")
+
+		for i, command := range commands {
+			if command == subcommand {
+				result += renderFlags(endpoints[i])
+			}
+		}
+	} else {
+		result += fmt.Sprintf("NAME:\n\tmicro %v\n\n", alias)
+		result += fmt.Sprintf("VERSION:\n\t%v\n\n", srv.Version)
+		result += fmt.Sprintf("USAGE:\n\tmicro %v [command]\n\n", alias)
+		result += fmt.Sprintf("COMMANDS:\n\t%v\n", strings.Join(commands, "\n\t"))
+
+	}
+
 	return result
+}
+
+func lowcaseInitial(str string) string {
+	for i, v := range str {
+		return string(unicode.ToLower(v)) + str[i+1:]
+	}
+	return ""
+}
+
+func renderFlags(endpoint *goregistry.Endpoint) string {
+	ret := ""
+	for _, value := range endpoint.Request.Values {
+		ret += renderValue([]string{}, value) + "\n"
+	}
+	return ret
+}
+
+func renderValue(path []string, value *goregistry.Value) string {
+	if len(value.Values) > 0 {
+		renders := []string{}
+		for _, v := range value.Values {
+			renders = append(renders, renderValue(append(path, value.Name), v))
+		}
+		return strings.Join(renders, "\n")
+	}
+	return fmt.Sprintf("\t--%v %v", strings.Join(append(path, value.Name), "_"), value.Type)
 }
 
 // callService will call a service using the arguments and flags provided
@@ -94,7 +144,7 @@ func formatServiceUsage(srv *goregistry.Service, alias string) string {
 // was an error performing the call, it will be returned.
 func callService(srv *goregistry.Service, namespace string, ctx *cli.Context) error {
 	// parse the flags and args
-	args, flags, err := splitCmdArgs(ctx)
+	args, flags, err := splitCmdArgs(ctx.Args().Slice())
 	if err != nil {
 		return err
 	}
@@ -138,9 +188,9 @@ func callService(srv *goregistry.Service, namespace string, ctx *cli.Context) er
 	// TODO: parse out --header or --metadata
 
 	// construct and execute the request using the json content type
-	req := client.DefaultClient.NewRequest(srv.Name, endpoint, body, goclient.WithContentType("application/json"))
+	req := client.DefaultClient.NewRequest(srv.Name, endpoint, body, client.WithContentType("application/json"))
 	var rsp json.RawMessage
-	if err := client.DefaultClient.Call(callCtx, req, &rsp, goclient.WithAuthToken()); err != nil {
+	if err := client.DefaultClient.Call(callCtx, req, &rsp, client.WithAuthToken()); err != nil {
 		return err
 	}
 
@@ -159,11 +209,11 @@ func callService(srv *goregistry.Service, namespace string, ctx *cli.Context) er
 // splitCmdArgs takes a cli context and parses out the args and flags, for
 // example "micro helloworld --name=foo call apple" would result in "call",
 // "apple" as args and {"name":"foo"} as the flags.
-func splitCmdArgs(ctx *cli.Context) ([]string, map[string]string, error) {
+func splitCmdArgs(arguments []string) ([]string, map[string][]string, error) {
 	args := []string{}
-	flags := map[string]string{}
+	flags := map[string][]string{}
 
-	for _, a := range ctx.Args().Slice() {
+	for _, a := range arguments {
 		if !strings.HasPrefix(a, "--") {
 			args = append(args, a)
 			continue
@@ -171,11 +221,15 @@ func splitCmdArgs(ctx *cli.Context) ([]string, map[string]string, error) {
 
 		// comps would be "foo", "bar" for "--foo=bar"
 		comps := strings.Split(strings.TrimPrefix(a, "--"), "=")
+		_, exists := flags[comps[0]]
+		if !exists {
+			flags[comps[0]] = []string{}
+		}
 		switch len(comps) {
 		case 1:
-			flags[comps[0]] = ""
+			flags[comps[0]] = append(flags[comps[0]], "")
 		case 2:
-			flags[comps[0]] = comps[1]
+			flags[comps[0]] = append(flags[comps[0]], comps[1])
 		default:
 			return nil, nil, fmt.Errorf("Invalid flag: %v. Expected format: --foo=bar", a)
 		}
@@ -207,7 +261,7 @@ func constructEndpoint(args []string) (string, error) {
 
 // shouldRenderHelp returns true if the help flag was passed
 func shouldRenderHelp(ctx *cli.Context) bool {
-	_, flags, _ := splitCmdArgs(ctx)
+	_, flags, _ := splitCmdArgs(ctx.Args().Slice())
 	for key := range flags {
 		if key == "help" {
 			return true
@@ -219,22 +273,93 @@ func shouldRenderHelp(ctx *cli.Context) bool {
 // flagsToRequeest parses a set of flags, e.g {name:"Foo", "options_surname","Bar"} and
 // converts it into a request body. If the key is not a valid object in the request, an
 // error will be returned.
-func flagsToRequest(flags map[string]string, req *goregistry.Value) (map[string]interface{}, error) {
+//
+// This function constructs []interface{} slices
+// as opposed to typed ([]string etc) slices for easier testing
+func flagsToRequest(flags map[string][]string, req *goregistry.Value) (map[string]interface{}, error) {
 	result := map[string]interface{}{}
-	coerceValue := func(valueType, value string) (interface{}, error) {
+	coerceValue := func(valueType string, value []string) (interface{}, error) {
 		switch valueType {
 		case "bool":
-			return strconv.ParseBool(value)
+			return strconv.ParseBool(value[0])
 		case "int32":
-			return strconv.Atoi(value)
+			return strconv.Atoi(value[0])
 		case "int64":
-			return strconv.ParseInt(value, 0, 64)
+			return strconv.ParseInt(value[0], 0, 64)
 		case "float64":
-			return strconv.ParseFloat(value, 64)
+			return strconv.ParseFloat(value[0], 64)
+		case "[]bool":
+			// length is one if it's a `,` separated int slice
+			if len(value) == 1 {
+				value = strings.Split(value[0], ",")
+			}
+			ret := []interface{}{}
+			for _, v := range value {
+				i, err := strconv.ParseBool(v)
+				if err != nil {
+					return nil, err
+				}
+				ret = append(ret, i)
+			}
+			return ret, nil
+		case "[]int32":
+			// length is one if it's a `,` separated int slice
+			if len(value) == 1 {
+				value = strings.Split(value[0], ",")
+			}
+			ret := []interface{}{}
+			for _, v := range value {
+				i, err := strconv.Atoi(v)
+				if err != nil {
+					return nil, err
+				}
+				ret = append(ret, int32(i))
+			}
+			return ret, nil
+		case "[]int64":
+			// length is one if it's a `,` separated int slice
+			if len(value) == 1 {
+				value = strings.Split(value[0], ",")
+			}
+			ret := []interface{}{}
+			for _, v := range value {
+				i, err := strconv.ParseInt(v, 0, 64)
+				if err != nil {
+					return nil, err
+				}
+				ret = append(ret, i)
+			}
+			return ret, nil
+		case "[]float64":
+			// length is one if it's a `,` separated float slice
+			if len(value) == 1 {
+				value = strings.Split(value[0], ",")
+			}
+			ret := []interface{}{}
+			for _, v := range value {
+				i, err := strconv.ParseFloat(v, 64)
+				if err != nil {
+					return nil, err
+				}
+				ret = append(ret, i)
+			}
+			return ret, nil
+		case "[]string":
+			// length is one it's a `,` separated string slice
+			if len(value) == 1 {
+				value = strings.Split(value[0], ",")
+			}
+			ret := []interface{}{}
+			for _, v := range value {
+				ret = append(ret, v)
+			}
+			return ret, nil
+		case "string":
+			return value[0], nil
 		default:
 			return value, nil
 		}
-
+		return nil, nil
 	}
 loop:
 	for key, value := range flags {
@@ -246,6 +371,7 @@ loop:
 				if err != nil {
 					return nil, err
 				}
+
 				result[key] = parsed
 				continue loop
 			}
@@ -264,7 +390,11 @@ loop:
 				} else if _, ok := result[attr.Name].(map[string]string); !ok {
 					return nil, fmt.Errorf("Error parsing request, duplicate key: %v", key)
 				}
-				result[attr.Name].(map[string]string)[attr2.Name] = value
+				parsed, err := coerceValue(attr2.Type, value)
+				if err != nil {
+					return nil, err
+				}
+				result[attr.Name].(map[string]interface{})[attr2.Name] = parsed
 				continue loop
 			}
 		}

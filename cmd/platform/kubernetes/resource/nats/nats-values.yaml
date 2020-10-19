@@ -1,0 +1,55 @@
+###############################
+#                             #
+#  NATS Server Configuration  #
+#                             #
+###############################
+
+# Copied from https://github.com/nats-io/k8s/blob/master/helm/charts/nats/values.yaml with minor modifications
+nats:
+  #######################
+  #                     #
+  #  TLS Configuration  #
+  #                     #
+  #######################
+  #
+  #  # You can find more on how to setup and trouble shoot TLS connnections at:
+  #
+  #  # https://docs.nats.io/nats-server/configuration/securing_nats/tls
+  #
+
+  tls:
+    secret:
+      name: nats-server-certs
+    ca: "ca.pem"
+    cert: "server.pem"
+    key: "server-key.pem"
+
+  # TODO migrate to this
+  jetstream:
+    enabled: false
+
+# Affinity for pod assignment
+# ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity
+affinity:
+  podAntiAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+        podAffinityTerm:
+          labelSelector:
+            matchExpressions:
+              - key: app
+                operator: In
+                values:
+                  - nats-cluster
+          topologyKey: "kubernetes.io/hostname"
+
+cluster:
+  enabled: true
+  replicas: 3
+  tls:
+    secret:
+      name: nats-peer-certs
+    ca: "ca.pem"
+    cert: "route.pem"
+    key: "route-key.pem"
+

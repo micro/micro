@@ -2,25 +2,22 @@
 package ci
 
 import (
-	"github.com/micro/go-micro/v3/auth/jwt"
-	"github.com/micro/go-micro/v3/broker/http"
-	config "github.com/micro/go-micro/v3/config/store"
-	evStore "github.com/micro/go-micro/v3/events/store"
-	memStream "github.com/micro/go-micro/v3/events/stream/memory"
-	"github.com/micro/go-micro/v3/runtime/local"
-	"github.com/micro/go-micro/v3/store/file"
+	"github.com/micro/micro/v3/service/runtime/local"
+	"github.com/micro/micro/plugin/etcd/v3"
 	"github.com/micro/micro/v3/profile"
+	"github.com/micro/micro/v3/service/auth"
+	"github.com/micro/micro/v3/service/auth/jwt"
+	"github.com/micro/micro/v3/service/broker/http"
+	"github.com/micro/micro/v3/service/config"
+	storeConfig "github.com/micro/micro/v3/service/config/store"
+	"github.com/micro/micro/v3/service/events"
+	evStore "github.com/micro/micro/v3/service/events/store"
+	memStream "github.com/micro/micro/v3/service/events/stream/memory"
 	"github.com/micro/micro/v3/service/logger"
-	"github.com/urfave/cli/v2"
-
-	microAuth "github.com/micro/micro/v3/service/auth"
-	microConfig "github.com/micro/micro/v3/service/config"
-	microEvents "github.com/micro/micro/v3/service/events"
 	microRuntime "github.com/micro/micro/v3/service/runtime"
-	microStore "github.com/micro/micro/v3/service/store"
-
-	// external plugins
-	"github.com/micro/go-plugins/registry/etcd/v3"
+	"github.com/micro/micro/v3/service/store"
+	"github.com/micro/micro/v3/service/store/file"
+	"github.com/urfave/cli/v2"
 )
 
 func init() {
@@ -31,19 +28,19 @@ func init() {
 var Profile = &profile.Profile{
 	Name: "ci",
 	Setup: func(ctx *cli.Context) error {
-		microAuth.DefaultAuth = jwt.NewAuth()
+		auth.DefaultAuth = jwt.NewAuth()
 		microRuntime.DefaultRuntime = local.NewRuntime()
-		microStore.DefaultStore = file.NewStore()
-		microConfig.DefaultConfig, _ = config.NewConfig(microStore.DefaultStore, "")
-		microEvents.DefaultStream, _ = memStream.NewStream()
-		microEvents.DefaultStore = evStore.NewStore(evStore.WithStore(microStore.DefaultStore))
+		store.DefaultStore = file.NewStore()
+		config.DefaultConfig, _ = storeConfig.NewConfig(store.DefaultStore, "")
+		events.DefaultStream, _ = memStream.NewStream()
+		events.DefaultStore = evStore.NewStore(evStore.WithStore(store.DefaultStore))
 		profile.SetupBroker(http.NewBroker())
 		profile.SetupRegistry(etcd.NewRegistry())
 		profile.SetupJWT(ctx)
 		profile.SetupConfigSecretKey(ctx)
 
 		var err error
-		microStore.DefaultBlobStore, err = file.NewBlobStore()
+		store.DefaultBlobStore, err = file.NewBlobStore()
 		if err != nil {
 			logger.Fatalf("Error configuring file blob store: %v", err)
 		}

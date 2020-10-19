@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/micro/go-micro/v3/runtime/local"
+	"github.com/micro/micro/v3/service/runtime/local"
 )
 
 // main prints out the entrypoint, e.g cmd/test/main.go for the current directory. If there is an
