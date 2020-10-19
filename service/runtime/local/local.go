@@ -128,7 +128,7 @@ func (r *localRuntime) Create(resource runtime.Resource, opts ...runtime.CreateO
 		}
 		if len(options.Command) == 0 {
 			options.Command = []string{"go"}
-			options.Args = []string{"run", "."}
+			options.Args = []string{"run", "-mod", "vendor", "."}
 		}
 
 		// pass secrets as env vars
@@ -144,6 +144,7 @@ func (r *localRuntime) Create(resource runtime.Resource, opts ...runtime.CreateO
 		}
 
 		// create new service
+		fmt.Println("RUNNING", s.Source)
 		service := newService(s, options)
 
 		f, err := os.OpenFile(logFile(service.Name), os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)

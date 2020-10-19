@@ -317,13 +317,25 @@ func GetRepoRoot(fullPath string) (string, error) {
 	prev := fullPath
 	for {
 		current := prev
-		exists, err := pathExists(filepath.Join(current, ".git"))
+
+		// check for a go.mod
+		goExists, err := pathExists(filepath.Join(current, "go.mod"))
 		if err != nil {
 			return "", err
 		}
-		if exists {
+		if goExists {
 			return current, nil
 		}
+
+		// check for .git
+		gitExists, err := pathExists(filepath.Join(current, ".git"))
+		if err != nil {
+			return "", err
+		}
+		if gitExists {
+			return current, nil
+		}
+
 		prev = filepath.Dir(current)
 		// reached top level, see:
 		// https://play.golang.org/p/rDgVdk3suzb

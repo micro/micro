@@ -64,8 +64,15 @@ func (g *golang) Build(src io.Reader, opts ...build.Option) (io.Reader, error) {
 		return nil, err
 	}
 
+	// check for vendor directory before setting mod to vendor. the vendor directory wasn't uploaded
+	// in early v3 betas so this enables backwards compatability
+	mod := "vendor"
+	if _, err := os.Stat(filepath.Join(dir, "vendor")); err != nil {
+		mod = "mod"
+	}
+
 	// build the binary
-	cmd := exec.Command(g.cmdPath, "build", "-o", "micro_build", ".")
+	cmd := exec.Command(g.cmdPath, "build", "-o", "micro_build", "-mod", mod, ".")
 	cmd.Env = append(os.Environ(), "GO111MODULE=auto")
 	cmd.Dir = filepath.Join(dir, options.Entrypoint)
 
