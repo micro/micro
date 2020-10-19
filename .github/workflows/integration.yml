@@ -19,6 +19,11 @@ jobs:
     - name: Check out code
       uses: actions/checkout@v2
 
+    - name: Checkout test repo (required for vendor tests)
+      uses: actions/checkout@v1
+      repository: 'micro/test'
+      path: '../test'
+
     # http://man7.org/linux/man-pages/man1/date.1.html
     - name: Get Date
       id: get-date

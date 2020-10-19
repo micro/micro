@@ -185,6 +185,47 @@ func testRunAndKill(t *T) {
 	}
 }
 
+func TestRunVendorDeps(t *testing.T) {
+	TrySuite(t, testRunVendorDeps, retryCount)
+}
+
+func testRunVendorDeps(t *T) {
+	t.Parallel()
+
+	serv := NewServer(t, WithLogin())
+	defer serv.Close()
+	if err := serv.Run(); err != nil {
+		return
+	}
+
+	cmd := serv.Command()
+	outp, err := cmd.Exec("run", "--image", "localhost:5000/cells:v3", "./vendortest")
+	if err != nil {
+		t.Fatalf("micro run failure, output: %v", string(outp))
+		return
+	}
+
+	if err := Try("Find vendortest in runtime", t, func() ([]byte, error) {
+		outp, err = cmd.Exec("status")
+		if err != nil {
+			return outp, err
+		}
+
+		if !statusRunning("vendortest", version, outp) {
+			return outp, errors.New("Output should contain vendortest")
+		}
+		if !strings.Contains(string(outp), "owner=admin") || !(strings.Contains(string(outp), "group=micro") || strings.Contains(string(outp), "group="+serv.Env())) {
+			return outp, errors.New("micro status does not have correct owner or group")
+		}
+		if strings.Contains(string(outp), "unknown") {
+			return outp, errors.New("there should be no unknown in the micro status output")
+		}
+		return outp, nil
+	}, 60*time.Second); err != nil {
+		return
+	}
+}
+
 func TestRunGithubSource(t *testing.T) {
 	TrySuite(t, testRunGithubSource, retryCount)
 }
