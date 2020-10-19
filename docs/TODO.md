@@ -20,9 +20,9 @@ Things that need to be documented for v3
 - [x] Getting Started: Installation
 - [x] Environments
 - [x] Architecture
+- [x] Reference Guide
 - [ ] Concepts
 - [ ] Tutorials
-- [ ] Reference Guide
 - [ ] Best practices
 - [ ] Service Library
 - [x] Getting Started
@@ -39,6 +39,6 @@ Things that need to be documented for v3
 - [ ] Load Balancing
 - [ ] Running on Kubernetes
 - [x] Example services
-- [ ] Example design patterns
+- [ ] Example design patterns (event sourcing, data denormalisation)
 - [x] Loading external plugins e.g etcd 
-
+- [ ] Using client/server wrappers
