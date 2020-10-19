@@ -132,7 +132,7 @@ func (s *stream) Consume(topic string, opts ...events.ConsumeOption) (<-chan eve
 
 	// parse the options
 	options := events.ConsumeOptions{
-		Queue:   uuid.New().String(),
+		Group:   uuid.New().String(),
 		AutoAck: true,
 	}
 	for _, o := range opts {
@@ -197,7 +197,7 @@ func (s *stream) Consume(topic string, opts ...events.ConsumeOption) (<-chan eve
 	}
 
 	// connect the subscriber
-	_, err := s.conn.QueueSubscribe(topic, options.Queue, handleMsg, subOpts...)
+	_, err := s.conn.QueueSubscribe(topic, options.Group, handleMsg, subOpts...)
 	if err != nil {
 		return nil, errors.Wrap(err, "Error subscribing to topic")
 	}

@@ -23,7 +23,7 @@ message PublishRequest {
 message PublishResponse {}
 
 message ConsumeRequest {
-  string queue = 1;
+  string group = 1;
   string topic = 2;
   int64 offset = 3;
   bool auto_ack = 4;

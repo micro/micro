@@ -43,9 +43,9 @@ func WithTimestamp(t time.Time) PublishOption {
 
 // ConsumeOptions contains all the options which can be provided when subscribing to a topic
 type ConsumeOptions struct {
-	// Queue is the name of the subscribers queue, if two subscribers have the same queue the message
-	// should only be published to one of them
-	Queue string
+	// Group is the name of the consumer group, if two consumers have the same group the events
+	// are distributed between them
+	Group string
 	// Offset is the time from which the messages should be consumed from. If not provided then
 	// the messages will be consumed starting from the moment the Subscription starts.
 	Offset time.Time
@@ -65,10 +65,10 @@ type ConsumeOptions struct {
 // ConsumeOption sets attributes on ConsumeOptions
 type ConsumeOption func(o *ConsumeOptions)
 
-// WithQueue sets the Queue fielf on ConsumeOptions to the value provided
-func WithQueue(q string) ConsumeOption {
+// WithGroup sets the consumer group to be part of when consuming events
+func WithGroup(q string) ConsumeOption {
 	return func(o *ConsumeOptions) {
-		o.Queue = q
+		o.Group = q
 	}
 }
 

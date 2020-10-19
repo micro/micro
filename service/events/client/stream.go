@@ -62,7 +62,7 @@ func (s *stream) Consume(topic string, opts ...events.ConsumeOption) (<-chan eve
 
 	subReq := &pb.ConsumeRequest{
 		Topic:      topic,
-		Queue:      options.Queue,
+		Group:      options.Group,
 		Offset:     options.Offset.Unix(),
 		AutoAck:    options.AutoAck,
 		AckWait:    options.AckWait.Nanoseconds(),

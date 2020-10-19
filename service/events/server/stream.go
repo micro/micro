@@ -75,8 +75,8 @@ func (s *Stream) Consume(ctx context.Context, req *pb.ConsumeRequest, rsp pb.Str
 	if req.Offset > 0 {
 		opts = append(opts, events.WithOffset(time.Unix(req.Offset, 0)))
 	}
-	if len(req.Queue) > 0 {
-		opts = append(opts, events.WithQueue(req.Queue))
+	if len(req.Group) > 0 {
+		opts = append(opts, events.WithGroup(req.Group))
 	}
 	if !req.AutoAck {
 		opts = append(opts, events.WithAutoAck(req.AutoAck, time.Duration(req.AckWait)/time.Nanosecond))
