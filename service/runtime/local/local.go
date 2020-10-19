@@ -127,13 +127,8 @@ func (r *localRuntime) Create(resource runtime.Resource, opts ...runtime.CreateO
 			s.Source = filepath.Join(s.Source, options.Entrypoint)
 		}
 		if len(options.Command) == 0 {
-			ep, err := Entrypoint(s.Source)
-			if err != nil {
-				return err
-			}
-
 			options.Command = []string{"go"}
-			options.Args = []string{"run", ep}
+			options.Args = []string{"run", "."}
 		}
 
 		// pass secrets as env vars
@@ -519,10 +514,39 @@ func (r *localRuntime) String() string {
 }
 
 // Entrypoint determines the entrypoint for the service, since main.go doesn't always exist at
-// the top level
+// the top level. Entrypoint will firstly look for a directory containing a .mu file (e.g. users.mu),
+// if this isn't present it'll look for main.go in the top level of the directory and then in the
+// cmd package (idiomatic service structure).
 func Entrypoint(dir string) (string, error) {
+	// entrypoints is a slice of all .mu files in the directory
 	var entrypoints []string
+	filepath.Walk(dir, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
 
+		// get the relative path to the directory
+		rel, err := filepath.Rel(dir, path)
+		if err != nil {
+			return err
+		}
+
+		// check for the file extension
+		if strings.HasSuffix(rel, ".mu") {
+			entrypoints = append(entrypoints, rel)
+		}
+
+		return nil
+	})
+	if len(entrypoints) == 1 {
+		return entrypoints[0], nil
+	} else if len(entrypoints) > 1 {
+		return "", errors.New("More than one .mu file found")
+	}
+
+	// mainEntrypoints is a slice of all main.go files in a directory which are either at the top level
+	// or in the cmd folder.
+	var mainEntrypoints []string
 	filepath.Walk(dir, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
@@ -541,18 +565,16 @@ func Entrypoint(dir string) (string, error) {
 
 		// only look for main.go files
 		if filepath.Base(rel) == "main.go" {
-			entrypoints = append(entrypoints, rel)
+			mainEntrypoints = append(mainEntrypoints, rel)
 		}
 
 		return nil
 	})
 
-	switch len(entrypoints) {
-	case 0:
-		return "", errors.New("No entrypoint found")
-	case 1:
-		return entrypoints[0], nil
-	default:
-		return "", errors.New("More than one entrypoint found")
+	// only one main.go was found, use this as the fallback
+	if len(mainEntrypoints) == 1 {
+		return mainEntrypoints[0], nil
 	}
+
+	return "", errors.New("No entrypoint found. Add a .mu file to the directory you want to run")
 }
