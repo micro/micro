@@ -128,7 +128,13 @@ func (r *localRuntime) Create(resource runtime.Resource, opts ...runtime.CreateO
 		}
 		if len(options.Command) == 0 {
 			options.Command = []string{"go"}
-			options.Args = []string{"run", "-mod", "vendor", "."}
+
+			// not all source will have a vendor directory (e.g. source pulled from a git remote)
+			if _, err := os.Stat(filepath.Join(s.Source, "vendor")); err == nil {
+				options.Args = []string{"run", "-mod", "vendor", "."}
+			} else {
+				options.Args = []string{"run", "."}
+			}
 		}
 
 		// pass secrets as env vars
