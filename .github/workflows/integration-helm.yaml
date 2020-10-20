@@ -9,7 +9,7 @@ jobs:
       DOCKER_BUILDKIT: '1'
     steps:
     - id: checkout-micro
-      uses: actions/checkout@v2'
+      uses: actions/checkout@v2
 
     - name: Set up Go 1.13
       uses: actions/setup-go@v2
