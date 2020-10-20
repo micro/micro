@@ -15,8 +15,9 @@ jobs:
     - id: checkout-test
       name: Checkout test repo (required for vendor tests)
       uses: actions/checkout@v2
-      repository: 'micro/test'
-      path: '../test'
+      with:
+        repository: 'micro/test'
+        path: '../test'
 
     - name: Set up Go 1.13
       uses: actions/setup-go@v2
