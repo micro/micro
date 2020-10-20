@@ -4,6 +4,17 @@
 var grpc = require('grpc');
 var events_events_pb = require('../events/events_pb.js');
 
+function serialize_events_ConsumeRequest(arg) {
+  if (!(arg instanceof events_events_pb.ConsumeRequest)) {
+    throw new Error('Expected argument of type events.ConsumeRequest');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_events_ConsumeRequest(buffer_arg) {
+  return events_events_pb.ConsumeRequest.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
 function serialize_events_Event(arg) {
   if (!(arg instanceof events_events_pb.Event)) {
     throw new Error('Expected argument of type events.Event');
@@ -59,17 +70,6 @@ function deserialize_events_ReadResponse(buffer_arg) {
   return events_events_pb.ReadResponse.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
-function serialize_events_SubscribeRequest(arg) {
-  if (!(arg instanceof events_events_pb.SubscribeRequest)) {
-    throw new Error('Expected argument of type events.SubscribeRequest');
-  }
-  return Buffer.from(arg.serializeBinary());
-}
-
-function deserialize_events_SubscribeRequest(buffer_arg) {
-  return events_events_pb.SubscribeRequest.deserializeBinary(new Uint8Array(buffer_arg));
-}
-
 function serialize_events_WriteRequest(arg) {
   if (!(arg instanceof events_events_pb.WriteRequest)) {
     throw new Error('Expected argument of type events.WriteRequest');
@@ -105,14 +105,14 @@ var StreamService = exports.StreamService = {
     responseSerialize: serialize_events_PublishResponse,
     responseDeserialize: deserialize_events_PublishResponse,
   },
-  subscribe: {
-    path: '/events.Stream/Subscribe',
+  consume: {
+    path: '/events.Stream/Consume',
     requestStream: false,
     responseStream: true,
-    requestType: events_events_pb.SubscribeRequest,
+    requestType: events_events_pb.ConsumeRequest,
     responseType: events_events_pb.Event,
-    requestSerialize: serialize_events_SubscribeRequest,
-    requestDeserialize: deserialize_events_SubscribeRequest,
+    requestSerialize: serialize_events_ConsumeRequest,
+    requestDeserialize: deserialize_events_ConsumeRequest,
     responseSerialize: serialize_events_Event,
     responseDeserialize: deserialize_events_Event,
   },

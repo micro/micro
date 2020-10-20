@@ -58,35 +58,35 @@ public final class StreamGrpc {
     return getPublishMethod;
   }
 
-  private static volatile io.grpc.MethodDescriptor<events.Events.SubscribeRequest,
-      events.Events.Event> getSubscribeMethod;
+  private static volatile io.grpc.MethodDescriptor<events.Events.ConsumeRequest,
+      events.Events.Event> getConsumeMethod;
 
   @io.grpc.stub.annotations.RpcMethod(
-      fullMethodName = SERVICE_NAME + '/' + "Subscribe",
-      requestType = events.Events.SubscribeRequest.class,
+      fullMethodName = SERVICE_NAME + '/' + "Consume",
+      requestType = events.Events.ConsumeRequest.class,
       responseType = events.Events.Event.class,
       methodType = io.grpc.MethodDescriptor.MethodType.SERVER_STREAMING)
-  public static io.grpc.MethodDescriptor<events.Events.SubscribeRequest,
-      events.Events.Event> getSubscribeMethod() {
-    io.grpc.MethodDescriptor<events.Events.SubscribeRequest, events.Events.Event> getSubscribeMethod;
-    if ((getSubscribeMethod = StreamGrpc.getSubscribeMethod) == null) {
+  public static io.grpc.MethodDescriptor<events.Events.ConsumeRequest,
+      events.Events.Event> getConsumeMethod() {
+    io.grpc.MethodDescriptor<events.Events.ConsumeRequest, events.Events.Event> getConsumeMethod;
+    if ((getConsumeMethod = StreamGrpc.getConsumeMethod) == null) {
       synchronized (StreamGrpc.class) {
-        if ((getSubscribeMethod = StreamGrpc.getSubscribeMethod) == null) {
-          StreamGrpc.getSubscribeMethod = getSubscribeMethod =
-              io.grpc.MethodDescriptor.<events.Events.SubscribeRequest, events.Events.Event>newBuilder()
+        if ((getConsumeMethod = StreamGrpc.getConsumeMethod) == null) {
+          StreamGrpc.getConsumeMethod = getConsumeMethod =
+              io.grpc.MethodDescriptor.<events.Events.ConsumeRequest, events.Events.Event>newBuilder()
               .setType(io.grpc.MethodDescriptor.MethodType.SERVER_STREAMING)
-              .setFullMethodName(generateFullMethodName(SERVICE_NAME, "Subscribe"))
+              .setFullMethodName(generateFullMethodName(SERVICE_NAME, "Consume"))
               .setSampledToLocalTracing(true)
               .setRequestMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
-                  events.Events.SubscribeRequest.getDefaultInstance()))
+                  events.Events.ConsumeRequest.getDefaultInstance()))
               .setResponseMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
                   events.Events.Event.getDefaultInstance()))
-              .setSchemaDescriptor(new StreamMethodDescriptorSupplier("Subscribe"))
+              .setSchemaDescriptor(new StreamMethodDescriptorSupplier("Consume"))
               .build();
         }
       }
     }
-    return getSubscribeMethod;
+    return getConsumeMethod;
   }
 
   /**
@@ -146,9 +146,9 @@ public final class StreamGrpc {
 
     /**
      */
-    public void subscribe(events.Events.SubscribeRequest request,
+    public void consume(events.Events.ConsumeRequest request,
         io.grpc.stub.StreamObserver<events.Events.Event> responseObserver) {
-      asyncUnimplementedUnaryCall(getSubscribeMethod(), responseObserver);
+      asyncUnimplementedUnaryCall(getConsumeMethod(), responseObserver);
     }
 
     @java.lang.Override public final io.grpc.ServerServiceDefinition bindService() {
@@ -161,12 +161,12 @@ public final class StreamGrpc {
                 events.Events.PublishResponse>(
                   this, METHODID_PUBLISH)))
           .addMethod(
-            getSubscribeMethod(),
+            getConsumeMethod(),
             asyncServerStreamingCall(
               new MethodHandlers<
-                events.Events.SubscribeRequest,
+                events.Events.ConsumeRequest,
                 events.Events.Event>(
-                  this, METHODID_SUBSCRIBE)))
+                  this, METHODID_CONSUME)))
           .build();
     }
   }
@@ -195,10 +195,10 @@ public final class StreamGrpc {
 
     /**
      */
-    public void subscribe(events.Events.SubscribeRequest request,
+    public void consume(events.Events.ConsumeRequest request,
         io.grpc.stub.StreamObserver<events.Events.Event> responseObserver) {
       asyncServerStreamingCall(
-          getChannel().newCall(getSubscribeMethod(), getCallOptions()), request, responseObserver);
+          getChannel().newCall(getConsumeMethod(), getCallOptions()), request, responseObserver);
     }
   }
 
@@ -225,10 +225,10 @@ public final class StreamGrpc {
 
     /**
      */
-    public java.util.Iterator<events.Events.Event> subscribe(
-        events.Events.SubscribeRequest request) {
+    public java.util.Iterator<events.Events.Event> consume(
+        events.Events.ConsumeRequest request) {
       return blockingServerStreamingCall(
-          getChannel(), getSubscribeMethod(), getCallOptions(), request);
+          getChannel(), getConsumeMethod(), getCallOptions(), request);
     }
   }
 
@@ -256,7 +256,7 @@ public final class StreamGrpc {
   }
 
   private static final int METHODID_PUBLISH = 0;
-  private static final int METHODID_SUBSCRIBE = 1;
+  private static final int METHODID_CONSUME = 1;
 
   private static final class MethodHandlers<Req, Resp> implements
       io.grpc.stub.ServerCalls.UnaryMethod<Req, Resp>,
@@ -279,8 +279,8 @@ public final class StreamGrpc {
           serviceImpl.publish((events.Events.PublishRequest) request,
               (io.grpc.stub.StreamObserver<events.Events.PublishResponse>) responseObserver);
           break;
-        case METHODID_SUBSCRIBE:
-          serviceImpl.subscribe((events.Events.SubscribeRequest) request,
+        case METHODID_CONSUME:
+          serviceImpl.consume((events.Events.ConsumeRequest) request,
               (io.grpc.stub.StreamObserver<events.Events.Event>) responseObserver);
           break;
         default:
@@ -345,7 +345,7 @@ public final class StreamGrpc {
           serviceDescriptor = result = io.grpc.ServiceDescriptor.newBuilder(SERVICE_NAME)
               .setSchemaDescriptor(new StreamFileDescriptorSupplier())
               .addMethod(getPublishMethod())
-              .addMethod(getSubscribeMethod())
+              .addMethod(getConsumeMethod())
               .build();
         }
       }

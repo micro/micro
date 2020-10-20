@@ -12,10 +12,10 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
   end
   add_message "events.PublishResponse" do
   end
-  add_message "events.SubscribeRequest" do
-    optional :queue, :string, 1
+  add_message "events.ConsumeRequest" do
+    optional :group, :string, 1
     optional :topic, :string, 2
-    optional :start_at_time, :int64, 3
+    optional :offset, :int64, 3
     optional :auto_ack, :bool, 4
     optional :ack_wait, :int64, 5
     optional :retry_limit, :int64, 6
@@ -50,7 +50,7 @@ end
 module Events
   PublishRequest = Google::Protobuf::DescriptorPool.generated_pool.lookup("events.PublishRequest").msgclass
   PublishResponse = Google::Protobuf::DescriptorPool.generated_pool.lookup("events.PublishResponse").msgclass
-  SubscribeRequest = Google::Protobuf::DescriptorPool.generated_pool.lookup("events.SubscribeRequest").msgclass
+  ConsumeRequest = Google::Protobuf::DescriptorPool.generated_pool.lookup("events.ConsumeRequest").msgclass
   Event = Google::Protobuf::DescriptorPool.generated_pool.lookup("events.Event").msgclass
   ReadRequest = Google::Protobuf::DescriptorPool.generated_pool.lookup("events.ReadRequest").msgclass
   ReadResponse = Google::Protobuf::DescriptorPool.generated_pool.lookup("events.ReadResponse").msgclass

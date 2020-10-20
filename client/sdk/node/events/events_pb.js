@@ -12,12 +12,12 @@ var goog = jspb;
 var global = Function('return this')();
 
 goog.exportSymbol('proto.events.AckRequest', null, global);
+goog.exportSymbol('proto.events.ConsumeRequest', null, global);
 goog.exportSymbol('proto.events.Event', null, global);
 goog.exportSymbol('proto.events.PublishRequest', null, global);
 goog.exportSymbol('proto.events.PublishResponse', null, global);
 goog.exportSymbol('proto.events.ReadRequest', null, global);
 goog.exportSymbol('proto.events.ReadResponse', null, global);
-goog.exportSymbol('proto.events.SubscribeRequest', null, global);
 goog.exportSymbol('proto.events.WriteRequest', null, global);
 goog.exportSymbol('proto.events.WriteResponse', null, global);
 
@@ -396,12 +396,12 @@ proto.events.PublishResponse.serializeBinaryToWriter = function(message, writer)
  * @extends {jspb.Message}
  * @constructor
  */
-proto.events.SubscribeRequest = function(opt_data) {
+proto.events.ConsumeRequest = function(opt_data) {
   jspb.Message.initialize(this, opt_data, 0, -1, null, null);
 };
-goog.inherits(proto.events.SubscribeRequest, jspb.Message);
+goog.inherits(proto.events.ConsumeRequest, jspb.Message);
 if (goog.DEBUG && !COMPILED) {
-  proto.events.SubscribeRequest.displayName = 'proto.events.SubscribeRequest';
+  proto.events.ConsumeRequest.displayName = 'proto.events.ConsumeRequest';
 }
 
 
@@ -416,8 +416,8 @@ if (jspb.Message.GENERATE_TO_OBJECT) {
  *     for transitional soy proto support: http://goto/soy-param-migration
  * @return {!Object}
  */
-proto.events.SubscribeRequest.prototype.toObject = function(opt_includeInstance) {
-  return proto.events.SubscribeRequest.toObject(opt_includeInstance, this);
+proto.events.ConsumeRequest.prototype.toObject = function(opt_includeInstance) {
+  return proto.events.ConsumeRequest.toObject(opt_includeInstance, this);
 };
 
 
@@ -426,15 +426,15 @@ proto.events.SubscribeRequest.prototype.toObject = function(opt_includeInstance)
  * @param {boolean|undefined} includeInstance Whether to include the JSPB
  *     instance for transitional soy proto support:
  *     http://goto/soy-param-migration
- * @param {!proto.events.SubscribeRequest} msg The msg instance to transform.
+ * @param {!proto.events.ConsumeRequest} msg The msg instance to transform.
  * @return {!Object}
  * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.events.SubscribeRequest.toObject = function(includeInstance, msg) {
+proto.events.ConsumeRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
-    queue: jspb.Message.getFieldWithDefault(msg, 1, ""),
+    group: jspb.Message.getFieldWithDefault(msg, 1, ""),
     topic: jspb.Message.getFieldWithDefault(msg, 2, ""),
-    startAtTime: jspb.Message.getFieldWithDefault(msg, 3, 0),
+    offset: jspb.Message.getFieldWithDefault(msg, 3, 0),
     autoAck: jspb.Message.getFieldWithDefault(msg, 4, false),
     ackWait: jspb.Message.getFieldWithDefault(msg, 5, 0),
     retryLimit: jspb.Message.getFieldWithDefault(msg, 6, 0)
@@ -451,23 +451,23 @@ proto.events.SubscribeRequest.toObject = function(includeInstance, msg) {
 /**
  * Deserializes binary data (in protobuf wire format).
  * @param {jspb.ByteSource} bytes The bytes to deserialize.
- * @return {!proto.events.SubscribeRequest}
+ * @return {!proto.events.ConsumeRequest}
  */
-proto.events.SubscribeRequest.deserializeBinary = function(bytes) {
+proto.events.ConsumeRequest.deserializeBinary = function(bytes) {
   var reader = new jspb.BinaryReader(bytes);
-  var msg = new proto.events.SubscribeRequest;
-  return proto.events.SubscribeRequest.deserializeBinaryFromReader(msg, reader);
+  var msg = new proto.events.ConsumeRequest;
+  return proto.events.ConsumeRequest.deserializeBinaryFromReader(msg, reader);
 };
 
 
 /**
  * Deserializes binary data (in protobuf wire format) from the
  * given reader into the given message object.
- * @param {!proto.events.SubscribeRequest} msg The message object to deserialize into.
+ * @param {!proto.events.ConsumeRequest} msg The message object to deserialize into.
  * @param {!jspb.BinaryReader} reader The BinaryReader to use.
- * @return {!proto.events.SubscribeRequest}
+ * @return {!proto.events.ConsumeRequest}
  */
-proto.events.SubscribeRequest.deserializeBinaryFromReader = function(msg, reader) {
+proto.events.ConsumeRequest.deserializeBinaryFromReader = function(msg, reader) {
   while (reader.nextField()) {
     if (reader.isEndGroup()) {
       break;
@@ -476,7 +476,7 @@ proto.events.SubscribeRequest.deserializeBinaryFromReader = function(msg, reader
     switch (field) {
     case 1:
       var value = /** @type {string} */ (reader.readString());
-      msg.setQueue(value);
+      msg.setGroup(value);
       break;
     case 2:
       var value = /** @type {string} */ (reader.readString());
@@ -484,7 +484,7 @@ proto.events.SubscribeRequest.deserializeBinaryFromReader = function(msg, reader
       break;
     case 3:
       var value = /** @type {number} */ (reader.readInt64());
-      msg.setStartAtTime(value);
+      msg.setOffset(value);
       break;
     case 4:
       var value = /** @type {boolean} */ (reader.readBool());
@@ -511,9 +511,9 @@ proto.events.SubscribeRequest.deserializeBinaryFromReader = function(msg, reader
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
-proto.events.SubscribeRequest.prototype.serializeBinary = function() {
+proto.events.ConsumeRequest.prototype.serializeBinary = function() {
   var writer = new jspb.BinaryWriter();
-  proto.events.SubscribeRequest.serializeBinaryToWriter(this, writer);
+  proto.events.ConsumeRequest.serializeBinaryToWriter(this, writer);
   return writer.getResultBuffer();
 };
 
@@ -521,13 +521,13 @@ proto.events.SubscribeRequest.prototype.serializeBinary = function() {
 /**
  * Serializes the given message to binary data (in protobuf wire
  * format), writing to the given BinaryWriter.
- * @param {!proto.events.SubscribeRequest} message
+ * @param {!proto.events.ConsumeRequest} message
  * @param {!jspb.BinaryWriter} writer
  * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.events.SubscribeRequest.serializeBinaryToWriter = function(message, writer) {
+proto.events.ConsumeRequest.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = message.getQueue();
+  f = message.getGroup();
   if (f.length > 0) {
     writer.writeString(
       1,
@@ -541,7 +541,7 @@ proto.events.SubscribeRequest.serializeBinaryToWriter = function(message, writer
       f
     );
   }
-  f = message.getStartAtTime();
+  f = message.getOffset();
   if (f !== 0) {
     writer.writeInt64(
       3,
@@ -573,16 +573,16 @@ proto.events.SubscribeRequest.serializeBinaryToWriter = function(message, writer
 
 
 /**
- * optional string queue = 1;
+ * optional string group = 1;
  * @return {string}
  */
-proto.events.SubscribeRequest.prototype.getQueue = function() {
+proto.events.ConsumeRequest.prototype.getGroup = function() {
   return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 1, ""));
 };
 
 
 /** @param {string} value */
-proto.events.SubscribeRequest.prototype.setQueue = function(value) {
+proto.events.ConsumeRequest.prototype.setGroup = function(value) {
   jspb.Message.setProto3StringField(this, 1, value);
 };
 
@@ -591,28 +591,28 @@ proto.events.SubscribeRequest.prototype.setQueue = function(value) {
  * optional string topic = 2;
  * @return {string}
  */
-proto.events.SubscribeRequest.prototype.getTopic = function() {
+proto.events.ConsumeRequest.prototype.getTopic = function() {
   return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 2, ""));
 };
 
 
 /** @param {string} value */
-proto.events.SubscribeRequest.prototype.setTopic = function(value) {
+proto.events.ConsumeRequest.prototype.setTopic = function(value) {
   jspb.Message.setProto3StringField(this, 2, value);
 };
 
 
 /**
- * optional int64 start_at_time = 3;
+ * optional int64 offset = 3;
  * @return {number}
  */
-proto.events.SubscribeRequest.prototype.getStartAtTime = function() {
+proto.events.ConsumeRequest.prototype.getOffset = function() {
   return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 3, 0));
 };
 
 
 /** @param {number} value */
-proto.events.SubscribeRequest.prototype.setStartAtTime = function(value) {
+proto.events.ConsumeRequest.prototype.setOffset = function(value) {
   jspb.Message.setProto3IntField(this, 3, value);
 };
 
@@ -623,13 +623,13 @@ proto.events.SubscribeRequest.prototype.setStartAtTime = function(value) {
  * You should avoid comparisons like {@code val === true/false} in those cases.
  * @return {boolean}
  */
-proto.events.SubscribeRequest.prototype.getAutoAck = function() {
+proto.events.ConsumeRequest.prototype.getAutoAck = function() {
   return /** @type {boolean} */ (jspb.Message.getFieldWithDefault(this, 4, false));
 };
 
 
 /** @param {boolean} value */
-proto.events.SubscribeRequest.prototype.setAutoAck = function(value) {
+proto.events.ConsumeRequest.prototype.setAutoAck = function(value) {
   jspb.Message.setProto3BooleanField(this, 4, value);
 };
 
@@ -638,13 +638,13 @@ proto.events.SubscribeRequest.prototype.setAutoAck = function(value) {
  * optional int64 ack_wait = 5;
  * @return {number}
  */
-proto.events.SubscribeRequest.prototype.getAckWait = function() {
+proto.events.ConsumeRequest.prototype.getAckWait = function() {
   return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 5, 0));
 };
 
 
 /** @param {number} value */
-proto.events.SubscribeRequest.prototype.setAckWait = function(value) {
+proto.events.ConsumeRequest.prototype.setAckWait = function(value) {
   jspb.Message.setProto3IntField(this, 5, value);
 };
 
@@ -653,13 +653,13 @@ proto.events.SubscribeRequest.prototype.setAckWait = function(value) {
  * optional int64 retry_limit = 6;
  * @return {number}
  */
-proto.events.SubscribeRequest.prototype.getRetryLimit = function() {
+proto.events.ConsumeRequest.prototype.getRetryLimit = function() {
   return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 6, 0));
 };
 
 
 /** @param {number} value */
-proto.events.SubscribeRequest.prototype.setRetryLimit = function(value) {
+proto.events.ConsumeRequest.prototype.setRetryLimit = function(value) {
   jspb.Message.setProto3IntField(this, 6, value);
 };
 
