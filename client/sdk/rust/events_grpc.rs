@@ -24,7 +24,7 @@
 pub trait Stream {
     fn publish(&self, o: ::grpc::ServerHandlerContext, req: ::grpc::ServerRequestSingle<super::events::PublishRequest>, resp: ::grpc::ServerResponseUnarySink<super::events::PublishResponse>) -> ::grpc::Result<()>;
 
-    fn subscribe(&self, o: ::grpc::ServerHandlerContext, req: ::grpc::ServerRequestSingle<super::events::SubscribeRequest>, resp: ::grpc::ServerResponseSink<super::events::Event>) -> ::grpc::Result<()>;
+    fn consume(&self, o: ::grpc::ServerHandlerContext, req: ::grpc::ServerRequestSingle<super::events::ConsumeRequest>, resp: ::grpc::ServerResponseSink<super::events::Event>) -> ::grpc::Result<()>;
 }
 
 // client
@@ -52,9 +52,9 @@ impl StreamClient {
         self.grpc_client.call_unary(o, req, descriptor)
     }
 
-    pub fn subscribe(&self, o: ::grpc::RequestOptions, req: super::events::SubscribeRequest) -> ::grpc::StreamingResponse<super::events::Event> {
+    pub fn consume(&self, o: ::grpc::RequestOptions, req: super::events::ConsumeRequest) -> ::grpc::StreamingResponse<super::events::Event> {
         let descriptor = ::grpc::rt::ArcOrStatic::Static(&::grpc::rt::MethodDescriptor {
-            name: ::grpc::rt::StringOrStatic::Static("/events.Stream/Subscribe"),
+            name: ::grpc::rt::StringOrStatic::Static("/events.Stream/Consume"),
             streaming: ::grpc::rt::GrpcStreaming::ServerStreaming,
             req_marshaller: ::grpc::rt::ArcOrStatic::Static(&::grpc_protobuf::MarshallerProtobuf),
             resp_marshaller: ::grpc::rt::ArcOrStatic::Static(&::grpc_protobuf::MarshallerProtobuf),
@@ -87,14 +87,14 @@ impl StreamServer {
                 ),
                 ::grpc::rt::ServerMethod::new(
                     ::grpc::rt::ArcOrStatic::Static(&::grpc::rt::MethodDescriptor {
-                        name: ::grpc::rt::StringOrStatic::Static("/events.Stream/Subscribe"),
+                        name: ::grpc::rt::StringOrStatic::Static("/events.Stream/Consume"),
                         streaming: ::grpc::rt::GrpcStreaming::ServerStreaming,
                         req_marshaller: ::grpc::rt::ArcOrStatic::Static(&::grpc_protobuf::MarshallerProtobuf),
                         resp_marshaller: ::grpc::rt::ArcOrStatic::Static(&::grpc_protobuf::MarshallerProtobuf),
                     }),
                     {
                         let handler_copy = handler_arc.clone();
-                        ::grpc::rt::MethodHandlerServerStreaming::new(move |ctx, req, resp| (*handler_copy).subscribe(ctx, req, resp))
+                        ::grpc::rt::MethodHandlerServerStreaming::new(move |ctx, req, resp| (*handler_copy).consume(ctx, req, resp))
                     },
                 ),
             ],

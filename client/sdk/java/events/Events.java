@@ -1418,19 +1418,19 @@ public final class Events {
 
   }
 
-  public interface SubscribeRequestOrBuilder extends
-      // @@protoc_insertion_point(interface_extends:events.SubscribeRequest)
+  public interface ConsumeRequestOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:events.ConsumeRequest)
       com.google.protobuf.MessageOrBuilder {
 
     /**
-     * <code>string queue = 1;</code>
+     * <code>string group = 1;</code>
      */
-    java.lang.String getQueue();
+    java.lang.String getGroup();
     /**
-     * <code>string queue = 1;</code>
+     * <code>string group = 1;</code>
      */
     com.google.protobuf.ByteString
-        getQueueBytes();
+        getGroupBytes();
 
     /**
      * <code>string topic = 2;</code>
@@ -1443,9 +1443,9 @@ public final class Events {
         getTopicBytes();
 
     /**
-     * <code>int64 start_at_time = 3;</code>
+     * <code>int64 offset = 3;</code>
      */
-    long getStartAtTime();
+    long getOffset();
 
     /**
      * <code>bool auto_ack = 4;</code>
@@ -1467,21 +1467,21 @@ public final class Events {
     long getRetryLimit();
   }
   /**
-   * Protobuf type {@code events.SubscribeRequest}
+   * Protobuf type {@code events.ConsumeRequest}
    */
-  public  static final class SubscribeRequest extends
+  public  static final class ConsumeRequest extends
       com.google.protobuf.GeneratedMessageV3 implements
-      // @@protoc_insertion_point(message_implements:events.SubscribeRequest)
-      SubscribeRequestOrBuilder {
+      // @@protoc_insertion_point(message_implements:events.ConsumeRequest)
+      ConsumeRequestOrBuilder {
   private static final long serialVersionUID = 0L;
-    // Use SubscribeRequest.newBuilder() to construct.
-    private SubscribeRequest(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
+    // Use ConsumeRequest.newBuilder() to construct.
+    private ConsumeRequest(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
       super(builder);
     }
-    private SubscribeRequest() {
-      queue_ = "";
+    private ConsumeRequest() {
+      group_ = "";
       topic_ = "";
-      startAtTime_ = 0L;
+      offset_ = 0L;
       autoAck_ = false;
       ackWait_ = 0L;
       retryLimit_ = 0L;
@@ -1492,7 +1492,7 @@ public final class Events {
     getUnknownFields() {
       return this.unknownFields;
     }
-    private SubscribeRequest(
+    private ConsumeRequest(
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
@@ -1514,7 +1514,7 @@ public final class Events {
             case 10: {
               java.lang.String s = input.readStringRequireUtf8();
 
-              queue_ = s;
+              group_ = s;
               break;
             }
             case 18: {
@@ -1525,7 +1525,7 @@ public final class Events {
             }
             case 24: {
 
-              startAtTime_ = input.readInt64();
+              offset_ = input.readInt64();
               break;
             }
             case 32: {
@@ -1564,45 +1564,45 @@ public final class Events {
     }
     public static final com.google.protobuf.Descriptors.Descriptor
         getDescriptor() {
-      return events.Events.internal_static_events_SubscribeRequest_descriptor;
+      return events.Events.internal_static_events_ConsumeRequest_descriptor;
     }
 
     @java.lang.Override
     protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
         internalGetFieldAccessorTable() {
-      return events.Events.internal_static_events_SubscribeRequest_fieldAccessorTable
+      return events.Events.internal_static_events_ConsumeRequest_fieldAccessorTable
           .ensureFieldAccessorsInitialized(
-              events.Events.SubscribeRequest.class, events.Events.SubscribeRequest.Builder.class);
+              events.Events.ConsumeRequest.class, events.Events.ConsumeRequest.Builder.class);
     }
 
-    public static final int QUEUE_FIELD_NUMBER = 1;
-    private volatile java.lang.Object queue_;
+    public static final int GROUP_FIELD_NUMBER = 1;
+    private volatile java.lang.Object group_;
     /**
-     * <code>string queue = 1;</code>
+     * <code>string group = 1;</code>
      */
-    public java.lang.String getQueue() {
-      java.lang.Object ref = queue_;
+    public java.lang.String getGroup() {
+      java.lang.Object ref = group_;
       if (ref instanceof java.lang.String) {
         return (java.lang.String) ref;
       } else {
         com.google.protobuf.ByteString bs = 
             (com.google.protobuf.ByteString) ref;
         java.lang.String s = bs.toStringUtf8();
-        queue_ = s;
+        group_ = s;
         return s;
       }
     }
     /**
-     * <code>string queue = 1;</code>
+     * <code>string group = 1;</code>
      */
     public com.google.protobuf.ByteString
-        getQueueBytes() {
-      java.lang.Object ref = queue_;
+        getGroupBytes() {
+      java.lang.Object ref = group_;
       if (ref instanceof java.lang.String) {
         com.google.protobuf.ByteString b = 
             com.google.protobuf.ByteString.copyFromUtf8(
                 (java.lang.String) ref);
-        queue_ = b;
+        group_ = b;
         return b;
       } else {
         return (com.google.protobuf.ByteString) ref;
@@ -1643,13 +1643,13 @@ public final class Events {
       }
     }
 
-    public static final int START_AT_TIME_FIELD_NUMBER = 3;
-    private long startAtTime_;
+    public static final int OFFSET_FIELD_NUMBER = 3;
+    private long offset_;
     /**
-     * <code>int64 start_at_time = 3;</code>
+     * <code>int64 offset = 3;</code>
      */
-    public long getStartAtTime() {
-      return startAtTime_;
+    public long getOffset() {
+      return offset_;
     }
 
     public static final int AUTO_ACK_FIELD_NUMBER = 4;
@@ -1697,14 +1697,14 @@ public final class Events {
     @java.lang.Override
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
-      if (!getQueueBytes().isEmpty()) {
-        com.google.protobuf.GeneratedMessageV3.writeString(output, 1, queue_);
+      if (!getGroupBytes().isEmpty()) {
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 1, group_);
       }
       if (!getTopicBytes().isEmpty()) {
         com.google.protobuf.GeneratedMessageV3.writeString(output, 2, topic_);
       }
-      if (startAtTime_ != 0L) {
-        output.writeInt64(3, startAtTime_);
+      if (offset_ != 0L) {
+        output.writeInt64(3, offset_);
       }
       if (autoAck_ != false) {
         output.writeBool(4, autoAck_);
@@ -1724,15 +1724,15 @@ public final class Events {
       if (size != -1) return size;
 
       size = 0;
-      if (!getQueueBytes().isEmpty()) {
-        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(1, queue_);
+      if (!getGroupBytes().isEmpty()) {
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(1, group_);
       }
       if (!getTopicBytes().isEmpty()) {
         size += com.google.protobuf.GeneratedMessageV3.computeStringSize(2, topic_);
       }
-      if (startAtTime_ != 0L) {
+      if (offset_ != 0L) {
         size += com.google.protobuf.CodedOutputStream
-          .computeInt64Size(3, startAtTime_);
+          .computeInt64Size(3, offset_);
       }
       if (autoAck_ != false) {
         size += com.google.protobuf.CodedOutputStream
@@ -1756,18 +1756,18 @@ public final class Events {
       if (obj == this) {
        return true;
       }
-      if (!(obj instanceof events.Events.SubscribeRequest)) {
+      if (!(obj instanceof events.Events.ConsumeRequest)) {
         return super.equals(obj);
       }
-      events.Events.SubscribeRequest other = (events.Events.SubscribeRequest) obj;
+      events.Events.ConsumeRequest other = (events.Events.ConsumeRequest) obj;
 
       boolean result = true;
-      result = result && getQueue()
-          .equals(other.getQueue());
+      result = result && getGroup()
+          .equals(other.getGroup());
       result = result && getTopic()
           .equals(other.getTopic());
-      result = result && (getStartAtTime()
-          == other.getStartAtTime());
+      result = result && (getOffset()
+          == other.getOffset());
       result = result && (getAutoAck()
           == other.getAutoAck());
       result = result && (getAckWait()
@@ -1785,13 +1785,13 @@ public final class Events {
       }
       int hash = 41;
       hash = (19 * hash) + getDescriptor().hashCode();
-      hash = (37 * hash) + QUEUE_FIELD_NUMBER;
-      hash = (53 * hash) + getQueue().hashCode();
+      hash = (37 * hash) + GROUP_FIELD_NUMBER;
+      hash = (53 * hash) + getGroup().hashCode();
       hash = (37 * hash) + TOPIC_FIELD_NUMBER;
       hash = (53 * hash) + getTopic().hashCode();
-      hash = (37 * hash) + START_AT_TIME_FIELD_NUMBER;
+      hash = (37 * hash) + OFFSET_FIELD_NUMBER;
       hash = (53 * hash) + com.google.protobuf.Internal.hashLong(
-          getStartAtTime());
+          getOffset());
       hash = (37 * hash) + AUTO_ACK_FIELD_NUMBER;
       hash = (53 * hash) + com.google.protobuf.Internal.hashBoolean(
           getAutoAck());
@@ -1806,69 +1806,69 @@ public final class Events {
       return hash;
     }
 
-    public static events.Events.SubscribeRequest parseFrom(
+    public static events.Events.ConsumeRequest parseFrom(
         java.nio.ByteBuffer data)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data);
     }
-    public static events.Events.SubscribeRequest parseFrom(
+    public static events.Events.ConsumeRequest parseFrom(
         java.nio.ByteBuffer data,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data, extensionRegistry);
     }
-    public static events.Events.SubscribeRequest parseFrom(
+    public static events.Events.ConsumeRequest parseFrom(
         com.google.protobuf.ByteString data)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data);
     }
-    public static events.Events.SubscribeRequest parseFrom(
+    public static events.Events.ConsumeRequest parseFrom(
         com.google.protobuf.ByteString data,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data, extensionRegistry);
     }
-    public static events.Events.SubscribeRequest parseFrom(byte[] data)
+    public static events.Events.ConsumeRequest parseFrom(byte[] data)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data);
     }
-    public static events.Events.SubscribeRequest parseFrom(
+    public static events.Events.ConsumeRequest parseFrom(
         byte[] data,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data, extensionRegistry);
     }
-    public static events.Events.SubscribeRequest parseFrom(java.io.InputStream input)
+    public static events.Events.ConsumeRequest parseFrom(java.io.InputStream input)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageV3
           .parseWithIOException(PARSER, input);
     }
-    public static events.Events.SubscribeRequest parseFrom(
+    public static events.Events.ConsumeRequest parseFrom(
         java.io.InputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageV3
           .parseWithIOException(PARSER, input, extensionRegistry);
     }
-    public static events.Events.SubscribeRequest parseDelimitedFrom(java.io.InputStream input)
+    public static events.Events.ConsumeRequest parseDelimitedFrom(java.io.InputStream input)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageV3
           .parseDelimitedWithIOException(PARSER, input);
     }
-    public static events.Events.SubscribeRequest parseDelimitedFrom(
+    public static events.Events.ConsumeRequest parseDelimitedFrom(
         java.io.InputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageV3
           .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
     }
-    public static events.Events.SubscribeRequest parseFrom(
+    public static events.Events.ConsumeRequest parseFrom(
         com.google.protobuf.CodedInputStream input)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageV3
           .parseWithIOException(PARSER, input);
     }
-    public static events.Events.SubscribeRequest parseFrom(
+    public static events.Events.ConsumeRequest parseFrom(
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
@@ -1881,7 +1881,7 @@ public final class Events {
     public static Builder newBuilder() {
       return DEFAULT_INSTANCE.toBuilder();
     }
-    public static Builder newBuilder(events.Events.SubscribeRequest prototype) {
+    public static Builder newBuilder(events.Events.ConsumeRequest prototype) {
       return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
     }
     @java.lang.Override
@@ -1897,26 +1897,26 @@ public final class Events {
       return builder;
     }
     /**
-     * Protobuf type {@code events.SubscribeRequest}
+     * Protobuf type {@code events.ConsumeRequest}
      */
     public static final class Builder extends
         com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
-        // @@protoc_insertion_point(builder_implements:events.SubscribeRequest)
-        events.Events.SubscribeRequestOrBuilder {
+        // @@protoc_insertion_point(builder_implements:events.ConsumeRequest)
+        events.Events.ConsumeRequestOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor
           getDescriptor() {
-        return events.Events.internal_static_events_SubscribeRequest_descriptor;
+        return events.Events.internal_static_events_ConsumeRequest_descriptor;
       }
 
       @java.lang.Override
       protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
           internalGetFieldAccessorTable() {
-        return events.Events.internal_static_events_SubscribeRequest_fieldAccessorTable
+        return events.Events.internal_static_events_ConsumeRequest_fieldAccessorTable
             .ensureFieldAccessorsInitialized(
-                events.Events.SubscribeRequest.class, events.Events.SubscribeRequest.Builder.class);
+                events.Events.ConsumeRequest.class, events.Events.ConsumeRequest.Builder.class);
       }
 
-      // Construct using events.Events.SubscribeRequest.newBuilder()
+      // Construct using events.Events.ConsumeRequest.newBuilder()
       private Builder() {
         maybeForceBuilderInitialization();
       }
@@ -1934,11 +1934,11 @@ public final class Events {
       @java.lang.Override
       public Builder clear() {
         super.clear();
-        queue_ = "";
+        group_ = "";
 
         topic_ = "";
 
-        startAtTime_ = 0L;
+        offset_ = 0L;
 
         autoAck_ = false;
 
@@ -1952,17 +1952,17 @@ public final class Events {
       @java.lang.Override
       public com.google.protobuf.Descriptors.Descriptor
           getDescriptorForType() {
-        return events.Events.internal_static_events_SubscribeRequest_descriptor;
+        return events.Events.internal_static_events_ConsumeRequest_descriptor;
       }
 
       @java.lang.Override
-      public events.Events.SubscribeRequest getDefaultInstanceForType() {
-        return events.Events.SubscribeRequest.getDefaultInstance();
+      public events.Events.ConsumeRequest getDefaultInstanceForType() {
+        return events.Events.ConsumeRequest.getDefaultInstance();
       }
 
       @java.lang.Override
-      public events.Events.SubscribeRequest build() {
-        events.Events.SubscribeRequest result = buildPartial();
+      public events.Events.ConsumeRequest build() {
+        events.Events.ConsumeRequest result = buildPartial();
         if (!result.isInitialized()) {
           throw newUninitializedMessageException(result);
         }
@@ -1970,11 +1970,11 @@ public final class Events {
       }
 
       @java.lang.Override
-      public events.Events.SubscribeRequest buildPartial() {
-        events.Events.SubscribeRequest result = new events.Events.SubscribeRequest(this);
-        result.queue_ = queue_;
+      public events.Events.ConsumeRequest buildPartial() {
+        events.Events.ConsumeRequest result = new events.Events.ConsumeRequest(this);
+        result.group_ = group_;
         result.topic_ = topic_;
-        result.startAtTime_ = startAtTime_;
+        result.offset_ = offset_;
         result.autoAck_ = autoAck_;
         result.ackWait_ = ackWait_;
         result.retryLimit_ = retryLimit_;
@@ -2016,26 +2016,26 @@ public final class Events {
       }
       @java.lang.Override
       public Builder mergeFrom(com.google.protobuf.Message other) {
-        if (other instanceof events.Events.SubscribeRequest) {
-          return mergeFrom((events.Events.SubscribeRequest)other);
+        if (other instanceof events.Events.ConsumeRequest) {
+          return mergeFrom((events.Events.ConsumeRequest)other);
         } else {
           super.mergeFrom(other);
           return this;
         }
       }
 
-      public Builder mergeFrom(events.Events.SubscribeRequest other) {
-        if (other == events.Events.SubscribeRequest.getDefaultInstance()) return this;
-        if (!other.getQueue().isEmpty()) {
-          queue_ = other.queue_;
+      public Builder mergeFrom(events.Events.ConsumeRequest other) {
+        if (other == events.Events.ConsumeRequest.getDefaultInstance()) return this;
+        if (!other.getGroup().isEmpty()) {
+          group_ = other.group_;
           onChanged();
         }
         if (!other.getTopic().isEmpty()) {
           topic_ = other.topic_;
           onChanged();
         }
-        if (other.getStartAtTime() != 0L) {
-          setStartAtTime(other.getStartAtTime());
+        if (other.getOffset() != 0L) {
+          setOffset(other.getOffset());
         }
         if (other.getAutoAck() != false) {
           setAutoAck(other.getAutoAck());
@@ -2061,11 +2061,11 @@ public final class Events {
           com.google.protobuf.CodedInputStream input,
           com.google.protobuf.ExtensionRegistryLite extensionRegistry)
           throws java.io.IOException {
-        events.Events.SubscribeRequest parsedMessage = null;
+        events.Events.ConsumeRequest parsedMessage = null;
         try {
           parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
         } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-          parsedMessage = (events.Events.SubscribeRequest) e.getUnfinishedMessage();
+          parsedMessage = (events.Events.ConsumeRequest) e.getUnfinishedMessage();
           throw e.unwrapIOException();
         } finally {
           if (parsedMessage != null) {
@@ -2075,71 +2075,71 @@ public final class Events {
         return this;
       }
 
-      private java.lang.Object queue_ = "";
+      private java.lang.Object group_ = "";
       /**
-       * <code>string queue = 1;</code>
+       * <code>string group = 1;</code>
        */
-      public java.lang.String getQueue() {
-        java.lang.Object ref = queue_;
+      public java.lang.String getGroup() {
+        java.lang.Object ref = group_;
         if (!(ref instanceof java.lang.String)) {
           com.google.protobuf.ByteString bs =
               (com.google.protobuf.ByteString) ref;
           java.lang.String s = bs.toStringUtf8();
-          queue_ = s;
+          group_ = s;
           return s;
         } else {
           return (java.lang.String) ref;
         }
       }
       /**
-       * <code>string queue = 1;</code>
+       * <code>string group = 1;</code>
        */
       public com.google.protobuf.ByteString
-          getQueueBytes() {
-        java.lang.Object ref = queue_;
+          getGroupBytes() {
+        java.lang.Object ref = group_;
         if (ref instanceof String) {
           com.google.protobuf.ByteString b = 
               com.google.protobuf.ByteString.copyFromUtf8(
                   (java.lang.String) ref);
-          queue_ = b;
+          group_ = b;
           return b;
         } else {
           return (com.google.protobuf.ByteString) ref;
         }
       }
       /**
-       * <code>string queue = 1;</code>
+       * <code>string group = 1;</code>
        */
-      public Builder setQueue(
+      public Builder setGroup(
           java.lang.String value) {
         if (value == null) {
     throw new NullPointerException();
   }
   
-        queue_ = value;
+        group_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>string queue = 1;</code>
+       * <code>string group = 1;</code>
        */
-      public Builder clearQueue() {
+      public Builder clearGroup() {
         
-        queue_ = getDefaultInstance().getQueue();
+        group_ = getDefaultInstance().getGroup();
         onChanged();
         return this;
       }
       /**
-       * <code>string queue = 1;</code>
+       * <code>string group = 1;</code>
        */
-      public Builder setQueueBytes(
+      public Builder setGroupBytes(
           com.google.protobuf.ByteString value) {
         if (value == null) {
     throw new NullPointerException();
   }
   checkByteStringIsUtf8(value);
         
-        queue_ = value;
+        group_ = value;
         onChanged();
         return this;
       }
@@ -2213,28 +2213,28 @@ public final class Events {
         return this;
       }
 
-      private long startAtTime_ ;
+      private long offset_ ;
       /**
-       * <code>int64 start_at_time = 3;</code>
+       * <code>int64 offset = 3;</code>
        */
-      public long getStartAtTime() {
-        return startAtTime_;
+      public long getOffset() {
+        return offset_;
       }
       /**
-       * <code>int64 start_at_time = 3;</code>
+       * <code>int64 offset = 3;</code>
        */
-      public Builder setStartAtTime(long value) {
+      public Builder setOffset(long value) {
         
-        startAtTime_ = value;
+        offset_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>int64 start_at_time = 3;</code>
+       * <code>int64 offset = 3;</code>
        */
-      public Builder clearStartAtTime() {
+      public Builder clearOffset() {
         
-        startAtTime_ = 0L;
+        offset_ = 0L;
         onChanged();
         return this;
       }
@@ -2341,41 +2341,41 @@ public final class Events {
       }
 
 
-      // @@protoc_insertion_point(builder_scope:events.SubscribeRequest)
+      // @@protoc_insertion_point(builder_scope:events.ConsumeRequest)
     }
 
-    // @@protoc_insertion_point(class_scope:events.SubscribeRequest)
-    private static final events.Events.SubscribeRequest DEFAULT_INSTANCE;
+    // @@protoc_insertion_point(class_scope:events.ConsumeRequest)
+    private static final events.Events.ConsumeRequest DEFAULT_INSTANCE;
     static {
-      DEFAULT_INSTANCE = new events.Events.SubscribeRequest();
+      DEFAULT_INSTANCE = new events.Events.ConsumeRequest();
     }
 
-    public static events.Events.SubscribeRequest getDefaultInstance() {
+    public static events.Events.ConsumeRequest getDefaultInstance() {
       return DEFAULT_INSTANCE;
     }
 
-    private static final com.google.protobuf.Parser<SubscribeRequest>
-        PARSER = new com.google.protobuf.AbstractParser<SubscribeRequest>() {
+    private static final com.google.protobuf.Parser<ConsumeRequest>
+        PARSER = new com.google.protobuf.AbstractParser<ConsumeRequest>() {
       @java.lang.Override
-      public SubscribeRequest parsePartialFrom(
+      public ConsumeRequest parsePartialFrom(
           com.google.protobuf.CodedInputStream input,
           com.google.protobuf.ExtensionRegistryLite extensionRegistry)
           throws com.google.protobuf.InvalidProtocolBufferException {
-        return new SubscribeRequest(input, extensionRegistry);
+        return new ConsumeRequest(input, extensionRegistry);
       }
     };
 
-    public static com.google.protobuf.Parser<SubscribeRequest> parser() {
+    public static com.google.protobuf.Parser<ConsumeRequest> parser() {
       return PARSER;
     }
 
     @java.lang.Override
-    public com.google.protobuf.Parser<SubscribeRequest> getParserForType() {
+    public com.google.protobuf.Parser<ConsumeRequest> getParserForType() {
       return PARSER;
     }
 
     @java.lang.Override
-    public events.Events.SubscribeRequest getDefaultInstanceForType() {
+    public events.Events.ConsumeRequest getDefaultInstanceForType() {
       return DEFAULT_INSTANCE;
     }
 
@@ -6683,10 +6683,10 @@ public final class Events {
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
       internal_static_events_PublishResponse_fieldAccessorTable;
   private static final com.google.protobuf.Descriptors.Descriptor
-    internal_static_events_SubscribeRequest_descriptor;
+    internal_static_events_ConsumeRequest_descriptor;
   private static final 
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
-      internal_static_events_SubscribeRequest_fieldAccessorTable;
+      internal_static_events_ConsumeRequest_fieldAccessorTable;
   private static final com.google.protobuf.Descriptors.Descriptor
     internal_static_events_Event_descriptor;
   private static final 
@@ -6736,28 +6736,27 @@ public final class Events {
       "\0132$.events.PublishRequest.MetadataEntry\022" +
       "\017\n\007payload\030\003 \001(\014\022\021\n\ttimestamp\030\004 \001(\003\032/\n\rM" +
       "etadataEntry\022\013\n\003key\030\001 \001(\t\022\r\n\005value\030\002 \001(\t" +
-      ":\0028\001\"\021\n\017PublishResponse\"\200\001\n\020SubscribeReq" +
-      "uest\022\r\n\005queue\030\001 \001(\t\022\r\n\005topic\030\002 \001(\t\022\025\n\rst" +
-      "art_at_time\030\003 \001(\003\022\020\n\010auto_ack\030\004 \001(\010\022\020\n\010a" +
-      "ck_wait\030\005 \001(\003\022\023\n\013retry_limit\030\006 \001(\003\"\246\001\n\005E" +
-      "vent\022\n\n\002id\030\001 \001(\t\022\r\n\005topic\030\002 \001(\t\022-\n\010metad" +
-      "ata\030\003 \003(\0132\033.events.Event.MetadataEntry\022\017" +
-      "\n\007payload\030\004 \001(\014\022\021\n\ttimestamp\030\005 \001(\003\032/\n\rMe" +
-      "tadataEntry\022\013\n\003key\030\001 \001(\t\022\r\n\005value\030\002 \001(\t:" +
-      "\0028\001\";\n\013ReadRequest\022\r\n\005topic\030\001 \001(\t\022\r\n\005lim" +
-      "it\030\002 \001(\004\022\016\n\006offset\030\003 \001(\004\"-\n\014ReadResponse" +
-      "\022\035\n\006events\030\001 \003(\0132\r.events.Event\"9\n\014Write" +
-      "Request\022\034\n\005event\030\001 \001(\0132\r.events.Event\022\013\n" +
-      "\003ttl\030\002 \001(\003\"\017\n\rWriteResponse\")\n\nAckReques" +
-      "t\022\n\n\002id\030\001 \001(\t\022\017\n\007success\030\002 \001(\0102|\n\006Stream" +
-      "\022:\n\007Publish\022\026.events.PublishRequest\032\027.ev" +
-      "ents.PublishResponse\0226\n\tSubscribe\022\030.even" +
-      "ts.SubscribeRequest\032\r.events.Event0\0012p\n\005" +
-      "Store\0221\n\004Read\022\023.events.ReadRequest\032\024.eve" +
-      "nts.ReadResponse\0224\n\005Write\022\024.events.Write" +
-      "Request\032\025.events.WriteResponseB.Z,github" +
-      ".com/micro/micro/v3/proto/event;eventsb\006" +
-      "proto3"
+      ":\0028\001\"\021\n\017PublishResponse\"w\n\016ConsumeReques" +
+      "t\022\r\n\005group\030\001 \001(\t\022\r\n\005topic\030\002 \001(\t\022\016\n\006offse" +
+      "t\030\003 \001(\003\022\020\n\010auto_ack\030\004 \001(\010\022\020\n\010ack_wait\030\005 " +
+      "\001(\003\022\023\n\013retry_limit\030\006 \001(\003\"\246\001\n\005Event\022\n\n\002id" +
+      "\030\001 \001(\t\022\r\n\005topic\030\002 \001(\t\022-\n\010metadata\030\003 \003(\0132" +
+      "\033.events.Event.MetadataEntry\022\017\n\007payload\030" +
+      "\004 \001(\014\022\021\n\ttimestamp\030\005 \001(\003\032/\n\rMetadataEntr" +
+      "y\022\013\n\003key\030\001 \001(\t\022\r\n\005value\030\002 \001(\t:\0028\001\";\n\013Rea" +
+      "dRequest\022\r\n\005topic\030\001 \001(\t\022\r\n\005limit\030\002 \001(\004\022\016" +
+      "\n\006offset\030\003 \001(\004\"-\n\014ReadResponse\022\035\n\006events" +
+      "\030\001 \003(\0132\r.events.Event\"9\n\014WriteRequest\022\034\n" +
+      "\005event\030\001 \001(\0132\r.events.Event\022\013\n\003ttl\030\002 \001(\003" +
+      "\"\017\n\rWriteResponse\")\n\nAckRequest\022\n\n\002id\030\001 " +
+      "\001(\t\022\017\n\007success\030\002 \001(\0102x\n\006Stream\022:\n\007Publis" +
+      "h\022\026.events.PublishRequest\032\027.events.Publi" +
+      "shResponse\0222\n\007Consume\022\026.events.ConsumeRe" +
+      "quest\032\r.events.Event0\0012p\n\005Store\0221\n\004Read\022" +
+      "\023.events.ReadRequest\032\024.events.ReadRespon" +
+      "se\0224\n\005Write\022\024.events.WriteRequest\032\025.even" +
+      "ts.WriteResponseB.Z,github.com/micro/mic" +
+      "ro/v3/proto/event;eventsb\006proto3"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -6789,12 +6788,12 @@ public final class Events {
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_events_PublishResponse_descriptor,
         new java.lang.String[] { });
-    internal_static_events_SubscribeRequest_descriptor =
+    internal_static_events_ConsumeRequest_descriptor =
       getDescriptor().getMessageTypes().get(2);
-    internal_static_events_SubscribeRequest_fieldAccessorTable = new
+    internal_static_events_ConsumeRequest_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
-        internal_static_events_SubscribeRequest_descriptor,
-        new java.lang.String[] { "Queue", "Topic", "StartAtTime", "AutoAck", "AckWait", "RetryLimit", });
+        internal_static_events_ConsumeRequest_descriptor,
+        new java.lang.String[] { "Group", "Topic", "Offset", "AutoAck", "AckWait", "RetryLimit", });
     internal_static_events_Event_descriptor =
       getDescriptor().getMessageTypes().get(3);
     internal_static_events_Event_fieldAccessorTable = new
