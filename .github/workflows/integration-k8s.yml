@@ -97,6 +97,7 @@ jobs:
         TMPDIR: ${{ runner.temp }}
       run: |
         bash scripts/kind-launch.sh
+    
     - name: Install failed, show platform logs
       if: ${{ failure() }}
       run: |

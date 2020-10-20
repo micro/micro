@@ -73,8 +73,15 @@ jobs:
 
     - name: Wait for micro to be ready
       run: |
-        kubectl wait job --all --for=condition=complete -n micro --timeout=120s
+        kubectl wait job --all --for=condition=complete -n micro --timeout=180s
         kubectl wait deployment --all --for=condition=available -n micro --timeout=180s
+
+    - name: Install failed, show platform logs
+      if: ${{ failure() }}
+      run: |
+        kubectl get jobs -n micro
+        kubectl get pods -n micro
+
     # Finally, we can actually run the tests
     - name: Test micro server
       working-directory: ./test
