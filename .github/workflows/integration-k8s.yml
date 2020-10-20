@@ -12,12 +12,16 @@ jobs:
     env: 
       DOCKER_BUILDKIT: '1'
     steps:
-    - name: Checkout
-      uses: actions/checkout@v1
-    - name: Checkout test repo (required for vendor tests)
-      uses: actions/checkout@v1
+    - id: checkout-micro
+      name: Checkout
+      uses: actions/checkout@v2
+
+    - id: checkout-test
+      name: Checkout test repo (required for vendor tests)
+      uses: actions/checkout@v2
       repository: 'micro/test'
       path: '../test'
+    
     - name: Set up Go 1.13
       uses: actions/setup-go@v2
       with:
