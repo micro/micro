@@ -19,9 +19,9 @@ class StreamStub(object):
                 request_serializer=events_dot_events__pb2.PublishRequest.SerializeToString,
                 response_deserializer=events_dot_events__pb2.PublishResponse.FromString,
                 )
-        self.Subscribe = channel.unary_stream(
-                '/events.Stream/Subscribe',
-                request_serializer=events_dot_events__pb2.SubscribeRequest.SerializeToString,
+        self.Consume = channel.unary_stream(
+                '/events.Stream/Consume',
+                request_serializer=events_dot_events__pb2.ConsumeRequest.SerializeToString,
                 response_deserializer=events_dot_events__pb2.Event.FromString,
                 )
 
@@ -35,7 +35,7 @@ class StreamServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def Subscribe(self, request, context):
+    def Consume(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -49,9 +49,9 @@ def add_StreamServicer_to_server(servicer, server):
                     request_deserializer=events_dot_events__pb2.PublishRequest.FromString,
                     response_serializer=events_dot_events__pb2.PublishResponse.SerializeToString,
             ),
-            'Subscribe': grpc.unary_stream_rpc_method_handler(
-                    servicer.Subscribe,
-                    request_deserializer=events_dot_events__pb2.SubscribeRequest.FromString,
+            'Consume': grpc.unary_stream_rpc_method_handler(
+                    servicer.Consume,
+                    request_deserializer=events_dot_events__pb2.ConsumeRequest.FromString,
                     response_serializer=events_dot_events__pb2.Event.SerializeToString,
             ),
     }
@@ -82,7 +82,7 @@ class Stream(object):
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
     @staticmethod
-    def Subscribe(request,
+    def Consume(request,
             target,
             options=(),
             channel_credentials=None,
@@ -92,8 +92,8 @@ class Stream(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_stream(request, target, '/events.Stream/Subscribe',
-            events_dot_events__pb2.SubscribeRequest.SerializeToString,
+        return grpc.experimental.unary_stream(request, target, '/events.Stream/Consume',
+            events_dot_events__pb2.ConsumeRequest.SerializeToString,
             events_dot_events__pb2.Event.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
