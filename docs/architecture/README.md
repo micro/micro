@@ -129,17 +129,19 @@ Micro could become a definitive server for the Cloud.
 
 ## Environments
 
-Environments are a concept introduced in v3 which name basically what we already understand as separate development or runtime 
+Environments are a concept introduced in v3 which allow you to switch between entirely different deployments of Micro. 
+The term 'environment' basically implies what we already understand as separate development or runtime 
 environments whether it be local, staging, production or something by another name. You can think of it as a deployment of 
 Micro targeted by the micro proxy which runs within every server.
 
-Environments as a concept allow us to switch between them using a single tool. In kubernetes this is known as contexts, in Micro 
-we still to what we understand as entire running environments for our software. To us it just makes sense. An environment might 
-be a deployment in AWS on managed k8s or multiple separate regional deployments identified be [name]-[region] or similar.
+Environments as a built in concept allow us to create a workflow that let's us seamlessly switch between them using a single tool. 
+In kubernetes this is known as contexts, in Micro we understand these as entirely separate running environments for our software. 
+To us it just makes sense to build it in. An environment might be a deployment in AWS on managed k8s or multiple separate regional 
+deployments identified be [name]-[region] or similar.
 
-Environments are homed by the micro proxy. By default locally this runs on :8081 and you simply do `micro env set local` to have 
-all commands run against it. The CLI basically proxies its commands to the proxy and in turn to the relevant services hosted 
-by the Micro server.
+Environments are homed by the micro proxy for remote access. By default locally this runs on :8081 and you simply do `micro env set local` 
+to have all commands run against it. The CLI proxies all commands to the micro proxy and in turn that send the request to the relevant 
+services hosted by the Micro server.
 
 Micro bakes in 3 environments by default; local, dev (free cloud hosted), platform (paid cloud hosted). The goal is to move 
 beyond open source into something that seamless integrates the cloud for all developers everywhere.
@@ -155,7 +157,9 @@ all resources. Namespacing is incorporated across every service so that your ser
 so that your data is isolated in their specific databases and tables and so authentication and accounts are tied to individual 
 namespaces.
 
-Namespaces encapsulate accounts, resources and networking routing.
+Namespaces encapsulate accounts, resources and networking routing. Namespaces beyond this are also useful for feature and branch 
+development. It enables subsets of services to be deployed into an isolated namespace for testing. This enables a single 
+environment for development to be used in a real world context and for production to enable feature flagging where needed.
 
 ## Glossary
 
@@ -163,4 +167,4 @@ Namespaces encapsulate accounts, resources and networking routing.
 - Clients - entrypoints for accessing the server and services run by Micro
 - Library - the Go service library used to write Micro services
 - Environment - an instance of the micro service running locally or in a remote environment
-- Namespaces - isolated resources and multi-tenancy as a concept across Micro
+- Namespaces - isolated grouping of resources and multi-tenancy as a concept across Micro
