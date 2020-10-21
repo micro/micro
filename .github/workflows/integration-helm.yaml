@@ -93,7 +93,7 @@ jobs:
       run: |
         kubectl get jobs -n micro
         kubectl get pods -n micro
-        kubectl get pods -n micro | awk '{print $1}' | xargs -n1 kubectl logs -n micro
+        kubectl get pods -n micro | awk '{print $1}' | xargs -n1 kubectl logs --since=10m -n micro
 
     # Finally, we can actually run the tests
     - name: Test micro server
