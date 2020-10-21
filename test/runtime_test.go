@@ -211,17 +211,11 @@ func testRunVendorDeps(t *T) {
 			return outp, err
 		}
 
-		if !statusRunning("vendor", version, outp) {
+		if !statusRunning("vendor", "latest", outp) {
 			return outp, errors.New("Output should contain vendor")
 		}
-		if !strings.Contains(string(outp), "owner=admin") || !(strings.Contains(string(outp), "group=micro") || strings.Contains(string(outp), "group="+serv.Env())) {
-			return outp, errors.New("micro status does not have correct owner or group")
-		}
-		if strings.Contains(string(outp), "unknown") {
-			return outp, errors.New("there should be no unknown in the micro status output")
-		}
 		return outp, nil
-	}, 60*time.Second); err != nil {
+	}, 90*time.Second); err != nil {
 		return
 	}
 
@@ -234,7 +228,7 @@ func testRunVendorDeps(t *T) {
 			return outp, errors.New("vendor is not running")
 		}
 		return outp, nil
-	}, 60*time.Second); err != nil {
+	}, 90*time.Second); err != nil {
 		return
 	}
 }
