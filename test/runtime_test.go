@@ -199,20 +199,20 @@ func testRunVendorDeps(t *T) {
 	}
 
 	cmd := serv.Command()
-	outp, err := cmd.Exec("run", "--image", "localhost:5000/cells:v3", "./vendortest")
+	outp, err := cmd.Exec("run", "--image", "localhost:5000/cells:v3", "./services/vendor")
 	if err != nil {
 		t.Fatalf("micro run failure, output: %v", string(outp))
 		return
 	}
 
-	if err := Try("Find vendortest in runtime", t, func() ([]byte, error) {
+	if err := Try("Find vendor in runtime", t, func() ([]byte, error) {
 		outp, err = cmd.Exec("status")
 		if err != nil {
 			return outp, err
 		}
 
-		if !statusRunning("vendortest", version, outp) {
-			return outp, errors.New("Output should contain vendortest")
+		if !statusRunning("vendor", version, outp) {
+			return outp, errors.New("Output should contain vendor")
 		}
 		if !strings.Contains(string(outp), "owner=admin") || !(strings.Contains(string(outp), "group=micro") || strings.Contains(string(outp), "group="+serv.Env())) {
 			return outp, errors.New("micro status does not have correct owner or group")
@@ -225,13 +225,13 @@ func testRunVendorDeps(t *T) {
 		return
 	}
 
-	if err := Try("Find vendortest in registry", t, func() ([]byte, error) {
+	if err := Try("Find vendor in registry", t, func() ([]byte, error) {
 		outp, err = cmd.Exec("services")
 		if err != nil {
 			return outp, err
 		}
-		if !strings.Contains(string(outp), "vendortest") {
-			return outp, errors.New("vendortest is not running")
+		if !strings.Contains(string(outp), "vendor") {
+			return outp, errors.New("vendor is not running")
 		}
 		return outp, nil
 	}, 60*time.Second); err != nil {
