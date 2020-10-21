@@ -67,7 +67,7 @@ jobs:
     - name: Build and push micro to local registry
       id: build-push-reg-micro
       run: |
-        docker build -f Dockerfile . -t localhost:5000/micro 
+        docker build -f ./test/Dockerfile . -t localhost:5000/micro 
         docker push localhost:5000/micro
     - name: Setup Kind
       uses: engineerd/setup-kind@v0.4.0
