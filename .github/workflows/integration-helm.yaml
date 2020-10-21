@@ -37,25 +37,6 @@ jobs:
       run: |
         docker run -d -p 5000:5000 --restart=always --name kind-registry -v /tmp/docker-registry:/var/lib/registry registry:2 && npx wait-on tcp:5000
     
-    - name: Build and push micro to local registry
-      id: build-push-reg-micro
-      run: |
-        docker build -f Dockerfile . -t localhost:5000/micro 
-        docker push localhost:5000/micro
-    - name: Setup Kind
-      uses: engineerd/setup-kind@v0.4.0
-      with:
-        config: scripts/kind/kind-config.yaml
-        version: v0.8.1
-    - name: Finish Kind registry setup
-      run: |
-        docker network connect "kind" "kind-registry"
-        for node in $(kind get nodes); do kubectl annotate node "${node}" "kind.x-k8s.io/registry=localhost:5000"; done
-    - name: Install the platform
-      run: |
-        helm repo add micro https://micro.github.io/helm
-        helm install micro micro/micro --set image.repo=localhost:5000/micro
-    
     # Do this after the helm install to give the services time to register etc
     - name: Build and push cells to local registry
       id: build-push-reg-cell
@@ -83,6 +64,25 @@ jobs:
       run: |
         grep -rl github.com/micro/services . | xargs sed -i 's/github.com\/micro\/services/github.com\/micro\/micro\/v3\/test\/services/g'
 
+    - name: Build and push micro to local registry
+      id: build-push-reg-micro
+      run: |
+        docker build -f Dockerfile . -t localhost:5000/micro 
+        docker push localhost:5000/micro
+    - name: Setup Kind
+      uses: engineerd/setup-kind@v0.4.0
+      with:
+        config: scripts/kind/kind-config.yaml
+        version: v0.8.1
+    - name: Finish Kind registry setup
+      run: |
+        docker network connect "kind" "kind-registry"
+        for node in $(kind get nodes); do kubectl annotate node "${node}" "kind.x-k8s.io/registry=localhost:5000"; done
+    - name: Install the platform
+      run: |
+        helm repo add micro https://micro.github.io/helm
+        helm install micro micro/micro --set image.repo=localhost:5000/micro
+    
     - name: Wait for micro to be ready
       run: |
         kubectl wait job --all --for=condition=complete -n micro --timeout=180s
