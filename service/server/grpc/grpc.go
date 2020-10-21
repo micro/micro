@@ -21,7 +21,9 @@ import (
 	"context"
 	"crypto/tls"
 	"fmt"
+	"io"
 	"net"
+	"net/http"
 	"reflect"
 	"runtime/debug"
 	"sort"
@@ -31,6 +33,7 @@ import (
 	"time"
 
 	"github.com/golang/protobuf/proto"
+	"github.com/improbable-eng/grpc-web/go/grpcweb"
 	"github.com/micro/micro/v3/internal/addr"
 	"github.com/micro/micro/v3/internal/backoff"
 	mgrpc "github.com/micro/micro/v3/internal/grpc"
@@ -42,6 +45,8 @@ import (
 	"github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/registry"
 	"github.com/micro/micro/v3/service/server"
+	"github.com/soheilhy/cmux"
+	"golang.org/x/net/http2"
 	"golang.org/x/net/netutil"
 
 	"google.golang.org/grpc"
@@ -64,8 +69,10 @@ const (
 )
 
 type grpcServer struct {
-	rpc  *rServer
-	srv  *grpc.Server
+	rpc        *rServer
+	srv        *grpc.Server
+	grpcWebSrv *grpcweb.WrappedGrpcServer
+
 	exit chan chan error
 	wg   *sync.WaitGroup
 
@@ -155,6 +162,11 @@ func (g *grpcServer) configure(opts ...server.Option) {
 
 	g.rsvc = nil
 	g.srv = grpc.NewServer(gopts...)
+	g.grpcWebSrv = grpcweb.WrapServer(
+		g.srv,
+		grpcweb.WithCorsForRegisteredEndpointsOnly(false),
+		grpcweb.WithOriginFunc(func(origin string) bool { return true }),
+	)
 }
 
 func (g *grpcServer) getMaxMsgSize() int {
@@ -908,6 +920,23 @@ func (g *grpcServer) Start() error {
 		}
 	}
 
+	// Create a tcp mux that can server both grpc and grpc+web on the same port
+	m := cmux.New(ts)
+
+	// If the request isn't HTTP2 at all, then it's local grpc+web
+	// If the request IS http2 and has the right header, then also grpc+web
+	grpcl := m.MatchWithWriters(func(w io.Writer, r io.Reader) bool {
+		return !hasHTTP2Preface(r)
+	}, cmux.HTTP2MatchHeaderFieldSendSettings("content-type", "application/grpc-web+proto"))
+
+	// Else just match all gRPC traffic
+	trpcL := m.Match(cmux.Any())
+
+	// Serve them to the mux
+	grpcWebHttpSrv := &http.Server{Handler: g.grpcWebSrv}
+	go grpcWebHttpSrv.Serve(grpcl)
+	go g.srv.Serve(trpcL)
+
 	if g.opts.Context != nil {
 		if c, ok := g.opts.Context.Value(maxConnKey{}).(int); ok && c > 0 {
 			ts = netutil.LimitListener(ts, c)
@@ -945,7 +974,7 @@ func (g *grpcServer) Start() error {
 
 	// micro: go ts.Accept(s.accept)
 	go func() {
-		if err := g.srv.Serve(ts); err != nil {
+		if err := m.Serve(); err != nil {
 			if logger.V(logger.ErrorLevel, logger.DefaultLogger) {
 				logger.Errorf("gRPC Server start error: %v", err)
 			}
@@ -1026,6 +1055,27 @@ func (g *grpcServer) Start() error {
 	g.Unlock()
 
 	return nil
+}
+
+func hasHTTP2Preface(r io.Reader) bool {
+	var b [len(http2.ClientPreface)]byte
+	last := 0
+
+	for {
+		n, err := r.Read(b[last:])
+		if err != nil {
+			return false
+		}
+
+		last += n
+		eq := string(b[:last]) == http2.ClientPreface[:last]
+		if last == len(http2.ClientPreface) {
+			return eq
+		}
+		if !eq {
+			return false
+		}
+	}
 }
 
 func (g *grpcServer) Stop() error {
