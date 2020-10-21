@@ -67,8 +67,10 @@ jobs:
     - name: Build and push micro to local registry
       id: build-push-reg-micro
       run: |
-        docker build -f ./test/Dockerfile . -t localhost:5000/micro 
+        GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build
+        docker build -f test/Dockerfile . -t localhost:5000/micro --cache-from=localhost:5000/micro --build-arg BUILDKIT_INLINE_CACHE=1
         docker push localhost:5000/micro
+        
     - name: Setup Kind
       uses: engineerd/setup-kind@v0.4.0
       with:
