@@ -45,9 +45,9 @@ message ResourceQuota {
 }
 
 message Resources {
-	string Memory = 1;
-	string CPU = 2;
-	string EphemeralStorage = 3;
+	int32 Memory = 1;
+	int32 CPU = 2;
+	int32 EphemeralStorage = 3;
 }
 
 // Source service is used by the CLI to upload source to the service. The service will return

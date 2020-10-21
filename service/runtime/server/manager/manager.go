@@ -63,6 +63,22 @@ func (m *manager) Create(resource gorun.Resource, opts ...runtime.CreateOption) 
 		// Do we need to store this locally?
 		return runtime.DefaultRuntime.Create(networkPolicy)
 
+	case gorun.TypeResourceQuota:
+
+		// Assert the resource back into a *runtime.ResourceQuota
+		resourceQuota, ok := resource.(*gorun.ResourceQuota)
+		if !ok {
+			return gorun.ErrInvalidResource
+		}
+
+		// Allow the options to take precedence
+		if options.Namespace != "" {
+			resourceQuota.Namespace = options.Namespace
+		}
+
+		// Do we need to store this locally?
+		return runtime.DefaultRuntime.Create(resourceQuota)
+
 	case gorun.TypeService:
 
 		// Assert the resource back into a *runtime.Service
@@ -232,6 +248,22 @@ func (m *manager) Update(resource gorun.Resource, opts ...runtime.UpdateOption) 
 		// Do we need to store this locally?
 		return runtime.DefaultRuntime.Update(networkPolicy)
 
+	case gorun.TypeResourceQuota:
+
+		// Assert the resource back into a *runtime.ResourceQuota
+		resourceQuota, ok := resource.(*gorun.ResourceQuota)
+		if !ok {
+			return gorun.ErrInvalidResource
+		}
+
+		// Allow the options to take precedence
+		if options.Namespace != "" {
+			resourceQuota.Namespace = options.Namespace
+		}
+
+		// Do we need to store this locally?
+		return runtime.DefaultRuntime.Update(resourceQuota)
+
 	case gorun.TypeService:
 
 		// Assert the resource back into a *runtime.Service
@@ -343,6 +375,22 @@ func (m *manager) Delete(resource gorun.Resource, opts ...runtime.DeleteOption) 
 
 		// Do we need to store this locally?
 		return runtime.DefaultRuntime.Delete(networkPolicy)
+
+	case gorun.TypeResourceQuota:
+
+		// Assert the resource back into a *runtime.ResourceQuota
+		resourceQuota, ok := resource.(*gorun.ResourceQuota)
+		if !ok {
+			return gorun.ErrInvalidResource
+		}
+
+		// Allow the options to take precedence
+		if options.Namespace != "" {
+			resourceQuota.Namespace = options.Namespace
+		}
+
+		// Do we need to store this locally?
+		return runtime.DefaultRuntime.Delete(resourceQuota)
 
 	case gorun.TypeService:
 
