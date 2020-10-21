@@ -199,7 +199,7 @@ func testRunVendorDeps(t *T) {
 	}
 
 	cmd := serv.Command()
-	outp, err := cmd.Exec("run", "--image", "localhost:5000/cells:v3", "./services/vendor")
+	outp, err := cmd.Exec("run", "--image", "localhost:5000/cells:v3", "./services/test/vendor")
 	if err != nil {
 		t.Fatalf("micro run failure, output: %v", string(outp))
 		return
