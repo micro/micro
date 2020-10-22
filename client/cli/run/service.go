@@ -16,6 +16,7 @@ import (
 	"github.com/micro/micro/v3/client/cli/namespace"
 	"github.com/micro/micro/v3/client/cli/util"
 	"github.com/micro/micro/v3/internal/config"
+	run "github.com/micro/micro/v3/internal/runtime"
 	"github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/runtime"
 	"github.com/micro/micro/v3/service/runtime/local/source/git"
@@ -213,6 +214,20 @@ func runService(ctx *cli.Context) error {
 	}
 
 	if source.Local {
+		// check to see if a vendor folder exists, if it doesn't we should delete the one we generate
+		// after we finish the upload
+		vendorDir := filepath.Join(source.LocalRepoRoot, "vendor")
+		if _, err := os.Stat(vendorDir); os.IsNotExist(err) {
+			defer os.RemoveAll(vendorDir)
+		} else if err != nil {
+			return err
+		}
+
+		// vendor the dependencies
+		if err := run.VendorDependencies(source.LocalRepoRoot); err != nil {
+			return err
+		}
+
 		// for local source, upload it to the server and use the resulting source ID
 		srv.Source, err = upload(ctx, srv, source)
 		if err != nil {
@@ -387,6 +402,20 @@ func updateService(ctx *cli.Context) error {
 	}
 
 	if source.Local {
+		// check to see if a vendor folder exists, if it doesn't we should delete the one we generate
+		// after we finish the upload
+		vendorDir := filepath.Join(source.LocalRepoRoot, "vendor")
+		if _, err := os.Stat(vendorDir); os.IsNotExist(err) {
+			defer os.RemoveAll(vendorDir)
+		} else if err != nil {
+			return err
+		}
+
+		// vendor the dependencies
+		if err := run.VendorDependencies(source.LocalRepoRoot); err != nil {
+			return err
+		}
+
 		// for local source, upload it to the server and use the resulting source ID
 		srv.Source, err = upload(ctx, srv, source)
 		if err != nil {

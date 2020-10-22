@@ -928,7 +928,7 @@ func testRunPrivateSource(t *T) {
 	}
 
 	// run the service
-	if outp, err := cmd.Exec("run", "--image", "localhost:5000/cells:v3", "github.com/micro/test/helloworld@"+branch); err != nil {
+	if outp, err := cmd.Exec("run", "--image", "localhost:5000/cells:v3", "github.com/micro/test/helloworld"); err != nil {
 		t.Fatalf("Expected no run error, got %v %v", err, string(outp))
 		return
 	}
@@ -939,7 +939,7 @@ func testRunPrivateSource(t *T) {
 			return outp, err
 		}
 
-		if !statusRunning("helloworld", version, outp) {
+		if !statusRunning("helloworld", "latest", outp) {
 			return outp, errors.New("Can't find helloworld service in runtime")
 		}
 		return outp, err
@@ -956,7 +956,7 @@ func testRunPrivateSource(t *T) {
 			return outp, errors.New("Does not contain helloworld")
 		}
 		return outp, err
-	}, 300*time.Second); err != nil {
+	}, 30*time.Second); err != nil {
 		outp, _ := cmd.Exec("logs", "helloworld")
 		t.Logf("logs %s", string(outp))
 		return
