@@ -1,12 +1,5 @@
-FROM alpine:latest
-RUN apk add make git go gcc libtool musl-dev curl bash
-
-# Configure Go
-ENV GOROOT /usr/lib/go
-ENV GOPATH /go
-ENV PATH /go/bin:$PATH
-
-RUN mkdir -p ${GOPATH}/src ${GOPATH}/bin
+FROM golang:1.15-alpine3.12
+RUN apk add make git gcc libtool musl-dev curl bash
 
 RUN apk add ca-certificates && \
     rm -rf /var/cache/apk/* /tmp/* && \
