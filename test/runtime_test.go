@@ -440,7 +440,7 @@ func testRunGenericRemote(t *T) {
 	cmd := serv.Command()
 	cmd.Exec("user", "config", "set", "git."+serv.Env()+".baseurl", "bitbucket.org/micro-test/monorepo-test")
 
-	outp, err := cmd.Exec("run", "subfolder-test"+branch)
+	outp, err := cmd.Exec("run", "subfolder-test")
 	if err != nil {
 		t.Fatalf("micro run failure, output: %v", string(outp))
 		return
@@ -452,7 +452,7 @@ func testRunGenericRemote(t *T) {
 			return outp, err
 		}
 
-		if !statusRunning("subfolder-test", version, outp) {
+		if !statusRunning("subfolder-test", "latest", outp) {
 			return outp, errors.New("Output should contain subfolder-test")
 		}
 		return outp, nil
