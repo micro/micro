@@ -118,6 +118,9 @@ func Archive(dir string) (io.Reader, error) {
 // shouldArchive is a helper func which indicates if a file should be archived. TODO: implement a
 // smarter check which just excludes executables
 func shouldArchive(file string) bool {
+	if filepath.HasPrefix(file, "vendor") {
+		return true
+	}
 	if strings.HasSuffix(file, ".go") {
 		return true
 	}
