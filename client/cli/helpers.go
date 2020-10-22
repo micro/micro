@@ -65,7 +65,7 @@ func listEnvs(c *cli.Context, args []string) ([]byte, error) {
 		if env.ProxyAddress == "" {
 			env.ProxyAddress = "none"
 		}
-		fmt.Fprintf(w, "%v %v \t %v", prefix, env.Name, env.ProxyAddress)
+		fmt.Fprintf(w, "%v %v \t %v \t\t %v", prefix, env.Name, env.ProxyAddress, env.Description)
 	}
 	w.Flush()
 	return byt.Bytes(), nil
