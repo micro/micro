@@ -58,6 +58,11 @@ func Archive(dir string) (io.Reader, error) {
 
 	// walkFn archives each file in the directory
 	walkFn := func(path string, info os.FileInfo, err error) error {
+		// the walk function incurred an error
+		if err != nil {
+			return err
+		}
+
 		// get the relative path, e.g. cmd/main.go
 		relpath, err := filepath.Rel(dir, path)
 		if err != nil {
