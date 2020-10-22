@@ -52,14 +52,17 @@ var defaultEnvs = map[string]Env{
 	EnvLocal: {
 		Name:         EnvLocal,
 		ProxyAddress: localProxyAddress,
+		Description:  "Local running micro server",
 	},
 	EnvDev: {
 		Name:         EnvDev,
 		ProxyAddress: devProxyAddress,
+		Description:  "Cloud hosted development environment",
 	},
 	EnvPlatform: {
 		Name:         EnvPlatform,
 		ProxyAddress: platformProxyAddress,
+		Description:  "Cloud hosted production environment",
 	},
 }
 
@@ -103,6 +106,7 @@ func CLIProxyAddress(ctx *cli.Context) (string, error) {
 type Env struct {
 	Name         string
 	ProxyAddress string
+	Description  string
 }
 
 func AddEnv(env Env) error {
