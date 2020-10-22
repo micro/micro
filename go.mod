@@ -1,6 +1,6 @@
 module github.com/micro/micro/v3
 
-go 1.13
+go 1.15
 
 require (
 	github.com/bitly/go-simplejson v0.5.0
@@ -26,6 +26,7 @@ require (
 	github.com/google/uuid v1.1.2
 	github.com/gorilla/handlers v1.4.2
 	github.com/gorilla/mux v1.7.3
+	github.com/gosimple/slug v1.9.0
 	github.com/hashicorp/go-version v1.2.1
 	github.com/hpcloud/tail v1.0.0
 	github.com/juju/fslock v0.0.0-20160525022230-4d5c94c67b4b
