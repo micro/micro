@@ -1,16 +1,6 @@
-FROM alpine:latest
-RUN apk add make git go gcc libtool musl-dev curl bash
-
-# Configure Go
-ENV GOROOT /usr/lib/go
-ENV GOPATH /go
-ENV PATH /go/bin:$PATH
-
-RUN mkdir -p ${GOPATH}/src ${GOPATH}/bin
-
-RUN apk add ca-certificates && \
-    rm -rf /var/cache/apk/* /tmp/* && \
-    [ ! -e /etc/nsswitch.conf ] && echo 'hosts: files dns' > /etc/nsswitch.conf
+FROM golang:1.13.15-alpine3.12
+RUN apk add make git gcc libtool musl-dev curl bash
+RUN apk add ca-certificates && rm -rf /var/cache/apk/* /tmp/* 
 
 RUN         apk add --update ca-certificates openssl tar && \
             wget https://github.com/coreos/etcd/releases/download/v3.4.7/etcd-v3.4.7-linux-amd64.tar.gz && \
@@ -22,10 +12,10 @@ VOLUME      /data
 EXPOSE      2379 2380 4001 7001
 ADD         scripts/run-etcd.sh /bin/run.sh
 
+# Can't copy go.mod into top level as this is GOPATH
+WORKDIR /micro
 COPY . .
 RUN go get github.com/micro/services
 RUN go get github.com/micro/services/helloworld
-# RUN bash -c 'for d in $(find test -name "main.go" | xargs -n 1 dirname); do pushd $d && go get && popd; done'
-
 COPY ./micro /micro
 ENTRYPOINT ["sh", "/bin/run.sh"]
