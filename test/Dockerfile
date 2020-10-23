@@ -1,5 +1,4 @@
 FROM golang:1.15-alpine3.12
-WORKDIR micro
 RUN apk add make git gcc libtool musl-dev curl bash
 RUN apk add ca-certificates && rm -rf /var/cache/apk/* /tmp/* 
 
@@ -12,8 +11,5 @@ RUN         apk add --update ca-certificates openssl tar && \
 VOLUME      /data
 EXPOSE      2379 2380 4001 7001
 ADD         scripts/run-etcd.sh /bin/run.sh
-
-COPY ./micro .
-RUN go get github.com/micro/services
-RUN go get github.com/micro/services/helloworld
+COPY . .
 ENTRYPOINT ["sh", "/bin/run.sh"]
