@@ -39,7 +39,8 @@ jobs:
     - name: Build and push micro to local registry
       id: build-push-reg-micro
       run: |
-        docker build . -t localhost:5000/micro 
+        GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build
+        docker build -f ./test/Dockerfile . -t localhost:5000/micro 
         docker push localhost:5000/micro
 
     - name: Build and push cells to local registry
@@ -70,7 +71,7 @@ jobs:
     - name: Install failed, show platform logs
       if: ${{ failure() }}
       run: |
-        kubectl get pods -l micro=runtime -n micro | awk '{print $1}' | sed 1d | xargs -L 1 kubectl logs -n micro
+        kubectl get pods -n micro | awk '{print $1}' | xargs -n1 kubectl logs -n micro
 
     - name: Install micro
       run: go install
