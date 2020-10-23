@@ -12,6 +12,8 @@ VOLUME      /data
 EXPOSE      2379 2380 4001 7001
 ADD         scripts/run-etcd.sh /bin/run.sh
 
+# Can't copy go.mod into top level as this is GOPATH
+WORKDIR /micro
 COPY . .
 RUN go get github.com/micro/services
 RUN go get github.com/micro/services/helloworld
