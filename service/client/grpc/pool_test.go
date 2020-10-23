@@ -22,9 +22,9 @@ import (
 	"testing"
 	"time"
 
+	pb "github.com/micro/micro/v3/proto/test/helloworld"
 	"google.golang.org/grpc"
 	pgrpc "google.golang.org/grpc"
-	pb "google.golang.org/grpc/examples/helloworld/helloworld"
 )
 
 func testPool(t *testing.T, size int, ttl time.Duration, idle int, ms int) {

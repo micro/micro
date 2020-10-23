@@ -1,6 +1,7 @@
 syntax = "proto3";
 
-package go.micro.service.signup;
+package signup;
+option go_package = "github.com/micro/micro/v3/proto/signup;signup";
 
 service Signup {
 	// Sends the verification email to the user

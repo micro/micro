@@ -1,6 +1,7 @@
 syntax = "proto3";
 
 package alert;
+option go_package = "github.com/micro/micro/v3/proto/alert;alert";
 
 service Alert {
 	// ReportEvent does event ingestions.
