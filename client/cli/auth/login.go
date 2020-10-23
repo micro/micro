@@ -72,7 +72,6 @@ func login(ctx *cli.Context) error {
 	token.Save(ctx, tok)
 
 	fmt.Println("Successfully logged in.")
-	report.Success(ctx, username)
 	return nil
 }
 

@@ -5,9 +5,9 @@ package util
 import (
 	"encoding/json"
 	"fmt"
-	"os"
 	"strings"
 
+	"github.com/micro/micro/v3/internal/command"
 	"github.com/micro/micro/v3/internal/config"
 	"github.com/urfave/cli/v2"
 )
@@ -211,7 +211,7 @@ func SetEnv(envName string) error {
 	}
 	_, ok := envs[envName]
 	if !ok {
-		return fmt.Errorf("Environment '%v' does not exist\n", envName)
+		return fmt.Errorf("Environment '%v' does not exist", envName)
 	}
 	return config.Set("env", envName)
 }
@@ -224,7 +224,7 @@ func DelEnv(envName string) error {
 	}
 	_, ok := envs[envName]
 	if !ok {
-		return fmt.Errorf("Environment '%v' does not exist\n", envName)
+		return fmt.Errorf("Environment '%v' does not exist", envName)
 	}
 	delete(envs, envName)
 	return setEnvs(envs)
@@ -244,8 +244,7 @@ func Print(e Exec) func(*cli.Context) error {
 	return func(c *cli.Context) error {
 		rsp, err := e(c, c.Args().Slice())
 		if err != nil {
-			fmt.Println(err)
-			os.Exit(1)
+			return command.CliError(err)
 		}
 		if len(rsp) > 0 {
 			fmt.Printf("%s\n", string(rsp))

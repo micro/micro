@@ -37,8 +37,7 @@ func setEnv(c *cli.Context, args []string) ([]byte, error) {
 	if len(args) == 0 {
 		return nil, errors.New("name required")
 	}
-	cliutil.SetEnv(args[0])
-	return nil, nil
+	return nil, cliutil.SetEnv(args[0])
 }
 
 func listEnvs(c *cli.Context, args []string) ([]byte, error) {
@@ -79,19 +78,17 @@ func addEnv(c *cli.Context, args []string) ([]byte, error) {
 		args = append(args, "") // default to no proxy address
 	}
 
-	cliutil.AddEnv(cliutil.Env{
+	return nil, cliutil.AddEnv(cliutil.Env{
 		Name:         args[0],
 		ProxyAddress: args[1],
 	})
-	return nil, nil
 }
 
 func delEnv(c *cli.Context, args []string) ([]byte, error) {
 	if len(args) == 0 {
 		return nil, errors.New("name required")
 	}
-	cliutil.DelEnv(args[0])
-	return nil, nil
+	return nil, cliutil.DelEnv(args[0])
 }
 
 // TODO: stream via HTTP

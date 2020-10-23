@@ -86,7 +86,7 @@ func init() {
 		},
 		&cli.Command{
 			Name:   "call",
-			Usage:  "Call a service e.g micro call greeter Say.Hello '{\"name\": \"John\"}",
+			Usage:  "Call a service e.g micro call greeter Say.Hello '{\"name\": \"John\"}'",
 			Action: util.Print(callService),
 			Flags: []cli.Flag{
 				&cli.StringFlag{

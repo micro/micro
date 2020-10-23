@@ -398,7 +398,6 @@ loop:
 				continue loop
 			}
 		}
-
 		return nil, fmt.Errorf("Unknown flag: %v", key)
 	}
 

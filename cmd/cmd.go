@@ -14,6 +14,7 @@ import (
 	"time"
 
 	"github.com/micro/micro/v3/client/cli/util"
+	mucmd "github.com/micro/micro/v3/internal/command"
 	uconf "github.com/micro/micro/v3/internal/config"
 	"github.com/micro/micro/v3/internal/helper"
 	"github.com/micro/micro/v3/internal/network"
@@ -249,18 +250,18 @@ func action(c *cli.Context) error {
 		// execute the Config.Set RPC, setting the flags in the
 		// request.
 		if srv, ns, err := lookupService(c); err != nil {
-			fmt.Printf("Error querying registry for service %v: %v", c.Args().First(), err)
-			os.Exit(1)
+			return mucmd.CliError(err)
 		} else if srv != nil && shouldRenderHelp(c) {
-			fmt.Println(formatServiceUsage(srv, c))
-			os.Exit(1)
+			return cli.Exit(formatServiceUsage(srv, c), 1)
 		} else if srv != nil {
 			if err := callService(srv, ns, c); err != nil {
-				fmt.Println(err)
-				os.Exit(1)
+				return mucmd.CliError(err)
 			}
-			os.Exit(0)
+			return nil
 		}
+
+		// srv == nil
+		return cli.Exit("Command not recognized", 10)
 
 	}
 
