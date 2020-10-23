@@ -288,29 +288,6 @@ func CallService(c *cli.Context, args []string) ([]byte, error) {
 	return response, nil
 }
 
-// CliError returns an error compatible with urfave/cli
-func CliError(err error) error {
-	cerr, ok := err.(cli.ExitCoder)
-	if ok {
-		return cerr
-	}
-	merr, ok := err.(*merrors.Error)
-	if !ok {
-		return cli.Exit(err, 128)
-	}
-
-	switch merr.Code {
-	case 408:
-		return cli.Exit("Request timed out", 1)
-	case 401:
-		// TODO check if not signed in, prompt to sign in
-		return cli.Exit("Not authorized to perform this request", 2)
-	}
-
-	// fallback but everything should be using cli exit
-	return cli.Exit(err, 128)
-}
-
 func QueryHealth(c *cli.Context, args []string) ([]byte, error) {
 	if len(args) == 0 {
 		return nil, errors.New("require service name")

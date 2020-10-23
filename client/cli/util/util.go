@@ -7,7 +7,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/micro/micro/v3/internal/command"
+	merrors "github.com/micro/micro/v3/service/errors"
+
 	"github.com/micro/micro/v3/internal/config"
 	"github.com/urfave/cli/v2"
 )
@@ -244,11 +245,34 @@ func Print(e Exec) func(*cli.Context) error {
 	return func(c *cli.Context) error {
 		rsp, err := e(c, c.Args().Slice())
 		if err != nil {
-			return command.CliError(err)
+			return CliError(err)
 		}
 		if len(rsp) > 0 {
 			fmt.Printf("%s\n", string(rsp))
 		}
 		return nil
 	}
+}
+
+// CliError returns an error compatible with urfave/cli
+func CliError(err error) error {
+	cerr, ok := err.(cli.ExitCoder)
+	if ok {
+		return cerr
+	}
+	merr, ok := err.(*merrors.Error)
+	if !ok {
+		return cli.Exit(err, 128)
+	}
+
+	switch merr.Code {
+	case 408:
+		return cli.Exit("Request timed out", 1)
+	case 401:
+		// TODO check if not signed in, prompt to sign in
+		return cli.Exit("Not authorized to perform this request", 2)
+	}
+
+	// fallback but everything should be using cli exit
+	return cli.Exit(err, 128)
 }
