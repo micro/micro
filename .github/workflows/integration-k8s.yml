@@ -98,8 +98,7 @@ jobs:
     - name: Install failed, show platform logs
       if: ${{ failure() }}
       run: |
-        kubectl get pods -n | awk '{print $1}' | xargs -n1 kubectl logs
-        kubectl get pods -n platform | awk '{print $1}' | xargs -n1 kubectl logs -n platform
+        kubectl get pods -l micro=runtime | awk '{print $1}' | sed 1d | xargs -L 1 kubectl logs
     
     - name: Check out services
       uses: actions/checkout@v2

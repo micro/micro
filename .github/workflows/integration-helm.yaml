@@ -70,7 +70,7 @@ jobs:
     - name: Install failed, show platform logs
       if: ${{ failure() }}
       run: |
-        kubectl get pods -n micro | awk '{print $1}' | xargs -n1 kubectl logs -n micro
+        kubectl get pods -l micro=runtime -n micro | awk '{print $1}' | sed 1d | xargs -L 1 kubectl logs -n micro
 
     - name: Install micro
       run: go install
