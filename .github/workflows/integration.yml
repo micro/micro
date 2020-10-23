@@ -39,7 +39,7 @@ jobs:
       run: go install
 
     - name: Install Protoc Gen Go
-      run: go get -u github.com/golang/protobuf/protoc-gen-go@v1.4.3
+      run: go get -u github.com/golang/protobuf/protoc-gen-go@v1.3.0
 
     - name: Replace CI profile
       id: replace-profile
