@@ -11,5 +11,5 @@ RUN         apk add --update ca-certificates openssl tar && \
 VOLUME      /data
 EXPOSE      2379 2380 4001 7001
 ADD         scripts/run-etcd.sh /bin/run.sh
-COPY . .
+COPY ./micro /micro
 ENTRYPOINT ["sh", "/bin/run.sh"]
