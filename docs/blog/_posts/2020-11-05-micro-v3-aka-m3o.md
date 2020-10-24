@@ -370,7 +370,7 @@ spent 6 years since inception on go-micro I feel as though its time to finally l
 started as a tiny library to help write Kubernetes-as-a-Service back in 2014 turned into a widely 
 used open source framework for Go microservices development. Having now amassed more than 14k stars 
 you might wonder why we leave it behind. The truth is, while it solved a problem for many it never 
-became what I had expected it to be.
+became what it was intended for.
 
 Go Micro was built on the premise that developers need a simpler way to build distributed systems. 
 With strongly defined abstractions and a pluggable architecture it did that well but that became 
