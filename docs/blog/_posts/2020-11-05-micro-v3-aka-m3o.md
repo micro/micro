@@ -193,7 +193,7 @@ val, err := config.Get("key")
 
 You can find many more examples in [github.com/micro/services](https://github.com/micro/services).
 
-### Environments
+## Environments
 
 From our experience writing software isn't constrained to a single environment. Most of the time we're doing 
 some form of local development followed by a push to staging and then production. We don't really see tools 
@@ -285,7 +285,7 @@ you've come to know at any work place.
 Our goal with Local, Dev and Platform is to invoke that workflow we've all come to know and expect as a real 
 product. These are totally separate environments and they're managed exactly as that with M3O as well.
 
-### Multi-Tenancy and Namespacing
+## Multi-Tenancy and Namespacing
 
 With the advent of a system like kubernetes and a push towards the cloud we can see that there's really a need 
 to move towards shared resource usage. The cloud isn't cheap and we don't all need to be running separate 
@@ -331,7 +331,7 @@ In one command it will upload or pull from the relevant place, package it as a c
 run it. That's it. Source to running in just one command. No more need to deal with the pipeline, 
 no more hacking away at containers and the container registries. Write some code and run it.
 
-### Development Model
+## Development Model
 
 Source to running is cool. It's what a PaaS is really for but one thing that's really been lacking even 
 with the new PaaS boom is a development model. As I eluded to, Heroku takes too much away and AWS 
@@ -351,7 +351,67 @@ nosql key-value storage and dynamic config management. We believe there are spec
 required to start building microservices and distributed systems and that's what Micro looks 
 to provide.
 
-### Ten Commands
+## Multi Language Clients
+
+One of the key learnings we had from development a Go framework called [go-micro](https://github.com/asim/go-micro) was that 
+we mostly do single language development for each platform such as web, mobile, etc and cloud will go in this same direction 
+with Go but we need to support an ecosystem for consumption of those services and potentially even extending on the fringes 
+where there's no way around using python, java, ruby, rust or javascript. Because Micro's interface is gRPC we code generate 
+gRPC clients and allow any language to leverage the Micro server.
+
+In the past multi-language clients have been pain stakingly hand crafted and one thing we learned from building a framework, 
+it's incredibly hard to replicate this across languages also. With gRPC we've really found a happy medium of saying, there's 
+a built in service library you can use to write code really elegantly with Go but gRPC allows us to reduce the scope of the 
+surface area and provide strongly typed clients that can support a different model of development, one that might have 
+more scope for pushing microservices to wide scale adoption in a way that wasn't possible with frameworks.
+
+We additionally include grpc-web generated clients which enable frontend to quickly and easily make use of typed javascript 
+clients to leverage the same development as the backend. We've seen grpc-web slowly gain adoption internally at various 
+companies and think this might extend to the public domain fairly rapidly as well.
+
+## Building API First Services
+
+Micro was built to make microservices development much easier and to increase developer productivity on the backend, beyond 
+being able to consume those services using gRPC we think the world still really cares about HTTP/JSON based APIs and so 
+Micro include an API gateway which translates http/json to grpc requests automatically. This means everyone is building 
+API first services in the cloud without having to do anything.
+
+Here's a quick example.
+
+Say you write helloworld on the backend with the following proto
+
+```
+syntax = "proto3";
+
+package helloworld;
+
+service Helloworld {
+	rpc Message(Request) returns (Response) {}
+}
+
+message Request {
+	string name = 1;
+}
+
+message Response {
+	string msg = 1;
+}
+```
+
+Then expose this as the "helloworld" service on the M3O platform. You'll instantly be able to access this as $namespace.m3o.dev/helloworld/message
+
+We use path based resolution to map a http request to gRPC. So /[service]/[method] becomes [Service.Method]. If your microservice name doesn't match 
+the proto for whatever reason (you have multiple proto Services) then it works slightly differently e.g your service name is foobar then the endpoint 
+becomes `/foobar/helloworld/message`.
+
+One neat hack we've picked up from web browser is auto detecting an endpoint so we can shorthand something to something like /helloworld. With the web 
+if an index.html page is found its served. In our case if we find the `Call` method in your proto we'll automatically use it so /helloworld/call just 
+shortens to /helloworld.
+
+With Stripe, Twilio, Segment and others become huge API players, we think the world is going in that direction and you are probably building http apis 
+too. So Micro builds in this in as a first class primitive. In future we'll also look to include support for graphql.
+
+## Ten Commands
 
 Alright so we talk a good game, but how easy is it? Well lets show you.
 
@@ -417,7 +477,7 @@ M3O and Micro 3.0 look at the state of distributed systems development in the cl
 try to drastically simplify that experience with a platform that bakes in the development model 
 so you can just get back to writing code.
 
-## Go Micro
+## Deprecating Go Micro
 
 We will now be ending support for [go-micro](https://github.com/micro/go-micro). Having personally 
 spent 6 years since inception on go-micro I feel as though its time to finally let it go. What 
