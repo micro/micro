@@ -390,5 +390,56 @@ services in the Cloud. Come join [Discord](https://discord.gg/hbmJEct) or [Slack
 to chat more about it. And lastly head to to [m3o.com](https://m3o.com) if you're tired of the way you're 
 building software for today and want to learn of a better way that's going to make you 10x more productive.
 
+To get started for free in the cloud based dev environment just run the following commands.
+
+```
+# Install the micro binary
+curl -fsSL https://install.m3o.com/micro | /bin/bash
+
+# Set the env to the dev environment
+micro env set dev
+
+# Signup before getting started
+micro signup
+
+# Create a new service (follow the instructions and push to Github)
+micro new helloworld
+
+# Deploy the service from github
+micro run github.com/micro/services/helloworld
+
+# Check the service status
+micro status
+
+# Query the logs
+micro logs helloworld
+
+# Call the service
+micro helloworld --name=Alice
+
+# Get your namespace
+NAMESPACE=$(micro user namespace)
+
+# Curl it via the public http API
+curl "https://$NAMESPACE.m3o.dev/helloworld?name=Alice"
+```
+
+If you want to test things out locally first
+
+```
+# start the server locally
+micro server
+
+# set the environment to local
+micro env set local
+
+# login using user: admin pass: micro
+micro login
+```
+
+And that's it! Please come chat with us in [Discord](https://discord.gg/hbmJEct) or [Slack](https://slack.m3o.com) and 
+[invite friends](https://m3o.dev/getting-started/invite-users) to test out the M3O platform.
+
 <br>
 *Written by Asim Aslam*
+Founder & CEO Micro
