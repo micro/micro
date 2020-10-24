@@ -89,7 +89,7 @@ separate apps which communicate over the network via their APIs rather than as o
 We think cloud services require a fundamentally different approach to software creation and why Micro 3.0 
 was designed with this in mind.
 
-## M3O aka Micro 3.0
+## Micro 3.0 aka M3O
 
 Micro 3.0 (M3O) reimagines Micro as a platform for cloud native development. What does that mean? Well we think of 
 it as PaaS 3.0, a complete solution for source to running and beyond. Micro has moved from just being a Go 
