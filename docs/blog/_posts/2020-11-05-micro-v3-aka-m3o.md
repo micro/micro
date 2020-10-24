@@ -440,6 +440,8 @@ micro login
 And that's it! Please come chat with us in [Discord](https://discord.gg/hbmJEct) or [Slack](https://slack.m3o.com) and 
 [invite friends](https://m3o.dev/getting-started/invite-users) to test out the M3O platform.
 
+To learn more about the M3O platform see the dev docs at [m3o.dev](https://m3o.dev).
+
 <br>
 *Written by Asim Aslam*
 Founder & CEO Micro
