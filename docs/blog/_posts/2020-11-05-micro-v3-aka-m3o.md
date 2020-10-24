@@ -444,4 +444,5 @@ To learn more about the M3O platform see the dev docs at [m3o.dev](https://m3o.d
 
 <br>
 *Written by Asim Aslam*
+<br>
 Founder & CEO Micro
