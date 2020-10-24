@@ -318,7 +318,7 @@ and grab your namespace and set the header as `Micro-Namespace`.
 Additionally each namespace gets its own custom domain so the `foobar` namespace becomes `foobar.m3o.dev` 
 with say the helloworld service routing would be to `foobar.m3o.dev/helloworld`.
 
-### Source to Running 
+## Source to Running 
 
 Micro was built out of a frustration with the existing tools out there. One of the things I've really 
 been saying for a long time is that I wanted "source to running" in just one command. With 
