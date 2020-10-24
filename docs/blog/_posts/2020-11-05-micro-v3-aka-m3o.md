@@ -195,7 +195,7 @@ You can find many more examples in [github.com/micro/services](https://github.co
 
 ### Environments
 
-From our experience writing software isn't constraing to a single environment. Most of the time we're doing 
+From our experience writing software isn't constrained to a single environment. Most of the time we're doing 
 some form of local development followed by a push to staging and then production. We don't really see tools 
 capturing that workflow effectively. Thinking about how to do this now we've built in environments as 
 a first class system.
@@ -218,7 +218,7 @@ Interact with the environments like so.
 micro env
 
 # set the environment
-micro env set platform
+micro env set dev
 
 # add a new environment
 micro env add foobar proxy.foo.com:443
@@ -226,7 +226,66 @@ micro env add foobar proxy.foo.com:443
 
 Micro isn't constrained to our built in environments. You can add others as you wish.
 
-### Multi-Tenancy
+
+### Local Environment
+
+The local environment is just that, your local laptop. Its where development starts and normally 
+this requires you to run all sorts of crazy infrastructure. Micro focuses on providing pluggable 
+abstractions as gRPC services so your service just talks gRPC directly to Micro and we hide the 
+details from you. Locally that means we're using best effort stuff like mdns, file storage, etc. 
+
+We've almost made it drop dead simple to start locally. You just run one command. 
+
+```
+micro server
+```
+
+This will boot all the services you need and let you build a service that will look identical 
+in any cloud environment running Micro as a Service.
+
+Set your environment to the local server when using it.
+
+```
+micro env set local
+```
+
+Curl `localhost:8080` with your namespace
+
+```
+curl -H "Micro-Namespace: $NAMESPACE" "http://localhost:8080/helloworld?name=Alice"
+```
+
+Get your namespace like so
+
+```
+micro user namespace
+```
+
+This might be blank locally but you'll get the idea for how namespace isolation works in a bit.
+
+### Dev Environment
+
+The 'dev' environment is a free cloud hosted environment that provides Micro 3.0 as a Service. What we've 
+learned in the past few years is that open source is not enough. There's some great open source tools out there 
+but as soon as we get to deployment there's so many hurdles to overcome. The dev enviroment provides 
+everyone the ability to get up and running in minutes with the same tools you'd use for local development 
+in the cloud.
+
+All you have to do is set the env to 'dev' and use it like local.
+
+If you're using the dev environment URLs are `*.m3o.dev`. Find more details at [m3o.dev](https://m3o.dev)
+
+### Platform Environment
+
+The 'platform' environment is a secure, scalable and supported production environment for where you'd likely 
+run customer facing services and products. This is a paid tier with 2x the resource limits of dev to start 
+including slack & email support along with SLAs. You can think of it as the equivalent of a production platform 
+you've come to know at any work place.
+
+Our goal with Local, Dev and Platform is to invoke that workflow we've all come to know and expect as a real 
+product. These are totally separate environments and they're managed exactly as that with M3O as well.
+
+### Multi-Tenancy and Namespacing
 
 With the advent of a system like kubernetes and a push towards the cloud we can see that there's really a need 
 to move towards shared resource usage. The cloud isn't cheap and we don't all need to be running separate 
@@ -243,6 +302,21 @@ multi-tenancy needs to become a defacto standard in 2020. How it works in practi
 get's a namespace. That namespace has its own isolated set of users and resources in each subsystem. 
 When you make any request as a user or service, a JWT token is passed with that so the 
 underlying systems can route to the appropriate resources.
+
+Once you've signed up to the dev environment your namespace will be set for you. You can get it using 
+the command
+
+```
+micro user namespace
+```
+
+When you're using any sort of CLI commands, your namespace and auth token are automatically injected 
+into request including refreshing those tokens. The same happens for any of your services running 
+on Micro. If you want to use the http API or the public api url [api.m3o.dev] then go ahead 
+and grab your namespace and set the header as `Micro-Namespace`.
+
+Additionally each namespace gets its own custom domain so the `foobar` namespace becomes `foobar.m3o.dev` 
+with say the helloworld service routing would be to `foobar.m3o.dev/helloworld`.
 
 ### Source to Running 
 
@@ -285,8 +359,8 @@ Alright so we talk a good game, but how easy is it? Well lets show you.
 # Install the micro binary
 curl -fsSL https://install.m3o.com/micro | /bin/bash
 
-# Set the env to platform (paid) or dev (free)
-micro env set platform
+# Set env to dev for the free environment in the cloud
+micro env set dev
 
 # Signup before getting started
 micro signup
@@ -310,33 +384,13 @@ micro helloworld --name=Alice
 NAMESPACE=$(micro user namespace)
 
 # Call service via the public http API
-curl "https://$NAMESPACE.m3o.app/helloworld?name=Alice"
+curl "https://$NAMESPACE.m3o.dev/helloworld?name=Alice"
 ```
 
 Easy right? We see this as the common flow for most service development. Its a fast iterative loop
 from generating a new template to shipping it and querying to make sure it works. There's 
 additional stuff in the developer experience like actually writing the service but we think that's 
 a separate post.
-
-### Local Environment
-
-If you're using the server locally a few subsitutions.
-
-Set your environment to the local server
-
-```
-micro env set local
-```
-
-Curl `localhost:8080` rather than m3o.app with your namespace
-
-```
-curl -H "Micro-Namespace: $NAMESPACE" "http://localhost:8080/helloworld?name=Alice"
-```
-
-### Dev Environment
-
-If you're using the dev environment URLs are `*.m3o.dev`. Find more details at [m3o.dev](https://m3o.dev)
 
 ## Documentation
 
@@ -390,7 +444,7 @@ services in the Cloud. Come join [Discord](https://discord.gg/hbmJEct) or [Slack
 to chat more about it. And lastly head to to [m3o.com](https://m3o.com) if you're tired of the way you're 
 building software for today and want to learn of a better way that's going to make you 10x more productive.
 
-To get started for free in the cloud based dev environment just run the following commands.
+So to revisit. To get started for free in the cloud based dev environment just run the following commands.
 
 ```
 # Install the micro binary
@@ -440,7 +494,8 @@ micro login
 And that's it! Please come chat with us in [Discord](https://discord.gg/hbmJEct) or [Slack](https://slack.m3o.com) and 
 [invite friends](https://m3o.dev/getting-started/invite-users) to test out the M3O platform.
 
-To learn more about the M3O platform see the dev docs at [m3o.dev](https://m3o.dev).
+To learn more about the M3O platform see the dev docs at [m3o.dev](https://m3o.dev). And for the open source docs 
+check out [m3o.org](https://m3o.org).
 
 <br>
 *Written by Asim Aslam*
