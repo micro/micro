@@ -16,6 +16,7 @@ rules:
       - services
       - secrets
       - namespaces
+      - resourcequotas
     verbs:
       - get
       - create

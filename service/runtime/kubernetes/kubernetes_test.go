@@ -73,7 +73,7 @@ func TestNamespaceCreateDelete(t *testing.T) {
 	testNamespace, err := runtime.NewNamespace("foobar")
 	assert.NoError(t, err)
 	if err := r.Create(testNamespace); err != nil {
-		t.Fatalf("Unexpected error creating namespace: %v", err)
+		t.Fatalf("Unexpected error creating Namespace: %v", err)
 	}
 
 	// Check that the namespace exists
@@ -85,7 +85,7 @@ func TestNamespaceCreateDelete(t *testing.T) {
 	testNetworkPolicy, err := runtime.NewNetworkPolicy("baz", "foobar", nil)
 	assert.NoError(t, err)
 	if err := r.Create(testNetworkPolicy); err != nil {
-		t.Fatalf("Unexpected error creating networkpolicy: %v", err)
+		t.Fatalf("Unexpected error creating NetworkPolicy: %v", err)
 	}
 
 	// Check that the networkpolicy exists:
@@ -93,15 +93,33 @@ func TestNamespaceCreateDelete(t *testing.T) {
 		t.Fatalf("NetworkPolicy foobar.baz not found")
 	}
 
+	// Create a resourcequota:
+	testResourceQuota, err := runtime.NewResourceQuota("caps", "foobar")
+	assert.NoError(t, err)
+	if err := r.Create(testResourceQuota); err != nil {
+		t.Fatalf("Unexpected error creating ResourceQuota: %v", err)
+	}
+
+	// Check that the ResourceQuota exists:
+	if !resourceQuotaExists(t, "foobar", "caps") {
+		t.Fatalf("ResourceQuota foobar.caps not found")
+	}
+
 	// Tidy up
+	if err := r.Delete(testResourceQuota); err != nil {
+		t.Fatalf("Unexpected error deleting ResourceQuota: %v", err)
+	}
+	if resourceQuotaExists(t, "foobar", "caps") {
+		t.Fatalf("ResourceQuota foobar.caps still exists")
+	}
 	if err := r.Delete(testNetworkPolicy); err != nil {
-		t.Fatalf("Unexpected error deleting networkpolicy: %v", err)
+		t.Fatalf("Unexpected error deleting NetworkPolicy: %v", err)
 	}
 	if networkPolicyExists(t, "foobar", "baz") {
 		t.Fatalf("NetworkPolicy foobar.baz still exists")
 	}
 	if err := r.Delete(testNamespace); err != nil {
-		t.Fatalf("Unexpected error deleting namespace: %v", err)
+		t.Fatalf("Unexpected error deleting Namespace: %v", err)
 	}
 	if namespaceExists(t, "foobar") {
 		t.Fatalf("Namespace foobar still exists")
@@ -130,6 +148,19 @@ func networkPolicyExists(t *testing.T, ns, np string) bool {
 	exists, err := regexp.Match(np, outp)
 	if err != nil {
 		t.Fatalf("Error listing networkpolicies %s", err)
+	}
+	return exists
+}
+
+func resourceQuotaExists(t *testing.T, ns, rq string) bool {
+	cmd := exec.Command("kubectl", "-n", ns, "get", "resourcequota")
+	outp, err := cmd.Output()
+	if err != nil {
+		t.Fatalf("Unexpected error listing resourcequotas %s", err)
+	}
+	exists, err := regexp.Match(rq, outp)
+	if err != nil {
+		t.Fatalf("Error listing resourcequotas %s", err)
 	}
 	return exists
 }
