@@ -62,6 +62,43 @@ func TestResources(t *testing.T) {
 	networkPolicy, err = NewNetworkPolicy("ingress", "test", map[string]string{"foo": "bar", "bar": "foo"})
 	assert.Len(t, networkPolicy.AllowedLabels, 2)
 
+	// ResourceQuota:
+	assert.Equal(t, TypeResourceQuota, new(ResourceQuota).Type())
+	resourceQuota, err := NewResourceQuota("", "", nil, nil)
+	assert.Error(t, err)
+	assert.Equal(t, ErrInvalidResource, err)
+	assert.Nil(t, resourceQuota)
+
+	resourceQuota, err = NewResourceQuota("test", "", nil, nil)
+	assert.Error(t, err)
+	assert.Equal(t, ErrInvalidResource, err)
+	assert.Nil(t, resourceQuota)
+
+	resourceQuota, err = NewResourceQuota("", "test", nil, nil)
+	assert.Error(t, err)
+	assert.Equal(t, ErrInvalidResource, err)
+	assert.Nil(t, resourceQuota)
+
+	resourceQuota, err = NewResourceQuota("userquota", "test", nil, nil)
+	assert.NoError(t, err)
+	assert.NotNil(t, networkPolicy)
+	assert.Equal(t, TypeResourceQuota, resourceQuota.Type())
+	assert.Equal(t, "test.userquota", resourceQuota.String())
+	assert.Equal(t, 2000, resourceQuota.Requests.CPU)
+	assert.Equal(t, 2000, resourceQuota.Requests.Mem)
+	assert.Equal(t, 5000, resourceQuota.Requests.Disk)
+	assert.Equal(t, 4000, resourceQuota.Limits.CPU)
+	assert.Equal(t, 4000, resourceQuota.Limits.Mem)
+	assert.Equal(t, 10000, resourceQuota.Limits.Disk)
+
+	resourceQuota, err = NewResourceQuota("userquota", "test", &Resources{Mem: 777}, &Resources{Disk: 8888})
+	assert.Equal(t, 0, resourceQuota.Requests.CPU)
+	assert.Equal(t, 777, resourceQuota.Requests.Mem)
+	assert.Equal(t, 0, resourceQuota.Requests.Disk)
+	assert.Equal(t, 0, resourceQuota.Limits.CPU)
+	assert.Equal(t, 0, resourceQuota.Limits.Mem)
+	assert.Equal(t, 8888, resourceQuota.Limits.Disk)
+
 	// Service:
 	assert.Equal(t, TypeService, new(Service).Type())
 	service, err := NewService("", "")
