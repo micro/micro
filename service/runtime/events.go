@@ -15,6 +15,9 @@ const (
 	EventNetworkPolicyCreated = "networkpolicy.created"
 	EventNetworkPolicyUpdated = "networkpolicy.updated"
 	EventNetworkPolicyDeleted = "networkpolicy.deleted"
+	EventResourceQuotaCreated = "resourcequota.created"
+	EventResourceQuotaUpdated = "resourcequota.updated"
+	EventResourceQuotaDeleted = "resourcequota.deleted"
 )
 
 // EventPayload which is published with runtime events
@@ -24,15 +27,12 @@ type EventPayload struct {
 	Namespace string
 }
 
-// EventNamespacePayload which is published with runtime namespace events
-type EventNamespacePayload struct {
-	Type      string
-	Namespace string
-}
-
-// EventNetworkPolicyPayload which is published with runtime networkpolicy events
-type EventNetworkPolicyPayload struct {
-	Type      string
-	Name      string
-	Namespace string
+// EventResourcePayload which is published with runtime resource events
+type EventResourcePayload struct {
+	Type          string
+	Name          string
+	Namespace     string
+	NetworkPolicy *NetworkPolicy
+	ResourceQuota *ResourceQuota
+	Service       *Service
 }

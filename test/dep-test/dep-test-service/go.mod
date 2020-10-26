@@ -1,6 +1,6 @@
 module dep-test-service
 
-go 1.13
+go 1.15
 
 replace dependency => ../
 

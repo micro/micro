@@ -386,8 +386,8 @@ loop:
 				}
 
 				if _, ok := result[attr.Name]; !ok {
-					result[attr.Name] = map[string]string{}
-				} else if _, ok := result[attr.Name].(map[string]string); !ok {
+					result[attr.Name] = map[string]interface{}{}
+				} else if _, ok := result[attr.Name].(map[string]interface{}); !ok {
 					return nil, fmt.Errorf("Error parsing request, duplicate key: %v", key)
 				}
 				parsed, err := coerceValue(attr2.Type, value)

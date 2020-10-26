@@ -20,7 +20,21 @@ import "fmt"
 const (
 	TypeNamespace     = "namespace"
 	TypeNetworkPolicy = "networkpolicy"
+	TypeResourceQuota = "resourcequota"
 	TypeService       = "service"
+)
+
+var (
+	defaultRequests = &Resources{
+		CPU:  2000, // 2GB
+		Mem:  2000, // 2GB
+		Disk: 5000, // 5GB
+	}
+	defaultLimits = &Resources{
+		CPU:  4000,  // 4GB
+		Mem:  4000,  // 4GB
+		Disk: 10000, // 10GB
+	}
 )
 
 // Resource represents any resource handled by runtime
@@ -90,6 +104,52 @@ func (r *NetworkPolicy) String() string {
 // Type implements Resource
 func (*NetworkPolicy) Type() string {
 	return TypeNetworkPolicy
+}
+
+// ResourceQuota represents an ACL of label pairs allowing ignress to a namespace
+type ResourceQuota struct {
+	// Name of the resource quota
+	Name string
+	// Namespace the resource quota belongs to
+	Namespace string
+	// Quota for resource REQUESTS
+	Requests *Resources
+	// Quota for resource LIMITS
+	Limits *Resources
+}
+
+// NewResourceQuota mints a new resourcequota
+func NewResourceQuota(name, namespace string, requests, limits *Resources) (*ResourceQuota, error) {
+	if name == "" || namespace == "" {
+		return nil, ErrInvalidResource
+	}
+
+	rq := &ResourceQuota{
+		Name:      name,
+		Namespace: namespace,
+		Requests:  defaultRequests,
+		Limits:    defaultLimits,
+	}
+
+	if requests != nil {
+		rq.Requests = requests
+	}
+
+	if limits != nil {
+		rq.Limits = limits
+	}
+
+	return rq, nil
+}
+
+// String implements Resource
+func (r *ResourceQuota) String() string {
+	return fmt.Sprintf("%s.%s", r.Namespace, r.Name)
+}
+
+// Type implements Resource
+func (*ResourceQuota) Type() string {
+	return TypeResourceQuota
 }
 
 // Service represents a Micro service running within a namespace

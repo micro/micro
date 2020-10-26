@@ -5,10 +5,11 @@ import (
 	"time"
 
 	authns "github.com/micro/micro/v3/internal/auth/namespace"
-	"github.com/micro/micro/v3/internal/namespace"
 	pb "github.com/micro/micro/v3/proto/broker"
 	"github.com/micro/micro/v3/service"
+	"github.com/micro/micro/v3/service/auth"
 	"github.com/micro/micro/v3/service/broker"
+	"github.com/micro/micro/v3/service/context/metadata"
 	"github.com/micro/micro/v3/service/errors"
 	"github.com/micro/micro/v3/service/logger"
 	log "github.com/micro/micro/v3/service/logger"
@@ -53,23 +54,37 @@ func Run(ctx *cli.Context) error {
 type handler struct{}
 
 func (h *handler) Publish(ctx context.Context, req *pb.PublishRequest, rsp *pb.Empty) error {
-	ns := namespace.FromContext(ctx)
-
 	// authorize the request
-	if err := authns.Authorize(ctx, ns); err == authns.ErrForbidden {
-		return errors.Forbidden("broker.Broker.Publish", err.Error())
-	} else if err == authns.ErrUnauthorized {
-		return errors.Unauthorized("broker.Broker.Publish", err.Error())
-	} else if err != nil {
-		return errors.InternalServerError("broker.Broker.Publish", err.Error())
+	acc, ok := auth.AccountFromContext(ctx)
+	if !ok {
+		return errors.Unauthorized("broker.Broker.Publish", authns.ErrForbidden.Error())
 	}
 
-	log.Debugf("Publishing message to %s topic in the %v namespace", req.Topic, ns)
-	err := broker.DefaultBroker.Publish(ns+"."+req.Topic, &broker.Message{
+	// validate the request
+	if req.Message == nil {
+		return errors.BadRequest("broker.Broker.Publish", "Missing message")
+	}
+
+	// ensure the header is not nil
+	if req.Message.Header == nil {
+		req.Message.Header = map[string]string{}
+	}
+
+	// set any headers which aren't already set
+	if md, ok := metadata.FromContext(ctx); ok {
+		for k, v := range md {
+			if _, ok := req.Message.Header[k]; !ok {
+				req.Message.Header[k] = v
+			}
+		}
+	}
+
+	log.Debugf("Publishing message to %s topic in the %v namespace", req.Topic, acc.Issuer)
+	err := broker.DefaultBroker.Publish(acc.Issuer+"."+req.Topic, &broker.Message{
 		Header: req.Message.Header,
 		Body:   req.Message.Body,
 	})
-	log.Debugf("Published message to %s topic in the %v namespace", req.Topic, ns)
+	log.Debugf("Published message to %s topic in the %v namespace", req.Topic, acc.Issuer)
 	if err != nil {
 		return errors.InternalServerError("broker.Broker.Publish", err.Error())
 	}
@@ -77,17 +92,14 @@ func (h *handler) Publish(ctx context.Context, req *pb.PublishRequest, rsp *pb.E
 }
 
 func (h *handler) Subscribe(ctx context.Context, req *pb.SubscribeRequest, stream pb.Broker_SubscribeStream) error {
-	ns := namespace.FromContext(ctx)
-	errChan := make(chan error, 1)
-
 	// authorize the request
-	if err := authns.Authorize(ctx, ns); err == authns.ErrForbidden {
-		return errors.Forbidden("broker.Broker.Subscribe", err.Error())
-	} else if err == authns.ErrUnauthorized {
-		return errors.Unauthorized("broker.Broker.Subscribe", err.Error())
-	} else if err != nil {
-		return errors.InternalServerError("broker.Broker.Subscribe", err.Error())
+	acc, ok := auth.AccountFromContext(ctx)
+	if !ok {
+		return errors.Unauthorized("broker.Broker.Subscribe", authns.ErrForbidden.Error())
 	}
+	ns := acc.Issuer
+
+	errChan := make(chan error, 1)
 
 	// message handler to stream back messages from broker
 	handler := func(m *broker.Message) error {
