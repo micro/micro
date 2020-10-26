@@ -176,6 +176,32 @@ func TestDynamicFlagParsing(t *testing.T) {
 				},
 			},
 		},
+		{
+			args: []string{"--user_email=someemail", "--user_name=somename"},
+			values: &goregistry.Value{
+				Values: []*goregistry.Value{
+					{
+						Name: "user",
+						Values: []*goregistry.Value{
+							{
+								Name: "email",
+								Type: "string",
+							},
+							{
+								Name: "name",
+								Type: "string",
+							},
+						},
+					},
+				},
+			},
+			expected: map[string]interface{}{
+				"user": map[string]interface{}{
+					"email": "someemail",
+					"name":  "somename",
+				},
+			},
+		},
 	}
 	for _, c := range cases {
 		_, flags, err := splitCmdArgs(c.args)
