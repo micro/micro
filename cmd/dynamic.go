@@ -386,7 +386,7 @@ loop:
 				}
 
 				if _, ok := result[attr.Name]; !ok {
-					result[attr.Name] = map[string]string{}
+					result[attr.Name] = map[string]interface{}{}
 				} else if _, ok := result[attr.Name].(map[string]string); !ok {
 					return nil, fmt.Errorf("Error parsing request, duplicate key: %v", key)
 				}
