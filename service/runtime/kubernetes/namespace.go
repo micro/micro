@@ -93,17 +93,6 @@ func (k *kubernetes) autoCreateNamespace(namespace string) error {
 	// add to cache and create networkpolicy
 	if err == nil && k.namespaces != nil {
 		k.namespaces = append(k.namespaces, ns)
-
-		if networkPolicy, err := runtime.NewNetworkPolicy("ingress", namespace, map[string]string{"owner": "micro"}); err != nil {
-			return err
-		} else {
-			err := k.create(networkPolicy)
-			if err != nil && strings.Contains(err.Error(), "already exists") {
-				logger.Debugf("Ignoring ErrAlreadyExists for network policy %v in namespace %v: %v", networkPolicy.Name, networkPolicy.Namespace, err)
-				err = nil
-			}
-			return err
-		}
 	}
 
 	return err
