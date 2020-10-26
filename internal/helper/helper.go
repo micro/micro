@@ -74,18 +74,18 @@ func TLSConfig(ctx *cli.Context) (*tls.Config, error) {
 func UnexpectedSubcommand(ctx *cli.Context) error {
 	if first := Subcommand(ctx); first != "" {
 		// received something that isn't a subcommand
-		return fmt.Errorf("Unrecognized subcommand for %s: %s. Please refer to '%s --help'", ctx.App.Name, first, ctx.App.Name)
+		return cli.Exit(fmt.Sprintf("Unrecognized subcommand for %s: %s. Please refer to '%s --help'", ctx.App.Name, first, ctx.App.Name), 1)
 	}
-	return nil
+	return cli.ShowSubcommandHelp(ctx)
 }
 
 func UnexpectedCommand(ctx *cli.Context) error {
 	commandName := Command(ctx)
-	return fmt.Errorf("Unrecognized micro command: %s. Please refer to 'micro --help'", commandName)
+	return cli.Exit(fmt.Sprintf("Unrecognized micro command: %s. Please refer to 'micro --help'", commandName), 1)
 }
 
 func MissingCommand(ctx *cli.Context) error {
-	return fmt.Errorf("No command provided to micro. Please refer to 'micro --help'")
+	return cli.Exit(fmt.Sprintf("No command provided to micro. Please refer to 'micro --help'"), 1)
 }
 
 // MicroCommand returns the main command name

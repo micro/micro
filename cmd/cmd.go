@@ -260,7 +260,7 @@ func action(c *cli.Context) error {
 		}
 
 		// srv == nil
-		return cli.Exit("Command not recognized", 10)
+		return helper.UnexpectedCommand(c)
 
 	}
 
