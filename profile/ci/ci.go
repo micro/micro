@@ -2,12 +2,11 @@
 package ci
 
 import (
-	"github.com/micro/micro/v3/service/runtime/local"
 	"github.com/micro/micro/plugin/etcd/v3"
 	"github.com/micro/micro/v3/profile"
 	"github.com/micro/micro/v3/service/auth"
 	"github.com/micro/micro/v3/service/auth/jwt"
-	"github.com/micro/micro/v3/service/broker/http"
+	memBroker "github.com/micro/micro/v3/service/broker/memory"
 	"github.com/micro/micro/v3/service/config"
 	storeConfig "github.com/micro/micro/v3/service/config/store"
 	"github.com/micro/micro/v3/service/events"
@@ -15,6 +14,7 @@ import (
 	memStream "github.com/micro/micro/v3/service/events/stream/memory"
 	"github.com/micro/micro/v3/service/logger"
 	microRuntime "github.com/micro/micro/v3/service/runtime"
+	"github.com/micro/micro/v3/service/runtime/local"
 	"github.com/micro/micro/v3/service/store"
 	"github.com/micro/micro/v3/service/store/file"
 	"github.com/urfave/cli/v2"
@@ -34,7 +34,7 @@ var Profile = &profile.Profile{
 		config.DefaultConfig, _ = storeConfig.NewConfig(store.DefaultStore, "")
 		events.DefaultStream, _ = memStream.NewStream()
 		events.DefaultStore = evStore.NewStore(evStore.WithStore(store.DefaultStore))
-		profile.SetupBroker(http.NewBroker())
+		profile.SetupBroker(memBroker.NewBroker())
 		profile.SetupRegistry(etcd.NewRegistry())
 		profile.SetupJWT(ctx)
 		profile.SetupConfigSecretKey(ctx)

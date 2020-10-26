@@ -927,7 +927,9 @@ func (g *grpcServer) Start() error {
 	// If the request IS http2 and has the right header, then also grpc+web
 	grpcl := m.MatchWithWriters(func(w io.Writer, r io.Reader) bool {
 		return !hasHTTP2Preface(r)
-	}, cmux.HTTP2MatchHeaderFieldSendSettings("content-type", "application/grpc-web+proto"))
+	},
+		cmux.HTTP2MatchHeaderFieldSendSettings("content-type", "application/grpc-web+proto"),
+		cmux.HTTP2MatchHeaderFieldSendSettings("method", "OPTIONS"))
 
 	// Else just match all gRPC traffic
 	trpcL := m.Match(cmux.Any())

@@ -507,6 +507,9 @@ func (c *command) Before(ctx *cli.Context) error {
 	if err := broker.DefaultBroker.Init(brokerOpts...); err != nil {
 		logger.Fatalf("Error configuring broker: %v", err)
 	}
+	if err := broker.DefaultBroker.Connect(); err != nil {
+		logger.Fatalf("Error connecting to broker: %v", err)
+	}
 
 	// Setup runtime. This is a temporary fix to trigger the runtime to recreate
 	// its client now the client has been replaced with a wrapped one.

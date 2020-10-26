@@ -66,6 +66,7 @@ func (s *svc) Create(resource runtime.Resource, opts ...runtime.CreateOption) er
 		}
 
 	case runtime.TypeNetworkPolicy:
+
 		// Assert the resource back into a *runtime.NetworkPolicy
 		networkPolicy, ok := resource.(*runtime.NetworkPolicy)
 		if !ok {
@@ -83,6 +84,43 @@ func (s *svc) Create(resource runtime.Resource, opts ...runtime.CreateOption) er
 				Networkpolicy: &pb.NetworkPolicy{
 					Name:      networkPolicy.Name,
 					Namespace: networkPolicy.Namespace,
+				},
+			},
+		}
+
+		if _, err := s.runtime.Create(context.DefaultContext, req, client.WithAuthToken()); err != nil {
+			return err
+		}
+
+	case runtime.TypeResourceQuota:
+
+		// Assert the resource back into a *runtime.ResourceQuota
+		resourceQuota, ok := resource.(*runtime.ResourceQuota)
+		if !ok {
+			return runtime.ErrInvalidResource
+		}
+
+		// Allow the options to take precedence
+		if options.Namespace != "" {
+			resourceQuota.Namespace = options.Namespace
+		}
+
+		// runtime namespace create request
+		req := &pb.CreateRequest{
+			Resource: &pb.Resource{
+				Resourcequota: &pb.ResourceQuota{
+					Requests: &pb.Resources{
+						CPU:              int32(resourceQuota.Requests.CPU),
+						EphemeralStorage: int32(resourceQuota.Requests.Disk),
+						Memory:           int32(resourceQuota.Requests.Mem),
+					},
+					Limits: &pb.Resources{
+						CPU:              int32(resourceQuota.Limits.CPU),
+						EphemeralStorage: int32(resourceQuota.Limits.Disk),
+						Memory:           int32(resourceQuota.Limits.Mem),
+					},
+					Name:      resourceQuota.Name,
+					Namespace: resourceQuota.Namespace,
 				},
 			},
 		}
@@ -149,7 +187,10 @@ func (s *svc) Logs(resource runtime.Resource, options ...runtime.LogsOption) (ru
 		// noop (Namespace is not supported by *kubernetes.Logs())
 		return nil, nil
 	case runtime.TypeNetworkPolicy:
-		// noop (NetworkPolicy is not supported by *kubernetes.Logs()))
+		// noop (NetworkPolicy is not supported by *kubernetes.Logs())
+		return nil, nil
+	case runtime.TypeResourceQuota:
+		// noop (ResourceQuota is not supported by *kubernetes.Logs())
 		return nil, nil
 	case runtime.TypeService:
 
@@ -321,6 +362,7 @@ func (s *svc) Update(resource runtime.Resource, opts ...runtime.UpdateOption) er
 		}
 
 	case runtime.TypeNetworkPolicy:
+
 		// Assert the resource back into a *runtime.NetworkPolicy
 		networkPolicy, ok := resource.(*runtime.NetworkPolicy)
 		if !ok {
@@ -332,12 +374,49 @@ func (s *svc) Update(resource runtime.Resource, opts ...runtime.UpdateOption) er
 			networkPolicy.Namespace = options.Namespace
 		}
 
-		// runtime namespace update request
+		// runtime networkpolicy update request
 		req := &pb.UpdateRequest{
 			Resource: &pb.Resource{
 				Networkpolicy: &pb.NetworkPolicy{
 					Name:      networkPolicy.Name,
 					Namespace: networkPolicy.Namespace,
+				},
+			},
+		}
+
+		if _, err := s.runtime.Update(context.DefaultContext, req, client.WithAuthToken()); err != nil {
+			return err
+		}
+
+	case runtime.TypeResourceQuota:
+
+		// Assert the resource back into a *runtime.ResourceQuota
+		resourceQuota, ok := resource.(*runtime.ResourceQuota)
+		if !ok {
+			return runtime.ErrInvalidResource
+		}
+
+		// Allow the options to take precedence
+		if options.Namespace != "" {
+			resourceQuota.Namespace = options.Namespace
+		}
+
+		// runtime resourcequota update request
+		req := &pb.UpdateRequest{
+			Resource: &pb.Resource{
+				Resourcequota: &pb.ResourceQuota{
+					Requests: &pb.Resources{
+						CPU:              int32(resourceQuota.Requests.CPU),
+						EphemeralStorage: int32(resourceQuota.Requests.Disk),
+						Memory:           int32(resourceQuota.Requests.Mem),
+					},
+					Limits: &pb.Resources{
+						CPU:              int32(resourceQuota.Limits.CPU),
+						EphemeralStorage: int32(resourceQuota.Limits.Disk),
+						Memory:           int32(resourceQuota.Limits.Mem),
+					},
+					Name:      resourceQuota.Name,
+					Namespace: resourceQuota.Namespace,
 				},
 			},
 		}
@@ -416,6 +495,7 @@ func (s *svc) Delete(resource runtime.Resource, opts ...runtime.DeleteOption) er
 		}
 
 	case runtime.TypeNetworkPolicy:
+
 		// Assert the resource back into a *runtime.NetworkPolicy
 		networkPolicy, ok := resource.(*runtime.NetworkPolicy)
 		if !ok {
@@ -433,6 +513,43 @@ func (s *svc) Delete(resource runtime.Resource, opts ...runtime.DeleteOption) er
 				Networkpolicy: &pb.NetworkPolicy{
 					Name:      networkPolicy.Name,
 					Namespace: networkPolicy.Namespace,
+				},
+			},
+		}
+
+		if _, err := s.runtime.Delete(context.DefaultContext, req, client.WithAuthToken()); err != nil {
+			return err
+		}
+
+	case runtime.TypeResourceQuota:
+
+		// Assert the resource back into a *runtime.ResourceQuota
+		resourceQuota, ok := resource.(*runtime.ResourceQuota)
+		if !ok {
+			return runtime.ErrInvalidResource
+		}
+
+		// Allow the options to take precedence
+		if options.Namespace != "" {
+			resourceQuota.Namespace = options.Namespace
+		}
+
+		// runtime resourcequota delete request
+		req := &pb.DeleteRequest{
+			Resource: &pb.Resource{
+				Resourcequota: &pb.ResourceQuota{
+					Requests: &pb.Resources{
+						CPU:              int32(resourceQuota.Requests.CPU),
+						EphemeralStorage: int32(resourceQuota.Requests.Disk),
+						Memory:           int32(resourceQuota.Requests.Mem),
+					},
+					Limits: &pb.Resources{
+						CPU:              int32(resourceQuota.Limits.CPU),
+						EphemeralStorage: int32(resourceQuota.Limits.Disk),
+						Memory:           int32(resourceQuota.Limits.Mem),
+					},
+					Name:      resourceQuota.Name,
+					Namespace: resourceQuota.Namespace,
 				},
 			},
 		}
