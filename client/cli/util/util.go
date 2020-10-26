@@ -5,6 +5,7 @@ package util
 import (
 	"encoding/json"
 	"fmt"
+	"regexp"
 	"strings"
 
 	merrors "github.com/micro/micro/v3/service/errors"
@@ -254,12 +255,28 @@ func Print(e Exec) func(*cli.Context) error {
 	}
 }
 
-// CliError returns an error compatible with urfave/cli
-func CliError(err error) error {
+// CliError returns a user friendly message from error. If we can't determine a good one returns an error with code 128
+func CliError(err error) cli.ExitCoder {
+	// if it's already a cli.ExitCoder we use this
 	cerr, ok := err.(cli.ExitCoder)
 	if ok {
 		return cerr
 	}
+
+	// grpc errors
+	if mname := regexp.MustCompile(`malformed method name: \\?"(\w+)\\?"`).FindStringSubmatch(err.Error()); len(mname) > 0 {
+		return cli.Exit(fmt.Sprintf(`Method name "%s" invalid format. Expecting service.endpoint`, mname[1]), 3)
+	}
+	if service := regexp.MustCompile(`service ([\w\.]+): route not found`).FindStringSubmatch(err.Error()); len(service) > 0 {
+		return cli.Exit(fmt.Sprintf(`Service "%s" not found`, service[1]), 4)
+	}
+	if service := regexp.MustCompile(`unknown service ([\w\.]+)`).FindStringSubmatch(err.Error()); len(service) > 0 {
+		if strings.Contains(service[0], ".") {
+			return cli.Exit(fmt.Sprintf(`Service method "%s" not found`, service[1]), 5)
+		}
+		return cli.Exit(fmt.Sprintf(`Service "%s" not found`, service[1]), 5)
+	}
+
 	merr, ok := err.(*merrors.Error)
 	if !ok {
 		return cli.Exit(err, 128)
@@ -273,6 +290,6 @@ func CliError(err error) error {
 		return cli.Exit("Not authorized to perform this request", 2)
 	}
 
-	// fallback but everything should be using cli exit
-	return cli.Exit(err, 128)
+	// fallback to using the detail from the merr
+	return cli.Exit(merr.Detail, 127)
 }

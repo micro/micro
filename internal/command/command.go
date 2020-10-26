@@ -10,8 +10,6 @@ import (
 	"strings"
 	"time"
 
-	merrors "github.com/micro/micro/v3/service/errors"
-
 	"github.com/micro/micro/v3/client/cli/namespace"
 	"github.com/micro/micro/v3/client/cli/util"
 	cbytes "github.com/micro/micro/v3/internal/codec/bytes"
@@ -275,14 +273,7 @@ func CallService(c *cli.Context, args []string) ([]byte, error) {
 	}
 
 	if err != nil {
-		merr, ok := err.(*merrors.Error)
-		if !ok {
-			return nil, cli.Exit(fmt.Sprintf("Error calling %s.%s: %v", service, endpoint, err), 4)
-		}
-		if merr.Code == 408 {
-			return nil, cli.Exit("Request timed out. Consider retrying or using the --request_timeout flag", 5)
-		}
-		return nil, cli.Exit(fmt.Sprintf("Error calling %s", merr), 6)
+		return nil, err
 	}
 
 	return response, nil

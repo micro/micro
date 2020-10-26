@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"strings"
 	"text/tabwriter"
@@ -35,7 +34,7 @@ func getEnv(c *cli.Context, args []string) ([]byte, error) {
 
 func setEnv(c *cli.Context, args []string) ([]byte, error) {
 	if len(args) == 0 {
-		return nil, errors.New("name required")
+		return nil, cli.ShowSubcommandHelp(c)
 	}
 	return nil, cliutil.SetEnv(args[0])
 }
@@ -72,7 +71,7 @@ func listEnvs(c *cli.Context, args []string) ([]byte, error) {
 
 func addEnv(c *cli.Context, args []string) ([]byte, error) {
 	if len(args) == 0 {
-		return nil, errors.New("name required")
+		return nil, cli.ShowSubcommandHelp(c)
 	}
 	if len(args) == 1 {
 		args = append(args, "") // default to no proxy address
@@ -86,7 +85,7 @@ func addEnv(c *cli.Context, args []string) ([]byte, error) {
 
 func delEnv(c *cli.Context, args []string) ([]byte, error) {
 	if len(args) == 0 {
-		return nil, errors.New("name required")
+		return nil, cli.ShowSubcommandHelp(c)
 	}
 	return nil, cliutil.DelEnv(args[0])
 }
@@ -94,7 +93,7 @@ func delEnv(c *cli.Context, args []string) ([]byte, error) {
 // TODO: stream via HTTP
 func streamService(c *cli.Context, args []string) ([]byte, error) {
 	if len(args) < 2 {
-		return nil, errors.New("require service and endpoint")
+		return nil, cli.ShowSubcommandHelp(c)
 	}
 	service := args[0]
 	endpoint := args[1]
@@ -106,10 +105,16 @@ func streamService(c *cli.Context, args []string) ([]byte, error) {
 	req := client.DefaultClient.NewRequest(service, endpoint, request, client.WithContentType("application/json"))
 	stream, err := client.DefaultClient.Stream(context.Background(), req)
 	if err != nil {
+		if cerr := cliutil.CliError(err); cerr.ExitCode() != 128 {
+			return nil, cerr
+		}
 		return nil, fmt.Errorf("error calling %s.%s: %v", service, endpoint, err)
 	}
 
 	if err := stream.Send(request); err != nil {
+		if cerr := cliutil.CliError(err); cerr.ExitCode() != 128 {
+			return nil, cerr
+		}
 		return nil, fmt.Errorf("error sending to %s.%s: %v", service, endpoint, err)
 	}
 
@@ -119,12 +124,18 @@ func streamService(c *cli.Context, args []string) ([]byte, error) {
 		if output == "raw" {
 			rsp := cbytes.Frame{}
 			if err := stream.Recv(&rsp); err != nil {
+				if cerr := cliutil.CliError(err); cerr.ExitCode() != 128 {
+					return nil, cerr
+				}
 				return nil, fmt.Errorf("error receiving from %s.%s: %v", service, endpoint, err)
 			}
 			fmt.Print(string(rsp.Data))
 		} else {
 			var response map[string]interface{}
 			if err := stream.Recv(&response); err != nil {
+				if cerr := cliutil.CliError(err); cerr.ExitCode() != 128 {
+					return nil, cerr
+				}
 				return nil, fmt.Errorf("error receiving from %s.%s: %v", service, endpoint, err)
 			}
 			b, _ := json.MarshalIndent(response, "", "\t")
