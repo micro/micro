@@ -26,7 +26,6 @@ import (
 	"github.com/micro/micro/v3/internal/selector"
 	"github.com/micro/micro/v3/internal/selector/roundrobin"
 	"github.com/micro/micro/v3/service/broker"
-	"github.com/micro/micro/v3/service/broker/http"
 	"github.com/micro/micro/v3/service/registry"
 	"github.com/micro/micro/v3/service/router"
 	regRouter "github.com/micro/micro/v3/service/router/registry"
@@ -133,7 +132,7 @@ func NewOptions(options ...Option) Options {
 		Lookup:    LookupRoute,
 		PoolSize:  DefaultPoolSize,
 		PoolTTL:   DefaultPoolTTL,
-		Broker:    http.NewBroker(),
+		Broker:    broker.DefaultBroker,
 		Router:    regRouter.NewRouter(),
 		Selector:  roundrobin.NewSelector(),
 		Transport: thttp.NewTransport(),
