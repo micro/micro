@@ -1,16 +1,16 @@
 # Plugins
 
-Plugins are a way of integrating external code into the Micro toolkit. This is completely separate to go-micro plugins. 
-Using plugins here allows you to add additional flags, commands and HTTP handlers to the toolkit. 
+Plugins are a way of extending the functionality of Micro
 
-## How it works
+## Overview
 
-There is a global plugin manager under micro/plugin which consists of plugins that will be used across the entire toolkit. 
-Plugins can be registered by calling `plugin.Register`. Each component (api, web, sidecar, cli, bot) has a separate 
-plugin manager used to register plugins which should only be added as part of that component. They can be used in 
-the same way by called `api.Register`, `web.Register`, etc.
+Plugins enable Micro to be extending and intercepted to provide additional functionality and features. 
+This may include logging, metrics, tracing, authentication, etc. The Plugin model requires registering 
+a struct that matches a plugin interface. It's then registered and setup when Micro starts.
 
-Here's the interface
+## Design
+
+Here's the interface design
 
 ```go
 // Plugin is the interface for plugins to micro. It differs from go-micro in that it's for
@@ -55,7 +55,7 @@ package main
 
 import (
 	"log"
-	"github.com/micro/cli/v2"
+	"github.com/urfave/cli/v2"
 	"github.com/micro/micro/plugin"
 )
 

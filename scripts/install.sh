@@ -6,7 +6,7 @@ GITHUB_ORG="micro"
 GITHUB_REPO="micro"
 
 # micro install directory
-MICRO_INSTALL_DIR="/usr/local/bin"
+MICRO_INSTALL_DIR="$HOME/bin"
 # micro cli name
 MICRO_CLI_NAME="micro"
 # micro cli install path
@@ -115,8 +115,13 @@ installFile() {
     local tmp_root_cli="$TMP_ROOT/$MICRO_CLI_NAME"
 
     if [ ! -f "$tmp_root_cli" ]; then
-        echo "Failed to unpack micro cli binary."
+        echo "Failed to unpack micro binary."
         exit 1
+    fi
+
+    # mkdir if not exists
+    if [ ! -d $MICRO_INSTALL_DIR ]; then
+	mkdir -p $MICRO_INSTALL_DIR
     fi
 
     chmod o+x $tmp_root_cli
@@ -127,8 +132,15 @@ installFile() {
 
         $MICRO_CLI_PATH --version
     else
-        echo "Failed to install $MICRO_CLI_NAME"
+        echo "Failed to install $MICRO_CLI_NAME. Already exists."
         exit 1
+    fi
+
+    if [ "$MICRO_CLI_PATH" != "$(which micro)" ]; then
+        # From https://stackoverflow.com/questions/5947742/how-to-change-the-output-color-of-echo-in-linux
+        YELLOW='\033[1;33m'
+        NC='\033[0m' # No Color
+        printf "${YELLOW}Looks like there is an other micro installation in your path under \"$(which micro)\" already.\nPlease put \"export PATH=$MICRO_INSTALL_DIR:\$PATH\" in your bashrc.${NC}\n"
     fi
 }
 
@@ -136,7 +148,6 @@ fail_trap() {
     result=$?
     if [ "$result" != "0" ]; then
         echo "Failed to install micro"
-        echo "For support, please file an issue in https://github.com/micro/micro/issues"
     fi
     cleanup
     exit $result
@@ -146,12 +157,6 @@ cleanup() {
     if [[ -d "${TMP_ROOT:-}" ]]; then
         rm -rf "$TMP_ROOT"
     fi
-}
-
-printInfo() {
-    echo -e "\nTo get started with micro please visit official documentation https://micro.mu/docs"
-    echo "To start contributing to micro please visit https://github.com/micro"
-    echo "Join micro community on slack https://micro.mu/slack"
 }
 
 # catch errors and print help
@@ -164,4 +169,3 @@ checkHttpClient
 getLatestRelease
 installFile
 cleanup
-printInfo

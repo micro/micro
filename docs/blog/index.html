@@ -1,0 +1,59 @@
+---
+layout: default
+title: Home
+cover: false
+pagination:
+  enabled: true
+---
+
+<style>
+  .title {
+    padding-left: 15px; 
+    color: #0c2e47; 
+    font-weight: 1000; 
+    font-size: 2.2em; 
+    font-family: medium-content-sans-serif-font,'Lucida Grande','Lucida Sans Unicode','Lucida Sans',Geneva,Arial,sans-serif;
+  }
+  .desc {
+    font-weight: 400;
+    color: #9EABB3;
+  }
+  @media (min-width: 501px) {
+    .title {
+        padding-left: 10%;
+    }
+  }
+  .post-title a { color: black; }
+</style>
+
+<main id="content" class="content" role="main">
+    <div class="post">
+      <h1 class="post-header" style="border-bottom: 0">Blog</h1>
+    </div>
+
+    {% for post in paginator.posts %}
+
+    <article class="post">
+        <header class="post-header">
+            <h2 class="post-title"><a href="{{ post.url | prepend:site.baseurl }}">{{ post.title }}</a></h2>
+        </header>
+        <section class="post-excerpt">
+            {{ post.excerpt }} <a class="read-more" href="{{ post.url | prepend:site.baseurl }}">more &raquo;</a>
+        </section>
+        <footer class="post-meta">
+            {% if site.author %}
+                <img class="author-thumb" src="{{ site.baseurl }}/blog/images/profile.jpg" alt="Author's profile picture" nopin="nopin" />
+                <a href="{{ site.author_url }}">{{ site.author }}</a>
+            {% endif %}
+            <time class="post-date" datetime="{{ post.date | date:"%Y-%m-%d" }}">
+                {{ post.date | date_to_string }}
+            </time> 
+        </footer>
+    </article>
+
+    {% endfor %}
+
+    <br>
+    {% include pagination.html %}
+
+</main>

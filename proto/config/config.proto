@@ -1,0 +1,74 @@
+syntax = "proto3";
+
+package config;
+
+option go_package = "github.com/micro/micro/v3/proto/config;config";
+
+service Config {
+    rpc Get(GetRequest) returns (GetResponse) {}
+	rpc Set(SetRequest) returns (SetResponse) {}
+	rpc Delete(DeleteRequest) returns (DeleteResponse) {}
+    // These methods are here for backwards compatibility reasons
+    rpc Read(ReadRequest) returns (ReadResponse) {}
+}
+
+message Value {
+    string data = 1;
+    string format = 2;
+}
+
+message Options {
+    // Is it an encrypted value?
+    bool secret = 1;
+}
+
+message SetRequest {
+    string namespace = 1;
+    string path = 2;
+    Value value = 3;
+    Options options = 4;
+}
+
+message SetResponse {}
+
+message DeleteRequest {
+    string namespace = 1;
+    string path = 2;
+}
+
+message DeleteResponse {}
+
+message GetRequest {
+    string namespace = 1;
+    string path = 2;
+    Options options = 3;
+}
+
+message GetResponse {
+    Value value = 1;
+}
+
+// Below definitions are only here for backwards compatibility
+
+message ReadRequest {
+    string namespace = 1;
+    string path = 2;
+}
+
+message ReadResponse {
+    Change change = 1;
+}
+
+message Change {
+    string namespace = 1;
+    string path = 2;
+    ChangeSet changeSet = 3;
+}
+
+message ChangeSet {
+    string data = 1;
+    string checksum = 2;
+    string format = 3;
+    string source = 4;
+    int64 timestamp = 5;
+}

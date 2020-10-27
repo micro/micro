@@ -1,67 +1,58 @@
+// Package server is the micro server which runs the whole system
 package server
 
 import (
-	"fmt"
 	"os"
-	"os/signal"
-	"syscall"
+	"strings"
 
-	"github.com/micro/cli/v2"
-	"github.com/micro/go-micro/v2"
-	"github.com/micro/go-micro/v2/config/cmd"
-	log "github.com/micro/go-micro/v2/logger"
-	gorun "github.com/micro/go-micro/v2/runtime"
-	"github.com/micro/micro/v2/internal/platform"
-	"github.com/micro/micro/v2/internal/update"
+	"github.com/micro/micro/v3/cmd"
+	"github.com/micro/micro/v3/service"
+	"github.com/micro/micro/v3/service/auth"
+	log "github.com/micro/micro/v3/service/logger"
+	"github.com/micro/micro/v3/service/runtime"
+	"github.com/urfave/cli/v2"
 )
 
 var (
 	// list of services managed
 	services = []string{
-		// runtime services
-		"config",   // ????
-		"network",  // :8085
+		"network",  // :8443
 		"runtime",  // :8088
 		"registry", // :8000
-		"broker",   // :8001
+		"config",   // :8001
 		"store",    // :8002
-		"tunnel",   // :8083
-		"router",   // :8084
-		"debug",    // :????
+		"broker",   // :8003
+		"events",   // :unset
+		"auth",     // :8010
 		"proxy",    // :8081
 		"api",      // :8080
-		"auth",     // :8010
-		"web",      // :8082
-		"bot",      // :????
-		"init",     // no port, manage self
 	}
 )
 
 var (
 	// Name of the server microservice
-	Name = "go.micro.server"
-	// Address is the router microservice bind address
+	Name = "server"
+	// Address is the server address
 	Address = ":10001"
 )
 
-func Commands(options ...micro.Option) []*cli.Command {
+func init() {
 	command := &cli.Command{
 		Name:  "server",
 		Usage: "Run the micro server",
+		Description: `Launching the micro server ('micro server') will enable one to connect to it by
+		setting the appropriate Micro environment (see 'micro env' && 'micro env --help') commands.`,
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:    "address",
 				Usage:   "Set the micro server address :10001",
 				EnvVars: []string{"MICRO_SERVER_ADDRESS"},
 			},
-			&cli.BoolFlag{
-				Name:  "peer",
-				Usage: "Peer with the global network to share services",
-			},
 			&cli.StringFlag{
-				Name:    "profile",
-				Usage:   "Set the runtime profile to use for services e.g local, kubernetes, platform",
-				EnvVars: []string{"MICRO_RUNTIME_PROFILE"},
+				Name:    "image",
+				Usage:   "Set the micro server image",
+				EnvVars: []string{"MICRO_SERVER_IMAGE"},
+				Value:   "micro/micro:latest",
 			},
 		},
 		Action: func(ctx *cli.Context) error {
@@ -80,121 +71,150 @@ func Commands(options ...micro.Option) []*cli.Command {
 		}
 	}
 
-	return []*cli.Command{command}
+	cmd.Register(command)
 }
 
 // Run runs the entire platform
 func Run(context *cli.Context) error {
-	log.Init(log.WithFields(map[string]interface{}{"service": "micro"}))
-
 	if context.Args().Len() > 0 {
 		cli.ShowSubcommandHelp(context)
 		os.Exit(1)
 	}
-	// set default profile
-	if len(context.String("profile")) == 0 {
-		context.Set("profile", "server")
+
+	// TODO: reimplement peering of servers e.g --peer=node1,node2,node3
+	// peers are configured as network nodes to cluster between
+	log.Info("Starting server")
+
+	// parse the env vars
+	var envvars []string
+	for _, val := range os.Environ() {
+		comps := strings.Split(val, "=")
+		if len(comps) != 2 {
+			continue
+		}
+
+		// only process MICRO_ values
+		if !strings.HasPrefix(comps[0], "MICRO_") {
+			continue
+		}
+
+		// skip the profile and proxy, that's set below since it can be service specific
+		if comps[0] == "MICRO_PROFILE" || comps[0] == "MICRO_PROXY" {
+			continue
+		}
+
+		envvars = append(envvars, val)
 	}
 
-	// get the network flag
-	peer := context.Bool("peer")
-
-	// pass through the environment
-	// TODO: perhaps don't do this
-	env := os.Environ()
-	env = append(env, "MICRO_STORE=file")
-	env = append(env, "MICRO_RUNTIME_PROFILE="+context.String("profile"))
-
-	// connect to the network if specified
-	if peer {
-		log.Info("Setting global network")
-
-		if v := os.Getenv("MICRO_NETWORK_NODES"); len(v) == 0 {
-			// set the resolver to use https://micro.mu/network
-			env = append(env, "MICRO_NETWORK_NODES=network.micro.mu")
-			log.Info("Setting default network micro.mu")
-		}
-		if v := os.Getenv("MICRO_NETWORK_TOKEN"); len(v) == 0 {
-			// set the network token
-			env = append(env, "MICRO_NETWORK_TOKEN=micro.mu")
-			log.Info("Setting default network token")
-		}
-	}
-
-	log.Info("Loading core services")
-
-	// create new micro runtime
-	muRuntime := cmd.DefaultCmd.Options().Runtime
-
-	// Use default update notifier
-	if context.Bool("auto_update") {
-		options := []gorun.Option{
-			gorun.WithScheduler(update.NewScheduler(platform.Version)),
-		}
-		(*muRuntime).Init(options...)
-	}
-
+	// start the services
 	for _, service := range services {
-		name := service
+		log.Infof("Registering %s", service)
 
-		if namespace := context.String("namespace"); len(namespace) > 0 {
-			name = fmt.Sprintf("%s.%s", namespace, service)
+		// all things run by the server are `micro service [name]`
+		cmdArgs := []string{"service"}
+
+		// override the profile for api & proxy
+		env := envvars
+		if service == "proxy" || service == "api" {
+			env = append(env, "MICRO_PROFILE=client")
+		} else {
+			env = append(env, "MICRO_PROFILE="+context.String("profile"))
 		}
 
-		log.Infof("Registering %s", name)
+		// set the proxy addres, default to the network running locally
+		if service != "network" {
+			proxy := context.String("proxy_address")
+			if len(proxy) == 0 {
+				proxy = "127.0.0.1:8443"
+			}
+			env = append(env, "MICRO_PROXY="+proxy)
+		}
+
+		// for kubernetes we want to provide a port and instruct the service to bind to it. we don't do
+		// this locally because the services are not isolated and the ports will conflict
+		var port string
+		if runtime.DefaultRuntime.String() == "kubernetes" {
+			switch service {
+			case "api":
+				// run the api on :443, the standard port for HTTPs
+				port = "443"
+				env = append(env, "MICRO_API_ADDRESS=:443")
+				// pass :8080 for the internal service address, since this is the default port used for the
+				// static (k8s) router. Because the http api will register on :443 it won't conflict
+				env = append(env, "MICRO_SERVICE_ADDRESS=:8080")
+			case "proxy":
+				// run the proxy on :443, the standard port for HTTPs
+				port = "443"
+				env = append(env, "MICRO_PROXY_ADDRESS=:443")
+				// pass :8080 for the internal service address, since this is the default port used for the
+				// static (k8s) router. Because the grpc proxy will register on :443 it won't conflict
+				env = append(env, "MICRO_SERVICE_ADDRESS=:8080")
+			case "network":
+				port = "8443"
+				env = append(env, "MICRO_SERVICE_ADDRESS=:8443")
+			default:
+				port = "8080"
+				env = append(env, "MICRO_SERVICE_ADDRESS=:8080")
+			}
+		}
+
+		// we want to pass through the global args so go up one level in the context lineage
+		if len(context.Lineage()) > 1 {
+			globCtx := context.Lineage()[1]
+			for _, f := range globCtx.FlagNames() {
+				cmdArgs = append(cmdArgs, "--"+f, context.String(f))
+			}
+		}
+		cmdArgs = append(cmdArgs, service)
 
 		// runtime based on environment we run the service in
-		args := []gorun.CreateOption{
-			gorun.WithCommand(os.Args[0]),
-			gorun.WithArgs(service),
-			gorun.WithEnv(env),
-			gorun.WithOutput(os.Stdout),
+		args := []runtime.CreateOption{
+			runtime.WithCommand(os.Args[0]),
+			runtime.WithArgs(cmdArgs...),
+			runtime.WithEnv(env),
+			runtime.WithPort(port),
+			runtime.WithRetries(10),
+			runtime.WithServiceAccount("micro"),
+			runtime.WithVolume("store-pvc", "/store"),
+			runtime.CreateImage(context.String("image")),
+			runtime.CreateNamespace("micro"),
+			runtime.WithSecret("MICRO_AUTH_PUBLIC_KEY", auth.DefaultAuth.Options().PublicKey),
+			runtime.WithSecret("MICRO_AUTH_PRIVATE_KEY", auth.DefaultAuth.Options().PrivateKey),
 		}
 
 		// NOTE: we use Version right now to check for the latest release
-		muService := &gorun.Service{Name: name, Version: platform.Version}
-		if err := (*muRuntime).Create(muService, args...); err != nil {
-			log.Errorf("Failed to create runtime enviroment: %v", err)
+		muService := &runtime.Service{Name: service, Version: "latest"}
+		if err := runtime.Create(muService, args...); err != nil {
+			log.Errorf("Failed to create runtime environment: %v", err)
 			return err
 		}
 	}
 
-	shutdown := make(chan os.Signal, 1)
-	signal.Notify(shutdown, syscall.SIGTERM, syscall.SIGINT, syscall.SIGQUIT)
+	// server is deployed as a pod in k8s, meaning it should exit once the services have been created.
+	if runtime.DefaultRuntime.String() == "kubernetes" {
+		return nil
+	}
 
-	log.Info("Starting service runtime")
+	log.Info("Starting server runtime")
 
 	// start the runtime
-	if err := (*muRuntime).Start(); err != nil {
+	if err := runtime.DefaultRuntime.Start(); err != nil {
 		log.Fatal(err)
 		return err
 	}
+	defer runtime.DefaultRuntime.Stop()
 
-	log.Info("Service runtime started")
-
-	// TODO: should we launch the console?
-	// start the console
-	// cli.Init(context)
-
-	server := micro.NewService(
-		micro.Name(Name),
-		micro.Address(Address),
+	// internal server
+	srv := service.New(
+		service.Name(Name),
+		service.Address(Address),
 	)
 
 	// start the server
-	server.Run()
-
-	log.Info("Stopping service runtime")
-
-	// stop all the things
-	if err := (*muRuntime).Stop(); err != nil {
-		log.Fatal(err)
-		return err
+	if err := srv.Run(); err != nil {
+		log.Fatalf("Error running server: %v", err)
 	}
 
-	log.Info("Service runtime shutdown")
-
-	// exit success
-	os.Exit(0)
+	log.Info("Stopped server")
 	return nil
 }

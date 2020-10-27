@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - master
+    tags:
+      - v2.*
+      - v3.*
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -21,3 +24,5 @@ jobs:
         name: micro/micro
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
+        tag_names: true
+        snapshot: true

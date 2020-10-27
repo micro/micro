@@ -1,14 +1,21 @@
-FROM golang:1.13-alpine as builder
+FROM alpine:3.12.1 as builder
+
+COPY --from=golang:1.15-alpine /usr/local/go/ /usr/local/go/
+ENV PATH="/usr/local/go/bin:${PATH}"
 RUN apk --no-cache add make git gcc libtool musl-dev
-WORKDIR /
+
+COPY go.mod .
+COPY go.sum .
+RUN go mod download
 COPY . /
-RUN make build
+RUN make ; rm -rf $GOPATH/pkg/mod
 
-FROM alpine:latest
+FROM alpine:3.12.1
+COPY --from=golang:1.15-alpine /usr/local/go/ /usr/local/go/
+ENV PATH="/usr/local/go/bin:${PATH}"
 
-RUN apk add ca-certificates && \
-    rm -rf /var/cache/apk/* /tmp/* && \
-    [ ! -e /etc/nsswitch.conf ] && echo 'hosts: files dns' > /etc/nsswitch.conf
+RUN apk --no-cache add make git gcc libtool musl-dev
+RUN apk --no-cache add ca-certificates && rm -rf /var/cache/apk/* /tmp/* 
 
-COPY --from=builder /micro .
+COPY --from=builder /micro /micro
 ENTRYPOINT ["/micro"]

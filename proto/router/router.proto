@@ -1,0 +1,99 @@
+syntax = "proto3";
+
+package router;
+
+option go_package = "github.com/micro/micro/v3/proto/router;router";
+
+// Router service is used by the proxy to lookup routes
+service Router {
+  rpc Lookup(LookupRequest) returns (LookupResponse) {};
+  rpc Watch(WatchRequest) returns (stream Event) {};
+}
+
+service Table {
+  rpc Create(Route) returns (CreateResponse) {};
+  rpc Delete(Route) returns (DeleteResponse) {};
+  rpc Update(Route) returns (UpdateResponse) {};
+  rpc Read(ReadRequest) returns (ReadResponse) {};
+}
+
+// Empty request
+message ReadRequest {
+	string service = 1;
+}
+
+// Empty response
+message ReadResponse {
+	repeated Route routes = 1;
+}
+
+// LookupRequest is made to Lookup
+message LookupRequest {
+  string service = 1;
+  LookupOptions options = 2;
+}
+
+// LookupResponse is returned by Lookup
+message LookupResponse {
+  repeated Route routes = 1;
+}
+
+// WatchRequest is made to Watch Router
+message WatchRequest {}
+
+// CreateResponse is returned by Create
+message CreateResponse {}
+
+// DeleteResponse is returned by Delete
+message DeleteResponse {}
+
+// UpdateResponse is returned by Update
+message UpdateResponse {}
+
+// EventType defines the type of event
+enum EventType {
+  Create = 0;
+  Delete = 1;
+  Update = 2;
+}
+
+// Event is routing table event
+message Event {
+  // the unique event id
+  string id = 1;
+  // type of event
+  EventType type = 2;
+  // unix timestamp of event
+  int64 timestamp = 3;
+  // service route
+  Route route = 4;
+}
+
+// LookupOptions are passed in a LookupRequest
+message LookupOptions {
+  string address = 1;
+  string gateway = 2;
+  string network = 3;
+  string router = 4;
+  string link = 5;
+}
+
+// Route is a service route
+message Route {
+  // service for the route
+  string service = 1;
+  // the address that advertise this route
+  string address = 2;
+  // gateway as the next hop
+  string gateway = 3;
+  // the network for this destination
+  string network = 4;
+  // router if the router id
+  string router = 5;
+  // the network link
+  string link = 6;
+  // the metric / score of this route
+  int64 metric = 7;
+  // metadata for the route
+  map<string,string> metadata = 8;
+}

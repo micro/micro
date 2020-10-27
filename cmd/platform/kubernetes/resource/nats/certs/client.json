@@ -1,0 +1,15 @@
+{
+    "CN": "nats-cluster",
+    "hosts": [],
+    "key": {
+        "algo": "ecdsa",
+        "size": 256
+    },
+    "names": [
+        {
+            "C": "UK",
+            "O": "Micro"
+        }
+    ]
+}
+

@@ -4,7 +4,7 @@ After=network.target
 
 [Service]
 TimeoutStartSec=0
-ExecStart=/usr/local/bin/micro
+ExecStart=/usr/local/bin/micro server
 Restart=on-failure
 RestartSec=5s
 

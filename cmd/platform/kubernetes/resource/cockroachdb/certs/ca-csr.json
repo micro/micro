@@ -1,0 +1,13 @@
+{
+    "CN": "Micro CA",
+    "key": {
+        "algo": "rsa",
+        "size": 2048
+    },
+    "names": [
+        {
+            "C": "UK",
+            "O": "Micro"
+        }
+    ]
+}

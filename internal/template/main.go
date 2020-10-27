@@ -1,136 +1,30 @@
 package template
 
 var (
-	MainFNC = `package main
-
-import (
-  log	"github.com/micro/go-micro/v2/logger"
-	"github.com/micro/go-micro/v2"
-	"{{.Dir}}/handler"
-	"{{.Dir}}/subscriber"
-)
-
-func main() {
-	// New Service
-	function := micro.NewFunction(
-		micro.Name("{{.FQDN}}"),
-		micro.Version("latest"),
-	)
-
-	// Initialise function
-	function.Init()
-
-	// Register Handler
-	function.Handle(new(handler.{{title .Alias}}))
-
-	// Register Struct as Subscriber
-	function.Subscribe("{{.FQDN}}", new(subscriber.{{title .Alias}}))
-
-	// Run service
-	if err := function.Run(); err != nil {
-		log.Fatal(err)
-	}
-}
-`
-
 	MainSRV = `package main
 
 import (
-	log "github.com/micro/go-micro/v2/logger"
-	"github.com/micro/go-micro/v2"
 	"{{.Dir}}/handler"
-	"{{.Dir}}/subscriber"
+	pb "{{.Dir}}/proto"
 
-	{{.Alias}} "{{.Dir}}/proto/{{.Alias}}"
+	"github.com/micro/micro/v3/service"
+	"github.com/micro/micro/v3/service/logger"
 )
 
 func main() {
-	// New Service
-	service := micro.NewService(
-		micro.Name("{{.FQDN}}"),
-		micro.Version("latest"),
+	// Create service
+	srv := service.New(
+		service.Name("{{lower .Alias}}"),
+		service.Version("latest"),
 	)
 
-	// Initialise service
-	service.Init()
-
-	// Register Handler
-	{{.Alias}}.Register{{title .Alias}}Handler(service.Server(), new(handler.{{title .Alias}}))
-
-	// Register Struct as Subscriber
-	micro.RegisterSubscriber("{{.FQDN}}", service.Server(), new(subscriber.{{title .Alias}}))
+	// Register handler
+	pb.Register{{title .Alias}}Handler(srv.Server(), new(handler.{{title .Alias}}))
 
 	// Run service
-	if err := service.Run(); err != nil {
-		log.Fatal(err)
+	if err := srv.Run(); err != nil {
+		logger.Fatal(err)
 	}
-}
-`
-	MainAPI = `package main
-
-import (
-	log "github.com/micro/go-micro/v2/logger"
-
-	"github.com/micro/go-micro/v2"
-	"{{.Dir}}/handler"
-	"{{.Dir}}/client"
-
-	{{.Alias}} "{{.Dir}}/proto/{{.Alias}}"
-)
-
-func main() {
-	// New Service
-	service := micro.NewService(
-		micro.Name("{{.FQDN}}"),
-		micro.Version("latest"),
-	)
-
-	// Initialise service
-	service.Init(
-		// create wrap for the {{title .Alias}} service client
-		micro.WrapHandler(client.{{title .Alias}}Wrapper(service)),
-	)
-
-	// Register Handler
-	{{.Alias}}.Register{{title .Alias}}Handler(service.Server(), new(handler.{{title .Alias}}))
-
-	// Run service
-	if err := service.Run(); err != nil {
-		log.Fatal(err)
-	}
-}
-`
-	MainWEB = `package main
-
-import (
-        log "github.com/micro/go-micro/v2/logger"
-	      "net/http"
-        "github.com/micro/go-micro/v2/web"
-        "{{.Dir}}/handler"
-)
-
-func main() {
-	// create new web service
-        service := web.NewService(
-                web.Name("{{.FQDN}}"),
-                web.Version("latest"),
-        )
-
-	// initialise service
-        if err := service.Init(); err != nil {
-                log.Fatal(err)
-        }
-
-	// register html handler
-	service.Handle("/", http.FileServer(http.Dir("html")))
-
-	// register call handler
-	service.HandleFunc("/{{.Alias}}/call", handler.{{title .Alias}}Call)
-
-	// run service
-        if err := service.Run(); err != nil {
-                log.Fatal(err)
-        }
 }
 `
 )

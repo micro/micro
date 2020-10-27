@@ -12,19 +12,18 @@ builds:
   env:
     - CGO_ENABLED=0
     - GO111MODULE=on
-  ldflags: -s -w -X github.com/micro/micro/v2/cmd.GitCommit={{ .ShortCommit }} -X github.com/micro/micro/v2/cmd.GitTag={{ .Tag }} -X github.com/micro/micro/v2/cmd.BuildDate={{ .Timestamp }}
+  ldflags: -s -w -X github.com/micro/micro/v3/cmd.GitCommit={{ .ShortCommit }} -X github.com/micro/micro/v3/cmd.GitTag={{ .Tag }} -X github.com/micro/micro/v3/cmd.BuildDate={{ .Timestamp }} -X github.com/micro/micro/v3/cmd.SelfUpdate=false
   goos:
   - linux
   - darwin
   - windows
   goarch:
+  - 386
   - amd64
   - arm
   - arm64
   goarm:
   - 7
-  hooks:
-    post: .github/workflows/upx.sh
 archives:
 - name_template: '{{.ProjectName}}-{{.Tag}}-{{.Os}}-{{.Arch}}{{if .Arm}}{{.Arm}}{{end}}'
   replacements:

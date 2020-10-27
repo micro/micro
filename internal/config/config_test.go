@@ -2,7 +2,11 @@ package config
 
 import (
 	"os"
+	"path/filepath"
 	"testing"
+
+	"github.com/juju/fslock"
+	"github.com/micro/micro/v3/internal/user"
 )
 
 func Test(t *testing.T) {
@@ -28,13 +32,23 @@ func Test(t *testing.T) {
 		},
 	}
 
-	fp, err := filePath()
-	if err != nil {
-		t.Fatal(err)
-	}
+	saveLock := lock
+	saveFile := File
+
+	File = filepath.Join(user.Dir, "config-test.json")
+	lock = fslock.New(File)
+
+	defer func() {
+		File = saveFile
+		lock = saveLock
+	}()
+
+	fp := File
 
 	for _, tc := range tt {
 		t.Run(tc.name, func(t *testing.T) {
+			defer os.Remove(fp)
+
 			if _, err := os.Stat(fp); err != os.ErrNotExist {
 				os.Remove(fp)
 			}

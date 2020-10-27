@@ -3,30 +3,30 @@ package handler
 import (
 	"net/http"
 
-	"github.com/micro/go-micro/v2"
-	"github.com/micro/go-micro/v2/api/handler"
-	"github.com/micro/go-micro/v2/api/handler/event"
-	"github.com/micro/go-micro/v2/api/router"
-	"github.com/micro/go-micro/v2/client"
-	"github.com/micro/go-micro/v2/errors"
+	"github.com/micro/micro/v3/internal/api/handler"
+	"github.com/micro/micro/v3/internal/api/handler/event"
+	"github.com/micro/micro/v3/internal/api/router"
+	"github.com/micro/micro/v3/service"
+	"github.com/micro/micro/v3/service/client"
+	"github.com/micro/micro/v3/service/errors"
 
 	// TODO: only import handler package
-	aapi "github.com/micro/go-micro/v2/api/handler/api"
-	ahttp "github.com/micro/go-micro/v2/api/handler/http"
-	arpc "github.com/micro/go-micro/v2/api/handler/rpc"
-	aweb "github.com/micro/go-micro/v2/api/handler/web"
+	aapi "github.com/micro/micro/v3/internal/api/handler/api"
+	ahttp "github.com/micro/micro/v3/internal/api/handler/http"
+	arpc "github.com/micro/micro/v3/internal/api/handler/rpc"
+	aweb "github.com/micro/micro/v3/internal/api/handler/web"
 )
 
 type metaHandler struct {
 	c  client.Client
 	r  router.Router
-	ns func(*http.Request) string
+	ns string
 }
 
 func (m *metaHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	service, err := m.r.Route(r)
 	if err != nil {
-		er := errors.InternalServerError(m.ns(r), err.Error())
+		er := errors.InternalServerError(m.ns, err.Error())
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(500)
 		w.Write([]byte(er.Error()))
@@ -39,7 +39,7 @@ func (m *metaHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	case aweb.Handler:
 		aweb.WithService(service, handler.WithClient(m.c)).ServeHTTP(w, r)
 	// proxy handler
-	case "proxy", ahttp.Handler:
+	case ahttp.Handler:
 		ahttp.WithService(service, handler.WithClient(m.c)).ServeHTTP(w, r)
 	// rpcx handler
 	case arpc.Handler:
@@ -47,7 +47,7 @@ func (m *metaHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// event handler
 	case event.Handler:
 		ev := event.NewHandler(
-			handler.WithNamespace(m.ns(r)),
+			handler.WithNamespace(m.ns),
 			handler.WithClient(m.c),
 		)
 		ev.ServeHTTP(w, r)
@@ -61,7 +61,7 @@ func (m *metaHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 // Meta is a http.Handler that routes based on endpoint metadata
-func Meta(s micro.Service, r router.Router, ns func(*http.Request) string) http.Handler {
+func Meta(s *service.Service, r router.Router, ns string) http.Handler {
 	return &metaHandler{
 		c:  s.Client(),
 		r:  r,

@@ -7,9 +7,10 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/micro/cli/v2"
-	"github.com/micro/go-micro/v2/registry"
-	"github.com/micro/micro/v2/plugin"
+	"github.com/micro/micro/v3/internal/backoff"
+	"github.com/micro/micro/v3/plugin"
+	"github.com/micro/micro/v3/service/registry"
+	"github.com/urfave/cli/v2"
 )
 
 func init() {
@@ -39,6 +40,14 @@ func Plugin() plugin.Plugin {
 				service = c.Args().Get(0)
 			}
 
+			// service subcommand
+			if service == "service" {
+				// set as the sub command
+				if v := c.Args().Get(1); len(v) > 0 {
+					service = v
+				}
+			}
+
 			// kick off the tracker
 			go func() {
 				// new report
@@ -63,8 +72,14 @@ func Plugin() plugin.Plugin {
 					u.Metrics.Count["requests"] = reqs
 					u.Metrics.Count["services"] = srvs
 
-					// send report
-					Report(u)
+					// attempt to send report 3 times
+					for i := 1; i <= 3; i++ {
+						if err := Report(u); err != nil {
+							time.Sleep(backoff.Do(i * 2))
+							continue
+						}
+						break
+					}
 
 					// now sleep 24 hours
 					time.Sleep(time.Hour * 24)

@@ -9,12 +9,9 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/micro/go-micro/v2/client"
-	"github.com/micro/go-micro/v2/client/selector"
-	"github.com/micro/go-micro/v2/config/cmd"
-	"github.com/micro/go-micro/v2/metadata"
-	"github.com/micro/go-micro/v2/registry/memory"
-	"github.com/micro/go-micro/v2/server"
+	"github.com/micro/micro/v3/profile"
+	"github.com/micro/micro/v3/service"
+	"github.com/micro/micro/v3/service/context/metadata"
 )
 
 type TestHandler struct {
@@ -44,25 +41,21 @@ func (t *TestHandler) Exec(ctx context.Context, req *TestRequest, rsp *TestRespo
 }
 
 func TestRPCHandler(t *testing.T) {
-	r := memory.NewRegistry()
+	profile.Test.Setup(nil)
 
-	(*cmd.DefaultOptions().Client).Init(
-		client.Registry(r),
-		client.Selector(selector.NewSelector(selector.Registry(r))),
+	srv := service.New(
+		service.Name("test"),
 	)
 
-	(*cmd.DefaultOptions().Server).Init(
-		server.Name("test"),
-		server.Registry(r),
+	srv.Server().Handle(
+		srv.Server().NewHandler(&TestHandler{t, metadata.Metadata{"Foo": "Bar"}}),
 	)
 
-	(*cmd.DefaultOptions().Server).Handle(
-		(*cmd.DefaultOptions().Server).NewHandler(&TestHandler{t, metadata.Metadata{"Foo": "Bar"}}),
-	)
-
-	if err := server.Start(); err != nil {
+	if err := srv.Server().Start(); err != nil {
 		t.Fatal(err)
 	}
+
+	defer srv.Server().Stop()
 
 	w := httptest.NewRecorder()
 
@@ -86,14 +79,9 @@ func TestRPCHandler(t *testing.T) {
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Foo", "Bar")
 
-	RPC(w, req)
-
-	if err := server.Stop(); err != nil {
-		t.Fatal(err)
-	}
+	NewRPCHandler(nil).ServeHTTP(w, req)
 
 	if w.Code != 200 {
 		t.Fatalf("Expected 200 response got %d %s", w.Code, w.Body.String())
 	}
-
 }
