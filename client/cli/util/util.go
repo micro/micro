@@ -276,6 +276,9 @@ func CliError(err error) cli.ExitCoder {
 		}
 		return cli.Exit(fmt.Sprintf(`Service "%s" not found`, service[1]), 5)
 	}
+	if address := regexp.MustCompile(`Error while dialing dial tcp.*?([\w]+\.[\w:\.]+): `).FindStringSubmatch(err.Error()); len(address) > 0 {
+		return cli.Exit(fmt.Sprintf(`Failed to connect to micro server at %s`, address[1]), 4)
+	}
 
 	merr, ok := err.(*merrors.Error)
 	if !ok {

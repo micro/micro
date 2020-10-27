@@ -173,8 +173,7 @@ func appendSourceBase(ctx *cli.Context, workDir, source string) string {
 func runService(ctx *cli.Context) error {
 	// we need some args to run
 	if ctx.Args().Len() == 0 {
-		fmt.Println(RunUsage)
-		return nil
+		return cli.ShowSubcommandHelp(ctx)
 	}
 
 	wd, err := os.Getwd()
@@ -304,7 +303,10 @@ func runService(ctx *cli.Context) error {
 	}
 
 	// run the service
-	return runtime.Create(srv, opts...)
+	if err := runtime.Create(srv, opts...); err != nil {
+		return util.CliError(err)
+	}
+	return nil
 }
 
 func getGitCredentials(repo string) (string, bool) {
@@ -336,8 +338,7 @@ func getGitCredentials(repo string) (string, bool) {
 func killService(ctx *cli.Context) error {
 	// we need some args to run
 	if ctx.Args().Len() == 0 {
-		fmt.Println(KillUsage)
-		return nil
+		return cli.ShowSubcommandHelp(ctx)
 	}
 
 	name := ctx.Args().Get(0)
@@ -365,7 +366,7 @@ func killService(ctx *cli.Context) error {
 	}
 
 	if err := runtime.Delete(service, runtime.DeleteNamespace(ns)); err != nil {
-		return err
+		return util.CliError(err)
 	}
 
 	return nil
@@ -374,8 +375,7 @@ func killService(ctx *cli.Context) error {
 func updateService(ctx *cli.Context) error {
 	// we need some args to run
 	if ctx.Args().Len() == 0 {
-		fmt.Println(RunUsage)
-		return nil
+		return cli.ShowSubcommandHelp(ctx)
 	}
 
 	wd, err := os.Getwd()
@@ -459,7 +459,10 @@ func updateService(ctx *cli.Context) error {
 		opts = append(opts, runtime.UpdateSecret(credentialsKey, gitCreds))
 	}
 
-	return runtime.Update(srv, opts...)
+	if err := runtime.Update(srv, opts...); err != nil {
+		return util.CliError(err)
+	}
+	return nil
 }
 
 func getService(ctx *cli.Context) error {
@@ -535,7 +538,7 @@ func getService(ctx *cli.Context) error {
 	// read the service
 	services, err = runtime.Read(readOpts...)
 	if err != nil {
-		return err
+		return util.CliError(err)
 	}
 
 	// make sure we return UNKNOWN when empty string is supplied
