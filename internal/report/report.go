@@ -87,7 +87,7 @@ func getTrackingCategory(ctx *cli.Context) string {
 	if ctx == nil {
 		return "cli"
 	}
-	command := helper.Command(ctx)
+	command := ctx.Command.Name
 	subcommand := helper.Subcommand(ctx)
 	if len(strings.TrimSpace(subcommand)) == 0 {
 		return command

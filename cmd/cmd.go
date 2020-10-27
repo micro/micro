@@ -253,10 +253,8 @@ func action(c *cli.Context) error {
 		} else if srv != nil && shouldRenderHelp(c) {
 			return cli.Exit(formatServiceUsage(srv, c), 1)
 		} else if srv != nil {
-			if err := callService(srv, ns, c); err != nil {
-				return util.CliError(err)
-			}
-			return nil
+			err := callService(srv, ns, c)
+			return util.CliError(err)
 		}
 
 		// srv == nil

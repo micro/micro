@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	"os"
 	"strings"
 
 	"github.com/micro/micro/v3/service/context/metadata"
@@ -86,18 +85,6 @@ func UnexpectedCommand(ctx *cli.Context) error {
 
 func MissingCommand(ctx *cli.Context) error {
 	return cli.Exit(fmt.Sprintf("No command provided to micro. Please refer to 'micro --help'"), 1)
-}
-
-// MicroCommand returns the main command name
-func Command(ctx *cli.Context) string {
-	// We fall back to os.Args as ctx does not seem to have the original command.
-	for _, arg := range os.Args[1:] {
-		// Exclude flags
-		if !strings.HasPrefix(arg, "-") {
-			return arg
-		}
-	}
-	return ""
 }
 
 // MicroSubcommand returns the subcommand name

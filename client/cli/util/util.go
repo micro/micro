@@ -257,6 +257,9 @@ func Print(e Exec) func(*cli.Context) error {
 
 // CliError returns a user friendly message from error. If we can't determine a good one returns an error with code 128
 func CliError(err error) cli.ExitCoder {
+	if err == nil {
+		return nil
+	}
 	// if it's already a cli.ExitCoder we use this
 	cerr, ok := err.(cli.ExitCoder)
 	if ok {

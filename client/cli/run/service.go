@@ -303,10 +303,8 @@ func runService(ctx *cli.Context) error {
 	}
 
 	// run the service
-	if err := runtime.Create(srv, opts...); err != nil {
-		return util.CliError(err)
-	}
-	return nil
+	err = runtime.Create(srv, opts...)
+	return util.CliError(err)
 }
 
 func getGitCredentials(repo string) (string, bool) {
@@ -365,11 +363,8 @@ func killService(ctx *cli.Context) error {
 		return err
 	}
 
-	if err := runtime.Delete(service, runtime.DeleteNamespace(ns)); err != nil {
-		return util.CliError(err)
-	}
-
-	return nil
+	err = runtime.Delete(service, runtime.DeleteNamespace(ns))
+	return util.CliError(err)
 }
 
 func updateService(ctx *cli.Context) error {
@@ -459,10 +454,8 @@ func updateService(ctx *cli.Context) error {
 		opts = append(opts, runtime.UpdateSecret(credentialsKey, gitCreds))
 	}
 
-	if err := runtime.Update(srv, opts...); err != nil {
-		return util.CliError(err)
-	}
-	return nil
+	err = runtime.Update(srv, opts...)
+	return util.CliError(err)
 }
 
 func getService(ctx *cli.Context) error {
