@@ -56,6 +56,19 @@ public final class RuntimeOuterClass {
      * <code>.runtime.Service service = 3;</code>
      */
     runtime.RuntimeOuterClass.ServiceOrBuilder getServiceOrBuilder();
+
+    /**
+     * <code>.runtime.ResourceQuota resourcequota = 4;</code>
+     */
+    boolean hasResourcequota();
+    /**
+     * <code>.runtime.ResourceQuota resourcequota = 4;</code>
+     */
+    runtime.RuntimeOuterClass.ResourceQuota getResourcequota();
+    /**
+     * <code>.runtime.ResourceQuota resourcequota = 4;</code>
+     */
+    runtime.RuntimeOuterClass.ResourceQuotaOrBuilder getResourcequotaOrBuilder();
   }
   /**
    * Protobuf type {@code runtime.Resource}
@@ -131,6 +144,19 @@ public final class RuntimeOuterClass {
               if (subBuilder != null) {
                 subBuilder.mergeFrom(service_);
                 service_ = subBuilder.buildPartial();
+              }
+
+              break;
+            }
+            case 34: {
+              runtime.RuntimeOuterClass.ResourceQuota.Builder subBuilder = null;
+              if (resourcequota_ != null) {
+                subBuilder = resourcequota_.toBuilder();
+              }
+              resourcequota_ = input.readMessage(runtime.RuntimeOuterClass.ResourceQuota.parser(), extensionRegistry);
+              if (subBuilder != null) {
+                subBuilder.mergeFrom(resourcequota_);
+                resourcequota_ = subBuilder.buildPartial();
               }
 
               break;
@@ -230,6 +256,27 @@ public final class RuntimeOuterClass {
       return getService();
     }
 
+    public static final int RESOURCEQUOTA_FIELD_NUMBER = 4;
+    private runtime.RuntimeOuterClass.ResourceQuota resourcequota_;
+    /**
+     * <code>.runtime.ResourceQuota resourcequota = 4;</code>
+     */
+    public boolean hasResourcequota() {
+      return resourcequota_ != null;
+    }
+    /**
+     * <code>.runtime.ResourceQuota resourcequota = 4;</code>
+     */
+    public runtime.RuntimeOuterClass.ResourceQuota getResourcequota() {
+      return resourcequota_ == null ? runtime.RuntimeOuterClass.ResourceQuota.getDefaultInstance() : resourcequota_;
+    }
+    /**
+     * <code>.runtime.ResourceQuota resourcequota = 4;</code>
+     */
+    public runtime.RuntimeOuterClass.ResourceQuotaOrBuilder getResourcequotaOrBuilder() {
+      return getResourcequota();
+    }
+
     private byte memoizedIsInitialized = -1;
     @java.lang.Override
     public final boolean isInitialized() {
@@ -253,6 +300,9 @@ public final class RuntimeOuterClass {
       if (service_ != null) {
         output.writeMessage(3, getService());
       }
+      if (resourcequota_ != null) {
+        output.writeMessage(4, getResourcequota());
+      }
       unknownFields.writeTo(output);
     }
 
@@ -273,6 +323,10 @@ public final class RuntimeOuterClass {
       if (service_ != null) {
         size += com.google.protobuf.CodedOutputStream
           .computeMessageSize(3, getService());
+      }
+      if (resourcequota_ != null) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(4, getResourcequota());
       }
       size += unknownFields.getSerializedSize();
       memoizedSize = size;
@@ -305,6 +359,11 @@ public final class RuntimeOuterClass {
         result = result && getService()
             .equals(other.getService());
       }
+      result = result && (hasResourcequota() == other.hasResourcequota());
+      if (hasResourcequota()) {
+        result = result && getResourcequota()
+            .equals(other.getResourcequota());
+      }
       result = result && unknownFields.equals(other.unknownFields);
       return result;
     }
@@ -327,6 +386,10 @@ public final class RuntimeOuterClass {
       if (hasService()) {
         hash = (37 * hash) + SERVICE_FIELD_NUMBER;
         hash = (53 * hash) + getService().hashCode();
+      }
+      if (hasResourcequota()) {
+        hash = (37 * hash) + RESOURCEQUOTA_FIELD_NUMBER;
+        hash = (53 * hash) + getResourcequota().hashCode();
       }
       hash = (29 * hash) + unknownFields.hashCode();
       memoizedHashCode = hash;
@@ -479,6 +542,12 @@ public final class RuntimeOuterClass {
           service_ = null;
           serviceBuilder_ = null;
         }
+        if (resourcequotaBuilder_ == null) {
+          resourcequota_ = null;
+        } else {
+          resourcequota_ = null;
+          resourcequotaBuilder_ = null;
+        }
         return this;
       }
 
@@ -519,6 +588,11 @@ public final class RuntimeOuterClass {
           result.service_ = service_;
         } else {
           result.service_ = serviceBuilder_.build();
+        }
+        if (resourcequotaBuilder_ == null) {
+          result.resourcequota_ = resourcequota_;
+        } else {
+          result.resourcequota_ = resourcequotaBuilder_.build();
         }
         onBuilt();
         return result;
@@ -576,6 +650,9 @@ public final class RuntimeOuterClass {
         }
         if (other.hasService()) {
           mergeService(other.getService());
+        }
+        if (other.hasResourcequota()) {
+          mergeResourcequota(other.getResourcequota());
         }
         this.mergeUnknownFields(other.unknownFields);
         onChanged();
@@ -955,6 +1032,123 @@ public final class RuntimeOuterClass {
           service_ = null;
         }
         return serviceBuilder_;
+      }
+
+      private runtime.RuntimeOuterClass.ResourceQuota resourcequota_ = null;
+      private com.google.protobuf.SingleFieldBuilderV3<
+          runtime.RuntimeOuterClass.ResourceQuota, runtime.RuntimeOuterClass.ResourceQuota.Builder, runtime.RuntimeOuterClass.ResourceQuotaOrBuilder> resourcequotaBuilder_;
+      /**
+       * <code>.runtime.ResourceQuota resourcequota = 4;</code>
+       */
+      public boolean hasResourcequota() {
+        return resourcequotaBuilder_ != null || resourcequota_ != null;
+      }
+      /**
+       * <code>.runtime.ResourceQuota resourcequota = 4;</code>
+       */
+      public runtime.RuntimeOuterClass.ResourceQuota getResourcequota() {
+        if (resourcequotaBuilder_ == null) {
+          return resourcequota_ == null ? runtime.RuntimeOuterClass.ResourceQuota.getDefaultInstance() : resourcequota_;
+        } else {
+          return resourcequotaBuilder_.getMessage();
+        }
+      }
+      /**
+       * <code>.runtime.ResourceQuota resourcequota = 4;</code>
+       */
+      public Builder setResourcequota(runtime.RuntimeOuterClass.ResourceQuota value) {
+        if (resourcequotaBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          resourcequota_ = value;
+          onChanged();
+        } else {
+          resourcequotaBuilder_.setMessage(value);
+        }
+
+        return this;
+      }
+      /**
+       * <code>.runtime.ResourceQuota resourcequota = 4;</code>
+       */
+      public Builder setResourcequota(
+          runtime.RuntimeOuterClass.ResourceQuota.Builder builderForValue) {
+        if (resourcequotaBuilder_ == null) {
+          resourcequota_ = builderForValue.build();
+          onChanged();
+        } else {
+          resourcequotaBuilder_.setMessage(builderForValue.build());
+        }
+
+        return this;
+      }
+      /**
+       * <code>.runtime.ResourceQuota resourcequota = 4;</code>
+       */
+      public Builder mergeResourcequota(runtime.RuntimeOuterClass.ResourceQuota value) {
+        if (resourcequotaBuilder_ == null) {
+          if (resourcequota_ != null) {
+            resourcequota_ =
+              runtime.RuntimeOuterClass.ResourceQuota.newBuilder(resourcequota_).mergeFrom(value).buildPartial();
+          } else {
+            resourcequota_ = value;
+          }
+          onChanged();
+        } else {
+          resourcequotaBuilder_.mergeFrom(value);
+        }
+
+        return this;
+      }
+      /**
+       * <code>.runtime.ResourceQuota resourcequota = 4;</code>
+       */
+      public Builder clearResourcequota() {
+        if (resourcequotaBuilder_ == null) {
+          resourcequota_ = null;
+          onChanged();
+        } else {
+          resourcequota_ = null;
+          resourcequotaBuilder_ = null;
+        }
+
+        return this;
+      }
+      /**
+       * <code>.runtime.ResourceQuota resourcequota = 4;</code>
+       */
+      public runtime.RuntimeOuterClass.ResourceQuota.Builder getResourcequotaBuilder() {
+        
+        onChanged();
+        return getResourcequotaFieldBuilder().getBuilder();
+      }
+      /**
+       * <code>.runtime.ResourceQuota resourcequota = 4;</code>
+       */
+      public runtime.RuntimeOuterClass.ResourceQuotaOrBuilder getResourcequotaOrBuilder() {
+        if (resourcequotaBuilder_ != null) {
+          return resourcequotaBuilder_.getMessageOrBuilder();
+        } else {
+          return resourcequota_ == null ?
+              runtime.RuntimeOuterClass.ResourceQuota.getDefaultInstance() : resourcequota_;
+        }
+      }
+      /**
+       * <code>.runtime.ResourceQuota resourcequota = 4;</code>
+       */
+      private com.google.protobuf.SingleFieldBuilderV3<
+          runtime.RuntimeOuterClass.ResourceQuota, runtime.RuntimeOuterClass.ResourceQuota.Builder, runtime.RuntimeOuterClass.ResourceQuotaOrBuilder> 
+          getResourcequotaFieldBuilder() {
+        if (resourcequotaBuilder_ == null) {
+          resourcequotaBuilder_ = new com.google.protobuf.SingleFieldBuilderV3<
+              runtime.RuntimeOuterClass.ResourceQuota, runtime.RuntimeOuterClass.ResourceQuota.Builder, runtime.RuntimeOuterClass.ResourceQuotaOrBuilder>(
+                  getResourcequota(),
+                  getParentForChildren(),
+                  isClean());
+          resourcequota_ = null;
+        }
+        return resourcequotaBuilder_;
       }
       @java.lang.Override
       public final Builder setUnknownFields(
@@ -2725,6 +2919,1875 @@ public final class RuntimeOuterClass {
 
     @java.lang.Override
     public runtime.RuntimeOuterClass.NetworkPolicy getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
+  }
+
+  public interface ResourceQuotaOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:runtime.ResourceQuota)
+      com.google.protobuf.MessageOrBuilder {
+
+    /**
+     * <pre>
+     * name of the resource quota
+     * </pre>
+     *
+     * <code>string name = 1;</code>
+     */
+    java.lang.String getName();
+    /**
+     * <pre>
+     * name of the resource quota
+     * </pre>
+     *
+     * <code>string name = 1;</code>
+     */
+    com.google.protobuf.ByteString
+        getNameBytes();
+
+    /**
+     * <pre>
+     * namespace the resource quota belongs to
+     * </pre>
+     *
+     * <code>string namespace = 2;</code>
+     */
+    java.lang.String getNamespace();
+    /**
+     * <pre>
+     * namespace the resource quota belongs to
+     * </pre>
+     *
+     * <code>string namespace = 2;</code>
+     */
+    com.google.protobuf.ByteString
+        getNamespaceBytes();
+
+    /**
+     * <pre>
+     * resource requets
+     * </pre>
+     *
+     * <code>.runtime.Resources requests = 3;</code>
+     */
+    boolean hasRequests();
+    /**
+     * <pre>
+     * resource requets
+     * </pre>
+     *
+     * <code>.runtime.Resources requests = 3;</code>
+     */
+    runtime.RuntimeOuterClass.Resources getRequests();
+    /**
+     * <pre>
+     * resource requets
+     * </pre>
+     *
+     * <code>.runtime.Resources requests = 3;</code>
+     */
+    runtime.RuntimeOuterClass.ResourcesOrBuilder getRequestsOrBuilder();
+
+    /**
+     * <pre>
+     * resource limits
+     * </pre>
+     *
+     * <code>.runtime.Resources limits = 4;</code>
+     */
+    boolean hasLimits();
+    /**
+     * <pre>
+     * resource limits
+     * </pre>
+     *
+     * <code>.runtime.Resources limits = 4;</code>
+     */
+    runtime.RuntimeOuterClass.Resources getLimits();
+    /**
+     * <pre>
+     * resource limits
+     * </pre>
+     *
+     * <code>.runtime.Resources limits = 4;</code>
+     */
+    runtime.RuntimeOuterClass.ResourcesOrBuilder getLimitsOrBuilder();
+  }
+  /**
+   * Protobuf type {@code runtime.ResourceQuota}
+   */
+  public  static final class ResourceQuota extends
+      com.google.protobuf.GeneratedMessageV3 implements
+      // @@protoc_insertion_point(message_implements:runtime.ResourceQuota)
+      ResourceQuotaOrBuilder {
+  private static final long serialVersionUID = 0L;
+    // Use ResourceQuota.newBuilder() to construct.
+    private ResourceQuota(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
+      super(builder);
+    }
+    private ResourceQuota() {
+      name_ = "";
+      namespace_ = "";
+    }
+
+    @java.lang.Override
+    public final com.google.protobuf.UnknownFieldSet
+    getUnknownFields() {
+      return this.unknownFields;
+    }
+    private ResourceQuota(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      this();
+      if (extensionRegistry == null) {
+        throw new java.lang.NullPointerException();
+      }
+      int mutable_bitField0_ = 0;
+      com.google.protobuf.UnknownFieldSet.Builder unknownFields =
+          com.google.protobuf.UnknownFieldSet.newBuilder();
+      try {
+        boolean done = false;
+        while (!done) {
+          int tag = input.readTag();
+          switch (tag) {
+            case 0:
+              done = true;
+              break;
+            case 10: {
+              java.lang.String s = input.readStringRequireUtf8();
+
+              name_ = s;
+              break;
+            }
+            case 18: {
+              java.lang.String s = input.readStringRequireUtf8();
+
+              namespace_ = s;
+              break;
+            }
+            case 26: {
+              runtime.RuntimeOuterClass.Resources.Builder subBuilder = null;
+              if (requests_ != null) {
+                subBuilder = requests_.toBuilder();
+              }
+              requests_ = input.readMessage(runtime.RuntimeOuterClass.Resources.parser(), extensionRegistry);
+              if (subBuilder != null) {
+                subBuilder.mergeFrom(requests_);
+                requests_ = subBuilder.buildPartial();
+              }
+
+              break;
+            }
+            case 34: {
+              runtime.RuntimeOuterClass.Resources.Builder subBuilder = null;
+              if (limits_ != null) {
+                subBuilder = limits_.toBuilder();
+              }
+              limits_ = input.readMessage(runtime.RuntimeOuterClass.Resources.parser(), extensionRegistry);
+              if (subBuilder != null) {
+                subBuilder.mergeFrom(limits_);
+                limits_ = subBuilder.buildPartial();
+              }
+
+              break;
+            }
+            default: {
+              if (!parseUnknownFieldProto3(
+                  input, unknownFields, extensionRegistry, tag)) {
+                done = true;
+              }
+              break;
+            }
+          }
+        }
+      } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+        throw e.setUnfinishedMessage(this);
+      } catch (java.io.IOException e) {
+        throw new com.google.protobuf.InvalidProtocolBufferException(
+            e).setUnfinishedMessage(this);
+      } finally {
+        this.unknownFields = unknownFields.build();
+        makeExtensionsImmutable();
+      }
+    }
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+      return runtime.RuntimeOuterClass.internal_static_runtime_ResourceQuota_descriptor;
+    }
+
+    @java.lang.Override
+    protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return runtime.RuntimeOuterClass.internal_static_runtime_ResourceQuota_fieldAccessorTable
+          .ensureFieldAccessorsInitialized(
+              runtime.RuntimeOuterClass.ResourceQuota.class, runtime.RuntimeOuterClass.ResourceQuota.Builder.class);
+    }
+
+    public static final int NAME_FIELD_NUMBER = 1;
+    private volatile java.lang.Object name_;
+    /**
+     * <pre>
+     * name of the resource quota
+     * </pre>
+     *
+     * <code>string name = 1;</code>
+     */
+    public java.lang.String getName() {
+      java.lang.Object ref = name_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        name_ = s;
+        return s;
+      }
+    }
+    /**
+     * <pre>
+     * name of the resource quota
+     * </pre>
+     *
+     * <code>string name = 1;</code>
+     */
+    public com.google.protobuf.ByteString
+        getNameBytes() {
+      java.lang.Object ref = name_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        name_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
+    public static final int NAMESPACE_FIELD_NUMBER = 2;
+    private volatile java.lang.Object namespace_;
+    /**
+     * <pre>
+     * namespace the resource quota belongs to
+     * </pre>
+     *
+     * <code>string namespace = 2;</code>
+     */
+    public java.lang.String getNamespace() {
+      java.lang.Object ref = namespace_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        namespace_ = s;
+        return s;
+      }
+    }
+    /**
+     * <pre>
+     * namespace the resource quota belongs to
+     * </pre>
+     *
+     * <code>string namespace = 2;</code>
+     */
+    public com.google.protobuf.ByteString
+        getNamespaceBytes() {
+      java.lang.Object ref = namespace_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        namespace_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
+    public static final int REQUESTS_FIELD_NUMBER = 3;
+    private runtime.RuntimeOuterClass.Resources requests_;
+    /**
+     * <pre>
+     * resource requets
+     * </pre>
+     *
+     * <code>.runtime.Resources requests = 3;</code>
+     */
+    public boolean hasRequests() {
+      return requests_ != null;
+    }
+    /**
+     * <pre>
+     * resource requets
+     * </pre>
+     *
+     * <code>.runtime.Resources requests = 3;</code>
+     */
+    public runtime.RuntimeOuterClass.Resources getRequests() {
+      return requests_ == null ? runtime.RuntimeOuterClass.Resources.getDefaultInstance() : requests_;
+    }
+    /**
+     * <pre>
+     * resource requets
+     * </pre>
+     *
+     * <code>.runtime.Resources requests = 3;</code>
+     */
+    public runtime.RuntimeOuterClass.ResourcesOrBuilder getRequestsOrBuilder() {
+      return getRequests();
+    }
+
+    public static final int LIMITS_FIELD_NUMBER = 4;
+    private runtime.RuntimeOuterClass.Resources limits_;
+    /**
+     * <pre>
+     * resource limits
+     * </pre>
+     *
+     * <code>.runtime.Resources limits = 4;</code>
+     */
+    public boolean hasLimits() {
+      return limits_ != null;
+    }
+    /**
+     * <pre>
+     * resource limits
+     * </pre>
+     *
+     * <code>.runtime.Resources limits = 4;</code>
+     */
+    public runtime.RuntimeOuterClass.Resources getLimits() {
+      return limits_ == null ? runtime.RuntimeOuterClass.Resources.getDefaultInstance() : limits_;
+    }
+    /**
+     * <pre>
+     * resource limits
+     * </pre>
+     *
+     * <code>.runtime.Resources limits = 4;</code>
+     */
+    public runtime.RuntimeOuterClass.ResourcesOrBuilder getLimitsOrBuilder() {
+      return getLimits();
+    }
+
+    private byte memoizedIsInitialized = -1;
+    @java.lang.Override
+    public final boolean isInitialized() {
+      byte isInitialized = memoizedIsInitialized;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
+
+      memoizedIsInitialized = 1;
+      return true;
+    }
+
+    @java.lang.Override
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
+      if (!getNameBytes().isEmpty()) {
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 1, name_);
+      }
+      if (!getNamespaceBytes().isEmpty()) {
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 2, namespace_);
+      }
+      if (requests_ != null) {
+        output.writeMessage(3, getRequests());
+      }
+      if (limits_ != null) {
+        output.writeMessage(4, getLimits());
+      }
+      unknownFields.writeTo(output);
+    }
+
+    @java.lang.Override
+    public int getSerializedSize() {
+      int size = memoizedSize;
+      if (size != -1) return size;
+
+      size = 0;
+      if (!getNameBytes().isEmpty()) {
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(1, name_);
+      }
+      if (!getNamespaceBytes().isEmpty()) {
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(2, namespace_);
+      }
+      if (requests_ != null) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(3, getRequests());
+      }
+      if (limits_ != null) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(4, getLimits());
+      }
+      size += unknownFields.getSerializedSize();
+      memoizedSize = size;
+      return size;
+    }
+
+    @java.lang.Override
+    public boolean equals(final java.lang.Object obj) {
+      if (obj == this) {
+       return true;
+      }
+      if (!(obj instanceof runtime.RuntimeOuterClass.ResourceQuota)) {
+        return super.equals(obj);
+      }
+      runtime.RuntimeOuterClass.ResourceQuota other = (runtime.RuntimeOuterClass.ResourceQuota) obj;
+
+      boolean result = true;
+      result = result && getName()
+          .equals(other.getName());
+      result = result && getNamespace()
+          .equals(other.getNamespace());
+      result = result && (hasRequests() == other.hasRequests());
+      if (hasRequests()) {
+        result = result && getRequests()
+            .equals(other.getRequests());
+      }
+      result = result && (hasLimits() == other.hasLimits());
+      if (hasLimits()) {
+        result = result && getLimits()
+            .equals(other.getLimits());
+      }
+      result = result && unknownFields.equals(other.unknownFields);
+      return result;
+    }
+
+    @java.lang.Override
+    public int hashCode() {
+      if (memoizedHashCode != 0) {
+        return memoizedHashCode;
+      }
+      int hash = 41;
+      hash = (19 * hash) + getDescriptor().hashCode();
+      hash = (37 * hash) + NAME_FIELD_NUMBER;
+      hash = (53 * hash) + getName().hashCode();
+      hash = (37 * hash) + NAMESPACE_FIELD_NUMBER;
+      hash = (53 * hash) + getNamespace().hashCode();
+      if (hasRequests()) {
+        hash = (37 * hash) + REQUESTS_FIELD_NUMBER;
+        hash = (53 * hash) + getRequests().hashCode();
+      }
+      if (hasLimits()) {
+        hash = (37 * hash) + LIMITS_FIELD_NUMBER;
+        hash = (53 * hash) + getLimits().hashCode();
+      }
+      hash = (29 * hash) + unknownFields.hashCode();
+      memoizedHashCode = hash;
+      return hash;
+    }
+
+    public static runtime.RuntimeOuterClass.ResourceQuota parseFrom(
+        java.nio.ByteBuffer data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static runtime.RuntimeOuterClass.ResourceQuota parseFrom(
+        java.nio.ByteBuffer data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static runtime.RuntimeOuterClass.ResourceQuota parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static runtime.RuntimeOuterClass.ResourceQuota parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static runtime.RuntimeOuterClass.ResourceQuota parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static runtime.RuntimeOuterClass.ResourceQuota parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static runtime.RuntimeOuterClass.ResourceQuota parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input);
+    }
+    public static runtime.RuntimeOuterClass.ResourceQuota parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input, extensionRegistry);
+    }
+    public static runtime.RuntimeOuterClass.ResourceQuota parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseDelimitedWithIOException(PARSER, input);
+    }
+    public static runtime.RuntimeOuterClass.ResourceQuota parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
+    }
+    public static runtime.RuntimeOuterClass.ResourceQuota parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input);
+    }
+    public static runtime.RuntimeOuterClass.ResourceQuota parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input, extensionRegistry);
+    }
+
+    @java.lang.Override
+    public Builder newBuilderForType() { return newBuilder(); }
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
+    }
+    public static Builder newBuilder(runtime.RuntimeOuterClass.ResourceQuota prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    @java.lang.Override
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
+
+    @java.lang.Override
+    protected Builder newBuilderForType(
+        com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+      Builder builder = new Builder(parent);
+      return builder;
+    }
+    /**
+     * Protobuf type {@code runtime.ResourceQuota}
+     */
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:runtime.ResourceQuota)
+        runtime.RuntimeOuterClass.ResourceQuotaOrBuilder {
+      public static final com.google.protobuf.Descriptors.Descriptor
+          getDescriptor() {
+        return runtime.RuntimeOuterClass.internal_static_runtime_ResourceQuota_descriptor;
+      }
+
+      @java.lang.Override
+      protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+          internalGetFieldAccessorTable() {
+        return runtime.RuntimeOuterClass.internal_static_runtime_ResourceQuota_fieldAccessorTable
+            .ensureFieldAccessorsInitialized(
+                runtime.RuntimeOuterClass.ResourceQuota.class, runtime.RuntimeOuterClass.ResourceQuota.Builder.class);
+      }
+
+      // Construct using runtime.RuntimeOuterClass.ResourceQuota.newBuilder()
+      private Builder() {
+        maybeForceBuilderInitialization();
+      }
+
+      private Builder(
+          com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+        super(parent);
+        maybeForceBuilderInitialization();
+      }
+      private void maybeForceBuilderInitialization() {
+        if (com.google.protobuf.GeneratedMessageV3
+                .alwaysUseFieldBuilders) {
+        }
+      }
+      @java.lang.Override
+      public Builder clear() {
+        super.clear();
+        name_ = "";
+
+        namespace_ = "";
+
+        if (requestsBuilder_ == null) {
+          requests_ = null;
+        } else {
+          requests_ = null;
+          requestsBuilder_ = null;
+        }
+        if (limitsBuilder_ == null) {
+          limits_ = null;
+        } else {
+          limits_ = null;
+          limitsBuilder_ = null;
+        }
+        return this;
+      }
+
+      @java.lang.Override
+      public com.google.protobuf.Descriptors.Descriptor
+          getDescriptorForType() {
+        return runtime.RuntimeOuterClass.internal_static_runtime_ResourceQuota_descriptor;
+      }
+
+      @java.lang.Override
+      public runtime.RuntimeOuterClass.ResourceQuota getDefaultInstanceForType() {
+        return runtime.RuntimeOuterClass.ResourceQuota.getDefaultInstance();
+      }
+
+      @java.lang.Override
+      public runtime.RuntimeOuterClass.ResourceQuota build() {
+        runtime.RuntimeOuterClass.ResourceQuota result = buildPartial();
+        if (!result.isInitialized()) {
+          throw newUninitializedMessageException(result);
+        }
+        return result;
+      }
+
+      @java.lang.Override
+      public runtime.RuntimeOuterClass.ResourceQuota buildPartial() {
+        runtime.RuntimeOuterClass.ResourceQuota result = new runtime.RuntimeOuterClass.ResourceQuota(this);
+        result.name_ = name_;
+        result.namespace_ = namespace_;
+        if (requestsBuilder_ == null) {
+          result.requests_ = requests_;
+        } else {
+          result.requests_ = requestsBuilder_.build();
+        }
+        if (limitsBuilder_ == null) {
+          result.limits_ = limits_;
+        } else {
+          result.limits_ = limitsBuilder_.build();
+        }
+        onBuilt();
+        return result;
+      }
+
+      @java.lang.Override
+      public Builder clone() {
+        return (Builder) super.clone();
+      }
+      @java.lang.Override
+      public Builder setField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          java.lang.Object value) {
+        return (Builder) super.setField(field, value);
+      }
+      @java.lang.Override
+      public Builder clearField(
+          com.google.protobuf.Descriptors.FieldDescriptor field) {
+        return (Builder) super.clearField(field);
+      }
+      @java.lang.Override
+      public Builder clearOneof(
+          com.google.protobuf.Descriptors.OneofDescriptor oneof) {
+        return (Builder) super.clearOneof(oneof);
+      }
+      @java.lang.Override
+      public Builder setRepeatedField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          int index, java.lang.Object value) {
+        return (Builder) super.setRepeatedField(field, index, value);
+      }
+      @java.lang.Override
+      public Builder addRepeatedField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          java.lang.Object value) {
+        return (Builder) super.addRepeatedField(field, value);
+      }
+      @java.lang.Override
+      public Builder mergeFrom(com.google.protobuf.Message other) {
+        if (other instanceof runtime.RuntimeOuterClass.ResourceQuota) {
+          return mergeFrom((runtime.RuntimeOuterClass.ResourceQuota)other);
+        } else {
+          super.mergeFrom(other);
+          return this;
+        }
+      }
+
+      public Builder mergeFrom(runtime.RuntimeOuterClass.ResourceQuota other) {
+        if (other == runtime.RuntimeOuterClass.ResourceQuota.getDefaultInstance()) return this;
+        if (!other.getName().isEmpty()) {
+          name_ = other.name_;
+          onChanged();
+        }
+        if (!other.getNamespace().isEmpty()) {
+          namespace_ = other.namespace_;
+          onChanged();
+        }
+        if (other.hasRequests()) {
+          mergeRequests(other.getRequests());
+        }
+        if (other.hasLimits()) {
+          mergeLimits(other.getLimits());
+        }
+        this.mergeUnknownFields(other.unknownFields);
+        onChanged();
+        return this;
+      }
+
+      @java.lang.Override
+      public final boolean isInitialized() {
+        return true;
+      }
+
+      @java.lang.Override
+      public Builder mergeFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        runtime.RuntimeOuterClass.ResourceQuota parsedMessage = null;
+        try {
+          parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+          parsedMessage = (runtime.RuntimeOuterClass.ResourceQuota) e.getUnfinishedMessage();
+          throw e.unwrapIOException();
+        } finally {
+          if (parsedMessage != null) {
+            mergeFrom(parsedMessage);
+          }
+        }
+        return this;
+      }
+
+      private java.lang.Object name_ = "";
+      /**
+       * <pre>
+       * name of the resource quota
+       * </pre>
+       *
+       * <code>string name = 1;</code>
+       */
+      public java.lang.String getName() {
+        java.lang.Object ref = name_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          name_ = s;
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <pre>
+       * name of the resource quota
+       * </pre>
+       *
+       * <code>string name = 1;</code>
+       */
+      public com.google.protobuf.ByteString
+          getNameBytes() {
+        java.lang.Object ref = name_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          name_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <pre>
+       * name of the resource quota
+       * </pre>
+       *
+       * <code>string name = 1;</code>
+       */
+      public Builder setName(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  
+        name_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * name of the resource quota
+       * </pre>
+       *
+       * <code>string name = 1;</code>
+       */
+      public Builder clearName() {
+        
+        name_ = getDefaultInstance().getName();
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * name of the resource quota
+       * </pre>
+       *
+       * <code>string name = 1;</code>
+       */
+      public Builder setNameBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  checkByteStringIsUtf8(value);
+        
+        name_ = value;
+        onChanged();
+        return this;
+      }
+
+      private java.lang.Object namespace_ = "";
+      /**
+       * <pre>
+       * namespace the resource quota belongs to
+       * </pre>
+       *
+       * <code>string namespace = 2;</code>
+       */
+      public java.lang.String getNamespace() {
+        java.lang.Object ref = namespace_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          namespace_ = s;
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <pre>
+       * namespace the resource quota belongs to
+       * </pre>
+       *
+       * <code>string namespace = 2;</code>
+       */
+      public com.google.protobuf.ByteString
+          getNamespaceBytes() {
+        java.lang.Object ref = namespace_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          namespace_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <pre>
+       * namespace the resource quota belongs to
+       * </pre>
+       *
+       * <code>string namespace = 2;</code>
+       */
+      public Builder setNamespace(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  
+        namespace_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * namespace the resource quota belongs to
+       * </pre>
+       *
+       * <code>string namespace = 2;</code>
+       */
+      public Builder clearNamespace() {
+        
+        namespace_ = getDefaultInstance().getNamespace();
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * namespace the resource quota belongs to
+       * </pre>
+       *
+       * <code>string namespace = 2;</code>
+       */
+      public Builder setNamespaceBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  checkByteStringIsUtf8(value);
+        
+        namespace_ = value;
+        onChanged();
+        return this;
+      }
+
+      private runtime.RuntimeOuterClass.Resources requests_ = null;
+      private com.google.protobuf.SingleFieldBuilderV3<
+          runtime.RuntimeOuterClass.Resources, runtime.RuntimeOuterClass.Resources.Builder, runtime.RuntimeOuterClass.ResourcesOrBuilder> requestsBuilder_;
+      /**
+       * <pre>
+       * resource requets
+       * </pre>
+       *
+       * <code>.runtime.Resources requests = 3;</code>
+       */
+      public boolean hasRequests() {
+        return requestsBuilder_ != null || requests_ != null;
+      }
+      /**
+       * <pre>
+       * resource requets
+       * </pre>
+       *
+       * <code>.runtime.Resources requests = 3;</code>
+       */
+      public runtime.RuntimeOuterClass.Resources getRequests() {
+        if (requestsBuilder_ == null) {
+          return requests_ == null ? runtime.RuntimeOuterClass.Resources.getDefaultInstance() : requests_;
+        } else {
+          return requestsBuilder_.getMessage();
+        }
+      }
+      /**
+       * <pre>
+       * resource requets
+       * </pre>
+       *
+       * <code>.runtime.Resources requests = 3;</code>
+       */
+      public Builder setRequests(runtime.RuntimeOuterClass.Resources value) {
+        if (requestsBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          requests_ = value;
+          onChanged();
+        } else {
+          requestsBuilder_.setMessage(value);
+        }
+
+        return this;
+      }
+      /**
+       * <pre>
+       * resource requets
+       * </pre>
+       *
+       * <code>.runtime.Resources requests = 3;</code>
+       */
+      public Builder setRequests(
+          runtime.RuntimeOuterClass.Resources.Builder builderForValue) {
+        if (requestsBuilder_ == null) {
+          requests_ = builderForValue.build();
+          onChanged();
+        } else {
+          requestsBuilder_.setMessage(builderForValue.build());
+        }
+
+        return this;
+      }
+      /**
+       * <pre>
+       * resource requets
+       * </pre>
+       *
+       * <code>.runtime.Resources requests = 3;</code>
+       */
+      public Builder mergeRequests(runtime.RuntimeOuterClass.Resources value) {
+        if (requestsBuilder_ == null) {
+          if (requests_ != null) {
+            requests_ =
+              runtime.RuntimeOuterClass.Resources.newBuilder(requests_).mergeFrom(value).buildPartial();
+          } else {
+            requests_ = value;
+          }
+          onChanged();
+        } else {
+          requestsBuilder_.mergeFrom(value);
+        }
+
+        return this;
+      }
+      /**
+       * <pre>
+       * resource requets
+       * </pre>
+       *
+       * <code>.runtime.Resources requests = 3;</code>
+       */
+      public Builder clearRequests() {
+        if (requestsBuilder_ == null) {
+          requests_ = null;
+          onChanged();
+        } else {
+          requests_ = null;
+          requestsBuilder_ = null;
+        }
+
+        return this;
+      }
+      /**
+       * <pre>
+       * resource requets
+       * </pre>
+       *
+       * <code>.runtime.Resources requests = 3;</code>
+       */
+      public runtime.RuntimeOuterClass.Resources.Builder getRequestsBuilder() {
+        
+        onChanged();
+        return getRequestsFieldBuilder().getBuilder();
+      }
+      /**
+       * <pre>
+       * resource requets
+       * </pre>
+       *
+       * <code>.runtime.Resources requests = 3;</code>
+       */
+      public runtime.RuntimeOuterClass.ResourcesOrBuilder getRequestsOrBuilder() {
+        if (requestsBuilder_ != null) {
+          return requestsBuilder_.getMessageOrBuilder();
+        } else {
+          return requests_ == null ?
+              runtime.RuntimeOuterClass.Resources.getDefaultInstance() : requests_;
+        }
+      }
+      /**
+       * <pre>
+       * resource requets
+       * </pre>
+       *
+       * <code>.runtime.Resources requests = 3;</code>
+       */
+      private com.google.protobuf.SingleFieldBuilderV3<
+          runtime.RuntimeOuterClass.Resources, runtime.RuntimeOuterClass.Resources.Builder, runtime.RuntimeOuterClass.ResourcesOrBuilder> 
+          getRequestsFieldBuilder() {
+        if (requestsBuilder_ == null) {
+          requestsBuilder_ = new com.google.protobuf.SingleFieldBuilderV3<
+              runtime.RuntimeOuterClass.Resources, runtime.RuntimeOuterClass.Resources.Builder, runtime.RuntimeOuterClass.ResourcesOrBuilder>(
+                  getRequests(),
+                  getParentForChildren(),
+                  isClean());
+          requests_ = null;
+        }
+        return requestsBuilder_;
+      }
+
+      private runtime.RuntimeOuterClass.Resources limits_ = null;
+      private com.google.protobuf.SingleFieldBuilderV3<
+          runtime.RuntimeOuterClass.Resources, runtime.RuntimeOuterClass.Resources.Builder, runtime.RuntimeOuterClass.ResourcesOrBuilder> limitsBuilder_;
+      /**
+       * <pre>
+       * resource limits
+       * </pre>
+       *
+       * <code>.runtime.Resources limits = 4;</code>
+       */
+      public boolean hasLimits() {
+        return limitsBuilder_ != null || limits_ != null;
+      }
+      /**
+       * <pre>
+       * resource limits
+       * </pre>
+       *
+       * <code>.runtime.Resources limits = 4;</code>
+       */
+      public runtime.RuntimeOuterClass.Resources getLimits() {
+        if (limitsBuilder_ == null) {
+          return limits_ == null ? runtime.RuntimeOuterClass.Resources.getDefaultInstance() : limits_;
+        } else {
+          return limitsBuilder_.getMessage();
+        }
+      }
+      /**
+       * <pre>
+       * resource limits
+       * </pre>
+       *
+       * <code>.runtime.Resources limits = 4;</code>
+       */
+      public Builder setLimits(runtime.RuntimeOuterClass.Resources value) {
+        if (limitsBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          limits_ = value;
+          onChanged();
+        } else {
+          limitsBuilder_.setMessage(value);
+        }
+
+        return this;
+      }
+      /**
+       * <pre>
+       * resource limits
+       * </pre>
+       *
+       * <code>.runtime.Resources limits = 4;</code>
+       */
+      public Builder setLimits(
+          runtime.RuntimeOuterClass.Resources.Builder builderForValue) {
+        if (limitsBuilder_ == null) {
+          limits_ = builderForValue.build();
+          onChanged();
+        } else {
+          limitsBuilder_.setMessage(builderForValue.build());
+        }
+
+        return this;
+      }
+      /**
+       * <pre>
+       * resource limits
+       * </pre>
+       *
+       * <code>.runtime.Resources limits = 4;</code>
+       */
+      public Builder mergeLimits(runtime.RuntimeOuterClass.Resources value) {
+        if (limitsBuilder_ == null) {
+          if (limits_ != null) {
+            limits_ =
+              runtime.RuntimeOuterClass.Resources.newBuilder(limits_).mergeFrom(value).buildPartial();
+          } else {
+            limits_ = value;
+          }
+          onChanged();
+        } else {
+          limitsBuilder_.mergeFrom(value);
+        }
+
+        return this;
+      }
+      /**
+       * <pre>
+       * resource limits
+       * </pre>
+       *
+       * <code>.runtime.Resources limits = 4;</code>
+       */
+      public Builder clearLimits() {
+        if (limitsBuilder_ == null) {
+          limits_ = null;
+          onChanged();
+        } else {
+          limits_ = null;
+          limitsBuilder_ = null;
+        }
+
+        return this;
+      }
+      /**
+       * <pre>
+       * resource limits
+       * </pre>
+       *
+       * <code>.runtime.Resources limits = 4;</code>
+       */
+      public runtime.RuntimeOuterClass.Resources.Builder getLimitsBuilder() {
+        
+        onChanged();
+        return getLimitsFieldBuilder().getBuilder();
+      }
+      /**
+       * <pre>
+       * resource limits
+       * </pre>
+       *
+       * <code>.runtime.Resources limits = 4;</code>
+       */
+      public runtime.RuntimeOuterClass.ResourcesOrBuilder getLimitsOrBuilder() {
+        if (limitsBuilder_ != null) {
+          return limitsBuilder_.getMessageOrBuilder();
+        } else {
+          return limits_ == null ?
+              runtime.RuntimeOuterClass.Resources.getDefaultInstance() : limits_;
+        }
+      }
+      /**
+       * <pre>
+       * resource limits
+       * </pre>
+       *
+       * <code>.runtime.Resources limits = 4;</code>
+       */
+      private com.google.protobuf.SingleFieldBuilderV3<
+          runtime.RuntimeOuterClass.Resources, runtime.RuntimeOuterClass.Resources.Builder, runtime.RuntimeOuterClass.ResourcesOrBuilder> 
+          getLimitsFieldBuilder() {
+        if (limitsBuilder_ == null) {
+          limitsBuilder_ = new com.google.protobuf.SingleFieldBuilderV3<
+              runtime.RuntimeOuterClass.Resources, runtime.RuntimeOuterClass.Resources.Builder, runtime.RuntimeOuterClass.ResourcesOrBuilder>(
+                  getLimits(),
+                  getParentForChildren(),
+                  isClean());
+          limits_ = null;
+        }
+        return limitsBuilder_;
+      }
+      @java.lang.Override
+      public final Builder setUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return super.setUnknownFieldsProto3(unknownFields);
+      }
+
+      @java.lang.Override
+      public final Builder mergeUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return super.mergeUnknownFields(unknownFields);
+      }
+
+
+      // @@protoc_insertion_point(builder_scope:runtime.ResourceQuota)
+    }
+
+    // @@protoc_insertion_point(class_scope:runtime.ResourceQuota)
+    private static final runtime.RuntimeOuterClass.ResourceQuota DEFAULT_INSTANCE;
+    static {
+      DEFAULT_INSTANCE = new runtime.RuntimeOuterClass.ResourceQuota();
+    }
+
+    public static runtime.RuntimeOuterClass.ResourceQuota getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    private static final com.google.protobuf.Parser<ResourceQuota>
+        PARSER = new com.google.protobuf.AbstractParser<ResourceQuota>() {
+      @java.lang.Override
+      public ResourceQuota parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        return new ResourceQuota(input, extensionRegistry);
+      }
+    };
+
+    public static com.google.protobuf.Parser<ResourceQuota> parser() {
+      return PARSER;
+    }
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<ResourceQuota> getParserForType() {
+      return PARSER;
+    }
+
+    @java.lang.Override
+    public runtime.RuntimeOuterClass.ResourceQuota getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
+  }
+
+  public interface ResourcesOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:runtime.Resources)
+      com.google.protobuf.MessageOrBuilder {
+
+    /**
+     * <code>int32 Memory = 1;</code>
+     */
+    int getMemory();
+
+    /**
+     * <code>int32 CPU = 2;</code>
+     */
+    int getCPU();
+
+    /**
+     * <code>int32 EphemeralStorage = 3;</code>
+     */
+    int getEphemeralStorage();
+  }
+  /**
+   * Protobuf type {@code runtime.Resources}
+   */
+  public  static final class Resources extends
+      com.google.protobuf.GeneratedMessageV3 implements
+      // @@protoc_insertion_point(message_implements:runtime.Resources)
+      ResourcesOrBuilder {
+  private static final long serialVersionUID = 0L;
+    // Use Resources.newBuilder() to construct.
+    private Resources(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
+      super(builder);
+    }
+    private Resources() {
+      memory_ = 0;
+      cPU_ = 0;
+      ephemeralStorage_ = 0;
+    }
+
+    @java.lang.Override
+    public final com.google.protobuf.UnknownFieldSet
+    getUnknownFields() {
+      return this.unknownFields;
+    }
+    private Resources(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      this();
+      if (extensionRegistry == null) {
+        throw new java.lang.NullPointerException();
+      }
+      int mutable_bitField0_ = 0;
+      com.google.protobuf.UnknownFieldSet.Builder unknownFields =
+          com.google.protobuf.UnknownFieldSet.newBuilder();
+      try {
+        boolean done = false;
+        while (!done) {
+          int tag = input.readTag();
+          switch (tag) {
+            case 0:
+              done = true;
+              break;
+            case 8: {
+
+              memory_ = input.readInt32();
+              break;
+            }
+            case 16: {
+
+              cPU_ = input.readInt32();
+              break;
+            }
+            case 24: {
+
+              ephemeralStorage_ = input.readInt32();
+              break;
+            }
+            default: {
+              if (!parseUnknownFieldProto3(
+                  input, unknownFields, extensionRegistry, tag)) {
+                done = true;
+              }
+              break;
+            }
+          }
+        }
+      } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+        throw e.setUnfinishedMessage(this);
+      } catch (java.io.IOException e) {
+        throw new com.google.protobuf.InvalidProtocolBufferException(
+            e).setUnfinishedMessage(this);
+      } finally {
+        this.unknownFields = unknownFields.build();
+        makeExtensionsImmutable();
+      }
+    }
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+      return runtime.RuntimeOuterClass.internal_static_runtime_Resources_descriptor;
+    }
+
+    @java.lang.Override
+    protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return runtime.RuntimeOuterClass.internal_static_runtime_Resources_fieldAccessorTable
+          .ensureFieldAccessorsInitialized(
+              runtime.RuntimeOuterClass.Resources.class, runtime.RuntimeOuterClass.Resources.Builder.class);
+    }
+
+    public static final int MEMORY_FIELD_NUMBER = 1;
+    private int memory_;
+    /**
+     * <code>int32 Memory = 1;</code>
+     */
+    public int getMemory() {
+      return memory_;
+    }
+
+    public static final int CPU_FIELD_NUMBER = 2;
+    private int cPU_;
+    /**
+     * <code>int32 CPU = 2;</code>
+     */
+    public int getCPU() {
+      return cPU_;
+    }
+
+    public static final int EPHEMERALSTORAGE_FIELD_NUMBER = 3;
+    private int ephemeralStorage_;
+    /**
+     * <code>int32 EphemeralStorage = 3;</code>
+     */
+    public int getEphemeralStorage() {
+      return ephemeralStorage_;
+    }
+
+    private byte memoizedIsInitialized = -1;
+    @java.lang.Override
+    public final boolean isInitialized() {
+      byte isInitialized = memoizedIsInitialized;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
+
+      memoizedIsInitialized = 1;
+      return true;
+    }
+
+    @java.lang.Override
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
+      if (memory_ != 0) {
+        output.writeInt32(1, memory_);
+      }
+      if (cPU_ != 0) {
+        output.writeInt32(2, cPU_);
+      }
+      if (ephemeralStorage_ != 0) {
+        output.writeInt32(3, ephemeralStorage_);
+      }
+      unknownFields.writeTo(output);
+    }
+
+    @java.lang.Override
+    public int getSerializedSize() {
+      int size = memoizedSize;
+      if (size != -1) return size;
+
+      size = 0;
+      if (memory_ != 0) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeInt32Size(1, memory_);
+      }
+      if (cPU_ != 0) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeInt32Size(2, cPU_);
+      }
+      if (ephemeralStorage_ != 0) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeInt32Size(3, ephemeralStorage_);
+      }
+      size += unknownFields.getSerializedSize();
+      memoizedSize = size;
+      return size;
+    }
+
+    @java.lang.Override
+    public boolean equals(final java.lang.Object obj) {
+      if (obj == this) {
+       return true;
+      }
+      if (!(obj instanceof runtime.RuntimeOuterClass.Resources)) {
+        return super.equals(obj);
+      }
+      runtime.RuntimeOuterClass.Resources other = (runtime.RuntimeOuterClass.Resources) obj;
+
+      boolean result = true;
+      result = result && (getMemory()
+          == other.getMemory());
+      result = result && (getCPU()
+          == other.getCPU());
+      result = result && (getEphemeralStorage()
+          == other.getEphemeralStorage());
+      result = result && unknownFields.equals(other.unknownFields);
+      return result;
+    }
+
+    @java.lang.Override
+    public int hashCode() {
+      if (memoizedHashCode != 0) {
+        return memoizedHashCode;
+      }
+      int hash = 41;
+      hash = (19 * hash) + getDescriptor().hashCode();
+      hash = (37 * hash) + MEMORY_FIELD_NUMBER;
+      hash = (53 * hash) + getMemory();
+      hash = (37 * hash) + CPU_FIELD_NUMBER;
+      hash = (53 * hash) + getCPU();
+      hash = (37 * hash) + EPHEMERALSTORAGE_FIELD_NUMBER;
+      hash = (53 * hash) + getEphemeralStorage();
+      hash = (29 * hash) + unknownFields.hashCode();
+      memoizedHashCode = hash;
+      return hash;
+    }
+
+    public static runtime.RuntimeOuterClass.Resources parseFrom(
+        java.nio.ByteBuffer data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static runtime.RuntimeOuterClass.Resources parseFrom(
+        java.nio.ByteBuffer data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static runtime.RuntimeOuterClass.Resources parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static runtime.RuntimeOuterClass.Resources parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static runtime.RuntimeOuterClass.Resources parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static runtime.RuntimeOuterClass.Resources parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static runtime.RuntimeOuterClass.Resources parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input);
+    }
+    public static runtime.RuntimeOuterClass.Resources parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input, extensionRegistry);
+    }
+    public static runtime.RuntimeOuterClass.Resources parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseDelimitedWithIOException(PARSER, input);
+    }
+    public static runtime.RuntimeOuterClass.Resources parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
+    }
+    public static runtime.RuntimeOuterClass.Resources parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input);
+    }
+    public static runtime.RuntimeOuterClass.Resources parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input, extensionRegistry);
+    }
+
+    @java.lang.Override
+    public Builder newBuilderForType() { return newBuilder(); }
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
+    }
+    public static Builder newBuilder(runtime.RuntimeOuterClass.Resources prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    @java.lang.Override
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
+
+    @java.lang.Override
+    protected Builder newBuilderForType(
+        com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+      Builder builder = new Builder(parent);
+      return builder;
+    }
+    /**
+     * Protobuf type {@code runtime.Resources}
+     */
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:runtime.Resources)
+        runtime.RuntimeOuterClass.ResourcesOrBuilder {
+      public static final com.google.protobuf.Descriptors.Descriptor
+          getDescriptor() {
+        return runtime.RuntimeOuterClass.internal_static_runtime_Resources_descriptor;
+      }
+
+      @java.lang.Override
+      protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+          internalGetFieldAccessorTable() {
+        return runtime.RuntimeOuterClass.internal_static_runtime_Resources_fieldAccessorTable
+            .ensureFieldAccessorsInitialized(
+                runtime.RuntimeOuterClass.Resources.class, runtime.RuntimeOuterClass.Resources.Builder.class);
+      }
+
+      // Construct using runtime.RuntimeOuterClass.Resources.newBuilder()
+      private Builder() {
+        maybeForceBuilderInitialization();
+      }
+
+      private Builder(
+          com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+        super(parent);
+        maybeForceBuilderInitialization();
+      }
+      private void maybeForceBuilderInitialization() {
+        if (com.google.protobuf.GeneratedMessageV3
+                .alwaysUseFieldBuilders) {
+        }
+      }
+      @java.lang.Override
+      public Builder clear() {
+        super.clear();
+        memory_ = 0;
+
+        cPU_ = 0;
+
+        ephemeralStorage_ = 0;
+
+        return this;
+      }
+
+      @java.lang.Override
+      public com.google.protobuf.Descriptors.Descriptor
+          getDescriptorForType() {
+        return runtime.RuntimeOuterClass.internal_static_runtime_Resources_descriptor;
+      }
+
+      @java.lang.Override
+      public runtime.RuntimeOuterClass.Resources getDefaultInstanceForType() {
+        return runtime.RuntimeOuterClass.Resources.getDefaultInstance();
+      }
+
+      @java.lang.Override
+      public runtime.RuntimeOuterClass.Resources build() {
+        runtime.RuntimeOuterClass.Resources result = buildPartial();
+        if (!result.isInitialized()) {
+          throw newUninitializedMessageException(result);
+        }
+        return result;
+      }
+
+      @java.lang.Override
+      public runtime.RuntimeOuterClass.Resources buildPartial() {
+        runtime.RuntimeOuterClass.Resources result = new runtime.RuntimeOuterClass.Resources(this);
+        result.memory_ = memory_;
+        result.cPU_ = cPU_;
+        result.ephemeralStorage_ = ephemeralStorage_;
+        onBuilt();
+        return result;
+      }
+
+      @java.lang.Override
+      public Builder clone() {
+        return (Builder) super.clone();
+      }
+      @java.lang.Override
+      public Builder setField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          java.lang.Object value) {
+        return (Builder) super.setField(field, value);
+      }
+      @java.lang.Override
+      public Builder clearField(
+          com.google.protobuf.Descriptors.FieldDescriptor field) {
+        return (Builder) super.clearField(field);
+      }
+      @java.lang.Override
+      public Builder clearOneof(
+          com.google.protobuf.Descriptors.OneofDescriptor oneof) {
+        return (Builder) super.clearOneof(oneof);
+      }
+      @java.lang.Override
+      public Builder setRepeatedField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          int index, java.lang.Object value) {
+        return (Builder) super.setRepeatedField(field, index, value);
+      }
+      @java.lang.Override
+      public Builder addRepeatedField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          java.lang.Object value) {
+        return (Builder) super.addRepeatedField(field, value);
+      }
+      @java.lang.Override
+      public Builder mergeFrom(com.google.protobuf.Message other) {
+        if (other instanceof runtime.RuntimeOuterClass.Resources) {
+          return mergeFrom((runtime.RuntimeOuterClass.Resources)other);
+        } else {
+          super.mergeFrom(other);
+          return this;
+        }
+      }
+
+      public Builder mergeFrom(runtime.RuntimeOuterClass.Resources other) {
+        if (other == runtime.RuntimeOuterClass.Resources.getDefaultInstance()) return this;
+        if (other.getMemory() != 0) {
+          setMemory(other.getMemory());
+        }
+        if (other.getCPU() != 0) {
+          setCPU(other.getCPU());
+        }
+        if (other.getEphemeralStorage() != 0) {
+          setEphemeralStorage(other.getEphemeralStorage());
+        }
+        this.mergeUnknownFields(other.unknownFields);
+        onChanged();
+        return this;
+      }
+
+      @java.lang.Override
+      public final boolean isInitialized() {
+        return true;
+      }
+
+      @java.lang.Override
+      public Builder mergeFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        runtime.RuntimeOuterClass.Resources parsedMessage = null;
+        try {
+          parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+          parsedMessage = (runtime.RuntimeOuterClass.Resources) e.getUnfinishedMessage();
+          throw e.unwrapIOException();
+        } finally {
+          if (parsedMessage != null) {
+            mergeFrom(parsedMessage);
+          }
+        }
+        return this;
+      }
+
+      private int memory_ ;
+      /**
+       * <code>int32 Memory = 1;</code>
+       */
+      public int getMemory() {
+        return memory_;
+      }
+      /**
+       * <code>int32 Memory = 1;</code>
+       */
+      public Builder setMemory(int value) {
+        
+        memory_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>int32 Memory = 1;</code>
+       */
+      public Builder clearMemory() {
+        
+        memory_ = 0;
+        onChanged();
+        return this;
+      }
+
+      private int cPU_ ;
+      /**
+       * <code>int32 CPU = 2;</code>
+       */
+      public int getCPU() {
+        return cPU_;
+      }
+      /**
+       * <code>int32 CPU = 2;</code>
+       */
+      public Builder setCPU(int value) {
+        
+        cPU_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>int32 CPU = 2;</code>
+       */
+      public Builder clearCPU() {
+        
+        cPU_ = 0;
+        onChanged();
+        return this;
+      }
+
+      private int ephemeralStorage_ ;
+      /**
+       * <code>int32 EphemeralStorage = 3;</code>
+       */
+      public int getEphemeralStorage() {
+        return ephemeralStorage_;
+      }
+      /**
+       * <code>int32 EphemeralStorage = 3;</code>
+       */
+      public Builder setEphemeralStorage(int value) {
+        
+        ephemeralStorage_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>int32 EphemeralStorage = 3;</code>
+       */
+      public Builder clearEphemeralStorage() {
+        
+        ephemeralStorage_ = 0;
+        onChanged();
+        return this;
+      }
+      @java.lang.Override
+      public final Builder setUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return super.setUnknownFieldsProto3(unknownFields);
+      }
+
+      @java.lang.Override
+      public final Builder mergeUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return super.mergeUnknownFields(unknownFields);
+      }
+
+
+      // @@protoc_insertion_point(builder_scope:runtime.Resources)
+    }
+
+    // @@protoc_insertion_point(class_scope:runtime.Resources)
+    private static final runtime.RuntimeOuterClass.Resources DEFAULT_INSTANCE;
+    static {
+      DEFAULT_INSTANCE = new runtime.RuntimeOuterClass.Resources();
+    }
+
+    public static runtime.RuntimeOuterClass.Resources getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    private static final com.google.protobuf.Parser<Resources>
+        PARSER = new com.google.protobuf.AbstractParser<Resources>() {
+      @java.lang.Override
+      public Resources parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        return new Resources(input, extensionRegistry);
+      }
+    };
+
+    public static com.google.protobuf.Parser<Resources> parser() {
+      return PARSER;
+    }
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<Resources> getParserForType() {
+      return PARSER;
+    }
+
+    @java.lang.Override
+    public runtime.RuntimeOuterClass.Resources getDefaultInstanceForType() {
       return DEFAULT_INSTANCE;
     }
 
@@ -20799,6 +22862,16 @@ public final class RuntimeOuterClass {
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
       internal_static_runtime_NetworkPolicy_AllowedlabelsEntry_fieldAccessorTable;
   private static final com.google.protobuf.Descriptors.Descriptor
+    internal_static_runtime_ResourceQuota_descriptor;
+  private static final 
+    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+      internal_static_runtime_ResourceQuota_fieldAccessorTable;
+  private static final com.google.protobuf.Descriptors.Descriptor
+    internal_static_runtime_Resources_descriptor;
+  private static final 
+    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+      internal_static_runtime_Resources_fieldAccessorTable;
+  private static final com.google.protobuf.Descriptors.Descriptor
     internal_static_runtime_Service_descriptor;
   private static final 
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
@@ -20937,71 +23010,77 @@ public final class RuntimeOuterClass {
       descriptor;
   static {
     java.lang.String[] descriptorData = {
-      "\n\025runtime/runtime.proto\022\007runtime\"\203\001\n\010Res" +
+      "\n\025runtime/runtime.proto\022\007runtime\"\262\001\n\010Res" +
       "ource\022%\n\tnamespace\030\001 \001(\0132\022.runtime.Names" +
       "pace\022-\n\rnetworkpolicy\030\002 \001(\0132\026.runtime.Ne" +
       "tworkPolicy\022!\n\007service\030\003 \001(\0132\020.runtime.S" +
-      "ervice\"\031\n\tNamespace\022\014\n\004name\030\001 \001(\t\"\250\001\n\rNe" +
-      "tworkPolicy\022@\n\rallowedlabels\030\001 \003(\0132).run" +
-      "time.NetworkPolicy.AllowedlabelsEntry\022\014\n" +
-      "\004name\030\002 \001(\t\022\021\n\tnamespace\030\003 \001(\t\0324\n\022Allowe" +
-      "dlabelsEntry\022\013\n\003key\030\001 \001(\t\022\r\n\005value\030\002 \001(\t" +
-      ":\0028\001\"\253\001\n\007Service\022\014\n\004name\030\001 \001(\t\022\017\n\007versio" +
-      "n\030\002 \001(\t\022\016\n\006source\030\003 \001(\t\0220\n\010metadata\030\004 \003(" +
-      "\0132\036.runtime.Service.MetadataEntry\022\016\n\006sta" +
-      "tus\030\005 \001(\005\032/\n\rMetadataEntry\022\013\n\003key\030\001 \001(\t\022" +
-      "\r\n\005value\030\002 \001(\t:\0028\001\"\333\002\n\rCreateOptions\022\017\n\007" +
-      "command\030\001 \003(\t\022\014\n\004args\030\002 \003(\t\022\013\n\003env\030\003 \003(\t" +
-      "\022\016\n\006output\030\004 \001(\t\022\014\n\004type\030\005 \001(\t\022\r\n\005image\030" +
-      "\006 \001(\t\022\021\n\tnamespace\030\007 \001(\t\0224\n\007secrets\030\010 \003(" +
-      "\0132#.runtime.CreateOptions.SecretsEntry\022\022" +
-      "\n\nentrypoint\030\t \001(\t\0224\n\007volumes\030\n \003(\0132#.ru" +
-      "ntime.CreateOptions.VolumesEntry\032.\n\014Secr" +
-      "etsEntry\022\013\n\003key\030\001 \001(\t\022\r\n\005value\030\002 \001(\t:\0028\001" +
-      "\032.\n\014VolumesEntry\022\013\n\003key\030\001 \001(\t\022\r\n\005value\030\002" +
-      " \001(\t:\0028\001\"]\n\rCreateRequest\022#\n\010resource\030\001 " +
-      "\001(\0132\021.runtime.Resource\022\'\n\007options\030\002 \001(\0132" +
-      "\026.runtime.CreateOptions\"\020\n\016CreateRespons" +
-      "e\"P\n\013ReadOptions\022\017\n\007service\030\001 \001(\t\022\017\n\007ver" +
-      "sion\030\002 \001(\t\022\014\n\004type\030\003 \001(\t\022\021\n\tnamespace\030\004 " +
-      "\001(\t\"4\n\013ReadRequest\022%\n\007options\030\001 \001(\0132\024.ru" +
-      "ntime.ReadOptions\"2\n\014ReadResponse\022\"\n\010ser" +
-      "vices\030\001 \003(\0132\020.runtime.Service\"\"\n\rDeleteO" +
-      "ptions\022\021\n\tnamespace\030\001 \001(\t\"]\n\rDeleteReque" +
-      "st\022#\n\010resource\030\001 \001(\0132\021.runtime.Resource\022" +
-      "\'\n\007options\030\002 \001(\0132\026.runtime.DeleteOptions" +
-      "\"\020\n\016DeleteResponse\"6\n\rUpdateOptions\022\021\n\tn" +
-      "amespace\030\001 \001(\t\022\022\n\nentrypoint\030\002 \001(\t\"]\n\rUp" +
-      "dateRequest\022#\n\010resource\030\001 \001(\0132\021.runtime." +
-      "Resource\022\'\n\007options\030\002 \001(\0132\026.runtime.Upda" +
-      "teOptions\"\020\n\016UpdateResponse\" \n\013ListOptio" +
-      "ns\022\021\n\tnamespace\030\001 \001(\t\"4\n\013ListRequest\022%\n\007" +
-      "options\030\001 \001(\0132\024.runtime.ListOptions\"2\n\014L" +
-      "istResponse\022\"\n\010services\030\001 \003(\0132\020.runtime." +
-      "Service\" \n\013LogsOptions\022\021\n\tnamespace\030\001 \001(" +
-      "\t\"s\n\013LogsRequest\022\017\n\007service\030\001 \001(\t\022\016\n\006str" +
-      "eam\030\002 \001(\010\022\r\n\005count\030\003 \001(\003\022\r\n\005since\030\004 \001(\003\022" +
-      "%\n\007options\030\005 \001(\0132\024.runtime.LogsOptions\"\224" +
-      "\001\n\tLogRecord\022\021\n\ttimestamp\030\001 \001(\003\0222\n\010metad" +
-      "ata\030\002 \003(\0132 .runtime.LogRecord.MetadataEn" +
-      "try\022\017\n\007message\030\003 \001(\t\032/\n\rMetadataEntry\022\013\n" +
-      "\003key\030\001 \001(\t\022\r\n\005value\030\002 \001(\t:\0028\001\"@\n\rUploadR" +
-      "equest\022!\n\007service\030\001 \001(\0132\020.runtime.Servic" +
-      "e\022\014\n\004data\030\002 \001(\014\"\034\n\016UploadResponse\022\n\n\002id\030" +
-      "\001 \001(\t\"!\n\021BuildReadResponse\022\014\n\004data\030\001 \001(\014" +
-      "2\255\002\n\007Runtime\022;\n\006Create\022\026.runtime.CreateR" +
-      "equest\032\027.runtime.CreateResponse\"\000\0225\n\004Rea" +
-      "d\022\024.runtime.ReadRequest\032\025.runtime.ReadRe" +
-      "sponse\"\000\022;\n\006Delete\022\026.runtime.DeleteReque" +
-      "st\032\027.runtime.DeleteResponse\"\000\022;\n\006Update\022" +
-      "\026.runtime.UpdateRequest\032\027.runtime.Update" +
-      "Response\"\000\0224\n\004Logs\022\024.runtime.LogsRequest" +
-      "\032\022.runtime.LogRecord\"\0000\0012G\n\006Source\022=\n\006Up" +
-      "load\022\026.runtime.UploadRequest\032\027.runtime.U" +
-      "ploadResponse\"\000(\0012A\n\005Build\0228\n\004Read\022\020.run" +
-      "time.Service\032\032.runtime.BuildReadResponse" +
-      "\"\0000\001B1Z/github.com/micro/micro/v3/proto/" +
-      "runtime;runtimeb\006proto3"
+      "ervice\022-\n\rresourcequota\030\004 \001(\0132\026.runtime." +
+      "ResourceQuota\"\031\n\tNamespace\022\014\n\004name\030\001 \001(\t" +
+      "\"\250\001\n\rNetworkPolicy\022@\n\rallowedlabels\030\001 \003(" +
+      "\0132).runtime.NetworkPolicy.AllowedlabelsE" +
+      "ntry\022\014\n\004name\030\002 \001(\t\022\021\n\tnamespace\030\003 \001(\t\0324\n" +
+      "\022AllowedlabelsEntry\022\013\n\003key\030\001 \001(\t\022\r\n\005valu" +
+      "e\030\002 \001(\t:\0028\001\"z\n\rResourceQuota\022\014\n\004name\030\001 \001" +
+      "(\t\022\021\n\tnamespace\030\002 \001(\t\022$\n\010requests\030\003 \001(\0132" +
+      "\022.runtime.Resources\022\"\n\006limits\030\004 \001(\0132\022.ru" +
+      "ntime.Resources\"B\n\tResources\022\016\n\006Memory\030\001" +
+      " \001(\005\022\013\n\003CPU\030\002 \001(\005\022\030\n\020EphemeralStorage\030\003 " +
+      "\001(\005\"\253\001\n\007Service\022\014\n\004name\030\001 \001(\t\022\017\n\007version" +
+      "\030\002 \001(\t\022\016\n\006source\030\003 \001(\t\0220\n\010metadata\030\004 \003(\013" +
+      "2\036.runtime.Service.MetadataEntry\022\016\n\006stat" +
+      "us\030\005 \001(\005\032/\n\rMetadataEntry\022\013\n\003key\030\001 \001(\t\022\r" +
+      "\n\005value\030\002 \001(\t:\0028\001\"\333\002\n\rCreateOptions\022\017\n\007c" +
+      "ommand\030\001 \003(\t\022\014\n\004args\030\002 \003(\t\022\013\n\003env\030\003 \003(\t\022" +
+      "\016\n\006output\030\004 \001(\t\022\014\n\004type\030\005 \001(\t\022\r\n\005image\030\006" +
+      " \001(\t\022\021\n\tnamespace\030\007 \001(\t\0224\n\007secrets\030\010 \003(\013" +
+      "2#.runtime.CreateOptions.SecretsEntry\022\022\n" +
+      "\nentrypoint\030\t \001(\t\0224\n\007volumes\030\n \003(\0132#.run" +
+      "time.CreateOptions.VolumesEntry\032.\n\014Secre" +
+      "tsEntry\022\013\n\003key\030\001 \001(\t\022\r\n\005value\030\002 \001(\t:\0028\001\032" +
+      ".\n\014VolumesEntry\022\013\n\003key\030\001 \001(\t\022\r\n\005value\030\002 " +
+      "\001(\t:\0028\001\"]\n\rCreateRequest\022#\n\010resource\030\001 \001" +
+      "(\0132\021.runtime.Resource\022\'\n\007options\030\002 \001(\0132\026" +
+      ".runtime.CreateOptions\"\020\n\016CreateResponse" +
+      "\"P\n\013ReadOptions\022\017\n\007service\030\001 \001(\t\022\017\n\007vers" +
+      "ion\030\002 \001(\t\022\014\n\004type\030\003 \001(\t\022\021\n\tnamespace\030\004 \001" +
+      "(\t\"4\n\013ReadRequest\022%\n\007options\030\001 \001(\0132\024.run" +
+      "time.ReadOptions\"2\n\014ReadResponse\022\"\n\010serv" +
+      "ices\030\001 \003(\0132\020.runtime.Service\"\"\n\rDeleteOp" +
+      "tions\022\021\n\tnamespace\030\001 \001(\t\"]\n\rDeleteReques" +
+      "t\022#\n\010resource\030\001 \001(\0132\021.runtime.Resource\022\'" +
+      "\n\007options\030\002 \001(\0132\026.runtime.DeleteOptions\"" +
+      "\020\n\016DeleteResponse\"6\n\rUpdateOptions\022\021\n\tna" +
+      "mespace\030\001 \001(\t\022\022\n\nentrypoint\030\002 \001(\t\"]\n\rUpd" +
+      "ateRequest\022#\n\010resource\030\001 \001(\0132\021.runtime.R" +
+      "esource\022\'\n\007options\030\002 \001(\0132\026.runtime.Updat" +
+      "eOptions\"\020\n\016UpdateResponse\" \n\013ListOption" +
+      "s\022\021\n\tnamespace\030\001 \001(\t\"4\n\013ListRequest\022%\n\007o" +
+      "ptions\030\001 \001(\0132\024.runtime.ListOptions\"2\n\014Li" +
+      "stResponse\022\"\n\010services\030\001 \003(\0132\020.runtime.S" +
+      "ervice\" \n\013LogsOptions\022\021\n\tnamespace\030\001 \001(\t" +
+      "\"s\n\013LogsRequest\022\017\n\007service\030\001 \001(\t\022\016\n\006stre" +
+      "am\030\002 \001(\010\022\r\n\005count\030\003 \001(\003\022\r\n\005since\030\004 \001(\003\022%" +
+      "\n\007options\030\005 \001(\0132\024.runtime.LogsOptions\"\224\001" +
+      "\n\tLogRecord\022\021\n\ttimestamp\030\001 \001(\003\0222\n\010metada" +
+      "ta\030\002 \003(\0132 .runtime.LogRecord.MetadataEnt" +
+      "ry\022\017\n\007message\030\003 \001(\t\032/\n\rMetadataEntry\022\013\n\003" +
+      "key\030\001 \001(\t\022\r\n\005value\030\002 \001(\t:\0028\001\"@\n\rUploadRe" +
+      "quest\022!\n\007service\030\001 \001(\0132\020.runtime.Service" +
+      "\022\014\n\004data\030\002 \001(\014\"\034\n\016UploadResponse\022\n\n\002id\030\001" +
+      " \001(\t\"!\n\021BuildReadResponse\022\014\n\004data\030\001 \001(\0142" +
+      "\255\002\n\007Runtime\022;\n\006Create\022\026.runtime.CreateRe" +
+      "quest\032\027.runtime.CreateResponse\"\000\0225\n\004Read" +
+      "\022\024.runtime.ReadRequest\032\025.runtime.ReadRes" +
+      "ponse\"\000\022;\n\006Delete\022\026.runtime.DeleteReques" +
+      "t\032\027.runtime.DeleteResponse\"\000\022;\n\006Update\022\026" +
+      ".runtime.UpdateRequest\032\027.runtime.UpdateR" +
+      "esponse\"\000\0224\n\004Logs\022\024.runtime.LogsRequest\032" +
+      "\022.runtime.LogRecord\"\0000\0012G\n\006Source\022=\n\006Upl" +
+      "oad\022\026.runtime.UploadRequest\032\027.runtime.Up" +
+      "loadResponse\"\000(\0012A\n\005Build\0228\n\004Read\022\020.runt" +
+      "ime.Service\032\032.runtime.BuildReadResponse\"" +
+      "\0000\001B1Z/github.com/micro/micro/v3/proto/r" +
+      "untime;runtimeb\006proto3"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -21020,7 +23099,7 @@ public final class RuntimeOuterClass {
     internal_static_runtime_Resource_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_runtime_Resource_descriptor,
-        new java.lang.String[] { "Namespace", "Networkpolicy", "Service", });
+        new java.lang.String[] { "Namespace", "Networkpolicy", "Service", "Resourcequota", });
     internal_static_runtime_Namespace_descriptor =
       getDescriptor().getMessageTypes().get(1);
     internal_static_runtime_Namespace_fieldAccessorTable = new
@@ -21039,8 +23118,20 @@ public final class RuntimeOuterClass {
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_runtime_NetworkPolicy_AllowedlabelsEntry_descriptor,
         new java.lang.String[] { "Key", "Value", });
-    internal_static_runtime_Service_descriptor =
+    internal_static_runtime_ResourceQuota_descriptor =
       getDescriptor().getMessageTypes().get(3);
+    internal_static_runtime_ResourceQuota_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
+        internal_static_runtime_ResourceQuota_descriptor,
+        new java.lang.String[] { "Name", "Namespace", "Requests", "Limits", });
+    internal_static_runtime_Resources_descriptor =
+      getDescriptor().getMessageTypes().get(4);
+    internal_static_runtime_Resources_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
+        internal_static_runtime_Resources_descriptor,
+        new java.lang.String[] { "Memory", "CPU", "EphemeralStorage", });
+    internal_static_runtime_Service_descriptor =
+      getDescriptor().getMessageTypes().get(5);
     internal_static_runtime_Service_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_runtime_Service_descriptor,
@@ -21052,7 +23143,7 @@ public final class RuntimeOuterClass {
         internal_static_runtime_Service_MetadataEntry_descriptor,
         new java.lang.String[] { "Key", "Value", });
     internal_static_runtime_CreateOptions_descriptor =
-      getDescriptor().getMessageTypes().get(4);
+      getDescriptor().getMessageTypes().get(6);
     internal_static_runtime_CreateOptions_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_runtime_CreateOptions_descriptor,
@@ -21070,103 +23161,103 @@ public final class RuntimeOuterClass {
         internal_static_runtime_CreateOptions_VolumesEntry_descriptor,
         new java.lang.String[] { "Key", "Value", });
     internal_static_runtime_CreateRequest_descriptor =
-      getDescriptor().getMessageTypes().get(5);
+      getDescriptor().getMessageTypes().get(7);
     internal_static_runtime_CreateRequest_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_runtime_CreateRequest_descriptor,
         new java.lang.String[] { "Resource", "Options", });
     internal_static_runtime_CreateResponse_descriptor =
-      getDescriptor().getMessageTypes().get(6);
+      getDescriptor().getMessageTypes().get(8);
     internal_static_runtime_CreateResponse_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_runtime_CreateResponse_descriptor,
         new java.lang.String[] { });
     internal_static_runtime_ReadOptions_descriptor =
-      getDescriptor().getMessageTypes().get(7);
+      getDescriptor().getMessageTypes().get(9);
     internal_static_runtime_ReadOptions_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_runtime_ReadOptions_descriptor,
         new java.lang.String[] { "Service", "Version", "Type", "Namespace", });
     internal_static_runtime_ReadRequest_descriptor =
-      getDescriptor().getMessageTypes().get(8);
+      getDescriptor().getMessageTypes().get(10);
     internal_static_runtime_ReadRequest_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_runtime_ReadRequest_descriptor,
         new java.lang.String[] { "Options", });
     internal_static_runtime_ReadResponse_descriptor =
-      getDescriptor().getMessageTypes().get(9);
+      getDescriptor().getMessageTypes().get(11);
     internal_static_runtime_ReadResponse_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_runtime_ReadResponse_descriptor,
         new java.lang.String[] { "Services", });
     internal_static_runtime_DeleteOptions_descriptor =
-      getDescriptor().getMessageTypes().get(10);
+      getDescriptor().getMessageTypes().get(12);
     internal_static_runtime_DeleteOptions_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_runtime_DeleteOptions_descriptor,
         new java.lang.String[] { "Namespace", });
     internal_static_runtime_DeleteRequest_descriptor =
-      getDescriptor().getMessageTypes().get(11);
+      getDescriptor().getMessageTypes().get(13);
     internal_static_runtime_DeleteRequest_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_runtime_DeleteRequest_descriptor,
         new java.lang.String[] { "Resource", "Options", });
     internal_static_runtime_DeleteResponse_descriptor =
-      getDescriptor().getMessageTypes().get(12);
+      getDescriptor().getMessageTypes().get(14);
     internal_static_runtime_DeleteResponse_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_runtime_DeleteResponse_descriptor,
         new java.lang.String[] { });
     internal_static_runtime_UpdateOptions_descriptor =
-      getDescriptor().getMessageTypes().get(13);
+      getDescriptor().getMessageTypes().get(15);
     internal_static_runtime_UpdateOptions_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_runtime_UpdateOptions_descriptor,
         new java.lang.String[] { "Namespace", "Entrypoint", });
     internal_static_runtime_UpdateRequest_descriptor =
-      getDescriptor().getMessageTypes().get(14);
+      getDescriptor().getMessageTypes().get(16);
     internal_static_runtime_UpdateRequest_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_runtime_UpdateRequest_descriptor,
         new java.lang.String[] { "Resource", "Options", });
     internal_static_runtime_UpdateResponse_descriptor =
-      getDescriptor().getMessageTypes().get(15);
+      getDescriptor().getMessageTypes().get(17);
     internal_static_runtime_UpdateResponse_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_runtime_UpdateResponse_descriptor,
         new java.lang.String[] { });
     internal_static_runtime_ListOptions_descriptor =
-      getDescriptor().getMessageTypes().get(16);
+      getDescriptor().getMessageTypes().get(18);
     internal_static_runtime_ListOptions_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_runtime_ListOptions_descriptor,
         new java.lang.String[] { "Namespace", });
     internal_static_runtime_ListRequest_descriptor =
-      getDescriptor().getMessageTypes().get(17);
+      getDescriptor().getMessageTypes().get(19);
     internal_static_runtime_ListRequest_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_runtime_ListRequest_descriptor,
         new java.lang.String[] { "Options", });
     internal_static_runtime_ListResponse_descriptor =
-      getDescriptor().getMessageTypes().get(18);
+      getDescriptor().getMessageTypes().get(20);
     internal_static_runtime_ListResponse_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_runtime_ListResponse_descriptor,
         new java.lang.String[] { "Services", });
     internal_static_runtime_LogsOptions_descriptor =
-      getDescriptor().getMessageTypes().get(19);
+      getDescriptor().getMessageTypes().get(21);
     internal_static_runtime_LogsOptions_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_runtime_LogsOptions_descriptor,
         new java.lang.String[] { "Namespace", });
     internal_static_runtime_LogsRequest_descriptor =
-      getDescriptor().getMessageTypes().get(20);
+      getDescriptor().getMessageTypes().get(22);
     internal_static_runtime_LogsRequest_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_runtime_LogsRequest_descriptor,
         new java.lang.String[] { "Service", "Stream", "Count", "Since", "Options", });
     internal_static_runtime_LogRecord_descriptor =
-      getDescriptor().getMessageTypes().get(21);
+      getDescriptor().getMessageTypes().get(23);
     internal_static_runtime_LogRecord_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_runtime_LogRecord_descriptor,
@@ -21178,19 +23269,19 @@ public final class RuntimeOuterClass {
         internal_static_runtime_LogRecord_MetadataEntry_descriptor,
         new java.lang.String[] { "Key", "Value", });
     internal_static_runtime_UploadRequest_descriptor =
-      getDescriptor().getMessageTypes().get(22);
+      getDescriptor().getMessageTypes().get(24);
     internal_static_runtime_UploadRequest_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_runtime_UploadRequest_descriptor,
         new java.lang.String[] { "Service", "Data", });
     internal_static_runtime_UploadResponse_descriptor =
-      getDescriptor().getMessageTypes().get(23);
+      getDescriptor().getMessageTypes().get(25);
     internal_static_runtime_UploadResponse_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_runtime_UploadResponse_descriptor,
         new java.lang.String[] { "Id", });
     internal_static_runtime_BuildReadResponse_descriptor =
-      getDescriptor().getMessageTypes().get(24);
+      getDescriptor().getMessageTypes().get(26);
     internal_static_runtime_BuildReadResponse_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_runtime_BuildReadResponse_descriptor,
