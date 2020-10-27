@@ -80,7 +80,7 @@ func UnexpectedSubcommand(ctx *cli.Context) error {
 }
 
 func UnexpectedCommand(ctx *cli.Context) error {
-	commandName := Command(ctx)
+	commandName := ctx.Args().First()
 	return cli.Exit(fmt.Sprintf("Unrecognized micro command: %s. Please refer to 'micro --help'", commandName), 1)
 }
 
