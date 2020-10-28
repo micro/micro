@@ -144,16 +144,16 @@ having to handcraft libraries for each language.
 browser for any of your services. We've got a http api, gRPC proxy and command line interface but feel like the browser 
 could use some love too.
 
-### Library
+### Framework
 
 One thing we really understood from our time working on go-micro was that the developer experience really matters. We 
 see Go as the dominant language for the cloud and believe most backend services in the cloud will be written in Go. For 
-that reason we continue to include a Service Library which acts as a framework for building your services and accessing 
+that reason we continue to include a Service Framework which acts as a framework for building your services and accessing 
 the underlying systems of the server.
 
-The Service Library provides pre-initialised packages for all of the features of the server and creates a convenient 
+The Service Framework provides pre-initialised packages for all of the features of the server and creates a convenient 
 initialiser for defining your own services starting with `service.New`. A Service has a name, endpoints, contains 
-a server of its own and a client to query other services. The library does enough for you but then attempts to 
+a server of its own and a client to query other services. The framework does enough for you but then attempts to 
 get out of your way so the rest is up to you.
 
 A main package for a Micro service looks something like this
@@ -361,7 +361,7 @@ clients and allow any language to leverage the Micro server.
 
 In the past multi-language clients have been pain stakingly hand crafted and one thing we learned from building a framework, 
 it's incredibly hard to replicate this across languages also. With gRPC we've really found a happy medium of saying, there's 
-a built in service library you can use to write code really elegantly with Go but gRPC allows us to reduce the scope of the 
+a built in service framework you can use to write code really elegantly with Go but gRPC allows us to reduce the scope of the 
 surface area and provide strongly typed clients that can support a different model of development, one that might have 
 more scope for pushing microservices to wide scale adoption in a way that wasn't possible with frameworks.
 
