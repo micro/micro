@@ -14,8 +14,6 @@ import (
 	mudebug "github.com/micro/micro/v3/service/debug"
 	debug "github.com/micro/micro/v3/service/debug/handler"
 	"github.com/micro/micro/v3/service/logger"
-	"github.com/micro/micro/v3/service/model"
-	mumodel "github.com/micro/micro/v3/service/model"
 	"github.com/micro/micro/v3/service/server"
 	"github.com/urfave/cli/v2"
 )
@@ -111,10 +109,6 @@ func (s *Service) Client() client.Client {
 
 func (s *Service) Server() server.Server {
 	return server.DefaultServer
-}
-
-func (s *Service) Model() model.Model {
-	return mumodel.DefaultModel
 }
 
 func (s *Service) String() string {

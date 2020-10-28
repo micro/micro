@@ -60,7 +60,7 @@ Micro services are defined as:
 
 For in-depth material see the [Reference](/reference). This doc will otherwise cover things at a high level.
 
-### Server Architecture
+**Server Architecture**
 
 Below is the architecture of the Micro Server which is composed of a number of independent services. Micro itself 
 is accessed through a HTTP or gRPC API. Micro is runtime agnostic and provides plugin for running on many 
@@ -68,7 +68,7 @@ different architectures whether its local, kubernetes or beyond.
 
 <img src="../images/micro-3.0.png">
 
-### Service Architecture
+**Service Architecture**
 
 A Micro service makes use of a Service Library which provides a Go interface for accessing the services provided 
 by the Micro Server. It also initialises your server to run on the underlying runtime and exposes your services 

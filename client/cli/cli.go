@@ -86,7 +86,7 @@ func init() {
 		},
 		&cli.Command{
 			Name:   "call",
-			Usage:  "Call a service e.g micro call greeter Say.Hello '{\"name\": \"John\"}",
+			Usage:  `Call a service e.g micro call greeter Say.Hello '{"name": "John"}'`,
 			Action: util.Print(callService),
 			Flags: []cli.Flag{
 				&cli.StringFlag{
@@ -112,7 +112,7 @@ func init() {
 		},
 		&cli.Command{
 			Name:   "stream",
-			Usage:  "Create a service stream",
+			Usage:  `Create a service stream e.g. micro stream foo Bar.Baz '{"key": "value"}'`,
 			Action: util.Print(streamService),
 			Flags: []cli.Flag{
 				&cli.StringFlag{
@@ -144,17 +144,17 @@ func init() {
 				},
 				{
 					Name:   "set",
-					Usage:  "Set the environment to use for subsequent commands",
+					Usage:  "Set the environment to use for subsequent commands e.g. micro env set dev",
 					Action: util.Print(setEnv),
 				},
 				{
 					Name:   "add",
-					Usage:  "Add a new environment `micro env add foo 127.0.0.1:8081`",
+					Usage:  "Add a new environment e.g. micro env add foo 127.0.0.1:8081",
 					Action: util.Print(addEnv),
 				},
 				{
 					Name:   "del",
-					Usage:  "Delete an environment from your list",
+					Usage:  "Delete an environment from your list e.g. micro env del foo",
 					Action: util.Print(delEnv),
 				},
 			},

@@ -22,6 +22,7 @@ import (
 	"github.com/micro/micro/v3/service/runtime/local/source/git"
 	"github.com/urfave/cli/v2"
 	"golang.org/x/net/publicsuffix"
+	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
 
@@ -172,8 +173,7 @@ func appendSourceBase(ctx *cli.Context, workDir, source string) string {
 func runService(ctx *cli.Context) error {
 	// we need some args to run
 	if ctx.Args().Len() == 0 {
-		fmt.Println(RunUsage)
-		return nil
+		return cli.ShowSubcommandHelp(ctx)
 	}
 
 	wd, err := os.Getwd()
@@ -303,7 +303,8 @@ func runService(ctx *cli.Context) error {
 	}
 
 	// run the service
-	return runtime.Create(srv, opts...)
+	err = runtime.Create(srv, opts...)
+	return util.CliError(err)
 }
 
 func getGitCredentials(repo string) (string, bool) {
@@ -335,8 +336,7 @@ func getGitCredentials(repo string) (string, bool) {
 func killService(ctx *cli.Context) error {
 	// we need some args to run
 	if ctx.Args().Len() == 0 {
-		fmt.Println(KillUsage)
-		return nil
+		return cli.ShowSubcommandHelp(ctx)
 	}
 
 	name := ctx.Args().Get(0)
@@ -363,18 +363,14 @@ func killService(ctx *cli.Context) error {
 		return err
 	}
 
-	if err := runtime.Delete(service, runtime.DeleteNamespace(ns)); err != nil {
-		return err
-	}
-
-	return nil
+	err = runtime.Delete(service, runtime.DeleteNamespace(ns))
+	return util.CliError(err)
 }
 
 func updateService(ctx *cli.Context) error {
 	// we need some args to run
 	if ctx.Args().Len() == 0 {
-		fmt.Println(RunUsage)
-		return nil
+		return cli.ShowSubcommandHelp(ctx)
 	}
 
 	wd, err := os.Getwd()
@@ -458,7 +454,8 @@ func updateService(ctx *cli.Context) error {
 		opts = append(opts, runtime.UpdateSecret(credentialsKey, gitCreds))
 	}
 
-	return runtime.Update(srv, opts...)
+	err = runtime.Update(srv, opts...)
+	return util.CliError(err)
 }
 
 func getService(ctx *cli.Context) error {
@@ -534,7 +531,7 @@ func getService(ctx *cli.Context) error {
 	// read the service
 	services, err = runtime.Read(readOpts...)
 	if err != nil {
-		return err
+		return util.CliError(err)
 	}
 
 	// make sure we return UNKNOWN when empty string is supplied
@@ -597,8 +594,7 @@ const (
 func getLogs(ctx *cli.Context) error {
 	logger.DefaultLogger.Init(logger.WithFields(map[string]interface{}{"service": "runtime"}))
 	if ctx.Args().Len() == 0 {
-		fmt.Println("Service name is required")
-		return nil
+		return cli.ShowSubcommandHelp(ctx)
 	}
 
 	name := ctx.Args().Get(0)
@@ -647,7 +643,7 @@ func getLogs(ctx *cli.Context) error {
 	logs, err := runtime.Logs(&runtime.Service{Name: name}, options...)
 
 	if err != nil {
-		return err
+		return util.CliError(err)
 	}
 
 	output := ctx.String("output")
@@ -656,8 +652,10 @@ func getLogs(ctx *cli.Context) error {
 		case record, ok := <-logs.Chan():
 			if !ok {
 				if err := logs.Error(); err != nil {
-					fmt.Printf("Error reading logs: %s\n", status.Convert(err).Message())
-					os.Exit(1)
+					if status.Convert(err).Code() == codes.NotFound {
+						return cli.Exit("Service not found", 1)
+					}
+					return util.CliError(fmt.Errorf("Error reading logs: %s\n", status.Convert(err).Message()))
 				}
 				return nil
 			}
