@@ -9,12 +9,12 @@ import (
 
 	"github.com/google/uuid"
 
-	"github.com/micro/go-micro/v3/auth"
-	"github.com/micro/go-micro/v3/util/token"
-	"github.com/micro/go-micro/v3/util/token/basic"
 	authns "github.com/micro/micro/v3/internal/auth/namespace"
+	"github.com/micro/micro/v3/internal/auth/token"
+	"github.com/micro/micro/v3/internal/auth/token/basic"
 	"github.com/micro/micro/v3/internal/namespace"
 	pb "github.com/micro/micro/v3/proto/auth"
+	"github.com/micro/micro/v3/service/auth"
 	"github.com/micro/micro/v3/service/errors"
 	"github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/store"
@@ -44,6 +44,8 @@ type Auth struct {
 
 	namespaces map[string]bool
 	sync.Mutex
+	// Prevent the generation of default accounts
+	DisableAdmin bool
 }
 
 // Init the auth
@@ -59,6 +61,12 @@ func (a *Auth) Init(opts ...auth.Option) {
 }
 
 func (a *Auth) setupDefaultAccount(ns string) error {
+	if ns != namespace.DefaultNamespace {
+		return nil
+	}
+	if a.DisableAdmin {
+		return nil
+	}
 	a.Lock()
 	defer a.Unlock()
 
@@ -269,7 +277,7 @@ func (a *Auth) Token(ctx context.Context, req *pb.TokenRequest, rsp *pb.TokenRes
 	if len(req.RefreshToken) > 0 {
 		accID, err := a.accountIDForRefreshToken(req.Options.Namespace, req.RefreshToken)
 		if err == store.ErrNotFound {
-			return errors.BadRequest("auth.Auth.Token", "Account can't be found for refresh token")
+			return errors.BadRequest("auth.Auth.Token", auth.ErrInvalidToken.Error())
 		} else if err != nil {
 			return errors.InternalServerError("auth.Auth.Token", "Unable to lookup token: %v", err)
 		}

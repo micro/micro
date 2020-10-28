@@ -5,31 +5,33 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"io/ioutil"
+	"os"
 
-	"github.com/micro/go-micro/v3/auth/jwt"
-	"github.com/micro/go-micro/v3/broker"
-	config "github.com/micro/go-micro/v3/config/store"
-	evStore "github.com/micro/go-micro/v3/events/store"
-	"github.com/micro/go-micro/v3/registry"
-	"github.com/micro/go-micro/v3/runtime/kubernetes"
-	"github.com/micro/go-micro/v3/store"
 	"github.com/micro/micro/v3/profile"
+	"github.com/micro/micro/v3/service/auth"
+	"github.com/micro/micro/v3/service/auth/jwt"
+	"github.com/micro/micro/v3/service/broker"
+	"github.com/micro/micro/v3/service/config"
+	storeConfig "github.com/micro/micro/v3/service/config/store"
+	"github.com/micro/micro/v3/service/events"
+	evStore "github.com/micro/micro/v3/service/events/store"
 	"github.com/micro/micro/v3/service/logger"
+	"github.com/micro/micro/v3/service/metrics"
+	"github.com/micro/micro/v3/service/registry"
+	microRuntime "github.com/micro/micro/v3/service/runtime"
+	microBuilder "github.com/micro/micro/v3/service/build"
+	"github.com/micro/micro/v3/service/build/golang"
+	"github.com/micro/micro/v3/service/runtime/kubernetes"
+	"github.com/micro/micro/v3/service/store"
+	"github.com/micro/micro/v3/service/store/s3"
 	"github.com/urfave/cli/v2"
 
-	microAuth "github.com/micro/micro/v3/service/auth"
-	microConfig "github.com/micro/micro/v3/service/config"
-	microEvents "github.com/micro/micro/v3/service/events"
-	microMetrics "github.com/micro/micro/v3/service/metrics"
-	microRuntime "github.com/micro/micro/v3/service/runtime"
-	microStore "github.com/micro/micro/v3/service/store"
-
 	// plugins
-	"github.com/micro/go-plugins/broker/nats/v3"
-	natsStream "github.com/micro/go-plugins/events/stream/nats/v3"
-	metricsPrometheus "github.com/micro/go-plugins/metrics/prometheus/v3"
-	"github.com/micro/go-plugins/registry/etcd/v3"
-	"github.com/micro/go-plugins/store/cockroach/v3"
+	"github.com/micro/micro/plugin/cockroach/v3"
+	"github.com/micro/micro/plugin/etcd/v3"
+	natsBroker "github.com/micro/micro/plugin/nats/broker/v3"
+	natsStream "github.com/micro/micro/plugin/nats/stream/v3"
+	"github.com/micro/micro/plugin/prometheus/v3"
 )
 
 func init() {
@@ -40,34 +42,54 @@ func init() {
 var Profile = &profile.Profile{
 	Name: "platform",
 	Setup: func(ctx *cli.Context) error {
-		microAuth.DefaultAuth = jwt.NewAuth()
+		auth.DefaultAuth = jwt.NewAuth()
 		// the cockroach store will connect immediately so the address must be passed
 		// when the store is created. The cockroach store address contains the location
 		// of certs so it can't be defaulted like the broker and registry.
-		microStore.DefaultStore = cockroach.NewStore(store.Nodes(ctx.String("store_address")))
-		microConfig.DefaultConfig, _ = config.NewConfig(microStore.DefaultStore, "")
-		microRuntime.DefaultRuntime = kubernetes.NewRuntime()
-		profile.SetupBroker(nats.NewBroker(broker.Addrs("nats-cluster")))
+		store.DefaultStore = cockroach.NewStore(store.Nodes(ctx.String("store_address")))
+		config.DefaultConfig, _ = storeConfig.NewConfig(store.DefaultStore, "")
+		profile.SetupBroker(natsBroker.NewBroker(broker.Addrs("nats-cluster")))
 		profile.SetupRegistry(etcd.NewRegistry(registry.Addrs("etcd-cluster")))
 		profile.SetupJWT(ctx)
 		profile.SetupConfigSecretKey(ctx)
 
 		// Set up a default metrics reporter (being careful not to clash with any that have already been set):
-		if !microMetrics.IsSet() {
-			prometheusReporter, err := metricsPrometheus.New()
+		if !metrics.IsSet() {
+			prometheusReporter, err := prometheus.New()
 			if err != nil {
 				return err
 			}
-			microMetrics.SetDefaultMetricsReporter(prometheusReporter)
+			metrics.SetDefaultMetricsReporter(prometheusReporter)
 		}
 
 		var err error
-		microEvents.DefaultStream, err = natsStream.NewStream(natsStreamOpts(ctx)...)
+		events.DefaultStream, err = natsStream.NewStream(natsStreamOpts(ctx)...)
 		if err != nil {
 			logger.Fatalf("Error configuring stream: %v", err)
 		}
 
-		microEvents.DefaultStore = evStore.NewStore(evStore.WithStore(microStore.DefaultStore))
+		// only configure the blob store for the store and runtime services
+		if ctx.Args().Get(1) == "runtime" || ctx.Args().Get(1) == "store" {
+			store.DefaultBlobStore, err = s3.NewBlobStore(
+				s3.Credentials(
+					os.Getenv("MICRO_BLOB_STORE_ACCESS_KEY"),
+					os.Getenv("MICRO_BLOB_STORE_SECRET_KEY"),
+				),
+				s3.Endpoint("minio-cluster:9000"),
+				s3.Region(os.Getenv("MICRO_BLOB_STORE_REGION")),
+				s3.Insecure(),
+			)
+			if err != nil {
+				logger.Fatalf("Error configuring s3 blob store: %v", err)
+			}
+		}
+
+		microRuntime.DefaultRuntime = kubernetes.NewRuntime()
+		microBuilder.DefaultBuilder, err = golang.NewBuilder()
+		if err != nil {
+			logger.Fatalf("Error configuring golang builder: %v", err)
+		}
+		events.DefaultStore = evStore.NewStore(evStore.WithStore(store.DefaultStore))
 		return nil
 	},
 }

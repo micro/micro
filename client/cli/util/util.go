@@ -5,8 +5,10 @@ package util
 import (
 	"encoding/json"
 	"fmt"
-	"os"
+	"regexp"
 	"strings"
+
+	merrors "github.com/micro/micro/v3/service/errors"
 
 	"github.com/micro/micro/v3/internal/config"
 	"github.com/urfave/cli/v2"
@@ -15,14 +17,18 @@ import (
 const (
 	// EnvLocal is a builtin environment, it represents your local `micro server`
 	EnvLocal = "local"
-	// EnvPlatform is a builtin environment, the One True Micro Live(tm) environment.
+	// EnvDev is a builtin staging / dev environment in the cloud
+	EnvDev = "dev"
+	// EnvPlatform is a builtin highly available environment in the cloud,
 	EnvPlatform = "platform"
 )
 
 const (
 	// localProxyAddress is the default proxy address for environment server
 	localProxyAddress = "127.0.0.1:8081"
-	// platformProxyAddress is teh default proxy address for environment platform
+	// devProxyAddress is the address for the proxy server in the dev environment
+	devProxyAddress = "proxy.m3o.dev"
+	// platformProxyAddress is the default proxy address for environment platform
 	platformProxyAddress = "proxy.m3o.com"
 )
 
@@ -48,10 +54,17 @@ var defaultEnvs = map[string]Env{
 	EnvLocal: {
 		Name:         EnvLocal,
 		ProxyAddress: localProxyAddress,
+		Description:  "Local running micro server",
+	},
+	EnvDev: {
+		Name:         EnvDev,
+		ProxyAddress: devProxyAddress,
+		Description:  "Cloud hosted development environment",
 	},
 	EnvPlatform: {
 		Name:         EnvPlatform,
 		ProxyAddress: platformProxyAddress,
+		Description:  "Cloud hosted production environment",
 	},
 }
 
@@ -65,84 +78,84 @@ func IsBuiltInService(command string) bool {
 }
 
 // CLIProxyAddress returns the proxy address which should be set for the client
-func CLIProxyAddress(ctx *cli.Context) string {
+func CLIProxyAddress(ctx *cli.Context) (string, error) {
 	switch ctx.Args().First() {
 	case "new", "server", "help", "env":
-		return ""
+		return "", nil
 	}
 
 	// fix for "micro service [command]", e.g "micro service auth"
 	if ctx.Args().First() == "service" && IsBuiltInService(ctx.Args().Get(1)) {
-		return ""
+		return "", nil
 	}
 
 	// don't set the proxy address on the proxy
 	if ctx.Args().First() == "proxy" {
-		return ""
+		return "", nil
 	}
 
-	addr := GetEnv(ctx).ProxyAddress
-	if !strings.Contains(addr, ":") {
-		return fmt.Sprintf("%v:443", addr)
+	env, err := GetEnv(ctx)
+	if err != nil {
+		return "", err
 	}
-	return addr
+	addr := env.ProxyAddress
+	if !strings.Contains(addr, ":") {
+		return fmt.Sprintf("%v:443", addr), nil
+	}
+	return addr, nil
 }
 
 type Env struct {
 	Name         string
 	ProxyAddress string
+	Description  string
 }
 
-func AddEnv(env Env) {
-	envs := getEnvs()
+func AddEnv(env Env) error {
+	envs, err := getEnvs()
+	if err != nil {
+		return err
+	}
 	envs[env.Name] = env
-	setEnvs(envs)
+	return setEnvs(envs)
 }
 
-func getEnvs() map[string]Env {
+func getEnvs() (map[string]Env, error) {
 	envsJSON, err := config.Get("envs")
 	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+		return nil, fmt.Errorf("Error getting environment: %v", err)
 	}
 	envs := map[string]Env{}
 	if len(envsJSON) > 0 {
 		err := json.Unmarshal([]byte(envsJSON), &envs)
 		if err != nil {
-			fmt.Println(err)
-			os.Exit(1)
+			return nil, err
 		}
 	}
 	for k, v := range defaultEnvs {
 		envs[k] = v
 	}
-	return envs
+	return envs, nil
 }
 
-func setEnvs(envs map[string]Env) {
+func setEnvs(envs map[string]Env) error {
 	envsJSON, err := json.Marshal(envs)
 	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+		return err
 	}
-	err = config.Set("envs", string(envsJSON))
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
+	return config.Set("envs", string(envsJSON))
 }
 
 // GetEnv returns the current selected environment
 // Does not take
-func GetEnv(ctx *cli.Context) Env {
+func GetEnv(ctx *cli.Context) (Env, error) {
 	var envName string
 	if len(ctx.String("env")) > 0 {
 		envName = ctx.String("env")
 	} else {
 		env, err := config.Get("env")
 		if err != nil {
-			fmt.Println(err)
-			os.Exit(1)
+			return Env{}, err
 		}
 		if env == "" {
 			env = EnvLocal
@@ -153,56 +166,78 @@ func GetEnv(ctx *cli.Context) Env {
 	return GetEnvByName(envName)
 }
 
-func GetEnvByName(env string) Env {
-	envs := getEnvs()
-
+func GetEnvByName(env string) (Env, error) {
+	envs, err := getEnvs()
+	if err != nil {
+		return Env{}, err
+	}
 	envir, ok := envs[env]
 	if !ok {
-		fmt.Println(fmt.Sprintf("Env \"%s\" not found. See `micro env` for available environments.", env))
-		os.Exit(1)
+		return Env{}, fmt.Errorf("Env \"%s\" not found. See `micro env` for available environments.", env)
 	}
-	return envir
+	return envir, nil
 }
 
-func GetEnvs() []Env {
-	envs := getEnvs()
-	ret := []Env{defaultEnvs[EnvLocal], defaultEnvs[EnvPlatform]}
-	nonDefaults := []Env{}
+func GetEnvs() ([]Env, error) {
+	envs, err := getEnvs()
+	if err != nil {
+		return nil, err
+	}
+
+	var ret []Env
+
+	// populate the default environments
+	for _, env := range defaultEnvs {
+		ret = append(ret, env)
+	}
+
+	var nonDefaults []Env
+
 	for _, env := range envs {
 		if _, isDefault := defaultEnvs[env.Name]; !isDefault {
 			nonDefaults = append(nonDefaults, env)
 		}
 	}
+
 	// @todo order nondefault envs alphabetically
 	ret = append(ret, nonDefaults...)
-	return ret
+
+	return ret, nil
 }
 
 // SetEnv selects an environment to be used.
-func SetEnv(envName string) {
-	envs := getEnvs()
+func SetEnv(envName string) error {
+	envs, err := getEnvs()
+	if err != nil {
+		return err
+	}
 	_, ok := envs[envName]
 	if !ok {
-		fmt.Printf("Environment '%v' does not exist\n", envName)
-		os.Exit(1)
+		return fmt.Errorf("Environment '%v' does not exist", envName)
 	}
-	config.Set("env", envName)
+	return config.Set("env", envName)
 }
 
 // DelEnv deletes an env from config
-func DelEnv(envName string) {
-	envs := getEnvs()
+func DelEnv(envName string) error {
+	envs, err := getEnvs()
+	if err != nil {
+		return err
+	}
 	_, ok := envs[envName]
 	if !ok {
-		fmt.Printf("Environment '%v' does not exist\n", envName)
-		os.Exit(1)
+		return fmt.Errorf("Environment '%v' does not exist", envName)
 	}
 	delete(envs, envName)
-	setEnvs(envs)
+	return setEnvs(envs)
 }
 
 func IsPlatform(ctx *cli.Context) bool {
-	return GetEnv(ctx).Name == EnvPlatform
+	env, err := GetEnv(ctx)
+	if err == nil && env.Name == EnvPlatform {
+		return true
+	}
+	return false
 }
 
 type Exec func(*cli.Context, []string) ([]byte, error)
@@ -211,12 +246,56 @@ func Print(e Exec) func(*cli.Context) error {
 	return func(c *cli.Context) error {
 		rsp, err := e(c, c.Args().Slice())
 		if err != nil {
-			fmt.Println(err)
-			os.Exit(1)
+			return CliError(err)
 		}
 		if len(rsp) > 0 {
 			fmt.Printf("%s\n", string(rsp))
 		}
 		return nil
 	}
+}
+
+// CliError returns a user friendly message from error. If we can't determine a good one returns an error with code 128
+func CliError(err error) cli.ExitCoder {
+	if err == nil {
+		return nil
+	}
+	// if it's already a cli.ExitCoder we use this
+	cerr, ok := err.(cli.ExitCoder)
+	if ok {
+		return cerr
+	}
+
+	// grpc errors
+	if mname := regexp.MustCompile(`malformed method name: \\?"(\w+)\\?"`).FindStringSubmatch(err.Error()); len(mname) > 0 {
+		return cli.Exit(fmt.Sprintf(`Method name "%s" invalid format. Expecting service.endpoint`, mname[1]), 3)
+	}
+	if service := regexp.MustCompile(`service ([\w\.]+): route not found`).FindStringSubmatch(err.Error()); len(service) > 0 {
+		return cli.Exit(fmt.Sprintf(`Service "%s" not found`, service[1]), 4)
+	}
+	if service := regexp.MustCompile(`unknown service ([\w\.]+)`).FindStringSubmatch(err.Error()); len(service) > 0 {
+		if strings.Contains(service[0], ".") {
+			return cli.Exit(fmt.Sprintf(`Service method "%s" not found`, service[1]), 5)
+		}
+		return cli.Exit(fmt.Sprintf(`Service "%s" not found`, service[1]), 5)
+	}
+	if address := regexp.MustCompile(`Error while dialing dial tcp.*?([\w]+\.[\w:\.]+): `).FindStringSubmatch(err.Error()); len(address) > 0 {
+		return cli.Exit(fmt.Sprintf(`Failed to connect to micro server at %s`, address[1]), 4)
+	}
+
+	merr, ok := err.(*merrors.Error)
+	if !ok {
+		return cli.Exit(err, 128)
+	}
+
+	switch merr.Code {
+	case 408:
+		return cli.Exit("Request timed out", 1)
+	case 401:
+		// TODO check if not signed in, prompt to sign in
+		return cli.Exit("Not authorized to perform this request", 2)
+	}
+
+	// fallback to using the detail from the merr
+	return cli.Exit(merr.Detail, 127)
 }

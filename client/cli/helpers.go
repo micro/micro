@@ -4,14 +4,13 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"strings"
 	"text/tabwriter"
 
-	goclient "github.com/micro/go-micro/v3/client"
-	cbytes "github.com/micro/go-micro/v3/codec/bytes"
+	"github.com/micro/micro/v3/client/cli/util"
 	cliutil "github.com/micro/micro/v3/client/cli/util"
+	cbytes "github.com/micro/micro/v3/internal/codec/bytes"
 	clic "github.com/micro/micro/v3/internal/command"
 	"github.com/micro/micro/v3/service/client"
 	"github.com/urfave/cli/v2"
@@ -26,21 +25,29 @@ func callService(c *cli.Context, args []string) ([]byte, error) {
 }
 
 func getEnv(c *cli.Context, args []string) ([]byte, error) {
-	env := cliutil.GetEnv(c)
+	env, err := util.GetEnv(c)
+	if err != nil {
+		return nil, err
+	}
 	return []byte(env.Name), nil
 }
 
 func setEnv(c *cli.Context, args []string) ([]byte, error) {
 	if len(args) == 0 {
-		return nil, errors.New("name required")
+		return nil, cli.ShowSubcommandHelp(c)
 	}
-	cliutil.SetEnv(args[0])
-	return nil, nil
+	return nil, cliutil.SetEnv(args[0])
 }
 
 func listEnvs(c *cli.Context, args []string) ([]byte, error) {
-	envs := cliutil.GetEnvs()
-	current := cliutil.GetEnv(c)
+	envs, err := cliutil.GetEnvs()
+	if err != nil {
+		return nil, err
+	}
+	current, err := util.GetEnv(c)
+	if err != nil {
+		return nil, err
+	}
 
 	byt := bytes.NewBuffer([]byte{})
 
@@ -56,7 +63,7 @@ func listEnvs(c *cli.Context, args []string) ([]byte, error) {
 		if env.ProxyAddress == "" {
 			env.ProxyAddress = "none"
 		}
-		fmt.Fprintf(w, "%v %v \t %v", prefix, env.Name, env.ProxyAddress)
+		fmt.Fprintf(w, "%v %v \t %v \t\t %v", prefix, env.Name, env.ProxyAddress, env.Description)
 	}
 	w.Flush()
 	return byt.Bytes(), nil
@@ -64,31 +71,29 @@ func listEnvs(c *cli.Context, args []string) ([]byte, error) {
 
 func addEnv(c *cli.Context, args []string) ([]byte, error) {
 	if len(args) == 0 {
-		return nil, errors.New("name required")
+		return nil, cli.ShowSubcommandHelp(c)
 	}
 	if len(args) == 1 {
 		args = append(args, "") // default to no proxy address
 	}
 
-	cliutil.AddEnv(cliutil.Env{
+	return nil, cliutil.AddEnv(cliutil.Env{
 		Name:         args[0],
 		ProxyAddress: args[1],
 	})
-	return nil, nil
 }
 
 func delEnv(c *cli.Context, args []string) ([]byte, error) {
 	if len(args) == 0 {
-		return nil, errors.New("name required")
+		return nil, cli.ShowSubcommandHelp(c)
 	}
-	cliutil.DelEnv(args[0])
-	return nil, nil
+	return nil, cliutil.DelEnv(args[0])
 }
 
 // TODO: stream via HTTP
 func streamService(c *cli.Context, args []string) ([]byte, error) {
 	if len(args) < 2 {
-		return nil, errors.New("require service and endpoint")
+		return nil, cli.ShowSubcommandHelp(c)
 	}
 	service := args[0]
 	endpoint := args[1]
@@ -97,13 +102,19 @@ func streamService(c *cli.Context, args []string) ([]byte, error) {
 	// ignore error
 	json.Unmarshal([]byte(strings.Join(args[2:], " ")), &request)
 
-	req := client.DefaultClient.NewRequest(service, endpoint, request, goclient.WithContentType("application/json"))
-	stream, err := client.Stream(context.Background(), req)
+	req := client.DefaultClient.NewRequest(service, endpoint, request, client.WithContentType("application/json"))
+	stream, err := client.DefaultClient.Stream(context.Background(), req)
 	if err != nil {
+		if cerr := cliutil.CliError(err); cerr.ExitCode() != 128 {
+			return nil, cerr
+		}
 		return nil, fmt.Errorf("error calling %s.%s: %v", service, endpoint, err)
 	}
 
 	if err := stream.Send(request); err != nil {
+		if cerr := cliutil.CliError(err); cerr.ExitCode() != 128 {
+			return nil, cerr
+		}
 		return nil, fmt.Errorf("error sending to %s.%s: %v", service, endpoint, err)
 	}
 
@@ -113,12 +124,18 @@ func streamService(c *cli.Context, args []string) ([]byte, error) {
 		if output == "raw" {
 			rsp := cbytes.Frame{}
 			if err := stream.Recv(&rsp); err != nil {
+				if cerr := cliutil.CliError(err); cerr.ExitCode() != 128 {
+					return nil, cerr
+				}
 				return nil, fmt.Errorf("error receiving from %s.%s: %v", service, endpoint, err)
 			}
 			fmt.Print(string(rsp.Data))
 		} else {
 			var response map[string]interface{}
 			if err := stream.Recv(&response); err != nil {
+				if cerr := cliutil.CliError(err); cerr.ExitCode() != 128 {
+					return nil, cerr
+				}
 				return nil, fmt.Errorf("error receiving from %s.%s: %v", service, endpoint, err)
 			}
 			b, _ := json.MarshalIndent(response, "", "\t")

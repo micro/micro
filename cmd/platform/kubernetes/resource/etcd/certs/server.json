@@ -1,0 +1,20 @@
+{
+    "CN": "etcd-cluster",
+    "hosts": [
+        "etcd-cluster.default.svc.cluster.local",
+        "*.etcd-cluster.default.svc",
+        "*.etcd-cluster-headless.default.svc",
+        "etcd-cluster"
+    ],
+    "key": {
+        "algo": "ecdsa",
+        "size": 256
+    },
+    "names": [
+        {
+            "C": "UK",
+            "O": "Micro"
+        }
+    ]
+}
+

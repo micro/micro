@@ -1,8 +1,8 @@
 package cache
 
 import (
-	"github.com/micro/go-micro/v3/client"
-	"github.com/micro/go-micro/v3/codec"
+	"github.com/micro/micro/v3/internal/codec"
+	"github.com/micro/micro/v3/service/client"
 )
 
 type testRequest struct {

@@ -17,7 +17,6 @@ import (
 	"time"
 
 	"github.com/micro/micro/v3/client/cli/namespace"
-	"github.com/micro/micro/v3/client/cli/token"
 	"github.com/micro/micro/v3/internal/user"
 )
 
@@ -236,6 +235,8 @@ type Options struct {
 	Login bool
 	// Namespace to use, defaults to the test name
 	Namespace string
+	// Prevent generating default account
+	DisableAdmin bool
 }
 
 type Option func(o *Options)
@@ -243,6 +244,12 @@ type Option func(o *Options)
 func WithLogin() Option {
 	return func(o *Options) {
 		o.Login = true
+	}
+}
+
+func WithDisableAdmin() Option {
+	return func(o *Options) {
+		o.DisableAdmin = true
 	}
 }
 
@@ -282,34 +289,12 @@ func newLocalServer(t *T, fname string, opts ...Option) Server {
 	exec.Command("docker", "kill", fname).CombinedOutput()
 	exec.Command("docker", "rm", fname).CombinedOutput()
 
-	// setup JWT keys
-	base64 := "base64 -w0"
-	if runtime.GOOS == "darwin" {
-		base64 = "base64 -b0"
-	}
-	priv := "cat /tmp/sshkey | " + base64
-	privKey, err := exec.Command("bash", "-c", priv).Output()
-	if err != nil {
-		panic(string(privKey))
-	} else if len(strings.TrimSpace(string(privKey))) == 0 {
-		panic("privKey has not been set")
-	}
-
-	pub := "cat /tmp/sshkey.pub | " + base64
-	pubKey, err := exec.Command("bash", "-c", pub).Output()
-	if err != nil {
-		panic(string(pubKey))
-	} else if len(strings.TrimSpace(string(pubKey))) == 0 {
-		panic("pubKey has not been set")
-	}
-
 	// run the server
 	cmd := exec.Command("docker", "run", "--name", fname,
 		fmt.Sprintf("-p=%v:8081", proxyPortnum),
 		fmt.Sprintf("-p=%v:8080", apiPortNum),
-		"-e", "MICRO_AUTH_PRIVATE_KEY="+strings.Trim(string(privKey), "\n"),
-		"-e", "MICRO_AUTH_PUBLIC_KEY="+strings.Trim(string(pubKey), "\n"),
 		"-e", "MICRO_PROFILE=ci",
+		"-e", fmt.Sprintf("MICRO_AUTH_DISABLE_ADMIN=%v", options.DisableAdmin),
 		"micro", "server")
 	configFile := configFile(fname)
 	return &ServerDefault{ServerBase{
@@ -385,7 +370,7 @@ func (s *ServerDefault) Run() error {
 		}
 
 		return out, err
-	}, 20*time.Second); err != nil {
+	}, 90*time.Second); err != nil {
 		return err
 	}
 
@@ -402,7 +387,7 @@ func (s *ServerBase) Close() {
 	os.Remove(s.config)
 
 	// remove the credentials so they aren't reused on next run
-	token.Remove(s.env)
+	s.Command().Exec("logout")
 
 	// reset back to the default namespace
 	namespace.Set("micro", s.env)
@@ -444,6 +429,8 @@ type T struct {
 	values  []interface{}
 	t       *testing.T
 	attempt int
+	waiting bool
+	started time.Time
 }
 
 // Failed indicate whether the test failed
@@ -496,7 +483,10 @@ func doPanic() {
 
 func (t *T) Parallel() {
 	if t.counter == 0 && isParallel {
+		t.waiting = true
 		t.t.Parallel()
+		t.started = time.Now()
+		t.waiting = false
 	}
 	t.counter++
 }
@@ -509,8 +499,8 @@ func New(t *testing.T) *T {
 // TrySuite is designed to retry a TestXX function
 func TrySuite(t *testing.T, f func(t *T), times int) {
 	t.Helper()
+	caller := strings.Split(getFrame(1).Function, ".")[2]
 	if len(testFilter) > 0 {
-		caller := strings.Split(getFrame(1).Function, ".")[2]
 		runit := false
 		for _, test := range testFilter {
 			if test == caller {
@@ -522,24 +512,63 @@ func TrySuite(t *testing.T, f func(t *T), times int) {
 			t.Skip()
 		}
 	}
-
-	tee := New(t)
-	for i := 0; i < times; i++ {
-		wrapF(tee, f)
-		if !tee.failed {
-			return
-		}
-		if i != times-1 {
-			tee.failed = false
-		}
-		tee.attempt++
-		time.Sleep(200 * time.Millisecond)
+	timeout := os.Getenv("MICRO_TEST_TIMEOUT")
+	td, err := time.ParseDuration(timeout)
+	if err != nil {
+		td = 3 * time.Minute
 	}
-	if tee.failed {
-		if len(tee.format) > 0 {
-			t.Fatalf(tee.format, tee.values...)
-		} else {
-			t.Fatal(tee.values...)
+	timeoutCh := time.After(td)
+	done := make(chan bool)
+	start := time.Now()
+	tee := New(t)
+	go func() {
+		for i := 0; i < times; i++ {
+			wrapF(tee, f)
+			if !tee.failed {
+				done <- true
+				return
+			}
+			if i != times-1 {
+				tee.failed = false
+			}
+			tee.attempt++
+			time.Sleep(200 * time.Millisecond)
+		}
+		done <- true
+	}()
+	for {
+		select {
+		case <-timeoutCh:
+			if tee.waiting {
+				// not started yet, let's check back later
+				timeoutCh = time.After(td)
+				continue
+			}
+			if !tee.started.IsZero() && time.Since(tee.started) < td {
+				// not timed out since the actual start time, reset
+				timeoutCh = time.After(td - time.Since(tee.started))
+				continue
+			}
+			_, file, line, _ := runtime.Caller(1)
+			fname := filepath.Base(file)
+			actualStart := start
+			if !tee.started.IsZero() {
+				actualStart = tee.started
+			}
+			t.Fatalf("%v:%v, %v (failed after %v)", fname, line, caller, time.Since(actualStart))
+			return
+		case <-done:
+			if tee.failed {
+				if t.Failed() {
+					return
+				}
+				if len(tee.format) > 0 {
+					t.Fatalf(tee.format, tee.values...)
+				} else {
+					t.Fatal(tee.values...)
+				}
+			}
+			return
 		}
 	}
 }
@@ -569,19 +598,27 @@ func Login(serv Server, t *T, email, password string) error {
 }
 
 func ChangeNamespace(cmd *Command, env, namespace string) error {
-	if _, err := cmd.Exec("user", "config", "set", "namespaces."+env+".all", namespace); err != nil {
+	outp, err := cmd.Exec("user", "config", "get", "namespaces."+env+".all")
+	if err != nil {
+		return err
+	}
+	parts := strings.Split(string(outp), ".")
+	index := map[string]struct{}{}
+	for _, part := range parts {
+		if len(strings.TrimSpace(part)) == 0 {
+			continue
+		}
+		index[part] = struct{}{}
+	}
+	index[namespace] = struct{}{}
+	list := []string{}
+	for k, _ := range index {
+		list = append(list, k)
+	}
+	if _, err := cmd.Exec("user", "config", "set", "namespaces."+env+".all", strings.Join(list, ",")); err != nil {
 		return err
 	}
 	if _, err := cmd.Exec("user", "config", "set", "namespaces."+env+".current", namespace); err != nil {
-		return err
-	}
-	if _, err := cmd.Exec("user", "config", "set", "micro.auth."+env+".token", ""); err != nil {
-		return err
-	}
-	if _, err := cmd.Exec("user", "config", "set", "micro.auth."+env+".refresh-token", ""); err != nil {
-		return err
-	}
-	if _, err := cmd.Exec("user", "config", "set", "micro.auth."+env+".expiry", ""); err != nil {
 		return err
 	}
 	return nil

@@ -1,0 +1,35 @@
+
+statefulset:
+  replicas: 3
+  updateStrategy:
+    type: RollingUpdate
+  podManagementPolicy: Parallel
+  budget:
+    maxUnavailable: 1
+
+  # Anti-affinity rules for scheduling Pods of this StatefulSet.
+  # https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#inter-pod-affinity-and-anti-affinity
+  # You may either toggle options below for default anti-affinity rules,
+  # or specify the whole set of anti-affinity rules instead of them.
+  podAntiAffinity:
+    # Type of anti-affinity rules: either `soft`, `hard` or empty value (which
+    # disables anti-affinity rules).
+    type: soft
+    # Weight for `soft` anti-affinity rules.
+    # Does not apply for other anti-affinity types.
+    weight: 100
+
+
+# Whether to run securely using TLS certificates.
+tls:
+  enabled: true
+  certs:
+    # Bring your own certs scenario. If provided, tls.init section will be ignored.
+    provided: true
+    # Secret name for the client root cert.
+    clientRootSecret: cockroachdb-peer-certs
+    # Secret name for node cert.
+    nodeSecret: cockroachdb-server-certs
+    # Enable if the secret is a dedicated TLS.
+    # TLS secrets are created by cert-mananger, for example.
+    tlsSecret: true

@@ -12,13 +12,12 @@ import (
 
 	"github.com/urfave/cli/v2"
 
-	goclient "github.com/micro/go-micro/v3/client"
-	goregistry "github.com/micro/go-micro/v3/registry"
 	"github.com/micro/micro/v3/client/cli/namespace"
 	"github.com/micro/micro/v3/client/cli/util"
 	proto "github.com/micro/micro/v3/proto/debug"
 	"github.com/micro/micro/v3/service/client"
 	"github.com/micro/micro/v3/service/registry"
+	goregistry "github.com/micro/micro/v3/service/registry"
 )
 
 func quit(c *cli.Context, args []string) ([]byte, error) {
@@ -48,10 +47,14 @@ func help(c *cli.Context, args []string) ([]byte, error) {
 
 func QueryStats(c *cli.Context, args []string) ([]byte, error) {
 	if len(args) == 0 {
-		return nil, errors.New("require service name")
+		return nil, cli.ShowSubcommandHelp(c)
 	}
 
-	ns, err := namespace.Get(util.GetEnv(c).Name)
+	env, err := util.GetEnv(c)
+	if err != nil {
+		return nil, err
+	}
+	ns, err := namespace.Get(env.Name)
 	if err != nil {
 		return nil, err
 	}
@@ -85,7 +88,7 @@ func QueryStats(c *cli.Context, args []string) ([]byte, error) {
 			var err error
 
 			// call using client
-			err = client.DefaultClient.Call(context.Background(), req, rsp, goclient.WithAddress(address))
+			err = client.DefaultClient.Call(context.Background(), req, rsp, client.WithAddress(address))
 
 			var started, uptime, memory, gc string
 			if err == nil {

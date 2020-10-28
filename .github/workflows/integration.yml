@@ -1,4 +1,4 @@
-name: Integration tests
+name: CI Profile
 on: [push]
 
 jobs:
@@ -10,10 +10,10 @@ jobs:
       DOCKER_BUILDKIT: '1'
     steps:
 
-    - name: Set up Go 1.13
+    - name: Set up Go 1.15
       uses: actions/setup-go@v2
       with:
-        go-version: 1.13
+        go-version: 1.15
       id: go
 
     - name: Check out code
@@ -26,9 +26,7 @@ jobs:
         echo "::set-output name=date::$(/bin/date -u "+%Y%m%d")"
       shell: bash
     - name: Enable caching
-      # We would use the official actions/cache@v2, but it doesn't save the cache if the build fails
-      # caches are scoped to a branch but will also check the default branch upon cache miss
-      uses: pat-s/always-upload-cache@v2.0.0 
+      uses: actions/cache@v2
       with:
         path: ~/go/pkg/mod
         key: ${{ runner.os }}-go-int-${{ steps.get-date.outputs.date }}
@@ -46,6 +44,7 @@ jobs:
     - name: Replace CI profile
       id: replace-profile
       run: |
+        go mod edit -replace github.com/micro/micro/plugin/etcd/v3=./plugin/etcd
         go mod edit -replace github.com/micro/micro/profile/ci/v3=./profile/ci
         go mod edit -replace google.golang.org/grpc=google.golang.org/grpc@v1.26.0
 
@@ -67,9 +66,7 @@ jobs:
     # Based on https://dev.to/dtinth/caching-docker-builds-in-github-actions-which-approach-is-the-fastest-a-research-18ei
     - name: Setup docker caching
       id: cache-docker
-      # We would use the official actions/cache@v2, but it doesn't save the cache if the build fails
-      # caches are scoped to a branch but will also check the default branch upon cache miss
-      uses: pat-s/always-upload-cache@v2.0.0
+      uses: actions/cache@v2
       with:
         path: /tmp/docker-registry
         key: docker-registry-int-${{ steps.get-date.outputs.date }}
@@ -83,13 +80,28 @@ jobs:
       run: |
         docker tag micro localhost:5000/micro && docker push localhost:5000/micro || true
 
+    - name: Check out services
+      uses: actions/checkout@v2
+      with:
+        repository: 'micro/services'
+        path: 'test/services'
+
+    - name: Delete go mod
+      working-directory: ./test
+      run: |
+        rm ./services/go.mod
+        rm ./services/go.sum
+        rm -rf ./services/.git
+  
+    - name: Replace paths
+      working-directory: ./test/services
+      run: |
+        grep -rl github.com/micro/services . | xargs sed -i 's/github.com\/micro\/services/github.com\/micro\/micro\/v3\/test\/services/g'
+
     - name: Test micro server
       working-directory: ./test
       env:
         GITHUB_PAT: ${{ secrets.MICRO_ACTIONS_PAT }}
         GITLAB_PAT: ${{ secrets.GITLAB_PAT }}
       run: |
-          # Generate keys for JWT tests
-          ssh-keygen -f /tmp/sshkey -m pkcs8 -q -N ""
-          ssh-keygen -f /tmp/sshkey -e  -m pkcs8 > /tmp/sshkey.pub
-          go clean -testcache && go test --tags=integration -v -run ./... -timeout 20m
+        go clean -testcache && go test --tags=integration -v -run ./... -timeout 20m

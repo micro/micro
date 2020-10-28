@@ -4,14 +4,15 @@ import (
 	"strings"
 	"time"
 
-	"github.com/micro/go-micro/v3/auth"
-	goclient "github.com/micro/go-micro/v3/client"
-	"github.com/micro/go-micro/v3/util/token"
-	"github.com/micro/go-micro/v3/util/token/jwt"
+	"github.com/micro/micro/v3/internal/auth/rules"
+	"github.com/micro/micro/v3/internal/auth/token"
+	"github.com/micro/micro/v3/internal/auth/token/jwt"
 	pb "github.com/micro/micro/v3/proto/auth"
+	"github.com/micro/micro/v3/service/auth"
 	"github.com/micro/micro/v3/service/client"
 	"github.com/micro/micro/v3/service/client/cache"
 	"github.com/micro/micro/v3/service/context"
+	"github.com/micro/micro/v3/service/errors"
 )
 
 // srv is the service implementation of the Auth interface
@@ -139,7 +140,7 @@ func (s *srv) Rules(opts ...auth.RulesOption) ([]*auth.Rule, error) {
 	}
 
 	callOpts := append(s.callOpts(), cache.CallExpiry(time.Second*30))
-	rsp, err := s.rules.List(options.Context, &pb.ListRequest{
+	rsp, err := s.rules.List(context.DefaultContext, &pb.ListRequest{
 		Options: &pb.Options{Namespace: options.Namespace},
 	}, callOpts...)
 	if err != nil {
@@ -169,11 +170,16 @@ func (s *srv) Verify(acc *auth.Account, res *auth.Resource, opts ...auth.VerifyO
 		return err
 	}
 
-	return auth.VerifyAccess(rs, acc, res)
+	return rules.VerifyAccess(rs, acc, res)
 }
 
 // Inspect a token
 func (s *srv) Inspect(token string) (*auth.Account, error) {
+	// validate the request
+	if len(token) == 0 {
+		return nil, auth.ErrInvalidToken
+	}
+
 	// try to decode JWT locally and fall back to srv if an error occurs
 	if len(strings.Split(token, ".")) == 3 && len(s.options.PublicKey) > 0 {
 		return s.token.Inspect(token)
@@ -191,7 +197,7 @@ func (s *srv) Inspect(token string) (*auth.Account, error) {
 }
 
 // Token generation using an account ID and secret
-func (s *srv) Token(opts ...auth.TokenOption) (*auth.Token, error) {
+func (s *srv) Token(opts ...auth.TokenOption) (*auth.AccountToken, error) {
 	options := auth.NewTokenOptions(opts...)
 	if len(options.Issuer) == 0 {
 		options.Issuer = s.options.Issuer
@@ -214,7 +220,7 @@ func (s *srv) Token(opts ...auth.TokenOption) (*auth.Token, error) {
 			return nil, err
 		}
 
-		return &auth.Token{
+		return &auth.AccountToken{
 			Expiry:       token.Expiry,
 			AccessToken:  token.Token,
 			RefreshToken: tok,
@@ -230,15 +236,17 @@ func (s *srv) Token(opts ...auth.TokenOption) (*auth.Token, error) {
 			Namespace: options.Issuer,
 		},
 	}, s.callOpts()...)
-	if err != nil {
+	if err != nil && errors.FromError(err).Detail == auth.ErrInvalidToken.Error() {
+		return nil, auth.ErrInvalidToken
+	} else if err != nil {
 		return nil, err
 	}
 
 	return serializeToken(rsp.Token), nil
 }
 
-func serializeToken(t *pb.Token) *auth.Token {
-	return &auth.Token{
+func serializeToken(t *pb.Token) *auth.AccountToken {
+	return &auth.AccountToken{
 		AccessToken:  t.AccessToken,
 		RefreshToken: t.RefreshToken,
 		Created:      time.Unix(t.Created, 0),
@@ -278,10 +286,10 @@ func serializeRule(r *pb.Rule) *auth.Rule {
 	}
 }
 
-func (s *srv) callOpts() []goclient.CallOption {
-	return []goclient.CallOption{
-		goclient.WithAddress(s.options.Addrs...),
-		goclient.WithAuthToken(),
+func (s *srv) callOpts() []client.CallOption {
+	return []client.CallOption{
+		client.WithAddress(s.options.Addrs...),
+		client.WithAuthToken(),
 	}
 }
 

@@ -9,7 +9,6 @@ import (
 	"syscall"
 	"time"
 
-	cl "github.com/micro/go-micro/v3/client"
 	clinamespace "github.com/micro/micro/v3/client/cli/namespace"
 	clitoken "github.com/micro/micro/v3/client/cli/token"
 	cliutil "github.com/micro/micro/v3/client/cli/util"
@@ -30,11 +29,14 @@ func Run(ctx *cli.Context) error {
 		signupService := pb.NewSignupService("signup", client.DefaultClient)
 		_, err := signupService.Recover(context.DefaultContext, &pb.RecoverRequest{
 			Email: email,
-		}, cl.WithRequestTimeout(10*time.Second))
+		}, client.WithRequestTimeout(10*time.Second))
 		return err
 	}
 
-	env := cliutil.GetEnv(ctx)
+	env, err := cliutil.GetEnv(ctx)
+	if err != nil {
+		return err
+	}
 	reader := bufio.NewReader(os.Stdin)
 
 	// no email specified
@@ -47,13 +49,12 @@ func Run(ctx *cli.Context) error {
 
 	// send a verification email to the user
 	signupService := pb.NewSignupService("signup", client.DefaultClient)
-	_, err := signupService.SendVerificationEmail(context.DefaultContext, &pb.SendVerificationEmailRequest{
+	_, err = signupService.SendVerificationEmail(context.DefaultContext, &pb.SendVerificationEmailRequest{
 		Email: email,
-	}, cl.WithRequestTimeout(10*time.Second))
+	}, client.WithRequestTimeout(10*time.Second))
 	if err != nil {
-		fmt.Printf("Error sending email during signup: %s\n", err)
-		report.Errorf(ctx, "%v: Error sending email during signup: %s", email, err)
-		os.Exit(1)
+		report.Errorf(ctx, "Error sending email to %v during signup: %s", email, err)
+		return err
 	}
 
 	fmt.Print("Enter the OTP sent to your email address: ")
@@ -64,10 +65,10 @@ func Run(ctx *cli.Context) error {
 	rsp, err := signupService.Verify(context.DefaultContext, &pb.VerifyRequest{
 		Email: email,
 		Token: otp,
-	}, cl.WithRequestTimeout(10*time.Second))
+	}, client.WithRequestTimeout(10*time.Second))
 	if err != nil {
-		fmt.Printf("Error verifying: %s\n", err)
-		os.Exit(1)
+		report.Errorf(ctx, "Error verifying %v: %s", email, err)
+		return err
 	}
 
 	isJoining := false
@@ -157,39 +158,35 @@ func Run(ctx *cli.Context) error {
 		PaymentMethodID: paymentMethodID,
 		Secret:          password,
 		Namespace:       signupNamespace,
-	}, cl.WithRequestTimeout(30*time.Second))
+	}, client.WithRequestTimeout(30*time.Second))
 	if err != nil {
-		fmt.Printf("Error completing signup: %s\n", err)
-		os.Exit(1)
+		report.Errorf(ctx, "Error completing signup: %s", err)
+		return err
 	}
 
 	tok := signupRsp.AuthToken
 	if err := clinamespace.Add(signupRsp.Namespace, env.Name); err != nil {
-		fmt.Printf("Error adding namespace: %s\n", err)
 		report.Errorf(ctx, "Error adding namespace: %s", err)
-		os.Exit(1)
+		return err
 	}
 
 	if err := clinamespace.Set(signupRsp.Namespace, env.Name); err != nil {
-		fmt.Printf("Error setting namespace: %s\n", err)
 		report.Errorf(ctx, "Error setting namespace: %s", err)
-		os.Exit(1)
+		return err
 	}
 
-	if err := clitoken.Save(env.Name, &auth.AccountToken{
+	if err := clitoken.Save(ctx, &auth.AccountToken{
 		AccessToken:  tok.AccessToken,
 		RefreshToken: tok.RefreshToken,
 		Expiry:       time.Unix(tok.Expiry, 0),
 	}); err != nil {
-		fmt.Printf("Error saving token: %s\n", err)
 		report.Errorf(ctx, "Error saving token: %s", err)
-		os.Exit(1)
+		return err
 	}
 
 	// the user has now signed up and logged in
 	// @todo save the namespace from the last call and use that.
 	fmt.Println("\nSignup complete! You're now logged in.")
-	report.Success(ctx, email)
 	return nil
 }
 

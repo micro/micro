@@ -10,21 +10,19 @@ import (
 	"strings"
 	"time"
 
-	goclient "github.com/micro/go-micro/v3/client"
-	cbytes "github.com/micro/go-micro/v3/codec/bytes"
-	"github.com/micro/go-micro/v3/metadata"
-	goregistry "github.com/micro/go-micro/v3/registry"
 	"github.com/micro/micro/v3/client/cli/namespace"
 	"github.com/micro/micro/v3/client/cli/util"
+	cbytes "github.com/micro/micro/v3/internal/codec/bytes"
 	proto "github.com/micro/micro/v3/proto/debug"
 	"github.com/micro/micro/v3/service/client"
+	"github.com/micro/micro/v3/service/context/metadata"
 	"github.com/micro/micro/v3/service/registry"
 	"github.com/urfave/cli/v2"
 
 	"github.com/serenize/snaker"
 )
 
-func formatEndpoint(v *goregistry.Value, r int) string {
+func formatEndpoint(v *registry.Value, r int) string {
 	// default format is tabbed plus the value plus new line
 	fparts := []string{"", "%s %s", "\n"}
 	for i := 0; i < r+1; i++ {
@@ -76,18 +74,22 @@ func callContext(c *cli.Context) context.Context {
 
 func GetService(c *cli.Context, args []string) ([]byte, error) {
 	if len(args) == 0 {
-		return nil, errors.New("service required")
+		return nil, cli.ShowSubcommandHelp(c)
 	}
 
-	ns, err := namespace.Get(util.GetEnv(c).Name)
+	env, err := util.GetEnv(c)
+	if err != nil {
+		return nil, err
+	}
+	ns, err := namespace.Get(env.Name)
 	if err != nil {
 		return nil, err
 	}
 
 	var output []string
-	var srv []*goregistry.Service
+	var srv []*registry.Service
 
-	srv, err = registry.DefaultRegistry.GetService(args[0], goregistry.GetDomain(ns))
+	srv, err = registry.DefaultRegistry.GetService(args[0], registry.GetDomain(ns))
 	if err != nil {
 		return nil, err
 	}
@@ -151,15 +153,19 @@ func GetService(c *cli.Context, args []string) ([]byte, error) {
 }
 
 func ListServices(c *cli.Context) ([]byte, error) {
-	var rsp []*goregistry.Service
+	var rsp []*registry.Service
 	var err error
 
-	ns, err := namespace.Get(util.GetEnv(c).Name)
+	env, err := util.GetEnv(c)
+	if err != nil {
+		return nil, err
+	}
+	ns, err := namespace.Get(env.Name)
 	if err != nil {
 		return nil, err
 	}
 
-	rsp, err = registry.DefaultRegistry.ListServices(goregistry.ListDomain(ns))
+	rsp, err = registry.DefaultRegistry.ListServices(registry.ListDomain(ns))
 	if err != nil {
 		return nil, err
 	}
@@ -176,7 +182,7 @@ func ListServices(c *cli.Context) ([]byte, error) {
 
 func Publish(c *cli.Context, args []string) error {
 	if len(args) < 2 {
-		return errors.New("require topic and message e.g micro publish event '{\"hello\": \"world\"}'")
+		return cli.ShowSubcommandHelp(c)
 	}
 	defer func() {
 		time.Sleep(time.Millisecond * 100)
@@ -184,7 +190,7 @@ func Publish(c *cli.Context, args []string) error {
 	topic := args[0]
 	message := args[1]
 
-	ct := func(o *goclient.MessageOptions) {
+	ct := func(o *client.MessageOptions) {
 		o.ContentType = "application/json"
 	}
 
@@ -193,7 +199,7 @@ func Publish(c *cli.Context, args []string) error {
 
 	var msg map[string]interface{}
 	if err := d.Decode(&msg); err != nil {
-		return err
+		return cli.Exit(fmt.Sprintf("Error creating request %s", err), 1)
 	}
 
 	ctx := callContext(c)
@@ -203,7 +209,7 @@ func Publish(c *cli.Context, args []string) error {
 
 func CallService(c *cli.Context, args []string) ([]byte, error) {
 	if len(args) < 2 {
-		return nil, errors.New(`require service and endpoint e.g micro call greeeter Say.Hello '{"name": "john"}'`)
+		return nil, cli.ShowSubcommandHelp(c)
 	}
 
 	var req, service, endpoint string
@@ -226,24 +232,24 @@ func CallService(c *cli.Context, args []string) ([]byte, error) {
 	d.UseNumber()
 
 	if err := d.Decode(&request); err != nil {
-		return nil, err
+		return nil, cli.Exit(fmt.Sprintf("Error creating request %s", err), 1)
 	}
 
 	ctx := callContext(c)
 
-	creq := client.DefaultClient.NewRequest(service, endpoint, request, goclient.WithContentType("application/json"))
+	creq := client.DefaultClient.NewRequest(service, endpoint, request, client.WithContentType("application/json"))
 
-	opts := []goclient.CallOption{goclient.WithAuthToken()}
+	opts := []client.CallOption{client.WithAuthToken()}
 	if timeout := c.String("request_timeout"); timeout != "" {
 		duration, err := time.ParseDuration(timeout)
 		if err != nil {
-			return nil, err
+			return nil, cli.Exit("Invalid format for request_timeout duration. Try 500ms or 5s", 2)
 		}
-		opts = append(opts, goclient.WithRequestTimeout(duration))
+		opts = append(opts, client.WithRequestTimeout(duration))
 	}
 
 	if addr := c.String("address"); len(addr) > 0 {
-		opts = append(opts, goclient.WithAddress(addr))
+		opts = append(opts, client.WithAddress(addr))
 	}
 
 	var err error
@@ -260,14 +266,14 @@ func CallService(c *cli.Context, args []string) ([]byte, error) {
 			var out bytes.Buffer
 			defer out.Reset()
 			if err := json.Indent(&out, rsp, "", "\t"); err != nil {
-				return nil, err
+				return nil, cli.Exit("Error while trying to format the response", 3)
 			}
 			response = out.Bytes()
 		}
 	}
 
 	if err != nil {
-		return nil, fmt.Errorf("error calling %s.%s: %v", service, endpoint, err)
+		return nil, err
 	}
 
 	return response, nil
@@ -278,7 +284,11 @@ func QueryHealth(c *cli.Context, args []string) ([]byte, error) {
 		return nil, errors.New("require service name")
 	}
 
-	ns, err := namespace.Get(util.GetEnv(c).Name)
+	env, err := util.GetEnv(c)
+	if err != nil {
+		return nil, err
+	}
+	ns, err := namespace.Get(env.Name)
 	if err != nil {
 		return nil, err
 	}
@@ -292,7 +302,7 @@ func QueryHealth(c *cli.Context, args []string) ([]byte, error) {
 			context.Background(),
 			req,
 			rsp,
-			goclient.WithAddress(addr),
+			client.WithAddress(addr),
 		)
 		if err != nil {
 			return nil, err
@@ -301,7 +311,7 @@ func QueryHealth(c *cli.Context, args []string) ([]byte, error) {
 	}
 
 	// otherwise get the service and call each instance individually
-	service, err := registry.DefaultRegistry.GetService(args[0], goregistry.GetDomain(ns))
+	service, err := registry.DefaultRegistry.GetService(args[0], registry.GetDomain(ns))
 	if err != nil {
 		return nil, err
 	}
@@ -331,7 +341,7 @@ func QueryHealth(c *cli.Context, args []string) ([]byte, error) {
 				context.Background(),
 				req,
 				rsp,
-				goclient.WithAddress(address),
+				client.WithAddress(address),
 			)
 
 			var status string
