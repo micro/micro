@@ -496,6 +496,8 @@ Go Micro will live on as an independent library under my own personal account on
 it will no longer be supported as an official Micro project. Hopefully it finds second life in 
 some other ways but for now we say goodbye.
 
+If you'd like to upgrade from Go Micro v2 to Micro v3 please see this [upgrade guide](/v2-to-v3-upgrade-guide).
+
 ## Next Steps
 
 You can use the Micro 3.O as a self-hosted open source solution locally, on a VPS or managed kubernetes, 
