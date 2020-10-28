@@ -21,7 +21,7 @@ This reference doc is an in depth guide for the technical details and usage of M
 ## Overview
 
 Micro is a platform for cloud native development. It consists of a server, command line interface and 
-service library which enables you to build, run, manage and consume Micro services. This reference 
+service framework which enables you to build, run, manage and consume Micro services. This reference 
 walks through the majority of Micro in depth and attempts to help guide you through any usage. It 
 should be thought of much like a language spec and will evolve over time.
 
@@ -87,7 +87,7 @@ helm repo remove micro
 ## Server
 
 The micro server is a distributed systems runtime for the Cloud and beyond. It provides the building 
-blocks for distributed systems development as a set of services, command line and service library. 
+blocks for distributed systems development as a set of services, command line and service framework. 
 The server is much like a distributed operating system in the sense that each component runs 
 independent of each other but work together as one system. This composition allows us to use a 
 microservices architecture pattern even for the platform.
@@ -673,7 +673,7 @@ $ micro config get helloworld
 {"hush_number_key":42,"hushkey":"Very secret stuff","someboolkey":true,"somekey":"hello"}
 ```
 
-#### Service Library
+#### Service Framework
 
 It is similarly easy to access and set config values from a service.
 A good example of reading values is [the config example test service](https://github.com/micro/micro/tree/master/test/service/config-example):
