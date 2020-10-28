@@ -11,7 +11,7 @@ summary: Upgrading your project from Go-Micro v2 to Micro v3
 
 ### Introduction
 
-As part of v3 we've simplified the development model and consolidated the micro and go-micro libraries. This means that you, as the developer, only need to worry about leveraging the libraries offered in micro. Users of the now depricated [go-micro](https://github.com/asim/go-micro) framework can follow this guide to upgrade their projects to use Micro v3.
+As part of v3 we've simplified the development model and consolidated the micro and go-micro libraries. This means that you, as the developer, only need to worry about leveraging the libraries offered in micro. Users of the now deprecated [go-micro](https://github.com/asim/go-micro) framework can follow this guide to upgrade their projects to use Micro v3.
 
 ### Service
 
@@ -80,7 +80,7 @@ Other examples of packages which can be imported in this manner are:
 
 ### Running services
 
-Go-micro services interfaced directly with the underlying infrastructure, meaning they could be run using `go run`. In Micro V3 this has been abstracted using the `micro server`. The Micro server provides a level of abstraction to the underlying infrastructure, keeping your services unbound from their dependancies. 
+Go Micro services interfaced directly with the underlying infrastructure, meaning they could be run using `go run`. In Micro V3 this has been abstracted using the `micro server`. The Micro server provides a level of abstraction to the underlying infrastructure, keeping your services unbound from their dependancies. 
 
 In practice, this means you need to be connected to a micro environment when running your services. You can spin up this environment locally using the `micro server` command, or connect to the free dev environment provided by M3O using `micro env set dev`. You can read more about running a service [in our getting started guide](/getting-started#running-a-service).
 
