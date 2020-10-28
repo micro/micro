@@ -130,7 +130,7 @@ func testWrongCommands(t *T) {
 		t.Fatal("Wrong command should error")
 	}
 
-	if !strings.Contains(string(outp), "No command provided to micro") {
+	if !strings.Contains(string(outp), "Unrecognized micro command: asdasd. Please refer to 'micro --help'") {
 		t.Fatalf("Unexpected output for unrecognized command: %v", string(outp))
 	}
 
@@ -143,6 +143,7 @@ func testWrongCommands(t *T) {
 	if !strings.Contains(string(outp), "Unrecognized subcommand for micro config") {
 		t.Fatalf("Unexpected output for unrecognized subcommand: %v", string(outp))
 	}
+
 }
 
 // TestHelps ensures all `micro [command name] help` && `micro [command name] --help` commands are working.
@@ -178,25 +179,5 @@ func testHelps(t *T) {
 			t.Fatal(commandName + " output is wrong: " + string(outp))
 			break
 		}
-	}
-}
-
-func TestUnrecognisedCommand(t *testing.T) {
-	TrySuite(t, testUnrecognisedCommand, retryCount)
-}
-
-func testUnrecognisedCommand(t *T) {
-	serv := NewServer(t)
-	defer serv.Close()
-	if err := serv.Run(); err != nil {
-		return
-	}
-
-	t.Parallel()
-	cmd := serv.Command()
-	outp, _ := cmd.Exec("micro", "foobar")
-	if !strings.Contains(string(outp), "No command provided to micro. Please refer to 'micro --help'") {
-		t.Fatalf("micro foobar does not return correct error %v", string(outp))
-		return
 	}
 }
