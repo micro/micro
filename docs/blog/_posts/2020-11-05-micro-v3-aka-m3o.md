@@ -353,11 +353,11 @@ to provide.
 
 ## Multi Language Clients
 
-One of the key learnings we had from development a Go framework called [go-micro](https://github.com/asim/go-micro) was that 
-we mostly do single language development for each platform such as web, mobile, etc and cloud will go in this same direction 
-with Go but we need to support an ecosystem for consumption of those services and potentially even extending on the fringes 
-where there's no way around using python, java, ruby, rust or javascript. Because Micro's interface is gRPC we code generate 
-gRPC clients and allow any language to leverage the Micro server.
+One of the key learnings we had from the development of a Go framework called [go-micro](https://github.com/asim/go-micro) was 
+that we mostly use a single language for each platform we develop for such as web, mobile and so on. Cloud will be no different. 
+We support Go for the Cloud, but think there needs to be an ecosystem for consumption of Go services and potentially extending beyond
+where there's no way around using python, java, ruby, rust or javascript. Because Micro's interface is gRPC we code generate gRPC 
+clients and allow any language to leverage the Micro server.
 
 In the past multi-language clients have been pain stakingly hand crafted and one thing we learned from building a framework, 
 it's incredibly hard to replicate this across languages also. With gRPC we've really found a happy medium of saying, there's 
