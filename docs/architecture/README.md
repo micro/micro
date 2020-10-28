@@ -50,12 +50,12 @@ Micro is designed as 3 core components:
 
 - Server - A single server which acts as the runtime for a cloud platform
 - Clients - Entrypoints via command line, api gateway and gRPC proxy/sdks
-- Library - A Go service library specifically designed to write Micro services
+- Framework - A Go framework specifically designed for writing microservices
 
 Micro services are defined as:
 
 - Domain Driven - APIs are written in protobuf format and act as the API contract for the service
-- Engineered by Design - Written using the micro service library so that they employ a standard model
+- Engineered by Design - Written using the micro service framework so that they employ a standard model
 - Reusable building blocks - Each service acts as a building block for the next. In this model, everything is a service
 
 For in-depth material see the [Reference](/reference). This doc will otherwise cover things at a high level.
@@ -70,7 +70,7 @@ different architectures whether its local, kubernetes or beyond.
 
 **Service Architecture**
 
-A Micro service makes use of a Service Library which provides a Go interface for accessing the services provided 
+A Micro service makes use of a Go Service Framework which provides Go interfaces for accessing the services provided 
 by the Micro Server. It also initialises your server to run on the underlying runtime and exposes your services 
 via a gRPC server. Micro makes is so all you have to think about is the business logic. 
 
@@ -108,17 +108,17 @@ Eventually they will be published to various package managers but for now are al
 the protos defined for each core service within Micro, enabling multi-language access. We do not assume services to be built 
 multi-language but consumption of Micro and services may extend outward.
 
-## Library
+## Framework
 
-The Go service library is a core piece which comes from the original go-micro framework started in 2015. This framework offered 
+The Go service framework is a core piece which comes from the original go-micro framework started in 2015. This framework offered 
 core distributed systems primitives as Go interfaces and made them pluggable. With its complexity and overlap with Micro we 
-decided the best thing was to merge the two and create a Service Library within Micro to define the defacto standard for building 
-Micro Services in Go. The service library provides pluggable abstractions with pre-initialised defaults. The developer 
-will import and use any of these libraries without any initialisation, they in turn speak to the micro server or basically 
-the core services via gRPC. 
+decided the best thing was to merge the two and create a Service Framework within Micro to define the defacto standard for building 
+Micro Services in Go. The framework provides pluggable abstractions with pre-initialised defaults. The developer 
+will import and use any of the packageswithin the framework without any initialisation, they in turn speak to the micro server 
+or basically the core services via gRPC. 
 
 For the developer, this is their main point of interaction when writing code. We employ a build, run, manage philosophy where 
-build actually starts with putting something in the hands of the developer. Import the service library, start writing code, 
+build actually starts with putting something in the hands of the developer. Import the framework, start writing code, 
 import various packages as needed when you have to get config, check auth, store key-value data. Then run your service using 
 Micro itself. The server abstracts away the infra, the service is built to run on Micro and everything else is taken care of.
 
@@ -181,6 +181,6 @@ environment for development to be used in a real world context and for productio
 
 - Server - the micro server which encapsulates infrastructure and distributed systems concerns
 - Clients - entrypoints for accessing the server and services run by Micro
-- Library - the Go service library used to write Micro services
+- Framework - the Go service framework used to write Micro services
 - Environment - an instance of the micro service running locally or in a remote environment
 - Namespaces - isolated grouping of resources and multi-tenancy as a concept across Micro

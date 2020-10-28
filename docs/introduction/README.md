@@ -54,7 +54,7 @@ Micro includes:
 - HTTP API Gateway
 - gRPC Identity Proxy
 
-And many more features. Micro is packed with a CLI interface and a Service Library used to write your applications.
+And many more features. Micro is packed with a CLI interface and a Service Framework used to write your applications.
 
 ## Development
 
@@ -67,7 +67,7 @@ would be defined as independent services. These as Micro services which do one t
 network or via pubsub messaging where necessary.
 
 Micro is built with this Service development model in mind which is why the underlying platform defines the primitives required 
-to write those along with accessing them from external means. Micro includes a Go service library that makes it super 
+to write those along with accessing them from external means. Micro includes a Go service framework that makes it super 
 simple to get started fast.
 
 ## Cloud Services
