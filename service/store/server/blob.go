@@ -5,15 +5,15 @@ import (
 	"context"
 	"io"
 
-	gostore "github.com/micro/go-micro/v3/store"
 	authns "github.com/micro/micro/v3/internal/auth/namespace"
 	"github.com/micro/micro/v3/internal/namespace"
 	pb "github.com/micro/micro/v3/proto/store"
 	"github.com/micro/micro/v3/service/errors"
 	"github.com/micro/micro/v3/service/store"
+	gostore "github.com/micro/micro/v3/service/store"
 )
 
-const bufferSize = 100
+const bufferSize = 1024
 
 type blobHandler struct{}
 

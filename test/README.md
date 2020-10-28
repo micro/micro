@@ -19,9 +19,10 @@ Key points:
 
 Although the tests run in docker, the containers and envs are named so you can easily interact with them. Some useful tricks:
 
-First, we have to build a local docker image:
+First, we have to build a local docker image and check out the services repo:
 ```
 bash scripts/test-docker.sh
+bash scripts/checkout-services.sh
 ```
 
 To start a test, cd into the `test` folder and then:
@@ -83,7 +84,7 @@ To run the k8s integration tests locally you need to first install the pre-reqs:
 The tests can then be run:
 1. `kind create cluster` - create the cluster
 2. `./scripts/kind-launch.sh` - install micro in to the cluster
-3. `cd test && go clean -testcache && IN_TRAVIS_CI=yes go test --tags=integration,kind -v ./...` - run the tests
+3. `cd test && go clean -testcache && IN_TRAVIS_CI=yes go test --tags=integration,kind -v -run ./...` - run the tests
 
 #### Adding more tests
 Not all integration tests use a server so only a subset of the tests need to run against our Kind cluster. New tests should be defined in the usual way and then added to the `testFilter` slice defined near the top of [kind.go](kind.go). This is the list of all tests to be run against Kind. 

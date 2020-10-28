@@ -6,38 +6,35 @@ import (
 	"os"
 	"strings"
 
-	golog "github.com/micro/go-micro/v3/logger"
-	prox "github.com/micro/go-micro/v3/proxy"
-	"github.com/micro/go-micro/v3/proxy/grpc"
-	"github.com/micro/go-micro/v3/proxy/http"
-	"github.com/micro/go-micro/v3/proxy/mucp"
-	rt "github.com/micro/go-micro/v3/runtime"
-	"github.com/micro/go-micro/v3/server"
 	"github.com/micro/micro/v3/cmd"
 	"github.com/micro/micro/v3/plugin"
 	"github.com/micro/micro/v3/service"
-	log "github.com/micro/micro/v3/service/logger"
+	"github.com/micro/micro/v3/service/logger"
+	prox "github.com/micro/micro/v3/service/proxy"
+	"github.com/micro/micro/v3/service/proxy/grpc"
+	"github.com/micro/micro/v3/service/proxy/http"
+	"github.com/micro/micro/v3/service/proxy/mucp"
 	muruntime "github.com/micro/micro/v3/service/runtime"
+	rt "github.com/micro/micro/v3/service/runtime"
+	"github.com/micro/micro/v3/service/server"
 	ccli "github.com/urfave/cli/v2"
 
 	// services
-	api "github.com/micro/micro/v3/service/api"
+	api "github.com/micro/micro/v3/service/api/server"
 	auth "github.com/micro/micro/v3/service/auth/server"
 	broker "github.com/micro/micro/v3/service/broker/server"
 	config "github.com/micro/micro/v3/service/config/server"
 	events "github.com/micro/micro/v3/service/events/server"
 	network "github.com/micro/micro/v3/service/network/server"
-	proxy "github.com/micro/micro/v3/service/proxy"
+	proxy "github.com/micro/micro/v3/service/proxy/server"
 	registry "github.com/micro/micro/v3/service/registry/server"
 	router "github.com/micro/micro/v3/service/router/server"
 	runtime "github.com/micro/micro/v3/service/runtime/server"
 	store "github.com/micro/micro/v3/service/store/server"
-	updater "github.com/micro/micro/v3/service/updater"
 
 	// misc commands
 	"github.com/micro/micro/v3/service/handler/exec"
 	"github.com/micro/micro/v3/service/handler/file"
-	"github.com/micro/micro/v3/service/health"
 )
 
 // Run starts a micro service sidecar to encapsulate any app
@@ -120,7 +117,7 @@ func Run(ctx *ccli.Context) {
 		}()
 	}
 
-	log.Infof("Service [%s] Serving %s at endpoint %s\n", p.String(), name, endpoint)
+	logger.Infof("Service [%s] Serving %s at endpoint %s\n", p.String(), name, endpoint)
 
 	// new service
 	srv := service.New(opts...)
@@ -152,6 +149,7 @@ var srvCommands = []srvCommand{
 	{
 		Name:    "auth",
 		Command: auth.Run,
+		Flags:   auth.Flags,
 	},
 	{
 		Name:    "broker",
@@ -165,11 +163,6 @@ var srvCommands = []srvCommand{
 	{
 		Name:    "events",
 		Command: events.Run,
-	},
-	{
-		Name:    "health",
-		Command: health.Run,
-		Flags:   health.Flags,
 	},
 	{
 		Name:    "network",
@@ -199,11 +192,6 @@ var srvCommands = []srvCommand{
 		Name:    "store",
 		Command: store.Run,
 	},
-	{
-		Name:    "updater",
-		Command: updater.Run,
-		Flags:   updater.Flags,
-	},
 }
 
 func init() {
@@ -211,8 +199,8 @@ func init() {
 	// set the scope of the variable
 	newAction := func(c srvCommand) func(ctx *ccli.Context) error {
 		return func(ctx *ccli.Context) error {
-			// configure the logger
-			log.DefaultLogger.Init(golog.WithFields(map[string]interface{}{"service": c.Name}))
+			// configure the loggerger
+			logger.DefaultLogger.Init(logger.WithFields(map[string]interface{}{"service": c.Name}))
 
 			// run the service
 			c.Command(ctx)

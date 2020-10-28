@@ -5,8 +5,10 @@ package util
 import (
 	"encoding/json"
 	"fmt"
-	"os"
+	"regexp"
 	"strings"
+
+	merrors "github.com/micro/micro/v3/service/errors"
 
 	"github.com/micro/micro/v3/internal/config"
 	"github.com/urfave/cli/v2"
@@ -15,14 +17,18 @@ import (
 const (
 	// EnvLocal is a builtin environment, it represents your local `micro server`
 	EnvLocal = "local"
-	// EnvPlatform is a builtin environment, the One True Micro Live(tm) environment.
+	// EnvDev is a builtin staging / dev environment in the cloud
+	EnvDev = "dev"
+	// EnvPlatform is a builtin highly available environment in the cloud,
 	EnvPlatform = "platform"
 )
 
 const (
 	// localProxyAddress is the default proxy address for environment server
 	localProxyAddress = "127.0.0.1:8081"
-	// platformProxyAddress is teh default proxy address for environment platform
+	// devProxyAddress is the address for the proxy server in the dev environment
+	devProxyAddress = "proxy.m3o.dev"
+	// platformProxyAddress is the default proxy address for environment platform
 	platformProxyAddress = "proxy.m3o.com"
 )
 
@@ -48,10 +54,17 @@ var defaultEnvs = map[string]Env{
 	EnvLocal: {
 		Name:         EnvLocal,
 		ProxyAddress: localProxyAddress,
+		Description:  "Local running micro server",
+	},
+	EnvDev: {
+		Name:         EnvDev,
+		ProxyAddress: devProxyAddress,
+		Description:  "Cloud hosted development environment",
 	},
 	EnvPlatform: {
 		Name:         EnvPlatform,
 		ProxyAddress: platformProxyAddress,
+		Description:  "Cloud hosted production environment",
 	},
 }
 
@@ -95,6 +108,7 @@ func CLIProxyAddress(ctx *cli.Context) (string, error) {
 type Env struct {
 	Name         string
 	ProxyAddress string
+	Description  string
 }
 
 func AddEnv(env Env) error {
@@ -169,15 +183,25 @@ func GetEnvs() ([]Env, error) {
 	if err != nil {
 		return nil, err
 	}
-	ret := []Env{defaultEnvs[EnvLocal], defaultEnvs[EnvPlatform]}
-	nonDefaults := []Env{}
+
+	var ret []Env
+
+	// populate the default environments
+	for _, env := range defaultEnvs {
+		ret = append(ret, env)
+	}
+
+	var nonDefaults []Env
+
 	for _, env := range envs {
 		if _, isDefault := defaultEnvs[env.Name]; !isDefault {
 			nonDefaults = append(nonDefaults, env)
 		}
 	}
+
 	// @todo order nondefault envs alphabetically
 	ret = append(ret, nonDefaults...)
+
 	return ret, nil
 }
 
@@ -189,7 +213,7 @@ func SetEnv(envName string) error {
 	}
 	_, ok := envs[envName]
 	if !ok {
-		return fmt.Errorf("Environment '%v' does not exist\n", envName)
+		return fmt.Errorf("Environment '%v' does not exist", envName)
 	}
 	return config.Set("env", envName)
 }
@@ -202,7 +226,7 @@ func DelEnv(envName string) error {
 	}
 	_, ok := envs[envName]
 	if !ok {
-		return fmt.Errorf("Environment '%v' does not exist\n", envName)
+		return fmt.Errorf("Environment '%v' does not exist", envName)
 	}
 	delete(envs, envName)
 	return setEnvs(envs)
@@ -222,12 +246,56 @@ func Print(e Exec) func(*cli.Context) error {
 	return func(c *cli.Context) error {
 		rsp, err := e(c, c.Args().Slice())
 		if err != nil {
-			fmt.Println(err)
-			os.Exit(1)
+			return CliError(err)
 		}
 		if len(rsp) > 0 {
 			fmt.Printf("%s\n", string(rsp))
 		}
 		return nil
 	}
+}
+
+// CliError returns a user friendly message from error. If we can't determine a good one returns an error with code 128
+func CliError(err error) cli.ExitCoder {
+	if err == nil {
+		return nil
+	}
+	// if it's already a cli.ExitCoder we use this
+	cerr, ok := err.(cli.ExitCoder)
+	if ok {
+		return cerr
+	}
+
+	// grpc errors
+	if mname := regexp.MustCompile(`malformed method name: \\?"(\w+)\\?"`).FindStringSubmatch(err.Error()); len(mname) > 0 {
+		return cli.Exit(fmt.Sprintf(`Method name "%s" invalid format. Expecting service.endpoint`, mname[1]), 3)
+	}
+	if service := regexp.MustCompile(`service ([\w\.]+): route not found`).FindStringSubmatch(err.Error()); len(service) > 0 {
+		return cli.Exit(fmt.Sprintf(`Service "%s" not found`, service[1]), 4)
+	}
+	if service := regexp.MustCompile(`unknown service ([\w\.]+)`).FindStringSubmatch(err.Error()); len(service) > 0 {
+		if strings.Contains(service[0], ".") {
+			return cli.Exit(fmt.Sprintf(`Service method "%s" not found`, service[1]), 5)
+		}
+		return cli.Exit(fmt.Sprintf(`Service "%s" not found`, service[1]), 5)
+	}
+	if address := regexp.MustCompile(`Error while dialing dial tcp.*?([\w]+\.[\w:\.]+): `).FindStringSubmatch(err.Error()); len(address) > 0 {
+		return cli.Exit(fmt.Sprintf(`Failed to connect to micro server at %s`, address[1]), 4)
+	}
+
+	merr, ok := err.(*merrors.Error)
+	if !ok {
+		return cli.Exit(err, 128)
+	}
+
+	switch merr.Code {
+	case 408:
+		return cli.Exit("Request timed out", 1)
+	case 401:
+		// TODO check if not signed in, prompt to sign in
+		return cli.Exit("Not authorized to perform this request", 2)
+	}
+
+	// fallback to using the detail from the merr
+	return cli.Exit(merr.Detail, 127)
 }

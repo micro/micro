@@ -13,34 +13,30 @@ import (
 	"strings"
 	"time"
 
-	"github.com/micro/go-micro/v3/broker"
-	"github.com/micro/go-micro/v3/client"
-	config "github.com/micro/go-micro/v3/config/store"
-	"github.com/micro/go-micro/v3/server"
-	"github.com/micro/go-micro/v3/store"
-
-	"github.com/micro/go-micro/v3/auth"
-	"github.com/micro/go-micro/v3/registry"
 	"github.com/micro/micro/v3/client/cli/util"
 	uconf "github.com/micro/micro/v3/internal/config"
 	"github.com/micro/micro/v3/internal/helper"
 	"github.com/micro/micro/v3/internal/network"
 	"github.com/micro/micro/v3/internal/report"
 	_ "github.com/micro/micro/v3/internal/usage"
+	"github.com/micro/micro/v3/internal/user"
 	"github.com/micro/micro/v3/internal/wrapper"
 	"github.com/micro/micro/v3/plugin"
 	"github.com/micro/micro/v3/profile"
+	"github.com/micro/micro/v3/service/auth"
+	"github.com/micro/micro/v3/service/broker"
+	"github.com/micro/micro/v3/service/client"
+	"github.com/micro/micro/v3/service/config"
 	configCli "github.com/micro/micro/v3/service/config/client"
+	storeConf "github.com/micro/micro/v3/service/config/store"
 	"github.com/micro/micro/v3/service/logger"
+	"github.com/micro/micro/v3/service/registry"
+	"github.com/micro/micro/v3/service/server"
+	"github.com/micro/micro/v3/service/store"
 	"github.com/urfave/cli/v2"
 
-	muauth "github.com/micro/micro/v3/service/auth"
-	mubroker "github.com/micro/micro/v3/service/broker"
-	muclient "github.com/micro/micro/v3/service/client"
-	muconfig "github.com/micro/micro/v3/service/config"
 	muregistry "github.com/micro/micro/v3/service/registry"
 	muruntime "github.com/micro/micro/v3/service/runtime"
-	muserver "github.com/micro/micro/v3/service/server"
 	mustore "github.com/micro/micro/v3/service/store"
 )
 
@@ -229,6 +225,44 @@ var (
 
 func init() {
 	rand.Seed(time.Now().Unix())
+
+	// configure defaults for all packages
+	setupDefaults()
+}
+
+func action(c *cli.Context) error {
+	if c.Args().Len() > 0 {
+		// if an executable is available with the name of
+		// the command, execute it with the arguments from
+		// index 1 on.
+		v, err := exec.LookPath("micro-" + c.Args().First())
+		if err == nil {
+			ce := exec.Command(v, c.Args().Slice()[1:]...)
+			ce.Stdout = os.Stdout
+			ce.Stderr = os.Stderr
+			return ce.Run()
+		}
+
+		// lookup the service, e.g. "micro config set" would
+		// firstly check to see if the service, e.g. config
+		// exists within the current namespace, then it would
+		// execute the Config.Set RPC, setting the flags in the
+		// request.
+		if srv, ns, err := lookupService(c); err != nil {
+			return util.CliError(err)
+		} else if srv != nil && shouldRenderHelp(c) {
+			return cli.Exit(formatServiceUsage(srv, c), 1)
+		} else if srv != nil {
+			err := callService(srv, ns, c)
+			return util.CliError(err)
+		}
+
+		// srv == nil
+		return helper.UnexpectedCommand(c)
+
+	}
+
+	return helper.MissingCommand(c)
 }
 
 func New(opts ...Option) *command {
@@ -268,13 +302,12 @@ func (c *command) Options() Options {
 
 // Before is executed before any subcommand
 func (c *command) Before(ctx *cli.Context) error {
-	// check for the latest release
 	if v := ctx.Args().First(); len(v) > 0 {
 		switch v {
 		case "service", "server":
 			// do nothing
 		default:
-			// otherwise check
+			// check for the latest release
 			// TODO: write a local file to detect
 			// when we last checked so we don't do it often
 			updated, err := confirmAndSelfUpdate(ctx)
@@ -342,32 +375,29 @@ func (c *command) Before(ctx *cli.Context) error {
 		}
 	}
 	if len(proxy) > 0 {
-		muclient.DefaultClient.Init(client.Proxy(proxy))
+		client.DefaultClient.Init(client.Proxy(proxy))
 	}
 
 	// use the internal network lookup
-	muclient.DefaultClient.Init(
+	client.DefaultClient.Init(
 		client.Lookup(network.Lookup),
 	)
 
 	// wrap the client
-	muclient.DefaultClient = wrapper.AuthClient(muclient.DefaultClient)
-	muclient.DefaultClient = wrapper.CacheClient(muclient.DefaultClient)
-	muclient.DefaultClient = wrapper.TraceCall(muclient.DefaultClient)
-	muclient.DefaultClient = wrapper.FromService(muclient.DefaultClient)
-	muclient.DefaultClient = wrapper.LogClient(muclient.DefaultClient)
+	client.DefaultClient = wrapper.AuthClient(client.DefaultClient)
+	client.DefaultClient = wrapper.CacheClient(client.DefaultClient)
+	client.DefaultClient = wrapper.TraceCall(client.DefaultClient)
+	client.DefaultClient = wrapper.FromService(client.DefaultClient)
+	client.DefaultClient = wrapper.LogClient(client.DefaultClient)
 
 	// wrap the server
-	muserver.DefaultServer.Init(
+	server.DefaultServer.Init(
 		server.WrapHandler(wrapper.AuthHandler()),
 		server.WrapHandler(wrapper.TraceHandler()),
 		server.WrapHandler(wrapper.HandlerStats()),
 		server.WrapHandler(wrapper.LogHandler()),
 		server.WrapHandler(wrapper.MetricsHandler()),
 	)
-
-	// initialize the server with the namespace so it knows which domain to register in
-	muserver.DefaultServer.Init(server.Namespace(ctx.String("namespace")))
 
 	// setup auth
 	authOpts := []auth.Option{}
@@ -383,14 +413,37 @@ func (c *command) Before(ctx *cli.Context) error {
 		))
 	}
 
-	if len(ctx.String("auth_public_key")) > 0 {
+	// load the jwt private and public keys, in the case of the server we want to generate them if not
+	// present. The server will inject these creds into the core services, if the services generated
+	// the credentials themselves then they wouldn't match
+	if len(ctx.String("auth_public_key")) > 0 || len(ctx.String("auth_private_key")) > 0 {
 		authOpts = append(authOpts, auth.PublicKey(ctx.String("auth_public_key")))
-	}
-	if len(ctx.String("auth_private_key")) > 0 {
 		authOpts = append(authOpts, auth.PrivateKey(ctx.String("auth_private_key")))
+	} else if ctx.Args().First() == "server" || ctx.Args().First() == "service" {
+		privKey, pubKey, err := user.GetJWTCerts()
+		if err != nil {
+			logger.Fatalf("Error getting keys: %v", err)
+		}
+		authOpts = append(authOpts, auth.PublicKey(string(pubKey)), auth.PrivateKey(string(privKey)))
 	}
 
-	muauth.DefaultAuth.Init(authOpts...)
+	auth.DefaultAuth.Init(authOpts...)
+
+	// setup auth credentials, use local credentials for the CLI and injected creds
+	// for the service.
+	var err error
+	if c.service {
+		err = setupAuthForService()
+	} else {
+		err = setupAuthForCLI(ctx)
+	}
+	if err != nil {
+		logger.Fatalf("Error setting up auth: %v", err)
+	}
+	go refreshAuthToken()
+
+	// initialize the server with the namespace so it knows which domain to register in
+	server.DefaultServer.Init(server.Namespace(ctx.String("namespace")))
 
 	// setup registry
 	registryOpts := []registry.Option{}
@@ -449,8 +502,11 @@ func (c *command) Before(ctx *cli.Context) error {
 		cfg := &tls.Config{Certificates: []tls.Certificate{cert}, RootCAs: caCertPool}
 		brokerOpts = append(brokerOpts, broker.TLSConfig(cfg))
 	}
-	if err := mubroker.DefaultBroker.Init(brokerOpts...); err != nil {
+	if err := broker.DefaultBroker.Init(brokerOpts...); err != nil {
 		logger.Fatalf("Error configuring broker: %v", err)
+	}
+	if err := broker.DefaultBroker.Connect(); err != nil {
+		logger.Fatalf("Error connecting to broker: %v", err)
 	}
 
 	// Setup runtime. This is a temporary fix to trigger the runtime to recreate
@@ -460,7 +516,7 @@ func (c *command) Before(ctx *cli.Context) error {
 	}
 
 	// Setup store options
-	storeOpts := []store.Option{}
+	storeOpts := []store.StoreOption{}
 	if len(ctx.String("store_address")) > 0 {
 		storeOpts = append(storeOpts, store.Nodes(strings.Split(ctx.String("store_address"), ",")...))
 	}
@@ -475,37 +531,22 @@ func (c *command) Before(ctx *cli.Context) error {
 	}
 
 	// set the registry and broker in the client and server
-	muclient.DefaultClient.Init(
-		client.Broker(mubroker.DefaultBroker),
+	client.DefaultClient.Init(
+		client.Broker(broker.DefaultBroker),
 		client.Registry(muregistry.DefaultRegistry),
 	)
-	muserver.DefaultServer.Init(
-		server.Broker(mubroker.DefaultBroker),
+	server.DefaultServer.Init(
+		server.Broker(broker.DefaultBroker),
 		server.Registry(muregistry.DefaultRegistry),
 	)
-
-	// setup auth credentials, use local credentials for the CLI and injected creds
-	// for the service.
-	var err error
-	if c.service {
-		err = setupAuthForService()
-	} else {
-		err = setupAuthForCLI(ctx)
-	}
-	if err != nil {
-		logger.Fatalf("Error setting up auth: %v", err)
-	}
-
-	// refresh token periodically
-	go refreshAuthToken()
 
 	// Setup config. Do this after auth is configured since it'll load the config
 	// from the service immediately. We only do this if the action is nil, indicating
 	// a service is being run
-	if c.service && muconfig.DefaultConfig == nil {
-		muconfig.DefaultConfig = configCli.NewConfig(ctx.String("namespace"))
-	} else if muconfig.DefaultConfig == nil {
-		muconfig.DefaultConfig, _ = config.NewConfig(mustore.DefaultStore, ctx.String("namespace"))
+	if c.service && config.DefaultConfig == nil {
+		config.DefaultConfig = configCli.NewConfig(ctx.String("namespace"))
+	} else if config.DefaultConfig == nil {
+		config.DefaultConfig, _ = storeConf.NewConfig(mustore.DefaultStore, ctx.String("namespace"))
 	}
 
 	return nil
@@ -541,43 +582,6 @@ func (c *command) String() string {
 	return "micro"
 }
 
-func action(c *cli.Context) error {
-	if c.Args().Len() > 0 {
-		// if an executable is available with the name of
-		// the command, execute it with the arguments from
-		// index 1 on.
-		v, err := exec.LookPath("micro-" + c.Args().First())
-		if err == nil {
-			ce := exec.Command(v, c.Args().Slice()[1:]...)
-			ce.Stdout = os.Stdout
-			ce.Stderr = os.Stderr
-			return ce.Run()
-		}
-
-		// lookup the service, e.g. "micro config set" would
-		// firstly check to see if the service, e.g. config
-		// exists within the current namespace, then it would
-		// execute the Config.Set RPC, setting the flags in the
-		// request.
-		if srv, ns, err := lookupService(c); err != nil {
-			fmt.Printf("Error querying registry for service %v: %v", c.Args().First(), err)
-			os.Exit(1)
-		} else if srv != nil && shouldRenderHelp(c) {
-			fmt.Println(formatServiceUsage(srv, c.Args().First()))
-			os.Exit(1)
-		} else if srv != nil {
-			if err := callService(srv, ns, c); err != nil {
-				fmt.Println(err)
-				os.Exit(1)
-			}
-			os.Exit(0)
-		}
-
-	}
-
-	return helper.MissingCommand(c)
-}
-
 // Register CLI commands
 func Register(cmds ...*cli.Command) {
 	app := DefaultCmd.App()
@@ -589,4 +593,12 @@ func Register(cmds ...*cli.Command) {
 	sort.Slice(app.Commands, func(i, j int) bool {
 		return app.Commands[i].Name < app.Commands[j].Name
 	})
+}
+
+// Run the default command
+func Run() {
+	if err := DefaultCmd.Run(); err != nil {
+		fmt.Println(formatErr(err))
+		os.Exit(1)
+	}
 }

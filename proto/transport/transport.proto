@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package transport;
+option go_package = "github.com/micro/micro/v3/proto/transport;transport";
+
+service Transport {
+	rpc Stream(stream Message) returns (stream Message) {}
+}
+
+message Message {
+	map<string, string> header = 1;
+	bytes body = 2;
+}

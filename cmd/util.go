@@ -2,16 +2,33 @@ package cmd
 
 import (
 	"time"
+	"unicode"
 
 	"github.com/google/uuid"
-	goauth "github.com/micro/go-micro/v3/auth"
-	"github.com/micro/go-micro/v3/logger"
 	"github.com/micro/micro/v3/client/cli/namespace"
 	clitoken "github.com/micro/micro/v3/client/cli/token"
 	"github.com/micro/micro/v3/client/cli/util"
 	"github.com/micro/micro/v3/service/auth"
+	"github.com/micro/micro/v3/service/errors"
+	"github.com/micro/micro/v3/service/logger"
 	"github.com/urfave/cli/v2"
 )
+
+func formatErr(err error) string {
+	switch v := err.(type) {
+	case *errors.Error:
+		return upcaseInitial(v.Detail)
+	default:
+		return upcaseInitial(err.Error())
+	}
+}
+
+func upcaseInitial(str string) string {
+	for i, v := range str {
+		return string(unicode.ToUpper(v)) + str[i+1:]
+	}
+	return ""
+}
 
 // setupAuthForCLI handles exchanging refresh tokens to access tokens
 // The structure of the local micro userconfig file is the following:
@@ -28,7 +45,7 @@ func setupAuthForCLI(ctx *cli.Context) error {
 		return err
 	}
 
-	tok, err := clitoken.Get(env.Name)
+	tok, err := clitoken.Get(ctx)
 	if err != nil {
 		return err
 	}
@@ -39,10 +56,10 @@ func setupAuthForCLI(ctx *cli.Context) error {
 	}
 
 	// Check if token is valid
-	if time.Now().Before(tok.Expiry.Add(-15 * time.Second)) {
+	if time.Now().Before(tok.Expiry.Add(time.Minute * -1)) {
 		auth.DefaultAuth.Init(
-			goauth.ClientToken(tok),
-			goauth.Issuer(ns),
+			auth.ClientToken(tok),
+			auth.Issuer(ns),
 		)
 		return nil
 	}
@@ -51,6 +68,7 @@ func setupAuthForCLI(ctx *cli.Context) error {
 	tok, err = auth.Token(
 		auth.WithToken(tok.RefreshToken),
 		auth.WithTokenIssuer(ns),
+		auth.WithExpiry(time.Minute*10),
 	)
 	if err != nil {
 		return nil
@@ -58,10 +76,10 @@ func setupAuthForCLI(ctx *cli.Context) error {
 
 	// Save the token to user config file
 	auth.DefaultAuth.Init(
-		goauth.ClientToken(tok),
-		goauth.Issuer(ns),
+		auth.ClientToken(tok),
+		auth.Issuer(ns),
 	)
-	return clitoken.Save(env.Name, tok)
+	return clitoken.Save(ctx, tok)
 }
 
 // setupAuthForService generates auth credentials for the service
@@ -102,8 +120,8 @@ func setupAuthForService() error {
 
 	// set the credentials and token in auth options
 	auth.DefaultAuth.Init(
-		goauth.ClientToken(token),
-		goauth.Credentials(accID, accSecret),
+		auth.ClientToken(token),
+		auth.Credentials(accID, accSecret),
 	)
 	return nil
 }
@@ -132,13 +150,24 @@ func refreshAuthToken() {
 				auth.WithToken(tok.RefreshToken),
 				auth.WithExpiry(time.Minute*10),
 			)
-			if err != nil {
+			if err == auth.ErrInvalidToken {
+				logger.Warnf("[Auth] Refresh token expired, regenerating using account credentials")
+
+				tok, err = auth.Token(
+					auth.WithCredentials(
+						auth.DefaultAuth.Options().ID,
+						auth.DefaultAuth.Options().Secret,
+					),
+					auth.WithExpiry(time.Minute*10),
+				)
+			} else if err != nil {
 				logger.Warnf("[Auth] Error refreshing token: %v", err)
 				continue
 			}
 
 			// set the token
-			auth.DefaultAuth.Init(goauth.ClientToken(tok))
+			logger.Debugf("Auth token refreshed, expires at %v", tok.Expiry.Format(time.UnixDate))
+			auth.DefaultAuth.Init(auth.ClientToken(tok))
 		}
 	}
 }

@@ -4,12 +4,11 @@ import (
 	"net/http"
 	"sync"
 
-	goclient "github.com/micro/go-micro/v3/client"
-	"github.com/micro/go-micro/v3/router"
 	pb "github.com/micro/micro/v3/proto/router"
 	"github.com/micro/micro/v3/service/client"
 	"github.com/micro/micro/v3/service/context"
 	"github.com/micro/micro/v3/service/errors"
+	"github.com/micro/micro/v3/service/router"
 )
 
 var (
@@ -20,7 +19,7 @@ var (
 type svc struct {
 	sync.RWMutex
 	opts     router.Options
-	callOpts []goclient.CallOption
+	callOpts []client.CallOption
 	router   pb.RouterService
 	table    *table
 	exit     chan bool
@@ -44,9 +43,9 @@ func NewRouter(opts ...router.Option) router.Router {
 
 	// set the router address to call
 	if len(options.Address) > 0 {
-		s.callOpts = []goclient.CallOption{
-			goclient.WithAddress(options.Address),
-			goclient.WithAuthToken(),
+		s.callOpts = []client.CallOption{
+			client.WithAddress(options.Address),
+			client.WithAuthToken(),
 		}
 	}
 	// set the table
@@ -115,7 +114,7 @@ func (s *svc) Lookup(service string, q ...router.LookupOption) ([]router.Route, 
 		},
 	}, s.callOpts...)
 
-	if verr := errors.Parse(err); verr != nil && verr.Code == http.StatusNotFound {
+	if verr := errors.FromError(err); verr != nil && verr.Code == http.StatusNotFound {
 		return nil, router.ErrRouteNotFound
 	} else if err != nil {
 		return nil, err

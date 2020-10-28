@@ -27,6 +27,22 @@ spec:
         prometheus.io/path: /metrics
         prometheus.io/port: "9000"
     spec:
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: name
+                      operator: In
+                      values:
+                        - micro-store
+                    - key: micro
+                      operator: In
+                      values:
+                        - runtime
+                topologyKey: "kubernetes.io/hostname"
       containers:
       - name: micro
         env:
@@ -68,6 +84,21 @@ spec:
           value: "/certs/registry/key.pem"
         - name: MICRO_STORE_ADDRESS
           value: "postgresql://root@cockroachdb-cluster-public:26257?ssl=true&sslmode=require&sslrootcert=certs/store/ca.crt&sslkey=certs/store/key.pem&sslcert=certs/store/cert.pem"
+        - name: MICRO_BLOB_STORE_ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              name: minio-creds
+              key: access_key
+        - name: MICRO_BLOB_STORE_SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: minio-creds
+              key: secret_key
+        - name: MICRO_BLOB_STORE_REGION
+          valueFrom:
+            secretKeyRef:
+              name: minio-creds
+              key: region
         image: micro/platform
         imagePullPolicy: Always
         args:
