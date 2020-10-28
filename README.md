@@ -83,8 +83,8 @@ and provide a programmable abstraction layer. Authentication, configuration, mes
 - **Clients:** Multiple entrypoints through which you can access your services. Write services once and access them through every means 
 you've already come to know. A HTTP api, gRPC proxy and commmand line interface.
 
-- **Library:** A Go library which makes it drop dead simple to write your services without having to piece together lines and lines of 
-boilerplate. Auto configured and initialised by default, just import and get started quickly.
+- **Framework:** A Go framework which makes it drop dead simple to write your services without having to piece together lines 
+and lines of boilerplate. Auto configured and initialised by default, just import and get started quickly.
 
 ## License
 
