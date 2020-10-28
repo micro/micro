@@ -13,7 +13,7 @@ The FAQ should provide quick answers to the most common questions.
 
 ## What is Micro?
 
-Micro is a development framework for the Cloud
+Micro is a platform for cloud native development.
 
 ## Is it open source?
 
@@ -38,6 +38,12 @@ Micro is runtime agnostic. You can run it anywhere you like. On bare metal, on A
 ## Does Micro support gRPC?
 
 Yes. In v2 micro makes use of gRPC by default.
+
+## What's the difference between Micro and Go Micro?
+
+Go Micro was an early attempt at building a framework for Go microservices development. We've since shifted our focus entirely to Micro, 
+a platform for cloud native development which includes a server, command line and service library (previously go-micro). Go Micro is now 
+a standalone framework for anyone who needs it.
 
 ## Where Can I Learn More?
 

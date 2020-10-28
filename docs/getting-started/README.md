@@ -112,17 +112,18 @@ All those services are ones started by our `micro server`. This is pretty cool, 
 
 The command to run services is `micro run`.
 
+Simply issue the following command
+
+```sh
+$ micro run github.com/micro/services/helloworld
+```
+
+Now check the status of the running service
+
 ```sh
 $ micro status
 NAME		VERSION	SOURCE					STATUS	BUILD	UPDATED	METADATA
 helloworld	latest	github.com/micro/services/helloworld	running	n/a	4s ago	owner=admin, group=micro
-```
-
-
-If we take a look at the running services using `micro status`, we should see the service listed:
-```sh
-NAME		VERSION	SOURCE		STATUS	BUILD	UPDATED	METADATA
-helloworld	latest	helloworld	running	n/a	unknown	owner=n/a,group=n/a
 ```
 
 We can also have a look at logs of the service to verify it's running.

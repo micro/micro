@@ -10,7 +10,6 @@ import (
 	"github.com/micro/micro/v3/service/auth/jwt"
 	"github.com/micro/micro/v3/service/auth/noop"
 	"github.com/micro/micro/v3/service/broker"
-	"github.com/micro/micro/v3/service/broker/http"
 	memBroker "github.com/micro/micro/v3/service/broker/memory"
 	"github.com/micro/micro/v3/service/build/golang"
 	"github.com/micro/micro/v3/service/client"
@@ -95,7 +94,7 @@ var Local = &Profile{
 		microStore.DefaultStore = file.NewStore()
 		SetupConfigSecretKey(ctx)
 		config.DefaultConfig, _ = storeConfig.NewConfig(microStore.DefaultStore, "")
-		SetupBroker(http.NewBroker())
+		SetupBroker(memBroker.NewBroker())
 		SetupRegistry(mdns.NewRegistry())
 		SetupJWT(ctx)
 

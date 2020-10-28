@@ -16,6 +16,7 @@ message Resource {
 	Namespace namespace = 1;
 	NetworkPolicy networkpolicy = 2;
 	Service service = 3;
+	ResourceQuota resourcequota = 4;
 }
 
 message Namespace {
@@ -30,6 +31,23 @@ message NetworkPolicy {
 	string name = 2;
 	// namespace the network policy belongs to
 	string namespace = 3;
+}
+
+message ResourceQuota {
+	// name of the resource quota
+	string name = 1;
+	// namespace the resource quota belongs to
+	string namespace = 2;
+	// resource requets
+	Resources requests = 3;
+	// resource limits
+	Resources limits = 4;
+}
+
+message Resources {
+	int32 Memory = 1;
+	int32 CPU = 2;
+	int32 EphemeralStorage = 3;
 }
 
 // Source service is used by the CLI to upload source to the service. The service will return

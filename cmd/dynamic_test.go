@@ -155,6 +155,53 @@ func TestDynamicFlagParsing(t *testing.T) {
 				"fs": []interface{}{float64(10.1), float64(20.2)},
 			},
 		},
+		{
+			args: []string{"--user_email=someemail"},
+			values: &goregistry.Value{
+				Values: []*goregistry.Value{
+					{
+						Name: "user",
+						Values: []*goregistry.Value{
+							{
+								Name: "email",
+								Type: "string",
+							},
+						},
+					},
+				},
+			},
+			expected: map[string]interface{}{
+				"user": map[string]interface{}{
+					"email": "someemail",
+				},
+			},
+		},
+		{
+			args: []string{"--user_email=someemail", "--user_name=somename"},
+			values: &goregistry.Value{
+				Values: []*goregistry.Value{
+					{
+						Name: "user",
+						Values: []*goregistry.Value{
+							{
+								Name: "email",
+								Type: "string",
+							},
+							{
+								Name: "name",
+								Type: "string",
+							},
+						},
+					},
+				},
+			},
+			expected: map[string]interface{}{
+				"user": map[string]interface{}{
+					"email": "someemail",
+					"name":  "somename",
+				},
+			},
+		},
 	}
 	for _, c := range cases {
 		_, flags, err := splitCmdArgs(c.args)

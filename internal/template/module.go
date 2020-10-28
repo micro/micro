@@ -3,7 +3,7 @@ package template
 var (
 	Module = `module {{.Dir}}
 
-go 1.13
+go 1.15
 
 require (
 	github.com/micro/micro/v3 v3.0.0-beta.4.0.20200922151713-de8b56c2b15d

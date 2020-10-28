@@ -41,14 +41,14 @@ func WithTimestamp(t time.Time) PublishOption {
 	}
 }
 
-// SubscribeOptions contains all the options which can be provided when subscribing to a topic
-type SubscribeOptions struct {
-	// Queue is the name of the subscribers queue, if two subscribers have the same queue the message
-	// should only be published to one of them
-	Queue string
-	// StartAtTime is the time from which the messages should be consumed from. If not provided then
+// ConsumeOptions contains all the options which can be provided when subscribing to a topic
+type ConsumeOptions struct {
+	// Group is the name of the consumer group, if two consumers have the same group the events
+	// are distributed between them
+	Group string
+	// Offset is the time from which the messages should be consumed from. If not provided then
 	// the messages will be consumed starting from the moment the Subscription starts.
-	StartAtTime time.Time
+	Offset time.Time
 	// AutoAck if true (default true), automatically acknowledges every message so it will not be redelivered.
 	// If false specifies that each message need ts to be manually acknowledged by the subscriber.
 	// If processing is successful the message should be ack'ed to remove the message from the stream.
@@ -62,42 +62,42 @@ type SubscribeOptions struct {
 	CustomRetries bool
 }
 
-// SubscribeOption sets attributes on SubscribeOptions
-type SubscribeOption func(o *SubscribeOptions)
+// ConsumeOption sets attributes on ConsumeOptions
+type ConsumeOption func(o *ConsumeOptions)
 
-// WithQueue sets the Queue fielf on SubscribeOptions to the value provided
-func WithQueue(q string) SubscribeOption {
-	return func(o *SubscribeOptions) {
-		o.Queue = q
+// WithGroup sets the consumer group to be part of when consuming events
+func WithGroup(q string) ConsumeOption {
+	return func(o *ConsumeOptions) {
+		o.Group = q
 	}
 }
 
-// WithStartAtTime sets the StartAtTime field on SubscribeOptions to the value provided
-func WithStartAtTime(t time.Time) SubscribeOption {
-	return func(o *SubscribeOptions) {
-		o.StartAtTime = t
+// WithOffset sets the offset time at which to start consuming events
+func WithOffset(t time.Time) ConsumeOption {
+	return func(o *ConsumeOptions) {
+		o.Offset = t
 	}
 }
 
-// WithAutoAck sets the AutoAck field on SubscribeOptions and an ackWait duration after which if no ack is received
+// WithAutoAck sets the AutoAck field on ConsumeOptions and an ackWait duration after which if no ack is received
 // the message is requeued in case auto ack is turned off
-func WithAutoAck(ack bool, ackWait time.Duration) SubscribeOption {
-	return func(o *SubscribeOptions) {
+func WithAutoAck(ack bool, ackWait time.Duration) ConsumeOption {
+	return func(o *ConsumeOptions) {
 		o.AutoAck = ack
 		o.AckWait = ackWait
 	}
 }
 
-// WithRetryLimit sets the RetryLimit field on SubscribeOptions.
+// WithRetryLimit sets the RetryLimit field on ConsumeOptions.
 // Set to -1 for infinite retries (default)
-func WithRetryLimit(retries int) SubscribeOption {
-	return func(o *SubscribeOptions) {
+func WithRetryLimit(retries int) ConsumeOption {
+	return func(o *ConsumeOptions) {
 		o.RetryLimit = retries
 		o.CustomRetries = true
 	}
 }
 
-func (s SubscribeOptions) GetRetryLimit() int {
+func (s ConsumeOptions) GetRetryLimit() int {
 	if !s.CustomRetries {
 		return -1
 	}

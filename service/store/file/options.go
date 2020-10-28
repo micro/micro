@@ -25,6 +25,10 @@ type dirKey struct{}
 // WithDir sets the directory to store the files in
 func WithDir(dir string) store.StoreOption {
 	return func(o *store.StoreOptions) {
-		o.Context = context.WithValue(o.Context, dirKey{}, dir)
+		if o.Context == nil {
+			o.Context = context.WithValue(context.Background(), dirKey{}, dir)
+		} else {
+			o.Context = context.WithValue(o.Context, dirKey{}, dir)
+		}
 	}
 }

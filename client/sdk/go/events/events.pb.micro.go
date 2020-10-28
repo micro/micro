@@ -43,7 +43,7 @@ func NewStreamEndpoints() []*api.Endpoint {
 
 type StreamService interface {
 	Publish(ctx context.Context, in *PublishRequest, opts ...client.CallOption) (*PublishResponse, error)
-	Subscribe(ctx context.Context, in *SubscribeRequest, opts ...client.CallOption) (Stream_SubscribeService, error)
+	Consume(ctx context.Context, in *ConsumeRequest, opts ...client.CallOption) (Stream_ConsumeService, error)
 }
 
 type streamService struct {
@@ -68,8 +68,8 @@ func (c *streamService) Publish(ctx context.Context, in *PublishRequest, opts ..
 	return out, nil
 }
 
-func (c *streamService) Subscribe(ctx context.Context, in *SubscribeRequest, opts ...client.CallOption) (Stream_SubscribeService, error) {
-	req := c.c.NewRequest(c.name, "Stream.Subscribe", &SubscribeRequest{})
+func (c *streamService) Consume(ctx context.Context, in *ConsumeRequest, opts ...client.CallOption) (Stream_ConsumeService, error) {
+	req := c.c.NewRequest(c.name, "Stream.Consume", &ConsumeRequest{})
 	stream, err := c.c.Stream(ctx, req, opts...)
 	if err != nil {
 		return nil, err
@@ -77,10 +77,10 @@ func (c *streamService) Subscribe(ctx context.Context, in *SubscribeRequest, opt
 	if err := stream.Send(in); err != nil {
 		return nil, err
 	}
-	return &streamServiceSubscribe{stream}, nil
+	return &streamServiceConsume{stream}, nil
 }
 
-type Stream_SubscribeService interface {
+type Stream_ConsumeService interface {
 	Context() context.Context
 	SendMsg(interface{}) error
 	RecvMsg(interface{}) error
@@ -88,27 +88,27 @@ type Stream_SubscribeService interface {
 	Recv() (*Event, error)
 }
 
-type streamServiceSubscribe struct {
+type streamServiceConsume struct {
 	stream client.Stream
 }
 
-func (x *streamServiceSubscribe) Close() error {
+func (x *streamServiceConsume) Close() error {
 	return x.stream.Close()
 }
 
-func (x *streamServiceSubscribe) Context() context.Context {
+func (x *streamServiceConsume) Context() context.Context {
 	return x.stream.Context()
 }
 
-func (x *streamServiceSubscribe) SendMsg(m interface{}) error {
+func (x *streamServiceConsume) SendMsg(m interface{}) error {
 	return x.stream.Send(m)
 }
 
-func (x *streamServiceSubscribe) RecvMsg(m interface{}) error {
+func (x *streamServiceConsume) RecvMsg(m interface{}) error {
 	return x.stream.Recv(m)
 }
 
-func (x *streamServiceSubscribe) Recv() (*Event, error) {
+func (x *streamServiceConsume) Recv() (*Event, error) {
 	m := new(Event)
 	err := x.stream.Recv(m)
 	if err != nil {
@@ -121,13 +121,13 @@ func (x *streamServiceSubscribe) Recv() (*Event, error) {
 
 type StreamHandler interface {
 	Publish(context.Context, *PublishRequest, *PublishResponse) error
-	Subscribe(context.Context, *SubscribeRequest, Stream_SubscribeStream) error
+	Consume(context.Context, *ConsumeRequest, Stream_ConsumeStream) error
 }
 
 func RegisterStreamHandler(s server.Server, hdlr StreamHandler, opts ...server.HandlerOption) error {
 	type stream interface {
 		Publish(ctx context.Context, in *PublishRequest, out *PublishResponse) error
-		Subscribe(ctx context.Context, stream server.Stream) error
+		Consume(ctx context.Context, stream server.Stream) error
 	}
 	type Stream struct {
 		stream
@@ -144,15 +144,15 @@ func (h *streamHandler) Publish(ctx context.Context, in *PublishRequest, out *Pu
 	return h.StreamHandler.Publish(ctx, in, out)
 }
 
-func (h *streamHandler) Subscribe(ctx context.Context, stream server.Stream) error {
-	m := new(SubscribeRequest)
+func (h *streamHandler) Consume(ctx context.Context, stream server.Stream) error {
+	m := new(ConsumeRequest)
 	if err := stream.Recv(m); err != nil {
 		return err
 	}
-	return h.StreamHandler.Subscribe(ctx, m, &streamSubscribeStream{stream})
+	return h.StreamHandler.Consume(ctx, m, &streamConsumeStream{stream})
 }
 
-type Stream_SubscribeStream interface {
+type Stream_ConsumeStream interface {
 	Context() context.Context
 	SendMsg(interface{}) error
 	RecvMsg(interface{}) error
@@ -160,27 +160,27 @@ type Stream_SubscribeStream interface {
 	Send(*Event) error
 }
 
-type streamSubscribeStream struct {
+type streamConsumeStream struct {
 	stream server.Stream
 }
 
-func (x *streamSubscribeStream) Close() error {
+func (x *streamConsumeStream) Close() error {
 	return x.stream.Close()
 }
 
-func (x *streamSubscribeStream) Context() context.Context {
+func (x *streamConsumeStream) Context() context.Context {
 	return x.stream.Context()
 }
 
-func (x *streamSubscribeStream) SendMsg(m interface{}) error {
+func (x *streamConsumeStream) SendMsg(m interface{}) error {
 	return x.stream.Send(m)
 }
 
-func (x *streamSubscribeStream) RecvMsg(m interface{}) error {
+func (x *streamConsumeStream) RecvMsg(m interface{}) error {
 	return x.stream.Recv(m)
 }
 
-func (x *streamSubscribeStream) Send(m *Event) error {
+func (x *streamConsumeStream) Send(m *Event) error {
 	return x.stream.Send(m)
 }
 
