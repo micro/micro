@@ -3,7 +3,7 @@ title: Upgrade Guide
 keywords: micro
 tags: [micro]
 sidebar: home_sidebar
-permalink: /upgrade-guide
+permalink: /v2-to-v3-upgrade-guide
 summary: Upgrading your project from Go-Micro v2 to Micro v3
 ---
 
