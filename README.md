@@ -75,7 +75,11 @@ See the [docs](https://m3o.org) for detailed information on the architecture, in
 
 ## Features
 
-Micro is built as a microservices architecture. The server is composed of the following services.
+Micro is built as a microservices architecture and abstracts away the complexity of the underlying infrastructure. We compose 
+this as a single logical server to the user but decompose that into the various building block primitives that can be plugged 
+into any underlying system. 
+
+The server is composed of the following services.
 
 - **API** - HTTP Gateway which dynamically maps http/json requests to RPC using path based resolution
 - **Auth** - Authentication and authorization out of the box using jwt tokens and rule based access control.
@@ -101,6 +105,8 @@ service instantly into a CLI command along with flag parsing for inputs.
 Finally Micro bakes in the concept of `Environments` and multi-tenancy through `Namespaces`. Run your server locally for 
 development and in the cloud for staging and production, seamlessly switch between them using `micro env set [environment]` 
 and `micro user set [namespace]`.
+
+Micro is an all encompassing end to end experience from source to running and beyond built with a developer first focus.
 
 ## License
 
