@@ -97,14 +97,14 @@ Micro additionaly now contains the incredibly popular [Go Micro](https://github.
 - **Framework** - A Go framework which makes it drop dead simple to write your services without having to piece together lines 
 and lines of boilerplate. Auto configured and initialised by default, just import and get started quickly.
 
-We also include a command line interface which can speak to any remote environment securely. 
+Finally Micro bakes in the concept of `Environments` and multi-tenancy through `Namespaces`. Run your server locally for 
+development and in the cloud for staging and production, seamlessly switch between them using the CLI commands `micro env set [environment]` 
+and `micro user set [namespace]`. Micro brings not only a rich architectural model but a command line experience tailored for that 
+need.
 
 - **CLI** - A command line interface with a dynamic command mapping for all services running on the platform. Turns any 
-service instantly into a CLI command along with flag parsing for inputs.
-
-Finally Micro bakes in the concept of `Environments` and multi-tenancy through `Namespaces`. Run your server locally for 
-development and in the cloud for staging and production, seamlessly switch between them using `micro env set [environment]` 
-and `micro user set [namespace]`.
+service instantly into a CLI command along with flag parsing for inputs. Includes support for multiple environments, namespaces 
+automatic refreshing of auth credentials and more.
 
 Micro is an all encompassing end to end experience from source to running and beyond built with a developer first focus.
 
