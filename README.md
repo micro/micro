@@ -104,7 +104,7 @@ need.
 
 - **CLI** - A command line interface with a dynamic command mapping for all services running on the platform. Turns any 
 service instantly into a CLI command along with flag parsing for inputs. Includes support for multiple environments, namespaces 
-automatic refreshing of auth credentials and more.
+automatic refreshing of auth credentials, creating and running services, status info and log streaming, plus much more.
 
 Micro is an all encompassing end to end experience from source to running and beyond built with a developer first focus.
 
