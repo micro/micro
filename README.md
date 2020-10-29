@@ -117,10 +117,6 @@ See [LICENSE](LICENSE) which makes use of [Polyform Shield](https://polyformproj
 
 If you're interested in a hosted version of Micro see [m3o.com](https://m3o.com). Docs at [m3o.dev](https://m3o.dev).
 
-## Commercial Use
-
-If you want to sell or offer Micro as a Service please email [contact@m3o.com](mailto:contact@m3o.com)
-
 ## Community
 
 Join us on [Discord](https://discord.gg/hbmJEct), [Slack](https://slack.micro.mu) or follow on [Twitter](https://twitter.com/microhq) for updates.
