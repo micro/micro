@@ -369,6 +369,9 @@ We additionally include grpc-web generated clients which enable frontend to quic
 clients to leverage the same development as the backend. We've seen grpc-web slowly gain adoption internally at various 
 companies and think this might extend to the public domain fairly rapidly as well.
 
+See the [micro/client/sdk](https://github.com/micro/micro/tree/master/client/sdk) directory for the generated clients. These will be 
+pubished to their respective package managers in the near future.
+
 ## Building API First Services
 
 Micro was built to make microservices development much easier and to increase developer productivity on the backend, beyond 
