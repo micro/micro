@@ -75,16 +75,28 @@ See the [docs](https://m3o.org) for detailed information on the architecture, in
 
 ## Features
 
-Micro is composed of the following features:
+Micro is built as a microservices architecture. The server is composed of the following services.
 
-- **Server:** A distributed systems runtime composed of building block services which abstract away the underlying infrastructure 
-and provide a programmable abstraction layer. Authentication, configuration, messaging, storage and more built in.
+- **Auth** - Authentication and authorization out of the box using jwt tokens and rule based access control.
+- **Broker** - Ephemeral pubsub messaging for asynchronous communication and distributing notifications
+- **Config** - Dynamic configuration and secrets management for service level config without the need to restart
+- **Events** - Event streaming with ordered messaging, replay from offsets and persistent storage
+- **Network** - Inter-service networking, isolation and routing plane for all internal request traffic
+- **Runtime** - Service lifecyle and process management with support for source to running with auto builds
+- **Registry** - Centralised service discovery and endpoint explorer with feature rich metadata
+- **Store** - Key-Value storage with TTL expiry and persistent crud to keep microservices stateless
+- **API** - HTTP API Gateway which dynamically maps http/json requests to RPC using path based resolution
+- **Proxy** - gRPC identity aware proxy used for remote access and any external grpc request traffic
 
-- **Clients:** Multiple entrypoints through which you can access your services. Write services once and access them through every means 
-you've already come to know. A HTTP api, gRPC proxy and commmand line interface.
+Micro additionaly now also contains the incredibly popular Go Micro framework built in for service development.
 
-- **Framework:** A Go framework which makes it drop dead simple to write your services without having to piece together lines 
+- **Framework** - A Go framework which makes it drop dead simple to write your services without having to piece together lines 
 and lines of boilerplate. Auto configured and initialised by default, just import and get started quickly.
+
+We also include a command line interface with dynamic command mapping any services running on the platform.
+
+- **CLI** - A command line interface with a dynamic command mapping for all services running on the platform. Turns any 
+service instantly into a CLI command along with flag parsing for inputs.
 
 ## License
 
