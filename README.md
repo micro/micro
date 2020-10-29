@@ -99,10 +99,11 @@ and `micro user set [namespace]`. Micro brings not only a rich architectural mod
 need.
 
 - **CLI** - A command line interface with a dynamic command mapping for all services running on the platform. Turns any 
-service instantly into a CLI command along with flag parsing for inputs. Includes support for multiple environments, namespaces 
-automatic refreshing of auth credentials, creating and running services, status info and log streaming, plus much more.
+service instantly into a CLI command along with flag parsing for inputs. Includes support for multiple environments and 
+namespaces, automatic refreshing of auth credentials, creating and running services, status info and log streaming, plus 
+much, much more.
 
-Micro is an all encompassing end to end experience from source to running and beyond built with a developer first focus.
+Micro is the all encompassing end to end platform experience from source to running and beyond built with a developer first focus.
 
 ## Usage
 
