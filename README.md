@@ -69,10 +69,6 @@ micro helloworld --name=Alice
 curl -d '{"name": "Alice"}' http://localhost:8080/helloworld
 ```
 
-## Usage
-
-See the [docs](https://m3o.org) for detailed information on the architecture, installation and use of the platform.
-
 ## Features
 
 Micro is built as a microservices architecture and abstracts away the complexity of the underlying infrastructure. We compose 
@@ -107,6 +103,10 @@ service instantly into a CLI command along with flag parsing for inputs. Include
 automatic refreshing of auth credentials, creating and running services, status info and log streaming, plus much more.
 
 Micro is an all encompassing end to end experience from source to running and beyond built with a developer first focus.
+
+## Usage
+
+See the [docs](https://m3o.org) for detailed information on the architecture, installation and use of the platform.
 
 ## License
 
