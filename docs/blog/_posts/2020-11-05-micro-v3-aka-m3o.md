@@ -491,7 +491,7 @@ became what it was intended for.
 
 Go Micro was built on the premise that developers need a simpler way to build distributed systems. 
 With strongly defined abstractions and a pluggable architecture it did that well but that became 
-really unweidly to manage. With an MxN matrix of complexity, Go Micro became the thing it was 
+really unwieldy to manage. With an MxN matrix of complexity, Go Micro became the thing it was 
 trying to fight against. As we attempted to hone on this platform effort, it just became very 
 clear that to do that we'd need to start fresh.
 
