@@ -202,6 +202,20 @@ func TestDynamicFlagParsing(t *testing.T) {
 				},
 			},
 		},
+		{
+			args: []string{"--b"},
+			values: &goregistry.Value{
+				Values: []*goregistry.Value{
+					{
+						Name: "b",
+						Type: "bool",
+					},
+				},
+			},
+			expected: map[string]interface{}{
+				"b": true,
+			},
+		},
 	}
 	for _, c := range cases {
 		_, flags, err := splitCmdArgs(c.args)
