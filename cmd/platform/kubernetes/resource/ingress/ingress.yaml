@@ -9,20 +9,9 @@ spec:
   tls:
   - hosts:
     - "*.m3o.com"
-    - "*.m3o.app"
     secretName: nginx-tls
   rules:
   - host: "proxy.m3o.com"
-    http:
-      paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: micro-proxy
-            port:
-              number: 8081
-  - host: "*.m3o.app"
     http:
       paths:
       - path: /
@@ -42,10 +31,21 @@ metadata:
 spec:
   tls:
   - hosts:
+    - "*.m3o.app"
     - "*.m3o.com"
     secretName: nginx-tls
   rules:
   - host: "api.m3o.com"
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: micro-api
+            port:
+              number: 8080
+  - host: "*.m3o.app"
     http:
       paths:
       - path: /
