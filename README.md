@@ -71,7 +71,7 @@ curl -d '{"name": "Alice"}' http://localhost:8080/helloworld
 
 ## Usage
 
-See the [docs](https://m3o.org) for detailed information on the architecture, installation and use of the platform.
+See the [docs](https://micro.mu) for detailed information on the architecture, installation and use of the platform.
 
 ## Features
 
