@@ -455,7 +455,7 @@ a separate post.
 ## Documentation
 
 Another thing we really learned from the past is nothing like this works without great documentation 
-and tutorials. So we've written a whole suite of docs for Micro available at [m3o.org](https://m3o.org) 
+and tutorials. So we've written a whole suite of docs for Micro available at [micro.mu](https://micro.mu) 
 and provide help for using the M3O on [m3o.dev](https://m3o.dev/).
 
 You can find other interesting resources at [Awesome Micro](https://github.com/micro/awesome-micro).
@@ -557,7 +557,7 @@ And that's it! Please come chat with us in [Discord](https://discord.gg/hbmJEct)
 [invite friends](https://m3o.dev/getting-started/invite-users) to test out the M3O platform.
 
 To learn more about the M3O platform see the dev docs at [m3o.dev](https://m3o.dev). And for the open source docs 
-check out [m3o.org](https://m3o.org).
+check out [micro.mu](https://micro.mu).
 
 <br>
 *Written by Asim Aslam*
