@@ -4,18 +4,19 @@ This repo contains clients for accessing Micro
 
 ## Overview
 
-Clients are proto generated multi-language SDKs, CLI code and related for accessing Micro via gRPC. SDKs are generated 
+Clients are proto generated multi-language SDKs, CLI code and related for accessing Micro via gRPC (port 8081). SDKs are generated 
 automatically based on the protos and the CLI is hand maintained code for specific commands built into the micro cli.
 
 ## Clients
 
-- CLI
-- Go
-- Java
-- Node
-- Python
-- Ruby
-- Rust
+- CLI (command line interface)
+- SDK (gRPC generated code)
+  * Go
+  * Java
+  * Node
+  * Python
+  * Ruby
+  * Rust
 
 ## Usage
 
