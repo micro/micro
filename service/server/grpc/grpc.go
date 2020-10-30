@@ -45,7 +45,6 @@ import (
 	"github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/registry"
 	"github.com/micro/micro/v3/service/server"
-	"github.com/soheilhy/cmux"
 	"golang.org/x/net/http2"
 	"golang.org/x/net/netutil"
 
@@ -69,9 +68,8 @@ const (
 )
 
 type grpcServer struct {
-	rpc        *rServer
-	srv        *grpc.Server
-	grpcWebSrv *grpcweb.WrappedGrpcServer
+	rpc *rServer
+	srv *grpc.Server
 
 	exit chan chan error
 	wg   *sync.WaitGroup
@@ -162,11 +160,6 @@ func (g *grpcServer) configure(opts ...server.Option) {
 
 	g.rsvc = nil
 	g.srv = grpc.NewServer(gopts...)
-	g.grpcWebSrv = grpcweb.WrapServer(
-		g.srv,
-		grpcweb.WithCorsForRegisteredEndpointsOnly(false),
-		grpcweb.WithOriginFunc(func(origin string) bool { return true }),
-	)
 }
 
 func (g *grpcServer) getMaxMsgSize() int {
@@ -920,25 +913,6 @@ func (g *grpcServer) Start() error {
 		}
 	}
 
-	// Create a tcp mux that can server both grpc and grpc+web on the same port
-	m := cmux.New(ts)
-
-	// If the request isn't HTTP2 at all, then it's local grpc+web
-	// If the request IS http2 and has the right header, then also grpc+web
-	grpcl := m.MatchWithWriters(func(w io.Writer, r io.Reader) bool {
-		return !hasHTTP2Preface(r)
-	},
-		cmux.HTTP2MatchHeaderFieldSendSettings("content-type", "application/grpc-web+proto"),
-		cmux.HTTP2MatchHeaderFieldSendSettings("method", "OPTIONS"))
-
-	// Else just match all gRPC traffic
-	trpcL := m.Match(cmux.Any())
-
-	// Serve them to the mux
-	grpcWebHttpSrv := &http.Server{Handler: g.grpcWebSrv}
-	go grpcWebHttpSrv.Serve(grpcl)
-	go g.srv.Serve(trpcL)
-
 	if g.opts.Context != nil {
 		if c, ok := g.opts.Context.Value(maxConnKey{}).(int); ok && c > 0 {
 			ts = netutil.LimitListener(ts, c)
@@ -974,9 +948,31 @@ func (g *grpcServer) Start() error {
 		}
 	}
 
+	if g.opts.Context != nil {
+		gRPCWebAddr := ":8082"
+		if g.opts.Context.Value(grpcWebPort{}) != nil {
+			if p, ok := g.opts.Context.Value(grpcWebPort{}).(string); ok && p != "" {
+				gRPCWebAddr = p
+			}
+		}
+
+		if c, ok := g.opts.Context.Value(grpcWebOptions{}).([]grpcweb.Option); ok && len(c) > 0 {
+			wrappedGrpc := grpcweb.WrapServer(g.srv, c...)
+			webGRPCServer := &http.Server{
+				Addr:      gRPCWebAddr,
+				TLSConfig: config.TLSConfig,
+				Handler:   http.Handler(wrappedGrpc),
+			}
+
+			go webGRPCServer.ListenAndServe()
+
+			logger.Infof("Server [gRPC-Web] Listening on %s", gRPCWebAddr)
+		}
+	}
+
 	// micro: go ts.Accept(s.accept)
 	go func() {
-		if err := m.Serve(); err != nil {
+		if err := g.srv.Serve(ts); err != nil {
 			if logger.V(logger.ErrorLevel, logger.DefaultLogger) {
 				logger.Errorf("gRPC Server start error: %v", err)
 			}

@@ -70,6 +70,8 @@ spec:
           value: "trace"
         - name: MICRO_ENABLE_ACME
           value: "true"
+        - name: MICRO_PROXY_GRPC_WEB
+          value: "true"
         - name: MICRO_ACME_PROVIDER
           value: certmagic
         - name: MICRO_ACME_HOSTS
@@ -89,6 +91,8 @@ spec:
           name: https-port
         - containerPort: 8081
           name: proxy-port
+        - containerPort: 8082
+          name: proxy-port-grpc-web
         readinessProbe:
           tcpSocket:
             port: https-port
