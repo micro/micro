@@ -107,7 +107,7 @@ Micro is the all encompassing end to end platform experience from source to runn
 
 ## Usage
 
-See the [docs](https://m3o.org) for detailed information on the architecture, installation and use of the platform.
+See the [docs](https://micro.mu) for detailed information on the architecture, installation and use of the platform.
 
 ## License
 
