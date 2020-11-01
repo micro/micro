@@ -11,11 +11,11 @@ with the complexity of distributed systems and provides simpler programmable abs
 
 [GitHub Repo](https://github.com/micro/micro)
 
-## Release
+## Download
 
 [Latest Release](https://github.com/micro/micro/releases/latest)
 
-## Docs
+## Content
 
 Documentation, guides and quick starts for Micro
 
