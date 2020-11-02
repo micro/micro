@@ -74,7 +74,7 @@ func callContext(c *cli.Context) context.Context {
 
 func GetService(c *cli.Context, args []string) ([]byte, error) {
 	if len(args) == 0 {
-		return nil, errors.New("service required")
+		return nil, cli.ShowSubcommandHelp(c)
 	}
 
 	env, err := util.GetEnv(c)
@@ -182,7 +182,7 @@ func ListServices(c *cli.Context) ([]byte, error) {
 
 func Publish(c *cli.Context, args []string) error {
 	if len(args) < 2 {
-		return errors.New("require topic and message e.g micro publish event '{\"hello\": \"world\"}'")
+		return cli.ShowSubcommandHelp(c)
 	}
 	defer func() {
 		time.Sleep(time.Millisecond * 100)
@@ -199,7 +199,7 @@ func Publish(c *cli.Context, args []string) error {
 
 	var msg map[string]interface{}
 	if err := d.Decode(&msg); err != nil {
-		return err
+		return cli.Exit(fmt.Sprintf("Error creating request %s", err), 1)
 	}
 
 	ctx := callContext(c)
@@ -209,7 +209,7 @@ func Publish(c *cli.Context, args []string) error {
 
 func CallService(c *cli.Context, args []string) ([]byte, error) {
 	if len(args) < 2 {
-		return nil, errors.New(`require service and endpoint e.g micro call greeeter Say.Hello '{"name": "john"}'`)
+		return nil, cli.ShowSubcommandHelp(c)
 	}
 
 	var req, service, endpoint string
@@ -232,7 +232,7 @@ func CallService(c *cli.Context, args []string) ([]byte, error) {
 	d.UseNumber()
 
 	if err := d.Decode(&request); err != nil {
-		return nil, err
+		return nil, cli.Exit(fmt.Sprintf("Error creating request %s", err), 1)
 	}
 
 	ctx := callContext(c)
@@ -243,7 +243,7 @@ func CallService(c *cli.Context, args []string) ([]byte, error) {
 	if timeout := c.String("request_timeout"); timeout != "" {
 		duration, err := time.ParseDuration(timeout)
 		if err != nil {
-			return nil, err
+			return nil, cli.Exit("Invalid format for request_timeout duration. Try 500ms or 5s", 2)
 		}
 		opts = append(opts, client.WithRequestTimeout(duration))
 	}
@@ -266,14 +266,14 @@ func CallService(c *cli.Context, args []string) ([]byte, error) {
 			var out bytes.Buffer
 			defer out.Reset()
 			if err := json.Indent(&out, rsp, "", "\t"); err != nil {
-				return nil, err
+				return nil, cli.Exit("Error while trying to format the response", 3)
 			}
 			response = out.Bytes()
 		}
 	}
 
 	if err != nil {
-		return nil, fmt.Errorf("error calling %s.%s: %v", service, endpoint, err)
+		return nil, err
 	}
 
 	return response, nil

@@ -47,7 +47,7 @@ func help(c *cli.Context, args []string) ([]byte, error) {
 
 func QueryStats(c *cli.Context, args []string) ([]byte, error) {
 	if len(args) == 0 {
-		return nil, errors.New("require service name")
+		return nil, cli.ShowSubcommandHelp(c)
 	}
 
 	env, err := util.GetEnv(c)

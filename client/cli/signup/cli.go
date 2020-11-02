@@ -187,7 +187,6 @@ func Run(ctx *cli.Context) error {
 	// the user has now signed up and logged in
 	// @todo save the namespace from the last call and use that.
 	fmt.Println("\nSignup complete! You're now logged in.")
-	report.Success(ctx, email)
 	return nil
 }
 
