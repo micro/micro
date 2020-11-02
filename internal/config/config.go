@@ -53,12 +53,6 @@ func Get(path string) (string, error) {
 		return "", err
 	}
 
-	// acquire lock
-	if err := lock.Lock(); err != nil {
-		return "", err
-	}
-	defer lock.Unlock()
-
 	val := config.Get(path)
 	v := strings.TrimSpace(val.String(""))
 	if len(v) > 0 {
