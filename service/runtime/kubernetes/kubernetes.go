@@ -196,7 +196,7 @@ func (k *kubernetes) create(resource runtime.Resource, opts ...runtime.CreateOpt
 		}
 
 		// create some default resource requests
-		if options.Resources == nil {
+		if options.Resources == nil && options.Namespace != "micro" {
 			options.Resources = &runtime.Resources{
 				CPU:  200,
 				Mem:  200,
