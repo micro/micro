@@ -9,7 +9,7 @@ spec:
   tls:
   - hosts:
     - "*.m3o.com"
-    secretName: nginx-tls
+    secretName: proxy-tls
   rules:
   - host: "proxy.m3o.com"
     http:
@@ -33,7 +33,7 @@ spec:
   - hosts:
     - "*.m3o.app"
     - "*.m3o.com"
-    secretName: nginx-tls
+    secretName: api-tls
   rules:
   - host: "api.m3o.com"
     http:
