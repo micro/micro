@@ -24,6 +24,7 @@ spec:
       labels:
         name: micro-api
         micro: runtime
+        version: latest
       annotations:
         prometheus.io/scrape: "true"
         prometheus.io/path: /metrics

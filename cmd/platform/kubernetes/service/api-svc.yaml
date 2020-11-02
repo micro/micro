@@ -15,4 +15,4 @@
    selector:
      name: micro-api
      micro: runtime
-   type: LoadBalancer
+     version: latest

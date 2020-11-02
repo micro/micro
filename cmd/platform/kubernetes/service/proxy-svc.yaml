@@ -15,4 +15,4 @@ spec:
   selector:
     name: micro-proxy
     micro: runtime
-  type: LoadBalancer
+    version: latest

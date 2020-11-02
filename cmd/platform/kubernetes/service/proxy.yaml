@@ -19,11 +19,13 @@ spec:
     matchLabels:
       name: micro-proxy
       micro: runtime
+      version: latest
   template:
     metadata:
       labels:
         name: micro-proxy
         micro: runtime
+        version: latest
       annotations:
         prometheus.io/scrape: "true"
         prometheus.io/path: /metrics
