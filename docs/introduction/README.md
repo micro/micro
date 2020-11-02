@@ -43,7 +43,7 @@ Micro is built as a microservices architecture and abstracts away the complexity
 this as a single logical server to the user but decompose that into the various building block primitives that can be plugged 
 into any underlying system. 
 
-The server is composed of the following services.
+The Micro server is composed of the following services.
 
 - **API** - HTTP Gateway which dynamically maps http/json requests to RPC using path based resolution
 - **Auth** - Authentication and authorization out of the box using jwt tokens and rule based access control.
