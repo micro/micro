@@ -9,10 +9,10 @@
      version: latest
  spec:
    ports:
-   - name: https
-     port: 443
-     targetPort: 443
+   - name: http
+     port: 8080
+     targetPort: 8080
    selector:
      name: micro-api
      micro: runtime
-   type: LoadBalancer
+     version: latest
