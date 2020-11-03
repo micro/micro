@@ -17,5 +17,5 @@ jobs:
     - name: Build cells
       run: cd service/runtime/cells; bash build.sh
       env:
-        USERNAME: ${{ secrets.MICRO_ACTIONS_USER }}
-        PASSWORD: ${{ secrets.MICRO_ACTIONS_PAT }}
+        USERNAME: ${{ secrets.GHCR_ACTOR }}
+        PASSWORD: ${{ secrets.GHCR_PAT }}
