@@ -15,13 +15,13 @@ func (k *kubernetes) createResourceQuota(resourceQuota *runtime.ResourceQuota) e
 		Value: client.ResourceQuota{
 			Requests: &client.ResourceLimits{
 				CPU:              fmt.Sprintf("%dm", resourceQuota.Requests.CPU),
-				EphemeralStorage: fmt.Sprintf("%dm", resourceQuota.Requests.Disk),
-				Memory:           fmt.Sprintf("%dm", resourceQuota.Requests.Mem),
+				EphemeralStorage: fmt.Sprintf("%dMi", resourceQuota.Requests.Disk),
+				Memory:           fmt.Sprintf("%dMi", resourceQuota.Requests.Mem),
 			},
 			Limits: &client.ResourceLimits{
 				CPU:              fmt.Sprintf("%dm", resourceQuota.Limits.CPU),
-				EphemeralStorage: fmt.Sprintf("%dm", resourceQuota.Limits.Disk),
-				Memory:           fmt.Sprintf("%dm", resourceQuota.Limits.Mem),
+				EphemeralStorage: fmt.Sprintf("%dMi", resourceQuota.Limits.Disk),
+				Memory:           fmt.Sprintf("%dMi", resourceQuota.Limits.Mem),
 			},
 			Metadata: &client.Metadata{
 				Name:      resourceQuota.Name,
@@ -44,13 +44,13 @@ func (k *kubernetes) updateResourceQuota(resourceQuota *runtime.ResourceQuota) e
 		Value: client.ResourceQuota{
 			Requests: &client.ResourceLimits{
 				CPU:              fmt.Sprintf("%dm", resourceQuota.Requests.CPU),
-				EphemeralStorage: fmt.Sprintf("%dm", resourceQuota.Requests.Disk),
-				Memory:           fmt.Sprintf("%dm", resourceQuota.Requests.Mem),
+				EphemeralStorage: fmt.Sprintf("%dMi", resourceQuota.Requests.Disk),
+				Memory:           fmt.Sprintf("%dMi", resourceQuota.Requests.Mem),
 			},
 			Limits: &client.ResourceLimits{
 				CPU:              fmt.Sprintf("%dm", resourceQuota.Limits.CPU),
-				EphemeralStorage: fmt.Sprintf("%dm", resourceQuota.Limits.Disk),
-				Memory:           fmt.Sprintf("%dm", resourceQuota.Limits.Mem),
+				EphemeralStorage: fmt.Sprintf("%dMi", resourceQuota.Limits.Disk),
+				Memory:           fmt.Sprintf("%dMi", resourceQuota.Limits.Mem),
 			},
 			Metadata: &client.Metadata{
 				Name:      resourceQuota.Name,
@@ -73,13 +73,13 @@ func (k *kubernetes) deleteResourceQuota(resourceQuota *runtime.ResourceQuota) e
 		Value: client.ResourceQuota{
 			Requests: &client.ResourceLimits{
 				CPU:              fmt.Sprintf("%dm", resourceQuota.Requests.CPU),
-				EphemeralStorage: fmt.Sprintf("%dm", resourceQuota.Requests.Disk),
-				Memory:           fmt.Sprintf("%dm", resourceQuota.Requests.Mem),
+				EphemeralStorage: fmt.Sprintf("%dMi", resourceQuota.Requests.Disk),
+				Memory:           fmt.Sprintf("%dMi", resourceQuota.Requests.Mem),
 			},
 			Limits: &client.ResourceLimits{
 				CPU:              fmt.Sprintf("%dm", resourceQuota.Limits.CPU),
-				EphemeralStorage: fmt.Sprintf("%dm", resourceQuota.Limits.Disk),
-				Memory:           fmt.Sprintf("%dm", resourceQuota.Limits.Mem),
+				EphemeralStorage: fmt.Sprintf("%dMi", resourceQuota.Limits.Disk),
+				Memory:           fmt.Sprintf("%dMi", resourceQuota.Limits.Mem),
 			},
 			Metadata: &client.Metadata{
 				Name:      resourceQuota.Name,

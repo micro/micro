@@ -24,6 +24,7 @@ spec:
       labels:
         name: micro-api
         micro: runtime
+        version: latest
       annotations:
         prometheus.io/scrape: "true"
         prometheus.io/path: /metrics
@@ -66,24 +67,13 @@ spec:
           value: client
         - name: MICRO_PROXY
           value: "micro-network.default.svc.cluster.local:8443"
-        - name: MICRO_ENABLE_ACME
-          value: "true"
-        - name: MICRO_ACME_PROVIDER
-          value: certmagic
-        - name: MICRO_ACME_HOSTS
-          value: '*.m3o.app,api.m3o.com'
-        - name: CF_API_TOKEN
-          valueFrom:
-            secretKeyRef:
-              key: cloudflare
-              name: micro-secrets
         args:
         - service
         - api
         image: micro/platform
         imagePullPolicy: Always
         ports:
-        - containerPort: 443
+        - containerPort: 8080
           name: api-port
         readinessProbe:
           tcpSocket:
