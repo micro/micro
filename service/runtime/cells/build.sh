@@ -10,7 +10,7 @@ ls | while read dir; do
     continue
   fi
 
-  TAG=ghcr.io/micro/$IMAGE:${dir}
+  TAG=ghcr.io/$IMAGE:${dir}
 
   pushd ${dir} &>/dev/null
   echo Building $TAG
