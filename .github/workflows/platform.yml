@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - master
+      - ghcr
     tags:
       - v2.*
       - v3.*
@@ -41,3 +42,4 @@ jobs:
         password: ${{ secrets.DOCKER_PASSWORD }}
         tag_names: true
         snapshot: true
+        registry: ghcr.io

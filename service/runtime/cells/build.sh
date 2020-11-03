@@ -2,7 +2,7 @@
 
 IMAGE=micro/cells
 
-echo ${PASSWORD} | docker login -u ${USERNAME} --password-stdin
+echo ${PASSWORD} | docker login ghcr.io -u ${USERNAME} --password-stdin
 
 
 ls | while read dir; do
@@ -10,7 +10,7 @@ ls | while read dir; do
     continue
   fi
 
-  TAG=$IMAGE:${dir}
+  TAG=ghcr.io/micro/$IMAGE:${dir}
 
   pushd ${dir} &>/dev/null
   echo Building $TAG
