@@ -47,7 +47,7 @@ func newK8sServer(t *T, fname string, opts ...Option) Server {
 	if v := os.Getenv("IN_HELM_TEST"); len(v) > 0 {
 		cmd = exec.Command("kubectl", "port-forward", "--namespace", "micro", "svc/proxy", fmt.Sprintf("%d:443", portnum))
 	} else {
-		cmd = exec.Command("kubectl", "port-forward", "--namespace", "default", "svc/micro-proxy", fmt.Sprintf("%d:443", portnum))
+		cmd = exec.Command("kubectl", "port-forward", "--namespace", "default", "svc/micro-proxy", fmt.Sprintf("%d:8081", portnum))
 	}
 
 	s := &testK8sServer{ServerBase{
