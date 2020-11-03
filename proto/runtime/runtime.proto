@@ -38,16 +38,16 @@ message ResourceQuota {
 	string name = 1;
 	// namespace the resource quota belongs to
 	string namespace = 2;
-	// resource requets
+	// resource requests
 	Resources requests = 3;
 	// resource limits
 	Resources limits = 4;
 }
 
 message Resources {
-	int32 Memory = 1;
-	int32 CPU = 2;
-	int32 EphemeralStorage = 3;
+	int32 Memory = 1; // in MiB
+	int32 CPU = 2; // in millicores
+	int32 EphemeralStorage = 3; // in MiB
 }
 
 // Source service is used by the CLI to upload source to the service. The service will return

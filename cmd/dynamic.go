@@ -281,6 +281,9 @@ func flagsToRequest(flags map[string][]string, req *goregistry.Value) (map[strin
 	coerceValue := func(valueType string, value []string) (interface{}, error) {
 		switch valueType {
 		case "bool":
+			if len(strings.TrimSpace(value[0])) == 0 {
+				return true, nil
+			}
 			return strconv.ParseBool(value[0])
 		case "int32":
 			return strconv.Atoi(value[0])
