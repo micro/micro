@@ -7,7 +7,7 @@ jobs:
     name: Windows integration tests
     runs-on: windows-latest
     env: 
-      DOCKER_BUILDKIT: '1'
+      DOCKER_BUILDKIT: '0'
     steps:
 
     - name: Set up Go 1.15
