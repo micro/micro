@@ -90,6 +90,8 @@ var Profile = &profile.Profile{
 			logger.Fatalf("Error configuring golang builder: %v", err)
 		}
 		events.DefaultStore = evStore.NewStore(evStore.WithStore(store.DefaultStore))
+
+		kubernetes.DefaultImage = "ghcr.io/m3o/cells:v3"
 		return nil
 	},
 }
