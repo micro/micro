@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 if [ ! $IMAGE ]; then
   IMAGE=micro/cells
 fi
