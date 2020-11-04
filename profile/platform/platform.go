@@ -7,8 +7,6 @@ import (
 	"io/ioutil"
 	"os"
 
-	"github.com/micro/micro/v3/internal/kubernetes/client"
-
 	"github.com/micro/micro/v3/profile"
 	"github.com/micro/micro/v3/service/auth"
 	"github.com/micro/micro/v3/service/auth/jwt"
@@ -92,9 +90,6 @@ var Profile = &profile.Profile{
 			logger.Fatalf("Error configuring golang builder: %v", err)
 		}
 		events.DefaultStore = evStore.NewStore(evStore.WithStore(store.DefaultStore))
-
-		// on platform we want to pull from ghcr m3o rather than docker micro
-		client.DefaultImage = "ghcr.io/m3o/cells:v3"
 		return nil
 	},
 }
