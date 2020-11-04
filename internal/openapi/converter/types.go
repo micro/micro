@@ -7,7 +7,6 @@ import (
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/golang/protobuf/proto"
 	"github.com/golang/protobuf/protoc-gen-go/descriptor"
-	"github.com/micro/micro/v3/service/logger"
 )
 
 const (
@@ -79,7 +78,7 @@ componentLoop:
 				continue componentLoop
 			}
 		}
-		logger.Info("no such nested message (%s.%s)", component, desc.GetName())
+		c.logger.Infof("no such nested message (%s.%s)", component, desc.GetName())
 		return nil, false
 	}
 	return desc, true
@@ -187,7 +186,7 @@ func (c *Converter) convertField(curPkg *ProtoPackage, desc *descriptor.FieldDes
 
 		// Maps:
 		case recordType.Options.GetMapEntry():
-			logger.Tracef("Found a map (%s.%s)", *msg.Name, recordType.GetName())
+			c.logger.Tracef("Found a map (%s.%s)", *msg.Name, recordType.GetName())
 			componentSchema.Type = openAPITypeObject
 			componentSchema.AdditionalProperties = recursedComponentSchema.NewRef()
 
@@ -347,16 +346,16 @@ func (c *Converter) recursiveConvertMessageType(curPkg *ProtoPackage, msg *descr
 		componentSchema.Description = formatDescription(src)
 	}
 
-	logger.Trace("Converting message (%s)", proto.MarshalTextString(msg))
+	c.logger.Tracef("Converting message (%s)", proto.MarshalTextString(msg))
 
 	// Recurse each field:
 	for _, fieldDesc := range msg.GetField() {
 		recursedComponentSchema, err := c.convertField(curPkg, fieldDesc, msg, duplicatedMessages)
 		if err != nil {
-			logger.Errorf("Failed to convert field (%s.%s): %v", msg.GetName(), fieldDesc.GetName(), err)
+			c.logger.Errorf("Failed to convert field (%s.%s): %v", msg.GetName(), fieldDesc.GetName(), err)
 			return nil, err
 		}
-		logger.Tracef("Converted field: %s => %s", fieldDesc.GetName(), recursedComponentSchema.Type)
+		c.logger.Tracef("Converted field: %s => %s", fieldDesc.GetName(), recursedComponentSchema.Type)
 
 		// Add it to the properties (by its JSON name):
 		componentSchema.Properties[fieldDesc.GetJsonName()] = recursedComponentSchema.NewRef()

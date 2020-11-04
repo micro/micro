@@ -8,13 +8,13 @@ import (
 // Protobuf tag values for relevant message fields. Full list here:
 //   https://github.com/protocolbuffers/protobuf/blob/master/src/google/protobuf/descriptor.proto
 const (
-	tag_FileDescriptor_messageType int32 = 4
-	tag_FileDescriptor_enumType    int32 = 5
-	tag_Descriptor_field           int32 = 2
-	tag_Descriptor_nestedType      int32 = 3
-	tag_Descriptor_enumType        int32 = 4
-	tag_Descriptor_oneofDecl       int32 = 8
-	tag_EnumDescriptor_value       int32 = 2
+	tagFileDescriptorMessageType int32 = 4
+	tagFileDescriptorEnumType    int32 = 5
+	tagDescriptorField           int32 = 2
+	tagDescriptorNestedType      int32 = 3
+	tagDescriptorEnumType        int32 = 4
+	tagDescriptorOneofDecl       int32 = 8
+	tagEnumDescriptorValue       int32 = 2
 )
 
 type sourceCodeInfo struct {
@@ -71,10 +71,10 @@ func getDefinitionAtPath(file *descriptor.FileDescriptorProto, path []int32) pro
 		switch p := pos.(type) {
 		case *descriptor.FileDescriptorProto:
 			switch path[step] {
-			case tag_FileDescriptor_messageType:
+			case tagFileDescriptorMessageType:
 				step++
 				pos = p.MessageType[path[step]]
-			case tag_FileDescriptor_enumType:
+			case tagFileDescriptorEnumType:
 				step++
 				pos = p.EnumType[path[step]]
 			default:
@@ -83,16 +83,16 @@ func getDefinitionAtPath(file *descriptor.FileDescriptorProto, path []int32) pro
 
 		case *descriptor.DescriptorProto:
 			switch path[step] {
-			case tag_Descriptor_field:
+			case tagDescriptorField:
 				step++
 				pos = p.Field[path[step]]
-			case tag_Descriptor_nestedType:
+			case tagDescriptorNestedType:
 				step++
 				pos = p.NestedType[path[step]]
-			case tag_Descriptor_enumType:
+			case tagDescriptorEnumType:
 				step++
 				pos = p.EnumType[path[step]]
-			case tag_Descriptor_oneofDecl:
+			case tagDescriptorOneofDecl:
 				step++
 				pos = p.OneofDecl[path[step]]
 			default:
@@ -101,7 +101,7 @@ func getDefinitionAtPath(file *descriptor.FileDescriptorProto, path []int32) pro
 
 		case *descriptor.EnumDescriptorProto:
 			switch path[step] {
-			case tag_EnumDescriptor_value:
+			case tagEnumDescriptorValue:
 				step++
 				pos = p.Value[path[step]]
 			default:

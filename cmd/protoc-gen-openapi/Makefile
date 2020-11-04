@@ -4,7 +4,7 @@ default: build
 build:
 	@echo "Generating binary (protoc-gen-openapi) ..."
 	@mkdir -p bin
-	@go build -o bin/protoc-gen-jsonschema
+	@go build -o bin/protoc-gen-openapi
 
 .PHONY: fmt
 fmt:
@@ -13,4 +13,4 @@ fmt:
 PROTO_PATH ?= "internal/converter/testdata/proto"
 .PHONY: samples
 samples:
-	@PATH=./bin:$$PATH; protoc --openapi_out=. --proto_path=../../proto/runtime ../../proto/runtime/runtime.proto
+	@PATH=./bin:$$PATH protoc --openapi_out=. --proto_path=../../proto/runtime ../../proto/runtime/runtime.proto

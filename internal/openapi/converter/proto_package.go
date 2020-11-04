@@ -4,7 +4,6 @@ import (
 	"strings"
 
 	"github.com/golang/protobuf/protoc-gen-go/descriptor"
-	"github.com/micro/micro/v3/service/logger"
 )
 
 // ProtoPackage describes a package of Protobuf, which is an container of message types.
@@ -32,13 +31,13 @@ func (c *Converter) relativelyLookupType(pkg *ProtoPackage, name string) (*descr
 	components := strings.SplitN(name, ".", 2)
 	switch len(components) {
 	case 0:
-		logger.Debug("empty message name")
+		c.logger.Debug("empty message name")
 		return nil, "", false
 	case 1:
 		found, ok := pkg.types[components[0]]
 		return found, pkg.name, ok
 	case 2:
-		logger.Tracef("Looking for %s in %s at %s (%v)", components[1], components[0], pkg.name, pkg)
+		c.logger.Tracef("Looking for %s in %s at %s (%v)", components[1], components[0], pkg.name, pkg)
 		if child, ok := pkg.children[components[0]]; ok {
 			found, pkgName, ok := c.relativelyLookupType(child, components[1])
 			return found, pkgName, ok
@@ -47,10 +46,10 @@ func (c *Converter) relativelyLookupType(pkg *ProtoPackage, name string) (*descr
 			found, ok := c.relativelyLookupNestedType(msg, components[1])
 			return found, pkg.name, ok
 		}
-		logger.Info("No such package nor message in package (%s), component (%s)", pkg.name, components[0])
+		c.logger.Infof("No such package nor message in package (%s), component (%s)", pkg.name, components[0])
 		return nil, "", false
 	default:
-		logger.Error("Failed to lookup type")
+		c.logger.Error("Failed to lookup type")
 		return nil, "", false
 	}
 }

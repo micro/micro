@@ -7,17 +7,33 @@ import (
 	"github.com/golang/protobuf/proto"
 	plugin "github.com/golang/protobuf/protoc-gen-go/plugin"
 	"github.com/micro/micro/v3/internal/openapi/converter"
-	"github.com/micro/micro/v3/service/logger"
+	"github.com/sirupsen/logrus"
+)
+
+const (
+	microLogLevelEnvVar = "MICRO_LOG_LEVEL"
 )
 
 func main() {
 
+	// Make a Logrus logger:
+	// The Micro logger is unable / unwilling to output to os.Stderr (code generators break if logs go to os.Stdout)
+	logger := logrus.New()
+	logger.SetOutput(os.Stderr)
+
+	// Set the log level:
+	parsedLevel, err := logrus.ParseLevel(os.Getenv(microLogLevelEnvVar))
+	if err != nil {
+		parsedLevel = logrus.InfoLevel
+	}
+	logger.SetLevel(parsedLevel)
+
 	// Get a converter:
-	protoConverter := new(converter.Converter)
+	protoConverter := converter.New(logger)
 
 	// Convert the generator request:
 	var ok = true
-	logger.Debug("Processing code generator request")
+	logger.Debugf("Processing code generator request")
 	res, err := protoConverter.ConvertFrom(os.Stdin)
 	if err != nil {
 		ok = false
@@ -32,11 +48,11 @@ func main() {
 	logger.Debug("Serializing code generator response")
 	data, err := proto.Marshal(res)
 	if err != nil {
-		logger.Fatal("Cannot marshal response: %v", err)
+		logger.Fatalf("Cannot marshal response: %v", err)
 	}
 	_, err = os.Stdout.Write(data)
 	if err != nil {
-		logger.Fatal("Failed to write response: %v", err)
+		logger.Fatalf("Failed to write response: %v", err)
 	}
 
 	if ok {
