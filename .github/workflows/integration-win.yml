@@ -45,7 +45,7 @@ jobs:
         go install
         $out=$pwd.Path+"\micro"
         mkdir C:\micro_bak
-        cp -R . C:\micro_bak
+        cp -R .\* C:\micro_bak
         cd C:\micro_bak
         micro init --profile=ci --output=profile.go
         $env:GOOS = 'windows'; $env:GOARCH = 'amd64'; $env:CGO_ENABLED = '0'; go build -o $out

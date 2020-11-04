@@ -4,7 +4,7 @@ package init
 import (
 	"fmt"
 	"os"
-	"path/filepath"
+	"path"
 	"strings"
 
 	"github.com/micro/micro/v3/cmd"
@@ -50,7 +50,7 @@ func Run(ctx *cli.Context) error {
 
 	// write the profiles
 	for _, profile := range profiles {
-		path := filepath.Join(Import, profile, Version)
+		path := path.Join(Import, profile, Version)
 		line := fmt.Sprintf("\t_ \"%s\"\n", path)
 		fmt.Fprint(f, line)
 	}
