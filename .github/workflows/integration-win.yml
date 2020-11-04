@@ -48,7 +48,7 @@ jobs:
         cp -R . C:\micro_bak
         cd C:\micro_bak
         micro init --profile=ci --output=profile.go
-        GOOS=windows GOARCH=amd64 CGO_ENABLED=0 go build -o $out
+        $env:GOOS = 'windows'; $env:GOARCH = 'amd64'; $env:CGO_ENABLED = '0'; go build -o $out
     
     # This sets up a local docker registry to push and pull our test docker image so that we can persist 
     # Based on https://dev.to/dtinth/caching-docker-builds-in-github-actions-which-approach-is-the-fastest-a-research-18ei
