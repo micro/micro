@@ -1,4 +1,4 @@
-Name: Downstream
+name: Downstream
 # Alert downstream repos
 on:
   push:
