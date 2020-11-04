@@ -2,15 +2,17 @@
 
 IMAGE=micro/cells
 
-echo ${PASSWORD} | docker login ghcr.io -u ${USERNAME} --password-stdin
+echo ${PASSWORD} | docker login $DOCKER_DOMAIN -u ${USERNAME} --password-stdin
 
 
 ls | while read dir; do
   if [ ! -d ${dir} ]; then
     continue
   fi
-
-  TAG=ghcr.io/$IMAGE:${dir}
+  if [ $DOCKER_DOMAIN ];
+    TAGPREFIX=$DOCKER_DOMAIN/
+  fi
+  TAG=$TAGPREFIX$IMAGE:${dir}
 
   pushd ${dir} &>/dev/null
   echo Building $TAG
