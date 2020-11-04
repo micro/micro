@@ -90,7 +90,7 @@ spec:
         args:
         - service
         - network
-        image: micro/platform
+        image: ghcr.io/m3o/platform
         imagePullPolicy: Always
         ports:
         - containerPort: 8443
