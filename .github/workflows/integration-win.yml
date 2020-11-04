@@ -8,6 +8,7 @@ jobs:
     runs-on: windows-latest
     env: 
       DOCKER_BUILDKIT: '0'
+      DOCKER_CLI_EXPERIMENTAL: 'enabled'
     steps:
 
     - name: Set up Go 1.15
