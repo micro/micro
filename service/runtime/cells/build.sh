@@ -1,6 +1,8 @@
 #!/bin/bash
 
-IMAGE=micro/cells
+if [ ! $IMAGE ]; then
+  IMAGE=micro/cells
+fi
 
 echo ${PASSWORD} | docker login $DOCKER_DOMAIN -u ${USERNAME} --password-stdin
 
