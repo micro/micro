@@ -9,7 +9,7 @@ ls | while read dir; do
   if [ ! -d ${dir} ]; then
     continue
   fi
-  if [ $DOCKER_DOMAIN ];
+  if [ $DOCKER_DOMAIN ]; then
     TAGPREFIX=$DOCKER_DOMAIN/
   fi
   TAG=$TAGPREFIX$IMAGE:${dir}

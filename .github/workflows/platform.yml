@@ -42,4 +42,3 @@ jobs:
         password: ${{ secrets.DOCKER_PASSWORD }}
         tag_names: true
         snapshot: true
-        
