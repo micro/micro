@@ -43,7 +43,9 @@ jobs:
       id: install-micro
       run: |
         go install
+        micro -v
         $Env:Path = "$HOME\go\bin;$Env:Path"
+        micro -v
         $out=$pwd.Path+"\micro"
         mkdir C:\micro_bak
         cp -R .\* C:\micro_bak
