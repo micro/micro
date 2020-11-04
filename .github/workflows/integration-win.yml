@@ -43,12 +43,12 @@ jobs:
       id: install-micro
       run: |
         go install
-        out=$(pwd)/micro
-        mkdir /tmp/micro
-        cp -R . /tmp/micro
-        cd /tmp/micro
+        $out=$pwd.Path+"\micro"
+        mkdir C:\micro_bak
+        cp -R . C:\micro_bak
+        cd C:\micro_bak
         micro init --profile=ci --output=profile.go
-        GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o $out
+        GOOS=windows GOARCH=amd64 CGO_ENABLED=0 go build -o $out
     
     # This sets up a local docker registry to push and pull our test docker image so that we can persist 
     # Based on https://dev.to/dtinth/caching-docker-builds-in-github-actions-which-approach-is-the-fastest-a-research-18ei
