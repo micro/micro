@@ -61,16 +61,9 @@ jobs:
       with:
         path: /tmp/docker-registry
         key: docker-registry-int-${{ steps.get-date.outputs.date }}
-    - name: Setup docker registry
-      run: |
-        $Env:DOCKER_CLI_EXPERIMENTAL = 'enabled'
-        docker run -d -p 5000:5000 --restart=always --name registry -v /tmp/docker-registry:/var/lib/registry registry:2 && npx wait-on tcp:5000
     - name: Build docker image
       run: |
-        docker build -f test/Dockerfile . -t micro --cache-from=localhost:5000/micro --build-arg BUILDKIT_INLINE_CACHE=1
-    - name: Tag and push docker
-      run: |
-        docker tag micro localhost:5000/micro && docker push localhost:5000/micro || true
+        docker build -f test/Dockerfile . -t micro
 
     - name: Check out services
       uses: actions/checkout@v2
