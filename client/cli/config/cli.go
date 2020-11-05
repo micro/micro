@@ -2,7 +2,6 @@ package config
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"strings"
 
@@ -26,7 +25,7 @@ func setConfig(ctx *cli.Context) error {
 	pb := proto.NewConfigService("config", client.DefaultClient)
 
 	if args.Len() == 0 {
-		return fmt.Errorf("Required usage: micro config set key val")
+		return cli.ShowSubcommandHelp(ctx)
 	}
 
 	env, err := util.GetEnv(ctx)
@@ -60,7 +59,7 @@ func setConfig(ctx *cli.Context) error {
 			Secret: ctx.Bool("secret"),
 		},
 	}, client.WithAuthToken())
-	return err
+	return util.CliError(err)
 }
 
 func parseValue(s string) (interface{}, error) {
@@ -77,7 +76,7 @@ func getConfig(ctx *cli.Context) error {
 	args := ctx.Args()
 
 	if args.Len() == 0 {
-		return fmt.Errorf("Required usage: micro config get key")
+		return cli.ShowSubcommandHelp(ctx)
 	}
 	// key val
 	key := args.Get(0)
@@ -107,7 +106,7 @@ func getConfig(ctx *cli.Context) error {
 		},
 	}, client.WithAuthToken())
 	if err != nil {
-		return err
+		return util.CliError(err)
 	}
 
 	if v := rsp.Value.Data; len(v) == 0 || strings.TrimSpace(string(v)) == "null" {
@@ -126,7 +125,7 @@ func delConfig(ctx *cli.Context) error {
 	args := ctx.Args()
 
 	if args.Len() == 0 {
-		return errors.New("Required usage: micro config get key")
+		return cli.ShowSubcommandHelp(ctx)
 	}
 	// key val
 	key := args.Get(0)
@@ -152,7 +151,7 @@ func delConfig(ctx *cli.Context) error {
 		// The actual key for the val
 		Path: key,
 	}, client.WithAuthToken())
-	return err
+	return util.CliError(err)
 }
 
 func init() {

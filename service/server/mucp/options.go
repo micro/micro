@@ -19,7 +19,7 @@ package mucp
 import (
 	"github.com/micro/micro/v3/internal/codec"
 	thttp "github.com/micro/micro/v3/internal/network/transport/http"
-	"github.com/micro/micro/v3/service/broker/http"
+	"github.com/micro/micro/v3/service/broker/memory"
 	"github.com/micro/micro/v3/service/registry/mdns"
 	"github.com/micro/micro/v3/service/server"
 )
@@ -37,7 +37,7 @@ func newOptions(opt ...server.Option) server.Options {
 	}
 
 	if opts.Broker == nil {
-		opts.Broker = http.NewBroker()
+		opts.Broker = memory.NewBroker()
 	}
 
 	if opts.Registry == nil {

@@ -43,7 +43,7 @@ func NewStream(opts ...Option) (events.Stream, error) {
 }
 
 type subscriber struct {
-	Queue   string
+	Group   string
 	Topic   string
 	Channel chan events.Event
 
@@ -114,15 +114,15 @@ func (m *mem) Publish(topic string, msg interface{}, opts ...events.PublishOptio
 	return nil
 }
 
-func (m *mem) Subscribe(topic string, opts ...events.SubscribeOption) (<-chan events.Event, error) {
+func (m *mem) Consume(topic string, opts ...events.ConsumeOption) (<-chan events.Event, error) {
 	// validate the topic
 	if len(topic) == 0 {
 		return nil, events.ErrMissingTopic
 	}
 
 	// parse the options
-	options := events.SubscribeOptions{
-		Queue:   uuid.New().String(),
+	options := events.ConsumeOptions{
+		Group:   uuid.New().String(),
 		AutoAck: true,
 	}
 	for _, o := range opts {
@@ -134,7 +134,7 @@ func (m *mem) Subscribe(topic string, opts ...events.SubscribeOption) (<-chan ev
 	sub := &subscriber{
 		Channel:    make(chan events.Event),
 		Topic:      topic,
-		Queue:      options.Queue,
+		Group:      options.Group,
 		retryMap:   map[string]int{},
 		autoAck:    true,
 		retryLimit: options.GetRetryLimit(),
@@ -154,8 +154,8 @@ func (m *mem) Subscribe(topic string, opts ...events.SubscribeOption) (<-chan ev
 	m.Unlock()
 
 	// lookup previous events if the start time option was passed
-	if options.StartAtTime.Unix() > 0 {
-		go m.lookupPreviousEvents(sub, options.StartAtTime)
+	if options.Offset.Unix() > 0 {
+		go m.lookupPreviousEvents(sub, options.Offset)
 	}
 
 	// return the channel
@@ -200,7 +200,7 @@ func (m *mem) handleEvent(ev *events.Event) {
 	// filter down to subscribers who are interested in this topic
 	for _, sub := range subs {
 		if len(sub.Topic) == 0 || sub.Topic == ev.Topic {
-			filteredSubs[sub.Queue] = sub
+			filteredSubs[sub.Group] = sub
 		}
 	}
 

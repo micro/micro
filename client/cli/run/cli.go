@@ -82,7 +82,7 @@ func init() {
 		},
 		&cli.Command{
 			Name:   "logs",
-			Usage:  "Get logs for a service",
+			Usage:  "Get logs for a service e.g. micro logs helloworld",
 			Action: getLogs,
 			Flags: []cli.Flag{
 				&cli.StringFlag{

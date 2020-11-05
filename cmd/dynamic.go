@@ -281,6 +281,9 @@ func flagsToRequest(flags map[string][]string, req *goregistry.Value) (map[strin
 	coerceValue := func(valueType string, value []string) (interface{}, error) {
 		switch valueType {
 		case "bool":
+			if len(strings.TrimSpace(value[0])) == 0 {
+				return true, nil
+			}
 			return strconv.ParseBool(value[0])
 		case "int32":
 			return strconv.Atoi(value[0])
@@ -386,8 +389,8 @@ loop:
 				}
 
 				if _, ok := result[attr.Name]; !ok {
-					result[attr.Name] = map[string]string{}
-				} else if _, ok := result[attr.Name].(map[string]string); !ok {
+					result[attr.Name] = map[string]interface{}{}
+				} else if _, ok := result[attr.Name].(map[string]interface{}); !ok {
 					return nil, fmt.Errorf("Error parsing request, duplicate key: %v", key)
 				}
 				parsed, err := coerceValue(attr2.Type, value)
@@ -398,7 +401,6 @@ loop:
 				continue loop
 			}
 		}
-
 		return nil, fmt.Errorf("Unknown flag: %v", key)
 	}
 

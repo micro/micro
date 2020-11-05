@@ -123,16 +123,16 @@ func (s *stream) Publish(topic string, msg interface{}, opts ...events.PublishOp
 	return nil
 }
 
-// Subscribe to a topic
-func (s *stream) Subscribe(topic string, opts ...events.SubscribeOption) (<-chan events.Event, error) {
+// Consume to a topic
+func (s *stream) Consume(topic string, opts ...events.ConsumeOption) (<-chan events.Event, error) {
 	// validate the topic
 	if len(topic) == 0 {
 		return nil, events.ErrMissingTopic
 	}
 
 	// parse the options
-	options := events.SubscribeOptions{
-		Queue:   uuid.New().String(),
+	options := events.ConsumeOptions{
+		Group:   uuid.New().String(),
 		AutoAck: true,
 	}
 	for _, o := range opts {
@@ -189,15 +189,15 @@ func (s *stream) Subscribe(topic string, opts ...events.SubscribeOption) (<-chan
 		stan.DurableName(topic),
 		stan.SetManualAckMode(),
 	}
-	if options.StartAtTime.Unix() > 0 {
-		subOpts = append(subOpts, stan.StartAtTime(options.StartAtTime))
+	if options.Offset.Unix() > 0 {
+		subOpts = append(subOpts, stan.StartAtTime(options.Offset))
 	}
 	if options.AckWait > 0 {
 		subOpts = append(subOpts, stan.AckWait(options.AckWait))
 	}
 
 	// connect the subscriber
-	_, err := s.conn.QueueSubscribe(topic, options.Queue, handleMsg, subOpts...)
+	_, err := s.conn.QueueSubscribe(topic, options.Group, handleMsg, subOpts...)
 	if err != nil {
 		return nil, errors.Wrap(err, "Error subscribing to topic")
 	}

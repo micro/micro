@@ -249,18 +249,16 @@ func action(c *cli.Context) error {
 		// execute the Config.Set RPC, setting the flags in the
 		// request.
 		if srv, ns, err := lookupService(c); err != nil {
-			fmt.Printf("Error querying registry for service %v: %v", c.Args().First(), err)
-			os.Exit(1)
+			return util.CliError(err)
 		} else if srv != nil && shouldRenderHelp(c) {
-			fmt.Println(formatServiceUsage(srv, c))
-			os.Exit(1)
+			return cli.Exit(formatServiceUsage(srv, c), 1)
 		} else if srv != nil {
-			if err := callService(srv, ns, c); err != nil {
-				fmt.Println(err)
-				os.Exit(1)
-			}
-			os.Exit(0)
+			err := callService(srv, ns, c)
+			return util.CliError(err)
 		}
+
+		// srv == nil
+		return helper.UnexpectedCommand(c)
 
 	}
 
@@ -421,7 +419,7 @@ func (c *command) Before(ctx *cli.Context) error {
 	if len(ctx.String("auth_public_key")) > 0 || len(ctx.String("auth_private_key")) > 0 {
 		authOpts = append(authOpts, auth.PublicKey(ctx.String("auth_public_key")))
 		authOpts = append(authOpts, auth.PrivateKey(ctx.String("auth_private_key")))
-	} else if ctx.Args().First() == "server" {
+	} else if ctx.Args().First() == "server" || ctx.Args().First() == "service" {
 		privKey, pubKey, err := user.GetJWTCerts()
 		if err != nil {
 			logger.Fatalf("Error getting keys: %v", err)
@@ -506,6 +504,9 @@ func (c *command) Before(ctx *cli.Context) error {
 	}
 	if err := broker.DefaultBroker.Init(brokerOpts...); err != nil {
 		logger.Fatalf("Error configuring broker: %v", err)
+	}
+	if err := broker.DefaultBroker.Connect(); err != nil {
+		logger.Fatalf("Error connecting to broker: %v", err)
 	}
 
 	// Setup runtime. This is a temporary fix to trigger the runtime to recreate

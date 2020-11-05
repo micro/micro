@@ -60,7 +60,7 @@ func (s *Stream) Publish(ctx context.Context, req *pb.PublishRequest, rsp *pb.Pu
 	return nil
 }
 
-func (s *Stream) Subscribe(ctx context.Context, req *pb.SubscribeRequest, rsp pb.Stream_SubscribeStream) error {
+func (s *Stream) Consume(ctx context.Context, req *pb.ConsumeRequest, rsp pb.Stream_ConsumeStream) error {
 	// authorize the request
 	if err := namespace.Authorize(ctx, namespace.DefaultNamespace); err == namespace.ErrForbidden {
 		return errors.Forbidden("events.Stream.Publish", err.Error())
@@ -71,12 +71,12 @@ func (s *Stream) Subscribe(ctx context.Context, req *pb.SubscribeRequest, rsp pb
 	}
 
 	// parse options
-	opts := []events.SubscribeOption{}
-	if req.StartAtTime > 0 {
-		opts = append(opts, events.WithStartAtTime(time.Unix(req.StartAtTime, 0)))
+	opts := []events.ConsumeOption{}
+	if req.Offset > 0 {
+		opts = append(opts, events.WithOffset(time.Unix(req.Offset, 0)))
 	}
-	if len(req.Queue) > 0 {
-		opts = append(opts, events.WithQueue(req.Queue))
+	if len(req.Group) > 0 {
+		opts = append(opts, events.WithGroup(req.Group))
 	}
 	if !req.AutoAck {
 		opts = append(opts, events.WithAutoAck(req.AutoAck, time.Duration(req.AckWait)/time.Nanosecond))
@@ -86,9 +86,9 @@ func (s *Stream) Subscribe(ctx context.Context, req *pb.SubscribeRequest, rsp pb
 	}
 
 	// create the subscriber
-	evChan, err := events.Subscribe(req.Topic, opts...)
+	evChan, err := events.Consume(req.Topic, opts...)
 	if err != nil {
-		return errors.InternalServerError("events.Stream.Subscribe", err.Error())
+		return errors.InternalServerError("events.Stream.Consume", err.Error())
 	}
 
 	type eventSent struct {

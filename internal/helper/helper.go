@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	"os"
 	"strings"
 
 	"github.com/micro/micro/v3/service/context/metadata"
@@ -74,30 +73,18 @@ func TLSConfig(ctx *cli.Context) (*tls.Config, error) {
 func UnexpectedSubcommand(ctx *cli.Context) error {
 	if first := Subcommand(ctx); first != "" {
 		// received something that isn't a subcommand
-		return fmt.Errorf("Unrecognized subcommand for %s: %s. Please refer to '%s --help'", ctx.App.Name, first, ctx.App.Name)
+		return cli.Exit(fmt.Sprintf("Unrecognized subcommand for %s: %s. Please refer to '%s --help'", ctx.App.Name, first, ctx.App.Name), 1)
 	}
-	return nil
+	return cli.ShowSubcommandHelp(ctx)
 }
 
 func UnexpectedCommand(ctx *cli.Context) error {
-	commandName := Command(ctx)
-	return fmt.Errorf("Unrecognized micro command: %s. Please refer to 'micro --help'", commandName)
+	commandName := ctx.Args().First()
+	return cli.Exit(fmt.Sprintf("Unrecognized micro command: %s. Please refer to 'micro --help'", commandName), 1)
 }
 
 func MissingCommand(ctx *cli.Context) error {
-	return fmt.Errorf("No command provided to micro. Please refer to 'micro --help'")
-}
-
-// MicroCommand returns the main command name
-func Command(ctx *cli.Context) string {
-	// We fall back to os.Args as ctx does not seem to have the original command.
-	for _, arg := range os.Args[1:] {
-		// Exclude flags
-		if !strings.HasPrefix(arg, "-") {
-			return arg
-		}
-	}
-	return ""
+	return cli.Exit(fmt.Sprintf("No command provided to micro. Please refer to 'micro --help'"), 1)
 }
 
 // MicroSubcommand returns the subcommand name

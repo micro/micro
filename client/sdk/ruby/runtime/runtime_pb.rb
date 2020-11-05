@@ -8,6 +8,7 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     optional :namespace, :message, 1, "runtime.Namespace"
     optional :networkpolicy, :message, 2, "runtime.NetworkPolicy"
     optional :service, :message, 3, "runtime.Service"
+    optional :resourcequota, :message, 4, "runtime.ResourceQuota"
   end
   add_message "runtime.Namespace" do
     optional :name, :string, 1
@@ -16,6 +17,17 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     map :allowedlabels, :string, :string, 1
     optional :name, :string, 2
     optional :namespace, :string, 3
+  end
+  add_message "runtime.ResourceQuota" do
+    optional :name, :string, 1
+    optional :namespace, :string, 2
+    optional :requests, :message, 3, "runtime.Resources"
+    optional :limits, :message, 4, "runtime.Resources"
+  end
+  add_message "runtime.Resources" do
+    optional :Memory, :int32, 1
+    optional :CPU, :int32, 2
+    optional :EphemeralStorage, :int32, 3
   end
   add_message "runtime.Service" do
     optional :name, :string, 1
@@ -113,6 +125,8 @@ module Runtime
   Resource = Google::Protobuf::DescriptorPool.generated_pool.lookup("runtime.Resource").msgclass
   Namespace = Google::Protobuf::DescriptorPool.generated_pool.lookup("runtime.Namespace").msgclass
   NetworkPolicy = Google::Protobuf::DescriptorPool.generated_pool.lookup("runtime.NetworkPolicy").msgclass
+  ResourceQuota = Google::Protobuf::DescriptorPool.generated_pool.lookup("runtime.ResourceQuota").msgclass
+  Resources = Google::Protobuf::DescriptorPool.generated_pool.lookup("runtime.Resources").msgclass
   Service = Google::Protobuf::DescriptorPool.generated_pool.lookup("runtime.Service").msgclass
   CreateOptions = Google::Protobuf::DescriptorPool.generated_pool.lookup("runtime.CreateOptions").msgclass
   CreateRequest = Google::Protobuf::DescriptorPool.generated_pool.lookup("runtime.CreateRequest").msgclass

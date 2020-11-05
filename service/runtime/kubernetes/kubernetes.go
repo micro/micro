@@ -26,6 +26,16 @@ import (
 	"github.com/micro/micro/v3/service/runtime"
 )
 
+var (
+	DefaultServiceResources = &runtime.Resources{
+		CPU:  200,
+		Mem:  200,
+		Disk: 2000,
+	}
+
+	DefaultImage = "micro/cells:v3"
+)
+
 // action to take on runtime service
 type action int
 
@@ -56,6 +66,9 @@ func (k *kubernetes) Logs(resource runtime.Resource, options ...runtime.LogsOpti
 		return nil, nil
 	case runtime.TypeNetworkPolicy:
 		// noop (NetworkPolicy is not supported by *kubernetes.Logs()))
+		return nil, nil
+	case runtime.TypeResourceQuota:
+		// noop (ResourceQuota is not supported by *kubernetes.Logs()))
 		return nil, nil
 	case runtime.TypeService:
 
@@ -159,6 +172,13 @@ func (k *kubernetes) create(resource runtime.Resource, opts ...runtime.CreateOpt
 			return runtime.ErrInvalidResource
 		}
 		return k.createNetworkPolicy(networkPolicy)
+	case runtime.TypeResourceQuota:
+		// Assert the resource back into a *runtime.ResourceQuota
+		resourceQuota, ok := resource.(*runtime.ResourceQuota)
+		if !ok {
+			return runtime.ErrInvalidResource
+		}
+		return k.createResourceQuota(resourceQuota)
 	case runtime.TypeService:
 
 		// Assert the resource back into a *runtime.Service
@@ -183,6 +203,15 @@ func (k *kubernetes) create(resource runtime.Resource, opts ...runtime.CreateOpt
 		// create a secret for the deployment
 		if err := k.createCredentials(s, options); err != nil {
 			return err
+		}
+
+		// create some default resource requests
+		if options.Resources == nil && options.Namespace != "micro" {
+			options.Resources = DefaultServiceResources
+		}
+
+		if len(options.Image) == 0 {
+			options.Image = DefaultImage
 		}
 
 		// create the deployment
@@ -268,6 +297,13 @@ func (k *kubernetes) Update(resource runtime.Resource, opts ...runtime.UpdateOpt
 			return runtime.ErrInvalidResource
 		}
 		return k.updateNetworkPolicy(networkPolicy)
+	case runtime.TypeResourceQuota:
+		// Assert the resource back into a *runtime.ResourceQuota
+		resourceQuota, ok := resource.(*runtime.ResourceQuota)
+		if !ok {
+			return runtime.ErrInvalidResource
+		}
+		return k.updateResourceQuota(resourceQuota)
 	case runtime.TypeService:
 
 		// Assert the resource back into a *runtime.Service
@@ -364,6 +400,13 @@ func (k *kubernetes) Delete(resource runtime.Resource, opts ...runtime.DeleteOpt
 			return runtime.ErrInvalidResource
 		}
 		return k.deleteNetworkPolicy(networkPolicy)
+	case runtime.TypeResourceQuota:
+		// Assert the resource back into a *runtime.ResourceQuota
+		resourceQuota, ok := resource.(*runtime.ResourceQuota)
+		if !ok {
+			return runtime.ErrInvalidResource
+		}
+		return k.deleteResourceQuota(resourceQuota)
 	case runtime.TypeService:
 
 		// Assert the resource back into a *runtime.Service

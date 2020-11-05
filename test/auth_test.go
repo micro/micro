@@ -102,7 +102,7 @@ func testPublicAPI(t *T) {
 	}
 
 	if err := Try("Run helloworld", t, func() ([]byte, error) {
-		return cmd.Exec("run", "helloworld")
+		return cmd.Exec("run", "./services/helloworld")
 	}, 5*time.Second); err != nil {
 		return
 	}

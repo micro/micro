@@ -1,16 +1,10 @@
-FROM alpine:latest
-RUN apk --no-cache add make git go gcc libtool musl-dev curl bash
+FROM alpine:3.12.1
 
-# Configure Go
-ENV GOROOT /usr/lib/go
-ENV GOPATH /go
-ENV PATH /go/bin:$PATH
+COPY --from=golang:1.15-alpine /usr/local/go/ /usr/local/go/
+ENV PATH="/usr/local/go/bin:${PATH}"
 
-RUN mkdir -p ${GOPATH}/src ${GOPATH}/bin
-
-RUN apk add ca-certificates && \
-    rm -rf /var/cache/apk/* /tmp/* && \
-    [ ! -e /etc/nsswitch.conf ] && echo 'hosts: files dns' > /etc/nsswitch.conf
+RUN apk --no-cache add make git gcc libtool musl-dev curl bash
+RUN apk add ca-certificates && rm -rf /var/cache/apk/* /tmp/*
 
 COPY ./micro /micro
 ENTRYPOINT ["/micro"]

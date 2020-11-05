@@ -1,4 +1,4 @@
-FROM golang:1.13.8
+FROM golang:1.15.3
 
 WORKDIR /
 RUN apt-get update && \

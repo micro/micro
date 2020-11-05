@@ -11,6 +11,8 @@ import (
 	"github.com/micro/micro/v3/service/auth"
 	"github.com/micro/micro/v3/service/auth/jwt"
 	"github.com/micro/micro/v3/service/broker"
+	microBuilder "github.com/micro/micro/v3/service/build"
+	"github.com/micro/micro/v3/service/build/golang"
 	"github.com/micro/micro/v3/service/config"
 	storeConfig "github.com/micro/micro/v3/service/config/store"
 	"github.com/micro/micro/v3/service/events"
@@ -19,8 +21,6 @@ import (
 	"github.com/micro/micro/v3/service/metrics"
 	"github.com/micro/micro/v3/service/registry"
 	microRuntime "github.com/micro/micro/v3/service/runtime"
-	microBuilder "github.com/micro/micro/v3/service/build"
-	"github.com/micro/micro/v3/service/build/golang"
 	"github.com/micro/micro/v3/service/runtime/kubernetes"
 	"github.com/micro/micro/v3/service/store"
 	"github.com/micro/micro/v3/service/store/s3"
@@ -90,6 +90,8 @@ var Profile = &profile.Profile{
 			logger.Fatalf("Error configuring golang builder: %v", err)
 		}
 		events.DefaultStore = evStore.NewStore(evStore.WithStore(store.DefaultStore))
+
+		kubernetes.DefaultImage = "ghcr.io/m3o/cells:v3"
 		return nil
 	},
 }

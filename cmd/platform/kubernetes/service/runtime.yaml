@@ -16,11 +16,13 @@ rules:
   - services
   - secrets
   - namespaces
+  - resourcequotas
   verbs:
   - get
   - create
   - update
   - delete
+  - deletecollection
   - list
   - patch
   - watch
@@ -193,7 +195,7 @@ spec:
         args:
         - service
         - runtime
-        image: micro/platform
+        image: ghcr.io/m3o/platform
         imagePullPolicy: Always
         ports:
         - containerPort: 8088

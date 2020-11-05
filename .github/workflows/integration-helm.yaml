@@ -10,10 +10,10 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v1
-    - name: Set up Go 1.13
+    - name: Set up Go 1.15
       uses: actions/setup-go@v2
       with:
-        go-version: 1.13
+        go-version: 1.15
       id: go
     - name: Install Protoc
       uses: arduino/setup-protoc@master
@@ -39,40 +39,43 @@ jobs:
     - name: Build and push micro to local registry
       id: build-push-reg-micro
       run: |
-        docker build -f Dockerfile . -t localhost:5000/micro 
+        GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build
+        docker build -f ./test/Dockerfile . -t localhost:5000/micro 
         docker push localhost:5000/micro
-    - name: Setup Kind
-      uses: engineerd/setup-kind@v0.4.0
-      with:
-        config: scripts/kind/kind-config.yaml
-        version: v0.8.1
-    - name: Finish Kind registry setup
-      run: |
-        docker network connect "kind" "kind-registry"
-        for node in $(kind get nodes); do kubectl annotate node "${node}" "kind.x-k8s.io/registry=localhost:5000"; done
-    - name: Install the platform
-      run: |
-        helm repo add micro https://micro.github.io/helm
-        helm install micro micro/micro --set image.repo=localhost:5000/micro
-    - name: Install failed, show platform logs
-      if: ${{ failure() }}
-      run: |
-        kubectl get pods -n | awk '{print $1}' | xargs -n1 kubectl logs
-        kubectl get pods -n platform | awk '{print $1}' | xargs -n1 kubectl logs -n platform
-    
-    # Do this after the helm install to give the services time to register etc
+
     - name: Build and push cells to local registry
       id: build-push-reg-cell
       run: |
         DIR=service/runtime/cells/v3
         docker build -f $DIR/Dockerfile $DIR -t localhost:5000/cells:v3
         docker push localhost:5000/cells:v3
+
+    - name: Setup Kind
+      uses: engineerd/setup-kind@v0.4.0
+      with:
+        config: scripts/kind/kind-config.yaml
+        version: v0.8.1
+    
+    - name: Finish Kind registry setup
+      run: |
+        docker network connect "kind" "kind-registry"
+        for node in $(kind get nodes); do kubectl annotate node "${node}" "kind.x-k8s.io/registry=localhost:5000"; done
+
+    - name: Install the platform
+      run: |
+        helm repo add micro https://micro.github.io/helm
+        helm install micro micro/micro --set image.repo=localhost:5000/micro
+        kubectl wait job --all --for=condition=complete -n micro --timeout=120s
+        kubectl wait deployment --all --for=condition=available -n micro --timeout=120s
+
+    - name: Install failed, show platform logs
+      if: ${{ failure() }}
+      run: |
+        kubectl get pods -n micro | awk '{print $1}' | xargs -n1 kubectl logs -n micro
+
     - name: Install micro
       run: go install
 
-    - name: Wait for micro to be ready
-      run: |
-        kubectl wait deployment --all --for=condition=available -n micro --timeout=180s
     # Finally, we can actually run the tests
     - name: Test micro server
       working-directory: ./test

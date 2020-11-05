@@ -99,7 +99,7 @@ spec:
             secretKeyRef:
               name: minio-creds
               key: region
-        image: micro/platform
+        image: ghcr.io/m3o/platform
         imagePullPolicy: Always
         args:
         - service
