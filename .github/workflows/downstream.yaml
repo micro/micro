@@ -1,0 +1,17 @@
+name: Downstream
+# Alert downstream repos
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Alert m3o
+        run: |
+          curl -X POST -H "Authorization: token $GH_PAT" -H "Accept: application/vnd.github.v3+json" https://api.github.com/repos/m3o/dispatches/dispatches -d '{"event_type":"micro_release"}'
+        env:
+          GH_PAT: ${{ secrets.GH_REPO_DISPATCH_PAT }}
+
