@@ -31,6 +31,13 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     map :header, :string, :message, 2, "api.Pair"
     optional :body, :string, 3
   end
+  add_message "api.Event" do
+    optional :name, :string, 1
+    optional :id, :string, 2
+    optional :timestamp, :int64, 3
+    map :header, :string, :message, 4, "api.Pair"
+    optional :data, :string, 5
+  end
 end
 
 module Api
@@ -39,4 +46,5 @@ module Api
   Pair = Google::Protobuf::DescriptorPool.generated_pool.lookup("api.Pair").msgclass
   Request = Google::Protobuf::DescriptorPool.generated_pool.lookup("api.Request").msgclass
   Response = Google::Protobuf::DescriptorPool.generated_pool.lookup("api.Response").msgclass
+  Event = Google::Protobuf::DescriptorPool.generated_pool.lookup("api.Event").msgclass
 end

@@ -358,7 +358,7 @@ func testConfigReadFromService(t *T) {
 		return
 	}
 
-	outp, err := cmd.Exec("run", "./services/conf")
+	outp, err := cmd.Exec("run", "./services/test/conf")
 	if err != nil {
 		t.Fatalf("micro run failure, output: %v", string(outp))
 		return

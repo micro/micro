@@ -62,7 +62,8 @@ base64 /tmp/jwt.pub > /tmp/jwt-base64.pub
 # Create the k8s secret
 kubectl create secret generic micro-secrets \
   --from-file=auth_public_key=/tmp/jwt-base64.pub \
-  --from-file=auth_private_key=/tmp/jwt-base64
+  --from-file=auth_private_key=/tmp/jwt-base64 \
+  --from-literal=cloudflare=$CF_API_KEY
 
 # Remove the files from tmp
 rm /tmp/jwt /tmp/jwt.pub /tmp/jwt-base64 /tmp/jwt-base64.pub
@@ -77,20 +78,8 @@ for d in ./resource/*/; do
   popd
 done
 
-# replace m3o.com with m3o.dev
-if [ $ENV == "staging" ]; then
-  sed -i 's@m3o.com@m3o.dev@g' service/*.yaml
-  sed -i 's@m3o.app@m3o.dev@g' service/*.yaml
-fi
-
 # execute the yaml
 kubectl apply -f service
-
-# replace back
-if [ $ENV == "staging" ]; then
-  sed -i 's@*.m3o.dev@*.m3o.com@g' service/*.yaml
-  sed -i 's@m3o.dev@m3o.com@g' service/*.yaml
-fi
 
 # go back to the top level
 cd ..;

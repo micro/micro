@@ -1,3 +1,4 @@
+// Apache 2.0 => https://github.com/microhq/clients
 package main
 
 import (
@@ -230,7 +231,7 @@ func generate(lang string, tool string, arg string, src string, dst string, args
 					fmt.Sprintf("-I%s", src),
 					fmt.Sprintf("-I%s", filepath.Dir(proto)),
 					fmt.Sprintf("-I%s", filepath.Join(src, "vendor")),
-					fmt.Sprintf("--%s_out=%s:%s", tool, arg, dstpath),
+					fmt.Sprintf("--js_out=%s:%s", arg, dstpath),
 					fmt.Sprintf("--grpc_out=%s", dstpath),
 					fmt.Sprintf("%s", proto),
 					fmt.Sprintf("%s", strings.Join(args, " ")),

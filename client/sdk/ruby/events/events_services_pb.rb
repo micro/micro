@@ -15,7 +15,7 @@ module Events
       self.service_name = 'events.Stream'
 
       rpc :Publish, ::Events::PublishRequest, ::Events::PublishResponse
-      rpc :Subscribe, ::Events::SubscribeRequest, stream(::Events::Event)
+      rpc :Consume, ::Events::ConsumeRequest, stream(::Events::Event)
     end
 
     Stub = Service.rpc_stub_class

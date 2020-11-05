@@ -4,11 +4,10 @@ import (
 	"encoding/json"
 	"time"
 
-	goclient "github.com/micro/go-micro/v3/client"
-	"github.com/micro/go-micro/v3/events"
 	pb "github.com/micro/micro/v3/proto/events"
 	"github.com/micro/micro/v3/service/client"
 	"github.com/micro/micro/v3/service/context"
+	"github.com/micro/micro/v3/service/events"
 	"github.com/micro/micro/v3/service/events/util"
 	log "github.com/micro/micro/v3/service/logger"
 )
@@ -49,29 +48,29 @@ func (s *stream) Publish(topic string, msg interface{}, opts ...events.PublishOp
 		Payload:   payload,
 		Metadata:  options.Metadata,
 		Timestamp: options.Timestamp.Unix(),
-	}, goclient.WithAuthToken())
+	}, client.WithAuthToken())
 
 	return err
 }
 
-func (s *stream) Subscribe(topic string, opts ...events.SubscribeOption) (<-chan events.Event, error) {
+func (s *stream) Consume(topic string, opts ...events.ConsumeOption) (<-chan events.Event, error) {
 	// parse options
-	options := events.SubscribeOptions{AutoAck: true}
+	options := events.ConsumeOptions{AutoAck: true}
 	for _, o := range opts {
 		o(&options)
 	}
 
-	subReq := &pb.SubscribeRequest{
-		Topic:       topic,
-		Queue:       options.Queue,
-		StartAtTime: options.StartAtTime.Unix(),
-		AutoAck:     options.AutoAck,
-		AckWait:     options.AckWait.Nanoseconds(),
-		RetryLimit:  int64(options.GetRetryLimit()),
+	subReq := &pb.ConsumeRequest{
+		Topic:      topic,
+		Group:      options.Group,
+		Offset:     options.Offset.Unix(),
+		AutoAck:    options.AutoAck,
+		AckWait:    options.AckWait.Nanoseconds(),
+		RetryLimit: int64(options.GetRetryLimit()),
 	}
 
 	// start the stream
-	stream, err := s.client().Subscribe(context.DefaultContext, subReq, goclient.WithAuthToken())
+	stream, err := s.client().Consume(context.DefaultContext, subReq, client.WithAuthToken())
 	if err != nil {
 		return nil, err
 	}

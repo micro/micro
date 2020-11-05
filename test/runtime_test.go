@@ -5,6 +5,7 @@ package test
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"os"
 	"os/exec"
@@ -255,6 +256,66 @@ func testRunGithubSource(t *T) {
 		return
 	}
 
+	cmd.Exec("kill", "helloworld")
+
+	// test it works for a branch with a funny name
+	outp, err = cmd.Exec("run", "--image", "localhost:5000/cells:v3", "github.com/micro/services/helloworld@integrationtest/branch_name")
+	if err != nil {
+		t.Fatalf("micro run failure, output: %v", string(outp))
+		return
+	}
+
+	if err := Try("Find helloworld in runtime", t, func() ([]byte, error) {
+		outp, err = cmd.Exec("status")
+		if err != nil {
+			return outp, err
+		}
+		//
+		if !statusRunning("helloworld", "integrationtest/branch_name", outp) {
+			return outp, errors.New("Output should contain helloworld")
+		}
+		if !strings.Contains(string(outp), "owner=admin") || !(strings.Contains(string(outp), "group=micro") || strings.Contains(string(outp), "group="+serv.Env())) {
+			return outp, errors.New("micro status does not have correct owner or group")
+		}
+		if strings.Contains(string(outp), "unknown") {
+			return outp, errors.New("there should be no unknown in the micro status output")
+		}
+		return outp, nil
+	}, 60*time.Second); err != nil {
+		return
+	}
+
+	if err := Try("Find helloworld in registry", t, func() ([]byte, error) {
+		outp, err = cmd.Exec("services")
+		if err != nil {
+			return outp, err
+		}
+		if !strings.Contains(string(outp), "helloworld") {
+			return outp, errors.New("helloworld is not running")
+		}
+		return outp, nil
+	}, 180*time.Second); err != nil {
+		return
+	}
+
+	if err := Try("Call helloworld", t, func() ([]byte, error) {
+		outp, err := cmd.Exec("call", "helloworld", "Helloworld.Call", "{\"name\":\"John\"}")
+		if err != nil {
+			return outp, err
+		}
+		rsp := map[string]string{}
+		err = json.Unmarshal(outp, &rsp)
+		if err != nil {
+			return outp, err
+		}
+		if rsp["msg"] != "Hello John" {
+			return outp, errors.New("Helloworld resonse is unexpected")
+		}
+		return outp, err
+	}, 60*time.Second); err != nil {
+		return
+	}
+
 }
 
 // Note: @todo this method should truly be the same as TestGithubSource.
@@ -274,13 +335,13 @@ func testRunGitlabSource(t *T) {
 	cmd := serv.Command()
 	cmd.Exec("user", "config", "set", "git."+serv.Env()+".baseurl", "gitlab.com/micro-test")
 
-	outp, err := cmd.Exec("run", "basic-micro-service"+branch)
+	outp, err := cmd.Exec("run", "basic-micro-service")
 	if err != nil {
 		t.Fatalf("micro run failure, output: %v", string(outp))
 		return
 	}
 
-	if err := Try("Find helloworld in runtime", t, func() ([]byte, error) {
+	if err := Try("Find basic-micro-service in runtime", t, func() ([]byte, error) {
 		outp, err = cmd.Exec("status")
 		if err != nil {
 			return outp, err
@@ -294,7 +355,7 @@ func testRunGitlabSource(t *T) {
 		return
 	}
 
-	if err := Try("Find helloworld in registry", t, func() ([]byte, error) {
+	if err := Try("Find example in registry", t, func() ([]byte, error) {
 		outp, err := cmd.Exec("services")
 		if err != nil {
 			return outp, err
@@ -304,7 +365,7 @@ func testRunGitlabSource(t *T) {
 		}
 		return outp, err
 	}, 120*time.Second); err != nil {
-		outp, _ := cmd.Exec("logs", "basic-micro-serviced")
+		outp, _ := cmd.Exec("logs", "basic-micro-service")
 		t.Log(string(outp))
 		return
 	}
@@ -379,19 +440,19 @@ func testRunGenericRemote(t *T) {
 	cmd := serv.Command()
 	cmd.Exec("user", "config", "set", "git."+serv.Env()+".baseurl", "bitbucket.org/micro-test/monorepo-test")
 
-	outp, err := cmd.Exec("run", "subfolder-test"+branch)
+	outp, err := cmd.Exec("run", "subfolder-test")
 	if err != nil {
 		t.Fatalf("micro run failure, output: %v", string(outp))
 		return
 	}
 
-	if err := Try("Find helloworld in runtime", t, func() ([]byte, error) {
+	if err := Try("Find subfolder-test in runtime", t, func() ([]byte, error) {
 		outp, err = cmd.Exec("status")
 		if err != nil {
 			return outp, err
 		}
 
-		if !statusRunning("subfolder-test", version, outp) {
+		if !statusRunning("subfolder-test", "latest", outp) {
 			return outp, errors.New("Output should contain subfolder-test")
 		}
 		return outp, nil
@@ -399,7 +460,7 @@ func testRunGenericRemote(t *T) {
 		return
 	}
 
-	if err := Try("Find helloworld in registry", t, func() ([]byte, error) {
+	if err := Try("Find example in registry", t, func() ([]byte, error) {
 		outp, err := cmd.Exec("services")
 		if err != nil {
 			return outp, err
@@ -493,7 +554,7 @@ func testRunLocalUpdateAndCall(t *T) {
 			return append(outp, outp1...), errors.New("can't find service in runtime")
 		}
 		return outp, err
-	}, 15*time.Second); err != nil {
+	}, 45*time.Second); err != nil {
 		return
 	}
 
@@ -597,6 +658,12 @@ func testRunParentFolder(t *T) {
 		t.Fatal(string(outp))
 	}
 
+	gomod := exec.Command("go", "mod", "edit", "-replace", "github.com/micro/micro/v3=github.com/micro/micro/v3@v3.0.0-beta.6.0.20201013100912-aa4b81397a6f")
+	gomod.Dir = "../test-top-level"
+	if outp, err := gomod.CombinedOutput(); err != nil {
+		t.Fatal(string(outp))
+	}
+
 	err = os.MkdirAll("../parent/folder/test", 0777)
 	if err != nil {
 		t.Fatal(err)
@@ -630,7 +697,8 @@ func testRunParentFolder(t *T) {
 			return outp, err
 		}
 		if !strings.Contains(string(outp), "test-top-level") {
-			return outp, errors.New("Can't find example service in list")
+			l, _ := cmd.Exec("logs", "test-top-level")
+			return outp, fmt.Errorf("Can't find example service in list. \nLogs: %v", string(l))
 		}
 		return outp, err
 	}, 90*time.Second); err != nil {
@@ -652,7 +720,7 @@ func testExistingLogs(t *T) {
 
 	cmd := serv.Command()
 
-	outp, err := cmd.Exec("run", "./services/logger")
+	outp, err := cmd.Exec("run", "./services/test/logger")
 	if err != nil {
 		t.Fatalf("micro run failure, output: %v", string(outp))
 		return
@@ -687,7 +755,7 @@ func testBranchCheckout(t *T) {
 
 	cmd := serv.Command()
 
-	outp, err := cmd.Exec("run", "./services/logger")
+	outp, err := cmd.Exec("run", "./services/test/logger")
 	if err != nil {
 		t.Fatalf("micro run failure, output: %v", string(outp))
 		return
@@ -723,7 +791,7 @@ func testStreamLogsAndThirdPartyRepo(t *T) {
 
 	cmd := serv.Command()
 
-	outp, err := cmd.Exec("run", "./services/logger")
+	outp, err := cmd.Exec("run", "./services/test/logger")
 	if err != nil {
 		t.Fatalf("micro run failure, output: %v", string(outp))
 		return
@@ -860,7 +928,7 @@ func testRunPrivateSource(t *T) {
 	}
 
 	// run the service
-	if outp, err := cmd.Exec("run", "--image", "localhost:5000/cells:v3", "github.com/micro/test/helloworld@"+branch); err != nil {
+	if outp, err := cmd.Exec("run", "--image", "localhost:5000/cells:v3", "github.com/micro/test/helloworld"); err != nil {
 		t.Fatalf("Expected no run error, got %v %v", err, string(outp))
 		return
 	}
@@ -871,7 +939,7 @@ func testRunPrivateSource(t *T) {
 			return outp, err
 		}
 
-		if !statusRunning("helloworld", version, outp) {
+		if !statusRunning("helloworld", "latest", outp) {
 			return outp, errors.New("Can't find helloworld service in runtime")
 		}
 		return outp, err
@@ -888,7 +956,7 @@ func testRunPrivateSource(t *T) {
 			return outp, errors.New("Does not contain helloworld")
 		}
 		return outp, err
-	}, 300*time.Second); err != nil {
+	}, 90*time.Second); err != nil {
 		outp, _ := cmd.Exec("logs", "helloworld")
 		t.Logf("logs %s", string(outp))
 		return
@@ -1005,26 +1073,26 @@ func testRunPrivateGitlabSource(t *T) {
 	}
 
 	// run the service
-	if outp, err := cmd.Exec("run", "--image", "localhost:5000/cells:v3", "gitlab.com/micro-test/private-monorepo-test/subfolder-test@"+branch); err != nil {
+	if outp, err := cmd.Exec("run", "--image", "localhost:5000/cells:v3", "gitlab.com/micro-test/private-monorepo-test/subfolder-test"); err != nil {
 		t.Fatalf("Expected no error, got %v %v", err, string(outp))
 		return
 	}
 
-	if err := Try("Find micro/test/helloworld in runtime", t, func() ([]byte, error) {
+	if err := Try("Find subfolder-test in runtime", t, func() ([]byte, error) {
 		outp, err := cmd.Exec("status")
 		if err != nil {
 			return outp, err
 		}
 
 		if !statusRunning("subfolder-test", version, outp) {
-			return outp, errors.New("Can't find helloworld service in runtime")
+			return outp, errors.New("Can't find subfolder-test service in runtime")
 		}
 		return outp, err
 	}, 60*time.Second); err != nil {
 		return
 	}
 
-	if err := Try("Find helloworld in registry", t, func() ([]byte, error) {
+	if err := Try("Find example in registry", t, func() ([]byte, error) {
 		outp, err := cmd.Exec("services")
 		if err != nil {
 			return outp, err
@@ -1036,60 +1104,6 @@ func testRunPrivateGitlabSource(t *T) {
 	}, 300*time.Second); err != nil {
 		outp, _ := cmd.Exec("logs", "subfolder-test")
 		t.Log(string(outp))
-		return
-	}
-
-	// call the service
-	if err := Try("Calling example", t, func() ([]byte, error) {
-		return cmd.Exec("example", "--name=John")
-	}, 30*time.Second); err != nil {
-		return
-	}
-
-	// update service
-
-	// run the service
-	if outp, err := cmd.Exec("run", "--image", "localhost:5000/cells:v3", "gitlab.com/micro-test/private-monorepo-test/subfolder-test"+branch); err != nil {
-		t.Fatalf("Expected no error, got %v %v", err, string(outp))
-		return
-	}
-
-	// We need a better way of knowing the server restarted than a sleep...
-	time.Sleep(5 * time.Second)
-
-	if err := Try("Find micro/test/helloworld in runtime", t, func() ([]byte, error) {
-		outp, err := cmd.Exec("status")
-		if err != nil {
-			return outp, err
-		}
-
-		if !statusRunning("subfolder-test", version, outp) {
-			return outp, errors.New("Can't find helloworld service in runtime")
-		}
-		return outp, err
-	}, 60*time.Second); err != nil {
-		return
-	}
-
-	if err := Try("Find helloworld in registry", t, func() ([]byte, error) {
-		outp, err := cmd.Exec("services")
-		if err != nil {
-			return outp, err
-		}
-		if !strings.Contains(string(outp), "example") {
-			return outp, errors.New("Does not contain example")
-		}
-		return outp, err
-	}, 300*time.Second); err != nil {
-		outp, _ := cmd.Exec("logs", "subfolder-test")
-		t.Log(string(outp))
-		return
-	}
-
-	// call the service
-	if err := Try("Calling example", t, func() ([]byte, error) {
-		return cmd.Exec("example", "--name=John")
-	}, 30*time.Second); err != nil {
 		return
 	}
 }
@@ -1224,7 +1238,7 @@ func testIdiomaticFolderStructure(t *T) {
 	}
 
 	cmd := serv.Command()
-	src := "./services/template"
+	src := "./services/test/template"
 	if outp, err := cmd.Exec("run", "--image", "localhost:5000/cells:v3", src); err != nil {
 		t.Fatalf("Error running service: %v, %v", err, string(outp))
 		return

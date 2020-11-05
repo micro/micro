@@ -3,9 +3,8 @@ package client
 import (
 	"time"
 
-	"github.com/micro/go-micro/v3/broker"
-	goclient "github.com/micro/go-micro/v3/client"
 	pb "github.com/micro/micro/v3/proto/broker"
+	"github.com/micro/micro/v3/service/broker"
 	"github.com/micro/micro/v3/service/client"
 	"github.com/micro/micro/v3/service/context"
 	"github.com/micro/micro/v3/service/logger"
@@ -56,7 +55,7 @@ func (b *serviceBroker) Publish(topic string, msg *broker.Message, opts ...broke
 			Header: msg.Header,
 			Body:   msg.Body,
 		},
-	}, goclient.WithAuthToken(), goclient.WithAddress(b.Addrs...))
+	}, client.WithAuthToken(), client.WithAddress(b.Addrs...))
 	return err
 }
 
@@ -71,7 +70,7 @@ func (b *serviceBroker) Subscribe(topic string, handler broker.Handler, opts ...
 	stream, err := b.Client.Subscribe(context.DefaultContext, &pb.SubscribeRequest{
 		Topic: topic,
 		Queue: options.Queue,
-	}, goclient.WithAuthToken(), goclient.WithAddress(b.Addrs...), goclient.WithRequestTimeout(time.Hour))
+	}, client.WithAuthToken(), client.WithAddress(b.Addrs...), client.WithRequestTimeout(time.Hour))
 	if err != nil {
 		return nil, err
 	}
@@ -105,7 +104,7 @@ func (b *serviceBroker) Subscribe(topic string, handler broker.Handler, opts ...
 					stream, err := b.Client.Subscribe(context.DefaultContext, &pb.SubscribeRequest{
 						Topic: topic,
 						Queue: options.Queue,
-					}, goclient.WithAddress(b.Addrs...), goclient.WithRequestTimeout(time.Hour))
+					}, client.WithAddress(b.Addrs...), client.WithRequestTimeout(time.Hour))
 					if err != nil {
 						if logger.V(logger.DebugLevel, logger.DefaultLogger) {
 							logger.Debugf("Failed to resubscribe to topic %s: %v", topic, err)

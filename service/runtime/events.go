@@ -1,7 +1,5 @@
 package runtime
 
-import "github.com/micro/go-micro/v3/runtime"
-
 const (
 	// EventTopic the events are published to
 	EventTopic = "runtime"
@@ -11,20 +9,30 @@ const (
 	// EventServiceUpdated is the topic events are published to when a service is updated
 	EventServiceUpdated = "service.updated"
 	// EventServiceDeleted is the topic events are published to when a service is deleted
-	EventServiceDeleted   = "service.deleted"
-	EventNamespaceCreated = "namespace.created"
-	EventNamespaceDeleted = "namespace.deleted"
+	EventServiceDeleted       = "service.deleted"
+	EventNamespaceCreated     = "namespace.created"
+	EventNamespaceDeleted     = "namespace.deleted"
+	EventNetworkPolicyCreated = "networkpolicy.created"
+	EventNetworkPolicyUpdated = "networkpolicy.updated"
+	EventNetworkPolicyDeleted = "networkpolicy.deleted"
+	EventResourceQuotaCreated = "resourcequota.created"
+	EventResourceQuotaUpdated = "resourcequota.updated"
+	EventResourceQuotaDeleted = "resourcequota.deleted"
 )
 
 // EventPayload which is published with runtime events
 type EventPayload struct {
 	Type      string
-	Service   *runtime.Service
+	Service   *Service
 	Namespace string
 }
 
-// EventNamespacePayload which is published with runtime namespace events
-type EventNamespacePayload struct {
-	Type      string
-	Namespace string
+// EventResourcePayload which is published with runtime resource events
+type EventResourcePayload struct {
+	Type          string
+	Name          string
+	Namespace     string
+	NetworkPolicy *NetworkPolicy
+	ResourceQuota *ResourceQuota
+	Service       *Service
 }

@@ -2,17 +2,12 @@
 package server
 
 import (
-	"errors"
 	"os"
 	"strings"
 
-	"github.com/micro/go-micro/v3/util/file"
-	"github.com/micro/micro/v3/client/cli/util"
 	"github.com/micro/micro/v3/cmd"
 	"github.com/micro/micro/v3/service"
 	"github.com/micro/micro/v3/service/auth"
-	"github.com/micro/micro/v3/service/client"
-	"github.com/micro/micro/v3/service/context"
 	log "github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/runtime"
 	"github.com/urfave/cli/v2"
@@ -41,19 +36,6 @@ var (
 	Address = ":10001"
 )
 
-// upload is used for file uploads to the server
-func upload(ctx *cli.Context, args []string) ([]byte, error) {
-	if ctx.Args().Len() == 0 {
-		return nil, errors.New("Required filename to upload")
-	}
-
-	filename := ctx.Args().Get(0)
-	localfile := ctx.Args().Get(1)
-
-	fileClient := file.New("server", client.DefaultClient, file.WithContext(context.DefaultContext))
-	return nil, fileClient.Upload(filename, localfile)
-}
-
 func init() {
 	command := &cli.Command{
 		Name:  "server",
@@ -66,21 +48,17 @@ func init() {
 				Usage:   "Set the micro server address :10001",
 				EnvVars: []string{"MICRO_SERVER_ADDRESS"},
 			},
+			&cli.StringFlag{
+				Name:    "image",
+				Usage:   "Set the micro server image",
+				EnvVars: []string{"MICRO_SERVER_IMAGE"},
+				Value:   "micro/micro:latest",
+			},
 		},
 		Action: func(ctx *cli.Context) error {
 			Run(ctx)
 			return nil
 		},
-		Subcommands: []*cli.Command{{
-			Name:  "file",
-			Usage: "Move files between your local machine and the server",
-			Subcommands: []*cli.Command{
-				{
-					Name:   "upload",
-					Action: util.Print(upload),
-				},
-			},
-		}},
 	}
 
 	for _, p := range Plugins() {
@@ -108,7 +86,7 @@ func Run(context *cli.Context) error {
 	log.Info("Starting server")
 
 	// parse the env vars
-	envvars := []string{"MICRO_LOG_LEVEL=debug"}
+	var envvars []string
 	for _, val := range os.Environ() {
 		comps := strings.Split(val, "=")
 		if len(comps) != 2 {
@@ -198,7 +176,7 @@ func Run(context *cli.Context) error {
 			runtime.WithRetries(10),
 			runtime.WithServiceAccount("micro"),
 			runtime.WithVolume("store-pvc", "/store"),
-			runtime.CreateImage("localhost:5000/micro"),
+			runtime.CreateImage(context.String("image")),
 			runtime.CreateNamespace("micro"),
 			runtime.WithSecret("MICRO_AUTH_PUBLIC_KEY", auth.DefaultAuth.Options().PublicKey),
 			runtime.WithSecret("MICRO_AUTH_PRIVATE_KEY", auth.DefaultAuth.Options().PrivateKey),

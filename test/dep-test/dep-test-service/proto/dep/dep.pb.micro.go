@@ -5,15 +5,15 @@ package service_dep
 
 import (
 	fmt "fmt"
-	proto "github.com/golang/protobuf/proto"
 	math "math"
-)
 
-import (
+	proto "github.com/golang/protobuf/proto"
+
 	context "context"
-	api "github.com/micro/go-micro/v3/api"
-	client "github.com/micro/go-micro/v3/client"
-	server "github.com/micro/go-micro/v3/server"
+
+	api "github.com/micro/micro/v3/service/api"
+	client "github.com/micro/micro/v3/service/client"
+	server "github.com/micro/micro/v3/service/server"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.

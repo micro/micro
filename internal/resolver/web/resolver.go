@@ -7,9 +7,8 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/micro/go-micro/v3/api/resolver"
-	res "github.com/micro/go-micro/v3/api/resolver"
-	"github.com/micro/go-micro/v3/router"
+	"github.com/micro/micro/v3/internal/api/resolver"
+	"github.com/micro/micro/v3/service/router"
 )
 
 var re = regexp.MustCompile("^[a-zA-Z0-9]+([a-zA-Z0-9-]*[a-zA-Z0-9]*)?$")
@@ -29,7 +28,7 @@ func (r *Resolver) String() string {
 
 // Resolve replaces the values of Host, Path, Scheme to calla backend service
 // It accounts for subdomains for service names based on namespace
-func (r *Resolver) Resolve(req *http.Request, opts ...res.ResolveOption) (*res.Endpoint, error) {
+func (r *Resolver) Resolve(req *http.Request, opts ...resolver.ResolveOption) (*resolver.Endpoint, error) {
 	// parse the options
 	options := resolver.NewResolveOptions(opts...)
 
@@ -39,7 +38,7 @@ func (r *Resolver) Resolve(req *http.Request, opts ...res.ResolveOption) (*res.E
 	}
 
 	if !re.MatchString(parts[1]) {
-		return nil, res.ErrInvalidPath
+		return nil, resolver.ErrInvalidPath
 	}
 
 	name := parts[1]
@@ -54,11 +53,11 @@ func (r *Resolver) Resolve(req *http.Request, opts ...res.ResolveOption) (*res.E
 
 	routes, err := r.Router.Lookup(name, query...)
 	if err == router.ErrRouteNotFound {
-		return nil, res.ErrNotFound
+		return nil, resolver.ErrNotFound
 	} else if err != nil {
 		return nil, err
 	} else if len(routes) == 0 {
-		return nil, res.ErrNotFound
+		return nil, resolver.ErrNotFound
 	}
 
 	// select a random route to use
@@ -70,7 +69,7 @@ func (r *Resolver) Resolve(req *http.Request, opts ...res.ResolveOption) (*res.E
 	route := routes[rand.Intn(len(routes))]
 
 	// we're done
-	return &res.Endpoint{
+	return &resolver.Endpoint{
 		Name:   name,
 		Method: req.Method,
 		Host:   route.Address,
