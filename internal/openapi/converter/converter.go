@@ -105,14 +105,15 @@ func (c *Converter) convertFile(file *descriptor.FileDescriptorProto) error {
 
 		// Convert the service:
 		c.logger.Infof("Generating service (%s) from proto file (%s)", svc.GetName(), protoFileName)
-		servicePaths, err := c.convertServiceType(pkg, svc)
+		servicePaths, err := c.convertServiceType(file, pkg, svc)
 		if err != nil {
 			c.logger.Errorf("Failed to convert (%s): %v", protoFileName, err)
 			return err
 		}
 
-		for _, servicePath := range servicePaths {
-			c.openAPISpec.Paths[servicePath.Summary] = servicePath
+		// Add the paths to our API:
+		for path, pathItem := range servicePaths {
+			c.openAPISpec.Paths[path] = pathItem
 		}
 	}
 

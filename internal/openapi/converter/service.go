@@ -8,15 +8,17 @@ import (
 )
 
 // Converts a proto "SERVICE" into an OpenAPI path:
-func (c *Converter) convertServiceType(curPkg *ProtoPackage, svc *descriptor.ServiceDescriptorProto) ([]*openapi3.PathItem, error) {
+func (c *Converter) convertServiceType(file *descriptor.FileDescriptorProto, curPkg *ProtoPackage, svc *descriptor.ServiceDescriptorProto) (map[string]*openapi3.PathItem, error) {
 
-	var pathItems []*openapi3.PathItem
+	pathItems := make(map[string]*openapi3.PathItem)
 
 	// Add a path item for each method in the service:
 	for _, method := range svc.GetMethod() {
 
+		path := fmt.Sprintf("/%s/%s", svc.GetName(), method.GetName())
+
 		pathItem := &openapi3.PathItem{
-			Summary: fmt.Sprintf("/%s/%s", svc.GetName(), method.GetName()),
+			Summary: fmt.Sprintf("%s: %s.%s()", file.GetName(), svc.GetName(), method.GetName()),
 			Post: &openapi3.Operation{
 				RequestBody: &openapi3.RequestBodyRef{
 					Value: &openapi3.RequestBody{
@@ -32,7 +34,7 @@ func (c *Converter) convertServiceType(curPkg *ProtoPackage, svc *descriptor.Ser
 			pathItem.Description = formatDescription(src)
 		}
 
-		pathItems = append(pathItems, pathItem)
+		pathItems[path] = pathItem
 	}
 
 	return pathItems, nil
