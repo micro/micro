@@ -304,7 +304,9 @@ func (c *Converter) recursiveFindDuplicatedNestedMessages(curPkg *ProtoPackage, 
 
 func (c *Converter) recursiveConvertMessageType(curPkg *ProtoPackage, msg *descriptor.DescriptorProto, pkgName string, duplicatedMessages map[*descriptor.DescriptorProto]string, ignoreDuplicatedMessages bool) (*openapi3.Schema, error) {
 	if msg.Name != nil && wellKnownTypes[*msg.Name] && pkgName == ".google.protobuf" {
-		componentSchema := &openapi3.Schema{}
+		componentSchema := &openapi3.Schema{
+			Title: msg.GetName(),
+		}
 		switch *msg.Name {
 		case "DoubleValue", "FloatValue":
 			componentSchema.Type = openAPITypeNumber
@@ -338,6 +340,7 @@ func (c *Converter) recursiveConvertMessageType(curPkg *ProtoPackage, msg *descr
 	// Prepare a new jsonschema:
 	componentSchema := &openapi3.Schema{
 		Properties: make(map[string]*openapi3.SchemaRef),
+		Title:      msg.GetName(),
 		Type:       openAPITypeObject,
 	}
 

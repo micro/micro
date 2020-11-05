@@ -21,20 +21,24 @@ type sourceCodeInfo struct {
 	lookup map[proto.Message]*descriptor.SourceCodeInfo_Location
 }
 
-func (s sourceCodeInfo) GetMessage(m *descriptor.DescriptorProto) *descriptor.SourceCodeInfo_Location {
-	return s.lookup[m]
+func (s sourceCodeInfo) GetMessage(message *descriptor.DescriptorProto) *descriptor.SourceCodeInfo_Location {
+	return s.lookup[message]
 }
 
-func (s sourceCodeInfo) GetField(f *descriptor.FieldDescriptorProto) *descriptor.SourceCodeInfo_Location {
-	return s.lookup[f]
+func (s sourceCodeInfo) GetService(service *descriptor.ServiceDescriptorProto) *descriptor.SourceCodeInfo_Location {
+	return s.lookup[service]
 }
 
-func (s sourceCodeInfo) GetEnum(e *descriptor.EnumDescriptorProto) *descriptor.SourceCodeInfo_Location {
-	return s.lookup[e]
+func (s sourceCodeInfo) GetField(field *descriptor.FieldDescriptorProto) *descriptor.SourceCodeInfo_Location {
+	return s.lookup[field]
 }
 
-func (s sourceCodeInfo) GetEnumValue(e *descriptor.EnumValueDescriptorProto) *descriptor.SourceCodeInfo_Location {
-	return s.lookup[e]
+func (s sourceCodeInfo) GetEnum(enum *descriptor.EnumDescriptorProto) *descriptor.SourceCodeInfo_Location {
+	return s.lookup[enum]
+}
+
+func (s sourceCodeInfo) GetEnumValue(value *descriptor.EnumValueDescriptorProto) *descriptor.SourceCodeInfo_Location {
+	return s.lookup[value]
 }
 
 func newSourceCodeInfo(fs []*descriptor.FileDescriptorProto) *sourceCodeInfo {
