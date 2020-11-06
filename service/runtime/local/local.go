@@ -410,6 +410,8 @@ func (r *localRuntime) Update(resource runtime.Resource, opts ...runtime.UpdateO
 			return err
 		}
 
+		service.Source = s.Source
+		service.Exec.Dir = s.Source
 		return service.Start()
 
 	default:

@@ -154,6 +154,18 @@ func appendSourceBase(ctx *cli.Context, workDir, source string) string {
 	domain := strings.Split(source, "/")[0]
 	_, err := publicsuffix.EffectiveTLDPlusOne(domain)
 	if !isLocal && err != nil {
+		// read the service. In case there is an existing service with the same name and version
+		// use its source
+		services, err := runtime.Read()
+		if err == nil {
+			for _, service := range services {
+				// @todo handle version here
+				if service.Name == source {
+					return service.Source
+				}
+			}
+		}
+
 		env, _ := util.GetEnv(ctx)
 
 		baseURL, _ := config.Get(config.Path("git", env.Name, "baseurl"))

@@ -1,6 +1,7 @@
 package manager
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/micro/micro/v3/internal/kubernetes/client"
@@ -299,6 +300,7 @@ func (m *manager) Update(resource gorun.Resource, opts ...runtime.UpdateOption) 
 			// the source could be a git remote or a reference to the blob store, parse it before we run
 			// the service
 			var err error
+			fmt.Println("checking out source", service.Service.Name, service.Service.Version, service.Service.Source)
 			service.Service.Source, err = m.checkoutSource(service)
 			if err != nil {
 				return err
