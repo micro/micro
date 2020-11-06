@@ -89,7 +89,7 @@ spec:
         args:
         - service
         - auth
-        image: micro/platform
+        image: ghcr.io/m3o/platform
         imagePullPolicy: Always
         ports:
         - containerPort: 8010

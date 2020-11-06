@@ -44,8 +44,6 @@ const (
 var (
 	// DefaultRetries which should be attempted when starting a service
 	DefaultRetries = 3
-	// DefaultImage which should be run
-	DefaultImage = "micro/cells:v3"
 	// Git orgs we currently support for credentials
 	GitOrgs = []string{"github", "bitbucket", "gitlab"}
 )
@@ -199,7 +197,7 @@ func runService(ctx *cli.Context) error {
 	command := strings.TrimSpace(ctx.String("command"))
 	args := strings.TrimSpace(ctx.String("args"))
 	retries := DefaultRetries
-	image := DefaultImage
+	image := ""
 	if ctx.IsSet("retries") {
 		retries = ctx.Int("retries")
 	}
