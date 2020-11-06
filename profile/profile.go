@@ -6,6 +6,7 @@ package profile
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 
 	"github.com/micro/micro/v3/service/auth/jwt"
 	"github.com/micro/micro/v3/service/auth/noop"
@@ -91,7 +92,7 @@ var Local = &Profile{
 	Name: "local",
 	Setup: func(ctx *cli.Context) error {
 		microAuth.DefaultAuth = jwt.NewAuth()
-		microStore.DefaultStore = file.NewStore()
+		microStore.DefaultStore = file.NewStore(file.WithDir(filepath.Join(user.Dir, "server", "store")))
 		SetupConfigSecretKey(ctx)
 		config.DefaultConfig, _ = storeConfig.NewConfig(microStore.DefaultStore, "")
 		SetupBroker(memBroker.NewBroker())
