@@ -159,8 +159,12 @@ func appendSourceBase(ctx *cli.Context, workDir, source string) string {
 		services, err := runtime.Read()
 		if err == nil {
 			for _, service := range services {
-				// @todo handle version here
-				if service.Name == source {
+				parts := strings.Split(source, "@")
+				if len(parts) > 1 && service.Name == parts[0] && service.Version == parts[1] {
+					return service.Source
+				}
+
+				if len(parts) == 1 && service.Name == source {
 					return service.Source
 				}
 			}
