@@ -1045,6 +1045,129 @@ func testRunCustomCredentials(t *T) {
 	}
 }
 
+func TestGitSourceUpdateByShortName(t *testing.T) {
+	TrySuite(t, testGitSourceUpdateByShortName, retryCount)
+}
+
+func testGitSourceUpdateByShortName(t *T) {
+	t.Parallel()
+	serv := NewServer(t, WithLogin())
+	defer serv.Close()
+	if err := serv.Run(); err != nil {
+		return
+	}
+
+	cmd := serv.Command()
+
+	// run the service
+	if outp, err := cmd.Exec("run", "github.com/m3o/services/invite"); err != nil {
+		t.Fatalf("Expected no error, got %v %v", err, string(outp))
+		return
+	}
+
+	if err := Try("Find invite in runtime", t, func() ([]byte, error) {
+		outp, err := cmd.Exec("status")
+		if err != nil {
+			return outp, err
+		}
+
+		if !statusRunning("invite", version, outp) {
+			return outp, errors.New("Can't find subfolder-test service in runtime")
+		}
+		return outp, err
+	}, 60*time.Second); err != nil {
+		return
+	}
+
+	if err := Try("Find invite in registry", t, func() ([]byte, error) {
+		outp, err := cmd.Exec("services")
+		if err != nil {
+			return outp, err
+		}
+		if !strings.Contains(string(outp), "invite") {
+			return outp, errors.New("Does not contain invite")
+		}
+		return outp, err
+	}, 300*time.Second); err != nil {
+		outp, _ := cmd.Exec("logs", "invite")
+		t.Log(string(outp))
+		return
+	}
+
+	// call the service
+	if err := Try("Calling invite", t, func() ([]byte, error) {
+		outp, _ := cmd.Exec("logs", "-n=1000", "invite")
+		outp1, err := cmd.Exec("invite", "--help")
+
+		return append(outp1, outp...), err
+	}, 70*time.Second); err != nil {
+		return
+	}
+
+	// update service
+
+	// run the service
+	if outp, err := cmd.Exec("update", "invite"+branch); err != nil {
+		t.Fatalf("Expected no error, got %v %v", err, string(outp))
+		return
+	}
+
+	// look for disconnect
+	if err := Try("Find invite disconnect proof in logs", t, func() ([]byte, error) {
+		outp, err := cmd.Exec("logs", "invite")
+		if err != nil {
+			return outp, err
+		}
+		if !strings.Contains(string(outp), "Disconnect") {
+			return outp, errors.New("Does not contain Disconnect")
+		}
+		return outp, err
+	}, 40*time.Second); err != nil {
+		outp, _ := cmd.Exec("logs", "invite")
+		t.Log(string(outp))
+		return
+	}
+
+	if err := Try("Find invite in runtime", t, func() ([]byte, error) {
+		outp, err := cmd.Exec("status")
+		if err != nil {
+			return outp, err
+		}
+
+		if !statusRunning("invite", version, outp) {
+			return outp, errors.New("Can't find invite service in runtime")
+		}
+		return outp, err
+	}, 60*time.Second); err != nil {
+		return
+	}
+
+	if err := Try("Find invite in registry", t, func() ([]byte, error) {
+		outp, err := cmd.Exec("services")
+		if err != nil {
+			return outp, err
+		}
+		if !strings.Contains(string(outp), "invite") {
+			return outp, errors.New("Does not contain example")
+		}
+		return outp, err
+	}, 300*time.Second); err != nil {
+		outp, _ := cmd.Exec("logs", "invite")
+		t.Log(string(outp))
+		return
+	}
+
+	// call the service
+	if err := Try("Calling invite", t, func() ([]byte, error) {
+		outp, _ := cmd.Exec("logs", "-n=1000", "invite")
+		outp1, err := cmd.Exec("example", "--help")
+
+		return append(outp1, outp...), err
+	}, 70*time.Second); err != nil {
+		return
+	}
+}
+
 func TestRunPrivateGitlabSource(t *testing.T) {
 	TrySuite(t, testRunPrivateGitlabSource, retryCount)
 }
@@ -1104,63 +1227,6 @@ func testRunPrivateGitlabSource(t *T) {
 	}, 300*time.Second); err != nil {
 		outp, _ := cmd.Exec("logs", "subfolder-test")
 		t.Log(string(outp))
-		return
-	}
-
-	// call the service
-	if err := Try("Calling example", t, func() ([]byte, error) {
-		outp, _ := cmd.Exec("logs", "-n=1000", "subfolder-test")
-		outp1, err := cmd.Exec("example", "--name=John")
-
-		return append(outp1, outp...), err
-	}, 70*time.Second); err != nil {
-		return
-	}
-
-	// update service
-
-	// run the service
-	if outp, err := cmd.Exec("update", "subfolder-test"+branch); err != nil {
-		t.Fatalf("Expected no error, got %v %v", err, string(outp))
-		return
-	}
-
-	if err := Try("Find subfolder-test in runtime", t, func() ([]byte, error) {
-		outp, err := cmd.Exec("status")
-		if err != nil {
-			return outp, err
-		}
-
-		if !statusRunning("subfolder-test", version, outp) {
-			return outp, errors.New("Can't find helloworld service in runtime")
-		}
-		return outp, err
-	}, 60*time.Second); err != nil {
-		return
-	}
-
-	if err := Try("Find helloworld in registry", t, func() ([]byte, error) {
-		outp, err := cmd.Exec("services")
-		if err != nil {
-			return outp, err
-		}
-		if !strings.Contains(string(outp), "example") {
-			return outp, errors.New("Does not contain example")
-		}
-		return outp, err
-	}, 300*time.Second); err != nil {
-		outp, _ := cmd.Exec("logs", "subfolder-test")
-		t.Log(string(outp))
-		return
-	}
-
-	// call the service
-	if err := Try("Calling example", t, func() ([]byte, error) {
-		outp, _ := cmd.Exec("logs", "-n=1000", "subfolder-test")
-		outp1, err := cmd.Exec("example", "--name=John")
-
-		return append(outp1, outp...), err
-	}, 70*time.Second); err != nil {
 		return
 	}
 }
