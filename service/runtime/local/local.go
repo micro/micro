@@ -410,9 +410,6 @@ func (r *localRuntime) Update(resource runtime.Resource, opts ...runtime.UpdateO
 			return err
 		}
 
-		// update the source to the new location and restart the service
-		service.Source = service.Source
-		service.Exec.Dir = service.Source
 		return service.Start()
 
 	default:
