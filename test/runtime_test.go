@@ -1160,7 +1160,7 @@ func testGitSourceUpdateByShortName(t *T) {
 	// call the service
 	if err := Try("Calling invite", t, func() ([]byte, error) {
 		outp, _ := cmd.Exec("logs", "-n=1000", "invite")
-		outp1, err := cmd.Exec("example", "--help")
+		outp1, err := cmd.Exec("invite", "--help")
 
 		return append(outp1, outp...), err
 	}, 70*time.Second); err != nil {

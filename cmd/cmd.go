@@ -251,7 +251,7 @@ func action(c *cli.Context) error {
 		if srv, ns, err := lookupService(c); err != nil {
 			return util.CliError(err)
 		} else if srv != nil && shouldRenderHelp(c) {
-			return cli.Exit(formatServiceUsage(srv, c), 1)
+			return cli.Exit(formatServiceUsage(srv, c), 0)
 		} else if srv != nil {
 			err := callService(srv, ns, c)
 			return util.CliError(err)
