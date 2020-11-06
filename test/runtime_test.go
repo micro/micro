@@ -1155,9 +1155,8 @@ func testRunPrivateGitlabSource(t *T) {
 	if err := Try("Calling example", t, func() ([]byte, error) {
 		outp, _ := cmd.Exec("logs", "subfolder-test")
 		outp1, err := cmd.Exec("example", "--name=John")
-		if err != nil {
-			return append(outp1, outp...), err
-		}
+
+		return append(outp1, outp...), err
 	}, 50*time.Second); err != nil {
 		return
 	}
