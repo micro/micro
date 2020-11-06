@@ -1,7 +1,7 @@
 ---
 layout: post
 author: Janos Dobronszki
-title: Building a blog with Micro - Part One
+title: Building a Blog with Micro - Part One
 keywords: tutorials, blog
 tags: [blog]
 ---
