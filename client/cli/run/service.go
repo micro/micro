@@ -156,16 +156,17 @@ func appendSourceBase(ctx *cli.Context, workDir, source string) string {
 	if !isLocal && err != nil {
 		// read the service. In case there is an existing service with the same name and version
 		// use its source
+
 		services, err := runtime.Read()
 		if err == nil {
 			for _, service := range services {
 				parts := strings.Split(source, "@")
 				if len(parts) > 1 && service.Name == parts[0] && service.Version == parts[1] {
-					return service.Source
+					return service.Metadata["source"]
 				}
 
 				if len(parts) == 1 && service.Name == source {
-					return service.Source
+					return service.Metadata["source"]
 				}
 			}
 		}
