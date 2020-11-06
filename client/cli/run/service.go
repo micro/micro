@@ -148,6 +148,25 @@ func sourceExists(source *git.Source) error {
 	return nil
 }
 
+// expand service name to source if service name is an existing runtime name,
+// return original parameter if there is no match
+func getMatchingSource(nameOrSource string) string {
+	services, err := runtime.Read()
+	if err == nil {
+		for _, service := range services {
+			parts := strings.Split(nameOrSource, "@")
+			if len(parts) > 1 && service.Name == parts[0] && service.Version == parts[1] {
+				return service.Metadata["source"]
+			}
+
+			if len(parts) == 1 && service.Name == nameOrSource {
+				return service.Metadata["source"]
+			}
+		}
+	}
+	return nameOrSource
+}
+
 // matchExistingService true: load running services and expand the shortname of a service
 // ie micro update invite becomes micro update github.com/m3o/services/invite
 func appendSourceBase(ctx *cli.Context, workDir, source string, matchExistingService bool) string {
@@ -159,19 +178,7 @@ func appendSourceBase(ctx *cli.Context, workDir, source string, matchExistingSer
 		// read the service. In case there is an existing service with the same name and version
 		// use its source
 		if matchExistingService {
-			services, err := runtime.Read()
-			if err == nil {
-				for _, service := range services {
-					parts := strings.Split(source, "@")
-					if len(parts) > 1 && service.Name == parts[0] && service.Version == parts[1] {
-						return service.Metadata["source"]
-					}
-
-					if len(parts) == 1 && service.Name == source {
-						return service.Metadata["source"]
-					}
-				}
-			}
+			source = getMatchingSource(source)
 		}
 
 		env, _ := util.GetEnv(ctx)
