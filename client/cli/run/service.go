@@ -178,9 +178,9 @@ func appendSourceBase(ctx *cli.Context, workDir, source string, matchExistingSer
 		// read the service. In case there is an existing service with the same name and version
 		// use its source
 		if matchExistingService {
-			source, hasMatching := getMatchingSource(source)
+			matchedSource, hasMatching := getMatchingSource(source)
 			if hasMatching {
-				return source
+				return matchedSource
 			}
 		}
 
