@@ -1109,8 +1109,11 @@ func testRunPrivateGitlabSource(t *T) {
 
 	// call the service
 	if err := Try("Calling example", t, func() ([]byte, error) {
-		return cmd.Exec("example", "--name=John")
-	}, 30*time.Second); err != nil {
+		outp, _ := cmd.Exec("logs", "subfolder-test")
+		outp1, err := cmd.Exec("example", "--name=John")
+
+		return append(outp1, outp...), err
+	}, 50*time.Second); err != nil {
 		return
 	}
 
