@@ -148,23 +148,23 @@ func sourceExists(source *git.Source) error {
 	return nil
 }
 
-// expand service name to source if service name is an existing runtime name,
-// return original parameter if there is no match
-func getMatchingSource(nameOrSource string) string {
+// try to find a matching source
+// returns true if found
+func getMatchingSource(nameOrSource string) (string, bool) {
 	services, err := runtime.Read()
 	if err == nil {
 		for _, service := range services {
 			parts := strings.Split(nameOrSource, "@")
 			if len(parts) > 1 && service.Name == parts[0] && service.Version == parts[1] {
-				return service.Metadata["source"]
+				return service.Metadata["source"], true
 			}
 
 			if len(parts) == 1 && service.Name == nameOrSource {
-				return service.Metadata["source"]
+				return service.Metadata["source"], true
 			}
 		}
 	}
-	return nameOrSource
+	return "", false
 }
 
 // matchExistingService true: load running services and expand the shortname of a service
@@ -178,7 +178,10 @@ func appendSourceBase(ctx *cli.Context, workDir, source string, matchExistingSer
 		// read the service. In case there is an existing service with the same name and version
 		// use its source
 		if matchExistingService {
-			source = getMatchingSource(source)
+			source, hasMatching := getMatchingSource(source)
+			if hasMatching {
+				return source
+			}
 		}
 
 		env, _ := util.GetEnv(ctx)
