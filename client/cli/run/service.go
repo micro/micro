@@ -148,7 +148,9 @@ func sourceExists(source *git.Source) error {
 	return nil
 }
 
-func appendSourceBase(ctx *cli.Context, workDir, source string) string {
+// matchExistingService true: load running services and expand the shortname of a service
+// ie micro update invite becomes micro update github.com/m3o/services/invite
+func appendSourceBase(ctx *cli.Context, workDir, source string, matchExistingService bool) string {
 	isLocal, _ := git.IsLocal(workDir, source)
 	// @todo add list of supported hosts here or do this check better
 	domain := strings.Split(source, "/")[0]
@@ -156,17 +158,18 @@ func appendSourceBase(ctx *cli.Context, workDir, source string) string {
 	if !isLocal && err != nil {
 		// read the service. In case there is an existing service with the same name and version
 		// use its source
+		if matchExistingService {
+			services, err := runtime.Read()
+			if err == nil {
+				for _, service := range services {
+					parts := strings.Split(source, "@")
+					if len(parts) > 1 && service.Name == parts[0] && service.Version == parts[1] {
+						return service.Metadata["source"]
+					}
 
-		services, err := runtime.Read()
-		if err == nil {
-			for _, service := range services {
-				parts := strings.Split(source, "@")
-				if len(parts) > 1 && service.Name == parts[0] && service.Version == parts[1] {
-					return service.Metadata["source"]
-				}
-
-				if len(parts) == 1 && service.Name == source {
-					return service.Metadata["source"]
+					if len(parts) == 1 && service.Name == source {
+						return service.Metadata["source"]
+					}
 				}
 			}
 		}
@@ -197,7 +200,7 @@ func runService(ctx *cli.Context) error {
 	}
 
 	// determine the type of source input, i.e. is it a local folder or a remote git repo
-	source, err := git.ParseSourceLocal(wd, appendSourceBase(ctx, wd, ctx.Args().Get(0)))
+	source, err := git.ParseSourceLocal(wd, appendSourceBase(ctx, wd, ctx.Args().Get(0), false))
 	if err != nil {
 		return err
 	}
@@ -394,7 +397,7 @@ func updateService(ctx *cli.Context) error {
 	}
 
 	// determine the type of source input, i.e. is it a local folder or a remote git repo
-	source, err := git.ParseSourceLocal(wd, appendSourceBase(ctx, wd, ctx.Args().First()))
+	source, err := git.ParseSourceLocal(wd, appendSourceBase(ctx, wd, ctx.Args().First(), true))
 	if err != nil {
 		return err
 	}
