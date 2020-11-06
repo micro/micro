@@ -1125,7 +1125,7 @@ func testRunPrivateGitlabSource(t *T) {
 	// We need a better way of knowing the server restarted than a sleep...
 	time.Sleep(5 * time.Second)
 
-	if err := Try("Find micro/test/helloworld in runtime", t, func() ([]byte, error) {
+	if err := Try("Find subfolder-test in runtime", t, func() ([]byte, error) {
 		outp, err := cmd.Exec("status")
 		if err != nil {
 			return outp, err
@@ -1157,7 +1157,7 @@ func testRunPrivateGitlabSource(t *T) {
 	// call the service
 	if err := Try("Calling example", t, func() ([]byte, error) {
 		return cmd.Exec("example", "--name=John")
-	}, 30*time.Second); err != nil {
+	}, 50*time.Second); err != nil {
 		return
 	}
 }
