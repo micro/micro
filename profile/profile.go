@@ -92,7 +92,7 @@ var Local = &Profile{
 	Name: "local",
 	Setup: func(ctx *cli.Context) error {
 		microAuth.DefaultAuth = jwt.NewAuth()
-		microStore.DefaultStore = file.NewStore(file.WithDir(filepath.Join(user.Dir, "server")))
+		microStore.DefaultStore = file.NewStore(file.WithDir(filepath.Join(user.Dir, "server", "store")))
 		SetupConfigSecretKey(ctx)
 		config.DefaultConfig, _ = storeConfig.NewConfig(microStore.DefaultStore, "")
 		SetupBroker(memBroker.NewBroker())
