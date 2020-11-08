@@ -299,6 +299,7 @@ func (m *manager) Update(resource gorun.Resource, opts ...runtime.UpdateOption) 
 			// the source could be a git remote or a reference to the blob store, parse it before we run
 			// the service
 			var err error
+
 			service.Service.Source, err = m.checkoutSource(service)
 			if err != nil {
 				return err
