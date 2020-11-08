@@ -706,6 +706,104 @@ func testRunParentFolder(t *T) {
 	}
 }
 
+func TestRunNewWithGit(t *testing.T) {
+	TrySuite(t, testRunNewWithGit, retryCount)
+}
+
+func testRunNewWithGit(t *T) {
+	defer func() {
+		os.RemoveAll("/tmp/new-with-git")
+	}()
+	t.Parallel()
+	serv := NewServer(t, WithLogin())
+	defer serv.Close()
+	if err := serv.Run(); err != nil {
+		return
+	}
+
+	cmd := serv.Command()
+	cmd.Dir = "/tmp"
+
+	outp, err := cmd.Exec("new", "new-with-git")
+	if err != nil {
+		t.Fatal(string(outp))
+		return
+	}
+	makeProt := exec.Command("make", "proto")
+	makeProt.Dir = "/tmp/new-with-git"
+
+	outp, err = makeProt.CombinedOutput()
+	if err != nil {
+		t.Fatal(string(outp))
+		return
+	}
+
+	// for tests, update the micro import to use the current version of the code.
+	fname := fmt.Sprintf(makeProt.Dir + "/go.mod")
+	f, err := os.OpenFile(fname, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		t.Fatal(string(outp))
+		return
+	}
+	if _, err := f.WriteString("\nreplace github.com/micro/micro/v3 => github.com/micro/micro/v3 master"); err != nil {
+		t.Fatal(string(outp))
+		return
+	}
+	// This should point to master, but GOPROXY is not on in the runtime. Remove later.
+	if _, err := f.WriteString("\nreplace github.com/micro/go-micro/v3 => github.com/micro/go-micro/v3 v3.0.0-beta.2.0.20200922112322-927d4f8eced6"); err != nil {
+		t.Fatal(string(outp))
+		return
+	}
+	f.Close()
+
+	gitInit := exec.Command("git", "init")
+	gitInit.Dir = "/tmp/new-with-git"
+	outp, err = gitInit.CombinedOutput()
+	if err != nil {
+		t.Fatal(string(outp))
+	}
+
+	cmd = serv.Command()
+	cmd.Dir = "/tmp/new-with-git"
+	outp, err = cmd.Exec("run", ".")
+	if err != nil {
+		t.Fatal(outp)
+	}
+
+	if err := Try("Find example", t, func() ([]byte, error) {
+		outp, err := cmd.Exec("status")
+		outp1, _ := cmd.Exec("logs", "new-with-git")
+		outp = append(outp, outp1...)
+		if err != nil {
+			return outp, err
+		}
+
+		// The started service should have the runtime name of "service/example",
+		// as the runtime name is the relative path inside a repo.
+		if !statusRunning("new-with-git", "latest", outp) {
+			return outp, errors.New("Can't find example service in runtime")
+		}
+		return outp, err
+	}, 15*time.Second); err != nil {
+		return
+	}
+
+	if err := Try("Find example in list", t, func() ([]byte, error) {
+		outp, err := cmd.Exec("services")
+		outp1, _ := cmd.Exec("logs", "new-with-git")
+		outp = append(outp, outp1...)
+		if err != nil {
+			return outp, err
+		}
+		if !strings.Contains(string(outp), "new-with-git") {
+			return outp, errors.New("Can't find example service in list")
+		}
+		return outp, err
+	}, 90*time.Second); err != nil {
+		return
+	}
+}
+
 func TestExistingLogs(t *testing.T) {
 	TrySuite(t, testExistingLogs, retryCount)
 }
