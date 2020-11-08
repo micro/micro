@@ -1,6 +1,6 @@
 # Micro [![License](https://img.shields.io/badge/license-polyform:shield-blue)](https://polyformproject.org/licenses/shield/1.0.0/) [![Go Report Card](https://goreportcard.com/badge/micro/micro)](https://goreportcard.com/report/github.com/micro/micro)
 
-Micro is a platform for cloud native development.
+Micro is a platform for cloud native application development.
 
 ## Overview
 
