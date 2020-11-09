@@ -3,6 +3,7 @@ package user
 import (
 	"os/user"
 	"path/filepath"
+	"strings"
 
 	"crypto/rand"
 	"crypto/rsa"
@@ -16,16 +17,18 @@ import (
 )
 
 var (
-	Dir  = ""
-	path = ".micro"
+	Dir = ""
 )
 
-func init() {
+func SetDir(path string) {
 	user, err := user.Current()
 	if err != nil {
 		logger.Fatalf(err.Error())
 	}
-	Dir = filepath.Join(user.HomeDir, path)
+	if strings.HasPrefix(path, "~") {
+		path = strings.Replace(path, "~", user.HomeDir, 1)
+	}
+	Dir = path
 	err = os.MkdirAll(Dir, 0700)
 	if err != nil {
 		logger.Fatalf(err.Error())
