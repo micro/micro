@@ -86,6 +86,6 @@ func (r *Reporter) listTagKeys(tags metrics.Tags) (labelKeys []string) {
 func (r *Reporter) stripUnsupportedCharacters(metricName string) string {
 	valueWithoutDots := strings.Replace(metricName, ".", "_", -1)
 	valueWithoutCommas := strings.Replace(valueWithoutDots, ",", "_", -1)
-	valueWIthoutSpaces := strings.Replace(valueWithoutCommas, " ", "", -1)
-	return valueWIthoutSpaces
+	valueWithoutSpaces := strings.Replace(valueWithoutCommas, " ", "", -1)
+	return valueWithoutSpaces
 }
