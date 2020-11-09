@@ -2,7 +2,7 @@
 layout:	post
 author: Janos Dobronszki
 title:	"Write your blog from your terminal"
-date:	2020-10-16 16:00:00
+date:	2020-11-09 10:00:00
 ---
 
 If you're following our [Building a Blog with Micro](/blog/2020/11/06/building-a-blog-with-micro-part-one) series you'll already know a lot 
