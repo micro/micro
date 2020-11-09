@@ -346,8 +346,6 @@ func (c *command) Before(ctx *cli.Context) error {
 		}
 	}
 
-	// set the micro dir location
-	user.Dir = ctx.String("dir_path")
 	// set the config file location
 	if ctx.IsSet("config_file") {
 		uconf.SetConfig(ctx.String("config_file"))

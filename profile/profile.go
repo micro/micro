@@ -213,11 +213,14 @@ func SetupJWT(ctx *cli.Context) {
 }
 
 func SetupConfigSecretKey(ctx *cli.Context) {
+	// set the micro dir location
+	user.SetDir(ctx.String("dir_path"))
+
 	key := ctx.String("config_secret_key")
 	if len(key) == 0 {
 		k, err := user.GetConfigSecretKey()
 		if err != nil {
-			logger.Fatal("Error getting config secret: %v", err)
+			logger.Fatalf("Error getting config secret: %v", err)
 		}
 		os.Setenv("MICRO_CONFIG_SECRET_KEY", k)
 	}
