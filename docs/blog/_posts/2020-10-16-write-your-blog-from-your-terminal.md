@@ -6,11 +6,8 @@ date:	2020-10-16 16:00:00
 ---
 
 If you're following our [Building a Blog with Micro](/blog/2020/11/06/building-a-blog-with-micro-part-one) series you'll already know a lot 
-about building a blog as Micro services. In this post we're going to cover a little on actually writing your blog via the terminal. For those who enjoy building 
-the frontend part of blogs and websites more than the backend part of it, we have created a couple of new services free to be used with a local Micro installation, 
-or even free to deploy and run with the Micro Dev environment.
-
-These two new services are the [`posts` and the `tags` service](https://github.com/micro/services/tree/master/blog).
+about building a blog as Micro services. In this post we're going to cover a little on actually writing your blog via the terminal. We've already 
+built out the services needed so you should be able to access them in [micro/services/blog](https://github.com/micro/services/tree/master/blog).
 
 ## Deploying the services
 
