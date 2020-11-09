@@ -346,6 +346,7 @@ func (c *command) Before(ctx *cli.Context) error {
 		}
 	}
 
+	uconf.Init()
 	// set the config file location
 	if ctx.IsSet("config_file") {
 		uconf.SetConfig(ctx.String("config_file"))

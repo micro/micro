@@ -17,18 +17,20 @@ import (
 )
 
 var (
+	// Dir is the Micro directory.
 	Dir = ""
 )
 
-func SetDir(path string) {
+// Initialize the Micro directory
+func Init(directoryPath string) {
 	user, err := user.Current()
 	if err != nil {
 		logger.Fatalf(err.Error())
 	}
-	if strings.HasPrefix(path, "~") {
-		path = strings.Replace(path, "~", user.HomeDir, 1)
+	if strings.HasPrefix(directoryPath, "~") {
+		directoryPath = strings.Replace(directoryPath, "~", user.HomeDir, 1)
 	}
-	Dir = path
+	Dir = directoryPath
 	err = os.MkdirAll(Dir, 0700)
 	if err != nil {
 		logger.Fatalf(err.Error())

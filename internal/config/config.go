@@ -23,11 +23,15 @@ var (
 
 	// File is the filepath to the config file that
 	// contains all user configuration
-	File = filepath.Join(user.Dir, "config.json")
+	File = ""
 
 	// a global lock for the config
 	lock = fslock.New(File)
 )
+
+func Init() {
+	File = filepath.Join(user.Dir, "config.json")
+}
 
 // SetConfig sets the config file
 func SetConfig(configFilePath string) {

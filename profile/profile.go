@@ -214,7 +214,7 @@ func SetupJWT(ctx *cli.Context) {
 
 func SetupConfigSecretKey(ctx *cli.Context) {
 	// set the micro dir location
-	user.SetDir(ctx.String("dir_path"))
+	user.Init(ctx.String("dir_path"))
 
 	key := ctx.String("config_secret_key")
 	if len(key) == 0 {
