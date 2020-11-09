@@ -1,7 +1,7 @@
 ---
 layout:	post
 author: Janos Dobronszki
-title:	"Write your blog from your terminal"
+title:	"Write your blog from the terminal"
 date:	2020-11-09 10:00:00
 ---
 
