@@ -54,7 +54,7 @@ The web app in action can be found [here](https://loving-goodall-44ee08.netlify.
 
 You can easily deploy on Netlify with the following settings:
 
-![Netlify settings](/assets/images/netlify-build-settings.png)
+![Netlify settings](/blog/images/netlify-build-settings.png)
 
 Although example code is an Angular one, since it's using the JSON HTTP API, it's trivial to call the backend in any framework in language. The following curl contacts the posts service running in the author's namespace:
 
