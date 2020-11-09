@@ -55,7 +55,7 @@ In our post service, we want 3 methods:
 
 Let's start with the post method.
 
-<script src="https://emgithub.com/embed.js?target=https%3A%2F%2Fgithub.com%2Fmicro%2Fdev%2Fblob%2Fmaster%2Fblog-tutorial%2Fv1-posts%2Fproto%2Fposts.proto%23L1-L33&style=github&showBorder=on&showLineNumbers=on&showFileMeta=on"></script>
+<script src="https://emgithub.com/embed.js?target=https%3A%2F%2Fgithub.com%2Fmicro%2Fdev%2Fblob%2Fmaster%2Fblog%2Fv1-posts%2Fproto%2Fposts.proto%23L1-L33&style=github&showBorder=on&showLineNumbers=on&showFileMeta=on"></script>
 
 Astute readers might notice that although we have defined a `Post` message type, we still redefine some of the fields as top level fields for the `SaveRequest` message type.
 The main reason for this is that we don't want our [dynamic commands](https://micro.mu/reference#dynamic-commands).
@@ -76,11 +76,11 @@ To regenerate the proto, we have to issue the `make proto` command in the projec
 
 Now, the `main.go`:
 
-<script src="https://emgithub.com/embed.js?target=https%3A%2F%2Fgithub.com%2Fmicro%2Fdev%2Fblob%2Fmaster%2Fblog-tutorial%2Fv1-posts%2Fmain.go&style=github&showBorder=on&showLineNumbers=on&showFileMeta=on"></script>
+<script src="https://emgithub.com/embed.js?target=https%3A%2F%2Fgithub.com%2Fmicro%2Fdev%2Fblob%2Fmaster%2Fblog%2Fv1-posts%2Fmain.go&style=github&showBorder=on&showLineNumbers=on&showFileMeta=on"></script>
 
 After that's done, let's adjust the handler to match our proto! This snippet is a bit longer, so cover it piece by piece:
 
-<script src="https://emgithub.com/embed.js?target=https%3A%2F%2Fgithub.com%2Fmicro%2Fdev%2Fblob%2Fmaster%2Fblog-tutorial%2Fv1-posts%2Fhandler%2Fposts.go%23L1-L46&style=github&showBorder=on&showLineNumbers=on&showFileMeta=on"></script>
+<script src="https://emgithub.com/embed.js?target=https%3A%2F%2Fgithub.com%2Fmicro%2Fdev%2Fblob%2Fmaster%2Fblog%2Fv1-posts%2Fhandler%2Fposts.go%23L1-L46&style=github&showBorder=on&showLineNumbers=on&showFileMeta=on"></script>
 
 The above piece of code uses the [model package](https://github.com/micro/dev/tree/master/model). It sets up the indexes which will enable us to query the data and also tells model to maintain these indexes.
 
@@ -103,7 +103,7 @@ Registry [service] Registering node: posts-b36361ae-f2ae-48b0-add5-a8d4797508be
 
 Let's make our service do something useful now: save a post.
 
-<script src="https://emgithub.com/embed.js?target=https%3A%2F%2Fgithub.com%2Fmicro%2Fdev%2Fblob%2Fmaster%2Fblog-tutorial%2Fv1-posts%2Fhandler%2Fposts.go%23L48-L61&style=github&showBorder=on&showLineNumbers=on&showFileMeta=on"></script>
+<script src="https://emgithub.com/embed.js?target=https%3A%2F%2Fgithub.com%2Fmicro%2Fdev%2Fblob%2Fmaster%2Fblog%2Fv1-posts%2Fhandler%2Fposts.go%23L48-L61&style=github&showBorder=on&showLineNumbers=on&showFileMeta=on"></script>
 
 After a `micro update .` in project root, we can start saving posts!
 
@@ -116,12 +116,12 @@ micro posts save --id=2 --title="Post two" --content="Second saved post"
 
 Again, implementation starts with defining the protos:
 
-<script src="https://emgithub.com/embed.js?target=https%3A%2F%2Fgithub.com%2Fmicro%2Fdev%2Fblob%2Fmaster%2Fblog-tutorial%2Fv1-posts%2Fproto%2Fposts.proto%23L35-L53&style=github&showBorder=on&showLineNumbers=on&showFileMeta=on"></script>
+<script src="https://emgithub.com/embed.js?target=https%3A%2F%2Fgithub.com%2Fmicro%2Fdev%2Fblob%2Fmaster%2Fblog%2Fv1-posts%2Fproto%2Fposts.proto%23L35-L53&style=github&showBorder=on&showLineNumbers=on&showFileMeta=on"></script>
 
 A `make proto` issued in the command root should regenerate the Go proto files and we should be ready to define our new handler:
 
 We want our query handler to enable querying by id, slug and also enable listing of posts:
-<script src="https://emgithub.com/embed.js?target=https%3A%2F%2Fgithub.com%2Fmicro%2Fdev%2Fblob%2Fmaster%2Fblog-tutorial%2Fv1-posts%2Fhandler%2Fposts.go%23L63-L91&style=github&showBorder=on&showLineNumbers=on&showFileMeta=on"></script>
+<script src="https://emgithub.com/embed.js?target=https%3A%2F%2Fgithub.com%2Fmicro%2Fdev%2Fblob%2Fmaster%2Fblog%2Fv1-posts%2Fhandler%2Fposts.go%23L63-L91&style=github&showBorder=on&showLineNumbers=on&showFileMeta=on"></script>
 
 As mentioned, the existing indexes can be used for querying too with the `ToQuery` method.
 
@@ -156,7 +156,7 @@ Stellar! Now only `Delete` remains to be implemented to have a basic post servic
 
 Since we have already defined `Delete` in our proto, we only have to implement the handler. It is rather simple:
 
-<script src="https://emgithub.com/embed.js?target=https%3A%2F%2Fgithub.com%2Fmicro%2Fdev%2Fblob%2Fmaster%2Fblog-tutorial%2Fv1-posts%2Fhandler%2Fposts.go%23L93-L96&style=github&showBorder=on&showLineNumbers=on&showFileMeta=on"></script>
+<script src="https://emgithub.com/embed.js?target=https%3A%2F%2Fgithub.com%2Fmicro%2Fdev%2Fblob%2Fmaster%2Fblog%2Fv1-posts%2Fhandler%2Fposts.go%23L93-L96&style=github&showBorder=on&showLineNumbers=on&showFileMeta=on"></script>
 
 ## Conclusions
 
@@ -164,7 +164,7 @@ This brings us to the end of the first post in the blogs tutorial series.
 There are many more features we will add later, like saving and querying by tags, but this post already taught us enough to digest.
 We will cover those aspect in later parts of this series.
 
-The source code for this can be found [here](https://github.com/micro/dev/tree/master/blog-tutorial/v1-posts).
-Further versions will be in the same `blog-tutorial` folder with different versions, ie `v2-posts` and once we have more services, `v2-tags`, `v2-comments`.
+The source code for this can be found [here](https://github.com/micro/dev/tree/master/blog/v1-posts).
+Further versions will be in the same `blog` folder with different versions, ie `v2-posts` and once we have more services, `v2-tags`, `v2-comments`.
 Folders with the same prefix will be meant to be deployed together, but more on this later.
 
