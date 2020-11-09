@@ -85,7 +85,8 @@ var (
 		&cli.StringFlag{
 			Name:    "config_file",
 			Aliases: []string{"c"},
-			Usage:   "Set the config file",
+			Usage: `Set the config file. Defaults to the value defined by the dir_path flag plus path '/config.json'.
+If this value is defined however, the full path is expected to be used.`,
 			EnvVars: []string{"MICRO_CONFIG_FILE"},
 			Value:   "config.json",
 		},
@@ -348,7 +349,9 @@ func (c *command) Before(ctx *cli.Context) error {
 	// set the micro dir location
 	user.Dir = ctx.String("dir_path")
 	// set the config file location
-	uconf.SetConfig(ctx.String("config_file"))
+	if ctx.IsSet("config_file") {
+		uconf.SetConfig(ctx.String("config_file"))
+	}
 
 	// initialize plugins
 	for _, p := range plugin.Plugins() {
