@@ -385,7 +385,7 @@ Here's a quick example.
 
 Say you write helloworld on the backend with the following proto
 
-```
+```proto
 syntax = "proto3";
 
 package helloworld;
