@@ -160,7 +160,7 @@ get out of your way so the rest is up to you.
 
 A main package for a Micro service looks something like this
 
-```
+```go
 package main
 
 import (
@@ -187,7 +187,7 @@ func main() {
 
 When you want to make use of something like the Config service just import it like so.
 
-```
+```go
 import "github.com/micro/micro/v3/service/config"
 
 val, err := config.Get("key")
@@ -215,7 +215,7 @@ interested in a scalable and supported production environment, pay for the platf
 
 Interact with the environments like so.
 
-```
+```sh
 # view the environments
 micro env
 
@@ -238,7 +238,7 @@ details from you. Locally that means we're using best effort stuff like mdns, fi
 
 We've almost made it drop dead simple to start locally. You just run one command. 
 
-```
+```sh
 micro server
 ```
 
@@ -247,19 +247,19 @@ in any cloud environment running Micro as a Service.
 
 Set your environment to the local server when using it.
 
-```
+```sh
 micro env set local
 ```
 
 Curl `localhost:8080` with your namespace
 
-```
+```sh
 curl -H "Micro-Namespace: $NAMESPACE" "http://localhost:8080/helloworld?name=Alice"
 ```
 
 Get your namespace like so
 
-```
+```sh
 micro user namespace
 ```
 
@@ -308,7 +308,7 @@ underlying systems can route to the appropriate resources.
 Once you've signed up to the dev environment your namespace will be set for you. You can get it using 
 the command
 
-```
+```sh
 micro user namespace
 ```
 
@@ -420,7 +420,7 @@ too. So Micro builds in this in as a first class primitive. In future we'll also
 
 Alright so we talk a good game, but how easy is it? Well lets show you.
 
-```
+```sh
 # Install the micro binary
 curl -fsSL https://install.m3o.com/micro | /bin/bash
 
@@ -513,7 +513,7 @@ building software for today and want to learn of a better way that's going to ma
 
 So to revisit. To get started for free in the cloud based dev environment just run the following commands.
 
-```
+```sh
 # Install the micro binary
 curl -fsSL https://install.m3o.com/micro | /bin/bash
 
@@ -547,7 +547,7 @@ curl "https://$NAMESPACE.m3o.dev/helloworld?name=Alice"
 
 If you want to test things out locally first
 
-```
+```sh
 # start the server locally
 micro server
 
