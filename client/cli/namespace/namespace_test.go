@@ -5,11 +5,15 @@ import (
 	"testing"
 	"time"
 
+	"github.com/micro/micro/v3/internal/config"
+	"github.com/micro/micro/v3/internal/user"
 	"github.com/micro/micro/v3/service/registry"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestNamespace(t *testing.T) {
+	user.Init(fmt.Sprintf("~/.micro-test/%v", time.Now().UnixNano()))
+	config.Init()
 	envName := fmt.Sprintf("test-%v", time.Now().UnixNano())
 	namespace := "foo"
 
@@ -38,6 +42,7 @@ func TestNamespace(t *testing.T) {
 
 	t.Run("AddValidNamespace", func(t *testing.T) {
 		err := Add(namespace, envName)
+
 		assert.Nil(t, err, "Adding a valid namespace to an environment should not return an error")
 	})
 

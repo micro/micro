@@ -31,6 +31,7 @@ var (
 
 func Init() {
 	File = filepath.Join(user.Dir, "config.json")
+	lock = fslock.New(File)
 }
 
 // SetConfig sets the config file
@@ -39,6 +40,7 @@ func SetConfig(configFilePath string) {
 	defer mtx.Unlock()
 
 	File = configFilePath
+
 	// new lock for the file
 	lock = fslock.New(File)
 }
@@ -148,6 +150,7 @@ func newConfig() (*conf.JSONValues, error) {
 
 	contents, err := ioutil.ReadFile(File)
 	if err != nil {
+
 		return nil, err
 	}
 
