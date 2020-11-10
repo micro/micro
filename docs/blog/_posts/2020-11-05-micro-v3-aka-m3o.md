@@ -98,8 +98,6 @@ framework to incorporating a standalone server and hosted platform. Our hosted o
 
 Another way to think about it. What Git is to GitHub, Micro is to the M3O platform. Let's dig into it.
 
-<img src="/images/micro-3.0.png" />
-
 Micro 3.0 includes the following.
 
 ### Server
@@ -108,6 +106,8 @@ The server is our abstraction for cloud infrastructure and underlying systems yo
 distributed systems. The server encapsulates all of these concerns as gRPC services which you can 
 query via any language. The goal here is to say developers don't really need to be thinking about infrastructure 
 but what they do need is design patterns and primitives for building distributed systems. 
+
+<img src="/images/micro-3.0.png" />
 
 The server includes the following:
 
