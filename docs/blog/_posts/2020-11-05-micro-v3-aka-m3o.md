@@ -98,6 +98,8 @@ framework to incorporating a standalone server and hosted platform. Our hosted o
 
 Another way to think about it. What Git is to GitHub, Micro is to the M3O platform. Let's dig into it.
 
+<img src="/images/micro-3.0.png" />
+
 Micro 3.0 includes the following.
 
 ### Server
