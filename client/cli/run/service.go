@@ -130,19 +130,10 @@ func sourceExists(source *git.Source) error {
 
 	doSourceExists := func(ref string) error {
 		if strings.HasPrefix(source.Repo, "github.com") {
-			// Github specific existence checs
+			// Github specific existence checks
 			repo := strings.ReplaceAll(source.Repo, "github.com/", "")
 			url := fmt.Sprintf("https://api.github.com/repos/%v/contents/%v?ref=%v", repo, source.Folder, ref)
-
-			err := sourceExistsAt(url, ref, source)
-			if err != nil && ref == "master" {
-				// try again with main
-				ref = "main"
-				url := fmt.Sprintf("https://api.github.com/repos/%v/contents/%v?ref=%v", repo, source.Folder, ref)
-				return sourceExistsAt(url, ref, source)
-			}
-			return err
-
+			return sourceExistsAt(url, ref, source)
 		} else if strings.HasPrefix(source.Repo, "gitlab.com") {
 			// Gitlab specific existence checks
 
