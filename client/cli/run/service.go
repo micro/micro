@@ -19,7 +19,7 @@ import (
 	run "github.com/micro/micro/v3/internal/runtime"
 	"github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/runtime"
-	"github.com/micro/micro/v3/service/runtime/local/source/git"
+	"github.com/micro/micro/v3/service/runtime/source/git"
 	"github.com/urfave/cli/v2"
 	"golang.org/x/net/publicsuffix"
 	"google.golang.org/grpc/codes"
@@ -103,12 +103,7 @@ func dirExists(path string) (bool, error) {
 }
 
 func sourceExists(source *git.Source) error {
-	ref := source.Ref
-	if ref == "" || ref == "latest" {
-		ref = "master"
-	}
-
-	sourceExistsAt := func(url string, source *git.Source) error {
+	sourceExistsAt := func(url, ref string, source *git.Source) error {
 		req, _ := http.NewRequest("GET", url, nil)
 
 		// add the git credentials if set
@@ -133,19 +128,45 @@ func sourceExists(source *git.Source) error {
 		return nil
 	}
 
-	if strings.Contains(source.Repo, "github") {
-		// Github specific existence checs
-		repo := strings.ReplaceAll(source.Repo, "github.com/", "")
-		url := fmt.Sprintf("https://api.github.com/repos/%v/contents/%v?ref=%v", repo, source.Folder, ref)
-		return sourceExistsAt(url, source)
-	} else if strings.Contains(source.Repo, "gitlab") {
-		// Gitlab specific existence checks
+	doSourceExists := func(ref string) error {
+		if strings.HasPrefix(source.Repo, "github.com") {
+			// Github specific existence checs
+			repo := strings.ReplaceAll(source.Repo, "github.com/", "")
+			url := fmt.Sprintf("https://api.github.com/repos/%v/contents/%v?ref=%v", repo, source.Folder, ref)
 
-		// @todo better check for gitlab
-		url := fmt.Sprintf("https://%v", source.Repo)
-		return sourceExistsAt(url, source)
+			err := sourceExistsAt(url, ref, source)
+			if err != nil && ref == "master" {
+				// try again with main
+				ref = "main"
+				url := fmt.Sprintf("https://api.github.com/repos/%v/contents/%v?ref=%v", repo, source.Folder, ref)
+				return sourceExistsAt(url, ref, source)
+			}
+			return err
+
+		} else if strings.HasPrefix(source.Repo, "gitlab.com") {
+			// Gitlab specific existence checks
+
+			// @todo better check for gitlab
+			url := fmt.Sprintf("https://%v", source.Repo)
+			return sourceExistsAt(url, ref, source)
+		}
+		return nil
 	}
-	return nil
+
+	ref := source.Ref
+	if ref != "latest" && ref != "" {
+		return doSourceExists(ref)
+	}
+	defaults := []string{"latest", "master", "main", "trunk"}
+	var ret error
+	for _, ref := range defaults {
+		ret = doSourceExists(ref)
+		if ret == nil {
+			return nil
+		}
+	}
+	return ret
+
 }
 
 // try to find a matching source

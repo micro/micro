@@ -51,26 +51,37 @@ func (g *binaryGitter) Checkout(repo, branchOrCommit string) error {
 	// and probably is faster than downloading the whole repo history,
 	// but it comes with a bit of custom code for EACH host.
 	// @todo probably we should fall back to git in case the archives are not available.
-
-	if branchOrCommit == "latest" {
-		branchOrCommit = "master"
-	}
-	if strings.Contains(repo, "github") {
-		return g.checkoutGithub(repo, branchOrCommit)
-	} else if strings.Contains(repo, "gitlab") {
-		err := g.checkoutGitLabPublic(repo, branchOrCommit)
-		if err != nil && len(g.secrets[credentialsKey]) > 0 {
-			// If the public download fails, try getting it with tokens.
-			// Private downloads needs a token for api project listing, hence
-			// the weird structure of this code.
-			return g.checkoutGitLabPrivate(repo, branchOrCommit)
+	doCheckout := func(repo, branchOrCommit string) error {
+		if strings.HasPrefix(repo, "github.com") {
+			return g.checkoutGithub(repo, branchOrCommit)
+		} else if strings.HasPrefix(repo, "gitlab.com") {
+			err := g.checkoutGitLabPublic(repo, branchOrCommit)
+			if err != nil && len(g.secrets[credentialsKey]) > 0 {
+				// If the public download fails, try getting it with tokens.
+				// Private downloads needs a token for api project listing, hence
+				// the weird structure of this code.
+				return g.checkoutGitLabPrivate(repo, branchOrCommit)
+			}
+			return err
 		}
-		return err
+		if len(g.secrets[credentialsKey]) > 0 {
+			return g.checkoutAnyRemote(repo, branchOrCommit, true)
+		}
+		return g.checkoutAnyRemote(repo, branchOrCommit, false)
 	}
-	if len(g.secrets[credentialsKey]) > 0 {
-		return g.checkoutAnyRemote(repo, branchOrCommit, true)
+	if branchOrCommit != "latest" {
+		return doCheckout(repo, branchOrCommit)
 	}
-	return g.checkoutAnyRemote(repo, branchOrCommit, false)
+	// default branches
+	defaults := []string{"latest", "master", "main", "trunk"}
+	var err error
+	for _, ref := range defaults {
+		err = doCheckout(repo, ref)
+		if err == nil {
+			return nil
+		}
+	}
+	return err
 }
 
 // This aims to be a generic checkout method. Currently only tested for bitbucket,
@@ -470,7 +481,7 @@ func IsLocal(workDir, source string, pathExistsFunc ...func(path string) (bool, 
 	return false, ""
 }
 
-// CheckoutSource checks out a git repo (source) into a local temp directory. It will reutrn the
+// CheckoutSource checks out a git repo (source) into a local temp directory. It will return the
 // source of the local repo an an error if one occured. Secrets can optionally be passed if the repo
 // is private.
 func CheckoutSource(source *Source, secrets map[string]string) (string, error) {
