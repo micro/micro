@@ -3,6 +3,7 @@ package user
 import (
 	"os/user"
 	"path/filepath"
+	"strings"
 
 	"crypto/rand"
 	"crypto/rsa"
@@ -16,16 +17,20 @@ import (
 )
 
 var (
-	Dir  = ""
-	path = ".micro"
+	// Dir is the Micro directory.
+	Dir = ""
 )
 
-func init() {
+// Initialize the Micro directory
+func Init(directoryPath string) {
 	user, err := user.Current()
 	if err != nil {
 		logger.Fatalf(err.Error())
 	}
-	Dir = filepath.Join(user.HomeDir, path)
+	if strings.HasPrefix(directoryPath, "~") {
+		directoryPath = strings.Replace(directoryPath, "~", user.HomeDir, 1)
+	}
+	Dir = directoryPath
 	err = os.MkdirAll(Dir, 0700)
 	if err != nil {
 		logger.Fatalf(err.Error())

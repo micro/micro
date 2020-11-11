@@ -76,9 +76,19 @@ var (
 	// defaultFlags which are used on all commands
 	defaultFlags = []cli.Flag{
 		&cli.StringFlag{
-			Name:    "c",
-			Usage:   "Set the config file: Defaults to ~/.micro/config.json",
+			Name:    "dir_path",
+			Aliases: []string{"d"},
+			Usage:   "Set the Micro directory.",
 			EnvVars: []string{"MICRO_CONFIG_FILE"},
+			Value:   "~/.micro",
+		},
+		&cli.StringFlag{
+			Name:    "config_file",
+			Aliases: []string{"c"},
+			Usage: `Set the config file. Defaults to the value defined by the dir_path flag plus path '/config.json'.
+If this value is defined however, the full path is expected to be used.`,
+			EnvVars: []string{"MICRO_CONFIG_FILE"},
+			Value:   "config.json",
 		},
 		&cli.StringFlag{
 			Name:    "env",
@@ -336,9 +346,10 @@ func (c *command) Before(ctx *cli.Context) error {
 		}
 	}
 
-	// set the config file if specified
-	if cf := ctx.String("c"); len(cf) > 0 {
-		uconf.SetConfig(cf)
+	uconf.Init()
+	// set the config file location
+	if ctx.IsSet("config_file") {
+		uconf.SetConfig(ctx.String("config_file"))
 	}
 
 	// initialize plugins

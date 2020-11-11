@@ -408,7 +408,7 @@ func ParseSource(source string) (*Source, error) {
 	ret.Repo = strings.Join(parts[0:max], "/")
 
 	if len(parts) > 1 {
-		ret.Folder = strings.Join(parts[3:], "/")
+		ret.Folder = strings.Join(parts[max:], "/")
 	}
 
 	return ret, nil
