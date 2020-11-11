@@ -52,9 +52,9 @@ func (g *binaryGitter) Checkout(repo, branchOrCommit string) error {
 	// but it comes with a bit of custom code for EACH host.
 	// @todo probably we should fall back to git in case the archives are not available.
 	doCheckout := func(repo, branchOrCommit string) error {
-		if strings.HasPrefix(repo, "github.com") {
+		if strings.HasPrefix(repo, "https://github.com") {
 			return g.checkoutGithub(repo, branchOrCommit)
-		} else if strings.HasPrefix(repo, "gitlab.com") {
+		} else if strings.HasPrefix(repo, "https://gitlab.com") {
 			err := g.checkoutGitLabPublic(repo, branchOrCommit)
 			if err != nil && len(g.secrets[credentialsKey]) > 0 {
 				// If the public download fails, try getting it with tokens.
@@ -69,6 +69,7 @@ func (g *binaryGitter) Checkout(repo, branchOrCommit string) error {
 		}
 		return g.checkoutAnyRemote(repo, branchOrCommit, false)
 	}
+
 	if branchOrCommit != "latest" {
 		return doCheckout(repo, branchOrCommit)
 	}
