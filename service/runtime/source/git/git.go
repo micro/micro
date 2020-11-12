@@ -88,7 +88,7 @@ func (g *binaryGitter) Checkout(repo, branchOrCommit string) error {
 // This aims to be a generic checkout method. Currently only tested for bitbucket,
 // see tests
 func (g *binaryGitter) checkoutAnyRemote(repo, branchOrCommit string, useCredentials bool) error {
-	repoFolder := strings.ReplaceAll(strings.ReplaceAll(repo, "/", "-"), "https://", "")
+	repoFolder := strings.ReplaceAll(strings.ReplaceAll(repo, "/", "-"), "https:--", "")
 	g.folder = filepath.Join(os.TempDir(),
 		repoFolder+"-"+shortid.MustGenerate())
 	err := os.MkdirAll(g.folder, 0755)
@@ -127,7 +127,7 @@ func (g *binaryGitter) checkoutAnyRemote(repo, branchOrCommit string, useCredent
 
 func (g *binaryGitter) checkoutGithub(repo, branchOrCommit string) error {
 	// @todo if it's a commit it must not be checked out all the time
-	repoFolder := strings.ReplaceAll(strings.ReplaceAll(repo, "/", "-"), "https://", "")
+	repoFolder := strings.ReplaceAll(strings.ReplaceAll(repo, "/", "-"), "https:--", "")
 	g.folder = filepath.Join(os.TempDir(),
 		repoFolder+"-"+shortid.MustGenerate())
 
@@ -172,7 +172,7 @@ func (g *binaryGitter) checkoutGithub(repo, branchOrCommit string) error {
 func (g *binaryGitter) checkoutGitLabPublic(repo, branchOrCommit string) error {
 	// Example: https://gitlab.com/micro-test/basic-micro-service/-/archive/master/basic-micro-service-master.tar.gz
 	// @todo if it's a commit it must not be checked out all the time
-	repoFolder := strings.ReplaceAll(strings.ReplaceAll(repo, "/", "-"), "https://", "")
+	repoFolder := strings.ReplaceAll(strings.ReplaceAll(repo, "/", "-"), "https:--", "")
 	g.folder = filepath.Join(os.TempDir(),
 		repoFolder+"-"+shortid.MustGenerate())
 
@@ -612,7 +612,7 @@ func unzip(src, dest string, skipTopFolder bool) error {
 			f.Name = strings.Join(strings.Split(f.Name, string(filepath.Separator))[1:], string(filepath.Separator))
 		}
 		// zip slip https://snyk.io/research/zip-slip-vulnerability
-		destpath, err := zipSafeFilePath(f.Name, dest)
+		destpath, err := zipSafeFilePath(dest, f.Name)
 		if err != nil {
 			return err
 		}
@@ -649,6 +649,9 @@ func unzip(src, dest string, skipTopFolder bool) error {
 
 // zipSafeFilePath checks whether the file path is safe to use or is a zip slip attack https://snyk.io/research/zip-slip-vulnerability
 func zipSafeFilePath(destination, filePath string) (string, error) {
+	if len(filePath) == 0 {
+		return filepath.Join(destination, filePath), nil
+	}
 	destination, _ = filepath.Abs(destination) //explicit the destination folder to prevent that 'string.HasPrefix' check can be 'bypassed' when no destination folder is supplied in input
 	destpath := filepath.Join(destination, filePath)
 	if !strings.HasPrefix(destpath, filepath.Clean(destination)+string(os.PathSeparator)) {
