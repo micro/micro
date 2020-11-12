@@ -611,6 +611,10 @@ func unzip(src, dest string, skipTopFolder bool) error {
 		if skipTopFolder {
 			f.Name = strings.Join(strings.Split(f.Name, string(filepath.Separator))[1:], string(filepath.Separator))
 		}
+		// zip slip https://snyk.io/research/zip-slip-vulnerability
+		if err := sanitizeExtractPath(f.Name, dest); err != nil {
+			return err
+		}
 		path := filepath.Join(dest, f.Name)
 		if f.FileInfo().IsDir() {
 			os.MkdirAll(path, f.Mode())
@@ -639,5 +643,13 @@ func unzip(src, dest string, skipTopFolder bool) error {
 		}
 	}
 
+	return nil
+}
+
+func sanitizeExtractPath(filePath string, destination string) error {
+	destpath := filepath.Join(destination, filePath)
+	if !strings.HasPrefix(destpath, filepath.Clean(destination)+string(os.PathSeparator)) {
+		return fmt.Errorf("%s: illegal file path", filePath)
+	}
 	return nil
 }
