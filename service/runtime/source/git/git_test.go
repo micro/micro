@@ -167,8 +167,8 @@ func TestDefaultBranch(t *testing.T) {
 	tcs := []struct {
 		name           string
 		repo           string
-		branchOrCommit string
-		remoteBranch   string
+		branchOrCommit string // the branch we're looking for
+		remoteBranch   string // the branch that actually exists remotely
 		errMatcher     types.GomegaMatcher
 	}{
 		{name: "github-latest", repo: "https://github.com/micro/services", branchOrCommit: "latest", remoteBranch: "latest"},
@@ -187,6 +187,7 @@ func TestDefaultBranch(t *testing.T) {
 			gitter.client = &http.Client{
 				Transport: roundTripFunc(func(req *http.Request) *http.Response {
 					if !strings.Contains(req.URL.String(), tc.remoteBranch) {
+						// not asking for a branch that exists , return 404
 						return &http.Response{
 							StatusCode: 404,
 							Body:       ioutil.NopCloser(new(bytes.Buffer)),
@@ -194,6 +195,7 @@ func TestDefaultBranch(t *testing.T) {
 						}
 					}
 					if strings.HasSuffix(req.URL.String(), ".zip") {
+						// simulate a zip file
 						buf := new(bytes.Buffer)
 						zipw := zip.NewWriter(buf)
 						w, _ := zipw.Create("foo/bar")
@@ -210,6 +212,7 @@ func TestDefaultBranch(t *testing.T) {
 					}
 
 					if strings.HasSuffix(req.URL.String(), "tar.gz") {
+						// simulate a tar.gz file which has a directory at root
 						buf := new(bytes.Buffer)
 						gz := gzip.NewWriter(buf)
 						tw := tar.NewWriter(gz)
