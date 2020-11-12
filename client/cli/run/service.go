@@ -45,7 +45,8 @@ var (
 	// DefaultRetries which should be attempted when starting a service
 	DefaultRetries = 3
 	// Git orgs we currently support for credentials
-	GitOrgs = []string{"github", "bitbucket", "gitlab"}
+	GitOrgs    = []string{"github", "bitbucket", "gitlab"}
+	httpClient = &http.Client{}
 )
 
 const (
@@ -111,8 +112,7 @@ func sourceExists(source *git.Source) error {
 			req.Header.Set("Authorization", "token "+creds)
 		}
 
-		client := new(http.Client)
-		resp, err := client.Do(req)
+		resp, err := httpClient.Do(req)
 
 		// @todo gracefully degrade?
 		if err != nil {

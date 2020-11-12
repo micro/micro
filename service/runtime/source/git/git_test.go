@@ -24,6 +24,8 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/micro/micro/v3/test/fakes"
+
 	"github.com/onsi/gomega/types"
 
 	. "github.com/onsi/gomega"
@@ -163,36 +165,41 @@ func (f roundTripFunc) RoundTrip(req *http.Request) (*http.Response, error) {
 	return f(req), nil
 }
 
-func TestDefaultBranch(t *testing.T) {
+func TestCheckout(t *testing.T) {
 	tcs := []struct {
 		name           string
 		repo           string
 		branchOrCommit string // the branch we're looking for
 		remoteBranch   string // the branch that actually exists remotely
 		errMatcher     types.GomegaMatcher
+		callCount      int
 	}{
-		{name: "github-latest", repo: "https://github.com/micro/services", branchOrCommit: "latest", remoteBranch: "latest"},
-		{name: "github-master", repo: "https://github.com/micro/services", branchOrCommit: "latest", remoteBranch: "master"},
-		{name: "github-main", repo: "https://github.com/micro/services", branchOrCommit: "latest", remoteBranch: "main"},
-		{name: "github-error", repo: "https://github.com/micro/services", branchOrCommit: "latest", remoteBranch: "someotherdefault", errMatcher: HaveOccurred()},
-		{name: "gitlab-latest", repo: "https://gitlab.com/micro-test/basic-micro-service", branchOrCommit: "latest", remoteBranch: "latest"},
-		{name: "gitlab-master", repo: "https://gitlab.com/micro-test/basic-micro-service", branchOrCommit: "latest", remoteBranch: "master"},
-		{name: "gitlab-main", repo: "https://gitlab.com/micro-test/basic-micro-service", branchOrCommit: "latest", remoteBranch: "main"},
-		{name: "gitlab-error", repo: "https://gitlab.com/micro-test/basic-micro-service", branchOrCommit: "latest", remoteBranch: "someotherdefault", errMatcher: HaveOccurred()},
+		{name: "github-latest", repo: "https://github.com/micro/services", branchOrCommit: "latest", remoteBranch: "latest", callCount: 1},
+		{name: "github-master", repo: "https://github.com/micro/services", branchOrCommit: "latest", remoteBranch: "master", callCount: 2},
+		{name: "github-main", repo: "https://github.com/micro/services", branchOrCommit: "latest", remoteBranch: "main", callCount: 3},
+		{name: "github-error", repo: "https://github.com/micro/services", branchOrCommit: "latest", remoteBranch: "someotherdefault", errMatcher: HaveOccurred(), callCount: 4},
+		{name: "github-specific", repo: "https://github.com/micro/services", branchOrCommit: "mybranch", remoteBranch: "mybranch", callCount: 1},
+		{name: "github-specific-error", repo: "https://github.com/micro/services", branchOrCommit: "mybranch", remoteBranch: "main", errMatcher: HaveOccurred(), callCount: 1},
+		{name: "gitlab-latest", repo: "https://gitlab.com/micro-test/basic-micro-service", branchOrCommit: "latest", remoteBranch: "latest", callCount: 1},
+		{name: "gitlab-master", repo: "https://gitlab.com/micro-test/basic-micro-service", branchOrCommit: "latest", remoteBranch: "master", callCount: 2},
+		{name: "gitlab-main", repo: "https://gitlab.com/micro-test/basic-micro-service", branchOrCommit: "latest", remoteBranch: "main", callCount: 3},
+		{name: "gitlab-error", repo: "https://gitlab.com/micro-test/basic-micro-service", branchOrCommit: "latest", remoteBranch: "someotherdefault", errMatcher: HaveOccurred(), callCount: 4},
+		{name: "gitlab-error", repo: "https://gitlab.com/micro-test/basic-micro-service", branchOrCommit: "mybranch", remoteBranch: "mybranch", callCount: 1},
+		{name: "gitlab-error", repo: "https://gitlab.com/micro-test/basic-micro-service", branchOrCommit: "mybranch", remoteBranch: "main", errMatcher: HaveOccurred(), callCount: 1},
 	}
 	for _, tc := range tcs {
 		t.Run(tc.name, func(t *testing.T) {
 			gInt := NewGitter(nil)
 			gitter := gInt.(*binaryGitter)
-			gitter.client = &http.Client{
-				Transport: roundTripFunc(func(req *http.Request) *http.Response {
+			fakeTripper := fakes.FakeRoundTripper{
+				RoundTripStub: func(req *http.Request) (*http.Response, error) {
 					if !strings.Contains(req.URL.String(), tc.remoteBranch) {
 						// not asking for a branch that exists , return 404
 						return &http.Response{
 							StatusCode: 404,
 							Body:       ioutil.NopCloser(new(bytes.Buffer)),
 							Header:     make(http.Header),
-						}
+						}, nil
 					}
 					if strings.HasSuffix(req.URL.String(), ".zip") {
 						// simulate a zip file
@@ -208,7 +215,7 @@ func TestDefaultBranch(t *testing.T) {
 							Body: ioutil.NopCloser(buf),
 							// Must be set to non-nil value or it panics
 							Header: make(http.Header),
-						}
+						}, nil
 					}
 
 					if strings.HasSuffix(req.URL.String(), "tar.gz") {
@@ -238,14 +245,17 @@ func TestDefaultBranch(t *testing.T) {
 							Body: ioutil.NopCloser(buf),
 							// Must be set to non-nil value or it panics
 							Header: make(http.Header),
-						}
+						}, nil
 					}
 					return &http.Response{
 						StatusCode: 404,
 						Body:       ioutil.NopCloser(new(bytes.Buffer)),
 						Header:     make(http.Header),
-					}
-				}),
+					}, nil
+				},
+			}
+			gitter.client = &http.Client{
+				Transport: &fakeTripper,
 			}
 
 			g := NewWithT(t)
@@ -255,6 +265,7 @@ func TestDefaultBranch(t *testing.T) {
 			} else {
 				g.Expect(err).To(BeNil())
 			}
+			g.Expect(fakeTripper.RoundTripCallCount()).To(Equal(tc.callCount))
 
 		})
 	}
