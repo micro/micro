@@ -43,6 +43,7 @@ type Gitter interface {
 type binaryGitter struct {
 	folder  string
 	secrets map[string]string
+	client  *http.Client
 }
 
 func (g *binaryGitter) Checkout(repo, branchOrCommit string) error {
@@ -135,12 +136,11 @@ func (g *binaryGitter) checkoutGithub(repo, branchOrCommit string) error {
 	if !strings.HasPrefix(url, "https://") {
 		url = "https://" + url
 	}
-	client := &http.Client{}
 	req, _ := http.NewRequest("GET", url, nil)
 	if len(g.secrets[credentialsKey]) > 0 {
 		req.Header.Set("Authorization", "token "+g.secrets[credentialsKey])
 	}
-	resp, err := client.Do(req)
+	resp, err := g.client.Do(req)
 	if err != nil {
 		return fmt.Errorf("Can't get zip: %v", err)
 	}
@@ -181,9 +181,8 @@ func (g *binaryGitter) checkoutGitLabPublic(repo, branchOrCommit string) error {
 	if !strings.HasPrefix(url, "https://") {
 		url = "https://" + url
 	}
-	client := &http.Client{}
 	req, _ := http.NewRequest("GET", url, nil)
-	resp, err := client.Do(req)
+	resp, err := g.client.Do(req)
 	if err != nil {
 		return fmt.Errorf("Can't get zip: %v", err)
 	}
@@ -246,9 +245,8 @@ func (g *binaryGitter) checkoutGitLabPrivate(repo, branchOrCommit string) error 
 	// https://gitlab.com/api/v3/projects/0000000/repository/archive?private_token=XXXXXXXXXXXXXXXXXXXX
 	url := fmt.Sprintf("https://gitlab.com/api/v4/projects/%v/repository/archive?private_token=%v", projectID, g.secrets[credentialsKey])
 
-	client := &http.Client{}
 	req, _ := http.NewRequest("GET", url, nil)
-	resp, err := client.Do(req)
+	resp, err := g.client.Do(req)
 	if err != nil {
 		return fmt.Errorf("Can't get zip: %v", err)
 	}
@@ -296,6 +294,7 @@ func NewGitter(secrets map[string]string) Gitter {
 	return &binaryGitter{
 		folder:  tmpdir,
 		secrets: secrets,
+		client:  &http.Client{},
 	}
 }
 

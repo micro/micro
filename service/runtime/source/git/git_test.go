@@ -15,7 +15,18 @@
 package git
 
 import (
+	"archive/tar"
+	"archive/zip"
+	"bytes"
+	"compress/gzip"
+	"io/ioutil"
+	"net/http"
+	"strings"
 	"testing"
+
+	"github.com/onsi/gomega/types"
+
+	. "github.com/onsi/gomega"
 )
 
 type parseCase struct {
@@ -144,4 +155,105 @@ func TestServiceNameExtract(t *testing.T) {
 			t.Fatalf("Case %v, expected: %v, got: %v", i, c.expected, result)
 		}
 	}
+}
+
+type roundTripFunc func(req *http.Request) *http.Response
+
+func (f roundTripFunc) RoundTrip(req *http.Request) (*http.Response, error) {
+	return f(req), nil
+}
+
+func TestDefaultBranch(t *testing.T) {
+	tcs := []struct {
+		name           string
+		repo           string
+		branchOrCommit string
+		remoteBranch   string
+		errMatcher     types.GomegaMatcher
+	}{
+		{name: "github-latest", repo: "https://github.com/micro/services", branchOrCommit: "latest", remoteBranch: "latest"},
+		{name: "github-master", repo: "https://github.com/micro/services", branchOrCommit: "latest", remoteBranch: "master"},
+		{name: "github-main", repo: "https://github.com/micro/services", branchOrCommit: "latest", remoteBranch: "main"},
+		{name: "github-error", repo: "https://github.com/micro/services", branchOrCommit: "latest", remoteBranch: "someotherdefault", errMatcher: HaveOccurred()},
+		{name: "gitlab-latest", repo: "https://gitlab.com/micro-test/basic-micro-service", branchOrCommit: "latest", remoteBranch: "latest"},
+		{name: "gitlab-master", repo: "https://gitlab.com/micro-test/basic-micro-service", branchOrCommit: "latest", remoteBranch: "master"},
+		{name: "gitlab-main", repo: "https://gitlab.com/micro-test/basic-micro-service", branchOrCommit: "latest", remoteBranch: "main"},
+		{name: "gitlab-error", repo: "https://gitlab.com/micro-test/basic-micro-service", branchOrCommit: "latest", remoteBranch: "someotherdefault", errMatcher: HaveOccurred()},
+	}
+	for _, tc := range tcs {
+		t.Run(tc.name, func(t *testing.T) {
+			gInt := NewGitter(nil)
+			gitter := gInt.(*binaryGitter)
+			gitter.client = &http.Client{
+				Transport: roundTripFunc(func(req *http.Request) *http.Response {
+					if !strings.Contains(req.URL.String(), tc.remoteBranch) {
+						return &http.Response{
+							StatusCode: 404,
+							Body:       ioutil.NopCloser(new(bytes.Buffer)),
+							Header:     make(http.Header),
+						}
+					}
+					if strings.HasSuffix(req.URL.String(), ".zip") {
+						buf := new(bytes.Buffer)
+						zipw := zip.NewWriter(buf)
+						w, _ := zipw.Create("foo/bar")
+						w.Write([]byte("foobar"))
+						zipw.Close()
+
+						return &http.Response{
+							StatusCode: 200,
+							// Send response to be tested
+							Body: ioutil.NopCloser(buf),
+							// Must be set to non-nil value or it panics
+							Header: make(http.Header),
+						}
+					}
+
+					if strings.HasSuffix(req.URL.String(), "tar.gz") {
+						buf := new(bytes.Buffer)
+						gz := gzip.NewWriter(buf)
+						tw := tar.NewWriter(gz)
+						hdr := &tar.Header{
+							Name:     "foo",
+							Mode:     0600,
+							Typeflag: tar.TypeDir,
+						}
+						tw.WriteHeader(hdr)
+						hdr = &tar.Header{
+							Name:     "foo/bar",
+							Mode:     0600,
+							Size:     int64(len([]byte("foobar"))),
+							Typeflag: tar.TypeReg,
+						}
+						tw.WriteHeader(hdr)
+						tw.Write([]byte("foobar"))
+						tw.Close()
+						gz.Close()
+						return &http.Response{
+							StatusCode: 200,
+							// Send response to be tested
+							Body: ioutil.NopCloser(buf),
+							// Must be set to non-nil value or it panics
+							Header: make(http.Header),
+						}
+					}
+					return &http.Response{
+						StatusCode: 404,
+						Body:       ioutil.NopCloser(new(bytes.Buffer)),
+						Header:     make(http.Header),
+					}
+				}),
+			}
+
+			g := NewWithT(t)
+			err := gitter.Checkout(tc.repo, tc.branchOrCommit)
+			if tc.errMatcher != nil {
+				g.Expect(err).To(tc.errMatcher)
+			} else {
+				g.Expect(err).To(BeNil())
+			}
+
+		})
+	}
+
 }
