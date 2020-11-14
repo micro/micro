@@ -322,42 +322,6 @@ The generated code must be committed to source control, to enable other services
 At this point, we know how to write a service, run it, and call other services too.
 We have everything at our fingertips, but there are still some missing pieces to write applications. One of such pieces is the store interface, which helps with persistent data storage even without a database.
 
-## Updating a service
-
-Now since the example service is running (can be easily verified by `micro status`), we should not use `micro run`, but rather `micro update` to deploy it.
-
-We can simply issue the update command (remember to switch back to the root directory of the example service first):
-
-```sh
-micro update .
-```
-
-And verify both with micro status:
-
-```sh
-$ micro status example
-NAME	VERSION	SOURCE	STATUS	BUILD	UPDATED	METADATA
-example	latest	n/a		running	n/a		7s ago	owner=admin, group=micro
-```
-
-that it was updated.
-
-If things for some reason go haywire, we can try the time tested "turning it off and on again" solution and do:
-
-```sh
-micro kill example
-micro run .
-```
-
-to start with a clean slate.
-
-So once we did update the example service, we should see the following in the logs:
-
-```sh
-$ micro logs example
-key: mykey, value: Hi there
-```
-
 ## Storage
 
 Amongst many other useful built-in services Micro includes a persistent storage service for storing data.
@@ -447,6 +411,42 @@ func main() {
 
 	time.Sleep(1 * time.Hour)
 }
+```
+
+## Updating a service
+
+Now since the example service is running (can be easily verified by `micro status`), we should not use `micro run`, but rather `micro update` to deploy it.
+
+We can simply issue the update command (remember to switch back to the root directory of the example service first):
+
+```sh
+micro update .
+```
+
+And verify both with micro status:
+
+```sh
+$ micro status example
+NAME	VERSION	SOURCE	STATUS	BUILD	UPDATED	METADATA
+example	latest	n/a		running	n/a		7s ago	owner=admin, group=micro
+```
+
+that it was updated.
+
+If things for some reason go haywire, we can try the time tested "turning it off and on again" solution and do:
+
+```sh
+micro kill example
+micro run .
+```
+
+to start with a clean slate.
+
+So once we did update the example service, we should see the following in the logs:
+
+```sh
+$ micro logs example
+key: mykey, value: Hi there
 ```
 
 ## Config
