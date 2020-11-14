@@ -77,6 +77,8 @@ Micro is built as a microservices architecture and abstracts away the complexity
 this as a single logical server to the user but decompose that into the various building block primitives that can be plugged 
 into any underlying system. 
 
+### Server
+
 The server is composed of the following services.
 
 - **API** - HTTP Gateway which dynamically maps http/json requests to RPC using path based resolution
@@ -90,15 +92,22 @@ The server is composed of the following services.
 - **Registry** - Centralised service discovery and API endpoint explorer with feature rich metadata
 - **Store** - Key-Value storage with TTL expiry and persistent crud to keep microservices stateless
 
+### Development
+
 Micro additionaly now contains the incredibly popular [Go Micro](https://github.com/asim/go-micro) framework built in for service development.
 
 - **Framework** - A Go framework which makes it drop dead simple to write your services without having to piece together lines 
 and lines of boilerplate. Auto configured and initialised by default, just import and get started quickly.
 
+### Environments
+
 Finally Micro bakes in the concept of `Environments` and multi-tenancy through `Namespaces`. Run your server locally for 
 development and in the cloud for staging and production, seamlessly switch between them using the CLI commands `micro env set [environment]` 
-and `micro user set [namespace]`. Micro brings not only a rich architectural model but a command line experience tailored for that 
-need.
+and `micro user set [namespace]`.
+
+### Command Line
+
+Micro brings not only a rich architectural model but a command line experience tailored for that need.
 
 - **CLI** - A command line interface with a dynamic command mapping for all services running on the platform. Turns any 
 service instantly into a CLI command along with flag parsing for inputs. Includes support for multiple environments and 
