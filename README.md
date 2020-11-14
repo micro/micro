@@ -10,6 +10,8 @@ with the complexity of distributed systems and provides simpler programmable abs
 
 <img src="docs/images/micro-3.0.png" />
 
+Micro is the all encompassing end to end platform experience from source to running and beyond built with a developer first focus.
+
 ## Install
 
 Install from source
@@ -92,12 +94,11 @@ The server is composed of the following services.
 - **Registry** - Centralised service discovery and API endpoint explorer with feature rich metadata
 - **Store** - Key-Value storage with TTL expiry and persistent crud to keep microservices stateless
 
-### Development
+### Framework
 
-Micro additionaly now contains the incredibly popular [Go Micro](https://github.com/asim/go-micro) framework built in for service development.
-
-- **Framework** - A Go framework which makes it drop dead simple to write your services without having to piece together lines 
-and lines of boilerplate. Auto configured and initialised by default, just import and get started quickly.
+Micro additionaly now contains the incredibly popular [Go Micro](https://github.com/asim/go-micro) framework built in for service development. 
+The Go framework makes it drop dead simple to write your services without having to piece together lines and lines of boilerplate. Auto 
+configured and initialised by default, just import and get started quickly.
 
 ### Environments
 
@@ -107,14 +108,10 @@ and `micro user set [namespace]`.
 
 ### Command Line
 
-Micro brings not only a rich architectural model but a command line experience tailored for that need.
-
-- **CLI** - A command line interface with a dynamic command mapping for all services running on the platform. Turns any 
-service instantly into a CLI command along with flag parsing for inputs. Includes support for multiple environments and 
-namespaces, automatic refreshing of auth credentials, creating and running services, status info and log streaming, plus 
-much, much more.
-
-Micro is the all encompassing end to end platform experience from source to running and beyond built with a developer first focus.
+Micro brings not only a rich architectural model but a command line experience tailored for that need. The command line interface includes 
+dynamic command mapping for all services running on the platform. Turns any service instantly into a CLI command along with flag parsing 
+for inputs. Includes support for multiple environments and namespaces, automatic refreshing of auth credentials, creating and running 
+services, status info and log streaming, plus much, much more.
 
 ## Usage
 
