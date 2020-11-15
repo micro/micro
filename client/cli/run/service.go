@@ -19,7 +19,7 @@ import (
 	run "github.com/micro/micro/v3/internal/runtime"
 	"github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/runtime"
-	"github.com/micro/micro/v3/service/runtime/local/source/git"
+	"github.com/micro/micro/v3/service/runtime/source/git"
 	"github.com/urfave/cli/v2"
 	"golang.org/x/net/publicsuffix"
 	"google.golang.org/grpc/codes"
@@ -44,10 +44,9 @@ const (
 var (
 	// DefaultRetries which should be attempted when starting a service
 	DefaultRetries = 3
-	// DefaultImage which should be run
-	DefaultImage = "micro/cells:v3"
 	// Git orgs we currently support for credentials
-	GitOrgs = []string{"github", "bitbucket", "gitlab"}
+	GitOrgs    = []string{"github", "bitbucket", "gitlab"}
+	httpClient = &http.Client{}
 )
 
 const (
@@ -105,12 +104,7 @@ func dirExists(path string) (bool, error) {
 }
 
 func sourceExists(source *git.Source) error {
-	ref := source.Ref
-	if ref == "" || ref == "latest" {
-		ref = "master"
-	}
-
-	sourceExistsAt := func(url string, source *git.Source) error {
+	sourceExistsAt := func(url, ref string, source *git.Source) error {
 		req, _ := http.NewRequest("GET", url, nil)
 
 		// add the git credentials if set
@@ -118,8 +112,7 @@ func sourceExists(source *git.Source) error {
 			req.Header.Set("Authorization", "token "+creds)
 		}
 
-		client := new(http.Client)
-		resp, err := client.Do(req)
+		resp, err := httpClient.Do(req)
 
 		// @todo gracefully degrade?
 		if err != nil {
@@ -135,27 +128,74 @@ func sourceExists(source *git.Source) error {
 		return nil
 	}
 
-	if strings.Contains(source.Repo, "github") {
-		// Github specific existence checs
-		repo := strings.ReplaceAll(source.Repo, "github.com/", "")
-		url := fmt.Sprintf("https://api.github.com/repos/%v/contents/%v?ref=%v", repo, source.Folder, ref)
-		return sourceExistsAt(url, source)
-	} else if strings.Contains(source.Repo, "gitlab") {
-		// Gitlab specific existence checks
+	doSourceExists := func(ref string) error {
+		if strings.HasPrefix(source.Repo, "github.com") {
+			// Github specific existence checks
+			repo := strings.ReplaceAll(source.Repo, "github.com/", "")
+			url := fmt.Sprintf("https://api.github.com/repos/%v/contents/%v?ref=%v", repo, source.Folder, ref)
+			return sourceExistsAt(url, ref, source)
+		} else if strings.HasPrefix(source.Repo, "gitlab.com") {
+			// Gitlab specific existence checks
 
-		// @todo better check for gitlab
-		url := fmt.Sprintf("https://%v", source.Repo)
-		return sourceExistsAt(url, source)
+			// @todo better check for gitlab
+			url := fmt.Sprintf("https://%v", source.Repo)
+			return sourceExistsAt(url, ref, source)
+		}
+		return nil
 	}
-	return nil
+
+	ref := source.Ref
+	if ref != "latest" && ref != "" {
+		return doSourceExists(ref)
+	}
+	defaults := []string{"latest", "master", "main", "trunk"}
+	var ret error
+	for _, ref := range defaults {
+		ret = doSourceExists(ref)
+		if ret == nil {
+			return nil
+		}
+	}
+	return ret
+
 }
 
-func appendSourceBase(ctx *cli.Context, workDir, source string) string {
+// try to find a matching source
+// returns true if found
+func getMatchingSource(nameOrSource string) (string, bool) {
+	services, err := runtime.Read()
+	if err == nil {
+		for _, service := range services {
+			parts := strings.Split(nameOrSource, "@")
+			if len(parts) > 1 && service.Name == parts[0] && service.Version == parts[1] {
+				return service.Metadata["source"], true
+			}
+
+			if len(parts) == 1 && service.Name == nameOrSource {
+				return service.Metadata["source"], true
+			}
+		}
+	}
+	return "", false
+}
+
+// matchExistingService true: load running services and expand the shortname of a service
+// ie micro update invite becomes micro update github.com/m3o/services/invite
+func appendSourceBase(ctx *cli.Context, workDir, source string, matchExistingService bool) string {
 	isLocal, _ := git.IsLocal(workDir, source)
 	// @todo add list of supported hosts here or do this check better
 	domain := strings.Split(source, "/")[0]
 	_, err := publicsuffix.EffectiveTLDPlusOne(domain)
 	if !isLocal && err != nil {
+		// read the service. In case there is an existing service with the same name and version
+		// use its source
+		if matchExistingService {
+			matchedSource, hasMatching := getMatchingSource(source)
+			if hasMatching {
+				return matchedSource
+			}
+		}
+
 		env, _ := util.GetEnv(ctx)
 
 		baseURL, _ := config.Get(config.Path("git", env.Name, "baseurl"))
@@ -182,7 +222,7 @@ func runService(ctx *cli.Context) error {
 	}
 
 	// determine the type of source input, i.e. is it a local folder or a remote git repo
-	source, err := git.ParseSourceLocal(wd, appendSourceBase(ctx, wd, ctx.Args().Get(0)))
+	source, err := git.ParseSourceLocal(wd, appendSourceBase(ctx, wd, ctx.Args().Get(0), false))
 	if err != nil {
 		return err
 	}
@@ -199,7 +239,7 @@ func runService(ctx *cli.Context) error {
 	command := strings.TrimSpace(ctx.String("command"))
 	args := strings.TrimSpace(ctx.String("args"))
 	retries := DefaultRetries
-	image := DefaultImage
+	image := ""
 	if ctx.IsSet("retries") {
 		retries = ctx.Int("retries")
 	}
@@ -379,16 +419,9 @@ func updateService(ctx *cli.Context) error {
 	}
 
 	// determine the type of source input, i.e. is it a local folder or a remote git repo
-	source, err := git.ParseSourceLocal(wd, appendSourceBase(ctx, wd, ctx.Args().First()))
+	source, err := git.ParseSourceLocal(wd, appendSourceBase(ctx, wd, ctx.Args().First(), true))
 	if err != nil {
 		return err
-	}
-
-	// if the source isn't local, ensure it exists
-	if !source.Local {
-		if err := sourceExists(source); err != nil {
-			return err
-		}
 	}
 
 	// construct the service

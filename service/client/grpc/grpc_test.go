@@ -32,7 +32,9 @@ import (
 )
 
 // server is used to implement helloworld.GreeterServer.
-type greeterServer struct{}
+type greeterServer struct {
+	pb.UnimplementedGreeterServer
+}
 
 // SayHello implements helloworld.GreeterServer
 func (g *greeterServer) SayHello(ctx context.Context, in *pb.HelloRequest) (*pb.HelloReply, error) {

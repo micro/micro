@@ -1,5 +1,5 @@
 
-Micro is an open source platform for cloud native development.
+Micro is an open source platform for cloud native application development.
 
 ## Overview
 
