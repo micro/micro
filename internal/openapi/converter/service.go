@@ -15,17 +15,41 @@ func (c *Converter) convertServiceType(file *descriptor.FileDescriptorProto, cur
 	// Add a path item for each method in the service:
 	for _, method := range svc.GetMethod() {
 
+		c.logger.Debugf("Processing method %s.%s()", svc.GetName(), method.GetName())
+
+		// The URL path is the service name and method name:
 		path := fmt.Sprintf("/%s/%s", svc.GetName(), method.GetName())
 
+		// See if we can get the request paylod schema:
+		requestBodySchema, ok := c.openAPISpec.Components.Schemas[*method.InputType]
+		if !ok {
+			c.logger.Warnf("Couldn't find request body payload (%s)", *method.InputType)
+			continue
+		}
+
+		// Make a request body:
+		requestBody := &openapi3.RequestBodyRef{
+			Value: &openapi3.RequestBody{
+				Content: openapi3.NewContentWithJSONSchemaRef(requestBodySchema),
+			},
+		}
+
+		// Add it to the spec:
+		c.openAPISpec.Components.RequestBodies[*method.InputType] = requestBody
+
+		// // See if we can get the response paylod schema:
+		// responseBodySchema, ok := c.componentSchemas[*method.OutputType]
+		// if !ok {
+		// 	c.logger.Warnf("Couldn't find response body payload (%s)", *method.OutputType)
+		// 	continue
+		// }
+
+		// Prepare a path item based on these payloads:
 		pathItem := &openapi3.PathItem{
 			Summary: fmt.Sprintf("%s: %s.%s()", file.GetName(), svc.GetName(), method.GetName()),
 			Post: &openapi3.Operation{
-				RequestBody: &openapi3.RequestBodyRef{
-					Value: &openapi3.RequestBody{
-						Content: openapi3.NewContentWithJSONSchema(c.componentSchemas[*method.InputType]),
-					},
-				},
-				Responses: openapi3.Responses{},
+				RequestBody: requestBody,
+				Responses:   openapi3.Responses{},
 			},
 		}
 

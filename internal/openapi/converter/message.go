@@ -162,7 +162,11 @@ func (c *Converter) convertField(curPkg *ProtoPackage, desc *descriptor.FieldDes
 
 	// Recurse array of primitive types:
 	if desc.GetLabel() == descriptor.FieldDescriptorProto_LABEL_REPEATED && componentSchema.Type != openAPITypeObject {
-		componentSchema.Items = componentSchema.NewRef()
+		componentSchema.Items = &openapi3.SchemaRef{
+			Value: &openapi3.Schema{
+				Type: componentSchema.Type,
+			},
+		}
 		componentSchema.Type = openAPITypeArray
 		return componentSchema, nil
 	}
@@ -188,12 +192,13 @@ func (c *Converter) convertField(curPkg *ProtoPackage, desc *descriptor.FieldDes
 		case recordType.Options.GetMapEntry():
 			c.logger.Tracef("Found a map (%s.%s)", *msg.Name, recordType.GetName())
 			componentSchema.Type = openAPITypeObject
-			componentSchema.AdditionalProperties = recursedComponentSchema.NewRef()
+			// componentSchema.AdditionalProperties = recursedComponentSchema.NewRef()
+			componentSchema.AdditionalProperties = openapi3.NewSchemaRef("", recursedComponentSchema)
 
-		// Arrays:
-		case desc.GetLabel() == descriptor.FieldDescriptorProto_LABEL_REPEATED:
-			componentSchema.Type = openAPITypeArray
-			componentSchema.Items = recursedComponentSchema.NewRef()
+		// // Arrays:
+		// case componentSchema.Type == openAPITypeArray:
+		// 	// componentSchema.Items = recursedComponentSchema.NewRef()
+		// 	componentSchema.Items = openapi3.NewSchemaRef("", recursedComponentSchema)
 
 		// Objects:
 		default:
@@ -361,7 +366,7 @@ func (c *Converter) recursiveConvertMessageType(curPkg *ProtoPackage, msg *descr
 		c.logger.Tracef("Converted field: %s => %s", fieldDesc.GetName(), recursedComponentSchema.Type)
 
 		// Add it to the properties (by its JSON name):
-		componentSchema.Properties[fieldDesc.GetJsonName()] = recursedComponentSchema.NewRef()
+		componentSchema.Properties[fieldDesc.GetJsonName()] = openapi3.NewSchemaRef("", recursedComponentSchema)
 		// componentSchema.Properties[fieldDesc.GetName()] = recursedComponentSchema.NewRef()
 	}
 

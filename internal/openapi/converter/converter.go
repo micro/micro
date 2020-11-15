@@ -1,6 +1,7 @@
 package converter
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -19,17 +20,15 @@ const (
 
 // Converter is everything you need to convert Micro protos into an OpenAPI spec:
 type Converter struct {
-	componentSchemas map[string]*openapi3.Schema
-	logger           *logrus.Logger
-	openAPISpec      *openapi3.Swagger
-	sourceInfo       *sourceCodeInfo
+	logger      *logrus.Logger
+	openAPISpec *openapi3.Swagger
+	sourceInfo  *sourceCodeInfo
 }
 
 // New returns a configured converter:
 func New(logger *logrus.Logger) *Converter {
 	return &Converter{
-		componentSchemas: make(map[string]*openapi3.Schema),
-		logger:           logger,
+		logger: logger,
 	}
 }
 
@@ -94,11 +93,8 @@ func (c *Converter) convertFile(file *descriptor.FileDescriptorProto) error {
 			c.logger.Errorf("Failed to convert (%s): %v", protoFileName, err)
 			return err
 		}
-		c.componentSchemas[componentSchema.Title] = componentSchema
-		// c.openAPISpec.Components.Schemas[componentSchema.Title] = componentSchema.NewRef()
+		c.openAPISpec.Components.Schemas[componentSchema.Title] = openapi3.NewSchemaRef("", componentSchema)
 	}
-
-	// spew.Fdump(os.Stderr, c.componentSchemas)
 
 	// Process services:
 	for _, svc := range file.GetService() {
@@ -150,8 +146,13 @@ func (c *Converter) convert(req *plugin.CodeGeneratorRequest) (*plugin.CodeGener
 		}
 	}
 
+	c.logger.Errorf("Found %d schemas", len(c.openAPISpec.Components.Schemas))
+	for schemaName, schema := range c.openAPISpec.Components.Schemas {
+		c.logger.Infof("%s: %s", schemaName, schema.Value.Type)
+	}
+
 	// Marshal the OpenAPI spec:
-	marshaledSpec, err := c.openAPISpec.MarshalJSON()
+	marshaledSpec, err := json.MarshalIndent(c.openAPISpec, "", "  ")
 	if err != nil {
 		c.logger.Errorf("Unable to marshal the OpenAPI spec: %v", err)
 		return nil, err
