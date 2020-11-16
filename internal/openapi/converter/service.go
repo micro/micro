@@ -20,21 +20,21 @@ func (c *Converter) convertServiceType(file *descriptor.FileDescriptorProto, cur
 		// The URL path is the service name and method name:
 		path := fmt.Sprintf("/%s/%s", svc.GetName(), method.GetName())
 
-		// // See if we can get the request paylod schema:
-		// requestBodySchema, ok := c.openAPISpec.Components.Schemas[*method.InputType]
-		// if !ok {
-		// 	c.logger.Warnf("Couldn't find request body payload (%s)", *method.InputType)
-		// 	continue
-		// }
+		requestPayloadSchemaName := requestPayloadSchemaName(*method.InputType)
+
+		// See if we can get the request paylod schema:
+		if _, ok := c.openAPISpec.Components.Schemas[requestPayloadSchemaName]; !ok {
+			c.logger.Warnf("Couldn't find request body payload (%s)", requestPayloadSchemaName)
+			continue
+		}
 
 		// Make a request body:
 		requestBody := &openapi3.RequestBodyRef{
 			Value: &openapi3.RequestBody{
-				// Content: openapi3.NewContentWithJSONSchemaRef(requestBodySchema),
 				Content: openapi3.Content{
 					"application/json": &openapi3.MediaType{
 						Schema: &openapi3.SchemaRef{
-							Ref: fmt.Sprintf("#/components/schemas/%s", *method.InputType),
+							Ref: messageSchemaPath(requestPayloadSchemaName),
 						},
 					},
 				},
@@ -42,7 +42,7 @@ func (c *Converter) convertServiceType(file *descriptor.FileDescriptorProto, cur
 		}
 
 		// Add it to the spec:
-		requestBodyName := fmt.Sprintf("%s%sRequest", svc.GetName(), method.GetName())
+		requestBodyName := requestBodyName(svc.GetName(), method.GetName())
 		c.openAPISpec.Components.RequestBodies[requestBodyName] = requestBody
 
 		// // See if we can get the response paylod schema:
@@ -71,7 +71,7 @@ func (c *Converter) convertServiceType(file *descriptor.FileDescriptorProto, cur
 			},
 			Post: &openapi3.Operation{
 				RequestBody: &openapi3.RequestBodyRef{
-					Ref: fmt.Sprintf("#/components/requestBodies/%s", requestBodyName),
+					Ref: requestBodySchemaPath(requestBodyName),
 				},
 				Responses: openapi3.Responses{},
 				Security: &openapi3.SecurityRequirements{

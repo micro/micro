@@ -87,7 +87,6 @@ func (c *Converter) ConvertFrom(rd io.Reader) (*plugin.CodeGeneratorResponse, er
 		Value: &openapi3.SecurityScheme{
 			BearerFormat: "JWT",
 			Description:  "Micro API token",
-			Name:         "MicroAPIToken",
 			Type:         "http",
 			Scheme:       "bearer",
 		},
@@ -122,8 +121,8 @@ func (c *Converter) convertFile(file *descriptor.FileDescriptorProto) error {
 		}
 
 		// Add the message to our component schemas (we'll refer to these later when we build the service endpoints):
-		componentSchemaKey := fmt.Sprintf("%s.%s", pkg.name, componentSchema.Title)
-		c.openAPISpec.Components.Schemas[componentSchemaKey] = openapi3.NewSchemaRef("", componentSchema)
+		// componentSchemaKey := fmt.Sprintf("%s.%s", pkg.name, componentSchema.Title)
+		c.openAPISpec.Components.Schemas[componentSchema.Title] = openapi3.NewSchemaRef("", componentSchema)
 	}
 
 	// Process services:
