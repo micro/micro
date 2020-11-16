@@ -9,13 +9,24 @@ Todo
 
 - [x] Read proto files
 - [x] Output OpenAPI3 JSON spec
-- [ ] Build a map of "Schemas" (one for each "message")
+    - [x] Info.Title comes from the proto package name
+- [x] Build a map of "Schemas" (one for each "message")
+    - [x] Field descriptions from code
     - [ ] Possible to use references? Not for v1
 - [x] Add a "Path" for each proto "service" method
     - [x] Summary is proto filename and service.method
     - [ ] Description is comments from code
-    - [ ] app/json RequestBody payload from message "input" schema
-    - [ ] app/json Response payload from message "output" schema
-- [ ] Add a "Server" for each Micro platform API endpoint (dev / prod etc)
+    - [x] app/json RequestBody payload from message "input" schema
+    - [x] app/json Response payload from message "output" schema
+- [x] Add a "Server" for each Micro platform API endpoint (dev / prod etc)
+- [x] Auth with API token (according to docs)
 - [ ] Parameters
-    - [ ] Namespace (is this a path component in the Micro API?)
+    - [x] Namespace (as a header)
+    - [ ] Namespace (as a hostname component, but this invites errors)
+
+References aren't working (request/responses should reference a schema)
+Object names use .runtime in the maps (should exclude this)
+
+
+https://micro.mu/reference#api
+https://docs.m3o.com/getting-started/public-apis

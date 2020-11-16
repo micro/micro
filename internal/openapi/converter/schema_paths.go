@@ -5,7 +5,7 @@ import (
 	"strings"
 )
 
-func requestPayloadSchemaName(inputType string) string {
+func payloadSchemaName(inputType string) string {
 	return strings.Split(inputType, ".")[2]
 }
 
@@ -19,4 +19,12 @@ func requestBodyName(serviceName, methodName string) string {
 
 func requestBodySchemaPath(requestBodyName string) string {
 	return fmt.Sprintf("#/components/requestBodies/%s", requestBodyName)
+}
+
+func responseBodyName(serviceName, methodName string) string {
+	return fmt.Sprintf("%s%sResponse", serviceName, methodName)
+}
+
+func responseBodySchemaPath(responseBodyName string) string {
+	return fmt.Sprintf("#/components/responses/%s", responseBodyName)
 }

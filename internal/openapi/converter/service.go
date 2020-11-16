@@ -9,18 +9,17 @@ import (
 
 // Converts a proto "SERVICE" into an OpenAPI path:
 func (c *Converter) convertServiceType(file *descriptor.FileDescriptorProto, curPkg *ProtoPackage, svc *descriptor.ServiceDescriptorProto) (map[string]*openapi3.PathItem, error) {
-
 	pathItems := make(map[string]*openapi3.PathItem)
 
 	// Add a path item for each method in the service:
 	for _, method := range svc.GetMethod() {
-
 		c.logger.Debugf("Processing method %s.%s()", svc.GetName(), method.GetName())
 
 		// The URL path is the service name and method name:
 		path := fmt.Sprintf("/%s/%s", svc.GetName(), method.GetName())
 
-		requestPayloadSchemaName := requestPayloadSchemaName(*method.InputType)
+		// We need to reformat the request name to match what is produced by the message converter:
+		requestPayloadSchemaName := payloadSchemaName(*method.InputType)
 
 		// See if we can get the request paylod schema:
 		if _, ok := c.openAPISpec.Components.Schemas[requestPayloadSchemaName]; !ok {
@@ -29,6 +28,7 @@ func (c *Converter) convertServiceType(file *descriptor.FileDescriptorProto, cur
 		}
 
 		// Make a request body:
+		requestBodyName := requestBodyName(svc.GetName(), method.GetName())
 		requestBody := &openapi3.RequestBodyRef{
 			Value: &openapi3.RequestBody{
 				Content: openapi3.Content{
@@ -38,19 +38,39 @@ func (c *Converter) convertServiceType(file *descriptor.FileDescriptorProto, cur
 						},
 					},
 				},
+				Description: requestBodyName,
 			},
 		}
 
 		// Add it to the spec:
-		requestBodyName := requestBodyName(svc.GetName(), method.GetName())
 		c.openAPISpec.Components.RequestBodies[requestBodyName] = requestBody
 
-		// // See if we can get the response paylod schema:
-		// responseBodySchema, ok := c.componentSchemas[*method.OutputType]
-		// if !ok {
-		// 	c.logger.Warnf("Couldn't find response body payload (%s)", *method.OutputType)
-		// 	continue
-		// }
+		// We need to reformat the response name to match what is produced by the message converter:
+		responsePayloadSchemaName := payloadSchemaName(*method.OutputType)
+
+		// See if we can get the response paylod schema:
+		if _, ok := c.openAPISpec.Components.Schemas[responsePayloadSchemaName]; !ok {
+			c.logger.Warnf("Couldn't find response body payload (%s)", responsePayloadSchemaName)
+			continue
+		}
+
+		// Make a response body:
+		responseBodyName := responseBodyName(svc.GetName(), method.GetName())
+		responseBody := &openapi3.ResponseRef{
+			Value: &openapi3.Response{
+				Content: openapi3.Content{
+					"application/json": &openapi3.MediaType{
+						Schema: &openapi3.SchemaRef{
+							Ref: messageSchemaPath(responsePayloadSchemaName),
+						},
+					},
+				},
+				Description: &responseBodyName,
+			},
+		}
+
+		// Add it to the spec:
+		c.openAPISpec.Components.Responses[responseBodyName] = responseBody
 
 		// Prepare a path item based on these payloads:
 		pathItem := &openapi3.PathItem{
@@ -73,7 +93,11 @@ func (c *Converter) convertServiceType(file *descriptor.FileDescriptorProto, cur
 				RequestBody: &openapi3.RequestBodyRef{
 					Ref: requestBodySchemaPath(requestBodyName),
 				},
-				Responses: openapi3.Responses{},
+				Responses: openapi3.Responses{
+					"default": &openapi3.ResponseRef{
+						Ref: responseBodySchemaPath(responseBodyName),
+					},
+				},
 				Security: &openapi3.SecurityRequirements{
 					{
 						"MicroAPIToken": []string{},
