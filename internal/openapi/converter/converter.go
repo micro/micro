@@ -6,6 +6,7 @@ import (
 	"io"
 	"io/ioutil"
 	"path"
+	"strings"
 
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/golang/protobuf/proto"
@@ -48,9 +49,13 @@ func (c *Converter) ConvertFrom(rd io.Reader) (*plugin.CodeGeneratorResponse, er
 		return nil, err
 	}
 
+	// Create a new OpenAPI3 document to fill in with schemas and paths:
 	c.openAPISpec = &openapi3.Swagger{
 		Components: openapi3.Components{
-			Schemas: make(map[string]*openapi3.SchemaRef),
+			RequestBodies:   make(map[string]*openapi3.RequestBodyRef),
+			Responses:       make(map[string]*openapi3.ResponseRef),
+			SecuritySchemes: make(map[string]*openapi3.SecuritySchemeRef),
+			Schemas:         make(map[string]*openapi3.SchemaRef),
 		},
 		Info: &openapi3.Info{
 			Title:       "Micro API",
@@ -60,12 +65,33 @@ func (c *Converter) ConvertFrom(rd io.Reader) (*plugin.CodeGeneratorResponse, er
 		OpenAPI: "3.0.0",
 		Paths:   make(openapi3.Paths),
 	}
+
+	// Add the DEV platform:
 	c.openAPISpec.AddServer(
 		&openapi3.Server{
-			URL:         "https://cruft.micro.com",
-			Description: "Micro API",
+			URL:         "https://api.m3o.dev",
+			Description: "Micro DEV environment",
 		},
 	)
+
+	// Add the LIVE platform:
+	c.openAPISpec.AddServer(
+		&openapi3.Server{
+			URL:         "https://api.m3o.com",
+			Description: "Micro LIVE environment",
+		},
+	)
+
+	// Add the Micro auth mechanism:
+	c.openAPISpec.Components.SecuritySchemes["MicroAPIToken"] = &openapi3.SecuritySchemeRef{
+		Value: &openapi3.SecurityScheme{
+			BearerFormat: "JWT",
+			Description:  "Micro API token",
+			Name:         "MicroAPIToken",
+			Type:         "http",
+			Scheme:       "bearer",
+		},
+	}
 
 	c.logger.Debugf("Converting input: %v", err)
 	return c.convert(req)
@@ -77,11 +103,12 @@ func (c *Converter) convertFile(file *descriptor.FileDescriptorProto) error {
 	// Input filename:
 	protoFileName := path.Base(file.GetName())
 
-	// Otherwise process MESSAGES (packages):
+	// Get the proto package:
 	pkg, ok := c.relativelyLookupPackage(globalPkg, file.GetPackage())
 	if !ok {
 		return fmt.Errorf("no such package found: %s", file.GetPackage())
 	}
+	c.openAPISpec.Info.Title = strings.Title(strings.Replace(pkg.name, ".", "", 1))
 
 	// Process messages:
 	for _, msg := range file.GetMessageType() {
@@ -93,7 +120,10 @@ func (c *Converter) convertFile(file *descriptor.FileDescriptorProto) error {
 			c.logger.Errorf("Failed to convert (%s): %v", protoFileName, err)
 			return err
 		}
-		c.openAPISpec.Components.Schemas[componentSchema.Title] = openapi3.NewSchemaRef("", componentSchema)
+
+		// Add the message to our component schemas (we'll refer to these later when we build the service endpoints):
+		componentSchemaKey := fmt.Sprintf("%s.%s", pkg.name, componentSchema.Title)
+		c.openAPISpec.Components.Schemas[componentSchemaKey] = openapi3.NewSchemaRef("", componentSchema)
 	}
 
 	// Process services:
@@ -117,7 +147,9 @@ func (c *Converter) convertFile(file *descriptor.FileDescriptorProto) error {
 }
 
 func (c *Converter) convert(req *plugin.CodeGeneratorRequest) (*plugin.CodeGeneratorResponse, error) {
+	res := &plugin.CodeGeneratorResponse{}
 
+	// Parse the source code (this is where we pick up code comments, which become schema descriptions):
 	c.sourceInfo = newSourceCodeInfo(req.GetProtoFile())
 
 	generateTargets := make(map[string]bool)
@@ -125,13 +157,16 @@ func (c *Converter) convert(req *plugin.CodeGeneratorRequest) (*plugin.CodeGener
 		generateTargets[file] = true
 	}
 
-	res := &plugin.CodeGeneratorResponse{}
+	// We're potentially dealing with several proto files:
 	for _, file := range req.GetProtoFile() {
+
+		// Make sure it belongs to a package (sometimes they don't):
 		if file.GetPackage() == "" {
 			c.logger.Warnf("Proto file (%s) doesn't specify a package", file.GetName())
 			continue
 		}
 
+		// Register all of the messages we can find:
 		for _, msg := range file.GetMessageType() {
 			c.logger.Debugf("Loading a message (%s/%s)", file.GetPackage(), msg.GetName())
 			c.registerType(file.Package, msg)
@@ -144,11 +179,6 @@ func (c *Converter) convert(req *plugin.CodeGeneratorRequest) (*plugin.CodeGener
 				return res, err
 			}
 		}
-	}
-
-	c.logger.Errorf("Found %d schemas", len(c.openAPISpec.Components.Schemas))
-	for schemaName, schema := range c.openAPISpec.Components.Schemas {
-		c.logger.Infof("%s: %s", schemaName, schema.Value.Type)
 	}
 
 	// Marshal the OpenAPI spec:

@@ -50,6 +50,11 @@ func (c *Converter) convertServiceType(file *descriptor.FileDescriptorProto, cur
 			Post: &openapi3.Operation{
 				RequestBody: requestBody,
 				Responses:   openapi3.Responses{},
+				Security: &openapi3.SecurityRequirements{
+					{
+						"MicroAPIToken": []string{},
+					},
+				},
 			},
 		}
 
