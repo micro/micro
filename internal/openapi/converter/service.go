@@ -20,22 +20,30 @@ func (c *Converter) convertServiceType(file *descriptor.FileDescriptorProto, cur
 		// The URL path is the service name and method name:
 		path := fmt.Sprintf("/%s/%s", svc.GetName(), method.GetName())
 
-		// See if we can get the request paylod schema:
-		requestBodySchema, ok := c.openAPISpec.Components.Schemas[*method.InputType]
-		if !ok {
-			c.logger.Warnf("Couldn't find request body payload (%s)", *method.InputType)
-			continue
-		}
+		// // See if we can get the request paylod schema:
+		// requestBodySchema, ok := c.openAPISpec.Components.Schemas[*method.InputType]
+		// if !ok {
+		// 	c.logger.Warnf("Couldn't find request body payload (%s)", *method.InputType)
+		// 	continue
+		// }
 
 		// Make a request body:
 		requestBody := &openapi3.RequestBodyRef{
 			Value: &openapi3.RequestBody{
-				Content: openapi3.NewContentWithJSONSchemaRef(requestBodySchema),
+				// Content: openapi3.NewContentWithJSONSchemaRef(requestBodySchema),
+				Content: openapi3.Content{
+					"application/json": &openapi3.MediaType{
+						Schema: &openapi3.SchemaRef{
+							Ref: fmt.Sprintf("#/components/schemas/%s", *method.InputType),
+						},
+					},
+				},
 			},
 		}
 
 		// Add it to the spec:
-		c.openAPISpec.Components.RequestBodies[*method.InputType] = requestBody
+		requestBodyName := fmt.Sprintf("%s%sRequest", svc.GetName(), method.GetName())
+		c.openAPISpec.Components.RequestBodies[requestBodyName] = requestBody
 
 		// // See if we can get the response paylod schema:
 		// responseBodySchema, ok := c.componentSchemas[*method.OutputType]
@@ -47,9 +55,25 @@ func (c *Converter) convertServiceType(file *descriptor.FileDescriptorProto, cur
 		// Prepare a path item based on these payloads:
 		pathItem := &openapi3.PathItem{
 			Summary: fmt.Sprintf("%s: %s.%s()", file.GetName(), svc.GetName(), method.GetName()),
+			Parameters: openapi3.Parameters{
+				{
+					Value: &openapi3.Parameter{
+						In:       "header",
+						Name:     "Micro-Namespace",
+						Required: true,
+						Schema: &openapi3.SchemaRef{
+							Value: &openapi3.Schema{
+								Type: "string",
+							},
+						},
+					},
+				},
+			},
 			Post: &openapi3.Operation{
-				RequestBody: requestBody,
-				Responses:   openapi3.Responses{},
+				RequestBody: &openapi3.RequestBodyRef{
+					Ref: fmt.Sprintf("#/components/requestBodies/%s", requestBodyName),
+				},
+				Responses: openapi3.Responses{},
 				Security: &openapi3.SecurityRequirements{
 					{
 						"MicroAPIToken": []string{},
