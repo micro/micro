@@ -284,8 +284,29 @@ type VolumeMount struct {
 
 // NetworkPolicy defines label-based filtering for network ingress
 type NetworkPolicy struct {
-	AllowedLabels map[string]string `json:"allowedLabels,omitempty"`
-	Metadata      *Metadata         `json:"metadata,omitempty"`
+	Metadata *Metadata          `json:"metadata,omitempty"`
+	Spec     *NetworkPolicySpec `json:"spec,omitempty"`
+}
+
+type NetworkPolicySpec struct {
+	Ingress     []NetworkPolicyRule `json:"ingress,omitempty"`
+	Egress      []NetworkPolicyRule `json:"egress,omitempty"`
+	PodSelector *Selector           `json:"podSelector,omitempty"`
+	PolicyTypes []string            `json:"policyTypes,omitempty"`
+}
+
+type NetworkPolicyRule struct {
+	From []IngressRuleSelector `json:"from,omitempty"`
+	To   []IngressRuleSelector `json:"to,omitempty"`
+}
+
+type IngressRuleSelector struct {
+	NamespaceSelector *Selector `json:"namespaceSelector,omitempty"`
+	PodSelector       *Selector `json:"podSelector,omitempty"`
+}
+
+type Selector struct {
+	MatchLabels map[string]string `json:"matchLabels,omitempty"`
 }
 
 // ResourceQuota defines resource limits for a namespace

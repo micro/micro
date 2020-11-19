@@ -448,3 +448,37 @@ func NewClusterClient() *client {
 		},
 	}
 }
+
+// NewNetworkPolicy returns a network policy allowing ingress from the given labels
+func NewNetworkPolicy(name, namespace string, allowedLabels map[string]string) *NetworkPolicy {
+	np := &NetworkPolicy{
+		Metadata: &Metadata{
+			Name:      name,
+			Namespace: namespace,
+		},
+		Spec: &NetworkPolicySpec{
+			Ingress: []NetworkPolicyRule{
+				{
+					From: []IngressRuleSelector{
+						{ // allow pods in this namespace to talk to each other
+							PodSelector: &Selector{},
+						},
+					},
+				},
+				{
+					From: []IngressRuleSelector{
+						{
+							NamespaceSelector: &Selector{
+								MatchLabels: allowedLabels,
+							},
+						},
+					},
+				},
+			},
+			PodSelector: &Selector{},
+			PolicyTypes: []string{"Ingress"},
+		},
+	}
+	return np
+
+}

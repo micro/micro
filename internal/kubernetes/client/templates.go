@@ -278,7 +278,7 @@ spec:
   - from: # Allow pods in the namespaces bearing the specified labels to talk to pods in this namespace:
     - namespaceSelector:
         matchLabels:
-          {{- with .AllowedLabels }}
+          {{- with (index (index .Spec.Ingress 1).From 0).NamespaceSelector.MatchLabels }}
           {{- range $key, $value := . }}
           {{ $key }}: "{{ $value }}"
           {{- end }}
