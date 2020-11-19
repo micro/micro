@@ -172,10 +172,11 @@ func (c *client) Update(r *Resource, opts ...UpdateOption) error {
 		req.Body(r.Value.(*Pod))
 	case "networkpolicy", "networkpolicies":
 		req.Body(r.Value.(*NetworkPolicy))
+	case "resourcequota":
+		req.Body(r.Value.(*ResourceQuota))
 	default:
 		return errors.New("unsupported resource")
 	}
-
 	return req.Do().Error()
 }
 

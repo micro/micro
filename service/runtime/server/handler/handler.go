@@ -338,16 +338,8 @@ func (r *Runtime) Delete(ctx context.Context, req *pb.DeleteRequest, rsp *pb.Del
 		rq, err := gorun.NewResourceQuota(
 			req.Resource.Resourcequota.Name,
 			req.Resource.Resourcequota.Namespace,
-			&gorun.Resources{
-				CPU:  int(req.Resource.Resourcequota.Requests.CPU),
-				Disk: int(req.Resource.Resourcequota.Requests.EphemeralStorage),
-				Mem:  int(req.Resource.Resourcequota.Requests.Memory),
-			},
-			&gorun.Resources{
-				CPU:  int(req.Resource.Resourcequota.Limits.CPU),
-				Disk: int(req.Resource.Resourcequota.Limits.EphemeralStorage),
-				Mem:  int(req.Resource.Resourcequota.Limits.Memory),
-			},
+			&gorun.Resources{},
+			&gorun.Resources{},
 		)
 		if err != nil {
 			return err

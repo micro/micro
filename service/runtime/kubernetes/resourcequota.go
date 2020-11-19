@@ -12,7 +12,7 @@ import (
 func (k *kubernetes) createResourceQuota(resourceQuota *runtime.ResourceQuota) error {
 	err := k.client.Create(&client.Resource{
 		Kind: "resourcequota",
-		Value: client.ResourceQuota{
+		Value: &client.ResourceQuota{
 			Requests: &client.ResourceLimits{
 				CPU:              fmt.Sprintf("%dm", resourceQuota.Requests.CPU),
 				EphemeralStorage: fmt.Sprintf("%dMi", resourceQuota.Requests.Disk),
@@ -41,7 +41,8 @@ func (k *kubernetes) createResourceQuota(resourceQuota *runtime.ResourceQuota) e
 func (k *kubernetes) updateResourceQuota(resourceQuota *runtime.ResourceQuota) error {
 	err := k.client.Update(&client.Resource{
 		Kind: "resourcequota",
-		Value: client.ResourceQuota{
+		Name: resourceQuota.Name,
+		Value: &client.ResourceQuota{
 			Requests: &client.ResourceLimits{
 				CPU:              fmt.Sprintf("%dm", resourceQuota.Requests.CPU),
 				EphemeralStorage: fmt.Sprintf("%dMi", resourceQuota.Requests.Disk),
@@ -70,17 +71,8 @@ func (k *kubernetes) updateResourceQuota(resourceQuota *runtime.ResourceQuota) e
 func (k *kubernetes) deleteResourceQuota(resourceQuota *runtime.ResourceQuota) error {
 	err := k.client.Delete(&client.Resource{
 		Kind: "resourcequota",
-		Value: client.ResourceQuota{
-			Requests: &client.ResourceLimits{
-				CPU:              fmt.Sprintf("%dm", resourceQuota.Requests.CPU),
-				EphemeralStorage: fmt.Sprintf("%dMi", resourceQuota.Requests.Disk),
-				Memory:           fmt.Sprintf("%dMi", resourceQuota.Requests.Mem),
-			},
-			Limits: &client.ResourceLimits{
-				CPU:              fmt.Sprintf("%dm", resourceQuota.Limits.CPU),
-				EphemeralStorage: fmt.Sprintf("%dMi", resourceQuota.Limits.Disk),
-				Memory:           fmt.Sprintf("%dMi", resourceQuota.Limits.Mem),
-			},
+		Name: resourceQuota.Name,
+		Value: &client.ResourceQuota{
 			Metadata: &client.Metadata{
 				Name:      resourceQuota.Name,
 				Namespace: resourceQuota.Namespace,
