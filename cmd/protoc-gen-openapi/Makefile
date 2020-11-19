@@ -10,7 +10,13 @@ build:
 fmt:
 	@gofmt -s -w .
 
+.PHONY: install
+install:
+	@GO111MODULE=on go install
+
+
 PROTO_PATH ?= "internal/converter/testdata/proto"
 .PHONY: samples
 samples:
 	@PATH=./bin:$$PATH protoc --openapi_out=. --proto_path=../../proto/runtime ../../proto/runtime/runtime.proto
+	@PATH=./bin:$$PATH protoc --openapi_out=service=cruft:. --proto_path=../../proto/events ../../proto/events/events.proto

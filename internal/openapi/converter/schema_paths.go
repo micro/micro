@@ -5,6 +5,10 @@ import (
 	"strings"
 )
 
+func urlPath(microServiceName, protoServiceName, methodName string) string {
+	return fmt.Sprintf("/%s/%s/%s", microServiceName, protoServiceName, methodName)
+}
+
 func payloadSchemaName(inputType string) string {
 	return strings.Split(inputType, ".")[2]
 }

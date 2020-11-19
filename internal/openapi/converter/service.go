@@ -15,8 +15,8 @@ func (c *Converter) convertServiceType(file *descriptor.FileDescriptorProto, cur
 	for _, method := range svc.GetMethod() {
 		c.logger.Debugf("Processing method %s.%s()", svc.GetName(), method.GetName())
 
-		// The URL path is the service name and method name:
-		path := fmt.Sprintf("/%s/%s", svc.GetName(), method.GetName())
+		// Figure out the URL path:
+		path := urlPath(c.microServiceName, svc.GetName(), method.GetName())
 
 		// We need to reformat the request name to match what is produced by the message converter:
 		requestPayloadSchemaName := payloadSchemaName(*method.InputType)

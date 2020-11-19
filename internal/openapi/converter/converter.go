@@ -15,15 +15,12 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-const (
-	openAPISpecFileName = "spec.json"
-)
-
 // Converter is everything you need to convert Micro protos into an OpenAPI spec:
 type Converter struct {
-	logger      *logrus.Logger
-	openAPISpec *openapi3.Swagger
-	sourceInfo  *sourceCodeInfo
+	logger           *logrus.Logger
+	microServiceName string
+	openAPISpec      *openapi3.Swagger
+	sourceInfo       *sourceCodeInfo
 }
 
 // New returns a configured converter:
@@ -113,7 +110,7 @@ func (c *Converter) convertFile(file *descriptor.FileDescriptorProto) error {
 	for _, msg := range file.GetMessageType() {
 
 		// Convert the message:
-		c.logger.Infof("Generating component schema for message (%s) from proto file (%s)", msg.GetName(), protoFileName)
+		c.logger.Debugf("Generating component schema for message (%s) from proto file (%s)", msg.GetName(), protoFileName)
 		componentSchema, err := c.convertMessageType(pkg, msg)
 		if err != nil {
 			c.logger.Errorf("Failed to convert (%s): %v", protoFileName, err)
@@ -148,6 +145,8 @@ func (c *Converter) convertFile(file *descriptor.FileDescriptorProto) error {
 func (c *Converter) convert(req *plugin.CodeGeneratorRequest) (*plugin.CodeGeneratorResponse, error) {
 	res := &plugin.CodeGeneratorResponse{}
 
+	c.parseGeneratorParameters(req.GetParameter())
+
 	// Parse the source code (this is where we pick up code comments, which become schema descriptions):
 	c.sourceInfo = newSourceCodeInfo(req.GetProtoFile())
 
@@ -163,6 +162,11 @@ func (c *Converter) convert(req *plugin.CodeGeneratorRequest) (*plugin.CodeGener
 		if file.GetPackage() == "" {
 			c.logger.Warnf("Proto file (%s) doesn't specify a package", file.GetName())
 			continue
+		}
+
+		// Set the service name from the proto package (if it isn't already set):
+		if c.microServiceName == "" {
+			c.microServiceName = file.GetPackage()
 		}
 
 		// Register all of the messages we can find:
@@ -190,10 +194,29 @@ func (c *Converter) convert(req *plugin.CodeGeneratorRequest) (*plugin.CodeGener
 	// Add a response file:
 	res.File = []*plugin.CodeGeneratorResponse_File{
 		{
-			Name:    proto.String(openAPISpecFileName),
+			Name:    proto.String(c.openAPISpecFileName()),
 			Content: proto.String(string(marshaledSpec)),
 		},
 	}
 
 	return res, nil
+}
+
+func (c *Converter) openAPISpecFileName() string {
+	return fmt.Sprintf("api-%s.json", c.microServiceName)
+}
+
+func (c *Converter) parseGeneratorParameters(parameters string) {
+	c.logger.Debug("Parsing params")
+
+	for _, parameter := range strings.Split(parameters, ",") {
+
+		c.logger.Debugf("Param: %s", parameter)
+
+		// Allow users to specify the service name:
+		if serviceNameParameter := strings.Split(parameter, "service="); len(serviceNameParameter) == 2 {
+			c.microServiceName = serviceNameParameter[1]
+			c.logger.Infof("Service name: %s", c.microServiceName)
+		}
+	}
 }
