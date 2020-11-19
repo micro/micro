@@ -288,6 +288,7 @@ type NetworkPolicy struct {
 	Spec     *NetworkPolicySpec `json:"spec,omitempty"`
 }
 
+// NetworkPolicySpec is the spec for a NetworkPolicy
 type NetworkPolicySpec struct {
 	Ingress     []NetworkPolicyRule `json:"ingress,omitempty"`
 	Egress      []NetworkPolicyRule `json:"egress,omitempty"`
@@ -295,23 +296,40 @@ type NetworkPolicySpec struct {
 	PolicyTypes []string            `json:"policyTypes,omitempty"`
 }
 
+// NetworkPolicyRule defines egress or ingress
 type NetworkPolicyRule struct {
 	From []IngressRuleSelector `json:"from,omitempty"`
 	To   []IngressRuleSelector `json:"to,omitempty"`
 }
 
+// IngressRuleSelector defines a namespace or pod selector for ingress
 type IngressRuleSelector struct {
 	NamespaceSelector *Selector `json:"namespaceSelector,omitempty"`
 	PodSelector       *Selector `json:"podSelector,omitempty"`
 }
 
+// Selector
 type Selector struct {
 	MatchLabels map[string]string `json:"matchLabels,omitempty"`
 }
 
 // ResourceQuota defines resource limits for a namespace
 type ResourceQuota struct {
-	Requests *ResourceLimits `json:"requests,omitempty"`
-	Limits   *ResourceLimits `json:"limits,omitempty"`
-	Metadata *Metadata       `json:"metadata,omitempty"`
+	Metadata *Metadata          `json:"metadata,omitempty"`
+	Spec     *ResourceQuotaSpec `json:"spec,omitempty"`
+}
+
+// ResourceQuotaSpec
+type ResourceQuotaSpec struct {
+	Hard *ResourceQuotaSpecs `json:"hard,omitempty"`
+}
+
+// ResourceQuotaSpecs defines requests and limits
+type ResourceQuotaSpecs struct {
+	LimitsCPU                string `json:"limits.cpu,omitempty"`
+	LimitsEphemeralStorage   string `json:"limits.ephemeral-storage,omitempty"`
+	LimitsMemory             string `json:"limits.memory,omitempty"`
+	RequestsCPU              string `json:"requests.cpu,omitempty"`
+	RequestsEphemeralStorage string `json:"requests.ephemeral-storage,omitempty"`
+	RequestsMemory           string `json:"requests.memory,omitempty"`
 }
