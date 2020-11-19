@@ -23,7 +23,11 @@ go get github.com/micro/micro/v3
 Using a docker image
 
 ```sh
+# install
 docker pull micro/micro
+
+# run it
+docker run -p 8080-8081:8080-8081/tcp micro/micro server
 ```
 
 Latest release binaries
