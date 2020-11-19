@@ -24,7 +24,7 @@ import (
 func (k *kubernetes) createNetworkPolicy(networkPolicy *runtime.NetworkPolicy) error {
 	err := k.client.Create(&client.Resource{
 		Kind: "networkpolicy",
-		Value: client.NetworkPolicy{
+		Value: &client.NetworkPolicy{
 			AllowedLabels: networkPolicy.AllowedLabels,
 			Metadata: &client.Metadata{
 				Name:      networkPolicy.Name,
@@ -45,7 +45,7 @@ func (k *kubernetes) updateNetworkPolicy(networkPolicy *runtime.NetworkPolicy) e
 	err := k.client.Update(&client.Resource{
 		Kind: "networkpolicy",
 		Name: networkPolicy.Name,
-		Value: client.NetworkPolicy{
+		Value: &client.NetworkPolicy{
 			AllowedLabels: networkPolicy.AllowedLabels,
 			Metadata: &client.Metadata{
 				Name:      networkPolicy.Name,
