@@ -59,7 +59,7 @@ jobs:
           go mod edit -replace github.com/micro/micro/plugin/nats/broker/v3=./plugin/nats/broker
           go mod edit -replace github.com/micro/micro/plugin/nats/stream/v3=./plugin/nats/stream
           go mod edit -replace google.golang.org/grpc=google.golang.org/grpc@v1.26.0
-          go install
+          GOPROXY=direct go get github.com/m3o/platform/profile/platform@latest
           micro init --package=github.com/m3o/platform/profile/platform --output=profile.go
           docker build -f Dockerfile . -t localhost:5000/micro 
           docker push localhost:5000/micro
