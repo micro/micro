@@ -14,13 +14,13 @@ Micro is the all encompassing end to end platform experience from source to runn
 
 ## Install
 
-Install from source
+**From Source**
 
 ```sh
 go get github.com/micro/micro/v3
 ```
 
-Using a docker image
+**Using Docker**
 
 ```sh
 # install
@@ -30,7 +30,14 @@ docker pull micro/micro
 docker run -p 8080-8081:8080-8081/tcp micro/micro server
 ```
 
-Latest release binaries
+**Helm Chart**
+
+```
+helm repo add micro https://micro.github.io/helm
+helm install micro micro/micro
+```
+
+**Release binaries**
 
 ```sh
 # MacOS
