@@ -4,21 +4,19 @@ import (
 	"time"
 
 	"github.com/micro/micro/v3/internal/kubernetes/client"
-
 	"github.com/micro/micro/v3/internal/namespace"
 	"github.com/micro/micro/v3/service/build"
 	"github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/runtime"
-	gorun "github.com/micro/micro/v3/service/runtime"
 )
 
 // Init initializes the runtime
-func (m *manager) Init(...gorun.Option) error {
+func (m *manager) Init(...runtime.Option) error {
 	return nil
 }
 
 // Create a resource
-func (m *manager) Create(resource gorun.Resource, opts ...runtime.CreateOption) error {
+func (m *manager) Create(resource runtime.Resource, opts ...runtime.CreateOption) error {
 
 	// parse the options
 	var options runtime.CreateOptions
@@ -31,12 +29,12 @@ func (m *manager) Create(resource gorun.Resource, opts ...runtime.CreateOption) 
 
 	// Handle the various different types of resources:
 	switch resource.Type() {
-	case gorun.TypeNamespace:
+	case runtime.TypeNamespace:
 
 		// Assert the resource back into a *runtime.Namespace
-		namespace, ok := resource.(*gorun.Namespace)
+		namespace, ok := resource.(*runtime.Namespace)
 		if !ok {
-			return gorun.ErrInvalidResource
+			return runtime.ErrInvalidResource
 		}
 
 		// Allow the options to take precedence
@@ -47,12 +45,12 @@ func (m *manager) Create(resource gorun.Resource, opts ...runtime.CreateOption) 
 		// Do we need to store this locally?
 		return runtime.DefaultRuntime.Create(namespace)
 
-	case gorun.TypeNetworkPolicy:
+	case runtime.TypeNetworkPolicy:
 
 		// Assert the resource back into a *runtime.NetworkPolicy
-		networkPolicy, ok := resource.(*gorun.NetworkPolicy)
+		networkPolicy, ok := resource.(*runtime.NetworkPolicy)
 		if !ok {
-			return gorun.ErrInvalidResource
+			return runtime.ErrInvalidResource
 		}
 
 		// Allow the options to take precedence
@@ -63,12 +61,12 @@ func (m *manager) Create(resource gorun.Resource, opts ...runtime.CreateOption) 
 		// Do we need to store this locally?
 		return runtime.DefaultRuntime.Create(networkPolicy)
 
-	case gorun.TypeResourceQuota:
+	case runtime.TypeResourceQuota:
 
 		// Assert the resource back into a *runtime.ResourceQuota
-		resourceQuota, ok := resource.(*gorun.ResourceQuota)
+		resourceQuota, ok := resource.(*runtime.ResourceQuota)
 		if !ok {
-			return gorun.ErrInvalidResource
+			return runtime.ErrInvalidResource
 		}
 
 		// Allow the options to take precedence
@@ -79,12 +77,12 @@ func (m *manager) Create(resource gorun.Resource, opts ...runtime.CreateOption) 
 		// Do we need to store this locally?
 		return runtime.DefaultRuntime.Create(resourceQuota)
 
-	case gorun.TypeService:
+	case runtime.TypeService:
 
 		// Assert the resource back into a *runtime.Service
-		srv, ok := resource.(*gorun.Service)
+		srv, ok := resource.(*runtime.Service)
 		if !ok {
-			return gorun.ErrInvalidResource
+			return runtime.ErrInvalidResource
 		}
 
 		// set defaults
@@ -123,7 +121,7 @@ func (m *manager) Create(resource gorun.Resource, opts ...runtime.CreateOption) 
 
 		// building ths service can take some time so we'll write the service to the store and then
 		// perform the build process async
-		service.Status = gorun.Pending
+		service.Status = runtime.Pending
 		if err := m.writeService(service); err != nil {
 			return err
 		}
@@ -132,7 +130,7 @@ func (m *manager) Create(resource gorun.Resource, opts ...runtime.CreateOption) 
 		return nil
 
 	default:
-		return gorun.ErrInvalidResource
+		return runtime.ErrInvalidResource
 	}
 }
 
@@ -173,7 +171,7 @@ func (m *manager) Read(opts ...runtime.ReadOption) ([]*runtime.Service, error) {
 		result[i] = s.Service
 
 		// check for a status on the service, this could be building, stopping etc
-		if s.Status != gorun.Unknown {
+		if s.Status != runtime.Unknown {
 			result[i].Status = s.Status
 		}
 		if len(s.Error) > 0 {
@@ -203,7 +201,7 @@ func (m *manager) Read(opts ...runtime.ReadOption) ([]*runtime.Service, error) {
 }
 
 // Update a resource
-func (m *manager) Update(resource gorun.Resource, opts ...runtime.UpdateOption) error {
+func (m *manager) Update(resource runtime.Resource, opts ...runtime.UpdateOption) error {
 
 	// parse the options
 	var options runtime.UpdateOptions
@@ -216,12 +214,12 @@ func (m *manager) Update(resource gorun.Resource, opts ...runtime.UpdateOption) 
 
 	// Handle the various different types of resources:
 	switch resource.Type() {
-	case gorun.TypeNamespace:
+	case runtime.TypeNamespace:
 
 		// Assert the resource back into a *runtime.Namespace
-		namespace, ok := resource.(*gorun.Namespace)
+		namespace, ok := resource.(*runtime.Namespace)
 		if !ok {
-			return gorun.ErrInvalidResource
+			return runtime.ErrInvalidResource
 		}
 
 		// Allow the options to take precedence
@@ -232,12 +230,12 @@ func (m *manager) Update(resource gorun.Resource, opts ...runtime.UpdateOption) 
 		// Do we need to store this locally?
 		return runtime.DefaultRuntime.Update(namespace)
 
-	case gorun.TypeNetworkPolicy:
+	case runtime.TypeNetworkPolicy:
 
 		// Assert the resource back into a *runtime.NetworkPolicy
-		networkPolicy, ok := resource.(*gorun.NetworkPolicy)
+		networkPolicy, ok := resource.(*runtime.NetworkPolicy)
 		if !ok {
-			return gorun.ErrInvalidResource
+			return runtime.ErrInvalidResource
 		}
 
 		// Allow the options to take precedence
@@ -248,12 +246,12 @@ func (m *manager) Update(resource gorun.Resource, opts ...runtime.UpdateOption) 
 		// Do we need to store this locally?
 		return runtime.DefaultRuntime.Update(networkPolicy)
 
-	case gorun.TypeResourceQuota:
+	case runtime.TypeResourceQuota:
 
 		// Assert the resource back into a *runtime.ResourceQuota
-		resourceQuota, ok := resource.(*gorun.ResourceQuota)
+		resourceQuota, ok := resource.(*runtime.ResourceQuota)
 		if !ok {
-			return gorun.ErrInvalidResource
+			return runtime.ErrInvalidResource
 		}
 
 		// Allow the options to take precedence
@@ -264,12 +262,12 @@ func (m *manager) Update(resource gorun.Resource, opts ...runtime.UpdateOption) 
 		// Do we need to store this locally?
 		return runtime.DefaultRuntime.Update(resourceQuota)
 
-	case gorun.TypeService:
+	case runtime.TypeService:
 
 		// Assert the resource back into a *runtime.Service
-		srv, ok := resource.(*gorun.Service)
+		srv, ok := resource.(*runtime.Service)
 		if !ok {
-			return gorun.ErrInvalidResource
+			return runtime.ErrInvalidResource
 		}
 
 		// set defaults
@@ -286,7 +284,7 @@ func (m *manager) Update(resource gorun.Resource, opts ...runtime.UpdateOption) 
 			return err
 		}
 		if len(srvs) == 0 {
-			return gorun.ErrNotFound
+			return runtime.ErrNotFound
 		}
 
 		// update the service
@@ -318,7 +316,7 @@ func (m *manager) Update(resource gorun.Resource, opts ...runtime.UpdateOption) 
 
 		// building ths service can take some time so we'll write the service to the store and then
 		// perform the build process async
-		service.Status = gorun.Pending
+		service.Status = runtime.Pending
 		if err := m.writeService(service); err != nil {
 			return err
 		}
@@ -327,15 +325,15 @@ func (m *manager) Update(resource gorun.Resource, opts ...runtime.UpdateOption) 
 		return nil
 
 	default:
-		return gorun.ErrInvalidResource
+		return runtime.ErrInvalidResource
 	}
 }
 
 // Delete a resource
-func (m *manager) Delete(resource gorun.Resource, opts ...runtime.DeleteOption) error {
+func (m *manager) Delete(resource runtime.Resource, opts ...runtime.DeleteOption) error {
 
 	// parse the options
-	var options gorun.DeleteOptions
+	var options runtime.DeleteOptions
 	for _, o := range opts {
 		o(&options)
 	}
@@ -345,12 +343,12 @@ func (m *manager) Delete(resource gorun.Resource, opts ...runtime.DeleteOption) 
 
 	// Handle the various different types of resources:
 	switch resource.Type() {
-	case gorun.TypeNamespace:
+	case runtime.TypeNamespace:
 
 		// Assert the resource back into a *runtime.Namespace
-		namespace, ok := resource.(*gorun.Namespace)
+		namespace, ok := resource.(*runtime.Namespace)
 		if !ok {
-			return gorun.ErrInvalidResource
+			return runtime.ErrInvalidResource
 		}
 
 		// Allow the options to take precedence
@@ -361,12 +359,12 @@ func (m *manager) Delete(resource gorun.Resource, opts ...runtime.DeleteOption) 
 		// Do we need to store this locally?
 		return runtime.DefaultRuntime.Delete(namespace)
 
-	case gorun.TypeNetworkPolicy:
+	case runtime.TypeNetworkPolicy:
 
 		// Assert the resource back into a *runtime.NetworkPolicy
-		networkPolicy, ok := resource.(*gorun.NetworkPolicy)
+		networkPolicy, ok := resource.(*runtime.NetworkPolicy)
 		if !ok {
-			return gorun.ErrInvalidResource
+			return runtime.ErrInvalidResource
 		}
 
 		// Allow the options to take precedence
@@ -377,12 +375,12 @@ func (m *manager) Delete(resource gorun.Resource, opts ...runtime.DeleteOption) 
 		// Do we need to store this locally?
 		return runtime.DefaultRuntime.Delete(networkPolicy)
 
-	case gorun.TypeResourceQuota:
+	case runtime.TypeResourceQuota:
 
 		// Assert the resource back into a *runtime.ResourceQuota
-		resourceQuota, ok := resource.(*gorun.ResourceQuota)
+		resourceQuota, ok := resource.(*runtime.ResourceQuota)
 		if !ok {
-			return gorun.ErrInvalidResource
+			return runtime.ErrInvalidResource
 		}
 
 		// Allow the options to take precedence
@@ -393,12 +391,12 @@ func (m *manager) Delete(resource gorun.Resource, opts ...runtime.DeleteOption) 
 		// Do we need to store this locally?
 		return runtime.DefaultRuntime.Delete(resourceQuota)
 
-	case gorun.TypeService:
+	case runtime.TypeService:
 
 		// Assert the resource back into a *runtime.Service
-		srv, ok := resource.(*gorun.Service)
+		srv, ok := resource.(*runtime.Service)
 		if !ok {
-			return gorun.ErrInvalidResource
+			return runtime.ErrInvalidResource
 		}
 
 		// set defaults
@@ -415,7 +413,7 @@ func (m *manager) Delete(resource gorun.Resource, opts ...runtime.DeleteOption) 
 			return err
 		}
 		if len(srvs) == 0 {
-			return gorun.ErrNotFound
+			return runtime.ErrNotFound
 		}
 
 		// delete from the underlying runtime
@@ -433,7 +431,7 @@ func (m *manager) Delete(resource gorun.Resource, opts ...runtime.DeleteOption) 
 		return nil
 
 	default:
-		return gorun.ErrInvalidResource
+		return runtime.ErrInvalidResource
 	}
 }
 
@@ -456,20 +454,20 @@ func (m *manager) Start() error {
 }
 
 // Logs for a resource
-func (m *manager) Logs(resource gorun.Resource, opts ...runtime.LogsOption) (runtime.LogStream, error) {
+func (m *manager) Logs(resource runtime.Resource, opts ...runtime.LogsOption) (runtime.LogStream, error) {
 	// Handle the various different types of resources:
 	switch resource.Type() {
-	case gorun.TypeService:
+	case runtime.TypeService:
 
 		// Assert the resource back into a *runtime.Service
-		srv, ok := resource.(*gorun.Service)
+		srv, ok := resource.(*runtime.Service)
 		if !ok {
-			return nil, gorun.ErrInvalidResource
+			return nil, runtime.ErrInvalidResource
 		}
 
 		return runtime.Logs(srv, opts...)
 	default:
-		return nil, gorun.ErrInvalidResource
+		return nil, runtime.ErrInvalidResource
 	}
 }
 
@@ -500,13 +498,13 @@ func (m *manager) watchServices() {
 			}
 
 			// skip services which aren't running for a reason
-			if srv.Status == gorun.Error {
+			if srv.Status == runtime.Error {
 				continue
 			}
-			if srv.Status == gorun.Building {
+			if srv.Status == runtime.Building {
 				continue
 			}
-			if srv.Status == gorun.Stopped {
+			if srv.Status == runtime.Stopped {
 				continue
 			}
 
@@ -539,11 +537,11 @@ type manager struct {
 	// running is true after Start is called
 	running bool
 
-	gorun.Runtime
+	runtime.Runtime
 }
 
 // New returns a manager for the runtime
-func New() gorun.Runtime {
+func New() runtime.Runtime {
 	return &manager{
 		Runtime: NewCache(runtime.DefaultRuntime),
 	}

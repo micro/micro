@@ -5,6 +5,6 @@ git clone https://github.com/cloudflare/cfssl.git
 pushd cfssl 
 make
 popd
-echo "::add-path::$(pwd)/cfssl/bin"
+echo "$(pwd)/cfssl/bin" >> $GITHUB_PATH
 # yq is used to manipulate yaml
 GO111MODULE=on go get github.com/mikefarah/yq/v3
