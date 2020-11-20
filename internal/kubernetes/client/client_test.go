@@ -82,6 +82,7 @@ spec:
         source: "source"
         version: "latest"
     spec: 
+      runtimeClassName: 
       serviceAccountName: serviceAcc
       containers:
         - name: svc1
@@ -112,8 +113,7 @@ spec:
               cpu: 200m
               ephemeral-storage: 2000Mi
           volumeMounts: 
-      volumes:
-`,
+      volumes:`,
 			expectedURL: `example.com/apis/apps/v1/namespaces/foo-bar-baz/deployments/`,
 		},
 		{
@@ -352,7 +352,7 @@ func TestUpdate(t *testing.T) {
 			},
 			),
 
-			expectedBody: `{"metadata":{"name":"svc1-latest","namespace":"default","version":"latest","labels":{"micro":"service","name":"svc1","version":"latest"},"annotations":{"foo":"bar","hello":"world","name":"svc1","source":"source","version":"latest"}},"spec":{"replicas":1,"selector":{"matchLabels":{"micro":"service","name":"svc1","version":"latest"}},"template":{"metadata":{"name":"svc1-latest","namespace":"default","version":"latest","labels":{"micro":"service","name":"svc1","version":"latest"},"annotations":{"foo":"bar","hello":"world","name":"svc1","source":"source","version":"latest"}},"spec":{"containers":[{"name":"svc1","image":"DefaultImage","env":[{"name":"FOO","value":"BAR"},{"name":"HELLO","value":"WORLD"}],"command":["cmd","arg"],"args":["arg1","arg2"],"ports":[{"name":"service-port","containerPort":8080}],"readinessProbe":{"tcpSocket":{"port":8080},"periodSeconds":10,"initialDelaySeconds":10},"resources":{"limits":{"memory":"200Mi","cpu":"200m","ephemeral-storage":"2000Mi"}}}],"serviceAccountName":"serviceAcc","volumes":null}}}}`,
+			expectedBody: `{"metadata":{"name":"svc1-latest","namespace":"default","version":"latest","labels":{"micro":"service","name":"svc1","version":"latest"},"annotations":{"foo":"bar","hello":"world","name":"svc1","source":"source","version":"latest"}},"spec":{"replicas":1,"selector":{"matchLabels":{"micro":"service","name":"svc1","version":"latest"}},"template":{"metadata":{"name":"svc1-latest","namespace":"default","version":"latest","labels":{"micro":"service","name":"svc1","version":"latest"},"annotations":{"foo":"bar","hello":"world","name":"svc1","source":"source","version":"latest"}},"spec":{"containers":[{"name":"svc1","image":"DefaultImage","env":[{"name":"FOO","value":"BAR"},{"name":"HELLO","value":"WORLD"}],"command":["cmd","arg"],"args":["arg1","arg2"],"ports":[{"name":"service-port","containerPort":8080}],"readinessProbe":{"tcpSocket":{"port":8080},"periodSeconds":10,"initialDelaySeconds":10},"resources":{"limits":{"memory":"200Mi","cpu":"200m","ephemeral-storage":"2000Mi"}}}],"runtimeClassName":"","serviceAccountName":"serviceAcc","volumes":null}}}}`,
 			expectedURL:  `example.com/apis/apps/v1/namespaces/foo-bar-baz/deployments/svc1-latest`,
 		},
 		{
