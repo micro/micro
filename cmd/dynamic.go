@@ -213,9 +213,20 @@ func splitCmdArgs(arguments []string) ([]string, map[string][]string, error) {
 	args := []string{}
 	flags := map[string][]string{}
 
+	prev := ""
 	for _, a := range arguments {
 		if !strings.HasPrefix(a, "--") {
-			args = append(args, a)
+			if len(prev) == 0 {
+				args = append(args, a)
+				continue
+			}
+			_, exists := flags[prev]
+			if !exists {
+				flags[prev] = []string{}
+			}
+
+			flags[prev] = append(flags[prev], a)
+			prev = ""
 			continue
 		}
 
@@ -227,7 +238,7 @@ func splitCmdArgs(arguments []string) ([]string, map[string][]string, error) {
 		}
 		switch len(comps) {
 		case 1:
-			flags[comps[0]] = append(flags[comps[0]], "")
+			prev = comps[0]
 		case 2:
 			flags[comps[0]] = append(flags[comps[0]], comps[1])
 		default:
@@ -281,7 +292,7 @@ func flagsToRequest(flags map[string][]string, req *goregistry.Value) (map[strin
 	coerceValue := func(valueType string, value []string) (interface{}, error) {
 		switch valueType {
 		case "bool":
-			if len(strings.TrimSpace(value[0])) == 0 {
+			if len(value) == 0 || len(strings.TrimSpace(value[0])) == 0 {
 				return true, nil
 			}
 			return strconv.ParseBool(value[0])

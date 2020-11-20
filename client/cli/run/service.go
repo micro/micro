@@ -19,7 +19,7 @@ import (
 	run "github.com/micro/micro/v3/internal/runtime"
 	"github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/runtime"
-	"github.com/micro/micro/v3/service/runtime/local/source/git"
+	"github.com/micro/micro/v3/service/runtime/source/git"
 	"github.com/urfave/cli/v2"
 	"golang.org/x/net/publicsuffix"
 	"google.golang.org/grpc/codes"
@@ -45,7 +45,8 @@ var (
 	// DefaultRetries which should be attempted when starting a service
 	DefaultRetries = 3
 	// Git orgs we currently support for credentials
-	GitOrgs = []string{"github", "bitbucket", "gitlab"}
+	GitOrgs    = []string{"github", "bitbucket", "gitlab"}
+	httpClient = &http.Client{}
 )
 
 const (
@@ -103,12 +104,7 @@ func dirExists(path string) (bool, error) {
 }
 
 func sourceExists(source *git.Source) error {
-	ref := source.Ref
-	if ref == "" || ref == "latest" {
-		ref = "master"
-	}
-
-	sourceExistsAt := func(url string, source *git.Source) error {
+	sourceExistsAt := func(url, ref string, source *git.Source) error {
 		req, _ := http.NewRequest("GET", url, nil)
 
 		// add the git credentials if set
@@ -116,8 +112,7 @@ func sourceExists(source *git.Source) error {
 			req.Header.Set("Authorization", "token "+creds)
 		}
 
-		client := new(http.Client)
-		resp, err := client.Do(req)
+		resp, err := httpClient.Do(req)
 
 		// @todo gracefully degrade?
 		if err != nil {
@@ -133,19 +128,36 @@ func sourceExists(source *git.Source) error {
 		return nil
 	}
 
-	if strings.Contains(source.Repo, "github") {
-		// Github specific existence checs
-		repo := strings.ReplaceAll(source.Repo, "github.com/", "")
-		url := fmt.Sprintf("https://api.github.com/repos/%v/contents/%v?ref=%v", repo, source.Folder, ref)
-		return sourceExistsAt(url, source)
-	} else if strings.Contains(source.Repo, "gitlab") {
-		// Gitlab specific existence checks
+	doSourceExists := func(ref string) error {
+		if strings.HasPrefix(source.Repo, "github.com") {
+			// Github specific existence checks
+			repo := strings.ReplaceAll(source.Repo, "github.com/", "")
+			url := fmt.Sprintf("https://api.github.com/repos/%v/contents/%v?ref=%v", repo, source.Folder, ref)
+			return sourceExistsAt(url, ref, source)
+		} else if strings.HasPrefix(source.Repo, "gitlab.com") {
+			// Gitlab specific existence checks
 
-		// @todo better check for gitlab
-		url := fmt.Sprintf("https://%v", source.Repo)
-		return sourceExistsAt(url, source)
+			// @todo better check for gitlab
+			url := fmt.Sprintf("https://%v", source.Repo)
+			return sourceExistsAt(url, ref, source)
+		}
+		return nil
 	}
-	return nil
+
+	ref := source.Ref
+	if ref != "latest" && ref != "" {
+		return doSourceExists(ref)
+	}
+	defaults := []string{"latest", "master", "main", "trunk"}
+	var ret error
+	for _, ref := range defaults {
+		ret = doSourceExists(ref)
+		if ret == nil {
+			return nil
+		}
+	}
+	return ret
+
 }
 
 // try to find a matching source
