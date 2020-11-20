@@ -124,6 +124,7 @@ type Metadata struct {
 // PodSpec is a pod
 type PodSpec struct {
 	Containers         []Container `json:"containers"`
+	RuntimeClassName   string      `json:"runtimeClassName"`
 	ServiceAccountName string      `json:"serviceAccountName"`
 	Volumes            []Volume    `json:"volumes"`
 }
