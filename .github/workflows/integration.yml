@@ -43,7 +43,7 @@ jobs:
         id: replace-profile
         run: |
           go mod edit -replace github.com/micro/micro/plugin/etcd/v3=./plugin/etcd
-          go mod edit -replace github.com/m3o/platform/profile/ci@master
+          go mod edit -replace github.com/m3o/platform/profile/ci=github.com/m3o/platform/profile/ci@master
           go mod edit -replace google.golang.org/grpc=google.golang.org/grpc@v1.26.0
 
       # Install micro binary and then build micro with the profile inside a tmp directory. We do this
