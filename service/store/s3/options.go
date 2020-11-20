@@ -18,6 +18,7 @@ import "crypto/tls"
 
 // Options used to configure the s3 blob store
 type Options struct {
+	Bucket          string
 	Endpoint        string
 	Region          string
 	AccessKeyID     string
@@ -48,6 +49,13 @@ func Credentials(id, secret string) Option {
 	return func(o *Options) {
 		o.AccessKeyID = id
 		o.SecretAccessKey = secret
+	}
+}
+
+// Bucket sets the bucket name option
+func Bucket(name string) Option {
+	return func(o *Options) {
+		o.Bucket = name
 	}
 }
 
