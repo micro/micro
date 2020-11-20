@@ -33,6 +33,8 @@ type Options struct {
 	Image string
 	// Source of the services repository
 	Source string
+	// Context to store additional options
+	Context context.Context
 }
 
 // WithSource sets the base image / repository
