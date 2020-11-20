@@ -312,6 +312,8 @@ spec:
 			b, err := ioutil.ReadAll(req.Body)
 			g.Expect(err).ToNot(HaveOccurred())
 			g.Expect(strings.TrimSpace(string(b))).To(Equal(strings.TrimSpace(tc.expectedBody)))
+			g.Expect(req.Method).To(Equal(http.MethodPost))
+			g.Expect(req.Header.Get("Content-Type")).To(Equal("application/yaml"))
 		})
 	}
 
@@ -479,6 +481,7 @@ func TestUpdate(t *testing.T) {
 			g := NewWithT(t)
 			err := client.Update(tc.resource, UpdateNamespace(tc.namespace))
 			if tc.expectedErr {
+				// these ones haven't been implemented yet
 				g.Expect(err).To(HaveOccurred())
 				return
 			}
@@ -488,6 +491,96 @@ func TestUpdate(t *testing.T) {
 			b, err := ioutil.ReadAll(req.Body)
 			g.Expect(err).ToNot(HaveOccurred())
 			g.Expect(strings.TrimSpace(string(b))).To(Equal(strings.TrimSpace(tc.expectedBody)))
+			g.Expect(req.Method).To(Equal(http.MethodPatch))
+			g.Expect(req.Header.Get("Content-Type")).To(Equal("application/strategic-merge-patch+json"))
+		})
+	}
+}
+
+func TestDelete(t *testing.T) {
+	tcs := []struct {
+		name        string
+		namespace   string
+		resource    *Resource
+		expectedURL string
+	}{
+		{
+			name:      "deployment",
+			namespace: "foo-bar-baz",
+			resource: &Resource{
+				Name: "svc1-latest",
+				Kind: "deployment",
+			},
+			expectedURL: `example.com/apis/apps/v1/namespaces/foo-bar-baz/deployments/svc1-latest`,
+		},
+		{
+			name:      "service",
+			namespace: "foo-bar-baz",
+			resource: &Resource{
+				Name: "svc1",
+				Kind: "service",
+			},
+			expectedURL: "example.com/api/v1/namespaces/foo-bar-baz/services/svc1",
+		},
+		{
+			name:      "secrets",
+			namespace: "foo-bar-baz",
+			resource: &Resource{
+				Kind: "secret",
+				Name: "svc1",
+			},
+			expectedURL: "example.com/api/v1/namespaces/foo-bar-baz/secrets/svc1",
+		},
+		{
+			name:      "serviceaccount",
+			namespace: "foo-bar-baz",
+			resource: &Resource{
+				Name: "svcacc",
+				Kind: "serviceaccount",
+			},
+			expectedURL: "example.com/api/v1/namespaces/foo-bar-baz/serviceaccounts/svcacc",
+		},
+		{
+			name:      "networkpolicy",
+			namespace: "foo-bar-baz",
+			resource: &Resource{
+				Name: "np1",
+				Kind: "networkpolicy",
+			},
+			expectedURL: "example.com/apis/networking.k8s.io/v1/namespaces/foo-bar-baz/networkpolicies/np1",
+		},
+		{
+			name:      "resourcequota",
+			namespace: "foo-bar-baz",
+			resource: &Resource{
+				Name: "rq1",
+				Kind: "resourcequota",
+			},
+			expectedURL: "example.com/api/v1/namespaces/foo-bar-baz/resourcequotas/rq1",
+		},
+	}
+
+	for _, tc := range tcs {
+		t.Run(tc.name, func(t *testing.T) {
+			rt := fakes.FakeRoundTripper{}
+			httpClient := &http.Client{
+				Transport: &rt,
+			}
+			client := &client{
+				opts: &api.Options{
+					Host:      "example.com",
+					Namespace: DefaultNamespace,
+					Client:    httpClient,
+				},
+			}
+			rt.RoundTripReturns(&http.Response{StatusCode: 200}, nil)
+
+			g := NewWithT(t)
+			err := client.Delete(tc.resource, DeleteNamespace(tc.namespace))
+			g.Expect(err).ToNot(HaveOccurred())
+			req := rt.RoundTripArgsForCall(0)
+			g.Expect(req.URL.String()).To(Equal(tc.expectedURL))
+			g.Expect(req.Method).To(Equal(http.MethodDelete))
 		})
 	}
 
