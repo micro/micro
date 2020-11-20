@@ -38,7 +38,7 @@ See the [TODO](/todo) list, open a PR and start hacking away at the docs.
 
 Join us on [Discord](https://discord.gg/hbmJEct) or [Slack](https://slack.micro.mu). Follow [@microhq](https://twitter.com/microhq) on Twitter for updates.
 
-## Platform
+## Hosting
 
 If you're interested in a hosted version of Micro aka the Micro Platform see [m3o.com](https://m3o.com).
 
