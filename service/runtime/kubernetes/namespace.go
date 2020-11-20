@@ -103,7 +103,7 @@ func (k *kubernetes) createNamespace(namespace *runtime.Namespace) error {
 	err := k.client.Create(&client.Resource{
 		Kind: "namespace",
 		Name: namespace.Name,
-		Value: client.Namespace{
+		Value: &client.Namespace{
 			Metadata: &client.Metadata{
 				Name: namespace.Name,
 			},
@@ -122,7 +122,7 @@ func (k *kubernetes) deleteNamespace(namespace *runtime.Namespace) error {
 	err := k.client.Delete(&client.Resource{
 		Kind: "namespace",
 		Name: namespace.Name,
-		Value: client.Namespace{
+		Value: &client.Namespace{
 			Metadata: &client.Metadata{
 				Name: namespace.Name,
 			},
