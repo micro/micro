@@ -15,11 +15,10 @@
 package s3
 
 import (
-	"bytes"
 	"context"
 	"io"
-	"io/ioutil"
 	"net/http"
+	"path/filepath"
 	"regexp"
 
 	"github.com/micro/micro/v3/service/store"
@@ -41,7 +40,7 @@ func NewBlobStore(opts ...Option) (store.BlobStore, error) {
 		Secure: options.Secure,
 	}
 	if len(options.AccessKeyID) > 0 || len(options.SecretAccessKey) > 0 {
-		minioOpts.Creds = credentials.NewStaticV4(options.AccessKeyID, options.SecretAccessKey, "")
+		minioOpts.Creds = credentials.NewStaticV2(options.AccessKeyID, options.SecretAccessKey, "")
 	}
 
 	// configure the transport to use custom tls config if provided
@@ -88,12 +87,23 @@ func (s *s3) Read(key string, opts ...store.BlobOption) (io.Reader, error) {
 	}
 
 	// lookup the object
-	res, err := s.client.GetObject(
-		context.TODO(),           // context
-		options.Namespace,        // bucket name
-		key,                      // object name
-		minio.GetObjectOptions{}, // options
-	)
+	var res *minio.Object
+	var err error
+	if len(s.options.Bucket) > 0 {
+		res, err = s.client.GetObject(
+			context.TODO(),                        // context
+			s.options.Bucket,                      // bucket name
+			filepath.Join(options.Namespace, key), // object name
+			minio.GetObjectOptions{},              // options
+		)
+	} else {
+		res, err = s.client.GetObject(
+			context.TODO(),           // context
+			options.Namespace,        // bucket name
+			key,                      // object name
+			minio.GetObjectOptions{}, // options
+		)
+	}
 
 	// scaleway will return a 404 if the bucket doesn't exist
 	if verr, ok := err.(minio.ErrorResponse); ok && verr.StatusCode == http.StatusNotFound {
@@ -132,6 +142,21 @@ func (s *s3) Write(key string, blob io.Reader, opts ...store.BlobOption) error {
 		options.Namespace = "micro"
 	}
 
+	// if the bucket exists, write using the namespace as a filepath
+	if len(s.options.Bucket) > 0 {
+		_, err := s.client.PutObject(
+			context.TODO(),                        // context
+			s.options.Bucket,                      // bucket name
+			filepath.Join(options.Namespace, key), // object name
+			blob,                                  // reader
+			int64(-1),                             // length of object
+			minio.PutObjectOptions{
+				ContentType: "application/octet-stream",
+			},
+		)
+		return err
+	}
+
 	// check the bucket exists, create it if not
 	if exists, err := s.client.BucketExists(context.TODO(), options.Namespace); err != nil {
 		return err
@@ -142,20 +167,16 @@ func (s *s3) Write(key string, blob io.Reader, opts ...store.BlobOption) error {
 		}
 	}
 
-	// get the bytes so we can determine the length
-	b, err := ioutil.ReadAll(blob)
-	if err != nil {
-		return err
-	}
-
 	// create the object in the bucket
-	_, err = s.client.PutObject(
-		context.TODO(),           // context
-		options.Namespace,        // bucket name
-		key,                      // object name
-		bytes.NewBuffer(b),       // reader
-		int64(len(b)),            // length of object
-		minio.PutObjectOptions{}, // options
+	_, err := s.client.PutObject(
+		context.TODO(),    // context
+		options.Namespace, // bucket name
+		key,               // object name
+		blob,              // reader
+		int64(-1),         // length of object
+		minio.PutObjectOptions{
+			ContentType: "application/octet-stream",
+		},
 	)
 	return err
 }
@@ -178,11 +199,19 @@ func (s *s3) Delete(key string, opts ...store.BlobOption) error {
 		options.Namespace = "micro"
 	}
 
-	err := s.client.RemoveObject(
+	if len(s.options.Bucket) > 0 {
+		return s.client.RemoveObject(
+			context.TODO(),                        // context
+			s.options.Bucket,                      // bucket name
+			filepath.Join(options.Namespace, key), // object name
+			minio.RemoveObjectOptions{},           // options
+		)
+	}
+
+	return s.client.RemoveObject(
 		context.TODO(),              // context
 		options.Namespace,           // bucket name
 		key,                         // object name
 		minio.RemoveObjectOptions{}, // options
 	)
-	return err
 }

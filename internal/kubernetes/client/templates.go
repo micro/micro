@@ -67,6 +67,7 @@ spec:
         {{- end }}
         {{- end }}
     spec: 
+      runtimeClassName: {{ .Spec.Template.PodSpec.RuntimeClassName }}
       serviceAccountName: {{ .Spec.Template.PodSpec.ServiceAccountName }}
       containers:
       {{- with .Spec.Template.PodSpec.Containers }}
