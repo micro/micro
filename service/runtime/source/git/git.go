@@ -43,6 +43,7 @@ type Gitter interface {
 type binaryGitter struct {
 	folder  string
 	secrets map[string]string
+	client  *http.Client
 }
 
 func (g *binaryGitter) Checkout(repo, branchOrCommit string) error {
@@ -51,32 +52,44 @@ func (g *binaryGitter) Checkout(repo, branchOrCommit string) error {
 	// and probably is faster than downloading the whole repo history,
 	// but it comes with a bit of custom code for EACH host.
 	// @todo probably we should fall back to git in case the archives are not available.
-
-	if branchOrCommit == "latest" {
-		branchOrCommit = "master"
-	}
-	if strings.Contains(repo, "github") {
-		return g.checkoutGithub(repo, branchOrCommit)
-	} else if strings.Contains(repo, "gitlab") {
-		err := g.checkoutGitLabPublic(repo, branchOrCommit)
-		if err != nil && len(g.secrets[credentialsKey]) > 0 {
-			// If the public download fails, try getting it with tokens.
-			// Private downloads needs a token for api project listing, hence
-			// the weird structure of this code.
-			return g.checkoutGitLabPrivate(repo, branchOrCommit)
+	doCheckout := func(repo, branchOrCommit string) error {
+		if strings.HasPrefix(repo, "https://github.com") {
+			return g.checkoutGithub(repo, branchOrCommit)
+		} else if strings.HasPrefix(repo, "https://gitlab.com") {
+			err := g.checkoutGitLabPublic(repo, branchOrCommit)
+			if err != nil && len(g.secrets[credentialsKey]) > 0 {
+				// If the public download fails, try getting it with tokens.
+				// Private downloads needs a token for api project listing, hence
+				// the weird structure of this code.
+				return g.checkoutGitLabPrivate(repo, branchOrCommit)
+			}
+			return err
 		}
-		return err
+		if len(g.secrets[credentialsKey]) > 0 {
+			return g.checkoutAnyRemote(repo, branchOrCommit, true)
+		}
+		return g.checkoutAnyRemote(repo, branchOrCommit, false)
 	}
-	if len(g.secrets[credentialsKey]) > 0 {
-		return g.checkoutAnyRemote(repo, branchOrCommit, true)
+
+	if branchOrCommit != "latest" {
+		return doCheckout(repo, branchOrCommit)
 	}
-	return g.checkoutAnyRemote(repo, branchOrCommit, false)
+	// default branches
+	defaults := []string{"latest", "master", "main", "trunk"}
+	var err error
+	for _, ref := range defaults {
+		err = doCheckout(repo, ref)
+		if err == nil {
+			return nil
+		}
+	}
+	return err
 }
 
 // This aims to be a generic checkout method. Currently only tested for bitbucket,
 // see tests
 func (g *binaryGitter) checkoutAnyRemote(repo, branchOrCommit string, useCredentials bool) error {
-	repoFolder := strings.ReplaceAll(strings.ReplaceAll(repo, "/", "-"), "https://", "")
+	repoFolder := strings.ReplaceAll(strings.ReplaceAll(repo, "/", "-"), "https:--", "")
 	g.folder = filepath.Join(os.TempDir(),
 		repoFolder+"-"+shortid.MustGenerate())
 	err := os.MkdirAll(g.folder, 0755)
@@ -115,7 +128,7 @@ func (g *binaryGitter) checkoutAnyRemote(repo, branchOrCommit string, useCredent
 
 func (g *binaryGitter) checkoutGithub(repo, branchOrCommit string) error {
 	// @todo if it's a commit it must not be checked out all the time
-	repoFolder := strings.ReplaceAll(strings.ReplaceAll(repo, "/", "-"), "https://", "")
+	repoFolder := strings.ReplaceAll(strings.ReplaceAll(repo, "/", "-"), "https:--", "")
 	g.folder = filepath.Join(os.TempDir(),
 		repoFolder+"-"+shortid.MustGenerate())
 
@@ -123,12 +136,11 @@ func (g *binaryGitter) checkoutGithub(repo, branchOrCommit string) error {
 	if !strings.HasPrefix(url, "https://") {
 		url = "https://" + url
 	}
-	client := &http.Client{}
 	req, _ := http.NewRequest("GET", url, nil)
 	if len(g.secrets[credentialsKey]) > 0 {
 		req.Header.Set("Authorization", "token "+g.secrets[credentialsKey])
 	}
-	resp, err := client.Do(req)
+	resp, err := g.client.Do(req)
 	if err != nil {
 		return fmt.Errorf("Can't get zip: %v", err)
 	}
@@ -160,7 +172,7 @@ func (g *binaryGitter) checkoutGithub(repo, branchOrCommit string) error {
 func (g *binaryGitter) checkoutGitLabPublic(repo, branchOrCommit string) error {
 	// Example: https://gitlab.com/micro-test/basic-micro-service/-/archive/master/basic-micro-service-master.tar.gz
 	// @todo if it's a commit it must not be checked out all the time
-	repoFolder := strings.ReplaceAll(strings.ReplaceAll(repo, "/", "-"), "https://", "")
+	repoFolder := strings.ReplaceAll(strings.ReplaceAll(repo, "/", "-"), "https:--", "")
 	g.folder = filepath.Join(os.TempDir(),
 		repoFolder+"-"+shortid.MustGenerate())
 
@@ -169,9 +181,8 @@ func (g *binaryGitter) checkoutGitLabPublic(repo, branchOrCommit string) error {
 	if !strings.HasPrefix(url, "https://") {
 		url = "https://" + url
 	}
-	client := &http.Client{}
 	req, _ := http.NewRequest("GET", url, nil)
-	resp, err := client.Do(req)
+	resp, err := g.client.Do(req)
 	if err != nil {
 		return fmt.Errorf("Can't get zip: %v", err)
 	}
@@ -234,9 +245,8 @@ func (g *binaryGitter) checkoutGitLabPrivate(repo, branchOrCommit string) error 
 	// https://gitlab.com/api/v3/projects/0000000/repository/archive?private_token=XXXXXXXXXXXXXXXXXXXX
 	url := fmt.Sprintf("https://gitlab.com/api/v4/projects/%v/repository/archive?private_token=%v", projectID, g.secrets[credentialsKey])
 
-	client := &http.Client{}
 	req, _ := http.NewRequest("GET", url, nil)
-	resp, err := client.Do(req)
+	resp, err := g.client.Do(req)
 	if err != nil {
 		return fmt.Errorf("Can't get zip: %v", err)
 	}
@@ -284,6 +294,7 @@ func NewGitter(secrets map[string]string) Gitter {
 	return &binaryGitter{
 		folder:  tmpdir,
 		secrets: secrets,
+		client:  &http.Client{},
 	}
 }
 
@@ -470,7 +481,7 @@ func IsLocal(workDir, source string, pathExistsFunc ...func(path string) (bool, 
 	return false, ""
 }
 
-// CheckoutSource checks out a git repo (source) into a local temp directory. It will reutrn the
+// CheckoutSource checks out a git repo (source) into a local temp directory. It will return the
 // source of the local repo an an error if one occured. Secrets can optionally be passed if the repo
 // is private.
 func CheckoutSource(source *Source, secrets map[string]string) (string, error) {
@@ -599,7 +610,12 @@ func unzip(src, dest string, skipTopFolder bool) error {
 		if skipTopFolder {
 			f.Name = strings.Join(strings.Split(f.Name, string(filepath.Separator))[1:], string(filepath.Separator))
 		}
-		path := filepath.Join(dest, f.Name)
+		// zip slip https://snyk.io/research/zip-slip-vulnerability
+		destpath, err := zipSafeFilePath(dest, f.Name)
+		if err != nil {
+			return err
+		}
+		path := destpath
 		if f.FileInfo().IsDir() {
 			os.MkdirAll(path, f.Mode())
 		} else {
@@ -628,4 +644,17 @@ func unzip(src, dest string, skipTopFolder bool) error {
 	}
 
 	return nil
+}
+
+// zipSafeFilePath checks whether the file path is safe to use or is a zip slip attack https://snyk.io/research/zip-slip-vulnerability
+func zipSafeFilePath(destination, filePath string) (string, error) {
+	if len(filePath) == 0 {
+		return filepath.Join(destination, filePath), nil
+	}
+	destination, _ = filepath.Abs(destination) //explicit the destination folder to prevent that 'string.HasPrefix' check can be 'bypassed' when no destination folder is supplied in input
+	destpath := filepath.Join(destination, filePath)
+	if !strings.HasPrefix(destpath, filepath.Clean(destination)+string(os.PathSeparator)) {
+		return "", fmt.Errorf("%s: illegal file path", filePath)
+	}
+	return destpath, nil
 }
