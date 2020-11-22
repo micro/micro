@@ -1,13 +1,15 @@
 
 Micro is an open source platform for cloud native application development.
 
+<center>
+  <img src="/images/micro-3.0.png" />
+</center>
+
 ## Overview
 
 Micro addresses the key requirements for building services in the cloud. It leverages the microservices
 architecture pattern and provides a set of services which act as the building blocks of a platform. Micro deals
 with the complexity of distributed systems and provides simpler programmable abstractions to build on. 
-
-<img src="/images/micro-3.0.png" />
 
 ## Source
 
