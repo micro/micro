@@ -152,13 +152,16 @@ Call with the client:
 
 ```go
 import (
-  "context"
+	"context"
   
-  "github.com/micro/micro/v3/service/client"
-  pb "github.com/micro/services/helloworld/proto"
+	"github.com/micro/micro/v3/service/client"
+	pb "github.com/micro/services/helloworld/proto"
+)
 
+// create a new helloworld service client
 helloworld := pb.NewHelloworldService("helloworld", client.DefaultClient) 
 
+// call the endpoint Helloworld.Call
 rsp, err := helloworld.Call(context.Background(), &pb.Request{Name: "Alice"})
 ```
 
