@@ -18,6 +18,7 @@ package jwt
 
 import (
 	"encoding/base64"
+	"strings"
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
@@ -49,10 +50,15 @@ func NewTokenProvider(opts ...token.Option) token.Provider {
 
 // Generate a new JWT
 func (j *JWT) Generate(acc *auth.Account, opts ...token.GenerateOption) (*token.Token, error) {
-	// decode the private key
-	priv, err := base64.StdEncoding.DecodeString(j.opts.PrivateKey)
-	if err != nil {
-		return nil, err
+	var priv []byte
+	if strings.HasPrefix(j.opts.PrivateKey, "-----BEGIN RSA PRIVATE KEY-----") {
+		priv = []byte(j.opts.PrivateKey)
+	} else {
+		var err error
+		priv, err = base64.StdEncoding.DecodeString(j.opts.PrivateKey)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	// parse the private key
@@ -95,10 +101,15 @@ func (j *JWT) Generate(acc *auth.Account, opts ...token.GenerateOption) (*token.
 
 // Inspect a JWT
 func (j *JWT) Inspect(t string) (*auth.Account, error) {
-	// decode the public key
-	pub, err := base64.StdEncoding.DecodeString(j.opts.PublicKey)
-	if err != nil {
-		return nil, err
+	var pub []byte
+	if strings.HasPrefix(j.opts.PublicKey, "-----BEGIN CERTIFICATE-----") {
+		pub = []byte(j.opts.PublicKey)
+	} else {
+		var err error
+		pub, err = base64.StdEncoding.DecodeString(j.opts.PublicKey)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	// parse the public key

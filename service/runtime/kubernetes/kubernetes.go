@@ -214,8 +214,15 @@ func (k *kubernetes) create(resource runtime.Resource, opts ...runtime.CreateOpt
 			options.Image = DefaultImage
 		}
 
+		// create the deployment and set the runtime class name if provided
+		dep := client.NewDeployment(s, options)
+		if rcn := getRuntimeClassName(k.options.Context); len(rcn) > 0 {
+			dep.Value.(*client.Deployment).Spec.Template.PodSpec.RuntimeClassName = rcn
+			logger.Infof("Setting runtime class name to %v", rcn)
+		}
+
 		// create the deployment
-		if err := k.client.Create(client.NewDeployment(s, options), client.CreateNamespace(options.Namespace)); err != nil {
+		if err := k.client.Create(dep, client.CreateNamespace(options.Namespace)); err != nil {
 			if parseError(err).Reason == "AlreadyExists" {
 				return runtime.ErrAlreadyExists
 			}

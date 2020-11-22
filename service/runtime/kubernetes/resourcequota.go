@@ -1,8 +1,6 @@
 package kubernetes
 
 import (
-	"fmt"
-
 	"github.com/micro/micro/v3/internal/kubernetes/client"
 	"github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/runtime"
@@ -11,23 +9,8 @@ import (
 // createResourceQuota creates a resourcequota resource
 func (k *kubernetes) createResourceQuota(resourceQuota *runtime.ResourceQuota) error {
 	err := k.client.Create(&client.Resource{
-		Kind: "resourcequota",
-		Value: client.ResourceQuota{
-			Requests: &client.ResourceLimits{
-				CPU:              fmt.Sprintf("%dm", resourceQuota.Requests.CPU),
-				EphemeralStorage: fmt.Sprintf("%dMi", resourceQuota.Requests.Disk),
-				Memory:           fmt.Sprintf("%dMi", resourceQuota.Requests.Mem),
-			},
-			Limits: &client.ResourceLimits{
-				CPU:              fmt.Sprintf("%dm", resourceQuota.Limits.CPU),
-				EphemeralStorage: fmt.Sprintf("%dMi", resourceQuota.Limits.Disk),
-				Memory:           fmt.Sprintf("%dMi", resourceQuota.Limits.Mem),
-			},
-			Metadata: &client.Metadata{
-				Name:      resourceQuota.Name,
-				Namespace: resourceQuota.Namespace,
-			},
-		},
+		Kind:  "resourcequota",
+		Value: client.NewResourceQuota(resourceQuota),
 	}, client.CreateNamespace(resourceQuota.Namespace))
 	if err != nil {
 		if logger.V(logger.ErrorLevel, logger.DefaultLogger) {
@@ -40,23 +23,9 @@ func (k *kubernetes) createResourceQuota(resourceQuota *runtime.ResourceQuota) e
 // updateResourceQuota updates a resourcequota resource in-place
 func (k *kubernetes) updateResourceQuota(resourceQuota *runtime.ResourceQuota) error {
 	err := k.client.Update(&client.Resource{
-		Kind: "resourcequota",
-		Value: client.ResourceQuota{
-			Requests: &client.ResourceLimits{
-				CPU:              fmt.Sprintf("%dm", resourceQuota.Requests.CPU),
-				EphemeralStorage: fmt.Sprintf("%dMi", resourceQuota.Requests.Disk),
-				Memory:           fmt.Sprintf("%dMi", resourceQuota.Requests.Mem),
-			},
-			Limits: &client.ResourceLimits{
-				CPU:              fmt.Sprintf("%dm", resourceQuota.Limits.CPU),
-				EphemeralStorage: fmt.Sprintf("%dMi", resourceQuota.Limits.Disk),
-				Memory:           fmt.Sprintf("%dMi", resourceQuota.Limits.Mem),
-			},
-			Metadata: &client.Metadata{
-				Name:      resourceQuota.Name,
-				Namespace: resourceQuota.Namespace,
-			},
-		},
+		Kind:  "resourcequota",
+		Name:  resourceQuota.Name,
+		Value: client.NewResourceQuota(resourceQuota),
 	}, client.UpdateNamespace(resourceQuota.Namespace))
 	if err != nil {
 		if logger.V(logger.ErrorLevel, logger.DefaultLogger) {
@@ -69,23 +38,9 @@ func (k *kubernetes) updateResourceQuota(resourceQuota *runtime.ResourceQuota) e
 // deleteResourcequota deletes a resourcequota resource
 func (k *kubernetes) deleteResourceQuota(resourceQuota *runtime.ResourceQuota) error {
 	err := k.client.Delete(&client.Resource{
-		Kind: "resourcequota",
-		Value: client.ResourceQuota{
-			Requests: &client.ResourceLimits{
-				CPU:              fmt.Sprintf("%dm", resourceQuota.Requests.CPU),
-				EphemeralStorage: fmt.Sprintf("%dMi", resourceQuota.Requests.Disk),
-				Memory:           fmt.Sprintf("%dMi", resourceQuota.Requests.Mem),
-			},
-			Limits: &client.ResourceLimits{
-				CPU:              fmt.Sprintf("%dm", resourceQuota.Limits.CPU),
-				EphemeralStorage: fmt.Sprintf("%dMi", resourceQuota.Limits.Disk),
-				Memory:           fmt.Sprintf("%dMi", resourceQuota.Limits.Mem),
-			},
-			Metadata: &client.Metadata{
-				Name:      resourceQuota.Name,
-				Namespace: resourceQuota.Namespace,
-			},
-		},
+		Kind:  "resourcequota",
+		Name:  resourceQuota.Name,
+		Value: client.NewResourceQuota(resourceQuota),
 	}, client.DeleteNamespace(resourceQuota.Namespace))
 	if err != nil {
 		if logger.V(logger.ErrorLevel, logger.DefaultLogger) {
