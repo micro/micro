@@ -86,7 +86,7 @@ micro helloworld --name=Alice
 curl -d '{"name": "Alice"}' http://localhost:8080/helloworld
 ```
 
-## Example Code
+## Example Service
 
 Micro includes a Go framework for writing services and wraps gRPC for the core IDL and transport. 
 
