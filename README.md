@@ -88,7 +88,7 @@ curl -d '{"name": "Alice"}' http://localhost:8080/helloworld
 
 ## Example Service
 
-Micro includes a Go framework for writing services and wraps gRPC for the core IDL and transport. 
+Micro includes a Go framework for writing services wrapping gRPC for the core IDL and transport. 
 
 Define services in proto:
 
