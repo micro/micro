@@ -73,12 +73,9 @@ func QueryStats(c *cli.Context, args []string) ([]byte, error) {
 	var output []string
 
 	// print things
-	output = append(output, "service  "+service[0].Name)
+	output = append(output, fmt.Sprintf("\n%s\t\t%s", "service", service[0].Name))
 
 	for _, serv := range service {
-		// print things
-		output = append(output, "\nversion "+serv.Version)
-		output = append(output, "\nnode\t\taddress:port\t\tstarted\tuptime\tmemory\tthreads\tgc")
 
 		// query health for every node
 		for _, node := range serv.Nodes {
@@ -98,10 +95,12 @@ func QueryStats(c *cli.Context, args []string) ([]byte, error) {
 				gc = fmt.Sprintf("%v", time.Duration(rsp.Gc))
 			}
 
-			line := fmt.Sprintf("%s\t\t%s\t\t%s\t%s\t%s\t%d\t%s",
-				node.Id, node.Address, started, uptime, memory, rsp.Threads, gc)
-
-			output = append(output, line)
+			// print things
+			output = append(output, "----------------------------------------------------------")
+			output = append(output, fmt.Sprintf("%s\t\t%s", "version", serv.Version))
+			output = append(output, fmt.Sprintf("%s\t\t%s\n%s\t%s", "node", node.Id, "address:port", node.Address))
+			output = append(output, fmt.Sprintf("%s\t\t%s\n%s\t\t%s", "started", started, "uptime", uptime))
+			output = append(output, fmt.Sprintf("%s\t\t%s\n%s\t\t%d\n%s\t\t%s", "memory", memory, "threads", rsp.Threads, "gc", gc))
 		}
 	}
 
