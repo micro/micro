@@ -148,7 +148,7 @@ func main() {
 }
 ```
 
-Call with the client
+Call with the client:
 
 ```go
 import (
