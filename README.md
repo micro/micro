@@ -86,6 +86,82 @@ micro helloworld --name=Alice
 curl -d '{"name": "Alice"}' http://localhost:8080/helloworld
 ```
 
+## Example Code
+
+Micro includes a Go framework for writing services and wraps gRPC for the core IDL and transport. Define services in proto, then implement them in Go.
+
+Define a proto
+
+```proto
+syntax = "proto3";
+
+package helloworld;
+
+service Helloworld {
+	rpc Call(Request) returns (Response) {}
+}
+
+message Request {
+	string name = 1;
+}
+
+message Response {
+	string msg = 1;
+}
+```
+
+Write a service
+
+```go
+package main
+
+import (
+	"context"
+  
+	"github.com/micro/micro/v3/service"
+	"github.com/micro/micro/v3/service/logger"
+	helloworld "github.com/micro/services/helloworld/proto"
+)
+
+type Helloworld struct{}
+
+// Call is a single request handler called via client.Call or the generated client code
+func (h *Helloworld) Call(ctx context.Context, req *helloworld.Request, rsp *helloworld.Response) error {
+	logger.Info("Received Helloworld.Call request")
+	rsp.Msg = "Hello " + req.Name
+	return nil
+}
+
+func main() {
+	// Create service
+	srv := service.New(
+		service.Name("helloworld"),
+	)
+
+	// Register Handler
+	srv.Handle(new(Helloworld))
+
+	// Run the service
+	if err := srv.Run(); err != nil {
+		logger.Fatal(err)
+	}
+}
+```
+
+Call with the client
+
+```go
+import (
+  "context"
+  
+  "github.com/micro/micro/v3/service/client"
+  pb "github.com/micro/services/helloworld/proto"
+
+helloworld := pb.NewHelloworldService("helloworld", client.DefaultClient) 
+
+rsp, err := helloworld.Call(context.Background(), &pb.Request{Name: "Alice"})
+```
+
 ## Features
 
 Micro is built as a microservices architecture and abstracts away the complexity of the underlying infrastructure. We compose 
