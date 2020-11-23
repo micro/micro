@@ -12,6 +12,9 @@ spec:
   - name: proxy
     port: 8081
     targetPort: 8081
+  - name: proxy-grpc-web
+    port: 8082
+    targetPort: 8082
   selector:
     name: micro-proxy
     micro: runtime

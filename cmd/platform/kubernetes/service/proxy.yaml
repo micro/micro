@@ -68,6 +68,8 @@ spec:
           value: "client"
         - name: MICRO_LOG_LEVEL
           value: "trace"
+        - name: MICRO_PROXY_GRPC_WEB
+          value: "true"
         args:
         - service
         - proxy
@@ -76,6 +78,8 @@ spec:
         ports:
         - containerPort: 8081
           name: proxy-port
+        - containerPort: 8082
+          name: proxy-port-grpc-web
         readinessProbe:
           tcpSocket:
             port: proxy-port
