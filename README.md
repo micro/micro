@@ -10,7 +10,11 @@ with the complexity of distributed systems and provides simpler programmable abs
 
 Micro provides a logical server composed of building block services, a Go framework for development, command line interface, API gateway and gRPC Proxy for external and remote access. Each service provides access to underlying infrastructure primitives through a standard interface with a development model tying everything together.
 
+<br>
+
 <img src="docs/images/micro-3.0.png" />
+
+<br>
 
 Micro is the all encompassing end to end platform experience from source to running and beyond built with a developer first focus.
 
