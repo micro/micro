@@ -1,3 +1,8 @@
+<div>
+  <a href="https://twitter.com/microhq"><img src="https://img.shields.io/twitter/follow/microhq?label=microhq&style=social" /></a>
+  <a href="https://github.com/micro/micro/network/members"><img src="https://img.shields.io/github/forks/micro/micro?style=social" /></a>
+  <a href="https://github.com/micro/micro/stargazers"><img src="https://img.shields.io/github/stars/micro/micro?style=social" /></a>
+</div>
 
 Micro is an open source platform for cloud native application development.
 

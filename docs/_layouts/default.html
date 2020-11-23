@@ -7,20 +7,24 @@
 
 {% seo %}
     <link rel="stylesheet" href="{{ "/assets/css/style.css?v=" | append: site.github.build_revision | relative_url }}">
+    <style>
+      .links a { color: #333; font-size: 16px; font-weight: normal; vertical-align: middle; margin-right: 10px;}
+    </style>
   </head>
   <body>
     <div class="container-lg px-3 my-5 markdown-body">
       {% if site.title and site.title != page.title %}
       <h1>
-        <a href="{{ "/" | absolute_url }}" style="color: black;">
+        <a href="{{ "/" | absolute_url }}" style="color: black; margin-right: 50px;">
         {% if site.logo %}
         <img src="{{ site.logo | absolute_url }}" height=auto width=50px style="display: inline; vertical-align: middle;"/> 
         {% endif %}
 	{{ site.title }}</a>
-        <span style="float: right;">
-	  <a href="https://twitter.com/microhq"><img src="https://img.shields.io/twitter/follow/microhq?label=microhq&style=social" /></a>
-	  <a href="https://github.com/micro/micro/network/members"><img src="https://img.shields.io/github/forks/micro/micro?style=social" /></a>
-	  <a href="https://github.com/micro/micro/stargazers"><img src="https://img.shields.io/github/stars/micro/micro?style=social" /></a>
+        <span class="links" style="float: right;">
+	  <a href="{{ site.baseurl }}/blog">Blog</a>
+	  <a href="{{ site.baseurl }}/faq">FAQ</a>
+	  <a href="/#content">Docs</a>
+	  <a href="{{ site.baseurl }}/reference">Reference</a>
 	</span>
       </h1>
       {% endif %}
