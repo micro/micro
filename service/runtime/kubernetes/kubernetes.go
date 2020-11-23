@@ -26,6 +26,16 @@ import (
 	"github.com/micro/micro/v3/service/runtime"
 )
 
+var (
+	DefaultServiceResources = &runtime.Resources{
+		CPU:  200,
+		Mem:  200,
+		Disk: 2000,
+	}
+
+	DefaultImage = "micro/cells:v3"
+)
+
 // action to take on runtime service
 type action int
 
@@ -195,8 +205,24 @@ func (k *kubernetes) create(resource runtime.Resource, opts ...runtime.CreateOpt
 			return err
 		}
 
+		// create some default resource requests
+		if options.Resources == nil && options.Namespace != "micro" {
+			options.Resources = DefaultServiceResources
+		}
+
+		if len(options.Image) == 0 {
+			options.Image = DefaultImage
+		}
+
+		// create the deployment and set the runtime class name if provided
+		dep := client.NewDeployment(s, options)
+		if rcn := getRuntimeClassName(k.options.Context); len(rcn) > 0 {
+			dep.Value.(*client.Deployment).Spec.Template.PodSpec.RuntimeClassName = rcn
+			logger.Infof("Setting runtime class name to %v", rcn)
+		}
+
 		// create the deployment
-		if err := k.client.Create(client.NewDeployment(s, options), client.CreateNamespace(options.Namespace)); err != nil {
+		if err := k.client.Create(dep, client.CreateNamespace(options.Namespace)); err != nil {
 			if parseError(err).Reason == "AlreadyExists" {
 				return runtime.ErrAlreadyExists
 			}

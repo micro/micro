@@ -23,14 +23,8 @@ import (
 // createNetworkPolicy creates a networkpolicy resource
 func (k *kubernetes) createNetworkPolicy(networkPolicy *runtime.NetworkPolicy) error {
 	err := k.client.Create(&client.Resource{
-		Kind: "networkpolicy",
-		Value: client.NetworkPolicy{
-			AllowedLabels: networkPolicy.AllowedLabels,
-			Metadata: &client.Metadata{
-				Name:      networkPolicy.Name,
-				Namespace: networkPolicy.Namespace,
-			},
-		},
+		Kind:  "networkpolicy",
+		Value: client.NewNetworkPolicy(networkPolicy.Name, networkPolicy.Namespace, networkPolicy.AllowedLabels),
 	}, client.CreateNamespace(networkPolicy.Namespace))
 	if err != nil {
 		if logger.V(logger.ErrorLevel, logger.DefaultLogger) {
@@ -43,14 +37,9 @@ func (k *kubernetes) createNetworkPolicy(networkPolicy *runtime.NetworkPolicy) e
 // updateNetworkPolicy updates a networkpolicy resource in-place
 func (k *kubernetes) updateNetworkPolicy(networkPolicy *runtime.NetworkPolicy) error {
 	err := k.client.Update(&client.Resource{
-		Kind: "networkpolicy",
-		Value: client.NetworkPolicy{
-			AllowedLabels: networkPolicy.AllowedLabels,
-			Metadata: &client.Metadata{
-				Name:      networkPolicy.Name,
-				Namespace: networkPolicy.Namespace,
-			},
-		},
+		Kind:  "networkpolicy",
+		Name:  networkPolicy.Name,
+		Value: client.NewNetworkPolicy(networkPolicy.Name, networkPolicy.Namespace, networkPolicy.AllowedLabels),
 	}, client.UpdateNamespace(networkPolicy.Namespace))
 	if err != nil {
 		if logger.V(logger.ErrorLevel, logger.DefaultLogger) {
@@ -63,14 +52,9 @@ func (k *kubernetes) updateNetworkPolicy(networkPolicy *runtime.NetworkPolicy) e
 // deleteNetworkPolicy deletes a networkpolicy resource
 func (k *kubernetes) deleteNetworkPolicy(networkPolicy *runtime.NetworkPolicy) error {
 	err := k.client.Delete(&client.Resource{
-		Kind: "networkpolicy",
-		Value: client.NetworkPolicy{
-			AllowedLabels: networkPolicy.AllowedLabels,
-			Metadata: &client.Metadata{
-				Name:      networkPolicy.Name,
-				Namespace: networkPolicy.Namespace,
-			},
-		},
+		Kind:  "networkpolicy",
+		Name:  networkPolicy.Name,
+		Value: client.NewNetworkPolicy(networkPolicy.Name, networkPolicy.Namespace, networkPolicy.AllowedLabels),
 	}, client.DeleteNamespace(networkPolicy.Namespace))
 	if err != nil {
 		if logger.V(logger.ErrorLevel, logger.DefaultLogger) {

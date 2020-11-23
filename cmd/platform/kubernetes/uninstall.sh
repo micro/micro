@@ -6,16 +6,14 @@
 kubectl delete secret micro-secrets
 
 # uninstall the resources
-cd ./resource/cockroachdb;
-bash uninstall.sh;
-cd ../etcd;
-bash uninstall.sh;
-cd ../nats;
-bash uninstall.sh;
+for d in ./resource/*/; do
+  pushd $d
+  MICRO_ENV=$ENV bash uninstall.sh
+  popd
+done
 
-# move to the /kubernetes folder and apply the deployments
-cd ../..;
-kubectl delete -f service
+# delete the deployments and services
+kubectl delete -f ./service
 
 # go back to the top level
 cd ..;

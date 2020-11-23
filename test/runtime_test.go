@@ -658,7 +658,7 @@ func testRunParentFolder(t *T) {
 		t.Fatal(string(outp))
 	}
 
-	gomod := exec.Command("go", "mod", "edit", "-replace", "github.com/micro/micro/v3=github.com/micro/micro/v3@v3.0.0-beta.6.0.20201013100912-aa4b81397a6f")
+	gomod := exec.Command("go", "mod", "edit", "-replace", "github.com/micro/micro/v3=github.com/micro/micro/v3@v3.0.0")
 	gomod.Dir = "../test-top-level"
 	if outp, err := gomod.CombinedOutput(); err != nil {
 		t.Fatal(string(outp))
@@ -699,6 +699,104 @@ func testRunParentFolder(t *T) {
 		if !strings.Contains(string(outp), "test-top-level") {
 			l, _ := cmd.Exec("logs", "test-top-level")
 			return outp, fmt.Errorf("Can't find example service in list. \nLogs: %v", string(l))
+		}
+		return outp, err
+	}, 90*time.Second); err != nil {
+		return
+	}
+}
+
+func TestRunNewWithGit(t *testing.T) {
+	TrySuite(t, testRunNewWithGit, retryCount)
+}
+
+func testRunNewWithGit(t *T) {
+	defer func() {
+		os.RemoveAll("/tmp/new-with-git")
+	}()
+	t.Parallel()
+	serv := NewServer(t, WithLogin())
+	defer serv.Close()
+	if err := serv.Run(); err != nil {
+		return
+	}
+
+	cmd := serv.Command()
+	cmd.Dir = "/tmp"
+
+	outp, err := cmd.Exec("new", "new-with-git")
+	if err != nil {
+		t.Fatal(string(outp))
+		return
+	}
+	makeProt := exec.Command("make", "proto")
+	makeProt.Dir = "/tmp/new-with-git"
+
+	outp, err = makeProt.CombinedOutput()
+	if err != nil {
+		t.Fatal(string(outp))
+		return
+	}
+
+	// for tests, update the micro import to use the current version of the code.
+	fname := fmt.Sprintf(makeProt.Dir + "/go.mod")
+	f, err := os.OpenFile(fname, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		t.Fatal(string(outp))
+		return
+	}
+	if _, err := f.WriteString("\nreplace github.com/micro/micro/v3 => github.com/micro/micro/v3 master"); err != nil {
+		t.Fatal(string(outp))
+		return
+	}
+	// This should point to master, but GOPROXY is not on in the runtime. Remove later.
+	if _, err := f.WriteString("\nreplace github.com/micro/go-micro/v3 => github.com/micro/go-micro/v3 v3.0.0-beta.2.0.20200922112322-927d4f8eced6"); err != nil {
+		t.Fatal(string(outp))
+		return
+	}
+	f.Close()
+
+	gitInit := exec.Command("git", "init")
+	gitInit.Dir = "/tmp/new-with-git"
+	outp, err = gitInit.CombinedOutput()
+	if err != nil {
+		t.Fatal(string(outp))
+	}
+
+	cmd = serv.Command()
+	cmd.Dir = "/tmp/new-with-git"
+	outp, err = cmd.Exec("run", ".")
+	if err != nil {
+		t.Fatal(outp)
+	}
+
+	if err := Try("Find example", t, func() ([]byte, error) {
+		outp, err := cmd.Exec("status")
+		outp1, _ := cmd.Exec("logs", "new-with-git")
+		outp = append(outp, outp1...)
+		if err != nil {
+			return outp, err
+		}
+
+		// The started service should have the runtime name of "service/example",
+		// as the runtime name is the relative path inside a repo.
+		if !statusRunning("new-with-git", "latest", outp) {
+			return outp, errors.New("Can't find example service in runtime")
+		}
+		return outp, err
+	}, 15*time.Second); err != nil {
+		return
+	}
+
+	if err := Try("Find example in list", t, func() ([]byte, error) {
+		outp, err := cmd.Exec("services")
+		outp1, _ := cmd.Exec("logs", "new-with-git")
+		outp = append(outp, outp1...)
+		if err != nil {
+			return outp, err
+		}
+		if !strings.Contains(string(outp), "new-with-git") {
+			return outp, errors.New("Can't find example service in list")
 		}
 		return outp, err
 	}, 90*time.Second); err != nil {
@@ -1041,6 +1139,129 @@ func testRunCustomCredentials(t *T) {
 	if err := Try("Calling helloworld", t, func() ([]byte, error) {
 		return cmd.Exec("helloworld", "--name=John")
 	}, 30*time.Second); err != nil {
+		return
+	}
+}
+
+func TestGitSourceUpdateByShortName(t *testing.T) {
+	TrySuite(t, testGitSourceUpdateByShortName, retryCount)
+}
+
+func testGitSourceUpdateByShortName(t *T) {
+	t.Parallel()
+	serv := NewServer(t, WithLogin())
+	defer serv.Close()
+	if err := serv.Run(); err != nil {
+		return
+	}
+
+	cmd := serv.Command()
+
+	// run the service
+	if outp, err := cmd.Exec("run", "github.com/m3o/services/invite"); err != nil {
+		t.Fatalf("Expected no error, got %v %v", err, string(outp))
+		return
+	}
+
+	if err := Try("Find invite in runtime", t, func() ([]byte, error) {
+		outp, err := cmd.Exec("status")
+		if err != nil {
+			return outp, err
+		}
+
+		if !statusRunning("invite", version, outp) {
+			return outp, errors.New("Can't find subfolder-test service in runtime")
+		}
+		return outp, err
+	}, 60*time.Second); err != nil {
+		return
+	}
+
+	if err := Try("Find invite in registry", t, func() ([]byte, error) {
+		outp, err := cmd.Exec("services")
+		if err != nil {
+			return outp, err
+		}
+		if !strings.Contains(string(outp), "invite") {
+			return outp, errors.New("Does not contain invite")
+		}
+		return outp, err
+	}, 300*time.Second); err != nil {
+		outp, _ := cmd.Exec("logs", "invite")
+		t.Log(string(outp))
+		return
+	}
+
+	// call the service
+	if err := Try("Calling invite", t, func() ([]byte, error) {
+		outp, _ := cmd.Exec("logs", "-n=1000", "invite")
+		outp1, err := cmd.Exec("invite", "--help")
+
+		return append(outp1, outp...), err
+	}, 70*time.Second); err != nil {
+		return
+	}
+
+	// update service
+
+	// run the service
+	if outp, err := cmd.Exec("update", "invite"+branch); err != nil {
+		t.Fatalf("Expected no error, got %v %v", err, string(outp))
+		return
+	}
+
+	// look for disconnect
+	if err := Try("Find invite disconnect proof in logs", t, func() ([]byte, error) {
+		outp, err := cmd.Exec("logs", "invite")
+		if err != nil {
+			return outp, err
+		}
+		if !strings.Contains(string(outp), "Disconnect") {
+			return outp, errors.New("Does not contain Disconnect")
+		}
+		return outp, err
+	}, 40*time.Second); err != nil {
+		outp, _ := cmd.Exec("logs", "invite")
+		t.Log(string(outp))
+		return
+	}
+
+	if err := Try("Find invite in runtime", t, func() ([]byte, error) {
+		outp, err := cmd.Exec("status")
+		if err != nil {
+			return outp, err
+		}
+
+		if !statusRunning("invite", version, outp) {
+			return outp, errors.New("Can't find invite service in runtime")
+		}
+		return outp, err
+	}, 60*time.Second); err != nil {
+		return
+	}
+
+	if err := Try("Find invite in registry", t, func() ([]byte, error) {
+		outp, err := cmd.Exec("services")
+		if err != nil {
+			return outp, err
+		}
+		if !strings.Contains(string(outp), "invite") {
+			return outp, errors.New("Does not contain example")
+		}
+		return outp, err
+	}, 300*time.Second); err != nil {
+		outp, _ := cmd.Exec("logs", "invite")
+		t.Log(string(outp))
+		return
+	}
+
+	// call the service
+	if err := Try("Calling invite", t, func() ([]byte, error) {
+		outp, _ := cmd.Exec("logs", "-n=1000", "invite")
+		outp1, err := cmd.Exec("invite", "--help")
+
+		return append(outp1, outp...), err
+	}, 70*time.Second); err != nil {
 		return
 	}
 }

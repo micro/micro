@@ -67,6 +67,7 @@ spec:
         {{- end }}
         {{- end }}
     spec: 
+      runtimeClassName: {{ .Spec.Template.PodSpec.RuntimeClassName }}
       serviceAccountName: {{ .Spec.Template.PodSpec.ServiceAccountName }}
       containers:
       {{- with .Spec.Template.PodSpec.Containers }}
@@ -278,7 +279,7 @@ spec:
   - from: # Allow pods in the namespaces bearing the specified labels to talk to pods in this namespace:
     - namespaceSelector:
         matchLabels:
-          {{- with .AllowedLabels }}
+          {{- with (index (index .Spec.Ingress 1).From 0).NamespaceSelector.MatchLabels }}
           {{- range $key, $value := . }}
           {{ $key }}: "{{ $value }}"
           {{- end }}
@@ -299,29 +300,25 @@ metadata:
     {{- end }}
 spec:
   hard:
-  {{- if .Limits }}
-  {{- with .Limits }}
-    {{- if .Memory }}
-    limits.memory: {{ .Memory }}
+  {{- if .Spec.Hard }}
+  {{- with .Spec.Hard }}
+    {{- if .LimitsMemory }}
+    limits.memory: {{ .LimitsMemory }}
     {{- end }}
-    {{- if .CPU }}
-    limits.cpu: {{ .CPU }}
+    {{- if .LimitsCPU }}
+    limits.cpu: {{ .LimitsCPU }}
     {{- end }}
-    {{- if .EphemeralStorage }}
-    limits.ephemeral-storage: {{ .EphemeralStorage }}
+    {{- if .LimitsEphemeralStorage }}
+    limits.ephemeral-storage: {{ .LimitsEphemeralStorage }}
     {{- end }}
-  {{- end }}
-  {{- end }}
-  {{- if .Requests }}
-  {{- with .Requests }}
-    {{- if .Memory }}
-    requests.memory: {{ .Memory }}
+    {{- if .RequestsMemory }}
+    requests.memory: {{ .RequestsMemory }}
     {{- end }}
-    {{- if .CPU }}
-    requests.cpu: {{ .CPU }}
+    {{- if .RequestsCPU }}
+    requests.cpu: {{ .RequestsCPU }}
     {{- end }}
-    {{- if .EphemeralStorage }}
-    requests.ephemeral-storage: {{ .EphemeralStorage }}
+    {{- if .RequestsEphemeralStorage }}
+    requests.ephemeral-storage: {{ .RequestsEphemeralStorage }}
     {{- end }}
   {{- end }}
   {{- end }}

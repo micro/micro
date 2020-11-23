@@ -251,7 +251,7 @@ func action(c *cli.Context) error {
 		if srv, ns, err := lookupService(c); err != nil {
 			return util.CliError(err)
 		} else if srv != nil && shouldRenderHelp(c) {
-			return cli.Exit(formatServiceUsage(srv, c), 1)
+			return cli.Exit(formatServiceUsage(srv, c), 0)
 		} else if srv != nil {
 			err := callService(srv, ns, c)
 			return util.CliError(err)
@@ -288,6 +288,16 @@ func New(opts ...Option) *command {
 		cmd.service = true
 		cmd.app.Action = func(ctx *cli.Context) error { return nil }
 	}
+
+	//flags to add
+	if len(options.Flags) > 0 {
+		cmd.app.Flags = append(cmd.app.Flags, options.Flags...)
+	}
+	//action to replace
+	if options.Action != nil {
+		cmd.app.Action = options.Action
+	}
+	// cmd to add to use registry
 
 	return cmd
 }
@@ -564,6 +574,15 @@ func (c *command) Init(opts ...Option) error {
 	}
 	c.app.HideVersion = len(c.opts.Version) == 0
 	c.app.Usage = c.opts.Description
+
+	//allow user's flags to add
+	if len(c.opts.Flags) > 0 {
+		c.app.Flags = append(c.app.Flags, c.opts.Flags...)
+	}
+	//action to replace
+	if c.opts.Action != nil {
+		c.app.Action = c.opts.Action
+	}
 
 	return nil
 }

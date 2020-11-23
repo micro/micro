@@ -61,7 +61,7 @@ func login(ctx *cli.Context) error {
 		if err != nil {
 			return err
 		}
-		password = strings.TrimSpace(pw)
+		password = pw
 		fmt.Println()
 	}
 	tok, err := auth.Token(auth.WithCredentials(username, password), auth.WithTokenIssuer(ns))

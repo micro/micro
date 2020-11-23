@@ -460,9 +460,9 @@ Here, the scope `*` is markedly different from the `<public>` scope we have seen
 
 ```sh
 $ micro auth list rules
-ID			    Scope			Access		Resource		Priority
-onlyloggedin	*			    GRANTED		*:*:*			0
-default			<public>		GRANTED		*:*:*			0
+ID            Scope         Access       Resource       Priority
+onlyloggedin  *             GRANTED      *:*:*          0
+default       <public>      GRANTED      *:*:*          0
 ```
 
 Now, let's remove the default rule.

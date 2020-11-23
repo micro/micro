@@ -128,16 +128,16 @@ The services provided by the server are below. These are identified as the core 
 development. In time this may evolve to include synchronization (locking & leadership election), sagas pattern, etc but for 
 now we want to provide just the core primitives.
 
-- API - public http api gateway served on port :8080
-- Auth - authentication and authorization
-- Broker - pubsub messaging for async comms
-- Config - dynamic configuration and secrets
-- Events - event streaming and persistent messaging
-- Network - service to service communication
-- Proxy - identity aware proxy for external access
-- Registry - service discovery and api explorer
-- Runtime - service runtime and process manager
-- Store - key-value persistent storage
+- **API** - HTTP Gateway which dynamically maps http/json requests to RPC using path based resolution
+- **Auth** - Authentication and authorization out of the box using jwt tokens and rule based access control.
+- **Broker** - Ephemeral pubsub messaging for asynchronous communication and distributing notifications
+- **Config** - Dynamic configuration and secrets management for service level config without the need to restart
+- **Events** - Event streaming with ordered messaging, replay from offsets and persistent storage
+- **Network** - Inter-service networking, isolation and routing plane for all internal request traffic
+- **Proxy** - gRPC identity aware proxy used for remote access and any external grpc request traffic
+- **Runtime** - Service lifecyle and process management with support for source to running auto build
+- **Registry** - Centralised service discovery and API endpoint explorer with feature rich metadata
+- **Store** - Key-Value storage with TTL expiry and persistent crud to keep microservices stateless
 
 The assumptions made are by building as independent services we can scope the concerns and domain boundaries appropriately but 
 cohesively build a whole system that acts as a platform or a cloud operating system. Much like Android for Mobile we think 

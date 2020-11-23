@@ -9,9 +9,6 @@ metadata:
     version: latest
 spec:
   ports:
-  - name: https
-    port: 443
-    targetPort: 443
   - name: proxy
     port: 8081
     targetPort: 8081
@@ -21,4 +18,4 @@ spec:
   selector:
     name: micro-proxy
     micro: runtime
-  type: LoadBalancer
+    version: latest
