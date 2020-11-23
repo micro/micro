@@ -46,6 +46,13 @@ func (c *Converter) ConvertFrom(rd io.Reader) (*plugin.CodeGeneratorResponse, er
 		return nil, err
 	}
 
+	c.defaultSpec()
+
+	c.logger.Debugf("Converting input: %v", err)
+	return c.convert(req)
+}
+
+func (c *Converter) defaultSpec() {
 	// Create a new OpenAPI3 document to fill in with schemas and paths:
 	c.openAPISpec = &openapi3.Swagger{
 		Components: openapi3.Components{
@@ -89,8 +96,6 @@ func (c *Converter) ConvertFrom(rd io.Reader) (*plugin.CodeGeneratorResponse, er
 		},
 	}
 
-	c.logger.Debugf("Converting input: %v", err)
-	return c.convert(req)
 }
 
 // Converts a proto file into an OpenAPI spec:
@@ -166,7 +171,7 @@ func (c *Converter) convert(req *plugin.CodeGeneratorRequest) (*plugin.CodeGener
 
 		// Set the service name from the proto package (if it isn't already set):
 		if c.microServiceName == "" {
-			c.microServiceName = file.GetPackage()
+			c.microServiceName = payloadSchemaName(file.GetPackage())
 		}
 
 		// Register all of the messages we can find:

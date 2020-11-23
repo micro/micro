@@ -18,5 +18,6 @@ install:
 PROTO_PATH ?= "internal/converter/testdata/proto"
 .PHONY: samples
 samples:
-	@PATH=./bin:$$PATH protoc --openapi_out=. --proto_path=../../proto/runtime ../../proto/runtime/runtime.proto
-	@PATH=./bin:$$PATH protoc --openapi_out=service=cruft:. --proto_path=../../proto/events ../../proto/events/events.proto
+	# @PATH=./bin:$$PATH protoc --openapi_out=. --proto_path=../../proto/runtime ../../proto/runtime/runtime.proto
+	# @PATH=./bin:$$PATH protoc --openapi_out=service=event:. --proto_path=../../proto/events ../../proto/events/events.proto
+	@PATH=./bin:$$PATH protoc --openapi_out=. --proto_path=../../proto/signup ../../proto/signup/signup.proto

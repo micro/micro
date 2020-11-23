@@ -192,12 +192,13 @@ func (c *Converter) convertField(curPkg *ProtoPackage, desc *descriptor.FieldDes
 		case recordType.Options.GetMapEntry():
 			c.logger.Tracef("Found a map (%s.%s)", *msg.Name, recordType.GetName())
 			componentSchema.Type = openAPITypeObject
-			// componentSchema.AdditionalProperties = recursedComponentSchema.NewRef()
 			componentSchema.AdditionalProperties = openapi3.NewSchemaRef("", recursedComponentSchema)
 
 		// Objects:
 		default:
 			componentSchema.Properties = recursedComponentSchema.Properties
+			// recursedComponentSchemaRef := fmt.Sprintf("#/components/schemas/%s", recursedComponentSchema.Title)
+			// componentSchema.Properties = openapi3.NewSchemaRef(recursedComponentSchemaRef, nil)
 		}
 	}
 

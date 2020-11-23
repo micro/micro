@@ -10,7 +10,8 @@ func urlPath(microServiceName, protoServiceName, methodName string) string {
 }
 
 func payloadSchemaName(inputType string) string {
-	return strings.Split(inputType, ".")[2]
+	payloadSchemaNameComponents := strings.Split(inputType, ".")
+	return payloadSchemaNameComponents[len(payloadSchemaNameComponents)-1]
 }
 
 func messageSchemaPath(schemaName string) string {
