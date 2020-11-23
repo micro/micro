@@ -8,6 +8,8 @@ Micro addresses the key requirements for building services in the cloud. It leve
 architecture pattern and provides a set of services which act as the building blocks of a platform. Micro deals
 with the complexity of distributed systems and provides simpler programmable abstractions to build on. 
 
+Micro provides a logical server composed of building block services, a Go framework for development, command line interface, API gateway and gRPC Proxy for external and remote access. Each service provides access to underlying infrastructure primitives through a standard interface with a development model tying everything together.
+
 <img src="docs/images/micro-3.0.png" />
 
 Micro is the all encompassing end to end platform experience from source to running and beyond built with a developer first focus.
@@ -84,6 +86,85 @@ micro helloworld --name=Alice
 curl -d '{"name": "Alice"}' http://localhost:8080/helloworld
 ```
 
+## Example Service
+
+Micro includes a Go framework for writing services wrapping gRPC for the core IDL and transport. 
+
+Define services in proto:
+
+```proto
+syntax = "proto3";
+
+package helloworld;
+
+service Helloworld {
+	rpc Call(Request) returns (Response) {}
+}
+
+message Request {
+	string name = 1;
+}
+
+message Response {
+	string msg = 1;
+}
+```
+
+Write them using Go:
+
+```go
+package main
+
+import (
+	"context"
+  
+	"github.com/micro/micro/v3/service"
+	"github.com/micro/micro/v3/service/logger"
+	pb "github.com/micro/services/helloworld/proto"
+)
+
+type Helloworld struct{}
+
+// Call is a single request handler called via client.Call or the generated client code
+func (h *Helloworld) Call(ctx context.Context, req *pb.Request, rsp *pb.Response) error {
+	logger.Info("Received Helloworld.Call request")
+	rsp.Msg = "Hello " + req.Name
+	return nil
+}
+
+func main() {
+	// Create service
+	srv := service.New(
+		service.Name("helloworld"),
+	)
+
+	// Register Handler
+	srv.Handle(new(Helloworld))
+
+	// Run the service
+	if err := srv.Run(); err != nil {
+		logger.Fatal(err)
+	}
+}
+```
+
+Call with the client:
+
+```go
+import (
+	"context"
+  
+	"github.com/micro/micro/v3/service/client"
+	pb "github.com/micro/services/helloworld/proto"
+)
+
+// create a new helloworld service client
+helloworld := pb.NewHelloworldService("helloworld", client.DefaultClient) 
+
+// call the endpoint Helloworld.Call
+rsp, err := helloworld.Call(context.Background(), &pb.Request{Name: "Alice"})
+```
+
 ## Features
 
 Micro is built as a microservices architecture and abstracts away the complexity of the underlying infrastructure. We compose 
@@ -107,7 +188,7 @@ The server is composed of the following services.
 
 **Framework**
 
-Micro additionaly now contains the incredibly popular [Go Micro](https://github.com/asim/go-micro) framework built in for service development. 
+Micro additionaly now contains the incredibly popular Go Micro framework built in for service development. 
 The Go framework makes it drop dead simple to write your services without having to piece together lines and lines of boilerplate. Auto 
 configured and initialised by default, just import and get started quickly.
 
