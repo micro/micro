@@ -172,10 +172,11 @@ func (c *client) Update(r *Resource, opts ...UpdateOption) error {
 		req.Body(r.Value.(*Pod))
 	case "networkpolicy", "networkpolicies":
 		req.Body(r.Value.(*NetworkPolicy))
+	case "resourcequota":
+		req.Body(r.Value.(*ResourceQuota))
 	default:
 		return errors.New("unsupported resource")
 	}
-
 	return req.Do().Error()
 }
 
@@ -446,4 +447,62 @@ func NewClusterClient() *client {
 			Namespace:   DefaultNamespace,
 		},
 	}
+}
+
+// NewNetworkPolicy returns a network policy allowing ingress from the given labels
+func NewNetworkPolicy(name, namespace string, allowedLabels map[string]string) *NetworkPolicy {
+	np := &NetworkPolicy{
+		Metadata: &Metadata{
+			Name:      name,
+			Namespace: namespace,
+		},
+		Spec: &NetworkPolicySpec{
+			Ingress: []NetworkPolicyRule{
+				{
+					From: []IngressRuleSelector{
+						{ // allow pods in this namespace to talk to each other
+							PodSelector: &Selector{},
+						},
+					},
+				},
+				{
+					From: []IngressRuleSelector{
+						{
+							NamespaceSelector: &Selector{
+								MatchLabels: allowedLabels,
+							},
+						},
+					},
+				},
+			},
+			PodSelector: &Selector{},
+			PolicyTypes: []string{"Ingress"},
+		},
+	}
+	return np
+
+}
+
+func NewResourceQuota(resourceQuota *runtime.ResourceQuota) *ResourceQuota {
+	rq := &ResourceQuota{
+		Metadata: &Metadata{
+			Name:      resourceQuota.Name,
+			Namespace: resourceQuota.Namespace,
+		},
+		Spec: &ResourceQuotaSpec{
+			Hard: &ResourceQuotaSpecs{},
+		},
+	}
+	if resourceQuota.Limits != nil {
+		rq.Spec.Hard.LimitsCPU = fmt.Sprintf("%dm", resourceQuota.Limits.CPU)
+		rq.Spec.Hard.LimitsEphemeralStorage = fmt.Sprintf("%dMi", resourceQuota.Limits.Disk)
+		rq.Spec.Hard.LimitsMemory = fmt.Sprintf("%dMi", resourceQuota.Limits.Mem)
+	}
+	if resourceQuota.Requests != nil {
+		rq.Spec.Hard.RequestsCPU = fmt.Sprintf("%dm", resourceQuota.Requests.CPU)
+		rq.Spec.Hard.RequestsEphemeralStorage = fmt.Sprintf("%dMi", resourceQuota.Requests.Disk)
+		rq.Spec.Hard.RequestsMemory = fmt.Sprintf("%dMi", resourceQuota.Requests.Mem)
+	}
+
+	return rq
 }
