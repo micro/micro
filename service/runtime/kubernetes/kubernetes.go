@@ -356,6 +356,11 @@ func (k *kubernetes) Update(resource runtime.Resource, opts ...runtime.UpdateOpt
 				dep.Metadata.Annotations[k] = v
 			}
 
+			if rcn := getRuntimeClassName(k.options.Context); len(rcn) > 0 {
+				dep.Spec.Template.PodSpec.RuntimeClassName = rcn
+				logger.Infof("Setting runtime class name to %v", rcn)
+			}
+
 			// update build time annotation
 			dep.Spec.Template.Metadata.Annotations["updated"] = fmt.Sprintf("%d", time.Now().Unix())
 
