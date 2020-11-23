@@ -85,7 +85,7 @@ componentLoop:
 }
 
 // Convert a proto "field" (essentially a type-switch with some recursion):
-func (c *Converter) convertField(curPkg *ProtoPackage, desc *descriptor.FieldDescriptorProto, msg *descriptor.DescriptorProto, duplicatedMessages map[*descriptor.DescriptorProto]string) (*openapi3.Schema, error) {
+func (c *Converter) convertField(curPkg *ProtoPackage, desc *descriptor.FieldDescriptorProto, msg *descriptor.DescriptorProto) (*openapi3.Schema, error) {
 
 	// Prepare a new jsonschema.Type for our eventual return value:
 	componentSchema := &openapi3.Schema{}
@@ -180,7 +180,7 @@ func (c *Converter) convertField(curPkg *ProtoPackage, desc *descriptor.FieldDes
 		}
 
 		// Recurse the recordType:
-		recursedComponentSchema, err := c.recursiveConvertMessageType(curPkg, recordType, pkgName, duplicatedMessages, false)
+		recursedComponentSchema, err := c.recursiveConvertMessageType(curPkg, recordType, pkgName)
 		if err != nil {
 			return nil, err
 		}
@@ -195,17 +195,8 @@ func (c *Converter) convertField(curPkg *ProtoPackage, desc *descriptor.FieldDes
 			// componentSchema.AdditionalProperties = recursedComponentSchema.NewRef()
 			componentSchema.AdditionalProperties = openapi3.NewSchemaRef("", recursedComponentSchema)
 
-		// // Arrays:
-		// case componentSchema.Type == openAPITypeArray:
-		// 	// componentSchema.Items = recursedComponentSchema.NewRef()
-		// 	componentSchema.Items = openapi3.NewSchemaRef("", recursedComponentSchema)
-
 		// Objects:
 		default:
-			// if recursedJSONSchemaType.OneOf != nil {
-			// 	return recursedJSONSchemaType, nil
-			// }
-
 			componentSchema.Properties = recursedComponentSchema.Properties
 		}
 	}
@@ -216,60 +207,13 @@ func (c *Converter) convertField(curPkg *ProtoPackage, desc *descriptor.FieldDes
 // Converts a proto "MESSAGE" into an OpenAPI schema:
 func (c *Converter) convertMessageType(curPkg *ProtoPackage, msg *descriptor.DescriptorProto) (*openapi3.Schema, error) {
 
-	// first, recursively find messages that appear more than once - in particular, that will break cycles
-	duplicatedMessages, err := c.findDuplicatedNestedMessages(curPkg, msg)
-	if err != nil {
-		return nil, err
-	}
-
 	// main schema for the message
-	rootType, err := c.recursiveConvertMessageType(curPkg, msg, "", duplicatedMessages, false)
+	rootType, err := c.recursiveConvertMessageType(curPkg, msg, "")
 	if err != nil {
 		return nil, err
 	}
 
 	return rootType, nil
-
-	// // and then generate the sub-schema for each duplicated message
-	// definitions := jsonschema.Definitions{}
-	// for refMsg, name := range duplicatedMessages {
-	// 	refType, err := c.recursiveConvertMessageType(curPkg, refMsg, "", duplicatedMessages, true)
-	// 	if err != nil {
-	// 		return err
-	// 	}
-
-	// 	// need to give that schema an ID
-	// 	if refType.Extras == nil {
-	// 		refType.Extras = make(map[string]interface{})
-	// 	}
-	// 	refType.Extras["id"] = name
-	// 	definitions[name] = refType
-	// }
-
-	// componentSchema := &openapi3.Schema{
-	// 	Type:        rootType,
-	// 	Definitions: definitions,
-	// }
-
-	// return componentSchema, nil
-}
-
-// findDuplicatedNestedMessages takes a message, and returns a map mapping pointers to messages that appear more than once
-// (typically because they're part of a reference cycle) to the sub-schema name that we give them.
-func (c *Converter) findDuplicatedNestedMessages(curPkg *ProtoPackage, msg *descriptor.DescriptorProto) (map[*descriptor.DescriptorProto]string, error) {
-	all := make(map[*descriptor.DescriptorProto]*nameAndCounter)
-	if err := c.recursiveFindDuplicatedNestedMessages(curPkg, msg, msg.GetName(), all); err != nil {
-		return nil, err
-	}
-
-	result := make(map[*descriptor.DescriptorProto]string)
-	for m, nameAndCounter := range all {
-		if nameAndCounter.counter > 1 && !strings.HasPrefix(nameAndCounter.name, ".google.protobuf.") {
-			result[m] = strings.TrimLeft(nameAndCounter.name, ".")
-		}
-	}
-
-	return result, nil
 }
 
 type nameAndCounter struct {
@@ -277,37 +221,7 @@ type nameAndCounter struct {
 	counter int
 }
 
-func (c *Converter) recursiveFindDuplicatedNestedMessages(curPkg *ProtoPackage, msg *descriptor.DescriptorProto, typeName string, alreadySeen map[*descriptor.DescriptorProto]*nameAndCounter) error {
-	if nameAndCounter, present := alreadySeen[msg]; present {
-		nameAndCounter.counter++
-		return nil
-	}
-	alreadySeen[msg] = &nameAndCounter{
-		name:    typeName,
-		counter: 1,
-	}
-
-	for _, desc := range msg.GetField() {
-		descType := desc.GetType()
-		if descType != descriptor.FieldDescriptorProto_TYPE_MESSAGE && descType != descriptor.FieldDescriptorProto_TYPE_GROUP {
-			// no nested messages
-			continue
-		}
-
-		typeName := desc.GetTypeName()
-		recordType, _, ok := c.lookupType(curPkg, typeName)
-		if !ok {
-			return fmt.Errorf("no such message type named %s", typeName)
-		}
-		if err := c.recursiveFindDuplicatedNestedMessages(curPkg, recordType, typeName, alreadySeen); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-func (c *Converter) recursiveConvertMessageType(curPkg *ProtoPackage, msg *descriptor.DescriptorProto, pkgName string, duplicatedMessages map[*descriptor.DescriptorProto]string, ignoreDuplicatedMessages bool) (*openapi3.Schema, error) {
+func (c *Converter) recursiveConvertMessageType(curPkg *ProtoPackage, msg *descriptor.DescriptorProto, pkgName string) (*openapi3.Schema, error) {
 	if msg.Name != nil && wellKnownTypes[*msg.Name] && pkgName == ".google.protobuf" {
 		componentSchema := &openapi3.Schema{
 			Title: msg.GetName(),
@@ -335,13 +249,6 @@ func (c *Converter) recursiveConvertMessageType(curPkg *ProtoPackage, msg *descr
 		return componentSchema, nil
 	}
 
-	// if refName, ok := duplicatedMessages[msg]; ok && !ignoreDuplicatedMessages {
-	// 	return &openapi3.Schema{}
-	// 		Version: jsonschema.Version,
-	// 		Ref:     refName,
-	// 	}, nil
-	// }
-
 	// Prepare a new jsonschema:
 	componentSchema := &openapi3.Schema{
 		Properties: make(map[string]*openapi3.SchemaRef),
@@ -358,7 +265,7 @@ func (c *Converter) recursiveConvertMessageType(curPkg *ProtoPackage, msg *descr
 
 	// Recurse each field:
 	for _, fieldDesc := range msg.GetField() {
-		recursedComponentSchema, err := c.convertField(curPkg, fieldDesc, msg, duplicatedMessages)
+		recursedComponentSchema, err := c.convertField(curPkg, fieldDesc, msg)
 		if err != nil {
 			c.logger.Errorf("Failed to convert field (%s.%s): %v", msg.GetName(), fieldDesc.GetName(), err)
 			return nil, err
@@ -367,7 +274,6 @@ func (c *Converter) recursiveConvertMessageType(curPkg *ProtoPackage, msg *descr
 
 		// Add it to the properties (by its JSON name):
 		componentSchema.Properties[fieldDesc.GetJsonName()] = openapi3.NewSchemaRef("", recursedComponentSchema)
-		// componentSchema.Properties[fieldDesc.GetName()] = recursedComponentSchema.NewRef()
 	}
 
 	return componentSchema, nil
