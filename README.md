@@ -15,7 +15,6 @@ Micro provides a logical server composed of building block services, a Go framew
 <img src="docs/images/micro-3.0.png" />
 
 <br>
-
 Micro is the all encompassing end to end platform experience from source to running and beyond built with a developer first focus.
 
 ## Install
