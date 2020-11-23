@@ -21,6 +21,7 @@ import (
 	"crypto/tls"
 	"net"
 
+	"github.com/improbable-eng/grpc-web/go/grpcweb"
 	"github.com/micro/micro/v3/internal/codec"
 	"github.com/micro/micro/v3/service/broker/memory"
 	"github.com/micro/micro/v3/service/registry/mdns"
@@ -35,6 +36,8 @@ type netListener struct{}
 type maxMsgSizeKey struct{}
 type maxConnKey struct{}
 type tlsAuth struct{}
+type grpcWebOptions struct{}
+type grpcWebPort struct{}
 
 // gRPC Codec to be used to encode/decode requests for a given content type
 func Codec(contentType string, c encoding.Codec) server.Option {
@@ -69,6 +72,16 @@ func Listener(l net.Listener) server.Option {
 // Options to be used to configure gRPC options
 func Options(opts ...grpc.ServerOption) server.Option {
 	return setServerOption(grpcOptions{}, opts)
+}
+
+// GRPCWebOptions to be used to start a gRPC Web server
+func GRPCWebOptions(opts ...grpcweb.Option) server.Option {
+	return setServerOption(grpcWebOptions{}, opts)
+}
+
+// GRPCWebPort to be used to start a gRPC Web server
+func GRPCWebPort(addr string) server.Option {
+	return setServerOption(grpcWebPort{}, addr)
 }
 
 //
