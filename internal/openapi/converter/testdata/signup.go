@@ -65,6 +65,38 @@ const Signup = `{
       }
     },
     "responses": {
+      "MicroAPIError": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "properties": {
+                "Code": {
+                  "description": "Error code",
+                  "example": 500,
+                  "type": "number"
+                },
+                "Detail": {
+                  "description": "Error detail",
+                  "example": "service not found",
+                  "type": "string"
+                },
+                "Id": {
+                  "description": "Error ID",
+                  "type": "string"
+                },
+                "Status": {
+                  "description": "Error status message",
+                  "example": "Internal Server Error",
+                  "type": "string"
+                }
+              },
+              "title": "MicroAPIError",
+              "type": "object"
+            }
+          }
+        },
+        "description": "Error from the Micro API"
+      },
       "SignupCompleteSignupResponse": {
         "content": {
           "application/json": {
@@ -357,8 +389,11 @@ const Signup = `{
           "$ref": "#/components/requestBodies/SignupCompleteSignupRequest"
         },
         "responses": {
-          "default": {
+          "200": {
             "$ref": "#/components/responses/SignupCompleteSignupResponse"
+          },
+          "default": {
+            "$ref": "#/components/responses/MicroAPIError"
           }
         },
         "security": [
@@ -385,8 +420,11 @@ const Signup = `{
           "$ref": "#/components/requestBodies/SignupHasPaymentMethodRequest"
         },
         "responses": {
-          "default": {
+          "200": {
             "$ref": "#/components/responses/SignupHasPaymentMethodResponse"
+          },
+          "default": {
+            "$ref": "#/components/responses/MicroAPIError"
           }
         },
         "security": [
@@ -413,8 +451,11 @@ const Signup = `{
           "$ref": "#/components/requestBodies/SignupRecoverRequest"
         },
         "responses": {
-          "default": {
+          "200": {
             "$ref": "#/components/responses/SignupRecoverResponse"
+          },
+          "default": {
+            "$ref": "#/components/responses/MicroAPIError"
           }
         },
         "security": [
@@ -441,8 +482,11 @@ const Signup = `{
           "$ref": "#/components/requestBodies/SignupSendVerificationEmailRequest"
         },
         "responses": {
-          "default": {
+          "200": {
             "$ref": "#/components/responses/SignupSendVerificationEmailResponse"
+          },
+          "default": {
+            "$ref": "#/components/responses/MicroAPIError"
           }
         },
         "security": [
@@ -469,8 +513,11 @@ const Signup = `{
           "$ref": "#/components/requestBodies/SignupSetPaymentMethodRequest"
         },
         "responses": {
-          "default": {
+          "200": {
             "$ref": "#/components/responses/SignupSetPaymentMethodResponse"
+          },
+          "default": {
+            "$ref": "#/components/responses/MicroAPIError"
           }
         },
         "security": [
@@ -497,8 +544,11 @@ const Signup = `{
           "$ref": "#/components/requestBodies/SignupVerifyRequest"
         },
         "responses": {
-          "default": {
+          "200": {
             "$ref": "#/components/responses/SignupVerifyResponse"
+          },
+          "default": {
+            "$ref": "#/components/responses/MicroAPIError"
           }
         },
         "security": [

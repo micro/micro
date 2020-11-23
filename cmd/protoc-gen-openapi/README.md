@@ -18,15 +18,20 @@ Todo
     - [ ] Description is comments from code
     - [x] app/json RequestBody payload from message "input" schema
     - [x] app/json Response payload from message "output" schema
+        - [x] Default error payloads
 - [x] Add a "Server" for each Micro platform API endpoint (dev / prod etc)
 - [x] Auth with API token (according to docs)
 - [ ] Parameters
     - [x] Namespace (as a header)
     - [ ] Namespace (as a hostname component, but this invites errors)
+    - [x] Service name (as first part of the URL path)
+
 
 References aren't working (request/responses should reference a schema)
-Object names use .runtime in the maps (should exclude this)
 
 
-https://micro.mu/reference#api
-https://docs.m3o.com/getting-started/public-apis
+Links
+-----
+
+- https://micro.mu/reference#api
+- https://docs.m3o.com/getting-started/public-apis

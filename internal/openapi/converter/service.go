@@ -95,6 +95,9 @@ func (c *Converter) convertServiceType(file *descriptor.FileDescriptorProto, cur
 				},
 				Responses: openapi3.Responses{
 					"default": &openapi3.ResponseRef{
+						Ref: responseBodySchemaPath("MicroAPIError"),
+					},
+					"200": &openapi3.ResponseRef{
 						Ref: responseBodySchemaPath(responseBodyName),
 					},
 				},
