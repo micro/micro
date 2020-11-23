@@ -9,9 +9,9 @@ func urlPath(microServiceName, protoServiceName, methodName string) string {
 	return fmt.Sprintf("/%s/%s/%s", microServiceName, protoServiceName, methodName)
 }
 
-func payloadSchemaName(inputType string) string {
-	payloadSchemaNameComponents := strings.Split(inputType, ".")
-	return payloadSchemaNameComponents[len(payloadSchemaNameComponents)-1]
+func protoServiceName(inputType string) string {
+	protoServiceNameComponents := strings.Split(inputType, ".")
+	return protoServiceNameComponents[len(protoServiceNameComponents)-1]
 }
 
 func messageSchemaPath(schemaName string) string {

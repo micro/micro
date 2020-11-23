@@ -19,7 +19,7 @@ func (c *Converter) convertServiceType(file *descriptor.FileDescriptorProto, cur
 		path := urlPath(c.microServiceName, svc.GetName(), method.GetName())
 
 		// We need to reformat the request name to match what is produced by the message converter:
-		requestPayloadSchemaName := payloadSchemaName(*method.InputType)
+		requestPayloadSchemaName := protoServiceName(*method.InputType)
 
 		// See if we can get the request paylod schema:
 		if _, ok := c.openAPISpec.Components.Schemas[requestPayloadSchemaName]; !ok {
@@ -46,7 +46,7 @@ func (c *Converter) convertServiceType(file *descriptor.FileDescriptorProto, cur
 		c.openAPISpec.Components.RequestBodies[requestBodyName] = requestBody
 
 		// We need to reformat the response name to match what is produced by the message converter:
-		responsePayloadSchemaName := payloadSchemaName(*method.OutputType)
+		responsePayloadSchemaName := protoServiceName(*method.OutputType)
 
 		// See if we can get the response paylod schema:
 		if _, ok := c.openAPISpec.Components.Schemas[responsePayloadSchemaName]; !ok {

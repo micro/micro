@@ -171,7 +171,7 @@ func (c *Converter) convert(req *plugin.CodeGeneratorRequest) (*plugin.CodeGener
 
 		// Set the service name from the proto package (if it isn't already set):
 		if c.microServiceName == "" {
-			c.microServiceName = payloadSchemaName(file.GetPackage())
+			c.microServiceName = protoServiceName(file.GetPackage())
 		}
 
 		// Register all of the messages we can find:
