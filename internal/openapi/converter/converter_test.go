@@ -3,7 +3,6 @@ package converter
 import (
 	"bytes"
 	"fmt"
-	"os"
 	"os/exec"
 	"strings"
 	"testing"
@@ -11,7 +10,6 @@ import (
 	"github.com/golang/protobuf/proto"
 	"github.com/golang/protobuf/protoc-gen-go/descriptor"
 	plugin "github.com/golang/protobuf/protoc-gen-go/plugin"
-	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 
 	"github.com/micro/micro/v3/internal/openapi/converter/testdata"
@@ -41,13 +39,7 @@ func TestGenerateOpenAPI(t *testing.T) {
 
 func testConvertSampleProto(t *testing.T, sampleProto sampleProto) {
 
-	// Make a Logrus logger:
-	logger := logrus.New()
-	logger.SetLevel(logrus.ErrorLevel)
-	logger.SetOutput(os.Stderr)
-
-	// Use the logger to make a Converter:
-	protoConverter := New(logger)
+	protoConverter := New()
 	protoConverter.defaultSpec()
 
 	// Open the sample proto file:
