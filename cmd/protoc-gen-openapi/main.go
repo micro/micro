@@ -7,29 +7,13 @@ import (
 	"github.com/golang/protobuf/proto"
 	plugin "github.com/golang/protobuf/protoc-gen-go/plugin"
 	"github.com/micro/micro/v3/internal/openapi/converter"
-	"github.com/sirupsen/logrus"
-)
-
-const (
-	microLogLevelEnvVar = "MICRO_LOG_LEVEL"
+	"github.com/micro/micro/v3/service/logger"
 )
 
 func main() {
 
-	// Make a Logrus logger:
-	// The Micro logger is unable / unwilling to output to os.Stderr (code generators break if logs go to os.Stdout)
-	logger := logrus.New()
-	logger.SetOutput(os.Stderr)
-
-	// Set the log level:
-	parsedLevel, err := logrus.ParseLevel(os.Getenv(microLogLevelEnvVar))
-	if err != nil {
-		parsedLevel = logrus.InfoLevel
-	}
-	logger.SetLevel(parsedLevel)
-
 	// Get a converter:
-	protoConverter := converter.New(logger)
+	protoConverter := converter.New()
 
 	// Convert the generator request:
 	var ok = true

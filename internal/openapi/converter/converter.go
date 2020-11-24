@@ -8,47 +8,45 @@ import (
 	"path"
 	"strings"
 
+	"github.com/micro/micro/v3/service/logger"
+
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/golang/protobuf/proto"
 	"github.com/golang/protobuf/protoc-gen-go/descriptor"
 	plugin "github.com/golang/protobuf/protoc-gen-go/plugin"
-	"github.com/sirupsen/logrus"
 )
 
 // Converter is everything you need to convert Micro protos into an OpenAPI spec:
 type Converter struct {
-	logger           *logrus.Logger
 	microServiceName string
 	openAPISpec      *openapi3.Swagger
 	sourceInfo       *sourceCodeInfo
 }
 
 // New returns a configured converter:
-func New(logger *logrus.Logger) *Converter {
-	return &Converter{
-		logger: logger,
-	}
+func New() *Converter {
+	return &Converter{}
 }
 
 // ConvertFrom tells the convert to work on the given input:
 func (c *Converter) ConvertFrom(rd io.Reader) (*plugin.CodeGeneratorResponse, error) {
-	c.logger.Debug("Reading code generation request")
+	logger.Debug("Reading code generation request")
 	input, err := ioutil.ReadAll(rd)
 	if err != nil {
-		c.logger.Errorf("Failed to read request: %v", err)
+		logger.Errorf("Failed to read request: %v", err)
 		return nil, err
 	}
 
 	req := &plugin.CodeGeneratorRequest{}
 	err = proto.Unmarshal(input, req)
 	if err != nil {
-		c.logger.Errorf("Can't unmarshal input: %v", err)
+		logger.Errorf("Can't unmarshal input: %v", err)
 		return nil, err
 	}
 
 	c.defaultSpec()
 
-	c.logger.Debugf("Converting input: %v", err)
+	logger.Debugf("Converting input: %v", err)
 	return c.convert(req)
 }
 
@@ -69,10 +67,10 @@ func (c *Converter) convertFile(file *descriptor.FileDescriptorProto) error {
 	for _, msg := range file.GetMessageType() {
 
 		// Convert the message:
-		c.logger.Debugf("Generating component schema for message (%s) from proto file (%s)", msg.GetName(), protoFileName)
+		logger.Debugf("Generating component schema for message (%s) from proto file (%s)", msg.GetName(), protoFileName)
 		componentSchema, err := c.convertMessageType(pkg, msg)
 		if err != nil {
-			c.logger.Errorf("Failed to convert (%s): %v", protoFileName, err)
+			logger.Errorf("Failed to convert (%s): %v", protoFileName, err)
 			return err
 		}
 
@@ -85,10 +83,10 @@ func (c *Converter) convertFile(file *descriptor.FileDescriptorProto) error {
 	for _, svc := range file.GetService() {
 
 		// Convert the service:
-		c.logger.Infof("Generating service (%s) from proto file (%s)", svc.GetName(), protoFileName)
+		logger.Infof("Generating service (%s) from proto file (%s)", svc.GetName(), protoFileName)
 		servicePaths, err := c.convertServiceType(file, pkg, svc)
 		if err != nil {
-			c.logger.Errorf("Failed to convert (%s): %v", protoFileName, err)
+			logger.Errorf("Failed to convert (%s): %v", protoFileName, err)
 			return err
 		}
 
@@ -119,7 +117,7 @@ func (c *Converter) convert(req *plugin.CodeGeneratorRequest) (*plugin.CodeGener
 
 		// Make sure it belongs to a package (sometimes they don't):
 		if file.GetPackage() == "" {
-			c.logger.Warnf("Proto file (%s) doesn't specify a package", file.GetName())
+			logger.Warnf("Proto file (%s) doesn't specify a package", file.GetName())
 			continue
 		}
 
@@ -130,12 +128,12 @@ func (c *Converter) convert(req *plugin.CodeGeneratorRequest) (*plugin.CodeGener
 
 		// Register all of the messages we can find:
 		for _, msg := range file.GetMessageType() {
-			c.logger.Debugf("Loading a message (%s/%s)", file.GetPackage(), msg.GetName())
+			logger.Debugf("Loading a message (%s/%s)", file.GetPackage(), msg.GetName())
 			c.registerType(file.Package, msg)
 		}
 
 		if _, ok := generateTargets[file.GetName()]; ok {
-			c.logger.Debugf("Converting file (%s)", file.GetName())
+			logger.Debugf("Converting file (%s)", file.GetName())
 			if err := c.convertFile(file); err != nil {
 				res.Error = proto.String(fmt.Sprintf("Failed to convert %s: %v", file.GetName(), err))
 				return res, err
@@ -146,7 +144,7 @@ func (c *Converter) convert(req *plugin.CodeGeneratorRequest) (*plugin.CodeGener
 	// Marshal the OpenAPI spec:
 	marshaledSpec, err := json.MarshalIndent(c.openAPISpec, "", "  ")
 	if err != nil {
-		c.logger.Errorf("Unable to marshal the OpenAPI spec: %v", err)
+		logger.Errorf("Unable to marshal the OpenAPI spec: %v", err)
 		return nil, err
 	}
 
@@ -166,16 +164,16 @@ func (c *Converter) openAPISpecFileName() string {
 }
 
 func (c *Converter) parseGeneratorParameters(parameters string) {
-	c.logger.Debug("Parsing params")
+	logger.Debug("Parsing params")
 
 	for _, parameter := range strings.Split(parameters, ",") {
 
-		c.logger.Debugf("Param: %s", parameter)
+		logger.Debugf("Param: %s", parameter)
 
 		// Allow users to specify the service name:
 		if serviceNameParameter := strings.Split(parameter, "service="); len(serviceNameParameter) == 2 {
 			c.microServiceName = serviceNameParameter[1]
-			c.logger.Infof("Service name: %s", c.microServiceName)
+			logger.Infof("Service name: %s", c.microServiceName)
 		}
 	}
 }

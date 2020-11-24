@@ -5,6 +5,7 @@ import (
 
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/golang/protobuf/protoc-gen-go/descriptor"
+	"github.com/micro/micro/v3/service/logger"
 )
 
 // Converts a proto "SERVICE" into an OpenAPI path:
@@ -13,7 +14,7 @@ func (c *Converter) convertServiceType(file *descriptor.FileDescriptorProto, cur
 
 	// Add a path item for each method in the service:
 	for _, method := range svc.GetMethod() {
-		c.logger.Debugf("Processing method %s.%s()", svc.GetName(), method.GetName())
+		logger.Debugf("Processing method %s.%s()", svc.GetName(), method.GetName())
 
 		// Figure out the URL path:
 		path := urlPath(c.microServiceName, svc.GetName(), method.GetName())
@@ -23,7 +24,7 @@ func (c *Converter) convertServiceType(file *descriptor.FileDescriptorProto, cur
 
 		// See if we can get the request paylod schema:
 		if _, ok := c.openAPISpec.Components.Schemas[requestPayloadSchemaName]; !ok {
-			c.logger.Warnf("Couldn't find request body payload (%s)", requestPayloadSchemaName)
+			logger.Warnf("Couldn't find request body payload (%s)", requestPayloadSchemaName)
 			continue
 		}
 
@@ -50,7 +51,7 @@ func (c *Converter) convertServiceType(file *descriptor.FileDescriptorProto, cur
 
 		// See if we can get the response paylod schema:
 		if _, ok := c.openAPISpec.Components.Schemas[responsePayloadSchemaName]; !ok {
-			c.logger.Warnf("Couldn't find response body payload (%s)", responsePayloadSchemaName)
+			logger.Warnf("Couldn't find response body payload (%s)", responsePayloadSchemaName)
 			continue
 		}
 
