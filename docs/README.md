@@ -12,15 +12,6 @@ Micro addresses the key requirements for building services in the cloud. It leve
 architecture pattern and provides a set of services which act as the building blocks of a platform. Micro deals
 with the complexity of distributed systems and provides simpler programmable abstractions to build on. 
 
-Micro provides a logical server composed of building block services, a Go framework for development, command 
-line interface, API gateway and gRPC Proxy for external and remote access. Each service provides access 
-to underlying infrastructure primitives through a standard interface with a development model tying everything 
-together.
-
-<center>
-  <img src="/images/micro-3.0.png" />
-</center>
-
 ## Features
 
 Micro is built as a microservices architecture and abstracts away the complexity of the underlying infrastructure. We compose 
