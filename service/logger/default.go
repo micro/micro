@@ -128,7 +128,7 @@ func (l *defaultLogger) Log(level Level, v ...interface{}) {
 	}
 
 	t := rec.Timestamp.Format("2006-01-02 15:04:05")
-	fmt.Printf("%s %s %v\n", t, metadata, rec.Message)
+	fmt.Fprintf(l.opts.Out, "%s %s %v\n", t, metadata, rec.Message)
 }
 
 func (l *defaultLogger) Logf(level Level, format string, v ...interface{}) {
@@ -167,7 +167,7 @@ func (l *defaultLogger) Logf(level Level, format string, v ...interface{}) {
 	}
 
 	t := rec.Timestamp.Format("2006-01-02 15:04:05")
-	fmt.Printf("%s %s %v\n", t, metadata, rec.Message)
+	fmt.Fprintf(l.opts.Out, "%s %s %v\n", t, metadata, rec.Message)
 }
 
 func (l *defaultLogger) Options() Options {
