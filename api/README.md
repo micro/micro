@@ -4,7 +4,11 @@ OpenAPI Specs
 
 Services
 --------
-- [ ] Signup
-- [ ] Config
-- [ ] Auth
-- [ ] Store
+- [x] Auth
+- [x] Broker
+- [x] Config
+- [x] Events
+- [ ] Registry
+- [x] Runtime
+- [x] Signup
+- [x] Store
