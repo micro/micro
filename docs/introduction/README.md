@@ -43,7 +43,7 @@ Think of Micro as Android for Cloud.
 
 ## Features
 
-Below are the core components of that make up Micro.
+Below are the core components that make up Micro.
 
 **Server**
 
