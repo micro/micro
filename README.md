@@ -10,11 +10,13 @@ with the complexity of distributed systems and provides simpler programmable abs
 
 ## Features
 
+Below are the core components of that make up Micro.
+
+**Server**
+
 Micro is built as a microservices architecture and abstracts away the complexity of the underlying infrastructure. We compose 
 this as a single logical server to the user but decompose that into the various building block primitives that can be plugged 
 into any underlying system. 
-
-**Server**
 
 The server is composed of the following services.
 
