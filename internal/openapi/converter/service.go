@@ -75,7 +75,6 @@ func (c *Converter) convertServiceType(file *descriptor.FileDescriptorProto, cur
 
 		// Prepare a path item based on these payloads:
 		pathItem := &openapi3.PathItem{
-			Summary: fmt.Sprintf("%s: %s.%s()", file.GetName(), svc.GetName(), method.GetName()),
 			Parameters: openapi3.Parameters{
 				{
 					Value: &openapi3.Parameter{
@@ -107,6 +106,7 @@ func (c *Converter) convertServiceType(file *descriptor.FileDescriptorProto, cur
 						"MicroAPIToken": []string{},
 					},
 				},
+				Summary: fmt.Sprintf("%s.%s(%s)", svc.GetName(), method.GetName(), requestPayloadSchemaName),
 			},
 		}
 

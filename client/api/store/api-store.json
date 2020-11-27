@@ -1,0 +1,1005 @@
+{
+  "components": {
+    "requestBodies": {
+      "BlobStoreDeleteRequest": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/BlobDeleteRequest"
+            }
+          }
+        },
+        "description": "BlobStoreDeleteRequest"
+      },
+      "BlobStoreReadRequest": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/BlobReadRequest"
+            }
+          }
+        },
+        "description": "BlobStoreReadRequest"
+      },
+      "BlobStoreWriteRequest": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/BlobWriteRequest"
+            }
+          }
+        },
+        "description": "BlobStoreWriteRequest"
+      },
+      "StoreDatabasesRequest": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/DatabasesRequest"
+            }
+          }
+        },
+        "description": "StoreDatabasesRequest"
+      },
+      "StoreDeleteRequest": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/DeleteRequest"
+            }
+          }
+        },
+        "description": "StoreDeleteRequest"
+      },
+      "StoreListRequest": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ListRequest"
+            }
+          }
+        },
+        "description": "StoreListRequest"
+      },
+      "StoreReadRequest": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ReadRequest"
+            }
+          }
+        },
+        "description": "StoreReadRequest"
+      },
+      "StoreTablesRequest": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/TablesRequest"
+            }
+          }
+        },
+        "description": "StoreTablesRequest"
+      },
+      "StoreWriteRequest": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/WriteRequest"
+            }
+          }
+        },
+        "description": "StoreWriteRequest"
+      }
+    },
+    "responses": {
+      "BlobStoreDeleteResponse": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/BlobDeleteResponse"
+            }
+          }
+        },
+        "description": "BlobStoreDeleteResponse"
+      },
+      "BlobStoreReadResponse": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/BlobReadResponse"
+            }
+          }
+        },
+        "description": "BlobStoreReadResponse"
+      },
+      "BlobStoreWriteResponse": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/BlobWriteResponse"
+            }
+          }
+        },
+        "description": "BlobStoreWriteResponse"
+      },
+      "MicroAPIError": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "properties": {
+                "Code": {
+                  "description": "Error code",
+                  "example": 500,
+                  "type": "number"
+                },
+                "Detail": {
+                  "description": "Error detail",
+                  "example": "service not found",
+                  "type": "string"
+                },
+                "Id": {
+                  "description": "Error ID",
+                  "type": "string"
+                },
+                "Status": {
+                  "description": "Error status message",
+                  "example": "Internal Server Error",
+                  "type": "string"
+                }
+              },
+              "title": "MicroAPIError",
+              "type": "object"
+            }
+          }
+        },
+        "description": "Error from the Micro API"
+      },
+      "StoreDatabasesResponse": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/DatabasesResponse"
+            }
+          }
+        },
+        "description": "StoreDatabasesResponse"
+      },
+      "StoreDeleteResponse": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/DeleteResponse"
+            }
+          }
+        },
+        "description": "StoreDeleteResponse"
+      },
+      "StoreListResponse": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ListResponse"
+            }
+          }
+        },
+        "description": "StoreListResponse"
+      },
+      "StoreReadResponse": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ReadResponse"
+            }
+          }
+        },
+        "description": "StoreReadResponse"
+      },
+      "StoreTablesResponse": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/TablesResponse"
+            }
+          }
+        },
+        "description": "StoreTablesResponse"
+      },
+      "StoreWriteResponse": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/WriteResponse"
+            }
+          }
+        },
+        "description": "StoreWriteResponse"
+      }
+    },
+    "schemas": {
+      "BlobDeleteRequest": {
+        "properties": {
+          "key": {
+            "type": "string"
+          },
+          "options": {
+            "properties": {
+              "namespace": {
+                "type": "string"
+              }
+            },
+            "type": "object"
+          }
+        },
+        "title": "BlobDeleteRequest",
+        "type": "object"
+      },
+      "BlobDeleteResponse": {
+        "title": "BlobDeleteResponse",
+        "type": "object"
+      },
+      "BlobOptions": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "title": "BlobOptions",
+        "type": "object"
+      },
+      "BlobReadRequest": {
+        "properties": {
+          "key": {
+            "type": "string"
+          },
+          "options": {
+            "properties": {
+              "namespace": {
+                "type": "string"
+              }
+            },
+            "type": "object"
+          }
+        },
+        "title": "BlobReadRequest",
+        "type": "object"
+      },
+      "BlobReadResponse": {
+        "properties": {
+          "blob": {
+            "format": "byte",
+            "type": "string"
+          }
+        },
+        "title": "BlobReadResponse",
+        "type": "object"
+      },
+      "BlobWriteRequest": {
+        "properties": {
+          "blob": {
+            "format": "byte",
+            "type": "string"
+          },
+          "key": {
+            "type": "string"
+          },
+          "options": {
+            "properties": {
+              "namespace": {
+                "type": "string"
+              }
+            },
+            "type": "object"
+          }
+        },
+        "title": "BlobWriteRequest",
+        "type": "object"
+      },
+      "BlobWriteResponse": {
+        "title": "BlobWriteResponse",
+        "type": "object"
+      },
+      "DatabasesRequest": {
+        "title": "DatabasesRequest",
+        "type": "object"
+      },
+      "DatabasesResponse": {
+        "properties": {
+          "databases": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        "title": "DatabasesResponse",
+        "type": "object"
+      },
+      "DeleteOptions": {
+        "properties": {
+          "database": {
+            "type": "string"
+          },
+          "table": {
+            "type": "string"
+          }
+        },
+        "title": "DeleteOptions",
+        "type": "object"
+      },
+      "DeleteRequest": {
+        "properties": {
+          "key": {
+            "type": "string"
+          },
+          "options": {
+            "properties": {
+              "database": {
+                "type": "string"
+              },
+              "table": {
+                "type": "string"
+              }
+            },
+            "type": "object"
+          }
+        },
+        "title": "DeleteRequest",
+        "type": "object"
+      },
+      "DeleteResponse": {
+        "title": "DeleteResponse",
+        "type": "object"
+      },
+      "Field": {
+        "properties": {
+          "type": {
+            "description": "type of value e.g string, int, int64, bool, float64",
+            "type": "string"
+          },
+          "value": {
+            "description": "the actual value",
+            "type": "string"
+          }
+        },
+        "title": "Field",
+        "type": "object"
+      },
+      "ListOptions": {
+        "properties": {
+          "database": {
+            "type": "string"
+          },
+          "limit": {
+            "format": "int64",
+            "type": "number"
+          },
+          "offset": {
+            "format": "int64",
+            "type": "number"
+          },
+          "prefix": {
+            "type": "string"
+          },
+          "suffix": {
+            "type": "string"
+          },
+          "table": {
+            "type": "string"
+          }
+        },
+        "title": "ListOptions",
+        "type": "object"
+      },
+      "ListRequest": {
+        "properties": {
+          "options": {
+            "properties": {
+              "database": {
+                "type": "string"
+              },
+              "limit": {
+                "format": "int64",
+                "type": "number"
+              },
+              "offset": {
+                "format": "int64",
+                "type": "number"
+              },
+              "prefix": {
+                "type": "string"
+              },
+              "suffix": {
+                "type": "string"
+              },
+              "table": {
+                "type": "string"
+              }
+            },
+            "type": "object"
+          }
+        },
+        "title": "ListRequest",
+        "type": "object"
+      },
+      "ListResponse": {
+        "properties": {
+          "keys": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        "title": "ListResponse",
+        "type": "object"
+      },
+      "ReadOptions": {
+        "properties": {
+          "database": {
+            "type": "string"
+          },
+          "limit": {
+            "format": "int64",
+            "type": "number"
+          },
+          "offset": {
+            "format": "int64",
+            "type": "number"
+          },
+          "prefix": {
+            "type": "boolean"
+          },
+          "suffix": {
+            "type": "boolean"
+          },
+          "table": {
+            "type": "string"
+          }
+        },
+        "title": "ReadOptions",
+        "type": "object"
+      },
+      "ReadRequest": {
+        "properties": {
+          "key": {
+            "type": "string"
+          },
+          "options": {
+            "properties": {
+              "database": {
+                "type": "string"
+              },
+              "limit": {
+                "format": "int64",
+                "type": "number"
+              },
+              "offset": {
+                "format": "int64",
+                "type": "number"
+              },
+              "prefix": {
+                "type": "boolean"
+              },
+              "suffix": {
+                "type": "boolean"
+              },
+              "table": {
+                "type": "string"
+              }
+            },
+            "type": "object"
+          }
+        },
+        "title": "ReadRequest",
+        "type": "object"
+      },
+      "ReadResponse": {
+        "properties": {
+          "records": {
+            "properties": {
+              "expiry": {
+                "description": "time.Duration (signed int64 nanoseconds)",
+                "format": "int64",
+                "type": "number"
+              },
+              "key": {
+                "description": "key of the record",
+                "type": "string"
+              },
+              "metadata": {
+                "additionalProperties": {
+                  "properties": {
+                    "key": {
+                      "type": "string"
+                    },
+                    "value": {
+                      "properties": {
+                        "type": {
+                          "description": "type of value e.g string, int, int64, bool, float64",
+                          "type": "string"
+                        },
+                        "value": {
+                          "description": "the actual value",
+                          "type": "string"
+                        }
+                      },
+                      "type": "object"
+                    }
+                  },
+                  "title": "MetadataEntry",
+                  "type": "object"
+                },
+                "description": "the associated metadata",
+                "type": "object"
+              },
+              "value": {
+                "description": "value in the record",
+                "format": "byte",
+                "type": "string"
+              }
+            },
+            "type": "object"
+          }
+        },
+        "title": "ReadResponse",
+        "type": "object"
+      },
+      "Record": {
+        "properties": {
+          "expiry": {
+            "description": "time.Duration (signed int64 nanoseconds)",
+            "format": "int64",
+            "type": "number"
+          },
+          "key": {
+            "description": "key of the record",
+            "type": "string"
+          },
+          "metadata": {
+            "additionalProperties": {
+              "properties": {
+                "key": {
+                  "type": "string"
+                },
+                "value": {
+                  "properties": {
+                    "type": {
+                      "description": "type of value e.g string, int, int64, bool, float64",
+                      "type": "string"
+                    },
+                    "value": {
+                      "description": "the actual value",
+                      "type": "string"
+                    }
+                  },
+                  "type": "object"
+                }
+              },
+              "title": "MetadataEntry",
+              "type": "object"
+            },
+            "description": "the associated metadata",
+            "type": "object"
+          },
+          "value": {
+            "description": "value in the record",
+            "format": "byte",
+            "type": "string"
+          }
+        },
+        "title": "Record",
+        "type": "object"
+      },
+      "TablesRequest": {
+        "properties": {
+          "database": {
+            "type": "string"
+          }
+        },
+        "title": "TablesRequest",
+        "type": "object"
+      },
+      "TablesResponse": {
+        "properties": {
+          "tables": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        "title": "TablesResponse",
+        "type": "object"
+      },
+      "WriteOptions": {
+        "properties": {
+          "database": {
+            "type": "string"
+          },
+          "table": {
+            "type": "string"
+          }
+        },
+        "title": "WriteOptions",
+        "type": "object"
+      },
+      "WriteRequest": {
+        "properties": {
+          "options": {
+            "properties": {
+              "database": {
+                "type": "string"
+              },
+              "table": {
+                "type": "string"
+              }
+            },
+            "type": "object"
+          },
+          "record": {
+            "properties": {
+              "expiry": {
+                "description": "time.Duration (signed int64 nanoseconds)",
+                "format": "int64",
+                "type": "number"
+              },
+              "key": {
+                "description": "key of the record",
+                "type": "string"
+              },
+              "metadata": {
+                "additionalProperties": {
+                  "properties": {
+                    "key": {
+                      "type": "string"
+                    },
+                    "value": {
+                      "properties": {
+                        "type": {
+                          "description": "type of value e.g string, int, int64, bool, float64",
+                          "type": "string"
+                        },
+                        "value": {
+                          "description": "the actual value",
+                          "type": "string"
+                        }
+                      },
+                      "type": "object"
+                    }
+                  },
+                  "title": "MetadataEntry",
+                  "type": "object"
+                },
+                "description": "the associated metadata",
+                "type": "object"
+              },
+              "value": {
+                "description": "value in the record",
+                "format": "byte",
+                "type": "string"
+              }
+            },
+            "type": "object"
+          }
+        },
+        "title": "WriteRequest",
+        "type": "object"
+      },
+      "WriteResponse": {
+        "title": "WriteResponse",
+        "type": "object"
+      }
+    },
+    "securitySchemes": {
+      "MicroAPIToken": {
+        "bearerFormat": "JWT",
+        "description": "Micro API token",
+        "scheme": "bearer",
+        "type": "http"
+      }
+    }
+  },
+  "info": {
+    "description": "Generated by protoc-gen-openapi",
+    "title": "Store",
+    "version": "1",
+    "x-logo": {
+      "altText": "Micro logo",
+      "backgroundColor": "#FFFFFF",
+      "url": "https://micro.mu/images/logo.png"
+    }
+  },
+  "openapi": "3.0.0",
+  "paths": {
+    "/store/BlobStore/Delete": {
+      "parameters": [
+        {
+          "in": "header",
+          "name": "Micro-Namespace",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "post": {
+        "requestBody": {
+          "$ref": "#/components/requestBodies/BlobStoreDeleteRequest"
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/BlobStoreDeleteResponse"
+          },
+          "default": {
+            "$ref": "#/components/responses/MicroAPIError"
+          }
+        },
+        "security": [
+          {
+            "MicroAPIToken": []
+          }
+        ],
+        "summary": "BlobStore.Delete(BlobDeleteRequest)"
+      }
+    },
+    "/store/BlobStore/Read": {
+      "parameters": [
+        {
+          "in": "header",
+          "name": "Micro-Namespace",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "post": {
+        "requestBody": {
+          "$ref": "#/components/requestBodies/BlobStoreReadRequest"
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/BlobStoreReadResponse"
+          },
+          "default": {
+            "$ref": "#/components/responses/MicroAPIError"
+          }
+        },
+        "security": [
+          {
+            "MicroAPIToken": []
+          }
+        ],
+        "summary": "BlobStore.Read(BlobReadRequest)"
+      }
+    },
+    "/store/BlobStore/Write": {
+      "parameters": [
+        {
+          "in": "header",
+          "name": "Micro-Namespace",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "post": {
+        "requestBody": {
+          "$ref": "#/components/requestBodies/BlobStoreWriteRequest"
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/BlobStoreWriteResponse"
+          },
+          "default": {
+            "$ref": "#/components/responses/MicroAPIError"
+          }
+        },
+        "security": [
+          {
+            "MicroAPIToken": []
+          }
+        ],
+        "summary": "BlobStore.Write(BlobWriteRequest)"
+      }
+    },
+    "/store/Store/Databases": {
+      "parameters": [
+        {
+          "in": "header",
+          "name": "Micro-Namespace",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "post": {
+        "requestBody": {
+          "$ref": "#/components/requestBodies/StoreDatabasesRequest"
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/StoreDatabasesResponse"
+          },
+          "default": {
+            "$ref": "#/components/responses/MicroAPIError"
+          }
+        },
+        "security": [
+          {
+            "MicroAPIToken": []
+          }
+        ],
+        "summary": "Store.Databases(DatabasesRequest)"
+      }
+    },
+    "/store/Store/Delete": {
+      "parameters": [
+        {
+          "in": "header",
+          "name": "Micro-Namespace",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "post": {
+        "requestBody": {
+          "$ref": "#/components/requestBodies/StoreDeleteRequest"
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/StoreDeleteResponse"
+          },
+          "default": {
+            "$ref": "#/components/responses/MicroAPIError"
+          }
+        },
+        "security": [
+          {
+            "MicroAPIToken": []
+          }
+        ],
+        "summary": "Store.Delete(DeleteRequest)"
+      }
+    },
+    "/store/Store/List": {
+      "parameters": [
+        {
+          "in": "header",
+          "name": "Micro-Namespace",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "post": {
+        "requestBody": {
+          "$ref": "#/components/requestBodies/StoreListRequest"
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/StoreListResponse"
+          },
+          "default": {
+            "$ref": "#/components/responses/MicroAPIError"
+          }
+        },
+        "security": [
+          {
+            "MicroAPIToken": []
+          }
+        ],
+        "summary": "Store.List(ListRequest)"
+      }
+    },
+    "/store/Store/Read": {
+      "parameters": [
+        {
+          "in": "header",
+          "name": "Micro-Namespace",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "post": {
+        "requestBody": {
+          "$ref": "#/components/requestBodies/StoreReadRequest"
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/StoreReadResponse"
+          },
+          "default": {
+            "$ref": "#/components/responses/MicroAPIError"
+          }
+        },
+        "security": [
+          {
+            "MicroAPIToken": []
+          }
+        ],
+        "summary": "Store.Read(ReadRequest)"
+      }
+    },
+    "/store/Store/Tables": {
+      "parameters": [
+        {
+          "in": "header",
+          "name": "Micro-Namespace",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "post": {
+        "requestBody": {
+          "$ref": "#/components/requestBodies/StoreTablesRequest"
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/StoreTablesResponse"
+          },
+          "default": {
+            "$ref": "#/components/responses/MicroAPIError"
+          }
+        },
+        "security": [
+          {
+            "MicroAPIToken": []
+          }
+        ],
+        "summary": "Store.Tables(TablesRequest)"
+      }
+    },
+    "/store/Store/Write": {
+      "parameters": [
+        {
+          "in": "header",
+          "name": "Micro-Namespace",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "post": {
+        "requestBody": {
+          "$ref": "#/components/requestBodies/StoreWriteRequest"
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/StoreWriteResponse"
+          },
+          "default": {
+            "$ref": "#/components/responses/MicroAPIError"
+          }
+        },
+        "security": [
+          {
+            "MicroAPIToken": []
+          }
+        ],
+        "summary": "Store.Write(WriteRequest)"
+      }
+    }
+  },
+  "servers": [
+    {
+      "url": "https://api.m3o.dev",
+      "description": "Micro DEV environment"
+    },
+    {
+      "url": "https://api.m3o.com",
+      "description": "Micro LIVE environment"
+    }
+  ]
+}

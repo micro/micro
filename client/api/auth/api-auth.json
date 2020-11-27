@@ -1,0 +1,1166 @@
+{
+  "components": {
+    "requestBodies": {
+      "AccountsChangeSecretRequest": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ChangeSecretRequest"
+            }
+          }
+        },
+        "description": "AccountsChangeSecretRequest"
+      },
+      "AccountsDeleteRequest": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/DeleteAccountRequest"
+            }
+          }
+        },
+        "description": "AccountsDeleteRequest"
+      },
+      "AccountsListRequest": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ListAccountsRequest"
+            }
+          }
+        },
+        "description": "AccountsListRequest"
+      },
+      "AuthGenerateRequest": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/GenerateRequest"
+            }
+          }
+        },
+        "description": "AuthGenerateRequest"
+      },
+      "AuthInspectRequest": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/InspectRequest"
+            }
+          }
+        },
+        "description": "AuthInspectRequest"
+      },
+      "AuthTokenRequest": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/TokenRequest"
+            }
+          }
+        },
+        "description": "AuthTokenRequest"
+      },
+      "RulesCreateRequest": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/CreateRequest"
+            }
+          }
+        },
+        "description": "RulesCreateRequest"
+      },
+      "RulesDeleteRequest": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/DeleteRequest"
+            }
+          }
+        },
+        "description": "RulesDeleteRequest"
+      },
+      "RulesListRequest": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ListRequest"
+            }
+          }
+        },
+        "description": "RulesListRequest"
+      }
+    },
+    "responses": {
+      "AccountsChangeSecretResponse": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ChangeSecretResponse"
+            }
+          }
+        },
+        "description": "AccountsChangeSecretResponse"
+      },
+      "AccountsDeleteResponse": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/DeleteAccountResponse"
+            }
+          }
+        },
+        "description": "AccountsDeleteResponse"
+      },
+      "AccountsListResponse": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ListAccountsResponse"
+            }
+          }
+        },
+        "description": "AccountsListResponse"
+      },
+      "AuthGenerateResponse": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/GenerateResponse"
+            }
+          }
+        },
+        "description": "AuthGenerateResponse"
+      },
+      "AuthInspectResponse": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/InspectResponse"
+            }
+          }
+        },
+        "description": "AuthInspectResponse"
+      },
+      "AuthTokenResponse": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/TokenResponse"
+            }
+          }
+        },
+        "description": "AuthTokenResponse"
+      },
+      "MicroAPIError": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "properties": {
+                "Code": {
+                  "description": "Error code",
+                  "example": 500,
+                  "type": "number"
+                },
+                "Detail": {
+                  "description": "Error detail",
+                  "example": "service not found",
+                  "type": "string"
+                },
+                "Id": {
+                  "description": "Error ID",
+                  "type": "string"
+                },
+                "Status": {
+                  "description": "Error status message",
+                  "example": "Internal Server Error",
+                  "type": "string"
+                }
+              },
+              "title": "MicroAPIError",
+              "type": "object"
+            }
+          }
+        },
+        "description": "Error from the Micro API"
+      },
+      "RulesCreateResponse": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/CreateResponse"
+            }
+          }
+        },
+        "description": "RulesCreateResponse"
+      },
+      "RulesDeleteResponse": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/DeleteResponse"
+            }
+          }
+        },
+        "description": "RulesDeleteResponse"
+      },
+      "RulesListResponse": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ListResponse"
+            }
+          }
+        },
+        "description": "RulesListResponse"
+      }
+    },
+    "schemas": {
+      "Account": {
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "issuer": {
+            "type": "string"
+          },
+          "metadata": {
+            "additionalProperties": {
+              "properties": {
+                "key": {
+                  "type": "string"
+                },
+                "value": {
+                  "type": "string"
+                }
+              },
+              "title": "MetadataEntry",
+              "type": "object"
+            },
+            "type": "object"
+          },
+          "name": {
+            "type": "string"
+          },
+          "scopes": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "secret": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          }
+        },
+        "title": "Account",
+        "type": "object"
+      },
+      "ChangeSecretRequest": {
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "newSecret": {
+            "type": "string"
+          },
+          "oldSecret": {
+            "type": "string"
+          },
+          "options": {
+            "properties": {
+              "namespace": {
+                "type": "string"
+              }
+            },
+            "type": "object"
+          }
+        },
+        "title": "ChangeSecretRequest",
+        "type": "object"
+      },
+      "ChangeSecretResponse": {
+        "title": "ChangeSecretResponse",
+        "type": "object"
+      },
+      "CreateRequest": {
+        "properties": {
+          "options": {
+            "properties": {
+              "namespace": {
+                "type": "string"
+              }
+            },
+            "type": "object"
+          },
+          "rule": {
+            "properties": {
+              "access": {
+                "type": "string"
+              },
+              "id": {
+                "type": "string"
+              },
+              "priority": {
+                "format": "int32",
+                "type": "number"
+              },
+              "resource": {
+                "properties": {
+                  "endpoint": {
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "type": {
+                    "type": "string"
+                  }
+                },
+                "type": "object"
+              },
+              "scope": {
+                "type": "string"
+              }
+            },
+            "type": "object"
+          }
+        },
+        "title": "CreateRequest",
+        "type": "object"
+      },
+      "CreateResponse": {
+        "title": "CreateResponse",
+        "type": "object"
+      },
+      "DeleteAccountRequest": {
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "options": {
+            "properties": {
+              "namespace": {
+                "type": "string"
+              }
+            },
+            "type": "object"
+          }
+        },
+        "title": "DeleteAccountRequest",
+        "type": "object"
+      },
+      "DeleteAccountResponse": {
+        "title": "DeleteAccountResponse",
+        "type": "object"
+      },
+      "DeleteRequest": {
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "options": {
+            "properties": {
+              "namespace": {
+                "type": "string"
+              }
+            },
+            "type": "object"
+          }
+        },
+        "title": "DeleteRequest",
+        "type": "object"
+      },
+      "DeleteResponse": {
+        "title": "DeleteResponse",
+        "type": "object"
+      },
+      "GenerateRequest": {
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "metadata": {
+            "additionalProperties": {
+              "properties": {
+                "key": {
+                  "type": "string"
+                },
+                "value": {
+                  "type": "string"
+                }
+              },
+              "title": "MetadataEntry",
+              "type": "object"
+            },
+            "type": "object"
+          },
+          "name": {
+            "type": "string"
+          },
+          "options": {
+            "properties": {
+              "namespace": {
+                "type": "string"
+              }
+            },
+            "type": "object"
+          },
+          "provider": {
+            "type": "string"
+          },
+          "scopes": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "secret": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          }
+        },
+        "title": "GenerateRequest",
+        "type": "object"
+      },
+      "GenerateResponse": {
+        "properties": {
+          "account": {
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "issuer": {
+                "type": "string"
+              },
+              "metadata": {
+                "additionalProperties": {
+                  "properties": {
+                    "key": {
+                      "type": "string"
+                    },
+                    "value": {
+                      "type": "string"
+                    }
+                  },
+                  "title": "MetadataEntry",
+                  "type": "object"
+                },
+                "type": "object"
+              },
+              "name": {
+                "type": "string"
+              },
+              "scopes": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "secret": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            },
+            "type": "object"
+          }
+        },
+        "title": "GenerateResponse",
+        "type": "object"
+      },
+      "GrantRequest": {
+        "properties": {
+          "options": {
+            "properties": {
+              "namespace": {
+                "type": "string"
+              }
+            },
+            "type": "object"
+          },
+          "resource": {
+            "properties": {
+              "endpoint": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            },
+            "type": "object"
+          },
+          "scope": {
+            "type": "string"
+          }
+        },
+        "title": "GrantRequest",
+        "type": "object"
+      },
+      "GrantResponse": {
+        "title": "GrantResponse",
+        "type": "object"
+      },
+      "InspectRequest": {
+        "properties": {
+          "options": {
+            "properties": {
+              "namespace": {
+                "type": "string"
+              }
+            },
+            "type": "object"
+          },
+          "token": {
+            "type": "string"
+          }
+        },
+        "title": "InspectRequest",
+        "type": "object"
+      },
+      "InspectResponse": {
+        "properties": {
+          "account": {
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "issuer": {
+                "type": "string"
+              },
+              "metadata": {
+                "additionalProperties": {
+                  "properties": {
+                    "key": {
+                      "type": "string"
+                    },
+                    "value": {
+                      "type": "string"
+                    }
+                  },
+                  "title": "MetadataEntry",
+                  "type": "object"
+                },
+                "type": "object"
+              },
+              "name": {
+                "type": "string"
+              },
+              "scopes": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "secret": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            },
+            "type": "object"
+          }
+        },
+        "title": "InspectResponse",
+        "type": "object"
+      },
+      "ListAccountsRequest": {
+        "properties": {
+          "options": {
+            "properties": {
+              "namespace": {
+                "type": "string"
+              }
+            },
+            "type": "object"
+          }
+        },
+        "title": "ListAccountsRequest",
+        "type": "object"
+      },
+      "ListAccountsResponse": {
+        "properties": {
+          "accounts": {
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "issuer": {
+                "type": "string"
+              },
+              "metadata": {
+                "additionalProperties": {
+                  "properties": {
+                    "key": {
+                      "type": "string"
+                    },
+                    "value": {
+                      "type": "string"
+                    }
+                  },
+                  "title": "MetadataEntry",
+                  "type": "object"
+                },
+                "type": "object"
+              },
+              "name": {
+                "type": "string"
+              },
+              "scopes": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "secret": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            },
+            "type": "object"
+          }
+        },
+        "title": "ListAccountsResponse",
+        "type": "object"
+      },
+      "ListRequest": {
+        "properties": {
+          "options": {
+            "properties": {
+              "namespace": {
+                "type": "string"
+              }
+            },
+            "type": "object"
+          }
+        },
+        "title": "ListRequest",
+        "type": "object"
+      },
+      "ListResponse": {
+        "properties": {
+          "rules": {
+            "properties": {
+              "access": {
+                "type": "string"
+              },
+              "id": {
+                "type": "string"
+              },
+              "priority": {
+                "format": "int32",
+                "type": "number"
+              },
+              "resource": {
+                "properties": {
+                  "endpoint": {
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "type": {
+                    "type": "string"
+                  }
+                },
+                "type": "object"
+              },
+              "scope": {
+                "type": "string"
+              }
+            },
+            "type": "object"
+          }
+        },
+        "title": "ListResponse",
+        "type": "object"
+      },
+      "Options": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "title": "Options",
+        "type": "object"
+      },
+      "Resource": {
+        "properties": {
+          "endpoint": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          }
+        },
+        "title": "Resource",
+        "type": "object"
+      },
+      "RevokeRequest": {
+        "properties": {
+          "options": {
+            "properties": {
+              "namespace": {
+                "type": "string"
+              }
+            },
+            "type": "object"
+          },
+          "resource": {
+            "properties": {
+              "endpoint": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            },
+            "type": "object"
+          },
+          "scope": {
+            "type": "string"
+          }
+        },
+        "title": "RevokeRequest",
+        "type": "object"
+      },
+      "RevokeResponse": {
+        "title": "RevokeResponse",
+        "type": "object"
+      },
+      "Rule": {
+        "properties": {
+          "access": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "priority": {
+            "format": "int32",
+            "type": "number"
+          },
+          "resource": {
+            "properties": {
+              "endpoint": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            },
+            "type": "object"
+          },
+          "scope": {
+            "type": "string"
+          }
+        },
+        "title": "Rule",
+        "type": "object"
+      },
+      "Token": {
+        "properties": {
+          "accessToken": {
+            "type": "string"
+          },
+          "created": {
+            "format": "int64",
+            "type": "number"
+          },
+          "expiry": {
+            "format": "int64",
+            "type": "number"
+          },
+          "refreshToken": {
+            "type": "string"
+          }
+        },
+        "title": "Token",
+        "type": "object"
+      },
+      "TokenRequest": {
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "options": {
+            "properties": {
+              "namespace": {
+                "type": "string"
+              }
+            },
+            "type": "object"
+          },
+          "refreshToken": {
+            "type": "string"
+          },
+          "secret": {
+            "type": "string"
+          },
+          "tokenExpiry": {
+            "format": "int64",
+            "type": "number"
+          }
+        },
+        "title": "TokenRequest",
+        "type": "object"
+      },
+      "TokenResponse": {
+        "properties": {
+          "token": {
+            "properties": {
+              "accessToken": {
+                "type": "string"
+              },
+              "created": {
+                "format": "int64",
+                "type": "number"
+              },
+              "expiry": {
+                "format": "int64",
+                "type": "number"
+              },
+              "refreshToken": {
+                "type": "string"
+              }
+            },
+            "type": "object"
+          }
+        },
+        "title": "TokenResponse",
+        "type": "object"
+      }
+    },
+    "securitySchemes": {
+      "MicroAPIToken": {
+        "bearerFormat": "JWT",
+        "description": "Micro API token",
+        "scheme": "bearer",
+        "type": "http"
+      }
+    }
+  },
+  "info": {
+    "description": "Generated by protoc-gen-openapi",
+    "title": "Auth",
+    "version": "1",
+    "x-logo": {
+      "altText": "Micro logo",
+      "backgroundColor": "#FFFFFF",
+      "url": "https://micro.mu/images/logo.png"
+    }
+  },
+  "openapi": "3.0.0",
+  "paths": {
+    "/auth/Accounts/ChangeSecret": {
+      "parameters": [
+        {
+          "in": "header",
+          "name": "Micro-Namespace",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "post": {
+        "requestBody": {
+          "$ref": "#/components/requestBodies/AccountsChangeSecretRequest"
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/AccountsChangeSecretResponse"
+          },
+          "default": {
+            "$ref": "#/components/responses/MicroAPIError"
+          }
+        },
+        "security": [
+          {
+            "MicroAPIToken": []
+          }
+        ],
+        "summary": "Accounts.ChangeSecret(ChangeSecretRequest)"
+      }
+    },
+    "/auth/Accounts/Delete": {
+      "parameters": [
+        {
+          "in": "header",
+          "name": "Micro-Namespace",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "post": {
+        "requestBody": {
+          "$ref": "#/components/requestBodies/AccountsDeleteRequest"
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/AccountsDeleteResponse"
+          },
+          "default": {
+            "$ref": "#/components/responses/MicroAPIError"
+          }
+        },
+        "security": [
+          {
+            "MicroAPIToken": []
+          }
+        ],
+        "summary": "Accounts.Delete(DeleteAccountRequest)"
+      }
+    },
+    "/auth/Accounts/List": {
+      "parameters": [
+        {
+          "in": "header",
+          "name": "Micro-Namespace",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "post": {
+        "requestBody": {
+          "$ref": "#/components/requestBodies/AccountsListRequest"
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/AccountsListResponse"
+          },
+          "default": {
+            "$ref": "#/components/responses/MicroAPIError"
+          }
+        },
+        "security": [
+          {
+            "MicroAPIToken": []
+          }
+        ],
+        "summary": "Accounts.List(ListAccountsRequest)"
+      }
+    },
+    "/auth/Auth/Generate": {
+      "parameters": [
+        {
+          "in": "header",
+          "name": "Micro-Namespace",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "post": {
+        "requestBody": {
+          "$ref": "#/components/requestBodies/AuthGenerateRequest"
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/AuthGenerateResponse"
+          },
+          "default": {
+            "$ref": "#/components/responses/MicroAPIError"
+          }
+        },
+        "security": [
+          {
+            "MicroAPIToken": []
+          }
+        ],
+        "summary": "Auth.Generate(GenerateRequest)"
+      }
+    },
+    "/auth/Auth/Inspect": {
+      "parameters": [
+        {
+          "in": "header",
+          "name": "Micro-Namespace",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "post": {
+        "requestBody": {
+          "$ref": "#/components/requestBodies/AuthInspectRequest"
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/AuthInspectResponse"
+          },
+          "default": {
+            "$ref": "#/components/responses/MicroAPIError"
+          }
+        },
+        "security": [
+          {
+            "MicroAPIToken": []
+          }
+        ],
+        "summary": "Auth.Inspect(InspectRequest)"
+      }
+    },
+    "/auth/Auth/Token": {
+      "parameters": [
+        {
+          "in": "header",
+          "name": "Micro-Namespace",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "post": {
+        "requestBody": {
+          "$ref": "#/components/requestBodies/AuthTokenRequest"
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/AuthTokenResponse"
+          },
+          "default": {
+            "$ref": "#/components/responses/MicroAPIError"
+          }
+        },
+        "security": [
+          {
+            "MicroAPIToken": []
+          }
+        ],
+        "summary": "Auth.Token(TokenRequest)"
+      }
+    },
+    "/auth/Rules/Create": {
+      "parameters": [
+        {
+          "in": "header",
+          "name": "Micro-Namespace",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "post": {
+        "requestBody": {
+          "$ref": "#/components/requestBodies/RulesCreateRequest"
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/RulesCreateResponse"
+          },
+          "default": {
+            "$ref": "#/components/responses/MicroAPIError"
+          }
+        },
+        "security": [
+          {
+            "MicroAPIToken": []
+          }
+        ],
+        "summary": "Rules.Create(CreateRequest)"
+      }
+    },
+    "/auth/Rules/Delete": {
+      "parameters": [
+        {
+          "in": "header",
+          "name": "Micro-Namespace",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "post": {
+        "requestBody": {
+          "$ref": "#/components/requestBodies/RulesDeleteRequest"
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/RulesDeleteResponse"
+          },
+          "default": {
+            "$ref": "#/components/responses/MicroAPIError"
+          }
+        },
+        "security": [
+          {
+            "MicroAPIToken": []
+          }
+        ],
+        "summary": "Rules.Delete(DeleteRequest)"
+      }
+    },
+    "/auth/Rules/List": {
+      "parameters": [
+        {
+          "in": "header",
+          "name": "Micro-Namespace",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "post": {
+        "requestBody": {
+          "$ref": "#/components/requestBodies/RulesListRequest"
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/RulesListResponse"
+          },
+          "default": {
+            "$ref": "#/components/responses/MicroAPIError"
+          }
+        },
+        "security": [
+          {
+            "MicroAPIToken": []
+          }
+        ],
+        "summary": "Rules.List(ListRequest)"
+      }
+    }
+  },
+  "servers": [
+    {
+      "url": "https://api.m3o.dev",
+      "description": "Micro DEV environment"
+    },
+    {
+      "url": "https://api.m3o.com",
+      "description": "Micro LIVE environment"
+    }
+  ]
+}
