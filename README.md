@@ -1,8 +1,6 @@
 # Micro [![License](https://img.shields.io/badge/license-polyform:shield-blue)](https://polyformproject.org/licenses/shield/1.0.0/) [![Go Report Card](https://goreportcard.com/badge/micro/micro)](https://goreportcard.com/report/github.com/micro/micro)
 
-<div style="border: 1px solid #333333;">
-  <img src="https://github.com/micro/micro/raw/master/docs/images/banner.png" />
-</div>
+<kbd><img src="https://raw.githubusercontent.com/micro/micro/master/docs/images/banner.png" /></kbd>
 
 ## Overview
 
