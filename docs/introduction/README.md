@@ -59,7 +59,7 @@ The server is composed of the following services.
 - **Config** - Dynamic configuration and secrets management for service level config without the need to restart
 - **Events** - Event streaming with ordered messaging, replay from offsets and persistent storage
 - **Network** - Inter-service networking, isolation and routing plane for all internal request traffic
-- **Proxy** - gRPC identity aware proxy used for remote access and any external grpc request traffic
+- **Proxy** - An identity aware proxy used for remote access and any external grpc request traffic
 - **Runtime** - Service lifecyle and process management with support for source to running auto build
 - **Registry** - Centralised service discovery and API endpoint explorer with feature rich metadata
 - **Store** - Key-Value storage with TTL expiry and persistent crud to keep microservices stateless
