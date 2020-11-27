@@ -43,11 +43,13 @@ Think of Micro as Android for Cloud.
 
 ## Features
 
+Below are the core components that make up Micro.
+
+**Server**
+
 Micro is built as a microservices architecture and abstracts away the complexity of the underlying infrastructure. We compose 
 this as a single logical server to the user but decompose that into the various building block primitives that can be plugged 
 into any underlying system. 
-
-**Server**
 
 The server is composed of the following services.
 
@@ -64,7 +66,7 @@ The server is composed of the following services.
 
 **Framework**
 
-Micro additionaly now contains the incredibly popular [Go Micro](https://github.com/asim/go-micro) framework built in for service development. 
+Micro additionaly now contains the incredibly popular Go Micro framework built in for service development. 
 The Go framework makes it drop dead simple to write your services without having to piece together lines and lines of boilerplate. Auto 
 configured and initialised by default, just import and get started quickly.
 

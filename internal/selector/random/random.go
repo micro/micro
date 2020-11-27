@@ -36,7 +36,7 @@ func (r *random) Select(routes []string, opts ...selector.SelectOption) (selecto
 		}
 
 		// select a random route from the slice
-		return routes[rand.Intn(len(routes)-1)]
+		return routes[rand.Intn(len(routes))]
 	}, nil
 }
 

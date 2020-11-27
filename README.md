@@ -1,6 +1,6 @@
 # Micro [![License](https://img.shields.io/badge/license-polyform:shield-blue)](https://polyformproject.org/licenses/shield/1.0.0/) [![Go Report Card](https://goreportcard.com/badge/micro/micro)](https://goreportcard.com/report/github.com/micro/micro)
 
-Micro is a platform for cloud native application development.
+<kbd><img src="https://raw.githubusercontent.com/micro/micro/master/docs/images/banner.png" /></kbd>
 
 ## Overview
 
@@ -8,22 +8,15 @@ Micro addresses the key requirements for building services in the cloud. It leve
 architecture pattern and provides a set of services which act as the building blocks of a platform. Micro deals
 with the complexity of distributed systems and provides simpler programmable abstractions to build on. 
 
-Micro provides a logical server composed of building block services, a Go framework for development, command line interface, API gateway and gRPC Proxy for external and remote access. Each service provides access to underlying infrastructure primitives through a standard interface with a development model tying everything together.
-
-<br>
-
-<img src="docs/images/micro-3.0.png" />
-
-<br>
-Micro is the all encompassing end to end platform experience from source to running and beyond built with a developer first focus.
-
 ## Features
+
+Below are the core components that make up Micro.
+
+**Server**
 
 Micro is built as a microservices architecture and abstracts away the complexity of the underlying infrastructure. We compose 
 this as a single logical server to the user but decompose that into the various building block primitives that can be plugged 
 into any underlying system. 
-
-**Server**
 
 The server is composed of the following services.
 
@@ -119,10 +112,13 @@ micro new helloworld
 # run the service
 micro run helloworld
 
-# list services
+# check the status
+micro status
+
+# list running services
 micro services
 
-# call a service
+# call the service
 micro helloworld --name=Alice
 
 # curl via the api
@@ -222,4 +218,4 @@ If you're interested in a hosted version of Micro see [m3o.com](https://m3o.com)
 
 ## Community
 
-Join us on [Discord](https://discord.gg/hbmJEct), [Slack](https://slack.micro.mu) or follow on [Twitter](https://twitter.com/microhq) for updates.
+Join us on [Slack](https://slack.micro.mu) or follow on [Twitter](https://twitter.com/microhq) for updates.
