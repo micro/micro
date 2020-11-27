@@ -10,7 +10,7 @@ with the complexity of distributed systems and provides simpler programmable abs
 
 ## Features
 
-Below are the core components of that make up Micro.
+Below are the core components that make up Micro.
 
 **Server**
 
