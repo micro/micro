@@ -43,7 +43,7 @@ See the [TODO](/todo) list, open a PR and start hacking away at the docs.
 
 ## Community
 
-Join us on [Discord](https://discord.gg/hbmJEct) or [Slack](https://slack.micro.mu). Follow [@microhq](https://twitter.com/microhq) on Twitter for updates.
+Join us on [Slack](https://slack.micro.mu). Follow [@microhq](https://twitter.com/microhq) on Twitter for updates.
 
 ## Hosting
 
