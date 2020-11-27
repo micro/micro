@@ -112,10 +112,13 @@ micro new helloworld
 # run the service
 micro run helloworld
 
-# list services
+# check the status
+micro status
+
+# list running services
 micro services
 
-# call a service
+# call the service
 micro helloworld --name=Alice
 
 # curl via the api
