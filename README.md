@@ -215,4 +215,4 @@ If you're interested in a hosted version of Micro see [m3o.com](https://m3o.com)
 
 ## Community
 
-Join us on [Discord](https://discord.gg/hbmJEct), [Slack](https://slack.micro.mu) or follow on [Twitter](https://twitter.com/microhq) for updates.
+Join us on [Slack](https://slack.micro.mu) or follow on [Twitter](https://twitter.com/microhq) for updates.
