@@ -45,6 +45,10 @@ See the [TODO](/todo) list, open a PR and start hacking away at the docs.
 
 Join us on [Slack](https://slack.micro.mu). Follow [@microhq](https://twitter.com/microhq) on Twitter for updates.
 
+## Hosting
+
+For a hosted Micro Platform aka M3O see [m3o.com](https://m3o.com).
+
 ## License
 
 [Polyform Shield](https://polyformproject.org/licenses/shield/1.0.0/)
