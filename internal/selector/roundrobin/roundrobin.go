@@ -15,6 +15,8 @@
 package roundrobin
 
 import (
+	"math/rand"
+
 	"github.com/micro/micro/v3/internal/selector"
 )
 
@@ -30,7 +32,7 @@ func (r *roundrobin) Select(routes []string, opts ...selector.SelectOption) (sel
 		return nil, selector.ErrNoneAvailable
 	}
 
-	var i int
+	i := rand.Intn(len(routes))
 
 	return func() string {
 		route := routes[i%len(routes)]
