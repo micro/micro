@@ -9,8 +9,9 @@ automatically based on the protos and the CLI is hand maintained code for specif
 
 ## Clients
 
-- CLI (command line interface)
-- SDK (gRPC generated code)
+- API - Open API specs and docs
+- CLI - Command line interface
+- SDK - gRPC generated code
   * Go
   * Java
   * Node

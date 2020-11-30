@@ -42,13 +42,22 @@ func TestRoundRobin(t *testing.T) {
 	assert.Nil(t, err, "Error should be nil")
 	assert.Equal(t, r2, r, "Expected route to be r2")
 
-	// Because r1 and r2 have been recently called, r3 should be chosen
-
-	next, err = sel.Select([]string{r1, r2, r3})
-	n1, n2, n3 := next(), next(), next()
+	routes := []string{r1, r2, r3}
+	next, err = sel.Select(routes)
 	assert.Nil(t, err, "Error should be nil")
-	assert.Equal(t, r1, n1, "Expected route to be r3")
-	assert.Equal(t, r2, n2, "Expected route to be r3")
-	assert.Equal(t, r3, n3, "Expected route to be r3")
+	n1, n2, n3, n4 := next(), next(), next(), next()
 
+	// start element is random but then it should loop through in order
+	start := -1
+	for i := 0; i < 3; i++ {
+		if n1 == routes[i] {
+			start = i
+			break
+		}
+	}
+	assert.NotEqual(t, start, -1)
+	assert.Equal(t, routes[start], n1, "Unexpected route")
+	assert.Equal(t, routes[(start+1)%3], n2, "Unexpected route")
+	assert.Equal(t, routes[(start+2)%3], n3, "Unexpected route")
+	assert.Equal(t, routes[(start+3)%3], n4, "Unexpected route")
 }

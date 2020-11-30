@@ -4,8 +4,7 @@ This is a high level overview for the open source software.
 
 ## Overview
 
-The roadmap is currently a work in progress. You can see the majority of the work being done at 
-[m3o/dev](https://github.com/m3o/dev).
+The roadmap is currently a work in progress.
 
 ## High Level
 

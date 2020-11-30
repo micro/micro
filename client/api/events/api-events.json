@@ -1,0 +1,493 @@
+{
+  "components": {
+    "requestBodies": {
+      "StoreReadRequest": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ReadRequest"
+            }
+          }
+        },
+        "description": "StoreReadRequest"
+      },
+      "StoreWriteRequest": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/WriteRequest"
+            }
+          }
+        },
+        "description": "StoreWriteRequest"
+      },
+      "StreamConsumeRequest": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ConsumeRequest"
+            }
+          }
+        },
+        "description": "StreamConsumeRequest"
+      },
+      "StreamPublishRequest": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/PublishRequest"
+            }
+          }
+        },
+        "description": "StreamPublishRequest"
+      }
+    },
+    "responses": {
+      "MicroAPIError": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "properties": {
+                "Code": {
+                  "description": "Error code",
+                  "example": 500,
+                  "type": "number"
+                },
+                "Detail": {
+                  "description": "Error detail",
+                  "example": "service not found",
+                  "type": "string"
+                },
+                "Id": {
+                  "description": "Error ID",
+                  "type": "string"
+                },
+                "Status": {
+                  "description": "Error status message",
+                  "example": "Internal Server Error",
+                  "type": "string"
+                }
+              },
+              "title": "MicroAPIError",
+              "type": "object"
+            }
+          }
+        },
+        "description": "Error from the Micro API"
+      },
+      "StoreReadResponse": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ReadResponse"
+            }
+          }
+        },
+        "description": "StoreReadResponse"
+      },
+      "StoreWriteResponse": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/WriteResponse"
+            }
+          }
+        },
+        "description": "StoreWriteResponse"
+      },
+      "StreamConsumeResponse": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Event"
+            }
+          }
+        },
+        "description": "StreamConsumeResponse"
+      },
+      "StreamPublishResponse": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/PublishResponse"
+            }
+          }
+        },
+        "description": "StreamPublishResponse"
+      }
+    },
+    "schemas": {
+      "AckRequest": {
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "success": {
+            "type": "boolean"
+          }
+        },
+        "title": "AckRequest",
+        "type": "object"
+      },
+      "ConsumeRequest": {
+        "properties": {
+          "ackWait": {
+            "description": "duration in nanoseconds",
+            "format": "int64",
+            "type": "number"
+          },
+          "autoAck": {
+            "type": "boolean"
+          },
+          "group": {
+            "type": "string"
+          },
+          "offset": {
+            "format": "int64",
+            "type": "number"
+          },
+          "retryLimit": {
+            "format": "int64",
+            "type": "number"
+          },
+          "topic": {
+            "type": "string"
+          }
+        },
+        "title": "ConsumeRequest",
+        "type": "object"
+      },
+      "Event": {
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "metadata": {
+            "additionalProperties": {
+              "properties": {
+                "key": {
+                  "type": "string"
+                },
+                "value": {
+                  "type": "string"
+                }
+              },
+              "title": "MetadataEntry",
+              "type": "object"
+            },
+            "type": "object"
+          },
+          "payload": {
+            "format": "byte",
+            "type": "string"
+          },
+          "timestamp": {
+            "format": "int64",
+            "type": "number"
+          },
+          "topic": {
+            "type": "string"
+          }
+        },
+        "title": "Event",
+        "type": "object"
+      },
+      "PublishRequest": {
+        "properties": {
+          "metadata": {
+            "additionalProperties": {
+              "properties": {
+                "key": {
+                  "type": "string"
+                },
+                "value": {
+                  "type": "string"
+                }
+              },
+              "title": "MetadataEntry",
+              "type": "object"
+            },
+            "type": "object"
+          },
+          "payload": {
+            "format": "byte",
+            "type": "string"
+          },
+          "timestamp": {
+            "format": "int64",
+            "type": "number"
+          },
+          "topic": {
+            "type": "string"
+          }
+        },
+        "title": "PublishRequest",
+        "type": "object"
+      },
+      "PublishResponse": {
+        "title": "PublishResponse",
+        "type": "object"
+      },
+      "ReadRequest": {
+        "properties": {
+          "limit": {
+            "format": "int64",
+            "type": "number"
+          },
+          "offset": {
+            "format": "int64",
+            "type": "number"
+          },
+          "topic": {
+            "type": "string"
+          }
+        },
+        "title": "ReadRequest",
+        "type": "object"
+      },
+      "ReadResponse": {
+        "properties": {
+          "events": {
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "metadata": {
+                "additionalProperties": {
+                  "properties": {
+                    "key": {
+                      "type": "string"
+                    },
+                    "value": {
+                      "type": "string"
+                    }
+                  },
+                  "title": "MetadataEntry",
+                  "type": "object"
+                },
+                "type": "object"
+              },
+              "payload": {
+                "format": "byte",
+                "type": "string"
+              },
+              "timestamp": {
+                "format": "int64",
+                "type": "number"
+              },
+              "topic": {
+                "type": "string"
+              }
+            },
+            "type": "object"
+          }
+        },
+        "title": "ReadResponse",
+        "type": "object"
+      },
+      "WriteRequest": {
+        "properties": {
+          "event": {
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "metadata": {
+                "additionalProperties": {
+                  "properties": {
+                    "key": {
+                      "type": "string"
+                    },
+                    "value": {
+                      "type": "string"
+                    }
+                  },
+                  "title": "MetadataEntry",
+                  "type": "object"
+                },
+                "type": "object"
+              },
+              "payload": {
+                "format": "byte",
+                "type": "string"
+              },
+              "timestamp": {
+                "format": "int64",
+                "type": "number"
+              },
+              "topic": {
+                "type": "string"
+              }
+            },
+            "type": "object"
+          },
+          "ttl": {
+            "format": "int64",
+            "type": "number"
+          }
+        },
+        "title": "WriteRequest",
+        "type": "object"
+      },
+      "WriteResponse": {
+        "title": "WriteResponse",
+        "type": "object"
+      }
+    },
+    "securitySchemes": {
+      "MicroAPIToken": {
+        "bearerFormat": "JWT",
+        "description": "Micro API token",
+        "scheme": "bearer",
+        "type": "http"
+      }
+    }
+  },
+  "info": {
+    "description": "Generated by protoc-gen-openapi",
+    "title": "Events",
+    "version": "1",
+    "x-logo": {
+      "altText": "Micro logo",
+      "backgroundColor": "#FFFFFF",
+      "url": "https://micro.mu/images/logo.png"
+    }
+  },
+  "openapi": "3.0.0",
+  "paths": {
+    "/events/Store/Read": {
+      "parameters": [
+        {
+          "in": "header",
+          "name": "Micro-Namespace",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "post": {
+        "requestBody": {
+          "$ref": "#/components/requestBodies/StoreReadRequest"
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/StoreReadResponse"
+          },
+          "default": {
+            "$ref": "#/components/responses/MicroAPIError"
+          }
+        },
+        "security": [
+          {
+            "MicroAPIToken": []
+          }
+        ],
+        "summary": "Store.Read(ReadRequest)"
+      }
+    },
+    "/events/Store/Write": {
+      "parameters": [
+        {
+          "in": "header",
+          "name": "Micro-Namespace",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "post": {
+        "requestBody": {
+          "$ref": "#/components/requestBodies/StoreWriteRequest"
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/StoreWriteResponse"
+          },
+          "default": {
+            "$ref": "#/components/responses/MicroAPIError"
+          }
+        },
+        "security": [
+          {
+            "MicroAPIToken": []
+          }
+        ],
+        "summary": "Store.Write(WriteRequest)"
+      }
+    },
+    "/events/Stream/Consume": {
+      "parameters": [
+        {
+          "in": "header",
+          "name": "Micro-Namespace",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "post": {
+        "requestBody": {
+          "$ref": "#/components/requestBodies/StreamConsumeRequest"
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/StreamConsumeResponse"
+          },
+          "default": {
+            "$ref": "#/components/responses/MicroAPIError"
+          }
+        },
+        "security": [
+          {
+            "MicroAPIToken": []
+          }
+        ],
+        "summary": "Stream.Consume(ConsumeRequest)"
+      }
+    },
+    "/events/Stream/Publish": {
+      "parameters": [
+        {
+          "in": "header",
+          "name": "Micro-Namespace",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "post": {
+        "requestBody": {
+          "$ref": "#/components/requestBodies/StreamPublishRequest"
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/StreamPublishResponse"
+          },
+          "default": {
+            "$ref": "#/components/responses/MicroAPIError"
+          }
+        },
+        "security": [
+          {
+            "MicroAPIToken": []
+          }
+        ],
+        "summary": "Stream.Publish(PublishRequest)"
+      }
+    }
+  },
+  "servers": [
+    {
+      "url": "https://api.m3o.dev",
+      "description": "Micro DEV environment"
+    },
+    {
+      "url": "https://api.m3o.com",
+      "description": "Micro LIVE environment"
+    }
+  ]
+}

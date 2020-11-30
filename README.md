@@ -1,6 +1,6 @@
 # Micro [![License](https://img.shields.io/badge/license-polyform:shield-blue)](https://polyformproject.org/licenses/shield/1.0.0/) [![Go Report Card](https://goreportcard.com/badge/micro/micro)](https://goreportcard.com/report/github.com/micro/micro)
 
-Micro is a platform for cloud native application development.
+<kbd><img src="https://raw.githubusercontent.com/micro/micro/master/docs/images/banner.png" /></kbd>
 
 ## Overview
 
@@ -8,11 +8,47 @@ Micro addresses the key requirements for building services in the cloud. It leve
 architecture pattern and provides a set of services which act as the building blocks of a platform. Micro deals
 with the complexity of distributed systems and provides simpler programmable abstractions to build on. 
 
-Micro provides a logical server composed of building block services, a Go framework for development, command line interface, API gateway and gRPC Proxy for external and remote access. Each service provides access to underlying infrastructure primitives through a standard interface with a development model tying everything together.
+## Features
 
-<img src="docs/images/micro-3.0.png" />
+Below are the core components that make up Micro.
 
-Micro is the all encompassing end to end platform experience from source to running and beyond built with a developer first focus.
+**Server**
+
+Micro is built as a microservices architecture and abstracts away the complexity of the underlying infrastructure. We compose 
+this as a single logical server to the user but decompose that into the various building block primitives that can be plugged 
+into any underlying system. 
+
+The server is composed of the following services.
+
+- **API** - HTTP Gateway which dynamically maps http/json requests to RPC using path based resolution
+- **Auth** - Authentication and authorization out of the box using jwt tokens and rule based access control.
+- **Broker** - Ephemeral pubsub messaging for asynchronous communication and distributing notifications
+- **Config** - Dynamic configuration and secrets management for service level config without the need to restart
+- **Events** - Event streaming with ordered messaging, replay from offsets and persistent storage
+- **Network** - Inter-service networking, isolation and routing plane for all internal request traffic
+- **Proxy** - An identity aware proxy used for remote access and any external grpc request traffic
+- **Runtime** - Service lifecyle and process management with support for source to running auto build
+- **Registry** - Centralised service discovery and API endpoint explorer with feature rich metadata
+- **Store** - Key-Value storage with TTL expiry and persistent crud to keep microservices stateless
+
+**Framework**
+
+Micro additionaly now contains the incredibly popular Go Micro framework built in for service development. 
+The Go framework makes it drop dead simple to write your services without having to piece together lines and lines of boilerplate. Auto 
+configured and initialised by default, just import and get started quickly.
+
+**Command Line**
+
+Micro brings not only a rich architectural model but a command line experience tailored for that need. The command line interface includes 
+dynamic command mapping for all services running on the platform. Turns any service instantly into a CLI command along with flag parsing 
+for inputs. Includes support for multiple environments and namespaces, automatic refreshing of auth credentials, creating and running 
+services, status info and log streaming, plus much, much more.
+
+**Environments**
+
+Finally Micro bakes in the concept of `Environments` and multi-tenancy through `Namespaces`. Run your server locally for 
+development and in the cloud for staging and production, seamlessly switch between them using the CLI commands `micro env set [environment]` 
+and `micro user set [namespace]`.
 
 ## Install
 
@@ -76,19 +112,22 @@ micro new helloworld
 # run the service
 micro run helloworld
 
-# list services
+# check the status
+micro status
+
+# list running services
 micro services
 
-# call a service
+# call the service
 micro helloworld --name=Alice
 
 # curl via the api
 curl -d '{"name": "Alice"}' http://localhost:8080/helloworld
 ```
 
-## Example Code
+## Example Service
 
-Micro includes a Go framework for writing services and wraps gRPC for the core IDL and transport. 
+Micro includes a Go framework for writing services wrapping gRPC for the core IDL and transport. 
 
 Define services in proto:
 
@@ -120,13 +159,13 @@ import (
   
 	"github.com/micro/micro/v3/service"
 	"github.com/micro/micro/v3/service/logger"
-	helloworld "github.com/micro/services/helloworld/proto"
+	pb "github.com/micro/services/helloworld/proto"
 )
 
 type Helloworld struct{}
 
 // Call is a single request handler called via client.Call or the generated client code
-func (h *Helloworld) Call(ctx context.Context, req *helloworld.Request, rsp *helloworld.Response) error {
+func (h *Helloworld) Call(ctx context.Context, req *pb.Request, rsp *pb.Response) error {
 	logger.Info("Received Helloworld.Call request")
 	rsp.Msg = "Hello " + req.Name
 	return nil
@@ -152,55 +191,18 @@ Call with the client:
 
 ```go
 import (
-  "context"
+	"context"
   
-  "github.com/micro/micro/v3/service/client"
-  pb "github.com/micro/services/helloworld/proto"
+	"github.com/micro/micro/v3/service/client"
+	pb "github.com/micro/services/helloworld/proto"
+)
 
+// create a new helloworld service client
 helloworld := pb.NewHelloworldService("helloworld", client.DefaultClient) 
 
+// call the endpoint Helloworld.Call
 rsp, err := helloworld.Call(context.Background(), &pb.Request{Name: "Alice"})
 ```
-
-## Features
-
-Micro is built as a microservices architecture and abstracts away the complexity of the underlying infrastructure. We compose 
-this as a single logical server to the user but decompose that into the various building block primitives that can be plugged 
-into any underlying system. 
-
-**Server**
-
-The server is composed of the following services.
-
-- **API** - HTTP Gateway which dynamically maps http/json requests to RPC using path based resolution
-- **Auth** - Authentication and authorization out of the box using jwt tokens and rule based access control.
-- **Broker** - Ephemeral pubsub messaging for asynchronous communication and distributing notifications
-- **Config** - Dynamic configuration and secrets management for service level config without the need to restart
-- **Events** - Event streaming with ordered messaging, replay from offsets and persistent storage
-- **Network** - Inter-service networking, isolation and routing plane for all internal request traffic
-- **Proxy** - gRPC identity aware proxy used for remote access and any external grpc request traffic
-- **Runtime** - Service lifecyle and process management with support for source to running auto build
-- **Registry** - Centralised service discovery and API endpoint explorer with feature rich metadata
-- **Store** - Key-Value storage with TTL expiry and persistent crud to keep microservices stateless
-
-**Framework**
-
-Micro additionaly now contains the incredibly popular Go Micro framework built in for service development. 
-The Go framework makes it drop dead simple to write your services without having to piece together lines and lines of boilerplate. Auto 
-configured and initialised by default, just import and get started quickly.
-
-**Command Line**
-
-Micro brings not only a rich architectural model but a command line experience tailored for that need. The command line interface includes 
-dynamic command mapping for all services running on the platform. Turns any service instantly into a CLI command along with flag parsing 
-for inputs. Includes support for multiple environments and namespaces, automatic refreshing of auth credentials, creating and running 
-services, status info and log streaming, plus much, much more.
-
-**Environments**
-
-Finally Micro bakes in the concept of `Environments` and multi-tenancy through `Namespaces`. Run your server locally for 
-development and in the cloud for staging and production, seamlessly switch between them using the CLI commands `micro env set [environment]` 
-and `micro user set [namespace]`.
 
 ## Usage
 
@@ -212,8 +214,8 @@ See [LICENSE](LICENSE) which makes use of [Polyform Shield](https://polyformproj
 
 ## Hosting
 
-If you're interested in a hosted version of Micro see [m3o.com](https://m3o.com).
+For a hosted Micro Platform aka M3O see [m3o.com](https://m3o.com).
 
 ## Community
 
-Join us on [Discord](https://discord.gg/hbmJEct), [Slack](https://slack.micro.mu) or follow on [Twitter](https://twitter.com/microhq) for updates.
+Join us on [Slack](https://slack.micro.mu) or follow on [Twitter](https://twitter.com/microhq) for updates.
