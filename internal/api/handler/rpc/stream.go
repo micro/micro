@@ -127,7 +127,7 @@ func serveStream(ctx context.Context, w http.ResponseWriter, r *http.Request, se
 			}
 
 			// send the buffer
-			_, err = fmt.Fprint(w, buf)
+			_, err = fmt.Fprint(w, string(buf))
 			if err != nil {
 				if logger.V(logger.ErrorLevel, logger.DefaultLogger) {
 					logger.Error(err)
