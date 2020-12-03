@@ -968,6 +968,15 @@ micro run ../path/to/folder # deploy local folder to your local micro server
 micro run helloworld # deploy latest version, translates to micro run github.com/micro/services/helloworld or your custom base url
 micro run helloworld@9342934e6180 # deploy certain version
 micro run helloworld@branchname  # deploy certain branch
+micro run --name helloworld .
+```
+
+#### Specifying Service Name
+
+The service name is derived from the directory name of your application. In case you want to override this specify the `--name` flag.
+
+```
+micro run --name helloworld github.com/myorg/helloworld/server
 ```
 
 #### Running a local folder

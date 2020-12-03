@@ -9,6 +9,10 @@ import (
 // flags is shared flags so we don't have to continually re-add
 var flags = []cli.Flag{
 	&cli.StringFlag{
+		Name:  "name",
+		Usage: "Set the name of the service. Otherwise defaults to directory name",
+	},
+	&cli.StringFlag{
 		Name:  "source",
 		Usage: "Set the source url of the service e.g github.com/micro/services",
 	},
