@@ -23,9 +23,9 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/micro/micro/v3/service/registry/mdns"
 	"github.com/micro/micro/v3/service/broker"
 	"github.com/micro/micro/v3/service/logger"
+	"github.com/micro/micro/v3/service/registry/mdns"
 	nats "github.com/nats-io/nats.go"
 )
 
