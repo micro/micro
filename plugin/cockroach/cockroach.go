@@ -19,6 +19,7 @@ package cockroach
 
 import (
 	"database/sql"
+	"database/sql/driver"
 	"fmt"
 	"net/url"
 	"regexp"
@@ -37,6 +38,7 @@ import (
 var (
 	DefaultDatabase = "micro"
 	DefaultTable    = "micro"
+	ErrNoConnection = errors.New("Database connection not initialised")
 )
 
 var (
@@ -54,7 +56,7 @@ var (
 
 type sqlStore struct {
 	options store.StoreOptions
-	db      *sql.DB
+	dbConn  *sql.DB
 
 	sync.RWMutex
 	// known databases
@@ -85,7 +87,10 @@ func (s *sqlStore) getDB(database, table string) (string, string) {
 	return database, table
 }
 
+// createDB ensures that the DB and table have been created. It's used for lazy initialisation
+// and will record which tables have been created to reduce calls to the DB
 func (s *sqlStore) createDB(database, table string) error {
+
 	database, table = s.getDB(database, table)
 
 	s.Lock()
@@ -103,19 +108,37 @@ func (s *sqlStore) createDB(database, table string) error {
 	return nil
 }
 
-func (s *sqlStore) initDB(database, table string) error {
-	if s.db == nil {
-		return errors.New("Database connection not initialised")
+// db returns a valid connection to the DB
+func (s *sqlStore) db() (*sql.DB, error) {
+	if s.dbConn == nil {
+		return nil, ErrNoConnection
 	}
+	if err := s.dbConn.Ping(); err != nil {
+		if err != driver.ErrBadConn {
+			return nil, err
+		}
+		logger.Errorf("Error with DB connection, will reconfigure: %s", err)
+		if err := s.configure(); err != nil {
+			logger.Errorf("Error while reconfiguring client: %s", err)
+			return nil, err
+		}
+	}
+	return s.dbConn, nil
+}
 
+func (s *sqlStore) initDB(database, table string) error {
+	db, err := s.db()
+	if err != nil {
+		return err
+	}
 	// Create the namespace's database
-	_, err := s.db.Exec(fmt.Sprintf("CREATE DATABASE IF NOT EXISTS %s;", database))
+	_, err = db.Exec(fmt.Sprintf("CREATE DATABASE IF NOT EXISTS %s;", database))
 	if err != nil {
 		return err
 	}
 
 	// Create a table for the namespace's prefix
-	_, err = s.db.Exec(fmt.Sprintf(`CREATE TABLE IF NOT EXISTS %s.%s
+	_, err = db.Exec(fmt.Sprintf(`CREATE TABLE IF NOT EXISTS %s.%s
 	(
 		key text NOT NULL,
 		value bytea,
@@ -128,13 +151,13 @@ func (s *sqlStore) initDB(database, table string) error {
 	}
 
 	// Create Index
-	_, err = s.db.Exec(fmt.Sprintf(`CREATE INDEX IF NOT EXISTS "%s" ON %s.%s USING btree ("key");`, "key_index_"+table, database, table))
+	_, err = db.Exec(fmt.Sprintf(`CREATE INDEX IF NOT EXISTS "%s" ON %s.%s USING btree ("key");`, "key_index_"+table, database, table))
 	if err != nil {
 		return err
 	}
 
 	// Create Metadata Index
-	_, err = s.db.Exec(fmt.Sprintf(`CREATE INDEX IF NOT EXISTS "%s" ON %s.%s USING GIN ("metadata");`, "metadata_index_"+table, database, table))
+	_, err = db.Exec(fmt.Sprintf(`CREATE INDEX IF NOT EXISTS "%s" ON %s.%s USING GIN ("metadata");`, "metadata_index_"+table, database, table))
 	if err != nil {
 		return err
 	}
@@ -167,12 +190,12 @@ func (s *sqlStore) configure() error {
 		return err
 	}
 
-	if s.db != nil {
-		s.db.Close()
+	if s.dbConn != nil {
+		s.dbConn.Close()
 	}
 
 	// save the values
-	s.db = db
+	s.dbConn = db
 
 	// get DB
 	database, table := s.getDB(s.options.Database, s.options.Table)
@@ -191,7 +214,11 @@ func (s *sqlStore) prepare(database, table, query string) (*sql.Stmt, error) {
 	database, table = s.getDB(database, table)
 
 	q := fmt.Sprintf(st, database, table)
-	stmt, err := s.db.Prepare(q)
+	db, err := s.db()
+	if err != nil {
+		return nil, err
+	}
+	stmt, err := db.Prepare(q)
 	if err != nil {
 		return nil, err
 	}
@@ -199,8 +226,8 @@ func (s *sqlStore) prepare(database, table, query string) (*sql.Stmt, error) {
 }
 
 func (s *sqlStore) Close() error {
-	if s.db != nil {
-		return s.db.Close()
+	if s.dbConn != nil {
+		return s.dbConn.Close()
 	}
 	return nil
 }
@@ -250,6 +277,7 @@ func (s *sqlStore) List(opts ...store.ListOption) ([]string, error) {
 
 	rows, err := st.Query(pattern, limit, offset)
 	if err != nil {
+
 		if err == sql.ErrNoRows {
 			return nil, nil
 		}
