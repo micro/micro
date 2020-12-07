@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"sort"
 	"strings"
 	"text/tabwriter"
 
@@ -44,6 +45,7 @@ func listEnvs(c *cli.Context, args []string) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
+	sort.Slice(envs, func(i, j int) bool { return envs[i].Name < envs[j].Name })
 	current, err := util.GetEnv(c)
 	if err != nil {
 		return nil, err
