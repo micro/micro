@@ -124,7 +124,7 @@ func (h *rpcHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	*r = *r.Clone(cx)
 	// if stream we currently only support json
 	if isStream(r, service) {
-		serveWebsocket(cx, w, r, service, c)
+		serveStream(cx, w, r, service, c)
 		return
 	}
 
