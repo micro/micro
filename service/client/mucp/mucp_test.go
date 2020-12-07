@@ -104,6 +104,7 @@ func TestCallRetry(t *testing.T) {
 	c := NewClient(
 		client.Router(r),
 		client.WrapCall(wrap),
+		client.Retry(client.RetryOnError),
 	)
 
 	req := c.NewRequest(service, endpoint, nil)
