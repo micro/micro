@@ -49,3 +49,8 @@ func RetryOnError(ctx context.Context, req Request, retryCount int, err error) (
 		return false, nil
 	}
 }
+
+// RetryNever never retries a request
+func RetryNever(ctx context.Context, req Request, retryCount int, err error) (bool, error) {
+	return false, nil
+}
