@@ -193,7 +193,6 @@ func (s *svc) Logs(resource runtime.Resource, options ...runtime.LogsOption) (ru
 		// noop (ResourceQuota is not supported by *kubernetes.Logs())
 		return nil, nil
 	case runtime.TypeService:
-
 		// Assert the resource back into a *runtime.Service
 		service, ok := resource.(*runtime.Service)
 		if !ok {
@@ -211,6 +210,7 @@ func (s *svc) Logs(resource runtime.Resource, options ...runtime.LogsOption) (ru
 		if err != nil {
 			return nil, err
 		}
+
 		logStream := &serviceLogs{
 			service: service.Name,
 			stream:  make(chan runtime.Log),
@@ -232,21 +232,23 @@ func (s *svc) Logs(resource runtime.Resource, options ...runtime.LogsOption) (ru
 				select {
 				// @todo this never seems to return, investigate
 				case <-ls.Context().Done():
+					close(logStream.stream)
 					return
-				case _, ok := <-logStream.stream:
-					if !ok {
-						return
-					}
+				case <-logStream.stop:
+					close(logStream.stream)
+					return
 				default:
 					record := pb.LogRecord{}
-					err := ls.RecvMsg(&record)
-					if err != nil {
+
+					if err := ls.RecvMsg(&record); err != nil {
 						if err != io.EOF {
 							logStream.err = err
 						}
+						close(logStream.stream)
 						logStream.Stop()
 						return
 					}
+
 					logStream.stream <- runtime.Log{
 						Message:  record.GetMessage(),
 						Metadata: record.GetMetadata(),
@@ -254,6 +256,7 @@ func (s *svc) Logs(resource runtime.Resource, options ...runtime.LogsOption) (ru
 				}
 			}
 		}()
+
 		return logStream, nil
 	default:
 		return nil, runtime.ErrInvalidResource
@@ -283,7 +286,6 @@ func (l *serviceLogs) Stop() error {
 	case <-l.stop:
 		return nil
 	default:
-		close(l.stream)
 		close(l.stop)
 	}
 	return nil

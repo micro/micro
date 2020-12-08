@@ -707,28 +707,26 @@ func getLogs(ctx *cli.Context) error {
 
 	output := ctx.String("output")
 
-	for {
-		select {
-		case record, ok := <-logs.Chan():
-			if !ok {
-				if err := logs.Error(); err != nil {
-					if status.Convert(err).Code() == codes.NotFound {
-						return cli.Exit("Service not found", 1)
-					}
-					return util.CliError(fmt.Errorf("Error reading logs: %s\n", status.Convert(err).Message()))
-				}
-				return nil
-			}
-			switch output {
-			case "json":
-				b, _ := json.Marshal(record)
-				fmt.Printf("%v\n", string(b))
-			default:
-				fmt.Printf("%v\n", record.Message)
-
-			}
+	// range over all records until its closed
+	for record := range logs.Chan() {
+		switch output {
+		case "json":
+			b, _ := json.Marshal(record)
+			fmt.Printf("%v\n", string(b))
+		default:
+			fmt.Printf("%v\n", record.Message)
 		}
 	}
+
+	// check for an error
+	if err := logs.Error(); err != nil {
+		if status.Convert(err).Code() == codes.NotFound {
+			return cli.Exit("Service not found", 1)
+		}
+		return util.CliError(fmt.Errorf("Error reading logs: %s\n", status.Convert(err).Message()))
+	}
+
+	return nil
 }
 
 func humanizeStatus(status runtime.ServiceStatus) string {
