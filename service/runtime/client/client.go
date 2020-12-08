@@ -244,6 +244,7 @@ func (s *svc) Logs(resource runtime.Resource, options ...runtime.LogsOption) (ru
 						if err != io.EOF {
 							logStream.err = err
 						}
+						close(logStream.stream)
 						logStream.Stop()
 						return
 					}
