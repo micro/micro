@@ -58,7 +58,6 @@ func (k *kubernetes) Init(opts ...runtime.Option) error {
 }
 
 func (k *kubernetes) Logs(resource runtime.Resource, options ...runtime.LogsOption) (runtime.LogStream, error) {
-
 	// Handle the various different types of resources:
 	switch resource.Type() {
 	case runtime.TypeNamespace:
@@ -71,7 +70,6 @@ func (k *kubernetes) Logs(resource runtime.Resource, options ...runtime.LogsOpti
 		// noop (ResourceQuota is not supported by *kubernetes.Logs()))
 		return nil, nil
 	case runtime.TypeService:
-
 		// Assert the resource back into a *runtime.Service
 		s, ok := resource.(*runtime.Service)
 		if !ok {
@@ -80,28 +78,38 @@ func (k *kubernetes) Logs(resource runtime.Resource, options ...runtime.LogsOpti
 
 		klo := newLog(k.client, s.Name, options...)
 
+		// if its not a stream then read the records, return and close
 		if !klo.options.Stream {
 			records, err := klo.Read()
 			if err != nil {
 				logger.Errorf("Failed to get logs for service '%v' from k8s: %v", s.Name, err)
 				return nil, err
 			}
+
+			// create a stream even though we're not streaming
 			kstream := &kubeStream{
-				stream: make(chan runtime.Log),
+				// make a stream buffer of size records
+				stream: make(chan runtime.Log, len(records)),
 				stop:   make(chan bool),
 			}
-			go func() {
-				for _, record := range records {
-					kstream.Chan() <- record
-				}
-				kstream.Stop()
-			}()
+
+			// load the records
+			for _, record := range records {
+				kstream.stream <- record
+			}
+
+			// close the stream so it doesn't block
+			close(kstream.stream)
+
 			return kstream, nil
 		}
+
+		// otherwise stream the logs
 		stream, err := klo.Stream()
 		if err != nil {
 			return nil, err
 		}
+
 		return stream, nil
 	default:
 		return nil, runtime.ErrInvalidResource
@@ -128,13 +136,14 @@ func (k *kubeStream) Chan() chan runtime.Log {
 func (k *kubeStream) Stop() error {
 	k.Lock()
 	defer k.Unlock()
+
 	select {
 	case <-k.stop:
 		return nil
 	default:
 		close(k.stop)
-		close(k.stream)
 	}
+
 	return nil
 }
 
@@ -180,7 +189,6 @@ func (k *kubernetes) create(resource runtime.Resource, opts ...runtime.CreateOpt
 		}
 		return k.createResourceQuota(resourceQuota)
 	case runtime.TypeService:
-
 		// Assert the resource back into a *runtime.Service
 		s, ok := resource.(*runtime.Service)
 		if !ok {
