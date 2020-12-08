@@ -17,6 +17,7 @@ package kubernetes
 import (
 	"bufio"
 	"strconv"
+	"sync"
 	"time"
 
 	"github.com/micro/micro/v3/internal/kubernetes/client"
@@ -64,6 +65,9 @@ func (k *klog) podLogs(podName string, stream *kubeStream) error {
 				record := runtime.Log{
 					Message: s.Text(),
 				}
+
+				// send the records to the stream
+				// there can be multiple pods doing this
 				select {
 				case stream.stream <- record:
 				case <-stream.stop:
@@ -175,6 +179,7 @@ func (k *klog) Stream() (runtime.LogStream, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	if len(pods) == 0 {
 		return nil, errors.NotFound("runtime.logs", "no such service")
 	}
@@ -184,15 +189,31 @@ func (k *klog) Stream() (runtime.LogStream, error) {
 		stop:   make(chan bool),
 	}
 
+	var wg sync.WaitGroup
+
 	// stream from the individual pods
 	for _, pod := range pods {
 		go func(podName string) {
-			err := k.podLogs(podName, stream)
-			if err != nil {
+			wg.Add(1)
+
+			if err := k.podLogs(podName, stream); err != nil {
 				logger.Errorf("Error streaming from pod: %v", err)
 			}
+
+			wg.Done()
 		}(pod)
 	}
+
+	go func() {
+		// wait until all pod log watchers are done
+		wg.Wait()
+
+		// do any cleanup
+		stream.Stop()
+
+		// close the stream
+		close(stream.stream)
+	}()
 
 	return stream, nil
 }

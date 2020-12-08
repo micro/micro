@@ -26,7 +26,7 @@ const (
 const (
 	// localProxyAddress is the default proxy address for environment server
 	localProxyAddress = "127.0.0.1:8081"
-	// devProxyAddress is the address for the proxy server in the dev environment
+	// deprecated dev env
 	devProxyAddress = "proxy.m3o.dev"
 	// platformProxyAddress is the default proxy address for environment platform
 	platformProxyAddress = "proxy.m3o.com"
@@ -54,17 +54,17 @@ var defaultEnvs = map[string]Env{
 	EnvLocal: {
 		Name:         EnvLocal,
 		ProxyAddress: localProxyAddress,
-		Description:  "Local running micro server",
+		Description:  "Local running Micro Server",
 	},
 	EnvDev: {
 		Name:         EnvDev,
 		ProxyAddress: devProxyAddress,
-		Description:  "Cloud hosted development environment",
+		Description:  "Deprecated: Please use platform environment",
 	},
 	EnvPlatform: {
 		Name:         EnvPlatform,
 		ProxyAddress: platformProxyAddress,
-		Description:  "Cloud hosted production environment",
+		Description:  "Cloud hosted Micro Platform",
 	},
 }
 

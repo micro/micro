@@ -8,6 +8,19 @@ Micro addresses the key requirements for building services in the cloud. It leve
 architecture pattern and provides a set of services which act as the building blocks of a platform. Micro deals
 with the complexity of distributed systems and provides simpler programmable abstractions to build on. 
 
+## Contents
+
+- [Introduction](https://micro.mu/introduction) - A high level introduction to Micro
+- [Getting Started](https://micro.mu/getting-started) - The helloworld quickstart guide
+- [Upgrade Guide](https://micro.mu/upgrade-guide) - Update your go-micro project to use micro v3.
+- [Architecture](https://micro.mu/architecture) - Describes the architecture, design and tradeoffs
+- [Reference](https://micro.mu/reference) - In-depth reference for Micro CLI and services
+- [Resources](https://micro.mu/resources) - External resources and contributions
+- [Roadmap](https://micro.mu/roadmap) - Stuff on our agenda over the long haul
+- [Users](https://micro.mu/users) - Developers and companies using Micro in production
+- [FAQ](https://micro.mu/faq) - Frequently asked questions
+- [Blog](https://micro.mu/blog) - For the latest from us
+
 ## Features
 
 Below are the core components that make up Micro.
@@ -218,4 +231,4 @@ For a hosted Micro Platform aka M3O see [m3o.com](https://m3o.com).
 
 ## Community
 
-Join us on [Slack](https://slack.micro.mu) or follow on [Twitter](https://twitter.com/microhq) for updates.
+Join us in the [Discussions](https://github.com/micro/micro/discussions) or follow on [Twitter](https://twitter.com/microhq) for updates.

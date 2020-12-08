@@ -82,6 +82,6 @@ Other examples of packages which can be imported in this manner are:
 
 Go Micro services interfaced directly with the underlying infrastructure, meaning they could be run using `go run`. In Micro V3 this has been abstracted using the `micro server`. The Micro server provides a level of abstraction to the underlying infrastructure, keeping your services unbound from their dependancies. 
 
-In practice, this means you need to be connected to a micro environment when running your services. You can spin up this environment locally using the `micro server` command, or connect to the free dev environment provided by M3O using `micro env set dev`. You can read more about running a service [in our getting started guide](/getting-started#running-a-service).
+In practice, this means you need to be connected to a micro environment when running your services. You can spin up this environment locally using the `micro server` command, or connect to the free platform provided by M3O using `micro env set platform`. You can read more about running a service [in our getting started guide](/getting-started#running-a-service).
 
 *Note: don't forget to run your micro v3 services using `micro run .` instead of `go run .`*
