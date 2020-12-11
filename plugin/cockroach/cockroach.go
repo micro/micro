@@ -21,10 +21,12 @@ import (
 	"database/sql"
 	"database/sql/driver"
 	"fmt"
+	"net"
 	"net/url"
 	"regexp"
 	"strings"
 	"sync"
+	"syscall"
 	"time"
 
 	"github.com/lib/pq"
@@ -114,7 +116,7 @@ func (s *sqlStore) db() (*sql.DB, error) {
 		return nil, ErrNoConnection
 	}
 	if err := s.dbConn.Ping(); err != nil {
-		if err != driver.ErrBadConn {
+		if !isBadConnError(err) {
 			return nil, err
 		}
 		logger.Errorf("Error with DB connection, will reconfigure: %s", err)
@@ -124,6 +126,25 @@ func (s *sqlStore) db() (*sql.DB, error) {
 		}
 	}
 	return s.dbConn, nil
+}
+
+// isBadConnError returns true if the error is related to having a bad connection such that you need to reconnect
+func isBadConnError(err error) bool {
+	if err == nil {
+		return false
+	}
+	if err == driver.ErrBadConn {
+		return true
+	}
+	switch t := err.(type) {
+	case syscall.Errno:
+		return t == syscall.ECONNRESET || t == syscall.ECONNABORTED || t == syscall.ECONNREFUSED
+	case *net.OpError:
+		return !t.Temporary()
+	case net.Error:
+		return !t.Temporary()
+	}
+	return false
 }
 
 func (s *sqlStore) initDB(database, table string) error {
