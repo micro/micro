@@ -24,18 +24,18 @@ import (
 	"github.com/micro/micro/v3/service/registry"
 )
 
-type testHandler struct{}
+type TestHandler struct{}
 
-type testRequest struct{}
+type TestRequest struct{}
 
-type testResponse struct{}
+type TestResponse struct{}
 
-func (t *testHandler) Test(ctx context.Context, req *testRequest, rsp *testResponse) error {
+func (t *TestHandler) Test(ctx context.Context, req *TestRequest, rsp *TestResponse) error {
 	return nil
 }
 
 func TestExtractEndpoint(t *testing.T) {
-	handler := &testHandler{}
+	handler := &TestHandler{}
 	typ := reflect.TypeOf(handler)
 
 	var endpoints []*registry.Endpoint
@@ -62,19 +62,19 @@ func TestExtractEndpoint(t *testing.T) {
 		t.Error("Expected non nil request")
 	}
 
-	if endpoints[0].Request.Name != "testRequest" {
+	if endpoints[0].Request.Name != "TestRequest" {
 		t.Errorf("Expected testRequest got %s", endpoints[0].Request.Name)
 	}
 
-	if endpoints[0].Response.Name != "testResponse" {
+	if endpoints[0].Response.Name != "TestResponse" {
 		t.Errorf("Expected testResponse got %s", endpoints[0].Response.Name)
 	}
 
-	if endpoints[0].Request.Type != "testRequest" {
+	if endpoints[0].Request.Type != "TestRequest" {
 		t.Errorf("Expected testRequest type got %s", endpoints[0].Request.Type)
 	}
 
-	if endpoints[0].Response.Type != "testResponse" {
+	if endpoints[0].Response.Type != "TestResponse" {
 		t.Errorf("Expected testResponse type got %s", endpoints[0].Response.Type)
 	}
 
