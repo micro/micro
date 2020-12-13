@@ -18,7 +18,7 @@ func New(opts ...opentelemetry.Option) (opentracing.Tracer, error) {
 		ServiceName: options.ServiceName,
 		Sampler: &config.SamplerConfig{
 			Type:  "const", // No adaptive sampling or external lookups
-			Param: 0,       // Never randomly decide to trace (only trace if the sampling decision has been propagated to do so)
+			Param: options.SamplingRate,
 		},
 		Reporter: &config.ReporterConfig{
 			LocalAgentHostPort: options.TraceReporterAddress,
