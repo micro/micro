@@ -404,6 +404,7 @@ func (c *command) Before(ctx *cli.Context) error {
 	server.DefaultServer.Init(
 		server.WrapHandler(wrapper.AuthHandler()),
 		server.WrapHandler(wrapper.TraceHandler()),
+		server.WrapHandler(wrapper.OpenTraceHandler()),
 		server.WrapHandler(wrapper.HandlerStats()),
 		server.WrapHandler(wrapper.LogHandler()),
 		server.WrapHandler(wrapper.MetricsHandler()),
