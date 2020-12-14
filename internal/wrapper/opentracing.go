@@ -6,7 +6,6 @@ import (
 	"strings"
 
 	"github.com/micro/micro/v3/internal/opentelemetry"
-	"github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/server"
 	"github.com/opentracing/opentracing-go"
 )
@@ -29,25 +28,11 @@ func OpenTraceHandler() server.HandlerWrapper {
 				return h(ctx, req, rsp)
 			}
 
-			// Extract context and use it to create a child span::
-			// spanContext, err := opentelemetry.DefaultOpenTracer.Extract(opentracing.HTTPHeaders, ctx)
-			spanContext, err := opentelemetry.ExtractSpanContext(ctx)
-			if err != nil {
-				logger.Warnf("Unable to extract opentracing context: %v", err)
-				span = opentelemetry.DefaultOpenTracer.StartSpan(operationName)
-			} else {
-				span = opentelemetry.DefaultOpenTracer.StartSpan(operationName, opentracing.ChildOf(spanContext))
-			}
-
-			// Inject the context back in:
-			newCtx := opentelemetry.InjectSpanContext(ctx, span)
-
-			// Add operation metadata:
-			span.SetOperationName(req.Service() + "." + req.Endpoint())
+			// Start a span from context:
+			span, newCtx := opentracing.StartSpanFromContextWithTracer(ctx, opentelemetry.DefaultOpenTracer, operationName)
 
 			// Make the service call:
-			err = h(newCtx, req, rsp)
-			if err != nil {
+			if err := h(newCtx, req, rsp); err != nil {
 				// Include error info:
 				span.SetBaggageItem("error", err.Error())
 			}
@@ -55,7 +40,39 @@ func OpenTraceHandler() server.HandlerWrapper {
 			// finish
 			span.Finish()
 
-			return err
+			return nil
 		}
 	}
 }
+
+// type openTraceWrapper struct {
+// 	client.Client
+// }
+
+// func (c *openTraceWrapper) Call(ctx context.Context, req client.Request, rsp interface{}, opts ...client.CallOption) error {
+// 	// Concatenate the operation name:
+// 	operationName := fmt.Sprintf(req.Service() + "." + req.Endpoint())
+
+// 	span := opentelemetry.DefaultOpenTracer.StartSpan(operationName)
+// 	span.SetTag("SAMPLING_PRIORITY", 1)
+
+// 	// Inject the context back in:
+// 	newCtx := opentelemetry.InjectSpanContext(ctx, span)
+
+// 	err := c.Client.Call(newCtx, req, rsp, opts...)
+// 	if err != nil {
+// 		span.SetBaggageItem("error", err.Error())
+// 	}
+
+// 	// finish
+// 	span.Finish()
+
+// 	return err
+// }
+
+// // OpenTraceCall is a call tracing wrapper
+// func OpenTraceCall(c client.Client) client.Client {
+// 	return &traceWrapper{
+// 		Client: c,
+// 	}
+// }
