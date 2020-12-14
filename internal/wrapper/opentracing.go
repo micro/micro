@@ -18,7 +18,6 @@ func OpenTraceHandler() server.HandlerWrapper {
 
 		// return a function that returns a function
 		return func(ctx context.Context, req server.Request, rsp interface{}) error {
-			var span opentracing.Span
 
 			// Concatenate the operation name:
 			operationName := fmt.Sprintf(req.Service() + "." + req.Endpoint())
@@ -30,6 +29,7 @@ func OpenTraceHandler() server.HandlerWrapper {
 
 			// Start a span from context:
 			span, newCtx := opentracing.StartSpanFromContextWithTracer(ctx, opentelemetry.DefaultOpenTracer, operationName)
+			defer span.Finish()
 
 			// Make the service call:
 			if err := h(newCtx, req, rsp); err != nil {
@@ -37,42 +37,7 @@ func OpenTraceHandler() server.HandlerWrapper {
 				span.SetBaggageItem("error", err.Error())
 			}
 
-			// finish
-			span.Finish()
-
 			return nil
 		}
 	}
 }
-
-// type openTraceWrapper struct {
-// 	client.Client
-// }
-
-// func (c *openTraceWrapper) Call(ctx context.Context, req client.Request, rsp interface{}, opts ...client.CallOption) error {
-// 	// Concatenate the operation name:
-// 	operationName := fmt.Sprintf(req.Service() + "." + req.Endpoint())
-
-// 	span := opentelemetry.DefaultOpenTracer.StartSpan(operationName)
-// 	span.SetTag("SAMPLING_PRIORITY", 1)
-
-// 	// Inject the context back in:
-// 	newCtx := opentelemetry.InjectSpanContext(ctx, span)
-
-// 	err := c.Client.Call(newCtx, req, rsp, opts...)
-// 	if err != nil {
-// 		span.SetBaggageItem("error", err.Error())
-// 	}
-
-// 	// finish
-// 	span.Finish()
-
-// 	return err
-// }
-
-// // OpenTraceCall is a call tracing wrapper
-// func OpenTraceCall(c client.Client) client.Client {
-// 	return &traceWrapper{
-// 		Client: c,
-// 	}
-// }
