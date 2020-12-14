@@ -33,6 +33,8 @@ import (
 	"github.com/urfave/cli/v2"
 
 	inAuth "github.com/micro/micro/v3/internal/auth"
+	"github.com/micro/micro/v3/internal/opentelemetry"
+	"github.com/micro/micro/v3/internal/opentelemetry/jaeger"
 	"github.com/micro/micro/v3/internal/user"
 	microAuth "github.com/micro/micro/v3/service/auth"
 	microBuilder "github.com/micro/micro/v3/service/build"
@@ -117,6 +119,13 @@ var Local = &Profile{
 			logger.Fatalf("Error configuring file blob store: %v", err)
 		}
 
+		// Configure tracing with Jaeger (forced tracing):
+		openTracer, err := jaeger.New(opentelemetry.WithSamplingRate(1))
+		if err != nil {
+			logger.Fatalf("Error configuring opentracing: %v", err)
+		}
+		opentelemetry.DefaultOpenTracer = openTracer
+
 		return nil
 	},
 }
@@ -165,6 +174,14 @@ var Kubernetes = &Profile{
 
 		microRouter.DefaultRouter = k8sRouter.NewRouter()
 		client.DefaultClient.Init(client.Router(microRouter.DefaultRouter))
+
+		// Configure tracing with Jaeger:
+		openTracer, err := jaeger.New(opentelemetry.WithTraceReporterAddress("jaeger:6831"))
+		if err != nil {
+			logger.Fatalf("Error configuring opentracing: %v", err)
+		}
+		opentelemetry.DefaultOpenTracer = openTracer
+
 		return nil
 	},
 }

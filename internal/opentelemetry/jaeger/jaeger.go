@@ -2,6 +2,7 @@ package jaeger
 
 import (
 	"github.com/micro/micro/v3/internal/opentelemetry"
+	"github.com/micro/micro/v3/service/logger"
 	"github.com/opentracing/opentracing-go"
 	"github.com/uber/jaeger-client-go/config"
 )
@@ -12,6 +13,8 @@ func New(opts ...opentelemetry.Option) (opentracing.Tracer, error) {
 	for _, o := range opts {
 		o(&options)
 	}
+
+	logger.Warnf("Creating a new Jaeger tracer")
 
 	// Prepare a Jaeger config using our options:
 	jaegerConfig := config.Configuration{

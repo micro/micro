@@ -11,8 +11,8 @@ type Option func(o *Options)
 
 const (
 	defaultSamplingRate         = float64(0)
-	defaultServiceName          = "service"
-	defaultTraceReporterAddress = "localhost:8080"
+	defaultServiceName          = "Micro"
+	defaultTraceReporterAddress = "localhost:6831"
 )
 
 // DefaultOptions returns default options:
