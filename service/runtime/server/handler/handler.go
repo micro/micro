@@ -95,41 +95,51 @@ func (r *Runtime) Logs(ctx context.Context, req *pb.LogsRequest, stream pb.Runti
 	opts := toLogsOptions(ctx, req.Options)
 
 	// options passed in the request
-	if req.GetCount() > 0 {
-		opts = append(opts, runtime.LogsCount(req.GetCount()))
-	}
-	if req.GetStream() {
-		opts = append(opts, runtime.LogsStream(req.GetStream()))
+	if req.Count > 0 {
+		opts = append(opts, runtime.LogsCount(req.Count))
 	}
 
+	if req.Stream {
+		opts = append(opts, runtime.LogsStream(req.Stream))
+	}
+
+	// request the logs from the backend
 	logStream, err := r.Runtime.Logs(&runtime.Service{
 		Name: req.GetService(),
 	}, opts...)
 	if err != nil {
 		return err
 	}
-	defer logStream.Stop()
+
 	defer stream.Close()
 
+	// get the log stream itself
 	recordChan := logStream.Chan()
-	for {
-		select {
-		case record, ok := <-recordChan:
-			if !ok {
-				return logStream.Error()
+
+	// when the context is cancelled aka timeout, notify of done
+	go func() {
+		for {
+			select {
+			case <-ctx.Done():
+				// stop the stream once done
+				logStream.Stop()
 			}
-			// send record
-			if err := stream.Send(&pb.LogRecord{
-				//Timestamp: record.Timestamp.Unix(),
-				Metadata: record.Metadata,
-				Message:  record.Message,
-			}); err != nil {
-				return err
-			}
-		case <-ctx.Done():
-			return nil
+		}
+	}()
+
+	// stream all records to completion
+	for record := range recordChan {
+		// send record
+		if err := stream.Send(&pb.LogRecord{
+			//Timestamp: record.Timestamp.Unix(),
+			Metadata: record.Metadata,
+			Message:  record.Message,
+		}); err != nil {
+			return err
 		}
 	}
+
+	return logStream.Error()
 }
 
 // Create a resource

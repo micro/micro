@@ -193,9 +193,9 @@ func (k *klog) Stream() (runtime.LogStream, error) {
 
 	// stream from the individual pods
 	for _, pod := range pods {
-		go func(podName string) {
-			wg.Add(1)
+		wg.Add(1)
 
+		go func(podName string) {
 			if err := k.podLogs(podName, stream); err != nil {
 				logger.Errorf("Error streaming from pod: %v", err)
 			}
