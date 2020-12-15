@@ -506,7 +506,7 @@ func main() {
 	srv.Init()
 
 	// read config value
-	val, _ := config.Get("key", "subkey")
+	val, _ := config.Get("key.subkey")
 	fmt.Println("Value of key.subkey: ", val.String(""))
 }
 ```
