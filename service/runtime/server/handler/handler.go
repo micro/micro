@@ -123,6 +123,7 @@ func (r *Runtime) Logs(ctx context.Context, req *pb.LogsRequest, stream pb.Runti
 			case <-ctx.Done():
 				// stop the stream once done
 				logStream.Stop()
+				return
 			}
 		}
 	}()
