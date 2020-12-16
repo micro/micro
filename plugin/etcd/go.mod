@@ -3,7 +3,7 @@ module github.com/micro/micro/plugin/etcd/v3
 go 1.15
 
 require (
-	github.com/micro/micro/v3 v3.0.0-beta.6
+	github.com/micro/micro/v3 v3.0.3
 	github.com/mitchellh/hashstructure v1.0.0
 	go.etcd.io/etcd v0.5.0-alpha.5.0.20200425165423-262c93980547
 	go.uber.org/zap v1.16.0
