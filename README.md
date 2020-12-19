@@ -109,6 +109,12 @@ Run the server locally
 micro server
 ```
 
+Set the environment to local (127.0.0.1:8081)
+
+```
+micro env set local
+```
+
 Login to the server
 
 ```
