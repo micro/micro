@@ -29,6 +29,7 @@ import (
 	httpapi "github.com/micro/micro/v3/internal/api/server/http"
 	"github.com/micro/micro/v3/internal/handler"
 	"github.com/micro/micro/v3/internal/helper"
+	"github.com/micro/micro/v3/internal/opentelemetry"
 	rrmicro "github.com/micro/micro/v3/internal/resolver/api"
 	"github.com/micro/micro/v3/internal/sync/memory"
 	"github.com/micro/micro/v3/plugin"
@@ -296,6 +297,9 @@ func Run(ctx *cli.Context) error {
 
 	// append the auth wrapper
 	h = auth.Wrapper(rr, Namespace)(h)
+
+	// append the opentelemetry wrapper
+	h = opentelemetry.HTTPWrapper(h)
 
 	// create a new api server with wrappers
 	api := httpapi.NewServer(Address)
