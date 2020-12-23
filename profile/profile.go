@@ -124,7 +124,7 @@ var Local = &Profile{
 		if len(tracingServiceName) == 0 {
 			tracingServiceName = "Micro"
 		}
-		openTracer, err := jaeger.New(
+		openTracer, _, err := jaeger.New(
 			opentelemetry.WithServiceName(tracingServiceName),
 			opentelemetry.WithSamplingRate(1),
 		)
@@ -187,7 +187,7 @@ var Kubernetes = &Profile{
 		if len(tracingServiceName) == 0 {
 			tracingServiceName = "Micro"
 		}
-		openTracer, err := jaeger.New(
+		openTracer, _, err := jaeger.New(
 			opentelemetry.WithServiceName(tracingServiceName),
 			opentelemetry.WithTraceReporterAddress("jaeger:6831"),
 		)
