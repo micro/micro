@@ -233,7 +233,7 @@ See [LICENSE](LICENSE) which makes use of [Polyform Shield](https://polyformproj
 
 ## Hosting
 
-For a hosted Micro Platform aka M3O see [m3o.com](https://m3o.com).
+For the hosted Micro Platform aka M3O see [m3o.com](https://m3o.com).
 
 ## Community
 
