@@ -43,7 +43,7 @@ See the [TODO](/todo) list, open a PR and start hacking away at the docs.
 
 ## Community
 
-Join us in [Discussions](https://github.com/micro/micro/discussions). Follow [@microhq](https://twitter.com/microhq) on Twitter for updates.
+Join us in [Discussions](https://github.com/micro/micro/discussions) or [Slack](https://slack.m3o.com).
 
 ## Hosting
 
