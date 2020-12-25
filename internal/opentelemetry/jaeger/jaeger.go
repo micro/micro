@@ -9,6 +9,10 @@ import (
 	"github.com/uber/jaeger-client-go/config"
 )
 
+const (
+	DefaultReporterAddress = "jaeger:6831"
+)
+
 // New returns a configured Jaeger tracer:
 func New(opts ...opentelemetry.Option) (opentracing.Tracer, io.Closer, error) {
 	options := opentelemetry.DefaultOptions()

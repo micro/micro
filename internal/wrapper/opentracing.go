@@ -8,7 +8,6 @@ import (
 	"strings"
 
 	"github.com/micro/micro/v3/internal/opentelemetry"
-	"github.com/micro/micro/v3/internal/opentelemetry/jaeger"
 	"github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/server"
 	"github.com/opentracing/opentracing-go"
@@ -34,14 +33,10 @@ func OpenTraceHandler() server.HandlerWrapper {
 
 			// Start a span from context:
 			span, newCtx := opentracing.StartSpanFromContextWithTracer(ctx, opentelemetry.DefaultOpenTracer, operationName)
-			span.SetTag("req.endpoint", req.Endpoint())
-			span.SetTag("req.method", req.Method())
-			span.SetTag("req.service", req.Service())
 			defer span.Finish()
 
-			// Make the service call:
+			// Make the service call, and include error info (if any):
 			if err := h(newCtx, req, rsp); err != nil {
-				// Include error info:
 				span.SetBaggageItem("error", err.Error())
 			}
 
@@ -50,22 +45,37 @@ func OpenTraceHandler() server.HandlerWrapper {
 	}
 }
 
-type wrapper struct {
+type httpWrapper struct {
 	handler http.Handler
-	tracer  opentracing.Tracer
 }
 
-func (w *wrapper) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
+func (hw *httpWrapper) ServeHTTP(rsp http.ResponseWriter, req *http.Request) {
 
 	// We'll use this for the operation name:
-	operationName := r.RequestURI
+	operationName := req.RequestURI
+
+	// Initialise a statusRecorder with an assumed 200 status:
+	statusRecorder := &statusRecorder{rsp, 200}
+
+	// Pass the request down the chain:
+	hw.handler.ServeHTTP(statusRecorder, req)
 
 	// Start a span:
-	span, newCtx := opentracing.StartSpanFromContextWithTracer(r.Context(), w.tracer, operationName)
+	span, newCtx := opentracing.StartSpanFromContext(req.Context(), operationName)
 	ext.SamplingPriority.Set(span, 1)
 	defer span.Finish()
 
-	w.handler.ServeHTTP(rw, r.WithContext(newCtx))
+	// Handle the request:
+	hw.handler.ServeHTTP(rsp, req.WithContext(newCtx))
+
+	// Add trace metadata:
+	span.SetTag("req.method", req.Method)
+	span.SetTag("rsp.code", statusRecorder.statusCode)
+
+	// Error text:
+	if statusRecorder.statusCode >= 500 {
+		span.SetBaggageItem("error", http.StatusText(statusRecorder.statusCode))
+	}
 }
 
 // HTTPWrapper returns an HTTP handler wrapper:
@@ -73,14 +83,19 @@ func HTTPWrapper(h http.Handler) http.Handler {
 
 	logger.Infof("Preparing an OpenTelemetry HTTPWrapper (%s)", reflect.TypeOf(opentelemetry.DefaultOpenTracer))
 
-	// Shouldn't have to do this (profile isn't giving us the correct tracer):
-	openTracer, _, _ := jaeger.New(
-		opentelemetry.WithServiceName("API"),
-		opentelemetry.WithTraceReporterAddress("localhost:6831"),
-	)
-
-	return &wrapper{
+	return &httpWrapper{
 		handler: h,
-		tracer:  openTracer,
 	}
+}
+
+// statusRecorder wraps http.ResponseWriter so we can actually capture the status code:
+type statusRecorder struct {
+	http.ResponseWriter
+	statusCode int
+}
+
+// WriteHeader is where we capture the status:
+func (sr *statusRecorder) WriteHeader(statusCode int) {
+	sr.statusCode = statusCode
+	sr.ResponseWriter.WriteHeader(statusCode)
 }
