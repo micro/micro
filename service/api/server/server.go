@@ -302,7 +302,6 @@ func Run(ctx *cli.Context) error {
 
 	// Retrieve config:
 	jaegerAddress, _ := config.Get("jaegeraddress")
-	jaegerAddress.String(jaeger.DefaultReporterAddress)
 
 	// Create a new Jaeger opentracer:
 	openTracer, traceCloser, err := jaeger.New(

@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	DefaultReporterAddress = "jaeger:6831"
+	DefaultReporterAddress = "localhost:6831"
 )
 
 // New returns a configured Jaeger tracer:
