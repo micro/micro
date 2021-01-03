@@ -12,7 +12,6 @@ import (
 	"github.com/micro/micro/v3/service/context/metadata"
 	"github.com/micro/micro/v3/service/errors"
 	"github.com/micro/micro/v3/service/logger"
-	log "github.com/micro/micro/v3/service/logger"
 	"github.com/urfave/cli/v2"
 )
 
@@ -79,12 +78,12 @@ func (h *handler) Publish(ctx context.Context, req *pb.PublishRequest, rsp *pb.E
 		}
 	}
 
-	log.Debugf("Publishing message to %s topic in the %v namespace", req.Topic, acc.Issuer)
+	logger.Debugf("Publishing message to %s topic in the %v namespace", req.Topic, acc.Issuer)
 	err := broker.DefaultBroker.Publish(acc.Issuer+"."+req.Topic, &broker.Message{
 		Header: req.Message.Header,
 		Body:   req.Message.Body,
 	})
-	log.Debugf("Published message to %s topic in the %v namespace", req.Topic, acc.Issuer)
+	logger.Debugf("Published message to %s topic in the %v namespace", req.Topic, acc.Issuer)
 	if err != nil {
 		return errors.InternalServerError("broker.Broker.Publish", err.Error())
 	}
@@ -117,22 +116,22 @@ func (h *handler) Subscribe(ctx context.Context, req *pb.SubscribeRequest, strea
 		return nil
 	}
 
-	log.Debugf("Subscribing to %s topic in namespace %v", req.Topic, ns)
+	logger.Debugf("Subscribing to %s topic in namespace %v", req.Topic, ns)
 	sub, err := broker.DefaultBroker.Subscribe(ns+"."+req.Topic, handler, broker.Queue(ns+"."+req.Queue))
 	if err != nil {
 		return errors.InternalServerError("broker.Broker.Subscribe", err.Error())
 	}
 	defer func() {
-		log.Debugf("Unsubscribing from topic %s in namespace %v", req.Topic, ns)
+		logger.Debugf("Unsubscribing from topic %s in namespace %v", req.Topic, ns)
 		sub.Unsubscribe()
 	}()
 
 	select {
 	case <-ctx.Done():
-		log.Debugf("Context done for subscription to topic %s", req.Topic)
+		logger.Debugf("Context done for subscription to topic %s", req.Topic)
 		return nil
 	case err := <-errChan:
-		log.Debugf("Subscription error for topic %s: %v", req.Topic, err)
+		logger.Debugf("Subscription error for topic %s: %v", req.Topic, err)
 		return err
 	}
 }

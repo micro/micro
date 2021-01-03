@@ -14,7 +14,6 @@ import (
 	"github.com/micro/micro/v3/service/proxy/grpc"
 	"github.com/micro/micro/v3/service/proxy/http"
 	"github.com/micro/micro/v3/service/proxy/mucp"
-	muruntime "github.com/micro/micro/v3/service/runtime"
 	rt "github.com/micro/micro/v3/service/runtime"
 	"github.com/micro/micro/v3/service/server"
 	ccli "github.com/urfave/cli/v2"
@@ -98,7 +97,7 @@ func Run(ctx *ccli.Context) {
 		}
 
 		// create new local runtime
-		r := muruntime.DefaultRuntime
+		r := rt.DefaultRuntime
 
 		// start the runtime
 		r.Start()
