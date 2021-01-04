@@ -7,7 +7,6 @@ import (
 	"github.com/micro/micro/v3/service"
 	log "github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/runtime"
-	goruntime "github.com/micro/micro/v3/service/runtime"
 	"github.com/micro/micro/v3/service/runtime/server/handler"
 	"github.com/micro/micro/v3/service/runtime/server/manager"
 	"github.com/urfave/cli/v2"
@@ -51,7 +50,7 @@ func Run(ctx *cli.Context) error {
 
 	// create runtime
 	if ctx.IsSet("source") {
-		runtime.DefaultRuntime.Init(goruntime.WithSource(ctx.String("source")))
+		runtime.DefaultRuntime.Init(runtime.WithSource(ctx.String("source")))
 	}
 
 	// append name

@@ -9,14 +9,12 @@ import (
 	"github.com/micro/micro/v3/service/auth"
 	"github.com/micro/micro/v3/service/errors"
 	"github.com/micro/micro/v3/service/events"
-	goevents "github.com/micro/micro/v3/service/events"
 	log "github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/runtime"
-	gorun "github.com/micro/micro/v3/service/runtime"
 )
 
 type Runtime struct {
-	Runtime gorun.Runtime
+	Runtime runtime.Runtime
 }
 
 func setupServiceMeta(ctx context.Context, service *runtime.Service) {
@@ -171,12 +169,12 @@ func (r *Runtime) Create(ctx context.Context, req *pb.CreateRequest, rsp *pb.Cre
 	// Handle the different possible types of resource
 	switch {
 	case req.Resource.Namespace != nil:
-		ns, err := gorun.NewNamespace(req.Resource.Namespace.Name)
+		ns, err := runtime.NewNamespace(req.Resource.Namespace.Name)
 		if err != nil {
 			return err
 		}
 
-		if err := r.Runtime.Create(ns, gorun.CreateNamespace(req.Resource.Namespace.Name)); err != nil {
+		if err := r.Runtime.Create(ns, runtime.CreateNamespace(req.Resource.Namespace.Name)); err != nil {
 			return err
 		}
 
@@ -185,18 +183,18 @@ func (r *Runtime) Create(ctx context.Context, req *pb.CreateRequest, rsp *pb.Cre
 			Namespace: ns.Name,
 		}
 
-		return events.Publish(runtime.EventTopic, ev, goevents.WithMetadata(map[string]string{
+		return events.Publish(runtime.EventTopic, ev, events.WithMetadata(map[string]string{
 			"type":      runtime.EventNamespaceCreated,
 			"namespace": ns.Name,
 		}))
 
 	case req.Resource.Networkpolicy != nil:
-		np, err := gorun.NewNetworkPolicy(req.Resource.Networkpolicy.Name, req.Resource.Networkpolicy.Namespace, req.Resource.Networkpolicy.Allowedlabels)
+		np, err := runtime.NewNetworkPolicy(req.Resource.Networkpolicy.Name, req.Resource.Networkpolicy.Namespace, req.Resource.Networkpolicy.Allowedlabels)
 		if err != nil {
 			return err
 		}
 
-		if err := r.Runtime.Create(np, gorun.CreateNamespace(req.Resource.Networkpolicy.Namespace)); err != nil {
+		if err := r.Runtime.Create(np, runtime.CreateNamespace(req.Resource.Networkpolicy.Namespace)); err != nil {
 			return err
 		}
 
@@ -207,21 +205,21 @@ func (r *Runtime) Create(ctx context.Context, req *pb.CreateRequest, rsp *pb.Cre
 			NetworkPolicy: np,
 		}
 
-		return events.Publish(runtime.EventTopic, ev, goevents.WithMetadata(map[string]string{
+		return events.Publish(runtime.EventTopic, ev, events.WithMetadata(map[string]string{
 			"type":      ev.Type,
 			"namespace": ev.Namespace,
 		}))
 
 	case req.Resource.Resourcequota != nil:
-		rq, err := gorun.NewResourceQuota(
+		rq, err := runtime.NewResourceQuota(
 			req.Resource.Resourcequota.Name,
 			req.Resource.Resourcequota.Namespace,
-			&gorun.Resources{
+			&runtime.Resources{
 				CPU:  int(req.Resource.Resourcequota.Requests.CPU),
 				Disk: int(req.Resource.Resourcequota.Requests.EphemeralStorage),
 				Mem:  int(req.Resource.Resourcequota.Requests.Memory),
 			},
-			&gorun.Resources{
+			&runtime.Resources{
 				CPU:  int(req.Resource.Resourcequota.Limits.CPU),
 				Disk: int(req.Resource.Resourcequota.Limits.EphemeralStorage),
 				Mem:  int(req.Resource.Resourcequota.Limits.Memory),
@@ -231,7 +229,7 @@ func (r *Runtime) Create(ctx context.Context, req *pb.CreateRequest, rsp *pb.Cre
 			return err
 		}
 
-		if err := r.Runtime.Create(rq, gorun.CreateNamespace(req.Resource.Resourcequota.Namespace)); err != nil {
+		if err := r.Runtime.Create(rq, runtime.CreateNamespace(req.Resource.Resourcequota.Namespace)); err != nil {
 			return err
 		}
 
@@ -241,7 +239,7 @@ func (r *Runtime) Create(ctx context.Context, req *pb.CreateRequest, rsp *pb.Cre
 			Namespace: rq.Namespace,
 		}
 
-		return events.Publish(runtime.EventTopic, ev, goevents.WithMetadata(map[string]string{
+		return events.Publish(runtime.EventTopic, ev, events.WithMetadata(map[string]string{
 			"type":      ev.Type,
 			"namespace": ev.Namespace,
 		}))
@@ -266,7 +264,7 @@ func (r *Runtime) Create(ctx context.Context, req *pb.CreateRequest, rsp *pb.Cre
 			Type:      runtime.EventServiceCreated,
 		}
 
-		return events.Publish(runtime.EventTopic, ev, goevents.WithMetadata(map[string]string{
+		return events.Publish(runtime.EventTopic, ev, events.WithMetadata(map[string]string{
 			"type":      runtime.EventServiceCreated,
 			"namespace": req.Options.Namespace,
 		}))
@@ -304,12 +302,12 @@ func (r *Runtime) Delete(ctx context.Context, req *pb.DeleteRequest, rsp *pb.Del
 	// Handle the different possible types of resource
 	switch {
 	case req.Resource.Namespace != nil:
-		ns, err := gorun.NewNamespace(req.Resource.Namespace.Name)
+		ns, err := runtime.NewNamespace(req.Resource.Namespace.Name)
 		if err != nil {
 			return err
 		}
 
-		if err := r.Runtime.Delete(ns, gorun.DeleteNamespace(req.Resource.Namespace.Name)); err != nil {
+		if err := r.Runtime.Delete(ns, runtime.DeleteNamespace(req.Resource.Namespace.Name)); err != nil {
 			return err
 		}
 
@@ -318,18 +316,18 @@ func (r *Runtime) Delete(ctx context.Context, req *pb.DeleteRequest, rsp *pb.Del
 			Namespace: ns.Name,
 		}
 
-		return events.Publish(runtime.EventTopic, ev, goevents.WithMetadata(map[string]string{
+		return events.Publish(runtime.EventTopic, ev, events.WithMetadata(map[string]string{
 			"type":      runtime.EventNamespaceDeleted,
 			"namespace": ns.Name,
 		}))
 
 	case req.Resource.Networkpolicy != nil:
-		np, err := gorun.NewNetworkPolicy(req.Resource.Networkpolicy.Name, req.Resource.Networkpolicy.Namespace, req.Resource.Networkpolicy.Allowedlabels)
+		np, err := runtime.NewNetworkPolicy(req.Resource.Networkpolicy.Name, req.Resource.Networkpolicy.Namespace, req.Resource.Networkpolicy.Allowedlabels)
 		if err != nil {
 			return err
 		}
 
-		if err := r.Runtime.Delete(np, gorun.DeleteNamespace(req.Resource.Networkpolicy.Namespace)); err != nil {
+		if err := r.Runtime.Delete(np, runtime.DeleteNamespace(req.Resource.Networkpolicy.Namespace)); err != nil {
 			return err
 		}
 
@@ -340,23 +338,23 @@ func (r *Runtime) Delete(ctx context.Context, req *pb.DeleteRequest, rsp *pb.Del
 			NetworkPolicy: np,
 		}
 
-		return events.Publish(runtime.EventTopic, ev, goevents.WithMetadata(map[string]string{
+		return events.Publish(runtime.EventTopic, ev, events.WithMetadata(map[string]string{
 			"type":      ev.Type,
 			"namespace": ev.Namespace,
 		}))
 
 	case req.Resource.Resourcequota != nil:
-		rq, err := gorun.NewResourceQuota(
+		rq, err := runtime.NewResourceQuota(
 			req.Resource.Resourcequota.Name,
 			req.Resource.Resourcequota.Namespace,
-			&gorun.Resources{},
-			&gorun.Resources{},
+			&runtime.Resources{},
+			&runtime.Resources{},
 		)
 		if err != nil {
 			return err
 		}
 
-		if err := r.Runtime.Delete(rq, gorun.DeleteNamespace(req.Resource.Resourcequota.Namespace)); err != nil {
+		if err := r.Runtime.Delete(rq, runtime.DeleteNamespace(req.Resource.Resourcequota.Namespace)); err != nil {
 			return err
 		}
 
@@ -366,7 +364,7 @@ func (r *Runtime) Delete(ctx context.Context, req *pb.DeleteRequest, rsp *pb.Del
 			Namespace: rq.Namespace,
 		}
 
-		return events.Publish(runtime.EventTopic, ev, goevents.WithMetadata(map[string]string{
+		return events.Publish(runtime.EventTopic, ev, events.WithMetadata(map[string]string{
 			"type":      ev.Type,
 			"namespace": ev.Namespace,
 		}))
@@ -389,7 +387,7 @@ func (r *Runtime) Delete(ctx context.Context, req *pb.DeleteRequest, rsp *pb.Del
 			Service:   service,
 		}
 
-		return events.Publish(runtime.EventTopic, ev, goevents.WithMetadata(map[string]string{
+		return events.Publish(runtime.EventTopic, ev, events.WithMetadata(map[string]string{
 			"type":      runtime.EventServiceDeleted,
 			"namespace": req.Options.Namespace,
 		}))
@@ -431,12 +429,12 @@ func (r *Runtime) Update(ctx context.Context, req *pb.UpdateRequest, rsp *pb.Upd
 		return nil
 
 	case req.Resource.Networkpolicy != nil:
-		np, err := gorun.NewNetworkPolicy(req.Resource.Networkpolicy.Name, req.Resource.Networkpolicy.Namespace, req.Resource.Networkpolicy.Allowedlabels)
+		np, err := runtime.NewNetworkPolicy(req.Resource.Networkpolicy.Name, req.Resource.Networkpolicy.Namespace, req.Resource.Networkpolicy.Allowedlabels)
 		if err != nil {
 			return err
 		}
 
-		if err := r.Runtime.Update(np, gorun.UpdateNamespace(req.Resource.Networkpolicy.Namespace)); err != nil {
+		if err := r.Runtime.Update(np, runtime.UpdateNamespace(req.Resource.Networkpolicy.Namespace)); err != nil {
 			return err
 		}
 
@@ -447,21 +445,21 @@ func (r *Runtime) Update(ctx context.Context, req *pb.UpdateRequest, rsp *pb.Upd
 			NetworkPolicy: np,
 		}
 
-		return events.Publish(runtime.EventTopic, ev, goevents.WithMetadata(map[string]string{
+		return events.Publish(runtime.EventTopic, ev, events.WithMetadata(map[string]string{
 			"type":      ev.Type,
 			"namespace": ev.Namespace,
 		}))
 
 	case req.Resource.Resourcequota != nil:
-		rq, err := gorun.NewResourceQuota(
+		rq, err := runtime.NewResourceQuota(
 			req.Resource.Resourcequota.Name,
 			req.Resource.Resourcequota.Namespace,
-			&gorun.Resources{
+			&runtime.Resources{
 				CPU:  int(req.Resource.Resourcequota.Requests.CPU),
 				Disk: int(req.Resource.Resourcequota.Requests.EphemeralStorage),
 				Mem:  int(req.Resource.Resourcequota.Requests.Memory),
 			},
-			&gorun.Resources{
+			&runtime.Resources{
 				CPU:  int(req.Resource.Resourcequota.Limits.CPU),
 				Disk: int(req.Resource.Resourcequota.Limits.EphemeralStorage),
 				Mem:  int(req.Resource.Resourcequota.Limits.Memory),
@@ -471,7 +469,7 @@ func (r *Runtime) Update(ctx context.Context, req *pb.UpdateRequest, rsp *pb.Upd
 			return err
 		}
 
-		if err := r.Runtime.Update(rq, gorun.UpdateNamespace(req.Resource.Resourcequota.Namespace)); err != nil {
+		if err := r.Runtime.Update(rq, runtime.UpdateNamespace(req.Resource.Resourcequota.Namespace)); err != nil {
 			return err
 		}
 
@@ -481,7 +479,7 @@ func (r *Runtime) Update(ctx context.Context, req *pb.UpdateRequest, rsp *pb.Upd
 			Namespace: rq.Namespace,
 		}
 
-		return events.Publish(runtime.EventTopic, ev, goevents.WithMetadata(map[string]string{
+		return events.Publish(runtime.EventTopic, ev, events.WithMetadata(map[string]string{
 			"type":      ev.Type,
 			"namespace": ev.Namespace,
 		}))
@@ -506,7 +504,7 @@ func (r *Runtime) Update(ctx context.Context, req *pb.UpdateRequest, rsp *pb.Upd
 			Type:      runtime.EventServiceUpdated,
 		}
 
-		return events.Publish(runtime.EventTopic, ev, goevents.WithMetadata(map[string]string{
+		return events.Publish(runtime.EventTopic, ev, events.WithMetadata(map[string]string{
 			"type":      runtime.EventServiceUpdated,
 			"namespace": req.Options.Namespace,
 		}))
