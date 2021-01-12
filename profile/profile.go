@@ -37,8 +37,6 @@ import (
 	microAuth "github.com/micro/micro/v3/service/auth"
 	microBuilder "github.com/micro/micro/v3/service/build"
 	microEvents "github.com/micro/micro/v3/service/events"
-	microRegistry "github.com/micro/micro/v3/service/registry"
-	microRouter "github.com/micro/micro/v3/service/router"
 	microRuntime "github.com/micro/micro/v3/service/runtime"
 	microStore "github.com/micro/micro/v3/service/store"
 )
@@ -163,8 +161,8 @@ var Kubernetes = &Profile{
 		}
 		SetupConfigSecretKey(ctx)
 
-		microRouter.DefaultRouter = k8sRouter.NewRouter()
-		client.DefaultClient.Init(client.Router(microRouter.DefaultRouter))
+		router.DefaultRouter = k8sRouter.NewRouter()
+		client.DefaultClient.Init(client.Router(router.DefaultRouter))
 		return nil
 	},
 }
@@ -190,8 +188,8 @@ var Test = &Profile{
 
 // SetupRegistry configures the registry
 func SetupRegistry(reg registry.Registry) {
-	microRegistry.DefaultRegistry = reg
-	microRouter.DefaultRouter = regRouter.NewRouter(router.Registry(reg))
+	registry.DefaultRegistry = reg
+	router.DefaultRouter = regRouter.NewRouter(router.Registry(reg))
 	client.DefaultClient.Init(client.Registry(reg))
 	server.DefaultServer.Init(server.Registry(reg))
 }

@@ -26,12 +26,10 @@ const (
 
 var (
 	defaultRequests = &Resources{
-		CPU:  2000, // 2GB
 		Mem:  2000, // 2GB
 		Disk: 5000, // 5GB
 	}
 	defaultLimits = &Resources{
-		CPU:  4000,  // 4GB
 		Mem:  4000,  // 4GB
 		Disk: 10000, // 10GB
 	}
