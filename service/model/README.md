@@ -14,8 +14,8 @@ import(
 )
 
 type User struct {
-    ID      string `json:"id"`
-    Name string    `json:"name"`
+	ID      string `json:"id"`
+ 	Name string    `json:"name"`
 	Age     int    `json:"age"`
 	HasPet  bool   `json:"hasPet"`
 	Created int64  `json:"created"`
