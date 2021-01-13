@@ -12,7 +12,6 @@ import (
 	"github.com/micro/micro/v3/service/errors"
 	"github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/store"
-	gostore "github.com/micro/micro/v3/service/store"
 )
 
 const (
@@ -62,7 +61,7 @@ func (r *Rules) setupDefaultRules(ns string) {
 
 	// check to see if we need to create the default account
 	key := strings.Join([]string{storePrefixRules, ns, ""}, joinKey)
-	recs, err := store.DefaultStore.Read(key, gostore.ReadPrefix())
+	recs, err := store.DefaultStore.Read(key, store.ReadPrefix())
 	if err != nil {
 		return
 	}
@@ -155,7 +154,7 @@ func (r *Rules) Delete(ctx context.Context, req *pb.DeleteRequest, rsp *pb.Delet
 	// Delete the rule
 	key := strings.Join([]string{storePrefixRules, req.Options.Namespace, req.Id}, joinKey)
 	err := store.DefaultStore.Delete(key)
-	if err == gostore.ErrNotFound {
+	if err == store.ErrNotFound {
 		return errors.BadRequest("auth.Rules.Delete", "Rule not found")
 	} else if err != nil {
 		return errors.InternalServerError("auth.Rules.Delete", "Unable to delete key from store: %v", err)
@@ -193,7 +192,7 @@ func (r *Rules) List(ctx context.Context, req *pb.ListRequest, rsp *pb.ListRespo
 
 	// get the records from the store
 	prefix := strings.Join([]string{storePrefixRules, req.Options.Namespace, ""}, joinKey)
-	recs, err := store.DefaultStore.Read(prefix, gostore.ReadPrefix())
+	recs, err := store.DefaultStore.Read(prefix, store.ReadPrefix())
 	if err != nil {
 		return errors.InternalServerError("auth.Rules.List", "Unable to read from store: %v", err)
 	}
@@ -225,7 +224,7 @@ func (r *Rules) writeRule(rule *pb.Rule, ns string) error {
 	}
 
 	// Write to the store
-	if err := store.DefaultStore.Write(&gostore.Record{Key: key, Value: bytes}); err != nil {
+	if err := store.DefaultStore.Write(&store.Record{Key: key, Value: bytes}); err != nil {
 		return errors.InternalServerError("auth.Rules.Create", "Unable to write to the store: %v", err)
 	}
 

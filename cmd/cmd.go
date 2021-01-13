@@ -35,9 +35,7 @@ import (
 	"github.com/micro/micro/v3/service/store"
 	"github.com/urfave/cli/v2"
 
-	muregistry "github.com/micro/micro/v3/service/registry"
 	muruntime "github.com/micro/micro/v3/service/runtime"
-	mustore "github.com/micro/micro/v3/service/store"
 )
 
 type Cmd interface {
@@ -482,7 +480,7 @@ func (c *command) Before(ctx *cli.Context) error {
 		addresses := strings.Split(ctx.String("registry_address"), ",")
 		registryOpts = append(registryOpts, registry.Addrs(addresses...))
 	}
-	if err := muregistry.DefaultRegistry.Init(registryOpts...); err != nil {
+	if err := registry.DefaultRegistry.Init(registryOpts...); err != nil {
 		logger.Fatalf("Error configuring registry: %v", err)
 	}
 
@@ -536,18 +534,18 @@ func (c *command) Before(ctx *cli.Context) error {
 	if len(ctx.String("service_name")) > 0 {
 		storeOpts = append(storeOpts, store.Table(ctx.String("service_name")))
 	}
-	if err := mustore.DefaultStore.Init(storeOpts...); err != nil {
+	if err := store.DefaultStore.Init(storeOpts...); err != nil {
 		logger.Fatalf("Error configuring store: %v", err)
 	}
 
 	// set the registry and broker in the client and server
 	client.DefaultClient.Init(
 		client.Broker(broker.DefaultBroker),
-		client.Registry(muregistry.DefaultRegistry),
+		client.Registry(registry.DefaultRegistry),
 	)
 	server.DefaultServer.Init(
 		server.Broker(broker.DefaultBroker),
-		server.Registry(muregistry.DefaultRegistry),
+		server.Registry(registry.DefaultRegistry),
 	)
 
 	// Setup config. Do this after auth is configured since it'll load the config
@@ -556,7 +554,7 @@ func (c *command) Before(ctx *cli.Context) error {
 	if c.service && config.DefaultConfig == nil {
 		config.DefaultConfig = configCli.NewConfig(ctx.String("namespace"))
 	} else if config.DefaultConfig == nil {
-		config.DefaultConfig, _ = storeConf.NewConfig(mustore.DefaultStore, ctx.String("namespace"))
+		config.DefaultConfig, _ = storeConf.NewConfig(store.DefaultStore, ctx.String("namespace"))
 	}
 
 	return nil

@@ -10,7 +10,6 @@ import (
 	"github.com/micro/micro/v3/service/auth"
 	"github.com/micro/micro/v3/service/errors"
 	"github.com/micro/micro/v3/service/store"
-	gostore "github.com/micro/micro/v3/service/store"
 )
 
 const (
@@ -62,7 +61,7 @@ func (s *Source) Upload(ctx context.Context, stream pb.Source_UploadStream) erro
 
 	// write the source to the store
 	key := fmt.Sprintf("source://%v:%v", srv.Name, srv.Version)
-	opt := gostore.BlobNamespace(namespace)
+	opt := store.BlobNamespace(namespace)
 	if err := store.DefaultBlobStore.Write(key, buf, opt); err != nil {
 		return fmt.Errorf("Error writing source to blob store: %v", err)
 	}

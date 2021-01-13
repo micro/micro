@@ -15,7 +15,6 @@ import (
 	"github.com/micro/micro/v3/service/runtime"
 	"github.com/micro/micro/v3/service/runtime/source/git"
 	"github.com/micro/micro/v3/service/store"
-	gostore "github.com/micro/micro/v3/service/store"
 )
 
 func (m *manager) buildAndRun(srv *service) {
@@ -68,7 +67,7 @@ func (m *manager) build(srv *service) error {
 	var err error
 	if strings.HasPrefix(srv.Service.Source, "source://") {
 		// if the source was uploaded to the blob store, it'll have source:// as the prefix
-		nsOpt := gostore.BlobNamespace(srv.Options.Namespace)
+		nsOpt := store.BlobNamespace(srv.Options.Namespace)
 		source, err = store.DefaultBlobStore.Read(srv.Service.Source, nsOpt)
 	} else {
 		// the source will otherwise be a git remote, we'll clone it and then tar archive the result
@@ -114,7 +113,7 @@ func (m *manager) build(srv *service) error {
 	// which the cell (container) can then pull via the Runtime.Build.Read RPC.
 	if m.Runtime.String() != "local" {
 		logger.Infof("Uploading build %v:%v", srv.Service.Name, srv.Service.Version)
-		nsOpt := gostore.BlobNamespace(srv.Options.Namespace)
+		nsOpt := store.BlobNamespace(srv.Options.Namespace)
 		key := fmt.Sprintf("build://%v:%v", srv.Service.Name, srv.Service.Version)
 		if err := store.DefaultBlobStore.Write(key, build, nsOpt); err != nil {
 			handleError(err, "Error uploading build")
@@ -190,7 +189,7 @@ func (m *manager) checkoutSource(srv *service) (string, error) {
 // attribute. It will then unarchive the source into a temp directory and return the location of
 // said directory.
 func (m *manager) checkoutBlobSource(srv *service) (string, error) {
-	nsOpt := gostore.BlobNamespace(srv.Options.Namespace)
+	nsOpt := store.BlobNamespace(srv.Options.Namespace)
 	source, err := store.DefaultBlobStore.Read(srv.Service.Source, nsOpt)
 	if err != nil {
 		return "", err
@@ -306,7 +305,7 @@ func (m *manager) generateAccount(srv *service) (*auth.Account, error) {
 // running.
 func (m *manager) cleanupBlobStore(srv *service) {
 	// delete the raw source code
-	opt := gostore.BlobNamespace(srv.Options.Namespace)
+	opt := store.BlobNamespace(srv.Options.Namespace)
 	srcKey := fmt.Sprintf("source://%v:%v", srv.Service.Name, srv.Service.Version)
 	if err := store.DefaultBlobStore.Delete(srcKey, opt); err != nil && err != store.ErrNotFound {
 		logger.Warnf("Error deleting source %v: %v", srcKey, err)
