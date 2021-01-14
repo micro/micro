@@ -93,7 +93,7 @@ func (r *registryRouter) refreshNamespace(ns string) error {
 
 	// for each service, get service and store endpoints
 	for _, s := range services {
-		service, err := r.rc.GetService(s.Name)
+		service, err := r.rc.GetService(s.Name, registry.GetDomain(ns))
 		if err != nil {
 			if logger.V(logger.ErrorLevel, logger.DefaultLogger) {
 				logger.Errorf("unable to get service: %v", err)
@@ -137,6 +137,7 @@ func (r *registryRouter) process(res *registry.Result) {
 	}
 
 	// get entry from cache
+	// only deals with default namespace
 	service, err := r.rc.GetService(res.Service.Name)
 	if err != nil {
 		if logger.V(logger.ErrorLevel, logger.DefaultLogger) {
