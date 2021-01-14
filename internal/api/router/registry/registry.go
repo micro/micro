@@ -37,6 +37,11 @@ import (
 	"github.com/micro/micro/v3/service/registry/cache"
 )
 
+var (
+	errEmptyNamespace = errors.New("Namespace is empty")
+	errNotFound       = errors.New("not found")
+)
+
 // endpoint struct, that holds compiled pcre
 type endpoint struct {
 	hostregs []*regexp.Regexp
@@ -83,9 +88,7 @@ func (r *registryRouter) refreshNamespace(ns string) error {
 		return err
 	}
 	if len(services) == 0 {
-		// TODO
-		// remove namespace from list
-		return nil
+		return errEmptyNamespace
 	}
 
 	// for each service, get service and store endpoints
@@ -109,7 +112,12 @@ func (r *registryRouter) refresh() {
 		namespaces := r.namespaces
 		r.RUnlock()
 		for ns, _ := range namespaces {
-			r.refreshNamespace(ns)
+			err := r.refreshNamespace(ns)
+			if err == errEmptyNamespace {
+				r.Lock()
+				delete(namespaces, ns)
+				r.Unlock()
+			}
 		}
 		// refresh list in 5 minutes... cruft
 		// use registry watching
@@ -362,7 +370,8 @@ func (r *registryRouter) Endpoint(req *http.Request) (*api.Service, error) {
 	r.RUnlock()
 	if !ok {
 		// no entry in cache
-		return nil, errors.New("not found")
+		// TODO should we refresh the cache here?
+		return nil, errNotFound
 	}
 	nse.RLock()
 	defer nse.RUnlock()
@@ -462,7 +471,7 @@ endpointLoop:
 	}
 
 	// no match
-	return nil, errors.New("not found")
+	return nil, errNotFound
 }
 
 func (r *registryRouter) Route(req *http.Request) (*api.Service, error) {
