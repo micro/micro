@@ -16,6 +16,7 @@ import (
 	"unicode/utf8"
 
 	"github.com/micro/micro/v3/service/store"
+	"github.com/stoewer/go-strcase"
 )
 
 var (
@@ -101,13 +102,6 @@ func newIndex(v string) Index {
 	idIndex := ByEquality(v)
 	idIndex.Order.Type = OrderTypeUnordered
 	return idIndex
-}
-
-func setFieldValue(struc interface{}, field string, value interface{}) {
-	r := reflect.ValueOf(struc)
-
-	f := reflect.Indirect(r).FieldByName(strings.Title(field))
-	f.Set(reflect.ValueOf(value))
 }
 
 // NewModel returns a new model with options or uses internal defaults
@@ -337,9 +331,22 @@ func (d *model) Create(instance interface{}) error {
 	return nil
 }
 
-func getFieldValue(struc interface{}, field string) interface{} {
+// @todo we should correlate the field name with the model
+// instead of just blindly converting strings
+func getFieldName(field string) string {
+	fieldName := ""
+	if strings.Contains(field, "_") {
+		fieldName = strcase.UpperCamelCase(field)
+	} else {
+		fieldName = strings.Title(field)
+	}
+	return strings.Replace(fieldName, "Id", "ID", -1)
+}
+
+func getFieldValue(struc interface{}, fieldName string) interface{} {
+	fieldName = getFieldName(fieldName)
 	r := reflect.ValueOf(struc)
-	f := reflect.Indirect(r).FieldByName(strings.Title(field))
+	f := reflect.Indirect(r).FieldByName(fieldName)
 
 	if !f.IsValid() {
 		return reflect.Zero(f.Type())
@@ -350,6 +357,14 @@ func getFieldValue(struc interface{}, field string) interface{} {
 // TODO: implement the full functionality. Currently offloads to create.
 func (d *model) Update(v interface{}) error {
 	return d.Create(v)
+}
+
+func setFieldValue(struc interface{}, fieldName string, value interface{}) {
+	fieldName = getFieldName(fieldName)
+	r := reflect.ValueOf(struc)
+
+	f := reflect.Indirect(r).FieldByName(fieldName)
+	f.Set(reflect.ValueOf(value))
 }
 
 func (d *model) Read(query Query, resultPointer interface{}) error {
