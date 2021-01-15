@@ -22,7 +22,10 @@ import (
 	"os"
 	"os/exec"
 	"strconv"
+	"strings"
 	"syscall"
+
+	"github.com/micro/micro/v3/service/logger"
 
 	"github.com/micro/micro/v3/service/runtime/local/process"
 )
@@ -40,7 +43,13 @@ func (p *Process) Fork(exe *process.Binary) (*process.PID, error) {
 
 	cmd.Dir = exe.Dir
 	// set env vars
-	cmd.Env = append(cmd.Env, os.Environ()...)
+	logger.Infof("Env is %+v", os.Environ())
+	for _, e := range os.Environ() {
+		if strings.HasPrefix(e, "MICRO_AUTH_") {
+			continue
+		}
+		cmd.Env = append(cmd.Env, e)
+	}
 	cmd.Env = append(cmd.Env, exe.Env...)
 
 	// create process group
