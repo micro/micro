@@ -21,6 +21,7 @@ import (
 var (
 	ErrorNotFound             = errors.New("not found")
 	ErrorMultipleRecordsFound = errors.New("multiple records found")
+	ErrorStoreIsNil           = errors.New("the store is nil, something is not initialized properly")
 )
 
 type OrderType string
@@ -243,6 +244,9 @@ func (d *model) Create(instance interface{}) error {
 			oldEntry != nil &&
 			!reflect.DeepEqual(getFieldValue(oldEntry, index.FieldName), getFieldValue(instance, index.FieldName)) {
 			k := d.indexToKey(index, id, oldEntry, true)
+			if d.store == nil {
+				return ErrorStoreIsNil
+			}
 			err = d.store.Delete(k)
 			if err != nil {
 				return err
@@ -251,6 +255,9 @@ func (d *model) Create(instance interface{}) error {
 		k := d.indexToKey(index, id, instance, true)
 		if d.options.Debug {
 			fmt.Printf("Saving key '%v', value: '%v'\n", k, string(js))
+		}
+		if d.store == nil {
+			return ErrorStoreIsNil
 		}
 		err = d.store.Write(&store.Record{
 			Key:   k,
@@ -308,6 +315,9 @@ func (d *model) Read(query Query, resultPointer interface{}) error {
 			if d.options.Debug {
 				fmt.Printf("Listing key '%v'\n", k)
 			}
+			if d.store == nil {
+				return ErrorStoreIsNil
+			}
 			recs, err := d.store.Read(k, store.ReadPrefix())
 			if err != nil {
 				return err
@@ -333,6 +343,9 @@ func (d *model) List(query Query, resultSlicePointer interface{}) error {
 			k := d.queryToListKey(index, query)
 			if d.options.Debug {
 				fmt.Printf("Listing key '%v'\n", k)
+			}
+			if d.store == nil {
+				return ErrorStoreIsNil
 			}
 			recs, err := d.store.Read(k, store.ReadPrefix())
 			if err != nil {
@@ -585,6 +598,9 @@ func (d *model) Delete(query Query) error {
 		key := d.indexToKey(index, getFieldValue(oldEntry, d.options.IdIndex.FieldName), oldEntry, true)
 		if d.options.Debug {
 			fmt.Printf("Deleting key '%v'\n", key)
+		}
+		if d.store == nil {
+			return ErrorStoreIsNil
 		}
 		err = d.store.Delete(key)
 		if err != nil {
