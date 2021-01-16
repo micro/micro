@@ -21,7 +21,8 @@ type User struct {
 }
 
 func TestEqualsByID(t *testing.T) {
-	table := New(fs.NewStore(), User{}, nil, &ModelOptions{
+	table := New(User{}, &Options{
+		Store:     fs.NewStore(),
 		Namespace: uuid.Must(uuid.NewV4()).String(),
 	})
 
@@ -51,8 +52,47 @@ func TestEqualsByID(t *testing.T) {
 	}
 }
 
+// TestNewModel tests the creation using NewModel and Register
+func TestNewModel(t *testing.T) {
+	// create a new model
+	table := NewModel(
+		WithStore(fs.NewStore()),
+		WithNamespace(uuid.Must(uuid.NewV4()).String()),
+	)
+
+	// register the instance
+	table.Register(User{})
+
+	err := table.Create(User{
+		ID:  "1",
+		Age: 12,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	err = table.Create(User{
+		ID:  "2",
+		Age: 25,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	users := []User{}
+	q := Equals("ID", "1")
+	q.Order.Type = OrderTypeUnordered
+	err = table.Read(q, &users)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(users) != 1 {
+		t.Fatal(users)
+	}
+}
+
 func TestRead(t *testing.T) {
-	table := New(fs.NewStore(), User{}, Indexes(ByEquality("age")), &ModelOptions{
+	table := New(User{}, &Options{
+		Store:     fs.NewStore(),
+		Indexes:   []Index{ByEquality("age")},
 		Namespace: uuid.Must(uuid.NewV4()).String(),
 	})
 	user := User{}
@@ -92,7 +132,9 @@ func TestRead(t *testing.T) {
 }
 
 func TestEquals(t *testing.T) {
-	table := New(fs.NewStore(), User{}, Indexes(ByEquality("age")), &ModelOptions{
+	table := New(User{}, &Options{
+		Store:     fs.NewStore(),
+		Indexes:   []Index{ByEquality("age")},
 		Namespace: uuid.Must(uuid.NewV4()).String(),
 	})
 
@@ -172,7 +214,9 @@ func TestOrderingStrings(t *testing.T) {
 			tagIndex.Order.Type = OrderTypeDesc
 		}
 		tagIndex.StringOrderPadLength = 12
-		table := New(fs.NewStore(), User{}, Indexes(tagIndex), &ModelOptions{
+		table := New(User{}, &Options{
+			Store:     fs.NewStore(),
+			Indexes:   []Index{tagIndex},
 			Namespace: uuid.Must(uuid.NewV4()).String(),
 		})
 		for _, key := range c.tags {
@@ -242,7 +286,9 @@ func TestOrderingNumbers(t *testing.T) {
 		if c.reverse {
 			createdIndex.Order.Type = OrderTypeDesc
 		}
-		table := New(fs.NewStore(), User{}, Indexes(createdIndex), &ModelOptions{
+		table := New(User{}, &Options{
+			Store:     fs.NewStore(),
+			Indexes:   []Index{createdIndex},
 			Namespace: uuid.Must(uuid.NewV4()).String(),
 		})
 		for _, key := range c.dates {
@@ -287,7 +333,9 @@ func TestOrderingNumbers(t *testing.T) {
 
 func TestStaleIndexRemoval(t *testing.T) {
 	tagIndex := ByEquality("tag")
-	table := New(fs.NewStore(), User{}, Indexes(tagIndex), &ModelOptions{
+	table := New(User{}, &Options{
+		Store:     fs.NewStore(),
+		Indexes:   []Index{tagIndex},
 		Namespace: uuid.Must(uuid.NewV4()).String(),
 	})
 	err := table.Create(User{
@@ -317,7 +365,9 @@ func TestStaleIndexRemoval(t *testing.T) {
 func TestUniqueIndex(t *testing.T) {
 	tagIndex := ByEquality("tag")
 	tagIndex.Unique = true
-	table := New(fs.NewStore(), User{}, Indexes(tagIndex), &ModelOptions{
+	table := New(User{}, &Options{
+		Store:     fs.NewStore(),
+		Indexes:   []Index{tagIndex},
 		Namespace: uuid.Must(uuid.NewV4()).String(),
 	})
 	err := table.Create(User{
@@ -350,11 +400,9 @@ type Tag struct {
 }
 
 func TestNonIDKeys(t *testing.T) {
-	slugIndex := ByEquality("slug")
-	slugIndex.Order.Type = OrderTypeUnordered
-
-	table := New(fs.NewStore(), Tag{}, nil, &ModelOptions{
-		IdIndex:   slugIndex,
+	table := New(Tag{}, &Options{
+		Store:     fs.NewStore(),
+		Key:       "slug",
 		Namespace: uuid.Must(uuid.NewV4()).String(),
 	})
 
@@ -387,12 +435,12 @@ func TestNonIDKeys(t *testing.T) {
 // This might be an almost duplicate test, I used it to try reproduce an issue
 // Leaving this here for now as we dont have enough tests anyway.
 func TestReadByString(t *testing.T) {
-	slugIndex := ByEquality("slug")
-	slugIndex.Order.Type = OrderTypeUnordered
-
 	typeIndex := ByEquality("type")
-	table := New(fs.NewStore(), Tag{}, Indexes(typeIndex), &ModelOptions{
-		IdIndex:   slugIndex,
+
+	table := New(Tag{}, &Options{
+		Key:       "slug",
+		Store:     fs.NewStore(),
+		Indexes:   []Index{typeIndex},
 		Debug:     false,
 		Namespace: uuid.Must(uuid.NewV4()).String(),
 	})
@@ -423,17 +471,17 @@ func TestReadByString(t *testing.T) {
 }
 
 func TestOderByDifferentFieldThanFilterField(t *testing.T) {
-	slugIndex := ByEquality("slug")
-	slugIndex.Order.Type = OrderTypeUnordered
-
 	typeIndex := ByEquality("type")
 	typeIndex.Order = Order{
 		Type:      OrderTypeDesc,
 		FieldName: "age",
 	}
-	table := New(fs.NewStore(), Tag{}, Indexes(typeIndex), &ModelOptions{
+
+	table := New(Tag{}, &Options{
+		Key:       "slug",
+		Store:     fs.NewStore(),
+		Indexes:   []Index{typeIndex},
 		Namespace: uuid.Must(uuid.NewV4()).String(),
-		IdIndex:   slugIndex,
 		Debug:     false,
 	})
 
@@ -490,9 +538,12 @@ func TestDeleteIndexCleanup(t *testing.T) {
 	slugIndex.Order.Type = OrderTypeUnordered
 
 	typeIndex := ByEquality("type")
-	table := New(fs.NewStore(), Tag{}, Indexes(typeIndex), &ModelOptions{
+
+	table := New(Tag{}, &Options{
+		Key:       "slug",
+		Store:     fs.NewStore(),
+		Indexes:   []Index{typeIndex},
 		Namespace: uuid.Must(uuid.NewV4()).String(),
-		IdIndex:   slugIndex,
 		Debug:     false,
 	})
 
@@ -533,14 +584,15 @@ func TestDeleteIndexCleanup(t *testing.T) {
 	if len(tags) != 1 {
 		t.Fatal(tags)
 	}
-
 }
 
 func TestUpdateDeleteIndexMaintenance(t *testing.T) {
 	updIndex := ByEquality("updated")
 	updIndex.Order.Type = OrderTypeDesc
 
-	table := New(fs.NewStore(), User{}, Indexes(updIndex), &ModelOptions{
+	table := New(User{}, &Options{
+		Store:     fs.NewStore(),
+		Indexes:   []Index{updIndex},
 		Namespace: uuid.Must(uuid.NewV4()).String(),
 		Debug:     false,
 	})
@@ -632,7 +684,9 @@ func TestAllCombos(t *testing.T) {
 				index.Order.Type = OrderTypeAsc
 				index.Order.FieldName = orderFieldName
 
-				table := New(fs.NewStore(), TypeTest{}, Indexes(index), &ModelOptions{
+				table := New(TypeTest{}, &Options{
+					Store:     fs.NewStore(),
+					Indexes:   []Index{index},
 					Namespace: uuid.Must(uuid.NewV4()).String(),
 					Debug:     false,
 				})
@@ -674,7 +728,9 @@ func TestAllCombos(t *testing.T) {
 				index.Order.Type = OrderTypeDesc
 				index.Order.FieldName = orderFieldName
 
-				table := New(fs.NewStore(), TypeTest{}, Indexes(index), &ModelOptions{
+				table := New(TypeTest{}, &Options{
+					Store:     fs.NewStore(),
+					Indexes:   []Index{index},
 					Namespace: uuid.Must(uuid.NewV4()).String(),
 					Debug:     false,
 				})

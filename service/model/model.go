@@ -16,9 +16,11 @@ import (
 	"unicode/utf8"
 
 	"github.com/micro/micro/v3/service/store"
+	"github.com/stoewer/go-strcase"
 )
 
 var (
+	ErrorNilInterface         = errors.New("interface is nil")
 	ErrorNotFound             = errors.New("not found")
 	ErrorMultipleRecordsFound = errors.New("multiple records found")
 )
@@ -36,26 +38,22 @@ const (
 	indexTypeEq = "eq"
 )
 
-func defaultIndex() Index {
-	idIndex := ByEquality("ID")
-	idIndex.Order.Type = OrderTypeUnordered
-	return idIndex
-}
+var (
+	// DefaultKey is the default field for indexing
+	DefaultKey = "ID"
 
-type model struct {
-	store store.Store
-	// helps logically separate keys in a model where
-	// multiple `Model`s share the same underlying
-	// physical database.
-	namespace string
-	indexes   []Index
-	options   ModelOptions
-	instance  interface{}
-}
+	// DefaultIndex is the ID index
+	DefaultIndex = newIndex("ID")
+
+	// DefaultModel is the default model
+	DefaultModel = NewModel()
+)
 
 // Model represents a place where data can be saved to and
 // queried from.
 type Model interface {
+	// Register a new model eg. User struct, Order struct
+	Register(v interface{}) error
 	// Create a new object. (Maintains indexes set up)
 	Create(v interface{}) error
 	// Update will take an existing object and update it.
@@ -70,34 +68,94 @@ type Model interface {
 	Delete(query Query) error
 }
 
-type ModelOptions struct {
-	Debug     bool
-	IdIndex   Index
-	Namespace string
+type model struct {
+	// the primary index using id
+	idIndex Index
+	// helps logically separate keys in a model where
+	// multiple `Model`s share the same underlying
+	// physical database.
+	namespace string
+	// the user defined.options.Indexes maintained for queries
+	indexes []Index
+	// options accepted for the model
+	options *Options
+	// the instance of the model
+	instance interface{}
 }
 
-func New(store store.Store, instance interface{}, indexes []Index, options *ModelOptions) Model {
-	debug := false
-	var idIndex Index
-	namespace := reflect.TypeOf(instance).String()
-	if options != nil {
-		debug = options.Debug
-		if options.IdIndex.Type != "" {
-			idIndex = options.IdIndex
-		}
+type Options struct {
+	// Set the primary key used for the default index
+	Key string
+	// Enable debug logging
+	Debug bool
+	// The indexes to use for queries
+	Indexes []Index
+	// Namespace to scope to
+	Namespace string
+	// Store is the storage engine
+	Store store.Store
+}
 
-		if len(options.Namespace) > 0 {
-			namespace = options.Namespace
-		}
+type Option func(*Options)
+
+func newIndex(v string) Index {
+	idIndex := ByEquality(v)
+	idIndex.Order.Type = OrderTypeUnordered
+	return idIndex
+}
+
+// NewModel returns a new model with options or uses internal defaults
+func NewModel(opts ...Option) Model {
+	var options Options
+	for _, o := range opts {
+		o(&options)
 	}
-	if idIndex.Type == "" {
-		idIndex = defaultIndex()
+
+	if options.Store == nil {
+		options.Store = store.DefaultStore
 	}
+
+	if len(options.Indexes) == 0 {
+		options.Indexes = append(options.Indexes, DefaultIndex)
+	}
+
+	return New(nil, &options)
+}
+
+// New returns a new model with the given values
+func New(instance interface{}, options *Options) Model {
+	if options == nil {
+		options = new(Options)
+	}
+
+	var namespace string
+
+	// define namespace based on the value passed in
+	if instance != nil {
+		namespace = reflect.TypeOf(instance).String()
+	}
+
+	if len(options.Namespace) > 0 {
+		namespace = options.Namespace
+	}
+
+	if options.Store == nil {
+		options.Store = store.DefaultStore
+	}
+
+	// the default index
+	idx := DefaultIndex
+
+	if len(options.Key) > 0 {
+		idx = newIndex(options.Key)
+	}
+
 	return &model{
-		store, namespace, indexes, ModelOptions{
-			Debug:   debug,
-			IdIndex: idIndex,
-		}, instance}
+		idIndex:   idx,
+		instance:  instance,
+		namespace: namespace,
+		options:   options,
+	}
 }
 
 type Index struct {
@@ -138,10 +196,6 @@ func (i Index) ToQuery(value interface{}) Query {
 		Value: value,
 		Order: i.Order,
 	}
-}
-
-func Indexes(indexes ...Index) []Index {
-	return indexes
 }
 
 // ByEquality constructs an equiality index on `fieldName`
@@ -189,6 +243,20 @@ func Equals(fieldName string, value interface{}) Query {
 	}
 }
 
+// Register an instance type of a model
+func (d *model) Register(v interface{}) error {
+	if v == nil {
+		return ErrorNilInterface
+	}
+
+	// set the namespace
+	d.namespace = reflect.TypeOf(v).String()
+	// TODO: add.options.Indexes?
+	d.instance = v
+
+	return nil
+}
+
 func (d *model) Create(instance interface{}) error {
 	// @todo replace this hack with reflection
 	js, err := json.Marshal(instance)
@@ -199,7 +267,7 @@ func (d *model) Create(instance interface{}) error {
 	// get the old entries so we can compare values
 	// @todo consider some kind of locking (even if it's not distributed) by key here
 	// to avoid 2 read-writes happening at the same time
-	idQuery := d.options.IdIndex.ToQuery(getFieldValue(instance, d.options.IdIndex.FieldName))
+	idQuery := d.idIndex.ToQuery(getFieldValue(instance, d.idIndex.FieldName))
 
 	oldEntry := reflect.New(reflect.ValueOf(instance).Type()).Interface()
 
@@ -209,7 +277,7 @@ func (d *model) Create(instance interface{}) error {
 	}
 
 	// Do uniqueness checks before saving any data
-	for _, index := range d.indexes {
+	for _, index := range d.options.Indexes {
 		if !index.Unique {
 			continue
 		}
@@ -224,8 +292,8 @@ func (d *model) Create(instance interface{}) error {
 		}
 	}
 
-	id := getFieldValue(instance, d.options.IdIndex.FieldName)
-	for _, index := range append(d.indexes, d.options.IdIndex) {
+	id := getFieldValue(instance, d.idIndex.FieldName)
+	for _, index := range append(d.options.Indexes, d.idIndex) {
 		// delete non id index keys to prevent stale index values
 		// ie.
 		//
@@ -239,11 +307,11 @@ func (d *model) Create(instance interface{}) error {
 		// @todo this check will only work for POD types, ie no slices or maps
 		// but it's not an issue as right now indexes are only supported on POD
 		// types anyway
-		if !indexesMatch(d.options.IdIndex, index) &&
+		if !indexesMatch(d.idIndex, index) &&
 			oldEntry != nil &&
 			!reflect.DeepEqual(getFieldValue(oldEntry, index.FieldName), getFieldValue(instance, index.FieldName)) {
 			k := d.indexToKey(index, id, oldEntry, true)
-			err = d.store.Delete(k)
+			err = d.options.Store.Delete(k)
 			if err != nil {
 				return err
 			}
@@ -252,7 +320,7 @@ func (d *model) Create(instance interface{}) error {
 		if d.options.Debug {
 			fmt.Printf("Saving key '%v', value: '%v'\n", k, string(js))
 		}
-		err = d.store.Write(&store.Record{
+		err = d.options.Store.Write(&store.Record{
 			Key:   k,
 			Value: js,
 		})
@@ -263,9 +331,22 @@ func (d *model) Create(instance interface{}) error {
 	return nil
 }
 
-func getFieldValue(struc interface{}, field string) interface{} {
+// @todo we should correlate the field name with the model
+// instead of just blindly converting strings
+func getFieldName(field string) string {
+	fieldName := ""
+	if strings.Contains(field, "_") {
+		fieldName = strcase.UpperCamelCase(field)
+	} else {
+		fieldName = strings.Title(field)
+	}
+	return strings.Replace(fieldName, "Id", "ID", -1)
+}
+
+func getFieldValue(struc interface{}, fieldName string) interface{} {
+	fieldName = getFieldName(fieldName)
 	r := reflect.ValueOf(struc)
-	f := reflect.Indirect(r).FieldByName(strings.Title(field))
+	f := reflect.Indirect(r).FieldByName(fieldName)
 
 	if !f.IsValid() {
 		return reflect.Zero(f.Type())
@@ -278,10 +359,11 @@ func (d *model) Update(v interface{}) error {
 	return d.Create(v)
 }
 
-func setFieldValue(struc interface{}, field string, value interface{}) {
+func setFieldValue(struc interface{}, fieldName string, value interface{}) {
+	fieldName = getFieldName(fieldName)
 	r := reflect.ValueOf(struc)
 
-	f := reflect.Indirect(r).FieldByName(strings.Title(field))
+	f := reflect.Indirect(r).FieldByName(fieldName)
 	f.Set(reflect.ValueOf(value))
 }
 
@@ -302,13 +384,13 @@ func (d *model) Read(query Query, resultPointer interface{}) error {
 	}
 
 	// otherwise continue on as normal
-	for _, index := range append(d.indexes, d.options.IdIndex) {
+	for _, index := range append(d.options.Indexes, d.idIndex) {
 		if indexMatchesQuery(index, query) {
 			k := d.queryToListKey(index, query)
 			if d.options.Debug {
 				fmt.Printf("Listing key '%v'\n", k)
 			}
-			recs, err := d.store.Read(k, store.ReadPrefix())
+			recs, err := d.options.Store.Read(k, store.ReadPrefix())
 			if err != nil {
 				return err
 			}
@@ -328,13 +410,13 @@ func (d *model) Read(query Query, resultPointer interface{}) error {
 }
 
 func (d *model) List(query Query, resultSlicePointer interface{}) error {
-	for _, index := range append(d.indexes, d.options.IdIndex) {
+	for _, index := range append(d.options.Indexes, d.idIndex) {
 		if indexMatchesQuery(index, query) {
 			k := d.queryToListKey(index, query)
 			if d.options.Debug {
 				fmt.Printf("Listing key '%v'\n", k)
 			}
-			recs, err := d.store.Read(k, store.ReadPrefix())
+			recs, err := d.options.Store.Read(k, store.ReadPrefix())
 			if err != nil {
 				return err
 			}
@@ -568,7 +650,7 @@ func (d *model) getOrderedStringFieldKey(i Index, fieldValue string) string {
 }
 
 func (d *model) Delete(query Query) error {
-	if !indexMatchesQuery(d.options.IdIndex, query) {
+	if !indexMatchesQuery(d.idIndex, query) {
 		return errors.New("Delete query does not match default index")
 	}
 	oldEntry := reflect.New(reflect.ValueOf(d.instance).Type()).Interface()
@@ -577,19 +659,54 @@ func (d *model) Delete(query Query) error {
 		return err
 	}
 
-	// first delete maintained indexes then id index
+	// first delete maintained.options.Indexes then id index
 	// if we delete id index first then the entry wont
-	// be deletable by id again but the maintained indexes
+	// be deletable by id again but the maintained.options.Indexes
 	// will be stuck in limbo
-	for _, index := range append(d.indexes, d.options.IdIndex) {
-		key := d.indexToKey(index, getFieldValue(oldEntry, d.options.IdIndex.FieldName), oldEntry, true)
+	for _, index := range append(d.options.Indexes, d.idIndex) {
+		key := d.indexToKey(index, getFieldValue(oldEntry, d.idIndex.FieldName), oldEntry, true)
 		if d.options.Debug {
 			fmt.Printf("Deleting key '%v'\n", key)
 		}
-		err = d.store.Delete(key)
+		err = d.options.Store.Delete(key)
 		if err != nil {
 			return err
 		}
 	}
 	return nil
+}
+
+// WithKey sets the field to use for the primary index
+func WithKey(k string) Option {
+	return func(o *Options) {
+		o.Key = k
+	}
+}
+
+// WithIndexes creates an option with the given indexes
+func WithIndexes(idx ...Index) Option {
+	return func(o *Options) {
+		o.Indexes = idx
+	}
+}
+
+// WithStore create an option for setting the store
+func WithStore(s store.Store) Option {
+	return func(o *Options) {
+		o.Store = s
+	}
+}
+
+// WithDebug enables debug logging
+func WithDebug(d bool) Option {
+	return func(o *Options) {
+		o.Debug = d
+	}
+}
+
+// WithNamespace sets the namespace to scope to
+func WithNamespace(ns string) Option {
+	return func(o *Options) {
+		o.Namespace = ns
+	}
 }
