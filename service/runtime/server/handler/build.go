@@ -9,7 +9,6 @@ import (
 	"github.com/micro/micro/v3/service/auth"
 	"github.com/micro/micro/v3/service/errors"
 	"github.com/micro/micro/v3/service/store"
-	gostore "github.com/micro/micro/v3/service/store"
 )
 
 const bufferSize = 1024
@@ -36,7 +35,7 @@ func (b *Build) Read(ctx context.Context, req *pb.Service, stream pb.Build_ReadS
 
 	// lookup the build from the blob store
 	key := fmt.Sprintf("build://%v:%v", req.Name, req.Version)
-	build, err := store.DefaultBlobStore.Read(key, gostore.BlobNamespace(acc.Issuer))
+	build, err := store.DefaultBlobStore.Read(key, store.BlobNamespace(acc.Issuer))
 	if err == store.ErrNotFound {
 		return errors.NotFound("runtime.Build.Read", "Build not found")
 	} else if err != nil {

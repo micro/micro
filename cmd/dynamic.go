@@ -15,7 +15,6 @@ import (
 	"github.com/micro/micro/v3/service/client"
 	"github.com/micro/micro/v3/service/context"
 	"github.com/micro/micro/v3/service/registry"
-	goregistry "github.com/micro/micro/v3/service/registry"
 	"github.com/urfave/cli/v2"
 )
 
@@ -23,15 +22,15 @@ import (
 // no services are found for a given alias, the registry will return nil and
 // the error will also be nil. An error is only returned if there was an issue
 // listing from the registry.
-func lookupService(ctx *cli.Context) (*goregistry.Service, string, error) {
+func lookupService(ctx *cli.Context) (*registry.Service, string, error) {
 	// use the first arg as the name, e.g. "micro helloworld foo"
 	// would try to call the helloworld service
 	name := ctx.Args().First()
 
 	// if its a built in then we set domain to micro
 	if util.IsBuiltInService(name) {
-		srv, err := serviceWithName(name, goregistry.DefaultDomain)
-		return srv, goregistry.DefaultDomain, err
+		srv, err := serviceWithName(name, registry.DefaultDomain)
+		return srv, registry.DefaultDomain, err
 	}
 
 	env, err := util.GetEnv(ctx)
@@ -53,22 +52,22 @@ func lookupService(ctx *cli.Context) (*goregistry.Service, string, error) {
 
 	// if the request was made explicitly for the default
 	// domain and we couldn't find it then just return nil
-	if domain == goregistry.DefaultDomain {
+	if domain == registry.DefaultDomain {
 		return nil, "", nil
 	}
 
 	// return a lookup in the default domain as a catch all
-	srv, err := serviceWithName(name, goregistry.DefaultDomain)
-	return srv, goregistry.DefaultDomain, err
+	srv, err := serviceWithName(name, registry.DefaultDomain)
+	return srv, registry.DefaultDomain, err
 }
 
 // formatServiceUsage returns a string containing the service usage.
-func formatServiceUsage(srv *goregistry.Service, c *cli.Context) string {
+func formatServiceUsage(srv *registry.Service, c *cli.Context) string {
 	alias := c.Args().First()
 	subcommand := c.Args().Get(1)
 
 	commands := make([]string, len(srv.Endpoints))
-	endpoints := make([]*goregistry.Endpoint, len(srv.Endpoints))
+	endpoints := make([]*registry.Endpoint, len(srv.Endpoints))
 	for i, e := range srv.Endpoints {
 		// map "Helloworld.Call" to "helloworld.call"
 		parts := strings.Split(e.Name, ".")
@@ -120,7 +119,7 @@ func lowcaseInitial(str string) string {
 	return ""
 }
 
-func renderFlags(endpoint *goregistry.Endpoint) string {
+func renderFlags(endpoint *registry.Endpoint) string {
 	ret := ""
 	for _, value := range endpoint.Request.Values {
 		ret += renderValue([]string{}, value) + "\n"
@@ -128,7 +127,7 @@ func renderFlags(endpoint *goregistry.Endpoint) string {
 	return ret
 }
 
-func renderValue(path []string, value *goregistry.Value) string {
+func renderValue(path []string, value *registry.Value) string {
 	if len(value.Values) > 0 {
 		renders := []string{}
 		for _, v := range value.Values {
@@ -142,7 +141,7 @@ func renderValue(path []string, value *goregistry.Value) string {
 // callService will call a service using the arguments and flags provided
 // in the context. It will print the result or error to stdout. If there
 // was an error performing the call, it will be returned.
-func callService(srv *goregistry.Service, namespace string, ctx *cli.Context) error {
+func callService(srv *registry.Service, namespace string, ctx *cli.Context) error {
 	// parse the flags and args
 	args, flags, err := splitCmdArgs(ctx.Args().Slice())
 	if err != nil {
@@ -156,7 +155,7 @@ func callService(srv *goregistry.Service, namespace string, ctx *cli.Context) er
 	}
 
 	// ensure the endpoint exists on the service
-	var ep *goregistry.Endpoint
+	var ep *registry.Endpoint
 	for _, e := range srv.Endpoints {
 		if e.Name == endpoint {
 			ep = e
@@ -287,7 +286,7 @@ func shouldRenderHelp(ctx *cli.Context) bool {
 //
 // This function constructs []interface{} slices
 // as opposed to typed ([]string etc) slices for easier testing
-func flagsToRequest(flags map[string][]string, req *goregistry.Value) (map[string]interface{}, error) {
+func flagsToRequest(flags map[string][]string, req *registry.Value) (map[string]interface{}, error) {
 	result := map[string]interface{}{}
 	coerceValue := func(valueType string, value []string) (interface{}, error) {
 		switch valueType {
@@ -419,9 +418,9 @@ loop:
 }
 
 // find a service in a domain matching the name
-func serviceWithName(name, domain string) (*goregistry.Service, error) {
-	srvs, err := registry.DefaultRegistry.GetService(name, goregistry.GetDomain(domain))
-	if err == goregistry.ErrNotFound {
+func serviceWithName(name, domain string) (*registry.Service, error) {
+	srvs, err := registry.DefaultRegistry.GetService(name, registry.GetDomain(domain))
+	if err == registry.ErrNotFound {
 		return nil, nil
 	} else if err != nil {
 		return nil, err
