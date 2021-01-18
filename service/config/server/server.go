@@ -5,7 +5,6 @@ import (
 	"github.com/micro/micro/v3/service"
 	"github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/store"
-	mustore "github.com/micro/micro/v3/service/store"
 	"github.com/urfave/cli/v2"
 )
 
@@ -32,7 +31,7 @@ func Run(c *cli.Context) error {
 		service.Address(address),
 	)
 
-	mustore.DefaultStore.Init(store.Table("config"))
+	store.DefaultStore.Init(store.Table("config"))
 
 	// register the handler
 	pb.RegisterConfigHandler(srv.Server(), NewConfig(c.String("config_secret_key")))

@@ -9,7 +9,6 @@ import (
 	"github.com/micro/micro/v3/internal/namespace"
 	"github.com/micro/micro/v3/service/runtime"
 	"github.com/micro/micro/v3/service/store"
-	gostore "github.com/micro/micro/v3/service/store"
 )
 
 // service is the object persisted in the store
@@ -39,7 +38,7 @@ func (m *manager) writeService(srv *service) error {
 		return err
 	}
 
-	return store.Write(&gostore.Record{Key: srv.Key(), Value: bytes})
+	return store.Write(&store.Record{Key: srv.Key(), Value: bytes})
 }
 
 // deleteService from the store

@@ -10,7 +10,6 @@ import (
 	pb "github.com/micro/micro/v3/proto/store"
 	"github.com/micro/micro/v3/service/errors"
 	"github.com/micro/micro/v3/service/store"
-	gostore "github.com/micro/micro/v3/service/store"
 )
 
 const bufferSize = 1024
@@ -35,10 +34,10 @@ func (b *blobHandler) Read(ctx context.Context, req *pb.BlobReadRequest, stream 
 	}
 
 	// execute the request
-	blob, err := store.DefaultBlobStore.Read(req.Key, gostore.BlobNamespace(req.Options.Namespace))
-	if err == gostore.ErrNotFound {
+	blob, err := store.DefaultBlobStore.Read(req.Key, store.BlobNamespace(req.Options.Namespace))
+	if err == store.ErrNotFound {
 		return errors.NotFound("store.Blob.Read", "Blob not found")
-	} else if err == gostore.ErrMissingKey {
+	} else if err == store.ErrMissingKey {
 		return errors.BadRequest("store.Blob.Read", "Missing key")
 	} else if err != nil {
 		return errors.InternalServerError("store.Blob.Read", err.Error())
@@ -108,8 +107,8 @@ func (b *blobHandler) Write(ctx context.Context, stream pb.BlobStore_WriteStream
 	}
 
 	// execute the request
-	err := store.DefaultBlobStore.Write(key, buf, gostore.BlobNamespace(options.Namespace))
-	if err == gostore.ErrMissingKey {
+	err := store.DefaultBlobStore.Write(key, buf, store.BlobNamespace(options.Namespace))
+	if err == store.ErrMissingKey {
 		return errors.BadRequest("store.Blob.Write", "Missing key")
 	} else if err != nil {
 		return errors.InternalServerError("store.Blob.Write", err.Error())
@@ -137,10 +136,10 @@ func (b *blobHandler) Delete(ctx context.Context, req *pb.BlobDeleteRequest, rsp
 	}
 
 	// execute the request
-	err := store.DefaultBlobStore.Delete(req.Key, gostore.BlobNamespace(req.Options.Namespace))
-	if err == gostore.ErrNotFound {
+	err := store.DefaultBlobStore.Delete(req.Key, store.BlobNamespace(req.Options.Namespace))
+	if err == store.ErrNotFound {
 		return errors.NotFound("store.Blob.Delete", "Blob not found")
-	} else if err == gostore.ErrMissingKey {
+	} else if err == store.ErrMissingKey {
 		return errors.BadRequest("store.Blob.Delete", "Missing key")
 	} else if err != nil {
 		return errors.InternalServerError("store.Blob.Delete", err.Error())
