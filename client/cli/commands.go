@@ -17,7 +17,6 @@ import (
 	proto "github.com/micro/micro/v3/proto/debug"
 	"github.com/micro/micro/v3/service/client"
 	"github.com/micro/micro/v3/service/registry"
-	goregistry "github.com/micro/micro/v3/service/registry"
 )
 
 func quit(c *cli.Context, args []string) ([]byte, error) {
@@ -59,7 +58,7 @@ func QueryStats(c *cli.Context, args []string) ([]byte, error) {
 		return nil, err
 	}
 
-	service, err := registry.DefaultRegistry.GetService(args[0], goregistry.GetDomain(ns))
+	service, err := registry.DefaultRegistry.GetService(args[0], registry.GetDomain(ns))
 	if err != nil {
 		return nil, err
 	}

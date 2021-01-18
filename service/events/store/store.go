@@ -19,7 +19,7 @@ import (
 	"time"
 
 	"github.com/micro/micro/v3/service/events"
-	gostore "github.com/micro/micro/v3/service/store"
+	 "github.com/micro/micro/v3/service/store"
 	"github.com/micro/micro/v3/service/store/memory"
 	"github.com/pkg/errors"
 )
@@ -66,9 +66,9 @@ func (s *evStore) Read(topic string, opts ...events.ReadOption) ([]*events.Event
 
 	// execute the request
 	recs, err := s.opts.Store.Read(topic+joinKey,
-		gostore.ReadPrefix(),
-		gostore.ReadLimit(options.Limit),
-		gostore.ReadOffset(options.Offset),
+		store.ReadPrefix(),
+		store.ReadLimit(options.Limit),
+		store.ReadOffset(options.Offset),
 	)
 	if err != nil {
 		return nil, errors.Wrap(err, "Error reading from store")
@@ -102,7 +102,7 @@ func (s *evStore) Write(event *events.Event, opts ...events.WriteOption) error {
 	if err != nil {
 		return errors.Wrap(err, "Error mashaling event to JSON")
 	}
-	record := &gostore.Record{
+	record := &store.Record{
 		Key:    event.Topic + joinKey + event.ID,
 		Value:  bytes,
 		Expiry: options.TTL,

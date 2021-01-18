@@ -22,7 +22,6 @@ import (
 	mucpProxy "github.com/micro/micro/v3/service/proxy/mucp"
 	muregistry "github.com/micro/micro/v3/service/registry"
 	"github.com/micro/micro/v3/service/router"
-	murouter "github.com/micro/micro/v3/service/router"
 	"github.com/micro/micro/v3/service/server"
 	mucpServer "github.com/micro/micro/v3/service/server/mucp"
 	"github.com/urfave/cli/v2"
@@ -133,7 +132,7 @@ func Run(ctx *cli.Context) error {
 	id := service.Server().Options().Id
 
 	// local tunnel router
-	rtr := murouter.DefaultRouter
+	rtr := router.DefaultRouter
 
 	rtr.Init(
 		router.Network(networkName),

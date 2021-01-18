@@ -10,7 +10,6 @@ import (
 	"github.com/micro/micro/v3/service/auth"
 	"github.com/micro/micro/v3/service/errors"
 	"github.com/micro/micro/v3/service/store"
-	gostore "github.com/micro/micro/v3/service/store"
 )
 
 // List returns all auth accounts
@@ -175,11 +174,11 @@ func (a *Auth) ChangeSecret(ctx context.Context, req *pb.ChangeSecretRequest, rs
 
 	key := strings.Join([]string{storePrefixAccounts, acc.Issuer, acc.ID}, joinKey)
 	// write to the store
-	if err := a.Options.Store.Write(&gostore.Record{Key: key, Value: bytes}); err != nil {
+	if err := a.Options.Store.Write(&store.Record{Key: key, Value: bytes}); err != nil {
 		return errors.InternalServerError("auth.Accounts.ChangeSecret", "Unable to write account to store: %v", err)
 	}
 	usernameKey := strings.Join([]string{storePrefixAccountsByName, acc.Issuer, acc.Name}, joinKey)
-	if err := a.Options.Store.Write(&gostore.Record{Key: usernameKey, Value: bytes}); err != nil {
+	if err := a.Options.Store.Write(&store.Record{Key: usernameKey, Value: bytes}); err != nil {
 		return errors.InternalServerError("auth.Accounts.ChangeSecret", "Unable to write account to store: %v", err)
 	}
 
