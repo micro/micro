@@ -25,8 +25,6 @@ import (
 	"strings"
 	"syscall"
 
-	"github.com/micro/micro/v3/service/logger"
-
 	"github.com/micro/micro/v3/service/runtime/local/process"
 )
 
@@ -43,8 +41,9 @@ func (p *Process) Fork(exe *process.Binary) (*process.PID, error) {
 
 	cmd.Dir = exe.Dir
 	// set env vars
-	logger.Infof("Env is %+v", os.Environ())
 	for _, e := range os.Environ() {
+		// HACK - MICRO_AUTH_* env vars will cause weird behaviour with jwt auth so make sure we don't
+		// pass these through to services that we run
 		if strings.HasPrefix(e, "MICRO_AUTH_") {
 			continue
 		}

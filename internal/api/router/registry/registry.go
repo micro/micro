@@ -26,9 +26,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/micro/micro/v3/internal/namespace"
-
 	"github.com/micro/micro/v3/internal/api/router"
+	"github.com/micro/micro/v3/internal/namespace"
 	util "github.com/micro/micro/v3/internal/router"
 	"github.com/micro/micro/v3/service/api"
 	"github.com/micro/micro/v3/service/context/metadata"
@@ -38,7 +37,7 @@ import (
 )
 
 var (
-	errEmptyNamespace = errors.New("Namespace is empty")
+	errEmptyNamespace = errors.New("namespace is empty")
 	errNotFound       = errors.New("not found")
 )
 
