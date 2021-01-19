@@ -1,4 +1,4 @@
-// Package service provides a micro service
+// Package service provides micro service commands
 package service
 
 import (
@@ -32,8 +32,8 @@ import (
 	store "github.com/micro/micro/v3/service/store/server"
 
 	// misc commands
-	"github.com/micro/micro/v3/service/handler/exec"
-	"github.com/micro/micro/v3/service/handler/file"
+	"github.com/micro/micro/v3/cmd/service/handler/exec"
+	"github.com/micro/micro/v3/cmd/service/handler/file"
 )
 
 // Run starts a micro service sidecar to encapsulate any app
