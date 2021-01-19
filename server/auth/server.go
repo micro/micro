@@ -1,4 +1,4 @@
-package server
+package auth
 
 import (
 	"github.com/micro/micro/v3/internal/auth/token"
@@ -6,8 +6,8 @@ import (
 	pb "github.com/micro/micro/v3/proto/auth"
 	"github.com/micro/micro/v3/service"
 	"github.com/micro/micro/v3/service/auth"
-	authHandler "github.com/micro/micro/v3/service/auth/server/auth"
-	rulesHandler "github.com/micro/micro/v3/service/auth/server/rules"
+	authHandler "github.com/micro/micro/v3/server/auth/auth"
+	rulesHandler "github.com/micro/micro/v3/server/auth/rules"
 	log "github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/store"
 	mustore "github.com/micro/micro/v3/service/store"
