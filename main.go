@@ -11,7 +11,7 @@ import (
 	// load packages so they can register commands
 	_ "github.com/micro/micro/v3/client/cli"
 	_ "github.com/micro/micro/v3/server"
-	_ "github.com/micro/micro/v3/service/cli"
+	_ "github.com/micro/micro/v3/cmd/service"
 )
 
 func main() {

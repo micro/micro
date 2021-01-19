@@ -1,4 +1,4 @@
-// Package service provides a micro service
+// Package service provides micro service commands
 package service
 
 import (
