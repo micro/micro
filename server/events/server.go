@@ -1,4 +1,4 @@
-package server
+package events
 
 import (
 	pb "github.com/micro/micro/v3/proto/events"

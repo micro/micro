@@ -1,4 +1,4 @@
-package server
+package config
 
 import (
 	pb "github.com/micro/micro/v3/proto/config"
