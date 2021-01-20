@@ -586,6 +586,51 @@ func TestDeleteIndexCleanup(t *testing.T) {
 	}
 }
 
+func TestDeleteByUnmatchingIndex(t *testing.T) {
+	table := New(User{}, &Options{
+		Store:     fs.NewStore(),
+		Namespace: uuid.Must(uuid.NewV4()).String(),
+		Debug:     false,
+	})
+
+	err := table.Create(User{
+		ID:  "1",
+		Age: 20,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	err = table.Create(User{
+		ID:  "2",
+		Age: 30,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	err = table.Delete(Equals("ID", "1"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Run("Test read by unspecified index", func(t *testing.T) {
+		users := []User{}
+		err = table.Read(Equals("ID", "1"), &users)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if len(users) != 0 {
+			t.Fatal(users)
+		}
+		err = table.Read(Equals("ID", "2"), &users)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if len(users) != 1 {
+			t.Fatal(users)
+		}
+	})
+}
+
 func TestUpdateDeleteIndexMaintenance(t *testing.T) {
 	updIndex := ByEquality("updated")
 	updIndex.Order.Type = OrderTypeDesc

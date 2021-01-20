@@ -349,7 +349,7 @@ func getFieldValue(struc interface{}, fieldName string) interface{} {
 	f := reflect.Indirect(r).FieldByName(fieldName)
 
 	if !f.IsValid() {
-		return reflect.Zero(f.Type())
+		return nil
 	}
 	return f.Interface()
 }
@@ -380,62 +380,95 @@ func (d *model) Read(query Query, resultPointer interface{}) error {
 
 	// if its a slice then use the list query method
 	if t.Kind() == reflect.Slice {
-		return d.List(query, resultPointer)
+		return d.list(query, resultPointer, true)
 	}
 
+	read := func(index Index) error {
+		k := d.queryToListKey(index, query)
+		if d.options.Debug {
+			fmt.Printf("Listing key '%v'\n", k)
+		}
+		recs, err := d.options.Store.Read(k, store.ReadPrefix())
+		if err != nil {
+			return err
+		}
+		if len(recs) == 0 {
+			return ErrorNotFound
+		}
+		if len(recs) > 1 {
+			return ErrorMultipleRecordsFound
+		}
+		if d.options.Debug {
+			fmt.Printf("Found value '%v'\n", string(recs[0].Value))
+		}
+		return json.Unmarshal(recs[0].Value, resultPointer)
+	}
 	// otherwise continue on as normal
 	for _, index := range append(d.options.Indexes, d.idIndex) {
 		if indexMatchesQuery(index, query) {
-			k := d.queryToListKey(index, query)
-			if d.options.Debug {
-				fmt.Printf("Listing key '%v'\n", k)
-			}
-			recs, err := d.options.Store.Read(k, store.ReadPrefix())
-			if err != nil {
-				return err
-			}
-			if len(recs) == 0 {
-				return ErrorNotFound
-			}
-			if len(recs) > 1 {
-				return ErrorMultipleRecordsFound
-			}
-			if d.options.Debug {
-				fmt.Printf("Found value '%v'\n", string(recs[0].Value))
-			}
-			return json.Unmarshal(recs[0].Value, resultPointer)
+			return read(index)
 		}
 	}
-	return fmt.Errorf("For query type '%v', field '%v' does not match any indexes", query.Type, query.FieldName)
+
+	// find a maching query if non exists, take the first one
+	// which applies to the same field regardless of ordering
+	// or padding etc.
+	for _, index := range append(d.options.Indexes, d.idIndex) {
+		fmt.Println(index.FieldName, query.FieldName)
+		if index.FieldName == query.FieldName {
+			return read(index)
+		}
+	}
+	return fmt.Errorf("Read: for query type '%v', field '%v' does not match any indexes", query.Type, query.FieldName)
 }
 
 func (d *model) List(query Query, resultSlicePointer interface{}) error {
+	return d.list(query, resultSlicePointer, false)
+}
+
+func (d *model) list(query Query, resultSlicePointer interface{}, isRead bool) error {
+	list := func(index Index) error {
+		k := d.queryToListKey(index, query)
+		if d.options.Debug {
+			fmt.Printf("Listing key '%v'\n", k)
+		}
+		recs, err := d.options.Store.Read(k, store.ReadPrefix())
+		if err != nil {
+			return err
+		}
+		// @todo speed this up with an actual buffer
+		jsBuffer := []byte("[")
+		for i, rec := range recs {
+			jsBuffer = append(jsBuffer, rec.Value...)
+			if i < len(recs)-1 {
+				jsBuffer = append(jsBuffer, []byte(",")...)
+			}
+		}
+		jsBuffer = append(jsBuffer, []byte("]")...)
+		if d.options.Debug {
+			fmt.Printf("Found values '%v'\n", string(jsBuffer))
+		}
+		return json.Unmarshal(jsBuffer, resultSlicePointer)
+	}
 	for _, index := range append(d.options.Indexes, d.idIndex) {
 		if indexMatchesQuery(index, query) {
-			k := d.queryToListKey(index, query)
-			if d.options.Debug {
-				fmt.Printf("Listing key '%v'\n", k)
-			}
-			recs, err := d.options.Store.Read(k, store.ReadPrefix())
-			if err != nil {
-				return err
-			}
-			// @todo speed this up with an actual buffer
-			jsBuffer := []byte("[")
-			for i, rec := range recs {
-				jsBuffer = append(jsBuffer, rec.Value...)
-				if i < len(recs)-1 {
-					jsBuffer = append(jsBuffer, []byte(",")...)
-				}
-			}
-			jsBuffer = append(jsBuffer, []byte("]")...)
-			if d.options.Debug {
-				fmt.Printf("Found values '%v'\n", string(jsBuffer))
-			}
-			return json.Unmarshal(jsBuffer, resultSlicePointer)
+			return list(index)
 		}
 	}
-	return fmt.Errorf("For query type '%v', field '%v' does not match any indexes", query.Type, query.FieldName)
+
+	if isRead {
+		// find a maching query if non exists, take the first one
+		// which applies to the same field regardless of ordering
+		// or padding etc.
+		//
+		// only do this for reads because ordering doesnt matter with single reads
+		for _, index := range append(d.options.Indexes, d.idIndex) {
+			if index.FieldName == query.FieldName {
+				return list(index)
+			}
+		}
+	}
+	return fmt.Errorf("List: for query type '%v', field '%v' does not match any indexes", query.Type, query.FieldName)
 }
 
 func indexMatchesQuery(i Index, q Query) bool {
@@ -566,7 +599,7 @@ func (d *model) indexToKey(i Index, id interface{}, entry interface{}, appendID 
 		}
 		values = append(values, v)
 	default:
-		panic("bug in code, unhandled type: " + typName + " for field " + orderFieldKey)
+		panic("bug in code, unhandled type: " + typName + " for field '" + orderFieldKey + "' on type '" + reflect.TypeOf(d.instance).String() + "'")
 	}
 
 	if appendID {
@@ -650,11 +683,8 @@ func (d *model) getOrderedStringFieldKey(i Index, fieldValue string) string {
 }
 
 func (d *model) Delete(query Query) error {
-	if !indexMatchesQuery(d.idIndex, query) {
-		return errors.New("Delete query does not match default index")
-	}
 	oldEntry := reflect.New(reflect.ValueOf(d.instance).Type()).Interface()
-	err := d.Read(query, &oldEntry)
+	err := d.Read(d.idIndex.ToQuery(query.Value), &oldEntry)
 	if err != nil {
 		return err
 	}
