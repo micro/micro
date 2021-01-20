@@ -612,18 +612,23 @@ func TestDeleteByUnmatchingIndex(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	users := []User{}
-	err = table.Read(Equals("ID", "1"), &users)
-	if err == nil {
-		t.Fatal("Read should fail")
-	}
-	err = table.Read(Equals("ID", "2"), &users)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if len(users) != 1 {
-		t.Fatal(users)
-	}
+	t.Run("Test read by unspecified index", func(t *testing.T) {
+		users := []User{}
+		err = table.Read(Equals("ID", "1"), &users)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if len(users) != 0 {
+			t.Fatal(users)
+		}
+		err = table.Read(Equals("ID", "2"), &users)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if len(users) != 1 {
+			t.Fatal(users)
+		}
+	})
 }
 
 func TestUpdateDeleteIndexMaintenance(t *testing.T) {
