@@ -349,7 +349,7 @@ func getFieldValue(struc interface{}, fieldName string) interface{} {
 	f := reflect.Indirect(r).FieldByName(fieldName)
 
 	if !f.IsValid() {
-		return reflect.Zero(f.Type())
+		return nil
 	}
 	return f.Interface()
 }
@@ -566,7 +566,7 @@ func (d *model) indexToKey(i Index, id interface{}, entry interface{}, appendID 
 		}
 		values = append(values, v)
 	default:
-		panic("bug in code, unhandled type: " + typName + " for field " + orderFieldKey)
+		panic("bug in code, unhandled type: " + typName + " for field '" + orderFieldKey + "' on type '" + reflect.TypeOf(d.instance).String() + "'")
 	}
 
 	if appendID {
