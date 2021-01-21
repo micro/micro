@@ -27,12 +27,17 @@ import (
 // VerifyAccess an account has access to a resource using the rules provided. If the account does not have
 // access an error will be returned. If there are no rules provided which match the resource, an error
 // will be returned
-func VerifyAccess(rules []*auth.Rule, acc *auth.Account, res *auth.Resource) error {
+func VerifyAccess(rules []*auth.Rule, acc *auth.Account, res *auth.Resource, opts ...auth.VerifyOption) error {
 	// the rule is only to be applied if the type matches the resource or is catch-all (*)
 	validTypes := []string{"*", res.Type}
 
 	// the rule is only to be applied if the name matches the resource or is catch-all (*)
 	validNames := []string{"*", res.Name}
+
+	options := auth.VerifyOptions{}
+	for _, o := range opts {
+		o(&options)
+	}
 
 	// rules can have wildcard excludes on endpoints since this can also be a path for web services,
 	// e.g. /foo/* would include /foo/bar. We also want to check for wildcards and the exact endpoint
@@ -77,6 +82,12 @@ func VerifyAccess(rules []*auth.Rule, acc *auth.Account, res *auth.Resource) err
 		if acc == nil {
 			continue
 		}
+
+		// TODO should this live here or further up?
+		if acc.Issuer != options.Namespace {
+			return auth.ErrForbidden
+		}
+		// TODO what does options.Context do?
 
 		// this rule applies to any account
 		if rule.Scope == auth.ScopeAccount && rule.Access == auth.AccessDenied {

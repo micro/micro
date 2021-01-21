@@ -42,8 +42,8 @@ func Authorize(ctx context.Context, namespace string, opts ...AuthorizeOption) e
 		return ErrUnauthorized
 	}
 
-	// the server can access all namespaces
-	if acc.Issuer == DefaultNamespace {
+	// the server and admins can access all namespaces
+	if acc.Issuer == DefaultNamespace && (acc.Type == "service" || hasScope("admin", acc.Scopes)) {
 		return nil
 	}
 
@@ -53,6 +53,15 @@ func Authorize(ctx context.Context, namespace string, opts ...AuthorizeOption) e
 	}
 
 	return nil
+}
+
+func hasScope(scope string, scopes []string) bool {
+	for _, s := range scopes {
+		if s == scope {
+			return true
+		}
+	}
+	return false
 }
 
 // AuthorizeOptions are used to configure the Authorize method

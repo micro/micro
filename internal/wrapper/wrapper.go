@@ -101,16 +101,6 @@ func AuthHandler() server.HandlerWrapper {
 				ctx = auth.ContextWithAccount(ctx, a)
 			}
 
-			// ensure only accounts with the correct namespace can access this namespace,
-			// since the auth package will verify access below, and some endpoints could
-			// be public, we allow nil accounts access using the namespace.Public option.
-			err := namespace.Authorize(ctx, ns, namespace.Public(ns))
-			if err == namespace.ErrForbidden {
-				return errors.Forbidden(req.Service(), err.Error())
-			} else if err != nil {
-				return errors.InternalServerError(req.Service(), err.Error())
-			}
-
 			// construct the resource
 			res := &auth.Resource{
 				Type:     "service",
@@ -119,7 +109,7 @@ func AuthHandler() server.HandlerWrapper {
 			}
 
 			// Verify the caller has access to the resource.
-			err = auth.Verify(acc, res, auth.VerifyNamespace(ns))
+			err := auth.Verify(acc, res, auth.VerifyNamespace(ns))
 			if err == auth.ErrForbidden && acc != nil {
 				return errors.Forbidden(req.Service(), "Forbidden call made to %v:%v by %v", req.Service(), req.Endpoint(), acc.ID)
 			} else if err == auth.ErrForbidden {
