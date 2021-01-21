@@ -59,14 +59,10 @@ func (r *Registry) GetService(ctx context.Context, req *pb.GetRequest, rsp *pb.G
 		options.Domain = registry.DefaultDomain
 	}
 
-	// authorize the request
+	// authorize the request. Non admins can also do this
 	publicNS := namespace.Public(registry.DefaultDomain)
-	if err := namespace.Authorize(ctx, options.Domain, publicNS); err == namespace.ErrForbidden {
-		return errors.Forbidden("registry.Registry.GetService", err.Error())
-	} else if err == namespace.ErrUnauthorized {
-		return errors.Unauthorized("registry.Registry.GetService", err.Error())
-	} else if err != nil {
-		return errors.InternalServerError("registry.Registry.GetService", err.Error())
+	if err := namespace.Authorize(ctx, options.Domain, "registry.Registry.GetService", publicNS); err != nil {
+		return err
 	}
 
 	// get the services in the namespace
@@ -104,12 +100,8 @@ func (r *Registry) Register(ctx context.Context, req *pb.Service, rsp *pb.EmptyR
 	opts = append(opts, registry.RegisterDomain(domain))
 
 	// authorize the request
-	if err := namespace.Authorize(ctx, domain); err == namespace.ErrForbidden {
-		return errors.Forbidden("registry.Registry.Register", err.Error())
-	} else if err == namespace.ErrUnauthorized {
-		return errors.Unauthorized("registry.Registry.Register", err.Error())
-	} else if err != nil {
-		return errors.InternalServerError("registry.Registry.Register", err.Error())
+	if err := namespace.AuthorizeAdmin(ctx, domain, "registry.Registry.Register"); err != nil {
+		return err
 	}
 
 	// register the service
@@ -134,12 +126,8 @@ func (r *Registry) Deregister(ctx context.Context, req *pb.Service, rsp *pb.Empt
 	}
 
 	// authorize the request
-	if err := namespace.Authorize(ctx, domain); err == namespace.ErrForbidden {
-		return errors.Forbidden("registry.Registry.Deregister", err.Error())
-	} else if err == namespace.ErrUnauthorized {
-		return errors.Unauthorized("registry.Registry.Deregister", err.Error())
-	} else if err != nil {
-		return errors.InternalServerError("registry.Registry.Deregister", err.Error())
+	if err := namespace.AuthorizeAdmin(ctx, domain, "registry.Registry.Deregister"); err != nil {
+		return err
 	}
 
 	// deregister the service
@@ -163,14 +151,10 @@ func (r *Registry) ListServices(ctx context.Context, req *pb.ListRequest, rsp *p
 		domain = registry.DefaultDomain
 	}
 
-	// authorize the request
+	// authorize the request. Non admins can also do this
 	publicNS := namespace.Public(registry.DefaultDomain)
-	if err := namespace.Authorize(ctx, domain, publicNS); err == namespace.ErrForbidden {
-		return errors.Forbidden("registry.Registry.ListServices", err.Error())
-	} else if err == namespace.ErrUnauthorized {
-		return errors.Unauthorized("registry.Registry.ListServices", err.Error())
-	} else if err != nil {
-		return errors.InternalServerError("registry.Registry.ListServices", err.Error())
+	if err := namespace.Authorize(ctx, domain, "registry.Registry.ListServices", publicNS); err != nil {
+		return err
 	}
 
 	// list the services from the registry
@@ -200,12 +184,8 @@ func (r *Registry) Watch(ctx context.Context, req *pb.WatchRequest, rsp pb.Regis
 
 	// authorize the request
 	publicNS := namespace.Public(registry.DefaultDomain)
-	if err := namespace.Authorize(ctx, domain, publicNS); err == namespace.ErrForbidden {
-		return errors.Forbidden("registry.Registry.Watch", err.Error())
-	} else if err == namespace.ErrUnauthorized {
-		return errors.Unauthorized("registry.Registry.Watch", err.Error())
-	} else if err != nil {
-		return errors.InternalServerError("registry.Registry.Watch", err.Error())
+	if err := namespace.Authorize(ctx, domain, "registry.Registry.Watch", publicNS); err != nil {
+		return err
 	}
 
 	// setup the watcher

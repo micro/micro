@@ -25,12 +25,8 @@ func (b *blobHandler) Read(ctx context.Context, req *pb.BlobReadRequest, stream 
 	}
 
 	// authorize the request
-	if err := authns.Authorize(ctx, req.Options.Namespace); err == authns.ErrForbidden {
-		return errors.Forbidden("store.Blob.Read", err.Error())
-	} else if err == authns.ErrUnauthorized {
-		return errors.Unauthorized("store.Blob.Read", err.Error())
-	} else if err != nil {
-		return errors.InternalServerError("store.Blob.Read", err.Error())
+	if err := authns.AuthorizeAdmin(ctx, req.Options.Namespace, "store.Blob.Read"); err != nil {
+		return err
 	}
 
 	// execute the request
@@ -88,13 +84,10 @@ func (b *blobHandler) Write(ctx context.Context, stream pb.BlobStore_WriteStream
 			}
 
 			// authorize the request. do this inside the loop so we fail fast
-			if err := authns.Authorize(ctx, options.Namespace); err == authns.ErrForbidden {
-				return errors.Forbidden("store.Blob.Write", err.Error())
-			} else if err == authns.ErrUnauthorized {
-				return errors.Unauthorized("store.Blob.Write", err.Error())
-			} else if err != nil {
-				return errors.InternalServerError("store.Blob.Write", err.Error())
+			if err := authns.AuthorizeAdmin(ctx, options.Namespace, "store.Blob.Write"); err != nil {
+				return err
 			}
+
 		} else {
 			// subsequent message recieved from the stream
 			buf.Write(req.Blob)
@@ -127,12 +120,8 @@ func (b *blobHandler) Delete(ctx context.Context, req *pb.BlobDeleteRequest, rsp
 	}
 
 	// authorize the request
-	if err := authns.Authorize(ctx, req.Options.Namespace); err == authns.ErrForbidden {
-		return errors.Forbidden("store.Blob.Delete", err.Error())
-	} else if err == authns.ErrUnauthorized {
-		return errors.Unauthorized("store.Blob.Delete", err.Error())
-	} else if err != nil {
-		return errors.InternalServerError("store.Blob.Delete", err.Error())
+	if err := authns.AuthorizeAdmin(ctx, req.Options.Namespace, "store.Blob.Delete"); err != nil {
+		return err
 	}
 
 	// execute the request

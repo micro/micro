@@ -115,12 +115,8 @@ func (r *Rules) Create(ctx context.Context, req *pb.CreateRequest, rsp *pb.Creat
 	}
 
 	// authorize the request
-	if err := namespace.Authorize(ctx, req.Options.Namespace); err == namespace.ErrForbidden {
-		return errors.Forbidden("auth.Rules.Create", err.Error())
-	} else if err == namespace.ErrUnauthorized {
-		return errors.Unauthorized("auth.Rules.Create", err.Error())
-	} else if err != nil {
-		return errors.InternalServerError("auth.Rules.Create", err.Error())
+	if err := namespace.AuthorizeAdmin(ctx, req.Options.Namespace, "auth.Rules.Create"); err != nil {
+		return err
 	}
 
 	// write the rule to the store
@@ -143,12 +139,8 @@ func (r *Rules) Delete(ctx context.Context, req *pb.DeleteRequest, rsp *pb.Delet
 	}
 
 	// authorize the request
-	if err := namespace.Authorize(ctx, req.Options.Namespace); err == namespace.ErrForbidden {
-		return errors.Forbidden("auth.Rules.Delete", err.Error())
-	} else if err == namespace.ErrUnauthorized {
-		return errors.Unauthorized("auth.Rules.Delete", err.Error())
-	} else if err != nil {
-		return errors.InternalServerError("auth.Rules.Delete", err.Error())
+	if err := namespace.AuthorizeAdmin(ctx, req.Options.Namespace, "auth.Rules.Delete"); err != nil {
+		return err
 	}
 
 	// Delete the rule
@@ -179,12 +171,8 @@ func (r *Rules) List(ctx context.Context, req *pb.ListRequest, rsp *pb.ListRespo
 	}
 
 	// authorize the request
-	if err := namespace.Authorize(ctx, req.Options.Namespace); err == namespace.ErrForbidden {
-		return errors.Forbidden("auth.Rules.List", err.Error())
-	} else if err == namespace.ErrUnauthorized {
-		return errors.Unauthorized("auth.Rules.List", err.Error())
-	} else if err != nil {
-		return errors.InternalServerError("auth.Rules.List", err.Error())
+	if err := namespace.Authorize(ctx, req.Options.Namespace, "auth.Rules.List"); err != nil {
+		return err
 	}
 
 	// setup the defaults incase none exist

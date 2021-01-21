@@ -22,17 +22,13 @@ func (a *Auth) List(ctx context.Context, req *pb.ListAccountsRequest, rsp *pb.Li
 		req.Options.Namespace = namespace.DefaultNamespace
 	}
 
-	// authorize the request
-	if err := namespace.Authorize(ctx, req.Options.Namespace); err == namespace.ErrForbidden {
-		return errors.Forbidden("auth.Accounts.List", err.Error())
-	} else if err == namespace.ErrUnauthorized {
-		return errors.Unauthorized("auth.Accounts.List", err.Error())
-	} else if err != nil {
-		return errors.InternalServerError("auth.Accounts.List", err.Error())
-	}
-
 	// setup the defaults incase none exist
 	a.setupDefaultAccount(req.Options.Namespace)
+
+	// authorize the request
+	if err := namespace.AuthorizeAdmin(ctx, req.Options.Namespace, "auth.Accounts.List"); err != nil {
+		return err
+	}
 
 	// get the records from the store
 	key := strings.Join([]string{storePrefixAccounts, req.Options.Namespace, ""}, joinKey)
@@ -67,6 +63,11 @@ func (a *Auth) Delete(ctx context.Context, req *pb.DeleteAccountRequest, rsp *pb
 		return errors.BadRequest("auth.Accounts.Delete", "Missing ID")
 	}
 
+	acc, ok := auth.AccountFromContext(ctx)
+	if !ok {
+		return errors.Unauthorized("auth.Accounts.Delete", "Unauthorized")
+	}
+
 	// set defaults
 	if req.Options == nil {
 		req.Options = &pb.Options{}
@@ -75,13 +76,9 @@ func (a *Auth) Delete(ctx context.Context, req *pb.DeleteAccountRequest, rsp *pb
 		req.Options.Namespace = namespace.DefaultNamespace
 	}
 
-	// authorize the request
-	if err := namespace.Authorize(ctx, req.Options.Namespace); err == namespace.ErrForbidden {
-		return errors.Forbidden("auth.Accounts.Delete", err.Error())
-	} else if err == namespace.ErrUnauthorized {
-		return errors.Unauthorized("auth.Accounts.Delete", err.Error())
-	} else if err != nil {
-		return errors.InternalServerError("auth.Accounts.Delete", err.Error())
+	// authorize the request can access this namespace
+	if err := namespace.AuthorizeAdmin(ctx, req.Options.Namespace, "auth.Accounts.Delete"); err != nil {
+		return err
 	}
 
 	// check the account exists
@@ -90,10 +87,6 @@ func (a *Auth) Delete(ctx context.Context, req *pb.DeleteAccountRequest, rsp *pb
 		return err
 	}
 
-	acc, ok := auth.AccountFromContext(ctx)
-	if !ok {
-		return errors.Unauthorized("auth.Accounts.Delete", "Unauthorized")
-	}
 	if req.Id == acc.ID || req.Id == acc.Name {
 		return errors.BadRequest("auth.Accounts.Delete", "Can't delete your own account")
 	}
@@ -127,6 +120,15 @@ func (a *Auth) Delete(ctx context.Context, req *pb.DeleteAccountRequest, rsp *pb
 	return nil
 }
 
+func hasScope(scope string, scopes []string) bool {
+	for _, s := range scopes {
+		if scope == s {
+			return true
+		}
+	}
+	return false
+}
+
 // ChangeSecret by providing a refresh token and a new secret
 func (a *Auth) ChangeSecret(ctx context.Context, req *pb.ChangeSecretRequest, rsp *pb.ChangeSecretResponse) error {
 	if len(req.NewSecret) == 0 {
@@ -142,12 +144,8 @@ func (a *Auth) ChangeSecret(ctx context.Context, req *pb.ChangeSecretRequest, rs
 	}
 
 	// authorize the request
-	if err := namespace.Authorize(ctx, req.Options.Namespace); err == namespace.ErrForbidden {
-		return errors.Forbidden("auth.Accounts.ChangeSecret", err.Error())
-	} else if err == namespace.ErrUnauthorized {
-		return errors.Unauthorized("auth.Accounts.ChangeSecret", err.Error())
-	} else if err != nil {
-		return errors.InternalServerError("auth.Accounts.ChangeSecret", err.Error())
+	if err := namespace.Authorize(ctx, req.Options.Namespace, "auth.Accounts.ChangeSecret"); err != nil {
+		return err
 	}
 
 	acc, err := a.getAccountForID(req.Id, req.Options.Namespace, "auth.Accounts.ChangeSecret")

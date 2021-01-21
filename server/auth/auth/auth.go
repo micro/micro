@@ -136,12 +136,8 @@ func (a *Auth) Generate(ctx context.Context, req *pb.GenerateRequest, rsp *pb.Ge
 	}
 
 	// authorize the request
-	if err := authns.Authorize(ctx, req.Options.Namespace); err == authns.ErrForbidden {
-		return errors.Forbidden("auth.Auth.Generate", err.Error())
-	} else if err == authns.ErrUnauthorized {
-		return errors.Unauthorized("auth.Auth.Generate", err.Error())
-	} else if err != nil {
-		return errors.InternalServerError("auth.Auth.Generate", err.Error())
+	if err := authns.AuthorizeAdmin(ctx, req.Options.Namespace, "auth.Auth.Generate"); err != nil {
+		return err
 	}
 
 	// check the user does not already exists

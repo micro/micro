@@ -5,6 +5,7 @@ import (
 	"errors"
 
 	"github.com/micro/micro/v3/service/auth"
+	merrors "github.com/micro/micro/v3/service/errors"
 )
 
 var (
@@ -21,8 +22,39 @@ const (
 	DefaultNamespace = "micro"
 )
 
-// Authorize will return an error if the context cannot access the given namespace
-func Authorize(ctx context.Context, namespace string, opts ...AuthorizeOption) error {
+// AuthorizeAdmin returns a service error if the context is not an admin that can access this namespace
+// e.g. either an admin for the this namespace or an admin for micro
+func AuthorizeAdmin(ctx context.Context, ns, method string) error {
+	if err := Authorize(ctx, ns, method); err != nil {
+		return err
+	}
+
+	adminAcc, ok := auth.AccountFromContext(ctx)
+	if !ok {
+		return merrors.Unauthorized(method, "Unauthorized")
+	}
+
+	// check it's an admin
+	if !hasScope("admin", adminAcc.Scopes) && !hasScope("service", adminAcc.Scopes) {
+		return merrors.Unauthorized(method, "Unauthorized")
+	}
+	return nil
+}
+
+// Authorize will return a service error if the context cannot access the given namespace
+func Authorize(ctx context.Context, namespace, method string, opts ...AuthorizeOption) error {
+	if err := authorize(ctx, namespace); err == ErrForbidden {
+		return merrors.Forbidden(method, err.Error())
+	} else if err == ErrUnauthorized {
+		return merrors.Unauthorized(method, err.Error())
+	} else if err != nil {
+		return merrors.InternalServerError(method, err.Error())
+	}
+	return nil
+}
+
+// authorize will return an error if the context cannot access the given namespace
+func authorize(ctx context.Context, namespace string, opts ...AuthorizeOption) error {
 	// parse the options
 	var options AuthorizeOptions
 	for _, o := range opts {
