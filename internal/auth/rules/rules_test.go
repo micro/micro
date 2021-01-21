@@ -47,7 +47,7 @@ func TestVerify(t *testing.T) {
 		Account  *auth.Account
 		Resource *auth.Resource
 		Error    error
-		Options  auth.VerifyOptions
+		Options  []auth.VerifyOption
 	}{
 		{
 			Name:     "NoRules",
@@ -306,7 +306,7 @@ func TestVerify(t *testing.T) {
 				},
 			},
 			Error:   auth.ErrForbidden,
-			Options: auth.VerifyOptions{Namespace: "bar"},
+			Options: []auth.VerifyOption{auth.VerifyNamespace("bar")},
 		},
 		{
 			Name:     "CrossNamespaceNilAccountForbidden",
@@ -319,7 +319,7 @@ func TestVerify(t *testing.T) {
 				},
 			},
 			Error:   auth.ErrForbidden,
-			Options: auth.VerifyOptions{Namespace: "bar"},
+			Options: []auth.VerifyOption{auth.VerifyNamespace("bar")},
 		},
 		{
 			Name:     "CrossNamespacePublic",
@@ -331,7 +331,7 @@ func TestVerify(t *testing.T) {
 					Resource: catchallResource,
 				},
 			},
-			Options: auth.VerifyOptions{Namespace: "bar"},
+			Options: []auth.VerifyOption{auth.VerifyNamespace("bar")},
 		},
 		{
 			Name:     "CrossNamespacePublicNilAccount",
@@ -343,13 +343,13 @@ func TestVerify(t *testing.T) {
 					Resource: catchallResource,
 				},
 			},
-			Options: auth.VerifyOptions{Namespace: "bar"},
+			Options: []auth.VerifyOption{auth.VerifyNamespace("bar")},
 		},
 	}
 
 	for _, tc := range tt {
 		t.Run(tc.Name, func(t *testing.T) {
-			if err := VerifyAccess(tc.Rules, tc.Account, tc.Resource, tc.Options); err != tc.Error {
+			if err := VerifyAccess(tc.Rules, tc.Account, tc.Resource, tc.Options...); err != tc.Error {
 				t.Errorf("Expected %v but got %v", tc.Error, err)
 			}
 		})
