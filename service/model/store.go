@@ -11,11 +11,14 @@ import (
 	"strings"
 	"unicode/utf8"
 
+	"github.com/micro/micro/v3/service/auth"
 	"github.com/micro/micro/v3/service/store"
 	"github.com/stoewer/go-strcase"
 )
 
 type model struct {
+	// the database used for querying
+	database string
 	// the primary index using id
 	idIndex Index
 	// helps logically separate keys in a model where
@@ -81,7 +84,11 @@ func New(instance interface{}, options *Options) Model {
 		idx = newIndex(options.Key)
 	}
 
+	// set the database
+	database := options.Database
+
 	return &model{
+		database:  database,
 		idIndex:   idx,
 		instance:  instance,
 		namespace: namespace,
@@ -125,7 +132,15 @@ func (d *model) Context(ctx context.Context) Model {
 	opts := *d.options
 	opts.Context = ctx
 
+	// retrieve the account from context and override the database
+	acc, ok := auth.AccountFromContext(ctx)
+	if ok {
+		// set the database to the account issuer
+		opts.Database = acc.Issuer
+	}
+
 	return &model{
+		database:  opts.Database,
 		idIndex:   d.idIndex,
 		instance:  d.instance,
 		namespace: d.namespace,
@@ -201,7 +216,8 @@ func (d *model) Create(instance interface{}) error {
 			oldEntry != nil &&
 			!reflect.DeepEqual(getFieldValue(oldEntry, index.FieldName), getFieldValue(instance, index.FieldName)) {
 			k := d.indexToKey(index, id, oldEntry, true)
-			err = d.options.Store.Delete(k)
+			// TODO: set the table name in the query
+			err = d.options.Store.Delete(k, store.DeleteFrom(d.database, ""))
 			if err != nil {
 				return err
 			}
@@ -210,10 +226,11 @@ func (d *model) Create(instance interface{}) error {
 		if d.options.Debug {
 			fmt.Printf("Saving key '%v', value: '%v'\n", k, string(js))
 		}
+		// TODO: set the table name in the query
 		err = d.options.Store.Write(&store.Record{
 			Key:   k,
 			Value: js,
-		})
+		}, store.WriteTo(d.database, ""))
 		if err != nil {
 			return err
 		}
@@ -247,7 +264,8 @@ func (d *model) Read(query Query, resultPointer interface{}) error {
 		if d.options.Debug {
 			fmt.Printf("Listing key '%v'\n", k)
 		}
-		recs, err := d.options.Store.Read(k, store.ReadPrefix())
+		// TODO: set the table name in the query
+		recs, err := d.options.Store.Read(k, store.ReadPrefix(), store.ReadFrom(d.database, ""))
 		if err != nil {
 			return err
 		}
@@ -291,7 +309,8 @@ func (d *model) list(query Query, resultSlicePointer interface{}, isRead bool) e
 		if d.options.Debug {
 			fmt.Printf("Listing key '%v'\n", k)
 		}
-		recs, err := d.options.Store.Read(k, store.ReadPrefix())
+		// TODO: set the table name in the query
+		recs, err := d.options.Store.Read(k, store.ReadPrefix(), store.ReadFrom(d.database, ""))
 		if err != nil {
 			return err
 		}
@@ -519,7 +538,8 @@ func (d *model) Delete(query Query) error {
 		if d.options.Debug {
 			fmt.Printf("Deleting key '%v'\n", key)
 		}
-		err = d.options.Store.Delete(key)
+		// TODO: set the table to delete from
+		err = d.options.Store.Delete(key, store.DeleteFrom(d.database, ""))
 		if err != nil {
 			return err
 		}
