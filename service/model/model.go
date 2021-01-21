@@ -64,8 +64,8 @@ type Model interface {
 }
 
 type Options struct {
-	// Context is the context for all model queries
-	Context context.Context
+	// Database sets the default database
+	Database string
 	// Set the primary key used for the default index
 	Key string
 	// Enable debug logging
@@ -76,9 +76,18 @@ type Options struct {
 	Namespace string
 	// Store is the storage engine
 	Store store.Store
+	// Context is the context for all model queries
+	Context context.Context
 }
 
 type Option func(*Options)
+
+// WithDatabase sets the default database for queries
+func WithDatabase(db string) Option {
+	return func(o *Options) {
+		o.Database = db
+	}
+}
 
 // WithContext sets the context for all queries
 func WithContext(ctx context.Context) Option {
