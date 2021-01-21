@@ -25,11 +25,11 @@ import (
 type cache struct {
 	m       store.Store // the memory store
 	b       store.Store // the backing store, could be file, cockroach etc
-	options store.StoreOptions
+	options store.Options
 }
 
 // NewStore returns a new cache store
-func NewStore(store store.Store, opts ...store.StoreOption) store.Store {
+func NewStore(store store.Store, opts ...store.Option) store.Store {
 	cf := &cache{
 		m: memory.NewStore(opts...),
 		b: store,
@@ -38,7 +38,7 @@ func NewStore(store store.Store, opts ...store.StoreOption) store.Store {
 
 }
 
-func (c *cache) init(opts ...store.StoreOption) error {
+func (c *cache) init(opts ...store.Option) error {
 	for _, o := range opts {
 		o(&c.options)
 	}
@@ -46,7 +46,7 @@ func (c *cache) init(opts ...store.StoreOption) error {
 }
 
 // Init initialises the underlying stores
-func (c *cache) Init(opts ...store.StoreOption) error {
+func (c *cache) Init(opts ...store.Option) error {
 	if err := c.init(opts...); err != nil {
 		return err
 	}
@@ -57,7 +57,7 @@ func (c *cache) Init(opts ...store.StoreOption) error {
 }
 
 // Options allows you to view the current options.
-func (c *cache) Options() store.StoreOptions {
+func (c *cache) Options() store.Options {
 	return c.options
 }
 
