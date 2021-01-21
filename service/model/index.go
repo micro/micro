@@ -101,3 +101,9 @@ func indexPrefix(i Index) string {
 	filterField := i.FieldName
 	return fmt.Sprintf("%vBy%v%vBy%v", typ, strings.Title(filterField), ordering, strings.Title(orderingField))
 }
+
+func newIndex(v string) Index {
+	idIndex := ByEquality(v)
+	idIndex.Order.Type = OrderTypeUnordered
+	return idIndex
+}

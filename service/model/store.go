@@ -30,12 +30,6 @@ type model struct {
 	instance interface{}
 }
 
-func newIndex(v string) Index {
-	idIndex := ByEquality(v)
-	idIndex.Order.Type = OrderTypeUnordered
-	return idIndex
-}
-
 // NewModel returns a new model with options or uses internal defaults
 func NewModel(opts ...Option) Model {
 	var options Options
