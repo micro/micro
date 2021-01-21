@@ -6,6 +6,7 @@
 package model
 
 import (
+	"context"
 	"encoding/base32"
 	"encoding/json"
 	"errors"
@@ -52,6 +53,8 @@ var (
 // Model represents a place where data can be saved to and
 // queried from.
 type Model interface {
+	// Context sets the context for the model returning a new copy
+	Context(ctx context.Context) Model
 	// Register a new model eg. User struct, Order struct
 	Register(v interface{}) error
 	// Create a new object. (Maintains indexes set up)
@@ -84,6 +87,8 @@ type model struct {
 }
 
 type Options struct {
+	// Context is the context for all model queries
+	Context context.Context
 	// Set the primary key used for the default index
 	Key string
 	// Enable debug logging
@@ -107,6 +112,7 @@ func newIndex(v string) Index {
 // NewModel returns a new model with options or uses internal defaults
 func NewModel(opts ...Option) Model {
 	var options Options
+
 	for _, o := range opts {
 		o(&options)
 	}
@@ -141,6 +147,10 @@ func New(instance interface{}, options *Options) Model {
 
 	if options.Store == nil {
 		options.Store = store.DefaultStore
+	}
+
+	if options.Context == nil {
+		options.Context = context.TODO()
 	}
 
 	// the default index
@@ -240,6 +250,19 @@ func Equals(fieldName string, value interface{}) Query {
 			FieldName: fieldName,
 			Type:      OrderTypeAsc,
 		},
+	}
+}
+
+func (d *model) Context(ctx context.Context) Model {
+	// dereference the opts
+	opts := *d.options
+	opts.Context = ctx
+
+	return &model{
+		idIndex:   d.idIndex,
+		instance:  d.instance,
+		namespace: d.namespace,
+		options:   &opts,
 	}
 }
 
@@ -704,6 +727,13 @@ func (d *model) Delete(query Query) error {
 		}
 	}
 	return nil
+}
+
+// WithContext sets the context for all queries
+func WithContext(ctx context.Context) Option {
+	return func(o *Options) {
+		o.Context = ctx
+	}
 }
 
 // WithKey sets the field to use for the primary index
