@@ -40,14 +40,14 @@ var (
 )
 
 // NewStore returns a file store
-func NewStore(opts ...store.StoreOption) store.Store {
+func NewStore(opts ...store.Option) store.Store {
 	s := &fileStore{}
 	s.init(opts...)
 	return s
 }
 
 type fileStore struct {
-	options store.StoreOptions
+	options store.Options
 	dir     string
 }
 
@@ -78,7 +78,7 @@ func (m *fileStore) delete(db *bolt.DB, key string) error {
 	})
 }
 
-func (m *fileStore) init(opts ...store.StoreOption) error {
+func (m *fileStore) init(opts ...store.Option) error {
 	for _, o := range opts {
 		o(&m.options)
 	}
@@ -278,7 +278,7 @@ func (f *fileStore) Close() error {
 	return nil
 }
 
-func (f *fileStore) Init(opts ...store.StoreOption) error {
+func (f *fileStore) Init(opts ...store.Option) error {
 	return f.init(opts...)
 }
 
@@ -370,7 +370,7 @@ func (m *fileStore) Write(r *store.Record, opts ...store.WriteOption) error {
 	return m.set(db, r)
 }
 
-func (m *fileStore) Options() store.StoreOptions {
+func (m *fileStore) Options() store.Options {
 	return m.options
 }
 
