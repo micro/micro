@@ -4,11 +4,11 @@ import (
 	"os"
 
 	pb "github.com/micro/micro/v3/proto/runtime"
+	"github.com/micro/micro/v3/server/runtime/handler"
+	"github.com/micro/micro/v3/server/runtime/manager"
 	"github.com/micro/micro/v3/service"
 	log "github.com/micro/micro/v3/service/logger"
 	"github.com/micro/micro/v3/service/runtime"
-	"github.com/micro/micro/v3/server/runtime/handler"
-	"github.com/micro/micro/v3/server/runtime/manager"
 	"github.com/urfave/cli/v2"
 )
 

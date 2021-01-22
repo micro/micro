@@ -16,7 +16,7 @@ import (
 )
 
 type srv struct {
-	options store.StoreOptions
+	options store.Options
 
 	// The database to use
 	Database string
@@ -35,7 +35,7 @@ func (s *srv) Close() error {
 	return nil
 }
 
-func (s *srv) Init(opts ...store.StoreOption) error {
+func (s *srv) Init(opts ...store.Option) error {
 	for _, o := range opts {
 		o(&s.options)
 	}
@@ -231,13 +231,13 @@ func (s *srv) String() string {
 	return "service"
 }
 
-func (s *srv) Options() store.StoreOptions {
+func (s *srv) Options() store.Options {
 	return s.options
 }
 
 // NewStore returns a new store service implementation
-func NewStore(opts ...store.StoreOption) store.Store {
-	var options store.StoreOptions
+func NewStore(opts ...store.Option) store.Store {
+	var options store.Options
 	for _, o := range opts {
 		o(&options)
 	}
