@@ -82,7 +82,7 @@ func (a *Auth) setupDefaultAccount(ns string) error {
 
 	// check to see if we need to create the default account
 	prefix := strings.Join([]string{storePrefixAccounts, ns, ""}, joinKey)
-	recs, err := store.Read("", store.Prefix(prefix))
+	recs, err := store.Read(prefix, store.ReadPrefix())
 	if err != nil {
 		return err
 	}
@@ -345,7 +345,7 @@ func (a *Auth) setRefreshToken(ns, id, token string) error {
 // get the refresh token for an account
 func (a *Auth) refreshTokenForAccount(ns, id string) (string, error) {
 	prefix := strings.Join([]string{storePrefixRefreshTokens, ns, id, ""}, joinKey)
-	recs, err := store.Read("", store.Prefix(prefix))
+	recs, err := store.Read(prefix, store.ReadPrefix())
 	if err != nil {
 		return "", err
 	} else if len(recs) == 0 {
@@ -362,7 +362,7 @@ func (a *Auth) refreshTokenForAccount(ns, id string) (string, error) {
 // get the account ID for the given refresh token
 func (a *Auth) accountIDForRefreshToken(ns, token string) (string, error) {
 	prefix := strings.Join([]string{storePrefixRefreshTokens, ns}, joinKey)
-	keys, err := store.List(store.Prefix(prefix))
+	keys, err := store.List(store.ListPrefix(prefix))
 	if err != nil {
 		return "", err
 	}

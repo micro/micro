@@ -28,9 +28,9 @@ import (
 )
 
 // NewStore returns a memory store
-func NewStore(opts ...store.StoreOption) store.Store {
+func NewStore(opts ...store.Option) store.Store {
 	s := &memoryStore{
-		options: store.StoreOptions{
+		options: store.Options{
 			Database: "micro",
 			Table:    "micro",
 		},
@@ -44,7 +44,7 @@ func NewStore(opts ...store.StoreOption) store.Store {
 
 type memoryStore struct {
 	sync.RWMutex
-	options store.StoreOptions
+	options store.Options
 
 	stores map[string]*cache.Cache
 }
@@ -187,7 +187,7 @@ func (m *memoryStore) Close() error {
 	return nil
 }
 
-func (m *memoryStore) Init(opts ...store.StoreOption) error {
+func (m *memoryStore) Init(opts ...store.Option) error {
 	for _, o := range opts {
 		o(&m.options)
 	}
@@ -277,7 +277,7 @@ func (m *memoryStore) Delete(key string, opts ...store.DeleteOption) error {
 	return nil
 }
 
-func (m *memoryStore) Options() store.StoreOptions {
+func (m *memoryStore) Options() store.Options {
 	return m.options
 }
 

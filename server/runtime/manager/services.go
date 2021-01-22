@@ -57,7 +57,7 @@ func (m *manager) readServices(namespace string, srv *runtime.Service) ([]*servi
 		prefix += srv.Version
 	}
 
-	recs, err := store.Read("", store.Prefix(prefix))
+	recs, err := store.Read(prefix, store.ReadPrefix())
 	if err != nil {
 		return nil, err
 	} else if len(recs) == 0 {
@@ -79,7 +79,7 @@ func (m *manager) readServices(namespace string, srv *runtime.Service) ([]*servi
 // listNamespaces of the services in the store. todo: remove this and have the watchServices func
 // query the store directly
 func (m *manager) listNamespaces() ([]string, error) {
-	recs, err := store.Read("", store.Prefix(servicePrefix))
+	recs, err := store.Read(servicePrefix, store.ReadPrefix())
 	if err != nil {
 		return nil, err
 	}

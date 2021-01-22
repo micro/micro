@@ -57,7 +57,7 @@ var (
 )
 
 type sqlStore struct {
-	options store.StoreOptions
+	options store.Options
 	dbConn  *sql.DB
 
 	sync.RWMutex
@@ -253,7 +253,7 @@ func (s *sqlStore) Close() error {
 	return nil
 }
 
-func (s *sqlStore) Init(opts ...store.StoreOption) error {
+func (s *sqlStore) Init(opts ...store.Option) error {
 	for _, o := range opts {
 		o(&s.options)
 	}
@@ -541,7 +541,7 @@ func (s *sqlStore) Delete(key string, opts ...store.DeleteOption) error {
 	return nil
 }
 
-func (s *sqlStore) Options() store.StoreOptions {
+func (s *sqlStore) Options() store.Options {
 	return s.options
 }
 
@@ -550,8 +550,8 @@ func (s *sqlStore) String() string {
 }
 
 // NewStore returns a new micro Store backed by sql
-func NewStore(opts ...store.StoreOption) store.Store {
-	options := store.StoreOptions{
+func NewStore(opts ...store.Option) store.Store {
+	options := store.Options{
 		Database: DefaultDatabase,
 		Table:    DefaultTable,
 	}
