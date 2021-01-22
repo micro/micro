@@ -152,12 +152,8 @@ func (n *Network) Routes(ctx context.Context, req *pb.RoutesRequest, resp *pb.Ro
 	}
 
 	// authorize the request
-	if err := authns.Authorize(ctx, req.Query.Network); err == authns.ErrForbidden {
-		return errors.Forbidden("network.Network.Routes", err.Error())
-	} else if err == authns.ErrUnauthorized {
-		return errors.Unauthorized("network.Network.Routes", err.Error())
-	} else if err != nil {
-		return errors.InternalServerError("network.Network.Routes", err.Error())
+	if err := authns.AuthorizeAdmin(ctx, req.Query.Network, "network.Network.Routes"); err != nil {
+		return err
 	}
 
 	// build query
@@ -219,12 +215,8 @@ func (n *Network) Routes(ctx context.Context, req *pb.RoutesRequest, resp *pb.Ro
 // Services returns a list of services based on the routing table
 func (n *Network) Services(ctx context.Context, req *pb.ServicesRequest, resp *pb.ServicesResponse) error {
 	// authorize the request. only accounts issued by micro (root accounts) can access this endpoint
-	if err := authns.Authorize(ctx, namespace.DefaultNamespace); err == authns.ErrForbidden {
-		return errors.Forbidden("network.Network.Services", err.Error())
-	} else if err == authns.ErrUnauthorized {
-		return errors.Unauthorized("network.Network.Services", err.Error())
-	} else if err != nil {
-		return errors.InternalServerError("network.Network.Services", err.Error())
+	if err := authns.AuthorizeAdmin(ctx, authns.DefaultNamespace, "network.Network.Services"); err != nil {
+		return err
 	}
 
 	routes, err := n.Network.Options().Router.Table().Read()
