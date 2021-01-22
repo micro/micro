@@ -24,6 +24,7 @@ require (
 	github.com/gobwas/httphead v0.0.0-20180130184737-2c6c146eadee
 	github.com/gobwas/pool v0.2.1 // indirect
 	github.com/gobwas/ws v1.0.3
+	github.com/gofrs/uuid v3.2.0+incompatible
 	github.com/golang/protobuf v1.4.3
 	github.com/google/uuid v1.1.2
 	github.com/gorilla/handlers v1.4.2
@@ -47,6 +48,7 @@ require (
 	github.com/rhysd/go-github-selfupdate v1.2.2
 	github.com/rs/cors v1.7.0 // indirect
 	github.com/serenize/snaker v0.0.0-20171204205717-a683aaf2d516
+	github.com/stoewer/go-strcase v1.2.0
 	github.com/stretchr/testify v1.6.1
 	github.com/teris-io/shortid v0.0.0-20171029131806-771a37caa5cf
 	github.com/urfave/cli/v2 v2.2.0

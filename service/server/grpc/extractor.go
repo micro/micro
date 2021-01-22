@@ -20,8 +20,6 @@ import (
 	"fmt"
 	"reflect"
 	"strings"
-	"unicode"
-	"unicode/utf8"
 
 	"github.com/micro/micro/v3/service/registry"
 )
@@ -39,14 +37,6 @@ func extractValue(v reflect.Type, d int) *registry.Value {
 	}
 
 	if len(v.Name()) == 0 {
-		return nil
-	}
-
-	// get the rune character
-	a, _ := utf8.DecodeRuneInString(string(v.Name()[0]))
-
-	// crude check for is unexported field
-	if unicode.IsLower(a) {
 		return nil
 	}
 
@@ -71,11 +61,13 @@ func extractValue(v reflect.Type, d int) *registry.Value {
 					continue
 				}
 				val.Name = parts[0]
+			} else {
+				continue
 			}
 
 			// if there's no name default it
 			if len(val.Name) == 0 {
-				val.Name = v.Field(i).Name
+				continue
 			}
 
 			arg.Values = append(arg.Values, val)

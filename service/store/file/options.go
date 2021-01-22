@@ -23,8 +23,8 @@ import (
 type dirKey struct{}
 
 // WithDir sets the directory to store the files in
-func WithDir(dir string) store.StoreOption {
-	return func(o *store.StoreOptions) {
+func WithDir(dir string) store.Option {
+	return func(o *store.Options) {
 		if o.Context == nil {
 			o.Context = context.WithValue(context.Background(), dirKey{}, dir)
 		} else {

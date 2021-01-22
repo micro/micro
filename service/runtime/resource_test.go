@@ -84,10 +84,10 @@ func TestResources(t *testing.T) {
 	assert.NotNil(t, networkPolicy)
 	assert.Equal(t, TypeResourceQuota, resourceQuota.Type())
 	assert.Equal(t, "test.userquota", resourceQuota.String())
-	assert.Equal(t, 2000, resourceQuota.Requests.CPU)
+	assert.Equal(t, 0, resourceQuota.Requests.CPU)
 	assert.Equal(t, 2000, resourceQuota.Requests.Mem)
 	assert.Equal(t, 5000, resourceQuota.Requests.Disk)
-	assert.Equal(t, 4000, resourceQuota.Limits.CPU)
+	assert.Equal(t, 0, resourceQuota.Limits.CPU)
 	assert.Equal(t, 4000, resourceQuota.Limits.Mem)
 	assert.Equal(t, 10000, resourceQuota.Limits.Disk)
 

@@ -19,6 +19,7 @@ import (
 	evStore "github.com/micro/micro/v3/service/events/store"
 	memStream "github.com/micro/micro/v3/service/events/stream/memory"
 	"github.com/micro/micro/v3/service/logger"
+	"github.com/micro/micro/v3/service/model"
 	"github.com/micro/micro/v3/service/registry"
 	"github.com/micro/micro/v3/service/registry/mdns"
 	"github.com/micro/micro/v3/service/registry/memory"
@@ -37,8 +38,6 @@ import (
 	microAuth "github.com/micro/micro/v3/service/auth"
 	microBuilder "github.com/micro/micro/v3/service/build"
 	microEvents "github.com/micro/micro/v3/service/events"
-	microRegistry "github.com/micro/micro/v3/service/registry"
-	microRouter "github.com/micro/micro/v3/service/router"
 	microRuntime "github.com/micro/micro/v3/service/runtime"
 	microStore "github.com/micro/micro/v3/service/store"
 )
@@ -99,6 +98,11 @@ var Local = &Profile{
 		SetupRegistry(mdns.NewRegistry())
 		SetupJWT(ctx)
 
+		// set the store in the model
+		model.DefaultModel = model.NewModel(
+			model.WithStore(microStore.DefaultStore),
+		)
+
 		// use the local runtime, note: the local runtime is designed to run source code directly so
 		// the runtime builder should NOT be set when using this implementation
 		microRuntime.DefaultRuntime = local.NewRuntime()
@@ -145,6 +149,11 @@ var Kubernetes = &Profile{
 			logger.Fatalf("Error configuring file blob store: %v", err)
 		}
 
+		// set the store in the model
+		model.DefaultModel = model.NewModel(
+			model.WithStore(microStore.DefaultStore),
+		)
+
 		// the registry service uses the memory registry, the other core services will use the default
 		// rpc client and call the registry service
 		if ctx.Args().Get(1) == "registry" {
@@ -163,8 +172,8 @@ var Kubernetes = &Profile{
 		}
 		SetupConfigSecretKey(ctx)
 
-		microRouter.DefaultRouter = k8sRouter.NewRouter()
-		client.DefaultClient.Init(client.Router(microRouter.DefaultRouter))
+		router.DefaultRouter = k8sRouter.NewRouter()
+		client.DefaultClient.Init(client.Router(router.DefaultRouter))
 		return nil
 	},
 }
@@ -184,14 +193,18 @@ var Test = &Profile{
 		microStore.DefaultBlobStore, _ = file.NewBlobStore()
 		config.DefaultConfig, _ = storeConfig.NewConfig(microStore.DefaultStore, "")
 		SetupRegistry(memory.NewRegistry())
+		// set the store in the model
+		model.DefaultModel = model.NewModel(
+			model.WithStore(microStore.DefaultStore),
+		)
 		return nil
 	},
 }
 
 // SetupRegistry configures the registry
 func SetupRegistry(reg registry.Registry) {
-	microRegistry.DefaultRegistry = reg
-	microRouter.DefaultRouter = regRouter.NewRouter(router.Registry(reg))
+	registry.DefaultRegistry = reg
+	router.DefaultRouter = regRouter.NewRouter(router.Registry(reg))
 	client.DefaultClient.Init(client.Registry(reg))
 	server.DefaultServer.Init(server.Registry(reg))
 }

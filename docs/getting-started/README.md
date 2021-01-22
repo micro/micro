@@ -359,7 +359,7 @@ To demonstrate that first let's save an other value:
 $ micro store write key2 val2
 ```
 
-After this, we can list both `key1` and `key2` keys as they both share commond prefixes:
+After this, we can list both `key1` and `key2` keys as they both share common prefixes:
 
 ```
 $ micro store read --prefix --verbose key
@@ -506,7 +506,7 @@ func main() {
 	srv.Init()
 
 	// read config value
-	val, _ := config.Get("key", "subkey")
+	val, _ := config.Get("key.subkey")
 	fmt.Println("Value of key.subkey: ", val.String(""))
 }
 ```

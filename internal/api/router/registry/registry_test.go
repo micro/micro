@@ -25,7 +25,7 @@ import (
 
 func TestStoreRegex(t *testing.T) {
 	router := newRouter()
-	router.store([]*registry.Service{
+	router.store("micro", []*registry.Service{
 		{
 			Name:    "Foobar",
 			Version: "latest",
@@ -46,5 +46,5 @@ func TestStoreRegex(t *testing.T) {
 	},
 	)
 
-	assert.Len(t, router.ceps["Foobar.foo"].pcreregs, 1)
+	assert.Len(t, router.namespaces["micro"].ceps["Foobar.foo"].pcreregs, 1)
 }

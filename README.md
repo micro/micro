@@ -40,13 +40,13 @@ The server is composed of the following services.
 - **Events** - Event streaming with ordered messaging, replay from offsets and persistent storage
 - **Network** - Inter-service networking, isolation and routing plane for all internal request traffic
 - **Proxy** - An identity aware proxy used for remote access and any external grpc request traffic
-- **Runtime** - Service lifecyle and process management with support for source to running auto build
+- **Runtime** - Service lifecycle and process management with support for source to running auto build
 - **Registry** - Centralised service discovery and API endpoint explorer with feature rich metadata
 - **Store** - Key-Value storage with TTL expiry and persistent crud to keep microservices stateless
 
 **Framework**
 
-Micro additionaly now contains the incredibly popular Go Micro framework built in for service development. 
+Micro additionally now contains the incredibly popular Go Micro framework built in for service development. 
 The Go framework makes it drop dead simple to write your services without having to piece together lines and lines of boilerplate. Auto 
 configured and initialised by default, just import and get started quickly.
 
@@ -107,6 +107,12 @@ Run the server locally
 
 ```
 micro server
+```
+
+Set the environment to local (127.0.0.1:8081)
+
+```
+micro env set local
 ```
 
 Login to the server
@@ -227,8 +233,8 @@ See [LICENSE](LICENSE) which makes use of [Polyform Shield](https://polyformproj
 
 ## Hosting
 
-For a hosted Micro Platform aka M3O see [m3o.com](https://m3o.com).
+For the hosted Micro Platform aka M3O see [m3o.com](https://m3o.com).
 
 ## Community
 
-Join us in the [Discussions](https://github.com/micro/micro/discussions) or follow on [Twitter](https://twitter.com/microhq) for updates.
+Join us in GitHub [Discussions](https://github.com/micro/micro/discussions), [Slack](https://slack.micro.mu) or follow on [Twitter](https://twitter.com/microhq) for updates.
