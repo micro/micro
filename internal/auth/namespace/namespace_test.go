@@ -120,6 +120,58 @@ func TestAuthorize(t *testing.T) {
 			method: "foo.Bar",
 			err:    "",
 		},
+
+		{
+			name: "MicroServiceAccessingMicro",
+			acc: &auth.Account{
+				ID:       "1",
+				Type:     "service",
+				Issuer:   "micro",
+				Metadata: nil,
+				Scopes:   []string{"service"},
+			},
+			ns:     "micro",
+			method: "foo.Bar",
+			err:    "",
+		},
+		{
+			name: "MicroServiceAccessingFoo",
+			acc: &auth.Account{
+				ID:       "1",
+				Type:     "service",
+				Issuer:   "micro",
+				Metadata: nil,
+				Scopes:   []string{"service"},
+			},
+			ns:     "foo",
+			method: "foo.Bar",
+			err:    "",
+		},
+		{
+			name: "FooServiceAccessingMicro",
+			acc: &auth.Account{
+				ID:       "1",
+				Type:     "service",
+				Issuer:   "foo",
+				Metadata: nil,
+				Scopes:   []string{"service"},
+			},
+			ns:     "micro",
+			method: "foo.Bar",
+			err:    "Forbidden",
+		},
+		{
+			name: "FooServiceAccessingFoo",
+			acc: &auth.Account{
+				ID:       "1",
+				Type:     "service",
+				Issuer:   "foo",
+				Metadata: nil,
+				Scopes:   []string{"service"},
+			},
+			ns:     "foo",
+			method: "foo.Bar",
+		},
 	}
 	for _, tc := range tcs {
 		t.Run(tc.name, func(t *testing.T) {
@@ -246,6 +298,58 @@ func TestAuthorizeAdmin(t *testing.T) {
 			ns:     "foo",
 			method: "foo.Bar",
 			err:    "Unauthorized",
+		},
+
+		{
+			name: "MicroServiceAccessingMicro",
+			acc: &auth.Account{
+				ID:       "1",
+				Type:     "service",
+				Issuer:   "micro",
+				Metadata: nil,
+				Scopes:   []string{"service"},
+			},
+			ns:     "micro",
+			method: "foo.Bar",
+			err:    "",
+		},
+		{
+			name: "MicroServiceAccessingFoo",
+			acc: &auth.Account{
+				ID:       "1",
+				Type:     "service",
+				Issuer:   "micro",
+				Metadata: nil,
+				Scopes:   []string{"service"},
+			},
+			ns:     "foo",
+			method: "foo.Bar",
+			err:    "",
+		},
+		{
+			name: "FooServiceAccessingMicro",
+			acc: &auth.Account{
+				ID:       "1",
+				Type:     "service",
+				Issuer:   "foo",
+				Metadata: nil,
+				Scopes:   []string{"service"},
+			},
+			ns:     "micro",
+			method: "foo.Bar",
+			err:    "Forbidden",
+		},
+		{
+			name: "FooServiceAccessingFoo",
+			acc: &auth.Account{
+				ID:       "1",
+				Type:     "service",
+				Issuer:   "foo",
+				Metadata: nil,
+				Scopes:   []string{"service"},
+			},
+			ns:     "foo",
+			method: "foo.Bar",
 		},
 	}
 	for _, tc := range tcs {
