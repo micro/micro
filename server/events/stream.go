@@ -18,12 +18,8 @@ type Stream struct{}
 
 func (s *Stream) Publish(ctx context.Context, req *pb.PublishRequest, rsp *pb.PublishResponse) error {
 	// authorize the request
-	if err := namespace.Authorize(ctx, namespace.DefaultNamespace); err == namespace.ErrForbidden {
-		return errors.Forbidden("events.Stream.Publish", err.Error())
-	} else if err == namespace.ErrUnauthorized {
-		return errors.Unauthorized("events.Stream.Publish", err.Error())
-	} else if err != nil {
-		return errors.InternalServerError("events.Stream.Publish", err.Error())
+	if err := namespace.AuthorizeAdmin(ctx, namespace.DefaultNamespace, "events.Stream.Publish"); err != nil {
+		return err
 	}
 
 	// validate the request
@@ -62,12 +58,8 @@ func (s *Stream) Publish(ctx context.Context, req *pb.PublishRequest, rsp *pb.Pu
 
 func (s *Stream) Consume(ctx context.Context, req *pb.ConsumeRequest, rsp pb.Stream_ConsumeStream) error {
 	// authorize the request
-	if err := namespace.Authorize(ctx, namespace.DefaultNamespace); err == namespace.ErrForbidden {
-		return errors.Forbidden("events.Stream.Publish", err.Error())
-	} else if err == namespace.ErrUnauthorized {
-		return errors.Unauthorized("events.Stream.Publish", err.Error())
-	} else if err != nil {
-		return errors.InternalServerError("events.Stream.Publish", err.Error())
+	if err := namespace.AuthorizeAdmin(ctx, namespace.DefaultNamespace, "events.Stream.Publish"); err != nil {
+		return err
 	}
 
 	// parse options
