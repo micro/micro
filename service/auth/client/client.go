@@ -169,8 +169,7 @@ func (s *srv) Verify(acc *auth.Account, res *auth.Resource, opts ...auth.VerifyO
 	if err != nil {
 		return err
 	}
-
-	return rules.VerifyAccess(rs, acc, res)
+	return rules.VerifyAccess(rs, acc, res, opts...)
 }
 
 // Inspect a token

@@ -41,12 +41,8 @@ func (h *handler) List(ctx context.Context, req *pb.ListRequest, stream pb.Store
 	}
 
 	// authorize the request
-	if err := namespace.Authorize(ctx, req.Options.Database); err == namespace.ErrForbidden {
-		return errors.Forbidden("store.Store.List", err.Error())
-	} else if err == namespace.ErrUnauthorized {
-		return errors.Unauthorized("store.Store.List", err.Error())
-	} else if err != nil {
-		return errors.InternalServerError("store.Store.List", err.Error())
+	if err := namespace.AuthorizeAdmin(ctx, req.Options.Database, "store.Store.List"); err != nil {
+		return err
 	}
 
 	// setup the store
@@ -107,12 +103,8 @@ func (h *handler) Read(ctx context.Context, req *pb.ReadRequest, rsp *pb.ReadRes
 	}
 
 	// authorize the request
-	if err := namespace.Authorize(ctx, req.Options.Database); err == namespace.ErrForbidden {
-		return errors.Forbidden("store.Store.Read", err.Error())
-	} else if err == namespace.ErrUnauthorized {
-		return errors.Unauthorized("store.Store.Read", err.Error())
-	} else if err != nil {
-		return errors.InternalServerError("store.Store.Read", err.Error())
+	if err := namespace.AuthorizeAdmin(ctx, req.Options.Database, "store.Store.Read"); err != nil {
+		return err
 	}
 
 	// setup the store
@@ -180,12 +172,8 @@ func (h *handler) Write(ctx context.Context, req *pb.WriteRequest, rsp *pb.Write
 	}
 
 	// authorize the request
-	if err := namespace.Authorize(ctx, req.Options.Database); err == namespace.ErrForbidden {
-		return errors.Forbidden("store.Store.Write", err.Error())
-	} else if err == namespace.ErrUnauthorized {
-		return errors.Unauthorized("store.Store.Write", err.Error())
-	} else if err != nil {
-		return errors.InternalServerError("store.Store.Write", err.Error())
+	if err := namespace.AuthorizeAdmin(ctx, req.Options.Database, "store.Store.Write"); err != nil {
+		return err
 	}
 
 	// setup the store
@@ -234,12 +222,8 @@ func (h *handler) Delete(ctx context.Context, req *pb.DeleteRequest, rsp *pb.Del
 	}
 
 	// authorize the request
-	if err := namespace.Authorize(ctx, req.Options.Database); err == namespace.ErrForbidden {
-		return errors.Forbidden("store.Store.Delete", err.Error())
-	} else if err == namespace.ErrUnauthorized {
-		return errors.Unauthorized("store.Store.Delete", err.Error())
-	} else if err != nil {
-		return errors.InternalServerError("store.Store.Delete", err.Error())
+	if err := namespace.AuthorizeAdmin(ctx, req.Options.Database, "store.Store.Delete"); err != nil {
+		return err
 	}
 
 	// setup the store
@@ -265,12 +249,8 @@ func (h *handler) Delete(ctx context.Context, req *pb.DeleteRequest, rsp *pb.Del
 // Databases lists all the databases
 func (h *handler) Databases(ctx context.Context, req *pb.DatabasesRequest, rsp *pb.DatabasesResponse) error {
 	// authorize the request
-	if err := namespace.Authorize(ctx, defaultDatabase); err == namespace.ErrForbidden {
-		return errors.Forbidden("store.Store.Databases", err.Error())
-	} else if err == namespace.ErrUnauthorized {
-		return errors.Unauthorized("store.Store.Databases", err.Error())
-	} else if err != nil {
-		return errors.InternalServerError("store.Store.Databases", err.Error())
+	if err := namespace.AuthorizeAdmin(ctx, defaultDatabase, "store.Store.Database"); err != nil {
+		return err
 	}
 
 	// read the databases from the store
@@ -299,12 +279,8 @@ func (h *handler) Tables(ctx context.Context, req *pb.TablesRequest, rsp *pb.Tab
 	}
 
 	// authorize the request
-	if err := namespace.Authorize(ctx, req.Database); err == namespace.ErrForbidden {
-		return errors.Forbidden("store.Store.Tables", err.Error())
-	} else if err == namespace.ErrUnauthorized {
-		return errors.Unauthorized("store.Store.Tables", err.Error())
-	} else if err != nil {
-		return errors.InternalServerError("store.Store.Tables", err.Error())
+	if err := namespace.AuthorizeAdmin(ctx, req.Database, "store.Store.Tables"); err != nil {
+		return err
 	}
 
 	// construct the options

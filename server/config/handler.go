@@ -55,12 +55,8 @@ func (c *Config) Get(ctx context.Context, req *pb.GetRequest, rsp *pb.GetRespons
 	}
 
 	// authorize the request
-	if err := namespace.Authorize(ctx, req.Namespace); err == namespace.ErrForbidden {
-		return merrors.Forbidden("config.Config.Get", err.Error())
-	} else if err == namespace.ErrUnauthorized {
-		return merrors.Unauthorized("config.Config.Get", err.Error())
-	} else if err != nil {
-		return merrors.InternalServerError("config.Config.Get", err.Error())
+	if err := namespace.AuthorizeAdmin(ctx, req.Namespace, "config.Config.Get"); err != nil {
+		return err
 	}
 
 	ch, err := store.Read(req.Namespace)
@@ -111,12 +107,8 @@ func (c *Config) Read(ctx context.Context, req *pb.ReadRequest, rsp *pb.ReadResp
 	}
 
 	// authorize the request
-	if err := namespace.Authorize(ctx, req.Namespace); err == namespace.ErrForbidden {
-		return merrors.Forbidden("config.Config.Read", err.Error())
-	} else if err == namespace.ErrUnauthorized {
-		return merrors.Unauthorized("config.Config.Read", err.Error())
-	} else if err != nil {
-		return merrors.InternalServerError("config.Config.Read", err.Error())
+	if err := namespace.AuthorizeAdmin(ctx, req.Namespace, "config.Config.Read"); err != nil {
+		return err
 	}
 
 	ch, err := store.Read(req.Namespace)
@@ -251,12 +243,8 @@ func (c *Config) Set(ctx context.Context, req *pb.SetRequest, rsp *pb.SetRespons
 	}
 
 	// authorize the request
-	if err := namespace.Authorize(ctx, ns); err == namespace.ErrForbidden {
-		return merrors.Forbidden("config.Config.Update", err.Error())
-	} else if err == namespace.ErrUnauthorized {
-		return merrors.Unauthorized("config.Config.Update", err.Error())
-	} else if err != nil {
-		return merrors.InternalServerError("config.Config.Update", err.Error())
+	if err := namespace.AuthorizeAdmin(ctx, ns, "config.Config.Set"); err != nil {
+		return err
 	}
 
 	ch, err := store.Read(ns)
@@ -348,12 +336,8 @@ func (c *Config) Delete(ctx context.Context, req *pb.DeleteRequest, rsp *pb.Dele
 	}
 
 	// authorize the request
-	if err := namespace.Authorize(ctx, ns); err == namespace.ErrForbidden {
-		return merrors.Forbidden("config.Config.Delete", err.Error())
-	} else if err == namespace.ErrUnauthorized {
-		return merrors.Unauthorized("config.Config.Delete", err.Error())
-	} else if err != nil {
-		return merrors.InternalServerError("config.Config.Delete", err.Error())
+	if err := namespace.AuthorizeAdmin(ctx, ns, "config.Config.Delete"); err != nil {
+		return err
 	}
 
 	ch, err := store.Read(ns)

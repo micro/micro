@@ -34,6 +34,8 @@ type codecsKey struct{}
 type grpcOptions struct{}
 type netListener struct{}
 type maxMsgSizeKey struct{}
+type maxRecvMsgSizeKey struct{}
+type maxSendMsgSizeKey struct{}
 type maxConnKey struct{}
 type tlsAuth struct{}
 type grpcWebOptions struct{}
@@ -85,11 +87,35 @@ func GRPCWebPort(addr string) server.Option {
 }
 
 //
+// Deprecated: use MaxRecvMsgSize or MaxSendMsgSize instead
 // MaxMsgSize set the maximum message in bytes the server can receive and
 // send.  Default maximum message size is 4 MB.
-//
 func MaxMsgSize(s int) server.Option {
 	return setServerOption(maxMsgSizeKey{}, s)
+}
+
+//
+// MaxRecvMsgSize set the maximum size of message that server can receive.
+//
+func MaxRecvMsgSize(s int) server.Option {
+	return func(o *server.Options) {
+		if o.Context == nil {
+			o.Context = context.Background()
+		}
+		o.Context = context.WithValue(o.Context, maxRecvMsgSizeKey{}, s)
+	}
+}
+
+//
+// MaxSendMsgSize set the maximum size of message that server can send.
+//
+func MaxSendMsgSize(s int) server.Option {
+	return func(o *server.Options) {
+		if o.Context == nil {
+			o.Context = context.Background()
+		}
+		o.Context = context.WithValue(o.Context, maxSendMsgSizeKey{}, s)
+	}
 }
 
 func newOptions(opt ...server.Option) server.Options {

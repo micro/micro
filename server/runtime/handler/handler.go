@@ -49,12 +49,8 @@ func (r *Runtime) Read(ctx context.Context, req *pb.ReadRequest, rsp *pb.ReadRes
 	}
 
 	// authorize the request
-	if err := namespace.Authorize(ctx, req.Options.Namespace); err == namespace.ErrForbidden {
-		return errors.Forbidden("runtime.Runtime.Read", err.Error())
-	} else if err == namespace.ErrUnauthorized {
-		return errors.Unauthorized("runtime.Runtime.Read", err.Error())
-	} else if err != nil {
-		return errors.InternalServerError("runtime.Runtime.Read", err.Error())
+	if err := namespace.Authorize(ctx, req.Options.Namespace, "runtime.Runtime.Read"); err != nil {
+		return err
 	}
 
 	// lookup the services
@@ -82,12 +78,8 @@ func (r *Runtime) Logs(ctx context.Context, req *pb.LogsRequest, stream pb.Runti
 	}
 
 	// authorize the request
-	if err := namespace.Authorize(ctx, req.Options.Namespace); err == namespace.ErrForbidden {
-		return errors.Forbidden("runtime.Runtime.Logs", err.Error())
-	} else if err == namespace.ErrUnauthorized {
-		return errors.Unauthorized("runtime.Runtime.Logs", err.Error())
-	} else if err != nil {
-		return errors.InternalServerError("runtime.Runtime.Logs", err.Error())
+	if err := namespace.AuthorizeAdmin(ctx, req.Options.Namespace, "runtime.Runtime.Logs"); err != nil {
+		return err
 	}
 
 	opts := toLogsOptions(ctx, req.Options)
@@ -158,12 +150,8 @@ func (r *Runtime) Create(ctx context.Context, req *pb.CreateRequest, rsp *pb.Cre
 	}
 
 	// authorize the request
-	if err := namespace.Authorize(ctx, req.Options.Namespace); err == namespace.ErrForbidden {
-		return errors.Forbidden("runtime.Runtime.Create", err.Error())
-	} else if err == namespace.ErrUnauthorized {
-		return errors.Unauthorized("runtime.Runtime.Create", err.Error())
-	} else if err != nil {
-		return errors.InternalServerError("runtime.Runtime.Create", err.Error())
+	if err := namespace.AuthorizeAdmin(ctx, req.Options.Namespace, "runtime.Runtime.Create"); err != nil {
+		return err
 	}
 
 	// Handle the different possible types of resource
@@ -291,12 +279,8 @@ func (r *Runtime) Delete(ctx context.Context, req *pb.DeleteRequest, rsp *pb.Del
 	}
 
 	// authorize the request
-	if err := namespace.Authorize(ctx, req.Options.Namespace); err == namespace.ErrForbidden {
-		return errors.Forbidden("runtime.Runtime.Delete", err.Error())
-	} else if err == namespace.ErrUnauthorized {
-		return errors.Unauthorized("runtime.Runtime.Delete", err.Error())
-	} else if err != nil {
-		return errors.InternalServerError("runtime.Runtime.Delete", err.Error())
+	if err := namespace.AuthorizeAdmin(ctx, req.Options.Namespace, "runtime.Runtime.Delete"); err != nil {
+		return err
 	}
 
 	// Handle the different possible types of resource
@@ -414,12 +398,8 @@ func (r *Runtime) Update(ctx context.Context, req *pb.UpdateRequest, rsp *pb.Upd
 	}
 
 	// authorize the request
-	if err := namespace.Authorize(ctx, req.Options.Namespace); err == namespace.ErrForbidden {
-		return errors.Forbidden("runtime.Runtime.Update", err.Error())
-	} else if err == namespace.ErrUnauthorized {
-		return errors.Unauthorized("runtime.Runtime.Update", err.Error())
-	} else if err != nil {
-		return errors.InternalServerError("runtime.Runtime.Update", err.Error())
+	if err := namespace.AuthorizeAdmin(ctx, req.Options.Namespace, "runtime.Runtime.Update"); err != nil {
+		return err
 	}
 
 	// Handle the different possible types of resource

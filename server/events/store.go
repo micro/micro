@@ -15,12 +15,8 @@ type Store struct{}
 
 func (s *Store) Read(ctx context.Context, req *pb.ReadRequest, rsp *pb.ReadResponse) error {
 	// authorize the request
-	if err := namespace.Authorize(ctx, namespace.DefaultNamespace); err == namespace.ErrForbidden {
-		return errors.Forbidden("events.Store.Read", err.Error())
-	} else if err == namespace.ErrUnauthorized {
-		return errors.Unauthorized("events.Store.Read", err.Error())
-	} else if err != nil {
-		return errors.InternalServerError("events.Store.Read", err.Error())
+	if err := namespace.AuthorizeAdmin(ctx, namespace.DefaultNamespace, "events.Store.Read"); err != nil {
+		return err
 	}
 
 	// validate the request
