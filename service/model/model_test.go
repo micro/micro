@@ -52,6 +52,46 @@ func TestEqualsByID(t *testing.T) {
 	}
 }
 
+func TestEqualsByIDMap(t *testing.T) {
+	m := map[string]interface{}{
+		"ID":      "id",
+		"age":     1,
+		"hasPet":  true,
+		"created": 1,
+		"tag":     "tag",
+		"updated": 1,
+	}
+	table := New(m, &Options{
+		Store:     fs.NewStore(),
+		Namespace: uuid.Must(uuid.NewV4()).String(),
+	})
+
+	err := table.Create(map[string]interface{}{
+		"ID":  "1",
+		"Age": 12,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	err = table.Create(map[string]interface{}{
+		"ID":  "2",
+		"Age": 25,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	users := []map[string]interface{}{}
+	q := Equals("ID", "1")
+	q.Order.Type = OrderTypeUnordered
+	err = table.Read(q, &users)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(users) != 1 {
+		t.Fatal(users)
+	}
+}
+
 // TestNewModel tests the creation using NewModel and Register
 func TestNewModel(t *testing.T) {
 	// create a new model
