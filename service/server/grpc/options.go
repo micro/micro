@@ -98,24 +98,24 @@ func MaxMsgSize(s int) server.Option {
 // MaxRecvMsgSize set the maximum size of message that server can receive.
 //
 func MaxRecvMsgSize(s int) server.Option {
-        return func(o *server.Options) {
-                if o.Context == nil {
-                        o.Context = context.Background()
-                }
-                o.Context = context.WithValue(o.Context, maxRecvMsgSizeKey{}, s)
-        }
+	return func(o *server.Options) {
+		if o.Context == nil {
+			o.Context = context.Background()
+		}
+		o.Context = context.WithValue(o.Context, maxRecvMsgSizeKey{}, s)
+	}
 }
 
 //
 // MaxSendMsgSize set the maximum size of message that server can send.
 //
 func MaxSendMsgSize(s int) server.Option {
-        return func(o *server.Options) {
-                if o.Context == nil {
-                        o.Context = context.Background()
-                }
-                o.Context = context.WithValue(o.Context, maxSendMsgSizeKey{}, s)
-        }
+	return func(o *server.Options) {
+		if o.Context == nil {
+			o.Context = context.Background()
+		}
+		o.Context = context.WithValue(o.Context, maxSendMsgSizeKey{}, s)
+	}
 }
 
 func newOptions(opt ...server.Option) server.Options {

@@ -19,7 +19,7 @@ import (
 	"time"
 
 	"github.com/micro/micro/v3/service/events"
-	 "github.com/micro/micro/v3/service/store"
+	"github.com/micro/micro/v3/service/store"
 	"github.com/micro/micro/v3/service/store/memory"
 	"github.com/pkg/errors"
 )

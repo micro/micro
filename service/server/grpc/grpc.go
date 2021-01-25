@@ -58,13 +58,13 @@ import (
 )
 
 var (
-        // DefaultMaxRecvMsgSize maximum message that client can receive
-        // (16 MB).
-        DefaultMaxRecvMsgSize = 1024 * 1024 * 16
+	// DefaultMaxRecvMsgSize maximum message that client can receive
+	// (16 MB).
+	DefaultMaxRecvMsgSize = 1024 * 1024 * 16
 
-        // DefaultMaxSendMsgSize maximum message that client can send
-        // (16 MB).
-        DefaultMaxSendMsgSize = 1024 * 1024 * 16
+	// DefaultMaxSendMsgSize maximum message that client can send
+	// (16 MB).
+	DefaultMaxSendMsgSize = 1024 * 1024 * 16
 )
 
 const (
@@ -146,8 +146,8 @@ func (g *grpcServer) configure(opts ...server.Option) {
 
 	g.wg = wait(g.opts.Context)
 
-        maxRecvMsgSize := g.maxRecvMsgSizeValue()
-        maxSendMsgSize := g.maxSendMsgSizeValue()
+	maxRecvMsgSize := g.maxRecvMsgSizeValue()
+	maxSendMsgSize := g.maxSendMsgSizeValue()
 
 	gopts := []grpc.ServerOption{
 		grpc.MaxRecvMsgSize(maxRecvMsgSize),
@@ -167,27 +167,26 @@ func (g *grpcServer) configure(opts ...server.Option) {
 	g.srv = grpc.NewServer(gopts...)
 }
 
-
 func (g *grpcServer) maxRecvMsgSizeValue() int {
-        if g.opts.Context == nil {
-                return DefaultMaxRecvMsgSize
-        }
-        v := g.opts.Context.Value(maxRecvMsgSizeKey{})
-        if v == nil {
-                return DefaultMaxRecvMsgSize
-        }
-        return v.(int)
+	if g.opts.Context == nil {
+		return DefaultMaxRecvMsgSize
+	}
+	v := g.opts.Context.Value(maxRecvMsgSizeKey{})
+	if v == nil {
+		return DefaultMaxRecvMsgSize
+	}
+	return v.(int)
 }
 
 func (g *grpcServer) maxSendMsgSizeValue() int {
-        if g.opts.Context == nil {
-                return DefaultMaxSendMsgSize
-        }
-        v := g.opts.Context.Value(maxSendMsgSizeKey{})
-        if v == nil {
-                return DefaultMaxSendMsgSize
-        }
-        return v.(int)
+	if g.opts.Context == nil {
+		return DefaultMaxSendMsgSize
+	}
+	v := g.opts.Context.Value(maxSendMsgSizeKey{})
+	if v == nil {
+		return DefaultMaxSendMsgSize
+	}
+	return v.(int)
 }
 
 func (g *grpcServer) getCredentials() credentials.TransportCredentials {
