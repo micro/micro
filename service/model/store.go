@@ -109,6 +109,10 @@ func getFieldName(field string) string {
 }
 
 func getFieldValue(struc interface{}, fieldName string) interface{} {
+	switch v := struc.(type) {
+	case map[string]interface{}:
+		return v[fieldName]
+	}
 	fieldName = getFieldName(fieldName)
 	r := reflect.ValueOf(struc)
 	f := reflect.Indirect(r).FieldByName(fieldName)
@@ -120,6 +124,12 @@ func getFieldValue(struc interface{}, fieldName string) interface{} {
 }
 
 func setFieldValue(struc interface{}, fieldName string, value interface{}) {
+	switch v := struc.(type) {
+	case map[string]interface{}:
+		v[fieldName] = value
+		return
+	}
+
 	fieldName = getFieldName(fieldName)
 	r := reflect.ValueOf(struc)
 
@@ -174,7 +184,13 @@ func (d *model) Create(instance interface{}) error {
 	// to avoid 2 read-writes happening at the same time
 	idQuery := d.idIndex.ToQuery(getFieldValue(instance, d.idIndex.FieldName))
 
-	oldEntry := reflect.New(reflect.ValueOf(instance).Type()).Interface()
+	var oldEntry interface{}
+	switch instance.(type) {
+	case map[string]interface{}:
+		oldEntry = map[string]interface{}{}
+	default:
+		oldEntry = reflect.New(reflect.ValueOf(instance).Type()).Interface()
+	}
 
 	err = d.Read(idQuery, &oldEntry)
 	if err != nil && err != ErrorNotFound {
@@ -357,7 +373,14 @@ func (d *model) queryToListKey(i Index, q Query) string {
 		return fmt.Sprintf("%v:%v:%v", d.namespace, indexPrefix(i), q.Value)
 	}
 
-	val := reflect.New(reflect.ValueOf(d.instance).Type()).Interface()
+	var val interface{}
+	switch d.instance.(type) {
+	case map[string]interface{}:
+		val = map[string]interface{}{}
+	default:
+		val = reflect.New(reflect.ValueOf(d.instance).Type()).Interface()
+	}
+
 	if q.Value != nil {
 		setFieldValue(val, i.FieldName, q.Value)
 	}
