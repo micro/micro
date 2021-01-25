@@ -130,8 +130,14 @@ func init() {
 		},
 		&cli.Command{
 			Name:   "stats",
-			Usage:  "Query the stats of a service",
+			Usage:  "Query the stats of specified service(s), e.g micro stats srv1 srv2 srv3",
 			Action: util.Print(queryStats),
+			Flags: []cli.Flag{
+				&cli.StringFlag{
+					Name:  "all",
+					Usage: "to list all builtin services use --all builtin, for user's services use --all custom",
+				},
+			},
 		},
 		&cli.Command{
 			Name:   "env",
