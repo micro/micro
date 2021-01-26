@@ -15,6 +15,7 @@ import (
 	"github.com/micro/micro/v3/service/client"
 	"github.com/micro/micro/v3/service/context"
 	"github.com/micro/micro/v3/service/registry"
+	"github.com/stretchr/objx"
 	"github.com/urfave/cli/v2"
 )
 
@@ -287,7 +288,6 @@ func shouldRenderHelp(ctx *cli.Context) bool {
 // This function constructs []interface{} slices
 // as opposed to typed ([]string etc) slices for easier testing
 func flagsToRequest(flags map[string][]string, req *registry.Value) (map[string]interface{}, error) {
-	result := map[string]interface{}{}
 	coerceValue := func(valueType string, value []string) (interface{}, error) {
 		switch valueType {
 		case "bool":
@@ -374,46 +374,48 @@ func flagsToRequest(flags map[string][]string, req *registry.Value) (map[string]
 		}
 		return nil, nil
 	}
-loop:
-	for key, value := range flags {
-		for _, attr := range req.Values {
 
-			// matches at a top level
-			if attr.Name == key {
-				parsed, err := coerceValue(attr.Type, value)
-				if err != nil {
-					return nil, err
-				}
+	result := objx.MustFromJSON("{}")
 
-				result[key] = parsed
-				continue loop
+	var flagType func(key string, values []*registry.Value, path ...string) (string, bool)
+	flagType = func(key string, values []*registry.Value, path ...string) (string, bool) {
+		for _, attr := range values {
+			if strings.Join(append(path, attr.Name), "_") == key {
+				return attr.Type, true
 			}
-
-			// check for matches at the second level
-			if !strings.HasPrefix(key, attr.Name+"_") {
-				continue
-			}
-			for _, attr2 := range attr.Values {
-				if attr.Name+"_"+attr2.Name != key {
-					continue
+			if attr.Values != nil {
+				typ, found := flagType(key, attr.Values, append(path, attr.Name)...)
+				if found {
+					return typ, found
 				}
-
-				if _, ok := result[attr.Name]; !ok {
-					result[attr.Name] = map[string]interface{}{}
-				} else if _, ok := result[attr.Name].(map[string]interface{}); !ok {
-					return nil, fmt.Errorf("Error parsing request, duplicate key: %v", key)
-				}
-				parsed, err := coerceValue(attr2.Type, value)
-				if err != nil {
-					return nil, err
-				}
-				result[attr.Name].(map[string]interface{})[attr2.Name] = parsed
-				continue loop
 			}
 		}
-		return nil, fmt.Errorf("Unknown flag: %v", key)
+		return "", false
 	}
+	for key, value := range flags {
+		ty, found := flagType(key, req.Values)
+		if !found {
+			return nil, fmt.Errorf("Unknown flag: %v", key)
+		}
+		parsed, err := coerceValue(ty, value)
+		if err != nil {
+			return nil, err
+		}
+		// objx.Set does not create the path,
+		// so we do that here
+		if strings.Contains(key, "_") {
+			parts := strings.Split(key, "_")
+			for i, _ := range parts {
+				pToCreate := strings.Join(parts[0:i], ".")
+				if i > 0 && i < len(parts) && !result.Has(pToCreate) {
+					result.Set(pToCreate, map[string]interface{}{})
+				}
+			}
+		}
+		path := strings.Replace(key, "_", ".", -1)
+		result.Set(path, parsed)
 
+	}
 	return result, nil
 }
 
