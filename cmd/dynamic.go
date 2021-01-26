@@ -381,7 +381,7 @@ func flagsToRequest(flags map[string][]string, req *registry.Value) (map[string]
 	flagType = func(key string, values []*registry.Value, path ...string) (string, bool) {
 		for _, attr := range values {
 			if strings.Join(append(path, attr.Name), "_") == key {
-				return attr.Name, true
+				return attr.Type, true
 			}
 			if attr.Values != nil {
 				typ, found := flagType(key, attr.Values, append(path, attr.Name)...)
@@ -401,8 +401,19 @@ func flagsToRequest(flags map[string][]string, req *registry.Value) (map[string]
 		if err != nil {
 			return nil, err
 		}
-
-		result.Set(strings.Replace(key, "_", ".", -1), parsed)
+		// objx.Set does not create the path,
+		// so we do that here
+		if strings.Contains(key, "_") {
+			parts := strings.Split(key, "_")
+			for i, _ := range parts {
+				pToCreate := strings.Join(parts[0:i], ".")
+				if i > 0 && i < len(parts) && !result.Has(pToCreate) {
+					result.Set(pToCreate, map[string]interface{}{})
+				}
+			}
+		}
+		path := strings.Replace(key, "_", ".", -1)
+		result.Set(path, parsed)
 
 	}
 	return result, nil

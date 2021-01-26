@@ -4,6 +4,7 @@ import (
 	"reflect"
 	"testing"
 
+	"github.com/davecgh/go-spew/spew"
 	goregistry "github.com/micro/micro/v3/service/registry"
 )
 
@@ -411,7 +412,7 @@ func TestDynamicFlagParsing(t *testing.T) {
 						Name: "user",
 						Values: []*goregistry.Value{
 							{
-								Name: "fiend",
+								Name: "friend",
 								Values: []*goregistry.Value{
 									{
 										Name: "email",
@@ -442,6 +443,7 @@ func TestDynamicFlagParsing(t *testing.T) {
 			t.Fatal(err)
 		}
 		if !reflect.DeepEqual(c.expected, req) {
+			spew.Dump("Expected:", c.expected, "got: ", req)
 			t.Fatalf("Expected %v, got %v", c.expected, req)
 		}
 	}
