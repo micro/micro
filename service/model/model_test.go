@@ -256,7 +256,8 @@ func TestRead(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	err = table.Create(User{
+	// test pointer create
+	err = table.Create(&User{
 		ID:  "1",
 		Age: 25,
 	})

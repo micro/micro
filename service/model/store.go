@@ -243,6 +243,9 @@ func (d *model) Register(instance interface{}) error {
 }
 
 func (d *model) Create(instance interface{}) error {
+	if reflect.ValueOf(instance).Kind() == reflect.Ptr {
+		instance = reflect.Indirect(reflect.ValueOf(instance)).Interface()
+	}
 	// @todo replace this hack with reflection
 	js, err := json.Marshal(instance)
 	if err != nil {
