@@ -68,6 +68,8 @@ type Model interface {
 type Options struct {
 	// Database sets the default database
 	Database string
+	// Table sets the default table
+	Table string
 	// Set the primary key used for the default index
 	Key string
 	// Enable debug logging
@@ -88,6 +90,13 @@ type Option func(*Options)
 func WithDatabase(db string) Option {
 	return func(o *Options) {
 		o.Database = db
+	}
+}
+
+// WithTable sets the default table for queries
+func WithTable(t string) Option {
+	return func(o *Options) {
+		o.Table = t
 	}
 }
 
