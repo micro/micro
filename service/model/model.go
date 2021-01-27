@@ -27,8 +27,10 @@ const (
 )
 
 const (
-	queryTypeEq = "eq"
-	indexTypeEq = "eq"
+	queryTypeEq  = "eq"
+	indexTypeEq  = "eq"
+	queryTypeAll = "all"
+	indexTypeAll = "all"
 )
 
 var (

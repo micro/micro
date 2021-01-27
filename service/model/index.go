@@ -94,6 +94,11 @@ func indexPrefix(i Index) string {
 		ordering = "Desc"
 	}
 	typ := i.Type
+	// hack for all listing where we use the eq ID index
+	// without a value to list all
+	if i.Type == indexTypeAll {
+		typ = indexTypeEq
+	}
 	orderingField := i.Order.FieldName
 	if len(orderingField) == 0 {
 		orderingField = i.FieldName
