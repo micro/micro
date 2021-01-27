@@ -52,6 +52,38 @@ func TestQueryEqualsByID(t *testing.T) {
 	}
 }
 
+func TestQueryEqualsByIDPointerInstance(t *testing.T) {
+	table := New(&User{}, &Options{
+		Store:     fs.NewStore(),
+		Namespace: uuid.Must(uuid.NewV4()).String(),
+	})
+
+	err := table.Create(User{
+		ID:  "1",
+		Age: 12,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	err = table.Create(User{
+		ID:  "2",
+		Age: 25,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	users := []User{}
+	q := QueryEquals("ID", "1")
+	q.Order.Type = OrderTypeUnordered
+	err = table.Read(q, &users)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(users) != 1 {
+		t.Fatal(users)
+	}
+}
+
 func TestQueryEqualsByIDMap(t *testing.T) {
 	m := map[string]interface{}{
 		"ID":      "id",

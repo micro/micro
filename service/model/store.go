@@ -91,7 +91,7 @@ func New(instance interface{}, options *Options) Model {
 	table = options.Table
 
 	// set defaults if blank
-	if len(database) == 0  && options.Store != nil {
+	if len(database) == 0 && options.Store != nil {
 		database = options.Store.Options().Database
 	}
 
@@ -400,7 +400,11 @@ func (d *model) queryToListKey(i Index, q Query) string {
 	case map[string]interface{}:
 		val = map[string]interface{}{}
 	default:
-		val = reflect.New(reflect.ValueOf(d.instance).Type()).Interface()
+		if reflect.ValueOf(d.instance).Kind() == reflect.Ptr {
+			val = reflect.New(reflect.Indirect(reflect.ValueOf(d.instance)).Type()).Interface()
+		} else {
+			val = reflect.New(reflect.ValueOf(d.instance).Type()).Interface()
+		}
 	}
 
 	if q.Value != nil {
