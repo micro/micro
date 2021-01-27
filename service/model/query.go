@@ -10,7 +10,7 @@ type Query struct {
 
 // Equals is an equality query by `fieldName`
 // It filters records where `fieldName` equals to a value.
-func Equals(fieldName string, value interface{}) Query {
+func QueryEquals(fieldName string, value interface{}) Query {
 	return Query{
 		Index: Index{
 			Type:      queryTypeEq,
@@ -28,7 +28,7 @@ func Equals(fieldName string, value interface{}) Query {
 	}
 }
 
-func All() Query {
+func QueryAll() Query {
 	return Query{
 		Index: Index{
 			Type:      queryTypeAll,
@@ -39,5 +39,5 @@ func All() Query {
 
 // QueryByID is short hand for querying by the primary index
 func QueryByID(id string) Query {
-	return Equals("ID", id)
+	return QueryEquals("ID", id)
 }
