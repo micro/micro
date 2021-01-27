@@ -94,6 +94,39 @@ func TestQueryEqualsLowerCaseID(t *testing.T) {
 	}
 }
 
+func TestQueryEqualsMismatchIDCapitalization(t *testing.T) {
+	table := New(&User1{}, &Options{
+		Store:     fs.NewStore(),
+		Namespace: uuid.Must(uuid.NewV4()).String(),
+	})
+
+	// pointer insert
+	err := table.Create(&User1{
+		Id:  "1",
+		Age: 12,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	err = table.Create(User1{
+		Id:  "2",
+		Age: 25,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	users := []User1{}
+	q := QueryEquals("id", "1")
+	q.Order.Type = OrderTypeUnordered
+	err = table.Read(q, &users)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(users) != 1 {
+		t.Fatal(users)
+	}
+}
+
 func TestQueryEqualsByIDMap(t *testing.T) {
 	m := map[string]interface{}{
 		"ID":      "id",
@@ -217,7 +250,8 @@ func TestRead(t *testing.T) {
 		Namespace: uuid.Must(uuid.NewV4()).String(),
 	})
 	user := User{}
-	err := table.Read(QueryEquals("age", 25), &user)
+	// intentionally querying Age to test case tolerance
+	err := table.Read(QueryEquals("Age", 25), &user)
 	if err != ErrorNotFound {
 		t.Fatal(err)
 	}
