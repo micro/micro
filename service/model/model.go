@@ -70,8 +70,6 @@ type Options struct {
 	Database string
 	// Table sets the default table
 	Table string
-	// Set the primary key used for the default index
-	Key string
 	// Enable debug logging
 	Debug bool
 	// The indexes to use for queries
@@ -106,13 +104,6 @@ func WithTable(t string) Option {
 func WithContext(ctx context.Context) Option {
 	return func(o *Options) {
 		o.Context = ctx
-	}
-}
-
-// WithKey sets the field to use for the primary index
-func WithKey(k string) Option {
-	return func(o *Options) {
-		o.Key = k
 	}
 }
 

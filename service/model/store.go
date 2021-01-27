@@ -93,12 +93,11 @@ func New(instance interface{}, options *Options) Model {
 			options.IDField = err.Error()
 		}
 	}
-
 	// the default index
 	idx := DefaultIndex
 
-	if len(options.Key) > 0 {
-		idx = newIndex(options.Key)
+	if len(options.IDField) > 0 {
+		idx = newIndex(options.IDField)
 	}
 
 	// set the database

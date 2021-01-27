@@ -83,7 +83,7 @@ func TestQueryEqualsLowerCaseID(t *testing.T) {
 		t.Fatal(err)
 	}
 	users := []User1{}
-	q := QueryEquals("ID", "1")
+	q := QueryEquals("Id", "1")
 	q.Order.Type = OrderTypeUnordered
 	err = table.Read(q, &users)
 	if err != nil {
@@ -523,7 +523,7 @@ type Tag struct {
 func TestNonIDKeys(t *testing.T) {
 	table := New(Tag{}, &Options{
 		Store:     fs.NewStore(),
-		Key:       "slug",
+		IDField:   "slug",
 		Namespace: uuid.Must(uuid.NewV4()).String(),
 	})
 
@@ -559,7 +559,7 @@ func TestReadByString(t *testing.T) {
 	typeIndex := ByEquality("type")
 
 	table := New(Tag{}, &Options{
-		Key:       "slug",
+		IDField:   "slug",
 		Store:     fs.NewStore(),
 		Indexes:   []Index{typeIndex},
 		Debug:     false,
@@ -599,7 +599,7 @@ func TestOderByDifferentFieldThanFilterField(t *testing.T) {
 	}
 
 	table := New(Tag{}, &Options{
-		Key:       "slug",
+		IDField:   "slug",
 		Store:     fs.NewStore(),
 		Indexes:   []Index{typeIndex},
 		Namespace: uuid.Must(uuid.NewV4()).String(),
@@ -661,7 +661,7 @@ func TestDeleteIndexCleanup(t *testing.T) {
 	typeIndex := ByEquality("type")
 
 	table := New(Tag{}, &Options{
-		Key:       "slug",
+		IDField:   "slug",
 		Store:     fs.NewStore(),
 		Indexes:   []Index{typeIndex},
 		Namespace: uuid.Must(uuid.NewV4()).String(),
