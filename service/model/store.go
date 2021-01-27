@@ -19,6 +19,8 @@ import (
 type model struct {
 	// the database used for querying
 	database string
+	// the table to use for the model
+	table string
 	// the primary index using id
 	idIndex Index
 	// helps logically separate keys in a model where
@@ -58,7 +60,7 @@ func New(instance interface{}, options *Options) Model {
 		options = new(Options)
 	}
 
-	var namespace string
+	var namespace, database, table string
 
 	// define namespace based on the value passed in
 	if instance != nil {
@@ -85,10 +87,22 @@ func New(instance interface{}, options *Options) Model {
 	}
 
 	// set the database
-	database := options.Database
+	database = options.Database
+	table = options.Table
+
+	// set defaults if blank
+	if len(database) == 0  && options.Store != nil {
+		database = options.Store.Options().Database
+	}
+
+	// set defaults if blank
+	if len(table) == 0 && options.Store != nil {
+		table = options.Store.Options().Table
+	}
 
 	return &model{
 		database:  database,
+		table:     table,
 		idIndex:   idx,
 		instance:  instance,
 		namespace: namespace,
@@ -145,12 +159,15 @@ func (d *model) Context(ctx context.Context) Model {
 	// retrieve the account from context and override the database
 	acc, ok := auth.AccountFromContext(ctx)
 	if ok {
-		// set the database to the account issuer
-		opts.Database = acc.Issuer
+		if len(acc.Issuer) > 0 {
+			// set the database to the account issuer
+			opts.Database = acc.Issuer
+		}
 	}
 
 	return &model{
 		database:  opts.Database,
+		table:     opts.Table,
 		idIndex:   d.idIndex,
 		instance:  d.instance,
 		namespace: d.namespace,
@@ -233,7 +250,7 @@ func (d *model) Create(instance interface{}) error {
 			!reflect.DeepEqual(getFieldValue(oldEntry, index.FieldName), getFieldValue(instance, index.FieldName)) {
 			k := d.indexToKey(index, id, oldEntry, true)
 			// TODO: set the table name in the query
-			err = d.options.Store.Delete(k, store.DeleteFrom(d.database, ""))
+			err = d.options.Store.Delete(k, store.DeleteFrom(d.database, d.table))
 			if err != nil {
 				return err
 			}
@@ -246,7 +263,7 @@ func (d *model) Create(instance interface{}) error {
 		err = d.options.Store.Write(&store.Record{
 			Key:   k,
 			Value: js,
-		}, store.WriteTo(d.database, ""))
+		}, store.WriteTo(d.database, d.table))
 		if err != nil {
 			return err
 		}
@@ -282,7 +299,7 @@ func (d *model) Read(query Query, resultPointer interface{}) error {
 			fmt.Printf("Listing key '%v'\n", k)
 		}
 		// TODO: set the table name in the query
-		recs, err := d.options.Store.Read(k, store.ReadPrefix(), store.ReadFrom(d.database, ""))
+		recs, err := d.options.Store.Read(k, store.ReadPrefix(), store.ReadFrom(d.database, d.table))
 		if err != nil {
 			return err
 		}
@@ -328,7 +345,7 @@ func (d *model) list(query Query, resultSlicePointer interface{}) error {
 			fmt.Printf("Listing key '%v'\n", k)
 		}
 		// TODO: set the table name in the query
-		recs, err := d.options.Store.Read(k, store.ReadPrefix(), store.ReadFrom(d.database, ""))
+		recs, err := d.options.Store.Read(k, store.ReadPrefix(), store.ReadFrom(d.database, d.table))
 		if err != nil {
 			return err
 		}
@@ -571,7 +588,7 @@ func (d *model) Delete(query Query) error {
 			fmt.Printf("Deleting key '%v'\n", key)
 		}
 		// TODO: set the table to delete from
-		err = d.options.Store.Delete(key, store.DeleteFrom(d.database, ""))
+		err = d.options.Store.Delete(key, store.DeleteFrom(d.database, d.table))
 		if err != nil {
 			return err
 		}
