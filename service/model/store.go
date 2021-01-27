@@ -84,20 +84,20 @@ func New(instance interface{}, options *Options) Model {
 	if options.Context == nil {
 		options.Context = context.TODO()
 	}
-	if options.IDField == "" {
+	if options.Key == "" {
 		var err error
-		options.IDField, err = getIDField(instance)
+		options.Key, err = getKey(instance)
 		if err != nil {
 			// @todo throw panic? make new return error?
 			// CRUFT
-			options.IDField = err.Error()
+			options.Key = err.Error()
 		}
 	}
 	// the default index
 	idx := DefaultIndex
 
-	if len(options.IDField) > 0 {
-		idx = newIndex(options.IDField)
+	if len(options.Key) > 0 {
+		idx = newIndex(options.Key)
 	}
 
 	// set the database
@@ -124,7 +124,7 @@ func New(instance interface{}, options *Options) Model {
 	}
 }
 
-func getIDField(instance interface{}) (string, error) {
+func getKey(instance interface{}) (string, error) {
 	// will be registered later probably
 	if instance == nil {
 		return "", nil
@@ -160,7 +160,7 @@ func (d *model) getFieldName(field string) string {
 		fieldName = strings.Title(field)
 	}
 	if fieldName == "ID" {
-		return d.options.IDField
+		return d.options.Key
 	}
 	return fieldName
 }
@@ -226,9 +226,9 @@ func (d *model) Register(instance interface{}) error {
 	if reflect.ValueOf(instance).Kind() == reflect.Ptr {
 		instance = reflect.Indirect(reflect.ValueOf(instance)).Interface()
 	}
-	if d.options.IDField == "" {
+	if d.options.Key == "" {
 		var err error
-		d.options.IDField, err = getIDField(instance)
+		d.options.Key, err = getKey(instance)
 		if err != nil {
 			return err
 		}
@@ -370,7 +370,7 @@ func (d *model) Read(query Query, resultPointer interface{}) error {
 	if query.Type == queryTypeAll {
 		read(Index{
 			Type:      indexTypeAll,
-			FieldName: d.options.IDField,
+			FieldName: d.options.Key,
 		})
 	}
 	for _, index := range append(d.options.Indexes, d.idIndex) {
@@ -419,7 +419,7 @@ func (d *model) list(query Query, resultSlicePointer interface{}) error {
 	if query.Type == queryTypeAll {
 		list(Index{
 			Type:      indexTypeAll,
-			FieldName: d.options.IDField,
+			FieldName: d.options.Key,
 		})
 	}
 	for _, index := range append(d.options.Indexes, d.idIndex) {
@@ -475,7 +475,7 @@ func (d *model) indexToKey(i Index, id interface{}, entry interface{}, appendID 
 		return fmt.Sprintf("%v:%v", d.namespace, indexPrefix(i))
 	}
 	if i.FieldName == "ID" {
-		i.FieldName = d.options.IDField
+		i.FieldName = d.options.Key
 	}
 
 	format := "%v:%v"

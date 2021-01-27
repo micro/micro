@@ -80,8 +80,8 @@ type Options struct {
 	Store store.Store
 	// Context is the context for all model queries
 	Context context.Context
-	// IDField is the fiel name of the primary key
-	IDField string
+	// Key is the fiel name of the primary key
+	Key string
 }
 
 type Option func(*Options)
@@ -135,9 +135,9 @@ func WithNamespace(ns string) Option {
 	}
 }
 
-// WithIDField sets the IDField
-func WithIDField(idField string) Option {
+// WithKey sets the Key
+func WithKey(idField string) Option {
 	return func(o *Options) {
-		o.IDField = idField
+		o.Key = idField
 	}
 }

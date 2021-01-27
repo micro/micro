@@ -523,7 +523,7 @@ type Tag struct {
 func TestNonIDKeys(t *testing.T) {
 	table := New(Tag{}, &Options{
 		Store:     fs.NewStore(),
-		IDField:   "slug",
+		Key:       "slug",
 		Namespace: uuid.Must(uuid.NewV4()).String(),
 	})
 
@@ -559,7 +559,7 @@ func TestReadByString(t *testing.T) {
 	typeIndex := ByEquality("type")
 
 	table := New(Tag{}, &Options{
-		IDField:   "slug",
+		Key:       "slug",
 		Store:     fs.NewStore(),
 		Indexes:   []Index{typeIndex},
 		Debug:     false,
@@ -599,7 +599,7 @@ func TestOderByDifferentFieldThanFilterField(t *testing.T) {
 	}
 
 	table := New(Tag{}, &Options{
-		IDField:   "slug",
+		Key:       "slug",
 		Store:     fs.NewStore(),
 		Indexes:   []Index{typeIndex},
 		Namespace: uuid.Must(uuid.NewV4()).String(),
@@ -661,7 +661,7 @@ func TestDeleteIndexCleanup(t *testing.T) {
 	typeIndex := ByEquality("type")
 
 	table := New(Tag{}, &Options{
-		IDField:   "slug",
+		Key:       "slug",
 		Store:     fs.NewStore(),
 		Indexes:   []Index{typeIndex},
 		Namespace: uuid.Must(uuid.NewV4()).String(),
