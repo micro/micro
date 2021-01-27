@@ -59,6 +59,9 @@ func New(instance interface{}, options *Options) Model {
 	if options == nil {
 		options = new(Options)
 	}
+	if reflect.ValueOf(instance).Kind() == reflect.Ptr {
+		instance = reflect.Indirect(reflect.ValueOf(instance)).Interface()
+	}
 
 	var namespace, database, table string
 
@@ -176,15 +179,18 @@ func (d *model) Context(ctx context.Context) Model {
 }
 
 // Register an instance type of a model
-func (d *model) Register(v interface{}) error {
-	if v == nil {
+func (d *model) Register(instance interface{}) error {
+	if instance == nil {
 		return ErrorNilInterface
+	}
+	if reflect.ValueOf(instance).Kind() == reflect.Ptr {
+		instance = reflect.Indirect(reflect.ValueOf(instance)).Interface()
 	}
 
 	// set the namespace
-	d.namespace = reflect.TypeOf(v).String()
+	d.namespace = reflect.TypeOf(instance).String()
 	// TODO: add.options.Indexes?
-	d.instance = v
+	d.instance = instance
 
 	return nil
 }
@@ -400,11 +406,7 @@ func (d *model) queryToListKey(i Index, q Query) string {
 	case map[string]interface{}:
 		val = map[string]interface{}{}
 	default:
-		if reflect.ValueOf(d.instance).Kind() == reflect.Ptr {
-			val = reflect.New(reflect.Indirect(reflect.ValueOf(d.instance)).Type()).Interface()
-		} else {
-			val = reflect.New(reflect.ValueOf(d.instance).Type()).Interface()
-		}
+		val = reflect.New(reflect.ValueOf(d.instance).Type()).Interface()
 	}
 
 	if q.Value != nil {
