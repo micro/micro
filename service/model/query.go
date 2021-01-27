@@ -28,6 +28,15 @@ func Equals(fieldName string, value interface{}) Query {
 	}
 }
 
+func All() Query {
+	return Query{
+		Index: Index{
+			Type:      queryTypeAll,
+			FieldName: "ID",
+		},
+	}
+}
+
 // QueryByID is short hand for querying by the primary index
 func QueryByID(id string) Query {
 	return Equals("ID", id)

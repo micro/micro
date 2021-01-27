@@ -272,9 +272,10 @@ func (d *model) Read(query Query, resultPointer interface{}) error {
 
 	// if its a slice then use the list query method
 	if t.Kind() == reflect.Slice {
-		return d.list(query, resultPointer, true)
+		return d.list(query, resultPointer)
 	}
 
+	// otherwise continue on as normal
 	read := func(index Index) error {
 		k := d.queryToListKey(index, query)
 		if d.options.Debug {
@@ -296,7 +297,12 @@ func (d *model) Read(query Query, resultPointer interface{}) error {
 		}
 		return json.Unmarshal(recs[0].Value, resultPointer)
 	}
-	// otherwise continue on as normal
+	if query.Type == queryTypeAll {
+		read(Index{
+			Type:      indexTypeAll,
+			FieldName: "ID",
+		})
+	}
 	for _, index := range append(d.options.Indexes, d.idIndex) {
 		if indexMatchesQuery(index, query) {
 			return read(index)
@@ -315,11 +321,7 @@ func (d *model) Read(query Query, resultPointer interface{}) error {
 	return fmt.Errorf("Read: for query type '%v', field '%v' does not match any indexes", query.Type, query.FieldName)
 }
 
-func (d *model) List(query Query, resultSlicePointer interface{}) error {
-	return d.list(query, resultSlicePointer, false)
-}
-
-func (d *model) list(query Query, resultSlicePointer interface{}, isRead bool) error {
+func (d *model) list(query Query, resultSlicePointer interface{}) error {
 	list := func(index Index) error {
 		k := d.queryToListKey(index, query)
 		if d.options.Debug {
@@ -344,24 +346,27 @@ func (d *model) list(query Query, resultSlicePointer interface{}, isRead bool) e
 		}
 		return json.Unmarshal(jsBuffer, resultSlicePointer)
 	}
+	if query.Type == queryTypeAll {
+		list(Index{
+			Type:      indexTypeAll,
+			FieldName: "ID",
+		})
+	}
 	for _, index := range append(d.options.Indexes, d.idIndex) {
 		if indexMatchesQuery(index, query) {
 			return list(index)
 		}
 	}
 
-	if isRead {
-		// find a maching query if non exists, take the first one
-		// which applies to the same field regardless of ordering
-		// or padding etc.
-		//
-		// only do this for reads because ordering doesnt matter with single reads
-		for _, index := range append(d.options.Indexes, d.idIndex) {
-			if index.FieldName == query.FieldName {
-				return list(index)
-			}
+	// find a maching query if non exists, take the first one
+	// which applies to the same field regardless of ordering
+	// or padding etc.
+	for _, index := range append(d.options.Indexes, d.idIndex) {
+		if index.FieldName == query.FieldName {
+			return list(index)
 		}
 	}
+
 	return fmt.Errorf("List: for query type '%v', field '%v' does not match any indexes", query.Type, query.FieldName)
 }
 
@@ -396,6 +401,10 @@ func (d *model) queryToListKey(i Index, q Query) string {
 // users/30/2
 // without ids we could only have one 30 year old user in the index
 func (d *model) indexToKey(i Index, id interface{}, entry interface{}, appendID bool) string {
+	if i.Type == indexTypeAll {
+		return fmt.Sprintf("%v:%v", d.namespace, indexPrefix(i))
+	}
+
 	format := "%v:%v"
 	values := []interface{}{d.namespace, indexPrefix(i)}
 	filterFieldValue := getFieldValue(entry, i.FieldName)
