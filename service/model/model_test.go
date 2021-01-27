@@ -58,7 +58,8 @@ func TestQueryEqualsByIDPointerInstance(t *testing.T) {
 		Namespace: uuid.Must(uuid.NewV4()).String(),
 	})
 
-	err := table.Create(User{
+	// pointer insert
+	err := table.Create(&User{
 		ID:  "1",
 		Age: 12,
 	})
