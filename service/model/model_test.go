@@ -52,28 +52,37 @@ func TestQueryEqualsByID(t *testing.T) {
 	}
 }
 
-func TestQueryEqualsByIDPointerInstance(t *testing.T) {
-	table := New(&User{}, &Options{
+type User1 struct {
+	Id      string `json:"id"`
+	Age     int    `json:"age"`
+	HasPet  bool   `json:"hasPet"`
+	Created int64  `json:"created"`
+	Tag     string `json:"tag"`
+	Updated int64  `json:"updated"`
+}
+
+func TestQueryEqualsLowerCaseID(t *testing.T) {
+	table := New(&User1{}, &Options{
 		Store:     fs.NewStore(),
 		Namespace: uuid.Must(uuid.NewV4()).String(),
 	})
 
 	// pointer insert
-	err := table.Create(&User{
-		ID:  "1",
+	err := table.Create(&User1{
+		Id:  "1",
 		Age: 12,
 	})
 	if err != nil {
 		t.Fatal(err)
 	}
-	err = table.Create(User{
-		ID:  "2",
+	err = table.Create(User1{
+		Id:  "2",
 		Age: 25,
 	})
 	if err != nil {
 		t.Fatal(err)
 	}
-	users := []User{}
+	users := []User1{}
 	q := QueryEquals("ID", "1")
 	q.Order.Type = OrderTypeUnordered
 	err = table.Read(q, &users)
@@ -851,14 +860,14 @@ func TestAllCombos(t *testing.T) {
 				small := TypeTest{
 					ID: "1",
 				}
-				v1 := getExampleValue(getFieldValue(small, orderFieldName), 1)
-				setFieldValue(&small, orderFieldName, v1)
+				v1 := getExampleValue(table.(*model).getFieldValue(small, orderFieldName), 1)
+				table.(*model).setFieldValue(&small, orderFieldName, v1)
 
 				large := TypeTest{
 					ID: "2",
 				}
-				v2 := getExampleValue(getFieldValue(large, orderFieldName), 2)
-				setFieldValue(&large, orderFieldName, v2)
+				v2 := getExampleValue(table.(*model).getFieldValue(large, orderFieldName), 2)
+				table.(*model).setFieldValue(&large, orderFieldName, v2)
 
 				err := table.Create(small)
 				if err != nil {
@@ -895,14 +904,14 @@ func TestAllCombos(t *testing.T) {
 				small := TypeTest{
 					ID: "1",
 				}
-				v1 := getExampleValue(getFieldValue(small, orderFieldName), 1)
-				setFieldValue(&small, orderFieldName, v1)
+				v1 := getExampleValue(table.(*model).getFieldValue(small, orderFieldName), 1)
+				table.(*model).setFieldValue(&small, orderFieldName, v1)
 
 				large := TypeTest{
 					ID: "2",
 				}
-				v2 := getExampleValue(getFieldValue(large, orderFieldName), 2)
-				setFieldValue(&large, orderFieldName, v2)
+				v2 := getExampleValue(table.(*model).getFieldValue(large, orderFieldName), 2)
+				table.(*model).setFieldValue(&large, orderFieldName, v2)
 
 				err := table.Create(small)
 				if err != nil {

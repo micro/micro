@@ -59,6 +59,9 @@ func New(instance interface{}, options *Options) Model {
 	if options == nil {
 		options = new(Options)
 	}
+
+	// indirect pointer types
+	// so we dont have to deal with pointers vs values down the line
 	if reflect.ValueOf(instance).Kind() == reflect.Ptr {
 		instance = reflect.Indirect(reflect.ValueOf(instance)).Interface()
 	}
@@ -80,6 +83,15 @@ func New(instance interface{}, options *Options) Model {
 
 	if options.Context == nil {
 		options.Context = context.TODO()
+	}
+	if options.IDField == "" {
+		var err error
+		options.IDField, err = getIDField(instance)
+		if err != nil {
+			// @todo throw panic? make new return error?
+			// CRUFT
+			options.IDField = err.Error()
+		}
 	}
 
 	// the default index
@@ -113,24 +125,53 @@ func New(instance interface{}, options *Options) Model {
 	}
 }
 
+func getIDField(instance interface{}) (string, error) {
+	// will be registered later probably
+	if instance == nil {
+		return "", nil
+	}
+	idFields := []string{"ID", "Id", "id"}
+
+	switch v := instance.(type) {
+	case map[string]interface{}:
+		for _, idField := range idFields {
+			if _, ok := v[idField]; ok {
+				return idField, nil
+			}
+		}
+	default:
+		val := reflect.ValueOf(instance)
+		for _, idField := range idFields {
+			if val.FieldByName(idField).IsValid() {
+				return idField, nil
+			}
+		}
+	}
+
+	return "", errors.New("ID Field not found")
+}
+
 // @todo we should correlate the field name with the model
 // instead of just blindly converting strings
-func getFieldName(field string) string {
+func (d *model) getFieldName(field string) string {
 	fieldName := ""
 	if strings.Contains(field, "_") {
 		fieldName = strcase.UpperCamelCase(field)
 	} else {
 		fieldName = strings.Title(field)
 	}
-	return strings.Replace(fieldName, "Id", "ID", -1)
+	if fieldName == "ID" {
+		return d.options.IDField
+	}
+	return fieldName
 }
 
-func getFieldValue(struc interface{}, fieldName string) interface{} {
+func (d *model) getFieldValue(struc interface{}, fieldName string) interface{} {
 	switch v := struc.(type) {
 	case map[string]interface{}:
 		return v[fieldName]
 	}
-	fieldName = getFieldName(fieldName)
+	fieldName = d.getFieldName(fieldName)
 	r := reflect.ValueOf(struc)
 	f := reflect.Indirect(r).FieldByName(fieldName)
 
@@ -140,14 +181,14 @@ func getFieldValue(struc interface{}, fieldName string) interface{} {
 	return f.Interface()
 }
 
-func setFieldValue(struc interface{}, fieldName string, value interface{}) {
+func (d *model) setFieldValue(struc interface{}, fieldName string, value interface{}) {
 	switch v := struc.(type) {
 	case map[string]interface{}:
 		v[fieldName] = value
 		return
 	}
 
-	fieldName = getFieldName(fieldName)
+	fieldName = d.getFieldName(fieldName)
 	r := reflect.ValueOf(struc)
 
 	f := reflect.Indirect(r).FieldByName(fieldName)
@@ -186,6 +227,13 @@ func (d *model) Register(instance interface{}) error {
 	if reflect.ValueOf(instance).Kind() == reflect.Ptr {
 		instance = reflect.Indirect(reflect.ValueOf(instance)).Interface()
 	}
+	if d.options.IDField == "" {
+		var err error
+		d.options.IDField, err = getIDField(instance)
+		if err != nil {
+			return err
+		}
+	}
 
 	// set the namespace
 	d.namespace = reflect.TypeOf(instance).String()
@@ -205,7 +253,7 @@ func (d *model) Create(instance interface{}) error {
 	// get the old entries so we can compare values
 	// @todo consider some kind of locking (even if it's not distributed) by key here
 	// to avoid 2 read-writes happening at the same time
-	idQuery := d.idIndex.ToQuery(getFieldValue(instance, d.idIndex.FieldName))
+	idQuery := d.idIndex.ToQuery(d.getFieldValue(instance, d.idIndex.FieldName))
 
 	var oldEntry interface{}
 	switch instance.(type) {
@@ -226,7 +274,7 @@ func (d *model) Create(instance interface{}) error {
 			continue
 		}
 		potentialClash := reflect.New(reflect.ValueOf(instance).Type()).Interface()
-		err = d.Read(index.ToQuery(getFieldValue(instance, index.FieldName)), &potentialClash)
+		err = d.Read(index.ToQuery(d.getFieldValue(instance, index.FieldName)), &potentialClash)
 		if err != nil && err != ErrorNotFound {
 			return err
 		}
@@ -236,7 +284,7 @@ func (d *model) Create(instance interface{}) error {
 		}
 	}
 
-	id := getFieldValue(instance, d.idIndex.FieldName)
+	id := d.getFieldValue(instance, d.idIndex.FieldName)
 	for _, index := range append(d.options.Indexes, d.idIndex) {
 		// delete non id index keys to prevent stale index values
 		// ie.
@@ -253,7 +301,7 @@ func (d *model) Create(instance interface{}) error {
 		// types anyway
 		if !indexesMatch(d.idIndex, index) &&
 			oldEntry != nil &&
-			!reflect.DeepEqual(getFieldValue(oldEntry, index.FieldName), getFieldValue(instance, index.FieldName)) {
+			!reflect.DeepEqual(d.getFieldValue(oldEntry, index.FieldName), d.getFieldValue(instance, index.FieldName)) {
 			k := d.indexToKey(index, id, oldEntry, true)
 			// TODO: set the table name in the query
 			err = d.options.Store.Delete(k, store.DeleteFrom(d.database, d.table))
@@ -323,7 +371,7 @@ func (d *model) Read(query Query, resultPointer interface{}) error {
 	if query.Type == queryTypeAll {
 		read(Index{
 			Type:      indexTypeAll,
-			FieldName: "ID",
+			FieldName: d.options.IDField,
 		})
 	}
 	for _, index := range append(d.options.Indexes, d.idIndex) {
@@ -372,7 +420,7 @@ func (d *model) list(query Query, resultSlicePointer interface{}) error {
 	if query.Type == queryTypeAll {
 		list(Index{
 			Type:      indexTypeAll,
-			FieldName: "ID",
+			FieldName: d.options.IDField,
 		})
 	}
 	for _, index := range append(d.options.Indexes, d.idIndex) {
@@ -410,7 +458,7 @@ func (d *model) queryToListKey(i Index, q Query) string {
 	}
 
 	if q.Value != nil {
-		setFieldValue(val, i.FieldName, q.Value)
+		d.setFieldValue(val, i.FieldName, q.Value)
 	}
 	return d.indexToKey(i, "", val, false)
 }
@@ -427,15 +475,18 @@ func (d *model) indexToKey(i Index, id interface{}, entry interface{}, appendID 
 	if i.Type == indexTypeAll {
 		return fmt.Sprintf("%v:%v", d.namespace, indexPrefix(i))
 	}
+	if i.FieldName == "ID" {
+		i.FieldName = d.options.IDField
+	}
 
 	format := "%v:%v"
 	values := []interface{}{d.namespace, indexPrefix(i)}
-	filterFieldValue := getFieldValue(entry, i.FieldName)
-	orderFieldValue := getFieldValue(entry, i.FieldName)
+	filterFieldValue := d.getFieldValue(entry, i.FieldName)
+	orderFieldValue := d.getFieldValue(entry, i.FieldName)
 	orderFieldKey := i.FieldName
 
 	if i.FieldName != i.Order.FieldName && i.Order.FieldName != "" {
-		orderFieldValue = getFieldValue(entry, i.Order.FieldName)
+		orderFieldValue = d.getFieldValue(entry, i.Order.FieldName)
 		orderFieldKey = i.Order.FieldName
 	}
 
@@ -589,7 +640,7 @@ func (d *model) Delete(query Query) error {
 	// be deletable by id again but the maintained.options.Indexes
 	// will be stuck in limbo
 	for _, index := range append(d.options.Indexes, d.idIndex) {
-		key := d.indexToKey(index, getFieldValue(oldEntry, d.idIndex.FieldName), oldEntry, true)
+		key := d.indexToKey(index, d.getFieldValue(oldEntry, d.idIndex.FieldName), oldEntry, true)
 		if d.options.Debug {
 			fmt.Printf("Deleting key '%v'\n", key)
 		}
