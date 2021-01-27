@@ -250,7 +250,8 @@ func TestRead(t *testing.T) {
 		Namespace: uuid.Must(uuid.NewV4()).String(),
 	})
 	user := User{}
-	err := table.Read(QueryEquals("age", 25), &user)
+	// intentionally querying Age to test case tolerance
+	err := table.Read(QueryEquals("Age", 25), &user)
 	if err != ErrorNotFound {
 		t.Fatal(err)
 	}
