@@ -138,6 +138,10 @@ func getKey(instance interface{}) (string, error) {
 				return idField, nil
 			}
 		}
+		// To support empty map schema
+		// db initializations, we return the default ID
+		// field
+		return "ID", nil
 	default:
 		val := reflect.ValueOf(instance)
 		for _, idField := range idFields {
@@ -304,11 +308,18 @@ func (d *model) Create(instance interface{}) error {
 		if !indexesMatch(d.idIndex, index) &&
 			oldEntry != nil &&
 			!reflect.DeepEqual(d.getFieldValue(oldEntry, index.FieldName), d.getFieldValue(instance, index.FieldName)) {
-			k := d.indexToKey(index, id, oldEntry, true)
-			// TODO: set the table name in the query
-			err = d.options.Store.Delete(k, store.DeleteFrom(d.database, d.table))
-			if err != nil {
-				return err
+
+			// map in interface can be non nil but empty
+			// so test for that
+			switch oldEntry.(type) {
+			case map[string]interface{}:
+			default:
+				k := d.indexToKey(index, id, oldEntry, true)
+				// TODO: set the table name in the query
+				err = d.options.Store.Delete(k, store.DeleteFrom(d.database, d.table))
+				if err != nil {
+					return err
+				}
 			}
 		}
 		k := d.indexToKey(index, id, instance, true)
