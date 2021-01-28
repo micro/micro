@@ -173,6 +173,7 @@ func (d *model) getFieldValue(struc interface{}, fieldName string) interface{} {
 	case map[string]interface{}:
 		return v[fieldName]
 	}
+
 	fieldName = d.getFieldName(fieldName)
 	r := reflect.ValueOf(struc)
 	f := reflect.Indirect(r).FieldByName(fieldName)
@@ -267,6 +268,12 @@ func (d *model) Create(instance interface{}) error {
 	default:
 		oldEntry = reflect.New(reflect.ValueOf(instance).Type()).Interface()
 	}
+
+	err = d.Read(idQuery, &oldEntry)
+	if err != nil && err != ErrorNotFound {
+		return err
+	}
+
 	oldEntryFound := false
 	// map in interface can be non nil but empty
 	// so test for that
@@ -279,11 +286,6 @@ func (d *model) Create(instance interface{}) error {
 		if oldEntry != nil {
 			oldEntryFound = true
 		}
-	}
-
-	err = d.Read(idQuery, &oldEntry)
-	if err != nil && err != ErrorNotFound {
-		return err
 	}
 
 	// Do uniqueness checks before saving any data
@@ -649,6 +651,10 @@ func (d *model) getOrderedStringFieldKey(i Index, fieldValue string) string {
 
 func (d *model) Delete(query Query) error {
 	oldEntry := reflect.New(reflect.ValueOf(d.instance).Type()).Interface()
+	switch oldEntry.(type) {
+	case *map[string]interface{}:
+		oldEntry = reflect.Indirect(reflect.ValueOf(oldEntry)).Interface()
+	}
 	err := d.Read(d.idIndex.ToQuery(query.Value), &oldEntry)
 	if err != nil {
 		return err

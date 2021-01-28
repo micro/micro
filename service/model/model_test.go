@@ -821,6 +821,51 @@ func TestDeleteByUnmatchingIndex(t *testing.T) {
 	})
 }
 
+func TestDeleteByUnmatchingIndexMap(t *testing.T) {
+	table := New(map[string]interface{}{}, &Options{
+		Store:     fs.NewStore(),
+		Namespace: uuid.Must(uuid.NewV4()).String(),
+		Debug:     false,
+	})
+
+	err := table.Create(map[string]interface{}{
+		"ID":  "1",
+		"Age": 20,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	err = table.Create(map[string]interface{}{
+		"ID":  "2",
+		"Age": 30,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	err = table.Delete(QueryEquals("ID", "1"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Run("Test read by unspecified index", func(t *testing.T) {
+		users := []map[string]interface{}{}
+		err = table.Read(QueryEquals("ID", "1"), &users)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if len(users) != 0 {
+			t.Fatal(users)
+		}
+		err = table.Read(QueryEquals("ID", "2"), &users)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if len(users) != 1 {
+			t.Fatal(users)
+		}
+	})
+}
+
 func TestUpdateDeleteIndexMaintenance(t *testing.T) {
 	updIndex := ByEquality("updated")
 	updIndex.Order.Type = OrderTypeDesc
@@ -879,6 +924,68 @@ func TestUpdateDeleteIndexMaintenance(t *testing.T) {
 		t.Fatal(users)
 	}
 	if users[0].ID != "1" || users[1].ID != "2" {
+		t.Fatal(users)
+	}
+}
+
+func TestUpdateDeleteIndexMaintenanceMap(t *testing.T) {
+	updIndex := ByEquality("Updated")
+	updIndex.Order.Type = OrderTypeDesc
+
+	table := New(map[string]interface{}{}, &Options{
+		Store:     fs.NewStore(),
+		Indexes:   []Index{updIndex},
+		Namespace: uuid.Must(uuid.NewV4()).String(),
+		Debug:     false,
+	})
+
+	err := table.Create(map[string]interface{}{
+		"ID":      "1",
+		"Age":     "12",
+		"Updated": "5000",
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	err = table.Create(map[string]interface{}{
+		"ID":      "2",
+		"Age":     "25",
+		"Updated": "5001",
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	users := []map[string]interface{}{}
+	q := updIndex.ToQuery(nil)
+	err = table.Read(q, &users)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(users) != 2 {
+		t.Fatal(users)
+	}
+	if users[0]["ID"] != "2" || users[1]["ID"] != "1" {
+		t.Fatal(users)
+	}
+
+	err = table.Create(map[string]interface{}{
+		"ID":      "1",
+		"Age":     "12",
+		"Updated": "5002",
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	err = table.Read(q, &users)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(users) != 2 {
+		t.Fatal(users)
+	}
+	if users[0]["ID"] != "1" || users[1]["ID"] != "2" {
 		t.Fatal(users)
 	}
 }
