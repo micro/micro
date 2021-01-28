@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package network;
 
-import "router/router.proto";
+import "github.com/micro/micro/proto/router/router.proto";
 
 option go_package = "github.com/micro/micro/v3/proto/network;network";
 
