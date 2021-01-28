@@ -167,7 +167,7 @@ func TestQueryEqualsByIDMap(t *testing.T) {
 	}
 }
 
-func TestQueryEqualsByIDMapNoSchema(t *testing.T) {
+func TestQueryEqualsByIDMapNoSchemaWithIndexes(t *testing.T) {
 	m := map[string]interface{}{}
 	table := New(m, &Options{
 		Store:     fs.NewStore(),
