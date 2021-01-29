@@ -188,7 +188,15 @@ func (c *Converter) convertField(curPkg *ProtoPackage, desc *descriptor.FieldDes
 
 		// Maps, arrays, and objects are structured in different ways:
 		switch {
-
+		// Arrays:
+		case desc.GetLabel() == descriptor.FieldDescriptorProto_LABEL_REPEATED:
+			componentSchema.Items = &openapi3.SchemaRef{
+				Value: &openapi3.Schema{
+					Type:       openAPITypeObject,
+					Properties: recursedComponentSchema.Properties,
+				},
+			}
+			componentSchema.Type = openAPITypeArray
 		// Maps:
 		case recordType.Options.GetMapEntry():
 			logger.Tracef("Found a map (%s.%s)", *msg.Name, recordType.GetName())
