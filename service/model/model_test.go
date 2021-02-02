@@ -315,8 +315,10 @@ func TestRead(t *testing.T) {
 		t.Fatal(err)
 	}
 
+	// TODO: remove this test since Read only returns 1 record
+	// from the store now rather than all
 	err = table.Read(QueryEquals("age", 25), &user)
-	if err != ErrorMultipleRecordsFound {
+	if err == ErrorMultipleRecordsFound {
 		t.Fatal(err)
 	}
 }
