@@ -91,11 +91,6 @@ func (a authWrapper) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		req.Header.Set(namespace.NamespaceKey, ns)
 	}
 
-	// Ensure accounts only issued by the namesace are valid
-	if acc != nil && acc.Issuer != ns {
-		acc = nil
-	}
-
 	// construct the resource name, e.g. home => foo.api.home
 	resName := endpoint.Name
 	if len(a.servicePrefix) > 0 {

@@ -124,6 +124,7 @@ message Rule {
 	Resource resource = 3;
 	Access access = 4;
 	int32 priority = 5;
+	bool cross_issuer = 6;
 }
 
 message Options {

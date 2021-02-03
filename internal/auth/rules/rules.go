@@ -84,7 +84,7 @@ func VerifyAccess(rules []*auth.Rule, acc *auth.Account, res *auth.Resource, opt
 		}
 
 		// TODO should this live here or further up?
-		if acc.Issuer != options.Namespace {
+		if !rule.CrossIssuer && acc.Issuer != options.Namespace {
 			return auth.ErrForbidden
 		}
 		// TODO what does options.Context do?

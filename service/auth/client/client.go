@@ -282,6 +282,7 @@ func serializeRule(r *pb.Rule) *auth.Rule {
 			Name:     r.Resource.Name,
 			Endpoint: r.Resource.Endpoint,
 		},
+		CrossIssuer: r.CrossIssuer,
 	}
 }
 

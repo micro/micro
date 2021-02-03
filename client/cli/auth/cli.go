@@ -28,6 +28,11 @@ var (
 			Usage: "The priority level, default is 0, the greater the number the higher the priority",
 			Value: 0,
 		},
+		&cli.BoolFlag{
+			Name:  "crossissuer",
+			Usage: "Whether this rule applies to accounts from multiple issuers or just this one",
+			Value: false,
+		},
 	}
 	// accountFlags are provided to the create account command
 	accountFlags = []cli.Flag{

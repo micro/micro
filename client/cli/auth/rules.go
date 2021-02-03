@@ -49,13 +49,13 @@ func listRules(ctx *cli.Context) error {
 		return sort.StringsAreSorted([]string{resJ, resI})
 	})
 
-	fmt.Fprintln(w, strings.Join([]string{"ID", "Scope", "Access", "Resource", "Priority"}, "\t\t"))
+	fmt.Fprintln(w, strings.Join([]string{"ID", "Scope", "Access", "Resource", "Priority", "CrossIssuer"}, "\t\t"))
 	for _, r := range rsp.Rules {
 		res := formatResource(r.Resource)
 		if r.Scope == "" {
 			r.Scope = "<public>"
 		}
-		fmt.Fprintln(w, strings.Join([]string{r.Id, r.Scope, r.Access.String(), res, fmt.Sprintf("%d", r.Priority)}, "\t\t"))
+		fmt.Fprintln(w, strings.Join([]string{r.Id, r.Scope, r.Access.String(), res, fmt.Sprintf("%d", r.Priority), fmt.Sprintf("%v", r.CrossIssuer)}, "\t\t"))
 	}
 
 	return nil
@@ -148,5 +148,6 @@ func constructRule(ctx *cli.Context) (*pb.Rule, error) {
 			Name:     resComps[1],
 			Endpoint: resComps[2],
 		},
+		CrossIssuer: ctx.Bool("crossissuer"),
 	}, nil
 }

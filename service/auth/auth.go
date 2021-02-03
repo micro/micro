@@ -107,6 +107,9 @@ type Rule struct {
 	// Priority the rule should take when verifying a request, the higher the value the sooner the
 	// rule will be applied
 	Priority int32
+	// CrossIssuer if true, means this rule applies to accounts from all issuers,
+	// otherwise only accounts from this namespace
+	CrossIssuer bool
 }
 
 // Auth provides authentication and authorization
