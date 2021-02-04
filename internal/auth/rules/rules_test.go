@@ -362,11 +362,11 @@ func TestVerify(t *testing.T) {
 			Rules: []*auth.Rule{
 				&auth.Rule{
 					ID:    "runtimepublic",
-					Scope: auth.ScopeAccount,
+					Scope: auth.ScopeAnyNamespaceAccount,
 					Resource: &auth.Resource{
 						Name:     "runtime",
 						Type:     "service",
-						Endpoint: "+",
+						Endpoint: "*",
 					},
 					Access:   auth.AccessGranted,
 					Priority: 1,

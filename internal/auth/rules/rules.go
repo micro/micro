@@ -90,9 +90,9 @@ func VerifyAccess(rules []*auth.Rule, acc *auth.Account, res *auth.Resource, opt
 		// TODO what does options.Context do?
 
 		// this rule applies to any account
-		if rule.Scope == auth.ScopeAccount && rule.Access == auth.AccessDenied {
+		if (rule.Scope == auth.ScopeAccount || rule.Scope == auth.ScopeAnyNamespaceAccount) && rule.Access == auth.AccessDenied {
 			return auth.ErrForbidden
-		} else if rule.Scope == auth.ScopeAccount && rule.Access == auth.AccessGranted {
+		} else if (rule.Scope == auth.ScopeAccount || rule.Scope == auth.ScopeAnyNamespaceAccount) && rule.Access == auth.AccessGranted {
 			return nil
 		}
 
