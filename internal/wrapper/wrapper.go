@@ -7,7 +7,6 @@ import (
 	"time"
 
 	inauth "github.com/micro/micro/v3/internal/auth"
-	"github.com/micro/micro/v3/internal/auth/namespace"
 	"github.com/micro/micro/v3/internal/debug/trace"
 	"github.com/micro/micro/v3/service/auth"
 	"github.com/micro/micro/v3/service/client"
@@ -88,17 +87,9 @@ func AuthHandler() server.HandlerWrapper {
 			ns := auth.DefaultAuth.Options().Issuer
 
 			var acc *auth.Account
-			if a, err := auth.Inspect(token); err == nil && a.Issuer == ns {
-				// We only use accounts issued by the same namespace as the service when verifying against
-				// the rule set.
+			if a, err := auth.Inspect(token); err == nil {
 				ctx = auth.ContextWithAccount(ctx, a)
 				acc = a
-			} else if err == nil && ns == namespace.DefaultNamespace {
-				// for the default domain, we want to inject the account into the context so that the
-				// server can access it (since it's designed for multi-tenancy), however we don't want to
-				// use it when verifying against the auth rules, since this will allow any user access to the
-				// services running in the micro namespace
-				ctx = auth.ContextWithAccount(ctx, a)
 			}
 
 			// construct the resource

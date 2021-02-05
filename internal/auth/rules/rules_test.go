@@ -345,6 +345,65 @@ func TestVerify(t *testing.T) {
 			},
 			Options: []auth.VerifyOption{auth.VerifyNamespace("bar")},
 		},
+		{
+			Name: "CrossNamespaceCrossIssuerTrue",
+			Resource: &auth.Resource{
+				Type:     "service",
+				Name:     "runtime",
+				Endpoint: "Runtime.Read",
+			},
+			Account: &auth.Account{
+				ID:     "admin",
+				Type:   "user",
+				Issuer: "foo-bar-baz",
+				Scopes: []string{"admin"},
+				Name:   "admin",
+			},
+			Rules: []*auth.Rule{
+				&auth.Rule{
+					ID:    "runtimepublic",
+					Scope: auth.ScopeAnyNamespaceAccount,
+					Resource: &auth.Resource{
+						Name:     "runtime",
+						Type:     "service",
+						Endpoint: "*",
+					},
+					Access:   auth.AccessGranted,
+					Priority: 1,
+				},
+			},
+			Options: []auth.VerifyOption{auth.VerifyNamespace("my-user-ns")},
+		},
+		{
+			Name: "CrossNamespaceCrossIssuerFalse",
+			Resource: &auth.Resource{
+				Type:     "service",
+				Name:     "runtime",
+				Endpoint: "Runtime.Read",
+			},
+			Account: &auth.Account{
+				ID:     "admin",
+				Type:   "user",
+				Issuer: "foo-bar-baz",
+				Scopes: []string{"admin"},
+				Name:   "admin",
+			},
+			Rules: []*auth.Rule{
+				&auth.Rule{
+					ID:    "runtimepublic",
+					Scope: auth.ScopeAccount,
+					Resource: &auth.Resource{
+						Name:     "runtime",
+						Type:     "service",
+						Endpoint: "*",
+					},
+					Access:   auth.AccessGranted,
+					Priority: 1,
+				},
+			},
+			Options: []auth.VerifyOption{auth.VerifyNamespace("my-user-ns")},
+			Error:   auth.ErrForbidden,
+		},
 	}
 
 	for _, tc := range tt {
