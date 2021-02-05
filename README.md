@@ -237,4 +237,4 @@ For the hosted Micro Platform aka M3O see [m3o.com](https://m3o.com).
 
 ## Community
 
-Join us in GitHub [Discussions](https://github.com/micro/micro/discussions), [Slack](https://slack.micro.mu) or follow on [Twitter](https://twitter.com/microhq) for updates.
+Join us in GitHub [Discussions](https://github.com/micro/micro/discussions) or [Slack](https://slack.micro.mu).

@@ -91,7 +91,7 @@ func (a authWrapper) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		req.Header.Set(namespace.NamespaceKey, ns)
 	}
 
-	// Ensure accounts only issued by the namesace are valid
+	// Ensure accounts only issued by the namespace are valid.
 	if acc != nil && acc.Issuer != ns {
 		acc = nil
 	}
@@ -115,6 +115,8 @@ func (a authWrapper) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		auth.VerifyContext(req.Context()),
 		auth.VerifyNamespace(ns),
 	}
+
+	logger.Infof("Resolving %v %v", resName, resEndpoint)
 
 	// Perform the verification check to see if the account has access to
 	// the resource they're requesting

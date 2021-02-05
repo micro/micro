@@ -99,7 +99,7 @@ func init() {
 						{
 							Name:   "account",
 							Usage:  "Delete an auth account",
-							Flags:  ruleFlags,
+							Flags:  accountFlags,
 							Action: deleteAccount,
 						},
 					},

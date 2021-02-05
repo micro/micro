@@ -58,7 +58,7 @@ func (s *Stream) Publish(ctx context.Context, req *pb.PublishRequest, rsp *pb.Pu
 
 func (s *Stream) Consume(ctx context.Context, req *pb.ConsumeRequest, rsp pb.Stream_ConsumeStream) error {
 	// authorize the request
-	if err := namespace.AuthorizeAdmin(ctx, namespace.DefaultNamespace, "events.Stream.Publish"); err != nil {
+	if err := namespace.AuthorizeAdmin(ctx, namespace.DefaultNamespace, "events.Stream.Consume"); err != nil {
 		return err
 	}
 

@@ -65,7 +65,7 @@ func ByEquality(fieldName string) Index {
 }
 
 func indexMatchesQuery(i Index, q Query) bool {
-	if i.FieldName == q.FieldName &&
+	if strings.ToLower(i.FieldName) == strings.ToLower(q.FieldName) &&
 		i.Type == q.Type &&
 		i.Order.Type == q.Order.Type {
 		return true
@@ -94,6 +94,11 @@ func indexPrefix(i Index) string {
 		ordering = "Desc"
 	}
 	typ := i.Type
+	// hack for all listing where we use the eq ID index
+	// without a value to list all
+	if i.Type == indexTypeAll {
+		typ = indexTypeEq
+	}
 	orderingField := i.Order.FieldName
 	if len(orderingField) == 0 {
 		orderingField = i.FieldName

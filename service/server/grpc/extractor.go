@@ -25,7 +25,7 @@ import (
 )
 
 func extractValue(v reflect.Type, d int) *registry.Value {
-	if d == 3 {
+	if d == 6 {
 		return nil
 	}
 	if v == nil {
