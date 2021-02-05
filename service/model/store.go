@@ -374,7 +374,12 @@ func (d *model) Read(query Query, resultPointer interface{}) error {
 			fmt.Printf("Listing key '%v'\n", k)
 		}
 		// TODO: set the table name in the query
-		recs, err := d.options.Store.Read(k, store.ReadPrefix(), store.ReadFrom(d.database, d.table))
+		opts := []store.ReadOption{
+			store.ReadPrefix(),
+			store.ReadFrom(d.database, d.table),
+			store.ReadLimit(1),
+		}
+		recs, err := d.options.Store.Read(k, opts...)
 		if err != nil {
 			return err
 		}
@@ -419,8 +424,20 @@ func (d *model) list(query Query, resultSlicePointer interface{}) error {
 		if d.options.Debug {
 			fmt.Printf("Listing key '%v'\n", k)
 		}
-		// TODO: set the table name in the query
-		recs, err := d.options.Store.Read(k, store.ReadPrefix(), store.ReadFrom(d.database, d.table))
+
+		opts := []store.ReadOption{
+			store.ReadPrefix(),
+			store.ReadFrom(d.database, d.table),
+		}
+
+		if query.Limit > 0 {
+			opts = append(opts, store.ReadLimit(uint(query.Limit)))
+		}
+
+		if query.Offset > 0 {
+			opts = append(opts, store.ReadOffset(uint(query.Offset)))
+		}
+		recs, err := d.options.Store.Read(k, opts...)
 		if err != nil {
 			return err
 		}

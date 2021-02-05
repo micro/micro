@@ -240,6 +240,86 @@ func TestListAllMap(t *testing.T) {
 	}
 }
 
+func TestListLimitMap(t *testing.T) {
+	ageAsc := ByEquality("age")
+	ageAsc.Order.Type = OrderTypeAsc
+
+	ageDesc := ByEquality("age")
+	ageDesc.Order.Type = OrderTypeDesc
+
+	m := map[string]interface{}{
+		"ID":      "id",
+		"age":     1,
+		"hasPet":  true,
+		"created": 1,
+		"tag":     "tag",
+		"updated": 1,
+	}
+	table := New(m, &Options{
+		Store:     fs.NewStore(),
+		Indexes:   []Index{ageAsc, ageDesc},
+		Namespace: uuid.Must(uuid.NewV4()).String(),
+	})
+
+	err := table.Create(map[string]interface{}{
+		"ID":  "1",
+		"age": 12,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	err = table.Create(map[string]interface{}{
+		"ID":  "2",
+		"age": 25,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	err = table.Create(map[string]interface{}{
+		"ID":  "3",
+		"age": 35,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	users := []map[string]interface{}{}
+	q := QueryAll()
+	q.Limit = 1
+	err = table.Read(q, &users)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(users) != 1 {
+		t.Fatal(users)
+	}
+
+	q = ageDesc.ToQuery(nil)
+	q.Limit = 1
+	err = table.Read(q, &users)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(users) != 1 {
+		t.Fatal(users)
+	}
+	if users[0]["age"].(float64) != 35 {
+		t.Fatal(users[0])
+	}
+
+	q = ageAsc.ToQuery(nil)
+	q.Limit = 1
+	err = table.Read(q, &users)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(users) != 1 {
+		t.Fatal(users)
+	}
+	if users[0]["age"].(float64) != 12 {
+		t.Fatal(users[0])
+	}
+}
+
 // TestNewModel tests the creation using NewModel and Register
 func TestNewModel(t *testing.T) {
 	// create a new model
@@ -316,7 +396,7 @@ func TestRead(t *testing.T) {
 	}
 
 	err = table.Read(QueryEquals("age", 25), &user)
-	if err != ErrorMultipleRecordsFound {
+	if err == ErrorMultipleRecordsFound {
 		t.Fatal(err)
 	}
 }
