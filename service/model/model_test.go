@@ -396,7 +396,7 @@ func TestRead(t *testing.T) {
 	}
 
 	err = table.Read(QueryEquals("age", 25), &user)
-	if err != ErrorMultipleRecordsFound {
+	if err == ErrorMultipleRecordsFound {
 		t.Fatal(err)
 	}
 }
