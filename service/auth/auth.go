@@ -36,6 +36,8 @@ const (
 	ScopePublic = ""
 	// ScopeAccount is the scope applied to a rule to limit to users with any valid account
 	ScopeAccount = "*"
+	// ScopeAnyNamespaceAccount is the scope applied to a rule to limit to users with any valid account regardless of issuer
+	ScopeAnyNamespaceAccount = "+"
 )
 
 // Account provided by an auth provider
