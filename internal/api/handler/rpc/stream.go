@@ -155,10 +155,10 @@ func serveWebsocket(ctx context.Context, w http.ResponseWriter, r *http.Request,
 
 	// check proto from request
 	switch ct {
-	case "application/json":
-		op = ws.OpText
-	default:
+	case "application/octet-stream":
 		op = ws.OpBinary
+	default:
+		op = ws.OpText
 	}
 
 	hdr := make(http.Header)
@@ -212,7 +212,7 @@ func serveWebsocket(ctx context.Context, w http.ResponseWriter, r *http.Request,
 	}()
 
 	var request interface{}
-	if !bytes.Equal(payload, []byte(`{}`)) {
+	if len(payload) > 0 && !bytes.Equal(payload, []byte(`{}`)) {
 		switch ct {
 		case "application/json", "":
 			m := json.RawMessage(payload)
@@ -287,7 +287,7 @@ func serveWebsocket(ctx context.Context, w http.ResponseWriter, r *http.Request,
 				}
 				return
 			}
-			if err = rw.Flush(); err != nil {
+			if err := rw.Flush(); err != nil {
 				if logger.V(logger.ErrorLevel, logger.DefaultLogger) {
 					logger.Error(err)
 				}
