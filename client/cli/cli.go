@@ -247,13 +247,15 @@ func initPrompt(ctx *cli.Context) string {
 
 	ns = fmt.Sprintf("\033[0;1m%s\033[0m", ns)
 	env = fmt.Sprintf("\033[0;1m%s\033[0m", env)
-	prompt = ns + "|" + env + " " + "\033[30;107;1mMicro>\033[0m" + " "
+	// prompt = ns + "|" + env + " " + "\033[30;107;1mMicro>\033[0m" + " "
 
 	if u == "" {
-		prompt = "\033[31;1mlogin\033[0m" + "|" + prompt
+		// prompt = "\033[31;1mlogin\033[0m" + "|" + prompt
+		prompt = ns + "://" + "\033[31;1m$user\033[0m" + "@" + env + "\033[0;1m/micro> \033[0m"
 	} else {
 		u = fmt.Sprintf("\033[32;1m%s\033[0m", u)
-		prompt = u + "|" + prompt
+		// prompt = u + "|" + prompt
+		prompt = ns + "://" + u + "@" + env + "\033[0;1m/micro> \033[0m"
 	}
 
 	return prompt
