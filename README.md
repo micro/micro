@@ -223,6 +223,12 @@ helloworld := pb.NewHelloworldService("helloworld", client.DefaultClient)
 rsp, err := helloworld.Call(context.Background(), &pb.Request{Name: "Alice"})
 ```
 
+Curl it via the API
+
+```
+curl http://localhost:8080/helloworld?name=Alice
+```
+
 ## Usage
 
 See the [docs](https://micro.mu) for detailed information on the architecture, installation and use of the platform.
