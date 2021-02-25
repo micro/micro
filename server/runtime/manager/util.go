@@ -246,7 +246,7 @@ func (m *manager) runtimeEnv(srv *runtime.Service, options *runtime.CreateOption
 	env := map[string]string{
 		// ensure a profile for the services isn't set, they
 		// should use the default RPC clients
-		"MICRO_PROFILE": "",
+		"MICRO_PROFILE": "service",
 		// pass the service's name and version
 		"MICRO_SERVICE_NAME":    srv.Name,
 		"MICRO_SERVICE_VERSION": srv.Version,
