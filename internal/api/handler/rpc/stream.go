@@ -177,7 +177,7 @@ func (s *stream) write() {
 		ticker.Stop()
 		s.conn.Close()
 	}()
-  
+
 	msgs := make(chan []byte)
 	go func() {
 		rsp := s.stream.Response()
