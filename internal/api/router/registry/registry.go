@@ -68,6 +68,20 @@ type registryRouter struct {
 	namespaces map[string]*namespaceEntry
 }
 
+func getDomain(srv *registry.Service) string {
+	// check the service metadata for domain
+	// TODO: domain as Domain field in registry?
+	if srv.Metadata != nil && len(srv.Metadata["domain"]) > 0 {
+		return srv.Metadata["domain"]
+	} else if len(srv.Nodes) > 0 && srv.Nodes[0].Metadata != nil {
+		return srv.Nodes[0].Metadata["domain"]
+	}
+
+	// otherwise return wildcard
+	// TODO: return GlobalDomain or PublicDomain
+	return registry.DefaultDomain
+}
+
 func (r *registryRouter) isClosed() bool {
 	select {
 	case <-r.exit:
@@ -118,10 +132,11 @@ func (r *registryRouter) refresh() {
 				r.Unlock()
 			}
 		}
-		// refresh list in 5 minutes... cruft
-		// use registry watching
+
+		// refresh the list every minute
+		// TODO: rely solely on watcher
 		select {
-		case <-time.After(time.Minute * 5):
+		case <-time.After(time.Minute):
 		case <-r.exit:
 			return
 		}
@@ -145,9 +160,16 @@ func (r *registryRouter) process(res *registry.Result) {
 		return
 	}
 
+	// only process if there's data
+	if len(service) == 0 {
+		return
+	}
+
+	// get te namespace
+	namespace := getDomain(service[0])
+
 	// update our local endpoints
-	// TODO, we currently only watch for registry changes in the default namespace
-	r.store(namespace.DefaultNamespace, service)
+	r.store(namespace, service)
 }
 
 // store local endpoint cache
@@ -286,7 +308,7 @@ func (r *registryRouter) watch() {
 		}
 
 		// watch for changes
-		w, err := r.opts.Registry.Watch()
+		w, err := r.opts.Registry.Watch(registry.WatchDomain(registry.WildcardDomain))
 		if err != nil {
 			attempts++
 			if logger.V(logger.ErrorLevel, logger.DefaultLogger) {
@@ -496,12 +518,6 @@ func (r *registryRouter) Route(req *http.Request) (*api.Service, error) {
 	}
 	// service name
 	name := rp.Name
-
-	r.refreshNamespace(rp.Domain)
-	// try to find a matching endpoint again
-	if ep, err := r.Endpoint(req); err == nil {
-		return ep, nil
-	}
 
 	// get service
 	services, err := r.rc.GetService(name, registry.GetDomain(rp.Domain))
