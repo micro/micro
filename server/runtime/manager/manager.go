@@ -55,6 +55,53 @@ func unique(stringSlice []string) []string {
 	return list
 }
 
+func (m *manager) checkServices() {
+	nss, err := m.listNamespaces()
+	if err != nil {
+		logger.Warnf("Error listing namespaces: %v", err)
+		return
+	}
+
+	for _, ns := range nss {
+		srvs, err := m.readServices(ns, &runtime.Service{})
+		if err != nil {
+			logger.Warnf("Error reading services from the %v namespace: %v", ns, err)
+			return
+		}
+
+		running := map[string]*runtime.Service{}
+		curr, _ := runtime.Read(runtime.ReadNamespace(ns))
+		for _, v := range curr {
+			running[v.Name+":"+v.Version] = v
+		}
+
+		for _, srv := range srvs {
+			// already running, don't need to start again
+			if _, ok := running[srv.Service.Name+":"+srv.Service.Version]; ok {
+				continue
+			}
+
+			// skip services which aren't running for a reason
+			if srv.Status == runtime.Error {
+				continue
+			}
+			if srv.Status == runtime.Building {
+				continue
+			}
+			if srv.Status == runtime.Stopped {
+				continue
+			}
+
+			// create the service
+			if err := m.createServiceInRuntime(srv); err != nil {
+				if logger.V(logger.ErrorLevel, logger.DefaultLogger) {
+					logger.Errorf("Error restarting service: %v", err)
+				}
+			}
+		}
+	}
+}
+
 // writeService to the store
 func (m *manager) writeService(srv *service) error {
 	bytes, err := json.Marshal(srv)
@@ -891,49 +938,17 @@ func (m *manager) Logs(resource runtime.Resource, opts ...runtime.LogsOption) (r
 	}
 }
 
+// watchServices periodically checks services and whether they need to be recreated
 func (m *manager) watchServices() {
-	nss, err := m.listNamespaces()
-	if err != nil {
-		logger.Warnf("Error listing namespaces: %v", err)
-		return
-	}
+	t := time.NewTicker(time.Second * 10)
+	defer t.Stop()
 
-	for _, ns := range nss {
-		srvs, err := m.readServices(ns, &runtime.Service{})
-		if err != nil {
-			logger.Warnf("Error reading services from the %v namespace: %v", ns, err)
+	for {
+		select {
+		case <-t.C:
+			m.checkServices()
+		case <-m.exit:
 			return
-		}
-
-		running := map[string]*runtime.Service{}
-		curr, _ := runtime.Read(runtime.ReadNamespace(ns))
-		for _, v := range curr {
-			running[v.Name+":"+v.Version] = v
-		}
-
-		for _, srv := range srvs {
-			// already running, don't need to start again
-			if _, ok := running[srv.Service.Name+":"+srv.Service.Version]; ok {
-				continue
-			}
-
-			// skip services which aren't running for a reason
-			if srv.Status == runtime.Error {
-				continue
-			}
-			if srv.Status == runtime.Building {
-				continue
-			}
-			if srv.Status == runtime.Stopped {
-				continue
-			}
-
-			// create the service
-			if err := m.createServiceInRuntime(srv); err != nil {
-				if logger.V(logger.ErrorLevel, logger.DefaultLogger) {
-					logger.Errorf("Error restarting service: %v", err)
-				}
-			}
 		}
 	}
 }
@@ -944,6 +959,12 @@ func (m *manager) Stop() error {
 		return nil
 	}
 	m.running = false
+
+	// ping to exit
+	select {
+	case m.exit <- true:
+	default:
+	}
 
 	return runtime.DefaultRuntime.Stop()
 }
@@ -956,6 +977,7 @@ func (m *manager) String() string {
 type manager struct {
 	// running is true after Start is called
 	running bool
+	exit    chan bool
 
 	runtime.Runtime
 }
@@ -963,6 +985,7 @@ type manager struct {
 // New returns a manager for the runtime
 func New() runtime.Runtime {
 	return &manager{
+		exit:    make(chan bool, 1),
 		Runtime: NewCache(runtime.DefaultRuntime),
 	}
 }
