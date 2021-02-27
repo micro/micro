@@ -42,7 +42,7 @@ func GetConfigSecretKey() (string, error) {
 			return "", err
 		}
 	}
-	logger.Infof("Loading config key from %v", key)
+	logger.Debugf("Loading config key from %v", key)
 	dat, err := ioutil.ReadFile(key)
 	if err != nil {
 		return "", err
@@ -51,7 +51,7 @@ func GetConfigSecretKey() (string, error) {
 }
 
 func setupConfigSecretKey(path string) error {
-	logger.Infof("Setting up config key to %v", path)
+	logger.Debugf("Setting up config key to %v", path)
 	bytes := make([]byte, 32) //generate a random 32 byte key for AES-256
 	if _, err := rand.Read(bytes); err != nil {
 		return err
@@ -77,7 +77,7 @@ func GetJWTCerts() ([]byte, []byte, error) {
 	privKey := filepath.Join(Dir, "id_rsa")
 	pubKey := filepath.Join(Dir, "id_rsa.pub")
 
-	logger.Infof("Loading keys %v and %v", privKey, pubKey)
+	logger.Debugf("Loading keys %v and %v", privKey, pubKey)
 	if !fileExists(privKey) || !fileExists(pubKey) {
 		err := setupKeys(privKey, pubKey)
 		if err != nil {
