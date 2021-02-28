@@ -123,10 +123,10 @@ type Metadata struct {
 
 // PodSpec is a pod
 type PodSpec struct {
-	Containers         []Container `json:"containers"`
-	RuntimeClassName   string      `json:"runtimeClassName"`
-	ServiceAccountName string      `json:"serviceAccountName"`
-	Volumes            []Volume    `json:"volumes"`
+	Containers         []Container `json:"containers,omitempty"`
+	RuntimeClassName   string      `json:"runtimeClassName,omitempty"`
+	ServiceAccountName string      `json:"serviceAccountName,omitempty"`
+	Volumes            []Volume    `json:"volumes,omitempty"`
 }
 
 // PodList
