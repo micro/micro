@@ -50,10 +50,10 @@ type endpoint struct {
 
 // namespaceEntry holds the services and endpoint regexs for a namespace
 type namespaceEntry struct {
+	sync.RWMutex
 	eps map[string]*api.Service
 	// compiled regexp for host and path
 	ceps map[string]*endpoint
-	sync.RWMutex
 }
 
 // router is the default router
@@ -63,6 +63,9 @@ type registryRouter struct {
 
 	// registry cache
 	rc cache.Cache
+
+	// refresh channel
+	refreshChan chan string
 
 	sync.RWMutex
 	namespaces map[string]*namespaceEntry
@@ -106,6 +109,13 @@ func (r *registryRouter) refreshNamespace(ns string) error {
 
 	// for each service, get service and store endpoints
 	for _, s := range services {
+		// if we have nodes then use them
+		if len(s.Nodes) > 0 {
+			ns = getDomain(s)
+			r.store(ns, []*registry.Service{s})
+			continue
+		}
+
 		service, err := r.rc.GetService(s.Name, registry.GetDomain(ns))
 		if err != nil {
 			if logger.V(logger.ErrorLevel, logger.DefaultLogger) {
@@ -113,17 +123,31 @@ func (r *registryRouter) refreshNamespace(ns string) error {
 			}
 			continue
 		}
-		r.store(ns, service)
+
+		// store each independently as if we have a wildcard query
+		// the domain for each service may differ
+		for _, srv := range service {
+			// get the namespace from the service
+			ns = getDomain(service[0])
+			r.store(ns, []*registry.Service{srv})
+		}
 	}
+
 	return nil
 }
 
 // refresh list of api services
 func (r *registryRouter) refresh() {
+	refreshed := make(map[string]time.Time)
+
+	// do first load
+	r.refreshNamespace(registry.WildcardDomain)
+
 	for {
 		r.RLock()
 		namespaces := r.namespaces
 		r.RUnlock()
+
 		for ns, _ := range namespaces {
 			err := r.refreshNamespace(ns)
 			if err == errEmptyNamespace {
@@ -136,6 +160,12 @@ func (r *registryRouter) refresh() {
 		// refresh the list every minute
 		// TODO: rely solely on watcher
 		select {
+		case domain := <-r.refreshChan:
+			v, ok := refreshed[domain]
+			if ok && time.Since(v) < time.Minute {
+				break
+			}
+			r.refreshNamespace(domain)
 		case <-time.After(time.Minute):
 		case <-r.exit:
 			return
@@ -228,6 +258,7 @@ func (r *registryRouter) store(namespace string, services []*registry.Service) {
 		r.namespaces[namespace] = nse
 	}
 	r.Unlock()
+
 	nse.Lock()
 	defer nse.Unlock()
 
@@ -519,6 +550,12 @@ func (r *registryRouter) Route(req *http.Request) (*api.Service, error) {
 	// service name
 	name := rp.Name
 
+	// trigger an endpoint refresh
+	select {
+	case r.refreshChan <- rp.Domain:
+	default:
+	}
+
 	// get service
 	services, err := r.rc.GetService(name, registry.GetDomain(rp.Domain))
 	if err != nil {
@@ -567,9 +604,10 @@ func (r *registryRouter) Route(req *http.Request) (*api.Service, error) {
 func newRouter(opts ...router.Option) *registryRouter {
 	options := router.NewOptions(opts...)
 	r := &registryRouter{
-		exit: make(chan bool),
-		opts: options,
-		rc:   cache.New(options.Registry),
+		exit:        make(chan bool),
+		refreshChan: make(chan string),
+		opts:        options,
+		rc:          cache.New(options.Registry),
 		namespaces: map[string]*namespaceEntry{
 			namespace.DefaultNamespace: &namespaceEntry{
 				eps:  make(map[string]*api.Service),
