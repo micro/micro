@@ -110,9 +110,9 @@ func (r *registryRouter) refreshNamespace(ns string) error {
 	// for each service, get service and store endpoints
 	for _, s := range services {
 		// if we have nodes then use them
-		if len(s.Nodes) > 0 {
-			ns = getDomain(s)
-			r.store(ns, []*registry.Service{s})
+		dns := getDomain(s)
+		if len(s.Nodes) > 0 && len(dns) > 0 {
+			r.store(dns, []*registry.Service{s})
 			continue
 		}
 
@@ -128,7 +128,7 @@ func (r *registryRouter) refreshNamespace(ns string) error {
 		// the domain for each service may differ
 		for _, srv := range service {
 			// get the namespace from the service
-			ns = getDomain(service[0])
+			ns = getDomain(srv)
 			r.store(ns, []*registry.Service{srv})
 		}
 	}
