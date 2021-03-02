@@ -30,6 +30,7 @@ import (
 	"github.com/micro/micro/v3/internal/router"
 	"github.com/micro/micro/v3/service/api"
 	"github.com/micro/micro/v3/service/client"
+	"github.com/micro/micro/v3/service/errors"
 	"github.com/micro/micro/v3/service/logger"
 )
 
@@ -111,13 +112,11 @@ func serveStream(ctx context.Context, w http.ResponseWriter, r *http.Request, se
 		return
 	}
 
-	if request != nil {
-		if err = stream.Send(request); err != nil {
-			if logger.V(logger.ErrorLevel, logger.DefaultLogger) {
-				logger.Error(err)
-			}
-			return
+	if err = stream.Send(request); err != nil {
+		if logger.V(logger.ErrorLevel, logger.DefaultLogger) {
+			logger.Error(err)
 		}
+		return
 	}
 
 	rsp := stream.Response()
@@ -140,9 +139,13 @@ func serveStream(ctx context.Context, w http.ResponseWriter, r *http.Request, se
 				if logger.V(logger.ErrorLevel, logger.DefaultLogger) {
 					logger.Error(err)
 				}
+				merr, ok := err.(*errors.Error)
+				if ok {
+					w.WriteHeader(int(merr.Code))
+					w.Write([]byte(merr.Error()))
+				}
 				return
 			}
-
 			// send the buffer
 			_, err = fmt.Fprint(w, string(buf))
 			if err != nil {
@@ -177,13 +180,17 @@ func (s *stream) write() {
 		ticker.Stop()
 		s.conn.Close()
 	}()
-  
+
 	msgs := make(chan []byte)
+	writeErrCh := make(chan struct{})
 	go func() {
+		// TODO sync this up so this closes as well as the write() func
 		rsp := s.stream.Response()
 		for {
 			bytes, err := rsp.Read()
 			if err != nil {
+				//s.conn.WriteMessage(websocket.CloseAbnormalClosure, []byte{})
+				//writeErrCh <- struct{}{}
 				return
 			}
 			msgs <- bytes
@@ -192,6 +199,8 @@ func (s *stream) write() {
 
 	for {
 		select {
+		case <-writeErrCh:
+			return
 		case <-s.ctx.Done():
 			return
 		case <-s.stream.Context().Done():
