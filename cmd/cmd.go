@@ -346,6 +346,11 @@ func (c *command) Before(ctx *cli.Context) error {
 		}
 	}
 
+	// certain commands don't require loading
+	if ctx.Args().First() == "env" {
+		return nil
+	}
+
 	// default the profile for the server
 	prof := ctx.String("profile")
 
