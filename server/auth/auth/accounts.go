@@ -153,6 +153,11 @@ func (a *Auth) ChangeSecret(ctx context.Context, req *pb.ChangeSecretRequest, rs
 		return err
 	}
 
+	callerAcc, ok := auth.AccountFromContext(ctx)
+	if !ok {
+		return errors.Unauthorized("auth.Accounts.ChangeSecret", "Unauthorized")
+	}
+
 	isAdmin := func(scopes []string) bool {
 		for _, scope := range scopes {
 			if scope == "admin" {
@@ -164,7 +169,7 @@ func (a *Auth) ChangeSecret(ctx context.Context, req *pb.ChangeSecretRequest, rs
 	// If the caller (acc) is a micro namespace admin account
 	// or the caller is a service, do not require the knowledge of the previous secret.
 	// This will enable both micro admins and services to change secrets on behalf of their users.
-	if !((acc.Issuer == namespace.DefaultNamespace && isAdmin(acc.Scopes)) || (acc.Type == "service" && acc.Issuer == req.Options.Namespace)) {
+	if !((callerAcc.Issuer == namespace.DefaultNamespace && isAdmin(callerAcc.Scopes)) || (callerAcc.Type == "service" && callerAcc.Issuer == req.Options.Namespace)) {
 		if !secretsMatch(acc.Secret, req.OldSecret) {
 			return errors.BadRequest("auth.Accounts.ChangeSecret", "Secret not correct")
 		}
