@@ -12,6 +12,7 @@ service Signup {
 	// Creates a subscription and an account
 	rpc CompleteSignup(CompleteSignupRequest) returns (CompleteSignupResponse);
 	rpc Recover(RecoverRequest) returns (RecoverResponse);
+	rpc ResetPassword(ResetPasswordRequest) returns (ResetPasswordResponse);
 }
 
 message SendVerificationEmailRequest {
@@ -101,3 +102,16 @@ message RecoverRequest {
 }
 
 message RecoverResponse {}
+
+message ResetPasswordRequest{
+	// account id, email or uuid usually
+	string id = 1;
+	string namespace = 2;
+	// token that was emailed or sent over SMS etc
+	// in case of a forgotten password
+	string token = 3;
+	// new secret/password for the account
+	string password = 4;
+}
+
+message ResetPasswordResponse {}
