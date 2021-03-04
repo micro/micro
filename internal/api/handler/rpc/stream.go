@@ -195,6 +195,7 @@ func (s *stream) processWSReadsAndWrites() {
 
 func (s *stream) clientToServerLoop(cancel context.CancelFunc, wg *sync.WaitGroup, stopCtx context.Context) {
 	defer func() {
+		s.conn.Close()
 		cancel()
 		wg.Done()
 	}()
