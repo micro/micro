@@ -346,6 +346,11 @@ func (c *command) Before(ctx *cli.Context) error {
 		}
 	}
 
+	// certain commands don't require loading
+	if ctx.Args().First() == "env" {
+		return nil
+	}
+
 	// default the profile for the server
 	prof := ctx.String("profile")
 
@@ -395,7 +400,6 @@ func (c *command) Before(ctx *cli.Context) error {
 	client.DefaultClient = wrapper.AuthClient(client.DefaultClient)
 	client.DefaultClient = wrapper.CacheClient(client.DefaultClient)
 	client.DefaultClient = wrapper.TraceCall(client.DefaultClient)
-	client.DefaultClient = wrapper.FromService(client.DefaultClient)
 	client.DefaultClient = wrapper.LogClient(client.DefaultClient)
 
 	// wrap the server
