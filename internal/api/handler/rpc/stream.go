@@ -113,6 +113,8 @@ func serveStream(ctx context.Context, w http.ResponseWriter, r *http.Request, se
 		return
 	}
 
+	// send request even if nil because it triggers the call in case server expects no input
+	// without this, we establish a connection but don't kick off the stream of communication
 	if err = stream.Send(request); err != nil {
 		if logger.V(logger.ErrorLevel, logger.DefaultLogger) {
 			logger.Error(err)
