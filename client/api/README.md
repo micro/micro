@@ -1,4 +1,4 @@
-# Readme
+# OpenAPI
 
 This directory contains OpenAPI clients for the micro api.
 
