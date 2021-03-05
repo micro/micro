@@ -8,7 +8,7 @@ The micro api is an api gateway which converts http/json to rpc. This means we c
 while using gRPC and protobuf on the backend. OpenAPI (previously Swagger) is an open standard for API definitions and usage. 
 We provide specs based on the micro proto definitions.
 
-OpenAPI Specs
+Specs
 =============
 
 Services
