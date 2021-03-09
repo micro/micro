@@ -21,6 +21,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"strings"
 	"sync"
@@ -135,6 +136,10 @@ func serveStream(ctx context.Context, w http.ResponseWriter, r *http.Request, se
 			// read backend response body
 			buf, err := rsp.Read()
 			if err != nil {
+				// clean exit
+				if err == io.EOF {
+					return
+				}
 				// wants to avoid import  grpc/status.Status
 				if strings.Contains(err.Error(), "context canceled") {
 					return
@@ -255,6 +260,10 @@ func (s *stream) rspToBufLoop(cancel context.CancelFunc, wg *sync.WaitGroup, sto
 		}
 		bytes, err := rsp.Read()
 		if err != nil {
+			if err == io.EOF {
+				// clean exit
+				return
+			}
 			s.conn.WriteMessage(websocket.CloseAbnormalClosure, []byte{})
 			return
 		}
