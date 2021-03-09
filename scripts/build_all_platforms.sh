@@ -1,6 +1,6 @@
 #!/bin/bash
 set -e
-builds=("windows,amd64" "windows,386" "linux,arm64" "linux,386" "linux,amd64" "linux,arm" "darwin,amd64" "darwin,386")
+builds=("windows,amd64" "windows,386" "linux,arm64" "linux,386" "linux,amd64" "linux,arm" "darwin,amd64")
 
 for build in ${builds[@]}; do
   IFS=',' read -r -a array <<< "$build"
