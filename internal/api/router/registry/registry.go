@@ -76,8 +76,11 @@ func getDomain(srv *registry.Service) string {
 	// TODO: domain as Domain field in registry?
 	if srv.Metadata != nil && len(srv.Metadata["domain"]) > 0 {
 		return srv.Metadata["domain"]
-	} else if len(srv.Nodes) > 0 && srv.Nodes[0].Metadata != nil && len(srv.Nodes[0].Metadata["domain"]) > 0 {
-		return srv.Nodes[0].Metadata["domain"]
+	} else if nodes := srv.Nodes; len(nodes) > 0 && nodes[0].Metadata != nil {
+		// only return the domain if its set
+		if len(nodes[0].Metadata["domain"]) > 0 {
+			return nodes[0].Metadata["domain"]
+		}
 	}
 
 	// otherwise return wildcard
@@ -163,7 +166,7 @@ func (r *registryRouter) refresh() {
 		case domain := <-r.refreshChan:
 			v, ok := refreshed[domain]
 			if ok && time.Since(v) < time.Minute {
-				continue
+				break
 			}
 			r.refreshNamespace(domain)
 		case <-time.After(time.Minute):
