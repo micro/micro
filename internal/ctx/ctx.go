@@ -36,5 +36,8 @@ func FromRequest(r *http.Request) context.Context {
 	md["Host"] = r.Host
 	// pass http method
 	md["Method"] = r.Method
+	if r.URL != nil {
+		md["URL"] = r.URL.String()
+	}
 	return metadata.NewContext(ctx, md)
 }
