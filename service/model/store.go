@@ -410,7 +410,6 @@ func (d *model) Read(query Query, resultPointer interface{}) error {
 	// which applies to the same field regardless of ordering
 	// or padding etc.
 	for _, index := range append(d.options.Indexes, d.idIndex) {
-		fmt.Println(index.FieldName, query.FieldName)
 		if index.FieldName == query.FieldName {
 			return read(index)
 		}
