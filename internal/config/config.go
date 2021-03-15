@@ -8,6 +8,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"sync"
 
@@ -81,11 +82,12 @@ func Set(path, value string) error {
 		return err
 	}
 	// acquire lock
-	if err := lock.Lock(); err != nil {
-		return err
+	if !strings.Contains(runtime.GOOS, "windows") {
+		if err := lock.Lock(); err != nil {
+			return err
+		}
+		defer lock.Unlock()
 	}
-	defer lock.Unlock()
-
 	// set the value
 	config.Set(path, value)
 

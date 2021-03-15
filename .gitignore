@@ -36,3 +36,4 @@ dist
 *.bak
 
 test/services
+.idea
