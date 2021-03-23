@@ -78,6 +78,10 @@ func serveStream(ctx context.Context, w http.ResponseWriter, r *http.Request, se
 		}
 		return
 	}
+	if len(payload) == 0 {
+		// make it valid json
+		payload = []byte("{}")
+	}
 
 	var request interface{}
 	if !bytes.Equal(payload, []byte(`{}`)) {
