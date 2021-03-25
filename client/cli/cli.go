@@ -87,7 +87,7 @@ func init() {
 		},
 		&cli.Command{
 			Name:   "call",
-			Usage:  `Call a service e.g micro call greeter Say.Hello '{"name": "John"}'`,
+			Usage:  `Call a service e.g micro call greeter Say.Hello {"name": "John"}`,
 			Action: util.Print(callService),
 			Flags: []cli.Flag{
 				&cli.StringFlag{
@@ -113,7 +113,7 @@ func init() {
 		},
 		&cli.Command{
 			Name:   "stream",
-			Usage:  `Create a service stream e.g. micro stream foo Bar.Baz '{"key": "value"}'`,
+			Usage:  `Create a service stream e.g. micro stream foo Bar.Baz {"key": "value"}`,
 			Action: util.Print(streamService),
 			Flags: []cli.Flag{
 				&cli.StringFlag{
