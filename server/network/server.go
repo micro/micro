@@ -20,7 +20,6 @@ import (
 	"github.com/micro/micro/v3/service/proxy"
 	grpcProxy "github.com/micro/micro/v3/service/proxy/grpc"
 	mucpProxy "github.com/micro/micro/v3/service/proxy/mucp"
-	muregistry "github.com/micro/micro/v3/service/registry"
 	"github.com/micro/micro/v3/service/router"
 	"github.com/micro/micro/v3/service/server"
 	mucpServer "github.com/micro/micro/v3/service/server/mucp"
@@ -137,9 +136,7 @@ func Run(ctx *cli.Context) error {
 	rtr.Init(
 		router.Network(networkName),
 		router.Id(id),
-		router.Registry(muregistry.DefaultRegistry),
 		router.Gateway(gateway),
-		router.Cache(),
 	)
 
 	// create new network

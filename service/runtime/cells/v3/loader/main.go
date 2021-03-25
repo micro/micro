@@ -4,6 +4,8 @@ import (
 	"io"
 	"os"
 	"os/exec"
+	"os/signal"
+	"syscall"
 
 	runtime "github.com/micro/micro/v3/proto/runtime"
 	"github.com/micro/micro/v3/service"
@@ -56,14 +58,27 @@ func main() {
 		logger.Fatalf("Error closing the file: %v", err)
 	}
 
+	// be notified of kill signals
+	sigChan := make(chan os.Signal, 1)
+	signal.Notify(sigChan, syscall.SIGTERM, syscall.SIGINT, syscall.SIGQUIT, syscall.SIGKILL)
+
 	// execute the binary
 	logger.Info("Starting service")
 	cmd := exec.Command("./service")
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
+
 	if err := cmd.Start(); err != nil {
 		logger.Fatalf("Error starting service: %v", err)
 	}
+
+	// kill the service if we receive a kill signal
+	go func() {
+		sig := <-sigChan
+		if cmd.Process != nil {
+			cmd.Process.Signal(sig)
+		}
+	}()
 
 	if err = cmd.Wait(); err != nil {
 		logger.Fatalf("Service exited: %v", err)

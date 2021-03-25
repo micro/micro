@@ -50,10 +50,10 @@ type endpoint struct {
 
 // namespaceEntry holds the services and endpoint regexs for a namespace
 type namespaceEntry struct {
+	sync.RWMutex
 	eps map[string]*api.Service
 	// compiled regexp for host and path
 	ceps map[string]*endpoint
-	sync.RWMutex
 }
 
 // router is the default router
@@ -64,8 +64,28 @@ type registryRouter struct {
 	// registry cache
 	rc cache.Cache
 
+	// refresh channel
+	refreshChan chan string
+
 	sync.RWMutex
 	namespaces map[string]*namespaceEntry
+}
+
+func getDomain(srv *registry.Service) string {
+	// check the service metadata for domain
+	// TODO: domain as Domain field in registry?
+	if srv.Metadata != nil && len(srv.Metadata["domain"]) > 0 {
+		return srv.Metadata["domain"]
+	} else if nodes := srv.Nodes; len(nodes) > 0 && nodes[0].Metadata != nil {
+		// only return the domain if its set
+		if len(nodes[0].Metadata["domain"]) > 0 {
+			return nodes[0].Metadata["domain"]
+		}
+	}
+
+	// otherwise return wildcard
+	// TODO: return GlobalDomain or PublicDomain
+	return registry.DefaultDomain
 }
 
 func (r *registryRouter) isClosed() bool {
@@ -92,6 +112,13 @@ func (r *registryRouter) refreshNamespace(ns string) error {
 
 	// for each service, get service and store endpoints
 	for _, s := range services {
+		// if we have nodes then use them
+		dns := getDomain(s)
+		if len(s.Nodes) > 0 && len(dns) > 0 {
+			r.store(dns, []*registry.Service{s})
+			continue
+		}
+
 		service, err := r.rc.GetService(s.Name, registry.GetDomain(ns))
 		if err != nil {
 			if logger.V(logger.ErrorLevel, logger.DefaultLogger) {
@@ -99,17 +126,31 @@ func (r *registryRouter) refreshNamespace(ns string) error {
 			}
 			continue
 		}
-		r.store(ns, service)
+
+		// store each independently as if we have a wildcard query
+		// the domain for each service may differ
+		for _, srv := range service {
+			// get the namespace from the service
+			ns = getDomain(srv)
+			r.store(ns, []*registry.Service{srv})
+		}
 	}
+
 	return nil
 }
 
 // refresh list of api services
 func (r *registryRouter) refresh() {
+	refreshed := make(map[string]time.Time)
+
+	// do first load
+	r.refreshNamespace(registry.WildcardDomain)
+
 	for {
 		r.RLock()
 		namespaces := r.namespaces
 		r.RUnlock()
+
 		for ns, _ := range namespaces {
 			err := r.refreshNamespace(ns)
 			if err == errEmptyNamespace {
@@ -118,10 +159,17 @@ func (r *registryRouter) refresh() {
 				r.Unlock()
 			}
 		}
-		// refresh list in 5 minutes... cruft
-		// use registry watching
+
+		// refresh the list every minute
+		// TODO: rely solely on watcher
 		select {
-		case <-time.After(time.Minute * 5):
+		case domain := <-r.refreshChan:
+			v, ok := refreshed[domain]
+			if ok && time.Since(v) < time.Minute {
+				break
+			}
+			r.refreshNamespace(domain)
+		case <-time.After(time.Minute):
 		case <-r.exit:
 			return
 		}
@@ -145,9 +193,16 @@ func (r *registryRouter) process(res *registry.Result) {
 		return
 	}
 
+	// only process if there's data
+	if len(service) == 0 {
+		return
+	}
+
+	// get te namespace
+	namespace := getDomain(service[0])
+
 	// update our local endpoints
-	// TODO, we currently only watch for registry changes in the default namespace
-	r.store(namespace.DefaultNamespace, service)
+	r.store(namespace, service)
 }
 
 // store local endpoint cache
@@ -206,6 +261,7 @@ func (r *registryRouter) store(namespace string, services []*registry.Service) {
 		r.namespaces[namespace] = nse
 	}
 	r.Unlock()
+
 	nse.Lock()
 	defer nse.Unlock()
 
@@ -286,7 +342,7 @@ func (r *registryRouter) watch() {
 		}
 
 		// watch for changes
-		w, err := r.opts.Registry.Watch()
+		w, err := r.opts.Registry.Watch(registry.WatchDomain(registry.WildcardDomain))
 		if err != nil {
 			attempts++
 			if logger.V(logger.ErrorLevel, logger.DefaultLogger) {
@@ -497,10 +553,10 @@ func (r *registryRouter) Route(req *http.Request) (*api.Service, error) {
 	// service name
 	name := rp.Name
 
-	r.refreshNamespace(rp.Domain)
-	// try to find a matching endpoint again
-	if ep, err := r.Endpoint(req); err == nil {
-		return ep, nil
+	// trigger an endpoint refresh
+	select {
+	case r.refreshChan <- rp.Domain:
+	default:
 	}
 
 	// get service
@@ -551,9 +607,10 @@ func (r *registryRouter) Route(req *http.Request) (*api.Service, error) {
 func newRouter(opts ...router.Option) *registryRouter {
 	options := router.NewOptions(opts...)
 	r := &registryRouter{
-		exit: make(chan bool),
-		opts: options,
-		rc:   cache.New(options.Registry),
+		exit:        make(chan bool),
+		refreshChan: make(chan string),
+		opts:        options,
+		rc:          cache.New(options.Registry),
 		namespaces: map[string]*namespaceEntry{
 			namespace.DefaultNamespace: &namespaceEntry{
 				eps:  make(map[string]*api.Service),
