@@ -134,6 +134,10 @@ func (c *Converter) convert(req *plugin.CodeGeneratorRequest) (*plugin.CodeGener
 
 		if _, ok := generateTargets[file.GetName()]; ok {
 			logger.Debugf("Converting file (%s)", file.GetName())
+
+			// set the name based on the file we're processing
+			c.microServiceName = protoServiceName(file.GetPackage())
+
 			if err := c.convertFile(file); err != nil {
 				res.Error = proto.String(fmt.Sprintf("Failed to convert %s: %v", file.GetName(), err))
 				return res, err
