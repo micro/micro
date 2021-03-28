@@ -5,7 +5,7 @@ var (
 
 package {{dehyphen .Alias}};
 
-option go_package = "proto;{{dehyphen .Alias}}";
+option go_package = "./proto;{{dehyphen .Alias}}";
 
 service {{title .Alias}} {
 	rpc Call(Request) returns (Response) {}
