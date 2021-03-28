@@ -86,8 +86,8 @@ Before interacting with the `micro server`, we need to log in with the id 'admin
 
 ```sh
 $ micro login
-Enter email address: admin
-Enter Password:
+Enter username: admin
+Enter password:
 Successfully logged in.
 ```
 
