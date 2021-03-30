@@ -1,4 +1,4 @@
-# Micro [![License](https://img.shields.io/badge/license-polyform:shield-blue)](https://polyformproject.org/licenses/shield/1.0.0/) [![Go Report Card](https://goreportcard.com/badge/micro/micro)](https://goreportcard.com/report/github.com/micro/micro)
+# Micro [![License](https://img.shields.io/badge/license-polyform:shield-blue)](https://polyformproject.org/licenses/shield/1.0.0/) [![Go Report Card](https://goreportcard.com/badge/micro/micro)](https://goreportcard.com/report/github.com/micro/micro) [![Slack](https://img.shields.io/badge/slack-join-yellow)](https://slack.m3o.com/)
 
 <kbd><img src="https://raw.githubusercontent.com/micro/micro/master/docs/images/banner.png" /></kbd>
 
