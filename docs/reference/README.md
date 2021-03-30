@@ -421,8 +421,8 @@ To login to a server simply so the following
 
 ```
 $ micro login
-Enter email address: admin
-Enter Password: 
+Enter username: admin
+Enter password: 
 Successfully logged in.
 ```
 
