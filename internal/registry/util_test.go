@@ -21,6 +21,61 @@ import (
 	"github.com/micro/micro/v3/service/registry"
 )
 
+func TestMerge(t *testing.T) {
+	services1 := []*registry.Service{
+		{
+			Name:    "foo",
+			Version: "1.0.0",
+			Nodes: []*registry.Node{
+				{
+					Id:      "foo-123",
+					Address: "localhost:9999",
+				},
+			},
+		},
+		{
+			Name:    "foo",
+			Version: "2.0.0",
+			Nodes: []*registry.Node{
+				{
+					Id:      "foo-123",
+					Address: "localhost:6666",
+				},
+			},
+		},
+	}
+	services2 := []*registry.Service{
+		{
+			Name:    "foo",
+			Version: "2.0.0",
+			Nodes: []*registry.Node{
+				{
+					Id:      "foo-123",
+					Address: "localhost:9999",
+				},
+			},
+		},
+		{
+			Name:    "foo",
+			Version: "3.0.0",
+			Nodes: []*registry.Node{
+				{
+					Id:      "foo-123",
+					Address: "localhost:6666",
+				},
+			},
+		},
+	}
+	services := Merge(services1, services2)
+
+	if i := len(services); i != 3 {
+		t.Errorf("Expected 3 nodes, got %d: %+v", i, services)
+	}
+	if len(os.Getenv("IN_TRAVIS_CI")) == 0 {
+		t.Logf("Services %+v", services)
+	}
+}
+
 func TestRemove(t *testing.T) {
 	services := []*registry.Service{
 		{

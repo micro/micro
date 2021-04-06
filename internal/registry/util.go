@@ -102,35 +102,25 @@ func Copy(current []*registry.Service) []*registry.Service {
 }
 
 // Merge merges two lists of services and returns a new copy
-func Merge(olist []*registry.Service, nlist []*registry.Service) []*registry.Service {
-	var srv []*registry.Service
+func Merge(olist, nlist []*registry.Service) []*registry.Service {
+	services := Copy(nlist)
 
-	for _, n := range nlist {
+	for _, n := range olist {
 		var seen bool
-		for _, o := range olist {
+		for _, o := range services {
 			if o.Version == n.Version {
-				sp := new(registry.Service)
-				// make copy
-				*sp = *o
-				// set nodes
-				sp.Nodes = addNodes(o.Nodes, n.Nodes)
-
-				// mark as seen
 				seen = true
-				srv = append(srv, sp)
 				break
-			} else {
-				sp := new(registry.Service)
-				// make copy
-				*sp = *o
-				srv = append(srv, sp)
 			}
 		}
+
 		if !seen {
-			srv = append(srv, Copy([]*registry.Service{n})...)
+			//services = append(services, Copy([]*registry.Service{n})...)
+			services = append(services, CopyService(n))
 		}
 	}
-	return srv
+
+	return services
 }
 
 // Remove removes services and returns a new copy
